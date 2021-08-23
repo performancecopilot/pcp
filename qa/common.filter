@@ -256,6 +256,7 @@ _filter_optional_pmdas()
 	-e '/pmdabcc/d' \
 	-e '/pmdabind2/d' \
 	-e '/pmdabonding/d' \
+	-e '/pmdabpf/d' \
 	-e '/pmdabpftrace/d' \
 	-e '/pmdabrocade/d' \
 	-e '/pmdacisco/d' \
@@ -396,6 +397,7 @@ _filter_optional_pmda_instances()
 	-e '/inst \[149 or "bcc"]/d' \
         -e '/inst \[152 or "netcheck"]/d' \
 	-e '/inst \[154 or "sockets"]/d' \
+	-e '/inst \[157 or "bpf"]/d' \
 	-e '/inst \[250 or "trivial"]/d' \
 
     # end
@@ -415,6 +417,7 @@ _filter_top_pmns()
 	-e '/^    bcc /d' \
 	-e '/^    bind2 /d' \
 	-e '/^    bonding /d' \
+	-e '/^    bpf /d' \
 	-e '/^    bpftrace /d' \
 	-e '/^    brocade /d' \
 	-e '/^    broken /d' \

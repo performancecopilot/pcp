@@ -168,6 +168,9 @@ _hunt_qa()
 	common.bcc)
 	    _tests='-g pmda.bcc'
 	    ;;
+	common.bpf)
+	    _tests='-g pmda.bpf'
+	    ;;
 	ganglia/*)
 	    _tests='-g ganglia2pcp'
 	    ;;

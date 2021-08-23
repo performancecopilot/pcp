@@ -201,6 +201,7 @@ pmda.apache
 pmda.bash
 pmda.bcc
 pmda.bind2
+pmda.bpf
 pmda.bpftrace
 pmda.cifs
 pmda.cisco
@@ -1938,8 +1939,10 @@ x11
 1876 pmcd secure local
 1886 pmseries libpcp_web local
 1893 pmda.proc local
+1895 pmda.bpf local
 1896 pmlogger logutil pmlc local
 1897 pmda.hacluster local valgrind
+1898 pmda.bpf local
 1899 fetch local
 1901 pmlogger local
 1902 help local

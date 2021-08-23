@@ -1,0 +1,15 @@
+domain.h
+exports
+pmdabpf
+pmda_bpf.so
+modules/*.so
+
+dict.c
+dict.h
+ini.c
+ini.h
+sds.c
+sds.h
+siphash.c
+siphash.o
+

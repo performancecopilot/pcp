@@ -778,12 +778,6 @@ ncursesw_CFLAGS
 HAVE_NCURSES
 ncurses_LIBS
 ncurses_CFLAGS
-HAVE_LIBELF
-libelf_LIBS
-libelf_CFLAGS
-HAVE_LIBBPF
-libbpf_LIBS
-libbpf_CFLAGS
 HAVE_LIBUV
 libuv_LIBS
 libuv_CFLAGS
@@ -827,6 +821,8 @@ bzip2
 BZIP2
 gzip
 ZIP
+bpf_llvm_strip
+bpf_clang
 tar
 TAR
 pcp_group_install
@@ -860,6 +856,14 @@ enable_perl
 pcp_perl_prog
 PERL
 PMDA_BPFTRACE
+PMDA_BPF
+HAVE_LIBELF
+libelf_LIBS
+libelf_CFLAGS
+HAVE_LIBBPF
+libbpf_LIBS
+libbpf_CFLAGS
+CLANG_MAJOR_VERSION
 PMDA_BCC
 PMDA_JSON
 have_python_influxdb
@@ -1037,6 +1041,9 @@ with_perfevent
 with_pmdastatsd
 with_pmdapodman
 with_pmdabcc
+with_pmdabpf
+with_pmdabpf_clang
+with_pmdabpf_llvm_strip
 with_pmdabpftrace
 with_pmdajson
 with_pmdanutcracker
@@ -1085,14 +1092,14 @@ avahi_CFLAGS
 avahi_LIBS
 SYSTEMD_TMPFILESDIR
 SYSTEMD_SYSTEMUNITDIR
-openssl_CFLAGS
-openssl_LIBS
-libuv_CFLAGS
-libuv_LIBS
 libbpf_CFLAGS
 libbpf_LIBS
 libelf_CFLAGS
 libelf_LIBS
+openssl_CFLAGS
+openssl_LIBS
+libuv_CFLAGS
+libuv_LIBS
 ncurses_CFLAGS
 ncurses_LIBS
 ncursesw_CFLAGS
@@ -1774,6 +1781,10 @@ Optional Packages:
   --with-pmdastatsd       enable statds pmda (default is on)
   --with-pmdapodman       enable podman pmda (default is on)
   --with-pmdabcc          enable BCC pmda (default is on)
+  --with-pmdabpf          enable BPF pmda (default is on)
+  --with-pmdabpf-clang    path to clang 10+ (default is 'clang')
+  --with-pmdabpf-llvm-strip
+                          path to llvm-strip 10+ (default is 'llvm-strip')
   --with-pmdabpftrace     enable bpftrace pmda (default is on)
   --with-pmdajson         enable JSON pmda (default is on)
   --with-pmdanutcracker   enable nutcracker pmda (default is on)
@@ -1834,6 +1845,12 @@ Some influential environment variables:
               value of tmpfilesdir for systemd, overriding pkg-config
   SYSTEMD_SYSTEMUNITDIR
               value of systemdsystemunitdir for systemd, overriding pkg-config
+  libbpf_CFLAGS
+              C compiler flags for libbpf, overriding pkg-config
+  libbpf_LIBS linker flags for libbpf, overriding pkg-config
+  libelf_CFLAGS
+              C compiler flags for libelf, overriding pkg-config
+  libelf_LIBS linker flags for libelf, overriding pkg-config
   openssl_CFLAGS
               C compiler flags for openssl, overriding pkg-config
   openssl_LIBS
@@ -1841,12 +1858,6 @@ Some influential environment variables:
   libuv_CFLAGS
               C compiler flags for libuv, overriding pkg-config
   libuv_LIBS  linker flags for libuv, overriding pkg-config
-  libbpf_CFLAGS
-              C compiler flags for libbpf, overriding pkg-config
-  libbpf_LIBS linker flags for libbpf, overriding pkg-config
-  libelf_CFLAGS
-              C compiler flags for libelf, overriding pkg-config
-  libelf_LIBS linker flags for libelf, overriding pkg-config
   ncurses_CFLAGS
               C compiler flags for ncurses, overriding pkg-config
   ncurses_LIBS
@@ -2937,6 +2948,33 @@ if test "${with_pmdabcc+set}" = set; then :
   withval=$with_pmdabcc; do_pmdabcc=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabcc=$withval"
 else
   do_pmdabcc=check
+fi
+
+
+
+# Check whether --with-pmdabpf was given.
+if test "${with_pmdabpf+set}" = set; then :
+  withval=$with_pmdabpf; do_pmdabpf=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpf=$withval"
+else
+  do_pmdabpf=check
+fi
+
+
+
+# Check whether --with-pmdabpf-clang was given.
+if test "${with_pmdabpf_clang+set}" = set; then :
+  withval=$with_pmdabpf_clang; BPF_CLANG=$withval
+else
+  BPF_CLANG='clang'
+fi
+
+
+
+# Check whether --with-pmdabpf-llvm-strip was given.
+if test "${with_pmdabpf_llvm_strip+set}" = set; then :
+  withval=$with_pmdabpf_llvm_strip; BPF_LLVM_STRIP=$withval
+else
+  BPF_LLVM_STRIP='llvm-strip'
 fi
 
 
@@ -8003,6 +8041,183 @@ if $pmda_bcc; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }; fi
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking clang major version installed" >&5
+$as_echo_n "checking clang major version installed... " >&6; }
+clang_major_version=`llvm-config --version | cut -f1 -d.`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $clang_major_version" >&5
+$as_echo "$clang_major_version" >&6; }
+CLANG_MAJOR_VERSION=$clang_major_version
+
+
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for libbpf" >&5
+$as_echo_n "checking for libbpf... " >&6; }
+
+if test -n "$libbpf_CFLAGS"; then
+    pkg_cv_libbpf_CFLAGS="$libbpf_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libbpf >= 0.2.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libbpf >= 0.2.0") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libbpf_CFLAGS=`$PKG_CONFIG --cflags "libbpf >= 0.2.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$libbpf_LIBS"; then
+    pkg_cv_libbpf_LIBS="$libbpf_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libbpf >= 0.2.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libbpf >= 0.2.0") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libbpf_LIBS=`$PKG_CONFIG --libs "libbpf >= 0.2.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        libbpf_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libbpf >= 0.2.0" 2>&1`
+        else
+	        libbpf_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libbpf >= 0.2.0" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$libbpf_PKG_ERRORS" >&5
+
+	have_libbpf=false
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	have_libbpf=false
+else
+	libbpf_CFLAGS=$pkg_cv_libbpf_CFLAGS
+	libbpf_LIBS=$pkg_cv_libbpf_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	have_libbpf=true
+fi
+HAVE_LIBBPF=$have_libbpf
+
+
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for libelf" >&5
+$as_echo_n "checking for libelf... " >&6; }
+
+if test -n "$libelf_CFLAGS"; then
+    pkg_cv_libelf_CFLAGS="$libelf_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libelf\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libelf") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libelf_CFLAGS=`$PKG_CONFIG --cflags "libelf" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$libelf_LIBS"; then
+    pkg_cv_libelf_LIBS="$libelf_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libelf\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libelf") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libelf_LIBS=`$PKG_CONFIG --libs "libelf" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        libelf_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libelf" 2>&1`
+        else
+	        libelf_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libelf" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$libelf_PKG_ERRORS" >&5
+
+	have_libelf=false
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	have_libelf=false
+else
+	libelf_CFLAGS=$pkg_cv_libelf_CFLAGS
+	libelf_LIBS=$pkg_cv_libelf_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	have_libelf=true
+fi
+HAVE_LIBELF=$have_libelf
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if the bpf PMDA should be included" >&5
+$as_echo_n "checking if the bpf PMDA should be included... " >&6; }
+pmda_bpf=false
+if test "x$do_pmdabpf" = "xyes"; then :
+  pmda_bpf=true
+fi
+if test "x$do_pmdabpf" = "xcheck"; then :
+
+        if test $clang_major_version -ge 10; then
+        $have_libbpf && $have_libelf && pmda_bpf=true
+    else
+        pmda_bpf=false
+    fi
+
+fi
+PMDA_BPF=$pmda_bpf
+
+if $pmda_bpf; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }; fi
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if the bpftrace PMDA should be included" >&5
 $as_echo_n "checking if the bpftrace PMDA should be included... " >&6; }
 pmda_bpftrace=false
@@ -8868,6 +9083,14 @@ then
 fi
 tar=$TAR
 
+
+bpf_clang=$BPF_CLANG
+
+echo "using BPF clang at $bpf_clang"
+
+bpf_llvm_strip=$BPF_LLVM_STRIP
+
+echo "using BPF llvm-strip at $bpf_llvm_strip"
 
 if test -z "$ZIP"; then
     # Extract the first word of "gzip", so it can be a program name with args.
@@ -10910,154 +11133,6 @@ $as_echo "#define HAVE_UV_PIPE_CHMOD 1" >>confdefs.h
 else
   have_uv_pipe_chmod=false
 fi
-
-
-
-pkg_failed=no
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for libbpf" >&5
-$as_echo_n "checking for libbpf... " >&6; }
-
-if test -n "$libbpf_CFLAGS"; then
-    pkg_cv_libbpf_CFLAGS="$libbpf_CFLAGS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libbpf\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libbpf") 2>&5
-  ac_status=$?
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-  pkg_cv_libbpf_CFLAGS=`$PKG_CONFIG --cflags "libbpf" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes
-else
-  pkg_failed=yes
-fi
- else
-    pkg_failed=untried
-fi
-if test -n "$libbpf_LIBS"; then
-    pkg_cv_libbpf_LIBS="$libbpf_LIBS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libbpf\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libbpf") 2>&5
-  ac_status=$?
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-  pkg_cv_libbpf_LIBS=`$PKG_CONFIG --libs "libbpf" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes
-else
-  pkg_failed=yes
-fi
- else
-    pkg_failed=untried
-fi
-
-
-
-if test $pkg_failed = yes; then
-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-
-if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
-        _pkg_short_errors_supported=yes
-else
-        _pkg_short_errors_supported=no
-fi
-        if test $_pkg_short_errors_supported = yes; then
-	        libbpf_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libbpf" 2>&1`
-        else
-	        libbpf_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libbpf" 2>&1`
-        fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$libbpf_PKG_ERRORS" >&5
-
-	have_libbpf=false
-elif test $pkg_failed = untried; then
-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-	have_libbpf=false
-else
-	libbpf_CFLAGS=$pkg_cv_libbpf_CFLAGS
-	libbpf_LIBS=$pkg_cv_libbpf_LIBS
-        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-	have_libbpf=true
-fi
-HAVE_LIBBPF=$have_libbpf
-
-
-
-pkg_failed=no
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for libelf" >&5
-$as_echo_n "checking for libelf... " >&6; }
-
-if test -n "$libelf_CFLAGS"; then
-    pkg_cv_libelf_CFLAGS="$libelf_CFLAGS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libelf\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libelf") 2>&5
-  ac_status=$?
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-  pkg_cv_libelf_CFLAGS=`$PKG_CONFIG --cflags "libelf" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes
-else
-  pkg_failed=yes
-fi
- else
-    pkg_failed=untried
-fi
-if test -n "$libelf_LIBS"; then
-    pkg_cv_libelf_LIBS="$libelf_LIBS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libelf\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libelf") 2>&5
-  ac_status=$?
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-  pkg_cv_libelf_LIBS=`$PKG_CONFIG --libs "libelf" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes
-else
-  pkg_failed=yes
-fi
- else
-    pkg_failed=untried
-fi
-
-
-
-if test $pkg_failed = yes; then
-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-
-if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
-        _pkg_short_errors_supported=yes
-else
-        _pkg_short_errors_supported=no
-fi
-        if test $_pkg_short_errors_supported = yes; then
-	        libelf_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libelf" 2>&1`
-        else
-	        libelf_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libelf" 2>&1`
-        fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$libelf_PKG_ERRORS" >&5
-
-	have_libelf=false
-elif test $pkg_failed = untried; then
-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-	have_libelf=false
-else
-	libelf_CFLAGS=$pkg_cv_libelf_CFLAGS
-	libelf_LIBS=$pkg_cv_libelf_LIBS
-        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-	have_libelf=true
-fi
-HAVE_LIBELF=$have_libelf
 
 
 
