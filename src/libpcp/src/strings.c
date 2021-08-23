@@ -70,7 +70,7 @@ pmsprintf(char *str, size_t size, const char *fmt, ...)
  *
  * Returns strlen(buf).
  */
-size_t
+ssize_t
 pmfstring(FILE *f, char **str)
 {
     char	*buf = NULL;
@@ -124,7 +124,7 @@ pmfstring(FILE *f, char **str)
     }
 
     *str = buf_tmp;
-    return i;
+    return (ssize_t)i;
 }
 
 /*

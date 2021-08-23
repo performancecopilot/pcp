@@ -800,7 +800,7 @@ PCP_CALL extern int pmsprintf(char *, size_t, const char *, ...) __PM_PRINTFLIKE
  * Safe version of fscanf("...%s...", buf) ... buf dynamically allocated,
  * guaranteed to be null-byte terminated and returns strlen(buf)
  */
-PCP_CALL extern size_t pmfstring(FILE *f, char **);
+PCP_CALL extern ssize_t pmfstring(FILE *f, char **);
 
 /*
  * Safe version of strncpy() ... args are deliberately different to
