@@ -780,12 +780,8 @@ typedef struct {
     int			pid;		/* PID of logger */
     __pmTimestamp	start;		/* start of this log */
     int			vol;		/* current log volume no. */
-    uint32_t		total_len;	/* on-disk log label length */
-    uint16_t		feature_bits;	/* current enabled features */
-    uint16_t		hostname_len;	/* collection host name length */
-    uint16_t		timezone_len;	/* squashed $TZ label length */
-    uint16_t		zoneinfo_len;	/* detailed $TZ label length */
-    char		*hostname;	/* name of collection host */
+    uint32_t		features;	/* current enabled features */
+    char		*hostname;	/* hostname at collection host */
     char		*timezone;	/* squashed $TZ at collection host */
     char		*zoneinfo;	/* detailed $TZ at collection host */
 } __pmLogLabel;
@@ -812,11 +808,11 @@ typedef struct {
     __int64_t	start_sec;	/* start of this log (__pmTimestamp) */
     __int32_t	start_nsec;
     __int32_t	vol;		/* current log volume no. */
-    __uint16_t	feature_bits;	/* enabled archive features */
-    __uint16_t	hostname_len;	/* collector host name length */
-    __uint16_t	timezone_len;	/* squashed $TZ label length */
-    __uint16_t	zoneinfo_len;	/* collector zoneinfo length */
-    /* hostname, timezone, zoneinfo strings follow - variable length */
+    __uint32_t	features;	/* enabled archive feature bits */
+    __uint32_t	reserved;	/* reserved for future use, zero padded */
+    char	hostname[PM_MAX_HOSTNAMELEN];  /* collection host full name */
+    char	timezone[PM_MAX_TIMEZONELEN];  /* generic "squashed" $TZ */
+    char	zoneinfo[PM_MAX_ZONEINFOLEN];  /* local platform $TZ */
 } __pmExtLabel_v3;
 
 /*
@@ -960,6 +956,7 @@ typedef struct {
 
 /* internal archive routines */
 PCP_CALL extern int __pmLogVersion(__pmLogCtl *);
+PCP_CALL extern size_t __pmLogLabelSize(__pmLogCtl *);
 PCP_CALL extern int __pmLogChkLabel(__pmArchCtl *, __pmFILE *, __pmLogLabel *, int);
 PCP_CALL extern int __pmLogCreate(const char *, const char *, int, __pmArchCtl *);
 PCP_CALL extern __pmFILE *__pmLogNewFile(const char *, int);

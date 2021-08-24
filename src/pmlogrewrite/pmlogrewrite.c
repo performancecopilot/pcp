@@ -159,18 +159,15 @@ newlabel(void)
 	free(lp->hostname);
     lp->hostname = (global.flags & GLOBAL_CHANGE_HOSTNAME) ?
 	strdup(global.hostname) : strdup(inarch.label.ll_hostname);
-    lp->hostname_len = strlen(lp->hostname) + 1;
     if (lp->timezone)
 	free(lp->timezone);
     lp->timezone = (global.flags & GLOBAL_CHANGE_TZ) ?
 	strdup(global.tz) : strdup(inarch.label.ll_tz);
-    lp->timezone_len = strlen(lp->timezone) + 1;
 
     /* TODO: v3 archive zoneinfo support */
     if (lp->zoneinfo)
 	free(lp->zoneinfo);
     lp->zoneinfo = NULL;
-    lp->zoneinfo_len = 0;
 }
 
 /*

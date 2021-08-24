@@ -102,16 +102,12 @@ Options:\n\
     if (logctl.l_label.hostname)
 	free(logctl.l_label.hostname);
     logctl.l_label.hostname = strdup("happycamper");
-    logctl.l_label.hostname_len = strlen(logctl.l_label.hostname) + 1;
     if (logctl.l_label.timezone)
 	free(logctl.l_label.timezone);
     logctl.l_label.timezone = strdup("UTC");
-    logctl.l_label.timezone_len = strlen(logctl.l_label.timezone) + 1;
     if (logctl.l_label.zoneinfo)
 	free(logctl.l_label.zoneinfo);
     logctl.l_label.zoneinfo = NULL;
-    logctl.l_label.zoneinfo_len = 0;
-    logctl.l_label.total_len = sizeof(__pmExtLabel_v3) + 16;
 
     logctl.l_label.vol = PM_LOG_VOL_TI;
     if ((sts = __pmLogWriteLabel(logctl.l_tifp, &logctl.l_label)) != 0) {

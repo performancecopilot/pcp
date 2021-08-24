@@ -950,7 +950,7 @@ initarchive(__pmContext	*ctxp, const char *name)
     ctxp->c_origin.tv_sec = acp->ac_log->l_label.start.sec;
     ctxp->c_origin.tv_usec = acp->ac_log->l_label.start.nsec / 1000;
     ctxp->c_mode = (ctxp->c_mode & 0xffff0000) | PM_MODE_FORW;
-    acp->ac_offset = acp->ac_log->l_label.total_len + 2*sizeof(int);
+    acp->ac_offset = __pmLogLabelSize(acp->ac_log);
     acp->ac_vol = acp->ac_curvol;
     acp->ac_serial = 0;		/* not serial access, yet */
     acp->ac_pmid_hc.nodes = 0;	/* empty hash list */

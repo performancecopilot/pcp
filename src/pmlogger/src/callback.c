@@ -656,7 +656,7 @@ do_work(task_t *tp)
     __pmTimestamp	stamp;
     unsigned long	peek_offset;
 
-    label_offset = archctl.ac_log->l_label.total_len + 2 * sizeof(int);
+    label_offset = __pmLogLabelSize(archctl.ac_log);
 
     if ((pmDebugOptions.appl2) && (pmDebugOptions.desperate)) {
 	struct timeval	now;

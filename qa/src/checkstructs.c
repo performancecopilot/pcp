@@ -254,13 +254,13 @@ main(int argc, char **argv)
      * -1 for each of the hostname, timezone, zoneinfo pointers.
      */
     if (sizeof(char *) == 8)
-	check("__pmLogLabel", sizeof(__pmLogLabel), 16*INT);
+	check("__pmLogLabel", sizeof(__pmLogLabel), 14*INT);
     else if (sizeof(char *) == 4)
-	check("__pmLogLabel", sizeof(__pmLogLabel), 12*INT);
+	check("__pmLogLabel", sizeof(__pmLogLabel), 11*INT);
     else
 	printf("Cannot check __pmLogLabel for sizeof(ptr)=%zd\n", sizeof(char*));
     check("__pmExtLabel_v2", sizeof(__pmExtLabel_v2), 5*INT+PM_LOG_MAXHOSTLEN+PM_TZ_MAXLEN);
-    check("__pmExtLabel_v3", sizeof(__pmExtLabel_v3), 8*INT);
+    check("__pmExtLabel_v3", sizeof(__pmExtLabel_v3), 8*INT+PM_MAX_HOSTNAMELEN+PM_MAX_TIMEZONELEN+PM_MAX_ZONEINFOLEN);
     /*
      * __pmLogTI is now an internal data structure, and for 32-bit
      * platforms there are 4 less words compared to 64-bit platforms:

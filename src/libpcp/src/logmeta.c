@@ -714,7 +714,7 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 	    goto end;
     }
 
-    __pmFseek(f, (long)(lcp->l_label.total_len + 2*sizeof(int)), SEEK_SET);
+    __pmFseek(f, (long)__pmLogLabelSize(lcp), SEEK_SET);
     for ( ; ; ) {
 	n = (int)__pmFread(&h, 1, sizeof(__pmLogHdr), f);
 
@@ -1087,7 +1087,7 @@ end:
     /* Check for duplicate label sets. */
     check_dup_labels(acp);
     
-    __pmFseek(f, (long)(lcp->l_label.total_len + 2*sizeof(int)), SEEK_SET);
+    __pmFseek(f, (long)__pmLogLabelSize(lcp), SEEK_SET);
 
     if (sts == 0) {
 	if (numpmid == 0) {

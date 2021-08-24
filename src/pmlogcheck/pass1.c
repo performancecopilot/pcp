@@ -114,9 +114,9 @@ pass1(__pmContext *ctxp, char *archname)
 		archname, i, tip->stamp.sec, tip->stamp.nsec);
 	    index_state = STATE_BAD;
 	}
-	if (tip->off_meta < log->l_label.total_len+2*sizeof(int)) {
+	if (tip->off_meta < __pmLogLabelSize(log)) {
 	    fprintf(stderr, "%s.index[entry %d]: offset to metadata (%lld) before end of label record (%zd)\n",
-		archname, i, (long long)tip->off_meta, log->l_label.total_len+2*sizeof(int));
+		archname, i, (long long)tip->off_meta, __pmLogLabelSize(log));
 	    index_state = STATE_BAD;
 	}
 	if (meta_size != -1 && tip->off_meta > meta_size) {
@@ -124,9 +124,9 @@ pass1(__pmContext *ctxp, char *archname)
 		archname, i, (long long)tip->off_meta, (long long)meta_size);
 	    index_state = STATE_BAD;
 	}
-	if (tip->off_data < log->l_label.total_len+2*sizeof(int)) {
+	if (tip->off_data < __pmLogLabelSize(log)) {
 	    fprintf(stderr, "%s.index[entry %d]: offset to log (%lld) before end of label record (%zd)\n",
-		archname, i, (long long)tip->off_data, log->l_label.total_len+2*sizeof(int));
+		archname, i, (long long)tip->off_data, __pmLogLabelSize(log));
 	    index_state = STATE_BAD;
 	}
 	if (log_size != -1 && tip->off_data > log_size) {

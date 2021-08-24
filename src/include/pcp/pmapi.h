@@ -647,6 +647,9 @@ typedef struct pmTimespec {
 #define PM_LOG_VOL_META		-1	/* meta data */
 #define PM_LOG_MAXHOSTLEN	64	/* v2 only, deprecated with v3 */
 #define PM_TZ_MAXLEN		40	/* v2 only, deprecated with v3 */
+#define PM_MAX_HOSTNAMELEN	256	/* max supported for v3 onward */
+#define PM_MAX_TIMEZONELEN	256	/* max supported for v3 onward */
+#define PM_MAX_ZONEINFOLEN	256	/* max supported (new with v3) */
 
 typedef struct pmLogLabel {
     int		ll_magic;	/* PM_LOG_MAGIC | log format version no. */
@@ -661,9 +664,9 @@ typedef struct pmHighResLogLabel {
     int		magic;	/* PM_LOG_MAGIC | log format version no. */
     pid_t	pid;		/* PID of logger */
     struct timespec start;	/* start of this log */
-    char	*hostname;	/* name of collection host */
-    char	*timezone;	/* squashed $TZ at collection host */
-    char	*zoneinfo;	/* detailed $TZ at collection host */
+    char	hostname[PM_MAX_HOSTNAMELEN];	/* collection host full name */
+    char	timezone[PM_MAX_TIMEZONELEN];	/* generic, squashed $TZ */
+    char	zoneinfo[PM_MAX_ZONEINFOLEN];	/* local platform $TZ */
 } pmHighResLogLabel;
 #endif
 
@@ -801,6 +804,12 @@ PCP_CALL extern int pmsprintf(char *, size_t, const char *, ...) __PM_PRINTFLIKE
  * guaranteed to be null-byte terminated and returns strlen(buf)
  */
 PCP_CALL extern ssize_t pmfstring(FILE *f, char **);
+
+/*
+ * Safe version of strlen(s) that handles null pointer input, in
+ * which case zero is returned.
+ */
+PCP_CALL extern size_t pmstrlen(const char *);
 
 /*
  * Safe version of strncpy() ... args are deliberately different to
