@@ -276,11 +276,179 @@ __pmSquashTZ(char *tzbuffer)
 #endif
 }
 
+#define ZONEINFO "/zoneinfo/"
+#define LOCALTIME "/etc/localtime"
+
+/*
+ * Plan B
+ *
+ * Get the size for /etc/localtime if possible.
+ *
+ * Descend /usr/share/zoneinfo looking for a file with the same size
+ * and then compare file contents ... if equal, consider it a match.
+ *
+ * If more than one file matches, pick the first but emit a warning.
+ */
+static char *
+getzoneinfo_plan_b(void)
+{
+    FILE	*fp;		/* find ... pipe */
+    FILE	*f1;		/* /etc/localtime */
+    FILE	*f2;		/* candidate file */
+    int		c1;
+    int		c2;
+    char	*p;
+    char	*path = NULL;
+    struct stat	sbuf;		/* sbuf.st_size is all that matters */
+    char	tmp[MAXPATHLEN+2];	/* shell command and line buffer */
+
+    if ((f1 = fopen(LOCALTIME, "r")) == NULL) {
+	fprintf(stderr, "getzoneinfo_plan_b: cannot open %s: %s\n", LOCALTIME, pmErrStr(-oserror()));
+	return NULL;
+    }
+
+    if (fstat(fileno(f1), &sbuf) < 0) {
+	fprintf(stderr, "getzoneinfo_plan_b: cannot stat %s: %s\n", LOCALTIME, pmErrStr(-oserror()));
+	fclose(f1);
+	return NULL;
+    }
+    sprintf(tmp, "find /usr/share/zoneinfo -type f -a -size %lldc", (long long)sbuf.st_size);
+    if ((fp = popen(tmp, "r")) == NULL) {
+	fprintf(stderr, "getzoneinfo_plan_b: pipe(%s) failed: %s\n", tmp, pmErrStr(-oserror()));
+	fclose(f1);
+	return NULL;
+    }
+    /* start at reading at tmp[1], so ':' can be inserted at tmp[0] */
+    while (fgets(&tmp[1], sizeof(tmp)-1, fp) != NULL) {
+	/* strip \n at end of line */
+	for (p = &tmp[1]; *p != '\n'; p++)
+	    ;
+	*p = '\0';
+	if ((f2 = fopen(&tmp[1], "r")) == NULL) {
+	    fprintf(stderr, "getzoneinfo_plan_b: cannot open %s: %s\n", &tmp[1], pmErrStr(-oserror()));
+	    fclose(f1);
+	    pclose(fp);
+	    if (path != NULL)
+		free(path);
+	    return NULL;
+	}
+	rewind(f1);
+
+	for ( ; ; ) {
+	    c1 = fgetc(f1);
+	    c2 = fgetc(f2);
+	    if (c1 == EOF && c2 == EOF) {
+		/* contents match */
+		if (path == NULL) {
+		    tmp[0] = ':';
+		    path = strdup(tmp);
+		    if (path == NULL) {
+			fprintf(stderr, "getzoneinfo_plan_b: match %s but strdup failed\n", &tmp[1]);
+			fclose(f2);
+			fclose(f1);
+			pclose(fp);
+			return NULL;
+		    }
+		}
+		else {
+		    /*
+		     * Duplicates ... pick shortest path, as this will favour, for
+		     * example, Australia/Melbourne over posix/Australia/Melbourne
+		     */
+		    if (strlen(&path[1]) <= strlen(&tmp[1]))
+			fprintf(stderr, "getzoneinfo_plan_b: Warning: match %s and %s, choosing first one\n", &path[1], &tmp[1]);
+		    else {
+			fprintf(stderr, "getzoneinfo_plan_b: Warning: match %s and %s, choosing second one\n", &path[1], &tmp[1]);
+			free(path);
+			tmp[0] = ':';
+			path = strdup(tmp);
+			if (path == NULL) {
+			    fprintf(stderr, "getzoneinfo_plan_b: strdup failed\n");
+			    fclose(f2);
+			    fclose(f1);
+			    pclose(fp);
+			    return NULL;
+			}
+		    }
+		}
+		break;
+	    }
+	    if (c1 != c2)
+		break;
+	}
+	fclose(f2);
+    }
+    fclose(f1);
+    pclose(fp);
+
+    return path;
+}
+
+/*
+ * Get the local timezone tzfile identification
+ *
+ * We'd like this to return something like ":Australia/Melbourne"
+ * that can be used as a $TZ setting.
+ *
+ * Plan A
+ *   If /etc/localtime is a symbolic link, get the pathname it points
+ *   to and strip anything up to (and including) the string "/zoneinfo/".
+ *
+ * Return NULL on failure.
+ */
+static char *
+getzoneinfo(void)
+{
+    ssize_t	sts;
+    char	*buf;
+    char	*tmp_buf;
+    char	*p;
+    char	*q;
+
+    /* +1 for : +1 for NULL */
+    buf = (char *)calloc(1, MAXPATHLEN+2);
+    if (buf == NULL)
+	return NULL;
+
+    sts = readlink(LOCALTIME, &buf[1], MAXPATHLEN);
+    if (sts < 0) {
+	/*
+	 * Hmm, not a symlink. Now try Plan B.
+	 */
+	free(buf);
+	buf = getzoneinfo_plan_b();
+	if (buf == NULL)
+	    return NULL;
+    }
+    else
+	buf[sts+1] = '\0';
+
+    /* try to find prefix .../zoneinfo/... */
+    p = strstr(buf, ZONEINFO);
+    if (p != NULL) {
+	/* found it! */
+	q = &p[strlen(ZONEINFO)-1];
+	tmp_buf = strdup(q);
+	if (tmp_buf != NULL) {
+	    free(buf);
+	    buf = tmp_buf;
+	}
+    }
+    else {
+	/* no prefix, truncate ... nice to have, not necessary */
+	tmp_buf = realloc(buf, sts+2);
+	if (tmp_buf != NULL)
+	    buf = tmp_buf;
+    }
+    buf[0] = ':';
+
+    return buf;
+}
+
 char *
 __pmZoneinfo(void)
 {
-    /* TODO: move code from pmdapmcd, dynamically allocate return string */
-    return NULL;
+    return getzoneinfo();
 }
 
 /*
