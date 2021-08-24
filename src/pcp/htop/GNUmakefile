@@ -166,7 +166,7 @@ SUBHFILES = \
 	pcp/Platform.h \
 	pcp/ProcessField.h \
 
-DOCFILES = AUTHORS htop.1.in pcp-htop.5.in
+DOCFILES = AUTHORS pcp-htop.5.in
 COLUMNS = container delayacct fdcount guest memory sched swap tcp udp wchan
 METERS = entropy freespace ipc locks memcache mysql postfix redis tcp
 CFGMETERS = $(patsubst %,pcp/meters/%,$(METERS))
@@ -177,7 +177,8 @@ TOPXFILES = $(TOPCFILES) $(TOPHFILES) $(DOCFILES)
 SUBXFILES = $(SUBCFILES) $(SUBHFILES)
 CFILES = $(TOPCFILES) $(SUBCFILES)
 HFILES = $(TOPHFILES) $(SUBHFILES)
-LDIRT = $(TOPXFILES) $(SUBXFILES) $(CFGXFILES)
+LDIRT = $(TOPXFILES) $(SUBXFILES) $(CFGXFILES) \
+	htop.1.in $(CMDTARGET).1.in $(CMDTARGET).1 $(CMDTARGET).5
 
 MAN_PAGES = $(CMDTARGET).1 $(CMDTARGET).5
 
@@ -211,7 +212,6 @@ install_pcp: install
 
 $(TOPXFILES):
 	$(LN_S) -f $(TOPDIR)/vendor/github.com/htop-dev/htop/$@ $@
-	$(LN_S) -f $(TOPDIR)/vendor/github.com/htop-dev/htop/htop.1.in $(CMDTARGET).1.in
 
 $(SUBXFILES):
 	mkdir -p linux pcp zfs
@@ -223,6 +223,9 @@ $(CFGXFILES):
 
 $(DISTLINKS):	$(CMDTARGET)
 	@$(LN_S) -f $(CMDTARGET) $@
+
+$(CMDTARGET).1.in:
+	$(LN_S) -f $(TOPDIR)/vendor/github.com/htop-dev/htop/htop.1.in $@
 
 $(MAN_PAGES): $(CMDTARGET).1.in $(CMDTARGET).5.in
 	for s in 1 5; do \
