@@ -251,6 +251,12 @@ class timeval(Structure):
     def __float__(self):
         return float(c_api.pmtimevalToReal(self.tv_sec, self.tv_usec))
 
+    def __complex__(self):
+        return complex(c_api.pmtimevalToReal(self.tv_sec, self.tv_usec))
+
+    def __index__(self):
+        return int(self.tv_sec)
+
     def __long__(self):
         return long(self.tv_sec)
 
