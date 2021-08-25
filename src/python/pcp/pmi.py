@@ -99,7 +99,7 @@ LIBPCP_IMPORT.pmiSetTimezone.argtypes = [c_char_p]
 
 LIBPCP_IMPORT.pmiAddMetric.restype = c_int
 LIBPCP_IMPORT.pmiAddMetric.argtypes = [
-        c_char_p, pmID, c_int, pmInDom, c_int, c_uint]
+        c_char_p, pmID, c_int, pmInDom, c_int, pmUnits]
 
 LIBPCP_IMPORT.pmiAddInstance.restype = c_int
 LIBPCP_IMPORT.pmiAddInstance.argtypes = [pmInDom, c_char_p, c_int]
