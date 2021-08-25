@@ -1,11 +1,12 @@
 /*
+ * Copyright (c) 2021 Red Hat.
  * Copyright (c) 1995-2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -26,6 +27,7 @@
 
 #include "pmapi.h"
 #include "libpcp.h"
+#include "sha256.h"
 #include "internal.h"
 
 static char	*envtz;			/* buffer in env */
@@ -278,109 +280,128 @@ __pmSquashTZ(char *tzbuffer)
 
 #define ZONEINFO "/zoneinfo/"
 #define LOCALTIME "/etc/localtime"
+#define ZONESHARED "/usr/share/zoneinfo"
+
+static int
+tzfilehash(int fd, unsigned char *hash)
+{
+    SHA256_CTX		ctx;
+    ssize_t		bytes;
+    char		buf[BUFSIZ];
+
+    sha256_init(&ctx);
+    while ((bytes = read(fd, buf, sizeof(buf))) > 0)
+	sha256_update(&ctx, (unsigned char *)buf, bytes);
+    if (bytes < 0)
+	return -1;
+    sha256_final(&ctx, hash);
+    return 0;
+}
+
+static off_t
+tzfilesize(int fd)
+{
+    struct stat		sbuf;
+
+    if (fstat(fd, &sbuf) == 0 && S_ISREG(sbuf.st_mode))
+	return sbuf.st_size;
+    if (S_ISDIR(sbuf.st_mode))
+	return -1;
+    return 0;	/* ignored */
+}
+
+static void
+zoneinfo_scan(char *base, char *tzpath, size_t tzpathlen, off_t tzfilelen,
+			unsigned char *tzhash, int *found)
+{
+    DIR			*dir;
+    struct dirent	*dp;
+    size_t		bytes;
+    off_t		length;
+    unsigned char	hash[SHA256_BLOCK_SIZE];
+    char		path[MAXPATHLEN];
+    char		*endp;
+    int			fd, endi;
+
+    if ((dir = opendir(base)) == NULL)
+        return;
+    endi = pmsprintf(path, sizeof(path) - 1, "%s", base);
+    endp = &path[endi];
+    *endp++ = pmPathSeparator();
+
+    while ((dp = readdir(dir)) != NULL) {
+	if (dp->d_name[0] == '.')
+	    continue;
+	bytes = (endp - path) + strlen(dp->d_name);
+	if (bytes >= sizeof(path)-1)
+	    continue;
+	strcpy(endp, dp->d_name);
+	if ((fd = open(path, O_RDONLY)) < 0)
+	    continue;
+	if ((length = tzfilesize(fd)) < 0) {	/* S_ISDIR */
+	    zoneinfo_scan(path, tzpath, tzpathlen, tzfilelen, tzhash, found);
+	    goto next;
+	}
+	if (length == 0)	/* ignore stat errors or an empty file */
+	    goto next;
+	if (length != tzfilelen)	/* match LOCALTIME */
+	    goto next;
+
+	/* At this point we have a candidate regular, right-sized file */
+	if (tzfilehash(fd, hash) < 0)
+	    goto next;
+	if (memcmp(tzhash, hash, SHA256_BLOCK_SIZE) != 0)
+	    goto next;
+
+	/*
+	 * Found a match - keep it if it is the shortest yet as this will
+	 * favour Australia/Melbourne over posix/Australia/Melbourne, for
+	 * example.
+	 */
+	if (*found == 0 || strlen(tzpath) > bytes)
+	    pmsprintf(tzpath, tzpathlen, "%s", path);
+	*found = 1;
+next:
+	close(fd);
+    }
+    closedir(dir);
+}
 
 /*
- * Plan B
- *
- * Get the size for /etc/localtime if possible.
- *
  * Descend /usr/share/zoneinfo looking for a file with the same size
- * and then compare file contents ... if equal, consider it a match.
+ * and then compare file contents ... if SHA256 signature is equal,
+ * consider it a match.
  *
  * If more than one file matches, pick the first but emit a warning.
  */
 static char *
-getzoneinfo_plan_b(void)
+zoneinfo_fallback(char *path, size_t pathlen)
 {
-    FILE	*fp;		/* find ... pipe */
-    FILE	*f1;		/* /etc/localtime */
-    FILE	*f2;		/* candidate file */
-    int		c1;
-    int		c2;
-    char	*p;
-    char	*path = NULL;
-    struct stat	sbuf;		/* sbuf.st_size is all that matters */
-    char	tmp[MAXPATHLEN+2];	/* shell command and line buffer */
+    unsigned char	hash[SHA256_BLOCK_SIZE];
+    off_t		len;
+    int			fd, found = 0;
 
-    if ((f1 = fopen(LOCALTIME, "r")) == NULL) {
-	fprintf(stderr, "getzoneinfo_plan_b: cannot open %s: %s\n", LOCALTIME, pmErrStr(-oserror()));
+    if ((fd = open(LOCALTIME, O_RDONLY)) < 0) {
+	if (pmDebugOptions.timecontrol)
+	    fprintf(stderr, "%s: cannot open %s: %s\n",
+			    "__pmZoneinfo", LOCALTIME, pmErrStr(-oserror()));
 	return NULL;
     }
-
-    if (fstat(fileno(f1), &sbuf) < 0) {
-	fprintf(stderr, "getzoneinfo_plan_b: cannot stat %s: %s\n", LOCALTIME, pmErrStr(-oserror()));
-	fclose(f1);
+    if ((len = tzfilesize(fd)) <= 0) {
+	close(fd);
 	return NULL;
     }
-    sprintf(tmp, "find /usr/share/zoneinfo -type f -a -size %lldc", (long long)sbuf.st_size);
-    if ((fp = popen(tmp, "r")) == NULL) {
-	fprintf(stderr, "getzoneinfo_plan_b: pipe(%s) failed: %s\n", tmp, pmErrStr(-oserror()));
-	fclose(f1);
+    if (tzfilehash(fd, hash) < 0) {
+	close(fd);
 	return NULL;
     }
-    /* start at reading at tmp[1], so ':' can be inserted at tmp[0] */
-    while (fgets(&tmp[1], sizeof(tmp)-1, fp) != NULL) {
-	/* strip \n at end of line */
-	for (p = &tmp[1]; *p != '\n'; p++)
-	    ;
-	*p = '\0';
-	if ((f2 = fopen(&tmp[1], "r")) == NULL) {
-	    fprintf(stderr, "getzoneinfo_plan_b: cannot open %s: %s\n", &tmp[1], pmErrStr(-oserror()));
-	    fclose(f1);
-	    pclose(fp);
-	    if (path != NULL)
-		free(path);
-	    return NULL;
-	}
-	rewind(f1);
+    close(fd);
 
-	for ( ; ; ) {
-	    c1 = fgetc(f1);
-	    c2 = fgetc(f2);
-	    if (c1 == EOF && c2 == EOF) {
-		/* contents match */
-		if (path == NULL) {
-		    tmp[0] = ':';
-		    path = strdup(tmp);
-		    if (path == NULL) {
-			fprintf(stderr, "getzoneinfo_plan_b: match %s but strdup failed\n", &tmp[1]);
-			fclose(f2);
-			fclose(f1);
-			pclose(fp);
-			return NULL;
-		    }
-		}
-		else {
-		    /*
-		     * Duplicates ... pick shortest path, as this will favour, for
-		     * example, Australia/Melbourne over posix/Australia/Melbourne
-		     */
-		    if (strlen(&path[1]) <= strlen(&tmp[1]))
-			fprintf(stderr, "getzoneinfo_plan_b: Warning: match %s and %s, choosing first one\n", &path[1], &tmp[1]);
-		    else {
-			fprintf(stderr, "getzoneinfo_plan_b: Warning: match %s and %s, choosing second one\n", &path[1], &tmp[1]);
-			free(path);
-			tmp[0] = ':';
-			path = strdup(tmp);
-			if (path == NULL) {
-			    fprintf(stderr, "getzoneinfo_plan_b: strdup failed\n");
-			    fclose(f2);
-			    fclose(f1);
-			    pclose(fp);
-			    return NULL;
-			}
-		    }
-		}
-		break;
-	    }
-	    if (c1 != c2)
-		break;
-	}
-	fclose(f2);
-    }
-    fclose(f1);
-    pclose(fp);
-
+    /* recurse system path, looking for matches on tzlen and tzhash */
+    zoneinfo_scan(ZONESHARED, path+1, pathlen-1, len, hash, &found);
+    if (!found)
+	return NULL;
+    path[0] = ':';
     return path;
 }
 
@@ -390,14 +411,15 @@ getzoneinfo_plan_b(void)
  * We'd like this to return something like ":Australia/Melbourne"
  * that can be used as a $TZ setting.
  *
- * Plan A
- *   If /etc/localtime is a symbolic link, get the pathname it points
- *   to and strip anything up to (and including) the string "/zoneinfo/".
+ * If /etc/localtime is a symbolic link, get the pathname it points
+ * to and strip anything up to (and including) the string "/zoneinfo/".
+ * Else, fallback to attempting to match the file contents for all TZ
+ * files below the /usr/share/zoneinfo directory recursively.
  *
  * Return NULL on failure.
  */
-static char *
-getzoneinfo(void)
+char *
+__pmZoneinfo(void)
 {
     ssize_t	sts;
     char	*buf;
@@ -412,19 +434,18 @@ getzoneinfo(void)
 
     sts = readlink(LOCALTIME, &buf[1], MAXPATHLEN);
     if (sts < 0) {
-	/*
-	 * Hmm, not a symlink. Now try Plan B.
-	 */
-	free(buf);
-	buf = getzoneinfo_plan_b();
-	if (buf == NULL)
-	    return NULL;
-    }
-    else
+	/* Exists but not a symlink - try recursive file content matching. */
+	if (oserror() == ENOENT ||
+	    zoneinfo_fallback(buf+1, MAXPATHLEN+1) == NULL) {
+	    free(buf);
+	    return buf;
+	}
+    } else {
 	buf[sts+1] = '\0';
+    }
 
     /* try to find prefix .../zoneinfo/... */
-    p = strstr(buf, ZONEINFO);
+    p = strstr(buf+1, ZONEINFO);
     if (p != NULL) {
 	/* found it! */
 	q = &p[strlen(ZONEINFO)-1];
@@ -443,12 +464,6 @@ getzoneinfo(void)
     buf[0] = ':';
 
     return buf;
-}
-
-char *
-__pmZoneinfo(void)
-{
-    return getzoneinfo();
 }
 
 /*
