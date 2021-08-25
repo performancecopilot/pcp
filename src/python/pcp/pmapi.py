@@ -167,7 +167,7 @@ class pmErr(Exception):
         return "%s %s" % (errSym, self.message())
 
     def message(self):
-        errStr = create_string_buffer(c_api.PM_MAXERRMSGLEN)
+        errStr = ctypes.create_string_buffer(c_api.PM_MAXERRMSGLEN)
         errStr = LIBPCP.pmErrStr_r(self.code, errStr, c_api.PM_MAXERRMSGLEN)
         result = str(errStr.decode())
         for index in range(1, len(self.args)):
@@ -1610,7 +1610,7 @@ class pmContext(object):
         if status < 0:
             raise pmErr(status)
 
-        descbuf = create_string_buffer(sizeof(pmDesc))
+        descbuf = ctypes.create_string_buffer(sizeof(pmDesc))
         desc = cast(descbuf, POINTER(pmDesc))
         pmid = c_uint(pmid_p)
         status = LIBPCP.pmLookupDesc(pmid, desc)
@@ -1637,7 +1637,7 @@ class pmContext(object):
         desc = (POINTER(pmDesc) * n)()
 
         for i in range(n):
-            descbuf = create_string_buffer(sizeof(pmDesc))
+            descbuf = ctypes.create_string_buffer(sizeof(pmDesc))
             desc[i] = cast(descbuf, POINTER(pmDesc))
             if isinstance(pmids_p, integer_types):
                 pmids = c_uint(pmids_p)
