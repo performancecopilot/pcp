@@ -106,7 +106,6 @@ from ctypes import c_char, c_int, c_uint, c_long, c_char_p, c_void_p
 from ctypes import c_float, c_double, c_int32, c_uint32, c_int64, c_uint64
 from ctypes import CDLL, POINTER, CFUNCTYPE, Structure, Union
 from ctypes import addressof, pointer, sizeof, cast, byref
-from ctypes import create_string_buffer, memmove
 from ctypes.util import find_library
 
 
@@ -134,11 +133,11 @@ else:
 
 def pyFileToCFile(fileObj):
     if sys.version >= '3':
-        ctypes.pythonapi.PyObject_AsFileDescriptor.restype = ctypes.c_int
+        ctypes.pythonapi.PyObject_AsFileDescriptor.restype = c_int
         ctypes.pythonapi.PyObject_AsFileDescriptor.argtypes = [ctypes.py_object]
         return os.fdopen(ctypes.pythonapi.PyObject_AsFileDescriptor(fileObj), "r", closefd=False)
     else:
-        ctypes.pythonapi.PyFile_AsFile.restype = ctypes.c_void_p
+        ctypes.pythonapi.PyFile_AsFile.restype = c_void_p
         ctypes.pythonapi.PyFile_AsFile.argtypes = [ctypes.py_object]
         return ctypes.pythonapi.PyFile_AsFile(fileObj)
 
@@ -2348,8 +2347,8 @@ class pmContext(object):
         if outtype == c_api.PM_TYPE_STRING:
             # Get pointer to C string
             c_str = c_char_p()
-            memmove(byref(c_str), addressof(outAtom) + pmAtomValue.cp.offset,
-                    sizeof(c_char_p))
+            ctypes.memmove(byref(c_str), addressof(outAtom) + pmAtomValue.cp.offset,
+                           sizeof(c_char_p))
             # Convert to a python string and have result point to it
             outAtom.cp = outAtom.cp
             # Free the C string
