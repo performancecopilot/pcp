@@ -1112,7 +1112,7 @@ x11
 663:retired pmwebd local python
 664 logutil local pmlogrewrite pmlogmv
 665 pmda.linux local
-666:retired pmmgr local slow valgrind pmrep python pmlogrewrite
+666:retired pmmgr local slow valgrind pmrep python pmlogrewrite pmloglabel
 667 pcp2graphite python pcp2xxx local
 668:retired pmmgr local containers pmdumplog
 669:retired pmmgr local pmlogcheck
@@ -1534,7 +1534,7 @@ x11
 1085 pmlogger local pmdumplog
 1086 pmprobe local
 1087 pmda.bind2 local
-1088:retired pmmgr local
+1088:retired pmmgr local pmloglabel
 1089 atop local folio
 1090 pmproxy local context
 1091 pmns libpcp context local kernel
@@ -1781,12 +1781,13 @@ x11
 1332 archive pmdumplog local pmlogrewrite
 1333 archive pmdumplog local valgrind pmlogrewrite
 1334 pmlogger pmdumplog local
-1335 archive pmlogger local archive_v3
-1336 archive pmlogger local archive_v3 valgrind
+1335 archive pmlogger local archive_v3 pmloglabel pmdumplog
+1336 archive pmlogger local archive_v3 valgrind pmloglabel pmdumplog
 1337 pmda.mssql local
 1338 pmlogrewrite labels pmdumplog local
 1339 pmda.sample pmda.proc pmcd_wait pmda.install local
 1340 pmcd pmda.pmcd pmstore local pmda.sample
+1341 libpcp local
 1342 pmda.openmetrics local python
 1343:retired pmmgr local pmlogrewrite
 1344:retired pmmgr local
