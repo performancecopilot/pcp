@@ -1,6 +1,6 @@
 """Wrapper module for libpcp_import - Performace Co-Pilot Log Import API
 #
-# Copyright (C) 2012-2020 Red Hat.
+# Copyright (C) 2012-2021 Red Hat.
 #
 # This file is part of the "pcp" module, the python interfaces for the
 # Performance Co-Pilot toolkit.
@@ -66,18 +66,18 @@ LIBPCP_IMPORT.pmiDump.restype = None
 LIBPCP_IMPORT.pmiDump.argtypes = None
 
 LIBPCP_IMPORT.pmiID.restype = pmID
-LIBPCP_IMPORT.pmiID.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int]
+LIBPCP_IMPORT.pmiID.argtypes = [c_int, c_int, c_int]
 
 LIBPCP_IMPORT.pmiCluster.restype = pmID
-LIBPCP_IMPORT.pmiCluster.argtypes = [ctypes.c_int, ctypes.c_int]
+LIBPCP_IMPORT.pmiCluster.argtypes = [c_int, c_int]
 
 LIBPCP_IMPORT.pmiInDom.restype = pmInDom
-LIBPCP_IMPORT.pmiInDom.argtypes = [ctypes.c_int, ctypes.c_int]
+LIBPCP_IMPORT.pmiInDom.argtypes = [c_int, c_int]
 
 LIBPCP_IMPORT.pmiUnits.restype = pmUnits
 LIBPCP_IMPORT.pmiUnits.argtypes = [
-        ctypes.c_int, ctypes.c_int, ctypes.c_int,
-        ctypes.c_int, ctypes.c_int, ctypes.c_int]
+        c_int, c_int, c_int,
+        c_int, c_int, c_int]
 
 LIBPCP_IMPORT.pmiErrStr_r.restype = c_char_p
 LIBPCP_IMPORT.pmiErrStr_r.argtypes = [c_int, c_char_p, c_int]
@@ -99,7 +99,7 @@ LIBPCP_IMPORT.pmiSetTimezone.argtypes = [c_char_p]
 
 LIBPCP_IMPORT.pmiAddMetric.restype = c_int
 LIBPCP_IMPORT.pmiAddMetric.argtypes = [
-        c_char_p, pmID, c_int, pmInDom, c_int, c_uint]
+        c_char_p, pmID, c_int, pmInDom, c_int, pmUnits]
 
 LIBPCP_IMPORT.pmiAddInstance.restype = c_int
 LIBPCP_IMPORT.pmiAddInstance.argtypes = [pmInDom, c_char_p, c_int]
