@@ -19,7 +19,7 @@
 char *podman_rundir;
 pmdaIndom podman_indomtab[NUM_INDOMS];
 
-#define NUM_METRICS (NUM_CONTAINER_STATS + NUM_CONTAINER_INFO + NUM_POD_INFO)
+#define NUM_METRICS (sizeof(podman_metrictab)/sizeof(podman_metrictab[0]))
 static pmdaMetric podman_metrictab[] = {
 
     /* container stats cluster (0) */
