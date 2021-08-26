@@ -611,7 +611,7 @@ class PMReporter(object):
             if self.output == OUTPUT_ARCHIVE or self.outfile is None:
                 self.writer = sys.stdout
             else:
-                self.writer = open(self.outfile, 'wt') # pylint: disable=consider-using-with
+                self.writer = open(self.outfile, 'wt')
 
     def prepare_stdout(self):
         """ Prepare stdout output format """

@@ -146,8 +146,8 @@ class OpenvswitchPMDA(PMDA):
 
         try:
             with open(os.devnull, 'w') as devnull:
-                with subprocess.Popen(query, stdout=subprocess.PIPE, stderr=devnull) as p:
-                    js = json.loads(p.communicate()[0].decode("utf-8"))
+                p = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=devnull)
+                js = json.loads(p.communicate()[0].decode("utf-8"))
 
             # reorganize json a bit
             for idx in range(len(js["data"])):
@@ -167,11 +167,10 @@ class OpenvswitchPMDA(PMDA):
     def fetch_port_info(self, switch):
         """ fetches result from command line """
         query = ['ovs-ofctl', 'dump-ports', switch]
-        with subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as out:
-            stdout, stderr = out.communicate()
-            stdout = stdout.decode("utf-8")
-            return stdout, stderr
-        return None, None
+        out = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        stdout, stderr = out.communicate()
+        stdout = stdout.decode("utf-8")
+        return stdout, stderr
 
     def get_port_info_json(self):
         """ Convert the commandline output to json """
@@ -209,11 +208,10 @@ class OpenvswitchPMDA(PMDA):
     def fetch_flow_info(self, switch):
         """ fetches result from command line """
         query = ['ovs-ofctl','dump-flows', switch]
-        with subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as out:
-            stdout, stderr = out.communicate()
-            stdout = stdout.decode("utf-8")
-            return stdout, stderr
-        return None, None
+        out = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        stdout, stderr = out.communicate()
+        stdout = stdout.decode("utf-8")
+        return stdout, stderr
 
     def get_flow_json(self):
         """ Convert the commandline output to json """

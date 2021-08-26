@@ -23,7 +23,6 @@ from bcc import __version__, BPF
 from cpmapi import PM_ERR_BADSTORE
 
 # pylint: disable=too-many-instance-attributes, too-many-public-methods
-# pylint: disable=consider-using-with
 class PCPBCCBase(object):
     """ PCP BCC Base Class """
     def __init__(self, module, config, log, err):

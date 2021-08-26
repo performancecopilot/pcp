@@ -66,10 +66,10 @@ class PCPNetcheckModule(PCPNetcheckModuleBase):
         """Check module prerequisities"""
         try:
             cmd = [command, '-c', '1', '-W', '1', 'localhost']
-            with Popen(cmd, stdout=PIPE, stderr=PIPE) as proc:
-                proc.communicate()
-                if proc.returncode:
-                    raise RuntimeError("Can't ping the loopback interface!")
+            proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
+            proc.communicate()
+            if proc.returncode:
+                raise RuntimeError("Can't ping the loopback interface!")
         except OSError:
             raise RuntimeError("Can't run the " + command + "(1) command!")
 

@@ -19,7 +19,6 @@
 # pylint: disable=too-many-nested-blocks, too-many-return-statements
 # pylint: disable=broad-except, bare-except, missing-docstring
 # pylint: disable=expression-not-assigned, too-many-arguments
-# pylint: disable=consider-using-with
 
 import os
 import re

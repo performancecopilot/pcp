@@ -1770,7 +1770,6 @@ class DstatTool(object):
                 omode = 'wt'
             else:
                 omode = 'at'
-            # pylint: disable=consider-using-with
             outputfile = open(self.output, omode)
             outputfile.write(oline)
 

@@ -17,7 +17,6 @@
 """ PCP BCC PMDA biotop module """
 
 # pylint: disable=invalid-name, line-too-long, too-many-instance-attributes
-# pylint: disable=consider-using-with
 
 import ctypes as ct
 from threading import Lock, Thread

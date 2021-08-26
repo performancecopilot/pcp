@@ -149,6 +149,7 @@ disable=print-statement,
         bad-option-value, # older pylint versions don't recognize options from newer pylint versions
         no-else-continue,
         wrong-import-order,
+	consider-using-with, # Python 2 doesn't support this
         super-with-arguments, # Python 2 doesn't support this
         raise-missing-from, # Python 2 doesn't support this
         relative-beyond-top-level,

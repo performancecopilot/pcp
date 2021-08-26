@@ -16,7 +16,6 @@
 """ PCP BCC PMDA tcptop module """
 
 # pylint: disable=invalid-name, too-many-instance-attributes, too-many-locals
-# pylint: disable=consider-using-with
 
 import ctypes as ct
 from collections import namedtuple

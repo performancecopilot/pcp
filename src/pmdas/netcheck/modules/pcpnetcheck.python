@@ -37,7 +37,6 @@ NTP = "NTP"
 
 
 # pylint: disable=too-many-instance-attributes, too-few-public-methods
-# pylint: disable=consider-using-with
 class PCPNetcheckModuleParams(object):
     """PCP Netcheck Module Parameters Class"""
     def __init__(self):

@@ -419,7 +419,7 @@ class PCP2JSON(object):
             if self.outfile is None:
                 self.writer = sys.stdout
             else:
-                self.writer = open(self.outfile, 'wt') # pylint: disable=consider-using-with
+                self.writer = open(self.outfile, 'wt')
 
         # Assemble all metrics into a single document
         # Use @-prefixed keys for metadata not coming in from PCP metrics
