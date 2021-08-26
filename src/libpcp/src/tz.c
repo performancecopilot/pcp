@@ -438,7 +438,7 @@ __pmZoneinfo(void)
 	if (oserror() == ENOENT ||
 	    zoneinfo_fallback(buf+1, MAXPATHLEN+1) == NULL) {
 	    free(buf);
-	    return buf;
+	    return NULL;
 	}
     } else {
 	buf[sts+1] = '\0';
