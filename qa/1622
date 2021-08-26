@@ -253,6 +253,8 @@ type=AVC msg=audit(XXX.94): avc:  denied  { getattr } for  pid=9109 comm="tar" p
 type=AVC msg=audit(XXX.95): avc: denied { setattr unlink } for pid=29153 comm="mv" name="pmlogger_check.log" dev="dm-0" ino=926794 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:object_r:user_tmp_t:s0 tclass=file permissive=0
 type=AVC msg=audit(XXX.96): avc:  denied  { execute } for  pid=2205945 comm="sh" name="kmod" dev="dm-0" ino=9462231 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:kmod_exec_t:s0 tclass=file permissive=0
 type=AVC msg=audit(XXX.97): avc:  denied  { execute_no_trans } for  pid=40596 comm="sh" path="/usr/bin/kmod" dev="dm-0" ino=9462231 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:kmod_exec_t:s0 tclass=file permissive=0
+type=AVC msg=audit(XXX.98): avc: denied { getattr write } for pid=14272 comm="pmdapodman" path="/run/podman/podman.sock" dev="tmpfs" ino=95030 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:container_var_run_t:s0 tclass=sock_file permissive=0
+type=AVC msg=audit(XXX.99): avc: denied { getattr write } for pid=75540 comm="pmdapodman" path="/run/podman/podman.sock" dev="tmpfs" ino=51062 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:var_run_t:s0 tclass=sock_file permissive=0
 EOF
 
 echo "Silence is golden ... all AVC's are allowed by active policy"

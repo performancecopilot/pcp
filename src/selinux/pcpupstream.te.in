@@ -59,6 +59,8 @@ require {
         type proc_kcore_t;
 	@PCP_PROC_SECURITY_T@
         type su_exec_t;
+	type var_run_t;
+	type container_var_run_t;
 	type postgresql_var_run_t;
 	type fs_t;
 	@PCP_VIRT_VAR_RUN_T@
@@ -130,6 +132,12 @@ allow pcp_pmcd_t user_home_t:file { execute execute_no_trans };
 
 #type=AVC msg=audit(XXX.90): avc: denied { getattr write } for pid=1514 comm="pmdapodman" path="/run/user/N/podman/podman.sock" dev="tmpfs" ino=228 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:user_tmp_t:s0 tclass=sock_file permissive=0
 allow pcp_pmcd_t user_tmp_t:sock_file { getattr write };
+
+#type=AVC msg=audit(XXX.98): avc: denied { getattr write } for pid=14272 comm="pmdapodman" path="/run/podman/podman.sock" dev="tmpfs" ino=95030 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:container_var_run_t:s0 tclass=sock_file permissive=0
+allow pcp_pmcd_t container_var_run_t:sock_file { getattr write };
+
+#type=AVC msg=audit(XXX.99): avc: denied { getattr write } for pid=75540 comm="pmdapodman" path="/run/podman/podman.sock" dev="tmpfs" ino=51062 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:var_run_t:s0 tclass=sock_file permissive=0
+allow pcp_pmcd_t var_run_t:sock_file { getattr write };
 
 #type=AVC msg=audit(XXX.6): avc:  denied  { append getattr ioctl open read write } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:debugfs_t:s0 tclass=file permissive=0
 allow pcp_pmcd_t debugfs_t:file { append getattr ioctl open read write };
