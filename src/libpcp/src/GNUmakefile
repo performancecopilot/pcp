@@ -21,7 +21,8 @@ include ./GNUlibrarydefs
 
 # NOTE:
 # 	if you add source files or header files here, you need to make
-# 	the SAME change in ../../libpcp_static/src/GNUmakfile
+# 	the SAME change in ../../libpcp_static/src/GNUmakefile AND
+# 	../../libpcp_fault/src/GNUmakefile
 #
 CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	help.c instance.c labels.c p_desc.c p_error.c p_fetch.c p_instance.c \
@@ -34,7 +35,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	connectlocal.c derive_fetch.c events.c lock.c hash.c jsonsl.c \
 	fault.c access.c getopt.c io.c io_stdio.c exec.c sha256.c \
 	shellprobe.c subnetprobe.c strings.c \
-	e_index.c e_indom.c \
+	e_loglabel.c e_index.c e_indom.c \
 	deprecated.c
 HFILES = derive.h internal.h compiler.h pmdbg.h jsonsl.h sha256.h sort_r.h \
 	avahi.h subnetprobe.h shellprobe.h

@@ -59,19 +59,18 @@ __pmTimestamp	goldenstart;
 static int
 checklabel(__pmFILE *f, char *fname, int len)
 {
-    __pmTimestamp	start = {0};
+    __pmLogLabel	label;
     size_t		bytes;
     long		offset = __pmFtell(f);
-    int			magic;
+    __int32_t		magic;
     int			sts = STS_OK;
 
     /* first read the magic number for sanity and version checking */
-    __pmFseek(f, sizeof(int), SEEK_SET);
+    __pmFseek(f, sizeof(__int32_t), SEEK_SET);
     if ((bytes = __pmFread(&magic, 1, sizeof(magic), f)) != sizeof(magic)) {
 	fprintf(stderr, "checklabel(...,%s): botch: magic read returns %zu not %zu as expected\n", fname, bytes, sizeof(magic));
 	sts = STS_FATAL;
     }
-    __pmFseek(f, sizeof(int), SEEK_SET);
 
     magic = ntohl(magic);
     if ((magic & 0xffffff00) != PM_LOG_MAGIC) {
@@ -86,58 +85,28 @@ checklabel(__pmFILE *f, char *fname, int len)
 	sts = STS_FATAL;
     }
 
-    /* now check version-specific label information - keep start time */
-    if ((magic & 0xff) >= PM_LOG_VERS03) {
-	__pmExtLabel_v3	label3;
-
-	if (len <= sizeof(label3)) {
-	    fprintf(stderr, "%s: bad label length: %d not >%zu as expected\n",
-		    fname, len, sizeof(label3));
-	    sts = STS_FATAL;
-	} else {
-	    /* read just the fixed size part of the label for now */
-	    bytes = __pmFread(&label3, 1, sizeof(label3), f);
-	    if (bytes != sizeof(label3)) {
-		fprintf(stderr, "checklabel(...,%s): botch: read returns %zu not %zu as expected\n", fname, bytes, sizeof(label3));
-		sts = STS_FATAL;
-	    } else {
-		/* TODO: add v3-specific checks */
-		start.sec = label3.start_sec;
-		start.nsec = label3.start_nsec;
-		__ntohpmTimestamp(&start);
-	    }
-	}
-    } else {	/* PM_LOG_VERS02 */
-	__pmExtLabel_v2	label2;
-
-	if (len != sizeof(label2)) {
-	    fprintf(stderr, "%s: bad label length: %d not %zu as expected\n",
-		    fname, len, sizeof(label2));
-	    sts = STS_FATAL;
-	} else {
-	    bytes = __pmFread(&label2, 1, sizeof(label2), f);
-	    if (bytes != sizeof(label2)) {
-		fprintf(stderr, "checklabel(...,%s): botch: read returns %zu not %zu as expected\n", fname, bytes, sizeof(label2));
-		sts = STS_FATAL;
-	    } else {
-		/* TODO: add v2-specific checks */
-		start.sec = ntohl(label2.start_sec);
-		start.nsec = ntohl(label2.start_usec) * 1000;
-	    }
-	}
-    }
-
-    if (goldenmagic == 0) {
-	if (sts == STS_OK) {
-	    /* first good label */
-	    goldenfname = strdup(fname);
-	    goldenmagic = magic;
-	    goldenstart = start;
-	}
-    } else if ((magic & 0xff) != (goldenmagic & 0xff)) {
-	fprintf(stderr, "%s: mismatched label version: %d not %d as expected from %s\n",
-			    fname, magic & 0xff, magic & 0xff, goldenfname);
+    /* now try to load the label record */
+    memset((void *)&label, 0, sizeof(label));
+    if ((sts = __pmLogLoadLabel(f, &label)) < 0) {
+	/* don't report again if error already reported above */
+	if (sts != STS_FATAL)
+	    fprintf(stderr, "%s: cannot load label record: %s\n", fname, pmErrStr(sts));
 	sts = STS_FATAL;
+    }
+    else {
+	if (goldenmagic == 0) {
+	    if (sts == STS_OK) {
+		/* first good label */
+		goldenfname = strdup(fname);
+		goldenmagic = magic;
+		goldenstart = label.start;
+	    }
+	} else if ((magic & 0xff) != (goldenmagic & 0xff)) {
+	    fprintf(stderr, "%s: mismatched label version: %d not %d as expected from %s\n",
+				fname, magic & 0xff, magic & 0xff, goldenfname);
+	    sts = STS_FATAL;
+	}
+	__pmLogFreeLabel(&label);
     }
     __pmFseek(f, offset, SEEK_SET);
     return sts; 

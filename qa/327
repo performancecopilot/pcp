@@ -22,13 +22,25 @@ filter_paths()
     sed -e "s,$tmp,<TMPPATH>,g"
 }
 
+filter_debug()
+{
+    tee -a $here/$seq.full \
+    | sed \
+	-e '/^__pmLogOpen:/d' \
+	-e '/^__pmLogChangeVol:/d' \
+	-e '/^__pmFopen(/d' \
+	-e '/^__pmLogChkLabel: .* \[magic=/d' \
+    # end
+}
+
 test_and_repair()
 {
     opts="$@"
     archive="$tmp/ok-mv-foo"
 
     pmdumplog -z -L $archive 2>&1 | filter_paths 	# test
-    pmloglabel $archive		# check
+    pmloglabel -Dlog $archive 2>$tmp.err 		# check
+    filter_debug <$tmp.err
     pmloglabel $opts $archive	# repair
     pmdumplog -z -L $archive	# test
 }

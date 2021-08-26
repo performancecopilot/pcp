@@ -26,7 +26,7 @@ __pmStat("badarchives/badlen-10"): no decompress
 __pmFopen("badarchives/badlen-10.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-10.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-10.SUFFIX", "r"): no decompress
-__pmLogChkLabel: fd=N vol=0 trailer read -> 3 (expect 4) or bad trailer len=0 (expected 132)
+__pmLogLoadLabel: trailer read -> 3 (expect 4) or bad trailer len=0 (expected 132)
 pmdumplog: Cannot open archive "badarchives/badlen-10": Illegal label record at start of a PCP archive log file
 
 --- badarchives/badlen-11 ---
@@ -107,7 +107,7 @@ __pmStat("badarchives/badlen-4"): no decompress
 __pmFopen("badarchives/badlen-4.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-4.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-4.SUFFIX", "r"): no decompress
-__pmLogChkLabel: fd=N vol=0 file is empty
+__pmLogLoadLabel: file is empty
 pmdumplog: Cannot open archive "badarchives/badlen-4": Empty archive log file
 
 --- badarchives/badlen-5 ---
@@ -118,7 +118,7 @@ __pmStat("badarchives/badlen-5"): no decompress
 __pmFopen("badarchives/badlen-5.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-5.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-5.SUFFIX", "r"): no decompress
-__pmLogChkLabel: fd=N vol=0 bad label len=38: expected 124
+__pmLogLoadLabel: bad label read len=34: expected 120
 pmdumplog: Cannot open archive "badarchives/badlen-5": Illegal label record at start of a PCP archive log file
 
 --- badarchives/badlen-6 ---
@@ -129,7 +129,7 @@ __pmStat("badarchives/badlen-6"): no decompress
 __pmFopen("badarchives/badlen-6.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-6.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-6.SUFFIX", "r"): no decompress
-__pmLogChkLabel: fd=N vol=0 bad header len=64 (expected 132)
+__pmLogLoadLabel: bad header len=64 (expected 132)
 pmdumplog: Cannot open archive "badarchives/badlen-6": Illegal label record at start of a PCP archive log file
 
 --- badarchives/badlen-7 ---
@@ -140,7 +140,7 @@ __pmStat("badarchives/badlen-7"): no decompress
 __pmFopen("badarchives/badlen-7.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-7.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-7.SUFFIX", "r"): no decompress
-__pmLogChkLabel: fd=N vol=0 trailer read -> 4 (expect 4) or bad trailer len=64 (expected 132)
+__pmLogLoadLabel: trailer read -> 4 (expect 4) or bad trailer len=64 (expected 132)
 pmdumplog: Cannot open archive "badarchives/badlen-7": Illegal label record at start of a PCP archive log file
 
 --- badarchives/badlen-8 ---
@@ -151,7 +151,7 @@ __pmStat("badarchives/badlen-8"): no decompress
 __pmFopen("badarchives/badlen-8.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-8.SUFFIX", "r"): no decompress
 __pmFopen("badarchives/badlen-8.SUFFIX", "r"): no decompress
-__pmLogChkLabel: fd=N vol=0 label version 255 not supported
+__pmLogLoadLabel: label version 255 not supported
 pmdumplog: Cannot open archive "badarchives/badlen-8": Illegal label record at start of a PCP archive log file
 
 --- badarchives/badlen-9 ---

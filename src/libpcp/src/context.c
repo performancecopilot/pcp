@@ -796,7 +796,7 @@ initarchive(__pmContext	*ctxp, const char *name)
     pmTimeval		tmpTime;
 
     /*
-     * Catch these early. Formerly caught by __pmLogLoadLabel(), but with
+     * Catch these early. Formerly caught by __pmLogOpenFind(), but with
      * multi-archive support, things are more complex now.
      */
     if (name == NULL || *name == '\0')

@@ -73,10 +73,12 @@ __pmLogPutInDom(__pmArchCtl *acp, pmInDom indom, const __pmTimestamp * const tsp
      *     + 64 bits for sec
      */
     len = 5 * sizeof(__int32_t);
-    if (__pmLogVersion(lcp) >= PM_LOG_VERS03)
+    if (__pmLogVersion(lcp) == PM_LOG_VERS03)
 	len += sizeof(__int64_t);
-    else
+    else if (__pmLogVersion(lcp) == PM_LOG_VERS02)
 	len += sizeof(__int32_t);
+    else
+	return PM_ERR_LABEL;
 
     len += (numinst > 0 ? numinst : 0) * (sizeof(instlist[0]) + sizeof(stridx[0]))
 	    + sizeof(__int32_t);
@@ -85,7 +87,7 @@ __pmLogPutInDom(__pmArchCtl *acp, pmInDom indom, const __pmTimestamp * const tsp
     }
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
-    if (__pmLogVersion(lcp) >= PM_LOG_VERS03) {
+    if (__pmLogVersion(lcp) == PM_LOG_VERS03) {
 	__pmInDom_v3	*v3;
 	if ((v3 = (__pmInDom_v3 *)malloc(len)) == NULL)
 	    return -oserror();
@@ -99,7 +101,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
 	inst = (int *)&v3->data;
 	lenp = &v3->len;
     }
-    else {
+    else if (__pmLogVersion(lcp) == PM_LOG_VERS02) {
 	__pmInDom_v2	*v2;
 	if ((v2 = (__pmInDom_v2 *)malloc(len)) == NULL)
 	    return -oserror();

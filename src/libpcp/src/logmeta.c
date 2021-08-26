@@ -1389,10 +1389,12 @@ __pmLogPutLabel(__pmArchCtl *acp, unsigned int type, unsigned int ident,
      *     + 64 bits for sec
      */
     len = 6 * sizeof(__int32_t);
-    if (__pmLogVersion(lcp) >= PM_LOG_VERS03)
+    if (__pmLogVersion(lcp) == PM_LOG_VERS03)
 	len += sizeof(__int64_t);
-    else
+    else if (__pmLogVersion(lcp) == PM_LOG_VERS02)
 	len += sizeof(__int32_t);
+    else
+	return PM_ERR_LABEL;
 
     for (i = 0; i < nsets; i++) {
 	len += sizeof(unsigned int);	/* instance identifier */
@@ -1404,7 +1406,7 @@ __pmLogPutLabel(__pmArchCtl *acp, unsigned int type, unsigned int ident,
     len += LENSIZE;
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":12", PM_FAULT_ALLOC);
-    if (__pmLogVersion(lcp) >= PM_LOG_VERS03) {
+    if (__pmLogVersion(lcp) == PM_LOG_VERS03) {
 	__pmExtLabelSet_v3	*v3;
 	__pmTimestamp		stamp;
 	if ((v3 = (__pmExtLabelSet_v3 *)malloc(len)) == NULL)
@@ -1424,7 +1426,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":12", PM_FAULT_ALLOC);
 	ptr = (char *)&v3->data;
 	lenp = &v3->len;
     }
-    else {
+    else if (__pmLogVersion(lcp) == PM_LOG_VERS02) {
 	__pmExtLabelSet_v2	*v2;
 	if ((v2 = (__pmExtLabelSet_v2 *)malloc(len)) == NULL)
 	    return -oserror();
@@ -1441,6 +1443,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":12", PM_FAULT_ALLOC);
 	ptr = (char *)&v2->data;
 	lenp = &v2->len;
     }
+    else
+	return PM_ERR_LABEL;
 
     for (i = 0; i < nsets; i++) {
     	/* label inst */
@@ -1841,7 +1845,11 @@ pmGetInDomArchive(pmInDom indom, int **instlist, char ***namelist)
 void
 __pmLogLoadTimestamp(const __int32_t *buf, __pmTimestamp *tsp)
 {
-    memcpy((void *)&tsp->sec, (void *)buf, 2*sizeof(__int32_t));
+    /*
+     * need to dodge endian issues here ... want the MSB 32-bits of sec
+     * from buf[0] and the LSB 32 bits of sec from buf[1]
+     */
+    tsp->sec = ((((__int64_t)buf[0]) << 32) & 0xffffffff00000000LL) | (buf[1] & 0xffffffff);;
     tsp->nsec = buf[2];
     __ntohpmTimestamp(tsp);
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
@@ -1853,7 +1861,7 @@ __pmLogLoadTimestamp(const __int32_t *buf, __pmTimestamp *tsp)
 void
 __pmLogLoadTimeval(const __int32_t *buf, __pmTimestamp *tsp)
 {
-    tsp->sec = ntohl(buf[0]);
+    tsp->sec = (__int32_t)ntohl(buf[0]);
     tsp->nsec = ntohl(buf[1]) * 1000;
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
 	fprintf(stderr, "__pmLogLoadTimeval: network(%08x %08x usec)", buf[0], buf[1]);
@@ -1867,8 +1875,13 @@ __pmLogPutTimestamp(const __pmTimestamp *tsp, __int32_t *buf)
     __pmTimestamp	stamp;
     stamp = *tsp;
     __htonpmTimestamp(&stamp);
-    memcpy((void *)buf, (void *)&tsp->sec, 2*sizeof(__int32_t));
-    buf[2] = tsp->nsec;
+    /*
+     * need to dodge endian issues here ... want the MSB 32-bits of sec
+     * in buf[0] and the LSB 32 bits of sec in buf[1]
+     */
+    buf[0] = (stamp.sec >> 32) & 0xffffffff;
+    buf[1] = stamp.sec & 0xffffffff;
+    buf[2] = stamp.nsec;
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
 	fprintf(stderr, "__pmLogPutTimestamp: %" FMT_INT64 ".%09d (%llx %x nsec)", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec);
 	fprintf(stderr, " -> network(%08x%08x %08x nsec)\n", buf[0], buf[1], buf[2]);

@@ -745,24 +745,27 @@ PCP_3.32 {
 
 PCP_3.33 {
   global:
-    pmstrlen;
-    __pmLogVersion;
-    __pmPrintTimespec;
-    __pmPrintTimestamp;
-    __pmTimespecSub;
-    __pmTimestampSub;
-    __pmTimestampCmp;
-    __pmTimestampInc;
-    __pmTimestampDec;
-    __pmPrintResult;
     __htonpmTimestamp;
     __ntohpmTimestamp;
+    __pmFreeHighResResultValues;
+    __pmLogFindOpen;
+    __pmLogFreeLabel;
     __pmLogLabelSize;
     __pmLogLoadInDom;
+    __pmLogLoadLabel;
     __pmLogLoadTimestamp;
     __pmLogLoadTimeval;
     __pmLogPutTimestamp;
     __pmLogPutTimeval;
+    __pmLogVersion;
+    __pmPrintResult;
+    __pmPrintTimespec;
+    __pmPrintTimestamp;
+    __pmTimespecSub;
+    __pmTimestampCmp;
+    __pmTimestampDec;
+    __pmTimestampInc;
+    __pmTimestampSub;
     __pmZoneinfo;
-    __pmFreeHighResResultValues;
+    pmstrlen;
 } PCP_3.32;

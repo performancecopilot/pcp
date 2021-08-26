@@ -119,97 +119,48 @@ do_work(char *fname)
 {
     __pmFILE		*f;
     int			sts;
-    int			len;
-    int			magic;
-    int			volume;
     long		extsize;
     long		intsize;
-    long		saved;
+    __pmLogLabel	label;
     struct stat		sbuf;
-
-    if ((f = __pmFopen(fname, "r")) == NULL) {
-	fprintf(stderr, "%s: cannot open file: %s\n", fname, osstrerror());
-	return;
-    }
-    if ((sts = __pmFread(&len, 1, sizeof(len), f)) != sizeof(len)) {
-	fprintf(stderr, "%s: label header read botch: read returns %d not %d as expected\n", fname, sts, (int)sizeof(int));
-	exit(1);
-    }
-    len = ntohl(len);
-
-    saved = __pmFtell(f);
-    if ((sts = __pmFread(&magic, 1, sizeof(magic), f)) != sizeof(magic)) {
-	fprintf(stderr, "%s: label magic read botch: read returns %d not %d as expected\n", fname, sts, (int)sizeof(magic));
-	exit(1);
-    }
-    __pmFseek(f, saved, SEEK_SET);
-    magic = ntohl(magic);
-
-    if ((magic & 0xff) >= PM_LOG_VERS03) {
-	__pmExtLabel_v3	label3;
-	char		buffer[1<<16];
-
-	if (len < sizeof(__pmExtLabel_v3) + 2*sizeof(int)) {
-	    fprintf(stderr, "%s: label header botch: read %d not >=%d as expected\n", fname, len, (int)(sizeof(__pmExtLabel_v3) + 2*sizeof(int)));
-	    exit(1);
-	}
-	if ((sts = __pmFread(&label3, 1, sizeof(label3), f)) != sizeof(label3)) {
-	    fprintf(stderr, "%s: label read botch: read returns %d not %d as expected\n", fname, sts, (int)sizeof(label3));
-	    exit(1);
-	}
-	volume = ntohl(label3.vol);
-
-	len -= (sizeof(__pmExtLabel_v3) + 2*sizeof(int));
-	if (len > sizeof(buffer)) {
-	    fprintf(stderr, "%s: label strings botch: size %d not <=%d as expected\n", fname, len, (int)sizeof(buffer));
-	    exit(1);
-	}
-	if ((sts = __pmFread(buffer, 1, len, f)) != len) {
-	    fprintf(stderr, "%s: label strings botch: read returns %d not %d as expected\n", fname, sts, len);
-	    exit(1);
-	}
-
-    } else {
-	__pmExtLabel_v2	label2;
-
-	if (len < sizeof(__pmExtLabel_v2) + 2*sizeof(int)) {
-	    fprintf(stderr, "%s: label header size botch: read %d not >=%d as expected\n", fname, len, (int)(sizeof(__pmExtLabel_v2) + 2*sizeof(int)));
-	    exit(1);
-	}
-	if ((sts = __pmFread(&label2, 1, sizeof(label2), f)) != sizeof(label2)) {
-	    fprintf(stderr, "%s: label read botch: read returns %d not %d as expected\n", fname, sts, (int)sizeof(label2));
-	    exit(1);
-	}
-	volume = ntohl(label2.vol);
-    }
-
-    if ((sts = __pmFread(&len, 1, sizeof(len), f)) != sizeof(len)) {
-	fprintf(stderr, "%s: label trailer read botch: read returns %d not %d as expected\n", fname, sts, (int)sizeof(int));
-	exit(1);
-    }
+    
     if ((sts = stat(fname, &sbuf)) != 0) {
 	fprintf(stderr, "%s: cannot stat file: %s\n", fname, osstrerror());
 	exit(1);
     }
     extsize = sbuf.st_size;
+
+    if ((f = __pmFopen(fname, "r")) == NULL) {
+	fprintf(stderr, "%s: cannot open file: %s\n", fname, osstrerror());
+	return;
+    }
+
     if ((sts = __pmFstat(f, &sbuf)) != 0) {
 	fprintf(stderr, "%s: cannot __pmFstat file: %s\n", fname, osstrerror());
 	exit(1);
     }
     intsize = sbuf.st_size;
+
+    memset((void *)&label, 0, sizeof(label));
+    if ((sts = __pmLogLoadLabel(f, &label)) < 0) {
+	fprintf(stderr, "%s: cannot load label record: %s\n", fname, pmErrStr(sts));
+        return;
+    }
+
     printf("%s:", fname);
     if (intsize != extsize) {
 	printf(" [compression reduces size below by about %.0f%%]", 100*(float)(intsize - extsize) / intsize);
     }
     putchar('\n');
 
-    if (volume == PM_LOG_VOL_TI)
-	do_index(f, magic & 0xff);
-    else if (volume == PM_LOG_VOL_META)
+    if (label.vol == PM_LOG_VOL_TI)
+	do_index(f, label.magic & 0xff);
+    else if (label.vol == PM_LOG_VOL_META)
 	do_meta(f);
     else
 	do_data(f, fname);
 
+    __pmLogFreeLabel(&label);
     __pmFclose(f);
 }
 

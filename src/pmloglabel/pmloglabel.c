@@ -19,108 +19,28 @@
 static int gold;	/* boolean flag - do we have a golden label yet? */
 static char *goldfile;
 static __pmLogLabel golden;
-static __pmLogLabel zeroes;
 static __pmLogCtl logctl;
 static __pmArchCtl archctl;
 static int status;
 
 /*
- * Basic log control label sanity testing, with prefix/suffix len
+ * Basic log control label sanity testing, with header/trailer len
  * checks too (these are stored as int's around the actual label).
  */
 
 int
-verify_label(__pmFILE *f, const char *file)
+verify_label(__pmFILE *f, const char *file, __pmLogLabel *lp)
 {
-    int version, magic;
-    int n, len;
+    int		sts;
 
-    /* check the prefix integer */
-    __pmFseek(f, (long)0, SEEK_SET);
-    n = (int)__pmFread(&len, 1, sizeof(len), f);
-    len = ntohl(len);
-    if (n != sizeof(len)) {
-	if (__pmFeof(f)) {
-	    fprintf(stderr, "Bad prefix sentinel read for %s: file too short\n",
-			file);
-	    status = 2;
-	}
-	else if (__pmFerror(f)) {
-	    fprintf(stderr, "Prefix sentinel read error for %s: %s\n",
-			file, osstrerror());
-	    status = 2;
-	}
-	else {
-	    fprintf(stderr, "Prefix sentinel read error for %s: read only %d\n",
-			file, n);
-	    status = 2;
-	}
-    }
-    if (len != sizeof(__pmExtLabel_v2) + 2 * sizeof(int) &&
-	len != sizeof(__pmExtLabel_v3) + 2 * sizeof(int)) {
-	fprintf(stderr, "Bad prefix sentinel value for %s: %d (label length)\n",
-			file, len);
-	status = 2;
+    if (gold)
+	__pmLogFreeLabel(lp);
+    if ((sts = __pmLogLoadLabel(f, lp)) < 0) {
+	fprintf(stderr, "%s: cannot load label record: %s\n", file, pmErrStr(sts));
+	return -1;
     }
 
-    /* check the suffix integer */
-    __pmFseek(f, (long)(len - sizeof(len)), SEEK_SET);
-    n = (int)__pmFread(&len, 1, sizeof(len), f);
-    len = ntohl(len);
-    if (n != sizeof(len)) {
-	if (__pmFeof(f)) {
-	    fprintf(stderr, "Bad suffix sentinel read for %s: file too short\n",
-			file);
-	    status = 2;
-	}
-	else if (__pmFerror(f)) {
-	    fprintf(stderr, "Suffix sentinel read error for %s: %s\n",
-			file, osstrerror());
-	    status = 2;
-	}
-	else {
-	    fprintf(stderr, "Suffix sentinel read error for %s: read only %d\n",
-			file, n);
-	    status = 2;
-	}
-    }
-    if (len != sizeof(__pmExtLabel_v2) + 2 * sizeof(int) &&
-	len != sizeof(__pmExtLabel_v3) + 2 * sizeof(int)) {
-	fprintf(stderr, "Bad suffix sentinel value for %s: %d (label length)\n",
-			file, len);
-	status = 2;
-    }
-
-    if (memcmp(&logctl.l_label, &zeroes, sizeof(zeroes)) == 0)
-	return 0;	/* no label content was successfully read */
-
-    /* check the label itself */
-    magic = logctl.l_label.magic & 0xffffff00;
-    version = logctl.l_label.magic & 0xff;
-    if (magic != PM_LOG_MAGIC) {
-	fprintf(stderr, "Bad magic (%x) in %s\n", magic, file);
-	status = 2;
-    }
-    if (version != PM_LOG_VERS02 && version != PM_LOG_VERS03) {
-	fprintf(stderr, "Bad version (%x) in %s\n", version, file);
-	status = 2;
-    }
-
-    return version;
-}
-
-static void
-release_label(void)
-{
-    __pmLogLabel *label = &logctl.l_label;
-
-    if (label->hostname)
-	free(label->hostname);
-    if (label->timezone)
-	free(label->timezone);
-    if (label->zoneinfo)
-	free(label->zoneinfo);
-    memset(label, 0, sizeof(__pmLogLabel));
+    return __pmLogVersion(&logctl);
 }
 
 /*
@@ -140,9 +60,9 @@ compare_golden(__pmFILE *f, const char *file, int sts, int warnings)
 	memset(label, 0, sizeof(*label));	/* avoid double freeing */
     }
     else if (warnings) {
-	int version = verify_label(f, file);
+	int version = verify_label(f, file, label);
 
-	if (memcmp(label, &zeroes, sizeof(zeroes)) == 0)
+	if (version < 0)
 	    return;	/* no label content was successfully read */
 
 	if (version != (golden.magic & 0xff)) {
@@ -296,7 +216,7 @@ main(int argc, char *argv[])
 
     if (verbose)
 	printf("Scanning for components of archive \"%s\"\n", archive);
-    if ((sts = __pmLogLoadLabel(&archctl, archive)) < 0) {
+    if ((sts = __pmLogFindOpen(&archctl, archive)) < 0) {
 	fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
 		pmGetProgname(), archive, pmErrStr(sts));
 	exit(1);
@@ -317,7 +237,7 @@ main(int argc, char *argv[])
 	}
 	pmsprintf(buffer, sizeof(buffer), "data volume %d", c);
 	compare_golden(archctl.ac_mfp, buffer, sts, warnings);
-	release_label();
+	__pmLogFreeLabel(&logctl.l_label);
     }
 
     if (logctl.l_tifp) {
@@ -329,7 +249,7 @@ main(int argc, char *argv[])
 	    status = 2;
 	}
 	compare_golden(logctl.l_tifp, "temporal index", sts, warnings);
-	release_label();
+	__pmLogFreeLabel(&logctl.l_label);
     }
     else if (verbose) {
 	printf("No temporal index found\n");
@@ -343,7 +263,7 @@ main(int argc, char *argv[])
 	status = 2;
     }
     compare_golden(logctl.l_mdfp, "metadata volume", sts, warnings);
-    release_label();
+    __pmLogFreeLabel(&logctl.l_label);
 
     /*
      * Now, make any modifications requested

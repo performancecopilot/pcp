@@ -70,7 +70,7 @@ __pmLogIndexZeroTILogDiagnostic(const __pmArchCtl *acp)
 
 /* Emit a Log Version 3 Temporal Index entry */
 static int
-__pmLogPutIndex_v3(const __pmArchCtl *acp, const __pmTimestamp * const ts)
+__pmLogPutIndex_v3(const __pmArchCtl *acp, const __pmTimestamp * const tsp)
 {
     __pmLogCtl		*lcp = acp->ac_log;
     size_t		bytes;
@@ -79,24 +79,24 @@ __pmLogPutIndex_v3(const __pmArchCtl *acp, const __pmTimestamp * const ts)
     __pmoff64_t		off_meta;
     __pmoff64_t		off_data;
 
-    stamp.sec = ts->sec;
-    stamp.nsec = ts->nsec;
     ti.vol = acp->ac_curvol;
     off_meta = (__pmoff64_t)__pmFtell(lcp->l_mdfp);
     memcpy((void *)&ti.off_meta[0], (void *)&off_meta, 2*sizeof(__int32_t));
     off_data = (__pmoff64_t)__pmFtell(acp->ac_mfp);
     if (off_data == 0)
 	__pmLogIndexZeroTILogDiagnostic(acp);
-    memcpy((void *)&ti.off_data[0], (void *)&off_meta, 2*sizeof(__int32_t));
+    memcpy((void *)&ti.off_data[0], (void *)&off_data, 2*sizeof(__int32_t));
 
     if (pmDebugOptions.log) {
 	fprintf(stderr, "%s: "
 		"timestamp=%" FMT_INT64 ".09%d vol=%d meta posn=%" FMT_INT64 " log posn=%" FMT_INT64 "\n",
 	    "__pmLogPutIndex",
-	    stamp.sec, stamp.nsec, ti.vol, off_meta, off_data);
+	    tsp->sec, tsp->nsec, ti.vol, off_meta, off_data);
     }
 
-    __htonpmTimestamp(&stamp);
+    stamp.sec = tsp->sec;
+    stamp.nsec = tsp->nsec;
+    __pmLogPutTimestamp(&stamp, &ti.sec[0]);
     memcpy((void *)&ti.sec[0], (void *)&stamp.sec, 2*sizeof(__int32_t));
     ti.nsec = htonl(stamp.nsec);
     ti.vol = htonl(ti.vol);
@@ -122,7 +122,7 @@ __pmLogPutIndex_v3(const __pmArchCtl *acp, const __pmTimestamp * const ts)
 
 /* Emit a Log Version 2 Temporal Index entry */
 static int
-__pmLogPutIndex_v2(const __pmArchCtl *acp, const __pmTimestamp *ts)
+__pmLogPutIndex_v2(const __pmArchCtl *acp, const __pmTimestamp *tsp)
 {
     __pmLogCtl		*lcp = acp->ac_log;
     size_t		bytes;
@@ -130,8 +130,8 @@ __pmLogPutIndex_v2(const __pmArchCtl *acp, const __pmTimestamp *ts)
     __pmoff64_t		off_meta;
     __pmoff64_t		off_data;
 
-    ti.sec = (__uint32_t)ts->sec;
-    ti.usec = (__uint32_t)ts->nsec / 1000;
+    ti.sec = (__uint32_t)tsp->sec;
+    ti.usec = (__uint32_t)tsp->nsec / 1000;
     ti.vol = acp->ac_curvol;
 
     if (sizeof(off_t) > sizeof(__pmoff32_t)) {
@@ -193,7 +193,7 @@ __pmLogPutIndex_v2(const __pmArchCtl *acp, const __pmTimestamp *ts)
 }
 
 int
-__pmLogPutIndex(const __pmArchCtl *acp, const __pmTimestamp *ts)
+__pmLogPutIndex(const __pmArchCtl *acp, const __pmTimestamp *tsp)
 {
     struct timespec	tmp;
     __pmTimestamp	stamp;
@@ -210,17 +210,19 @@ __pmLogPutIndex(const __pmArchCtl *acp, const __pmTimestamp *ts)
     __pmFflush(lcp->l_mdfp);
     __pmFflush(acp->ac_mfp);
 
-    if (ts == NULL) {
+    if (tsp == NULL) {
 	pmtimespecNow(&tmp);
 	stamp.sec = tmp.tv_sec;
 	stamp.nsec = tmp.tv_nsec;
-	ts = &stamp;
+	tsp = &stamp;
     }
 
-    if (__pmLogVersion(lcp) >= PM_LOG_VERS03)
-	return __pmLogPutIndex_v3(acp, ts);
+    if (__pmLogVersion(lcp) == PM_LOG_VERS03)
+	return __pmLogPutIndex_v3(acp, tsp);
+    else if (__pmLogVersion(lcp) == PM_LOG_VERS02)
+	return __pmLogPutIndex_v2(acp, tsp);
     else
-	return __pmLogPutIndex_v2(acp, ts);
+	return PM_ERR_LABEL;
 }
 
 int
@@ -236,10 +238,12 @@ __pmLogLoadIndex(__pmLogCtl *lcp)
     lcp->l_numti = 0;
     lcp->l_ti = NULL;
 
-    if (__pmLogVersion(lcp) >= PM_LOG_VERS03)
+    if (__pmLogVersion(lcp) == PM_LOG_VERS03)
 	record_size = sizeof(__pmTI_v3);
-    else
+    else if (__pmLogVersion(lcp) == PM_LOG_VERS02)
 	record_size = sizeof(__pmTI_v2);
+    else
+	return PM_ERR_LABEL;
 
     if ((buffer = (void *)malloc(record_size)) == NULL) {
 	pmNoMem("__pmLogLoadIndex: buffer", record_size, PM_RECOV_ERR);
@@ -282,33 +286,25 @@ __pmLogLoadIndex(__pmLogCtl *lcp)
 	    /*
 	     * swab and copy fields
 	     */
-	    if (__pmLogVersion(lcp) >= PM_LOG_VERS03) {
+	    if (__pmLogVersion(lcp) == PM_LOG_VERS03) {
 		__pmTI_v3	*tip_v3 = (__pmTI_v3 *)buffer;
-		__htonll((char *)&tip_v3->sec);
-		tip_v3->nsec = ntohl(tip_v3->nsec);
-		tip_v3->vol = ntohl(tip_v3->vol);
+		__pmLogLoadTimestamp(&tip_v3->sec[0], &tip->stamp);
+		tip->vol = tip_v3->vol;
 		__htonll((char *)&tip_v3->off_meta[0]);
 		__htonll((char *)&tip_v3->off_data[0]);
-		/* sizes are not the same, so copy field-by-field */
-		memcpy((void *)&tip->stamp.sec, (void *)&tip_v3->sec[0], sizeof(__int32_t));
-		tip->stamp.nsec = tip_v3->nsec;
-		tip->vol = tip_v3->vol;
 		memcpy((void *)&tip->off_meta, (void *)&tip_v3->off_meta[0], 2*sizeof(__int32_t));
 		memcpy((void *)&tip->off_data, (void *)&tip_v3->off_data[0], 2*sizeof(__int32_t));
 	    }
-	    else {
+	    else if (__pmLogVersion(lcp) == PM_LOG_VERS02) {
 		__pmTI_v2	*tip_v2 = (__pmTI_v2 *)buffer;
-		tip_v2->sec = ntohl(tip_v2->sec);
-		tip_v2->usec = ntohl(tip_v2->usec);
-		tip_v2->vol = ntohl(tip_v2->vol);
-		tip_v2->off_meta = ntohl(tip_v2->off_meta);
-		tip_v2->off_data = ntohl(tip_v2->off_data);
-		tip->stamp.sec = tip_v2->sec;
-		tip->stamp.nsec = tip_v2->usec * 1000;
-		tip->vol = tip_v2->vol;
-		tip->off_meta = tip_v2->off_meta;
-		tip->off_data = tip_v2->off_data;
+		tip->stamp.sec = (__int32_t)ntohl(tip_v2->sec);
+		tip->stamp.nsec = ntohl(tip_v2->usec) * 1000;
+		tip->vol = ntohl(tip_v2->vol);
+		tip->off_meta = ntohl(tip_v2->off_meta);
+		tip->off_data = ntohl(tip_v2->off_data);
 	    }
+	    else
+		return PM_ERR_LABEL;
 
 	    lcp->l_numti++;
 	}

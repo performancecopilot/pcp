@@ -787,35 +787,6 @@ typedef struct {
 } __pmLogLabel;
 
 /*
- * On-Disk Log Label, Version 2
- */
-typedef struct {
-    __uint32_t	magic;		/* PM_LOG_MAGIC|PM_LOG_VERS02 */
-    __int32_t	pid;		/* PID of logger */
-    __int32_t	start_sec;	/* start of this log (pmTimeval) */
-    __int32_t	start_usec;
-    __int32_t	vol;		/* current log volume no. */
-    char	hostname[PM_LOG_MAXHOSTLEN]; /* name of collection host */
-    char	timezone[PM_TZ_MAXLEN];	/* $TZ at collection host */
-} __pmExtLabel_v2;
-
-/*
- * On-Disk Log Label, Version 3
- */
-typedef struct {
-    __uint32_t	magic;		/* PM_LOG_MAGIC|PM_LOG_VERS03 */
-    __int32_t	pid;		/* PID of logger */
-    __int64_t	start_sec;	/* start of this log (__pmTimestamp) */
-    __int32_t	start_nsec;
-    __int32_t	vol;		/* current log volume no. */
-    __uint32_t	features;	/* enabled archive feature bits */
-    __uint32_t	reserved;	/* reserved for future use, zero padded */
-    char	hostname[PM_MAX_HOSTNAMELEN];  /* collection host full name */
-    char	timezone[PM_MAX_TIMEZONELEN];  /* generic "squashed" $TZ */
-    char	zoneinfo[PM_MAX_ZONEINFOLEN];  /* local platform $TZ */
-} __pmExtLabel_v3;
-
-/*
  * Internal Temporal Index Record
  */
 typedef struct {
@@ -1019,7 +990,8 @@ PCP_CALL extern int __pmHighResFetchLocal(__pmContext *, int, pmID *, pmHighResR
 PCP_CALL extern int __pmStuffValue(const pmAtomValue *, pmValue *, int);
 
 /* Archive context helper. */
-int __pmFindOrOpenArchive(__pmContext *, const char *, int);
+PCP_CALL extern int __pmFindOrOpenArchive(__pmContext *, const char *, int);
+PCP_CALL extern int __pmLogFindOpen(__pmArchCtl *, const char *);
 
 /* Generic access control routines */
 PCP_CALL extern int __pmAccAddOp(unsigned int);
@@ -1488,10 +1460,11 @@ PCP_CALL extern void __pmIgnoreSignalPIPE(void);
 PCP_CALL extern void __pmFreeHighResResult(pmHighResResult *);
 
 /*
- * Loading metadata records and fields from disk ...
+ * Loading archive records and fields from disk ...
  */
 PCP_CALL extern int __pmLogLoadInDom(__pmArchCtl *, int, int, pmInResult *, __pmTimestamp *, __int32_t **);
-PCP_CALL extern int __pmLogLoadLabel(__pmArchCtl *, const char *);
+PCP_CALL extern int __pmLogLoadLabel(__pmFILE *, __pmLogLabel *);
+PCP_CALL extern void __pmLogFreeLabel(__pmLogLabel *);
 PCP_CALL extern void __pmLogLoadTimestamp(const __int32_t *, __pmTimestamp *);
 PCP_CALL extern void __pmLogLoadTimeval(const __int32_t *, __pmTimestamp *);
 PCP_CALL extern void __pmLogPutTimestamp(const __pmTimestamp *, __int32_t *);

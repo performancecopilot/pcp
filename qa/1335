@@ -49,6 +49,8 @@ _filter()
     tee -a $seq.full \
     | sed >$tmp.tmp \
 	-e "s@$tmp@TMP@g" \
+	-e '/commencing/s/ing .*/ing DATE/' \
+	-e '/ending/s/ing .*/ing DATE/' \
 	-e '/^PID for pmlogger:/s/ [0-9][0-9]*/ PID/' \
 	-e '/^[0-2][0-9]:/{
 s/  [0-9][0-9][0-9][0-9]/OFFSET/g
