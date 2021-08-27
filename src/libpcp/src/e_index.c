@@ -75,7 +75,6 @@ __pmLogPutIndex_v3(const __pmArchCtl *acp, const __pmTimestamp * const tsp)
     __pmLogCtl		*lcp = acp->ac_log;
     size_t		bytes;
     __pmTI_v3		ti;
-    __pmTimestamp	stamp;
     __pmoff64_t		off_meta;
     __pmoff64_t		off_data;
 
@@ -94,11 +93,7 @@ __pmLogPutIndex_v3(const __pmArchCtl *acp, const __pmTimestamp * const tsp)
 	    tsp->sec, tsp->nsec, ti.vol, off_meta, off_data);
     }
 
-    stamp.sec = tsp->sec;
-    stamp.nsec = tsp->nsec;
-    __pmLogPutTimestamp(&stamp, &ti.sec[0]);
-    memcpy((void *)&ti.sec[0], (void *)&stamp.sec, 2*sizeof(__int32_t));
-    ti.nsec = htonl(stamp.nsec);
+    __pmLogPutTimestamp(tsp, &ti.sec[0]);
     ti.vol = htonl(ti.vol);
     __htonll((char *)&ti.off_meta[0]);
     __htonll((char *)&ti.off_data[0]);
@@ -130,8 +125,7 @@ __pmLogPutIndex_v2(const __pmArchCtl *acp, const __pmTimestamp *tsp)
     __pmoff64_t		off_meta;
     __pmoff64_t		off_data;
 
-    ti.sec = (__uint32_t)tsp->sec;
-    ti.usec = (__uint32_t)tsp->nsec / 1000;
+    __pmLogPutTimeval(tsp, &ti.sec);
     ti.vol = acp->ac_curvol;
 
     if (sizeof(off_t) > sizeof(__pmoff32_t)) {
@@ -169,8 +163,7 @@ __pmLogPutIndex_v2(const __pmArchCtl *acp, const __pmTimestamp *tsp)
 	    ti.sec, ti.usec, ti.vol, off_meta, off_data);
     }
 
-    ti.sec = htonl(ti.sec);
-    ti.usec = htonl(ti.usec);
+    __pmLogPutTimestamp(tsp, &ti.sec);
     ti.vol = htonl(ti.vol);
     ti.off_meta = htonl((__int32_t)off_meta);
     ti.off_data = htonl((__int32_t)off_data);
@@ -297,8 +290,7 @@ __pmLogLoadIndex(__pmLogCtl *lcp)
 	    }
 	    else if (__pmLogVersion(lcp) == PM_LOG_VERS02) {
 		__pmTI_v2	*tip_v2 = (__pmTI_v2 *)buffer;
-		tip->stamp.sec = (__int32_t)ntohl(tip_v2->sec);
-		tip->stamp.nsec = ntohl(tip_v2->usec) * 1000;
+		__pmLogLoadTimeval(&tip_v2->sec, &tip->stamp);
 		tip->vol = ntohl(tip_v2->vol);
 		tip->off_meta = ntohl(tip_v2->off_meta);
 		tip->off_data = ntohl(tip_v2->off_data);
