@@ -125,7 +125,6 @@ __pmLogPutIndex_v2(const __pmArchCtl *acp, const __pmTimestamp *tsp)
     __pmoff64_t		off_meta;
     __pmoff64_t		off_data;
 
-    __pmLogPutTimeval(tsp, &ti.sec);
     ti.vol = acp->ac_curvol;
 
     if (sizeof(off_t) > sizeof(__pmoff32_t)) {
@@ -163,7 +162,7 @@ __pmLogPutIndex_v2(const __pmArchCtl *acp, const __pmTimestamp *tsp)
 	    ti.sec, ti.usec, ti.vol, off_meta, off_data);
     }
 
-    __pmLogPutTimestamp(tsp, &ti.sec);
+    __pmLogPutTimeval(tsp, &ti.sec);
     ti.vol = htonl(ti.vol);
     ti.off_meta = htonl((__int32_t)off_meta);
     ti.off_data = htonl((__int32_t)off_data);
@@ -282,9 +281,9 @@ __pmLogLoadIndex(__pmLogCtl *lcp)
 	    if (__pmLogVersion(lcp) == PM_LOG_VERS03) {
 		__pmTI_v3	*tip_v3 = (__pmTI_v3 *)buffer;
 		__pmLogLoadTimestamp(&tip_v3->sec[0], &tip->stamp);
-		tip->vol = tip_v3->vol;
-		__htonll((char *)&tip_v3->off_meta[0]);
-		__htonll((char *)&tip_v3->off_data[0]);
+		tip->vol = ntohl(tip_v3->vol);
+		__ntohll((char *)&tip_v3->off_meta[0]);
+		__ntohll((char *)&tip_v3->off_data[0]);
 		memcpy((void *)&tip->off_meta, (void *)&tip_v3->off_meta[0], 2*sizeof(__int32_t));
 		memcpy((void *)&tip->off_data, (void *)&tip_v3->off_data[0], 2*sizeof(__int32_t));
 	    }
