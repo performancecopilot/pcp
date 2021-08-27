@@ -457,5 +457,6 @@ extern char *__pmLabelFlagString(int, char *, int) _PCP_HIDDEN;
 
 /* logmeta.c hooks */
 extern int addindom(__pmLogCtl *, pmInDom, const __pmTimestamp *, int , int *, char **, __int32_t *, int) _PCP_HIDDEN;
+extern int addlabel(__pmArchCtl *, unsigned int, unsigned int, int, pmLabelSet *, const __pmTimestamp *) _PCP_HIDDEN;
 
 #endif /* _LIBPCP_INTERNAL_H */

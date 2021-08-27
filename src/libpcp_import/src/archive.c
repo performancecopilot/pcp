@@ -313,10 +313,10 @@ _pmi_put_label(pmi_context *current)
 
 	/*
 	 * Now write out the label record.
-	 * libpcp, via __pmLogPutLabel(), assumes control of the
+	 * libpcp, via __pmLogPutLabels(), assumes control of the
 	 * storage pointed to by lp->labelset.
 	 */
-	if ((sts = __pmLogPutLabel(&current->archctl, lp->type, lp->id,
+	if ((sts = __pmLogPutLabels(&current->archctl, lp->type, lp->id,
 				   1, lp->labelset, &stamp)) < 0)
 	    return sts;
 

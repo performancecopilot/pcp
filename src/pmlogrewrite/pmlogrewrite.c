@@ -1418,7 +1418,7 @@ do_newlabelsets(void)
 
 	/*
 	 * Write the record.
-	 * libpcp, via __pmLogPutLabel(), assumes control of the storage pointed
+	 * libpcp, via __pmLogPutLabels(), assumes control of the storage pointed
 	 * to by labellist.
 	 */
 	ident = lp->new_id;
@@ -1443,9 +1443,9 @@ do_newlabelsets(void)
 	    pmPrintLabelSets(stderr, ident, type, labellist, nsets);
 	}
 
-	if ((sts = __pmLogPutLabel(&outarch.archctl, type, ident,
+	if ((sts = __pmLogPutLabels(&outarch.archctl, type, ident,
 				   nsets, labellist, &stamp)) < 0) {
-	    fprintf(stderr, "%s: Error: __pmLogPutLabel: %s: %s\n",
+	    fprintf(stderr, "%s: Error: __pmLogPutLabels: %s: %s\n",
 		    pmGetProgname(),
 		    __pmLabelIdentString(ident, type, buf, sizeof(buf)),
 		    pmErrStr(sts));

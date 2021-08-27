@@ -338,10 +338,10 @@ putlabels(unsigned int type, unsigned int ident, const __pmTimestamp *tsp)
 
     if (len > 0) {
 	int	sts;
-	sts = __pmLogPutLabel(&archctl, type, ident, len, label, tsp);
+	sts = __pmLogPutLabels(&archctl, type, ident, len, label, tsp);
 	if (sts < 0)
 	    /*
-	     * on success, labels are stashed by __pmLogPutLabel(), otherwise
+	     * on success, labels are stashed by __pmLogPutLabels(), otherwise
 	     * we need to free labels
 	     */
 	    pmFreeLabelSets(label, len);

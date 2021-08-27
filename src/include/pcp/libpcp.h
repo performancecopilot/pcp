@@ -743,36 +743,6 @@ typedef struct __pmLogLabelSet {
 } __pmLogLabelSet;
 
 /*
- * On-Disk __pmLogLabelSet Record, Version 3
- */
-typedef struct {
-    __int32_t	len;		/* header */
-    __int32_t	type;
-    __uint32_t	sec[2];		/* __pmTimestamp */
-    __uint32_t	nsec;
-    __int32_t	labeltype;
-    __int32_t	ident;
-    __int32_t	nsets;
-    __int32_t	data[0];	/* labelsets */
-    				/* will be expanded if nsets > 0 */
-} __pmExtLabelSet_v3;
-
-/*
- * On-Disk  __pmLogLabelSet Record, Version 2
- */
-typedef struct {
-    __int32_t	len;		/* header */
-    __int32_t	type;
-    __int32_t	sec;		/* pmTimeval */
-    __int32_t	usec;
-    __int32_t	labeltype;
-    __int32_t	ident;
-    __int32_t	nsets;
-    __int32_t	data[0];	/* labelsets */
-    				/* will be expanded if nsets > 0 */
-} __pmExtLabelSet_v2;
-
-/*
  * Internal archive label (below PMAPI)
  */
 typedef struct {
@@ -938,7 +908,7 @@ PCP_CALL extern int __pmLogPutResult(__pmArchCtl *, __pmPDU *);
 PCP_CALL extern int __pmLogPutResult2(__pmArchCtl *, __pmPDU *);
 PCP_CALL extern int __pmLogPutIndex(const __pmArchCtl *, const __pmTimestamp *);
 PCP_CALL extern int __pmLogLoadIndex(__pmLogCtl *);
-PCP_CALL extern int __pmLogPutLabel(__pmArchCtl *, unsigned int, unsigned int, int, pmLabelSet *, const __pmTimestamp *);
+PCP_CALL extern int __pmLogPutLabels(__pmArchCtl *, unsigned int, unsigned int, int, pmLabelSet *, const __pmTimestamp *);
 PCP_CALL extern int __pmLogPutText(__pmArchCtl *, unsigned int , unsigned int, char *, int);
 PCP_CALL extern int __pmLogWriteLabel(__pmFILE *, const __pmLogLabel *);
 PCP_CALL extern int __pmLogLoadMeta(__pmArchCtl *);

@@ -140,7 +140,7 @@ _ntohpmLabel(pmLabel * const label)
 }
 
 /*
- * Reverse the logic of __pmLogPutLabel()
+ * Reverse the logic of __pmLogPutLabels()
  *
  * Mostly stolen from __pmLogLoadMeta. There may be a chance for some
  * code factoring here.
@@ -846,13 +846,13 @@ do_labelset(void)
 
 		/*
 		 * Write the extracted labelset here.
-		 * libpcp, via __pmLogPutLabel(), assumes control of the
+		 * libpcp, via __pmLogPutLabels(), assumes control of the
 		 * storage pointed to by lsp.
 		 */
-		if ((sts = __pmLogPutLabel(&outarch.archctl, type,
+		if ((sts = __pmLogPutLabels(&outarch.archctl, type,
 					   lp->new_id, 1, lsp,
 					   &stamp)) < 0) {
-		    fprintf(stderr, "%s: Error: __pmLogPutLabel: %s: %s\n",
+		    fprintf(stderr, "%s: Error: __pmLogPutLabels: %s: %s\n",
 			    pmGetProgname(),
 			    __pmLabelIdentString(lp->new_id, type,
 						 buf, sizeof(buf)),
@@ -939,13 +939,13 @@ do_labelset(void)
 
 		    /*
 		     * Write the new label.
-		     * libpcp, via __pmLogPutLabel(), assumes control of the
+		     * libpcp, via __pmLogPutLabels(), assumes control of the
 		     * storage pointed to by new_labelset.
 		     */
-		    if ((sts = __pmLogPutLabel(&outarch.archctl, lp->new_type,
+		    if ((sts = __pmLogPutLabels(&outarch.archctl, lp->new_type,
 					       lp->new_id, 1, new_labelset,
 					       &stamp)) < 0) {
-			fprintf(stderr, "%s: Error: __pmLogPutLabel: %s: %s\n",
+			fprintf(stderr, "%s: Error: __pmLogPutLabels: %s: %s\n",
 				pmGetProgname(),
 				__pmLabelIdentString(lp->new_id, type,
 						     buf, sizeof(buf)),
@@ -971,14 +971,14 @@ do_labelset(void)
 
     /*
      * Write what remains of the label record, if anything.
-     * libpcp, via __pmLogPutLabel(), assumes control of the storage pointed
+     * libpcp, via __pmLogPutLabels(), assumes control of the storage pointed
      * to by labellist.
      * If nsets has been reduced to zero, then labellist is already NULL.
      */
     if (labellist != NULL) {
 	assert(nsets > 0);
-	if ((sts = __pmLogPutLabel(&outarch.archctl, type, ident, nsets, labellist, &stamp)) < 0) {
-	    fprintf(stderr, "%s: Error: __pmLogPutLabel: %s: %s\n",
+	if ((sts = __pmLogPutLabels(&outarch.archctl, type, ident, nsets, labellist, &stamp)) < 0) {
+	    fprintf(stderr, "%s: Error: __pmLogPutLabels: %s: %s\n",
 		    pmGetProgname(),
 		    __pmLabelIdentString(ident, type, buf, sizeof(buf)),
 		    pmErrStr(sts));
