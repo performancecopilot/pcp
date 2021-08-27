@@ -2,6 +2,7 @@ QA output created by 612
 
 === -z -a archives/foo+.meta ===
 Note: timezone set to local timezone of pmcd from archive
+[0] label @ 20:13:16.586568000 TODO
 [1] metric 2.3.3 (pmcd.pmlogger.host)
     Data Type: string  InDom: 2.1 0x800001
     Semantics: discrete  Units: none
@@ -108,6 +109,7 @@ Note: timezone set to local timezone of pmcd from archive
 
 === -z -W badarchives/old611.meta ===
 Note: timezone set to local timezone of pmcd from archive
+[0] label @ 19:21:19.233476000 TODO
 [16] @ 19:21:19.305127000 indom 3.9 numinst 159 duplicate #1
  no differences
 [20] @ 19:21:19.305127000 indom 3.9 numinst 158 duplicate #2
@@ -1037,6 +1039,7 @@ Note: timezone set to local timezone of pmcd from archive
 
 === -z -aW archives/vldb-disks.meta ===
 Note: timezone set to local timezone of pmcd from archive
+[0] label @ 20:39:50.357184000 TODO
 [1] metric 2.3.3 (pmcd.pmlogger.host)
     Data Type: string  InDom: 2.1 0x800001
     Semantics: instant  Units: none

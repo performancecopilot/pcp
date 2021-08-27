@@ -27,7 +27,6 @@
 #else
 #define __ntohpmInDom(a)        ntohl(a)
 #define __ntohpmID(a)           ntohl(a)
-#define __ntohll(v)		__htonll(v)
 extern void __ntohpmTimestamp(__pmTimestamp * const);
 #endif
 
@@ -42,22 +41,6 @@ __ntohpmUnits(pmUnits units)
     units = *(pmUnits *)&x;
 
     return units;
-}
-#endif
-
-/* from endian.c ... */
-#ifndef __htonll
-void
-__htonll(char *p)
-{
-    char 	c;
-    int		i;
-
-    for (i = 0; i < 4; i++) {
-	c = p[i];
-	p[i] = p[7-i];
-	p[7-i] = c;
-    }
 }
 #endif
 
@@ -92,6 +75,8 @@ static int	mflag;
 static int	wflag;
 static int	nrec;
 static int	version;
+
+static __pmLogLabel	label;
 
 void
 usage(void)
@@ -492,40 +477,14 @@ do_desc(uint32_t *buf)
 }
 
 void
-do_label(uint32_t *buf)
+do_label(int type)
 {
-    int			type;
-    int			ident;
-    __pmTimestamp	*tsp;
-
-    tsp = (__pmTimestamp *)buf;
-    __ntohll((char *)&tsp->sec);
-    tsp->nsec = ntohl(tsp->nsec);
-    type = ntohl(buf[2]);
-    ident = ntohl(buf[3]);
     printf("[%d] label @ ", nrec);
-    __pmPrintTimestamp(stdout, tsp);
-    printf(" type %d ident %d", type, ident);
-    printf(" TODO");
-    putchar('\n');
-}
-
-void
-do_label_v2(uint32_t *buf)
-{
-    int		type;
-    int		ident;
-    pmTimeval	*tvp;
-
-    tvp = (pmTimeval *)buf;
-    tvp->tv_sec = ntohl(tvp->tv_sec);
-    tvp->tv_usec = ntohl(tvp->tv_usec);
-    type = ntohl(buf[2]);
-    ident = ntohl(buf[3]);
-    printf("[%d] label @ ", nrec);
-    __pmPrintTimeval(stdout, tvp);
-    printf(" type %d ident %d", type, ident);
-    printf(" TODO");
+    __pmPrintTimestamp(stdout, &label.start);
+    if (type == TYPE_LABEL)
+	printf(" TODO");
+    else
+	printf(" TODO");
     putchar('\n');
 }
 
@@ -573,7 +532,6 @@ main(int argc, char *argv[])
     off_t	offset;
     __pmFILE	*f;
     __pmLogHdr	hdr;
-    __pmLogLabel	label;
 
     pmSetProgname(argv[0]);
     setlinebuf(stdout);
@@ -700,7 +658,6 @@ main(int argc, char *argv[])
 	fprintf(stderr, "error: %s does not start with label record, not a PCP archive file?\n", argv[optind]);
 	exit(1);
     }
-    __pmLogFreeLabel(&label);
     __pmFclose(f);
 
     for (nrec = 0; ; nrec++) {
@@ -751,52 +708,53 @@ main(int argc, char *argv[])
 	    exit(1);
 	}
 
-	switch (hdr.type) {
-	    case TYPE_INDOM:
-		do_indom(buf);
-		break;
-
-	    case TYPE_INDOM_V2:
-		do_indom_v2(buf);
-		break;
-
-	    case TYPE_DESC:
-		if (!mflag)
+	if (hdr.type == (PM_LOG_MAGIC|PM_LOG_VERS03))
+	    do_label(3);
+	else if (hdr.type == (PM_LOG_MAGIC|PM_LOG_VERS02))
+	    do_label(2);
+	else {
+	    switch (hdr.type) {
+		case TYPE_INDOM:
+		    do_indom(buf);
 		    break;
-		do_desc(buf);
-		break;
 
-	    case TYPE_LABEL:
-		if (!lflag)
+		case TYPE_INDOM_V2:
+		    do_indom_v2(buf);
 		    break;
-		do_label(buf);
-		break;
 
-	    case TYPE_LABEL_V2:
-		if (!lflag)
+		case TYPE_LABEL:
+		case TYPE_LABEL_V2:
+		    /* odd but the bad archive qa/612 uses sort of needs this */
 		    break;
-		do_label_v2(buf);
-		break;
 
-	    case TYPE_TEXT:
-		if (!hflag)
+		case TYPE_DESC:
+		    if (!mflag)
+			break;
+		    do_desc(buf);
 		    break;
-		do_help(buf);
-		break;
 
-	    default:
-		if (nrec != 0) {
-		    fprintf(stderr, "[%d] error bad type %d\n", nrec, hdr.type);
+		case TYPE_TEXT:
+		    if (!hflag)
+			break;
+		    do_help(buf);
+		    break;
+
+		default:
+		    if (nrec != 0) {
+			fprintf(stderr, "[%d] error bad type %d\n", nrec, hdr.type);
+			exit(1);
+		    }
+		    if (hdr.type == (PM_LOG_MAGIC | PM_LOG_VERS02))
+			continue;
+		    if (hdr.type == (PM_LOG_MAGIC | PM_LOG_VERS03))
+			continue;
+		    fprintf(stderr, "[%d] error bad magic %x != %x\n", nrec, hdr.type, (PM_LOG_MAGIC | PM_LOG_VERS02));
 		    exit(1);
-		}
-		if (hdr.type == (PM_LOG_MAGIC | PM_LOG_VERS02))
-		    continue;
-		if (hdr.type == (PM_LOG_MAGIC | PM_LOG_VERS03))
-		    continue;
-		fprintf(stderr, "[%d] error bad magic %x != %x\n", nrec, hdr.type, (PM_LOG_MAGIC | PM_LOG_VERS02));
-		exit(1);
 
+	    }
 	}
     }
+
+    __pmLogFreeLabel(&label);
     return 0;
 }

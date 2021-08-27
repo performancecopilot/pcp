@@ -907,18 +907,11 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 
 	    k = 0;
 	    if (h.type == TYPE_LABEL_V2) {
-		pmTimeval		*tvp;
-		tvp = (pmTimeval *)&tbuf[k];
-		stamp.sec = ntohl(tvp->tv_sec);
-		stamp.nsec = ntohl(tvp->tv_usec) * 1000;
+		__pmLogLoadTimeval((__int32_t *)&tbuf[k], &stamp);
 		k += 2*sizeof(__int32_t);
 	    }
 	    else {
-		__pmTimestamp	*tsp;
-		tsp = (__pmTimestamp *)&tbuf[k];
-		stamp.sec = tsp->sec;
-		__ntohll((char *)&stamp.sec);
-		stamp.nsec = ntohl(tsp->nsec);
+		__pmLogLoadTimestamp((__int32_t *)&tbuf[k], &stamp);
 		k += sizeof(__uint64_t) + sizeof(__int32_t);
 	    }
 
