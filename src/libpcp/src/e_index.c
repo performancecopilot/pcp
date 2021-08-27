@@ -157,9 +157,9 @@ __pmLogPutIndex_v2(const __pmArchCtl *acp, const __pmTimestamp *tsp)
 	__pmLogIndexZeroTILogDiagnostic(acp);
 
     if (pmDebugOptions.log) {
-	fprintf(stderr, "%s: timestamp=%d.06%d vol=%d meta posn=%" FMT_INT64 " log posn=%" FMT_INT64 "\n",
+	fprintf(stderr, "%s: timestamp=%" FMT_INT64 ".06%d vol=%d meta posn=%" FMT_INT64 " log posn=%" FMT_INT64 "\n",
 	    "__pmLogPutIndex",
-	    ti.sec, ti.usec, ti.vol, off_meta, off_data);
+	    tsp->sec, tsp->nsec / 1000, ti.vol, off_meta, off_data);
     }
 
     __pmLogPutTimeval(tsp, &ti.sec);
