@@ -2060,6 +2060,7 @@ pcp_selinux_sbd_exec=false
 pcp_selinux_capability2_syslog=false
 pcp_selinux_capability2_bpf=false
 pcp_selinux_icmp_socket_class=false
+pcp_selinux_glusterd_log=false
 
 pcp_selinux_initrc_tmp=false
 pcp_selinux_sudo_exec=false
@@ -2118,6 +2119,8 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
 	&& pcp_selinux_kmod_exec=true
     grep '^[[ 	]][[ 	]]*dma_device_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_dma_device=true
+    grep '^[[ 	]][[ 	]]*glusterd_log_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_glusterd_log=true
 
     dnl these ones are for pcpqa.te
 
@@ -2261,6 +2264,7 @@ AC_SUBST(pcp_selinux_capability2_syslog)
 AC_SUBST(pcp_selinux_capability2_bpf)
 AC_SUBST(pcp_selinux_icmp_socket_class)
 AC_SUBST(pcp_selinux_lockdown_class)
+AC_SUBST(pcp_selinux_glusterd_log)
 
 dnl for pcpqa.te
 AC_SUBST(pcp_selinux_initrc_tmp)

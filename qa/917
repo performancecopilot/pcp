@@ -126,7 +126,7 @@ echo '/^!/s// /' >>$tmp.sed
 for type in container_runtime_t nsfs_t docker_var_lib_t unreserved_port_t \
 	    tracefs_t unconfined_service_t numad_t container_var_run_t \
 	    virt_var_run_t proc_security_t sbd_exec_t kmod_exec_t \
-	    dma_device_t \
+	    dma_device_t glusterd_log_t \
 	    # end
 do
     if grep "^[ 	][ 	]*$type\$" $tmp.types >/dev/null
@@ -174,6 +174,9 @@ do
 		;;
 	    dma_device_t)
 		echo '/allow \[pcp_pmcd_t] \[dma_device_t]/d' >>$tmp.sed
+		;;
+	    glusterd_log_t)
+		echo '/allow \[pcp_pmcd_t] \[glusterd_log_t]/d' >>$tmp.sed
 		;;
 
 	esac

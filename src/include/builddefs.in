@@ -293,6 +293,7 @@ PCP_SELINUX_CAPABILITY2_SYSLOG = @pcp_selinux_capability2_syslog@
 PCP_SELINUX_CAPABILITY2_BPF = @pcp_selinux_capability2_bpf@
 PCP_SELINUX_ICMP_SOCKET_CLASS = @pcp_selinux_icmp_socket_class@
 PCP_SELINUX_LOCKDOWN_CLASS = @pcp_selinux_lockdown_class@
+PCP_SELINUX_GLUSTERD_LOG = @pcp_selinux_glusterd_log@
 # pcpqa.te
 PCP_SELINUX_INITRC_TMP = @pcp_selinux_initrc_tmp@
 PCP_SELINUX_SUDO_EXEC = @pcp_selinux_sudo_exec@
