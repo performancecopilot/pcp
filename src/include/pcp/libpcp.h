@@ -807,10 +807,11 @@ typedef struct {
  * Minimal information to retain for each archive in a multi-archive context
  */
 typedef struct {
-    char		*ml_name;	/* external log base name */
-    pmTimeval		ml_starttime;	/* start time of the archive */
-    char		*ml_hostname;	/* name of collection host */
-    char		*ml_tz;		/* $TZ at collection host */
+    char		*name;	/* external log base name */
+    __pmTimestamp	starttime;	/* start time of the archive */
+    char		*hostname;	/* name of collection host */
+    char		*timezone;	/* squashed $TZ at collection host */
+    char		*zoneinfo;	/* detailed $TZ at collection host */
 } __pmMultiLogCtl;
 
 /*
@@ -926,7 +927,7 @@ PCP_CALL extern int __pmLogRead_ctx(__pmContext *, int, __pmFILE *, pmResult **,
 PCP_CALL extern int __pmLogChangeVol(__pmArchCtl *, int);
 PCP_CALL extern int __pmLogFetch(__pmContext *, int, pmID *, pmResult **);
 PCP_CALL extern int __pmLogGetInDom(__pmArchCtl *, pmInDom, __pmTimestamp *, int **, char ***);
-PCP_CALL extern int __pmGetArchiveEnd(__pmArchCtl *, struct timeval *);
+PCP_CALL extern int __pmGetArchiveEnd(__pmArchCtl *, __pmTimestamp *);
 PCP_CALL extern int __pmLogLookupDesc(__pmArchCtl *, pmID, pmDesc *);
 #define PMLOGPUTINDOM_DUP       1
 PCP_CALL extern int __pmLogLookupInDom(__pmArchCtl *, pmInDom, __pmTimestamp *, const char *);

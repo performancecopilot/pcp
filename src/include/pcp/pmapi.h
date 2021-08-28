@@ -659,7 +659,6 @@ typedef struct pmLogLabel {
     char	ll_tz[PM_TZ_MAXLEN];		/* $TZ at collection host */
 } pmLogLabel;
 
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
 typedef struct pmHighResLogLabel {
     int		magic;	/* PM_LOG_MAGIC | log format version no. */
     pid_t	pid;		/* PID of logger */
@@ -668,16 +667,13 @@ typedef struct pmHighResLogLabel {
     char	timezone[PM_MAX_TIMEZONELEN];	/* generic, squashed $TZ */
     char	zoneinfo[PM_MAX_ZONEINFOLEN];	/* local platform $TZ */
 } pmHighResLogLabel;
-#endif
 
 /*
  * Get the label record from the current archive context, and discover
  * when the archive ends
  */
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
 PCP_CALL extern int pmGetHighResArchiveLabel(pmHighResLogLabel *);
 PCP_CALL extern int pmGetHighResArchiveEnd(struct timespec *);
-#endif
 PCP_CALL extern int pmGetArchiveLabel(pmLogLabel *);
 PCP_CALL extern int pmGetArchiveEnd(struct timeval *);
 

@@ -1314,18 +1314,30 @@ pmExtendFetchGroup_item(pmFG pmfg,
 
 	if (ctxp->c_type == PM_CONTEXT_ARCHIVE) {
 	    struct timeval saved_origin;
+#if 0	// when pmSetHighResMode() exists
+	    struct timespec archive_end;
+#else
 	    struct timeval archive_end;
+#endif
+	    __pmTimestamp	stamp;
 	    int saved_mode, saved_delta;
 
 	    saved_origin.tv_sec = ctxp->c_origin.tv_sec;
 	    saved_origin.tv_usec = ctxp->c_origin.tv_usec;
 	    saved_mode = ctxp->c_mode;
 	    saved_delta = ctxp->c_delta;
-	    sts = pmGetArchiveEnd_ctx(ctxp, &archive_end);
+	    sts = pmGetArchiveEnd_ctx(ctxp, &stamp);
 	    PM_UNLOCK(ctxp->c_lock);
 	    if (sts < 0)
 		goto out;
+	    archive_end.tv_sec = stamp.sec;
+#if 0	// when pmSetHighResMode() exists
+	    archive_end.tv_nsec = stamp.nsec;
+	    sts = pmSetHighResMode(PM_MODE_BACK, &archive_end, 0);
+#else
+	    archive_end.tv_usec = stamp.nsec / 1000;
 	    sts = pmSetMode(PM_MODE_BACK, &archive_end, 0);
+#endif
 	    if (sts < 0)
 		goto out;
 	    /* try again */
@@ -1496,18 +1508,30 @@ pmExtendFetchGroup_event(pmFG pmfg,
 
 	if (ctxp->c_type == PM_CONTEXT_ARCHIVE) {
 	    struct timeval saved_origin;
+#if 0	// when pmSetHighResMode() exists
+	    struct timespec archive_end;
+#else
 	    struct timeval archive_end;
+#endif
+	    __pmTimestamp	stamp;
 	    int saved_mode, saved_delta;
 
 	    saved_origin.tv_sec = ctxp->c_origin.tv_sec;
 	    saved_origin.tv_usec = ctxp->c_origin.tv_usec;
 	    saved_mode = ctxp->c_mode;
 	    saved_delta = ctxp->c_delta;
-	    sts = pmGetArchiveEnd_ctx(ctxp, &archive_end);
+	    sts = pmGetArchiveEnd_ctx(ctxp, &stamp);
 	    PM_UNLOCK(ctxp->c_lock);
 	    if (sts < 0)
 		goto out;
+	    archive_end.tv_sec = stamp.sec;
+#if 0	// when pmSetHighResMode() exists
+	    archive_end.tv_nsec = stamp.nsec;
+	    sts = pmSetHighResMode(PM_MODE_BACK, &archive_end, 0);
+#else
+	    archive_end.tv_usec = stamp.nsec / 1000;
 	    sts = pmSetMode(PM_MODE_BACK, &archive_end, 0);
+#endif
 	    if (sts < 0)
 		goto out;
 	    /* try again */

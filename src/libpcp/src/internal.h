@@ -350,8 +350,8 @@ extern int __pmSendHighResResult_ctx(__pmContext *, int, int, const pmHighResRes
 extern void __pmDumpResult_ctx(__pmContext *, FILE *, const pmResult *) _PCP_HIDDEN;
 extern void __pmDump__Result_ctx(__pmContext *, FILE *, const __pmResult *) _PCP_HIDDEN;
 extern void __pmDumpHighResResult_ctx(__pmContext *, FILE *, const pmHighResResult *) _PCP_HIDDEN;
-extern int pmGetArchiveEnd_ctx(__pmContext *, struct timeval *) _PCP_HIDDEN;
-extern int __pmGetArchiveEnd_ctx(__pmContext *, struct timeval *) _PCP_HIDDEN;
+extern int pmGetArchiveEnd_ctx(__pmContext *, __pmTimestamp *) _PCP_HIDDEN;
+extern int __pmGetArchiveEnd_ctx(__pmContext *, __pmTimestamp *) _PCP_HIDDEN;
 extern int __pmLogGenerateMark_ctx(__pmContext *, int, pmResult **) _PCP_HIDDEN;
 extern int __pmLogCheckForNextArchive(__pmLogCtl *, int, pmResult **);
 
@@ -418,7 +418,7 @@ extern const char *__pmLogName(const char *, int) _PCP_HIDDEN;	/* NOT thread-saf
 extern int __pmLogGenerateMark(__pmLogCtl *, int, pmResult **) _PCP_HIDDEN;
 extern int __pmLogFetchInterp(__pmContext *, int, pmID *, pmResult **) _PCP_HIDDEN;
 extern int __pmGetArchiveLabel(__pmLogCtl *, pmLogLabel *) _PCP_HIDDEN;
-extern pmTimeval *__pmLogStartTime(__pmArchCtl *) _PCP_HIDDEN;
+extern __pmTimestamp *__pmLogStartTime(__pmArchCtl *) _PCP_HIDDEN;
 extern int __pmLogSetTime(__pmContext *) _PCP_HIDDEN;
 extern void __pmLogResetInterp(__pmContext *) _PCP_HIDDEN;
 extern void __pmArchCtlFree(__pmArchCtl *) _PCP_HIDDEN;

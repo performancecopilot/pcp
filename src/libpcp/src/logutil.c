@@ -145,7 +145,7 @@ checkLabelConsistency(__pmContext *ctxp, const __pmLogLabel *lp)
      * The version number is checked by __pmLogChkLabel.
      * Check the hostname.
      */
-    if (strcmp(lp->hostname, acp->ac_log_list[0]->ml_hostname) != 0)
+    if (strcmp(lp->hostname, acp->ac_log_list[0]->hostname) != 0)
 	return PM_ERR_LOGHOST;
 
     /* All is ok */
@@ -1158,7 +1158,7 @@ __pmLogGenerateMark_ctx(__pmContext *ctxp, int mode, pmResult **result)
     __pmLogCtl		*lcp = ctxp->c_archctl->ac_log;
     pmResult		*pr;
     int			sts;
-    struct timeval	end;
+    __pmTimestamp	end;
 
     PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
@@ -2019,7 +2019,16 @@ __pmLogSetTime(__pmContext *ctxp)
      * We're looking for the first archive which starts after the origin.
      */
     for (i = 0; i < acp->ac_num_logs; ++i) {
-	t_hi = __pmTimevalSub(&acp->ac_log_list[i]->ml_starttime, &ctxp->c_origin);
+#if 0	// TODO when c_origin converted to __pmTimestamp
+	t_hi = __pmTimestampSub(&acp->ac_log_list[i]->starttime, &ctxp->c_origin);
+#else
+	{
+	    __pmTimestamp	stamp;
+	    stamp.sec = ctxp->c_origin.tv_sec;
+	    stamp.nsec = ctxp->c_origin.tv_usec * 1000;
+	    t_hi = __pmTimestampSub(&acp->ac_log_list[i]->starttime, &stamp);
+	}
+#endif
 	if (t_hi >= 0)
 	    break; /* found it! */
     }
@@ -2379,7 +2388,7 @@ pmGetArchiveLabel(pmLogLabel *lp)
  * so that the current context can be carried down the call stack.
  */
 int
-__pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
+__pmGetArchiveEnd_ctx(__pmContext *ctxp, __pmTimestamp *tsp)
 {
     __pmArchCtl	*acp = ctxp->c_archctl;
     __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
@@ -2402,8 +2411,8 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
     /*
      * default, when all else fails ...
      */
-    tp->tv_sec = INT_MAX;
-    tp->tv_usec = 0;
+    tsp->sec = INT_MAX;
+    tsp->nsec = 0;
 
     /*
      * expect things to be stable, so l_maxvol is not empty, and
@@ -2436,8 +2445,12 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 
 	if (vol == lcp->l_maxvol && sbuf.st_size == lcp->l_physend) {
 	    /* nothing changed, return cached stuff */
-	    tp->tv_sec = lcp->l_endtime.tv_sec;
-	    tp->tv_usec = lcp->l_endtime.tv_usec;
+#if 0	// TODO when l_endtime -> __pmTimestamp
+	    *tsp = lcp->l_endtime;		/* struct assignment */
+#else
+	    tsp->sec = lcp->l_endtime.tv_sec;
+	    tsp->nsec = lcp->l_endtime.tv_usec * 1000;
+#endif
 	    sts = 0;
 	    break;
 	}
@@ -2554,8 +2567,8 @@ prior_vol:
 	__pmFclose(f);
 
     if (found) {
-	tp->tv_sec = (time_t)rp->timestamp.tv_sec;
-	tp->tv_usec = (int)rp->timestamp.tv_usec;
+	tsp->sec = rp->timestamp.tv_sec;
+	tsp->nsec = rp->timestamp.tv_usec * 1000;
 	if (vol == lcp->l_maxvol) {
 	    lcp->l_endtime.tv_sec = (__int32_t)rp->timestamp.tv_sec;
 	    lcp->l_endtime.tv_usec = (__int32_t)rp->timestamp.tv_usec;
@@ -2575,7 +2588,7 @@ prior_vol:
 }
 
 int
-__pmGetArchiveEnd(__pmArchCtl *acp, struct timeval *tp)
+__pmGetArchiveEnd(__pmArchCtl *acp, __pmTimestamp *tsp)
 {
     int		sts;
     __pmContext	*ctxp;
@@ -2589,7 +2602,7 @@ __pmGetArchiveEnd(__pmArchCtl *acp, struct timeval *tp)
 	PM_UNLOCK(ctxp->c_lock);
 	return PM_ERR_NOTARCHIVE;
     }
-    sts = __pmGetArchiveEnd_ctx(ctxp, tp);
+    sts = __pmGetArchiveEnd_ctx(ctxp, tsp);
     PM_UNLOCK(ctxp->c_lock);
     return sts;
 }
@@ -2598,17 +2611,21 @@ __pmGetArchiveEnd(__pmArchCtl *acp, struct timeval *tp)
 int
 pmGetArchiveEnd(struct timeval *tp)
 {
-    int		sts;
-    sts = pmGetArchiveEnd_ctx(NULL, tp);
-    return sts;
+    int			sts;
+    __pmTimestamp	stamp;
 
+    sts = pmGetArchiveEnd_ctx(NULL, &stamp);
+    tp->tv_sec = stamp.sec;
+    tp->tv_usec = stamp.nsec / 1000;
+
+    return sts;
 }
 
 /*
  * ctxp->c_lock is held throughout this routine
  */
 int
-pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
+pmGetArchiveEnd_ctx(__pmContext *ctxp, __pmTimestamp *tsp)
 {
     int		save_arch = 0;		/* pander to gcc */
     int		save_vol = 0;		/* pander to gcc */
@@ -2654,7 +2671,7 @@ pmGetArchiveEnd_ctx(__pmContext *ctxp, struct timeval *tp)
 	restore = 1;
     }
 
-    if ((sts = __pmGetArchiveEnd_ctx(ctxp, tp)) < 0) {
+    if ((sts = __pmGetArchiveEnd_ctx(ctxp, tsp)) < 0) {
 	if (need_unlock)
 	    PM_UNLOCK(ctxp->c_lock);
 	return sts;
@@ -2699,7 +2716,7 @@ __pmLogChangeArchive(__pmContext *ctxp, int arch)
      * __pmFindOrOpenArchive() will take care of closing the active archive,
      * if necessary.
      */
-    sts = __pmFindOrOpenArchive(ctxp, mlcp->ml_name, 1/*multi_arch*/);
+    sts = __pmFindOrOpenArchive(ctxp, mlcp->name, 1/*multi_arch*/);
     if (sts < 0)
 	return sts;
 
@@ -2869,7 +2886,7 @@ LogChangeToPreviousArchive(__pmContext *ctxp)
 {
     __pmLogCtl		*lcp = ctxp->c_archctl->ac_log;
     __pmArchCtl		*acp = ctxp->c_archctl;
-    struct timeval	current_endtime;
+    __pmTimestamp	current_endtime;
     __pmTimestamp	prev_starttime;
     __pmTimestamp	prev_endtime;
     __pmTimestamp	save_origin;
@@ -2972,10 +2989,10 @@ __pmLogChangeToPreviousArchive(__pmLogCtl **lcp)
     return sts;
 }
 
-pmTimeval *
+__pmTimestamp *
 __pmLogStartTime(__pmArchCtl *acp)
 {
-    return &acp->ac_log_list[0]->ml_starttime;
+    return &acp->ac_log_list[0]->starttime;
 }
 
 void
@@ -3006,9 +3023,14 @@ __pmArchCtlFree(__pmArchCtl *acp)
     if (acp->ac_log_list != NULL) {
 	while (--acp->ac_num_logs >= 0) {
 	    assert(acp->ac_log_list[acp->ac_num_logs] != NULL);
-	    free(acp->ac_log_list[acp->ac_num_logs]->ml_name);
-	    free(acp->ac_log_list[acp->ac_num_logs]->ml_hostname);
-	    free(acp->ac_log_list[acp->ac_num_logs]->ml_tz);
+	    if (acp->ac_log_list[acp->ac_num_logs]->name != NULL)
+		free(acp->ac_log_list[acp->ac_num_logs]->name);
+	    if (acp->ac_log_list[acp->ac_num_logs]->hostname != NULL)
+		free(acp->ac_log_list[acp->ac_num_logs]->hostname);
+	    if (acp->ac_log_list[acp->ac_num_logs]->timezone != NULL)
+		free(acp->ac_log_list[acp->ac_num_logs]->timezone);
+	    if (acp->ac_log_list[acp->ac_num_logs]->zoneinfo != NULL)
+		free(acp->ac_log_list[acp->ac_num_logs]->zoneinfo);
 	    free(acp->ac_log_list[acp->ac_num_logs]);
 	}
 	free(acp->ac_log_list);

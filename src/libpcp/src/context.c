@@ -792,8 +792,8 @@ initarchive(__pmContext	*ctxp, const char *name)
     int			multi_arch = 0;
     int			ignore;
     double		tdiff;
-    pmLogLabel		label;
-    pmTimeval		tmpTime;
+    __pmLogLabel	*lp;
+    __pmTimestamp	tmpTime;
 
     /*
      * Catch these early. Formerly caught by __pmLogOpenFind(), but with
@@ -852,23 +852,21 @@ initarchive(__pmContext	*ctxp, const char *name)
 	 * Obtain the start time of this archive. The end time could change
 	 * on the fly and needs to be re-checked as needed.
 	 */
-	if ((sts = __pmGetArchiveLabel(ctxp->c_archctl->ac_log, &label)) < 0)
-	    goto error;
+	lp = &ctxp->c_archctl->ac_log->l_label;
 
 	/*
 	 * Insert this new entry into the list in sequence by time. Check for
 	 * overlaps. Also check for duplicates.
 	 */
-	tmpTime.tv_sec = (__uint32_t)label.ll_start.tv_sec;
-	tmpTime.tv_usec = (__uint32_t)label.ll_start.tv_usec;
+	tmpTime = lp->start;
 	ignore = 0;
 	for (i = 0; i < acp->ac_num_logs; i++) {
-	    tdiff = __pmTimevalSub(&tmpTime, &acp->ac_log_list[i]->ml_starttime);
+	    tdiff = __pmTimestampSub(&tmpTime, &acp->ac_log_list[i]->starttime);
 	    if (tdiff < 0.0) /* found insertion point */
 		break;
 	    if (tdiff == 0.0) {
 		/* Is it a duplicate? */
-		if (strcmp (current, acp->ac_log_list[i]->ml_name) == 0) {
+		if (strcmp (current, acp->ac_log_list[i]->name) == 0) {
 		    ignore = 1;
 		    break;
 		}
@@ -886,29 +884,41 @@ initarchive(__pmContext	*ctxp, const char *name)
 						   (acp->ac_num_logs + 1) *
 						   sizeof(*acp->ac_log_list));
 	    if (list_new == NULL) {
-		pmNoMem("initArchive",
+		pmNoMem("initArchive: list_new",
 			  (acp->ac_num_logs + 1) * sizeof(*acp->ac_log_list),
 			  PM_FATAL_ERR);
 		/* NOTREACHED */
 	    }
 	    acp->ac_log_list = list_new;
 	    if ((mlcp = (__pmMultiLogCtl *)malloc(sizeof(__pmMultiLogCtl))) == NULL) {
-		pmNoMem("initArchive", sizeof(__pmMultiLogCtl), PM_FATAL_ERR);
+		pmNoMem("initArchive: __pmMultiLogCtl", sizeof(__pmMultiLogCtl), PM_FATAL_ERR);
 		/* NOTREACHED */
 	    }
-	    if ((mlcp->ml_name = strdup(current)) == NULL) {
-		pmNoMem("initArchive", strlen(current) + 1, PM_FATAL_ERR);
+	    if ((mlcp->name = strdup(current)) == NULL) {
+		pmNoMem("initArchive: name", strlen(current) + 1, PM_FATAL_ERR);
 		/* NOTREACHED */
 	    }
-	    if ((mlcp->ml_hostname = strdup(label.ll_hostname)) == NULL) {
-		pmNoMem("initArchive", strlen(label.ll_hostname) + 1, PM_FATAL_ERR);
+	    if ((mlcp->hostname = strdup(lp->hostname)) == NULL) {
+		pmNoMem("initArchive: hostname", strlen(lp->hostname) + 1, PM_FATAL_ERR);
 		/* NOTREACHED */
 	    }
-	    if ((mlcp->ml_tz = strdup(label.ll_tz)) == NULL) {
-		pmNoMem("initArchive", strlen(label.ll_tz) + 1, PM_FATAL_ERR);
-		/* NOTREACHED */
+	    if (lp->timezone != NULL) {
+		if ((mlcp->timezone = strdup(lp->timezone)) == NULL) {
+		    pmNoMem("initArchive: timezone", strlen(lp->timezone) + 1, PM_FATAL_ERR);
+		    /* NOTREACHED */
+		}
 	    }
-	    mlcp->ml_starttime = tmpTime;
+	    else
+		mlcp->timezone = NULL;
+	    if (lp->zoneinfo != NULL) {
+		if ((mlcp->zoneinfo = strdup(lp->zoneinfo)) == NULL) {
+		    pmNoMem("initArchive: zoneinfo", strlen(lp->zoneinfo) + 1, PM_FATAL_ERR);
+		    /* NOTREACHED */
+		}
+	    }
+	    else
+		mlcp->zoneinfo = NULL;
+	    mlcp->starttime = tmpTime;
 
 	    /*
 	     * If we found the insertion point, then make room for the current
@@ -964,12 +974,14 @@ initarchive(__pmContext	*ctxp, const char *name)
 
  error:
     if (mlcp) {
-	if (mlcp->ml_name)
-	    free (mlcp->ml_name);
-	if (mlcp->ml_hostname)
-	    free (mlcp->ml_hostname);
-	if (mlcp->ml_tz)
-	    free (mlcp->ml_tz);
+	if (mlcp->name)
+	    free (mlcp->name);
+	if (mlcp->hostname)
+	    free (mlcp->hostname);
+	if (mlcp->timezone)
+	    free (mlcp->timezone);
+	if (mlcp->zoneinfo)
+	    free (mlcp->zoneinfo);
 	free(mlcp);
     }
     if (namelist)
@@ -978,9 +990,10 @@ initarchive(__pmContext	*ctxp, const char *name)
 	while (acp->ac_num_logs > 0) {
 	    --acp->ac_num_logs;
 	    if (acp->ac_log_list[acp->ac_num_logs]) {
-		free(acp->ac_log_list[acp->ac_num_logs]->ml_name);
-		free(acp->ac_log_list[acp->ac_num_logs]->ml_hostname);
-		free(acp->ac_log_list[acp->ac_num_logs]->ml_tz);
+		free(acp->ac_log_list[acp->ac_num_logs]->name);
+		free(acp->ac_log_list[acp->ac_num_logs]->hostname);
+		free(acp->ac_log_list[acp->ac_num_logs]->timezone);
+		free(acp->ac_log_list[acp->ac_num_logs]->zoneinfo);
 		free(acp->ac_log_list[acp->ac_num_logs]);
 	    }
 	}
@@ -1508,20 +1521,28 @@ pmDupContext(void)
 		oldmlcp = oldcon->c_archctl->ac_log_list[i];
 		*newmlcp = *oldmlcp;
 		/*
-		 * We need to duplicate the ml_name and the ml_hostname of each
+		 * We need to duplicate the name and the hostname of each
 		 * archive in the list.
 		 */
-		if ((newmlcp->ml_name = strdup (newmlcp->ml_name)) == NULL) {
+		if ((newmlcp->name = strdup (newmlcp->name)) == NULL) {
 		    sts = -oserror();
 		    goto done_locked;
 		}
-		if ((newmlcp->ml_hostname = strdup (newmlcp->ml_hostname)) == NULL) {
+		if ((newmlcp->hostname = strdup (newmlcp->hostname)) == NULL) {
 		    sts = -oserror();
 		    goto done_locked;
 		}
-		if ((newmlcp->ml_tz = strdup (newmlcp->ml_tz)) == NULL) {
-		    sts = -oserror();
-		    goto done_locked;
+		if (newmlcp->timezone != NULL) {
+		    if ((newmlcp->timezone = strdup (newmlcp->timezone)) == NULL) {
+			sts = -oserror();
+			goto done_locked;
+		    }
+		}
+		if (newmlcp->zoneinfo != NULL) {
+		    if ((newmlcp->zoneinfo = strdup (newmlcp->zoneinfo)) == NULL) {
+			sts = -oserror();
+			goto done_locked;
+		    }
 		}
 	    }
 	    /* We need to bump up the reference count of the ac_log. */
@@ -1775,10 +1796,10 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 		fprintf(f, " handle %d:", contexts_map[i]);
 		for (j = 0; j < con->c_archctl->ac_num_logs; j++) {
 		    fprintf(f, " log %s:",
-			    con->c_archctl->ac_log_list[j]->ml_name);
+			    con->c_archctl->ac_log_list[j]->name);
 		    if (con->c_archctl->ac_log == NULL ||
 			con->c_archctl->ac_log->l_refcnt == 0 ||
-			strcmp (con->c_archctl->ac_log_list[j]->ml_name,
+			strcmp (con->c_archctl->ac_log_list[j]->name,
 				con->c_archctl->ac_log->l_name) != 0) {
 			fprintf(f, " not open\n");
 			continue;
