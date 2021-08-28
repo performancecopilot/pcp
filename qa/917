@@ -124,7 +124,7 @@ seinfo -t >$tmp.types
 echo '/^#/d' >$tmp.sed
 echo '/^!/s// /' >>$tmp.sed
 for type in container_runtime_t nsfs_t docker_var_lib_t unreserved_port_t \
-	    tracefs_t unconfined_service_t numad_t \
+	    tracefs_t unconfined_service_t numad_t container_var_run_t \
 	    virt_var_run_t proc_security_t sbd_exec_t kmod_exec_t \
 	    dma_device_t \
 	    # end
@@ -156,6 +156,9 @@ do
 		;;
 	    numad_t)
 		echo '/allow \[pcp_pmcd_t] \[numad_t]/d' >>$tmp.sed
+		;;
+	    container_var_run_t)
+		echo '/allow \[pcp_pmcd_t] \[container_var_run_t]/d' >>$tmp.sed
 		;;
 	    virt_var_run_t)
 		echo '/allow \[pcp_pmcd_t] \[virt_var_run_t]/d' >>$tmp.sed

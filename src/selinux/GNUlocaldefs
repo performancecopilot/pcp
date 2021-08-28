@@ -84,6 +84,11 @@ else
 PCP_SELINUX_MACRO_RULE="files_list_non_security\(pcp_domain\)"
 endif
 
+ifeq "$(PCP_SELINUX_CONTAINER_VAR_RUN)" "true"
+PCP_CONTAINER_VAR_RUN_T="type container_var_run_t; \# pmda.podman"
+PCP_CONTAINER_VAR_RUN_RULE="allow pcp_pmcd_t container_var_run_t:sock_file { getattr write };"
+endif
+
 ifeq "$(PCP_SELINUX_VIRT_VAR_RUN)" "true"
 PCP_VIRT_VAR_RUN_T="type virt_var_run_t; \# pmda.libvirt"
 PCP_VIRT_VAR_RUN_RULE="allow pcp_pmcd_t virt_var_run_t:sock_file write;"
