@@ -51,7 +51,7 @@ verify_label(__pmFILE *f, const char *file, __pmLogLabel *lp)
 void
 compare_golden(__pmFILE *f, const char *file, int sts, int warnings)
 {
-    __pmLogLabel *label = &logctl.l_label;
+    __pmLogLabel *label = &logctl.label;
 
     if (!gold) {
 	memcpy(&golden, label, sizeof(golden));
@@ -223,12 +223,12 @@ main(int argc, char *argv[])
     }
 
     archctl.ac_curvol = -1;
-    logctl.l_physend = -1;
+    logctl.physend = -1;
 
     /*
      * Read the label from each data volume, check, and report status
      */
-    for (c = logctl.l_minvol; c <= logctl.l_maxvol; c++) {
+    for (c = logctl.minvol; c <= logctl.maxvol; c++) {
 	if (verbose)
 	    printf("Checking label on data volume %d\n", c);
 	if ((sts = __pmLogChangeVol(&archctl, c)) < 0 && warnings) {
@@ -237,19 +237,19 @@ main(int argc, char *argv[])
 	}
 	pmsprintf(buffer, sizeof(buffer), "data volume %d", c);
 	compare_golden(archctl.ac_mfp, buffer, sts, warnings);
-	__pmLogFreeLabel(&logctl.l_label);
+	__pmLogFreeLabel(&logctl.label);
     }
 
-    if (logctl.l_tifp) {
+    if (logctl.tifp) {
 	if (verbose)
 	    printf("Checking label on temporal index\n");
-	if ((sts = __pmLogChkLabel(&archctl, logctl.l_tifp, &logctl.l_label,
+	if ((sts = __pmLogChkLabel(&archctl, logctl.tifp, &logctl.label,
 			           PM_LOG_VOL_TI)) < 0 && warnings) {
 	    fprintf(stderr, "Bad temporal index label: %s\n", pmErrStr(sts));
 	    status = 2;
 	}
-	compare_golden(logctl.l_tifp, "temporal index", sts, warnings);
-	__pmLogFreeLabel(&logctl.l_label);
+	compare_golden(logctl.tifp, "temporal index", sts, warnings);
+	__pmLogFreeLabel(&logctl.label);
     }
     else if (verbose) {
 	printf("No temporal index found\n");
@@ -257,13 +257,13 @@ main(int argc, char *argv[])
 
     if (verbose)
 	printf("Checking label on metadata volume\n");
-    if ((sts = __pmLogChkLabel(&archctl, logctl.l_mdfp, &logctl.l_label,
+    if ((sts = __pmLogChkLabel(&archctl, logctl.mdfp, &logctl.label,
 			       PM_LOG_VOL_META)) < 0 && warnings) {
 	fprintf(stderr, "Bad metadata volume label: %s\n", pmErrStr(sts));
 	status = 2;
     }
-    compare_golden(logctl.l_mdfp, "metadata volume", sts, warnings);
-    __pmLogFreeLabel(&logctl.l_label);
+    compare_golden(logctl.mdfp, "metadata volume", sts, warnings);
+    __pmLogFreeLabel(&logctl.label);
 
     /*
      * Now, make any modifications requested
@@ -286,11 +286,11 @@ main(int argc, char *argv[])
 
 	if (archctl.ac_mfp)
 	    __pmFclose(archctl.ac_mfp);
-	for (c = logctl.l_minvol; c <= logctl.l_maxvol; c++) {
+	for (c = logctl.minvol; c <= logctl.maxvol; c++) {
 	    if (verbose)
 		printf("Writing label on data volume %d\n", c);
 	    golden.vol = c;
-	    pmsprintf(buffer, sizeof(buffer), "%s.%d", logctl.l_name, c);
+	    pmsprintf(buffer, sizeof(buffer), "%s.%d", logctl.name, c);
 	    if ((archctl.ac_mfp = __pmFopen(buffer, "r+")) == NULL) {
 		fprintf(stderr, "Failed data volume %d open: %s\n",
 				c, osstrerror());
@@ -307,37 +307,37 @@ main(int argc, char *argv[])
 	/* Need to reset the data volume, for subsequent label read */
 	archctl.ac_mfp = NULL;
 	archctl.ac_curvol = -1;
-	__pmLogChangeVol(&archctl, logctl.l_minvol);
+	__pmLogChangeVol(&archctl, logctl.minvol);
 
-	if (logctl.l_tifp) {
-	    __pmFclose(logctl.l_tifp);
+	if (logctl.tifp) {
+	    __pmFclose(logctl.tifp);
 	    if (verbose)
 		printf("Writing label on temporal index\n");
 	    golden.vol = PM_LOG_VOL_TI;
-	    pmsprintf(buffer, sizeof(buffer), "%s.index", logctl.l_name);
-	    if ((logctl.l_tifp = __pmFopen(buffer, "r+")) == NULL) {
+	    pmsprintf(buffer, sizeof(buffer), "%s.index", logctl.name);
+	    if ((logctl.tifp = __pmFopen(buffer, "r+")) == NULL) {
 		fprintf(stderr, "Failed temporal index open: %s\n",
 				osstrerror());
 		status = 3;
 	    }
-	    else if ((sts = __pmLogWriteLabel(logctl.l_tifp, &golden)) < 0) {
+	    else if ((sts = __pmLogWriteLabel(logctl.tifp, &golden)) < 0) {
 		fprintf(stderr, "Failed temporal index label write: %s\n",
 				pmErrStr(sts));
 		status = 3;
 	    }
 	}
 
-	__pmFclose(logctl.l_mdfp);
+	__pmFclose(logctl.mdfp);
 	if (verbose)
 	    printf("Writing label on metadata volume\n");
 	golden.vol = PM_LOG_VOL_META;
-	pmsprintf(buffer, sizeof(buffer), "%s.meta", logctl.l_name);
-	if ((logctl.l_mdfp = __pmFopen(buffer, "r+")) == NULL) {
+	pmsprintf(buffer, sizeof(buffer), "%s.meta", logctl.name);
+	if ((logctl.mdfp = __pmFopen(buffer, "r+")) == NULL) {
 	    fprintf(stderr, "Failed metadata volume open: %s\n",
 			    osstrerror());
 	    status = 3;
 	}
-	else if ((sts = __pmLogWriteLabel(logctl.l_mdfp, &golden)) < 0) {
+	else if ((sts = __pmLogWriteLabel(logctl.mdfp, &golden)) < 0) {
 	    fprintf(stderr, "Failed metadata volume label write: %s\n",
 			    pmErrStr(sts));
 	    status = 3;

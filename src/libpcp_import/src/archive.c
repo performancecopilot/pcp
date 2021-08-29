@@ -48,12 +48,12 @@ check_context_start(pmi_context *current)
 
     lcp = &current->logctl;
     if (current->timezone != NULL) {
-	free(lcp->l_label.timezone);
-	lcp->l_label.timezone = strdup(current->timezone);
-	free(lcp->l_label.zoneinfo);
-	lcp->l_label.zoneinfo = NULL;
+	free(lcp->label.timezone);
+	lcp->label.timezone = strdup(current->timezone);
+	free(lcp->label.zoneinfo);
+	lcp->label.zoneinfo = NULL;
     }
-    pmNewZone(lcp->l_label.timezone);
+    pmNewZone(lcp->label.timezone);
     current->state = CONTEXT_ACTIVE;
 
     /*
@@ -62,15 +62,15 @@ check_context_start(pmi_context *current)
      * metadata) ... this code is stolen from logputresult() in
      * libpcp
      */
-    lcp->l_label.start.sec = stamp.sec;
-    lcp->l_label.start.nsec = stamp.nsec;
-    lcp->l_label.vol = PM_LOG_VOL_TI;
-    __pmLogWriteLabel(lcp->l_tifp, &lcp->l_label);
-    lcp->l_label.vol = PM_LOG_VOL_META;
-    __pmLogWriteLabel(lcp->l_mdfp, &lcp->l_label);
-    lcp->l_label.vol = 0;
-    __pmLogWriteLabel(acp->ac_mfp, &lcp->l_label);
-    lcp->l_state = PM_LOG_STATE_INIT;
+    lcp->label.start.sec = stamp.sec;
+    lcp->label.start.nsec = stamp.nsec;
+    lcp->label.vol = PM_LOG_VOL_TI;
+    __pmLogWriteLabel(lcp->tifp, &lcp->label);
+    lcp->label.vol = PM_LOG_VOL_META;
+    __pmLogWriteLabel(lcp->mdfp, &lcp->label);
+    lcp->label.vol = 0;
+    __pmLogWriteLabel(acp->ac_mfp, &lcp->label);
+    lcp->state = PM_LOG_STATE_INIT;
     __pmLogPutIndex(&current->archctl, &stamp);
 
     return 0; /* ok */
@@ -145,8 +145,8 @@ newvolume(pmi_context *current, pmTimeval *tvp)
 
     __pmFclose(acp->ac_mfp);
     acp->ac_mfp = newfp;
-    lcp->l_label.vol = acp->ac_curvol = nextvol;
-    __pmLogWriteLabel(acp->ac_mfp, &lcp->l_label);
+    lcp->label.vol = acp->ac_curvol = nextvol;
+    __pmLogWriteLabel(acp->ac_mfp, &lcp->label);
     __pmFflush(acp->ac_mfp);
 }
 

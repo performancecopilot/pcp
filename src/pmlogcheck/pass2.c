@@ -36,7 +36,7 @@ pass2(__pmContext *ctxp, char *archname)
      * sem is valid
      * units are valid
      */
-    hp = __pmHashWalk(&ctxp->c_archctl->ac_log->l_hashpmid, PM_HASH_WALK_START);
+    hp = __pmHashWalk(&ctxp->c_archctl->ac_log->hashpmid, PM_HASH_WALK_START);
     while (hp != NULL) {
 	dp = (pmDesc *)hp->data;
 	if ((sts = pmNameID(dp->pmid, &name)) < 0) {
@@ -124,7 +124,7 @@ next:
 	if (name != NULL)
 	    free(name);
 
-	hp = __pmHashWalk(&ctxp->c_archctl->ac_log->l_hashpmid, PM_HASH_WALK_NEXT);
+	hp = __pmHashWalk(&ctxp->c_archctl->ac_log->hashpmid, PM_HASH_WALK_NEXT);
     }
 
     return 0;

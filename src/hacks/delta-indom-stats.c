@@ -203,9 +203,9 @@ main(int argc, char **argv)
     /* single threaded, release context lock */
     PM_UNLOCK(ctxp->c_lock);
 
-    printf("%s:\n", ctxp->c_archctl->ac_log->l_name);
+    printf("%s:\n", ctxp->c_archctl->ac_log->name);
 
-    f = ctxp->c_archctl->ac_log->l_mdfp;
+    f = ctxp->c_archctl->ac_log->mdfp;
 
     /*
      * snarfed from __pmLogLoadMeta() in logmeta.c
@@ -434,8 +434,8 @@ end:
 	100.0*((long)v2_size - (long)v3_size) / v2_size);
 
     /* now the temporal index (optional) */
-    if (ctxp->c_archctl->ac_log->l_tifp) {
-	if ((sts = __pmFstat(ctxp->c_archctl->ac_log->l_tifp, &sbuf)) < 0) {
+    if (ctxp->c_archctl->ac_log->tifp) {
+	if ((sts = __pmFstat(ctxp->c_archctl->ac_log->tifp, &sbuf)) < 0) {
 	    fprintf(stderr, "__pmFstat: %s\n", pmErrStr(sts));
 	    exit(1);
 	}
@@ -448,9 +448,9 @@ end:
     }
 
     /* and finally each data volume */
-    for (i = ctxp->c_archctl->ac_log->l_minvol; i <= ctxp->c_archctl->ac_log->l_maxvol; i++) {
+    for (i = ctxp->c_archctl->ac_log->minvol; i <= ctxp->c_archctl->ac_log->maxvol; i++) {
 	char	fname[MAXPATHLEN+1];
-	pmsprintf(fname, sizeof(fname), "%s.%d", ctxp->c_archctl->ac_log->l_name, i);
+	pmsprintf(fname, sizeof(fname), "%s.%d", ctxp->c_archctl->ac_log->name, i);
 	if ((f = __pmFopen(fname, "r")) == NULL) {
 	    fprintf(stderr, "__pmFopen(%s): %s\n", fname, pmErrStr(-oserror()));
 	    continue;
@@ -469,7 +469,7 @@ end:
     printf(" %9s", pr_size(v3_size));
     printf(" %9s (%.1f%%) %s\n", pr_size(v2_size - v3_size),
 	100.0*((long)v2_size - (long)v3_size) / v2_size,
-	ctxp->c_archctl->ac_log->l_name);
+	ctxp->c_archctl->ac_log->name);
 
     putchar('\n');
     v2_size = v3_size = 0;
@@ -482,10 +482,10 @@ end:
      * __pmLogAddInDom() and PMLOGPUTINDOM_DUP) means there may be
      * fewer loaded than appear in the .meta file
      */
-    for (i = 0; i < ctxp->c_archctl->ac_log->l_hashindom.hsize; i++) {
+    for (i = 0; i < ctxp->c_archctl->ac_log->hashindom.hsize; i++) {
 	__pmHashNode	*hp;
 	__pmLogInDom	*idp;
-	for (hp = ctxp->c_archctl->ac_log->l_hashindom.hash[i]; hp != NULL; hp = hp->next) {
+	for (hp = ctxp->c_archctl->ac_log->hashindom.hash[i]; hp != NULL; hp = hp->next) {
 	    for (idp = (__pmLogInDom *)hp->data; idp != NULL; idp =idp->next) {
 		v2_maps += idp->numinst * (sizeof(int) + sizeof(char *));
 		v2_count += idp->numinst;
@@ -514,7 +514,7 @@ end:
     printf(" %9s %9s", "", pr_size(v3_size));
     printf(" %9s (%.1f%%) %s\n", pr_size(v2_size - v3_size),
 	100.0*(long)(v2_size - v3_size)/(long)(v2_size),
-	ctxp->c_archctl->ac_log->l_name);
+	ctxp->c_archctl->ac_log->name);
 
 
     return(sts);

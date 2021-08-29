@@ -79,7 +79,7 @@ __pmLogPutIndex_v3(const __pmArchCtl *acp, const __pmTimestamp * const tsp)
     __pmoff64_t		off_data;
 
     ti.vol = acp->ac_curvol;
-    off_meta = (__pmoff64_t)__pmFtell(lcp->l_mdfp);
+    off_meta = (__pmoff64_t)__pmFtell(lcp->mdfp);
     memcpy((void *)&ti.off_meta[0], (void *)&off_meta, 2*sizeof(__int32_t));
     off_data = (__pmoff64_t)__pmFtell(acp->ac_mfp);
     if (off_data == 0)
@@ -98,7 +98,7 @@ __pmLogPutIndex_v3(const __pmArchCtl *acp, const __pmTimestamp * const tsp)
     __htonll((char *)&ti.off_meta[0]);
     __htonll((char *)&ti.off_data[0]);
 
-    bytes = __pmFwrite(&ti, 1, sizeof(ti), lcp->l_tifp);
+    bytes = __pmFwrite(&ti, 1, sizeof(ti), lcp->tifp);
     if (bytes != sizeof(ti)) {
 	char	errmsg[PM_MAXERRMSGLEN];
 	pmNotifyErr(LOG_ERR, "%s: PCP archive temporal index write failed - "
@@ -107,7 +107,7 @@ __pmLogPutIndex_v3(const __pmArchCtl *acp, const __pmTimestamp * const tsp)
 			osstrerror_r(errmsg, sizeof(errmsg)));
 	return -errno;
     }
-    if (__pmFflush(lcp->l_tifp) != 0) {
+    if (__pmFflush(lcp->tifp) != 0) {
 	pmNotifyErr(LOG_ERR, "%s: PCP archive temporal index flush failed\n",
 			"__pmLogPutIndex");
 	return -errno;
@@ -131,7 +131,7 @@ __pmLogPutIndex_v2(const __pmArchCtl *acp, const __pmTimestamp *tsp)
 	/* check for overflow of the offset ... */
 	off_t	tmp;
 
-	tmp = __pmFtell(lcp->l_mdfp);
+	tmp = __pmFtell(lcp->mdfp);
 	assert(tmp >= 0);
 	off_meta = (__pmoff32_t)tmp;
 	if (tmp != off_meta) {
@@ -149,7 +149,7 @@ __pmLogPutIndex_v2(const __pmArchCtl *acp, const __pmTimestamp *tsp)
 	}
     }
     else {
-	off_meta = (__pmoff32_t)__pmFtell(lcp->l_mdfp);
+	off_meta = (__pmoff32_t)__pmFtell(lcp->mdfp);
 	off_data = (__pmoff32_t)__pmFtell(acp->ac_mfp);
     }
 
@@ -167,7 +167,7 @@ __pmLogPutIndex_v2(const __pmArchCtl *acp, const __pmTimestamp *tsp)
     ti.off_meta = htonl((__int32_t)off_meta);
     ti.off_data = htonl((__int32_t)off_data);
 
-    bytes = __pmFwrite(&ti, 1, sizeof(ti), lcp->l_tifp);
+    bytes = __pmFwrite(&ti, 1, sizeof(ti), lcp->tifp);
     if (bytes != sizeof(ti)) {
 	char	errmsg[PM_MAXERRMSGLEN];
 	pmNotifyErr(LOG_ERR, "%s: PCP archive temporal index write failed - "
@@ -176,7 +176,7 @@ __pmLogPutIndex_v2(const __pmArchCtl *acp, const __pmTimestamp *tsp)
 			osstrerror_r(errmsg, sizeof(errmsg)));
 	return -errno;
     }
-    if (__pmFflush(lcp->l_tifp) != 0) {
+    if (__pmFflush(lcp->tifp) != 0) {
 	pmNotifyErr(LOG_ERR, "%s: PCP archive temporal index flush failed\n",
 			"__pmLogPutIndex");
 	return -errno;
@@ -191,7 +191,7 @@ __pmLogPutIndex(const __pmArchCtl *acp, const __pmTimestamp *tsp)
     __pmTimestamp	stamp;
     __pmLogCtl		*lcp = acp->ac_log;
 
-    if (lcp->l_tifp == NULL || lcp->l_mdfp == NULL || acp->ac_mfp == NULL) {
+    if (lcp->tifp == NULL || lcp->mdfp == NULL || acp->ac_mfp == NULL) {
 	/*
 	 * archive not really created (failed in __pmLogCreate) ...
 	 * nothing to be done
@@ -199,7 +199,7 @@ __pmLogPutIndex(const __pmArchCtl *acp, const __pmTimestamp *tsp)
 	return 0;
     }
 
-    __pmFflush(lcp->l_mdfp);
+    __pmFflush(lcp->mdfp);
     __pmFflush(acp->ac_mfp);
 
     if (tsp == NULL) {
@@ -221,14 +221,14 @@ int
 __pmLogLoadIndex(__pmLogCtl *lcp)
 {
     int		sts = 0;
-    __pmFILE	*f = lcp->l_tifp;
+    __pmFILE	*f = lcp->tifp;
     size_t	record_size;
     size_t	bytes;
     void	*buffer;
     __pmLogTI	*tip;
 
-    lcp->l_numti = 0;
-    lcp->l_ti = NULL;
+    lcp->numti = 0;
+    lcp->ti = NULL;
 
     if (__pmLogVersion(lcp) == PM_LOG_VERS03)
 	record_size = sizeof(__pmTI_v3);
@@ -242,18 +242,18 @@ __pmLogLoadIndex(__pmLogCtl *lcp)
 	return -oserror();
     }
 
-    if (lcp->l_tifp != NULL) {
+    if (lcp->tifp != NULL) {
 	__pmFseek(f, (long)__pmLogLabelSize(lcp), SEEK_SET);
 	for ( ; ; ) {
 	    __pmLogTI	*tmp;
-	    bytes = (1 + lcp->l_numti) * sizeof(__pmLogTI);
-	    tmp = (__pmLogTI *)realloc(lcp->l_ti, bytes);
+	    bytes = (1 + lcp->numti) * sizeof(__pmLogTI);
+	    tmp = (__pmLogTI *)realloc(lcp->ti, bytes);
 	    if (tmp == NULL) {
 		pmNoMem("__pmLogLoadIndex: realloc TI", bytes, PM_FATAL_ERR);
 		sts = -oserror();
 		goto bad;
 	    }
-	    lcp->l_ti = tmp;
+	    lcp->ti = tmp;
 	    bytes = __pmFread(buffer, 1, record_size, f);
 	    if (bytes != record_size) {
 		if (__pmFeof(f)) {
@@ -274,7 +274,7 @@ __pmLogLoadIndex(__pmLogCtl *lcp)
 		    goto bad;
 		}
 	    }
-	    tip = &lcp->l_ti[lcp->l_numti];
+	    tip = &lcp->ti[lcp->numti];
 	    /*
 	     * swab and copy fields
 	     */
@@ -287,28 +287,27 @@ __pmLogLoadIndex(__pmLogCtl *lcp)
 		memcpy((void *)&tip->off_meta, (void *)&tip_v3->off_meta[0], 2*sizeof(__int32_t));
 		memcpy((void *)&tip->off_data, (void *)&tip_v3->off_data[0], 2*sizeof(__int32_t));
 	    }
-	    else if (__pmLogVersion(lcp) == PM_LOG_VERS02) {
+	    else {
+		/* __pmLogVersion(lcp) == PM_LOG_VERS02 */
 		__pmTI_v2	*tip_v2 = (__pmTI_v2 *)buffer;
 		__pmLogLoadTimeval(&tip_v2->sec, &tip->stamp);
 		tip->vol = ntohl(tip_v2->vol);
 		tip->off_meta = ntohl(tip_v2->off_meta);
 		tip->off_data = ntohl(tip_v2->off_data);
 	    }
-	    else
-		return PM_ERR_LABEL;
 
-	    lcp->l_numti++;
+	    lcp->numti++;
 	}
     }
     free(buffer);
     return sts;
 
 bad:
-    if (lcp->l_ti != NULL) {
-	free(lcp->l_ti);
-	lcp->l_ti = NULL;
+    if (lcp->ti != NULL) {
+	free(lcp->ti);
+	lcp->ti = NULL;
     }
-    lcp->l_numti = 0;
+    lcp->numti = 0;
     free(buffer);
     return sts;
 }

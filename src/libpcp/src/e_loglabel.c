@@ -134,7 +134,8 @@ __pmLogWriteLabel(__pmFILE *f, const __pmLogLabel *lp)
 	    return -oserror();
 	}
     }
-    else if (version == PM_LOG_VERS02) {
+    else {
+	/* version == PM_LOG_VERS02 */
 	__pmLabel_v2	label;
 
 	/* swab */
@@ -317,22 +318,22 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
     int		sts;
     int		diag_output = 0;
 
-    if (vol >= 0 && vol < lcp->l_numseen && lcp->l_seen[vol]) {
+    if (vol >= 0 && vol < lcp->numseen && lcp->seen[vol]) {
 	/* FastPath, cached result of previous check for this volume */
 	__pmFseek(f, (long)__pmLogLabelSize(lcp), SEEK_SET);
 	version = 0;
 	goto func_return;
     }
 
-    if (vol >= 0 && vol >= lcp->l_numseen) {
-	bytes = (vol + 1) * sizeof(lcp->l_seen[0]);
-	if ((lcp->l_seen = (int *)realloc(lcp->l_seen, bytes)) == NULL) {
-	    lcp->l_numseen = 0;
+    if (vol >= 0 && vol >= lcp->numseen) {
+	bytes = (vol + 1) * sizeof(lcp->seen[0]);
+	if ((lcp->seen = (int *)realloc(lcp->seen, bytes)) == NULL) {
+	    lcp->numseen = 0;
 	} else {
 	    int 	i;
-	    for (i = lcp->l_numseen; i < vol; i++)
-		lcp->l_seen[i] = 0;
-	    lcp->l_numseen = vol + 1;
+	    for (i = lcp->numseen; i < vol; i++)
+		lcp->seen[i] = 0;
+	    lcp->numseen = vol + 1;
 	}
     }
 
@@ -386,8 +387,8 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 	}
     }
 
-    if (vol >= 0 && vol < lcp->l_numseen)
-	lcp->l_seen[vol] = 1;
+    if (vol >= 0 && vol < lcp->numseen)
+	lcp->seen[vol] = 1;
 
 func_return:
     if (pmDebugOptions.log && diag_output)

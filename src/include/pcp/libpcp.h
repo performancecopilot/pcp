@@ -770,36 +770,36 @@ typedef struct {
  * Log/Archive Control
  */
 typedef struct {
-    __pmMutex	l_lock;		/* mutex for multi-thread access */
-    int		l_refcnt;	/* number of contexts using this log */
-    char	*l_name;	/* external log base name */
-    __pmFILE	*l_tifp;	/* temporal index */
-    __pmFILE	*l_mdfp;	/* meta data */
-    int		l_state;	/* (when writing) log state */
-    __pmHashCtl	l_hashpmid;	/* PMID hashed access */
-    __pmHashCtl	l_hashrange;	/* ptr to first and last value in log for */
+    __pmMutex	lock;		/* mutex for multi-thread access */
+    int		refcnt;		/* number of contexts using this log */
+    char	*name;		/* external log base name */
+    __pmFILE	*tifp;		/* temporal index */
+    __pmFILE	*mdfp;		/* meta data */
+    int		state;		/* (when writing) log state */
+    __pmHashCtl	hashpmid;	/* PMID hashed access */
+    __pmHashCtl	hashrange;	/* ptr to first and last value in log for */
 				/* each metric */
-    __pmHashCtl	l_hashindom;	/* instance domain hashed access */
-    __pmHashCtl	l_trimindom;	/* timestamps for first and last value per */
+    __pmHashCtl	hashindom;	/* instance domain hashed access */
+    __pmHashCtl	trimindom;	/* timestamps for first and last value per */
     				/* instance per indom (nested hashing, lazy */
 				/* loading) */
-    __pmHashCtl	l_hashlabels;	/* maps the various metadata label types */
-    __pmHashCtl l_hashtext;	/* maps the various help text types */
-    int		l_minvol;	/* (when reading) lowest known volume no. */
-    int		l_maxvol;	/* (when reading) highest known volume no. */
-    int		l_numseen;	/* (when reading) size of l_seen */
-    int		*l_seen;	/* (when reading) volumes opened OK */
-    __pmLogLabel l_label;	/* (when reading) log label */
-    off_t	l_physend;	/* (when reading) offset to physical EOF */
+    __pmHashCtl	hashlabels;	/* maps the various metadata label types */
+    __pmHashCtl hashtext;	/* maps the various help text types */
+    int		minvol;		/* (when reading) lowest known volume no. */
+    int		maxvol;		/* (when reading) highest known volume no. */
+    int		numseen;	/* (when reading) size of seen */
+    int		*seen;		/* (when reading) volumes opened OK */
+    __pmLogLabel label;		/* (when reading) log label */
+    off_t	physend;	/* (when reading) offset to physical EOF */
 				/*                for last volume */
-    pmTimeval	l_endtime;	/* (when reading) timestamp at logical EOF */
-    int		l_numti;	/* (when reading) no. temporal index entries */
-    __pmLogTI	*l_ti;		/* (when reading) temporal index */
-    struct __pmnsTree *l_pmns;	/* namespace from meta data */
-    int		l_multi;	/* part of a multi-archive context */
+    __pmTimestamp endtime;	/* (when reading) timestamp at logical EOF */
+    int		numti;		/* (when reading) no. temporal index entries */
+    __pmLogTI	*ti;		/* (when reading) temporal index */
+    struct __pmnsTree *pmns;	/* namespace from meta data */
+    int		multi;		/* part of a multi-archive context */
 } __pmLogCtl;
 
-/* l_state values */
+/* state values */
 #define PM_LOG_STATE_NEW	0
 #define PM_LOG_STATE_INIT	1
 
@@ -851,7 +851,7 @@ typedef struct {
  * indoms, see the HASH_THRESHOLD #define before time_caliper() in interp.c
  *
  * Top-level per-indom trimming control, which is accessed as a hash
- * using the indom as the key from l_trimindom.
+ * using the indom as the key from trimindom.
  */
 typedef struct {
     __pmHashCtl	hashinst;		/* nested hash on inst for this indom */

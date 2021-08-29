@@ -484,8 +484,8 @@ dumpDesc(__pmContext *ctxp)
     pmDesc		*dp;
 
     printf("\nDescriptions for Metrics in the Log ...\n");
-    for (i = 0; i < ctxp->c_archctl->ac_log->l_hashpmid.hsize; i++) {
-	for (hp = ctxp->c_archctl->ac_log->l_hashpmid.hash[i]; hp != NULL; hp = hp->next) {
+    for (i = 0; i < ctxp->c_archctl->ac_log->hashpmid.hsize; i++) {
+	for (hp = ctxp->c_archctl->ac_log->hashpmid.hash[i]; hp != NULL; hp = hp->next) {
 	    dp = (pmDesc *)hp->data;
 	    names = NULL; /* silence coverity */
 	    sts = pmNameAll(dp->pmid, &names);
@@ -510,7 +510,7 @@ dumpDiskInDom(__pmContext *ctxp)
     __int32_t	check;
     __pmLogHdr	hdr;
     __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
-    __pmFILE	*f = lcp->l_mdfp;
+    __pmFILE	*f = lcp->mdfp;
 
     printf("\nInstance Domains on-disk ...\n");
 
@@ -588,8 +588,8 @@ dumpInDom(__pmContext *ctxp)
     __pmLogInDom	*ldp;
 
     printf("\nInstance Domains in the Log ...\n");
-    for (i = 0; i < ctxp->c_archctl->ac_log->l_hashindom.hsize; i++) {
-	for (hp = ctxp->c_archctl->ac_log->l_hashindom.hash[i]; hp != NULL; hp = hp->next) {
+    for (i = 0; i < ctxp->c_archctl->ac_log->hashindom.hsize; i++) {
+	for (hp = ctxp->c_archctl->ac_log->hashindom.hash[i]; hp != NULL; hp = hp->next) {
 	    printf("InDom: %s\n", pmInDomStr((pmInDom)hp->key));
 	    /*
 	     * in reverse chronological order, so iteration is a bit funny
@@ -619,7 +619,7 @@ dumpHelpText(__pmContext *ctxp)
     unsigned int	type;
     unsigned int	class;
     unsigned int	ident;
-    __pmHashCtl		*l_hashtext;
+    __pmHashCtl		*hashtext;
     const __pmHashCtl	*l_hashtype;
     const __pmHashNode	*hp, *tp;
     const __pmHashNode	*this_item[2], *prev_item[2];
@@ -636,7 +636,7 @@ dumpHelpText(__pmContext *ctxp)
      *   identifier, then by
      *   class (PM_TEXT_ONELINE, PM_TEXT_HELP).
      */
-    l_hashtext = &ctxp->c_archctl->ac_log->l_hashtext;
+    hashtext = &ctxp->c_archctl->ac_log->hashtext;
     for (tix = 0; tix < 2; ++tix) {
 	type = textTypes[tix];
 
@@ -651,7 +651,7 @@ dumpHelpText(__pmContext *ctxp)
 		this_item[cix] = NULL;
 
 		class = textClasses[cix];
-		hp = __pmHashSearch(type | class, l_hashtext);
+		hp = __pmHashSearch(type | class, hashtext);
 		if (hp == NULL)
 		    continue;
 
@@ -708,7 +708,7 @@ dumpLabelSets(__pmContext *ctxp)
     int				tix;
     unsigned int		type;
     unsigned int		ident;
-    __pmHashCtl			*l_hashlabels;
+    __pmHashCtl			*hashlabels;
     const __pmHashCtl		*l_hashtype;
     const __pmHashNode		*hp, *tp;
     const __pmHashNode		*this_item, *prev_item;
@@ -734,14 +734,14 @@ dumpLabelSets(__pmContext *ctxp)
      *   type, then by
      *   identifier
      */
-    l_hashlabels = &ctxp->c_archctl->ac_log->l_hashlabels;
+    hashlabels = &ctxp->c_archctl->ac_log->hashlabels;
     prev_stamp.sec = 0;
     prev_stamp.nsec = 0;
     for (;;) {
 	/* find the next earliest time stamp. */
 	min_diff = DBL_MAX;
-	for (lix = 0; lix < l_hashlabels->hsize; ++lix) {
-	    for (hp = l_hashlabels->hash[lix]; hp != NULL; hp = hp->next) {
+	for (lix = 0; lix < hashlabels->hsize; ++lix) {
+	    for (hp = hashlabels->hash[lix]; hp != NULL; hp = hp->next) {
 		l_hashtype = (__pmHashCtl *)hp->data;
 		for (tix = 0; tix < l_hashtype->hsize; tix++) {
 		    for (tp = l_hashtype->hash[tix]; tp != NULL; tp = tp->next) {
@@ -777,7 +777,7 @@ dumpLabelSets(__pmContext *ctxp)
 	for (lix = 0; lix < sizeof(labelTypes) / sizeof(*labelTypes); ++lix) {
 	    /* Are there labels of this type? */
 	    type = labelTypes[lix];
-	    hp = __pmHashSearch(type, l_hashlabels);
+	    hp = __pmHashSearch(type, hashlabels);
 	    if (hp == NULL)
 		continue;
 
@@ -863,20 +863,20 @@ dumpTI(__pmContext *ctxp)
     __pmLogTI		*lastp = NULL;
     int			i;
 
-    for (i = 0; i < lcp->l_numti; i++) {
-	tip = &lcp->l_ti[i];
+    for (i = 0; i < lcp->numti; i++) {
+	tip = &lcp->ti[i];
 	dump_pmTimestamp(&tip->stamp);
 	printf("\t  %5d  %11lld  %11lld\n", tip->vol,
 		(long long)tip->off_meta, (long long)tip->off_data);
 	if (i == 0) {
-	    pmsprintf(path, sizeof(path), "%s.meta", lcp->l_name);
+	    pmsprintf(path, sizeof(path), "%s.meta", lcp->name);
 	    if (__pmStat(path, &sbuf) == 0)
 		meta_size = sbuf.st_size;
 	    else
 		meta_size = -1;
 	}
 	if (lastp == NULL || tip->vol != lastp->vol) { 
-	    pmsprintf(path, sizeof(path), "%s.%d", lcp->l_name, tip->vol);
+	    pmsprintf(path, sizeof(path), "%s.%d", lcp->name, tip->vol);
 	    if (__pmStat(path, &sbuf) == 0)
 		log_size = sbuf.st_size;
 	    else {

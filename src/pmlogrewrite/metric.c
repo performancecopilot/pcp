@@ -152,7 +152,7 @@ do_desc(void)
     char		**names;
     long		out_offset;
 
-    out_offset = __pmFtell(outarch.logctl.l_mdfp);
+    out_offset = __pmFtell(outarch.logctl.mdfp);
     _pmUnpackDesc(inarch.metarec, &desc, &numnames, &names);
 
     for (mp = metric_root; mp != NULL; mp = mp->m_next) {

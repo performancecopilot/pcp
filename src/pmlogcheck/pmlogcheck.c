@@ -312,7 +312,7 @@ main(int argc, char *argv[])
 
     if (index_state == STATE_BAD) {
 	/* prevent subsequent use of bad temporal index */
-	ctxp->c_archctl->ac_log->l_numti = 0;
+	ctxp->c_archctl->ac_log->numti = 0;
     }
 
     sts = pass2(ctxp, archname);

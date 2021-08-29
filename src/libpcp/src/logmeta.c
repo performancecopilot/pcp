@@ -157,9 +157,9 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	fprintf(stderr, ", numinst=%d)\n", numinst);
     }
 
-    if ((hp = __pmHashSearch((unsigned int)indom, &lcp->l_hashindom)) == NULL) {
+    if ((hp = __pmHashSearch((unsigned int)indom, &lcp->hashindom)) == NULL) {
 	idp->next = NULL;
-	sts = __pmHashAdd((unsigned int)indom, (void *)idp, &lcp->l_hashindom);
+	sts = __pmHashAdd((unsigned int)indom, (void *)idp, &lcp->hashindom);
 	if (sts > 0) {
 	    /* __pmHashAdd returns 1 for success, but we want 0. */
 	    sts = 0;
@@ -312,13 +312,13 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":13", PM_FAULT_ALLOC);
 
 	idp->next = NULL;
 
-	if ((hp = __pmHashSearch(type, &lcp->l_hashlabels)) == NULL) {
+	if ((hp = __pmHashSearch(type, &lcp->hashlabels)) == NULL) {
 	    if ((l_hashtype = (__pmHashCtl *) calloc(1, sizeof(__pmHashCtl))) == NULL) {
 		free(idp);
 		return -oserror();
 	    }
 
-	    sts = __pmHashAdd(type, (void *)l_hashtype, &lcp->l_hashlabels);
+	    sts = __pmHashAdd(type, (void *)l_hashtype, &lcp->hashlabels);
 	    if (sts < 0) {
 		free(idp);
 		return sts;
@@ -334,7 +334,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":13", PM_FAULT_ALLOC);
 	return sts;
     }
 
-    if ((hp = __pmHashSearch(type, &lcp->l_hashlabels)) == NULL) {
+    if ((hp = __pmHashSearch(type, &lcp->hashlabels)) == NULL) {
 	free(idp);
 	return PM_ERR_NOLABELS;
     }
@@ -481,7 +481,7 @@ check_dup_labels(const __pmArchCtl *acp)
 {
     __pmLogCtl		*lcp;
     __pmLogLabelSet	*idp, *idp_prev, *idp_next;
-    __pmHashCtl		*l_hashlabels;
+    __pmHashCtl		*hashlabels;
     __pmHashCtl		*l_hashtype;
     __pmHashNode	*hplabels, *hptype;
     int			type;
@@ -489,9 +489,9 @@ check_dup_labels(const __pmArchCtl *acp)
 
     /* Traverse the double hash table representing the label sets. */
     lcp = acp->ac_log;
-    l_hashlabels = &lcp->l_hashlabels;
-    for (type = 0; type < l_hashlabels->hsize; ++type) {
-        for (hplabels = l_hashlabels->hash[type]; hplabels; hplabels = hplabels->next) {
+    hashlabels = &lcp->hashlabels;
+    for (type = 0; type < hashlabels->hsize; ++type) {
+        for (hplabels = hashlabels->hash[type]; hplabels; hplabels = hplabels->next) {
 	    l_hashtype = (__pmHashCtl *)hplabels->data;
 	    for (ident = 0; ident < l_hashtype->hsize; ++ident) {
 		for (hptype = l_hashtype->hash[ident]; hptype; hptype = hptype->next) {
@@ -560,11 +560,11 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":15", PM_FAULT_ALLOC);
 
     if ((sts = __pmLogLookupText(acp, ident, type, &text)) < 0) {
 	/* This is a new help text record. Add it to the hash structure. */
-	if ((hp = __pmHashSearch(type, &lcp->l_hashtext)) == NULL) {
+	if ((hp = __pmHashSearch(type, &lcp->hashtext)) == NULL) {
 	    if ((l_hashtype = (__pmHashCtl *)calloc(1, sizeof(__pmHashCtl))) == NULL)
 		return -oserror();
 
-	    sts = __pmHashAdd(type, (void *)l_hashtype, &lcp->l_hashtext);
+	    sts = __pmHashAdd(type, (void *)l_hashtype, &lcp->hashtext);
 	    if (sts < 0)
 		return sts;
 	} else {
@@ -591,7 +591,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":15", PM_FAULT_ALLOC);
 	 * Find the hash table entry. We know it's there because
 	 * __pmLogLookupText() succeeded above.
 	 */
-	hp = __pmHashSearch(type, &lcp->l_hashtext);
+	hp = __pmHashSearch(type, &lcp->hashtext);
 	assert(hp != NULL);
 
 	l_hashtype = (__pmHashCtl *)hp->data;
@@ -616,7 +616,7 @@ __pmLogAddDesc(__pmArchCtl *acp, const pmDesc *newdp)
     __pmLogCtl		*lcp = acp->ac_log;
     pmDesc		*dp, *olddp;
 
-    if ((hp = __pmHashSearch((int)newdp->pmid, &lcp->l_hashpmid)) != NULL) {
+    if ((hp = __pmHashSearch((int)newdp->pmid, &lcp->hashpmid)) != NULL) {
 	/* PMID is already in the hash table - check for conflicts. */
 	olddp = (pmDesc *)hp->data;
 	if (newdp->type != olddp->type)
@@ -643,7 +643,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	return -oserror();
     *dp = *newdp;
 
-    return __pmHashAdd((int)dp->pmid, (void *)dp, &lcp->l_hashpmid);
+    return __pmHashAdd((int)dp->pmid, (void *)dp, &lcp->hashpmid);
 }
 
 int
@@ -660,7 +660,7 @@ __pmLogAddPMNSNode(__pmArchCtl *acp, pmID pmid, const char *name)
      * esp. when only one or two metric IDs may be corrupted
      * in this way (which we may not be interested in anyway).
      */
-    sts = __pmAddPMNSNode(lcp->l_pmns, pmid, name);
+    sts = __pmAddPMNSNode(lcp->pmns, pmid, name);
     if (sts == PM_ERR_PMID)
 	sts = 0;
     return sts;
@@ -690,7 +690,7 @@ __pmLogAddText(__pmArchCtl *acp, unsigned int ident, unsigned int type, const ch
 /*
  * Load _all_ of the hashed pmDesc and __pmLogInDom structures from the metadata
  * log file -- used at the initialization (NewContext) of an archive.
- * Also load all the metric names from the metadata log file and create l_pmns,
+ * Also load all the metric names from the metadata log file and create pmns,
  * if it does not already exist.
  */
 int
@@ -701,7 +701,7 @@ __pmLogLoadMeta(__pmArchCtl *acp)
     int			check;
     int			sts = 0;
     __pmLogHdr		h;
-    __pmFILE		*f = lcp->l_mdfp;
+    __pmFILE		*f = lcp->mdfp;
     int			numpmid = 0;
     int			n;
     int			numnames;
@@ -709,8 +709,8 @@ __pmLogLoadMeta(__pmArchCtl *acp)
     int			len;
     char		name[MAXPATHLEN];
     
-    if (lcp->l_pmns == NULL) {
-	if ((sts = __pmNewPMNS(&(lcp->l_pmns))) < 0)
+    if (lcp->pmns == NULL) {
+	if ((sts = __pmNewPMNS(&(lcp->pmns))) < 0)
 	    goto end;
     }
 
@@ -1090,7 +1090,7 @@ end:
 	    sts = PM_ERR_LOGREC;
 	}
 	else
-	    __pmFixPMNSHashTab(lcp->l_pmns, numpmid, 1);
+	    __pmFixPMNSHashTab(lcp->pmns, numpmid, 1);
     }
     return sts;
 }
@@ -1105,7 +1105,7 @@ __pmLogLookupDesc(__pmArchCtl *acp, pmID pmid, pmDesc *dp)
     __pmHashNode	*hp;
     pmDesc		*tp;
 
-    if ((hp = __pmHashSearch((unsigned int)pmid, &lcp->l_hashpmid)) == NULL)
+    if ((hp = __pmHashSearch((unsigned int)pmid, &lcp->hashpmid)) == NULL)
 	return PM_ERR_PMID_LOG;
 
     tp = (pmDesc *)hp->data;
@@ -1121,7 +1121,7 @@ int
 __pmLogPutDesc(__pmArchCtl *acp, const pmDesc *dp, int numnames, char **names)
 {
     __pmLogCtl		*lcp = acp->ac_log;
-    __pmFILE		*f = lcp->l_mdfp;
+    __pmFILE		*f = lcp->mdfp;
     pmDesc		*tdp;
     int			olen;		/* length to write out */
     int			i, sts, len;
@@ -1195,7 +1195,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":5", PM_FAULT_ALLOC);
     if ((tdp = (pmDesc *)malloc(sizeof(pmDesc))) == NULL)
 	return -oserror();
     *tdp = *dp;		/* struct assignment */
-    return __pmHashAdd((int)dp->pmid, (void *)tdp, &lcp->l_hashpmid);
+    return __pmHashAdd((int)dp->pmid, (void *)tdp, &lcp->hashpmid);
 }
 
 static __pmLogInDom *
@@ -1211,7 +1211,7 @@ searchindom(__pmLogCtl *lcp, pmInDom indom, __pmTimestamp *tsp)
 	fprintf(stderr, ")\n");
     }
 
-    if ((hp = __pmHashSearch((unsigned int)indom, &lcp->l_hashindom)) == NULL)
+    if ((hp = __pmHashSearch((unsigned int)indom, &lcp->hashindom)) == NULL)
 	return NULL;
 
     idp = (__pmLogInDom *)hp->data;
@@ -1336,7 +1336,7 @@ __pmLogLookupLabel(__pmArchCtl *acp, unsigned int type, unsigned int ident,
     if (type == PM_LABEL_CONTEXT)
 	ident = PM_ID_NULL;
 
-    if ((hp = __pmHashSearch(type, &lcp->l_hashlabels)) == NULL)
+    if ((hp = __pmHashSearch(type, &lcp->hashlabels)) == NULL)
 	return PM_ERR_NOLABELS;
 
     label_hash = (__pmHashCtl *)hp->data;
@@ -1369,7 +1369,7 @@ __pmLogLookupText(__pmArchCtl *acp, unsigned int ident, unsigned int type,
     __pmHashNode	*hp;
 
     type &= ~PM_TEXT_DIRECT;
-    if ((hp = __pmHashSearch(type, &lcp->l_hashtext)) == NULL)
+    if ((hp = __pmHashSearch(type, &lcp->hashtext)) == NULL)
 	return PM_ERR_NOTHOST;	/* back-compat error code */
 
     text_hash = (__pmHashCtl *)hp->data;
@@ -1419,7 +1419,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":14", PM_FAULT_ALLOC);
     ptr += textlen;
     memmove((void *)ptr, &out->hdr.len, sizeof(out->hdr.len));
 
-    if ((sts = __pmFwrite(out, 1, len, lcp->l_mdfp)) != len) {
+    if ((sts = __pmFwrite(out, 1, len, lcp->mdfp)) != len) {
 	char	errmsg[PM_MAXERRMSGLEN];
 
 	pmprintf("__pmLogPutText(...ident,=%d,type=%d): write failed: returned %d expecting %d: %s\n",
@@ -1456,7 +1456,7 @@ pmLookupInDomArchive(pmInDom indom, const char *name)
 	    return PM_ERR_NOTARCHIVE;
 	}
 
-	if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->l_hashindom)) == NULL) {
+	if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->hashindom)) == NULL) {
 	    PM_UNLOCK(ctxp->c_lock);
 	    return PM_ERR_INDOM_LOG;
 	}
@@ -1510,7 +1510,7 @@ pmNameInDomArchive(pmInDom indom, int inst, char **name)
 	    return PM_ERR_NOTARCHIVE;
 	}
 
-	if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->l_hashindom)) == NULL) {
+	if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->hashindom)) == NULL) {
 	    PM_UNLOCK(ctxp->c_lock);
 	    return PM_ERR_INDOM_LOG;
 	}
@@ -1629,7 +1629,7 @@ pmGetInDomArchive_ctx(__pmContext *ctxp, pmInDom indom, int **instlist, char ***
 	return PM_ERR_NOTARCHIVE;
     }
 
-    if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->l_hashindom)) == NULL) {
+    if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->hashindom)) == NULL) {
 	if (need_unlock)
 	    PM_UNLOCK(ctxp->c_lock);
 	return PM_ERR_INDOM_LOG;

@@ -91,42 +91,42 @@ Options:\n\
 	fprintf(stderr, "%s: __pmLogCreate failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
-    logctl.l_state = PM_LOG_STATE_INIT;
+    logctl.state = PM_LOG_STATE_INIT;
 
     /*
      * make the archive label deterministic
      */
-    logctl.l_label.pid = 1234;
-    logctl.l_label.start.sec = epoch.tv_sec;
-    logctl.l_label.start.nsec = epoch.tv_usec * 1000;
-    if (logctl.l_label.hostname)
-	free(logctl.l_label.hostname);
-    logctl.l_label.hostname = strdup("happycamper");
-    if (logctl.l_label.timezone)
-	free(logctl.l_label.timezone);
-    logctl.l_label.timezone = strdup("UTC");
-    if (logctl.l_label.zoneinfo)
-	free(logctl.l_label.zoneinfo);
-    logctl.l_label.zoneinfo = NULL;
+    logctl.label.pid = 1234;
+    logctl.label.start.sec = epoch.tv_sec;
+    logctl.label.start.nsec = epoch.tv_usec * 1000;
+    if (logctl.label.hostname)
+	free(logctl.label.hostname);
+    logctl.label.hostname = strdup("happycamper");
+    if (logctl.label.timezone)
+	free(logctl.label.timezone);
+    logctl.label.timezone = strdup("UTC");
+    if (logctl.label.zoneinfo)
+	free(logctl.label.zoneinfo);
+    logctl.label.zoneinfo = NULL;
 
-    logctl.l_label.vol = PM_LOG_VOL_TI;
-    if ((sts = __pmLogWriteLabel(logctl.l_tifp, &logctl.l_label)) != 0) {
+    logctl.label.vol = PM_LOG_VOL_TI;
+    if ((sts = __pmLogWriteLabel(logctl.tifp, &logctl.label)) != 0) {
 	fprintf(stderr, "%s: __pmLogWriteLabel TI failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
-    logctl.l_label.vol = PM_LOG_VOL_META;
-    if ((sts = __pmLogWriteLabel(logctl.l_mdfp, &logctl.l_label)) != 0) {
+    logctl.label.vol = PM_LOG_VOL_META;
+    if ((sts = __pmLogWriteLabel(logctl.mdfp, &logctl.label)) != 0) {
 	fprintf(stderr, "%s: __pmLogWriteLabel META failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
-    logctl.l_label.vol = 0;
-    if ((sts = __pmLogWriteLabel(archctl.ac_mfp, &logctl.l_label)) != 0) {
+    logctl.label.vol = 0;
+    if ((sts = __pmLogWriteLabel(archctl.ac_mfp, &logctl.label)) != 0) {
 	fprintf(stderr, "%s: __pmLogWriteLabel VOL 0 failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
     __pmFflush(archctl.ac_mfp);
-    __pmFflush(logctl.l_mdfp);
+    __pmFflush(logctl.mdfp);
     stamp.sec = epoch.tv_sec;
     stamp.nsec = epoch.tv_usec * 1000;
     __pmLogPutIndex(&archctl, &stamp);
@@ -189,7 +189,7 @@ Options:\n\
     }
 
     __pmFflush(archctl.ac_mfp);
-    __pmFflush(logctl.l_mdfp);
+    __pmFflush(logctl.mdfp);
     stamp.sec = epoch.tv_sec;
     stamp.nsec = epoch.tv_usec * 1000;
     __pmLogPutIndex(&archctl, &stamp);

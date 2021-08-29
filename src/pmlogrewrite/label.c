@@ -699,7 +699,7 @@ do_labelset(void)
     int			sts;
     char		buf[64];
 
-    out_offset = __pmFtell(outarch.logctl.l_mdfp);
+    out_offset = __pmFtell(outarch.logctl.mdfp);
 
     _pmUnpackLabelSet(inarch.metarec, &type, &ident, &nsets, &labellist, &stamp);
 

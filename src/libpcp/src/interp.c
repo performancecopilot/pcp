@@ -183,7 +183,7 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
     acp->ac_cache_idx = (acp->ac_cache_idx + 1) % NUMCACHE;
     lfup = &cache[acp->ac_cache_idx];
     for (cp = cache; cp < &cache[NUMCACHE]; cp++) {
-	if (cp->c_name != NULL && strcmp(cp->c_name, acp->ac_log->l_name) == 0 &&
+	if (cp->c_name != NULL && strcmp(cp->c_name, acp->ac_log->name) == 0 &&
 	    cp->vol == acp->ac_vol &&
 	    ((mode == PM_MODE_FORW && cp->head_posn == posn) ||
 	     (mode == PM_MODE_BACK && cp->tail_posn == posn)) &&
@@ -226,9 +226,9 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
      * The only way to know if the archive has changed is to check whether the
      * archive name has changed.
      */
-    if ((save_curlog_name = strdup(acp->ac_log->l_name)) == NULL) {
+    if ((save_curlog_name = strdup(acp->ac_log->name)) == NULL) {
 	pmNoMem("__pmLogFetchInterp.save_curlog_name",
-		  strlen(acp->ac_log->l_name) + 1, PM_FATAL_ERR);
+		  strlen(acp->ac_log->name) + 1, PM_FATAL_ERR);
     }
     save_curvol = acp->ac_curvol;
 
@@ -237,7 +237,7 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
 	lfup->rp = NULL;
     *rp = lfup->rp;
 
-    archive_changed = strcmp(save_curlog_name, acp->ac_log->l_name) != 0;
+    archive_changed = strcmp(save_curlog_name, acp->ac_log->name) != 0;
     free(save_curlog_name);
 
     /*
@@ -261,14 +261,14 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
 	lfup->vol = acp->ac_vol;
 	lfup->used = 1;
 	/* Try to avoid excessive copying/freeing of the archive name. */
-	if (lfup->c_name != NULL && strcmp(lfup->c_name, acp->ac_log->l_name) != 0) {
+	if (lfup->c_name != NULL && strcmp(lfup->c_name, acp->ac_log->name) != 0) {
 	    free(lfup->c_name);
 	    lfup->c_name = NULL;
 	}
 	if (lfup->c_name == NULL) {
-	    if ((lfup->c_name = strdup(acp->ac_log->l_name)) == NULL) {
-		pmNoMem("__pmLogFetchInterp.l_name",
-			  strlen(acp->ac_log->l_name) + 1, PM_FATAL_ERR);
+	    if ((lfup->c_name = strdup(acp->ac_log->name)) == NULL) {
+		pmNoMem("__pmLogFetchInterp.name",
+			  strlen(acp->ac_log->name) + 1, PM_FATAL_ERR);
 	    }
 	}
 	if (mode == PM_MODE_FORW) {
@@ -893,7 +893,7 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
     if (err == PM_ERR_LOGREC) {
 	if (pmDebugOptions.interp || pmDebugOptions.log) {
 	    fprintf(stderr, "Error: corrupted archive '%s', vol %d\n",
-		ctxp->c_archctl ->ac_log->l_name, ctxp->c_archctl->ac_curvol);
+		ctxp->c_archctl ->ac_log->name, ctxp->c_archctl->ac_curvol);
 	}
     	return err;
     }
@@ -945,10 +945,10 @@ time_caliper(__pmContext *ctxp, instcntl_t *icp)
     }
 
     lcp = ctxp->c_archctl->ac_log;
-    if ((hp = __pmHashSearch((unsigned int)icp->metric->desc.indom, &lcp->l_trimindom)) == NULL) {
+    if ((hp = __pmHashSearch((unsigned int)icp->metric->desc.indom, &lcp->trimindom)) == NULL) {
 	/*
 	 * assume first time for this indom ...
-	 * - add indom to l_trimindom hash
+	 * - add indom to trimindom hash
 	 * - walk all instances
 	 *   + add to histinst hash if not already there
 	 *   + update t_birth if this is the earliest observation for this
@@ -967,21 +967,21 @@ time_caliper(__pmContext *ctxp, instcntl_t *icp)
 	    /*NOTREACHED*/
 	}
 	indomp->hashinst.nodes = indomp->hashinst.hsize = 0;
-	sts = __pmHashAdd((unsigned int)icp->metric->desc.indom, (void *)indomp, &lcp->l_trimindom);
+	sts = __pmHashAdd((unsigned int)icp->metric->desc.indom, (void *)indomp, &lcp->trimindom);
 	if (sts < 0) {
 	    char	strbuf[20];
 	    fprintf(stderr, "time_caliper: Botch: indom %s trimindom __pmHashAdd failed: %d\n", pmInDomStr_r(icp->metric->desc.indom, strbuf, sizeof(strbuf)), sts);
 	    free(indomp);
 	    return;
 	}
-	if ((hp = __pmHashSearch((unsigned int)icp->metric->desc.indom, &lcp->l_trimindom)) == NULL) {
+	if ((hp = __pmHashSearch((unsigned int)icp->metric->desc.indom, &lcp->trimindom)) == NULL) {
 	    char	strbuf[20];
 	    fprintf(stderr, "time_caliper: Botch: indom %s: trimindom __pmHashSearch failed\n", pmInDomStr_r(icp->metric->desc.indom, strbuf, sizeof(strbuf)));
 	    return;
 	}
-	if ((jp = __pmHashSearch((unsigned int)icp->metric->desc.indom, &lcp->l_hashindom)) == NULL) {
+	if ((jp = __pmHashSearch((unsigned int)icp->metric->desc.indom, &lcp->hashindom)) == NULL) {
 	    char	strbuf[20];
-	    fprintf(stderr, "time_caliper: Botch: indom %s: l_hashindom __pmHashSearch failed\n", pmInDomStr_r(icp->metric->desc.indom, strbuf, sizeof(strbuf)));
+	    fprintf(stderr, "time_caliper: Botch: indom %s: hashindom __pmHashSearch failed\n", pmInDomStr_r(icp->metric->desc.indom, strbuf, sizeof(strbuf)));
 	    return;
 	}
 	/*
@@ -1438,7 +1438,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		if (sts == PM_ERR_LOGREC) {
 		    if (pmDebugOptions.interp || pmDebugOptions.log) {
 		        fprintf(stderr, "Error: corrupted archive scanning backwards in '%s', volume %d\n",
-			    ctxp->c_archctl->ac_log->l_name, ctxp->c_archctl->ac_curvol);
+			    ctxp->c_archctl->ac_log->name, ctxp->c_archctl->ac_curvol);
 		    }
 		    return sts;
 		}
@@ -1585,7 +1585,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		if (sts == PM_ERR_LOGREC) {
 		    if (pmDebugOptions.interp || pmDebugOptions.log) {
 		        fprintf(stderr, "Error: corrupted archive scanning forwards in '%s', volume %d\n",
-			    ctxp->c_archctl->ac_log->l_name, ctxp->c_archctl->ac_curvol);
+			    ctxp->c_archctl->ac_log->name, ctxp->c_archctl->ac_curvol);
 		    }
 		    return sts;
 		}

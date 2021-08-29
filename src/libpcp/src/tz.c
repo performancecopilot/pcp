@@ -635,7 +635,7 @@ pmNewContextZone(void)
 	return PM_ERR_NOCONTEXT;
 
     if (ctxp->c_type == PM_CONTEXT_ARCHIVE) {
-	sts = pmNewZone(ctxp->c_archctl->ac_log->l_label.timezone);
+	sts = pmNewZone(ctxp->c_archctl->ac_log->label.timezone);
 	PM_UNLOCK(ctxp->c_lock);
     }
     else if (ctxp->c_type == PM_CONTEXT_LOCAL) {

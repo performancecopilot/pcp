@@ -1465,7 +1465,7 @@ print_callback(pmDiscover *p)
 	if (p->ctx >= 0 && (ctxp = __pmHandleToPtr(p->ctx)) != NULL) {
 	    acp = ctxp->c_archctl;
 	    fprintf(stderr, "    ARCHIVE %s fd=%d ctx=%d maxvol=%d ac_curvol=%d ac_offset=%ld %s\n",
-		p->context.name, p->fd, p->ctx, acp->ac_log->l_maxvol, acp->ac_curvol,
+		p->context.name, p->fd, p->ctx, acp->ac_log->maxvol, acp->ac_curvol,
 		acp->ac_offset, pmDiscoverFlagsStr(p));
 	    PM_UNLOCK(ctxp->c_lock);
 	} else {

@@ -231,7 +231,7 @@ __localLogGetInDom(__pmLogCtl *lcp, pmInDom indom, __pmTimestamp *tsp, int **ins
 	fprintf(stderr, "__localLogGetInDom( ..., %s) -> ",
 	    pmInDomStr(indom));
 
-    if ((hp = __pmHashSearch((unsigned int)indom, &lcp->l_hashindom)) == NULL) {
+    if ((hp = __pmHashSearch((unsigned int)indom, &lcp->hashindom)) == NULL) {
 	sts = -1;
 	goto done;
     }
@@ -824,7 +824,7 @@ do_work(task_t *tp)
 	}
 
 	needti = 0;
-	old_meta_offset = __pmFtell(logctl.l_mdfp);
+	old_meta_offset = __pmFtell(logctl.mdfp);
 	assert(old_meta_offset >= 0);
 
 	for (i = 0; i < resp->numpmid; i++) {
@@ -1051,10 +1051,10 @@ do_work(task_t *tp)
 	     */
 	    new_offset = __pmFtell(archctl.ac_mfp);
 	    assert(new_offset >= 0);
-	    new_meta_offset = __pmFtell(logctl.l_mdfp);
+	    new_meta_offset = __pmFtell(logctl.mdfp);
 	    assert(new_meta_offset >= 0);
 	    __pmFseek(archctl.ac_mfp, last_log_offset, SEEK_SET);
-	    __pmFseek(logctl.l_mdfp, old_meta_offset, SEEK_SET);
+	    __pmFseek(logctl.mdfp, old_meta_offset, SEEK_SET);
 	    stamp.sec = (__int32_t)resp->timestamp.tv_sec;
 	    stamp.nsec = (__int32_t)resp->timestamp.tv_usec * 1000;
 	    __pmLogPutIndex(&archctl, &stamp);
@@ -1062,7 +1062,7 @@ do_work(task_t *tp)
 	     * ... and put them back
 	     */
 	    __pmFseek(archctl.ac_mfp, new_offset, SEEK_SET);
-	    __pmFseek(logctl.l_mdfp, new_meta_offset, SEEK_SET);
+	    __pmFseek(logctl.mdfp, new_meta_offset, SEEK_SET);
 	    flushsize = __pmFtell(archctl.ac_mfp) + 100000;
 	}
 

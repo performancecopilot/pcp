@@ -101,7 +101,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
 	inst = (int *)&v3->data;
 	lenp = &v3->len;
     }
-    else if (__pmLogVersion(lcp) == PM_LOG_VERS02) {
+    else {
+	/* __pmLogVersion(lcp) == PM_LOG_VERS02 */
 	__pmInDom_v2	*v2;
 	if ((v2 = (__pmInDom_v2 *)malloc(len)) == NULL)
 	    return -oserror();
@@ -129,7 +130,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
     /* trailer record length */
     memcpy((void *)str, lenp, sizeof(*lenp));
 
-    if ((sts = __pmFwrite(out, 1, len, lcp->l_mdfp)) != len) {
+    if ((sts = __pmFwrite(out, 1, len, lcp->mdfp)) != len) {
 	char	strbuf[20];
 	char	errmsg[PM_MAXERRMSGLEN];
 	pmprintf("__pmLogPutInDom(...,indom=%s,numinst=%d): write failed: returned %d expecting %zd: %s\n",
@@ -177,12 +178,12 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	__pmLogCtl	*lcp = acp->ac_log;
 	if ((lbuf = (__int32_t *)malloc(rlen)) == NULL)
 	    return -oserror();
-	if ((n = (int)__pmFread(lbuf, 1, rlen, lcp->l_mdfp)) != rlen) {
+	if ((n = (int)__pmFread(lbuf, 1, rlen, lcp->mdfp)) != rlen) {
 	    if (pmDebugOptions.logmeta)
 		fprintf(stderr, "__pmLogLoadInDom: indom read -> %d: expected: %d\n", n, rlen);
 	    free(lbuf);
-	    if (__pmFerror(lcp->l_mdfp)) {
-		__pmClearerr(lcp->l_mdfp);
+	    if (__pmFerror(lcp->mdfp)) {
+		__pmClearerr(lcp->mdfp);
 		return -oserror();
 	    }
 	    else

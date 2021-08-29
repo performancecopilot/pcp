@@ -36,14 +36,14 @@ pass1(__pmContext *ctxp, char *archname)
     if (vflag)
 	fprintf(stderr, "%s: start pass1 (check temporal index)\n", archname);
 
-    if (log->l_numti <= 0) {
+    if (log->numti <= 0) {
 	fprintf(stderr, "%s: warning temporal index is missing\n", archname);
 	return STS_WARNING;
     }
 
 
     lastp = NULL;
-    for (i = 1; i <= log->l_numti; i++) {
+    for (i = 1; i <= log->numti; i++) {
 
 	/*
 	 * Integrity Checks
@@ -64,7 +64,7 @@ pass1(__pmContext *ctxp, char *archname)
 	 *
 	 * this(vol) != last(vol) && !file_exists(<base>.this(vol))
 	 */
-	tip = &log->l_ti[i-1];
+	tip = &log->ti[i-1];
 	if (i == 1) {
 	    __pmFILE *fp;
 	    meta_size = -1;

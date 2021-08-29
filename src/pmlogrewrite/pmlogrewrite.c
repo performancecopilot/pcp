@@ -123,8 +123,8 @@ newvolume(int vol)
     if ((newfp = __pmLogNewFile(outarch.name, vol)) != NULL) {
 	__pmFclose(outarch.archctl.ac_mfp);
 	outarch.archctl.ac_mfp = newfp;
-	outarch.logctl.l_label.vol = outarch.archctl.ac_curvol = vol;
-	__pmLogWriteLabel(outarch.archctl.ac_mfp, &outarch.logctl.l_label);
+	outarch.logctl.label.vol = outarch.archctl.ac_curvol = vol;
+	__pmLogWriteLabel(outarch.archctl.ac_mfp, &outarch.logctl.label);
 	__pmFflush(outarch.archctl.ac_mfp);
     }
     else {
@@ -150,7 +150,7 @@ newvolume(int vol)
 static void
 newlabel(void)
 {
-    __pmLogLabel	*lp = &outarch.logctl.l_label;
+    __pmLogLabel	*lp = &outarch.logctl.label;
 
     /* copy magic number, pid, host and timezone */
     lp->magic = inarch.label.ll_magic;
@@ -179,32 +179,32 @@ writelabel(int do_rewind)
     off_t	old_offset;
 
     if (do_rewind) {
-	old_offset = __pmFtell(outarch.logctl.l_tifp);
+	old_offset = __pmFtell(outarch.logctl.tifp);
 	assert(old_offset >= 0);
-	__pmRewind(outarch.logctl.l_tifp);
+	__pmRewind(outarch.logctl.tifp);
     }
-    outarch.logctl.l_label.vol = PM_LOG_VOL_TI;
-    __pmLogWriteLabel(outarch.logctl.l_tifp, &outarch.logctl.l_label);
+    outarch.logctl.label.vol = PM_LOG_VOL_TI;
+    __pmLogWriteLabel(outarch.logctl.tifp, &outarch.logctl.label);
     if (do_rewind)
-	__pmFseek(outarch.logctl.l_tifp, (long)old_offset, SEEK_SET);
+	__pmFseek(outarch.logctl.tifp, (long)old_offset, SEEK_SET);
 
     if (do_rewind) {
-	old_offset = __pmFtell(outarch.logctl.l_mdfp);
+	old_offset = __pmFtell(outarch.logctl.mdfp);
 	assert(old_offset >= 0);
-	__pmRewind(outarch.logctl.l_mdfp);
+	__pmRewind(outarch.logctl.mdfp);
     }
-    outarch.logctl.l_label.vol = PM_LOG_VOL_META;
-    __pmLogWriteLabel(outarch.logctl.l_mdfp, &outarch.logctl.l_label);
+    outarch.logctl.label.vol = PM_LOG_VOL_META;
+    __pmLogWriteLabel(outarch.logctl.mdfp, &outarch.logctl.label);
     if (do_rewind)
-	__pmFseek(outarch.logctl.l_mdfp, (long)old_offset, SEEK_SET);
+	__pmFseek(outarch.logctl.mdfp, (long)old_offset, SEEK_SET);
 
     if (do_rewind) {
 	old_offset = __pmFtell(outarch.archctl.ac_mfp);
 	assert(old_offset >= 0);
 	__pmRewind(outarch.archctl.ac_mfp);
     }
-    outarch.logctl.l_label.vol = 0;
-    __pmLogWriteLabel(outarch.archctl.ac_mfp, &outarch.logctl.l_label);
+    outarch.logctl.label.vol = 0;
+    __pmLogWriteLabel(outarch.archctl.ac_mfp, &outarch.logctl.label);
     if (do_rewind)
 	__pmFseek(outarch.archctl.ac_mfp, (long)old_offset, SEEK_SET);
 }
@@ -223,7 +223,7 @@ nextmeta()
 	if (sts != PM_ERR_EOL) {
 	    fprintf(stderr, "%s: Error: _pmLogGet[meta %s]: %s\n",
 		    pmGetProgname(), inarch.name, pmErrStr(sts));
-	    _report(lcp->l_mdfp);
+	    _report(lcp->mdfp);
 	}
 	return -1;
     }
@@ -880,7 +880,7 @@ link_entries(void)
     char			strbuf[64];
 
     /* Link metricspec_t entries to indomspec_t entries */
-    hcp = &inarch.ctxp->c_archctl->ac_log->l_hashpmid;
+    hcp = &inarch.ctxp->c_archctl->ac_log->hashpmid;
     for (ip = indom_root; ip != NULL; ip = ip->i_next) {
 	change = 0;
 	for (i = 0; i < ip->numinst; i++)
@@ -914,7 +914,7 @@ link_entries(void)
     }
 
     /* Link textspec_t entries to indomspec_t entries */
-    hcp = &inarch.ctxp->c_archctl->ac_log->l_hashtext;
+    hcp = &inarch.ctxp->c_archctl->ac_log->hashtext;
     for (ip = indom_root; ip != NULL; ip = ip->i_next) {
 	change = 0;
 	for (i = 0; i < ip->numinst; i++)
@@ -962,7 +962,7 @@ link_entries(void)
     }
 
     /* Link textspec_t entries to metricspec_t entries */
-    assert(hcp == &inarch.ctxp->c_archctl->ac_log->l_hashtext);
+    assert(hcp == &inarch.ctxp->c_archctl->ac_log->hashtext);
     for (mp = metric_root; mp != NULL; mp = mp->m_next) {
 	if (mp->new_desc.pmid == mp->old_desc.pmid)
 	    continue;
@@ -1005,7 +1005,7 @@ link_entries(void)
     }
 
     /* Link labelspec_t entries to indomspec_t entries */
-    hcp = &inarch.ctxp->c_archctl->ac_log->l_hashlabels;
+    hcp = &inarch.ctxp->c_archctl->ac_log->hashlabels;
     for (ip = indom_root; ip != NULL; ip = ip->i_next) {
 	change = 0;
 	for (i = 0; i < ip->numinst; i++)
@@ -1057,7 +1057,7 @@ link_entries(void)
     }
 
     /* Link labelspec_t entries to metricspec_t entries */
-    assert(hcp == &inarch.ctxp->c_archctl->ac_log->l_hashlabels);
+    assert(hcp == &inarch.ctxp->c_archctl->ac_log->hashlabels);
     for (mp = metric_root; mp != NULL; mp = mp->m_next) {
 	if (mp->new_desc.pmid == mp->old_desc.pmid)
 	    continue;
@@ -1134,7 +1134,7 @@ check_indoms()
     __pmHashNode	*node;
     char		buf[64];
 
-    hcp = &inarch.ctxp->c_archctl->ac_log->l_hashindom;
+    hcp = &inarch.ctxp->c_archctl->ac_log->hashindom;
 
     for (mp = metric_root; mp != NULL; mp = mp->m_next) {
 	if (mp->ip != NULL)
@@ -1402,7 +1402,7 @@ do_newlabelsets(void)
     int			sts;
     char		buf[64];
 
-    out_offset = __pmFtell(outarch.logctl.l_mdfp);
+    out_offset = __pmFtell(outarch.logctl.mdfp);
 
     /*
      * Traverse the list of label change records and emit any new label sets
@@ -1464,8 +1464,8 @@ do_newlabelsets(void)
 	     * Any global time adjustment done after the first record is output
 	     * above
 	     */
-	    outarch.logctl.l_label.start.sec = inarch.rp->timestamp.tv_sec;
-	    outarch.logctl.l_label.start.nsec = inarch.rp->timestamp.tv_usec * 1000;
+	    outarch.logctl.label.start.sec = inarch.rp->timestamp.tv_sec;
+	    outarch.logctl.label.start.nsec = inarch.rp->timestamp.tv_usec * 1000;
 	    /* need to fix start-time in label records */
 	    writelabel(1);
 	    needti = 1;
@@ -1694,7 +1694,7 @@ main(int argc, char **argv)
 
     /* initialize and write label records */
     newlabel();
-    outarch.logctl.l_state = PM_LOG_STATE_INIT;
+    outarch.logctl.state = PM_LOG_STATE_INIT;
     writelabel(0);
 
     first_datarec = 1;
@@ -1710,8 +1710,8 @@ main(int argc, char **argv)
     while (1) {
 	static long	in_offset;		/* for -Dappl0 */
 
-	__pmFflush(outarch.logctl.l_mdfp);
-	old_meta_offset = __pmFtell(outarch.logctl.l_mdfp);
+	__pmFflush(outarch.logctl.mdfp);
+	old_meta_offset = __pmFtell(outarch.logctl.mdfp);
 	assert(old_meta_offset >= 0);
 
 	in_offset = __pmFtell(inarch.ctxp->c_archctl->ac_mfp);
@@ -1742,8 +1742,8 @@ main(int argc, char **argv)
 	    fprintf(stderr, " numpmid=%d @ offset=%ld\n", inarch.rp->numpmid, in_offset);
 	}
 
-	if (ti_idx < inarch.ctxp->c_archctl->ac_log->l_numti) {
-	    __pmLogTI	*tip = &inarch.ctxp->c_archctl->ac_log->l_ti[ti_idx];
+	if (ti_idx < inarch.ctxp->c_archctl->ac_log->numti) {
+	    __pmLogTI	*tip = &inarch.ctxp->c_archctl->ac_log->ti[ti_idx];
 	    if (tip->stamp.sec == inarch.rp->timestamp.tv_sec &&
 	        tip->stamp.nsec == inarch.rp->timestamp.tv_usec * 1000) {
 		/*
@@ -1788,7 +1788,7 @@ main(int argc, char **argv)
 	 */
 	for ( ; ; ) {
 	    if (stsmeta == 0) {
-		in_offset = __pmFtell(inarch.ctxp->c_archctl->ac_log->l_mdfp);
+		in_offset = __pmFtell(inarch.ctxp->c_archctl->ac_log->mdfp);
 		stsmeta = nextmeta();
 		if (pmDebugOptions.appl0) {
 		    if (stsmeta < 0)
@@ -1934,8 +1934,8 @@ main(int argc, char **argv)
 	if (first_datarec) {
 	    first_datarec = 0;
 	    /* any global time adjustment done after nextlog() above */
-	    outarch.logctl.l_label.start.sec = inarch.rp->timestamp.tv_sec;
-	    outarch.logctl.l_label.start.nsec = inarch.rp->timestamp.tv_usec * 1000;
+	    outarch.logctl.label.start.sec = inarch.rp->timestamp.tv_sec;
+	    outarch.logctl.label.start.nsec = inarch.rp->timestamp.tv_usec * 1000;
 	    /* need to fix start-time in label records */
 	    writelabel(1);
 	    needti = 1;
@@ -1945,13 +1945,13 @@ main(int argc, char **argv)
 	tstamp.nsec = inarch.rp->timestamp.tv_usec * 1000;
 
 	if (needti) {
-	    __pmFflush(outarch.logctl.l_mdfp);
+	    __pmFflush(outarch.logctl.mdfp);
 	    __pmFflush(outarch.archctl.ac_mfp);
-	    new_meta_offset = __pmFtell(outarch.logctl.l_mdfp);
+	    new_meta_offset = __pmFtell(outarch.logctl.mdfp);
 	    assert(new_meta_offset >= 0);
-            __pmFseek(outarch.logctl.l_mdfp, (long)old_meta_offset, SEEK_SET);
+            __pmFseek(outarch.logctl.mdfp, (long)old_meta_offset, SEEK_SET);
             __pmLogPutIndex(&outarch.archctl, &tstamp);
-            __pmFseek(outarch.logctl.l_mdfp, (long)new_meta_offset, SEEK_SET);
+            __pmFseek(outarch.logctl.mdfp, (long)new_meta_offset, SEEK_SET);
 	    needti = 0;
 	    doneti = 1;
         }
@@ -1980,9 +1980,9 @@ main(int argc, char **argv)
 	 * __pmFsync() to make sure new archive is safe before we start
 	 * renaming ...
 	 */
-	if (__pmFsync(outarch.logctl.l_mdfp) < 0) {
+	if (__pmFsync(outarch.logctl.mdfp) < 0) {
 	    fprintf(stderr, "%s: Error: fsync(%d) failed for output metadata file: %s\n",
-		pmGetProgname(), __pmFileno(outarch.logctl.l_mdfp), strerror(errno));
+		pmGetProgname(), __pmFileno(outarch.logctl.mdfp), strerror(errno));
 		abandon();
 		/*NOTREACHED*/
 	}
@@ -1992,9 +1992,9 @@ main(int argc, char **argv)
 		abandon();
 		/*NOTREACHED*/
 	}
-	if (__pmFsync(outarch.logctl.l_tifp) < 0) {
+	if (__pmFsync(outarch.logctl.tifp) < 0) {
 	    fprintf(stderr, "%s: Error: fsync(%d) failed for output index file: %s\n",
-		pmGetProgname(), __pmFileno(outarch.logctl.l_tifp), strerror(errno));
+		pmGetProgname(), __pmFileno(outarch.logctl.tifp), strerror(errno));
 		abandon();
 		/*NOTREACHED*/
 	}

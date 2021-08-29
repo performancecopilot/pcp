@@ -441,8 +441,8 @@ newvolume(char *base, pmTimeval *tvp)
 	struct timeval	stamp;
 	__pmFclose(archctl.ac_mfp);
 	archctl.ac_mfp = newfp;
-	logctl.l_label.vol = archctl.ac_curvol = nextvol;
-	__pmLogWriteLabel(archctl.ac_mfp, &logctl.l_label);
+	logctl.label.vol = archctl.ac_curvol = nextvol;
+	__pmLogWriteLabel(archctl.ac_mfp, &logctl.label);
 	__pmFflush(archctl.ac_mfp);
 	stamp.tv_sec = ntohl(tvp->tv_sec);
 	stamp.tv_usec = ntohl(tvp->tv_usec);
@@ -471,7 +471,7 @@ newlabel(void)
     inarch_t		*f_iap = NULL;		/* first non-empty archive */
     inarch_t		*l_iap = NULL;		/* last non-empty archive */
     inarch_t		*iap;
-    __pmLogLabel	*lp = &logctl.l_label;
+    __pmLogLabel	*lp = &logctl.label;
 
     /*
      * set outarch to inarch[indx] of first non-empty archive to start
@@ -593,13 +593,13 @@ newlabel(void)
 void
 writelabel_metati(int do_rewind)
 {
-    if (do_rewind) __pmRewind(logctl.l_tifp);
-    logctl.l_label.vol = PM_LOG_VOL_TI;
-    __pmLogWriteLabel(logctl.l_tifp, &logctl.l_label);
+    if (do_rewind) __pmRewind(logctl.tifp);
+    logctl.label.vol = PM_LOG_VOL_TI;
+    __pmLogWriteLabel(logctl.tifp, &logctl.label);
 
-    if (do_rewind) __pmRewind(logctl.l_mdfp);
-    logctl.l_label.vol = PM_LOG_VOL_META;
-    __pmLogWriteLabel(logctl.l_mdfp, &logctl.l_label);
+    if (do_rewind) __pmRewind(logctl.mdfp);
+    logctl.label.vol = PM_LOG_VOL_META;
+    __pmLogWriteLabel(logctl.mdfp, &logctl.label);
 }
 
 
@@ -609,8 +609,8 @@ writelabel_metati(int do_rewind)
 void
 writelabel_data(void)
 {
-    logctl.l_label.vol = 0;
-    __pmLogWriteLabel(archctl.ac_mfp, &logctl.l_label);
+    logctl.label.vol = 0;
+    __pmLogWriteLabel(archctl.ac_mfp, &logctl.label);
 }
 
 
@@ -1188,7 +1188,7 @@ write_rec(reclist_t *rec)
 	    len = ntohl(h->len);
 	    type = ntohl(h->type);
 	    fprintf(stderr, "write_rec: record len=%d, type=%d @ offset=%d\n",
-	    	len, type, (int)(__pmFtell(logctl.l_mdfp) - sizeof(__pmLogHdr)));
+	    	len, type, (int)(__pmFtell(logctl.mdfp) - sizeof(__pmLogHdr)));
 	    if (type == TYPE_DESC) {
 		pmDesc	*dp;
 		pmDesc	desc;
@@ -1277,7 +1277,7 @@ write_rec(reclist_t *rec)
 	}
 
 	/* write out the pdu ; exit if write failed */
-	if ((sts = _pmLogPut(logctl.l_mdfp, rec->pdu)) < 0) {
+	if ((sts = _pmLogPut(logctl.mdfp, rec->pdu)) < 0) {
 	    fprintf(stderr, "%s: Error: _pmLogPut: meta data : %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 	    abandon_extract();
@@ -1686,7 +1686,7 @@ againmeta:
 	    if (sts != PM_ERR_EOL) {
 		fprintf(stderr, "%s: Error: _pmLogGet[meta %s]: %s\n",
 			pmGetProgname(), iap->name, pmErrStr(sts));
-		_report(lcp->l_mdfp);
+		_report(lcp->mdfp);
 		abandon_extract();
 		/*NOTREACHED*/
 	    }
@@ -2372,9 +2372,9 @@ fprintf(stderr, " break!\n");
 	 */
 	if (first_datarec) {
 	    first_datarec = 0;
-	    logctl.l_label.start.sec = elm->res->timestamp.tv_sec;
-	    logctl.l_label.start.nsec = elm->res->timestamp.tv_usec * 1000;
-            logctl.l_state = PM_LOG_STATE_INIT;
+	    logctl.label.start.sec = elm->res->timestamp.tv_sec;
+	    logctl.label.start.nsec = elm->res->timestamp.tv_usec * 1000;
+            logctl.state = PM_LOG_STATE_INIT;
             writelabel_data();
         }
 
@@ -2451,29 +2451,29 @@ fprintf(stderr, " break!\n");
 	    titime = restime;
 
 	    __pmFflush(archctl.ac_mfp);
-	    __pmFflush(logctl.l_mdfp);
+	    __pmFflush(logctl.mdfp);
 
 	    if (old_log_offset == 0)
 		old_log_offset = __pmLogLabelSize(&logctl);
 
             new_log_offset = __pmFtell(archctl.ac_mfp);
 	    assert(new_log_offset >= 0);
-            new_meta_offset = __pmFtell(logctl.l_mdfp);
+            new_meta_offset = __pmFtell(logctl.mdfp);
 	    assert(new_meta_offset >= 0);
 
             __pmFseek(archctl.ac_mfp, (long)old_log_offset, SEEK_SET);
-            __pmFseek(logctl.l_mdfp, (long)old_meta_offset, SEEK_SET);
+            __pmFseek(logctl.mdfp, (long)old_meta_offset, SEEK_SET);
 
 	    stamp.sec = restime.tv_sec;
 	    stamp.nsec = restime.tv_usec * 1000;
             __pmLogPutIndex(&archctl, &stamp);
 
             __pmFseek(archctl.ac_mfp, (long)new_log_offset, SEEK_SET);
-            __pmFseek(logctl.l_mdfp, (long)new_meta_offset, SEEK_SET);
+            __pmFseek(logctl.mdfp, (long)new_meta_offset, SEEK_SET);
 
             old_log_offset = __pmFtell(archctl.ac_mfp);
 	    assert(old_log_offset >= 0);
-            old_meta_offset = __pmFtell(logctl.l_mdfp);
+            old_meta_offset = __pmFtell(logctl.mdfp);
 	    assert(old_meta_offset >= 0);
 
             flushsize = __pmFtell(archctl.ac_mfp) + 100000;
@@ -2722,8 +2722,8 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    logctl.l_label.start.sec = logstart_tval.tv_sec;
-    logctl.l_label.start.nsec = logstart_tval.tv_usec * 1000;
+    logctl.label.start.sec = logstart_tval.tv_sec;
+    logctl.label.start.nsec = logstart_tval.tv_usec * 1000;
 
     /*
      * process config file
@@ -2847,7 +2847,7 @@ main(int argc, char **argv)
 	ilog = -1;
 	curlog.tv_sec = 0;
 	curlog.tv_usec = 0;
-	old_meta_offset = __pmFtell(logctl.l_mdfp);
+	old_meta_offset = __pmFtell(logctl.mdfp);
 	assert(old_meta_offset >= 0);
 
 	/* nextlog() resets ilog, and curlog (to the smallest timestamp) */
@@ -2995,14 +2995,14 @@ cleanup:
 	__pmTimestamp	stamp;
 
 	__pmFflush(archctl.ac_mfp);
-	__pmFflush(logctl.l_mdfp);
+	__pmFflush(logctl.mdfp);
 
 	if (old_log_offset == 0)
 	    old_log_offset = __pmLogLabelSize(&logctl);
 
 	new_log_offset = __pmFtell(archctl.ac_mfp);
 	assert(new_log_offset >= 0);
-	new_meta_offset = __pmFtell(logctl.l_mdfp);
+	new_meta_offset = __pmFtell(logctl.mdfp);
 	assert(new_meta_offset >= 0);
 
 #if 0

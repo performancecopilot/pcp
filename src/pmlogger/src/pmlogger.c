@@ -128,8 +128,8 @@ run_done(int sts, char *msg)
      * close the archive
      */
     __pmFclose(archctl.ac_mfp);
-    __pmFclose(archctl.ac_log->l_tifp);
-    __pmFclose(archctl.ac_log->l_mdfp);
+    __pmFclose(archctl.ac_log->tifp);
+    __pmFclose(archctl.ac_log->mdfp);
 
     if (log_switch_flag) {
     	/*
@@ -1276,13 +1276,13 @@ main(int argc, char **argv)
     if (sts >= 0) {
 	vp = resp->vset[0];
 	if (vp->numval > 0) { /* pmcd.timezone present */
-	    if (logctl.l_label.timezone)
-		free(logctl.l_label.timezone);
-	    logctl.l_label.timezone = strdup(vp->vlist[0].value.pval->vbuf);
+	    if (logctl.label.timezone)
+		free(logctl.label.timezone);
+	    logctl.label.timezone = strdup(vp->vlist[0].value.pval->vbuf);
 	    /* prefer to use remote time to avoid clock drift problems */
 	    epoch = resp->timestamp;		/* struct assignment */
 	    if (! use_localtime)
-		pmNewZone(logctl.l_label.timezone);
+		pmNewZone(logctl.label.timezone);
 	}
 	else if (pmDebugOptions.log) {
 	    fprintf(stderr,
@@ -1601,20 +1601,20 @@ newvolume(int vol_switch_type)
     }
 
     if ((newfp = __pmLogNewFile(archName, nextvol)) != NULL) {
-	if (logctl.l_state == PM_LOG_STATE_NEW) {
+	if (logctl.state == PM_LOG_STATE_NEW) {
 	    /*
 	     * nothing has been logged as yet, force out the label records
 	     */
 	    pmtimevalNow(&last_stamp);	/* TODO: use __pmTimestamp */
-	    logctl.l_label.start.sec = (__int32_t)last_stamp.tv_sec;
-	    logctl.l_label.start.nsec = (__int32_t)(last_stamp.tv_usec * 1000);
-	    logctl.l_label.vol = PM_LOG_VOL_TI;
-	    __pmLogWriteLabel(logctl.l_tifp, &logctl.l_label);
-	    logctl.l_label.vol = PM_LOG_VOL_META;
-	    __pmLogWriteLabel(logctl.l_mdfp, &logctl.l_label);
-	    logctl.l_label.vol = 0;
-	    __pmLogWriteLabel(archctl.ac_mfp, &logctl.l_label);
-	    logctl.l_state = PM_LOG_STATE_INIT;
+	    logctl.label.start.sec = (__int32_t)last_stamp.tv_sec;
+	    logctl.label.start.nsec = (__int32_t)(last_stamp.tv_usec * 1000);
+	    logctl.label.vol = PM_LOG_VOL_TI;
+	    __pmLogWriteLabel(logctl.tifp, &logctl.label);
+	    logctl.label.vol = PM_LOG_VOL_META;
+	    __pmLogWriteLabel(logctl.mdfp, &logctl.label);
+	    logctl.label.vol = 0;
+	    __pmLogWriteLabel(archctl.ac_mfp, &logctl.label);
+	    logctl.state = PM_LOG_STATE_INIT;
 	}
 
 	/*
@@ -1628,8 +1628,8 @@ newvolume(int vol_switch_type)
 
 	__pmFclose(archctl.ac_mfp);
 	archctl.ac_mfp = newfp;
-	logctl.l_label.vol = archctl.ac_curvol = nextvol;
-	__pmLogWriteLabel(archctl.ac_mfp, &logctl.l_label);
+	logctl.label.vol = archctl.ac_curvol = nextvol;
+	__pmLogWriteLabel(archctl.ac_mfp, &logctl.label);
 	time(&now);
 	fprintf(stderr, "New log volume %d, via %s at %s",
 		nextvol, vol_sw_strs[vol_switch_type], ctime(&now));

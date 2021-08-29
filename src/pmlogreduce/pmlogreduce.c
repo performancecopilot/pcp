@@ -328,15 +328,15 @@ main(int argc, char **argv)
     newlabel();
     current.tv_sec = winstart_tval.tv_sec;
     current.tv_usec = winstart_tval.tv_usec;
-    logctl.l_label.start.sec = winstart_tval.tv_sec;
-    logctl.l_label.start.nsec = winstart_tval.tv_usec * 1000;
+    logctl.label.start.sec = winstart_tval.tv_sec;
+    logctl.label.start.nsec = winstart_tval.tv_usec * 1000;
     /* write label record */
     writelabel();
     /*
      * Suppress any automatic label creation in libpcp at the first
      * pmResult write.
      */
-    logctl.l_state = PM_LOG_STATE_INIT;
+    logctl.state = PM_LOG_STATE_INIT;
 
     /*
      * Traverse the PMNS to get all the metrics and their metadata
@@ -350,7 +350,7 @@ main(int argc, char **argv)
     /*
      * All the initial metadata has been generated, add timestamp
      */
-    __pmFflush(logctl.l_mdfp);
+    __pmFflush(logctl.mdfp);
     stamp.sec = current.tv_sec;
     stamp.nsec = current.tv_usec * 1000;
     __pmLogPutIndex(&archctl, &stamp);
@@ -471,7 +471,7 @@ next:
 
     /* write the last time stamp */
     __pmFflush(archctl.ac_mfp);
-    __pmFflush(logctl.l_mdfp);
+    __pmFflush(logctl.mdfp);
     stamp.sec = current.tv_sec;
     stamp.nsec = current.tv_usec * 1000;
     __pmLogPutIndex(&archctl, &stamp);

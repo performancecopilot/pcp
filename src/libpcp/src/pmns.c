@@ -371,7 +371,7 @@ pmGetPMNSLocation_ctx(__pmContext *ctxp)
 		    version = __pmLogVersion(ctxp->c_archctl->ac_log);
 		    if (version >= PM_LOG_VERS02) {
 			pmns_location = PMNS_ARCHIVE;
-			PM_TPD(curr_pmns) = ctxp->c_archctl->ac_log->l_pmns; 
+			PM_TPD(curr_pmns) = ctxp->c_archctl->ac_log->pmns; 
 		    }
 		    else {
 			pmNotifyErr(LOG_ERR, "pmGetPMNSLocation: bad archive "
@@ -3136,7 +3136,7 @@ pmTrimNameSpace(void)
 	     * (2) clear the marks for those metrics defined in the archive
 	     */
 	    mark_all(PM_TPD(curr_pmns), 1);
-	    hcp = &ctx_ctl.ctxp->c_archctl->ac_log->l_hashpmid;
+	    hcp = &ctx_ctl.ctxp->c_archctl->ac_log->hashpmid;
 
 	    for (i = 0; i < hcp->hsize; i++) {
 		for (hp = hcp->hash[i]; hp != NULL; hp = hp->next) {

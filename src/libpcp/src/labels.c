@@ -1129,7 +1129,7 @@ archive_host_labels(__pmContext *ctxp, char *buffer, int buflen)
      * here to provide complete archive label support.
      */
     pmsprintf(buffer, buflen, "{\"hostname\":\"%s\"}",
-		ctxp->c_archctl->ac_log->l_label.hostname);
+		ctxp->c_archctl->ac_log->label.hostname);
     buffer[buflen-1] = '\0';
     return buffer;
 }

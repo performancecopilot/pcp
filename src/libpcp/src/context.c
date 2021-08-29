@@ -303,7 +303,7 @@ pmGetHostName(int handle, char *buf, int buflen)
 	    break;
 
 	case PM_CONTEXT_ARCHIVE:
-	    strncpy(buf, ctxp->c_archctl->ac_log->l_label.hostname, buflen-1);
+	    strncpy(buf, ctxp->c_archctl->ac_log->label.hostname, buflen-1);
 	    break;
 	}
 
@@ -507,18 +507,18 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 
     /*
      * We're done with the current archive, if any. Close it, if necessary.
-     * If we do close it, keep the __pmLogCtl block for re-use of the l_pmns.
+     * If we do close it, keep the __pmLogCtl block for re-use of the pmns.
      */
     acp = ctxp->c_archctl;
     lcp = acp->ac_log;
     if (lcp) {
-	PM_LOCK(lcp->l_lock);
-	if (--lcp->l_refcnt == 0) {
-	    PM_UNLOCK(lcp->l_lock);
+	PM_LOCK(lcp->lock);
+	if (--lcp->refcnt == 0) {
+	    PM_UNLOCK(lcp->lock);
 	    __pmLogClose(acp);
 	}
 	else {
-	    PM_UNLOCK(lcp->l_lock);
+	    PM_UNLOCK(lcp->lock);
 	    lcp = NULL;
 	}
     }
@@ -526,7 +526,7 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
     /*
      * See if an archive by this name is already open in another context.
      * We can't share archive control structs for multi-archive contexts
-     * because, for those, there is a global l_pmns which is shared among the
+     * because, for those, there is a global pmns which is shared among the
      * archives in the context.
      *
      * We must take the contexts_lock mutex for this search, and we need
@@ -550,13 +550,13 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 	    ctxp2 = contexts[i];
 	    if (ctxp2->c_type == PM_CONTEXT_ARCHIVE) {
 		acp2 = ctxp2->c_archctl;
-		PM_LOCK(acp2->ac_log->l_lock);
-		if (! acp2->ac_log->l_multi &&
-		    strcmp (name, acp2->ac_log->l_name) == 0) {
+		PM_LOCK(acp2->ac_log->lock);
+		if (! acp2->ac_log->multi &&
+		    strcmp (name, acp2->ac_log->name) == 0) {
 		    lcp2 = acp2->ac_log;
 		    break;
 		}
-		PM_UNLOCK(acp2->ac_log->l_lock);
+		PM_UNLOCK(acp2->ac_log->lock);
 	    }
 	}
 
@@ -568,25 +568,25 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 	if (lcp2 != NULL) {
 	    if (lcp) {
 #ifdef PM_MULTI_THREAD
-		__pmDestroyMutex(&lcp->l_lock);
+		__pmDestroyMutex(&lcp->lock);
 #endif
 		free(lcp);
 	    }
-	    ++lcp2->l_refcnt;
+	    ++lcp2->refcnt;
 	    acp->ac_log = lcp2;
-	    PM_UNLOCK(acp2->ac_log->l_lock);
+	    PM_UNLOCK(acp2->ac_log->lock);
 	    PM_UNLOCK(contexts_lock);
 	    /*
 	     * Setup the per-context part of the controls ...
 	     */
 	    acp->ac_mfp = NULL;
 	    acp->ac_curvol = -1;
-	    sts = __pmLogChangeVol(acp, acp->ac_log->l_minvol);
+	    sts = __pmLogChangeVol(acp, acp->ac_log->minvol);
 	    if  (sts < 0) {
 		if (pmDebugOptions.log) {
 		    char	errmsg[PM_MAXERRMSGLEN];
 		    fprintf(stderr, "__pmFindOrOpenArchive(..., %s, ...): __pmLogChangeVol(..., %d) failed: %s\n",
-		    	name, acp->ac_log->l_minvol, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		    	name, acp->ac_log->minvol, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 		}
 		acp->ac_log = NULL;
 		return sts;
@@ -606,27 +606,27 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 	    /* NOTREACHED */
 	}
 #ifdef PM_MULTI_THREAD
-	__pmInitMutex(&lcp->l_lock);
+	__pmInitMutex(&lcp->lock);
 #endif
-	lcp->l_multi = multi_arch;
+	lcp->multi = multi_arch;
 	acp->ac_log = lcp;
     }
     sts = __pmLogOpen(name, ctxp);
     if (sts < 0) {
 #ifdef PM_MULTI_THREAD
-	__pmDestroyMutex(&lcp->l_lock);
+	__pmDestroyMutex(&lcp->lock);
 #endif
 	free(lcp);
 	acp->ac_log = NULL;
     }
     else {
 	/*
-	 * Note: we don't need to l_lock here, this is a new __pmLogCtl
+	 * Note: we don't need to lock here, this is a new __pmLogCtl
 	 * structure and we hold the context lock for the only context
 	 * that will point to this __pmLogCtl ... no one else can see
 	 * it yet
 	 */
-	lcp->l_refcnt = 1;
+	lcp->refcnt = 1;
     }
 
     return sts;
@@ -852,7 +852,7 @@ initarchive(__pmContext	*ctxp, const char *name)
 	 * Obtain the start time of this archive. The end time could change
 	 * on the fly and needs to be re-checked as needed.
 	 */
-	lp = &ctxp->c_archctl->ac_log->l_label;
+	lp = &ctxp->c_archctl->ac_log->label;
 
 	/*
 	 * Insert this new entry into the list in sequence by time. Check for
@@ -951,14 +951,14 @@ initarchive(__pmContext	*ctxp, const char *name)
 	sts = __pmLogChangeArchive(ctxp, 0);
 	if (sts < 0)
 	    goto error;
-	sts = __pmLogChangeVol(acp, acp->ac_log->l_minvol);
+	sts = __pmLogChangeVol(acp, acp->ac_log->minvol);
 	if (sts < 0)
 	    goto error;
     }
 
     /* start after header + label record + trailer */
-    ctxp->c_origin.tv_sec = acp->ac_log->l_label.start.sec;
-    ctxp->c_origin.tv_usec = acp->ac_log->l_label.start.nsec / 1000;
+    ctxp->c_origin.tv_sec = acp->ac_log->label.start.sec;
+    ctxp->c_origin.tv_usec = acp->ac_log->label.start.nsec / 1000;
     ctxp->c_mode = (ctxp->c_mode & 0xffff0000) | PM_MODE_FORW;
     acp->ac_offset = __pmLogLabelSize(acp->ac_log);
     acp->ac_vol = acp->ac_curvol;
@@ -999,7 +999,7 @@ initarchive(__pmContext	*ctxp, const char *name)
 	}
 	free(acp->ac_log_list);
     }
-    if (acp->ac_log && --acp->ac_log->l_refcnt == 0)
+    if (acp->ac_log && --acp->ac_log->refcnt == 0)
 	free(acp->ac_log);
     free(acp);
     ctxp->c_archctl = NULL;
@@ -1408,7 +1408,7 @@ pmDupContext(void)
     else if (oldcon->c_type == PM_CONTEXT_LOCAL)
 	new = pmNewContext(oldtype, NULL);
     else if (oldcon->c_type == PM_CONTEXT_ARCHIVE)
-	new = pmNewContext(oldtype, oldcon->c_archctl->ac_log->l_name);
+	new = pmNewContext(oldtype, oldcon->c_archctl->ac_log->name);
     if (new < 0) {
 	/* failed to connect or out of memory */
 	sts = new;
@@ -1547,7 +1547,7 @@ pmDupContext(void)
 	    }
 	    /* We need to bump up the reference count of the ac_log. */
 	    if (newcon->c_archctl->ac_log != NULL)
-		++newcon->c_archctl->ac_log->l_refcnt;
+		++newcon->c_archctl->ac_log->refcnt;
 	}
     }
 
@@ -1798,19 +1798,19 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 		    fprintf(f, " log %s:",
 			    con->c_archctl->ac_log_list[j]->name);
 		    if (con->c_archctl->ac_log == NULL ||
-			con->c_archctl->ac_log->l_refcnt == 0 ||
+			con->c_archctl->ac_log->refcnt == 0 ||
 			strcmp (con->c_archctl->ac_log_list[j]->name,
-				con->c_archctl->ac_log->l_name) != 0) {
+				con->c_archctl->ac_log->name) != 0) {
 			fprintf(f, " not open\n");
 			continue;
 		    }
 		    fprintf(f, " mode=%s", _mode[con->c_mode & __PM_MODE_MASK]);
 		    fprintf(f, " profile=%s tifd=%d mdfd=%d mfd=%d\nrefcnt=%d vol=%d",
 			    con->c_sent ? "SENT" : "NOT_SENT",
-			    con->c_archctl->ac_log->l_tifp == NULL ? -1 : __pmFileno(con->c_archctl->ac_log->l_tifp),
-			    __pmFileno(con->c_archctl->ac_log->l_mdfp),
+			    con->c_archctl->ac_log->tifp == NULL ? -1 : __pmFileno(con->c_archctl->ac_log->tifp),
+			    __pmFileno(con->c_archctl->ac_log->mdfp),
 			    __pmFileno(con->c_archctl->ac_mfp),
-			    con->c_archctl->ac_log->l_refcnt,
+			    con->c_archctl->ac_log->refcnt,
 			    con->c_archctl->ac_curvol);
 		    fprintf(f, " offset=%ld (vol=%d) serial=%d",
 			    (long)con->c_archctl->ac_offset,
@@ -1848,7 +1848,7 @@ __pmIsContextLock(void *lock)
 }
 
 /*
- * return list of context handles if lock == l_lock for an associated
+ * return list of context handles if lock == lock for an associated
  * __pmLogCtl ... no locking here to avoid recursion ad nauseum
  */
 char *
@@ -1871,7 +1871,7 @@ __pmIsLogCtlLock(void *lock)
 	if (ctxp->c_archctl->ac_log == NULL)
 	    /* this should not happen, just being careful */
 	    continue;
-	if ((void *)&ctxp->c_archctl->ac_log->l_lock == lock) {
+	if ((void *)&ctxp->c_archctl->ac_log->lock == lock) {
 	    char	number[10];
 	    pmsprintf(number, sizeof(number), "%d", ctxp->c_handle);
 	    if (reslen == 0) {

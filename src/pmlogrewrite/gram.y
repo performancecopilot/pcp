@@ -405,7 +405,7 @@ new_domain_label(int domain)
     pmsprintf(buf, sizeof(buf), "{%s:%s}",
 	      current_label_name, current_label_value);
 
-    hcp = &ctxp->c_archctl->ac_log->l_hashpmid;
+    hcp = &ctxp->c_archctl->ac_log->hashpmid;
     for (node = __pmHashWalk(hcp, PM_HASH_WALK_START);
 	 node != NULL;
 	 node = __pmHashWalk(hcp, PM_HASH_WALK_NEXT)) {
@@ -486,7 +486,7 @@ new_cluster_label(int cluster)
     pmsprintf(buf, sizeof(buf), "{%s:%s}",
 	      current_label_name, current_label_value);
 
-    hcp = &ctxp->c_archctl->ac_log->l_hashpmid;
+    hcp = &ctxp->c_archctl->ac_log->hashpmid;
     for (node = __pmHashWalk(hcp, PM_HASH_WALK_START);
 	 node != NULL;
 	 node = __pmHashWalk(hcp, PM_HASH_WALK_NEXT)) {
@@ -575,7 +575,7 @@ new_item_label(int item)
     pmsprintf(buf, sizeof(buf), "{%s:%s}",
 	      current_label_name, current_label_value);
 
-    hcp = &ctxp->c_archctl->ac_log->l_hashpmid;
+    hcp = &ctxp->c_archctl->ac_log->hashpmid;
     for (node = __pmHashWalk(hcp, PM_HASH_WALK_START);
 	 node != NULL;
 	 node = __pmHashWalk(hcp, PM_HASH_WALK_NEXT)) {
@@ -662,7 +662,7 @@ new_indom_label(int indom)
     pmsprintf(buf, sizeof(buf), "{%s:%s}",
 	      current_label_name, current_label_value);
 
-    hcp = &ctxp->c_archctl->ac_log->l_hashindom;
+    hcp = &ctxp->c_archctl->ac_log->hashindom;
     for (node = __pmHashWalk(hcp, PM_HASH_WALK_START);
 	 node != NULL;
 	 node = __pmHashWalk(hcp, PM_HASH_WALK_NEXT)) {
@@ -754,7 +754,7 @@ new_indom_instance_label(int indom)
     pmsprintf(buf, sizeof(buf), "{%s:%s}",
 	      current_label_name, current_label_value);
 
-    hcp = &ctxp->c_archctl->ac_log->l_hashindom;
+    hcp = &ctxp->c_archctl->ac_log->hashindom;
     for (node = __pmHashWalk(hcp, PM_HASH_WALK_START);
 	 node != NULL;
 	 node = __pmHashWalk(hcp, PM_HASH_WALK_NEXT)) {
@@ -1131,7 +1131,7 @@ indomspec	: TOK_INDOM indom_int
      *	     within libpcp.
      */
 			    PM_UNLOCK(ctxp->c_lock);
-			    hcp = &ctxp->c_archctl->ac_log->l_hashindom;
+			    hcp = &ctxp->c_archctl->ac_log->hashindom;
 			    star_domain = pmInDom_domain($2);
 			    for (node = __pmHashWalk(hcp, PM_HASH_WALK_START);
 				 node != NULL;
@@ -1321,7 +1321,7 @@ metricspec	: TOK_METRIC pmid_or_name
      *	     within libpcp.
      */
 			    PM_UNLOCK(ctxp->c_lock);
-			    hcp = &ctxp->c_archctl->ac_log->l_hashpmid;
+			    hcp = &ctxp->c_archctl->ac_log->hashpmid;
 			    star_domain = pmID_domain($2);
 			    if (current_star_metric == 1)
 				star_cluster = pmID_cluster($2);
@@ -1829,7 +1829,7 @@ textmetricspec	: TOK_METRIC pmid_or_name opttexttypes opttextvalue
 
 			    /* We're looking for text of the specified type(s) for metric(s). */
 			    target_types = PM_TEXT_PMID | $3;
-			    hcp1 = &ctxp->c_archctl->ac_log->l_hashtext;
+			    hcp1 = &ctxp->c_archctl->ac_log->hashtext;
 			    for (node1 = __pmHashWalk(hcp1, PM_HASH_WALK_START);
 				 node1 != NULL;
 				 node1 = __pmHashWalk(hcp1, PM_HASH_WALK_NEXT)) {
@@ -2056,7 +2056,7 @@ textindomspec	: TOK_INDOM indom_int opttexttypes opttextvalue
 
 			    /* We're looking for text of the specified type(s) for indom(s). */
 			    target_types = PM_TEXT_INDOM | $3;
-			    hcp1 = &ctxp->c_archctl->ac_log->l_hashtext;
+			    hcp1 = &ctxp->c_archctl->ac_log->hashtext;
 			    for (node1 = __pmHashWalk(hcp1, PM_HASH_WALK_START);
 				 node1 != NULL;
 				 node1 = __pmHashWalk(hcp1, PM_HASH_WALK_NEXT)) {
@@ -2223,7 +2223,7 @@ labelcontextspec	: TOK_CONTEXT optlabeldetails
 			
 			/* We're looking for context labels. */
 			current_labelspec = NULL;
-			hcp1 = &ctxp->c_archctl->ac_log->l_hashlabels;
+			hcp1 = &ctxp->c_archctl->ac_log->hashlabels;
 			for (node1 = __pmHashWalk(hcp1, PM_HASH_WALK_START);
 			     node1 != NULL;
 			     node1 = __pmHashWalk(hcp1, PM_HASH_WALK_NEXT)) {
@@ -2423,7 +2423,7 @@ labeldomainspec	: TOK_DOMAIN pmid_domain optlabeldetails
 			current_label_id = $2;
 			    
 			/* We're looking for domain labels. */
-			hcp1 = &ctxp->c_archctl->ac_log->l_hashlabels;
+			hcp1 = &ctxp->c_archctl->ac_log->hashlabels;
 			for (node1 = __pmHashWalk(hcp1, PM_HASH_WALK_START);
 			     node1 != NULL;
 			     node1 = __pmHashWalk(hcp1, PM_HASH_WALK_NEXT)) {
@@ -2607,7 +2607,7 @@ labelclusterspec	: TOK_CLUSTER pmid_cluster optlabeldetails
 			}
 
 			/* We're looking for cluster labels. */
-			hcp1 = &ctxp->c_archctl->ac_log->l_hashlabels;
+			hcp1 = &ctxp->c_archctl->ac_log->hashlabels;
 			for (node1 = __pmHashWalk(hcp1, PM_HASH_WALK_START);
 			     node1 != NULL;
 			     node1 = __pmHashWalk(hcp1, PM_HASH_WALK_NEXT)) {
@@ -2834,7 +2834,7 @@ labelitemspec	: TOK_ITEM pmid_or_name optlabeldetails
 			    }
 
 			    /* We're looking for item labels. */
-			    hcp1 = &ctxp->c_archctl->ac_log->l_hashlabels;
+			    hcp1 = &ctxp->c_archctl->ac_log->hashlabels;
 			    for (node1 = __pmHashWalk(hcp1, PM_HASH_WALK_START);
 				 node1 != NULL;
 				 node1 = __pmHashWalk(hcp1, PM_HASH_WALK_NEXT)) {
@@ -3020,7 +3020,7 @@ labelindomspec	: TOK_INDOM indom_int optlabeldetails
 			    }
 
 			    /* We're looking for label sets for indom(s). */
-			    hcp1 = &ctxp->c_archctl->ac_log->l_hashlabels;
+			    hcp1 = &ctxp->c_archctl->ac_log->hashlabels;
 			    for (node1 = __pmHashWalk(hcp1, PM_HASH_WALK_START);
 				 node1 != NULL;
 				 node1 = __pmHashWalk(hcp1, PM_HASH_WALK_NEXT)) {
@@ -3201,7 +3201,7 @@ labelinstancesspec	: TOK_INSTANCES indom_int optinstancelabeldetails
 			    }
 
 			    /* We're looking for label sets for the instances of the indom(s). */
-			    hcp1 = &ctxp->c_archctl->ac_log->l_hashlabels;
+			    hcp1 = &ctxp->c_archctl->ac_log->hashlabels;
 			    for (node1 = __pmHashWalk(hcp1, PM_HASH_WALK_START);
 				 node1 != NULL;
 				 node1 = __pmHashWalk(hcp1, PM_HASH_WALK_NEXT)) {

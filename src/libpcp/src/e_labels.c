@@ -114,7 +114,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":12", PM_FAULT_ALLOC);
 	ptr = (char *)&v3->data;
 	lenp = &v3->len;
     }
-    else if (__pmLogVersion(lcp) == PM_LOG_VERS02) {
+    else {
+	/* __pmLogVersion(lcp) == PM_LOG_VERS02 */
 	__pmExtLabelSet_v2	*v2;
 	if ((v2 = (__pmExtLabelSet_v2 *)malloc(len)) == NULL)
 	    return -oserror();
@@ -129,8 +130,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":12", PM_FAULT_ALLOC);
 	ptr = (char *)&v2->data;
 	lenp = &v2->len;
     }
-    else
-	return PM_ERR_LABEL;
 
     for (i = 0; i < nsets; i++) {
     	/* label inst */
@@ -165,7 +164,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":12", PM_FAULT_ALLOC);
 
     memcpy((void *)ptr, lenp, sizeof(*lenp));
 
-    if ((sts = __pmFwrite(out, 1, len, lcp->l_mdfp)) != len) {
+    if ((sts = __pmFwrite(out, 1, len, lcp->mdfp)) != len) {
 	char	errmsg[PM_MAXERRMSGLEN];
 
 	pmprintf("__pmLogPutLabels(...,type=%d,ident=%d): write failed: returned %d expecting %zd: %s\n",

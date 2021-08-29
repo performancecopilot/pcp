@@ -263,11 +263,11 @@ cleanup(int sig)
 	if (ctxp == NULL)
 	    lastvol = PM_LOG_VOL_NONE;
 	else
-	    lastvol = ctxp->c_archctl->ac_log->l_maxvol;
+	    lastvol = ctxp->c_archctl->ac_log->maxvol;
     }
     if (lastvol != PM_LOG_VOL_NONE) {
 	/* newname vols were created */
-	for (i = ctxp->c_archctl->ac_log->l_minvol; i <= lastvol; i++) {
+	for (i = ctxp->c_archctl->ac_log->minvol; i <= lastvol; i++) {
 	    do_unlink(1, newname, i);
 	}
     }
@@ -337,7 +337,7 @@ main(int argc, char **argv)
 	fprintf(stderr, "pmlogmv: botch: __pmHandleToPtr(%d) returns NULL!\n", sts);
 	exit(1);
     }
-    oldname = ctxp->c_archctl->ac_log->l_name;
+    oldname = ctxp->c_archctl->ac_log->name;
 
     opts.optind++;
     newname = argv[opts.optind];
@@ -366,7 +366,7 @@ main(int argc, char **argv)
 #endif
 
 
-    for (i = ctxp->c_archctl->ac_log->l_minvol; i <= ctxp->c_archctl->ac_log->l_maxvol; i++) {
+    for (i = ctxp->c_archctl->ac_log->minvol; i <= ctxp->c_archctl->ac_log->maxvol; i++) {
 	if (do_link(i) < 0)
 	    goto abandon;
     }
@@ -376,7 +376,7 @@ main(int argc, char **argv)
 	goto abandon;
 
     /* remove oldname files */
-    for (i = ctxp->c_archctl->ac_log->l_minvol; i <= ctxp->c_archctl->ac_log->l_maxvol; i++) {
+    for (i = ctxp->c_archctl->ac_log->minvol; i <= ctxp->c_archctl->ac_log->maxvol; i++) {
 	do_unlink(0, oldname, i);
     }
     do_unlink(0, oldname, PM_LOG_VOL_TI);

@@ -162,7 +162,7 @@ do_text(void)
     textspec_t		*tp;
     int			sts;
 
-    out_offset = __pmFtell(outarch.logctl.l_mdfp);
+    out_offset = __pmFtell(outarch.logctl.mdfp);
 
     /* After this call, buffer will point into inarch.metarec */
     _pmUnpackText(inarch.metarec, &type, &ident, &buffer);

@@ -1282,11 +1282,11 @@ sendstatus(void)
     if (version >= LOG_PDU_VERSION2) {
 	__pmLoggerStatus		ls;
 
-	if ((ls.ls_state = logctl.l_state) == PM_LOG_STATE_NEW) {
+	if ((ls.ls_state = logctl.state) == PM_LOG_STATE_NEW) {
 	    ls.ls_start.tv_sec = ls.ls_start.tv_usec = 0;
 	} else {
-	    ls.ls_start.tv_sec = logctl.l_label.start.sec;
-	    ls.ls_start.tv_usec = logctl.l_label.start.nsec / 1000;
+	    ls.ls_start.tv_sec = logctl.label.start.sec;
+	    ls.ls_start.tv_usec = logctl.label.start.nsec / 1000;
 	}
 	memcpy(&ls.ls_last, &last_stamp, sizeof(ls.ls_last));
 	pmtimevalNow(&now);
@@ -1298,7 +1298,7 @@ sendstatus(void)
 
 	/* be careful of buffer size mismatches when copying strings */
 	end = sizeof(ls.ls_hostname) - 1;
-	strncpy(ls.ls_hostname, logctl.l_label.hostname, end);
+	strncpy(ls.ls_hostname, logctl.label.hostname, end);
 	ls.ls_hostname[end] = '\0';
         /* BTW, that string should equal pmcd_host[]. */
 
@@ -1315,7 +1315,7 @@ sendstatus(void)
 	ls.ls_fqdn[end] = '\0';
 
 	end = sizeof(ls.ls_tz) - 1;
-	strncpy(ls.ls_tz, logctl.l_label.timezone, end);
+	strncpy(ls.ls_tz, logctl.label.timezone, end);
 	ls.ls_tz[end] = '\0';
 	end = sizeof(ls.ls_tzlogger) - 1;
 	if (tzlogger != NULL)
@@ -1362,7 +1362,7 @@ do_request(__pmPDU *pb)
 	    else {
 		sts = newvolume(VOL_SW_PMLC);
 		if (sts >= 0)
-		    sts = logctl.l_label.vol;
+		    sts = logctl.label.vol;
 		sts = __pmSendError(clientfd, FROM_ANON, sts);
 	    }
 	    break;

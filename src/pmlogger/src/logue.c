@@ -244,10 +244,10 @@ do_logue(int type)
 	/* fudge the temporal index */
 	offset = __pmLogLabelSize(&logctl);
 	__pmFseek(archctl.ac_mfp, offset, SEEK_SET);
-	__pmFseek(logctl.l_mdfp, offset, SEEK_SET);
+	__pmFseek(logctl.mdfp, offset, SEEK_SET);
 	__pmLogPutIndex(&archctl, &stamp);
 	__pmFseek(archctl.ac_mfp, 0L, SEEK_END);
-	__pmFseek(logctl.l_mdfp, 0L, SEEK_END);
+	__pmFseek(logctl.mdfp, 0L, SEEK_END);
     }
 
     sts = 0;

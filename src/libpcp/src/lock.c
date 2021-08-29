@@ -166,7 +166,7 @@ static char
 	return locknamebuf;
     }
     else if ((ctxlist = __pmIsLogCtlLock(lock)) != NULL) {
-	pmsprintf(locknamebuf, sizeof(locknamebuf), "l_lock[handle(s) %s]", ctxlist);
+	pmsprintf(locknamebuf, sizeof(locknamebuf), "lock[handle(s) %s]", ctxlist);
 	free(ctxlist);
 	return locknamebuf;
     }

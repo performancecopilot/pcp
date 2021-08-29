@@ -43,7 +43,7 @@ _pmLogPut(__pmFILE *f, __pmPDU *pb)
 void
 newlabel(void)
 {
-    __pmLogLabel	*lp = &logctl.l_label;
+    __pmLogLabel	*lp = &logctl.label;
 
     /* check version number */
 #ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
@@ -83,12 +83,12 @@ newlabel(void)
 void
 writelabel(void)
 {
-    logctl.l_label.vol = 0;
-    __pmLogWriteLabel(archctl.ac_mfp, &logctl.l_label);
-    logctl.l_label.vol = PM_LOG_VOL_TI;
-    __pmLogWriteLabel(logctl.l_tifp, &logctl.l_label);
-    logctl.l_label.vol = PM_LOG_VOL_META;
-    __pmLogWriteLabel(logctl.l_mdfp, &logctl.l_label);
+    logctl.label.vol = 0;
+    __pmLogWriteLabel(archctl.ac_mfp, &logctl.label);
+    logctl.label.vol = PM_LOG_VOL_TI;
+    __pmLogWriteLabel(logctl.tifp, &logctl.label);
+    logctl.label.vol = PM_LOG_VOL_META;
+    __pmLogWriteLabel(logctl.mdfp, &logctl.label);
 }
 
 /*
@@ -103,8 +103,8 @@ newvolume(char *base, __pmTimestamp *tsp)
     if ((newfp = __pmLogNewFile(base, nextvol)) != NULL) {
 	__pmFclose(archctl.ac_mfp);
 	archctl.ac_mfp = newfp;
-	logctl.l_label.vol = archctl.ac_curvol = nextvol;
-	__pmLogWriteLabel(archctl.ac_mfp, &logctl.l_label);
+	logctl.label.vol = archctl.ac_curvol = nextvol;
+	__pmLogWriteLabel(archctl.ac_mfp, &logctl.label);
 	__pmFflush(archctl.ac_mfp);
 	fprintf(stderr, "%s: New log volume %d, at ",
 		pmGetProgname(), nextvol);

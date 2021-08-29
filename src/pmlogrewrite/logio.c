@@ -35,7 +35,7 @@ _pmLogGet(__pmArchCtl *acp, int vol, __int32_t **pb)
     __pmFILE	*f;
 
     if (vol == PM_LOG_VOL_META)
-	f = lcp->l_mdfp;
+	f = lcp->mdfp;
     else
 	f = acp->ac_mfp;
 
@@ -54,7 +54,7 @@ again:
 		fprintf(stderr, "AFTER end\n");
 	    __pmFseek(f, offset, SEEK_SET);
 	    if (vol != PM_LOG_VOL_META) {
-		if (acp->ac_curvol < lcp->l_maxvol) {
+		if (acp->ac_curvol < lcp->maxvol) {
 		    if (__pmLogChangeVol(acp, acp->ac_curvol+1) == 0) {
 			f = acp->ac_mfp;
 			goto again;
