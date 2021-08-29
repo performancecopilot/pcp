@@ -853,9 +853,9 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
     }
     logFreeLabel(&label);
 
-    PM_LOCK(lcp->lock);
+    PM_LOCK(lcp->lc_lock);
     lcp->refcnt = 0;
-    PM_UNLOCK(lcp->lock);
+    PM_UNLOCK(lcp->lc_lock);
     lcp->physend = -1;
 
     ctxp->c_mode = (ctxp->c_mode & 0xffff0000) | PM_MODE_FORW;
@@ -2998,18 +2998,18 @@ __pmArchCtlFree(__pmArchCtl *acp)
     __pmLogCtl *lcp = acp->ac_log;
 
     if (lcp != NULL) {
-	PM_LOCK(lcp->lock);
+	PM_LOCK(lcp->lc_lock);
 	if (--lcp->refcnt == 0) {
-	    PM_UNLOCK(lcp->lock);
+	    PM_UNLOCK(lcp->lc_lock);
 	    __pmLogClose(acp);
 	    logFreeMeta(lcp);
 #ifdef PM_MULTI_THREAD
-	    __pmDestroyMutex(&lcp->lock);
+	    __pmDestroyMutex(&lcp->lc_lock);
 #endif
 	    free(lcp);
 	}
 	else
-	    PM_UNLOCK(lcp->lock);
+	    PM_UNLOCK(lcp->lc_lock);
     }
 
     /* We need to clean up the archive list. */

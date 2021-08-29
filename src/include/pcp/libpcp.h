@@ -770,7 +770,7 @@ typedef struct {
  * Log/Archive Control
  */
 typedef struct {
-    __pmMutex	lock;		/* mutex for multi-thread access */
+    __pmMutex	lc_lock;	/* mutex for multi-thread access */
     int		refcnt;		/* number of contexts using this log */
     char	*name;		/* external log base name */
     __pmFILE	*tifp;		/* temporal index */

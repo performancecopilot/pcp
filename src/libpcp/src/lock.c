@@ -31,7 +31,7 @@ void *__pmLock_extcall;
 
 #ifdef PM_MULTI_THREAD
 typedef struct {
-    void	*lock;
+    void	*dbg_lock;
     int		count;
 } lockdbg_t;
 
@@ -222,14 +222,14 @@ again:
 	hp = __pmHashSearch((unsigned int)key, &hashctl);
 	while (hp != NULL) {
 	    ldp = (lockdbg_t *)hp->data;
-	    if (ldp->lock == lock)
+	    if (ldp->dbg_lock == lock)
 		break;
 	    hp = hp->next;
 	}
 	if (hp == NULL) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    ldp = (lockdbg_t *)malloc(sizeof(lockdbg_t));
-	    ldp->lock = lock;
+	    ldp->dbg_lock = lock;
 	    ldp->count = 0;
 	    sts = __pmHashAdd((unsigned int)key, (void *)ldp, &hashctl);
 	    if (sts == 1) {

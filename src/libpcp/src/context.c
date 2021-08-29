@@ -512,13 +512,13 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
     acp = ctxp->c_archctl;
     lcp = acp->ac_log;
     if (lcp) {
-	PM_LOCK(lcp->lock);
+	PM_LOCK(lcp->lc_lock);
 	if (--lcp->refcnt == 0) {
-	    PM_UNLOCK(lcp->lock);
+	    PM_UNLOCK(lcp->lc_lock);
 	    __pmLogClose(acp);
 	}
 	else {
-	    PM_UNLOCK(lcp->lock);
+	    PM_UNLOCK(lcp->lc_lock);
 	    lcp = NULL;
 	}
     }
@@ -550,13 +550,13 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 	    ctxp2 = contexts[i];
 	    if (ctxp2->c_type == PM_CONTEXT_ARCHIVE) {
 		acp2 = ctxp2->c_archctl;
-		PM_LOCK(acp2->ac_log->lock);
+		PM_LOCK(acp2->ac_log->lc_lock);
 		if (! acp2->ac_log->multi &&
 		    strcmp (name, acp2->ac_log->name) == 0) {
 		    lcp2 = acp2->ac_log;
 		    break;
 		}
-		PM_UNLOCK(acp2->ac_log->lock);
+		PM_UNLOCK(acp2->ac_log->lc_lock);
 	    }
 	}
 
@@ -568,13 +568,13 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 	if (lcp2 != NULL) {
 	    if (lcp) {
 #ifdef PM_MULTI_THREAD
-		__pmDestroyMutex(&lcp->lock);
+		__pmDestroyMutex(&lcp->lc_lock);
 #endif
 		free(lcp);
 	    }
 	    ++lcp2->refcnt;
 	    acp->ac_log = lcp2;
-	    PM_UNLOCK(acp2->ac_log->lock);
+	    PM_UNLOCK(acp2->ac_log->lc_lock);
 	    PM_UNLOCK(contexts_lock);
 	    /*
 	     * Setup the per-context part of the controls ...
@@ -606,7 +606,7 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 	    /* NOTREACHED */
 	}
 #ifdef PM_MULTI_THREAD
-	__pmInitMutex(&lcp->lock);
+	__pmInitMutex(&lcp->lc_lock);
 #endif
 	lcp->multi = multi_arch;
 	acp->ac_log = lcp;
@@ -614,14 +614,14 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
     sts = __pmLogOpen(name, ctxp);
     if (sts < 0) {
 #ifdef PM_MULTI_THREAD
-	__pmDestroyMutex(&lcp->lock);
+	__pmDestroyMutex(&lcp->lc_lock);
 #endif
 	free(lcp);
 	acp->ac_log = NULL;
     }
     else {
 	/*
-	 * Note: we don't need to lock here, this is a new __pmLogCtl
+	 * Note: we don't need the lc_lock here, this is a new __pmLogCtl
 	 * structure and we hold the context lock for the only context
 	 * that will point to this __pmLogCtl ... no one else can see
 	 * it yet
@@ -1848,7 +1848,7 @@ __pmIsContextLock(void *lock)
 }
 
 /*
- * return list of context handles if lock == lock for an associated
+ * return list of context handles if lock == lc_lock for an associated
  * __pmLogCtl ... no locking here to avoid recursion ad nauseum
  */
 char *
@@ -1871,7 +1871,7 @@ __pmIsLogCtlLock(void *lock)
 	if (ctxp->c_archctl->ac_log == NULL)
 	    /* this should not happen, just being careful */
 	    continue;
-	if ((void *)&ctxp->c_archctl->ac_log->lock == lock) {
+	if ((void *)&ctxp->c_archctl->ac_log->lc_lock == lock) {
 	    char	number[10];
 	    pmsprintf(number, sizeof(number), "%d", ctxp->c_handle);
 	    if (reslen == 0) {
