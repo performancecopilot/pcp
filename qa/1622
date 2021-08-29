@@ -149,7 +149,6 @@ type=AVC msg=audit(YYY.93): avc: denied { name_bind } for pid=2279401 comm="pmda
 type=AVC msg=audit(YYY.94): avc:  denied  { execute_no_trans } for  pid=30241 comm="zimbraprobe" path="/usr/bin/su" dev="dm-0" ino=26416761 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:su_exec_t:s0 tclass=file permissive=0
 type=AVC msg=audit(YYY.95): avc:  denied  { write } for  pid=389594 comm="python3" name=".s.PGSQL.5432" dev="tmpfs" ino=746636 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:postgresql_var_run_t:s0 tclass=sock_file permissive=0
 type=AVC msg=audit(YYY.96): avc: denied { execute } for pid=3248485 comm="sh" name="ovs-vsctl" dev="dm-0" ino=2403822 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:openvswitch_exec_t:s0 tclass=file permissive=0
-type=AVC msg=audit(YYY.98): avc: denied { sys_pacct } for pid=YYYY comm="pmdaproc" capability=20 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
 type=AVC msg=audit(YYY.97): avc: denied { write } for pid=3507787 comm="smbstatus" name="msg.lock" dev="dm-0" ino=283321 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:samba_var_t:s0 tclass=dir permissive=0
 type=AVC msg=audit(YYY.98): avc: denied { sys_pacct } for pid=YYYY comm="pmdaproc" capability=20 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
 type=AVC msg=audit(YYY.99): avc:  denied  { write } for  pid=1932480 comm="pmie" name="02" dev="dm-0" ino=435560 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=dir permissive=0
@@ -158,6 +157,7 @@ type=AVC msg=audit(YYY.101): avc:  denied  { integrity } for  pid=1606 comm="pmd
 type=AVC msg=audit(YYY.102): avc: denied { map } for pid=7034 comm="pmdanvidia" path="/usr/lib64/libnvidia-ml.so" dev="dm-2" ino=16267329 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:default_t:s0 tclass=file permissive=0
 type=AVC msg=audit(YYY.103): avc:  denied  { getattr } for  pid=YYYY comm="pmdaproc" path="/dev/dma_heap" dev="devtmpfs" ino=150 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:dma_device_t:s0 tclass=dir permissive=0
 type=AVC msg=audit(YYY.104): avc:  denied  { sys_ptrace } for  pid=9375 comm="pmdaproc" capability=19  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=cap_userns permissive=1
+#type=AVC msg=audit(YYY.105): avc: denied { getattr write } for pid=14272 comm="pmdapodman" path="/run/podman/podman.sock" dev="tmpfs" ino=95030 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:container_var_run_t:s0 tclass=sock_file permissive=0
 
 #Synthesized AVC's
 type=AVC msg=audit(XXX.1): avc:  denied  { open read search } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:svirt_sandbox_file_t:s0 tclass=dir permissive=0
@@ -253,8 +253,7 @@ type=AVC msg=audit(XXX.94): avc:  denied  { getattr } for  pid=9109 comm="tar" p
 type=AVC msg=audit(XXX.95): avc: denied { setattr unlink } for pid=29153 comm="mv" name="pmlogger_check.log" dev="dm-0" ino=926794 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:object_r:user_tmp_t:s0 tclass=file permissive=0
 type=AVC msg=audit(XXX.96): avc:  denied  { execute } for  pid=2205945 comm="sh" name="kmod" dev="dm-0" ino=9462231 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:kmod_exec_t:s0 tclass=file permissive=0
 type=AVC msg=audit(XXX.97): avc:  denied  { execute_no_trans } for  pid=40596 comm="sh" path="/usr/bin/kmod" dev="dm-0" ino=9462231 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:kmod_exec_t:s0 tclass=file permissive=0
-type=AVC msg=audit(XXX.98): avc: denied { getattr write } for pid=14272 comm="pmdapodman" path="/run/podman/podman.sock" dev="tmpfs" ino=95030 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:container_var_run_t:s0 tclass=sock_file permissive=0
-type=AVC msg=audit(XXX.99): avc: denied { getattr write } for pid=75540 comm="pmdapodman" path="/run/podman/podman.sock" dev="tmpfs" ino=51062 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:var_run_t:s0 tclass=sock_file permissive=0
+type=AVC msg=audit(XXX.98): avc: denied { getattr write } for pid=75540 comm="pmdapodman" path="/run/podman/podman.sock" dev="tmpfs" ino=51062 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:var_run_t:s0 tclass=sock_file permissive=0
 EOF
 
 echo "Silence is golden ... all AVC's are allowed by active policy"

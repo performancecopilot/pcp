@@ -2053,12 +2053,14 @@ pcp_selinux_numad=false
 pcp_selinux_bpf=false
 pcp_selinux_dma_device=false
 pcp_selinux_files_list_non_auth_dirs=false
+pcp_selinux_container_var_run=false
 pcp_selinux_virt_var_run=false
 pcp_selinux_proc_security=false
 pcp_selinux_sbd_exec=false
 pcp_selinux_capability2_syslog=false
 pcp_selinux_capability2_bpf=false
 pcp_selinux_icmp_socket_class=false
+pcp_selinux_glusterd_log=false
 
 pcp_selinux_initrc_tmp=false
 pcp_selinux_sudo_exec=false
@@ -2105,6 +2107,8 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
 	&& pcp_selinux_unconfined=true
     grep '^[[ 	]][[ 	]]*numad_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_numad=true
+    grep '^[[ 	]][[ 	]]*container_var_run_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_container_var_run=true
     grep '^[[ 	]][[ 	]]*virt_var_run_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_virt_var_run=true
     grep '^[[ 	]][[ 	]]*proc_security_t$' <conftest.out >/dev/null \
@@ -2115,6 +2119,8 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
 	&& pcp_selinux_kmod_exec=true
     grep '^[[ 	]][[ 	]]*dma_device_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_dma_device=true
+    grep '^[[ 	]][[ 	]]*glusterd_log_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_glusterd_log=true
 
     dnl these ones are for pcpqa.te
 
@@ -2250,6 +2256,7 @@ AC_SUBST(pcp_selinux_numad)
 AC_SUBST(pcp_selinux_bpf)
 AC_SUBST(pcp_selinux_dma_device)
 AC_SUBST(pcp_selinux_files_list_non_auth_dirs)
+AC_SUBST(pcp_selinux_container_var_run)
 AC_SUBST(pcp_selinux_virt_var_run)
 AC_SUBST(pcp_selinux_proc_security)
 AC_SUBST(pcp_selinux_sbd_exec)
@@ -2257,6 +2264,7 @@ AC_SUBST(pcp_selinux_capability2_syslog)
 AC_SUBST(pcp_selinux_capability2_bpf)
 AC_SUBST(pcp_selinux_icmp_socket_class)
 AC_SUBST(pcp_selinux_lockdown_class)
+AC_SUBST(pcp_selinux_glusterd_log)
 
 dnl for pcpqa.te
 AC_SUBST(pcp_selinux_initrc_tmp)

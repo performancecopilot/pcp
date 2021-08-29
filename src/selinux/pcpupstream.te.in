@@ -43,7 +43,7 @@ require {
         type ndc_exec_t;
         type proc_mdstat_t;
         @PCP_NUMAD_CONTEXT@
-        type glusterd_log_t;
+        @PCP_GLUSTERD_LOG_T@
         type sysctl_irq_t; #pmda.bcc
         type unconfined_t; #RHBZ1443632
         @PCP_UNCONFINED_SERVICE@
@@ -60,10 +60,10 @@ require {
 	@PCP_PROC_SECURITY_T@
         type su_exec_t;
 	type var_run_t;
-	type container_var_run_t;
+	@PCP_VIRT_VAR_RUN_T@
+	@PCP_CONTAINER_VAR_RUN_T@
 	type postgresql_var_run_t;
 	type fs_t;
-	@PCP_VIRT_VAR_RUN_T@
 	type cluster_tmpfs_t;
 	type drbd_exec_t;
 	@PCP_SBD_EXEC_T@
@@ -133,10 +133,10 @@ allow pcp_pmcd_t user_home_t:file { execute execute_no_trans };
 #type=AVC msg=audit(XXX.90): avc: denied { getattr write } for pid=1514 comm="pmdapodman" path="/run/user/N/podman/podman.sock" dev="tmpfs" ino=228 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:user_tmp_t:s0 tclass=sock_file permissive=0
 allow pcp_pmcd_t user_tmp_t:sock_file { getattr write };
 
-#type=AVC msg=audit(XXX.98): avc: denied { getattr write } for pid=14272 comm="pmdapodman" path="/run/podman/podman.sock" dev="tmpfs" ino=95030 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:container_var_run_t:s0 tclass=sock_file permissive=0
-allow pcp_pmcd_t container_var_run_t:sock_file { getattr write };
+#type=AVC msg=audit(YYY.105): avc: denied { getattr write } for pid=14272 comm="pmdapodman" path="/run/podman/podman.sock" dev="tmpfs" ino=95030 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:container_var_run_t:s0 tclass=sock_file permissive=0
+@PCP_CONTAINER_VAR_RUN_RULE@
 
-#type=AVC msg=audit(XXX.99): avc: denied { getattr write } for pid=75540 comm="pmdapodman" path="/run/podman/podman.sock" dev="tmpfs" ino=51062 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:var_run_t:s0 tclass=sock_file permissive=0
+#type=AVC msg=audit(XXX.98): avc: denied { getattr write } for pid=75540 comm="pmdapodman" path="/run/podman/podman.sock" dev="tmpfs" ino=51062 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:var_run_t:s0 tclass=sock_file permissive=0
 allow pcp_pmcd_t var_run_t:sock_file { getattr write };
 
 #type=AVC msg=audit(XXX.6): avc:  denied  { append getattr ioctl open read write } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:debugfs_t:s0 tclass=file permissive=0
@@ -247,7 +247,7 @@ allow pcp_pmcd_t proc_mdstat_t:file { getattr open read };
 @PCP_NUMAD_RULE@
 
 #type=AVC msg=audit(XXX.28): avc:  denied  { open read write } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:glusterd_log_t:s0 tclass=file permissive=0
-allow pcp_pmcd_t glusterd_log_t:file { open read write };
+@PCP_GLUSTERD_LOG_RULE@
 
 #pmda.bcc
 #type=AVC msg=audit(XXX.34): avc:  denied  { execmem setrlimit ptrace } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_pmcd_t:s0 tclass=process permissive=0
