@@ -10,7 +10,7 @@ __pmConnectPMCD(PCP_RUN_DIR/pmcd.socket): ...
 IPC table fd(PDU version): 3(2,1)
 pmNewContext(1, local:) -> 0
 Dump Contexts: current -> contexts[0] handle 0
-contexts[0] handle 0: host PCP_RUN_DIR/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 origin=0.000000 delta=0
+contexts[0] handle 0: host PCP_RUN_DIR/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 origin=0.000000000 delta=0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmFetch: calling __pmSendProfile, context: 0 slot: 0
 Dump Instance Profile state=INCLUDE, 0 profiles
@@ -58,7 +58,7 @@ __pmConnectPMCD(PCP_RUN_DIR/pmcd.socket): ...
 IPC table fd(PDU version): 3(2,1)
 pmNewContext(1, local:) -> 0
 Dump Contexts: current -> contexts[0] handle 0
-contexts[0] handle 0: host PCP_RUN_DIR/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 origin=0.000000 delta=0
+contexts[0] handle 0: host PCP_RUN_DIR/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 origin=0.000000000 delta=0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmFetch: calling __pmSendProfile, context: 0 slot: 0
 Dump Instance Profile state=INCLUDE, 0 profiles
@@ -106,7 +106,7 @@ __pmConnectPMCD(PCP_RUN_DIR/pmcd.socket): ...
 IPC table fd(PDU version): 3(2,1)
 pmNewContext(1, local:) -> 0
 Dump Contexts: current -> contexts[0] handle 0
-contexts[0] handle 0: host PCP_RUN_DIR/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 origin=0.000000 delta=0
+contexts[0] handle 0: host PCP_RUN_DIR/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 origin=0.000000000 delta=0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmFetch: calling __pmSendProfile, context: 0 slot: 0
 Dump Instance Profile state=INCLUDE, 0 profiles
@@ -154,7 +154,7 @@ __pmConnectPMCD(PCP_RUN_DIR/pmcd.socket): ...
 IPC table fd(PDU version): 3(2,1)
 pmNewContext(1, local:) -> 0
 Dump Contexts: current -> contexts[0] handle 0
-contexts[0] handle 0: host PCP_RUN_DIR/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 origin=0.000000 delta=0
+contexts[0] handle 0: host PCP_RUN_DIR/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 origin=0.000000000 delta=0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmFetch: calling __pmSendProfile, context: 0 slot: 0
 Dump Instance Profile state=INCLUDE, 0 profiles
@@ -202,7 +202,7 @@ __pmConnectPMCD(PCP_RUN_DIR/pmcd.socket): ...
 IPC table fd(PDU version): 3(2,1)
 pmNewContext(1, local:) -> 0
 Dump Contexts: current -> contexts[0] handle 0
-contexts[0] handle 0: host PCP_RUN_DIR/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 origin=0.000000 delta=0
+contexts[0] handle 0: host PCP_RUN_DIR/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 origin=0.000000000 delta=0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmFetch: calling __pmSendProfile, context: 0 slot: 0
 Dump Instance Profile state=INCLUDE, 0 profiles
@@ -250,7 +250,7 @@ __pmConnectPMCD(PCP_RUN_DIR/pmcd.socket): ...
 IPC table fd(PDU version): 3(2,1)
 pmNewContext(1, local:) -> 0
 Dump Contexts: current -> contexts[0] handle 0
-contexts[0] handle 0: host PCP_RUN_DIR/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 origin=0.000000 delta=0
+contexts[0] handle 0: host PCP_RUN_DIR/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 origin=0.000000000 delta=0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmFetch: calling __pmSendProfile, context: 0 slot: 0
 Dump Instance Profile state=INCLUDE, 0 profiles
@@ -298,7 +298,7 @@ __pmConnectPMCD(PCP_RUN_DIR/pmcd.socket): ...
 IPC table fd(PDU version): 3(2,1)
 pmNewContext(1, local:) -> 0
 Dump Contexts: current -> contexts[0] handle 0
-contexts[0] handle 0: host PCP_RUN_DIR/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 origin=0.000000 delta=0
+contexts[0] handle 0: host PCP_RUN_DIR/pmcd.socket: pmcd=CONNECTED profile=NOT_SENT fd=3 origin=0.000000000 delta=0
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmFetch: calling __pmSendProfile, context: 0 slot: 0
 Dump Instance Profile state=INCLUDE, 0 profiles
