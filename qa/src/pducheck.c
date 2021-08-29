@@ -700,7 +700,7 @@ _z(void)
     n = sizeof(pmidlist) / sizeof(pmidlist[0]);
     if (pass != 0)
 	n = 1 + (foorand() % n);
-    if ((e = __pmSendFetch(fd[1], mypid, 43, NULL, n, pmidlist)) < 0) {
+    if ((e = __pmSendFetch(fd[1], mypid, 43, n, pmidlist)) < 0) {
 	fprintf(stderr, "Error: SendFetch: %s\n", pmErrStr(e));
 	fatal = 1;
 	goto cleanup;

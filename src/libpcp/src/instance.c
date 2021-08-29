@@ -49,8 +49,18 @@ pmLookupInDom_ctx(__pmContext *ctxp, pmInDom indom, const char *name)
 	else
 	    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
+#if 0		// TODO when __pmSendInstanceReq => __pmTimestamp
 	    sts = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 				    &ctxp->c_origin, indom, PM_IN_NULL, name);
+#else
+	    {
+		pmTimeval	tv;
+		tv.tv_sec = ctxp->c_origin.sec;
+		tv.tv_usec = ctxp->c_origin.sec;
+		sts = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
+					&tv, indom, PM_IN_NULL, name);
+	    }
+#endif
 	    if (sts < 0)
 		sts = __pmMapErrno(sts);
 	    else {
@@ -98,14 +108,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_TIMEOUT);
 	}
 	else {
 	    /* assume PM_CONTEXT_ARCHIVE */
-#if 0	// TODO when c_origin => __pmTimestamp
 	    sts = __pmLogLookupInDom(ctxp->c_archctl, indom, &ctxp->c_origin, name);
-#else
-	    __pmTimestamp	stamp;
-	    stamp.sec = ctxp->c_origin.tv_sec;
-	    stamp.nsec = ctxp->c_origin.tv_usec * 1000;
-	    sts = __pmLogLookupInDom(ctxp->c_archctl, indom, &stamp, name);
-#endif
 	}
 	if (need_unlock)
 	    PM_UNLOCK(ctxp->c_lock);
@@ -170,8 +173,18 @@ pmNameInDom_ctx(__pmContext *ctxp, pmInDom indom, int inst, char **name)
 	else
 	    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
+#if 0		// TODO when __pmSendInstanceReq => __pmTimestamp
 	    sts = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 				    &ctxp->c_origin, indom, inst, NULL);
+#else
+	    {
+		pmTimeval	tv;
+		tv.tv_sec = ctxp->c_origin.sec;
+		tv.tv_usec = ctxp->c_origin.sec;
+		sts = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
+					&tv, indom, inst, NULL);
+	    }
+#endif
 	    if (sts < 0)
 		sts = __pmMapErrno(sts);
 	    else {
@@ -219,14 +232,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_TIMEOUT);
 	else {
 	    /* assume PM_CONTEXT_ARCHIVE */
 	    char	*tmp;
-#if 0	// TODO when c_origin => __pmTimestamp
 	    if ((sts = __pmLogNameInDom(ctxp->c_archctl, indom, &ctxp->c_origin, inst, &tmp)) >= 0) {
-#else
-	    __pmTimestamp	stamp;
-	    stamp.sec = ctxp->c_origin.tv_sec;
-	    stamp.nsec = ctxp->c_origin.tv_usec * 1000;
-	    if ((sts = __pmLogNameInDom(ctxp->c_archctl, indom, &stamp, inst, &tmp)) >= 0) {
-#endif
 		if ((*name = strdup(tmp)) == NULL)
 		    sts = -oserror();
 	    }
@@ -335,8 +341,18 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 	    goto pmapi_return;
 	}
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
+#if 0		// TODO when __pmSendInstanceReq => __pmTimestamp
 	    sts = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 				    &ctxp->c_origin, indom, PM_IN_NULL, NULL);
+#else
+	    {
+		pmTimeval	tv;
+		tv.tv_sec = ctxp->c_origin.sec;
+		tv.tv_usec = ctxp->c_origin.sec;
+		sts = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
+					&tv, indom, PM_IN_NULL, NULL);
+	    }
+#endif
 	    if (sts < 0)
 		sts = __pmMapErrno(sts);
 	    else {
@@ -386,14 +402,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 	    /* assume PM_CONTEXT_ARCHIVE */
 	    int		*insttmp;
 	    char	**nametmp;
-#if 0	// TODO when c_origin => __pmTimestamp
 	    if ((sts = __pmLogGetInDom(ctxp->c_archctl, indom, &ctxp->c_origin, &insttmp, &nametmp)) >= 0) {
-#else
-	    __pmTimestamp	stamp;
-	    stamp.sec = ctxp->c_origin.tv_sec;
-	    stamp.nsec = ctxp->c_origin.tv_usec * 1000;
-	    if ((sts = __pmLogGetInDom(ctxp->c_archctl, indom, &stamp, &insttmp, &nametmp)) >= 0) {
-#endif
 		need = 0;
 		for (i = 0; i < sts; i++)
 		    need += sizeof(char *) + strlen(nametmp[i]) + 1;

@@ -1407,17 +1407,7 @@ getlabels(int ident, int type, pmLabelSet **sets, int *nsets)
 	}
     }
     else {
-#if 0	// TODO when c_origin -> __pmTimestamp
 	sts = __pmLogLookupLabel(ctxp->c_archctl, type, ident, sets, &ctxp->c_origin);
-#else
-	{
-	    __pmTimestamp	stamp;
-	    stamp.sec = ctxp->c_origin.tv_sec;
-	    stamp.nsec = ctxp->c_origin.tv_usec * 1000;
-	    sts = __pmLogLookupLabel(ctxp->c_archctl, type, ident, sets, &stamp);
-
-	}
-#endif
 
 	if (sts < 0) {
 	    /* supply context labels for archives lacking label support */

@@ -202,13 +202,14 @@ pmFetch_ctx(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmResult **result)
 	    if ((sts = __pmUpdateProfile(fd, ctxp, tout)) < 0) {
 		sts = __pmMapErrno(sts);
 	    }
-	    else if ((sts = __pmSendFetch(fd, __pmPtrToHandle(ctxp), ctxp->c_slot,
-				&ctxp->c_origin, numpmid, pmidlist)) < 0) {
-		sts = __pmMapErrno(sts);
-	    }
 	    else {
-		PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
-		sts = __pmRecvFetch(fd, ctxp, tout, result);
+		sts = __pmSendFetch(fd, __pmPtrToHandle(ctxp), ctxp->c_slot, numpmid, pmidlist);
+		if (sts < 0)
+		    sts = __pmMapErrno(sts);
+		else {
+		    PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
+		    sts = __pmRecvFetch(fd, ctxp, tout, result);
+		}
 	    }
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
@@ -218,8 +219,8 @@ pmFetch_ctx(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmResult **result)
 	    /* assume PM_CONTEXT_ARCHIVE */
 	    sts = __pmLogFetch(ctxp, numpmid, pmidlist, result);
 	    if (sts >= 0 && (ctxp->c_mode & __PM_MODE_MASK) != PM_MODE_INTERP) {
-		ctxp->c_origin.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
-		ctxp->c_origin.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
+		ctxp->c_origin.sec = (*result)->timestamp.tv_sec;
+		ctxp->c_origin.nsec = (*result)->timestamp.tv_usec * 1000;
 	    }
 	}
 
@@ -419,8 +420,8 @@ pmFetchArchive(pmResult **result)
 	    else {
 		/* assume PM_CONTEXT_ARCHIVE and BACK or FORW */
 		if ((sts = __pmLogFetch(ctxp, 0, NULL, result)) >= 0) {
-		    ctxp->c_origin.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
-		    ctxp->c_origin.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
+		    ctxp->c_origin.sec = (*result)->timestamp.tv_sec;
+		    ctxp->c_origin.nsec = (*result)->timestamp.tv_usec * 1000;
 		}
 	    }
 	    PM_UNLOCK(ctxp->c_lock);
@@ -445,7 +446,7 @@ pmSetMode(int mode, const struct timeval *when, int delta)
 	    if (l_mode != PM_MODE_LIVE)
 		sts = PM_ERR_MODE;
 	    else {
-		ctxp->c_origin.tv_sec = ctxp->c_origin.tv_usec = 0;
+		ctxp->c_origin.sec = ctxp->c_origin.nsec = 0;
 		ctxp->c_mode = mode;
 		ctxp->c_delta = delta;
 		sts = 0;
@@ -464,8 +465,8 @@ pmSetMode(int mode, const struct timeval *when, int delta)
 		     * special case of NULL for timestamp
 		     * => do not update notion of "current" time
 		     */
-		    ctxp->c_origin.tv_sec = (__int32_t)when->tv_sec;
-		    ctxp->c_origin.tv_usec = (__int32_t)when->tv_usec;
+		    ctxp->c_origin.sec = when->tv_sec;
+		    ctxp->c_origin.nsec = when->tv_usec * 1000;
 		}
 		ctxp->c_mode = mode;
 		ctxp->c_delta = delta;

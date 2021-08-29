@@ -147,7 +147,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	    pmidlist = newlist;
 	}
 
-	n = __pmSendFetch(ctxp->c_pmcd->pc_fd, FROM_ANON, ctx, &ctxp->c_origin, numpmid, pmidlist);
+	n = __pmSendFetch(ctxp->c_pmcd->pc_fd, FROM_ANON, ctx, numpmid, pmidlist);
 	if (n >= 0) {
 	    do {
 		n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);

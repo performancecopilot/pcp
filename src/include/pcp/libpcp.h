@@ -382,7 +382,7 @@ PCP_CALL extern int __pmDecodeResult(__pmPDU *, pmResult **);
 PCP_CALL extern int __pmDecodeHighResResult(__pmPDU *, pmHighResResult **);
 PCP_CALL extern int __pmSendProfile(int, int, int, pmProfile *);
 PCP_CALL extern int __pmDecodeProfile(__pmPDU *, int *, pmProfile **);
-PCP_CALL extern int __pmSendFetch(int, int, int, void *, int, pmID *);
+PCP_CALL extern int __pmSendFetch(int, int, int, int, pmID *);
 PCP_CALL extern int __pmDecodeFetch(__pmPDU *, int *, void *, int *, pmID **);
 PCP_CALL extern int __pmSendHighResFetch(int, int, int, int, pmID *);
 PCP_CALL extern int __pmDecodeHighResFetch(__pmPDU *, int *, int *, pmID **);
@@ -880,7 +880,7 @@ typedef struct {
     int			c_mode;		/* current mode PM_MODE_* */
     __pmPMCDCtl		*c_pmcd;	/* pmcd control for HOST contexts */
     __pmArchCtl		*c_archctl;	/* log control for ARCHIVE contexts */
-    pmTimeval		c_origin;	/* pmFetch time origin / current time */
+    __pmTimestamp	c_origin;	/* pmFetch time origin / current time */
     int			c_delta;	/* for updating origin */
     int			c_sent;		/* profile has been sent to pmcd */
     pmProfile		*c_instprof;	/* instance profile */

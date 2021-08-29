@@ -459,7 +459,7 @@ dopmda(int pdu)
 		    profile_changed = 0;
 	    }
 	    if (sts >= 0) {
-		if ((sts = __pmSendFetch(toPMDA, FROM_ANON, 0, NULL, param.numpmid, param.pmidlist)) >= 0) {
+		if ((sts = __pmSendFetch(toPMDA, FROM_ANON, 0, param.numpmid, param.pmidlist)) >= 0) {
 		    if ((pinpdu = sts = __pmGetPDU(fromPMDA, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_RESULT) {
 			if ((sts = __pmDecodeResult(pb, &result)) >= 0) {
 			    if (desc_list) 
@@ -541,8 +541,7 @@ dopmda(int pdu)
 
 	    printf("Getting Result Structure...\n");
 	    pinpdu = 0;
-	    if ((sts = __pmSendFetch(toPMDA, FROM_ANON, 0, NULL, 
-				    1, &(desc.pmid))) >= 0) {
+	    if ((sts = __pmSendFetch(toPMDA, FROM_ANON, 0, 1, &(desc.pmid))) >= 0) {
 		int		lsts;
 		int		ksts;
 		if ((pinpdu = sts = __pmGetPDU(fromPMDA, ANY_SIZE, TIMEOUT_NEVER, 

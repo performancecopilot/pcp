@@ -957,8 +957,7 @@ initarchive(__pmContext	*ctxp, const char *name)
     }
 
     /* start after header + label record + trailer */
-    ctxp->c_origin.tv_sec = acp->ac_log->label.start.sec;
-    ctxp->c_origin.tv_usec = acp->ac_log->label.start.nsec / 1000;
+    ctxp->c_origin = acp->ac_log->label.start;
     ctxp->c_mode = (ctxp->c_mode & 0xffff0000) | PM_MODE_FORW;
     acp->ac_offset = __pmLogLabelSize(acp->ac_log);
     acp->ac_vol = acp->ac_curvol;
@@ -1111,7 +1110,7 @@ INIT_CONTEXT:
     /* c_lock not re-initialized, created once from initcontextlock() above */
     new->c_type = (type & PM_CONTEXT_TYPEMASK);
     new->c_mode = 0;
-    new->c_origin.tv_sec = new->c_origin.tv_usec = 0;
+    new->c_origin.sec = new->c_origin.nsec = 0;
     new->c_delta = 0;
     new->c_sent = 0;
     new->c_flags = (type & ~PM_CONTEXT_TYPEMASK);
@@ -1819,8 +1818,8 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 		}
 	    }
 	    if (con->c_type == PM_CONTEXT_HOST || con->c_type == PM_CONTEXT_ARCHIVE) {
-		fprintf(f, " origin=%d.%06d",
-		    con->c_origin.tv_sec, con->c_origin.tv_usec);
+		fprintf(f, " origin=%" FMT_INT64 ".%09d",
+		    con->c_origin.sec, con->c_origin.nsec);
 		fprintf(f, " delta=%d\n", con->c_delta);
 	    }
 	    __pmDumpProfile(f, indom, con->c_instprof);

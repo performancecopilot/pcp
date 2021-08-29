@@ -170,7 +170,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    fprintf(stderr, " %s", pmIDStr(pmidp[j]));
 		fputc('\n', stderr);
 	    }
-	    e = __pmSendFetch(fd, mypid, ctxnum, &nowtv, numpmid, pmidp);
+	    e = __pmSendFetch(fd, mypid, ctxnum, numpmid, pmidp);
 	    __pmUnpinPDUBuf(pmidp);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendFetch: %s\n", pmGetProgname(), pmErrStr(e));

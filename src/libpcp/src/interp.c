@@ -1109,20 +1109,10 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     }
     PM_UNLOCK(__pmLock_extcall);
 
-#if 0	// TODO when c_origin change made
     t_req = __pmTimestampSub(&ctxp->c_origin, __pmLogStartTime(ctxp->c_archctl));
-#else
-    {
-	__pmTimestamp	stamp;
-	stamp.sec = ctxp->c_origin.tv_sec;
-	stamp.nsec = ctxp->c_origin.tv_usec * 1000;
-	t_req = __pmTimestampSub(&stamp, __pmLogStartTime(ctxp->c_archctl));
-    }
-#endif
-
     if (pmDebugOptions.interp) {
 	fprintf(stderr, "__pmLogFetchInterp @ ");
-	__pmPrintTimeval(stderr, &ctxp->c_origin);
+	__pmPrintTimestamp(stderr, &ctxp->c_origin);
 	fprintf(stderr, " t_req=%.6f curvol=%d posn=%ld (vol=%d) serial=%d\n",
 	    t_req, ctxp->c_archctl->ac_curvol,
 	    (long)ctxp->c_archctl->ac_offset, ctxp->c_archctl->ac_vol,
@@ -1716,8 +1706,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     if ((rp = (pmResult *)malloc(sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *))) == NULL)
 	return -oserror();
 
-    rp->timestamp.tv_sec = ctxp->c_origin.tv_sec;
-    rp->timestamp.tv_usec = ctxp->c_origin.tv_usec;
+    rp->timestamp.tv_sec = ctxp->c_origin.sec;
+    rp->timestamp.tv_usec = ctxp->c_origin.nsec / 1000;
     rp->numpmid = numpmid;
 
     for (j = 0; j < numpmid; j++) {
@@ -2159,15 +2149,15 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 
 all_done:
     pmXTBdeltaToTimeval(ctxp->c_delta, ctxp->c_mode, &delta_tv);
-    ctxp->c_origin.tv_sec += delta_tv.tv_sec;
-    ctxp->c_origin.tv_usec += delta_tv.tv_usec;
-    while (ctxp->c_origin.tv_usec > 1000000) {
-	ctxp->c_origin.tv_sec++;
-	ctxp->c_origin.tv_usec -= 1000000;
+    ctxp->c_origin.sec += delta_tv.tv_sec;
+    ctxp->c_origin.nsec += delta_tv.tv_usec * 1000;
+    while (ctxp->c_origin.nsec > 1000000000) {
+	ctxp->c_origin.sec++;
+	ctxp->c_origin.nsec -= 1000000000;
     }
-    while (ctxp->c_origin.tv_usec < 0) {
-	ctxp->c_origin.tv_sec--;
-	ctxp->c_origin.tv_usec += 1000000;
+    while (ctxp->c_origin.nsec < 0) {
+	ctxp->c_origin.sec--;
+	ctxp->c_origin.nsec += 1000000000;
     }
 
     if (pmDebugOptions.interp) {
@@ -2224,17 +2214,7 @@ __pmLogResetInterp(__pmContext *ctxp)
     if (hcp->hsize == 0)
 	return;
 
-#if 0	// TODO when c_origin change made
     t_req = __pmTimestampSub(&ctxp->c_origin, __pmLogStartTime(ctxp->c_archctl));
-#else
-    {
-	__pmTimestamp	stamp;
-	stamp.sec = ctxp->c_origin.tv_sec;
-	stamp.nsec = ctxp->c_origin.tv_usec * 1000;
-	t_req = __pmTimestampSub(&stamp, __pmLogStartTime(ctxp->c_archctl));
-    }
-#endif
-
     for (k = 0; k < hcp->hsize; k++) {
 	for (hp = hcp->hash[k]; hp != NULL; hp = hp->next) {
 	    pcp = (pmidcntl_t *)hp->data;

@@ -58,9 +58,8 @@ __pmSendFetchPDU(int fd, int from, int ctxid, int numpmid, pmID *pmidlist, int p
 }
 
 int
-__pmSendFetch(int fd, int from, int ctxid, void *unused, int numpmid, pmID *pmidlist)
+__pmSendFetch(int fd, int from, int ctxid, int numpmid, pmID *pmidlist)
 {
-    (void)unused;	/* never used, once held a timestamp */
     return __pmSendFetchPDU(fd, from, ctxid, numpmid, pmidlist, PDU_FETCH);
 }
 

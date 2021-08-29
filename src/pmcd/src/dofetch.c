@@ -298,7 +298,7 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 	    else if (aPtr->status.notReady == 0) {
 		/* agent is ready for PDUs */
 		pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_FETCH, dpList->listSize);
-		if ((sts = __pmSendFetch(aPtr->inFd, cPtr - client, ctxnum, NULL,
+		if ((sts = __pmSendFetch(aPtr->inFd, cPtr - client, ctxnum, 
 				   dpList->listSize, dpList->list)) < 0)
 		    pmcd_trace(TR_XMIT_ERR, aPtr->inFd, PDU_FETCH, sts);
 	    }

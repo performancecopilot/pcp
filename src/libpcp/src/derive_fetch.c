@@ -1503,7 +1503,7 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 		    char		*q;
 
 		    if ((hp = __pmHashSearch(np->right->data.info->ivlist[i].inst, &np->left->data.pattern->hash)) == NULL) {
-			pmTimeval	save_origin;
+			__pmTimestamp	save_origin;
 
 			/* first time we've seen this inst for this expr node */
 			if ((ip = (instctl_t *)malloc(sizeof(instctl_t))) == NULL) {
@@ -1519,8 +1519,8 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 			     * back.
 			     */
 			    save_origin = ctxp->c_origin;	/* struct assignment */
-			    ctxp->c_origin.tv_sec = stamp->tv_sec;
-			    ctxp->c_origin.tv_usec = stamp->tv_nsec / 1000;
+			    ctxp->c_origin.sec = stamp->tv_sec;
+			    ctxp->c_origin.nsec = stamp->tv_nsec;
 			}
 			sts = pmNameInDom_ctx(ctxp, np->right->desc.indom, ip->inst, &iname);
 			if (ctxp->c_type == PM_CONTEXT_ARCHIVE)

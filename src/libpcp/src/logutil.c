@@ -805,8 +805,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
     else
 	version = sts;
 
-    ctxp->c_origin.tv_sec = lcp->label.start.sec;
-    ctxp->c_origin.tv_usec = lcp->label.start.nsec / 1000;
+    ctxp->c_origin = lcp->label.start;
 
     if (lcp->tifp) {
 	sts = __pmLogChkLabel(acp, lcp->tifp, &label, PM_LOG_VOL_TI);
@@ -1666,7 +1665,7 @@ __pmLogFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **result)
     __pmHashNode	*hp;
     pmid_ctl	*pcp;
     int		nskip;
-    pmTimeval	tmp;
+    __pmTimestamp	tmp;
     int		ctxp_mode;
     ctx_ctl_t	ctx_ctl = { NULL, 0 };
 
@@ -1714,9 +1713,9 @@ more:
 	    nskip = 0;
 	    while (__pmLogRead_ctx(ctxp, ctxp_mode == PM_MODE_FORW ? PM_MODE_BACK : PM_MODE_FORW, NULL, result, PMLOGREAD_NEXT) >= 0) {
 		nskip++;
-		tmp.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
-		tmp.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
-		tdiff = __pmTimevalSub(&tmp, &ctxp->c_origin);
+		tmp.sec = (*result)->timestamp.tv_sec;
+		tmp.nsec = (*result)->timestamp.tv_usec * 1000;
+		tdiff = __pmTimestampSub(&tmp, &ctxp->c_origin);
 		if (ctxp_mode == PM_MODE_FORW && tdiff < 0) {
 		    /* too far ... next one forward is the one we need */
 		    pmFreeResult(*result);
@@ -1743,15 +1742,15 @@ more:
 		ctxp->c_archctl->ac_offset = __pmFtell(ctxp->c_archctl->ac_mfp);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_curvol;
 		pmFreeResult(*result);
-		tmp.tv_sec = -1;
+		tmp.sec = -1;
 	    }
 	    ctxp->c_archctl->ac_serial = 1;
 	    if (pmDebugOptions.log) {
 		if (nskip) {
 		    fprintf(stderr, "__pmLogFetch: ctx=%d skip reverse %d to ",
 			pmWhichContext(), nskip);
-		    if (tmp.tv_sec != -1)
-			__pmPrintTimeval(stderr, &tmp);
+		    if (tmp.sec != -1)
+			__pmPrintTimestamp(stderr, &tmp);
 		    else
 			fprintf(stderr, "unknown time");
 		    fprintf(stderr, ", found=%d\n", found);
@@ -1766,9 +1765,9 @@ more:
 	}
 	if ((sts = __pmLogRead_ctx(ctxp, ctxp->c_mode, NULL, result, PMLOGREAD_NEXT)) < 0)
 	    break;
-	tmp.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
-	tmp.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
-	tdiff = __pmTimevalSub(&tmp, &ctxp->c_origin);
+	tmp.sec = (*result)->timestamp.tv_sec;
+	tmp.nsec = (*result)->timestamp.tv_usec * 1000;
+	tdiff = __pmTimestampSub(&tmp, &ctxp->c_origin);
 	if ((tdiff < 0 && ctxp_mode == PM_MODE_FORW) ||
 	    (tdiff > 0 && ctxp_mode == PM_MODE_BACK)) {
 		nskip++;
@@ -1792,8 +1791,8 @@ more:
 	}
     }
     if (found) {
-	ctxp->c_origin.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
-	ctxp->c_origin.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
+	ctxp->c_origin.sec = (*result)->timestamp.tv_sec;
+	ctxp->c_origin.nsec = (*result)->timestamp.tv_usec * 1000;
     }
 
     if (*result != NULL && (*result)->numpmid == 0) {
@@ -1997,7 +1996,7 @@ __pmLogSetTime(__pmContext *ctxp)
 {
     __pmArchCtl	*acp = ctxp->c_archctl;
     __pmLogCtl	*lcp = acp->ac_log;
-    pmTimeval	save_origin;
+    __pmTimestamp	save_origin;
     int		save_mode;
     double	t_hi;
     int		mode;
@@ -2010,7 +2009,7 @@ __pmLogSetTime(__pmContext *ctxp)
 
     if (pmDebugOptions.log) {
 	fprintf(stderr, "%s(%d) ", "__pmLogSetTime", pmWhichContext());
-	__pmPrintTimeval(stderr, &ctxp->c_origin);
+	__pmPrintTimestamp(stderr, &ctxp->c_origin);
 	fprintf(stderr, " delta=%d", ctxp->c_delta);
     }
 
@@ -2019,16 +2018,7 @@ __pmLogSetTime(__pmContext *ctxp)
      * We're looking for the first archive which starts after the origin.
      */
     for (i = 0; i < acp->ac_num_logs; ++i) {
-#if 0	// TODO when c_origin converted to __pmTimestamp
 	t_hi = __pmTimestampSub(&acp->ac_log_list[i]->starttime, &ctxp->c_origin);
-#else
-	{
-	    __pmTimestamp	stamp;
-	    stamp.sec = ctxp->c_origin.tv_sec;
-	    stamp.nsec = ctxp->c_origin.tv_usec * 1000;
-	    t_hi = __pmTimestampSub(&acp->ac_log_list[i]->starttime, &stamp);
-	}
-#endif
 	if (t_hi >= 0)
 	    break; /* found it! */
     }
@@ -2096,16 +2086,7 @@ __pmLogSetTime(__pmContext *ctxp)
 		    break;
 		}
 	    }
-#if 0	// TODO use this when c_origin => __pmTimestamp
 	    t_hi = __pmTimestampSub(&tip->stamp, &ctxp->c_origin);
-#else
-	    {
-		__pmTimestamp	origin;
-		origin.sec = ctxp->c_origin.tv_sec;
-		origin.nsec = ctxp->c_origin.tv_usec * 1000;
-		t_hi = __pmTimestampSub(&tip->stamp, &origin);
-	    }
-#endif
 	    if (t_hi > 0) {
 		j = i;
 		break;
@@ -2181,16 +2162,8 @@ __pmLogSetTime(__pmContext *ctxp)
 	     * choose closest index point.  if toobig, [j] is not
 	     * really valid (log truncated or incomplete)
 	     */
-#if 0	// TODO use this when c_origin => __pmTimestamp
 	    t_hi = __pmTimestampSub(&lcp->ti[j].stamp, &ctxp->c_origin);
 	    t_lo = __pmTimestampSub(&ctxp->c_origin, &lcp->ti[j-1].stamp);
-#else
-	    __pmTimestamp	origin;
-	    origin.sec = ctxp->c_origin.tv_sec;
-	    origin.nsec = ctxp->c_origin.tv_usec * 1000;
-	    t_hi = __pmTimestampSub(&lcp->ti[j].stamp, &origin);
-	    t_lo = __pmTimestampSub(&origin, &lcp->ti[j-1].stamp);
-#endif
 	    if (t_hi <= t_lo && !toobig) {
 		try = j;
 		j = VolSkip(acp, mode, j);
@@ -2819,14 +2792,12 @@ LogChangeToNextArchive(__pmContext *ctxp)
      * here, so save this information and restore it after switching to the
      * new archive.
      */
-    save_origin.sec = ctxp->c_origin.tv_sec;
-    save_origin.nsec = ctxp->c_origin.tv_usec * 1000;
+    save_origin = ctxp->c_origin;
     save_mode = ctxp->c_mode;
     /* Switch to the next archive. */
     __pmLogChangeArchive(ctxp, acp->ac_cur_log + 1);
     lcp = acp->ac_log;
-    ctxp->c_origin.tv_sec = save_origin.sec;
-    ctxp->c_origin.tv_usec = save_origin.nsec / 1000;
+    ctxp->c_origin = save_origin;
     ctxp->c_mode = save_mode;
 
     /*
@@ -2913,14 +2884,12 @@ LogChangeToPreviousArchive(__pmContext *ctxp)
      * save this information and restore it after switching to the new
      * archive.
      */
-    save_origin.sec = ctxp->c_origin.tv_sec;
-    save_origin.nsec = ctxp->c_origin.tv_usec * 1000;
+    save_origin = ctxp->c_origin;
     save_mode = ctxp->c_mode;
     /* Switch to the next archive. */
     __pmLogChangeArchive(ctxp, acp->ac_cur_log - 1);
     lcp = acp->ac_log;
-    ctxp->c_origin.tv_sec = save_origin.sec;
-    ctxp->c_origin.tv_usec = save_origin.nsec / 1000;
+    ctxp->c_origin = save_origin;
     ctxp->c_mode = save_mode;
 
     /*

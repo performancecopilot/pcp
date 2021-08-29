@@ -1322,8 +1322,8 @@ pmExtendFetchGroup_item(pmFG pmfg,
 	    __pmTimestamp	stamp;
 	    int saved_mode, saved_delta;
 
-	    saved_origin.tv_sec = ctxp->c_origin.tv_sec;
-	    saved_origin.tv_usec = ctxp->c_origin.tv_usec;
+	    saved_origin.tv_sec = ctxp->c_origin.sec;
+	    saved_origin.tv_usec = ctxp->c_origin.nsec / 1000;
 	    saved_mode = ctxp->c_mode;
 	    saved_delta = ctxp->c_delta;
 	    sts = pmGetArchiveEnd_ctx(ctxp, &stamp);
@@ -1507,17 +1507,18 @@ pmExtendFetchGroup_event(pmFG pmfg,
 	__pmContext *ctxp = __pmHandleToPtr(pmfg->ctx);
 
 	if (ctxp->c_type == PM_CONTEXT_ARCHIVE) {
-	    struct timeval saved_origin;
 #if 0	// when pmSetHighResMode() exists
 	    struct timespec archive_end;
+	    struct timespec saved_origin;
 #else
 	    struct timeval archive_end;
+	    struct timeval saved_origin;
 #endif
 	    __pmTimestamp	stamp;
 	    int saved_mode, saved_delta;
 
-	    saved_origin.tv_sec = ctxp->c_origin.tv_sec;
-	    saved_origin.tv_usec = ctxp->c_origin.tv_usec;
+	    saved_origin.tv_sec = ctxp->c_origin.sec;
+	    saved_origin.tv_usec = ctxp->c_origin.nsec / 1000;
 	    saved_mode = ctxp->c_mode;
 	    saved_delta = ctxp->c_delta;
 	    sts = pmGetArchiveEnd_ctx(ctxp, &stamp);
