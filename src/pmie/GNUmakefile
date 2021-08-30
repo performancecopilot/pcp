@@ -82,6 +82,7 @@ pmie_check.service : pmie_check.service.in
 	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
 	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
+	    -e 's;@SD_SERVICE_TYPE@;'$(SD_SERVICE_TYPE)';' \
 	# END
 
 pmie_daily.service : pmie_daily.service.in
@@ -92,6 +93,7 @@ pmie_daily.service : pmie_daily.service.in
 	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
 	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
+	    -e 's;@SD_SERVICE_TYPE@;'$(SD_SERVICE_TYPE)';' \
 	# END
 
 crontab: crontab.in
