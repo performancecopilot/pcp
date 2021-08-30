@@ -700,11 +700,7 @@ __pmLogFindOpen(__pmArchCtl *acp, const char *name)
     blen = (int)strlen(base);
     /* dirp is an on-stack variable, so readdir*() is THREADSAFE */
     if ((dirp = opendir(dir)) != NULL) {
-#if defined(HAVE_READDIR64)
-	while ((direntp = readdir64(dirp)) != NULL)		/* THREADSAFE */
-#else
 	while ((direntp = readdir(dirp)) != NULL)		/* THREADSAFE */
-#endif
 	{
 	    /*
 	     * direntp->d_name is defined as an array by POSIX, so we

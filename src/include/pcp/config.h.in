@@ -358,9 +358,6 @@
 /* Define to 1 if you have the <pwd.h> header file. */
 #undef HAVE_PWD_H
 
-/* Define to 1 if you have the `readdir64' function. */
-#undef HAVE_READDIR64
-
 /* readline API */
 #undef HAVE_READLINE
 

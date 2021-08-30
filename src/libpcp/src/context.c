@@ -690,11 +690,7 @@ expandArchiveList(const char *names)
     char	*dirname;
     const char	*suffix;
     DIR		*dirp = NULL;
-#if defined(HAVE_READDIR64)
-    struct dirent64	*direntp;
-#else
     struct dirent	*direntp;
-#endif
  
     current = names;
     while (*current) {
@@ -721,11 +717,7 @@ expandArchiveList(const char *names)
 
 	/* dirp is an on-stack variable, so readdir*() is THREADSAFE */
 	if ((dirp = opendir(dirname)) != NULL) {
-#if defined(HAVE_READDIR64)
-	    while ((direntp = readdir64(dirp)) != NULL) {	/* THREADSAFE */
-#else
 	    while ((direntp = readdir(dirp)) != NULL) {		/* THREADSAFE */
-#endif
 		/*
 		 * If this file is part of an archive, then add it.
 		 * Look for names ending in .meta. These are unique to
