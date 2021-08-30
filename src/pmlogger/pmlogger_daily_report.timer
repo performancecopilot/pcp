@@ -2,6 +2,7 @@
 Description=Daily generation of system activity reports
 
 [Timer]
+Persistent=true
 OnCalendar=*-*-* 02:00:00
 
 [Install]
