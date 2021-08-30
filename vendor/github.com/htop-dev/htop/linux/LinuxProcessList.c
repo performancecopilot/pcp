@@ -24,7 +24,6 @@ in the source distribution for its full text.
 #include <time.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include <sys/time.h>
 #include <sys/types.h>
 
 #ifdef HAVE_DELAYACCT
@@ -47,7 +46,7 @@ in the source distribution for its full text.
 #include "Settings.h"
 #include "XUtils.h"
 #include "linux/LinuxProcess.h"
-#include "linux/Platform.h" // needed for GNU/hurd to get PATH_MAX
+#include "linux/Platform.h" // needed for GNU/hurd to get PATH_MAX  // IWYU pragma: keep
 
 #if defined(MAJOR_IN_MKDEV)
 #include <sys/mkdev.h>
@@ -1961,6 +1960,9 @@ static int scanCPUFreqencyFromSysCPUFreq(LinuxProcessList* this) {
    }
 
    for (unsigned int i = 0; i < existingCPUs; ++i) {
+      if (!ProcessList_isCPUonline(&this->super, i))
+         continue;
+
       char pathBuffer[64];
       xSnprintf(pathBuffer, sizeof(pathBuffer), "/sys/devices/system/cpu/cpu%u/cpufreq/scaling_cur_freq", i);
 

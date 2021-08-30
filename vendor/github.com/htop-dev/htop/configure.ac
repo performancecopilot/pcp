@@ -6,7 +6,7 @@
 # ----------------------------------------------------------------------
 
 AC_PREREQ([2.69])
-AC_INIT([htop], [3.1.0-dev], [htop@groups.io], [], [https://htop.dev/])
+AC_INIT([htop], [3.1.0-rc1], [htop@groups.io], [], [https://htop.dev/])
 
 AC_CONFIG_SRCDIR([htop.c])
 AC_CONFIG_AUX_DIR([build-aux])
@@ -69,7 +69,7 @@ AC_USE_SYSTEM_EXTENSIONS
 
 AC_PROG_CC
 AM_PROG_CC_C_O
-AC_PROG_CC_C99
+m4_version_prereq([2.70], [], [AC_PROG_CC_C99])
 AS_IF([test "x$ac_cv_prog_cc_c99" = xno], [AC_MSG_ERROR([htop is written in C99. A newer compiler is required.])])
 
 # ----------------------------------------------------------------------
@@ -131,7 +131,7 @@ esac
 # ----------------------------------------------------------------------
 
 AC_HEADER_DIRENT
-AC_HEADER_STDC
+m4_version_prereq([2.70], [AC_CHECK_INCLUDES_DEFAULT], [AC_HEADER_STDC])
 AC_CHECK_HEADERS([ \
     stdlib.h \
     string.h \

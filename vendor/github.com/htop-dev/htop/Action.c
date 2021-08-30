@@ -84,12 +84,8 @@ Object* Action_pickFromVector(State* st, Panel* list, int x, bool followProcess)
 
 static void Action_runSetup(State* st) {
    ScreenManager* scr = ScreenManager_new(st->header, st->settings, st, true);
-   CategoriesPanel* panelCategories = CategoriesPanel_new(scr, st->settings, st->header, st->pl);
-   ScreenManager_add(scr, (Panel*) panelCategories, 16);
-   CategoriesPanel_makeMetersPage(panelCategories);
-   Panel* panelFocus;
-   int ch;
-   ScreenManager_run(scr, &panelFocus, &ch);
+   CategoriesPanel_new(scr, st->settings, st->header, st->pl);
+   ScreenManager_run(scr, NULL, NULL);
    ScreenManager_delete(scr);
    if (st->settings->changed) {
       Header_writeBackToSettings(st->header);
@@ -388,10 +384,7 @@ Htop_Reaction Action_follow(State* st) {
 
 static Htop_Reaction actionSetup(State* st) {
    Action_runSetup(st);
-   int headerHeight = Header_calculateHeight(st->header);
-   Panel_move((Panel*)st->mainPanel, 0, headerHeight);
-   Panel_resize((Panel*)st->mainPanel, COLS, LINES - headerHeight - 1);
-   return HTOP_REFRESH | HTOP_REDRAW_BAR | HTOP_UPDATE_PANELHDR;
+   return HTOP_REFRESH | HTOP_REDRAW_BAR | HTOP_UPDATE_PANELHDR | HTOP_RESIZE;
 }
 
 static Htop_Reaction actionLsof(State* st) {
