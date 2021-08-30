@@ -752,7 +752,6 @@ PCP_3.33 {
     __pmLogFreeLabel;
     __pmLogLabelSize;
     __pmLogLoadInDom;
-    __pmLogLoadLabel;
     __pmLogLoadTimestamp;
     __pmLogLoadTimeval;
     __pmLogPutLabels;
