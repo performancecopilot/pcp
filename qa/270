@@ -64,7 +64,7 @@ rm -rf $tmp.arch*
 echo
 echo " --- step 2: test -S, -T and -z flags ---"
 echo "(output depends on archives/mirage{0,index,meta})"
-pmlogextract -S "@10:50:00" -T "@11:00:00" -z archives/mirage $tmp.arch >$tmp.out 2>$tmp.err
+pmlogextract -z -S "@10:50:00" -T "@11:00:00" archives/mirage $tmp.arch >$tmp.out 2>$tmp.err
 _check_output pmlogextract
 pmdumplog -L -z $tmp.arch | sed -e '/^PID/s/: [0-9]*/: PID/'
 
@@ -74,7 +74,7 @@ rm -rf $tmp.arch*
 echo
 echo " --- step 3: test -S out of range ---"
 echo "(output depends on archives/mirage{0,index,meta})"
-pmlogextract -S "@10:00:00" -z archives/mirage $tmp.arch >$tmp.out 2>$tmp.err
+pmlogextract -z -S "@10:00:00" archives/mirage $tmp.arch >$tmp.out 2>$tmp.err
 _check_output pmlogextract
 pmdumplog -L -z $tmp.arch | sed -e '/^PID/s/: [0-9]*/: PID/'
 
@@ -84,7 +84,7 @@ rm -rf $tmp.arch*
 echo
 echo " --- step 4: test -T out of range ---"
 echo "(output depends on archives/mirage{0,index,meta})"
-pmlogextract -T "@12:00:00" -z archives/mirage $tmp.arch >$tmp.out 2>$tmp.err
+pmlogextract -z -T "@12:00:00" archives/mirage $tmp.arch >$tmp.out 2>$tmp.err
 _check_output pmlogextract
 pmdumplog -L -z $tmp.arch | sed -e '/^PID/s/: [0-9]*/: PID/'
 
@@ -162,12 +162,12 @@ cat >$tmp.config <<'End-of-file'
 sample.drift
 End-of-file
 
-pmlogextract -c $tmp.config -S "@10:50:00" -T "@11:00:00" -z archives/mirage $tmp.arch >$tmp.out 2>$tmp.err
+pmlogextract -c $tmp.config -z -S "@10:50:00" -T "@11:00:00" archives/mirage $tmp.arch >$tmp.out 2>$tmp.err
 _check_output pmlogextract
 
 # dump values for sample.drift
 echo "--- dump values for sample.drift ---"
-pmdumplog -m -z archives/mirage sample.drift \
+pmdumplog -z -S "@10:50:00" -T "@11:00:00" -m archives/mirage sample.drift \
 	| sed \
 	    -e '/^$/d' \
 	    -e '/^[0-9]/{
@@ -203,12 +203,12 @@ echo " --- step 8: test -w flag (with -S, -T and -z) ---"
 echo "(output depends on archives/rattle{0,index,meta})"
 # archives/rattle contains "irix.kernel.all.load"
 
-pmlogextract -S "@00:00:00" -T "@12:00:00" -w -z archives/rattle $tmp.arch >$tmp.out 2>$tmp.err
+pmlogextract -z -S "@00:00:00" -T "@12:00:00" -w archives/rattle $tmp.arch >$tmp.out 2>$tmp.err
 _check_output pmlogextract
 
 # dump values for irix.kernel.all.load
 echo "--- dump values for irix.kernel.all.load ---"
-pmdumplog -m -z archives/rattle irix.kernel.all.load \
+pmdumplog -z -S "@00:00:00" -T "@12:00:00" -m archives/rattle irix.kernel.all.load \
 	| sed \
 	    -e '/^$/d' \
 	    -e '/^[0-9]/{
