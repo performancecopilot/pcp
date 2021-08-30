@@ -30,6 +30,7 @@ filter_debug()
 	-e '/^__pmLogChangeVol:/d' \
 	-e '/^__pmFopen(/d' \
 	-e '/^__pmLogChkLabel: .* \[magic=/d' \
+	-e '/fd=/s/fd=[0-9][0-9]*/fd=N/' \
     # end
 }
 

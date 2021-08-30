@@ -325,6 +325,8 @@ main(int argc, char *argv[])
 				pmErrStr(sts));
 		status = 3;
 	    }
+	    if (logctl.tifp)
+		__pmFclose(logctl.tifp);
 	}
 
 	__pmFclose(logctl.mdfp);
@@ -342,6 +344,8 @@ main(int argc, char *argv[])
 			    pmErrStr(sts));
 	    status = 3;
 	}
+	if (logctl.mdfp)
+	    __pmFclose(logctl.mdfp);
     }
 
     /*
