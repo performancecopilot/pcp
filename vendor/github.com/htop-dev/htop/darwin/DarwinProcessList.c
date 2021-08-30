@@ -160,11 +160,6 @@ void ProcessList_delete(ProcessList* this) {
    free(this);
 }
 
-static double ticksToNanoseconds(const double ticks) {
-   const double nanos_per_sec = 1e9;
-   return (ticks / Platform_timebaseToNS) * (nanos_per_sec / (double) Platform_clockTicksPerSec);
-}
-
 void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
    DarwinProcessList* dpl = (DarwinProcessList*)super;
    bool preExisting = true;
@@ -192,7 +187,7 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
       }
    }
 
-   const double time_interval = ticksToNanoseconds(dpl->global_diff) / (double) dpl->super.activeCPUs;
+   const double time_interval_ns = Platform_schedulerTicksToNanoseconds(dpl->global_diff) / (double) dpl->super.activeCPUs;
 
    /* Clear the thread counts */
    super->kernelThreads = 0;
@@ -213,7 +208,7 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
       proc = (DarwinProcess*)ProcessList_getProcess(super, ps[i].kp_proc.p_pid, &preExisting, DarwinProcess_new);
 
       DarwinProcess_setFromKInfoProc(&proc->super, &ps[i], preExisting);
-      DarwinProcess_setFromLibprocPidinfo(proc, dpl, time_interval);
+      DarwinProcess_setFromLibprocPidinfo(proc, dpl, time_interval_ns);
 
       if (proc->super.st_uid != ps[i].kp_eproc.e_ucred.cr_uid) {
          proc->super.st_uid = ps[i].kp_eproc.e_ucred.cr_uid;

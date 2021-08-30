@@ -7,6 +7,9 @@ Released under the GNU GPLv2, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
+#include <assert.h>
 #include <stdbool.h>
 
 #include "CRT.h"
@@ -26,7 +29,8 @@ typedef enum HandlerResult_ {
    REFRESH     = 0x08,
    REDRAW      = 0x10,
    RESCAN      = 0x20,
-   SYNTH_KEY   = 0x40,
+   RESIZE      = 0x40,
+   SYNTH_KEY   = 0x80,
 } HandlerResult;
 
 #define EVENT_SET_SELECTED (-1)
