@@ -1112,7 +1112,13 @@ AC_SUBST(PMDA_BCC, $pmda_bcc)
 if $pmda_bcc; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([clang major version installed])
-clang_major_version=`llvm-config --version | cut -f1 -d.`
+if which llvm-config >/dev/null 2>&1
+then
+    clang_major_version=`llvm-config --version | cut -f1 -d.`
+else
+    dnl version=0 => not installed
+    clang_major_version=0
+fi
 AC_MSG_RESULT($clang_major_version)
 AC_SUBST(CLANG_MAJOR_VERSION, [$clang_major_version])
 
@@ -2354,11 +2360,6 @@ AC_CHECK_FUNCS(strtod strtol strtoll strtoull strndup strchrnul)
 AC_CHECK_FUNCS(getgrent getgrent_r getgrnam getgrnam_r getgrgid getgrgid_r)
 AC_CHECK_FUNCS(getpwent getpwent_r getpwnam getpwnam_r getpwuid getpwuid_r)
 AC_CHECK_FUNCS(sysinfo trace_back_stack backtrace)
-
-dnl only define readdir64 on non-linux platforms that support it
-if test $target_os != linux -a $target_os != freebsd -a $target_os != kfreebsd -a $target_os != netbsd; then
-    AC_CHECK_FUNCS(readdir64)
-fi
 
 dnl typedefs missing from sys/types.h, stdlib.h or stddef.h
 if test $target_os = solaris

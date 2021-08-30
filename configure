@@ -8045,7 +8045,12 @@ $as_echo "no" >&6; }; fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking clang major version installed" >&5
 $as_echo_n "checking clang major version installed... " >&6; }
-clang_major_version=`llvm-config --version | cut -f1 -d.`
+if which llvm-config >/dev/null 2>&1
+then
+    clang_major_version=`llvm-config --version | cut -f1 -d.`
+else
+        clang_major_version=0
+fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $clang_major_version" >&5
 $as_echo "$clang_major_version" >&6; }
 CLANG_MAJOR_VERSION=$clang_major_version
@@ -12654,20 +12659,6 @@ _ACEOF
 fi
 done
 
-
-if test $target_os != linux -a $target_os != freebsd -a $target_os != kfreebsd -a $target_os != netbsd; then
-    for ac_func in readdir64
-do :
-  ac_fn_c_check_func "$LINENO" "readdir64" "ac_cv_func_readdir64"
-if test "x$ac_cv_func_readdir64" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_READDIR64 1
-_ACEOF
-
-fi
-done
-
-fi
 
 if test $target_os = solaris
 then
