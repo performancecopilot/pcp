@@ -936,6 +936,11 @@ AS_IF([test "x$do_python" != "xno"], [
 		    touch config.python2_eol
 		fi
 		;;
+	    fedora)
+		if test -z "$VERSION_ID" -o "$VERSION_ID" -ge 35; then
+		    touch config.python2_eol
+		fi
+		;;
 	esac
     )
     fi
