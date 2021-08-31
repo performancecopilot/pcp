@@ -2,6 +2,7 @@
 Description=Daily processing of archive logs
 
 [Timer]
+Persistent=true
 OnCalendar=*-*-* 00:10:00
 
 [Install]

@@ -21,8 +21,7 @@ OTHERS	= pmnewlog.sh control rc_pmlogger \
 	  pmlogger_daily.sh pmlogger_check.sh pmlogger_merge.sh \
 	  pmlogger_daily_report.sh pmlogger_rewrite.sh
 LDIRT	= crontab crontab.daily_report pmlogger.service \
-	  pmlogger_daily.service pmlogger_daily-poll.service \
-	  pmlogger_daily_report.service pmlogger_daily_report-poll.service \
+	  pmlogger_daily.service pmlogger_daily_report.service \
 	  pmlogger_check.service
 
 ifeq ($(TARGET_OS),linux)
@@ -61,14 +60,10 @@ ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmlogger.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger.service
 	$(INSTALL) -m 644 pmlogger_daily.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily.timer
 	$(INSTALL) -m 644 pmlogger_daily.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily.service
-	$(INSTALL) -m 644 pmlogger_daily-poll.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily-poll.timer
-	$(INSTALL) -m 644 pmlogger_daily-poll.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily-poll.service
 	$(INSTALL) -m 644 pmlogger_check.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_check.timer
 	$(INSTALL) -m 644 pmlogger_check.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_check.service
 	$(INSTALL) -m 644 pmlogger_daily_report.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_report.timer
 	$(INSTALL) -m 644 pmlogger_daily_report.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_report.service
-	$(INSTALL) -m 644 pmlogger_daily_report-poll.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_report-poll.timer
-	$(INSTALL) -m 644 pmlogger_daily_report-poll.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily_report-poll.service
 	$(INSTALL) -m 644 pmlogger_timers.sysconfig $(PCP_SYSCONFIG_DIR)/pmlogger_timers
 else
 	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
@@ -104,17 +99,6 @@ pmlogger_daily.service : pmlogger_daily.service.in
 	    -e 's;@SD_SERVICE_TYPE@;'$(SD_SERVICE_TYPE)';' \
 	# END
 
-pmlogger_daily-poll.service : pmlogger_daily-poll.service.in
-	$(SED) <$< >$@ \
-	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
-	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
-	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
-	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
-	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
-	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
-	    -e 's;@SD_SERVICE_TYPE@;'$(SD_SERVICE_TYPE)';' \
-	# END
-
 pmlogger_check.service : pmlogger_check.service.in
 	$(SED) <$< >$@ \
 	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
@@ -127,18 +111,6 @@ pmlogger_check.service : pmlogger_check.service.in
 	# END
 
 pmlogger_daily_report.service : pmlogger_daily_report.service.in
-	$(SED) <$< >$@ \
-	    -e 's;@CRONTAB_DAILY_REPORT_PATH@;'$(CRONTAB_DAILY_REPORT_PATH)';' \
-	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
-	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
-	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
-	    -e 's;@PCP_SA_DIR@;'$(PCP_SA_DIR)';' \
-	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
-	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
-	    -e 's;@SD_SERVICE_TYPE@;'$(SD_SERVICE_TYPE)';' \
-	# END
-
-pmlogger_daily_report-poll.service : pmlogger_daily_report-poll.service.in
 	$(SED) <$< >$@ \
 	    -e 's;@CRONTAB_DAILY_REPORT_PATH@;'$(CRONTAB_DAILY_REPORT_PATH)';' \
 	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
