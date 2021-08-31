@@ -895,6 +895,7 @@ PACKAGE_BUILD
 PACKAGE_REVISION
 PACKAGE_MINOR
 PACKAGE_MAJOR
+sd_service_type
 enable_systemd
 pcp_systemdunit_dir
 SYSTEMD_SYSTEMUNITDIR
@@ -6131,7 +6132,19 @@ fi
 done
 
     $have_sd_daemon || echo WARNING: using systemd, but header systemd/sd-daemon.h not installed
+
 fi
+
+sd_service_type="simple"
+if $enable_systemd
+then
+            systemd_version=`systemd-analyze --version | $AWK '/^systemd/ {print $2}'`
+    if test "$systemd_version" -ge 239
+    then
+    	sd_service_type="exec"
+    fi
+fi
+
 
 
 . ./VERSION.pcp

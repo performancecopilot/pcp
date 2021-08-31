@@ -101,6 +101,7 @@ pmlogger_daily.service : pmlogger_daily.service.in
 	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
 	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
+	    -e 's;@SD_SERVICE_TYPE@;'$(SD_SERVICE_TYPE)';' \
 	# END
 
 pmlogger_daily-poll.service : pmlogger_daily-poll.service.in
@@ -111,6 +112,7 @@ pmlogger_daily-poll.service : pmlogger_daily-poll.service.in
 	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
 	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
+	    -e 's;@SD_SERVICE_TYPE@;'$(SD_SERVICE_TYPE)';' \
 	# END
 
 pmlogger_check.service : pmlogger_check.service.in
@@ -121,6 +123,7 @@ pmlogger_check.service : pmlogger_check.service.in
 	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
 	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
+	    -e 's;@SD_SERVICE_TYPE@;'$(SD_SERVICE_TYPE)';' \
 	# END
 
 pmlogger_daily_report.service : pmlogger_daily_report.service.in
@@ -132,6 +135,7 @@ pmlogger_daily_report.service : pmlogger_daily_report.service.in
 	    -e 's;@PCP_SA_DIR@;'$(PCP_SA_DIR)';' \
 	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
+	    -e 's;@SD_SERVICE_TYPE@;'$(SD_SERVICE_TYPE)';' \
 	# END
 
 pmlogger_daily_report-poll.service : pmlogger_daily_report-poll.service.in
@@ -143,6 +147,7 @@ pmlogger_daily_report-poll.service : pmlogger_daily_report-poll.service.in
 	    -e 's;@PCP_SA_DIR@;'$(PCP_SA_DIR)';' \
 	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
+	    -e 's;@SD_SERVICE_TYPE@;'$(SD_SERVICE_TYPE)';' \
 	# END
 
 crontab : crontab.in

@@ -5,8 +5,8 @@ ConditionPathExists=!@CRONTAB_PATH@
 PartOf=pmie.service
 
 [Service]
-Type=oneshot
-KillMode=none
+Type=@SD_SERVICE_TYPE@
+Restart=no
 TimeoutStartSec=25m
 Environment="PMIE_CHECK_PARAMS=-C"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmie_timers
