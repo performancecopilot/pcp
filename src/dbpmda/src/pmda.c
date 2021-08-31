@@ -31,8 +31,6 @@
 #include "./lex.h"
 #include "./gram.h"
 
-static pmTimeval	now;
-
 int			fromPMDA;
 int			toPMDA;
 char			*myPmdaName;
@@ -364,7 +362,7 @@ dopmda_iname(pmInDom indom, int inst)
     pmInResult	*inresult;
     __pmPDU	*pb;
 
-    if ((sts = __pmSendInstanceReq(toPMDA, FROM_ANON, &now, indom, inst, NULL)) >= 0) {
+    if ((sts = __pmSendInstanceReq(toPMDA, FROM_ANON, indom, inst, NULL)) >= 0) {
 	if ((pinpdu = sts = __pmGetPDU(fromPMDA, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_INSTANCE) {
 	    if ((sts = __pmDecodeInstance(pb, &inresult)) >= 0) {
 		/* success */
@@ -494,7 +492,7 @@ dopmda(int pdu)
 
 	case PDU_INSTANCE_REQ:
 	    printf("pmInDom: %s\n", pmInDomStr(param.indom));
-	    if ((sts = __pmSendInstanceReq(toPMDA, FROM_ANON, &now, param.indom, param.number, param.name)) >= 0) {
+	    if ((sts = __pmSendInstanceReq(toPMDA, FROM_ANON, param.indom, param.number, param.name)) >= 0) {
 		if ((pinpdu = sts = __pmGetPDU(fromPMDA, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_INSTANCE) {
 		    if ((sts = __pmDecodeInstance(pb, &inresult)) >= 0) {
 			printindom(stdout, inresult);

@@ -31,8 +31,7 @@ typedef struct {
 } instance_req_t;
 
 int
-__pmSendInstanceReq(int fd, int from, const void *unused, pmInDom indom, 
-		    int inst, const char *name)
+__pmSendInstanceReq(int fd, int from, pmInDom indom, int inst, const char *name)
 {
     instance_req_t	*pp;
     int			need;
@@ -71,7 +70,7 @@ __pmSendInstanceReq(int fd, int from, const void *unused, pmInDom indom,
 }
 
 int
-__pmDecodeInstanceReq(__pmPDU *pdubuf, void *unused, pmInDom *indom, int *inst, char **name)
+__pmDecodeInstanceReq(__pmPDU *pdubuf, pmInDom *indom, int *inst, char **name)
 {
     instance_req_t	*pp;
     char		*np, *pdu_end;
@@ -85,7 +84,6 @@ __pmDecodeInstanceReq(__pmPDU *pdubuf, void *unused, pmInDom *indom, int *inst, 
 
     *indom = __ntohpmInDom(pp->indom);
     *inst = ntohl(pp->inst);
-    memset(unused, 0, sizeof(pp->unused));
     namelen = ntohl(pp->namelen);
     if (namelen > 0) {
 	if (namelen >= INT_MAX - 1 || namelen > pp->hdr.len)

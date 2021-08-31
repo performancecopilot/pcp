@@ -550,14 +550,13 @@ decode_desc(const char *name)
 static void
 decode_instance_req(const char *name)
 {
-    pmTimeval		when;
     pmInDom		indom;
     int			inst, sts;
     char		*resname;
     struct instance_req {
 	__pmPDUHdr	hdr;
 	pmInDom		indom;
-	pmTimeval	when;
+	pmTimeval	unused;
 	int		inst;
 	int		namelen;
 	char		name[0];
@@ -568,7 +567,7 @@ decode_instance_req(const char *name)
 
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
     memset(instance_req, 0, sizeof(*instance_req));
-    sts = __pmDecodeInstanceReq((__pmPDU *)instance_req, &when, &indom, &inst, &resname);
+    sts = __pmDecodeInstanceReq((__pmPDU *)instance_req, &indom, &inst, &resname);
     fprintf(stderr, "  __pmDecodeInstanceReq: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) { free(resname); }
 
@@ -577,7 +576,7 @@ decode_instance_req(const char *name)
     instance_req->hdr.len = sizeof(*instance_req);
     instance_req->hdr.type = PDU_INSTANCE_REQ;
     instance_req->namelen = htonl(INT_MAX - 1);
-    sts = __pmDecodeInstanceReq((__pmPDU *)instance_req, &when, &indom, &inst, &resname);
+    sts = __pmDecodeInstanceReq((__pmPDU *)instance_req, &indom, &inst, &resname);
     fprintf(stderr, "  __pmDecodeInstanceReq: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) { free(resname); }
 
@@ -586,7 +585,7 @@ decode_instance_req(const char *name)
     instance_req->hdr.len = sizeof(*instance_req);
     instance_req->hdr.type = PDU_INSTANCE_REQ;
     instance_req->namelen = htonl(-2);
-    sts = __pmDecodeInstanceReq((__pmPDU *)instance_req, &when, &indom, &inst, &resname);
+    sts = __pmDecodeInstanceReq((__pmPDU *)instance_req, &indom, &inst, &resname);
     fprintf(stderr, "  __pmDecodeInstanceReq: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) { free(resname); }
 
@@ -595,7 +594,7 @@ decode_instance_req(const char *name)
     instance_req->hdr.len = sizeof(*instance_req);
     instance_req->hdr.type = PDU_INSTANCE_REQ;
     instance_req->namelen = htonl(1);
-    sts = __pmDecodeInstanceReq((__pmPDU *)instance_req, &when, &indom, &inst, &resname);
+    sts = __pmDecodeInstanceReq((__pmPDU *)instance_req, &indom, &inst, &resname);
     fprintf(stderr, "  __pmDecodeInstanceReq: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) { free(resname); }
 
@@ -604,7 +603,7 @@ decode_instance_req(const char *name)
     xinstance_req->hdr.len = sizeof(*xinstance_req) + 16;
     xinstance_req->hdr.type = PDU_INSTANCE_REQ;
     xinstance_req->namelen = htonl(32);
-    sts = __pmDecodeInstanceReq((__pmPDU *)xinstance_req, &when, &indom, &inst, &resname);
+    sts = __pmDecodeInstanceReq((__pmPDU *)xinstance_req, &indom, &inst, &resname);
     fprintf(stderr, "  __pmDecodeInstanceReq: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) {free(resname); }
 

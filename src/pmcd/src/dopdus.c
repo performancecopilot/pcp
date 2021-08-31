@@ -247,7 +247,6 @@ int
 DoInstance(ClientInfo *cp, __pmPDU *pb)
 {
     int			sts, s;
-    pmTimeval		when;
     pmInDom		indom;
     int			inst;
     char		*name;
@@ -255,13 +254,9 @@ DoInstance(ClientInfo *cp, __pmPDU *pb)
     AgentInfo		*ap;
     int			fdfail = -1;
 
-    sts = __pmDecodeInstanceReq(pb, &when, &indom, &inst, &name);
+    sts = __pmDecodeInstanceReq(pb, &indom, &inst, &name);
     if (sts < 0)
 	return sts;
-    if (when.tv_sec != 0 || when.tv_usec != 0) {
-	if (name != NULL) free(name);
-	return PM_ERR_IPC;
-    }
     if ((ap = pmcd_agent(((__pmInDom_int *)&indom)->domain)) == NULL) {
 	if (name != NULL) free(name);
 	return PM_ERR_INDOM;
@@ -288,7 +283,7 @@ DoInstance(ClientInfo *cp, __pmPDU *pb)
 	    return PM_ERR_AGAIN;
 	}
 	pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_INSTANCE_REQ, (int)indom);
-	sts = __pmSendInstanceReq(ap->inFd, cp - client, &when, indom, inst, name);
+	sts = __pmSendInstanceReq(ap->inFd, cp - client, indom, inst, name);
 	if (sts >= 0) {
 	    int		pinpdu;
 	    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, pmcd_timeout, &pb);

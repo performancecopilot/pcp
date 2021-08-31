@@ -899,11 +899,8 @@ _z(void)
     n = sizeof(indomlist) / sizeof(indomlist[0]);
     if (pass != 0)
 	n = 1 + (foorand() % n);
-    nowtv.tv_sec = 60 * 60 * 60;	/* 60 hrs after the epoch */
-    nowtv.tv_usec = 654321;		/* plus a gnat */
     for (i = 0; i < n; i++) {
-	pmTimeval	tmp;
-	if ((e = __pmSendInstanceReq(fd[1], mypid, &nowtv, 0xface, indomlist[i].inst, indomlist[i].name)) < 0) {
+	if ((e = __pmSendInstanceReq(fd[1], mypid, 0xface, indomlist[i].inst, indomlist[i].name)) < 0) {
 	    fprintf(stderr, "Error: SendInstanceReq: %s\n", pmErrStr(e));
 	    fatal = 1;
 	    goto cleanup;
@@ -925,15 +922,12 @@ _z(void)
 		goto cleanup;
 	    }
 	    else {
-		if ((e = __pmDecodeInstanceReq(pb, &tmp, &indom, &inst, &resname)) < 0) {
+		if ((e = __pmDecodeInstanceReq(pb, &indom, &inst, &resname)) < 0) {
 		    fprintf(stderr, "Error: DecodeInstanceReq: %s\n", pmErrStr(e));
 		    fatal = 1;
 		    goto cleanup;
 		}
 		else {
-		    if (tmp.tv_sec != 0 || tmp.tv_usec != 0)
-			fprintf(stderr, "Botch: InstanceReq: when: got: %d,%d expect: %d,%d\n",
-			    tmp.tv_sec, tmp.tv_usec, nowtv.tv_sec, nowtv.tv_usec);
 		    if (indom != 0xface)
 			fprintf(stderr, "Botch: InstanceReq: indom: got: 0x%x expect: 0x%x\n",
 			    indom, 0xface);

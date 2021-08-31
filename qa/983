@@ -97,11 +97,11 @@ rm -f $tmp.socat
 i=0
 while [ ! -f $tmp.socat -a $i -lt 10 ]
 do
+    sleep 2
     if $PCP_BINADM_DIR/telnet-probe -cv localhost $port1 2>>$seq.full
     then
 	touch $tmp.socat
     else
-	sleep 1
 	i=`expr $i + 1`
     fi
 done

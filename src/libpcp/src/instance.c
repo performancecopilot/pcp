@@ -49,18 +49,7 @@ pmLookupInDom_ctx(__pmContext *ctxp, pmInDom indom, const char *name)
 	else
 	    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
-#if 0		// TODO when __pmSendInstanceReq => __pmTimestamp
-	    sts = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
-				    &ctxp->c_origin, indom, PM_IN_NULL, name);
-#else
-	    {
-		pmTimeval	tv;
-		tv.tv_sec = ctxp->c_origin.sec;
-		tv.tv_usec = ctxp->c_origin.sec;
-		sts = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
-					&tv, indom, PM_IN_NULL, name);
-	    }
-#endif
+	    sts = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), indom, PM_IN_NULL, name);
 	    if (sts < 0)
 		sts = __pmMapErrno(sts);
 	    else {
@@ -173,18 +162,7 @@ pmNameInDom_ctx(__pmContext *ctxp, pmInDom indom, int inst, char **name)
 	else
 	    PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
-#if 0		// TODO when __pmSendInstanceReq => __pmTimestamp
-	    sts = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
-				    &ctxp->c_origin, indom, inst, NULL);
-#else
-	    {
-		pmTimeval	tv;
-		tv.tv_sec = ctxp->c_origin.sec;
-		tv.tv_usec = ctxp->c_origin.sec;
-		sts = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
-					&tv, indom, inst, NULL);
-	    }
-#endif
+	    sts = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), indom, inst, NULL);
 	    if (sts < 0)
 		sts = __pmMapErrno(sts);
 	    else {
@@ -341,18 +319,7 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 	    goto pmapi_return;
 	}
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
-#if 0		// TODO when __pmSendInstanceReq => __pmTimestamp
-	    sts = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
-				    &ctxp->c_origin, indom, PM_IN_NULL, NULL);
-#else
-	    {
-		pmTimeval	tv;
-		tv.tv_sec = ctxp->c_origin.sec;
-		tv.tv_usec = ctxp->c_origin.sec;
-		sts = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
-					&tv, indom, PM_IN_NULL, NULL);
-	    }
-#endif
+	    sts = __pmSendInstanceReq(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), indom, PM_IN_NULL, NULL);
 	    if (sts < 0)
 		sts = __pmMapErrno(sts);
 	    else {

@@ -232,17 +232,12 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 	case PDU_INSTANCE_REQ:
-	    if ((e = __pmDecodeInstanceReq(pb, &nowtv, &indom, &inst, &name)) < 0) {
+	    if ((e = __pmDecodeInstanceReq(pb, &indom, &inst, &name)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeInstanceReq: %s\n", pmGetProgname(), pmErrStr(e));
 		break;
 	    }
 	    if (pmDebugOptions.appl0) {
-		struct timeval	footv;
-		fprintf(stderr, "+ PDU_INSTANCE_REQ: now=%d.%06d ",
-		    nowtv.tv_sec, nowtv.tv_usec);
-		footv.tv_sec = nowtv.tv_sec;
-		footv.tv_usec = nowtv.tv_usec;
-		pmPrintStamp(stderr, &footv);
+		fprintf(stderr, "+ PDU_INSTANCE_REQ: ");
 		fprintf(stderr, " indom=%s", pmInDomStr(indom));
 		if (inst == PM_IN_NULL)
 		    fprintf(stderr, " inst=PM_IN_NULL");
@@ -253,7 +248,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		else
 		    fprintf(stderr, " name=\"%s\"\n", name);
 	    }
-	    e = __pmSendInstanceReq(fd, mypid, &nowtv, indom, inst, name);
+	    e = __pmSendInstanceReq(fd, mypid, indom, inst, name);
 	    if (name)
 		free(name);
 	    if (e < 0) {

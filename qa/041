@@ -156,6 +156,8 @@ _expect "Timeout waiting for a response from PMCD"
 _filter <$tmp.tmp
 rm -f $tmp.tmp
 
+sleep 3		# don't ask, I don't understand either (kenj)
+
 _expect "one million again"
 pminfo -f sample.long.million
 

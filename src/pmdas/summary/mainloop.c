@@ -169,7 +169,7 @@ summaryMainLoop(char *pmdaname, int clientfd, pmdaInterface *dtp)
 		    break;
 
 		case PDU_INSTANCE_REQ:
-		    if ((sts = __pmDecodeInstanceReq(pb_pmcd, &when, &indom, &inst, &name)) >= 0) {
+		    if ((sts = __pmDecodeInstanceReq(pb_pmcd, &indom, &inst, &name)) >= 0) {
 			/*
 			 * Note: when is ignored.
 			 *		If we get this far, we are _only_ dealing

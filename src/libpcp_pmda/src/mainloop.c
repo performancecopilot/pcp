@@ -386,7 +386,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	if (pmDebugOptions.libpmda)
 	    pmNotifyErr(LOG_DEBUG, "Received PDU_INSTANCE_REQ\n");
 
-	if ((sts = __pmDecodeInstanceReq(pb, &when, &indom, &inst, &iname)) >= 0)
+	if ((sts = __pmDecodeInstanceReq(pb, &indom, &inst, &iname)) >= 0)
 	    sts = dispatch->version.any.instance(indom, inst, iname, &inres, pmda);
 	if (sts < 0) {
 	    psts = __pmSendError(pmda->e_outfd, FROM_ANON, sts);
