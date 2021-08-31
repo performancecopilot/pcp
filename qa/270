@@ -233,6 +233,8 @@ then
     echo "irix.kernel.all.load the same ... good"
 else
     echo "irix.kernel.all.load different ... BAD"
+    pmdumplog -z -l -S "@00:00:00" -T "@12:00:00" -m archives/rattle irix.kernel.all.load >>$seq.full
+    pmdumplog -m -l -z $tmp.arch irix.kernel.all.load >>$seq.full
 fi
 
 
