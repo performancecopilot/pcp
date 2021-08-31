@@ -3,7 +3,7 @@
 #
 apache2
 apache2-bin
-auditd
+auditd not4ci
 autoconf
 autotools-dev
 avahi-utils

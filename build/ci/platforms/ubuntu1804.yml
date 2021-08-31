@@ -9,6 +9,10 @@ artifactory:
 container:
   containerfile: |
     FROM docker.io/library/ubuntu:18.04
+
+    # workaround for missing CAP_AUDIT_WRITE
+    RUN ln -s -f /bin/true /usr/bin/chfn
+
     RUN apt-get update && apt-get install -y systemd sudo
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
