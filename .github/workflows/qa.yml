@@ -27,6 +27,7 @@ jobs:
           - {platform: debian11,       runner: container, os: ubuntu-20.04, experimental: false}
           - {platform: fedora33,       runner: container, os: ubuntu-20.04, experimental: false}
           - {platform: fedora34,       runner: container, os: ubuntu-20.04, experimental: false}
+          - {platform: fedora35,       runner: container, os: ubuntu-20.04, experimental: false}
           - {platform: fedora_rawhide, runner: container, os: ubuntu-20.04, experimental: true}
           - {platform: centos6,        runner: container, os: ubuntu-20.04, experimental: false}
           - {platform: centos7,        runner: container, os: ubuntu-20.04, experimental: false}
