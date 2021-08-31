@@ -831,7 +831,21 @@ then
     dnl is being used
     AC_CHECK_HEADERS([systemd/sd-daemon.h], [have_sd_daemon=true], [have_sd_daemon=false])
     $have_sd_daemon || echo WARNING: using systemd, but header systemd/sd-daemon.h not installed
+
 fi
+
+sd_service_type="simple"
+if $enable_systemd
+then
+    dnl if systemd version is 239 or newer, use type=exec for logutil scripts
+    dnl else fallback to type=simple (e.g. on centos7 and some other platforms)
+    systemd_version=`systemd-analyze --version | $AWK '/^systemd/ {print $2}'`
+    if test "$systemd_version" -ge 239
+    then
+    	sd_service_type="exec"
+    fi
+fi
+AC_SUBST(sd_service_type)
 
 dnl NB: No AC_PREFIX_DEFAULT is needed, as the default configure invocation
 dnl targets a build for non-system directories such as /usr/local.
@@ -1880,6 +1894,11 @@ AC_SUBST(HAVE_NCURSES, [$have_ncurses])
 
 PKG_CHECK_MODULES([ncursesw], [ncursesw], [have_ncursesw=true], [have_ncursesw=false])
 AC_SUBST(HAVE_NCURSESW, [$have_ncursesw])
+if $have_ncursesw
+then
+    AC_DEFINE(HAVE_GETMOUSE, [1], [ncursesw getmouse])
+    AC_DEFINE(HAVE_SET_ESCDELAY, [1], [ncursesw set_escdelay])
+fi
 
 PKG_CHECK_MODULES([DEVMAPPER], [devmapper], [have_devmapper=true], [have_devmapper=false])
 if $have_devmapper

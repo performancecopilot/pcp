@@ -4,8 +4,8 @@ Documentation=man:pmlogger_check(1)
 ConditionPathExists=!@CRONTAB_PATH@
 
 [Service]
-Type=oneshot
-KillMode=none
+Type=@SD_SERVICE_TYPE@
+Restart=no
 TimeoutStartSec=25m
 Environment="PMLOGGER_CHECK_PARAMS=-C --skip-primary"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger_timers

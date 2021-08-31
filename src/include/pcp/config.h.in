@@ -136,6 +136,9 @@
 /* Define to 1 if you have the `getmachineid' function. */
 #undef HAVE_GETMACHINEID
 
+/* Define to 1 if you have the `getmouse' function. */
+#undef HAVE_GETMOUSE
+
 /* Define to 1 if you have the `getpeereid' function. */
 #undef HAVE_GETPEEREID
 
@@ -411,6 +414,9 @@
 
 /* Define to 1 if you have the `setns' function. */
 #undef HAVE_SETNS
+
+/* Define to 1 if you have the `set_escdelay' function. */
+#undef HAVE_SET_ESCDELAY
 
 /* sid type */
 #undef HAVE_SID

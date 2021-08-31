@@ -2931,8 +2931,6 @@ if [ "$1" -eq 0 ]
 then
     %systemd_preun pmlogger_daily_report.timer
     %systemd_preun pmlogger_daily_report.service
-    %systemd_preun pmlogger_daily_report-poll.timer
-    %systemd_preun pmlogger_daily_report-poll.service
 fi
 %endif
 
@@ -2947,7 +2945,6 @@ then
        %systemd_preun pmcd.service
        %systemd_preun pmie_daily.timer
        %systemd_preun pmlogger_daily.timer
-       %systemd_preun pmlogger_daily-poll.timer
        %systemd_preun pmlogger_check.timer
 
        systemctl stop pmlogger.service >/dev/null 2>&1
