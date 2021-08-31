@@ -185,19 +185,19 @@ Dump Instance Profile state=EXCLUDE, 2 profiles
 000:       20     7005   SERVER deadbeef        2     face        1 1f025000 
 [SERVER]pmGetPDU: INSTANCE_REQ fd=<n> len=32 from=CLIENT
 000:       20     7006   CLIENT     face    34bc0    9fbf1     dead        0 
-+ PDU_INSTANCE_REQ: now=216000.654321 12:00:00.654 indom=0.64206 inst=57005 name=NULL
++ PDU_INSTANCE_REQ: indom=0.64206 inst=57005 name=NULL
 [SERVER]pmXmitPDU: INSTANCE_REQ fd=<n> len=32
 000:       20     7006   SERVER     face    34bc0    9fbf1     dead        0 
 [SERVER]pmGetPDU: INSTANCE_REQ fd=<n> len=40 from=CLIENT
 000:       28     7006   CLIENT     face    34bc0    9fbf1        0        5 
 008: 66697368 6f7e7e7e 
-+ PDU_INSTANCE_REQ: now=0.000000 00:00:00.000 indom=0.64206 inst=0 name="fisho"
++ PDU_INSTANCE_REQ: indom=0.64206 inst=0 name="fisho"
 [SERVER]pmXmitPDU: INSTANCE_REQ fd=<n> len=40
 000:       28     7006   SERVER     face    34bc0    9fbf1        0        5 
 008: 66697368 6f7e7e7e 
 [SERVER]pmGetPDU: INSTANCE_REQ fd=<n> len=32 from=CLIENT
 000:       20     7006   CLIENT     face    34bc0    9fbf1        0        0 
-+ PDU_INSTANCE_REQ: now=0.000000 00:00:00.000 indom=0.64206 inst=0 name=NULL
++ PDU_INSTANCE_REQ: indom=0.64206 inst=0 name=NULL
 [SERVER]pmXmitPDU: INSTANCE_REQ fd=<n> len=32
 000:       20     7006   SERVER     face    34bc0    9fbf1        0        0 
 [SERVER]pmGetPDU: INSTANCE fd=<n> len=216 from=CLIENT
