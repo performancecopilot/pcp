@@ -1894,6 +1894,11 @@ AC_SUBST(HAVE_NCURSES, [$have_ncurses])
 
 PKG_CHECK_MODULES([ncursesw], [ncursesw], [have_ncursesw=true], [have_ncursesw=false])
 AC_SUBST(HAVE_NCURSESW, [$have_ncursesw])
+if $have_ncursesw
+then
+    AC_DEFINE(HAVE_GETMOUSE, [1], [ncursesw getmouse])
+    AC_DEFINE(HAVE_SET_ESCDELAY, [1], [ncursesw set_escdelay])
+fi
 
 PKG_CHECK_MODULES([DEVMAPPER], [devmapper], [have_devmapper=true], [have_devmapper=false])
 if $have_devmapper

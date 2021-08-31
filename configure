@@ -11302,6 +11302,15 @@ $as_echo "yes" >&6; }
 fi
 HAVE_NCURSESW=$have_ncursesw
 
+if $have_ncursesw
+then
+
+$as_echo "#define HAVE_GETMOUSE 1" >>confdefs.h
+
+
+$as_echo "#define HAVE_SET_ESCDELAY 1" >>confdefs.h
+
+fi
 
 
 pkg_failed=no
