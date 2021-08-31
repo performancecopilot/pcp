@@ -24,6 +24,7 @@ in
 esac
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
+rm -f $seq.full
 
 # Expected error messages
 #
@@ -142,6 +143,26 @@ do
     | sample_filter \
     | pmie_filter \
     | count_filter >$tmp.tmp
+    
+    if grep 'IPC protocol failure' $tmp.tmp >>$seq.full
+    then
+	# we killed pmcd, that's not good!
+	#
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mcd' >>$seq.full
+	for log in pmcd sample linux darwin solaris openbsd freebsd netbsd
+	do
+	    for suff in "" ".prev"
+	    do
+		if [ -f "$PCP_LOG_DIR/pmcd/$log.log$suff" ]
+		then
+		    echo "=== $PCP_LOG_DIR/pmcd/$log.log$suff ===" >>$seq.full
+		    cat "$PCP_LOG_DIR/pmcd/$log.log$suff" >>$seq.full
+		fi
+	    done
+	done
+	echo "Arrgh: pmcd killed ... check $seq.full"
+	exit
+    fi
 
     if [ "$PCP_PLATFORM" = linux ]
     then
