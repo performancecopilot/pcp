@@ -22,8 +22,8 @@ import os, sys, argparse, errno
 
 # PCP Python PMAPI
 from pcp import pmapi
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL
-from cpmapi import PM_ERR_EOL, PM_MODE_FORW, PM_MODE_INTERP
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST
+from cpmapi import PM_ERR_EOL, PM_MODE_INTERP
 
 if sys.version >= '3':
     long = int
@@ -228,7 +228,7 @@ class SS(object):
             s = self.valuesD[metric][inst]
             if s is not None:
                 return fmt % s
-        except:
+        except Exception:
             pass
         return fmt % default
 
@@ -238,7 +238,7 @@ class SS(object):
             s = self.valuesD[metric][inst]
             if s is not None:
                 return fmt % s
-        except:
+        except Exception:
             pass
         return fmt % default
 
@@ -248,7 +248,7 @@ class SS(object):
             s = self.valuesD[metric][inst]
             if s is not None and s != 0:
                 return field
-        except:
+        except Exception:
             pass
         return default
 

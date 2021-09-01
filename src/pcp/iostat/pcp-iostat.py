@@ -162,22 +162,16 @@ class IostatReport(pmcc.MetricGroupPrinter):
                 self.Hcount = 1
             if self.Hcount == 1:
                 if "t" in IostatOptions.xflag:
-                    heading = ('# Timestamp', 'Device',rrqmspace,
-                               'rrqm/s',wrqmspace, 'wrqm/s',precision+5,
-                               'r/s',precision+4, 'w/s',precision+6,
-                               'rkB/s',precision+6, 'wkB/s',
-                               avgrqszspace,'avgrq-sz',precision+6,
-                               'avgqu-sz',precision+5, 'await',precision+5,
-                               'r_await', precision+5,'w_await',utilspace,
-                               '%util')
+                    heading = ('# Timestamp', 'Device',rrqmspace)
                 else:
-                    heading = ('# Device',rrqmspace, 'rrqm/s',wrqmspace,
-                               'wrqm/s',precision+5, 'r/s',precision+4,
-                               'w/s',precision+6, 'rkB/s',precision+6,
-                               'wkB/s', avgrqszspace,'avgrq-sz',precision+6,
-                               'avgqu-sz',precision+5, 'await',awaitspace,
-                               'r_await',awaitspace, 'w_await',utilspace,
-                               '%util')
+                    heading = ('# Device',rrqmspace)
+                heading = heading + tuple(
+                           ['rrqm/s',wrqmspace, 'wrqm/s',precision+5,
+                           'r/s',precision+4, 'w/s',precision+6,
+                           'rkB/s',precision+6, 'wkB/s',
+                           avgrqszspace,'avgrq-sz',precision+6,
+                           'avgqu-sz',precision+5, 'await',precision+5,
+                           'r_await', precision+5,'w_await',utilspace, '%util'])
                 print(headfmt % heading)
 
         if p_rrqm == {} or p_wrqm == {} or p_r == {} or p_w == {} or \
@@ -216,7 +210,7 @@ class IostatReport(pmcc.MetricGroupPrinter):
                 # total active time in seconds (same units as dt)
                 tot_active = (float)(c_avactive[inst] - p_avactive[inst]) / 1000.0
 
-                avgrqsz = avgqsz = t_await = r_await = w_await = util = 0.0
+                avgrqsz = t_await = r_await = w_await = util = 0.0
 
                 # average request size units are KB (sysstat reports in units of sectors)
                 if tot_ios:
