@@ -1,0 +1,4 @@
+extraction:
+  cpp:
+    after_prepare:
+      - apt-get install -y $(./qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
