@@ -29,6 +29,10 @@ Warning - failed to expand action for rule per_cpu.some_util
   string: "$syslog_prefix$$rule$^ $action_expand$"
 Warning - failed to expand action for rule per_cpu.system
   string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule per_disk.average_queue_length
+  string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule per_disk.average_wait_time
+  string: "$syslog_prefix$$rule$^ $action_expand$"
 Warning - failed to expand action for rule per_netif.collisions
   string: "$syslog_prefix$$rule$^ $action_expand$"
 Warning - failed to expand action for rule per_netif.errors
