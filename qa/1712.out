@@ -46,7 +46,7 @@ Setting config:
 ~~~
 
 [global]
-parser_type = 0
+parser_type = 1
 
 ~~~
 statsd.pmda.dropped

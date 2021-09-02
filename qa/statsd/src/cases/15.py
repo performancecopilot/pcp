@@ -37,7 +37,7 @@ payloads = [
     "test_labels,tagC=C,tagB=B,tagA=A:3|c", # labels that will be ordered
     "test_labels:4|c|#A:A", # labels in dogstatsd-ruby format
     "test_labels,A=A:5|c|#B:B,C:C", # labels in dogstatsd-ruby format combined with standard format
-    "test_labels,A=A,A=10:6|c" # labels with non-unique keys, right-most takes precedence,
+    "test_labels,A=A,A=10:6|c", # labels with non-unique keys, right-most takes precedence,
     # These are parsed and aggregated
     "stat_login:1|c",
     "stat_login:5|c",
