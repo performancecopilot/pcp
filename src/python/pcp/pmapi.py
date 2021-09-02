@@ -566,7 +566,7 @@ class pmMetricSpec(Structure):
     def __str__(self):
         insts = list(map(lambda x: str(self.inst[x]), range(self.ninst)))
         fields = (addressof(self), self.isarch, self.source, insts)
-        return "pmMetricSpec@%#lx src=%s metric=%s insts=" % fields
+        return "pmMetricSpec@%#lx src=%s metric=%s insts=%s" % fields
 
     @classmethod
     def fromString(cls, string, isarch=0, source=''):
