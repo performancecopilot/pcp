@@ -1,0 +1,48 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+#
+
+rule	per_disk.average_queue_length
+	summary	= "$rule$"
+	predicate =
+"some_host (
+    some_inst (
+      ( disk.dev.aveq $hosts$ @0 > disk.dev.aveq $hosts$ @1 )
+        &&
+      ( disk.dev.avactive $hosts$ * 100 > $threshold$ )
+    )
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"The disk device utilization for at least one disk exceeded the
+given threshold percent of time during the last sample interval
+and the average queue length has been observed to be increasing
+from the previous sample.";
+
+string	rule
+	default	= "High per disk average queue length"
+	modify	= no
+	display	= no;
+
+percent	threshold
+	default	= 95
+	help	=
+"Threshold percentage of time for I/O utilisation, in the range
+0 (idle) to 100 (busy).  Busy is defined as the percentage of
+time during the evaluation interval that the device was busy
+processing requests (reads and writes).  A value of 100 percent
+indicates possible device saturation.";
+
+string	action_expand
+	default	= %vaveq[%i]@%h
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h disk: %i aveq: %v"
+	display	= no
+	modify	= no;
+
+#
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
