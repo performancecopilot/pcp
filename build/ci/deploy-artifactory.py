@@ -48,9 +48,7 @@ class ArtifactoryApi:
         retries = requests.packages.urllib3.util.retry.Retry(
             total=3, backoff_factor=10, status_forcelist=[429, 500, 502, 503, 504]
         )
-        self.session.mount(
-            self.endpoint, TimeoutHTTPAdapter(timeout=timeout, max_retries=retries)
-        )
+        self.session.mount(self.endpoint, TimeoutHTTPAdapter(timeout=timeout, max_retries=retries))
 
     @staticmethod
     def get_checksums(path: str):
@@ -84,9 +82,7 @@ class ArtifactoryApi:
         }
         params_str = ";".join([f"{k}={v}" for k, v in (params or {}).items()])
 
-        print(
-            f"Uploading {file_name} to {self.endpoint}/{repository}{target_path}/{file_name}"
-        )
+        print(f"Uploading {file_name} to {self.endpoint}/{repository}{target_path}/{file_name}")
         with open(artifact_path, "rb") as f:
             r = self.session.put(
                 f"{self.endpoint}/{repository}{target_path}/{file_name};{params_str}",
@@ -121,9 +117,7 @@ class ArtifactoryApi:
         r.raise_for_status()
         print()
 
-    def upload_build_info(
-        self, version: str, build_name: str, build_number: str, build_artifacts: List
-    ):
+    def upload_build_info(self, version: str, build_name: str, build_number: str, build_artifacts: List):
         print(f"Uploading build information of build {build_name} #{build_number}")
         r = self.session.put(
             f"{self.endpoint}/api/build",
@@ -132,9 +126,7 @@ class ArtifactoryApi:
                 "name": build_name,
                 "version": version,
                 "number": build_number,
-                "started": datetime.datetime.utcnow().strftime(
-                    "%Y-%m-%dT%H:%M:%S.000+00:00"
-                ),
+                "started": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.000+00:00"),
                 "modules": [{"id": "pcp", "artifacts": build_artifacts}],
             },
         )
@@ -145,14 +137,10 @@ class ArtifactoryApi:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--endpoint", default="https://performancecopilot.jfrog.io/artifactory"
-    )
+    parser.add_argument("--endpoint", default="https://performancecopilot.jfrog.io/artifactory")
     parser.add_argument("--user", default=os.environ.get("ARTIFACTORY_USER"))
     parser.add_argument("--token", default=os.environ.get("ARTIFACTORY_TOKEN"))
-    parser.add_argument(
-        "--gpg_passphrase", default=os.environ.get("ARTIFACTORY_GPG_PASSPHRASE")
-    )
+    parser.add_argument("--gpg_passphrase", default=os.environ.get("ARTIFACTORY_GPG_PASSPHRASE"))
 
     parser.add_argument("--maturity", default="snapshot")
     parser.add_argument("--version", required=True)
@@ -168,9 +156,7 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    artifactory = ArtifactoryApi(
-        args.endpoint, args.user, args.token, args.gpg_passphrase
-    )
+    artifactory = ArtifactoryApi(args.endpoint, args.user, args.token, args.gpg_passphrase)
 
     if args.source:
         artifactory.deploy(f"pcp-source-{args.maturity}", args.source)
@@ -178,22 +164,16 @@ def main():
     updated_repositories = set()
     for artifact_dir in args.artifact_dir:
         # ex. build-fedora31-container
-        artifact_type, platform_name, _runner = os.path.basename(artifact_dir).split(
-            "-"
-        )
+        artifact_type, platform_name = os.path.basename(artifact_dir).split("-", 1)
         if artifact_type != "build":
             continue
 
-        platform_def_path = os.path.join(
-            os.path.dirname(__file__), f"platforms/{platform_name}.yml"
-        )
-        with open(platform_def_path) as f:
+        platform_def_path = os.path.join(os.path.dirname(__file__), f"platforms/{platform_name}.yml")
+        with open(platform_def_path, encoding="utf-8") as f:
             platform = yaml.safe_load(f)
 
         if "artifactory" not in platform:
-            print(
-                f"Skipping {platform_name}: artifactory is not configured in {platform_name}.yml"
-            )
+            print(f"Skipping {platform_name}: artifactory is not configured in {platform_name}.yml")
             continue
 
         artifactory_params = platform["artifactory"]
@@ -222,9 +202,7 @@ def main():
             )
             build_artifacts.append(build_artifact)
 
-        artifactory.upload_build_info(
-            args.version, build_name, args.build_number, build_artifacts
-        )
+        artifactory.upload_build_info(args.version, build_name, args.build_number, build_artifacts)
         updated_repositories.add(repository_key)
 
     # schedule recalculation and GPG signing of repository metadata

@@ -1,3 +1,5 @@
+type: container
+
 artifactory:
   package_type: deb
   deploy_path: /ubuntu/16.04/amd64/pcp
@@ -22,21 +24,17 @@ container:
     CMD ["/sbin/init"]
 
 tasks:
-  update: |
+  setup: |
     sudo apt-get -y update
-    sudo apt-get -y dist-upgrade
-  install_build_dependencies: |
-    sudo apt-get -y update
-    pkgs=$(./pcp/qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
+    pkgs=$(qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
     sudo DEBIAN_FRONTEND=noninteractive apt-get install -y $pkgs
   build: |
-    cd ./pcp
     ./Makepkgs --nonrpm --verbose
-    dpkg -I ./build/deb/pcp_*.deb | grep Depends | grep -q libuv1
+    dpkg -I build/deb/pcp_*.deb | grep Depends | grep -q libuv1
   copy_build_artifacts: |
-    cp ./pcp/build/deb/*.deb artifacts/build
+    cp build/deb/*.deb ../artifacts/build
   install: |
-    sudo dpkg -i ./pcp/build/deb/*.deb
+    sudo dpkg -i build/deb/*.deb
     echo 'pcpqa ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/pcpqa
 
     # "invoke-rc.d pmcd start" (inside pcp.postinst.tail hook) doesn't start pmcd on ubuntu 16.04 (works fine on ubuntu 18.04)
@@ -46,20 +44,14 @@ tasks:
     sudo -i -u pcpqa ./check 002
   qa_sanity: |
     set -o pipefail
-    if [ "$runner" = "container" ]; then
-      sudo -i -u pcpqa ./check -TT -g sanity -x not_in_ci -x not_in_container |& tee ./artifacts/test/test.log
-    else
-      sudo -i -u pcpqa ./check -TT -g sanity -x not_in_ci |& tee ./artifacts/test/test.log
-    fi
+    sudo -i -u pcpqa ./check -TT -g sanity -x not_in_ci -x not_in_container |& tee ../artifacts/test/test.log
   qa: |
     set -o pipefail
-    DEFAULT_PCP_QA_ARGS="-x x11 -x remote -x not_in_ci"
-    if [ "$runner" = "container" ]; then
-      DEFAULT_PCP_QA_ARGS="${DEFAULT_PCP_QA_ARGS} -x not_in_container"
-    fi
-    sudo -i -u pcpqa ./check -TT ${PCP_QA_ARGS:-${DEFAULT_PCP_QA_ARGS}} |& tee ./artifacts/test/test.log
+    DEFAULT_PCP_QA_ARGS="-x x11 -x remote -x not_in_ci -x not_in_container"
+    sudo -i -u pcpqa ./check -TT ${PCP_QA_ARGS:-${DEFAULT_PCP_QA_ARGS}} |& tee ../artifacts/test/test.log
   copy_test_artifacts: |
-    cp /var/lib/pcp/testsuite/check.timings ./artifacts/test
-    [ $(awk 'END{print NF}' ./artifacts/test/check.timings) = 2 ] && date '+%s' >> ./artifacts/test/check.timings
+    cp /var/lib/pcp/testsuite/check.timings ../artifacts/test
+    # add current timestamp if the last QA test got stuck
+    [ $(awk 'END{print NF}' ../artifacts/test/check.timings) = 2 ] && date '+%s' >> ../artifacts/test/check.timings
     shopt -s nullglob
-    for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ./artifacts/test || true; done
+    for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ../artifacts/test || true; done
