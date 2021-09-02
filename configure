@@ -4215,6 +4215,12 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
 fi
 fi
+if ! echo "$CFLAGS" | grep -- -Wshadow >/dev/null
+then
+    if test "x$cc_is_gcc" = xyes ; then :
+  PCFLAGS="$PCFLAGS -Wshadow"
+fi
+fi
 
 
 
