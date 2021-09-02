@@ -7,13 +7,13 @@ rule	per_cpu.many_util
 	enumerate = hosts
 	predicate =
 "some_host (
+    hinv.ncpu $hosts$ > $min_cpu_count$ &&
     $pct$ %_inst (
 	100 * ( kernel.percpu.cpu.user $hosts$ +
 		kernel.percpu.cpu.sys $hosts$ +
 		kernel.percpu.cpu.intr $hosts$ )
 	    > $threshold$
     )
-    && hinv.ncpu $hosts$ > $min_cpu_count$
 )"
 	enabled	= yes
 	version	= 1
@@ -44,7 +44,7 @@ than threshold percent, in the range 0 (no processors utilized)
 to 100 (all processors).";
 
 unsigned	min_cpu_count
-	default	= 4
+	default	= 12
 	help	=
 "Lower limit on number of processors for this rule - this rule will
 apply to configurations of greater than min_cpu_count CPUs.
@@ -52,7 +52,7 @@ For smaller processor counts, the per_cpu.some_util rule may be more
 appropriate.";
 
 string	action_expand
-	default	= "\\\\>$pct$%cpus@%h"
+	default	= ">$pct$%CPUs@%h"
 	display	= no
 	modify	= no;
 
