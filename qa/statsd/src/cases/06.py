@@ -52,7 +52,7 @@ testconfigs = [basis_parser_config, ragel_parser_config]
 def run_test():
     for testconfig in testconfigs:
         utils.print_test_section_separator()
-        utils.pmdastatsd_install(basis_parser_config)
+        utils.pmdastatsd_install(testconfig)
         for payload in payloads:
             sock.sendto("test_gauge:{}|g".format(payload).encode("utf-8"), (ip, port))
         utils.print_metric("statsd.pmda.dropped")

@@ -566,7 +566,7 @@ class pmMetricSpec(Structure):
     def __str__(self):
         insts = list(map(lambda x: str(self.inst[x]), range(self.ninst)))
         fields = (addressof(self), self.isarch, self.source, insts)
-        return "pmMetricSpec@%#lx src=%s metric=%s insts=" % fields
+        return "pmMetricSpec@%#lx src=%s metric=%s insts=%s" % fields
 
     @classmethod
     def fromString(cls, string, isarch=0, source=''):
@@ -2343,16 +2343,6 @@ class pmContext(object):
                                        byref(outAtom), outtype)
         if status < 0:
             raise pmErr(status)
-
-        if outtype == c_api.PM_TYPE_STRING:
-            # Get pointer to C string
-            c_str = c_char_p()
-            ctypes.memmove(byref(c_str), addressof(outAtom) + pmAtomValue.cp.offset,
-                           sizeof(c_char_p))
-            # Convert to a python string and have result point to it
-            outAtom.cp = outAtom.cp
-            # Free the C string
-            LIBC.free(c_str)
         return outAtom
 
     @staticmethod
