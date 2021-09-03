@@ -1855,10 +1855,10 @@ main(int argc, char **argv)
 	    }
 	    else if (stsmeta == TYPE_INDOM) {
 		__pmTimestamp	stamp;
-		__pmLogLoadTimestamp((__int32_t *)&inarch.metarec[2], &stamp);
+		__pmLoadTimestamp((__int32_t *)&inarch.metarec[2], &stamp);
 		if (fixstamp(&stamp)) {
 		    /* global time adjustment specified */
-		    __pmLogPutTimestamp(&stamp, (__int32_t *)&inarch.metarec[2]);
+		    __pmPutTimestamp(&stamp, (__int32_t *)&inarch.metarec[2]);
 		}
 		/* if time of indom > next pmResult stop processing metadata */
 		if (stamp.sec > inarch.rp->timestamp.tv_sec)
@@ -1871,10 +1871,10 @@ main(int argc, char **argv)
 	    }
 	    else if (stsmeta == TYPE_INDOM_V2) {
 		__pmTimestamp	stamp;
-		__pmLogLoadTimeval((__int32_t *)&inarch.metarec[2], &stamp);
+		__pmLoadTimeval((__int32_t *)&inarch.metarec[2], &stamp);
 		if (fixstamp(&stamp)) {
 		    /* global time adjustment specified */
-		    __pmLogPutTimeval(&stamp, (__int32_t *)&inarch.metarec[2]);
+		    __pmPutTimeval(&stamp, (__int32_t *)&inarch.metarec[2]);
 		}
 		/* if time of indom > next pmResult stop processing metadata */
 		if (stamp.sec > inarch.rp->timestamp.tv_sec)
@@ -1887,10 +1887,10 @@ main(int argc, char **argv)
 	    }
 	    else if (stsmeta == TYPE_LABEL) {
 		__pmTimestamp	stamp;
-		__pmLogLoadTimestamp((__int32_t *)&inarch.metarec[2], &stamp);
+		__pmLoadTimestamp((__int32_t *)&inarch.metarec[2], &stamp);
 		if (fixstamp(&stamp)) {
 		    /* global time adjustment specified */
-		    __pmLogPutTimestamp(&stamp, (__int32_t *)&inarch.metarec[2]);
+		    __pmPutTimestamp(&stamp, (__int32_t *)&inarch.metarec[2]);
 		}
 		/* if time of label set  > next pmResult stop processing metadata */
 		if (stamp.sec > inarch.rp->timestamp.tv_sec)
@@ -1903,10 +1903,10 @@ main(int argc, char **argv)
 	    }
 	    else if (stsmeta == TYPE_LABEL_V2) {
 		__pmTimestamp	stamp;
-		__pmLogLoadTimeval((__int32_t *)&inarch.metarec[2], &stamp);
+		__pmLoadTimeval((__int32_t *)&inarch.metarec[2], &stamp);
 		if (fixstamp(&stamp)) {
 		    /* global time adjustment specified */
-		    __pmLogPutTimeval(&stamp, (__int32_t *)&inarch.metarec[2]);
+		    __pmPutTimeval(&stamp, (__int32_t *)&inarch.metarec[2]);
 		}
 		/* if time of label set  > next pmResult stop processing metadata */
 		if (stamp.sec > inarch.rp->timestamp.tv_sec)

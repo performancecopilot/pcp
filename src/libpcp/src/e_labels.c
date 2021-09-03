@@ -106,7 +106,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":12", PM_FAULT_ALLOC);
 	/* swab all output fields */
 	v3->len = htonl(len);
 	v3->type = htonl(TYPE_LABEL);
-	__pmLogPutTimestamp(tsp, &v3->sec[0]);
+	__pmPutTimestamp(tsp, &v3->sec[0]);
 	v3->labeltype = htonl(type);
 	v3->ident = htonl(ident);
 	v3->nsets = htonl(nsets);
@@ -122,7 +122,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":12", PM_FAULT_ALLOC);
 	/* swab all output fields */
 	v2->len = htonl(len);
 	v2->type = htonl(TYPE_LABEL_V2);
-	__pmLogPutTimeval(tsp, &v2->sec);
+	__pmPutTimeval(tsp, &v2->sec);
 	v2->labeltype = htonl(type);
 	v2->ident = htonl(ident);
 	v2->nsets = htonl(nsets);

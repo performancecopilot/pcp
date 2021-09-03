@@ -94,7 +94,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
 	/* swab all output fields */
 	v3->len = htonl(len);
 	v3->type = htonl(TYPE_INDOM);
-	__pmLogPutTimestamp(tsp, &v3->sec[0]);
+	__pmPutTimestamp(tsp, &v3->sec[0]);
 	v3->indom = __htonpmInDom(indom);
 	v3->numinst = htonl(numinst);
 	out = (void *)v3;
@@ -109,7 +109,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
 	/* swab all output fields */
 	v2->len = htonl(len);
 	v2->type = htonl(TYPE_INDOM_V2);
-	__pmLogPutTimeval(tsp, &v2->sec);
+	__pmPutTimeval(tsp, &v2->sec);
 	v2->indom = __htonpmInDom(indom);
 	v2->numinst = htonl(numinst);
 	out = (void *)v2;
@@ -197,7 +197,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	__pmInDom_v3	*v3;
 	__pmTimestamp	stamp;
 	v3 = (__pmInDom_v3 *)&lbuf[-2];	/* len+type not in buf */
-	__pmLogLoadTimestamp(&v3->sec[0], &stamp);
+	__pmLoadTimestamp(&v3->sec[0], &stamp);
 	*tsp = stamp;	/* struct assignment */
 	k = (sizeof(v3->sec)+sizeof(v3->nsec))/sizeof(__int32_t);
 	inp->indom = __ntohpmInDom(v3->indom);
@@ -209,7 +209,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
     else if (type == TYPE_INDOM_V2) {
 	__pmInDom_v2	*v2;
 	v2 = (__pmInDom_v2 *)&lbuf[-2];	/* len+type not in lbuf */
-	__pmLogLoadTimeval(&v2->sec, tsp);
+	__pmLoadTimeval(&v2->sec, tsp);
 	k = (sizeof(v2->sec)+sizeof(v2->usec))/sizeof(__int32_t);
 	inp->indom = __ntohpmInDom(v2->indom);
 	k++;
