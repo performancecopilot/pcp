@@ -538,28 +538,22 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		break;
 	    }
 	    if (pmDebugOptions.appl0) {
-		struct timeval	foo;
-		fprintf(stderr, "+ PDU_LOG_STATUS: start=%d.%06d ",
-		    lsp->ls_start.tv_sec, lsp->ls_start.tv_usec);
-		foo.tv_sec = lsp->ls_start.tv_sec;
-		foo.tv_usec = lsp->ls_start.tv_usec;
-		pmPrintStamp(stderr, &foo);
-		fprintf(stderr, "\nlast=%d.%06d ",
-		    lsp->ls_last.tv_sec, lsp->ls_last.tv_usec);
-		foo.tv_sec = lsp->ls_last.tv_sec;
-		foo.tv_usec = lsp->ls_last.tv_usec;
-		pmPrintStamp(stderr, &foo);
-		fprintf(stderr, " now=%d.%06d ",
-		    lsp->ls_timenow.tv_sec, lsp->ls_timenow.tv_usec);
-		foo.tv_sec = lsp->ls_timenow.tv_sec;
-		foo.tv_usec = lsp->ls_timenow.tv_usec;
-		pmPrintStamp(stderr, &foo);
-		fprintf(stderr, "\nstate=%d vol=%d size=%" FMT_INT64 " host=%s tz=\"%s\" tzlogger=\"%s\"\n",
-		    lsp->ls_state, lsp->ls_vol, (__int64_t)lsp->ls_size,
-		    lsp->ls_hostname, lsp->ls_tz, lsp->ls_tzlogger);
+		fprintf(stderr, "+ PDU_LOG_STATUS: start=%" FMT_INT64 ".%09d ",
+		    lsp->start.sec, lsp->start.nsec);
+		__pmPrintTimestamp(stderr, &lsp->start);
+		fprintf(stderr, "\nlast=% "FMT_INT64 ".%09d ",
+		    lsp->last.sec, lsp->last.nsec);
+		__pmPrintTimestamp(stderr, &lsp->last);
+		fprintf(stderr, " now=% "FMT_INT64 ".%09d ",
+		    lsp->now.sec, lsp->now.nsec);
+		__pmPrintTimestamp(stderr, &lsp->now);
+		fprintf(stderr, "\nstate=%d vol=%d size=%" FMT_INT64 " pmcd.host=%s pmcd.timezone=\"%s\" pmlogger.timezone=\"%s\"\n",
+		    lsp->state, lsp->vol, lsp->size,
+		    lsp->pmcd.hostname,
+		    lsp->pmcd.timezone, lsp->pmlogger.timezone);
 	    }
 	    e = __pmSendLogStatus(fd, lsp);
-	    __pmUnpinPDUBuf(pb);
+	    __pmFreeLogStatus(lsp, 1);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendLogStatus: %s\n", pmGetProgname(), pmErrStr(e));
 		break;

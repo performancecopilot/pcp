@@ -26,20 +26,6 @@ static char	*srchost;		/* host that logged_ctx is for */
 
 static time_t	tmp;		/* for pmCtime */
 
-/* PCP 1.x pmlogger returns one of these when a status request is made */
-typedef struct {
-    pmTimeval  ls_start;	/* start time for log */
-    pmTimeval  ls_last;	/* last time log written */
-    pmTimeval  ls_timenow;	/* current time */
-    int		ls_state;	/* state of log (from __pmLogCtl) */
-    int		ls_vol;		/* current volume number of log */
-    __int64_t	ls_size;	/* size of current volume */
-    char	ls_hostname[PM_LOG_MAXHOSTLEN];
-				/* name of pmcd host */
-    char	ls_tz[40];      /* $TZ at collection host */
-    char	ls_tzlogger[40]; /* $TZ at pmlogger */
-} __pmLoggerStatus_v1;
-
 static int
 IsLocal(const char *hostspec)
 {
@@ -92,14 +78,13 @@ ConnectPMCD(void)
 	    goto done;
 	}
 	sts = __pmDecodeLogStatus(pb, &lsp);
-	__pmUnpinPDUBuf(pb);
 	if (sts < 0) {
 	    fprintf(stderr, "Error decoding response from pmlogger: ");
 	    if (still_connected(sts))
 		fprintf(stderr, "%s\n", pmErrStr(sts));
 	    goto done;
 	} 
-	if (IsLocal(lsp->ls_fqdn)) {
+	if (IsLocal(lsp->pmcd.fqdn)) {
 	    /*
 	     * if pmcd host is "localhost"-alike then use hostname that
 	     * was used to contact pmlogger, as from here (where pmlc is
@@ -108,13 +93,16 @@ ConnectPMCD(void)
 	     */
 	    srchost = strdup(lasthost);
 	    if (srchost == NULL)
-		pmNoMem("Error copying host name", strlen(lasthost), PM_FATAL_ERR);
+		pmNoMem("Error copying islocal host name", strlen(lasthost), PM_FATAL_ERR);
+		/* NOTREACHED */
 	}
 	else {
-	    srchost = strdup(lsp->ls_fqdn);
+	    srchost = strdup(lsp->pmcd.fqdn);
 	    if (srchost == NULL)
-		pmNoMem("Error copying host name", strlen(lsp->ls_fqdn), PM_FATAL_ERR);
+		pmNoMem("Error copying host name", strlen(lsp->pmcd.fqdn), PM_FATAL_ERR);
+		/* NOTREACHED */
 	}
+	__pmFreeLogStatus(lsp, 1);
     }
 
     if ((sts = pmNewContext(PM_CONTEXT_HOST, srchost)) < 0) {
@@ -161,6 +149,7 @@ ConnectLogger(char *hostname, int *pid, int *port)
 	logger_fd = sts;
 	if ((lasthost = strdup(hostname)) == NULL) {
 	    pmNoMem("Error copying host name", strlen(hostname), PM_FATAL_ERR);
+	    /* NOTREACHED */
 	}
 	return 0;
     }
@@ -564,9 +553,9 @@ void Status(int pid, int primary)
     static char		localzone[] = "local"; 
     static char		*zonename = localzone;
     char		*tzlogger;
-    pmTimeval		*start;
-    pmTimeval		*last;
-    pmTimeval		*timenow;
+    __pmTimestamp	*start;
+    __pmTimestamp	*last;
+    __pmTimestamp	*timenow;
     char		*hostname;
     int			state;
     int			vol;
@@ -613,21 +602,26 @@ void Status(int pid, int primary)
 	    return;
 	}
 	sts = __pmDecodeLogStatus(pb, &lsp);
-	__pmUnpinPDUBuf(pb);
 	if (sts < 0) {
 	    fprintf(stderr, "Error decoding response from pmlogger: ");
 	    if (still_connected(sts))
 		fprintf(stderr, "%s\n", pmErrStr(sts));
 	    return;
 	}
-	tzlogger = lsp->ls_tzlogger;
-	start = &lsp->ls_start;
-	last = &lsp->ls_last;
-	timenow = &lsp->ls_timenow;
-	hostname = lsp->ls_hostname;
-	state = lsp->ls_state;
-	vol = lsp->ls_vol;
-	size = lsp->ls_size;
+	if ((tzlogger = strdup(lsp->pmlogger.timezone)) == NULL) {
+	    pmNoMem("Error logger TZ", strlen(lsp->pmlogger.timezone), PM_FATAL_ERR);
+	    /* NOTREACHED */
+	}
+	start = &lsp->start;
+	last = &lsp->last;
+	timenow = &lsp->now;
+	if ((hostname = strdup(lsp->pmcd.hostname)) == NULL) {
+	    pmNoMem("Error hostname", strlen(lsp->pmcd.hostname), PM_FATAL_ERR);
+	    /* NOTREACHED */
+	}
+	state = lsp->state;
+	vol = lsp->vol;
+	size = lsp->size;
     }
     else {
 	fprintf(stderr, "Error: logger IPC version < LOG_PDU_VERSION2, not supported\n");
@@ -661,13 +655,13 @@ void Status(int pid, int primary)
 		break;
 	}
     }
-    tmp = start->tv_sec;
+    tmp = start->sec;
     pmCtime(&tmp, startbuf);
     startbuf[strlen(startbuf)-1] = '\0'; /* zap the '\n' at the end */
-    tmp = last->tv_sec;
+    tmp = last->sec;
     pmCtime(&tmp, lastbuf);
     lastbuf[strlen(lastbuf)-1] = '\0';
-    tmp = timenow->tv_sec;
+    tmp = timenow->sec;
     pmCtime(&tmp, timenowbuf);
     timenowbuf[strlen(timenowbuf)-1] = '\0';
     printf("pmlogger ");
@@ -681,7 +675,7 @@ void Status(int pid, int primary)
        pmlogger host or that of its target.  */
     if (__pmVersionIPC(logger_fd) >= LOG_PDU_VERSION2)
 	printf("PMCD host        %s\n",
-		IsLocal(lsp->ls_fqdn) ? hostname : lsp->ls_fqdn);
+		IsLocal(lsp->pmcd.fqdn) ? hostname : lsp->pmcd.fqdn);
     if (state == PM_LOG_STATE_NEW) {
 	puts("logging hasn't started yet");
 	goto done;
@@ -692,6 +686,8 @@ void Status(int pid, int primary)
 	   "log volume       %d\n"
 	   "log size         %" PRIi64 "\n",
 	   startbuf, zonename, lastbuf, timenowbuf, vol, size);
+
+    __pmFreeLogStatus(lsp, 1);
 
 done:
     return;

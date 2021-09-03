@@ -1063,6 +1063,8 @@ decode_log_status(const char *name)
     memset(log_sts, 0, sizeof(*log_sts));
     sts = __pmDecodeLogStatus((__pmPDU *)log_sts, &log);
     fprintf(stderr, "  __pmDecodeLogStatus: sts = %d (%s)\n", sts, pmErrStr(sts));
+    if (sts == 0)
+	__pmFreeLogStatus(log, 1);
 
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
     memset(log_sts, 0, sizeof(*log_sts));
@@ -1070,6 +1072,8 @@ decode_log_status(const char *name)
     log_sts->hdr.type = PDU_LOG_STATUS;
     sts = __pmDecodeLogStatus((__pmPDU *)log_sts, &log);
     fprintf(stderr, "  __pmDecodeLogStatus: sts = %d (%s)\n", sts, pmErrStr(sts));
+    if (sts == 0)
+	__pmFreeLogStatus(log, 1);
 
     free(log_sts);
 }

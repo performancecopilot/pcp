@@ -412,18 +412,21 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 		__pmUnpinPDUBuf(pb);
 
 	    if (sts >= 0) {
-		if (sts == LOG_PDU_VERSION2) {
+		if (sts == LOG_PDU_VERSION2 || LOG_PDU_VERSION3) {
 		    __pmCred	handshake[1];
 
 		    __pmSetVersionIPC(fd, sts);
 		    handshake[0].c_type = CVERSION;
-		    handshake[0].c_vala = LOG_PDU_VERSION;
+		    handshake[0].c_vala = sts;
 		    handshake[0].c_valb = 0;
 		    handshake[0].c_valc = 0;
 		    sts = __pmSendCreds(fd, (int)getpid(), 1, handshake);
 		}
-		else
+		else {
+		    if (pmDebugOptions.context)
+			fprintf(stderr, "__pmConnectLogger: unexpected PDU version=%d\n", sts);
 		    sts = PM_ERR_IPC;
+		}
 		if (sts >= 0) {
 		    if (pmDebugOptions.context)
 			fprintf(stderr, "__pmConnectLogger: PDU version=%d fd=%d\n",
