@@ -1926,6 +1926,8 @@ x11
 1805 pmda.linux kernel local
 1813 python labels local
 1814 pmda.linux local
+1815 pmieconf pmie local
+1816 pmieconf pmie local valgrind
 1820 atop local
 1821 pmlogpaste local
 1824 pmproxy local
