@@ -10,7 +10,7 @@ on:
 
 jobs:
   qa:
-    name: ${{ matrix.platform }} [${{ matrix.runner }}]
+    name: ${{ matrix.platform }}
     if: github.repository == 'performancecopilot/pcp' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.experimental }}
@@ -18,31 +18,30 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {platform: ubuntu1604,     runner: container, os: ubuntu-20.04, experimental: false}
-          - {platform: ubuntu1804,     runner: container, os: ubuntu-20.04, experimental: false}
-          - {platform: ubuntu1804i386, runner: container, os: ubuntu-20.04, experimental: false}
-          - {platform: ubuntu2004,     runner: container, os: ubuntu-20.04, experimental: false}
-          - {platform: ubuntu2004,     runner: direct,    os: ubuntu-20.04, experimental: false}
-          - {platform: debian10,       runner: container, os: ubuntu-20.04, experimental: false}
-          - {platform: debian11,       runner: container, os: ubuntu-20.04, experimental: false}
-          - {platform: fedora33,       runner: container, os: ubuntu-20.04, experimental: false}
-          - {platform: fedora34,       runner: container, os: ubuntu-20.04, experimental: false}
-          - {platform: fedora35,       runner: container, os: ubuntu-20.04, experimental: true}
-          - {platform: fedora_rawhide, runner: container, os: ubuntu-20.04, experimental: true}
-          - {platform: centos6,        runner: container, os: ubuntu-20.04, experimental: false}
-          - {platform: centos7,        runner: container, os: ubuntu-20.04, experimental: false}
-          - {platform: centos8,        runner: container, os: ubuntu-20.04, experimental: false}
+          - {platform: debian10-container,        os: ubuntu-20.04, experimental: false}
+          - {platform: debian11-container,        os: ubuntu-20.04, experimental: false}
+          - {platform: ubuntu1604-container,      os: ubuntu-20.04, experimental: false}
+          - {platform: ubuntu1804-container,      os: ubuntu-20.04, experimental: false}
+          - {platform: ubuntu1804-i386-container, os: ubuntu-20.04, experimental: false}
+          - {platform: ubuntu2004-container,      os: ubuntu-20.04, experimental: false}
+          - {platform: ubuntu2004-btf,            os: ubuntu-20.04, experimental: false}
+          - {platform: fedora33-container,        os: ubuntu-20.04, experimental: false}
+          - {platform: fedora34-container,        os: ubuntu-20.04, experimental: false}
+          - {platform: fedora35-container,        os: ubuntu-20.04, experimental: true }
+          - {platform: fedora-rawhide-container,  os: ubuntu-20.04, experimental: true }
+          - {platform: centos6-container,         os: ubuntu-20.04, experimental: false}
+          - {platform: centos7-container,         os: ubuntu-20.04, experimental: false}
+          - {platform: centos8-container,         os: ubuntu-20.04, experimental: false}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
 
       - name: Fix local hostname DNS lookup
-        if: matrix.runner == 'direct'
         run: echo 127.0.1.1 $(hostname --fqdn) $(hostname) | sudo tee -a /etc/hosts
 
       - name: Update version information
         run: |
-          . ./VERSION.pcp
+          . VERSION.pcp
           PACKAGE_BUILD="0.$(date +'%Y%m%d').$(git rev-parse --short HEAD)"
           PCP_VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
           PCP_BUILD_VERSION=${PCP_VERSION}-${PACKAGE_BUILD}
@@ -53,58 +52,44 @@ jobs:
         run: |
           python3 -c 'import yaml' || pip3 install pyyaml
           mkdir -p artifacts/build artifacts/test
-          touch artifacts/test/.keep
 
-          for i in $(seq 1 10)
-          do
-            if [ $i -gt 1 ]; then
-              echo && echo "Probably network error, wait 5 min and try again ($i/10)..."
-              sleep 300
-              sudo podman system prune -a -f
-            fi
-
-            ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} setup && exit 0 || true
-          done
-          exit 1
-
-      - name: Install build dependencies
-        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task install_build_dependencies
+          build/ci/ci-run.py ${{ matrix.platform }} setup
 
       - name: Build
-        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task build
+        run: build/ci/ci-run.py ${{ matrix.platform }} task build
 
       - name: Copy build artifacts
-        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} artifacts build --path ./artifacts/build
+        run: build/ci/ci-run.py ${{ matrix.platform }} artifacts build --path artifacts/build
 
       - name: Publish build artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: build-${{ matrix.platform }}-${{ matrix.runner }}
-          path: ./artifacts/build
+          name: build-${{ matrix.platform }}
+          path: artifacts/build
 
       - name: Install
-        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task install
+        run: build/ci/ci-run.py ${{ matrix.platform }} task install
 
       - name: Initialize QA
         id: init_qa
-        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task init_qa
+        run: build/ci/ci-run.py ${{ matrix.platform }} task init_qa
 
       - name: QA
-        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} task qa || true
+        run: build/ci/ci-run.py ${{ matrix.platform }} task qa || true
         env:
           PCP_QA_ARGS: ${{ github.event.inputs.pcp_qa_args }}
 
       - name: Copy test results
         # always() is required here to run this step even if the QA step fails
         if: always() && steps.init_qa.outcome == 'success'
-        run: ./build/ci/run.py --runner ${{ matrix.runner }} --platform ${{ matrix.platform }} artifacts test --path ./artifacts/test
+        run: build/ci/ci-run.py ${{ matrix.platform }} artifacts test --path artifacts/test
 
       - name: Publish test results
         if: always() && steps.init_qa.outcome == 'success'
         uses: actions/upload-artifact@v2
         with:
-          name: test-${{ matrix.platform }}-${{ matrix.runner }}
-          path: ./artifacts/test
+          name: test-${{ matrix.platform }}
+          path: artifacts/test
 
   report:
     name: Generate Test Report
@@ -128,20 +113,20 @@ jobs:
 
       - name: Generate test report
         run: |
-          ./build/ci/test-report.py \
+          build/ci/test-report.py \
             --commit ${GITHUB_SHA} \
-            --allure-results ./allure-results \
+            --allure-results allure-results \
             --summary
-          cp ./build/ci/allure/categories.json ./allure-results
+          cp build/ci/allure/categories.json allure-results
           /opt/allure-*/bin/allure generate
-          cp ./build/ci/allure/README.md ./allure-report
-          cp ./build/ci/allure/open_report.sh ./allure-report
+          cp build/ci/allure/README.md allure-report
+          cp build/ci/allure/open_report.sh allure-report
 
       - name: Publish test report
         uses: actions/upload-artifact@v2
         with:
           name: qareport
-          path: ./allure-report
+          path: allure-report
 
       - name: Checkout qa-reports
         if: github.repository == 'performancecopilot/pcp'
@@ -170,7 +155,7 @@ jobs:
       - name: Send test report to Slack
         if: github.repository == 'performancecopilot/pcp'
         run: |
-          ./build/ci/test-report.py \
+          build/ci/test-report.py \
             --commit ${GITHUB_SHA} \
             --slack-channel ${SLACK_CHANNEL} \
             --github-run-url "https://github.com/${{ github.repository_owner }}/pcp/actions/runs/${{ github.run_id }}" \
