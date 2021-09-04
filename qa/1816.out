@@ -1,8 +1,6 @@
 QA output created by 1816
 QA output created by 1815 --valgrind
-
 === std out ===
-
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pmie -l LOG -c CONF -a ARCHIVE

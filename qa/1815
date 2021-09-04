@@ -47,7 +47,7 @@ _filter()
 }
 
 # real QA test starts here
-archive="$here/archives/pcp-zeroconf"	# any old archive really
+archive="archives/pcp-zeroconf"	# any old archive really
 
 # generate default set of pmie rules
 pmieconf -F -f $tmp.conf
@@ -60,7 +60,7 @@ else
     pmie -l $tmp.log -c $tmp.conf -a $archive
     status=$?
 fi \
-| _filter_pmie_log
+| _filter
 
 echo "== pmie config ==" >> $here/$seq.full
 cat $tmp.conf >> $here/$seq.full
