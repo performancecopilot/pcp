@@ -857,7 +857,7 @@ setup_globals(pmOptions *opts)
 		system_boottime = result->timestamp.tv_sec - interval.tv_sec;
 
 	extract_string(result, descs, HOST_RELEASE, sysname.release, sizeof sysname.release);
-	sscanf(sysname.release, "%d.%d.%d", &osrel, &osvers, &ossub);
+	sscanf(sysname.release, "%d.%d.%d", &os_rel, &os_vers, &os_sub);
 	extract_string(result, descs, HOST_VERSION, sysname.version, sizeof sysname.version);
 	extract_string(result, descs, HOST_MACHINE, sysname.machine, sizeof sysname.machine);
 	extract_string(result, descs, HOST_NODENAME, sysname.nodename, sizeof sysname.nodename);

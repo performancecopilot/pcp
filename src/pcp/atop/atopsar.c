@@ -99,25 +99,23 @@ static time_t	daylimit(time_t);
 static char *
 saroptions(void)
 {
-	char		*flaglist;
+	char		*flags;
 	int		i;
 
 	/* 
 	** gather all flags for the print-functions
 	*/
-	flaglist = malloc(pricnt+32);
+	flags = calloc(1, pricnt+32);
 
-	ptrverify(flaglist, "Malloc failed for %d flags\n", pricnt+32);
+	ptrverify(flags, "Malloc failed for %d flags\n", pricnt+32);
 
 	for (i=0; i < pricnt; i++)
-		flaglist[i] = pridef[i].flag;
-
-	flaglist[i] = 0;
+		flags[i] = pridef[i].flag;
 
 	/*
 	** add generic flags
 	*/
-	return strncat(flaglist, sarflags, pricnt+32);
+	return strncat(flags, sarflags, pricnt+32 - 1);
 }
 
 int
@@ -353,7 +351,7 @@ atopsar(int argc, char *argv[])
 ** report function to print a new sample in case of live measurements
 */
 static char
-reportlive(double curtime, double numsecs,
+reportlive(double timenow, double numsecs,
          	struct devtstat *devtstat, struct sstat *ss,
 		int nexit, unsigned int noverflow, int flags)
 {
@@ -386,7 +384,7 @@ reportlive(double curtime, double numsecs,
 		if (sampcnt == 0)
 			return '\0';
 
-		printf(datemsg, convdate(curtime, datebuf, sizeof(datebuf)-1));
+		printf(datemsg, convdate(timenow, datebuf, sizeof(datebuf)-1));
 
 		for (i=0; i < pricnt && nr > 0; i++)
 		{
@@ -403,9 +401,9 @@ reportlive(double curtime, double numsecs,
 			if (usecolors)
 				printf(COLSETHEAD);
 
-			printf("%s  ", convtime(curtime-numsecs, timebuf, sizeof(timebuf)-1));
+			printf("%s  ", convtime(timenow-numsecs, timebuf, sizeof(timebuf)-1));
 	
-			(pridef[i].prihead)(osvers, osrel, ossub);
+			(pridef[i].prihead)(os_vers, os_rel, os_sub);
 	
 			if (usecolors)
 				printf(COLRESET);
@@ -415,11 +413,11 @@ reportlive(double curtime, double numsecs,
 			/*
 			** print line with statistical counters
 			*/
-			printf("%s  ", convtime(curtime, timebuf, sizeof(timebuf)-1));
+			printf("%s  ", convtime(timenow, timebuf, sizeof(timebuf)-1));
 	
 			if ( !(pridef[i].priline)(ss, (struct tstat *)0, 0, 0,
 				numsecs, numsecs*hertz, hertz,
-				osvers, osrel, ossub,
+				os_vers, os_rel, os_sub,
 				stampalways ? timebuf : "        ",
 	                        0, 0, 0, 0, 0, 0) )
 			{
@@ -448,10 +446,10 @@ reportlive(double curtime, double numsecs,
 		/*
 		** verify if we have passed midnight of some day
 		*/
-		if (curtime > daylim)
+		if (timenow > daylim)
 		{
-			printf(datemsg, convdate(curtime, datebuf, sizeof(datebuf)-1));
-			daylim = daylimit(curtime);
+			printf(datemsg, convdate(timenow, datebuf, sizeof(datebuf)-1));
+			daylim = daylimit(timenow);
 			curline++;
 		}
 
@@ -468,9 +466,9 @@ reportlive(double curtime, double numsecs,
 			if (usecolors)
 				printf(COLSETHEAD);
 
-			printf("%s  ", convtime(curtime, timebuf, sizeof(timebuf)-1));
+			printf("%s  ", convtime(timenow, timebuf, sizeof(timebuf)-1));
 	
-			(pridef[i].prihead)(osvers, osrel, ossub);
+			(pridef[i].prihead)(os_vers, os_rel, os_sub);
 
 			if (usecolors)
 				printf(COLRESET);
@@ -486,11 +484,11 @@ reportlive(double curtime, double numsecs,
 		/*
 		** print line with statistical counters
 		*/
-		printf("%s  ", convtime(curtime, timebuf, sizeof(timebuf)-1));
+		printf("%s  ", convtime(timenow, timebuf, sizeof(timebuf)-1));
 	
 		if ( !(rv = (pridef[i].priline)(ss, (struct tstat *)0, 0, 0,
 					numsecs, numsecs*hertz, hertz,
-					osvers, osrel, ossub, 
+					os_vers, os_rel, os_sub, 
 		                        stampalways ? timebuf : "        ",
 	                        	0, 0, 0, 0, 0, 0) ) )
 		{
@@ -515,9 +513,9 @@ reportlive(double curtime, double numsecs,
 			if (usecolors)
 				printf(COLSETHEAD);
 
-			printf("%s  ", convtime(curtime, timebuf, sizeof(timebuf)-1));
+			printf("%s  ", convtime(timenow, timebuf, sizeof(timebuf)-1));
 	
-			(pridef[i].prihead)(osvers, osrel, ossub);
+			(pridef[i].prihead)(os_vers, os_rel, os_sub);
 
 			if (usecolors)
 				printf(COLRESET);
@@ -571,7 +569,7 @@ prep()
 ** report function to print a new sample in case of logged measurements
 */
 static char
-reportraw(double curtime, double numsecs,
+reportraw(double timenow, double numsecs,
          	struct devtstat *devtstat, struct sstat *sstat,
 		int nexit, unsigned int noverflow, int flags)
 {
@@ -604,10 +602,10 @@ reportraw(double curtime, double numsecs,
 	/*
 	** verify if we have passed midnight
 	*/
-	if (curtime > daylim)
+	if (timenow > daylim)
 	{
-		printf(datemsg, convdate(curtime, datebuf, sizeof(datebuf)-1));
-		daylim = daylimit(curtime);
+		printf(datemsg, convdate(timenow, datebuf, sizeof(datebuf)-1));
+		daylim = daylimit(timenow);
 		curline++;
 	}
 
@@ -620,7 +618,7 @@ reportraw(double curtime, double numsecs,
 		/*
 		** initialize variables for new report
 		*/
-		pmtimevalFromReal(curtime, &pretime);
+		pmtimevalFromReal(timenow, &pretime);
 
 		curline   = 1;
 		headline  = 0;
@@ -651,7 +649,7 @@ reportraw(double curtime, double numsecs,
 		timed = pmtimevalToReal(&pretime);
 		printf("%s  ", convtime(timed, timebuf, sizeof(timebuf)-1));
 
-		(pridef[prinow].prihead)(osvers, osrel, ossub);
+		(pridef[prinow].prihead)(os_vers, os_rel, os_sub);
 
 		if (usecolors)
 			printf(COLRESET);
@@ -678,7 +676,7 @@ reportraw(double curtime, double numsecs,
 			rv = (pridef[prinow].priline)(&totsyst,
 				(struct tstat *)0, 0, 0,
 				totalsec, totalsec*hertz, hertz,
-			        osvers, osrel, ossub,
+			        os_vers, os_rel, os_sub,
 		                stampalways ? timebuf : "        ",
 				lastnpres, lastntrun, lastntslpi, lastntslpu,
 	                        totalexit, lastnzomb);
@@ -702,12 +700,12 @@ reportraw(double curtime, double numsecs,
 		*/
 		if (flags & RRMARK)
 		{
-			printf("%s  ", convtime(curtime, timebuf, sizeof(timebuf)-1));
+			printf("%s  ", convtime(timenow, timebuf, sizeof(timebuf)-1));
 
 			printf("......................... logging restarted "
 			       ".........................\n");
 		}
-		pmtimevalFromReal(curtime, &pretime);
+		pmtimevalFromReal(timenow, &pretime);
 		curline++;
 
 		/*
@@ -727,12 +725,12 @@ reportraw(double curtime, double numsecs,
 	*/
 	if (summarycnt == 1)
 	{
-		printf("%s  ", convtime(curtime, timebuf, sizeof(timebuf)-1));
+		printf("%s  ", convtime(timenow, timebuf, sizeof(timebuf)-1));
 
 		rv = (pridef[prinow].priline) (sstat, devtstat->taskall,
 				devtstat->procall, devtstat->nprocall,
 				numsecs, numsecs*hertz, hertz,
-				osvers, osrel, ossub,
+				os_vers, os_rel, os_sub,
 	               		stampalways ? timebuf : "        ",
 				devtstat->ntaskall, devtstat->totrun,
 				devtstat->totslpi, devtstat->totslpu,
@@ -771,7 +769,7 @@ reportraw(double curtime, double numsecs,
 		** remember some values in case the next record
 		** contains the log-restart indicator
 		*/
-		lasttime   = curtime;
+		lasttime   = timenow;
 		lastnpres  = devtstat->nprocall;
 		lastntrun  = devtstat->totrun;
 		lastntslpi = devtstat->totslpi;
@@ -786,12 +784,12 @@ reportraw(double curtime, double numsecs,
 			/*
 			** print output line for required report
 			*/
-			printf("%s  ", convtime(curtime, timebuf, sizeof(timebuf)-1));
+			printf("%s  ", convtime(timenow, timebuf, sizeof(timebuf)-1));
 
 			rv = (pridef[prinow].priline) (&totsyst,
 					(struct tstat *)0, 0, 0,
 					totalsec, totalsec*hertz, hertz,
-					osvers, osrel, ossub,
+					os_vers, os_rel, os_sub,
 					stampalways ? timebuf : "        ",
 					devtstat->ntaskall, devtstat->totrun,
 					devtstat->totslpi, devtstat->totslpu,
@@ -833,7 +831,7 @@ reportraw(double curtime, double numsecs,
 			cleanstop(1);
 	}
 
-	pmtimevalFromReal(curtime, &pretime);
+	pmtimevalFromReal(timenow, &pretime);
 
 	return '\0';
 }
@@ -842,15 +840,12 @@ reportraw(double curtime, double numsecs,
 ** print overall header
 */
 static void
-reportheader(struct sysname *sysname, time_t mtime)
+reportheader(struct sysname *sys, time_t mtime)
 {
         char            cdate[16];
 
         printf("\n%s  %s  %s  %s  %s\n\n",
-                sysname->nodename,
-                sysname->release,
-                sysname->version,
-                sysname->machine,
+                sys->nodename, sys->release, sys->version, sys->machine,
         	convdate(mtime, cdate, sizeof(cdate)-1));
 }
 
