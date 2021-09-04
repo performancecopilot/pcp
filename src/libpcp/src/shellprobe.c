@@ -605,7 +605,7 @@ __pmShellProbeDiscoverServices(const char *service, const char *mechanism,
 	int numUrls, char ***urls)
 {
     connectionOptions	options = { { 0 }, { 0 }, 0 };
-    targetInfo		*targetInfo;
+    targetInfo		*target;
     int			sts, i;
 
     /* Interpret the mechanism string. */
@@ -619,9 +619,9 @@ __pmShellProbeDiscoverServices(const char *service, const char *mechanism,
     /* Release all discovered target addresses. */
     if (options.numTargets) {
 	for (i = 0; i < options.numTargets; i++) {
-	    targetInfo = &options.targets[i];
-	    __pmHostEntFree(targetInfo->servInfo);
-	    free(targetInfo->target);
+	    target = &options.targets[i];
+	    __pmHostEntFree(target->servInfo);
+	    free(target->target);
 	}
 	free(options.targets);
     }

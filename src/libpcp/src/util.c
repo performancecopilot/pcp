@@ -745,7 +745,6 @@ dump_valueset(__pmContext *ctxp, FILE *f, pmValueSet *vsp)
     if ((n = pmNameAll_ctx(ctxp, vsp->pmid, &names)) < 0)
 	fprintf(f, "  %s (%s):", pmid, "<noname>");
     else {
-	int	j;
 	fprintf(f, "  %s (", pmid);
 	for (j = 0; j < n; j++) {
 	    if (j > 0)

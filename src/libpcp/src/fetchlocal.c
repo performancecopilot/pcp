@@ -76,7 +76,7 @@ copyvset(const char *caller, pmID pmid, int sts,
 }
 
 static int
-dsofetch(const char *caller, __pmContext *ctxp, int ctx, pmID *splitlist, int j,
+dsofetch(const char *caller, __pmContext *ctxp, int ctx, int j,
 		pmID pmidlist[], int numpmid, int *cntp, pmResult **resultp)
 {
     int		sts = 0;
@@ -188,7 +188,7 @@ __pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **resul
 	    continue;
 
 	res = dsofetch("__pmFetchLocal", ctxp, ctx,
-			splitlist, j, pmidlist, numpmid, &cnt, &tmp_ans);
+			j, pmidlist, numpmid, &cnt, &tmp_ans);
 
 	/* Copy results back
 	 *
@@ -266,7 +266,7 @@ __pmHighResFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmHighRes
 	    continue;
 
 	sts = dsofetch("__pmHighResFetchLocal", ctxp, ctx,
-			splitlist, j, pmidlist, numpmid, &cnt, &tmp_ans);
+			j, pmidlist, numpmid, &cnt, &tmp_ans);
 
 	/* Copy results back
 	 *

@@ -432,7 +432,7 @@ __pmAFregister(const struct timeval *delta, void *data, void (*func)(int, void *
 }
 
 int
-__pmAFunregister(int afid)
+__pmAFunregister(int id)
 {
     qelt		*qp;
     qelt		*priorp;
@@ -446,7 +446,7 @@ __pmAFunregister(int afid)
 
     if (!block)
 	AFhold();
-    for (qp = root, priorp = NULL; qp != NULL && qp->q_afid != afid; qp = qp->q_next)
+    for (qp = root, priorp = NULL; qp != NULL && qp->q_afid != id; qp = qp->q_next)
 	    priorp = qp;
 
     if (qp == NULL) {

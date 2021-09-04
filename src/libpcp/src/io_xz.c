@@ -571,7 +571,7 @@ read_block(xzfile *xz, uint64_t offset,
 {
   lzma_index_iter iter;
   uint8_t header[LZMA_BLOCK_HEADER_SIZE_MAX];
-  lzma_block block;
+  lzma_block blk;
   lzma_filter filters[LZMA_FILTERS_MAX + 1];
   lzma_ret r;
   lzma_stream strm = LZMA_STREAM_INIT;
@@ -620,20 +620,20 @@ read_block(xzfile *xz, uint64_t offset,
     return NULL;
   }
 
-  block.version = 0;
-  block.check = iter.stream.flags->check;
-  block.filters = filters;
-  block.header_size = lzma_block_header_size_decode(header[0]);
+  blk.version = 0;
+  blk.check = iter.stream.flags->check;
+  blk.filters = filters;
+  blk.header_size = lzma_block_header_size_decode(header[0]);
 
-  if (block.header_size < 1 || block.header_size > sizeof(header[0]) * LZMA_BLOCK_HEADER_SIZE_MAX) {
+  if (blk.header_size < 1 || blk.header_size > sizeof(header[0]) * LZMA_BLOCK_HEADER_SIZE_MAX) {
     xz_debug("%s(%d, ...): read: unexpected header size (%u) in file",
-    		__func__, xz->fd, block.header_size);
+    		__func__, xz->fd, blk.header_size);
     return NULL;
   }
 
   /* Now read and decode the block header. */
-  n = read(xz->fd, &header[1], block.header_size-1);
-  if (n >= 0 && n != block.header_size-1) {
+  n = read(xz->fd, &header[1], blk.header_size-1);
+  if (n >= 0 && n != blk.header_size-1) {
     xz_debug("%s(%d, ...): read: unexpected end of file reading block header",
     		__func__, xz->fd);
     return NULL;
@@ -643,7 +643,7 @@ read_block(xzfile *xz, uint64_t offset,
     return NULL;
   }
 
-  r = lzma_block_header_decode(&block, NULL, header);
+  r = lzma_block_header_decode(&blk, NULL, header);
   if (r != LZMA_OK) {
     xz_debug("%s(%d, ...): invalid block header (error %d)", __func__, xz->fd, r);
     return NULL;
@@ -652,14 +652,14 @@ read_block(xzfile *xz, uint64_t offset,
   /* What this actually does is it checks that the block header
    * matches the index.
    */
-  r = lzma_block_compressed_size(&block, iter.block.unpadded_size);
+  r = lzma_block_compressed_size(&blk, iter.block.unpadded_size);
   if (r != LZMA_OK) {
     xz_debug("%s(%d, ...): cannot calculate compressed size (error %d)", __func__, xz->fd, r);
     goto err1;
   }
 
   /* Read the block data. */
-  r = lzma_block_decoder(&strm, &block);
+  r = lzma_block_decoder(&strm, &blk);
   if (r != LZMA_OK) {
     xz_debug("%s(%d, ...): invalid block (error %d)", __func__, xz->fd, r);
     goto err1;
@@ -676,7 +676,7 @@ read_block(xzfile *xz, uint64_t offset,
   strm.next_in = NULL;
   strm.avail_in = 0;
   strm.next_out = (uint8_t *) data;
-  strm.avail_out = block.uncompressed_size;
+  strm.avail_out = blk.uncompressed_size;
 
   do {
     uint8_t buf[BUFSIZ];

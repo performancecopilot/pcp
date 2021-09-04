@@ -1848,7 +1848,6 @@ pmLookupName_ctx(__pmContext *ctxp, int derive_locked, int numpmid, const char *
     	sts = (sts == 0 ? numpmid - nfail : sts);
 
 	if (pmDebugOptions.pmns) {
-	    int		i;
 	    char	strbuf[20];
 	    fprintf(stderr, "pmLookupName(%d, ...) using local PMNS returns %d and ...\n",
 		numpmid, sts);

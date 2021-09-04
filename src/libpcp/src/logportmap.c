@@ -263,7 +263,7 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 		    pmflush();
 		}
 		else {
-		    char	*q = strchr(buf, '\n');
+		    q = strchr(buf, '\n');
 		    if (q != NULL)
 			*q = '\0';
 		    lpp->archive = strdup(buf);

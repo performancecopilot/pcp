@@ -692,7 +692,7 @@ __pmAvahiDiscoverServices(const char *service,
 			  int numUrls,
 			  char ***urls)
 {
-    AvahiClient		*client = NULL;
+    AvahiClient		*ac = NULL;
     AvahiServiceBrowser	*sb = NULL;
     AvahiSimplePoll	*simplePoll;
     struct timeval	tv;
@@ -715,12 +715,12 @@ __pmAvahiDiscoverServices(const char *service,
     context.numUrls = numUrls;
 
     /* Allocate a new Avahi client */
-    client = avahi_client_new(avahi_simple_poll_get(simplePoll),
-			      (AvahiClientFlags)0,
-			      browsingClientCallback, &context, &context.error);
+    ac = avahi_client_new(avahi_simple_poll_get(simplePoll),
+			  (AvahiClientFlags)0,
+			  browsingClientCallback, &context, &context.error);
 
     /* Check whether creating the client object succeeded. */
-    if (! client) {
+    if (!ac) {
 	/* Avahi error codes are negative, and are of no use to the caller. */
 	if (context.error < 0)
 	    context.error = EOPNOTSUPP;
@@ -734,7 +734,7 @@ __pmAvahiDiscoverServices(const char *service,
 	goto done;
     }
     pmsprintf(serviceTag, size, "_%s._tcp", service);
-    sb = avahi_service_browser_new(client, AVAHI_IF_UNSPEC,
+    sb = avahi_service_browser_new(ac, AVAHI_IF_UNSPEC,
 				   AVAHI_PROTO_UNSPEC, serviceTag,
 				   NULL, (AvahiLookupFlags)0,
 				   browseCallback, & context);
@@ -788,9 +788,9 @@ __pmAvahiDiscoverServices(const char *service,
 
  done:
     /* Cleanup. */
-    if (client) {
+    if (ac) {
 	/* Also frees the service browser. */
-        avahi_client_free(client);
+        avahi_client_free(ac);
     }
     if (simplePoll)
         avahi_simple_poll_free(simplePoll);

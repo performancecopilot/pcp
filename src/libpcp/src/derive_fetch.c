@@ -890,14 +890,14 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 			     * scaling factor (to scale metric from counter
 			     * units into seconds)
 			     */
-			    int		i;
+			    int		n;
 			    np->data.info->time_scale = 1;
 			    if (np->left->desc.units.scaleTime > PM_TIME_SEC) {
-				for (i = PM_TIME_SEC; i < np->left->desc.units.scaleTime; i++)
+				for (n = PM_TIME_SEC; n < np->left->desc.units.scaleTime; n++)
 				    np->data.info->time_scale *= 60;
 			    }
 			    else {
-				for (i = np->left->desc.units.scaleTime; i < PM_TIME_SEC; i++)
+				for (n = np->left->desc.units.scaleTime; n < PM_TIME_SEC; n++)
 				    np->data.info->time_scale /= 1000;
 			    }
 			}
