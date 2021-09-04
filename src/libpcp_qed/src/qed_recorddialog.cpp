@@ -294,9 +294,9 @@ void QedRecordDialog::startLoggers()
 	arguments << "-r" << "-c" << configfile << "-h" << host << "-x0";
 	arguments << "-l" << logfile << "-t" << my.delta << archive;
 
-	QString data("#pmlogger Version 1\n\n"); // header for file(1)
-	data.append(my.view->pmloggerSyntax(selectedRadioButton->isChecked()));
-	saveConfig(configfile, data);
+	QString head("#pmlogger Version 1\n\n"); // header for file(1)
+	head.append(my.view->pmloggerSyntax(selectedRadioButton->isChecked()));
+	saveConfig(configfile, head);
 
 	process->start(pmlogger, arguments);
 	my.view->addLogger(process, archive);
@@ -306,7 +306,7 @@ void QedRecordDialog::startLoggers()
 	control << "V0\n";
 	control << "F" << my.folioName << "\n";
 	control << "Ppmchart\n" << "R\n";
-	for (int i = 0; i < control.size(); i++)
+	for (int j = 0; j < control.size(); j++)
 	    process->write(control.at(i).toLatin1());
     }
 }
