@@ -376,10 +376,10 @@ deviattask(struct tstat    *curtpres, unsigned long ntaskpres,
 	devtstat->procactive = calloc(devtstat->nprocactive,
 						sizeof(struct tstat *));
 
-	ptrverify(devtstat->procall, "Malloc failed for %d processes\n",
+	ptrverify(devtstat->procall, "Malloc failed for %lu processes\n",
                                   devtstat->nprocall);
 
-	ptrverify(devtstat->procactive, "Malloc failed for %d active procs\n",
+	ptrverify(devtstat->procactive, "Malloc failed for %lu active procs\n",
                                   devtstat->nprocactive);
 
 
