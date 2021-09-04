@@ -509,13 +509,13 @@ showConst(Expr *x)
     char	*string = NULL;
     size_t	length = 0;
     int		i;
-    int		first = 1;
+    int		onetrip = 1;
 
     /* construct string representation */
     if (x->nvals > 0) {
 	for (i = 0; i < x->tspan; i++) {
-	    if (first) 
-		first = 0;
+	    if (onetrip) 
+		onetrip = 0;
 	    else
 		length = concat(" ", length, &string);
 	    length = concatvalue(x, i, length, &string);
@@ -1044,7 +1044,7 @@ formatSatisfyingValue(char *format, size_t length, char **string)
     char    *host;
     char    *conn;
     char    *inst;
-    char    *first;
+    char    *one;
     char    *prev;
     char    *next;
     int	    i;
@@ -1054,7 +1054,7 @@ formatSatisfyingValue(char *format, size_t length, char **string)
     char    sts2;
 
     /* no formatting present? */
-    if ((sts1 = findFormat(format, &first)) == 0)
+    if ((sts1 = findFormat(format, &one)) == 0)
 	return concat(format, length, string);
 
     if (pmDebugOptions.appl2) {
@@ -1075,7 +1075,7 @@ formatSatisfyingValue(char *format, size_t length, char **string)
 	if ((x1->sem == SEM_BOOLEAN && *((char *)x1->smpls[0].ptr + i) == B_TRUE)
 	    || (x1->sem != SEM_BOOLEAN && x1->sem != SEM_UNKNOWN)) {
 	    prev = format;
-	    next = first;
+	    next = one;
 	    sts2 = sts1;
 	    lookupHostInst(x1, i, &host, &conn, &inst);
 	    do {

@@ -275,7 +275,10 @@ statement(char *name, Expr *x)
 		postExpr(x);
 		s = symIntern(&rules, name);
 	    }
-	    else return NULL;
+	    else {
+		freeExpr(x);
+		return NULL;
+	    }
 	}
     }
 
