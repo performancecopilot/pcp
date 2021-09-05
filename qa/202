@@ -80,4 +80,8 @@ do
 			      print ""
 			    }'
 
+    # and check integrity of the output archive ...
+    #
+    pmlogcheck $tmp.C
+
 done

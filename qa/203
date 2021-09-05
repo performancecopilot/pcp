@@ -52,6 +52,7 @@ pmlogextract -m $tmp.A $tmp.B $tmp.C
 echo
 echo "log.C == pmlogextract -m log.A log.B"
 _filter $tmp.C
+pmlogcheck $tmp.C
 
 echo
 echo "mismatch timestamps"
@@ -84,6 +85,7 @@ pmlogextract -m $tmp.C $tmp.D $tmp.E
 echo
 echo "log.E == pmlogextract -m log.C log.D"
 _filter $tmp.E
+pmlogcheck $tmp.E
 
 echo
 echo "mismatch timestamps"
