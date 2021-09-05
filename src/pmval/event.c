@@ -56,7 +56,7 @@ lookup(pmInDom indom, int inst)
 static void
 mydump(const char *name, pmDesc *dp, pmValueSet *vsp)
 {
-    int		j;
+    int		i, j;
     char	*p;
 
     if (vsp->numval == 0) {
@@ -89,8 +89,6 @@ mydump(const char *name, pmDesc *dp, pmValueSet *vsp)
 	     * pinched from pmPrintValue, just without the preamble of
 	     * floating point values
 	     */
-	    char	*p;
-	    int		i;
 	    putchar('[');
 	    p = &vp->value.pval->vbuf[0];
 	    for (i = 0; i < vp->value.pval->vlen - PM_VAL_HDR_SIZE; i++, p++)

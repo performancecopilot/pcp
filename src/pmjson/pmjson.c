@@ -38,9 +38,9 @@ static pmOptions opts = {
 };
 
 static int
-override(int opt, pmOptions *opts)
+override(int opt, pmOptions *optsp)
 {
-    (void)opts;
+    (void)optsp;
     return (opt == 'p');
 }
 

@@ -83,7 +83,7 @@ static pmOptions opts = {
 };
 
 static int
-overrides(int opt, pmOptions *opts)
+overrides(int opt, pmOptions *optsp)
 {
     if (opt == 'h' || opt == 'p')
 	return 1;
