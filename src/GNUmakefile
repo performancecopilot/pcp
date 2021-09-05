@@ -88,6 +88,7 @@ OTHER_SUBDIRS += \
 	pmlogreduce \
 	pmlogconf \
 	pmloglabel \
+	pmlogmv \
 	pmlogpaste \
 	pmlogrewrite \
 	pmlogsize \
@@ -125,9 +126,7 @@ OTHER_SUBDIRS += \
 	discover \
 	derived \
 	selinux \
-	zeroconf \
 	find-filter \
-	pmlogmv \
 	#
 
 SUBDIRS = \
