@@ -6,7 +6,7 @@
 # ----------------------------------------------------------------------
 
 AC_PREREQ([2.69])
-AC_INIT([htop], [3.1.0-rc1], [htop@groups.io], [], [https://htop.dev/])
+AC_INIT([htop], [3.1.0-rc2], [htop@groups.io], [], [https://htop.dev/])
 
 AC_CONFIG_SRCDIR([htop.c])
 AC_CONFIG_AUX_DIR([build-aux])
@@ -472,7 +472,7 @@ AC_ARG_ENABLE([vserver],
               [],
               [enable_vserver=no])
 if test "x$enable_vserver" = xyes; then
-    AC_DEFINE([HAVE_VSERVER], [1], [Define if VServer support enabled.])
+   AC_DEFINE([HAVE_VSERVER], [1], [Define if VServer support enabled.])
 fi
 
 
@@ -482,8 +482,11 @@ AC_ARG_ENABLE([ancient_vserver],
               [],
               [enable_ancient_vserver=no])
 if test "x$enable_ancient_vserver" = xyes; then
-    AC_DEFINE([HAVE_VSERVER], [1], [Define if VServer support enabled.])
-    AC_DEFINE([HAVE_ANCIENT_VSERVER], [1], [Define if ancient vserver support enabled.])
+   if test "x$enable_vserver" != xyes; then
+      enable_vserver=implied
+   fi
+   AC_DEFINE([HAVE_VSERVER], [1], [Define if VServer support enabled.])
+   AC_DEFINE([HAVE_ANCIENT_VSERVER], [1], [Define if ancient vserver support enabled.])
 fi
 
 
