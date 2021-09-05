@@ -716,7 +716,7 @@ x11
 267 libpcp local
 268 interop local
 269 wrap pmval local pmstore
-270 local pmdumplog kernel
+270 local pmdumplog kernel pmlogextract
 271 archive local pmdumplog
 272 pmcd pmval pmprobe remote pmstore
 273 libpcp local pmval pmstore pmda.sample kernel
@@ -738,7 +738,7 @@ x11
 289 libpcp fetch archive #505498 local
 290:retired  pmns local purify
 291 logutil local pmlogextract pmdumplog
-292 pmlogextract logutil pmval local
+292 logutil pmval local
 293 pmstat #939275 local
 294 pmproxy local pmval pmie pmstat pmdumptext
 295 pmproxy local pmval pmstat pmie
@@ -1639,7 +1639,7 @@ x11
 1190 other local
 1191 pmda.openmetrics local python
 1192 containers local
-1193 pmlogrewrite labels help pmdumplog local
+1193 pmlogrewrite labels help pmdumplog local pmlogextract
 1194 pmlogrewrite local
 1195 pmlogrewrite local
 1196 pmcd local
@@ -1677,7 +1677,7 @@ x11
 1228 pmiectl local
 1229 pmlogextract pmdumplog labels help local sanity
 1230 pmiectl local
-1231 pmlogrewrite labels help pmdumplog local
+1231 pmlogrewrite labels help pmdumplog local pmlogextract
 1232 logutil pmlogctl local
 1233 derive local
 1234 libpcp_web local
@@ -1693,7 +1693,7 @@ x11
 1244 pmlogextract local
 1245 libpcp local
 1246:reserved pmlogreduce local
-1247 pmlogrewrite labels pmdumplog local
+1247 pmlogrewrite labels pmdumplog local pmlogextract
 1248 pmlogctl local
 1249 pmiectl local
 1250 selinux local
@@ -1713,7 +1713,7 @@ x11
 1264:retired pmcollect
 1265 pmda.linux local valgrind
 1266 atop pcp local
-1267 pmlogrewrite labels help pmdumplog local
+1267 pmlogrewrite labels help pmdumplog local pmlogextract
 1268 derive local
 1269 libpcp local kernel
 1270 derive fault local
@@ -1881,7 +1881,7 @@ x11
 1689 pmproxy libpcp_web local
 1690 pmseries local
 1692 pmda.pmcd local
-1694 pidstat local python pcp
+1694 pidstat local python pcp pmlogextract
 1695 pmproxy valgrind local
 1696 pmproxy valgrind local
 1700 pmda.bpftrace local python
