@@ -2265,6 +2265,7 @@ checkwinend(pmTimeval now)
     pmTimeval	tmptime;
     inarch_t	*iap;
     __int32_t	*markpdu;	/* mark b/n time windows */
+    mark_t      *p;
 
     if (winend.tv_sec < 0 || tvcmp(&now, &winend) <= 0)
 	return(0);
@@ -2326,6 +2327,9 @@ checkwinend(pmTimeval now)
     /* must create "mark" record and write it out */
     /* (need only one mark record) */
     markpdu = _createmark();
+    p = (mark_t *)markpdu;
+    p->timestamp.tv_sec = htonl(p->timestamp.tv_sec);
+    p->timestamp.tv_usec = htonl(p->timestamp.tv_usec);
     if ((sts = __pmLogPutResult2(&archctl, (__pmPDU *)markpdu)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		pmGetProgname(), pmErrStr(sts));
