@@ -86,7 +86,7 @@ ConnectPMCD(void)
 	} 
 	if (IsLocal(lsp->pmcd.fqdn)) {
 	    /*
-	     * if pmcd host is "localhost"-alike then use hostname that
+	     * if pmcd host is "localhost"-alike then use host name that
 	     * was used to contact pmlogger, as from here (where pmlc is
 	     * running) "localhost" is likely to connect us to the wrong
 	     * pmcd or no pmcd at all.
@@ -120,7 +120,7 @@ done:
 }
 
 int
-ConnectLogger(char *hostname, int *pid, int *port)
+ConnectLogger(char *host, int *pid, int *port)
 {
     int		sts;
 
@@ -141,14 +141,14 @@ ConnectLogger(char *hostname, int *pid, int *port)
 	srchost = NULL;
     }
 
-    if ((sts = __pmConnectLogger(hostname, pid, port)) < 0) {
+    if ((sts = __pmConnectLogger(host, pid, port)) < 0) {
 	logger_fd = -1;
 	return sts;
     }
     else {
 	logger_fd = sts;
-	if ((lasthost = strdup(hostname)) == NULL) {
-	    pmNoMem("Error copying host name", strlen(hostname), PM_FATAL_ERR);
+	if ((lasthost = strdup(host)) == NULL) {
+	    pmNoMem("Error copying host name", strlen(host), PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
 	return 0;
@@ -165,7 +165,7 @@ DisconnectLogger(void)
 }
 
 void
-ShowLoggers(char *hostname)
+ShowLoggers(char *host)
 {
     int		i, n;
     int		ctx;
@@ -173,25 +173,25 @@ ShowLoggers(char *hostname)
     int		pport = -1;		/* port for primary logger */
     __pmLogPort	*ports;
 
-    if ((n = __pmIsLocalhost(hostname)) == 0) {
+    if ((n = __pmIsLocalhost(host)) == 0) {
 	/* remote, need PMCD's help for __pmLogFindPort */
-	if ((ctx = pmNewContext(PM_CONTEXT_HOST, hostname)) < 0) {
+	if ((ctx = pmNewContext(PM_CONTEXT_HOST, host)) < 0) {
 	    fprintf(stderr, "Error trying to connect to PMCD on %s: %s\n",
-		hostname, pmErrStr(ctx));
+		host, pmErrStr(ctx));
 	    return;
 	}
     }
     else
 	ctx = -1;
 
-    if ((n = __pmLogFindPort(hostname, PM_LOG_ALL_PIDS, &ports)) < 0) {
+    if ((n = __pmLogFindPort(host, PM_LOG_ALL_PIDS, &ports)) < 0) {
 	fprintf(stderr, "Error finding pmloggers on %s: ",
-		hostname);
+		host);
 	if (still_connected(n))
 	    fprintf(stderr, "%s\n", pmErrStr(n));
     }
     else if (n == 0)
-	    printf("No pmloggers running on %s\n", hostname);
+	    printf("No pmloggers running on %s\n", host);
     else {
 	/* find the position of the primary logger */
 	for (i = 0; i < n; i++) {
@@ -206,7 +206,7 @@ ShowLoggers(char *hostname)
 		break;
 	    }
 	}
-	printf("The following pmloggers are running on %s:\n    ", hostname);
+	printf("The following pmloggers are running on %s:\n    ", host);
 	/* print any primary logger first, with its pid alias in parentheses) */
 	if (primary != -1) {
 	    printf("primary");
@@ -229,21 +229,21 @@ ShowLoggers(char *hostname)
 }
 
 static void
-PrintState(int state)
+PrintState(int arg_state)
 {
     static char	*units[] = {"msec", "sec ", "min ", "hour"};
     static int	factor[] = {1000, 60, 60, 24};
     int		nfactors = sizeof(factor) / sizeof(factor[0]);
     int		i, j, is_on;
-    int		delta = PMLC_GET_DELTA(state);
+    int		delta = PMLC_GET_DELTA(arg_state);
     float	t = delta;
     int		frac;
 
-    fputs(PMLC_GET_MAND(state) ? "mand " : "adv  ", stdout);
-    is_on = PMLC_GET_ON(state);
+    fputs(PMLC_GET_MAND(arg_state) ? "mand " : "adv  ", stdout);
+    is_on = PMLC_GET_ON(arg_state);
     fputs(is_on ? "on  " : "off ", stdout);
-    if (PMLC_GET_INLOG(state))
-	fputs(PMLC_GET_AVAIL(state) ? "   " : "na ", stdout);
+    if (PMLC_GET_INLOG(arg_state))
+	fputs(PMLC_GET_AVAIL(arg_state) ? "   " : "na ", stdout);
     else
 	fputs("nl ", stdout);
 
@@ -369,7 +369,7 @@ Query(void)
     pmFreeResult(res);
 }
 
-void LogCtl(int control, int state, int delta)
+void LogCtl(int arg_control, int arg_state, int delta)
 {
     int		i;
     metric_t	*mp;
@@ -385,7 +385,7 @@ void LogCtl(int control, int state, int delta)
     if (!connected())
 	return;
 
-    i = __pmControlLog(logger_fd, logreq, control, state, delta, &res);
+    i = __pmControlLog(logger_fd, logreq, arg_control, arg_state, delta, &res);
     if (i < 0 && i != PM_ERR_GENERIC) {
 	fprintf(stderr, "Error receiving response from pmlogger: ");
 	if (still_connected(i))
@@ -402,12 +402,12 @@ void LogCtl(int control, int state, int delta)
      * in the result.
      */
     statemask = 0;
-    if (state != PM_LOG_MAYBE) {
-	if (control == PM_LOG_MANDATORY)
+    if (arg_state != PM_LOG_MAYBE) {
+	if (arg_control == PM_LOG_MANDATORY)
 	    PMLC_SET_MAND(expstate, 1);
 	else
 	    PMLC_SET_MAND(expstate, 0);
-	if (state == PM_LOG_ON)
+	if (arg_state == PM_LOG_ON)
 	    PMLC_SET_ON(expstate, 1);
 	else
 	    PMLC_SET_ON(expstate, 0);
@@ -556,8 +556,8 @@ void Status(int pid, int primary)
     __pmTimestamp	*start;
     __pmTimestamp	*last;
     __pmTimestamp	*timenow;
-    char		*hostname;
-    int			state;
+    char		*host;
+    int			lstate;
     int			vol;
     __int64_t		size;
     char		startbuf[TZBUFSZ];
@@ -615,11 +615,11 @@ void Status(int pid, int primary)
 	start = &lsp->start;
 	last = &lsp->last;
 	timenow = &lsp->now;
-	if ((hostname = strdup(lsp->pmcd.hostname)) == NULL) {
+	if ((host = strdup(lsp->pmcd.hostname)) == NULL) {
 	    pmNoMem("Error hostname", strlen(lsp->pmcd.hostname), PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
-	state = lsp->state;
+	lstate = lsp->state;
 	vol = lsp->vol;
 	size = lsp->size;
     }
@@ -670,13 +670,13 @@ void Status(int pid, int primary)
     else
 	printf("[%d]", pid);
     printf(" on host %s is logging metrics from host %s\n",
-	lasthost, hostname);
+	lasthost, host);
     /* NB: FQDN cleanup: note that this is not 'the fqdn' of the
        pmlogger host or that of its target.  */
     if (__pmVersionIPC(logger_fd) >= LOG_PDU_VERSION2)
 	printf("PMCD host        %s\n",
-		IsLocal(lsp->pmcd.fqdn) ? hostname : lsp->pmcd.fqdn);
-    if (state == PM_LOG_STATE_NEW) {
+		IsLocal(lsp->pmcd.fqdn) ? host : lsp->pmcd.fqdn);
+    if (lstate == PM_LOG_STATE_NEW) {
 	puts("logging hasn't started yet");
 	goto done;
     }
