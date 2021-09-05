@@ -8,7 +8,7 @@
 # Note: for reasons that are not understood, this test sometimes fails
 # 	but passes when rerun
 #
-# check-group-include: pmlogrewrite
+# check-group-include: pmlogrewrite pmlogextract
 #
 
 seq=`basename $0`
