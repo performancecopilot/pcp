@@ -114,26 +114,26 @@ instance	: NAME	{ buildinst(&numinst, &intlist, &extlist, -1, $1); }
 %%
 
 void
-dometric(const char *name)
+dometric(const char *arg_name)
 {
     int		i;
     int		j;
     int		inst;
     int		skip;
-    int		sts;
+    int		lsts;
     pmID	pmid;
     pmDesc	*dp = NULL;
 
     /*
-     * Cast away const, pmLookUpName should not modify name
+     * Cast away const, pmLookUpName should not modify arg_name
      */
-    if ((sts = pmLookupName(1, &name, &pmid)) < 0 || pmid == PM_ID_NULL){
+    if ((lsts = pmLookupName(1, &arg_name, &pmid)) < 0 || pmid == PM_ID_NULL){
 	/*
-	 * should not happen ... if name is a leaf, we've already called
+	 * should not happen ... if arg_name is a leaf, we've already called
 	 * pmLookupName once earlier, otherwise the PMNS is botched
 	 * somehow
 	 */
-	pmsprintf(emess, sizeof(emess), "Metric \"%s\" is unknown ... not extracted", name);
+	pmsprintf(emess, sizeof(emess), "Metric \"%s\" is unknown ... not extracted", arg_name);
 	goto bad;
     }
 
@@ -150,13 +150,13 @@ dometric(const char *name)
 	goto nomem;
     }
 
-    if ((sts = pmLookupDesc(pmid, dp)) < 0) {
+    if ((lsts = pmLookupDesc(pmid, dp)) < 0) {
 	/*
-	 * also should not happen ... if name is valid in the archive
+	 * also should not happen ... if arg_name is valid in the archive
 	 * then the pmDesc should be available
 	 */
 	pmsprintf(emess, sizeof(emess),
-	    "Description unavailable for metric \"%s\" ... not extracted", name);
+	    "Description unavailable for metric \"%s\" ... not extracted", arg_name);
 	goto bad;
     }
 
@@ -182,12 +182,12 @@ dometric(const char *name)
      * ml_nmpmid == index of latest addition to the list
      */
 
-    ml[ml_numpmid].name = strdup(name);
+    ml[ml_numpmid].name = strdup(arg_name);
     if (ml[ml_numpmid].name == NULL) {
 	goto nomem;
     }
     if (pmDebugOptions.appl0) {
-	fprintf(stderr, "configfile: select metric %s (PMID %s)\n", name, pmIDStr(pmid));
+	fprintf(stderr, "configfile: select metric %s (PMID %s)\n", arg_name, pmIDStr(pmid));
     }
 
     ml[ml_numpmid].desc = dp;
@@ -229,22 +229,22 @@ dometric(const char *name)
 	for (i=0; i<numinst; i++) {
 	    inst = -1;
 	    if (extlist[i] != NULL) {
-		if ((sts = pmLookupInDomArchive(dp->indom, extlist[i])) < 0) {
+		if ((lsts = pmLookupInDomArchive(dp->indom, extlist[i])) < 0) {
 		    pmsprintf(emess, sizeof(emess),
 			"Instance \"%s\" is not defined for the metric \"%s\"",
-			    extlist[i], name);
+			    extlist[i], arg_name);
 		    yywarn(emess);
 		    ml[ml_numpmid].numinst--;
 		    continue;
 		}
-		inst = sts;
+		inst = lsts;
 	    }
 	    else {
 		char *p;
-		if ((sts = pmNameInDomArchive(dp->indom, intlist[i], &p)) < 0) {
+		if ((lsts = pmNameInDomArchive(dp->indom, intlist[i], &p)) < 0) {
 		    pmsprintf(emess, sizeof(emess),
 			"Instance \"%d\" is not defined for the metric \"%s\"",
-			    intlist[i], name);
+			    intlist[i], arg_name);
 		    yywarn(emess);
 		    ml[ml_numpmid].numinst--;
 		    continue;
@@ -261,7 +261,7 @@ dometric(const char *name)
 	    if (inst > -1) {
 		ml[ml_numpmid].instlist[j] = inst;
 		if (pmDebugOptions.appl0) {
-		    fprintf(stderr, "configfile: select instance \"%s\" (%d) for metric %s (PMID %s)\n", extlist[i], inst, name, pmIDStr(pmid));
+		    fprintf(stderr, "configfile: select instance \"%s\" (%d) for metric %s (PMID %s)\n", extlist[i], inst, arg_name, pmIDStr(pmid));
 		}
 		++j;
 	    }
@@ -296,7 +296,7 @@ dometric(const char *name)
 
 bad:
     yywarn(emess);
-    fprintf(stderr, "Reason: %s\n", pmErrStr(sts));
+    fprintf(stderr, "Reason: %s\n", pmErrStr(lsts));
     if (dp != NULL) free(dp);
     return;
 
@@ -307,19 +307,19 @@ nomem:
 
 
 static void
-buildinst(int *numinst, int **intlist, char ***extlist, int intid, char *extid)
+buildinst(int *arg_numinst, int **arg_intlist, char ***arg_extlist, int intid, char *extid)
 {
     char        **el;
     int         *il;
-    int         num = *numinst;
+    int         num = *arg_numinst;
 
     if (num == 0) {
 	il = NULL;
 	el = NULL;
     }
     else {
-	il = *intlist;
-	el = *extlist;
+	il = *arg_intlist;
+	el = *arg_extlist;
     }
 
     el = (char **)realloc(el, (num+1)*sizeof(el[0]));
@@ -339,26 +339,26 @@ buildinst(int *numinst, int **intlist, char ***extlist, int intid, char *extid)
 	el[num] = strdup(extid);
     }
 
-    *numinst = ++num;
-    *intlist = il;
-    *extlist = el;
+    *arg_numinst = ++num;
+    *arg_intlist = il;
+    *arg_extlist = el;
 }
 
 
 static void
-freeinst(int *numinst, int *intlist, char **extlist)
+freeinst(int *arg_numinst, int *arg_intlist, char **arg_extlist)
 {
     int         i;
 
-    if (*numinst) {
-	free(intlist);
-	for (i = 0; i < *numinst; i++)
-	    free(extlist[i]);
-	free(extlist);
+    if (*arg_numinst) {
+	free(arg_intlist);
+	for (i = 0; i < *arg_numinst; i++)
+	    free(arg_extlist[i]);
+	free(arg_extlist);
 
-	intlist = NULL;
-	extlist = NULL;
-	*numinst = 0;
+	arg_intlist = NULL;
+	arg_extlist = NULL;
+	*arg_numinst = 0;
     }
 }
 
