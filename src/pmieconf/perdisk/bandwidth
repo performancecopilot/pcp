@@ -44,10 +44,12 @@ instlist	disks
 	help	=
 "Set to a list of local disk device names for which the rule will
 be evaluated, as a subset of available block devices.  The device
-names should be separated by white space and may be enclosed in
-single quotes, eg. \"sda 'sdb' sdc\".  Use the command:
+names can be set using the \"modify per_disk.bandwidth disks ...\"
+command, where the disk device names are enclosed in double quotes
+and separated by white space, eg. \"sda sdb sdc\".
+Use the command:
 	$ pminfo -f disk.dev.total_bytes
-to discover the names of the available block devices.";
+to discover the names of the available disk device names.";
 
 string	action_expand
 	default	= "%vb/s[%i]@%h"

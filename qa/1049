@@ -42,6 +42,21 @@ do
     [ -d $PCP_ETC_DIR/pcp/pmieconf/$dir ] && echo "modify $group enabled no" >>$tmp.cmd
 done
 
+# Some rules need special cusomization
+#
+disks=`pmprobe -I disk.dev.total | sed -e 's/" "/ /g' -e 's/^[^ ]* [0-9][0-9]* //'`
+if [ -z "$disks" ]
+then
+    # Arrgh ...
+    #
+    echo "Empty list of disks from ..."
+    pmprobe -I disk.dev.total
+    exit
+fi
+echo "modify per_disk.bandwidth disks $disks" >>$tmp.cmd
+echo "modify per_disk.iops disks $disks" >>$tmp.cmd
+
+
 # real QA test starts here
 echo "running pmieconf with default rules..."
 ( cat $tmp.cmd; echo quit ) | pmieconf -f $tmp.eek
