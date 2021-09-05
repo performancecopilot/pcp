@@ -79,8 +79,6 @@ typedef struct ProcessMergedCommand_ {
    char* str;                                  /* merged Command string */
    size_t highlightCount;                      /* how many portions of cmdline to highlight */
    ProcessCmdlineHighlight highlights[8];      /* which portions of cmdline to highlight */
-   bool separateComm : 1;                      /* whether comm is a separate field */
-   bool unmatchedExe : 1;                      /* whether exe matched with cmdline */
    bool cmdlineChanged : 1;                    /* whether cmdline changed */
    bool exeChanged : 1;                        /* whether exe changed */
    bool commChanged : 1;                       /* whether comm changed */
@@ -357,6 +355,8 @@ void Process_printRate(RichString* str, double rate, bool coloring);
 void Process_fillStarttimeBuffer(Process* this);
 
 void Process_printLeftAlignedField(RichString* str, int attr, const char* content, unsigned int width);
+
+void Process_printPercentage(float val, char* buffer, int n, int* attr);
 
 void Process_display(const Object* cast, RichString* out);
 

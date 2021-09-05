@@ -39,14 +39,17 @@ static long fscale;
 static int pageSize;
 static int pageSizeKB;
 
-static char const *freqSysctls[] = {
-   "machdep.est.frequency.current",
-   "machdep.powernow.frequency.current",
-   "machdep.intrepid.frequency.current",
-   "machdep.loongson.frequency.current",
-   "machdep.cpu.frequency.current",
-   "machdep.frequency.current",
-   NULL
+static const struct {
+   const char* name;
+   long int scale;
+} freqSysctls[] = {
+   { "machdep.est.frequency.current",            1 },
+   { "machdep.powernow.frequency.current",       1 },
+   { "machdep.intrepid.frequency.current",       1 },
+   { "machdep.loongson.frequency.current",       1 },
+   { "machdep.cpu.frequency.current",            1 },
+   { "machdep.frequency.current",                1 },
+   { "machdep.tsc_freq",                   1000000 },
 };
 
 static void NetBSDProcessList_updateCPUcount(ProcessList* super) {
@@ -261,7 +264,6 @@ static void NetBSDProcessList_scanProcs(NetBSDProcessList* this) {
    bool hideKernelThreads = settings->hideKernelThreads;
    bool hideUserlandThreads = settings->hideUserlandThreads;
    int count = 0;
-   int nlwps = 0;
 
    const struct kinfo_proc2* kprocs = kvm_getproc2(this->kd, KERN_PROC_ALL, 0, sizeof(struct kinfo_proc2), &count);
 
@@ -279,13 +281,21 @@ static void NetBSDProcessList_scanProcs(NetBSDProcessList* this) {
          proc->tpgid = kproc->p_tpgid;
          proc->tgid = kproc->p_pid;
          proc->session = kproc->p_sid;
-         proc->tty_nr = kproc->p_tdev;
          proc->pgrp = kproc->p__pgid;
          proc->isKernelThread = !!(kproc->p_flag & P_SYSTEM);
          proc->isUserlandThread = proc->pid != proc->tgid;
          proc->starttime_ctime = kproc->p_ustart_sec;
          Process_fillStarttimeBuffer(proc);
          ProcessList_add(&this->super, proc);
+
+         proc->tty_nr = kproc->p_tdev;
+         const char* name = ((dev_t)kproc->p_tdev != KERN_PROC_TTY_NODEV) ? devname(kproc->p_tdev, S_IFCHR) : NULL;
+         if (!name) {
+            free(proc->tty_name);
+            proc->tty_name = NULL;
+         } else {
+            free_and_xStrdup(&proc->tty_name, name);
+         }
 
          NetBSDProcessList_updateExe(kproc, proc);
          NetBSDProcessList_updateProcessName(this->kd, kproc, proc);
@@ -312,8 +322,12 @@ static void NetBSDProcessList_scanProcs(NetBSDProcessList* this) {
       proc->nice = kproc->p_nice - 20;
       proc->time = 100 * (kproc->p_rtime_sec + ((kproc->p_rtime_usec + 500000) / 1000000));
       proc->priority = kproc->p_priority - PZERO;
+      proc->processor = kproc->p_cpuid;
+      proc->minflt = kproc->p_uru_minflt;
+      proc->majflt = kproc->p_uru_majflt;
 
-      struct kinfo_lwp* klwps = kvm_getlwps(this->kd, kproc->p_pid, kproc->p_paddr, sizeof(struct kinfo_lwp), &nlwps);
+      int nlwps = 0;
+      const struct kinfo_lwp* klwps = kvm_getlwps(this->kd, kproc->p_pid, kproc->p_paddr, sizeof(struct kinfo_lwp), &nlwps);
 
       switch (kproc->p_realstat) {
       case SIDL:     proc->state = 'I'; break;
@@ -417,7 +431,7 @@ static void NetBSDProcessList_scanCPUFrequency(NetBSDProcessList* this) {
    unsigned int cpus = this->super.existingCPUs;
    bool match = false;
    char name[64];
-   int freq = 0;
+   long int freq = 0;
    size_t freqSize;
 
    for (unsigned int i = 0; i < cpus; i++) {
@@ -429,7 +443,7 @@ static void NetBSDProcessList_scanCPUFrequency(NetBSDProcessList* this) {
       xSnprintf(name, sizeof(name), "machdep.cpufreq.cpu%u.current", i);
       freqSize = sizeof(freq);
       if (sysctlbyname(name, &freq, &freqSize, NULL, 0) != -1) {
-         this->cpuData[i + 1].frequency = freq;
+         this->cpuData[i + 1].frequency = freq; /* already in MHz */
          match = true;
       }
    }
@@ -442,9 +456,10 @@ static void NetBSDProcessList_scanCPUFrequency(NetBSDProcessList* this) {
     * Iterate through legacy sysctl nodes for single-core frequency until
     * we find a match...
     */
-   for (const char** s = freqSysctls; *s != NULL; ++s) {
+   for (size_t i = 0; i < ARRAYSIZE(freqSysctls); i++) {
       freqSize = sizeof(freq);
-      if (sysctlbyname(*s, &freq, &freqSize, NULL, 0) != -1) {
+      if (sysctlbyname(freqSysctls[i].name, &freq, &freqSize, NULL, 0) != -1) {
+         freq /= freqSysctls[i].scale; /* scale to MHz */
          match = true;
          break;
       }
