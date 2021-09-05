@@ -195,15 +195,15 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
 	    else
 		__pmFseek(acp->ac_mfp, cp->head_posn, SEEK_SET);
 	    if (pmDebugOptions.log && pmDebugOptions.desperate) {
-		__pmTimestamp	tmp;
+		__pmTimestamp	stamp;
 		double		t_this;
 #if 0	// TODO when __pmResult change made
 		tmp = cp->rp->timestamp;	/* struct assignment */
 #else
-		tmp.sec = (__int32_t)cp->rp->timestamp.tv_sec;
-		tmp.nsec = (__int32_t)cp->rp->timestamp.tv_usec * 1000;
+		stamp.sec = (__int32_t)cp->rp->timestamp.tv_sec;
+		stamp.nsec = (__int32_t)cp->rp->timestamp.tv_usec * 1000;
 #endif
-		t_this = __pmTimestampSub(&tmp, __pmLogStartTime(acp));
+		t_this = __pmTimestampSub(&stamp, __pmLogStartTime(acp));
 		fprintf(stderr, "hit cache[%d] t=%.6f\n",
 		    (int)(cp - cache), t_this);
 		nr_cache[mode]++;
@@ -408,7 +408,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
     pmidcntl_t	*pcp;
     instcntl_t	*icp;
     double	t_this;
-    __pmTimestamp	tmp;
+    __pmTimestamp	stamp;
     int		changed;
     static int	ignore_mark_records = -1;
     static double	ignore_mark_gap = 0;
@@ -416,10 +416,10 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 #if 0	// TODO when __pmResult change made
     tmp = logrp->timestamp;		/* struct assignment */
 #else
-    tmp.sec = (__int32_t)logrp->timestamp.tv_sec;
-    tmp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
+    stamp.sec = (__int32_t)logrp->timestamp.tv_sec;
+    stamp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
 #endif
-    t_this = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+    t_this = __pmTimestampSub(&stamp, __pmLogStartTime(ctxp->c_archctl));
 
     if (logrp->numpmid == 0) {
 	if (ignore_mark_records == -1) {
@@ -507,10 +507,10 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 #if 0	// TODO when __pmResult change made
 	    tmp = peek->timestamp;		/* stuct assignment */
 #else
-	    tmp.sec = (__int32_t)peek->timestamp.tv_sec;
-	    tmp.nsec = (__int32_t)peek->timestamp.tv_usec * 1000;
+	    stamp.sec = (__int32_t)peek->timestamp.tv_sec;
+	    stamp.nsec = (__int32_t)peek->timestamp.tv_usec * 1000;
 #endif
-	    t_next = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+	    t_next = __pmTimestampSub(&stamp, __pmLogStartTime(ctxp->c_archctl));
 	    pmFreeResult(peek);
 
 	    /* backup -> should be <next> record */
@@ -554,10 +554,10 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 #if 0	// TODO when __pmResult change made
 	    tmp = peek.timestamp;		/* struct assignment */
 #else
-	    tmp.sec = (__int32_t)peek->timestamp.tv_sec;
-	    tmp.nsec = (__int32_t)peek->timestamp.tv_usec * 1000;
+	    stamp.sec = (__int32_t)peek->timestamp.tv_sec;
+	    stamp.nsec = (__int32_t)peek->timestamp.tv_usec * 1000;
 #endif
-	    t_prior = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+	    t_prior = __pmTimestampSub(&stamp, __pmLogStartTime(ctxp->c_archctl));
 	    pmFreeResult(peek);
 
 	    /* backup -> should be <prior> record */
@@ -834,7 +834,7 @@ static int
 do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
 {
     pmResult	*logrp;
-    __pmTimestamp	tmp;
+    __pmTimestamp	stamp;
     double	t_this;
     int		err;
     int		sts;
@@ -848,10 +848,10 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
 #if 0	// TODO when __pmResult change made
 	    tmp = logrp->timestamp;		/* struct assignment */
 #else
-	    tmp.sec = (__int32_t)logrp->timestamp.tv_sec;
-	    tmp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
+	    stamp.sec = (__int32_t)logrp->timestamp.tv_sec;
+	    stamp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
 #endif
-	    t_this = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+	    t_this = __pmTimestampSub(&stamp, __pmLogStartTime(ctxp->c_archctl));
 	    if (t_this > t_req)
 		break;
 
@@ -871,10 +871,10 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
 #if 0	// TODO when __pmResult change made
 	    tmp = logrp->timestamp;		/* struct assignment */
 #else
-	    tmp.sec = (__int32_t)logrp->timestamp.tv_sec;
-	    tmp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
+	    stamp.sec = (__int32_t)logrp->timestamp.tv_sec;
+	    stamp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
 #endif
-	    t_this = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+	    t_this = __pmTimestampSub(&stamp, __pmLogStartTime(ctxp->c_archctl));
 	    if (t_this < t_req)
 		break;
 
@@ -1094,7 +1094,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     int		done_roll;
     int		seen_mark;
     static int	dowrap = -1;
-    __pmTimestamp	tmp;
+    __pmTimestamp	stamp;
     struct timeval delta_tv = {0};
     				/* number of unbound items scanned */
     long	nuis[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -1283,9 +1283,9 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	 */
 	if (ctxp->c_delta > 0) {
 	    while (cache_read(ctxp, PM_MODE_BACK, &logrp) >= 0) {
-		tmp.sec = (__int32_t)logrp->timestamp.tv_sec;
-		tmp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
-		t_this = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+		stamp.sec = (__int32_t)logrp->timestamp.tv_sec;
+		stamp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
+		t_this = __pmTimestampSub(&stamp, __pmLogStartTime(ctxp->c_archctl));
 		if (t_this <= t_req) {
 		    break;
 		}
@@ -1300,9 +1300,9 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	}
 	else {
 	    while (cache_read(ctxp, PM_MODE_FORW, &logrp) >= 0) {
-		tmp.sec = (__int32_t)logrp->timestamp.tv_sec;
-		tmp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
-		t_this = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+		stamp.sec = (__int32_t)logrp->timestamp.tv_sec;
+		stamp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
+		t_this = __pmTimestampSub(&stamp, __pmLogStartTime(ctxp->c_archctl));
 		if (t_this > t_req) {
 		    break;
 		}
@@ -1439,9 +1439,9 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		}
 		break;
 	    }
-	    tmp.sec = (__int32_t)logrp->timestamp.tv_sec;
-	    tmp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
-	    t_this = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+	    stamp.sec = (__int32_t)logrp->timestamp.tv_sec;
+	    stamp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
+	    t_this = __pmTimestampSub(&stamp, __pmLogStartTime(ctxp->c_archctl));
 	    if (ctxp->c_delta < 0 && t_this >= t_req) {
 		/* going backwards, and not up to t_req yet */
 		ctxp->c_archctl->ac_offset = __pmFtell(ctxp->c_archctl->ac_mfp);
@@ -1586,9 +1586,9 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		}
 		break;
 	    }
-	    tmp.sec = (__int32_t)logrp->timestamp.tv_sec;
-	    tmp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
-	    t_this = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+	    stamp.sec = (__int32_t)logrp->timestamp.tv_sec;
+	    stamp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
+	    t_this = __pmTimestampSub(&stamp, __pmLogStartTime(ctxp->c_archctl));
 	    if (ctxp->c_delta > 0 && t_this <= t_req) {
 		/* going forwards, and not up to t_req yet */
 		ctxp->c_archctl->ac_offset = __pmFtell(ctxp->c_archctl->ac_mfp);
