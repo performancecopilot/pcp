@@ -876,7 +876,7 @@ x11
 427 pmcd #564017 local
 428 archive local pmval pmstore
 429 pmns local
-430 logutil local #553276 #568199
+430 logutil local #553276 #568199 pmlc
 431 derive local
 432 pmlogreduce local
 433 pmie local #573184 kernel pmda.sample
@@ -1239,7 +1239,7 @@ x11
 790 pmlogextract local
 791 pmlogextract valgrind local pmdumplog
 792 libpcp local pmdbg
-793 logutil local kernel
+793 logutil local kernel pmlc
 794 containers pmcd pmda.pmcd local
 795 pmimport pmdumplog perl local
 796 pmda.elasticsearch local
@@ -1378,7 +1378,7 @@ x11
 929 logutil local
 930 pmlogrewrite local pmdumplog
 931 archive pmval local
-932 pmlogger local pmdumplog folio pmda.sample
+932 pmlogger local pmdumplog folio pmda.sample pmlc
 933 pmda.proc local
 934 pmieutil local
 935 derive local
@@ -1394,7 +1394,7 @@ x11
 945 pmlogrewrite pmda.xfs local pmdumplog
 946 pmfind avahi local
 947 pmlogger local pmdumplog pmda.sample
-948 pmlogger context_local local pmlogcheck pmdumplog kernel pmda.sample
+948 pmlogger context_local local pmlogcheck pmdumplog kernel pmda.sample pmlc
 949 python local timezone
 950 pmproxy avahi local
 951 pmie local pmval kernel
@@ -1501,7 +1501,7 @@ x11
 1052 pmda.json local python dbpmda
 1053 pmda.json pmda.install local python
 1054 pmlogger pmcpp local pmdumplog kernel
-1055 pmlogger local pmdumplog pmstore folio pmda.sample
+1055 pmlogger local pmdumplog pmstore folio pmda.sample pmlc
 1056 derive local kernel
 1057 pmlogrewrite local
 1058 pmda.bash local
@@ -1646,8 +1646,8 @@ x11
 1197 pmlogextract local
 1198 pmlogrewrite pmda.linux local
 1199 libpcp pmcd local pmda.sample
-1200 logutil local
-1201 logutil remote
+1200 logutil local pmlc
+1201 logutil remote pmlc
 1202 pmda.dm local pmrep python
 1203 derive pmval libpcp local
 1204 pmlogctl local sanity
@@ -1871,7 +1871,7 @@ x11
 1644 pmda.perfevent local
 1653 pmda.denki local
 1660 libpcp labels local
-1661 pmproxy libpcp_web pmlogger local
+1661 pmproxy libpcp_web pmlogger local pmlc
 1671 multi-archive archive libpcp pmrep local python
 1672 secure pmcd local
 1680 openvswitch local
