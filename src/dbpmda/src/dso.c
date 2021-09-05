@@ -414,9 +414,9 @@ dodso(int pdu)
 			printf("Labels:\n");
 		    for (j = 0; j < labelset[i].nlabels; j++) {
 			pmLabel	*lp = &labelset[i].labels[j];
-			char *name = labelset[i].json + lp->name;
+			char *label = labelset[i].json + lp->name;
 			char *value = labelset[i].json + lp->value;
-			printf("    %.*s=%.*s\n", lp->namelen, name, lp->valuelen, value);
+			printf("    %.*s=%.*s\n", lp->namelen, label, lp->valuelen, value);
 		    }
 		}
 		pmFreeLabelSets(labelset, sts);
