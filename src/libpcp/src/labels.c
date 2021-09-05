@@ -29,10 +29,10 @@
 static int __pmMergeLabels(const char *, const char *, char *, int, int);
 static int __pmParseLabels(const char *, int, pmLabel *, int, __pmHashCtl *, int, char *, int *);
 
-typedef int (*filter)(const pmLabel *, const char *, void *);
+typedef int (*filter_labels)(const pmLabel *, const char *, void *);
 static int __pmMergeLabelSets(pmLabel *, const char *, __pmHashCtl *, int,
 		pmLabel *, const char *, __pmHashCtl *, int,
-		pmLabel *, char *, int *, int, filter, void *);
+		pmLabel *, char *, int *, int, filter_labels, void *);
 
 /*
  * Parse JSONB labels string, building up the array index as we go.
@@ -434,7 +434,7 @@ static int
 stash_label(const pmLabel *lp, const char *json, __pmHashCtl *lc,
 	    pmLabel *olabel, const char *obuffer, int *no,
 	    char **buffer, int *buflen,
-	    filter filter, void *arg)
+	    filter_labels filter, void *arg)
 {
     const char		*name;
     char		*bp = *buffer;
@@ -846,7 +846,7 @@ static int
 __pmMergeLabelSets(pmLabel *alabels, const char *abuf, __pmHashCtl *ac, int na,
 		   pmLabel *blabels, const char *bbuf, __pmHashCtl *bc, int nb,
 		   pmLabel *olabels, char *output, int *no, int buflen,
-		   filter filter, void *arg)
+		   filter_labels filter, void *arg)
 {
     char		*bp = output;
     int			sts, i, j;
@@ -969,7 +969,7 @@ __pmMergeLabels(const char *a, const char *b, char *buffer, int buflen, int flag
  */
 int
 pmMergeLabelSets(pmLabelSet **sets, int nsets, char *buffer, int buflen,
-		filter filter, void *arg)
+		filter_labels filter, void *arg)
 {
     __pmHashCtl		*compound, bhash = {0};
     pmLabel		olabels[MAXLABELSET];

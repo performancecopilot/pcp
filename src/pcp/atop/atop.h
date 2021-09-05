@@ -99,9 +99,9 @@ extern unsigned int	begintime, endtime;
 extern char		flaglist[];
 extern struct visualize vis;
 
-extern int      	osrel;
-extern int		osvers;
-extern int      	ossub;
+extern int      	os_rel;
+extern int		os_vers;
+extern int      	os_sub;
 
 extern unsigned short	hertz;
 extern unsigned int	pidmax;

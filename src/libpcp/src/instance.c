@@ -23,7 +23,6 @@ int
 pmLookupInDom_ctx(__pmContext *ctxp, pmInDom indom, const char *name)
 {
     int		sts;
-    pmInResult	*result;
     int		need_unlock = 0;
 
     if (pmDebugOptions.pmapi) {
@@ -76,7 +75,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_TIMEOUT);
 	    }
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
-	    __pmDSO		*dp;
+	    __pmDSO	*dp;
+	    pmInResult	*result;
 	    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
 		/* Local context requires single-threaded applications */
 		sts = PM_ERR_THREAD;
@@ -137,7 +137,6 @@ pmNameInDom_ctx(__pmContext *ctxp, pmInDom indom, int inst, char **name)
 {
     int		need_unlock = 0;
     int		sts;
-    pmInResult	*result;
 
     if (pmDebugOptions.pmapi) {
 	char    dbgbuf[20];
@@ -191,6 +190,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_TIMEOUT);
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
 	    __pmDSO	*dp;
+	    pmInResult	*result;
 	    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
 		/* Local context requires single-threaded applications */
 		sts = PM_ERR_THREAD;
@@ -294,7 +294,6 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 {
     int			sts;
     int			i;
-    pmInResult	*result;
     __pmContext		*ctxp;
     char		*p;
     int			need;
@@ -350,6 +349,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 	}
 	else if (ctxp->c_type == PM_CONTEXT_LOCAL) {
 	    __pmDSO	*dp;
+	    pmInResult	*result;
 	    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
 		/* Local context requires single-threaded applications */
 		sts = PM_ERR_THREAD;

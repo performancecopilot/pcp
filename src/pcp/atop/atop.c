@@ -159,9 +159,9 @@ unsigned int	hinv_nrdisk;
 unsigned int	hinv_nrgpus;
 unsigned int	hinv_nrintf;
 long long	system_boottime;
-int 		osrel;
-int 		osvers;
-int 		ossub;
+int 		os_rel;
+int 		os_vers;
+int 		os_sub;
 
 int		supportflags;	/* supported features             	*/
 char		**argvp;

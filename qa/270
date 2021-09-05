@@ -207,8 +207,9 @@ pmlogextract -z -S "@00:00:00" -T "@12:00:00" -w archives/rattle $tmp.arch >$tmp
 _check_output pmlogextract
 
 # dump values for irix.kernel.all.load
-echo "--- dump values for irix.kernel.all.load ---"
-pmdumplog -z -S "@00:00:00" -T "@12:00:00" -m archives/rattle irix.kernel.all.load \
+echo "--- dump values for irix.kernel.all.load from original archive ---" | tee -a $seq.full
+pmdumplog -z -m archives/rattle irix.kernel.all.load \
+	| tee -a $seq.full \
 	| sed \
 	    -e '/^$/d' \
 	    -e '/^[0-9]/{
@@ -217,7 +218,9 @@ N
 s/\n/ /
 }' \
 	| $PCP_AWK_PROG -F":" '{ if ($1 >= 0 && $1 < 12) print $0; }' > $tmp.m
+echo "--- dump values for irix.kernel.all.load from extracted archive ---" | tee -a $seq.full
 pmdumplog -m -z $tmp.arch irix.kernel.all.load \
+	| tee -a $seq.full \
 	| sed \
 	    -e '/^$/d' \
 	    -e '/^[0-9]/{
@@ -233,8 +236,12 @@ then
     echo "irix.kernel.all.load the same ... good"
 else
     echo "irix.kernel.all.load different ... BAD"
-    pmdumplog -z -l -S "@00:00:00" -T "@12:00:00" -m archives/rattle irix.kernel.all.load >>$seq.full
-    pmdumplog -m -l -z $tmp.arch irix.kernel.all.load >>$seq.full
+    echo "--- filtered values from original archive ---" >>$seq.full
+    cat $tmp.m >>$seq.full
+    pmlogcheck -v archives/rattle >>$seq.full 2>&1
+    echo "--- filtered values from extracted archive ---" >>$seq.full
+    cat $tmp.a >>$seq.full
+    pmlogcheck -v $tmp.arch >>$seq.full 2>&1
 fi
 
 

@@ -130,7 +130,6 @@ class TapestatReport(pmcc.MetricGroupPrinter):
 
         if precision == 1:
             utilspace=precision+5
-            avgrqszspace=precision+7
             awaitspace=precision+6
             rrqmspace=precision+5
             wrqmspace=precision+5
@@ -138,19 +137,17 @@ class TapestatReport(pmcc.MetricGroupPrinter):
             headfmtquspace=precision+7
         elif precision == 0:
             utilspace=precision+5
-            avgrqszspace=precision+8
             awaitspace=precision+7
             rrqmspace=precision+6
             wrqmspace=precision+6
-            headfmtavgspace=avgrqszspace
+            headfmtavgspace=precision+8
             headfmtquspace=precision+8
         else:
             utilspace=precision+5
-            avgrqszspace=precision+6
             awaitspace=precision+5
             rrqmspace=precision+5
             wrqmspace=precision+5
-            headfmtavgspace=avgrqszspace
+            headfmtavgspace=precision+6
             headfmtquspace=precision+6
 
         if "t" in TapestatOptions.xflag:

@@ -1,0 +1,3 @@
+ALL_RULES = average_queue_length average_wait_time bandwidth iops
+
+LOCAL_RULES = $(ALL_RULES)

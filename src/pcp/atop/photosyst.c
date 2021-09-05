@@ -327,7 +327,7 @@ photosyst(struct sstat *si)
 	{
 		size = nrcpu * sizeof(struct percpu);
 		si->cpu.cpu = (struct percpu *)realloc(si->cpu.cpu, size);
-		ptrverify(si->cpu.cpu, "photosyst cpus [%ld]", (long)size);
+		ptrverify(si->cpu.cpu, "photosyst cpus [%zu]", size);
 	}
 	for (i=0; i < nrcpu; i++)
 	{
@@ -410,7 +410,7 @@ photosyst(struct sstat *si)
 	{
 		size = (nrintf + 1) * sizeof(struct perintf);
 		si->intf.intf = (struct perintf *)realloc(si->intf.intf, size);
-		ptrverify(si->intf.intf, "photosyst intf [%d]\n", (long)size);
+		ptrverify(si->intf.intf, "photosyst intf [%zu]\n", size);
 	}
 	for (i=0; i < nrintf; i++)
 	{
@@ -560,7 +560,7 @@ photosyst(struct sstat *si)
 	{
 		size = (nrdisk + 1) * sizeof(struct perdsk);
 		si->dsk.dsk = (struct perdsk *)realloc(si->dsk.dsk, size);
-		ptrverify(si->dsk.dsk, "photosyst disk [%ld]\n", (long)size);
+		ptrverify(si->dsk.dsk, "photosyst disk [%zu]\n", size);
 	}
 	for (i=0; i < nrdisk; i++)
 	{
@@ -582,7 +582,7 @@ photosyst(struct sstat *si)
 	{
 		size = (nrlvm + 1) * sizeof(struct perdsk);
 		si->dsk.lvm = (struct perdsk *)realloc(si->dsk.lvm, size);
-		ptrverify(si->dsk.lvm, "photosyst lvm [%ld]\n", (long)size);
+		ptrverify(si->dsk.lvm, "photosyst lvm [%zu]\n", size);
 	}
 	for (i=0; i < nrlvm; i++)
 	{
@@ -604,7 +604,7 @@ photosyst(struct sstat *si)
 	{
 		size = (nrmdd + 1) * sizeof(struct perdsk);
 		si->dsk.mdd = (struct perdsk *)realloc(si->dsk.mdd, size);
-		ptrverify(si->dsk.mdd, "photosyst md [%ld]\n", (long)size);
+		ptrverify(si->dsk.mdd, "photosyst md [%zu]\n", size);
 	}
 
 	for (i=0; i < nrmdd; i++)
@@ -660,7 +660,7 @@ photosyst(struct sstat *si)
 	{
 		size = (nrnfs + 1) * sizeof(struct pernfsmount);
 		si->nfs.nfsmounts.nfsmnt = (struct pernfsmount *)realloc(si->nfs.nfsmounts.nfsmnt, size);
-		ptrverify(si->nfs.nfsmounts.nfsmnt, "photosyst nfs [%ld]\n", (long)size);
+		ptrverify(si->nfs.nfsmounts.nfsmnt, "photosyst nfs [%zu]\n", size);
 	}
 
 	for (i=0; i < nrnfs; i++)
@@ -715,7 +715,7 @@ photosyst(struct sstat *si)
 	{
 		size = (nrports + 1) * sizeof(struct perifb);
 		si->ifb.ifb = (struct perifb *)realloc(si->ifb.ifb, size);
-		ptrverify(si->ifb.ifb, "photosyst ifb [%d]\n", (long)size);
+		ptrverify(si->ifb.ifb, "photosyst ifb [%zu]\n", size);
 	}
 
 	for (i=0; i < nrports; i++)

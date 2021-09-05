@@ -57,11 +57,11 @@ main(int argc, char **argv)
     buf[0] = 0xaaaaaaaa;
     buf[1] = 0xbbbbbbbb;
     buf[2] = 0xcccccccc;
-    __pmLogPutTimestamp(&stamp, buf);
+    __pmPutTimestamp(&stamp, buf);
     if (pmDebugOptions.appl0)
 	printf("buf: %08x %08x %08x\n", buf[0], buf[1] ,buf[2]);
     stamp.sec = stamp.nsec = 0;
-    __pmLogLoadTimestamp(buf, &stamp);
+    __pmLoadTimestamp(buf, &stamp);
     printf("output: %" FMT_INT64 ".%09d (%016llx %08x)\n", stamp.sec, stamp.nsec, (unsigned long long)stamp.sec, stamp.nsec);
 
     printf("\n");
@@ -70,11 +70,11 @@ main(int argc, char **argv)
     buf[0] = 0xaaaaaaaa;
     buf[1] = 0xbbbbbbbb;
     buf[2] = 0xcccccccc;
-    __pmLogPutTimeval(&stamp, buf);
+    __pmPutTimeval(&stamp, buf);
     if (pmDebugOptions.appl0)
 	printf("buf: %08x %08x %08x\n", buf[0], buf[1] ,buf[2]);
     stamp.sec = stamp.nsec = 0;
-    __pmLogLoadTimeval(buf, &stamp);
+    __pmLoadTimeval(buf, &stamp);
     printf("output: % " FMT_INT64 ".%06d (%016llx %08x)\n", stamp.sec, stamp.nsec / 1000, (unsigned long long)stamp.sec, stamp.nsec / 1000);
 
     return 0;

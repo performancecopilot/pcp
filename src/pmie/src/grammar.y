@@ -403,17 +403,77 @@ quant	: ALL_QUANT dom bexp
 	;
 
 rexp	: pexp EQ_REL pexp
-		{   $$ = relExpr(CND_EQ, $1, $3); }
+		{
+		    if ($1 != NULL && $3 != NULL)
+			$$ = relExpr(CND_EQ, $1, $3);
+		    else {
+			if ($1 != NULL)
+			    freeExpr($1);
+			if ($3 != NULL)
+			    freeExpr($3);
+			$$ = NULL;
+		    }
+		}
 	| pexp NEQ_REL pexp
-		{   $$ = relExpr(CND_NEQ, $1, $3); }
+		{
+		    if ($1 != NULL && $3 != NULL)
+			$$ = relExpr(CND_NEQ, $1, $3);
+		    else {
+			if ($1 != NULL)
+			    freeExpr($1);
+			if ($3 != NULL)
+			    freeExpr($3);
+			$$ = NULL;
+		    }
+		}
 	| aexp '<' aexp
-		{   $$ = relExpr(CND_LT, $1, $3); }
+		{
+		    if ($1 != NULL && $3 != NULL)
+			$$ = relExpr(CND_LT, $1, $3);
+		    else {
+			if ($1 != NULL)
+			    freeExpr($1);
+			if ($3 != NULL)
+			    freeExpr($3);
+			$$ = NULL;
+		    }
+		}
 	| aexp '>' aexp
-		{   $$ = relExpr(CND_GT, $1, $3); }
+		{
+		    if ($1 != NULL && $3 != NULL)
+			$$ = relExpr(CND_GT, $1, $3);
+		    else {
+			if ($1 != NULL)
+			    freeExpr($1);
+			if ($3 != NULL)
+			    freeExpr($3);
+			$$ = NULL;
+		    }
+		}
 	| aexp LEQ_REL aexp
-		{   $$ = relExpr(CND_LTE, $1, $3); }
+		{
+		    if ($1 != NULL && $3 != NULL)
+			$$ = relExpr(CND_LTE, $1, $3);
+		    else {
+			if ($1 != NULL)
+			    freeExpr($1);
+			if ($3 != NULL)
+			    freeExpr($3);
+			$$ = NULL;
+		    }
+		}
 	| aexp GEQ_REL aexp
-		{   $$ = relExpr(CND_GTE, $1, $3); }
+		{
+		    if ($1 != NULL && $3 != NULL)
+			$$ = relExpr(CND_GTE, $1, $3);
+		    else {
+			if ($1 != NULL)
+			    freeExpr($1);
+			if ($3 != NULL)
+			    freeExpr($3);
+			$$ = NULL;
+		    }
+		}
 
 	/* error reporting */
 	| error EQ_REL
@@ -465,20 +525,69 @@ aexp	: '(' aexp ')'
 	| aggr
 		{   $$ = $1; }
 	| RATE aexp
-		{   $$ = numMergeExpr(CND_RATE, $2); }
+		{   if ($2 != NULL)
+			$$ = numMergeExpr(CND_RATE, $2);
+		    else
+			$$ = NULL;
+		}
 	| INSTANT aexp
-		{   $2->sem = PM_SEM_INSTANT;
-		    $$ = unaryExpr(CND_INSTANT, $2); }
+		{   if ($2 != NULL) {
+			$2->sem = PM_SEM_INSTANT;
+			$$ = unaryExpr(CND_INSTANT, $2);
+		    }
+		    else
+			$$ = NULL;
+		}
 	| '-' aexp		%prec UMINUS
-		{   $$ = unaryExpr(CND_NEG, $2); }
+		{   if ($2 != NULL)
+			$$ = unaryExpr(CND_NEG, $2);
+		    else
+			$$ = NULL;
+		}
 	| aexp '+' aexp
-		{   $$ = binaryExpr(CND_ADD, $1, $3); }
+		{   if ($1 != NULL && $3 != NULL)
+			$$ = binaryExpr(CND_ADD, $1, $3);
+		    else {
+			if ($1 != NULL)
+			    freeExpr($1);
+			if ($3 != NULL)
+			    freeExpr($3);
+			$$ = NULL;
+		    }
+		}
 	| aexp '-' aexp
-		{   $$ = binaryExpr(CND_SUB, $1, $3); }
+		{   if ($1 != NULL && $3 != NULL)
+			$$ = binaryExpr(CND_SUB, $1, $3);
+		    else {
+			if ($1 != NULL)
+			    freeExpr($1);
+			if ($3 != NULL)
+			    freeExpr($3);
+			$$ = NULL;
+		    }
+		}
 	| aexp '*' aexp
-		{   $$ = binaryExpr(CND_MUL, $1, $3); }
+		{   if ($1 != NULL && $3 != NULL)
+			$$ = binaryExpr(CND_MUL, $1, $3);
+		    else {
+			if ($1 != NULL)
+			    freeExpr($1);
+			if ($3 != NULL)
+			    freeExpr($3);
+			$$ = NULL;
+		    }
+		}
 	| aexp '/' aexp
-		{   $$ = binaryExpr(CND_DIV, $1, $3); }
+		{   if ($1 != NULL && $3 != NULL)
+			$$ = binaryExpr(CND_DIV, $1, $3);
+		    else {
+			if ($1 != NULL)
+			    freeExpr($1);
+			if ($3 != NULL)
+			    freeExpr($3);
+			$$ = NULL;
+		    }
+		}
 
 	/* error reporting */
 	| RATE error

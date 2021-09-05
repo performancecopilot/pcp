@@ -1,0 +1,67 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+#
+
+rule	per_disk.iops
+	summary	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_inst (
+    ( disk.dev.total $hosts$ $disks$ > $iops$ count/sec )
+      &&
+    ( disk.dev.avactive $hosts$ $disks$ * 100 > $threshold$ )
+)"
+	enabled	= no
+	version	= 1
+	help	=
+"The disk device utilization for at least one disk exceeded the
+given threshold percent of time during the last sample interval
+and for at least one device the average Input/Ouput Operations
+Per Second (IOPS) rate (reads and writes) exceeded a configured
+IOPS limit.";
+
+string	rule
+	default	= "High system device IOPS utilization"
+	modify	= no
+	display	= no;
+
+unsigned	iops
+	default	= 120
+	help	=
+"The total Input/Ouput Operations Per Second (IOPS) rate (reads
+and writes), such as 120 per second, at which we consider the
+system block device to be IOPS saturated.";
+
+percent	threshold
+	default	= 95
+	help	=
+"Threshold percentage of time for I/O utilisation, in the range
+0 (idle) to 100 (busy).  Busy is defined as the percentage of
+time during the evaluation interval that the device was busy
+processing requests (reads and writes).
+A value of 100 percent indicates possible device saturation.";
+
+instlist	disks
+	default	= "sda"
+	help	=
+"Set to a list of local disk device names for which the rule will
+be evaluated, as a subset of available block devices.  The device
+names can be set using the \"modify per_disk.iops disks ...\"
+command, where the disk device names are enclosed in double quotes
+and separated by white space, eg. \"sda sdb sdc\".
+Use the command:
+	$ pminfo -f disk.dev.total_bytes
+to discover the names of the available disk device names.";
+
+string	action_expand
+	default	= "%viops[%i]@%h"
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h disk: %i iops: %v"
+	display	= no
+	modify	= no;
+
+#
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

@@ -36,13 +36,13 @@ GetClient(int n)
  * Modify an attribute value for this client
  */
 int
-SetClientAttribute(int client, int attr, char *value)
+SetClientAttribute(int clientid, int attr, char *value)
 {
     int			sts;
     ClientInfo		*cp;
     __pmHashNode	*node;
 
-    if ((cp = GetClient(client)) == NULL)
+    if ((cp = GetClient(clientid)) == NULL)
 	return -EINVAL;
 
     if ((value = strdup(value)) == NULL)

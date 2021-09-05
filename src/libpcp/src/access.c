@@ -898,7 +898,7 @@ int
 __pmAccAddGroup(const char *name, unsigned int specOps, unsigned int denyOps, int maxcons)
 {
     size_t		need;
-    unsigned int	nusers;
+    unsigned int	numusers;
     int			i = 0, sts, wildcard, found = 0;
     char		errmsg[256];
     char		*groupname;
@@ -973,8 +973,8 @@ __pmAccAddGroup(const char *name, unsigned int specOps, unsigned int denyOps, in
 	    groupname = gp->groupname;
 	    groupid = gp->groupid;
 	    userids = gp->userids;
-	    nusers = gp->nusers;
-	} else if ((sts = __pmGroupsUserIDs(name, &userids, &nusers)) < 0) {
+	    numusers = gp->nusers;
+	} else if ((sts = __pmGroupsUserIDs(name, &userids, &numusers)) < 0) {
 	    pmNotifyErr(LOG_ERR,
 			"Failed to lookup users in group \"%s\": %s\n",
 			name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
@@ -986,7 +986,7 @@ __pmAccAddGroup(const char *name, unsigned int specOps, unsigned int denyOps, in
 	gp->groupname = groupname;
 	gp->groupid = groupid;
 	gp->userids = userids;
-	gp->nusers = nusers;
+	gp->nusers = numusers;
 	gp->specOps = specOps;
 	gp->denyOps = specOps & denyOps;
 	gp->maxcons = maxcons;
@@ -1016,7 +1016,7 @@ int
 __pmAccAddUser(const char *name, unsigned int specOps, unsigned int denyOps, int maxcons)
 {
     size_t		need;
-    unsigned int	ngroups;
+    unsigned int	numgroups;
     int			i = 0, sts, wildcard, found = 0;
     char		errmsg[256];
     char		*username;
@@ -1090,9 +1090,9 @@ __pmAccAddUser(const char *name, unsigned int specOps, unsigned int denyOps, int
 	    up = &userlist[i];   /* for use when overwriting below */
 	    username = up->username;
 	    userid = up->userid;
-	    ngroups = up->ngroups;
+	    numgroups = up->ngroups;
 	    groupids = up->groupids;
-	} else if ((sts = __pmUsersGroupIDs(name, &groupids, &ngroups)) < 0) {
+	} else if ((sts = __pmUsersGroupIDs(name, &groupids, &numgroups)) < 0) {
 	    pmNotifyErr(LOG_ERR,
 			"Failed to lookup groups for user \"%s\": %s\n",
 			name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
@@ -1104,7 +1104,7 @@ __pmAccAddUser(const char *name, unsigned int specOps, unsigned int denyOps, int
 	up->username = username;
 	up->userid = userid;
 	up->groupids = groupids;
-	up->ngroups = ngroups;
+	up->ngroups = numgroups;
 	up->specOps = specOps;
 	up->denyOps = specOps & denyOps;
 	up->maxcons = maxcons;

@@ -1,0 +1,10 @@
+QA output created by 1816
+QA output created by 1815 --valgrind
+=== std out ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -l LOG -c CONF -a ARCHIVE
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

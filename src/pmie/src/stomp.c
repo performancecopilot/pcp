@@ -34,7 +34,7 @@ static char pmietopic[] = "PMIE";	/* default JMS "topic" for pmie */
 
 static char buffer[4096];
 
-static int stomp_connect(const char *hostname, int port)
+static int stomp_connect(const char *host_arg, int port_arg)
 {
     __pmSockAddr *myaddr;
     __pmHostEnt *servinfo;
@@ -45,7 +45,7 @@ static int stomp_connect(const char *hostname, int port)
     int ret;
     int flags = 0;
 
-    if ((servinfo = __pmGetAddrInfo(hostname)) == NULL)
+    if ((servinfo = __pmGetAddrInfo(host_arg)) == NULL)
 	return -1;
 
     fd = -1;
@@ -67,7 +67,7 @@ static int stomp_connect(const char *hostname, int port)
 	}
 
 	/* Attempt to connect */
-	flags = __pmConnectTo(fd, myaddr, port);
+	flags = __pmConnectTo(fd, myaddr, port_arg);
 	__pmSockAddrFree(myaddr);
 
 	if (flags < 0) {
@@ -156,12 +156,12 @@ static int stomp_read_ack(void)
     return 0;
 }
 
-static int stomp_write(const char *buffer, int length)
+static int stomp_write(const char *buf_arg, int length)
 {
     int sts;
 
     do {
-	sts = send(fd, buffer, length, 0);
+	sts = send(fd, buf_arg, length, 0);
 	if (sts < 0) {
 	    pmNotifyErr(LOG_ERR, "Write error to JMS server %s:%d - %s",
 			hostname, port, netstrerror());

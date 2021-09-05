@@ -1435,15 +1435,22 @@ PCP_CALL extern void __pmIgnoreSignalPIPE(void);
 PCP_CALL extern void __pmFreeHighResResult(pmHighResResult *);
 
 /*
- * Loading archive records and fields from disk ...
+ * Loading archive records from disk ...
  */
 PCP_CALL extern int __pmLogLoadInDom(__pmArchCtl *, int, int, pmInResult *, __pmTimestamp *, __int32_t **);
 PCP_CALL extern int __pmLogLoadLabel(__pmFILE *, __pmLogLabel *);
 PCP_CALL extern void __pmLogFreeLabel(__pmLogLabel *);
-PCP_CALL extern void __pmLogLoadTimestamp(const __int32_t *, __pmTimestamp *);
-PCP_CALL extern void __pmLogLoadTimeval(const __int32_t *, __pmTimestamp *);
-PCP_CALL extern void __pmLogPutTimestamp(const __pmTimestamp *, __int32_t *);
-PCP_CALL extern void __pmLogPutTimeval(const __pmTimestamp *, __int32_t *);
+
+/*
+ * Routines to pack (Put) and unpack (Load) each timestamp format
+ * to/from a __pmTimestamp ... used to dink with PDU buffer and
+ * on-disk records for archives.
+ * Does endian-safe "hton" for Put, and "ntoh" for Load functions.
+ */
+PCP_CALL extern void __pmLoadTimestamp(const __int32_t *, __pmTimestamp *);
+PCP_CALL extern void __pmLoadTimeval(const __int32_t *, __pmTimestamp *);
+PCP_CALL extern void __pmPutTimestamp(const __pmTimestamp *, __int32_t *);
+PCP_CALL extern void __pmPutTimeval(const __pmTimestamp *, __int32_t *);
 
 #ifdef __cplusplus
 }

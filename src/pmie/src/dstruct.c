@@ -530,11 +530,11 @@ newHost(Task *owner, Symbol name, Symbol conn)
 
 
 Task *
-newTask(RealTime delta, int nth)
+newTask(RealTime delta_arg, int nth)
 {
     Task *t = (Task *) zalloc(sizeof(Task));
     t->nth = nth;
-    t->delta = delta;
+    t->delta = delta_arg;
     return t;
 }
 

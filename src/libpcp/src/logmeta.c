@@ -907,11 +907,11 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 
 	    k = 0;
 	    if (h.type == TYPE_LABEL_V2) {
-		__pmLogLoadTimeval((__int32_t *)&tbuf[k], &stamp);
+		__pmLoadTimeval((__int32_t *)&tbuf[k], &stamp);
 		k += 2*sizeof(__int32_t);
 	    }
 	    else {
-		__pmLogLoadTimestamp((__int32_t *)&tbuf[k], &stamp);
+		__pmLoadTimestamp((__int32_t *)&tbuf[k], &stamp);
 		k += sizeof(__uint64_t) + sizeof(__int32_t);
 	    }
 
@@ -1706,7 +1706,7 @@ pmGetInDomArchive(pmInDom indom, int **instlist, char ***namelist)
 }
 
 void
-__pmLogLoadTimestamp(const __int32_t *buf, __pmTimestamp *tsp)
+__pmLoadTimestamp(const __int32_t *buf, __pmTimestamp *tsp)
 {
     /*
      * need to dodge endian issues here ... want the MSB 32-bits of sec
@@ -1716,24 +1716,24 @@ __pmLogLoadTimestamp(const __int32_t *buf, __pmTimestamp *tsp)
     tsp->nsec = buf[2];
     __ntohpmTimestamp(tsp);
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
-	fprintf(stderr, "__pmLogLoadTimestamp: network(%08x%08x %08x nsec)", buf[0], buf[1], buf[2]);
+	fprintf(stderr, "__pmLoadTimestamp: network(%08x%08x %08x nsec)", buf[0], buf[1], buf[2]);
 	fprintf(stderr, " -> %" FMT_INT64 ".%09d (%llx %x nsec)\n", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec);
     }
 }
 
 void
-__pmLogLoadTimeval(const __int32_t *buf, __pmTimestamp *tsp)
+__pmLoadTimeval(const __int32_t *buf, __pmTimestamp *tsp)
 {
     tsp->sec = (__int32_t)ntohl(buf[0]);
     tsp->nsec = ntohl(buf[1]) * 1000;
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
-	fprintf(stderr, "__pmLogLoadTimeval: network(%08x %08x usec)", buf[0], buf[1]);
+	fprintf(stderr, "__pmLoadTimeval: network(%08x %08x usec)", buf[0], buf[1]);
 	fprintf(stderr, " -> %" FMT_INT64 ".%09d (%llx %x nsec)\n", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec);
     }
 }
 
 void
-__pmLogPutTimestamp(const __pmTimestamp *tsp, __int32_t *buf)
+__pmPutTimestamp(const __pmTimestamp *tsp, __int32_t *buf)
 {
     __pmTimestamp	stamp;
     stamp = *tsp;
@@ -1746,18 +1746,18 @@ __pmLogPutTimestamp(const __pmTimestamp *tsp, __int32_t *buf)
     buf[1] = stamp.sec & 0xffffffff;
     buf[2] = stamp.nsec;
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
-	fprintf(stderr, "__pmLogPutTimestamp: %" FMT_INT64 ".%09d (%llx %x nsec)", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec);
+	fprintf(stderr, "__pmPutTimestamp: %" FMT_INT64 ".%09d (%llx %x nsec)", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec);
 	fprintf(stderr, " -> network(%08x%08x %08x nsec)\n", buf[0], buf[1], buf[2]);
     }
 }
 
 void
-__pmLogPutTimeval(const __pmTimestamp *tsp, __int32_t *buf)
+__pmPutTimeval(const __pmTimestamp *tsp, __int32_t *buf)
 {
     buf[0] = htonl((__int32_t)tsp->sec);
     buf[1] = htonl(tsp->nsec / 1000);
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
-	fprintf(stderr, "__pmLogPutTimeval: %" FMT_INT64 ".%09d (%llx %x nsec %x usec)", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec, tsp->nsec / 1000);
+	fprintf(stderr, "__pmPutTimeval: %" FMT_INT64 ".%09d (%llx %x nsec %x usec)", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec, tsp->nsec / 1000);
 	fprintf(stderr, " -> network(%08x %08x usec)\n", buf[0], buf[1]);
     }
 }

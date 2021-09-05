@@ -38,7 +38,7 @@ percent	threshold
 to 100 (completely busy)";
 
 unsigned	max_cpu_count
-	default	= 4
+	default	= 12
 	help	=
 "Upper limit on number of processors for this rule - this rule will
 apply to configurations of between two and max_cpu_count CPUs.

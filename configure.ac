@@ -473,6 +473,11 @@ else
        ])
     ])
 fi
+dnl Add other non-default gcc static checking flags
+if ! echo "$CFLAGS" | grep -- -Wshadow >/dev/null
+then
+    AS_IF([test "x$cc_is_gcc" = xyes ],[PCFLAGS="$PCFLAGS -Wshadow"])
+fi
 AC_SUBST(PCFLAGS)
 AC_SUBST(PLDFLAGS)
 

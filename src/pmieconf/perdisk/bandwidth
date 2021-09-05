@@ -1,0 +1,65 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+#
+
+rule	per_disk.bandwidth
+	summary	= "$rule$"
+	enumerate = hosts
+	predicate =
+"some_inst (
+    ( disk.dev.total_bytes $hosts$ $disks$ > $bandwidth$ Mbytes/sec )
+      &&
+    ( disk.dev.avactive $hosts$ $disks$ * 100 > $threshold$ )
+)"
+	enabled	= no
+	version	= 1
+	help	=
+"The disk device utilization for at least one disk exceeded the
+given threshold percent of time during the last sample interval
+and for at least one device the average transfer rate (reads and
+writes) exceeded the configured bandwidth limit.";
+
+string	rule
+	default	= "High system device bandwidth utilization"
+	modify	= no
+	display	= no;
+
+unsigned	bandwidth
+	default	= 100
+	help	=
+"The total bandwidth, such as 100 megabytes per second, at which
+we consider the system block device to be bandwidth saturated.";
+
+percent	threshold
+	default	= 95
+	help	=
+"Threshold percentage of time for I/O utilisation, in the range
+0 (idle) to 100 (busy).  Busy is defined as the percentage of
+time during the evaluation interval that the device was busy
+processing requests (reads and writes).
+A value of 100 percent indicates possible device saturation.";
+
+instlist	disks
+	default	= "sda"
+	help	=
+"Set to a list of local disk device names for which the rule will
+be evaluated, as a subset of available block devices.  The device
+names can be set using the \"modify per_disk.bandwidth disks ...\"
+command, where the disk device names are enclosed in double quotes
+and separated by white space, eg. \"sda sdb sdc\".
+Use the command:
+	$ pminfo -f disk.dev.total_bytes
+to discover the names of the available disk device names.";
+
+string	action_expand
+	default	= "%vb/s[%i]@%h"
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h disk: %i b/s: %v"
+	display	= no
+	modify	= no;
+
+#
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

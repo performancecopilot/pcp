@@ -93,7 +93,7 @@ __pmLogPutIndex_v3(const __pmArchCtl *acp, const __pmTimestamp * const tsp)
 	    tsp->sec, tsp->nsec, ti.vol, off_meta, off_data);
     }
 
-    __pmLogPutTimestamp(tsp, &ti.sec[0]);
+    __pmPutTimestamp(tsp, &ti.sec[0]);
     ti.vol = htonl(ti.vol);
     __htonll((char *)&ti.off_meta[0]);
     __htonll((char *)&ti.off_data[0]);
@@ -162,7 +162,7 @@ __pmLogPutIndex_v2(const __pmArchCtl *acp, const __pmTimestamp *tsp)
 	    tsp->sec, tsp->nsec / 1000, ti.vol, off_meta, off_data);
     }
 
-    __pmLogPutTimeval(tsp, &ti.sec);
+    __pmPutTimeval(tsp, &ti.sec);
     ti.vol = htonl(ti.vol);
     ti.off_meta = htonl((__int32_t)off_meta);
     ti.off_data = htonl((__int32_t)off_data);
@@ -280,7 +280,7 @@ __pmLogLoadIndex(__pmLogCtl *lcp)
 	     */
 	    if (__pmLogVersion(lcp) == PM_LOG_VERS03) {
 		__pmTI_v3	*tip_v3 = (__pmTI_v3 *)buffer;
-		__pmLogLoadTimestamp(&tip_v3->sec[0], &tip->stamp);
+		__pmLoadTimestamp(&tip_v3->sec[0], &tip->stamp);
 		tip->vol = ntohl(tip_v3->vol);
 		__ntohll((char *)&tip_v3->off_meta[0]);
 		__ntohll((char *)&tip_v3->off_data[0]);
@@ -290,7 +290,7 @@ __pmLogLoadIndex(__pmLogCtl *lcp)
 	    else {
 		/* __pmLogVersion(lcp) == PM_LOG_VERS02 */
 		__pmTI_v2	*tip_v2 = (__pmTI_v2 *)buffer;
-		__pmLogLoadTimeval(&tip_v2->sec, &tip->stamp);
+		__pmLoadTimeval(&tip_v2->sec, &tip->stamp);
 		tip->vol = ntohl(tip_v2->vol);
 		tip->off_meta = ntohl(tip_v2->off_meta);
 		tip->off_data = ntohl(tip_v2->off_data);

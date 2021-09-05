@@ -2118,7 +2118,7 @@ __dminit_configfile(const char *fname)
 			 * sequences ... may need more input for multi-line
 			 * <value>s
 			 */
-			char	*q = value;
+			char	*v = value;
 			int	esc = 0;
 			int	xtralines = 0;
 			for ( ; ; ) {
@@ -2135,7 +2135,7 @@ __dminit_configfile(const char *fname)
 			    }
 			    if (c == '\n')
 				xtralines++;
-			    if (q >= &value[vlen]) {
+			    if (v >= &value[vlen]) {
 				/*
 				 * out the end of the value buffer ... use
 				 * a "doubling" algorithm
@@ -2148,7 +2148,7 @@ __dminit_configfile(const char *fname)
 				    pmNoMem("pmLoadDerivedConfig: expand value", 2*vlen, PM_FATAL_ERR);
 				    /*NOTREACHED*/
 				}
-				q = &tmp_value[q - value];
+				v = &tmp_value[v - value];
 				value = tmp_value;
 				vlen *= 2;
 			    }
@@ -2160,7 +2160,7 @@ __dminit_configfile(const char *fname)
 				 * "continuation"
 				 */
 				if (c != '\n')
-				    *q++ = c;
+				    *v++ = c;
 				continue;
 			    }
 			    if (c == '\\') {
@@ -2168,10 +2168,10 @@ __dminit_configfile(const char *fname)
 				continue;
 			    }
 			    if (c == delim) {
-				*q++ = '\0';
+				*v++ = '\0';
 				break;
 			    }
-			    *q++ = c;
+			    *v++ = c;
 			}
 			if (xtralines > 1)
 			    lineno += xtralines - 1;

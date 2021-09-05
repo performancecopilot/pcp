@@ -363,23 +363,23 @@ map_identifier(symbol_t *table, int tsize, int symbol_id)
 
 /* parse yes/no attribute value; returns 0 no, 1 yes, -1 error */
 int
-map_boolean(char *token)
+map_boolean(char *word)
 {
-    if (token[0] == 'y')
+    if (word[0] == 'y')
 	return 1;
-    if (token[0] == 'n')
+    if (word[0] == 'n')
 	return 0;
-    parse_error("yes or no", token);
+    parse_error("yes or no", word);
     return -1;
 }
 
 
 /* scan token from string, return 1 ok, 0 no more, -1 error */
 int
-string_token(char **scan, char *token)
+string_token(char **scan, char *word)
 {
     char	*s = *scan;
-    char	*t = token;
+    char	*t = word;
 
     while (! isgraph((int)*s) || *s == ',') {
 	if (*s == '\0')
@@ -947,7 +947,7 @@ prime_next_pread(FILE *f, int end)
  * nb: `end' can be either EOL or EOF, depending on use of this routine
  */
 int
-read_token(FILE *f, char *token, int token_length, int end)
+read_token(FILE *f, char *buffer, int buffer_length, int end)
 {
     int	c;
     int	n = 0;
@@ -961,20 +961,20 @@ read_token(FILE *f, char *token, int token_length, int end)
 	while (c != '"') {
 	    if (c == '\\')
 		c = mygetc(f);
-	    if (c == end || c == EOF || n == token_length-1) {
-		token[n] = '\0';
-		parse_error("end-of-string", token);
+	    if (c == end || c == EOF || n == buffer_length-1) {
+		buffer[n] = '\0';
+		parse_error("end-of-string", buffer);
 		return -1;
 	    }
 	    if (c == '\n' && end != '\n')
 		linenum++;
-	    token[n++] = c;
+	    buffer[n++] = c;
 	    c = mygetc(f);
 	}
 	break;
     case ';':
     case '=':
-	token[n++] = c;			/* single char token */
+	buffer[n++] = c;		/* single char token */
 	break;
     default:				/* some other token */
 	while (isgraph(c)) {
@@ -982,12 +982,12 @@ read_token(FILE *f, char *token, int token_length, int end)
 		ungetc(c, f);
 		break;
 	    }
-	    if (n == token_length) {
-		token[n] = '\0';
-		parse_error("end-of-token", token);
+	    if (n == buffer_length) {
+		buffer[n] = '\0';
+		parse_error("end-of-token", buffer);
 		return -1;
 	    }
-	    token[n++] = c;
+	    buffer[n++] = c;
 	    c = mygetc(f);
 	    if (c == end || c == EOF)
 		ungetc(c, f);
@@ -997,7 +997,7 @@ read_token(FILE *f, char *token, int token_length, int end)
 	break;
     }
 
-    token[n] = '\0';
+    buffer[n] = '\0';
     return 1;
 }
 

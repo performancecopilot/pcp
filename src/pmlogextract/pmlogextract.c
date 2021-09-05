@@ -1236,7 +1236,7 @@ write_rec(reclist_t *rec)
 		pmTimeval	*tvp;
 		pmTimeval	when;
 		int		k = 2;
-		int		type;
+		int		label_type;
 		int		ident;
 		char		buf[1024];
 
@@ -1244,22 +1244,22 @@ write_rec(reclist_t *rec)
 		when.tv_sec = ntohl(tvp->tv_sec);
 		when.tv_usec = ntohl(tvp->tv_usec);
 		k += sizeof(pmTimeval)/sizeof(rec->pdu[0]);
-		type = ntoh_pmLabelType((unsigned int)rec->pdu[k++]);
+		label_type = ntoh_pmLabelType((unsigned int)rec->pdu[k++]);
 		ident = ntoh_pmInDom((unsigned int)rec->pdu[k++]);
 		fprintf(stderr, "LABELSET: %s when: ",
-			__pmLabelIdentString(ident, type, buf, sizeof(buf)));
+			__pmLabelIdentString(ident, label_type, buf, sizeof(buf)));
 		__pmPrintTimeval(stderr, &when);
 		fputc('\n', stderr);
 	    }
 	    else if (type == TYPE_TEXT) {
 		int		k = 2;
-		int		type;
+		int		text_type;
 		int		ident;
 
-		type = ntoh_pmTextType((unsigned int)rec->pdu[k++]);
+		text_type = ntoh_pmTextType((unsigned int)rec->pdu[k++]);
 		fprintf(stderr, "TEXT: type: %s ",
-			((type & PM_TEXT_ONELINE)) ? "oneline" : "help");
-		if ((type & PM_TEXT_PMID)) {
+			((text_type & PM_TEXT_ONELINE)) ? "oneline" : "help");
+		if ((text_type & PM_TEXT_PMID)) {
 		    ident = ntoh_pmID((unsigned int)rec->pdu[k++]);
 		    fprintf(stderr, "TEXT: PMID: %s", pmIDStr(ident));
 		}
@@ -2265,6 +2265,7 @@ checkwinend(pmTimeval now)
     pmTimeval	tmptime;
     inarch_t	*iap;
     __int32_t	*markpdu;	/* mark b/n time windows */
+    mark_t      *p;
 
     if (winend.tv_sec < 0 || tvcmp(&now, &winend) <= 0)
 	return(0);
@@ -2326,6 +2327,9 @@ checkwinend(pmTimeval now)
     /* must create "mark" record and write it out */
     /* (need only one mark record) */
     markpdu = _createmark();
+    p = (mark_t *)markpdu;
+    p->timestamp.tv_sec = htonl(p->timestamp.tv_sec);
+    p->timestamp.tv_usec = htonl(p->timestamp.tv_usec);
     if ((sts = __pmLogPutResult2(&archctl, (__pmPDU *)markpdu)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		pmGetProgname(), pmErrStr(sts));
@@ -2758,10 +2762,10 @@ main(int argc, char **argv)
 	printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
     }
     else {
-	char	*tz;
-        tz = __pmTimezone();
+	char	*local_tz;
+        local_tz = __pmTimezone();
 	/* use TZ from local host */
-	if ((sts = pmNewZone(tz)) < 0) {
+	if ((sts = pmNewZone(local_tz)) < 0) {
 	    fprintf(stderr, "%s: Cannot set local host's timezone: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 	    exit_status = 1;

@@ -5,6 +5,7 @@ global/GNUmakefile
 memory/GNUmakefile
 network/GNUmakefile
 percpu/GNUmakefile
+perdisk/GNUmakefile
 pernetif/GNUmakefile
 power/GNUmakefile
 primary/GNUmakefile

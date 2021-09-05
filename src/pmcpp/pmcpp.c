@@ -860,7 +860,7 @@ more:
 		char		*p;
 		char		*q;
 		char		*pend;
-		char		c;
+		char		saved;
 		FILE		*f;
 
 		if (skip_if_false) {
@@ -895,11 +895,11 @@ more:
 		    err("Unexpected extra text in %cinclude line", ctl);
 		    /*NOTREACHED*/
 		}
-		c = *pend;
+		saved = *pend;
 		*pend = '\0';
 		f = do_include(p, &p);
 		if (f == NULL) {
-		    *pend = c;
+		    *pend = saved;
 		    err("Cannot open file for %cinclude", ctl);
 		    /*NOTREACHED*/
 		}
@@ -907,7 +907,7 @@ more:
 		currfile->lineno = 0;
 		currfile->fin = f;
 		currfile->fname = strdup(p);
-		*pend = c;
+		*pend = saved;
 		if (currfile->fname == NULL) {
 		    pmNoMem("pmcpp: include file name alloc", strlen(p)+1, PM_FATAL_ERR);
 		    /*NOTREACHED*/
@@ -921,7 +921,7 @@ more:
 		char		*p;
 		char		*q;
 		char		*pend;
-		char		c;
+		char		saved;
 		FILE		*f;
 
 		if (skip_if_false) {
@@ -956,7 +956,7 @@ more:
 		    err("Unexpected extra text in %cshell line", ctl);
 		    /*NOTREACHED*/
 		}
-		c = *pend;
+		saved = *pend;
 		*pend = '\0';
 		f = do_shell(p);
 		if (f == NULL) {
@@ -966,7 +966,7 @@ more:
 		     * message from sh(1) goes to stderr and pclose()
 		     * will return badness
 		     */
-		    *pend = c;
+		    *pend = saved;
 		    err("Cannot open pipe for %cshell", ctl);
 		    /*NOTREACHED*/
 		}
@@ -974,7 +974,7 @@ more:
 		currfile->lineno = 0;
 		currfile->fin = f;
 		currfile->fname = strdup("<shell>");
-		*pend = c;
+		*pend = saved;
 		if (currfile->fname == NULL) {
 		    pmNoMem("pmcpp: shell file name alloc", strlen(p)+1, PM_FATAL_ERR);
 		    /*NOTREACHED*/

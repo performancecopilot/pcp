@@ -7,6 +7,8 @@
 #
 # check-group-exclude: pmlogger
 # check-group-exclude: pmnewlog
+# check-group-include: pmlogextract
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"

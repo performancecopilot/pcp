@@ -92,7 +92,7 @@ queue_drop_bytes(int handle, event_queue_t *queue, size_t bytes)
 }
 
 int
-pmdaEventNewActiveQueue(const char *name, size_t maxmemory, unsigned int numclients)
+pmdaEventNewActiveQueue(const char *name, size_t maxmemory, unsigned int nclients)
 {
     event_queue_t *queue;
     size_t size;
@@ -132,7 +132,7 @@ pmdaEventNewActiveQueue(const char *name, size_t maxmemory, unsigned int numclie
     memset(queue, 0, sizeof(*queue));
     TAILQ_INIT(&queue->tailq); 
     queue->eventarray = pmdaEventNewArray();
-    queue->numclients = numclients;
+    queue->numclients = nclients;
     queue->maxmemory = maxmemory;
     queue->inuse = 1;
     queue->name = name;

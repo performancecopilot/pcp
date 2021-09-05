@@ -110,7 +110,7 @@ __pmLogWriteLabel(__pmFILE *f, const __pmLogLabel *lp)
 	/* swab */
 	label.magic = htonl(lp->magic);
 	label.pid = htonl(lp->pid);
-	__pmLogPutTimestamp(&lp->start, &label.start_sec[0]);
+	__pmPutTimestamp(&lp->start, &label.start_sec[0]);
 	label.vol = htonl(lp->vol);
 	label.features = htonl(lp->features);
 	label.reserved = 0;
@@ -141,7 +141,7 @@ __pmLogWriteLabel(__pmFILE *f, const __pmLogLabel *lp)
 	/* swab */
 	label.magic = htonl(lp->magic);
 	label.pid = htonl(lp->pid);
-	__pmLogPutTimeval(&lp->start, &label.start_sec);
+	__pmPutTimeval(&lp->start, &label.start_sec);
 	label.vol = htonl(lp->vol);
 	memset(label.hostname, 0, sizeof(label.hostname));
 	bytes = MINIMUM(strlen(lp->hostname), PM_LOG_MAXHOSTLEN - 1);
@@ -233,7 +233,7 @@ __pmLogLoadLabel(__pmFILE *f, __pmLogLabel *lp)
 
 	/* swab external log label record */
 	lp->pid = ntohl(label.pid);
-	__pmLogLoadTimestamp(&label.start_sec[0], &lp->start);
+	__pmLoadTimestamp(&label.start_sec[0], &lp->start);
 	lp->vol = ntohl(label.vol);
 	lp->features = ntohl(label.features);
 	if (lp->hostname)
@@ -271,7 +271,7 @@ __pmLogLoadLabel(__pmFILE *f, __pmLogLabel *lp)
 
 	/* swab external log label record */
 	lp->pid = ntohl(label.pid);
-	__pmLogLoadTimeval(&label.start_sec, &lp->start);
+	__pmLoadTimeval(&label.start_sec, &lp->start);
 	lp->vol = ntohl(label.vol);
 	lp->features = 0;		/* not supported in v2 */
 	if (lp->hostname)

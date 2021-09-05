@@ -1,0 +1,71 @@
+#!/bin/sh
+# PCP QA Test No. 1815
+# Ensure pmie can use default pmieconf config with archives.
+#
+# Copyright (c) 2021 Red Hat.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s,$tmp.log,LOG,g" \
+	-e "s,$tmp.conf,CONF,g" \
+	-e "s,$archive,ARCHIVE,g" \
+    | _filter_pmie_log
+}
+
+# real QA test starts here
+archive="archives/pcp-zeroconf"	# any old archive really
+
+# generate default set of pmie rules
+pmieconf -F -f $tmp.conf
+
+if $do_valgrind
+then
+    _run_valgrind pmie -l $tmp.log -c $tmp.conf -a $archive
+    status=$?
+else
+    pmie -l $tmp.log -c $tmp.conf -a $archive
+    status=$?
+fi \
+| _filter
+
+echo "== pmie config ==" >> $here/$seq.full
+cat $tmp.conf >> $here/$seq.full
+echo "== pmie log ==" >> $here/$seq.full
+cat $tmp.log >> $here/$seq.full
+
+# success, all done
+exit

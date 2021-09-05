@@ -294,14 +294,12 @@ dump(FILE *fp, hdr_t *h, int do_hash)
     }
 
     if (h->ctl_inst != NULL) {
-	int	i;
 	fprintf(fp, "inst hash\n");
 	for (i = 0; i < h->hsize; i++) {
 	    dump_hash_list(fp, h, 0, i);
 	}
     }
     if (h->ctl_name != NULL) {
-	int	i;
 	fprintf(fp, "name hash\n");
 	for (i = 0; i < h->hsize; i++) {
 	    dump_hash_list(fp, h, 1, i);

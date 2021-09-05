@@ -60,7 +60,7 @@ cndOr_n_n(Expr *x)
     EVALARG(arg2)
     ROTATE(x)
 
-    if (arg1->valid && arg2->valid && x->tspan > 0) {
+    if (arg1->valid && arg2->valid && x->tspan > 0 && x->tspan == arg1->tspan && x->tspan == arg2->tspan) {
 	ip1 = (Boolean *)is1->ptr;
 	ip2 = (Boolean *)is2->ptr;
 	op = (Boolean *)os->ptr;
@@ -72,7 +72,7 @@ cndOr_n_n(Expr *x)
 	os->stamp = (is1->stamp > is2->stamp) ? is1->stamp : is2->stamp;
 	x->valid++;
     }
-    else if (arg1->valid && x->tspan > 0) {
+    else if (arg1->valid && x->tspan > 0 && x->tspan == arg1->tspan) {
 	ip1 = (Boolean *)is1->ptr;
 	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
@@ -82,7 +82,7 @@ cndOr_n_n(Expr *x)
 	os->stamp = is1->stamp;
 	x->valid++;
     }
-    else if (arg2->valid && x->tspan > 0) {
+    else if (arg2->valid && x->tspan > 0 && x->tspan == arg2->tspan) {
 	ip2 = (Boolean *)is2->ptr;
 	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
@@ -117,7 +117,7 @@ cndOr_n_1(Expr *x)
     EVALARG(arg2)
     ROTATE(x)
 
-    if (arg1->valid && arg2->valid && x->tspan > 0) {
+    if (arg1->valid && arg2->valid && x->tspan > 0 && x->tspan == arg1->tspan) {
 	ip1 = (Boolean *)is1->ptr;
 	iv2 = *(Boolean *)is2->ptr;
 	op = (Boolean *)os->ptr;
@@ -128,7 +128,7 @@ cndOr_n_1(Expr *x)
 	os->stamp = (is1->stamp > is2->stamp) ? is1->stamp : is2->stamp;
 	x->valid++;
     }
-    else if (arg1->valid && x->tspan > 0) {
+    else if (arg1->valid && x->tspan > 0 && x->tspan == arg1->tspan) {
 	ip1 = (Boolean *)is1->ptr;
 	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
@@ -168,7 +168,7 @@ cndOr_1_n(Expr *x)
     EVALARG(arg2)
     ROTATE(x)
 
-    if (arg1->valid && arg2->valid && x->tspan > 0) {
+    if (arg1->valid && arg2->valid && x->tspan > 0 && x->tspan == arg2->tspan) {
 	iv1 = *(Boolean *)is1->ptr;
 	ip2 = (Boolean *)is2->ptr;
 	op = (Boolean *)os->ptr;
@@ -184,7 +184,7 @@ cndOr_1_n(Expr *x)
 	os->stamp = is1->stamp;
 	x->valid++;
     }
-    else if (arg2->valid && x->tspan > 0) {
+    else if (arg2->valid && x->tspan > 0 && x->tspan == arg2->tspan) {
 	ip2 = (Boolean *)is2->ptr;
 	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
@@ -262,7 +262,7 @@ cndAnd_n_n(Expr *x)
     EVALARG(arg2)
     ROTATE(x)
 
-    if (arg1->valid && arg2->valid) {
+    if (arg1->valid && arg2->valid && x->tspan > 0 && x->tspan == arg1->tspan && x->tspan == arg2->tspan) {
 	ip1 = (Boolean *)is1->ptr;
 	ip2 = (Boolean *)is2->ptr;
 	op = (Boolean *)os->ptr;
@@ -274,7 +274,7 @@ cndAnd_n_n(Expr *x)
 	os->stamp = (is1->stamp > is2->stamp) ? is1->stamp : is2->stamp;
 	x->valid++;
     }
-    else if (arg1->valid) {
+    else if (arg1->valid && x->tspan > 0 && x->tspan == arg1->tspan) {
 	ip1 = (Boolean *)is1->ptr;
 	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
@@ -284,7 +284,7 @@ cndAnd_n_n(Expr *x)
 	os->stamp = is1->stamp;
 	x->valid++;
     }
-    else if (arg2->valid) {
+    else if (arg2->valid && x->tspan > 0 && x->tspan == arg2->tspan) {
 	ip2 = (Boolean *)is2->ptr;
 	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
@@ -319,7 +319,7 @@ cndAnd_n_1(Expr *x)
     EVALARG(arg2)
     ROTATE(x)
 
-    if (arg1->valid && arg2->valid && x->tspan > 0) {
+    if (arg1->valid && arg2->valid && x->tspan > 0 && x->tspan == arg1->tspan) {
 	ip1 = (Boolean *)is1->ptr;
 	iv2 = *(Boolean *)is2->ptr;
 	op = (Boolean *)os->ptr;
@@ -330,7 +330,7 @@ cndAnd_n_1(Expr *x)
 	os->stamp = (is1->stamp > is2->stamp) ? is1->stamp : is2->stamp;
 	x->valid++;
     }
-    else if (arg1->valid && x->tspan > 0) {
+    else if (arg1->valid && x->tspan > 0 && x->tspan == arg1->tspan) {
 	ip1 = (Boolean *)is1->ptr;
 	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
@@ -370,7 +370,7 @@ cndAnd_1_n(Expr *x)
     EVALARG(arg2)
     ROTATE(x)
 
-    if (arg1->valid && arg2->valid && x->tspan > 0) {
+    if (arg1->valid && arg2->valid && x->tspan > 0 && x->tspan == arg2->tspan) {
 	iv1 = *(Boolean *)is1->ptr;
 	ip2 = (Boolean *)is2->ptr;
 	op = (Boolean *)os->ptr;
@@ -386,7 +386,7 @@ cndAnd_1_n(Expr *x)
 	os->stamp = is1->stamp;
 	x->valid++;
     }
-    else if (arg2->valid && x->tspan > 0) {
+    else if (arg2->valid && x->tspan > 0 && x->tspan == arg2->tspan) {
 	ip2 = (Boolean *)is2->ptr;
 	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {

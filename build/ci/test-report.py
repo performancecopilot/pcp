@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import sys
 import os
 import shutil
 import argparse
@@ -22,9 +21,7 @@ class Test:
     def __init__(self, name: str):
         self.name = name
         self.groups = []
-        self.host = ""
         self.platform = ""
-        self.runner = ""
         self.path = ""
         self.description = ""
         self.start = 0
@@ -35,7 +32,7 @@ class Test:
 
 def read_test_durations(timings_path: str) -> Dict[str, List[int]]:
     test_durations = {}
-    with open(timings_path) as f:
+    with open(timings_path, encoding="utf-8") as f:
         for line in f:
             no, start, stop = line.strip().split()
             test_durations[no] = [int(start), int(stop)]
@@ -44,7 +41,7 @@ def read_test_durations(timings_path: str) -> Dict[str, List[int]]:
 
 def read_test_groups(group_path: str) -> Dict[str, List[str]]:
     tests = {}
-    with open(group_path) as f:
+    with open(group_path, encoding="utf-8") as f:
         for line in f:
             spl = line.rstrip().split()
             if len(spl) >= 2 and spl[0].isdigit():
@@ -57,11 +54,11 @@ def read_testlog(
     testartifacts_dir: str,
     groups: Dict[str, List[str]],
     test_durations: Dict[str, List[int]],
-    host: str,
+    platform: str,
 ) -> List[Test]:
     tests: List[Test] = []
     testlog_path = os.path.join(testartifacts_dir, "test.log")
-    with open(testlog_path) as testlog_file:
+    with open(testlog_path, encoding="utf-8") as testlog_file:
         for line in testlog_file:
             # [xx%] will be displayed if there are more than 9 tests
             #  Xs ... will be displayed if test was already run
@@ -72,17 +69,14 @@ def read_testlog(
 
             if success_m or notrun_m or failed_m or cancelled_m:
                 test_no = (success_m or notrun_m or failed_m or cancelled_m).group(1)
-                platform, runner = host.split("-")
 
                 test = Test(test_no)
                 test.groups = groups[test_no]
-                test.host = host
                 test.platform = platform
-                test.runner = runner
                 test.path = testartifacts_dir
                 test.start, test.stop = test_durations[test_no]
                 test.description = ""
-                with open(os.path.join(qa_dir, test_no)) as f:
+                with open(os.path.join(qa_dir, test_no), encoding="utf-8") as f:
                     next(f)  # skip shebang
                     for test_line in f:
                         if test_line == "\n":
@@ -113,36 +107,35 @@ def read_testlog(
     return tests
 
 
-def read_hosts(qa_dir: str, artifacts_path: str) -> List[Test]:
+def read_platforms(qa_dir: str, artifacts_path: str) -> List[Test]:
     groups = read_test_groups(os.path.join(qa_dir, "group"))
-    hosts = set()
+    platforms = set()
     tests = []
     for artifact_dir in os.listdir(artifacts_path):
         if artifact_dir.startswith("build-"):
-            host = artifact_dir[len("build-") :]
-            hosts.add(host)
+            platform = artifact_dir[len("build-") :]
+            platforms.add(platform)
         elif artifact_dir.startswith("test-"):
-            host = artifact_dir[len("test-") :]
-            hosts.add(host)
+            platform = artifact_dir[len("test-") :]
+            platforms.add(platform)
 
             testartifacts_dir = os.path.join(artifacts_path, artifact_dir)
             test_timings_file = os.path.join(testartifacts_dir, "check.timings")
 
             test_durations = read_test_durations(test_timings_file)
-            tests.extend(read_testlog(qa_dir, testartifacts_dir, groups, test_durations, host))
-    return list(hosts), tests
+            tests.extend(read_testlog(qa_dir, testartifacts_dir, groups, test_durations, platform))
+    return list(platforms), tests
 
 
 def print_test_report_csv(tests: List[Test], f):
     writer = csv.writer(f)
-    writer.writerow(["Name", "Groups", "Platform", "Runner", "Start", "Stop", "Duration", "Status"])
+    writer.writerow(["Name", "Groups", "Platform", "Start", "Stop", "Duration", "Status"])
     for test in tests:
         writer.writerow(
             [
                 test.name,
                 ",".join(test.groups),
                 test.platform,
-                test.runner,
                 test.start,
                 test.stop,
                 test.stop - test.start,
@@ -189,8 +182,8 @@ def print_test_summary(tests: List[Test]):
 def write_allure_result(test: Test, commit: str, allure_results_path: str):
     allure_result = {
         "name": f"QA {test.name}",
-        "fullName": f"QA #{test.name} on {test.host}",
-        "historyId": f"{test.name}@{test.host}",
+        "fullName": f"QA #{test.name} on {test.platform}",
+        "historyId": f"{test.name}@{test.platform}",
         "description": test.description,
         "status": test.status,
         "statusDetails": {"message": test.message, "flaky": "flakey" in test.groups},
@@ -198,8 +191,8 @@ def write_allure_result(test: Test, commit: str, allure_results_path: str):
         "start": test.start * 1000,
         "stop": test.stop * 1000,
         "labels": [
-            {"name": "suite", "value": test.host},
-            {"name": "host", "value": test.host},
+            {"name": "suite", "value": test.platform},
+            {"name": "host", "value": test.platform},
         ],
         "links": [
             {
@@ -221,12 +214,12 @@ def write_allure_result(test: Test, commit: str, allure_results_path: str):
     if test.status in [Test.Status.Failed, Test.Status.Broken]:
         allure_result["description"] += (
             f"**To reproduce this test in a container, please run:**\n\n"
-            f"    ./build/ci/run.py --runner {test.runner} --platform {test.platform} reproduce"
+            f"    build/ci/ci-run.py {test.platform} reproduce"
         )
 
         out_bad = os.path.join(test.path, f"{test.name}.out.bad")
         if os.path.exists(out_bad):
-            out_bad_attachment_fn = f"{test.host}-{test.name}.out.bad-attachment.txt"
+            out_bad_attachment_fn = f"{test.platform}-{test.name}.out.bad-attachment.txt"
             shutil.copyfile(out_bad, os.path.join(allure_results_path, out_bad_attachment_fn))
             allure_result["attachments"].append(
                 {
@@ -238,7 +231,7 @@ def write_allure_result(test: Test, commit: str, allure_results_path: str):
 
         out_full = os.path.join(test.path, f"{test.name}.full")
         if os.path.exists(out_full):
-            out_full_attachment_fn = f"{test.host}-{test.name}.full-attachment.txt"
+            out_full_attachment_fn = f"{test.platform}-{test.name}.full-attachment.txt"
             shutil.copyfile(out_full, os.path.join(allure_results_path, out_full_attachment_fn))
             allure_result["attachments"].append(
                 {
@@ -248,7 +241,7 @@ def write_allure_result(test: Test, commit: str, allure_results_path: str):
                 }
             )
 
-    with open(os.path.join(allure_results_path, f"{test.host}-{test.name}-result.json"), "w") as f:
+    with open(os.path.join(allure_results_path, f"{test.platform}-{test.name}-result.json"), "w") as f:
         json.dump(allure_result, f)
 
 
@@ -256,27 +249,27 @@ def send_slack_notification(
     slack_channel: str,
     github_run_url: str,
     qa_report_url: str,
-    hosts: List[str],
+    platforms: List[str],
     tests: List[Test],
 ):
-    host_stats = defaultdict(lambda: {"passed": 0, "failed": 0, "skipped": 0, "cancelled": 0})
+    platform_stats = defaultdict(lambda: {"passed": 0, "failed": 0, "skipped": 0, "cancelled": 0})
     for test in tests:
         if test.status == Test.Status.Passed:
-            host_stats[test.host]["passed"] += 1
+            platform_stats[test.platform]["passed"] += 1
         elif test.status == Test.Status.Skipped:
-            host_stats[test.host]["skipped"] += 1
+            platform_stats[test.platform]["skipped"] += 1
         elif test.status == Test.Status.Broken and test.message == "test cancelled":
-            host_stats[test.host]["cancelled"] += 1
+            platform_stats[test.platform]["cancelled"] += 1
         elif test.status in [Test.Status.Failed, Test.Status.Broken]:
-            host_stats[test.host]["failed"] += 1
+            platform_stats[test.platform]["failed"] += 1
 
-    host_texts = []
-    for host in sorted(hosts):
-        if host in host_stats:
-            stats = host_stats[host]
-            host_stats_text = f"Passed: {stats['passed']}, Failed: {stats['failed']}, Skipped: {stats['skipped']}"
+    platform_texts = []
+    for platform in sorted(platforms):
+        if platform in platform_stats:
+            stats = platform_stats[platform]
+            platform_stats_text = f"Passed: {stats['passed']}, Failed: {stats['failed']}, Skipped: {stats['skipped']}"
             if stats["cancelled"] > 0:
-                host_stats_text = f"CANCELLED ({host_stats_text})"
+                platform_stats_text = f"CANCELLED ({platform_stats_text})"
 
             if stats["cancelled"] > 0 or stats["passed"] < 1000:
                 symbol = ":x:"
@@ -285,17 +278,17 @@ def send_slack_notification(
             else:
                 symbol = ":heavy_check_mark:"
         else:
-            host_stats_text = "Build BROKEN"
+            platform_stats_text = "Build BROKEN"
             symbol = ":x:"
-        host_texts.append(f"*{host}*:\n{symbol} {host_stats_text}")
+        platform_texts.append(f"*{platform}*:\n{symbol} {platform_stats_text}")
 
-    host_blocks = []
+    platform_blocks = []
     # slack only allows max 10 fields inside one block
-    for i in range(0, len(host_texts), 10):
-        host_blocks.append(
+    for i in range(0, len(platform_texts), 10):
+        platform_blocks.append(
             {
                 "type": "section",
-                "fields": [{"type": "mrkdwn", "text": text} for text in host_texts[i : i + 10]],
+                "fields": [{"type": "mrkdwn", "text": text} for text in platform_texts[i : i + 10]],
             }
         )
 
@@ -309,7 +302,7 @@ def send_slack_notification(
                         "text": {"type": "mrkdwn", "text": "*Daily QA:*"},
                     }
                 ]
-                + host_blocks
+                + platform_blocks
                 + [
                     {
                         "type": "section",
@@ -346,7 +339,7 @@ def main():
     parser.add_argument("--qa-report-url", dest="qa_report_url")  # required only for slack message
     args = parser.parse_args()
 
-    hosts, tests = read_hosts(args.qa, args.artifacts)
+    platforms, tests = read_platforms(args.qa, args.artifacts)
 
     if args.summary:
         print_test_summary(tests)
@@ -361,7 +354,7 @@ def main():
 
     if args.slack_channel:
         print()
-        send_slack_notification(args.slack_channel, args.github_run_url, args.qa_report_url, hosts, tests)
+        send_slack_notification(args.slack_channel, args.github_run_url, args.qa_report_url, platforms, tests)
 
 
 if __name__ == "__main__":

@@ -235,7 +235,7 @@ __pmSendNameList(int fd, int from, int numnames, const char *namelist[],
     nlistp->numnames = htonl(numnames);
 
     if (statuslist == NULL) {
-        int i, j = 0, namelen;
+        int j = 0, namelen;
         nlistp->numstatus = htonl(0);
 	for(i=0; i<numnames; i++) {
 	    nt = (name_t*)&nlistp->names[j/sizeof(__pmPDU)];
@@ -253,7 +253,7 @@ __pmSendNameList(int fd, int from, int numnames, const char *namelist[],
 	}
     }
     else { /* include the status fields */
-        int i, j = 0, namelen;
+        int j = 0, namelen;
         nlistp->numstatus = htonl(numnames);
 	for(i=0; i<numnames; i++) {
 	    nst = (name_status_t*)&nlistp->names[j/sizeof(__pmPDU)];

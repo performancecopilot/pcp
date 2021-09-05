@@ -2263,10 +2263,10 @@ pmWebGroupSetup(pmWebGroupModule *module)
 int
 pmWebGroupSetEventLoop(pmWebGroupModule *module, void *events)
 {
-    struct webgroups	*webgroups = webgroups_lookup(module);
+    struct webgroups	*groups = webgroups_lookup(module);
 
-    if (webgroups) {
-	webgroups->events = (uv_loop_t *)events;
+    if (groups) {
+	groups->events = (uv_loop_t *)events;
 	return 0;
     }
     return -ENOMEM;
@@ -2275,7 +2275,7 @@ pmWebGroupSetEventLoop(pmWebGroupModule *module, void *events)
 int
 pmWebGroupSetConfiguration(pmWebGroupModule *module, dict *config)
 {
-    struct webgroups	*webgroups = webgroups_lookup(module);
+    struct webgroups	*groups = webgroups_lookup(module);
     char		*endnum;
     sds			value;
 
@@ -2303,8 +2303,8 @@ pmWebGroupSetConfiguration(pmWebGroupModule *module, dict *config)
 	    default_batchsize = DEFAULT_BATCHSIZE;
     }
 
-    if (webgroups) {
-	webgroups->config = config;
+    if (groups) {
+	groups->config = config;
 	return 0;
     }
     return -ENOMEM;
@@ -2313,47 +2313,47 @@ pmWebGroupSetConfiguration(pmWebGroupModule *module, dict *config)
 static void
 pmWebGroupSetupMetrics(pmWebGroupModule *module)
 {
-    struct webgroups	*webgroups = webgroups_lookup(module);
+    struct webgroups	*groups = webgroups_lookup(module);
     pmUnits            nounits = MMV_UNITS(0,0,0,0,0,0);
     pmInDom            noindom = MMV_INDOM_NULL;
 
-    if (webgroups == NULL || webgroups->metrics == NULL)
+    if (groups == NULL || groups->metrics == NULL)
 	return; /* no metric registry has been set up */
 
     /*
      * Reverse mapping dict metrics
      */
-    mmv_stats_add_metric(webgroups->metrics, "contextmap.size", 1,
+    mmv_stats_add_metric(groups->metrics, "contextmap.size", 1,
 	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, noindom,
 	"context map dictionary size",
 	"number of entries in the context map dictionary");
 
-    mmv_stats_add_metric(webgroups->metrics, "namesmap.size", 2,
+    mmv_stats_add_metric(groups->metrics, "namesmap.size", 2,
 	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, noindom,
 	"metric names map dictionary size",
 	"number of entries in the metric names map dictionary");
 
-    mmv_stats_add_metric(webgroups->metrics, "labelsmap.size", 3,
+    mmv_stats_add_metric(groups->metrics, "labelsmap.size", 3,
 	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, noindom,
 	"labels map dictionary size",
 	"number of entries in the labels map dictionary");
 
-    mmv_stats_add_metric(webgroups->metrics, "instmap.size", 4,
+    mmv_stats_add_metric(groups->metrics, "instmap.size", 4,
 	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, noindom,
 	"instance name map dictionary size",
 	"number of entries in the instance name map dictionary");
 
-    webgroups->metrics_handle = mmv_stats_start(webgroups->metrics);
+    groups->metrics_handle = mmv_stats_start(groups->metrics);
 }
 
 
 int
 pmWebGroupSetMetricRegistry(pmWebGroupModule *module, mmv_registry_t *registry)
 {
-    struct webgroups	*webgroups = webgroups_lookup(module);
+    struct webgroups	*groups = webgroups_lookup(module);
 
-    if (webgroups) {
-	webgroups->metrics = registry;
+    if (groups) {
+	groups->metrics = registry;
 	pmWebGroupSetupMetrics(module);
 	return 0;
     }

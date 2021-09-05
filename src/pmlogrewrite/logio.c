@@ -112,11 +112,11 @@ again:
 	    if (sts >= 0) {
 		__pmTimestamp	stamp;
 		if (vol != PM_LOG_VOL_META)
-		    __pmLogLoadTimeval(&lpb[2], &stamp);
+		    __pmLoadTimeval(&lpb[2], &stamp);
 		else if (ntohl(lpb[1]) == TYPE_INDOM)
-		    __pmLogLoadTimestamp(&lpb[1], &stamp);
+		    __pmLoadTimestamp(&lpb[1], &stamp);
 		else if (ntohl(lpb[1]) == TYPE_INDOM_V2)
-		    __pmLogLoadTimeval(&lpb[1], &stamp);
+		    __pmLoadTimeval(&lpb[1], &stamp);
 		__pmPrintTimestamp(stderr, &stamp);
 	    }
 	    else
@@ -132,11 +132,11 @@ again:
 	if (vol != PM_LOG_VOL_META ||
 	    ntohl(lpb[1]) == TYPE_INDOM || ntohl(lpb[1]) == TYPE_INDOM_V2) {
 	    if (vol != PM_LOG_VOL_META)
-		__pmLogLoadTimeval(&lpb[2], &stamp);
+		__pmLoadTimeval(&lpb[2], &stamp);
 	    else if (ntohl(lpb[1]) == TYPE_INDOM)
-		__pmLogLoadTimestamp(&lpb[1], &stamp);
+		__pmLoadTimestamp(&lpb[1], &stamp);
 	    else if (ntohl(lpb[1]) == TYPE_INDOM_V2)
-		__pmLogLoadTimeval(&lpb[1], &stamp);
+		__pmLoadTimeval(&lpb[1], &stamp);
 	    fprintf(stderr, " timestamp=");
 	    __pmPrintTimestamp(stderr, &stamp);
 	}
