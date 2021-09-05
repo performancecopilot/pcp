@@ -54,7 +54,7 @@ static __pmContext	*ctxp = NULL;
 static char	**sufftab;
 
 static int
-myoverrides(int opt, pmOptions *opts)
+myoverrides(int opt, pmOptions *optsp)
 {
     if (opt == 'N' || opt == 'V')
 	/* -N and -V are for me, not pmGetOptions() */
