@@ -453,5 +453,6 @@ sample.drift the same ... good
 
  --- step 8: test -w flag (with -S, -T and -z) ---
 (output depends on archives/rattle{0,index,meta})
---- dump values for irix.kernel.all.load ---
+--- dump values for irix.kernel.all.load from original archive ---
+--- dump values for irix.kernel.all.load from extracted archive ---
 irix.kernel.all.load the same ... good
