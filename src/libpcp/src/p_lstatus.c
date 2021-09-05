@@ -79,9 +79,9 @@ __pmSendLogStatus(int fd, __pmLoggerStatus *status)
 	/* Conditional convertion from host to network byteorder HAVE to be
 	 * unconditional if one cares about endianess compatibiltity at all!
 	 */
-	__pmLogPutTimeval(&status->start, &pp->start_sec);
-	__pmLogPutTimeval(&status->last, &pp->last_sec);
-	__pmLogPutTimeval(&status->now, &pp->now_sec);
+	__pmPutTimeval(&status->start, &pp->start_sec);
+	__pmPutTimeval(&status->last, &pp->last_sec);
+	__pmPutTimeval(&status->now, &pp->now_sec);
 	pp->state = htonl(status->state);
 	pp->vol = htonl(status->vol);
 	pp->size = status->size;
@@ -142,9 +142,9 @@ __pmDecodeLogStatus(__pmPDU *pdubuf, __pmLoggerStatus **result)
 	/* Conditional convertion from host to network byteorder HAVE to be
 	 * unconditional if one cares about endianess compatibiltity at all!
 	 */
-	__pmLogLoadTimeval(&pp->start_sec, &lsp->start);
-	__pmLogLoadTimeval(&pp->last_sec, &lsp->last);
-	__pmLogLoadTimeval(&pp->now_sec, &lsp->now);
+	__pmLoadTimeval(&pp->start_sec, &lsp->start);
+	__pmLoadTimeval(&pp->last_sec, &lsp->last);
+	__pmLoadTimeval(&pp->now_sec, &lsp->now);
 	lsp->state = ntohl(pp->state);
 	lsp->vol = ntohl(pp->vol);
 	lsp->size = pp->size;
