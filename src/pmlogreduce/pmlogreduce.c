@@ -273,10 +273,8 @@ main(int argc, char **argv)
 	printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
     }
     else {
-	char	*tz;
-        tz = __pmTimezone();
 	/* use TZ from local host */
-	if ((sts = pmNewZone(tz)) < 0) {
+	if ((sts = pmNewZone(__pmTimezone())) < 0) {
 	    fprintf(stderr, "%s: Cannot set local host's timezone: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 	    exit(1);

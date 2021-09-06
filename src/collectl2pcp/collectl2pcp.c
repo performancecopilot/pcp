@@ -207,7 +207,6 @@ main(int argc, char *argv[])
 	infile = argv[opts.optind + filenum];
 	gzipped = strstr(infile, ".gz") != NULL;
 	if (gzipped) {
-	    int sts;
 	    __pmExecCtl_t *argp = NULL;
 	    sts = __pmProcessAddArg(&argp, "gzip");
 	    if (sts == 0) sts = __pmProcessAddArg(&argp, "-c");

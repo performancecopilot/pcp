@@ -324,17 +324,17 @@ resize(int sig)
 #endif
 
 static int
-setupTimeOptions(int ctx, pmOptions *opts, char **tzlabel)
+setupTimeOptions(int ctx, pmOptions *optsp, char **tzlabel)
 {
     char *label = (char *)pmGetContextHostName(ctx);
     char *zone;
 
-    if (pmGetContextOptions(ctx, opts)) {
+    if (pmGetContextOptions(ctx, optsp)) {
 	pmflush();
 	exit(1);
     }
-    if (opts->timezone)
-	*tzlabel = opts->timezone;
+    if (optsp->timezone)
+	*tzlabel = optsp->timezone;
     else
 	*tzlabel = label;
     return pmWhichZone(&zone);
@@ -488,7 +488,7 @@ main(int argc, char *argv[])
 
     /* Do first fetch */
     for (j = 0; j < ctxCount; j++) {
-	struct statsrc *pd = ctxList[j];
+	pd = ctxList[j];
 
 	pmUseContext(pmGetFetchGroupContext(pd->pmfg));
 	if (!opts.guiflag && opts.context == PM_CONTEXT_ARCHIVE)
