@@ -184,7 +184,7 @@ class IostatReport(pmcc.MetricGroupPrinter):
                                  '?',precision+6, '?',precision+6,
                                  '?',headfmtavgspace, '?',headfmtquspace,
                                  '?',precision+5, '?',awaitspace,
-                                 '?',awaitspace, '?',utilspace, '?'))
+                                 '?',awaitspace, '?',utilspace))
             return
 
         try:
