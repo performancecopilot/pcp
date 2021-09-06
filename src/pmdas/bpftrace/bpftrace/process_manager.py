@@ -56,7 +56,7 @@ class ProcessManager():
                 line = line.decode('utf-8')
                 try:
                     process_bpftrace_output(self.runtime_info, script, line)
-                except:  # pylint: disable=bare-except
+                except Exception:  # pylint: disable=broad-except
                     self.logger.error(f"Error parsing bpftrace output, please open a bug report:\n"
                                       f"While reading:\n"
                                       f"{repr(line)}\n"
@@ -272,7 +272,7 @@ class ProcessManager():
                 # foreground tasks (with response)
                 try:
                     getattr(self, cmd[0])(*cmd[1:])
-                except:  # pylint: disable=bare-except
+                except Exception:  # pylint: disable=broad-except
                     self.logger.error(f"exception in main loop: {traceback.format_exc()}")
             elif cmd[0] in ['deregister', 'start', 'stop']:
                 # background tasks (no response)
