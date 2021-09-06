@@ -19,7 +19,7 @@ class DirectRunner:
     def setup(self, pcp_path):
         os.mkdir(self.build_dir)
         # copy sources to a temp folder to not mess up the source dir
-        subprocess.run(["cp", "-a", f"{pcp_path}/", f"{self.build_dir}/pcp/"], check=True)
+        subprocess.run(["rsync", "-a", f"{pcp_path}/", f"{self.build_dir}/pcp/"], check=True)
         self.exec("mkdir -p ../artifacts/build ../artifacts/test")
 
     def destroy(self):
@@ -38,7 +38,7 @@ class DirectRunner:
     def get_artifacts(self, artifact, path):
         subprocess.run(
             [
-                "cp",
+                "rsync",
                 "-a",
                 f"{self.build_dir}/artifacts/{artifact}/",
                 f"{path}/",
