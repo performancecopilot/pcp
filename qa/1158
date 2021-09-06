@@ -28,6 +28,10 @@ $sudo rm -rf $tmp.* $seq.full
 write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
 out_file="$PCP_TMPFILE_DIR/pcp-qa-$seq" # block device required here (no tmpfs)
 
+# tolerance ... +- slop %
+#
+slop=20
+
 _value_filter_bytes()
 {
     cat > $tmp.value
@@ -38,16 +42,16 @@ _value_filter_bytes()
     _values=`awk '/inst.*value/ {print $NF}' $tmp.value`
     for value in $_values
     do
-        if _within_tolerance "Expecting ${write_size} +- 10%" $value ${write_size} 10%
+        if _within_tolerance "Expecting ${write_size} +- $slop%" $value ${write_size} $slop%
 	then
-            echo "found value ${write_size} +- 10%"
+            echo "found value ${write_size} +- $slop%"
 	    _found=true
             break
         fi
     done
     if ! $_found
     then
-	echo "Failed to find writer process [expecting ${write_size} +- 10%] in:"
+	echo "Failed to find writer process [expecting ${write_size} +- $slop%] in:"
 	cat $tmp.value
     fi
 }
