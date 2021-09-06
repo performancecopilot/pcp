@@ -50,6 +50,7 @@ static pmLongOptions longopts[] = {
     { "quick", 0, 'q', 0, "quick mode, no output if no change" },
     { "scale", 0, 's', 0, "do scale conversion" },
     { "verbose", 0, 'v', 0, "increased diagnostic verbosity" },
+    { "version", 1, 'V', "N", "output archive in version N [2/3] format" },
     { "warnings", 0, 'w', 0, "emit warnings [default is silence]" },
     PMOPT_HELP,
     PMAPI_OPTIONS_TEXT(""),
@@ -58,7 +59,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "c:CdD:iqsvw?",
+    .short_options = "c:CdD:iqsvV:w?",
     .long_options = longopts,
     .short_usage = "[options] input-archive [output-archive]",
 };
@@ -88,6 +89,7 @@ int	iflag;				/* -i in-place */
 int	qflag;				/* -q quick or quiet */
 int	sflag;				/* -s scale values */
 int	vflag;				/* -v verbosity */
+int	out_version;			/* -V log version */
 int	wflag;				/* -w emit warnings */
 
 /*
@@ -152,8 +154,10 @@ newlabel(void)
 {
     __pmLogLabel	*lp = &outarch.logctl.label;
 
-    /* copy magic number, pid, host and timezone */
-    lp->magic = inarch.label.ll_magic;
+    /* create magic number with output version */
+    lp->magic = PM_LOG_MAGIC | outarch.version;
+
+    /* copy pid, host and timezone */
     lp->pid = inarch.label.ll_pid;
     if (lp->hostname)
 	free(lp->hostname);
@@ -164,7 +168,7 @@ newlabel(void)
     lp->timezone = (global.flags & GLOBAL_CHANGE_TZ) ?
 	strdup(global.tz) : strdup(inarch.label.ll_tz);
 
-    /* TODO: v3 archive zoneinfo support */
+    /* TODO: v3 archive zoneinfo support - need highres inarch.label */
     if (lp->zoneinfo)
 	free(lp->zoneinfo);
     lp->zoneinfo = NULL;
@@ -374,6 +378,19 @@ parseargs(int argc, char *argv[])
 
 	case 'v':	/* verbosity */
 	    vflag++;
+	    break;
+
+	case 'V':	/* output log version */
+	    outarch.version = atoi(opts.optarg);
+	    if (outarch.version != PM_LOG_VERS02
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+		&& outarch.version != PM_LOG_VERS03
+#endif
+		) {
+		pmprintf("%s: Error: unsupported version (%d) requested\n",
+			pmGetProgname(), outarch.version);
+		opts.errors++;
+	    }
 	    break;
 
 	case 'w':	/* print warnings */
@@ -1483,7 +1500,6 @@ main(int argc, char **argv)
     int		ti_idx;			/* next slot for input temporal index */
     int		dir_fd = -1;		/* poinless initialization to humour gcc */
     int		doneti = 0;
-    int		in_version;
     __pmTimestamp	tstamp = { 0, 0 };	/* for last log record */
     off_t	old_log_offset = 0;	/* log offset before last log record */
     off_t	old_meta_offset;
@@ -1531,14 +1547,14 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    in_version = (inarch.label.ll_magic & 0xff);
-    if (in_version != PM_LOG_VERS02
+    inarch.version = (inarch.label.ll_magic & 0xff);
+    if (inarch.version != PM_LOG_VERS02
 #ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
-	&& in_version != PM_LOG_VERS03
+	&& inarch.version != PM_LOG_VERS03
 #endif
 	) {
 	fprintf(stderr,"%s: Error: illegal version number %d in archive (%s)\n",
-		pmGetProgname(), in_version, inarch.name);
+		pmGetProgname(), inarch.version, inarch.name);
 	exit(1);
     }
 
@@ -1680,10 +1696,12 @@ main(int argc, char **argv)
     }
 
     /* create output log - must be done before writing label */
+    if (outarch.version == 0)
+	outarch.version = PM_LOG_VERS02;
     outarch.archctl.ac_log = &outarch.logctl;
-    if ((sts = __pmLogCreate("", outarch.name, in_version, &outarch.archctl)) < 0) {
-	fprintf(stderr, "%s: Error: __pmLogCreate(%s): %s\n",
-		pmGetProgname(), outarch.name, pmErrStr(sts));
+    if ((sts = __pmLogCreate("", outarch.name, outarch.version, &outarch.archctl)) < 0) {
+	fprintf(stderr, "%s: Error: __pmLogCreate(%s,v%d): %s\n",
+		pmGetProgname(), outarch.name, outarch.version, pmErrStr(sts));
 	/*
 	 * do not cleanup ... if error is EEXIST we should not clobber an
 	 * existing (and persumably) good archive

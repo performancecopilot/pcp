@@ -1,7 +1,7 @@
 /*
  * Label metadata support for pmlogrewrite
  *
- * Copyright (c) 2018 Red Hat.
+ * Copyright (c) 2018,2021 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -689,6 +689,7 @@ do_labelset(void)
     unsigned int	ident = 0;
     int			nsets = 0;
     int			flags = 0;
+    char		idbuf[64];
     pmLabelSet		*labellist;
     pmLabelSet		*lsp;
     __pmTimestamp	stamp;
@@ -697,7 +698,6 @@ do_labelset(void)
     int			ls_ix;
     int			label_ix;
     int			sts;
-    char		buf[64];
 
     out_offset = __pmFtell(outarch.logctl.mdfp);
 
@@ -813,10 +813,10 @@ do_labelset(void)
 		    if (pmDebugOptions.appl1) {
 			fprintf(stderr, "Rewrite: label set %s",
 				__pmLabelIdentString(lp->old_id, lp->old_type,
-						     buf, sizeof(buf)));
+						     idbuf, sizeof(idbuf)));
 			fprintf(stderr, " to %s",
 				__pmLabelIdentString(lp->new_id, lp->new_type,
-						     buf, sizeof(buf)));
+						     idbuf, sizeof(idbuf)));
 		    }
 		}
 
@@ -855,7 +855,7 @@ do_labelset(void)
 		    fprintf(stderr, "%s: Error: __pmLogPutLabels: %s: %s\n",
 			    pmGetProgname(),
 			    __pmLabelIdentString(lp->new_id, type,
-						 buf, sizeof(buf)),
+						 idbuf, sizeof(idbuf)),
 			    pmErrStr(sts));
 		    abandon();
 		    /*NOTREACHED*/
@@ -864,7 +864,7 @@ do_labelset(void)
 		if (pmDebugOptions.appl0) {
 		    fprintf(stderr, "Metadata: write LabelSet %s @ offset=%ld\n",
 			    __pmLabelIdentString(lp->new_id, type,
-						 buf, sizeof(buf)),
+						 idbuf, sizeof(idbuf)),
 			    out_offset);
 		}
 
@@ -948,7 +948,7 @@ do_labelset(void)
 			fprintf(stderr, "%s: Error: __pmLogPutLabels: %s: %s\n",
 				pmGetProgname(),
 				__pmLabelIdentString(lp->new_id, type,
-						     buf, sizeof(buf)),
+						     idbuf, sizeof(idbuf)),
 				pmErrStr(sts));
 			abandon();
 			/*NOTREACHED*/
@@ -980,7 +980,7 @@ do_labelset(void)
 	if ((sts = __pmLogPutLabels(&outarch.archctl, type, ident, nsets, labellist, &stamp)) < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutLabels: %s: %s\n",
 		    pmGetProgname(),
-		    __pmLabelIdentString(ident, type, buf, sizeof(buf)),
+		    __pmLabelIdentString(ident, type, idbuf, sizeof(idbuf)),
 		    pmErrStr(sts));
 	    abandon();
 	    /*NOTREACHED*/
@@ -988,7 +988,8 @@ do_labelset(void)
 
 	if (pmDebugOptions.appl0) {
 	    fprintf(stderr, "Metadata: write LabelSet %s @ offset=%ld\n",
-		    __pmLabelIdentString(ident, type, buf, sizeof(buf)), out_offset);
+		    __pmLabelIdentString(ident, type, idbuf, sizeof(idbuf)),
+		    out_offset);
 	}
     }
 }
