@@ -1471,6 +1471,7 @@ Summary: Performance Co-Pilot (PCP) metrics from eBPF ELF modules
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 Requires: libbpf
+BuildRequires: libbpf-devel clang llvm
 %description pmda-bpf
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 extracting performance metrics from eBPF ELF modules.
@@ -2259,12 +2260,14 @@ interface rules, type enforcement and file context adjustments for an
 updated policy package.
 %endif
 
-%global __strip %{_builddir}/%{?buildsubdir}/build/rpm/custom-strip
 
 %prep
 %setup -q
 
 %build
+# the buildsubdir macro gets defined in %setup and is apparently only available in the next step (i.e. the %build step)
+%global __strip %{_builddir}/%{?buildsubdir}/build/rpm/custom-strip
+
 # fix up build version
 _build=`echo %{release} | sed -e 's/\..*$//'`
 sed -i "/PACKAGE_BUILD/s/=[0-9]*/=$_build/" VERSION.pcp
