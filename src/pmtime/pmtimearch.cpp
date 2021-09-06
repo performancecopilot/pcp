@@ -684,12 +684,13 @@ void PmTimeArch::addBound(PmTime::Packet *k, char *tzdata)
     bool needPulse = PmTime::timevalNonZero(&my.pmtime.position);
 
     console->post(PmTime::DebugProtocol, "PmTimeArch::addBound START: "
-		"p?=%d now=%llu.%u end=%llu.%u start=%u.%u", needPulse,
+		"p?=%d now=%llu.%u end=%llu.%u start=%llu.%u", needPulse,
 		(unsigned long long) my.pmtime.position.tv_sec,
 		(unsigned int) my.pmtime.position.tv_usec,
 		(unsigned long long) my.pmtime.end.tv_sec,
 		(unsigned int) my.pmtime.end.tv_usec,
-		my.pmtime.start.tv_sec, my.pmtime.start.tv_usec);
+		(unsigned long long) my.pmtime.start.tv_sec,
+		(unsigned int) my.pmtime.start.tv_usec);
 
     if (tzdata != NULL)
 	addTimezone(tzdata);
