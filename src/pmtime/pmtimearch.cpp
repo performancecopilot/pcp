@@ -455,8 +455,9 @@ void PmTimeArch::changeSpeed(double value)
     if (reset)
 	my.timer->start(timerInterval());
 
-    console->post("PmTimeArch::changeSpeed changed delta to %d.%d (%.2fs)",
-			my.pmtime.delta.tv_sec, my.pmtime.delta.tv_usec, value);
+    console->post("PmTimeArch::changeSpeed changed delta to %llu.%u (%.2fs)",
+			(unsigned long long) my.pmtime.delta.tv_sec,
+			(unsigned int) my.pmtime.delta.tv_usec, value);
 }
 
 void PmTimeArch::showBounds()
@@ -683,9 +684,11 @@ void PmTimeArch::addBound(PmTime::Packet *k, char *tzdata)
     bool needPulse = PmTime::timevalNonZero(&my.pmtime.position);
 
     console->post(PmTime::DebugProtocol, "PmTimeArch::addBound START: "
-		"p?=%d now=%u.%u end=%u.%u start=%u.%u", needPulse,
-		my.pmtime.position.tv_sec, my.pmtime.position.tv_usec,
-		my.pmtime.end.tv_sec, my.pmtime.end.tv_usec,
+		"p?=%d now=%llu.%u end=%llu.%u start=%u.%u", needPulse,
+		(unsigned long long) my.pmtime.position.tv_sec,
+		(unsigned int) my.pmtime.position.tv_usec,
+		(unsigned long long) my.pmtime.end.tv_sec,
+		(unsigned int) my.pmtime.end.tv_usec,
 		my.pmtime.start.tv_sec, my.pmtime.start.tv_usec);
 
     if (tzdata != NULL)
@@ -710,8 +713,11 @@ void PmTimeArch::addBound(PmTime::Packet *k, char *tzdata)
 	emit vcrModePulse(&my.pmtime, 0);
 
     console->post(PmTime::DebugProtocol, "PmTimeArch::addBound ENDED: "
-		"p?=%d now=%u.%u end=%u.%u start=%u.%u", needPulse,
-		my.pmtime.position.tv_sec, my.pmtime.position.tv_usec,
-		my.pmtime.end.tv_sec, my.pmtime.end.tv_usec,
-		my.pmtime.start.tv_sec, my.pmtime.start.tv_usec);
+		"p?=%d now=%llu.%u end=%llu.%u start=%llu.%u", needPulse,
+		(unsigned long long) my.pmtime.position.tv_sec,
+		(unsigned int) my.pmtime.position.tv_usec,
+		(unsigned long long) my.pmtime.end.tv_sec,
+		(unsigned int) my.pmtime.end.tv_usec,
+		(unsigned long long) my.pmtime.start.tv_sec,
+		(unsigned int) my.pmtime.start.tv_usec);
 }

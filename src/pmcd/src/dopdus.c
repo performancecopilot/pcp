@@ -1334,16 +1334,16 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 			{ PDU_FLAG_LABELS,	"LABELS" },
 			{ PDU_FLAG_HIGHRES,	"HIGHRES" },
 		    };
-		    int	i;
+		    int	n;
 		    int	first = 1;
 		    fprintf(stderr, "DoCreds: version cred (%u) flags=%x (", vcp->c_version, vcp->c_flags);
-		    for (i = 0; i < sizeof(flag_dbg)/sizeof(flag_dbg[0]); i++) {
-			if (flags & flag_dbg[i].flag) {
+		    for (n = 0; n < sizeof(flag_dbg)/sizeof(flag_dbg[0]); n++) {
+			if (flags & flag_dbg[n].flag) {
 			    if (first)
 				first = 0;
 			    else
 				fputc('|', stderr);
-			    fprintf(stderr, "%s", flag_dbg[i].name);
+			    fprintf(stderr, "%s", flag_dbg[n].name);
 			}
 		    }
 		    fprintf(stderr, ")\n");

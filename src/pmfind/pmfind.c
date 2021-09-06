@@ -92,9 +92,9 @@ static pmOptions opts = {
 };
 
 static int
-override(int opt, pmOptions *opts)
+override(int opt, pmOptions *optsp)
 {
-    (void)opts;
+    (void)optsp;
     return (opt == 's' || opt == 't' || opt == 'S');
 }
 
@@ -103,7 +103,7 @@ addOption(const char *option, const char *arg)
 {
     size_t	existingLen, optionLen, argLen;
     size_t	commaLen, equalLen, allocLen;
-    char	*opts;
+    char	*optsp;
 
     /* The existing length and space for a comma. */
     if (options == NULL) {
@@ -132,9 +132,9 @@ addOption(const char *option, const char *arg)
 
     /* Make room for the existing options plus the new option */
     allocLen = existingLen + commaLen + optionLen + equalLen + argLen;
-    if ((opts = realloc(options, allocLen)) == NULL)
+    if ((optsp = realloc(options, allocLen)) == NULL)
 	return -ENOMEM;
-    options = opts;
+    options = optsp;
 
     /* Add the new option. */
     pmsprintf(options + existingLen, allocLen - existingLen, "%s%s%s%s",

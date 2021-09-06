@@ -134,8 +134,9 @@ static void Settings_readFields(Settings* settings, const char* line) {
       }
 
       // Dynamically-defined columns are always stored by-name.
-      char* end, dynamic[32] = {0};
+      char dynamic[32] = {0};
       if (sscanf(ids[i], "Dynamic(%30s)", dynamic)) {
+         char* end;
          if ((end = strrchr(dynamic, ')')) == NULL)
             continue;
          *end = '\0';
@@ -357,9 +358,9 @@ int Settings_write(const Settings* this, bool onCrash) {
    }
 
    #define printSettingInteger(setting_, value_) \
-      fprintf(fd, setting_ "=%d%c", (int) value_, separator);
+      fprintf(fd, setting_ "=%d%c", (int) (value_), separator)
    #define printSettingString(setting_, value_) \
-      fprintf(fd, setting_ "=%s%c", value_, separator);
+      fprintf(fd, setting_ "=%s%c", value_, separator)
 
    if (!onCrash) {
       fprintf(fd, "# Beware! This file is rewritten by htop when settings are changed in the interface.\n");
@@ -542,6 +543,9 @@ Settings* Settings_new(unsigned int initialCpuCount, Hashtable* dynamicColumns) 
    if (!ok) {
       this->changed = true;
       Settings_read(this, SYSCONFDIR "/htoprc", initialCpuCount);
+   }
+   if (!ok) {
+      Settings_defaultMeters(this, initialCpuCount);
    }
    return this;
 }

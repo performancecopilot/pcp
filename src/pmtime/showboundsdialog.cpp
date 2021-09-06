@@ -122,7 +122,7 @@ void ShowBounds::changedStart(double value)
 void ShowBounds::changedEnd(double value)
 {
     if (value != my.localCurrentEnd) {
-	console->post("ShowBounds::changedEnd %.3f -> %.3f", __func__,
+	console->post("ShowBounds::changedEnd %.3f -> %.3f",
 				my.localCurrentEnd, value);
 	my.localCurrentEnd = value;
 	displayEndSlider();

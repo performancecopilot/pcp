@@ -1042,7 +1042,7 @@ dodigit(const char *arg)
  * pminfo has a few options which do not follow the defacto standards
  */
 static int
-myoverrides(int opt, pmOptions *opts)
+myoverrides(int opt, pmOptions *optsp)
 {
     if (opt == 's' || opt == 't' || opt == 'T')
 	return 1;	/* we've claimed these, inform pmGetOptions */
