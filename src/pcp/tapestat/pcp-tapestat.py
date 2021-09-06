@@ -191,13 +191,6 @@ class TapestatReport(pmcc.MetricGroupPrinter):
                     precision + 5, '?', precision + 5, '?',
                     headfmtavgspace - 1, '?', headfmtquspace - 1, '?',
                     precision + 5, '?'))
-            else:
-                print(headfmt % ('NODATA',
-                    rrqmspace - 1, '?', wrqmspace, '?',
-                    precision + 5, '?', precision + 5, '?',
-                    precision + 5, '?', precision + 5, '?',
-                    headfmtavgspace - 1, '?', headfmtquspace - 1, '?',
-                    precision + 5, '?'))
             return
 
         try:
