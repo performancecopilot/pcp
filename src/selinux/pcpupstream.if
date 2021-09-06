@@ -1,1 +1,22 @@
-## <summary></summary>
+########################################
+## <summary>
+##	Manage glusterd log files
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+# Definition ensuring compatibility with systems that do not have this interface
+ifndef(`glusterd_manage_log',`
+        interface(`glusterd_manage_log',`
+                gen_require(`
+                        type glusterd_log_t;
+                ')
+
+                logging_search_logs($1)
+                manage_dirs_pattern($1, glusterd_log_t, glusterd_log_t)
+                manage_files_pattern($1, glusterd_log_t, glusterd_log_t)
+                manage_lnk_files_pattern($1, glusterd_log_t, glusterd_log_t)
+        ')
+')

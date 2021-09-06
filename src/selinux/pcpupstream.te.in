@@ -43,7 +43,6 @@ require {
         type ndc_exec_t;
         type proc_mdstat_t;
         @PCP_NUMAD_CONTEXT@
-        @PCP_GLUSTERD_LOG_T@
         type sysctl_irq_t; #pmda.bcc
         type unconfined_t; #RHBZ1443632
         @PCP_UNCONFINED_SERVICE@
