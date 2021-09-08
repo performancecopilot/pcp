@@ -4,6 +4,8 @@
 #
 # Copyright (c) 2019 Red Hat.  All Rights Reserved.
 #
+# check-group-exclude: pmlc
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"

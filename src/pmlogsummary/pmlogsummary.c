@@ -159,7 +159,7 @@ pmiderr(pmID pmid, const char *msg, ...)
 }
 
 static void
-printstamp(struct timeval *stamp, int delimiter)
+printstamp(struct timeval *stamp, int delim)
 {
     if (dayflag) {
 	char	*ddmm;
@@ -171,12 +171,12 @@ printstamp(struct timeval *stamp, int delimiter)
 	ddmm[10] = ' ';
 	ddmm[11] = '\0';
 	yr = &ddmm[20];
-	printf("%c'%s", delimiter, ddmm);
+	printf("%c'%s", delim, ddmm);
 	pmPrintStamp(stdout, stamp);
 	printf(" %4.4s\'", yr);
     }
     else {
-	printf("%c", delimiter);
+	printf("%c", delim);
 	pmPrintStamp(stdout, stamp);
     }
 }
@@ -592,6 +592,7 @@ markrecord(pmResult *result)
 static void
 calcbinning(pmResult *result)
 {
+    unsigned int	bin;
     int			i, j, k;
     int			sts;
     int			wrap;
@@ -666,10 +667,9 @@ calcbinning(pmResult *result)
 		    if (avedata->desc.sem == PM_SEM_COUNTER)
 			instdata->count = 0;
 		    else {
-			unsigned int sts;
 			instdata->count = 1;
-			sts = findbin(avedata->desc.pmid, av.d, instdata->min, instdata->max);
-			instdata->bin[sts]++;
+			bin = findbin(avedata->desc.pmid, av.d, instdata->min, instdata->max);
+			instdata->bin[bin]++;
 		    }
 		    continue;
 		}
@@ -693,17 +693,15 @@ calcbinning(pmResult *result)
 			tsub(&instdata->firsttime, &instdata->lasttime);
 		    }
 		    else {
-			unsigned int	sts;
 			val = (val - instdata->lastval) / diff;
-			sts = findbin(avedata->desc.pmid, val, instdata->min, instdata->max);
-			instdata->bin[sts]++;
+			bin = findbin(avedata->desc.pmid, val, instdata->min, instdata->max);
+			instdata->bin[bin]++;
 		    }
 		}
 		else {	/* for the other semantics */
-		    unsigned int	sts;
 		    val = av.d;
-		    sts = findbin(avedata->desc.pmid, val, instdata->min, instdata->max);
-		    instdata->bin[sts]++;
+		    bin = findbin(avedata->desc.pmid, val, instdata->min, instdata->max);
+		    instdata->bin[bin]++;
 		}
 		if (!wrap) {
 		    instdata->count++;
@@ -971,7 +969,7 @@ calcaverage(pmResult *result)
 }
 
 static int
-override(int opt, pmOptions *opts)
+override(int opt, pmOptions *optsp)
 {
     if (opt == 'a' || opt == 'H' || opt == 'N' || opt == 'p' || opt == 's')
 	return 1;

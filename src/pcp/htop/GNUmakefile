@@ -197,12 +197,15 @@ install: default
 	$(INSTALL_MAN)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/htop
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/htop/meters
-	@for m in $(METERS); do \
-	    $(INSTALL) -m 644 pcp/meters/$$m $(PCP_SYSCONF_DIR)/htop/meters/$$m; \
-	done
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/htop/columns
+	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/htop
+	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/htop/meters
+	@for m in $(METERS); do \
+	    $(INSTALL) -m 644 pcp/meters/$$m $(PCP_SHARE_DIR)/htop/meters/$$m; \
+	done
+	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/htop/meters
 	@for c in $(COLUMNS); do \
-	    $(INSTALL) -m 644 pcp/columns/$$c $(PCP_SYSCONF_DIR)/htop/columns/$$c; \
+	    $(INSTALL) -m 644 pcp/columns/$$c $(PCP_SHARE_DIR)/htop/columns/$$c; \
 	done
 else
 build-me:

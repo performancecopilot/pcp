@@ -141,7 +141,7 @@ main(int argc, char **argv)
 
     /* non-flag args are argv[opts.optind] ... argv[argc-1] */
     while (opts.optind < argc) {
-	char	*p = argv[opts.optind];
+	char	*p;
 	for (p = argv[opts.optind]; *p && isdigit((int)*p); p++)
 	    ;
 	if (*p == '\0')
@@ -162,7 +162,6 @@ main(int argc, char **argv)
 	printf("#define                 Value  Meaning\n");
 	for (i = 0; i < num_debug; i++) {
 	    if (c & debug_map[i].bit) {
-		char	*p;
 		char	*name = strdup(debug_map[i].name);
 		for (p = name; p != NULL && *p; p++)
 		    *p = toupper((int)*p);

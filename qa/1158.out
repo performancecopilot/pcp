@@ -58,7 +58,7 @@ OK
 === report metric values for io ===
 OK
 === report metric values for bytes ===
-found value 20971520 +- 10%
+found value 20971520 +- 20%
 === report metric values for duration ===
 OK
 

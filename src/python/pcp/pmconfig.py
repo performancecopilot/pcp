@@ -153,6 +153,7 @@ class pmConfig(object):
 
     def set_attr(self, name, value):
         """ Set options read from file """
+        value = str(value)
         if name == 'colxrow':
             # As a special service for pmrep(1) utility we handle
             # its config colxrow parameter here with minimal impact.
@@ -170,7 +171,7 @@ class pmConfig(object):
             if ';' in value:
                 self.util.derived = value
             else:
-                self.util.derived = str(value).replace(",", ";")
+                self.util.derived = value.replace(",", ";")
         elif name == 'samples':
             self.util.opts.pmSetOptionSamples(value)
             self.util.samples = self.util.opts.pmGetOptionSamples()
@@ -188,12 +189,12 @@ class pmConfig(object):
             else:
                 self.util.type_prefer = 0
         elif name == 'instances':
-            self.util.instances = value.split(",") # pylint: disable=no-member
+            self.util.instances = value.split(",")
         else:
             try:
                 setattr(self.util, name, int(value))
             except ValueError:
-                if value.startswith('"') and value.endswith('"'): # pylint: disable=no-member
+                if value.startswith('"') and value.endswith('"'):
                     value = value[1:-1]
                 setattr(self.util, name, value)
 

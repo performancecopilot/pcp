@@ -296,11 +296,11 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 
     if (sts >= 0) {
 	/* send PDU_ERROR, even if result was 0 */
-	int s;
+	int ss;
 	pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, 0);
-	s = __pmSendError(cp->fd, FROM_ANON, 0);
-	if (s < 0)
-	    CleanupClient(cp, s);
+	ss = __pmSendError(cp->fd, FROM_ANON, 0);
+	if (ss < 0)
+	    CleanupClient(cp, ss);
     }
 
     pmFreeResult(result);

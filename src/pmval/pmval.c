@@ -573,7 +573,7 @@ printreal(double v, int sem, int minwidth)
 
 /* Print performance metric values */
 static void
-printvals(Context *x, pmValueSet *vset, int cols)
+printvals(Context *x, pmValueSet *vset)
 {
     int 	i, j;
     pmAtomValue	av;
@@ -707,8 +707,7 @@ printrate(int     valfmt,	/* from pmValueSet */
 static void
 printrates(Context *x,
 	   pmValueSet *vset1, struct timeval stamp1,	/* current values */
-	   pmValueSet *vset2, struct timeval stamp2,	/* previous values */
-	   int cols)
+	   pmValueSet *vset2, struct timeval stamp2)	/* previous values */
 {
     int     i, j, k;
     double  delta;
@@ -848,11 +847,11 @@ getinstance(char *p)
 }
 
 static int
-override(int opt, pmOptions *opts)
+override(int opt, pmOptions *optsp)
 {
     /* need to distinguish between zero argument or not requested */
     if (opt == 's') {
-	if (atoi(opts->optarg) == 0)
+	if (atoi(optsp->optarg) == 0)
 	    nosamples = 1;
     }
     return 0;	/* continue on with using the common code, always */
@@ -1261,7 +1260,7 @@ main(int argc, char *argv[])
 		    /* not doing rate conversion, report this value immediately */
 		    if (opts.guiflag || opts.context == PM_CONTEXT_ARCHIVE)
 			mytimestamp(&rslt2->timestamp);
-		    printvals(&context, rslt2->vset[idx2], cols);
+		    printvals(&context, rslt2->vset[idx2]);
 		    reporting = 1;
 		    continue;
 		}
@@ -1324,10 +1323,10 @@ main(int argc, char *argv[])
 	if (rawEvents)
 	    printevents(&context, rslt1->vset[idx1], cols);
 	else if (rawCounter || (context.desc.sem != PM_SEM_COUNTER))
-	    printvals(&context, rslt1->vset[idx1], cols);
+	    printvals(&context, rslt1->vset[idx1]);
 	else
 	    printrates(&context, rslt1->vset[idx1], rslt1->timestamp,
-		       rslt2->vset[idx2], rslt2->timestamp, cols);
+		       rslt2->vset[idx2], rslt2->timestamp);
 	reporting = 1;
 
 	/*

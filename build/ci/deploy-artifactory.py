@@ -15,13 +15,11 @@ class TimeoutHTTPAdapter(requests.adapters.HTTPAdapter):
     https://findwork.dev/blog/advanced-usage-python-requests-timeouts-retries-hooks/
     """
 
-    def __init__(self, *args, **kwargs):
-        if "timeout" in kwargs:
-            self.timeout = kwargs["timeout"]
-            del kwargs["timeout"]
-        else:
-            raise Exception("Please specify a timeout.")
+    def __init__(self, *args, timeout=None, **kwargs):
         super().__init__(*args, **kwargs)
+        if not timeout:
+            raise Exception("Please specify a timeout.")
+        self.timeout = timeout
 
     def send(self, request, **kwargs):
         timeout = kwargs.get("timeout")

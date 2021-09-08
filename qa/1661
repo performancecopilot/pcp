@@ -129,7 +129,21 @@ _service pmlogger restart 2>&1 | _filter_pcp_start
 _wait_for_pmlogger
 
 _full_log === wait for pmproxy to process filesystem events
-pmsleep 5
+
+# unfortunately, it seems that simply finding all the archives
+# may take a while ... and there is no externally visible pmproxy
+# state we can wait on, so this host-specific heuristic is all I
+# can do to stop the test consistently failing on vm11 - kenj
+#
+case `hostname`
+in
+    vm11.localdomain)
+	    pmsleep 10
+	    ;;
+    *)
+	    pmsleep 5
+	    ;;
+esac
 
 _full_log === checking pmproxy file descriptors for deleted files, should be none 
 $sudo ls -l /proc/$pmproxy_pid/fd | grep 'testarchive.*(deleted)'

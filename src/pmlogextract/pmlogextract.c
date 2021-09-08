@@ -1263,16 +1263,16 @@ write_rec(reclist_t *rec)
 		    ident = ntoh_pmID((unsigned int)rec->pdu[k++]);
 		    fprintf(stderr, "TEXT: PMID: %s", pmIDStr(ident));
 		}
-		else { /* (type & PM_TEXT_PMINDOM) */
+		else { /* (text_type & PM_TEXT_PMINDOM) */
 		    ident = ntoh_pmInDom((unsigned int)rec->pdu[k++]);
 		    fprintf(stderr, "TEXT: INDOM: %s", pmInDomStr(ident));
 		}
-		if ((type & PM_TEXT_DIRECT))
+		if ((text_type & PM_TEXT_DIRECT))
 		    fprintf(stderr, " DIRECT");
 		fputc('\n', stderr);
 	    }
 	    else {
-		fprintf(stderr, "Botch: bad type\n");
+		fprintf(stderr, "Botch: bad type: %d\n", type);
 	    }
 	}
 

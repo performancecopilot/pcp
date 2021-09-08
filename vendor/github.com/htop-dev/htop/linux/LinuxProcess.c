@@ -56,7 +56,6 @@ const ProcessFieldData Process_fields[LAST_PROCESSFIELD] = {
    [M_TRS] = { .name = "M_TRS", .title = " CODE ", .description = "Size of the text segment of the process", .flags = 0, .defaultSortDesc = true, },
    [M_DRS] = { .name = "M_DRS", .title = " DATA ", .description = "Size of the data segment plus stack usage of the process", .flags = 0, .defaultSortDesc = true, },
    [M_LRS] = { .name = "M_LRS", .title = "  LIB ", .description = "The library size of the process (calculated from memory maps)", .flags = PROCESS_FLAG_LINUX_LRS_FIX, .defaultSortDesc = true, },
-   [M_DT] = { .name = "M_DT", .title = " DIRTY ", .description = "Size of the dirty pages of the process (unused since Linux 2.6; always 0)", .flags = 0, .defaultSortDesc = true, },
    [ST_UID] = { .name = "ST_UID", .title = "  UID ", .description = "User ID of the process owner", .flags = 0, },
    [PERCENT_CPU] = { .name = "PERCENT_CPU", .title = "CPU% ", .description = "Percentage of the CPU time the process used in the last sampling", .flags = 0, .defaultSortDesc = true, },
    [PERCENT_NORM_CPU] = { .name = "PERCENT_NORM_CPU", .title = "NCPU%", .description = "Normalized percentage of the CPU time the process used in the last sampling (normalized by cpu count)", .flags = 0, .defaultSortDesc = true, },
@@ -86,9 +85,9 @@ const ProcessFieldData Process_fields[LAST_PROCESSFIELD] = {
    [OOM] = { .name = "OOM", .title = " OOM ", .description = "OOM (Out-of-Memory) killer score", .flags = PROCESS_FLAG_LINUX_OOM, .defaultSortDesc = true, },
    [IO_PRIORITY] = { .name = "IO_PRIORITY", .title = "IO ", .description = "I/O priority", .flags = PROCESS_FLAG_LINUX_IOPRIO, },
 #ifdef HAVE_DELAYACCT
-   [PERCENT_CPU_DELAY] = { .name = "PERCENT_CPU_DELAY", .title = "CPUD% ", .description = "CPU delay %", .flags = PROCESS_FLAG_LINUX_DELAYACCT, .defaultSortDesc = true, },
+   [PERCENT_CPU_DELAY] = { .name = "PERCENT_CPU_DELAY", .title = "CPUD%", .description = "CPU delay %", .flags = PROCESS_FLAG_LINUX_DELAYACCT, .defaultSortDesc = true, },
    [PERCENT_IO_DELAY] = { .name = "PERCENT_IO_DELAY", .title = "IOD% ", .description = "Block I/O delay %", .flags = PROCESS_FLAG_LINUX_DELAYACCT, .defaultSortDesc = true, },
-   [PERCENT_SWAP_DELAY] = { .name = "PERCENT_SWAP_DELAY", .title = "SWAPD% ", .description = "Swapin delay %", .flags = PROCESS_FLAG_LINUX_DELAYACCT, .defaultSortDesc = true, },
+   [PERCENT_SWAP_DELAY] = { .name = "PERCENT_SWAP_DELAY", .title = "SWPD%", .description = "Swapin delay %", .flags = PROCESS_FLAG_LINUX_DELAYACCT, .defaultSortDesc = true, },
 #endif
    [M_PSS] = { .name = "M_PSS", .title = "  PSS ", .description = "proportional set size, same as M_RESIDENT but each page is divided by the number of processes sharing it", .flags = PROCESS_FLAG_LINUX_SMAPS, .defaultSortDesc = true, },
    [M_SWAP] = { .name = "M_SWAP", .title = " SWAP ", .description = "Size of the process's swapped pages", .flags = PROCESS_FLAG_LINUX_SMAPS, .defaultSortDesc = true, },
@@ -190,16 +189,6 @@ bool LinuxProcess_changeAutogroupPriorityBy(Process* this, Arg delta) {
    return success;
 }
 
-#ifdef HAVE_DELAYACCT
-static void LinuxProcess_printDelay(float delay_percent, char* buffer, int n) {
-   if (isnan(delay_percent)) {
-      xSnprintf(buffer, n, " N/A  ");
-   } else {
-      xSnprintf(buffer, n, "%4.1f  ", delay_percent);
-   }
-}
-#endif
-
 static void LinuxProcess_writeField(const Process* this, RichString* str, ProcessField field) {
    const LinuxProcess* lp = (const LinuxProcess*) this;
    bool coloring = this->settings->highlightMegabytes;
@@ -210,7 +199,6 @@ static void LinuxProcess_writeField(const Process* this, RichString* str, Proces
    case CMINFLT: Process_printCount(str, lp->cminflt, coloring); return;
    case CMAJFLT: Process_printCount(str, lp->cmajflt, coloring); return;
    case M_DRS: Process_printBytes(str, lp->m_drs * pageSize, coloring); return;
-   case M_DT: Process_printBytes(str, lp->m_dt * pageSize, coloring); return;
    case M_LRS:
       if (lp->m_lrs) {
          Process_printBytes(str, lp->m_lrs * pageSize, coloring);
@@ -279,9 +267,9 @@ static void LinuxProcess_writeField(const Process* this, RichString* str, Proces
       break;
    }
    #ifdef HAVE_DELAYACCT
-   case PERCENT_CPU_DELAY: LinuxProcess_printDelay(lp->cpu_delay_percent, buffer, n); break;
-   case PERCENT_IO_DELAY: LinuxProcess_printDelay(lp->blkio_delay_percent, buffer, n); break;
-   case PERCENT_SWAP_DELAY: LinuxProcess_printDelay(lp->swapin_delay_percent, buffer, n); break;
+   case PERCENT_CPU_DELAY: Process_printPercentage(lp->cpu_delay_percent, buffer, n, &attr); break;
+   case PERCENT_IO_DELAY: Process_printPercentage(lp->blkio_delay_percent, buffer, n, &attr); break;
+   case PERCENT_SWAP_DELAY: Process_printPercentage(lp->swapin_delay_percent, buffer, n, &attr); break;
    #endif
    case CTXT:
       if (lp->ctxt_diff > 1000) {
@@ -330,8 +318,6 @@ static int LinuxProcess_compareByKey(const Process* v1, const Process* v2, Proce
    switch (key) {
    case M_DRS:
       return SPACESHIP_NUMBER(p1->m_drs, p2->m_drs);
-   case M_DT:
-      return SPACESHIP_NUMBER(p1->m_dt, p2->m_dt);
    case M_LRS:
       return SPACESHIP_NUMBER(p1->m_lrs, p2->m_lrs);
    case M_TRS:

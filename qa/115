@@ -40,8 +40,12 @@ _cleanup()
     [ "$pmie_state" = on ] && _change_config pmie on
     if $pmie_was_running
     then
+	# don't trigger systemctl "request repeated too quickly" snarfoo
+	#
+	sleep 2
 	_restore_auto_restart pmie
 	_service pmie start >>$here/$seq.full 2>&1
+	_wait_for_pmie
     else
 	_service pmie stop >>$here/$seq.full 2>&1
 	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >>$here/$seq.full 2>&1
@@ -187,6 +191,7 @@ then
     echo "Found pmie PID `cat $PCP_RUN_DIR/pmie.pid` running @ start" >>$here/$seq.full
     _stop_auto_restart pmie
     _service pmie stop >>$here/$seq.full 2>&1
+    _wait_pmie_end
 fi
 
 # real QA test starts here
@@ -212,6 +217,9 @@ _count_pmies
 # chkconfig no longer controls start-ability, expect non-zero
 echo "pmie count after chkconfig pmie off: $?"
 echo
+# don't trigger systemctl "request repeated too quickly" snarfoo
+#
+sleep 2
 
 echo === check for missing control file === | tee -a $here/$seq.full
 _change_config pmie off
@@ -221,6 +229,9 @@ _service pmie restart 2>&1 | _filter_pmie_start | _filter
 _count_pmies
 echo "pmie count after attempt without control file: $?"
 echo
+# don't trigger systemctl "request repeated too quickly" snarfoo
+#
+sleep 2
 
 echo === check pmie_check and custom configs === | tee -a $here/$seq.full
 echo "--- v1.0 ---" | tee -a $here/$seq.full

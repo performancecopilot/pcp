@@ -94,8 +94,9 @@ bool TimeClient::writeClient(PmTime::Packet *packet,
 	    break;
 	}
 	console->post(PmTime::DebugProtocol, "TimeClient::writeClient "
-			"SKIP STEP to pos=%u.%u when client %p in NEED_ACK",
-			packet->position.tv_sec,packet->position.tv_usec, this);
+			"SKIP STEP to pos=%llu.%u when client %p in NEED_ACK",
+			(unsigned long long) packet->position.tv_sec,
+			(unsigned int) packet->position.tv_usec, this);
 	return false;
     }
 
@@ -152,7 +153,7 @@ void TimeClient::readClient(void)
 	bad = 1;
     } else if (len != sizeof(PmTime::Packet)) {
 	console->post(PmTime::DebugProtocol,
-			"Bad 1st read (want %d, got %d) on client %p",
+			"Bad 1st read (want %d, got %zu) on client %p",
 			len, sizeof(PmTime::Packet), this);
 	bad = 1;
     } else if (packet.length > sizeof(PmTime::Packet)) {
@@ -161,7 +162,7 @@ void TimeClient::readClient(void)
 	if (payload == NULL) {
 	    console->post(PmTime::DebugProtocol,
 				"No memory (%d) for second read on client %p",
-				sz, len, this);
+				sz, this);
 	    bad = 1;
 	} else if ((len = my.socket->read(payload, sz)) != sz) {
 	    console->post(PmTime::DebugProtocol,
@@ -215,15 +216,19 @@ void TimeClient::readClient(void)
 	    if (packet.position.tv_sec == my.acktime.tv_sec &&
 		packet.position.tv_usec == my.acktime.tv_usec) {
 		console->post(PmTime::DebugProtocol, "TimeClient::readClient "
-				"good ACK client=%p (%u.%u)", this,
-				my.acktime.tv_sec, my.acktime.tv_usec);
+				"good ACK client=%p (%llu.%u)", this,
+				(unsigned long long) my.acktime.tv_sec,
+				(unsigned int) my.acktime.tv_usec);
 		my.state = TimeClient::ClientReady;
 		break;
 	    }
 	    console->post(PmTime::DebugProtocol, "TimeClient::readClient "
-				"BAD ACK client=%p (got %u.%u vs %u.%u)", this,
-				packet.position.tv_sec, packet.position.tv_usec,
-				my.acktime.tv_sec, my.acktime.tv_usec);
+				"BAD ACK client=%p (got %llu.%u vs %llu.%u)",
+				this,
+				(unsigned long long) packet.position.tv_sec,
+				(unsigned int) packet.position.tv_usec,
+				(unsigned long long) my.acktime.tv_sec,
+				(unsigned int) my.acktime.tv_usec);
 	    bad = 1;
 	    break;
 

@@ -30,7 +30,7 @@ tasks:
     ./Makepkgs --nonrpm --verbose
     dpkg -I build/deb/pcp_*.deb | grep Depends | grep -q libuv1
   copy_build_artifacts: |
-    cp build/deb/*.deb artifacts/build
+    cp build/deb/*.deb ../artifacts/build
   install: |
     sudo dpkg -i build/deb/*.deb
     echo 'pcpqa ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/pcpqa
