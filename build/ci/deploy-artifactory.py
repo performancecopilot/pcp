@@ -10,7 +10,7 @@ import hashlib
 import datetime
 
 
-class TimeoutHTTPAdapter(requests.adapters.HTTPAdapter):
+class TimeoutHTTPAdapter(requests.adapters.HTTPAdapter):  # lgtm[py/missing-call-to-init]
     """
     https://findwork.dev/blog/advanced-usage-python-requests-timeouts-retries-hooks/
     """
