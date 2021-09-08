@@ -168,7 +168,7 @@ class pmConfig(object):
         if name == 'speclocal':
             self.util.speclocal = value
         elif name == 'derived':
-            if ';' in value:
+            if value.find(';') != -1:
                 self.util.derived = value
             else:
                 self.util.derived = value.replace(",", ";")
