@@ -39,6 +39,7 @@
 [\f3\-U\f1 \f2username\f1]
 .br
 \f3$PCP_PMDAS_DIR/linux/pmdalinux\f1
+[\f3\-A\f1]
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-U\f1 \f2username\f1]
@@ -93,6 +94,21 @@ for example.
 In this case (but not for shared libraries), the following
 command line options are available:
 .TP 5
+.B \-A
+Disables use of the credentials provided by
+.B PMAPI
+client tools,
+and simply runs everything under the "root" account.
+Only enable this option if you understand the risks involved, and
+are sure that all remote accesses will be from benevolent users.
+If enabled, unauthenticated remote
+.B PMAPI
+clients will be able to access potentially sensitive performance
+metric values which an unauthenticated
+.B PMAPI
+client usually would not be able to.
+Refer to CVE-2012-3419 for additional details.
+.TP
 .B \-d
 It is absolutely crucial that the performance metrics
 .I domain
@@ -117,8 +133,9 @@ be created or is not writable, output is written to the standard error instead.
 .TP
 .B \-U
 User account under which to run the agent.
-The default is the unprivileged "pcp" account in current versions of PCP,
-but in older versions the superuser account ("root") was used by default.
+The default is either the privileged "root" account on some
+platforms (Linux, for example) or the unprivileged "pcp"
+account (wherever possible).
 .SH INSTALLATION
 Access to the names, help text and values for the kernel performance
 metrics is available by default - unlike most other agents, no action

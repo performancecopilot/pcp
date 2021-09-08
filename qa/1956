@@ -1,0 +1,50 @@
+#!/bin/sh
+# PCP QA Test No. 1956
+# Exercise Linux PMDA slabinfo access with -A option.
+#
+# Copyright (c) 2021 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "Linux-specific memory metric testing"
+userid=`id -u`  # test exercises procfs access from both root and non-root
+[ "$userid" != 0 ] || _notrun "Test cannot be run as privileged root user"
+
+_cleanup()
+{
+    cd $here
+    _restore_config $PCP_PMCDCONF_PATH
+    _service pmcd restart 2>&1 | _filter_pcp_start
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+_save_config $PCP_PMCDCONF_PATH
+
+# append -A option to the pmdalinux line
+$sudo sed -i -e '/^\(linux.*pmdalinux.*\)$/s//\1 -A/' $PCP_PMCDCONF_PATH
+_service pmcd restart 2>&1 | _filter_pcp_start
+
+# check access, stash for later
+echo == pminfo >> $here/$seq.full
+pminfo -f mem.slabinfo >> $here/$seq.full
+
+# check access, reflect to output
+echo == pmprobe >> $here/$seq.full
+pmprobe mem.slabinfo | tee -a $here/$seq.full | $PCP_AWK_PROG '
+	$2 >= 1 { print $1, "values" }
+	$2 <= 0 { print $1, "no values" }'
+
+# success, all done
+exit
