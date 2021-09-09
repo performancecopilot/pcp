@@ -200,9 +200,8 @@ extern pmdaIndom *linux_pmda_indom(int);
  */
 #define	LINUX_TEST_MODE		(1<<0)
 #define	LINUX_TEST_STATSPATH	(1<<1)
-#define	LINUX_TEST_MEMINFO	(1<<2)
-#define	LINUX_TEST_NCPUS	(1<<3)
-#define	LINUX_TEST_NNODES	(1<<4)
+#define	LINUX_TEST_NCPUS	(1<<2)
+#define	LINUX_TEST_NNODES	(1<<3)
 extern int linux_test_mode;
 
 /*  

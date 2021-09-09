@@ -1952,4 +1952,5 @@ x11
 1902 help local
 1937 pmlogrewrite pmda.xfs local
 1955 libpcp pmda pmda.pmcd local
+1956 pmda.linux pmcd local
 4751 libpcp threads valgrind local pcp helgrind
