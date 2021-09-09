@@ -1216,6 +1216,7 @@ typedef struct {
     int dev0;		/* Developer flag 0 */
     int dev1;		/* Developer flag 1 */
     int dev2;		/* Developer flag 2 */
+    int	pmlc;		/* Protocol between pmlc and pmlogger */
 } pmdebugoptions_t;
 
 PCP_DATA extern pmdebugoptions_t	pmDebugOptions;
