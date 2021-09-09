@@ -244,12 +244,11 @@ typedef struct {
 
 /*
  * Protocol data unit support
- * Note: int is OK here, because configure ensures int is a 32-bit integer
  */
 typedef struct {
-    int		len;		/* length of pdu_header + PDU */
-    int		type;		/* PDU type */
-    int		from;		/* pid of PDU originator */
+    __int32_t	len;		/* length of pdu_header + PDU */
+    __int32_t	type;		/* PDU type */
+    __int32_t	from;		/* pid of PDU originator */
 } __pmPDUHdr;
 
 /* credentials stuff */
