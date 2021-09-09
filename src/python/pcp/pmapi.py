@@ -2823,6 +2823,8 @@ class fetchgroup(object):
 
 
     class pmContext_borrowed(pmContext):
+        # lgtm[py/missing-call-to-init]
+        # lgtm[py/missing-call-to-delete]
         """
         An internal class for accessing the private PMAPI context
         belonging to a fetchgroup.  It works just like a pmContext,
