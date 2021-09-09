@@ -284,12 +284,28 @@ mmv_inc_value(handle,atom,value)
 	mmv_inc_value(handle, atom, value);
 
 void
+mmv_inc_atomvalue(handle,atom,value)
+	void *			handle
+	pmAtomValue *		atom
+	pmAtomValue *		value
+    CODE:
+	mmv_inc_atomvalue(handle, atom, value);
+
+void
 mmv_set_value(handle,atom,value)
 	void *			handle
 	pmAtomValue *		atom
 	double			value
     CODE:
 	mmv_set_value(handle, atom, value);
+
+void
+mmv_set_atomvalue(handle,atom,value)
+	void *			handle
+	pmAtomValue *		atom
+	pmAtomValue *		value
+    CODE:
+	mmv_set_atomvalue(handle, atom, value);
 
 void
 mmv_set_string(handle,atom,string)
