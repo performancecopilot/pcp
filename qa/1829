@@ -1,0 +1,73 @@
+#!/bin/sh
+# PCP QA Test No. 1829
+# Exercise --version=3 pmlogrewrite option.
+#
+# Copyright (c) 2021 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+eval `pmconfig -L -s v3_archives`
+[ "$v3_archives" = true ] || _notrun "No V3 archive support"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_dump()
+{
+    sed \
+	-e 's/Log Format Version [2|3]/Log Format Version N/g' \
+	-e 's/\[[0-9]* bytes]/[N bytes]/g' \
+    # end
+}
+
+# real QA test starts here
+archivelist="sample-labels mmv.help"
+for archive in $archivelist
+do
+    rm -f $tmp.log*
+
+    echo "Rewriting to v3 log format for $archive"
+    pmlogrewrite -V 3 archives/$archive $tmp.log3
+    if [ $? -ne 0 ]
+    then
+	echo "pmlogrewrite failed"
+	status=1
+	exit
+    fi
+    echo "pmdumplog of v3 log format from $archive" >> $seq.full
+    pmdumplog -aeh $tmp.log3 >> $seq.full
+
+    echo "Dumping the v3 archive label for $archive"
+    pmloglabel -L $tmp.log3
+
+    echo "Rewriting v3 to v2 log content for $archive"
+    pmlogrewrite -V 2 $tmp.log3 $tmp.log2
+    if [ $? -ne 0 ]
+    then
+	echo "pmlogrewrite failed"
+	status=1
+	exit
+    fi
+    echo "pmdumplog of v2 log format from $archive" >> $seq.full
+    pmdumplog -aeh $tmp.log2 >> $seq.full
+
+    echo "Dumping the v2 archive label for $archive"
+    pmloglabel -L $tmp.log2
+done
+
+# success, all done
+exit
