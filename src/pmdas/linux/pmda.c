@@ -111,7 +111,7 @@ static int                      proc_tty_permission;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
 static int		rootfd = -1;	/* af_unix pmdaroot */
-static char		*username;
+static int		all_access;	/* =1 no access checks */
 static int		hz;
 
 /* globals */
@@ -6639,7 +6639,8 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	refresh_proc_scsi(INDOM(SCSI_INDOM));
 
     if (need_refresh[CLUSTER_SLAB]) {
-	if (access != NULL && (access->uid == 0 && access->uid_flag)) {
+	if (all_access ||
+	    (access != NULL && access->uid == 0 && access->uid_flag)) {
 	    proc_slabinfo.permission = 1;
 	    refresh_proc_slabinfo(INDOM(SLAB_INDOM), &proc_slabinfo);
 	} else {
@@ -6713,7 +6714,8 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	refresh_sysfs_tapestats(INDOM(TAPEDEV_INDOM));
 
     if (need_refresh[CLUSTER_TTY]) {
-	if (access != NULL && (access->uid == 0 && access->uid_flag)) {
+	if (all_access ||
+	    (access != NULL && access->uid == 0 && access->uid_flag)) {
 	    proc_tty_permission = 1;
 	    refresh_tty(INDOM(TTY_INDOM));
 	} else {
@@ -9432,15 +9434,8 @@ linux_init(pmdaInterface *dp)
 	linux_test_mode |= LINUX_TEST_MODE;
 	linux_mdadm = envpath;
     }
-    if (getenv("PCP_QA_ESTIMATE_MEMAVAILABLE") != NULL) {
-	/*
-	 * If $PCP_QA_ESTIMATE_MEMAVAILABLE is set, force the
-	 * calculation of "mem available" stats, even if the
-	 * kernel on the running system does not export these
-	 * directly.
-	 */
-	linux_test_mode |= (LINUX_TEST_MODE|LINUX_TEST_MEMINFO);
-    }
+    if ((envpath = getenv("LINUX_ACCESS")) != NULL)
+	all_access = atoi(envpath);
 
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
@@ -9448,9 +9443,6 @@ linux_init(pmdaInterface *dp)
 	pmsprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_7, "linux DSO", helppath);
-    } else {
-	if (username)
-	    pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)
@@ -9571,6 +9563,7 @@ linux_init(pmdaInterface *dp)
 pmLongOptions	longopts[] = {
     PMDA_OPTIONS_HEADER("Options"),
     PMOPT_DEBUG,
+    { "no-access-checks", 0, 'A', 0, "no access checks will be performed (insecure, beware!)" },
     PMDAOPT_DOMAIN,
     PMDAOPT_LOGFILE,
     PMDAOPT_USERNAME,
@@ -9579,7 +9572,7 @@ pmLongOptions	longopts[] = {
 };
 
 pmdaOptions	opts = {
-    .short_options = "D:d:l:U:?",
+    .short_options = "AD:d:l:U:?",
     .long_options = longopts,
 };
 
@@ -9589,9 +9582,10 @@ pmdaOptions	opts = {
 int
 main(int argc, char **argv)
 {
-    int			sep = pmPathSeparator();
+    int			c, sep = pmPathSeparator();
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
+    char		*username = "root";
 
     _isDSO = 0;
     pmSetProgname(argv[0]);
@@ -9600,7 +9594,14 @@ main(int argc, char **argv)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), LINUX, "linux.log", helppath);
 
-    pmdaGetOptions(argc, argv, &opts, &dispatch);
+    while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
+	switch (c) {
+	case 'A':
+	    all_access = 1;
+	    break;
+	}
+    }
+
     if (opts.errors) {
 	pmdaUsageMessage(&opts);
 	exit(1);
@@ -9609,6 +9610,8 @@ main(int argc, char **argv)
 	username = opts.username;
 
     pmdaOpenLog(&dispatch);
+    pmSetProcessIdentity(username);
+
     linux_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);

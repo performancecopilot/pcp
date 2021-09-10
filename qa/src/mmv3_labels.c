@@ -58,7 +58,8 @@ main(int argc, char **argv)
 {
     int			i;
     void		*map;
-    pmAtomValue		*value;
+    pmAtomValue		*avp;
+    unsigned int	value;
     char		*file = (argc > 1) ? argv[1] : "labels3";
     mmv_registry_t	*registry = mmv_stats_registry(file, 322, 0);
 
@@ -110,8 +111,11 @@ main(int argc, char **argv)
 	return 1;
     }
 
-    value = mmv_lookup_value_desc(map, "labels3.u32.counter", "cpu0");
-    mmv_inc_value(map, value, 42);
+    avp = mmv_lookup_value_desc(map, "labels3.u32.counter", "cpu0");
+    value = 0;
+    mmv_set_atomvalue(map, avp, (pmAtomValue*) &value);
+    value = 42;
+    mmv_inc_atomvalue(map, avp, (pmAtomValue*) &value);
     mmv_stats_free(registry);
     return 0;
 }

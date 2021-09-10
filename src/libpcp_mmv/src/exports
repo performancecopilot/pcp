@@ -43,3 +43,9 @@ PCP_MMV_1.2 {
     mmv_stats_add_instance_label;
     mmv_stats_free;
 } PCP_MMV_1.1;
+
+PCP_MMV_1.3 {
+  global:
+    mmv_inc_atomvalue;
+    mmv_set_atomvalue;
+} PCP_MMV_1.2;

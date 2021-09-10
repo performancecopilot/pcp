@@ -1,0 +1,9 @@
+QA output created by 1956
+mem.slabinfo.objects.active values
+mem.slabinfo.objects.total values
+mem.slabinfo.objects.size values
+mem.slabinfo.slabs.active values
+mem.slabinfo.slabs.total values
+mem.slabinfo.slabs.pages_per_slab values
+mem.slabinfo.slabs.objects_per_slab values
+mem.slabinfo.slabs.total_size values

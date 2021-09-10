@@ -373,7 +373,7 @@ proc_interrupts_fetch(int cluster, int item, unsigned int inst, pmAtomValue *ato
 
     case CLUSTER_SOFTIRQS_TOTAL:
 	if (item == 0) {	/* kernel.all.softirqs.total */
-	    pmInDom indom = INDOM(SOFTIRQ_INDOM);
+	    indom = INDOM(SOFTIRQ_INDOM);
 	    sts = pmdaCacheLookup(indom, inst, NULL, (void **)&ip);
 	    if (sts < 0)
 		return sts;

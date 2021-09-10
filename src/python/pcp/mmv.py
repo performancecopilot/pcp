@@ -178,8 +178,14 @@ LIBPCP_MMV.mmv_lookup_value_desc.argtypes = [c_void_p, c_char_p, c_char_p]
 LIBPCP_MMV.mmv_inc_value.restype = None
 LIBPCP_MMV.mmv_inc_value.argtypes = [c_void_p, POINTER(pmAtomValue), c_double]
 
+LIBPCP_MMV.mmv_inc_atomvalue.restype = None
+LIBPCP_MMV.mmv_inc_atomvalue.argtypes = [c_void_p, POINTER(pmAtomValue), POINTER(pmAtomValue)]
+
 LIBPCP_MMV.mmv_set_value.restype = None
 LIBPCP_MMV.mmv_set_value.argtypes = [c_void_p, POINTER(pmAtomValue), c_double]
+
+LIBPCP_MMV.mmv_set_atomvalue.restype = None
+LIBPCP_MMV.mmv_set_atomvalue.argtypes = [c_void_p, POINTER(pmAtomValue), POINTER(pmAtomValue)]
 
 LIBPCP_MMV.mmv_set_string.restype = None
 LIBPCP_MMV.mmv_set_string.argtypes = [

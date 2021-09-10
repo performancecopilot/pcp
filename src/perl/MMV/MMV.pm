@@ -11,6 +11,7 @@ require DynaLoader;
 @EXPORT = qw(
     mmv_stats_init mmv_stats_stop mmv_units
 	mmv_lookup_value_desc
+	mmv_inc_atomvalue mmv_set_atomvalue
 	mmv_inc_value mmv_set_value mmv_set_string
 	mmv_stats_add mmv_stats_inc mmv_stats_set
 	mmv_stats_add_fallback mmv_stats_inc_fallback
@@ -99,8 +100,8 @@ available as PCP metrics using the MMV PMDA.
 
 =head1 SEE ALSO
 
-mmv_stats_init(3), mmv_inc_value(3), mmv_lookup_value_desc(3),
-mmv(5) and PMDA(3).
+mmv_stats_init(3), mmv_inc_value(3), mm_set_value(3),
+mmv_lookup_value_desc(3), mmv(5) and PMDA(3).
 
 The PCP mailing list pcp@groups.io can be used for questions about
 this module.

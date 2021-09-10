@@ -147,7 +147,9 @@ extern void * mmv_stats_start(mmv_registry_t *);
 extern void mmv_stats_free(mmv_registry_t *);
 
 extern pmAtomValue * mmv_lookup_value_desc(void *, const char *, const char *);
+extern void mmv_inc_atomvalue(void *, pmAtomValue *, pmAtomValue *);
 extern void mmv_inc_value(void *, pmAtomValue *, double);
+extern void mmv_set_atomvalue(void *, pmAtomValue *, pmAtomValue *);
 extern void mmv_set_value(void *, pmAtomValue *, double);
 extern void mmv_set_string(void *, pmAtomValue *, const char *, int);
 
