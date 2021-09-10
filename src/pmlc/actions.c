@@ -553,16 +553,10 @@ void Status(int pid, int primary)
     static char		localzone[] = "local"; 
     static char		*zonename = localzone;
     char		*tzlogger;
-    __pmTimestamp	*start;
-    __pmTimestamp	*last;
-    __pmTimestamp	*timenow;
     char		*host;
-    int			lstate;
-    int			vol;
-    __int64_t		size;
     char		startbuf[TZBUFSZ];
     char		lastbuf[TZBUFSZ];
-    char		timenowbuf[TZBUFSZ];
+    char		nowbuf[TZBUFSZ];
     int			sts;
     __pmPDU		*pb;
 
@@ -612,16 +606,10 @@ void Status(int pid, int primary)
 	    pmNoMem("Error logger TZ", strlen(lsp->pmlogger.timezone), PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
-	start = &lsp->start;
-	last = &lsp->last;
-	timenow = &lsp->now;
 	if ((host = strdup(lsp->pmcd.hostname)) == NULL) {
 	    pmNoMem("Error hostname", strlen(lsp->pmcd.hostname), PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
-	lstate = lsp->state;
-	vol = lsp->vol;
-	size = lsp->size;
     }
     else {
 	fprintf(stderr, "Error: logger IPC version < LOG_PDU_VERSION2, not supported\n");
@@ -655,15 +643,15 @@ void Status(int pid, int primary)
 		break;
 	}
     }
-    tmp = start->sec;
+    tmp = lsp->start.sec;
     pmCtime(&tmp, startbuf);
     startbuf[strlen(startbuf)-1] = '\0'; /* zap the '\n' at the end */
-    tmp = last->sec;
+    tmp = lsp->last.sec;
     pmCtime(&tmp, lastbuf);
     lastbuf[strlen(lastbuf)-1] = '\0';
-    tmp = timenow->sec;
-    pmCtime(&tmp, timenowbuf);
-    timenowbuf[strlen(timenowbuf)-1] = '\0';
+    tmp = lsp->now.sec;
+    pmCtime(&tmp, nowbuf);
+    nowbuf[strlen(nowbuf)-1] = '\0';
     printf("pmlogger ");
     if (primary)
 	printf("[primary]");
@@ -676,16 +664,27 @@ void Status(int pid, int primary)
     if (__pmVersionIPC(logger_fd) >= LOG_PDU_VERSION2)
 	printf("PMCD host        %s\n",
 		IsLocal(lsp->pmcd.fqdn) ? host : lsp->pmcd.fqdn);
-    if (lstate == PM_LOG_STATE_NEW) {
+    if (lsp->state == PM_LOG_STATE_NEW) {
 	puts("logging hasn't started yet");
 	goto done;
     }
-    printf("log started      %s (times in %s time)\n"
-	   "last log entry   %s\n"
-	   "current time     %s\n"
-	   "log volume       %d\n"
-	   "log size         %" PRIi64 "\n",
-	   startbuf, zonename, lastbuf, timenowbuf, vol, size);
+    /*
+     * byte offsets into pmCtime string ...
+     * Thu Sep  9 12:28:28 2021
+     * 0        9          2   
+     *                     0
+     */
+    printf("log started      %10.10s ", startbuf);
+    __pmPrintTimestamp(stdout, &lsp->start);
+    printf(" %s (times in %s time)\n", &startbuf[20], zonename);
+    printf("last log entry   %10.10s ", lastbuf);
+    __pmPrintTimestamp(stdout, &lsp->last);
+    printf(" %s\n", &lastbuf[20]);
+    printf("current time     %10.10s ", nowbuf);
+    __pmPrintTimestamp(stdout, &lsp->now);
+    printf(" %s\n", &nowbuf[20]);
+   printf("log volume       %d\n", lsp->vol);
+   printf("log size         %" PRIi64 "\n", lsp->size);
 
     __pmFreeLogStatus(lsp, 1);
 
