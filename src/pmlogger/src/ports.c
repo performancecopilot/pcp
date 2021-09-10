@@ -403,7 +403,7 @@ GetPorts(char *file)
 	    if (ctlix == CFD_INET) {
 		fd = __pmCreateSocket();
 		if (fd < 0) {
-		    if (pmDebugOptions.context)
+		    if (pmDebugOptions.pmlc)
 			fprintf(stderr, "GetPorts: inet socket creation failed: %s\n",
 			    netstrerror());
 		    continue;
@@ -412,7 +412,7 @@ GetPorts(char *file)
 	    else {
 		fd = __pmCreateIPv6Socket();
 		if (fd < 0) {
-		    if (pmDebugOptions.context)
+		    if (pmDebugOptions.pmlc)
 			fprintf(stderr, "GetPorts: ipv6 socket creation failed: %s\n",
 			    netstrerror());
 		    continue;
@@ -667,7 +667,7 @@ init_ports(void)
 		fprintf(stderr, "%s: warning: failed to remove old-style hardlink to stale control file '%s': %s\n",
 			pmGetProgname(), linkfile, osstrerror());
 	    }
-	    else if (pmDebugOptions.context) {
+	    else if (pmDebugOptions.pmlc) {
 		fprintf(stderr, "%s: info: removed old-style hardlink to stale control file '%s' (mode: %0lo)\n",
 			pmGetProgname(), linkfile, (long)sbuf.st_mode);
 	    }
@@ -680,7 +680,7 @@ init_ports(void)
 	pid = -1;
 	if (get_pid_from_symlink(linkfile, &pid) == 0) {
 	    /* primary symlink is OK */
-	    if (pmDebugOptions.context) {
+	    if (pmDebugOptions.pmlc) {
 		fprintf(stderr, "%s: info: found primary symlink -> pid %" FMT_PID "\n", pmGetProgname(), pid);
 	    }
 	    if (!__pmProcessExists(pid)) {
@@ -688,7 +688,7 @@ init_ports(void)
 		    fprintf(stderr, "%s: warning: failed to remove '%s' symlink to stale control file for pid %" FMT_PID ": %s\n",
 			    pmGetProgname(), linkfile, pid, osstrerror());
 		}
-		else if (pmDebugOptions.context) {
+		else if (pmDebugOptions.pmlc) {
 		    fprintf(stderr, "%s: info: removed '%s' symlink to stale control file for pid %" FMT_PID "\n",
 			    pmGetProgname(), linkfile, pid);
 		}
@@ -699,7 +699,7 @@ init_ports(void)
 		    fprintf(stderr, "%s: warning: failed to remove stale control file '%s': %s\n",
 			    pmGetProgname(), pidfile, osstrerror());
 		}
-		else if (pmDebugOptions.context) {
+		else if (pmDebugOptions.pmlc) {
 		    fprintf(stderr, "%s: info: removed stale control file '%s': %s\n",
 			    pmGetProgname(), pidfile, osstrerror());
 		}
@@ -724,7 +724,7 @@ init_ports(void)
 	    fprintf(stderr, "%s: error creating primary logger symbolic link %s: %s\n",
 		    pmGetProgname(), linkfile, osstrerror());
 	}
-	else if (pmDebugOptions.context) {
+	else if (pmDebugOptions.pmlc) {
 	    fprintf(stderr, "%s: info: created control file symlink %s -> %s\n", pmGetProgname(), linkfile, ctlfile);
 	}
 
@@ -744,7 +744,7 @@ init_ports(void)
 		fprintf(stderr, "%s: warning: failed to remove old-style hardlink to stale socket '%s': %s\n",
 			pmGetProgname(), linkSocketPath, osstrerror());
 	    }
-	    else if (pmDebugOptions.context) {
+	    else if (pmDebugOptions.pmlc) {
 		fprintf(stderr, "%s: info: removed old-style hardlink to stale socket '%s': %s\n",
 			pmGetProgname(), linkSocketPath, osstrerror());
 	    }
@@ -762,7 +762,7 @@ init_ports(void)
 			    fprintf(stderr, "%s: warning: failed to remove '%s' symlink to stale socket '%s': %s\n",
 				    pmGetProgname(), linkSocketPath, pidfile, osstrerror());
 			}
-			else if (pmDebugOptions.context) {
+			else if (pmDebugOptions.pmlc) {
 			    fprintf(stderr, "%s: info: removed '%s' symlink to stale socket '%s'\n",
 				    pmGetProgname(), linkSocketPath, pidfile);
 			}
@@ -771,7 +771,7 @@ init_ports(void)
 			    fprintf(stderr, "%s: warning: failed to remove stale pmlogger socket '%s': %s\n",
 				    pmGetProgname(), pidfile, osstrerror());
 			}
-			else if (pmDebugOptions.context) {
+			else if (pmDebugOptions.pmlc) {
 			    fprintf(stderr, "%s: info: removed stale pmlogger socket '%s'\n",
 				    pmGetProgname(), pidfile);
 			}
@@ -800,7 +800,7 @@ init_ports(void)
 	    fprintf(stderr, "%s: error creating primary logger socket symbolic link %s: %s\n",
 		    pmGetProgname(), linkSocketPath, osstrerror());
 	}
-	else if (pmDebugOptions.context) {
+	else if (pmDebugOptions.pmlc) {
 	    fprintf(stderr, "%s: info: created primary pmlogger socket symlink %s -> %s\n",
 		    pmGetProgname(), linkSocketPath, socketPath);
 	}
@@ -836,7 +836,7 @@ check_local_creds(__pmHashCtl *attrs)
 			(const char *)node->data : NULL);
     if (connectingUser == NULL) {
 	/* We don't know who is connecting. */
-	if (pmDebugOptions.context)
+	if (pmDebugOptions.pmlc)
 	    fprintf(stderr, "check_local_creds: connectingUser is NULL => connection refused\n");
 	return PM_ERR_PERMISSION;
     }
@@ -846,7 +846,7 @@ check_local_creds(__pmHashCtl *attrs)
     connectingUid = strtol(connectingUser, &end, 0);
     if (errno != 0 || *end != '\0') {
 	/* Can't convert the connecting user to a uid cleanly. */
-	if (pmDebugOptions.context)
+	if (pmDebugOptions.pmlc)
 	    fprintf(stderr, "check_local_creds: connectingUser \"%s\" is bad => connection refused\n", connectingUser);
 	return PM_ERR_PERMISSION;
     }
@@ -860,7 +860,7 @@ check_local_creds(__pmHashCtl *attrs)
 	return 0;
 
     /* Connection is not allowed. */
-    if (pmDebugOptions.context)
+    if (pmDebugOptions.pmlc)
 	fprintf(stderr, "check_local_creds: uid connecting %ld != %ld or %ld => connection refused\n", (long)connectingUid, (long)getuid(), (long)geteuid());
     return PM_ERR_PERMISSION;
 }
@@ -889,7 +889,7 @@ control_req(int ctlfd)
     }
     __pmSetSocketIPC(fd);
     if (clientfd != -1) {
-	if (pmDebugOptions.context)
+	if (pmDebugOptions.pmlc)
 	    fprintf(stderr, "control_req: send EADDRINUSE on fd=%d (client already on fd=%d)\n", fd, clientfd);
 	sts = __pmSendError(fd, FROM_ANON, -EADDRINUSE);
 	if (sts < 0)
@@ -926,7 +926,7 @@ control_req(int ctlfd)
 
     sts = __pmAccAddClient(addr, &denyops);
     if (sts < 0) {
-	if (pmDebugOptions.context) {
+	if (pmDebugOptions.pmlc) {
 	    abuf = __pmSockAddrToString(addr);
 	    fprintf(stderr, "client addr: %s\n\n", abuf);
 	    free(abuf);
@@ -991,7 +991,7 @@ control_req(int ctlfd)
      * also need "from" to be pmlogger's pid as this is checked at
      * the other end
      */
-    sts = __pmSendError(fd, (int)getpid(), LOG_PDU_VERSION);
+    sts = __pmSendError(fd, (int)getpid(), pmlc_ipc_version);
     if (sts < 0) {
 	fprintf(stderr, "error sending connection ACK to client: %s\n",
 		     pmErrStr(sts));
@@ -1001,7 +1001,7 @@ control_req(int ctlfd)
     }
     clientfd = fd;
 
-    if (pmDebugOptions.context)
+    if (pmDebugOptions.pmlc)
 	fprintf(stderr, "control_req: connection accepted on fd=%d from %s\n", fd, pmlc_host);
 
     return 1;
