@@ -1,6 +1,6 @@
 ![PCP](images/pcpicon.png)
 
-[![CI](https://github.com/performancecopilot/pcp/workflows/CI/badge.svg)](https://performancecopilot.github.io/qa-reports/)
+[![CI](https://github.com/performancecopilot/pcp/workflows/CI/badge.svg)](https://performancecopilot.github.io/qa-reports/reports/latest/)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/15853/badge.svg)](https://scan.coverity.com/projects/15853)
 [![Documentation Status](https://readthedocs.org/projects/pcp/badge/?version=latest)](https://pcp.readthedocs.io)
 [![Container](https://quay.io/repository/performancecopilot/pcp/status)](https://quay.io/repository/performancecopilot/pcp)

@@ -1,7 +1,7 @@
 /*
  * pmResult rewrite methods for pmlogrewrite
  *
- * Copyright (c) 2017 Red Hat.
+ * Copyright (c) 2017,2021 Red Hat.
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -587,11 +587,11 @@ do_result(void)
 		    if (pick >= 0) {
 			if (pick > 0) {
 			    /* swap vlist[0] and vlist[pick] */
-			    pmValue		save;
-			    save = inarch.rp->vset[i]->vlist[0];
+			    pmValue		saved_value;
+			    saved_value = inarch.rp->vset[i]->vlist[0];
 			    inarch.rp->vset[i]->vlist[0] = inarch.rp->vset[i]->vlist[pick];
 			    inarch.rp->vset[i]->vlist[0].inst = inarch.rp->vset[i]->vlist[pick].inst;
-			    inarch.rp->vset[i]->vlist[pick] = save;
+			    inarch.rp->vset[i]->vlist[pick] = saved_value;
 			}
 			if (mp->new_desc.indom == PM_INDOM_NULL)
 			    inarch.rp->vset[i]->vlist[0].inst = PM_IN_NULL;

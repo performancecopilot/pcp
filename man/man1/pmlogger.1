@@ -23,6 +23,7 @@
 [\f3\-c\f1 \f2conffile\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-H\f1 \f2hostname\f1]
+[\f3\-I\f1 \f2version\f1]
 [\f3\-K\f1 \f2spec\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-m\f1 \f2note\f1]
@@ -826,6 +827,26 @@ Specify the
 .I hostname
 to use instead of the one returned by
 .BR pmcd (1).
+.TP
+\fB\-I\fR \fIversion\fR, \fB\-\-pmlc-ipc-version\fR=\fIversion\fR
+Normally,
+.B pmlogger
+and
+.BR pmlc (1)
+will autonegotiate a mutually acceptable version for their
+private IPC channel.
+Use
+.B \-I
+to force
+.B pmlogger
+to offer (at most)
+.I version
+as the version to be used.
+This option may be required if
+.B pmlogger
+needs to be managed by an older version of
+.BR pmlc (1)
+that fails to autonegotiate correctly.
 .TP
 \fB\-K\fR \fIspec\fR, \fB\-\-spec\-local\fR=\fIspec\fR
 When fetching metrics from a local context (see

@@ -597,6 +597,7 @@ _pcp () {
       "(-C --check $exargs)"{-C,--check}'[check config only]' \
       "(-h --host -o --local-PMDA -K --spec-local $exargs)"{-h+,--host=}'[specify metrics source host]:host:_hosts' \
       "(-H --labelhost $exargs)"{-H+,--labelhost=}'[specify hostname label]:label:' \
+      "(-I --pmlc-ipc-version)"{-I+,--pmlc-ipc-version=}'[specify IPC version]:version:' \
       "(-l --log $exargs)"{-l+,--log=}'[specify log file]:file:_files' \
       "(-L --linger $exargs)"{-L,--linger}'[linger even if not logging]' \
       "(-m --note $exargs)"{-m+,--note=}'[define map file note]:note:' \

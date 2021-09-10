@@ -880,7 +880,6 @@ do_work(task_t *tp)
 		 * returned. The timestamp is then used to decide if
 		 * the indom needs to be refreshed.
 		 */
-		__pmTimestamp	stamp;
 		numinst = __localLogGetInDom(&logctl, desc.indom, &stamp, &instlist, &namelist);
 		if (numinst > 0 && __pmTimestampSub(&resp_stamp, &stamp) <= 0) {
 		    /*
@@ -1083,7 +1082,6 @@ do_work(task_t *tp)
     if (rflag && tp->t_size == 0 && pdu_metrics > 0) {
 	char	*name = NULL;
 	int	taskindex;
-        int     i;
 
 	tp->t_size = pdu_bytes;
 

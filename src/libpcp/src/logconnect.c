@@ -241,7 +241,7 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
     int			originalPid;
     int			wasLocal;
 
-    if (pmDebugOptions.context)
+    if (pmDebugOptions.pmlc)
 	fprintf(stderr, "__pmConnectLogger(host=%s, pid=%d, port=%d)\n",
 		connectionSpec, *pid, *port);
 
@@ -298,31 +298,31 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 	     * to get all ports
 	     */
 	    if (*pid == PM_LOG_ALL_PIDS) {
-		if (pmDebugOptions.context)
+		if (pmDebugOptions.pmlc)
 		    fprintf(stderr, "__pmConnectLogger: pid == PM_LOG_ALL_PIDS makes no sense here\n");
 		return -ECONNREFUSED;
 	    }
 
 	    if (*port == PM_LOG_NO_PORT) {
 		if ((n = __pmLogFindPort(connectionSpec, *pid, &lpp)) < 0) {
-		    if (pmDebugOptions.context) {
+		    if (pmDebugOptions.pmlc) {
 			char	errmsg[PM_MAXERRMSGLEN];
 			fprintf(stderr, "__pmConnectLogger: __pmLogFindPort: %s\n", pmErrStr_r(n, errmsg, sizeof(errmsg)));
 		    }
 		    return n;
 		}
 		else if (n != 1) {
-		    if (pmDebugOptions.context)
+		    if (pmDebugOptions.pmlc)
 			fprintf(stderr, "__pmConnectLogger: __pmLogFindPort -> 1, cannot contact pmlogger\n");
 		    return -ECONNREFUSED;
 		}
 		*port = lpp->port;
-		if (pmDebugOptions.context)
+		if (pmDebugOptions.pmlc)
 		    fprintf(stderr, "__pmConnectLogger: __pmLogFindPort -> pid = %d\n", lpp->port);
 	    }
 
 	    if ((servInfo = __pmGetAddrInfo(connectionSpec)) == NULL) {
-		if (pmDebugOptions.context) {
+		if (pmDebugOptions.pmlc) {
 		    const char	*errmsg;
 		    PM_LOCK(__pmLock_extcall);
 		    errmsg = hoststrerror();		/* THREADSAFE */
@@ -370,7 +370,7 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 	}
 	
 	if (sts < 0) {
-	    if (pmDebugOptions.context) {
+	    if (pmDebugOptions.pmlc) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "__pmConnectLogger: connect: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
@@ -383,7 +383,7 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 		__pmDecodeError(pb, &sts);
 		php = (__pmPDUHdr *)pb;
 		if (*pid != PM_LOG_NO_PID && *pid != PM_LOG_PRIMARY_PID && php->from != *pid) {
-		    if (pmDebugOptions.context)
+		    if (pmDebugOptions.pmlc)
 			fprintf(stderr, "__pmConnectLogger: ACK response from pid %d, expected pid %d\n",
 				php->from, *pid);
 		    sts = -ECONNREFUSED;
@@ -391,7 +391,7 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 		*pid = php->from;
 	    }
 	    else if (sts < 0) {
-		if (pmDebugOptions.context) {
+		if (pmDebugOptions.pmlc) {
 		    if (sts == PM_ERR_TIMEOUT)
 			fprintf(stderr, "__pmConnectLogger: timeout (after %d secs)\n", __pmLoggerTimeout());
 		    else {
@@ -403,7 +403,7 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 	    }
 	    else {
 		/* wrong PDU type! */
-		if (pmDebugOptions.context)
+		if (pmDebugOptions.pmlc)
 		    fprintf(stderr, "__pmConnectLogger: ACK botch PDU type=%d not PDU_ERROR?\n", sts);
 		sts = PM_ERR_IPC;
 	    }
@@ -412,23 +412,29 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 		__pmUnpinPDUBuf(pb);
 
 	    if (sts >= 0) {
-		if (sts == LOG_PDU_VERSION2) {
-		    __pmCred	handshake[1];
-
-		    __pmSetVersionIPC(fd, sts);
-		    handshake[0].c_type = CVERSION;
-		    handshake[0].c_vala = LOG_PDU_VERSION;
-		    handshake[0].c_valb = 0;
-		    handshake[0].c_valc = 0;
-		    sts = __pmSendCreds(fd, (int)getpid(), 1, handshake);
-		}
-		else
-		    sts = PM_ERR_IPC;
+		/*
+		 * choose min of sts (highest version the client supports)
+		 * and LOG_PDU_VERSION (highest version pmlogger supports)
+		 */
+		__pmCred	handshake[1];
+		int		choose = sts < LOG_PDU_VERSION ? sts : LOG_PDU_VERSION;
+		if (choose != LOG_PDU_VERSION && pmDebugOptions.pmlc)
+		    fprintf(stderr, "__pmConnectLogger: downgrading LOG PDU version from %d to %d\n", LOG_PDU_VERSION, choose);
+		__pmSetVersionIPC(fd, choose);
+		handshake[0].c_type = CVERSION;
+		handshake[0].c_vala = choose;
+		handshake[0].c_valb = 0;
+		handshake[0].c_valc = 0;
+		sts = __pmSendCreds(fd, (int)getpid(), 1, handshake);
 		if (sts >= 0) {
-		    if (pmDebugOptions.context)
-			fprintf(stderr, "__pmConnectLogger: PDU version=%d fd=%d\n",
+		    if (pmDebugOptions.pmlc)
+			fprintf(stderr, "__pmConnectLogger: LOG PDU version=%d fd=%d\n",
 				__pmVersionIPC(fd), fd);
 		    return fd;
+		}
+		else {
+		    if (pmDebugOptions.pmlc)
+			fprintf(stderr, "__pmConnectLogger: __pmSendCreds error %d\n", sts);
 		}
 	    }
 

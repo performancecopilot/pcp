@@ -186,6 +186,7 @@ extern int		log_switch_flag; /* archive switch: set on SIGUSR2 */
 extern int		pmlogger_reexec;
 extern int		vol_samples_counter;
 extern int		archive_version; 
+extern int		pmlc_ipc_version;
 extern int		parse_done;
 extern __int64_t	exit_bytes;
 extern __int64_t	vol_bytes;

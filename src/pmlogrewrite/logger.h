@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2013,2018 Red Hat.
+ * Copyright (c) 2013,2018,2021 Red Hat.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -165,6 +165,7 @@ extern labelspec_t	*label_root;
  */
 typedef struct {
     int		ctx;
+    int		version;	/* input log version (2/3) */
     __pmContext	*ctxp;
     char	*name;
     pmLogLabel	label;
@@ -183,6 +184,7 @@ typedef struct {
     char	*name;		/* base name of output archive */
     __pmArchCtl	archctl;	/* libpcp archive control */
     __pmLogCtl	logctl;		/* libpcp log control */
+    int		version;	/* output log version (2/3) */
 } outarch_t;
 
 extern outarch_t	outarch;	/* output archive */

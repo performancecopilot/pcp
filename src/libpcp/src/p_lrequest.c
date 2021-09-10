@@ -49,10 +49,10 @@ __pmSendLogRequest(int fd, int type)
     pp->hdr.type = PDU_LOG_REQUEST;
     pp->hdr.from = FROM_ANON;		/* context does not matter here */
     pp->type = htonl(type);
-    if (pmDebugOptions.pdu) {
+    if (pmDebugOptions.pmlc) {
 	int version = __pmVersionIPC(fd);
 	fprintf(stderr, "_pmSendRequest: sending PDU (type=%d, version=%d)\n",
-		pp->type, version==UNKNOWN_VERSION? LOG_PDU_VERSION : version);
+		type, version);
     }
 
     sts = __pmXmitPDU(fd, (__pmPDU *)pp);
@@ -73,10 +73,10 @@ __pmDecodeLogRequest(const __pmPDU *pdubuf, int *type)
 	return PM_ERR_IPC;
 
     *type = ntohl(pp->type);
-    if (pmDebugOptions.pdu) {
+    if (pmDebugOptions.pmlc) {
 	int version = __pmLastVersionIPC();
 	fprintf(stderr, "__pmDecodeLogRequest: got PDU (type=%d, version=%d)\n",
-		*type, version==UNKNOWN_VERSION? LOG_PDU_VERSION : version);
+		*type, version);
     }
     return 0;
 }

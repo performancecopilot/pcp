@@ -1,0 +1,3 @@
+# HELP somenumber number with value
+# TYPE somenumber gauge
+somenumber {hostname="shack"} 258

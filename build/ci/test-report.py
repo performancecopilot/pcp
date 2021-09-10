@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import sys
 import os
 import shutil
 import argparse
@@ -329,8 +330,8 @@ def send_slack_notification(
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--qa", default="./qa")
-    parser.add_argument("--artifacts", default="./artifacts")
-    parser.add_argument("--commit", required=True)
+    parser.add_argument("--artifacts")
+    parser.add_argument("--commit")
     parser.add_argument("--summary", action="store_true")
     parser.add_argument("--csv", type=argparse.FileType("w"))
     parser.add_argument("--allure-results", dest="allure_results")
@@ -348,6 +349,10 @@ def main():
         print_test_report_csv(tests, args.csv)
 
     if args.allure_results:
+        if not args.commit:
+            print("Please specify a commit hash when generating an allure report.", file=sys.stderr)
+            sys.exit(1)
+
         os.makedirs(args.allure_results, exist_ok=True)
         for test in tests:
             write_allure_result(test, args.commit, args.allure_results)
