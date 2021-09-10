@@ -992,7 +992,7 @@ PCP_CALL extern int __pmAFisempty(void);
 /* private PDU protocol between pmlc and pmlogger */
 #define LOG_PDU_VERSION3	3	/* __pmTimestamp */
 #define LOG_PDU_VERSION2	2	/* private pdus & PCP 2.0 error codes */
-#define LOG_PDU_VERSION		LOG_PDU_VERSION2
+#define LOG_PDU_VERSION		LOG_PDU_VERSION3
 #define LOG_REQUEST_NEWVOLUME	1
 #define LOG_REQUEST_STATUS	2
 #define LOG_REQUEST_SYNC	3
