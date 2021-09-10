@@ -412,26 +412,29 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 		__pmUnpinPDUBuf(pb);
 
 	    if (sts >= 0) {
-		if (sts == LOG_PDU_VERSION2 || LOG_PDU_VERSION3) {
-		    __pmCred	handshake[1];
-
-		    __pmSetVersionIPC(fd, sts);
-		    handshake[0].c_type = CVERSION;
-		    handshake[0].c_vala = sts;
-		    handshake[0].c_valb = 0;
-		    handshake[0].c_valc = 0;
-		    sts = __pmSendCreds(fd, (int)getpid(), 1, handshake);
-		}
-		else {
-		    if (pmDebugOptions.pmlc)
-			fprintf(stderr, "__pmConnectLogger: unexpected LOG PDU version=%d\n", sts);
-		    sts = PM_ERR_IPC;
-		}
+		/*
+		 * choose min of sts (highest version the client supports)
+		 * and LOG_PDU_VERSION (highest version pmlogger supports)
+		 */
+		__pmCred	handshake[1];
+		int		choose = sts < LOG_PDU_VERSION ? sts : LOG_PDU_VERSION;
+		if (choose != LOG_PDU_VERSION && pmDebugOptions.pmlc)
+		    fprintf(stderr, "__pmConnectLogger: downgrading LOG PDU version from %d to %d\n", LOG_PDU_VERSION, choose);
+		__pmSetVersionIPC(fd, choose);
+		handshake[0].c_type = CVERSION;
+		handshake[0].c_vala = choose;
+		handshake[0].c_valb = 0;
+		handshake[0].c_valc = 0;
+		sts = __pmSendCreds(fd, (int)getpid(), 1, handshake);
 		if (sts >= 0) {
 		    if (pmDebugOptions.pmlc)
 			fprintf(stderr, "__pmConnectLogger: LOG PDU version=%d fd=%d\n",
 				__pmVersionIPC(fd), fd);
 		    return fd;
+		}
+		else {
+		    if (pmDebugOptions.pmlc)
+			fprintf(stderr, "__pmConnectLogger: __pmSendCreds error %d\n", sts);
 		}
 	    }
 

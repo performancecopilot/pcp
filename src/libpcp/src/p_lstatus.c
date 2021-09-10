@@ -81,10 +81,8 @@ __pmSendLogStatus(int fd, __pmLoggerStatus *status)
     int		sts;
     int		version = __pmVersionIPC(fd);
 
-    if (pmDebugOptions.pmlc) {
-	fprintf(stderr, "__pmSendLogStatus: sending PDU (version=%d)\n",
-		version == UNKNOWN_VERSION ? LOG_PDU_VERSION : version);
-    }
+    if (pmDebugOptions.pmlc)
+	fprintf(stderr, "__pmSendLogStatus: sending PDU (version=%d)\n", version);
 
     if (version == LOG_PDU_VERSION3) {
 	logstatus_v3	*pp;
@@ -232,10 +230,8 @@ __pmDecodeLogStatus(__pmPDU *pdubuf, __pmLoggerStatus **result)
     __pmLoggerStatus	*lsp;
     int			sts;
 
-    if (pmDebugOptions.pmlc) {
-	fprintf(stderr, "__pmDecodeLogStatus: got PDU (version=%d)\n",
-		version == UNKNOWN_VERSION ? LOG_PDU_VERSION : version);
-    }
+    if (pmDebugOptions.pmlc)
+	fprintf(stderr, "__pmDecodeLogStatus: got PDU (version=%d)\n", version);
 
     lsp = (__pmLoggerStatus *)malloc(sizeof(__pmLoggerStatus));
     if (lsp == NULL) {
