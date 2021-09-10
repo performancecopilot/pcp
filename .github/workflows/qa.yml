@@ -103,7 +103,7 @@ jobs:
 
       - name: Setup Allure2
         run: |
-          wget -q -O allure-commandline.zip https://repo1.maven.org/maven2/io/qameta/allure/allure-commandline/2.13.9/allure-commandline-2.13.9.zip
+          wget -q -O allure-commandline.zip https://repo1.maven.org/maven2/io/qameta/allure/allure-commandline/2.14.0/allure-commandline-2.14.0.zip
           unzip -d /opt allure-commandline.zip
 
       - name: Download all artifacts
@@ -114,6 +114,7 @@ jobs:
       - name: Generate test report
         run: |
           build/ci/test-report.py \
+            --artifacts artifacts \
             --commit ${GITHUB_SHA} \
             --allure-results allure-results \
             --summary
@@ -121,12 +122,14 @@ jobs:
           /opt/allure-*/bin/allure generate
           cp build/ci/allure/README.md allure-report
           cp build/ci/allure/open_report.sh allure-report
+          # zip report before uploading, because GitHub uploads files in individual HTTP calls
+          cd allure-report && zip -r ../qareport.zip . && cd ..
 
       - name: Publish test report
         uses: actions/upload-artifact@v2
         with:
           name: qareport
-          path: allure-report
+          path: qareport.zip
 
       - name: Checkout qa-reports
         if: github.repository == 'performancecopilot/pcp'
@@ -139,27 +142,37 @@ jobs:
       - name: Publish test report on GitHub Pages
         if: github.repository == 'performancecopilot/pcp'
         run: |
-          rm -rf qa-reports/test-* qa-reports/docs
+          rm -rf qa-reports/test-*
           cp -r artifacts/test-* qa-reports/
-          cp -r allure-report qa-reports/docs
 
-          cd qa-reports
+          current_report=$(date +'%Y%m%d_%H%M%S')-${GITHUB_SHA::8}
+          cp -r allure-report qa-reports/reports/${current_report}
+
+          pushd qa-reports/reports
+          rm latest
+          rm README.md
+          ls -1r | tail -n +11 | xargs --no-run-if-empty rm -r # keep last 10 reports
+          ln -s ${current_report} latest
+          ls -1r -I README.md | awk 'BEGIN {print "# Recent Reports"} { print "## [" $1 "](" $1 "/)" }' > README.md
+          popd
+
+          pushd qa-reports
           git config --local user.name "GitHub Actions"
           git config --local user.email "action@github.com"
           git add .
-          git commit --amend -m "QA Report of ${{ github.repository_owner }}/pcp@${GITHUB_SHA}"
+          git commit --amend -m "Added QA report of ${{ github.repository_owner }}/pcp@${GITHUB_SHA}"
           git push -f
 
-          echo "::warning::Complete test report is available at https://${{ github.repository_owner }}.github.io/qa-reports/"
+          echo "::warning::Complete test report is available at https://${{ github.repository_owner }}.github.io/qa-reports/reports/latest/"
 
       - name: Send test report to Slack
         if: github.repository == 'performancecopilot/pcp'
         run: |
           build/ci/test-report.py \
-            --commit ${GITHUB_SHA} \
+            --artifacts artifacts \
             --slack-channel ${SLACK_CHANNEL} \
             --github-run-url "https://github.com/${{ github.repository_owner }}/pcp/actions/runs/${{ github.run_id }}" \
-            --qa-report-url "https://${{ github.repository_owner }}.github.io/qa-reports"
+            --qa-report-url "https://${{ github.repository_owner }}.github.io/qa-reports/reports/latest/"
         env:
           SLACK_CHANNEL: C011ERBFQGN
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
