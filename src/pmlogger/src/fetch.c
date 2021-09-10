@@ -193,7 +193,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 			 * do with a shallow dump of the PDU using logic
 			 * from libpcp/__pmDecodeResult()
 			 */
-			int		numpmid;
+			int		lnumpmid;
 			int		numval;
 			int		i;
 			int		vsize;
@@ -204,12 +204,12 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 			vlist_t		*vlp;
 			pp = (result_t *)pb;
 			/* assume PDU is valid ... it comes from pmcd */
-			numpmid = ntohl(pp->numpmid);
+			lnumpmid = ntohl(pp->numpmid);
 			timestamp.tv_sec = ntohl(pp->timestamp.tv_sec);
 			timestamp.tv_usec = ntohl(pp->timestamp.tv_usec);
-			fprintf(stderr, "pmResult timestamp: %d.%06d numpmid: %d\n", (int)timestamp.tv_sec, (int)timestamp.tv_usec, numpmid);
+			fprintf(stderr, "pmResult timestamp: %d.%06d numpmid: %d\n", (int)timestamp.tv_sec, (int)timestamp.tv_usec, lnumpmid);
 			vsize = 0;
-			for (i = 0; i < numpmid; i++) {
+			for (i = 0; i < lnumpmid; i++) {
 			    vlp = (vlist_t *)&pp->data[vsize/sizeof(__pmPDU)];
 			    pmid = __ntohpmID(vlp->pmid);
 			    numval = ntohl(vlp->numval);

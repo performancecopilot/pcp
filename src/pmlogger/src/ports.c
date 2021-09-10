@@ -52,13 +52,13 @@ int		ctlport;	/* pmlogger control port number */
  * or -> ...<pid> (pid starts at first digit)
  */
 static int
-get_pid_from_symlink(const char *linkfile, pid_t *pidp)
+get_pid_from_symlink(const char *link, pid_t *pidp)
 {
     ssize_t	plen;
     char	pbuf[MAXPATHLEN+1];
     char	*p;
 
-    plen = readlink(linkfile, pbuf, (size_t)MAXPATHLEN);
+    plen = readlink(link, pbuf, (size_t)MAXPATHLEN);
     if (plen > 0) {
 	pbuf[plen] = '\0';
 	p = strrchr(pbuf, '/');
@@ -756,8 +756,8 @@ init_ports(void)
 	    for (i=0; i < pidlen; i++) {
 		/* first digit is the start of the PID */
 		if (isdigit((int)pidfile[i])) {
-		    pid_t pid = atoi(pidfile + i);
-		    if (!__pmProcessExists(pid)) {
+		    pid_t lpid = atoi(pidfile + i);
+		    if (!__pmProcessExists(lpid)) {
 			if (unlink(linkSocketPath) != 0) {
 			    fprintf(stderr, "%s: warning: failed to remove '%s' symlink to stale socket '%s': %s\n",
 				    pmGetProgname(), linkSocketPath, pidfile, osstrerror());

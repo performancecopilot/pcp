@@ -692,7 +692,6 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
     if (i >= ntp->t_numpmid) {
 	pmDesc	desc;
 	char	*name;
-	int	need;
 
 	if ((sts = pmLookupDesc(pmid, &desc)) < 0)
 	    die("update_metric: cannot lookup desc", sts);
@@ -721,14 +720,14 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
  * Return NULL if a matching task was not found.
  */
 task_t *
-find_task(int state, struct timeval *delta)
+find_task(int state, struct timeval *arg_delta)
 {
     task_t	*tp;
 
     for (tp = tasklist; tp != NULL; tp = tp->t_next) {
 	if (state == (tp->t_state & 0x3) &&  /* MAND|ON */
-	    delta->tv_sec == tp->t_delta.tv_sec &&
-	    delta->tv_usec == tp->t_delta.tv_usec)
+	    arg_delta->tv_sec == tp->t_delta.tv_sec &&
+	    arg_delta->tv_usec == tp->t_delta.tv_usec)
 	    break;
     }
     return tp;
@@ -925,7 +924,7 @@ no_info:
 
 
 int
-do_control_req(pmResult *request, int control, int state, int delta, int sendresult)
+do_control_req(pmResult *request, int control, int state, int arg_delta, int sendresult)
 {
     int			sts;
     pmResult		*result;
@@ -941,7 +940,7 @@ do_control_req(pmResult *request, int control, int state, int delta, int sendres
 
     if (pmDebugOptions.log) {
 	fprintf(stderr, "do_control: control=%d state=%d delta=%d request ...\n",
-		control, state, delta);
+		control, state, arg_delta);
 	dumpcontrol(stderr, request, 0);
     }
 
@@ -951,10 +950,10 @@ do_control_req(pmResult *request, int control, int state, int delta, int sendres
 	fprintf(stderr, "pmlc request from %s: %s",
 	    pmlc_host[0] ? pmlc_host : "pmlogger", control == PM_LOG_MANDATORY ? "mandatory" : "advisory");
 	if (state == PM_LOG_ON) {
-	    if (delta == 0)
+	    if (arg_delta == 0)
 		fprintf(stderr, " on once\n");
 	    else
-		fprintf(stderr, " on %.1f sec\n", (float)delta/1000);
+		fprintf(stderr, " on %.1f sec\n", (float)arg_delta/1000);
 	}
 	else if (state == PM_LOG_OFF)
 	    fprintf(stderr, " off\n");
@@ -1030,9 +1029,9 @@ do_control_req(pmResult *request, int control, int state, int delta, int sendres
 	 * Never return a "once only" task, it may have gone off already and just
 	 * be hanging around like a bad smell.
 	 */
-	if (delta != 0) {
-	    tdelta.tv_sec = delta / 1000;
-	    tdelta.tv_usec = (delta % 1000) * 1000;
+	if (arg_delta != 0) {
+	    tdelta.tv_sec = arg_delta / 1000;
+	    tdelta.tv_usec = (arg_delta % 1000) * 1000;
 	    newtp = find_task(reqstate, &tdelta);
 	}
 	newtask = (newtp == NULL);
@@ -1188,7 +1187,7 @@ do_control_req(pmResult *request, int control, int state, int delta, int sendres
 		    PMLC_SET_MAND(expstate, 0);
 		    PMLC_SET_MAND(statemask, 1);
 		}
-		expdelta = PMLC_GET_ON(expstate) ? delta : 0;
+		expdelta = PMLC_GET_ON(expstate) ? arg_delta : 0;
 		if ((PMLC_GET_STATE(val) & statemask) != expstate ||
 		    PMLC_GET_DELTA(val) != expdelta)
 			fprintf(stderr, " [request failed]");
@@ -1223,14 +1222,14 @@ do_control(__pmPDU *pb)
     int			sts;
     int			control;
     int			state;
-    int			delta;
+    int			ldelta;
     int			sendresult = 1;
     pmResult		*request;
 
     /*
      * TODO	- encoding for logging interval in requests and results?
      */
-    if ((sts = __pmDecodeLogControl(pb, &request, &control, &state, &delta)) < 0) {
+    if ((sts = __pmDecodeLogControl(pb, &request, &control, &state, &ldelta)) < 0) {
 	fprintf(stderr, "Error: %s\n", pmErrStr(sts));
 	if ((sts = __pmSendError(clientfd, FROM_ANON, sts)) < 0)
 	    pmNotifyErr(LOG_ERR,
@@ -1239,7 +1238,7 @@ do_control(__pmPDU *pb)
 	pmFreeResult(request);
 	return sts;
     }
-    sts = do_control_req(request, control, state, delta, sendresult);
+    sts = do_control_req(request, control, state, ldelta, sendresult);
     return sts;
 }
 

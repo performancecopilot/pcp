@@ -119,16 +119,16 @@ stmt		: dowhat somemetrics
 
 dowhat		: logopt action		
 		{
-		    struct timeval delta;
+		    struct timeval ldelta;
 
-		    delta.tv_sec = $2 / 1000;
-		    delta.tv_usec = 1000 * ($2 % 1000);
+		    ldelta.tv_sec = $2 / 1000;
+		    ldelta.tv_usec = 1000 * ($2 % 1000);
 
 		    /*
 		     * Search for an existing task for this state/interval;
 		     * only allocate and setup a new task if none exists.
 		     */
-		    if ((tp = findtask(state, &delta)) == NULL) {
+		    if ((tp = findtask(state, &ldelta)) == NULL) {
 			if ((tp = (task_t *)calloc(1, sizeof(task_t))) == NULL) {
 			    char emess[256];
 			    pmsprintf(emess, sizeof(emess), "malloc failed: %s", osstrerror());
@@ -152,7 +152,7 @@ dowhat		: logopt action
 			    else
 				ltp->t_next = tp;
 			    tp->t_next = NULL;
-			    tp->t_delta = delta;
+			    tp->t_delta = ldelta;
 			    tp->t_state = state;
 			}
 		    }
@@ -596,17 +596,17 @@ activate_new_metric(const char *name)
  * or NULL if none exists for that value pair.
  */
 task_t *
-findtask(int state, struct timeval *delta)
+findtask(int arg_state, struct timeval *arg_delta)
 {
-    task_t	*tp;
+    task_t	*ltp;
 
-    for (tp = tasklist; tp != NULL; tp = tp->t_next) {
-	if (state == tp->t_state &&
-	    delta->tv_sec == tp->t_delta.tv_sec &&
-	    delta->tv_usec == tp->t_delta.tv_usec)
+    for (ltp = tasklist; ltp != NULL; ltp = ltp->t_next) {
+	if (arg_state == ltp->t_state &&
+	    arg_delta->tv_sec == ltp->t_delta.tv_sec &&
+	    arg_delta->tv_usec == ltp->t_delta.tv_usec)
 	    break;
     }
-    return tp;
+    return ltp;
 }
 
 /*
@@ -618,7 +618,7 @@ findtask(int state, struct timeval *delta)
  * flag set.
  */
 static void
-append_dynroot_list(const char *name, int state, int control, struct timeval *timedelta)
+append_dynroot_list(const char *name, int arg_state, int control, struct timeval *timedelta)
 {
     int i;
     dynroot_t *d;
@@ -632,13 +632,13 @@ append_dynroot_list(const char *name, int state, int control, struct timeval *ti
     d = &dyn_roots[n_dyn_roots-1];
     if ((d->name = strdup(name)) == NULL)
 	pmNoMem("strdup name in dyn_roots list", strlen(name) + 1, PM_FATAL_ERR);
-    d->state = state;
+    d->state = arg_state;
     d->control = control;
     d->delta = *timedelta;
 
     if (pmDebugOptions.log) {
 	fprintf(stderr, "pmlogger: possible dynamic root \"%s\", state=0x%x, control=0x%x, delta=%ld.%06ld\n",
-	    name, state, control, (long)timedelta->tv_sec, (long)timedelta->tv_usec);
+	    name, arg_state, control, (long)timedelta->tv_sec, (long)timedelta->tv_usec);
     }
 }
 
