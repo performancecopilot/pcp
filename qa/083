@@ -217,7 +217,11 @@ echo "starting test pmlogger..."
 #
 # extra parentheses and I/O redirection so that shell doesn't print pid
 #
-( sh -c "$sudo $PCP_BINADM_DIR/pmlogger -P -c $config -l $log TEST" >$tmp/sh.log 2>&1 & ) >/dev/null 2>&1
+# if remote hosts are running older versions with bad autonegotiate
+# version logic in libpcp, then pmlc there will only be able to connect
+# to pmlogger here if we force pmlogger to offer LOG_PDU_VERSION2
+#
+( sh -c "$sudo $PCP_BINADM_DIR/pmlogger --pmlc-ipc-version=2 -P -c $config -l $log TEST" >$tmp/sh.log 2>&1 & ) >/dev/null 2>&1
 _await_logger true
 _wait_for_pmlogger $logger_pid $log
 
@@ -313,7 +317,7 @@ echo "starting new pmlogger for advisory & mandatory tests..."
 #
 # extra parentheses and I/O redirection so that shell doesn't print pid
 #
-( sh -c "$sudo $PCP_BINADM_DIR/pmlogger -P -c $config -l $log TEST2" >$tmp/sh.log 2>&1 & ) >/dev/null 2>&1
+( sh -c "$sudo $PCP_BINADM_DIR/pmlogger --pmlc-ipc-version=2 -P -c $config -l $log TEST2" >$tmp/sh.log 2>&1 & ) >/dev/null 2>&1
 _await_logger true
 _wait_for_pmlogger $logger_pid $log
 
@@ -406,7 +410,7 @@ echo "starting new pmlogger for mandatory tests..."
 #
 # extra parentheses and I/O redirection so that shell doesn't print pid
 #
-( sh -c "$sudo $PCP_BINADM_DIR/pmlogger -P -c $config -l $log TEST3" >$tmp/sh.log 2>&1 & ) >/dev/null 2>&1
+( sh -c "$sudo $PCP_BINADM_DIR/pmlogger --pmlc-ipc-version=2 -P -c $config -l $log TEST3" >$tmp/sh.log 2>&1 & ) >/dev/null 2>&1
 _await_logger true
 _wait_for_pmlogger $logger_pid $log
 

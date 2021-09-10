@@ -1933,6 +1933,7 @@ x11
 1824 pmproxy local
 1825 libpcp pmcd local valgrind
 1826 libpcp pmcd local
+1829 archive pmlogrewrite local archive_v3 pmdumplog local
 1837 pmproxy local
 1844 pmdumptext libpcp_qmc remote
 1850 pmseries libpcp_web local

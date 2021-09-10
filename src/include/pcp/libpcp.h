@@ -244,12 +244,11 @@ typedef struct {
 
 /*
  * Protocol data unit support
- * Note: int is OK here, because configure ensures int is a 32-bit integer
  */
 typedef struct {
-    int		len;		/* length of pdu_header + PDU */
-    int		type;		/* PDU type */
-    int		from;		/* pid of PDU originator */
+    __int32_t	len;		/* length of pdu_header + PDU */
+    __int32_t	type;		/* PDU type */
+    __int32_t	from;		/* pid of PDU originator */
 } __pmPDUHdr;
 
 /* credentials stuff */
@@ -991,26 +990,29 @@ PCP_CALL extern void __pmAFunblock(void);
 PCP_CALL extern int __pmAFisempty(void);
 
 /* private PDU protocol between pmlc and pmlogger */
+#define LOG_PDU_VERSION3	3	/* __pmTimestamp */
 #define LOG_PDU_VERSION2	2	/* private pdus & PCP 2.0 error codes */
-#define LOG_PDU_VERSION		LOG_PDU_VERSION2
+#define LOG_PDU_VERSION		LOG_PDU_VERSION3
 #define LOG_REQUEST_NEWVOLUME	1
 #define LOG_REQUEST_STATUS	2
 #define LOG_REQUEST_SYNC	3
 typedef struct {
-    pmTimeval	ls_start;	/* start time for log */
-    pmTimeval	ls_last;	/* last time log written */
-    pmTimeval	ls_timenow;	/* current time */
-    int		ls_state;	/* state of log (from __pmLogCtl) */
-    int		ls_vol;		/* current volume number of log */
-    __int64_t	ls_size;	/* size of current volume */
-    char	ls_hostname[PM_LOG_MAXHOSTLEN];
-				/* name of pmcd host */
-    char	ls_fqdn[PM_LOG_MAXHOSTLEN];
-				/* fully qualified domain name of pmcd host */
-    char	ls_tz[PM_TZ_MAXLEN];
-				/* $TZ at collection host */
-    char	ls_tzlogger[PM_TZ_MAXLEN];
-				/* $TZ at pmlogger */
+    __pmTimestamp	start;		/* start time for log */
+    __pmTimestamp	last;		/* last time log written */
+    __pmTimestamp	now;		/* current time */
+    int			state;		/* state of log (from __pmLogCtl) */
+    int			vol;		/* current volume number of log */
+    __int64_t		size;		/* size of current volume */
+    struct {
+	char		*hostname;	/* name of pmcd host */
+	char		*fqdn;		/* fully qualified domain name of pmcd host */
+	char		*timezone; 	/* squashed $TZ at collection host */
+	char		*zoneinfo; 	/* detailed $TZ at collection host */
+    } pmcd;
+    struct {
+	char		*timezone; 	/* squashed $TZ at pmlogger host */
+	char		*zoneinfo; 	/* detailed $TZ at pmlogger host */
+    } pmlogger;
 } __pmLoggerStatus;
 #define PDU_LOG_CONTROL		0x8000
 #define PDU_LOG_STATUS		0x8001
@@ -1022,6 +1024,7 @@ PCP_CALL extern int __pmSendLogRequest(int, int);
 PCP_CALL extern int __pmDecodeLogRequest(const __pmPDU *, int *);
 PCP_CALL extern int __pmSendLogStatus(int, __pmLoggerStatus *);
 PCP_CALL extern int __pmDecodeLogStatus(__pmPDU *, __pmLoggerStatus **);
+PCP_CALL extern void __pmFreeLogStatus(__pmLoggerStatus *, int);
 
 /* logger timeout helper function */
 PCP_CALL extern int __pmLoggerTimeout(void);

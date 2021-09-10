@@ -65,6 +65,7 @@ int		archive_version = PM_LOG_VERS02; /* Type of archive to create */
 int		linger = 0;		/* linger with no tasks/events */
 int		notify_service_mgr = 0;	/* notify service manager when we're ready (daemon mode only) */
 int		pmlogger_reexec = 0;	/* set when PMLOGGER_REEXEC is set in the environment */
+int		pmlc_ipc_version = LOG_PDU_VERSION;
 int		rflag;			/* report sizes */
 int		Cflag;			/* parse config and exit */
 struct timeval	epoch;
@@ -570,6 +571,7 @@ static pmLongOptions longopts[] = {
     PMOPT_DEBUG,
     PMOPT_HOST,
     { "labelhost", 1, 'H', "LABELHOST", "override the hostname written into the label" },
+    { "pmlc-ipc-version", 1, 'I', "VERSION", "set IPC version for pmlc port [defaily LOG_PDU_VERSION]" },
     { "log", 1, 'l', "FILE", "redirect diagnostics and trace output" },
     { "linger", 0, 'L', 0, "run even if not primary logger instance and nothing to log" },
     { "note", 1, 'm', "MSG", "descriptive note to be added to the port map file" },
@@ -598,13 +600,13 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "c:CD:fh:H:l:K:Lm:Nn:op:Prs:T:t:uU:v:V:x:y?",
+    .short_options = "c:CD:fh:H:I:l:K:Lm:Nn:op:Prs:T:t:uU:v:V:x:y?",
     .long_options = longopts,
     .short_usage = "[options] archive",
 };
 
 static FILE *
-do_pmcpp(char *configfile)
+do_pmcpp(char *config)
 {
     FILE	*f;
     char	cmd[3*MAXPATHLEN+80];
@@ -613,10 +615,10 @@ do_pmcpp(char *configfile)
     int		sts;
     __pmExecCtl_t	*argp = NULL;
 
-    if (configfile != NULL) {
-	if ((f = fopen(configfile, "r")) == NULL) {
+    if (config != NULL) {
+	if ((f = fopen(config, "r")) == NULL) {
 	    fprintf(stderr, "%s: Cannot open config file \"%s\": %s\n",
-		pmGetProgname(), configfile, osstrerror());
+		pmGetProgname(), config, osstrerror());
 	    exit(1);
 	}
 	fclose(f);
@@ -634,7 +636,7 @@ do_pmcpp(char *configfile)
     }
 
     pmsprintf(cmd, sizeof(cmd), "%s%cpmcpp -rs %s -I %s%cconfig%cpmlogger",
-	bin_dir, sep, configfile == NULL ? "" : configfile, lib_dir, sep, sep);
+	bin_dir, sep, config == NULL ? "" : config, lib_dir, sep, sep);
     fprintf(stderr, "preprocessor cmd: %s\n", cmd);
 
     if ((sts = __pmProcessUnpickArgs(&argp, cmd)) < 0) {
@@ -846,6 +848,19 @@ main(int argc, char **argv)
 
 	case 'H':		/* hostname to put in label*/
 	    pmcd_host_label = strndup(opts.optarg, PM_LOG_MAXHOSTLEN-1);
+	    break;
+
+	case 'I':
+	    pmlc_ipc_version = (int)strtol(opts.optarg, &endnum, 10);
+	    if (*endnum != '\0') {
+		pmprintf("%s: non-numeric pmlc IPC version (%s)\n",
+			 pmGetProgname(), opts.optarg);
+		opts.errors++;
+	    } else if (pmlc_ipc_version < LOG_PDU_VERSION2 || pmlc_ipc_version > LOG_PDU_VERSION) {
+		pmprintf("%s: unsupported pmlc IPC version (%d)\n",
+			 pmGetProgname(), pmlc_ipc_version);
+		opts.errors++;
+	    }
 	    break;
 
 	case 'l':		/* log file name */
