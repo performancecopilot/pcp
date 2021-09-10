@@ -44,12 +44,12 @@ unset PMLOGGER_REQUEST_TIMEOUT
 
 echo
 # $PM_LOG_ALL_PIDS is not useful
-src/logcontrol -Dcontext -p-1 enquire sample.long.write_me 2>&1 \
+src/logcontrol -Dpmlc -p-1 enquire sample.long.write_me 2>&1 \
 | egrep '(__pmConnectLogger)|(logcontrol)'
 
 echo
 # punt that pid 1 is not pmlogger!
-src/logcontrol -Dcontext -p1 enquire sample.long.write_me 2>&1 \
+src/logcontrol -Dpmlc -p1 enquire sample.long.write_me 2>&1 \
 | egrep '(__pmConnectLogger)|(logcontrol)' \
 | _filter
 
@@ -57,17 +57,17 @@ src/logcontrol -Dcontext -p1 enquire sample.long.write_me 2>&1 \
 # $PCP_TMP_DIR/pmlogger
 touch $tmp.ctl
 $sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
-src/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
+src/logcontrol -Dpmlc,log -p$$ enquire sample.long.write_me 2>&1 \
 | egrep '(/__pmConnectLogger)|(__pmLog)|(logcontrol)' \
 | _filter
 echo "bad port" >$tmp.ctl
 $sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
-src/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
+src/logcontrol -Dpmlc,log -p$$ enquire sample.long.write_me 2>&1 \
 | egrep '(/__pmConnectLogger)|(__pmLog)|(logcontrol)' \
 | _filter
 echo "123456" >$tmp.ctl
 $sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
-src/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
+src/logcontrol -Dpmlc,log -p$$ enquire sample.long.write_me 2>&1 \
 | egrep '(/__pmConnectLogger)|(__pmLog)|(logcontrol)' \
 | _filter
 cat <<End-of-File >$tmp.ctl
@@ -75,7 +75,7 @@ cat <<End-of-File >$tmp.ctl
 no.such.host.pcp.io
 End-of-File
 $sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
-src/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
+src/logcontrol -Dpmlc,log -p$$ enquire sample.long.write_me 2>&1 \
 | egrep '(/__pmConnectLogger)|(__pmLog)|(logcontrol)' \
 | _filter
 cat <<End-of-File >$tmp.ctl
@@ -84,7 +84,7 @@ no.such.host.pcp.io
 /no/such/file
 End-of-File
 $sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
-src/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
+src/logcontrol -Dpmlc,log -p$$ enquire sample.long.write_me 2>&1 \
 | egrep '(/__pmConnectLogger)|(__pmLog)|(logcontrol)' \
 | _filter
 

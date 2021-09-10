@@ -15,21 +15,6 @@
 
 #include "logger.h"
 
-
-/* return one of these when a status request is made from a PCP 1.x pmlc */
-typedef struct {
-    pmTimeval  ls_start;	/* start time for log */
-    pmTimeval  ls_last;	/* last time log written */
-    pmTimeval  ls_timenow;	/* current time */
-    int		ls_state;	/* state of log (from __pmLogCtl) */
-    int		ls_vol;		/* current volume number of log */
-    __int64_t	ls_size;	/* size of current volume */
-    char	ls_hostname[PM_LOG_MAXHOSTLEN];
-				/* name of pmcd host */
-    char	ls_tz[40];      /* $TZ at collection host */
-    char	ls_tzlogger[40]; /* $TZ at pmlogger */
-} __pmLoggerStatus_v1;
-
 /* This crawls over the data structure looking for weirdness */
 void
 reality_check(void)
@@ -1265,7 +1250,6 @@ static int
 sendstatus(void)
 {
     int				rv;
-    int				end;
     int				version;
     static int			firsttime = 1;
     static char			*tzlogger;
@@ -1282,24 +1266,27 @@ sendstatus(void)
     if (version >= LOG_PDU_VERSION2) {
 	__pmLoggerStatus		ls;
 
-	if ((ls.ls_state = logctl.state) == PM_LOG_STATE_NEW) {
-	    ls.ls_start.tv_sec = ls.ls_start.tv_usec = 0;
+	if ((ls.state = logctl.state) == PM_LOG_STATE_NEW) {
+	    ls.start.sec = ls.start.nsec = 0;
 	} else {
-	    ls.ls_start.tv_sec = logctl.label.start.sec;
-	    ls.ls_start.tv_usec = logctl.label.start.nsec / 1000;
+	    ls.start = logctl.label.start;	/* struct assignment */
 	}
-	memcpy(&ls.ls_last, &last_stamp, sizeof(ls.ls_last));
+	memcpy(&ls.last, &last_stamp, sizeof(ls.last));
 	pmtimevalNow(&now);
-	ls.ls_timenow.tv_sec = (__int32_t)now.tv_sec;
-	ls.ls_timenow.tv_usec = (__int32_t)now.tv_usec;
-	ls.ls_vol = archctl.ac_curvol;
-	ls.ls_size = __pmFtell(archctl.ac_mfp);
-	assert(ls.ls_size >= 0);
+	ls.now.sec = now.tv_sec;
+	ls.now.nsec = now.tv_usec * 1000;
+	ls.vol = archctl.ac_curvol;
+	ls.size = __pmFtell(archctl.ac_mfp);
+	assert(ls.size >= 0);
 
-	/* be careful of buffer size mismatches when copying strings */
-	end = sizeof(ls.ls_hostname) - 1;
-	strncpy(ls.ls_hostname, logctl.label.hostname, end);
-	ls.ls_hostname[end] = '\0';
+	ls.pmcd.hostname = ls.pmcd.fqdn = ls.pmcd.timezone = ls.pmcd.zoneinfo = NULL;
+	ls.pmlogger.timezone = ls.pmlogger.zoneinfo = NULL;
+
+	if ((ls.pmcd.hostname = strdup(logctl.label.hostname)) == NULL) {
+	    int		sts = -oserror();
+	    pmNoMem("sendstatus: hostname", strlen(logctl.label.hostname), PM_RECOV_ERR);
+	    return sts;
+	}
         /* BTW, that string should equal pmcd_host[]. */
 
         /* NB: FQDN cleanup: there is no such thing as 'the fully
@@ -1307,24 +1294,33 @@ sendstatus(void)
            none; the set may have changed since the time the log
            archive was collected.  Now that we store the then-current
            pmcd.hostname in the hostname (and thus get it reported
-           in ls_hostname), we could pass something else informative
-           in the ls_fqdn slot.  Namely, pmcd_host_conn[], which is the
+           in hostname), we could pass something else informative
+           in the fqdn slot.  Namely, pmcd_host_conn[], which is the
            access path pmlogger's using to get to the pmcd. */
-	end = sizeof(ls.ls_fqdn) - 1;
-        strncpy(ls.ls_fqdn, pmcd_host_conn, end);
-	ls.ls_fqdn[end] = '\0';
+	if ((ls.pmcd.fqdn = strdup(pmcd_host_conn)) == NULL) {
+	    int		sts = -oserror();
+	    pmNoMem("sendstatus: fqdn", strlen(pmcd_host_conn), PM_RECOV_ERR);
+	    __pmFreeLogStatus(&ls, 0);
+	    return sts;
+	}
 
-	end = sizeof(ls.ls_tz) - 1;
-	strncpy(ls.ls_tz, logctl.label.timezone, end);
-	ls.ls_tz[end] = '\0';
-	end = sizeof(ls.ls_tzlogger) - 1;
-	if (tzlogger != NULL)
-	    strncpy(ls.ls_tzlogger, tzlogger, end);
-	else
-	    end = 0;
-	ls.ls_tzlogger[end] = '\0';
+	if ((ls.pmcd.timezone = strdup(logctl.label.timezone)) == NULL) {
+	    int		sts = -oserror();
+	    pmNoMem("sendstatus: pmcd.timezone", strlen(logctl.label.timezone), PM_RECOV_ERR);
+	    __pmFreeLogStatus(&ls, 0);
+	    return sts;
+	}
+	if (tzlogger != NULL) {
+	    if ((ls.pmlogger.timezone = strdup(tzlogger)) == NULL) {
+		int	sts = -oserror();
+		pmNoMem("sendstatus: pmlogger.timezone", strlen(tzlogger), PM_RECOV_ERR);
+		__pmFreeLogStatus(&ls, 0);
+		return sts;
+	    }
+	}
 
 	rv = __pmSendLogStatus(clientfd, &ls);
+	__pmFreeLogStatus(&ls, 0);
     }
     else
 	rv = PM_ERR_IPC;
@@ -1445,7 +1441,7 @@ do_creds(__pmPDU *pb)
 	free(credlist);
 
     if (pmDebugOptions.appl1)
-	fprintf(stderr, "do_creds: pmlc version=%d\n", version);
+	fprintf(stderr, "do_creds: pmlc PDU version=%d\n", version);
 
     return sts;
 }

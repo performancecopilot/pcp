@@ -46,7 +46,11 @@ _speak_to_me()
 {
     host=$1
     $sudo rm -f /tmp/$$.*
-    _start_up_pmlogger -L -c /dev/null -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1
+    # if remote hosts are running older versions with bad autonegotiate
+    # version logic in libpcp, then pmlc there will only be able to connect
+    # to pmlogger here if we force pmlogger to offer LOG_PDU_VERSION2
+    #
+    _start_up_pmlogger --pmlc-ipc-version=2 -L -c /dev/null -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1
     _wait_for_pmlogger $pid /tmp/$$.log
 
     # the success cases

@@ -60,6 +60,7 @@ Fedora
     https://fedoraproject.org/wiki/Releases
     23 Sep 2018: 27 & 28
     23 Aug 2020: 31 & 32
+    07 Sep 2021: 33 & 34
     # which packages are installed
     $ rpm -qa --qf '%{NAME}\n'
     # package search recipe (name and info or description)
@@ -74,29 +75,25 @@ Fedora
     $ sudo dnf --refresh update; sudo dnf install dnf-plugin-system-upgrade
     $ sudo dnf install fedora-gpg-keys
 
-    # if you get more than one release behind (I think) ... do this with
-    # "33" replaced by the desired version number
-    $ cd /etc/pki/rpm-gpg/
-    $ ver=33
-    $ sudo wget https://src.fedoraproject.org/rpms/fedora-repos/raw/main/f/RPM-GPG-KEY-fedora-$ver-primary
-    $ sudo ln -s RPM-GPG-KEY-fedora-$ver-primary RPM-GPG-KEY-fedora-$ver-x86_64
-
+    # only upgrade from N to N+1 is supported
     # for Fedora 33, else "33" replaced by the desired version number
     $ ver=33
-    $ sudo dnf system-upgrade download --refresh --allowerasing --releasever=$ver
+    $ sudo dnf --refresh upgrade
+    $ sudo dnf system-upgrade download --allowerasing --releasever=$ver
     $ sudo dnf system-upgrade reboot
     # and then watch the console window ...
 
     # recipe below works (at least) for Fedora 34
     # setting up a static IP addr using nmcli (assume interface enp1s0)
+    $ if=enp1s0
     $ sudo connection modify IPv4.address 192.168.178.226/24
                                                       ^^^ 200 + vm ordinal, e.g vm26 here
-    $ sudo nmcli connection modify enp1s0 IPv4.gateway 192.168.178.1
-    $ sudo nmcli connection modify enp1s0 IPv4.dns 192.168.178.100
-    $ sudo nmcli connection modify enp1s0 IPv4.dns-search localdomain
-    $ sudo nmcli connection modify enp1s0 IPv4.method manual
-    $ sudo nmcli connection down enp1s0
-    $ sudo nmcli connection up enp1s0
+    $ sudo nmcli connection modify $if IPv4.gateway 192.168.178.1
+    $ sudo nmcli connection modify $if IPv4.dns 192.168.178.100
+    $ sudo nmcli connection modify $if IPv4.dns-search localdomain
+    $ sudo nmcli connection modify $if IPv4.method manual
+    $ sudo nmcli connection down $if
+    $ sudo nmcli connection up $if
 
 RedHat
     https://access.redhat.com/articles/3078
@@ -429,7 +426,8 @@ If you're short of space, or have long-standing VMs that you'd like to
 minimize update times for, the following list of packages are ones that
 are commonly installed and are not needed for PCP builds nor QA.
 
-    qt4-doc qt5-doc libx11-doc imagemagick libreoffice* libfreerdp freerdp*
+    qt4-doc qt5-doc nodejs-docs libx11-doc
+    imagemagick libreoffice* libfreerdp freerdp*
     cups foomatic-filters foomatic-db-filesystem hplip*
     sane xsane libsane libksane sane-backends*
     brasero evince totem evolution thunderbird firefox
@@ -438,6 +436,7 @@ are commonly installed and are not needed for PCP builds nor QA.
     atril analog coinor shotwell synaptic wamerican samba* libsamba*
     lohit-*-fonts adobe-source-han-sans-* cjkuni-uming-fonts
     wqy-zenhei-fonts julietaula-montserrat-fonts naver-nanum-fonts-common
+    abattis-cantarell-fonts
     naver-nanum-gothic-fonts gnome-orca ndiswrapper* libhangul* libpinyin*
     libzhuyin*
 

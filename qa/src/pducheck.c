@@ -92,6 +92,133 @@ foorand(void)
     return (rn[cur]);
 }
 
+int
+do_log_status(int version)
+{
+    __pmLoggerStatus	*lsp;
+    __pmPDU		*pb;
+
+    /* set ipc version */
+    if (__pmSetVersionIPC(fd[0], version) < 0 ||
+	__pmSetVersionIPC(fd[1], version) < 0) {
+	fprintf(stderr, "Error: %s: __pmSetVersionIPC(%d): %s\n", __func__, version, pmErrStr(-errno));
+	exit(1);
+    }
+    __pmFreeLogStatus(&logstat, 0);
+    logstat.start.sec = 13 * 60 * 60;	/* 13 hrs after the epoch */
+    logstat.start.nsec = 12345000;		/* and a bit */
+    logstat.last.sec = 13 * 60 * 60 + 10;
+    logstat.last.nsec = 23456000;
+    logstat.now.sec = 13 * 60 * 60 + 20;
+    logstat.now.nsec = 34567000;
+    logstat.state = PM_LOG_MAYBE;
+    logstat.vol = 1;
+    logstat.size = 2048;
+    logstat.pmcd.hostname = strdup("foo");
+    logstat.pmcd.fqdn = strdup("foo.bar.com");
+    logstat.pmcd.timezone = strdup("TZ-THERE");
+    logstat.pmcd.zoneinfo = strdup(":Australia/Melbourne");
+    logstat.pmlogger.timezone = strdup("TZ-HERE");
+    logstat.pmlogger.zoneinfo = strdup(":Australia/Perth");
+    if ((e = __pmSendLogStatus(fd[1], &logstat)) < 0) {
+	fprintf(stderr, "Error: SendLogStatus(V%d): %s\n", version, pmErrStr(e));
+	return 1;
+    }
+    else {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
+	    fprintf(stderr, "Error: RecvLogStatus(V%d): %s\n", version, pmErrStr(e));
+	    return 1;
+	}
+	else if (e == 0) {
+	    fprintf(stderr, "Error: RecvLogStatus(V%d): end-of-file!\n", version);
+	    return 1;
+	}
+	else if (e != PDU_LOG_STATUS) {
+	    fprintf(stderr, "Error: RecvLogStatus(V%d): %s wrong type PDU!\n", version, __pmPDUTypeStr(e));
+	    return 1;
+	}
+	else {
+	    if ((e = __pmDecodeLogStatus(pb, &lsp)) < 0) {
+		fprintf(stderr, "Error: DecodeLogStatus(V%d): %s\n", version, pmErrStr(e));
+		return 1;
+	    }
+	    else {
+		if (lsp->start.sec != logstat.start.sec)
+		    fprintf(stderr, "Botch: LogStatus(V%d): start.sec: got: %" FMT_INT64 " expect: %" FMT_INT64 "\n",
+			version, lsp->start.sec, logstat.start.sec);
+		if (lsp->start.nsec != logstat.start.nsec)
+		    fprintf(stderr, "Botch: LogStatus(V%d): start.nsec: got: %d expect: %d\n",
+			version, lsp->start.nsec, logstat.start.nsec);
+		if (lsp->last.sec != logstat.last.sec)
+		    fprintf(stderr, "Botch: LogStatus(V%d): last.sec: got: %" FMT_INT64 " expect: %" FMT_INT64 "\n",
+			version, lsp->last.sec, logstat.last.sec);
+		if (lsp->last.nsec != logstat.last.nsec)
+		    fprintf(stderr, "Botch: LogStatus(V%d): last.nsec: got: %d expect: %d\n",
+			version, lsp->last.nsec, logstat.last.nsec);
+		if (lsp->now.sec != logstat.now.sec)
+		    fprintf(stderr, "Botch: LogStatus(V%d): now.sec: got: %" FMT_INT64 " expect: %" FMT_INT64 "\n",
+			version, lsp->now.sec, logstat.now.sec);
+		if (lsp->now.nsec != logstat.now.nsec)
+		    fprintf(stderr, "Botch: LogStatus(V%d): now.nsec: got: %d expect: %d\n",
+			version, lsp->now.nsec, logstat.now.nsec);
+		if (lsp->state != logstat.state)
+		    fprintf(stderr, "Botch: LogStatus(V%d): state: got: 0x%x expect: 0x%x\n",
+			version, lsp->state, logstat.state);
+		if (lsp->vol != logstat.vol)
+		    fprintf(stderr, "Botch: LogStatus(V%d): vol: got: 0x%x expect: 0x%x\n",
+			version, lsp->vol, logstat.vol);
+		if (lsp->size != logstat.size)
+		    fprintf(stderr, "Botch: LogStatus(V%d): size: got: 0x%x expect: 0x%x\n",
+			version, (int)lsp->size, (int)logstat.size);
+		if (lsp->pmcd.hostname == NULL)
+		    fprintf(stderr, "Botch: LogStatus(V%d): pmcd.hostname: NULL\n", version);
+		else if (strcmp(lsp->pmcd.hostname, logstat.pmcd.hostname) != 0)
+		    fprintf(stderr, "Botch: LogStatus(V%d): pmcd.hostname: got: \"%s\" expect: \"%s\"\n",
+			version, lsp->pmcd.hostname, logstat.pmcd.hostname);
+		if (lsp->pmcd.fqdn == NULL)
+		    fprintf(stderr, "Botch: LogStatus(V%d): pmcd.fqdn: NULL\n", version);
+		else if (strcmp(lsp->pmcd.fqdn, logstat.pmcd.fqdn) != 0)
+		    fprintf(stderr, "Botch: LogStatus(V%d): pmcd.fqdn: got: \"%s\" expect: \"%s\"\n",
+			version, lsp->pmcd.fqdn, logstat.pmcd.fqdn);
+		if (lsp->pmcd.timezone == NULL)
+		    fprintf(stderr, "Botch: LogStatus(V%d): pmcd.timezone: NULL\n", version);
+		else if (strcmp(lsp->pmcd.timezone, logstat.pmcd.timezone) != 0)
+		    fprintf(stderr, "Botch: LogStatus(V%d): pmcd.timezone: got: \"%s\" expect: \"%s\"\n",
+			version, lsp->pmcd.timezone, logstat.pmcd.timezone);
+		if (version > LOG_PDU_VERSION2) {
+		    if (lsp->pmcd.zoneinfo == NULL)
+			fprintf(stderr, "Botch: LogStatus(V%d): pmcd.zoneinfo: NULL\n", version);
+		    else if (strcmp(lsp->pmcd.zoneinfo, logstat.pmcd.zoneinfo) != 0)
+			fprintf(stderr, "Botch: LogStatus(V%d): pmcd.zoneinfo: got: \"%s\" expect: \"%s\"\n",
+			    version, lsp->pmcd.zoneinfo, logstat.pmcd.zoneinfo);
+		}
+		if (lsp->pmlogger.timezone == NULL)
+		    fprintf(stderr, "Botch: LogStatus(V%d): pmlogger.timezone: NULL\n", version);
+		else if (strcmp(lsp->pmlogger.timezone, logstat.pmlogger.timezone) != 0)
+		    fprintf(stderr, "Botch: LogStatus(V%d): tzlogger: got: \"%s\" expect: \"%s\"\n",
+			version, lsp->pmlogger.timezone, logstat.pmlogger.timezone);
+		if (version > LOG_PDU_VERSION2) {
+		    if (lsp->pmlogger.zoneinfo == NULL)
+			fprintf(stderr, "Botch: LogStatus(V%d): pmlogger.zoneinfo: NULL\n", version);
+		    else if (strcmp(lsp->pmlogger.zoneinfo, logstat.pmlogger.zoneinfo) != 0)
+			fprintf(stderr, "Botch: LogStatus(V%d): pmlogger.zoneinfo: got: \"%s\" expect: \"%s\"\n",
+			    version, lsp->pmlogger.zoneinfo, logstat.pmlogger.zoneinfo);
+		}
+		__pmFreeLogStatus(lsp, 1);
+	    }
+	}
+    }
+
+    /* reset ipc version */
+    if (__pmSetVersionIPC(fd[0], PDU_VERSION) < 0 ||
+	__pmSetVersionIPC(fd[1], PDU_VERSION) < 0) {
+	fprintf(stderr, "Error: %s: reset __pmSetVersionIPC(%d): %s\n", __func__, PDU_VERSION, pmErrStr(-errno));
+	exit(1);
+    }
+
+    return 0;
+}
+
 static void
 _z(void)
 {
@@ -144,7 +271,6 @@ _z(void)
     char		*resname;
     char		**resnamelist;
     int			*resstatlist;
-    __pmLoggerStatus	*lsp;
     double		pi = M_PI;
     char		mytag[10];
     /*
@@ -1653,90 +1779,11 @@ _z(void)
     rp->numpmid = sav_np;
 
 /* PDU_LOG_STATUS */
-    logstat.ls_start.tv_sec = 13 * 60 * 60;	/* 13 hrs after the epoch */
-    logstat.ls_start.tv_usec = 12345;		/* and a bit */
-    logstat.ls_last.tv_sec = 13 * 60 * 60 + 10;
-    logstat.ls_last.tv_usec = 23456;
-    logstat.ls_timenow.tv_sec = 13 * 60 * 60 + 20;
-    logstat.ls_timenow.tv_usec = 34567;
-    logstat.ls_state = PM_LOG_MAYBE;
-    logstat.ls_vol = 1;
-    logstat.ls_size = 2048;
-    strcpy(logstat.ls_hostname, "foo");
-    strcpy(logstat.ls_fqdn, "foo.bar.com");
-    strcpy(logstat.ls_tz, "TZ-THERE");
-    strcpy(logstat.ls_tzlogger, "TZ-HERE");
-    if ((e = __pmSendLogStatus(fd[1], &logstat)) < 0) {
-	fprintf(stderr, "Error: SendLogStatus: %s\n", pmErrStr(e));
+    if (do_log_status(LOG_PDU_VERSION2) != 0) {
 	fatal = 1;
 	goto cleanup;
     }
-    else {
-	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
-	    fprintf(stderr, "Error: RecvLogStatus: %s\n", pmErrStr(e));
-	    fatal = 1;
-	    goto cleanup;
-	}
-	else if (e == 0) {
-	    fprintf(stderr, "Error: RecvLogStatus: end-of-file!\n");
-	    fatal = 1;
-	    goto cleanup;
-	}
-	else if (e != PDU_LOG_STATUS) {
-	    fprintf(stderr, "Error: RecvLogStatus: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-	    fatal = 1;
-	    goto cleanup;
-	}
-	else {
-	    if ((e = __pmDecodeLogStatus(pb, &lsp)) < 0) {
-		fprintf(stderr, "Error: DecodeLogStatus: %s\n", pmErrStr(e));
-		fatal = 1;
-		goto cleanup;
-	    }
-	    else {
-		if (lsp->ls_start.tv_sec != logstat.ls_start.tv_sec)
-		    fprintf(stderr, "Botch: LogStatus: ls_staty.tv_sec: got: %d expect: %d\n",
-			lsp->ls_start.tv_sec, logstat.ls_start.tv_sec);
-		if (lsp->ls_start.tv_usec != logstat.ls_start.tv_usec)
-		    fprintf(stderr, "Botch: LogStatus: ls_staty.tv_usec: got: %d expect: %d\n",
-			lsp->ls_start.tv_usec, logstat.ls_start.tv_usec);
-		if (lsp->ls_last.tv_sec != logstat.ls_last.tv_sec)
-		    fprintf(stderr, "Botch: LogStatus: ls_staty.tv_sec: got: %d expect: %d\n",
-			lsp->ls_last.tv_sec, logstat.ls_last.tv_sec);
-		if (lsp->ls_last.tv_usec != logstat.ls_last.tv_usec)
-		    fprintf(stderr, "Botch: LogStatus: ls_staty.tv_usec: got: %d expect: %d\n",
-			lsp->ls_last.tv_usec, logstat.ls_last.tv_usec);
-		if (lsp->ls_timenow.tv_sec != logstat.ls_timenow.tv_sec)
-		    fprintf(stderr, "Botch: LogStatus: ls_staty.tv_sec: got: %d expect: %d\n",
-			lsp->ls_timenow.tv_sec, logstat.ls_timenow.tv_sec);
-		if (lsp->ls_timenow.tv_usec != logstat.ls_timenow.tv_usec)
-		    fprintf(stderr, "Botch: LogStatus: ls_staty.tv_usec: got: %d expect: %d\n",
-			lsp->ls_timenow.tv_usec, logstat.ls_timenow.tv_usec);
-		if (lsp->ls_state != logstat.ls_state)
-		    fprintf(stderr, "Botch: LogStatus: ls_state: got: 0x%x expect: 0x%x\n",
-			lsp->ls_state, logstat.ls_state);
-		if (lsp->ls_vol != logstat.ls_vol)
-		    fprintf(stderr, "Botch: LogStatus: ls_vol: got: 0x%x expect: 0x%x\n",
-			lsp->ls_vol, logstat.ls_vol);
-		if (lsp->ls_size != logstat.ls_size)
-		    fprintf(stderr, "Botch: LogStatus: ls_size: got: 0x%x expect: 0x%x\n",
-			(int)lsp->ls_size, (int)logstat.ls_size);
-		if (strcmp(lsp->ls_hostname, logstat.ls_hostname) != 0)
-		    fprintf(stderr, "Botch: LogStatus: ls_hostname: got: \"%s\" expect: \"%s\"\n",
-			lsp->ls_hostname, logstat.ls_hostname);
-		if (strcmp(lsp->ls_fqdn, logstat.ls_fqdn) != 0)
-		    fprintf(stderr, "Botch: LogStatus: ls_fqdn: got: \"%s\" expect: \"%s\"\n",
-			lsp->ls_fqdn, logstat.ls_fqdn);
-		if (strcmp(lsp->ls_tz, logstat.ls_tz) != 0)
-		    fprintf(stderr, "Botch: LogStatus: ls_tz: got: \"%s\" expect: \"%s\"\n",
-			lsp->ls_tz, logstat.ls_tz);
-		if (strcmp(lsp->ls_tzlogger, logstat.ls_tzlogger) != 0)
-		    fprintf(stderr, "Botch: LogStatus: ls_tzlogger: got: \"%s\" expect: \"%s\"\n",
-			lsp->ls_tzlogger, logstat.ls_tzlogger);
-		__pmUnpinPDUBuf(pb);
-	    }
-	}
-    }
+    do_log_status(LOG_PDU_VERSION3);
 
 /* PDU_LOG_REQUEST */
     if ((e = __pmSendLogRequest(fd[1], LOG_REQUEST_SYNC)) < 0) {
