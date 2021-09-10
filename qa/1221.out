@@ -443,6 +443,10 @@ openmetrics.curl_scripted.metric1
 openmetrics.curl_scripted.metric2
     labels {"agent":"openmetrics","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"script":"PCP_PMDAS_DIR/openmetrics/config.d/curl_scripted.sh","source":"curl_scripted","userid":NUM}
 
+openmetrics.duplicate_hostname_label.somenumber
+    labels {"agent":"openmetrics","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"duplicate_hostname_label","url":FILEURL,"userid":NUM}
+    inst [0 or "0 hostname:shack"] labels {"agent":"openmetrics","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"0 hostname:shack","machineid":MACHINEID,"source":"duplicate_hostname_label","url":FILEURL,"userid":NUM}
+
 openmetrics.good_summary_nometa.sample_counter0010
     labels {"agent":"openmetrics","baz":"2.8","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"good_summary_nometa","url":FILEURL,"userid":NUM}
     inst [0 or "0 baz:0.0"] labels {"agent":"openmetrics","baz":"0.0","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"0 baz:0.0","machineid":MACHINEID,"source":"good_summary_nometa","url":FILEURL,"userid":NUM}
@@ -7541,6 +7545,10 @@ openmetrics.curl_scripted.metric1
 
 openmetrics.curl_scripted.metric2
     labels {"agent":"openmetrics","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"script":"PCP_PMDAS_DIR/openmetrics/config.d/curl_scripted.sh","source":"curl_scripted","userid":NUM}
+
+openmetrics.duplicate_hostname_label.somenumber
+    labels {"agent":"openmetrics","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"duplicate_hostname_label","url":FILEURL,"userid":NUM}
+    inst [0 or "0 hostname:shack"] labels {"agent":"openmetrics","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"0 hostname:shack","machineid":MACHINEID,"source":"duplicate_hostname_label","url":FILEURL,"userid":NUM}
 
 openmetrics.good_summary_nometa.sample_counter0010
     labels {"agent":"openmetrics","baz":"2.8","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"good_summary_nometa","url":FILEURL,"userid":NUM}
