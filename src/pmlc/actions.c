@@ -549,11 +549,11 @@ void Status(int pid, int primary)
     static int		localtz = -1;
     static char 	*ltzstr = "";	/* pmNewZone doesn't like null pointers */
     char		*str;
-    __pmLoggerStatus	*lsp;
+    __pmLoggerStatus	*lsp = NULL;
     static char		localzone[] = "local"; 
     static char		*zonename = localzone;
-    char		*tzlogger;
-    char		*host;
+    char		*tzlogger = NULL;
+    char		*host = NULL;
     char		startbuf[TZBUFSZ];
     char		lastbuf[TZBUFSZ];
     char		nowbuf[TZBUFSZ];
@@ -686,9 +686,14 @@ void Status(int pid, int primary)
    printf("log volume       %d\n", lsp->vol);
    printf("log size         %" PRIi64 "\n", lsp->size);
 
-    __pmFreeLogStatus(lsp, 1);
-
 done:
+    if (lsp != NULL)
+	__pmFreeLogStatus(lsp, 1);
+    if (host != NULL)
+	free(host);
+    if (tzlogger != NULL)
+	free(tzlogger);
+
     return;
 
 }
