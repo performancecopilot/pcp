@@ -1047,15 +1047,18 @@ decode_log_control(const char *name)
 }
 
 static void
-decode_log_status(const char *name)
+decode_log_status(const char *name, int version)
 {
     __pmLoggerStatus	*log;
     int			sts;
+    int			save_ipc_version = __pmVersionIPC(0);
     struct log_sts {
 	__pmPDUHdr	hdr;
-	int		pad;
-	__pmLoggerStatus sts;
+				/* big enough for V2 or V3 */
+	__int32_t	buf[20+2*PM_LOG_MAXHOSTLEN+2*PM_TZ_MAXLEN];
     } *log_sts;
+
+    __pmSetVersionIPC(0, version);
 
     log_sts = (struct log_sts *)malloc(sizeof(*log_sts));
 
@@ -1068,14 +1071,31 @@ decode_log_status(const char *name)
 
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
     memset(log_sts, 0, sizeof(*log_sts));
-    log_sts->hdr.len = sizeof(*log_sts) - 4;
+    log_sts->hdr.len = 100;
     log_sts->hdr.type = PDU_LOG_STATUS;
+    if (version == LOG_PDU_VERSION3) {
+	/* pmcd_hostname_len */
+	log_sts->buf[13] = 64*1024;
+    }
     sts = __pmDecodeLogStatus((__pmPDU *)log_sts, &log);
     fprintf(stderr, "  __pmDecodeLogStatus: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts == 0)
 	__pmFreeLogStatus(log, 1);
 
     free(log_sts);
+    __pmSetVersionIPC(0, save_ipc_version);
+}
+
+static void
+decode_log_status_v2(const char *name)
+{
+    decode_log_status(name, LOG_PDU_VERSION2);
+}
+
+static void
+decode_log_status_v3(const char *name)
+{
+    decode_log_status(name, LOG_PDU_VERSION3);
 }
 
 static void
@@ -1557,7 +1577,8 @@ struct pdu {
     { "pmns_child",	decode_pmns_child },
     { "pmns_traverse",	decode_pmns_traverse },
     { "log_control",	decode_log_control },
-    { "log_status",	decode_log_status },
+    { "log_status_v2",	decode_log_status_v2 },
+    { "log_status_v3",	decode_log_status_v3 },
     { "log_request",	decode_log_request },
     { "result", 	decode_result },
     { "text_req", 	decode_text_req },

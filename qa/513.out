@@ -135,9 +135,13 @@ QA output created by 513
   __pmDecodeLogControl: sts = -12366 (IPC protocol failure)
 [log_control] checking access beyond extended buffer
   __pmDecodeLogControl: sts = -12366 (IPC protocol failure)
-[log_status] checking all-zeroes structure
+[log_status_v2] checking all-zeroes structure
   __pmDecodeLogStatus: sts = -12366 (IPC protocol failure)
-[log_status] checking access beyond buffer
+[log_status_v2] checking access beyond buffer
+  __pmDecodeLogStatus: sts = -12366 (IPC protocol failure)
+[log_status_v3] checking all-zeroes structure
+  __pmDecodeLogStatus: sts = 0 (No error)
+[log_status_v3] checking access beyond buffer
   __pmDecodeLogStatus: sts = -12366 (IPC protocol failure)
 [log_request] checking all-zeroes structure
   __pmDecodeLogRequest: sts = -12366 (IPC protocol failure)
