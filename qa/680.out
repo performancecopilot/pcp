@@ -25,7 +25,6 @@ __pmVersionCred: OK
 __pmValue_PDU: OK
 __pmValueSet_PDU: OK
 __pmLogHdr: OK
-__pmLoggerStatus: OK
 
 p_*.c files in libpcp
 attr_t: OK
@@ -44,7 +43,6 @@ labels_t: OK
 lc_vlist_t: OK
 control_req_t: OK
 notify_t: OK
-logstatus_t: OK
 idlist_t: OK
 name_t: OK
 name_status_t: OK
