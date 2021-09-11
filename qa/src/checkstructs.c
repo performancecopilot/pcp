@@ -119,13 +119,6 @@ typedef struct {
     int		type;		/* notification type */
 } notify_t;
 
-/* from p_lstatus.c */
-typedef struct {
-    __pmPDUHdr		hdr;
-    int                 pad;            /* force status to be double word aligned */
-    __pmLoggerStatus	status;
-} logstatus_t;
-
 /* from p_pmns.c */
 typedef struct {
     __pmPDUHdr   hdr;
@@ -247,7 +240,6 @@ main(int argc, char **argv)
     check("__pmValue_PDU", sizeof(__pmValue_PDU), 2*INT);
     check("__pmValueSet_PDU", sizeof(__pmValueSet_PDU), 5*INT);
     check("__pmLogHdr", sizeof(__pmLogHdr), 2*INT);
-    check("__pmLoggerStatus", sizeof(__pmLoggerStatus), 10*INT+PM_LOG_MAXHOSTLEN+PM_LOG_MAXHOSTLEN+PM_TZ_MAXLEN+PM_TZ_MAXLEN);
 
     printf("\np_*.c files in libpcp\n");
     /* 3*INT for __pmPDUHdr, the PDU payload */
@@ -267,7 +259,6 @@ main(int argc, char **argv)
     check("lc_vlist_t", sizeof(lc_vlist_t), 4*INT);
     check("control_req_t", sizeof(control_req_t), 3*INT+5*INT);
     check("notify_t", sizeof(notify_t), 3*INT+1*INT);
-    check("logstatus_t", sizeof(logstatus_t), 3*INT+1*INT+10*INT+PM_LOG_MAXHOSTLEN+PM_LOG_MAXHOSTLEN+PM_TZ_MAXLEN+PM_TZ_MAXLEN);
     check("idlist_t", sizeof(idlist_t), 3*INT+3*INT);
     check("name_t", sizeof(name_t), 2*INT);
     check("name_status_t", sizeof(name_status_t), 3*INT);

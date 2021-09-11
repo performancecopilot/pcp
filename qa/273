@@ -37,6 +37,8 @@ _filter()
 {
     sed \
 	-e 's/0x[0-9a-f][0-9a-f]*/HEX/g' \
+	-e '/version=[0-9]/s//version=N/' \
+	-e '/code=[0-9]/s//code=N/' \
     # end
 }
 
@@ -85,6 +87,8 @@ d
 	-e '/^__pmSetSocketIPC:/d' \
 	-e '/^NotifyEndLocalContext/d' \
 	-e '/^IPC table fd/d' \
+	-e '/version=[0-9]/s//version=N/' \
+	-e '/code=[0-9]/s//code=N/' \
     # end
 }
 
@@ -92,6 +96,8 @@ _filter3()
 {
     sed \
 	-e 's/Connection timed out/No route to host/' \
+	-e '/version=[0-9]/s//version=N/' \
+	-e '/code=[0-9]/s//code=N/' \
     # end
 }
 
