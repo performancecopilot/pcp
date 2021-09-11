@@ -37,7 +37,7 @@ fi
 #
 exec 2>$tmp.err
 
-src/pdu-server -p $port -D pdu,appl0 -Z UTC >$tmp.out 2>&1 &
+src/pdu-server -p $port -D pdu,appl0,pmlc -Z UTC >$tmp.out 2>&1 &
 server_pid=$!
 
 sleep 1

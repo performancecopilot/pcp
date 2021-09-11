@@ -482,7 +482,24 @@ pmResult dump from ADDR timestamp: NOW TODAY numpmid: 2
 000:       4c     8000        0        b        1      3e8        2     dead 
 008:        1 ffffffff      4d2     beef        3        2      929        4 
 016:      d80        8     11d7 
-[SERVER]pmGetPDU: LOG_STATUS fd=<n> len=264 from=0
+[SERVER]pmGetPDU: LOG_STATUS fd=<n> len=160 from=0
+000:       a0     8003        0 d0b60000        0 a85ebc00 dab60000        0 
+008:   e96501 e4b60000        0 58730f02  1000000  1000000        0    80000 
+016:  4000000  c000000  9000000 15000000  8000000 11000000   6f6f66 2e6f6f66 
+024: 2e726162   6d6f63 542d5a54 45524548 75413a00 61727473 2f61696c 626c654d 
+032: 6e72756f 5a540065 5245482d 413a0045 72747375 61696c61 7265502f 7e006874 
+__pmDecodeLogStatus: got PDU (version=3)
++ PDU_LOG_STATUS: start=46800.012345000 13:00:00.012345000
+last= 46810.023456000 13:00:10.023456000 now= 46820.034567000 13:00:20.034567000
+state=1 vol=1 size=2048 pmcd.host=foo pmcd.timezone="TZ-THERE" pmlogger.timezone="TZ-HERE"
+__pmSendLogStatus: sending PDU (version=3)
+[SERVER]pmXmitPDU: LOG_STATUS fd=<n> len=160
+000:       a0     8003        0 d0b60000        0 a85ebc00 dab60000        0 
+008:   e96501 e4b60000        0 58730f02  1000000  1000000        0    80000 
+016:  4000000  c000000  9000000 15000000  8000000 11000000   6f6f66 2e6f6f66 
+024: 2e726162   6d6f63 542d5a54 45524548 75413a00 61727473 2f61696c 626c654d 
+032: 6e72756f 5a540065 5245482d 413a0045 72747375 61696c61 7265502f 7e006874 
+[SERVER]pmGetPDU: LOG_STATUS_V2 fd=<n> len=264 from=0
 000:      108     8001        0 ?? pad ?     b6d0     3039     b6da     5ba0 
 008:     b6e4     8707        1        1        0      800 666f6f00        0 
 016:        0        0        0        0        0        0        0        0 
@@ -492,12 +509,12 @@ pmResult dump from ADDR timestamp: NOW TODAY numpmid: 2
 048:        0        0        0        0        0        0        0        0 
 056: 545a2d48 45524500        0        0        0        0        0        0 
 064:        0        0 
-__pmDecodeLogStatus: got PDU (fromversion=2)
-+ PDU_LOG_STATUS: start=46800.012345 13:00:00.012
-last=46810.023456 13:00:10.023 now=46820.034567 13:00:20.034
-state=1 vol=1 size=2048 host=foo tz="TZ-THERE" tzlogger="TZ-HERE"
-__pmSendLogStatus: sending PDU (toversion=2)
-[SERVER]pmXmitPDU: LOG_STATUS fd=<n> len=264
+__pmDecodeLogStatus: got PDU (version=2)
++ PDU_LOG_STATUS: start=46800.012345000 13:00:00.012345000
+last= 46810.023456000 13:00:10.023456000 now= 46820.034567000 13:00:20.034567000
+state=1 vol=1 size=2048 pmcd.host=foo pmcd.timezone="TZ-THERE" pmlogger.timezone="TZ-HERE"
+__pmSendLogStatus: sending PDU (version=2)
+[SERVER]pmXmitPDU: LOG_STATUS_V2 fd=<n> len=264
 000:      108     8001        0 ?? pad ?     b6d0     3039     b6da     5ba0 
 008:     b6e4     8707        1        1        0      800 666f6f00        0 
 016:        0        0        0        0        0        0        0        0 

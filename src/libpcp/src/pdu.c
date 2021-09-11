@@ -308,6 +308,7 @@ __pmPDUTypeStr_r(int type, char *buf, int buflen)
     case PDU_PMNS_CHILD:	res = "PMNS_CHILD"; break;
     case PDU_PMNS_TRAVERSE:	res = "PMNS_TRAVERSE"; break;
     case PDU_LOG_CONTROL:	res = "LOG_CONTROL"; break;
+    case PDU_LOG_STATUS_V2:	res = "LOG_STATUS_V2"; break;
     case PDU_LOG_STATUS:	res = "LOG_STATUS"; break;
     case PDU_LOG_REQUEST:	res = "LOG_REQUEST"; break;
     case PDU_ATTR:		res = "ATTR"; break;

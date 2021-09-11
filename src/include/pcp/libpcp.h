@@ -1015,8 +1015,9 @@ typedef struct {
     } pmlogger;
 } __pmLoggerStatus;
 #define PDU_LOG_CONTROL		0x8000
-#define PDU_LOG_STATUS		0x8001
+#define PDU_LOG_STATUS_V2	0x8001
 #define PDU_LOG_REQUEST		0x8002
+#define PDU_LOG_STATUS		0x8003
 PCP_CALL extern int __pmConnectLogger(const char *, int *, int *);
 PCP_CALL extern int __pmSendLogControl(int, const pmResult *, int, int, int);
 PCP_CALL extern int __pmDecodeLogControl(const __pmPDU *, pmResult **, int *, int *, int *);

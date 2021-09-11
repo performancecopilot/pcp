@@ -1072,10 +1072,12 @@ decode_log_status(const char *name, int version)
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
     memset(log_sts, 0, sizeof(*log_sts));
     log_sts->hdr.len = 100;
-    log_sts->hdr.type = PDU_LOG_STATUS;
     if (version == LOG_PDU_VERSION3) {
-	/* pmcd_hostname_len */
-	log_sts->buf[13] = 64*1024;
+	log_sts->hdr.type = PDU_LOG_STATUS;
+	log_sts->buf[13] = 64*1024;		/* pmcd_hostname_len */
+    }
+    else {
+	log_sts->hdr.type = PDU_LOG_STATUS_V2;
     }
     sts = __pmDecodeLogStatus((__pmPDU *)log_sts, &log);
     fprintf(stderr, "  __pmDecodeLogStatus: sts = %d (%s)\n", sts, pmErrStr(sts));

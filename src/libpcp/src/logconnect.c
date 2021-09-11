@@ -24,7 +24,7 @@
 /*
  * Return timeout (in seconds) to be used when pmlc is communicating
  * with pmlogger ... used externally from pmlc and internally from
- * __pmConnectLogger() and __pmControlLogger()
+ * __pmConnectLogger() and __pmControlLog()
  */
 int
 __pmLoggerTimeout(void)

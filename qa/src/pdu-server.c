@@ -21,6 +21,7 @@
 #include "localconfig.h"
 
 static int	raw;		/* if set, echo PDUs, do not decode/encode */
+static int	newfd;		/* client connects here */
 
 typedef struct {		/* from src/libpcp/src/p_pmns.c */
     __pmPDUHdr   hdr;
@@ -533,6 +534,12 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 	case PDU_LOG_STATUS:
+	case PDU_LOG_STATUS_V2:
+	    if (type == PDU_LOG_STATUS)
+		__pmSetVersionIPC(newfd, LOG_PDU_VERSION3);
+	    else
+		__pmSetVersionIPC(newfd, LOG_PDU_VERSION2);
+
 	    if ((e = __pmDecodeLogStatus(pb, &lsp)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeLogStatus: %s\n", pmGetProgname(), pmErrStr(e));
 		break;
@@ -553,6 +560,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    lsp->pmcd.timezone, lsp->pmlogger.timezone);
 	    }
 	    e = __pmSendLogStatus(fd, lsp);
+	    __pmSetVersionIPC(newfd, PDU_VERSION);
 	    __pmFreeLogStatus(lsp, 1);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendLogStatus: %s\n", pmGetProgname(), pmErrStr(e));
@@ -649,7 +657,6 @@ main(int argc, char *argv[])
 			/* default port for remote connection to pdu-server */
     int		i, sts;
     int		c;
-    int		newfd;
     int		new;
     struct sockaddr_in	myAddr;
     struct linger	noLinger = {1, 0};

@@ -1439,7 +1439,7 @@ do_creds(__pmPDU *pb)
     if (credlist)
 	free(credlist);
 
-    if (pmDebugOptions.appl1)
+    if (pmDebugOptions.pmlc)
 	fprintf(stderr, "do_creds: pmlc PDU version=%d\n", version);
 
     return sts;

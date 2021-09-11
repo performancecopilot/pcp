@@ -193,7 +193,7 @@ __pmSendLogStatus(int fd, __pmLoggerStatus *status)
 	if ((pp = (logstatus_v2 *)__pmFindPDUBuf(sizeof(logstatus_v2))) == NULL)
 	    return -oserror();
 	pp->hdr.len = sizeof(logstatus_v2);
-	pp->hdr.type = PDU_LOG_STATUS;
+	pp->hdr.type = PDU_LOG_STATUS_V2;
 	pp->hdr.from = FROM_ANON;	/* context does not matter here */
 	memset(&pp->pad, '~', sizeof(pp->pad));  /* initialize padding */
 

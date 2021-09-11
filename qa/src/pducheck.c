@@ -133,7 +133,7 @@ do_log_status(int version)
 	    fprintf(stderr, "Error: RecvLogStatus(V%d): end-of-file!\n", version);
 	    return 1;
 	}
-	else if (e != PDU_LOG_STATUS) {
+	else if (e != PDU_LOG_STATUS && e != PDU_LOG_STATUS_V2) {
 	    fprintf(stderr, "Error: RecvLogStatus(V%d): %s wrong type PDU!\n", version, __pmPDUTypeStr(e));
 	    return 1;
 	}
@@ -1779,11 +1779,16 @@ _z(void)
     rp->numpmid = sav_np;
 
 /* PDU_LOG_STATUS */
+    if (do_log_status(LOG_PDU_VERSION3) != 0) {
+	fatal = 1;
+	goto cleanup;
+    }
+
+/* PDU_LOG_STATUS_V2 */
     if (do_log_status(LOG_PDU_VERSION2) != 0) {
 	fatal = 1;
 	goto cleanup;
     }
-    do_log_status(LOG_PDU_VERSION3);
 
 /* PDU_LOG_REQUEST */
     if ((e = __pmSendLogRequest(fd[1], LOG_REQUEST_SYNC)) < 0) {
