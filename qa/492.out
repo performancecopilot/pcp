@@ -12,6 +12,7 @@ Options:
   -q, --quick           quick mode, no output if no change
   -s, --scale           do scale conversion
   -v, --verbose         increased diagnostic verbosity
+  -V N, --version=N     output archive in version N [2/3] format
   -w, --warnings        emit warnings [default is silence]
   -?, --help            show this usage message and exit
 
@@ -28,6 +29,7 @@ Options:
   -q, --quick           quick mode, no output if no change
   -s, --scale           do scale conversion
   -v, --verbose         increased diagnostic verbosity
+  -V N, --version=N     output archive in version N [2/3] format
   -w, --warnings        emit warnings [default is silence]
   -?, --help            show this usage message and exit
 
@@ -45,6 +47,7 @@ Options:
   -q, --quick           quick mode, no output if no change
   -s, --scale           do scale conversion
   -v, --verbose         increased diagnostic verbosity
+  -V N, --version=N     output archive in version N [2/3] format
   -w, --warnings        emit warnings [default is silence]
   -?, --help            show this usage message and exit
 
@@ -62,6 +65,7 @@ Options:
   -q, --quick           quick mode, no output if no change
   -s, --scale           do scale conversion
   -v, --verbose         increased diagnostic verbosity
+  -V N, --version=N     output archive in version N [2/3] format
   -w, --warnings        emit warnings [default is silence]
   -?, --help            show this usage message and exit
 
@@ -81,6 +85,7 @@ Options:
   -q, --quick           quick mode, no output if no change
   -s, --scale           do scale conversion
   -v, --verbose         increased diagnostic verbosity
+  -V N, --version=N     output archive in version N [2/3] format
   -w, --warnings        emit warnings [default is silence]
   -?, --help            show this usage message and exit
 
@@ -98,6 +103,7 @@ Options:
   -q, --quick           quick mode, no output if no change
   -s, --scale           do scale conversion
   -v, --verbose         increased diagnostic verbosity
+  -V N, --version=N     output archive in version N [2/3] format
   -w, --warnings        emit warnings [default is silence]
   -?, --help            show this usage message and exit
 

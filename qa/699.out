@@ -11,7 +11,7 @@ sample.seconds
     Semantics: counter  Units: sec
 --- pmlogrewrite, expect failure ---
 __pmLogNewFile: "TMP.out.index" already exists, not over-written
-pmlogrewrite: Error: __pmLogCreate(TMP.out): File exists
+pmlogrewrite: Error: __pmLogCreate(TMP.out,v2): File exists
 --- check archives after ---
 
 sample.seconds
@@ -25,7 +25,7 @@ sample.seconds
 === removed output archive .meta file ===
 --- pmlogrewrite, expect failure ---
 __pmLogNewFile: "TMP.out.index" already exists, not over-written
-pmlogrewrite: Error: __pmLogCreate(TMP.out): File exists
+pmlogrewrite: Error: __pmLogCreate(TMP.out,v2): File exists
 --- check archives after ---
 
 sample.seconds
@@ -41,7 +41,7 @@ TMP.out.2: no change
 === removed output archive .index file ===
 --- pmlogrewrite, expect failure ---
 __pmLogNewFile: "TMP.out.0" already exists, not over-written
-pmlogrewrite: Error: __pmLogCreate(TMP.out): File exists
+pmlogrewrite: Error: __pmLogCreate(TMP.out,v2): File exists
 --- check archives after ---
 
 sample.seconds
