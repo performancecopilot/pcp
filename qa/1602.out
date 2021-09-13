@@ -2,10 +2,13 @@ QA output created by 1602
 == Start a Redis cluster
 == Start node 1
 PONG
+OK
 == Start node 2
 PONG
+OK
 == Start node 3
 PONG
+OK
 
 == Create Redis cluster
 [OK] All nodes agree about slots configuration.
@@ -43,14 +46,15 @@ sample.long.ten
 
 
 == redis-cli handle errors 1
-Parse command error. Cmd type: 17, state: 10, break position: 21.
+expected error
 
 
 == redis-cli handle errors 2
-ERR syntax error
+expected error
 
 
 == redis-cli nonexistant key
+expected error
 
 
 == redis cluster key distribution

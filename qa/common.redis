@@ -4,6 +4,21 @@
 # Copyright (c) 2021 Red Hat.
 #
 
+# wait for local redis on given port
+_wait_for_redis()
+{
+    port=6379 # default
+    [ $# -eq 1 ] && port=$1
+    _n=1
+    while [ $_n -lt 10 ]; do
+	redis-cli -p $port ping >/dev/null 2>&1 && return 0
+	pmsleep 0.25
+	_n=`expr $_n + 1`
+    done
+    echo _wait_for_redis on port $port FAILED
+    return 1
+}
+
 _redis_cluster_3nodes_start()
 {
 	echo "== Start a Redis cluster"
@@ -13,8 +28,9 @@ _redis_cluster_3nodes_start()
 	redis_node1_pid=$!
 	echo "redis_node1_port=$redis_node1_port" >>$seq.full
 	echo "redis_node1_pid=$redis_node1_pid" >>$seq.full
-	pmsleep 0.125 # wait for Redis to listen on socket
+	_wait_for_redis $redis_node1_port
 	redis-cli -p $redis_node1_port ping
+	redis-cli -p $redis_node1_port flushall
 
 	echo "== Start node 2"
 	redis_node2_port=`_find_free_port`
@@ -22,8 +38,9 @@ _redis_cluster_3nodes_start()
 	redis_node2_pid=$!
 	echo "redis_node2_port=$redis_node2_port" >>$seq.full
 	echo "redis_node2_pid=$redis_node2_pid" >>$seq.full
-	pmsleep 0.125
+	_wait_for_redis $redis_node2_port
 	redis-cli -p $redis_node2_port ping
+	redis-cli -p $redis_node2_port flushall
 
 	echo "== Start node 3"
 	redis_node3_port=`_find_free_port`
@@ -31,8 +48,9 @@ _redis_cluster_3nodes_start()
 	redis_node3_pid=$!
 	echo "redis_node3_port=$redis_node3_port" >>$seq.full
 	echo "redis_node3_pid=$redis_node3_pid" >>$seq.full
-	pmsleep 0.125
+	_wait_for_redis $redis_node3_port
 	redis-cli -p $redis_node3_port ping
+	redis-cli -p $redis_node3_port flushall
 
 	echo
 	echo "== Create Redis cluster"
@@ -50,10 +68,12 @@ _redis_cluster_3nodes_start()
 		cluster_ready=yes
 		break
 	fi
-	pmsleep 1
+	pmsleep 2
 	done
 	if [ -z "$cluster_ready" ]; then
-	echo "Redis cluster didn't get ready in 30 seconds."
+	echo "Redis cluster didn't get ready in 60 seconds:"
+	echo redis-cli -p $redis_node1_port cluster info
+	redis-cli -p $redis_node1_port cluster info
 	exit 1
 	fi
 

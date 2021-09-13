@@ -3021,6 +3021,8 @@ PCP_LOG_DIR=%{_logsdir}
 %{install_file "$PCP_PMNS_DIR" .NeedRebuild}
 %{install_file "$PCP_LOG_DIR/pmlogger" .NeedRewrite}
 %if !%{disable_systemd}
+    # clean up any stale symlinks for deprecated pm*-poll services
+    rm -f %{_sysconfdir}/systemd/system/pm*.requires/pm*-poll.* >/dev/null 2>&1 || true
     %systemd_postun_with_restart pmcd.service
     %systemd_post pmcd.service
     %systemd_postun_with_restart pmlogger.service
