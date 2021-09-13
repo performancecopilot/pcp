@@ -40,9 +40,10 @@ _pmproxy_mainpid()
 
 _probe_val()
 {
-    _x=`pminfo -f $1`
-    [ $? -ne 0 ] && echo pminfo $1 FAILED, result \"$_x\" && exit
-    echo $_x | awk '/value/ {print $NF}'
+    pminfo -f $1 >$tmp.probe_val 2>&1
+    [ $? -ne 0 ] && echo pminfo $1 FAILED, result `cat $tmp.probe_val` && exit
+    awk '/value/ {print $NF}' $tmp.probe_val
+    rm -f $tmp.probe_val
 }
 
 status=1	# failure is the default!
@@ -87,15 +88,15 @@ while true; do
     sz=`_probe_val pmproxy.webgroup.namesmap.size`
     [ "$sz" -gt 0 ] && break
     count=`expr $count + 1`
-    [ $count -gt 10 ] && echo FAILED after $count iterations && break
+    [ $count -gt 20 ] && echo FAILED sz=\"$sz\" after $count iterations && break
     sleep 2
 done
 
 echo === pmproxy.webgroup map size metrics should now be nonzero
 for m in instmap labelsmap namesmap contextmap; do
-    [ `_probe_val pmproxy.webgroup.$m.size` -gt 0 ] && continue
-    echo FAILED pmproxy.webgroup.$m.size expected to be non-zero
-    echo pmproxy.webgroup.$m.size = `_probe_val pmproxy.webgroup.$m.size`
+    sz=`_probe_val pmproxy.webgroup.$m.size`
+    [ "$sz" -gt 0 ] && continue
+    echo FAILED pmproxy.webgroup.$m.size is \"$sz\" but expected to be non-zero
     exit
 done
 
@@ -115,7 +116,7 @@ echo === check maxrss and datasz values
 for m in maxrss datasz; do
     val=`_probe_val pmproxy.mem.$m`
     [ "$val" -gt 0 ] && continue
-    echo FAIL pmproxy.mem.$m should be non-zero && exit
+    echo FAIL pmproxy.mem.$m is \"$val\", should be non-zero && exit
 done
 
 echo === check maxrss doesnt grow after 100 basic restapi requests
