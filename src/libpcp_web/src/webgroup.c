@@ -1664,6 +1664,8 @@ scrape_metric_labelsets(metric_t *metric, pmWebLabelSet *labels)
 	labels->sets[nsets++] = metric->labelset;
     labels->nsets = nsets;
     sdsclear(labels->buffer);
+    labels->instid = PM_IN_NULL;
+    labels->instname = NULL;
 }
 
 static void
@@ -1689,6 +1691,8 @@ scrape_instance_labelsets(metric_t *metric, indom_t *indom, instance_t *inst,
 	labels->sets[nsets++] = inst->labelset;
     labels->nsets = nsets;
     sdsclear(labels->buffer);
+    labels->instid = inst->inst;
+    labels->instname = inst->name.sds;
 }
 
 static int

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Red Hat.
+ * Copyright (c) 2019,2021 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -65,8 +65,14 @@ open_metrics_labels(pmWebLabelSet *labels, struct dict *dict)
     pmLabel		*label;
     dictEntry		*entry;
     const char		*offset;
+    static sds		instname, instid;
     sds			key, value;
     int			i, j, length;
+
+    if (instname == NULL)
+	instname = sdsnewlen("instname", 8);
+    if (instid == NULL)
+	instid = sdsnewlen("instid", 6);
 
     /* walk labelset in order adding labels to a temporary dictionary */
     for (i = 0; i < labels->nsets; i++) {
@@ -91,6 +97,19 @@ open_metrics_labels(pmWebLabelSet *labels, struct dict *dict)
 		dictSetVal(dict, entry, value);
 	    }
 	}
+    }
+
+    /* if an instance with instname or instid labels missing, add them now */
+    if (labels->instname && dictFind(dict, instname) == NULL) {
+	key = sdsdup(instname);
+	value = labels->instname;
+	value = sdscatrepr(sdsempty(), value, sdslen(value));
+	dictAdd(dict, key, value);	/* new entry */
+    }
+    if (labels->instid != PM_IN_NULL && dictFind(dict, instid) == NULL) {
+	key = sdsdup(instid);
+	value = sdscatfmt(sdsempty(), "\"%u\"", labels->instid);
+	dictAdd(dict, key, value);	/* new entry */
     }
 
     /* finally produce the merged set of labels in the desired format */

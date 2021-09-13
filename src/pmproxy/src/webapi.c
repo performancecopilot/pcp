@@ -525,23 +525,9 @@ value:
 	labels = instance->labels;
     if (labels == NULL)
 	labels = metric->labels;
-
-    if (labels) {
-	result = sdscatfmt(result, "%S{", name);
-	if (metric->indom != PM_INDOM_NULL) {
-	    if (strstr(labels, "instname=") == NULL) {
-		/* insert the instname and instid labels */
-		quoted = sdscatrepr(sdsempty(), instance->name, sdslen(instance->name));
-		result = sdscatfmt(result, "instname=%S,instid=\"%u\"",
-					    quoted, instance->inst);
-		sdsfree(quoted);
-		result = sdscatfmt(result, ",%S}", labels);
-	    }
-	    else /* instname and instid labels already provided by PMDA */
-		result = sdscatfmt(result, "%S}", labels);
-	} else
-	    result = sdscatfmt(result, "%S}", labels);
-    } else /* no labels */
+    if (labels)
+	result = sdscatfmt(result, "%S{%S}", name, labels);
+    else /* no labels */
 	result = sdscatsds(result, name);
 
     /* append the value */
