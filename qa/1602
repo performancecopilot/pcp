@@ -51,6 +51,13 @@ _filter_redis()
     #end
 }
 
+_filter_redis_err()
+{
+    sed \
+    -e 's;/ERR syntax error;expected error;' \
+    -e 's;Parse command error.*$;expected error;'
+}
+
 # real QA test starts here
 _save_config $PCP_SYSCONF_DIR/pmproxy
 $sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
@@ -75,6 +82,7 @@ pmproxy -f -t -U $username -x $seq.full -l $tmp.pmproxy.log $proxyopts &
 pmproxy_pid=$!
 echo "proxyport=$proxyport" >>$seq.full
 echo "pmproxy_pid=$pmproxy_pid" >>$seq.full
+_wait_for_pmproxy $proxyport $tmp.pmproxy.log
 which netstat >/dev/null && netstat -a | egrep "$redisport1|$proxyport" >>$seq.full
 pmsleep 0.125
 echo "PING_PROXY"
@@ -103,16 +111,16 @@ echo
 
 # check redis protocol error handling
 echo "== redis-cli empty key set"
-redis-cli -p $proxyport keys no-such-key
+redis-cli -p $proxyport keys no-such-key | _filter_redis_err
 echo
 echo "== redis-cli handle errors 1"
-redis-cli -p $proxyport get foo bar baz
+redis-cli -p $proxyport get foo bar baz | _filter_redis_err
 echo
 echo "== redis-cli handle errors 2"
-redis-cli -p $proxyport set foo bar baz
+redis-cli -p $proxyport set foo bar baz | _filter_redis_err
 echo
 echo "== redis-cli nonexistant key"
-redis-cli -p $proxyport get abc
+redis-cli -p $proxyport get abc | _filter_redis_err
 echo
 
 # check key distribution
