@@ -1910,7 +1910,7 @@ x11
 1723 pmda.bpftrace local python
 1724 pmda.bpftrace local python
 1725 pmda.bpftrace local python
-1727:reserved pmproxy libpcp_web local
+1727 pmproxy libpcp_web pmda.openmetrics local
 1740 pmda.proc local
 1745 pmlogger libpcp pmval local pmda.sample pmda.simple
 1748 atop local

@@ -1,68 +1,75 @@
 #!/bin/sh
 # PCP QA Test No. 1727
-# [what am I here for?]
+# Test duplicate instname labels in /metrics webapi when a context
+# level label such as "hostname" is explicitly specified.
 #
-# Copyright (c) 2021 [who are you?].  All Rights Reserved.
+# Copyright (c) 2021 Red Hat.  All Rights Reserved.
 #
-
-if [ $# -eq 0 ]
-then
-    seq=`basename $0`
-    echo "QA output created by $seq"
-else
-    # use $seq from caller, unless not set
-    [ -n "$seq" ] || seq=`basename $0`
-    echo "QA output created by `basename $0` $*"
-fi
+seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.openmetrics
 
-do_valgrind=false
-if [ "$1" = "--valgrind" ]
-then
-    _check_valgrind
-    do_valgrind=true
-fi
+_check_series   # ensure pmproxy makes a REST API available
+_pmdaopenmetrics_check || _notrun "openmetrics pmda not installed"
+which curl >/dev/null 2>&1 || _notrun curl not installed
 
-# test for-some-thing || _notrun No support for some-thing
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
     cd $here
+    _pmdaopenmetrics_cleanup
     $sudo rm -rf $tmp $tmp.*
 }
 
-status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
-trap "_cleanup; exit \$status" 0 1 2 3 15
-
-_filter()
+_filter_openmetrics_labels()
 {
     sed \
-	-e 's/<something>/<else>/' \
+    -e 's;machineid="[a-z0-9]*";machineid=MACHINEID;g' \
+    -e 's;hostname="[a-zA-Z0-9_]*";hostname=HOSTNAME;g' \
+    -e 's;hostname:[a-zA-Z0-9_]*";hostname:HOSTNAME";g' \
+    -e 's;domainname="[a-zA-Z0-9_]*";domainname=DOMAINNAME;g' \
+    -e 's;144\.[0-9]*\.[0-9]*;NUMERIC_PMID;g' \
+    -e 's;144\.[0-9]*;NUMERIC_INDOM;g' \
     # end
 }
 
-# real QA test starts here
+_prepare_pmda openmetrics
+trap "_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
 
-if $do_valgrind
+HERE=`pwd`
+_pmdaopenmetrics_save_config
+
+# set up a scripted config
+MYHOST=`hostname`
+cat <<EOF >$tmp.script
+#! /bin/bash
+
+echo '# HELP somemetric metric to test duplicate instname labels'
+echo '# TYPE somemetric gauge'
+echo 'somemetric{hostname="$MYHOST"} 1234'
+EOF
+
+chmod 755 $tmp.script
+$sudo mv $tmp.script $PCP_PMDAS_DIR/openmetrics/config.d/duplicate_instname_label.sh
+
+_pmdaopenmetrics_install
+if ! _pmdaopenmetrics_wait_for_metric openmetrics.control.calls
 then
-    _run_valgrind ...your test goes here...
-else
-    ...your test goes here... 2>&1
-fi \
-| _filter
+    status=1
+    exit
+fi
 
-# if really bad error
-status=1
-exit
+echo; echo === /metrics webapi listing. The instname label should appear only once.
+curl -Gs 'http://localhost:44322/metrics?names=openmetrics.duplicate_instname_label.somemetric' \
+| _filter_openmetrics_labels
 
-# optional stuff if your test has verbose output to help resolve problems
-#echo
-#echo "If failure, check $seq.full"
+_pmdaopenmetrics_remove
 
 # success, all done
+status=0
 exit
