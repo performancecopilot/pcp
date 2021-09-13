@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2016 Red Hat.  All Rights Reserved.
+.\" Copyright (c) 2016,2021 Red Hat.  All Rights Reserved.
 .\" Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -21,6 +21,7 @@
 \f3$PCP_BINADM_DIR/pmlogrewrite\f1
 [\f3\-Cdiqsvw?\f1]
 [\f3\-c\f1 \f2config\f1]
+[\f3\-V\f1 \f2version\f1]
 \f2inlog\f1 [\f2outlog\f1]
 .SH DESCRIPTION
 .de KW
@@ -190,6 +191,10 @@ clause of the metric rewriting rule described below.
 .TP
 \fB\-v\fR, \fB\-\-verbose\fR
 Enable verbose mode.
+.TP
+\fB\-V\fR \fIversion\fR, \fB\-\-version\fR=\fIversion\fR
+Specifies the version of the output PCP archive being produced.
+Currently only version 2 archive format is supported.
 .TP
 \fB\-w\fR, \fB\-\-warnings\fR
 Emit warnings.
