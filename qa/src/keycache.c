@@ -205,7 +205,6 @@ main(int argc, char **argv)
 		}
 
 		if (kflag) {
-		    int		c;
 		    for (c = 0; c < keylen/sizeof(int); c++)
 			key[c] = htonl(key[c]);
 		    inst = pmdaCacheStoreKey(indom, PMDA_CACHE_ADD, name, keylen, (const void *)key, NULL);

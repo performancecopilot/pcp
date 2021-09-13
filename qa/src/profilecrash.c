@@ -164,7 +164,7 @@ do_inner(void)
 		ok = 0;
 	    }
 	    for (j = 0; j < resp->vset[0]->numval; j++) {
-		int	i = resp->vset[0]->vlist[j].inst;
+		i = resp->vset[0]->vlist[j].inst;
 		if (i == instlist[0] || i == instlist[ninst-1]) {
 		    ;
 		}
@@ -264,7 +264,7 @@ again:
 	    ok = 0;
 	}
 	for (j = 0; j < resp->vset[0]->numval; j++) {
-	    int	i = resp->vset[0]->vlist[j].inst;
+	    i = resp->vset[0]->vlist[j].inst;
 	    if (isvalid(i)) {
 		if (state == INST_INCL &&
 		    (i != inst[0] && i != inst[1])) {

@@ -256,7 +256,6 @@ Options\n\
 	if (sts < 0)
 	    fprintf(stderr, "%s: pmLookupName: %s\n", pmGetProgname(), pmErrStr(sts));
 	else {
-	    int		i;
 	    for (i = 0; i < sts; i++) {
 		if (pmid_a[i] != PM_ID_NULL) continue;
 		sts = pmLookupName(1, &metrics_a[i], &pmid_a[i]);
@@ -273,7 +272,6 @@ Options\n\
 	if (sts < 0)
 	    fprintf(stderr, "%s: pmLookupName: %s\n", pmGetProgname(), pmErrStr(sts));
 	else {
-	    int		i;
 	    for (i = 0; i < sts; i++) {
 		if (pmid_b[i] != PM_ID_NULL) continue;
 		sts = pmLookupName(1, &metrics_b[i], &pmid_b[i]);

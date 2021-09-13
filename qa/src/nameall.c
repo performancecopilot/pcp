@@ -103,15 +103,15 @@ parse_args(int argc, char **argv)
 }
 
 void
-load_namespace(char *namespace)
+load_namespace(char *path)
 {
     struct timeval	now, then;
     int sts;
 
     gettimeofday(&then, (struct timezone *)0);
-    sts = pmLoadASCIINameSpace(namespace, dupok);
+    sts = pmLoadASCIINameSpace(path, dupok);
     if (sts < 0) {
-	printf("%s: Cannot load namespace from \"%s\" (dupok=%d): %s\n", pmGetProgname(), namespace, dupok, pmErrStr(sts));
+	printf("%s: Cannot load namespace from \"%s\" (dupok=%d): %s\n", pmGetProgname(), path, dupok, pmErrStr(sts));
 	exit(1);
     }
     gettimeofday(&now, (struct timezone *)0);

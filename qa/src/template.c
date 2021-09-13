@@ -48,7 +48,7 @@ static pmOptions opts = {
 int	sflag;			/* ==1 if -s seen on command line */
 
 static int
-overrides(int opt, pmOptions *opts)
+overrides(int opt, pmOptions *optsp)
 {
     if (opt == 's')
 	sflag++;

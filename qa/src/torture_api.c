@@ -235,23 +235,23 @@ parse_args(int argc, char **argv)
 }
 
 void
-load_namespace(char *namespace)
+load_namespace(char *path)
 {
     struct timeval	now, then;
     int sts;
 
     gettimeofday(&then, (struct timezone *)0);
     _op++;
-    if ((sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
+    if ((sts = pmLoadASCIINameSpace(path, 1)) < 0) {
 	_err++;
-	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), namespace, pmErrStr(sts));
+	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), path, pmErrStr(sts));
 	exit(1);
     }
     gettimeofday(&now, (struct timezone *)0);
     printf("Name space load: %.2f msec\n", pmtimevalSub(&now, &then)*1000);
 }
 
-void 
+void
 test_api(void)
 {
     int			sts;
