@@ -1558,6 +1558,16 @@ main(int argc, char **argv)
 	exit(1);
     }
 
+    if (outarch.version == 0)
+	outarch.version = PM_LOG_VERS02;
+#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
+    if (outarch.version == PM_LOG_VERS02 && inarch.version == PM_LOG_VERS03) {
+	fprintf(stderr,"%s: Error: cannot create a v2 archive from v3 (%s)\n",
+		pmGetProgname(), inarch.name);
+	exit(1);
+    }
+#endif
+
     /* output archive */
     if (iflag && Cflag == 0) {
 	/*
@@ -1696,8 +1706,6 @@ main(int argc, char **argv)
     }
 
     /* create output log - must be done before writing label */
-    if (outarch.version == 0)
-	outarch.version = PM_LOG_VERS02;
     outarch.archctl.ac_log = &outarch.logctl;
     if ((sts = __pmLogCreate("", outarch.name, outarch.version, &outarch.archctl)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogCreate(%s,v%d): %s\n",

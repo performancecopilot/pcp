@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Red Hat.
+ * Copyright (c) 2017-2021 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -319,6 +319,8 @@ typedef struct pmWebLabelSet {
     pmLabelSet		*sets[6];
     int			nsets;
     sds			buffer;
+    unsigned int	instid;
+    sds			instname;
 } pmWebLabelSet;
 
 typedef void (*pmWebContextCallBack)(sds, pmWebSource *, void *);

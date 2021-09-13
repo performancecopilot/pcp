@@ -2,10 +2,13 @@ QA output created by 1603
 == Start a Redis cluster
 == Start node 1
 PONG
+OK
 == Start node 2
 PONG
+OK
 == Start node 3
 PONG
+OK
 
 == Create Redis cluster
 [OK] All nodes agree about slots configuration.

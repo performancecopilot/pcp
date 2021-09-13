@@ -53,20 +53,6 @@ do
 
     echo "Dumping the v3 archive label for $archive"
     pmloglabel -L $tmp.log3
-
-    echo "Rewriting v3 to v2 log content for $archive"
-    pmlogrewrite -V 2 $tmp.log3 $tmp.log2
-    if [ $? -ne 0 ]
-    then
-	echo "pmlogrewrite failed"
-	status=1
-	exit
-    fi
-    echo "pmdumplog of v2 log format from $archive" >> $seq.full
-    pmdumplog -aeh $tmp.log2 >> $seq.full
-
-    echo "Dumping the v2 archive label for $archive"
-    pmloglabel -L $tmp.log2
 done
 
 # success, all done

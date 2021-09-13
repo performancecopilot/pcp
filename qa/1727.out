@@ -1,2 +1,16 @@
 QA output created by 1727
-[skeleton from qa/new, replace me]
+
+=== openmetrics agent installation ===
+
+=== /metrics webapi listing. The instname label should appear only once.
+# PCP5 openmetrics.duplicate_instname_label.somemetric NUMERIC_PMID double NUMERIC_INDOM instant none
+# HELP openmetrics_duplicate_instname_label_somemetric metric to test duplicate instname labels
+# TYPE openmetrics_duplicate_instname_label_somemetric gauge
+openmetrics_duplicate_instname_label_somemetric{hostname=HOSTNAME,instid="0",instname="0 hostname:HOSTNAME",domainname=DOMAINNAME,machineid=MACHINEID,source="duplicate_instname_label"} 1234
+
+=== remove openmetrics agent ===
+Culling the Performance Metrics Name Space ...
+openmetrics ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check openmetrics metrics have gone away ... OK

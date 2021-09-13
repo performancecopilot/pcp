@@ -525,26 +525,16 @@ value:
 	labels = instance->labels;
     if (labels == NULL)
 	labels = metric->labels;
+    if (labels)
+	result = sdscatfmt(result, "%S{%S}", name, labels);
+    else /* no labels */
+	result = sdscatsds(result, name);
 
-    result = sdscatsds(result, name);
-    if (metric->indom != PM_INDOM_NULL || labels) {
-	if (metric->indom != PM_INDOM_NULL) {
-	    quoted = sdscatrepr(sdsempty(), instance->name, sdslen(instance->name));
-	    result = sdscatfmt(result, "{instname=%S,instid=\"%u\"",
-					quoted, instance->inst);
-	    sdsfree(quoted);
-	    if (labels)
-		result = sdscatfmt(result, ",%S} %S", labels, value->value);
-	    else
-		result = sdscatfmt(result, "} %S", value->value);
-	} else {
-	    result = sdscatfmt(result, "{%S} %S", labels, value->value);
-	}
-    } else {
-	result = sdscatfmt(result, " %S", value->value);
-    }
+    /* append the value */
+    result = sdscatfmt(result, " %S", value->value);
 
     if (baton->times) {
+	/* append the timestamp string */
 	milliseconds = (scrape->seconds * 1000) + (scrape->nanoseconds / 1000);
 	result = sdscatfmt(result, " %I\n", milliseconds);
     } else {

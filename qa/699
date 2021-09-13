@@ -23,6 +23,7 @@ _filter()
 {
     sed -n \
 	-e "s@$tmp@TMP@g" \
+	-e "s@,v[2|3]@@g" \
 	-e '/Error/p ' \
 	-e '/already exists/p' \
     # end
