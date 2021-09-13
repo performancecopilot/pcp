@@ -167,11 +167,11 @@ static void LinuxProcessList_updateCPUcount(ProcessList* super) {
 
    DIR* dir = opendir("/sys/devices/system/cpu");
    if (!dir) {
-      super->activeCPUs = 1;
-      super->existingCPUs = 1;
-      this->cpuData = xReallocArray(this->cpuData, 2, sizeof(CPUData));
+      this->cpuData = xReallocArrayZero(this->cpuData, super->existingCPUs ? (super->existingCPUs + 1) : 0, 2, sizeof(CPUData));
       this->cpuData[0].online = true; /* average is always "online" */
       this->cpuData[1].online = true;
+      super->activeCPUs = 1;
+      super->existingCPUs = 1;
       return;
    }
 
@@ -204,10 +204,7 @@ static void LinuxProcessList_updateCPUcount(ProcessList* super) {
       /* readdir() iterates with no specific order */
       unsigned int max = MAXIMUM(existing, id + 1);
       if (max > currExisting) {
-         this->cpuData = xReallocArray(this->cpuData, max + /* aggregate */ 1, sizeof(CPUData));
-         for (unsigned int j = currExisting; j < max; j++) {
-            this->cpuData[j].online = false;
-         }
+         this->cpuData = xReallocArrayZero(this->cpuData, currExisting ? (currExisting + 1) : 0, max + /* aggregate */ 1, sizeof(CPUData));
          this->cpuData[0].online = true; /* average is always "online" */
          currExisting = max;
       }
@@ -1426,7 +1423,7 @@ static bool LinuxProcessList_recurseProcTree(LinuxProcessList* this, openat_arg_
       {
          bool prev = proc->usesDeletedLib;
 
-         if ((lp->m_lrs == 0 && (settings->flags & PROCESS_FLAG_LINUX_LRS_FIX)) ||
+         if ((settings->flags & PROCESS_FLAG_LINUX_LRS_FIX) ||
              (settings->highlightDeletedExe && !proc->procExeDeleted && !proc->isKernelThread && !proc->isUserlandThread)) {
             // Check if we really should recalculate the M_LRS value for this process
             uint64_t passedTimeInMs = pl->realtimeMs - lp->last_mlrs_calctime;
