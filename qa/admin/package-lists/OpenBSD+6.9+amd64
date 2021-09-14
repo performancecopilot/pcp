@@ -1,5 +1,5 @@
-# PCP required package list for OpenBSD 6.7 amd64
-# created by kenj on vm37.localdomain Wed May 26 06:17:47 AEST 2021
+# PCP required package list for OpenBSD 6.9 amd64
+# created by kenj on vm37.localdomain Wed Sep 15 06:49:54 AEST 2021
 #
 LWP::UserAgent cpan
 Spreadsheet::Read cpan
@@ -13,6 +13,7 @@ curl
 cyrus-sasl
 gawk
 gdb
+gdiff
 git
 gmake
 gtar
@@ -48,9 +49,6 @@ py3-setuptools
 py3-six
 py3-Pillow
 python
-qtbase
-qtsvg
-qt4
 readline
 rrdtool
 smartmontools

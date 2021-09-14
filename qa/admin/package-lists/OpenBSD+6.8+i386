@@ -15,6 +15,7 @@ curl
 cyrus-sasl
 gawk
 gdb
+gdiff
 git
 gmake
 gtar
@@ -49,9 +50,6 @@ py3-requests
 py3-setuptools
 py3-six
 python
-qt4
-qtbase
-qtsvg
 readline
 rrdtool
 socat
