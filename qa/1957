@@ -1,0 +1,41 @@
+#!/bin/sh
+# PCP QA Test No. 1957
+# Exercise URL encoding and base64 decoding, and hostspec with non-ascii attributes
+#
+# Copyright (c) 2021 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+[ -f src/test_encodings ] || _notrun "src/test_encodings binary not found (is libcmocka-devel installed?)"
+[ -f src/test_hostspec ] || _notrun "src/test_hostspec binary not found (is libcmocka-devel installed?)"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "=== encoding tests"
+_run_valgrind src/test_encodings
+
+echo
+echo "=== hostspec tests"
+_run_valgrind src/test_hostspec
+
+
+# success, all done
+status=0
+exit

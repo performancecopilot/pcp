@@ -774,4 +774,6 @@ PCP_3.33 {
 PCP_3.34 {
   global:
     __pmAllocResult;
+    __pmUrlEncode;
+    __pmUrlDecode;
 } PCP_3.33;

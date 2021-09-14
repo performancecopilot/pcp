@@ -1,7 +1,7 @@
 /*
  * General Utility Routines
  *
- * Copyright (c) 2012-2018 Red Hat.
+ * Copyright (c) 2012-2018,2021 Red Hat.
  * Copyright (c) 2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
@@ -182,4 +182,112 @@ pmstrlen(const char *s)
     if (s != NULL)
 	return strlen(s);
     return 0;
+}
+
+static inline int
+ishex(int x)
+{
+    return (x >= '0' && x <= '9') ||
+	   (x >= 'a' && x <= 'f') ||
+	   (x >= 'A' && x <= 'F');
+}
+
+
+/**
+ * Takes an UTF-8 encoded string and performs URL encoding of a query parameter
+ * component (application/x-www-form-urlencoded)
+ *
+ * The encoded string will be stored in *outp. It is the responsibility of the
+ * caller to free this memory block (unless an error occured, then the function
+ * frees this memory block).
+ *
+ * Returns 0 on success, negative numbers on error
+ */
+int
+__pmUrlEncode(const char *inp, const size_t len, char **outp)
+{
+    const char		*inp_end = inp + len;
+    char		*out, *out_start;
+    unsigned char	c;
+
+    /* worst case: every character needs to be encoded */
+    out_start = out = malloc(len * 3 + 1);
+    if (out == NULL)
+	return -ENOMEM;
+
+    while (inp < inp_end) {
+	c = *inp++;
+	if (isalnum(c) || c == '*' || c == '-' || c == '.' || c == '_') {
+	    *out++ = c;
+	}
+	else if (c == ' ') {
+	    *out++ = '+';
+	}
+	else {
+	    if (snprintf(out, 4, "%%%02X", c) != 3)
+		goto invalid_input;
+	    out += 3;
+	}
+    }
+    *out = '\0';
+    *outp = out_start;
+    return 0;
+
+invalid_input:
+    free(out_start);
+    return -EINVAL;
+}
+
+/**
+ * performs decoding of a string encoded with __pmUrlEncode()
+ * (application/x-www-form-urlencoded)
+ *
+ * The decoded string will be stored in *outp. It is the responsibility of the
+ * caller to free this memory block (unless an error occured, then the function
+ * frees this memory block).
+ *
+ * Returns 0 on success, negative error codes on error
+ */
+int
+__pmUrlDecode(const char *inp, const size_t len, char **outp)
+{
+    char		escape[4] = {0};
+    const char		*inp_end = inp + len;
+    char		*out, *out_start;
+    unsigned int	c;
+
+    out_start = out = malloc(len + 1);
+    if (out == NULL)
+	return -ENOMEM;
+
+    for (; inp < inp_end; out++) {
+	c = *inp;
+	if (c == '+')
+	    c = ' ';
+	if (c != '%') {
+	    inp++;
+	}
+	else {
+	    if (inp + 3 > inp_end)
+		goto invalid_input;
+	    inp++;	/* move past percent character */
+	    if (!ishex(*inp++) || !ishex(*inp++))
+		goto invalid_input;
+	    escape[0] = *(inp - 2);
+	    escape[1] = *(inp - 1);
+	    // escape is initialized with 4 null bytes, and only the first
+	    // two bytes get overwritten, rendering this usage of sscanf safe
+	    if (sscanf(escape, "%2x", &c) != 1)
+		goto invalid_input;
+	}
+
+	*out = c;
+    }
+    *out = '\0';
+    *outp = out_start;
+    return 0;
+
+invalid_input:
+    free(out_start);
+    return -EINVAL;
 }

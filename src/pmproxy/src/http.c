@@ -86,49 +86,6 @@ json_string(const sds original)
     return unicode_encode(original, sdslen(original));
 }
 
-static inline int
-ishex(int x)
-{
-    return (x >= '0' && x <= '9') ||
-	   (x >= 'a' && x <= 'f') ||
-	   (x >= 'A' && x <= 'F');
-}
-
-int
-http_decode(const char *url, size_t urllen, sds buf)
-{
-    const char		*end = url + urllen;
-    char		*out, escape[4] = {0};
-    int			c;
-
-    for (out = buf; url < end; out++) {
-	c = *url;
-	if (c == '+')
-	    c = ' ';
-	if (c != '%')
-	    url++;
-	else {
-	    if (url + 3 > end)
-	        return -EINVAL;
-	    url++;	/* move past percent character */
-	    if (!ishex(*url++) || !ishex(*url++))
-		return -EINVAL;
-	    escape[0] = *(url - 2);
-	    escape[1] = *(url - 1);
-	    if (sscanf(escape, "%2x", &c) != 1)
-		return -EINVAL;
-	}
-	if (out - buf > sdslen(buf))
-	    return -E2BIG;
-	*out = c;
-    }
-    *out = '\0';
-    c = out - buf;
-    assert(c <= sdslen(buf));
-    sdssetlen(buf, c);
-    return c;
-}
-
 const char *
 http_content_type(http_flags flags)
 {
@@ -593,22 +550,18 @@ static int
 http_add_parameter(dict *parameters,
 	const char *name, int namelen, const char *value, int valuelen)
 {
-    sds			pvalue, pname;
+    char		*pname, *pvalue;
     int			sts;
 
     if (namelen == 0)
 	return 0;
-    pname = sdsnewlen(SDS_NOINIT, namelen);
 
-    if ((sts = http_decode(name, namelen, pname)) < 0) {
-	sdsfree(pname);
+    if ((sts = __pmUrlDecode(name, namelen, &pname)) < 0) {
 	return sts;
     }
     if (valuelen > 0) {
-	pvalue = sdsnewlen(SDS_NOINIT, valuelen);
-	if ((sts = http_decode(value, valuelen, pvalue)) < 0) {
-	    sdsfree(pvalue);
-	    sdsfree(pname);
+	if ((sts = __pmUrlDecode(value, valuelen, &pvalue)) < 0) {
+	    free(pname);
 	    return sts;
 	}
     } else {
@@ -622,7 +575,9 @@ http_add_parameter(dict *parameters,
 	    fprintf(stderr, "URL parameter %s\n", pname);
     }
 
-    dictAdd(parameters, pname, pvalue);
+    dictAdd(parameters, sdsnew(pname), sdsnew(pvalue));
+    free(pname);
+    free(pvalue);
     return 0;
 }
 
@@ -669,6 +624,7 @@ http_url_decode(const char *url, size_t length, dict **output)
 {
     const char		*p, *end = url + length;
     size_t		psize, urlsize = length;
+    char		*cresult;
     sds			result;
 
     if (length == 0)
@@ -691,11 +647,11 @@ http_url_decode(const char *url, size_t length, dict **output)
 	return NULL;
 
     /* extract decoded base URL */
-    result = sdsnewlen(SDS_NOINIT, urlsize);
-    if (http_decode(url, urlsize, result) < 0) {
-	sdsfree(result);
+    if (__pmUrlDecode(url, urlsize, &cresult) < 0) {
 	return NULL;
     }
+    result = sdsnew(cresult);
+    free(cresult);
     return result;
 }
 
