@@ -1,0 +1,42 @@
+QA output created by 1957
+=== encoding tests
+=== std out ===
+[==========] Running 5 test(s).
+[ RUN      ] test_urlencoding_basic
+[       OK ] test_urlencoding_basic
+[ RUN      ] test_urlencoding_empty
+[       OK ] test_urlencoding_empty
+[ RUN      ] test_urlencoding_nonascii
+[       OK ] test_urlencoding_nonascii
+[ RUN      ] test_urldecode_invalid
+[       OK ] test_urldecode_invalid
+[ RUN      ] test_base64_basic
+[       OK ] test_base64_basic
+[==========] 5 test(s) run.
+=== std err ===
+[  PASSED  ] 5 test(s).
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/test_encodings
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== hostspec tests
+=== std out ===
+[==========] Running 2 test(s).
+[ RUN      ] test_hostspec_unparse
+[       OK ] test_hostspec_unparse
+[ RUN      ] test_hostspec_parse
+[       OK ] test_hostspec_parse
+[==========] 2 test(s) run.
+=== std err ===
+[  PASSED  ] 2 test(s).
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/test_hostspec
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

@@ -1345,6 +1345,8 @@ PCP_CALL extern int __pmParseHostAttrsSpec(
     const char *, __pmHostSpec **, int *, __pmHashCtl *, char **);
 PCP_CALL extern int __pmUnparseHostAttrsSpec(
     __pmHostSpec *, int, __pmHashCtl *, char *, size_t);
+PCP_CALL extern int __pmUrlEncode(const char *inp, const size_t len, char **outp);
+PCP_CALL extern int __pmUrlDecode(const char *inp, const size_t len, char **outp);
 
 /* SSL/TLS/IPv6 support via NSS/NSPR */
 PCP_CALL extern int __pmSecureServerCertificateSetup(const char *, const char *, const char *);

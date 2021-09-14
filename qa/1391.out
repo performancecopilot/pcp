@@ -1,0 +1,76 @@
+QA output created by 1391
+Creating temporary sasldb, add user running QA to it
+Using secret password: some=very&secret.passwörd
+Verify saslpasswd2 has successfully added a new user
+USER@HOST: userPassword
+Ensure pmcd can read the password file
+Start pmcd with this shiny new sasldb
+Start pmproxy with mandatory authentication
+Start test Python PMDA to check if username is in per-context state
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check test_python metrics have appeared ... 6 metrics and 7 values
+
+=== invalid username with pminfo ===
+Error: test_python.current_username: Authentication - user not found
+
+=== invalid password with pminfo ===
+Error: test_python.current_username: Authentication - authentication failure
+
+=== correct password with pminfo ===
+
+test_python.current_username
+    value "ctx ? user USER"
+
+=== no authentication ===
+{
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostspec": "HOSTSPEC"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "hostname": "HOSTNAME"
+        "machineid": "MACHINEID"
+    }
+}
+
+=== invalid username ===
+{
+    "message": "failed to get context labels: Authentication - user not found",
+    "success": false
+}
+
+=== invalid password ===
+{
+    "message": "failed to get context labels: Authentication - authentication failure",
+    "success": false
+}
+
+=== correct password ===
+{
+    "context": "CONTEXT"
+    "source": "SOURCE"
+    "hostspec": "HOSTSPEC"
+    "labels": {
+        "domainname": "DOMAINNAME"
+        "groupid": GID
+        "hostname": "HOSTNAME"
+        "machineid": "MACHINEID"
+        "userid": UID
+    }
+}
+
+=== using unauthenticated context ===
+                    "value": "ctx ? user None"
+
+=== using authenticated context, missing HTTP auth headers (expect failure) ===
+{
+    "context": "CONTEXT"
+    "message": "authentication required",
+    "success": false
+}
+
+=== using authenticated context, with HTTP auth headers (expect success) ===
+                    "value": "ctx ? user USER"

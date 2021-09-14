@@ -37,6 +37,7 @@ initscripts
 java-latest-openjdk-headless
 libbpf
 libbpf-devel
+libcmocka-devel
 libicu-devel
 libpfm-devel
 libuv-devel

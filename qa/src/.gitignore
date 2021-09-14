@@ -229,6 +229,8 @@ stripmark
 sum16
 tabort
 template
+test_encodings
+test_hostspec
 test_service_notify
 t_fetch
 timeshift

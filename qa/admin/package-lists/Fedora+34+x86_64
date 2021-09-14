@@ -46,6 +46,7 @@ java-latest-openjdk-headless
 kubernetes-client
 libbpf
 libbpf-devel
+libcmocka-devel
 libicu-devel
 libpfm-devel
 libuv-devel
