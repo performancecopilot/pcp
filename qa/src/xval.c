@@ -8,9 +8,9 @@
 #include <math.h>
 #include <pcp/pmapi.h>
 
-static int type[] = {
+static int types[] = {
     PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING, PM_TYPE_AGGREGATE, PM_TYPE_EVENT, PM_TYPE_HIGHRES_EVENT };
-static char *name[] = {
+static char *names[] = {
     "long", "ulong", "longlong", "ulonglong", "float", "double", "char *", "pmValueBlock *", "pmEventArray", "pmHighResEventArray" };
 
 /*
@@ -168,10 +168,10 @@ main(int argc, char *argv[])
 	    putchar('\n');
 	}
 
-	for (i = 0; i < sizeof(type)/sizeof(type[0]); i++) {
+	for (i = 0; i < sizeof(types)/sizeof(types[0]); i++) {
 	    valfmt = PM_VAL_INSITU;
 	    ap = (pmAtomValue *)&pv.value.lval;
-	    switch (type[i]) {
+	    switch (types[i]) {
 		case PM_TYPE_32:
 		case PM_TYPE_U32:
 		    pv.value.lval = llv;
@@ -256,96 +256,96 @@ main(int argc, char *argv[])
 		    ap = (void *)&hrea;
 		    break;
 	    }
-	    for (o = 0; o < sizeof(type)/sizeof(type[0]); o++) {
-		if ((e = pmExtractValue(valfmt, &pv, type[i], &av, type[o])) < 0) {
+	    for (o = 0; o < sizeof(types)/sizeof(types[0]); o++) {
+		if ((e = pmExtractValue(valfmt, &pv, types[i], &av, types[o])) < 0) {
 		    if (vflag == 0) {
 			/* silently ignore the expected failures */
-			if (type[i] != type[o] &&
-			    (type[i] == PM_TYPE_STRING || type[o] == PM_TYPE_STRING ||
-			     type[i] == PM_TYPE_AGGREGATE || type[o] == PM_TYPE_AGGREGATE))
+			if (types[i] != types[o] &&
+			    (types[i] == PM_TYPE_STRING || types[o] == PM_TYPE_STRING ||
+			     types[i] == PM_TYPE_AGGREGATE || types[o] == PM_TYPE_AGGREGATE))
 			    continue;
-			 if (type[i] == PM_TYPE_EVENT || type[i] == PM_TYPE_HIGHRES_EVENT ||
-			     type[o] == PM_TYPE_EVENT || type[o] == PM_TYPE_HIGHRES_EVENT)
+			 if (types[i] == PM_TYPE_EVENT || types[i] == PM_TYPE_HIGHRES_EVENT ||
+			     types[o] == PM_TYPE_EVENT || types[o] == PM_TYPE_HIGHRES_EVENT)
 			    continue;
 		    }
-		    printf("(%s) ", name[i]);
-		    _y(ap, type[i]);
-		    printf(" => (%s) ", name[o]);
+		    printf("(%s) ", names[i]);
+		    _y(ap, types[i]);
+		    printf(" => (%s) ", names[o]);
 		    printf(": %s\n", pmErrStr(e));
 		}
 		else {
 		    int		match;
 		    /* avoid ap-> alignment issues */
 		    memcpy((void *)&iv, (void *)ap, sizeof(iv));
-		    switch (type[o]) {
+		    switch (types[o]) {
 			case PM_TYPE_32:
-			    if (type[i] == PM_TYPE_32)
+			    if (types[i] == PM_TYPE_32)
 				match = (pv.value.lval == av.l);
-			    else if (type[i] == PM_TYPE_U32)
+			    else if (types[i] == PM_TYPE_U32)
 				match = ((unsigned)pv.value.lval == av.l);
-			    else if (type[i] == PM_TYPE_FLOAT)
+			    else if (types[i] == PM_TYPE_FLOAT)
 				match = (fabs((iv.f - av.l)/iv.f) < 0.00001);
 			    else
 				match = (llv == av.l);
 			    break;
 			case PM_TYPE_U32:
-			    if (type[i] == PM_TYPE_32)
+			    if (types[i] == PM_TYPE_32)
 				match = (pv.value.lval == av.ul);
-			    else if (type[i] == PM_TYPE_U32)
+			    else if (types[i] == PM_TYPE_U32)
 				match = ((unsigned)pv.value.lval == av.ul);
-			    else if (type[i] == PM_TYPE_FLOAT)
+			    else if (types[i] == PM_TYPE_FLOAT)
 				match = (fabs((iv.f - av.ul)/iv.f) < 0.00001);
 			    else
 				match = (llv == av.ul);
 			    break;
 			case PM_TYPE_64:
-			    if (type[i] == PM_TYPE_32)
+			    if (types[i] == PM_TYPE_32)
 				match = (pv.value.lval == av.ll);
-			    else if (type[i] == PM_TYPE_U32)
+			    else if (types[i] == PM_TYPE_U32)
 				match = ((unsigned)pv.value.lval == av.ll);
-			    else if (type[i] == PM_TYPE_FLOAT)
+			    else if (types[i] == PM_TYPE_FLOAT)
 				match = (fabs((iv.f - av.ll)/iv.f) < 0.00001);
-			    else if (type[i] == PM_TYPE_DOUBLE)
+			    else if (types[i] == PM_TYPE_DOUBLE)
 				match = (fabs((iv.d - av.ll)/iv.d) < 0.00001);
 			    else
 				match = (llv == av.ll);
 			    break;
 			case PM_TYPE_U64:
-			    if (type[i] == PM_TYPE_32)
+			    if (types[i] == PM_TYPE_32)
 				match = (pv.value.lval == av.ull);
-			    else if (type[i] == PM_TYPE_U32)
+			    else if (types[i] == PM_TYPE_U32)
 				match = ((unsigned)pv.value.lval == av.ull);
-			    else if (type[i] == PM_TYPE_FLOAT)
+			    else if (types[i] == PM_TYPE_FLOAT)
 				match = (fabs((iv.f - av.ull)/iv.f) < 0.00001);
-			    else if (type[i] == PM_TYPE_DOUBLE)
+			    else if (types[i] == PM_TYPE_DOUBLE)
 				match = (fabs((iv.d - av.ull)/iv.d) < 0.00001);
 			    else
 				match = (llv == av.ull);
 			    break;
 			case PM_TYPE_FLOAT:
-			    if (type[i] == PM_TYPE_32)
+			    if (types[i] == PM_TYPE_32)
 				match = (fabs((pv.value.lval - av.f)/pv.value.lval) < 0.00001);
-			    else if (type[i] == PM_TYPE_U32)
+			    else if (types[i] == PM_TYPE_U32)
 				match = (fabs(((unsigned)pv.value.lval - av.f)/(unsigned)pv.value.lval) < 0.00001);
-			    else if (type[i] == PM_TYPE_64)
+			    else if (types[i] == PM_TYPE_64)
 				match = (fabs((llv - av.f)/llv) < 0.00001);
-			    else if (type[i] == PM_TYPE_U64)
+			    else if (types[i] == PM_TYPE_U64)
 				match = (fabs(((unsigned long long)llv - av.f)/(unsigned long long)llv) < 0.00001);
-			    else if (type[i] == PM_TYPE_DOUBLE)
+			    else if (types[i] == PM_TYPE_DOUBLE)
 				match = (fabs((iv.d - av.f)/iv.d) < 0.00001);
 			    else
 				match = (iv.f == av.f);
 			    break;
 			case PM_TYPE_DOUBLE:
-			    if (type[i] == PM_TYPE_32)
+			    if (types[i] == PM_TYPE_32)
 				match = (fabs((pv.value.lval - av.d)/pv.value.lval) < 0.00001);
-			    else if (type[i] == PM_TYPE_U32)
+			    else if (types[i] == PM_TYPE_U32)
 				match = (fabs(((unsigned)pv.value.lval - av.d)/(unsigned)pv.value.lval) < 0.00001);
-			    else if (type[i] == PM_TYPE_64)
+			    else if (types[i] == PM_TYPE_64)
 				match = (fabs((llv - av.d)/llv) < 0.00001);
-			    else if (type[i] == PM_TYPE_U64)
+			    else if (types[i] == PM_TYPE_U64)
 				match = (fabs(((unsigned long long)llv - av.d)/(unsigned long long)llv) < 0.00001);
-			    else if (type[i] == PM_TYPE_FLOAT)
+			    else if (types[i] == PM_TYPE_FLOAT)
 				match = (fabs((iv.f - av.d)/iv.f) < 0.00001);
 			    else
 				match = (iv.d == av.d);
@@ -366,17 +366,17 @@ main(int argc, char *argv[])
 			    break;
 		    }
 		    if (match == 0 || vflag) {
-			printf("(%s) ", name[i]);
-			_y(ap, type[i]);
-			printf(" => (%s) ", name[o]);
-			_y(&av, type[o]);
+			printf("(%s) ", names[i]);
+			_y(ap, types[i]);
+			printf(" => (%s) ", names[o]);
+			_y(&av, types[o]);
 			if (match == 0)
 			    printf(" : value mismatch");
 			putchar('\n');
 		    }
-		    if (type[o] == PM_TYPE_STRING)
+		    if (types[o] == PM_TYPE_STRING)
 			free(av.cp);
-		    else if (type[o] == PM_TYPE_AGGREGATE)
+		    else if (types[o] == PM_TYPE_AGGREGATE)
 			free(av.vbp);
 		}
 	    }

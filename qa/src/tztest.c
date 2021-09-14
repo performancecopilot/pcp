@@ -99,7 +99,6 @@ int main(int argc, char **argv)
 	printf("%s -> %s\n", tz, newtz);
 
 	for (i=0; zones[i] != NULL; i++) {
-	    char * tz;
 	    struct tm  *tmp;
 	    char tstr[64];
 	    int dst;

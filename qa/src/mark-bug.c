@@ -12,7 +12,7 @@ const char *namelist[2] = {"hinv.ncpu", "irix.kernel.all.cpu.idle"};
 pmID pmidlist[2];
 pmResult *result;
 struct timeval curpos;
-static void check_result(char *, pmResult *);
+static void check_result(char *);
 
 static char timebuf[26];
 
@@ -331,7 +331,7 @@ Options\n\
 	    fprintf(stderr, "%s: pmFetch failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
-	check_result("forwards ", result);
+	check_result("forwards ");
 	curpos = result->timestamp; /* struct cpy */
 	pmFreeResult(result);
     }
@@ -348,7 +348,7 @@ Options\n\
 	    exit(1);
 	}
 
-	check_result("rewinding", result);
+	check_result("rewinding");
 	pmFreeResult(result);
     }
 
@@ -357,7 +357,7 @@ Options\n\
 }
 
 static void
-check_result(char *title, pmResult *result)
+check_result(char *title)
 {
     int		err= 0;
     time_t	clock = (time_t)result->timestamp.tv_sec;

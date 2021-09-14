@@ -81,13 +81,11 @@ main(int argc, char* argv[])
 	    exit(1);
 	}
 	else if (childPid) {
-	    int	sts;
-
 	    wait(&sts);
 	}
 	else {
 	    char*	childArgv[3];
-	    int		sts, len;
+	    int		len;
 
 	    childArgv[0] = argv[0];
 	    /* numeric arguments will get shorter, not longer so this is safe */

@@ -1671,15 +1671,14 @@ series_expr_query_desc(seriesQueryBaton *baton, series_set_t *query_series_set, 
 }
 
 static int
-series_expr_node_desc(seriesQueryBaton *baton, node_t *np){
-    int		sts, nelements = 0;
+series_expr_node_desc(seriesQueryBaton *baton, node_t *np)
+{
+    int		sts, nelements;
 
     if (np == NULL)
 	return 0;
-    if (&np->result != NULL)
-	nelements = np->result.nseries;
 
-    if (nelements != 0) {
+    if ((nelements = np->result.nseries) != 0) {
 	np->value_set.num_series = nelements;
 	np->baton = baton;
 	series_expr_query_desc(baton, &np->result, np);
@@ -2278,10 +2277,7 @@ series_process_func(seriesQueryBaton *baton, node_t *np, int level)
     if (np == NULL)
 	return 0;
 
-    if (&np->result != NULL)
-	nelements = np->result.nseries;
-
-    if (nelements != 0) {
+    if ((nelements = np->result.nseries) != 0) {
 	np->value_set.num_series = 0;
 	np->baton = baton;
 	series_node_prepare_time(baton, &np->result, np);
@@ -2744,7 +2740,7 @@ compare_pmUnits_dim(pmUnits *a, pmUnits *b)
     return -1;
 }
 
-const int
+static int
 series_extract_type(char *typeStr) 
 {
     if (strncmp("32", typeStr, sizeof("32")-1) == 0) {
@@ -3353,7 +3349,7 @@ series_calculate_round(node_t *np)
     }
 }
 
-const int
+static int
 pmStrSem(sds sem_str)
 {
     if (strncmp("counter", sem_str, sizeof("counter")-1) == 0)

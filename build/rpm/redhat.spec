@@ -3337,7 +3337,7 @@ PCP_LOG_DIR=%{_logsdir}
 
 %changelog
 * Wed Sep 15 2021 Nathan Scott <nathans@redhat.com> - 5.3.3-1
-- https://github.com/performancecopilot/pcp/projects/1
+- Update to latest PCP sources.
 
 * Fri Jul 30 2021 Mark Goodwin <mgoodwin@redhat.com> - 5.3.2-1
 - Update to latest PCP sources.

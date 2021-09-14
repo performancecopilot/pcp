@@ -1559,7 +1559,7 @@ main(int argc, char **argv)
     }
 
     if (outarch.version == 0)
-	outarch.version = PM_LOG_VERS02;
+	outarch.version = inarch.version;
 #ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
     if (outarch.version == PM_LOG_VERS02 && inarch.version == PM_LOG_VERS03) {
 	fprintf(stderr,"%s: Error: cannot create a v2 archive from v3 (%s)\n",

@@ -1,5 +1,61 @@
 pcp-5.3.3 (15 September 2021)
-    - https://github.com/performancecopilot/pcp/projects/1
+    - Client tools and utilities:
+	pcp-htop: add new "dynamic columns" feature
+	pcp-htop: enable all mouse-driven functionality
+	pcp-htop: support offline and hotplug CPUs
+	pcp-htop: columns for process autogroup identifier and nice value
+	pcp-htop: add combined memory and swap meter
+	pcp-htop: limit meter LED mode by width
+	pcp-htop: versioned config files and config_reader_min_version
+	pcp-htop: add a new option to change the header layout
+	pcp-htop: move shipped column/meter configs below /usr/share
+	pmieconf: improve the CPU saturation rules
+	pmieconf: add several per-disk pmie rule templates
+	pmie: fix sigsegv when used with archives lacking needed metrics
+    - PMDA additions, enhancements and bug fixes:
+	pmdabpf: introduce the new BPF PMDA based on libbpf
+	pmdabcc: free BPF memory after module setup completes
+	pmdalinux: add -A option for overriding permissions checks
+	pmdaproc: add proc.autogroup scheduling metrics
+	pmdaproc: ensure ENODATA error code not exposed on fetch callbacks
+	pmdapodman: correct the metric count calculation for pmdaInit
+    - Server-side utilities and log management scripts:
+	pmproxy: avoid duplicate instname labels in /metrics response
+	pmlogger: add -I/--pmlc-ipc-version command line option
+	pmlc-pmlogger: rework PDU_LOG_STATUS
+	Fix PMDA upgrade issue relating to python vs python3 switch
+	services: switch logutil and pmieutil scripts from type oneshot to exec
+	services: replace daily poll services with persistent timer setting
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	python api: additional converter functions for struct timeval
+	python api: refer to ctypes consistently
+	python api: fix pmiAddMetric parameter type
+	libpcp: __pmZoneinfo implementation suitable for library use
+	libpcp: internal restructuring and initial v3 PCP archive code
+	libpcp: explicit readdir64 use is removed, via compile options only
+	libpcp: add -Dpmlc diags for the pmlc and pmlogger IPC protocol
+	libpcp_mmv: add new convenience routines for value set/inc
+    - Misc build, infrastructure and packaging updates:
+	build: fixed errors and warnings reported by LGTM.com
+	build: fixed warnings reported by Coverity
+	build: initial fixes of gcc warnings from -Wshadow
+	build: updates to resolve warnings from latest version of pylint
+	build: fix pmdasockets compiler warning on 32bit platforms
+	packaging: remove any stale *-poll systemd service symlinks
+    - Security Enhanced Linux:
+	selinux: additional policy for podman socket access
+	selinux: make use of container_var_run policy conditional
+	selinux: make use of glusterd_log policy conditional
+    - Documentation and QA infrastructure:
+	pmdasample: add sample.proc.* metrics for dynamic indom testing
+	docs: new pcp-htop(1) manual page for dynamic columns and meters
+	qa: use containers for all PCP CI and release builds
+	qa: add common.redis routine _wait_for_redis() for tests to share
+	ci: add Fedora 35 and disable Python 2 there (missing packages)
+	ci: refactorings and misc improvements across the board
+	ci: disable debuginfod due to massive valgrind slowdown
+	ci: retain the 10 most recent QA reports for comparison -
+	    https://performancecopilot.github.io/qa-reports/reports/
 
 pcp-5.3.2 (30 July 2021)
     - Client tools and utilities:
@@ -47,7 +103,7 @@ pcp-5.3.2 (30 July 2021)
 	pmcd: avoid mem leak on error path, Coverity issues
 	pmcd: small tweak to getzoneinfo_plan_b()
 	pmproxy: add mutex for client req lists, fix https/tls support
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	python api: guard against fetchgroup destructor race condition
 	libpcp_web: add generic timer API
 	libpcp_web: add generic server metrics
@@ -143,7 +199,7 @@ pcp-5.3.1 (4 June 2021)
 	pmproxy: do not init default uv_loop twice
 	pmproxy: start pmproxy after Redis (if available)
 	pmcd: support for high resolution timestamp sampling
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	libpcp: support for HIGHRES fetch and result PDUs, pmHighResFetch(3)
 	libpcp: fix fetchgroup instance profile mangling
 	libpcp: fix off-by-one error in pmfstring(3)
@@ -250,7 +306,7 @@ pcp-5.3.0 (16 April 2021)
 	rc_pmie: remove pmcd_wait check for pmcd, not needed
 	zeroconf: remove duplicate metrics from 30-second sampling setting
 	zeroconf: increase logging delta for proc metrics from 30s to 60s
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	libpcp: changes for metrics with semantics of dimension "none"
 	libpcp: add pmfstring(3), a safe replacement for %s in fscanf
 	libpcp: derived metrics semantics for delta(x) when x is unsigned
@@ -307,7 +363,7 @@ pcp-5.2.5 (8 February 2021)
 	pmpost: fix NOTICES file ownership changes
 	rc scripts: add optional logging
 	systemd: remove Wants=pmcd from pmlogger and pmie
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	libpcp: redo the interp.c time_caliper changes
 	libpcp_web: add timer driven webgroup garbage collector
 	libpcp_pmda: add new function pmdaCachePurgeCallback
@@ -369,7 +425,7 @@ pcp-5.2.3 (18 December 2020)
 	pmdalinux: fix case of waitio counters from /proc/stat going backwards
 	pmdalinux: minor tweaks to use integer math over floating point
 	dbpmda: send inst profile prior to instances level label requests
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	libpcp: performance improvements for archives with dynamic indoms
 	libpcp: send instance profile for instances level labels requests
 	libpcp: make pmLookupName take a (const char **) namelist
@@ -440,7 +496,7 @@ pcp-5.2.2 (11 November 2020)
 	pmdaxfs: free_inode, rmap and refcount btree stats, dquots
 	pmdamssql: improved error handling on failed SQL Server connection
 	pmdarpm: add logic to deal with the location of the RPM DB
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	libpcp: handle EINPROGRESS from connect() in __pmConnect
 	libpcp: add labels.conf file initially controlling machineid
 	libpcp: send instance profile for instances level labels requests
@@ -527,7 +583,7 @@ pcp-5.2.1 (25 September 2020)
 	python PMDAs: add python_opt=true to Remove script
 	perl PMDAs: add perl_opt=true to Remove script
 	dbpmda: fixed memleaks, parser for debug command
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	libpcp: handle absolute paths to archives when using --archive-folio
 	libpcp: new PMAPI methods for per-context derived metrics
 	libpcp: refactor __pmGetArchiveEnd_ctx() to fix segv on corrupt log
@@ -632,7 +688,7 @@ pcp-5.2.0 (7 August 2020)
 	pmdazswap: fix error handling case when no kernel module loaded
 	pmdazswap: add pylint static checking into the build
 	pmcd/pmdaproc.sh: silence derived metrics warnings from Remove
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	libpcp: add help text support for derived metrics
 	libpcp: fix memleak in hash.c
 	libpcp: clear PM_TEXT_DIRECT flag when looking up context text
@@ -727,7 +783,7 @@ pcp-5.1.1 (29 May 2020)
 	pmdalinux: fix bad metadata for disk.all.*(discard|flush)* metrics
 	pmdastatsd: allow builds to proceed when no ragel available
 	pmdaproc.sh: improve PMDA problem diagnosis by checking PMDA syntax
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
         rename PCP_NSSDB_DIR to PCP_SECURE_DB_PATH in pcp.conf
 	build: fix incorrect declaration of pmGetHostName routine
 	libpcp_trace: avoid dereferencing of possible NULL pointer
@@ -814,7 +870,7 @@ pcp-5.1.0 (24 April 2020)
 	pmdaredis: add perl-Data-Dumper dependency
 	pmdanfsclient: update nfs client statistics for recent kernel versions
 	pmdaactivemq: support for new version of ActiveMQ (v5.12+)
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	libpcp: export __pmHashPreAlloc routine from hash APIs
 	libpcp: fix authentication for multi-step auth methods
 	libpcp: introduce pmGetHostName which returns errors
@@ -910,7 +966,7 @@ pcp-5.0.3 (27 February 2020)
 	pmdalinux: convert uptime and idletime metrics to double precision
 	pmdalinux: fix another batch of KERNEL_ULONG errors
 	pmdaactivemq: module name and path resolution fixes for latest perl
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	python api: avoid null references in pmGetInDomDict()
 	python api: fix pmParseUnitsStr for Python2
 	python api: allow pmUnits to be converted to an int
@@ -1010,7 +1066,7 @@ pcp-5.0.2 (11 December 2019)
 	pmseries: fix pointer arithmetic on series ID set intersection
 	pmseries: add new option to report all label values by name
 	pmseries: fix and test regular expression pattern matching
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	libpcp: fix potential use-after-free in labels code
 	libpcp_web: fix file descriptor and memory leaks in discovery code
 	libpcp_web: resolve valgrind issues observed in qa tests
@@ -1075,7 +1131,7 @@ pcp-5.0.1 (4 November 2019)
 	pmlogconf: resolve incorrect quoting in awk scripts
 	selinux: tweak policy to allow pmie to call setrlimit
 	zshrc: fix typo in pmseries(1) completions
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	libpcp: check pmInResult->namelist for NULL before accessing first element
 	libpcp: suppress pduread EINTR warnings for interactive tools
     - Misc build, infrastructure and packaging updates:
@@ -1178,7 +1234,7 @@ pcp-5.0.0 (11 October 2019)
 	pmcd: add missing long forms for some cert/auth options
 	logutil: add 120s timeout in all systemd service configs
 	logutil: pmlogger_check.service is not required by pmlogger.service
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	libpcp_web: harden null string value handling in webgroup fetches
 	libpcp_web: simplify pmseries delta calculations, corner cases
 	libpcp_web: fix numerous memory leaks
@@ -1276,7 +1332,7 @@ pcp-4.3.4 (16 August 2019)
 	logutil: fix broken pipe errors from utilproc.sh _is_archive()
 	logutil: fix pmlogger and pmlogger_daily systemd services
 	pmiectl: reflect changes to pmlogger start process in that of pmie
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	libpcp_pmda: close help files after mmap'ing contents
 	libpcp_web: fix memory corruption on fetch code path
 	libpcp_web: fix memory corruption during metric scrape
@@ -1350,7 +1406,7 @@ pcp-4.3.3 (28 June 2019)
 	src/selinux/pcpupstream.te.in: changes from QA on vm26 (Fedora 27)
 	src/selinux/README: explain @FOO@ meta-syntax elements
 	selinux: allow a pmlogger_check.log file unlink/rename
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	libpcp_web: resolve memory leak in map handling, from coverity scan
 	libpcp: prepare for the new async pmwebapi(3) implementation
 	python: fix pmcc time window handling
@@ -1445,7 +1501,7 @@ pcp-4.3.2 (26 April 2019)
 	fix some fallout from the systemd timer transition
 	allow pcp_pmcd_t module_request access from class system
 	allow the nvidia pmda to dlopen libnvidia-ml
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	perl PMDA.pm: expose PMDA_FETCH_* macros
 	pmapi.h: add appl3, appl4 and appl5 debug flags
 	libpcp_web: refactoring and support for Redis cluster protocol
@@ -1512,7 +1568,7 @@ pcp-4.3.1 (27 February 2019)
 	pmlogconf: additional /proc/vmstat metrics to default set
 	pmwebd: tweak y-axis labels in png output
 	pmwebd: fix an open file descriptor leak
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	libpcp: fix compilation for --with-threads=no configure
 	libpcp: exclude indom instances level labels in result from pmLookupLabels
 	libpcp: the big libpcp lock is no longer recursive
@@ -1576,7 +1632,7 @@ pcp-4.3.0 (21 December 2018)
 	- Drop the elasticsearch python[23]-urllib3 spec file dependency
 	- Changes for Mac OS X HomeBrew build and packaging
 	- Support for Mac OS X Mojave latest release
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	- libpcp: instance filtering for derived metrics
 	- libpcp: add scalar() for derived metrics
 	- libpcp: fix process existence checks on FreeBSD
@@ -1641,7 +1697,7 @@ pcp-4.2.0 (16 November 2018)
 	- pmlogrewrite: Help Text: Support filtering by content.
 	- pmlogrewrite: Help Text: Additional text type allowed.
 	- pmlogrewrite: fix error handling when duplicate output files found
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	- pmdaproc.sh: change a few warnings to use $prog instead of Install
 	- libpcp: fix buffer length error in pmAtomStr_r(3)
 	- python api: propagate pmFetch(3) result for fetchgroup users
@@ -1719,7 +1775,7 @@ pcp-4.1.3 (21 September 2018)
 	- pmlogger_check: run periodic compression when exiting early
 	- pmlogger_rewrite: cleanup temporary /var/tmp/<pid>.ok files
 	- daily/check scripts: consistently set log file ownership
-    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	- add new default derived metrics for processes 'hogging' cpu/mem/disk
 	- use rescale() in iostat derived metrics for disk.dev.*_bytes units
 	  differences across platforms

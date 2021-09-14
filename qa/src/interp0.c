@@ -174,6 +174,8 @@ Options\n\
     }
 
     for (i = 0; i < samples; i++) {
+	struct timeval tmp;
+
 	sts = pmFetch(numpmid, pmid, &result);
 	if (sts < 0) {
 	    printf("sample[%d] pmFetch: %s\n", i, pmErrStr(sts));
@@ -183,7 +185,7 @@ Options\n\
 	    exit(1);
 	}
 	if (prev) {
-	    struct timeval tmp = result->timestamp;
+	    tmp = result->timestamp;
 	    pmtimevalDec(&tmp, &prev->timestamp);
 	    tdiff = pmtimevalToReal(&tmp);
 	    printf("\nsample %d, delta time=%.3f secs\n", i, tdiff);
@@ -229,7 +231,7 @@ Options\n\
 			    printf("event decode error: %s\n", pmErrStr(sts));
 			} else {
 			    for (r = 0; r < sts; r++) {
-				struct timeval tmp = records[r]->timestamp;
+				tmp = records[r]->timestamp;
 				pmtimevalDec(&tmp, &prev->timestamp);
 				tdiff = pmtimevalToReal(&tmp);
 				printf("\nevent %d, offset time=%.3f secs, param ids:", j+1, tdiff);
