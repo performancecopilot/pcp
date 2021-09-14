@@ -16,6 +16,18 @@ else
     . "$PCP_DIR"/etc/pcp.env
 fi
 
+# Don't bother if we're not building libraries that depend on Qt
+#
+if [ -f ../../src/include/builddefs ]
+then
+    eval `sed -n -e '/^ENABLE_QT[ 	]*=/s/[ 	]//gp' ../../src/include/builddefs`
+    [ "$ENABLE_QT" = false ] && exit 0
+elif [ -f $PCP_INC_DIR/builddefs ]
+then
+    eval `sed -n -e '/^ENABLE_QT[ 	]*=/s/[ 	]//gp' $PCP_INC_DIR/builddefs`
+    [ "$ENABLE_QT" = false ] && exit 0
+fi
+
 builddir=''
 for builddir in ../../build/deb/pcp-$PCP_VERSION/qa/qt $PCP_VAR_DIR/testsuite/qt ''
 do

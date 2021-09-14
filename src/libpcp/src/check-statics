@@ -69,7 +69,7 @@ in
 	    fi
 	    ;;
 
-    freebsd|netbsd|openbsd|solaris)
+    freebsd|netbsd|solaris)
 	    ;;
     *)
 	    echo "Warning: check-statics skipped for PCP_PLATFORM=$PCP_PLATFORM"

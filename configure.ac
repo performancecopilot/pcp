@@ -277,6 +277,7 @@ AC_SUBST(cross_compiling)
 dnl CFLAGS setting is a co-dependency between here and PCFLAGS in
 dnl src/include/builddefs.in ... need to be the same in both places
 
+gcc_debug=true
 target_distro=$target_os
 if test $target_os = linux
 then
@@ -376,6 +377,11 @@ then
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
     pcp_platform_paths='/usr/local/bin'
     pcp_ps_all_flags=auxww
+    if test "$target_cpu" = "i386" -a "$host_os" = "openbsd6.8"
+    then
+	dnl build with -g are broken here due to a gcc bug
+	gcc_debug=false
+    fi
 else
     echo
     echo "FATAL ERROR: need platform-specific customization for \"$target_os\""
@@ -385,12 +391,14 @@ fi
 AC_SUBST(pcp_platform_paths)
 AC_SUBST(pcp_ps_all_flags)
 
-dnl default C and C++ compiler optimization to -O2 -g
+dnl default C and C++ compiler optimization to -O2 -g (latter depends on $gcc_debug)
 if test "$use_optimization" = no
 then
-    optimization="-O0 -g"
+    optimization="-O0"
+    $gcc_debug && optimization="$optimization -g"
 else
-    optimization="-O2 -g"
+    optimization="-O2"
+    $gcc_debug && optimization="$optimization -g"
 fi
 AC_SUBST(optimization)
 

@@ -1,9 +1,11 @@
-# PCP required package list for OpenBSD 6.7 amd64
-# created by kenj on vm37.localdomain Wed May 26 06:17:47 AEST 2021
+# PCP required package list for OpenBSD 6.8 i386
+# created by kenj on vm33.localdomain Tue Sep 14 07:02:39 AEST 2021
 #
 LWP::UserAgent cpan
 Spreadsheet::Read cpan
+Spreadsheet::ReadSXC cpan
 Spreadsheet::XLSX cpan
+XML::TokeParser cpan
 autoconf
 avahi
 bash
@@ -12,12 +14,12 @@ cppcheck
 curl
 cyrus-sasl
 gawk
-git
+gdb
 gdiff
+git
 gmake
 gtar
 icu4c
-iproute2
 libmad
 libuv
 mariadb-client
@@ -47,14 +49,11 @@ py3-elasticsearch
 py3-requests
 py3-setuptools
 py3-six
-pylint
 python
-qt4
 readline
 rrdtool
-smartmontools
 socat
+smartmontools
 sqlite3
-xshare
 xz
 zabbix-agent
