@@ -54,8 +54,8 @@ _filter_redis()
 _filter_redis_err()
 {
     sed \
-    -e 's;/ERR syntax error;expected error;' \
-    -e 's;Parse command error.*$;expected error;'
+    -e 's;ERR syntax error;expected error;' \
+    -e 's;Parse command error.*;expected error;'
 }
 
 # real QA test starts here
@@ -120,7 +120,7 @@ echo "== redis-cli handle errors 2"
 redis-cli -p $proxyport set foo bar baz | _filter_redis_err
 echo
 echo "== redis-cli nonexistant key"
-redis-cli -p $proxyport get abc | _filter_redis_err
+redis-cli -p $proxyport get abc
 echo
 
 # check key distribution
