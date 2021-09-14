@@ -54,7 +54,6 @@ expected error
 
 
 == redis-cli nonexistant key
-expected error
 
 
 == redis cluster key distribution
