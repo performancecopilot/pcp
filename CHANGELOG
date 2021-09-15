@@ -1,3 +1,6 @@
+pcp-5.3.4 (3 November 2021)
+    - https://github.com/performancecopilot/pcp/projects/1
+
 pcp-5.3.3 (15 September 2021)
     - Client tools and utilities:
 	pcp-htop: add new "dynamic columns" feature

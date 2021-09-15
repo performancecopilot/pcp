@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 5.3.3
+Version: 5.3.4
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -3336,6 +3336,9 @@ PCP_LOG_DIR=%{_logsdir}
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
+* Wed Nov 03 2021 Nathan Scott <nathans@redhat.com> - 5.3.4-1
+- Update to latest PCP sources.
+
 * Wed Sep 15 2021 Nathan Scott <nathans@redhat.com> - 5.3.3-1
 - Update to latest PCP sources.
 
