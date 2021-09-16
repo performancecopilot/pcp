@@ -154,37 +154,38 @@ class TapestatReport(pmcc.MetricGroupPrinter):
         if precision == 0 :
             tmpspace = tmpspace  +1
 
-        if "t" in TapestatOptions.xflag:
-            headfmt = "%-24s %-12s  %*s %*s %*s %*s %*s %*s %*s %*s %*s"
-            valfmt = "%-24s %-12s %*.*f %*.*f %*d %*d %*.*f %*.*f %*.*f %*.*f %*.*f"
-            heading = ('# Timestamp', 'Device',
-                       tmpspace - 1, 'r/s', tmpspace, 'w/s',
-                       tmpspace, 'kb_r/s', tmpspace, 'kb_w/s',
-                       tmpspace, 'r_pct', tmpspace, 'w_pct',
-                       tmpspace, 'o_pct', tmpspace, 'Rs/s',
-                       tmpspace, 'o_cnt')
-        else:
-            headfmt = "%-12s %*s %*s %*s %*s %*s %*s %*s %*s %*s"
-            valfmt = "%-12s %*.*f %*.*f %*d %*d %*.*f %*.*f %*.*f %*.*f %*.*f"
-            heading = ('# Device',
-                       tmpspace, 'r/s', tmpspace, 'w/s',
-                       tmpspace, 'kb_r/s', tmpspace, 'kb_w/s',
-                       tmpspace, 'r_pct', tmpspace, 'w_pct',
-                       tmpspace, 'o_pct', tmpspace, 'Rs/s',
-                       tmpspace, 'o_cnt')
-
         if "h" not in TapestatOptions.xflag:
             self.Hcount += 1
             if self.Hcount == 24:
                 self.Hcount = 1
+
+        if "t" in TapestatOptions.xflag:
+            valfmt = "%-24s %-12s %*.*f %*.*f %*d %*d %*.*f %*.*f %*.*f %*.*f %*.*f"
+            headfmt = "%-24s %-12s  %*s %*s %*s %*s %*s %*s %*s %*s %*s"
             if self.Hcount == 1:
-                print(headfmt % heading)
+                print(headfmt % ('# Timestamp', 'Device',
+                       tmpspace - 1, 'r/s', tmpspace, 'w/s',
+                       tmpspace, 'kb_r/s', tmpspace, 'kb_w/s',
+                       tmpspace, 'r_pct', tmpspace, 'w_pct',
+                       tmpspace, 'o_pct', tmpspace, 'Rs/s',
+                       tmpspace, 'o_cnt'))
+        else:
+            valfmt = "%-12s %*.*f %*.*f %*d %*d %*.*f %*.*f %*.*f %*.*f %*.*f"
+            headfmt = "%-12s %*s %*s %*s %*s %*s %*s %*s %*s %*s"
+            if self.Hcount == 1:
+                print(headfmt % ('# Device',
+                   tmpspace, 'r/s', tmpspace, 'w/s',
+                   tmpspace, 'kb_r/s', tmpspace, 'kb_w/s',
+                   tmpspace, 'r_pct', tmpspace, 'w_pct',
+                   tmpspace, 'o_pct', tmpspace, 'Rs/s',
+                   tmpspace, 'o_cnt'))
 
         if p_r == {} or p_w == {} or p_rkb == {} or p_wkb == {} or \
             p_rpw == {} or p_wpw == {} or p_opw == {} or \
             p_resid == {} or p_other == {}:
             # no values for some metric (e.g. near start of archive)
             if "t" in TapestatOptions.xflag:
+                headfmt = "%-24s %-12s  %*s %*s %*s %*s %*s %*s %*s %*s %*s"
                 print(headfmt % (timestamp, 'NODATA',
                     rrqmspace - 1, '?', wrqmspace, '?',
                     precision + 5, '?', precision + 5, '?',

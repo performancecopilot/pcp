@@ -1656,9 +1656,13 @@ _run_valgrind()
     then
 	echo "Warning: using extra $__extra" >>$here/$seq.full
     fi
+    unset DEBUGINFOD_URLS
+    # *Note* - for more detailed diagnostics, at the expense of runtime,
+    # use --track-origins=yes --read-var-info=yes --read-inline-info=yes
     $_valgrind_prefix valgrind \
-	--leak-check=full --read-var-info=yes --gen-suppressions=all \
-	--suppressions=$here/valgrind-suppress $__extra \
+	--leak-check=full --read-var-info=no --read-inline-info=no \
+	--gen-suppressions=all --suppressions=$here/valgrind-suppress \
+	$__extra \
 	--log-file=$tmp._valgrind \
 	    "$@" 2>$tmp._valgrind.err >$tmp._valgrind.out
     echo "=== std out ==="
@@ -1713,9 +1717,13 @@ if which valgrind >/dev/null 2>&1; then
 	fi
     fi
     $sudo rm -f $tmp.valgrind.help
+    unset DEBUGINFOD_URLS
+    # *Note* - for more detailed diagnostics, at the expense of runtime,
+    # use --track-origins=yes --read-var-info=yes --read-inline-info=yes
     _valgrind_clean_assert="valgrind -q \
-	     --leak-check=full --read-var-info=yes --gen-suppressions=all \
-	     --suppressions=$here/valgrind-suppress $__extra \
+	     --leak-check=full --read-var-info=no --read-inline-info=no \
+	     --gen-suppressions=all --suppressions=$here/valgrind-suppress \
+	     $__extra \
 	     --log-fd=1"
 fi
 

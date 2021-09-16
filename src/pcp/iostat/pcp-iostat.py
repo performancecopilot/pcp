@@ -179,6 +179,7 @@ class IostatReport(pmcc.MetricGroupPrinter):
            p_rkb == {} or p_wkb == {}:
             # no values for some metric (e.g. near start of archive)
             if "t" in IostatOptions.xflag:
+                headfmt = "%-24s %-12s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s"
                 print(headfmt % (timestamp, 'NODATA',
                     rrqmspace, '?', rrqmspace, '?',
                     precision+5, '?', precision+4, '?',
