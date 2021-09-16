@@ -19,7 +19,7 @@ include $(TOPDIR)/src/include/builddefs
 include ../../libpcp/src/GNUlibrarydefs
 -include ./GNUlocaldefs
 
-CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
+CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c result.c \
 	help.c instance.c labels.c p_desc.c p_error.c p_fetch.c p_instance.c \
 	p_profile.c p_result.c p_text.c p_pmns.c p_creds.c p_attr.c p_label.c \
 	pdu.c pdubuf.c pmns.c profile.c store.c units.c util.c ipc.c \
