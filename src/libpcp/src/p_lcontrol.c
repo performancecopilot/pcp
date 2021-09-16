@@ -112,6 +112,7 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, in
     int			numpmid;
     size_t		need;
     pmResult		*req;
+    __pmResult		*__req;
     pmValueSet		*vsp;
     vlist_t		*vp;
 
@@ -131,10 +132,11 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, in
     if (numpmid >= (INT_MAX - sizeof(pmResult)) / sizeof(pmValueSet *))
 	return PM_ERR_IPC;
     need = sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *);
-    if ((req = (pmResult *)malloc(need)) == NULL) {
+    if ((__req = __pmAllocResult(need)) == NULL) {
 	pmNoMem("__pmDecodeLogControl.req", need, PM_RECOV_ERR);
 	return -oserror();
     }
+    req = __pmOffsetResult(__req);
     req->numpmid = numpmid;
 
     sts = PM_ERR_IPC;

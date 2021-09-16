@@ -1151,14 +1151,20 @@ int
 __pmLogGenerateMark_ctx(__pmContext *ctxp, int mode, pmResult **result)
 {
     __pmLogCtl		*lcp = ctxp->c_archctl->ac_log;
+#if 0		// TODO when *result => __pmResult
+    __pmResult		*pr;
+#else
     pmResult		*pr;
+    __pmResult		*__pr;
+#endif
     int			sts;
     __pmTimestamp	end;
 
     PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
-    if ((pr = (pmResult *)malloc(sizeof(pmResult))) == NULL)
+    if ((__pr = __pmAllocResult(sizeof(pmResult))) == NULL)
 	pmNoMem("generateMark", sizeof(pmResult), PM_FATAL_ERR);
+    pr = __pmOffsetResult(__pr);
 
     /*
      * A mark record has numpmid == 0 and the timestamp set to one millisecond
@@ -1655,7 +1661,12 @@ __pmLogFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **result)
     int		sts = 0;
     int		found;
     double	tdiff;
+#if 0		// TODO when *result => __pmResult
+    __pmResult	*newres;
+#else
     pmResult	*newres;
+    __pmResult	*__newres;
+#endif
     pmDesc	desc;
     int		kval;
     __pmHashNode	*hp;
@@ -1804,6 +1815,7 @@ more:
     }
     else if (found) {
 	if (numpmid > 0) {
+	    size_t	need;
 	    /*
 	     * not necesssarily after them all, so cherry-pick the metrics
 	     * we wanted ..
@@ -1820,10 +1832,11 @@ more:
 	     *     pmFreeResult
 	     */
 
-	    i = (int)sizeof(pmResult) + numpmid * (int)sizeof(pmValueSet *);
-	    if ((newres = (pmResult *)malloc(i)) == NULL) {
+	    need = sizeof(pmResult) + numpmid * sizeof(pmValueSet *);
+	    if ((__newres = __pmAllocResult(need)) == NULL) {
 		pmNoMem("__pmLogFetch.newres", i, PM_FATAL_ERR);
 	    }
+	    newres = __pmOffsetResult(__newres);
 	    newres->numpmid = numpmid;
 	    newres->timestamp = (*result)->timestamp;
 	    u = 0;

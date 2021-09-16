@@ -138,12 +138,18 @@ __pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **resul
 {
     int		sts;
     int		ctx;
-    int		need;
+    size_t	need;
     int		j;
     int		k;
     int		n;
+#if 0		// TODO when ans, *result => __pmResult
+    __pmResult	*ans;
+    __pmResult	*tmp_ans;
+#else
     pmResult	*ans;
     pmResult	*tmp_ans;
+    __pmResult	*__ans;
+#endif
 
     if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
 	/* Local context requires single-threaded applications */
@@ -173,9 +179,11 @@ __pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **resul
      * (numpmid - 1) because there's room for one valueSet
      * in a pmResult
      */
-    need = (int)sizeof(pmResult) + (numpmid - 1) * (int)sizeof(pmValueSet *);
-    if ((ans = (pmResult *)calloc(1, need)) == NULL)
+    need = sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *);
+    if ((__ans = __pmAllocResult(need)) == NULL)
 	return -oserror();
+    memset((void *)__ans, 0, need);
+    ans = __pmOffsetResult(__ans);
 
     ans->numpmid = numpmid;
     pmtimevalNow(&ans->timestamp);

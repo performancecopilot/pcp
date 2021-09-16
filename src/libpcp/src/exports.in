@@ -770,3 +770,8 @@ PCP_3.33 {
     __pmTimestampSub;
     __pmZoneinfo;
 } PCP_3.32;
+
+PCP_3.34 {
+  global:
+    __pmAllocResult;
+} PCP_3.33;

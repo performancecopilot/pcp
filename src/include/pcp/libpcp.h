@@ -1361,6 +1361,29 @@ PCP_CALL extern int __pmSetRequestTimeout(double);
 /* instance profile methods */
 PCP_CALL extern int __pmInProfile(pmInDom, const pmProfile *, int);
 
+/* __pmResult alloc/offsets */
+PCP_CALL extern __pmResult *__pmAllocResult(size_t);
+/*
+ * __pmResult and pmResult are identical after the timestamp.
+ * If we're exporting a pmResult from a __pmResult, this function
+ * returns the correct address for the pmResult at, or shortly
+ * after, the start of the __pmResult (rp)
+ */
+static inline pmResult *
+__pmOffsetResult(__pmResult *rp)
+{
+    pmResult	*tmp;
+   return (pmResult *)&(((char *)&rp->numpmid)[(char *)tmp - (char *)&tmp->numpmid]);
+}
+
+/* same for pmHighResResult ... */
+static inline pmHighResResult *
+__pmOffsetHighResResult(__pmResult *rp)
+{
+    pmHighResResult	*tmp;
+   return (pmHighResResult *)&(((char *)&rp->numpmid)[(char *)tmp - (char *)&tmp->numpmid]);
+}
+
 /* free malloc'd data structures */
 PCP_CALL extern void __pmFreeAttrsSpec(__pmHashCtl *);
 PCP_CALL extern void __pmFreeHostAttrsSpec(__pmHostSpec *, int, __pmHashCtl *);

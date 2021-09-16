@@ -718,7 +718,12 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
     char	*pduend;	/* end pointer for incoming buffer */
     size_t	bytes, nopad;
     result_t	*pp;
+#if 0	// TODO when pr,*result -> __pmResult
+    __pmResult	*pr;
+#else
+    __pmResult	*__pr;
     pmResult	*pr;
+#endif
 
     if (ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
@@ -749,10 +754,11 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 	return PM_ERR_IPC;
     }
 
-    if ((pr = (pmResult *)malloc(sizeof(pmResult) +
+    if ((__pr = (__pmResult *)__pmAllocResult(sizeof(__pmResult) +
 			 	(numpmid - 1) * sizeof(pmValueSet *))) == NULL)
 	return -oserror();
 
+    pr = __pmOffsetResult(__pr);
     pr->numpmid = numpmid;
     pr->timestamp.tv_sec = ntohl(pp->timestamp.tv_sec);
     pr->timestamp.tv_usec = ntohl(pp->timestamp.tv_usec);
