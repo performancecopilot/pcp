@@ -293,7 +293,6 @@ fetchlocal.o
     splitmax			# single-threaded PM_SCOPE_DSO_PMDA
 fetch.o
 fetchgroup.o
-freeresult.o
 getdate.tab.o
     MilitaryTable         	# const
     OtherTable         		# const
@@ -451,6 +450,7 @@ p_profile.o
 p_result.o
 profile.o
 p_text.o
+result.o
 rtime.o
     ?wdays			# const
     ?months			# const
