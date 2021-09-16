@@ -629,11 +629,19 @@ pmSetProcessIdentity(const char *username)
     }
 
     /*
+     * initgroups(3) has been observed to be expensive in
+     * terms of its memory footprint - which blows out the
+     * PCP daemons (all call this, including PMDAs) - as a
+     * result we check first and call it only when needed.
+     * Usually it is not, as PCP_USER has no supplementary
+     * groups by default.
+     *
      * We must allow initgroups to fail with EPERM, as this
      * is the behaviour when the parent process has already
      * dropped privileges (e.g. pmcd receives SIGHUP).
      */
-    if (initgroups(username, gid) < 0 && oserror() != EPERM) {
+    if (getgroups(0, NULL) > 0 &&
+	initgroups(username, gid) < 0 && oserror() != EPERM) {
 	pmNotifyErr(LOG_CRIT,
 		"initgroups with gid of %s user (gid=%d): %s",
 		username, gid, osstrerror_r(msg, sizeof(msg)));
