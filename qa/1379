@@ -17,7 +17,7 @@ _check_series
 _get_libpcp_config
 $unix_domain_sockets || _notrun "No PCP unix domain socket support"
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
-curl --help | grep -q unix-socket || _notrun "No curl unix domain socket support"
+curl --help all | grep -q unix-socket || _notrun "No curl unix domain socket support"
 
 _cleanup()
 {
