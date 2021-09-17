@@ -162,8 +162,6 @@ logmessage(int priority, const char *format, ...)
     va_end(arglist);
     if (bytes >= sizeof(buffer))
 	buffer[sizeof(buffer)-1] = '\0';
-    else if (bytes < 0)
-	buffer[0] = '\0';
 
     /* strip unwanted '\n' at end of text so's not to double up */
     for (p = buffer; *p; p++);
