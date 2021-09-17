@@ -571,7 +571,7 @@ calcdiff(struct tstat *devstat, struct tstat *curstat, struct tstat *prestat,
 ** calculate the system-activity during the last sample
 */
 void
-deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double interval)
+deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double delta)
 {
 	register int	i, j;
 	size_t		size;
@@ -1198,7 +1198,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double inter
 		if (j >= pre->nfs.nfsmounts.nrmounts)
 			continue;
 
-		if (dev->nfs.nfsmounts.nfsmnt[i].age <= interval)
+		if (dev->nfs.nfsmounts.nfsmnt[i].age <= delta)
 			memset(&(pre->nfs.nfsmounts.nfsmnt[j]), 0, 
 					sizeof(struct pernfsmount));
 

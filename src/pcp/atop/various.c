@@ -649,11 +649,11 @@ cleanstop(int exitcode)
 ** establish an async timer alarm with microsecond-level precision
 */
 void
-setalarm(struct timeval *interval)
+setalarm(struct timeval *delta)
 {
 	struct itimerval val;
 
-	val.it_value = *interval;
+	val.it_value = *delta;
 	val.it_interval.tv_sec = val.it_interval.tv_usec = 0;
 	setitimer(ITIMER_REAL, &val, NULL);
 }
@@ -661,11 +661,11 @@ setalarm(struct timeval *interval)
 void
 setalarm2(int sec, int usec)
 {
-	struct timeval interval;
+	struct timeval delta;
 
-	interval.tv_sec = sec;
-	interval.tv_usec = usec;
-	setalarm(&interval);
+	delta.tv_sec = sec;
+	delta.tv_usec = usec;
+	setalarm(&delta);
 }
 
 void
@@ -1441,10 +1441,10 @@ rawarchive(pmOptions *opts, const char *name)
 ** Write a pmlogger configuration file for recording.
 */
 static void
-rawconfig(FILE *fp, double interval)
+rawconfig(FILE *fp, double delta)
 {
 	const char		**p;
-	unsigned int		delta;
+	unsigned int		logdelta;
 
 	fprintf(fp, "log mandatory on once {\n");
 	for (p = hostmetrics; (*p)[0] != '.'; p++)
@@ -1453,8 +1453,8 @@ rawconfig(FILE *fp, double interval)
 		fprintf(fp, "    %s\n", *p);
 	fprintf(fp, "}\n\n");
 
-	delta = (unsigned int)(interval * 1000.0);	/* msecs */
-	fprintf(fp, "log mandatory on every %u milliseconds {\n", delta);
+	logdelta = (unsigned int)(delta * 1000.0);	/* msecs */
+	fprintf(fp, "log mandatory on every %u milliseconds {\n", logdelta);
 	for (p = systmetrics; (*p)[0] != '.'; p++)
 		fprintf(fp, "    %s\n", *p);
 	for (p = procmetrics; (*p)[0] != '.'; p++)
@@ -1468,15 +1468,14 @@ rawwrite(pmOptions *opts, const char *name,
 {
 	pmRecordHost	*record;
 	struct timeval	elapsed;
-	double		duration;
-	double		interval;
+	double		duration, ddelta;
 	char		args[MAXPATHLEN];
 	char		*host;
 	int		sts;
 
 	host = (opts->nhosts > 0) ? opts->hosts[0] : "local:";
-	interval = pmtimevalToReal(delta);
-	duration = interval * nsamples;
+	ddelta = pmtimevalToReal(delta);
+	duration = ddelta * nsamples;
 
 	if (midnightflag)
 	{
@@ -1535,7 +1534,7 @@ rawwrite(pmOptions *opts, const char *name,
 		cleanstop(1);
 	}
 
-	rawconfig(record->f_config, interval);
+	rawconfig(record->f_config, ddelta);
 
 	/*
 	** start pmlogger with a deadhand timer, ensuring it will stop

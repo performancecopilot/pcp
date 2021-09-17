@@ -88,7 +88,7 @@ acctswoff(void)
 }
 
 int
-acctphotoproc(struct tstat **accproc, unsigned int *taskslen, struct timeval *current, struct timeval *interval)
+acctphotoproc(struct tstat **accproc, unsigned int *taskslen, struct timeval *current, struct timeval *delta)
 {
 	static int	setup;
 	static pmID	pmids[ACCT_NMETRICS];
@@ -126,7 +126,7 @@ acctphotoproc(struct tstat **accproc, unsigned int *taskslen, struct timeval *cu
 
 	supportflags |= ACCTACTIVE;
 	curr_time = pmtimevalToReal(current);
-	prev_time = pmtimevalSub(current, interval);
+	prev_time = pmtimevalSub(current, delta);
 
 	for (i=0; i < count; i++)
 	{

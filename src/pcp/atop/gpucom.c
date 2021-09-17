@@ -155,7 +155,7 @@ gpumergeproc(struct tstat      *curtpres, int ntaskpres,
 	/*
  	** make pointer list for elements in gpuproc
 	*/
-	gpp = malloc(nrgpuproc * sizeof(struct gpupidstat *));
+	gpp = calloc(nrgpuproc, sizeof(struct gpupidstat *));
 	ptrverify(gpp, "Malloc failed for process list\n");
 
 	for (g=0; g < nrgpuproc; g++)
