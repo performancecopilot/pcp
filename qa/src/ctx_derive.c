@@ -187,21 +187,21 @@ set_context_limit(int limit)
 {
     int	sts;
     int	c;
-    int ctx = pmWhichContext();
+    int ctxid = pmWhichContext();
 
     sts = pmGetDerivedControl(PCP_DERIVED_CONTEXT_LIMIT, &c);
     if (sts < 0)
-	printf("ctx %d: pmGetDerivedControl(PCP_DERIVED_CONTEXT_LIMIT, ...): %s\n", ctx, pmErrStr(sts));
+	printf("ctx %d: pmGetDerivedControl(PCP_DERIVED_CONTEXT_LIMIT, ...): %s\n", ctxid, pmErrStr(sts));
     else
-	printf("Context %d limit was: %d\n", ctx, c);
+	printf("Context %d limit was: %d\n", ctxid, c);
     sts = pmSetDerivedControl(PCP_DERIVED_CONTEXT_LIMIT, limit);
     if (sts < 0)
-	printf("ctx %d: pmSetDerivedControl(PCP_DERIVED_CONTEXT_LIMIT, %d %s\n", ctx, limit, pmErrStr(sts));
+	printf("ctx %d: pmSetDerivedControl(PCP_DERIVED_CONTEXT_LIMIT, %d %s\n", ctxid, limit, pmErrStr(sts));
     sts = pmGetDerivedControl(PCP_DERIVED_CONTEXT_LIMIT, &c);
     if (sts < 0)
-	printf("ctx %d: pmGetDerivedControl(PCP_DERIVED_CONTEXT_LIMIT, ...): %s\n", ctx, pmErrStr(sts));
+	printf("ctx %d: pmGetDerivedControl(PCP_DERIVED_CONTEXT_LIMIT, ...): %s\n", ctxid, pmErrStr(sts));
     else
-	printf("Context %d limit now: %d\n", ctx, c);
+	printf("Context %d limit now: %d\n", ctxid, c);
 }
 
 int
