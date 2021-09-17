@@ -295,7 +295,7 @@ dodso(int pdu)
 		printindom(stdout, inresult);
 		__pmFreeInResult(inresult);
 	    }
-	    else if (sts < 0)
+	    else
 		printf("Error: DSO instance() failed: %s\n", pmErrStr(sts));
 	    break;
 
