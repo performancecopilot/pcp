@@ -43,7 +43,7 @@ static sds HEADER_ACCESS_CONTROL_REQUEST_HEADERS,
  * (arrays and/or objects) to a buffer.
  */
 sds
-json_push_suffix(sds suffix, json_flags type)
+json_push_suffix(sds suffix, json_flags_t type)
 {
     size_t	length;
 
@@ -87,7 +87,7 @@ json_string(const sds original)
 }
 
 const char *
-http_content_type(http_flags flags)
+http_content_type(http_flags_t flags)
 {
     if (flags & HTTP_FLAG_JSON)
 	return "application/json";
@@ -99,7 +99,7 @@ http_content_type(http_flags flags)
 }
 
 static const char * const
-http_content_encoding(http_flags flags)
+http_content_encoding(http_flags_t flags)
 {
     if (flags & HTTP_FLAG_UTF8)
 	return "; charset=UTF-8\r\n";
@@ -109,7 +109,7 @@ http_content_encoding(http_flags flags)
 }
 
 static int
-http_status_index(http_code code)
+http_status_index(http_code_t code)
 {
     static const int	codes[] = {
 #define XX(num, name, string) num,
@@ -126,7 +126,7 @@ http_status_index(http_code code)
 }
 
 const char *
-http_status_mapping(http_code code)
+http_status_mapping(http_code_t code)
 {
     static const char  *strings[] = {
 #define XX(num, name, string) #string,
@@ -178,7 +178,7 @@ http_get_buffer(struct client *client)
 }
 
 void
-http_set_buffer(struct client *client, sds buffer, http_flags flags)
+http_set_buffer(struct client *client, sds buffer, http_flags_t flags)
 {
     assert(client->buffer == NULL);
     client->u.http.flags |= flags;
@@ -186,7 +186,7 @@ http_set_buffer(struct client *client, sds buffer, http_flags flags)
 }
 
 static sds
-http_response_header(struct client *client, unsigned int length, http_code sts, http_flags flags)
+http_response_header(struct client *client, unsigned int length, http_code_t sts, http_flags_t flags)
 {
     struct http_parser	*parser = &client->u.http.parser;
     char		date[64];
@@ -248,7 +248,7 @@ http_headers_allowed(sds headers)
 
 /* check whether the (preflight) method being proposed is acceptable */
 static int
-http_method_allowed(sds value, http_options options)
+http_method_allowed(sds value, http_options_t options)
 {
     if (strcmp(value, "GET") == 0 && (options & HTTP_OPT_GET))
 	return 1;
@@ -264,7 +264,7 @@ http_method_allowed(sds value, http_options options)
 }
 
 static char *
-http_methods_string(char *buffer, size_t length, http_options options)
+http_methods_string(char *buffer, size_t length, http_options_t options)
 {
     char		*p = buffer;
 
@@ -322,7 +322,7 @@ http_response_trace(struct client *client, int sts)
 }
 
 static sds
-http_response_access(struct client *client, http_code sts, http_options options)
+http_response_access(struct client *client, http_code_t sts, http_options_t options)
 {
     struct http_parser	*parser = &client->u.http.parser;
     char		buffer[64];
@@ -377,9 +377,9 @@ http_response_access(struct client *client, http_code sts, http_options options)
 
 void
 http_reply(struct client *client, sds message,
-		http_code sts, http_flags type, http_options options)
+		http_code_t sts, http_flags_t type, http_options_t options)
 {
-    http_flags		flags = client->u.http.flags;
+    enum http_flags	flags = client->u.http.flags;
     char		length[32]; /* hex length */
     sds			buffer, suffix;
 
@@ -432,7 +432,7 @@ http_reply(struct client *client, sds message,
 }
 
 void
-http_error(struct client *client, http_code status, const char *errstr)
+http_error(struct client *client, http_code_t status, const char *errstr)
 {
     const char		*mapping = http_status_mapping(status);
     struct servlet	*servlet = client->u.http.servlet;
@@ -468,7 +468,7 @@ void
 http_transfer(struct client *client)
 {
     struct http_parser	*parser = &client->u.http.parser;
-    http_flags		flags = client->u.http.flags;
+    enum http_flags	flags = client->u.http.flags;
     const char		*method;
     sds			buffer, suffix;
 
@@ -655,7 +655,7 @@ http_url_decode(const char *url, size_t length, dict **output)
     return result;
 }
 
-static servlet *
+static struct servlet *
 servlet_lookup(struct client *client, const char *offset, size_t length)
 {
     struct proxy	*proxy = (struct proxy *)client->proxy;

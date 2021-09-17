@@ -20,6 +20,6 @@ typedef enum {
     PCP_PROXY_HOSTSPEC	= 2,
     PCP_PROXY_CONNECT	= 3,
     PCP_PROXY_SETUP	= 4,
-} pcp_proxy_state;
+} pcp_proxy_state_t;
 
 #endif /* PMPROXY_PCP_H */

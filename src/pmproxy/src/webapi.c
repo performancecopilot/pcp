@@ -483,7 +483,7 @@ on_pmwebapi_scrape(sds context, pmWebScrape *scrape, void *arg)
     long long		milliseconds;
     char		pmidstr[20], indomstr[20];
     sds			name = NULL, semantics = NULL, labels = NULL;
-    sds			s, result, quoted = NULL;
+    sds			s, result;
 
     pmwebapi_set_context(baton, context);
     if (open_metrics_type_check(metric->type) < 0)
@@ -610,9 +610,9 @@ on_pmwebapi_done(sds context, int status, sds message, void *arg)
 {
     pmWebGroupBaton	*baton = (pmWebGroupBaton *)arg;
     struct client	*client = (struct client *)baton->client;
-    http_options	options = baton->options;
-    http_flags		flags = client->u.http.flags;
-    http_code		code;
+    http_options_t	options = baton->options;
+    http_flags_t	flags = client->u.http.flags;
+    http_code_t		code;
     sds			quoted, msg;
 
     if (pmDebugOptions.series)

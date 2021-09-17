@@ -58,7 +58,7 @@ labeladd(void *arg, const struct dictEntry *entry)
 
 /* convert an array of PCP labelsets into Open Metrics form */
 void
-open_metrics_labels(pmWebLabelSet *labels, struct dict *dict)
+open_metrics_labels(pmWebLabelSet *labels, struct dict *labeldict)
 {
     unsigned long	cursor = 0;
     pmLabelSet		*labelset;
@@ -89,32 +89,32 @@ open_metrics_labels(pmWebLabelSet *labels, struct dict *dict)
 	    value = sdscatrepr(sdsempty(), offset, length);
 
 	    /* overwrite entries from earlier passes: label hierarchy */
-	    if ((entry = dictFind(dict, key)) == NULL) {
-		dictAdd(dict, key, value);	/* new entry */
+	    if ((entry = dictFind(labeldict, key)) == NULL) {
+		dictAdd(labeldict, key, value);	/* new entry */
 	    } else {
 		sdsfree(key);
 		sdsfree(dictGetVal(entry));
-		dictSetVal(dict, entry, value);
+		dictSetVal(labeldict, entry, value);
 	    }
 	}
     }
 
     /* if an instance with instname or instid labels missing, add them now */
-    if (labels->instname && dictFind(dict, instname) == NULL) {
+    if (labels->instname && dictFind(labeldict, instname) == NULL) {
 	key = sdsdup(instname);
 	value = labels->instname;
 	value = sdscatrepr(sdsempty(), value, sdslen(value));
-	dictAdd(dict, key, value);	/* new entry */
+	dictAdd(labeldict, key, value);	/* new entry */
     }
-    if (labels->instid != PM_IN_NULL && dictFind(dict, instid) == NULL) {
+    if (labels->instid != PM_IN_NULL && dictFind(labeldict, instid) == NULL) {
 	key = sdsdup(instid);
 	value = sdscatfmt(sdsempty(), "\"%u\"", labels->instid);
-	dictAdd(dict, key, value);	/* new entry */
+	dictAdd(labeldict, key, value);	/* new entry */
     }
 
     /* finally produce the merged set of labels in the desired format */
     do {
-	cursor = dictScan(dict, cursor, labeladd, NULL, labels);
+	cursor = dictScan(labeldict, cursor, labeladd, NULL, labels);
     } while (cursor);
 }
 

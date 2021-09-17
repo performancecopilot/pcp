@@ -41,33 +41,33 @@ typedef enum proxy_registry {
     METRICS_WEBGROUP,
     METRICS_SEARCH,
     NUM_REGISTRY
-} proxy_registry;
+} proxy_registry_t;
 
 typedef struct stream_write_baton {
     uv_write_t		writer;
     uv_buf_t		buffer[2];
     unsigned int	nbuffers;
     uv_write_cb		callback;
-} stream_write_baton;
+} stream_write_baton_t;
 
 typedef enum stream_family {
     STREAM_LOCAL	= 1,
     STREAM_TCP4,
     STREAM_TCP6,
-} stream_family;
+} stream_family_t;
 
 typedef struct stream {
     union {
 	uv_pipe_t	local;
 	uv_tcp_t	tcp;
     } u;
-    stream_family	family;
+    enum stream_family	family;
     unsigned int	active: 1;
     unsigned int	secure: 1;
     unsigned int	zero : 14;
     unsigned int	port : 16;
     const char		*address;
-} stream;
+} stream_t;
 
 typedef enum stream_protocol {
     STREAM_UNKNOWN	= 0,
@@ -75,11 +75,11 @@ typedef enum stream_protocol {
     STREAM_REDIS	= 0x2,
     STREAM_HTTP		= 0x4,
     STREAM_PCP		= 0x8,
-} stream_protocol;
+} stream_protocol_t;
 
 typedef struct redis_client {
     redisReader		*reader;	/* RESP request handling state */
-} redis_client;
+} redis_client_t;
 
 typedef struct http_client {
     http_parser		parser;		/* HTTP request parsing state */
@@ -93,10 +93,10 @@ typedef struct http_client {
     void		*data;		/* opaque servlet information */
     unsigned int	type : 16;	/* HTTP response content type */
     unsigned int	flags : 16;	/* request status flags field */
-} http_client;
+} http_client_t;
 
 typedef struct pcp_client {
-    pcp_proxy_state	state;
+    pcp_proxy_state_t	state;
     sds			hostname;
     unsigned int	port : 16;
     unsigned int	certreq : 1;
@@ -104,7 +104,7 @@ typedef struct pcp_client {
     unsigned int	pad : 14;
     uv_connect_t	pmcd;
     uv_tcp_t		socket;
-} pcp_client;
+} pcp_client_t;
 
 #ifdef HAVE_OPENSSL
 typedef struct secure_client {
@@ -123,7 +123,7 @@ typedef struct secure_client {
 
 typedef struct client {
     struct stream	stream;
-    stream_protocol	protocol;
+    stream_protocol_t	protocol;
     unsigned int	refcount;
     unsigned int	opened;
     uv_mutex_t		mutex;
@@ -131,20 +131,20 @@ typedef struct client {
     secure_client	secure;
 #endif
     union {
-	redis_client	redis;
-	http_client	http;
-	pcp_client	pcp;
+	redis_client_t	redis;
+	http_client_t	http;
+	pcp_client_t	pcp;
     } u;
     struct proxy	*proxy;
     struct client	*next;
     struct client	**prev;
     sds			buffer;
-} client;
+} client_t;
 
 typedef struct server {
     struct stream	stream;
     __pmServerPresence	*presence;
-} server;
+} server_t;
 
 typedef struct proxy {
     struct client	*first;		/* doubly linked list of clients */
@@ -162,7 +162,7 @@ typedef struct proxy {
     uv_loop_t		*events;	/* global, async event loop */
     uv_callback_t	write_callbacks;
     uv_mutex_t		mutex;		/* protects client lists and pending writes */
-} proxy;
+} proxy_t;
 
 extern void proxylog(pmLogLevel, sds, void *);
 extern mmv_registry_t *proxymetrics(struct proxy *, enum proxy_registry);
@@ -181,7 +181,7 @@ extern void client_put(struct client *);
 extern void on_protocol_read(uv_stream_t *, ssize_t, const uv_buf_t *);
 
 #ifdef HAVE_OPENSSL
-extern void secure_client_write(struct client *, stream_write_baton *);
+extern void secure_client_write(struct client *, struct stream_write_baton *);
 extern void on_secure_client_read(struct proxy *, struct client *,
 				ssize_t, const uv_buf_t *);
 extern void on_secure_client_write(struct client *);

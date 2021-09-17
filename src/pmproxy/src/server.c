@@ -269,8 +269,8 @@ client_close(struct client *client)
 void
 on_client_write(uv_write_t *writer, int status)
 {
-    struct client	*client = (struct client *)writer->data;
-    stream_write_baton	*request = (stream_write_baton *)writer;
+    struct client		*client = (struct client *)writer->data;
+    struct stream_write_baton	*request = (struct stream_write_baton *)writer;
 
     if (pmDebugOptions.af)
 	fprintf(stderr, "%s: completed write [sts=%d] to client %p\n",
@@ -306,9 +306,9 @@ on_client_write(uv_write_t *writer, int status)
 void *
 on_write_callback(uv_callback_t *handle, void *data)
 {
-    stream_write_baton	*request = (stream_write_baton *)data;
-    struct client	*client = (struct client *)request->writer.data;
-    int			sts;
+    struct stream_write_baton	*request = (struct stream_write_baton *)data;
+    struct client		*client = (struct client *)request->writer.data;
+    int				sts;
 
     if (pmDebugOptions.af)
 	fprintf(stderr, "%s: client=%p\n", "on_write_callback", client);
@@ -327,14 +327,14 @@ on_write_callback(uv_callback_t *handle, void *data)
 void
 client_write(struct client *client, sds buffer, sds suffix)
 {
-    stream_write_baton	*request;
-    struct proxy	*proxy = client->proxy;
-    unsigned int	nbuffers = 0;
+    struct stream_write_baton	*request;
+    struct proxy		*proxy = client->proxy;
+    unsigned int		nbuffers = 0;
 
     if (client_is_closed(client))
 	return;
 
-    if ((request = calloc(1, sizeof(stream_write_baton))) != NULL) {
+    if ((request = calloc(1, sizeof(struct stream_write_baton))) != NULL) {
 	if (pmDebugOptions.af)
 	    fprintf(stderr, "%s: sending %ld bytes [0] to client %p\n",
 			"client_write", (long)sdslen(buffer), client);
@@ -355,7 +355,7 @@ client_write(struct client *client, sds buffer, sds suffix)
     }
 }
 
-static stream_protocol
+static enum stream_protocol
 client_protocol(int key)
 {
     switch (key) {
@@ -505,8 +505,9 @@ on_client_connection(uv_stream_t *stream, int status)
 }
 
 static int
-open_request_port(struct proxy *proxy, struct server *server, stream_family family,
-		const struct sockaddr *addr, int port, int maxpending)
+open_request_port(struct proxy *proxy, struct server *server,
+		stream_family_t family, const struct sockaddr *addr,
+		int port, int maxpending)
 {
     struct stream	*stream = &server->stream;
     uv_handle_t		*handle;
@@ -599,7 +600,7 @@ open_request_ports(char *localpath, size_t localpathlen, int maxpending)
     __pmSockAddr	*addr;
     struct proxyaddr	*addrlist;
     const struct sockaddr *sockaddr;
-    stream_family	family;
+    enum stream_family	family;
     struct server	*server;
     struct proxy	*proxy;
 

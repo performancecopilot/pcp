@@ -535,9 +535,9 @@ on_pmseries_done(int status, void *arg)
 {
     pmSeriesBaton	*baton = (pmSeriesBaton *)arg;
     struct client	*client = baton->client;
-    http_options	options = baton->options;
-    http_flags		flags = client->u.http.flags;
-    http_code		code;
+    http_options_t	options = baton->options;
+    http_flags_t	flags = client->u.http.flags;
+    http_code_t		code;
     sds			msg;
 
     if (pmDebugOptions.query && pmDebugOptions.desperate)
@@ -599,9 +599,9 @@ on_pmseries_error(pmLogLevel level, sds message, void *arg)
 {
     pmSeriesBaton	*baton = (pmSeriesBaton *)arg;
     struct client	*client = baton->client;
-    http_options	options = baton->options;
-    http_flags		flags = client->u.http.flags | HTTP_FLAG_JSON;
-    http_code		status_code;
+    http_options_t	options = baton->options;
+    http_flags_t	flags = client->u.http.flags | HTTP_FLAG_JSON;
+    http_code_t		status_code;
     sds			quoted, msg;
 
     if (((status_code = client->u.http.parser.status_code)) == 0)
