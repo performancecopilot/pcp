@@ -855,14 +855,12 @@ do_work(task_t *tp)
 		    fprintf(stderr, "__pmLogPutDesc: %s\n", pmErrStr(sts));
 		    exit(1);
 		}
+		free(names);
 		manageLabels(&desc, &resp_stamp, 0);
 		manageText(&desc);
 		if (IS_DERIVED_LOGGED(desc.pmid))
 		    /* derived metric, restore cluster field ... */
 		    desc.pmid = CLEAR_DERIVED_LOGGED(desc.pmid);
-		if (numnames > 0) {
-		    free(names);
-		}
 	    }
 	    if (desc.type == PM_TYPE_EVENT) {
 		/*
