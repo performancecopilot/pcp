@@ -30,11 +30,6 @@ version specific I'm afraid ... good luck with that!
 
 === Distro Releases and Packaging Hints ===
 
-Debian
-    https://wiki.debian.org/DebianReleases
-    17 Nov 2015: 6.0 (squeeze), 7.0 (wheezy) and 8.0 (jessie)
-    04 May 2016: 7.0 (Wheezy), 8.0 (Jessie) and 9.0 (Stretch)
-
 Ubuntu
     https://wiki.ubuntu.com/Releases
     13 Sep 2021: 20.04 LTS (Focal), 18.04 (Bionic) 16.04 LTS (Xenial), 14.04 LTS (Trusty)
@@ -56,6 +51,32 @@ Ubuntu
     $ sudo apt update; sudo apt dist-upgrade
     # release upgrade recipe ... update, then
     $ sudo do-release-upgrade
+
+Debian
+    https://wiki.debian.org/DebianReleases
+    17 Nov 2015: 6.0 (squeeze), 7.0 (wheezy) and 8.0 (jessie)
+    04 May 2016: 7.0 (Wheezy), 8.0 (Jessie) and 9.0 (Stretch)
+    15 Sep 2021: 10 (Buster) and 11 (Bullseye)
+    # see Ubuntu for most notes
+    #
+    # release upgrade reciple
+    # make sure everything is up to date
+    $ sudo apt update; sudo apt upgrade
+    # In a text editor, replace the codename of your release with that
+    # of the next release in APT's package sources
+    # For instance, the line
+    #    deb https://deb.debian.org/debian/ buster main
+    # should be replaced with
+    #    deb https://deb.debian.org/debian/ bullseye main
+    $ sudo vi /etc/apt/sources.list /etc/apt/sources.list.d/*
+    # Clean and update package lists
+    $ sudo apt clean; sudo apt update
+    # Perform the major release upgrade, removing packages if required
+    $ sudo apt full-upgrade
+    # Remove packages that are not required anymore
+    $ sudo apt autoremove
+    # Reboot to make changes effective (optional, but recommended)
+    $ sudo shutdown -r now
 
 Fedora
     https://fedoraproject.org/wiki/Releases
@@ -141,8 +162,8 @@ CentOS
 
 openSUSE
     https://en.opensuse.org/Lifetime
-    24 Sep 2018: 42.3 and 15
     16 Oct 2019: 15.0 and 15.1
+    15 Sep 2021: 15.2 and 15.3
     # which packages are installed
     $ rpm -qa --qf '%{NAME}\n'
     # package search recipe (name and info or description)
