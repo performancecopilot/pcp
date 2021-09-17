@@ -391,7 +391,7 @@ __pmLogFindPort(const char *host, int pid, __pmLogPort **lpp)
 	return localcon;
 
     /* note: there may not be a current context */
-    ctx = 0;
+    ctx = -1;
     oldctx = pmWhichContext();
 
     /*
