@@ -45,13 +45,13 @@ typedef struct pipe_client {
 } pipe_client;
 
 typedef struct pipe_acl {
-    char	*identifier;	/* pipe instance name */
-    char	*name;		/* user or group name */
-    int		operation;	/* instance operation ID */
-    int		disallow : 1;
-    int		allow : 1;
-    int		user : 1;
-    int		group : 1;
+    char		*identifier;	/* pipe instance name */
+    char		*name;		/* user or group name */
+    int			operation;	/* instance operation ID */
+    unsigned int	disallow : 1;
+    unsigned int	allow : 1;
+    unsigned int	user : 1;
+    unsigned int	group : 1;
 } pipe_acl;
 
 extern size_t maxmem;

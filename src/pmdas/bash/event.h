@@ -27,11 +27,11 @@ typedef struct bash_process {
     pid_t	        parent;
     int			queueid;
 
-    int			exited  : 1;	/* flag: process running? */
-    int			finished: 1;	/* flag: exit event sent? */
-    int			noaccess: 1;	/* flag: store-to-access? */
-    int			version : 8;	/* pmda <-> bash xtrace version */
-    int			padding : 21;	/* filler */
+    unsigned int	exited  : 1;	/* flag: process running? */
+    unsigned int	finished: 1;	/* flag: exit event sent? */
+    unsigned int	noaccess: 1;	/* flag: store-to-access? */
+    unsigned int	version : 8;	/* pmda <-> bash xtrace version */
+    unsigned int	padding : 21;	/* filler */
 
     struct timeval	starttime;	/* timestamp trace started */
     struct timeval	startstat;	/* timestamp of first stat */

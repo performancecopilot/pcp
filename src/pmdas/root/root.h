@@ -68,9 +68,9 @@ typedef struct container_engine {
 
 typedef struct container {
     int			pid;
-    int			flags : 8;	/* CONTAINER_FLAG bitwise */
-    int			uptodate : 8;	/* refreshed values count */ 
-    int			padding : 16;
+    unsigned int	flags : 8;	/* CONTAINER_FLAG bitwise */
+    unsigned int	uptodate : 8;	/* refreshed values count */ 
+    unsigned int	padding : 16;
     char		*name;		/* human-presentable name */
     char		cgroup[128];
     struct stat		stat;

@@ -136,13 +136,13 @@ typedef struct {
  */
 typedef struct {
 #ifdef HAVE_BITFIELDS_LTOR
-	int		flag : 1;
+	unsigned int	flag : 1;
 	unsigned int	domain : 9;
 	unsigned int	serial : 22;
 #else
 	unsigned int	serial : 22;
 	unsigned int	domain : 9;
-	int		flag : 1;
+	unsigned int	flag : 1;
 #endif
 } __pmInDom_int;
 

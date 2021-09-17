@@ -46,10 +46,10 @@ typedef struct {
 #define HWADDRSTRLEN 64
 
 typedef struct {
-    int		has_inet : 1;
-    int		has_ipv6 : 1;
-    int		has_hw   : 1;
-    int		padding : 13;
+    unsigned	has_inet : 1;
+    unsigned	has_ipv6 : 1;
+    unsigned	has_hw   : 1;
+    unsigned	padding : 13;
     uint16_t	ipv6scope;
     char	inet[INET_ADDRSTRLEN];
     char	ipv6[INET6_ADDRSTRLEN+16];	/* extra for /plen */
