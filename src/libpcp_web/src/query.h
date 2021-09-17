@@ -91,7 +91,7 @@ typedef struct seriesGetSID {
     sds			name;		/* series or source SID */
     sds			metric;		/* back-pointer for instance series */
     /* various flags */
-    int			freed : 1;	/* freed individually on completion */
+    unsigned int	freed : 1;	/* freed individually on completion */
     void		*baton;
 } seriesGetSID;
 

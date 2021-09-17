@@ -1007,8 +1007,8 @@ pmwebapi_add_instances_labels(struct context *context, struct indom *indom)
 		    pmInDomStr_r(indom->indom, buffer, sizeof(buffer)),
 		    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
     } else {
-	if (sts >= 0)
-	    indom->updated = 1;
+	assert(sts >= 0);
+	indom->updated = 1;
     }
 
     if (labelsets)
