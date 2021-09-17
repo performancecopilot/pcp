@@ -12,14 +12,14 @@
 typedef struct {
 	unsigned int	serial : 22;		/* unique within PMD */
 	unsigned int	domain : 9;		/* the administrative PMD */
-	int		flag : 1;
+	unsigned int	flag : 1;
 } __pmInDom_rev;
 
 typedef struct {
 	unsigned int	item : 10;
 	unsigned int	cluster : 12;
 	unsigned int	domain : 9;
-	int		flag : 1;
+	unsigned int	flag : 1;
 } __pmID_rev;
 
 int

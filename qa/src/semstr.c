@@ -9,6 +9,9 @@
 #include <pcp/pmapi.h>
 #include <pcp/pmda.h>
 
+#define MAXIMUM(x, y)   ((x) > (y) ? (x) : (y))
+#define MINIMUM(x, y)   ((x) < (y) ? (x) : (y))
+
 int
 main(int argc, char **argv)
 {
@@ -49,15 +52,13 @@ main(int argc, char **argv)
     printf("%d -> %s\n", PM_SEM_DISCRETE, pmSemStr(PM_SEM_DISCRETE));
 
     printf("\nAnd now some error cases ...\n");
-    max = PM_SEM_COUNTER > PM_SEM_INSTANT ? PM_SEM_COUNTER : PM_SEM_INSTANT;
-    if (PM_SEM_DISCRETE > max)
-	max = PM_SEM_DISCRETE;
 
-    min = PM_SEM_COUNTER < PM_SEM_INSTANT ? PM_SEM_COUNTER : PM_SEM_INSTANT;
-    if (PM_SEM_DISCRETE < min)
-	min = PM_SEM_DISCRETE;
-
+    max = MAXIMUM(PM_SEM_COUNTER, PM_SEM_INSTANT);
+    max = MAXIMUM(max, PM_SEM_DISCRETE);
     printf("out of range high -> %s\n", pmSemStr(max + 1));
+
+    min = MINIMUM(PM_SEM_COUNTER, PM_SEM_INSTANT);
+    min = MINIMUM(min, PM_SEM_DISCRETE);
     printf("out of range low -> %s\n", pmSemStr(min + 1));
 
     exit(0);
