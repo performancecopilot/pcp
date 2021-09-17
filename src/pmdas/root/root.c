@@ -761,15 +761,15 @@ static void
 root_main(pmdaInterface *dp)
 {
     int         sts;
-    int         maxfd, pmcd_fd;
+    int         maxfd, input_fd;
     __pmFdSet	readable_fds;
 
-    if ((pmcd_fd = __pmdaInFd(dp)) < 0) {
+    if ((input_fd = __pmdaInFd(dp)) < 0) {
 	/* error logged in __pmdaInFd() */
 	exit(1);
     }
-    __pmFD_SET(pmcd_fd, &connected_fds);
-    root_maximum_fd = (socket_fd > pmcd_fd) ? socket_fd : pmcd_fd;
+    __pmFD_SET(input_fd, &connected_fds);
+    root_maximum_fd = (socket_fd > input_fd) ? socket_fd : input_fd;
 
     for (;;) {
 	readable_fds = connected_fds;
@@ -779,9 +779,9 @@ root_main(pmdaInterface *dp)
 	setoserror(0);
 	sts = __pmSelectRead(maxfd, &readable_fds, NULL);
 	if (sts > 0) {
-	    if (__pmFD_ISSET(pmcd_fd, &readable_fds)) {
+	    if (__pmFD_ISSET(input_fd, &readable_fds)) {
 		if (pmDebugOptions.appl0)
-		    pmNotifyErr(LOG_DEBUG, "pmcd request [fd=%d]", pmcd_fd);
+		    pmNotifyErr(LOG_DEBUG, "pmcd request [fd=%d]", input_fd);
 		if (__pmdaMainPDU(dp) < 0)
 		    exit(1);        /* it's fatal if we lose pmcd */
 	    }
