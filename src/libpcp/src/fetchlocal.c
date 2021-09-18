@@ -174,13 +174,14 @@ __pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **resul
      * then to call pmFreeResult
      *
      * we make another skeleton, selectively copy and return that
-     *
-     * (numpmid - 1) because there's room for one valueSet
-     * in a pmResult
      */
     if ((__ans = __pmAllocResult(numpmid)) == NULL)
 	return -oserror();
     ans = __pmOffsetResult(__ans);
+    /* mark all metrics as not picked, yet */
+    for (j = 0; j < numpmid; j++) {
+	ans->vset[j] = NULL;
+    }
 
     ans->numpmid = numpmid;
     pmtimevalNow(&ans->timestamp);
@@ -257,13 +258,14 @@ __pmHighResFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmHighRes
      * then to call pmFreeResult
      *
      * we make another skeleton, selectively copy and return that
-     *
-     * (numpmid - 1) because there's room for one valueSet
-     * in a pmResult
      */
     if ((__ans = __pmAllocResult(numpmid)) == NULL)
 	return -oserror();
     ans = __pmOffsetHighResResult(__ans);
+    /* mark all metrics as not picked, yet */
+    for (j = 0; j < numpmid; j++) {
+	ans->vset[j] = NULL;
+    }
 
     ans->numpmid = numpmid;
     pmtimespecNow(&ans->timestamp);
