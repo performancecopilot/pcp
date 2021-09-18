@@ -754,8 +754,7 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 	return PM_ERR_IPC;
     }
 
-    if ((__pr = (__pmResult *)__pmAllocResult(sizeof(__pmResult) +
-			 	(numpmid - 1) * sizeof(pmValueSet *))) == NULL)
+    if ((__pr = (__pmResult *)__pmAllocResult(numpmid)) == NULL)
 	return -oserror();
 
     pr = __pmOffsetResult(__pr);
@@ -768,7 +767,8 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 
     if ((sts = __pmDecodeValueSet(pdubuf, pp->hdr.len, pp->data, pduend,
 				  numpmid, bytes, nopad, pr->vset)) < 0) {
-	free(pr);
+	pr->numpmid = 0;	/* force no pmValueSet's to free */
+	pmFreeResult(pr);
 	return sts;
     }
 

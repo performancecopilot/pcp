@@ -24,13 +24,11 @@ static __pmResult *
 setup(void)
 {
     __pmResult		*in;
-    int			need;
     int			numpmid = 3;
     double		value;
     int			nch;
 
-    need = sizeof(__pmResult) + (numpmid-1)*sizeof(pmValueSet *);
-    in = __pmAllocResult(need);
+    in = __pmAllocResult(numpmid);
     in->timestamp.sec = 4321;
     in->timestamp.nsec = 123456789;
     in->numpmid = numpmid;

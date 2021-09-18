@@ -1708,7 +1708,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     }
 
     /* Build the final result. */
-    if ((__rp = __pmAllocResult(sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *))) == NULL)
+    if ((__rp = __pmAllocResult(numpmid)) == NULL)
 	return -oserror();
 
     rp = __pmOffsetResult(__rp);

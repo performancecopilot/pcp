@@ -131,9 +131,8 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, in
 	return PM_ERR_IPC;
     if (numpmid >= (INT_MAX - sizeof(pmResult)) / sizeof(pmValueSet *))
 	return PM_ERR_IPC;
-    need = sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *);
-    if ((__req = __pmAllocResult(need)) == NULL) {
-	pmNoMem("__pmDecodeLogControl.req", need, PM_RECOV_ERR);
+    if ((__req = __pmAllocResult(numpmid)) == NULL) {
+	pmNoMem("__pmDecodeLogControl.req", sizeof(__pmResult) + (numpmid - 1) * sizeof(pmValueSet *), PM_RECOV_ERR);
 	return -oserror();
     }
     req = __pmOffsetResult(__req);

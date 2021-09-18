@@ -138,7 +138,6 @@ __pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **resul
 {
     int		sts;
     int		ctx;
-    size_t	need;
     int		j;
     int		k;
     int		n;
@@ -179,10 +178,8 @@ __pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **resul
      * (numpmid - 1) because there's room for one valueSet
      * in a pmResult
      */
-    need = sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *);
-    if ((__ans = __pmAllocResult(need)) == NULL)
+    if ((__ans = __pmAllocResult(numpmid)) == NULL)
 	return -oserror();
-    memset((void *)__ans, 0, need);
     ans = __pmOffsetResult(__ans);
 
     ans->numpmid = numpmid;
@@ -224,12 +221,17 @@ __pmHighResFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmHighRes
 {
     int		sts;
     int		ctx;
-    int		need;
     int		j;
     int		k;
     int		n;
+#if 0		// TODO when ans, *result => __pmResult
+    __pmResult	*ans;
+    __pmResult	*tmp_ans;
+#else
     pmHighResResult *ans;
     pmResult	*tmp_ans;
+    __pmResult	*__ans;
+#endif
 
     if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
 	/* Local context requires single-threaded applications */
@@ -259,9 +261,9 @@ __pmHighResFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmHighRes
      * (numpmid - 1) because there's room for one valueSet
      * in a pmResult
      */
-    need = (int)sizeof(pmHighResResult) + (numpmid - 1) * (int)sizeof(pmValueSet *);
-    if ((ans = (pmHighResResult *)calloc(1, need)) == NULL)
+    if ((__ans = __pmAllocResult(numpmid)) == NULL)
 	return -oserror();
+    ans = __pmOffsetHighResResult(__ans);
 
     ans->numpmid = numpmid;
     pmtimespecNow(&ans->timestamp);

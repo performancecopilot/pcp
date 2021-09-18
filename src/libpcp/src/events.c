@@ -539,9 +539,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	__pmResult	*__rp;
 
 	numpmid = count_event_parameters(erp->er_flags, erp->er_nparams);
-	need = sizeof(pmResult) + (numpmid-1)*sizeof(pmValueSet *);
 PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
-	if ((__rp = __pmAllocResult(need)) == NULL) {
+	if ((__rp = __pmAllocResult(numpmid)) == NULL) {
 	    sts = -oserror();
 	    r--;
 	    goto bail;
@@ -644,9 +643,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_ALLOC);
 	__pmResult *__rp;
 
 	numpmid = count_event_parameters(erp->er_flags, erp->er_nparams);
-	need = sizeof(pmHighResResult) + (numpmid-1)*sizeof(pmValueSet *);
 PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_ALLOC);
-	if ((__rp = __pmAllocResult(need)) == NULL) {
+	if ((__rp = __pmAllocResult(numpmid)) == NULL) {
 	    sts = -oserror();
 	    r--;
 	    goto bail;

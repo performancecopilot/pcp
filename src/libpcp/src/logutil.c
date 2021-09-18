@@ -1162,8 +1162,10 @@ __pmLogGenerateMark_ctx(__pmContext *ctxp, int mode, pmResult **result)
 
     PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
-    if ((__pr = __pmAllocResult(sizeof(pmResult))) == NULL)
-	pmNoMem("generateMark", sizeof(pmResult), PM_FATAL_ERR);
+    if ((__pr = __pmAllocResult(0)) == NULL) {
+	pmNoMem("generateMark", sizeof(__pmResult), PM_FATAL_ERR);
+	/* NOTREACHED */
+    }
     pr = __pmOffsetResult(__pr);
 
     /*
@@ -1815,7 +1817,6 @@ more:
     }
     else if (found) {
 	if (numpmid > 0) {
-	    size_t	need;
 	    /*
 	     * not necesssarily after them all, so cherry-pick the metrics
 	     * we wanted ..
@@ -1832,9 +1833,9 @@ more:
 	     *     pmFreeResult
 	     */
 
-	    need = sizeof(pmResult) + numpmid * sizeof(pmValueSet *);
-	    if ((__newres = __pmAllocResult(need)) == NULL) {
-		pmNoMem("__pmLogFetch.newres", i, PM_FATAL_ERR);
+	    if ((__newres = __pmAllocResult(numpmid)) == NULL) {
+		pmNoMem("__pmLogFetch.newres", sizeof(__pmResult) + (numpmid -1)* sizeof(pmValueSet *), PM_FATAL_ERR);
+		/* NOTREACHED */
 	    }
 	    newres = __pmOffsetResult(__newres);
 	    newres->numpmid = numpmid;

@@ -1362,7 +1362,7 @@ PCP_CALL extern int __pmSetRequestTimeout(double);
 PCP_CALL extern int __pmInProfile(pmInDom, const pmProfile *, int);
 
 /* __pmResult alloc/offsets */
-PCP_CALL extern __pmResult *__pmAllocResult(size_t);
+PCP_CALL extern __pmResult *__pmAllocResult(int);
 /*
  * __pmResult and pmResult are identical after the timestamp.
  * If we're exporting a pmResult from a __pmResult, this function
