@@ -28,7 +28,7 @@ main(int argc, char **argv)
     int		msec;
     char	*endnum;
     pmResult	*result;
-    pmResult	*prev = (pmResult *)0;
+    pmResult	*prev = NULL;
     int		i;
     int		numpmid = 3;
     pmID	pmid[3];
@@ -274,6 +274,12 @@ Options\n\
     }
 
     printf("\n%d samples required %d log reads\n", i, __pmLogReads);
+
+    if (prev != NULL)
+	pmFreeResult(prev);
+
+    /* dump __pmResult pool if -Dalloc */
+    pmFreeResult(NULL);
 
     exit(0);
 }
