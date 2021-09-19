@@ -504,7 +504,6 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int			i;		/* over pmidlist[] */
     int			j;		/* over metatab and vset->vlist[] */
     int			sts;
-    int			need;
     int			inst;
     int			numval;
     int			version;
@@ -537,12 +536,15 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	__pmdaSetContext(pmda->e_context);
 
     if (numpmid > extp->maxnpmids) {
-	if (extp->res != NULL)
-	    free(extp->res);
-	/* (numpmid - 1) because there's room for one valueSet in a pmResult */
-	need = (int)sizeof(pmResult) + (numpmid - 1) * (int)sizeof(pmValueSet *);
-	if ((extp->res = (pmResult *) malloc(need)) == NULL)
+	__pmResult	*__rp;
+	if (extp->res != NULL) {
+	    extp->res->numpmid = 0;	/* don't free vsets */
+	    pmFreeResult(extp->res);
+	    extp->res = NULL;
+	}
+	if ((__rp = __pmAllocResult(numpmid)) == NULL)
 	    return -oserror();
+	extp->res = __pmOffsetResult(__rp);
 	extp->maxnpmids = numpmid;
     }
     extp->res->numpmid = numpmid;

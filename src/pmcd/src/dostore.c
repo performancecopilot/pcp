@@ -34,6 +34,7 @@ SplitResult(pmResult *res)
     int		nGood;
     int		need;
     pmResult	**results;
+    __pmResult	*__rp;
 
     /* Allocate the frequency histogram and array for mapping from agent to
      * result list index.  Because a SIGHUP reconfiguration may have caused a
@@ -53,6 +54,7 @@ SplitResult(pmResult *res)
 	resIndex = (int *)malloc((nAgents + 1) * sizeof(int));
 	if (aFreq == NULL || resIndex == NULL) {
 	    pmNoMem("SplitResult.freq", 2 * (nAgents + 1) * sizeof(int), PM_FATAL_ERR);
+	    /* NOTREACHED */
 	}
     }
 
@@ -82,23 +84,27 @@ SplitResult(pmResult *res)
     need *= sizeof(pmResult *);
     if ((results = (pmResult **) malloc(need)) == NULL) {
 	pmNoMem("SplitResult.results", need, PM_FATAL_ERR);
+	/* NOTREACHED */
     }
     j = 0;
-    for (i = 0; i <= nAgents; i++)
+    for (i = 0; i <= nAgents; i++) {
 	if (aFreq[i]) {
-	    need = (int)sizeof(pmResult) + (aFreq[i] - 1) * (int)sizeof(pmValueSet *);
-	    results[j] = (pmResult *) malloc(need);
-	    if (results[j] == NULL) {
-		pmNoMem("SplitResult.domain", need, PM_FATAL_ERR);
+	    if ((__rp = __pmAllocResult(aFreq[i])) == NULL) {
+		pmNoMem("SplitResult.domain", sizeof(pmResult) + (aFreq[i] - 1) * sizeof(pmValueSet *), PM_FATAL_ERR);
+		/* NOTREACHED */
 	    }
+	    results[j] = __pmOffsetResult(__rp);
 	    results[j]->numpmid = aFreq[i];
 	    j++;
 	}
+    }
 
     /* Make the "end of list" pmResult */
-    if ((results[j] = (pmResult *) malloc(sizeof(pmResult))) == NULL) {
+    if ((__rp = __pmAllocResult(0)) == NULL) {
 	pmNoMem("SplitResult.domain", sizeof(pmResult), PM_FATAL_ERR);
+	/* NOTREACHED */
     }
+    results[j] = __pmOffsetResult(__rp);
     results[j]->numpmid = 0;
 
     /* Foreach vset in res, find it's pmResult in the per domain results array
