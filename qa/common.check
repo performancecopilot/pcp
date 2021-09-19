@@ -1652,15 +1652,25 @@ _run_valgrind()
     else
 	echo "Warning: no extra suppressions found for valgrind version $__version" >>$here/$seq.full
     fi
+    valgrind --help >$tmp.valgrind.help 2>&1
+    if grep -q .--read-inline-info= <$tmp.valgrind.help
+    then
+	# --read-inline-info added in valgrind 3.13, --read-var-info appears
+	# in much earlier releases, but was fixed around valgrind 3.8 or 3.9
+	#
+	# *Note* - for more detailed diagnostics, at the expense of runtime,
+	# use
+	# __extra="$__extra --track-origins=yes --read-var-info=yes --read-inline-info=yes"
+	__extra="$__extra --read-inline-info=no --read-var-info=no"
+    fi
+    $sudo rm -f $tmp.valgrind.help
     if [ -n "$__extra" ]
     then
 	echo "Warning: using extra $__extra" >>$here/$seq.full
     fi
     unset DEBUGINFOD_URLS
-    # *Note* - for more detailed diagnostics, at the expense of runtime,
-    # use --track-origins=yes --read-var-info=yes --read-inline-info=yes
     $_valgrind_prefix valgrind \
-	--leak-check=full --read-var-info=no --read-inline-info=no \
+	--leak-check=full \
 	--gen-suppressions=all --suppressions=$here/valgrind-suppress \
 	$__extra \
 	--log-file=$tmp._valgrind \
@@ -1704,7 +1714,6 @@ if which valgrind >/dev/null 2>&1; then
     fi
     valgrind --help >$tmp.valgrind.help 2>&1
     grep -q .--vgdb= <$tmp.valgrind.help && __extra="$__extra --vgdb=no"
-    valgrind --help 2>&1 | grep -q show-leak-kinds
     if grep -q .--show-leak-kinds= <$tmp.valgrind.help
     then
 	__extra="$__extra --show-leak-kinds=definite"
@@ -1716,12 +1725,20 @@ if which valgrind >/dev/null 2>&1; then
 	    __extra="$__extra --show-reachable=no"
 	fi
     fi
+    if grep -q .--read-inline-info= <$tmp.valgrind.help
+    then
+	# --read-inline-info added in valgrind 3.13, --read-var-info appears
+	# in much earlier releases, but was fixed around valgrind 3.8 or 3.9
+	#
+	# *Note* - for more detailed diagnostics, at the expense of runtime,
+	# use
+	# $__extra="$__extra --track-origins=yes --read-var-info=yes --read-inline-info=yes"
+	__extra="$__extra --read-inline-info=no --read-var-info=no"
+    fi
     $sudo rm -f $tmp.valgrind.help
     unset DEBUGINFOD_URLS
-    # *Note* - for more detailed diagnostics, at the expense of runtime,
-    # use --track-origins=yes --read-var-info=yes --read-inline-info=yes
     _valgrind_clean_assert="valgrind -q \
-	     --leak-check=full --read-var-info=no --read-inline-info=no \
+	     --leak-check=full \
 	     --gen-suppressions=all --suppressions=$here/valgrind-suppress \
 	     $__extra \
 	     --log-fd=1"
