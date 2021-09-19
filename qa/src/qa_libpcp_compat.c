@@ -195,7 +195,7 @@ main(int argc, char **argv)
     rp->timestamp.tv_nsec = 123456789;
     rp->numpmid = 0;
     /* nothing to test here, just diags */
-    pmSetDebug("pdubuf");
+    pmSetDebug("pdubuf,alloc");
     pmFreeHighResResult(rp);
 
     printf("pmSpecLocalPMDA test:\n");
