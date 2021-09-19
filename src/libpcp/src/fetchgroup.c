@@ -497,13 +497,13 @@ __pmStuffDoubleValue(double val, pmAtomValue *oval, int otype)
 		oval->ul = val;
 	    break;
 	case PM_TYPE_64:
-	    if ((long long)val > LLONG_MAX || (long long)val < LLONG_MIN)
+	    if (val > (double)LLONG_MAX || val < (double)LLONG_MIN)
 		sts = PM_ERR_TRUNC;
 	    else
 		oval->ll = val;
 	    break;
 	case PM_TYPE_U64:
-	    if ((long long)val > ULLONG_MAX)
+	    if (val > (double)ULLONG_MAX)
 		sts = PM_ERR_TRUNC;
 	    else if (val < 0.0)
 		sts = PM_ERR_SIGN;

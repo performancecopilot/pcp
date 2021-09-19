@@ -2045,8 +2045,14 @@ void
 __dmpostfetch(__pmContext *ctxp, pmResult **result)
 {
     struct timespec	timestamp;
-    pmResult		*newrp, *rp = *result;
-    size_t		need;
+#if 0	// TODO when result -> __pmResult
+    __pmResult		*newrp;
+    __pmResult		*rp = *result;
+#else
+    pmResult		*newrp;
+    pmResult		*rp = *result;
+    __pmResult		*__newrp;
+#endif
     ctl_t		*cp = (ctl_t *)ctxp->c_dm;
     int			fails;
 
@@ -2054,11 +2060,11 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
     if (cp == NULL || cp->fetch_has_dm == 0)
 	return;
 
-    need = sizeof(pmResult) + (cp->numpmid - 1) * sizeof(pmValueSet *);
-    if ((newrp = (pmResult *)malloc(need)) == NULL) {
-	pmNoMem("__dmpostfetch: newrp", need, PM_FATAL_ERR);
-	/*NOTREACHED*/
+    if ((__newrp = __pmAllocResult(cp->numpmid)) == NULL) {
+	pmNoMem("__dmpostfetch: newrp", sizeof(__pmResult) + (cp->numpmid - 1) * sizeof(pmValueSet *), PM_FATAL_ERR);
+	/* NOTREACHED */
     }
+    newrp = __pmOffsetResult(__newrp);
     newrp->numpmid = cp->numpmid;
     newrp->timestamp = rp->timestamp;
 

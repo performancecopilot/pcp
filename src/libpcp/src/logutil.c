@@ -1151,14 +1151,22 @@ int
 __pmLogGenerateMark_ctx(__pmContext *ctxp, int mode, pmResult **result)
 {
     __pmLogCtl		*lcp = ctxp->c_archctl->ac_log;
+#if 0		// TODO when *result => __pmResult
+    __pmResult		*pr;
+#else
     pmResult		*pr;
+    __pmResult		*__pr;
+#endif
     int			sts;
     __pmTimestamp	end;
 
     PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
-    if ((pr = (pmResult *)malloc(sizeof(pmResult))) == NULL)
-	pmNoMem("generateMark", sizeof(pmResult), PM_FATAL_ERR);
+    if ((__pr = __pmAllocResult(0)) == NULL) {
+	pmNoMem("generateMark", sizeof(__pmResult), PM_FATAL_ERR);
+	/* NOTREACHED */
+    }
+    pr = __pmOffsetResult(__pr);
 
     /*
      * A mark record has numpmid == 0 and the timestamp set to one millisecond
@@ -1655,7 +1663,12 @@ __pmLogFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **result)
     int		sts = 0;
     int		found;
     double	tdiff;
+#if 0		// TODO when *result => __pmResult
+    __pmResult	*newres;
+#else
     pmResult	*newres;
+    __pmResult	*__newres;
+#endif
     pmDesc	desc;
     int		kval;
     __pmHashNode	*hp;
@@ -1820,10 +1833,11 @@ more:
 	     *     pmFreeResult
 	     */
 
-	    i = (int)sizeof(pmResult) + numpmid * (int)sizeof(pmValueSet *);
-	    if ((newres = (pmResult *)malloc(i)) == NULL) {
-		pmNoMem("__pmLogFetch.newres", i, PM_FATAL_ERR);
+	    if ((__newres = __pmAllocResult(numpmid)) == NULL) {
+		pmNoMem("__pmLogFetch.newres", sizeof(__pmResult) + (numpmid -1)* sizeof(pmValueSet *), PM_FATAL_ERR);
+		/* NOTREACHED */
 	    }
+	    newres = __pmOffsetResult(__newres);
 	    newres->numpmid = numpmid;
 	    newres->timestamp = (*result)->timestamp;
 	    u = 0;
@@ -1870,14 +1884,16 @@ more:
 		 * another log record ...
 		 */
 		pmFreeResult(*result);
-		free(newres);
+		newres->numpmid = 0;		/* don't free vset's */
+		pmFreeResult(newres);
 		goto more;
 	    }
 	    /*
 	     * *result malloc'd in __pmLogRead, but vset[]'s are either in
 	     * pdubuf or the pmid_ctl struct
 	     */
-	    free(*result);
+	    (*result)->numpmid = 0;		/* don't free vset's */
+	    pmFreeResult(*result);
 	    *result = newres;
 	}
 	else

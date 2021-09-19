@@ -293,7 +293,6 @@ fetchlocal.o
     splitmax			# single-threaded PM_SCOPE_DSO_PMDA
 fetch.o
 fetchgroup.o
-freeresult.o
 getdate.tab.o
     MilitaryTable         	# const
     OtherTable         		# const
@@ -389,6 +388,18 @@ optfetch.o
 p_attr.o
 p_creds.o
 p_desc.o
+p_error.o
+p_fetch.o
+p_instance.o
+p_label.o
+    ?type			# const
+p_lcontrol.o
+p_lrequest.o
+p_lstatus.o
+p_pmns.o
+p_profile.o
+p_result.o
+p_text.o
 pdubuf.o
     pdubuf_lock		# local mutex
     buf_tree			# guarded by pdubuf_lock mutex
@@ -407,18 +418,6 @@ pdu.o
     inctrs			# diag counters, no atomic updates
     outctrs			# diag counters, no atomic updates
     maxsize			# guarded by pdu_lock mutex
-p_error.o
-p_profile.o
-p_result.o
-profile.o
-p_text.o
-p_fetch.o
-p_instance.o
-p_label.o
-    ?type			# const
-p_lcontrol.o
-p_lrequest.o
-p_lstatus.o
 pmns.o
     pmns_lock			# local mutex
     lineno			# guarded by pmns_lock mutex
@@ -446,11 +445,10 @@ pmns.o
     ?__emutls_t.curr_pmns	# thread private for OpenBSD
     locerr			# no unsafe side-effects, see notes in pmns.c
     argp			# guarded by exec_lock
-p_pmns.o
-p_profile.o
-p_result.o
 profile.o
-p_text.o
+result.o
+    result_lock			# local mutex
+    result_pool			# guarded by result_lock mutex
 rtime.o
     ?wdays			# const
     ?months			# const

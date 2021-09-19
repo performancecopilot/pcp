@@ -112,6 +112,7 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, in
     int			numpmid;
     size_t		need;
     pmResult		*req;
+    __pmResult		*__req;
     pmValueSet		*vsp;
     vlist_t		*vp;
 
@@ -130,11 +131,11 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, in
 	return PM_ERR_IPC;
     if (numpmid >= (INT_MAX - sizeof(pmResult)) / sizeof(pmValueSet *))
 	return PM_ERR_IPC;
-    need = sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *);
-    if ((req = (pmResult *)malloc(need)) == NULL) {
-	pmNoMem("__pmDecodeLogControl.req", need, PM_RECOV_ERR);
+    if ((__req = __pmAllocResult(numpmid)) == NULL) {
+	pmNoMem("__pmDecodeLogControl.req", sizeof(__pmResult) + (numpmid - 1) * sizeof(pmValueSet *), PM_RECOV_ERR);
 	return -oserror();
     }
+    req = __pmOffsetResult(__req);
     req->numpmid = numpmid;
 
     sts = PM_ERR_IPC;
@@ -187,6 +188,7 @@ corrupt:
     /* req->vset[0] ... req->vset[i-1] have been malloc'd */
     for (i-- ; i >= 0; i--)
 	free(req->vset[i]);
-    free(req);
+    req->numpmid = 0;		/* don't free vset's */
+    pmFreeResult(req);
     return sts;
 }

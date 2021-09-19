@@ -1080,7 +1080,12 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     int		sts;
     double	t_req;
     double	t_this;
+#if 0		// TODO when result => __pmResult
     pmResult	*rp;
+#else
+    pmResult	*rp;
+    __pmResult	*__rp;
+#endif
     pmResult	*logrp;
     __pmHashCtl	*hcp = &ctxp->c_archctl->ac_pmid_hc;
     __pmHashNode	*hp;
@@ -1703,9 +1708,10 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     }
 
     /* Build the final result. */
-    if ((rp = (pmResult *)malloc(sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *))) == NULL)
+    if ((__rp = __pmAllocResult(numpmid)) == NULL)
 	return -oserror();
 
+    rp = __pmOffsetResult(__rp);
     rp->timestamp.tv_sec = ctxp->c_origin.sec;
     rp->timestamp.tv_usec = ctxp->c_origin.nsec / 1000;
     rp->numpmid = numpmid;

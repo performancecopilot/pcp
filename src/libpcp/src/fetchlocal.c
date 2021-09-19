@@ -138,12 +138,17 @@ __pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **resul
 {
     int		sts;
     int		ctx;
-    int		need;
     int		j;
     int		k;
     int		n;
+#if 0		// TODO when ans, *result => __pmResult
+    __pmResult	*ans;
+    __pmResult	*tmp_ans;
+#else
     pmResult	*ans;
     pmResult	*tmp_ans;
+    __pmResult	*__ans;
+#endif
 
     if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
 	/* Local context requires single-threaded applications */
@@ -169,13 +174,14 @@ __pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **resul
      * then to call pmFreeResult
      *
      * we make another skeleton, selectively copy and return that
-     *
-     * (numpmid - 1) because there's room for one valueSet
-     * in a pmResult
      */
-    need = (int)sizeof(pmResult) + (numpmid - 1) * (int)sizeof(pmValueSet *);
-    if ((ans = (pmResult *)calloc(1, need)) == NULL)
+    if ((__ans = __pmAllocResult(numpmid)) == NULL)
 	return -oserror();
+    ans = __pmOffsetResult(__ans);
+    /* mark all metrics as not picked, yet */
+    for (j = 0; j < numpmid; j++) {
+	ans->vset[j] = NULL;
+    }
 
     ans->numpmid = numpmid;
     pmtimevalNow(&ans->timestamp);
@@ -216,12 +222,17 @@ __pmHighResFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmHighRes
 {
     int		sts;
     int		ctx;
-    int		need;
     int		j;
     int		k;
     int		n;
+#if 0		// TODO when ans, *result => __pmResult
+    __pmResult	*ans;
+    __pmResult	*tmp_ans;
+#else
     pmHighResResult *ans;
     pmResult	*tmp_ans;
+    __pmResult	*__ans;
+#endif
 
     if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
 	/* Local context requires single-threaded applications */
@@ -247,13 +258,14 @@ __pmHighResFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmHighRes
      * then to call pmFreeResult
      *
      * we make another skeleton, selectively copy and return that
-     *
-     * (numpmid - 1) because there's room for one valueSet
-     * in a pmResult
      */
-    need = (int)sizeof(pmHighResResult) + (numpmid - 1) * (int)sizeof(pmValueSet *);
-    if ((ans = (pmHighResResult *)calloc(1, need)) == NULL)
+    if ((__ans = __pmAllocResult(numpmid)) == NULL)
 	return -oserror();
+    ans = __pmOffsetHighResResult(__ans);
+    /* mark all metrics as not picked, yet */
+    for (j = 0; j < numpmid; j++) {
+	ans->vset[j] = NULL;
+    }
 
     ans->numpmid = numpmid;
     pmtimespecNow(&ans->timestamp);

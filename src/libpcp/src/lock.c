@@ -159,6 +159,8 @@ static char
 	return "connect";
     else if (__pmIsExecLock(lock))
 	return "exec";
+    else if (__pmIsresultLock(lock))
+	return "result";
     else if (lock == (void *)&__pmLock_extcall)
 	return "global_extcall";
     else if ((ctxid = __pmIsContextLock(lock)) != -1) {
@@ -401,6 +403,7 @@ __pmInitLocks(void)
 	 */
 	init_pmns_lock();
 	init_AF_lock();
+	init_result_lock();
 	init_secureserver_lock();
 	init_connect_lock();
 	init_exec_lock();

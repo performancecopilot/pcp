@@ -536,15 +536,16 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     for (r = 0; r < eap->ea_nrecords; r++) {
 	pmEventRecord	*erp = (pmEventRecord *)base;
 	pmResult	*rp;
+	__pmResult	*__rp;
 
 	numpmid = count_event_parameters(erp->er_flags, erp->er_nparams);
-	need = sizeof(pmResult) + (numpmid-1)*sizeof(pmValueSet *);
 PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
-	if ((rp = (pmResult *)malloc(need)) == NULL) {
+	if ((__rp = __pmAllocResult(numpmid)) == NULL) {
 	    sts = -oserror();
 	    r--;
 	    goto bail;
 	}
+	rp = __pmOffsetResult(__rp);
 	(*rap)[r] = rp;
 	rp->timestamp.tv_sec = erp->er_timestamp.tv_sec;
 	rp->timestamp.tv_usec = erp->er_timestamp.tv_usec;
@@ -639,15 +640,16 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_ALLOC);
     for (r = 0; r < hreap->ea_nrecords; r++) {
 	pmHighResEventRecord *erp = (pmHighResEventRecord *)base;
 	pmHighResResult *rp;
+	__pmResult *__rp;
 
 	numpmid = count_event_parameters(erp->er_flags, erp->er_nparams);
-	need = sizeof(pmHighResResult) + (numpmid-1)*sizeof(pmValueSet *);
 PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_ALLOC);
-	if ((rp = (pmHighResResult *)malloc(need)) == NULL) {
+	if ((__rp = __pmAllocResult(numpmid)) == NULL) {
 	    sts = -oserror();
 	    r--;
 	    goto bail;
 	}
+	rp = __pmOffsetHighResResult(__rp);
 	(*rap)[r] = rp;
 	rp->timestamp.tv_sec = erp->er_timestamp.tv_sec;
 	rp->timestamp.tv_nsec = erp->er_timestamp.tv_nsec;

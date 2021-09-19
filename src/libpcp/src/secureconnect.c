@@ -129,15 +129,15 @@ __pmShutdownSecureSockets(void)
 }
 
 static int
-__pmSetupSecureSocket(int fd, __pmSecureSocket *socket)
+__pmSetupSecureSocket(int fd, __pmSecureSocket *socket_arg)
 {
     /* Is this socket already set up? */
-    if (socket->nsprFd)
+    if (socket_arg->nsprFd)
 	return 0;
 
     /* Import the fd into NSPR. */
-    socket->nsprFd = PR_ImportTCPSocket(fd);
-    if (! socket->nsprFd)
+    socket_arg->nsprFd = PR_ImportTCPSocket(fd);
+    if (! socket_arg->nsprFd)
 	return -1;
 
     return 0;
@@ -146,25 +146,25 @@ __pmSetupSecureSocket(int fd, __pmSecureSocket *socket)
 void
 __pmCloseSocket(int fd)
 {
-    __pmSecureSocket socket;
+    __pmSecureSocket lsocket;
     int sts;
 
-    sts = __pmDataIPC(fd, (void *)&socket);
+    sts = __pmDataIPC(fd, (void *)&lsocket);
     __pmResetIPC(fd);
 
     if (sts == 0) {
-	if (socket.saslConn) {
-	    sasl_dispose(&socket.saslConn);
-	    socket.saslConn = NULL;
+	if (lsocket.saslConn) {
+	    sasl_dispose(&lsocket.saslConn);
+	    lsocket.saslConn = NULL;
 	}
-	if (socket.saslCB) {
-	    free(socket.saslCB);
-	    socket.saslCB = NULL;
+	if (lsocket.saslCB) {
+	    free(lsocket.saslCB);
+	    lsocket.saslCB = NULL;
 	}
-	if (socket.nsprFd) {
-	    PR_Close(socket.nsprFd);
-	    socket.nsprFd = NULL;
-	    socket.sslFd = NULL;
+	if (lsocket.nsprFd) {
+	    PR_Close(lsocket.nsprFd);
+	    lsocket.nsprFd = NULL;
+	    lsocket.sslFd = NULL;
 	    fd = -1;
 	}
     }
@@ -858,41 +858,41 @@ __pmSecureClientInit(int flags)
 static int
 __pmSecureClientIPCFlags(int fd, int flags, const char *hostname, __pmHashCtl *attrs)
 {
-    __pmSecureSocket socket;
+    __pmSecureSocket lsocket;
     sasl_callback_t *cb;
     SECStatus secsts;
     int sts;
 
-    if (__pmDataIPC(fd, &socket) < 0)
+    if (__pmDataIPC(fd, &lsocket) < 0)
 	return -EOPNOTSUPP;
 
     if ((flags & PDU_FLAG_SECURE) != 0) {
 	sts = __pmSecureClientInit(flags);
 	if (sts < 0)
 	    return sts;
-	sts = __pmSetupSecureSocket(fd, &socket);
+	sts = __pmSetupSecureSocket(fd, &lsocket);
 	if (sts < 0)
 	    return __pmSecureSocketsError(PR_GetError());
-	if ((socket.sslFd = SSL_ImportFD(NULL, socket.nsprFd)) == NULL) {
+	if ((lsocket.sslFd = SSL_ImportFD(NULL, lsocket.nsprFd)) == NULL) {
 	    pmNotifyErr(LOG_ERR, "SecureClientIPCFlags: importing socket into SSL");
 	    return PM_ERR_IPC;
 	}
-	socket.nsprFd = socket.sslFd;
+	lsocket.nsprFd = lsocket.sslFd;
 
-	secsts = SSL_OptionSet(socket.sslFd, SSL_SECURITY, PR_TRUE);
+	secsts = SSL_OptionSet(lsocket.sslFd, SSL_SECURITY, PR_TRUE);
 	if (secsts != SECSuccess)
 	    return __pmSecureSocketsError(PR_GetError());
-	secsts = SSL_OptionSet(socket.sslFd, SSL_HANDSHAKE_AS_CLIENT, PR_TRUE);
+	secsts = SSL_OptionSet(lsocket.sslFd, SSL_HANDSHAKE_AS_CLIENT, PR_TRUE);
 	if (secsts != SECSuccess)
 	    return __pmSecureSocketsError(PR_GetError());
-	secsts = SSL_SetURL(socket.sslFd, hostname);
+	secsts = SSL_SetURL(lsocket.sslFd, hostname);
 	if (secsts != SECSuccess)
 	    return __pmSecureSocketsError(PR_GetError());
-	secsts = SSL_BadCertHook(socket.sslFd,
+	secsts = SSL_BadCertHook(lsocket.sslFd,
 				(SSLBadCertHandler)badCertificate, NULL);
 	if (secsts != SECSuccess)
 	    return __pmSecureSocketsError(PR_GetError());
-	secsts = SSL_GetClientAuthDataHook(socket.sslFd,
+	secsts = SSL_GetClientAuthDataHook(lsocket.sslFd,
 				(SSLGetClientAuthData)getClientCert, NULL);
 	if (secsts != SECSuccess)
 	    return __pmSecureSocketsError(PR_GetError());
@@ -903,10 +903,10 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *hostname, __pmHashCtl *a
 	 * The current implementation of compression requires an SSL/TLS
 	 * connection.
 	 */
-	if (socket.sslFd == NULL)
+	if (lsocket.sslFd == NULL)
 	    return -EOPNOTSUPP;
 #ifdef SSL_ENABLE_DEFLATE
-	secsts = SSL_OptionSet(socket.sslFd, SSL_ENABLE_DEFLATE, PR_TRUE);
+	secsts = SSL_OptionSet(lsocket.sslFd, SSL_ENABLE_DEFLATE, PR_TRUE);
 	if (secsts != SECSuccess)
 	    return __pmSecureSocketsError(PR_GetError());
 #else
@@ -920,8 +920,8 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *hostname, __pmHashCtl *a
 
     if ((flags & PDU_FLAG_AUTH) != 0) {
 	__pmInitAuthClients();
-	socket.saslCB = calloc(LIMIT_CLIENT_CALLBACKS, sizeof(sasl_callback_t));
-	if ((cb = socket.saslCB) == NULL)
+	lsocket.saslCB = calloc(LIMIT_CLIENT_CALLBACKS, sizeof(sasl_callback_t));
+	if ((cb = lsocket.saslCB) == NULL)
 	    return -ENOMEM;
 	cb->id = SASL_CB_USER;
 	cb->proc = (sasl_callback_func)&__pmAuthSimpleCB;
@@ -950,19 +950,19 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *hostname, __pmHashCtl *a
 	cb++;
 	cb->id = SASL_CB_LIST_END;
 	cb++;
-	assert(cb - socket.saslCB <= LIMIT_CLIENT_CALLBACKS);
+	assert(cb - lsocket.saslCB <= LIMIT_CLIENT_CALLBACKS);
 
 	sts = sasl_client_new(SECURE_SERVER_SASL_SERVICE,
 				hostname,
 				NULL, NULL, /*iplocal,ipremote*/
-				socket.saslCB,
-				0, &socket.saslConn);
+				lsocket.saslCB,
+				0, &lsocket.saslConn);
 	if (sts != SASL_OK && sts != SASL_CONTINUE)
 	    return __pmSecureSocketsError(sts);
     }
 
     /* save changes back into the IPC table (updates client sslFd) */
-    return __pmSetDataIPC(fd, (void *)&socket);
+    return __pmSetDataIPC(fd, (void *)&lsocket);
 }
 
 static int
@@ -1249,21 +1249,21 @@ __pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *
 void *
 __pmGetSecureSocket(int fd)
 {
-    __pmSecureSocket socket;
+    __pmSecureSocket lsocket;
 
-    if (__pmDataIPC(fd, &socket) < 0)
+    if (__pmDataIPC(fd, &lsocket) < 0)
 	return NULL;
-    return (void *)socket.sslFd;
+    return (void *)lsocket.sslFd;
 }
 
 void *
 __pmGetUserAuthData(int fd)
 {
-    __pmSecureSocket socket;
+    __pmSecureSocket lsocket;
 
-    if (__pmDataIPC(fd, &socket) < 0)
+    if (__pmDataIPC(fd, &lsocket) < 0)
 	return NULL;
-    return (void *)socket.saslConn;
+    return (void *)lsocket.saslConn;
 }
 
 static void
@@ -1281,13 +1281,13 @@ sendSecureAck(int fd, int flags, int sts) {
 int
 __pmSecureServerIPCFlags(int fd, int flags)
 {
-    __pmSecureSocket socket;
+    __pmSecureSocket lsocket;
     SECStatus secsts;
     PRBool RequestClientCert;
     int saslsts;
     int sts;
 
-    if (__pmDataIPC(fd, &socket) < 0)
+    if (__pmDataIPC(fd, &lsocket) < 0)
 	return -EOPNOTSUPP;
 
     if ((flags & PDU_FLAG_SECURE) != 0) {
@@ -1296,32 +1296,32 @@ __pmSecureServerIPCFlags(int fd, int flags)
 	    sendSecureAck(fd, flags, sts);
 	    return sts;
 	}
-	sts = __pmSetupSecureSocket(fd, &socket);
+	sts = __pmSetupSecureSocket(fd, &lsocket);
 	if (sts < 0) {
 	    sts = __pmSecureSocketsError(PR_GetError());
 	    sendSecureAck(fd, flags, sts);
 	    return sts;
 	}
-	if ((socket.sslFd = SSL_ImportFD(NULL, socket.nsprFd)) == NULL) {
+	if ((lsocket.sslFd = SSL_ImportFD(NULL, lsocket.nsprFd)) == NULL) {
 	    sts = __pmSecureSocketsError(PR_GetError());
 	    sendSecureAck(fd, flags, sts);
 	    return sts;
 	}
-	socket.nsprFd = socket.sslFd;
+	lsocket.nsprFd = lsocket.sslFd;
 
-	secsts = SSL_OptionSet(socket.sslFd, SSL_NO_LOCKS, PR_TRUE);
+	secsts = SSL_OptionSet(lsocket.sslFd, SSL_NO_LOCKS, PR_TRUE);
 	if (secsts != SECSuccess) {
 	    sts = __pmSecureSocketsError(PR_GetError());
 	    sendSecureAck(fd, flags, sts);
 	    return sts;
 	}
-	secsts = SSL_OptionSet(socket.sslFd, SSL_SECURITY, PR_TRUE);
+	secsts = SSL_OptionSet(lsocket.sslFd, SSL_SECURITY, PR_TRUE);
 	if (secsts != SECSuccess) {
 	    sts = __pmSecureSocketsError(PR_GetError());
 	    sendSecureAck(fd, flags, sts);
 	    return sts;
 	}
-	secsts = SSL_OptionSet(socket.sslFd, SSL_HANDSHAKE_AS_SERVER, PR_TRUE);
+	secsts = SSL_OptionSet(lsocket.sslFd, SSL_HANDSHAKE_AS_SERVER, PR_TRUE);
 	if (secsts != SECSuccess) {
 	    sts = __pmSecureSocketsError(PR_GetError());
 	    sendSecureAck(fd, flags, sts);
@@ -1337,13 +1337,13 @@ __pmSecureServerIPCFlags(int fd, int flags)
 
 	RequestClientCert = ( __pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD) || (flags & PDU_FLAG_CERT_REQD) );
 
-	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUEST_CERTIFICATE, RequestClientCert);
+	secsts = SSL_OptionSet(lsocket.sslFd, SSL_REQUEST_CERTIFICATE, RequestClientCert);
 	if (secsts != SECSuccess) {
 	    sts = __pmSecureSocketsError(PR_GetError());
 	    sendSecureAck(fd, flags, sts);
 	    return sts;
 	}
-	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUIRE_CERTIFICATE, RequestClientCert);
+	secsts = SSL_OptionSet(lsocket.sslFd, SSL_REQUIRE_CERTIFICATE, RequestClientCert);
 	if (secsts != SECSuccess) {
 	    sts = __pmSecureSocketsError(PR_GetError());
 	    sendSecureAck(fd, flags, sts);
@@ -1357,10 +1357,10 @@ __pmSecureServerIPCFlags(int fd, int flags)
 	 * The current implementation of compression requires an SSL/TLS
 	 * connection.
 	 */
-	if (socket.sslFd == NULL)
+	if (lsocket.sslFd == NULL)
 	    return -EOPNOTSUPP;
 #ifdef SSL_ENABLE_DEFLATE
-	secsts = SSL_OptionSet(socket.sslFd, SSL_ENABLE_DEFLATE, PR_TRUE);
+	secsts = SSL_OptionSet(lsocket.sslFd, SSL_ENABLE_DEFLATE, PR_TRUE);
 	if (secsts != SECSuccess)
 	    return __pmSecureSocketsError(PR_GetError());
 #else
@@ -1379,7 +1379,7 @@ __pmSecureServerIPCFlags(int fd, int flags)
 	saslsts = sasl_server_new(SECURE_SERVER_SASL_SERVICE,
 				NULL, NULL, /*localdomain,userdomain*/
 				NULL, NULL, NULL, /*iplocal,ipremote,callbacks*/
-				0, &socket.saslConn);
+				0, &lsocket.saslConn);
 	if (pmDebugOptions.auth)
 	    fprintf(stderr, "%s:__pmSecureServerIPCFlags SASL server: %d\n", __FILE__, saslsts);
 	if (saslsts != SASL_OK && saslsts != SASL_CONTINUE)
@@ -1387,7 +1387,7 @@ __pmSecureServerIPCFlags(int fd, int flags)
     }
 
     /* save changes back into the IPC table */
-    return __pmSetDataIPC(fd, (void *)&socket);
+    return __pmSetDataIPC(fd, (void *)&lsocket);
 }
 
 static int
@@ -1409,9 +1409,9 @@ __pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
 {
     /* Map the request to the NSPR equivalent, if possible. */
     PRSocketOptionData option_data;
-    __pmSecureSocket socket;
+    __pmSecureSocket lsocket;
 
-    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
+    if (__pmDataIPC(fd, &lsocket) == 0 && lsocket.nsprFd) {
 	switch(level) {
 	case SOL_SOCKET:
 	    switch(option_name) {
@@ -1427,7 +1427,7 @@ __pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
 		 * The best we can do is to use the native handle and
 		 * call setsockopt on that handle.
 		 */
-	        fd = PR_FileDesc2NativeHandle(socket.nsprFd);
+	        fd = PR_FileDesc2NativeHandle(lsocket.nsprFd);
 		return setsockopt(fd, level, option_name, option_value, option_len);
 	    }
 #endif /* IS_MINGW */
@@ -1468,7 +1468,7 @@ __pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
 		 * The best we can do is to use the native handle and
 		 * call setsockopt on that handle.
 		 */
-	        fd = PR_FileDesc2NativeHandle(socket.nsprFd);
+	        fd = PR_FileDesc2NativeHandle(lsocket.nsprFd);
 		return setsockopt(fd, level, option_name, option_value, option_len);
 	    }
 	    pmNotifyErr(LOG_ERR, "%s:__pmSetSockOpt: unimplemented option_name for IPPROTO_IPV6: %d\n",
@@ -1479,7 +1479,7 @@ __pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
 	    return -1;
 	}
 
-	return (PR_SetSocketOption(socket.nsprFd, &option_data)
+	return (PR_SetSocketOption(lsocket.nsprFd, &option_data)
 		== PR_SUCCESS) ? 0 : -1;
     }
 
@@ -1491,10 +1491,10 @@ int
 __pmGetSockOpt(int fd, int level, int option_name, void *option_value,
 	       __pmSockLen *option_len)
 {
-    __pmSecureSocket socket;
+    __pmSecureSocket lsocket;
 
     /* Map the request to the NSPR equivalent, if possible. */
-    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
+    if (__pmDataIPC(fd, &lsocket) == 0 && lsocket.nsprFd) {
 	switch (level) {
 	case SOL_SOCKET:
 	    switch(option_name) {
@@ -1507,7 +1507,7 @@ __pmGetSockOpt(int fd, int level, int option_name, void *option_value,
 		 * There is no direct mapping of this option in NSPR.
 		 * Best we can do is call getsockopt on the native fd.
 		 */
-	      fd = PR_FileDesc2NativeHandle(socket.nsprFd);
+	      fd = PR_FileDesc2NativeHandle(lsocket.nsprFd);
 	      return getsockopt(fd, level, option_name, option_value, option_len);
 	  }
 	  default:
@@ -1532,10 +1532,10 @@ __pmGetSockOpt(int fd, int level, int option_name, void *option_value,
 ssize_t
 __pmWrite(int fd, const void *buffer, size_t length)
 {
-    __pmSecureSocket socket;
+    __pmSecureSocket lsocket;
 
-    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
-	ssize_t	size = PR_Write(socket.nsprFd, buffer, length);
+    if (__pmDataIPC(fd, &lsocket) == 0 && lsocket.nsprFd) {
+	ssize_t	size = PR_Write(lsocket.nsprFd, buffer, length);
 	if (size < 0)
 	    __pmSecureSocketsError(PR_GetError());
 	return size;
@@ -1546,13 +1546,13 @@ __pmWrite(int fd, const void *buffer, size_t length)
 ssize_t
 __pmRead(int fd, void *buffer, size_t length)
 {
-    __pmSecureSocket socket;
+    __pmSecureSocket lsocket;
 
     if (fd < 0)
 	return -EBADF;
 
-    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
-	ssize_t size = PR_Read(socket.nsprFd, buffer, length);
+    if (__pmDataIPC(fd, &lsocket) == 0 && lsocket.nsprFd) {
+	ssize_t size = PR_Read(lsocket.nsprFd, buffer, length);
 	if (size < 0)
 	    __pmSecureSocketsError(PR_GetError());
 	return size;
@@ -1563,13 +1563,13 @@ __pmRead(int fd, void *buffer, size_t length)
 ssize_t
 __pmSend(int fd, const void *buffer, size_t length, int flags)
 {
-    __pmSecureSocket socket;
+    __pmSecureSocket lsocket;
 
     if (fd < 0)
 	return -EBADF;
 
-    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
-	ssize_t size = PR_Write(socket.nsprFd, buffer, length);
+    if (__pmDataIPC(fd, &lsocket) == 0 && lsocket.nsprFd) {
+	ssize_t size = PR_Write(lsocket.nsprFd, buffer, length);
 	if (size < 0)
 	    __pmSecureSocketsError(PR_GetError());
 	return size;
@@ -1580,17 +1580,17 @@ __pmSend(int fd, const void *buffer, size_t length, int flags)
 ssize_t
 __pmRecv(int fd, void *buffer, size_t length, int flags)
 {
-    __pmSecureSocket	socket;
+    __pmSecureSocket	lsocket;
     ssize_t		size;
 
     if (fd < 0)
 	return -EBADF;
 
-    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
+    if (__pmDataIPC(fd, &lsocket) == 0 && lsocket.nsprFd) {
 	if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
 	    fprintf(stderr, "%s:__pmRecv[secure](", __FILE__);
 	}
-	size = PR_Read(socket.nsprFd, buffer, length);
+	size = PR_Read(lsocket.nsprFd, buffer, length);
 	if (size < 0)
 	    __pmSecureSocketsError(PR_GetError());
     }
@@ -1621,14 +1621,14 @@ __pmRecv(int fd, void *buffer, size_t length, int flags)
 int
 __pmSocketReady(int fd, struct timeval *timeout)
 {
-    __pmSecureSocket socket;
+    __pmSecureSocket lsocket;
     __pmFdSet onefd;
 
     if (fd < 0)
 	return -EBADF;
 
-    if (__pmDataIPC(fd, &socket) == 0 && socket.sslFd)
-        if (SSL_DataPending(socket.sslFd))
+    if (__pmDataIPC(fd, &lsocket) == 0 && lsocket.sslFd)
+        if (SSL_DataPending(lsocket.sslFd))
 	    return 1;	/* proceed without blocking */
 
     FD_ZERO(&onefd);

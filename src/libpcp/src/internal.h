@@ -114,6 +114,7 @@ extern void __pmDestroyMutex(pthread_mutex_t *) _PCP_HIDDEN;	/* mutex destroyer 
 /* local lock initilizer methods */
 extern void init_pmns_lock(void) _PCP_HIDDEN;
 extern void init_AF_lock(void) _PCP_HIDDEN;
+extern void init_result_lock(void) _PCP_HIDDEN;
 extern void init_secureserver_lock(void) _PCP_HIDDEN;
 extern void init_connect_lock(void) _PCP_HIDDEN;
 extern void init_exec_lock(void) _PCP_HIDDEN;
@@ -169,6 +170,7 @@ extern int __pmIsLockLock(void *) _PCP_HIDDEN;
 extern int __pmIsLogutilLock(void *) _PCP_HIDDEN;
 extern int __pmIsPmnsLock(void *) _PCP_HIDDEN;
 extern int __pmIsAFLock(void *) _PCP_HIDDEN;
+extern int __pmIsresultLock(void *) _PCP_HIDDEN;
 extern int __pmIsSecureserverLock(void *) _PCP_HIDDEN;
 extern int __pmIsConnectLock(void *) _PCP_HIDDEN;
 extern int __pmIsExecLock(void *) _PCP_HIDDEN;
