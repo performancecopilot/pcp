@@ -499,6 +499,26 @@ sed <$tmp.list >$tmp.tmp \
 # end
 mv $tmp.tmp $tmp.list
 
+# do optional `cmd` expansion
+#
+if grep '`' $tmp.list >/dev/null
+then
+    rm -f $tmp.tmp
+    cat $tmp.list | while read pkg
+    do
+	case "$pkg"
+	in
+	    *'`'*'`'*)
+			eval echo $pkg >>$tmp.tmp
+			;;
+	    *)
+	    		echo "$pkg" >>$tmp.tmp
+			;;
+	esac
+    done
+    mv $tmp.tmp $tmp.list
+fi
+
 # strip comments, remaining tags, white space and empty lines
 #
 sed -n <$tmp.list >$tmp.tmp \
