@@ -772,10 +772,14 @@ gethistflags(pmID pmid, int inst)
     return val;
 }
 
-/* take a pmResult (from a control log request) and half-clone it: return a
+/*
+ * Take a pmResult (from a control log request) and half-clone it: return a
  * pointer to a new pmResult struct which shares the pmValueSets in the
  * original that have numval > 0, and has null pointers for the pmValueSets
  * in the original with numval <= 0
+ *
+ * Note:	do not convert to __pmResult, the pmlc protocol for a
+ *		control log request uses pmResult
  */
 static pmResult *
 siamise_request(pmResult *request)

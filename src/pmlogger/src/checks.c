@@ -410,8 +410,10 @@ add_dynamic_metric(const char *name, void *data)
     }
 
     /*
-     * construct the pmResult for the control request
+     * construct the pmResult for the control log request
      * - only has one valueset, with one value
+     * Note:	do not convert to __pmResult, the pmlc protocol for a
+     *		control log request uses pmResult
      */
     logreq = (pmResult *)malloc(sizeof(pmResult));
     memset(logreq, 0, sizeof(pmResult));
@@ -420,7 +422,10 @@ add_dynamic_metric(const char *name, void *data)
     logreq->numpmid = 1;
     logreq->vset[0]->pmid = pmid;
 
-    /* Call the control request function - note: do_control_req() frees our logreq */
+    /*
+     * Call the control request function
+     * Note:	do_control_req() frees our logreq (pmResult)
+     */
     timedelta = d->delta.tv_sec*1000 + d->delta.tv_usec/1000;
     sts = do_control_req(logreq, d->control, d->state, timedelta, sendresult=0);
 

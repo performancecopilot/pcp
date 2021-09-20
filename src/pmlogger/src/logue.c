@@ -68,7 +68,12 @@ do_logue(int type)
     int		i;
     int		j;
     pid_t	mypid = getpid();
+#if 0		// TODO when __pmEncodeResult => __pmResult
+    __pmResult	*res;			/* the output pmResult */
+#else
     pmResult	*res;			/* the output pmResult */
+    __pmResult	*__res;			/* temporary pointer */
+#endif
     pmResult	*res_pmcd = NULL;	/* for values from pmcd */
     __pmPDU	*pb;
     pmAtomValue	atom;
@@ -79,9 +84,9 @@ do_logue(int type)
     int		free_cp;
 
     /* start to build the pmResult */
-    res = (pmResult *)malloc(sizeof(pmResult) + (n_metric - 1) * sizeof(pmValueSet *));
-    if (res == NULL)
+    if ((__res = __pmAllocResult(n_metric)) == NULL)
 	return -oserror();
+    res = __pmOffsetResult(__res);
 
     res->numpmid = n_metric;
     if (type == PROLOGUE) {
@@ -162,6 +167,7 @@ do_logue(int type)
 	     */
 	    pmid[0] = PMID(2,0,23);
 	    pmid[1] = PMID(2,0,24);
+	    // TODO needs to be pmHighResFetch()
 	    sts = pmFetch(2, pmid, &res_pmcd);
 	    if (sts >= 0 && type == EPILOGUE) {
 		last_stamp = res->timestamp = res_pmcd->timestamp;	/* struct assignment */
@@ -263,7 +269,8 @@ done:
 	    free(res->vset[i]);
 	}
     }
-    free(res);
+    res->numpmid = 0;		/* don't free vset's */
+    pmFreeResult(res);
     if (res_pmcd != NULL)
 	pmFreeResult(res_pmcd);
 
