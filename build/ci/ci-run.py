@@ -275,7 +275,7 @@ def main():
     elif args.main_command == "shell":
         runner.shell()
     elif args.main_command == "reproduce":
-        all_tasks = ["install_build_dependencies", "build", "install", "init_qa", "qa"]
+        all_tasks = ["setup", "build", "install", "init_qa", "qa"]
         run_tasks = all_tasks[: all_tasks.index(args.until) + 1]
 
         print("Preparing a new virtual environment with PCP preinstalled, this will take about 20 minutes...")

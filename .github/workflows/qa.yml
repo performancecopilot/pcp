@@ -151,7 +151,7 @@ jobs:
           pushd qa-reports/reports
           rm latest
           rm README.md
-          ls -1r | tail -n +11 | xargs --no-run-if-empty rm -r # keep last 10 reports
+          ls -1r | tail -n +16 | xargs --no-run-if-empty rm -r # keep last 15 reports
           ln -s ${current_report} latest
           ls -1r -I README.md | awk 'BEGIN {print "# Recent Reports"} { print "## [" $1 "](" $1 "/)" }' > README.md
           popd
