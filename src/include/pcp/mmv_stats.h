@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013,2016,2018 Red Hat.
+ * Copyright (C) 2013,2016,2018,2021 Red Hat.
  * Copyright (C) 2009 Aconex.  All Rights Reserved.
  * Copyright (C) 2001,2009 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -148,8 +148,13 @@ extern void mmv_stats_free(mmv_registry_t *);
 
 extern pmAtomValue * mmv_lookup_value_desc(void *, const char *, const char *);
 extern void mmv_inc_atomvalue(void *, pmAtomValue *, pmAtomValue *);
+static inline void mmv_inc(void *registry, pmAtomValue *metric, void *value) \
+		{ mmv_inc_atomvalue(registry, metric, (pmAtomValue *)value); }
 extern void mmv_inc_value(void *, pmAtomValue *, double);
+
 extern void mmv_set_atomvalue(void *, pmAtomValue *, pmAtomValue *);
+static inline void mmv_set(void *registry, pmAtomValue *metric, void *value) \
+		{ mmv_set_atomvalue(registry, metric, (pmAtomValue *)value); }
 extern void mmv_set_value(void *, pmAtomValue *, double);
 extern void mmv_set_string(void *, pmAtomValue *, const char *, int);
 

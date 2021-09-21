@@ -114,6 +114,12 @@ server_init(int portcount, const char *localpath)
     int			count;
     mmv_registry_t	*registry;
 
+    if (pmWebTimerSetup() < 0) {
+	fprintf(stderr, "%s: error - failed to setup event timers\n",
+			pmGetProgname());
+	return NULL;
+    }
+
     if ((proxy = calloc(1, sizeof(struct proxy))) == NULL) {
 	fprintf(stderr, "%s: out-of-memory in proxy server setup\n",
 			pmGetProgname());
@@ -140,10 +146,11 @@ server_init(int portcount, const char *localpath)
 
     proxy->config = config;
 
+    if ((proxy->events = uv_default_loop()) != NULL)
+	pmWebTimerSetEventLoop(proxy->events);
+
     if ((registry = proxymetrics(proxy, METRICS_SERVER)) != NULL)
 	pmWebTimerSetMetricRegistry(registry);
-
-    proxy->events = uv_default_loop();
 
     return proxy;
 }
@@ -731,12 +738,11 @@ shutdown_ports(void *arg)
     proxy->nservers = 0;
 
     close_proxy(proxy);
-
     if (proxy->config) {
 	pmIniFileFree(proxy->config);
 	proxy->config = NULL;
     }
-
+    pmWebTimerClose();
     uv_loop_close(proxy->events);
     proxymetrics_close(proxy, METRICS_SERVER);
 

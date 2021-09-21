@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2020 Red Hat.
+# Copyright (c) 2015-2021 Red Hat.
 #
 # This library is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published
@@ -55,7 +55,7 @@ CFILES += discover.c webgroup.c timer.c
 LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1
 LLDLIBS += $(LIB_FOR_LIBUV)
 else
-CFILES += nodiscover.c nowebgroup.c
+CFILES += nodiscover.c nowebgroup.c notimer.c
 endif
 
 ifeq "$(HAVE_OPENSSL)" "true"

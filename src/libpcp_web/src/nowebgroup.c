@@ -80,7 +80,7 @@ pmWebGroupSetup(pmWebGroupModule *module)
 int
 pmWebGroupSetEventLoop(pmWebGroupModule *module, void *arg)
 {
-    (void)module;
+    (void)module; (void)arg;
     return -EOPNOTSUPP;
 }
 
@@ -102,25 +102,4 @@ void
 pmWebGroupClose(pmWebGroupModule *module)
 {
     (void)module;
-}
-
-int
-pmWebTimerSetMetricRegistry(struct mmv_registry *registry)
-{
-    (void)registry;
-    return -EOPNOTSUPP;
-}
-
-int
-pmWebTimerRegister(pmWebTimerCallBack callback, void *data)
-{
-    (void)data; (void)callback;
-    return -EOPNOTSUPP;
-}
-
-int
-pmWebTimerRelease(int seq)
-{
-    (void)seq;
-    return -EOPNOTSUPP;
 }
