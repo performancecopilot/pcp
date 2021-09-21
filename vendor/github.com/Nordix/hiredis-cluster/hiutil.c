@@ -262,9 +262,6 @@ int _uint_len(uint32_t num) {
 }
 
 void hi_stacktrace(int skip_count) {
-    if (skip_count > 0) {
-    }
-
 #ifdef HI_HAVE_BACKTRACE
     void *stack[64];
     char **symbols;
@@ -283,18 +280,20 @@ void hi_stacktrace(int skip_count) {
     }
 
     hi_free(symbols);
+#else
+    (void)skip_count;
 #endif
 }
 
 void hi_stacktrace_fd(int fd) {
-    if (fd > 0) {
-    }
 #ifdef HI_HAVE_BACKTRACE
     void *stack[64];
     int size;
 
     size = backtrace(stack, 64);
     backtrace_symbols_fd(stack, size, fd);
+#else
+    (void)fd;
 #endif
 }
 

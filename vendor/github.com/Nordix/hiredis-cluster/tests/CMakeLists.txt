@@ -37,7 +37,11 @@ add_custom_target(stop
 )
 
 # Find dependencies
-find_library(EVENT_LIBRARY event HINTS /usr/lib/x86_64-linux-gnu)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GLIB_LIBRARY IMPORTED_TARGET glib-2.0)
+find_library(LIBEVENT_LIBRARY event HINTS /usr/lib/x86_64-linux-gnu)
+find_library(LIBUV_LIBRARY uv HINTS /usr/lib/x86_64-linux-gnu)
+find_library(LIBEV_LIBRARY ev HINTS /usr/lib/x86_64-linux-gnu)
 
 if(MSVC)
   # MS Visual: Suppress warnings
@@ -52,7 +56,7 @@ set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "" FORCE)
 list(APPEND CMAKE_CTEST_ARGUMENTS "--output-on-failure")
 
 add_executable(ct_async ct_async.c)
-target_link_libraries(ct_async hiredis_cluster hiredis ${SSL_LIBRARY} ${EVENT_LIBRARY})
+target_link_libraries(ct_async hiredis_cluster hiredis ${SSL_LIBRARY} ${LIBEVENT_LIBRARY})
 add_test(NAME ct_async COMMAND "$<TARGET_FILE:ct_async>")
 set_tests_properties(ct_async PROPERTIES LABELS "CT")
 
@@ -62,29 +66,29 @@ add_test(NAME ct_commands COMMAND "$<TARGET_FILE:ct_commands>")
 set_tests_properties(ct_commands PROPERTIES LABELS "CT")
 
 add_executable(ct_connection ct_connection.c)
-target_link_libraries(ct_connection hiredis_cluster hiredis ${SSL_LIBRARY} ${EVENT_LIBRARY})
+target_link_libraries(ct_connection hiredis_cluster hiredis ${SSL_LIBRARY} ${LIBEVENT_LIBRARY})
 add_test(NAME ct_connection COMMAND "$<TARGET_FILE:ct_connection>")
 set_tests_properties(ct_connection PROPERTIES LABELS "CT")
 
 add_executable(ct_pipeline ct_pipeline.c)
-target_link_libraries(ct_pipeline hiredis_cluster hiredis ${SSL_LIBRARY} ${EVENT_LIBRARY})
+target_link_libraries(ct_pipeline hiredis_cluster hiredis ${SSL_LIBRARY} ${LIBEVENT_LIBRARY})
 add_test(NAME ct_pipeline COMMAND "$<TARGET_FILE:ct_pipeline>")
 set_tests_properties(ct_pipeline PROPERTIES LABELS "CT")
 
 add_executable(ct_connection_ipv6 ct_connection_ipv6.c)
-target_link_libraries(ct_connection_ipv6 hiredis_cluster hiredis ${SSL_LIBRARY} ${EVENT_LIBRARY})
+target_link_libraries(ct_connection_ipv6 hiredis_cluster hiredis ${SSL_LIBRARY} ${LIBEVENT_LIBRARY})
 if(ENABLE_IPV6_TESTS)
   add_test(NAME ct_connection_ipv6 COMMAND "$<TARGET_FILE:ct_connection_ipv6>")
   set_tests_properties(ct_connection_ipv6 PROPERTIES LABELS "CT")
 endif()
 
 add_executable(ct_out_of_memory_handling ct_out_of_memory_handling.c)
-target_link_libraries(ct_out_of_memory_handling hiredis_cluster hiredis ${SSL_LIBRARY} ${EVENT_LIBRARY})
+target_link_libraries(ct_out_of_memory_handling hiredis_cluster hiredis ${SSL_LIBRARY} ${LIBEVENT_LIBRARY})
 add_test(NAME ct_out_of_memory_handling COMMAND "$<TARGET_FILE:ct_out_of_memory_handling>")
 set_tests_properties(ct_out_of_memory_handling PROPERTIES LABELS "CT")
 
 add_executable(ct_specific_nodes ct_specific_nodes.c)
-target_link_libraries(ct_specific_nodes hiredis_cluster hiredis ${SSL_LIBRARY} ${EVENT_LIBRARY})
+target_link_libraries(ct_specific_nodes hiredis_cluster hiredis ${SSL_LIBRARY} ${LIBEVENT_LIBRARY})
 add_test(NAME ct_specific_nodes COMMAND "$<TARGET_FILE:ct_specific_nodes>")
 set_tests_properties(ct_specific_nodes PROPERTIES LABELS "CT")
 
@@ -96,8 +100,40 @@ if(ENABLE_SSL)
 
   # Executable: async tls
   add_executable(example_async_tls main_async_tls.c)
-  target_link_libraries(example_async_tls hiredis_cluster hiredis ${SSL_LIBRARY} ${EVENT_LIBRARY})
+  target_link_libraries(example_async_tls hiredis_cluster hiredis ${SSL_LIBRARY} ${LIBEVENT_LIBRARY})
   add_dependencies(example_async_tls generate_tls_configs)
+endif()
+
+if(LIBUV_LIBRARY)
+  add_executable(ct_async_libuv ct_async_libuv.c)
+  target_link_libraries(ct_async_libuv hiredis_cluster hiredis ${SSL_LIBRARY} ${LIBUV_LIBRARY})
+  add_test(NAME ct_async_libuv COMMAND "$<TARGET_FILE:ct_async_libuv>")
+  set_tests_properties(ct_async_libuv PROPERTIES LABELS "CT")
+else()
+  add_test(NAME ct_async_libuv COMMAND "")
+  set_tests_properties(ct_async_libuv PROPERTIES DISABLED True)
+endif()
+
+if(LIBEV_LIBRARY)
+  add_executable(ct_async_libev ct_async_libev.c)
+  # Temporary remove warning of unused parameter due to an issue in hiredis libev adapter
+  target_compile_options(ct_async_libev PRIVATE -Wno-unused-parameter)
+  target_link_libraries(ct_async_libev hiredis_cluster hiredis ${SSL_LIBRARY} ${LIBEV_LIBRARY})
+  add_test(NAME ct_async_libev COMMAND "$<TARGET_FILE:ct_async_libev>")
+  set_tests_properties(ct_async_libev PROPERTIES LABELS "CT")
+else()
+  add_test(NAME ct_async_libev COMMAND "")
+  set_tests_properties(ct_async_libev PROPERTIES DISABLED True)
+endif()
+
+if(GLIB_LIBRARY_FOUND)
+  add_executable(ct_async_glib ct_async_glib.c)
+  target_link_libraries(ct_async_glib hiredis_cluster hiredis ${SSL_LIBRARY} PkgConfig::GLIB_LIBRARY)
+  add_test(NAME ct_async_glib COMMAND "$<TARGET_FILE:ct_async_glib>")
+  set_tests_properties(ct_async_glib PROPERTIES LABELS "CT")
+else()
+  add_test(NAME ct_async_glib COMMAND "")
+  set_tests_properties(ct_async_glib PROPERTIES DISABLED True)
 endif()
 
 # Tests using simulated redis node
@@ -106,7 +142,7 @@ target_link_libraries(clusterclient hiredis_cluster hiredis ${SSL_LIBRARY})
 add_executable(clusterclient_all_nodes clusterclient_all_nodes.c)
 target_link_libraries(clusterclient_all_nodes hiredis_cluster hiredis ${SSL_LIBRARY})
 add_executable(clusterclient_async clusterclient_async.c)
-target_link_libraries(clusterclient_async hiredis_cluster hiredis ${SSL_LIBRARY} ${EVENT_LIBRARY})
+target_link_libraries(clusterclient_async hiredis_cluster hiredis ${SSL_LIBRARY} ${LIBEVENT_LIBRARY})
 add_test(NAME set-get-test
          COMMAND "${CMAKE_SOURCE_DIR}/tests/scripts/set-get-test.sh"
                  "$<TARGET_FILE:clusterclient>"

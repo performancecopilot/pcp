@@ -54,8 +54,6 @@
 #define REDIS_ROLE_MASTER 1
 #define REDIS_ROLE_SLAVE 2
 
-#define CONFIG_AUTHPASS_MAX_LEN 512 // Defined in Redis as max characters
-
 /* Configuration flags */
 #define HIRCLUSTER_FLAG_NULL 0x0
 /* Flag to enable parsing of slave nodes. Currently not used, but the
@@ -83,13 +81,14 @@ typedef struct cluster_node {
     sds name;
     sds addr;
     sds host;
-    int port;
+    uint16_t port;
     uint8_t role;
+    uint8_t pad;
+    int failure_count; /* consecutive failing attempts in async */
     redisContext *con;
     redisAsyncContext *acon;
     struct hilist *slots;
     struct hilist *slaves;
-    int failure_count;         /* consecutive failing attempts in async */
     struct hiarray *migrating; /* copen_slot[] */
     struct hiarray *importing; /* copen_slot[] */
 } cluster_node;
@@ -113,16 +112,17 @@ typedef struct redisClusterContext {
     char errstr[128]; /* String representation of error when applicable */
 
     /* Configurations */
-    int flags;                                  /* Configuration flags */
-    struct timeval *connect_timeout;            /* TCP connect timeout */
-    struct timeval *command_timeout;            /* Receive and send timeout */
-    int max_retry_count;                        /* Allowed retry attempts */
-    char password[CONFIG_AUTHPASS_MAX_LEN + 1]; /* Include a null terminator */
+    int flags;                       /* Configuration flags */
+    struct timeval *connect_timeout; /* TCP connect timeout */
+    struct timeval *command_timeout; /* Receive and send timeout */
+    int max_retry_count;             /* Allowed retry attempts */
+    char *username;                  /* Authenticate using user */
+    char *password;                  /* Authentication password */
 
     struct dict *nodes;     /* Known cluster_nodes*/
     struct hiarray *slots;  /* Sorted array of cluster_slots */
     uint64_t route_version; /* Increased when the node lookup table changes */
-    cluster_node *table[REDIS_CLUSTER_SLOTS]; /* cluster_node lookup table */
+    cluster_node **table;   /* cluster_node lookup table */
 
     struct hilist *requests; /* Outstanding commands (Pipelining) */
 
@@ -181,6 +181,8 @@ int redisClusterSetOptionAddNode(redisClusterContext *cc, const char *addr);
 int redisClusterSetOptionAddNodes(redisClusterContext *cc, const char *addrs);
 int redisClusterSetOptionConnectBlock(redisClusterContext *cc);
 int redisClusterSetOptionConnectNonBlock(redisClusterContext *cc);
+int redisClusterSetOptionUsername(redisClusterContext *cc,
+                                  const char *username);
 int redisClusterSetOptionPassword(redisClusterContext *cc,
                                   const char *password);
 int redisClusterSetOptionParseSlaves(redisClusterContext *cc);

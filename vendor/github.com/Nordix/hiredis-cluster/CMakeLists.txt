@@ -166,7 +166,7 @@ install(TARGETS hiredis_cluster
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-install(FILES hircluster.h adlist.h hiarray.h
+install(FILES hircluster.h adlist.h hiarray.h dict.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hiredis_cluster)
 
 install(DIRECTORY adapters

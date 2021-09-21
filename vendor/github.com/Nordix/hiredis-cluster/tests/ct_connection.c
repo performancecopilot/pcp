@@ -10,6 +10,7 @@
 
 #define CLUSTER_NODE "127.0.0.1:7000"
 #define CLUSTER_NODE_WITH_PASSWORD "127.0.0.1:7100"
+#define CLUSTER_USERNAME "default"
 #define CLUSTER_PASSWORD "secretword"
 
 // Connecting to a password protected cluster and
@@ -65,6 +66,61 @@ void test_password_missing() {
 
     assert(cc->err == REDIS_ERR_OTHER);
     assert(strncmp(cc->errstr, "NOAUTH", 6) == 0);
+
+    redisClusterFree(cc);
+}
+
+// Connect to a cluster and authenticate using username and password,
+// i.e. 'AUTH <username> <password>'
+void test_username_ok() {
+
+    // Connect to the cluster using username and password
+    redisClusterContext *cc = redisClusterContextInit();
+    assert(cc);
+    redisClusterSetOptionAddNodes(cc, CLUSTER_NODE_WITH_PASSWORD);
+    redisClusterSetOptionUsername(cc, CLUSTER_USERNAME);
+    redisClusterSetOptionPassword(cc, CLUSTER_PASSWORD);
+
+    int ret = redisClusterConnect2(cc);
+    ASSERT_MSG(ret == REDIS_OK, cc->errstr);
+
+    // Test connection
+    redisReply *reply = redisClusterCommand(cc, "SET key1 Hello");
+    CHECK_REPLY_OK(cc, reply);
+    freeReplyObject(reply);
+
+    redisClusterFree(cc);
+}
+
+// Test of disabling the use of username after it was enabled.
+void test_username_disabled() {
+    redisClusterContext *cc = redisClusterContextInit();
+    assert(cc);
+    redisClusterSetOptionAddNodes(cc, CLUSTER_NODE_WITH_PASSWORD);
+    redisClusterSetOptionUsername(cc, "missing-user");
+    redisClusterSetOptionPassword(cc, CLUSTER_PASSWORD);
+
+    // Connect using 'AUTH <username> <password>' should fail
+    int ret = redisClusterConnect2(cc);
+    assert(ret == REDIS_ERR);
+    assert(cc->err == REDIS_ERR_OTHER);
+    assert(strncmp(cc->errstr, "WRONGPASS invalid username-password pair",
+                   40) == 0);
+
+    // Disable use of username (2 alternatives)
+    ret = redisClusterSetOptionUsername(cc, NULL);
+    ASSERT_MSG(ret == REDIS_OK, cc->errstr);
+    ret = redisClusterSetOptionUsername(cc, "");
+    ASSERT_MSG(ret == REDIS_OK, cc->errstr);
+
+    // Connect using 'AUTH <password>' should pass
+    ret = redisClusterConnect2(cc);
+    ASSERT_MSG(ret == REDIS_OK, cc->errstr);
+
+    // Test connection
+    redisReply *reply = redisClusterCommand(cc, "SET key1 Hello");
+    CHECK_REPLY_OK(cc, reply);
+    freeReplyObject(reply);
 
     redisClusterFree(cc);
 }
@@ -254,6 +310,50 @@ void test_async_password_missing() {
     event_base_free(base);
 }
 
+// Connect to a cluster and authenticate using username and password
+void test_async_username_ok() {
+
+    // Connect to the cluster using username and password
+    redisClusterAsyncContext *acc = redisClusterAsyncContextInit();
+    assert(acc);
+    redisClusterAsyncSetConnectCallback(acc, callbackExpectOk);
+    redisClusterAsyncSetDisconnectCallback(acc, callbackExpectOk);
+    redisClusterSetOptionAddNodes(acc->cc, CLUSTER_NODE_WITH_PASSWORD);
+    redisClusterSetOptionUsername(acc->cc, "missing-user");
+    redisClusterSetOptionPassword(acc->cc, CLUSTER_PASSWORD);
+
+    struct event_base *base = event_base_new();
+    redisClusterLibeventAttach(acc, base);
+
+    // Connect using wrong username should fail
+    int ret = redisClusterConnect2(acc->cc);
+    assert(ret == REDIS_ERR);
+    assert(acc->cc->err == REDIS_ERR_OTHER);
+    assert(strncmp(acc->cc->errstr, "WRONGPASS invalid username-password pair",
+                   40) == 0);
+
+    // Set correct username
+    ret = redisClusterSetOptionUsername(acc->cc, CLUSTER_USERNAME);
+    ASSERT_MSG(ret == REDIS_OK, acc->cc->errstr);
+
+    // Connect using correct username should pass
+    ret = redisClusterConnect2(acc->cc);
+    assert(ret == REDIS_OK);
+    assert(acc->err == 0);
+    assert(acc->cc->err == 0);
+
+    // Test connection
+    ExpectedResult r = {
+        .type = REDIS_REPLY_STATUS, .str = "OK", .disconnect = true};
+    ret = redisClusterAsyncCommand(acc, commandCallback, &r, "SET key1 Hello");
+    assert(ret == REDIS_OK);
+
+    event_base_dispatch(base);
+
+    redisClusterAsyncFree(acc);
+    event_base_free(base);
+}
+
 // Connect and handle two clusters simultaneously using the async API
 void test_async_multicluster() {
     int ret;
@@ -325,11 +425,14 @@ int main() {
     test_password_ok();
     test_password_wrong();
     test_password_missing();
+    test_username_ok();
+    test_username_disabled();
     test_multicluster();
 
     test_async_password_ok();
     test_async_password_wrong();
     test_async_password_missing();
+    test_async_username_ok();
     test_async_multicluster();
 
     return 0;
