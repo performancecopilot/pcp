@@ -57,7 +57,7 @@ jobs:
 
     steps:
     - name: Prepare
-      run: sudo apt install libevent-dev ${{ matrix.compiler }}
+      run: sudo apt install libevent-dev libuv1-dev libev-dev libglib2.0-dev ${{ matrix.compiler }}
     - name: Setup cmake
       # Temporary disabled due to actions-setup-cmake/issues/21
       # uses: jwlawson/actions-setup-cmake@v1.6
@@ -97,3 +97,11 @@ jobs:
       working-directory: build
       shell: bash
       run: make stop
+    - name: Build examples
+      shell: bash
+      env:
+        CC: ${{ matrix.compiler }}
+      run: |
+        examples/using_cmake_externalproject/build.sh
+        examples/using_cmake_separate/build.sh
+        examples/using_make/build.sh

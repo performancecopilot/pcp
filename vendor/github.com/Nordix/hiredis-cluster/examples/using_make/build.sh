@@ -1,38 +1,37 @@
 #!/bin/sh
 set -e
 
-# This script builds hiredis and hiredis-cluster using Make directly.
+# This script builds and installs hiredis and hiredis-cluster using GNU Make directly.
 # The static library variants are used when building the examples.
 
 script_dir=$(realpath "${0%/*}")
-repo_dir=$(realpath "${script_dir}/../../")
+repo_dir=$(git rev-parse --show-toplevel)
 
 # Download hiredis
 hiredis_version=1.0.0
 curl -L https://github.com/redis/hiredis/archive/v${hiredis_version}.tar.gz | tar -xz -C ${script_dir}
 
-# Build and install hiredis using Make
-make -C ${script_dir}/hiredis-${hiredis_version} DESTDIR=${script_dir}/install USE_SSL=1 all install
+# Build and install downloaded hiredis using GNU Make
+make -C ${script_dir}/hiredis-${hiredis_version} \
+     USE_SSL=1 \
+     DESTDIR=${script_dir}/install \
+     all install
 
 
-# Download hiredis-cluster
-hiredis_cluster_version=0.5.0
-curl -L https://github.com/Nordix/hiredis-cluster/archive/${hiredis_cluster_version}.tar.gz | tar -xz -C ${script_dir}
-
-# Copy makefile since its not available in v0.5.0
-cp ${repo_dir}/Makefile ${script_dir}/hiredis-cluster-${hiredis_cluster_version}/
-
-# Build and install hiredis-cluster using Make
-make -C ${script_dir}/hiredis-cluster-${hiredis_cluster_version} \
-     CFLAGS="-I${script_dir}/install/usr/local/include -D_XOPEN_SOURCE=600" LDFLAGS="-L${script_dir}/install/usr/local/lib" USE_SSL=1 clean all
-make -C ${script_dir}/hiredis-cluster-${hiredis_cluster_version} \
-     DESTDIR=${script_dir}/install install
+# Build and install hiredis-cluster from the repo using GNU Make
+make -C ${repo_dir} \
+     CFLAGS="-I${script_dir}/install/usr/local/include -D_XOPEN_SOURCE=600" \
+     LDFLAGS="-L${script_dir}/install/usr/local/lib" \
+     USE_SSL=1 \
+     DESTDIR=${script_dir}/install \
+     clean install
 
 
 # Build example binaries by providing static libraries
 make -C ${repo_dir} CFLAGS="-I${script_dir}/install/usr/local/include" \
      LDFLAGS="${script_dir}/install/usr/local/lib/libhiredis_cluster.a ${script_dir}/install/usr/local/lib/libhiredis.a ${script_dir}/install/usr/local/lib/libhiredis_ssl.a" \
-     USE_SSL=1 clean examples
+     USE_SSL=1 \
+     clean examples
 
 
 # Run simple example:

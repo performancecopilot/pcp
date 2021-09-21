@@ -134,13 +134,13 @@ void test_alloc_failure_handling() {
 
     // Connect
     {
-        for (int i = 0; i < 128; ++i) {
+        for (int i = 0; i < 129; ++i) {
             prepare_allocation_test(cc, i);
             result = redisClusterConnect2(cc);
             assert(result == REDIS_ERR);
         }
 
-        prepare_allocation_test(cc, 128);
+        prepare_allocation_test(cc, 129);
         result = redisClusterConnect2(cc);
         assert(result == REDIS_OK);
     }
@@ -416,13 +416,13 @@ void test_alloc_failure_handling_async() {
 
     // Connect
     {
-        for (int i = 0; i < 127; ++i) {
+        for (int i = 0; i < 128; ++i) {
             prepare_allocation_test(acc->cc, i);
             result = redisClusterConnect2(acc->cc);
             assert(result == REDIS_ERR);
         }
 
-        prepare_allocation_test(acc->cc, 127);
+        prepare_allocation_test(acc->cc, 128);
         result = redisClusterConnect2(acc->cc);
         assert(result == REDIS_OK);
     }

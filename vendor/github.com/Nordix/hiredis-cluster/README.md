@@ -242,6 +242,8 @@ void redisClusterReset(redisClusterContext *cc);
 ```
 Warning: You must call `redisClusterReset` function after one pipelining anyway.
 
+Warning: Calling `redisClusterReset` without pipelining first will reset all Redis connections.
+
 The following examples shows a simple cluster pipeline:
 ```c
 redisReply *reply;
@@ -257,9 +259,12 @@ redisClusterReset(clusterContext);
 ## Cluster asynchronous API
 
 Hiredis-cluster comes with an asynchronous cluster API that works with many event systems.
-Currently there are adapters that enables support for libevent and Redis Event Library (ae),
-but more can be added. The hiredis library has adapters for additional event systems that
-easily can be adapted for hiredis-cluster as well.
+Currently there are adapters that enables support for `libevent`, `libev`, `libuv`, `glib`
+and Redis Event Library (`ae`). For usage examples, see the test programs with the different
+event libraries `tests/ct_async_{libev,libuv,glib}.c`.
+
+The hiredis library has adapters for additional event systems that easily can be adapted
+for hiredis-cluster as well.
 
 ### Connecting
 
@@ -346,7 +351,7 @@ callbacks have been executed. After this, the disconnection callback is executed
 ### Using event library *X*
 
 There are a few hooks that need to be set on the cluster context object after it is created.
-See the `adapters/` directory for bindings to *ae* and *libevent*.
+See the `adapters/` directory for bindings to *libevent* and a range of other event libraries.
 
 ### Allocator injection
 
