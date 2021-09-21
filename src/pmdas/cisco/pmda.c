@@ -331,10 +331,9 @@ main(int argc, char **argv)
 		if (mypasswd != NULL) {
 		    if (strcmp(cisco[i].passwd, mypasswd) != 0) {
 			fprintf(stderr, 
-				"%s: conflicting user-level passwords (\"%s\" "
-				"and \"%s\") for cisco \"%s\"\n",
-				pmGetProgname(), cisco[i].passwd, mypasswd, 
-				cisco[i].host);
+				"%s: conflicting user-level passwords"
+				" for cisco \"%s\"\n",
+				pmGetProgname(), cisco[i].host);
 			exit(1);
 		    }
 		}

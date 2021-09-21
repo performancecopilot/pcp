@@ -782,8 +782,7 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
     }
 
     if (pmDebugOptions.auth)
-	fprintf(stderr, "%s:__pmAuthSecretCB ctx=%p id=%#x -> data=%s len=%u\n",
-		__FILE__, context, id, password, (unsigned)length);
+	fprintf(stderr, "%s:__pmAuthSecretCB done ctx=%p id=%#x\n", __FILE__, context, id);
 
     return SASL_OK;
 }
