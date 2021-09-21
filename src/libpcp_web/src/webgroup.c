@@ -43,16 +43,28 @@ static sds EMPTYSTRING, LOCALHOST, WORK_TIMER, POLL_TIMEOUT, BATCHSIZE;
 enum matches { MATCH_EXACT, MATCH_GLOB, MATCH_REGEX };
 enum profile { PROFILE_ADD, PROFILE_DEL };
 
+enum webgroup_metric {
+    CONTEXT_MAP_SIZE,
+    NAMES_MAP_SIZE,
+    LABELS_MAP_SIZE,
+    INST_MAP_SIZE,
+    NUM_WEBGROUP_METRIC
+};
+
 typedef struct webgroups {
     struct dict		*contexts;
-    mmv_registry_t	*metrics;
-    void		*metrics_handle;
     struct dict		*config;
+
+    mmv_registry_t	*registry;
+    pmAtomValue		*metrics[NUM_WEBGROUP_METRIC];
+    void		*map;
+
     uv_loop_t		*events;
-    unsigned int	active;
     uv_timer_t		timer;
     uv_mutex_t		mutex;
-    int			stats_timer;
+
+    unsigned int	active;
+    int			timerid;
 } webgroups;
 
 static struct webgroups *
@@ -64,7 +76,7 @@ webgroups_lookup(pmWebGroupModule *module)
 	module->privdata = calloc(1, sizeof(struct webgroups));
 	groups = (struct webgroups *)module->privdata;
 	uv_mutex_init(&groups->mutex);
-	groups->stats_timer = -1;
+	groups->timerid = -1;
     }
     return groups;
 }
@@ -311,15 +323,17 @@ refresh_maps_metrics(void *data)
 {
     struct webgroups	*groups = (struct webgroups *)data;
 
-    if (groups->metrics_handle) {
-	mmv_stats_set(groups->metrics_handle, "contextmap.size",
-	    NULL, dictSize(contextmap));
-	mmv_stats_set(groups->metrics_handle, "namesmap.size",
-	    NULL, dictSize(namesmap));
-	mmv_stats_set(groups->metrics_handle, "labelsmap.size",
-	    NULL, dictSize(labelsmap));
-	mmv_stats_set(groups->metrics_handle, "instmap.size",
-	    NULL, dictSize(instmap));
+    if (groups->metrics) {
+	unsigned int	value;
+
+	value = dictSize(contextmap);
+	mmv_set(groups->map, groups->metrics[CONTEXT_MAP_SIZE], &value);
+	value = dictSize(namesmap);
+	mmv_set(groups->map, groups->metrics[NAMES_MAP_SIZE], &value);
+	value = dictSize(labelsmap);
+	mmv_set(groups->map, groups->metrics[LABELS_MAP_SIZE], &value);
+	value = dictSize(instmap);
+	mmv_set(groups->map, groups->metrics[INST_MAP_SIZE], &value);
     }
 }
 
@@ -392,7 +406,7 @@ webgroup_lookup_context(pmWebGroupSettings *sp, sds *id, dict *params,
 	uv_timer_start(&groups->timer, webgroup_worker,
 			default_worker, default_worker);
 	/* timer for map stats refresh */
-	groups->stats_timer = pmWebTimerRegister(refresh_maps_metrics, (void *)groups);
+	groups->timerid = pmWebTimerRegister(refresh_maps_metrics, groups);
     }
 
     if (*id == NULL) {
@@ -2318,36 +2332,43 @@ static void
 pmWebGroupSetupMetrics(pmWebGroupModule *module)
 {
     struct webgroups	*groups = webgroups_lookup(module);
-    pmUnits            nounits = MMV_UNITS(0,0,0,0,0,0);
-    pmInDom            noindom = MMV_INDOM_NULL;
+    pmAtomValue		**ap;
+    pmUnits		nounits = MMV_UNITS(0,0,0,0,0,0);
+    void		*map;
 
-    if (groups == NULL || groups->metrics == NULL)
+    if (groups == NULL || groups->registry == NULL)
 	return; /* no metric registry has been set up */
 
     /*
      * Reverse mapping dict metrics
      */
-    mmv_stats_add_metric(groups->metrics, "contextmap.size", 1,
-	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, noindom,
+    mmv_stats_add_metric(groups->registry, "contextmap.size", 1,
+	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,
 	"context map dictionary size",
 	"number of entries in the context map dictionary");
 
-    mmv_stats_add_metric(groups->metrics, "namesmap.size", 2,
-	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, noindom,
+    mmv_stats_add_metric(groups->registry, "namesmap.size", 2,
+	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,
 	"metric names map dictionary size",
 	"number of entries in the metric names map dictionary");
 
-    mmv_stats_add_metric(groups->metrics, "labelsmap.size", 3,
-	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, noindom,
+    mmv_stats_add_metric(groups->registry, "labelsmap.size", 3,
+	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,
 	"labels map dictionary size",
 	"number of entries in the labels map dictionary");
 
-    mmv_stats_add_metric(groups->metrics, "instmap.size", 4,
-	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, noindom,
+    mmv_stats_add_metric(groups->registry, "instmap.size", 4,
+	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,
 	"instance name map dictionary size",
 	"number of entries in the instance name map dictionary");
 
-    groups->metrics_handle = mmv_stats_start(groups->metrics);
+    groups->map = map = mmv_stats_start(groups->registry);
+
+    ap = groups->metrics;
+    ap[CONTEXT_MAP_SIZE] = mmv_lookup_value_desc(map, "contextmap.size", NULL);
+    ap[NAMES_MAP_SIZE] = mmv_lookup_value_desc(map, "namesmap.size", NULL);
+    ap[LABELS_MAP_SIZE] = mmv_lookup_value_desc(map, "labelsmap.size", NULL);
+    ap[INST_MAP_SIZE] = mmv_lookup_value_desc(map, "instmap.size", NULL);
 }
 
 
@@ -2357,7 +2378,7 @@ pmWebGroupSetMetricRegistry(pmWebGroupModule *module, mmv_registry_t *registry)
     struct webgroups	*groups = webgroups_lookup(module);
 
     if (groups) {
-	groups->metrics = registry;
+	groups->registry = registry;
 	pmWebGroupSetupMetrics(module);
 	return 0;
     }
@@ -2376,8 +2397,8 @@ pmWebGroupClose(pmWebGroupModule *module)
 	if (groups->active) {
 	    groups->active = 0;
 	    uv_timer_stop(&groups->timer);
-	    pmWebTimerRelease(groups->stats_timer);
-	    groups->stats_timer = -1;
+	    pmWebTimerRelease(groups->timerid);
+	    groups->timerid = -1;
 	}
 	iterator = dictGetIterator(groups->contexts);
 	while ((entry = dictNext(iterator)) != NULL)
