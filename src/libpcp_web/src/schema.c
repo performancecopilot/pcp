@@ -1550,7 +1550,7 @@ pmSeriesSetMetricRegistry(pmSeriesModule *module, mmv_registry_t *registry)
     seriesModuleData	*data = getSeriesModuleData(module);
 
     if (data) {
-	data->metrics = registry;
+	data->registry = registry;
 	return 0;
     }
     return -ENOMEM;
@@ -1596,79 +1596,82 @@ static void
 pmSeriesSetupMetrics(pmSeriesModule *module)
 {
     seriesModuleData	*data = getSeriesModuleData(module);
+    pmAtomValue		**metrics;
     pmUnits		countunits = MMV_UNITS(0,0,1,0,0,0);
-    pmInDom		noindom = MMV_INDOM_NULL;
+    void		*map;
 
-    if (data == NULL || data->metrics == NULL)
+    if (data == NULL || data->registry == NULL)
     	return; /* no metric registry has been set up */
 
     /*
      * various RESTAPI request call counters
      */
-    mmv_stats_add_metric(data->metrics, "query.calls", 1,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
+    mmv_stats_add_metric(data->registry, "query.calls", 1,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
 	"calls to /series/values",
 	"total RESTAPI calls to /series/values");
 
-    mmv_stats_add_metric(data->metrics, "descs.calls", 2,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
+    mmv_stats_add_metric(data->registry, "descs.calls", 2,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
 	"calls to /series/descs",
 	"total RESTAPI calls to /series/descs");
 
-    mmv_stats_add_metric(data->metrics, "instances.calls", 3,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
+    mmv_stats_add_metric(data->registry, "instances.calls", 3,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
 	"calls to /series/instances",
 	"total RESTAPI calls to /series/instances");
 
-    mmv_stats_add_metric(data->metrics, "sources.calls", 4,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
+    mmv_stats_add_metric(data->registry, "sources.calls", 4,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
 	"calls to /series/sources",
 	"total RESTAPI calls to /series/sources");
 
-    mmv_stats_add_metric(data->metrics, "metrics.calls", 5,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
+    mmv_stats_add_metric(data->registry, "metrics.calls", 5,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
 	"calls to /series/metrics",
 	"total RESTAPI calls to /series/metrics");
 
-    mmv_stats_add_metric(data->metrics, "values.calls", 6,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
+    mmv_stats_add_metric(data->registry, "values.calls", 6,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
 	"calls to /series/values",
 	"total RESTAPI calls to /series/values");
 
-    mmv_stats_add_metric(data->metrics, "labels.calls", 7,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
+    mmv_stats_add_metric(data->registry, "labels.calls", 7,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
 	"calls to /series/labels",
 	"total RESTAPI calls to /series/labels");
 
-    mmv_stats_add_metric(data->metrics, "labelvalues.calls", 8,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
+    mmv_stats_add_metric(data->registry, "labelvalues.calls", 8,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
 	"calls to /series/labelvalues",
 	"total RESTAPI calls to /series/labelvalues");
 
-    mmv_stats_add_metric(data->metrics, "load.calls", 9,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
+    mmv_stats_add_metric(data->registry, "load.calls", 9,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
 	"calls to /series/load",
 	"total RESTAPI calls to /series/load");
 
-    data->metrics_handle = mmv_stats_start(data->metrics);
-}
+    data->map = map = mmv_stats_start(data->registry);
+    metrics = data->metrics;
 
-void
-pmSeriesStatsAdd(pmSeriesModule *module, const char *name, const char *inst, double count)
-{
-    seriesModuleData   *data;
-
-    if (module != NULL && (data = getSeriesModuleData(module)) != NULL)
-	mmv_stats_add(data->metrics_handle, name, inst, count);
-}
-
-void
-pmSeriesStatsSet(pmSeriesModule *module, const char *name, const char *inst, double value)
-{
-    seriesModuleData   *data;
-
-    if (module != NULL && (data = getSeriesModuleData(module)) != NULL)
-	mmv_stats_set(data->metrics_handle, name, inst, value);
+    metrics[SERIES_QUERY_CALLS] = mmv_lookup_value_desc(map,
+						"query.calls", NULL);
+    metrics[SERIES_DESCS_CALLS] = mmv_lookup_value_desc(map,
+						"descs.calls", NULL);
+    metrics[SERIES_INSTANCES_CALLS] = mmv_lookup_value_desc(map,
+						"instances.calls", NULL);
+    metrics[SERIES_SOURCES_CALLS] = mmv_lookup_value_desc(map,
+						"sources.calls", NULL);
+    metrics[SERIES_METRICS_CALLS] = mmv_lookup_value_desc(map,
+						"metrics.calls", NULL);
+    metrics[SERIES_VALUES_CALLS] = mmv_lookup_value_desc(map,
+						"values.calls", NULL);
+    metrics[SERIES_LABELS_CALLS] = mmv_lookup_value_desc(map,
+						"labels.calls", NULL);
+    metrics[SERIES_LABELVALUES_CALLS] = mmv_lookup_value_desc(map,
+						"labelvalues.calls", NULL);
+    metrics[SERIES_LOAD_CALLS] = mmv_lookup_value_desc(map,
+						"load.calls", NULL);
 }
 
 int
@@ -1777,120 +1780,167 @@ void
 pmDiscoverSetupMetrics(pmDiscoverModule *module)
 {
     discoverModuleData	*data = getDiscoverModuleData(module);
+    pmAtomValue		**metrics;
     pmUnits		nounits = MMV_UNITS(0,0,0,0,0,0);
     pmUnits		countunits = MMV_UNITS(0,0,1,0,0,0);
     pmUnits		secondsunits = MMV_UNITS(0,1,0,0,PM_TIME_SEC,0);
-    pmInDom		noindom = MMV_INDOM_NULL;
+    void		*map;
 
     if (data == NULL || data->metrics == NULL)
     	return; /* no metric registry has been set up */
 
-    /*
-     * redis and archive discovery metrics
-     */
-    mmv_stats_add_metric(data->metrics, "monitored", 1,
-	MMV_TYPE_U64, MMV_SEM_DISCRETE, nounits, noindom,
-	"directories, sub-directories and archives currently being monitored",
-	"number of directories, sub-directories and archives currently being monitored");
+    mmv_stats_add_metric(data->registry, "monitored", 1,
+	MMV_TYPE_U64, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,
+	"directories and archives currently being monitored",
+	"Number of directories and archives currently being monitored");
 
-    mmv_stats_add_metric(data->metrics, "purged", 2,
-	MMV_TYPE_U64, MMV_SEM_DISCRETE, nounits, noindom,
-	"directories, sub-directories and archives purged (no longer being monitored)",
-	"number of directories, sub-directories and archives purged\n"
-        "(no longer being monitored)");
+    mmv_stats_add_metric(data->registry, "purged", 2,
+	MMV_TYPE_U64, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,
+	"directories and archives purged",
+	"Number of directories and archives no longer being monitored");
 
-    mmv_stats_add_metric(data->metrics, "metadata.callbacks", 3,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
-	"process metadata for all monitored archives",
-	"total calls to process metadata for all monitored archives");
+    mmv_stats_add_metric(data->registry, "metadata.callbacks", 3,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"process metadata for monitored archives",
+	"total calls to process metadata for monitored archives");
 
-    mmv_stats_add_metric(data->metrics, "metadata.loops", 4,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
-	"processing metadata for all monitored archives",
-	"total loops processing metadata for all monitored archives");
+    mmv_stats_add_metric(data->registry, "metadata.loops", 4,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"processing metadata for monitored archives",
+	"Total loops processing metadata for monitored archives");
 
-    mmv_stats_add_metric(data->metrics, "metadata.decode.desc", 5,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
-	"desc records decoded processing metadata for all monitored archives",
-	"total desc records decoded processing metadata for all monitored archives");
+    mmv_stats_add_metric(data->registry, "metadata.decode.desc", 5,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"desc records decoded for monitored archives",
+	"Total metric descriptor records decoded processing metadata for monitored\n"
+	"archives");
 
-    mmv_stats_add_metric(data->metrics, "metadata.decode.indom", 6,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
-	"indom records decoded processing metadata for all monitored archives",
-	"total indom records decoded processing metadata for all monitored archives");
+    mmv_stats_add_metric(data->registry, "metadata.decode.indom", 6,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"indom records decoded for all monitored archives",
+	"Total indom records decoded processing metadata for monitored archives");
 
-    mmv_stats_add_metric(data->metrics, "metadata.decode.label", 7,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
-	"label records decoded processing metadata for all monitored archives",
-	"total label records decoded processing metadata for all monitored archives");
+    mmv_stats_add_metric(data->registry, "metadata.decode.label", 7,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"label records decoded for monitored archives",
+	"Total label records decoded processing metadata for monitored archives");
 
-    mmv_stats_add_metric(data->metrics, "metadata.decode.helptext", 8,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
-	"help text records decoded processing metadata for all monitored archives",
-	"total help text records decoded processing metadata for all monitored archives");
+    mmv_stats_add_metric(data->registry, "metadata.decode.helptext", 8,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"help text records decoded for all monitored archives",
+	"Total help text records decoded processing metadata for monitored archives");
 
-    mmv_stats_add_metric(data->metrics, "logvol.callbacks", 9,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
-	"calls to process logvol data for all monitored archives",
-	"total calls to process logvol data for all monitored archives");
+    mmv_stats_add_metric(data->registry, "logvol.callbacks", 9,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"calls to process logvol data for monitored archives",
+	"Total calls to process log volume data for monitored archives");
 
-    mmv_stats_add_metric(data->metrics, "logvol.loops", 10,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
-	"loops processing logvol data for all monitored archives",
-	"total loops processing logvol data for all monitored archives");
+    mmv_stats_add_metric(data->registry, "logvol.loops", 10,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"loops processing logvol data for monitored archives",
+	"Total loops processing logvol data for monitored archives");
 
-    mmv_stats_add_metric(data->metrics, "logvol.change_vol", 11,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
-	"log vol values callbacks made for all monitored archives",
-	"total log vol values callbacks made for all monitored archives");
+    mmv_stats_add_metric(data->registry, "logvol.change_vol", 11,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"log vol values callbacks made for monitored archives",
+	"Total log volume values callbacks made for monitored archives");
 
-    mmv_stats_add_metric(data->metrics, "logvol.decode.result", 12,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
-	"result records decoded for all monitored archives",
-	"total result records decoded for all monitored archives");
+    mmv_stats_add_metric(data->registry, "logvol.decode.result", 12,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"result records decoded for monitored archives",
+	"Total result records decoded for monitored archives");
 
-    mmv_stats_add_metric(data->metrics, "logvol.decode.result_pmids", 13,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
-	"metric pmids in decoded result records for all monitored archives",
-	"total metric pmids in decoded result records for all monitored archives");
+    mmv_stats_add_metric(data->registry, "logvol.decode.result_pmids", 13,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"metric IDs in decoded result records for monitored archives",
+	"Total metric identifers in decoded result records for monitored archives");
 
-    mmv_stats_add_metric(data->metrics, "logvol.decode.mark_record", 14,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
-	"mark record result records decoded for all monitored archives",
-	"total mark record result records decoded for all monitored archives");
+    mmv_stats_add_metric(data->registry, "logvol.decode.mark_record", 14,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"mark records decoded for monitored archives",
+	"Total mark records in result records decoded for monitored archives");
 
-    mmv_stats_add_metric(data->metrics, "logvol.new_contexts", 15,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
-	"successful new context calls made for all monitored archives",
-	"total successful new context calls made for all monitored archives");
+    mmv_stats_add_metric(data->registry, "logvol.new_contexts", 15,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"successful new context calls made for monitored archives",
+	"Total successful new context calls made for monitored archives");
 
-    mmv_stats_add_metric(data->metrics, "logvol.get_archive_end_failed", 16,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
-	"failed pmGetArchiveEnd calls after successfully creating a new context for all monitored archives",
-	"total failed pmGetArchiveEnd calls after successfully creating a new context\n"
+    mmv_stats_add_metric(data->registry, "logvol.get_archive_end_failed", 16,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"Failed pmGetArchiveEnd calls for all monitored archives",
+	"Total failed pmGetArchiveEnd calls after successfully creating a new context\n"
         "for all monitored archives");
 
-    mmv_stats_add_metric(data->metrics, "changed_callbacks", 17,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
+    mmv_stats_add_metric(data->registry, "changed_callbacks", 17,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
 	"filesystem changed callbacks",
 	"number of observed filesystem changes to PCP archives");
 
-    mmv_stats_add_metric(data->metrics, "throttled_changed_callbacks", 18,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
-	"filesystem changed callbacks that were ignored due to throttling",
-	"number of throttled filesystem change callbacks");
+    mmv_stats_add_metric(data->registry, "throttled_changed_callbacks", 18,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"filesystem changed callbacks ignored due to throttling",
+	"Number of filesystem change callbacks that were ignored due to throttling");
 
-    mmv_stats_add_metric(data->metrics, "throttle", 19,
-	MMV_TYPE_U64, MMV_SEM_INSTANT, secondsunits, noindom,
-	"current filesystem changed callback throttle",
-	"minimum seconds between filesystem changed callbacks for each monitored archive");
+    mmv_stats_add_metric(data->registry, "throttle", 19,
+	MMV_TYPE_U64, MMV_SEM_INSTANT, secondsunits, MMV_INDOM_NULL,
+	"minimum filesystem changed callback throttle time",
+	"Minimum time between filesystem changed callbacks for each monitored archive");
 
-    mmv_stats_add_metric(data->metrics, "metadata.partial_reads", 20,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, noindom,
-	"metadata read returned less data than header indicated",
-	"number of times a metadata record read returned less than expected length");
+    mmv_stats_add_metric(data->registry, "metadata.partial_reads", 20,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"metadata read returned less data than expected",
+	"Number of times a metadata record read returned less than expected length");
 
-    data->metrics_handle = mmv_stats_start(data->metrics);
+    mmv_stats_add_metric(data->registry, "logvol.decode.result_errors", 21,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"error result records decoded for monitored archives",
+	"Total errors in result records decoded for monitored archives");
+
+    data->map = map = mmv_stats_start(data->registry);
+    metrics = data->metrics;
+
+    metrics[DISCOVER_MONITORED] = mmv_lookup_value_desc(
+				    map, "monitored", NULL);
+    metrics[DISCOVER_PURGED] = mmv_lookup_value_desc(
+				    map, "purged", NULL);
+    metrics[DISCOVER_META_CALLBACKS] = mmv_lookup_value_desc(
+				    map, "metadata.callbacks", NULL);
+    metrics[DISCOVER_META_LOOPS] = mmv_lookup_value_desc(
+				    map, "metadata.loops", NULL);
+    metrics[DISCOVER_DECODE_DESC] = mmv_lookup_value_desc(
+				    map, "metadata.decode.desc", NULL);
+    metrics[DISCOVER_DECODE_INDOM] = mmv_lookup_value_desc(
+				    map, "metadata.decode.indom", NULL);
+    metrics[DISCOVER_DECODE_LABEL] = mmv_lookup_value_desc(
+				    map, "metadata.decode.label", NULL);
+    metrics[DISCOVER_DECODE_HELPTEXT] = mmv_lookup_value_desc(
+				    map, "metadata.decode.helptext", NULL);
+    metrics[DISCOVER_LOGVOL_CALLBACKS] = mmv_lookup_value_desc(
+				    map, "logvol.callbacks", NULL);
+    metrics[DISCOVER_LOGVOL_LOOPS] = mmv_lookup_value_desc(
+				    map, "logvol.loops", NULL);
+    metrics[DISCOVER_LOGVOL_CHANGE_VOL] = mmv_lookup_value_desc(
+				    map, "logvol.change_vol", NULL);
+    metrics[DISCOVER_DECODE_RESULT] = mmv_lookup_value_desc(
+				    map, "logvol.decode.result", NULL);
+    metrics[DISCOVER_DECODE_RESULT_PMIDS] = mmv_lookup_value_desc(
+				    map, "logvol.decode.result_pmids", NULL);
+    metrics[DISCOVER_DECODE_MARK_RECORD] = mmv_lookup_value_desc(
+				    map, "logvol.decode.mark_record", NULL);
+    metrics[DISCOVER_LOGVOL_NEW_CONTEXTS] = mmv_lookup_value_desc(
+				    map, "logvol.new_contexts", NULL);
+    metrics[DISCOVER_ARCHIVE_END_FAILED] = mmv_lookup_value_desc(
+				    map, "logvol.get_archive_end_failed", NULL);
+    metrics[DISCOVER_CHANGED_CALLBACKS] = mmv_lookup_value_desc(
+				    map, "changed_callbacks", NULL);
+    metrics[DISCOVER_THROTTLE_CALLBACKS] = mmv_lookup_value_desc(
+				    map, "throttled_changed_callbacks", NULL);
+    metrics[DISCOVER_THROTTLE] = mmv_lookup_value_desc(
+				    map, "throttle", NULL);
+    metrics[DISCOVER_META_PARTIAL_READS] = mmv_lookup_value_desc(
+				    map, "metadata.partial_reads", NULL);
+    metrics[DISCOVER_DECODE_RESULT_ERRORS] = mmv_lookup_value_desc(
+				    map, "logvol.decode.result_errors", NULL);
 }
 
 int
@@ -1899,7 +1949,7 @@ pmDiscoverSetMetricRegistry(pmDiscoverModule *module, mmv_registry_t *registry)
     discoverModuleData	*data = getDiscoverModuleData(module);
 
     if (data) {
-	data->metrics = registry;
+	data->registry = registry;
 	return 0;
     }
     return -ENOMEM;

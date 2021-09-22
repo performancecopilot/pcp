@@ -255,6 +255,15 @@ freeSeriesGetLookup(seriesQueryBaton *baton)
     free(baton);
 }
 
+void
+series_stats_inc(pmSeriesSettings *settings, unsigned int metric)
+{   
+    seriesModuleData	*data = getSeriesModuleData(&settings->module);
+
+    if (data)
+	mmv_inc(data->map, data->metrics[metric]);
+}   
+
 static void
 series_query_finished(void *arg)
 {
@@ -4683,6 +4692,8 @@ pmSeriesLabels(pmSeriesSettings *settings, int nseries, pmSID *series, void *arg
     size_t		bytes;
     unsigned int	i = 0;
 
+    series_stats_inc(settings, SERIES_LABELS_CALLS);
+
     if (nseries < 0)
 	return -EINVAL;
     bytes = sizeof(seriesQueryBaton) + (nseries * sizeof(seriesGetSID));
@@ -4701,7 +4712,6 @@ pmSeriesLabels(pmSeriesSettings *settings, int nseries, pmSID *series, void *arg
     baton->phases[i++].func = series_lookup_finished;
     assert(i <= QUERY_PHASES);
     seriesBatonPhases(baton->current, i, baton);
-    pmSeriesStatsAdd(&settings->module, "labels.calls", NULL, 1);
     return 0;
 }
 
@@ -4799,7 +4809,7 @@ pmSeriesLabelValues(pmSeriesSettings *settings, int nlabels, pmSID *labels, void
     baton->phases[i++].func = series_lookup_finished;
     assert(i <= QUERY_PHASES);
     seriesBatonPhases(baton->current, i, baton);
-    pmSeriesStatsAdd(&settings->module, "labelvalues.calls", NULL, 1);
+    series_stats_inc(settings, SERIES_LABELVALUES_CALLS);
     return 0;
 }
 
@@ -4882,6 +4892,8 @@ pmSeriesDescs(pmSeriesSettings *settings, int nseries, pmSID *series, void *arg)
     size_t		bytes;
     unsigned int	i = 0;
 
+    series_stats_inc(settings, SERIES_DESCS_CALLS);
+
     if (nseries <= 0)
 	return -EINVAL;
 
@@ -4897,7 +4909,6 @@ pmSeriesDescs(pmSeriesSettings *settings, int nseries, pmSID *series, void *arg)
     baton->phases[i++].func = series_lookup_finished;
     assert(i <= QUERY_PHASES);
     seriesBatonPhases(baton->current, i, baton);
-    pmSeriesStatsAdd(&settings->module, "descs.calls", NULL, 1);
     return 0;
 }
 
@@ -5122,6 +5133,8 @@ pmSeriesInstances(pmSeriesSettings *settings, int nseries, pmSID *series, void *
     size_t		bytes;
     unsigned int	i = 0;
 
+    series_stats_inc(settings, SERIES_INSTANCES_CALLS);
+
     if (nseries < 0)
 	return -EINVAL;
     bytes = sizeof(seriesQueryBaton) + (nseries * sizeof(seriesGetSID));
@@ -5140,7 +5153,6 @@ pmSeriesInstances(pmSeriesSettings *settings, int nseries, pmSID *series, void *
     baton->phases[i++].func = series_lookup_finished;
     assert(i <= QUERY_PHASES);
     seriesBatonPhases(baton->current, i, baton);
-    pmSeriesStatsAdd(&settings->module, "instances.calls", NULL, 1);
     return 0;
 }
 
@@ -5324,6 +5336,8 @@ pmSeriesSources(pmSeriesSettings *settings, int nsources, pmSID *sources, void *
     size_t		bytes;
     unsigned int	i = 0;
 
+    series_stats_inc(settings, SERIES_SOURCES_CALLS);
+
     if (nsources < 0)
 	return -EINVAL;
     bytes = sizeof(seriesQueryBaton) + (nsources * sizeof(seriesGetSID));
@@ -5342,7 +5356,6 @@ pmSeriesSources(pmSeriesSettings *settings, int nsources, pmSID *sources, void *
     baton->phases[i++].func = series_lookup_finished;
     assert(i <= QUERY_PHASES);
     seriesBatonPhases(baton->current, i, baton);
-    pmSeriesStatsAdd(&settings->module, "sources.calls", NULL, 1);
     return 0;
 }
 
@@ -5378,6 +5391,8 @@ pmSeriesMetrics(pmSeriesSettings *settings, int nseries, sds *series, void *arg)
     size_t		bytes;
     unsigned int	i = 0;
 
+    series_stats_inc(settings, SERIES_METRICS_CALLS);
+
     if (nseries < 0)
 	return -EINVAL;
     bytes = sizeof(seriesQueryBaton) + (nseries * sizeof(seriesGetSID));
@@ -5396,7 +5411,6 @@ pmSeriesMetrics(pmSeriesSettings *settings, int nseries, sds *series, void *arg)
     baton->phases[i++].func = series_lookup_finished;
     assert(i <= QUERY_PHASES);
     seriesBatonPhases(baton->current, i, baton);
-    pmSeriesStatsAdd(&settings->module, "metrics.calls", NULL, 1);
     return 0;
 }
 
@@ -5548,6 +5562,8 @@ pmSeriesValues(pmSeriesSettings *settings, pmSeriesTimeWindow *timing,
     size_t		bytes;
     unsigned int	i = 0;
 
+    series_stats_inc(settings, SERIES_VALUES_CALLS);
+
     if (nseries <= 0)
 	return -EINVAL;
     bytes = sizeof(seriesQueryBaton) + (nseries * sizeof(seriesGetSID));
@@ -5562,6 +5578,5 @@ pmSeriesValues(pmSeriesSettings *settings, pmSeriesTimeWindow *timing,
     baton->phases[i++].func = series_lookup_finished;
     assert(i <= QUERY_PHASES);
     seriesBatonPhases(baton->current, i, baton);
-    pmSeriesStatsAdd(&settings->module, "values.calls", NULL, 1);
     return 0;
 }

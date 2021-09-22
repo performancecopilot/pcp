@@ -2,14 +2,14 @@
 /*
  * query_parser.y - yacc/bison grammar for the PCP time series language
  *
- * Copyright (c) 2017-2019 Red Hat.
+ * Copyright (c) 2017-2021 Red Hat.
  * Copyright (c) 2020 Yushan ZHANG.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -1899,6 +1899,8 @@ pmSeriesQuery(pmSeriesSettings *settings, sds query, pmSeriesFlags flags, void *
     char	*errstr;
     int		sts;
 
+    series_stats_inc(settings, SERIES_QUERY_CALLS);
+
     if ((sts = series_parse(query, &sp, &errstr, arg)) != 0) {
 	moduleinfo(&settings->module, PMLOG_ERROR, errstr, arg);
     	return sts;
@@ -1910,7 +1912,6 @@ pmSeriesQuery(pmSeriesSettings *settings, sds query, pmSeriesFlags flags, void *
 	return PM_ERR_NYI;
     }
 
-    pmSeriesStatsAdd(&settings->module, "query.calls", NULL, 1);
     return series_solve(settings, sp.expr, &sp.time, flags, arg);
 }
 
@@ -1920,6 +1921,8 @@ pmSeriesLoad(pmSeriesSettings *settings, sds source, pmSeriesFlags flags, void *
     series_t	sp = {0};
     char	*errstr;
     int		sts;
+
+    series_stats_inc(settings, SERIES_LOAD_CALLS);
 
     if ((sts = series_parse(source, &sp, &errstr, arg)) != 0) {
 	moduleinfo(&settings->module, PMLOG_ERROR, errstr, arg);
@@ -1938,6 +1941,5 @@ pmSeriesLoad(pmSeriesSettings *settings, sds source, pmSeriesFlags flags, void *
 	fputc('\n', stderr);
     }
 
-    pmSeriesStatsAdd(&settings->module, "load.calls", NULL, 1);
     return series_load(settings, sp.expr, &sp.time, flags, arg);
 }
