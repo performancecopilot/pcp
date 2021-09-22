@@ -1372,16 +1372,14 @@ PCP_CALL extern __pmResult *__pmAllocResult(int);
 static inline pmResult *
 __pmOffsetResult(__pmResult *rp)
 {
-    pmResult	*tmp;
-   return (pmResult *)&(((char *)&rp->numpmid)[(char *)tmp - (char *)&tmp->numpmid]);
+   return (pmResult *)(&((char *)rp)[offsetof(__pmResult,numpmid) - offsetof(pmResult,numpmid)]);
 }
 
 /* same for pmHighResResult ... */
 static inline pmHighResResult *
 __pmOffsetHighResResult(__pmResult *rp)
 {
-    pmHighResResult	*tmp;
-   return (pmHighResResult *)&(((char *)&rp->numpmid)[(char *)tmp - (char *)&tmp->numpmid]);
+   return (pmHighResResult *)(&((char *)rp)[offsetof(__pmResult,numpmid) - offsetof(pmHighResResult,numpmid)]);
 }
 
 /* free malloc'd data structures */
