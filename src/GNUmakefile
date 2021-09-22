@@ -31,6 +31,7 @@ LIBS_SUBDIRS = \
 	libpcp_qmc \
 	libpcp_qwt \
 	libpcp_web \
+	libpcp_fault \
 	#
 
 # ones that generate .static executables and may be used later on

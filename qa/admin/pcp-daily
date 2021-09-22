@@ -514,7 +514,6 @@ _script_qa()
 {
     cat <<End-of-File
 rm -f *.out.bad
-./changeversion >/dev/null 2>&1
 
 # Policy for QA Farm: exclude all tests tagged BAD
 #

@@ -38,7 +38,6 @@ _hunt_qa()
        |all-by-group\
        |bad-by-group\
        |buildbot/*\
-       |changeversion\
        |check*\
        |chk*\
        |cull-pmlogger-config\
