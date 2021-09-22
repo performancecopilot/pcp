@@ -1446,6 +1446,62 @@ mmv_inc_atomvalue(void *addr, pmAtomValue *av, pmAtomValue *value)
 }
 
 void
+mmv_add(void *registry, pmAtomValue *metric, void *value)
+{
+    mmv_inc_atomvalue(registry, metric, (pmAtomValue *)value);
+}
+
+void
+mmv_inc(void *addr, pmAtomValue *av)
+{
+    if (av != NULL && addr != NULL) {
+	mmv_disk_header_t *hdr = (mmv_disk_header_t *)addr;
+	mmv_disk_value_t *v = (mmv_disk_value_t *)av;
+	int type;
+
+	if (hdr->version == MMV_VERSION1) {
+	    mmv_disk_metric_t *m = (mmv_disk_metric_t *)
+					((char *)addr + v->metric);
+	    type = m->type;
+	} else {
+	    mmv_disk_metric2_t *m = (mmv_disk_metric2_t *)
+					((char *)addr + v->metric);
+	    type = m->type;
+	}
+	switch (type) {
+	case MMV_TYPE_I32:
+	    v->value.l++;
+	    break;
+	case MMV_TYPE_U32:
+	    v->value.ul++;
+	    break;
+	case MMV_TYPE_I64:
+	    v->value.ll++;
+	    break;
+	case MMV_TYPE_U64:
+	    v->value.ull++;
+	    break;
+	case MMV_TYPE_FLOAT:
+	    v->value.f++;
+	    break;
+	case MMV_TYPE_DOUBLE:
+	    v->value.d++;
+	    break;
+	case MMV_TYPE_ELAPSED:
+	    if (v->value.ll < 0)
+		v->extra++;
+	    else {
+		v->value.ll += v->extra + 1;
+		v->extra = 0;
+	    }
+	    break;
+	default:
+	    break;
+	}
+    }
+}
+
+void
 mmv_set_value(void *addr, pmAtomValue *av, double val)
 {
     if (av != NULL && addr != NULL) {
@@ -1551,8 +1607,14 @@ mmv_set_atomvalue(void *addr, pmAtomValue *av, pmAtomValue *value)
     }
 }
 
+void
+mmv_set(void *registry, pmAtomValue *metric, void *value)
+{
+    mmv_set_atomvalue(registry, metric, (pmAtomValue *)value);
+}
+
 /*
- * Simple wrapper routines
+ * Simple wrapper routines, less efficient than earlier methods.
  */
 
 void

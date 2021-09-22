@@ -49,3 +49,10 @@ PCP_MMV_1.3 {
     mmv_inc_atomvalue;
     mmv_set_atomvalue;
 } PCP_MMV_1.2;
+
+PCP_MMV_1.4 {
+  global:
+    mmv_add;
+    mmv_inc;
+    mmv_set;
+} PCP_MMV_1.3;
