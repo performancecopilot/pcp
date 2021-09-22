@@ -64,7 +64,6 @@ extern void http_transfer(struct client *);
 extern void http_reply(struct client *, sds, http_code, http_flags, http_options);
 extern void http_error(struct client *, http_code, const char *);
 
-extern int http_decode(const char *, size_t, sds);
 extern const char *http_status_mapping(http_code);
 extern const char *http_content_type(http_flags);
 

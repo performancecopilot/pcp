@@ -206,6 +206,10 @@ LCFLAGS += $(NVIDIACFLAGS)
 TARGETS += $(NVIDIAQALIB)
 endif
 
+ifeq "$(HAVE_CMOCKA)" "true"
+CFILES += test_encodings.c test_hostspec.c
+endif
+
 # libpcp_trace is ready
 TRACELIB	= $(LLDLIBS) -lpcp_trace
 
@@ -698,6 +702,20 @@ qa_shmctl_stat.$(DSOSUFFIX):	 qa_shmctl_stat.c
 qa_sem_msg_ctl.$(DSOSUFFIX):	 qa_sem_msg_ctl.c
 	$(CCF) $(LDFLAGS) -shared -o $@ qa_sem_msg_ctl.c
 	@rm -f qa_sem_msg_ctl.o
+
+# --- need cmocka
+
+ifeq "$(HAVE_CMOCKA)" "true"
+
+test_encodings:	test_encodings.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $^ $(LDLIBS) $(LIB_FOR_CMOCKA) -lpcp_pmda -lpcp_web -lpcp_mmv
+
+test_hostspec:	test_hostspec.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $^ $(LDLIBS) $(LIB_FOR_CMOCKA)
+
+endif
 
 ifneq ($(NVIDIAQALIB),)
 $(NVIDIAQALIB):	nvidia-ml.o

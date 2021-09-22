@@ -1,0 +1,49 @@
+name: "Coverity"
+on:
+  schedule:
+    - cron:  '0 1 * * 0'
+
+jobs:
+  analyze:
+    name: Analyze
+    if: github.repository == 'Nordix/hiredis-cluster'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+
+    - name: Download Coverity
+      run: |
+        cd ..
+        wget -q https://scan.coverity.com/download/linux64 --post-data "token=${COVERITY_TOKEN}&project=hiredis-cluster" -O coverity_tool.tgz
+        mkdir coverity
+        tar xzf coverity_tool.tgz --strip 1 -C coverity
+        echo "$(pwd)/coverity/bin" >> $GITHUB_PATH
+      env:
+        COVERITY_TOKEN: ${{ secrets.COVERITY_TOKEN }}
+
+    - name: Prepare
+      run: |
+        sudo apt-get install -y libevent-dev gcc cmake
+        mkdir build; cd build
+        cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DENABLE_SSL=ON ..
+
+    - name: Build with Coverity
+      run: cov-build --dir cov-int make
+      working-directory: build
+
+    - name: Submit the result to Coverity
+      run: |
+        tar czvf hiredis_cluster.tgz cov-int
+        curl \
+          --form token=${COVERITY_TOKEN} \
+          --form email=bjorn.a.svensson@est.tech \
+          --form file=@hiredis_cluster.tgz \
+          --form version=${GITHUB_SHA} \
+          https://scan.coverity.com/builds?project=hiredis-cluster
+      working-directory: build
+      env:
+        COVERITY_TOKEN: ${{ secrets.COVERITY_TOKEN }}

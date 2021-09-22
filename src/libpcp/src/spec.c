@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2015,2021 Red Hat.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -861,9 +861,9 @@ parseAttributeSpec(
 	    attr = __pmLookupAttrKey(buffer, buflen+1);
 	    if (attr != PCP_ATTR_NONE) {
 		char *val = NULL;
+		int val_len = s - v;
 
-		if (v && (val = strndup(v, s - v)) == NULL) {
-		    sts = -ENOMEM;
+		if (v && (sts = __pmUrlDecode(v, val_len, &val)) < 0) {
 		    goto fail;
 		}
 		if ((sts = __pmHashAdd(attr, (void *)val, attributes)) < 0) {
@@ -1010,6 +1010,8 @@ __pmAttrStr_r(__pmAttrKey key, const char *data, char *string, size_t size)
 {
     char name[16];	/* must be sufficient to hold any key name (above) */
     int sts;
+    char *encoded;
+    int attr_str_len;
 
     if ((sts = __pmAttrKeyStr_r(key, name, sizeof(name))) <= 0)
 	return sts;
@@ -1025,7 +1027,12 @@ __pmAttrStr_r(__pmAttrKey key, const char *data, char *string, size_t size)
     case PCP_ATTR_GROUPID:
     case PCP_ATTR_PROCESSID:
     case PCP_ATTR_CONTAINER:
-	return pmsprintf(string, size, "%s=%s", name, data ? data : "");
+	if ((sts = __pmUrlEncode(data ? data : "", data ? strlen(data) : 0, &encoded)) < 0)
+	    return 0;
+	attr_str_len = pmsprintf(string, size, "%s=%s", name, encoded);
+	free(encoded);
+	return attr_str_len;
+
 
     case PCP_ATTR_UNIXSOCK:
     case PCP_ATTR_LOCAL:

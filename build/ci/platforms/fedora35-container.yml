@@ -16,9 +16,6 @@ tasks:
   setup: |
     sudo dnf install -y which hostname
     sudo dnf -y -b install $(qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
-
-    # debuginfod slows down the valgrind tests considerably, and is not required for CI
-    sudo rm /etc/profile.d/debuginfod.*
   build: |
     ./Makepkgs --verbose
     rpm -qp --requires $(echo pcp-*/build/rpm/pcp-*.src.rpm | sed 's/src/x86_64/') | grep -q libuv.so

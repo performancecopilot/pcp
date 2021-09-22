@@ -214,7 +214,7 @@ def write_allure_result(test: Test, commit: str, allure_results_path: str):
 
     if test.status in [Test.Status.Failed, Test.Status.Broken]:
         allure_result["description"] += (
-            f"**To reproduce this test in a container, please run:**\n\n"
+            f"**To reproduce this test, please run:**\n\n"
             f"    build/ci/ci-run.py {test.platform} reproduce"
         )
 

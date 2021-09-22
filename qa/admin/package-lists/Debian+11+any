@@ -39,6 +39,7 @@ libavahi-common-dev
 libbpf0
 libbpf-dev
 libclass-dbi-perl
+libcmocka-dev
 libcoin-dev
 libdbd-mysql-perl
 libdbd-pg-perl
