@@ -23,6 +23,7 @@
 #include "pmapi.h"
 #include "libpcp.h"
 #include "internal.h"
+#include "fault.h"
 
 /*
  * Linked list of allocations made by __pmAllocResult(), but not
@@ -69,6 +70,8 @@ __pmAllocResult(int numpmid)
 {
     size_t		need;
     result_pool_t	*new = (result_pool_t *)malloc(sizeof(*new));
+
+PM_FAULT_RETURN(NULL);
 
     PM_INIT_LOCKS();
 

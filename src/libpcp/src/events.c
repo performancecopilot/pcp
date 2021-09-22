@@ -539,7 +539,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	__pmResult	*__rp;
 
 	numpmid = count_event_parameters(erp->er_flags, erp->er_nparams);
-PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
+PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_CALL);
 	if ((__rp = __pmAllocResult(numpmid)) == NULL) {
 	    sts = -oserror();
 	    r--;

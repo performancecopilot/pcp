@@ -1,0 +1,16 @@
+QA output created by 1345
+3rd call to __pmAllocResult from __pmLogFetchInterp() fails
+
+metric:    sample.seconds
+archive:   archives/ok-foo
+host:      gonzo
+start:     Fri Aug  7 04:34:32 1998
+end:       Fri Aug  7 04:34:40 1998
+semantics: cumulative counter (converting to rate)
+units:     sec (converting to time utilization)
+samples:   9
+interval:  1.00 sec
+04:34:32.257  No values available
+04:34:33.257  No values available
+
+pmval: pmFetch: Cannot allocate memory

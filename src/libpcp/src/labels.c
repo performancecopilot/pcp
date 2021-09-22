@@ -1369,7 +1369,7 @@ getlabels(int ident, int type, pmLabelSet **sets, int *nsets)
 		    sts = __pmMapErrno(sts);
 		else {
 		    int x_ident = ident, x_type = type;
-		    PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
+		    PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 		    sts = __pmRecvLabel(fd, ctxp, tout, &x_ident, &x_type, sets, nsets);
 		}
 	    }

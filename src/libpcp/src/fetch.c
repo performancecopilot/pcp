@@ -207,7 +207,7 @@ pmFetch_ctx(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmResult **result)
 		if (sts < 0)
 		    sts = __pmMapErrno(sts);
 		else {
-		    PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
+		    PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 		    sts = __pmRecvFetch(fd, ctxp, tout, result);
 		}
 	    }
@@ -351,7 +351,7 @@ pmHighResFetch_ctx(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmHighResResu
 					ctxp->c_slot, numpmid, pmidlist)) < 0)
 		sts = __pmMapErrno(sts);
 	    else {
-		PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_TIMEOUT);
+		PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_CALL);
 		sts = __pmRecvHighResFetch(fd, ctxp, tout, result);
 	    }
 	}

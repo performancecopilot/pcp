@@ -78,7 +78,7 @@ pmStore_ctx(__pmContext *ctxp, const pmResult *result)
 	    __pmPDU	*pb;
 	    int		pinpdu;
 	 
-PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 	    pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 				      ctxp->c_pmcd->pc_tout_sec, &pb);
 	    if (sts == PDU_ERROR)

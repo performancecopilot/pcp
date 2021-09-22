@@ -446,7 +446,7 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
     __pmPDU		*pdubuf_prev;
     __pmPDUHdr		*php;
 
-PM_FAULT_RETURN(PM_FAULT_TIMEOUT);
+PM_FAULT_RETURN(PM_ERR_TIMEOUT);
 
     if ((pdubuf = __pmFindPDUBuf(maxsize)) == NULL)
 	return -oserror();

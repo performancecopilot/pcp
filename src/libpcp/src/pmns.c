@@ -1879,7 +1879,7 @@ pmLookupName_ctx(__pmContext *ctxp, int derive_locked, int numpmid, const char *
 	    __pmPDU	*pb;
 	    int		pinpdu;
 
-PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 	    pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 				    ctxp->c_pmcd->pc_tout_sec, &pb);
 	    if (sts == PDU_PMNS_IDS) {
@@ -2021,7 +2021,7 @@ GetChildrenStatusRemote(__pmContext *ctxp, const char *name,
 	__pmPDU		*pb;
 	int		pinpdu;
 
-PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_TIMEOUT);
+PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_CALL);
 	pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 				ctxp->c_pmcd->pc_tout_sec, &pb);
 	if (n == PDU_PMNS_NAMES) {
@@ -2467,7 +2467,7 @@ receive_namesbyid(__pmContext *ctxp, char ***namelist)
     __pmPDU	*pb;
     int		pinpdu;
 
-PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_TIMEOUT);
+PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_CALL);
     pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 			    ctxp->c_pmcd->pc_tout_sec, &pb);
     
@@ -2986,7 +2986,7 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
 	    char	**namelist;
 	    int		pinpdu;
 
-PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_TIMEOUT);
+PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_CALL);
 	    pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 				      TIMEOUT_DEFAULT, &pb);
 

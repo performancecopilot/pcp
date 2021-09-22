@@ -35,13 +35,12 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c result.c \
 	deprecated.c
 HFILES = derive.h internal.h compiler.h pmdbg.h jsonsl.h sha256.h sort_r.h \
 	avahi.h subnetprobe.h shellprobe.h
-EXT_FILES = jsonsl.c jsonsl.h sha256.c sha256.h sort_r.h
 YFILES = getdate.y derive_parser.y
 OTHERS	= fix_derive_parser_y derive_parser.y.in
 VERSION_SCRIPT = exports
 
 # files that will be symbolic-linked to here from libpcp directory
-LN_FILES = $(filter-out $(EXT_FILES),$(CFILES)) $(HFILES) getdate.y $(OTHERS)
+LN_FILES = $(CFILES) $(HFILES) getdate.y $(OTHERS)
 
 CFLAGS_OPT = -DPM_FAULT_INJECTION=1 -DPM_MULTI_THREAD_DEBUG=1 -g -O0
 
@@ -105,9 +104,9 @@ SYMTARGET =
 endif
 
 LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) derive_parser.y \
-	getdate.h check.done $(LN_FILES) $(EXT_FILES) exports *.c
+	getdate.h check.done $(LN_FILES) exports *.c
 
-base default : $(HFILES) $(CFILES) $(EXT_FILES) $(VERSION_SCRIPT) $(INFILES) \
+base default : $(HFILES) $(CFILES) $(VERSION_SCRIPT) $(INFILES) \
 	$(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
 libpcp.so: $(SYMTARGET)
@@ -176,10 +175,6 @@ pmdbg.h:	../../libpcp/src/pmdbg.h
 $(LN_FILES):
 	rm -f $@
 	$(LN_S) $(TOPDIR)/src/libpcp/src/$@ .
-
-$(EXT_FILES):
-	rm -f $@
-	$(LN_S) $(TOPDIR)/src/external/$@ .
 
 default_pcp : default
 

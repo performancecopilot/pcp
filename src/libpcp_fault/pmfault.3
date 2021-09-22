@@ -33,9 +33,9 @@ void __pmFaultSummary(FILE *\fIf\fP);
 .sp
 PM_FAULT_POINT(\fIident\fP, \fIclass\fP);
 .br
-PM_FAULT_RETURN(\fIclass\fP);
+PM_FAULT_RETURN(\fIretvalue\fP);
 .br
-PM_FAULT_CHECK(\fIclass\fP);
+PM_FAULT_CHECK;
 .br
 PM_FAULT_CLEAR;
 .sp
@@ -103,26 +103,30 @@ but these three are sufficient to cover the vast majority of the uses
 within
 .IR libpcp .
 .TP
-.B PM_FAULT_PMAPI
+.B PM_FAULT_CALL
 Will cause the
 .B next
-call to a PMAPI routine
-to fail by returning the (new) PCP error code
-.BR PM_ERR_FAULT .
-At the
-this stage, only
+call to an instrumented routine
+to fail by returning an error code (possibly the new
+.B PM_ERR_FAULT 
+code).
+The actual error code is defined in the
+.B PM_FAULT_RETURN
+macro at the head of an instrumented routine.
+Initially, only
 .BR __pmRegisterAnon (3)
-has been instrumented as a proof of concept for this part of the
-facility.
-.TP
-.B PM_FAULT_TIMEOUT
-Will cause the
-.B next
-call to an instrumented routine to return the PCP error code
-.BR PM_ERR_TIMEOUT.
-At this stage, only
+(returns
+.BR PM_ERR_FAULT ),
 .BR __pmGetPDU (3)
-has been instrumented to check for this class of fault injection.
+(returns
+.BR PM_ERR_TIMEOUT )
+and
+.BR __pmAllocResult (3)
+(returns
+.BR NULL )
+were instrumented as a proof of concept for this part of the
+facility, however other routines may have this fault injection
+capability added over time.
 .TP
 .B PM_FAULT_MISC
 The ``other'' class, currently used with
@@ -154,28 +158,12 @@ Similarly, the macro
 emits no code unless
 .B PM_FAULT_INJECTION
 is defined, in which case if a fault of type
-.I class
+.B PM_FAULT_CALL
 has been armed with
 .B __pmFaultInject
 then, the enclosing
-routine will trigger the associated error behaviour.
-For the moment, this only works for the following
-.I class
-types:
-.TP
-.B PM_FAULT_PMAPI
-The enclosing routine will return immediately with the value
-.B PM_ERR_FAULT
-\- this assumes the enclosing routine is of type
-.B "int foo(...)"
-like all of the PMAPI routines.
-.TP
-.B PM_FAULT_TIMEOUT
-The enclosing routine will return immediately with the value
-.B PM_ERR_TIMEOUT
-\- this assumes the enclosing routine is of type
-.B "int foo(...)"
-like all of the PMAPI routines.
+routine return with the function value
+.IR retvalue .
 .PP
 The
 .B PM_FAULT_CHECK
@@ -183,21 +171,24 @@ macro returns a value that may be 0 or 1.
 If
 .B PM_FAULT_INJECTION
 is defined then if a fault of type
-.I class
+.B PM_FAULT_MISC
 has been armed with
 .B __pmFaultInject
 then the value is 1 else it is 0.
 .PP
-This is most often used in concert with the
+.B PM_FAULT_CHECK
+is most often used in concert with the
 .B PM_FAULT_POINT
 macro with the
 .B PM_FAULT_MISC
-class to potentially arm a trigger, then
+class to potentially arm a trigger, then test
 .B PM_FAULT_CHECK
 and if this has the value 1, then the
-final
 .B PM_FAULT_CLEAR
-macro is used to clear any armed faults.  This is illustrated
+macro is used to clear any armed faults, and
+the fault injection code is executed.
+.PP
+This is illustrated
 in the example below from
 .IR src/libpcp/src/exec.c :
 .sp
@@ -207,7 +198,7 @@ in the example below from
 
     /* begin fault-injection block */
     PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_MISC);
-    if (PM_FAULT_CHECK(PM_FAULT_MISC)) {
+    if (PM_FAULT_CHECK) {
 	PM_FAULT_CLEAR;
 	if (pid > (pid_t)0)
 	    kill(pid, SIGKILL);
@@ -375,25 +366,51 @@ libpcp/events.c:1: guard trip>2, 5 trips, 3 faults
 .SH EXAMPLES
 Refer to the PCP and PCP QA source code.
 .PP
-.I src/libpcp/src/derive.c
-uses
-.BR PM_FAULT_RETURN .
-.PP
-.I src/libpcp/src/err.c
-and
-.I src/libpcp/src/events.c
-use
-.BR PM_FAULT_POINT .
+The macro definitions are in
+.IR src/include/pcp/fault.h .
 .PP
 .I src/libpcp/src/fault.c
 contains all of the the underlying implementation.
 .PP
 .I src/libpcp_fault
-contains the recipe and Makefile for creating and
+and
+.I src/libpcp_fault/src
+contains the recipe and Makefiles for creating and
 installing
-.I libpcp_fault
+.IR libpcp_fault.so
 and
 .IR <pcp/fault.h> .
+.PP
+.BR PM_FAULT_RETURN
+was initiallly used in the following
+.I libpcp
+source files:
+.IR derive_parser.y.in ,
+.I pdu.c
+and
+.IR result.c .
+.PP
+.BR PM_FAULT_POINT .
+was initiallly used in the following
+.I libpcp
+source files:
+.IR derive_parser.y.in ,
+.IR desc.c ,
+.IR e_indom.c ,
+.IR e_labels.c ,
+.IR err.c ,
+.IR events.c ,
+.IR exec.c ,
+.IR fetch.c ,
+.IR help.c ,
+.IR instance.c ,
+.IR interp.c ,
+.IR labels.c ,
+.IR logmeta.c ,
+.IR pmns.c ,
+.I p_profile.c
+and
+.IR store.c .
 .PP
 The ``fault'' group of QA tests
 show examples of control file use.  To see which tests are involved

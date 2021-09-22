@@ -70,7 +70,7 @@ src/multictx -s $samples sample.colour pmcd.buf.alloc 2>&1 \
 | _filter
 
 echo
-echo "force 2nd pmNameID to timeout"
+echo "force 2nd pmNameAll to timeout"
 cat >$tmp.control <<End-of-File
 libpcp/pmns.c:3	== 2
 End-of-File

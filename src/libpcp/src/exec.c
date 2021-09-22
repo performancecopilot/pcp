@@ -244,7 +244,7 @@ __pmProcessExec(__pmExecCtl_t **handle, int toss, int wait)
 
     /* begin fault-injection block */
     PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_MISC);
-    if (PM_FAULT_CHECK(PM_FAULT_MISC)) {
+    if (PM_FAULT_CHECK) {
 	PM_FAULT_CLEAR;
 	if (pid > (pid_t)0)
 	    kill(pid, SIGKILL);
@@ -496,7 +496,7 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 
     /* begin fault-injection block */
     PM_FAULT_POINT("libpcp/" __FILE__ ":5", PM_FAULT_MISC);
-    if (PM_FAULT_CHECK(PM_FAULT_MISC)) {
+    if (PM_FAULT_CHECK) {
 	PM_FAULT_CLEAR;
 	if (sts >= 0) {
 	    close(mypipe[0]);
@@ -519,7 +519,7 @@ __pmProcessPipe(__pmExecCtl_t **handle, const char *type, int toss, FILE **fp)
 
     /* begin fault-injection block */
     PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_MISC);
-    if (PM_FAULT_CHECK(PM_FAULT_MISC)) {
+    if (PM_FAULT_CHECK) {
 	PM_FAULT_CLEAR;
 	if (pid > (pid_t)0)
 	    kill(pid, SIGKILL);

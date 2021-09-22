@@ -81,7 +81,7 @@ again_host:
 	if (sts < 0)
 	    sts = __pmMapErrno(sts);
 	else {
-	    PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
+	    PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 	    sts = __pmRecvText(fd, ctxp, tout, buffer);
 	    if (sts != 0 || *buffer[0] == '\0') {
 		/* failed help text request, maybe try for one-line */

@@ -253,7 +253,7 @@ __dminit(void)
 	char	global[MAXPATHLEN+1];
 
 	/* anon metrics for event record unpacking */
-PM_FAULT_POINT("libpcp/derive.c:7", PM_FAULT_PMAPI);
+PM_FAULT_POINT("libpcp/derive.c:7", PM_FAULT_CALL);
 	sts = registeranon(PM_LOCKED, "event.flags", PM_TYPE_U32);
 	if (sts < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
@@ -266,7 +266,7 @@ PM_FAULT_POINT("libpcp/derive.c:7", PM_FAULT_PMAPI);
 	    registered.mlist[registered.nmetric-1].helptext =
 "An anonymous derived metric that is used to encode the event flags\n"
 "associated with event records.   See pmUnpackEventRecords(3).";
-PM_FAULT_POINT("libpcp/derive.c:8", PM_FAULT_PMAPI);
+PM_FAULT_POINT("libpcp/derive.c:8", PM_FAULT_CALL);
 	}
 	sts = registeranon(PM_LOCKED, "event.missed", PM_TYPE_U32);
 	if (sts < 0) {
@@ -1681,7 +1681,7 @@ registerderived(int derive_locked, const char *name, const char *expr, int isano
     else {
 	/* begin fault-injection block */
 PM_FAULT_POINT("libpcp/derive.c:1", PM_FAULT_MISC);
-	if (PM_FAULT_CHECK(PM_FAULT_MISC)) {
+	if (PM_FAULT_CHECK) {
 	    PM_FAULT_CLEAR;
 	    pmid.item = 1024 - 1;
 	    pmid.cluster = 2048 - 1;
@@ -1860,7 +1860,7 @@ registeranon(int derive_locked, const char *name, int type)
     char	*msg;
     char	buf[21];	/* anon(PM_TYPE_XXXXXX) */
 
-PM_FAULT_RETURN(PM_FAULT_PMAPI);
+PM_FAULT_RETURN(PM_ERR_FAULT);
     switch (type) {
 	case PM_TYPE_32:
 	    pmsprintf(buf, sizeof(buf), "anon(PM_TYPE_32)");
@@ -2355,7 +2355,7 @@ addderived(const char *name, const char *expr, char **p)
     else {
 	/* begin fault-injection block */
 PM_FAULT_POINT("libpcp/derive.c:2", PM_FAULT_MISC);
-	if (PM_FAULT_CHECK(PM_FAULT_MISC)) {
+	if (PM_FAULT_CHECK) {
 	    PM_FAULT_CLEAR;
 	    pmid.item = 1;
 	    pmid.cluster = 0;

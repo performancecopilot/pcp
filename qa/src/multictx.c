@@ -10,7 +10,7 @@
  * PMAPI loop repeated for each metric.
  * - pmLookupName(all names)
  * - pmLookupDesc for one metric
- * - pmNameID for one metric
+ * - pmNameAll for one metric
  * - pmGetInDom for one metric
  * - pmNameInDom for one metric
  * - pmLookupInDom for one metric
@@ -324,19 +324,28 @@ Options:\n\
 	    break;
 
 	case OP_NAMEID:
-	    fprintf(stderr, "iter %d: ctx %d: pmNameID metric: %s (aka %s)\n", iter, ctl[i].ctx, pmIDStr(ctl[i].pmid), ctl[i].name);
-	    sts = pmNameID(ctl[i].pmid, &name);
+	    fprintf(stderr, "iter %d: ctx %d: pmNameAll metric: %s (aka %s)\n", iter, ctl[i].ctx, pmIDStr(ctl[i].pmid), ctl[i].name);
+	    sts = pmNameAll(ctl[i].pmid, &namelist);
 	    if (sts < 0) {
 		fprintf(stderr, "Error: %s\n", pmErrStr(sts));
 		if (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT)
 		    ctl[i].ctx_bad = 1;
 	    }
 	    else {
-		if (strcmp(ctl[i].name, name) != 0) {
-		    fprintf(stderr, "Error: returned name %s", name);
+		int	j;
+		for (j = 0; j < sts; j++) {
+		    if (strcmp(ctl[i].name, namelist[j]) == 0)
+			break;
+		}
+		if (j == sts) {
+		    fprintf(stderr, "Error: returned names:");
+		    for (j = 0; j < sts; j++) {
+			if (j > 0) fprintf(stderr, ",");
+			fprintf(stderr, " %s", namelist[j]);
+		    }
 		    fprintf(stderr, " expecting %s\n", ctl[i].name);
 		}
-		free(name);
+		free(namelist);
 	    }
 	    break;
 

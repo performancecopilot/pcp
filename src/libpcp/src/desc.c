@@ -76,7 +76,7 @@ pmLookupDesc_ctx(__pmContext *ctxp, int derive_locked, pmID pmid, pmDesc *desc)
 	if ((sts = __pmSendDescReq(fd, __pmPtrToHandle(ctxp), pmid)) < 0) {
 	    sts = __pmMapErrno(sts);
 	} else {
-	    PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
+	    PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 	    sts = __pmRecvDesc(fd, ctxp, tout, desc);
 	}
     }

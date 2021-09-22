@@ -55,7 +55,7 @@ pmLookupInDom_ctx(__pmContext *ctxp, pmInDom indom, const char *name)
 		__pmPDU	*pb;
 		int	pinpdu;
 
-PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_TIMEOUT);
+PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_CALL);
 		pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 			       ctxp->c_pmcd->pc_tout_sec, &pb);
 		if (sts == PDU_INSTANCE) {
@@ -168,7 +168,7 @@ pmNameInDom_ctx(__pmContext *ctxp, pmInDom indom, int inst, char **name)
 		__pmPDU	*pb;
 		int	pinpdu;
 
-PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_TIMEOUT);
+PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_CALL);
 		pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 					ctxp->c_pmcd->pc_tout_sec, &pb);
 		if (sts == PDU_INSTANCE) {
@@ -325,7 +325,7 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 		__pmPDU	*pb;
 		int	pinpdu;
 
-PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 		pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 					ctxp->c_pmcd->pc_tout_sec, &pb);
 		if (sts == PDU_INSTANCE) {

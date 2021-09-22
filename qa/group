@@ -1791,6 +1791,7 @@ x11
 1342 pmda.openmetrics local python
 1343:retired pmmgr local pmlogrewrite
 1344:retired pmmgr local
+1345 pmval fault interp local
 1347 atop pcp local
 1349 pmlogrewrite labels pmdumplog local kernel
 1350 pmda.proc local

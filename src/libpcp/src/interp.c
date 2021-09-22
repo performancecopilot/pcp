@@ -41,6 +41,7 @@
 #include "pmapi.h"
 #include "libpcp.h"
 #include "internal.h"
+#include "fault.h"
 
 #define UPD_MARK_NONE	0
 #define UPD_MARK_FORW	1
@@ -1708,8 +1709,12 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     }
 
     /* Build the final result. */
-    if ((__rp = __pmAllocResult(numpmid)) == NULL)
-	return -oserror();
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
+    if ((__rp = __pmAllocResult(numpmid)) == NULL) {
+	sts = -oserror();
+	if (sts == 0) sts = -ENOMEM;
+	return sts;
+    }
 
     rp = __pmOffsetResult(__rp);
     rp->timestamp.tv_sec = ctxp->c_origin.sec;
