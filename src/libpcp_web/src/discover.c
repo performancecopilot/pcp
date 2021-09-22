@@ -55,7 +55,7 @@ pmDiscoverStatsSet(pmDiscoverModule *module, const char *name, const char *inst,
     	mmv_stats_set(data->metrics_handle, name, inst, value);
 }
 
-static int
+static uint64_t
 pmDiscoverGetInflightRedisRequests(pmDiscoverModule *module)
 {
     discoverModuleData	*data;
@@ -64,10 +64,10 @@ pmDiscoverGetInflightRedisRequests(pmDiscoverModule *module)
         return 0;
 
     data = getDiscoverModuleData(module);
-    if (data == NULL || data->slots == NULL)
+    if (data == NULL)
 	return 0;
 
-    return data->slots->inflight_requests;
+    return redisSlotsInflightRequests(data->slots);
 }
 
 /* FNV string hash algorithm. Return unsigned in range 0 .. limit-1 */
