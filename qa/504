@@ -24,10 +24,17 @@ _cleanup()
 
 _filter()
 {
+    # EAGAIN has different values on *BSD, so map to the Linux number
+    #	35 => 11
+    # ditto for ENOSYS
+    #	78 => 38
+    #
     sed \
 	-e 's/exectest([0-9][0-9]*)/exectest(PID)/' \
 	-e 's/\[[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]]/[DATE]/' \
 	-e 's/alloc([0-9][0-9]*)/alloc(N)/g' \
+	-e '/^__pmProcessExec/s/ -35 / -11 /' \
+	-e '/^__pmProcessPipe/s/ -78:/ -38:/' \
     #
 }
 
