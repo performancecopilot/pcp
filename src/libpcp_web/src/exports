@@ -235,3 +235,10 @@ PCP_WEB_1.17 {
     pmWebTimerRegister;
     pmWebTimerRelease;
 } PCP_WEB_1.16;
+
+PCP_WEB_1.18 {
+  global:
+    pmWebTimerClose;
+    pmWebTimerSetEventLoop;
+    pmWebTimerSetup;
+} PCP_WEB_1.17;

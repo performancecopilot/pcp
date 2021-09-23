@@ -206,9 +206,9 @@ on_pmsearch_done(int status, void *arg)
 {
     pmSearchBaton	*baton = (pmSearchBaton *)arg;
     struct client	*client = baton->client;
-    http_options	options = baton->options;
-    http_flags		flags = client->u.http.flags;
-    http_code		code;
+    http_options_t	options = baton->options;
+    http_flags_t	flags = client->u.http.flags;
+    http_code_t		code;
     sds			msg;
 
     if (status == 0) {

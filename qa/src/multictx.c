@@ -75,7 +75,6 @@ main(int argc, char **argv)
     ctl_t	*ctl;
     int		numctl;
     pmID	pmid;
-    char	*name;
     pmDesc	desc;
     pmResult	*rp;
     int		iter;
@@ -93,11 +92,7 @@ main(int argc, char **argv)
 
 	case 'a':	/* archive name */
 	    if (type != 0) {
-#ifdef BUILD_STANDALONE
 		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmGetProgname());
-#else
-		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmGetProgname());
-#endif
 		errflag++;
 	    }
 	    type = PM_CONTEXT_ARCHIVE;
@@ -115,18 +110,13 @@ main(int argc, char **argv)
 
 	case 'h':	/* contact PMCD on this hostname */
 	    if (type != 0) {
-#ifdef BUILD_STANDALONE
 		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmGetProgname());
-#else
-		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmGetProgname());
-#endif
 		errflag++;
 	    }
 	    host = optarg;
 	    type = PM_CONTEXT_HOST;
 	    break;
 
-#ifdef BUILD_STANDALONE
 	case 'L':	/* LOCAL, no PMCD */
 	    if (type != 0) {
 		fprintf(stderr, "%s: at most one of -a, -h, -L and -U allowed\n", pmGetProgname());
@@ -137,7 +127,6 @@ main(int argc, char **argv)
 	    putenv("PMDA_LOCAL_PROC=");		/* if proc PMDA needed */
 	    putenv("PMDA_LOCAL_SAMPLE=");	/* if sampledso PMDA needed */
 	    break;
-#endif
 
 	case 's':	/* sample count */
 	    samples = (int)strtol(optarg, &endnum, 10);
@@ -164,11 +153,9 @@ main(int argc, char **argv)
 \n\
 Options:\n\
   -a archive     metrics source is a PCP log archive\n\
-  -h host        metrics source is PMCD on host\n"
-#ifdef BUILD_STANDALONE
-"  -L             use local context instead of PMCD\n"
-#endif
-"  -s samples     terminate after this many samples [default 10]\n",
+  -h host        metrics source is PMCD on host\n\
+  -L             use local context instead of PMCD\n\
+  -s samples     terminate after this many samples [default 10]\n",
                 pmGetProgname());
         exit(1);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat.
+ * Copyright (c) 2018-2021 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -111,22 +111,52 @@ extern void pmSearchDiscoverInDom(pmDiscoverEvent *,
 extern void pmSearchDiscoverText(pmDiscoverEvent *,
 				int, int, char *, void *);
 
+enum {
+    DISCOVER_MONITORED,
+    DISCOVER_PURGED,
+    DISCOVER_META_CALLBACKS,
+    DISCOVER_META_LOOPS,
+    DISCOVER_DECODE_DESC,
+    DISCOVER_DECODE_INDOM,
+    DISCOVER_DECODE_LABEL,
+    DISCOVER_DECODE_HELPTEXT,
+    DISCOVER_LOGVOL_CALLBACKS,
+    DISCOVER_LOGVOL_LOOPS,
+    DISCOVER_LOGVOL_CHANGE_VOL,
+    DISCOVER_DECODE_RESULT,
+    DISCOVER_DECODE_RESULT_PMIDS,
+    DISCOVER_DECODE_MARK_RECORD,
+    DISCOVER_LOGVOL_NEW_CONTEXTS,
+    DISCOVER_ARCHIVE_END_FAILED,
+    DISCOVER_CHANGED_CALLBACKS,
+    DISCOVER_THROTTLE_CALLBACKS,
+    DISCOVER_THROTTLE,
+    DISCOVER_META_PARTIAL_READS,
+    DISCOVER_DECODE_RESULT_ERRORS,
+    NUM_DISCOVER_METRIC
+};
+
 /*
  * Module internals data structure
  */
 typedef struct discoverModuleData {
     unsigned int		handle;		/* callbacks context handle */
     unsigned int		shareslots;	/* boolean, sharing 'slots' */
-    mmv_registry_t		*metrics;	/* registry of metrics */
-    void			*metrics_handle;
+
+    mmv_registry_t		*registry;	/* metrics */
+    pmAtomValue			*metrics[NUM_DISCOVER_METRIC];
+    void			*map;
+
     struct dict			*config;	/* configuration dict */
     uv_loop_t			*events;	/* event library loop */
     redisSlots			*slots;		/* server slots data */
+
     unsigned int		exclude_names;	/* exclude metric names */
     sds				*patterns;	/* metric name patterns */
     struct dict			*pmids;		/* dict of excluded PMIDs */
     unsigned int		exclude_indoms;	/* exclude instance domains */
     struct dict			*indoms;	/* dict of excluded InDoms */
+
     void			*data;		/* user-supplied pointer */
 } discoverModuleData;
 

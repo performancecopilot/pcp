@@ -29,7 +29,7 @@
 #define RUN_SYSTEMD	3		/* -F */
 
 static void	*info;			/* opaque server information */
-static pmproxy	*server;		/* proxy server implementation */
+static struct pmproxy	*server;	/* proxy server implementation */
 struct dict	*config;		/* configuration file settings */
 
 static char	*logfile = "pmproxy.log";	/* log file name */

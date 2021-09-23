@@ -34,41 +34,8 @@ static char *pmDiscoverFlagsStr(pmDiscover *);
 static pmDiscover *discover_hashtable[PM_DISCOVER_HASHTAB_SIZE];
 
 /* number of archives or directories currently being monitored */
-static int n_monitored = 0;
+static uint64_t monitored;
 
-/* stats helpers */
-static void
-pmDiscoverStatsAdd(pmDiscoverModule *module, const char *name, const char *inst, double count)
-{
-    discoverModuleData	*data;
-
-    if (module != NULL && (data = getDiscoverModuleData(module)) != NULL)
-	mmv_stats_add(data->metrics_handle, name, inst, count);
-}
-
-static void
-pmDiscoverStatsSet(pmDiscoverModule *module, const char *name, const char *inst, double value)
-{
-    discoverModuleData	*data;
-
-    if (module != NULL && (data = getDiscoverModuleData(module)) != NULL)
-    	mmv_stats_set(data->metrics_handle, name, inst, value);
-}
-
-static int
-pmDiscoverGetInflightRedisRequests(pmDiscoverModule *module)
-{
-    discoverModuleData	*data;
-
-    if (module == NULL)
-        return 0;
-
-    data = getDiscoverModuleData(module);
-    if (data == NULL || data->slots == NULL)
-	return 0;
-
-    return data->slots->inflight_requests;
-}
 
 /* FNV string hash algorithm. Return unsigned in range 0 .. limit-1 */
 static unsigned int
@@ -104,6 +71,7 @@ stamp(void)
 static pmDiscover *
 pmDiscoverLookupAdd(const char *fullpath, pmDiscoverModule *module, void *arg)
 {
+    discoverModuleData	*data;
     pmDiscover		*p, *h;
     unsigned int	k;
     sds			name;
@@ -133,10 +101,11 @@ pmDiscoverLookupAdd(const char *fullpath, pmDiscoverModule *module, void *arg)
 	    discover_hashtable[k] = h;
 	else
 	    p->next = h;
-	pmDiscoverStatsSet(h->module, "monitored", NULL, ++n_monitored);
+	++monitored;
+	data = getDiscoverModuleData(module);
+	mmv_set(data->map, data->metrics[DISCOVER_MONITORED], &monitored);
 	if (pmDebugOptions.discovery)
 	    fprintf(stderr, "pmDiscoverLookupAdd: --> new entry %s\n", name);
-
     }
     else {
 	/* already in hash table, so free the buffer */
@@ -1003,6 +972,7 @@ archive_dir_lock_path(pmDiscover *p)
 static void
 process_metadata(pmDiscover *p)
 {
+    discoverModuleData	*data = getDiscoverModuleData(p->module);
     int			partial = 0;
     __pmTimestamp	stamp;
     pmDesc		desc;
@@ -1017,10 +987,10 @@ process_metadata(pmDiscover *p)
     unsigned char	hash[20];
     __pmLogHdr		hdr;
     sds			msg, source;
-    static uint32_t	*buf = NULL;
     char		*lock_path;
     int			deleted;
     struct stat		sbuf;
+    static uint32_t	*buf = NULL;
     static int		buflen = 0;
 
     /*
@@ -1032,12 +1002,12 @@ process_metadata(pmDiscover *p)
     if (pmDebugOptions.discovery)
 	fprintf(stderr, "process_metadata: %s in progress %s\n",
 		p->context.name, pmDiscoverFlagsStr(p));
-    pmDiscoverStatsAdd(p->module, "metadata.callbacks", NULL, 1);
+    mmv_inc(data->map, data->metrics[DISCOVER_META_CALLBACKS]);
     lock_path = archive_dir_lock_path(p);
     for (;;) {
 	if (lock_path && access(lock_path, F_OK) == 0)
 	    break;
-	pmDiscoverStatsAdd(p->module, "metadata.loops", NULL, 1);
+	mmv_inc(data->map, data->metrics[DISCOVER_META_LOOPS]);
 	off = lseek(p->fd, 0, SEEK_CUR);
 	nb = read(p->fd, &hdr, sizeof(__pmLogHdr));
 
@@ -1053,7 +1023,7 @@ process_metadata(pmDiscover *p)
 	    /* rewind so we can wait for more data on the next change CallBack */
 	    lseek(p->fd, off, SEEK_SET);
 	    partial = 1;
-	    pmDiscoverStatsAdd(p->module, "metadata.partial_reads", NULL, 1);
+	    mmv_inc(data->map, data->metrics[DISCOVER_META_PARTIAL_READS]);
 	    continue;
 	}
 
@@ -1063,7 +1033,7 @@ process_metadata(pmDiscover *p)
 	    /* rewind and wait for more data, as above */
 	    lseek(p->fd, off, SEEK_SET);
 	    partial = 1;
-	    pmDiscoverStatsAdd(p->module, "metadata.partial_reads", NULL, 1);
+	    mmv_inc(data->map, data->metrics[DISCOVER_META_PARTIAL_READS]);
 	    continue;
 	}
 
@@ -1086,7 +1056,7 @@ process_metadata(pmDiscover *p)
 	    /* rewind and wait for more data, as above */
 	    lseek(p->fd, off, SEEK_SET);
 	    partial = 1;
-	    pmDiscoverStatsAdd(p->module, "metadata.partial_reads", NULL, 1);
+	    mmv_inc(data->map, data->metrics[DISCOVER_META_PARTIAL_READS]);
 	    continue;
 	}
 
@@ -1098,7 +1068,7 @@ process_metadata(pmDiscover *p)
 	    /* decode pmDesc result from PDU buffer */
 	    nnames = 0;
 	    names = NULL;
-	    pmDiscoverStatsAdd(p->module, "metadata.decode.desc", NULL, 1);
+	    mmv_inc(data->map, data->metrics[DISCOVER_DECODE_DESC]);
 	    if ((e = pmDiscoverDecodeMetaDesc(buf, len, &desc, &nnames, &names)) < 0) {
 		if (pmDebugOptions.discovery)
 		    fprintf(stderr, "%s failed: err=%d %s\n",
@@ -1122,13 +1092,14 @@ process_metadata(pmDiscover *p)
 	    break;
 
 	case TYPE_INDOM:
+	    mmv_inc(data->map, data->metrics[DISCOVER_DECODE_INDOM]);
 	    // TODO
 fprintf(stderr, "process_metadata: botch record type TYPE_INDOM\n");
 	    break;
 
 	case TYPE_INDOM_V2:
 	    /* decode indom result from buffer */
-	    pmDiscoverStatsAdd(p->module, "metadata.decode.indom", NULL, 1);
+	    mmv_inc(data->map, data->metrics[DISCOVER_DECODE_INDOM]);
 	    if ((e = pmDiscoverDecodeMetaInDom(buf, len, &stamp, &inresult)) < 0) {
 		if (pmDebugOptions.discovery)
 		    fprintf(stderr, "%s failed: err=%d %s\n",
@@ -1141,7 +1112,7 @@ fprintf(stderr, "process_metadata: botch record type TYPE_INDOM\n");
 	case TYPE_LABEL:
 	case TYPE_LABEL_V2:
 	    /* decode labelset from buffer */
-	    pmDiscoverStatsAdd(p->module, "metadata.decode.label", NULL, 1);
+	    mmv_inc(data->map, data->metrics[DISCOVER_DECODE_LABEL]);
 	    if ((e = pmDiscoverDecodeMetaLabelSet(buf, len, &stamp, &id, &type, &nsets, &labelset)) < 0) {
 		if (pmDebugOptions.discovery)
 		    fprintf(stderr, "%s failed: err=%d %s\n",
@@ -1176,7 +1147,7 @@ fprintf(stderr, "process_metadata: botch record type TYPE_INDOM\n");
 		fprintf(stderr, "TEXT\n");
 	    /* decode help text from buffer */
 	    buffer = NULL;
-	    pmDiscoverStatsAdd(p->module, "metadata.decode.helptext", NULL, 1);
+	    mmv_inc(data->map, data->metrics[DISCOVER_DECODE_HELPTEXT]);
 	    if ((e = pmDiscoverDecodeMetaHelpText(buf, len, &type, &id, &buffer)) < 0) {
 		if (pmDebugOptions.discovery)
 		    fprintf(stderr, "%s failed: err=%d %s\n",
@@ -1222,15 +1193,16 @@ fprintf(stderr, "process_metadata: botch record type TYPE_INDOM\n");
 }
 
 static void
-bump_logvol_decode_stats(pmDiscover *p, pmResult *r)
+bump_logvol_decode_stats(discoverModuleData *data, pmResult *r)
 {
     if (r->numpmid == 0)
-	pmDiscoverStatsAdd(p->module, "logvol.decode.mark_record", NULL, 1);
+	mmv_inc(data->map, data->metrics[DISCOVER_DECODE_MARK_RECORD]);
     else if (r->numpmid < 0)
-	pmDiscoverStatsAdd(p->module, "logvol.decode.error_result", NULL, 1);
+	mmv_inc(data->map, data->metrics[DISCOVER_DECODE_RESULT_ERRORS]);
     else {
-	pmDiscoverStatsAdd(p->module, "logvol.decode.result", NULL, 1);
-	pmDiscoverStatsAdd(p->module, "logvol.decode.result_pmids", NULL, r->numpmid);
+	uint64_t pmids = (uint64_t)r->numpmid;
+	mmv_add(data->map, data->metrics[DISCOVER_DECODE_RESULT_PMIDS], &pmids);
+	mmv_inc(data->map, data->metrics[DISCOVER_DECODE_RESULT]);
     }
 }
 
@@ -1241,20 +1213,21 @@ bump_logvol_decode_stats(pmDiscover *p, pmResult *r)
 static void
 process_logvol(pmDiscover *p)
 {
-    int			sts;
+    discoverModuleData	*data = getDiscoverModuleData(p->module);
     pmResult		*r = NULL;
     __pmTimestamp	stamp;
-    int			oldcurvol;
     __pmContext		*ctxp;
     __pmArchCtl		*acp;
     char		*lock_path;
+    int			oldcurvol;
+    int			sts;
 
-    pmDiscoverStatsAdd(p->module, "logvol.callbacks", NULL, 1);
+    mmv_inc(data->map, data->metrics[DISCOVER_LOGVOL_CALLBACKS]);
     lock_path = archive_dir_lock_path(p);
     for (;;) {
 	if (lock_path && access(lock_path, F_OK) == 0)
 	    break;
-	pmDiscoverStatsAdd(p->module, "logvol.loops", NULL, 1);
+	mmv_inc(data->map, data->metrics[DISCOVER_LOGVOL_LOOPS]);
 	pmUseContext(p->ctx);
 	ctxp = __pmHandleToPtr(p->ctx);
 	acp = ctxp->c_archctl;
@@ -1269,7 +1242,7 @@ process_logvol(pmDiscover *p)
 	    if (oldcurvol < acp->ac_curvol) {
 	    	__pmLogChangeVol(acp, acp->ac_curvol);
 		acp->ac_offset = 0; /* __pmLogFetch will fix it up */
-		pmDiscoverStatsAdd(p->module, "logvol.change_vol", NULL, 1);
+		mmv_inc(data->map, data->metrics[DISCOVER_LOGVOL_CHANGE_VOL]);
 	    }
 	    PM_UNLOCK(ctxp->c_lock);
 
@@ -1314,7 +1287,7 @@ process_logvol(pmDiscover *p)
 	 */
 	stamp.sec = r->timestamp.tv_sec;
 	stamp.nsec = r->timestamp.tv_usec * 1000;
-	bump_logvol_decode_stats(p, r);
+	bump_logvol_decode_stats(data, r);
 	pmDiscoverInvokeValuesCallBack(p, &stamp, r);
 	pmFreeResult(r);
 	r = NULL;
@@ -1323,7 +1296,7 @@ process_logvol(pmDiscover *p)
     if (r) {
 	stamp.sec = r->timestamp.tv_sec;
 	stamp.nsec = r->timestamp.tv_usec * 1000;
-	bump_logvol_decode_stats(p, r);
+	bump_logvol_decode_stats(data, r);
 	pmDiscoverInvokeValuesCallBack(p, &stamp, r);
 	pmFreeResult(r);
     }
@@ -1338,6 +1311,7 @@ process_logvol(pmDiscover *p)
 static void
 pmDiscoverInvokeCallBacks(pmDiscover *p)
 {
+    discoverModuleData	*data = getDiscoverModuleData(p->module);
     int			sts;
     sds			msg;
     sds			metaname;
@@ -1374,17 +1348,17 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 		/* no further processing for this archive */
 		return;
 	    }
-	    pmDiscoverStatsAdd(p->module, "logvol.new_contexts", NULL, 1);
+	    mmv_inc(data->map, data->metrics[DISCOVER_LOGVOL_NEW_CONTEXTS]);
 	    p->ctx = sts;
 
 	    if ((sts = pmGetArchiveEnd(&tvp)) < 0) {
+		mmv_inc(data->map, data->metrics[DISCOVER_ARCHIVE_END_FAILED]);
 		/* Less likely, but could still be too early (as above) */
 		infofmt(msg, "pmGetArchiveEnd failed for %s: %s\n",
 				p->context.name, pmErrStr(sts));
 		moduleinfo(p->module, PMLOG_ERROR, msg, p->data);
 		pmDestroyContext(p->ctx);
 		p->ctx = -1;
-		pmDiscoverStatsAdd(p->module, "logvol.get_archive_end_failed", NULL, 1);
 
 		return;
 	    }
@@ -1501,24 +1475,24 @@ directory_changed_cb(pmDiscover *p, void *arg)
 static void
 changed_callback(pmDiscover *p)
 {
+    discoverModuleData	*data = getDiscoverModuleData(p->module);
+    uint64_t		throttle, purged;
     time_t		now;
-    int			throttle;
-    int			n_purged;
 
     /* dynamic callback throttle - to improve scaling */
-    if ((throttle = n_monitored / 40) < 1)
+    if ((throttle = monitored / 40) < 1)
 	throttle = 1;
-    pmDiscoverStatsSet(p->module, "throttle", NULL, throttle);
+    mmv_set(data->map, data->metrics[DISCOVER_THROTTLE], &throttle);
     if ((p->flags & PM_DISCOVER_FLAGS_NEW) == 0) {
 	if (time(&now) - p->lastcb < throttle || 
-	    pmDiscoverGetInflightRedisRequests(p->module) > 1000000) {
-	    pmDiscoverStatsAdd(p->module, "throttled_changed_callbacks", NULL, 1);
+	    redisSlotsInflightRequests(data->slots) > 1000000) {
+	    mmv_inc(data->map, data->metrics[DISCOVER_THROTTLE_CALLBACKS]);
 	    return; /* throttled */
 	}
     }
     p->lastcb = now;
 
-    pmDiscoverStatsAdd(p->module, "changed_callbacks", NULL, 1);
+    mmv_inc(data->map, data->metrics[DISCOVER_CHANGED_CALLBACKS]);
     if (pmDebugOptions.discovery)
 	fprintf(stderr, "CHANGED %s (%s)\n", p->context.name,
 			pmDiscoverFlagsStr(p));
@@ -1557,10 +1531,10 @@ changed_callback(pmDiscover *p)
 	    directory_changed_cb, (void *)p->context.name);
 
 	/* finally, purge deleted entries (globally), if any */
-	n_purged = pmDiscoverPurgeDeleted();
-	pmDiscoverStatsAdd(p->module, "purged", NULL, n_purged);
-	n_monitored -= n_purged;
-	pmDiscoverStatsSet(p->module, "monitored", NULL, n_monitored);
+	purged = pmDiscoverPurgeDeleted();
+	mmv_add(data->map, data->metrics[DISCOVER_PURGED], &purged);
+	monitored = monitored < purged ? 0 : monitored - purged;
+	mmv_set(data->map, data->metrics[DISCOVER_MONITORED], &monitored);
     }
 
     if (pmDebugOptions.discovery) {

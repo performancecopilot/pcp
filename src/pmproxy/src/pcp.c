@@ -40,8 +40,8 @@ on_server_close(uv_handle_t *handle)
 static void
 on_server_write(uv_write_t *writer, int status)
 {
-    struct client	*client = (struct client *)writer->handle;
-    stream_write_baton	*request = (stream_write_baton *)writer;
+    struct client		*client = (struct client *)writer->handle;
+    struct stream_write_baton	*request = (struct stream_write_baton *)writer;
 
     free(request);
     if (status != 0)
@@ -51,12 +51,12 @@ on_server_write(uv_write_t *writer, int status)
 static void
 server_write(struct client *client, sds buffer)
 {
-    stream_write_baton	*request;
+    struct stream_write_baton	*request;
 
     if (client_is_closed(client))
 	return;
 
-    if ((request = calloc(1, sizeof(stream_write_baton))) != NULL) {
+    if ((request = calloc(1, sizeof(struct stream_write_baton))) != NULL) {
 	if (pmDebugOptions.pdu)
 	    fprintf(stderr, "%s: %ld bytes from client %p to pmcd\n",
 			"server_write", (long)sdslen(buffer), client);

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2017-2020 Red Hat.
- * 
+ * Copyright (c) 2017-2021 Red Hat.
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
@@ -160,11 +160,28 @@ typedef struct seriesLoadBaton {
 /*
  * Module internal (private) data structures and accessors
  */
+
+enum {
+    SERIES_QUERY_CALLS,
+    SERIES_DESCS_CALLS,
+    SERIES_INSTANCES_CALLS,
+    SERIES_SOURCES_CALLS,
+    SERIES_METRICS_CALLS,
+    SERIES_VALUES_CALLS,
+    SERIES_LABELS_CALLS,
+    SERIES_LABELVALUES_CALLS,
+    SERIES_LOAD_CALLS,
+    NUM_SERIES_METRIC
+};
+
 typedef struct seriesModuleData {
-    mmv_registry_t	*metrics;
-    void		*metrics_handle;
+    mmv_registry_t	*registry;	/* metrics */
+    pmAtomValue		*metrics[NUM_SERIES_METRIC];
+    void		*map;
+
     struct dict		*config;
     uv_loop_t		*events;
+
     redisSlots		*slots;
     unsigned int	shareslots;
     unsigned int	search;

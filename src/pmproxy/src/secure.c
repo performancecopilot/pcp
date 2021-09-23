@@ -140,11 +140,11 @@ on_secure_client_read(struct proxy *proxy, struct client *client,
 static void
 flush_ssl_buffer(struct client *client)
 {
-    stream_write_baton	*request;
-    ssize_t		bytes;
+    struct stream_write_baton	*request;
+    ssize_t			bytes;
 
     if ((bytes = BIO_pending(client->secure.write)) > 0) {
-	request = calloc(1, sizeof(stream_write_baton));
+	request = calloc(1, sizeof(struct stream_write_baton));
 	request->buffer[0] = uv_buf_init(sdsnewlen(SDS_NOINIT, bytes), bytes);
 	request->nbuffers = 1;
 	request->writer.data = client;
@@ -216,7 +216,7 @@ flush_secure_module(struct proxy *proxy)
 }
 
 void
-secure_client_write(struct client *client, stream_write_baton *request)
+secure_client_write(struct client *client, struct stream_write_baton *request)
 {
     struct proxy	*proxy = client->proxy;
     uv_buf_t		*dup;

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2020 Red Hat.
+# Copyright (c) 2015-2021 Red Hat.
 #
 # This library is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published
@@ -14,6 +14,9 @@
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
+
+REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
+REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 
 HIREDIS_HFILES = $(addprefix deps/hiredis/, \
 	alloc.h async.h async_private.h fmacros.h hiredis.h net.h \
@@ -55,7 +58,7 @@ CFILES += discover.c webgroup.c timer.c
 LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1
 LLDLIBS += $(LIB_FOR_LIBUV)
 else
-CFILES += nodiscover.c nowebgroup.c
+CFILES += nodiscover.c nowebgroup.c notimer.c
 endif
 
 ifeq "$(HAVE_OPENSSL)" "true"
@@ -97,6 +100,7 @@ $(SYMTARGET):
 endif
 
 install: default
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/pmproxy_fixups.conf logrewrite.conf $(REWRITEDIR)/pmproxy_fixups.conf
 ifneq ($(LIBTARGET),)
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
 endif

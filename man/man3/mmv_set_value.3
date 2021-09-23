@@ -15,13 +15,17 @@
 .\"
 .TH MMV_SET_VALUE 3 "" "Performance Co-Pilot"
 .SH NAME
-\f3mmv_set_value\f1 \- set a value in a Memory Mapped Value file
+\f3mmv_set\f1,
+\f3mmv_set_value\f1,
+\f3mmv_set_atomvalue\f1 \- set a value in a Memory Mapped Value file
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .br
 #include <pcp/mmv_stats.h>
 .sp
+void mmv_set(void *\fIaddr\fP, pmAtomValue *\fIav\fP, void *\fIval\fP);
+.br
 void mmv_set_value(void *\fIaddr\fP, pmAtomValue *\fIav\fP, double \fIval\fP);
 .br
 void mmv_set_atomvalue(void *\fIaddr\fP, pmAtomValue *\fIav\fP, pmAtomValue *\fIval\fP);
@@ -29,6 +33,7 @@ void mmv_set_atomvalue(void *\fIaddr\fP, pmAtomValue *\fIav\fP, pmAtomValue *\fI
 cc ... \-lpcp_mmv \-lpcp
 .ft 1
 .SH DESCRIPTION
+\f3mmv_set\f1,
 \f3mmv_set_value\f1
 and
 \f3mmv_set_atomvalue\f1
@@ -45,14 +50,13 @@ Refer to
 .BR mmv_inc_value (3)
 for a mechanism suited to monotonic increasing counter metrics.
 .P
-With
+With \f3mmv_set\f1 and
 \f3mmv_set_atomvalue\f1 the value provided via the \f2inc\f1
 pointer must match the type of the metric and will be used as
 the new value of the metric.
 .P
-In the case of
-\f3mmv_set_value\f1
-the value \f2val\f1 is internally cast to match the type of
+In the case of \f3mmv_set\f1 and \f3mmv_set_value\f1, the
+pointer value \f2val\f1 is internally cast to match the type of
 the metric and then used as the value for the metric.
 .SH SEE ALSO
 .BR mmv_inc_value (3),

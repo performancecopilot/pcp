@@ -9,8 +9,6 @@
 #include <pcp/pmapi.h>
 #include "libpcp.h"
 
-#define BUILD_STANDALONE
-
 int
 main(int argc, char **argv)
 {
@@ -31,11 +29,7 @@ main(int argc, char **argv)
 
 	case 'a':	/* archive name */
 	    if (type != 0) {
-#ifdef BUILD_STANDALONE
 		fprintf(stderr, "%s: at most one of -a, -h, -L and -x allowed\n", pmGetProgname());
-#else
-		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmGetProgname());
-#endif
 		errflag++;
 	    }
 	    type = PM_CONTEXT_ARCHIVE;
@@ -53,18 +47,13 @@ main(int argc, char **argv)
 
 	case 'h':	/* contact PMCD on this hostname */
 	    if (type != 0) {
-#ifdef BUILD_STANDALONE
 		fprintf(stderr, "%s: at most one of -a, -h, -L and -x allowed\n", pmGetProgname());
-#else
-		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmGetProgname());
-#endif
 		errflag++;
 	    }
 	    host = optarg;
 	    type = PM_CONTEXT_HOST;
 	    break;
 
-#ifdef BUILD_STANDALONE
 	case 'L':	/* LOCAL, no PMCD */
 	    if (type != 0) {
 		fprintf(stderr, "%s: at most one of -a, -h, -L and -x allowed\n", pmGetProgname());
@@ -75,7 +64,6 @@ main(int argc, char **argv)
 	    putenv("PMDA_LOCAL_PROC=");		/* if proc PMDA needed */
 	    putenv("PMDA_LOCAL_SAMPLE=");	/* if sampledso PMDA needed */
 	    break;
-#endif
 
 	case 'x':	/* no current context */
 	    if (type != 0) {
@@ -97,11 +85,9 @@ main(int argc, char **argv)
 \n\
 Options:\n\
   -a archive     metrics source is a PCP log archive\n\
-  -h host        metrics source is PMCD on host\n"
-#ifdef BUILD_STANDALONE
-"  -L             use local context instead of PMCD\n"
-#endif
-"  -x             no current context\n"
+  -h host        metrics source is PMCD on host\n\
+  -L             use local context instead of PMCD\n\
+  -x             no current context\n"
 	    , pmGetProgname());
         exit(1);
     }
@@ -116,11 +102,9 @@ Options:\n\
 	    if (type == PM_CONTEXT_HOST)
 		fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
 		    pmGetProgname(), host, pmErrStr(sts));
-    #ifdef BUILD_STANDALONE
 	    else if (type == PM_CONTEXT_LOCAL)
 		fprintf(stderr, "%s: Cannot initialize LOCAL context: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
-    #endif
 	    else
 		fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
 		    pmGetProgname(), host, pmErrStr(sts));

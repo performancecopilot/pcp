@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2017-2020 Red Hat.
+ * Copyright (c) 2017-2021 Red Hat.
  * Copyright (c) 2020 Yushan ZHANG.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -182,6 +182,7 @@ typedef struct series {
 extern int series_parse(sds, series_t *, char **, void *);
 extern int series_solve(pmSeriesSettings *, node_t *, timing_t *, pmSeriesFlags, void *);
 extern int series_load(pmSeriesSettings *, node_t *, timing_t *, pmSeriesFlags, void *);
+extern void series_stats_inc(pmSeriesSettings *, unsigned int);
 
 extern const char *series_instance_name(sds);
 extern const char *series_context_name(sds);

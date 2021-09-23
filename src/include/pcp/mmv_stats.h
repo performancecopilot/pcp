@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013,2016,2018 Red Hat.
+ * Copyright (C) 2013,2016,2018,2021 Red Hat.
  * Copyright (C) 2009 Aconex.  All Rights Reserved.
  * Copyright (C) 2001,2009 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -147,12 +147,26 @@ extern void * mmv_stats_start(mmv_registry_t *);
 extern void mmv_stats_free(mmv_registry_t *);
 
 extern pmAtomValue * mmv_lookup_value_desc(void *, const char *, const char *);
+
+/*
+ * Use these interfaces for updating metrics prefentially to
+ * the by-metric-name lookup based interfaces (see below).
+ */
+extern void mmv_inc(void *, pmAtomValue *);	/* increment by one */
+extern void mmv_add(void *, pmAtomValue *, void *);
 extern void mmv_inc_atomvalue(void *, pmAtomValue *, pmAtomValue *);
 extern void mmv_inc_value(void *, pmAtomValue *, double);
+
+extern void mmv_set(void *, pmAtomValue *, void *);
 extern void mmv_set_atomvalue(void *, pmAtomValue *, pmAtomValue *);
 extern void mmv_set_value(void *, pmAtomValue *, double);
 extern void mmv_set_string(void *, pmAtomValue *, const char *, int);
 
+/*
+ * Above interfaces are more efficient than the following,
+ * especially as the number of metrics increases and/or the
+ * rate of updating metric values increases.
+ */
 extern void mmv_stats_add(void *, const char *, const char *, double);
 extern void mmv_stats_inc(void *, const char *, const char *);
 extern void mmv_stats_set(void *, const char *, const char *, double);

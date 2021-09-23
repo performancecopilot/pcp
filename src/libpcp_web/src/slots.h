@@ -34,24 +34,35 @@ typedef enum redisSlotsFlags {
     SLOTS_SEARCH	= (1 << 2),
 } redisSlotsFlags;
 
+enum {
+    SLOT_REQUESTS_TOTAL,
+    SLOT_REQUESTS_ERROR,
+    SLOT_RESPONSES_TOTAL,
+    SLOT_RESPONSES_ERROR,
+    SLOT_RESPONSES_TIME,
+    SLOT_REQUESTS_INFLIGHT_TOTAL,
+    SLOT_REQUESTS_INFLIGHT_BYTES,
+    SLOT_REQUESTS_TOTAL_BYTES,
+    SLOT_RESPONSES_TOTAL_BYTES,
+    NUM_SLOT_METRICS
+};
+
 typedef struct redisSlots {
     redisClusterAsyncContext *acc;	/* cluster context */
-    unsigned int	setup;		/* connected to redis */
-    int			cluster_mode;	/* Redis cluster mode enabled */
+    unsigned int	setup : 1;	/* connected to redis */
+    unsigned int	search : 1;	/* RediSearch use enabled */
+    unsigned int	cluster : 1;	/* Redis cluster mode enabled */
     redisMap		*keymap;	/* map command names to key position */
     void		*events;	/* libuv event loop */
-    int			search;		/* RediSearch status */
-
-    mmv_registry_t	*metrics;	/* MMV metrics for instrumentation */
-    void		*metrics_handle; /* MMV handle */
-
-    int			inflight_requests; /* number of Redis requests without response */
+    mmv_registry_t	*registry;	/* MMV metrics for instrumentation */
+    void		*map;		/* MMV mapped metric values handle */
+    pmAtomValue		*metrics[NUM_SLOT_METRICS]; /* direct handle lookup */
 } redisSlots;
 
 /* wraps the actual Redis callback and data */
 typedef struct redisSlotsReplyData {
     redisSlots			*slots;
-    int64_t			start;		/* time of the request in usec */
+    uint64_t			start;		/* time of the request (usec) */
     size_t			req_size;	/* size of request */
 
     redisClusterCallbackFn	*callback;	/* actual callback */
@@ -65,6 +76,7 @@ extern int redisSlotsSetMetricRegistry(redisSlots *, mmv_registry_t *);
 extern redisSlots *redisSlotsInit(dict *, void *);
 extern redisSlots *redisSlotsConnect(dict *, redisSlotsFlags,
 		redisInfoCallBack, redisDoneCallBack, void *, void *, void *);
+extern uint64_t redisSlotsInflightRequests(redisSlots *);
 extern int redisSlotsRequest(redisSlots *, sds, redisClusterCallbackFn *, void *);
 extern int redisSlotsRequestFirstNode(redisSlots *slots, const sds cmd,
 		redisClusterCallbackFn *callback, void *arg);

@@ -36,11 +36,7 @@ main(int argc, char **argv)
 
 	case 'a':	/* archive name */
 	    if (type != 0) {
-#ifdef BUILD_STANDALONE
-		fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmGetProgname());
-#else
 		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmGetProgname());
-#endif
 		errflag++;
 	    }
 	    type = PM_CONTEXT_ARCHIVE;

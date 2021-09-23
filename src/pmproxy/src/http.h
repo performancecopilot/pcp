@@ -24,9 +24,9 @@ struct servlet;
 typedef enum json_flags {
     JSON_FLAG_ARRAY	= (1<<0),
     JSON_FLAG_OBJECT	= (1<<1),
-} json_flags;
+} json_flags_t;
 
-extern sds json_push_suffix(sds, json_flags);
+extern sds json_push_suffix(sds, json_flags_t);
 extern sds json_pop_suffix(sds);
 extern sds json_string(const sds);
 
@@ -40,7 +40,7 @@ typedef enum http_flags {
     HTTP_FLAG_COMPRESS	= (1<<14),
     HTTP_FLAG_STREAMING	= (1<<15),
     /* maximum 16 for server.h */
-} http_flags;
+} http_flags_t;
 
 typedef enum http_options {
     HTTP_OPT_GET	= (1 << HTTP_GET),
@@ -50,7 +50,7 @@ typedef enum http_options {
     HTTP_OPT_TRACE	= (1 << HTTP_TRACE),
     HTTP_OPT_OPTIONS	= (1 << HTTP_OPTIONS),
     /* maximum 16 in command opts fields */
-} http_options;
+} http_options_t;
 
 #define HTTP_COMMON_OPTIONS (HTTP_OPT_HEAD | HTTP_OPT_TRACE | HTTP_OPT_OPTIONS)
 #define HTTP_OPTIONS_GET    (HTTP_COMMON_OPTIONS | HTTP_OPT_GET)
@@ -58,17 +58,18 @@ typedef enum http_options {
 #define HTTP_OPTIONS_POST   (HTTP_COMMON_OPTIONS | HTTP_OPT_POST)
 #define HTTP_SERVER_OPTIONS (HTTP_OPTIONS_GET | HTTP_OPT_PUT | HTTP_OPT_POST)
 
-typedef unsigned int http_code;
+typedef unsigned int http_code_t;
 
 extern void http_transfer(struct client *);
-extern void http_reply(struct client *, sds, http_code, http_flags, http_options);
-extern void http_error(struct client *, http_code, const char *);
+extern void http_reply(struct client *, sds, http_code_t, http_flags_t, http_options_t);
+extern void http_error(struct client *, http_code_t, const char *);
 
-extern const char *http_status_mapping(http_code);
-extern const char *http_content_type(http_flags);
+extern int http_decode(const char *, size_t, sds);
+extern const char *http_status_mapping(http_code_t);
+extern const char *http_content_type(http_flags_t);
 
 extern sds http_get_buffer(struct client *);
-extern void http_set_buffer(struct client *, sds, http_flags);
+extern void http_set_buffer(struct client *, sds, http_flags_t);
 
 typedef void (*httpSetupCallBack)(struct proxy *);
 typedef void (*httpCloseCallBack)(struct proxy *);
@@ -88,7 +89,7 @@ typedef struct servlet {
     httpBodyCallBack	on_body;
     httpDoneCallBack	on_done;
     httpReleaseCallBack	on_release;
-} servlet;
+} servlet_t;
 
 extern struct servlet pmsearch_servlet;
 extern struct servlet pmseries_servlet;

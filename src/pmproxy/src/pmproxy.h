@@ -25,7 +25,7 @@ typedef struct pmproxy {
     proxyDumpRequestPorts	dumpports;
     proxyShutdownPorts		shutdown;
     proxyMainLoop		loop;
-} pmproxy;
+} pmproxy_t;
 
 extern struct pmproxy libpcp_pmproxy;
 extern struct pmproxy libuv_pmproxy;

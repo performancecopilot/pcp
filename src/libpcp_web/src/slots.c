@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Red Hat.
+ * Copyright (c) 2017-2021 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -67,57 +67,88 @@ redis_disconnect_callback(const redisAsyncContext *redis, int status)
 void
 redisSlotsSetupMetrics(redisSlots *slots)
 {
+    pmAtomValue	**table;
     pmUnits	units_count = MMV_UNITS(0, 0, 1, 0, 0, PM_COUNT_ONE);
     pmUnits	units_bytes = MMV_UNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0);
     pmUnits	units_us = MMV_UNITS(0, 1, 0, 0, PM_TIME_USEC, 0);
-    pmInDom	noindom = MMV_INDOM_NULL;
+    void	*map;
 
-    if (slots == NULL || slots->metrics == NULL)
+    if (slots == NULL || slots->registry == NULL)
 	return; /* no metric registry has been set up */
 
-    mmv_stats_add_metric(slots->metrics, "requests.total", 1,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, units_count, noindom,
+    mmv_stats_add_metric(slots->registry, "requests.total", 1,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, units_count, MMV_INDOM_NULL,
 	"number of requests",
-	"total number of requests");
+	"Total number of Redis requests sent");
 
-    mmv_stats_add_metric(slots->metrics, "requests.error", 2,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, units_count, noindom,
+    mmv_stats_add_metric(slots->registry, "requests.error", 2,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, units_count, MMV_INDOM_NULL,
 	"number of request errors",
-	"total number of request errors");
+	"Total number of Redis request errors");
 
-    mmv_stats_add_metric(slots->metrics, "responses.total", 3,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, units_count, noindom,
+    mmv_stats_add_metric(slots->registry, "responses.total", 3,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, units_count, MMV_INDOM_NULL,
 	"number of responses",
-	"total number of responses");
+	"Total number of Redis responses received");
 
-    mmv_stats_add_metric(slots->metrics, "responses.error", 4,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, units_count, noindom,
+    mmv_stats_add_metric(slots->registry, "responses.error", 4,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, units_count, MMV_INDOM_NULL,
 	"number of error responses",
-	"total number of error responses");
+	"Total number of Redis error responses received");
 
-    mmv_stats_add_metric(slots->metrics, "responses.wait", 5,
-	MMV_TYPE_U64, MMV_SEM_COUNTER, units_us, noindom,
-	"wait time for responses",
-	"total wait time for responses");
+    mmv_stats_add_metric(slots->registry, "responses.time", 5,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, units_us, MMV_INDOM_NULL,
+	"total time for responses",
+	"Cumulative time taken to receive all Redis responses");
 
-    mmv_stats_add_metric(slots->metrics, "requests.inflight.total", 6,
-	MMV_TYPE_U64, MMV_SEM_DISCRETE, units_count, noindom,
+    mmv_stats_add_metric(slots->registry, "requests.inflight.total", 6,
+	MMV_TYPE_U64, MMV_SEM_INSTANT, units_count, MMV_INDOM_NULL,
 	"inflight requests",
-	"total number of inflight requests");
+	"Total number of inflight Redis requests");
 
-    mmv_stats_add_metric(slots->metrics, "requests.inflight.bytes", 7,
-	MMV_TYPE_I64, MMV_SEM_DISCRETE, units_bytes, noindom,
+    mmv_stats_add_metric(slots->registry, "requests.inflight.bytes", 7,
+	MMV_TYPE_U64, MMV_SEM_INSTANT, units_bytes, MMV_INDOM_NULL,
 	"bytes allocated for inflight requests",
-	"amount of bytes allocated for inflight requests");
+	"Memory currently allocated for inflight Redis requests");
 
-    slots->metrics_handle = mmv_stats_start(slots->metrics);
+    mmv_stats_add_metric(slots->registry, "requests.total_bytes", 8,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, units_bytes, MMV_INDOM_NULL,
+	"total bytes sent for requests",
+	"Cumulative count of bytes sent for all Redis requests");
+
+    mmv_stats_add_metric(slots->registry, "responses.total_bytes", 9,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, units_bytes, MMV_INDOM_NULL,
+	"total bytes received in responses",
+	"Cumulative count of bytes received in Redis responses");
+
+    slots->map = map = mmv_stats_start(slots->registry);
+
+    table = slots->metrics;
+    table[SLOT_REQUESTS_TOTAL] = mmv_lookup_value_desc(map,
+					"requests.total", NULL);
+    table[SLOT_REQUESTS_ERROR] = mmv_lookup_value_desc(map,
+					"requests.error", NULL);
+    table[SLOT_RESPONSES_TOTAL] = mmv_lookup_value_desc(map,
+					"responses.total", NULL);
+    table[SLOT_RESPONSES_ERROR] = mmv_lookup_value_desc(map,
+					"responses.error", NULL);
+    table[SLOT_RESPONSES_TIME] = mmv_lookup_value_desc(map,
+					"responses.time", NULL);
+    table[SLOT_REQUESTS_INFLIGHT_TOTAL] = mmv_lookup_value_desc(map,
+					"requests.inflight.total", NULL);
+    table[SLOT_REQUESTS_INFLIGHT_BYTES] = mmv_lookup_value_desc(map,
+					"requests.inflight.bytes", NULL);
+    table[SLOT_REQUESTS_TOTAL_BYTES] = mmv_lookup_value_desc(map,
+					"requests.total_bytes", NULL);
+    table[SLOT_RESPONSES_TOTAL_BYTES] = mmv_lookup_value_desc(map,
+					"responses.total_bytes", NULL);
 }
 
 int
 redisSlotsSetMetricRegistry(redisSlots *slots, mmv_registry_t *registry)
 {
     if (slots) {
-	slots->metrics = registry;
+	slots->registry = registry;
 	return 0;
     }
     return -ENOMEM;
@@ -135,15 +166,11 @@ redisSlotsInit(dict *config, void *events)
     struct timeval	connection_timeout = {5, 0}; // 5s
     struct timeval	command_timeout = {60, 0}; // 1m
 
-    slots = (redisSlots *)calloc(1, sizeof(redisSlots));
-    if (slots == NULL) {
+    if ((slots = (redisSlots *)calloc(1, sizeof(redisSlots))) == NULL)
 	return NULL;
-    }
 
-    slots->setup = 0;
     slots->events = events;
     slots->keymap = dictCreate(&sdsKeyDictCallBacks, "keymap");
-    slots->inflight_requests = 0;
 
     servers = pmIniFileLookup(config, "pmseries", "servers");
     if (servers == NULL)
@@ -151,20 +178,22 @@ redisSlotsInit(dict *config, void *events)
 
     if ((slots->acc = redisClusterAsyncContextInit()) == NULL) {
 	/* Coverity CID370635 */
-	pmNotifyErr(LOG_ERR, "redisSlotsInit: redisClusterAsyncContextInit failed\n");
+	pmNotifyErr(LOG_ERR, "%s: %s failed\n",
+			"redisSlotsInit", "redisClusterAsyncContextInit");
 	sdsfree(def_servers);
         return slots;
     }
 
     if (slots->acc->err) {
-        pmNotifyErr(LOG_ERR, "redisSlotsInit: %s\n", slots->acc->errstr);
+        pmNotifyErr(LOG_ERR, "%s: %s\n", "redisSlotsInit", slots->acc->errstr);
 	sdsfree(def_servers);
         return slots;
     }
 
     sts = redisClusterSetOptionAddNodes(slots->acc->cc, servers);
     if (sts != REDIS_OK) {
-	pmNotifyErr(LOG_ERR, "redisSlotsInit: failed to add redis nodes: %s\n", slots->acc->cc->errstr);
+	pmNotifyErr(LOG_ERR, "%s: failed to add redis nodes: %s\n",
+			"redisSlotsInit", slots->acc->cc->errstr);
 	sdsfree(def_servers);
 	return slots;
     }
@@ -172,58 +201,69 @@ redisSlotsInit(dict *config, void *events)
 
     sts = redisClusterSetOptionConnectTimeout(slots->acc->cc, connection_timeout);
     if (sts != REDIS_OK) {
-	pmNotifyErr(LOG_ERR, "redisSlotsInit: failed to set connect timeout: %s\n", slots->acc->errstr);
+	pmNotifyErr(LOG_ERR, "%s: failed to set connect timeout: %s\n",
+			"redisSlotsInit", slots->acc->errstr);
 	return slots;
     }
 
     sts = redisClusterSetOptionTimeout(slots->acc->cc, command_timeout);
     if (sts != REDIS_OK) {
-	pmNotifyErr(LOG_ERR, "redisSlotsInit: failed to set command timeout: %s\n", slots->acc->cc->errstr);
+	pmNotifyErr(LOG_ERR, "%s: failed to set command timeout: %s\n",
+			"redisSlotsInit", slots->acc->cc->errstr);
 	return slots;
     }
 
     sts = redisClusterLibuvAttach(slots->acc, slots->events);
     if (sts != REDIS_OK) {
-	pmNotifyErr(LOG_ERR, "redisSlotsInit: failed to attach to libuv event loop: %s\n", slots->acc->errstr);
+	pmNotifyErr(LOG_ERR, "%s: failed to attach to event loop: %s\n",
+			"redisSlotsInit", slots->acc->errstr);
 	return slots;
     }
 
     sts = redisClusterAsyncSetConnectCallback(slots->acc, redis_connect_callback);
     if (sts != REDIS_OK) {
-	pmNotifyErr(LOG_ERR, "redisSlotsInit: failed to set connect callback: %s\n", slots->acc->errstr);
+	pmNotifyErr(LOG_ERR, "%s: failed to set connect callback: %s\n",
+			"redisSlotsInit", slots->acc->errstr);
 	return slots;
     }
 
     sts = redisClusterAsyncSetDisconnectCallback(slots->acc, redis_disconnect_callback);
     if (sts != REDIS_OK) {
-	pmNotifyErr(LOG_ERR, "redisSlotsInit: failed to set disconnect callback: %s\n", slots->acc->errstr);
+	pmNotifyErr(LOG_ERR, "%s: failed to set disconnect callback: %s\n",
+			"redisSlotsInit", slots->acc->errstr);
 	return slots;
     }
 
     sts = redisClusterConnect2(slots->acc->cc);
     if (sts == REDIS_OK) {
-	slots->cluster_mode = 1;
+	slots->cluster = 1;
     }
     else if (strcmp(slots->acc->cc->errstr, REDIS_ENOCLUSTER) == 0) {
-	// This instance has cluster support disabled
+	/* Redis instance has cluster support disabled */
 	slots->acc->cc->err = 0;
 	memset(slots->acc->cc->errstr, '\0', strlen(slots->acc->cc->errstr));
-	slots->cluster_mode = 0;
+	slots->cluster = 0;
 
-	// sanity check: show error message if more than one node is configured, but cluster mode is disabled
-	// otherwise all other nodes silently don't get any data
+	/*
+	 * Sanity check: show error message if more than one node
+	 * is configured, but cluster mode is disabled
+	 * otherwise all other nodes silently don't get any data
+	 */
 	iterator = dictGetSafeIterator(slots->acc->cc->nodes);
 	entry = dictNext(iterator);
 	if (entry && dictNext(iterator)) {
 	    dictReleaseIterator(iterator);
-	    pmNotifyErr(LOG_ERR, "Redis: more than one node is configured, but Redis cluster mode is disabled");
+	    pmNotifyErr(LOG_ERR, "%s: more than one node is configured, "
+			"but cluster mode is disabled", "redisSlotsInit");
 	    return slots;
 	}
 	dictReleaseIterator(iterator);
     }
     else {
-        pmNotifyErr(LOG_INFO, "Cannot connect to Redis at %s: %s. Disabling time series functionality.\n", servers, slots->acc->cc->errstr);
-        return slots;
+	pmNotifyErr(LOG_INFO, "Cannot connect to Redis at %s: %s."
+			" Disabling time series functionality.\n",
+			servers, slots->acc->cc->errstr);
+	return slots;
     }
 
     slots->setup = 1;
@@ -240,25 +280,16 @@ redisSlotsFree(redisSlots *slots)
     free(slots);
 }
 
-/* extracted from hiutil.c, BSD-3-Clause, https://github.com/Nordix/hiredis-cluster */
-static inline int64_t
-usec_now()
+static inline uint64_t
+gettimeusec(void)
 {
-    int64_t usec;
-
     struct timeval now;
-    int status;
-
-    status = gettimeofday(&now, NULL);
-    if (status < 0) {
+    if (gettimeofday(&now, NULL) < 0)
         return -1;
-    }
-
-    usec = (int64_t)now.tv_sec * 1000000LL + (int64_t)now.tv_usec;
-    return usec;
+    return (uint64_t)now.tv_sec * 1000000 + (uint64_t)now.tv_usec;
 }
 
-redisSlotsReplyData*
+static redisSlotsReplyData *
 redisSlotsReplyDataAlloc(redisSlots *slots, size_t req_size,
 			redisClusterCallbackFn *callback, void *arg)
 {
@@ -270,33 +301,59 @@ redisSlotsReplyDataAlloc(redisSlots *slots, size_t req_size,
     }
 
     srd->slots = slots;
-    srd->start = usec_now();
+    srd->start = gettimeusec();
     srd->req_size = req_size;
     srd->callback = callback;
     srd->arg = arg;
     return srd;
 }
 
-void
+static inline void
 redisSlotsReplyDataFree(redisSlotsReplyData *srd)
 {
     free(srd);
 }
 
-void
+uint64_t
+redisSlotsInflightRequests(redisSlots *slots)
+{
+    pmAtomValue		*atom;
+
+    atom = slots ? slots->metrics[SLOT_REQUESTS_INFLIGHT_TOTAL] : NULL;
+    return atom ? atom->ull : 0;
+}
+
+static void
 redisSlotsReplyCallback(redisClusterAsyncContext *c, void *r, void *arg)
 {
     redisSlotsReplyData *srd = arg;
     redisReply 		*reply = r;
+    void		*map = srd->slots->map;
 
-    srd->slots->inflight_requests--;
-    mmv_stats_add(srd->slots->metrics_handle, "responses.wait", NULL, usec_now() - srd->start);
-    mmv_stats_inc(srd->slots->metrics_handle, "responses.total", NULL);
-    mmv_stats_add(srd->slots->metrics_handle, "requests.inflight.total", NULL, -1);
-    mmv_stats_add(srd->slots->metrics_handle, "requests.inflight.bytes", NULL, (int64_t)(-srd->req_size));
+    if (map) {
+	pmAtomValue	**metrics = srd->slots->metrics;
+	pmAtomValue	*value;
+	uint64_t	delta = gettimeusec();
 
-    if (reply == NULL || reply->type == REDIS_REPLY_ERROR)
-	mmv_stats_inc(srd->slots->metrics_handle, "responses.error", NULL);
+	delta = (delta < srd->start) ? 0 : delta - srd->start;
+	mmv_add(map, metrics[SLOT_RESPONSES_TIME], &delta);
+
+	value = metrics[SLOT_REQUESTS_INFLIGHT_TOTAL];
+	delta = value && value->ull > 0 ? value->ull - 1 : 0;
+	mmv_set(map, metrics[SLOT_REQUESTS_INFLIGHT_TOTAL], &delta);
+
+	value = metrics[SLOT_REQUESTS_INFLIGHT_BYTES];
+	delta = value ? value->ull : 0;
+	delta = (delta < srd->req_size) ? 0 : delta - srd->req_size;
+	mmv_set(map, metrics[SLOT_REQUESTS_INFLIGHT_BYTES], &delta);
+
+	delta = srd->req_size;
+	mmv_add(map, metrics[SLOT_RESPONSES_TOTAL_BYTES], &delta);
+	mmv_inc(map, metrics[SLOT_RESPONSES_TOTAL]);
+
+	if (reply == NULL || reply->type == REDIS_REPLY_ERROR)
+	    mmv_inc(map, metrics[SLOT_RESPONSES_ERROR]);
+    }
 
     srd->callback(c, r, srd->arg);
     redisSlotsReplyDataFree(arg);
@@ -315,34 +372,39 @@ redisSlotsRequest(redisSlots *slots, const sds cmd,
 		redisClusterCallbackFn *callback, void *arg)
 {
     int			sts;
+    uint64_t		size;
     redisSlotsReplyData	*srd;
 
     if (UNLIKELY(!slots->setup))
-        return -ENOTCONN;
+	return -ENOTCONN;
 
-    if (!slots->cluster_mode)
+    if (!slots->cluster)
 	return redisSlotsRequestFirstNode(slots, cmd, callback, arg);
 
     if (UNLIKELY(pmDebugOptions.desperate))
-	fprintf(stderr, "Sending raw redis command:\n%s", cmd);
+	fprintf(stderr, "%s: sending raw redis command:\n%s",
+			"redisSlotsRequest", cmd);
 
-    if ((srd = redisSlotsReplyDataAlloc(slots, sdslen(cmd), callback, arg)) == NULL) {
-	mmv_stats_inc(slots->metrics_handle, "requests.error", NULL);
-	pmNotifyErr(LOG_ERR, "Error: redisSlotsRequest failed to allocate reply data (%zu bytes)\n", sdslen(cmd));
+    size = sdslen(cmd);
+    if ((srd = redisSlotsReplyDataAlloc(slots, size, callback, arg)) == NULL) {
+	mmv_inc(slots->map, slots->metrics[SLOT_REQUESTS_ERROR]);
+	pmNotifyErr(LOG_ERR, "%s: failed to allocate reply data (%llu bytes)\n",
+			"redisSlotsRequest", (unsigned long long)size);
 	return -ENOMEM;
     }
-    sts = redisClusterAsyncFormattedCommand(slots->acc, redisSlotsReplyCallback, srd, cmd, sdslen(cmd));
-    mmv_stats_inc(slots->metrics_handle, "requests.total", NULL);
-
-    if (sts != REDIS_OK) {
-	pmNotifyErr(LOG_ERR, "redisSlotsRequest: %s (%s)\n", slots->acc->errstr, cmd);
-	mmv_stats_inc(slots->metrics_handle, "requests.error", NULL);
+    if ((sts = redisClusterAsyncFormattedCommand(slots->acc,
+		    redisSlotsReplyCallback, srd, cmd, size)) != REDIS_OK) {
+	mmv_inc(slots->map, slots->metrics[SLOT_REQUESTS_ERROR]);
+	pmNotifyErr(LOG_ERR, "%s: %s (%s)\n", "redisSlotsRequest",
+			slots->acc->errstr, cmd);
 	return -ENOMEM;
     }
 
-    slots->inflight_requests++;
-    mmv_stats_inc(slots->metrics_handle, "requests.inflight.total", NULL);
-    mmv_stats_add(slots->metrics_handle, "requests.inflight.bytes", NULL, sdslen(cmd));
+    mmv_add(slots->map, slots->metrics[SLOT_REQUESTS_INFLIGHT_BYTES], &size);
+    mmv_add(slots->map, slots->metrics[SLOT_REQUESTS_TOTAL_BYTES], &size);
+    mmv_inc(slots->map, slots->metrics[SLOT_REQUESTS_INFLIGHT_TOTAL]);
+    mmv_inc(slots->map, slots->metrics[SLOT_REQUESTS_TOTAL]);
+
     return REDIS_OK;
 }
 
@@ -354,40 +416,47 @@ redisSlotsRequestFirstNode(redisSlots *slots, const sds cmd,
     dictEntry		*entry;
     cluster_node	*node;
     redisSlotsReplyData	*srd;
+    uint64_t		size;
     int			sts;
 
     if (UNLIKELY(!slots->setup))
-        return -ENOTCONN;
+	return -ENOTCONN;
 
     iterator = dictGetSafeIterator(slots->acc->cc->nodes);
     entry = dictNext(iterator);
     dictReleaseIterator(iterator);
     if (!entry) {
-	pmNotifyErr(LOG_ERR, "redisSlotsRequestFirstNode: No Redis node configured.\n");
+	pmNotifyErr(LOG_ERR, "%s: No Redis node configured.",
+			"redisSlotsRequestFirstNode");
 	return REDIS_ERR;
     }
 
     node = dictGetVal(entry);
     if (UNLIKELY(pmDebugOptions.desperate))
-	fprintf(stderr, "Sending raw redis command to node %s\n%s", node->addr, cmd);
+	fprintf(stderr, "%s: sending raw redis command to node %s\n%s",
+			"redisSlotsRequestFirstNode", node->addr, cmd);
 
-    if ((srd = redisSlotsReplyDataAlloc(slots, sdslen(cmd), callback, arg)) == NULL) {
-	mmv_stats_inc(slots->metrics_handle, "requests.error", NULL);
-	pmNotifyErr(LOG_ERR, "Error: redisSlotsRequestFirstNode failed to allocate reply data (%zu bytes)\n", sdslen(cmd));
+    size = sdslen(cmd);
+    if ((srd = redisSlotsReplyDataAlloc(slots, size, callback, arg)) == NULL) {
+	mmv_inc(slots->map, slots->metrics[SLOT_REQUESTS_ERROR]);
+	pmNotifyErr(LOG_ERR, "%s: failed to allocate reply data (%llu bytes)",
+			"redisSlotsRequestFirstNode", (unsigned long long)size);
 	return -ENOMEM;
     }
-    sts = redisClusterAsyncFormattedCommandToNode(slots->acc, node, redisSlotsReplyCallback, srd, cmd, sdslen(cmd));
-    mmv_stats_inc(slots->metrics_handle, "requests.total", NULL);
-
+    sts = redisClusterAsyncFormattedCommandToNode(slots->acc, node,
+			redisSlotsReplyCallback, srd, cmd, size);
     if (sts != REDIS_OK) {
-	pmNotifyErr(LOG_ERR, "redisSlotsRequestFirstNode: %s (%s)\n", slots->acc->errstr, cmd);
-	mmv_stats_inc(slots->metrics_handle, "requests.error", NULL);
+	mmv_inc(slots->map, slots->metrics[SLOT_REQUESTS_ERROR]);
+	pmNotifyErr(LOG_ERR, "%s: %s (%s)\n",
+			"redisSlotsRequestFirstNode", slots->acc->errstr, cmd);
 	return -ENOMEM;
     }
 
-    slots->inflight_requests++;
-    mmv_stats_inc(slots->metrics_handle, "requests.inflight.total", NULL);
-    mmv_stats_add(slots->metrics_handle, "requests.inflight.bytes", NULL, sdslen(cmd));
+    mmv_add(slots->map, slots->metrics[SLOT_REQUESTS_INFLIGHT_BYTES], &size);
+    mmv_add(slots->map, slots->metrics[SLOT_REQUESTS_TOTAL_BYTES], &size);
+    mmv_inc(slots->map, slots->metrics[SLOT_REQUESTS_INFLIGHT_TOTAL]);
+    mmv_inc(slots->map, slots->metrics[SLOT_REQUESTS_TOTAL]);
+
     return REDIS_OK;
 }
 
