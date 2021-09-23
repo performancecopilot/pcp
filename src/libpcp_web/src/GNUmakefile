@@ -15,6 +15,9 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
+REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
+REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
+
 HIREDIS_HFILES = $(addprefix deps/hiredis/, \
 	alloc.h async.h async_private.h fmacros.h hiredis.h net.h \
 	read.h sockcompat.h win32.h adapters/libuv.h)
@@ -97,6 +100,7 @@ $(SYMTARGET):
 endif
 
 install: default
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/pmproxy_fixups.conf logrewrite.conf $(REWRITEDIR)/pmproxy_fixups.conf
 ifneq ($(LIBTARGET),)
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
 endif
