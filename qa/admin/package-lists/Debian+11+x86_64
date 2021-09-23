@@ -84,7 +84,7 @@ libvirt-daemon-system
 libxml-libxml-perl
 libxml-tokeparser-perl
 libyaml-libyaml-perl
-linux-headers-`uname -r`
+linux-headers-`uname -r` not4ci
 llvm
 lm-sensors
 make
