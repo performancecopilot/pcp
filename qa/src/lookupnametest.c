@@ -6,8 +6,6 @@
 
 #include <pcp/pmapi.h>
 
-#define BUILD_STANDALONE 1
-
 int
 main(int argc, char **argv)
 {
@@ -32,11 +30,7 @@ main(int argc, char **argv)
 
 	case 'a':	/* archive name */
 	    if (type != 0) {
-#ifdef BUILD_STANDALONE
 		fprintf(stderr, "%s: at most one of -a, -h, -L and -x allowed\n", pmGetProgname());
-#else
-		fprintf(stderr, "%s: at most one of -a, -h and -x allowed\n", pmGetProgname());
-#endif
 		errflag++;
 	    }
 	    type = PM_CONTEXT_ARCHIVE;
@@ -55,11 +49,7 @@ main(int argc, char **argv)
 
 	case 'h':	/* contact PMCD on this hostname */
 	    if (type != 0) {
-#ifdef BUILD_STANDALONE
 		fprintf(stderr, "%s: at most one of -a, -h, -L and -x allowed\n", pmGetProgname());
-#else
-		fprintf(stderr, "%s: at most one of -a, -h and -x allowed\n", pmGetProgname());
-#endif
 		errflag++;
 	    }
 	    host = optarg;
@@ -67,7 +57,6 @@ main(int argc, char **argv)
 	    printf("Using host context: %s\n", host);
 	    break;
 
-#ifdef BUILD_STANDALONE
 	case 'L':	/* LOCAL, no PMCD */
 	    if (type != 0) {
 		fprintf(stderr, "%s: at most one of -a, -h, -L and -x allowed\n", pmGetProgname());
@@ -79,7 +68,6 @@ main(int argc, char **argv)
 	    putenv("PMDA_LOCAL_SAMPLE=");	/* if sampledso PMDA needed */
 	    printf("Using PM_CONTEXT_LOCAL context\n");
 	    break;
-#endif
 
 	case 'n':	/* alternative name space file */
 	    pmnsfile = optarg;
@@ -88,11 +76,7 @@ main(int argc, char **argv)
 
 	case 'x':	/* no pmNewContext */
 	    if (type != 0) {
-#ifdef BUILD_STANDALONE
 		fprintf(stderr, "%s: at most one of -a, -h, -L and -x allowed\n", pmGetProgname());
-#else
-		fprintf(stderr, "%s: at most one of -a, -h and -x allowed\n", pmGetProgname());
-#endif
 		errflag++;
 	    }
 	    type = -1;
@@ -112,11 +96,9 @@ main(int argc, char **argv)
 \n\
 Options:\n\
   -a archive     metrics source is a PCP log archive\n\
-  -h host        metrics source is PMCD on host\n"
-#ifdef BUILD_STANDALONE
-"  -L             use local context instead of PMCD\n"
-#endif
-"  -n pmnsfile    use an alternative PMNS\n\
+  -h host        metrics source is PMCD on host\n\
+  -L             use local context instead of PMCD\n\
+  -n pmnsfile    use an alternative PMNS\n\
   -x             don't call pmNewContext\n",
                 pmGetProgname());
         exit(1);
