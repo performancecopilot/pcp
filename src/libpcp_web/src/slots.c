@@ -79,37 +79,37 @@ redisSlotsSetupMetrics(redisSlots *slots)
     mmv_stats_add_metric(slots->registry, "requests.total", 1,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, units_count, MMV_INDOM_NULL,
 	"number of requests",
-	"total number of requests");
+	"Total number of Redis requests sent");
 
     mmv_stats_add_metric(slots->registry, "requests.error", 2,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, units_count, MMV_INDOM_NULL,
 	"number of request errors",
-	"total number of request errors");
+	"Total number of Redis request errors");
 
     mmv_stats_add_metric(slots->registry, "responses.total", 3,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, units_count, MMV_INDOM_NULL,
 	"number of responses",
-	"total number of responses");
+	"Total number of Redis responses received");
 
     mmv_stats_add_metric(slots->registry, "responses.error", 4,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, units_count, MMV_INDOM_NULL,
 	"number of error responses",
-	"total number of error responses");
+	"Total number of Redis error responses received");
 
     mmv_stats_add_metric(slots->registry, "responses.time", 5,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, units_us, MMV_INDOM_NULL,
 	"total time for responses",
-	"Cumulative time to receive for responses");
+	"Cumulative time taken to receive all Redis responses");
 
     mmv_stats_add_metric(slots->registry, "requests.inflight.total", 6,
 	MMV_TYPE_U64, MMV_SEM_INSTANT, units_count, MMV_INDOM_NULL,
 	"inflight requests",
-	"total number of inflight requests");
+	"Total number of inflight Redis requests");
 
     mmv_stats_add_metric(slots->registry, "requests.inflight.bytes", 7,
 	MMV_TYPE_U64, MMV_SEM_INSTANT, units_bytes, MMV_INDOM_NULL,
 	"bytes allocated for inflight requests",
-	"amount of bytes allocated for inflight requests");
+	"Memory currently allocated for inflight Redis requests");
 
     mmv_stats_add_metric(slots->registry, "requests.total_bytes", 8,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, units_bytes, MMV_INDOM_NULL,
@@ -317,9 +317,10 @@ redisSlotsReplyDataFree(redisSlotsReplyData *srd)
 uint64_t
 redisSlotsInflightRequests(redisSlots *slots)
 {
-    if (slots == NULL)
-	return 0;
-    return slots->metrics[SLOT_REQUESTS_INFLIGHT_TOTAL]->ull;
+    pmAtomValue		*atom;
+
+    atom = slots ? slots->metrics[SLOT_REQUESTS_INFLIGHT_TOTAL] : NULL;
+    return atom ? atom->ull : 0;
 }
 
 static void
@@ -327,22 +328,32 @@ redisSlotsReplyCallback(redisClusterAsyncContext *c, void *r, void *arg)
 {
     redisSlotsReplyData *srd = arg;
     redisReply 		*reply = r;
-    pmAtomValue		**metrics = srd->slots->metrics;
-    uint64_t		delta = gettimeusec();
-    int64_t		minus = -1;
     void		*map = srd->slots->map;
 
-    mmv_inc(map, metrics[SLOT_RESPONSES_TOTAL]);
+    if (map) {
+	pmAtomValue	**metrics = srd->slots->metrics;
+	pmAtomValue	*value;
+	uint64_t	delta = gettimeusec();
 
-    delta = (delta < srd->start) ? 0 : delta - srd->start;
-    mmv_add(map, metrics[SLOT_RESPONSES_TIME], &delta);
-    mmv_add(map, metrics[SLOT_REQUESTS_INFLIGHT_TOTAL], &minus);
-    delta = metrics[SLOT_REQUESTS_INFLIGHT_BYTES]->ull;
-    delta = (delta < srd->req_size) ? 0 : delta - srd->req_size;
-    mmv_set(map, metrics[SLOT_REQUESTS_INFLIGHT_BYTES], &delta);
+	delta = (delta < srd->start) ? 0 : delta - srd->start;
+	mmv_add(map, metrics[SLOT_RESPONSES_TIME], &delta);
 
-    if (reply == NULL || reply->type == REDIS_REPLY_ERROR)
-	mmv_inc(map, metrics[SLOT_RESPONSES_ERROR]);
+	value = metrics[SLOT_REQUESTS_INFLIGHT_TOTAL];
+	delta = value && value->ull > 0 ? value->ull - 1 : 0;
+	mmv_set(map, metrics[SLOT_REQUESTS_INFLIGHT_TOTAL], &delta);
+
+	value = metrics[SLOT_REQUESTS_INFLIGHT_BYTES];
+	delta = value ? value->ull : 0;
+	delta = (delta < srd->req_size) ? 0 : delta - srd->req_size;
+	mmv_set(map, metrics[SLOT_REQUESTS_INFLIGHT_BYTES], &delta);
+
+	delta = srd->req_size;
+	mmv_add(map, metrics[SLOT_RESPONSES_TOTAL_BYTES], &delta);
+	mmv_inc(map, metrics[SLOT_RESPONSES_TOTAL]);
+
+	if (reply == NULL || reply->type == REDIS_REPLY_ERROR)
+	    mmv_inc(map, metrics[SLOT_RESPONSES_ERROR]);
+    }
 
     srd->callback(c, r, srd->arg);
     redisSlotsReplyDataFree(arg);
@@ -365,7 +376,7 @@ redisSlotsRequest(redisSlots *slots, const sds cmd,
     redisSlotsReplyData	*srd;
 
     if (UNLIKELY(!slots->setup))
-        return -ENOTCONN;
+	return -ENOTCONN;
 
     if (!slots->cluster)
 	return redisSlotsRequestFirstNode(slots, cmd, callback, arg);

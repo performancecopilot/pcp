@@ -2345,22 +2345,22 @@ pmWebGroupSetupMetrics(pmWebGroupModule *module)
     mmv_stats_add_metric(groups->registry, "contextmap.size", 1,
 	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,
 	"context map dictionary size",
-	"number of entries in the context map dictionary");
+	"Number of entries in the context map dictionary");
 
     mmv_stats_add_metric(groups->registry, "namesmap.size", 2,
 	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,
 	"metric names map dictionary size",
-	"number of entries in the metric names map dictionary");
+	"Number of entries in the metric names map dictionary");
 
     mmv_stats_add_metric(groups->registry, "labelsmap.size", 3,
 	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,
 	"labels map dictionary size",
-	"number of entries in the labels map dictionary");
+	"Number of entries in the labels map dictionary");
 
     mmv_stats_add_metric(groups->registry, "instmap.size", 4,
 	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,
 	"instance name map dictionary size",
-	"number of entries in the instance name map dictionary");
+	"Number of entries in the instance name map dictionary");
 
     groups->map = map = mmv_stats_start(groups->registry);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat.
+ * Copyright (c) 2018-2021 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -137,8 +137,6 @@ static void
 on_redis_connected(void *arg)
 {
     struct proxy	*proxy = (struct proxy *)arg;
-    mmv_registry_t	*redis_metric_registry = proxymetrics(proxy, METRICS_REDIS);
-    mmv_registry_t	*discover_metric_registry = proxymetrics(proxy, METRICS_DISCOVER);
     sds			message;
 
     message = sdsnew("Redis slots");
@@ -159,13 +157,12 @@ on_redis_connected(void *arg)
 	redis_discover.callbacks = redis_search;
     }
 
-    redisSlotsSetMetricRegistry(proxy->slots, redis_metric_registry);
-    redisSlotsSetupMetrics(proxy->slots);
-
     if (archive_discovery && (series_queries || search_queries)) {
+	mmv_registry_t	*registry = proxymetrics(proxy, METRICS_DISCOVER);
+
 	pmDiscoverSetEventLoop(&redis_discover.module, proxy->events);
 	pmDiscoverSetConfiguration(&redis_discover.module, proxy->config);
-	pmDiscoverSetMetricRegistry(&redis_discover.module, discover_metric_registry);
+	pmDiscoverSetMetricRegistry(&redis_discover.module, registry);
 	pmDiscoverSetup(&redis_discover.module, &redis_discover.callbacks, proxy);
 	pmDiscoverSetSlots(&redis_discover.module, proxy->slots);
     }
@@ -181,7 +178,6 @@ on_redis_connected(void *arg)
 void
 setup_redis_module(struct proxy *proxy)
 {
-    redisSlotsFlags	flags = SLOTS_NONE;
     sds			option;
 
     if ((option = pmIniFileLookup(config, "pmproxy", "redis.enabled")))
@@ -194,6 +190,9 @@ setup_redis_module(struct proxy *proxy)
 	archive_discovery = (strncmp(option, "true", sdslen(option)) == 0);
 
     if (proxy->slots == NULL) {
+	mmv_registry_t	*registry = proxymetrics(proxy, METRICS_REDIS);
+	redisSlotsFlags	flags = SLOTS_NONE;
+
 	if (redis_protocol)
 	    flags |= SLOTS_KEYMAP;
 	if (series_queries)
@@ -203,6 +202,8 @@ setup_redis_module(struct proxy *proxy)
 	proxy->slots = redisSlotsConnect(proxy->config,
 			flags, proxylog, on_redis_connected,
 			proxy, proxy->events, proxy);
+	redisSlotsSetMetricRegistry(proxy->slots, registry);
+	redisSlotsSetupMetrics(proxy->slots);
     }
 }
 

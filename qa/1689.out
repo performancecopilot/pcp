@@ -43,121 +43,127 @@ pmproxy.discover.changed_callbacks PMID: 4.5.17 [filesystem changed callbacks]
 Help:
 number of observed filesystem changes to PCP archives
 
-pmproxy.discover.logvol.callbacks PMID: 4.5.9 [calls to process logvol data for all monitored archives]
+pmproxy.discover.logvol.callbacks PMID: 4.5.9 [calls to process logvol data for monitored archives]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-total calls to process logvol data for all monitored archives
+Total calls to process log volume data for monitored archives
 
-pmproxy.discover.logvol.change_vol PMID: 4.5.11 [log vol values callbacks made for all monitored archives]
+pmproxy.discover.logvol.change_vol PMID: 4.5.11 [log vol values callbacks made for monitored archives]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-total log vol values callbacks made for all monitored archives
+Total log volume values callbacks made for monitored archives
 
-pmproxy.discover.logvol.decode.mark_record PMID: 4.5.14 [mark record result records decoded for all monitored archives]
+pmproxy.discover.logvol.decode.mark_record PMID: 4.5.14 [mark records decoded for monitored archives]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-total mark record result records decoded for all monitored archives
+Total mark records in result records decoded for monitored archives
 
-pmproxy.discover.logvol.decode.result PMID: 4.5.12 [result records decoded for all monitored archives]
+pmproxy.discover.logvol.decode.result PMID: 4.5.12 [result records decoded for monitored archives]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-total result records decoded for all monitored archives
+Total result records decoded for monitored archives
 
-pmproxy.discover.logvol.decode.result_pmids PMID: 4.5.13 [metric pmids in decoded result records for all monitored archives]
+pmproxy.discover.logvol.decode.result_errors PMID: 4.5.21 [error result records decoded for monitored archives]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-total metric pmids in decoded result records for all monitored archives
+Total errors in result records decoded for monitored archives
 
-pmproxy.discover.logvol.get_archive_end_failed PMID: 4.5.16 [failed pmGetArchiveEnd calls after successfully creating a new context for all monitored archives]
+pmproxy.discover.logvol.decode.result_pmids PMID: 4.5.13 [metric IDs in decoded result records for monitored archives]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-total failed pmGetArchiveEnd calls after successfully creating a new context
+Total metric identifers in decoded result records for monitored archives
+
+pmproxy.discover.logvol.get_archive_end_failed PMID: 4.5.16 [Failed pmGetArchiveEnd calls for all monitored archives]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Total failed pmGetArchiveEnd calls after successfully creating a new context
 for all monitored archives
 
-pmproxy.discover.logvol.loops PMID: 4.5.10 [loops processing logvol data for all monitored archives]
+pmproxy.discover.logvol.loops PMID: 4.5.10 [loops processing logvol data for monitored archives]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-total loops processing logvol data for all monitored archives
+Total loops processing logvol data for monitored archives
 
-pmproxy.discover.logvol.new_contexts PMID: 4.5.15 [successful new context calls made for all monitored archives]
+pmproxy.discover.logvol.new_contexts PMID: 4.5.15 [successful new context calls made for monitored archives]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-total successful new context calls made for all monitored archives
+Total successful new context calls made for monitored archives
 
-pmproxy.discover.metadata.callbacks PMID: 4.5.3 [process metadata for all monitored archives]
+pmproxy.discover.metadata.callbacks PMID: 4.5.3 [process metadata for monitored archives]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-total calls to process metadata for all monitored archives
+total calls to process metadata for monitored archives
 
-pmproxy.discover.metadata.decode.desc PMID: 4.5.5 [desc records decoded processing metadata for all monitored archives]
+pmproxy.discover.metadata.decode.desc PMID: 4.5.5 [desc records decoded for monitored archives]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-total desc records decoded processing metadata for all monitored archives
+Total metric descriptor records decoded processing metadata for monitored
+archives
 
-pmproxy.discover.metadata.decode.helptext PMID: 4.5.8 [help text records decoded processing metadata for all monitored archives]
+pmproxy.discover.metadata.decode.helptext PMID: 4.5.8 [help text records decoded for all monitored archives]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-total help text records decoded processing metadata for all monitored archives
+Total help text records decoded processing metadata for monitored archives
 
-pmproxy.discover.metadata.decode.indom PMID: 4.5.6 [indom records decoded processing metadata for all monitored archives]
+pmproxy.discover.metadata.decode.indom PMID: 4.5.6 [indom records decoded for all monitored archives]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-total indom records decoded processing metadata for all monitored archives
+Total indom records decoded processing metadata for monitored archives
 
-pmproxy.discover.metadata.decode.label PMID: 4.5.7 [label records decoded processing metadata for all monitored archives]
+pmproxy.discover.metadata.decode.label PMID: 4.5.7 [label records decoded for monitored archives]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-total label records decoded processing metadata for all monitored archives
+Total label records decoded processing metadata for monitored archives
 
-pmproxy.discover.metadata.loops PMID: 4.5.4 [processing metadata for all monitored archives]
+pmproxy.discover.metadata.loops PMID: 4.5.4 [processing metadata for monitored archives]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-total loops processing metadata for all monitored archives
+Total loops processing metadata for monitored archives
 
-pmproxy.discover.metadata.partial_reads PMID: 4.5.20 [metadata read returned less data than header indicated]
+pmproxy.discover.metadata.partial_reads PMID: 4.5.20 [metadata read returned less data than expected]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-number of times a metadata record read returned less than expected length
+Number of times a metadata record read returned less than expected length
 
-pmproxy.discover.monitored PMID: 4.5.1 [directories, sub-directories and archives currently being monitored]
+pmproxy.discover.monitored PMID: 4.5.1 [directories and archives currently being monitored]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
+    Semantics: instant  Units: none
 Help:
-number of directories, sub-directories and archives currently being monitored
+Number of directories and archives currently being monitored
 
-pmproxy.discover.purged PMID: 4.5.2 [directories, sub-directories and archives purged (no longer being monitored)]
+pmproxy.discover.purged PMID: 4.5.2 [directories and archives purged]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
+    Semantics: instant  Units: none
 Help:
-number of directories, sub-directories and archives purged
-(no longer being monitored)
+Number of directories and archives no longer being monitored
 
-pmproxy.discover.throttle PMID: 4.5.19 [current filesystem changed callback throttle]
+pmproxy.discover.throttle PMID: 4.5.19 [minimum filesystem changed callback throttle time]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: sec
 Help:
-minimum seconds between filesystem changed callbacks for each monitored archive
+Minimum time between filesystem changed callbacks for each monitored archive
 
-pmproxy.discover.throttled_changed_callbacks PMID: 4.5.18 [filesystem changed callbacks that were ignored due to throttling]
+pmproxy.discover.throttled_changed_callbacks PMID: 4.5.18 [filesystem changed callbacks ignored due to throttling]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-number of throttled filesystem change callbacks
+Number of filesystem change callbacks that were ignored due to throttling
 
 pmproxy.mem.datasz PMID: 4.1.5 [virtual data size]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -181,43 +187,55 @@ pmproxy.redis.requests.error PMID: 4.2.2 [number of request errors]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-total number of request errors
+Total number of Redis request errors
 
 pmproxy.redis.requests.inflight.bytes PMID: 4.2.7 [bytes allocated for inflight requests]
-    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: byte
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
 Help:
-amount of bytes allocated for inflight requests
+Memory currently allocated for inflight Redis requests
 
 pmproxy.redis.requests.inflight.total PMID: 4.2.6 [inflight requests]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: count
+    Semantics: instant  Units: count
 Help:
-total number of inflight requests
+Total number of inflight Redis requests
 
 pmproxy.redis.requests.total PMID: 4.2.1 [number of requests]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-total number of requests
+Total number of Redis requests sent
+
+pmproxy.redis.requests.total_bytes PMID: 4.2.8 [total bytes sent for requests]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+Help:
+Cumulative count of bytes sent for all Redis requests
 
 pmproxy.redis.responses.error PMID: 4.2.4 [number of error responses]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-total number of error responses
+Total number of Redis error responses received
+
+pmproxy.redis.responses.time PMID: 4.2.5 [total time for responses]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: microsec
+Help:
+Cumulative time taken to receive all Redis responses
 
 pmproxy.redis.responses.total PMID: 4.2.3 [number of responses]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-total number of responses
+Total number of Redis responses received
 
-pmproxy.redis.responses.wait PMID: 4.2.5 [wait time for responses]
+pmproxy.redis.responses.total_bytes PMID: 4.2.9 [total bytes received in responses]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: counter  Units: microsec
+    Semantics: counter  Units: byte
 Help:
-total wait time for responses
+Cumulative count of bytes received in Redis responses
 
 pmproxy.series.descs.calls PMID: 4.6.2 [calls to /series/descs]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff

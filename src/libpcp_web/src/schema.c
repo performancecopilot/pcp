@@ -1874,7 +1874,7 @@ pmDiscoverSetupMetrics(pmDiscoverModule *module)
     mmv_stats_add_metric(data->registry, "changed_callbacks", 17,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
 	"filesystem changed callbacks",
-	"number of observed filesystem changes to PCP archives");
+	"Number of observed filesystem changes to PCP archives");
 
     mmv_stats_add_metric(data->registry, "throttled_changed_callbacks", 18,
 	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
