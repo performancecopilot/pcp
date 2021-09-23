@@ -4035,6 +4035,10 @@ dnl Look for zlib
 PKG_CHECK_MODULES([zlib], [zlib >= 1.0.0], [have_zlib=true], [have_zlib=false])
 AC_SUBST(HAVE_ZLIB, [$have_zlib])
 
+dnl Look for cmocka
+PKG_CHECK_MODULES([cmocka], [cmocka], [have_cmocka=true], [have_cmocka=false])
+AC_SUBST(HAVE_CMOCKA, [$have_cmocka])
+
 dnl Check if we have AI_ADDRCONFIG
 AC_MSG_CHECKING([for AI_ADDRCONFIG])
 AC_TRY_COMPILE(
