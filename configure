@@ -621,6 +621,9 @@ ac_includes_default="\
 
 ac_subst_vars='PACKAGE_CONFIGURE
 pcp_prefix
+HAVE_CMOCKA
+cmocka_LIBS
+cmocka_CFLAGS
 HAVE_ZLIB
 zlib_LIBS
 zlib_CFLAGS
@@ -1115,7 +1118,9 @@ XMKMF
 lzma_CFLAGS
 lzma_LIBS
 zlib_CFLAGS
-zlib_LIBS'
+zlib_LIBS
+cmocka_CFLAGS
+cmocka_LIBS'
 
 
 # Initialize some variables set by options.
@@ -1882,6 +1887,9 @@ Some influential environment variables:
   lzma_LIBS   linker flags for lzma, overriding pkg-config
   zlib_CFLAGS C compiler flags for zlib, overriding pkg-config
   zlib_LIBS   linker flags for zlib, overriding pkg-config
+  cmocka_CFLAGS
+              C compiler flags for cmocka, overriding pkg-config
+  cmocka_LIBS linker flags for cmocka, overriding pkg-config
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -3355,7 +3363,7 @@ $as_echo "#define IS_OPENBSD 1" >>confdefs.h
 
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
     pcp_platform_paths='/usr/local/bin'
-    pcp_ps_all_flags="-aw -o user,pid,ppid,%cpu,start,tty,time,args"
+    pcp_ps_all_flags=auxww
     if test "$target_cpu" = "i386" -a "$host_os" = "openbsd6.8"
     then
 		gcc_debug=false
@@ -17076,6 +17084,80 @@ $as_echo "yes" >&6; }
 	have_zlib=true
 fi
 HAVE_ZLIB=$have_zlib
+
+
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for cmocka" >&5
+$as_echo_n "checking for cmocka... " >&6; }
+
+if test -n "$cmocka_CFLAGS"; then
+    pkg_cv_cmocka_CFLAGS="$cmocka_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"cmocka\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "cmocka") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_cmocka_CFLAGS=`$PKG_CONFIG --cflags "cmocka" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$cmocka_LIBS"; then
+    pkg_cv_cmocka_LIBS="$cmocka_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"cmocka\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "cmocka") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_cmocka_LIBS=`$PKG_CONFIG --libs "cmocka" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        cmocka_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "cmocka" 2>&1`
+        else
+	        cmocka_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "cmocka" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$cmocka_PKG_ERRORS" >&5
+
+	have_cmocka=false
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	have_cmocka=false
+else
+	cmocka_CFLAGS=$pkg_cv_cmocka_CFLAGS
+	cmocka_LIBS=$pkg_cv_cmocka_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	have_cmocka=true
+fi
+HAVE_CMOCKA=$have_cmocka
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for AI_ADDRCONFIG" >&5
