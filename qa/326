@@ -106,6 +106,8 @@ pmval -h localhost -s 40 -t 0.5 -Z "$timezone" -D fetch pmcd.numagents >$tmp.pmv
 pmval_pid=$!
 
 sleep 2
+# need PPID in the 3rd field of the ps(1) output
+#
 pmda_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
 	  | grep '[p]mdasample' \
 	  | $PCP_AWK_PROG '$3 == "'$pmcd_pid'"	{ print $2 }'`
@@ -113,7 +115,7 @@ if [ -z "$pmda_pid" ]
 then
     echo "Arrgh ... lost pmdasample process?"
     echo "See $seq.full for details"
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([P]ID)|(/[p]m[cd])' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([P]ID)|(/[p]mcd)' >>$seq.full
     [ -n "$pmlogger_pid" ] && $signal -s TERM $pmlogger_pid
     [ -n "$pmval_pid" ] && $signal -s TERM $pmval_pid
     cat $tmp.pmcd.log >>$seq.full
