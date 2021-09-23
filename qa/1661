@@ -137,7 +137,7 @@ _full_log === wait for pmproxy to process filesystem events
 #
 case `hostname`
 in
-    vm11.localdomain)
+    bozo.localdomain|vm11.localdomain)
 	    pmsleep 10
 	    ;;
     *)
