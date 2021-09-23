@@ -42,6 +42,7 @@ initscripts
 java-latest-openjdk-headless
 kubernetes-client
 kubernetes-node
+libcmocka-devel
 libicu-devel
 libpfm-devel
 libuv-devel
