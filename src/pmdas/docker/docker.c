@@ -696,37 +696,37 @@ grab_json(char *buffer, int buffer_size, void *data)
 }
 
 static int
-grab_values(char *json_query, pmInDom indom, char *local_path, json_metric_desc *json, int json_size)
+grab_values(char *json_query, pmInDom indom, char *path, json_metric_desc *json, int json_size)
 {
     int			sts, i;
-    http_data		http_data;
+    http_data		local_data;
     json_metric_desc	*local_metrics;
 
     if ((sts = pmhttpClientFetch(http_client, "unix://var/run/docker.sock",
-			&http_data.json[0], sizeof(http_data.json),
+			&local_data.json[0], sizeof(local_data.json),
 			json_query, strlen(json_query))) < 0) {
 	if (pmDebugOptions.appl1)
 	    pmNotifyErr(LOG_ERR, "HTTP fetch (stats) failed\n");
 	return 0; // failed
     }
-    http_data.json_len = strlen(http_data.json);
-    http_data.off = 0;
+    local_data.json_len = strlen(local_data.json);
+    local_data.off = 0;
 
     pthread_mutex_lock(&docker_mutex);
 
     sts = (indom == PM_INDOM_NULL) ? 0 :
-	pmdaCacheLookupName(indom, local_path, NULL, (void **)&local_metrics);
+	pmdaCacheLookupName(indom, path, NULL, (void **)&local_metrics);
 
     /* allocate space for values for this container and update indom */
     if (sts != PMDA_CACHE_INACTIVE && sts != PMDA_CACHE_ACTIVE) {
 	if (pmDebugOptions.attr) {
 	    fprintf(stderr, "%s: adding docker container %s\n",
-		    pmGetProgname(), local_path);
+		    pmGetProgname(), path);
 	}
 	if (!(local_metrics = calloc(json_size, sizeof(json_metric_desc)))) {
 	    if (pmDebugOptions.attr) {
 		fprintf(stderr, "%s: cannot allocate container %s space\n",
-			pmGetProgname(), local_path);
+			pmGetProgname(), path);
 	    }
 	    sts = -ENOMEM;
 	    goto unlock;
@@ -735,16 +735,16 @@ grab_values(char *json_query, pmInDom indom, char *local_path, json_metric_desc 
     memcpy(local_metrics, json, (sizeof(json_metric_desc)*json_size));
     for (i = 0; i < json_size; i++)
 	local_metrics[i].json_pointer = strdup(json[i].json_pointer);
-    local_metrics[0].dom = strdup(local_path);
+    local_metrics[0].dom = strdup(path);
 
     if ((sts = pmjsonGet(local_metrics, json_size, indom, &grab_json,
-			 (void *)&http_data)) < 0)
+			 (void *)&local_data)) < 0)
 	goto unlock;
 
     if (indom == PM_INDOM_NULL)
 	memcpy(json, local_metrics, (sizeof(json_metric_desc) * json_size));
     else
-	sts = pmdaCacheStore(indom, PMDA_CACHE_ADD, local_path, (void *)local_metrics);
+	sts = pmdaCacheStore(indom, PMDA_CACHE_ADD, path, (void *)local_metrics);
     
 unlock:
     pthread_mutex_unlock(&docker_mutex);
