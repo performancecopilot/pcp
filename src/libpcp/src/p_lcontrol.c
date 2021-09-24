@@ -188,7 +188,6 @@ corrupt:
     /* req->vset[0] ... req->vset[i-1] have been malloc'd */
     for (i-- ; i >= 0; i--)
 	free(req->vset[i]);
-    req->numpmid = 0;		/* don't free vset's */
-    pmFreeResult(req);
+    free(req);
     return sts;
 }

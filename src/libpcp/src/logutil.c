@@ -1884,16 +1884,14 @@ more:
 		 * another log record ...
 		 */
 		pmFreeResult(*result);
-		newres->numpmid = 0;		/* don't free vset's */
-		pmFreeResult(newres);
+		free(newres);
 		goto more;
 	    }
 	    /*
 	     * *result malloc'd in __pmLogRead, but vset[]'s are either in
 	     * pdubuf or the pmid_ctl struct
 	     */
-	    (*result)->numpmid = 0;		/* don't free vset's */
-	    pmFreeResult(*result);
+	    free(*result);
 	    *result = newres;
 	}
 	else

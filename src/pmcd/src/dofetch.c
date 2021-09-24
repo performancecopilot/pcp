@@ -65,7 +65,6 @@ SplitPmidList(int nPmids, pmID *pmidList)
 	aFreq = (int *)malloc((nAgents + 1) * sizeof(int));
 	if (resIndex == NULL || aFreq == NULL) {
 	    pmNoMem("SplitPmidList.resIndex", 2 * (nAgents + 1) * sizeof(int), PM_FATAL_ERR);
-	    /* NOTREACHED */
 	}
     }
 
@@ -121,7 +120,6 @@ doit:
 	result = (DomPmidList *)malloc(resultSize);
 	if (result == NULL) {
 	    pmNoMem("SplitPmidList.result", resultSize, PM_FATAL_ERR);
-	    /* NOTREACHED */
 	}
 	currentSize = resultSize;
     }
@@ -168,20 +166,18 @@ doit:
 static pmResult *
 MakeBadResult(int npmids, pmID *list, int sts)
 {
+    int	       need;
     int	       i;
     pmValueSet *vSet;
-#if 0		// TODO when pmcd => __pmResult internally
-    __pmResult   *result;
-#else
     pmResult   *result;
-    __pmResult   *__result;
-#endif
 
-    if ((__result = __pmAllocResult(npmids)) == NULL) {
-	pmNoMem("MakeBadResult.result", sizeof(__pmResult) + (npmids - 1) * sizeof(pmValueSet *), PM_FATAL_ERR);
-	/* NOTREACHED */
+    need = (int)sizeof(pmResult) +
+	(npmids - 1) * (int)sizeof(pmValueSet *);
+	/* npmids - 1 because there is already 1 pmValueSet* in a pmResult */
+    result = (pmResult *)malloc(need);
+    if (result == NULL) {
+	pmNoMem("MakeBadResult.result", need, PM_FATAL_ERR);
     }
-    result = __pmOffsetResult(__result);
     result->timestamp.tv_sec = 0;
     result->timestamp.tv_usec = 0;
     result->numpmid = npmids;
@@ -189,7 +185,6 @@ MakeBadResult(int npmids, pmID *list, int sts)
 	vSet = (pmValueSet *)malloc(sizeof(pmValueSet));
 	if (vSet == NULL) {
 	    pmNoMem("MakeBadResult.vSet", sizeof(pmValueSet), PM_FATAL_ERR);
-	    /* NOTREACHED */
 	}
 	result->vset[i] = vSet;
 	vSet->pmid = list[i];
@@ -370,20 +365,15 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
 {
     int			i, j;
     int 		sts;
+    int			need;
     int			ctxnum;
     unsigned int	changes = 0;
     int			nPmids;
     pmID		*pmidList;
     pmValueSet		**valueset;
-#if 0		// TODO when pmcd => __pmResult
-    static __pmResult	*endResult;
-    static pmHighResResult *endHighResResult;	// this one will go away
-#else
     static pmResult	*endResult;
-    __pmResult		*__end;
-    static pmHighResResult *endHighResResult;
-#endif
     static int		maxnpmids;	/* sizes endResult */
+    static pmHighResResult *endHighResResult;
     static int		maxhighresnpmids; /* sizes endHighResResult */
     DomPmidList		*dList;		/* NOTE: NOT indexed by agent index */
     static int		nDoms;
@@ -407,7 +397,6 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
 	resIndex = (int *)malloc((nAgents + 1) * sizeof(int));
 	if (results == NULL || resIndex == NULL) {
 	    pmNoMem("DoFetch.results", (nAgents + 1) * sizeof (pmResult *) + (nAgents + 1) * sizeof(int), PM_FATAL_ERR);
-	    /* NOTREACHED */
 	}
 	nDoms = nAgents;
     }
@@ -436,27 +425,19 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
     }
 
     if (pdutype == PDU_HIGHRES_FETCH && nPmids > maxhighresnpmids) {
-	if (endHighResResult) {
-	    endHighResResult->numpmid = 0;	/* don't free vset's */
-	    __pmFreeHighResResult(endHighResResult);
-	}
-	if ((__end = __pmAllocResult(nPmids)) == NULL) {
-	    pmNoMem("DoFetch.endHighResResult", sizeof(__pmResult) + (nPmids - 1) * sizeof(pmValueSet *), PM_FATAL_ERR);
-	    /* NOTREACHED */
-	}
-	endHighResResult = __pmOffsetHighResResult(__end);
+	if (endHighResResult)
+	    free(endHighResResult);
+	need = (int)sizeof(pmHighResResult) + (nPmids - 1) * (int)sizeof(pmValueSet *);
+	if ((endHighResResult = (pmHighResResult *)malloc(need)) == NULL)
+	    pmNoMem("DoFetch.endHighResResult", need, PM_FATAL_ERR);
 	maxhighresnpmids = nPmids;
     }
     else if (pdutype == PDU_FETCH && nPmids > maxnpmids) {
-	if (endResult) {
-	    endResult->numpmid = 0;	/* don't free vset's */
-	    pmFreeResult(endResult);
-	}
-	if ((__end = __pmAllocResult(nPmids)) == NULL) {
-	    pmNoMem("DoFetch.endResult", sizeof(__pmResult) + (nPmids - 1) * sizeof(pmValueSet *), PM_FATAL_ERR);
-	    /* NOTREACHED */
-	}
-	endResult = __pmOffsetResult(__end);
+	if (endResult)
+	    free(endResult);
+	need = (int)sizeof(pmResult) + (nPmids - 1) * (int)sizeof(pmValueSet *);
+	if ((endResult = (pmResult *)malloc(need)) == NULL)
+	    pmNoMem("DoFetch.endResult", need, PM_FATAL_ERR);
 	maxnpmids = nPmids;
     }
 
