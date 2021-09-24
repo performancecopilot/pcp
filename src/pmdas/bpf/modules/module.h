@@ -68,7 +68,7 @@ typedef struct module {
      *
      * @return 0 if no issues, non-zero to indicate errors.
      */
-	init_fn_t init;
+    init_fn_t init;
 
     /**
      * Release any resources associated with the module.
