@@ -251,7 +251,7 @@ refresh_proc(nvmlDevice_t device, pmInDom indom, const char *name,
 }
 
 static int
-refresh(pcp_nvinfo_t *pcp_nvinfo, int need_processes)
+refresh(pcp_nvinfo_t *nvinfo, int need_processes)
 {
     unsigned int	device_count;
     nvmlDevice_t	device;
@@ -281,53 +281,53 @@ refresh(pcp_nvinfo_t *pcp_nvinfo, int need_processes)
 			localNvmlErrStr(sts));
 	return sts;
     }
-    pcp_nvinfo->numcards = device_count;
+    nvinfo->numcards = device_count;
 
-    for (i = 0; i < device_count && i < pcp_nvinfo->maxcards; i++) {
-	pcp_nvinfo->nvinfo[i].cardid = i;
+    for (i = 0; i < device_count && i < nvinfo->maxcards; i++) {
+	nvinfo->nvinfo[i].cardid = i;
 	if ((sts = localNvmlDeviceGetHandleByIndex(i, &device))) {
 	    pmNotifyErr(LOG_ERR, "nvmlDeviceGetHandleByIndex: %s",
 			localNvmlErrStr(sts));
 	    for (j = 0; j < NVIDIA_METRIC_COUNT; j++)
-		pcp_nvinfo->nvinfo[i].failed[j] = 1;
+		nvinfo->nvinfo[i].failed[j] = 1;
 	    continue;
 	}
 	for (j = 0; j < NVIDIA_METRIC_COUNT; j++)
-	    pcp_nvinfo->nvinfo[i].failed[j] = 0;
+	    nvinfo->nvinfo[i].failed[j] = 0;
 	if ((sts = localNvmlDeviceGetName(device, name, sizeof(name))))
-	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_CARDNAME] = 1;
+	    nvinfo->nvinfo[i].failed[NVIDIA_CARDNAME] = 1;
 	if ((sts = localNvmlDeviceGetPciInfo(device, &pci)))
-	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_BUSID] = 1;
+	    nvinfo->nvinfo[i].failed[NVIDIA_BUSID] = 1;
 	if ((sts = localNvmlDeviceGetFanSpeed(device, &fanspeed)))
-	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_FANSPEED] = 1;
+	    nvinfo->nvinfo[i].failed[NVIDIA_FANSPEED] = 1;
 	if ((sts = localNvmlDeviceGetTemperature(device, NVML_TEMPERATURE_GPU, &temperature)))
-	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_TEMP] = 1;
+	    nvinfo->nvinfo[i].failed[NVIDIA_TEMP] = 1;
 	if ((sts = localNvmlDeviceGetUtilizationRates(device, &utilization))) {
-	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_GPUACTIVE] = 1;
-	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_MEMACTIVE] = 1;
+	    nvinfo->nvinfo[i].failed[NVIDIA_GPUACTIVE] = 1;
+	    nvinfo->nvinfo[i].failed[NVIDIA_MEMACTIVE] = 1;
 	}
         if ((sts = localNvmlDeviceGetMemoryInfo(device, &memory))) {
-	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_MEMUSED] = 1;
-	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_MEMTOTAL] = 1;
-	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_MEMFREE] = 1;
+	    nvinfo->nvinfo[i].failed[NVIDIA_MEMUSED] = 1;
+	    nvinfo->nvinfo[i].failed[NVIDIA_MEMTOTAL] = 1;
+	    nvinfo->nvinfo[i].failed[NVIDIA_MEMFREE] = 1;
 	}
 	if ((sts = localNvmlDeviceGetPerformanceState(device, &pstate)))
-	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_PERFSTATE] = 1;
+	    nvinfo->nvinfo[i].failed[NVIDIA_PERFSTATE] = 1;
 
-	if (pcp_nvinfo->nvinfo[i].name == NULL &&
-	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_CARDNAME] == 0)
-	    pcp_nvinfo->nvinfo[i].name = strdup(name);
-	if (pcp_nvinfo->nvinfo[i].busid == NULL &&
-	    pcp_nvinfo->nvinfo[i].failed[NVIDIA_BUSID] == 0)
-	    pcp_nvinfo->nvinfo[i].busid = strdup(pci.busId);
-	pcp_nvinfo->nvinfo[i].temp = temperature;
-	pcp_nvinfo->nvinfo[i].fanspeed = fanspeed;
-	pcp_nvinfo->nvinfo[i].perfstate = pstate;
-	pcp_nvinfo->nvinfo[i].active = utilization;	/* struct copy */
-	pcp_nvinfo->nvinfo[i].memory = memory;		/* struct copy */
+	if (nvinfo->nvinfo[i].name == NULL &&
+	    nvinfo->nvinfo[i].failed[NVIDIA_CARDNAME] == 0)
+	    nvinfo->nvinfo[i].name = strdup(name);
+	if (nvinfo->nvinfo[i].busid == NULL &&
+	    nvinfo->nvinfo[i].failed[NVIDIA_BUSID] == 0)
+	    nvinfo->nvinfo[i].busid = strdup(pci.busId);
+	nvinfo->nvinfo[i].temp = temperature;
+	nvinfo->nvinfo[i].fanspeed = fanspeed;
+	nvinfo->nvinfo[i].perfstate = pstate;
+	nvinfo->nvinfo[i].active = utilization;	/* struct copy */
+	nvinfo->nvinfo[i].memory = memory;		/* struct copy */
 
-	if (need_processes && !pcp_nvinfo->nvinfo[i].failed[NVIDIA_CARDNAME])
-	    refresh_proc(device, indom, name, i, &pcp_nvinfo->nvinfo[i]);
+	if (need_processes && !nvinfo->nvinfo[i].failed[NVIDIA_CARDNAME])
+	    refresh_proc(device, indom, name, i, &nvinfo->nvinfo[i]);
     }
 
     /* walk and cull any entries that remain inactive at this point */
