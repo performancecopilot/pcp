@@ -942,8 +942,8 @@ do_control_req(pmResult *request, int control, int state, int arg_delta, int sen
     time_t		now;
     int			reqstate = 0;
 
-    if (pmDebugOptions.log) {
-	fprintf(stderr, "do_control: control=%d state=%d delta=%d request ...\n",
+    if (pmDebugOptions.pmlc) {
+	fprintf(stderr, "do_control_req: control=%d state=%d delta=%d request ...\n",
 		control, state, arg_delta);
 	dumpcontrol(stderr, request, 0);
     }
@@ -1200,7 +1200,7 @@ do_control_req(pmResult *request, int control, int state, int arg_delta, int sen
 	}
     }
 
-    if (pmDebugOptions.log) {
+    if (pmDebugOptions.pmlc) {
 	__pmDumpResult(stderr, result);
     }
 
