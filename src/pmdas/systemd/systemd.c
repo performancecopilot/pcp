@@ -350,39 +350,39 @@ systemd_journal_decoder(int eventarray, void *buffer, size_t size,
 
     /* Add all the explicit journal fields. */
     while (1) {
-        const void *data;
-        size_t data_len;
+        const void *log;
+        size_t log_len;
 
         if (sts < 0)
             break;
-        sts = sd_journal_enumerate_data(journald_context_seeky, &data, &data_len);
+        sts = sd_journal_enumerate_data(journald_context_seeky, &log, &log_len);
         if (sts <= 0)
             break;
 
         /* Infer string upon absence of embedded \0's. */
-        if (jfe == JFE_STRING_BLOB_AUTO && (memchr (data, '\0', data_len) == NULL)) {
-            /* Unfortunately, data may not be \0-terminated, so we can't simply pass
-               it to atom.cp.  We need to copy the bad boy first. */
-            atom.cp = strndup(data, data_len);
+        if (jfe == JFE_STRING_BLOB_AUTO && (memchr(log, '\0', log_len) == NULL)) {
+            /* Log may not be \0-terminated, so we must copy it first here */
+            atom.cp = strndup(log, log_len);
             if (atom.cp == NULL)
                 sts = -ENOMEM;
             else {
-                sts = pmdaEventAddParam(eventarray, METRICTAB_JOURNAL_STRING_PMID,
+                sts = pmdaEventAddParam(eventarray,
+                                        METRICTAB_JOURNAL_STRING_PMID,
                                         PM_TYPE_STRING, &atom);
-                free (atom.cp);
+                free(atom.cp);
             }
             /* NB: we assume libpcp_pmda will not free() the field. */
         } else {
-            pmValueBlock *aggr = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE + data_len);
+            pmValueBlock *aggr = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE + log_len);
             if (aggr == NULL)
                 sts = -ENOMEM;
             else {
                 aggr->vtype = PM_TYPE_AGGREGATE;
-                if (PM_VAL_HDR_SIZE + data_len >= 1<<24)
+                if (PM_VAL_HDR_SIZE + log_len >= 1<<24)
                     aggr->vlen = (1U<<24) - 1; /* vlen is a :24 bit field */
                 else
-                    aggr->vlen = PM_VAL_HDR_SIZE + data_len;
-                memcpy (aggr->vbuf, data, data_len);
+                    aggr->vlen = PM_VAL_HDR_SIZE + log_len;
+                memcpy(aggr->vbuf, log, log_len);
                 atom.vbp = aggr;
                 sts = pmdaEventAddParam(eventarray, METRICTAB_JOURNAL_BLOB_PMID,
                                         PM_TYPE_AGGREGATE, &atom);
@@ -676,7 +676,7 @@ systemdMain(pmdaInterface *dispatch)
 
 
 static void
-convertUnits(char **endnum, long *maxmem)
+convertUnits(char **endnum)
 {
     switch ((int) **endnum) {
         case 'b':
@@ -684,15 +684,15 @@ convertUnits(char **endnum, long *maxmem)
                 break;
         case 'k':
         case 'K':
-                *maxmem *= 1024;
+                maxmem *= 1024;
                 break;
         case 'm':
         case 'M':
-                *maxmem *= 1024 * 1024;
+                maxmem *= 1024 * 1024;
                 break;
         case 'g':
         case 'G':
-                *maxmem *= 1024 * 1024 * 1024;
+                maxmem *= 1024 * 1024 * 1024;
                 break;
     }
     (*endnum)++;
@@ -738,7 +738,7 @@ main(int argc, char **argv)
             case 'm':
                 maxmem = strtol(optarg, &endnum, 10);
                 if (*endnum != '\0')
-                    convertUnits(&endnum, &maxmem);
+                    convertUnits(&endnum);
                 if (*endnum != '\0' || maxmem < minmem) {
                     fprintf(stderr, "%s: invalid max memory '%s' (min=%ld)\n",
                             pmGetProgname(), optarg, minmem);
