@@ -10,7 +10,7 @@ doindom(pmResult *rp)
     int			need;
     metric_t		*mp = NULL;
     int			*instlist;
-    char		**namelist;
+    char		**names;
     int			sts;
     __pmTimestamp	stamp;
 
@@ -40,7 +40,7 @@ doindom(pmResult *rp)
 	if (mp->idp == NULL)
 	    continue;
 
-	if ((sts = pmGetInDom(mp->idp->indom, &instlist, &namelist)) < 0) {
+	if ((sts = pmGetInDom(mp->idp->indom, &instlist, &names)) < 0) {
 	    fprintf(stderr,
 		"%s: doindom: pmGetInDom (%s) failed: %s\n",
 		    pmGetProgname(), pmInDomStr(mp->idp->indom), pmErrStr(sts));
@@ -60,7 +60,7 @@ doindom(pmResult *rp)
 	    }
 	    if (j == mp->idp->numinst) {
 		/*
-		 * Do we need to check the namelist elts as well, e.g.
+		 * Do we need to check the 'names' entries as well, e.g.
 		 * using strcmp()?
 		 * Not at this stage ... if the instance ids are all the
 		 * same, then only a very odd (and non-compliant) PMDA
@@ -76,7 +76,7 @@ doindom(pmResult *rp)
 	    }
 	    if (mp->idp->name != NULL) free(mp->idp->name);
 	    if (mp->idp->inst != NULL) free(mp->idp->inst);
-	    mp->idp->name = namelist;
+	    mp->idp->name = names;
 	    mp->idp->inst = instlist;
 	    mp->idp->numinst = sts;
 #if 0	    // TODO use current when it => __pmTimestamp
@@ -95,17 +95,15 @@ doindom(pmResult *rp)
 	}
 	else {
 	    free(instlist);
-	    free(namelist);
+	    free(names);
 	}
 
     }
 
     if (needti) {
-	__pmTimestamp	stamp;
 	__pmFflush(logctl.mdfp);
 	stamp.sec = current.tv_sec;
 	stamp.nsec = current.tv_usec * 1000;
 	__pmLogPutIndex(&archctl, &stamp);
     }
-
 }
