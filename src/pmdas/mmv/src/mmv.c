@@ -661,22 +661,21 @@ map_stats(pmdaExt *pmda)
 
 		    for (k = 0; k < count; k++) {
 			mmv_disk_metric_t *mp = &ml[k];
-			char name[MAXPATHLEN];
 			pmID pmid;
 
 			/* build name, check its legitimate and unique */
 			if (hdr->flags & MMV_FLAG_NOPREFIX)
-			    pmsprintf(name, sizeof(name), "%s.", ap->prefix);
+			    pmsprintf(path, sizeof(path), "%s.", ap->prefix);
 			else
-			    pmsprintf(name, sizeof(name), "%s.%s.", ap->prefix, s->name);
-			strcat(name, mp->name);
-			if (verify_metric_name(ap, name, k, s) != 0)
+			    pmsprintf(path, sizeof(path), "%s.%s.", ap->prefix, s->name);
+			strcat(path, mp->name);
+			if (verify_metric_name(ap, path, k, s) != 0)
 			    continue;
-			if (verify_metric_item(ml, k, name, s) != 0)
+			if (verify_metric_item(ml, k, path, s) != 0)
 			    continue;
 
 			pmid = pmID_build(pmda->e_domain, s->cluster, mp->item);
-			create_metric(pmda, s, name, pmid, mp->indom,
+			create_metric(pmda, s, path, pmid, mp->indom,
 					mp->type, mp->semantics, mp->dimension);
 		    }
 		}
@@ -701,7 +700,6 @@ map_stats(pmdaExt *pmda)
 			mmv_disk_metric2_t *mp = &ml[k];
 			mmv_disk_string_t *string;
 			char buf[MMV_STRINGMAX];
-			char name[MAXPATHLEN];
 			__uint64_t mname;
 			pmID pmid;
 
@@ -720,18 +718,18 @@ map_stats(pmdaExt *pmda)
 
 			/* build name, check its legitimate and unique */
 			if (hdr->flags & MMV_FLAG_NOPREFIX)
-			    pmsprintf(name, sizeof(name), "%s.", ap->prefix);
+			    pmsprintf(path, sizeof(path), "%s.", ap->prefix);
 			else
-			    pmsprintf(name, sizeof(name), "%s.%s.", ap->prefix, s->name);
-			strcat(name, buf);
+			    pmsprintf(path, sizeof(path), "%s.%s.", ap->prefix, s->name);
+			strcat(path, buf);
 
-			if (verify_metric_name(ap, name, k, s) != 0)
+			if (verify_metric_name(ap, path, k, s) != 0)
 			    continue;
-			if (verify_metric_item2(ml, k, name, s) != 0)
+			if (verify_metric_item2(ml, k, path, s) != 0)
 			    continue;
 
 			pmid = pmID_build(pmda->e_domain, s->cluster, mp->item);
-			create_metric(pmda, s, name, pmid, mp->indom,
+			create_metric(pmda, s, path, pmid, mp->indom,
 					mp->type, mp->semantics, mp->dimension);
 		    }
 		}
@@ -759,7 +757,7 @@ map_stats(pmdaExt *pmda)
 		}
 
 		for (k = 0; k < count; k++) {
-		    int sts, serial = id[k].serial;
+		    int serial = id[k].serial;
 		    pmInDom pmindom;
 		    pmdaIndom *ip;
 		    __uint64_t ioffset = id[k].offset;
