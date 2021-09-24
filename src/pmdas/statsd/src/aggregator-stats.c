@@ -110,8 +110,7 @@ process_stat(struct agent_config* config, struct pmda_stats_container* s, enum S
             break;
         case STAT_TRACKED_METRIC:
         {
-            enum METRIC_TYPE metric = (enum METRIC_TYPE)data;
-            switch (metric) {
+            switch ((enum METRIC_TYPE)data) {
                 case METRIC_TYPE_COUNTER:
                     s->stats->metrics_recorded->counter += 1;
                     break;
@@ -217,16 +216,16 @@ get_agent_stat(struct agent_config* config, struct pmda_stats_container* stats, 
         case STAT_TRACKED_METRIC:
         {
             if (data != NULL) {
-                enum METRIC_TYPE type = (enum METRIC_TYPE)data;
-                if (type == METRIC_TYPE_COUNTER) {
+                enum METRIC_TYPE metric_type = (enum METRIC_TYPE)data;
+                if (metric_type == METRIC_TYPE_COUNTER) {
                     result = stats->stats->metrics_recorded->counter;
                     break;
                 }
-                if (type == METRIC_TYPE_GAUGE) {
+                if (metric_type == METRIC_TYPE_GAUGE) {
                     result = stats->stats->metrics_recorded->gauge;
                     break;
                 }
-                if (type == METRIC_TYPE_DURATION) {
+                if (metric_type == METRIC_TYPE_DURATION) {
                     result = stats->stats->metrics_recorded->duration;
                     break;
                 }

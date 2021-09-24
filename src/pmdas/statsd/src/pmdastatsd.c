@@ -270,8 +270,8 @@ void
 __PMDA_INIT_CALL
 statsd_init(pmdaInterface *dispatch)
 {
-    struct pmda_metrics_container* metrics;
-    struct pmda_stats_container* stats;
+    struct pmda_metrics_container* metricsp;
+    struct pmda_stats_container* statsp;
     int pthread_errno, sep = pmPathSeparator();
 
     if (_isDSO) {
@@ -289,9 +289,9 @@ statsd_init(pmdaInterface *dispatch)
 
     signal(SIGUSR1, signal_handler);
 
-    metrics = init_pmda_metrics(&config);
-    stats = init_pmda_stats(&config);
-    init_data_ext(&data, &config, metrics, stats);
+    metricsp = init_pmda_metrics(&config);
+    statsp = init_pmda_stats(&config);
+    init_data_ext(&data, &config, metricsp, statsp);
 
     network_listener_to_parser = chan_init(config.max_unprocessed_packets);
     if (network_listener_to_parser == NULL) {
@@ -304,7 +304,7 @@ statsd_init(pmdaInterface *dispatch)
 
     listener_thread_args = create_listener_args(&config, network_listener_to_parser);
     parser_thread_args = create_parser_args(&config, network_listener_to_parser, parser_to_aggregator);
-    aggregator_thread_args = create_aggregator_args(&config, parser_to_aggregator, metrics, stats);
+    aggregator_thread_args = create_aggregator_args(&config, parser_to_aggregator, metricsp, statsp);
 
     pthread_errno = 0; 
     pthread_errno = pthread_create(&network_listener, NULL, network_listener_exec, listener_thread_args);
