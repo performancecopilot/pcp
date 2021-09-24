@@ -346,9 +346,9 @@ lookup_curr_node(pid_t pid)
 }
 
 static double
-diff_counter(double current, double previous, int pmtype)
+diff_counter(double thisval, double lastval, int pmtype)
 {
-    double		outval = current-previous;
+    double		outval = thisval - lastval;
 
     if (outval < 0.0) {
         switch (pmtype) {
