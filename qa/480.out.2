@@ -6,10 +6,10 @@ pmdumplog: Cannot open archive "archives/ace_v2": Cannot allocate memory
 === libpcp/logmeta.c:2 ===
 pmdumplog: Cannot open archive "archives/ace_v2": Cannot allocate memory
 
-=== libpcp/logmeta.c:3 ===
+=== libpcp/e_indom.c:3 ===
 pmdumplog: Cannot open archive "archives/ace_v2": Cannot allocate memory
 
-=== libpcp/logmeta.c:4 ===
+=== libpcp/e_indom.c:4 ===
 
 Descriptions for Metrics in the Log ...
 PMID: 40.0.4 (40.0.4)
@@ -99,26 +99,26 @@ PMID: 1.10.19 (kernel.all.syscall)
 
 Instance Domains in the Log ...
 InDom: 1.5
-15:25:09.043 3 instances
-                 1 or "1 minute"
-                 5 or "5 minute"
-                 15 or "15 minute"
+15:25:09.043538000 3 instances
+   1 or "1 minute"
+   5 or "5 minute"
+   15 or "15 minute"
 InDom: 1.6
-15:25:09.043 3 instances
-                 1 or "et0"
-                 2 or "lo0"
-                 3 or "sl0"
+15:25:09.043538000 3 instances
+   1 or "et0"
+   2 or "lo0"
+   3 or "sl0"
 InDom: 1.2
-15:25:09.043 9 instances
-                 131329 or "dks1d1"
-                 131330 or "dks1d2"
-                 131331 or "dks1d3"
-                 131841 or "dks3d1"
-                 131842 or "dks3d2"
-                 131843 or "dks3d3"
-                 131844 or "dks3d4"
-                 132097 or "dks4d1"
-                 132098 or "dks4d2"
+15:25:09.043538000 9 instances
+   131329 or "dks1d1"
+   131330 or "dks1d2"
+   131331 or "dks1d3"
+   131841 or "dks3d1"
+   131842 or "dks3d2"
+   131843 or "dks3d3"
+   131844 or "dks3d4"
+   132097 or "dks4d1"
+   132098 or "dks4d2"
 
 === libpcp/logmeta.c:5 ===
 Log for pmlogger on HOST started DATE
@@ -126,18 +126,18 @@ Log for pmlogger on HOST started DATE
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
-Warning: problem writing archive preamble: Cannot allocate memory
+Warning: problem writing archive prologue: Cannot allocate memory
 __pmLogPutDesc: Cannot allocate memory
 
 Log finished DATE
 
-=== libpcp/logmeta.c:6 ===
+=== libpcp/e_indom.c:6 ===
 Log for pmlogger on HOST started DATE
 
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
-Warning: problem writing archive preamble: Cannot allocate memory
+Warning: problem writing archive prologue: Cannot allocate memory
 __pmLogPutInDom: Cannot allocate memory
 
 Log finished DATE
