@@ -43,7 +43,13 @@ s/posn=[0-9]*/posn=NNN/
 s/stamp=[0-9][0-9]*\.[0-9][0-9]*/stamp=NNN.NNNNNN/
 s/posn=[0-9]*/posn=NNN/g
 }' \
-	-e 's/msec numpmid/usec numpmid/'
+	-e 's/msec numpmid/usec numpmid/' \
+	-e '/^check_local_creds:/{
+s/[0-9][0-9]*/N/
+s/[0-9][0-9]*/M/g
+}' \
+	-e 's/fd=[0-9][0-9]*/fd=N/' \
+    # end
 }
 
 _filter_dumplog()
@@ -101,7 +107,7 @@ log $req_ctl $req_state {
 }
 End-of-File
 		$sudo rm -f $tmp.0 $tmp.meta $tmp.index
-		_start_up_pmlogger -L -D 640 -c $tmp.config -l $tmp.out $tmp >$tmp.err 2>&1
+		_start_up_pmlogger -L -D log,optfetch,pmlc -c $tmp.config -l $tmp.out $tmp >$tmp.err 2>&1
 		logger_pid=$pid
 		_wait_for_pmlogger $logger_pid $tmp.out
 		src/logcontrol -p $logger_pid enquire sample.colour

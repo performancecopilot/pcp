@@ -34,7 +34,12 @@ logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -101,7 +106,12 @@ __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -165,7 +175,12 @@ __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -235,7 +250,12 @@ logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -308,7 +328,12 @@ logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -377,7 +402,12 @@ logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -442,7 +472,12 @@ __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -506,7 +541,12 @@ __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -572,7 +612,12 @@ logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -639,7 +684,12 @@ __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -705,7 +755,12 @@ logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -772,7 +827,12 @@ __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -834,7 +894,12 @@ __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -902,7 +967,12 @@ __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -970,7 +1040,12 @@ __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -1036,7 +1111,12 @@ logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -1103,7 +1183,12 @@ __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -1167,7 +1252,12 @@ __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -1231,7 +1321,12 @@ logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -1298,7 +1393,12 @@ __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -1364,7 +1464,12 @@ logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -1431,7 +1536,12 @@ __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -1495,7 +1605,12 @@ __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -1561,7 +1676,12 @@ logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
@@ -1626,7 +1746,12 @@ __pmFopen("TMP.0", "w"): no decompress
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
-do_control: control=13 state=0 delta=5000 request ...
+check_local_creds: uid connecting N != M or M => connection refused
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+control_req: connection accepted on fd=N from localhost
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
   29.0.5 : numval: 3 valfmt: 0 inst [0]
  inst [1]
