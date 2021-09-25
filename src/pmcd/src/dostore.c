@@ -53,6 +53,7 @@ SplitResult(pmResult *res)
 	resIndex = (int *)malloc((nAgents + 1) * sizeof(int));
 	if (aFreq == NULL || resIndex == NULL) {
 	    pmNoMem("SplitResult.freq", 2 * (nAgents + 1) * sizeof(int), PM_FATAL_ERR);
+	    /* NOTREACHED */
 	}
     }
 
@@ -78,10 +79,15 @@ SplitResult(pmResult *res)
 	}
     resIndex[nAgents] = nGood;
 
+    /*
+     * Note: do not convert to __pmResult, the pmcd-pmda interfaces and
+     * 	 and pmcd internally will continue to use pmResult
+     */
     need = nGood + 1 + ((aFreq[nAgents]) ? 1 : 0);
     need *= sizeof(pmResult *);
     if ((results = (pmResult **) malloc(need)) == NULL) {
 	pmNoMem("SplitResult.results", need, PM_FATAL_ERR);
+	/* NOTREACHED */
     }
     j = 0;
     for (i = 0; i <= nAgents; i++)
@@ -98,6 +104,7 @@ SplitResult(pmResult *res)
     /* Make the "end of list" pmResult */
     if ((results[j] = (pmResult *) malloc(sizeof(pmResult))) == NULL) {
 	pmNoMem("SplitResult.domain", sizeof(pmResult), PM_FATAL_ERR);
+	/* NOTREACHED */
     }
     results[j]->numpmid = 0;
 

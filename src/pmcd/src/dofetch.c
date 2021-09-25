@@ -65,6 +65,7 @@ SplitPmidList(int nPmids, pmID *pmidList)
 	aFreq = (int *)malloc((nAgents + 1) * sizeof(int));
 	if (resIndex == NULL || aFreq == NULL) {
 	    pmNoMem("SplitPmidList.resIndex", 2 * (nAgents + 1) * sizeof(int), PM_FATAL_ERR);
+	    /* NOTREACHED */
 	}
     }
 
@@ -120,6 +121,7 @@ doit:
 	result = (DomPmidList *)malloc(resultSize);
 	if (result == NULL) {
 	    pmNoMem("SplitPmidList.result", resultSize, PM_FATAL_ERR);
+	    /* NOTREACHED */
 	}
 	currentSize = resultSize;
     }
@@ -171,6 +173,10 @@ MakeBadResult(int npmids, pmID *list, int sts)
     pmValueSet *vSet;
     pmResult   *result;
 
+    /*
+     * Note: do not convert to __pmResult, the pmcd-pmda interfaces and
+     * 	 and pmcd internally will continue to use pmResult
+     */
     need = (int)sizeof(pmResult) +
 	(npmids - 1) * (int)sizeof(pmValueSet *);
 	/* npmids - 1 because there is already 1 pmValueSet* in a pmResult */
@@ -185,6 +191,7 @@ MakeBadResult(int npmids, pmID *list, int sts)
 	vSet = (pmValueSet *)malloc(sizeof(pmValueSet));
 	if (vSet == NULL) {
 	    pmNoMem("MakeBadResult.vSet", sizeof(pmValueSet), PM_FATAL_ERR);
+	    /* NOTREACHED */
 	}
 	result->vset[i] = vSet;
 	vSet->pmid = list[i];
@@ -365,16 +372,12 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
 {
     int			i, j;
     int 		sts;
-    int			need;
     int			ctxnum;
     unsigned int	changes = 0;
     int			nPmids;
     pmID		*pmidList;
-    pmValueSet		**valueset;
-    static pmResult	*endResult;
+    static __pmResult	*endResult = NULL;
     static int		maxnpmids;	/* sizes endResult */
-    static pmHighResResult *endHighResResult;
-    static int		maxhighresnpmids; /* sizes endHighResResult */
     DomPmidList		*dList;		/* NOTE: NOT indexed by agent index */
     static int		nDoms;
     static pmResult	**results;	/* array of replies from PMDAs */
@@ -397,6 +400,7 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
 	resIndex = (int *)malloc((nAgents + 1) * sizeof(int));
 	if (results == NULL || resIndex == NULL) {
 	    pmNoMem("DoFetch.results", (nAgents + 1) * sizeof (pmResult *) + (nAgents + 1) * sizeof(int), PM_FATAL_ERR);
+	    /* NOTREACHED */
 	}
 	nDoms = nAgents;
     }
@@ -424,20 +428,15 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
 	return PM_ERR_NOPROFILE;
     }
 
-    if (pdutype == PDU_HIGHRES_FETCH && nPmids > maxhighresnpmids) {
-	if (endHighResResult)
-	    free(endHighResResult);
-	need = (int)sizeof(pmHighResResult) + (nPmids - 1) * (int)sizeof(pmValueSet *);
-	if ((endHighResResult = (pmHighResResult *)malloc(need)) == NULL)
-	    pmNoMem("DoFetch.endHighResResult", need, PM_FATAL_ERR);
-	maxhighresnpmids = nPmids;
-    }
-    else if (pdutype == PDU_FETCH && nPmids > maxnpmids) {
-	if (endResult)
-	    free(endResult);
-	need = (int)sizeof(pmResult) + (nPmids - 1) * (int)sizeof(pmValueSet *);
-	if ((endResult = (pmResult *)malloc(need)) == NULL)
-	    pmNoMem("DoFetch.endResult", need, PM_FATAL_ERR);
+    if (nPmids > maxnpmids) {
+	if (endResult != NULL) {
+	    endResult->numpmid = 0;	/* don't free vset's */
+	    pmFreeResult(__pmOffsetResult(endResult));
+	}
+	if ((endResult = __pmAllocResult(nPmids)) == NULL) {
+	    pmNoMem("DoFetch.endResult", sizeof(__pmResult) + (nPmids - 1) * sizeof(pmValueSet *), PM_FATAL_ERR);
+	    /* NOTREACHED */
+	}
 	maxnpmids = nPmids;
     }
 
@@ -584,15 +583,11 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
     if (changes)
 	MarkStateChanges(changes);
 
-    if (pdutype == PDU_HIGHRES_FETCH) {
-	valueset = endHighResResult->vset;
-	endHighResResult->numpmid = nPmids;
-	__pmGetTimespec(&endHighResResult->timestamp);
-    } else {	/* PDU_FETCH */
-	valueset = endResult->vset;
-	endResult->numpmid = nPmids;
-	pmtimevalNow(&endResult->timestamp);
-    }
+    endResult->numpmid = nPmids;
+    if (pdutype == PDU_HIGHRES_FETCH)
+	__pmGetTimespec(&__pmOffsetHighResResult(endResult)->timestamp);
+    else	/* PDU_FETCH */
+	pmtimevalNow(&__pmOffsetResult(endResult)->timestamp);
 
     /* The order of the pmIDs in the per-domain results is the same as in the
      * original request, but on a per-domain basis.  resIndex is an array of
@@ -602,7 +597,7 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
     memset(resIndex, 0, (nAgents + 1) * sizeof(resIndex[0]));
     for (i = 0; i < nPmids; i++) {
 	j = mapdom[((__pmID_int *)&pmidList[i])->domain];
-	valueset[i] = results[j]->vset[resIndex[j]++];
+	endResult->vset[i] = results[j]->vset[resIndex[j]++];
     }
 
     pmcd_trace(TR_XMIT_PDU, cip->fd, pdutype, nPmids);
@@ -617,8 +612,8 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
     }
     if (sts == 0)
 	sts = (pdutype == PDU_HIGHRES_FETCH) ?
-		__pmSendHighResResult(cip->fd, FROM_ANON, endHighResResult) :
-		__pmSendResult(cip->fd, FROM_ANON, endResult);
+		__pmSendHighResResult(cip->fd, FROM_ANON, __pmOffsetHighResResult(endResult)) :
+		__pmSendResult(cip->fd, FROM_ANON, __pmOffsetResult(endResult));
 
     if (sts < 0) {
 	pmcd_trace(TR_XMIT_ERR, cip->fd, pdutype, sts);
