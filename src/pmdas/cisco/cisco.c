@@ -108,8 +108,8 @@ refresh(void *dummy)
 	for (i = 0; i < n_cisco; i++) {
 	    int	j;
 
-	    fprintf(stderr, "cisco[%d] host: %s username: %s passwd: %s prompt: %s intf:",
-		    i, cisco[i].host, cisco[i].username, cisco[i].passwd, cisco[i].prompt);
+	    fprintf(stderr, "cisco[%d] host: %s username: %s prompt: %s intf:",
+		    i, cisco[i].host, cisco[i].username, cisco[i].prompt);
 
 	    for (j = 0; j < n_intf; j++) {
 	        if (intf[j].cp == (cisco+i))

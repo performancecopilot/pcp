@@ -141,11 +141,11 @@ create_aggregator_args(
     struct pmda_metrics_container* m,
     struct pmda_stats_container* s
 ) {
-    struct aggregator_args* aggregator_args = (struct aggregator_args*) malloc(sizeof(struct aggregator_args));
+    struct aggregator_args* args = (struct aggregator_args*) malloc(sizeof(struct aggregator_args));
     ALLOC_CHECK("Unable to assign memory for parser aguments.");
-    aggregator_args->config = config;
-    aggregator_args->parser_to_aggregator = parser_to_aggregator;
-    aggregator_args->metrics_container = m;
-    aggregator_args->stats_container = s;
-    return aggregator_args;
+    args->config = config;
+    args->parser_to_aggregator = parser_to_aggregator;
+    args->metrics_container = m;
+    args->stats_container = s;
+    return args;
 }

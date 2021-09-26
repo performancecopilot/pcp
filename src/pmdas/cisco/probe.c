@@ -260,6 +260,7 @@ main(int argc, char **argv)
     char		*passwd = NULL;
     char		*username = NULL;
     __pmHostEnt		*hostInfo = NULL;
+    cisco_t		 probe = { 0 };
 
     pmSetProgname(argv[0]);
 
@@ -322,33 +323,25 @@ main(int argc, char **argv)
 	    exit(1);
 	}
 	else {
-	    cisco_t c;
-
 	    fprintf(stderr, "%s: assuming file %s contains output from \"show int\" command\n",
 	    	pmGetProgname(), argv[optind]);
 
-	    c.host = argv[optind];
-	    c.username = NULL;
-	    c.passwd = NULL;
-	    c.fin = f;
-	    c.fout = fopen("/dev/null", "w");
-	    c.prompt = prompt;
+	    probe.host = argv[optind];
+	    probe.fin = f;
+	    probe.fout = fopen("/dev/null", "w");
+	    probe.prompt = prompt;
 
-	    probe_cisco(&c);
+	    probe_cisco(&probe);
 	}
     } else {
-	cisco_t c;
+	probe.host = argv[optind];
+	probe.username = username;
+	probe.passwd = passwd;
+	probe.prompt = prompt;
+	probe.hostinfo = hostInfo;
+	probe.port = 23; /* telnet */
 
-	c.host = argv[optind];
-	c.username = username;
-	c.passwd = passwd;
-	c.fin = NULL;
-	c.fout = NULL;
-	c.prompt = prompt;
-	c.hostinfo = hostInfo;
-	c.port = 23; /* telnet */
-
-	probe_cisco(&c);
+	probe_cisco(&probe);
     }
 
     exit(0);

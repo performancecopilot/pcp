@@ -39,7 +39,7 @@ then
 fi
 
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
-trap "rm -rf $tmp $tmp.help" 0 1 2 3 15
+trap "rm -rf $tmp" 0 1 2 3 15
 target=`uname -s | tr 'A-Z' 'a-z'`
 
 # Find where a GNU tool is hiding, look for this line in the
@@ -72,17 +72,17 @@ gnu_tool()
 	    exec=`which $command 2>/dev/null`
 	    if [ -n "$exec" ]
 	    then
-		LC_ALL=C $command --help >$tmp.help 2>&1
-		if egrep "(bug-$oldcmd@gnu.org)|(FreeBSD $command)|(NetBSD $command)|(OpenBSD $command)|(Apple $command)" $tmp.help >/dev/null
+		LC_ALL=C $command --help >$tmp/help 2>&1
+		if egrep "(bug-$oldcmd@gnu.org)|(FreeBSD $command)|(NetBSD $command)|(OpenBSD $command)|(Apple $command)" $tmp/help >/dev/null
 		then
 		    echo $exec
 		    return 0
 		fi
-		awk <$tmp.help >$tmp.check '
+		awk <$tmp/help >$tmp/check '
 BEGIN				{ want = 0 }
 /This\** tar defaults to:/	{ want=1; next }
 want == 1			{ print; exit }'
-		if egrep '[-][-]format=(gnu)|(posix)' <$tmp.check >/dev/null
+		if egrep '[-][-]format=(gnu)|(posix)' <$tmp/check >/dev/null
 		then
 		    echo $exec
 		    return 0

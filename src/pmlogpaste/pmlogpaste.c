@@ -42,7 +42,6 @@ static pmOptions opts = {
 
 static char *input;
 static size_t input_length;
-static struct timespec timestamp;
 static char hostname_buffer[MAXHOSTNAMELEN];
 
 /*
@@ -99,7 +98,7 @@ slurp(const char *filename)
 void 
 pmlogpaste(const char *filename, const char *metric,
 	   const char *hostname, const char *timezone,
-	   const char *input, char **labels, int nlabels,
+	   const char *value, char **labels, int nlabels,
 	   struct timespec *timestamp)
 {
     int		i, sts;
@@ -129,7 +128,7 @@ pmlogpaste(const char *filename, const char *metric,
 	exit(EXIT_FAILURE);
     }
 
-    if ((sts = pmiPutValue(metric, NULL, input)) < 0) {
+    if ((sts = pmiPutValue(metric, NULL, value)) < 0) {
 	fprintf(stderr, "%s: error adding metric value: %s\n",
 			pmGetProgname(), pmiErrStr(sts));
 	exit(EXIT_FAILURE);
@@ -138,16 +137,16 @@ pmlogpaste(const char *filename, const char *metric,
     for (i = 0; i < nlabels; i++) {
 	char 	*temp = strdup(*(labels + i));
 	char	*name = strtok(temp, ":");
-	char	*value = strtok(NULL, ":");
+	char	*data = strtok(NULL, ":");
 
 	if (name == NULL) {
 	    fprintf(stderr, "%s: invalid label token %s: %s\n",
 			pmGetProgname(), temp, pmiErrStr(sts));
 	    exit(EXIT_FAILURE);
 	}
-	if ((sts = pmiPutLabel(PM_LABEL_CONTEXT, PM_ID_NULL, PM_IN_NULL, name, value)) < 0) {
+	if ((sts = pmiPutLabel(PM_LABEL_CONTEXT, PM_ID_NULL, PM_IN_NULL, name, data)) < 0) {
 	    fprintf(stderr, "%s: error adding label %s:%s: %s\n",
-			pmGetProgname(), name, value, pmiErrStr(sts));
+			pmGetProgname(), name, data, pmiErrStr(sts));
 	    exit(EXIT_FAILURE);
 	}
 	free(temp);
@@ -170,7 +169,7 @@ pmlogpaste(const char *filename, const char *metric,
  * pmlogpaste has a few options which do not follow the defacto standards
  */
 static int
-myoverrides(int opt, pmOptions *opts)
+myoverrides(int opt, pmOptions *options)
 {
     if (opt == 'h' || opt == 't')
 	return 1;	/* we've claimed these, inform pmGetOptions */
@@ -188,6 +187,7 @@ main(int argc, char *argv[])
     char	*timezone = NULL;
     char	**labels = NULL;
     int 	nlabels = 0;
+    struct timespec timestamp = {0};
 
     while ((opt = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch(opt) {

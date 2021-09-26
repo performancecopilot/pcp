@@ -48,9 +48,9 @@ static void setupEnvironment(void)
 }
 
 static int
-override(int opt, pmOptions *opts)
+override(int opt, pmOptions *options)
 {
-    (void)opts;
+    (void)options;
     if (opt == 'D')
 	Dflag = 1;
     return 0;

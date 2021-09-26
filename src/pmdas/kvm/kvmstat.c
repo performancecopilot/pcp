@@ -284,13 +284,13 @@ kvm_trace_refresh(void)
 #ifdef HAVE_LINUX_PERF_EVENT_H
 static long
 perf_event_open(perf_event_attr_t *kvm_event, pid_t pid,
-		int cpu, int group_fd, unsigned long flags)
+		int cpu, int fd, unsigned long flags)
 {
-    return syscall(__NR_perf_event_open, kvm_event, pid, cpu, group_fd, flags);
+    return syscall(__NR_perf_event_open, kvm_event, pid, cpu, fd, flags);
 }
 
 static int
-perf_event(int ncpus, int *group_fd)
+perf_event(void)
 {
     struct dirent	*de;
     perf_event_attr_t	pe;
@@ -355,9 +355,8 @@ perf_event(int ncpus, int *group_fd)
 }
 #else
 static int
-perf_event(int c, int *fds)
+perf_event(void)
 { 
-    (void)c; (void)fds;
     return -EOPNOTSUPP;
 }
 #endif
@@ -673,8 +672,8 @@ kvm_init(pmdaInterface *dp)
     }
 
     if (tmetrictab != metrictab) {
-	group_fd = malloc(ncpus * sizeof(int));
-	if ((sts = perf_event(ncpus, group_fd)) < 0) {
+	group_fd = calloc(ncpus, sizeof(int));
+	if ((sts = perf_event()) < 0) {
 	    pmNotifyErr(LOG_INFO, "disabling perf_event support: %s",
 			pmErrStr(sts));
 	    free(group_fd);

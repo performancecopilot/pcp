@@ -111,12 +111,12 @@ parser_exec(void* args) {
  */
 struct parser_args*
 create_parser_args(struct agent_config* config, chan_t* network_listener_to_parser, chan_t* parser_to_aggregator) {
-    struct parser_args* parser_args = (struct parser_args*) malloc(sizeof(struct parser_args));
+    struct parser_args* args = (struct parser_args*) malloc(sizeof(struct parser_args));
     ALLOC_CHECK("Unable to assign memory for parser arguments.");
-    parser_args->config = config;
-    parser_args->network_listener_to_parser = network_listener_to_parser;
-    parser_args->parser_to_aggregator = parser_to_aggregator;
-    return parser_args;
+    args->config = config;
+    args->network_listener_to_parser = network_listener_to_parser;
+    args->parser_to_aggregator = parser_to_aggregator;
+    return args;
 }
 
 /**

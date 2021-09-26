@@ -22,9 +22,6 @@ typedef struct {
 
 extern meta_t	*meta;
 extern int	nmeta;
-extern char	*command;
-extern char	*helpfile;
-extern int	cmdpipe;
 extern pid_t	clientPID;
 
 extern void summaryMainLoop(char *, int, pmdaInterface *);

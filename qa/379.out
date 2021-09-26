@@ -4,7 +4,7 @@ QA output created by 379
 parse: assuming file Serial-0 contains output from "show int" command
 Interface s0(0) is on host Serial-0
 Starting sproc ...
-cisco[0] host: Serial-0 username: (null) passwd: (null) prompt: > intf: 0-s0
+cisco[0] host: Serial-0 username: (null) prompt: > intf: 0-s0
 grab_cisco(Serial-0:s0):
 show int s0
 Parse:[noise] mygetwd: fd=3 wd=">" [prompt]
@@ -172,7 +172,7 @@ total bytes: 2763796661 in 3098844973 out ? out_bcast
 parse: assuming file Serial-0 contains output from "show int" command
 Interface s0(0) is on host Serial-0
 Starting sproc ...
-cisco[0] host: Serial-0 username: (null) passwd: (null) prompt: > intf: 0-s0
+cisco[0] host: Serial-0 username: (null) prompt: > intf: 0-s0
 grab_cisco(Serial-0:s0):
 show int s0
 Extracted 5 values ...
@@ -185,7 +185,7 @@ total bytes: 2763796661 in 3098844973 out ? out_bcast
 parse: assuming file Ethernet-0 contains output from "show int" command
 Interface e0(0) is on host Ethernet-0
 Starting sproc ...
-cisco[0] host: Ethernet-0 username: login passwd: (null) prompt: > intf: 0-e0
+cisco[0] host: Ethernet-0 username: login prompt: > intf: 0-e0
 grab_cisco(Ethernet-0:e0):
 show int e0
 Extracted 5 values ...
@@ -198,7 +198,7 @@ total bytes: 1321046112 in 870622060 out ? out_bcast
 parse: assuming file Fddi-2-0 contains output from "show int" command
 Interface f2/0(0) is on host Fddi-2-0
 Starting sproc ...
-cisco[0] host: Fddi-2-0 username: login passwd: secret prompt: > intf: 0-f2/0
+cisco[0] host: Fddi-2-0 username: login prompt: > intf: 0-f2/0
 grab_cisco(Fddi-2-0:f2/0):
 show int f2/0
 Extracted 5 values ...
@@ -211,7 +211,7 @@ total bytes: 4009491185 in 612803885 out ? out_bcast
 parse: assuming file Serial-1 contains output from "show int" command
 Interface s1(0) is on host Serial-1
 Starting sproc ...
-cisco[0] host: Serial-1 username: (null) passwd: (null) prompt: > intf: 0-s1
+cisco[0] host: Serial-1 username: (null) prompt: > intf: 0-s1
 grab_cisco(Serial-1:s1):
 show int s1
 Extracted 5 values ...
@@ -224,7 +224,7 @@ total bytes: 1105345262 in 675844616 out ? out_bcast
 parse: assuming file Ethernet-3-5 contains output from "show int" command
 Interface e3/5(0) is on host Ethernet-3-5
 Starting sproc ...
-cisco[0] host: Ethernet-3-5 username: (null) passwd: (null) prompt: > intf: 0-e3/5
+cisco[0] host: Ethernet-3-5 username: (null) prompt: > intf: 0-e3/5
 grab_cisco(Ethernet-3-5:e3/5):
 show int e3/5
 Extracted 5 values ...
@@ -237,7 +237,7 @@ total bytes: 1448819515 in 3227527737 out ? out_bcast
 parse: assuming file ATM-12-0 contains output from "show int" command
 Interface a12/0(0) is on host ATM-12-0
 Starting sproc ...
-cisco[0] host: ATM-12-0 username: (null) passwd: (null) prompt: > intf: 0-a12/0
+cisco[0] host: ATM-12-0 username: (null) prompt: > intf: 0-a12/0
 grab_cisco(ATM-12-0:a12/0):
 show int a12/0
 Extracted 5 values ...
@@ -250,7 +250,7 @@ total bytes: 1239748718 in 4188341273 out ? out_bcast
 parse: assuming file Hssi-3-0 contains output from "show int" command
 Interface h3/0(0) is on host Hssi-3-0
 Starting sproc ...
-cisco[0] host: Hssi-3-0 username: (null) passwd: (null) prompt: > intf: 0-h3/0
+cisco[0] host: Hssi-3-0 username: (null) prompt: > intf: 0-h3/0
 grab_cisco(Hssi-3-0:h3/0):
 show int h3/0
 Extracted 5 values ...
@@ -263,7 +263,7 @@ total bytes: 1443052046 in 3684064154 out ? out_bcast
 parse: assuming file FastEthernet-1-0 contains output from "show int" command
 Interface FastEthernet1/0(0) is on host FastEthernet-1-0
 Starting sproc ...
-cisco[0] host: FastEthernet-1-0 username: (null) passwd: (null) prompt: cmd# intf: 0-FastEthernet1/0
+cisco[0] host: FastEthernet-1-0 username: (null) prompt: cmd# intf: 0-FastEthernet1/0
 grab_cisco(FastEthernet-1-0:FastEthernet1/0):
 show int FastEthernet1/0
 Extracted 5 values ...
@@ -276,7 +276,7 @@ total bytes: 1942263093 in 1811832796 out ? out_bcast
 parse: assuming file Serial-1-0-min contains output from "show int" command
 Interface s1/0(0) is on host Serial-1-0-min
 Starting sproc ...
-cisco[0] host: Serial-1-0-min username: (null) passwd: (null) prompt: > intf: 0-s1/0
+cisco[0] host: Serial-1-0-min username: (null) prompt: > intf: 0-s1/0
 grab_cisco(Serial-1-0-min:s1/0):
 show int s1/0
 Extracted 5 values ...
@@ -289,7 +289,7 @@ total bytes: 132623595 in 73186481 out ? out_bcast
 parse: assuming file Serial-1-0-sec contains output from "show int" command
 Interface s1/0(0) is on host Serial-1-0-sec
 Starting sproc ...
-cisco[0] host: Serial-1-0-sec username: (null) passwd: (null) prompt: > intf: 0-s1/0
+cisco[0] host: Serial-1-0-sec username: (null) prompt: > intf: 0-s1/0
 grab_cisco(Serial-1-0-sec:s1/0):
 show int s1/0
 Extracted 5 values ...
@@ -302,7 +302,7 @@ total bytes: 630502832 in 230325061 out ? out_bcast
 parse: assuming file Ethernet-1-0 contains output from "show int" command
 Interface e1/0(0) is on host Ethernet-1-0
 Starting sproc ...
-cisco[0] host: Ethernet-1-0 username: (null) passwd: (null) prompt: > intf: 0-e1/0
+cisco[0] host: Ethernet-1-0 username: (null) prompt: > intf: 0-e1/0
 grab_cisco(Ethernet-1-0:e1/0):
 show int e1/0
 Extracted 5 values ...
@@ -315,7 +315,7 @@ total bytes: 2161281566 in 4162655553 out ? out_bcast
 parse: assuming file Vlan-256 contains output from "show int" command
 Interface Vl256(0) is on host Vlan-256
 Starting sproc ...
-cisco[0] host: Vlan-256 username: (null) passwd: (null) prompt: > intf: 0-Vl256
+cisco[0] host: Vlan-256 username: (null) prompt: > intf: 0-Vl256
 grab_cisco(Vlan-256:Vl256):
 show int Vl256
 Extracted 5 values ...
@@ -328,7 +328,7 @@ total bytes: 816292345 in 3736073981 out ? out_bcast
 parse: assuming file Vlan-1 contains output from "show int" command
 Interface Vl1(0) is on host Vlan-1
 Starting sproc ...
-cisco[0] host: Vlan-1 username: login passwd: secret prompt: bgo-sw20# intf: 0-Vl1
+cisco[0] host: Vlan-1 username: login prompt: bgo-sw20# intf: 0-Vl1
 grab_cisco(Vlan-1:Vl1):
 show int Vl1
 Extracted 5 values ...
@@ -341,7 +341,7 @@ total bytes: 284700228 in 0 out ? out_bcast
 parse: assuming file Vlan-160 contains output from "show int" command
 Interface Vl160(0) is on host Vlan-160
 Starting sproc ...
-cisco[0] host: Vlan-160 username: login passwd: secret prompt: bgo-sw20# intf: 0-Vl160
+cisco[0] host: Vlan-160 username: login prompt: bgo-sw20# intf: 0-Vl160
 grab_cisco(Vlan-160:Vl160):
 show int Vl160
 Extracted 5 values ...
@@ -354,7 +354,7 @@ total bytes: 5045205764 in 656481017 out ? out_bcast
 parse: assuming file FastEthernet-0-5 contains output from "show int" command
 Interface FastEthernet0/5(0) is on host FastEthernet-0-5
 Starting sproc ...
-cisco[0] host: FastEthernet-0-5 username: login passwd: secret prompt: bgo-sw20# intf: 0-FastEthernet0/5
+cisco[0] host: FastEthernet-0-5 username: login prompt: bgo-sw20# intf: 0-FastEthernet0/5
 grab_cisco(FastEthernet-0-5:FastEthernet0/5):
 show int FastEthernet0/5
 Extracted 5 values ...
@@ -367,7 +367,7 @@ total bytes: 7324243891 in 20222705373 out ? out_bcast
 parse: assuming file FastEthernet-0-6 contains output from "show int" command
 Interface FastEthernet0/6(0) is on host FastEthernet-0-6
 Starting sproc ...
-cisco[0] host: FastEthernet-0-6 username: login passwd: secret prompt: bgo-sw20# intf: 0-FastEthernet0/6
+cisco[0] host: FastEthernet-0-6 username: login prompt: bgo-sw20# intf: 0-FastEthernet0/6
 grab_cisco(FastEthernet-0-6:FastEthernet0/6):
 show int FastEthernet0/6
 Extracted 5 values ...
@@ -380,7 +380,7 @@ total bytes: 4063397146 in 27283555831 out ? out_bcast
 parse: assuming file GigabitEthernet-0-1 contains output from "show int" command
 Interface G0/1(0) is on host GigabitEthernet-0-1
 Starting sproc ...
-cisco[0] host: GigabitEthernet-0-1 username: login passwd: secret prompt: bgo-sw20# intf: 0-G0/1
+cisco[0] host: GigabitEthernet-0-1 username: login prompt: bgo-sw20# intf: 0-G0/1
 grab_cisco(GigabitEthernet-0-1:G0/1):
 show int G0/1
 Extracted 5 values ...

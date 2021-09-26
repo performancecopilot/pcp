@@ -1274,7 +1274,6 @@ perfhandle_t *perf_event_create(const char *config_file)
     if (inst && perfconfig && perfconfig->nDerivedEntries)
     {
         for (i = 0; i < perfconfig->nDerivedEntries; i++) {
-            int ret;
             derivedpmc = &(perfconfig->derivedArr[i]);
             ret = perf_setup_derived_event(inst, derivedpmc);
             if (ret < 0)

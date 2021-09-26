@@ -497,7 +497,7 @@ loggerMain(pmdaInterface *dispatch)
 }
 
 static void
-convertUnits(char **endnum, long *maxmem)
+convertUnits(char **endnum)
 {
     switch ((int) **endnum) {
 	case 'b':
@@ -505,15 +505,15 @@ convertUnits(char **endnum, long *maxmem)
 		break;
 	case 'k':
 	case 'K':
-		*maxmem *= 1024;
+		maxmem *= 1024;
 		break;
 	case 'm':
 	case 'M':
-		*maxmem *= 1024 * 1024;
+		maxmem *= 1024 * 1024;
 		break;
 	case 'g':
 	case 'G':
-		*maxmem *= 1024 * 1024 * 1024;
+		maxmem *= 1024 * 1024 * 1024;
 		break;
     }
     (*endnum)++;
@@ -558,7 +558,7 @@ main(int argc, char **argv)
 	    case 'm':
 		maxmem = strtol(optarg, &endnum, 10);
 		if (*endnum != '\0')
-		    convertUnits(&endnum, &maxmem);
+		    convertUnits(&endnum);
 		if (*endnum != '\0' || maxmem < minmem) {
 		    fprintf(stderr, "%s: invalid max memory '%s' (min=%ld)\n",
 			    pmGetProgname(), optarg, minmem);

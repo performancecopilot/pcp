@@ -581,9 +581,9 @@ on_pmwebapi_check(sds context, pmWebAccess *access,
     struct client	*client = (struct client *)baton->client;
 
     if (pmDebugOptions.auth || pmDebugOptions.series)
-	fprintf(stderr, "%s: client=%p (ctx=%s) user=%s pass=%s realm=%s\n",
+	fprintf(stderr, "%s: client=%p (ctx=%s) user=%s pass=*** realm=%s\n",
 		"on_pmwebapi_check", client, context,
-		access->username, access->password, access->realm);
+		access->username, access->realm);
 
     /* Does this context require username/password authentication? */
     if (access->username != NULL ||

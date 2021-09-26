@@ -293,12 +293,12 @@ dopasswd(cisco_t *cp, char *pw_prompt)
 	if (strlen(w) >= len_prompt && strncmp(&w[strlen(w)-len_prompt], cp->prompt, len_prompt) == 0)
 	    break;
 	if (pmDebugOptions.appl0)
-	    fprintf(stderr, "Password:? got - %s\n", w);
+	    fprintf(stderr, "Got prompt - %s\n", w);
 	if (strcmp(w, PWPROMPT) == 0) {
-		if (pmDebugOptions.appl1) {
-		    fprintf(stderr, "Send passwd: %s\n", cp->passwd);
-		}
-	    fprintf(cp->fout, "%s\n", cp->passwd);
+	    if (pmDebugOptions.appl1) {
+		fprintf(stderr, "Send passwd\n");
+	    }
+	    fprintf(cp->fout, "%s\n", cp->passwd); /* lgtm [cpp/cleartext-storage-file] */
 	    fflush(cp->fout);
 	    for ( ; ; ) {
 		w = mygetwd(cp->fin, cp->prompt);
@@ -322,9 +322,8 @@ dopasswd(cisco_t *cp, char *pw_prompt)
 "To check that a user-level password is required, enter the following command:\n"
 "   $ telnet %s\n"
 "If the prompt \"%s\" does not appear, no user-level password is required.\n"
-"Otherwise, enter the user-level password \"%s\" to check that this\n"
-"is correct.\n",
-cp->host, PWPROMPT, cp->passwd);
+"Otherwise, enter the user-level password to check that this is correct.\n",
+cp->host, PWPROMPT);
     }
 
     return done;
@@ -451,7 +450,7 @@ grab_cisco(intf_t *ip)
 		else
 		    fprintf(stderr, " NO username");
 		if (cp->passwd != NULL)
-		    fprintf(stderr, " passwd=%s", cp->passwd);
+		    fprintf(stderr, " passwd=***");
 		else
 		    fprintf(stderr, " NO passwd");
 		fputc('\n', stderr);

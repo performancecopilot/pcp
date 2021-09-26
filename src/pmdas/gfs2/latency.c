@@ -202,11 +202,11 @@ update_records(struct gfs2_fs *fs, int metric, struct latency_data data, int pla
  * trace pipe.
  */
 int
-gfs2_extract_latency(unsigned int major, unsigned int minor, int tracepoint, char *data, pmInDom gfs_fs_indom)
+gfs2_extract_latency(unsigned int major, unsigned int minor, int tracepoint, char *buffer, pmInDom gfs_fs_indom)
 {
     latency_data.dev_id = makedev(major, minor);
     latency_data.tracepoint = tracepoint;
-    strncpy(latency_data.data, data, sizeof(latency_data.data)-1);
+    strncpy(latency_data.data, buffer, sizeof(latency_data.data)-1);
 
     int i, sts;
     struct gfs2_fs *fs;

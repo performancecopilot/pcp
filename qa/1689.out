@@ -41,7 +41,7 @@ pmproxy.discover.changed_callbacks PMID: 4.5.17 [filesystem changed callbacks]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-number of observed filesystem changes to PCP archives
+Number of observed filesystem changes to PCP archives
 
 pmproxy.discover.logvol.callbacks PMID: 4.5.9 [calls to process logvol data for monitored archives]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -295,22 +295,22 @@ pmproxy.webgroup.contextmap.size PMID: 4.7.1 [context map dictionary size]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 Help:
-number of entries in the context map dictionary
+Number of entries in the context map dictionary
 
 pmproxy.webgroup.instmap.size PMID: 4.7.4 [instance name map dictionary size]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 Help:
-number of entries in the instance name map dictionary
+Number of entries in the instance name map dictionary
 
 pmproxy.webgroup.labelsmap.size PMID: 4.7.3 [labels map dictionary size]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 Help:
-number of entries in the labels map dictionary
+Number of entries in the labels map dictionary
 
 pmproxy.webgroup.namesmap.size PMID: 4.7.2 [metric names map dictionary size]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 Help:
-number of entries in the metric names map dictionary
+Number of entries in the metric names map dictionary

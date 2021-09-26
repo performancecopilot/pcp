@@ -1,4 +1,14 @@
+### 0.7.0 - Sep 22, 2021
+
+* Added support for stream commands in regular API.
+* Added support for authentication using AUTH with username.
+* Added adapters for event libraries libuv, libev and GLib.
+* Improved memory efficiency.
+* Renamed API function `redisClusterSetOptionMaxRedirect()`
+  to `redisClusterSetOptionMaxRetry()`.
+
 ### 0.6.0 - Feb 09, 2021
+
 * Minimum required version of CMake changed to 3.11 (from 3.14)
 * Re-added the Makefile for symmetry with hiredis, which also enables
   support for statically-linked libraries.

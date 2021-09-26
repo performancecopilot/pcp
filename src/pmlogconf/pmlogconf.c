@@ -1577,7 +1577,7 @@ pmlogger_update(FILE *file, struct stat *stat)
 }
 
 void
-pmapi_setup(pmOptions *opts)
+pmapi_setup(pmOptions *options)
 {
     const char	*hostspec;
     int		sts;
@@ -1587,8 +1587,8 @@ pmapi_setup(pmOptions *opts)
     setenv("LC_COLLATE", "POSIX", 1);
 
     /* setup connection to pmcd in order to query metric states */
-    if (opts->nhosts > 0)
-	hostspec = opts->hosts[0];
+    if (options->nhosts > 0)
+	hostspec = options->hosts[0];
     else
 	hostspec = "local:";
     if ((sts = pmNewContext(PM_CONTEXT_HOST, hostspec)) < 0) {

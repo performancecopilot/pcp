@@ -5,7 +5,7 @@ Interface a0(0) is on host cisco/hugh-800
 Interface e0(1) is on host cisco/hugh-800
 Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
-cisco[0] host: cisco/hugh-800 username: user passwd: pw prompt: adsl> intf: 0-a0 1-e0
+cisco[0] host: cisco/hugh-800 username: user prompt: adsl> intf: 0-a0 1-e0
 grab_cisco(cisco/hugh-800:a0):
 show int a0
 Extracted 5 values ...
@@ -28,7 +28,7 @@ Interface a0(0) is on host cisco/hugh-800
 Interface e0(1) is on host cisco/hugh-800
 Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
-cisco[0] host: cisco/hugh-800 username: user passwd: pw prompt: adsl> intf: 0-a0 1-e0
+cisco[0] host: cisco/hugh-800 username: user prompt: adsl> intf: 0-a0 1-e0
 grab_cisco(cisco/hugh-800:a0):
 show int a0
 Extracted 5 values ...
@@ -51,7 +51,7 @@ Interface a0(0) is on host cisco/hugh-800
 Interface e0(1) is on host cisco/hugh-800
 Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
-cisco[0] host: cisco/hugh-800 username: user passwd: pw prompt: adsl> intf: 0-a0 1-e0
+cisco[0] host: cisco/hugh-800 username: user prompt: adsl> intf: 0-a0 1-e0
 grab_cisco(cisco/hugh-800:a0):
 show int a0
 Extracted 5 values ...
@@ -74,7 +74,7 @@ Interface a0(0) is on host cisco/hugh-800
 Interface e0(1) is on host cisco/hugh-800
 Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
-cisco[0] host: cisco/hugh-800 username: user passwd: pw prompt: adsl> intf: 0-a0 1-e0
+cisco[0] host: cisco/hugh-800 username: user prompt: adsl> intf: 0-a0 1-e0
 grab_cisco(cisco/hugh-800:a0):
 show int a0
 Extracted 5 values ...
@@ -97,7 +97,7 @@ Interface a0(0) is on host cisco/hugh-800
 Interface e0(1) is on host cisco/hugh-800
 Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
-cisco[0] host: cisco/hugh-800 username: user passwd: pw prompt: adsl> intf: 0-a0 1-e0
+cisco[0] host: cisco/hugh-800 username: user prompt: adsl> intf: 0-a0 1-e0
 grab_cisco(cisco/hugh-800:a0):
 show int a0
 Extracted 5 values ...
@@ -120,7 +120,7 @@ Interface a0(0) is on host cisco/hugh-800
 Interface e0(1) is on host cisco/hugh-800
 Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
-cisco[0] host: cisco/hugh-800 username: user passwd: pw prompt: adsl> intf: 0-a0 1-e0
+cisco[0] host: cisco/hugh-800 username: user prompt: adsl> intf: 0-a0 1-e0
 grab_cisco(cisco/hugh-800:a0):
 show int a0
 Extracted 5 values ...
@@ -143,7 +143,7 @@ Interface a0(0) is on host cisco/hugh-800
 Interface e0(1) is on host cisco/hugh-800
 Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
-cisco[0] host: cisco/hugh-800 username: user passwd: pw prompt: adsl> intf: 0-a0 1-e0
+cisco[0] host: cisco/hugh-800 username: user prompt: adsl> intf: 0-a0 1-e0
 grab_cisco(cisco/hugh-800:a0):
 show int a0
 Extracted 5 values ...
@@ -166,7 +166,7 @@ Interface a0(0) is on host cisco/hugh-800
 Interface e0(1) is on host cisco/hugh-800
 Sleeping while sproc does the work ... SIGINT to terminate
 Starting sproc ...
-cisco[0] host: cisco/hugh-800 username: user passwd: pw prompt: adsl> intf: 0-a0 1-e0
+cisco[0] host: cisco/hugh-800 username: user prompt: adsl> intf: 0-a0 1-e0
 grab_cisco(cisco/hugh-800:a0):
 show int a0
 Extracted 5 values ...
@@ -189,7 +189,7 @@ Interface a0(0) is on host cisco/hugh-800
 parse: conflicting usernames ("user" and "baduser") for cisco "cisco/hugh-800"
 parse: assuming file cisco/hugh-800 contains output from "show int" command
 Interface a0(0) is on host cisco/hugh-800
-parse: conflicting user-level passwords ("pw" and "badpw") for cisco "cisco/hugh-800"
+parse: conflicting user-level passwords for cisco "cisco/hugh-800"
 parse: assuming file cisco/hugh-800 contains output from "show int" command
 Interface a0(0) is on host cisco/hugh-800
 parse: conflicting user-level prompts ("adsl>" and "badprompt") for cisco "cisco/hugh-800"
@@ -198,7 +198,7 @@ Interface a0(0) is on host cisco/hugh-800
 parse: conflicting usernames ("user" and "baduser") for cisco "cisco/hugh-800"
 parse: assuming file cisco/hugh-800 contains output from "show int" command
 Interface a0(0) is on host cisco/hugh-800
-parse: conflicting user-level passwords ("pw" and "badpw") for cisco "cisco/hugh-800"
+parse: conflicting user-level passwords for cisco "cisco/hugh-800"
 parse: assuming file cisco/hugh-800 contains output from "show int" command
 Interface a0(0) is on host cisco/hugh-800
 parse: conflicting user-level prompts ("adsl>" and "badprompt") for cisco "cisco/hugh-800"

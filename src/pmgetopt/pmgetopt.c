@@ -19,28 +19,28 @@ static int count;
 static char buffer[4096];
 
 static inline char *
-skip_whitespace(char *buffer)
+skip_whitespace(char *buf)
 {
-    while (buffer[0] && isspace((int)buffer[0]))
-	buffer++;
-    return buffer;
+    while (buf[0] && isspace((int)buf[0]))
+	buf++;
+    return buf;
 }
 
 static inline char *
-skip_nonwhitespace(char *buffer)
+skip_nonwhitespace(char *buf)
 {
-    while (buffer[0] && !isspace((int)buffer[0]))
-	buffer++;
-    return buffer;
+    while (buf[0] && !isspace((int)buf[0]))
+	buf++;
+    return buf;
 }
 
 static inline char *
-seek_character(char *buffer, int seek)
+seek_character(char *buf, int seek)
 {
-    for (; *buffer; buffer++)
-	if (seek == (int)(*buffer))
-	    return buffer;
-    return buffer;
+    for (; *buf; buf++)
+	if (seek == (int)(*buf))
+	    return buf;
+    return buf;
 }
 
 /*
@@ -48,11 +48,11 @@ seek_character(char *buffer, int seek)
  * The return code indicates whether the end directive was observed.
  */
 static int
-command(pmOptions *opts, char *buffer)
+command(pmOptions *opts, char *buf)
 {
     char *start, *finish;
 
-    start = skip_whitespace(buffer);
+    start = skip_whitespace(buf);
 
     if (strncasecmp(start, "getopt", sizeof("getopt")-1) == 0) {
 	start = skip_whitespace(skip_nonwhitespace(start));
@@ -80,7 +80,7 @@ command(pmOptions *opts, char *buffer)
 	return 1;
     }
 
-    fprintf(stderr, "%s: unrecognized command: '%s'\n", pmGetProgname(), buffer);
+    fprintf(stderr, "%s: unrecognized command: '%s'\n", pmGetProgname(), buf);
     return 0;
 }
 
@@ -103,13 +103,13 @@ append_option(pmOptions *opts, pmLongOptions *longopt)
 }
 
 static int
-append_text(pmOptions *opts, char *buffer, size_t length)
+append_text(pmOptions *opts, char *buf, size_t length)
 {
     pmLongOptions text = PMAPI_OPTIONS_TEXT("");
 
     if (pmDebugOptions.desperate)
-	fprintf(stderr, "%s: append: '%s'\n", pmGetProgname(), buffer);
-    if ((text.message = strdup(buffer)) == NULL)
+	fprintf(stderr, "%s: append: '%s'\n", pmGetProgname(), buf);
+    if ((text.message = strdup(buf)) == NULL)
 	pmNoMem("append_text", length, PM_FATAL_ERR);
     return append_option(opts, &text);
 }
@@ -163,7 +163,7 @@ standard_options(pmOptions *opts, char *start)
 }
 
 static int
-options(pmOptions *opts, char *buffer, size_t length)
+options(pmOptions *opts, char *buf, size_t length)
 {
     char *start, *finish, *token;
     pmLongOptions option = { 0 };
@@ -181,13 +181,13 @@ options(pmOptions *opts, char *buffer, size_t length)
      *     -X=N                 offset resulting values by N units
      */
     if (pmDebugOptions.desperate)
-	fprintf(stderr, "%s: parsing option: '%s'", pmGetProgname(), buffer);
+	fprintf(stderr, "%s: parsing option: '%s'", pmGetProgname(), buf);
 
-    start = skip_whitespace(skip_nonwhitespace(buffer));
+    start = skip_whitespace(skip_nonwhitespace(buf));
     finish = skip_nonwhitespace(start);
     if (start[0] != '-') {
 	*finish = '\0';
-	return append_text(opts, buffer, length);
+	return append_text(opts, buf, length);
     }
 
     token = skip_whitespace(finish);
@@ -225,11 +225,11 @@ options(pmOptions *opts, char *buffer, size_t length)
 
 	/* move onto extracting --batch, [=N], and "fetch..." */
 	token++;	/* move past the comma */
-	if (*token == '\0' && token - buffer < length)	/* move past a null */
+	if (*token == '\0' && token - buf < length)	/* move past a null */
 	    token++;
 	token = skip_whitespace(token);
 	if ((token = seek_character(token, '-')) == NULL ||
-	    (token - buffer >= length) || (token[1] != '-')) {
+	    (token - buf >= length) || (token[1] != '-')) {
 	    fprintf(stderr, "%s: expected long option at \"%s\", line %d ignored\n",
 		    pmGetProgname(), token, lineno);
 	    return -EINVAL;
