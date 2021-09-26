@@ -56,7 +56,7 @@ cat >$tmp.control <<End-of-File
 libpcp/interp.c:1	== 3
 End-of-File
 
-pmval -a archives/ok-foo sample.seconds
+pmval -z -a archives/ok-foo sample.seconds
 
 if false
 then

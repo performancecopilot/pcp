@@ -1,5 +1,6 @@
 QA output created by 1345
 3rd call to __pmAllocResult from __pmLogFetchInterp() fails
+Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    sample.seconds
 archive:   archives/ok-foo
