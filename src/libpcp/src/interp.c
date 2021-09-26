@@ -1711,9 +1711,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     /* Build the final result. */
 PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
     if ((__rp = __pmAllocResult(numpmid)) == NULL) {
-	sts = -oserror();
-	if (sts == 0) sts = -ENOMEM;
-	return sts;
+	return -oserror();
     }
 
     rp = __pmOffsetResult(__rp);

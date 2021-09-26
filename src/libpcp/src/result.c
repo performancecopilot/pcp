@@ -69,12 +69,19 @@ __pmResult *
 __pmAllocResult(int numpmid)
 {
     size_t		need;
-    result_pool_t	*new = (result_pool_t *)malloc(sizeof(*new));
+    result_pool_t	*new;
+
+    /*
+     * set oserror() in case we take the fault return
+     * ... for normal use, the first successful malloc() will clear this
+     */
+    setoserror(ENOMEM);	
 
 PM_FAULT_RETURN(NULL);
 
     PM_INIT_LOCKS();
-
+    
+    new = (result_pool_t *)malloc(sizeof(*new));
     if (new == NULL) {
 	if (pmDebugOptions.alloc)
 	    fprintf(stderr, "__pmAllocResult: new alloc failed\n");
