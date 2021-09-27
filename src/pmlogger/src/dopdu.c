@@ -1274,7 +1274,9 @@ sendstatus(void)
 	} else {
 	    ls.start = logctl.label.start;	/* struct assignment */
 	}
-	memcpy(&ls.last, &last_stamp, sizeof(ls.last));
+
+	ls.last.sec = last_stamp.tv_sec;
+	ls.last.nsec = last_stamp.tv_usec * 1000;
 	pmtimevalNow(&now);
 	ls.now.sec = now.tv_sec;
 	ls.now.nsec = now.tv_usec * 1000;
