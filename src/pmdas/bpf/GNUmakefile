@@ -7,7 +7,7 @@ LIBTARGET = pmda_bpf.$(DSOSUFFIX)
 LLDLIBS = $(PCP_PMDALIB) -lbpf -lelf -lz -lm -ldl
 LCFLAGS = -I.
 CONFIG	= bpf.conf
-DFILES	= README help
+DFILES	= README
 SUBDIRS	= modules
 
 IAM	= bpf
