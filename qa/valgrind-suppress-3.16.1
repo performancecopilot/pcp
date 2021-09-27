@@ -67,9 +67,22 @@
 # by 0x10AC8A: ??? (in /usr/bin/pmlc)
 # by 0x4927D09: (below main) (libc-start.c:308)
 {
-   __pmXmitPDU buffer for p_lcontrol.c
+   __pmXmitPDU buffer for p_lcontrol.c - Case A
    Memcheck:Param
    socketcall.sendto(msg)
+   fun:send
+   fun:__pmSend
+   fun:__pmXmitPDU
+   fun:__pmSendLogControl
+   fun:__pmControlLog
+   ...
+}
+
+# same as above, but socket call is send() not sendto()
+{
+   __pmXmitPDU buffer for p_lcontrol.c - Case B
+   Memcheck:Param
+   socketcall.send(msg)
    fun:send
    fun:__pmSend
    fun:__pmXmitPDU
