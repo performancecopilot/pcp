@@ -156,6 +156,9 @@ sasldblistusers2 -f $tmp.passwd.db \
 | _filter_listusers2
 
 echo "Ensure pmcd can read the password file" | tee -a $seq.full
+# don't let umask get in the way!
+#
+chmod 640 $tmp.passwd.db
 $sudo chgrp pcp $tmp.passwd.db
 ls -l $tmp.passwd.db >>$seq.full
 $sudo -u pcp od -c $tmp.passwd.db >>$seq.full
