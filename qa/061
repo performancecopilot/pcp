@@ -49,6 +49,7 @@ s/[0-9][0-9]*/N/
 s/[0-9][0-9]*/M/g
 }' \
 	-e 's/fd=[0-9][0-9]*/fd=N/' \
+	-e 's/localhost\.[a-zA-Z0-9]*/localhost/' \
     # end
 }
 
