@@ -362,6 +362,8 @@ Arch Linux
     # update all packages recipe
     $ sudo pacman -Sy archlinux-keyring
     $ sudo pacman -Syyu
+    # clean pacman cache
+    $ sudo pacman -Sc
 
 OpenIndiana
     https://www.openindiana.org/download/
