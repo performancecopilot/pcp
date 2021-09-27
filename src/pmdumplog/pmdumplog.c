@@ -225,17 +225,17 @@ dump_nrecords(int nrecords, int nmissed)
 }
 
 static int
-dump_nparams(int numpmid)
+dump_nparams(int npmids)
 {
-    if (numpmid == 0) {
+    if (npmids == 0) {
 	printf(" ---\n");
 	printf("	          No parameters\n");
 	return -1;
     }
-    if (numpmid < 0) {
+    if (npmids < 0) {
 	printf(" ---\n");
 	printf("	          Error: illegal number of parameters (%d)\n",
-		numpmid);
+		npmids);
 	return -1;
     }
     return 0;
@@ -1042,8 +1042,9 @@ dometric(const char *name)
 }
 
 static int
-overrides(int opt, pmOptions *opts)
+overrides(int opt, pmOptions *options)
 {
+    (void)options;
     if (opt == 'a' || opt == 'h' || opt == 'L' || opt == 's' || opt == 't')
 	return 1;
     return 0;
@@ -1362,9 +1363,7 @@ main(int argc, char *argv[])
 		skel_result->numpmid = picked;
 		if (picked != numpmid) {
 		    /* did not find 'em all ... shuffle time */
-		    int		j;
-		    i = 0;
-		    for (j = 0; j < numpmid; j++) {
+		    for (i = j = 0; j < numpmid; j++) {
 			if (skel_result->vset[j] != NULL)
 			    skel_result->vset[i++] = skel_result->vset[j];
 		    }
