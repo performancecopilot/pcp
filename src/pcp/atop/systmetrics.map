@@ -291,6 +291,7 @@ systmetrics {
 	zswap.stored_pages			ZSWAP_STOREDMEM
 
 	# hardware events
+	perfevent.hwcounters.INSTRUCTION_RETIRED.value		PERCPU_PERF_INST1
 	perfevent.hwcounters.INSTRUCTIONS_RETIRED.value		PERCPU_PERF_INSTR
 	perfevent.hwcounters.UNHALTED_REFERENCE_CYCLES.value	PERCPU_PERF_CYCLE
 
