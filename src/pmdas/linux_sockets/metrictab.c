@@ -251,7 +251,7 @@ pmdaMetric metrictable[] = {
 	    PMDA_PMUNITS(0,0,0,0,0,0) }},
 
     { /* network.persocket.reord_seen */
-	.m_user = OFFSET(ss_stats_t, busy),
+	.m_user = OFFSET(ss_stats_t, reord_seen),
 	.m_desc = { PMDA_PMID(CLUSTER_SS, 49),
 	    PM_TYPE_32, SOCKETS_INDOM, PM_SEM_DISCRETE,
 	    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }},
