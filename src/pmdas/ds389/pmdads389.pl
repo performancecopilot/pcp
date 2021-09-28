@@ -262,9 +262,9 @@ sub ds389_process_entry {
       if ($attr eq 'nsds5replicaLastUpdateStatus') {
         if ($value =~ /No replication sessions started since server startup/i) {
           $value = 30
-        } elif ($value =~ /agreement disabled/i) {
+        } elsif ($value =~ /agreement disabled/i) {
           $value = 31
-        } elif ($value =~ /Problem connecting to the replica/i) {
+        } elsif ($value =~ /Problem connecting to the replica/i) {
           $value = 20
         } else {
           $value = (split /\)/, (split /Error \(/, $value)[1])[0];
