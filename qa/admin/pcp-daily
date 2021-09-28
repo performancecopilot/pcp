@@ -1205,14 +1205,51 @@ End-of-File
 		    echo "Warning: already shutdown"
 		fi
 	    else
-		ssh -f -t -q $build_user@$host "sync; sleep 2; sync; export PATH=\$PATH:/sbin:/usr/sbin; ( sudo poweroff || sudo halt )" </dev/null &
-		sleep 60
-		sudo virsh shutdown $domain >/dev/null 2>&1
-		sleep 10
-		# seems a bit harsh, but we've given you two chances to
-		# shutdown
-		#
-		sudo virsh destroy $domain
+		if virsh list | grep " $domain  *running" >/dev/null
+		then
+		    ssh -f -t -q $build_user@$host "sync; sleep 2; sync; export PATH=\$PATH:/sbin:/usr/sbin; sudo shutdown now" </dev/null &
+		    i=0
+		    rm -f $tmp.done
+		    while [ $i -lt 60 ]
+		    do
+			if virsh list | grep " $domain *running" >/dev/null
+			then
+			    sleep 1
+			    i=`expr $i + 1`
+			else
+			    touch $tmp.done
+			    break
+			fi
+		    done
+		    if [ ! -f $tmp.done ]
+		    then
+			echo "shutdown failed for $host ... forcing virsh shutdown"
+			sudo virsh shutdown $domain
+			i=0
+			rm -f $tmp.done
+			while [ $i -lt 10 ]
+			do
+			    if virsh list | grep " $domain *running" >/dev/null
+			    then
+				sleep 1
+				i=`expr $i + 1`
+			    else
+				touch $tmp.done
+				break
+			    fi
+			done
+			if [ ! -f $tmp.done ]
+			then
+			    echo "virsh shutdown failed for $domain ... forcing virsh destroy"
+			    # seems a bit harsh, but we've given you
+			    # two chances to shutdown
+			    #
+			    sudo virsh destroy $domain
+			fi
+		    fi
+		else
+		    echo "$host already stopped?"
+		fi
 		if $work
 		then
 		    echo "Info: shutdown"  | tee -a $HOME/daily.log
