@@ -13,7 +13,9 @@ bc
 bind-utils
 bison
 bpftrace
-coreutils
+# in CI centos8-container already has coreutils-single installed and this
+# conflicts with coreutils
+coreutils not4ci
 cronie
 curl
 cyrus-sasl
