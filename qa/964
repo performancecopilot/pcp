@@ -196,6 +196,13 @@ then
     if [ "$pid" = "$newpid" ]
     then
 	echo "Found same primary pmlogger"
+	if [ -f $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log ]
+	then
+	    echo "--- $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log ---" >>$here/$seq.full
+	    cat $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log >>$here/$seq.full
+	else
+	    echo "Cannot find $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log" >>$here/$seq.full
+	fi
     else
 	echo "Found new primary pmlogger"
 	echo "Error: PID changed from $pid to $newpid"
