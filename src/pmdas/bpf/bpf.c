@@ -34,13 +34,12 @@
 #define CACHE_INDOM_IDS 1
 
 static int	isDSO = 1;		/* =0 I am a daemon */
-static char	mypath[MAXPATHLEN];
 
 /* metric and indom configuration will be dynamically filled in by modules */
 static pmdaMetric * metrictab;
 static pmdaIndom * indomtab;
-static int metric_count = 0;
-static int indom_count = 0;
+static int metric_count;
+static int indom_count;
 static pmdaNameSpace *pmns;
 
 /* command line option handling - both short and long options */
@@ -481,12 +480,8 @@ dict * bpf_config_load()
 void 
 bpf_init(pmdaInterface *dp)
 {
-    if (isDSO) {
-        int sep = pmPathSeparator();
-        pmsprintf(mypath, sizeof(mypath), "%s%c" "bpf" "%c" "help",
-            pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-        pmdaDSO(dp, PMDA_INTERFACE_7, "bpf", mypath);
-    }
+    if (isDSO)
+        pmdaDSO(dp, PMDA_INTERFACE_7, "bpf", NULL);
 
     if (dp->status != 0)
         return;
@@ -525,16 +520,13 @@ bpf_init(pmdaInterface *dp)
 int
 main(int argc, char **argv)
 {
-    int sep = pmPathSeparator();
     pmdaInterface dispatch;
 
     isDSO = 0;
     pmSetProgname(argv[0]);
 
-    pmsprintf(mypath, sizeof(mypath), "%s%c" "bpf" "%c" "help",
-        pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), BPF,
-        "bpf.log", mypath);
+        "bpf.log", NULL);
 
     pmdaGetOptions(argc, argv, &opts, &dispatch);
     if (opts.errors) {
