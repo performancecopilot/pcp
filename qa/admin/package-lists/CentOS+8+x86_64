@@ -13,7 +13,7 @@ bc
 bind-utils
 bison
 bpftrace
-coreutils-single
+coreutils
 cronie
 curl
 cyrus-sasl
@@ -36,8 +36,6 @@ httpd
 initscripts
 java-latest-openjdk-headless
 libbpf
-libbpf-devel
-libcmocka-devel
 libicu-devel
 libpfm-devel
 libuv-devel
@@ -47,7 +45,7 @@ llvm-devel
 lm_sensors
 mailx
 make
-man
+man-db
 mandoc
 mariadb
 memcached
@@ -68,6 +66,9 @@ perl-ExtUtils-MakeMaker
 perl-File-Slurp
 perl-JSON
 perl-LDAP
+#perl-Net-SNMP			! dnf will not install this one
+#perl-Spreadsheet-WriteExcel	! dnf will not install this one
+#perl-Spreadsheet-XLSX		! dnf will not install this one
 perl-Text-CSV_XS
 perl-Time-HiRes
 perl-TimeDate
@@ -91,10 +92,12 @@ python3-jsonpointer
 python3-libs
 python3-libvirt
 python3-lxml
+python3-openpyxl
 python3-pillow
 python3-prometheus_client
 python3-psycopg2
 python3-pylint
+python3-pyodbc
 python3-requests
 python3-rtslib
 python3-setuptools
