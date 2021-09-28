@@ -3560,49 +3560,49 @@ network.persocket.reord_seen PMID: 251.1.49
     inst [32 or "tcp/0.0.0.0:44322"] value 0
     inst [33 or "tcp/0.0.0.0:44323"] value 0
     inst [34 or "tcp/10.0.0.10:52528"] value 0
-    inst [35 or "tcp/10.0.0.10:37772"] value 63073
-    inst [36 or "tcp/10.0.0.10:40476"] value 12725
-    inst [37 or "tcp/10.0.0.10:39570"] value 745
-    inst [38 or "tcp/10.0.0.10:54724"] value 90501
-    inst [39 or "tcp/10.0.0.10:33370"] value 1150
-    inst [40 or "tcp/10.0.0.10:33818"] value 82242
-    inst [41 or "tcp/10.0.0.10:46992"] value 43848
-    inst [42 or "tcp/10.0.0.10:54716"] value 3021
-    inst [43 or "tcp/10.0.0.10:50002"] value 199463
+    inst [35 or "tcp/10.0.0.10:37772"] value 0
+    inst [36 or "tcp/10.0.0.10:40476"] value 0
+    inst [37 or "tcp/10.0.0.10:39570"] value 0
+    inst [38 or "tcp/10.0.0.10:54724"] value 0
+    inst [39 or "tcp/10.0.0.10:33370"] value 0
+    inst [40 or "tcp/10.0.0.10:33818"] value 0
+    inst [41 or "tcp/10.0.0.10:46992"] value 0
+    inst [42 or "tcp/10.0.0.10:54716"] value 0
+    inst [43 or "tcp/10.0.0.10:50002"] value 0
     inst [44 or "tcp/10.0.0.10:44352"] value 0
-    inst [45 or "tcp/10.0.0.10:50552"] value 1122
-    inst [46 or "tcp/10.0.0.10:48876"] value 1323
-    inst [47 or "tcp/10.0.0.10:44864"] value 6331
-    inst [48 or "tcp/10.0.0.10:54718"] value 3668
-    inst [49 or "tcp/10.0.0.10:54770"] value 35416
-    inst [50 or "tcp/10.0.0.10:54728"] value 16756
-    inst [51 or "tcp/10.0.0.10:54700"] value 204817
-    inst [52 or "tcp/127.0.0.1:38136"] value 1769
-    inst [53 or "tcp/192.168.122.1:50782"] value 1144
-    inst [54 or "tcp/10.0.0.10:40550"] value 307
-    inst [55 or "tcp/10.0.0.10:60522"] value 74
-    inst [56 or "tcp/10.0.0.10:37084"] value 1273
-    inst [57 or "tcp/10.0.0.10:54726"] value 3319
-    inst [58 or "tcp/10.40.192.30:37076"] value 411811
-    inst [59 or "tcp/10.40.192.30:56982"] value 947
-    inst [60 or "tcp/10.0.0.10:39738"] value 1293
+    inst [45 or "tcp/10.0.0.10:50552"] value 0
+    inst [46 or "tcp/10.0.0.10:48876"] value 0
+    inst [47 or "tcp/10.0.0.10:44864"] value 0
+    inst [48 or "tcp/10.0.0.10:54718"] value 1
+    inst [49 or "tcp/10.0.0.10:54770"] value 0
+    inst [50 or "tcp/10.0.0.10:54728"] value 1
+    inst [51 or "tcp/10.0.0.10:54700"] value 0
+    inst [52 or "tcp/127.0.0.1:38136"] value 0
+    inst [53 or "tcp/192.168.122.1:50782"] value 0
+    inst [54 or "tcp/10.0.0.10:40550"] value 0
+    inst [55 or "tcp/10.0.0.10:60522"] value 0
+    inst [56 or "tcp/10.0.0.10:37084"] value 0
+    inst [57 or "tcp/10.0.0.10:54726"] value 0
+    inst [58 or "tcp/10.40.192.30:37076"] value 0
+    inst [59 or "tcp/10.40.192.30:56982"] value 0
+    inst [60 or "tcp/10.0.0.10:39738"] value 0
     inst [61 or "tcp/192.168.122.1:50404"] value 0
-    inst [62 or "tcp/192.168.122.1:50400"] value 2
-    inst [63 or "tcp/10.0.0.10:42088"] value 1231
-    inst [64 or "tcp/10.0.0.10:40018"] value 276
-    inst [65 or "tcp/10.0.0.10:34974"] value 2352
-    inst [66 or "tcp/10.0.0.10:38786"] value 40
-    inst [67 or "tcp/10.0.0.10:51582"] value 55027
-    inst [68 or "tcp/10.0.0.10:36226"] value 107
-    inst [69 or "tcp/10.0.0.10:57700"] value 2265
-    inst [70 or "tcp/10.0.0.10:43446"] value 21
-    inst [71 or "tcp/10.0.0.10:54710"] value 12585
+    inst [62 or "tcp/192.168.122.1:50400"] value 0
+    inst [63 or "tcp/10.0.0.10:42088"] value 0
+    inst [64 or "tcp/10.0.0.10:40018"] value 0
+    inst [65 or "tcp/10.0.0.10:34974"] value 0
+    inst [66 or "tcp/10.0.0.10:38786"] value 0
+    inst [67 or "tcp/10.0.0.10:51582"] value 0
+    inst [68 or "tcp/10.0.0.10:36226"] value 0
+    inst [69 or "tcp/10.0.0.10:57700"] value 1
+    inst [70 or "tcp/10.0.0.10:43446"] value 0
+    inst [71 or "tcp/10.0.0.10:54710"] value 0
     inst [72 or "tcp/10.0.0.10:49410"] value 0
-    inst [73 or "tcp/10.0.0.10:43176"] value 1485
-    inst [74 or "tcp/10.0.0.10:54720"] value 3173
+    inst [73 or "tcp/10.0.0.10:43176"] value 0
+    inst [74 or "tcp/10.0.0.10:54720"] value 1
     inst [75 or "tcp/10.0.0.10:54832"] value 0
-    inst [76 or "tcp/10.0.0.10:40556"] value 749
-    inst [77 or "tcp/10.0.0.10:54722"] value 3940
+    inst [76 or "tcp/10.0.0.10:40556"] value 0
+    inst [77 or "tcp/10.0.0.10:54722"] value 1
     inst [78 or "tcp6/[::]:4330"] value 0
     inst [79 or "tcp6/[::]:4331"] value 0
     inst [80 or "tcp6/[::]:5355"] value 0
@@ -3615,7 +3615,7 @@ network.persocket.reord_seen PMID: 251.1.49
     inst [87 or "tcp6/[::]:44321"] value 0
     inst [88 or "tcp6/[::]:44322"] value 0
     inst [89 or "tcp6/[::]:44323"] value 0
-    inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 34
+    inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
 
 network.persocket.busy PMID: 251.1.50
     Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
@@ -7404,11 +7404,11 @@ network.persocket.reord_seen PMID: 251.1.49
     inst [17 or "tcp/192.168.123.1:53"] value 0
     inst [18 or "tcp/127.0.0.53%lo:53"] value 0
     inst [19 or "tcp/127.0.0.1:53"] value 0
-    inst [20 or "tcp/192.168.122.245:22"] value 184
-    inst [21 or "tcp6/[::]:22"] value 184
-    inst [22 or "tcp6/[::]:44321"] value 184
-    inst [23 or "tcp6/[::]:10050"] value 184
-    inst [24 or "tcp6/[::]:4330"] value 184
+    inst [20 or "tcp/192.168.122.245:22"] value 0
+    inst [21 or "tcp6/[::]:22"] value 0
+    inst [22 or "tcp6/[::]:44321"] value 0
+    inst [23 or "tcp6/[::]:10050"] value 0
+    inst [24 or "tcp6/[::]:4330"] value 0
     inst [25 or "tcp6/[::1]:6379"] value 0
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
