@@ -148,6 +148,8 @@ update_processor(struct percpu *cpu, int id, pmResult *result, pmDesc *descs, in
 	memset(&cpu->freqcnt, 0, sizeof(cpu->freqcnt));
 	cpu->freqcnt.cnt = extract_count_t_inst(result, descs, PERCPU_FREQCNT_CNT, id, offset);
 	cpu->instr = extract_count_t_inst(result, descs, PERCPU_PERF_INSTR, id, offset);
+	if (cpu->instr == 0)	/* try ix86arch INSTRUCTION_RETIRED fallback */
+		cpu->instr = extract_count_t_inst(result, descs, PERCPU_PERF_INST1, id, offset);
 	cpu->cycle = extract_count_t_inst(result, descs, PERCPU_PERF_CYCLE, id, offset);
 }
 
