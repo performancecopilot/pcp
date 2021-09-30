@@ -76,10 +76,10 @@ struct peer_device {
 	uint32_t volume;
 	char peer_disk_state[13];
 	float connections_sync;
-	uint32_t connections_received;
-	uint32_t connections_sent;
-	uint64_t connections_pending;
-	uint64_t connections_unacked;
+	uint64_t connections_received;
+	uint64_t connections_sent;
+	uint32_t connections_pending;
+	uint32_t connections_unacked;
 };
 
 extern int hacluster_drbd_resource_fetch(int, struct resource *, pmAtomValue *);

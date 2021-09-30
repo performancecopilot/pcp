@@ -131,19 +131,19 @@ hacluster_drbd_peer_device_fetch(int item, struct peer_device *peer_device, pmAt
 			return PMDA_FETCH_STATIC;
 			
 		case DRBD_PEER_DEVICE_CONNECTIONS_RECEIVED:
-			atom->ul = peer_device->connections_received;
+			atom->ull = peer_device->connections_received;
 			return PMDA_FETCH_STATIC;
 			
 		case DRBD_PEER_DEVICE_CONNECTIONS_SENT:
-			atom->ul = peer_device->connections_sent;
+			atom->ull = peer_device->connections_sent;
 			return PMDA_FETCH_STATIC;
 			
 		case DRBD_PEER_DEVICE_CONNECTIONS_PENDING:
-			atom->ull = peer_device->connections_pending;
+			atom->ul = peer_device->connections_pending;
 			return PMDA_FETCH_STATIC;
 			
 		case DRBD_PEER_DEVICE_CONNECTIONS_UNACKED:
-			atom->ull = peer_device->connections_unacked;
+			atom->ul = peer_device->connections_unacked;
 			return PMDA_FETCH_STATIC;
 
 		default:
@@ -352,16 +352,16 @@ hacluster_refresh_drbd_peer_device(const char *peer_name, struct peer_device *pe
 				sscanf(buffer_ptr, "\"peer-disk-state\": \"%[^\",]", peer_device->peer_disk_state);
 
 			if (strstr(buffer_ptr, "\"received\":"))
-				sscanf(buffer_ptr, "\"received\": %"SCNu32"", &peer_device->connections_received);
+				sscanf(buffer_ptr, "\"received\": %"SCNu64"", &peer_device->connections_received);
 
 			if (strstr(buffer_ptr, "\"sent\":"))
-				sscanf(buffer_ptr, "\"sent\": %"SCNu32"", &peer_device->connections_sent);
+				sscanf(buffer_ptr, "\"sent\": %"SCNu64"", &peer_device->connections_sent);
 
 			if (strstr(buffer_ptr, "\"pending\":"))
-				sscanf(buffer_ptr, "\"pending\": %"SCNu64"", &peer_device->connections_pending);
+				sscanf(buffer_ptr, "\"pending\": %"SCNu32"", &peer_device->connections_pending);
 
 			if (strstr(buffer_ptr, "\"unacked\":"))
-				sscanf(buffer_ptr, "\"unacked\": %"SCNu64"", &peer_device->connections_unacked);
+				sscanf(buffer_ptr, "\"unacked\": %"SCNu32"", &peer_device->connections_unacked);
 
 			if (strstr(buffer_ptr, "\"percent-in-sync\":"))
 				sscanf(buffer_ptr, "\"percent-in-sync\": %f", &peer_device->connections_sync);
