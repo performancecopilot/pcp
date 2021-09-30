@@ -76,6 +76,7 @@ hinv.cpu {
     cache_alignment	60:18:11
     online		60:55:0
     thermal_throttle
+    frequency_scaling
 }
 
 hinv.node {
@@ -95,6 +96,13 @@ hinv.cpu.thermal_throttle.core {
 hinv.cpu.thermal_throttle.package {
     count		60:55:4
     time		60:55:5
+}
+
+hinv.cpu.frequency_scaling {
+    count		60:55:6
+    time		60:55:7
+    max			60:55:8
+    min			60:55:9
 }
 
 kernel {
