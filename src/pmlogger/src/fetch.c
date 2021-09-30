@@ -284,6 +284,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 		else if (n == 0) {
 		    fprintf(stderr, "myFetch: End of File: PMCD exited?\n");
 		    disconnect(PM_ERR_IPC);
+		    n = PM_ERR_IPC;
 		    changed = 0;
 		}
 		else if (n == -EINTR) {
