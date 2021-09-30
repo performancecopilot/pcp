@@ -23,6 +23,8 @@
 #include "proc_stat.h"
 #include "proc_cpuinfo.h"
 
+static const char *sysfs_path = "sys/devices/system";
+
 /*
  * Refresh state of NUMA node and CPU online state for one
  * CPU or NUMA node ("node" parameter).
@@ -30,7 +32,6 @@
 int
 refresh_sysfs_online(char *instname, const char *node_or_cpu)
 {
-    const char *sysfs_path = "sys/devices/system";
     char path[MAXPATHLEN];
     unsigned int online;
     FILE *fp;
@@ -51,7 +52,6 @@ unsigned long
 refresh_sysfs_thermal_throttle(char *instname,
 		const char *core_or_package, const char *count_or_time)
 {
-    const char *sysfs_path = "sys/devices/system";
     char path[MAXPATHLEN];
     unsigned long value;
     FILE *fp;
@@ -68,6 +68,88 @@ refresh_sysfs_thermal_throttle(char *instname,
     if (n != 1)
 	return 0;
     return value;
+}
+
+int
+refresh_sysfs_frequency_scaling(char *instname, int item, percpu_t *cpu)
+{
+    unsigned long long count, hits, total;
+    unsigned long freq, maxfreq, minfreq;
+    char path[MAXPATHLEN];
+    FILE *fp;
+
+    /* already read the value during this sample? */
+    if (cpu->freq.flags & CPUFREQ_SAMPLED)
+	return 0;
+
+    /*
+     * gather frequency scaling info from (in order of preference): 
+     *     /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state
+     * or
+     *     /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq
+     *     /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+     *     /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+     */
+
+    pmsprintf(path, sizeof(path),
+		"%s/%s/cpu/%s/cpufreq/stats/time_in_state",
+		linux_statspath, sysfs_path, instname);
+    if ((fp = fopen(path, "r")) != NULL) {
+	cpu->freq.flags = CPUFREQ_COUNT|CPUFREQ_TIME|CPUFREQ_MIN|CPUFREQ_MAX;
+	maxfreq = minfreq = 0;
+	hits = total = 0;
+	while (fscanf(fp, "%lu %llu", &freq, &count) == 2) {
+	    freq /= 1000;	/* convert KHz to MHz */
+	    total += (freq * count);
+	    hits += count;
+	    if (freq > maxfreq)
+		maxfreq = freq;
+	    if (minfreq == 0 || freq < minfreq)
+		minfreq = freq;
+	}
+	fclose(fp);
+
+	cpu->freq.max = maxfreq;
+	cpu->freq.min = minfreq;
+	cpu->freq.time = hits;
+	cpu->freq.count = total;
+	cpu->freq.flags |= CPUFREQ_SAMPLED;
+	return 0;
+    }
+
+    /* governor statistics not available, try alternate files */
+    pmsprintf(path, sizeof(path),
+		"%s/%s/cpu/%s/cpufreq/cpuinfo_max_freq",
+		linux_statspath, sysfs_path, instname);
+    if ((fp = fopen(path, "r")) != NULL) {
+	if (fscanf(fp, "%lu", &maxfreq) == 1) {
+	    cpu->freq.max = maxfreq / 1000;	/* convert KHz to MHz */
+	    cpu->freq.flags |= CPUFREQ_MAX;
+	}
+	fclose(fp);
+    }
+    pmsprintf(path, sizeof(path),
+		"%s/%s/cpu/%s/cpufreq/cpuinfo_min_freq",
+		linux_statspath, sysfs_path, instname);
+    if ((fp = fopen(path, "r")) != NULL) {
+	if (fscanf(fp, "%lu", &minfreq) == 1) {
+	    cpu->freq.min = minfreq / 1000;	/* convert KHz to MHz */
+	    cpu->freq.flags |= CPUFREQ_MIN;
+	}
+	fclose(fp);
+    }
+    pmsprintf(path, sizeof(path),
+		"%s/%s/cpu/%s/cpufreq/scaling_cur_freq",
+		linux_statspath, sysfs_path, instname);
+    if ((fp = fopen(path, "r")) != NULL) {
+	if (fscanf(fp, "%lu", &freq) == 1) {
+	    cpu->freq.count = freq / 1000;	/* convert KHz to MHz */
+	    cpu->freq.flags |= CPUFREQ_COUNT;
+	}
+	fclose(fp);
+    }
+    cpu->freq.flags |= CPUFREQ_SAMPLED;
+    return 0;
 }
 
 static char *
@@ -136,6 +218,7 @@ refresh_proc_cpuinfo(void)
 	    sts = pmdaCacheLookup(cpus, cpunum, NULL, (void **)&cp);
 	    if (sts < 0 || !cp)
 		continue;
+	    memset(&cp->freq, 0, sizeof(cp->freq));
 	    info = &cp->info;
 	}
 

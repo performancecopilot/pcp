@@ -176,6 +176,22 @@ hinv.cpu.thermal_throttle.package.time
 
 == done
 
+== Checking hinv frequency_scaling values - sysdev-root-001.tgz
+hinv.cpu.frequency_scaling.count
+hinv.cpu.frequency_scaling.max
+   "cpu0" 1700
+   "cpu1" 1700
+   "cpu2" 1700
+   "cpu3" 1700
+hinv.cpu.frequency_scaling.min
+   "cpu0" 800
+   "cpu1" 800
+   "cpu2" 800
+   "cpu3" 800
+hinv.cpu.frequency_scaling.time
+
+== done
+
 == Checking hinv online metric values - sysdev-root-002.tgz
 hinv.cpu.online
    "cpu0" 1
@@ -422,6 +438,38 @@ hinv.cpu.thermal_throttle.package.time
    "cpu5" 140977
    "cpu6" 141033
    "cpu7" 141011
+
+== done
+
+== Checking hinv frequency_scaling values - sysdev-root-002.tgz
+hinv.cpu.frequency_scaling.count
+   "cpu0" 2739
+   "cpu1" 2830
+   "cpu2" 3141
+   "cpu3" 2793
+   "cpu4" 2793
+   "cpu5" 2794
+   "cpu6" 2793
+   "cpu7" 2793
+hinv.cpu.frequency_scaling.max
+   "cpu0" 3800
+   "cpu1" 3800
+   "cpu2" 3800
+   "cpu3" 3800
+   "cpu4" 3800
+   "cpu5" 3800
+   "cpu6" 3800
+   "cpu7" 3800
+hinv.cpu.frequency_scaling.min
+   "cpu0" 800
+   "cpu1" 800
+   "cpu2" 800
+   "cpu3" 800
+   "cpu4" 800
+   "cpu5" 800
+   "cpu6" 800
+   "cpu7" 800
+hinv.cpu.frequency_scaling.time
 
 == done
 
@@ -713,6 +761,14 @@ hinv.cpu.thermal_throttle.package.time
    "cpu5" 0
    "cpu6" 0
    "cpu7" 0
+
+== done
+
+== Checking hinv frequency_scaling values - sysfs-numa-001.tgz
+hinv.cpu.frequency_scaling.count
+hinv.cpu.frequency_scaling.max
+hinv.cpu.frequency_scaling.min
+hinv.cpu.frequency_scaling.time
 
 == done
 

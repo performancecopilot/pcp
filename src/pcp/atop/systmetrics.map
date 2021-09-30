@@ -29,7 +29,10 @@ systmetrics {
 	kernel.percpu.cpu.steal			PERCPU_STEAL
 	kernel.percpu.cpu.guest			PERCPU_GUEST
 
-	hinv.cpu.clock				PERCPU_FREQCNT_CNT
+	hinv.cpu.clock				PERCPU_FREQ_CLK
+	hinv.cpu.frequency_scaling.count	PERCPU_FREQ_CNT
+	hinv.cpu.frequency_scaling.time		PERCPU_FREQ_HIT
+	hinv.cpu.frequency_scaling.max		PERCPU_FREQ_MAX
 
 	# /proc/vmstat
 	swap.pagesin				MEM_SWINS

@@ -281,6 +281,14 @@ typedef struct {
 
 typedef struct {
     unsigned int	flags;
+    uint64_t		count;
+    uint64_t		time;
+    uint32_t		max;
+    uint32_t		min;
+} cpufreq_t;
+
+typedef struct {
+    unsigned int	flags;
     uint64_t		processed;
     uint64_t		dropped;
     uint64_t		time_squeeze;
@@ -300,11 +308,12 @@ typedef struct {
 
 typedef struct {
     unsigned int	cpuid;  /* cpu%d instance name */
-    unsigned int	instid; /* internal instance id */
+    unsigned int	flags;	/* refresh status */
     pernode_t		*node;
     char		*name;
     cpuacct_t		stat;
     cpuinfo_t		info;
+    cpufreq_t		freq;
     softnet_t		*softnet;
 } percpu_t;
 
