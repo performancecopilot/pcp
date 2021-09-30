@@ -12,7 +12,7 @@ The quorum votes which are local to this node in the cluster.
     inst [1 or "node-2"] value 0
 
 ha_cluster.corosync.member_votes.node_id PMID: 155.6.2 [Node ID]
-    Data Type: 32-bit unsigned int  InDom: 155.5 0x26c00005
+    Data Type: 64-bit unsigned int  InDom: 155.5 0x26c00005
     Semantics: instant  Units: count
 Help:
 The full corosync ID for the nodes in the cluster. 
