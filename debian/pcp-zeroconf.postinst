@@ -12,7 +12,9 @@ for PMDA in dm nfsclient openmetrics ; do
 done
 
 # increase default pmlogger recording frequency
-sed -i 's/^\#\ PMLOGGER_INTERVAL.*/PMLOGGER_INTERVAL=10/g' /etc/default/pmlogger
+if [ ! -e /run/systemd ] ; then
+    sed -i 's/^\#\ PMLOGGER_INTERVAL.*/PMLOGGER_INTERVAL=10/g' /etc/default/pmlogger
+fi
 
 # auto-enable these usually optional pmie rules
 pmieconf -c enable dmthin
