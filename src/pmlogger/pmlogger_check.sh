@@ -114,6 +114,7 @@ START_PMLOGGER=true
 STOP_PMLOGGER=false
 QUICKSTART=false
 SKIP_PRIMARY=false
+ONLY_PRIMARY=false
 
 echo > $tmp/usage
 cat >> $tmp/usage << EOF
@@ -123,6 +124,7 @@ Options:
   -C                      query system service runlevel information
   -N,--showme             perform a dry run, showing what would be done
   -p,--skip-primary       do not start or stop the primary pmlogger instance
+  -P,--only-primary       only start or stop the primary pmlogger, no others
   -q,--quick              quick start, no compression
   -s,--stop               stop pmlogger processes instead of starting them
   -T,--terse              produce a terser form of output
@@ -161,6 +163,8 @@ do
 		daily_args="${daily_args} -N"
 		;;
 	-p)	SKIP_PRIMARY=true
+		;;
+	-P)	ONLY_PRIMARY=true
 		;;
 	-q)	QUICKSTART=true
 		;;
@@ -720,6 +724,15 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	if $SKIP_PRIMARY && [ $primary = y ]
 	then
 	    $VERY_VERBOSE && echo "Skip, -s/--skip-primary on command line"
+	    continue
+	fi
+
+	# if -P/--only-primary on the command line, only process
+	# the control file line for the primary pmlogger
+	#
+	if $ONLY_PRIMARY && [ $primary != y ]
+	then
+	    $VERY_VERBOSE && echo "Skip non-primary, -P/--only-primary on command line"
 	    continue
 	fi
 
