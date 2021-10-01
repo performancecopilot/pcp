@@ -1154,7 +1154,7 @@ fi
 AC_MSG_RESULT($clang_major_version)
 AC_SUBST(CLANG_MAJOR_VERSION, [$clang_major_version])
 
-PKG_CHECK_MODULES([libbpf], [libbpf >= 0.2.0], [have_libbpf=true], [have_libbpf=false])
+PKG_CHECK_MODULES([libbpf], [libbpf >= 0.4.0], [have_libbpf=true], [have_libbpf=false])
 AC_SUBST(HAVE_LIBBPF, [$have_libbpf])
 
 PKG_CHECK_MODULES([libelf], [libelf], [have_libelf=true], [have_libelf=false])
