@@ -6440,6 +6440,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     int need_net_ioctl = 0;
     int ns_fds = 0;
     int sts = 0;
+    int	lsts;
 
     if (cp && (sts = container_lookup(rootfd, cp)) < 0)
 	return sts;
@@ -6447,12 +6448,15 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_PARTITIONS] ||
 	need_refresh[CLUSTER_ZRAM_DEVICES] ||
 	need_refresh[REFRESH_PROC_DISKSTATS] ||
-	need_refresh[REFRESH_PROC_PARTITIONS])
-    	refresh_proc_partitions(INDOM(DISK_INDOM),
+	need_refresh[REFRESH_PROC_PARTITIONS]) {
+    	lsts = refresh_proc_partitions(INDOM(DISK_INDOM),
 			INDOM(PARTITIONS_INDOM), INDOM(ZRAM_INDOM),
 			INDOM(DM_INDOM), INDOM(MD_INDOM),
 			need_refresh[REFRESH_PROC_DISKSTATS],
 			need_refresh[REFRESH_PROC_PARTITIONS]);
+	if (lsts < 0 && sts == 0)
+	    sts = lsts;
+    }
 
     if (need_refresh[CLUSTER_STAT])
 	refresh_proc_stat(&proc_stat);
@@ -6533,8 +6537,11 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	    need_refresh[CLUSTER_NET_UNIX] ||
 	    need_refresh[CLUSTER_NET_NETSTAT]) {
 
-	    if ((sts = container_nsenter(cp, LINUX_NAMESPACE_NET, &ns_fds)) < 0)
+	    if ((lsts = container_nsenter(cp, LINUX_NAMESPACE_NET, &ns_fds)) < 0) {
+		if (lsts < 0 && sts == 0)
+		    sts = lsts;
 		goto done;
+	    }
 
 	    if (need_refresh[CLUSTER_NET_DEV])
 		refresh_proc_net_dev(netdev, cp);
@@ -6575,8 +6582,11 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	    if (need_refresh[CLUSTER_NET_UNIX])
 		refresh_proc_net_unix(&proc_net_unix);
 
-	    if (need_refresh[CLUSTER_NET_NETSTAT])
-		refresh_proc_net_netstat(&_pm_proc_net_netstat);
+	    if (need_refresh[CLUSTER_NET_NETSTAT]) {
+		lsts = refresh_proc_net_netstat(&_pm_proc_net_netstat);
+		if (lsts < 0 && sts == 0)
+		    sts = lsts;
+	    }
 
 	    container_nsleave(cp, LINUX_NAMESPACE_NET);
 	}
@@ -6595,8 +6605,11 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	    need_refresh[REFRESH_NETADDR_IPV6] ||
 	    need_refresh[REFRESH_NETADDR_HW]) {
 
-	    if ((sts = container_nsenter(cp, LINUX_NAMESPACE_MNT, &ns_fds)) < 0)
+	    if ((lsts = container_nsenter(cp, LINUX_NAMESPACE_MNT, &ns_fds)) < 0) {
+		if (lsts < 0 && sts == 0)
+		    sts = lsts;
 		goto done;
+	    }
 
 	    refresh_net_addr_sysfs(netaddr, need_refresh);
 	    need_net_ioctl |= refresh_net_sysfs(netdev, need_refresh);
@@ -6607,8 +6620,11 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	}
 
 	if (need_net_ioctl) {
-	    if ((sts = container_nsenter(cp, LINUX_NAMESPACE_NET, &ns_fds)) < 0)
+	    if ((lsts = container_nsenter(cp, LINUX_NAMESPACE_NET, &ns_fds)) < 0) {
+		if (lsts < 0 && sts == 0)
+		    sts = lsts;
 		goto done;
+	    }
 	    refresh_net_addr_ioctl(netaddr, cp, need_refresh);
 	    refresh_net_ioctl(netdev, cp, need_refresh);
 	    container_nsleave(cp, LINUX_NAMESPACE_NET);
@@ -6619,8 +6635,11 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     }
 
     if (need_refresh[CLUSTER_KERNEL_UNAME]) {
-	if ((sts = container_nsenter(cp, LINUX_NAMESPACE_UTS, &ns_fds)) < 0)
+	if ((lsts = container_nsenter(cp, LINUX_NAMESPACE_UTS, &ns_fds)) < 0) {
+	    if (lsts < 0 && sts == 0)
+		sts = lsts;
 	    goto done;
+	}
 	uname(&kernel_uname);
 	container_nsleave(cp, LINUX_NAMESPACE_UTS);
     }

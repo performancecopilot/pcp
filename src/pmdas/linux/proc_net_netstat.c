@@ -14,6 +14,15 @@
 #include "linux.h"
 #include "proc_net_netstat.h"
 
+/*
+ * used to control once per execution checking for buffer truncation and
+ * unknown fields in the "stat" file
+ * == 1 initially
+ * == 0 if checks done and nothing bad was found
+ * < 0 if parsing is botched in a way that makes refeshing non-sensical
+ */
+static int	onetrip = 1;
+
 extern proc_net_netstat_t	_pm_proc_net_netstat;
 
 typedef struct {
@@ -310,6 +319,11 @@ get_fields(netstat_fields_t *fields, char *header, char *buffer)
 	indices[i] = p;
     }
     count = i;
+    while (p != NULL) {
+	if (onetrip == 1)
+	    pmNotifyErr(LOG_WARNING, "proc_net_netstat: %s: extra field \"%s\" (increase NETSTAT_MAX_COLUMNS)\n", header, p);
+	p = strtok(NULL, " \n");
+    }
 
     /*
      * Extract values via back-referencing column headings.
@@ -332,8 +346,12 @@ get_fields(netstat_fields_t *fields, char *header, char *buffer)
                 *fields[i].offset = strtoull(p, NULL, 10);
                 break;
             }
-	    if (fields[i].field == NULL) /* not found, ignore */
+	    if (fields[i].field == NULL) {
+		/* not found, warn */
+		if (onetrip == 1)
+		    pmNotifyErr(LOG_WARNING, "proc_net_netstat: %s: unknown field[#%d] \"%s\"\n", header, j, indices[j]);
 		i = 0;
+	    }
 	}
     }
 }
@@ -360,29 +378,77 @@ init_refresh_proc_net_netstat(proc_net_netstat_t *netstat)
 	*(NETSTAT_MPTCP_OFFSET(i, netstat->mptcp)) = -1;
 }
 
+size_t
+check_read_trunc(char *buf, FILE *fp)
+{
+    char	*p;
+    size_t	lost;
+    int		c;
+
+    for (p = buf; *p; p++)
+	;
+    if (p > buf)
+	p--;
+    if (*p == '\n') {
+	return 0;
+    }
+
+    lost = 1;
+    while ((c = fgetc(fp)) != EOF) {
+	if (c == '\n')
+	    break;
+	lost++;
+    }
+
+    return lost;
+}
+
 int
 refresh_proc_net_netstat(proc_net_netstat_t *netstat)
 {
     /* Need a sufficiently large value to hold a full line */
     char	buf[MAXPATHLEN];
-    char	header[2048];
+    char	header[4192];
     FILE	*fp;
+
+    if (onetrip < 0)
+	return onetrip;
 
     init_refresh_proc_net_netstat(netstat);
     if ((fp = linux_statsfile("/proc/net/netstat", buf, sizeof(buf))) == NULL)
 	return -oserror();
     while (fgets(header, sizeof(header), fp) != NULL) {
+	if (onetrip == 1) {
+	    size_t	lost;
+	    if ((lost = check_read_trunc(header, fp)) != 0) {
+		pmNotifyErr(LOG_ERR, "refresh_proc_net_netstat: header[] too small, need at least %zd more bytes\n", lost);
+		onetrip = PM_ERR_BOTCH;
+		return onetrip;
+	    }
+	}
 	if (fgets(buf, sizeof(buf), fp) != NULL) {
-	    if (strncmp(buf, "IpExt:", 6) == 0)
+	    if (onetrip == 1) {
+		size_t	lost;
+		if ((lost = check_read_trunc(buf, fp)) != 0) {
+		    pmNotifyErr(LOG_ERR, "refresh_proc_net_netstat: buf[] too small, need at least %zd more bytes\n", lost);
+		    onetrip = PM_ERR_BOTCH;
+		    return onetrip;
+		}
+	    }
+	    if (strncmp(buf, "IpExt:", 6) == 0) {
 		get_fields(netstat_ip_fields, header, buf);
-	    else if (strncmp(buf, "TcpExt:", 7) == 0)
+	    }
+	    else if (strncmp(buf, "TcpExt:", 7) == 0) {
 		get_fields(netstat_tcp_fields, header, buf);
-	    else if (strncmp(buf, "MPTcpExt:", 9) == 0)
+	    }
+	    else if (strncmp(buf, "MPTcpExt:", 9) == 0) {
 		get_fields(netstat_mptcp_fields, header, buf);
+	    }
 	    else
 		pmNotifyErr(LOG_ERR, "Unrecognised netstat row: %s\n", buf);
 	}
     }
+    onetrip = 0;	/* been thru the whole file, assume OK next time */
     fclose(fp);
     return 0;
 }
