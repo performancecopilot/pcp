@@ -513,8 +513,11 @@ check_read_len:
 	 * (note, pmcd and pmdas have to be able to _send_ large PDUs,
 	 * e.g. for a pmResult or instance domain enquiry)
 	 */
-	pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d bad PDU len=%d in hdr exceeds maximum client PDU size (%d)",
-		      fd, php->len, ceiling);
+	char	tbuf[20];
+	pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d type=%s: bad PDU len=%d in hdr exceeds maximum client PDU size (%d)",
+		fd,
+		__pmPDUTypeStr_r((unsigned)ntohl(php->type), tbuf, sizeof(tbuf)),
+		php->len, ceiling);
 
 	__pmUnpinPDUBuf(pdubuf);
 	return PM_ERR_TOOBIG;
@@ -639,4 +642,29 @@ __pmSetPDUCntBuf(unsigned *in, unsigned *out)
 {
     __pmPDUCntIn = in;
     __pmPDUCntOut = out;
+}
+
+/*
+ * report PDU counts
+ */
+void
+__pmDumpPDUCnt(FILE *f)
+{
+    int	i;
+
+    for (i = 0; i <= PDU_MAX; i++) {
+	if (__pmPDUCntIn[i] != 0 || __pmPDUCntOut[i] != 0)
+	    break;
+    }
+    if (i > PDU_MAX) {
+	fprintf(f, "PDU stats ... no PDU activity\n");
+	return;
+    }
+    fprintf(f, "PDU stats ...\n");
+    fprintf(f, "%-20.20s %6s %6s\n", "Type", "Xmit", "Recv");
+    for (i = 0; i <= PDU_MAX; i++) {
+	if (__pmPDUCntIn[i] == 0 && __pmPDUCntOut[i] == 0)
+	    continue;
+	fprintf(f, "%-20.20s %6d %6d\n", __pmPDUTypeStr(i+PDU_START), __pmPDUCntOut[i], __pmPDUCntIn[i]);
+    }
 }

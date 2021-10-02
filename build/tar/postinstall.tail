@@ -406,6 +406,16 @@ else
 		fi
 		$RC_UPDATE add "$svc"
 	    fi
+	elif which rcctl >/dev/null 2>&1
+	then
+	    # OpenBSD
+	    case "$svc"
+	    in
+		pmcd|pmlogger|pmie|pmproxy)
+		    rcctl enable $svc
+		    rcctl start $svc
+		    ;;
+	    esac
 	fi
     done
 fi

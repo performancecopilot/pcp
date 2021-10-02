@@ -155,6 +155,8 @@ static const struct {
 	"PMDA is not yet ready to respond to requests" },
     { PM_ERR_PMDAREADY,		"PM_ERR_PMDAREADY",
 	"PMDA is now responsive to requests" },
+    { PM_ERR_BOTCH,		"PM_ERR_BOTCH",
+	"Internal inconsistency detected or assertion failed" },
     { PM_ERR_TOOSMALL,		"PM_ERR_TOOSMALL",
 	"Insufficient elements in list" },
     { PM_ERR_TOOBIG,		"PM_ERR_TOOBIG",

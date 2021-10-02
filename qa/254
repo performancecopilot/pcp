@@ -29,7 +29,7 @@ cleanup()
     then
         _needclean=false
 	$signal -s TERM $pmcd
-	sleep 1
+	_wait_pmcd_end
 	unset PMCD_SOCKET
 	_filter_pcp_start <$tmp.err
         echo "Restart and ping pmcd ..."

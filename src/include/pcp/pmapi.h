@@ -223,6 +223,7 @@ typedef struct pmDesc {
 #define PM_ERR_PMDAFENCED	(-PM_ERR_BASE-66)   /* PMDA is currently fenced and unable to respond to requests */
 
 /* retired PM_ERR_CTXBUSY (-PM_ERR_BASE-97) Context is busy */
+#define PM_ERR_BOTCH		(-PM_ERR_BASE-97)   /* Internal inconsistency detected or assertion failed */
 #define PM_ERR_TOOSMALL		(-PM_ERR_BASE-98)   /* Insufficient elements in list */
 #define PM_ERR_TOOBIG		(-PM_ERR_BASE-99)   /* Result size exceeded */
 #define PM_ERR_FAULT		(-PM_ERR_BASE-100)  /* QA fault injected */

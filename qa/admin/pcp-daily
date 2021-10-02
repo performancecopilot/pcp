@@ -767,16 +767,15 @@ fi
 today=`date +%Y-%m-%d`
 mkdir -p $HOME/Logs/by-date/$today
 
-rm -f $tmp.domains
+rm -f $tmp.hosts
 
 # some driver host specific things ...
 #
 case `hostname -s`
 in
     bozo)
-	echo "bozo" >>$tmp.domains
-	echo "bozo-vm" >>$tmp.domains
-	# echo "fuji" >>$tmp.domains
+	echo "bozo" >>$tmp.hosts
+	echo "bozo-vm" >>$tmp.hosts
 	# and open up the X server
 	#
 	# Ubuntu up to 15.04
@@ -793,7 +792,7 @@ then
     # produce output again ... sigh.
     #
     sudo virsh list --all \
-    | sed >>$tmp.domains \
+    | sed >>$tmp.hosts \
         -e 1d \
         -e '/-----/d' \
         -e 's/^  *//' \
@@ -805,30 +804,26 @@ fi
 
 for target
 do
-    grep "^$target" <$tmp.domains >$tmp.domain
-    if [ ! -s $tmp.domain ]
+    grep "^$target" <$tmp.hosts >$tmp.host
+    if [ ! -s $tmp.host ]
     then
-	echo "No domain matches \"$target\" ... the domains I have are ..."
-	cat $tmp.domains
+	echo "No host matches \"$target\" ... the hosts I have are ..."
+	cat $tmp.hosts
 	continue
     fi
-    count=`wc -l <$tmp.domain | sed -e 's/ //g'`
+    count=`wc -l <$tmp.host | sed -e 's/ //g'`
     if [ $count != 1 ]
     then
-	echo "Warning: more than one domain matches \"$target\" ... the matches I have are ..."
-	cat $tmp.domain
+	echo "Warning: more than one host matches \"$target\" ... the matches I have are ..."
+	cat $tmp.host
 	echo "... using the first one."
     fi
-    domain=`sed -e 1q $tmp.domain`
-    # used to be vmNN-osname&version, but now just vmNN ...
-    # old sed now does nothing
-    #
-    host=`echo $domain | sed -e '/^vm/s/-.*//'`
-    echo "::: $domain :::"
+    host=`sed -e 1q $tmp.host`
+    echo "::: $host :::"
 
     check_what="$what"
     [ X"$what" = Xall ] && check_what=''
-    case "$domain"
+    case "$host"
     in
 
 	vm01)
@@ -946,13 +941,13 @@ do
     then
 	# see note above re. sudo virsh
 	#
-	state=`sudo virsh list --all | grep "$domain" | awk '{print $3}'`
+	state=`sudo virsh list --all | grep "$host" | awk '{print $3}'`
 	case "$state"
 	in
 	    shut)
 		if $work
 		then
-		    sudo virsh start $domain
+		    sudo virsh start $host
 		    state=running
 		fi
 		;;
@@ -961,7 +956,7 @@ do
 	    paused)
 		if $work
 		then
-		    sudo virsh resume $domain
+		    sudo virsh resume $host
 		    state=running
 		fi
 		;;
@@ -977,12 +972,12 @@ do
 
     if $work
     then
-	log=$HOME/Logs/by-date/$today/$domain
+	log=$HOME/Logs/by-date/$today/$host
 	touch $log
-	mkdir -p $HOME/Logs/by-vm/$domain
-	if [ ! -L $HOME/Logs/by-vm/$domain/$today ]
+	mkdir -p $HOME/Logs/by-vm/$host
+	if [ ! -L $HOME/Logs/by-vm/$host/$today ]
 	then
-	    ( cd $HOME/Logs/by-vm/$domain; ln -s ../../by-date/$today/$domain $today )
+	    ( cd $HOME/Logs/by-vm/$host; ln -s ../../by-date/$today/$host $today )
 	fi
 
 	rm -f $tmp.up
@@ -1012,21 +1007,9 @@ do
 	done
 	if [ ! -f $tmp.up ]
 	then
-	    echo "Failed to start VM domain $domain after $max_wait secs ... giving up"
+	    echo "Failed to start VM $host after $max_wait secs ... giving up"
 	    continue
 	fi
-
-	# per-host settings
-	# MAKE=gmake for *BSD hosts
-	#
-	MAKE=make
-	case "$osname"
-	in
-	    freebsd|netbsd|openbsd)
-		MAKE=gmake
-		;;
-	esac
-	$debug && echo "MAKE=$MAKE"
 
 	_script_header daily >$tmp.script
 	if [ -n "$efile" ]
@@ -1122,30 +1105,30 @@ End-of-File
 	if $iflag || $qflag || $rflag || $hflag
 	then
 	    # run whatami on QA host
-	    ssh -t $qa_user@$host $qa_dir/admin/whatami >$HOME/Logs/by-vm/$domain/whatami
+	    ssh -t $qa_user@$host $qa_dir/admin/whatami >$HOME/Logs/by-vm/$host/whatami
 	fi
 
 	if $hflag
 	then
 	    # harvest failures by pulling from QA host
 	    echo "Harvest:"
-	    if [ -d $HOME/Logs/by-vm/$domain/pcpqa ]
+	    if [ -d $HOME/Logs/by-vm/$host/pcpqa ]
 	    then
 		# old dir name
-		mv $HOME/Logs/by-vm/$domain/pcpqa $HOME/Logs/by-vm/$domain/qa
+		mv $HOME/Logs/by-vm/$host/pcpqa $HOME/Logs/by-vm/$host/qa
 	    fi
-	    if [ ! -d $HOME/Logs/by-vm/$domain/qa ]
+	    if [ ! -d $HOME/Logs/by-vm/$host/qa ]
 	    then
-		rm -f $HOME/Logs/by-vm/$domain/qa
-		mkdir -p $HOME/Logs/by-vm/$domain/qa
-		( cd $HOME/Logs/by-vm/$domain/qa;
+		rm -f $HOME/Logs/by-vm/$host/qa
+		mkdir -p $HOME/Logs/by-vm/$host/qa
+		( cd $HOME/Logs/by-vm/$host/qa;
 		    for file in common common.rc common.check common.setup group show-me localconfig
 		    do
 		    	ln -s $HOME/src/pcp/qa/$file .
 		    done
 		)
 	    fi
-	    rm -f $HOME/Logs/by-vm/$domain/qa/[0-9]*
+	    rm -f $HOME/Logs/by-vm/$host/qa/[0-9]*
 	    rm -f $tmp.harvest
 	    scp $qa_user@$host:daily.harvest $tmp.harvest >$tmp.out 2>&1
 	    if [ -s $tmp.harvest ]
@@ -1153,7 +1136,7 @@ End-of-File
 		for file in `cat $tmp.harvest`
 		do
 		    echo -n " $file"
-		    if scp $qa_user@$host:$qa_dir/$file $HOME/Logs/by-vm/$domain/qa >$tmp.err 2>&1
+		    if scp $qa_user@$host:$qa_dir/$file $HOME/Logs/by-vm/$host/qa >$tmp.err 2>&1
 		    then
 			:
 		    else
@@ -1205,14 +1188,24 @@ End-of-File
 		    echo "Warning: already shutdown"
 		fi
 	    else
-		if virsh list | grep " $domain  *running" >/dev/null
+		# see note above re. sudo virsh
+		#
+		if sudo virsh list | grep " $host  *running" >/dev/null
 		then
-		    ssh -f -t -q $build_user@$host "sync; sleep 2; sync; export PATH=\$PATH:/sbin:/usr/sbin; sudo shutdown now" </dev/null &
+		    # not all systems have a poweroff(8) command, and
+		    # BSD and Linux cannot even agree on the -p or -P
+		    # option for shutdown(8) nor how to emit a usage
+		    # message, and for OpenBSD "which shutdown" fails
+		    # unless run as root (the executable in /sbin is
+		    # not only unexecutable but us unreadable for mere
+		    # mortals) ... sigh
+		    # 
+		    ssh -f -t -q $build_user@$host "sync; sleep 2; sync; export PATH=\$PATH:/sbin:/usr/sbin; if sudo which poweroff >/dev/null 2>&1; then sudo poweroff; elif sudo which shutdown >/dev/null 2>&1; then if sudo shutdown -\? 2>&1 | grep 'usage.*-[a-z]*p' >/dev/null; then sudo shutdown -p now; else sudo shutdown -P now; fi; fi" </dev/null &
 		    i=0
 		    rm -f $tmp.done
 		    while [ $i -lt 60 ]
 		    do
-			if virsh list | grep " $domain *running" >/dev/null
+			if sudo virsh list | grep " $host *running" >/dev/null
 			then
 			    sleep 1
 			    i=`expr $i + 1`
@@ -1224,12 +1217,12 @@ End-of-File
 		    if [ ! -f $tmp.done ]
 		    then
 			echo "shutdown failed for $host ... forcing virsh shutdown"
-			sudo virsh shutdown $domain
+			sudo virsh shutdown $host
 			i=0
 			rm -f $tmp.done
 			while [ $i -lt 10 ]
 			do
-			    if virsh list | grep " $domain *running" >/dev/null
+			    if sudo virsh list | grep " $host *running" >/dev/null
 			    then
 				sleep 1
 				i=`expr $i + 1`
@@ -1240,14 +1233,15 @@ End-of-File
 			done
 			if [ ! -f $tmp.done ]
 			then
-			    echo "virsh shutdown failed for $domain ... forcing virsh destroy"
+			    echo "virsh shutdown failed for $host ... forcing virsh destroy"
 			    # seems a bit harsh, but we've given you
 			    # two chances to shutdown
 			    #
-			    sudo virsh destroy $domain
+			    sudo virsh destroy $host
 			fi
 		    fi
 		else
+		    sudo virsh list
 		    echo "$host already stopped?"
 		fi
 		if $work
