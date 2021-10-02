@@ -321,7 +321,7 @@ get_fields(netstat_fields_t *fields, char *header, char *buffer)
     count = i;
     while (p != NULL) {
 	if (onetrip == 1)
-	    pmNotifyErr(LOG_WARNING, "proc_net_netstat: %s: extra field \"%s\" (increase NETSTAT_MAX_COLUMNS)\n", header, p);
+	    pmNotifyErr(LOG_WARNING, "proc_net_netstat: %s extra field \"%s\" (increase NETSTAT_MAX_COLUMNS)\n", header, p);
 	p = strtok(NULL, " \n");
     }
 
@@ -349,7 +349,7 @@ get_fields(netstat_fields_t *fields, char *header, char *buffer)
 	    if (fields[i].field == NULL) {
 		/* not found, warn */
 		if (onetrip == 1)
-		    pmNotifyErr(LOG_WARNING, "proc_net_netstat: %s: unknown field[#%d] \"%s\"\n", header, j, indices[j]);
+		    pmNotifyErr(LOG_WARNING, "proc_net_netstat: %s unknown field[#%d] \"%s\"\n", header, j, indices[j]);
 		i = 0;
 	    }
 	}
