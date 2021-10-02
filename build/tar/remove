@@ -28,12 +28,15 @@ WARN="echo Warning:"
 RM=rm
 RMDIR=rmdir
 
-for svc in pmproxy pmie pcp
+for svc in pmproxy pmie pmcd pmlogger pcp
 do
     [ -f $PCP_RC_DIR/$svc ] && $PCP_RC_DIR/$svc stop
     if which rc-update >/dev/null 2>&1
     then
 	rc-update delete $svc
+    elif which rcctl >/dev/null 2>&1
+    then
+	rcctl disable $svc
     fi
 done
 
