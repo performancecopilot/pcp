@@ -422,9 +422,12 @@ PCP_CALL extern __pmPDU *__pmFindPDUBuf(int);
 PCP_CALL extern void __pmPinPDUBuf(void *);
 PCP_CALL extern int __pmUnpinPDUBuf(void *);
 PCP_CALL extern void __pmCountPDUBuf(int, int *, int *);
+
+/* PDU counting services */
 PCP_DATA extern unsigned int *__pmPDUCntIn;
 PCP_DATA extern unsigned int *__pmPDUCntOut;
 PCP_CALL extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
+PCP_CALL extern void __pmDumpPDUCnt(FILE *);
 
 /* internal IPC protocol stuff */
 typedef int (*__pmConnectHostType)(int, int);
