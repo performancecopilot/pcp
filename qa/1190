@@ -197,7 +197,7 @@ else
     status=1
 fi
 
-pminfo -v -b 5000 | grep 'illegal metric identifier' \
+pminfo -v -b 2000 | grep 'illegal metric identifier' \
 | grep -v 'sample.*\.bad\.unknown' >$tmp.out
 n=`wc -l <$tmp.out | sed -e 's/ //g'`
 if [ "$n" -eq 0 ]
