@@ -63,7 +63,15 @@ trap "cleanup; exit \$status" 0 1 2 3 15
 
 hostname=`hostname`
 echo "hostname -> $hostname" >>$seq.full
-domainname=`domainname`
+if which domainname >/dev/null 2>&1
+then
+    domainname=`domainname`
+elif which dnsdomainname >/dev/null 2>&1
+then
+    domainname=`dnsdomainname`
+else
+    domainname=''
+fi
 echo "domainname -> $domainname" >>$seq.full
 
 echo "hostname -f -> `hostname -f`" >>$seq.full
