@@ -105,6 +105,7 @@ SHOWME=false
 MV=mv
 CP=cp
 LN=ln
+RM=rm
 KILL=pmsignal
 TERSE=false
 VERBOSE=false
@@ -380,27 +381,32 @@ _configure_pmlogger()
 	if [ $magic -eq 0 -a $owned -eq 0 -a $skip = 0 ]
 	then
 	    # pmlogconf file that we own, see if re-generation is needed
-	    cp "$configfile" "$tmpconfig"
-	    if $PMLOGCONF -r -c -q -h $hostname "$tmpconfig" </dev/null >$tmp/diag 2>&1
+	    eval $CP "$configfile" "$tmpconfig"
+	    if $SHOWME
 	    then
-		if grep 'No changes' $tmp/diag >/dev/null 2>&1
-		then
-		    :
-		elif [ -w "$configfile" ]
-		then
-		    $VERBOSE && echo "Reconfigured: \"$configfile\" (pmlogconf)"
-		    chown $PCP_USER:$PCP_GROUP "$tmpconfig" >/dev/null 2>&1
-		    eval $MV "$tmpconfig" "$configfile"
-		else
-		    _warning "no write access to pmlogconf file \"$configfile\", skip reconfiguration"
-		    ls -l "$configfile"
-		fi
+		echo + $PMLOGCONF -r -c -q -h $hostname "$tmpconfig"
 	    else
-		_warning "pmlogconf failed to reconfigure \"$configfile\""
-		sed -e "s;$tmpconfig;$configfile;g" $tmp/diag
-		echo "=== start pmlogconf file ==="
-		cat "$tmpconfig"
-		echo "=== end pmlogconf file ==="
+		if $PMLOGCONF -r -c -q -h $hostname "$tmpconfig" </dev/null >$tmp/diag 2>&1
+		then
+		    if grep 'No changes' $tmp/diag >/dev/null 2>&1
+		    then
+			:
+		    elif [ -w "$configfile" ]
+		    then
+			$VERBOSE && echo "Reconfigured: \"$configfile\" (pmlogconf)"
+			chown $PCP_USER:$PCP_GROUP "$tmpconfig" >/dev/null 2>&1
+			eval $MV "$tmpconfig" "$configfile"
+		    else
+			_warning "no write access to pmlogconf file \"$configfile\", skip reconfiguration"
+			ls -l "$configfile"
+		    fi
+		else
+		    _warning "pmlogconf failed to reconfigure \"$configfile\""
+		    sed -e "s;$tmpconfig;$configfile;g" $tmp/diag
+		    echo "=== start pmlogconf file ==="
+		    cat "$tmpconfig"
+		    echo "=== end pmlogconf file ==="
+		fi
 	    fi
 	    rm -f "$tmpconfig"
 	fi
@@ -714,12 +720,12 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    continue
 	fi
 
-	# if -s/--skip-primary on the command line, do not process
+	# if -p/--skip-primary on the command line, do not process
 	# a control file line for the primary pmlogger
 	#
 	if $SKIP_PRIMARY && [ $primary = y ]
 	then
-	    $VERY_VERBOSE && echo "Skip, -s/--skip-primary on command line"
+	    $VERY_VERBOSE && echo "Skip, -p/--skip-primary on command line"
 	    continue
 	fi
 
