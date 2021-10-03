@@ -9,7 +9,9 @@ Wants=pmcd.service
 [Service]
 Type=notify
 NotifyAccess=all
-TimeoutSec=120
+# no start timeout - for logger farms
+TimeoutStartSec=infinity
+TimeoutStopSec=120
 Restart=always
 ExecStart=@PCP_RC_DIR@/pmlogger start-systemd
 ExecStop=@PCP_RC_DIR@/pmlogger stop-systemd
