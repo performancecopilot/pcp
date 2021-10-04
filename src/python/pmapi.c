@@ -1702,6 +1702,7 @@ MOD_INIT(cpmapi)
     edict_add(dict, edict, "PM_ERR_NONLEAF", PM_ERR_NONLEAF);
     edict_add(dict, edict, "PM_ERR_PMDAREADY", PM_ERR_PMDAREADY);
     edict_add(dict, edict, "PM_ERR_PMDANOTREADY", PM_ERR_PMDANOTREADY);
+    edict_add(dict, edict, "PM_ERR_BOTCH", PM_ERR_BOTCH);
     edict_add(dict, edict, "PM_ERR_TOOSMALL", PM_ERR_TOOSMALL);
     edict_add(dict, edict, "PM_ERR_TOOBIG", PM_ERR_TOOBIG);
     edict_add(dict, edict, "PM_ERR_FAULT", PM_ERR_FAULT);

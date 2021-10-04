@@ -19,7 +19,7 @@
 \f3pmlogger_daily\f1 \- administration of Performance Co-Pilot archive log files
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_check
-[\f3\-CNpqsTV?\f1]
+[\f3\-CNPpqsTV?\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-l\f1 \f2logfile\f1]
 .br
@@ -364,6 +364,17 @@ is responsible for controlling (starting, stopping, restarting, etc.) the
 .I primary
 .BR pmlogger .
 .TP
+\fB\-P\fR, \fB\-\-only\-primary\fR
+If this option is specified for
+.B pmlogger_check
+then only the primary logger entry in the control files will be processed.
+This is the logical opposite of the \fB\-p\fP option described above
+and is intended for use by RC scripts that start only the primary logger,
+such as the
+.B pmlogger.service
+unit.
+The \fB\-p\fP and \fB\-P\fP options to \fBpmlogger_check\fP are mutually exclusive.
+.TP
 \fB\-p\fR
 If this option is specified for
 .B pmlogger_daily
@@ -385,6 +396,12 @@ With this option
 .B pmlogger_daily
 simply exits if the previous day's processing has already been
 done.
+Note that this option is not used on platforms supporting
+.BR systemd (1)
+because the
+.B pmlogger_daily.timer
+service unit specifies a timer setting with
+.BR Persistent=true .
 The
 .B \-K
 and
