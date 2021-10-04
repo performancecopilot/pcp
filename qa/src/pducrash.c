@@ -548,6 +548,61 @@ decode_desc(const char *name)
 }
 
 static void
+decode_descs(const char *name)
+{
+    pmDesc		pmdescs[32];
+    int			sts;
+    struct descs {
+	__pmPDUHdr	hdr;
+	int		numdescs;
+	pmDesc		descs[0];
+    } *descs, *xdescs;
+
+    descs = (struct descs *)malloc(sizeof(*descs));
+    xdescs = (struct descs *)malloc(sizeof(*descs)+16);
+
+    fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
+    memset(descs, 0, sizeof(*descs));
+    sts = __pmDecodeDescs((__pmPDU *)descs, 2, pmdescs);
+    fprintf(stderr, "  __pmDecodeDescs: sts = %d (%s)\n", sts, pmErrStr(sts));
+
+    fprintf(stderr, "[%s] checking large numdescs field\n", name);
+    memset(descs, 0, sizeof(*descs));
+    descs->hdr.len = sizeof(*descs);
+    descs->hdr.type = PDU_DESCS;
+    descs->numdescs = htonl(INT_MAX - 1);
+    sts = __pmDecodeDescs((__pmPDU *)descs, 2, pmdescs);
+    fprintf(stderr, "  __pmDecodeDescs: sts = %d (%s)\n", sts, pmErrStr(sts));
+
+    fprintf(stderr, "[%s] checking negative numdescs field\n", name);
+    memset(descs, 0, sizeof(*descs));
+    descs->hdr.len = sizeof(*descs);
+    descs->hdr.type = PDU_DESCS;
+    descs->numdescs = htonl(-2);
+    sts = __pmDecodeDescs((__pmPDU *)descs, 2, pmdescs);
+    fprintf(stderr, "  __pmDecodeDescs: sts = %d (%s)\n", sts, pmErrStr(sts));
+
+    fprintf(stderr, "[%s] checking access beyond basic buffer\n", name);
+    memset(descs, 0, sizeof(*descs));
+    descs->hdr.len = sizeof(*descs);
+    descs->hdr.type = PDU_DESCS;
+    descs->numdescs = htonl(1);
+    sts = __pmDecodeDescs((__pmPDU *)descs, 1, pmdescs);
+    fprintf(stderr, "  __pmDecodeDescs: sts = %d (%s)\n", sts, pmErrStr(sts));
+
+    fprintf(stderr, "[%s] checking access beyond extended buffer\n", name);
+    memset(xdescs, 0, sizeof(*descs) + 16);
+    xdescs->hdr.len = sizeof(*descs) + 16;
+    xdescs->hdr.type = PDU_DESCS;
+    xdescs->numdescs = htonl(32);
+    sts = __pmDecodeDescs((__pmPDU *)xdescs, 32, pmdescs);
+    fprintf(stderr, "  __pmDecodeDescs: sts = %d (%s)\n", sts, pmErrStr(sts));
+
+    free(xdescs);
+    free(descs);
+}
+
+static void
 decode_instance_req(const char *name)
 {
     pmInDom		indom;
@@ -700,7 +755,7 @@ decode_instance(const char *name)
 }
 
 static void
-decode_pmns_ids(const char *name)
+decode_idlist(const char *name, int pdutype)
 {
     pmID		idarray[10];
     int			idsts, sts;
@@ -721,7 +776,7 @@ decode_pmns_ids(const char *name)
     fprintf(stderr, "[%s] checking large numids field\n", name);
     memset(idlist, 0, sizeof(*idlist));
     idlist->hdr.len = sizeof(*idlist);
-    idlist->hdr.type = PDU_PMNS_IDS;
+    idlist->hdr.type = pdutype;
     idlist->numids = htonl(INT_MAX - 1);
     sts = __pmDecodeIDList((__pmPDU *)idlist, 10, idarray, &idsts);
     fprintf(stderr, "  __pmDecodeIDList: sts = %d (%s)\n", sts, pmErrStr(sts));
@@ -729,7 +784,7 @@ decode_pmns_ids(const char *name)
     fprintf(stderr, "[%s] checking negative numids field\n", name);
     memset(idlist, 0, sizeof(*idlist));
     idlist->hdr.len = sizeof(*idlist);
-    idlist->hdr.type = PDU_PMNS_IDS;
+    idlist->hdr.type = pdutype;
     idlist->numids = htonl(-2);
     sts = __pmDecodeIDList((__pmPDU *)idlist, 10, idarray, &idsts);
     fprintf(stderr, "  __pmDecodeIDList: sts = %d (%s)\n", sts, pmErrStr(sts));
@@ -737,12 +792,24 @@ decode_pmns_ids(const char *name)
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
     memset(idlist, 0, sizeof(*idlist));
     idlist->hdr.len = sizeof(*idlist);
-    idlist->hdr.type = PDU_PMNS_IDS;
+    idlist->hdr.type = pdutype;
     idlist->numids = htonl(2);
     sts = __pmDecodeIDList((__pmPDU *)idlist, 10, idarray, &idsts);
     fprintf(stderr, "  __pmDecodeIDList: sts = %d (%s)\n", sts, pmErrStr(sts));
 
     free(idlist);
+}
+
+static void
+decode_desc_ids(const char *name)
+{
+    decode_idlist(name, PDU_DESC_IDS);
+}
+
+static void
+decode_pmns_ids(const char *name)
+{
+    decode_idlist(name, PDU_PMNS_IDS);
 }
 
 static void
@@ -1592,6 +1659,8 @@ struct pdu {
     { "label", 		decode_label },
     { "highres_fetch",	decode_highres_fetch },
     { "highres_result",	decode_highres_result },
+    { "desc_ids",	decode_desc_ids },
+    { "descs", 		decode_descs },
 };
 
 int

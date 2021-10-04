@@ -63,6 +63,13 @@ static pmDesc		desc = {
 	{ 1, -1 , 0, PM_SPACE_MBYTE, PM_TIME_HOUR, 0 }
 };
 
+static pmDesc		desclist[] = { {
+    0xdeadbeef, PM_TYPE_64, 0xface, PM_SEM_COUNTER,
+	{ 1, -1 , 0, PM_SPACE_MBYTE, PM_TIME_HOUR, 0 } }, {
+    0xfeedbabe, PM_TYPE_32, 0xcafe, PM_SEM_INSTANT,
+	{ 1, -1 , 0, PM_SPACE_KBYTE, PM_TIME_MSEC, 0 } }
+};
+
 __pmLoggerStatus	logstat;
 
 static int		timeout = TIMEOUT_DEFAULT;
@@ -220,6 +227,48 @@ do_log_status(int version)
 }
 
 static void
+compare_descs(const char *pdu, pmDesc *desc1, pmDesc *desc2, int offset)
+{
+    char	caller[32];
+
+    if (offset < 0)
+	pmsprintf(caller, sizeof(caller), "%s", pdu);
+    else
+	pmsprintf(caller, sizeof(caller), "%s[%d]", pdu, offset);
+
+    if (desc1->pmid != desc2->pmid)
+	fprintf(stderr, "Botch: %s: pmid: got: 0x%x expect: 0x%x\n",
+			caller, desc1->pmid, desc2->pmid);
+    if (desc1->type != desc2->type)
+	fprintf(stderr, "Botch: %s: type: got: %d expect: %d\n",
+			caller, desc1->type, desc2->type);
+    if (desc1->indom != desc2->indom)
+	fprintf(stderr, "Botch: %s: indom: got: 0x%x expect: 0x%x\n",
+			caller, desc1->indom, desc2->indom);
+    if (desc1->sem != desc2->sem)
+	fprintf(stderr, "Botch: %s: sem: got: %d expect: %d\n",
+			caller, desc1->sem, desc2->sem);
+    if (desc1->units.dimSpace != desc2->units.dimSpace)
+	fprintf(stderr, "Botch: %s: dimSpace: got: %d expect: %d\n",
+			caller, desc1->units.dimSpace, desc2->units.dimSpace);
+    if (desc1->units.dimTime != desc2->units.dimTime)
+	fprintf(stderr, "Botch: Desc: dimTime: got: %d expect: %d\n",
+			desc1->units.dimTime, desc2->units.dimTime);
+    if (desc1->units.dimCount != desc2->units.dimCount)
+	fprintf(stderr, "Botch: Desc: dimCount: got: %d expect: %d\n",
+			desc1->units.dimCount, desc2->units.dimCount);
+    if (desc1->units.scaleSpace != desc2->units.scaleSpace)
+	fprintf(stderr, "Botch: Desc: scaleSpace: got: %d expect: %d\n",
+			desc1->units.scaleSpace, desc2->units.scaleSpace);
+    if (desc1->units.scaleTime != desc2->units.scaleTime)
+	fprintf(stderr, "Botch: Desc: scaleTime: got: %d expect: %d\n",
+			desc1->units.scaleTime, desc2->units.scaleTime);
+    if (desc1->units.scaleCount != desc2->units.scaleCount)
+	fprintf(stderr, "Botch: Desc: scaleCount: got: %d expect: %d\n",
+			desc1->units.scaleCount, desc2->units.scaleCount);
+}
+
+static void
 _z(void)
 {
     int			fatal = 0;	/* exit if set */
@@ -253,7 +302,7 @@ _z(void)
     pmInDom		indom;
     int			inst;
     pmDesc		result_desc;
-    pmDesc		*descp = &result_desc;
+    pmDesc		*descp;
     int			ctxnum;
     pmTimeval		nowtv;
     pmProfile		curprof;
@@ -981,42 +1030,107 @@ _z(void)
 	    goto cleanup;
 	}
 	else {
+	    descp = &result_desc;
 	    if ((e = __pmDecodeDesc(pb, descp)) < 0) {
 		fprintf(stderr, "Error: DecodeDesc: %s\n", pmErrStr(e));
 		fatal = 1;
 		goto cleanup;
 	    }
+	    compare_descs("Desc", descp, &desc, -1);
+	}
+    }
+
+/* PDU_DESC_IDS */
+    n = sizeof(pmidlist) / sizeof(pmidlist[0]);
+    if (pass != 0)
+	n = 1 + (foorand() % n);
+    if ((e = __pmSendIDList(fd[1], mypid, n, pmidlist, -1)) < 0) {
+	fprintf(stderr, "Error: SendIDList: %s\n", pmErrStr(e));
+	fatal = 1;
+	goto cleanup;
+    }
+    else {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
+	    fprintf(stderr, "Error: RecvIDList: %s\n", pmErrStr(e));
+	    fatal = 1;
+	    goto cleanup;
+	}
+	else if (e == 0) {
+	    fprintf(stderr, "Error: RecvIDList: end-of-file!\n");
+	    fatal = 1;
+	    goto cleanup;
+	}
+	else if (e != PDU_DESC_IDS) {
+	    fprintf(stderr, "Error: RecvIDList: %s wrong type PDU!\n", __pmPDUTypeStr(e));
+	    fatal = 1;
+	    goto cleanup;
+	}
+	else {
+	    pmID	mylist[6];
+	    if ((e = __pmDecodeIDList(pb, n, mylist, &k)) < 0) {
+		fprintf(stderr, "Error: DecodeIDList: %s\n", pmErrStr(e));
+		fatal = 1;
+		goto cleanup;
+	    }
 	    else {
-		if (descp->pmid != desc.pmid)
-		    fprintf(stderr, "Botch: Desc: pmid: got: 0x%x expect: 0x%x\n",
-			descp->pmid, desc.pmid);
-		if (descp->type != desc.type)
-		    fprintf(stderr, "Botch: Desc: type: got: %d expect: %d\n",
-			descp->type, desc.type);
-		if (descp->indom != desc.indom)
-		    fprintf(stderr, "Botch: Desc: indom: got: 0x%x expect: 0x%x\n",
-			descp->indom, desc.indom);
-		if (descp->sem != desc.sem)
-		    fprintf(stderr, "Botch: Desc: sem: got: %d expect: %d\n",
-			descp->sem, desc.sem);
-		if (descp->units.dimSpace != desc.units.dimSpace)
-		    fprintf(stderr, "Botch: Desc: dimSpace: got: %d expect: %d\n",
-			descp->units.dimSpace, desc.units.dimSpace);
-		if (descp->units.dimTime != desc.units.dimTime)
-		    fprintf(stderr, "Botch: Desc: dimTime: got: %d expect: %d\n",
-			descp->units.dimTime, desc.units.dimTime);
-		if (descp->units.dimCount != desc.units.dimCount)
-		    fprintf(stderr, "Botch: Desc: dimCount: got: %d expect: %d\n",
-			descp->units.dimCount, desc.units.dimCount);
-		if (descp->units.scaleSpace != desc.units.scaleSpace)
-		    fprintf(stderr, "Botch: Desc: scaleSpace: got: %d expect: %d\n",
-			descp->units.scaleSpace, desc.units.scaleSpace);
-		if (descp->units.scaleTime != desc.units.scaleTime)
-		    fprintf(stderr, "Botch: Desc: scaleTime: got: %d expect: %d\n",
-			descp->units.scaleTime, desc.units.scaleTime);
-		if (descp->units.scaleCount != desc.units.scaleCount)
-		    fprintf(stderr, "Botch: Desc: scaleCount: got: %d expect: %d\n",
-			descp->units.scaleCount, desc.units.scaleCount);
+		for (i = 0; i < n; i++) {
+		    if (pmidlist[i] != mylist[i])
+			fprintf(stderr, "Botch: IDList: pmidlist[%d]: got: 0x%x expect: 0x%x\n",
+			    i, mylist[i], pmidlist[i]);
+		}
+		if (k != -1)
+		    fprintf(stderr, "Botch: IDList: sts: got: %d expect: %d\n",
+			k, -1);
+	    }
+	}
+    }
+
+/* PDU_DESCS */
+    n = sizeof(desclist) / sizeof(desclist[0]);
+    if (pass != 0)
+	n = 1 + (foorand() % n);
+    if ((e = __pmSendDescs(fd[1], mypid, n, desclist)) < 0) {
+	fprintf(stderr, "Error: SendDescs: %s\n", pmErrStr(e));
+	fatal = 1;
+	goto cleanup;
+    }
+    else {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
+	    fprintf(stderr, "Error: RecvDescs: %s\n", pmErrStr(e));
+	    fatal = 1;
+	    goto cleanup;
+	}
+	else if (e == 0) {
+	    fprintf(stderr, "Error: RecvDescs: end-of-file!\n");
+	    fatal = 1;
+	    goto cleanup;
+	}
+	else if (e != PDU_DESCS) {
+	    fprintf(stderr, "Error: RecvDescs: %s wrong type PDU!\n", __pmPDUTypeStr(e));
+	    fatal = 1;
+	    goto cleanup;
+	}
+	else {
+	    num = 0;
+	    descp = NULL;
+	    if ((e = __pmDecodeDescs2(pb, &num, &descp)) < 0) {
+		fprintf(stderr, "Error: DecodeDescs2: %s\n", pmErrStr(e));
+		fatal = 1;
+		goto cleanup;
+	    }
+	    else {
+		if (ctxnum != 43)
+		    fprintf(stderr, "Botch: Descs: ctxnum: got: %d expect: %d\n",
+			ctxnum, 43);
+		if (num != n)
+		    fprintf(stderr, "Botch: Descs: num: got: %d expect: %d\n",
+			num, n);
+		else {
+		    for (i = 0; i < num; i++)
+			compare_descs("Descs", &descp[i], &desclist[i], i);
+		}
+		if (descp)
+		    free(descp);
 	    }
 	}
     }

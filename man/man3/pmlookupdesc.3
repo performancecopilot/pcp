@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2021 Red Hat, Inc.  All Rights Reserved.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -28,13 +29,16 @@
 .\}
 .TH PMLOOKUPDESC 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmLookupDesc\f1 \- obtain a description for a performance metric
+\f3pmLookupDesc\f1,
+\f3pmLookupDescs\f1 \- obtain descriptions for performance metrics
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 .nf
 int pmLookupDesc(pmID \fIpmid\fP, pmDesc *\fIdesc\fP);
+.br
+int pmLookupDescs(int \fInumpmid\fP, pmID *\fIpmids\fP, pmDesc *\fIdescs\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -46,13 +50,36 @@ cc ... \-lpcp
 ..
 Given a Performance Metrics Identifier (PMID) as
 .IR pmid ,
-fill in the given
+the
+.B pmLookupDesc
+routine fills in the given
 .CW pmDesc
 structure, pointed to by the parameter
 .IR desc ,
 from the current
 Performance Metrics Application Programming Interface (PMAPI)
 context.
+.PP
+The
+.B pmLookupDescs
+variant provides equivalent functionality for
+.I numpmid
+metrics at once, with the
+.I pmids
+array providing the metric identifiers to lookup.
+It is more efficient as the number of metrics increases, as it
+avoids round trip latency from multiple individual requests.
+Note that the error protocol guarantees there is a 1:1 relationship
+between the elements of
+.I desclist
+and
+.IR pmidlist ,
+hence both lists contain exactly
+.I numpmid
+elements.
+For this reason, the caller is expected to have pre-allocated a suitably
+sized array for
+.IR desclist .
 .PP
 The
 .CW pmDesc
@@ -222,10 +249,48 @@ well-written applications
 using the services provided by the PMAPI will continue
 to function correctly.
 .SH DIAGNOSTICS
+These routines return a negative error code to indicate failure.
 .IP \f3PM_ERR_PMID\f1
 The requested PMID is not known to the PMCS
 .IP \f3PM_ERR_NOAGENT\f1
 The PMDA responsible for providing the metric is currently not available
+.PP
+.B pmLookupDesc
+returns zero to indicate success.
+.PP
+The result from
+.B pmLookupDescs
+depends on the presence of any lookup failures, their severity and the
+number of metrics being looked up.
+.IP 1. 4n
+If there are no lookup failures, the return value will be
+.IR numpmid .
+.IP 2. 4n
+If a fatal error is encountered, the return value will be less than 0.
+For example
+.BR PM_ERR_IPC .
+.IP 3. 4n
+If
+.I numpmid
+is greater than one and non-fatal error(s) are encountered, the return
+value is the number of metric descriptors that have successfully been
+looked up (greater than or equal to zero and less than or equal to
+.IR numpmid ).
+.IP 4. 4n
+If
+.I numpmid
+is one and a non-fatal error is encountered, the return value is the
+error code (less than zero).
+.PP
+When errors are encountered, any metrics that cannot be looked up
+result in the corresponding descriptor element of
+.I desclist
+having its
+.I pmid
+field set to
+.BR PM_ID_NULL .
+The slightly convoluted error protocol allows bulk lookups, then
+probing for more error details in the case of a specific failure.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmAtomStr (3),

@@ -218,6 +218,15 @@ Running total of HIGHRES RESULT PDUs received by PMCD from clients and
 agents.  These PDUs are used to respond with high resolution timestamps
 to fetch (metric value sampling) requests.
 
+@ pmcd.pdu_in.desc_ids DESC_IDS PDUs received by PMCD
+Running total of BINARY mode DESC_IDS PDUs received by the PMCD from
+clients and agents.  These PDUs are used to request batch lookups of
+performance metric descriptors.
+
+@ pmcd.pdu_in.descs DESCS PDUs received by PMCD
+Running total of BINARY mode DESCS PDUs received by the PMCD from
+clients and agents.
+
 @ pmcd.pdu_out.total Total PDUs sent by PMCD
 Running total of all BINARY mode PDUs sent by the PMCD to clients and
 agents.
@@ -307,6 +316,14 @@ fetch (metric value sampling) responses.
 Running total of HIGHRES RESULT PDUs sent by the PMCD to clients and
 agents.  These PDUs are used to respond with high resolution timestamps
 to fetch (metric value sampling) requests.
+
+@ pmcd.pdu_out.desc_ids DESC_IDS PDUs sent by PMCD
+Running total of BINARY mode DESC_IDS PDUs sent by the PMCD to clients
+and agents.
+
+@ pmcd.pdu_out.descs DESCS PDUs received by PMCD
+Running total of BINARY mode DESCS PDUs sent by the PMCD to clients
+and agents.  These PDUs are used to provide batches of descriptors.
 
 @ pmcd.pmlogger.host host where active pmlogger is running
 The fully qualified domain name of the host on which a pmlogger

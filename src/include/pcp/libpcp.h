@@ -204,7 +204,9 @@ PCP_CALL extern int __pmHasPMNSFileChanged(const char *);
 #define PDU_LABEL		0x7013
 #define PDU_HIGHRES_FETCH	0x7014
 #define PDU_HIGHRES_RESULT	0x7015
-#define PDU_FINISH		0x7015
+#define PDU_DESC_IDS		0x7016
+#define PDU_DESCS		0x7017
+#define PDU_FINISH		0x7017
 #define PDU_MAX		 	(PDU_FINISH - PDU_START)
 
 typedef __uint32_t	__pmPDU;
@@ -279,6 +281,7 @@ typedef struct {
 #define PDU_FLAG_BAD_LABEL	(1U<<8)	/* bad, encoding issues */
 #define PDU_FLAG_LABELS		(1U<<9)
 #define PDU_FLAG_HIGHRES	(1U<<10)
+#define PDU_FLAG_DESCS		(1U<<11)
 /* Credential CVERSION PDU elements look like this */
 typedef struct {
 #ifdef HAVE_BITFIELDS_LTOR
@@ -389,6 +392,9 @@ PCP_CALL extern int __pmSendDescReq(int, int, pmID);
 PCP_CALL extern int __pmDecodeDescReq(__pmPDU *, pmID *);
 PCP_CALL extern int __pmSendDesc(int, int, pmDesc *);
 PCP_CALL extern int __pmDecodeDesc(__pmPDU *, pmDesc *);
+PCP_CALL extern int __pmSendDescs(int, int, int, pmDesc *);
+PCP_CALL extern int __pmDecodeDescs(__pmPDU *, int, pmDesc *);
+PCP_CALL extern int __pmDecodeDescs2(__pmPDU *, int *, pmDesc **);
 PCP_CALL extern int __pmSendInstanceReq(int, int, pmInDom, int, const char *);
 PCP_CALL extern int __pmDecodeInstanceReq(__pmPDU *, pmInDom *, int *, char **);
 PCP_CALL extern int __pmSendInstance(int, int, pmInResult *);
@@ -401,6 +407,7 @@ PCP_CALL extern int __pmSendCreds(int, int, int, const __pmCred *);
 PCP_CALL extern int __pmDecodeCreds(__pmPDU *, int *, int *, __pmCred **);
 PCP_CALL extern int __pmSendIDList(int, int, int, const pmID *, int);
 PCP_CALL extern int __pmDecodeIDList(__pmPDU *, int, pmID *, int *);
+PCP_CALL extern int __pmDecodeIDList2(__pmPDU *, int *, pmID **);
 PCP_CALL extern int __pmSendNameList(int, int, int, const char **, const int *);
 PCP_CALL extern int __pmDecodeNameList(__pmPDU *, int *, char ***, int **);
 PCP_CALL extern int __pmSendChildReq(int, int, const char *, int);

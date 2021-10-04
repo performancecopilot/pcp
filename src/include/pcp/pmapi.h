@@ -289,9 +289,10 @@ PCP_CALL extern int pmTraversePMNS_r(const char *, void(*)(const char *, void *)
 
 /*
  * Given a metric, find it's descriptor (caller supplies buffer for desc),
- * from the current context.
+ * from the current context.  Both singular and multi-descriptor variants.
  */
 PCP_CALL extern int pmLookupDesc(pmID, pmDesc *);
+PCP_CALL extern int pmLookupDescs(int, pmID *, pmDesc *);
 
 /*
  * Return the internal instance identifier, from the current context,

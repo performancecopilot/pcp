@@ -251,6 +251,24 @@ QA output created by 513
   __pmDecodeHighResResult: sts = -12366 (IPC protocol failure)
 [highres_result] checking access beyond non-insitu valfmt field
   __pmDecodeHighResResult: sts = -12366 (IPC protocol failure)
+[desc_ids] checking all-zeroes structure
+  __pmDecodeIDList: sts = -12366 (IPC protocol failure)
+[desc_ids] checking large numids field
+  __pmDecodeIDList: sts = -12366 (IPC protocol failure)
+[desc_ids] checking negative numids field
+  __pmDecodeIDList: sts = -12366 (IPC protocol failure)
+[desc_ids] checking access beyond buffer
+  __pmDecodeIDList: sts = -12366 (IPC protocol failure)
+[descs] checking all-zeroes structure
+  __pmDecodeDescs: sts = -12366 (IPC protocol failure)
+[descs] checking large numdescs field
+  __pmDecodeDescs: sts = -12366 (IPC protocol failure)
+[descs] checking negative numdescs field
+  __pmDecodeDescs: sts = -12366 (IPC protocol failure)
+[descs] checking access beyond basic buffer
+  __pmDecodeDescs: sts = -12366 (IPC protocol failure)
+[descs] checking access beyond extended buffer
+  __pmDecodeDescs: sts = -12366 (IPC protocol failure)
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/pducrash

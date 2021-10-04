@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018 Red Hat.
+# Copyright (c) 2018-2021 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
@@ -21,8 +21,9 @@ include ../../libpcp/src/GNUlibrarydefs
 -include ./GNUlocaldefs
 
 CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c result.c \
-	help.c instance.c labels.c p_desc.c p_error.c p_fetch.c p_instance.c \
-	p_profile.c p_result.c p_text.c p_pmns.c p_creds.c p_attr.c p_label.c \
+	help.c instance.c labels.c \
+	p_creds.c p_desc.c p_error.c p_fetch.c p_idlist.c p_instance.c \
+	p_profile.c p_result.c p_text.c p_pmns.c p_attr.c p_label.c \
 	pdu.c pdubuf.c pmns.c profile.c store.c units.c util.c ipc.c \
 	sortinst.c logmeta.c logportmap.c logutil.c tz.c interp.c \
 	rtime.c tv.c spec.c fetchlocal.c optfetch.c AF.c \
