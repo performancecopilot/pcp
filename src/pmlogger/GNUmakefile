@@ -86,6 +86,7 @@ pmlogger.service : pmlogger.service.in
 	$(SED) <$< >$@ \
 	    -e 's;@PCP_RC_DIR@;'$(PCP_RC_DIR)';' \
 	    -e 's;@PCP_RUN_DIR@;'$(PCP_RUN_DIR)';' \
+	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
 	# END
 
 pmlogger_daily.service : pmlogger_daily.service.in
