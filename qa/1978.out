@@ -79,7 +79,7 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
       1  4.12s  4.05s  0.14s 174.3M 20140K 58136K   200K root     root     N-   -    1 S     2   0% systemd        
    7539  0.90s  6.58s  0.37s  36.6G 86808K  7832K     0K nathans  nathans  N-   -   13 S     6   0% chrome         
  122029  0.89s  6.13s  0.50s  52.7G 161.4M   468K     0K nathans  nathans  N-   -   18 S     6   0% chrome         
-    883  5.14s  1.65s  0.18s  2496K  1848K   248K     0K 61876    61876    N-   -    1 S     4   0% earlyoom       
+    883  5.14s  1.65s  0.18s  2496K  1848K   248K     0K earlyoom earlyoom N-   -    1 S     4   0% earlyoom       
    1239  0.87s  5.91s  0.21s   1.9G 56896K 58628K   764K grafana  grafana  N-   -   17 S     5   0% grafana-server 
  567882  4.07s  2.10s  0.09s 67172K 31588K    16K     4K nathans  nathans  N-   -    1 R     2   0% pmdaproc       
  510402  0.17s  5.71s  0.01s 477.8M 31168K   116K   180K root     root     N-   -    1 S     0   0% python3        
@@ -660,7 +660,7 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
       1  4.12s  4.05s  0.14s 174.3M 20140K 58136K   200K root     root     N-   -    1 S     2   0% systemd        
    7539  0.90s  6.58s  0.37s  36.6G 86808K  7832K     0K nathans  nathans  N-   -   13 S     6   0% chrome         
  122029  0.89s  6.13s  0.50s  52.7G 161.4M   468K     0K nathans  nathans  N-   -   18 S     6   0% chrome         
-    883  5.14s  1.65s  0.18s  2496K  1848K   248K     0K 61876    61876    N-   -    1 S     4   0% earlyoom       
+    883  5.14s  1.65s  0.18s  2496K  1848K   248K     0K earlyoom earlyoom N-   -    1 S     4   0% earlyoom       
    1239  0.87s  5.91s  0.21s   1.9G 56896K 58628K   764K grafana  grafana  N-   -   17 S     5   0% grafana-server 
  567882  4.07s  2.10s  0.09s 67172K 31588K    16K     4K nathans  nathans  N-   -    1 R     2   0% pmdaproc       
  510402  0.17s  5.71s  0.01s 477.8M 31168K   116K   180K root     root     N-   -    1 S     0   0% python3        
