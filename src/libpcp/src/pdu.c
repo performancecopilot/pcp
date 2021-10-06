@@ -513,12 +513,13 @@ check_read_len:
 	 * (note, pmcd and pmdas have to be able to _send_ large PDUs,
 	 * e.g. for a pmResult or instance domain enquiry)
 	 */
-	char	tbuf[20];
-	pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d type=%s: bad PDU len=%d in hdr exceeds maximum client PDU size (%d)",
-		fd,
-		__pmPDUTypeStr_r((unsigned)ntohl(php->type), tbuf, sizeof(tbuf)),
-		php->len, ceiling);
-
+	if (len < (int)(sizeof(php->len) + sizeof(php->type)))
+	    /* PDU too short to provide a valid type */
+	    pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d bad PDU len=%d in hdr exceeds maximum client PDU size (%d)",
+		fd, php->len, ceiling);
+	else
+	    pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d type=0x%x bad PDU len=%d in hdr exceeds maximum client PDU size (%d)",
+		fd, (unsigned)ntohl(php->type), php->len, ceiling);
 	__pmUnpinPDUBuf(pdubuf);
 	return PM_ERR_TOOBIG;
     }
