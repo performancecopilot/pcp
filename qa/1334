@@ -73,8 +73,8 @@ BEGIN	{ ns = 1; last = "" }
     cat $tmp.out >>$seq.full
     sed -f $tmp.sed $tmp.out \
     | sed \
-	-e "s/`hostname`/LOCALHOST/g" \
-	-e "s/`hostname -s`/LOCALHOST/g" \
+	-e "s/ `hostname`/ LOCALHOST/g" \
+	-e "s/ `hostname -s`/ LOCALHOST/g" \
 	-e '/(pmcd\..*):/s/): .*/): .../' \
 	-e '/ commencing /s/ing .*/ing .../' \
 	-e '/ ending /s/ing .*/ing .../' \
