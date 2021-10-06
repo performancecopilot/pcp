@@ -237,7 +237,7 @@ _service()
 		#
 		for svc in pmlogger pmcd
 		do
-		    if $sudo systemctl show --property=ActiveState $svc.service 2>&1 \
+		    if systemctl show --property=ActiveState $svc.service 2>&1 \
 		      | grep '=failed$' >/dev/null
 		    then
 			$_verbose && echo "_service: using systemctl: reset-failed $svc"
@@ -264,7 +264,7 @@ _service()
 			#
 			for svc in pmlogger_check pmlogger_daily pmlogger_daily-poll
 			do
-			    if $sudo systemctl show --property=ActiveState $svc.timer 2>&1 \
+			    if systemctl show --property=ActiveState $svc.timer 2>&1 \
 			      | grep '=active$' >/dev/null
 			    then
 				$_verbose && echo "_service: also stop $svc"
@@ -273,14 +273,33 @@ _service()
 			done
 		    fi
 		fi
-		_systemctl_status pmcd >>$here/$seq.full
-		_systemctl_status pmlogger >>$here/$seq.full
+		for svc in pmcd pmlogger
+		do
+		    eval `systemctl show --property=ActiveState $svc.service`
+		    if [ "$2" = start -o "$2" = restart ]
+		    then
+			if [ "$ActiveState" != active ]
+			then
+			    echo "_service $1 $2: expecting $svc state=active, found state=$ActiveState" >>$here/$seq.full
+			    _systemctl_status $svc >>$here/$seq.full
+			fi
+		    elif [ "$2" = stop ]
+		    then
+			if [ "$ActiveState" != inactive ]
+			then
+			    echo "_service $1 $2: expecting $svc state=inactive, found state=$ActiveState" >>$here/$seq.full
+			    _systemctl_status $svc >>$here/$seq.full
+			fi
+		    else
+			echo "_service $1 $2: Botch: don't know what $svc state to expect, found state=$ActiveState" >>$here/$seq.full
+		    fi
+		done
 		;;
 	    *)
 		# if service is failed, need reset-failed before trying
 		# anything else
 		#
-		if $sudo systemctl show --property=ActiveState $1.service 2>&1 \
+		if systemctl show --property=ActiveState $1.service 2>&1 \
 		  | grep '=failed$' >/dev/null
 		then
 		    $_verbose && echo "_service: using systemctl: reset-failed $1"
@@ -296,7 +315,7 @@ _service()
 		    #
 		    for svc in pmlogger_check pmlogger_daily pmlogger_daily-poll
 		    do
-			if $sudo systemctl show --property=ActiveState $svc.timer 2>&1 \
+			if systemctl show --property=ActiveState $svc.timer 2>&1 \
 			  | grep '=active$' >/dev/null
 			then
 			    $_verbose && echo "_service: also stop $svc.timer and $scv.service"
@@ -304,7 +323,24 @@ _service()
 			fi
 		    done
 		fi
-		_systemctl_status $1 >>$here/$seq.full
+		eval `systemctl show --property=ActiveState $1.service`
+		if [ "$2" = start -o "$2" = restart ]
+		then
+		    if [ "$ActiveState" != active ]
+		    then
+			echo "_service $1 $2: expecting state=active, found state=$ActiveState" >>$here/$seq.full
+			_systemctl_status $1 >>$here/$seq.full
+		    fi
+		elif [ "$2" = stop ]
+		then
+		    if [ "$ActiveState" != inactive ]
+		    then
+			echo "_service $1 $2: expecting state=inactive, found state=$ActiveState" >>$here/$seq.full
+			_systemctl_status $1 >>$here/$seq.full
+		    fi
+		else
+		    echo "_service $1 $2: Botch: don't know what state to expect, found state=$ActiveState" >>$here/$seq.full
+		fi
 		;;
 	esac
     elif [ -f $PCP_RC_DIR/$1 ]
