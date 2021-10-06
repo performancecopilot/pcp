@@ -61,6 +61,12 @@ procmetrics {
 	hotproc.id.suid_nm			TASK_GEN_SUIDNM
 	hotproc.id.fsuid_nm			TASK_GEN_FSUIDNM
 
+	# getgruid
+	hotproc.id.gid_nm			TASK_GEN_RGIDNM
+	hotproc.id.egid_nm			TASK_GEN_EGIDNM
+	hotproc.id.sgid_nm			TASK_GEN_SGIDNM
+	hotproc.id.fsgid_nm			TASK_GEN_FSGIDNM
+
 	# /proc/pid/cgroup
 	hotproc.id.container			TASK_GEN_CONTAINER
 

@@ -1591,3 +1591,64 @@ show_pcp_usage(pmOptions *opts)
 	}
 }
 
+/*
+ * Manage a cache of user and group names, such that
+ * uid and gid based lookups can be performed into a
+ * hash with one copy of each name.  Also, this hash
+ * table is temporal in that an insert with a fresh,
+ * different value replaces any earlier observation.
+ */
+static __pmHashCtl users;
+static __pmHashCtl groups;
+
+static void
+add_name(__pmHashCtl *cache, int key, const char *name)
+{
+	__pmHashNode	*hp;
+
+	if ((hp = __pmHashSearch(key, cache)) == NULL)
+	{
+		__pmHashAdd(key, strdup(name), cache);
+	}
+	else
+	{
+		if (strcmp(name, hp->data) == 0)
+			return;
+		free(hp->data);
+		hp->data = strdup(name);
+	}
+}
+
+static char *
+get_name(__pmHashCtl *cache, int key)
+{
+	__pmHashNode	*hp;
+
+	if ((hp = __pmHashSearch(key, cache)) == NULL)
+		return NULL;
+	return (char *)hp->data;
+}
+
+void
+add_username(int uid, const char *username)
+{
+	add_name(&users, uid, username);
+}
+
+char *
+get_username(int uid)
+{
+	return get_name(&users, uid);
+}
+
+void
+add_groupname(int gid, const char *groupname)
+{
+	add_name(&groups, gid, groupname);
+}
+
+char *
+get_groupname(int gid)
+{
+	return get_name(&groups, gid);
+}
