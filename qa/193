@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
+$sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
@@ -37,7 +37,8 @@ src/crashpmcd
 # give pmcd a chance to deal with PDUs from crashpmcd
 sleep 2
 
-cat $PCP_PMCDLOG_PATH >$seq.full
+echo "$PCP_PMCDLOG_PATH" >>$seq.full
+cat $PCP_PMCDLOG_PATH >>$seq.full
 _filter_pmcd_log <$PCP_PMCDLOG_PATH \
 | sed \
     -e '1,/ok FD /d' \
