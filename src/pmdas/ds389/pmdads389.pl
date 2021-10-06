@@ -194,10 +194,10 @@ use vars qw( $ldap $pmda %metrics );
 
 sub ds389_connection_setup {
   if (!defined($ldap)) {
-    $pmda->log("binding to $server");
+    if (!pmda_install()) { $pmda->log("binding to $server"); }
     $ldap = Net::LDAP->new($server,version => $ldapver);
     if (!defined($ldap)) {
-      $pmda->log("bind failed, server down?");
+      if (!pmda_install()) { $pmda->log("bind failed, server down?"); }
       return;
     }
     my $mesg = $ldap->bind($binddn, password => $bindpw);
@@ -366,6 +366,7 @@ sub ds389_fetch_callback {
 sub ds389_simple_search {
   my ($scope, $base, $filter, $attrs) = @_;
 
+  if (!defined($ldap)) { return; }
   my $mesg = $ldap->search(scope => $scope, base => $base, filter => $filter, attrs => $attrs);
   if ($mesg->code) {
     $pmda->log("search(scope: \"$scope\", base: \"$base\", filter: \"$filter\", attrs: \"". join(' ', @$attrs) ."\") failed: " . $mesg->error);
@@ -393,19 +394,11 @@ foreach my $attr (keys %dataclusters) {
   }
 };
 
-$ldap = Net::LDAP->new($server,version => $ldapver);
-if (!defined($ldap)) {
-  $pmda->log("bind failed, server down?");
-}
+ds389_connection_setup();
 
-my $mesg = $ldap->bind($binddn, password => $bindpw);
-if ($mesg->code) {
-  $pmda->log("bind failed: " . $mesg->error);
-}
+my $mesg = ds389_simple_search('sub','cn=config','objectclass=*',['nsslapd-defaultnamingcontext','nsslapd-backend']);
 
-$mesg = ds389_simple_search('sub','cn=config','objectclass=*',['nsslapd-defaultnamingcontext','nsslapd-backend']);
-
-my $max = $mesg->count;
+my $max = defined($mesg) ? $mesg->count : 0;
 for ( my $i = 0 ; $i < $max ; $i++ ) {
   my $entry = $mesg->entry ( $i );
   foreach my $attr ($entry->attributes) {
