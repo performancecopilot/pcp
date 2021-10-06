@@ -28,9 +28,6 @@
 #else
 #include <curses.h>
 #endif
-#include <pwd.h>
-#include <grp.h>
-#include <regex.h>
 
 #include "atop.h"
 #include "photoproc.h"
@@ -803,15 +800,15 @@ char *
 procprt_RUID_ae(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[9];
-        struct passwd   *pwd;
+        char *username;
 
-        if ( (pwd = getpwuid(curstat->gen.ruid)) )
+        if ( (username = get_username(curstat->gen.ruid)) )
         {
-                        pmsprintf(buf, sizeof buf, "%-8.8s", pwd->pw_name);
-        } 
-        else 
+                pmsprintf(buf, sizeof buf, "%-8.8s", username);
+        }
+        else
         {
-                        pmsprintf(buf, sizeof buf, "%-8d", curstat->gen.ruid);
+                pmsprintf(buf, sizeof buf, "%-8d", curstat->gen.ruid);
         }
         return buf;
 }
@@ -823,15 +820,15 @@ char *
 procprt_EUID_a(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[9];
-        struct passwd   *pwd;
+        char *username;
 
-        if ( (pwd = getpwuid(curstat->gen.euid)) )
+        if ( (username = get_username(curstat->gen.euid)) )
         {
-                        pmsprintf(buf, sizeof buf, "%-8.8s", pwd->pw_name);
-        } 
-        else 
+                pmsprintf(buf, sizeof buf, "%-8.8s", username);
+        }
+        else
         {
-                        pmsprintf(buf, sizeof buf, "%-8d", curstat->gen.euid);
+                pmsprintf(buf, sizeof buf, "%-8d", curstat->gen.euid);
         }
         return buf;
 }
@@ -849,15 +846,15 @@ char *
 procprt_SUID_a(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[9];
-        struct passwd   *pwd;
+        char *username;
 
-        if ( (pwd = getpwuid(curstat->gen.suid)) )
+        if ( (username = get_username(curstat->gen.suid)) )
         {
-                        pmsprintf(buf, sizeof buf, "%-8.8s", pwd->pw_name);
+                pmsprintf(buf, sizeof buf, "%-8.8s", username);
         } 
-        else 
+        else
         {
-                        pmsprintf(buf, sizeof buf, "%-8d", curstat->gen.suid);
+                pmsprintf(buf, sizeof buf, "%-8d", curstat->gen.suid);
         }
         return buf;
 }
@@ -875,15 +872,15 @@ char *
 procprt_FSUID_a(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[9];
-        struct passwd   *pwd;
+        char *username;
 
-        if ( (pwd = getpwuid(curstat->gen.fsuid)) )
+        if ( (username = get_username(curstat->gen.fsuid)) )
         {
-                        pmsprintf(buf, sizeof buf, "%-8.8s", pwd->pw_name);
-        } 
-        else 
+                pmsprintf(buf, sizeof buf, "%-8.8s", username);
+        }
+        else
         {
-                        pmsprintf(buf, sizeof buf, "%-8d", curstat->gen.fsuid);
+                pmsprintf(buf, sizeof buf, "%-8d", curstat->gen.fsuid);
         }
         return buf;
 }
@@ -901,18 +898,13 @@ char *
 procprt_RGID_ae(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[10];
-        struct group    *grp;
         char *groupname;
         char grname[16];
 
-        if ( (grp = getgrgid(curstat->gen.rgid)) )
+        if ( (groupname = get_groupname(curstat->gen.rgid)) == NULL )
         {
-                        groupname = grp->gr_name;
-        }
-        else
-        {
-                        pmsprintf(grname, sizeof grname, "%d",curstat->gen.rgid);
-                        groupname = grname;
+                pmsprintf(grname, sizeof grname, "%d",curstat->gen.rgid);
+                groupname = grname;
         }
 
         pmsprintf(buf, sizeof buf, "%-8.8s", groupname);
@@ -926,18 +918,13 @@ char *
 procprt_EGID_a(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[10];
-        struct group    *grp;
         char *groupname;
         char grname[16];
 
-        if ( (grp = getgrgid(curstat->gen.egid)) )
+        if ( (groupname = get_groupname(curstat->gen.egid)) == NULL )
         {
-                        groupname = grp->gr_name;
-        }
-        else
-        {
-                        pmsprintf(grname, sizeof grname, "%d",curstat->gen.egid);
-                        groupname = grname;
+                pmsprintf(grname, sizeof grname, "%d",curstat->gen.egid);
+                groupname = grname;
         }
 
         pmsprintf(buf, sizeof buf, "%-8.8s", groupname);
@@ -957,18 +944,13 @@ char *
 procprt_SGID_a(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[10];
-        struct group    *grp;
         char *groupname;
         char grname[16];
 
-        if ( (grp = getgrgid(curstat->gen.sgid)) )
+        if ( (groupname = get_groupname(curstat->gen.sgid)) == NULL )
         {
-                        groupname = grp->gr_name;
-        }
-        else
-        {
-                        pmsprintf(grname, sizeof grname, "%d",curstat->gen.sgid);
-                        groupname = grname;
+                pmsprintf(grname, sizeof grname, "%d",curstat->gen.sgid);
+                groupname = grname;
         }
 
         pmsprintf(buf, sizeof buf, "%-8.8s", groupname);
@@ -988,18 +970,13 @@ char *
 procprt_FSGID_a(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[10];
-        struct group    *grp;
         char *groupname;
         char grname[16];
 
-        if ( (grp = getgrgid(curstat->gen.fsgid)) )
+        if ( (groupname = get_groupname(curstat->gen.fsgid)) == NULL )
         {
-                        groupname = grp->gr_name;
-        }
-        else
-        {
-                        pmsprintf(grname, sizeof grname,"%d",curstat->gen.fsgid);
-                        groupname = grname;
+                pmsprintf(grname, sizeof grname,"%d",curstat->gen.fsgid);
+                groupname = grname;
         }
 
         pmsprintf(buf, sizeof buf, "%-8.8s", groupname);
