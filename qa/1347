@@ -27,58 +27,6 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-# uid -> username and gid -> groupname mappings are not invariant, so
-# fix 'em up, e.g.
-# 938       1 avahi    avahi    2020/03/06 14:48:02   -    0% avahi-daemon   
-# becomes
-# 938       1 user-1   group-N  2020/03/06 14:48:02   -    0% avahi-daemon   
-# for all the non-root cases
-# output format is driven by header line
-#     PID    PPID RUID     RGID       STDATE    STTIME  EXC S  CPU CMD            
-# 1234567 1234567 12345678 12345678 1234/67/90 12:45:67 123   123 123456789012345
-#       1       0 root     root     2020/03/06 14:47:50   -    0% systemd        $
-#
-# Notes:
-# - group assignments are not always the same, so use group-N (literally)
-#   instead of group-1, group-2, ...
-# - S field appears to be always empty, so no matching $N field
-# - CMD may contain multiple words separated y a single space
-# - as of Fedora 32, systemd broke all of this by adding multiple
-#   usernames that are not unique in the first 8 characters, in
-#   disregard of a "rule" that had been in place for 45 years ...
-#   we only have the first 8 characters of the username to work with
-#   in our output, so more than 1 uid maps to the same first 8
-#   characters of the username and this test failed ... changed to
-#   map all non-root uids to the name USER and all non-root gids to
-#   the name GROUP
-#   
-#
-_filter_uid_gid()
-{
-    $PCP_AWK_PROG '
-BEGIN		{ state = 0; user = 0 }
-state == 0	{ print
-		  if ($3 == "RUID") state = 1
-		  next
-		}
-state == 1 && NF == 0	{
-		  state = 0
-		  print
-		  next
-		}
-state == 1	{ if ($1 == "===")
-		    state = 2
-		}
-state == 2	{ print; next }
-$3 != "root"	{ $3 = "USER" }
-$4 != "root"	{ $4 = "GROUP" }
-		{ printf "%7d %7d %-8.8s %-8.8s %10s %7s %3s    %s", $1, $2, $3, $4, $5, $6, $7, $8
-		  last = $9
-		  for (i = 10; i <= NF; i++) last = last " " $i
-		  printf " %-15.15s\n", last
-		}'
-}
-
 _logs()
 {
     echo "=== std out"
@@ -92,9 +40,15 @@ _logs()
 # real QA test starts here
 pcp_options="pcp -z --origin=+0.1 --archive $here/archives/pcp-atop-boot"
 
+#
+# NB: uid -> username and gid -> groupname mappings are now invariant
+# however also note that pcp-atop-boot does not contain group names -
+# so these will be reported numerically rather than from the QA host.
+#
+
 echo "=== -v option:" | tee -a $here/$seq.full
 $pcp_options atop -v 2 3 >$tmp.out 2>$tmp.err
-_logs | tee -a $here/$seq.full | _filter_uid_gid
+_logs | tee -a $here/$seq.full
 
 echo "=== -m option:" | tee -a $here/$seq.full
 $pcp_options atop -R -m 2 3 >$tmp.out 2>$tmp.err
