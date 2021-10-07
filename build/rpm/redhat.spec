@@ -3339,7 +3339,7 @@ PCP_LOG_DIR=%{_logsdir}
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Wed Nov 03 2021 Nathan Scott <nathans@redhat.com> - 5.3.4-1
+* Fri Oct 07 2021 Nathan Scott <nathans@redhat.com> - 5.3.4-1
 - Update to latest PCP sources.
 
 * Wed Sep 15 2021 Nathan Scott <nathans@redhat.com> - 5.3.3-1

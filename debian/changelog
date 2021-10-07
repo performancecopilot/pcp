@@ -1,8 +1,9 @@
 pcp (5.3.4-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
+  * Add pmlogger zeroconf file for interval (closes: #990223)
 
- -- Nathan Scott <nathans@debian.org>  Wed, 03 Nov 2021 11:41:55 +1000
+ -- Nathan Scott <nathans@debian.org>  Fri, 08 Oct 2021 08:53:32 +1100
 
 pcp (5.3.3-1) unstable; urgency=low
 
