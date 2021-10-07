@@ -19,7 +19,7 @@
  * unknown fields in the "stat" file
  * == 1 initially
  * == 0 if checks done and nothing bad was found
- * < 0 if parsing is botched in a way that makes refeshing non-sensical
+ * < 0 if parsing is botched in a way that makes refreshing non-sensical
  */
 static int	onetrip = 1;
 
@@ -403,12 +403,14 @@ check_read_trunc(char *buf, FILE *fp)
     return lost;
 }
 
+#define MAXLINELEN 4192
+
 int
 refresh_proc_net_netstat(proc_net_netstat_t *netstat)
 {
     /* Need a sufficiently large value to hold a full line */
-    char	buf[MAXPATHLEN];
-    char	header[4192];
+    char	buf[MAXLINELEN];
+    char	header[MAXLINELEN];
     FILE	*fp;
 
     if (onetrip < 0)
