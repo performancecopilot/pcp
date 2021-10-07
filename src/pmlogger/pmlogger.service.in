@@ -9,8 +9,9 @@ Wants=pmcd.service
 [Service]
 Type=notify
 NotifyAccess=all
-# no start timeout - for logger farms
-TimeoutStartSec=infinity
+Environment="PMLOGGER_CHECK_PARAMS=-C --only-primary"
+EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger
+TimeoutStartSec=120
 TimeoutStopSec=120
 Restart=always
 ExecStart=@PCP_RC_DIR@/pmlogger start-systemd
