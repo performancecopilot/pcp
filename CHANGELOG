@@ -1,3 +1,6 @@
+pcp-5.3.5 (3 November 2021)
+    - https://github.com/performancecopilot/pcp/projects/1
+
 pcp-5.3.4 (8 October 2021)
     - Client tools and utilities:
 	pcp-atop: enable detailed processor frequency scaling reporting
@@ -17,6 +20,7 @@ pcp-5.3.4 (8 October 2021)
 	pmdads389: allow installation when ds389 server is down
 	pmdahacluster: fix types for some corosync and drbd metrics
     - Server-side utilities and log management scripts:
+	logutil: cleanly separate primary and farm logger services
 	logutil: tweak timeouts in pmlogger.service
 	logutil: add -P / --only-primary option to pmlogger_check
 	pmproxy, libpcp_web: timer cleanups, updates to metrics
