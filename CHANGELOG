@@ -1,3 +1,6 @@
+pcp-5.3.5 (3 November 2021)
+    - https://github.com/performancecopilot/pcp/projects/1
+
 pcp-5.3.4 (8 October 2021)
     - Client tools and utilities:
 	pcp-atop: enable detailed processor frequency scaling reporting
