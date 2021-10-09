@@ -22,7 +22,7 @@
 [\f3\-Prs?\f1]
 [\f3\-D\f1 \f2name\f1[=\f2value\f1] ...]
 [\f3\-I\f1 \f2dir\f1 ...]
-[\f2infile\f1]
+[[\f2infile\f1] [\f2outfile\f1]]
 .SH DESCRIPTION
 .B pmcpp
 provides a very simple pre-processor originally designed for manipulating Performance
@@ -42,7 +42,11 @@ Input lines are read from
 .I infile
 (or standard input if
 .I infile
-is not specified), processed and written to standard output.
+is not specified), processed and written to
+.I outfile
+(standard output if
+.I outfile
+is not specified).
 .PP
 All C-style comments of the form /* ... */ are stripped from the
 input stream.

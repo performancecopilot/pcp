@@ -1,0 +1,31 @@
+QA output created by 1348
+QA output created by 1346 --valgrind
+=== std out ===
+# 1 "TMP.in"
+expect the next non-control line to contain just "3"
+# 1 "<shell>"
+3
+# 3 "TMP.in"
+# 1 "TMP.inc"
+# comment
+
+# 4 "TMP.in"
+expect the next line to contain just "4"
+4
+expect the next non-blank line to contain just "5"
+
+
+
+5
+
+expect the next non-blank line to contain just "6"
+
+6
+
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmcpp TMP.in
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
