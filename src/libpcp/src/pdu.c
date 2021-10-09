@@ -369,6 +369,8 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
     int		socketipc = __pmSocketIPC(fd);
     int		off = 0;
     int		len;
+    int		nread;
+    int		sts;
     __pmPDUHdr	*php = (__pmPDUHdr *)pdubuf;
 
     if (fd < 0)
@@ -405,14 +407,21 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
     php->type = htonl(php->type);
     while (off < len) {
 	char *p = (char *)pdubuf;
-	int n;
 
 	p += off;
 
-	n = socketipc ? __pmSend(fd, p, len-off, 0) : write(fd, p, len-off);
-	if (n < 0)
+	nread = socketipc ? __pmSend(fd, p, len-off, 0) : write(fd, p, len-off);
+	if (nread < 0)
 	    break;
-	off += n;
+	off += nread;
+    }
+    if (pmDebugOptions.pdu) {
+	if (nread < 0) {
+	    if (socketipc)
+		fprintf(stderr, "__pmXmitPDU: socket _pmSend() result %d != %d\n", nread, len-off);
+	    else
+		fprintf(stderr, "__pmXmitPDU: non-socket write() result %d != %d\n", nread, len-off);
+	}
     }
     php->len = ntohl(php->len);
     php->from = ntohl(php->from);
@@ -420,11 +429,31 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 
     if (off != len) {
 	if (socketipc) {
-	    if (__pmSocketClosed())
+	    if (__pmSocketClosed()) {
+		if (pmDebugOptions.pdu)
+		    fprintf(stderr, "__pmXmitPDU: PM_ERR_IPC because __pmSocketClosed() (maybe error %d from oserror())\n", oserror());
 		return PM_ERR_IPC;
-	    return neterror() ? -neterror() : PM_ERR_IPC;
+	    }
+	    if ((sts = neterror()) != 0) {
+		if (pmDebugOptions.pdu)
+		    fprintf(stderr, "__pmXmitPDU: error %d from neterror()\n", sts);
+		return -sts;
+	    }
+	    else {
+		if (pmDebugOptions.pdu)
+		    fprintf(stderr, "__pmXmitPDU: PM_ERR_IPC on socket path, reason unknown\n");
+		return PM_ERR_IPC;
+	    }
 	}
-	return oserror() ? -oserror() : PM_ERR_IPC;
+	if ((sts = oserror()) != 0) {
+	    if (pmDebugOptions.pdu)
+		fprintf(stderr, "__pmXmitPDU: error %d from oserror()\n", sts);
+	}
+	else {
+	    if (pmDebugOptions.pdu)
+		fprintf(stderr, "__pmXmitPDU: PM_ERR_IPC on non-socket path, reason unknown\n");
+	    return PM_ERR_IPC;
+	}
     }
 
     __pmOverrideLastFd(fd);
