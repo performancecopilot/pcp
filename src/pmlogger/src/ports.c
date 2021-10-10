@@ -892,9 +892,20 @@ control_req(int ctlfd)
 	if (pmDebugOptions.pmlc)
 	    fprintf(stderr, "control_req: send EADDRINUSE on fd=%d (client already on fd=%d)\n", fd, clientfd);
 	sts = __pmSendError(fd, FROM_ANON, -EADDRINUSE);
-	if (sts < 0)
-	    fprintf(stderr, "error sending connection NACK to client: %s\n",
+	if (sts < 0) {
+	    /*
+	     * Note: in "error sending ..." messages here and further on
+	     *       in this routine.  We should no be suprised by PM_ERR_IPC
+	     *       here as the connecting pmlc instance may have timed out
+	     *       the PDU read and/or exited by the time pmlogger gets
+	     *       to __pmAccept(), especially during pmlogger start up.
+	     *       So don't issue a warning unless -Dpmlc is in play, or
+	     *       the error is something different to PM_ERR_IPC.
+	     */
+	    if (sts != PM_ERR_IPC || pmDebugOptions.pmlc)
+		fprintf(stderr, "error sending connection NACK to client: %s\n",
 			 pmErrStr(sts));
+	}
 	__pmSockAddrFree(addr);
 	__pmCloseSocket(fd);
 	pmlc_host[0] = '\0';
@@ -934,9 +945,11 @@ control_req(int ctlfd)
 	    fprintf(stderr, "\ncontrol_req: connection rejected on fd=%d from %s: %s\n", fd, pmlc_host, pmErrStr(sts));
 	}
 	sts = __pmSendError(fd, FROM_ANON, sts);
-	if (sts < 0)
-	    fprintf(stderr, "error sending connection access NACK to client: %s\n",
+	if (sts < 0) {
+	    if (sts != PM_ERR_IPC || pmDebugOptions.pmlc)
+		fprintf(stderr, "error sending connection access NACK to client: %s\n",
 			 pmErrStr(sts));
+	}
 	sleep(1);	/* QA 083 seems like there is a race w/out this delay */
 	__pmSockAddrFree(addr);
 	__pmCloseSocket(fd);
@@ -956,9 +969,11 @@ control_req(int ctlfd)
 	/* Get the user credentials. */
 	if ((sts = __pmServerSetLocalCreds(fd, &clientattrs)) < 0) {
 	    sts = __pmSendError(fd, FROM_ANON, sts);
-	    if (sts < 0)
-		fprintf(stderr, "error sending connection credentials NACK to client: %s\n",
-			pmErrStr(sts));
+	    if (sts < 0) {
+		if (sts != PM_ERR_IPC || pmDebugOptions.pmlc)
+		    fprintf(stderr, "error sending connection credentials NACK to client: %s\n",
+			    pmErrStr(sts));
+	    }
 	    __pmSockAddrFree(addr);
 	    __pmCloseSocket(fd);
 	    pmlc_host[0] = '\0';
@@ -968,9 +983,11 @@ control_req(int ctlfd)
 	/* Check the user credentials. */
 	if ((sts = check_local_creds(&clientattrs)) < 0) {
 	    sts = __pmSendError(fd, FROM_ANON, sts);
-	    if (sts < 0)
-		fprintf(stderr, "error sending connection credentials NACK to client: %s\n",
-			pmErrStr(sts));
+	    if (sts < 0) {
+		if (sts != PM_ERR_IPC || pmDebugOptions.pmlc)
+		    fprintf(stderr, "error sending connection credentials NACK to client: %s\n",
+			    pmErrStr(sts));
+	    }
 	    __pmSockAddrFree(addr);
 	    __pmCloseSocket(fd);
 	    pmlc_host[0] = '\0';
@@ -993,7 +1010,8 @@ control_req(int ctlfd)
      */
     sts = __pmSendError(fd, (int)getpid(), pmlc_ipc_version);
     if (sts < 0) {
-	fprintf(stderr, "error sending connection ACK to client: %s\n",
+	if (sts != PM_ERR_IPC || pmDebugOptions.pmlc)
+	    fprintf(stderr, "error sending connection ACK to client: %s\n",
 		     pmErrStr(sts));
 	__pmCloseSocket(fd);
 	pmlc_host[0] = '\0';
