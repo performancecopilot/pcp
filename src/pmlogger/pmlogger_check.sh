@@ -551,10 +551,13 @@ _check_logger()
 	    # then we know pmlogger has started ... if not just sleep and
 	    # try again
 	    #
-	    if echo "connect $1" | pmlc 2>&1 | grep "Unable to connect" >/dev/null
+	    # may need to wait for pmlogger to get going ... logic here
+	    # is based on _wait_for_pmlogger() in qa/common.check
+	    #
+	    if echo status | pmlc "$1" 2>&1 \
+		    | grep "^Connected to .*pmlogger" >/dev/null
 	    then
-		:
-	    else
+		# pmlogger socket has been set up ...
 		$VERBOSE && echo " done"
 		return 0
 	    fi

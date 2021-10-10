@@ -1504,14 +1504,15 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 			# pmlc may race with pmlogger starting up here - a timeout is required
 			# to avoid pmlc blocking forever and hanging pmlogger_daily. RHBZ#1892326
 			[ -z "$PMLOGGER_REQUEST_TIMEOUT" ] && export PMLOGGER_REQUEST_TIMEOUT=2
-			echo status | pmlc $pid >$tmp/out 2>&1
-			if egrep "Connection refused|Transport endpoint is not connected|Timeout, closed connection" <$tmp/out >/dev/null
+			if echo status | pmlc "$pid" 2>&1 \
+				| grep "^Connected to .*pmlogger" >/dev/null
 			then
+			    # pmlogger socket has been set up ...
+			    break
+			else
 			    [ $i -eq 20 ] && break
 			    i=`expr $i + 1`
 			    sleep 1
-			else
-			    break
 			fi
 		    done
 		    current_vol=`sed -n <$tmp/out -e '/^log volume/s/.*[^0-9]\([0-9][0-9]*\)$/\1/p'`
