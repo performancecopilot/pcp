@@ -32,9 +32,7 @@ then
 	for svc in \
 	    pmlogger_check.timer pmlogger_check.service \
 	    pmlogger_daily.timer pmlogger_daily.service \
-	    pmlogger_daily-poll.timer pmlogger_daily-poll.service \
-	    pmlogger_daily_report.timer pmlogger_daily_report.service \
-	    pmlogger_daily_report-poll.timer pmlogger_daily_report-poll.service
+	    pmlogger_daily_report.timer pmlogger_daily_report.service
 	do
 	    case "$svc" in
 		*.timer)
@@ -83,6 +81,7 @@ $sudo src/pmcdgone $use_systemd 2>&1 \
 | sed \
     -e '/^+ /d' \
     -e '/__pmGetPDU: fd=3 BINARY hdr: Broken pipe/d' \
+    -e '/__pmGetPDU: fd=5 hdr read: len=-1: Bad file descriptor/d' \
     -e '/pmLookupDesc:/s/Connection reset by peer/IPC protocol failure/' \
     -e '/pmReconnectContext:/s/Operation/Connection/' \
 | _filter_pcp_start
