@@ -1792,9 +1792,8 @@ x11
 1343:retired pmmgr local pmlogrewrite
 1344:retired pmmgr local
 1345 pmval fault interp local
-1346 pmcpp local
+1346 other local
 1347 atop pcp local
-1348 pmcpp local valgrind
 1349 pmlogrewrite labels pmdumplog local kernel
 1350 pmda.proc local
 1351 pmcd pmda.mmv libpcp pmda local

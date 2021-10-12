@@ -1,31 +1,32 @@
 #!/bin/sh
 # PCP QA Test No. 1346
-# Some basic pmcpp sanity checks
-# non-valgrind variant, see qa/1348 for the valgrind variant
+# dpkg packaging botches for old conffiles
 #
 # Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
 #
 
-if [ $# -eq 0 ]
-then
-    seq=`basename $0`
-    echo "QA output created by $seq"
-else
-    # use $seq from caller, unless not set
-    [ -n "$seq" ] || seq=`basename $0`
-    echo "QA output created by `basename $0` $*"
-fi
+seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-do_valgrind=false
-if [ "$1" = "--valgrind" ]
+if which dpkg >/dev/null 2>&1
 then
-    _check_valgrind
-    do_valgrind=true
+    :
+else
+    _notrun "no dpkg, probably not even Debian"
+    # NOTREACHED
+fi
+
+if [ -f "`echo ../build/deb/pcp_*.deb`" ]
+then
+    :
+else
+    _notrun "no pcp deb package in ../build/deb, probably running from testsuite"
+    # NOTREACHED
 fi
 
 _cleanup()
@@ -38,52 +39,33 @@ status=0	# success is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+export LC_COLLATE=POSIX
+
 # real QA test starts here
+echo "Silence is golden ..."
 
-cat <<'End-of-File' >$tmp.inc
-# comment
-#define four 4
-End-of-File
-cat <<End-of-File >$tmp.in
-expect the next non-control line to contain just "3"
-#shell "echo one two three | wc -w | sed -e 's/ //g'"
-#include "$tmp.inc"
-expect the next line to contain just "4"
-four
-expect the next non-blank line to contain just "5"
-#ifdef five
-bozo
-#else
-5
-#endif
-expect the next non-blank line to contain just "6"
-#ifndef five
-6
-#endif
-End-of-File
+dpkg-deb -c ../build/deb/pcp_*.deb \
+| awk '{print $6}' \
+| sed -e 's/^\.//' -e 's@/$@@' -e '/^$/d' \
+| sort >$tmp.pkg
 
-if $do_valgrind
+dpkg -L pcp \
+| sed -e '/^\/.$/d' \
+| sort >$tmp.installed
+
+comm -13 $tmp.pkg $tmp.installed >$tmp.tmp
+if [ -s $tmp.tmp ]
 then
-    _run_valgrind pmcpp $tmp.in \
-    | sed -e "s@$tmp@TMP@g"
-else
-    echo "Usage test ..."
-    pmcpp one two three
+    echo "Installed files belonging to pcp, but not in latest package ..."
+    cat $tmp.tmp
+fi
+
+comm -23 $tmp.pkg $tmp.installed >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
     echo
-    echo "Do some work and check [outfile] logic ..."
-    pmcpp $tmp.in | sed -e "s@$tmp@TMP@g" >$tmp.out
-    pmcpp $tmp.in $tmp.tmp
-    if sed -e "s@$tmp@TMP@g" $tmp.tmp | diff $tmp.out -
-    then
-	echo "... all good"
-	cat $tmp.out
-    else
-	echo "Arrgh ... see $seq.full"
-	echo "tmp.out ..." >>$seq.full
-	cat $tmp.out >>$seq.full
-	echo "tmp.tmp ..." >>$seq.full
-	cat $tmp.tmp >>$seq.full
-    fi
+    echo "Files in latest package but not installed! ..."
+    cat $tmp.tmp
 fi
 
 # success, all done
