@@ -19,8 +19,9 @@
  * 		callback (do_work())
  * 		record mode control messages
  * appl3	signal callbacks and exit logging
- * appl4	desperate tracing to help triage qa/793 failures
- * 		[THIS IS TEMPORARY AND WILL BE REMOVED]
+ * appl4	timestamps in the log as milestones reached
+ * appl5	PDU stats after config file processed
+ * appl6	pass0 and name cache
  */
 
 #include <ctype.h>
@@ -609,6 +610,7 @@ static FILE *
 do_pmcpp(char *config)
 {
     FILE	*f;
+    FILE	*pipef;
     char	cmd[3*MAXPATHLEN+80];
     char	*bin_dir = pmGetConfig("PCP_BINADM_DIR");
     char	*lib_dir = pmGetConfig("PCP_VAR_DIR");
@@ -635,8 +637,8 @@ do_pmcpp(char *config)
 	exit(1);
     }
 
-    pmsprintf(cmd, sizeof(cmd), "%s%cpmcpp -rs %s -I %s%cconfig%cpmlogger",
-	bin_dir, sep, config == NULL ? "" : config, lib_dir, sep, sep);
+    pmsprintf(cmd, sizeof(cmd), "%s%cpmcpp -rs -I %s%cconfig%cpmlogger %s",
+	bin_dir, sep, lib_dir, sep, sep, config == NULL ? "" : config);
     fprintf(stderr, "preprocessor cmd: %s\n", cmd);
 
     if ((sts = __pmProcessUnpickArgs(&argp, cmd)) < 0) {
@@ -645,13 +647,13 @@ do_pmcpp(char *config)
 	exit(1);
     }
 
-    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &f)) < 0) {
+    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &pipef)) < 0) {
 	fprintf(stderr, "%s: __pmProcessPipe for \"%s\" failed: %s\n",
 		pmGetProgname(), cmd, pmErrStr(sts));
 	exit(1);
     }
 
-    return f;
+    return pipef;
 }
 
 /*
@@ -799,6 +801,10 @@ main(int argc, char **argv)
     pmID		pmid;
     pmResult		*resp;
     pmValueSet		*vp;
+    struct timeval	myepoch;
+    FILE		*fp;		/* pipe from pmcpp */
+
+    gettimeofday(&myepoch, NULL);
 
     save_args(argc, argv);
     pmGetUsername(&username);
@@ -1087,6 +1093,9 @@ main(int argc, char **argv)
 	}
     }
 
+    if (pmDebugOptions.appl4)
+	pmNotifyErr(LOG_INFO, "Start");
+
     if (Cflag == 0) {
 	/* base name for archive is here ... */
 	if ((archName = malloc(MAXPATHLEN+1)) == NULL) {
@@ -1142,12 +1151,10 @@ main(int argc, char **argv)
     else if (pmcd_host_conn == NULL)
 	pmcd_host_conn = "local:";
 
-    if (pmDebugOptions.appl4) fprintf(stderr, "@pmNewContext\n");
     if ((ctx = pmNewContext(host_context, pmcd_host_conn)) < 0) {
 	fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n", pmGetProgname(), pmcd_host_conn, pmErrStr(ctx));
 	exit(1);
     }
-    if (pmDebugOptions.appl4) fprintf(stderr, "@pmGetContextHostName\n");
     pmcd_host = (char *)pmGetContextHostName(ctx);
     if (strlen(pmcd_host) == 0) {
 	fprintf(stderr, "%s: pmGetContextHostName(%d) failed\n",
@@ -1157,7 +1164,6 @@ main(int argc, char **argv)
 
     if (rsc_fd == -1 && host_context != PM_CONTEXT_LOCAL) {
 	/* no -x, so register client id with pmcd */
-	if (pmDebugOptions.appl4) fprintf(stderr, "@__pmSetClientIdArgv\n");
 	__pmSetClientIdArgv(argc, argv);
     }
 
@@ -1165,7 +1171,6 @@ main(int argc, char **argv)
      * discover fd for comms channel to PMCD ... 
      */
     if (host_context != PM_CONTEXT_LOCAL) {
-	if (pmDebugOptions.appl4) fprintf(stderr, "@__pmHandleToPtr\n");
 	if ((ctxp = __pmHandleToPtr(ctx)) == NULL) {
 	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmGetProgname(), ctx);
 	    exit(1);
@@ -1174,11 +1179,20 @@ main(int argc, char **argv)
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    if (pmDebugOptions.appl4) fprintf(stderr, "@do_pmcpp\n");
-    yyin = do_pmcpp(configfile);
+    if (pmDebugOptions.appl4)
+	pmNotifyErr(LOG_INFO, "Start pmcpp and parse");
+
+    fp = do_pmcpp(configfile);
     /* do not return unless yyin is valid */
     if (configfile == NULL)
 	configfile = strdup("<stdin>");
+
+    /*
+     * Pass 0 to extract PMNS names and build cache ... there is
+     * no return if anything fatal happens
+     */
+    yyin = pass0(fp);
+    __pmProcessPipeClose(fp);
 
     __pmOptFetchGetParams(&ocp);
     ocp.c_scope = 1;
@@ -1189,10 +1203,14 @@ main(int argc, char **argv)
 
     if (yyparse() != 0)
 	exit(1);
-    __pmProcessPipeClose(yyin);
+    fclose(yyin);
     yyend();
 
     fprintf(stderr, "Config parsed\n");
+
+    if (pmDebugOptions.appl4) {
+	pmNotifyErr(LOG_INFO, "Parsing done");
+    }
 
     if (pmDebugOptions.log) {
 	fprintf(stderr, "optFetch Cost Parameters: pmid=%d indom=%d fetch=%d scope=%d\n",
@@ -1230,6 +1248,14 @@ main(int argc, char **argv)
 	    }
 	    j++;
 	}
+    }
+
+    if (pmDebugOptions.appl5) {
+	struct timeval	now;
+
+	gettimeofday(&now, NULL);
+	fprintf(stderr, "Elapsed: %.6f sec\n", pmtimevalSub(&now, &myepoch));
+	__pmDumpPDUCnt(stderr);
     }
 
     if (Cflag)
@@ -1355,8 +1381,13 @@ main(int argc, char **argv)
 	__pmServerCreatePIDFile(pmGetProgname(), 0);
     }
 
-    /* set up control ports and signal handlers */
+    /* set up control port socket, external map files and signal handlers */
     init_ports();
+
+    if (pmDebugOptions.appl4)
+	pmNotifyErr(LOG_INFO, "pmlc socket and map files done");
+
+    /* initialize select mask */
     __pmFD_ZERO(&fds);
     for (i = 0; i < CFD_NUM; ++i) {
 	if (ctlfds[i] >= 0)
@@ -1435,11 +1466,17 @@ main(int argc, char **argv)
 	    /* handle request on control port */
 	    for (i = 0; i < CFD_NUM; ++i) {
 		if (ctlfds[i] >= 0 && __pmFD_ISSET(ctlfds[i], &readyfds)) {
+		    if (pmDebugOptions.appl4)
+			pmNotifyErr(LOG_INFO, "New pmlc connection (%s socket) on fd=%d", i == CFD_INET ? "ipv4" : (i == CFD_IPV6 ? "ipv6" : "unix domain"), ctlfds[i]);
 		    if (control_req(ctlfds[i])) {
 			/* new client has connected */
 			__pmFD_SET(clientfd, &fds);
 			if (clientfd >= numfds)
 			    numfds = clientfd + 1;
+		    }
+		    else {
+			if (pmDebugOptions.appl4)
+			    pmNotifyErr(LOG_INFO, "control_req() failed");
 		    }
 		}
 	    }

@@ -20,6 +20,11 @@
 #include <assert.h>
 
 /*
+ * Pass 0
+ */
+extern FILE *pass0(FILE *);
+
+/*
  * a task is a bundle of fetches to be done together - it
  * originally corresponded one-to-one with a configuration
  * file curly-brace-enclosed block, but no longer does.
