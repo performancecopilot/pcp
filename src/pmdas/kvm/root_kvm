@@ -59,4 +59,13 @@ kvm {
     request_irq			KVM:0:31
     signal_exits		KVM:0:32
     tlb_flush			KVM:0:33
+    irq_window_exits		KVM:0:34
+    nmi_window_exits		KVM:0:35
+    l1d_flush			KVM:0:36
+    request_irq_exits		KVM:0:37
+    req_event			KVM:0:38
+    nested_run			KVM:0:39
+    directed_yield_attempted	KVM:0:40
+    directed_yield_successful	KVM:0:41
+    guest_mode			KVM:0:42
 }
