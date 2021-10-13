@@ -1,0 +1,72 @@
+#!/bin/sh
+# PCP QA Test No. 1346
+# dpkg packaging botches for old conffiles
+#
+# Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if which dpkg >/dev/null 2>&1
+then
+    :
+else
+    _notrun "no dpkg, probably not even Debian"
+    # NOTREACHED
+fi
+
+if [ -f "`echo ../build/deb/pcp_*.deb`" ]
+then
+    :
+else
+    _notrun "no pcp deb package in ../build/deb, probably running from testsuite"
+    # NOTREACHED
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+export LC_COLLATE=POSIX
+
+# real QA test starts here
+echo "Silence is golden ..."
+
+dpkg-deb -c ../build/deb/pcp_*.deb \
+| awk '{print $6}' \
+| sed -e 's/^\.//' -e 's@/$@@' -e '/^$/d' \
+| sort >$tmp.pkg
+
+dpkg -L pcp \
+| sed -e '/^\/.$/d' \
+| sort >$tmp.installed
+
+comm -13 $tmp.pkg $tmp.installed >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
+    echo "Installed files belonging to pcp, but not in latest package ..."
+    cat $tmp.tmp
+fi
+
+comm -23 $tmp.pkg $tmp.installed >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
+    echo
+    echo "Files in latest package but not installed! ..."
+    cat $tmp.tmp
+fi
+
+# success, all done
+exit
