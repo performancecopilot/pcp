@@ -162,6 +162,7 @@ then
     #
     echo "Error: nval=$nval not as expected ... see $seq.full"
     pmprobe -h unix:$tmp.socket -i hinv.ncpu >>$here/$seq.full
+    pminfo -f pmcd.agent.status pmcd.agent.fenced >>$here/$seq.full
     echo "+++ Tickle failed `date` +++" >>$here/$seq.full
     cat $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
     cat $PCP_LOG_DIR/pmcd/dynamic.log >>$here/$seq.full
