@@ -1504,7 +1504,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 			# pmlc may race with pmlogger starting up here - a timeout is required
 			# to avoid pmlc blocking forever and hanging pmlogger_daily. RHBZ#1892326
 			[ -z "$PMLOGGER_REQUEST_TIMEOUT" ] && export PMLOGGER_REQUEST_TIMEOUT=2
-			if echo status | pmlc "$pid" 2>&1 \
+			if echo status | pmlc "$pid" 2>&1 | tee $tmp/out \
 				| grep "^Connected to .*pmlogger" >/dev/null
 			then
 			    # pmlogger socket has been set up ...
