@@ -1,0 +1,11 @@
+language: c
+
+compiler:
+  - gcc
+  - clang
+
+env:
+  - PARSE_NAN=1
+  - PARSE_NAN=0
+
+script: ./compile-travis.sh
