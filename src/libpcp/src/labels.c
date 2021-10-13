@@ -18,7 +18,7 @@
 #include "libpcp.h"
 #include "pmda.h"
 #include "internal.h"
-#include "jsonsl.h"
+#include <jsonsl/jsonsl.h>
 #include "sha256.h"
 #include "sort_r.h"
 #include "fault.h"

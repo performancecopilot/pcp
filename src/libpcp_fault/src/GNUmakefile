@@ -20,6 +20,10 @@ include $(TOPDIR)/src/include/builddefs
 include ../../libpcp/src/GNUlibrarydefs
 -include ./GNUlocaldefs
 
+JSONSL_HFILES = $(addprefix deps/jsonsl/, jsonsl.h)
+JSONSL_CFILES = $(addprefix deps/jsonsl/, jsonsl.c)
+JSONSL_XFILES = $(JSONSL_HFILES) $(JSONSL_CFILES)
+
 CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c result.c \
 	help.c instance.c labels.c \
 	p_creds.c p_desc.c p_error.c p_fetch.c p_idlist.c p_instance.c \
@@ -29,13 +33,14 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c result.c \
 	rtime.c tv.c spec.c fetchlocal.c optfetch.c AF.c \
 	stuffvalue.c endian.c config.c auxconnect.c auxserver.c discovery.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
-	connectlocal.c derive_fetch.c events.c lock.c hash.c jsonsl.c \
+	connectlocal.c derive_fetch.c events.c lock.c hash.c \
 	fault.c access.c getopt.c io.c io_stdio.c exec.c sha256.c \
-	shellprobe.c subnetprobe.c strings.c \
+	shellprobe.c subnetprobe.c strings.c deprecated.c \
 	e_loglabel.c e_index.c e_indom.c e_labels.c \
-	deprecated.c
-HFILES = derive.h internal.h compiler.h pmdbg.h jsonsl.h sha256.h sort_r.h \
-	avahi.h subnetprobe.h shellprobe.h
+	$(JSONSL_CFILES)
+HFILES = derive.h internal.h compiler.h pmdbg.h sha256.h sort_r.h \
+	avahi.h subnetprobe.h shellprobe.h \
+	$(JSONSL_HFILES)
 YFILES = getdate.y derive_parser.y
 OTHERS	= fix_derive_parser_y derive_parser.y.in
 VERSION_SCRIPT = exports
@@ -45,8 +50,8 @@ LN_FILES = $(CFILES) $(HFILES) getdate.y $(OTHERS)
 
 CFLAGS_OPT = -DPM_FAULT_INJECTION=1 -DPM_MULTI_THREAD_DEBUG=1 -g -O0
 
-LCFLAGS = -DPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
-	'-DDSO_SUFFIX="$(DSOSUFFIX)"'
+LCFLAGS = -DPCP_INTERNAL -Ideps
+LCFLAGS += '-DEXEC_SUFFIX="$(EXECSUFFIX)"' '-DDSO_SUFFIX="$(DSOSUFFIX)"'
 LLDLIBS	+= $(LIBPCP_CFLAGS)
 LLDLIBS	+= $(LIBPCP_LDLIBS) $(PCP_PMDALIB)
 
@@ -104,8 +109,8 @@ LIBTARGET =
 SYMTARGET =
 endif
 
-LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) derive_parser.y \
-	getdate.h check.done $(LN_FILES) exports *.c
+LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) derive_parser.y *.c \
+	getdate.h check.done $(LN_FILES) $(JSONSL_XFILES) exports
 
 base default : $(HFILES) $(CFILES) $(VERSION_SCRIPT) $(INFILES) \
 	$(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
@@ -121,12 +126,11 @@ endif
 include $(BUILDRULES)
 
 *.o: internal.h compiler.h derive.h
-jsonsl.o: jsonsl.c jsonsl.h
 sha256.o: sha256.c sha256.h
 rtime.o: getdate.h
 derive.o derive_fetch.o: derive.h derive_parser.tab.h
 util.o:	pmdbg.h
-labels.o: jsonsl.h sha256.h sort_r.h
+labels.o: sha256.h sort_r.h
 fault.o:	$(TOPDIR)/src/include/pcp/fault.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
@@ -176,6 +180,10 @@ pmdbg.h:	../../libpcp/src/pmdbg.h
 $(LN_FILES):
 	rm -f $@
 	$(LN_S) $(TOPDIR)/src/libpcp/src/$@ .
+
+$(JSONSL_XFILES):
+	mkdir -p deps/jsonsl
+	$(LN_S) -f $(realpath $(TOPDIR))/vendor/github.com/mnunberg/$(@:deps/%=%) $@
 
 default_pcp : default
 
