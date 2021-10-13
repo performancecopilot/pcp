@@ -1946,6 +1946,7 @@ x11
 1874 pmseries pmproxy local
 1876 pmcd secure local
 1886 pmseries libpcp_web local
+1889 pmlogger local
 1893 pmda.proc local
 1895 pmda.bpf local
 1896 pmlogger logutil pmlc local

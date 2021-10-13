@@ -13,7 +13,7 @@ TimeoutStopSec=120
 # which is timer driven and exits. KillMode is temporary and will
 # not be necessary once we have pmlogger-farm.service.
 KillMode=process
-Environment="PMLOGGER_CHECK_PARAMS=-C --skip-primary"
+Environment="PMLOGGER_CHECK_PARAMS=--skip-primary"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger_timers
 ExecStart=@PCP_BINADM_DIR@/pmlogger_check $PMLOGGER_CHECK_PARAMS
 WorkingDirectory=@PCP_VAR_DIR@

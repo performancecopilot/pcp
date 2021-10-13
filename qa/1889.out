@@ -1,0 +1,6 @@
+QA output created by 1889
+found primary pmlogger and found control socket in PCP_RUN_DIR
+=== disable pmlogger.service
+=== start primary logger whilst disabled ===
+found primary pmlogger and found control socket in PCP_RUN_DIR
+=== enable pmlogger.service
