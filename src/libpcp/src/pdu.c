@@ -392,8 +392,8 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 
 	if (mypid == -1)
 	    mypid = (int)getpid();
-	fprintf(stderr, "[%d]pmXmitPDU: %s fd=%d len=%d",
-		mypid, __pmPDUTypeStr_r(php->type, strbuf, sizeof(strbuf)), fd, php->len);
+	fprintf(stderr, "[%d]%s: %s fd=%d len=%d", mypid, "pmXmitPDU",
+		__pmPDUTypeStr_r(php->type, strbuf, sizeof(strbuf)), fd, php->len);
 	for (j = 0; j < jend; j++) {
 	    if ((j % 8) == 0)
 		fprintf(stderr, "\n%03d: ", j);
@@ -416,9 +416,11 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 	if (n < 0) {
 	    if (pmDebugOptions.pdu) {
 		if (socketipc)
-		    fprintf(stderr, "__pmXmitPDU: socket _pmSend() result %d != %d\n", n, len-off);
+		    fprintf(stderr, "%s: socket __pmSend() result %d != %d\n",
+				    "__pmXmitPDU", n, len-off);
 		else
-		    fprintf(stderr, "__pmXmitPDU: non-socket write() result %d != %d\n", n, len-off);
+		    fprintf(stderr, "%s: non-socket write() result %d != %d\n",
+				    "__pmXmitPDU", n, len-off);
 	    }
 	    break;
 	}
@@ -433,29 +435,34 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 	    sts = -neterror();
 	    if (__pmSocketClosed()) {
 		if (pmDebugOptions.pdu)
-		    fprintf(stderr, "__pmXmitPDU: PM_ERR_IPC because __pmSocketClosed() (maybe error %d from oserror())\n", oserror());
+		    fprintf(stderr, "%s: PM_ERR_IPC because __pmSocketClosed() "
+				    "(maybe error %d from oserror())\n",
+				    "__pmXmitPDU", oserror());
 		return PM_ERR_IPC;
 	    }
 	    if (sts != 0) {
 		if (pmDebugOptions.pdu)
-		    fprintf(stderr, "__pmXmitPDU: error %d from neterror()\n", sts);
+		    fprintf(stderr, "%s: error %d from neterror()\n",
+				    "__pmXmitPDU", sts);
 		return sts;
 	    }
 	    else {
 		if (pmDebugOptions.pdu)
-		    fprintf(stderr, "__pmXmitPDU: PM_ERR_IPC on socket path, reason unknown\n");
+		    fprintf(stderr, "%s: PM_ERR_IPC on socket path, reason unknown\n",
+				    "__pmXmitPDU");
 		return PM_ERR_IPC;
 	    }
 	}
 	sts = -oserror();
 	if (sts != 0) {
 	    if (pmDebugOptions.pdu)
-		fprintf(stderr, "__pmXmitPDU: error %d from oserror()\n", sts);
+		fprintf(stderr, "%s: error %d from oserror()\n", "__pmXmitPDU", sts);
 	    return sts;
 	}
 	else {
 	    if (pmDebugOptions.pdu)
-		fprintf(stderr, "__pmXmitPDU: PM_ERR_IPC on non-socket path, reason unknown\n");
+		fprintf(stderr, "%s: PM_ERR_IPC on non-socket path, reason unknown\n",
+				"__pmXmitPDU");
 	    return PM_ERR_IPC;
 	}
     }
@@ -492,7 +499,9 @@ PM_FAULT_RETURN(PM_ERR_TIMEOUT);
 	if (len == -1) {
 	    if (! __pmSocketClosed()) {
 		char	errmsg[PM_MAXERRMSGLEN];
-		pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+		pmNotifyErr(LOG_ERR, "%s: fd=%d hdr read: len=%d: %s",
+			    "__pmGetPDU", fd, len,
+			    pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	    }
 	}
 	else if (len >= (int)sizeof(php->len)) {
@@ -511,12 +520,15 @@ PM_FAULT_RETURN(PM_ERR_TIMEOUT);
 	}
 	else if (len < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
-	    pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr_r(len, errmsg, sizeof(errmsg)));
+	    pmNotifyErr(LOG_ERR, "%s: fd=%d hdr read: len=%d: %s",
+			"__pmGetPDU", fd, len,
+			pmErrStr_r(len, errmsg, sizeof(errmsg)));
 	    __pmUnpinPDUBuf(pdubuf);
 	    return PM_ERR_IPC;
 	}
 	else if (len > 0) {
-	    pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: bad len=%d", fd, len);
+	    pmNotifyErr(LOG_ERR, "%s: fd=%d hdr read: bad len=%d",
+			"__pmGetPDU", fd, len);
 	    __pmUnpinPDUBuf(pdubuf);
 	    return PM_ERR_IPC;
 	}
@@ -535,7 +547,8 @@ check_read_len:
 	 * PDU length indicates insufficient bytes for a PDU header
 	 * ... looks like DOS attack like PV 935490
 	 */
-	pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d illegal PDU len=%d in hdr", fd, php->len);
+	pmNotifyErr(LOG_ERR, "%s: fd=%d illegal PDU len=%d in hdr",
+		    "__pmGetPDU", fd, php->len);
 	__pmUnpinPDUBuf(pdubuf);
 	return PM_ERR_IPC;
     }
@@ -548,11 +561,14 @@ check_read_len:
 	 */
 	if (len < (int)(sizeof(php->len) + sizeof(php->type)))
 	    /* PDU too short to provide a valid type */
-	    pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d bad PDU len=%d in hdr exceeds maximum client PDU size (%d)",
-		fd, php->len, ceiling);
+	    pmNotifyErr(LOG_ERR, "%s: fd=%d bad PDU len=%d in hdr "
+			"exceeds maximum client PDU size (%d)",
+			"__pmGetPDU", fd, php->len, ceiling);
 	else
-	    pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d type=0x%x bad PDU len=%d in hdr exceeds maximum client PDU size (%d)",
-		fd, (unsigned)ntohl(php->type), php->len, ceiling);
+	    pmNotifyErr(LOG_ERR, "%s: fd=%d type=0x%x bad PDU len=%d in hdr "
+			"exceeds maximum client PDU size (%d)",
+			"__pmGetPDU", fd, (unsigned)ntohl(php->type),
+			php->len, ceiling);
 	__pmUnpinPDUBuf(pdubuf);
 	return PM_ERR_TOOBIG;
     }
@@ -594,19 +610,25 @@ check_read_len:
 	    }
 	    else if (len < 0) {
 		char	errmsg[PM_MAXERRMSGLEN];
-		pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: len=%d: %s", fd, len, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+		pmNotifyErr(LOG_ERR, "%s: fd=%d data read: len=%d: %s",
+			    "__pmGetPDU", fd, len,
+			    pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	    }
 	    else
-		pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d data read: have %d, want %d, got %d", fd, have, need, len);
+		pmNotifyErr(LOG_ERR, "%s: fd=%d data read: have %d, want %d, got %d",
+			    "__pmGetPDU", fd, have, need, len);
 	    /*
 	     * only report header fields if you've read enough bytes
 	     */
 	    if (len > 0)
 		have += len;
 	    if (have >= (int)(sizeof(php->len)+sizeof(php->type)+sizeof(php->from)))
-		pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x from=0x%x", php->len, (unsigned)ntohl(php->type), (unsigned)ntohl(php->from));
+		pmNotifyErr(LOG_ERR, "%s: PDU hdr: len=0x%x type=0x%x from=0x%x",
+			    "__pmGetPDU", php->len, (unsigned)ntohl(php->type),
+			    (unsigned)ntohl(php->from));
 	    else if (have >= (int)(sizeof(php->len)+sizeof(php->type)))
-		pmNotifyErr(LOG_ERR, "__pmGetPDU: PDU hdr: len=0x%x type=0x%x", php->len, (unsigned)ntohl(php->type));
+		pmNotifyErr(LOG_ERR, "%s: PDU hdr: len=0x%x type=0x%x",
+			    "__pmGetPDU", php->len, (unsigned)ntohl(php->type));
 	    __pmUnpinPDUBuf(pdubuf);
 	    return PM_ERR_IPC;
 	}
@@ -619,7 +641,8 @@ check_read_len:
 	 * PDU type is bad ... could be a possible mem leak attack like
 	 * https://bugzilla.redhat.com/show_bug.cgi?id=841319
 	 */
-	pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d illegal PDU type=%d in hdr", fd, php->type);
+	pmNotifyErr(LOG_ERR, "%s: fd=%d illegal PDU type=%d in hdr",
+			"__pmGetPDU", fd, php->type);
 	__pmUnpinPDUBuf(pdubuf);
 	return PM_ERR_IPC;
     }
@@ -637,8 +660,10 @@ check_read_len:
 
 	if (mypid == -1)
 	    mypid = (int)getpid();
-	fprintf(stderr, "[%d]pmGetPDU: %s fd=%d len=%d from=%d",
-		mypid, __pmPDUTypeStr_r(php->type, strbuf, sizeof(strbuf)), fd, php->len, php->from);
+	fprintf(stderr, "[%d]%s: %s fd=%d len=%d from=%d",
+			mypid, "pmGetPDU",
+			__pmPDUTypeStr_r(php->type, strbuf, sizeof(strbuf)),
+			fd, php->len, php->from);
 	for (j = 0; j < jend; j++) {
 	    if ((j % 8) == 0)
 		fprintf(stderr, "\n%03d: ", j);
