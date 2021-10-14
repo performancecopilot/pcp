@@ -20,9 +20,11 @@
 #include <assert.h>
 
 /*
- * Pass 0
+ * Pass 0 and name cache helpers
  */
 extern FILE *pass0(FILE *);
+extern int cache_lookup(char *, pmID *, pmDesc *);
+extern void cache_free(void);
 
 /*
  * a task is a bundle of fetches to be done together - it

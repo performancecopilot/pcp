@@ -22,6 +22,7 @@
  * appl4	timestamps in the log as milestones reached
  * appl5	PDU stats after config file processed
  * appl6	pass0 and name cache
+ * appl7	skip pass0 ... pass0() becomes a NOOP
  */
 
 #include <ctype.h>
