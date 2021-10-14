@@ -75,7 +75,8 @@ jobs:
         run: build/ci/ci-run.py ${{ matrix.platform }} task init_qa
 
       - name: QA
-        run: build/ci/ci-run.py ${{ matrix.platform }} task qa || true
+        run: build/ci/ci-run.py ${{ matrix.platform }} task qa
+        continue-on-error: true
         env:
           PCP_QA_ARGS: ${{ github.event.inputs.pcp_qa_args }}
 
