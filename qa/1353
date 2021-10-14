@@ -51,6 +51,7 @@ log mandatory on 15 seconds { is_a_name_3 is_a_name_4 # is_not_a_name_5
 		is_a_name_5
 		dup_key_ key_dup_	# these will be hash key synonyms
 		sample.bin		# duplicate name
+		sample.bad.unknown	# no pmDesc
 }
 End-of-File
 

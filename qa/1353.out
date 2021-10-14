@@ -10,15 +10,17 @@ pass0:17 name="is_a_name_5"
 pass0:17 name="dup_key_"
 pass0:17 name="key_dup_"
 pass0:18 name="sample.bin"
-cache list[0]: "sample.bin" 29.0.6 InDom:29.2
-cache list[1]: "key_dup_" PM_ID_NULL ??? -> "dup_key_" PM_ID_NULL ???
-cache list[2]: "is_a_name_0" PM_ID_NULL ???
-cache list[3]: "is_a_name_5" PM_ID_NULL ???
-cache list[4]: "is_a_name_3" PM_ID_NULL ???
-cache list[5]: "is_a_name_4" PM_ID_NULL ???
-cache list[6]: "is_a_name_1" PM_ID_NULL ???
-cache list[7]: "is_a_name_2" PM_ID_NULL ???
-9 unique names + 1 duplicates (1 hash key synonyms)
+pass0:19 name="sample.bad.unknown"
+cache list[0]: "sample.bin"[L] 29.0.6 InDom:29.2
+cache list[1]: "key_dup_"[U] PM_ID_NULL -> "dup_key_"[U] PM_ID_NULL
+cache list[2]: "is_a_name_0"[U] PM_ID_NULL
+cache list[3]: "is_a_name_5"[U] PM_ID_NULL
+cache list[4]: "is_a_name_3"[U] PM_ID_NULL
+cache list[5]: "is_a_name_4"[U] PM_ID_NULL
+cache list[6]: "sample.bad.unknown"[L] 29.0.54 [no pmDesc]
+cache list[7]: "is_a_name_1"[U] PM_ID_NULL
+cache list[8]: "is_a_name_2"[U] PM_ID_NULL
+10 unique names + 1 duplicates (1 hash key synonyms)
 cache_lookup(sample.bin): success
 cache_lookup(sample.bin): success
 Warning [TMP.config, line 3]
@@ -57,4 +59,9 @@ Problem with lookup for metric "key_dup_" ... logging not activated
 Reason: Unknown metric name
 cache_lookup(sample.bin): success
 cache_lookup(sample.bin): success
+cache_lookup(sample.bad.unknown): in cache, but no pmDesc
+cache_lookup(sample.bad.unknown): in cache, but no pmDesc
+Warning [TMP.config, line 19]
+Description unavailable for metric "sample.bad.unknown" ... not logged
+Reason: Unknown or illegal metric identifier
 Config parsed
