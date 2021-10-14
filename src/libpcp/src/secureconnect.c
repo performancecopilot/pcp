@@ -1169,7 +1169,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 		}
 		if (pmDebugOptions.auth) {
 		    fprintf(stderr, "%s:__pmAuthClientNegotiation"
-				    " step send (%d bytes)", __FILE__, length);
+				    " step send (%d bytes)\n", __FILE__, length);
 		}
 	    }
 	}
@@ -1283,6 +1283,7 @@ __pmSecureServerIPCFlags(int fd, int flags)
     __pmSecureSocket lsocket;
     SECStatus secsts;
     PRBool RequestClientCert;
+    char hostname[MAXHOSTNAMELEN];
     int saslsts;
     int sts;
 
@@ -1375,8 +1376,22 @@ __pmSecureServerIPCFlags(int fd, int flags)
 	sts = __pmInitAuthServer();
 	if (sts < 0)
 	    return sts;
+
+	sts = gethostname(hostname, sizeof(hostname)-1);
+	if (sts != 0)
+	    return -oserror();
+	hostname[MAXHOSTNAMELEN-1] = '\0';
+
+	/**
+	 * SASL stores username@hostname in the SASL DB (see sasldblistusers2(8))
+	 * saslpasswd2(8) uses gethostname() to determine the hostname
+	 * sasl_server_new() uses get_fqhostname() to determine a FQDN if the hostname parameter is NULL
+	 *
+	 * therefore, if the hostname doesn't match the FQDN of the system running pmcd, the authentication is broken
+	 * as a workaround, let's use gethostname() as parameter to sasl_server_new
+	 */
 	saslsts = sasl_server_new(SECURE_SERVER_SASL_SERVICE,
-				NULL, NULL, /*localdomain,userdomain*/
+				hostname, NULL, /*serverFQDN,user_realm*/
 				NULL, NULL, NULL, /*iplocal,ipremote,callbacks*/
 				0, &lsocket.saslConn);
 	if (pmDebugOptions.auth)
