@@ -253,7 +253,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    numdesclist = 0;
 		    break;
 		}
-		numdesclist = numpmid;
+		numdesclist = numdesc;
 	    }
 	    if ((e = __pmDecodeDescs(pb, numdesc, desclist)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeDescs: %s\n", pmGetProgname(), pmErrStr(e));
