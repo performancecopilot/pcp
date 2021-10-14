@@ -67,6 +67,7 @@ char	*pmnsfile = PM_NS_DEFAULT;
 int	nmetrics;
 const char *metrics[MAXMETRICS];
 pmID	pmids[MAXMETRICS];
+pmDesc	descs[MAXMETRICS];
 pmInDom	indom;
 int	iterations = 1;
 int	all_n;
@@ -287,28 +288,24 @@ test_PMNS(void)
 void
 test_desc(void)
 {
-    int sts;
-    int i;
-    pmDesc desc;
+    int i, sts;
 
     print_banner_start("desc");
 
-    /* test if possible to get one of them and get its indom */
-    if ((sts = pmLookupDesc(pmids[0], &desc)) < 0) {
-	fprintf(stderr, "pmLookupDesc: %s\n", pmErrStr(sts));
+    /* lookup all descriptors and ensure matching non-null indom */
+    if ((sts = pmLookupDescs(nmetrics, pmids, descs)) < 0) {
+	fprintf(stderr, "pmLookupDescs: %s\n", pmErrStr(sts));
+	exit(1);
+    }
+    if ((indom = descs[0].indom) == PM_INDOM_NULL) {
+	fprintf(stderr, "pmLookupDescs: NULL indom for initial metric\n");
 	fprintf(stderr, "Associated metric = %s (%s)\n", metrics[0], pmIDStr(pmids[0]));
 	exit(1);
     }
-    indom = desc.indom;
-    for (i=0; i < nmetrics; i++) {
-	if ((sts = pmLookupDesc(pmids[i], &desc)) < 0) {
-	    fprintf(stderr, "pmLookupDesc: %s\n", pmErrStr(sts));
-	    fprintf(stderr, "Associated metric = %s (%s)\n", metrics[i], pmIDStr(pmids[i]));
-	    exit(1);
-	}
-	if (desc.indom != indom) {
+    for (i=1; i < nmetrics; i++) {
+	if (descs[i].indom != indom) {
 	    fprintf(stderr, "metric <%s> has indom = %d, different to metric <%s> indom = %d\n",
-	    metrics[i], desc.indom, metrics[0], indom);
+	    metrics[i], descs[i].indom, metrics[0], indom);
 	    fprintf(stderr, "This test requires all metrics have the same indom\n");
 	    exit(1);
 	}

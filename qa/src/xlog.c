@@ -13,6 +13,7 @@
 static int	vflag;
 static int	numpmid;
 static pmID	pmidlist[20];
+static pmDesc	desclist[20];
 static const char *namelist[20];
 
 static void
@@ -22,62 +23,57 @@ grind(void)
     int		i;
     int		*instlist;
     char	**inamelist;
-    pmDesc	desc;
 
     for (i = 0; i < numpmid; i++) {
 	if (pmidlist[i] != PM_ID_NULL) {
 	    printf("\npmid: 0x%x name: %s", pmidlist[i], namelist[i]);
-	    if ((sts = pmLookupDesc(pmidlist[i], &desc)) < 0) {
-		printf("\npmLookupDesc: %s\n", pmErrStr(sts));
+	    printf(" indom: 0x%x", desclist[i].indom);
+	    if (vflag) {
+		const char	*u = pmUnitsStr(&desclist[i].units);
+		printf("\ndesc: type=%d indom=0x%x sem=%d units=%s",
+			desclist[i].type, desclist[i].indom, desclist[i].sem,
+			*u == '\0' ? "none" : u);
+	    }
+	    if (desclist[i].indom == PM_INDOM_NULL) {
+		printf("\n");
+		continue;
+	    }
+	    if (vflag)
+		putchar('\n');
+	    if ((sts = pmGetInDomArchive(desclist[i].indom, &instlist, &inamelist)) < 0) {
+		printf("pmGetInDomArchive: %s\n", pmErrStr(sts));
 	    }
 	    else {
-		printf(" indom: 0x%x", desc.indom);
-		if (vflag) {
-		    const char	*u = pmUnitsStr(&desc.units);
-		    printf("\ndesc: type=%d indom=0x%x sem=%d units=%s",
-			desc.type, desc.indom, desc.sem,
-			*u == '\0' ? "none" : u);
-		}
-		if (desc.indom == PM_INDOM_NULL) {
-		    printf("\n");
-		    continue;
-		}
-		if (vflag)
-		    putchar('\n');
-		if ((sts = pmGetInDomArchive(desc.indom, &instlist, &inamelist)) < 0) {
-		    printf("pmGetInDomArchive: %s\n", pmErrStr(sts));
-		}
-		else {
-		    int		j;
-		    int		numinst = sts;
-		    char	*name;
-		    printf(" numinst: %d\n", numinst);
-		    for (j = 0; j < numinst; j++) {
+		int	j;
+		int	numinst = sts;
+		char	*name;
+
+		printf(" numinst: %d\n", numinst);
+		for (j = 0; j < numinst; j++) {
+		    if (vflag)
+			printf("  instance id: 0x%x ", instlist[j]);
+		    if ((sts = pmNameInDomArchive(desclist[i].indom, instlist[j], &name)) < 0) {
+			printf("pmNameInDomArchive: %s\n", pmErrStr(sts));
+		    }
+		    else {
 			if (vflag)
-			    printf("  instance id: 0x%x ", instlist[j]);
-			if ((sts = pmNameInDomArchive(desc.indom, instlist[j], &name)) < 0) {
-			    printf("pmNameInDomArchive: %s\n", pmErrStr(sts));
+			    printf("%s (== %s?)", name, inamelist[j]);
+			if ((sts = pmLookupInDomArchive(desclist[i].indom, name)) < 0) {
+			    printf(" pmLookupInDomArchive: %s\n", pmErrStr(sts));
 			}
 			else {
-			    if (vflag)
-				printf("%s (== %s?)", name, inamelist[j]);
-			    if ((sts = pmLookupInDomArchive(desc.indom, name)) < 0) {
-				printf(" pmLookupInDomArchive: %s\n", pmErrStr(sts));
-			    }
-			    else {
-				if (sts != instlist[j]) {
-				    printf(" botch: pmLookupInDom returns 0x%x, expected 0x%x\n",
+			    if (sts != instlist[j]) {
+				printf(" botch: pmLookupInDom returns 0x%x, expected 0x%x\n",
 					sts, instlist[j]);
-				}
-				else if (vflag)
-				    putchar('\n');
 			    }
-			    free(name);
+			    else if (vflag)
+				putchar('\n');
 			}
+			free(name);
 		    }
-		    free(instlist);
-		    free(inamelist);
 		}
+		free(instlist);
+		free(inamelist);
 	    }
 	}
     }
@@ -215,7 +211,11 @@ main(int argc, char **argv)
 	    }
 	}
 
-	grind();
+	if ((sts = pmLookupDescs(numpmid, pmidlist, desclist)) < 0) {
+	    printf("\npmLookupDesc: %s\n", pmErrStr(sts));
+	} else {
+	    grind();
+	}
     }
     exit(0);
 }

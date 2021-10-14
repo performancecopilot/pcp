@@ -316,6 +316,8 @@ __pmPDUTypeStr_r(int type, char *buf, int buflen)
     case PDU_LABEL:		res = "LABEL"; break;
     case PDU_HIGHRES_FETCH:	res = "HIGHRES_FETCH"; break;
     case PDU_HIGHRES_RESULT:	res = "HIGHRES_RESULT"; break;
+    case PDU_DESC_IDS:		res = "DESC_IDS"; break;
+    case PDU_DESCS:		res = "DESCS"; break;
     default:			res = NULL; break;
     }
     if (res)

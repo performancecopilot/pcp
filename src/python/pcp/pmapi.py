@@ -680,6 +680,9 @@ LIBPCP.pmLoadDerivedConfig.argtypes = [c_char_p]
 LIBPCP.pmLookupDesc.restype = c_int
 LIBPCP.pmLookupDesc.argtypes = [c_uint, POINTER(pmDesc)]
 
+LIBPCP.pmLookupDescs.restype = c_int
+LIBPCP.pmLookupDescs.argtypes = [c_int, POINTER(c_uint), POINTER(pmDesc)]
+
 LIBPCP.pmLookupInDomText.restype = c_int
 LIBPCP.pmLookupInDomText.argtypes = [c_uint, c_int, POINTER(c_char_p)]
 
@@ -1622,32 +1625,32 @@ class pmContext(object):
 
         """PMAPI - Lookup metric description structures from pmIDs
 
-        (pmDesc* pmdesc)[] = pmLookupDesc(c_uint pmid[N])
-        (pmDesc* pmdesc)[] = pmLookupDesc(c_uint pmid)
+        (pmDesc* pmdesc)[] = pmLookupDescs(c_uint pmid[N])
+        (pmDesc* pmdesc)[] = pmLookupDescs(c_uint pmid)
         """
-        if isinstance(pmids_p, integer_types):
-            n = 1
-        else:
-            n = len(pmids_p)
-
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
 
-        desc = (POINTER(pmDesc) * n)()
+        if isinstance(pmids_p, integer_types):
+            pmids = (c_uint * 1)()
+            pmids[0] = pmids_p
+        else:
+            pmids = (c_uint * len(pmids_p))()
+            for i, pmid in enumerate(pmids_p):
+                pmids[i] = c_uint(pmid)
 
-        for i in range(n):
-            descbuf = ctypes.create_string_buffer(sizeof(pmDesc))
-            desc[i] = cast(descbuf, POINTER(pmDesc))
-            if isinstance(pmids_p, integer_types):
-                pmids = c_uint(pmids_p)
-            else:
-                pmids = c_uint(pmids_p[i])
+        descsbuf = ctypes.create_string_buffer(len(pmids) * sizeof(pmDesc))
+        desclist = cast(descsbuf, POINTER(pmDesc))
+        status = LIBPCP.pmLookupDescs(len(pmids), pmids, desclist)
+        if status < 0:
+            raise pmErr(status)
 
-            status = LIBPCP.pmLookupDesc(pmids, desc[i])
-            if status < 0:
-                raise pmErr(status)
-        return desc
+        # API back-compat - for hysterical raisins, return an array of pointers
+        descs = (POINTER(pmDesc) * len(pmids))()
+        for i in range(len(pmids)):
+            descs[i] = pointer(desclist[i])
+        return descs
 
     def pmLookupInDomText(self, pmdesc, kind=c_api.PM_TEXT_ONELINE):
         """PMAPI - Lookup the description of a metric's instance domain

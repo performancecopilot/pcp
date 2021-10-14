@@ -192,12 +192,24 @@ do
 	# present (they survive the join above), they need to be skipped
 	# here so that the output is deterministic
 	# 
+	kvm.directed_yield_attempted)		;;
+	kvm.directed_yield_successful)		;;
 	kvm.efer_reload)			;;
+	kvm.guest_mode)				;;
 	kvm.halt_poll_invalid)			;;
 	kvm.halt_successful_poll)		;;
+	kvm.irq_window)				;;
+	kvm.irq_window_exits)			;;
+	kvm.largepages)				;;
+	kvm.l1d_flush)				;;
 	kvm.max_mmu_page_hash_collisions)	;;
 	kvm.mmu_pte_updated)			;;
+	kvm.nested_run)				;;
+	kvm.nmi_window)				;;
+	kvm.nmi_window_exits)			;;
 	kvm.req_event)				;;
+	kvm.request_irq)			;;
+	kvm.request_irq_exits)			;;
 
 	kvm.halt_attempted_poll)		# special case
 	    _within_tolerance $metric $vpcp $vsys 2%

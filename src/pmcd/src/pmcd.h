@@ -207,6 +207,7 @@ extern int DoFetch(ClientInfo *, __pmPDU *);
 extern int DoHighResFetch(ClientInfo *, __pmPDU *);
 extern int DoProfile(ClientInfo *, __pmPDU *);
 extern int DoDesc(ClientInfo *, __pmPDU *);
+extern int DoDescIDs(ClientInfo *, __pmPDU *);
 extern int DoLabel(ClientInfo *, __pmPDU *);
 extern int DoInstance(ClientInfo *, __pmPDU *);
 extern int DoText(ClientInfo *, __pmPDU *);

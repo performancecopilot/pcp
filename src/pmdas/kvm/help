@@ -63,6 +63,15 @@ This counts detected write operations not of individual write operations.
 @ kvm.pf_fixed Number of fixed (non-paging) page table entry (PTE) maps.
 @ kvm.pf_guest Number of page faults injected into guests.
 @ kvm.remote_tlb_flush Number of tlb_flush operations performed by the hypervisor.
-@ kvm.request_irq Number of guest interrupt window request exits.
+@ kvm.request_irq Number of guest interrupt request exits.
 @ kvm.signal_exits Number of guest exits due to pending signals from the host.
 @ kvm.tlb_flush Number of tlb_flush operations performed by the hypervisor.
+@ kvm.irq_window_exits Number of guest interrupt window request exits.
+@ kvm.nmi_window_exits Number of guest non-maskable interrupt exits.
+@ kvm.l1d_flush Number of l1d flush events.
+@ kvm.request_irq_exits Number of guest interrupt request exits.
+@ kvm.req_event Number of request events.
+@ kvm.nested_run Number of nested virtualization run events.
+@ kvm.directed_yield_attempted Number of software scheduler yield attempts.
+@ kvm.directed_yield_successful Number of software scheduler yields.
+@ kvm.guest_mode Boolean indicating the hypervisor is running in guest mode.
