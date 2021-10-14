@@ -218,3 +218,32 @@ __pmHashWalk(__pmHashCtl *hcp, __pmHashWalkState state)
     hcp->next = node->next;
     return node;
 }
+
+/*
+ * free __pmHashNode's and reset the hash table to empty
+ * ... it is assumed the caller has already walked the hash lists
+ * and freed anything hanging off hp->data before calling
+ * __pmHashFree()
+ */
+void
+__pmHashFree(__pmHashCtl *hcp)
+{
+    __pmHashNode	*hp;
+    __pmHashNode	*lhp = NULL;
+    int			i;
+
+    if (hcp->hsize == 0)
+	return;
+
+    for (i = 0; i < hcp->hsize; i++) {
+	for (hp = hcp->hash[i]; hp != NULL; hp = hp->next) {
+	    if (lhp != NULL)
+		free(lhp);
+	    lhp = hp;
+	}
+    }
+    if (lhp != NULL)
+	free(lhp);
+
+    __pmHashClear(hcp);
+}

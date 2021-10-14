@@ -531,6 +531,7 @@ PCP_CALL extern __pmHashNode *__pmHashSearch(unsigned int, __pmHashCtl *);
 PCP_CALL extern int __pmHashAdd(unsigned int, void *, __pmHashCtl *);
 PCP_CALL extern int __pmHashDel(unsigned int, void *, __pmHashCtl *);
 PCP_CALL extern void __pmHashClear(__pmHashCtl *);
+PCP_CALL extern void __pmHashFree(__pmHashCtl *);
 
 
 /*

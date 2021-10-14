@@ -786,4 +786,5 @@ PCP_3.35 {
     __pmDecodeDescs;
     __pmDecodeDescs2;
     __pmDecodeIDList2;
+    __pmHashFree;
 } PCP_3.34;
