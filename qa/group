@@ -1799,6 +1799,7 @@ x11
 1350 pmda.proc local
 1351 pmcd pmda.mmv libpcp pmda local
 1352 other local
+1353 pmlogger pmcpp local
 1354 pmval archive local
 1357 pmda.podman valgrind local
 1358 pmda.podman local
