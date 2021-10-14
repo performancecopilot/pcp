@@ -139,6 +139,13 @@ do_work()
 	}
 	for (j = m = 0; m < numnames; m++) {
 	    printf("ctx[%d]: %s: ", c, namelist[m]);
+	    if (pmidlist[m] != PM_ID_NULL && desclist[m].pmid == PM_ID_NULL) {
+		/* focus on this one failed PMID for detailed diagnostics */
+		if ((sts = pmLookupDesc(pmidlist[m], &desclist[m])) < 0) {
+		    printf("pmLookupDesc: %s\n", pmErrStr(sts));
+		    continue;
+		}
+	    }
 	    if (pmidlist[m] == PM_ID_NULL) {
 		printf("not in PMNS\n");
 		continue;
