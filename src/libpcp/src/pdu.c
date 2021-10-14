@@ -684,7 +684,9 @@ __pmSetPDUCntBuf(unsigned *in, unsigned *out)
 void
 __pmDumpPDUCnt(FILE *f)
 {
-    int	i;
+    int			i;
+    unsigned int	pduin = 0;
+    unsigned int	pduout = 0;
 
     for (i = 0; i <= PDU_MAX; i++) {
 	if (__pmPDUCntIn[i] != 0 || __pmPDUCntOut[i] != 0)
@@ -697,8 +699,11 @@ __pmDumpPDUCnt(FILE *f)
     fprintf(f, "PDU stats ...\n");
     fprintf(f, "%-20.20s %6s %6s\n", "Type", "Xmit", "Recv");
     for (i = 0; i <= PDU_MAX; i++) {
+	pduin += __pmPDUCntIn[i];
+	pduout += __pmPDUCntOut[i];
 	if (__pmPDUCntIn[i] == 0 && __pmPDUCntOut[i] == 0)
 	    continue;
 	fprintf(f, "%-20.20s %6d %6d\n", __pmPDUTypeStr(i+PDU_START), __pmPDUCntOut[i], __pmPDUCntIn[i]);
     }
+    fprintf(f, "%-20.20s %6d %6d\n", "Total", pduout, pduin);
 }
