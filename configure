@@ -862,6 +862,7 @@ pcp_perl_prog
 PERL
 PMDA_BPFTRACE
 PMDA_BPF
+BPFTOOL
 HAVE_LIBELF
 libelf_LIBS
 libelf_CFLAGS
@@ -8243,6 +8244,47 @@ fi
 HAVE_LIBELF=$have_libelf
 
 
+# Extract the first word of "bpftool", so it can be a program name with args.
+set dummy bpftool; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_BPFTOOL+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $BPFTOOL in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_BPFTOOL="$BPFTOOL" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_BPFTOOL="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+BPFTOOL=$ac_cv_path_BPFTOOL
+if test -n "$BPFTOOL"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $BPFTOOL" >&5
+$as_echo "$BPFTOOL" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if the bpf PMDA should be included" >&5
 $as_echo_n "checking if the bpf PMDA should be included... " >&6; }
 pmda_bpf=false
@@ -8252,7 +8294,7 @@ fi
 if test "x$do_pmdabpf" = "xcheck"; then :
 
         if test $clang_major_version -ge 10; then
-        $have_libbpf && $have_libelf && pmda_bpf=true
+        $have_libbpf && $have_libelf && test -n "$BPFTOOL" && pmda_bpf=true
     else
         pmda_bpf=false
     fi

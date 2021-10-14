@@ -2,6 +2,7 @@
 #include <bpf/libbpf.h>
 #include <bpf/bpf.h>
 #include <pcp/pmda.h>
+#include "biolatency.skel.h"
 
 #define NUM_LATENCY_SLOTS 63
 pmdaInstid biolatency_instances[NUM_LATENCY_SLOTS];
@@ -80,25 +81,14 @@ void biolatency_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaIndom
 
 int biolatency_init(dict *cfg, char *module_name)
 {
-    struct bpf_object *bpf_obj;
+    struct biolatency_bpf *bpf_obj;
     char errorstring[1024];
-    struct bpf_program *bpfprg;
-    const char *name;
     int ret;
-    char *bpf_path;
 
-    ret = asprintf(&bpf_path, "%s/bpf/modules/biolatency.bpf.o", pmGetConfig("PCP_PMDAS_DIR"));
-    if (ret <= 0) {
-        pmNotifyErr(LOG_ERR, "could not construct bpf module path");
-        return ret;
-    }
+    bpf_obj = biolatency_bpf__open();
+    pmNotifyErr(LOG_INFO, "booting: %s", bpf_obj->skeleton->name);
 
-    bpf_obj = bpf_object__open(bpf_path);
-    free(bpf_path);
-    name = bpf_object__name(bpf_obj);
-    pmNotifyErr(LOG_INFO, "booting: %s", name);
-
-    ret = bpf_object__load(bpf_obj);
+    ret = biolatency_bpf__load(bpf_obj);
     if (ret == 0) {
         pmNotifyErr(LOG_INFO, "bpf loaded");
     } else {
@@ -108,15 +98,10 @@ int biolatency_init(dict *cfg, char *module_name)
     }
 
     pmNotifyErr(LOG_INFO, "attaching bpf programs");
-    bpfprg = bpf_program__next(NULL, bpf_obj);
-    while (bpfprg != NULL)
-    {
-        bpf_program__attach(bpfprg);
-        bpfprg = bpf_program__next(bpfprg, bpf_obj);
-    }
+    biolatency_bpf__attach(bpf_obj);
     pmNotifyErr(LOG_INFO, "attached!");
 
-    biolatency_fd = bpf_object__find_map_fd_by_name(bpf_obj, "hist");
+    biolatency_fd = bpf_map__fd(bpf_obj->maps.hist);
     if (biolatency_fd >= 0) {
         pmNotifyErr(LOG_INFO, "opened latencies map, fd: %d", biolatency_fd);
     } else {
