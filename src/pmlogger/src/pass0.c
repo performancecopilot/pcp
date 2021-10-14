@@ -21,11 +21,19 @@
 #include <sys/stat.h>
 #include "logger.h"
 
+/*
+ * values for "state" of entry in name cache
+ */
+#define N_UNKNOWN	0
+#define N_TRAVERSE	1
+#define N_LEAF		2
+
 typedef struct cache_entry {
     struct cache_entry	*next;		/* linked list of hash synonyms */
     char		*name;
-    pmID		pmid;		/* PM_ID_NULL if not a known leaf node */
-    pmDesc		desc;		/* .pmid is PM_ID_NULL if not known */
+    pmID		pmid;		
+    pmDesc		desc;
+    int			state;		/* as above */
 } cache_entry_t;
 
 static __pmHashCtl	name_cache;
@@ -83,7 +91,7 @@ fold_string(const char *str)
 }
 
 static void
-cache_add(char *name)
+cache_add(const char *name)
 {
     unsigned int	key = fold_string(name);
     __pmHashNode	*hp;
@@ -111,14 +119,14 @@ cache_add(char *name)
 	head = NULL;
     if ((cep = (cache_entry_t *)malloc(sizeof(cache_entry_t))) == NULL) {
 	fprintf(stderr, "cache_add(%s): cache_entry malloc failed\n", name);
-	cache_free();
 	return;
     }
     if ((cep->name = strdup(name)) == NULL) {
 	fprintf(stderr, "cache_add(%s): name strdup failed\n", name);
-	cache_free();
 	return;
     }
+    /* mark entry as "needs metadata" for cache_bind() */
+    cep->state = N_UNKNOWN;
     if (hp == NULL) {
 	/*
 	 * first with this key
@@ -129,7 +137,6 @@ cache_add(char *name)
 	    fprintf(stderr, "__pmHashAdd: failed for name=%s key=%u: %s\n", name, key, pmErrStr(sts));
 	    free(cep->name);
 	    free(cep);
-	    cache_free();
 	    return;
 	}
 	if (pmDebugOptions.dev0) {
@@ -150,6 +157,9 @@ cache_add(char *name)
     return;
 }
 
+/*
+ * Scan the name cache and try to fetch any missing metadata
+ */
 static void
 cache_bind(void)
 {
@@ -158,28 +168,39 @@ cache_bind(void)
     char		**namelist = NULL;
     pmID		*pmidlist = NULL;
     pmDesc		*desclist = NULL;
+    int			num_to_bind = 0;
     int			i;
     int			sts;
 
-    /* no metrics, nothing to be done */
-    if (num_add == 0)
+    hp = __pmHashWalk(&name_cache, PM_HASH_WALK_START);
+    num_to_bind = 0;
+    while (hp != NULL) {
+	for (cep = (cache_entry_t *)hp->data; cep != NULL; cep = cep->next) {
+	    if (cep->state == N_UNKNOWN)
+		num_to_bind++;
+	}
+	hp = __pmHashWalk(&name_cache, PM_HASH_WALK_NEXT);
+    }
+
+    /* no metrics requiring metadata, nothing to be done */
+    if (num_to_bind == 0)
 	return;
 
-    namelist = (char **)malloc(num_add * sizeof(char *));
+    namelist = (char **)malloc(num_to_bind * sizeof(char *));
     if (namelist == NULL) {
-	fprintf(stderr, "cache_bind(): namelist[%d] malloc failed\n", num_add);
+	fprintf(stderr, "cache_bind(): namelist[%d] malloc failed\n", num_to_bind);
 	goto cleanup;
     }
 
-    pmidlist = (pmID *)malloc(num_add * sizeof(pmID));
+    pmidlist = (pmID *)malloc(num_to_bind * sizeof(pmID));
     if (pmidlist == NULL) {
-	fprintf(stderr, "cache_bind(): pmidlist[%d] malloc failed\n", num_add);
+	fprintf(stderr, "cache_bind(): pmidlist[%d] malloc failed\n", num_to_bind);
 	goto cleanup;
     }
 
-    desclist = (pmDesc *)malloc(num_add * sizeof(pmDesc));
+    desclist = (pmDesc *)malloc(num_to_bind * sizeof(pmDesc));
     if (desclist == NULL) {
-	fprintf(stderr, "cache_bind(): desclist[%d] malloc failed\n", num_add);
+	fprintf(stderr, "cache_bind(): desclist[%d] malloc failed\n", num_to_bind);
 	goto cleanup;
     }
 
@@ -187,21 +208,26 @@ cache_bind(void)
     i = 0;
     while (hp != NULL) {
 	for (cep = (cache_entry_t *)hp->data; cep != NULL; cep = cep->next) {
-	    namelist[i++] = cep->name;
+	    if (cep->state == N_UNKNOWN)
+		namelist[i++] = cep->name;
 	}
 	hp = __pmHashWalk(&name_cache, PM_HASH_WALK_NEXT);
     }
+    if (i != num_to_bind) {
+	/* Snarfoo! */
+	fprintf(stderr, "cache_bind(): setup %d metrics, expecting %d metrics\n", i, num_to_bind);
+    }
 
-    if ((sts = pmLookupName(num_add, (const char **)namelist, pmidlist)) < 0) {
+    if ((sts = pmLookupName(num_to_bind, (const char **)namelist, pmidlist)) < 0) {
 	/*
 	 * if there is a single metric in the config and it is a non-leaf
 	 * (like in QA!), this can happen ...
 	 */
-	if (sts != PM_ERR_NONLEAF || num_add > 1)
+	if (sts != PM_ERR_NONLEAF || num_to_bind > 1)
 	    fprintf(stderr, "cache_bind(): pmLookupName: %s\n", pmErrStr(sts));
 	goto cleanup;
     }
-    if ((sts = pmLookupDescs(num_add, pmidlist, desclist)) < 0) {
+    if ((sts = pmLookupDescs(num_to_bind, pmidlist, desclist)) < 0) {
 	fprintf(stderr, "cache_bind(): pmLookupDecs: %s\n", pmErrStr(sts));
 	goto cleanup;
     }
@@ -210,17 +236,20 @@ cache_bind(void)
     i = 0;
     while (hp != NULL) {
 	for (cep = (cache_entry_t *)hp->data; cep != NULL; cep = cep->next) {
-	    cep->pmid = pmidlist[i]; 
-	    cep->desc = desclist[i];	/* struct assignment */
-	    i++;
+	    if (cep->state == N_UNKNOWN) {
+		cep->pmid = pmidlist[i]; 
+		cep->desc = desclist[i];	/* struct assignment */
+		if (cep->pmid != PM_ID_NULL)
+		    cep->state = N_LEAF;
+		i++;
+	    }
 	}
 	hp = __pmHashWalk(&name_cache, PM_HASH_WALK_NEXT);
     }
-
-    free(namelist);
-    free(pmidlist);
-    free(desclist);
-    return;
+    if (i != num_to_bind) {
+	/* Snarfoo! */
+	fprintf(stderr, "cache_bind(): metadata for %d metrics, expecting %d metrics\n", i, num_to_bind);
+    }
 
 cleanup:
     if (namelist != NULL)
@@ -229,7 +258,6 @@ cleanup:
 	free(pmidlist);
     if (desclist != NULL)
 	free(desclist);
-    cache_free();
     return;
 }
 
@@ -239,17 +267,20 @@ cache_dump(FILE *f)
     __pmHashNode	*hp = __pmHashWalk(&name_cache, PM_HASH_WALK_START);
     cache_entry_t	*cep;
     int			i = 0;
+    char		*sname[] = { "U", "T", "L" };
 
     while (hp != NULL) {
 	fprintf(f, "cache list[%d]: ", i++);
 	for (cep = (cache_entry_t *)hp->data; cep != NULL; cep = cep->next) {
 	    if (cep != (cache_entry_t *)hp->data)
 		fprintf(f, " -> ");
-	    fprintf(f, "\"%s\" %s", cep->name, pmIDStr(cep->pmid));
-	    if (cep->pmid != PM_ID_NULL && cep->desc.pmid != PM_ID_NULL)
-		fprintf(f, " InDom:%s", pmInDomStr(cep->desc.indom));
-	    else
-		fprintf(f, " ???");
+	    fprintf(f, "\"%s\"[%s] %s", cep->name, sname[cep->state], pmIDStr(cep->pmid));
+	    if (cep->state == N_LEAF) {
+		if (cep->desc.pmid == PM_ID_NULL)
+		    fprintf(f, " [no pmDesc]");
+		else
+		    fprintf(f, " InDom:%s", pmInDomStr(cep->desc.indom));
+	    }
 	}
 	fputc('\n', f);
 	hp = __pmHashWalk(&name_cache, PM_HASH_WALK_NEXT);
@@ -272,10 +303,16 @@ cache_lookup(char *name, pmID *pmidp, pmDesc *dp)
     if ((hp = __pmHashSearch(key, &name_cache)) != NULL) {
 	for (cep = (cache_entry_t *)hp->data; cep != NULL; cep = cep->next) {
 	    if (strcmp(cep->name, name) == 0) {
-		if (cep->pmid == PM_ID_NULL || cep->desc.pmid == PM_ID_NULL) {
+		if (cep->state != N_LEAF) {
 		    /* in cache, but not a valid leaf node in the PMNS */
 		    if (pmDebugOptions.appl6)
 			fprintf(stderr, "cache_lookup(%s): in cache, but not a valid leaf node\n", name);
+		    return 0;
+		}
+		if (cep->desc.pmid == PM_ID_NULL) {
+		    /* in cache, a leaf node, but no pmDesc available */
+		    if (pmDebugOptions.appl6)
+			fprintf(stderr, "cache_lookup(%s): in cache, but no pmDesc\n", name);
 		    return 0;
 		}
 		if (pmidp != NULL)
@@ -291,6 +328,58 @@ cache_lookup(char *name, pmID *pmidp, pmDesc *dp)
     if (pmDebugOptions.appl6)
 	fprintf(stderr, "cache_lookup(%s): not in cache\n", name);
     return 0;
+}
+
+/*
+ * Walk the name cache and any metric "name" that still does not have
+ * metadata (after pass0()) is a potential non-leaf name in the PMNS
+ * ... so traverse and add anything you find to the name cache, then
+ * try to fetch the metadata for these additional metrics
+ */
+static void
+pass1(void)
+{
+    __pmHashNode	*hp;
+    cache_entry_t	*cep;
+    int			sts;
+
+    /* first mark the ones we're "traversing" ... */
+    hp = __pmHashWalk(&name_cache, PM_HASH_WALK_START);
+    while (hp != NULL) {
+	for (cep = (cache_entry_t *)hp->data; cep != NULL; cep = cep->next) {
+	    if (cep->state == N_UNKNOWN)
+		cep->state = N_TRAVERSE;
+	}
+	hp = __pmHashWalk(&name_cache, PM_HASH_WALK_NEXT);
+    }
+
+    hp = __pmHashWalk(&name_cache, PM_HASH_WALK_START);
+    while (hp != NULL) {
+	for (cep = (cache_entry_t *)hp->data; cep != NULL; cep = cep->next) {
+	    if (cep->state == N_TRAVERSE) {
+		/*
+		 * failure is sort of expected here, especially if the
+		 * name really is not in the PMNS ...
+		 */
+		sts = pmTraversePMNS(cep->name, cache_add);
+		if (sts != PM_ERR_NAME && pmDebugOptions.appl6)
+		    fprintf(stderr, "pass1: traverse(%s): %s\n", cep->name, pmErrStr(sts));
+	    }
+	}
+	hp = __pmHashWalk(&name_cache, PM_HASH_WALK_NEXT);
+	}
+
+    cache_bind();
+
+    /* and reset the state ... */
+    hp = __pmHashWalk(&name_cache, PM_HASH_WALK_START);
+    while (hp != NULL) {
+	for (cep = (cache_entry_t *)hp->data; cep != NULL; cep = cep->next) {
+	    if (cep->state == N_TRAVERSE)
+		cep->state = N_UNKNOWN;
+	}
+	hp = __pmHashWalk(&name_cache, PM_HASH_WALK_NEXT);
+    }
 }
 
 /*
@@ -439,6 +528,11 @@ pass0(FILE *fpipe)
      * Now fetch the metadata ...
      */
     cache_bind();
+
+    /*
+     * Now deal with the non-leaf nodes in the PMNS
+     */
+    pass1();
 
     if (pmDebugOptions.appl6)
 	cache_dump(stderr);

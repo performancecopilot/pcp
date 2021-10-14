@@ -1207,6 +1207,9 @@ main(int argc, char **argv)
     fclose(yyin);
     yyend();
 
+    /* no further need for the pass0 name cache */
+    cache_free();
+
     fprintf(stderr, "Config parsed\n");
 
     if (pmDebugOptions.appl4) {
