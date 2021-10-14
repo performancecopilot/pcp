@@ -3,11 +3,18 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM	= bpf
 MODULES	= biolatency.so runqlat.so
-BPF_MODULES = biolatency.bpf.o runqlat.bpf.o 
 MODULETMP = $(PCP_PMDAS_DIR)/$(IAM)/modules
 MODULEDIR = $(PCP_PMDASADM_DIR)/$(IAM)/modules
 
+default_pcp default:	$(MODULES)
+
 include $(BUILDRULES)
+
+install_pcp install:	default
+	$(INSTALL) -m 755 -d $(MODULEDIR)
+	$(INSTALL) -m 755 -d $(MODULETMP)
+	$(INSTALL) -m 644 -t $(MODULETMP) $(MODULES) $(MODULEDIR)
+
 
 # Use the clang pipeline to emit LLVM to LLD and emit BPF straight to an ELF .o.
 # The GCC pipeline has parts of this but not completely, and in any case, likely
@@ -18,11 +25,16 @@ include $(BUILDRULES)
 #
 # clang-12 special notes: https://www.spinics.net/lists/netdev/msg689901.html
 
-.PHONY: .FORCE
-FORCE:
+%.bpf.o: %.bpf.c
+	$(BPF_CLANG) -Wall -g -O2 -target bpf -D__TARGET_ARCH_x86 -c $< -o $@
+	$(BPF_LLVM_STRIP) -g $@
 
-%.bpf.o: %.bpf.c FORCE
-	$(BPF_CLANG) -Wall -g -O2 -target bpf -D__TARGET_ARCH_x86 -c $< -o $@ && $(BPF_LLVM_STRIP) -g $@
+%.skel.h: %.bpf.o
+	$(BPFTOOL) gen skeleton $< > $@
+
+%.o: %.c
+%.o: %.c %.skel.h
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 
 # ifeq "$(CLANG_MAJOR_VERSION)" "12"
 # %.bpf.o: %.bpf.c FORCE
@@ -38,12 +50,5 @@ FORCE:
 %.so: %.o
 	$(LINK.c) -lbpf -shared $^ -o $@
 
-default_pcp default:	$(MODULES) $(BPF_MODULES)
-
-install_pcp install:	default
-	$(INSTALL) -m 755 -d $(MODULEDIR)
-	$(INSTALL) -m 755 -d $(MODULETMP)
-	$(INSTALL) -m 644 -t $(MODULETMP) $(MODULES) $(BPF_MODULES) $(MODULEDIR)
-
 clean::
-	rm -f $(MODULES) $(BPF_MODULES)
+	rm -f $(MODULES) *.o *.skel.h

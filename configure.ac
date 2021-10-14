@@ -1160,13 +1160,15 @@ AC_SUBST(HAVE_LIBBPF, [$have_libbpf])
 PKG_CHECK_MODULES([libelf], [libelf], [have_libelf=true], [have_libelf=false])
 AC_SUBST(HAVE_LIBELF, [$have_libelf])
 
+AC_PATH_PROG(BPFTOOL, bpftool)
+
 AC_MSG_CHECKING([if the bpf PMDA should be included])
 pmda_bpf=false
 AS_IF([test "x$do_pmdabpf" = "xyes"], [pmda_bpf=true])
 AS_IF([test "x$do_pmdabpf" = "xcheck"], [
-    dnl pmdabpf requires libbpf and libelf
+    dnl pmdabpf requires libbpf, libelf and bpftool
     if test $clang_major_version -ge 10; then
-        $have_libbpf && $have_libelf && pmda_bpf=true
+        $have_libbpf && $have_libelf && test -n "$BPFTOOL" && pmda_bpf=true
     else
         pmda_bpf=false
     fi

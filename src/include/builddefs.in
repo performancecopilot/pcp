@@ -231,6 +231,7 @@ MD5SUM	= @md5sum@
 INKSCAPE = @inkscape@
 BPF_CLANG = @bpf_clang@
 BPF_LLVM_STRIP = @bpf_llvm_strip@
+BPFTOOL = @BPFTOOL@
 
 HAVE_MANPAGES = @have_manpages@
 HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@

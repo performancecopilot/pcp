@@ -16,6 +16,7 @@ bash
 bc
 bind-utils
 bison
+bpftool
 bpftrace
 chan-devel
 clang
