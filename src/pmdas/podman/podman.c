@@ -13,7 +13,7 @@
  */
 #include <ctype.h>
 #include "podman.h"
-#include "jsonsl.h"
+#include <jsonsl/jsonsl.h>
 #include "pmhttp.h"
 #include "http_client.h"
 #include "http_parser.h"

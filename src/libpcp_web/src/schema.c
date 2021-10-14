@@ -1786,8 +1786,8 @@ pmDiscoverSetupMetrics(pmDiscoverModule *module)
     pmUnits		secondsunits = MMV_UNITS(0,1,0,0,PM_TIME_SEC,0);
     void		*map;
 
-    if (data == NULL || data->metrics == NULL)
-    	return; /* no metric registry has been set up */
+    if (data == NULL || data->registry == NULL)
+	return;	/* no metric registry has been set up */
 
     mmv_stats_add_metric(data->registry, "monitored", 1,
 	MMV_TYPE_U64, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,

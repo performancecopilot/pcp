@@ -18,6 +18,10 @@ include $(TOPDIR)/src/include/builddefs
 REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
 REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 
+INIH_HFILES = $(addprefix deps/inih/, ini.h)
+INIH_CFILES = $(addprefix deps/inih/, ini.c)
+INIH_XFILES = $(INIH_HFILES) $(INIH_CFILES)
+
 HIREDIS_HFILES = $(addprefix deps/hiredis/, \
 	alloc.h async.h async_private.h fmacros.h hiredis.h net.h \
 	read.h sockcompat.h win32.h adapters/libuv.h)
@@ -34,16 +38,17 @@ HIREDIS_CLUSTER_XFILES = $(HIREDIS_CLUSTER_HFILES) $(HIREDIS_CLUSTER_CFILES)
 
 CFILES = jsmn.c http_client.c http_parser.c sds.c siphash.c \
 	 query.c schema.c load.c sha1.c util.c slots.c \
-	 redis.c dict.c ini.c maps.c batons.c encoding.c \
+	 redis.c dict.c maps.c batons.c encoding.c \
 	 search.c json_helpers.c config.c \
-	 $(HIREDIS_CFILES) $(HIREDIS_CLUSTER_CFILES)
+	 $(HIREDIS_CFILES) $(HIREDIS_CLUSTER_CFILES) $(INIH_CFILES)
 HFILES = jsmn.h http_client.h http_parser.h sdsalloc.h zmalloc.h \
 	 query.h schema.h load.h sha1.h util.h slots.h \
-	 redis.h dict.h ini.h maps.h batons.h encoding.h \
-	 search.h discover.h private.h
+	 redis.h dict.h maps.h batons.h encoding.h \
+	 search.h discover.h private.h \
+	 $(HIREDIS_HFILES) $(HIREDIS_CLUSTER_HFILES) $(INIH_HFILES)
 YFILES = query_parser.y
 XFILES = jsmn.c jsmn.h http_parser.c http_parser.h \
-	 sha1.c sha1.h sds.c siphash.c dict.c dict.h ini.c ini.h
+	 sha1.c sha1.h sds.c siphash.c dict.c dict.h
 
 LLDLIBS = $(PCPWEBLIB_EXTRAS) $(LIB_FOR_MATH)
 ifeq "$(TARGET_OS)" "mingw"
@@ -88,9 +93,9 @@ SYMTARGET =
 endif
 
 VERSION_SCRIPT = exports
-LDIRT = $(XFILES) $(HIREDIS_XFILES) $(HIREDIS_CLUSTER_XFILES) $(YFILES:%.y=%.tab.?)
+LDIRT = $(XFILES) $(HIREDIS_XFILES) $(HIREDIS_CLUSTER_XFILES) $(INIH_XFILES) $(YFILES:%.y=%.tab.?)
 
-default: $(XFILES) $(HIREDIS_XFILES) $(HIREDIS_CLUSTER_XFILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+default: $(XFILES) $(HIREDIS_XFILES) $(HIREDIS_CLUSTER_XFILES) $(INIH_XFILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
 include $(BUILDRULES)
 
@@ -115,6 +120,9 @@ endif
 
 $(XFILES):
 	$(LN_S) -f $(TOPDIR)/src/external/$@ $@
+$(INIH_XFILES):
+	mkdir -p deps/inih
+	$(LN_S) -f $(realpath $(TOPDIR))/vendor/github.com/benhoyt/$(@:deps/%=%) $@
 $(HIREDIS_XFILES):
 	mkdir -p deps/hiredis/adapters
 	$(LN_S) -f $(realpath $(TOPDIR))/vendor/github.com/redis/$(@:deps/%=%) $@
@@ -131,7 +139,7 @@ default_pcp:	default
 install_pcp:	install
 
 ifneq ($(LIBTARGET),)
-$(LIBTARGET): $(VERSION_SCRIPT) $(XFILES) $(HIREDIS_XFILES) $(HIREDIS_CLUSTER_XFILES)
+$(LIBTARGET): $(VERSION_SCRIPT) $(XFILES) $(HIREDIS_XFILES) $(HIREDIS_CLUSTER_XFILES) $(INIH_XFILES)
 endif
 
 jsmn.o:		jsmn.c jsmn.h

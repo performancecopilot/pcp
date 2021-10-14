@@ -1,5 +1,6 @@
-Lightweight JSON parser
-    - https://github.com/mnunberg/jsonsl
+If possible add externally maintained code below 'vendor'
+at the top level in the PCP git repo.  See 'CONTRIBUTING'
+file for details.
 
 Lightweight HTTP parser
     - https://github.com/nodejs/http-parser/
@@ -13,14 +14,8 @@ hash (portable performant hash function)
 crc16, dict, sds, sha1, sha256 (hash and string helpers)
     - https://github.com/redis/redis/blob/6.0/src
 
-Lightweight .ini file parser
-    - https://github.com/benhoyt/inih/
-
 Callback functions on main libuv thread
     - https://github.com/litesync/uv_callback
 
 atop (system and process monitor)
     - https://github.com/Atoptool/atop
-
-htop (interactive process viewer)
-    - https://github.com/htop-dev/htop

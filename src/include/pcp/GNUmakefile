@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2019 Red Hat.
+# Copyright (c) 2013-2019,2021 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -17,14 +17,15 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
+INIH_HFILES = ini.h
+EXTERNAL_HFILES = sds.h dict.h
 HFILES = pmapi.h impl.h pmda.h pmtime.h pmdaroot.h pmafm.h \
 	 trace.h trace_dev.h mmv_stats.h mmv_dev.h import.h \
 	 config32.h config64.h platform32.h platform64.h \
-	 pmjson.h pmhttp.h pmdbg.h pmwebapi.h sds.h dict.h \
-	 ini.h deprecated.h
+	 pmjson.h pmhttp.h pmdbg.h pmwebapi.h deprecated.h \
+	 $(INIH_HFILES) $(EXTERNAL_HFILES)
 INFILES = config.h.in configsz.h.in platform_defs.h.in platformsz.h.in
 CONFFILES = config.h configsz.h platform_defs.h platformsz.h
-EXTERNAL_HFILES = sds.h dict.h ini.h
 GENERATED_HFILES = $(CONFFILES)
 NOSHIP_HFILES = libpcp.h
 
@@ -32,7 +33,7 @@ LDIRT = $(GENERATED_HFILES)
 
 default :: default_pcp
 
-default_pcp : $(HEADERS) $(GENERATED_HFILES) $(EXTERNAL_HFILES)
+default_pcp : $(HEADERS) $(GENERATED_HFILES) $(INIH_HFILES) $(EXTERNAL_HFILES)
 	@if grep HAVE_64BIT config.h.in >/dev/null; then \
 	   echo "HAVE_64 in config.h.in; move to configsz.h.in for multilib." \
 	   "This requires manual intervention after running an 'autoreconf'." \
@@ -50,6 +51,8 @@ include $(BUILDRULES)
 
 $(EXTERNAL_HFILES):
 	$(LN_S) -f $(TOPDIR)/src/external/$@ .
+$(INIH_HFILES):
+	$(LN_S) -f $(TOPDIR)/vendor/github.com/benhoyt/inih/$@ .
 
 install :: default_pcp install_pcp
 

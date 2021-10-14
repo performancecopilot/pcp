@@ -1,24 +1,6 @@
-/*
- * Copyright (c) 2012-2015 M. Nunberg, mnunberg@haskalah.org
+/* Copyright (C) 2012-2015 Mark Nunberg.
  *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * See included LICENSE file for license details.
  */
 
 #include "jsonsl.h"
@@ -826,7 +808,7 @@ populate_component(char *in,
         /* Lone wildcard */
         ret = JSONSL_PATH_WILDCARD;
         goto GT_RET;
-    } else if (isdigit((int)(*in))) {
+    } else if (isdigit(*in)) {
         /* ASCII Numeric */
         char *endptr;
         component->idx = strtoul(in, &endptr, 10);
@@ -852,7 +834,7 @@ populate_component(char *in,
             *errp = JSONSL_ERROR_PERCENT_BADHEX;
             return JSONSL_PATH_INVALID;
         }
-        if (! (isxdigit((int)(*(c+1))) && isxdigit((int)(*(c+2)))) ) {
+        if (! (isxdigit(*(c+1)) && isxdigit(*(c+2))) ) {
             *errp = JSONSL_ERROR_PERCENT_BADHEX;
             return JSONSL_PATH_INVALID;
         }

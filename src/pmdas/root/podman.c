@@ -15,9 +15,9 @@
 #include "pmapi.h"
 #include "pmda.h"
 #include "root.h"
-#include "jsonsl.h"
 #include "libpcp.h"
 #include "podman.h"
+#include <jsonsl/jsonsl.h>
 
 /*
  * Container implementation for the podman engine
