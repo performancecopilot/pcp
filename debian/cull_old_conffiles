@@ -8,6 +8,7 @@ then
 	    /etc/cron.d/pcp-pmie \
 	    /etc/cron.d/pcp-pmlogger \
 	    /etc/cron.d/pcp-pmlogger-daily-report \
+	    /etc/pcp.sh \
 	    /etc/pcp/htop/columns/container \
 	    /etc/pcp/htop/columns/delayacct \
 	    /etc/pcp/htop/columns/fdcount \
