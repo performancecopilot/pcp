@@ -289,19 +289,19 @@ __dmgetpmid: metric "testme.sub.sub.three" -> Unknown metric name
 __dmgetpmid: metric "testme.big" -> PMID 511.0.3
 __dmgetpmid: metric "testme.lights" -> PMID 511.0.4
 __dmgetpmid: metric "testme.bigbin" -> Unknown metric name
+__dmgetpmid: metric "testme.big" -> PMID 511.0.3
+__dmbind: bind metric[2] testme.big
+__dmgetpmid: metric "testme.lights" -> PMID 511.0.4
+__dmbind: bind metric[3] testme.lights
 ctx[0]: testme.one: not in PMNS
 ctx[0]: testme.two: not in PMNS
 ctx[0]: testme.sub.two: not in PMNS
 ctx[0]: testme.three: not in PMNS
 ctx[0]: testme.sub.three: not in PMNS
 ctx[0]: testme.sub.sub.three: not in PMNS
-__dmgetpmid: metric "testme.big" -> PMID 511.0.3
-__dmbind: bind metric[2] testme.big
 ctx[0]: testme.big: 
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-__dmgetpmid: metric "testme.lights" -> PMID 511.0.4
-__dmbind: bind metric[3] testme.lights
 ctx[0]: testme.lights: 
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
