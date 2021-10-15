@@ -1241,7 +1241,7 @@ x11
 792 libpcp local pmdbg
 793 logutil local kernel pmlc
 794 containers pmcd pmda.pmcd local
-795 pmimport pmdumplog perl local
+795:retired pmimport pmdumplog perl local
 796 pmda.elasticsearch local
 797 pmlogrewrite local pmdumplog
 798 pmda.nfsclient local python dbpmda
