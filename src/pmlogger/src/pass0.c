@@ -123,6 +123,7 @@ cache_add(const char *name)
     }
     if ((cep->name = strdup(name)) == NULL) {
 	fprintf(stderr, "cache_add(%s): name strdup failed\n", name);
+	free(cep);
 	return;
     }
     /* mark entry as "needs metadata" for cache_bind() */
@@ -430,6 +431,7 @@ pass0(FILE *fpipe)
     char	name[1024];
 #if HAVE_MKSTEMP
     char	tmp[MAXPATHLEN];
+    mode_t	mode;
 #endif
     char	*tmpfname;
     char	*p;
@@ -438,7 +440,9 @@ pass0(FILE *fpipe)
 
 #if HAVE_MKSTEMP
     pmsprintf(tmp, sizeof(tmp), "%s%cpmlogger_configXXXXXX", pmGetConfig("PCP_TMPFILE_DIR"), pmPathSeparator());
+    mode = umask(0177);
     fd = mkstemp(tmp);
+    umask(mode);
     tmpfname = tmp;
 #else
     if ((tmpfname = tmpnam(NULL)) != NULL)
