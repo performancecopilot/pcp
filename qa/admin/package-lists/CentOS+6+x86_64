@@ -4,7 +4,6 @@
 389-ds-base
 Net::SNMP cpan
 Spreadsheet::Read cpan
-Spreadsheet::ReadSXC cpan
 Spreadsheet::WriteExcel cpan
 Spreadsheet::XLSX cpan
 Text::CSV_XS cpan

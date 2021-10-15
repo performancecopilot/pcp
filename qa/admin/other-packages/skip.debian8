@@ -1,6 +1,5 @@
 # for vagrant, these are the packages we don't want to install
 avahi-tools
-cpan(Spreadsheet::ReadSXC)
 cpan(Text::CSV_XS)
 docker.io
 libspreadsheet-readsxc-perl

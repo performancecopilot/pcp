@@ -106,7 +106,7 @@ NetBSD       8\.0     -       py27-{.*} dtrace
 # qtsvg is not needed without Qt5
 # valgrind is available, but segv's
 # we're using python3
-OpenBSD      6\.[3-7] -       qtbase qtsvg valgrind python-{.*} {.*}-python cpan(Spreadsheet::ReadSXC) cpan(XML::TokeParser)
+OpenBSD      6\.[3-7] -       qtbase qtsvg valgrind python-{.*} {.*}-python cpan(XML::TokeParser)
 #-- RedHat
 # we're using python2
 # As of 8.2 ...
