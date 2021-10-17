@@ -225,11 +225,19 @@ cache_bind(void)
 	 * (like in QA!), this can happen ...
 	 */
 	if (sts != PM_ERR_NONLEAF || num_to_bind > 1)
-	    fprintf(stderr, "cache_bind(): pmLookupName: %s\n", pmErrStr(sts));
+	    fprintf(stderr, "cache_bind(): pmLookupName(%d, ...): %s\n", num_to_bind, pmErrStr(sts));
+	if (sts == PM_ERR_IPC) {
+	    fprintf(stderr, "cache_bind(): Arrgh: lost connection to pmcd, giving up!\n");
+	    exit(1);
+	}
 	goto cleanup;
     }
     if ((sts = pmLookupDescs(num_to_bind, pmidlist, desclist)) < 0) {
-	fprintf(stderr, "cache_bind(): pmLookupDecs: %s\n", pmErrStr(sts));
+	fprintf(stderr, "cache_bind(): pmLookupDecs(%d, ...): %s\n", num_to_bind, pmErrStr(sts));
+	if (sts == PM_ERR_IPC) {
+	    fprintf(stderr, "cache_bind(): Arrgh: lost connection to pmcd, giving up!\n");
+	    exit(1);
+	}
 	goto cleanup;
     }
 
@@ -364,7 +372,11 @@ pass1(void)
 		 */
 		sts = pmTraversePMNS(cep->name, cache_add);
 		if (sts != PM_ERR_NAME && pmDebugOptions.appl6)
-		    fprintf(stderr, "pass1: traverse(%s): %s\n", cep->name, pmErrStr(sts));
+		    fprintf(stderr, "pass1: traverse(%s, ...): %s\n", cep->name, pmErrStr(sts));
+		if (sts == PM_ERR_IPC) {
+		    fprintf(stderr, "pass1(): Arrgh: lost connection to pmcd, giving up!\n");
+		    exit(1);
+		}
 	    }
 	}
 	hp = __pmHashWalk(&name_cache, PM_HASH_WALK_NEXT);
