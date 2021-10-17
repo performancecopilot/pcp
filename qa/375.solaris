@@ -204,6 +204,12 @@ pmcd.pdu_in.label_req
 pmcd.pdu_in.label
     adv  off nl             
 
+pmcd.pdu_in.desc_ids
+    adv  off nl             
+
+pmcd.pdu_in.descs
+    adv  off nl             
+
 pmcd.agent.type
     mand on             once [75 or "solaris"]
     mand on             once [2 or "pmcd"]
