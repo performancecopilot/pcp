@@ -1915,7 +1915,9 @@ pmLookupName_ctx(__pmContext *ctxp, int derive_locked, int numpmid, const char *
 		    sum_length += length;
 		}
 		num = j - base;
-fprintf(stderr, "batch: %d ... %d\n", base, base+num-1);
+		if (pmDebugOptions.pmns) {
+		    fprintf(stderr, "pmNameLookup: do sublist [%d] %s ... [%d] %s\n", base, namelist[base], base+num-1, namelist[base+num-1]);
+		}
 	    }
 	    sts = __pmSendNameList(ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp),
 		    num, &namelist[base], NULL);
