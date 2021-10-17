@@ -33,6 +33,7 @@ pminfo \
 echo "}" >>$tmp.config
 
 pmlogger -l $tmp.log -c $tmp.config -s 1 $tmp
+cat $tmp.log >>$seq.full
 
 echo "values in the archive ..." >>$seq.full
 textgrep=""

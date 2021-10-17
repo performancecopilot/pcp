@@ -1245,7 +1245,7 @@ x11
 796 pmda.elasticsearch local
 797 pmlogrewrite local pmdumplog
 798 pmda.nfsclient local python dbpmda
-799 pmlogrewrite local
+799 pmlogrewrite local pmlogger
 800 pmda.proc pmda.hotproc local dbpmda
 801 pmda.netfilter local
 802 pmda valgrind dbpmda local

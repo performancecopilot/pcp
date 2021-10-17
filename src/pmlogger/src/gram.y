@@ -256,7 +256,10 @@ metricspec	: NAME
 					"... logging not activated", metricName);
 				yywarn(emess);
 				fprintf(stderr, "Reason: %s\n", pmErrStr(sts));
-
+				if (sts == PM_ERR_IPC) {
+				    fprintf(stderr, "Arrgh, giving up!\n");
+				    exit(1);
+				}
 			    }
 
 			    /*
@@ -593,6 +596,10 @@ nomem:
 snarf:
     yywarn(emess);
     fprintf(stderr, "Reason: %s\n", pmErrStr(sts));
+    if (sts == PM_ERR_IPC) {
+	fprintf(stderr, "Arrgh: lost connection to pmcd, giving up!\n");
+	exit(1);
+    }
     if (dp != NULL)
         free(dp);
     return;
