@@ -105,6 +105,7 @@ SHOWME=false
 MV=mv
 CP=cp
 LN=ln
+RM=rm
 KILL=pmsignal
 TERSE=false
 VERBOSE=false
@@ -114,6 +115,7 @@ START_PMLOGGER=true
 STOP_PMLOGGER=false
 QUICKSTART=false
 SKIP_PRIMARY=false
+ONLY_PRIMARY=false
 
 echo > $tmp/usage
 cat >> $tmp/usage << EOF
@@ -123,6 +125,7 @@ Options:
   -C                      query system service runlevel information
   -N,--showme             perform a dry run, showing what would be done
   -p,--skip-primary       do not start or stop the primary pmlogger instance
+  -P,--only-primary       only start or stop the primary pmlogger, no others
   -q,--quick              quick start, no compression
   -s,--stop               stop pmlogger processes instead of starting them
   -T,--terse              produce a terser form of output
@@ -161,6 +164,8 @@ do
 		daily_args="${daily_args} -N"
 		;;
 	-p)	SKIP_PRIMARY=true
+		;;
+	-P)	ONLY_PRIMARY=true
 		;;
 	-q)	QUICKSTART=true
 		;;
@@ -380,27 +385,32 @@ _configure_pmlogger()
 	if [ $magic -eq 0 -a $owned -eq 0 -a $skip = 0 ]
 	then
 	    # pmlogconf file that we own, see if re-generation is needed
-	    cp "$configfile" "$tmpconfig"
-	    if $PMLOGCONF -r -c -q -h $hostname "$tmpconfig" </dev/null >$tmp/diag 2>&1
+	    eval $CP "$configfile" "$tmpconfig"
+	    if $SHOWME
 	    then
-		if grep 'No changes' $tmp/diag >/dev/null 2>&1
-		then
-		    :
-		elif [ -w "$configfile" ]
-		then
-		    $VERBOSE && echo "Reconfigured: \"$configfile\" (pmlogconf)"
-		    chown $PCP_USER:$PCP_GROUP "$tmpconfig" >/dev/null 2>&1
-		    eval $MV "$tmpconfig" "$configfile"
-		else
-		    _warning "no write access to pmlogconf file \"$configfile\", skip reconfiguration"
-		    ls -l "$configfile"
-		fi
+		echo + $PMLOGCONF -r -c -q -h $hostname "$tmpconfig"
 	    else
-		_warning "pmlogconf failed to reconfigure \"$configfile\""
-		sed -e "s;$tmpconfig;$configfile;g" $tmp/diag
-		echo "=== start pmlogconf file ==="
-		cat "$tmpconfig"
-		echo "=== end pmlogconf file ==="
+		if $PMLOGCONF -r -c -q -h $hostname "$tmpconfig" </dev/null >$tmp/diag 2>&1
+		then
+		    if grep 'No changes' $tmp/diag >/dev/null 2>&1
+		    then
+			:
+		    elif [ -w "$configfile" ]
+		    then
+			$VERBOSE && echo "Reconfigured: \"$configfile\" (pmlogconf)"
+			chown $PCP_USER:$PCP_GROUP "$tmpconfig" >/dev/null 2>&1
+			eval $MV "$tmpconfig" "$configfile"
+		    else
+			_warning "no write access to pmlogconf file \"$configfile\", skip reconfiguration"
+			ls -l "$configfile"
+		    fi
+		else
+		    _warning "pmlogconf failed to reconfigure \"$configfile\""
+		    sed -e "s;$tmpconfig;$configfile;g" $tmp/diag
+		    echo "=== start pmlogconf file ==="
+		    cat "$tmpconfig"
+		    echo "=== end pmlogconf file ==="
+		fi
 	    fi
 	    rm -f "$tmpconfig"
 	fi
@@ -541,10 +551,13 @@ _check_logger()
 	    # then we know pmlogger has started ... if not just sleep and
 	    # try again
 	    #
-	    if echo "connect $1" | pmlc 2>&1 | grep "Unable to connect" >/dev/null
+	    # may need to wait for pmlogger to get going ... logic here
+	    # is based on _wait_for_pmlogger() in qa/common.check
+	    #
+	    if echo status | pmlc "$1" 2>&1 \
+		    | grep "^Connected to .*pmlogger" >/dev/null
 	    then
-		:
-	    else
+		# pmlogger socket has been set up ...
 		$VERBOSE && echo " done"
 		return 0
 	    fi
@@ -714,12 +727,21 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    continue
 	fi
 
-	# if -s/--skip-primary on the command line, do not process
+	# if -p/--skip-primary on the command line, do not process
 	# a control file line for the primary pmlogger
 	#
 	if $SKIP_PRIMARY && [ $primary = y ]
 	then
-	    $VERY_VERBOSE && echo "Skip, -s/--skip-primary on command line"
+	    $VERY_VERBOSE && echo "Skip, -p/--skip-primary on command line"
+	    continue
+	fi
+
+	# if -P/--only-primary on the command line, only process
+	# the control file line for the primary pmlogger
+	#
+	if $ONLY_PRIMARY && [ $primary != y ]
+	then
+	    $VERY_VERBOSE && echo "Skip non-primary, -P/--only-primary on command line"
 	    continue
 	fi
 

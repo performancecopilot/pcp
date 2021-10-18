@@ -17,7 +17,7 @@ Some examples:
 
     autoconf
     # mumble
-    Spreadsheet::ReadSXC cpan	# don't need to install this
+    Some_Random::Package cpan	# don't need to install this
 
 Some standard "tags" and their meaning:
 

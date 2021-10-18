@@ -216,6 +216,11 @@ int		get_instances(const char *, int, struct pmDesc *, int **, char ***);
 int		fetch_instances(const char *, int, struct pmDesc *, int **, char ***);
 int		get_instance_index(pmResult *, int, int);
 
+void		add_username(int, const char *);
+void		add_groupname(int, const char *);
+char		*get_username(int);
+char		*get_groupname(int);
+
 struct sstat	*sstat_alloc(const char *);
 void		sstat_reset(struct sstat *);
 

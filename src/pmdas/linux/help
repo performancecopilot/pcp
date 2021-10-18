@@ -1963,6 +1963,10 @@ See also the kernel.uname.* metrics
 @ hinv.cpu.thermal_throttle.core.time CPU core throttle time from /sys/devices/system/cpu/*/thermal_throttle
 @ hinv.cpu.thermal_throttle.package.count CPU package throttles from /sys/devices/system/cpu/*/thermal_throttle
 @ hinv.cpu.thermal_throttle.package.time CPU package throttle time from /sys/devices/system/cpu/*/thermal_throttle
+@ hinv.cpu.frequency_scaling.count CPU frequency scaled count from /sys/devices/system/cpu/*/cpufreq
+@ hinv.cpu.frequency_scaling.time CPU frequency scaled time from /sys/devices/system/cpu/*/cpufreq
+@ hinv.cpu.frequency_scaling.max Minimum scaled CPU frequency from /sys/devices/system/cpu/*/cpufreq
+@ hinv.cpu.frequency_scaling.min Maximum scaled CPU frequency from /sys/devices/system/cpu/*/cpufreq
 @ kernel.all.hz value of HZ (jiffies/second) for the currently running kernel
 @ kernel.all.uptime time the current kernel has been running
 @ kernel.all.idletime time the current kernel has been idle since boot

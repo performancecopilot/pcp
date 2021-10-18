@@ -26,16 +26,19 @@ PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
 LLDLIBS		= $(PCP_WEBLIB)
 
-CFILES		= podman.c jsonsl.c pmda.c
-HFILES		= podman.h jsonsl.h
-EXT_FILES	= jsonsl.c jsonsl.h
+JSONSL_HFILES	= $(addprefix deps/jsonsl/, jsonsl.h)
+JSONSL_CFILES	= $(addprefix deps/jsonsl/, jsonsl.c)
+JSONSL_XFILES	= $(JSONSL_HFILES) $(JSONSL_CFILES)
 
-LCFLAGS		= -I$(TOPDIR)/src/libpcp_web/src
+CFILES		= $(JSONSL_CFILES) podman.c pmda.c
+HFILES		= $(JSONSL_HFILES) podman.h
+
+LCFLAGS		= -I$(TOPDIR)/src/libpcp_web/src -Ideps
 
 SCRIPTS		= Install Remove
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
-LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT)  $(EXT_FILES)
+LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(JSONSL_XFILES)
 
 MAN_SECTION	= 1
 MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
@@ -46,7 +49,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(PMDA_PODMAN)" "true"
-build-me: $(EXT_FILES) $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
+build-me: $(JSONSL_XFILES) $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
@@ -60,8 +63,9 @@ build-me:
 install:
 endif
 
-$(EXT_FILES):
-	$(LN_S) $(TOPDIR)/src/external/$@ .
+$(JSONSL_XFILES):
+	mkdir -p deps/jsonsl
+	$(LN_S) -f $(realpath $(TOPDIR))/vendor/github.com/mnunberg/$(@:deps/%=%) $@
 
 default_pcp : default
 

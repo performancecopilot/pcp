@@ -1,0 +1,90 @@
+#!/bin/sh
+# PCP QA Test No. 1346
+# Some basic pmcpp sanity checks
+# non-valgrind variant, see qa/1348 for the valgrind variant
+#
+# Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+cat <<'End-of-File' >$tmp.inc
+# comment
+#define four 4
+End-of-File
+cat <<End-of-File >$tmp.in
+expect the next non-control line to contain just "3"
+#shell "echo one two three | wc -w | sed -e 's/ //g'"
+#include "$tmp.inc"
+expect the next line to contain just "4"
+four
+expect the next non-blank line to contain just "5"
+#ifdef five
+bozo
+#else
+5
+#endif
+expect the next non-blank line to contain just "6"
+#ifndef five
+6
+#endif
+End-of-File
+
+if $do_valgrind
+then
+    _run_valgrind pmcpp $tmp.in \
+    | sed -e "s@$tmp@TMP@g"
+else
+    echo "Usage test ..."
+    pmcpp one two three
+    echo
+    echo "Do some work and check [outfile] logic ..."
+    pmcpp $tmp.in | sed -e "s@$tmp@TMP@g" >$tmp.out
+    pmcpp $tmp.in $tmp.tmp
+    if sed -e "s@$tmp@TMP@g" $tmp.tmp | diff $tmp.out -
+    then
+	echo "... all good"
+	cat $tmp.out
+    else
+	echo "Arrgh ... see $seq.full"
+	echo "tmp.out ..." >>$seq.full
+	cat $tmp.out >>$seq.full
+	echo "tmp.tmp ..." >>$seq.full
+	cat $tmp.tmp >>$seq.full
+    fi
+fi
+
+# success, all done
+exit

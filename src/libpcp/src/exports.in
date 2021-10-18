@@ -778,3 +778,13 @@ PCP_3.34 {
     __pmUrlEncode;
     __pmUrlDecode;
 } PCP_3.33;
+
+PCP_3.35 {
+  global:
+    pmLookupDescs;
+    __pmSendDescs;
+    __pmDecodeDescs;
+    __pmDecodeDescs2;
+    __pmDecodeIDList2;
+    __pmHashFree;
+} PCP_3.34;

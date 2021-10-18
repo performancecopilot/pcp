@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2020 Red Hat.
+# Copyright (c) 2012-2021 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -23,23 +23,29 @@ include ./GNUlibrarydefs
 # 	if you add source files or header files here, you need to make
 # 	the SAME change in ../../libpcp_static/src/GNUmakefile AND
 # 	../../libpcp_fault/src/GNUmakefile
-#
+
+JSONSL_HFILES = $(addprefix deps/jsonsl/, jsonsl.h)
+JSONSL_CFILES = $(addprefix deps/jsonsl/, jsonsl.c)
+JSONSL_XFILES = $(JSONSL_HFILES) $(JSONSL_CFILES)
+
 CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c result.c \
-	help.c instance.c labels.c p_desc.c p_error.c p_fetch.c p_instance.c \
-	p_profile.c p_result.c p_text.c p_pmns.c p_creds.c p_attr.c p_label.c \
+	help.c instance.c labels.c \
+	p_attr.c p_desc.c p_error.c p_fetch.c p_idlist.c p_instance.c \
+	p_profile.c p_result.c p_text.c p_pmns.c p_creds.c p_label.c \
 	pdu.c pdubuf.c pmns.c profile.c store.c units.c util.c ipc.c \
 	sortinst.c logmeta.c logportmap.c logutil.c tz.c interp.c \
 	rtime.c tv.c spec.c fetchlocal.c optfetch.c AF.c \
 	stuffvalue.c endian.c config.c auxconnect.c auxserver.c discovery.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
-	connectlocal.c derive_fetch.c events.c lock.c hash.c jsonsl.c \
+	connectlocal.c derive_fetch.c events.c lock.c hash.c \
 	fault.c access.c getopt.c io.c io_stdio.c exec.c sha256.c \
-	shellprobe.c subnetprobe.c strings.c \
+	shellprobe.c subnetprobe.c strings.c deprecated.c \
 	e_loglabel.c e_index.c e_indom.c e_labels.c \
-	deprecated.c
-HFILES = derive.h internal.h compiler.h pmdbg.h jsonsl.h sha256.h sort_r.h \
-	avahi.h subnetprobe.h shellprobe.h
-EXT_FILES = jsonsl.c jsonsl.h sha256.c sha256.h sort_r.h
+	$(JSONSL_CFILES)
+HFILES = derive.h internal.h compiler.h pmdbg.h sha256.h sort_r.h \
+	avahi.h subnetprobe.h shellprobe.h \
+	$(JSONSL_HFILES)
+XFILES = sha256.c sha256.h sort_r.h
 YFILES = getdate.y derive_parser.y
 GENERATED_HFILES = pmdbg.h
 
@@ -47,7 +53,7 @@ LIBCONFIG = libpcp.pc
 VERSION_SCRIPT = exports
 
 LCFLAGS = '-DEXEC_SUFFIX="$(EXECSUFFIX)"' '-DDSO_SUFFIX="$(DSOSUFFIX)"'
-LCFLAGS += $(LIBPCP_CFLAGS) -DPCP_INTERNAL
+LCFLAGS += $(LIBPCP_CFLAGS) -DPCP_INTERNAL -Ideps
 LLDLIBS += $(LIBPCP_LDLIBS)
 
 ifeq "$(ENABLE_SECURE)" "true"
@@ -87,10 +93,12 @@ LIBTARGET =
 SYMTARGET =
 endif
 
-LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) $(EXT_FILES) $(LIBCONFIG) \
-	getdate.h derive_parser.y check.done $(GENERATED_HFILES) exports
+LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) $(XFILES) $(LIBCONFIG) \
+	getdate.h derive_parser.y check.done $(GENERATED_HFILES) exports \
+	$(JSONSL_XFILES)
 
-base default : $(EXT_FILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) \
+base default : $(XFILES) $(JSONSL_XFILES) \
+	$(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) \
 	$(LIBCONFIG) check.done
 
 ifneq "$(SYMTARGET)" ""
@@ -101,12 +109,11 @@ endif
 include $(BUILDRULES)
 
 *.o: internal.h compiler.h derive.h
-jsonsl.o: jsonsl.c jsonsl.h
 sha256.o: sha256.c sha256.h
 rtime.o: getdate.h
 derive.o derive_fetch.o: derive.h derive_parser.tab.h
 util.o:	pmdbg.h
-labels.o: jsonsl.h sha256.h sort_r.h
+labels.o: sha256.h sort_r.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 		$(TOPDIR)/src/include/pcp/platform_defs.h \
@@ -143,8 +150,12 @@ ifneq ($(STATICLIBTARGET),)
 	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
 endif
 
-$(EXT_FILES):
+$(XFILES):
 	$(LN_S) $(TOPDIR)/src/external/$@ .
+
+$(JSONSL_XFILES):
+	mkdir -p deps/jsonsl
+	$(LN_S) -f $(realpath $(TOPDIR))/vendor/github.com/mnunberg/$(@:deps/%=%) $@
 
 default_pcp : default
 

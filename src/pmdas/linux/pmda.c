@@ -4598,6 +4598,26 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_SYSFS_DEVICES, 5), KERNEL_ULONG, CPU_INDOM, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+/* hinv.cpu.frequency_scaling.count */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SYSFS_DEVICES, 6), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* hinv.cpu.frequency_scaling.time */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SYSFS_DEVICES, 7), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0) }, },
+
+/* hinv.cpu.frequency_scaling.max */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SYSFS_DEVICES, 8), PM_TYPE_U32, CPU_INDOM, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,-1,0,0,PM_TIME_USEC,0) } },
+
+/* hinv.cpu.frequency_scaling.min */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SYSFS_DEVICES, 9), PM_TYPE_U32, CPU_INDOM, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,-1,0,0,PM_TIME_USEC,0) } },
+
 /*
  * semaphore limits cluster
  * Cluster added by Mike Mason <mmlnx@us.ibm.com>
@@ -8107,9 +8127,9 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_SYSFS_DEVICES:
 	if (item == 1)	/* hinv.node.online */
-	    sts = pmdaCacheLookup(INDOM(NODE_INDOM), inst, &name, NULL);
+	    sts = pmdaCacheLookup(INDOM(NODE_INDOM), inst, &name, (void **)&np);
 	else		/* hinv.cpu metrics */
-	    sts = pmdaCacheLookup(INDOM(CPU_INDOM), inst, &name, NULL);
+	    sts = pmdaCacheLookup(INDOM(CPU_INDOM), inst, &name, (void **)&cp);
 	if (sts < 0)
 	    return PM_ERR_INST;
 	switch (item) {
@@ -8135,6 +8155,31 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 5: /* hinv.cpu.thermal_throttle.package.time */
 	    _pm_assign_ulong(atom, refresh_sysfs_thermal_throttle(
 				name, "package", "total_time_ms"));
+	    break;
+
+	case 6: /* hinv.cpu.frequency_scaling.count */
+	    if (refresh_sysfs_frequency_scaling(name, item, cp) < 0 ||
+		(!(cp->freq.flags & CPUFREQ_COUNT)))
+		return 0;
+	    atom->ull = cp->freq.count;
+	    break;
+	case 7: /* hinv.cpu.frequency_scaling.time */
+	    if (refresh_sysfs_frequency_scaling(name, item, cp) < 0 ||
+		(!(cp->freq.flags & CPUFREQ_TIME)))
+		return 0;
+	    atom->ull = cp->freq.time;
+	    break;
+	case 8: /* hinv.cpu.frequency_scaling.max */
+	    if (refresh_sysfs_frequency_scaling(name, item, cp) < 0 ||
+		(!(cp->freq.flags & CPUFREQ_MAX)))
+		return 0;
+	    atom->ul = cp->freq.max;
+	    break;
+	case 9: /* hinv.cpu.frequency_scaling.min */
+	    if (refresh_sysfs_frequency_scaling(name, item, cp) < 0 ||
+		(!(cp->freq.flags & CPUFREQ_MIN)))
+		return 0;
+	    atom->ul = cp->freq.min;
 	    break;
 
 	default:

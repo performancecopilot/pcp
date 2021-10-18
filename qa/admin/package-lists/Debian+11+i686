@@ -16,7 +16,6 @@ build-essential
 chrpath
 clang
 coreutils
-Spreadsheet::ReadSXC cpan
 Text::CSV_XS cpan
 cppcheck
 cron

@@ -20,6 +20,13 @@
 #include <assert.h>
 
 /*
+ * Pass 0 and name cache helpers
+ */
+extern FILE *pass0(FILE *);
+extern int cache_lookup(char *, pmID *, pmDesc *);
+extern void cache_free(void);
+
+/*
  * a task is a bundle of fetches to be done together - it
  * originally corresponded one-to-one with a configuration
  * file curly-brace-enclosed block, but no longer does.

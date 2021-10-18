@@ -79,38 +79,38 @@ defined else-part
 
 Text at end of file.
 ----------------------
+<<macro eek="urk"
+<<macro mumble="mumble and "fumble""
+<<name="%eek"
+<<value="urk"
+<<increased obuf[] to 256 chars
+<<name="%{eek}"
+<<value="urk"
+<<name="%eek"
+<<value="urk"
+<<name="%eek"
+<<value="urk"
+<<name="%{eek}"
+<<value="urk"
+<<name="%{eek}"
+<<value="urk"
+<<lines: in 14 out 16 (modified 6) substitutions: 6
 # 1 "<stdin>"
 # 1 "TMP.inc"
-<<macro eek="urk"
 
-<<macro mumble="mumble and "fumble""
 
 text from .inc file
 # 2 "<stdin>"
 Firstly, there is the mumble ...
 
-<<name="%eek"
-<<value="urk"
-<<increased obuf[] to 256 chars
 what about urk ? expect this to be \u\r\k not \e\e\k
-<<name="%{eek}"
-<<value="urk"
 and what about urk ? expect this to be \u\r\k not \e\e\k
 
-<<name="%eek"
-<<value="urk"
 urk <percent>eek at start of line
-<<name="%eek"
-<<value="urk"
 <percent>eek at end of line urk
-<<name="%{eek}"
-<<value="urk"
 urk <percent>{eek} at start of line
-<<name="%{eek}"
-<<value="urk"
 <percent>{eek} at end of line urk
 text from .in file
-<<lines: in 14 out 16 (modified 6) substitutions: 6
 Check lines in and out ...
 in: 11 + 3
 out: 16
@@ -196,11 +196,8 @@ pmcpp: Error: No matching #ifdef or #ifndef for #else
 
 What about urk?  [expect urk]
 ----------------------
-# 1 "<stdin>"
 <<macro long_macro_name_and_short_value="!"
-
 <<macro x="^a very long macro value to be sure, to be sure$"
-
 <<name="%"
 <<name="%{long_macro_name_and_short_value}"
 <<value="!"
@@ -212,19 +209,20 @@ What about urk?  [expect urk]
 <<name="%"
 <<name="%"
 <<name="%"
-some text %!!!% [expect %!!!%]
 <<name="%x"
 <<value="^a very long macro value to be sure, to be sure$"
 <<name="%x"
 <<value="^a very long macro value to be sure, to be sure$"
 <<name="%x"
 <<value="^a very long macro value to be sure, to be sure$"
-[expect ^...$^...$^...$] ^a very long macro value to be sure, to be sure$^a very long macro value to be sure, to be sure$^a very long macro value to be sure, to be sure$
 <<lines: in 4 out 5 (modified 2) substitutions: 6
-----------------------
 # 1 "<stdin>"
-<<macro Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch="LLanfair"
 
+
+some text %!!!% [expect %!!!%]
+[expect ^...$^...$^...$] ^a very long macro value to be sure, to be sure$^a very long macro value to be sure, to be sure$^a very long macro value to be sure, to be sure$
+----------------------
+<<macro Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch="LLanfair"
 <<doubled ibuf[] to 512 chars
 <<doubled ibuf[] to 1024 chars
 <<name="The"
@@ -295,7 +293,6 @@ some text %!!!% [expect %!!!%]
 <<name="be"
 <<name="long"
 <<name="enough"
-The town of LLanfair is a village in Wales and is famous for being apparently the longest place name in the world.  There are lots of web pages mentioning LLanfair.  Locally LLanfair is just too much of a mouthful and so it is truncated from "LLanfair" to "Llanfair".  With one more mention of LLanfair, I think this line will be long enough.
 <<name="Phew"
 <<name="that"
 <<name="was"
@@ -304,8 +301,11 @@ The town of LLanfair is a village in Wales and is famous for being apparently th
 <<name="input"
 <<name="line"
 <<name="chars"
-Phew that was a long input line ... 593 chars!
 <<lines: in 3 out 4 (modified 1) substitutions: 5
+# 1 "<stdin>"
+
+The town of LLanfair is a village in Wales and is famous for being apparently the longest place name in the world.  There are lots of web pages mentioning LLanfair.  Locally LLanfair is just too much of a mouthful and so it is truncated from "LLanfair" to "Llanfair".  With one more mention of LLanfair, I think this line will be long enough.
+Phew that was a long input line ... 593 chars!
 ----------------------
 
 === conditionals, bells and whistles ===
@@ -349,54 +349,54 @@ log mandatory on 15 sec {
 
 === -I tests ===
 ----------------------
+<<lines: in 3 out 5 (modified 0) substitutions: 0
 # 1 "a"
 # 1 "b"
 Text from b.
 # 2 "a"
 Text from a.
-<<lines: in 3 out 5 (modified 0) substitutions: 0
 ----------------------
-# 1 "a"
 <<include "./b"?
 <<include "PCP_VAR_DIR/pmns/b"?
+# 1 "a"
 pmcpp: a[1]: #include <b>
 pmcpp: Error: Cannot open file for #include
 ----------------------
-# 1 "a"
 <<include "./b"?
 <<include "sub/b"?
+<<lines: in 3 out 5 (modified 0) substitutions: 0
+# 1 "a"
 # 1 "sub/b"
 Text from b.
 # 2 "a"
 Text from a.
-<<lines: in 3 out 5 (modified 0) substitutions: 0
 ----------------------
-# 1 "a"
 <<include "./b"?
 <<include "sub/b"?
-# 1 "sub/b"
 <<include "./c-foobar"?
 <<include "sub/c-foobar"?
 <<include "sub/sub-sub/c-foobar"?
+<<lines: in 5 out 8 (modified 0) substitutions: 0
+# 1 "a"
+# 1 "sub/b"
 # 1 "sub/sub-sub/c-foobar"
 Text from c-foobar.
 # 2 "sub/b"
 Text from b.
 # 2 "a"
 Text from a.
-<<lines: in 5 out 8 (modified 0) substitutions: 0
 ----------------------
-# 1 "sub/a"
 <<include "sub/b"?
-# 1 "sub/b"
 <<include "sub/c-foobar"?
+<<lines: in 5 out 8 (modified 0) substitutions: 0
+# 1 "sub/a"
+# 1 "sub/b"
 # 1 "sub/c-foobar"
 Text from c-foobar.
 # 2 "sub/b"
 Text from b.
 # 2 "sub/a"
 Text from a.
-<<lines: in 5 out 8 (modified 0) substitutions: 0
 ----------------------
 expect no diff lines ...
 ----------------------

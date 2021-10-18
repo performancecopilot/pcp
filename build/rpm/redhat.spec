@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 5.3.4
+Version: 5.3.5
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -2982,8 +2982,11 @@ for PMDA in dm nfsclient openmetrics ; do
         %{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
     fi
 done
-# increase default pmlogger recording frequency
-sed -i 's/^\#\ PMLOGGER_INTERVAL.*/PMLOGGER_INTERVAL=10/g' "$PCP_SYSCONFIG_DIR/pmlogger"
+# Increase default pmlogger recording frequency
+# Note on systemd platforms, we ship pmlogger.service.d/zeroconf.conf instead
+%if %{disable_systemd}
+    sed -i 's/^\#\ PMLOGGER_INTERVAL.*/PMLOGGER_INTERVAL=10/g' "$PCP_SYSCONFIG_DIR/pmlogger"
+%endif
 # auto-enable these usually optional pmie rules
 pmieconf -c enable dmthin
 %if 0%{?rhel}
@@ -3336,11 +3339,17 @@ PCP_LOG_DIR=%{_logsdir}
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Wed Nov 03 2021 Nathan Scott <nathans@redhat.com> - 5.3.4-1
+* Wed Nov 03 2021 Nathan Scott <nathans@redhat.com> - 5.3.5-1
+- Update to latest PCP sources.
+
+* Fri Oct 08 2021 Nathan Scott <nathans@redhat.com> - 5.3.4-1
 - Update to latest PCP sources.
 
 * Wed Sep 15 2021 Nathan Scott <nathans@redhat.com> - 5.3.3-1
 - Update to latest PCP sources.
+
+* Tue Sep 14 2021 Sahana Prasad <sahana@redhat.com> - 5.3.2-2
+- Rebuilt with OpenSSL 3.0.0
 
 * Fri Jul 30 2021 Mark Goodwin <mgoodwin@redhat.com> - 5.3.2-1
 - Update to latest PCP sources.

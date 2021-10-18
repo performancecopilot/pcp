@@ -1241,11 +1241,11 @@ x11
 792 libpcp local pmdbg
 793 logutil local kernel pmlc
 794 containers pmcd pmda.pmcd local
-795 pmimport pmdumplog perl local
+795:retired pmimport pmdumplog perl local
 796 pmda.elasticsearch local
 797 pmlogrewrite local pmdumplog
 798 pmda.nfsclient local python dbpmda
-799 pmlogrewrite local
+799 pmlogrewrite local pmlogger
 800 pmda.proc pmda.hotproc local dbpmda
 801 pmda.netfilter local
 802 pmda valgrind dbpmda local
@@ -1792,10 +1792,14 @@ x11
 1343:retired pmmgr local pmlogrewrite
 1344:retired pmmgr local
 1345 pmval fault interp local
+1346 pmcpp local
 1347 atop pcp local
+1348 pmcpp local valgrind
 1349 pmlogrewrite labels pmdumplog local kernel
 1350 pmda.proc local
 1351 pmcd pmda.mmv libpcp pmda local
+1352 other local
+1353 pmlogger pmcpp local
 1354 pmval archive local
 1357 pmda.podman valgrind local
 1358 pmda.podman local
@@ -1946,6 +1950,7 @@ x11
 1874 pmseries pmproxy local
 1876 pmcd secure local
 1886 pmseries libpcp_web local
+1889 pmlogger local
 1893 pmda.proc local
 1895 pmda.bpf local
 1896 pmlogger logutil pmlc local
@@ -1958,4 +1963,5 @@ x11
 1955 libpcp pmda pmda.pmcd local
 1956 pmda.linux pmcd local
 1957 libpcp local valgrind
+1978 atop local
 4751 libpcp threads valgrind local pcp helgrind

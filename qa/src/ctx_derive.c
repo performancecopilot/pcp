@@ -132,21 +132,27 @@ do_work()
 	    printf("ctx[%d]: pmLookupName: %s, skip work\n", c, pmErrStr(sts));
 	    continue;
 	}
-	j = 0;
-	for (m = 0; m < numnames; m++) {
+	sts = pmLookupDescs(numnames, pmidlist, desclist);
+	if (sts < 0) {
+	    printf("ctx[%d]: pmLookupDescs: %s, skip work\n", c, pmErrStr(sts));
+	    continue;
+	}
+	for (j = m = 0; m < numnames; m++) {
 	    printf("ctx[%d]: %s: ", c, namelist[m]);
+	    if (pmidlist[m] != PM_ID_NULL && desclist[m].pmid == PM_ID_NULL) {
+		/* focus on this one failed PMID for detailed diagnostics */
+		if ((sts = pmLookupDesc(pmidlist[m], &desclist[m])) < 0) {
+		    printf("pmLookupDesc: %s\n", pmErrStr(sts));
+		    continue;
+		}
+	    }
 	    if (pmidlist[m] == PM_ID_NULL) {
 		printf("not in PMNS\n");
 		continue;
 	    }
-	    sts = pmLookupDesc(pmidlist[m], &desclist[m]);
-	    if (sts < 0)
-		printf("pmLookupDesc: %s\n", pmErrStr(sts));
-	    else {
-		putchar('\n');
-		pmPrintDesc(stdout, &desclist[m]);
-		j++;
-	    }
+	    putchar('\n');
+	    pmPrintDesc(stdout, &desclist[m]);
+	    j++;
 	}
 	if (j == 0) {
 	    printf("ctx[%d]: No valid PMIDs, nothing to fetch\n", c);
@@ -171,7 +177,7 @@ do_work()
 		    pmPrintValue(stdout, rp->vset[m]->valfmt, desclist[m].type, &rp->vset[m]->vlist[v], 8);
 		}
 		putchar('\n');
-	    }  
+	    }
 	}
 	pmFreeResult(rp);
     }

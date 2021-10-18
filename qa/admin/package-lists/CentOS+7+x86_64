@@ -5,7 +5,6 @@
 389-ds-base
 Coin3-devel
 Spreadsheet::Read cpan
-Spreadsheet::ReadSXC cpan
 audit
 autoconf
 avahi-devel

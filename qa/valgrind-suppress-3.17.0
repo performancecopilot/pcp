@@ -86,3 +86,29 @@
    fun:__pmControlLog
    ...
 }
+
+# qa/694 on vm34 (x86_64 Arch Linux) on 8 Oct 2021
+# 96 bytes in 1 blocks are possibly lost in loss record 98 of 167
+# at 0x48435FF: calloc (vg_replace_malloc.c:1117)
+# by 0x51391F0: _libcap_strdup (in /usr/lib/libcap.so.2.58)
+# by 0x513C1A3: cap_proc_root (in /usr/lib/libcap.so.2.58)
+# by 0x400FE2D: call_init (in /usr/lib/ld-2.33.so)
+# by 0x400FF1B: _dl_init (in /usr/lib/ld-2.33.so)
+# by 0x40010C9: ??? (in /usr/lib/ld-2.33.so)
+# by 0x4: ???
+# by 0x1FFEFFFE5A: ???
+# by 0x1FFEFFFE5F: ???
+# by 0x1FFEFFFE62: ???
+# by 0x1FFEFFFE65: ???
+# by 0x1FFEFFFE68: ???
+{
+   libcap leak
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:_libcap_strdup
+   fun:cap_proc_root
+   fun:call_init
+   fun:_dl_init
+   ...
+}

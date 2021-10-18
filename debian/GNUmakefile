@@ -305,17 +305,17 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 endif
 endif
 
-pcp.preinst:	pcp.preinst.head $(SCRIPTS)/cleanconfigs configversions pcp.preinst.tail
+pcp.preinst:	pcp.preinst.head $(SCRIPTS)/cleanconfigs configversions pcp.preinst.tail cull_old_conffiles
 	rm -f $@
-	cat pcp.preinst.head $(SCRIPTS)/cleanconfigs configversions pcp.preinst.tail > $@
+	cat pcp.preinst.head $(SCRIPTS)/cleanconfigs configversions cull_old_conffiles pcp.preinst.tail > $@
 
-pcp.postinst:	pcp.postinst.head configversions pcp.postinst.tail
+pcp.postinst:	pcp.postinst.head configversions pcp.postinst.tail cull_old_conffiles
 	rm -f $@
-	cat pcp.postinst.head configversions pcp.postinst.tail > $@
+	cat pcp.postinst.head configversions cull_old_conffiles pcp.postinst.tail > $@
 
-pcp.postrm:	pcp.postrm.head configversions pcp.postrm.tail
+pcp.postrm:	pcp.postrm.head configversions pcp.postrm.tail cull_old_conffiles
 	rm -f $@
-	cat pcp.postrm.head configversions pcp.postrm.tail > $@
+	cat pcp.postrm.head configversions cull_old_conffiles pcp.postrm.tail > $@
 
 pcp-gui.install:	pcp-gui.install.base pcp-gui.install.hicolor
 	rm -f pcp-gui.install

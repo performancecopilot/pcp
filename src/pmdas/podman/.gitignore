@@ -1,3 +1,4 @@
+deps/
 domain.h
 pmdapodman
 pmda_podman.so

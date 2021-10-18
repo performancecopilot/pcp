@@ -16,7 +16,6 @@ bsd-mailx
 build-essential
 chrpath
 coreutils
-Spreadsheet::ReadSXC cpan
 Text::CSV_XS cpan
 cppcheck
 cron

@@ -337,7 +337,7 @@ ipc.o
     __pmLastUsedFd		# guarded by ipc_lock mutex
     ipcentrysize		# guarded by ipc_lock mutex
     ipctablecount		# guarded by ipc_lock mutex
-jsonsl.o
+deps/jsonsl/jsonsl.o
     Allowed_Escapes		# const
     Allowed_Whitespace		# const
     Escape_Equivs		# const
@@ -390,6 +390,7 @@ p_creds.o
 p_desc.o
 p_error.o
 p_fetch.o
+p_idlist.o
 p_instance.o
 p_label.o
     ?type			# const

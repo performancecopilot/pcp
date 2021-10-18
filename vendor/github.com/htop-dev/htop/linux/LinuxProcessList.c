@@ -58,6 +58,10 @@ in the source distribution for its full text.
 #include "LibSensors.h"
 #endif
 
+#ifndef O_PATH
+#define O_PATH         010000000 // declare for ancient glibc versions
+#endif
+
 
 static long long btime = -1;
 
@@ -1236,8 +1240,8 @@ static bool LinuxProcessList_readCmdlineFile(Process* process, openat_arg_t proc
    if (amtRead > 0) {
       filename[amtRead] = 0;
       if (!process->procExe ||
-         (!process->procExeDeleted && !String_eq(filename, process->procExe)) ||
-         (process->procExeDeleted && !String_startsWith(filename, process->procExe))) {
+          (!process->procExeDeleted && !String_eq(filename, process->procExe)) ||
+          process->procExeDeleted) {
 
          const char* deletedMarker = " (deleted)";
          const size_t markerLen = strlen(deletedMarker);
@@ -1605,7 +1609,7 @@ static inline void LinuxProcessList_scanMemoryInfo(ProcessList* this) {
                (variable) = parsed_;                                         \
             }                                                                \
             break;                                                           \
-         }
+         } else (void) 0 /* Require a ";" after the macro use. */
 
       switch (buffer[0]) {
       case 'M':
@@ -1781,12 +1785,12 @@ static inline void LinuxProcessList_scanZfsArcstats(LinuxProcessList* lpl) {
          if (String_startsWith(buffer, label)) {                               \
             sscanf(buffer + strlen(label), " %*2u %32llu", variable);          \
             break;                                                             \
-         }
+         } else (void) 0 /* Require a ";" after the macro use. */
       #define tryReadFlag(label, variable, flag)                               \
          if (String_startsWith(buffer, label)) {                               \
             (flag) = sscanf(buffer + strlen(label), " %*2u %32llu", variable); \
             break;                                                             \
-         }
+         } else (void) 0 /* Require a ";" after the macro use. */
 
       switch (buffer[0]) {
       case 'c':

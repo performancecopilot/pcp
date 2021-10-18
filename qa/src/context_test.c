@@ -65,8 +65,8 @@ main(int argc, char **argv)
     char	*endnum;
     pmInDom	indom_bin, indom_colour;
     pmID	metrics[2];
+    pmDesc	descs[2];
     pmResult	*resp;
-    pmDesc	desc;
     __pmContext	*ctxp;
     int		handle[50];		/* need 3 x MAXC */
     static char	*usage = "[-a archive] [-D debugspec] [-h hostname] [-i iterations] [-n namespace]";
@@ -179,16 +179,12 @@ main(int argc, char **argv)
 	}
 	PM_UNLOCK(ctxp->c_lock);
 
-	if ((sts = pmLookupDesc(metrics[0], &desc)) < 0) {
-	    fprintf(stderr, "pmLookupDesc: context=%d bin: %s\n", handle[i], pmErrStr(sts));
+	if ((sts = pmLookupDescs(2, metrics, descs)) < 0) {
+	    fprintf(stderr, "pmLookupDescs: context=%d: %s\n", handle[i], pmErrStr(sts));
 	    exit(1);
 	}
-	indom_bin = desc.indom;
-	if ((sts = pmLookupDesc(metrics[1], &desc)) < 0) {
-	    fprintf(stderr, "pmLookupDesc: context=%d colour: %s\n", handle[i], pmErrStr(sts));
-	    exit(1);
-	}
-	indom_colour = desc.indom;
+	indom_bin = descs[0].indom;
+	indom_colour = descs[1].indom;
 
 	switch (i % MAXC) {
 	    case 0:

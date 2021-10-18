@@ -14,7 +14,7 @@
 #include "pmwebapi.h"
 #include "libpcp.h"
 #include "util.h"
-#include "ini.h"
+#include <inih/ini.h>
 
 int
 pmIniFileParse(const char *progname, ini_handler handler, void *data)

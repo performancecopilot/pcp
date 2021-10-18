@@ -208,7 +208,7 @@ fi
 #   'Unknown or illegal metric', but this is most unlikely
 #
 pminfo -v -b 2000 2>&1 \
-| grep 'Unknown or illegal metric' \
+| egrep '(Unknown or illegal metric)|(Unknown metric name)' \
 | sed >$tmp.out \
     -e '/^sample.*\.bad\.unknown:/d' \
     -e '/^pmproxy\.pid:/d' \

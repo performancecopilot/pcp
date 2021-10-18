@@ -101,15 +101,18 @@ in
 	;;
 esac
 
-# Note: _start_pmcheck() starts each pmlogger configured in the control file(s)
-#
+# Note: _start_pmcheck() starts some or all pmloggers configured in the
+# control file(s), subject to $PMLOGGER_CHECK_PARAMS if set. The environment
+# may restrict this to just the primary logger with --only-primary, or to
+# all loggers except the primary with the --skip-primary flag. If neither
+# are set, then all configured loggers will be started.
 _start_pmcheck()
 {
     bgstatus=0
     bgtmp=`mktemp -d "$PCP_TMPFILE_DIR/pmlogger_rc_start.XXXXXXXXX"` || exit 1
     trap "rm -rf $tmp $bgtmp; exit \$bgstatus" 0 1 2 3 15
 
-    pmlogger_check --quick $VFLAG >$bgtmp/pmcheck.out 2>$bgtmp/pmcheck
+    pmlogger_check --quick $VFLAG $PMLOGGER_CHECK_PARAMS >$bgtmp/pmcheck.out 2>$bgtmp/pmcheck
     bgstatus=$?
     if [ -s $bgtmp/pmcheck ]
     then

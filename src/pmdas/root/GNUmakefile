@@ -23,19 +23,25 @@ PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 CONF_LINE	= "root	1	pipe	binary		$(PMDATMPDIR)/$(CMDTARGET)"
 
-CFILES		= root.c agent.c jsonsl.c
-XFILES		= jsonsl.c jsonsl.h
+JSONSL_HFILES   = $(addprefix deps/jsonsl/, jsonsl.h)
+JSONSL_CFILES   = $(addprefix deps/jsonsl/, jsonsl.c)
+JSONSL_XFILES   = $(JSONSL_HFILES) $(JSONSL_CFILES)
+
+HFILES		= $(JSONSL_HFILES)
+CFILES		= $(JSONSL_CFILES) root.c agent.c
 ifeq "$(TARGET_OS)" "linux"
 CFILES		+= podman.c docker.c lxc.c
 endif
 
+LCFLAGS		= -Ideps
+
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
-LDIRT		= $(HELPTARGETS) pmns domain.h $(VERSION_SCRIPT)
+LDIRT		= $(HELPTARGETS) pmns domain.h $(VERSION_SCRIPT) $(JSONSL_XFILES)
 
 LLDLIBS		= $(PCP_WEBLIB)
 
-default:	$(XFILES) $(CMDTARGET) $(HELPTARGETS) pmns
+default:	$(JSONSL_XFILES) $(CMDTARGET) $(HELPTARGETS) pmns
 ifneq "$(TARGET_OS)" "mingw"
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
@@ -64,8 +70,9 @@ $(HELPTARGETS) : help
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
 
-$(XFILES):
-	$(LN_S) -f $(TOPDIR)/src/external/$@ $@
+$(JSONSL_XFILES):
+	mkdir -p deps/jsonsl
+	$(LN_S) -f $(realpath $(TOPDIR))/vendor/github.com/mnunberg/$(@:deps/%=%) $@
 
 $(OBJECTS): domain.h
 
@@ -77,5 +84,5 @@ pmns :
 
 lxc.o root.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 
-check:: $(CFILES) $(HFILES) $(XFILES)
+check:: $(CFILES) $(HFILES)
 	$(CLINT) $^

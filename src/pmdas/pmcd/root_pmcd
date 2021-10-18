@@ -82,6 +82,8 @@ pmcd.pdu_in {
     label		PMCD:1:20
     highres_fetch	PMCD:1:21
     highres_result	PMCD:1:22
+    desc_ids		PMCD:1:23
+    descs		PMCD:1:24
 }
 
 pmcd.pdu_out {
@@ -107,6 +109,8 @@ pmcd.pdu_out {
     label		PMCD:2:20
     highres_fetch	PMCD:2:21
     highres_result	PMCD:2:22
+    desc_ids		PMCD:2:23
+    descs		PMCD:2:24
 }
 
 pmcd.pmlogger {

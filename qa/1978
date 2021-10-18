@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 1978
+# Exercise pcp-atop handling of fallback to alternate hardware
+# (perfevent) counter name for ix86arch.  Red Hat BZ #1986264.
+#
+# Copyright (c) 2021 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+ATOP="$PCP_BINADM_DIR/pcp-atop"
+test -f "$ATOP" || _notrun "$ATOP is not installed, skipped"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# read from the pcp-atop-threads archive with various atop options
+atop()
+{
+    archive="$1"
+    shift
+    options="$@"
+
+    pcp_options="pcp -z --origin=+0.1 --archive $archive"
+    $pcp_options atop $options 1 >$tmp.out 2>$tmp.err
+
+    echo "=== std out"
+    cat $tmp.out
+    echo "=== std err"
+    cat $tmp.err
+    echo "=== done" && echo
+}
+
+plural="perfevent.hwcounters.INSTRUCTIONS_RETIRED.value"
+single="perfevent.hwcounters.INSTRUCTION_RETIRED.value"
+echo "metric $plural { name -> $single }" > $tmp.conf
+
+# real QA test starts here
+options="-L 160" # very long lines to get all information, incl. IPC
+
+echo "Defaults with core metric naming"
+atop "archives/pcp-atop-threads" $options | tee -a $tmp.default
+
+echo "Creating alternate named archive"
+pmlogrewrite -c $tmp.conf archives/pcp-atop-threads $tmp.pcp-atop-threads
+
+echo "Defaults with ix86arch metric naming"
+atop "$tmp.pcp-atop-threads" $options | tee -a $tmp.changed
+
+echo "Checking alternative name output"
+diff $tmp.default $tmp.changed
+[ $? -eq 0 ] && echo OK
+
+# success, all done
+status=0
+exit

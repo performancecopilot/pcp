@@ -28,7 +28,10 @@ static pmDesc	descs[TASK_NMETRICS];
 static void
 update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
+	int key;
+	char buf[32];
 	char *nametail = name;
+
 	memset(task, 0, sizeof(struct tstat));
 
 	strsep(&nametail, " ");	/* remove process identifier prefix; might fail */
@@ -86,6 +89,7 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, i
 		task->gen.tgid = pid;
 	task->gen.ctid = extract_integer_inst(rp, dp, TASK_GEN_ENVID, pid, offset);
 	task->gen.vpid = extract_integer_inst(rp, dp, TASK_GEN_VPID, pid, offset);
+
 	task->gen.ruid = extract_integer_inst(rp, dp, TASK_GEN_RUID, pid, offset);
 	task->gen.euid = extract_integer_inst(rp, dp, TASK_GEN_EUID, pid, offset);
 	task->gen.suid = extract_integer_inst(rp, dp, TASK_GEN_SUID, pid, offset);
@@ -94,6 +98,7 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, i
 	task->gen.egid = extract_integer_inst(rp, dp, TASK_GEN_EGID, pid, offset);
 	task->gen.sgid = extract_integer_inst(rp, dp, TASK_GEN_SGID, pid, offset);
 	task->gen.fsgid = extract_integer_inst(rp, dp, TASK_GEN_FSGID, pid, offset);
+
 	task->mem.vdata = extract_count_t_inst(rp, dp, TASK_MEM_VDATA, pid, offset);
 	task->mem.vstack = extract_count_t_inst(rp, dp, TASK_MEM_VSTACK, pid, offset);
 	task->mem.vexec = extract_count_t_inst(rp, dp, TASK_MEM_VEXEC, pid, offset);
@@ -106,8 +111,38 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, i
 	task->dsk.wsz = extract_count_t_inst(rp, dp, TASK_DSK_WSZ, pid, offset);
 	task->dsk.cwsz = extract_count_t_inst(rp, dp, TASK_DSK_CWSZ, pid, offset);
 
+	/* user names (cached) */
+	key = task->gen.ruid;
+	if (get_username(task->gen.ruid) == NULL &&
+	    extract_string_inst(rp, dp, TASK_GEN_RUIDNM, buf, sizeof buf, pid, offset))
+		add_username(key, buf);
+	if (key != task->gen.euid && get_username(task->gen.euid) == NULL &&
+	    extract_string_inst(rp, dp, TASK_GEN_EUIDNM, buf, sizeof buf, pid, offset))
+		add_username(key, buf);
+	if (key != task->gen.suid && get_username(task->gen.suid) == NULL &&
+	    extract_string_inst(rp, dp, TASK_GEN_SUIDNM, buf, sizeof buf, pid, offset))
+		add_username(key, buf);
+	if (key != task->gen.fsuid && get_username(task->gen.fsuid) == NULL &&
+	    extract_string_inst(rp, dp, TASK_GEN_FSUIDNM, buf, sizeof buf, pid, offset))
+		add_username(key, buf);
+
+	/* group names (cached) */
+	key = task->gen.rgid;
+	if (get_groupname(task->gen.rgid) == NULL &&
+	    extract_string_inst(rp, dp, TASK_GEN_RGIDNM, buf, sizeof buf, pid, offset))
+		add_groupname(key, buf);
+	if (key != task->gen.egid && get_groupname(task->gen.egid) == NULL &&
+	    extract_string_inst(rp, dp, TASK_GEN_EGIDNM, buf, sizeof buf, pid, offset))
+		add_groupname(key, buf);
+	if (key != task->gen.sgid && get_groupname(task->gen.sgid) == NULL &&
+	    extract_string_inst(rp, dp, TASK_GEN_SGIDNM, buf, sizeof buf, pid, offset))
+		add_groupname(key, buf);
+	if (key != task->gen.fsgid && get_groupname(task->gen.fsgid) == NULL &&
+	    extract_string_inst(rp, dp, TASK_GEN_FSGIDNM, buf, sizeof buf, pid, offset))
+		add_groupname(key, buf);
+
 	/*
- 	** normalization
+	** normalization
 	*/
 	task->cpu.prio   += 100; 	/* was subtracted by kernel */
 

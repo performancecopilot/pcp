@@ -34,10 +34,15 @@
 #    $ ./pmdbg -l
 #    - Check new flag appears
 #    $ sudo make install
-# 5. $ cd ../pmdbg
+# 5. $ cd ../dbpmda/src
 #    $ make clean
+#    - run these commands to make sure the new flags are listed:
+#    $ ./dbpmda
+#    dbpmda> debug all
+#    dbpmda> debug -pdu
+#    dbpmda> status
 #    $ sudo make install
-# 6. $ cd ../../qa
+# 6. $ cd ../../../qa
 #    $ ./check -g pmdbg
 #    - Expect that at least 1277, 1278 and 1359 will need to be remade
 #

@@ -53,9 +53,9 @@ else
     done
     $sudo kill -0 $pid >/dev/null 2>&1 && echo "Arrggh, pid $pid won't die!"
 
-    echo === running pmlogger_check to restart primary logger ===
-    $sudo $PCP_BINADM_DIR/pmlogger_check -C
-    sleep 2
+    echo === restart primary logger ===
+    _service pmlogger start | _filter_pcp_start
+    _wait_for_pmlogger
 
     newpid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep 'pmlogger.*-P' | \
 	grep -v grep | awk '{print $2}'`
@@ -98,9 +98,9 @@ else
     $sudo rm -f $PCP_RUN_DIR/pmlogger.primary.socket
     $sudo ln $PCP_RUN_DIR/pmlogger.$pid.socket $PCP_RUN_DIR/pmlogger.primary.socket
 
-    echo === running pmlogger_check to restart primary logger ===
-    $sudo $PCP_BINADM_DIR/pmlogger_check -C
-    sleep 2
+    echo === restart primary logger ===
+    _service pmlogger start | _filter_pcp_start
+    _wait_for_pmlogger
 
     newpid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep 'pmlogger.*-P' | \
 	grep -v grep | awk '{print $2}'`

@@ -39,6 +39,7 @@ allcpu_metrics=`pminfo $local kernel.all.cpu | LC_COLLATE=POSIX sort`
 percpu_metrics=`pminfo $local kernel.percpu.cpu | LC_COLLATE=POSIX sort`
 pernode_metrics=`pminfo $local kernel.pernode.cpu | LC_COLLATE=POSIX sort`
 thermal_metrics=`pminfo $local hinv.cpu.thermal_throttle| LC_COLLATE=POSIX sort`
+cpufreq_metrics=`pminfo $local hinv.cpu.frequency_scaling | LC_COLLATE=POSIX sort`
 
 for tgz in $here/linux/sysdev-*.tgz $here/linux/sysfs-numa-001.tgz
 do
@@ -90,6 +91,13 @@ do
 
     echo "== Checking hinv thermal_throttle values - $base"
     for m in $thermal_metrics
+    do
+	pminfo $local -f $m | _sort_instname
+    done
+    echo && echo "== done" && echo
+
+    echo "== Checking hinv frequency_scaling values - $base"
+    for m in $cpufreq_metrics
     do
 	pminfo $local -f $m | _sort_instname
     done

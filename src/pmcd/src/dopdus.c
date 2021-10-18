@@ -167,79 +167,147 @@ DoProfile(ClientInfo *cp, __pmPDU *pb)
     return sts;
 }
 
+static int
+GetDescs(ClientInfo *cp, int numpmid, pmID *pmids, pmDesc *descs)
+{
+    AgentInfo	*ap;
+    int		i, sts = 0, fdfail;
+
+    for (i = 0; i < numpmid; i++) {
+
+	if ((ap = pmcd_agent(((__pmID_int *)&pmids[i])->domain)) == NULL) {
+	    descs[i].pmid = PM_ID_NULL;
+	    sts = PM_ERR_PMID;
+	    continue;
+	}
+	if (!ap->status.connected) {
+	    descs[i].pmid = PM_ID_NULL;
+	    sts = PM_ERR_NOAGENT;
+	    continue;
+	}
+	if (ap->status.fenced) {
+	    descs[i].pmid = PM_ID_NULL;
+	    sts = PM_ERR_PMDAFENCED;
+	    continue;
+	}
+
+	if (ap->ipcType == AGENT_DSO) {
+	    if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		ap->ipc.dso.dispatch.version.four.ext->e_context = cp - client;
+	    sts = ap->ipc.dso.dispatch.version.any.desc(pmids[i], &descs[i],
+					ap->ipc.dso.dispatch.version.any.ext);
+	    if (sts < 0) {
+		descs[i].pmid = PM_ID_NULL;
+		continue;
+	    }
+	}
+	else {
+	    if (ap->status.notReady) {
+		descs[i].pmid = PM_ID_NULL;
+		sts = PM_ERR_AGAIN;
+		continue;
+	    }
+	    fdfail = -1;
+	    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_DESC_REQ, (int)pmids[i]);
+	    sts = __pmSendDescReq(ap->inFd, cp - client, pmids[i]);
+	    if (sts >= 0) {
+		__pmPDU		*pb;
+		int		pinpdu;
+
+		sts = __pmGetPDU(ap->outFd, ANY_SIZE, pmcd_timeout, &pb);
+		pinpdu = sts;
+		if (sts > 0)
+		    pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
+		if (sts == PDU_DESC)
+		    sts = __pmDecodeDesc(pb, &descs[i]);
+		else if (sts == PDU_ERROR) {
+		    int		s;
+
+		    s = __pmDecodeError(pb, &sts);
+		    if (s < 0)
+			sts = s;
+		    else
+			sts = CheckError(ap, sts);
+		    pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_DESC, sts);
+		}
+		else {
+		    pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_DESC, sts);
+		    sts = PM_ERR_IPC;	/* Wrong PDU type */
+		    fdfail = ap->outFd;
+		}
+		if (pinpdu > 0)
+		    __pmUnpinPDUBuf(pb);
+		if (sts < 0)
+		    descs[i].pmid = PM_ID_NULL;
+	    }
+	    else {
+		pmcd_trace(TR_XMIT_ERR, ap->inFd, PDU_DESC_REQ, sts);
+		fdfail = ap->inFd;
+	    }
+
+	    if ((sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || sts == -EPIPE) &&
+		(fdfail != -1)) {
+		CleanupAgent(ap, AT_COMM, fdfail);
+	    }
+	}
+    }
+
+    /* multi-desc variant handles partial success - bad descs use PM_ID_NULL */
+    return numpmid > 1 ? 0 : sts;
+}
+
 int
 DoDesc(ClientInfo *cp, __pmPDU *pb)
 {
-    int		sts, s;
+    int		sts;
     pmID	pmid;
-    AgentInfo	*ap;
     pmDesc	desc = {0};
-    int		fdfail = -1;
 
     if ((sts = __pmDecodeDescReq(pb, &pmid)) < 0)
 	return sts;
 
-    if ((ap = pmcd_agent(((__pmID_int *)&pmid)->domain)) == NULL)
-	return PM_ERR_PMID;
-    if (!ap->status.connected)
-	return PM_ERR_NOAGENT;
-    if (ap->status.fenced)
-	return PM_ERR_PMDAFENCED;
+    if ((sts = GetDescs(cp, 1, &pmid, &desc)) < 0)
+	return sts;
 
-    if (ap->ipcType == AGENT_DSO) {
-	if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
-	    ap->ipc.dso.dispatch.version.four.ext->e_context = cp - client;
-	sts = ap->ipc.dso.dispatch.version.any.desc(pmid, &desc,
-					ap->ipc.dso.dispatch.version.any.ext);
+    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_DESC, (int)desc.pmid);
+    sts = __pmSendDesc(cp->fd, FROM_ANON, &desc);
+    if (sts < 0) {
+	pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_DESC, sts);
+	CleanupClient(cp, sts);
     }
-    else {
-	if (ap->status.notReady)
-	    return PM_ERR_AGAIN;
-	pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_DESC_REQ, (int)pmid);
-	sts = __pmSendDescReq(ap->inFd, cp - client, pmid);
-	if (sts >= 0) {
-	    int		pinpdu;
-	    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, pmcd_timeout, &pb);
-	    if (sts > 0)
-		pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
-	    if (sts == PDU_DESC)
-		sts = __pmDecodeDesc(pb, &desc);
-	    else if (sts == PDU_ERROR) {
-		s = __pmDecodeError(pb, &sts);
-		if (s < 0)
-		    sts = s;
-		else
-		    sts = CheckError(ap, sts);
-		pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_DESC, sts);
-	    }
-	    else {
-		pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_DESC, sts);
-		sts = PM_ERR_IPC;	/* Wrong PDU type */
-		fdfail = ap->outFd;
-	    }
-	    if (pinpdu > 0)
-		__pmUnpinPDUBuf(pb);
-	}
-	else {
-	    pmcd_trace(TR_XMIT_ERR, ap->inFd, PDU_DESC_REQ, sts);
-	    fdfail = ap->inFd;
-	}
+    return sts;
+}
+
+int
+DoDescIDs(ClientInfo *cp, __pmPDU *pb)
+{
+    int		sts;
+    int 	numids;
+    pmID	*pmidlist;
+    pmDesc	*desclist;
+
+    if ((sts = __pmDecodeIDList2(pb, &numids, &pmidlist)) < 0)
+	return sts;
+
+    if ((desclist = (pmDesc *)calloc(numids, sizeof(pmDesc))) == NULL) {
+	sts = -oserror();
+	goto done;
     }
 
-    if (sts >= 0) {
-	pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_DESC, (int)desc.pmid);
-	sts = __pmSendDesc(cp->fd, FROM_ANON, &desc);
-	if (sts < 0) {
-	    pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_DESC, sts);
-	    CleanupClient(cp, sts);
-	}
-    }
-    else
-	if (ap->ipcType != AGENT_DSO &&
-	    (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || sts == -EPIPE) &&
-	    fdfail != -1)
-	    CleanupAgent(ap, AT_COMM, fdfail);
+    sts = GetDescs(cp, numids, pmidlist, desclist);
+    if (sts < 0)
+	goto done;
 
+    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_DESCS, numids);
+    sts = __pmSendDescs(cp->fd, FROM_ANON, numids, desclist);
+    if (sts < 0) {
+	pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_DESCS, sts);
+	CleanupClient(cp, sts);
+    }
+
+done:
+    free(desclist);
+    free(pmidlist);
     return sts;
 }
 
@@ -1333,6 +1401,7 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 			{ PDU_FLAG_BAD_LABEL,	"BAD_LABEL" },
 			{ PDU_FLAG_LABELS,	"LABELS" },
 			{ PDU_FLAG_HIGHRES,	"HIGHRES" },
+			{ PDU_FLAG_DESCS,	"DESCS" },
 		    };
 		    int	n;
 		    int	first = 1;

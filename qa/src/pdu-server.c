@@ -30,6 +30,12 @@ typedef struct {		/* from src/libpcp/src/p_pmns.c */
     pmID        idlist[1];
 } idlist_t;
 
+typedef struct {		/* from src/libpcp/src/p_desc.c */
+    __pmPDUHdr  hdr;
+    int         numdescs;
+    pmDesc      descs[1];
+} descs_t;
+
 /*
  * use pid as "from" context for backwards compatibility to
  * keep QA tests happy, rather than FROM_ANON which would be
@@ -72,6 +78,10 @@ decode_encode(int fd, __pmPDU *pb, int type)
     int		sender;
     int		count;
     __pmCred	*creds;
+    descs_t	*descs_p;
+    static int	numdesclist;
+    static pmDesc *desclist;
+    int		numdesc;
     idlist_t	*idlist_p;
     static int	numpmidlist;
     static pmID	*pmidlist;
@@ -79,7 +89,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
     const char	**names;
     char	**namelist;
     int		*statlist;
-    __pmLoggerStatus	*lsp;
+    __pmLoggerStatus *lsp;
     double	value;
 
     switch (type) {
@@ -227,6 +237,36 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    }
 	    if ((e = __pmSendDesc(fd, mypid, &desc)) < 0) {
 		fprintf(stderr, "%s: Error: SendDesc: %s\n", pmGetProgname(), pmErrStr(e));
+		break;
+	    }
+	    fail = 0;
+	    break;
+
+	case PDU_DESCS:
+	    descs_p = (descs_t *)pb;
+	    numdesc = ntohl(descs_p->numdescs);
+	    if (numdesc > numdesclist) {
+		if (desclist != NULL)
+		    free(desclist);
+		if ((desclist = (pmDesc *)calloc(numdesc, sizeof(desclist[0]))) == NULL) {
+		    fprintf(stderr, "calloc desclist[%d]: %s\n", numdesc, strerror(errno));
+		    numdesclist = 0;
+		    break;
+		}
+		numdesclist = numdesc;
+	    }
+	    if ((e = __pmDecodeDescs(pb, numdesc, desclist)) < 0) {
+		fprintf(stderr, "%s: Error: DecodeDescs: %s\n", pmGetProgname(), pmErrStr(e));
+		break;
+	    }
+	    if (pmDebugOptions.appl0) {
+		int	i;
+		fprintf(stderr, "+ PDU_DESCS: ");
+		for (i = 0; i < numdesc; i++)
+		    pmPrintDesc(stderr, &desclist[i]);
+	    }
+	    if ((e = __pmSendDescs(fd, mypid, numdesc, desclist)) < 0) {
+		fprintf(stderr, "%s: Error: SendDescs: %s\n", pmGetProgname(), pmErrStr(e));
 		break;
 	    }
 	    fail = 0;
@@ -426,6 +466,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    fail = 0;
 	    break;
 
+	case PDU_DESC_IDS:
 	case PDU_PMNS_IDS:
 	    idlist_p = (idlist_t *)pb;
 	    numpmid = ntohl(idlist_p->numids);
@@ -444,7 +485,8 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		break;
 	    }
 	    if (pmDebugOptions.appl0) {
-		fprintf(stderr, "+ PDU_PMNS_IDS: sts arg=%d\n", code);
+		fprintf(stderr, "+ %s: sts arg=%d\n", type == PDU_DESC_IDS?
+				"PDU_DESC_IDS" : "PDU_PMNS_IDS", code);
 		__pmDumpIDList(stderr, numpmid, pmidlist);
 	    }
 	    e = __pmSendIDList(fd, mypid, numpmid, pmidlist, code);

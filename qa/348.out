@@ -38,8 +38,6 @@ kvm.invlpg is in range
 kvm.io_exits is in range
 kvm.irq_exits is in range
 kvm.irq_injections is in range
-kvm.irq_window is in range
-kvm.largepages is in range
 kvm.mmio_exits is in range
 kvm.mmu_cache_miss is in range
 kvm.mmu_flooded is in range
@@ -49,11 +47,9 @@ kvm.mmu_recycled is in range
 kvm.mmu_shadow_zapped is in range
 kvm.mmu_unsync is in range
 kvm.nmi_injections is in range
-kvm.nmi_window is in range
 kvm.pf_fixed is in range
 kvm.pf_guest is in range
 kvm.remote_tlb_flush is in range
-kvm.request_irq is in range
 kvm.signal_exits is in range
 kvm.tlb_flush is in range
 

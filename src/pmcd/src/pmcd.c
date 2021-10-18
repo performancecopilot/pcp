@@ -371,6 +371,11 @@ HandleClientInput(__pmFdSet *fdsPtr)
 		      PM_ERR_PERMISSION : DoDesc(cp, pb);
 		break;
 
+	    case PDU_DESC_IDS:
+		sts = (cp->denyOps & PMCD_OP_FETCH) ?
+		      PM_ERR_PERMISSION : DoDescIDs(cp, pb);
+		break;
+
 	    case PDU_TEXT_REQ:
 		sts = (cp->denyOps & PMCD_OP_FETCH) ?
 		      PM_ERR_PERMISSION : DoText(cp, pb);
@@ -709,7 +714,9 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 	    memset(&cp->pduInfo, 0, sizeof(cp->pduInfo));
 	    cp->pduInfo.version = PDU_VERSION;
 	    cp->pduInfo.licensed = 1;
-	    cp->pduInfo.features = (PDU_FLAG_LABELS | PDU_FLAG_HIGHRES);
+	    cp->pduInfo.features |= PDU_FLAG_DESCS;
+	    cp->pduInfo.features |= PDU_FLAG_LABELS;
+	    cp->pduInfo.features |= PDU_FLAG_HIGHRES;
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_SECURE))
 		cp->pduInfo.features |= (PDU_FLAG_SECURE | PDU_FLAG_SECURE_ACK);
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_COMPRESS))

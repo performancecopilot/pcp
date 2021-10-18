@@ -1,5 +1,54 @@
-pcp-5.3.4 (3 November 2021)
+pcp-5.3.5 (3 November 2021)
     - https://github.com/performancecopilot/pcp/projects/1
+
+pcp-5.3.4 (8 October 2021)
+    - Client tools and utilities:
+	pcp-atop: enable detailed processor frequency scaling reporting
+	pcp-atop: handle different event naming of ix86arch PMUs
+	pcp-atop: report user and group names using PMAPI calls
+	pcp-htop: fix crash on terminal resize during sampling
+	pcp-htop: fix mouse wheel collision with autogroups nice adjustment
+	pcp-htop: do not reset MainPanel on disabled mouse events
+	pmlogger: fix small error in EOF logic on pmcd channel
+	pmlogger: install a zeroconf file for setting interval
+    - PMDA additions, enhancements and bug fixes:
+	pmdalinux: add detailed processor frequency scaling metrics
+	pmdapmproxy: add logrewrite rules to transition metrics
+	pmdasockets: fix the parsing of reord_seen values
+	pmdabpf: resolve help text warning from pmdaInit
+	pmdads389: fix syntax error in alternate branches
+	pmdads389: allow installation when ds389 server is down
+	pmdahacluster: fix types for some corosync and drbd metrics
+    - Server-side utilities and log management scripts:
+	logutil: cleanly separate primary and farm logger services
+	logutil: tweak timeouts in pmlogger.service
+	logutil: add -P / --only-primary option to pmlogger_check
+	pmproxy, libpcp_web: timer cleanups, updates to metrics
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	libpcp: use urlencoding for hostspec parameter values
+	libpcp: improve memory footprint of pmSetProcessIdentity
+	libpcp: __pmResult restructuring for highres timestamps
+	libpcp: rework fetchgroup max 64-bit value comparisons
+	libpcp: add new PM_ERR_BOTCH error macro
+	libpcp: large-PDU-related improvements and fixes
+	libpcp_web: smaller memory footprint in Redis cluster code
+	libpcp_web: optimize webgroup metric updating with mmv_set
+	libpcp_mmv: add new convenience interfaces for inc/add/set
+	libpcp_fault: fault injection 50,000km service
+    - Misc build, infrastructure and packaging updates:
+	misc: numerous minor changes to resolve LGTM.com issues
+	configure.ac: fix $PCP_PS_ALL_FLAGS for OpenBSD
+	build: require libbpf >= 0.4.0
+	build: fix tempfile handling in Makepkgs script
+	build: add OpenBSD "init" integration for postinstall and remove
+	packaging: additional RPM changes for pcp-zeroconf conf file overrides
+	packaging: fix ownership of /usr/lib/systemd/system/pmlogger.service.d
+    - Documentation and QA infrastructure:
+	docs: add a new pmdabpf(1) man page
+	qa: tweak valgrind options for speed
+	qa: admin/list-packages new `cmd` feature
+	ci: bump limit to retain 15 QA reports
+	ci: add libcmocka-devel to QA package lists
 
 pcp-5.3.3 (15 September 2021)
     - Client tools and utilities:

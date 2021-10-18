@@ -289,9 +289,10 @@ PCP_CALL extern int pmTraversePMNS_r(const char *, void(*)(const char *, void *)
 
 /*
  * Given a metric, find it's descriptor (caller supplies buffer for desc),
- * from the current context.
+ * from the current context.  Both singular and multi-descriptor variants.
  */
 PCP_CALL extern int pmLookupDesc(pmID, pmDesc *);
+PCP_CALL extern int pmLookupDescs(int, pmID *, pmDesc *);
 
 /*
  * Return the internal instance identifier, from the current context,
@@ -1218,6 +1219,10 @@ typedef struct {
     int dev1;		/* Developer flag 1 */
     int dev2;		/* Developer flag 2 */
     int	pmlc;		/* Protocol between pmlc and pmlogger */
+    int	appl6;		/* Application-specific flag 6 */
+    int	appl7;		/* Application-specific flag 7 */
+    int	appl8;		/* Application-specific flag 8 */
+    int	appl9;		/* Application-specific flag 9 */
 } pmdebugoptions_t;
 
 PCP_DATA extern pmdebugoptions_t	pmDebugOptions;

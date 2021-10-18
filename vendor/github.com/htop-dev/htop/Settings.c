@@ -28,11 +28,7 @@ void Settings_delete(Settings* this) {
    free(this->filename);
    free(this->fields);
    for (unsigned int i = 0; i < HeaderLayout_getColumns(this->hLayout); i++) {
-      if (this->hColumns[i].names) {
-         for (uint8_t j = 0; j < this->hColumns[i].len; j++)
-            free(this->hColumns[i].names[j]);
-         free(this->hColumns[i].names);
-      }
+      String_freeArray(this->hColumns[i].names);
       free(this->hColumns[i].modes);
    }
    free(this->hColumns);
@@ -65,16 +61,51 @@ static void Settings_readMeterModes(Settings* this, const char* line, unsigned i
    this->hColumns[column].modes = modes;
 }
 
+static bool Settings_validateMeters(Settings* this) {
+   const size_t colCount = HeaderLayout_getColumns(this->hLayout);
+
+   for (size_t column = 0; column < colCount; column++) {
+      char** names = this->hColumns[column].names;
+      const int* modes = this->hColumns[column].modes;
+      const size_t len = this->hColumns[column].len;
+
+      if (!names || !modes || !len)
+         return false;
+
+      // Check for each mode there is an entry with a non-NULL name
+      for (size_t meterIdx = 0; meterIdx < len; meterIdx++)
+         if (!names[meterIdx])
+            return false;
+
+      if (names[len])
+         return false;
+   }
+
+   return true;
+}
+
 static void Settings_defaultMeters(Settings* this, unsigned int initialCpuCount) {
    int sizes[] = { 3, 3 };
+
    if (initialCpuCount > 4 && initialCpuCount <= 128) {
       sizes[1]++;
    }
-   for (int i = 0; i < 2; i++) {
+
+   // Release any previously allocated memory
+   for (size_t i = 0; i < HeaderLayout_getColumns(this->hLayout); i++) {
+      String_freeArray(this->hColumns[i].names);
+      free(this->hColumns[i].modes);
+   }
+   free(this->hColumns);
+
+   this->hLayout = HF_TWO_50_50;
+   this->hColumns = xCalloc(HeaderLayout_getColumns(this->hLayout), sizeof(MeterColumnSetting));
+   for (size_t i = 0; i < 2; i++) {
       this->hColumns[i].names = xCalloc(sizes[i] + 1, sizeof(char*));
       this->hColumns[i].modes = xCalloc(sizes[i], sizeof(int));
       this->hColumns[i].len = sizes[i];
    }
+
    int r = 0;
 
    if (initialCpuCount > 128) {
@@ -181,8 +212,9 @@ static bool Settings_read(Settings* this, const char* fileName, unsigned int ini
          this->config_version = atoi(option[1]);
          if (this->config_version > CONFIG_READER_MIN_VERSION) {
             // the version of the config file on disk is newer than what we can read
-            fprintf(stderr, "WARNING: %s specifies configuration format version v%d, but this %s binary supports up to v%d\n.", fileName, this->config_version, PACKAGE, CONFIG_READER_MIN_VERSION);
-            fprintf(stderr, "         The configuration version will be downgraded to v%d when %s exits.\n", CONFIG_READER_MIN_VERSION, PACKAGE);
+            fprintf(stderr, "WARNING: %s specifies configuration format\n", fileName);
+            fprintf(stderr, "         version v%d, but this %s binary only supports up to version v%d.\n", this->config_version, PACKAGE, CONFIG_READER_MIN_VERSION);
+            fprintf(stderr, "         The configuration file will be downgraded to v%d when %s exits.\n", CONFIG_READER_MIN_VERSION, PACKAGE);
             String_freeArray(option);
             fclose(fd);
             return false;
@@ -304,7 +336,7 @@ static bool Settings_read(Settings* this, const char* fileName, unsigned int ini
       String_freeArray(option);
    }
    fclose(fd);
-   if (!didReadMeters) {
+   if (!didReadMeters || !Settings_validateMeters(this)) {
       Settings_defaultMeters(this, initialCpuCount);
    }
    return didReadAny;
@@ -328,7 +360,7 @@ static void writeFields(FILE* fd, const ProcessField* fields, Hashtable* columns
 
 static void writeMeters(const Settings* this, FILE* fd, char separator, unsigned int column) {
    const char* sep = "";
-   for (uint8_t i = 0; i < this->hColumns[column].len; i++) {
+   for (size_t i = 0; i < this->hColumns[column].len; i++) {
       fprintf(fd, "%s%s", sep, this->hColumns[column].names[i]);
       sep = " ";
    }
@@ -337,7 +369,7 @@ static void writeMeters(const Settings* this, FILE* fd, char separator, unsigned
 
 static void writeMeterModes(const Settings* this, FILE* fd, char separator, unsigned int column) {
    const char* sep = "";
-   for (uint8_t i = 0; i < this->hColumns[column].len; i++) {
+   for (size_t i = 0; i < this->hColumns[column].len; i++) {
       fprintf(fd, "%s%d", sep, this->hColumns[column].modes[i]);
       sep = " ";
    }
@@ -586,7 +618,7 @@ void Settings_setHeaderLayout(Settings* this, HeaderLayout hLayout) {
    } else if (newColumns < oldColumns) {
       for (unsigned int i = newColumns; i < oldColumns; i++) {
          if (this->hColumns[i].names) {
-            for (uint8_t j = 0; j < this->hColumns[i].len; j++)
+            for (size_t j = 0; j < this->hColumns[i].len; j++)
                free(this->hColumns[i].names[j]);
             free(this->hColumns[i].names);
          }

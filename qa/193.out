@@ -189,11 +189,11 @@ QA output created by 193
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=16777216 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=16777216 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=16777216 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=16777216 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=16777216 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=16777216 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=16777216 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=16777216 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=16777216 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=16777216 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=16777216 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=16777216 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=16777216 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=1
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=2
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=3
@@ -201,11 +201,11 @@ QA output created by 193
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=33554432 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=33554432 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=33554432 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=33554432 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=33554432 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=33554432 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=33554432 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=33554432 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=33554432 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=33554432 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=33554432 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=33554432 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=33554432 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=1
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=2
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=3
@@ -213,11 +213,11 @@ QA output created by 193
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=50331648 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=50331648 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=50331648 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=50331648 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=50331648 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=50331648 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=50331648 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=50331648 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=50331648 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=50331648 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=50331648 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=50331648 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=50331648 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=1
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=2
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=3
@@ -225,11 +225,11 @@ QA output created by 193
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=67108864 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=67108864 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=67108864 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=67108864 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=67108864 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=67108864 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=67108864 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=67108864 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=67108864 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=67108864 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=67108864 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=67108864 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=67108864 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=1
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=2
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=3
@@ -237,11 +237,11 @@ QA output created by 193
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=83886080 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=83886080 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=83886080 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=83886080 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=83886080 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=83886080 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=83886080 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=83886080 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=83886080 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=83886080 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=83886080 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=83886080 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=83886080 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=1
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=2
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=3
@@ -249,11 +249,11 @@ QA output created by 193
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=100663296 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=100663296 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=100663296 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=100663296 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=100663296 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=100663296 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=100663296 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=100663296 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=100663296 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=100663296 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=100663296 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=100663296 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=100663296 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=1
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=2
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=3
@@ -261,11 +261,11 @@ QA output created by 193
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=117440512 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=117440512 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=117440512 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=117440512 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=117440512 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=117440512 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=117440512 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=117440512 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=117440512 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=117440512 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=117440512 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=117440512 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=117440512 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=1
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=2
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=3
@@ -273,11 +273,11 @@ QA output created by 193
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=134217728 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=134217728 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=134217728 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=134217728 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=134217728 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=134217728 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=134217728 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=134217728 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=134217728 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=134217728 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=134217728 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=134217728 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=134217728 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=1
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=2
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=3
@@ -285,11 +285,11 @@ QA output created by 193
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=150994944 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=150994944 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=150994944 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=150994944 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=150994944 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=150994944 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=150994944 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=150994944 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=150994944 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=150994944 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=150994944 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=150994944 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=150994944 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=1
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=2
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=3
@@ -297,11 +297,11 @@ QA output created by 193
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=167772160 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=167772160 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=167772160 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=167772160 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=167772160 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=167772160 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=167772160 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=167772160 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=167772160 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=167772160 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=167772160 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=167772160 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=167772160 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=1
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=2
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=3
@@ -309,11 +309,11 @@ QA output created by 193
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=184549376 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=184549376 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=184549376 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=184549376 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=184549376 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=184549376 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=184549376 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=184549376 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=184549376 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=184549376 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=184549376 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=184549376 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=184549376 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=1
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=2
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N hdr read: bad len=3
@@ -321,8 +321,8 @@ QA output created by 193
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=201326592 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=201326592 in hdr exceeds maximum client PDU size (65536)
 [DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=201326592 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=201326592 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=201326592 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=201326592 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=201326592 in hdr exceeds maximum client PDU size (65536)
-[DATE] pmcd(PID) Error: __pmGetPDU: fd=N bad PDU len=201326592 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=201326592 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=201326592 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=201326592 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=201326592 in hdr exceeds maximum client PDU size (65536)
+[DATE] pmcd(PID) Error: __pmGetPDU: fd=N type=0x55aa bad PDU len=201326592 in hdr exceeds maximum client PDU size (65536)

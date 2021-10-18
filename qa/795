@@ -27,8 +27,12 @@ use Spreadsheet::ReadSXC;
 Spreadsheet::ReadSXC::read_sxc("/dev/null");
 exit(0);
 End-of-File
-perl eek.pl >>$seq.full 2>&1
-[ $? -eq 0 ] || _notrun "perl Spreadsheet::ReadSXC::read_sxc() routine not found"
+perl $tmp.pl >>$seq.full 2>&1
+if [ $? -ne 0 ]
+then
+    rm -f $tmp.pl
+    _notrun "perl Spreadsheet::ReadSXC::read_sxc() routine not found"
+fi
 
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

@@ -117,6 +117,8 @@ static int	if_lineno;		/* lineno of last #if... */
 
 static int	rflag;			/* 1 if -r on the command line */
 
+static FILE	*outfp;			/* output goes here */
+
 static void err(const char *, ...) __attribute__((noreturn));
 
 /*
@@ -127,7 +129,8 @@ err(const char *msg, ...)
 {
     va_list	arg;
 
-    fflush(stdout);
+    if (outfp != NULL)
+	fflush(outfp);
     if (currfile != NULL) {
 	if (currfile->lineno > 0)
 	    fprintf(stderr, "pmcpp: %s[%d]: %s", currfile->fname, currfile->lineno, ibuf);
@@ -237,7 +240,7 @@ directive(void)
 		    ip++;
 	    }
 	    if (debug)
-		printf("<<macro %*.*s=\"%*.*s\"\n", namelen, namelen, name, valuelen, valuelen, value);
+		fprintf(stderr, "<<macro %*.*s=\"%*.*s\"\n", namelen, namelen, name, valuelen, valuelen, value);
 	}
     }
 
@@ -427,7 +430,7 @@ do_macro(void)
 		int		match = 0;
 		int		tlen = len;
 		char		*token = tp;
-		if (debug) printf("<<name=\"%*.*s\"\n", len, len, tp);
+		if (debug) fprintf(stderr, "<<name=\"%*.*s\"\n", len, len, tp);
 		if (rflag) {
 		    if (len < 2) {
 			/*
@@ -452,7 +455,7 @@ do_macro(void)
 			    strncmp(token, macro[i].name, tlen) == 0) {
 			    int	need;	/* expected output line length */
 			    int	sofar;
-			    if (debug) printf("<<value=\"%s\"\n", macro[i].value);
+			    if (debug) fprintf(stderr, "<<value=\"%s\"\n", macro[i].value);
 			    match = 1;
 			    /* check output buffer is big enough ...  */
 			    need = inlen - len + macro[i].valuelen;
@@ -468,7 +471,7 @@ do_macro(void)
 				    /*NOTREACHED*/
 				}
 				if (debug)
-				    printf("<<increased obuf[] to %d chars\n", obuflen);
+				    fprintf(stderr, "<<increased obuf[] to %d chars\n", obuflen);
 				op = &obuf[sofar];
 			    }
 			    if (sub == 0) {
@@ -553,13 +556,13 @@ static pmLongOptions longopts[] = {
     { "include", 1, 'I', "dir", "additional directory to search for include files" },
     { "", 0, 'P', "", "do not output # lineno \"filename\" linemarkers" },
     { "restrict", 0, 'r', "", "restrict macro expansion to #name or #{name}" },
-    { "shell", 0, 's', "", "use alternate control syntax with % instead of #" },
+    { "shell", 0, 's', "", "use alternate control syntax with prefix % instead of #" },
     PMAPI_OPTIONS_END
 };
 static pmOptions opts = {
     .short_options = "dD:I:Prs?",
     .long_options = longopts,
-    .short_usage = "[-Prs] [-Dname[=value] ...] [-I dir ...] [infile]",
+    .short_usage = "[-Prs] [-Dname[=value] ...] [-I dir ...] [[infile] outfile]",
 };
 
 /*
@@ -587,7 +590,7 @@ do_include(char *iname, char **oname)
 	    continue;
 	pmsprintf(tmpbuf, sizeof(tmpbuf), "%s%c%s", incdir[i].dirname, sep, iname);
 	if (debug)
-	    printf("<<include \"%s\"?\n", tmpbuf);
+	    fprintf(stderr, "<<include \"%s\"?\n", tmpbuf);
 	if ((f = openfile(tmpbuf)) != NULL) {
 	    *oname = tmpbuf;
 	    return f;
@@ -667,7 +670,7 @@ main(int argc, char **argv)
 		    /*NOTREACHED*/
 		}
 		if (debug)
-		    printf("<<-D doubled ibuf[] to %d chars\n", ibuflen);
+		    fprintf(stderr, "<<-D doubled ibuf[] to %d chars\n", ibuflen);
 	    }
 	    pmsprintf(ibuf, ibuflen, "#define %s\n", opts.optarg);
 	    currfile->fname = "<arg>";
@@ -707,7 +710,7 @@ main(int argc, char **argv)
 	}
     }
 
-    if (opts.errors || opts.optind < argc - 1) {
+    if (opts.errors || opts.optind < argc - 2) {
 	pmUsageMessage(&opts);
 	exit(1);
     }
@@ -736,7 +739,18 @@ main(int argc, char **argv)
 	    /*NOTREACHED*/
 	}
 	incdir[0].dirname = dirname(dirbuf);
+	opts.optind++;
     }
+
+    if (opts.optind == argc - 1) {
+	/* output to a file */
+	if ((outfp = fopen(argv[opts.optind], "w")) == NULL) {
+	    fprintf(stderr, "pmcpp: Cannot open outfile (%s) for writing: %s\n", argv[opts.optind], pmErrStr(-oserror()));
+	    exit(1);
+	}
+    }
+    else
+	outfp = stdout;
 
     /*
      * Fill in last incdir option ... $PCP_VAR_DIR/pmns ...
@@ -750,7 +764,7 @@ main(int argc, char **argv)
     }
 
     if (!Pflag) {
-	printf("# %d \"%s\"\n", currfile->lineno+1, currfile->fname);
+	fprintf(outfp, "# %d \"%s\"\n", currfile->lineno+1, currfile->fname);
 	nline_out++;
     }
 
@@ -782,7 +796,7 @@ more:
 	    free(currfile->fname);
 	    currfile--;
 	    if (!Pflag) {
-		printf("# %d \"%s\"\n", currfile->lineno+1, currfile->fname);
+		fprintf(outfp, "# %d \"%s\"\n", currfile->lineno+1, currfile->fname);
 		nline_out++;
 	    }
 	    continue;
@@ -802,7 +816,7 @@ more:
 		/*NOTREACHED*/
 	    }
 	    if (debug)
-		printf("<<doubled ibuf[] to %d chars\n", ibuflen);
+		fprintf(stderr, "<<doubled ibuf[] to %d chars\n", ibuflen);
 	    ip = &ibuf[sofar];
 	    goto more;
 	}
@@ -849,7 +863,7 @@ more:
 	    }
 	}
 	if (incomment && ibuf[0] == '\n') {
-	    printf("\n");
+	    fprintf(outfp, "\n");
 	    nline_out++;
 	    continue;
 	}
@@ -864,7 +878,7 @@ more:
 		FILE		*f;
 
 		if (skip_if_false) {
-		    printf("\n");
+		    fprintf(outfp, "\n");
 		    nline_out++;
 		    continue;
 		}
@@ -913,7 +927,7 @@ more:
 		    /*NOTREACHED*/
 		}
 		if (!Pflag) {
-		    printf("# %d \"%s\"\n", currfile->lineno+1, currfile->fname);
+		    fprintf(outfp, "# %d \"%s\"\n", currfile->lineno+1, currfile->fname);
 		    nline_out++;
 		}
 	    }
@@ -925,7 +939,7 @@ more:
 		FILE		*f;
 
 		if (skip_if_false) {
-		    printf("\n");
+		    fprintf(outfp, "\n");
 		    nline_out++;
 		    continue;
 		}
@@ -980,7 +994,7 @@ more:
 		    /*NOTREACHED*/
 		}
 		if (!Pflag) {
-		    printf("# %d \"%s\"\n", currfile->lineno+1, currfile->fname);
+		    fprintf(outfp, "# %d \"%s\"\n", currfile->lineno+1, currfile->fname);
 		    nline_out++;
 		}
 	    }
@@ -997,21 +1011,21 @@ more:
 		    skip_if_false = 0;
 		    goto process;
 		}
-		printf("\n");
+		fprintf(outfp, "\n");
 		nline_out++;
 	    }
 	    continue;
 	}
 	if (skip_if_false) {
 	    /* within an if-block that is false */
-	    printf("\n");
+	    fprintf(outfp, "\n");
 	    nline_out++;
 	}
 	else {
 process:
 	    if (nmacro > 0)
 		do_macro();
-	    printf("%s", ibuf);
+	    fprintf(outfp, "%s", ibuf);
 	    nline_out++;
 	}
     }
@@ -1030,7 +1044,7 @@ process:
     }
 
     if (debug)
-	printf("<<lines: in %d out %d (modified %d) substitutions: %d\n", nline_in, nline_out, nline_sub, nsub);
+	fprintf(stderr, "<<lines: in %d out %d (modified %d) substitutions: %d\n", nline_in, nline_out, nline_sub, nsub);
 
     exit(0);
 }

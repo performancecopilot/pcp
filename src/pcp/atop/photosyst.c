@@ -145,9 +145,15 @@ update_processor(struct percpu *cpu, int id, pmResult *result, pmDesc *descs, in
 	cpu->steal = extract_count_t_inst(result, descs, PERCPU_STEAL, id, offset);
 	cpu->guest = extract_count_t_inst(result, descs, PERCPU_GUEST, id, offset);
 
-	memset(&cpu->freqcnt, 0, sizeof(cpu->freqcnt));
-	cpu->freqcnt.cnt = extract_count_t_inst(result, descs, PERCPU_FREQCNT_CNT, id, offset);
+	cpu->freqcnt.cnt = extract_count_t_inst(result, descs, PERCPU_FREQ_CNT, id, offset);
+	if (cpu->freqcnt.cnt == 0)
+		cpu->freqcnt.cnt = extract_count_t_inst(result, descs, PERCPU_FREQ_CLK, id, offset);
+	cpu->freqcnt.ticks = extract_count_t_inst(result, descs, PERCPU_FREQ_HIT, id, offset);
+	cpu->freqcnt.maxfreq = extract_count_t_inst(result, descs, PERCPU_FREQ_MAX, id, offset);
+
 	cpu->instr = extract_count_t_inst(result, descs, PERCPU_PERF_INSTR, id, offset);
+	if (cpu->instr == 0)	/* try ix86arch INSTRUCTION_RETIRED fallback */
+		cpu->instr = extract_count_t_inst(result, descs, PERCPU_PERF_INST1, id, offset);
 	cpu->cycle = extract_count_t_inst(result, descs, PERCPU_PERF_CYCLE, id, offset);
 }
 

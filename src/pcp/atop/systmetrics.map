@@ -29,7 +29,10 @@ systmetrics {
 	kernel.percpu.cpu.steal			PERCPU_STEAL
 	kernel.percpu.cpu.guest			PERCPU_GUEST
 
-	hinv.cpu.clock				PERCPU_FREQCNT_CNT
+	hinv.cpu.clock				PERCPU_FREQ_CLK
+	hinv.cpu.frequency_scaling.count	PERCPU_FREQ_CNT
+	hinv.cpu.frequency_scaling.time		PERCPU_FREQ_HIT
+	hinv.cpu.frequency_scaling.max		PERCPU_FREQ_MAX
 
 	# /proc/vmstat
 	swap.pagesin				MEM_SWINS
@@ -291,6 +294,7 @@ systmetrics {
 	zswap.stored_pages			ZSWAP_STOREDMEM
 
 	# hardware events
+	perfevent.hwcounters.INSTRUCTION_RETIRED.value		PERCPU_PERF_INST1
 	perfevent.hwcounters.INSTRUCTIONS_RETIRED.value		PERCPU_PERF_INSTR
 	perfevent.hwcounters.UNHALTED_REFERENCE_CYCLES.value	PERCPU_PERF_CYCLE
 

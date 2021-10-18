@@ -9,7 +9,10 @@ Wants=pmcd.service
 [Service]
 Type=notify
 NotifyAccess=all
-TimeoutSec=120
+Environment="PMLOGGER_CHECK_PARAMS=--only-primary"
+EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger
+TimeoutStartSec=120
+TimeoutStopSec=120
 Restart=always
 ExecStart=@PCP_RC_DIR@/pmlogger start-systemd
 ExecStop=@PCP_RC_DIR@/pmlogger stop-systemd

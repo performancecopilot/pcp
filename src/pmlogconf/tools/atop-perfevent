@@ -2,5 +2,6 @@
 ident   perfevent metrics sampled by the atop command
 probe	perfevent.active values ? include : exclude
 
+	perfevent.hwcounters.INSTRUCTION_RETIRED.value
 	perfevent.hwcounters.INSTRUCTIONS_RETIRED.value
 	perfevent.hwcounters.UNHALTED_REFERENCE_CYCLES.value
