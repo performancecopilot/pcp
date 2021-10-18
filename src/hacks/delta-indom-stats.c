@@ -16,12 +16,12 @@
  * Debug flags:
  * -Dappl0	report added/dropped instances
  */
-#include <pmapi.h>
-#include <libpcp.h>
+#include "./pmapi.h"
+#include "./libpcp.h"
+#include "./internal.h"
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "../libpcp/src/internal.h"
 
 typedef struct {
     int		inst;
@@ -152,6 +152,19 @@ static char
     return buf;
 }
 
+/*
+ * snarfed from e_loglabel.c
+ */
+typedef struct {
+    __uint32_t	magic;		/* PM_LOG_MAGIC|PM_LOG_VERS02 */
+    __int32_t	pid;		/* PID of logger */
+    __int32_t	start_sec;	/* start of this log (pmTimeval) */
+    __int32_t	start_usec;
+    __int32_t	vol;		/* current log volume no. */
+    char	hostname[PM_LOG_MAXHOSTLEN]; /* name of collection host */
+    char	timezone[PM_TZ_MAXLEN];	/* $TZ at collection host */
+} __pmLabel_v2;
+
 int
 main(int argc, char **argv)
 {
@@ -210,7 +223,7 @@ main(int argc, char **argv)
     /*
      * snarfed from __pmLogLoadMeta() in logmeta.c
      */
-    __pmFseek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
+    __pmFseek(f, (long)(sizeof(__pmLabel_v2) + 2*sizeof(int)), SEEK_SET);
     for ( ; ; ) {
 	n = (int)__pmFread(&h, 1, sizeof(__pmLogHdr), f);
 
@@ -244,7 +257,7 @@ main(int argc, char **argv)
 	    char		*namebase;
 	    int			*tbuf, *stridx;
 	    sortrec_t		*ctl;
-	    int			i, k, allinbuf = 0;
+	    int			k, allinbuf = 0;
 
 	    if ((tbuf = (int *)malloc(rlen)) == NULL) {
 		fprintf(stderr, "tbuf: malloc failed: %d\n", rlen);
@@ -407,7 +420,7 @@ end:
     printf("%8s %8s %9s %9s %9s\n", "Type", "Count", "V2 Size", "V3 Size", "Saving");
     printf("%8s %8s %9s %9s %9s\n", "", "", "    (uncompressed)", "", "");
     /* add in label record */
-    v2_size = v3_size = sizeof(__pmLogLabel) + 2*sizeof(int);
+    v2_size = v3_size = sizeof(__pmLabel_v2) + 2*sizeof(int);
     for (sp = stats; sp < &stats[numstats]; sp++) {
 	v2_size += sp->v2_size;
 	v3_size += sp->v3_size;
@@ -440,7 +453,7 @@ end:
 	    exit(1);
 	}
 	printf("%8s %8zd %9s", "Index",
-		(sbuf.st_size-sizeof(__pmLogLabel))/sizeof(__pmLogTI),
+		(sbuf.st_size-sizeof(__pmLabel_v2))/sizeof(__pmLogTI),
 		pr_size(sbuf.st_size));
 	printf(" %9s\n", pr_size(sbuf.st_size));
 	v2_size += sbuf.st_size;
