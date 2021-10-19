@@ -30,6 +30,8 @@ typedef struct {
     __uint64_t		*offset;
 } netstat_fields_t;
 
+__uint64_t	not_exported;
+
 netstat_fields_t netstat_ip_fields[] = {
     { .field = "InNoRoutes",
      .offset = &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_INNOROUTES] },
@@ -65,6 +67,9 @@ netstat_fields_t netstat_ip_fields[] = {
      .offset = &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_ECT0PKTS] },
     { .field = "InCEPkts",
      .offset = &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_CEPKTS] },
+    { .field = "ReasmOverlaps",
+      .offset = &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_REASMOVERLAPS] },
+
     { .field = NULL, .offset = NULL }
 };
 
@@ -248,7 +253,7 @@ netstat_fields_t netstat_tcp_fields[] = {
     { .field = "TCPFastOpenActive",
      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFASTOPENACTIVE] },
     { .field = "TCPFastOpenPassive",
-     .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFASTOPENACTIVEFAIL] },
+     .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFASTOPENPASSIVE] },
     { .field = "TCPFastOpenPassiveFail",
      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFASTOPENPASSIVEFAIL] },
     { .field = "TCPFastOpenListenOverflow",
@@ -271,6 +276,73 @@ netstat_fields_t netstat_tcp_fields[] = {
      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPSYNRETRANS] },
     { .field = "TCPOrigDataSent",
      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPORIGDATASENT] },
+    { .field = "TCPBacklogCoalesce",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPBACKLOGCOALESCE] },
+    { .field = "TCPMemoryPressuresChrono",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPMEMORYPRESSURESCHRONO] },
+    { .field = "TCPMD5Failure",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPMD5FAILURE] },
+    { .field = "PFMemallocDrop",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_PFMEMALLOCDROP] },
+    { .field = "TCPFastOpenActiveFail",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFASTOPENACTIVEFAIL] },
+    { .field = "TCPFastOpenBlackhole",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFASTOPENBLACKHOLE] },
+    { .field = "TCPHystartTrainDetect",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPHYSTARTTRAINDETECT] },
+    { .field = "TCPHystartTrainCwnd",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPHYSTARTTRAINCWND] },
+    { .field = "TCPHystartDelayDetect",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPHYSTARTDELAYDETECT] },
+    { .field = "TCPHystartDelayCwnd",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPHYSTARTDELAYCWND] },
+    { .field = "TCPACKSkippedSynRecv",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPACKSKIPPEDSYNRECV] },
+    { .field = "TCPACKSkippedPAWS",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPACKSKIPPEDPAWS] },
+    { .field = "TCPACKSkippedSeq",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPACKSKIPPEDSEQ] },
+    { .field = "TCPACKSkippedFinWait2",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPACKSKIPPEDFINWAIT2] },
+    { .field = "TCPACKSkippedTimeWait",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPACKSKIPPEDTIMEWAIT] },
+    { .field = "TCPACKSkippedChallenge",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPACKSKIPPEDCHALLENGE] },
+    { .field = "TCPWinProbe",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPWINPROBE] },
+    { .field = "TCPKeepAlive",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPKEEPALIVE] },
+    { .field = "TCPMTUPFail",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPMTUPFAIL] },
+    { .field = "TCPMTUPSuccess",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPMTUPSUCCESS] },
+    { .field = "TCPDelivered",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPDELIVERED] },
+    { .field = "TCPDeliveredCE",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPDELIVEREDCE] },
+    { .field = "TCPAckCompressed",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPACKCOMPRESSED] },
+    { .field = "TCPZeroWindowDrop",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPZEROWINDOWDROP] },
+    { .field = "TCPRcvQDrop",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPRCVQDROP] },
+    { .field = "TCPWqueueTooBig",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPWQUEUETOOBIG] },
+    { .field = "TCPFastOpenPassiveAltKey",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFASTOPENPASSIVEALTKEY] },
+    { .field = "TcpTimeoutRehash",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPTIMEOUTREHASH] },
+    { .field = "TcpDuplicateDataRehash",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPDUPLICATEDATAREHASH] },
+    { .field = "TCPDSACKRecvSegs",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPDSACKRECVSEGS] },
+    { .field = "TCPDSACKIgnoredDubious",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPDSACKIGNOREDDUBIOUS] },
+    { .field = "TCPMigrateReqSuccess",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPMIGRATEREQSUCCESS] },
+    { .field = "TCPMigrateReqFailure",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPMIGRATEREQFAILURE] },
+
     { .field = NULL, .offset = NULL }
 };
 
@@ -301,6 +373,53 @@ netstat_fields_t netstat_mptcp_fields[] = {
      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_DSSNOTMATCHING] },
     { .field = "InfiniteMapRx",
      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_INFINITEMAPRX] },
+    { .field = "MPCapableSYNTX",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLESYNTX] },
+    { .field = "MPCapableSYNACKRX",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLESYNACKRX] },
+    { .field = "MPFallbackTokenInit",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPFALLBACKTOKENINIT] },
+    { .field = "DSSNoMatchTCP",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_DSSNOMATCHTCP] },
+    { .field = "DataCsumErr",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_DATACSUMERR] },
+    { .field = "OFOQueueTail",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_OFOQUEUETAIL] },
+    { .field = "OFOQueue",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_OFOQUEUE] },
+    { .field = "OFOMerge",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_OFOMERGE] },
+    { .field = "NoDSSInWindow",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_NODSSINWINDOW] },
+    { .field = "DuplicateData",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_DUPLICATEDATA] },
+    { .field = "AddAddr",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_ADDADDR] },
+    { .field = "EchoAdd",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_ECHOADD] },
+    { .field = "PortAdd",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_PORTADD] },
+    { .field = "MPJoinPortSynRx",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINPORTSYNRX] },
+    { .field = "MPJoinPortSynAckRx",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINPORTSYNACKRX] },
+    { .field = "MPJoinPortAckRx",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINPORTACKRX] },
+    { .field = "MismatchPortSynRx",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MISMATCHPORTSYNRX] },
+    { .field = "MismatchPortAckRx",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MISMATCHPORTACKRX] },
+    { .field = "RmAddr",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_RMADDR] },
+    { .field = "RmSubflow",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_RMSUBFLOW] },
+    { .field = "MPPrioTx",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPPRIOTX] },
+    { .field = "MPPrioRx",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPPRIORX] },
+    { .field = "RcvPruned",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_RCVPRUNED] },
+
     { .field = NULL, .offset = NULL }
 };
 
@@ -334,24 +453,36 @@ get_fields(netstat_fields_t *fields, char *header, char *buffer)
      * kernel - but may be out-of-order for older kernels).
      */
     strtok(buffer, " ");
-    for (i = j = 0; j < count && fields[i].field; j++, i++) {
+    for (i = j = 0; j <= count; j++) {
         if ((p = strtok(NULL, " \n")) == NULL)
             break;
-        if (strcmp(fields[i].field, indices[j]) == 0)
-            *fields[i].offset = strtoull(p, NULL, 10);
+	if (fields[i].field == NULL)
+	    /* wrap search in fields table */
+	    i = 0;
+        if (strcmp(fields[i].field, indices[j]) == 0) {
+	    if (fields[i].offset != &not_exported)
+		*fields[i].offset = strtoull(p, NULL, 10);
+	    else if (onetrip)
+		pmNotifyErr(LOG_INFO, "proc_net_netstat: %s \"%s\" parsed but not exported\n", header, indices[j]);
+	    i++;
+	}
         else {
             for (i = 0; fields[i].field; i++) {
                 if (strcmp(fields[i].field, indices[j]) != 0)
                     continue;
-                *fields[i].offset = strtoull(p, NULL, 10);
+		if (fields[i].offset != &not_exported)
+		    *fields[i].offset = strtoull(p, NULL, 10);
+		else if (onetrip)
+		    pmNotifyErr(LOG_INFO, "proc_net_netstat: %s \"%s\" parsed but not exported\n", header, indices[j]);
                 break;
             }
 	    if (fields[i].field == NULL) {
 		/* not found, warn */
 		if (onetrip == 1)
 		    pmNotifyErr(LOG_WARNING, "proc_net_netstat: %s unknown field[#%d] \"%s\"\n", header, j, indices[j]);
-		i = 0;
 	    }
+	    else
+		i++;
 	}
     }
 }
@@ -437,15 +568,12 @@ refresh_proc_net_netstat(proc_net_netstat_t *netstat)
 		    return onetrip;
 		}
 	    }
-	    if (strncmp(buf, "IpExt:", 6) == 0) {
+	    if (strncmp(buf, "IpExt:", 6) == 0)
 		get_fields(netstat_ip_fields, header, buf);
-	    }
-	    else if (strncmp(buf, "TcpExt:", 7) == 0) {
+	    else if (strncmp(buf, "TcpExt:", 7) == 0)
 		get_fields(netstat_tcp_fields, header, buf);
-	    }
-	    else if (strncmp(buf, "MPTcpExt:", 9) == 0) {
+	    else if (strncmp(buf, "MPTcpExt:", 9) == 0)
 		get_fields(netstat_mptcp_fields, header, buf);
-	    }
 	    else
 		pmNotifyErr(LOG_ERR, "Unrecognised netstat row: %s\n", buf);
 	}

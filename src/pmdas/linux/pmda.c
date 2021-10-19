@@ -3132,6 +3132,16 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_SNMP,83), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
+/* network.udp.ignoredmulti */
+  { &_pm_proc_net_snmp.udp[_PM_SNMP_UDP_IGNOREDMULTI],
+    { PMDA_PMID(CLUSTER_NET_SNMP,90), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udp.memerrors */
+  { &_pm_proc_net_snmp.udp[_PM_SNMP_UDP_MEMERRORS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,91), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 /* network.udplite.indatagrams */
   { &_pm_proc_net_snmp.udplite[_PM_SNMP_UDPLITE_INDATAGRAMS],
     { PMDA_PMID(CLUSTER_NET_SNMP,77), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
@@ -3165,6 +3175,16 @@ static pmdaMetric metrictab[] = {
 /* network.udplite.incsumerrors */
   { &_pm_proc_net_snmp.udplite[_PM_SNMP_UDPLITE_INCSUMERRORS],
     { PMDA_PMID(CLUSTER_NET_SNMP,84), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite.ignoredmulti */
+  { &_pm_proc_net_snmp.udplite[_PM_SNMP_UDPLITE_IGNOREDMULTI],
+    { PMDA_PMID(CLUSTER_NET_SNMP,92), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite.memerrors */
+  { &_pm_proc_net_snmp.udplite[_PM_SNMP_UDPLITE_MEMERRORS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,93), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmpmsg.intype */
@@ -3680,6 +3700,11 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_NETSTAT,16), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
+/* network.ip.reasmoverlaps */
+  { &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_REASMOVERLAPS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,168), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 /* network.tcp.syncookiessent */
   { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_SYNCOOKIESSENT],
     { PMDA_PMID(CLUSTER_NET_NETSTAT,17), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
@@ -4190,6 +4215,171 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_NETSTAT,118), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
+/* network.tcp.tcpbacklogcoalesce */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPBACKLOGCOALESCE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,132), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpmemorypressureschrono */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPMEMORYPRESSURESCHRONO],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,133), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(1,0,0,PM_TIME_MSEC,0,0) } },
+
+/* network.tcp.tcpmd5failure */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPMD5FAILURE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,134), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.pfmemallocdrop */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_PFMEMALLOCDROP],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,135), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpfastopenactivefail */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFASTOPENACTIVEFAIL],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,136), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpfastopenblackhole */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFASTOPENBLACKHOLE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,137), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcphystarttraindetect */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPHYSTARTTRAINDETECT],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,141), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcphystarttraincwnd */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPHYSTARTTRAINCWND],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,142), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcphystartdelaydetect */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPHYSTARTDELAYDETECT],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,143), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcphystartdelaycwnd */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPHYSTARTDELAYCWND],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,144), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpackskippedsynrecv */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPACKSKIPPEDSYNRECV],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,145), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpackskippedpaws */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPACKSKIPPEDPAWS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,146), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpackskippedseq */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPACKSKIPPEDSEQ],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,147), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpackskippedfinwait2 */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPACKSKIPPEDFINWAIT2],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,148), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpackskippedtimewait */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPACKSKIPPEDTIMEWAIT],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,149), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpackskippedchallenge */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPACKSKIPPEDCHALLENGE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,150), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpwinprobe */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPWINPROBE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,151), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpkeepalive */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPKEEPALIVE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,152), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpmtupfail */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPMTUPFAIL],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,153), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpmtupsuccess */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPMTUPSUCCESS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,154), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpdelivered */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPDELIVERED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,155), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpdeliveredce */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPDELIVEREDCE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,156), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpackcompressed */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPACKCOMPRESSED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,157), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpzerowindowdrop */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPZEROWINDOWDROP],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,158), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcprcvqdrop */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPRCVQDROP],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,159), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpwqueuetoobig */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPWQUEUETOOBIG],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,160), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpfastopenpassivealtkey */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFASTOPENPASSIVEALTKEY],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,161), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcptimeoutrehash */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPTIMEOUTREHASH],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,162), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpduplicatedatarehash */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPDUPLICATEDATAREHASH],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,163), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpdsackrecvsegs */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPDSACKRECVSEGS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,164), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpdsackignoreddubious */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPDSACKIGNOREDDUBIOUS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,165), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpmigratereqsuccess */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPMIGRATEREQSUCCESS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,166), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tcpmigratereqfailure */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPMIGRATEREQFAILURE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,167), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 /* network.mptcp.mpcapablesynrx */
   { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLESYNRX],
     { PMDA_PMID(CLUSTER_NET_NETSTAT,119), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
@@ -4255,6 +4445,120 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_NETSTAT,131), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
+/* network.mptcp.mpcapablesyntx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLESYNTX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,138), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpcapablesynackrx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLESYNACKRX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,139), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpfallbacktokeninit */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPFALLBACKTOKENINIT],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,140), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.dssnomatchtcp */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_DSSNOMATCHTCP],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,169), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.datacsumerr */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_DATACSUMERR],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,170), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.ofoqueuetail */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_OFOQUEUETAIL],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,171), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.ofoqueue */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_OFOQUEUE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,172), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.ofomerge */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_OFOMERGE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,173), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.nodssinwindow */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_NODSSINWINDOW],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,174), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.duplicatedata */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_DUPLICATEDATA],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,175), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.addaddr */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_ADDADDR],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,176), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.echoadd */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_ECHOADD],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,177), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.portadd */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_PORTADD],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,178), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpjoinportsynrx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINPORTSYNRX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,179), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpjoinportsynackrx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINPORTSYNACKRX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,180), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpjoinportackrx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINPORTACKRX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,181), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mismatchportsynrx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MISMATCHPORTSYNRX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,182), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mismatchportackrx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MISMATCHPORTACKRX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,183), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.rmaddr */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_RMADDR],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,184), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.rmsubflow */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_RMSUBFLOW],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,185), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mppriotx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPPRIOTX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,186), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mppriorx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPPRIORX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,187), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.rcvpruned */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_RCVPRUNED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,188), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* hinv.map.scsi */
     { NULL, 
