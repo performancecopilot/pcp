@@ -39,6 +39,17 @@ status=0	# success is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# Some files may be left over after changes in the build rules,
+# e.g. a PMDA used to be built, was installed in the past, but
+# now is no longer being built
+#
+_cull_special()
+{
+    sed \
+	-e '/^\/etc\/pcp\/bpf\/bpf.conf$/d' \
+    # end
+}
+
 export LC_COLLATE=POSIX
 
 # real QA test starts here
@@ -51,6 +62,7 @@ dpkg-deb -c ../build/deb/pcp_*.deb \
 
 dpkg -L pcp \
 | sed -e '/^\/.$/d' \
+| _cull_special \
 | sort >$tmp.installed
 
 comm -13 $tmp.pkg $tmp.installed >$tmp.tmp
