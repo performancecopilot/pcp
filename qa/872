@@ -34,8 +34,10 @@ do
     network="$network network.$tree"
     network6="$network6 network.${tree}6"
 done
-metrics=`pminfo $network | LC_COLLATE=POSIX sort`
-metrics6=`pminfo $network6 | LC_COLLATE=POSIX sort`
+# cluster 14 => CLUSTER_NET_SNMP => /proc/net/snmp
+metrics=`pminfo -m $network | grep '\.14\.' | LC_COLLATE=POSIX sort | sed -e 's/ .*//'`
+# cluster 58 => CLUSTER_NET_SNMP6 => /proc/net/snmp6
+metrics6=`pminfo -m $network6 | grep '\.58\.' | LC_COLLATE=POSIX sort | sed -e 's/ .*//'`
 echo
 
 for file in $files
