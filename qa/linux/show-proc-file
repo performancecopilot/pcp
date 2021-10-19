@@ -1,0 +1,42 @@
+#!/bin/sh
+#
+# unpick a /proc file in the style of /proc/net/netstat
+#
+
+if [ ! -f "$1" ]
+then
+    echo "Usage: $0 proc-stat-file"
+    exit 1
+fi
+
+tmp=/var/tmp/show-proc-file-$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+awk <"$1" '{print $1}' \
+| sort \
+| uniq -c \
+| while read cnt tag
+do
+    if [ "$cnt" != 2 ]
+    then
+	echo "tag $tag appears $cnt times, not 2 as expected, skip this one"
+	continue
+    fi
+
+    grep "^$tag " <$1 \
+    | awk '
+BEGIN		{ state = 0 }
+state == 0	{ # header line
+		  for (i = 2; i <= NF; i++) fld[i] = $i
+		  state++
+		  next
+		}
+state == 1	{ # data line
+		  for (i = 2; i <= NF; i++) print $1 fld[i],$i
+		  state++
+		  next
+		}' \
+    | tr '[A-Z]' '[a-z]' \
+    | sed -e 's/:/./' -e 's/ /	/'
+
+done

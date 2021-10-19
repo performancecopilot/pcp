@@ -2,7 +2,7 @@
 name: QA
 on:
   schedule:
-    - cron:  '0 19 * * *'
+    - cron:  '0 17 * * *'
   workflow_dispatch:
     inputs:
       pcp_qa_args:

@@ -977,6 +977,7 @@ network.ip {
     ect1pkts            60:53:14
     ect0pkts            60:53:15
     cepkts              60:53:16
+    reasmoverlaps	60:53:168
 }
 
 network.icmp {
@@ -1127,6 +1128,39 @@ network.tcp {
     wantzerowindowadv	60:53:116
     synretrans		60:53:117
     origdatasent	60:53:118
+    tcpbacklogcoalesce		60:53:132
+    tcpmemorypressureschrono	60:53:133
+    tcpmd5failure		60:53:134
+    pfmemallocdrop		60:53:135
+    tcpfastopenactivefail	60:53:136
+    tcpfastopenblackhole	60:53:137
+    tcphystarttraindetect	60:53:141
+    tcphystarttraincwnd		60:53:142
+    tcphystartdelaydetect	60:53:143
+    tcphystartdelaycwnd		60:53:144
+    tcpackskippedsynrecv	60:53:145
+    tcpackskippedpaws		60:53:146
+    tcpackskippedseq		60:53:147
+    tcpackskippedfinwait2	60:53:148
+    tcpackskippedtimewait	60:53:149
+    tcpackskippedchallenge	60:53:150
+    tcpwinprobe			60:53:151
+    tcpkeepalive		60:53:152
+    tcpmtupfail			60:53:153
+    tcpmtupsuccess		60:53:154
+    tcpdelivered		60:53:155
+    tcpdeliveredce		60:53:156
+    tcpackcompressed		60:53:157
+    tcpzerowindowdrop		60:53:158
+    tcprcvqdrop			60:53:159
+    tcpwqueuetoobig		60:53:160
+    tcpfastopenpassivealtkey	60:53:161
+    tcptimeoutrehash		60:53:162
+    tcpduplicatedatarehash	60:53:163
+    tcpdsackrecvsegs		60:53:164
+    tcpdsackignoreddubious	60:53:165
+    tcpmigratereqsuccess	60:53:166
+    tcpmigratereqfailure	60:53:167
 }
 
 network.mptcp {
@@ -1143,6 +1177,29 @@ network.mptcp {
     mpjoinackhmacfailure 60:53:129
     dssnotmatching	60:53:130
     infinitemaprx	60:53:131
+    mpcapablesyntx	60:53:138
+    mpcapablesynackrx	60:53:139
+    mpfallbacktokeninit	60:53:140
+    dssnomatchtcp	60:53:169
+    datacsumerr		60:53:170
+    ofoqueuetail	60:53:171
+    ofoqueue		60:53:172
+    ofomerge		60:53:173
+    nodssinwindow	60:53:174
+    duplicatedata	60:53:175
+    addaddr		60:53:176
+    echoadd		60:53:177
+    portadd		60:53:178
+    mpjoinportsynrx	60:53:179
+    mpjoinportsynackrx	60:53:180
+    mpjoinportackrx	60:53:181
+    mismatchportsynrx	60:53:182
+    mismatchportackrx	60:53:183
+    rmaddr		60:53:184
+    rmsubflow		60:53:185
+    mppriotx		60:53:186
+    mppriorx		60:53:187
+    rcvpruned		60:53:188
 }
 
 network.udp {
@@ -1153,6 +1210,8 @@ network.udp {
     recvbuferrors	60:14:75
     sndbuferrors	60:14:76
     incsumerrors	60:14:83
+    ignoredmulti	60:14:90
+    memerrors		60:14:91
 }
 
 network.udplite {
@@ -1163,6 +1222,8 @@ network.udplite {
     recvbuferrors	60:14:81
     sndbuferrors	60:14:82
     incsumerrors	60:14:84
+    ignoredmulti	60:14:92
+    memerrors		60:14:93
 }
 
 network.icmpmsg {

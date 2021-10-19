@@ -2392,3 +2392,88 @@ FC link level if this is happening (one guess as to why dumped frames
 could occur).
 
 @ hinv.nfchost Number of fibre channel host bus adapters from /sys/class/fc_host/host*
+
+@ network.mptcp.mpcapablesynackrx Received SYN/ACK with MP_CAPABLE flag
+The MPCapableSYNACKRX field of the MPTcp line from /proc/net/netstat
+
+@ network.mptcp.mpcapablesyntx Sent SYN with MP_CAPABLE flag
+The MPCapableSYNTX field of the MPTcp line from /proc/net/netstat
+
+@ network.mptcp.mpfallbacktokeninit Could not init/allocate token
+The MPFallbackTokenInit field of the MPTcp line from /proc/net/netstat
+
+@ network.tcp.pfmemallocdrop Dropped skb allocated from pfmemalloc
+Just counts the cases for packets which did not have the SOCK_MEMALLOC flag
+set.
+
+The PFMemallocDrop field of the Tcp line from /proc/net/netstat
+
+@ network.tcp.tcpbacklogcoalesce Number of coalesced packets that were in the backlog queue
+The TCPBacklogCoalesce field of the Tcp line from /proc/net/netstat
+
+@ network.tcp.tcpfastopenactivefail Fast Open attempts (SYN/data) failed
+Failure because the remote does not accept it or the attempts timed out.
+
+The TCPFastOpenActiveFail field of the Tcp line from /proc/net/netstat
+
+@ network.tcp.tcpfastopenblackhole Number of times the TFO blackhole has been enabled
+The TCPFastOpenBlackhole field of the Tcp line from /proc/net/netstat
+
+@ network.tcp.tcpmd5failure Counter for drops caused by md5 mismatches
+The TCPMD5Failure field of the Tcp line from /proc/net/netstat
+
+@ network.tcp.tcpmemorypressureschrono Cumulative counter tracking duration of memory pressure events
+the Z field of the Tcp line from /proc/net/netstat
+
+@ network.udp.ignoredmulti the IgnoredMulti field of the Udp line from /proc/net/netstat
+@ network.udp.memerrors the MemErrors field of the Udp line from /proc/net/netstat
+@ network.udplite.ignoredmulti the IgnoredMulti field of the UdpLite line from /proc/net/netstat
+@ network.udplite.memerrors the MemErrors field of the UdpLite line from /proc/net/netstat
+@ network.tcp.tcphystarttraindetect the TCPHystartTrainDetect field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcphystarttraincwnd the TCPHystartTrainCwnd field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcphystartdelaydetect the TCPHystartDelayDetect field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcphystartdelaycwnd the TCPHystartDelayCwnd field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpackskippedsynrecv the TCPACKSkippedSynRecv field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpackskippedpaws the TCPACKSkippedPAWS field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpackskippedseq the TCPACKSkippedSeq field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpackskippedfinwait2 the TCPACKSkippedFinWait2 field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpackskippedtimewait the TCPACKSkippedTimeWait field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpackskippedchallenge the TCPACKSkippedChallenge field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpwinprobe the TCPWinProbe field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpkeepalive the TCPKeepAlive field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpmtupfail the TCPMTUPFail field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpmtupsuccess the TCPMTUPSuccess field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpdelivered the TCPDelivered field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpdeliveredce the TCPDeliveredCE field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpackcompressed the TCPAckCompressed field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpzerowindowdrop the TCPZeroWindowDrop field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcprcvqdrop the TCPRcvQDrop field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpwqueuetoobig the TCPWqueueTooBig field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpfastopenpassivealtkey the TCPFastOpenPassiveAltKey field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcptimeoutrehash the TcpTimeoutRehash field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpduplicatedatarehash the TcpDuplicateDataRehash field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpdsackrecvsegs the TCPDSACKRecvSegs field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpdsackignoreddubious the TCPDSACKIgnoredDubious field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpmigratereqsuccess the TCPMigrateReqSuccess field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpmigratereqfailure the TCPMigrateReqFailure field of the Tcp line from /proc/net/netstat
+@ network.ip.reasmoverlaps the ReasmOverlaps field of the Ip line from /proc/net/netstat
+@ network.mptcp.dssnomatchtcp the DSSNoMatchTCP field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.datacsumerr the DataCsumErr field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.ofoqueuetail the OFOQueueTail field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.ofoqueue the OFOQueue field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.ofomerge the OFOMerge field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.nodssinwindow the NoDSSInWindow field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.duplicatedata the DuplicateData field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.addaddr the AddAddr field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.echoadd the EchoAdd field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.portadd the PortAdd field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinportsynrx the MPJoinPortSynRx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinportsynackrx the MPJoinPortSynAckRx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinportackrx the MPJoinPortAckRx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mismatchportsynrx the MismatchPortSynRx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mismatchportackrx the MismatchPortAckRx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.rmaddr the RmAddr field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.rmsubflow the RmSubflow field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mppriotx the MPPrioTx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mppriorx the MPPrioRx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.rcvpruned the RcvPruned field of the MPTcp line from /proc/net/netstat
