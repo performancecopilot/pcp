@@ -229,9 +229,9 @@ GENPMDA	= $(TOPDIR)/src/genpmda/genpmda
 PKGMK	= @pkgmk@
 MD5SUM	= @md5sum@
 INKSCAPE = @inkscape@
-BPF_CLANG = @bpf_clang@
-BPF_LLVM_STRIP = @bpf_llvm_strip@
-BPFTOOL = @BPFTOOL@
+PMDABPF_CLANG = @pmdabpf_clang@
+PMDABPF_LLVM_STRIP = @pmdabpf_llvm_strip@
+PMDABPF_BPFTOOL = @pmdabpf_bpftool@
 
 HAVE_MANPAGES = @have_manpages@
 HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@

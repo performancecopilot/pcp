@@ -826,8 +826,6 @@ bzip2
 BZIP2
 gzip
 ZIP
-bpf_llvm_strip
-bpf_clang
 tar
 TAR
 pcp_group_install
@@ -862,7 +860,12 @@ pcp_perl_prog
 PERL
 PMDA_BPFTRACE
 PMDA_BPF
-BPFTOOL
+pmdabpf_bpftool
+PMDABPF_BPFTOOL
+pmdabpf_llvm_strip
+PMDABPF_LLVM_STRIP
+pmdabpf_clang
+PMDABPF_CLANG
 HAVE_LIBELF
 libelf_LIBS
 libelf_CFLAGS
@@ -1051,6 +1054,7 @@ with_pmdabcc
 with_pmdabpf
 with_pmdabpf_clang
 with_pmdabpf_llvm_strip
+with_pmdabpf_bpftool
 with_pmdabpftrace
 with_pmdajson
 with_pmdanutcracker
@@ -1791,9 +1795,13 @@ Optional Packages:
   --with-pmdapodman       enable podman pmda (default is on)
   --with-pmdabcc          enable BCC pmda (default is on)
   --with-pmdabpf          enable BPF pmda (default is on)
-  --with-pmdabpf-clang    path to clang 10+ (default is 'clang')
+  --with-pmdabpf-clang    path to clang 10+ (default is empty for auto
+                          discovery)
   --with-pmdabpf-llvm-strip
-                          path to llvm-strip 10+ (default is 'llvm-strip')
+                          path to llvm-strip 10+ (default is empty for auto
+                          discovery)
+  --with-pmdabpf-bpftool  path to bpftool (default is empty for auto
+                          discovery)
   --with-pmdabpftrace     enable bpftrace pmda (default is on)
   --with-pmdajson         enable JSON pmda (default is on)
   --with-pmdanutcracker   enable nutcracker pmda (default is on)
@@ -2975,18 +2983,27 @@ fi
 
 # Check whether --with-pmdabpf-clang was given.
 if test "${with_pmdabpf_clang+set}" = set; then :
-  withval=$with_pmdabpf_clang; BPF_CLANG=$withval
+  withval=$with_pmdabpf_clang; PMDABPF_CLANG=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpf-clang=$withval"
 else
-  BPF_CLANG='clang'
+  PMDABPF_CLANG=''
 fi
 
 
 
 # Check whether --with-pmdabpf-llvm-strip was given.
 if test "${with_pmdabpf_llvm_strip+set}" = set; then :
-  withval=$with_pmdabpf_llvm_strip; BPF_LLVM_STRIP=$withval
+  withval=$with_pmdabpf_llvm_strip; PMDABPF_LLVM_STRIP=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpf-llvm-strip=$withval"
 else
-  BPF_LLVM_STRIP='llvm-strip'
+  PMDABPF_LLVM_STRIP=''
+fi
+
+
+
+# Check whether --with-pmdabpf-bpftool was given.
+if test "${with_pmdabpf_bpftool+set}" = set; then :
+  withval=$with_pmdabpf_bpftool; PMDABPF_BPFTOOL=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpf-bpftool=$withval"
+else
+  PMDABPF_BPFTOOL=''
 fi
 
 
@@ -8244,16 +8261,17 @@ fi
 HAVE_LIBELF=$have_libelf
 
 
-# Extract the first word of "bpftool", so it can be a program name with args.
-set dummy bpftool; ac_word=$2
+if test -z "$PMDABPF_CLANG"; then
+    # Extract the first word of "clang", so it can be a program name with args.
+set dummy clang; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 $as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_path_BPFTOOL+:} false; then :
+if ${ac_cv_path_PMDABPF_CLANG+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  case $BPFTOOL in
+  case $PMDABPF_CLANG in
   [\\/]* | ?:[\\/]*)
-  ac_cv_path_BPFTOOL="$BPFTOOL" # Let the user override the test with a path.
+  ac_cv_path_PMDABPF_CLANG="$PMDABPF_CLANG" # Let the user override the test with a path.
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
@@ -8263,7 +8281,7 @@ do
   test -z "$as_dir" && as_dir=.
     for ac_exec_ext in '' $ac_executable_extensions; do
   if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_BPFTOOL="$as_dir/$ac_word$ac_exec_ext"
+    ac_cv_path_PMDABPF_CLANG="$as_dir/$ac_word$ac_exec_ext"
     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
     break 2
   fi
@@ -8274,15 +8292,108 @@ IFS=$as_save_IFS
   ;;
 esac
 fi
-BPFTOOL=$ac_cv_path_BPFTOOL
-if test -n "$BPFTOOL"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $BPFTOOL" >&5
-$as_echo "$BPFTOOL" >&6; }
+PMDABPF_CLANG=$ac_cv_path_PMDABPF_CLANG
+if test -n "$PMDABPF_CLANG"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PMDABPF_CLANG" >&5
+$as_echo "$PMDABPF_CLANG" >&6; }
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
 fi
 
+
+fi
+pmdabpf_clang=$PMDABPF_CLANG
+
+
+if test -z "$PMDABPF_LLVM_STRIP"; then
+    # Extract the first word of "llvm-strip", so it can be a program name with args.
+set dummy llvm-strip; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_PMDABPF_LLVM_STRIP+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $PMDABPF_LLVM_STRIP in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_PMDABPF_LLVM_STRIP="$PMDABPF_LLVM_STRIP" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_PMDABPF_LLVM_STRIP="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+PMDABPF_LLVM_STRIP=$ac_cv_path_PMDABPF_LLVM_STRIP
+if test -n "$PMDABPF_LLVM_STRIP"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PMDABPF_LLVM_STRIP" >&5
+$as_echo "$PMDABPF_LLVM_STRIP" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+fi
+pmdabpf_llvm_strip=$PMDABPF_LLVM_STRIP
+
+
+if test -z "$PMDABPF_BPFTOOL"; then
+    # Extract the first word of "bpftool", so it can be a program name with args.
+set dummy bpftool; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_PMDABPF_BPFTOOL+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $PMDABPF_BPFTOOL in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_PMDABPF_BPFTOOL="$PMDABPF_BPFTOOL" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_PMDABPF_BPFTOOL="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+PMDABPF_BPFTOOL=$ac_cv_path_PMDABPF_BPFTOOL
+if test -n "$PMDABPF_BPFTOOL"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PMDABPF_BPFTOOL" >&5
+$as_echo "$PMDABPF_BPFTOOL" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+fi
+pmdabpf_bpftool=$PMDABPF_BPFTOOL
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if the bpf PMDA should be included" >&5
@@ -8294,7 +8405,7 @@ fi
 if test "x$do_pmdabpf" = "xcheck"; then :
 
         if test $clang_major_version -ge 10; then
-        $have_libbpf && $have_libelf && test -n "$BPFTOOL" && pmda_bpf=true
+        $have_libbpf && $have_libelf && test -n "$pmdabpf_bpftool" && pmda_bpf=true
     else
         pmda_bpf=false
     fi
@@ -9171,14 +9282,6 @@ then
 fi
 tar=$TAR
 
-
-bpf_clang=$BPF_CLANG
-
-echo "using BPF clang at $bpf_clang"
-
-bpf_llvm_strip=$BPF_LLVM_STRIP
-
-echo "using BPF llvm-strip at $bpf_llvm_strip"
 
 if test -z "$ZIP"; then
     # Extract the first word of "gzip", so it can be a program name with args.
