@@ -2,7 +2,7 @@
  * Linux /proc/zoneinfo metrics cluster
  *
  * Copyright (c) 2016-2017 Fujitsu.
- * Copyright (c) 2016-2018 Red Hat.
+ * Copyright (c) 2016-2018,2021 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -62,8 +62,34 @@ enum {
     ZONE_WORKINGSET_NODERECLAIM        = 43,
     ZONE_NR_ANON_TRANSPARENT_HUGEPAGES = 44,
     ZONE_NR_FREE_CMA                   = 45,
-    /* enumerate all values here */
-    ZONE_VALUES	/* maximum value */
+    ZONE_CMA                           = 46,
+    ZONE_NR_SWAPCACHED                 = 47,
+    ZONE_NR_SHMEM_HUGEPAGES            = 48,
+    ZONE_NR_SHMEM_PMDMAPPED            = 49,
+    ZONE_NR_FILE_HUGEPAGES             = 50,
+    ZONE_NR_FILE_PMDMAPPED             = 51,
+    ZONE_NR_KERNEL_MISC_RECLAIMABLE    = 52,
+    ZONE_NR_FOLL_PIN_ACQUIRED          = 53,
+    ZONE_NR_FOLL_PIN_RELEASED          = 54,
+    ZONE_WORKINGSET_REFAULT_ANON       = 55,
+    ZONE_WORKINGSET_REFAULT_FILE       = 56,
+    ZONE_WORKINGSET_ACTIVATE_ANON      = 57,
+    ZONE_WORKINGSET_ACTIVATE_FILE      = 58,
+    ZONE_WORKINGSET_RESTORE_ANON       = 59,
+    ZONE_WORKINGSET_RESTORE_FILE       = 60,
+    ZONE_NR_ZSPAGES                    = 61,
+    ZONE_NR_ZONE_INACTIVE_FILE         = 62,
+    ZONE_NR_ZONE_ACTIVE_FILE           = 63,
+    ZONE_VALUES0	/* maximum value represented in flags */
+};
+
+enum {
+    ZONE_NR_ZONE_INACTIVE_ANON         = 64,
+    ZONE_NR_ZONE_ACTIVE_ANON           = 65,
+    ZONE_NR_ZONE_UNEVICTABLE           = 66,
+    ZONE_NR_ZONE_WRITE_PENDING         = 67,
+    /* enumerate new values here */
+    ZONE_VALUES1	/* maximum value represented in flags1 */
 };
 
 #define ZONE_NAMELEN	32
@@ -71,7 +97,9 @@ enum {
 typedef struct {
     __uint32_t	node;
     char	zone[ZONE_NAMELEN];
-    __uint64_t	values[ZONE_VALUES];
+    __uint64_t	flags;
+    __uint64_t	flags1;
+    __uint64_t	values[ZONE_VALUES0 + ZONE_VALUES1];
 } zoneinfo_entry_t;
 
 typedef struct {

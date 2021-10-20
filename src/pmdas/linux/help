@@ -1324,7 +1324,29 @@ each NUMA node.
 @ mem.zoneinfo.workingset_activate count of page activations to form the working set in each zone for each NUMA node
 @ mem.zoneinfo.workingset_nodereclaim count of NUMA node working set page reclaims in each zone for each NUMA node
 @ mem.zoneinfo.nr_anon_transparent_hugepages number of anonymous transparent huge pages in each zone for each NUMA node
-@ mem.zoneinfo.nr_free_cma count of free Contiguous Memory Allocator pages in each zone for each NUMA node.
+@ mem.zoneinfo.nr_free_cma count of free Contiguous Memory Allocator pages in each zone for each NUMA node
+@ mem.zoneinfo.cma count of Contiguous Memory Allocator pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_swapcached swap cache pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_shmem_hugepages shared memory huge pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_shmem_pmdmapped shared memory PMD mappings in each zone for each NUMA node
+@ mem.zoneinfo.nr_file_hugepages file-backed huge pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_file_pmdmapped file-backed PMD mappings in each zone for each NUMA node
+@ mem.zoneinfo.nr_kernel_misc_reclaimable miscellaneous reclaimable kernel pages in each zone for each NUMA node
+@ mem.zoneinfo.nr_foll_pin_acquired foll pin acquired pages for each zone for each NUMA node
+@ mem.zoneinfo.nr_foll_pin_released count of foll pin released pages for each zone for each NUMA node
+@ mem.zoneinfo.workingset_refault_anon anonymous refault working set pages for each zone for each NUMA node
+@ mem.zoneinfo.workingset_refault_file file-backed refault working set pages for each zone for each NUMA node
+@ mem.zoneinfo.workingset_active_anon active anonymous working set pages for each zone for each NUMA node
+@ mem.zoneinfo.workingset_active_file active file-backed working set pages for each zone for each NUMA node
+@ mem.zoneinfo.workingset_restore_anon restored anonymous working set pages for each zone for each NUMA node
+@ mem.zoneinfo.workingset_restore_file file-backed restored anonymous working set pages for each zone for each NUMA node
+@ mem.zoneinfo.nr_zspages count of zsmalloc memory allocator pages for each zone for each NUMA node
+@ mem.zoneinfo.nr_zone_inactive_file zone inactive file-backed pages for each zone for each NUMA node
+@ mem.zoneinfo.nr_zone_active_file zone active file-backed pages for each zone for each NUMA node
+@ mem.zoneinfo.nr_zone_inactive_anon zone inactive anonymous pages for each zone for each NUMA node
+@ mem.zoneinfo.nr_zone_active_anon zone active anonymous pages for each zone for each NUMA node
+@ mem.zoneinfo.nr_zone_unevictable zone unevictable pages for each zone for each NUMA node
+@ mem.zoneinfo.nr_zone_write_pending zone write-pending pages for each zone for each NUMA node
 @ mem.zoneinfo.protection protection space in each zone for each NUMA node
 @ mem.ksm.full_scans Number of times that KSM has scanned for duplicated content
 @ mem.ksm.merge_across_nodes Kernel allows merging across NUMA nodes

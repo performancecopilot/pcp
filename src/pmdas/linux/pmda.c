@@ -4799,6 +4799,116 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_ZONEINFO,45), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
+/* mem.zoneinfo.cma */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,46), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_swapcached */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,47), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_shmem_hugepages */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,48), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_shmem_pmdmapped */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,49), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_file_hugepages */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,50), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_file_pmdmapped */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,51), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_kernel_misc_reclaimable */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,52), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_foll_pin_acquired */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,53), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_foll_pin_released */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,54), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.workingset_refault_anon */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,55), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.workingset_refault_file */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,56), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.workingset_active_anon */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,57), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.workingset_active_file */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,58), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.workingset_restore_anon */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,59), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.workingset_restore_file */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,60), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_zspages */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,61), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_zone_inactive_file */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,62), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_zone_active_file */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,63), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_zone_inactive_anon */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,64), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_zone_active_anon */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,65), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_zone_unevictable */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,66), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.nr_zone_write_pending */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,67), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
 /* mem.zoneinfo.protection */
   { NULL,
     { PMDA_PMID(CLUSTER_ZONEINFO_PROTECTION,0), PM_TYPE_U64, ZONEINFO_PROTECTION_INDOM, PM_SEM_INSTANT,
@@ -7194,6 +7304,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     unsigned int	cluster = pmID_cluster(mdesc->m_desc.pmid);
     unsigned int	item = pmID_item(mdesc->m_desc.pmid);
+    pmInDom		indom = mdesc->m_desc.indom;
     int			i;
     int			sts;
     long		sl;
@@ -7297,139 +7408,139 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	 */
 	switch (item) {
 	case 0: /* kernel.percpu.cpu.user */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)cp->stat.user / hz);
 	    break;
 	case 1: /* kernel.percpu.cpu.nice */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)cp->stat.nice / hz);
 	    break;
 	case 2: /* kernel.percpu.cpu.sys */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)cp->stat.sys / hz);
 	    break;
 	case 3: /* kernel.percpu.cpu.idle */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_idletime_size, atom, 1000 * (double)cp->stat.idle / hz);
 	    break;
 	case 30: /* kernel.percpu.cpu.wait.total */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)cp->stat.wait / hz);
 	    break;
 	case 31: /* kernel.percpu.cpu.intr */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * ((double)cp->stat.irq + (double)cp->stat.sirq) / hz);
 	    break;
 	case 56: /* kernel.percpu.cpu.irq.soft */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)cp->stat.sirq / hz);
 	    break;
 	case 57: /* kernel.percpu.cpu.irq.hard */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)cp->stat.irq / hz);
 	    break;
 	case 58: /* kernel.percpu.cpu.steal */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)cp->stat.steal / hz);
 	    break;
 	case 61: /* kernel.percpu.cpu.guest */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)cp->stat.guest / hz);
 	    break;
 	case 76: /* kernel.percpu.cpu.vuser */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * (double)(cp->stat.user - cp->stat.guest) / hz);
 	    break;
 	case 83: /* kernel.percpu.cpu.guest_nice */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * (double)cp->stat.guest_nice / hz);
 	    break;
 	case 84: /* kernel.percpu.cpu.vnice */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * (double)(cp->stat.nice - cp->stat.guest_nice) / hz);
 	    break;
 	case 62: /* kernel.pernode.cpu.user */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&np) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)np->stat.user / hz);
 	    break;
 	case 63: /* kernel.pernode.cpu.nice */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&np) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)np->stat.nice / hz);
 	    break;
 	case 64: /* kernel.pernode.cpu.sys */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&np) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)np->stat.sys / hz);
 	    break;
 	case 65: /* kernel.pernode.cpu.idle */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&np) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_idletime_size, atom, 1000 * (double)np->stat.idle / hz);
 	    break;
 	case 69: /* kernel.pernode.cpu.wait.total */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&np) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)np->stat.wait / hz);
 	    break;
 	case 66: /* kernel.pernode.cpu.intr */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&np) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * ((double)np->stat.irq + (double)np->stat.sirq) / hz);
 	    break;
 	case 70: /* kernel.pernode.cpu.irq.soft */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&np) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)np->stat.sirq / hz);
 	    break;
 	case 71: /* kernel.pernode.cpu.irq.hard */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&np) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)np->stat.irq / hz);
 	    break;
 	case 67: /* kernel.pernode.cpu.steal */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&np) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)np->stat.steal / hz);
 	    break;
 	case 68: /* kernel.pernode.cpu.guest */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&np) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)np->stat.guest / hz);
 	    break;
 	case 77: /* kernel.pernode.cpu.vuser */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&np) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * (double)(np->stat.user - np->stat.guest) / hz);
 	    break;
 	case 85: /* kernel.pernode.cpu.guest_nice */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&np) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * (double)np->stat.guest_nice / hz);
 	    break;
 	case 86: /* kernel.pernode.cpu.vnice */
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&np) < 0)
 		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * (double)(np->stat.nice - np->stat.guest_nice) / hz);
@@ -8364,7 +8475,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_CPUINFO:
 	if (inst != PM_IN_NULL &&
-	    pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+	    pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 	    return PM_ERR_INST;
 	switch (item) {
 	case 0: /* hinv.cpu.clock */
@@ -8496,14 +8607,15 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
      */
     case CLUSTER_ZONEINFO_PROTECTION: {
 	zoneprot_entry_t *prot;
-	sts = pmdaCacheLookup(INDOM(ZONEINFO_PROTECTION_INDOM), inst, NULL, (void **)&prot);
+
+	sts = pmdaCacheLookup(indom, inst, NULL, (void **)&prot);
 	if (sts < 0)
 	    return sts;
 	if (sts == PMDA_CACHE_INACTIVE)
 	    return PM_ERR_INST;
 	switch (item) {
 	case 0: /* mem.zoneinfo.protection */
-            atom->ull = (__uint64_t)prot->value;
+            atom->ull = (prot->value << _pm_pageshift) / 1024;
 	}
 	break;
     }
@@ -8511,14 +8623,22 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_ZONEINFO: {
 	zoneinfo_entry_t *info;
 
-	sts = pmdaCacheLookup(INDOM(ZONEINFO_INDOM), inst, NULL, (void **)&info);
+	sts = pmdaCacheLookup(indom, inst, NULL, (void **)&info);
 	if (sts < 0)
 	    return sts;
 	if (sts == PMDA_CACHE_INACTIVE)
 	    return PM_ERR_INST;
-	if (item >= ZONE_VALUES)
+	/* check if value is up-to-date (is it in this kernel?) */
+	if (item < ZONE_VALUES0) {
+	    if (!(info->flags & (1ULL << item)))
+		return 0;
+	} else if (item < ZONE_VALUES1) {
+	    if (!(info->flags1 & (1ULL << (item - ZONE_VALUES0))))
+		return 0;
+	} else {
 	    return PM_ERR_PMID;
-	atom->ull = info->values[item];
+	}
+	atom->ull = (info->values[item] << _pm_pageshift) / 1024;
 	break;
     }
 
@@ -8845,7 +8965,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_NUMA_MEMINFO:
 	/* NUMA memory metrics from /sys/devices/system/node/nodeX */
-	sts = pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np);
+	sts = pmdaCacheLookup(indom, inst, NULL, (void **)&np);
 	if (sts != PMDA_CACHE_ACTIVE)
 	    return PM_ERR_INST;
 
@@ -9037,42 +9157,42 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 6:	/* network.softnet.percpu.processed */
 	    if (!(proc_net_softnet.flags & SN_PROCESSED))
 		return PM_ERR_APPVERSION;
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    atom->ull = cp->softnet->processed;
 	    break;
 	case 7: /* network.softnet.percpu.dropped */
 	    if (!(proc_net_softnet.flags & SN_DROPPED))
 		return PM_ERR_APPVERSION;
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    atom->ull = cp->softnet->dropped;
 	    break;
 	case 8: /* network.softnet.percpu.time_squeeze */
 	    if (!(proc_net_softnet.flags & SN_TIME_SQUEEZE))
 		return PM_ERR_APPVERSION;
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    atom->ull = cp->softnet->time_squeeze;
 	    break;
 	case 9: /* network.softnet.percpu.cpu_collision */
 	    if (!(proc_net_softnet.flags & SN_CPU_COLLISION))
 		return PM_ERR_APPVERSION;
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    atom->ull = cp->softnet->cpu_collision;
 	    break;
 	case 10: /* network.softnet.percpu.received_rps */
 	    if (!(proc_net_softnet.flags & SN_RECEIVED_RPS))
 		return PM_ERR_APPVERSION;
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    atom->ull = cp->softnet->received_rps;
 	    break;
 	case 11: /* network.softnet.percpu.flow_limit_count */
 	    if (!(proc_net_softnet.flags & SN_FLOW_LIMIT_COUNT))
 		return PM_ERR_APPVERSION;
-	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+	    if (pmdaCacheLookup(indom, inst, NULL, (void **)&cp) < 0)
 		return PM_ERR_INST;
 	    atom->ull = cp->softnet->flow_limit_count;
 	    break;
@@ -9124,7 +9244,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_TTY:
 	if (proc_tty_permission != 1)
 	    return 0;
-	if (mdesc->m_desc.indom == INDOM(TTY_INDOM)) {
+	if (indom == INDOM(TTY_INDOM)) {
 	    ttydev_t *ttydev = NULL;
 	    sts = pmdaCacheLookup(INDOM(TTY_INDOM), inst, NULL, (void **)&ttydev);
 
@@ -9633,9 +9753,11 @@ linux_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 			value);
 
     case ZONEINFO_INDOM:
-	sts = pmdaCacheLookup(INDOM(ZONEINFO_INDOM), inst, &name, (void **)&info);
+	sts = pmdaCacheLookup(indom, inst, &name, (void **)&info);
 	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
 	    return 0;
+	if (info->zone[0] == '\0')
+	    return pmdaAddLabels(lp, "{\"numa_node\":%u}", info->node);
 	return pmdaAddLabels(lp, "{\"numa_node\":%u,\"zone\":\"%s\"}",
 			info->node, info->zone);
 
