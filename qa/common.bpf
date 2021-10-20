@@ -17,11 +17,6 @@ _pmdabpf_check()
     || readelf -S /boot/vmlinux-$(uname -r) 2>&1 | grep -q BTF \
     || _notrun "BTF not available"
     [ -f $PCP_PMDAS_DIR/bpf/pmdabpf ] || _notrun "bpf PMDA not installed"
-
-    # check for libelf and libbpf
-    # check libbpf is compatible
-
-    # TODO how do?
 }
 
 _pmdabpf_require_kernel_version()
