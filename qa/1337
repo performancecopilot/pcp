@@ -25,14 +25,6 @@ test -n "$server" || _notrun "Cannot find SQL Server connection setting"
 test -n "$username" || _notrun "Cannot find SQL Server username setting"
 test -n "$password" || _notrun "Cannot find SQL Server password setting"
 
-_query()
-{
-    $SQLCMD -S "$server" -U "$username" -P "$password" -Q "$@"
-}
-_query "select 1" > $tmp.query
-grep -q '(1 rows affected)' $tmp.query || \
-	_notrun "Cannot perform a basic select query on $server - got:" `cat $tmp.out`
-
 _cleanup()
 {
     cd $here
@@ -42,6 +34,14 @@ _cleanup()
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_query()
+{
+    $SQLCMD -S "$server" -U "$username" -P "$password" -Q "$@"
+}
+_query "select 1" > $tmp.query 2>&1
+grep -q '(1 rows affected)' $tmp.query || \
+	_notrun "Cannot perform select on $server - got:" `cat $tmp.query`
 
 _compare_values()
 {
