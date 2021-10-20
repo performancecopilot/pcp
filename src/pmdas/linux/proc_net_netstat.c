@@ -556,6 +556,7 @@ refresh_proc_net_netstat(proc_net_netstat_t *netstat)
 	    if ((lost = check_read_trunc(header, fp)) != 0) {
 		pmNotifyErr(LOG_ERR, "refresh_proc_net_netstat: header[] too small, need at least %zd more bytes\n", lost);
 		onetrip = PM_ERR_BOTCH;
+		fclose(fp);
 		return onetrip;
 	    }
 	}
@@ -565,6 +566,7 @@ refresh_proc_net_netstat(proc_net_netstat_t *netstat)
 		if ((lost = check_read_trunc(buf, fp)) != 0) {
 		    pmNotifyErr(LOG_ERR, "refresh_proc_net_netstat: buf[] too small, need at least %zd more bytes\n", lost);
 		    onetrip = PM_ERR_BOTCH;
+		    fclose(fp);
 		    return onetrip;
 		}
 	    }
