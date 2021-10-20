@@ -40,8 +40,8 @@ test_and_repair()
     archive="$tmp/ok-mv-foo"
 
     pmdumplog -z -L $archive 2>&1 | filter_paths 	# test
-    pmloglabel -Dlog $archive 2>$tmp.err 		# check
-    filter_debug <$tmp.err
+    pmloglabel -Dlog $archive 2>$tmp/err 		# check
+    filter_debug <$tmp/err
     pmloglabel $opts $archive	# repair
     pmdumplog -z -L $archive	# test
 }
