@@ -26,11 +26,11 @@ install_pcp install:	default
 # clang-12 special notes: https://www.spinics.net/lists/netdev/msg689901.html
 
 %.bpf.o: %.bpf.c
-	$(BPF_CLANG) -Wall -g -O2 -target bpf -D__TARGET_ARCH_x86 -c $< -o $@
-	$(BPF_LLVM_STRIP) -g $@
+	$(PMDABPF_CLANG) -Wall -g -O2 -target bpf -D__TARGET_ARCH_x86 -c $< -o $@
+	$(PMDABPF_LLVM_STRIP) -g $@
 
 %.skel.h: %.bpf.o
-	$(BPFTOOL) gen skeleton $< > $@
+	$(PMDABPF_BPFTOOL) gen skeleton $< > $@
 
 %.o: %.c
 %.o: %.c %.skel.h

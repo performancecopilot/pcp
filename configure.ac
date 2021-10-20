@@ -161,15 +161,21 @@ AC_ARG_WITH([pmdabpf],
 
 AC_ARG_WITH([pmdabpf-clang],
     [AC_HELP_STRING([--with-pmdabpf-clang],
-                    [path to clang 10+ (default is 'clang')])],
-    [BPF_CLANG=$withval],
-    [BPF_CLANG='clang'])
+                    [path to clang 10+ (default is empty for auto discovery)])],
+    [PMDABPF_CLANG=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpf-clang=$withval"],
+    [PMDABPF_CLANG=''])
 
 AC_ARG_WITH([pmdabpf-llvm-strip],
     [AC_HELP_STRING([--with-pmdabpf-llvm-strip],
-                    [path to llvm-strip 10+ (default is 'llvm-strip')])],
-    [BPF_LLVM_STRIP=$withval],
-    [BPF_LLVM_STRIP='llvm-strip'])
+                    [path to llvm-strip 10+ (default is empty for auto discovery)])],
+    [PMDABPF_LLVM_STRIP=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpf-llvm-strip=$withval"],
+    [PMDABPF_LLVM_STRIP=''])
+
+AC_ARG_WITH([pmdabpf-bpftool],
+    [AC_HELP_STRING([--with-pmdabpf-bpftool],
+                    [path to bpftool (default is empty for auto discovery)])],
+    [PMDABPF_BPFTOOL=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpf-bpftool=$withval"],
+    [PMDABPF_BPFTOOL=''])
 
 AC_ARG_WITH([pmdabpftrace],
     [AC_HELP_STRING([--with-pmdabpftrace],
@@ -1160,7 +1166,24 @@ AC_SUBST(HAVE_LIBBPF, [$have_libbpf])
 PKG_CHECK_MODULES([libelf], [libelf], [have_libelf=true], [have_libelf=false])
 AC_SUBST(HAVE_LIBELF, [$have_libelf])
 
-AC_PATH_PROG(BPFTOOL, bpftool)
+dnl Auto-discover clang, llvm-strip and bpftool if not provided by the user
+if test -z "$PMDABPF_CLANG"; then
+    AC_PATH_PROG(PMDABPF_CLANG, clang)
+fi
+pmdabpf_clang=$PMDABPF_CLANG
+AC_SUBST(pmdabpf_clang)
+
+if test -z "$PMDABPF_LLVM_STRIP"; then
+    AC_PATH_PROG(PMDABPF_LLVM_STRIP, llvm-strip)
+fi
+pmdabpf_llvm_strip=$PMDABPF_LLVM_STRIP
+AC_SUBST(pmdabpf_llvm_strip)
+
+if test -z "$PMDABPF_BPFTOOL"; then
+    AC_PATH_PROG(PMDABPF_BPFTOOL, bpftool)
+fi
+pmdabpf_bpftool=$PMDABPF_BPFTOOL
+AC_SUBST(pmdabpf_bpftool)
 
 AC_MSG_CHECKING([if the bpf PMDA should be included])
 pmda_bpf=false
@@ -1168,7 +1191,7 @@ AS_IF([test "x$do_pmdabpf" = "xyes"], [pmda_bpf=true])
 AS_IF([test "x$do_pmdabpf" = "xcheck"], [
     dnl pmdabpf requires libbpf, libelf and bpftool
     if test $clang_major_version -ge 10; then
-        $have_libbpf && $have_libelf && test -n "$BPFTOOL" && pmda_bpf=true
+        $have_libbpf && $have_libelf && test -n "$pmdabpf_bpftool" && pmda_bpf=true
     else
         pmda_bpf=false
     fi
@@ -1602,15 +1625,6 @@ then
 fi
 tar=$TAR
 AC_SUBST(tar)
-
-dnl Allow user to override clang and llvm-strip for BPF
-bpf_clang=$BPF_CLANG
-AC_SUBST(bpf_clang)
-echo "using BPF clang at $bpf_clang"
-
-bpf_llvm_strip=$BPF_LLVM_STRIP
-AC_SUBST(bpf_llvm_strip)
-echo "using BPF llvm-strip at $bpf_llvm_strip"
 
 dnl check if the gzip program is available
 dnl (needed to gzip man pages on some platforms)
