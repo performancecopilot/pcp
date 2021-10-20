@@ -1,0 +1,78 @@
+#!/bin/sh
+#
+# Run from ./check, this script will try to make sure the pmlogger_daily
+# work has really been done ... this is important for QA VMs that are booted
+# for QA and tend to miss the nightly pmlogger_daily run
+#
+# We also install (and update if necessary) a "qa.conf" file for pmlogrewrite
+# to cleanup any QA turds that may be left in the archives and might block
+# pmlogger_merge in particular.
+#
+
+. ./common.rc
+
+tmp=/var/tmp/daily-cleanup-$$
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+verbose=true
+
+# Anything to be merged?
+#
+pmlogger_daily -N -V >$tmp.tmp
+
+if grep '^+ pmlogger_merge ' $tmp.tmp >/dev/null
+then
+    echo >&2 "Info: pmlogger_daily needs to be run"
+    cat >$tmp.conf.in <<End-of-File
+# rewrite rules to accommodate oddness in archives from running PCP QA
+#
+
+# The PMID (70.1.1) of mmv.mymmv.export_value from qa/241 collides
+# with the same PMID for mmv.test.counter from qa/213 ... one of them
+# has to go, else pmlogextract dies in pmlogger_daily
+# 
+metric mmv.mymmv.export_value { DELETE }
+
+# Ditto for mmv.test.noinit from qa/647
+#
+metric mmv.test.noinit { DELETE }
+
+End-of-File
+    CONF=$PCP_VAR_DIR/config/pmlogrewrite/pcpqa.conf
+    if [ ! -f $CONF ]
+    then
+	echo >&2 "Info: $CONF installed"
+	echo "#---" >>$tmp.conf.in
+	echo "# Installed: `date`" >>$tmp.conf.in
+	sudo cp $tmp.conf.in $CONF
+    else
+	awk <$CONF >$tmp.head '
+/^#---$/	{ exit }
+		{ print }'
+	if diff $tmp.head $tmp.conf.in >/dev/null
+	then
+	    :
+	else
+	    echo >&2 "Info: $CONF updated"
+	    awk <$CONF >$tmp.tail '
+/^#---$/	{ state = 1 }
+state == 1	{ print }'
+	    cat $tmp.conf.in $tmp.tail >$tmp.conf
+	    echo "# Updated: `date`" >>$tmp.conf
+	    sudo cp $tmp.conf $CONF
+	fi
+    fi
+    sudo -u pcp -g pcp `which pmlogger_daily`
+    pmlogger_daily -N -V >$tmp.tmp
+    if grep '^+ pmlogger_merge ' $tmp.tmp 
+    then
+	echo >&2 "Error: pmlogger_daily failed!"
+	echo >&2 "pmlogger_daily.log ..."
+	cat >&2 $PCP_ARCHIVE_DIR/pmlogger_daily.log
+	echo >&2 "This is what remains to be done ..."
+	cat >&2 $tmp.tmp
+	sts=1
+    fi
+fi
+
+sts=0

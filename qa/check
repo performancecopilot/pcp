@@ -324,6 +324,14 @@ then
 else
     echo "" >>check.log
     date >>check.log
+    # make sure everything is ship-shape from pmlogger_daily
+    #
+    if ./daily-cleanup
+    then
+	:
+    else
+	echo "... you have been warned!"
+    fi
 fi
 
 for seq in $list
