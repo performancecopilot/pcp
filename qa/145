@@ -75,7 +75,13 @@ s/ 570e0102/  2010000/
 	-e 's/  [0-9][0-9][0-9][0-9]102/  2010000/' \
 	-e 's/      201/  1020000/' \
 	-e 's/      102/  2010000/' \
-    # end
+    | $PCP_AWK_PROG '
+BEGIN		{ seen_challenge = 0 }
+seen_challenge == 0 && $3 == 7000	{
+			sub(/[^ ][^ ]* $/, "CHALLENGE ")
+			seen_challenge = 1
+		}
+		{ print }'
 }
 
 # real QA test starts here
