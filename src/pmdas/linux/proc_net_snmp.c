@@ -393,6 +393,7 @@ refresh_proc_net_snmp(proc_net_snmp_t *snmp)
 	    if ((lost = check_read_trunc(header, fp)) != 0) {
 		pmNotifyErr(LOG_ERR, "refresh_proc_net_snmp: header[] too small, need at least %zd more bytes\n", lost);
 		onetrip = PM_ERR_BOTCH;
+		fclose(fp);
 		return onetrip;
 	    }
 	}
