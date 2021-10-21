@@ -260,6 +260,7 @@ do
 	    -e "/mem\.util\.slabReclaimable: $unavailable/d" \
 	    -e "/mem\.util\.slabUnreclaimable: $unavailable/d" \
 	    -e "/mem\.util\.unevictable: $unavailable/d" \
+	    -e "/mem\.zoneinfo\..*: $unavailable/d" \
 	    -e "/mem\.vmstat\..*: $unavailable/d" \
 	    -e "/network\.ib\..*/d" \
 	    -e "/network\.icmpmsg\..*: $unavailable/d" \
