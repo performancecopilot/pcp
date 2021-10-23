@@ -78,7 +78,7 @@ s/ 570e0102/  2010000/
     | $PCP_AWK_PROG '
 BEGIN		{ seen_challenge = 0 }
 seen_challenge == 0 && $3 == 7000	{
-			sub(/[^ ][^ ]* $/, "CHALLENGE ")
+			sub(/  *[^ ][^ ]* $/, "  CHALLENGE ")
 			seen_challenge = 1
 		}
 		{ print }'
