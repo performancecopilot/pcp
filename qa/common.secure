@@ -219,15 +219,27 @@ find_groups()
     tail -n $limit /etc/group | $PCP_AWK_PROG -F: '{ print  $1 }'
 }
 
+# lines like ...
+#   [DATETIME] pmdasample(PID) Info: Attribute: ctx=N groupid=999
+#   [DATETIME] pmdasample(PID) Info: Attribute: ctx=N userid=999
+# for the "user" and "group" belonging to "pcp" are not from the QA
+# tests (likely from pmlogger or some other random process fetching
+# metrics from the local pmcd) and need to be culled
+#
 filter_sample_log_credentials()
 {
-    grep Info $PCP_LOG_DIR/pmcd/sample.log | \
-    sed \
+    pcp_user=`grep '^pcp:' /etc/passwd | $PCP_AWK_PROG -F: '{print $3}'`
+    pcp_group=`grep '^pcp:' /etc/group | $PCP_AWK_PROG -F: '{print $3}'`
+    grep Info $PCP_LOG_DIR/pmcd/sample.log \
+    | sed \
 	-e '/processid=/d' \
         -e '/ctx=[0-9][0-9]*/s//ctx=N/' \
         -e "s/userid=$userid/userid=UID/g" \
         -e "s/groupid=$groupid/groupid=GID/g" \
         -e "s/username=$username/username=USER/g" \
         -e '/pmdasample([0-9][0-9]*)/s//pmdasample(PID)/' \
-        -e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATETIME]/'
+        -e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATETIME]/' \
+	-e "/userid=$pcp_user\$/d" \
+	-e "/groupid=$pcp_group\$/d" \
+    # end
 }
