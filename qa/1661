@@ -76,7 +76,7 @@ p
 }
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.*
+$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 pmproxy_was_running=false
@@ -101,6 +101,9 @@ date >>$seq.full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mproxy' >>$seq.full
 echo "pmproxy_pid=$pmproxy_pid" >>$seq.full
 
+#debug# echo "sudo gdb -p $pmproxy_pid"
+#debug# read x
+
 _full_log === creating archive in new archive directory 
 dir=$PCP_ARCHIVE_DIR/qa1661
 $sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; mkdir_and_chown $dir 775 $PCP_USER:$PCP_GROUP"
@@ -109,7 +112,27 @@ $sudo rm -f $dir/testarchive.*
 $sudo sh -c "pmlogger -s 20 -t 1 -c config.default -l$tmp.pmlogger.log $dir/testarchive"
 
 _full_log === checking pmproxy file descriptors for deleted files, should be none 
-$sudo ls -l /proc/$pmproxy_pid/fd | grep 'testarchive.*(deleted)'
+if [ -d /proc/$pmproxy_pid ]
+then
+    $sudo ls -l /proc/$pmproxy_pid/fd | grep 'testarchive.*(deleted)'
+else
+    echo "Arrgh: pmproxy pid=$pmproxy_pid has vanished" | tee -a $seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mproxy' >>$seq.full
+    for log in $PCP_LOG_DIR/pmproxy/pmproxy.log*
+    do
+	if [ -f "$log" ]
+	then
+	    echo >>$seq.log
+	    ls -l "$log" >>$seq.full
+	    cat "$log" >>$seq.full
+	else
+	    echo "No pmproxy log files?" >>$seq.full
+	    ls -ld $PCP_LOG_DIR/pmproxy >>$seq.full
+	    ls -l $PCP_LOG_DIR/pmproxy >>$seq.full
+	fi
+    done
+    exit
+fi
 
 _full_log === compressing the new archives, which also deletes the originals 
 for suff in 0 meta
@@ -146,7 +169,13 @@ in
 esac
 
 _full_log === checking pmproxy file descriptors for deleted files, should be none 
-$sudo ls -l /proc/$pmproxy_pid/fd | grep 'testarchive.*(deleted)'
+if [ -d /proc/$pmproxy_pid ]
+then
+    $sudo ls -l /proc/$pmproxy_pid/fd | grep 'testarchive.*(deleted)'
+else
+    echo "Arrgh: pmproxy pid=$pmproxy_pid has vanished"
+    exit
+fi
 
 _full_log === checking pmproxy correctly switches logvol when pmlogger bumps to a new logvol
 curlogvol=`_log_volume`
