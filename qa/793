@@ -103,6 +103,17 @@ _cleanup()
     _wait_for_pmlogger
     _restore_auto_restart pmlogger
 
+    if $pmproxy_was_running
+    then
+	# pmproxy needs a chance to get stable ... otherwise we may see
+	# badness in the PMNS for the pmproxy.* metrics if check's callback
+	# checks the PMNS .. seen on vm11 (Debian 11.1)
+	#
+	echo "Restart pmproxy ..." >>$here/$seq.full
+	_service pmproxy restart >>$here/$seq.full 2>&1
+	_wait_for_pmproxy
+    fi
+
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -188,6 +199,10 @@ log mandatory on 1 sec {
     hinv.ncpu
 }
 End-of-File
+
+pmproxy_was_running=false
+[ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
+echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
 
 # real QA test starts here
 
