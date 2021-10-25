@@ -200,6 +200,11 @@ is one of the following:
 \f3check\f1
 Check the status of all currently configured pmlogger instances
 and restart any that have failed.
+If the
+.B \-m
+flag is given on systemd(1) platforms,
+also migrate matching (and new) processes to the relevant farm service,
+either \fBpmlogger_farm.service\fP or \fBpmie_farm.service\fP.
 .TP 4
 \f3create\f1
 Create new instances in the class

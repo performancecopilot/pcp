@@ -63,6 +63,7 @@ Options:
   -c=NAME,--class=NAME    	${IAM} instances belong to the NAME class [default: default]
   -f,--force                    force action if possible
   -i=IDENT,--ident=IDENT        over-ride instance id (only for create and cond-create)
+  -m,--migrate			migrate matching processes to farm services (for create and check)
   -N,--showme             	perform a dry run, showing what would be done
   -p=POLICY,--policy=POLICY	use POLICY as the class policy file [default: $PCP_ETC_DIR/pcp/${IAM}/class.d/<class>]
   -V,--verbose            	increase verbosity
@@ -606,10 +607,13 @@ _check_started()
 	sts=1
     else
 	$VERY_VERBOSE && $PCP_ECHO_PROG " yes"
-	# Add new process to the farm service (pmlogger_farm or pmie_farm).
-	# It will be removed automatically if/when it exits.
-	$VERBOSE && vflag="-v"
-	migrate_pid_service $vflag "$pid" ${IAM}_farm.service
+	if $MIGRATE
+	then
+	    # Add new process to the farm service (pmlogger_farm or pmie_farm).
+	    # It will be removed automatically if/when it exits.
+	    $VERBOSE && vflag="-v"
+	    migrate_pid_service $vflag "$pid" ${IAM}_farm.service
+	fi
 	sts=0
     fi
     return $sts
@@ -1476,8 +1480,11 @@ _do_start()
 	then
 	    $VERBOSE && echo "${IAM} PID $pid already running for host $args_host, nothing to do"
 	    $VERBOSE && $restart && echo "Not expected for restart!"
-	    $VERBOSE && vflag="-v"
-	    migrate_pid_service $vflag "$pid" ${IAM}_farm.service
+	    if $MIGRATE
+	    then
+		$VERBOSE && vflag="-v"
+		migrate_pid_service $vflag "$pid" ${IAM}_farm.service
+	    fi
 	    continue
 	fi
 	if $VERBOSE
@@ -1642,6 +1649,7 @@ CP=cp
 RM=rm
 CHECK="sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/${IAM}_check"
 KILL="$PCP_BINADM_DIR/pmsignal -s"
+MIGRATE=false
 VERBOSE=false
 VERY_VERBOSE=false
 VERY_VERY_VERBOSE=false
@@ -1663,6 +1671,8 @@ do
 		;;
 	-i)	IDENT="$2"
 		shift
+		;;
+	-m)	MIGRATE=true
 		;;
 	-N)	SHOWME=true
 		CP="echo + $CP"
