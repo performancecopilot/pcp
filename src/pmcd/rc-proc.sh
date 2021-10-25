@@ -483,3 +483,55 @@ mkdir_and_chown()
     # oops
     return 1
 }
+
+# Shell API function to add or migrate a pid to a systemd service
+# Usage: migrate_pid_service [-v] pid servicename
+# e.g. migrate_pid_service $pid pmlogger_farm.service
+# No output even on failure unless the -v flag is given.
+# Removal is automatic when a process exits or migrates.
+migrate_pid_service()
+{
+    local verbose=false
+    local iam=migrate_pid_service
+
+    [ "$1" = "-v" ] && verbose=true && shift
+
+    # noop on non-systemd platforms
+    if [ ! -x /run/systemd/system ]; then
+	$verbose && echo "$iam: ignored, not using systemd"
+    	return 1
+    fi
+
+    # get the cgroup mount point
+    if [ ! -e /proc/mounts ]; then
+	$verbose && echo "$iam: failed to find cgroup root, no /proc/mounts"
+    	return 1
+    fi
+
+    # get cgroup filesystem mount path - handles both v1 and v2
+    cgroot=`awk '/^cgroup/ {print $2; exit}' /proc/mounts`
+    cgprocs=$cgroot/system.slice/$2/cgroup.procs
+    if [ ! -e "$cgprocs" ]; then
+    	$verbose && echo "$iam: couldn't find cgroup.procs for service \"$2\""
+	return 1
+    fi
+    if [ ! -w "$cgprocs" ]; then
+    	$verbose && echo "$iam: can't write to \"$cgprocs\" for service \"$2\""
+	return 1
+    fi
+
+    # add the pid to the cgroup
+    if grep -q -s "^${1}$" "$cgprocs"; then
+    	$verbose && echo "$iam: noop, $pid already in cgroup for service \"$2\""
+    else
+	if echo $1 >"$cgprocs" 2>/dev/null; then
+	    $verbose && echo "$iam: failed to add pid $1 to service \"$2\""
+	    return 1;
+	else
+	    $verbose && echo "$iam: added pid $1 to service \"$2\""
+	fi
+    fi
+
+    # success
+    return 0
+}

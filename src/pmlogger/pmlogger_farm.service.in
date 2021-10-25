@@ -1,0 +1,27 @@
+[Unit]
+Description=pmlogger farm service
+Documentation=man:pmlogger(1)
+After=network-online.target pmcd.service
+Before=pmlogger_check.timer pmlogger_daily.timer
+BindsTo=pmlogger_check.timer pmlogger_daily.timer
+
+[Service]
+Type=@SD_SERVICE_TYPE@
+Restart=always
+# long (but not infinite) start timeout - for logger farms
+TimeoutStartSec=4h
+TimeoutStopSec=120
+# the pmlogger_farm service manages all pmloggers except the primary
+Environment="PMLOGGER_CHECK_PARAMS=--skip-primary"
+EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger_timers
+ExecStart=@PCP_BINADM_DIR@/pmlogger_farm $PMLOGGER_CHECK_PARAMS
+
+# need to do this in a timer, needs to be root
+# ExecStartPost=pmlogctl check
+
+WorkingDirectory=@PCP_VAR_DIR@
+Group=@PCP_GROUP@
+User=@PCP_USER@
+
+[Install]
+WantedBy=multi-user.target

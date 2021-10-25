@@ -2683,6 +2683,11 @@ exit 0
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
   useradd -c "Performance Co-Pilot" -g pcp -d %{_localstatedir}/lib/pcp -M -r -s /sbin/nologin pcp
+# In pcp-5.3.5-1 we split pmlogger to pmlogger.service and pmlogger_farm.service,
+# so for upgrades pmlogger_farm inherits initial state from pmlogger.service.
+prev_ver=`rpm -q pcp 2>/dev/null | cut -d '-' -f2 | sed s?'\.'?''?g`
+[ -n "$prev_ver" ] && echo $prev_ver >%{_tmppath}/pcp_prev_ver
+
 exit 0
 
 %if !%{disable_systemd}
@@ -2943,19 +2948,23 @@ then
     # stop daemons before erasing the package
     %if !%{disable_systemd}
        %systemd_preun pmlogger.service
+       %systemd_preun pmlogger_farm.service
        %systemd_preun pmie.service
        %systemd_preun pmproxy.service
        %systemd_preun pmcd.service
        %systemd_preun pmie_daily.timer
        %systemd_preun pmlogger_daily.timer
        %systemd_preun pmlogger_check.timer
+       %systemd_preun pmlogger_farm_check.timer
 
        systemctl stop pmlogger.service >/dev/null 2>&1
+       systemctl stop pmlogger_farm.service >/dev/null 2>&1
        systemctl stop pmie.service >/dev/null 2>&1
        systemctl stop pmproxy.service >/dev/null 2>&1
        systemctl stop pmcd.service >/dev/null 2>&1
     %else
        /sbin/service pmlogger stop >/dev/null 2>&1
+       /sbin/service pmlogger_farm stop >/dev/null 2>&1
        /sbin/service pmie stop >/dev/null 2>&1
        /sbin/service pmproxy stop >/dev/null 2>&1
        /sbin/service pmcd stop >/dev/null 2>&1
@@ -2963,6 +2972,7 @@ then
        /sbin/chkconfig --del pcp >/dev/null 2>&1
        /sbin/chkconfig --del pmcd >/dev/null 2>&1
        /sbin/chkconfig --del pmlogger >/dev/null 2>&1
+       /sbin/chkconfig --del pmlogger_farm >/dev/null 2>&1
        /sbin/chkconfig --del pmie >/dev/null 2>&1
        /sbin/chkconfig --del pmproxy >/dev/null 2>&1
     %endif
@@ -2993,16 +3003,20 @@ pmieconf -c enable dmthin
 %if !%{disable_systemd}
     systemctl restart pmcd >/dev/null 2>&1
     systemctl restart pmlogger >/dev/null 2>&1
+    systemctl restart pmlogger_farm >/dev/null 2>&1
     systemctl restart pmie >/dev/null 2>&1
     systemctl enable pmcd >/dev/null 2>&1
     systemctl enable pmlogger >/dev/null 2>&1
+    systemctl enable pmlogger_farm >/dev/null 2>&1
     systemctl enable pmie >/dev/null 2>&1
 %else
     /sbin/chkconfig --add pmcd >/dev/null 2>&1
     /sbin/chkconfig --add pmlogger >/dev/null 2>&1
+    /sbin/chkconfig --add pmlogger_farm >/dev/null 2>&1
     /sbin/chkconfig --add pmie >/dev/null 2>&1
     /sbin/service pmcd condrestart
     /sbin/service pmlogger condrestart
+    /sbin/service pmlogger_farm condrestart
     /sbin/service pmie condrestart
 %endif
 %endif
@@ -3026,10 +3040,26 @@ PCP_LOG_DIR=%{_logsdir}
 %if !%{disable_systemd}
     # clean up any stale symlinks for deprecated pm*-poll services
     rm -f %{_sysconfdir}/systemd/system/pm*.requires/pm*-poll.* >/dev/null 2>&1 || true
+
+    # handle pmlogger service upgrade, splitting off pmlogger_farm
+    prev_ver=`cat %{_tmppath}/pcp_prev_ver 2>/dev/null`
+    systemctl daemon-reload
+    if [ -n "$prev_ver" -a "$prev_ver" -le 535 ]; then
+        # On upgrade, the new pmlogger_farm service inherits pmlogger service state
+        if systemctl is-enabled pmlogger.service >/dev/null; then
+            systemctl enable pmlogger_farm.service pmlogger_farm_check.service pmlogger_farm_check.timer
+            systemctl start pmlogger_farm.service pmlogger_farm_check.service pmlogger_farm_check.timer
+        fi
+    fi
+    rm -f %{_tmppath}/pcp_prev_ver
+
     %systemd_postun_with_restart pmcd.service
     %systemd_post pmcd.service
     %systemd_postun_with_restart pmlogger.service
     %systemd_post pmlogger.service
+    %systemd_postun_with_restart pmlogger_farm.service
+    %systemd_post pmlogger_farm.service
+    %systemd_post pmlogger_farm_check.service
     %systemd_postun_with_restart pmie.service
     %systemd_post pmie.service
     systemctl condrestart pmproxy.service >/dev/null 2>&1
