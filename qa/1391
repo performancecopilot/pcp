@@ -11,6 +11,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.secure
 
+$python -c "from pcp import pmda" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 
 full_hostname=`hostname --fqdn`
