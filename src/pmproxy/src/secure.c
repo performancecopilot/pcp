@@ -145,7 +145,7 @@ flush_ssl_buffer(struct client *client)
 
     if ((bytes = BIO_pending(client->secure.write)) > 0) {
 	request = calloc(1, sizeof(struct stream_write_baton));
-	request->buffer[0] = uv_buf_init(sdsnewlen(SDS_NOINIT, bytes), bytes);
+	request->buffer[0] = uv_buf_init(sdsnewlen(NULL, bytes), bytes);
 	request->nbuffers = 1;
 	request->writer.data = client;
 	BIO_read(client->secure.write, request->buffer[0].base, bytes);

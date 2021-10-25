@@ -1,5 +1,7 @@
 deps/
 sds.c
+sds.h
+sdsalloc.h
 ini.c
 ini.h
 dict.c
