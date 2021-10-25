@@ -18,22 +18,23 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 INIH_HFILES = ini.h
-EXTERNAL_HFILES = sds.h dict.h
+SDSH_HFILES = sds.h sdsalloc.h
+EXTERNAL_HFILES = dict.h
 HFILES = pmapi.h impl.h pmda.h pmtime.h pmdaroot.h pmafm.h \
 	 trace.h trace_dev.h mmv_stats.h mmv_dev.h import.h \
 	 config32.h config64.h platform32.h platform64.h \
 	 pmjson.h pmhttp.h pmdbg.h pmwebapi.h deprecated.h \
-	 $(INIH_HFILES) $(EXTERNAL_HFILES)
+	 ini.h sds.h dict.h
 INFILES = config.h.in configsz.h.in platform_defs.h.in platformsz.h.in
 CONFFILES = config.h configsz.h platform_defs.h platformsz.h
 GENERATED_HFILES = $(CONFFILES)
-NOSHIP_HFILES = libpcp.h
+NOSHIP_HFILES = libpcp.h sdsalloc.h
 
 LDIRT = $(GENERATED_HFILES)
 
 default :: default_pcp
 
-default_pcp : $(HEADERS) $(GENERATED_HFILES) $(INIH_HFILES) $(EXTERNAL_HFILES)
+default_pcp : $(HEADERS) $(GENERATED_HFILES) $(INIH_HFILES) $(SDSH_HFILES) $(EXTERNAL_HFILES)
 	@if grep HAVE_64BIT config.h.in >/dev/null; then \
 	   echo "HAVE_64 in config.h.in; move to configsz.h.in for multilib." \
 	   "This requires manual intervention after running an 'autoreconf'." \
@@ -53,6 +54,8 @@ $(EXTERNAL_HFILES):
 	$(LN_S) -f $(TOPDIR)/src/external/$@ .
 $(INIH_HFILES):
 	$(LN_S) -f $(TOPDIR)/vendor/github.com/benhoyt/inih/$@ .
+$(SDSH_HFILES):
+	$(LN_S) -f $(TOPDIR)/vendor/github.com/redis/hiredis/$@ .
 
 install :: default_pcp install_pcp
 

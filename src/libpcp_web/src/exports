@@ -242,3 +242,9 @@ PCP_WEB_1.18 {
     pmWebTimerSetEventLoop;
     pmWebTimerSetup;
 } PCP_WEB_1.17;
+
+PCP_WEB_1.19 {
+  global:
+    dictGenHashFunction;
+    dictGetIterator;
+} PCP_WEB_1.18;

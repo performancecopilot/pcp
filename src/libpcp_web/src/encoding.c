@@ -44,7 +44,7 @@ base64_decode(const char *src, size_t len)
 
     if (len % 4)	/* invalid base64 string length */
 	return NULL;
-    if ((result = dest = sdsnewlen(SDS_NOINIT, len / 4 * 3)) == NULL)
+    if ((result = dest = sdsnewlen(NULL, len / 4 * 3)) == NULL)
 	return NULL;
     while (*src) {
 	a = base64_decoding_table[(unsigned char)*(src++)];
@@ -73,7 +73,7 @@ base64_encode(const char *src, size_t len)
     unsigned int	i, triple;
     unsigned char	a, b, c;
 
-    if ((result = dest = sdsnewlen(SDS_NOINIT, len * 4 / 3)) == NULL)
+    if ((result = dest = sdsnewlen(NULL, len * 4 / 3)) == NULL)
 	return NULL;
     for (i = 0; i < len; dest++) {
 	a = i < len ? src[i++] : 0;

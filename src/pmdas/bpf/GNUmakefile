@@ -1,7 +1,7 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES	= bpf.c util.c dict.c sds.c siphash.c
+CFILES	= bpf.c
 CMDTARGET = pmdabpf$(EXECSUFFIX)
 LIBTARGET = pmda_bpf.$(DSOSUFFIX)
 LLDLIBS = $(PCP_WEBLIB) -lbpf -lelf -lz -lm -ldl
@@ -21,12 +21,10 @@ MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-EXT_FILES = dict.c dict.h sds.c sds.h siphash.c
-
-LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).$(DSOSUFFIX) $(EXT_FILES)
+LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).$(DSOSUFFIX)
 
 ifeq "$(PMDA_BPF)" "true"
-default_pcp default:	$(EXT_FILES) $(CMDTARGET) $(LIBTARGET) $(SUBDIRS)
+default_pcp default:	$(CMDTARGET) $(LIBTARGET) $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)
@@ -62,9 +60,6 @@ check::	$(CFILES)
 
 check:: $(MAN_PAGES)
 	$(MANLINT) $^
-
-$(EXT_FILES):
-	$(LN_S) $(TOPDIR)/src/external/$@ .
 
 clean::
 	make -C modules/ clean

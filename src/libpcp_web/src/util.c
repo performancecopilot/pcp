@@ -23,7 +23,8 @@
 #include "util.h"
 #include "sha1.h"
 
-/* dynamic memory manipulation */
+const char *SDS_NOINIT = "SDS_NOINIT";	/* back-compat, exported global */
+
 static void
 default_oom(size_t size)
 {
@@ -33,37 +34,6 @@ default_oom(size_t size)
     abort();
 }
 static void (*oom_handler)(size_t) = default_oom;
-
-void *
-s_malloc(size_t size)
-{
-    void	*p;
-
-    p = malloc(size);
-    if (UNLIKELY(p == NULL))
-	oom_handler(size);
-    return p;
-}
-
-void *
-s_realloc(void *ptr, size_t size)
-{
-    void	*p;
-
-    if (ptr == NULL)
-	return s_malloc(size);
-    p = realloc(ptr, size);
-    if (UNLIKELY(p == NULL))
-	oom_handler(size);
-    return p;
-}
-
-void
-s_free(void *ptr)
-{
-    if (LIKELY(ptr != NULL))
-	free(ptr);
-}
 
 void *
 zmalloc(size_t size)
@@ -452,7 +422,7 @@ pmwebapi_hash_sds(sds s, const unsigned char *p)
 
     hash_identity(p, namebuf, sizeof(namebuf));
     if (s == NULL)
-	s = sdsnewlen(SDS_NOINIT, 40);
+	s = sdsnewlen(NULL, 40);
     sdsclear(s);
     return sdscatlen(s, namebuf, 40);
 }
