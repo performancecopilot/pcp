@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 
-# Copyright (c) 2019 Red Hat.  All Rights Reserved.
+# Copyright (c) 2019,2021 Red Hat.  All Rights Reserved.
 # Copyright (c) 2011 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -47,6 +47,13 @@ class MSSQLPMDA(PMDA):
     def INDOM_ID(self, serial):
         """ indom id from PMDA domain and serial """
         return PMDA.indom(serial)
+
+    def sanitize(self, string):
+        """ quoting - escape backslashes, single quotes and semi colons """
+        string = string.replace("\\", "\\\\")
+        string = string.replace("'", "\\'")
+        string = string.replace(";", "\\;")
+        return string
 
     def __init__(self, name, domain):
         """ constructor """
@@ -1001,8 +1008,14 @@ class MSSQLPMDA(PMDA):
 
         # parse config for connection settings
         conf_vars = self.config(conf_file, ['authentication', 'connection'])
-        self.driver = conf_vars["connection.driver"]
-        self.server = conf_vars["connection.server"]
+        try:
+            self.driver = conf_vars["connection.driver"]
+        except:
+            self.driver = "{ODBC Driver 17 for SQL Server}" # default driver
+        try:
+            self.server = conf_vars["connection.server"]
+        except:
+            self.server = "tcp:localhost" # local default
         try:
             self.timeout = int(conf_vars["connection.timeout"])
         except:
@@ -1011,18 +1024,19 @@ class MSSQLPMDA(PMDA):
             self.trusted = bool(conf_vars["authentication.trusted"])
         except:
             self.trusted = False
+        # first try Assessment API credentials, else our local config file,
+        # otherwise just use defaults of user 'pcp' with an empty password.
+        self.username = pmContext.pmGetConfig('PCP_USER')
+        self.password = ''
         try:
+            with open('/var/opt/mssql/secrets/assessment', 'r') as assessment:
+                self.username = assessment.readline().strip()
+                self.password = assessment.readline().strip()
+        except:
             self.username = conf_vars["authentication.username"]
-        except:
-            self.username = pmContext.pmGetConfig('PCP_USER')
-        try:
             self.password = str(conf_vars["authentication.password"])
-        except:
-            self.password = ''
-        # need to escape backslashes, single quotes and semi colons
-        self.password = self.password.replace("\\", "\\\\")
-        self.password = self.password.replace("'", "\\'")
-        self.password = self.password.replace(";", "\\;")
+        self.username = self.sanitize(self.username)
+        self.password = self.sanitize(self.password)
 
         self.log("Connecting to %s as user %s" % (self.server, self.username))
         retries = 0

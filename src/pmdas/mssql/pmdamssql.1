@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2019-2020 Red Hat.  All Rights Reserved.
+.\" Copyright (c) 2019-2021 Red Hat.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -26,8 +26,8 @@ Firstly, \f3pmdamssql\f1 requires installation of these support packages:
 .B mssql-server
 The primary Microsoft SQL Server database package.
 .TP
-.BR msodbcsql17 " or (" msodbcsql )
-Latest Microsoft SQL Server ODBC bindings.
+\fBmsodbcsql18\fR, \fBmsodbcsql17\fR or \fBmsodbcsql\fR
+Microsoft SQL Server ODBC bindings.
 .TP
 .B pyodbc
 General Python ODBC module with Microsoft SQL Server support enabled.
@@ -66,11 +66,18 @@ provided.
 These are the following configuration settings
 (their default values are shown in parenthesis):
 .TP 15
-.B username \fR(\fP\fIsa\fP\fR)\fP
+.B username \fR(\fP\fIpcp\fP\fR)\fP
 Username to connect to the database.
 .TP
-.B password \fR(unset)\fP
+.B password \fR(empty)\fP
 Password to connect to the database.
+.PP
+Note that if a SQL Server Assessments API configuration file is
+found at \fI/var/opt/mssql/secrets/assessment\fP, then
+.B pmdamssql
+reads the username and password from that file preferentially.
+The format is simply a two line text file, the first containing
+the username and the second the password.
 .PP
 The second option is Windows authentication mode,
 where logins are created in SQL Server that are not
