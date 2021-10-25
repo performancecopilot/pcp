@@ -19,7 +19,7 @@ Options:
 Avaliable commands:
  [-c classname] create host ...
  {-c classname|-i ident} cond-create host ...
- [-c classname] {start|stop|restart|destroy|status} [host ...]
+ [-c classname] {start|stop|restart|destroy|check|status} [host ...]
 
  and host may be a valid hostname or an egrep(1) pattern that matches
  the start of a hostname
