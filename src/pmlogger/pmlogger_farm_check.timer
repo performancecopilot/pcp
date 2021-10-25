@@ -8,3 +8,4 @@ OnCalendar=*:00/10
 
 [Install]
 WantedBy=timers.target
+RequiredBy=pmlogger_farm.service
