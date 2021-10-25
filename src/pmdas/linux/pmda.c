@@ -4560,6 +4560,11 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_NETSTAT,188), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
+/* network.tcp.tcploss */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_TCPEXT_TCPLOSS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,189), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 /* hinv.map.scsi */
     { NULL, 
       { PMDA_PMID(CLUSTER_SCSI,0), PM_TYPE_STRING, SCSI_INDOM, PM_SEM_DISCRETE, 
@@ -6870,7 +6875,7 @@ static int
 linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 {
     linux_container_t *cp = linux_ctx_container(context);
-    linux_access_t *access = access_ctx(context);
+    linux_access_t *laccess = access_ctx(context);
     int need_net_ioctl = 0;
     int ns_fds = 0;
     int sts = 0;
@@ -7093,7 +7098,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 
     if (need_refresh[CLUSTER_SLAB]) {
 	if (all_access ||
-	    (access != NULL && access->uid == 0 && access->uid_flag)) {
+	    (laccess != NULL && laccess->uid == 0 && laccess->uid_flag)) {
 	    proc_slabinfo.permission = 1;
 	    refresh_proc_slabinfo(INDOM(SLAB_INDOM), &proc_slabinfo);
 	} else {
@@ -7168,7 +7173,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 
     if (need_refresh[CLUSTER_TTY]) {
 	if (all_access ||
-	    (access != NULL && access->uid == 0 && access->uid_flag)) {
+	    (laccess != NULL && laccess->uid == 0 && laccess->uid_flag)) {
 	    proc_tty_permission = 1;
 	    refresh_tty(INDOM(TTY_INDOM));
 	} else {
@@ -9835,12 +9840,12 @@ linux_pmda_indom(int serial)
  */
 
 char *
-linux_strings_lookup(int index)
+linux_strings_lookup(int pindex)
 {
     char *value;
     pmInDom dict = INDOM(STRINGS_INDOM);
 
-    if (pmdaCacheLookup(dict, index, &value, NULL) == PMDA_CACHE_ACTIVE)
+    if (pmdaCacheLookup(dict, pindex, &value, NULL) == PMDA_CACHE_ACTIVE)
 	return value;
     return NULL;
 }
