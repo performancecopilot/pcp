@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1337
-# Copyright (c) 2019 Red Hat.
+# Copyright (c) 2019,2021 Red Hat.
 #
 # Exercise MSSQL agent Install and Remove scripts,
 # plus metric value validation on select metrics.
@@ -21,9 +21,13 @@ test -d "$PCP_PMDAS_DIR/mssql" || _notrun "Microsoft SQL Server PMDA not install
 
 # extract username and password, check connection to SQL Server
 eval `$sudo egrep 'server=|username=|password=' "$PCP_PMDAS_DIR/mssql/mssql.conf"`
-test -n "$server" || _notrun "Cannot find SQL Server connection setting"
+if $sudo test -f /var/opt/mssql/secrets/assessment; then
+    username=`$sudo head -1 /var/opt/mssql/secrets/assessment`
+    password=`$sudo tail -1 /var/opt/mssql/secrets/assessment`
+fi
 test -n "$username" || _notrun "Cannot find SQL Server username setting"
 test -n "$password" || _notrun "Cannot find SQL Server password setting"
+test -n "$server" || server="tcp:localhost"
 
 _cleanup()
 {

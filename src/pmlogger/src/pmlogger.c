@@ -1431,7 +1431,7 @@ main(int argc, char **argv)
 	    __pmAFblock();
 	    log_alarm = 0;
 	    if (pmDebugOptions.appl2)
-		fprintf(stderr, "delayed callback: log_alarm\n");
+		pmNotifyErr(LOG_INFO, "delayed callback: log_alarm\n");
 	    for (tp = tasklist; tp != NULL; tp = tp->t_next) {
 		if (tp->t_alarm) {
 		    tp->t_alarm = 0;
@@ -1445,14 +1445,14 @@ main(int argc, char **argv)
 	    __pmAFblock();
 	    vol_switch_alarm = 0;
 	    if (pmDebugOptions.appl2)
-		fprintf(stderr, "delayed callback: vol_switch_alarm\n");
+		pmNotifyErr(LOG_INFO, "delayed callback: vol_switch_alarm\n");
 	    newvolume(VOL_SW_TIME);
 	    __pmAFunblock();
 	}
 
 	if (run_done_alarm) {
 	    if (pmDebugOptions.appl2)
-		fprintf(stderr, "delayed callback: run_done_alarm\n");
+		pmNotifyErr(LOG_INFO, "delayed callback: run_done_alarm\n");
 	    run_done(0, NULL);
 	    /*NOTREACHED*/
 	}
@@ -1461,7 +1461,7 @@ main(int argc, char **argv)
 	nready = __pmSelectRead(numfds, &readyfds, NULL);
 
 	if (pmDebugOptions.appl2 && pmDebugOptions.desperate) {
-	    fprintf(stderr, "__pmSelectRead(%d,...) done: nready=%d run_done_alarm=%d vol_switch_alarm=%d log_alarm=%d\n", numfds, nready, run_done_alarm, vol_switch_alarm, log_alarm);
+	    pmNotifyErr(LOG_INFO, "__pmSelectRead(%d,...) done: nready=%d run_done_alarm=%d vol_switch_alarm=%d log_alarm=%d\n", numfds, nready, run_done_alarm, vol_switch_alarm, log_alarm);
 	}
 
 	__pmAFblock();
