@@ -1648,6 +1648,30 @@ collecting metrics about the Linux hardware monitoring sensors.
 # end pcp-pmda-lmsensors
 
 #
+# pcp-pmda-mongodb
+#
+%package pmda-mongodb
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics for MongoDB
+URL: https://pcp.io
+Requires: pcp = @package_version@ pcp-libs = @package_version@
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+%if 0%{?rhel} == 0
+Requires: python3-pymongo
+%endif
+%else
+Requires: %{__python2}-pcp
+%if 0%{?rhel} == 0
+Requires: %{__python2}-pymongo
+%endif
+%endif
+%description pmda-mongodb
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from MongoDB.
+# end pcp-pmda-mongodb
+
+#
 # pcp-pmda-mssql
 #
 %package pmda-mssql
@@ -2308,6 +2332,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/memcache(/|$)' >pcp-pmda-memcache-files
 basic_manifest | keep '(etc/pcp|pmdas)/mailq(/|$)' >pcp-pmda-mailq-files
 basic_manifest | keep '(etc/pcp|pmdas)/mic(/|$)' >pcp-pmda-mic-files
 basic_manifest | keep '(etc/pcp|pmdas)/mounts(/|$)' >pcp-pmda-mounts-files
+basic_manifest | keep '(etc/pcp|pmdas)/mongodb(/|$)' >pcp-pmda-mongodb-files
 basic_manifest | keep '(etc/pcp|pmdas|pmieconf)/mssql(/|$)' >pcp-pmda-mssql-files
 basic_manifest | keep '(etc/pcp|pmdas)/mysql(/|$)' >pcp-pmda-mysql-files
 basic_manifest | keep '(etc/pcp|pmdas)/named(/|$)' >pcp-pmda-named-files
@@ -2359,7 +2384,7 @@ for pmda_package in \
     infiniband \
     json \
     libvirt lio lmsensors logger lustre lustrecomm \
-    mailq memcache mic mounts mssql mysql \
+    mailq memcache mic mounts mongodb mssql mysql \
     named netcheck netfilter news nfsclient nginx \
     nutcracker nvidia \
     openmetrics openvswitch oracle \
@@ -2752,6 +2777,9 @@ pmieconf -c enable dmthin
 %preun pmda-lmsensors
 %{pmda_remove "$1" "lmsensors"}
 
+%preun pmda-mongodb
+%{pmda_remove "$1" "mongodb"}
+
 %preun pmda-mssql
 %{pmda_remove "$1" "mssql"}
 
@@ -3060,6 +3088,8 @@ PCP_SA_DIR=@pcp_sa_dir@
 %files pmda-haproxy -f pcp-pmda-haproxy-files.rpm
 
 %files pmda-lmsensors -f pcp-pmda-lmsensors-files.rpm
+
+%files pmda-mongodb -f pcp-pmda-mongodb-files.rpm
 
 %files pmda-mssql -f pcp-pmda-mssql-files.rpm
 

@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+ident	MongoDB summary information
+probe	mongodb.serverStatus.uptime exists ? include : exclude
+	mongodb.serverStatus
+	mongodb.dbStats
