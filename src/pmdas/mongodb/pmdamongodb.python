@@ -142,6 +142,8 @@ class MONGODBPMDA(PMDA):
             self.PM_ID(17, 3) : ['serverStatus', 'metrics.document.updated', pmdaMetric(self.PM_ID(17, 3), c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits), 'Count of documents updated'],
             self.PM_ID(18, 0) : ['serverStatus', 'metrics.queryExecutor.scanned', pmdaMetric(self.PM_ID(18, 0), c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits), 'Count of query executor scans'],
             self.PM_ID(18, 1) : ['serverStatus', 'metrics.queryExecutor.scannedObjects', pmdaMetric(self.PM_ID(18, 1), c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, countUnits), 'Count of query executor object scans'],
+            self.PM_ID(19, 0) : ['serverStatus', 'wiredTiger.transaction.last_checkpoint_time', pmdaMetric(self.PM_ID(19, 0), c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT, msecUnits), 'Most recent wiredTiger transaction checkpoint time', 'wiredTiger.transaction.transaction checkpoint most recent time (msecs)'],
+            self.PM_ID(19, 1) : ['serverStatus', 'wiredTiger.transaction.total_time', pmdaMetric(self.PM_ID(19, 1), c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER, msecUnits), 'Total time spent performing wiredTiger checkpoint transactions', 'wiredTiger.transaction.transaction checkpoint total time (msecs)'],
 
             # dbStats command clusters
             self.PM_ID(100, 0) : ['dbStats', 'dataSize', pmdaMetric(self.PM_ID(100, 0), c_api.PM_TYPE_DOUBLE, self.INDOM_ID(0), c_api.PM_SEM_INSTANT, byteUnits), 'Per-database data size in bytes', 'dataSize'],
