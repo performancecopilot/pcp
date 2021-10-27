@@ -1,0 +1,38 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
+#
+
+[mongodb-conn]
+colorstep = 2
+label = mongodb con
+curr = mongodb.serverStatus.connections.current
+avail = mongodb.serverStatus.connections.available
+
+[mongodb-mem]
+label = mongodb mem
+res = mongodb.serverStatus.memory.resident
+virt = mongodb.serverStatus.memory.virtual
+
+[mongodb-opcount]
+colorstep = 2
+label = mongodb counts
+qry = mongodb.serverStatus.opcounters.query
+ins = mongodb.serverStatus.opcounters.insert
+upd = mongodb.serverStatus.opcounters.update
+del = mongodb.serverStatus.opcounters.delete
+gtm = mongodb.serverStatus.opcounters.getmore
+cmd = mongodb.serverStatus.opcounters.command
+
+[mongodb-latency]
+colorstep = 2
+label = mongodb lat
+rd = mongodb.serverStatus.opLatencies.reads.latency / mongodb.serverStatus.opLatencies.reads.ops
+wr = mongodb.serverStatus.opLatencies.writes.latency / mongodb.serverStatus.opLatencies.writes.ops
+cmd = mongodb.serverStatus.opLatencies.commands.latency / mongodb.serverStatus.opLatencies.commands.ops
+
+[mongodb-dbstats]
+colorstep = 2
+label = mongodb dbstats
+dsize = sum(mongodb.dbStats.dataSize)
+isize = sum(mongodb.dbStats.indexSize)
+ssize = sum(mongodb.dbStats.storageSize)
