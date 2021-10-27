@@ -542,7 +542,7 @@ Requires: pcp-pmda-bpftrace
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-openmetrics pcp-pmda-haproxy
 Requires: pcp-pmda-lmsensors pcp-pmda-netcheck pcp-pmda-rabbitmq
-Requires: pcp-pmda-openvswitch
+Requires: pcp-pmda-openvswitch pcp-pmda-mongodb
 %endif
 %if !%{disable_mssql}
 Requires: pcp-pmda-mssql 
@@ -1800,6 +1800,29 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from simple network checks.
 # end pcp-pmda-netcheck
 
+#
+# pcp-pmda-mongodb
+#
+%package pmda-mongodb
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics for MongoDB
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp
+%if 0%{?rhel} == 0
+Requires: python3-pymongo
+%endif
+%else
+Requires: %{__python2}-pcp
+%if 0%{?rhel} == 0
+Requires: %{__python2}-pymongo
+%endif
+%endif
+%description pmda-mongodb
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from MongoDB.
+# end pcp-pmda-mongodb
 %endif
 
 %if !%{disable_mssql}
@@ -2469,6 +2492,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/memcache(/|$)' >pcp-pmda-memcache-files
 basic_manifest | keep '(etc/pcp|pmdas)/mailq(/|$)' >pcp-pmda-mailq-files
 basic_manifest | keep '(etc/pcp|pmdas)/mic(/|$)' >pcp-pmda-mic-files
 basic_manifest | keep '(etc/pcp|pmdas)/mounts(/|$)' >pcp-pmda-mounts-files
+basic_manifest | keep '(etc/pcp|pmdas)/mongodb(/|$)' >pcp-pmda-mongodb-files
 basic_manifest | keep '(etc/pcp|pmdas|pmieconf)/mssql(/|$)' >pcp-pmda-mssql-files
 basic_manifest | keep '(etc/pcp|pmdas)/mysql(/|$)' >pcp-pmda-mysql-files
 basic_manifest | keep '(etc/pcp|pmdas)/named(/|$)' >pcp-pmda-named-files
@@ -2521,7 +2545,7 @@ for pmda_package in \
     infiniband \
     json \
     libvirt lio lmsensors logger lustre lustrecomm \
-    mailq memcache mic mounts mssql mysql \
+    mailq memcache mic mounts mongodb mssql mysql \
     named netcheck netfilter news nfsclient nginx \
     nutcracker nvidia \
     openmetrics openvswitch oracle \
@@ -2863,6 +2887,9 @@ exit 0
 
 %preun pmda-lmsensors
 %{pmda_remove "$1" "lmsensors"}
+
+%preun pmda-mongodb
+%{pmda_remove "$1" "mongodb"}
 
 %if !%{disable_mssql}
 %preun pmda-mssql
@@ -3211,6 +3238,8 @@ PCP_LOG_DIR=%{_logsdir}
 %files pmda-haproxy -f pcp-pmda-haproxy-files.rpm
 
 %files pmda-lmsensors -f pcp-pmda-lmsensors-files.rpm
+
+%files pmda-mongodb -f pcp-pmda-mongodb-files.rpm
 
 %if !%{disable_mssql}
 %files pmda-mssql -f pcp-pmda-mssql-files.rpm
