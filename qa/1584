@@ -75,7 +75,7 @@ pminfo -dft mongodb >> $here/$seq.full
 pminfo -v mongodb
 
 echo "Check server version value matches mongo shell"
-pcpversion=`pmprobe -v mongodb.version | awk '{ print $NF }' | tr -d \"`
+pcpversion=`pmprobe -v mongodb.serverStatus.version | awk '{ print $NF }' | tr -d \"`
 if [ $pcpversion = $MONGO_VERSION ]
 then
     echo "Success - matching version numbers"
