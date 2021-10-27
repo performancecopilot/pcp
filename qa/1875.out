@@ -1,0 +1,32 @@
+QA output created by 1875
+Start Redis server with password auth ...
+
+=== password auth enabled, no password provided
+Cannot connect
+
+=== password auth enabled, wrong password provided
+Cannot connect
+
+=== password auth enabled, correct password provided
+OK
+
+=== password auth enabled, correct password provided (pmproxy)
+Redis slots setup
+
+Stop redis server with password auth ...
+Start Redis server with ACL auth ...
+
+=== ACL auth enabled, no username/password provided
+Cannot connect
+
+=== ACL auth enabled, unknown username provided
+Cannot connect
+
+=== ACL auth enabled, correct username, wrong password provided
+Cannot connect
+
+=== ACL auth enabled, correct username and password provided
+OK
+
+=== ACL auth enabled, correct username and password provided (pmproxy)
+Redis slots setup

@@ -162,6 +162,8 @@ redisSlotsInit(dict *config, void *events)
     dictEntry		*entry;
     sds			servers = NULL;
     sds			def_servers = NULL;
+    sds			username = NULL;
+    sds			password = NULL;
     int			sts = 0;
     struct timeval	connection_timeout = {5, 0}; // 5s
     struct timeval	command_timeout = {60, 0}; // 1m
@@ -175,6 +177,9 @@ redisSlotsInit(dict *config, void *events)
     servers = pmIniFileLookup(config, "pmseries", "servers");
     if (servers == NULL)
         servers = def_servers = sdsnew(default_server);
+
+    username = pmIniFileLookup(config, "pmseries", "auth.username");
+    password = pmIniFileLookup(config, "pmseries", "auth.password");
 
     if ((slots->acc = redisClusterAsyncContextInit()) == NULL) {
 	/* Coverity CID370635 */
@@ -198,6 +203,34 @@ redisSlotsInit(dict *config, void *events)
 	return slots;
     }
     sdsfree(def_servers); /* Coverity CID370634 */
+
+    /*
+     * the ini parser already removes spaces at the beginning and end of the
+     * configuration values, so checking for empty strings using sdslen() is
+     * fine
+     */
+    if (username != NULL && sdslen(username) > 0) {
+	sts = redisClusterSetOptionUsername(slots->acc->cc, username);
+	if (sts != REDIS_OK) {
+	    pmNotifyErr(LOG_ERR, "%s: failed to set Redis username: %s\n",
+		"redisClusterSetOptionUsername", slots->acc->cc->errstr);
+	    return slots;
+	}
+    }
+
+    /*
+     * see note above re empty configuration values
+     * having only a password set and no username is a valid Redis
+     * configuration, see https://redis.io/commands/auth
+     */
+    if (password != NULL && sdslen(password) > 0) {
+	sts = redisClusterSetOptionPassword(slots->acc->cc, password);
+	if (sts != REDIS_OK) {
+	    pmNotifyErr(LOG_ERR, "%s: failed to set Redis password: %s\n",
+		"redisClusterSetOptionPassword", slots->acc->cc->errstr);
+	    return slots;
+	}
+    }
 
     sts = redisClusterSetOptionConnectTimeout(slots->acc->cc, connection_timeout);
     if (sts != REDIS_OK) {
@@ -260,9 +293,9 @@ redisSlotsInit(dict *config, void *events)
 	dictReleaseIterator(iterator);
     }
     else {
-	pmNotifyErr(LOG_INFO, "Cannot connect to Redis at %s: %s."
-			" Disabling time series functionality.\n",
+	pmNotifyErr(LOG_INFO, "Cannot connect to Redis at %s: %s\n",
 			servers, slots->acc->cc->errstr);
+	pmNotifyErr(LOG_INFO, "Disabling time series functionality.\n");
 	return slots;
     }
 
