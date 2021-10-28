@@ -21,8 +21,8 @@ PYSCRIPT = pmda$(IAM).python
 LDIRT	= domain.h root pmns $(IAM).log
 DOMAIN	= $(IAM)
 # common endpoint URLs (on: enabled, off: available)
-ONURLS	= grafana.url vmware.url
-OFFURLS	= collectd.url etcd.url spark.url
+ONURLS	= grafana.url
+OFFURLS	= collectd.url etcd.url spark.url vmware.url
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
