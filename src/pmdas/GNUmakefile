@@ -29,7 +29,7 @@ CPMDAS = root pmcd \
 	hacluster linux_sockets denki bpf
 
 PLPMDAS = bonding netfilter zimbra postgresql \
-	dbping memcache mysql oracle vmware kvm \
+	dbping memcache mysql oracle kvm \
 	named news pdns samba dtsrun postfix gpsd \
 	rsyslog snmp nginx nfsclient \
 	ds389 ds389log activemq lustre gpfs slurm \

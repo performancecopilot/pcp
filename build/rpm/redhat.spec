@@ -514,7 +514,7 @@ Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-
 Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-lustre
 Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql pcp-pmda-oracle
-Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
+Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart
@@ -1400,21 +1400,6 @@ collecting metrics about SNMP.
 %endif
 
 #
-# pcp-pmda-vmware
-#
-%package pmda-vmware
-License: GPLv2+
-Summary: Performance Co-Pilot (PCP) metrics for VMware
-URL: https://pcp.io
-Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-Requires: perl-PCP-PMDA = %{version}-%{release}
-
-%description pmda-vmware
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics for VMware.
-#end pcp-pmda-vmware
-
-#
 # pcp-pmda-zimbra
 #
 %package pmda-zimbra
@@ -1755,6 +1740,7 @@ BuildRequires: %{__python2}-requests
 %endif
 Obsoletes: pcp-pmda-prometheus < 5.0.0
 Provides: pcp-pmda-prometheus < 5.0.0
+Obsoletes: pcp-pmda-vmware < 5.3.5
 
 %description pmda-openmetrics
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -2529,7 +2515,6 @@ basic_manifest | keep '(etc/pcp|pmdas)/systemd(/|$)' >pcp-pmda-systemd-files
 basic_manifest | keep '(etc/pcp|pmdas)/trace(/|$)' >pcp-pmda-trace-files
 basic_manifest | keep '(etc/pcp|pmdas)/unbound(/|$)' >pcp-pmda-unbound-files
 basic_manifest | keep '(etc/pcp|pmdas)/weblog(/|$)' >pcp-pmda-weblog-files
-basic_manifest | keep '(etc/pcp|pmdas)/vmware(/|$)' >pcp-pmda-vmware-files
 basic_manifest | keep '(etc/pcp|pmdas)/zimbra(/|$)' >pcp-pmda-zimbra-files
 basic_manifest | keep '(etc/pcp|pmdas)/zswap(/|$)' >pcp-pmda-zswap-files
 
@@ -2555,7 +2540,6 @@ for pmda_package in \
     sockets statsd summary systemd \
     unbound \
     trace \
-    vmware \
     weblog \
     zimbra zswap ; \
 do \
@@ -2841,9 +2825,6 @@ exit 0
 
 %preun pmda-samba
 %{pmda_remove "$1" "samba"}
-
-%preun pmda-vmware
-%{pmda_remove "$1" "vmware"}
 
 %preun pmda-zimbra
 %{pmda_remove "$1" "zimbra"}
@@ -3178,8 +3159,6 @@ PCP_LOG_DIR=%{_logsdir}
 %files pmda-samba -f pcp-pmda-samba-files.rpm
 
 %files pmda-slurm -f pcp-pmda-slurm-files.rpm
-
-%files pmda-vmware -f pcp-pmda-vmware-files.rpm
 
 %files pmda-zimbra -f pcp-pmda-zimbra-files.rpm
 %endif
