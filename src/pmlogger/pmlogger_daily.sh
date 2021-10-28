@@ -1515,6 +1515,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 			    sleep 1
 			fi
 		    done
+		    echo status | pmlc "$pid" >$tmp/out 2>&1
 		    current_vol=`sed -n <$tmp/out -e '/^log volume/s/.*[^0-9]\([0-9][0-9]*\)$/\1/p'`
 		    if [ -z "$current_vol" ]
 		    then
