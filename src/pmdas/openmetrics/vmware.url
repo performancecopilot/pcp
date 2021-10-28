@@ -1,0 +1,39 @@
+# URL for pmdaopenmetrics(1) to use with a vmware_exporter process
+# running on the localhost. If you are running vmware_exporter on a
+# different host (perhaps in a VM on the hypervisor itself), change
+# 'localhost' as needed in the URL below.
+
+http://localhost:9272/metrics
+
+# The above URL is for VMWare metrics served by pryorda's vmware_exporter.
+# For details, see https://github.com/pryorda/vmware_exporter#readme
+#
+### Setting up and running vmware_exporter
+# The easiest way to run vmware_exporter is to set up a config file 'config.env'
+# containing some settings (see below), then launch the pre-built container:
+#
+# podman run -it --rm -p 9272:9272 --name vmware_exporter --env-fe config.env docker.io/pryorda/vmware_exporter
+#
+# This container exposes port 9272 on the local host as the /metrics end-point
+# for VMware statistics, which the openmetrics PMDA will automatically discover.
+# There are about 88 metrics covering all of the important performance related
+# information you need to monitor your ESX server and it's resources.
+
+### Setting up config.env
+# The file "config.env" (named on the above command line) should contain some
+# variable assignments for the host name of the VMware ESX host you want to
+# monitor, along with authentication details and a few other settings. Below
+# is an example - obviously you'll need to change the values for at least
+# VSPHERE_USER, VSPHERE_PASSWORD and VSPHERE_HOST to suit your local site,
+# and remove the '#' comment at the start of each line.
+#
+# -- config.env example --
+# VSPHERE_USER=someuser
+# VSPHERE_PASSWORD=somepassword
+# VSPHERE_HOST=somehostname
+# VSPHERE_IGNORE_SSL=TRUE
+# VSPHERE_SPECS_SIZE=2000
+
+### PCP metrics
+# Once all of the above is setup, VMware metrics should be available in PCP
+# on the local host. You can check this with: pminfo -fmdt openmetrics.vmware
