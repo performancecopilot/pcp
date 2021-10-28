@@ -79,6 +79,7 @@ char		*note;			/* note for port map file */
 static int 	    pmcdfd = -1;	/* comms to pmcd */
 static __pmFdSet    fds;		/* file descriptors mask for select */
 static int	    numfds;		/* number of file descriptors in mask */
+static __pmFdSet    readyfds;		/* fd mask for control port select() */
 
 static int	rsc_fd = -1;	/* recording session control see -x */
 static int	rsc_replay;
@@ -772,6 +773,147 @@ updateLatestFolio(const char *host, const char *base)
     fclose(fp);
 }
 
+/* handle request on control port */
+void
+control_port_ready(void)
+{
+    int		i;
+
+    for (i = 0; i < CFD_NUM; ++i) {
+	if (ctlfds[i] >= 0 && __pmFD_ISSET(ctlfds[i], &readyfds)) {
+	    if (control_req(ctlfds[i])) {
+		/* new client has connected */
+		__pmFD_SET(clientfd, &fds);
+		if (clientfd >= numfds)
+		    numfds = clientfd + 1;
+		if (pmDebugOptions.appl4)
+		    pmNotifyErr(LOG_INFO, "control_port_ready: new client connection (%s socket) on fd=%d clientfd=%d", i == CFD_INET ? "ipv4" : (i == CFD_IPV6 ? "ipv6" : "unix domain"), ctlfds[i], clientfd);
+	    }
+	    else {
+		if (pmDebugOptions.appl4)
+		    pmNotifyErr(LOG_INFO, "control_req() failed");
+	    }
+	}
+    }
+    if (clientfd >= 0 && __pmFD_ISSET(clientfd, &readyfds)) {
+	/* process request from client, save clientfd in case client
+	 * closes connection, resetting clientfd to -1
+	 */
+	int	fd = clientfd;
+
+	if (pmDebugOptions.appl4)
+	    pmNotifyErr(LOG_INFO, "control_port_ready: request on clientfd=%d", clientfd);
+
+	if (client_req()) {
+	    /* client closed connection */
+	    __pmFD_CLR(fd, &fds);
+	    __pmCloseSocket(clientfd);
+	    clientfd = -1;
+	    pmlc_host[0] = '\0';
+	    numfds = maxfd() + 1;
+	    qa_case = 0;
+	}
+    }
+#ifndef IS_MINGW
+    if (pmcdfd >= 0 && __pmFD_ISSET(pmcdfd, &readyfds)) {
+	/*
+	 * do not expect this, given synchronous commumication with the
+	 * pmcd ... either pmcd has terminated, or bogus PDU ... or its
+	 * Win32 and we are operating under the different conditions of
+	 * our AF.c implementation there, which has to deal with a lack
+	 * of signal support on Windows - race condition exists between
+	 * this check and the async event timer callback.
+	 */
+	__pmPDU		*pb;
+	__pmPDUHdr	*php;
+	int		sts;
+	sts = __pmGetPDU(pmcdfd, ANY_SIZE, TIMEOUT_NEVER, &pb);
+	if (sts <= 0) {
+	    if (sts < 0)
+		fprintf(stderr, "Error: __pmGetPDU: %s\n", pmErrStr(sts));
+	    disconnect(sts);
+	}
+	else {
+	    php = (__pmPDUHdr *)pb;
+	    fprintf(stderr, "Error: Unsolicited %s PDU from PMCD\n",
+		__pmPDUTypeStr(php->type));
+	    disconnect(PM_ERR_IPC);
+	}
+	if (sts > 0)
+	    __pmUnpinPDUBuf(pb);
+    }
+#endif
+    if (rsc_fd >= 0 && __pmFD_ISSET(rsc_fd, &readyfds)) {
+	/*
+	 * some action on the recording session control fd
+	 * end-of-file means launcher has quit, otherwise we
+	 * expect one of these commands
+	 *	V<number>\n	- version
+	 *	F<folio>\n	- folio name
+	 *	P<name>\n	- launcher's name
+	 *	R\n		- launcher can replay
+	 *	D\n		- detach from launcher
+	 *	Q\n		- quit pmlogger
+	 */
+	char	rsc_buf[MAXPATHLEN];
+	char	*rp = rsc_buf;
+	char	myc;
+	int	fake_x = 0;
+
+	for (rp = rsc_buf; ; rp++) {
+	    if (read(rsc_fd, &myc, 1) <= 0) {
+		if (pmDebugOptions.appl2)
+		    fprintf(stderr, "recording session control: eof\n");
+		if (rp != rsc_buf) {
+		    *rp = '\0';
+		    fprintf(stderr, "Error: incomplete recording session control message: \"%s\"\n", rsc_buf);
+		}
+		fake_x = 1;
+		break;
+	    }
+	    if (rp >= &rsc_buf[MAXPATHLEN]) {
+		fprintf(stderr, "Error: absurd recording session control message: \"%100.100s ...\"\n", rsc_buf);
+		fake_x = 1;
+		break;
+	    }
+	    if (myc == '\n') {
+		*rp = '\0';
+		break;
+	    }
+	    *rp = myc;
+	}
+
+	if (pmDebugOptions.appl2) {
+	    if (fake_x == 0)
+		fprintf(stderr, "recording session control: \"%s\"\n", rsc_buf);
+	}
+
+	if (fake_x)
+	    do_dialog('X');
+	else if (strcmp(rsc_buf, "Q") == 0 ||
+		 strcmp(rsc_buf, "D") == 0 ||
+		 strcmp(rsc_buf, "?") == 0)
+	    do_dialog(rsc_buf[0]);
+	else if (rsc_buf[0] == 'F')
+	    folio_name = strdup(&rsc_buf[1]);
+	else if (rsc_buf[0] == 'P')
+	    rsc_prog = strdup(&rsc_buf[1]);
+	else if (strcmp(rsc_buf, "R") == 0)
+	    rsc_replay = 1;
+	else if (rsc_buf[0] == 'V' && rsc_buf[1] == '0') {
+	    /*
+	     * version 0 of the recording session control ...
+	     * this is all we grok at the moment
+	     */
+	    ;
+	}
+	else {
+	    fprintf(stderr, "Error: illegal recording session control message: \"%s\"\n", rsc_buf);
+	    do_dialog('X');
+	}
+    }
+}
+
 int
 main(int argc, char **argv)
 {
@@ -789,7 +931,6 @@ main(int argc, char **argv)
     int			make_uniq = 0;	/* set if -NN suffix regime is in play */
     task_t		*tp;
     optcost_t		ocp;
-    __pmFdSet		readyfds;
     char		*p;
     char		*runtime = NULL;
     int	    		ctx;		/* handle corresponding to ctxp below */
@@ -803,6 +944,7 @@ main(int argc, char **argv)
     pmResult		*resp;
     pmValueSet		*vp;
     struct timeval	myepoch;
+    struct timeval	nowait = {0, 0};
     FILE		*fp;		/* pipe from pmcpp */
 
     gettimeofday(&myepoch, NULL);
@@ -1423,188 +1565,143 @@ main(int argc, char **argv)
 	int		nready;
 
 	if (pmDebugOptions.appl2 && pmDebugOptions.desperate) {
-	    fprintf(stderr, "before __pmSelectRead(%d,...): run_done_alarm=%d vol_switch_alarm=%d log_alarm=%d\n", numfds, run_done_alarm, vol_switch_alarm, log_alarm);
+	    fprintf(stderr, "mainloop: numfds=%d run_done_alarm=%d vol_switch_alarm=%d log_alarm=%d\n", numfds, run_done_alarm, vol_switch_alarm, log_alarm);
 	}
 
 	niter = 0;
 	while (log_alarm && niter++ < 10) {
-	    __pmAFblock();
+	    task_t	*alarmed = NULL;
+	    task_t	*last = NULL;
 	    log_alarm = 0;
-	    if (pmDebugOptions.appl2)
-		fprintf(stderr, "delayed callback: log_alarm\n");
+	    if (pmDebugOptions.appl2) {
+		if (niter == 1)
+		    pmNotifyErr(LOG_INFO, "main: log_alarm");
+		else
+		    pmNotifyErr(LOG_INFO, "main: delayed log_alarm");
+	    }
+	    /*
+	     * Scan the task list looking for ones with t_alarm
+	     * set, and link these together (add to end of chain
+	     * to preserved order the same as taslist->t_next)
+	     * ... do all this with async callbacks blocked
+	     */
+	    __pmAFblock();
 	    for (tp = tasklist; tp != NULL; tp = tp->t_next) {
 		if (tp->t_alarm) {
-		    tp->t_alarm = 0;
-		    do_work(tp);
+		    if (alarmed == NULL)
+			alarmed = tp;
+		    if (last != NULL)
+			last->t_alarmed = tp;
+		    tp->t_alarmed = NULL;
+		    last = tp;
 		}
 	    }
 	    __pmAFunblock();
+
+	    /*
+	     * now execute the alarmed tasks
+	     */
+	    for (tp = alarmed; tp != NULL; tp = tp->t_alarmed) {
+		/*
+		 * before executing a task, check if there is
+		 * control port work to be done
+		 */
+		__pmFD_COPY(&readyfds, &fds);
+		if (pmDebugOptions.appl2 && pmDebugOptions.desperate) {
+		    int	j;
+		    fprintf(stderr, "readyfds {");
+		    for (j = 0; j < numfds; j++) {
+			if (__pmFD_ISSET(j, &readyfds))
+			    fprintf(stderr, " %d", j);
+		    }
+		    fprintf(stderr, " }\n");
+		}
+		/* poll, don't block here */
+		nready = __pmSelectRead(numfds, &readyfds, &nowait);
+		while (nready > 0) {
+		    /* something to do .. */
+		    if (pmDebugOptions.appl2 && pmDebugOptions.desperate) {
+			fprintf(stderr, "inner __pmSelectRead(%d,...) done: run_done_alarm=%d vol_switch_alarm=%d log_alarm=%d nready=%d", numfds, nready, run_done_alarm, vol_switch_alarm, log_alarm);
+			if (nready > 0) {
+			    int	j;
+			    fprintf(stderr, " fds {");
+			    for (j = 0; j < numfds; j++) {
+				if (__pmFD_ISSET(j, &readyfds))
+				    fprintf(stderr, " %d", j);
+			    }
+			    fprintf(stderr, " }");
+			}
+			fputc('\n', stderr);
+		    }
+		    control_port_ready();
+		    __pmFD_COPY(&readyfds, &fds);
+		    if (pmDebugOptions.appl2 && pmDebugOptions.desperate) {
+			int	j;
+			fprintf(stderr, "readyfds {");
+			for (j = 0; j < numfds; j++) {
+			    if (__pmFD_ISSET(j, &readyfds))
+				fprintf(stderr, " %d", j);
+			}
+			fprintf(stderr, " }\n");
+		    }
+		    /* try for more work, poll, don't block here */
+		    nready = __pmSelectRead(numfds, &readyfds, &nowait);
+		}
+		if (nready < 0 && neterror() != EINTR)
+		    fprintf(stderr, "Error: inner select: %s\n", netstrerror());
+		__pmAFblock();
+		do_work(tp);
+		__pmAFunblock();
+		tp->t_alarm = 0;
+	    }
 	}
 
 	if (vol_switch_alarm) {
-	    __pmAFblock();
 	    vol_switch_alarm = 0;
 	    if (pmDebugOptions.appl2)
-		fprintf(stderr, "delayed callback: vol_switch_alarm\n");
+		pmNotifyErr(LOG_INFO, "main: vol_switch_alarm");
+	    __pmAFblock();
 	    newvolume(VOL_SW_TIME);
 	    __pmAFunblock();
 	}
 
 	if (run_done_alarm) {
 	    if (pmDebugOptions.appl2)
-		fprintf(stderr, "delayed callback: run_done_alarm\n");
+		pmNotifyErr(LOG_INFO, "main: run_done_alarm");
 	    run_done(0, NULL);
 	    /*NOTREACHED*/
 	}
 
+	/*
+	 * if log_alarm was not set, we need to wait for control port
+	 * work to be done, or next SIGALARM ...
+	 */
 	__pmFD_COPY(&readyfds, &fds);
-	nready = __pmSelectRead(numfds, &readyfds, NULL);
+	nready = __pmSelectRead(numfds, &readyfds, NULL);	/* block */
 
 	if (pmDebugOptions.appl2 && pmDebugOptions.desperate) {
-	    fprintf(stderr, "__pmSelectRead(%d,...) done: nready=%d run_done_alarm=%d vol_switch_alarm=%d log_alarm=%d\n", numfds, nready, run_done_alarm, vol_switch_alarm, log_alarm);
+	    fprintf(stderr, "outer __pmSelectRead(%d,...) done: run_done_alarm=%d vol_switch_alarm=%d log_alarm=%d nready=%d", numfds, nready, run_done_alarm, vol_switch_alarm, log_alarm);
+	    if (nready > 0) {
+		int	j;
+		fprintf(stderr, " fds {");
+		for (j = 0; j < numfds; j++) {
+		    if (__pmFD_ISSET(j, &readyfds))
+			fprintf(stderr, " %d", j);
+		}
+		fprintf(stderr, " }");
+	    }
+	    fputc('\n', stderr);
 	}
 
 	__pmAFblock();
-	if (nready > 0) {
-
-	    /* handle request on control port */
-	    for (i = 0; i < CFD_NUM; ++i) {
-		if (ctlfds[i] >= 0 && __pmFD_ISSET(ctlfds[i], &readyfds)) {
-		    if (pmDebugOptions.appl4)
-			pmNotifyErr(LOG_INFO, "New pmlc connection (%s socket) on fd=%d", i == CFD_INET ? "ipv4" : (i == CFD_IPV6 ? "ipv6" : "unix domain"), ctlfds[i]);
-		    if (control_req(ctlfds[i])) {
-			/* new client has connected */
-			__pmFD_SET(clientfd, &fds);
-			if (clientfd >= numfds)
-			    numfds = clientfd + 1;
-		    }
-		    else {
-			if (pmDebugOptions.appl4)
-			    pmNotifyErr(LOG_INFO, "control_req() failed");
-		    }
-		}
-	    }
-	    if (clientfd >= 0 && __pmFD_ISSET(clientfd, &readyfds)) {
-		/* process request from client, save clientfd in case client
-		 * closes connection, resetting clientfd to -1
-		 */
-		int	fd = clientfd;
-
-		if (client_req()) {
-		    /* client closed connection */
-		    __pmFD_CLR(fd, &fds);
-		    __pmCloseSocket(clientfd);
-		    clientfd = -1;
-		    pmlc_host[0] = '\0';
-		    numfds = maxfd() + 1;
-		    qa_case = 0;
-		}
-	    }
-#ifndef IS_MINGW
-	    if (pmcdfd >= 0 && __pmFD_ISSET(pmcdfd, &readyfds)) {
-		/*
-		 * do not expect this, given synchronous commumication with the
-		 * pmcd ... either pmcd has terminated, or bogus PDU ... or its
-		 * Win32 and we are operating under the different conditions of
-		 * our AF.c implementation there, which has to deal with a lack
-		 * of signal support on Windows - race condition exists between
-		 * this check and the async event timer callback.
-		 */
-		__pmPDU		*pb;
-		__pmPDUHdr	*php;
-		sts = __pmGetPDU(pmcdfd, ANY_SIZE, TIMEOUT_NEVER, &pb);
-		if (sts <= 0) {
-		    if (sts < 0)
-			fprintf(stderr, "Error: __pmGetPDU: %s\n", pmErrStr(sts));
-		    disconnect(sts);
-		}
-		else {
-		    php = (__pmPDUHdr *)pb;
-		    fprintf(stderr, "Error: Unsolicited %s PDU from PMCD\n",
-			__pmPDUTypeStr(php->type));
-		    disconnect(PM_ERR_IPC);
-		}
-		if (sts > 0)
-		    __pmUnpinPDUBuf(pb);
-	    }
-#endif
-	    if (rsc_fd >= 0 && __pmFD_ISSET(rsc_fd, &readyfds)) {
-		/*
-		 * some action on the recording session control fd
-		 * end-of-file means launcher has quit, otherwise we
-		 * expect one of these commands
-		 *	V<number>\n	- version
-		 *	F<folio>\n	- folio name
-		 *	P<name>\n	- launcher's name
-		 *	R\n		- launcher can replay
-		 *	D\n		- detach from launcher
-		 *	Q\n		- quit pmlogger
-		 */
-		char	rsc_buf[MAXPATHLEN];
-		char	*rp = rsc_buf;
-		char	myc;
-		int	fake_x = 0;
-
-		for (rp = rsc_buf; ; rp++) {
-		    if (read(rsc_fd, &myc, 1) <= 0) {
-			if (pmDebugOptions.appl2)
-			    fprintf(stderr, "recording session control: eof\n");
-			if (rp != rsc_buf) {
-			    *rp = '\0';
-			    fprintf(stderr, "Error: incomplete recording session control message: \"%s\"\n", rsc_buf);
-			}
-			fake_x = 1;
-			break;
-		    }
-		    if (rp >= &rsc_buf[MAXPATHLEN]) {
-			fprintf(stderr, "Error: absurd recording session control message: \"%100.100s ...\"\n", rsc_buf);
-			fake_x = 1;
-			break;
-		    }
-		    if (myc == '\n') {
-			*rp = '\0';
-			break;
-		    }
-		    *rp = myc;
-		}
-
-		if (pmDebugOptions.appl2) {
-		    if (fake_x == 0)
-			fprintf(stderr, "recording session control: \"%s\"\n", rsc_buf);
-		}
-
-		if (fake_x)
-		    do_dialog('X');
-		else if (strcmp(rsc_buf, "Q") == 0 ||
-		         strcmp(rsc_buf, "D") == 0 ||
-			 strcmp(rsc_buf, "?") == 0)
-		    do_dialog(rsc_buf[0]);
-		else if (rsc_buf[0] == 'F')
-		    folio_name = strdup(&rsc_buf[1]);
-		else if (rsc_buf[0] == 'P')
-		    rsc_prog = strdup(&rsc_buf[1]);
-		else if (strcmp(rsc_buf, "R") == 0)
-		    rsc_replay = 1;
-		else if (rsc_buf[0] == 'V' && rsc_buf[1] == '0') {
-		    /*
-		     * version 0 of the recording session control ...
-		     * this is all we grok at the moment
-		     */
-		    ;
-		}
-		else {
-		    fprintf(stderr, "Error: illegal recording session control message: \"%s\"\n", rsc_buf);
-		    do_dialog('X');
-		}
-	    }
-	}
+	if (nready > 0)
+	    control_port_ready();
 	else if (vol_switch_flag) {
 	    newvolume(VOL_SW_SIGHUP);
 	    vol_switch_flag = 0;
 	}
 	else if (nready < 0 && neterror() != EINTR)
-	    fprintf(stderr, "Error: select: %s\n", netstrerror());
-
+	    fprintf(stderr, "Error: outer select: %s\n", netstrerror());
 	__pmAFunblock();
 
 	if (target_pid && !__pmProcessExists(target_pid)) {
