@@ -10883,3 +10883,1394 @@ Help:
 GC Wall Time for b5be5b9f_b0f1_47de_b436_27f167daf396
     inst [0 or "0 collector_name:Copy"] value 24462465
     inst [1 or "1 collector_name:MSC"] value 49519
+
+openmetrics.vmware_exporter.[root@ci-vm-10-0-138-196 [vmware_host_net_usage_average]
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+vmware_host_net_usage_average
+Error: Try again. Information not currently available
+
+openmetrics.vmware_exporter.vmware_datastore_accessible [VMWare datastore accessible (true / false)]
+    Data Type: double  InDom: 144.35859 0x24008c13
+    Semantics: instant  Units: none
+Help:
+VMWare datastore accessible (true / false)
+    inst [0 or "0 dc_name:ha-datacenter ds_cluster: ds_name:name026"] value 1
+    inst [1 or "1 dc_name:ha-datacenter ds_cluster: ds_name:name007 (1)"] value 1
+    inst [2 or "2 dc_name:ha-datacenter ds_cluster: ds_name:name018"] value 0
+    inst [3 or "3 dc_name:ha-datacenter ds_cluster: ds_name:name008"] value 1
+
+openmetrics.vmware_exporter.vmware_datastore_capacity_size [VMWare Datasore capacity in bytes]
+    Data Type: double  InDom: 144.35851 0x24008c0b
+    Semantics: instant  Units: none
+Help:
+VMWare Datasore capacity in bytes
+    inst [0 or "0 dc_name:ha-datacenter ds_cluster: ds_name:name026"] value 536870912000
+    inst [1 or "1 dc_name:ha-datacenter ds_cluster: ds_name:name007 (1)"] value 432986390528
+    inst [2 or "2 dc_name:ha-datacenter ds_cluster: ds_name:name018"] value 0
+    inst [3 or "3 dc_name:ha-datacenter ds_cluster: ds_name:name008"] value 536870912000
+
+openmetrics.vmware_exporter.vmware_datastore_freespace_size [VMWare Datastore freespace in bytes]
+    Data Type: double  InDom: 144.35852 0x24008c0c
+    Semantics: instant  Units: none
+Help:
+VMWare Datastore freespace in bytes
+    inst [0 or "0 dc_name:ha-datacenter ds_cluster: ds_name:name026"] value 224808402944
+    inst [1 or "1 dc_name:ha-datacenter ds_cluster: ds_name:name007 (1)"] value 5080350720
+    inst [2 or "2 dc_name:ha-datacenter ds_cluster: ds_name:name018"] value 0
+    inst [3 or "3 dc_name:ha-datacenter ds_cluster: ds_name:name008"] value 402266935296
+
+openmetrics.vmware_exporter.vmware_datastore_hosts [VMWare Hosts number using this datastore]
+    Data Type: double  InDom: 144.35855 0x24008c0f
+    Semantics: instant  Units: none
+Help:
+VMWare Hosts number using this datastore
+    inst [0 or "0 dc_name:ha-datacenter ds_cluster: ds_name:name026"] value 1
+    inst [1 or "1 dc_name:ha-datacenter ds_cluster: ds_name:name007 (1)"] value 1
+    inst [2 or "2 dc_name:ha-datacenter ds_cluster: ds_name:name018"] value 1
+    inst [3 or "3 dc_name:ha-datacenter ds_cluster: ds_name:name008"] value 1
+
+openmetrics.vmware_exporter.vmware_datastore_maintenance_mode [VMWare datastore maintenance mode (normal / inMaintenance / enteringMaintenance)]
+    Data Type: double  InDom: 144.35857 0x24008c11
+    Semantics: instant  Units: none
+Help:
+VMWare datastore maintenance mode (normal / inMaintenance / enteringMaintenance)
+    inst [0 or "0 dc_name:ha-datacenter ds_cluster: ds_name:name026 mode:unknown"] value 1
+    inst [1 or "1 dc_name:ha-datacenter ds_cluster: ds_name:name007 (1) mode:unknown"] value 1
+    inst [2 or "2 dc_name:ha-datacenter ds_cluster: ds_name:name018 mode:unknown"] value 1
+    inst [3 or "3 dc_name:ha-datacenter ds_cluster: ds_name:name008 mode:unknown"] value 1
+
+openmetrics.vmware_exporter.vmware_datastore_provisoned_size [VMWare Datastore provisoned in bytes]
+    Data Type: double  InDom: 144.35854 0x24008c0e
+    Semantics: instant  Units: none
+Help:
+VMWare Datastore provisoned in bytes
+    inst [0 or "0 dc_name:ha-datacenter ds_cluster: ds_name:name026"] value 522709696512
+    inst [1 or "1 dc_name:ha-datacenter ds_cluster: ds_name:name007 (1)"] value 580674273280
+    inst [2 or "2 dc_name:ha-datacenter ds_cluster: ds_name:name018"] value 0
+    inst [3 or "3 dc_name:ha-datacenter ds_cluster: ds_name:name008"] value 134603976704
+
+openmetrics.vmware_exporter.vmware_datastore_type [VMWare datastore type (VMFS, NetworkFileSystem, NetworkFileSystem41, CIFS, VFAT, VSAN, VFFS)]
+    Data Type: double  InDom: 144.35858 0x24008c12
+    Semantics: instant  Units: none
+Help:
+VMWare datastore type (VMFS, NetworkFileSystem, NetworkFileSystem41, CIFS, VFAT, VSAN, VFFS)
+    inst [0 or "0 dc_name:ha-datacenter ds_cluster: ds_name:name026 ds_type:VMFS"] value 1
+    inst [1 or "1 dc_name:ha-datacenter ds_cluster: ds_name:name007 (1) ds_type:VMFS"] value 1
+    inst [2 or "2 dc_name:ha-datacenter ds_cluster: ds_name:name018 ds_type:NFS"] value 1
+    inst [3 or "3 dc_name:ha-datacenter ds_cluster: ds_name:name008 ds_type:NFS"] value 1
+
+openmetrics.vmware_exporter.vmware_datastore_uncommited_size [VMWare Datastore uncommitted in bytes]
+    Data Type: double  InDom: 144.35853 0x24008c0d
+    Semantics: instant  Units: none
+Help:
+VMWare Datastore uncommitted in bytes
+    inst [0 or "0 dc_name:ha-datacenter ds_cluster: ds_name:name026"] value 210647187456
+    inst [1 or "1 dc_name:ha-datacenter ds_cluster: ds_name:name007 (1)"] value 152768233472
+    inst [2 or "2 dc_name:ha-datacenter ds_cluster: ds_name:name018"] value 0
+    inst [3 or "3 dc_name:ha-datacenter ds_cluster: ds_name:name008"] value 0
+
+openmetrics.vmware_exporter.vmware_datastore_vms [VMWare Virtual Machines count per datastore]
+    Data Type: double  InDom: 144.35856 0x24008c10
+    Semantics: instant  Units: none
+Help:
+VMWare Virtual Machines count per datastore
+    inst [0 or "0 dc_name:ha-datacenter ds_cluster: ds_name:name026"] value 21
+    inst [1 or "1 dc_name:ha-datacenter ds_cluster: ds_name:name007 (1)"] value 14
+    inst [2 or "2 dc_name:ha-datacenter ds_cluster: ds_name:name018"] value 0
+    inst [3 or "3 dc_name:ha-datacenter ds_cluster: ds_name:name008"] value 17
+
+openmetrics.vmware_exporter.vmware_host_boot_timestamp_seconds [VMWare Host boot time in seconds]
+    Data Type: double  InDom: 144.35864 0x24008c18
+    Semantics: instant  Units: sec
+Help:
+VMWare Host boot time in seconds
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 1479740760.283404
+
+openmetrics.vmware_exporter.vmware_host_connection_state [VMWare Host connection state (connected / disconnected / notResponding)]
+    Data Type: double  InDom: 144.35862 0x24008c16
+    Semantics: instant  Units: none
+Help:
+VMWare Host connection state (connected / disconnected / notResponding)
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME state:connected"] value 1
+
+openmetrics.vmware_exporter.vmware_host_cpu_costop_summation [vmware_host_cpu_costop_summation]
+    Data Type: double  InDom: 144.35904 0x24008c40
+    Semantics: instant  Units: none
+Help:
+vmware_host_cpu_costop_summation
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 23
+
+openmetrics.vmware_exporter.vmware_host_cpu_demand_average [vmware_host_cpu_demand_average]
+    Data Type: double  InDom: 144.35905 0x24008c41
+    Semantics: instant  Units: none
+Help:
+vmware_host_cpu_demand_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 706
+
+openmetrics.vmware_exporter.vmware_host_cpu_idle_summation [vmware_host_cpu_idle_summation]
+    Data Type: double  InDom: 144.35906 0x24008c42
+    Semantics: instant  Units: none
+Help:
+vmware_host_cpu_idle_summation
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 227721
+
+openmetrics.vmware_exporter.vmware_host_cpu_max [VMWare Host CPU max availability in Mhz]
+    Data Type: double  InDom: 144.35866 0x24008c1a
+    Semantics: instant  Units: none
+Help:
+VMWare Host CPU max availability in Mhz
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 29988
+
+openmetrics.vmware_exporter.vmware_host_cpu_ready_summation [vmware_host_cpu_ready_summation]
+    Data Type: double  InDom: 144.35907 0x24008c43
+    Semantics: instant  Units: none
+Help:
+vmware_host_cpu_ready_summation
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 601
+
+openmetrics.vmware_exporter.vmware_host_cpu_swapwait_summation [vmware_host_cpu_swapwait_summation]
+    Data Type: double  InDom: 144.35908 0x24008c44
+    Semantics: instant  Units: none
+Help:
+vmware_host_cpu_swapwait_summation
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 0
+
+openmetrics.vmware_exporter.vmware_host_cpu_usage [VMWare Host CPU usage in Mhz]
+    Data Type: double  InDom: 144.35865 0x24008c19
+    Semantics: instant  Units: none
+Help:
+VMWare Host CPU usage in Mhz
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 765
+
+openmetrics.vmware_exporter.vmware_host_cpu_usage_average [vmware_host_cpu_usage_average]
+    Data Type: double  InDom: 144.35909 0x24008c45
+    Semantics: instant  Units: none
+Help:
+vmware_host_cpu_usage_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 255
+
+openmetrics.vmware_exporter.vmware_host_cpu_usagemhz_average [vmware_host_cpu_usagemhz_average]
+    Data Type: double  InDom: 144.35910 0x24008c46
+    Semantics: instant  Units: none
+Help:
+vmware_host_cpu_usagemhz_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 765
+
+openmetrics.vmware_exporter.vmware_host_cpu_used_summation [vmware_host_cpu_used_summation]
+    Data Type: double  InDom: 144.35911 0x24008c47
+    Semantics: instant  Units: none
+Help:
+vmware_host_cpu_used_summation
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 6122
+
+openmetrics.vmware_exporter.vmware_host_disk_read_average [vmware_host_disk_read_average]
+    Data Type: double  InDom: 144.35912 0x24008c48
+    Semantics: instant  Units: none
+Help:
+vmware_host_disk_read_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 14
+
+openmetrics.vmware_exporter.vmware_host_disk_write_average [vmware_host_disk_write_average]
+    Data Type: double  InDom: 144.35913 0x24008c49
+    Semantics: instant  Units: none
+Help:
+vmware_host_disk_write_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 16
+
+openmetrics.vmware_exporter.vmware_host_hardware_info [A metric with a constant "1" value labeled by model and cpu model from the host.]
+    Data Type: double  InDom: 144.35871 0x24008c1f
+    Semantics: instant  Units: none
+Help:
+A metric with a constant "1" value labeled by model and cpu model from the host.
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter hardware_cpu_model:Intel(R) Xeon(R) CPU E5-2640 0 @ 2.50GHz hardware_model:PowerEdge R620 host_name:SOMEHOSTNAME"] value 1
+
+openmetrics.vmware_exporter.vmware_host_maintenance_mode [VMWare Host maintenance mode (true / false)]
+    Data Type: double  InDom: 144.35863 0x24008c17
+    Semantics: instant  Units: none
+Help:
+VMWare Host maintenance mode (true / false)
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 0
+
+openmetrics.vmware_exporter.vmware_host_mem_active_average [vmware_host_mem_active_average]
+    Data Type: double  InDom: 144.35914 0x24008c4a
+    Semantics: instant  Units: none
+Help:
+vmware_host_mem_active_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 1585864
+
+openmetrics.vmware_exporter.vmware_host_mem_latency_average [vmware_host_mem_latency_average]
+    Data Type: double  InDom: 144.35915 0x24008c4b
+    Semantics: instant  Units: none
+Help:
+vmware_host_mem_latency_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 0
+
+openmetrics.vmware_exporter.vmware_host_mem_swapinRate_average [vmware_host_mem_swapinRate_average]
+    Data Type: double  InDom: 144.35917 0x24008c4d
+    Semantics: instant  Units: none
+Help:
+vmware_host_mem_swapinRate_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 0
+
+openmetrics.vmware_exporter.vmware_host_mem_swapin_average [vmware_host_mem_swapin_average]
+    Data Type: double  InDom: 144.35916 0x24008c4c
+    Semantics: instant  Units: none
+Help:
+vmware_host_mem_swapin_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 0
+
+openmetrics.vmware_exporter.vmware_host_mem_swapoutRate_average [vmware_host_mem_swapoutRate_average]
+    Data Type: double  InDom: 144.35919 0x24008c4f
+    Semantics: instant  Units: none
+Help:
+vmware_host_mem_swapoutRate_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 0
+
+openmetrics.vmware_exporter.vmware_host_mem_swapout_average [vmware_host_mem_swapout_average]
+    Data Type: double  InDom: 144.35918 0x24008c4e
+    Semantics: instant  Units: none
+Help:
+vmware_host_mem_swapout_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 0
+
+openmetrics.vmware_exporter.vmware_host_mem_vmmemctl_average [vmware_host_mem_vmmemctl_average]
+    Data Type: double  InDom: 144.35920 0x24008c50
+    Semantics: instant  Units: none
+Help:
+vmware_host_mem_vmmemctl_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 0
+
+openmetrics.vmware_exporter.vmware_host_memory_max [VMWare Host Memory Max availability in Mbytes]
+    Data Type: double  InDom: 144.35869 0x24008c1d
+    Semantics: instant  Units: none
+Help:
+VMWare Host Memory Max availability in Mbytes
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 65490.4765625
+
+openmetrics.vmware_exporter.vmware_host_memory_usage [VMWare Host Memory usage in Mbytes]
+    Data Type: double  InDom: 144.35868 0x24008c1c
+    Semantics: instant  Units: none
+Help:
+VMWare Host Memory usage in Mbytes
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 36847
+
+openmetrics.vmware_exporter.vmware_host_net_bytesRx_average [vmware_host_net_bytesRx_average]
+    Data Type: double  InDom: 144.35921 0x24008c51
+    Semantics: instant  Units: none
+Help:
+vmware_host_net_bytesRx_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 7
+
+openmetrics.vmware_exporter.vmware_host_net_bytesTx_average [vmware_host_net_bytesTx_average]
+    Data Type: double  InDom: 144.35922 0x24008c52
+    Semantics: instant  Units: none
+Help:
+vmware_host_net_bytesTx_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 24
+
+openmetrics.vmware_exporter.vmware_host_net_droppedRx_summation [vmware_host_net_droppedRx_summation]
+    Data Type: double  InDom: 144.35923 0x24008c53
+    Semantics: instant  Units: none
+Help:
+vmware_host_net_droppedRx_summation
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 0
+
+openmetrics.vmware_exporter.vmware_host_net_droppedTx_summation [vmware_host_net_droppedTx_summation]
+    Data Type: double  InDom: 144.35924 0x24008c54
+    Semantics: instant  Units: none
+Help:
+vmware_host_net_droppedTx_summation
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 0
+
+openmetrics.vmware_exporter.vmware_host_net_errorsRx_summation [vmware_host_net_errorsRx_summation]
+    Data Type: double  InDom: 144.35925 0x24008c55
+    Semantics: instant  Units: none
+Help:
+vmware_host_net_errorsRx_summation
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 0
+
+openmetrics.vmware_exporter.vmware_host_net_errorsTx_summation [vmware_host_net_errorsTx_summation]
+    Data Type: double  InDom: 144.35926 0x24008c56
+    Semantics: instant  Units: none
+Help:
+vmware_host_net_errorsTx_summation
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 0
+
+openmetrics.vmware_exporter.vmware_host_net_usage_average [vmware_host_net_usage_average]
+    Data Type: double  InDom: 144.35927 0x24008c57
+    Semantics: instant  Units: none
+Help:
+vmware_host_net_usage_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 32
+
+openmetrics.vmware_exporter.vmware_host_num_cpu [VMWare Number of processors in the Host]
+    Data Type: double  InDom: 144.35867 0x24008c1b
+    Semantics: instant  Units: none
+Help:
+VMWare Number of processors in the Host
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 12
+
+openmetrics.vmware_exporter.vmware_host_power_state [VMWare Host Power state (On / Off)]
+    Data Type: double  InDom: 144.35860 0x24008c14
+    Semantics: instant  Units: none
+Help:
+VMWare Host Power state (On / Off)
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME"] value 1
+
+openmetrics.vmware_exporter.vmware_host_product_info [A metric with a constant "1" value labeled by version and build from os the host.]
+    Data Type: double  InDom: 144.35870 0x24008c1e
+    Semantics: instant  Units: none
+Help:
+A metric with a constant "1" value labeled by version and build from os the host.
+    inst [0 or "0 build:623860 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME version:5.0.0"] value 1
+
+openmetrics.vmware_exporter.vmware_host_sensor_fan [VMWare sensor fan speed value in RPM labeled by sensor name from the host.]
+    Data Type: double  InDom: 144.35873 0x24008c21
+    Semantics: instant  Units: none
+Help:
+VMWare sensor fan speed value in RPM labeled by sensor name from the host.
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan7B RPM --- Normal"] value 2880
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan6B RPM --- Normal"] value 2760
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan5B RPM --- Normal"] value 2880
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan4B RPM --- Normal"] value 2640
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan3B RPM --- Normal"] value 2760
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan2B RPM --- Normal"] value 2880
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan1B RPM --- Normal"] value 2760
+    inst [7 or "7 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan7A RPM --- Normal"] value 3000
+    inst [8 or "8 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan6A RPM --- Normal"] value 3120
+    inst [9 or "9 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan5A RPM --- Normal"] value 3000
+    inst [10 or "10 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan4A RPM --- Normal"] value 2880
+    inst [11 or "11 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan3A RPM --- Normal"] value 3000
+    inst [12 or "12 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan2A RPM --- Normal"] value 3000
+    inst [13 or "13 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan1A RPM --- Normal"] value 3000
+
+openmetrics.vmware_exporter.vmware_host_sensor_power_current [VMWare sensor power current value in amp labeled by sensor name from the host.]
+    Data Type: double  InDom: 144.35876 0x24008c24
+    Semantics: instant  Units: none
+Help:
+VMWare sensor power current value in amp labeled by sensor name from the host.
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Power Supply 2 Current 2 --- Normal"] value 0.2
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Power Supply 1 Current 1 --- Normal"] value 0.59
+
+openmetrics.vmware_exporter.vmware_host_sensor_power_voltage [VMWare sensor power voltage value in volt labeled by sensor name from the host.]
+    Data Type: double  InDom: 144.35875 0x24008c23
+    Semantics: instant  Units: none
+Help:
+VMWare sensor power voltage value in volt labeled by sensor name from the host.
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Power Supply 2 Voltage 2 --- Normal"] value 204
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Power Supply 1 Voltage 1 --- Normal"] value 204
+
+openmetrics.vmware_exporter.vmware_host_sensor_power_watt [VMWare sensor power watt value in watt labeled by sensor name from the host.]
+    Data Type: double  InDom: 144.35877 0x24008c25
+    Semantics: instant  Units: none
+Help:
+VMWare sensor power watt value in watt labeled by sensor name from the host.
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Pwr Consumption --- Normal"] value 126
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Power Supply 1: Running/Full Power-Enabled"] value 750
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Power Supply 2: Running/Full Power-Enabled"] value 750
+
+openmetrics.vmware_exporter.vmware_host_sensor_state [VMWare sensor state value (0=red / 1=yellow / 2=green / 3=unknown) labeled by sensor name and type from the host.]
+    Data Type: double  InDom: 144.35872 0x24008c20
+    Semantics: instant  Units: none
+Help:
+VMWare sensor state value (0=red / 1=yellow / 2=green / 3=unknown) labeled by sensor name and type from the host.
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan7B RPM --- Normal type:fan"] value 2
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan6B RPM --- Normal type:fan"] value 2
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan5B RPM --- Normal type:fan"] value 2
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan4B RPM --- Normal type:fan"] value 2
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan3B RPM --- Normal type:fan"] value 2
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan2B RPM --- Normal type:fan"] value 2
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan1B RPM --- Normal type:fan"] value 2
+    inst [7 or "7 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan7A RPM --- Normal type:fan"] value 2
+    inst [8 or "8 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Pwr Consumption --- Normal type:power"] value 2
+    inst [9 or "9 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Power Supply 2 Voltage 2 --- Normal type:voltage"] value 2
+    inst [10 or "10 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Power Supply 1 Voltage 1 --- Normal type:voltage"] value 2
+    inst [11 or "11 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Power Supply 2 Current 2 --- Normal type:power"] value 2
+    inst [12 or "12 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Power Supply 1 Current 1 --- Normal type:power"] value 2
+    inst [13 or "13 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Exhaust Temp --- Normal type:temperature"] value 2
+    inst [14 or "14 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Inlet Temp --- Normal type:temperature"] value 2
+    inst [15 or "15 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan6A RPM --- Normal type:fan"] value 2
+    inst [16 or "16 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan5A RPM --- Normal type:fan"] value 2
+    inst [17 or "17 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan4A RPM --- Normal type:fan"] value 2
+    inst [18 or "18 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan3A RPM --- Normal type:fan"] value 2
+    inst [19 or "19 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan2A RPM --- Normal type:fan"] value 2
+    inst [20 or "20 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan1A RPM --- Normal type:fan"] value 2
+    inst [21 or "21 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware Rollup Health State type:system"] value 2
+    inst [22 or "22 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:CPU1 Level-1 Cache is 196608 B type:Processors"] value 2
+    inst [23 or "23 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:CPU1 Level-2 Cache is 1572864 B type:Processors"] value 2
+    inst [24 or "24 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:CPU1 Level-3 Cache is 15728640 B type:Processors"] value 2
+    inst [25 or "25 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:CPU2 Level-1 Cache is 196608 B type:Processors"] value 2
+    inst [26 or "26 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:CPU2 Level-2 Cache is 1572864 B type:Processors"] value 2
+    inst [27 or "27 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:CPU2 Level-3 Cache is 15728640 B type:Processors"] value 2
+    inst [28 or "28 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Dell Inc. BMC Firmware (node 0) 46:10000 1.6 type:Software Components"] value 2
+    inst [29 or "29 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Dell Inc. System BIOS 1.1.2 2012-03-08 00:00:00.000 type:Software Components"] value 2
+    inst [30 or "30 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware ata-pata-atiixp 0.4.6-3vmw.500.0.0.469512 2011-08-19 01:59:24.000 type:Software Components"] value 2
+    inst [31 or "31 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware net-nx-nic 4.0.557-3vmw.500.1.11.623860 2012-02-17 21:33:25.000 type:Software Components"] value 2
+    inst [32 or "32 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware scsi-rste 2.0.2.0088-1vmw.500.1.11.623860 2012-02-17 21:13:28.000 type:Software Components"] value 2
+    inst [33 or "33 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware net-e1000 8.0.3.1-2vmw.500.0.7.515841 2011-12-15 00:00:00.000 type:Software Components"] value 2
+    inst [34 or "34 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware net-ixgbe 2.0.84.8.2-10vmw.500.0.0.469512 2011-08-19 01:59:12.000 type:Software Components"] value 2
+    inst [35 or "35 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware scsi-megaraid2 2.00.4-9vmw.500.0.0.469512 2011-08-19 01:59:16.000 type:Software Components"] value 2
+    inst [36 or "36 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware sata-sata-sil 2.3-3vmw.500.0.0.469512 2011-08-19 01:59:34.000 type:Software Components"] value 2
+    inst [37 or "37 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware net-r8168 8.013.00-3vmw.500.0.0.469512 2011-08-19 01:59:30.000 type:Software Components"] value 2
+    inst [38 or "38 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware ohci-usb-ohci 1.0-3vmw.500.0.0.469512 2011-08-19 01:59:36.000 type:Software Components"] value 2
+    inst [39 or "39 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware scsi-qla4xxx 5.01.03.2-3vmw.500.0.0.469512 2011-08-19 01:59:30.000 type:Software Components"] value 2
+    inst [40 or "40 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware ata-pata-sil680 0.4.8-3vmw.500.0.0.469512 2011-08-19 01:59:26.000 type:Software Components"] value 2
+    inst [41 or "41 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware scsi-megaraid-mbox 2.20.5.1-6vmw.500.0.0.469512 2011-08-19 01:59:16.000 type:Software Components"] value 2
+    inst [42 or "42 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware uhci-usb-uhci 1.0-3vmw.500.0.0.469512 2011-08-19 01:59:36.000 type:Software Components"] value 2
+    inst [43 or "43 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware scsi-mpt2sas 06.00.00.00-6vmw.500.1.11.623860 2012-02-17 21:33:07.000 type:Software Components"] value 2
+    inst [44 or "44 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware net-bnx2 2.0.15g.v50.11-5vmw.500.0.0.469512 2011-08-19 01:58:30.000 type:Software Components"] value 2
+    inst [45 or "45 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware scsi-fnic 1.5.0.3-1vmw.500.0.0.469512 2011-08-19 01:58:58.000 type:Software Components"] value 2
+    inst [46 or "46 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware ata-pata-pdc2027x 1.0-3vmw.500.0.0.469512 2011-08-19 01:59:25.000 type:Software Components"] value 2
+    inst [47 or "47 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware net-cnic 1.10.2j.v50.7-2vmw.500.0.0.469512 2011-08-19 01:58:42.000 type:Software Components"] value 2
+    inst [48 or "48 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware scsi-hpsa 5.0.0-17vmw.500.0.0.469512 2011-08-19 01:58:59.000 type:Software Components"] value 2
+    inst [49 or "49 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware scsi-aacraid 1.1.5.1-9vmw.500.1.11.623860 2012-02-17 21:32:19.000 type:Software Components"] value 2
+    inst [50 or "50 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware net-igb 2.1.11.1-3vmw.500.0.0.469512 2011-08-19 01:59:05.000 type:Software Components"] value 2
+    inst [51 or "51 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware net-forcedeth 0.61-2vmw.500.0.0.469512 2011-08-19 01:59:00.000 type:Software Components"] value 2
+    inst [52 or "52 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware scsi-qla2xxx 901.k1.1-14vmw.500.0.0.469512 2011-08-19 01:59:30.000 type:Software Components"] value 2
+    inst [53 or "53 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware scsi-adp94xx 1.0.8.12-6vmw.500.0.0.469512 2011-08-19 01:58:23.000 type:Software Components"] value 2
+    inst [54 or "54 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware net-sky2 1.20-2vmw.500.0.0.469512 2011-08-19 01:59:36.000 type:Software Components"] value 2
+    inst [55 or "55 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware ehci-ehci-hcd 1.0-3vmw.500.1.11.623860 2012-02-17 21:32:36.000 type:Software Components"] value 2
+    inst [56 or "56 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware sata-ahci 3.0-6vmw.500.1.11.623860 2012-02-17 21:32:19.000 type:Software Components"] value 2
+    inst [57 or "57 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware ipmi-ipmi-devintf 39.1-4vmw.500.0.0.469512 2011-08-19 01:59:03.000 type:Software Components"] value 2
+    inst [58 or "58 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware net-e1000e 1.1.2-3vmw.500.1.11.623860 2012-02-17 21:32:36.000 type:Software Components"] value 2
+    inst [59 or "59 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware ipmi-ipmi-si-drv 39.1-4vmw.500.0.0.469512 2011-08-19 01:59:05.000 type:Software Components"] value 2
+    inst [60 or "60 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware scsi-megaraid-sas 5.34-1vmw.500.1.11.623860 2012-02-17 21:33:07.000 type:Software Components"] value 2
+    inst [61 or "61 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware sata-sata-promise 2.12-3vmw.500.0.0.469512 2011-08-19 01:59:31.000 type:Software Components"] value 2
+    inst [62 or "62 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware esx-base 5.0.0-1.11.623860 2012-02-17 21:37:34.000 type:Software Components"] value 2
+    inst [63 or "63 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware scsi-ips 7.12.05-4vmw.500.0.0.469512 2011-08-19 01:59:06.000 type:Software Components"] value 2
+    inst [64 or "64 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware ipmi-ipmi-msghandler 39.1-4vmw.500.0.0.469512 2011-08-19 01:59:06.000 type:Software Components"] value 2
+    inst [65 or "65 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware misc-cnic-register 1.1-1vmw.500.0.0.469512 2011-08-19 01:58:38.000 type:Software Components"] value 2
+    inst [66 or "66 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware scsi-lpfc820 8.2.2.1-18vmw.500.0.0.469512 2011-08-19 01:59:18.000 type:Software Components"] value 2
+    inst [67 or "67 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware net-be2net 4.0.88.0-1vmw.500.0.7.515841 2011-12-15 00:00:00.000 type:Software Components"] value 2
+    inst [68 or "68 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware ata-pata-cmd64x 0.2.5-3vmw.500.0.0.469512 2011-08-19 01:59:25.000 type:Software Components"] value 2
+    inst [69 or "69 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware sata-sata-svw 2.3-3vmw.500.0.0.469512 2011-08-19 01:59:35.000 type:Software Components"] value 2
+    inst [70 or "70 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware ata-pata-via 0.3.3-2vmw.500.0.0.469512 2011-08-19 01:59:26.000 type:Software Components"] value 2
+    inst [71 or "71 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware esx-tboot 5.0.0-0.0.469512 2011-08-19 01:58:15.000 type:Software Components"] value 2
+    inst [72 or "72 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware scsi-aic79xx 3.1-5vmw.500.0.0.469512 2011-08-19 01:58:31.000 type:Software Components"] value 2
+    inst [73 or "73 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware misc-drivers 5.0.0-1.11.623860 2012-02-17 21:33:46.000 type:Software Components"] value 2
+    inst [74 or "74 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware net-s2io 2.1.4.13427-3vmw.500.0.0.469512 2011-08-19 01:59:35.000 type:Software Components"] value 2
+    inst [75 or "75 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware tools-light 5.0.0-1.11.623860 2012-02-17 21:32:54.000 type:Software Components"] value 2
+    inst [76 or "76 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware sata-ata-piix 2.12-4vmw.500.1.11.623860 2012-02-17 21:32:19.000 type:Software Components"] value 2
+    inst [77 or "77 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware net-enic 1.4.2.15a-1vmw.500.0.0.469512 2011-08-19 01:58:54.000 type:Software Components"] value 2
+    inst [78 or "78 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware net-bnx2x 1.61.15.v50.1-1vmw.500.0.0.469512 2011-08-19 01:58:46.000 type:Software Components"] value 2
+    inst [79 or "79 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware ata-pata-hpt3x2n 0.3.4-3vmw.500.0.0.469512 2011-08-19 01:59:25.000 type:Software Components"] value 2
+    inst [80 or "80 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware block-cciss 3.6.14-10vmw.500.0.0.469512 2011-08-19 01:58:42.000 type:Software Components"] value 2
+    inst [81 or "81 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware ata-pata-serverworks 0.4.3-3vmw.500.0.0.469512 2011-08-19 01:59:26.000 type:Software Components"] value 2
+    inst [82 or "82 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware sata-sata-nv 3.5-3vmw.500.0.0.469512 2011-08-19 01:59:31.000 type:Software Components"] value 2
+    inst [83 or "83 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware scsi-mptsas 4.23.01.00-5vmw.500.0.0.469512 2011-08-19 01:59:20.000 type:Software Components"] value 2
+    inst [84 or "84 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware scsi-bnx2i 1.9.1d.v50.1-3vmw.500.0.0.469512 2011-08-19 01:58:31.000 type:Software Components"] value 2
+    inst [85 or "85 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware ima-qla4xxx 2.01.07-1vmw.500.0.0.469512 2011-08-19 01:59:44.000 type:Software Components"] value 2
+    inst [86 or "86 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware net-tg3 3.110h.v50.4-4vmw.500.0.0.469512 2011-08-19 01:59:38.000 type:Software Components"] value 2
+    inst [87 or "87 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware ata-pata-amd 0.3.10-3vmw.500.0.0.469512 2011-08-19 01:59:24.000 type:Software Components"] value 2
+    inst [88 or "88 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware net-r8169 6.011.00-2vmw.500.0.0.469512 2011-08-19 01:59:31.000 type:Software Components"] value 2
+    inst [89 or "89 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:VMware scsi-mptspi 4.23.01.00-5vmw.500.0.0.469512 2011-08-19 01:59:21.000 type:Software Components"] value 2
+    inst [90 or "90 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:igb driver 2.1.11.1 type:Software Components"] value 2
+    inst [91 or "91 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:igb device firmware 1.5-6 type:Software Components"] value 2
+    inst [92 or "92 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Power Supply 1: Running/Full Power-Enabled type:power"] value 2
+    inst [93 or "93 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Power Supply 2: Running/Full Power-Enabled type:power"] value 2
+    inst [94 or "94 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Disk Drive Bay 1 Signal Cable 0: Config Error - Deassert type:Cable/Interconnect"] value 2
+    inst [95 or "95 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Disk Drive Bay 1 Power Cable 0: Config Error - Deassert type:Cable/Interconnect"] value 2
+    inst [96 or "96 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Disk Drive Bay 1 Cable SAS B 0: Config Error - Deassert type:Cable/Interconnect"] value 2
+    inst [97 or "97 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Disk Drive Bay 1 Cable SAS A 0: Config Error - Deassert type:Cable/Interconnect"] value 2
+    inst [98 or "98 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 7: Drive Fault - Deassert type:Storage"] value 2
+    inst [99 or "99 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 7: Predictive Failure - Deassert type:Storage"] value 2
+    inst [100 or "100 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 7: Parity Check In Progress - Deassert type:Storage"] value 2
+    inst [101 or "101 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 7: In Critical Array - Deassert type:Storage"] value 2
+    inst [102 or "102 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 7: In Failed Array - Deassert type:Storage"] value 2
+    inst [103 or "103 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 7: Rebuild In Progress - Deassert type:Storage"] value 2
+    inst [104 or "104 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 7: Rebuild Aborted - Deassert type:Storage"] value 2
+    inst [105 or "105 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 6: Drive Fault - Deassert type:Storage"] value 2
+    inst [106 or "106 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 6: Predictive Failure - Deassert type:Storage"] value 2
+    inst [107 or "107 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 6: Parity Check In Progress - Deassert type:Storage"] value 2
+    inst [108 or "108 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 6: In Critical Array - Deassert type:Storage"] value 2
+    inst [109 or "109 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 6: In Failed Array - Deassert type:Storage"] value 2
+    inst [110 or "110 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 6: Rebuild In Progress - Deassert type:Storage"] value 2
+    inst [111 or "111 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 6: Rebuild Aborted - Deassert type:Storage"] value 2
+    inst [112 or "112 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 5: Drive Fault - Deassert type:Storage"] value 2
+    inst [113 or "113 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 5: Predictive Failure - Deassert type:Storage"] value 2
+    inst [114 or "114 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 5: Hot Spare - Assert type:Storage"] value 2
+    inst [115 or "115 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 5: Parity Check In Progress - Deassert type:Storage"] value 2
+    inst [116 or "116 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 5: In Critical Array - Deassert type:Storage"] value 2
+    inst [117 or "117 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 5: In Failed Array - Deassert type:Storage"] value 2
+    inst [118 or "118 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 5: Rebuild In Progress - Deassert type:Storage"] value 2
+    inst [119 or "119 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 5: Rebuild Aborted - Deassert type:Storage"] value 2
+    inst [120 or "120 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 4: Drive Fault - Deassert type:Storage"] value 2
+    inst [121 or "121 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 4: Predictive Failure - Deassert type:Storage"] value 2
+    inst [122 or "122 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 4: Parity Check In Progress - Deassert type:Storage"] value 2
+    inst [123 or "123 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 4: In Critical Array - Deassert type:Storage"] value 2
+    inst [124 or "124 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 4: In Failed Array - Deassert type:Storage"] value 2
+    inst [125 or "125 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 4: Rebuild In Progress - Deassert type:Storage"] value 2
+    inst [126 or "126 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 4: Rebuild Aborted - Deassert type:Storage"] value 2
+    inst [127 or "127 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 3: Drive Fault - Deassert type:Storage"] value 2
+    inst [128 or "128 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 3: Predictive Failure - Deassert type:Storage"] value 2
+    inst [129 or "129 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 3: Parity Check In Progress - Deassert type:Storage"] value 2
+    inst [130 or "130 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 3: In Critical Array - Deassert type:Storage"] value 2
+    inst [131 or "131 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 3: In Failed Array - Deassert type:Storage"] value 2
+    inst [132 or "132 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 3: Rebuild In Progress - Deassert type:Storage"] value 2
+    inst [133 or "133 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 3: Rebuild Aborted - Deassert type:Storage"] value 2
+    inst [134 or "134 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 2: Drive Fault - Deassert type:Storage"] value 2
+    inst [135 or "135 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 2: Predictive Failure - Deassert type:Storage"] value 2
+    inst [136 or "136 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 2: Parity Check In Progress - Deassert type:Storage"] value 2
+    inst [137 or "137 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 2: In Critical Array - Deassert type:Storage"] value 2
+    inst [138 or "138 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 2: In Failed Array - Deassert type:Storage"] value 2
+    inst [139 or "139 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 2: Rebuild In Progress - Deassert type:Storage"] value 2
+    inst [140 or "140 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 2: Rebuild Aborted - Deassert type:Storage"] value 2
+    inst [141 or "141 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 1: Drive Fault - Deassert type:Storage"] value 2
+    inst [142 or "142 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 1: Predictive Failure - Deassert type:Storage"] value 2
+    inst [143 or "143 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 1: Parity Check In Progress - Deassert type:Storage"] value 2
+    inst [144 or "144 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 1: In Critical Array - Deassert type:Storage"] value 2
+    inst [145 or "145 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 1: In Failed Array - Deassert type:Storage"] value 2
+    inst [146 or "146 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 1: Rebuild In Progress - Deassert type:Storage"] value 2
+    inst [147 or "147 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 1: Rebuild Aborted - Deassert type:Storage"] value 2
+    inst [148 or "148 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 0: Drive Fault - Deassert type:Storage"] value 2
+    inst [149 or "149 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 0: Predictive Failure - Deassert type:Storage"] value 2
+    inst [150 or "150 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 0: Parity Check In Progress - Deassert type:Storage"] value 2
+    inst [151 or "151 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 0: In Critical Array - Deassert type:Storage"] value 2
+    inst [152 or "152 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 0: In Failed Array - Deassert type:Storage"] value 2
+    inst [153 or "153 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 0: Rebuild In Progress - Deassert type:Storage"] value 2
+    inst [154 or "154 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Drive 0 0: Rebuild Aborted - Deassert type:Storage"] value 2
+    inst [155 or "155 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Power Supply 2 Status 0: Failure status - Deassert type:power"] value 2
+    inst [156 or "156 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Power Supply 2 Status 0: Predictive failure - Deassert type:power"] value 2
+    inst [157 or "157 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Power Supply 2 Status 0: Power Supply AC lost - Deassert type:power"] value 2
+    inst [158 or "158 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Power Supply 2 Status 0: Config Error: Vendor Mismatch - Deassert type:power"] value 2
+    inst [159 or "159 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Power Supply 1 Status 0: Failure status - Deassert type:power"] value 2
+    inst [160 or "160 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Power Supply 1 Status 0: Predictive failure - Deassert type:power"] value 2
+    inst [161 or "161 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Power Supply 1 Status 0: Power Supply AC lost - Deassert type:power"] value 2
+    inst [162 or "162 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Power Supply 1 Status 0: Config Error: Vendor Mismatch - Deassert type:power"] value 2
+    inst [163 or "163 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 PS Redundancy 0 - Fully redundant type:power"] value 2
+    inst [164 or "164 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Add-in Card 2 ROMB Battery 0: Failed - Deassert type:Battery"] value 2
+    inst [165 or "165 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 CMOS Battery 0: Failed - Deassert type:Battery"] value 2
+    inst [166 or "166 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 1 M01 VTT PG 0 - State deasserted type:voltage"] value 2
+    inst [167 or "167 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 BP1 5V PG 0 - State deasserted type:voltage"] value 2
+    inst [168 or "168 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 1.5V PG 0 - State deasserted type:voltage"] value 2
+    inst [169 or "169 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Riser 3 Presence 0: Config Error - Deassert type:Cable/Interconnect"] value 2
+    inst [170 or "170 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Riser Config Err 0: Config Error - Deassert type:Cable/Interconnect"] value 2
+    inst [171 or "171 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Fan Redundancy 0 - Fully redundant type:fan"] value 2
+    inst [172 or "172 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 2 Status 0: IERR - Deassert type:Processors"] value 2
+    inst [173 or "173 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 2 Status 0: Thermal Trip - Deassert type:Processors"] value 2
+    inst [174 or "174 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 2 Status 0: Configuration Error - Deassert type:Processors"] value 2
+    inst [175 or "175 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 1 Status 0: IERR - Deassert type:Processors"] value 2
+    inst [176 or "176 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 1 Status 0: Thermal Trip - Deassert type:Processors"] value 2
+    inst [177 or "177 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 1 Status 0: Configuration Error - Deassert type:Processors"] value 2
+    inst [178 or "178 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 2 M23 VDDQ PG 0 - State deasserted type:voltage"] value 2
+    inst [179 or "179 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 1 VTT PG 0 - State deasserted type:voltage"] value 2
+    inst [180 or "180 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 2 VTT PG 0 - State deasserted type:voltage"] value 2
+    inst [181 or "181 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 LCD Cable Pres 0: Config Error - Deassert type:Cable/Interconnect"] value 2
+    inst [182 or "182 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 NDC PG 0 - State deasserted type:voltage"] value 2
+    inst [183 or "183 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 2 M01 VTT PG 0 - State deasserted type:voltage"] value 2
+    inst [184 or "184 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 2 M23 VTT PG 0 - State deasserted type:voltage"] value 2
+    inst [185 or "185 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 1 M01 VDDQ PG 0 - State deasserted type:voltage"] value 2
+    inst [186 or "186 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 2 M01 VDDQ PG 0 - State deasserted type:voltage"] value 2
+    inst [187 or "187 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 1 VSA PG 0 - State deasserted type:voltage"] value 2
+    inst [188 or "188 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 2 VSA PG 0 - State deasserted type:voltage"] value 2
+    inst [189 or "189 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 FETDRV PG 0 - State deasserted type:voltage"] value 2
+    inst [190 or "190 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 1 M23 VTT PG 0 - State deasserted type:voltage"] value 2
+    inst [191 or "191 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 1 M23 VDDQ PG 0 - State deasserted type:voltage"] value 2
+    inst [192 or "192 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 1.1V PG 0 - State deasserted type:voltage"] value 2
+    inst [193 or "193 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 1 PLL PG 0 - State deasserted type:voltage"] value 2
+    inst [194 or "194 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 2 PLL PG 0 - State deasserted type:voltage"] value 2
+    inst [195 or "195 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 VGA Cable Pres 0: Config Error - Deassert type:Cable/Interconnect"] value 2
+    inst [196 or "196 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 USB Cable Pres 0: Config Error - Deassert type:Cable/Interconnect"] value 2
+    inst [197 or "197 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 5V PG 0 - State deasserted type:voltage"] value 2
+    inst [198 or "198 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 3.3V PG 0 - State deasserted type:voltage"] value 2
+    inst [199 or "199 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 2 VCORE PG 0 - State deasserted type:voltage"] value 2
+    inst [200 or "200 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Processor 1 VCORE PG 0 - State deasserted type:voltage"] value 2
+    inst [201 or "201 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 OS Watchdog 0: Timer expired - Deassert type:Watchdog"] value 2
+    inst [202 or "202 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 OS Watchdog 0: Hard reset - Deassert type:Watchdog"] value 2
+    inst [203 or "203 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 OS Watchdog 0: Power down - Deassert type:Watchdog"] value 2
+    inst [204 or "204 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 OS Watchdog 0: Power cycle - Deassert type:Watchdog"] value 2
+    inst [205 or "205 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Intrusion 0: General Chassis intrusion - Deassert type:Chassis"] value 2
+    inst [206 or "206 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:CPU1 type:n/a"] value 2
+    inst [207 or "207 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:CPU2 type:n/a"] value 2
+    inst [208 or "208 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:Memory type:n/a"] value 2
+
+openmetrics.vmware_exporter.vmware_host_sensor_temperature [VMWare sensor temperature value in degree C labeled by sensor name from the host.]
+    Data Type: double  InDom: 144.35874 0x24008c22
+    Semantics: instant  Units: none
+Help:
+VMWare sensor temperature value in degree C labeled by sensor name from the host.
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Exhaust Temp --- Normal"] value 43
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME name:System Board 1 Inlet Temp --- Normal"] value 25
+
+openmetrics.vmware_exporter.vmware_host_standby_mode [VMWare Host Standby Mode (entering / exiting / in / none)]
+    Data Type: double  InDom: 144.35861 0x24008c15
+    Semantics: instant  Units: none
+Help:
+VMWare Host Standby Mode (entering / exiting / in / none)
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter host_name:SOMEHOSTNAME standby_mode_state:unknown"] value 0
+
+openmetrics.vmware_exporter.vmware_vm_boot_timestamp_seconds [VMWare VM boot time in seconds]
+    Data Type: double  InDom: 144.35841 0x24008c01
+    Semantics: instant  Units: sec
+Help:
+VMWare VM boot time in seconds
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 1603813575.774721
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 1603813565.180623
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 1603813560.132802
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 1620846371.759613
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 1603813569.96451
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 1560858384.513312
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 1491304865.182172
+
+openmetrics.vmware_exporter.vmware_vm_cpu_costop_summation [vmware_vm_cpu_costop_summation]
+    Data Type: double  InDom: 144.35884 0x24008c2c
+    Semantics: instant  Units: none
+Help:
+vmware_vm_cpu_costop_summation
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 11
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 0
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 1
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 1
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 0
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 9
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 1
+
+openmetrics.vmware_exporter.vmware_vm_cpu_demand_average [vmware_vm_cpu_demand_average]
+    Data Type: double  InDom: 144.35886 0x24008c2e
+    Semantics: instant  Units: none
+Help:
+vmware_vm_cpu_demand_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 37
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 26
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 37
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 28
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 25
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 58
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 495
+
+openmetrics.vmware_exporter.vmware_vm_cpu_idle_summation [vmware_vm_cpu_idle_summation]
+    Data Type: double  InDom: 144.35885 0x24008c2d
+    Semantics: instant  Units: none
+Help:
+vmware_vm_cpu_idle_summation
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 159538
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 79403
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 79483
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 79571
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 79640
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 78599
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 33987
+
+openmetrics.vmware_exporter.vmware_vm_cpu_maxlimited_summation [vmware_vm_cpu_maxlimited_summation]
+    Data Type: double  InDom: 144.35881 0x24008c29
+    Semantics: instant  Units: none
+Help:
+vmware_vm_cpu_maxlimited_summation
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 0
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 0
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 0
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 0
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 0
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 0
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 0
+
+openmetrics.vmware_exporter.vmware_vm_cpu_ready_summation [vmware_vm_cpu_ready_summation]
+    Data Type: double  InDom: 144.35880 0x24008c28
+    Semantics: instant  Units: none
+Help:
+vmware_vm_cpu_ready_summation
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 108
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 55
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 115
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 85
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 70
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 138
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 30
+
+openmetrics.vmware_exporter.vmware_vm_cpu_usage_average [vmware_vm_cpu_usage_average]
+    Data Type: double  InDom: 144.35882 0x24008c2a
+    Semantics: instant  Units: none
+Help:
+vmware_vm_cpu_usage_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 19
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 26
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 37
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 28
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 25
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 77
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 729
+
+openmetrics.vmware_exporter.vmware_vm_cpu_usagemhz_average [vmware_vm_cpu_usagemhz_average]
+    Data Type: double  InDom: 144.35883 0x24008c2b
+    Semantics: instant  Units: none
+Help:
+vmware_vm_cpu_usagemhz_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 38
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 26
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 37
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 28
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 25
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 77
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 364
+
+openmetrics.vmware_exporter.vmware_vm_disk_maxTotalLatency_latest [vmware_vm_disk_maxTotalLatency_latest]
+    Data Type: double  InDom: 144.35892 0x24008c34
+    Semantics: instant  Units: none
+Help:
+vmware_vm_disk_maxTotalLatency_latest
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 0
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 0
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 0
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 0
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 0
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 0
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 0
+
+openmetrics.vmware_exporter.vmware_vm_disk_read_average [vmware_vm_disk_read_average]
+    Data Type: double  InDom: 144.35894 0x24008c36
+    Semantics: instant  Units: none
+Help:
+vmware_vm_disk_read_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 0
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 0
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 0
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 0
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 0
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 0
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 0
+
+openmetrics.vmware_exporter.vmware_vm_disk_usage_average [vmware_vm_disk_usage_average]
+    Data Type: double  InDom: 144.35893 0x24008c35
+    Semantics: instant  Units: none
+Help:
+vmware_vm_disk_usage_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 2
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 0
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 0
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 0
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 0
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 0
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 0
+
+openmetrics.vmware_exporter.vmware_vm_disk_write_average [vmware_vm_disk_write_average]
+    Data Type: double  InDom: 144.35895 0x24008c37
+    Semantics: instant  Units: none
+Help:
+vmware_vm_disk_write_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 2
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 0
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 0
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 0
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 0
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 0
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 0
+
+openmetrics.vmware_exporter.vmware_vm_guest_disk_capacity [Disk capacity metric per partition]
+    Data Type: double  InDom: 144.35847 0x24008c07
+    Semantics: instant  Units: none
+Help:
+Disk capacity metric per partition
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME partition:/ vm_name:name013"] value 11012145152
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME partition:/mnt/data vm_name:name013"] value 21003583488
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME partition:/boot vm_name:name013"] value 520794112
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME partition:/mnt/kernel vm_name:name013"] value 17165189120
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME partition:C:\ vm_name:name053"] value 85792387072
+
+openmetrics.vmware_exporter.vmware_vm_guest_disk_free [Disk metric per partition]
+    Data Type: double  InDom: 144.35846 0x24008c06
+    Semantics: instant  Units: none
+Help:
+Disk metric per partition
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME partition:/ vm_name:name013"] value 4061077504
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME partition:/mnt/data vm_name:name013"] value 19866902528
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME partition:/boot vm_name:name013"] value 111628288
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME partition:/mnt/kernel vm_name:name013"] value 5631688704
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME partition:C:\ vm_name:name053"] value 58768875520
+
+openmetrics.vmware_exporter.vmware_vm_guest_tools_running_status [VM tools running status]
+    Data Type: double  InDom: 144.35848 0x24008c08
+    Semantics: instant  Units: none
+Help:
+VM tools running status
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name023-sat61-client"] value 1
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name001"] value 1
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name003"] value 1
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name048"] value 1
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotRunning vm_name:name050"] value 1
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name029"] value 1
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name049"] value 1
+    inst [7 or "7 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_status:toolsOk vm_name:name013"] value 1
+    inst [8 or "8 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name036"] value 1
+    inst [9 or "9 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name012"] value 1
+    inst [10 or "10 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name022"] value 1
+    inst [11 or "11 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotRunning vm_name:name009"] value 1
+    inst [12 or "12 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name011"] value 1
+    inst [13 or "13 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name005"] value 1
+    inst [14 or "14 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name051"] value 1
+    inst [15 or "15 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name004"] value 1
+    inst [16 or "16 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name015"] value 1
+    inst [17 or "17 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name016"] value 1
+    inst [18 or "18 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name010"] value 1
+    inst [19 or "19 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name014"] value 1
+    inst [20 or "20 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_status:toolsOk vm_name:name053"] value 1
+    inst [21 or "21 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name032"] value 1
+    inst [22 or "22 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_status:toolsNotRunning vm_name:name045"] value 1
+    inst [23 or "23 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_status:toolsNotRunning vm_name:name046"] value 1
+    inst [24 or "24 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name019"] value 1
+    inst [25 or "25 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name047"] value 1
+    inst [26 or "26 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name031"] value 1
+    inst [27 or "27 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name025"] value 1
+    inst [28 or "28 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name030"] value 1
+    inst [29 or "29 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_status:toolsNotRunning vm_name:name028"] value 1
+    inst [30 or "30 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name002"] value 1
+    inst [31 or "31 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name034"] value 1
+    inst [32 or "32 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name035"] value 1
+    inst [33 or "33 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_status:toolsNotRunning vm_name:name033"] value 1
+    inst [34 or "34 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name023"] value 1
+    inst [35 or "35 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name052"] value 1
+    inst [36 or "36 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name027"] value 1
+    inst [37 or "37 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name020"] value 1
+    inst [38 or "38 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name041"] value 1
+    inst [39 or "39 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name037"] value 1
+    inst [40 or "40 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name017"] value 1
+    inst [41 or "41 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name040"] value 1
+    inst [42 or "42 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name038"] value 1
+    inst [43 or "43 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name044"] value 1
+    inst [44 or "44 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name039"] value 1
+    inst [45 or "45 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name021"] value 1
+    inst [46 or "46 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name006"] value 1
+    inst [47 or "47 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name042"] value 1
+    inst [48 or "48 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_status:toolsNotInstalled vm_name:name043"] value 1
+
+openmetrics.vmware_exporter.vmware_vm_guest_tools_version [VM tools version]
+    Data Type: double  InDom: 144.35849 0x24008c09
+    Semantics: instant  Units: none
+Help:
+VM tools version
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version:2147483647 vm_name:name050"] value 1
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_version:2147483647 vm_name:name013"] value 1
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version:8389 vm_name:name009"] value 1
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_version:0 vm_name:name015"] value 1
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_version:0 vm_name:name016"] value 1
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_version:0 vm_name:name010"] value 1
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_version:0 vm_name:name014"] value 1
+    inst [7 or "7 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_version:8389 vm_name:name053"] value 1
+    inst [8 or "8 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_version:0 vm_name:name032"] value 1
+    inst [9 or "9 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version:2147483647 vm_name:name045"] value 1
+    inst [10 or "10 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version:2147483647 vm_name:name046"] value 1
+    inst [11 or "11 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version:2147483647 vm_name:name028"] value 1
+    inst [12 or "12 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version:2147483647 vm_name:name033"] value 1
+
+openmetrics.vmware_exporter.vmware_vm_guest_tools_version_status [VM tools version status]
+    Data Type: double  InDom: 144.35850 0x24008c0a
+    Semantics: instant  Units: none
+Help:
+VM tools version status
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name023-sat61-client"] value 1
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name001"] value 1
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name003"] value 1
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name048"] value 1
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsUnmanaged vm_name:name050"] value 1
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name029"] value 1
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name049"] value 1
+    inst [7 or "7 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_version_status:guestToolsUnmanaged vm_name:name013"] value 1
+    inst [8 or "8 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name036"] value 1
+    inst [9 or "9 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name012"] value 1
+    inst [10 or "10 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name022"] value 1
+    inst [11 or "11 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsCurrent vm_name:name009"] value 1
+    inst [12 or "12 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name011"] value 1
+    inst [13 or "13 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name005"] value 1
+    inst [14 or "14 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name051"] value 1
+    inst [15 or "15 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name004"] value 1
+    inst [16 or "16 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name015"] value 1
+    inst [17 or "17 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name016"] value 1
+    inst [18 or "18 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name010"] value 1
+    inst [19 or "19 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name014"] value 1
+    inst [20 or "20 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_version_status:guestToolsSupportedNew vm_name:name053"] value 1
+    inst [21 or "21 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name032"] value 1
+    inst [22 or "22 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version_status:guestToolsCurrent vm_name:name045"] value 1
+    inst [23 or "23 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version_status:guestToolsUnmanaged vm_name:name046"] value 1
+    inst [24 or "24 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name019"] value 1
+    inst [25 or "25 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name047"] value 1
+    inst [26 or "26 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name031"] value 1
+    inst [27 or "27 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name025"] value 1
+    inst [28 or "28 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name030"] value 1
+    inst [29 or "29 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version_status:guestToolsUnmanaged vm_name:name028"] value 1
+    inst [30 or "30 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name002"] value 1
+    inst [31 or "31 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name034"] value 1
+    inst [32 or "32 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name035"] value 1
+    inst [33 or "33 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version_status:guestToolsUnmanaged vm_name:name033"] value 1
+    inst [34 or "34 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name023"] value 1
+    inst [35 or "35 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name052"] value 1
+    inst [36 or "36 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name027"] value 1
+    inst [37 or "37 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name020"] value 1
+    inst [38 or "38 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name041"] value 1
+    inst [39 or "39 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name037"] value 1
+    inst [40 or "40 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name017"] value 1
+    inst [41 or "41 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name040"] value 1
+    inst [42 or "42 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name038"] value 1
+    inst [43 or "43 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name044"] value 1
+    inst [44 or "44 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name039"] value 1
+    inst [45 or "45 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name021"] value 1
+    inst [46 or "46 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name006"] value 1
+    inst [47 or "47 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name042"] value 1
+    inst [48 or "48 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME tools_version_status:guestToolsNotInstalled vm_name:name043"] value 1
+
+openmetrics.vmware_exporter.vmware_vm_max_cpu_usage [VMWare VM Cpu Max availability in hz]
+    Data Type: double  InDom: 144.35844 0x24008c04
+    Semantics: instant  Units: none
+Help:
+VMWare VM Cpu Max availability in hz
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name023-sat61-client"] value 2499
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name001"] value 2499
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name003"] value 2499
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name048"] value 2499
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name050"] value 4999
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name029"] value 2499
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name049"] value 4999
+    inst [7 or "7 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 19999
+    inst [8 or "8 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name036"] value 2499
+    inst [9 or "9 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name012"] value 19999
+    inst [10 or "10 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name022"] value 2499
+    inst [11 or "11 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name009"] value 2499
+    inst [12 or "12 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name011"] value 2499
+    inst [13 or "13 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name005"] value 2499
+    inst [14 or "14 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name051"] value 4999
+    inst [15 or "15 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name004"] value 2499
+    inst [16 or "16 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 9999
+    inst [17 or "17 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 9999
+    inst [18 or "18 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 9999
+    inst [19 or "19 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 9999
+    inst [20 or "20 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 9999
+    inst [21 or "21 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 4999
+    inst [22 or "22 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name045"] value 2499
+    inst [23 or "23 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name046"] value 2499
+    inst [24 or "24 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name019"] value 2499
+    inst [25 or "25 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name047"] value 2499
+    inst [26 or "26 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name031"] value 2499
+    inst [27 or "27 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name025"] value 2499
+    inst [28 or "28 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name030"] value 2499
+    inst [29 or "29 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name028"] value 2499
+    inst [30 or "30 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name002"] value 2499
+    inst [31 or "31 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name034"] value 2499
+    inst [32 or "32 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name035"] value 2499
+    inst [33 or "33 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name033"] value 2499
+    inst [34 or "34 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name023"] value 2499
+    inst [35 or "35 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name052"] value 2499
+    inst [36 or "36 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name027"] value 2499
+    inst [37 or "37 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name020"] value 2499
+    inst [38 or "38 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name041"] value 2499
+    inst [39 or "39 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name037"] value 2499
+    inst [40 or "40 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name017"] value 2499
+    inst [41 or "41 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name040"] value 2499
+    inst [42 or "42 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name038"] value 2499
+    inst [43 or "43 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name044"] value 2499
+    inst [44 or "44 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name039"] value 2499
+    inst [45 or "45 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name021"] value 2499
+    inst [46 or "46 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name006"] value 2499
+    inst [47 or "47 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name042"] value 2499
+    inst [48 or "48 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name043"] value 9999
+
+openmetrics.vmware_exporter.vmware_vm_mem_active_average [vmware_vm_mem_active_average]
+    Data Type: double  InDom: 144.35889 0x24008c31
+    Semantics: instant  Units: none
+Help:
+vmware_vm_mem_active_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 503316
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 0
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 0
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 0
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 0
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 335544
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 167772
+
+openmetrics.vmware_exporter.vmware_vm_mem_consumed_average [vmware_vm_mem_consumed_average]
+    Data Type: double  InDom: 144.35888 0x24008c30
+    Semantics: instant  Units: none
+Help:
+vmware_vm_mem_consumed_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 8171520
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 6824424
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 2255224
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 2060032
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 4153732
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 4193052
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 7447196
+
+openmetrics.vmware_exporter.vmware_vm_mem_swapped_average [vmware_vm_mem_swapped_average]
+    Data Type: double  InDom: 144.35890 0x24008c32
+    Semantics: instant  Units: none
+Help:
+vmware_vm_mem_swapped_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 0
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 0
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 0
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 0
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 0
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 0
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 0
+
+openmetrics.vmware_exporter.vmware_vm_mem_usage_average [vmware_vm_mem_usage_average]
+    Data Type: double  InDom: 144.35887 0x24008c2f
+    Semantics: instant  Units: none
+Help:
+vmware_vm_mem_usage_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 599
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 0
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 0
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 0
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 0
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 799
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 199
+
+openmetrics.vmware_exporter.vmware_vm_mem_vmmemctl_average [vmware_vm_mem_vmmemctl_average]
+    Data Type: double  InDom: 144.35891 0x24008c33
+    Semantics: instant  Units: none
+Help:
+vmware_vm_mem_vmmemctl_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 0
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 0
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 0
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 0
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 0
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 0
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 0
+
+openmetrics.vmware_exporter.vmware_vm_memory_max [VMWare VM Memory Max availability in Mbytes]
+    Data Type: double  InDom: 144.35843 0x24008c03
+    Semantics: instant  Units: none
+Help:
+VMWare VM Memory Max availability in Mbytes
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name023-sat61-client"] value 1024
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name001"] value 2048
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name003"] value 2048
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name048"] value 2048
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name050"] value 2048
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name029"] value 2048
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name049"] value 1024
+    inst [7 or "7 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 8192
+    inst [8 or "8 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name036"] value 2048
+    inst [9 or "9 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name012"] value 4096
+    inst [10 or "10 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name022"] value 2048
+    inst [11 or "11 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name009"] value 1024
+    inst [12 or "12 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name011"] value 1024
+    inst [13 or "13 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name005"] value 1024
+    inst [14 or "14 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name051"] value 4096
+    inst [15 or "15 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name004"] value 2048
+    inst [16 or "16 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 8192
+    inst [17 or "17 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 8192
+    inst [18 or "18 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 8192
+    inst [19 or "19 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 8192
+    inst [20 or "20 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 4096
+    inst [21 or "21 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 8192
+    inst [22 or "22 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name045"] value 2048
+    inst [23 or "23 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name046"] value 1024
+    inst [24 or "24 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name019"] value 2048
+    inst [25 or "25 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name047"] value 2048
+    inst [26 or "26 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name031"] value 384
+    inst [27 or "27 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name025"] value 2048
+    inst [28 or "28 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name030"] value 2048
+    inst [29 or "29 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name028"] value 2048
+    inst [30 or "30 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name002"] value 3072
+    inst [31 or "31 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name034"] value 2048
+    inst [32 or "32 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name035"] value 2048
+    inst [33 or "33 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name033"] value 2048
+    inst [34 or "34 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name023"] value 1024
+    inst [35 or "35 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name052"] value 384
+    inst [36 or "36 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name027"] value 2048
+    inst [37 or "37 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name020"] value 2048
+    inst [38 or "38 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name041"] value 2048
+    inst [39 or "39 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name037"] value 2048
+    inst [40 or "40 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name017"] value 2048
+    inst [41 or "41 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name040"] value 1024
+    inst [42 or "42 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name038"] value 3072
+    inst [43 or "43 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name044"] value 1024
+    inst [44 or "44 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name039"] value 1024
+    inst [45 or "45 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name021"] value 2048
+    inst [46 or "46 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name006"] value 2048
+    inst [47 or "47 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name042"] value 2048
+    inst [48 or "48 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name043"] value 4096
+
+openmetrics.vmware_exporter.vmware_vm_net_broadcastRx_summation [vmware_vm_net_broadcastRx_summation]
+    Data Type: double  InDom: 144.35901 0x24008c3d
+    Semantics: instant  Units: none
+Help:
+vmware_vm_net_broadcastRx_summation
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 778
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 778
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 778
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 778
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 776
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 776
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 775
+
+openmetrics.vmware_exporter.vmware_vm_net_broadcastTx_summation [vmware_vm_net_broadcastTx_summation]
+    Data Type: double  InDom: 144.35900 0x24008c3c
+    Semantics: instant  Units: none
+Help:
+vmware_vm_net_broadcastTx_summation
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 0
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 0
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 0
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 0
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 0
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 0
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 0
+
+openmetrics.vmware_exporter.vmware_vm_net_droppedRx_summation [vmware_vm_net_droppedRx_summation]
+    Data Type: double  InDom: 144.35902 0x24008c3e
+    Semantics: instant  Units: none
+Help:
+vmware_vm_net_droppedRx_summation
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 0
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 0
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 0
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 0
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 0
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 0
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 0
+
+openmetrics.vmware_exporter.vmware_vm_net_droppedTx_summation [vmware_vm_net_droppedTx_summation]
+    Data Type: double  InDom: 144.35903 0x24008c3f
+    Semantics: instant  Units: none
+Help:
+vmware_vm_net_droppedTx_summation
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 0
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 0
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 0
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 0
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 0
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 0
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 0
+
+openmetrics.vmware_exporter.vmware_vm_net_multicastRx_summation [vmware_vm_net_multicastRx_summation]
+    Data Type: double  InDom: 144.35898 0x24008c3a
+    Semantics: instant  Units: none
+Help:
+vmware_vm_net_multicastRx_summation
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 0
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 0
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 0
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 0
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 0
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 0
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 0
+
+openmetrics.vmware_exporter.vmware_vm_net_multicastTx_summation [vmware_vm_net_multicastTx_summation]
+    Data Type: double  InDom: 144.35899 0x24008c3b
+    Semantics: instant  Units: none
+Help:
+vmware_vm_net_multicastTx_summation
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 0
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 0
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 0
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 0
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 0
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 0
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 0
+
+openmetrics.vmware_exporter.vmware_vm_net_received_average [vmware_vm_net_received_average]
+    Data Type: double  InDom: 144.35896 0x24008c38
+    Semantics: instant  Units: none
+Help:
+vmware_vm_net_received_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 3
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 3
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 3
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 3
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 3
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 3
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 3
+
+openmetrics.vmware_exporter.vmware_vm_net_transmitted_average [vmware_vm_net_transmitted_average]
+    Data Type: double  InDom: 144.35897 0x24008c39
+    Semantics: instant  Units: none
+Help:
+vmware_vm_net_transmitted_average
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 0
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 0
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 0
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 0
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 0
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 0
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 0
+
+openmetrics.vmware_exporter.vmware_vm_num_cpu [VMWare Number of processors in the virtual machine]
+    Data Type: double  InDom: 144.35842 0x24008c02
+    Semantics: instant  Units: none
+Help:
+VMWare Number of processors in the virtual machine
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name023-sat61-client"] value 1
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name001"] value 1
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name003"] value 1
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name048"] value 1
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name050"] value 2
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name029"] value 1
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name049"] value 2
+    inst [7 or "7 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 8
+    inst [8 or "8 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name036"] value 1
+    inst [9 or "9 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name012"] value 8
+    inst [10 or "10 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name022"] value 1
+    inst [11 or "11 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name009"] value 1
+    inst [12 or "12 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name011"] value 1
+    inst [13 or "13 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name005"] value 1
+    inst [14 or "14 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name051"] value 2
+    inst [15 or "15 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name004"] value 1
+    inst [16 or "16 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 4
+    inst [17 or "17 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 4
+    inst [18 or "18 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 4
+    inst [19 or "19 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 4
+    inst [20 or "20 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 4
+    inst [21 or "21 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 2
+    inst [22 or "22 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name045"] value 1
+    inst [23 or "23 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name046"] value 1
+    inst [24 or "24 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name019"] value 1
+    inst [25 or "25 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name047"] value 1
+    inst [26 or "26 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name031"] value 1
+    inst [27 or "27 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name025"] value 1
+    inst [28 or "28 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name030"] value 1
+    inst [29 or "29 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name028"] value 1
+    inst [30 or "30 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name002"] value 1
+    inst [31 or "31 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name034"] value 1
+    inst [32 or "32 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name035"] value 1
+    inst [33 or "33 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name033"] value 1
+    inst [34 or "34 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name023"] value 1
+    inst [35 or "35 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name052"] value 1
+    inst [36 or "36 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name027"] value 1
+    inst [37 or "37 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name020"] value 1
+    inst [38 or "38 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name041"] value 1
+    inst [39 or "39 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name037"] value 1
+    inst [40 or "40 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name017"] value 1
+    inst [41 or "41 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name040"] value 1
+    inst [42 or "42 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name038"] value 1
+    inst [43 or "43 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name044"] value 1
+    inst [44 or "44 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name039"] value 1
+    inst [45 or "45 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name021"] value 1
+    inst [46 or "46 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name006"] value 1
+    inst [47 or "47 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name042"] value 1
+    inst [48 or "48 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name043"] value 4
+
+openmetrics.vmware_exporter.vmware_vm_power_state [VMWare VM Power state (On / Off)]
+    Data Type: double  InDom: 144.35840 0x24008c00
+    Semantics: instant  Units: none
+Help:
+VMWare VM Power state (On / Off)
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name023-sat61-client"] value 0
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name001"] value 0
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name003"] value 0
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name048"] value 0
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name050"] value 0
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name029"] value 0
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name049"] value 0
+    inst [7 or "7 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 1
+    inst [8 or "8 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name036"] value 0
+    inst [9 or "9 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name012"] value 0
+    inst [10 or "10 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name022"] value 0
+    inst [11 or "11 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name009"] value 0
+    inst [12 or "12 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name011"] value 0
+    inst [13 or "13 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name005"] value 0
+    inst [14 or "14 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name051"] value 0
+    inst [15 or "15 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name004"] value 0
+    inst [16 or "16 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 1
+    inst [17 or "17 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 1
+    inst [18 or "18 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 1
+    inst [19 or "19 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 1
+    inst [20 or "20 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 1
+    inst [21 or "21 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 1
+    inst [22 or "22 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name045"] value 0
+    inst [23 or "23 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name046"] value 0
+    inst [24 or "24 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name019"] value 0
+    inst [25 or "25 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name047"] value 0
+    inst [26 or "26 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name031"] value 0
+    inst [27 or "27 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name025"] value 0
+    inst [28 or "28 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name030"] value 0
+    inst [29 or "29 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name028"] value 0
+    inst [30 or "30 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name002"] value 0
+    inst [31 or "31 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name034"] value 0
+    inst [32 or "32 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name035"] value 0
+    inst [33 or "33 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name033"] value 0
+    inst [34 or "34 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name023"] value 0
+    inst [35 or "35 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name052"] value 0
+    inst [36 or "36 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name027"] value 0
+    inst [37 or "37 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name020"] value 0
+    inst [38 or "38 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name041"] value 0
+    inst [39 or "39 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name037"] value 0
+    inst [40 or "40 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name017"] value 0
+    inst [41 or "41 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name040"] value 0
+    inst [42 or "42 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name038"] value 0
+    inst [43 or "43 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name044"] value 0
+    inst [44 or "44 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name039"] value 0
+    inst [45 or "45 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name021"] value 0
+    inst [46 or "46 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name006"] value 0
+    inst [47 or "47 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name042"] value 0
+    inst [48 or "48 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name043"] value 0
+
+openmetrics.vmware_exporter.vmware_vm_snapshot_timestamp_seconds [VMWare Snapshot creation time in seconds]
+    Data Type: double  InDom: 144.35879 0x24008c27
+    Semantics: instant  Units: sec
+Help:
+VMWare Snapshot creation time in seconds
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013 vm_snapshot_name:test"] value 1462306748.149673
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013 vm_snapshot_name:test2"] value 1462306602.305184
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name045 vm_snapshot_name:sorenson1-snap1"] value 1424889434.731363
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name045 vm_snapshot_name:sorenson1-snap3"] value 1424891169.015356
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name045 vm_snapshot_name:sorenson1-snap4"] value 1422121607.879696
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name045 vm_snapshot_name:sorenson1-snap5"] value 1422121935.286809
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name045 vm_snapshot_name:sorenson1-snap6"] value 1422122088.182661
+    inst [7 or "7 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name045 vm_snapshot_name:sorenson1-snap7"] value 1422122228.305585
+    inst [8 or "8 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name045 vm_snapshot_name:sorenson1-snap2"] value 1424890681.001977
+
+openmetrics.vmware_exporter.vmware_vm_snapshots [VMWare current number of existing snapshots]
+    Data Type: double  InDom: 144.35878 0x24008c26
+    Semantics: instant  Units: none
+Help:
+VMWare current number of existing snapshots
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 3
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name045"] value 9
+
+openmetrics.vmware_exporter.vmware_vm_template [VMWare VM Template (true / false)]
+    Data Type: double  InDom: 144.35845 0x24008c05
+    Semantics: instant  Units: none
+Help:
+VMWare VM Template (true / false)
+    inst [0 or "0 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name023-sat61-client"] value 0
+    inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name001"] value 0
+    inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name003"] value 0
+    inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name048"] value 0
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name050"] value 0
+    inst [5 or "5 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name029"] value 0
+    inst [6 or "6 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name049"] value 0
+    inst [7 or "7 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name013"] value 0
+    inst [8 or "8 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name036"] value 0
+    inst [9 or "9 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name012"] value 0
+    inst [10 or "10 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name022"] value 0
+    inst [11 or "11 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name009"] value 0
+    inst [12 or "12 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name011"] value 0
+    inst [13 or "13 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name005"] value 0
+    inst [14 or "14 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name051"] value 0
+    inst [15 or "15 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name004"] value 0
+    inst [16 or "16 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name015"] value 0
+    inst [17 or "17 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name016"] value 0
+    inst [18 or "18 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name010"] value 0
+    inst [19 or "19 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name014"] value 0
+    inst [20 or "20 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name053"] value 0
+    inst [21 or "21 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name032"] value 0
+    inst [22 or "22 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name045"] value 0
+    inst [23 or "23 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name046"] value 0
+    inst [24 or "24 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name019"] value 0
+    inst [25 or "25 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name047"] value 0
+    inst [26 or "26 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name031"] value 0
+    inst [27 or "27 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name025"] value 0
+    inst [28 or "28 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME vm_name:name030"] value 0
+    inst [29 or "29 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name028"] value 0
+    inst [30 or "30 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name002"] value 0
+    inst [31 or "31 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name034"] value 0
+    inst [32 or "32 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name035"] value 0
+    inst [33 or "33 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name033"] value 0
+    inst [34 or "34 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name023"] value 0
+    inst [35 or "35 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name052"] value 0
+    inst [36 or "36 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name027"] value 0
+    inst [37 or "37 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name020"] value 0
+    inst [38 or "38 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name041"] value 0
+    inst [39 or "39 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name037"] value 0
+    inst [40 or "40 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name017"] value 0
+    inst [41 or "41 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name040"] value 0
+    inst [42 or "42 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name038"] value 0
+    inst [43 or "43 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name044"] value 0
+    inst [44 or "44 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name039"] value 0
+    inst [45 or "45 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name021"] value 0
+    inst [46 or "46 cluster_name: dc_name:ha-datacenter ds_name:name008 host_name:SOMEHOSTNAME vm_name:name006"] value 0
+    inst [47 or "47 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name042"] value 0
+    inst [48 or "48 cluster_name: dc_name:ha-datacenter ds_name:name026 host_name:SOMEHOSTNAME vm_name:name043"] value 0

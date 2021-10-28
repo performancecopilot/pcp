@@ -303,7 +303,7 @@ Obsoletes: pcp-gui-testsuite < 3.9.5
 Requires: pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
 Requires: pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-lustre pcp-pmda-pdns
 Requires: pcp-pmda-memcache pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
-Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
+Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-zimbra
 %endif
 Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
 Requires: pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
@@ -1401,21 +1401,6 @@ collecting metrics about SNMP.
 
 %if "@have_perl@" == "true"
 #
-# pcp-pmda-vmware
-#
-%package pmda-vmware
-License: GPLv2+
-Summary: Performance Co-Pilot (PCP) metrics for VMware
-URL: https://pcp.io
-Requires: pcp = @package_version@ pcp-libs = @package_version@
-Requires: perl-PCP-PMDA = @package_version@
-
-%description pmda-vmware
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics for VMware.
-#end pcp-pmda-vmware
-
-#
 # pcp-pmda-zimbra
 #
 %package pmda-zimbra
@@ -1849,6 +1834,7 @@ Requires: %{__python2}-requests
 %endif
 Obsoletes: pcp-pmda-prometheus < 5.0.0
 Provides: pcp-pmda-prometheus
+Obsoletes: pcp-pmda-vmware < 5.3.5
 
 %description pmda-openmetrics
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -2368,7 +2354,6 @@ basic_manifest | keep '(etc/pcp|pmdas)/systemd(/|$)' >pcp-pmda-systemd-files
 basic_manifest | keep '(etc/pcp|pmdas)/trace(/|$)' >pcp-pmda-trace-files
 basic_manifest | keep '(etc/pcp|pmdas)/unbound(/|$)' >pcp-pmda-unbound-files
 basic_manifest | keep '(etc/pcp|pmdas)/weblog(/|$)' >pcp-pmda-weblog-files
-basic_manifest | keep '(etc/pcp|pmdas)/vmware(/|$)' >pcp-pmda-vmware-files
 basic_manifest | keep '(etc/pcp|pmdas)/zimbra(/|$)' >pcp-pmda-zimbra-files
 basic_manifest | keep '(etc/pcp|pmdas)/zswap(/|$)' >pcp-pmda-zswap-files
 
@@ -2394,7 +2379,6 @@ for pmda_package in \
     sockets statsd summary systemd \
     unbound \
     trace \
-    vmware \
     weblog \
     zimbra zswap ; \
 do \
@@ -2730,9 +2714,6 @@ pmieconf -c enable dmthin
 %preun pmda-samba
 %{pmda_remove "$1" "samba"}
 
-%preun pmda-vmware
-%{pmda_remove "$1" "vmware"}
-
 %preun pmda-zimbra
 %{pmda_remove "$1" "zimbra"}
 %endif
@@ -3028,8 +3009,6 @@ PCP_SA_DIR=@pcp_sa_dir@
 %files pmda-samba -f pcp-pmda-samba-files.rpm
 
 %files pmda-slurm -f pcp-pmda-slurm-files.rpm
-
-%files pmda-vmware -f pcp-pmda-vmware-files.rpm
 
 %files pmda-zimbra -f pcp-pmda-zimbra-files.rpm
 %endif

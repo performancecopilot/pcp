@@ -22,7 +22,7 @@ LDIRT	= domain.h root pmns $(IAM).log
 DOMAIN	= $(IAM)
 # common endpoint URLs (on: enabled, off: available)
 ONURLS	= grafana.url
-OFFURLS	= collectd.url etcd.url spark.url
+OFFURLS	= collectd.url etcd.url spark.url vmware.url
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
