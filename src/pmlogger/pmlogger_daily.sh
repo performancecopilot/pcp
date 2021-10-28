@@ -1705,7 +1705,12 @@ fi
 #
 if ! $COMPRESSONLY && [ -f $PCP_LOG_DIR/pmlogger/.NeedRewrite ]
 then
-    rm -f $PCP_LOG_DIR/pmlogger/.NeedRewrite
+    if $SHOWME
+    then
+	echo + rm -f $PCP_LOG_DIR/pmlogger/.NeedRewrite
+    else
+	rm -f $PCP_LOG_DIR/pmlogger/.NeedRewrite
+    fi
 fi
 
 # optional end logging to $PCP_LOG_DIR/NOTICES
