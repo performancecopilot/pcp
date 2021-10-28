@@ -37,8 +37,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -111,8 +109,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -182,8 +178,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -259,8 +253,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -339,8 +331,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -415,8 +405,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -487,8 +475,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -558,8 +544,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -631,8 +615,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -705,8 +687,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -778,8 +758,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -852,8 +830,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -921,8 +897,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -996,8 +970,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -1071,8 +1043,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -1144,8 +1114,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -1218,8 +1186,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -1289,8 +1255,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -1360,8 +1324,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -1434,8 +1396,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -1507,8 +1467,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -1581,8 +1539,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -1652,8 +1608,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -1725,8 +1679,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
@@ -1797,8 +1749,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
 control_req: connection accepted on fd=N from localhost
 do_creds: pmlc PDU version=3
 do_control_req: control=13 state=0 delta=5000 request ...
