@@ -514,7 +514,7 @@ Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-
 Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-lustre
 Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql pcp-pmda-oracle
-Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
+Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart
@@ -542,7 +542,7 @@ Requires: pcp-pmda-bpftrace
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-openmetrics pcp-pmda-haproxy
 Requires: pcp-pmda-lmsensors pcp-pmda-netcheck pcp-pmda-rabbitmq
-Requires: pcp-pmda-openvswitch
+Requires: pcp-pmda-openvswitch pcp-pmda-mongodb
 %endif
 %if !%{disable_mssql}
 Requires: pcp-pmda-mssql 
@@ -1400,21 +1400,6 @@ collecting metrics about SNMP.
 %endif
 
 #
-# pcp-pmda-vmware
-#
-%package pmda-vmware
-License: GPLv2+
-Summary: Performance Co-Pilot (PCP) metrics for VMware
-URL: https://pcp.io
-Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-Requires: perl-PCP-PMDA = %{version}-%{release}
-
-%description pmda-vmware
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics for VMware.
-#end pcp-pmda-vmware
-
-#
 # pcp-pmda-zimbra
 #
 %package pmda-zimbra
@@ -1755,6 +1740,7 @@ BuildRequires: %{__python2}-requests
 %endif
 Obsoletes: pcp-pmda-prometheus < 5.0.0
 Provides: pcp-pmda-prometheus < 5.0.0
+Obsoletes: pcp-pmda-vmware < 5.3.5
 
 %description pmda-openmetrics
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1800,6 +1786,29 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from simple network checks.
 # end pcp-pmda-netcheck
 
+#
+# pcp-pmda-mongodb
+#
+%package pmda-mongodb
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics for MongoDB
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp
+%if 0%{?rhel} == 0
+Requires: python3-pymongo
+%endif
+%else
+Requires: %{__python2}-pcp
+%if 0%{?rhel} == 0
+Requires: %{__python2}-pymongo
+%endif
+%endif
+%description pmda-mongodb
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from MongoDB.
+# end pcp-pmda-mongodb
 %endif
 
 %if !%{disable_mssql}
@@ -2469,6 +2478,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/memcache(/|$)' >pcp-pmda-memcache-files
 basic_manifest | keep '(etc/pcp|pmdas)/mailq(/|$)' >pcp-pmda-mailq-files
 basic_manifest | keep '(etc/pcp|pmdas)/mic(/|$)' >pcp-pmda-mic-files
 basic_manifest | keep '(etc/pcp|pmdas)/mounts(/|$)' >pcp-pmda-mounts-files
+basic_manifest | keep '(etc/pcp|pmdas)/mongodb(/|$)' >pcp-pmda-mongodb-files
 basic_manifest | keep '(etc/pcp|pmdas|pmieconf)/mssql(/|$)' >pcp-pmda-mssql-files
 basic_manifest | keep '(etc/pcp|pmdas)/mysql(/|$)' >pcp-pmda-mysql-files
 basic_manifest | keep '(etc/pcp|pmdas)/named(/|$)' >pcp-pmda-named-files
@@ -2505,7 +2515,6 @@ basic_manifest | keep '(etc/pcp|pmdas)/systemd(/|$)' >pcp-pmda-systemd-files
 basic_manifest | keep '(etc/pcp|pmdas)/trace(/|$)' >pcp-pmda-trace-files
 basic_manifest | keep '(etc/pcp|pmdas)/unbound(/|$)' >pcp-pmda-unbound-files
 basic_manifest | keep '(etc/pcp|pmdas)/weblog(/|$)' >pcp-pmda-weblog-files
-basic_manifest | keep '(etc/pcp|pmdas)/vmware(/|$)' >pcp-pmda-vmware-files
 basic_manifest | keep '(etc/pcp|pmdas)/zimbra(/|$)' >pcp-pmda-zimbra-files
 basic_manifest | keep '(etc/pcp|pmdas)/zswap(/|$)' >pcp-pmda-zswap-files
 
@@ -2521,7 +2530,7 @@ for pmda_package in \
     infiniband \
     json \
     libvirt lio lmsensors logger lustre lustrecomm \
-    mailq memcache mic mounts mssql mysql \
+    mailq memcache mic mounts mongodb mssql mysql \
     named netcheck netfilter news nfsclient nginx \
     nutcracker nvidia \
     openmetrics openvswitch oracle \
@@ -2531,7 +2540,6 @@ for pmda_package in \
     sockets statsd summary systemd \
     unbound \
     trace \
-    vmware \
     weblog \
     zimbra zswap ; \
 do \
@@ -2818,9 +2826,6 @@ exit 0
 %preun pmda-samba
 %{pmda_remove "$1" "samba"}
 
-%preun pmda-vmware
-%{pmda_remove "$1" "vmware"}
-
 %preun pmda-zimbra
 %{pmda_remove "$1" "zimbra"}
 
@@ -2863,6 +2868,9 @@ exit 0
 
 %preun pmda-lmsensors
 %{pmda_remove "$1" "lmsensors"}
+
+%preun pmda-mongodb
+%{pmda_remove "$1" "mongodb"}
 
 %if !%{disable_mssql}
 %preun pmda-mssql
@@ -3152,8 +3160,6 @@ PCP_LOG_DIR=%{_logsdir}
 
 %files pmda-slurm -f pcp-pmda-slurm-files.rpm
 
-%files pmda-vmware -f pcp-pmda-vmware-files.rpm
-
 %files pmda-zimbra -f pcp-pmda-zimbra-files.rpm
 %endif
 
@@ -3211,6 +3217,8 @@ PCP_LOG_DIR=%{_logsdir}
 %files pmda-haproxy -f pcp-pmda-haproxy-files.rpm
 
 %files pmda-lmsensors -f pcp-pmda-lmsensors-files.rpm
+
+%files pmda-mongodb -f pcp-pmda-mongodb-files.rpm
 
 %if !%{disable_mssql}
 %files pmda-mssql -f pcp-pmda-mssql-files.rpm

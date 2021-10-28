@@ -1,0 +1,18 @@
+QA output created by 1584
+
+=== mongodb agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check mongodb metrics have appeared ... X metrics and Y values
+Check across all metrics for warnings on fetch
+Check server version value matches mongo shell
+Success - matching version numbers
+
+=== remove mongodb agent ===
+Culling the Performance Metrics Name Space ...
+mongodb ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check mongodb metrics have gone away ... OK

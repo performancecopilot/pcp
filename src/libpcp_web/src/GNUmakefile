@@ -24,9 +24,9 @@ INIH_XFILES = $(INIH_HFILES) $(INIH_CFILES)
 
 HIREDIS_HFILES = $(addprefix deps/hiredis/, \
 	alloc.h async.h async_private.h fmacros.h hiredis.h net.h \
-	read.h sockcompat.h win32.h adapters/libuv.h)
+	read.h sds.h sdsalloc.h sockcompat.h win32.h adapters/libuv.h)
 HIREDIS_CFILES = $(addprefix deps/hiredis/, \
-	alloc.c async.c hiredis.c net.c read.c)
+	alloc.c async.c hiredis.c net.c sds.c read.c)
 HIREDIS_XFILES = $(HIREDIS_HFILES) $(HIREDIS_CFILES)
 
 HIREDIS_CLUSTER_HFILES = $(addprefix deps/hiredis-cluster/, \
@@ -36,19 +36,19 @@ HIREDIS_CLUSTER_CFILES = $(addprefix deps/hiredis-cluster/, \
 	adlist.c command.c crc16.c hiarray.c hiutil.c hircluster.c)
 HIREDIS_CLUSTER_XFILES = $(HIREDIS_CLUSTER_HFILES) $(HIREDIS_CLUSTER_CFILES)
 
-CFILES = jsmn.c http_client.c http_parser.c sds.c siphash.c \
+CFILES = jsmn.c http_client.c http_parser.c siphash.c \
 	 query.c schema.c load.c sha1.c util.c slots.c \
 	 redis.c dict.c maps.c batons.c encoding.c \
 	 search.c json_helpers.c config.c \
 	 $(HIREDIS_CFILES) $(HIREDIS_CLUSTER_CFILES) $(INIH_CFILES)
-HFILES = jsmn.h http_client.h http_parser.h sdsalloc.h zmalloc.h \
+HFILES = jsmn.h http_client.h http_parser.h zmalloc.h \
 	 query.h schema.h load.h sha1.h util.h slots.h \
 	 redis.h dict.h maps.h batons.h encoding.h \
 	 search.h discover.h private.h \
 	 $(HIREDIS_HFILES) $(HIREDIS_CLUSTER_HFILES) $(INIH_HFILES)
 YFILES = query_parser.y
 XFILES = jsmn.c jsmn.h http_parser.c http_parser.h \
-	 sha1.c sha1.h sds.c siphash.c dict.c dict.h
+	 sha1.c sha1.h siphash.c dict.c dict.h
 
 LLDLIBS = $(PCPWEBLIB_EXTRAS) $(LIB_FOR_MATH)
 ifeq "$(TARGET_OS)" "mingw"

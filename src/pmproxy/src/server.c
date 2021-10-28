@@ -198,7 +198,7 @@ on_buffer_alloc(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
 	fprintf(stderr, "%s: handle %p buffer allocation of %lld bytes\n",
 			"on_buffer_alloc", handle, (long long)suggested_size);
 
-    if ((buf->base = sdsnewlen(SDS_NOINIT, suggested_size)) != NULL)
+    if ((buf->base = sdsnewlen(NULL, suggested_size)) != NULL)
 	buf->len = suggested_size;
     else
 	buf->len = 0;

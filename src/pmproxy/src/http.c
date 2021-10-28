@@ -171,7 +171,7 @@ http_get_buffer(struct client *client)
 
     client->buffer = NULL;
     if (buffer == NULL) {
-	buffer = sdsnewlen(SDS_NOINIT, smallest_buffer_size);
+	buffer = sdsnewlen(NULL, smallest_buffer_size);
 	sdsclear(buffer);
     }
     return buffer;

@@ -2,8 +2,8 @@
 #define __BPF_H
 
 #include <pcp/ini.h>
-#include "dict.h"
-#include "sds.h"
+#include <pcp/sds.h>
+#include <pcp/dict.h>
 
 static uint64_t
 sdsHashCallBack(const void *key)

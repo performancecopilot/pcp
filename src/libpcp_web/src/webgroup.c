@@ -1595,15 +1595,15 @@ pmWebGroupMetric(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     lookup.context = cp;
     lookup.arg = arg;
 
-    /* allocate uninit'd space for strings */
-    metric->series = sdsnewlen(SDS_NOINIT, 42); sdsclear(metric->series);
-    metric->name = sdsnewlen(SDS_NOINIT, 16); sdsclear(metric->name);
-    metric->sem = sdsnewlen(SDS_NOINIT, 20); sdsclear(metric->sem);
-    metric->type = sdsnewlen(SDS_NOINIT, 20); sdsclear(metric->type);
-    metric->units = sdsnewlen(SDS_NOINIT, 64); sdsclear(metric->units);
-    metric->labels = sdsnewlen(SDS_NOINIT, 128); sdsclear(metric->labels);
-    metric->oneline = sdsnewlen(SDS_NOINIT, 128); sdsclear(metric->oneline);
-    metric->helptext = sdsnewlen(SDS_NOINIT, 128); sdsclear(metric->helptext);
+    /* allocate zero'd space for strings */
+    metric->series = sdsnewlen(NULL, 42); sdsclear(metric->series);
+    metric->name = sdsnewlen(NULL, 16); sdsclear(metric->name);
+    metric->sem = sdsnewlen(NULL, 20); sdsclear(metric->sem);
+    metric->type = sdsnewlen(NULL, 20); sdsclear(metric->type);
+    metric->units = sdsnewlen(NULL, 64); sdsclear(metric->units);
+    metric->labels = sdsnewlen(NULL, 128); sdsclear(metric->labels);
+    metric->oneline = sdsnewlen(NULL, 128); sdsclear(metric->oneline);
+    metric->helptext = sdsnewlen(NULL, 128); sdsclear(metric->helptext);
 
     if (prefix == NULL || *prefix == '\0') {
 	sts = pmTraversePMNS_r("", webmetric_lookup, &lookup);
@@ -1726,10 +1726,10 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
     int			i, j, k, sts, type;
 
     /* pre-allocate buffers for metric metadata */
-    sems = sdsnewlen(SDS_NOINIT, 20); sdsclear(sems);
-    types = sdsnewlen(SDS_NOINIT, 20); sdsclear(types);
-    units = sdsnewlen(SDS_NOINIT, 64); sdsclear(units);
-    labels.buffer = sdsnewlen(SDS_NOINIT, PM_MAXLABELJSONLEN);
+    sems = sdsnewlen(NULL, 20); sdsclear(sems);
+    types = sdsnewlen(NULL, 20); sdsclear(types);
+    units = sdsnewlen(NULL, 64); sdsclear(units);
+    labels.buffer = sdsnewlen(NULL, PM_MAXLABELJSONLEN);
     sdsclear(labels.buffer);
 
     if ((sts = pmFetch(numpmid, pmidlist, &result)) >= 0) {

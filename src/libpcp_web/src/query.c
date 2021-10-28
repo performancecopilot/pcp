@@ -1136,7 +1136,7 @@ static sds
 series_node_value(node_t *np)
 {
     unsigned char	hash[20];
-    sds			val = sdsnewlen(SDS_NOINIT, 40);
+    sds			val = sdsnewlen(NULL, 40);
 
     /* special JSON cases still to do: null, true, false */
     if (np->left->type == N_NAME &&
@@ -2075,7 +2075,7 @@ series_store_metric_name(seriesQueryBaton *baton, series_sample_set_t *sample_se
     unsigned int	i;
     int			sts = 0;
 
-    key = sdsnewlen(SDS_NOINIT, 20);
+    key = sdsnewlen(NULL, 20);
     for (i = 0; i < nelements; i++) {
 	reply = elements[i];
 	if (reply->type == REDIS_REPLY_STRING) {
@@ -4412,7 +4412,8 @@ series_map_reply(seriesQueryBaton *baton, sds series,
     sds			msg, key;
     unsigned int	i;
     int			sts = 0;
-    key = sdsnewlen(SDS_NOINIT, 20);
+
+    key = sdsnewlen(NULL, 20);
     if (nelements == 0) {
 	/* expression - not mapped */
 	if (pmDebugOptions.series || pmDebugOptions.query)
@@ -4577,8 +4578,8 @@ series_label_reply(seriesQueryBaton *baton, sds series,
 	}
     }
 
-    nmapID = sdsnewlen(SDS_NOINIT, 20);
-    vmapID = sdsnewlen(SDS_NOINIT, 20);
+    nmapID = sdsnewlen(NULL, 20);
+    vmapID = sdsnewlen(NULL, 20);
 
     /* perform the label value reverse lookup */
     nelements /= 2;
