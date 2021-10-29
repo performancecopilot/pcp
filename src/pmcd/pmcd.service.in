@@ -1,7 +1,6 @@
 [Unit]
 Description=Performance Metrics Collector Daemon
 Documentation=man:pmcd(1)
-Wants=avahi-daemon.service
 After=network-online.target avahi-daemon.service
 Before=zabbix-agent.service
  

@@ -4,6 +4,9 @@
 # run in the foreground
 # -f
 
+# disable service advertising (comment out to enable)
+-A
+
 # restrict PCP monitoring client connections to these interfaces
 # -i gateway-public-0.foo.bar.com
 # -i gateway-public-1.foo.bar.com
