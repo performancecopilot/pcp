@@ -178,3 +178,9 @@ CentOS       7\.       -      389-ds
 CentOS       -         -      ccache
 Fedora       32        -      coreutils-single infiniband-diags-devel
 Fedora       -         -      ccache
+#-- OpenMandriva
+# as of (at least) 4.0 we're going to use only Python3 (which is called
+# python in the package names), and lots of Perl stuff is available in
+# (rpm) packages ... this looks a lot like RHEL 8.0
+#
+OpenMandriva 4\.[0-2] -       cpan(Net::LDAP) cpan(Spreadsheet::XLSX) cpan(Text::CSV_XS) cpan(XML::LibXML) cpan(XML::TokeParser) perl(autodie) perl(Date::Manip) perl(DBD::mysql) perl(Net::LDAP) perl(Net::SNMP) perl-Net-SNMP perl(Spreadsheet::WriteExcel) perl-Spreadsheet-WriteExcel perl(Spreadsheet::XLSX) perl(Text::CSV_XS) perl(XML::LibXML) perl(XML::TokeParser) .*-python2 python2-.* system-python-libs

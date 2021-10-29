@@ -554,7 +554,7 @@ _check_logger()
 	    # may need to wait for pmlogger to get going ... logic here
 	    # is based on _wait_for_pmlogger() in qa/common.check
 	    #
-	    if echo status | pmlc "$1" 2>&1 \
+	    if pmlc "$1" </dev/null 2>&1 \
 		    | grep "^Connected to .*pmlogger" >/dev/null
 	    then
 		# pmlogger socket has been set up ...

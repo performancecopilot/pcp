@@ -1504,7 +1504,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 			# pmlc may race with pmlogger starting up here - a timeout is required
 			# to avoid pmlc blocking forever and hanging pmlogger_daily. RHBZ#1892326
 			[ -z "$PMLOGGER_REQUEST_TIMEOUT" ] && export PMLOGGER_REQUEST_TIMEOUT=2
-			if echo status | pmlc "$pid" 2>&1 | tee $tmp/out \
+			if pmlc "$pid" </dev/null 2>&1 | tee $tmp/out \
 				| grep "^Connected to .*pmlogger" >/dev/null
 			then
 			    # pmlogger socket has been set up ...
@@ -1515,6 +1515,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 			    sleep 1
 			fi
 		    done
+		    echo status | pmlc "$pid" >$tmp/out 2>&1
 		    current_vol=`sed -n <$tmp/out -e '/^log volume/s/.*[^0-9]\([0-9][0-9]*\)$/\1/p'`
 		    if [ -z "$current_vol" ]
 		    then
@@ -1705,7 +1706,12 @@ fi
 #
 if ! $COMPRESSONLY && [ -f $PCP_LOG_DIR/pmlogger/.NeedRewrite ]
 then
-    rm -f $PCP_LOG_DIR/pmlogger/.NeedRewrite
+    if $SHOWME
+    then
+	echo + rm -f $PCP_LOG_DIR/pmlogger/.NeedRewrite
+    else
+	rm -f $PCP_LOG_DIR/pmlogger/.NeedRewrite
+    fi
 fi
 
 # optional end logging to $PCP_LOG_DIR/NOTICES

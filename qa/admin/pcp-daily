@@ -870,6 +870,35 @@ do
 	    [ X"$what" = Xall ] && check_what='-X 1123'
 	    ;;
 
+	vm16)
+	    # this is PCP 4.0.0
+	    # the sanity group and no -p or -m or -i flags
+	    # and no -e processing
+	    #[ X"$what" = Xall ] && check_what='-g sanity'
+	    qa_user=pcpqa
+	    qa_dir=/var/lib/pcp/testsuite/qa
+	    if $pflag
+	    then
+		echo "Info: skip -p for vm16"
+		pflag=false
+	    fi
+	    if $mflag
+	    then
+		echo "Info: skip -m for vm16"
+		mflag=false
+	    fi
+	    if $iflag
+	    then
+		echo "Info: skip -i for vm16"
+		iflag=false
+	    fi
+	    if [ -n "$efile" ]
+	    then
+		echo "Info: no -e $efile for vm16"
+		efile=''
+	    fi
+	    ;;
+
 	vm20)
 	    # Run from testsuite, not git tree
 	    #

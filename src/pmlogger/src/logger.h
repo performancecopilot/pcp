@@ -32,7 +32,8 @@ extern void cache_free(void);
  * file curly-brace-enclosed block, but no longer does.
  */
 typedef struct task_s {
-    struct task_s	*t_next;
+    struct task_s	*t_next;	/* linked list of all tasks */
+    struct task_s	*t_alarmed;	/* linked list of alarmed tasks */
     struct timeval	t_delta;
     int			t_state;	/* logging state */
     int			t_numpmid;

@@ -834,7 +834,7 @@ _wait_for_pmlogger()
 	# For hard debugging, add -Dpdu,context,desperate to pmlc invocation
 	# below.
 	#
-	if echo status | pmlc $_pid 2>&1 \
+	if pmlc $_pid </dev/null 2>&1 \
 		| tee -a $tmp._wait_for_pmlogger.pmlc \
 		| grep "^Connected to .*pmlogger" >/dev/null
 	then
