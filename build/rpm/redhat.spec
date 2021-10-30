@@ -2982,11 +2982,6 @@ for PMDA in dm nfsclient openmetrics ; do
         %{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
     fi
 done
-# Increase default pmlogger recording frequency
-# Note on systemd platforms, we ship pmlogger.service.d/zeroconf.conf instead
-%if %{disable_systemd}
-    sed -i 's/^\#\ PMLOGGER_INTERVAL.*/PMLOGGER_INTERVAL=10/g' "$PCP_SYSCONFIG_DIR/pmlogger"
-%endif
 # auto-enable these usually optional pmie rules
 pmieconf -c enable dmthin
 %if 0%{?rhel}
