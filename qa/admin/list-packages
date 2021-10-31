@@ -62,7 +62,6 @@ S_pkg	OpenIndiana
 slackpkg	Slackware
 pacman	ArchLinux
 brew	Darwin
-urpmi	OpenMandriva
 End-of-File
     tag=`sed -n <$tmp.tags -e 's/	/ /g' -e 's/$/ /' -e "/ $distro /s/ .*//p"`
     if [ -z "$tag" ]
@@ -374,7 +373,7 @@ then
 	    apt-cache dumpavail | sed -n -e '/^Package: /s///p' >$tmp.allpkgs
 	    ;;
 
-	RHEL|Fedora|CentOS|openSUSE|SUSE\ SLES)
+	RHEL|Fedora|CentOS|openSUSE|SUSE\ SLES|OpenMandriva)
 	    rpm -qa --qf '%{NAME}\n' >$tmp.installed
 	    if which zypper >/dev/null 2>&1
 	    then
@@ -466,10 +465,6 @@ p
 	    :
 	    ;;
 
-	OpenMandriva)
-	    urpmi -qa --qf '%{NAME}\n' >$tmp.installed
-	    # TODO $tmp.allpkgs
-	    ;;
     esac
     if $missing && [ ! -f $tmp.installed ]
     then

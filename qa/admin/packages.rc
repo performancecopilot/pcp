@@ -34,6 +34,10 @@ s;bullseye/sid;11;
 	-e '/SLES\([0-9][0-9]*\) SP/s//\1-SP/' \
 	-e '/openSUSE/s/ Leap//' \
 	-e '/OpenIndiana/s/Hipster //' \
+	-e '/OpenMandriva/{
+s/ Lx//
+s/ (Argon)//
+}' \
 	-e 's/^/arch=/' \
 	-e 's/ /+distro=/' \
 	-e 's/ / version="/' \

@@ -2,15 +2,37 @@
 #
 # Suss out what sort of platform I am ...
 #
-# whatami [-h]
+# whatami [-d][-h]
 #
 
-debug=false
-tmp=/var/tmp/$$
-trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
-
 fmt="%-11.11s %-8.8s %-7.7s %s%s%s\n"
-if [ "$1" = "-h" ]
+sts=0
+debug=false
+heading=false
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+while [ $# -gt 0 ]
+do
+    case "$1"
+    in
+	-d)
+	    debug=true
+	    ;;
+	-h)
+	    heading=true
+	    ;;
+	*)
+	    echo >&2 "Usage: whatami [-d][-h]"
+	    sts=1
+	    exit
+	    ;;
+    esac
+    shift
+done
+
+if $heading
 then
     printf "$fmt" "Host" "PCP" "CPU" "Operating System and Options"
     printf "$fmt" "-----------" "--------" "------" "-----------------------------"
@@ -78,9 +100,21 @@ then
     $debug && from=' [/etc/lsb-release]'
 elif [ -f /etc/debian_version ]
 then
-    # 6.0.1
+    # contains just the version number, e.g.
+    # 11.1
     #
     os="Debian `cat /etc/debian_version`"
+    if [ -f /etc/os-release ]
+    then
+	# VERSION_CODENAME=bullseye
+	#
+	codename=`sed </etc/os-release -n -e '/^VERSION_CODENAME= */{
+s///
+s/"//g
+p
+}'`
+	[ -n "$codename" ] && os="$os ($codename)"
+    fi
     $debug && from=' [/etc/debian_version]'
 elif [ -f /etc/mandriva-release ]
 then
