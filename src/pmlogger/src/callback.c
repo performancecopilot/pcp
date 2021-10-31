@@ -658,13 +658,8 @@ do_work(task_t *tp)
 
     label_offset = __pmLogLabelSize(archctl.ac_log);
 
-    if ((pmDebugOptions.appl2) && (pmDebugOptions.desperate)) {
-	struct timeval	now;
-
-	pmtimevalNow(&now);
-	pmPrintStamp(stderr, &now);
-	fprintf(stderr, " do_work(tp=%p): afid=%d parse_done=%d exit_samples=%d\n", tp, tp->t_afid, parse_done, exit_samples);
-    }
+    if ((pmDebugOptions.appl2) && (pmDebugOptions.desperate))
+	pmNotifyErr(LOG_INFO, "do_work(tp=%p): afid=%d parse_done=%d exit_samples=%d", tp, tp->t_afid, parse_done, exit_samples);
 
     if (!parse_done)
 	/* ignore callbacks until all of the config file has been parsed */
@@ -748,14 +743,14 @@ do_work(task_t *tp)
 	    if (sts != -ETIMEDOUT) {
 		/* optionally report and disconnect() the first time thru */
 		if (pmDebugOptions.appl2)
-		    fprintf(stderr, "callback: disconnecting because myFetch failed: %s\n", pmErrStr(sts));
+		    pmNotifyErr(LOG_INFO, "callback: disconnecting because myFetch failed: %s", pmErrStr(sts));
 		disconnect(sts);
 	    }
 	    continue;
 	}
 
 	if (pmDebugOptions.appl2)
-	    fprintf(stderr, "callback: fetch group %p (%d metrics, 0x%x change)\n", fp, fp->f_numpmid, changed);
+	    pmNotifyErr(LOG_INFO, "callback: fetch group %p (%d metrics, 0x%x change)", fp, fp->f_numpmid, changed);
 
 	/*
 	 * hook to rewrite PDU buffer ...
@@ -782,7 +777,7 @@ do_work(task_t *tp)
 	peek_offset += ((__pmPDUHdr *)pb_in)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
 	if (peek_offset > 0x7fffffff) {
 	    if (pmDebugOptions.appl2)
-		fprintf(stderr, "callback: new volume based on max size, currently %ld\n", __pmFtell(archctl.ac_mfp));
+		pmNotifyErr(LOG_INFO, "callback: new volume based on max size, currently %ld", __pmFtell(archctl.ac_mfp));
 	    (void)newvolume(VOL_SW_MAX);
 	}
 
@@ -987,7 +982,7 @@ do_work(task_t *tp)
 			manageLabels(&desc, &stamp, 1);
 			needti = 1;
 			if (pmDebugOptions.appl2)
-			    fprintf(stderr, "callback: indom (%s) changed\n", pmInDomStr(desc.indom));
+			    pmNotifyErr(LOG_INFO, "callback: indom (%s) changed", pmInDomStr(desc.indom));
 		    }
 		    else {
 			free(new_instlist);
@@ -1001,7 +996,7 @@ do_work(task_t *tp)
 	    /* first result in this volume */
 	    needti = 1;
 	    if (pmDebugOptions.appl2)
-		fprintf(stderr, "callback: first result for this volume\n");
+		pmNotifyErr(LOG_INFO, "callback: first result for this volume");
 	}
 
 	if (tp->t_dm != 0) {
@@ -1037,7 +1032,7 @@ do_work(task_t *tp)
 	if (__pmFtell(archctl.ac_mfp) > flushsize) {
 	    needti = 1;
 	    if (pmDebugOptions.appl2)
-		fprintf(stderr, "callback: file size (%d) reached flushsize (%ld)\n", (int)__pmFtell(archctl.ac_mfp), (long)flushsize);
+		pmNotifyErr(LOG_INFO, "callback: file size (%d) reached flushsize (%ld)", (int)__pmFtell(archctl.ac_mfp), (long)flushsize);
 	}
 
 	if (needti) {
@@ -1141,14 +1136,14 @@ do_work(task_t *tp)
 	++vol_samples_counter == vol_switch_samples) {
         (void)newvolume(VOL_SW_COUNTER);
 	if (pmDebugOptions.appl2)
-	    fprintf(stderr, "callback: new volume based on samples (%d)\n", vol_samples_counter);
+	    pmNotifyErr(LOG_INFO, "callback: new volume based on samples (%d)", vol_samples_counter);
     }
 
     if (vol_switch_bytes > 0 &&
         (__pmFtell(archctl.ac_mfp) >= vol_switch_bytes)) {
         (void)newvolume(VOL_SW_BYTES);
 	if (pmDebugOptions.appl2)
-	    fprintf(stderr, "callback: new volume based on size (%d)\n", (int)__pmFtell(archctl.ac_mfp));
+	    pmNotifyErr(LOG_INFO, "callback: new volume based on size (%d)", (int)__pmFtell(archctl.ac_mfp));
     }
 
 }

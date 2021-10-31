@@ -294,6 +294,7 @@ _filter_optional_pmdas()
 	-e '/pmdamemcache/d' \
 	-e '/pmdammv/d' \
 	-e '/pmdamounts/d' \
+	-e '/pmdamongodb/d' \
 	-e '/pmdampi/d' \
 	-e '/pmdamssql/d' \
 	-e '/pmdamysql/d' \
@@ -369,6 +370,7 @@ _filter_optional_pmda_instances()
 	-e '/inst \[24 or "redis"]/d' \
 	-e '/inst \[28 or "news"]/d' \
 	-e '/inst \[33 or "podman"]/d' \
+	-e '/inst \[35 or "mongodb"]/d' \
 	-e '/inst \[57 or "statsd"]/d' \
 	-e '/inst \[60 or "linux"]/d' \
 	-e '/inst \[62 or "nfsclient"]/d' \
@@ -455,6 +457,7 @@ _filter_top_pmns()
 	-e '/^    mailq /d' \
 	-e '/^    memcache /d' \
 	-e '/^    mmv /d' \
+	-e '/^    mongodb /d' \
 	-e '/^    mpi /d' \
 	-e '/^    mssql /d' \
 	-e '/^    mysql /d' \

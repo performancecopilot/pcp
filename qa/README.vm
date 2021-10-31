@@ -305,22 +305,21 @@ Linux Mint
     24 Dec 2015: 13 (LTS), 17 (LTS)
     # same as Ubuntu
     
-Mandriva
+OpenMandriva
     https://wiki.openmandriva.org/en/Category:Releases
-    4 Jun 2016: 2014.0 2014.1 2014.2
     9 Aug 2020: 2014.2 3.3 4.0 4.1
-    # package search recipe (name and info or description)
-    $ urpmq -Y --fuzzy --summary <string>
-    # which package installs a file/directory
-    $ ???
-    # which files are in an installed package
-    $ ???
-    # package install recipe
-    $ sudo urpmi <package-name>
-    # update all packages recipe
-    $ sudo urpmi.update -a; sudo urpmi --auto-select
-    # release upgrade recipe
-    $ ???
+    20 Oct 2021: 4.1 4.2 4.3
+    # same as Fedora now
+    ...
+    # for 4.1 -> 4.2 this looks promising
+    https://forum.openmandriva.org/t/how-to-upgrade-from-rock-lx-4-1-to-lx-4-2/3791
+    - update repository source to Release
+    - dnf clean-all
+    - sudo dnf clean-all
+    - sudo dnf upgrade
+    - revert repository source to Rock
+    - dnf clean all
+    - sudo dnf clean all ; sudo dnf --allowerasing distro-sync
 
 Slackware
     https://www.slackware.com
@@ -343,6 +342,9 @@ Slackware
 Arch Linux
     https://www.archlinux.org/releng/releases/
     05 Oct 2020: 2020.10.01 2020.09.01 2020.08.01
+    # after virgin install, need at least this to get going
+    $ sudo pacman -S inetutils	# for hostname(1)
+    $ sudo pacman -S which	# for which(1)
     # which packages are installed
     $ pacman -Q -i | sed -n -e '/^Name /s/.* : //p'
     # package search recipe (name and info or description)

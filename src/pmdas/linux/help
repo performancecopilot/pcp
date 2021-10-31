@@ -2499,3 +2499,4 @@ the Z field of the Tcp line from /proc/net/netstat
 @ network.mptcp.mppriotx the MPPrioTx field of the MPTcp line from /proc/net/netstat
 @ network.mptcp.mppriorx the MPPrioRx field of the MPTcp line from /proc/net/netstat
 @ network.mptcp.rcvpruned the RcvPruned field of the MPTcp line from /proc/net/netstat
+@ network.tcp.tcploss the TCPLOSS field of the Tcp line from /proc/net/netstat

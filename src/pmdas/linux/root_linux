@@ -1184,6 +1184,7 @@ network.tcp {
     tcpdsackignoreddubious	60:53:165
     tcpmigratereqsuccess	60:53:166
     tcpmigratereqfailure	60:53:167
+    tcploss			60:53:189
 }
 
 network.mptcp {

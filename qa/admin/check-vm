@@ -644,11 +644,10 @@ fi
 #	slackpkg - Slackware
 #	pacman - Arch Linux
 #	brew - Mac OS X
-#	urpmi - OpenMandriva (also RPM based)
 #
 # later on we will select EXACTLY one of the $pkgtypes to be $mytype
 #
-pkgtypes="dpkg rpm urpmi emerge pkgin pkg_add F_pkg S_pkg slackpkg pacman brew"
+pkgtypes="dpkg rpm emerge pkgin pkg_add F_pkg S_pkg slackpkg pacman brew"
 
 # Base on platform info, select the packaging type that applies and generate the
 # list of currently installed packages in $tmp.installed
@@ -670,7 +669,7 @@ in
 	| sed -n -e '/ installed$/s/ .*//p' >$tmp.installed
 	;;
 
-    RHEL|Fedora|CentOS|openSUSE|SUSE\ SLES)
+    RHEL|Fedora|CentOS|openSUSE|SUSE\ SLES|OpenMandriva)
 	mytype=rpm
 	if which zypper >/dev/null 2>&1
 	then
@@ -733,11 +732,6 @@ in
 	echo >&2 "TODO: no list all packages method for brew"
 	;;
 
-    OpenMandriva)
-	mytype=urpmi
-	installcmd="urpmi install"
-	urpmi -qa --qf '%{NAME}\n' >$tmp.installed
-	;;
 esac
 if [ -z "$mytype" ]
 then
