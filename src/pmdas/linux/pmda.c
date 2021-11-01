@@ -4561,7 +4561,7 @@ static pmdaMetric metrictab[] = {
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.tcp.tcploss */
-  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_TCPEXT_TCPLOSS],
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPLOSS],
     { PMDA_PMID(CLUSTER_NET_NETSTAT,189), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
