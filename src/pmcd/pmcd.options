@@ -19,6 +19,9 @@
 # run in the foreground (not as a daemon)
 # -f
 
+# disable service advertising (comment out to enable)
+-A
+
 # maximum incoming PDU size (default 64KB)
 # -L 16384 
 
