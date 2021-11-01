@@ -22,3 +22,6 @@ User=@PCP_USER@
 
 [Install]
 WantedBy=multi-user.target
+
+# This dependency will be removed in PCPv6.
+WantedBy=pmlogger.service
