@@ -2691,11 +2691,6 @@ exit 0
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
   useradd -c "Performance Co-Pilot" -g pcp -d %{_localstatedir}/lib/pcp -M -r -s /sbin/nologin pcp
-# In pcp-5.3.5-1 we split pmlogger to pmlogger.service and pmlogger_farm.service,
-# so for upgrades pmlogger_farm inherits initial state from pmlogger.service.
-prev_ver=`rpm -q pcp 2>/dev/null | cut -d '-' -f2 | sed s?'\.'?''?g`
-[ -n "$prev_ver" ] && echo $prev_ver >%{_tmppath}/pcp_prev_ver
-
 exit 0
 
 %if !%{disable_systemd}
@@ -3049,17 +3044,13 @@ PCP_LOG_DIR=%{_logsdir}
     # clean up any stale symlinks for deprecated pm*-poll services
     rm -f %{_sysconfdir}/systemd/system/pm*.requires/pm*-poll.* >/dev/null 2>&1 || true
 
-    # handle pmlogger service upgrade, splitting off pmlogger_farm
-    prev_ver=`cat %{_tmppath}/pcp_prev_ver 2>/dev/null`
-    systemctl daemon-reload
-    if [ -n "$prev_ver" -a "$prev_ver" -le 535 ]; then
-        # On upgrade, the new pmlogger_farm service inherits pmlogger service state
-        if systemctl is-enabled pmlogger.service >/dev/null; then
-            systemctl enable pmlogger_farm.service pmlogger_farm_check.service pmlogger_farm_check.timer
-            systemctl start pmlogger_farm.service pmlogger_farm_check.service pmlogger_farm_check.timer
-        fi
+%if 0%{?rhel} > 0 && 0%{?rhel} <= 8
+    # pmlogger_farm service inherits the same initial state as pmlogger service
+    if systemctl is-enabled pmlogger.service >/dev/null; then
+	systemctl enable pmlogger_farm.service pmlogger_farm_check.service
+	systemctl start pmlogger_farm.service pmlogger_farm_check.service
     fi
-    rm -f %{_tmppath}/pcp_prev_ver
+%endif
 
     %systemd_postun_with_restart pmcd.service
     %systemd_post pmcd.service
