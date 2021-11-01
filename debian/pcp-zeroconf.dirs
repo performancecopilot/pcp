@@ -1,5 +1,4 @@
 etc/pcp/pmieconf/zeroconf
 etc/pcp/pmlogconf/zeroconf
-lib/systemd/system/pmlogger.service.d
 var/lib/pcp/config/pmieconf/zeroconf
 var/lib/pcp/config/pmlogconf/zeroconf

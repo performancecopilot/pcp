@@ -1,0 +1,2 @@
+# Increase default pmlogger recording frequency
+PMLOGGER_INTERVAL=10

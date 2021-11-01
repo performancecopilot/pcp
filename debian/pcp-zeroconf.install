@@ -1,3 +1,4 @@
+etc/default/pmlogger_zeroconf
 etc/pcp/pmieconf/zeroconf/all_threads
 etc/pcp/pmlogconf/zeroconf/atop-proc
 etc/pcp/pmlogconf/zeroconf/interrupts
@@ -7,7 +8,6 @@ etc/pcp/pmlogconf/zeroconf/pidstat
 etc/pcp/pmlogconf/zeroconf/pidstat-summary
 etc/pcp/pmlogconf/zeroconf/tapestat
 etc/pcp/pmlogconf/zeroconf/xfs-perdev
-lib/systemd/system/pmlogger.service.d/zeroconf.conf
 var/lib/pcp/config/pmieconf/zeroconf/all_threads
 var/lib/pcp/config/pmlogconf/zeroconf/atop-proc
 var/lib/pcp/config/pmlogconf/zeroconf/interrupts
