@@ -32,6 +32,7 @@
 #include "photoproc.h"
 #include "photosyst.h"
 #include "hostmetrics.h"
+#include "gpucom.h"
 
 extern const char *hostmetrics[];
 extern const char *ifpropmetrics[];
@@ -846,6 +847,7 @@ setup_globals(pmOptions *opts)
 
 	setup_photosyst();
 	setup_photoproc();
+	setup_gpuphotoproc();
 
 	if ((hertz = extract_integer(result, descs, HOST_HERTZ)) <= 0)
 		hertz = sysconf(_SC_CLK_TCK);

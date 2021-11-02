@@ -605,6 +605,9 @@ engine(void)
 		nprocexit = acctphotoproc(&curpexit, &curtexitlen,
 					&cursstat->stamp, &interval);
 
+		if ((supportflags & GPUSTAT))
+			nrgpuproc = gpuphotoproc(&gp, &nrgpuproc);
+
 		/*
 		** register processes that exited during last sample;
 		** first determine how many processes exited
@@ -635,7 +638,7 @@ engine(void)
 
 		deviatsyst(cursstat, presstat, devsstat, delta);
 
-		if (hinv_nrgpus && nrgpuproc)
+		if (nrgpuproc > 0)
 			gpumergeproc(curtpres, ntaskpres,
 				     curpexit, nprocexit,
 				     gp,       nrgpuproc);
@@ -666,10 +669,6 @@ engine(void)
 		** prepare for next phase of sampling after visualize
                 */
                 (*vis.prep)();
-
-
-		if (gp)
-			free(gp);
 
 		if (rawreadflag && (lastcmd == 0 || lastcmd == MSAMPNEXT))
 			pmtimevalInc(&curtime, &interval);
