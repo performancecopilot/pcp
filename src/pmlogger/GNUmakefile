@@ -20,7 +20,8 @@ SUBDIRS = src
 OTHERS	= pmnewlog.sh control rc_pmlogger \
 	  pmlogger_daily.sh pmlogger_check.sh pmlogger_merge.sh \
 	  pmlogger_daily_report.sh pmlogger_rewrite.sh \
-	  pmlogger_farm.sh
+	  pmlogger_farm.sh pmlogger_farm_check.service \
+	  pmlogger_farm_check.timer
 LDIRT	= crontab crontab.daily_report pmlogger.service \
 	  pmlogger_daily.service pmlogger_daily_report.service \
 	  pmlogger_check.service pmlogger_farm.service
