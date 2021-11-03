@@ -30,6 +30,7 @@ avahi_cleanup()
     pmsleep 0.5
     echo "avahi_cleanup: after pmsignal" >>$seq.full
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|$grep_service |$grep_service$' >>$seq.full
+    _restore_config $PCP_PMPROXYOPTIONS_PATH
     if $service_was_running
     then
 	echo "Restart $service ..." >>$here/$seq.full
@@ -52,6 +53,12 @@ avahi_cleanup()
 
 avahi_service()
 {
+    _save_config $PCP_PMPROXYOPTIONS_PATH
+    cp $PCP_PMPROXYOPTIONS_PATH $tmp.options
+    echo "# edited for PCP QA test $seq" >$tmp.options
+    sed <$PCP_PMPROXYOPTIONS_PATH >>$tmp.options \
+	-e '/^-A/s/.*/# for PCP QA -A/'
+    $sudo cp $tmp.options $PCP_PMPROXYOPTIONS_PATH
     service_was_running=false
     [ -f $PCP_RUN_DIR/$service.pid ] && service_was_running=true
     echo "service_was_running=$service_was_running" >>$here/$seq.full
