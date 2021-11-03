@@ -178,16 +178,27 @@ else
 fi
 
 _full_log === checking pmproxy correctly switches logvol when pmlogger bumps to a new logvol
-curlogvol=`_log_volume`
-echo "curlogvol=$curlogvol" >>$seq.full
-if [ -z "$curlogvol" ]
-then
-    echo "Arrgh ... curlogvol not found from ..."
-    $sudo ls -l /proc/$pmproxy_pid/fd/
-    echo "pmproxy_pid=$pmproxy_pid"
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mproxy'
-    exit
-fi
+retry=0
+while true; do
+    curlogvol=`_log_volume`
+    echo "curlogvol=$curlogvol" >>$seq.full
+    if [ -n "$curlogvol" ]
+    then
+	break
+    else
+	if [ $retry -gt 5 ]
+	then
+	    echo "Arrgh ... curlogvol not found from ..."
+	    $sudo ls -l /proc/$pmproxy_pid/fd/
+	    echo "pmproxy_pid=$pmproxy_pid"
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mproxy'
+	    exit
+	else
+	    retry=`expr $retry + 1`
+	    sleep 2
+	fi
+    fi
+done
 echo 'new volume' | $sudo pmlc -P >> $here/$seq.full 2>&1
 # make sure pmproxy has noticed ...
 sleep 1
