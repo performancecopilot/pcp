@@ -7,8 +7,9 @@ PartOf=pmie.service
 [Service]
 Type=@SD_SERVICE_TYPE@
 Restart=no
+KillMode=process
 TimeoutStartSec=25m
-Environment="PMIE_CHECK_PARAMS=-C"
+Environment="PMIE_CHECK_PARAMS=--skip-primary"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmie_timers
 ExecStart=@PCP_BINADM_DIR@/pmie_check $PMIE_CHECK_PARAMS
 WorkingDirectory=@PCP_VAR_DIR@

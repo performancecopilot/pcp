@@ -1,4 +1,5 @@
 crontab
 pmie.service
+pmlogger_farm.service
 pmie_check.service
 pmie_daily.service

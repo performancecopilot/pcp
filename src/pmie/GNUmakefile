@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015,2020 Red Hat.
+# Copyright (c) 2013-2015,2020-2021 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,8 +17,11 @@ TOPDIR	= ../..
 include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS	= src examples
-OTHERS  = control stomp rc_pmie pmie2col.sh pmie_check.sh pmie_daily.sh
-LDIRT	= crontab pmie.service pmie_daily.service pmie_check.service
+OTHERS  = control stomp rc_pmie pmie2col.sh pmie_check.sh pmie_daily.sh \
+          pmie_farm.sh pmie_farm_check.service pmie_farm_check.timer
+LDIRT	= crontab pmie.service pmie_daily.service pmie_check.service \
+          pmie_farm.service
+          
 
 ifeq ($(TARGET_OS),linux)
 CRONTAB_USER = $(PCP_USER)
@@ -28,7 +31,7 @@ CRONTAB_USER =
 CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmie/crontab
 endif
 
-default:: crontab pmie.service pmie_daily.service pmie_check.service
+default:: crontab pmie.service pmie_daily.service pmie_check.service pmie_farm.service 
 
 default:: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
@@ -45,6 +48,7 @@ endif
 	$(INSTALL) -m 644 control $(PCP_PMIECONTROL_PATH)
 	$(INSTALL) -m 644 control.local $(PCP_PMIECONTROL_PATH).d/local
 	$(INSTALL) -m 755 pmie_check.sh $(PCP_BINADM_DIR)/pmie_check$(SHELLSUFFIX)
+	$(INSTALL) -m 755 pmie_farm.sh $(PCP_BINADM_DIR)/pmie_farm$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmie_daily.sh $(PCP_BINADM_DIR)/pmie_daily$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmie2col.sh $(PCP_BIN_DIR)/pmie2col$(SHELLSUFFIX)
 	$(INSTALL) -m 755 rc_pmie $(PCP_RC_DIR)/pmie
@@ -52,6 +56,9 @@ ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmie.service $(PCP_SYSTEMDUNIT_DIR)/pmie.service
 	$(INSTALL) -m 644 pmie_daily.timer $(PCP_SYSTEMDUNIT_DIR)/pmie_daily.timer
 	$(INSTALL) -m 644 pmie_daily.service $(PCP_SYSTEMDUNIT_DIR)/pmie_daily.service
+	$(INSTALL) -m 644 pmie_farm.service $(PCP_SYSTEMDUNIT_DIR)/pmie_farm.service
+	$(INSTALL) -m 644 pmie_farm_check.service $(PCP_SYSTEMDUNIT_DIR)/pmie_farm_check.service
+	$(INSTALL) -m 644 pmie_farm_check.timer $(PCP_SYSTEMDUNIT_DIR)/pmie_farm_check.timer
 	$(INSTALL) -m 644 pmie_check.timer $(PCP_SYSTEMDUNIT_DIR)/pmie_check.timer
 	$(INSTALL) -m 644 pmie_check.service $(PCP_SYSTEMDUNIT_DIR)/pmie_check.service
 	$(INSTALL) -m 644 pmie_timers.sysconfig $(PCP_SYSCONFIG_DIR)/pmie_timers
@@ -72,6 +79,17 @@ pmie.service : pmie.service.in
 	$(SED) <$< >$@ \
 	    -e 's;@PCP_RC_DIR@;'$(PCP_RC_DIR)';' \
 	    -e 's;@PCP_RUN_DIR@;'$(PCP_RUN_DIR)';' \
+	# END
+
+pmie_farm.service : pmie_farm.service.in
+	$(SED) <$< >$@ \
+	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
+	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
+	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
+	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
+	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
+	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
+	    -e 's;@SD_SERVICE_TYPE@;'$(SD_SERVICE_TYPE)';' \
 	# END
 
 pmie_check.service : pmie_check.service.in
