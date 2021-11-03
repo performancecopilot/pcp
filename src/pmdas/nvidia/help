@@ -67,7 +67,7 @@ kernels was executing on the GPU.
 @ nvidia.memactive Percentage of time spent accessing memory
 Percent of time over the past sample period during which global (device)
 memory was being read or written.  This metric shows if the memory is
-actively being accesed, and is not correlated to storage amount used.
+actively being accessed, and is not correlated to storage amount used.
 
 @ nvidia.memused Allocated frame buffer memory
 Amount of GPU FB memory that has currently been allocated, in bytes.
@@ -117,7 +117,7 @@ Current power usage for this GPU and its associated circuitry, in milliwatts.
 @ nvidia.proc.compute.running Indicates whether each process using compute is still running
 @ nvidia.proc.compute.gpulist Bitmask of GPUs used for compute by each process
 @ nvidia.proc.compute.ngpus Count of GPUs used for compute by each process
-@ nvidia.proc.compute.samples Number of times stats for processes using compute across all cards have been sampled
+@ nvidia.proc.compute.samples Number of metric refreshes for processes using compute across all cards
 @ nvidia.proc.compute.memaccum Cumulative count of compute memory used by each process across all GPUs
 
 @ nvidia.proc.graphics.memused Graphics memory in use by processes across all cards
@@ -127,6 +127,6 @@ Current power usage for this GPU and its associated circuitry, in milliwatts.
 @ nvidia.proc.graphics.running Indicates whether each process using graphics is still running
 @ nvidia.proc.graphics.gpulist Bitmask of GPUs used for graphics by each process
 @ nvidia.proc.graphics.ngpus Count of GPUs used for graphics by each process
-@ nvidia.proc.graphics.samples Number of times stats for processes using graphics across all cards have been sampled
+@ nvidia.proc.graphics.samples Number of metric refreshes for processes using graphics across all cards
 @ nvidia.proc.graphics.memaccum Cumulative count of graphics memory used by each process across all GPUs
 
