@@ -3,6 +3,7 @@
 # Control program for managing pmlogger and pmie instances.
 #
 # Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2021 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -62,6 +63,7 @@ Options:
   -c=NAME,--class=NAME    	${IAM} instances belong to the NAME class [default: default]
   -f,--force                    force action if possible
   -i=IDENT,--ident=IDENT        over-ride instance id (only for create and cond-create)
+  -m,--migrate			migrate matching processes to farm services (for create and check)
   -N,--showme             	perform a dry run, showing what would be done
   -p=POLICY,--policy=POLICY	use POLICY as the class policy file [default: $PCP_ETC_DIR/pcp/${IAM}/class.d/<class>]
   -V,--verbose            	increase verbosity
@@ -218,7 +220,7 @@ _usage()
 Avaliable commands:
    [-c classname] create  host ...
    {-c classname|-i ident} cond-create host ...
-   [-c classname] {start|stop|restart|destroy|status} [host ...]
+   [-c classname] {start|stop|restart|destroy|check|status} [host ...]
 
    and host may be a valid hostname or an egrep(1) pattern that matches
    the start of a hostname
@@ -337,7 +339,9 @@ _get_matching_hosts()
 		    # don't dink with the primary ... systemctl (or the
 		    # "rc" script) must be used to control the primary ${IAM}
 		    #
-		    _warning "$ctl_file: cannot $ACTION the primary ${IAM} from $prog"
+		    if [ "$ACTION" != "check" ]; then
+			_warning "$ctl_file: cannot $ACTION the primary ${IAM} from $prog"
+		    fi
 		    continue
 		fi
 	    fi
@@ -583,7 +587,7 @@ _check_started()
 {
     $SHOWME && return 0
     dir="$1"
-    max=100		# 1/10 of a second, so 10 secs max
+    max=600		# 1/10 of a second, so 1 minute max
     i=0
     $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "Started? ""$PCP_ECHO_C"
     while [ $i -lt $max ]
@@ -603,6 +607,13 @@ _check_started()
 	sts=1
     else
 	$VERY_VERBOSE && $PCP_ECHO_PROG " yes"
+	if $MIGRATE
+	then
+	    # Add new process to the farm service (pmlogger_farm or pmie_farm).
+	    # It will be removed automatically if/when it exits.
+	    $VERBOSE && vflag="-v"
+	    migrate_pid_service $vflag "$pid" ${IAM}_farm.service
+	fi
 	sts=0
     fi
     return $sts
@@ -1469,6 +1480,11 @@ _do_start()
 	then
 	    $VERBOSE && echo "${IAM} PID $pid already running for host $args_host, nothing to do"
 	    $VERBOSE && $restart && echo "Not expected for restart!"
+	    if $MIGRATE
+	    then
+		$VERBOSE && vflag="-v"
+		migrate_pid_service $vflag "$pid" ${IAM}_farm.service
+	    fi
 	    continue
 	fi
 	if $VERBOSE
@@ -1516,6 +1532,13 @@ $1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ sub(/^#!#/,"",$1) }
     done
 
     return $sts
+}
+
+# check command - start dead hosts, if any
+#
+_do_check()
+{
+    _do_start $*
 }
 
 # stop command
@@ -1626,6 +1649,7 @@ CP=cp
 RM=rm
 CHECK="sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/${IAM}_check"
 KILL="$PCP_BINADM_DIR/pmsignal -s"
+MIGRATE=false
 VERBOSE=false
 VERY_VERBOSE=false
 VERY_VERY_VERBOSE=false
@@ -1647,6 +1671,8 @@ do
 		;;
 	-i)	IDENT="$2"
 		shift
+		;;
+	-m)	MIGRATE=true
 		;;
 	-N)	SHOWME=true
 		CP="echo + $CP"
@@ -1773,14 +1799,17 @@ _get_pids_by_name ${IAM} | sed -e 's/.*/^&$/' >$tmp/pids
 
 case "$ACTION"
 in
-    create|cond-create|start|stop|restart|destroy)
+    check|create|cond-create|start|stop|restart|destroy)
 	    if [ `id -u` != 0 -a "$SHOWME" = false ]
 	    then
 		_error "you must be root (uid 0) to change the Performance Co-Pilot logger setup"
 	    fi
 	    # need --class and/or hostname
 	    #
-	    if [ $# -eq 0 ]
+	    if [ "$ACTION" = "check" ]
+	    then
+		FIND_ALL_HOSTS=true
+	    elif [ $# -eq 0 ]
 	    then
 		$EXPLICIT_CLASS || _error "\"$ACTION\" command requres hostname(s) and/or a --class"
 		FIND_ALL_HOSTS=true

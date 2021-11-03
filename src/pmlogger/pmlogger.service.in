@@ -9,6 +9,7 @@ Wants=pmcd.service
 [Service]
 Type=notify
 NotifyAccess=all
+# The pmlogger service manages the primary pmlogger (only)
 Environment="PMLOGGER_CHECK_PARAMS=--only-primary"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger
 TimeoutStartSec=120

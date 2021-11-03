@@ -1,0 +1,19 @@
+[Unit]
+Description=Check and migrate non-primary pmie instances to pmie_farm
+Documentation=man:pmie_check(1)
+# TODO non-systemd ConditionPathExists=!/etc/cron.d/pcp-pmie
+
+[Service]
+Type=exec
+Restart=no
+TimeoutStartSec=4h
+TimeoutStopSec=120
+ExecStart=pmiectl -m check
+WorkingDirectory=/var/lib/pcp
+
+# root so pmiectl can migrate pmie processes to the pmie_farm service
+Group=root
+User=root
+
+[Install]
+RequiredBy=pmie_farm.service

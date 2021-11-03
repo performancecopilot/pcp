@@ -1,0 +1,11 @@
+[Unit]
+Description=5 minute check of pmlogger farm instances
+
+[Timer]
+# if enabled, runs 1m after boot and every 5 mins
+OnBootSec=1min
+OnCalendar=*:00/5
+
+[Install]
+WantedBy=timers.target
+RequiredBy=pmlogger_farm.service

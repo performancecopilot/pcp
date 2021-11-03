@@ -6,13 +6,9 @@ ConditionPathExists=!@CRONTAB_PATH@
 [Service]
 Type=@SD_SERVICE_TYPE@
 Restart=no
-# For logger farms we have a long (but not infinite) start timeout
+KillMode=process
 TimeoutStartSec=4h
 TimeoutStopSec=120
-# pmlogger farm processes belong to the pmlogger_check service,
-# which is timer driven and exits. KillMode is temporary and will
-# not be necessary once we have pmlogger-farm.service.
-KillMode=process
 Environment="PMLOGGER_CHECK_PARAMS=--skip-primary"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger_timers
 ExecStart=@PCP_BINADM_DIR@/pmlogger_check $PMLOGGER_CHECK_PARAMS
