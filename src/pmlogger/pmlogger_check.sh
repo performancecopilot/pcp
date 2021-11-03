@@ -24,6 +24,7 @@
 PMLOGGER="$PCP_BINADM_DIR/pmlogger"
 PMLOGCONF="$PCP_BINADM_DIR/pmlogconf"
 PMLOGGERENVS="$PCP_SYSCONFIG_DIR/pmlogger"
+PMLOGGERZEROCONFENVS="$PCP_SYSCONFIG_DIR/pmlogger_zeroconf"
 
 # error messages should go to stderr, not the GUI notifiers
 #
@@ -951,7 +952,8 @@ END				{ print m }'`
 	then
 	    if [ "X$primary" = Xy ]
 	    then
-		envs=`grep ^PMLOGGER "$PMLOGGERENVS" 2>/dev/null`
+		# pcp-zeroconf environment variables (if present) take precendence
+		envs=`grep -h ^PMLOGGER "$PMLOGGERENVS" "$PMLOGGERZEROCONFENVS" 2>/dev/null`
 		args="-P $args"
 		iam=" primary"
 		# clean up port-map, just in case
