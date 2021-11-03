@@ -131,12 +131,12 @@ static pmdaMetric metrictab[] = {
 	PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
     { NULL, { PMDA_PMID(0, NVIDIA_SAMPLES), PM_TYPE_U64, GCARD_INDOM,
 	PM_SEM_COUNTER, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
-    { NULL, { PMDA_PMID(0, NVIDIA_MEMUSED_ACCUM), PM_TYPE_U64, GCARD_INDOM,
-	PM_SEM_COUNTER, PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
     { NULL, { PMDA_PMID(0, NVIDIA_GPUACTIVE_ACCUM), PM_TYPE_U64, GCARD_INDOM,
 	PM_SEM_COUNTER, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
     { NULL, { PMDA_PMID(0, NVIDIA_MEMACTIVE_ACCUM), PM_TYPE_U64, GCARD_INDOM,
 	PM_SEM_COUNTER, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+    { NULL, { PMDA_PMID(0, NVIDIA_MEMUSED_ACCUM), PM_TYPE_U64, GCARD_INDOM,
+	PM_SEM_COUNTER, PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 
     /* nvidia.proc.all */
     { NULL, { PMDA_PMID(2, NVIDIA_PROC_SAMPLES), PM_TYPE_U64, PROC_INDOM,
@@ -772,12 +772,12 @@ nvidia_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case NVIDIA_GPUACTIVE_ACCUM:
 	    if (pcp_nvinfo.nvinfo[inst].failed[NVIDIA_GPUACTIVE_ACCUM])
 		return PM_ERR_VALUE;
-	    atom->ul = pcp_nvinfo.nvinfo[inst].gpuutilaccum;
+	    atom->ull = pcp_nvinfo.nvinfo[inst].gpuutilaccum;
 	    break;
 	case NVIDIA_MEMACTIVE_ACCUM:
 	    if (pcp_nvinfo.nvinfo[inst].failed[NVIDIA_MEMACTIVE_ACCUM])
 		return PM_ERR_VALUE;
-	    atom->ul = pcp_nvinfo.nvinfo[inst].memutilaccum;
+	    atom->ull = pcp_nvinfo.nvinfo[inst].memutilaccum;
 	    break;
 	case NVIDIA_MEMUSED_ACCUM:
 	    if (pcp_nvinfo.nvinfo[inst].failed[NVIDIA_MEMUSED_ACCUM])

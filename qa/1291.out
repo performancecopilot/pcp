@@ -517,9 +517,12 @@ NET | lo      ---- | pcki       3 | pcko       3 | si    2 Kbps | so    2 Kbps |
 __pmLogFetchInterp: unbound items scanned: pass2: 24 first: 23 forget: 1 trim: 24 pass3: 24 last: 23 forget: 20568 trim: 24
 __pmLogFetchInterp: unbound items scanned: pass2: 448 first: 429 forget: 1 trim: 430 pass3: 448 last: 429 forget: 368510 trim: 430
 __pmLogFetchInterp: unbound items scanned: pass2: 20240 first: 15719 forget: 1 trim: 15720 pass3: 20240 last: 15719 forget: 13472040 trim: 15720
+__pmLogFetchInterp: unbound items scanned: pass2: 0 first: 0 forget: 0 trim: 0 pass3: 0 last: 0 forget: 0 trim: 0
 __pmLogFetchInterp: unbound items scanned: pass2: 448 first: 81 forget: 35 trim: 18 pass3: 448 last: 415 forget: 832 trim: 416
 __pmLogFetchInterp: unbound items scanned: pass2: 20240 first: 391 forget: 394 trim: 0 pass3: 20240 last: 15287 forget: 13071240 trim: 15288
+__pmLogFetchInterp: unbound items scanned: pass2: 0 first: 0 forget: 0 trim: 0 pass3: 0 last: 0 forget: 0 trim: 0
 __pmLogFetchInterp: unbound items scanned: pass2: 448 first: 1045 forget: 436 trim: 416 pass3: 448 last: 0 forget: 0 trim: 0
 __pmLogFetchInterp: unbound items scanned: pass2: 20240 first: 508 forget: 514 trim: 117 pass3: 20240 last: 0 forget: 0 trim: 0
+__pmLogFetchInterp: unbound items scanned: pass2: 0 first: 0 forget: 0 trim: 0 pass3: 0 last: 0 forget: 0 trim: 0
 __pmLogFetchInterp: unbound items scanned: pass2: 0 first: 0 forget: 0 trim: 0 pass3: 0 last: 0 forget: 0 trim: 0
 user <5.0

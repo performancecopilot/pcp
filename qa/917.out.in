@@ -98,6 +98,8 @@ Checking policies.
 ! allow [pcp_pmcd_t] [fsadm_exec_t] : [file] { execute execute_no_trans getattr open read map };
   allow [pcp_pmcd_t] [fixed_disk_device_t] : [blk_file] { ioctl open read };
 ! allow [pcp_pmcd_t] [default_t] : [file] { execute map };
+  allow [pcp_pmcd_t] [xserver_misc_device_t] : [chr_file] { ioctl open read write };
+  allow [pcp_pmcd_t] [device_t] : [chr_file] { open read };
   allow [pcp_pmcd_t] self : [capability] { sys_rawio };
 ! allow [pcp_pmcd_t] [virt_var_run_t] : [sock_file] { write };
   allow [pcp_pmcd_t] [openvswitch_exec_t] : [file] { execute execute_no_trans };

@@ -698,6 +698,8 @@ reset:
 	*/
 	if (curtexitlen > 0)
 		free(curpexit);
+	if (gp)
+		free(gp);
 }
 
 /*

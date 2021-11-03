@@ -36,6 +36,7 @@ setup_gpuphotoproc(void)
 static void
 update_gpupid(struct gpu *g, int id, pmResult *rp, pmDesc *dp, int offset)
 {
+	memset(g, 0, sizeof(*g));
 	if (extract_count_t_inst(rp, dp, GPU_PROC_RUNNING, id, offset) == 0)
 		g->state = 'E';
 	else
