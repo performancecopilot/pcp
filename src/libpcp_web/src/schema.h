@@ -191,4 +191,7 @@ extern seriesModuleData *getSeriesModuleData(pmSeriesModule *);
 extern void pmSeriesStatsAdd(pmSeriesModule *, const char *, const char *, double);
 extern void pmSeriesStatsSet(pmSeriesModule *, const char *, const char *, double);
 
+extern void redisSchemaLoad(redisSlots *, redisSlotsFlags, redisInfoCallBack,
+	redisDoneCallBack, void *, void *, void *);
+
 #endif	/* SERIES_SCHEMA_H */
