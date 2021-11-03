@@ -2,6 +2,7 @@ pmatop
 pcp-atop
 pcp-atopsar
 pmgenmap.sh
+gpumetrics.h
 hostmetrics.h
 procmetrics.h
 netprocmetrics.h

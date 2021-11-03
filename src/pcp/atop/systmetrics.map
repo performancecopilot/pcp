@@ -314,6 +314,19 @@ systmetrics {
 	apache.busy_servers			WWW_BWORKERS
 	apache.idle_servers			WWW_IWORKERS
 
+	# Nvidia GPUs
+	nvidia.cardname				GPU_CARDNAME
+	nvidia.busid				GPU_BUSID
+	nvidia.gpuactive			GPU_GPUBUSY
+	nvidia.memactive			GPU_MEMBUSY
+	nvidia.memused				GPU_MEMUSED
+	nvidia.memtotal				GPU_MEMTOTAL
+	nvidia.nprocs				GPU_NGPUPROCS
+	nvidia.samples				GPU_SAMPLES
+	nvidia.gpuutilaccum			GPU_GPUBUSY_ACCUM
+	nvidia.memutilaccum			GPU_MEMBUSY_ACCUM
+	nvidia.memusedaccum			GPU_MEMUSED_ACCUM
+
 	# end marker - provides count
 	.					SYST_NMETRICS
 }

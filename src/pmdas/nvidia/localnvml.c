@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014,2019 Red Hat.
+ * Copyright (c) 2014,2019,2021 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,12 +28,19 @@ struct {
     void	*handle;
 } nvml_symtab[] = {
     { .symbol = "nvmlInit" },
+    { .symbol = "nvmlInit_v2" },
     { .symbol = "nvmlShutdown" },
     { .symbol = "nvmlDeviceGetCount" },
+    { .symbol = "nvmlDeviceGetCount_v2" },
     { .symbol = "nvmlDeviceGetHandleByIndex" },
+    { .symbol = "nvmlDeviceGetHandleByIndex_v2" },
     { .symbol = "nvmlDeviceGetName" },
+    { .symbol = "nvmlDeviceGetUUID" },
     { .symbol = "nvmlDeviceGetPciInfo" },
+    { .symbol = "nvmlDeviceGetPciInfo_v2" },
+    { .symbol = "nvmlDeviceGetPciInfo_v3" },
     { .symbol = "nvmlDeviceGetFanSpeed" },
+    { .symbol = "nvmlDeviceGetFanSpeed_v2" },
     { .symbol = "nvmlDeviceGetTemperature" },
     { .symbol = "nvmlDeviceGetUtilizationRates" },
     { .symbol = "nvmlDeviceGetMemoryInfo" },
@@ -41,17 +48,29 @@ struct {
     { .symbol = "nvmlDeviceSetAccountingMode" },
     { .symbol = "nvmlDeviceSetPersistenceMode" },
     { .symbol = "nvmlDeviceGetComputeRunningProcesses" },
+    { .symbol = "nvmlDeviceGetComputeRunningProcesses_v2" },
+    { .symbol = "nvmlDeviceGetGraphicsRunningProcesses" },
+    { .symbol = "nvmlDeviceGetGraphicsRunningProcesses_v2" },
     { .symbol = "nvmlDeviceGetAccountingPids" },
     { .symbol = "nvmlDeviceGetAccountingStats" },
+    { .symbol = "nvmlDeviceGetTotalEnergyConsumption" },
+    { .symbol = "nvmlDeviceGetPowerUsage" },
 };
 enum {
     NVML_INIT,
+    NVML_INIT_V2,
     NVML_SHUTDOWN,
     NVML_DEVICE_GET_COUNT,
+    NVML_DEVICE_GET_COUNT_V2,
     NVML_DEVICE_GET_HANDLEBYINDEX,
+    NVML_DEVICE_GET_HANDLEBYINDEX_V2,
     NVML_DEVICE_GET_NAME,
+    NVML_DEVICE_GET_UUID,
     NVML_DEVICE_GET_PCIINFO,
+    NVML_DEVICE_GET_PCIINFO_V2,
+    NVML_DEVICE_GET_PCIINFO_V3,
     NVML_DEVICE_GET_FANSPEED,
+    NVML_DEVICE_GET_FANSPEED_V2,
     NVML_DEVICE_GET_TEMPERATURE,
     NVML_DEVICE_GET_UTILIZATIONRATES,
     NVML_DEVICE_GET_MEMORYINFO,
@@ -59,8 +78,13 @@ enum {
     NVML_DEVICE_SET_ACCOUNTINGMODE,
     NVML_DEVICE_SET_PERSISTENCEMODE,
     NVML_DEVICE_GET_COMPUTERUNNINGPROCESSES,
+    NVML_DEVICE_GET_COMPUTERUNNINGPROCESSES_V2,
+    NVML_DEVICE_GET_GRAPHICSRUNNINGPROCESSES,
+    NVML_DEVICE_GET_GRAPHICSRUNNINGPROCESSES_V2,
     NVML_DEVICE_GET_ACCOUNTINGPIDS,
     NVML_DEVICE_GET_ACCOUNTINGSTATS,
+    NVML_DEVICE_GET_TOTALENERGYCONSUMPTION,
+    NVML_DEVICE_GET_POWERUSAGE,
     NVML_SYMBOL_COUNT
 };
 typedef int (*local_init_t)(void);
@@ -68,6 +92,7 @@ typedef int (*local_shutdown_t)(void);
 typedef int (*local_dev_get_count_t)(unsigned int *);
 typedef int (*local_dev_get_handlebyindex_t)(unsigned int, nvmlDevice_t *);
 typedef int (*local_dev_get_name_t)(nvmlDevice_t, char *, unsigned int);
+typedef int (*local_dev_get_uuid_t)(nvmlDevice_t, char *, unsigned int);
 typedef int (*local_dev_get_pciinfo_t)(nvmlDevice_t, nvmlPciInfo_t *);
 typedef int (*local_dev_get_fanspeed_t)(nvmlDevice_t, unsigned int *);
 typedef int (*local_dev_get_temperature_t)(nvmlDevice_t, nvmlTemperatureSensors_t, unsigned int *);
@@ -77,8 +102,11 @@ typedef int (*local_dev_get_performancestate_t)(nvmlDevice_t, nvmlPstates_t *);
 typedef int (*local_dev_set_accountingmode_t)(nvmlDevice_t, nvmlEnableState_t);
 typedef int (*local_dev_set_persistencemode_t)(nvmlDevice_t, nvmlEnableState_t);
 typedef int (*local_dev_get_computerunningprocesses_t)(nvmlDevice_t, unsigned int *, nvmlProcessInfo_t *);
+typedef int (*local_dev_get_graphicsrunningprocesses_t)(nvmlDevice_t, unsigned int *, nvmlProcessInfo_t *);
 typedef int (*local_dev_get_accountingpids_t)(nvmlDevice_t, unsigned int *, unsigned int *);
 typedef int (*local_dev_get_accountingstats_t)(nvmlDevice_t, unsigned int, nvmlAccountingStats_t *);
+typedef int (*local_dev_get_totalenergyconsumption_t)(nvmlDevice_t, unsigned long long *);
+typedef int (*local_dev_get_powerusage_t)(nvmlDevice_t, unsigned int *);
 
 static int
 resolve_symbols(void)
@@ -105,8 +133,9 @@ localNvmlInit(void)
 
     if (sts != 0)
 	return sts;
-    if ((func = nvml_symtab[NVML_INIT].handle) == NULL)
-	return NVML_ERROR_FUNCTION_NOT_FOUND;
+    if ((func = nvml_symtab[NVML_INIT_V2].handle) == NULL)
+	if ((func = nvml_symtab[NVML_INIT].handle) == NULL)
+	    return NVML_ERROR_FUNCTION_NOT_FOUND;
     init = (local_init_t)func;
     return init();
 }
@@ -127,10 +156,11 @@ int
 localNvmlDeviceGetCount(unsigned int *count)
 {
     local_dev_get_count_t dev_get_count;
-    void *func = nvml_symtab[NVML_DEVICE_GET_COUNT].handle;
+    void *func;
 
-    if (!func)
-	return NVML_ERROR_FUNCTION_NOT_FOUND;
+    if ((func = nvml_symtab[NVML_DEVICE_GET_COUNT_V2].handle) == NULL)
+	if ((func = nvml_symtab[NVML_DEVICE_GET_COUNT].handle) == NULL)
+	    return NVML_ERROR_FUNCTION_NOT_FOUND;
     dev_get_count = (local_dev_get_count_t)func;
     return dev_get_count(count);
 }
@@ -139,10 +169,11 @@ int
 localNvmlDeviceGetHandleByIndex(unsigned int index, nvmlDevice_t *device)
 {
     local_dev_get_handlebyindex_t dev_get_handlebyindex;
-    void *func = nvml_symtab[NVML_DEVICE_GET_HANDLEBYINDEX].handle;
+    void *func;
 
-    if (!func)
-	return NVML_ERROR_FUNCTION_NOT_FOUND;
+    if ((func = nvml_symtab[NVML_DEVICE_GET_HANDLEBYINDEX_V2].handle) == NULL)
+	if ((func = nvml_symtab[NVML_DEVICE_GET_HANDLEBYINDEX].handle) == NULL)
+	    return NVML_ERROR_FUNCTION_NOT_FOUND;
     dev_get_handlebyindex = (local_dev_get_handlebyindex_t)func;
     return dev_get_handlebyindex(index, device);
 }
@@ -160,13 +191,27 @@ localNvmlDeviceGetName(nvmlDevice_t device, char *name, unsigned int size)
 }
 
 int
-localNvmlDeviceGetPciInfo(nvmlDevice_t device, nvmlPciInfo_t *info)
+localNvmlDeviceGetUUID(nvmlDevice_t device, char *uuid, unsigned int size)
 {
-    local_dev_get_pciinfo_t dev_get_pciinfo;
-    void *func = nvml_symtab[NVML_DEVICE_GET_PCIINFO].handle;
+    local_dev_get_uuid_t dev_get_uuid;
+    void *func = nvml_symtab[NVML_DEVICE_GET_UUID].handle;
 
     if (!func)
 	return NVML_ERROR_FUNCTION_NOT_FOUND;
+    dev_get_uuid = (local_dev_get_uuid_t)func;
+    return dev_get_uuid(device, uuid, size);
+}
+
+int
+localNvmlDeviceGetPciInfo(nvmlDevice_t device, nvmlPciInfo_t *info)
+{
+    local_dev_get_pciinfo_t dev_get_pciinfo;
+    void *func;
+
+    if ((func = nvml_symtab[NVML_DEVICE_GET_PCIINFO_V3].handle) == NULL)
+	if ((func = nvml_symtab[NVML_DEVICE_GET_PCIINFO_V2].handle) == NULL)
+	    if ((func = nvml_symtab[NVML_DEVICE_GET_PCIINFO].handle) == NULL)
+		return NVML_ERROR_FUNCTION_NOT_FOUND;
     dev_get_pciinfo = (local_dev_get_pciinfo_t)func;
     return dev_get_pciinfo(device, info);
 }
@@ -175,10 +220,11 @@ int
 localNvmlDeviceGetFanSpeed(nvmlDevice_t device, unsigned int *speed)
 {
     local_dev_get_fanspeed_t dev_get_fanspeed;
-    void *func = nvml_symtab[NVML_DEVICE_GET_FANSPEED].handle;
+    void *func;
 
-    if (!func)
-	return NVML_ERROR_FUNCTION_NOT_FOUND;
+    if ((func = nvml_symtab[NVML_DEVICE_GET_FANSPEED_V2].handle) == NULL)
+	if ((func = nvml_symtab[NVML_DEVICE_GET_FANSPEED].handle) == NULL)
+	    return NVML_ERROR_FUNCTION_NOT_FOUND;
     dev_get_fanspeed = (local_dev_get_fanspeed_t)func;
     return dev_get_fanspeed(device, speed);
 }
@@ -193,6 +239,30 @@ localNvmlDeviceGetTemperature(nvmlDevice_t device, nvmlTemperatureSensors_t code
 	return NVML_ERROR_FUNCTION_NOT_FOUND;
     dev_get_temperature = (local_dev_get_temperature_t)func;
     return dev_get_temperature(device, code, temp);
+}
+
+int
+localNvmlDeviceGetTotalEnergyConsumption(nvmlDevice_t device, unsigned long long *energy)
+{
+    local_dev_get_totalenergyconsumption_t dev_get_totalenergyconsumption;
+    void *func = nvml_symtab[NVML_DEVICE_GET_TOTALENERGYCONSUMPTION].handle;
+
+    if (!func)
+	return NVML_ERROR_FUNCTION_NOT_FOUND;
+    dev_get_totalenergyconsumption = (local_dev_get_totalenergyconsumption_t)func;
+    return dev_get_totalenergyconsumption(device, energy);
+}
+
+int
+localNvmlDeviceGetPowerUsage(nvmlDevice_t device, unsigned int *power)
+{
+    local_dev_get_powerusage_t dev_get_powerusage;
+    void *func = nvml_symtab[NVML_DEVICE_GET_POWERUSAGE].handle;
+
+    if (!func)
+	return NVML_ERROR_FUNCTION_NOT_FOUND;
+    dev_get_powerusage = (local_dev_get_powerusage_t)func;
+    return dev_get_powerusage(device, power);
 }
 
 int
@@ -259,12 +329,26 @@ int
 localNvmlDeviceGetComputeRunningProcesses(nvmlDevice_t device, unsigned int *count, nvmlProcessInfo_t *infos)
 {
     local_dev_get_computerunningprocesses_t dev_get_computerunningprocesses;
-    void *func = nvml_symtab[NVML_DEVICE_GET_COMPUTERUNNINGPROCESSES].handle;
+    void *func;
 
-    if (!func)
-	return NVML_ERROR_FUNCTION_NOT_FOUND;
+    if ((func = nvml_symtab[NVML_DEVICE_GET_COMPUTERUNNINGPROCESSES_V2].handle) == NULL)
+	if ((func = nvml_symtab[NVML_DEVICE_GET_COMPUTERUNNINGPROCESSES].handle) == NULL)
+	    return NVML_ERROR_FUNCTION_NOT_FOUND;
     dev_get_computerunningprocesses = (local_dev_get_computerunningprocesses_t)func;
     return dev_get_computerunningprocesses(device, count, infos);
+}
+
+int
+localNvmlDeviceGetGraphicsRunningProcesses(nvmlDevice_t device, unsigned int *count, nvmlProcessInfo_t *infos)
+{
+    local_dev_get_graphicsrunningprocesses_t dev_get_graphicsrunningprocesses;
+    void *func;
+
+    if ((func = nvml_symtab[NVML_DEVICE_GET_GRAPHICSRUNNINGPROCESSES_V2].handle) == NULL)
+	if ((func = nvml_symtab[NVML_DEVICE_GET_GRAPHICSRUNNINGPROCESSES].handle) == NULL)
+	    return NVML_ERROR_FUNCTION_NOT_FOUND;
+    dev_get_graphicsrunningprocesses = (local_dev_get_graphicsrunningprocesses_t)func;
+    return dev_get_graphicsrunningprocesses(device, count, infos);
 }
 
 int

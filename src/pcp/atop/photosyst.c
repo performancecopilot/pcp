@@ -267,6 +267,33 @@ update_mnt(struct pernfsmount *mp, int id, char *name, pmResult *rp, pmDesc *dp,
 	mp->pagesmwrite = extract_count_t_inst(rp, dp, PERNFS_WRPAGES, id, offset);
 }
 
+static void
+update_gpu(struct pergpu *gpu, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
+{
+	gpu->gpunr = id;
+
+	extract_string_inst(rp, dp, GPU_CARDNAME, &gpu->type[0],
+				sizeof(gpu->type)-1, id, offset);
+	gpu->type[sizeof(gpu->type)-1] = '\0';
+
+	extract_string_inst(rp, dp, GPU_BUSID, &gpu->busid[0],
+				sizeof(gpu->busid)-1, id, offset);
+	gpu->busid[sizeof(gpu->busid)-1] = '\0';
+
+	gpu->samples = extract_count_t_inst(rp, dp, GPU_SAMPLES, id, offset);
+	gpu->nrprocs = extract_integer_inst(rp, dp, GPU_NGPUPROCS, id, offset);
+	gpu->gpupercnow = extract_integer_inst(rp, dp, GPU_GPUBUSY, id, offset);
+	gpu->mempercnow = extract_integer_inst(rp, dp, GPU_MEMBUSY, id, offset);
+	gpu->memtotnow = extract_count_t_inst(rp, dp, GPU_MEMTOTAL, id, offset);
+	gpu->memtotnow /= 1024;	/* convert to KiB */
+	gpu->memusenow = extract_count_t_inst(rp, dp, GPU_MEMUSED, id, offset);
+	gpu->memusenow /= 1024;	/* convert to KiB */
+	gpu->gpuperccum = extract_count_t_inst(rp, dp, GPU_GPUBUSY_ACCUM, id, offset);
+	gpu->memperccum = extract_count_t_inst(rp, dp, GPU_MEMBUSY_ACCUM, id, offset);
+	gpu->memusecum = extract_count_t_inst(rp, dp, GPU_MEMUSED_ACCUM, id, offset);
+	gpu->memusecum /= 1024;	/* convert to KiB */
+}
+
 static pmID	pmids[SYST_NMETRICS];
 static pmDesc	descs[SYST_NMETRICS];
 
@@ -282,8 +309,8 @@ photosyst(struct sstat *si)
 	count_t		count;
 	unsigned int	nrcpu, nrdisk, nrintf, nrports;
 	unsigned int	onrcpu, onrdisk, onrintf, onrports;
-	unsigned int	nrlvm, nrmdd, nrnfs;
-	unsigned int	onrlvm, onrmdd, onrnfs;
+	unsigned int	nrlvm, nrmdd, nrnfs, nrgpus;
+	unsigned int	onrlvm, onrmdd, onrnfs, onrgpus;
 	pmResult	*result;
 	size_t		size;
 	char		**insts;
@@ -299,6 +326,7 @@ photosyst(struct sstat *si)
 	onrlvm  = si->dsk.nlvm;
 	onrmdd  = si->dsk.nmdd;
 	onrnfs  = si->nfs.nfsmounts.nrmounts;
+	onrgpus = si->gpu.nrgpus;
 
 	sstat_reset(si);
 	si->stamp = result->timestamp;
@@ -742,6 +770,29 @@ photosyst(struct sstat *si)
 	si->www.uptime    = extract_count_t(result, descs, WWW_UPTIME);
 	si->www.bworkers  = extract_integer(result, descs, WWW_BWORKERS);
 	si->www.iworkers  = extract_integer(result, descs, WWW_IWORKERS);
+
+	/* GPU statistics */
+	insts = NULL;
+	ids = NULL;
+	nrgpus = get_instances("gpus", GPU_GPUBUSY, descs, &ids, &insts);
+	if (nrgpus > onrgpus)
+	{
+		size = (nrgpus + 1) * sizeof(struct pergpu);
+		si->gpu.gpu = (struct pergpu *)realloc(si->gpu.gpu, size);
+		ptrverify(si->gpu.gpu, "photosyst gpus [%zu]\n", size);
+	}
+
+	for (i=0; i < nrgpus; i++)
+	{
+		if (pmDebugOptions.appl0)
+			fprintf(stderr, "%s: updating GPU %d: %s\n",
+				pmGetProgname(), ids[i], insts[i]);
+		update_gpu(&si->gpu.gpu[i], ids[i], insts[i], result, descs, i);
+	}
+	si->gpu.gpu[nrgpus].type[0] = '\0'; 
+	si->gpu.nrgpus = nrgpus;
+	free(insts);
+	free(ids);
 
 	pmFreeResult(result);
 	return '\0';

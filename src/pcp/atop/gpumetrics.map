@@ -1,0 +1,15 @@
+gpumetrics {
+	# per-process GPU values
+	nvidia.proc.all.samples		GPU_PROC_SAMPLES
+	nvidia.proc.all.memused		GPU_PROC_MEMUSED
+	nvidia.proc.all.memaccum	GPU_PROC_MEMACCUM
+	nvidia.proc.all.gpuactive	GPU_PROC_GPUBUSY
+	nvidia.proc.all.memactive	GPU_PROC_MEMBUSY
+	nvidia.proc.all.time		GPU_PROC_TIME
+	nvidia.proc.all.running		GPU_PROC_RUNNING
+	nvidia.proc.all.gpulist		GPU_PROC_GPULIST
+	nvidia.proc.all.ngpus		GPU_PROC_NGPUS
+
+	# end marker - provides count
+	.				GPU_NMETRICS
+}
