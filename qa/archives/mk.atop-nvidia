@@ -1,0 +1,59 @@
+#!/bin/sh
+# 
+# Recipe for creating the pcp-atop-nvidia archive
+#
+
+. $PCP_DIR/etc/pcp.env
+
+here=`pwd`
+tmp=/tmp/$$
+rm -rf $tmp
+
+PMLOGCONF=$PCP_BINADM_DIR/pmlogconf
+PMLOGGER=$PCP_BINADM_DIR/pmlogger
+PMSLEEP=$PCP_BINADM_DIR/pmsleep
+MKAF=$PCP_BINADM_DIR/mkaf
+
+if pmprobe nvidia >&1 | grep -q 'Unknown metric name'
+then
+    echo "Arrgh, nvidia PMDA is apparently not installed"
+    exit 1
+fi
+
+trap "rm -rf $tmp; exit" 0 1 2 3 15
+
+# enable process threads system-wide, for logging
+reset=`pmprobe -v proc.control.all.threads | awk '{print $3}'`
+pmstore proc.control.all.threads 1
+
+mkdir -p $tmp/config
+cp $PCP_VAR_DIR/config/pmlogconf/tools/atop* $tmp/config
+# create an empty pmlogconf configuration
+echo "#pmlogconf 2.0" > $tmp.config 
+echo "#+ groupdir $tmp/config" >> $tmp.config
+# interactive - set 1 second interval, and log everything!
+$PMLOGCONF -d $tmp/config $tmp.config
+
+rm -f pcp-atop-nvidia.*
+$PMLOGGER -t 1 -s 5 -c $tmp.config -l $tmp.log pcp-atop-nvidia &
+
+#
+# Do some work to make kernel stats move ...
+#
+
+# some disk I/O and cpu time
+find /usr/bin >/dev/null 2>&1 &
+$PMSLEEP 0.05
+sum /usr/bin/bash >/dev/null &
+$PMSLEEP 1.5
+sum /usr/bin/ls >/dev/null &
+
+wait
+echo "pmlogger log:"
+cat $tmp.log
+
+# reset threads state to original value
+pmstore proc.control.all.threads $reset
+
+$MKAF pcp-atop-nvidia.* > pcp-atop-nvidia.folio
+xz pcp-atop-nvidia.0 pcp-atop-nvidia.meta

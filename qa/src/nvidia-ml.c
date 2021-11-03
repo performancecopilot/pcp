@@ -104,19 +104,19 @@ nvmlAccountingStats_t stats_table[] = {
     {	/* MYSELF0 */
 	.gpuUtilization = 40,
 	.isRunning = 1,
-	.maxMemoryUse = 2ULL * 1024 * 1024 * 1024,
+	.maxMemoryUsage = 2ULL * 1024 * 1024 * 1024,
 	.memoryUtilization = 25,
     },
     {	/* MYSELF1 */
 	.gpuUtilization = 20,
 	.isRunning = 1,
-	.maxMemoryUse = 100 * 1024 * 1024,
+	.maxMemoryUsage = 100 * 1024 * 1024,
 	.memoryUtilization = 12,
     },
     {	/* PARENT0 */
 	.gpuUtilization = 60,
 	.isRunning = 1,
-	.maxMemoryUse = 4ULL * 1024 * 1024 * 1024,
+	.maxMemoryUsage = 4ULL * 1024 * 1024 * 1024,
 	.memoryUtilization = 50,
     },
 };
@@ -132,17 +132,17 @@ nvmlInit(void)
 		refcount - 1, refcount);
 
     proc_table[MYSELF0].pinfo.pid = getpid();
-    proc_table[MYSELF0].pinfo.usedGpuMemory = stats_table[MYSELF0].maxMemoryUse;
+    proc_table[MYSELF0].pinfo.usedGpuMemory = stats_table[MYSELF0].maxMemoryUsage;
     proc_table[MYSELF0].stats = &stats_table[MYSELF0];
     proc_table[MYSELF0].gpu = &gpu_table[1];
 
     proc_table[MYSELF1].pinfo.pid = getpid();
-    proc_table[MYSELF1].pinfo.usedGpuMemory = stats_table[MYSELF1].maxMemoryUse;
+    proc_table[MYSELF1].pinfo.usedGpuMemory = stats_table[MYSELF1].maxMemoryUsage;
     proc_table[MYSELF1].stats = &stats_table[MYSELF1];
     proc_table[MYSELF1].gpu = &gpu_table[0];
 
     proc_table[PARENT0].pinfo.pid = getppid();
-    proc_table[PARENT0].pinfo.usedGpuMemory = stats_table[PARENT0].maxMemoryUse;
+    proc_table[PARENT0].pinfo.usedGpuMemory = stats_table[PARENT0].maxMemoryUsage;
     proc_table[PARENT0].stats = &stats_table[PARENT0];
     proc_table[PARENT0].gpu = &gpu_table[1];
 
