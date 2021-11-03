@@ -21,7 +21,7 @@
 \f3pmlogctl\f1 \- manage and control Performance Co-Pilot archive loggers
 .SH SYNOPSIS
 \f3pmlogctl\f1
-[\f3\-afNV?\f1]
+[\f3\-afmNV?\f1]
 [\f3\-c\f1 \f2class\f1]
 [\f3\-i\f1 \f2ident\f1]
 [\f3\-p\f1 \f2policy\f1]
@@ -203,8 +203,7 @@ and restart any that have failed.
 If the
 .B \-m
 flag is given on systemd(1) platforms,
-also migrate matching (and new) processes to the relevant farm service,
-either \fBpmlogger_farm.service\fP or \fBpmie_farm.service\fP.
+also migrate matching (and new) processes to the \fBpmlogger_farm\fP service.
 .TP 4
 \f3create\f1
 Create new instances in the class
