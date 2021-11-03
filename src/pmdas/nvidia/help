@@ -1,17 +1,17 @@
 #
-# Copyright (c) 2014,2019 Red Hat.
+# Copyright (c) 2014,2019,2021 Red Hat.
 # Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 # NVIDIA PMDA help file in the ASCII format
 #
 # lines beginning with a # are ignored
@@ -30,7 +30,9 @@
 
 @ NVML.0 NVIDIA graphics cards installed in this system
 
-@ NVML.1 Processes mapped to NVIDIA graphics cards in use
+@ NVML.1 processes mapped to NVIDIA graphics cards in use
+
+@ NVML.2 set of processes using NVIDIA graphics card resources
 
 @ nvidia.numcards Number of Graphics Cards
 The number of NVIDIA Graphics cards installed in this system
@@ -41,11 +43,14 @@ Zero indexed id of this NVIDIA card
 @ nvidia.cardname GPU Name
 The name of the graphics card
 
+@ nvidia.carduuid GPU Universally Unique ID
+The Universally Unique ID of the graphics card
+
 @ nvidia.busid Card Bus ID
 The Bus ID as reported by the NVIDIA tools, not lspci
 
-@ nvidia.temp The temperature of the card
-The Temperature of the GPU on the NVIDIA card in degrees celcius.
+@ nvidia.temperature The temperature of the card
+The temperature of the GPU on the NVIDIA card in degrees celsius.
 
 @ nvidia.fanspeed Fanspeed
 Speed of the GPU fan as a percentage of the maximum
@@ -62,18 +67,30 @@ kernels was executing on the GPU.
 @ nvidia.memactive Percentage of time spent accessing memory
 Percent of time over the past sample period during which global (device)
 memory was being read or written.  This metric shows if the memory is
-actively being accesed, and is not correlated to storage amount used.
+actively being accessed, and is not correlated to storage amount used.
 
-@ nvidia.memused Allocated FB memory
+@ nvidia.memused Allocated frame buffer memory
 Amount of GPU FB memory that has currently been allocated, in bytes.
 Note that the driver/GPU always sets aside a small amount of memory
 for bookkeeping. 
 
-@ nvidia.memtotal Total FB memory available
+@ nvidia.memtotal Total frame buffer memory available
 The total amount of GPU FB memory available on the card, in bytes.
 
-@ nvidia.memfree Unallocated FB memory
+@ nvidia.memfree Unallocated frame buffer memory
 Amount of GPU FB memory that is not currently allocated, in bytes.
+
+@ nvidia.energy Total GPU energy consumption 
+Total energy consumption for each GPU, in millijoules (mJ).
+
+@ nvidia.power Total GPU power consumption 
+Current power usage for this GPU and its associated circuitry, in milliwatts.
+
+@ nvidia.nprocs Count of processes using each GPU
+@ nvidia.samples Count of value refreshes for each GPU
+@ nvidia.gpuutilaccum Cumulative counter of GPU utilization for each GPU
+@ nvidia.memutilaccum Cumulative counter of memory utilization for each GPU
+@ nvidia.memusedaccum Cumulative counter of used memory for each GPU
 
 @ nvidia.proc.samples Number of times process stats have been sampled
 @ nvidia.proc.memused Memory in use by each process accessing each card
@@ -81,4 +98,35 @@ Amount of GPU FB memory that is not currently allocated, in bytes.
 @ nvidia.proc.gpuactive Graphics card utilization by processes accessing each card
 @ nvidia.proc.memactive Memory access utilization by processes accessing each card
 @ nvidia.proc.time Milliseconds spent by processes accessing each graphics card
+@ nvidia.proc.running Indicates whether each process accessing each card is still running
+
+@ nvidia.proc.all.memused Memory in use by each process across all cards
+@ nvidia.proc.all.gpuactive Graphics card utilization by processes accessing all cards
+@ nvidia.proc.all.memactive Memory utilization by processes accessing all cards
+@ nvidia.proc.all.time Milliseconds spent by processes accessing all graphics cards
+@ nvidia.proc.all.running Indicates whether each process is still running
+@ nvidia.proc.all.gpulist Bitmask of GPUs used by each process
+@ nvidia.proc.all.ngpus Count of GPUs used by each process
+@ nvidia.proc.all.samples Number of times process stats across all cards have been sampled
+@ nvidia.proc.all.memaccum Cumulative count of memory used by each process across all GPUs
+
+@ nvidia.proc.compute.memused Compute memory in use by processes across all cards
+@ nvidia.proc.compute.gpuactive Compute GPU utilization by processes accessing all cards
+@ nvidia.proc.compute.memactive Compute memory utilization by processes accessing all cards
+@ nvidia.proc.compute.time Compute time spent by processes accessing all cards
+@ nvidia.proc.compute.running Indicates whether each process using compute is still running
+@ nvidia.proc.compute.gpulist Bitmask of GPUs used for compute by each process
+@ nvidia.proc.compute.ngpus Count of GPUs used for compute by each process
+@ nvidia.proc.compute.samples Number of metric refreshes for processes using compute across all cards
+@ nvidia.proc.compute.memaccum Cumulative count of compute memory used by each process across all GPUs
+
+@ nvidia.proc.graphics.memused Graphics memory in use by processes across all cards
+@ nvidia.proc.graphics.gpuactive Graphics GPU utilization by processes accessing all cards
+@ nvidia.proc.graphics.memactive Graphics memory utilization by processes accessing all cards
+@ nvidia.proc.graphics.time Graphics time spent by processes accessing all cards
+@ nvidia.proc.graphics.running Indicates whether each process using graphics is still running
+@ nvidia.proc.graphics.gpulist Bitmask of GPUs used for graphics by each process
+@ nvidia.proc.graphics.ngpus Count of GPUs used for graphics by each process
+@ nvidia.proc.graphics.samples Number of metric refreshes for processes using graphics across all cards
+@ nvidia.proc.graphics.memaccum Cumulative count of graphics memory used by each process across all GPUs
 

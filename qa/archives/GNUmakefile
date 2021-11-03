@@ -34,6 +34,7 @@ DEFLATE = small.0.xz small.meta small.index \
 	  20180606.0.xz 20180606.meta.xz 20180606.index \
 	  pcp-atop.0.xz pcp-atop.meta pcp-atop.index \
 	  pcp-atop-boot.0.xz pcp-atop-boot.meta pcp-atop-boot.index \
+	  pcp-atop-nvidia.0.xz pcp-atop-nvidia.meta.xz pcp-atop-nvidia.index \
 	  pcp-atop-threads.0.xz pcp-atop-threads.meta.xz pcp-atop-threads.index \
 	  pcp-dstat.0.xz pcp-dstat.meta pcp-dstat.index \
 	  pcp-free-tera.0.xz pcp-free-tera.meta.xz pcp-free-tera.index \
@@ -62,7 +63,7 @@ SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.mirage mk.mirage-3 mk.proc mk.free \
 	  mk.numa mk.rewrite mk.eventrec mk.interpmark mk.multihost \
 	  mk.sample_expr mk.tzchange mk.arch-all \
-	  mk.atop mk.hotatop mk.atop-boot mk.atop-threads \
+	  mk.atop mk.hotatop mk.atop-boot mk.atop-nvidia mk.atop-threads \
 	  mk.log-derived mk.vmstat mk.rep mk.procsched \
 	  mk.ipcs mk.value-test mk.rank-pred mk.cputime \
 	  mk.sample-labels mk.pmproxy mk.mmv.help

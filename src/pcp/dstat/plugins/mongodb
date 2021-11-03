@@ -26,9 +26,9 @@ cmd = mongodb.serverStatus.opcounters.command
 [mongodb-latency]
 colorstep = 2
 label = mongodb lat
-rd = mongodb.serverStatus.opLatencies.reads.latency / mongodb.serverStatus.opLatencies.reads.ops
-wr = mongodb.serverStatus.opLatencies.writes.latency / mongodb.serverStatus.opLatencies.writes.ops
-cmd = mongodb.serverStatus.opLatencies.commands.latency / mongodb.serverStatus.opLatencies.commands.ops
+rd = rate(mongodb.serverStatus.opLatencies.reads.latency) / rate(mongodb.serverStatus.opLatencies.reads.ops)
+wr = rate(mongodb.serverStatus.opLatencies.writes.latency) / rate(mongodb.serverStatus.opLatencies.writes.ops)
+cmd = rate(mongodb.serverStatus.opLatencies.commands.latency) / rate(mongodb.serverStatus.opLatencies.commands.ops)
 
 [mongodb-dbstats]
 colorstep = 2

@@ -110,6 +110,8 @@ VERY_VERBOSE=false
 CHECK_RUNLEVEL=false
 START_PMIE=true
 STOP_PMIE=false
+SKIP_PRIMARY=false
+ONLY_PRIMARY=false
 
 echo > $tmp/usage
 cat >> $tmp/usage << EOF
@@ -118,6 +120,8 @@ Options:
   -l=FILE,--logfile=FILE  send important diagnostic messages to FILE
   -C                      query system service runlevel information
   -N,--showme             perform a dry run, showing what would be done
+  -p,--skip-primary	  do not start or stop the primary pmie instance
+  -P,--only-primary	  only start or stop the primary pmie instance, no others
   -s,--stop               stop pmie processes instead of starting them
   -T,--terse              produce a terser form of output
   -V,--verbose            increase diagnostic verbosity
@@ -150,6 +154,11 @@ do
 		CP="echo + cp"
 		KILL="echo + kill"
 		;;
+	-p)     SKIP_PRIMARY=true
+		;;
+	-P)     ONLY_PRIMARY=true
+		;;
+
 	-s)	START_PMIE=false
 		STOP_PMIE=true
 		;;
@@ -655,6 +664,24 @@ s/^\\$//
 		continue
 		;;
 	esac
+
+	# if -p/--skip-primary on the command line, do not process
+	# a control file line for the primary pmie
+	#
+	if $SKIP_PRIMARY && [ $primary = y ]
+	then
+	    $VERY_VERBOSE && echo "Skip, -p/--skip-primary on command line"
+	    continue
+	fi
+
+	# if -P/--only-primary on the command line, only process
+	# the control file line for the primary pmie
+	#
+	if $ONLY_PRIMARY && [ $primary != y ]
+	then
+	    $VERY_VERBOSE && echo "Skip non-primary, -P/--only-primary on command line"
+	    continue
+	fi
 
 	# substitute LOCALHOSTNAME marker in this config line
 	# (differently for logfile and pcp -h HOST arguments)

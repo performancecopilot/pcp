@@ -16,3 +16,17 @@
    ...
 }
 
+# qa/1080 and qa/490 and qa/386 and qa/459 on Fedora 32
+# also on bozo-vm (Debian bullseye/sid) + qa/393 and qa/394
+# at 0x483880B: malloc (vg_replace_malloc.c:299)
+# by 0x4871E5F: __pmFindPDUBuf (pdubuf.c:115)
+# ...
+{
+   findpdubuf
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:__pmFindPDUBuf
+   ...
+}
+

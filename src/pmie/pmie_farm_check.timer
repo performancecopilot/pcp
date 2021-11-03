@@ -1,0 +1,11 @@
+[Unit]
+Description=5 minute check of pmie farm instances
+
+[Timer]
+# if enabled, runs 1m after boot and every 5 mins
+OnBootSec=1min
+OnCalendar=*:00/5
+
+[Install]
+WantedBy=timers.target
+RequiredBy=pmie_farm.service

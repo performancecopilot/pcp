@@ -9,6 +9,7 @@ Options:
  -f, --force force action if possible
  -i IDENT, --ident=IDENT
  over-ride instance id (only for create and cond-create)
+ -m, --migrate migrate matching processes to farm services (for create and check)
  -N, --showme perform a dry run, showing what would be done
  -p POLICY, --policy=POLICY
  use POLICY as the class policy file
@@ -19,7 +20,7 @@ Options:
 Avaliable commands:
  [-c classname] create host ...
  {-c classname|-i ident} cond-create host ...
- [-c classname] {start|stop|restart|destroy|status} [host ...]
+ [-c classname] {start|stop|restart|destroy|check|status} [host ...]
 
  and host may be a valid hostname or an egrep(1) pattern that matches
  the start of a hostname

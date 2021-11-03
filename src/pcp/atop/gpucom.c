@@ -1,6 +1,6 @@
 /*
 ** Copyright (C) 2018 Gerlof Langeveld <gerlof.langeveld@atoptool.nl>
-** Copyright (C) 2019 Red Hat.
+** Copyright (C) 2019,2021 Red Hat.
 **
 ** This source-file contains functions to interface with the nvidia
 ** agent, which maintains statistics about the processor and memory
@@ -21,128 +21,92 @@
 #include "atop.h"
 #include "photosyst.h"
 #include "photoproc.h"
+#include "gpumetrics.h"
 #include "gpucom.h"
 
-#if 0
-static char	**gpubusid;	// array with char* to busid strings
-static char	**gputypes;	// array with char* to type strings
-static char	*gputasks;	// array with chars with tasksupport booleans
+static pmID     pmids[GPU_NMETRICS];
+static pmDesc   descs[GPU_NMETRICS];
 
-/*
-** Parse response string from server on 'T' request
-**
-** Store the type, busid and tasksupport of every GPU in
-** static pointer tables
-*/
-static void
-gputype_parse(char *buf)
+void
+setup_gpuphotoproc(void)
 {
-	char	*p, *start, **bp, **tp, *cp;
-
-	/*
-	** parse GPU info and build arrays of pointers to the
-	** busid strings, type strings and tasksupport strings.
-	*/
-	if (numgpus)			// GPUs present anyhow?
-	{
-		int field;
-
-		gpubusid = bp = malloc((numgpus+1) * sizeof(char *));
-		gputypes = tp = malloc((numgpus+1) * sizeof(char *));
-		gputasks = cp = malloc((numgpus)   * sizeof(char  ));
-
-		ptrverify(gpubusid, "Malloc failed for gpu busids\n");
-		ptrverify(gputypes, "Malloc failed for gpu types\n");
-		ptrverify(gputasks, "Malloc failed for gpu tasksup\n");
-
-		for (field=0, start=p; ; p++)
-		{
-			if (*p == ' ' || *p == '\0' || *p == GPUDELIM)
-			{
-				switch(field)
-				{
-				   case 0:
-					if (p-start <= MAXGPUBUS)
-						*bp++ = start;
-					else
-						*bp++ = p - MAXGPUBUS;
-					break;
-				   case 1:
-					if (p-start <= MAXGPUTYPE)
-						*tp++ = start;
-					else
-						*tp++ = p - MAXGPUTYPE;
-					break;
-				   case 2:
-					*cp++ = *start;
-					break;
-				}
-
-				field++;
-				start = p+1;
-
-				if (*p == '\0')
-					break;
-
-				if (*p == GPUDELIM)
-					field = 0;
-
-				*p = '\0';
-			}
-		}
-
-		*bp = NULL;
-		*tp = NULL;
-	}
+        setup_metrics(gpumetrics, pmids, descs, GPU_NMETRICS);
 }
 
-/*
-** Parse GPU statistics string
-*/
 static void
-gpuparse(int version, char *p, struct pergpu *gg)
+update_gpupid(struct gpu *g, int id, pmResult *rp, pmDesc *dp, int offset)
 {
-	switch (version)
-	{
-	   case 1:
-		(void) sscanf(p, "%d %d %lld %lld %lld %lld %lld %lld", 
-			&(gg->gpupercnow), &(gg->mempercnow),
-			&(gg->memtotnow),  &(gg->memusenow),
-			&(gg->samples),    &(gg->gpuperccum),
-			&(gg->memperccum), &(gg->memusecum));
-
-		gg->nrprocs = 0;
-
-		break;
-	}
+	memset(g, 0, sizeof(*g));
+	if (extract_count_t_inst(rp, dp, GPU_PROC_RUNNING, id, offset) == 0)
+		g->state = 'E';
+	else
+		g->state = 'A';
+	g->gpubusy = extract_count_t_inst(rp, dp, GPU_PROC_GPUBUSY, id, offset);
+	g->membusy = extract_count_t_inst(rp, dp, GPU_PROC_MEMBUSY, id, offset);
+	g->timems = extract_count_t_inst(rp, dp, GPU_PROC_TIME, id, offset);
+	g->memnow = extract_count_t_inst(rp, dp, GPU_PROC_MEMUSED, id, offset);
+	g->memnow /= 1024;	/* convert to KiB */
+	g->memcum = extract_count_t_inst(rp, dp, GPU_PROC_MEMACCUM, id, offset);
+	g->memcum /= 1024;	/* convert to KiB */
+	g->sample = extract_count_t_inst(rp, dp, GPU_PROC_SAMPLES, id, offset);
+	g->nrgpus = extract_count_t_inst(rp, dp, GPU_PROC_NGPUS, id, offset);
+	g->gpulist = extract_ucount_t_inst(rp, dp, GPU_PROC_GPULIST, id, offset);
 }
 
-
-/*
-** Parse PID statistics string
-*/
-static void
-pidparse(int version, char *p, struct gpupidstat *gp)
+unsigned long
+gpuphotoproc(struct gpupidstat **gpp, unsigned int *gpplen)
 {
-	switch (version)
+	pmResult        	*result;
+	char			**insts;
+	int			*pids;
+	unsigned long		count, i;
+	struct gpupidstat	*gp;
+
+	fetch_metrics("gpu", GPU_NMETRICS, pmids, &result);
+
+	/* extract external process names (insts) */
+	count = fetch_instances("gpu", GPU_PROC_GPUBUSY, descs, &pids, &insts);
+	if (count > *gpplen)
 	{
-	   case 1:
-		(void) sscanf(p, "%c %ld %d %d %lld %lld %lld %lld",
-			&(gp->gpu.state),   &(gp->pid),    
-			&(gp->gpu.gpubusy), &(gp->gpu.membusy),
-			&(gp->gpu.timems),
-			&(gp->gpu.memnow), &(gp->gpu.memcum),
-		        &(gp->gpu.sample));
-		break;
+		size_t  size = count * sizeof(struct gpupidstat);
+
+		*gpp = (struct gpupidstat *)realloc(*gpp, size);
+		ptrverify(*gpp, "gpuphotoproc [%ld]\n", (long)size);
+		*gpplen = count;
 	}
+	gp = *gpp;
+
+	for (i=0; i < count; i++)
+	{
+		if (pmDebugOptions.appl0)
+			fprintf(stderr, "%s: updating process %d: %s\n",
+				pmGetProgname(), pids[i], insts[i]);
+		gp[i].pid = pids[i];
+		update_gpupid(&gp[i].gpu, pids[i], result, descs, i);
+	}
+
+	if (pmDebugOptions.appl0)
+		fprintf(stderr, "%s: %lu GPU processes\n", pmGetProgname(), count);
+
+	pmFreeResult(result);
+	if (count > 0) {
+		free(insts);
+		free(pids);
+	}
+
+	return count;
 }
-#endif
+
+static int
+compgpupid(const void *a, const void *b)
+{
+	return (*((struct gpupidstat **)a))->pid - (*((struct gpupidstat **)b))->pid;
+}
 
 /*
 ** Merge the GPU per-process counters with the other
 ** per-process counters
 */
-static int compgpupid(const void *, const void *);
 
 void
 gpumergeproc(struct tstat      *curtpres, int ntaskpres,
@@ -205,23 +169,20 @@ gpumergeproc(struct tstat      *curtpres, int ntaskpres,
 	/*
  	** merge gpu stats with sorted task list of active processes
 	*/
-	for (t=g=0; t < ntaskpres && g < nrgpuproc; t++)
+	for (t=0; t < ntaskpres && gpuleft > 0; t++)
 	{
 		if (curtpres[t].gen.isproc)
 		{
-			if (curtpres[t].gen.pid == gpp[g]->pid)
+			for (g=0; g < nrgpuproc; g++)
 			{
+				if (gpp[g] == NULL)
+					continue;
+				if (curtpres[t].gen.pid != gpp[g]->pid)
+					continue;
 				curtpres[t].gpu = gpp[g]->gpu;
-				gpp[g++] = NULL;
+				gpp[g] = NULL;
 
-				if (--gpuleft == 0 || g >= nrgpuproc)
-					break;
-			}
-
-			// anyhow resync
-			while ( curtpres[t].gen.pid > gpp[g]->pid)
-			{
-				if (++g >= nrgpuproc)
+				if (--gpuleft == 0)
 					break;
 			}
 		}
@@ -275,10 +236,4 @@ gpumergeproc(struct tstat      *curtpres, int ntaskpres,
 	}
 
 	free(gpp);
-}
-
-static int
-compgpupid(const void *a, const void *b)
-{
-	return (*((struct gpupidstat **)a))->pid - (*((struct gpupidstat **)b))->pid;
 }

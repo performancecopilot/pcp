@@ -121,7 +121,7 @@ struct tstat {
 		char	state;		// A - active, E - Exit, '\0' - no use
 		char	cfuture[3];	//
 		short	nrgpus;		// number of GPUs for this process
-		int32_t	gpulist;	// bitlist with GPU numbers
+		ucount_t gpulist;	// bitlist with GPU numbers
 
 		int	gpubusy;	// gpu busy perc process lifetime      -1 = n/a
 		int	membusy;	// memory busy perc process lifetime   -1 = n/a
