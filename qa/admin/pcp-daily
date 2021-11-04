@@ -872,11 +872,11 @@ do
 
 	vm16)
 	    # this is PCP 4.0.0
-	    # the sanity group and no -p or -m or -i flags
-	    # and no -e processing
-	    #[ X"$what" = Xall ] && check_what='-g sanity'
+	    # no -p or -m or -i flags and no -e processing
+	    # group "remote" should be enough to exercise interoperability
+	    [ X"$what" = Xall ] && check_what='-g remote'
 	    qa_user=pcpqa
-	    qa_dir=/var/lib/pcp/testsuite/qa
+	    qa_dir=/var/lib/pcp/testsuite
 	    if $pflag
 	    then
 		echo "Info: skip -p for vm16"
@@ -897,6 +897,17 @@ do
 		echo "Info: no -e $efile for vm16"
 		efile=''
 	    fi
+	    #
+	    # 003 fails parsing a current /proc/net/netstat
+	    # 066 fails parsing a current /proc/net/netstat
+	    # 116 fails because down-rev pmlc can't talk to current pmlogger
+	    # 257 fails because the local 4.0.0 and remote current PMNS
+	    #     are too out of whack
+	    # 322 fails because down-rev pmlc can't talk to current pmlogger
+	    # 365 fails parsing a current /proc/net/netstat
+	    # 374 fails because down-rev pmlc can't talk to current pmlogger
+	    #
+	    [ X"$what" = Xall ] && check_what="$check_what -X 003 -X 066 -X 116 -X 257 -X 322 -X 365 -X 374"
 	    ;;
 
 	vm20)
@@ -927,7 +938,7 @@ do
 	    # and no -e processing
 	    [ X"$what" = Xall ] && check_what='-g sanity'
 	    qa_user=pcpqa
-	    qa_dir=/var/lib/pcp/testsuite/qa
+	    qa_dir=/var/lib/pcp/testsuite
 	    if $pflag
 	    then
 		echo "Info: skip -p for vm35"

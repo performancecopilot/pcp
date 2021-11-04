@@ -344,6 +344,7 @@ Arch Linux
     05 Oct 2020: 2020.10.01 2020.09.01 2020.08.01
     # after virgin install, need at least this to get going
     $ sudo pacman -S inetutils	# for hostname(1)
+    $ sudo pacman -S iputils	# for ping(1)
     $ sudo pacman -S which	# for which(1)
     # which packages are installed
     $ pacman -Q -i | sed -n -e '/^Name /s/.* : //p'

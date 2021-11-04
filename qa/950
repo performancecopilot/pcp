@@ -13,13 +13,7 @@ avahi_notrun_checks
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-_cleanup()
-{
-    _restore_config $PCP_PMPROXYOPTIONS_PATH
-    avahi_cleanup
-}
-
-trap "_cleanup; exit \$status" 0 1 2 3 15
+trap "avahi_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
@@ -29,8 +23,6 @@ _filter()
 }
 
 # real QA test starts here
-_save_config $PCP_PMPROXYOPTIONS_PATH
-$sudo sed -i -e '/^-A/d' $PCP_PMPROXYOPTIONS_PATH
 service=pmproxy
 avahi_service
 _wait_for_pmproxy
