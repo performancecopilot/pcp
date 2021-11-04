@@ -46,7 +46,7 @@ class CheckRunner(object):
             for module in self._objects:
                 thread = Thread(target=self._run_module_check, name=module,
                                 args=(module, self._objects[module]))
-                thread.setDaemon(True)
+                thread.daemon = True
                 thread.start()
                 self._threads.append(thread)
             sleep(0.01)  # Yield

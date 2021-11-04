@@ -293,11 +293,11 @@ class PCPBCCModule(PCPBCCBase):
         """ Start/stop profiling """
         if val == "start":
             thread = Thread(target=self.start_profiling)
-            thread.setDaemon(True)
+            thread.daemon = True
             thread.start()
         elif val == "stop":
             thread = Thread(target=self.stop_profiling)
-            thread.setDaemon(True)
+            thread.daemon = True
             thread.start()
         else:
             self.err("Received invalid command: " + val)

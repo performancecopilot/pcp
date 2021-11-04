@@ -135,7 +135,7 @@ class PCPBCCModule(PCPBCCBase):
             self.bpf = BPF(text=bpf_text)
             if self.interval > 0:
                 self.thread = Thread(name="bpfpoller", target=self.refresh_stats_loop)
-                self.thread.setDaemon(True)
+                self.thread.daemon = True
                 self.thread.start()
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except

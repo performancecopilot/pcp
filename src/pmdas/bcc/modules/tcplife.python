@@ -242,7 +242,7 @@ class PCPBCCModule(PCPBCCBase):
                                                      page_cnt=self.buffer_page_count,
                                                      lost_cb=self.perf_buffer_lost_cb)
             self.thread = Thread(name="bpfpoller", target=self.perf_buffer_poller)
-            self.thread.setDaemon(True)
+            self.thread.daemon = True
             self.thread.start()
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
