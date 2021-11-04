@@ -92,7 +92,9 @@ if $do_systemd
 then
     deb-systemd-helper enable pmcd.service >/dev/null
     deb-systemd-helper enable pmlogger.service >/dev/null
+    deb-systemd-helper enable pmlogger_farm.service >/dev/null
     deb-systemd-helper enable pmie.service >/dev/null
+    deb-systemd-helper enable pmie_farm.service >/dev/null
     deb-systemd-helper enable pmproxy.service >/dev/null
 elif which update-rc.d >/dev/null 2>&1
 then
@@ -100,8 +102,12 @@ then
     update-rc.d pmcd defaults >/dev/null
     update-rc.d -f pmlogger remove >/dev/null
     update-rc.d pmlogger defaults >/dev/null
+    update-rc.d -f pmlogger_farm remove >/dev/null
+    update-rc.d pmlogger_farm defaults >/dev/null
     update-rc.d -f pmie remove >/dev/null
     update-rc.d pmie defaults >/dev/null
+    update-rc.d -f pmie_farm remove >/dev/null
+    update-rc.d pmie_farm defaults >/dev/null
     update-rc.d -f pmproxy remove >/dev/null
     update-rc.d pmproxy defaults >/dev/null
 fi

@@ -620,9 +620,7 @@ refresh(pcp_nvinfo_t *nvinfo, int need_processes)
 	pmdaInstid	*it_set = proc_indomp->it_set;
 	size_t		bytes = nproc * sizeof(pmdaInstid);
 
-	if ((it_set = (pmdaInstid *)realloc(it_set, bytes)) != NULL) {
-	    proc_indomp->it_numinst = nproc;
-	} else {
+	if ((it_set = (pmdaInstid *)realloc(it_set, bytes)) == NULL) {
 	    proc_indomp->it_numinst = nproc = 0;
 	    free(proc_indomp->it_set);
 	}
@@ -637,6 +635,7 @@ refresh(pcp_nvinfo_t *nvinfo, int need_processes)
 	    }
 	}
 	qsort(proc_indomp->it_set, j, sizeof(pmdaInstid), pid_compare);
+	proc_indomp->it_numinst = j;
     }
     pmdaCachePurge(gpuproc_indom, 120);
 

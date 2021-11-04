@@ -46,6 +46,7 @@ install:: $(SUBDIRS)
 install:: default
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_VAR_DIR)/config/pmlogger
 	$(INSTALL) -m 644 pmlogger.defaults $(PCP_SYSCONFIG_DIR)/pmlogger
+	$(INSTALL) -m 644 pmlogger_zeroconf.defaults $(PCP_SYSCONFIG_DIR)/pmlogger_zeroconf
 ifneq ($(PACKAGE_DISTRIBUTION),debian)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmlogger
 endif
@@ -61,8 +62,6 @@ endif
 	$(INSTALL) -m 755 rc_pmlogger $(PCP_RC_DIR)/pmlogger
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmlogger.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger.service
-	$(INSTALL) -m 755 -d $(PCP_SYSTEMDUNIT_DIR)/pmlogger.service.d
-	$(INSTALL) -m 644 pmlogger_service_zeroconf.conf $(PCP_SYSTEMDUNIT_DIR)/pmlogger.service.d/zeroconf.conf
 	$(INSTALL) -m 644 pmlogger_daily.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily.timer
 	$(INSTALL) -m 644 pmlogger_farm.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_farm.service
 	$(INSTALL) -m 644 pmlogger_farm_check.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_farm_check.service
