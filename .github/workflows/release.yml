@@ -24,6 +24,7 @@ jobs:
           - ubuntu2004-container
           - fedora33-container
           - fedora34-container
+          - fedora35-container
           - centos6-container
           - centos7-container
           - centos8-container
