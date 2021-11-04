@@ -620,22 +620,24 @@ refresh(pcp_nvinfo_t *nvinfo, int need_processes)
 	pmdaInstid	*it_set = proc_indomp->it_set;
 	size_t		bytes = nproc * sizeof(pmdaInstid);
 
-	if ((it_set = (pmdaInstid *)realloc(it_set, bytes)) == NULL) {
-	    proc_indomp->it_numinst = nproc = 0;
+	if ((it_set = (pmdaInstid *)realloc(it_set, bytes)) == NULL)
 	    free(proc_indomp->it_set);
-	}
-	proc_indomp->it_set = it_set;
 
-	for (i = j = 0; i < processes.hsize; i++) {
-	    for (node = processes.hash[i]; node != NULL; node = node->next) {
-		proc = (process_t *)node->data;
-		proc_indomp->it_set[j].i_inst = node->key;
-		proc_indomp->it_set[j].i_name = proc->name;
-		j++;
+	if ((proc_indomp->it_set = it_set) != NULL) {
+	    for (i = j = 0; i < processes.hsize && j < nproc; i++) {
+		for (node = processes.hash[i]; node; node = node->next) {
+		    proc = (process_t *)node->data;
+		    proc_indomp->it_set[j].i_inst = node->key;
+		    proc_indomp->it_set[j].i_name = proc->name;
+		    if (++j >= nproc)
+			break;
+		}
 	    }
+	    qsort(proc_indomp->it_set, j, sizeof(pmdaInstid), pid_compare);
+	    proc_indomp->it_numinst = j;
+	} else {
+	    proc_indomp->it_numinst = 0;
 	}
-	qsort(proc_indomp->it_set, j, sizeof(pmdaInstid), pid_compare);
-	proc_indomp->it_numinst = j;
     }
     pmdaCachePurge(gpuproc_indom, 120);
 
