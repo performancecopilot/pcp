@@ -28,11 +28,11 @@
 # blank lines before the @ line are ignored
 #
 
-@ NVML.0 NVIDIA graphics cards installed in this system
+@ 120.0 NVIDIA graphics cards installed in this system
 
-@ NVML.1 processes mapped to NVIDIA graphics cards in use
+@ 120.1 processes mapped to NVIDIA graphics cards in use
 
-@ NVML.2 set of processes using NVIDIA graphics card resources
+@ 120.2 set of processes using NVIDIA graphics card resources
 
 @ nvidia.numcards Number of Graphics Cards
 The number of NVIDIA Graphics cards installed in this system
