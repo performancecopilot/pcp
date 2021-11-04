@@ -93,7 +93,7 @@ class PCPBCCModule(PCPBCCBase):
         self.lock = Lock()
         if self.interval > 0:
             self.thread = Thread(name="biotop_refresh", target=self.refresh_stats_loop)
-            self.thread.setDaemon(True)
+            self.thread.daemon = True
 
         self.log("Initialized.")
 

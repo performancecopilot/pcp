@@ -39,7 +39,7 @@ class ProcMon(object):
         """ Start target process refresher thread """
         if not self._thread:
             self._thread = Thread(target=self._filter_procs, args=(interval,))
-            self._thread.setDaemon(True)
+            self._thread.daemon = True
             self._thread.start()
 
     def _filter_procs(self, interval):
