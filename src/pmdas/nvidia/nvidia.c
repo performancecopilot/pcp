@@ -153,7 +153,7 @@ static pmdaMetric metrictab[] = {
 	PM_SEM_COUNTER, PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) } },
     { NULL, { PMDA_PMID(2, NVIDIA_PROC_RUNNING), PM_TYPE_U32, PROC_INDOM,
 	PM_SEM_COUNTER, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
-    { NULL, { PMDA_PMID(2, NVIDIA_PROC_GPULIST), PM_TYPE_U64, PROC_INDOM,
+    { NULL, { PMDA_PMID(2, NVIDIA_PROC_GPULIST), PM_TYPE_U32, PROC_INDOM,
 	PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
     { NULL, { PMDA_PMID(2, NVIDIA_PROC_NGPUS), PM_TYPE_U32, PROC_INDOM,
 	PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
@@ -173,7 +173,7 @@ static pmdaMetric metrictab[] = {
 	PM_SEM_COUNTER, PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) } },
     { NULL, { PMDA_PMID(3, NVIDIA_PROC_RUNNING), PM_TYPE_U32, PROC_INDOM,
 	PM_SEM_COUNTER, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
-    { NULL, { PMDA_PMID(3, NVIDIA_PROC_GPULIST), PM_TYPE_U64, PROC_INDOM,
+    { NULL, { PMDA_PMID(3, NVIDIA_PROC_GPULIST), PM_TYPE_U32, PROC_INDOM,
 	PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
     { NULL, { PMDA_PMID(3, NVIDIA_PROC_NGPUS), PM_TYPE_U32, PROC_INDOM,
 	PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
@@ -193,7 +193,7 @@ static pmdaMetric metrictab[] = {
 	PM_SEM_COUNTER, PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_MSEC, 0) } },
     { NULL, { PMDA_PMID(4, NVIDIA_PROC_RUNNING), PM_TYPE_U32, PROC_INDOM,
 	PM_SEM_COUNTER, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
-    { NULL, { PMDA_PMID(4, NVIDIA_PROC_GPULIST), PM_TYPE_U64, PROC_INDOM,
+    { NULL, { PMDA_PMID(4, NVIDIA_PROC_GPULIST), PM_TYPE_U32, PROC_INDOM,
 	PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
     { NULL, { PMDA_PMID(4, NVIDIA_PROC_NGPUS), PM_TYPE_U32, PROC_INDOM,
 	PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
@@ -217,7 +217,7 @@ typedef struct {
 	unsigned int		memutil;
 	unsigned long long	time;
 	unsigned long long	samples;
-	unsigned long long	gpulist;
+	unsigned int		gpulist;
 	unsigned int		running;
 	unsigned int		ngpus;
     } acct[PROCESS_MODES];
@@ -370,8 +370,8 @@ update_process(pid_t pid, int mode, unsigned int cardid,
     process->acct[mode].gpuutil = stats->gpuUtilization;
     process->acct[mode].running = stats->isRunning;
     process->acct[mode].time = stats->time;
-    if (cardid < 64-1)
-	process->acct[mode].gpulist |= (1<<cardid);
+    if (cardid < 32)
+	process->acct[mode].gpulist |= (1 << cardid);
     process->acct[mode].samples++;
     process->acct[mode].ngpus++;
 }

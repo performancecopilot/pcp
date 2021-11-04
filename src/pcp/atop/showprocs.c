@@ -1877,7 +1877,7 @@ procprt_GPULIST_ae(struct tstat *curstat, int avgval, double nsecs)
 
 			if (p - tmp > 8)
 			{
-				pmsprintf(tmp, sizeof tmp, "0x%06llx",
+				pmsprintf(tmp, sizeof tmp, "0x%06x",
 						curstat->gpu.gpulist);
 				break;
 			}

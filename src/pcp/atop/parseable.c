@@ -770,7 +770,7 @@ print_PRE(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 
 	for (i=0; i < nact; i++, ps++)
 	{
-		printf("%s %d (%s) %c %c %d %llx %d %d %lld %lld %lld\n",
+		printf("%s %d (%s) %c %c %d %x %d %d %lld %lld %lld\n",
 				hp,
 				ps->gen.pid,
 				ps->gen.name,

@@ -50,7 +50,7 @@ update_gpupid(struct gpu *g, int id, pmResult *rp, pmDesc *dp, int offset)
 	g->memcum /= 1024;	/* convert to KiB */
 	g->sample = extract_count_t_inst(rp, dp, GPU_PROC_SAMPLES, id, offset);
 	g->nrgpus = extract_count_t_inst(rp, dp, GPU_PROC_NGPUS, id, offset);
-	g->gpulist = extract_ucount_t_inst(rp, dp, GPU_PROC_GPULIST, id, offset);
+	g->gpulist = extract_integer_inst(rp, dp, GPU_PROC_GPULIST, id, offset);
 }
 
 unsigned long

@@ -249,7 +249,7 @@ Indicates whether each process is still running
 No value(s) available!
 
 nvidia.proc.all.gpulist PMID: 120.2.7 [Bitmask of GPUs used by each process]
-    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Data Type: 32-bit unsigned int  InDom: 120.2 0x1e000002
     Semantics: instant  Units: none
 Help:
 Bitmask of GPUs used by each process
@@ -312,7 +312,7 @@ Indicates whether each process using compute is still running
 No value(s) available!
 
 nvidia.proc.compute.gpulist PMID: 120.3.7 [Bitmask of GPUs used for compute by each process]
-    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Data Type: 32-bit unsigned int  InDom: 120.2 0x1e000002
     Semantics: instant  Units: none
 Help:
 Bitmask of GPUs used for compute by each process
@@ -375,7 +375,7 @@ Indicates whether each process using graphics is still running
 No value(s) available!
 
 nvidia.proc.graphics.gpulist PMID: 120.4.7 [Bitmask of GPUs used for graphics by each process]
-    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Data Type: 32-bit unsigned int  InDom: 120.2 0x1e000002
     Semantics: instant  Units: none
 Help:
 Bitmask of GPUs used for graphics by each process
@@ -674,7 +674,7 @@ Indicates whether each process is still running
     inst [PID or "PID"] value 1
 
 nvidia.proc.all.gpulist PMID: 120.2.7 [Bitmask of GPUs used by each process]
-    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Data Type: 32-bit unsigned int  InDom: 120.2 0x1e000002
     Semantics: instant  Units: none
 Help:
 Bitmask of GPUs used by each process
@@ -746,7 +746,7 @@ Indicates whether each process using compute is still running
     inst [PID or "PID"] value 1
 
 nvidia.proc.compute.gpulist PMID: 120.3.7 [Bitmask of GPUs used for compute by each process]
-    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Data Type: 32-bit unsigned int  InDom: 120.2 0x1e000002
     Semantics: instant  Units: none
 Help:
 Bitmask of GPUs used for compute by each process
@@ -811,7 +811,7 @@ Indicates whether each process using graphics is still running
 No value(s) available!
 
 nvidia.proc.graphics.gpulist PMID: 120.4.7 [Bitmask of GPUs used for graphics by each process]
-    Data Type: 64-bit unsigned int  InDom: 120.2 0x1e000002
+    Data Type: 32-bit unsigned int  InDom: 120.2 0x1e000002
     Semantics: instant  Units: none
 Help:
 Bitmask of GPUs used for graphics by each process
