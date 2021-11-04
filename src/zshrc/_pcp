@@ -564,6 +564,7 @@ _pcp () {
       "(-c --class $exargs)"{-c+,--class=}'[specify class name]:class:' \
       "(-f --force $exargs)"{-f,--force}'[force action]' \
       "(-i --ident $exargs)"{-i+,--ident=}'[specify instance identifier]:ident:' \
+      "(-m --migrate $exargs)"{-m,--migrate}'[migrate matching processes to farm services]' \
       "(-N --showme $exargs)"{-N,--showme}'[dry run mode, do no changes]' \
       "(-p --policy $exargs)"{-p+,--policy=}'[specify policy file]:file:_files' \
       "(-V --verbose $exargs)"{-V,--verbose}'[verbose mode]' \
