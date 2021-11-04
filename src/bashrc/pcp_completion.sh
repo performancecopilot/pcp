@@ -73,7 +73,7 @@ _pcp_complete()
         arg_regex="-[dpw]"
     ;;
     pmiectl)
-        all_args="acfiNpV"
+        all_args="acfimNpV"
         arg_regex="-[cip]"
     ;;
     pminfo)
@@ -93,7 +93,7 @@ _pcp_complete()
         arg_regex="-[nSTZ]"
     ;;
     pmlogctl)
-        all_args="acfiNpV"
+        all_args="acfimNpV"
         arg_regex="-[cip]"
     ;;
     pmlogextract)
