@@ -30,6 +30,25 @@
    ...
 }
 
+# qa/720 on fedora_rawhide-container in CI
+# at 0x483A809: malloc (vg_replace_malloc.c:307)
+# by 0x4CB7592: sasl_client_new (in /usr/lib64/libsasl2.so.3.0.0)
+# by 0x48C30D4: __pmSecureClientHandshake (secureconnect.c:955)
+# by 0x486F78A: __pmConnectHandshake (connect.c:207)
+# by 0x4870930: __pmConnectPMCD (connect.c:467)
+# by 0x4874A9C: pmNewContext (context.c:1152)
+# by 0x10BB4A: main (pminfo.c:1196)
+{
+   sasl_client_new
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sasl_client_new
+   ...
+   fun:pmNewContext
+   ...
+}
+
 # qa/1293 seen on CI debian11-container and fedora32-container and
 # fedora33-container and fedora_rawhide-container and vm26 and vm34
 # Syscall param socketcall.sendto(msg) points to uninitialised byte(s)
