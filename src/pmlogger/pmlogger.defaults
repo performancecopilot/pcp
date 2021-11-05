@@ -1,7 +1,7 @@
 # Environment variables for the primary pmlogger daemon.  See also
 # the pmlogger control file and pmlogconf(1) for additional details.
-# Settings defined in this file may be overridden by settings in the
-# "pmlogger_zeroconf" config file (if present).
+# Settings defined in this file will be overridden by any settings
+# in the pmlogger zeroconf file (if present).
 
 # Behaviour regarding listening on external-facing interfaces;
 # unset PMLOGGER_LOCAL to allow connections from remote hosts.

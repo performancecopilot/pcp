@@ -22,7 +22,7 @@
 ** data structures are wrapped in mmv.py using ctypes.                    **
 **                                                                        **
 \**************************************************************************/
-
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <pcp/pmapi.h>
 #include <pcp/mmv_stats.h>

@@ -23,7 +23,7 @@
 ** data structures are wrapped in pmapi.py and friends, using ctypes.     **
 **                                                                        **
 \**************************************************************************/
-
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <pcp/pmapi.h>
 #include <pcp/libpcp.h>
@@ -717,7 +717,7 @@ override_callback(int opt, pmOptions *opts)
 	PyErr_Print();
 	return -ENOMEM;
     }
-    result = PyEval_CallObject(overridesCallback, arglist);
+    result = PyObject_Call(overridesCallback, arglist, NULL);
     Py_DECREF(arglist);
     if (!result) {
 	PyErr_Print();
@@ -743,7 +743,7 @@ options_callback(int opt, pmOptions *opts)
     if (!arglist) {
 	PyErr_Print();
     } else {
-	result = PyEval_CallObject(optionCallback, arglist);
+	result = PyObject_Call(optionCallback, arglist, NULL);
 	Py_DECREF(arglist);
         if (!result) {
             PyErr_Print();
@@ -935,7 +935,7 @@ pmnsDecodeCallback(const char *name, void *closure)
     arglist = Py_BuildValue("(s)", name);
     if (arglist == NULL)
         return;
-    result = PyEval_CallObject(closure, arglist);
+    result = PyObject_Call(closure, arglist, NULL);
     Py_DECREF(arglist);
     if (!result)
         PyErr_Print();

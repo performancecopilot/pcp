@@ -17,8 +17,9 @@
 #
 . $PCP_DIR/etc/pcp.env
 
-# start the pmlogger farm and then wait for a signal
-$PCP_BINADM_DIR/pmlogger_check $*
-exec pmpause
-
-exit 0
+# Start the pmlogger farm and then wait for a signal.
+# Any errors are reported by pmlogger_check in it's log.
+$PCP_BINADM_DIR/pmlogger_check $* 2>/dev/null
+sts=$?
+[ $sts -eq 0 ] || exit $sts
+exec $PCP_BINADM_DIR/pmpause

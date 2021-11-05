@@ -22,7 +22,7 @@
 ** structures and interfaces are wrapped in pmi.py, using ctypes.         **
 **                                                                        **
 \**************************************************************************/
-
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <pcp/pmapi.h>
 #include <pcp/import.h>
