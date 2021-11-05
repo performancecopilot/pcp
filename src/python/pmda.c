@@ -20,7 +20,7 @@
  * and macros needed to implement PMDAs in python.  These are exported to
  * python PMDAs via the pmda.py module, using ctypes.
  */
-
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "pmapi.h"
 #include "pmda.h"
@@ -102,7 +102,7 @@ maybe_refresh_all(void)
 	arglist = Py_BuildValue("()");
 	if (arglist == NULL)
 	    return;
-	result = PyEval_CallObject(refresh_metrics_func, arglist);
+	result = PyObject_Call(refresh_metrics_func, arglist, NULL);
 	Py_DECREF(arglist);
 	if (result == NULL)
 	    PyErr_Print();
@@ -373,7 +373,7 @@ prefetch(void)
     arglist = Py_BuildValue("()");
     if (arglist == NULL)
 	return -ENOMEM;
-    result = PyEval_CallObject(fetch_func, arglist);
+    result = PyObject_Call(fetch_func, arglist, NULL);
     Py_DECREF(arglist);
     if (result == NULL)
 	return callback_error("prefetch");
@@ -389,7 +389,7 @@ refresh_cluster(int cluster)
     arglist = Py_BuildValue("(i)", cluster);
     if (arglist == NULL)
 	return -ENOMEM;
-    result = PyEval_CallObject(refresh_func, arglist);
+    result = PyObject_Call(refresh_func, arglist, NULL);
     Py_DECREF(arglist);
     if (result == NULL)
 	return callback_error("refresh_cluster");
@@ -416,7 +416,7 @@ refresh_all_clusters(int numclusters, int *clusters)
     arglist = Py_BuildValue("(N)", list);
     if (arglist == NULL)
 	return -ENOMEM;
-    result = PyEval_CallObject(refresh_all_func, arglist);
+    result = PyObject_Call(refresh_all_func, arglist, NULL);
     Py_DECREF(list);
     Py_DECREF(arglist);
     if (result == NULL)
@@ -509,11 +509,11 @@ label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
 	if (arglist == NULL)
 	    return -ENOMEM;
 	if (label_func)
-	   label_result = PyEval_CallObject(label_func, arglist);
+	   label_result = PyObject_Call(label_func, arglist, NULL);
 	else
 	   label_result = NULL;
 	if (notes_func)
-	   notes_result = PyEval_CallObject(notes_func, arglist);
+	   notes_result = PyObject_Call(notes_func, arglist, NULL);
 	else
 	   notes_result = NULL;
 	Py_DECREF(arglist);
@@ -570,7 +570,7 @@ preinstance(pmInDom indom)
     arglist = Py_BuildValue("(i)", pmInDom_serial(indom));
     if (arglist == NULL)
 	return -ENOMEM;
-    result = PyEval_CallObject(instance_func, arglist);
+    result = PyObject_Call(instance_func, arglist, NULL);
     Py_DECREF(arglist);
     if (result == NULL)
 	return callback_error("preinstance");
@@ -605,7 +605,7 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
 	pmNotifyErr(LOG_ERR, "fetch callback cannot alloc parameters");
 	return -EINVAL;
     }
-    result = PyEval_CallObject(fetch_cb_func, arglist);
+    result = PyObject_Call(fetch_cb_func, arglist, NULL);
     Py_DECREF(arglist);
     if (result == NULL)
 	return callback_error("fetch_callback");
@@ -698,11 +698,11 @@ label_callback(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 	return -EINVAL;
     }
     if (label_cb_func)
-	label_result = PyEval_CallObject(label_cb_func, arglist);
+	label_result = PyObject_Call(label_cb_func, arglist, NULL);
     else
 	label_result = NULL;
     if (notes_cb_func)
-	notes_result = PyEval_CallObject(notes_cb_func, arglist);
+	notes_result = PyObject_Call(notes_cb_func, arglist, NULL);
     else
 	notes_result = NULL;
     Py_DECREF(arglist);
@@ -779,7 +779,7 @@ store_callback(__pmID_int *pmid, unsigned int inst, pmAtomValue av, int type)
 	    pmNotifyErr(LOG_ERR, "unsupported type in store callback");
 	    return -EINVAL;
     }
-    result = PyEval_CallObject(store_cb_func, arglist);
+    result = PyObject_Call(store_cb_func, arglist, NULL);
     Py_DECREF(arglist);
     if (result == NULL)
 	return callback_error("store_callback");
@@ -893,11 +893,12 @@ attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
     if (attribute_cb_func == NULL)
         return 0;
 
-    arglist = Py_BuildValue("(iis#)", ctx, attr, value, length-1); // length includes NULL byte
+    // 'length' parameter includes the terminating NULL byte here
+    arglist = Py_BuildValue("(iis#)", ctx, attr, value, (Py_ssize_t)length-1);
     if (arglist == NULL)
         return -ENOMEM;
 
-    result = PyEval_CallObject(attribute_cb_func, arglist);
+    result = PyObject_Call(attribute_cb_func, arglist, NULL);
     Py_DECREF(arglist);
     if (result == NULL)
         return callback_error("attribute");
@@ -918,7 +919,7 @@ endContextCallBack(int ctx)
     if (arglist == NULL)
         return;
 
-    result = PyEval_CallObject(endcontext_cb_func, arglist);
+    result = PyObject_Call(endcontext_cb_func, arglist, NULL);
     Py_DECREF(arglist);
     if (result == NULL) {
         callback_error("endcontext");

@@ -22,7 +22,7 @@
 ** and data structures are wrapped in pmgui.py and friends, using ctypes. **
 **                                                                        **
 \**************************************************************************/
-
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <pcp/pmafm.h>
 #include <pcp/pmtime.h>
