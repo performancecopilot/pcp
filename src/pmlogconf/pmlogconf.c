@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2020 Red Hat.  All Rights Reserved.
- * 
+ * Copyright (c) 2020-2021 Red Hat.  All Rights Reserved.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -1240,13 +1240,20 @@ update_callback(const char *line, int length, void *arg)
 	printf("       %.*s\n", length, line);
 }
 
+static void
+update_delta(group_t *group, const char *delta)
+{
+    free(group->delta);
+    group->delta = copy_string(delta);
+}
+
 char *
 update_groups(FILE *tempfile, const char *pattern)
 {
     group_t		*group;
     struct timeval	interval;
-    static char		answer[64];
-    char		buffer[128];
+    static char		*answer;
+    static char		buffer[128]; /* returned 'answer' points into this */
     char		*state = NULL, *errmsg, *p;
     unsigned int	i, m, count;
 
@@ -1274,7 +1281,12 @@ update_groups(FILE *tempfile, const char *pattern)
 			    update_callback, &count);
 	    printf("Log this group? [%s] ", state);
 	}
-	if (autocreate || fgets(answer, sizeof(answer), stdin) == NULL)
+	answer = memset(buffer, 0, sizeof(buffer));
+	if (autocreate || fgets(answer, sizeof(buffer), stdin) == NULL)
+	    answer[0] = *state;
+	else
+	    answer = chop(trim(answer));
+	if (answer[0] == '\0')	/* keep group as-is */
 	    answer[0] = *state;
 
 	switch (answer[0]) {
@@ -1311,9 +1323,6 @@ y         log this group\n\
 	    group->saved_state = STATE_INCLUDE;
 	    break;
 
-	case '\n':	/* keep group as-is */
-	    break;
-
 	case '/':
 	    if ((p = strrchr(answer + 1, '\n')) != NULL)
 		*p = '\0';
@@ -1340,13 +1349,21 @@ y         log this group\n\
 	    } else {
 		do {
 		    printf("Logging interval? [%s] ", pmlogger_group_delta(group));
-		    if (fgets(answer, sizeof(answer), stdin) == NULL)
+		    answer = memset(buffer, 0, sizeof(buffer));
+		    if (fgets(answer, sizeof(buffer), stdin) == NULL)
 			break;
+		    answer = chop(trim(answer));
+		    if (answer == NULL || answer[0] == '\0')
+			answer = "default";
 		    if (strcmp(answer, "once") == 0 ||
-			strcmp(answer, "default") == 0)
+			strcmp(answer, "default") == 0) {
+			update_delta(group, answer);
 			break;
-		    if (pmParseInterval(answer, &interval, &errmsg) >= 0)
+		    }
+		    if (pmParseInterval(answer, &interval, &errmsg) >= 0) {
+			update_delta(group, answer);
 			break;
+		    }
 		    free(errmsg);
 		    printf("Error: logging interval must be of the form "
 			   "\"once\" or \"default\" or \"<integer> <scale>\","
