@@ -19,6 +19,6 @@
 
 # start the pmlogger farm and then wait for a signal
 $PCP_BINADM_DIR/pmlogger_check $*
-exec pmpause
-
-exit 0
+sts=$?
+[ $sts -eq 0 ] || exit $sts
+exec $PCP_BINADM_DIR/pmpause
