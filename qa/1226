@@ -99,60 +99,60 @@ pmiectl --usage 2>&1 | _filter
 
 echo
 echo '== -N -V create' | tee -a $seq.full
-pmiectl -N -V create localhost | _filter
+pmiectl -N -V create localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
 echo '== create' | tee -a $seq.full
-$sudo pmiectl create localhost | _filter
+$sudo pmiectl create localhost 2>&1 | _filter
 echo '== status' | tee -a $seq.full
-pmiectl status | _filter_status
+pmiectl status 2>&1 | _filter_status
 echo '== status localhost' | tee -a $seq.full
-pmiectl status localhost | _filter_status
+pmiectl status localhost 2>&1 | _filter_status
 
 echo | tee -a $seq.full
 echo '== stop' | tee -a $seq.full
-$sudo pmiectl stop localhost | _filter
+$sudo pmiectl stop localhost 2>&1 | _filter
 echo '== status' | tee -a $seq.full
-pmiectl status | _filter_status
+pmiectl status 2>&1 | _filter_status
 echo '== status localhost' | tee -a $seq.full
-pmiectl status localhost | _filter_status
+pmiectl status localhost 2>&1 | _filter_status
 
 echo | tee -a $seq.full
 echo '== start' | tee -a $seq.full
-$sudo pmiectl start localhost | _filter
+$sudo pmiectl start localhost 2>&1 | _filter
 echo '== status' | tee -a $seq.full
-pmiectl status | _filter_status
+pmiectl status 2>&1 | _filter_status
 echo '== status localhost' | tee -a $seq.full
-pmiectl status localhost | _filter_status
+pmiectl status localhost 2>&1 | _filter_status
 
 echo | tee -a $seq.full
 echo '== restart' | tee -a $seq.full
-$sudo pmiectl restart localhost | _filter
+$sudo pmiectl restart localhost 2>&1 | _filter
 echo '== status' | tee -a $seq.full
-pmiectl status | _filter_status
+pmiectl status 2>&1 | _filter_status
 echo '== status localhost' | tee -a $seq.full
-pmiectl status localhost | _filter_status
+pmiectl status localhost 2>&1 | _filter_status
 
 echo | tee -a $seq.full
 echo '== destroy' | tee -a $seq.full
-$sudo pmiectl destroy localhost | _filter
+$sudo pmiectl destroy localhost 2>&1 | _filter
 echo '== status' | tee -a $seq.full
-pmiectl status | _filter_status
+pmiectl status 2>&1 | _filter_status
 echo '== status localhost' | tee -a $seq.full
-pmiectl status localhost | _filter_status
+pmiectl status localhost 2>&1 | _filter_status
 
 echo | tee -a $seq.full
 echo '== cond-create' | tee -a $seq.full
-$sudo pmiectl cond-create localhost | _filter
+$sudo pmiectl cond-create localhost 2>&1 | _filter
 echo '== status' | tee -a $seq.full
-pmiectl status | _filter_status
-$sudo pmiectl -c pmfind destroy localhost | _filter
+pmiectl status 2>&1 | _filter_status
+$sudo pmiectl -c pmfind destroy localhost 2>&1 | _filter
 
 echo | tee -a $seq.full
 echo "== cond-create -i $seq-foo" | tee -a $seq.full
-$sudo pmiectl -i $seq-foo cond-create localhost | _filter
+$sudo pmiectl -i $seq-foo cond-create localhost 2>&1 | _filter
 echo '== status' | tee -a $seq.full
-pmiectl -V status | _filter_status
+pmiectl -V status 2>&1 | _filter_status
 
 # success, all done
 status=0
