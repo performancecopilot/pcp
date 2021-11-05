@@ -146,6 +146,19 @@ pmlogctl status | _filter_status
 echo
 echo "=== bad host, pmlogger won't start"
 $sudo pmlogctl -p $tmp.policy -c $seq create no.such.host.pcp.io
+# it may take a while for this one to really get into "dead" state
+# as we wander off into the DNS weeds
+#
+i=0
+while [ $i -lt 50 ]
+do
+    if pmlogctl status 2>&1 | grep '^no.such.host.pcp.io .* dead *$' >/dev/null
+    then
+	break
+    fi
+    pmsleep 0.1
+    i=`expr $i + 1`
+done
 pmlogctl status | _filter_status
 
 echo
