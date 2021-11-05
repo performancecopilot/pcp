@@ -25,7 +25,7 @@ signal=$PCP_BINADM_DIR/pmsignal
 _filter_pmlogger()
 {
     _filter_pmlogger_log \
-    | sed \
+    | sed >$tmp.tmp \
 	-e "s;$tmp;TMP;g" \
 	-e '/[Ss]ignalled (signal=.*), exiting/d' \
 	-e '/Warning: AF event queue is empty, nothing /d' \
@@ -49,8 +49,13 @@ s/[0-9][0-9]*/N/
 s/[0-9][0-9]*/M/g
 }' \
 	-e 's/fd=[0-9][0-9]*/fd=N/' \
-	-e 's/localhost\.[a-zA-Z0-9]*/localhost/' \
-    # end
+	-e 's/localhost\.[a-zA-Z0-9]*/localhost/'
+    # the check_local_creds: line's position in the output
+    # is not deterministic, so deal with that ...
+    #
+    grep -v '^check_local_creds:' <$tmp.tmp
+    echo "..."
+    grep '^check_local_creds:' <$tmp.tmp
 }
 
 _filter_dumplog()
