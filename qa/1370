@@ -43,7 +43,8 @@ fi
 #
 for cmd in pcp-htop pcp-python pcp2csv pcp2xlsx pmafm pmgenmap \
              pmie_dump_stats pmiestatus pmlock pmpause pmpython \
-             pmsleep pmwtf telnet-probe pmpost pcp-kube-pods
+             pmsleep pmwtf telnet-probe pmpost pcp-kube-pods \
+	     pmie_farm pmlogger_farm
 do
   sed -i "/$cmd/d" $tmp.cmds.txt
 done
