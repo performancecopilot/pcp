@@ -17,8 +17,10 @@
 #
 . $PCP_DIR/etc/pcp.env
 
-# start the pmie farm and then wait for a signal
-$PCP_BINADM_DIR/pmie_check $*
+# Start the pmie farm and then wait for a signal.
+# Any errors are reported by pmie_check in it's log.
+$PCP_BINADM_DIR/pmie_check $* 2>/dev/null
+
 sts=$?
 [ $sts -eq 0 ] || exit $sts
 exec $PCP_BINADM_DIR/pmpause
