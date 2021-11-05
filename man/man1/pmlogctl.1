@@ -591,6 +591,15 @@ Runs
 in a ``show me'' or ``dry run'' mode where the intent of the
 command is shown, but no changes are made.
 .TP
+\fB\-m\fP, \fB\-\-migrate\fP
+When used with the \fBcreate\fP or \fBcheck\fP commands on
+.BR systemd (1)
+platforms, also migrate new or existing non-primary \fBpmlogger\fP processes
+to the \fBpmlogger_farm\fP service.
+This is normally done automatically by the \fBpmlogger_farm_check\fP service,
+which is timer driven (so there may be a few minutes delay before
+automatic migration is initiated).
+.TP
 \fB\-p\fR \fIpolicy\fR, \fB\-\-policy\fR=\fIpolicy\fR
 Use
 .I policy
