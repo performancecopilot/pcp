@@ -1,6 +1,6 @@
 QA output created by 374
 
-=== pmlogger host type: -b 64 -v pcp=2 ===
+=== pmlogger host type: -b 64 -v pcp>=5.3.5 ===
 last log entry   DATE
 current time     DATE
 log volume       0
