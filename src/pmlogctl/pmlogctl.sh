@@ -431,7 +431,7 @@ _get_matching_hosts()
 	fi
 	if [ "$ACTION" != status ]
 	then
-	    $PCP_AWK_PROG <$tmp/tmp '{ print $3 }' \
+	    $PCP_AWK_PROG <$tmp/tmp '$4 != "?" { print $3 }' \
 	    | LC_COLLATE=POSIX sort \
 	    | uniq -c \
 	    | grep -v ' 1 ' >$tmp/tmp2
@@ -628,7 +628,7 @@ _check_stopped()
 {
     $SHOWME && return 0
     dir="$1"
-    max=30		# 1/10 of a second, so 3 secs max
+    max=50		# 1/10 of a second, so 5 secs max
     i=0
     $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "Stopped? ""$PCP_ECHO_C"
     while [ $i -lt $max ]
