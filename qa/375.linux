@@ -1,6 +1,6 @@
 QA output created by 375
 
-=== pmlc host type: -b 32 -v pcp>=2 ===
+=== pmlc host type: -b 32 -v pcp>=5.3.4 ===
 New log volume 1
 last log entry   DATE
 current time     DATE
@@ -114,7 +114,7 @@ pmcd.agent.type
     mand off nl              [29 or "sample"]
 
 
-=== pmlc host type: -b 64 -v pcp>=2 ===
+=== pmlc host type: -b 64 -v pcp>=5.3.4 ===
 New log volume 1
 last log entry   DATE
 current time     DATE

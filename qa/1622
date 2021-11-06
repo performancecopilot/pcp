@@ -257,7 +257,6 @@ type=AVC msg=audit(XXX.96): avc:  denied  { execute } for  pid=2205945 comm="sh"
 type=AVC msg=audit(XXX.97): avc:  denied  { execute_no_trans } for  pid=40596 comm="sh" path="/usr/bin/kmod" dev="dm-0" ino=9462231 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:kmod_exec_t:s0 tclass=file permissive=0
 type=AVC msg=audit(XXX.98): avc: denied { getattr write } for pid=75540 comm="pmdapodman" path="/run/podman/podman.sock" dev="tmpfs" ino=51062 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:var_run_t:s0 tclass=sock_file permissive=0
 type=AVC msg=audit(XXX.99): avc: denied { read write } for pid=10242 comm="pmdanvidia" name="nvidiactl" dev="devtmpfs" ino=723 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:xserver_misc_device_t:s0 tclass=chr_file permissive=0
-allow pcp_pmcd_t xserver_misc_device_t:chr_file { open read write ioctl };
 type=AVC msg=audit(XXX.100): avc: denied { read } for pid=279604 comm="pmdanvidia" name="nvidia-cap2" dev="devtmpfs" ino=766 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:device_t:s0 tclass=chr_file permissive=0
 EOF
 

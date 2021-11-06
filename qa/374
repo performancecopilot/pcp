@@ -207,7 +207,7 @@ host=''
 pid=''
 base=''
 
-# the v1 host may be on the other side of the planet
+# the remote host may be on the other side of the planet
 #
 PMCD_CONNECT_TIMEOUT=30
 PMCD_REQUEST_TIMEOUT=30
@@ -215,7 +215,14 @@ export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
 
 # real QA test starts here
 
-for type in '-b 64 -v pcp\>=2'
+# strickly speaking need a remote host runnun pcp>=2, but with old
+# PCP 2.7.8 and PCP 4.0.0 hosts in the QA farm, we might pick one of
+# them, and there are fewer metrics below pmcd.pdu_in in the PMNS,
+# which causes slightly different output for the
+#	query pmcd.pdu_in
+# below ... so best to avoid that.
+#
+for type in '-b 64 -v pcp\>=5.3.5'
 do
     cmd="./getpmcdhosts -L -n 1 $type 2>/dev/null"
     host=`eval $cmd`
@@ -226,8 +233,7 @@ do
 	# NOTREACHED
     else
 	echo
-	echo "=== pmlogger host type: $type ===" | sed 's/\\>//'
-	echo "$type => $host" >>$seq.full
+	echo "=== pmlogger host type: $type ===" | sed -e 's/\\//g'
 	_speak_to_me $host
     fi
 done

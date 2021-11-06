@@ -13,19 +13,18 @@ avahi_notrun_checks
 
 _cleanup()
 {
-    _restore_config $PCP_PMCDOPTIONS_PATH
+    avahi_cleanup
 }
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
+
 # real QA test starts here
-_save_config $PCP_PMCDOPTIONS_PATH
-$sudo sed -i -e '/^-A/d' $PCP_PMCDOPTIONS_PATH
-_service pmcd restart
-_wait_for_pmcd
 service=pmcd
+avahi_service
 avahi_verify
+
 status=0
 exit

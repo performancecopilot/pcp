@@ -19,7 +19,10 @@ echo "QA output created by $seq"
 # but even that has been dropped now that single CPU systems are so
 # rare
 #
-eval `./getpmcdhosts -L -n2 | sed -e 's/^/other1=/' -e 's/ / other2=/'`
+# Need at least PCP 5.3.4 on the remote hosts, so that pmlc there can
+# connect to the local pmlogger.
+#
+eval `./getpmcdhosts -L -n2 -v 'pcp>=5.3.4' | sed -e 's/^/other1=/' -e 's/ / other2=/'`
 [ -z "$other1" ] && _notrun "Cannot find first remote host running pmcd"
 [ -z "$other2" ] && _notrun "Cannot find second remote host running pmcd"
 

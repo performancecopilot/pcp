@@ -203,14 +203,14 @@ export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
 
 # real QA test starts here
 
-# strickly speaking need a pcp>=2 host, but with an old 2.7.8 host in
-# the QA farm, we might pick that, and there is one less metric below
-# pmcd.pdu_in in the PMNS, which causes slightly different output
-# for the
+# strickly speaking need a remote host runnun pcp>=2, but with old
+# PCP 2.7.8 and PCP 4.0.0 hosts in the QA farm, we might pick one of
+# them, and there are fewer metrics below pmcd.pdu_in in the PMNS,
+# which causes slightly different output for the
 #	query pmcd.pdu_in
 # below ... so best to avoid that.
 #
-type="-v pcp>=3"
+type="-v pcp>=5.3.5"
 echo
 echo "=== pmlogger host type: $type ==="
 host=`./getpmcdhosts -L -n 1 $type`

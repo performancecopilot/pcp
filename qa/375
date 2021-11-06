@@ -129,7 +129,10 @@ pid=''
 
 # real QA test starts here
 
-for type in "-b 32 -v pcp>=2" "-b 64 -v pcp>=2"
+# Require at least PCP 5.3.4 on the remote hosts, so that pmlc there
+# can connect to the local pmlogger.
+#
+for type in "-b 32 -v pcp>=5.3.4" "-b 64 -v pcp>=5.3.4"
 do
     echo
     echo "=== pmlc host type: $type ==="

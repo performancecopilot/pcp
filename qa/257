@@ -22,7 +22,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 _filter()
 {
     os=$1
-    echo "--- os = $os, version = 2 ---" >>$seq.full
+    echo "--- os = $os ---" >>$seq.full
     cat - > $tmp.1
 
     echo "--- unfiltered output ---" >>$seq.full
@@ -53,24 +53,24 @@ _do_tests()
     esac
 
     echo ""
-    echo "=== pmapi 32 v2, local version $style_str ===" | tee -a $seq.full
+    echo "=== pmapi 32, local version $style_str ===" | tee -a $seq.full
     torture_api="src/torture_api"
     echo "torture_api = $torture_api" >> $seq.full
     $torture_api -v $style 2>&1 | _filter `uname -r` >$tmp.out
     _cmp $tmp.out
 
     echo ""
-    echo "=== pmapi 32 v2, pmcd 32 v2 $style_str ===" | tee -a $seq.full
+    echo "=== pmapi 32, pmcd 32 $style_str ===" | tee -a $seq.full
     torture_api="src/torture_api"
     echo "torture_api = $torture_api" >> $seq.full
-    $torture_api -v $style -h $host_32_v2 2>&1 | _filter $host_32_v2_os >$tmp.out
+    $torture_api -v $style -h $host_32 2>&1 | _filter $host_32_os >$tmp.out
     _cmp $tmp.out
 
     echo ""
-    echo "=== pmapi 32 v2, pmcd 64 v2 $style_str ===" | tee -a $seq.full
+    echo "=== pmapi 32, pmcd 64 $style_str ===" | tee -a $seq.full
     torture_api="src/torture_api"
     echo "torture_api = $torture_api" >> $seq.full
-    $torture_api -v $style -h $host_64_v2 2>&1 | _filter $host_64_v2_os >$tmp.out
+    $torture_api -v $style -h $host_64 2>&1 | _filter $host_64_os >$tmp.out
     _cmp $tmp.out
 
 }
@@ -85,27 +85,30 @@ rm -f $seq.full
 # on different platforms at the moment.
 # => different metrics and the same metrics have different pmids
 #
-host_32_v2=`./getpmcdhosts -s $PCP_PLATFORM -b 32 -m "pmcd.version>2.0" -n 1 -a sample 2>&1`
+# Also need relatively new PCP version so the PMNS is close to the
+# same locally and remotely.
+#
+host_32=`./getpmcdhosts -s $PCP_PLATFORM -b 32 -v "pcp>=5" -n 1 -a sample 2>&1`
 if [ $? -eq 1 ]; then
-    _notrun "$host_32_v2"
+    _notrun "$host_32"
     # NOTREACHED
 fi
-echo "host_32_v2 = $host_32_v2" >> $seq.full
-host_32_v2_os=`ssh -q pcpqa@$host_32_v2 uname -r`
+echo "host_32 = $host_32" >> $seq.full
+host_32_os=`ssh -q pcpqa@$host_32 uname -r`
 
-host_64_v2=`./getpmcdhosts -s $PCP_PLATFORM -b 64 -m "pmcd.version>2.0" -n 1 -a sample 2>&1`
+host_64=`./getpmcdhosts -s $PCP_PLATFORM -b 64 -v "pcp>=5" -n 1 -a sample 2>&1`
 if [ $? -eq 1 ]; then
-    _notrun "$host_64_v2"
+    _notrun "$host_64"
     # NOTREACHED
 fi
-echo "host_64_v2 = $host_64_v2" >> $seq.full
-host_64_v2_os=`ssh -q pcpqa@$host_64_v2 uname -r`
+echo "host_64 = $host_64" >> $seq.full
+host_64_os=`ssh -q pcpqa@$host_64 uname -r`
 
 # make sure it's got the metrics we want for torture_api
-_check_metric sample.seconds $hosts_32_v2
-_check_metric sampledso.sysinfo $hosts_32_v2
-_check_metric sample.seconds $hosts_64_v2
-_check_metric sampledso.sysinfo $hosts_64_v2
+_check_metric sample.seconds $hosts_32
+_check_metric sampledso.sysinfo $hosts_32
+_check_metric sample.seconds $hosts_64
+_check_metric sampledso.sysinfo $hosts_64
 
 # uses libpcp2 and local PMNS
 _do_tests -s1

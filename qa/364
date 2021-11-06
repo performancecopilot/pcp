@@ -261,6 +261,7 @@ _filter_linux()
 	    -e '/^perfevent\.hwcounters.* Unknown metric name/d' \
 	    -e '/^proc\.smaps\..* Metric not supported/d' \
 	    -e '/^proc\.id\.container -12351 Missing metric value(s)/d' \
+	    -e '/^proc\.psinfo\.cgroups -12351 Missing metric value(s)/d' \
 	# linux
     fi
 }
