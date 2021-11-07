@@ -502,15 +502,14 @@ migrate_pid_service()
     	return 1
     fi
 
-    # get the cgroup mount point
-    if [ ! -e /proc/mounts ]; then
-	$verbose && echo "$iam: failed to find cgroup root, no /proc/mounts"
-    	return 1
-    fi
-
     # get cgroup filesystem mount path - handles both v1 and v2
-    cgroot=`awk '/^cgroup/ {print $2; exit}' /proc/mounts`
-    cgprocs=$cgroot/system.slice/$2/cgroup.procs
+    cgroot=`mount | $PCP_AWK_PROG '/^cgroup/ {print $3; exit}'`
+
+    # get cgroup slice
+    cgslice=`systemctl show --property=ControlGroup "$2" | sed -e 's/^.*=//'`
+
+    # get cgroup procs
+    cgprocs=${cgroot}${cgslice}/cgroup.procs
     if [ ! -e "$cgprocs" ]; then
     	$verbose && echo "$iam: couldn't find cgroup.procs for service \"$2\""
 	return 1

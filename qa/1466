@@ -33,17 +33,18 @@ _wait_for_pmcd
 # real QA test starts here
 
 # add a process to the pmcd service cgroup
-pmsleep 2 >/dev/null 2>&1 & pid=$!
+pmsleep 5 >/dev/null 2>&1 & pid=$!
 $sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; migrate_pid_service $pid pmcd.service"
 if systemctl status pmcd 2>&1 | grep -q -s pmsleep
 then
     echo PASSED, found pmsleep process in pmcd.service cgroup
 else
     echo FAILED, did not find pmsleep process in pmcd.service cgroup
+    $sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; migrate_pid_service -v $pid pmcd.service"
 fi
 
 # Avoid systemd StartLimit* limits and make sure the pmsleep has exited
-pmsleep 2
+pmsleep 5
 
 # all done
 status=0
