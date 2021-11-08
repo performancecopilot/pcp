@@ -33,6 +33,7 @@ _filter()
 }
 
 # real QA test starts here
+LC_TIME=POSIX
 
 echo "Create a well-known set of pmlogconf templates"
 mkdir -p $tmp.pmlogconf/qa
