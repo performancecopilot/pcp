@@ -23,15 +23,27 @@ needclean=true
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+pmlogger_farm_was_active=false
+if which systemctl >/dev/null 2>&1
+then
+    eval `systemctl show pmlogger.service --property=ActiveState`
+    if [ "$ActiveState" = active ]
+    then
+	pmlogger_farm_was_active=true
+    fi
+fi
+
 _cleanup()
 {
     if $needclean
     then
 	_service pmlogger stop 2>&1 | _filter_pcp_stop
+	_service pmlogger_farm stop 2>&1 | _filter_pcp_stop
 	_restore_config $control
 	needclean=false
 	_service pmlogger start 2>&1 | _filter_pcp_start
 	_wait_for_pmlogger
+	$pmlogger_farm_was_active && _service pmlogger_farm start >>$seq.full
 	_restore_job_scheduler $tmp.cron $tmp.systemd $sudo
     fi
     cd $here
@@ -82,6 +94,8 @@ control=$PCP_PMLOGGERCONTROL_PATH
 [ -f $PCP_PMLOGGERCONTROL_PATH.d/local ] && \
 control=$PCP_PMLOGGERCONTROL_PATH.d/local
 
+export PMLOGGER_CHECK_SKIP_LOGCONF=yes
+
 # real QA test starts here
 _remove_job_scheduler $tmp.cron $tmp.systemd $sudo
 
@@ -90,13 +104,14 @@ cat <<End-of-File >$tmp.control
 # the goal here is to have a non-primary logger that has a deeply
 # nested directory structure for the logs
 \$version=1.1
-LOCALHOSTNAME   n   n   $tmp/pmlogger/myhost/2017/02/12 -c /dev/null -L
-LOCALHOSTNAME	y   n	PCP_ARCHIVE_DIR/LOCALHOSTNAME	-r -T24h10m -c config.default -v 100Mb
+LOCALHOSTNAME   n   n   $tmp/pmlogger/myhost/2017/02/12 -c /dev/null -L -l $tmp.log.1
+LOCALHOSTNAME	y   n	PCP_ARCHIVE_DIR/LOCALHOSTNAME	-r -T24h10m -c config.default -v 100Mb -l $tmp.log.2
 End-of-File
 _save_config $control
 $sudo cp $tmp.control $control
 
-_service pmlogger start | _filter_pcp_start
+_service pmlogger restart | _filter_pcp_start
+_service pmlogger_farm restart | _filter_pcp_start
 
 # wait up to 20 seconds for our pmlogger to start
 #
@@ -124,6 +139,14 @@ echo
 # up, and this may lead to systemd complaints
 #
 _wait_for_pmlogger
+
+# save pmlogger logs for triage
+#
+echo "=== pmlogger -c /dev/null -L" >>$seq.full
+ls -lR $tmp/pmlogger/myhost/2017/02/12 >>$seq.full
+cat $tmp.log.1 >>$seq.full
+echo "=== pmlogger -c config.default" >>$seq.full
+cat $tmp.log.2 >>$seq.full
 
 # success, all done
 status=0

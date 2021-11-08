@@ -14,5 +14,4 @@ pmlogger/myhost/YYYY/MM/DD:
 mode=-rw-r--r-- user=pcp group=pcp name=YYYYMMDD.HH.MM.0
 mode=-rw-r--r-- user=pcp group=pcp name=YYYYMMDD.HH.MM.index
 mode=-rw-r--r-- user=pcp group=pcp name=YYYYMMDD.HH.MM.meta
-mode=-rw-r--r-- user=pcp group=pcp name=pmlogger.log
 
