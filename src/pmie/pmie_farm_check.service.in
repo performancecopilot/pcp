@@ -8,7 +8,7 @@ Type=exec
 Restart=no
 TimeoutStartSec=4h
 TimeoutStopSec=120
-ExecStart=pmiectl -m check
+ExecStart=@PCP_BIN_DIR@/pmiectl -m check
 WorkingDirectory=/var/lib/pcp
 
 # root so pmiectl can migrate pmie processes to the pmie_farm service

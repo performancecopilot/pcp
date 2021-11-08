@@ -20,7 +20,7 @@ SUBDIRS	= src examples
 OTHERS  = control stomp rc_pmie pmie2col.sh pmie_check.sh pmie_daily.sh \
           pmie_farm.sh pmie_farm_check.service pmie_farm_check.timer
 LDIRT	= crontab pmie.service pmie_daily.service pmie_check.service \
-          pmie_farm.service
+          pmie_farm.service pmie_farm_check.service
           
 
 ifeq ($(TARGET_OS),linux)
@@ -31,7 +31,8 @@ CRONTAB_USER =
 CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmie/crontab
 endif
 
-default:: crontab pmie.service pmie_daily.service pmie_check.service pmie_farm.service 
+default:: crontab pmie.service pmie_daily.service pmie_check.service \
+	  pmie_farm.service pmie_farm_check.service
 
 default:: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
@@ -90,6 +91,11 @@ pmie_farm.service : pmie_farm.service.in
 	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
 	    -e 's;@SD_SERVICE_TYPE@;'$(SD_SERVICE_TYPE)';' \
+	# END
+
+pmie_farm_check.service : pmie_farm_check.service.in
+	$(SED) <$< >$@ \
+	    -e 's;@PCP_BIN_DIR@;'$(PCP_BIN_DIR)';' \
 	# END
 
 pmie_check.service : pmie_check.service.in
