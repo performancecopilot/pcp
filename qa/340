@@ -25,6 +25,7 @@ _filter_pminfo()
 {
     sed \
 	-e 's/Connection reset by peer/No permission to perform requested operation/' \
+	-e 's/Connection refused/No permission to perform requested operation/' \
 	-e 's/"'$me'"/"HOST"/g' \
     # end
 }
