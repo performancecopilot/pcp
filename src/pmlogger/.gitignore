@@ -4,6 +4,7 @@ gram.tab.h
 pmlogger
 pmlogger.service
 pmlogger_farm.service
+pmlogger_farm_check.service
 pmlogger_check.service
 pmlogger_daily.service
 pmlogger_daily-poll.service
