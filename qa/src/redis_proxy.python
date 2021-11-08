@@ -3,6 +3,7 @@
 # simple TCP proxy, based on https://stackoverflow.com/a/46422554 (CC BY-SA 3.0)
 #
 
+import sys
 import time
 import argparse
 import asyncio
@@ -69,5 +70,10 @@ async def main():
     async with server:
         await server.serve_forever()
 
-
-asyncio.run(main())
+if __name__ == '__main__':
+    if sys.version_info >= (3, 7):
+        asyncio.run(main())
+    else:
+        event_loop = asyncio.get_event_loop()
+        event_loop.run_until_complete(main())
+        event_loop.close()

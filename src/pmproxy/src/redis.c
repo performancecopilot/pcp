@@ -232,7 +232,7 @@ redis_reconnect_worker(void *arg)
     static unsigned int	wait_sec = REDIS_RECONNECT_INTERVAL;
 
     /* wait X seconds, because this timer callback is called every second */
-    if (wait_sec > 0) {
+    if (wait_sec > 1) {
 	wait_sec--;
 	return;
     }

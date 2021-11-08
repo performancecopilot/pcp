@@ -2,6 +2,7 @@
 ident	Linux SQL Server summary information
 probe	mssql.access_methods.full_scans values ? include : exclude
 	mssql.access_methods.full_scans
+	mssql.access_methods.page_splits
 	mssql.general.user_connections
 	mssql.general.logical_connections
 	mssql.buffer_manager
@@ -10,6 +11,7 @@ probe	mssql.access_methods.full_scans values ? include : exclude
 	mssql.locks
 	mssql.latches.latch_waits
 	mssql.latches.total_latch_wait_time
+	mssql.latches.average_latch_wait_time
 	mssql.latches.raw_average_latch_wait_time
 	mssql.latches.raw_average_latch_wait_time_base
 	mssql.sql_statistics
@@ -18,3 +20,5 @@ probe	mssql.access_methods.full_scans values ? include : exclude
 	mssql.databases.log_file_size
 	mssql.databases.log_file_used_size
 	mssql.databases.active_transactions
+	mssql.wait_statistics.network_io_waits
+	mssql.os_wait_stats

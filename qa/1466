@@ -35,12 +35,19 @@ _wait_for_pmcd
 # add a process to the pmcd service cgroup
 pmsleep 5 >/dev/null 2>&1 & pid=$!
 $sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; migrate_pid_service $pid pmcd.service"
-if systemctl status pmcd 2>&1 | grep -q -s pmsleep
+pmsleep 2
+if systemctl status pmcd.service 2>&1 | grep -q -s pmsleep
 then
     echo PASSED, found pmsleep process in pmcd.service cgroup
 else
     echo FAILED, did not find pmsleep process in pmcd.service cgroup
     $sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; migrate_pid_service -v $pid pmcd.service"
+    cgroot=`mount | $PCP_AWK_PROG '/^cgroup/ {print $3; exit}'`
+    systemctl status pmcd
+    echo cgroot=$cgroot
+    cgslice=`systemctl status pmcd.service | $PCP_AWK_PROG '/CGroup:/ {print $2}'`
+    echo cgslice=${cgslice}
+    find ${cgroot} -type d -name pmcd.service -print -exec ls -l {} ";"
 fi
 
 # Avoid systemd StartLimit* limits and make sure the pmsleep has exited
