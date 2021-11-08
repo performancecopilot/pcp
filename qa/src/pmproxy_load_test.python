@@ -48,4 +48,10 @@ if __name__ == '__main__':
     if len(sys.argv) != 3:
         print(f"usage: {sys.argv[0]} PORT COUNT")
         sys.exit(1)
-    asyncio.run(main(int(sys.argv[1]), int(sys.argv[2])))
+
+    if sys.version_info >= (3, 7):
+        asyncio.run(main(int(sys.argv[1]), int(sys.argv[2])))
+    else:
+        event_loop = asyncio.get_event_loop()
+        event_loop.run_until_complete(main(int(sys.argv[1]), int(sys.argv[2])))
+        event_loop.close()
