@@ -3384,7 +3384,9 @@ PCP_LOG_DIR=%{_logsdir}
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Wed Nov 03 2021 Nathan Scott <nathans@redhat.com> - 5.3.5-1
+* Wed Nov 10 2021 Nathan Scott <nathans@redhat.com> - 5.3.5-1
+- Fix pmlogger services systemd killmode warning (BZ 1897945)
+- Fix python PMDA interface for python 3.10 (BZ 2020038)
 - Update to latest PCP sources.
 
 * Fri Oct 08 2021 Nathan Scott <nathans@redhat.com> - 5.3.4-1

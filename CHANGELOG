@@ -1,5 +1,61 @@
-pcp-5.3.5 (3 November 2021)
-    - https://github.com/performancecopilot/pcp/projects/1
+pcp-5.3.5 (10 November 2021)
+    - Client tools and utilities:
+	pmlogger: massive startup latency improvements over slow links
+	pmlogger: reduce "error sending connection ACK to client" msgs
+	pmlogger: abort if we see PM_ERR_IPC during config file parsing
+	pmlogger: rework early control port servicing
+	pmlogger: source zeroconf variables from an additional env file
+	pcp-dstat: add modern mongodb dstat plugin configuration
+	pcp-atop: add support for Nvidia GPUs using pmdanvidia metrics
+    - PMDA additions, enhancements and bug fixes:
+	pmdamongodb: new PMDA to export PCP metrics from MongoDB
+	pmdamssql: share username/password with the Assessments API
+	pmdalinux: additions and updates to mem.zoneinfo metrics
+	pmdalinux: cull empty NUMA zones from zoneinfo instance domain
+	pmdalinux: increase /proc/net/netstat metric coverage
+	pmdalinux: increase /proc/net/snmp6 metric coverage
+	pmdalinux: increase /proc/net/snmp metric coverage
+	pmdalinux: improved robustness of procfs parsers
+	pmdakvm: add several new KVM kernel metrics
+	pmdanvidia: updates to latest NVML, add a batch of new metrics
+	pmdaopenmetrics: add vmware URL for use with vmware_exporter
+	pmdabpf: use bpf skeletons
+    - Server-side utilities and log management scripts:
+	pmproxy: provide transparent Redis reconnect after connection drop
+	pmproxy: do not connect to Redis if it's not enabled in config file
+	services: disable service advertising by default in pmcd and pmproxy
+	services: remove run-level check in pmlogger systemd service config
+	pmieutil: add pmie_farm service for non-primary pmie instances
+	logutil: add pmlogger_farm service, update associated admin tools
+	logutil: add pmlogctl -m flag, to enable service migration
+	pm{log,pmie}ctl: increase max delay waiting for a process to stop
+	pmlogconf: resolve issues in persisting changes to pmlogger config
+	pmlogconf: log metrics required by MS SQL Server Grafana dashboard
+	pmcpp: add optional outfile on command line
+	pmdaproc.sh: tweak tests for ping version in _setup_localhost
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	libpcp: allow pmNameLookup(3) to use multiple PDU round-trips
+	libpcp, pmcd: support a new bulk pmLookupDescs(3) PMAPI routine
+	libpcp: add __pmHashFree interface to explicitly release nodes
+	libpcp: fix SASL authentication where hostname differs to FQDN
+	libpcp_web: support Redis authentication with password and ACL
+	python api: make PY_SSIZE_T_CLEAN, stop using deprecated CB interfaces
+    - Misc build, infrastructure and packaging updates:
+	packaging: enable pmlogger_farm if pmlogger is enabled pre-el9
+	packaging: cull old debian conffiles
+	packaging: rework OpenMandriva controls
+	packaging: obsolete the pcp-pmda-vmware rpm
+	build: transition to using vendored jsonsl code
+	build: update vendored htop code to 3.1.1 release
+	build: update vendored hiredis code to 1.0.2 release
+	build: convert ini header and source to vendored code
+	build: allow custom bpftool with --with-pmdabpf-bpftool
+	build: consolidate the multiple copies of sds strings code
+    - Documentation and QA infrastructure:
+	qa: resolve new pylint warnings in Fedora 35 python
+	ci: add Fedora 35 to CI and release workflow
+	ci: move daily QA 2h earlier, so it always finishes on the same day
+	man: add PMLOGGER_INTERVAL note in pmlogger -t option description
 
 pcp-5.3.4 (8 October 2021)
     - Client tools and utilities:
