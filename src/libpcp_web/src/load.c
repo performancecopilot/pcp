@@ -1072,7 +1072,7 @@ pmSeriesDiscoverSource(pmDiscoverEvent *event, void *arg)
     sds			msg;
     int			i;
 
-    if (data == NULL || data->slots == NULL || data->slots->setup == 0)
+    if (data == NULL || data->slots == NULL || data->slots->state != SLOTS_READY)
 	return;
 
     baton = (seriesLoadBaton *)calloc(1, sizeof(seriesLoadBaton));
@@ -1153,7 +1153,7 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
     sds			msg;
     int			i, id;
 
-    if (baton == NULL || baton->slots == NULL || baton->slots->setup == 0)
+    if (baton == NULL || baton->slots == NULL || baton->slots->state != SLOTS_READY)
 	return;
 
     switch (type) {
@@ -1292,7 +1292,7 @@ pmSeriesDiscoverMetric(pmDiscoverEvent *event,
 			i + 1, numnames, pmIDStr(desc->pmid), names[i]);
     }
 
-    if (baton == NULL || baton->slots == NULL || baton->slots->setup == 0)
+    if (baton == NULL || baton->slots == NULL || baton->slots->state != SLOTS_READY)
 	return;
 
     if ((metric = pmwebapi_add_metric(&baton->pmapi.context,
@@ -1321,7 +1321,7 @@ pmSeriesDiscoverValues(pmDiscoverEvent *event, pmResult *result, void *arg)
 	return;
     }
 
-    if (baton == NULL || baton->slots == NULL || baton->slots->setup == 0)
+    if (baton == NULL || baton->slots == NULL || baton->slots->state != SLOTS_READY)
 	return;
 
     seriesBatonReference(context, "pmSeriesDiscoverValues");
@@ -1346,7 +1346,7 @@ pmSeriesDiscoverInDom(pmDiscoverEvent *event, pmInResult *in, void *arg)
     if (pmDebugOptions.discovery)
 	fprintf(stderr, "%s: %s\n", "pmSeriesDiscoverInDom", pmInDomStr(id));
 
-    if (baton == NULL || baton->slots == NULL || baton->slots->setup == 0)
+    if (baton == NULL || baton->slots == NULL || baton->slots->state != SLOTS_READY)
 	return;
 
     if ((domain = pmwebapi_add_domain(context, pmInDom_domain(id))) == NULL) {

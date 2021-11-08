@@ -247,4 +247,5 @@ PCP_WEB_1.19 {
   global:
     dictGenHashFunction;
     dictGetIterator;
+    redisSlotsReconnect;
 } PCP_WEB_1.18;

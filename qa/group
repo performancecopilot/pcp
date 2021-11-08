@@ -1801,6 +1801,7 @@ x11
 1352 other local
 1353 pmlogger pmcpp local
 1354 pmval archive local
+1355 pmproxy libpcp_web local
 1357 pmda.podman valgrind local
 1358 pmda.podman local
 1359 libpcp local pmdbg
@@ -1930,6 +1931,7 @@ x11
 1773 pmseries pmproxy libpcp_web local
 1774:reserved pmproxy libpcp_web local
 1775 pmdumptext archive local
+1784 pmlogconf local
 1793 pmrep pcp2xxx python local
 1801 dstat python pcp local
 1805 pmda.linux kernel local

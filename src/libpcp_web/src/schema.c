@@ -80,8 +80,10 @@ redis_slots_finished(void *arg)
 
     seriesBatonCheckMagic(baton, MAGIC_SLOTS, "redis_slots_finished");
 
-    if (baton->error == 0)
+    if (baton->error == 0) {
+	baton->slots->state = SLOTS_READY;
 	baton->done(baton->arg);
+    }
     memset(baton, 0, sizeof(*baton));
     free(baton);
 }
@@ -1303,7 +1305,7 @@ redis_load_version_callback(
 		    infofmt(msg, "unsupported redis server (got v%u, expected v%u or above)", 
 				server_version, SERVER_VERSION);
 	    	    batoninfo(baton, PMLOG_ERROR, msg);
-		    baton->slots->setup = 0;
+		    baton->slots->state = SLOTS_ERR_FATAL;
 	    	}
 	    	break;
 	    }
@@ -1399,7 +1401,11 @@ redis_load_keymap_callback(
 
     seriesBatonCheckMagic(baton, MAGIC_SLOTS, "redis_load_keymap_callback");
 
-    if (reply->type == REDIS_REPLY_ARRAY) {
+    if (!reply) {
+	infofmt(msg, "received NULL reply in redis_load_keymap_callback");
+	batoninfo(baton, PMLOG_ERROR, msg);
+    }
+    else if (reply->type == REDIS_REPLY_ARRAY) {
 	for (i = 0; i < reply->elements; i++) {
 	    command = reply->element[i];
 	    if (checkArrayReply(baton->info, baton->userdata,
@@ -1431,35 +1437,21 @@ redis_load_keymap(void *arg)
     sdsfree(cmd);
 }
 
-redisSlots *
-redisSlotsConnect(dict *config, redisSlotsFlags flags,
+void
+redisSchemaLoad(redisSlots *slots, redisSlotsFlags flags,
 		redisInfoCallBack info, redisDoneCallBack done,
 		void *userdata, void *events, void *arg)
 {
     redisSlotsBaton		*baton;
-    redisSlots			*slots;
     sds				msg;
     unsigned int		i = 0;
 
     baton = (redisSlotsBaton *)calloc(1, sizeof(redisSlotsBaton));
     if (baton == NULL) {
-	infofmt(msg, "Failed to allocate memory for Redis slots");
+	infofmt(msg, "Failed to allocate memory for Redis slots baton");
 	info(PMLOG_ERROR, msg, arg);
 	sdsfree(msg);
-	return NULL;
-    }
-
-    slots = redisSlotsInit(config, events);
-    if (slots == NULL) {
-	infofmt(msg, "Failed to allocate memory for Redis slots");
-	info(PMLOG_ERROR, msg, arg);
-	sdsfree(msg);
-	free(baton);
-	return NULL;
-    } else if (slots->setup == 0) {
-	// no connection to Redis
-	free(baton);
-	return slots;
+	return;
     }
 
     initRedisSlotsBaton(baton, info, done, userdata, events, arg);
@@ -1488,7 +1480,6 @@ redisSlotsConnect(dict *config, redisSlotsFlags flags,
     baton->phases[i++].func = redis_slots_finished;
     assert(i <= SLOTS_PHASES);
     seriesBatonPhases(baton->current, i, baton);
-    return slots;
 }
 
 seriesModuleData *
