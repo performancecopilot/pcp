@@ -505,10 +505,13 @@ migrate_pid_service()
     # get cgroup filesystem mount path - handles both v1 and v2
     cgroot=`mount | $PCP_AWK_PROG '/^cgroup/ {print $3; exit}'`
 
-    # get cgroup slice
-    cgslice=`systemctl show --property=ControlGroup "$2" | sed -e 's/^.*=//'`
+    # specially handle libpod containers (e.g. PCP CI)
+    [ -d $cgroot/systemd ] && cgroot=$cgroot/systemd
 
-    # get cgroup procs
+    # get cgroup slice
+    cgslice=`systemctl status $2 | $PCP_AWK_PROG '/CGroup:/ {print $2}'`
+
+    # get cgroup procs and check we have write access
     cgprocs=${cgroot}${cgslice}/cgroup.procs
     if [ ! -e "$cgprocs" ]; then
     	$verbose && echo "$iam: couldn't find cgroup.procs for service \"$2\""
@@ -520,15 +523,11 @@ migrate_pid_service()
     fi
 
     # add the pid to the cgroup
-    if grep -q -s "^${1}$" "$cgprocs"; then
-    	$verbose && echo "$iam: noop, $pid already in cgroup for service \"$2\""
+    if echo $1 >>"$cgprocs" 2>/dev/null; then
+	$verbose && echo "$iam: failed to add pid $1 to service \"$2\""
+	return 1;
     else
-	if echo $1 >"$cgprocs" 2>/dev/null; then
-	    $verbose && echo "$iam: failed to add pid $1 to service \"$2\""
-	    return 1;
-	else
-	    $verbose && echo "$iam: added pid $1 to service \"$2\""
-	fi
+	$verbose && echo "$iam: added pid $1 to service \"$2\""
     fi
 
     # success
