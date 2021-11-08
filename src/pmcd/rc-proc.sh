@@ -493,43 +493,46 @@ migrate_pid_service()
 {
     local verbose=false
     local iam=migrate_pid_service
+    local sts=1
 
     [ "$1" = "-v" ] && verbose=true && shift
 
     # noop on non-systemd platforms
     if [ ! -x /run/systemd/system ]; then
 	$verbose && echo "$iam: ignored, not using systemd"
-    	return 1
+    	return $sts
     fi
 
-    # get cgroup filesystem mount path - handles both v1 and v2
+    # get cgroup filesystem mount path - handles v1, v2
     cgroot=`mount | $PCP_AWK_PROG '/^cgroup/ {print $3; exit}'`
 
-    # specially handle libpod containers (e.g. PCP CI)
-    [ -d $cgroot/systemd ] && cgroot=$cgroot/systemd
-
-    # get cgroup slice
+    # Get cgroup slice. This also handles libpod, VMs using machine slice.
     cgslice=`systemctl status $2 | $PCP_AWK_PROG '/CGroup:/ {print $2}'`
 
-    # get cgroup procs and check we have write access
-    cgprocs=${cgroot}${cgslice}/cgroup.procs
-    if [ ! -e "$cgprocs" ]; then
-    	$verbose && echo "$iam: couldn't find cgroup.procs for service \"$2\""
-	return 1
-    fi
-    if [ ! -w "$cgprocs" ]; then
-    	$verbose && echo "$iam: can't write to \"$cgprocs\" for service \"$2\""
-	return 1
-    fi
+    # get a path to cgroup.procs with write access
+    for namespace in "" /systemd /unified /pids /memory; do
+	cgprocs=${cgroot}${namespace}${cgslice}/cgroup.procs
+	if [ ! -e "$cgprocs" ]; then
+	    $verbose && echo "$iam: couldn't find cgroup.procs for service \"$2\", using namespace \"$namespace\""
+	    continue
+	fi
 
-    # add the pid to the cgroup
-    if echo $1 >>"$cgprocs" 2>/dev/null; then
-	$verbose && echo "$iam: failed to add pid $1 to service \"$2\""
-	return 1;
-    else
-	$verbose && echo "$iam: added pid $1 to service \"$2\""
-    fi
+	if [ ! -w "$cgprocs" ]; then
+	    $verbose && echo "$iam: no write access to \"$cgprocs\" for service \"$2\" using namespace \"$namespace\""
+	    continue
+	fi
 
-    # success
-    return 0
+	if echo $1 >>"$cgprocs" 2>/dev/null; then
+	    $verbose && echo "$iam: failed to add pid $1 to service \"$2\" using namespace \"$namespace\""
+	    $verbose && echo $cgprocs && echo $1 >>"$cgprocs"
+	    continue
+	fi
+
+	# success
+	$verbose && echo "$iam: added pid $1 to service \"$2\" using namespace \"$namespace\""
+	sts=0
+	break
+    done
+
+    return $sts
 }

@@ -40,14 +40,14 @@ if systemctl status pmcd.service 2>&1 | grep -q -s pmsleep
 then
     echo PASSED, found pmsleep process in pmcd.service cgroup
 else
-    echo FAILED, did not find pmsleep process in pmcd.service cgroup
-    $sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; migrate_pid_service -v $pid pmcd.service"
+    echo FAILED, did not find pmsleep process in pmcd.service cgroup | tee -a $seq.full
+    $sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; migrate_pid_service -v $pid pmcd.service" | tee -a $seq.full 2>&1
     cgroot=`mount | $PCP_AWK_PROG '/^cgroup/ {print $3; exit}'`
-    systemctl status pmcd
-    echo cgroot=$cgroot
+    systemctl status pmcd | tee -a $seq.full
+    echo cgroot=$cgroot | tee -a $seq.full
     cgslice=`systemctl status pmcd.service | $PCP_AWK_PROG '/CGroup:/ {print $2}'`
-    echo cgslice=${cgslice}
-    find ${cgroot} -type d -name pmcd.service -print -exec ls -l {} ";"
+    echo cgslice=${cgslice} | tee -a $seq.full
+    find ${cgroot} -type d -name pmcd.service -print -exec ls -l {} ";" | tee -a $seq.full
 fi
 
 # Avoid systemd StartLimit* limits and make sure the pmsleep has exited
