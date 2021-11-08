@@ -111,7 +111,7 @@ _save_config $control
 $sudo cp $tmp.control $control
 
 _service pmlogger restart | _filter_pcp_start
-_service pmlogger_farm restart | _filter_pcp_start
+_service pmlogger_farm start | _filter_pcp_start
 
 # wait up to 20 seconds for our pmlogger to start
 #
