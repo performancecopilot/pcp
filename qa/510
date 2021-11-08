@@ -63,12 +63,27 @@ _service pmlogger start 2>&1 | _filter_pcp_start
 _wait_for_pmlogger
 
 # real QA test starts here
-pmlc -ie <<End-of-File | _filter
+
+# pmlc port may be busy, so be prepared to try a few times
+#
+for i in 1 2 3
+do
+    pmlc -ie <<End-of-File >$tmp.out 2>&1
 connect primary
 query sample.event
 log mandatory on once sample.event.records
 query sample.event
 End-of-File
+    if grep 'Address already in use' <$tmp.out >>$seq.full
+    then
+	echo "iter $i: pmlc port busy" >>$seq.full
+	sleep 2
+    else
+	break
+    fi
+done
+
+_filter <$tmp.out
 
 # success, all done
 status=0
