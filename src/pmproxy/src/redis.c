@@ -212,7 +212,7 @@ setup_redis_module(struct proxy *proxy)
     if ((option = pmIniFileLookup(config, "discover", "enabled")))
 	archive_discovery = (strncmp(option, "true", sdslen(option)) == 0);
 
-    if (proxy->slots == NULL) {
+    if (proxy->slots == NULL && (redis_protocol || series_queries || search_queries || archive_discovery)) {
 	mmv_registry_t	*registry = proxymetrics(proxy, METRICS_REDIS);
 	redisSlotsFlags	flags = get_redis_slots_flags();
 
