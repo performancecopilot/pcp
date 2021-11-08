@@ -21,10 +21,10 @@ OTHERS	= pmnewlog.sh control rc_pmlogger \
 	  pmlogger_daily.sh pmlogger_check.sh pmlogger_merge.sh \
 	  pmlogger_daily_report.sh pmlogger_rewrite.sh \
 	  pmlogger_farm.sh pmlogger_farm_check.service \
-	  pmlogger_farm_check.timer
+	  pmlogger_farm_check.timer pmlogger_farm_check.service
 LDIRT	= crontab crontab.daily_report pmlogger.service \
 	  pmlogger_daily.service pmlogger_daily_report.service \
-	  pmlogger_check.service pmlogger_farm.service
+	  pmlogger_check.service pmlogger_farm.service pmlogger_farm_check.service
 
 ifeq ($(TARGET_OS),linux)
 CRONTAB_USER = $(PCP_USER)
@@ -106,6 +106,11 @@ pmlogger_farm.service : pmlogger_farm.service.in
 	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \
 	    -e 's;@PCP_USER@;'$(PCP_USER)';' \
 	    -e 's;@SD_SERVICE_TYPE@;'$(SD_SERVICE_TYPE)';' \
+	# END
+
+pmlogger_farm_check.service : pmlogger_farm_check.service.in
+	$(SED) <$< >$@ \
+	    -e 's;@PCP_BIN_DIR@;'$(PCP_BIN_DIR)';' \
 	# END
 
 pmlogger_daily.service : pmlogger_daily.service.in
