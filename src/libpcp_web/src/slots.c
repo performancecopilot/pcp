@@ -158,8 +158,6 @@ redisSlots *
 redisSlotsInit(dict *config, void *events)
 {
     redisSlots		*slots;
-    dictIterator	*iterator;
-    dictEntry		*entry;
     sds			servers = NULL;
     sds			def_servers = NULL;
     sds			username = NULL;
@@ -171,6 +169,7 @@ redisSlotsInit(dict *config, void *events)
     if ((slots = (redisSlots *)calloc(1, sizeof(redisSlots))) == NULL)
 	return NULL;
 
+    slots->state = SLOTS_DISCONNECTED;
     slots->events = events;
     slots->keymap = dictCreate(&sdsKeyDictCallBacks, "keymap");
 
@@ -267,11 +266,43 @@ redisSlotsInit(dict *config, void *events)
 	return slots;
     }
 
+    return slots;
+}
+
+/**
+ * despite the name, this function also handles the initial
+ * connection to Redis
+ */
+void
+redisSlotsReconnect(redisSlots *slots, redisSlotsFlags flags,
+		redisInfoCallBack info, redisDoneCallBack done,
+		void *userdata, void *events, void *arg)
+{
+    dictIterator	*iterator;
+    dictEntry		*entry;
+    int			sts = 0;
+
+    slots->state = SLOTS_CONNECTING;
+
+    /* reset Redis context in case of reconnect */
+    if (slots->acc->err) {
+	/* reset possible 'Connection refused' error before reconnecting */
+	slots->acc->err = 0;
+	memset(slots->acc->errstr, '\0', strlen(slots->acc->errstr));
+    }
+    redisClusterAsyncDisconnect(slots->acc);
+
+    /* reset redisSlots in case of reconnect */
+    slots->cluster = 0;
+    slots->search = 0;
+    dictEmpty(slots->keymap, NULL);
+
     sts = redisClusterConnect2(slots->acc->cc);
     if (sts == REDIS_OK) {
 	slots->cluster = 1;
     }
-    else if (strcmp(slots->acc->cc->errstr, REDIS_ENOCLUSTER) == 0) {
+    else if (slots->acc->cc->err &&
+		strcmp(slots->acc->cc->errstr, REDIS_ENOCLUSTER) == 0) {
 	/* Redis instance has cluster support disabled */
 	slots->acc->cc->err = 0;
 	memset(slots->acc->cc->errstr, '\0', strlen(slots->acc->cc->errstr));
@@ -287,19 +318,45 @@ redisSlotsInit(dict *config, void *events)
 	if (entry && dictNext(iterator)) {
 	    dictReleaseIterator(iterator);
 	    pmNotifyErr(LOG_ERR, "%s: more than one node is configured, "
-			"but cluster mode is disabled", "redisSlotsInit");
-	    return slots;
+			"but cluster mode is disabled", "redisSlotsReconnect");
+	    slots->state = SLOTS_ERR_FATAL;
+	    return;
 	}
 	dictReleaseIterator(iterator);
     }
     else {
-	pmNotifyErr(LOG_INFO, "Cannot connect to Redis at %s: %s\n",
-			servers, slots->acc->cc->errstr);
-	pmNotifyErr(LOG_INFO, "Disabling time series functionality.\n");
-	return slots;
+	pmNotifyErr(LOG_INFO, "Cannot connect to Redis: %s\n",
+			slots->acc->cc->errstr);
+	slots->state = SLOTS_DISCONNECTED;
+	return;
     }
 
-    slots->setup = 1;
+    slots->state = SLOTS_CONNECTED;
+    redisSchemaLoad(slots, flags, info, done, userdata, events, arg);
+}
+
+/**
+ * this method allocates the redisSlots struct and exists for backwards
+ * compatibility, the actual connection to Redis happens in
+ * redisSlotsReconnect()
+ */
+redisSlots *
+redisSlotsConnect(dict *config, redisSlotsFlags flags,
+		redisInfoCallBack info, redisDoneCallBack done,
+		void *userdata, void *events, void *arg)
+{
+    redisSlots			*slots;
+    sds				msg;
+
+    slots = redisSlotsInit(config, events);
+    if (slots == NULL) {
+	infofmt(msg, "Failed to allocate memory for Redis slots");
+	info(PMLOG_ERROR, msg, arg);
+	sdsfree(msg);
+	return NULL;
+    }
+
+    redisSlotsReconnect(slots, flags, info, done, userdata, events, arg);
     return slots;
 }
 
@@ -388,6 +445,31 @@ redisSlotsReplyCallback(redisClusterAsyncContext *c, void *r, void *arg)
 	    mmv_inc(map, metrics[SLOT_RESPONSES_ERROR]);
     }
 
+    /**
+     * handle connection resets
+     *
+     * Why here and not in redis_disconnect_callback?
+     * Access to redisSlots->state is required. We cannot save a pointer to
+     * redisSlots in redisAsyncContext->data, because this member is already
+     * used by hiredis-cluster
+     *
+     * fwiw, in case one node of a cluster is down, slots->state should not be
+     * set to SLOTS_DISCONNECTED, because there (should) be a failover in place
+     * and another node will handle the requests.
+     *
+     * A future improvement would be to update hiredis-cluster and add a 'data'
+     * member to the async cluster context, analogue to the 'data' member of
+     * hiredis, update the disconnect callback to return the cluster context and
+     * use this new disconnect callback instead of the conditional below.
+     */
+    if (srd->slots->state == SLOTS_READY && (
+	(reply == NULL && c->err == REDIS_ERR_IO) ||
+	(reply != NULL && reply->type == REDIS_REPLY_ERROR && strcmp(reply->str, REDIS_ELOADING) == 0)
+	)) {
+	pmNotifyErr(LOG_ERR, "Lost connection to Redis.\n");
+	srd->slots->state = SLOTS_DISCONNECTED;
+    }
+
     srd->callback(c, r, srd->arg);
     redisSlotsReplyDataFree(arg);
 }
@@ -408,7 +490,11 @@ redisSlotsRequest(redisSlots *slots, const sds cmd,
     uint64_t		size;
     redisSlotsReplyData	*srd;
 
-    if (UNLIKELY(!slots->setup))
+    /*
+     * redisSlotsSetupStart() also sends Redis requests,
+     * therefore both SLOTS_CONNECTED and SLOTS_READY states are valid
+     */
+    if (UNLIKELY(slots->state != SLOTS_CONNECTED && slots->state != SLOTS_READY))
 	return -ENOTCONN;
 
     if (!slots->cluster)
@@ -452,7 +538,11 @@ redisSlotsRequestFirstNode(redisSlots *slots, const sds cmd,
     uint64_t		size;
     int			sts;
 
-    if (UNLIKELY(!slots->setup))
+    /*
+     * redisSlotsSetupStart() also sends Redis requests,
+     * therefore both SLOTS_CONNECTED and SLOTS_READY states are valid
+     */
+    if (UNLIKELY(slots->state != SLOTS_CONNECTED && slots->state != SLOTS_READY))
 	return -ENOTCONN;
 
     iterator = dictGetSafeIterator(slots->acc->cc->nodes);
@@ -572,15 +662,15 @@ void
 reportReplyError(redisInfoCallBack info, void *userdata,
 	redisClusterAsyncContext *acc, redisReply *reply, const char *format, va_list argp)
 {
-    sds			msg = sdsnew("Error: ");
+    sds			msg;
 
-    msg = sdscatvprintf(msg, format, argp);
+    msg = sdscatvprintf(sdsempty(), format, argp);
     if (reply && reply->type == REDIS_REPLY_ERROR)
-	msg = sdscatfmt(msg, "\nRedis: %s\n", reply->str);
+	msg = sdscatfmt(msg, "\nRedis reply error: %s", reply->str);
     else if (acc->err)
-	msg = sdscatfmt(msg, "\nRedis: %s\n", acc->errstr);
-    else
-	msg = sdscat(msg, "\n");
+	msg = sdscatfmt(msg, "\nRedis acc error: %s", acc->errstr);
+    else if (acc->cc->err)
+	msg = sdscatfmt(msg, "\nRedis cc error: %s", acc->cc->errstr);
     info(PMLOG_RESPONSE, msg, userdata);
     sdsfree(msg);
 }

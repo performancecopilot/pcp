@@ -24,8 +24,9 @@
 #define SLOTMASK	(MAXSLOTS-1)
 #define SLOTS_PHASES	5
 
-/* Unfortunately there is no error code for this error to match */
-#define REDIS_ENOCLUSTER     "ERR This instance has cluster support disabled"
+/* Unfortunately there is no error code for these errors to match */
+#define REDIS_ELOADING		"LOADING Redis is loading the dataset in memory"
+#define REDIS_ENOCLUSTER	"ERR This instance has cluster support disabled"
 
 typedef enum redisSlotsFlags {
     SLOTS_NONE		= 0,
@@ -47,9 +48,18 @@ enum {
     NUM_SLOT_METRICS
 };
 
+typedef enum redisSlotsState {
+    SLOTS_DISCONNECTED,
+    SLOTS_CONNECTING,
+    SLOTS_CONNECTED,
+    SLOTS_READY		/* Redis version check done, keymap loaded, search schema setup completed */,
+    SLOTS_ERR_FATAL	/* fatal error, do not try to reconnect */
+} redisSlotsState;
+
+/* note: this struct persists for reconnects */
 typedef struct redisSlots {
     redisClusterAsyncContext *acc;	/* cluster context */
-    unsigned int	setup : 1;	/* connected to redis */
+    redisSlotsState	state;		/* connection state */
     unsigned int	search : 1;	/* RediSearch use enabled */
     unsigned int	cluster : 1;	/* Redis cluster mode enabled */
     redisMap		*keymap;	/* map command names to key position */
@@ -75,6 +85,8 @@ extern void redisSlotsSetupMetrics(redisSlots *);
 extern int redisSlotsSetMetricRegistry(redisSlots *, mmv_registry_t *);
 extern redisSlots *redisSlotsInit(dict *, void *);
 extern redisSlots *redisSlotsConnect(dict *, redisSlotsFlags,
+		redisInfoCallBack, redisDoneCallBack, void *, void *, void *);
+extern void redisSlotsReconnect(redisSlots *, redisSlotsFlags,
 		redisInfoCallBack, redisDoneCallBack, void *, void *, void *);
 extern uint64_t redisSlotsInflightRequests(redisSlots *);
 extern int redisSlotsRequest(redisSlots *, sds, redisClusterCallbackFn *, void *);

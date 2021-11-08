@@ -14,6 +14,8 @@
 #include "server.h"
 #include "discover.h"
 
+#define REDIS_RECONNECT_INTERVAL 60
+
 static int search_queries;
 static int series_queries;
 static int redis_protocol;
@@ -38,6 +40,8 @@ static pmDiscoverCallBacks redis_search = {
 static pmDiscoverSettings redis_discover = {
     .module.on_info	= proxylog,
 };
+
+static void redis_reconnect_worker(void *);
 
 static sds
 redisfmt(redisReply *reply)
@@ -149,6 +153,10 @@ on_redis_connected(void *arg)
     pmNotifyErr(LOG_INFO, "%s setup\n", message);
     sdsfree(message);
 
+    /* Redis was already connected before */
+    if (proxy->redisetup == 1)
+	return;
+
     if (series_queries) {
 	if (search_queries)
 	    redis_series.next = &redis_search;
@@ -168,6 +176,21 @@ on_redis_connected(void *arg)
     }
 
     proxy->redisetup = 1;
+}
+
+static redisSlotsFlags
+get_redis_slots_flags()
+{
+    redisSlotsFlags	flags = SLOTS_NONE;
+
+    if (redis_protocol)
+	flags |= SLOTS_KEYMAP;
+    if (series_queries)
+	flags |= SLOTS_VERSION;
+    if (search_queries)
+	flags |= SLOTS_SEARCH;
+
+    return flags;
 }
 
 /*
@@ -191,20 +214,42 @@ setup_redis_module(struct proxy *proxy)
 
     if (proxy->slots == NULL) {
 	mmv_registry_t	*registry = proxymetrics(proxy, METRICS_REDIS);
-	redisSlotsFlags	flags = SLOTS_NONE;
+	redisSlotsFlags	flags = get_redis_slots_flags();
 
-	if (redis_protocol)
-	    flags |= SLOTS_KEYMAP;
-	if (series_queries)
-	    flags |= SLOTS_VERSION;
-	if (search_queries)
-	    flags |= SLOTS_SEARCH;
 	proxy->slots = redisSlotsConnect(proxy->config,
 			flags, proxylog, on_redis_connected,
 			proxy, proxy->events, proxy);
 	redisSlotsSetMetricRegistry(proxy->slots, registry);
 	redisSlotsSetupMetrics(proxy->slots);
+	pmWebTimerRegister(redis_reconnect_worker, proxy);
     }
+}
+
+static void
+redis_reconnect_worker(void *arg)
+{
+    struct proxy	*proxy = (struct proxy *)arg;
+    static unsigned int	wait_sec = REDIS_RECONNECT_INTERVAL;
+
+    /* wait X seconds, because this timer callback is called every second */
+    if (wait_sec > 0) {
+	wait_sec--;
+	return;
+    }
+    wait_sec = REDIS_RECONNECT_INTERVAL;
+
+    /*
+     * skip if Redis is disabled, state is SLOTS_READY or SLOTS_ERR_FATAL
+     * however: also perform a reconnect if the state is stuck in connecting
+     * or some other state
+     */
+    if (!proxy->slots || proxy->slots->state == SLOTS_READY || proxy->slots->state == SLOTS_ERR_FATAL)
+	return;
+
+    proxylog(PMLOG_INFO, "Trying to connect to Redis ...", arg);
+    redisSlotsFlags	flags = get_redis_slots_flags();
+    redisSlotsReconnect(proxy->slots, flags, proxylog, on_redis_connected,
+			proxy, proxy->events, proxy);
 }
 
 void

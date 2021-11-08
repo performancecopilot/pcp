@@ -1,0 +1,103 @@
+#!/bin/sh
+# PCP QA Test No. 1355
+# Exercise pmproxy Redis reconnect.
+#
+# Note: This test takes about 3 minutes because it examines
+# the Redis reconnect timer, which runs only once per minute.
+#
+# Copyright (c) 2021 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_redis_server_version_offline
+
+_cleanup()
+{
+    cd $here
+    [ -n "$tail_pid" ] && $signal -s TERM $tail_pid
+    [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
+    [ -n "$redisproxy_pid" ] && $signal -s TERM $redisproxy_pid
+    [ -n "$redis_pid" ] && $signal -s TERM $redis_pid
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+
+username=`id -u -n`
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_pmproxy_log()
+{
+    grep -oE "Lost connection.+|Trying to connect to Redis.+|Cannot connect to Redis.+|Redis .+ setup"
+}
+
+# real QA test starts here
+echo "Start Redis server"
+redisport=`_find_free_port`
+redis-server --port $redisport --save "" > $tmp.redis.log 2>&1 &
+redis_pid=$!
+pmsleep 0.125
+
+echo "Start Redis proxy to fake loading error"
+redisproxyport=`_find_free_port`
+$python src/redis_proxy.py --loading_delay 30 127.0.0.1:$redisproxyport 127.0.0.1:$redisport > $tmp.redisproxy.log &
+redisproxy_pid=$!
+pmsleep 0.125
+
+echo "Start pmproxy"
+pmproxyport=`_find_free_port`
+pmproxy -f -U $username -x $tmp.err -l $tmp.pmproxy.log -p $pmproxyport -r $redisproxyport -t &
+pmproxy_pid=$!
+pmsleep 0.125
+
+echo
+echo "== Observe a loading error"
+sleep 30
+lineno=1
+tail -n +$lineno $tmp.pmproxy.log | _filter_pmproxy_log
+lineno=$((`wc -l < $tmp.pmproxy.log` + 1))
+
+echo
+echo "== Observe a reconnect"
+sleep 40
+tail -n +$lineno $tmp.pmproxy.log | _filter_pmproxy_log
+lineno=$((`wc -l < $tmp.pmproxy.log` + 1))
+
+echo
+echo "Stop redis proxy"
+$signal -s TERM $redisproxy_pid
+
+echo
+echo "== Observe a connection lost error"
+sleep 60
+tail -n +$lineno $tmp.pmproxy.log | _filter_pmproxy_log
+lineno=$((`wc -l < $tmp.pmproxy.log` + 1))
+
+echo
+echo "Start Redis proxy again"
+$python src/redis_proxy.py --loading_delay 30 127.0.0.1:$redisproxyport 127.0.0.1:$redisport > $tmp.redisproxy.log &
+redisproxy_pid=$!
+pmsleep 0.125
+
+echo
+echo "== Observer a reconnect"
+sleep 70
+tail -n +$lineno $tmp.pmproxy.log | _filter_pmproxy_log
+lineno=$((`wc -l < $tmp.pmproxy.log` + 1))
+
+
+# store all logs in $seq.full
+tail -n +1 $tmp.*.log > $seq.full
+
+# success, all done
+exit

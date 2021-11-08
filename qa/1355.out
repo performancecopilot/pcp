@@ -1,0 +1,24 @@
+QA output created by 1355
+Start Redis server
+Start Redis proxy to fake loading error
+Start pmproxy
+
+== Observe a loading error
+Cannot connect to Redis: LOADING Redis is loading the dataset in memory
+
+== Observe a reconnect
+Trying to connect to Redis ...
+Redis slots, command keys, schema version setup
+
+Stop redis proxy
+
+== Observe a connection lost error
+Lost connection to Redis.
+Trying to connect to Redis ...
+Cannot connect to Redis: Connection refused
+
+Start Redis proxy again
+
+== Observer a reconnect
+Trying to connect to Redis ...
+Redis slots, command keys, schema version setup
