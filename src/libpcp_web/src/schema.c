@@ -152,7 +152,7 @@ redis_map_publish(redisMapBaton *baton)
     sds			msg, key, cmd;
 
     pmwebapi_hash_str((unsigned char *)baton->mapKey, hash, sizeof(hash));
-    msg = sdscatfmt(sdsempty(), "%S:%S", hash, baton->mapStr);
+    msg = sdscatfmt(sdsempty(), "%s:%S", hash, baton->mapStr);
     key = sdscatfmt(sdsempty(), "pcp:channel:%s", redisMapName(baton->mapping));
     cmd = redis_command(3);
     cmd = redis_param_str(cmd, PUBLISH, PUBLISH_LEN);
