@@ -48,9 +48,9 @@ redis-server --port $redisport --save "" > $tmp.redis.log 2>&1 &
 redis_pid=$!
 pmsleep 0.125
 
-echo "Start Redis proxy to fake loading error"
+echo "Start Redis proxy to fake loading error for first 3 seconds"
 redisproxyport=`_find_free_port`
-$python src/redis_proxy.py --loading_delay 30 127.0.0.1:$redisproxyport 127.0.0.1:$redisport > $tmp.redisproxy.log &
+$python src/redis_proxy.py --loading_delay 3 127.0.0.1:$redisproxyport 127.0.0.1:$redisport > $tmp.redisproxy.log &
 redisproxy_pid=$!
 pmsleep 0.125
 
@@ -61,15 +61,9 @@ pmproxy_pid=$!
 pmsleep 0.125
 
 echo
-echo "== Observe a loading error"
-sleep 30
+echo "== Observe a loading error and reconnect"
+sleep 6
 lineno=1
-tail -n +$lineno $tmp.pmproxy.log | _filter_pmproxy_log
-lineno=$((`wc -l < $tmp.pmproxy.log` + 1))
-
-echo
-echo "== Observe a reconnect"
-sleep 40
 tail -n +$lineno $tmp.pmproxy.log | _filter_pmproxy_log
 lineno=$((`wc -l < $tmp.pmproxy.log` + 1))
 
@@ -78,20 +72,20 @@ echo "Stop redis proxy"
 $signal -s TERM $redisproxy_pid
 
 echo
-echo "== Observe a connection lost error"
-sleep 60
+echo "== Observe a connection lost error and failed reconnect"
+sleep 6
 tail -n +$lineno $tmp.pmproxy.log | _filter_pmproxy_log
 lineno=$((`wc -l < $tmp.pmproxy.log` + 1))
 
 echo
-echo "Start Redis proxy again"
-$python src/redis_proxy.py --loading_delay 30 127.0.0.1:$redisproxyport 127.0.0.1:$redisport > $tmp.redisproxy.log &
+echo "Start Redis proxy again (loading error for first 3 seconds)"
+$python src/redis_proxy.py --loading_delay 3 127.0.0.1:$redisproxyport 127.0.0.1:$redisport > $tmp.redisproxy.log &
 redisproxy_pid=$!
 pmsleep 0.125
 
 echo
-echo "== Observer a reconnect"
-sleep 70
+echo "== Observe a reconnect"
+sleep 6
 tail -n +$lineno $tmp.pmproxy.log | _filter_pmproxy_log
 lineno=$((`wc -l < $tmp.pmproxy.log` + 1))
 

@@ -166,12 +166,20 @@ redisSlotsInit(dict *config, void *events)
     struct timeval	connection_timeout = {5, 0}; // 5s
     struct timeval	command_timeout = {60, 0}; // 1m
 
-    if ((slots = (redisSlots *)calloc(1, sizeof(redisSlots))) == NULL)
+    if ((slots = (redisSlots *)calloc(1, sizeof(redisSlots))) == NULL) {
+	pmNotifyErr(LOG_ERR, "%s: failed to allocate redisSlots\n",
+			"redisSlotsInit");
 	return NULL;
+    }
 
     slots->state = SLOTS_DISCONNECTED;
     slots->events = events;
     slots->keymap = dictCreate(&sdsKeyDictCallBacks, "keymap");
+    if (slots->keymap == NULL) {
+	pmNotifyErr(LOG_ERR, "%s: failed to allocate keymap\n",
+			"redisSlotsInit");
+	return NULL;
+    }
 
     servers = pmIniFileLookup(config, "pmseries", "servers");
     if (servers == NULL)
@@ -284,6 +292,7 @@ redisSlotsReconnect(redisSlots *slots, redisSlotsFlags flags,
     static int		log_connection_errors = 1;
 
     slots->state = SLOTS_CONNECTING;
+    slots->conn_seq++;
 
     /* reset Redis context in case of reconnect */
     if (slots->acc->err) {
@@ -326,7 +335,7 @@ redisSlotsReconnect(redisSlots *slots, redisSlotsFlags flags,
 	dictReleaseIterator(iterator);
     }
     else {
-	if (log_connection_errors) {
+	if (log_connection_errors || pmDebugOptions.desperate) {
 	    pmNotifyErr(LOG_INFO, "Cannot connect to Redis: %s\n",
 			slots->acc->cc->errstr);
 	    log_connection_errors = 0;
@@ -396,6 +405,7 @@ redisSlotsReplyDataAlloc(redisSlots *slots, size_t req_size,
     }
 
     srd->slots = slots;
+    srd->conn_seq = slots->conn_seq;
     srd->start = gettimeusec();
     srd->req_size = req_size;
     srd->callback = callback;
@@ -466,11 +476,22 @@ redisSlotsReplyCallback(redisClusterAsyncContext *c, void *r, void *arg)
      * member to the async cluster context, analogue to the 'data' member of
      * hiredis, update the disconnect callback to return the cluster context and
      * use this new disconnect callback instead of the conditional below.
+     *
+     * Register a Redis disconnect if:
+     * * Redis returns an I/O error. In this case errno is also set, but
+     *   there are lots of different error codes for connection failures (for example
+     *   ECONNRESET, ENETUNREACH, ENETDOWN, ...) - defensively assume all require a
+     *   reconnect
+     * * Redis returns the "LOADING Redis is loading the dataset in memory" error
+     * * ignore any errors for Redis requests pre-dating the latest (current) Redis
+     *   connection (to handle the case where a Redis callback returns after a new
+     *   connection was already established)
+     * * ignore any errors if the state is already set to SLOTS_DISCONNECTED
      */
-    if (srd->slots->state == SLOTS_READY && (
-	(reply == NULL && c->err == REDIS_ERR_IO) ||
-	(reply != NULL && reply->type == REDIS_REPLY_ERROR && strcmp(reply->str, REDIS_ELOADING) == 0)
-	)) {
+    if (((reply == NULL && c->err == REDIS_ERR_IO) ||
+         (reply != NULL && reply->type == REDIS_REPLY_ERROR && strcmp(reply->str, REDIS_ELOADING) == 0)) &&
+	srd->conn_seq == srd->slots->conn_seq &&
+	srd->slots->state != SLOTS_DISCONNECTED) {
 	pmNotifyErr(LOG_ERR, "Lost connection to Redis.\n");
 	srd->slots->state = SLOTS_DISCONNECTED;
     }

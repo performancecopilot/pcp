@@ -60,6 +60,7 @@ typedef enum redisSlotsState {
 typedef struct redisSlots {
     redisClusterAsyncContext *acc;	/* cluster context */
     redisSlotsState	state;		/* connection state */
+    unsigned int	conn_seq;	/* connection sequence (incremented for every connection) */
     unsigned int	search : 1;	/* RediSearch use enabled */
     unsigned int	cluster : 1;	/* Redis cluster mode enabled */
     redisMap		*keymap;	/* map command names to key position */
@@ -72,6 +73,7 @@ typedef struct redisSlots {
 /* wraps the actual Redis callback and data */
 typedef struct redisSlotsReplyData {
     redisSlots			*slots;
+    unsigned int		conn_seq;	/* connection sequence when this request was issued */
     uint64_t			start;		/* time of the request (usec) */
     size_t			req_size;	/* size of request */
 
