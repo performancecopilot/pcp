@@ -73,8 +73,8 @@ typedef struct redisSlots {
 /* wraps the actual Redis callback and data */
 typedef struct redisSlotsReplyData {
     redisSlots			*slots;
-    unsigned int		conn_seq;	/* connection sequence when this request was issued */
     uint64_t			start;		/* time of the request (usec) */
+    unsigned int		conn_seq;	/* connection sequence when this request was issued */
     size_t			req_size;	/* size of request */
 
     redisClusterCallbackFn	*callback;	/* actual callback */
