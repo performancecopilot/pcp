@@ -281,6 +281,7 @@ redisSlotsReconnect(redisSlots *slots, redisSlotsFlags flags,
     dictIterator	*iterator;
     dictEntry		*entry;
     int			sts = 0;
+    static int		log_connection_errors = 1;
 
     slots->state = SLOTS_CONNECTING;
 
@@ -325,13 +326,17 @@ redisSlotsReconnect(redisSlots *slots, redisSlotsFlags flags,
 	dictReleaseIterator(iterator);
     }
     else {
-	pmNotifyErr(LOG_INFO, "Cannot connect to Redis: %s\n",
+	if (log_connection_errors) {
+	    pmNotifyErr(LOG_INFO, "Cannot connect to Redis: %s\n",
 			slots->acc->cc->errstr);
+	    log_connection_errors = 0;
+	}
 	slots->state = SLOTS_DISCONNECTED;
 	return;
     }
 
     slots->state = SLOTS_CONNECTED;
+    log_connection_errors = 1;
     redisSchemaLoad(slots, flags, info, done, userdata, events, arg);
 }
 

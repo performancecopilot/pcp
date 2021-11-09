@@ -246,7 +246,9 @@ redis_reconnect_worker(void *arg)
     if (!proxy->slots || proxy->slots->state == SLOTS_READY || proxy->slots->state == SLOTS_ERR_FATAL)
 	return;
 
-    proxylog(PMLOG_INFO, "Trying to connect to Redis ...", arg);
+    if (pmDebugOptions.desperate)
+	proxylog(PMLOG_INFO, "Trying to connect to Redis ...", arg);
+
     redisSlotsFlags	flags = get_redis_slots_flags();
     redisSlotsReconnect(proxy->slots, flags, proxylog, on_redis_connected,
 			proxy, proxy->events, proxy);
