@@ -1,2 +1,10 @@
 QA output created by 1774
-[skeleton from qa/new, replace me]
+== create pmlogger for remote pmcd using pmlogctl
+=== check pmlogctl thinks it is running
+== kill it with SIGTERM
+== check it died
+== use pmlogctl check to restart it
+== get the pid and state of the new pmlogger
+== migrate it to the pmlogger_farm
+== check it is now in the pmlogger_farm service
+OK all good

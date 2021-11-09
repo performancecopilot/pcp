@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1774
-# [what am I here for?]
+# test pmlogctl and the pmlogger_farm service
 #
-# Copyright (c) 2021 [who are you?].  All Rights Reserved.
+# Copyright (c) 2020 Red Hat.  All Rights Reserved.
 #
 
 if [ $# -eq 0 ]
@@ -20,49 +20,76 @@ fi
 . ./common.filter
 . ./common.check
 
-do_valgrind=false
-if [ "$1" = "--valgrind" ]
-then
-    _check_valgrind
-    do_valgrind=true
-fi
-
-# test for-some-thing || _notrun No support for some-thing
-
 _cleanup()
 {
     cd $here
+    $sudo pmlogctl destroy $remote
+    $sudo rm -fr $PCP_ARCHIVE_DIR/$remote
     $sudo rm -rf $tmp $tmp.*
 }
 
-status=0	# success is the default!
+which systemctl >/dev/null 2>&1 || _notrun "systemctl not installed"
+[ -f $PCP_SYSTEMDUNIT_DIR/pmlogger_farm.service ] || \
+    _notrun "$PCP_SYSTEMDUNIT_DIR/pmlogger_farm.service not found"
+
+# need a remote pmcd
+remote=`./getpmcdhosts -v 'pcp>=4' -L -n 1 2>$tmp.err`
+[ -z "$remote" ] && _notrun "`cat $tmp.err`"
+remote=`echo $remote | sed -e 's/\..*$//'`
+
+[ -d $PCP_ARCHIVE_DIR/$remote ] && \
+    _notrun $PCP_ARCHIVE_DIR/$remote already exists, will not overwrite
+
+# normally we would enable it, but for now (pcp-5.3.5) pmlogger_farm
+# is WantedBy=pmlogger.service and so we expect it to be enabled
+systemctl is-enabled pmlogger_farm >/dev/null 2>&1 || \
+    _notrun pmlogger_farm.service is not enabled
+
+status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-_filter()
-{
-    sed \
-	-e 's/<something>/<else>/' \
-    # end
-}
+echo == create pmlogger for remote pmcd using pmlogctl
+$sudo pmlogctl create $remote
+remotepid=`pmlogctl status | $PCP_AWK_PROG '/^'$remote'/ {print $4}'`
 
-# real QA test starts here
+echo === check pmlogctl thinks it is running
+remotestate=`pmlogctl status | $PCP_AWK_PROG '/^'$remote'/ {print $5}'`
+if [ "$remotestate" != running ]; then
+    echo FAILED to start pmlogger for host $remote
+    exit
+fi
 
-if $do_valgrind
-then
-    _run_valgrind ...your test goes here...
+echo == kill it with SIGTERM
+$sudo kill -TERM $remotepid >/dev/null 2>&1
+
+echo == check it died
+remotestate=`pmlogctl status | $PCP_AWK_PROG '/^'$remote'/ {print $5}'`
+if [ "$remotestate" != dead ]; then
+    echo FAILED to kill pmlogger for host $remote
+    exit
+fi
+
+echo == use pmlogctl check to restart it
+$sudo pmlogctl check
+
+echo == get the pid and state of the new pmlogger
+remotepid=`pmlogctl status | $PCP_AWK_PROG '/^'$remote'/ {print $4}'`
+remotestate=`pmlogctl status | $PCP_AWK_PROG '/^'$remote'/ {print $5}'`
+if [ "$remotestate" != running ]; then
+    echo FAILED to restart dead pmlogger for host $remote; exit
+fi
+
+echo == migrate it to the pmlogger_farm
+$sudo pmlogctl --migrate check $remote
+
+echo == check it is now in the pmlogger_farm service
+if systemctl status pmlogger_farm 2>&1 | grep -q -s $remotepid; then
+    echo OK all good
 else
-    ...your test goes here... 2>&1
-fi \
-| _filter
-
-# if really bad error
-status=1
-exit
-
-# optional stuff if your test has verbose output to help resolve problems
-#echo
-#echo "If failure, check $seq.full"
+    exit
+fi
 
 # success, all done
+status=0
 exit
