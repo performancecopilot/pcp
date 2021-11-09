@@ -11,7 +11,7 @@ Cannot connect
 OK
 
 === password auth enabled, correct password provided (pmproxy)
-Redis slots setup
+Redis slots, schema version setup
 
 Stop redis server with password auth ...
 Start Redis server with ACL auth ...
@@ -29,4 +29,4 @@ Cannot connect
 OK
 
 === ACL auth enabled, correct username and password provided (pmproxy)
-Redis slots setup
+Redis slots, schema version setup
