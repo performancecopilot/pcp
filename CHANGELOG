@@ -5,6 +5,7 @@ pcp-5.3.5 (10 November 2021)
 	pmlogger: abort if we see PM_ERR_IPC during config file parsing
 	pmlogger: rework early control port servicing
 	pmlogger: source zeroconf variables from an additional env file
+	pmseries: fix --load option failure on 32-bit platforms only
 	pcp-dstat: add modern mongodb dstat plugin configuration
 	pcp-atop: add support for Nvidia GPUs using pmdanvidia metrics
     - PMDA additions, enhancements and bug fixes:
