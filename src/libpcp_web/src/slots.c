@@ -487,11 +487,13 @@ redisSlotsReplyCallback(redisClusterAsyncContext *c, void *r, void *arg)
      *   connection (to handle the case where a Redis callback returns after a new
      *   connection was already established)
      * * ignore any errors if the state is already set to SLOTS_DISCONNECTED
+     * * ignore errors if cluster mode is enabled (for now, will change in a later release)
      */
     if (((reply == NULL && c->err == REDIS_ERR_IO) ||
          (reply != NULL && reply->type == REDIS_REPLY_ERROR && strcmp(reply->str, REDIS_ELOADING) == 0)) &&
 	srd->conn_seq == srd->slots->conn_seq &&
-	srd->slots->state != SLOTS_DISCONNECTED) {
+	srd->slots->state != SLOTS_DISCONNECTED &&
+	srd->slots->cluster == 0) {
 	pmNotifyErr(LOG_ERR, "Lost connection to Redis.\n");
 	srd->slots->state = SLOTS_DISCONNECTED;
     }
