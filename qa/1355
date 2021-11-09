@@ -2,9 +2,6 @@
 # PCP QA Test No. 1355
 # Exercise pmproxy Redis reconnect.
 #
-# Note: This test takes about 3 minutes because it examines
-# the Redis reconnect timer, which runs only once per minute.
-#
 # Copyright (c) 2021 Red Hat.  All Rights Reserved.
 #
 
@@ -62,7 +59,8 @@ pmsleep 0.125
 
 echo
 echo "== Observe a loading error and reconnect"
-sleep 6
+curl -m 1 -o /dev/null -s "http://localhost:$pmproxyport/series/query?expr=hinv.ncpu"
+sleep 5
 lineno=1
 tail -n +$lineno $tmp.pmproxy.log | _filter_pmproxy_log
 lineno=$((`wc -l < $tmp.pmproxy.log` + 1))
@@ -73,7 +71,8 @@ $signal -s TERM $redisproxy_pid
 
 echo
 echo "== Observe a connection lost error and failed reconnect"
-sleep 6
+curl -m 1 -o /dev/null -s "http://localhost:$pmproxyport/series/query?expr=hinv.ncpu"
+sleep 5
 tail -n +$lineno $tmp.pmproxy.log | _filter_pmproxy_log
 lineno=$((`wc -l < $tmp.pmproxy.log` + 1))
 
@@ -85,7 +84,8 @@ pmsleep 0.125
 
 echo
 echo "== Observe a reconnect"
-sleep 6
+curl -m 1 -o /dev/null -s "http://localhost:$pmproxyport/series/query?expr=hinv.ncpu"
+sleep 5
 tail -n +$lineno $tmp.pmproxy.log | _filter_pmproxy_log
 lineno=$((`wc -l < $tmp.pmproxy.log` + 1))
 
