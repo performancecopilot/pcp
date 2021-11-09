@@ -1952,8 +1952,9 @@ x11
 1871 pmsearch local
 1872 pmproxy local
 1874 pmseries pmproxy local
-1875 pmseries pmproxy local
+1875 pmseries pmproxy libpcp_web local
 1876 pmcd secure local
+1877 pmproxy libpcp_web local
 1886 pmseries libpcp_web local
 1889 pmlogger local
 1893 pmda.proc local
