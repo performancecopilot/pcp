@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 5.3.5
+Version: 6.0.0
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -3382,6 +3382,9 @@ PCP_LOG_DIR=%{_logsdir}
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
+* Wed Mar 30 2022 Nathan Scott <nathans@redhat.com> - 6.0.0-1
+- https://github.com/performancecopilot/pcp/projects/1
+
 * Wed Nov 10 2021 Nathan Scott <nathans@redhat.com> - 5.3.5-1
 - Fix pmlogger services systemd killmode warning (BZ 1897945)
 - Fix python PMDA interface for python 3.10 (BZ 2020038)
