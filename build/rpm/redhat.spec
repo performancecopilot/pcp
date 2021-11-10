@@ -3048,7 +3048,6 @@ PCP_LOG_DIR=%{_logsdir}
     # clean up any stale symlinks for deprecated pm*-poll services
     rm -f %{_sysconfdir}/systemd/system/pm*.requires/pm*-poll.* >/dev/null 2>&1 || true
 
-%if 0%{?rhel} > 0 && 0%{?rhel} <= 8
     # pmlogger_farm service inherits the same initial state as pmlogger service
     if systemctl is-enabled pmlogger.service >/dev/null; then
 	systemctl enable pmlogger_farm.service pmlogger_farm_check.service
@@ -3059,7 +3058,6 @@ PCP_LOG_DIR=%{_logsdir}
 	systemctl enable pmie_farm.service pmie_farm_check.service
 	systemctl start pmie_farm.service pmie_farm_check.service
     fi
-%endif
 
     %systemd_postun_with_restart pmcd.service
     %systemd_post pmcd.service
