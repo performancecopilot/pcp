@@ -178,6 +178,7 @@ redisSlotsInit(dict *config, void *events)
     if (slots->keymap == NULL) {
 	pmNotifyErr(LOG_ERR, "%s: failed to allocate keymap\n",
 			"redisSlotsInit");
+	free(slots);
 	return NULL;
     }
 
