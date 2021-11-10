@@ -745,6 +745,7 @@ pcp_selinux_capability2_syslog
 pcp_selinux_sbd_exec
 pcp_selinux_proc_security
 pcp_selinux_virt_var_run
+pcp_selinux_rpcbind_var_run
 pcp_selinux_container_var_run
 pcp_selinux_files_list_non_auth_dirs
 pcp_selinux_dma_device
@@ -12304,6 +12305,7 @@ pcp_selinux_bpf=false
 pcp_selinux_dma_device=false
 pcp_selinux_files_list_non_auth_dirs=false
 pcp_selinux_container_var_run=false
+pcp_selinux_rpcbind_var_run=false
 pcp_selinux_virt_var_run=false
 pcp_selinux_proc_security=false
 pcp_selinux_sbd_exec=false
@@ -12356,6 +12358,8 @@ if test "x$enable_selinux" != "xfalse"; then :
 	&& pcp_selinux_numad=true
     grep '^[ 	][ 	]*container_var_run_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_container_var_run=true
+    grep '^[ 	][ 	]*rpcbind_var_run_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_rpcbind_var_run=true
     grep '^[ 	][ 	]*virt_var_run_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_virt_var_run=true
     grep '^[ 	][ 	]*proc_security_t$' <conftest.out >/dev/null \
@@ -12473,6 +12477,7 @@ if test "x$enable_selinux" != "xfalse"; then :
 
 
 fi
+
 
 
 

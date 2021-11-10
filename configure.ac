@@ -2113,6 +2113,7 @@ pcp_selinux_bpf=false
 pcp_selinux_dma_device=false
 pcp_selinux_files_list_non_auth_dirs=false
 pcp_selinux_container_var_run=false
+pcp_selinux_rpcbind_var_run=false
 pcp_selinux_virt_var_run=false
 pcp_selinux_proc_security=false
 pcp_selinux_sbd_exec=false
@@ -2168,6 +2169,8 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
 	&& pcp_selinux_numad=true
     grep '^[[ 	]][[ 	]]*container_var_run_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_container_var_run=true
+    grep '^[[ 	]][[ 	]]*rpcbind_var_run_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_rpcbind_var_run=true
     grep '^[[ 	]][[ 	]]*virt_var_run_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_virt_var_run=true
     grep '^[[ 	]][[ 	]]*proc_security_t$' <conftest.out >/dev/null \
@@ -2316,6 +2319,7 @@ AC_SUBST(pcp_selinux_bpf)
 AC_SUBST(pcp_selinux_dma_device)
 AC_SUBST(pcp_selinux_files_list_non_auth_dirs)
 AC_SUBST(pcp_selinux_container_var_run)
+AC_SUBST(pcp_selinux_rpcbind_var_run)
 AC_SUBST(pcp_selinux_virt_var_run)
 AC_SUBST(pcp_selinux_proc_security)
 AC_SUBST(pcp_selinux_sbd_exec)
