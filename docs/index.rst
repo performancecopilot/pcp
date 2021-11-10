@@ -13,6 +13,7 @@ makes it especially useful for those seeking centralized monitoring of distribut
 **Table of Contents**
 
 * :doc:`HowTos/installation/index`
+* :doc:`QG/QuickGuides`
 * :doc:`UAG/AboutUserAdministratorsGuide`
 * :doc:`PG/AboutProgrammersGuide`
 * :doc:`HowTos/scaling/index`
@@ -23,11 +24,36 @@ makes it especially useful for those seeking centralized monitoring of distribut
    :hidden:
    
    HowTos/installation/index
+   QG/QuickGuides
    UAG/AboutUserAdministratorsGuide
    PG/AboutProgrammersGuide
    HowTos/scaling/index
    REST API Specification <https://pcp.readthedocs.io/en/latest/api/>
 
+.. toctree::
+   :caption: Quick Guides
+   :numbered:
+   :hidden:
+
+   QG/ListAvailableMetrics
+   QG/AddNewMetrics
+   QG/RecordMetricsOnLocalSystem
+   QG/RecordMetricsFromRemoteSystem
+   QG/GraphPerformanceMetric
+   QG/AutomateProblemDetection
+   QG/SetupAutomatedRules
+   QG/RecordHistoricalValues
+   QG/ExportMetricValues
+   QG/UseCharts
+   QG/LoggingBasics
+   QG/AutomatedReasoningBasics
+   QG/ConfigureAutomatedReasoning
+   QG/AnalyzeLinuxContainers
+   QG/SecureConnections
+   QG/SecureClientConnections
+   QG/AuthenticatedConnections
+   QG/ImportData
+   QG/Use3DViews
 
 .. toctree::
    :caption: User's and Administrator's Guide
