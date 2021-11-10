@@ -67,8 +67,11 @@ async def main():
         local_host,
         int(local_port),
     )
-    async with server:
-        await server.serve_forever()
+    if sys.version_info >= (3, 7):
+        async with server:
+            await server.serve_forever()
+    else:
+        await server.wait_closed()
 
 if __name__ == '__main__':
     if sys.version_info >= (3, 7):
