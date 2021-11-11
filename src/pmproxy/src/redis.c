@@ -14,7 +14,7 @@
 #include "server.h"
 #include "discover.h"
 
-#define REDIS_RECONNECT_INTERVAL 60
+#define REDIS_RECONNECT_INTERVAL 2
 
 static int search_queries;
 static int series_queries;
@@ -239,14 +239,14 @@ redis_reconnect_worker(void *arg)
     wait_sec = REDIS_RECONNECT_INTERVAL;
 
     /*
-     * skip if Redis is disabled, state is SLOTS_READY or SLOTS_ERR_FATAL
-     * however: also perform a reconnect if the state is stuck in connecting
-     * or some other state
+     * skip if Redis is disabled or state is not SLOTS_DISCONNECTED
      */
-    if (!proxy->slots || proxy->slots->state == SLOTS_READY || proxy->slots->state == SLOTS_ERR_FATAL)
+    if (!proxy->slots || proxy->slots->state != SLOTS_DISCONNECTED)
 	return;
 
-    proxylog(PMLOG_INFO, "Trying to connect to Redis ...", arg);
+    if (pmDebugOptions.desperate)
+	proxylog(PMLOG_INFO, "Trying to connect to Redis ...", arg);
+
     redisSlotsFlags	flags = get_redis_slots_flags();
     redisSlotsReconnect(proxy->slots, flags, proxylog, on_redis_connected,
 			proxy, proxy->events, proxy);

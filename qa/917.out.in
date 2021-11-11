@@ -102,6 +102,7 @@ Checking policies.
   allow [pcp_pmcd_t] [device_t] : [chr_file] { open read };
   allow [pcp_pmcd_t] self : [capability] { sys_rawio };
 ! allow [pcp_pmcd_t] [virt_var_run_t] : [sock_file] { write };
+! allow [pcp_pmcd_t] [rpcbind_var_run_t] : [sock_file] { write };
   allow [pcp_pmcd_t] [openvswitch_exec_t] : [file] { execute execute_no_trans };
 ! allow [pcp_pmcd_t] [ping_exec_t] : [file] { execute execute_no_trans map };
   allow [pcp_pmcd_t] self : [capability] { net_raw };

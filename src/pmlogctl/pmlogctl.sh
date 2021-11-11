@@ -1821,8 +1821,15 @@ in
 		_get_matching_hosts "$@"
 		if [ ! -f $tmp/args ]
 		then
-		    _error "no matching host(s) to $ACTION"
-		    exit
+		    if [ "$ACTION" = check ]
+		    then
+			# special case: successfully check nothing
+			status=0
+			exit
+		    else
+			_error "no matching host(s) to $ACTION"
+			exit
+		    fi
 		fi
 	    fi
 	    # small wrinkle: map - to _ in action, e.g.
