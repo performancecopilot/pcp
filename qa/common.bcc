@@ -322,13 +322,11 @@ _pmdabcc_try_compile()
     then
 	echo "Oops: _pmdabcc_try_compile: $PCP_VAR_DIR/pmdas/bcc/pmdabcc.python not found"
     else
-	if $sudo $PCP_VAR_DIR/pmdas/bcc/pmdabcc.python --trycompile=$tmp.conf >>$seq.full
+	$sudo $PCP_VAR_DIR/pmdas/bcc/pmdabcc.python --trycompile=$tmp.conf >>$seq.full
+	if grep 'Failed to compile BPF module' bcc.log >/dev/null
 	then
-	    # OK, no problems
-	    :
-	else
 	    cat bcc.log >>$here/$seq.full
-	    _notrun "Failed to compile bcc modules, see $seq.full for details"
+	    _notrun "Failed to compile bcc module, see $seq.full for details"
 	fi
 	$sudo rm -f bcc.log
     fi
