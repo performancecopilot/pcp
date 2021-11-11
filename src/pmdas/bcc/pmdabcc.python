@@ -56,8 +56,9 @@ class BCCPMDA(PMDA):
     def __init__(self, name, domain):
         """ Constructor """
         PMDA.__init__(self, name, domain)
-        # See Install
-        self.log("Initializing, currently in 'notready' state.")
+        if trycompile == '':
+            # See Install
+            self.log("Initializing, currently in 'notready' state.")
 
         self.fail_fatal = True
 
@@ -69,12 +70,19 @@ class BCCPMDA(PMDA):
         self.proc_refresh = 0
 
         self.read_config_file()
-        self.connect_pmcd()
+
+        if trycompile == '':
+            self.connect_pmcd()
 
         self.init_modules()
         self.register_metrics()
         self.register_helpers()
         self.compile_modules()
+
+        if trycompile != '':
+            # compile modules and exit
+            sys.exit(0)
+
         self.free_memory()
 
         self.set_refresh(self.bcc_refresh)
@@ -100,8 +108,11 @@ class BCCPMDA(PMDA):
     # pylint: disable=too-many-branches
     def read_config_file(self):
         """ Read configuration file """
-        conffile = PCP.pmGetConfig('PCP_PMDAS_DIR')
-        conffile += '/' + self.read_name() + '/' + self.read_name() + '.conf'
+        if trycompile != '':
+            conffile = trycompile
+        else:
+            conffile = PCP.pmGetConfig('PCP_PMDAS_DIR')
+            conffile += '/' + self.read_name() + '/' + self.read_name() + '.conf'
 
         if not os.path.isfile(conffile):
             self.err("Configuration file %s not found, aborting." % conffile)
@@ -345,6 +356,18 @@ class BCCPMDA(PMDA):
             self.err(str(error))
             self.err(traceback.format_exc())
             return PM_ERR_BADSTORE
+
+argc = len(sys.argv)
+trycompile = ""
+if argc == 2 and sys.argv[1].startswith('--'):
+    if sys.argv[1].startswith('--trycompile='):
+        trycompile = sys.argv[1][13:]
+        print('Trying to compile config',trycompile,'...'),
+    else:
+        print('Usage:',sys.argv[0],'[--trycompile=file]')
+else:
+    if argc != 1:
+        print('Usage:',sys.argv[0],'[--trycompile=file]')
 
 if __name__ == '__main__':
     BCCPMDA('bcc', 149).run()
