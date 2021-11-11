@@ -20,16 +20,7 @@ status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full
 
-_prepare_pmda bcc
-trap "_unmount_filesystem ext4; _pmdabcc_cleanup; exit \$status" 0 1 2 3 15
-_stop_auto_restart pmcd
-
-# mount ext4 before installing the PMDA, as mounting
-# ext4 may trigger loading the ext4 kernel module
-_mount_filesystem ext4
-
-# real QA test starts here
-cat <<EOF | _pmdabcc_install
+cat <<EOF >$tmp.conf
 # Installed by PCP QA test $seq on `date`
 [pmda]
 modules = ext4dist
@@ -39,6 +30,18 @@ module = fs.ext4dist
 cluster = 5
 EOF
 
+_pmdabcc_try_compile $tmp.conf
+
+_prepare_pmda bcc
+trap "_unmount_filesystem ext4; _pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+# mount ext4 before installing the PMDA, as mounting
+# ext4 may trigger loading the ext4 kernel module
+_mount_filesystem ext4
+
+# real QA test starts here
+_pmdabcc_install <$tmp.conf
 _pmdabcc_wait_for_metric
 
 # Generate system activity for the BCC ext4dist module

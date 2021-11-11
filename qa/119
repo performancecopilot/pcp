@@ -94,6 +94,8 @@ fi
 $sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
 $sudo mv $PCP_PMLOGGERCONTROL_PATH.d $tmp.control.d
 
+export PMLOGGER_CHECK_SKIP_LOGCONF=yes
+
 cat <<End-of-File >$tmp.tmp
 # dummy file created by qa/$seq on `date`
 # the goal here is to have just two pmlogger instances running and
@@ -124,7 +126,7 @@ echo "+++" >>$seq.full
 
 # avoid race with pmloggers not being started before pmlogger_check
 # is run below
-for i in 1 2 3 4 5
+for i in 1 2 3 4 5 6 7 8 9 10
 do
     [ -f $LOGGING_DIR/${myhost}-one/pmlogger.log -a -f $LOGGING_DIR/${myhost}-two/pmlogger.log ] && break
     sleep 1
@@ -134,6 +136,18 @@ then
     echo "Failed to start pmlogger for ${myhost}-one"
     echo "Logging directory contents ..."
     ls -l $LOGGING_DIR/${myhost}-one
+    date
+    for log in $PCP_ARCHIVE_DIR/pmlogger_check.log.prev $PCP_ARCHIVE_DIR/pmlogger_check.log
+    do
+	if [ ! -f "$log" ]
+	then
+	    echo "$log is missing!"
+	else
+	    ls -l $log
+	    cat $log
+	fi
+    done
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger'
     exit
 fi
 
@@ -142,6 +156,18 @@ then
     echo "Failed to start pmlogger for ${myhost}-two"
     echo "Logging directory contents ..."
     ls -l $LOGGING_DIR/${myhost}-two
+    date
+    for log in $PCP_ARCHIVE_DIR/pmlogger_check.log.prev $PCP_ARCHIVE_DIR/pmlogger_check.log
+    do
+	if [ ! -f "$log" ]
+	then
+	    echo "$log is missing!"
+	else
+	    ls -l $log
+	    cat $log
+	fi
+    done
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger'
     exit
 fi
 

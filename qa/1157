@@ -71,11 +71,7 @@ _value_filter()
     awk '/inst .*::'${target_ip}':80"] value/ {print "OK"; exit}'
 }
 
-_prepare_pmda bcc
-trap "_revert_network_troubles; _pmdabcc_cleanup; exit \$status" 0 1 2 3 15
-_stop_auto_restart pmcd
-
-cat <<EOF | _pmdabcc_install
+cat <<EOF >$tmp.conf
 # Installed by PCP QA test $seq on `date`
 [pmda]
 modules = tcpretrans
@@ -85,6 +81,13 @@ module = tcpretrans
 cluster = 9
 EOF
 
+_pmdabcc_try_compile $tmp.conf
+
+_prepare_pmda bcc
+trap "_revert_network_troubles; _pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+_pmdabcc_install <$tmp.conf
 _pmdabcc_wait_for_metric
 
 # Generate system activity for the BCC tcpretrans module

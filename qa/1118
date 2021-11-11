@@ -21,12 +21,7 @@ _label_filter()
     grep '"0-1"' | grep '"statistic":"histogram"' | grep '"lower_bound":0' | grep 'upper_bound":1' > /dev/null && echo 'OK'
 }
 
-_prepare_pmda bcc
-trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
-_stop_auto_restart pmcd
-
-# real QA test starts here
-cat <<EOF | _pmdabcc_install
+cat <<EOF >$tmp.conf
 # Installed by PCP QA test $seq on `date`
 [pmda]
 modules = runqlat
@@ -35,6 +30,15 @@ prefix = bcc.
 module = runqlat
 cluster = 4
 EOF
+
+_pmdabcc_try_compile $tmp.conf
+
+_prepare_pmda bcc
+trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+# real QA test starts here
+_pmdabcc_install <$tmp.conf
 _pmdabcc_wait_for_metric
 
 # Generate system activity for the BCC runqlat module

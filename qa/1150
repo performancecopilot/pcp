@@ -51,12 +51,7 @@ _value_filter()
     awk '/pmcd::PMCD_PDU/ && /value [1-9][0-9]*/ {print "OK"; exit}'
 }
 
-_prepare_pmda bcc
-trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
-_stop_auto_restart pmcd
-
-# real QA test starts here
-cat <<EOF | _pmdabcc_install | _log_filter
+cat <<EOF >$tmp.conf
 # Installed by PCP QA test $seq on `date`
 [pmda]
 modules = usdt_hits
@@ -67,6 +62,15 @@ cluster = 101
 process = pmcd
 usdts = $PCP_BINADM_DIR/pmcd:PMCD,$PCP_BINADM_DIR/pmcd:PMCD_PDU
 EOF
+
+_pmdabcc_try_compile $tmp.conf
+
+_prepare_pmda bcc
+trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+# real QA test starts here
+_pmdabcc_install <$tmp.conf | _log_filter
 if _pmdabcc_wait_for_metric
 then
     echo "back from _pmdabcc_wait_for_metric: `date`" >>$here/$seq.full

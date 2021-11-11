@@ -18,6 +18,20 @@ status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full
 
+cat <<EOF >$tmp.conf
+# Installed by PCP QA test $seq on `date`
+[pmda]
+modules = usdt_jvm_threads
+prefix = bcc.
+[usdt_jvm_threads]
+module = usdt_jvm_threads
+cluster = 110
+jvm_path = $jvm_path
+process = java
+EOF
+
+_pmdabcc_try_compile $tmp.conf
+
 _prepare_pmda bcc
 trap "\$signal -s KILL \$javapid > /dev/null 2>&1; _pmdabcc_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
@@ -30,17 +44,7 @@ disown > /dev/null 2>&1 || :
 cd ..
 
 # real QA test starts here
-cat <<EOF | _pmdabcc_install | _pmdabcc_install_filter
-# Installed by PCP QA test $seq on `date`
-[pmda]
-modules = usdt_jvm_threads
-prefix = bcc.
-[usdt_jvm_threads]
-module = usdt_jvm_threads
-cluster = 110
-jvm_path = $jvm_path
-process = java
-EOF
+_pmdabcc_install <$tmp.conf
 _pmdabcc_wait_for_metric
 
 # Wait for values to appear

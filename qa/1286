@@ -77,12 +77,7 @@ _pid_filter()
     #end
 }
 
-_prepare_pmda bcc
-trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
-_stop_auto_restart pmcd
-
-# real QA test starts here
-cat <<EOF | _pmdabcc_install
+cat <<EOF >$tmp.conf
 [pmda]
 modules = netproc
 prefix = bcc.
@@ -92,6 +87,15 @@ cluster = 40
 pmda_indom_cache = False
 remove_stopped_processes = False
 EOF
+
+_pmdabcc_try_compile $tmp.conf
+
+_prepare_pmda bcc
+trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+# real QA test starts here
+_pmdabcc_install <$tmp.conf
 _pmdabcc_wait_for_metric
 
 # Generate system activity for the BCC netproc module
