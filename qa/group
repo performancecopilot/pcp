@@ -1802,6 +1802,7 @@ x11
 1353 pmlogger pmcpp local
 1354 pmval archive local
 1355 pmproxy libpcp_web local
+1356 selinux local
 1357 pmda.podman valgrind local
 1358 pmda.podman local
 1359 libpcp local pmdbg
