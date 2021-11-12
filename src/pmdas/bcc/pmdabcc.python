@@ -362,12 +362,12 @@ trycompile = ""
 if argc == 2 and sys.argv[1].startswith('--'):
     if sys.argv[1].startswith('--trycompile='):
         trycompile = sys.argv[1][13:]
-        print('Trying to compile config',trycompile,'...'),
+        print('Trying to compile config', trycompile, '...')
     else:
-        print('Usage:',sys.argv[0],'[--trycompile=file]')
+        print('Usage:', sys.argv[0], '[--trycompile=file]')
 else:
     if argc != 1:
-        print('Usage:',sys.argv[0],'[--trycompile=file]')
+        print('Usage:', sys.argv[0], '[--trycompile=file]')
 
 if __name__ == '__main__':
     BCCPMDA('bcc', 149).run()
