@@ -13,23 +13,23 @@ The aim of this guide is to assist first-time users to become more productive ri
 
 This guide contains the following chapters:
 
-Chapter 1, :ref:`List the available performance metrics`
+Chapter 1, :ref:`List the available performance metrics`, introduces the *pminfo* command to display various types of information about performance metrics available.
 
-Chapter 2, :ref:`Add new metrics to the available set`
+Chapter 2, :ref:`Add new metrics to the available set`, covers adding mounts metrics to *pmcd*.
 
-Chapter 3, :ref:`Record metrics on my local system`
+Chapter 3, :ref:`Record metrics on my local system`, covers setup of logging to record metrics from local system.
 
-Chapter 4, :ref:`Record metrics from a remote system`
+Chapter 4, :ref:`Record metrics from a remote system`, covers setup of logging from remote systems.
 
-Chapter 5, :ref:`graph a performance metric`
+Chapter 5, :ref:`graph a performance metric`, introduces *pmchart* - a strip chart tool for Performance Co-Pilot.
 
 Chapter 6, :ref:`Automate performance problem detection`
 
-Chapter 7, :ref:`Setup automated rules to write to the system log`
+Chapter 7, :ref:`Setup automated rules to write to the system log`, introduces *pmieconf* - a utility for viewing and configuring variables from generalized *pmie* (1) rules.
 
-Chapter 8, :ref:`Record historical values for use with the pcp-dstat tool`
+Chapter 8, :ref:`Record historical values for use with the pcp-dstat tool`, introduces *pcp-dstat* tool which is a general performance analysis tool to view multiple system resources instantly.
 
-Chapter 9, :ref:`Export metric values in a comma-separated format`
+Chapter 9, :ref:`Export metric values in a comma-separated format`, introduces *pmrep* which is a customizable performance metrics reporting tool.
 
 Chapter 10, :ref:`Using Charts`, introduces the basic functionality available in the PCP Strip Chart tool - pmchart.
 
