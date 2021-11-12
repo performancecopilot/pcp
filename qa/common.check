@@ -2941,6 +2941,25 @@ _find_free_port()
     echo $base
 }
 
+# wait until an application is listening on a specified port
+_wait_for_port()
+{
+    port=$1
+    wait=50 # 5 seconds
+
+    for i in `seq $wait`
+    do
+	if $PCP_BINADM_DIR/telnet-probe -c localhost $port; then
+	    break
+	fi
+	pmsleep 0.1
+    done
+    if [ $i -ge $wait ]; then
+        echo Timeout waiting for an application to bind to port $port
+        exit
+    fi
+}
+
 # get pid for the running primary pmlogger
 #
 _get_primary_logger_pid()
