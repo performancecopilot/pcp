@@ -22,7 +22,7 @@ fi
 
 eval `sed -n -e '/^PCP_SELINUX_DIR *=/s/  *//gp'  /usr/include/pcp/builddefs`
 [ -z "$PCP_SELINUX_DIR" ] && _notrun "PCP_SELINIX_DIR not defined in /usr/include/pcp/builddefs"
-[ ! -d "$PCP_SELINUX_DIR" ] && _notrun "$PCP_SELIUX_DIR: dir not found"
+[ ! -d "$PCP_SELINUX_DIR" ] && _notrun "$PCP_SELINUX_DIR: dir not found"
 
 _cleanup()
 {
