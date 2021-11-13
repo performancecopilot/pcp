@@ -53,7 +53,7 @@ _cleanup()
 	_restore_auto_restart pmlogger
 	_wait_for_pmcd
 	_wait_for_pmlogger
-	_service pmlogger_farm stop 2>&1 | _filter_pcp_stop
+	which systemctl >/dev/null 2>&1 && _service pmlogger_farm stop 2>&1 | _filter_pcp_stop
 	$pmlogger_farm_was_active && _service pmlogger_farm start >>$seq.full
 	_needclean=false
     fi
@@ -116,7 +116,7 @@ echo "+++ before pcp start ..." >>$seq.full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$seq.full
 echo "+++" >>$seq.full
 _service pcp start >$tmp.out 2>&1
-_service pmlogger_farm start
+which systemctl >/dev/null 2>&1 && _service pmlogger_farm start
 cat $tmp.out >>$seq.full
 _wait_for_pmcd
 _wait_for_pmlogger

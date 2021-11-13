@@ -38,7 +38,7 @@ _cleanup()
     if $needclean
     then
 	_service pmlogger stop 2>&1 | _filter_pcp_stop
-	_service pmlogger_farm stop 2>&1 | _filter_pcp_stop
+	which systemctl >/dev/null 2>&1 && _service pmlogger_farm stop 2>&1 | _filter_pcp_stop
 	_restore_config $control
 	needclean=false
 	_service pmlogger start 2>&1 | _filter_pcp_start
@@ -111,7 +111,7 @@ _save_config $control
 $sudo cp $tmp.control $control
 
 _service pmlogger restart | _filter_pcp_start
-_service pmlogger_farm start | _filter_pcp_start
+which systemctl >/dev/null 2>&1 && _service pmlogger_farm start 2>&1 | _filter_pcp_stop
 
 # wait up to 20 seconds for our pmlogger to start
 #
