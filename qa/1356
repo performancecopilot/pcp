@@ -41,22 +41,32 @@ _filter()
     # end
 }
 
+seinfo --common >/dev/null 2>&1
+if test $? -eq 0
+then
+    seinfo_common_flag="--common"
+else
+    seinfo_common_flag=""
+fi
+
 # attributes
 #
-seinfo -a >$tmp.attr
+seinfo -a $seinfo_common_flag >$tmp.attr
 
 # types
 #
-seinfo -t >$tmp.type
+seinfo -t $seinfo_common_flag >$tmp.type
 
 # classes
 #
-seinfo -c >$tmp.class
+seinfo -c $seinfo_common_flag >$tmp.class
 
 # real QA test starts here
 
-for rule in $PCP_SELINUX_DIR/pcpupstream.te \
-    $PCP_SELINUX_DIR/pcpupstream-container.te pcpqa.te
+# Note: skip $PCP_SELINUX_DIR/pcpupstream-container.te cause if you're
+#       not in a container, seinfo does not report some types (it appears)
+#
+for rule in $PCP_SELINUX_DIR/pcpupstream.te pcpqa.te
 do
     echo
     echo "$rule:" | sed -e "s@$PCP_SELINUX_DIR@PCP_SELINUX_DIR@"
@@ -121,7 +131,7 @@ p
     do
 	if grep "^[ 	]*$class\$" $tmp.class >/dev/null
 	then
-	    seinfo -x --common --class=$class >$tmp.perm
+	    seinfo -x $seinfo_common_flag --class=$class >$tmp.perm
 	    for perm in $perms
 	    do
 		if grep "^[ 	]*$perm\$" $tmp.perm >/dev/null
