@@ -1598,6 +1598,9 @@ _check_helgrind()
 	*Fedora\ 34*)
 	    _notrun "helgrind broken on Fedora 34"
 	    ;;
+	*Arch\ Linux*)
+	    _notrun "helgrind broken on Arch Linux"
+	    ;;
     esac
 }
 
