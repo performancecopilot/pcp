@@ -1,2 +1,11 @@
 QA output created by 1356
-[skeleton from qa/new, replace me]
+
+PCP_SELINUX_DIR/pcpupstream.te:
+Attributes OK
+Types OK
+Classes and Permissions OK
+
+pcpqa.te:
+Attributes OK
+Types OK
+Classes and Permissions OK
