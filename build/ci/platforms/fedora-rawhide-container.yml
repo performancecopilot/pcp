@@ -38,3 +38,4 @@ tasks:
     [ $(awk 'END{print NF}' ../artifacts/test/check.timings) = 2 ] && date '+%s' >> ../artifacts/test/check.timings
     shopt -s nullglob
     for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ${test/.out.bad/.full} ../artifacts/test || true; done
+    [ -x /var/lib/pcp/testsuite/admin/whatami ] && /var/lib/pcp/testsuite/admin/whatami >../artifacts/test/whatami
