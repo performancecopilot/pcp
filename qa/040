@@ -69,6 +69,7 @@ done \
 | uniq -c  \
 | while read cnt sz
 do
+    echo "seen=$seen cnt=$cnt size=$sz" >>$seq.full
     seen=`expr $seen + 1`
     # expect one line, with a count of 15 sizes, all the same!
     if [ $seen -gt 1 -o $cnt -ne 15 ]
