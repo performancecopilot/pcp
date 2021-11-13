@@ -17,6 +17,8 @@ _usage()
 {
     echo "Usage: $0 [options] [seq ...]"
     echo "Options:"
+    echo "  -C    include results from CI"
+    echo "  -d    debug"
     echo "  -f    show me seq.full if it exists"
     echo "  -g    path to base of PCP git tree [default: $HOME/src/pcp]"
     echo "  -l    run show-me -l"
@@ -30,10 +32,18 @@ pcpdir=$HOME/src/pcp
 verbose=false
 show_me_opts=''
 prepare_mail=false
-while getopts 'fg:lm?' p
+debug=false
+CI=false
+while getopts 'Cdfg:lm?' p
 do
     case "$p"
     in
+	C)	CI=true
+		;;
+
+	d)	debug=true
+		;;
+
 	f)	full=true
 		;;
 
@@ -74,11 +84,13 @@ fi
 
 if [ $# -eq 0 ]
 then
-    set -- `find * -name "*.out.bad" \
+    set -- `find -L * -name "*.out.bad" \
             | sed -e 's;.*/;;' -e 's/\.out.bad$//' \
 	    | sort -n \
 	    | uniq`
 fi
+
+$debug && echo >&2 "seqs=$*"
     
 for seq
 do
@@ -93,10 +105,17 @@ do
     esac
     base=''
     echo >$tmp.sum
-    find * -name "$seq.out.bad" \
+    if $CI
+    then
+	dirs=*
+    else
+	dirs='b* vm*'
+    fi
+    find -L $dirs -name "$seq.out.bad" \
     | sort \
     | while read bad
     do
+	$debug && echo >&2 "bad=$bad"
 	cd $here
 	sum=`shasum <$bad | sed -e 's/ .*//'`
 	host=`echo "$bad" | sed -e 's/\/.*//'`
@@ -106,9 +125,16 @@ do
 	    exit
 	fi
 	cd `dirname $bad`
+	$debug && echo >&2 "pwd=`/bin/pwd`"
 	rm -f $tmp.ok
-	for log in `ls -r ../????-??-??`
+	for log in `ls -r ../????-??-?? test.log 2>/dev/null`
 	do
+	    if $CI
+	    then
+		:
+	    else
+		[ "$log" = test.log ] && continue
+	    fi
 	    if grep '^Failures: ' $log >$tmp.fail
 	    then
 		# found a Failures: line ... is our test included in the
@@ -151,12 +177,14 @@ do
 		    ln -s $pcpdir/qa/$qabits $qabits
 		fi
 	    done
+	    [ ! -f $seq.out ] && ln -s $pcpdir/qa/$seq.out $seq.out
 	    echo -n "$host-"
-	    show-me -w $show_me_opts $seq
+	    [ -f qa/$seq.out.bad ] && cd qa
+	    show-me $show_me_opts $seq
 	    $full && [ -f $seq.full ] && less $seq.full </dev/tty
 	fi
 	echo $host $sum >>$tmp.sum
-	#debug# cat $tmp.sum
+	$debug && ( echo >&2 "sum ..."; cat >&2 $tmp.sum )
     done
 
 done
