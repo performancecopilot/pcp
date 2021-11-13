@@ -18,6 +18,9 @@ _cleanup()
     cd $here
     if $was_running
     then
+	# don't trigger systemctl "request repeated too quickly" snarfoo
+	#
+	sleep 2
 	_restore_auto_restart pmie
 	_service pmie start >>$here/$seq.full 2>&1
     else
