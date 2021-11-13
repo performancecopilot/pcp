@@ -43,6 +43,7 @@ pmproxy_pid=$!
 # check pmproxy has started and is available for requests
 pmcd_wait -h localhost@localhost:$pmproxyport -v -t 5sec
 grep -o "Redis.*" $tmp.pmproxy.log
+cat $tmp.pmproxy.log >>$seq.full
 $signal -s TERM $pmproxy_pid
 pmproxy_pid=""
 
@@ -58,9 +59,9 @@ pmproxy_pid=$!
 # check pmproxy has started and is available for requests
 pmcd_wait -h localhost@localhost:$pmproxyport -v -t 5sec
 grep -o "Redis.*" $tmp.pmproxy.log
+cat $tmp.pmproxy.log >>$seq.full
 $signal -s TERM $pmproxy_pid
 pmproxy_pid=""
-
 
 # success, all done
 exit
