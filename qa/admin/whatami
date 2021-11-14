@@ -5,7 +5,7 @@
 # whatami [-d][-h]
 #
 
-fmt="%-11.11s %-8.8s %-7.7s %s%s%s\n"
+fmt="%-19.19s %-8.8s %-7.7s %s%s%s\n"
 sts=0
 debug=false
 heading=false
@@ -35,7 +35,7 @@ done
 if $heading
 then
     printf "$fmt" "Host" "PCP" "CPU" "Operating System and Options"
-    printf "$fmt" "-----------" "--------" "------" "-----------------------------"
+    printf "$fmt" "-------------------" "--------" "------" "-----------------------------"
 fi
 
 from=''

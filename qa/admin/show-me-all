@@ -27,6 +27,14 @@ _usage()
     exit
 }
 
+_map_ci_hostname()
+{
+    sed \
+	-e 's/^test-/ci-/' \
+	-e 's/-container$//' \
+    # end
+}
+
 full=false
 pcpdir=$HOME/src/pcp
 verbose=false
@@ -209,7 +217,15 @@ then
 	myvar=`grep " $sum\$" $tmp.map | sed -e 's/ .*//'`
 	if [ -z "$myvar" ]
 	then
-	    cp $HOME/Logs/by-vm/$host/qa/$seq.out.bad /tmp/show-me-all/$seq.out.bad-$var
+	    if [ -f $HOME/Logs/by-vm/$host/qa/$seq.out.bad ]
+	    then
+		cp $HOME/Logs/by-vm/$host/qa/$seq.out.bad /tmp/show-me-all/$seq.out.bad-$var
+	    elif [ -f $HOME/Logs/by-vm/$host/$seq.out.bad ]
+	    then
+		cp $HOME/Logs/by-vm/$host/$seq.out.bad /tmp/show-me-all/$seq.out.bad-$var
+	    else
+		echo "Warning: can't find $seq.out.bad for $host"
+	    fi
 	    myvar=$var
 	    echo "$var $sum" >>$tmp.map
 	    var=`expr $var + 1`
@@ -218,6 +234,13 @@ then
 	if [ -f $HOME/whatami.out ]
 	then
 	    myhost=`grep "^$host " $HOME/whatami.out`
+	    if [ -z "$myhost" ]
+	    then
+		cd $HOME/Logs/by-vm/$host
+		cihost=`/bin/pwd | sed -e "s@.*/@@" | _map_ci_hostname`
+		myhost=`grep "^$cihost " $HOME/whatami.out`
+		cd $here
+	    fi
 	fi
 	[ -z "$myhost" ] && myhost=$host
 	printf " %2d   %s\n" $myvar "$myhost" >>$tmp.mail
@@ -225,19 +248,19 @@ then
     echo "Subject: QA failures for qa/$seq (`grep "^$seq " $HOME/src/pcp/qa/group | sed \
 -e "s/^$seq //" -e 's/ local//' -e 's/ remote//'`)"
     echo
-    echo "QA test $seq is failing on a number of machines in the QA Farm."
+    echo "QA test $seq is failing on a number of machines in the QA Farm and CI."
     echo
     echo "If you can help with diagnosis that would be most appreciated."
     echo
-    echo "Even better would be code changes if this indicates there is a"
-    echo "real bug or QA changes if it represents a QA test failure."
+    echo "Even better would be code changes if this indicates there is a real"
+    echo "bug or QA changes if it represents a QA test failure."
     echo
     numvar=`echo /tmp/show-me-all/$seq.out.bad-* | wc -w | sed -e 's/  */ /g'`
     if [ "$numvar" -gt 1 ]
     then
 	echo "Details for qa/$seq failures."
 	echo
-	echo "bad-  Host        PCP      CPU     Operating System"
+	echo "bad-  Host                PCP      CPU     Operating System"
 	sort -k1,1n -k2,2 <$tmp.mail
 	echo
 	echo "The $numvar variants of the $seq.out.bad file are attached."
@@ -246,7 +269,7 @@ then
     else
 	echo "The failure is the same on all the following hosts."
 	echo
-	echo "Host        PCP      CPU     Operating System"
+	echo "Host                PCP      CPU     Operating System"
 	sort -k1,1n -k2,2 <$tmp.mail | sed -e 's/^......//'
 	echo
 	echo "The $seq.out.bad file is attached."
