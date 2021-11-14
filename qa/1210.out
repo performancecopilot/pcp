@@ -48,14 +48,14 @@ Error: could not complete create operation
 pmcd Host Archive Class PID State 
 LOCALHOSTNAME <archivename> <seq> <pid> running 
 localhost <archivename> <seq> <pid> running 
-no.such.host.pcp.io ? <seq> ? STOPPED_OR_DEAD
+no.such.host.pcp.io ? <seq> ? dead 
 
 === stopping (as part of destroy) a stopped pmlogger instance
 Warning: cannot find PID for host no.such.host.pcp.io pmlogger, already exited?
 pmcd Host Archive Class PID State 
 LOCALHOSTNAME <archivename> <seq> <pid> running 
 localhost <archivename> <seq> <pid> running 
-no.such.host.pcp.io ? <seq> ? STOPPED_OR_DEAD
+no.such.host.pcp.io ? <seq> ? stopped by pmlogctl
 Warning: pmlogger for host no.such.host.pcp.io already stopped, nothing to do
 pmcd Host Archive Class PID State 
 LOCALHOSTNAME <archivename> <seq> <pid> running 
@@ -71,8 +71,8 @@ Looking for pmlogger using directory PCP_ARCHIVE_DIR/1210-LOCALHOSTNAME ...
 Looking for pmlogger using directory PCP_ARCHIVE_DIR/1210-localhost ...
 Warning: removing lock file older than 30 minutes (PID <mypid>)
 pmcd Host Archive Class PID State 
-LOCALHOSTNAME ? <seq> ? STOPPED_OR_DEAD
-localhost ? <seq> ? STOPPED_OR_DEAD
+LOCALHOSTNAME ? <seq> ? stopped by pmlogctl
+localhost ? <seq> ? stopped by pmlogctl
 Enable pmlogger for host LOCALHOSTNAME and directory PCP_ARCHIVE_DIR/1210-LOCALHOSTNAME in control file PCP_ETC_DIR/pcp/pmlogger/control.d/1210-LOCALHOSTNAME
 Enable pmlogger for host localhost and directory PCP_ARCHIVE_DIR/1210-localhost in control file PCP_ETC_DIR/pcp/pmlogger/control.d/1210-localhost
 Looking for pmlogger using directory PCP_ARCHIVE_DIR/1210-LOCALHOSTNAME ...

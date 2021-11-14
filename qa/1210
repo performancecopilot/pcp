@@ -75,8 +75,6 @@ _filter_status()
 	-e "s/^$localhost /LOCALHOSTNAME /" \
 	-e "s/ $seq / <seq> /" \
 	-e 's/ [0-9][0-9]* / <pid> /' \
-	-e 's/stopped.*$/STOPPED_OR_DEAD/' \
-	-e 's/dead.*$/STOPPED_OR_DEAD/' \
     # end
     head -1 $tmp.tmp
     sed -e '1d' $tmp.tmp | LC_COLLATE=POSIX sort
@@ -147,16 +145,23 @@ echo
 echo "=== bad host, pmlogger won't start"
 $sudo pmlogctl -p $tmp.policy -c $seq create no.such.host.pcp.io
 # it may take a while for this one to really get into "dead" state
-# as we wander off into the DNS weeds
+# as we wander off into the DNS weeds, and we need the pmlogctl
+# lock file to be removed (so the last "create" is really finished)
+#
+# max wait 61secs, a bit longer than the 60secs max wait in
+# _check_started() for pmlogctl ...
 #
 i=0
-while [ $i -lt 50 ]
+while [ $i -lt 61 ]
 do
     if pmlogctl status 2>&1 | grep '^no.such.host.pcp.io .* dead *$' >/dev/null
     then
-	break
+	if [ ! -f $PCP_ETC_DIR/pcp/pmlogger/lock ]
+	then
+	    break
+	fi
     fi
-    pmsleep 0.1
+    pmsleep 1
     i=`expr $i + 1`
 done
 pmlogctl status | _filter_status
