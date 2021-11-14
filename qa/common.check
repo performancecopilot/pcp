@@ -834,17 +834,19 @@ _wait_for_pmlogger()
 	# For hard debugging, add -Dpdu,context,desperate to pmlc invocation
 	# below.
 	#
-	if pmlc $_pid </dev/null 2>&1 \
-		| tee -a $tmp._wait_for_pmlogger.pmlc \
-		| grep "^Connected to .*pmlogger" >/dev/null
+	echo status | pmlc $_pid >$tmp._wait_for_pmlogger.tmp 2>&1
+	if grep "^Connected to .*pmlogger" $tmp._wait_for_pmlogger.tmp >/dev/null
 	then
 	    # pmlogger socket has been set up ...
 	    _dead=false
+	    echo "_wait_for_pmlogger() success at iter $_i ..." >>$here/$seq.full
+	    cat $tmp._wait_for_pmlogger.tmp >>$here/$seq.full
 	    # give pmlogger a chance to detect that pmlc has gone away
 	    # so the port is free
 	    pmsleep 0.25
 	    break
         else
+	    cat $tmp._wait_for_pmlogger.tmp >>$tmp._wait_for_pmlogger.pmlc
 	    sleep 1
 	    _i=`expr $_i + 1`
 	fi
