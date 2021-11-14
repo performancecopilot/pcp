@@ -247,7 +247,7 @@ _service()
 
 		if [ "$2" = start -o "$2" = restart ]
 		then
-		    $_verbose && echo "_service: using systemctl $2 $pmcd.service then pmlogger.service"
+		    $_verbose && echo "_service: using systemctl $2 pmcd.service then pmlogger.service"
 		    $sudo systemctl $2 pmcd.service
 		    $sudo systemctl $2 pmlogger.service
 		else
