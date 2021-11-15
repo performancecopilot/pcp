@@ -34,11 +34,11 @@ _filter()
 	-e "s,$tmp.config,TMP.config,g" \
 	-e "s,$tmp.pmlogconf,GROUPDIR,g" \
 	-e "s/[0-9][0-9]*-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:.*/TIMESTAMP/g" \
+	 -e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]/TIMESTAMP/' \
     # end
 }
 
 # real QA test starts here
-LC_TIME=POSIX
 
 echo "Create a well-known set of pmlogconf templates"
 mkdir -p $tmp.pmlogconf/qa
@@ -74,7 +74,10 @@ yes
 no
 yes
 EOF
-cat $tmp.expect | pmlogconf -d $tmp.pmlogconf $tmp.config | _filter
+cat $tmp.expect \
+| pmlogconf -d $tmp.pmlogconf $tmp.config \
+| tee -a $here/$seq.full \
+| _filter
 echo
 echo
 
