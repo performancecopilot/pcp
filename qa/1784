@@ -13,6 +13,11 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+# need these metrics for pmlogctl predicates to be deterministic
+#
+_need_metric mmv.control.files
+_need_metric pmproxy.control.files
+
 _cleanup()
 {
     cd $here
@@ -46,7 +51,7 @@ EOF
 cat >$tmp.pmlogconf/qa/hinv <<EOF
 #pmlogconf-setup 2.0
 ident	Instrumented applications summary information
-probe	hinv.ncpu > 1 ? include : exclude
+probe	hinv.ncpu >= 1 ? include : exclude
 	hinv
 EOF
 cat >$tmp.pmlogconf/qa/pmproxy <<EOF
