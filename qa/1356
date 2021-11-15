@@ -34,13 +34,6 @@ status=0	# success is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-_filter()
-{
-    sed \
-	-e 's/<something>/<else>/' \
-    # end
-}
-
 seinfo --common >/dev/null 2>&1
 if test $? -eq 0
 then
@@ -51,15 +44,42 @@ fi
 
 # attributes
 #
-seinfo -a $seinfo_common_flag >$tmp.attr
+if seinfo -a $seinfo_common_flag >$tmp.attr 2>>$tmp.err
+then
+    echo "Attributes ..." >>$seq.full
+    cat -n $tmp.attr | head -3 >>$seq.full
+    echo "..." >>$seq.full
+    cat -n $tmp.attr | tail -3 >>$seq.full
+else
+    _notrun "seinfo -a fails: `cat $tmp.err`"
+    # NOTREACHED
+fi
 
 # types
 #
-seinfo -t $seinfo_common_flag >$tmp.type
+if seinfo -t $seinfo_common_flag >$tmp.type 2>>$tmp.err
+then
+    echo "Types ..." >>$seq.full
+    cat -n $tmp.type | head -3 >>$seq.full
+    echo "..." >>$seq.full
+    cat -n $tmp.type | tail -3 >>$seq.full
+else
+    _notrun "seinfo -t fails: `cat $tmp.err`"
+    # NOTREACHED
+fi
 
 # classes
 #
-seinfo -c $seinfo_common_flag >$tmp.class
+if seinfo -c $seinfo_common_flag >$tmp.class 2>>$tmp.err
+then
+    echo "Classes ..." >>$seq.full
+    cat -n $tmp.class | head -3 >>$seq.full
+    echo "..." >>$seq.full
+    cat -n $tmp.class | tail -3 >>$seq.full
+else
+    _notrun "seinfo -c fails: `cat $tmp.err`"
+    # NOTREACHED
+fi
 
 # real QA test starts here
 
