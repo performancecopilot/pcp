@@ -36,8 +36,15 @@ void
 proxylog(pmLogLevel level, sds message, void *arg)
 {
     struct proxy	*proxy = (struct proxy *)arg;
-    const char		*state = proxy->slots ? "" : "- DISCONNECTED - ";
+    const char		*state;
     int			priority;
+
+    if (proxy == NULL) {
+	/* early error message, before setup */
+	state = "- EPOCH - ";
+    }
+    else
+	state = proxy->slots ? "" : "- DISCONNECTED - ";
 
     switch (level) {
     case PMLOG_TRACE:

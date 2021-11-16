@@ -630,8 +630,17 @@ pmseries_log(pmLogLevel level, sds message, void *arg)
     pmSeriesBaton	*baton = (pmSeriesBaton *)arg;
 
     /* locally log low priority diagnostics or when already responding */
-    if (level <= PMLOG_INFO || baton->suffix)
-	proxylog(level, message, baton->client->proxy);
+    if (baton == NULL) {
+	fprintf(stderr, "pmseries_log: Botch: baton is NULL msg=\"%s\"\n", message);
+	__pmDumpStack(stderr);
+	return;
+    }
+    if (level <= PMLOG_INFO || baton->suffix) {
+	if (baton->client == NULL)
+	    proxylog(level, message, NULL);
+	else
+	    proxylog(level, message, baton->client->proxy);
+    }
     else	/* inform client, complete request */
 	on_pmseries_error(level, message, baton);
 }
