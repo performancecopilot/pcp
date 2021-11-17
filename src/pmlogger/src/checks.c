@@ -296,8 +296,13 @@ validate_metrics(void)
 	}
 	names = (const char **)tp->t_namelist;
 	if ((sts = pmLookupName(tp->t_numpmid, names, new_pmids)) < 0) {
-	    fprintf(stderr, "Error looking up metrics: Reason: %s\n",
-		    pmErrStr(sts));
+	    fprintf(stderr, "Error looking up %d metrics (", tp->t_numpmid);
+	    fprintf(stderr, "%s", names[0]);
+	    if (tp->t_numpmid == 2)
+		fprintf(stderr, ", %s", names[1]);
+	    else if (tp->t_numpmid > 2)
+		fprintf(stderr, ", ... %s", names[tp->t_numpmid-1]);
+	    fprintf(stderr, "): Reason: %s\n", pmErrStr(sts));
 	    exit(1);
 	}
 
