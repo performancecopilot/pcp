@@ -52,7 +52,7 @@ llvm-devel
 lm_sensors
 mailx
 make
-man
+man-db
 mandoc
 mariadb
 memcached
