@@ -26,6 +26,9 @@ _cleanup()
 # __pmProcessExec: pid=1965 wait_pid=1965
 # __pmProcessPipe: map[0 of 1] child pid=1695 fp=0x55eb928fdd20
 #
+# also the order of stderr is not deterministic ... parent and child
+# are both writing here, so sort this bit
+#
 _filter()
 {
     tee -a $here/$seq.full \
@@ -33,7 +36,14 @@ _filter()
 	-e 's/pid=[0-9][0-9]*/pid=PID/g' \
 	-e 's/fp=[^ ]*/fp=ADDR/' \
 	-e "s@$tmp@TMP@g" \
-    #end
+    | $PCP_AWK_PROG '
+BEGIN		{ state = 1 }
+/^=== filtered/	{ state = 3 }
+		{ print >"'$tmp'." state }
+/^=== std err/	{ state = 2 }'
+    cat $tmp.1
+    [ -s $tmp.2 ] && LC_COLLATE=POSIX sort $tmp.2
+    [ -s $tmp.3 ] && cat $tmp.3
 }
 
 # whitespace in od(1) output is not consistent across platforms
