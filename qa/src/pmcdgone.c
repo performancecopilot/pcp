@@ -34,8 +34,19 @@ _ConnectLogger(void)
     int		pid = PM_LOG_PRIMARY_PID;
     int		port = PM_LOG_NO_PORT;
     int		sts;
+    int		i;
 
-    if ((n = __pmConnectLogger("localhost", &pid, &port)) < 0) {
+    /*
+     * be prepared to try 10 times here ... pmlogger's  pmlc port maybe busy
+     */
+    for (i = 0; i < 10; i++) {
+	struct timespec delay = { 0, 100000000 };	/* 0.1 sec */
+	n = __pmConnectLogger("localhost", &pid, &port);
+	if (n >= 0)
+	    break;
+	(void)nanosleep(&delay, NULL);
+    }
+    if (n < 0) {
 	printf("Cannot connect to primary pmlogger on \"localhost\": %s\n", pmErrStr(n));
 	exit(1);
     }

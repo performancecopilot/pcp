@@ -151,9 +151,18 @@ USAGE:
 	exit(1);
     }
 
-    if ((sts = __pmConnectLogger(host, &pid, &port)) < 0) {
-	printf("%s: Cannot connect to pmlogger (%d) on host \"%s\": %s\n",
-	    pmGetProgname(), pid, host, pmErrStr(sts));
+    /*
+     * be prepared to try 10 times here ... pmlogger's  pmlc port maybe busy
+     */
+    for (i = 0; i < 10; i++) {
+	struct timespec delay = { 0, 100000000 };	/* 0.1 sec */
+	sts = __pmConnectLogger(host, &pid, &port);
+	if (sts >= 0)
+	    break;
+	(void)nanosleep(&delay, NULL);
+    }
+    if (sts < 0) {
+	printf("%s: Cannot connect to pmlogger (%d) on host \"%s\": %s\n", pmGetProgname(), pid, host, pmErrStr(sts));
 	exit(1);
     }
     ctlport = sts;
