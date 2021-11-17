@@ -518,14 +518,14 @@ reportconfig(void)
     if (global.flags & GLOBAL_CHANGE_TIME) {
 	static struct tm	*tmp;
 	char			*sign = "";
-	time_t			time;
+	time_t			ltime;
 	if (global.time.sec < 0) {
-	    time = (time_t)(-global.time.sec);
+	    ltime = (time_t)(-global.time.sec);
 	    sign = "-";
 	}
 	else
-	    time = (time_t)global.time.sec;
-	tmp = gmtime(&time);
+	    ltime = (time_t)global.time.sec;
+	tmp = gmtime(&ltime);
 	tmp->tm_hour += 24 * tmp->tm_yday;
 	if (tmp->tm_hour < 10)
 	    printf("Delta:\t\t-> %s%02d:%02d:%02d.%09d\n", sign, tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)global.time.nsec);

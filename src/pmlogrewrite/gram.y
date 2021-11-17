@@ -1686,7 +1686,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 		| TOK_DELETE
 		    {
 			metricspec_t	*mp;
-			for (mp = walk_metric(W_START, METRIC_DELETE, "delete", 0); mp != NULL; mp = walk_metric(W_NEXT, METRIC_DELETE, "delete", 0)) {
+			for (mp = walk_metric(W_START, METRIC_DELETE, "delete", 1); mp != NULL; mp = walk_metric(W_NEXT, METRIC_DELETE, "delete", 0)) {
 			    mp->flags |= METRIC_DELETE;
 			}
 		    }
