@@ -30,6 +30,10 @@
 #
 # blank lines before the @ line are ignored
 #
+# for snmp-related metrics, help text can be sourced from
+#   https://www.kernel.org/doc/html/latest/networking/snmp_counter.html
+# and
+#   https://datatracker.ietf.org/doc/html/rfc1213
 
 @ 60.0 set of all processors
 @ 60.1 set of all disks
@@ -1538,7 +1542,13 @@ to maintain capacity for other less active flows.
 @ network.ip6.reasmtimeout count of ip6 reasmtimeout
 @ network.ip6.reasmreqds count of ip6 reassembly requireds
 @ network.ip6.reasmoks count of ip6 reassembly oks
+
 @ network.ip6.reasmfails count of ip6 reassembly failures
+The number of failures detected by the IPv6 re-assembly algorithm (for
+whatever reason: timed out, errors, etc).  Note that this is not necessarily
+a count of discarded IPv6 fragments since some algorithms can lose track
+of the number of fragments by combining them as they are received.
+
 @ network.ip6.fragoks count of ip6 fragmentation oks
 @ network.ip6.fragfails count of ip6 fragmentation failures
 @ network.ip6.fragcreates count of ip6 fragmentation creations
@@ -1742,7 +1752,13 @@ tools running on IRIX.
 @ network.ip.reasmtimeout count of ip reasmtimeout
 @ network.ip.reasmreqds count of ip reasmreqds
 @ network.ip.reasmoks count of ip reasmoks
+
 @ network.ip.reasmfails count of ip reasmfails
+The number of failures detected by the IP re-assembly algorithm (for whatever
+reason: timed out, errors, etc).  Note that this is not necessarily a
+count of discarded IP fragments since some algorithms can lose track of
+the number of fragments by combining them as they are received.
+
 @ network.ip.fragoks count of ip fragoks
 @ network.ip.fragfails count of ip fragfails
 @ network.ip.fragcreates count of ip fragcreates
