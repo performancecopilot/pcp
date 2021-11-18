@@ -570,7 +570,13 @@ open_request_local(struct proxy *proxy, struct server *server,
     uv_pipe_init(proxy->events, &stream->u.local, 0);
     handle = (uv_handle_t *)&stream->u.local;
     handle->data = (void *)proxy;
-    uv_pipe_bind(&stream->u.local, name);
+    sts = uv_pipe_bind(&stream->u.local, name);
+    if (sts != 0) {
+	fprintf(stderr, "%s: local bind (%s) error %s\n",
+			pmGetProgname(), name, uv_strerror(sts));
+	uv_close(handle, NULL);
+        return -ENOTCONN;
+    }
 #ifdef HAVE_UV_PIPE_CHMOD
     uv_pipe_chmod(&stream->u.local, UV_READABLE | UV_WRITABLE);
 #endif
