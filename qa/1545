@@ -49,8 +49,13 @@ _prepare_pmda_mmv
 echo testing names-change=update with pcp2xml
 pcp2xml -s 4 -t 4 -5 -r --names-change=update mmv.control.files mmv.test | _filter_xml &
 
-pmsleep 2
+# timing here is a bit tricky ... need long enough for pcp2xml to get
+# started and first sample done, but we need to run mmv_genstats before
+# the second sample is done
+#
+pmsleep 2.5
 $here/src/mmv_genstats test 2
+
 wait
 
 # success, all done
