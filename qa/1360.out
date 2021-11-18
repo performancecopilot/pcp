@@ -1,4 +1,9 @@
 QA output created by 1360
+=== pmproxy load test ===
+Sending 100 /context and /fetch requests...
+Successful responses: 100/100 (100%)
+=== check pmproxy is running ===
+pmproxy check passed
 === valgrind stdout ===
 === valgrind stderr ===
 Log for pmproxy on HOST started DATE

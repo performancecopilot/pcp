@@ -66,11 +66,37 @@ pid=$!
 echo "valgrind pid: $pid" >>$seq.full
 echo "pmproxy port: $port" >>$seq.full
 
-# wait, terminate pmproxy, wait ...
-#
-pmsleep 3
+# valgrind takes awhile to fire up
+i=0
+while [ $i -lt 30 ]
+do
+    $PCP_BINADM_DIR/telnet-probe -c localhost $port && break
+    sleep 1
+    i=`expr $i + 1`
+done
+if $PCP_BINADM_DIR/telnet-probe -c localhost $port
+then
+    echo "Startup took $i secs" >>$seq.full
+else
+    echo "Arrgh: valgrind failed start pmproxy and get port $port ready after 30 secs"
+    exit
+fi
+
+date >>$seq.full
+echo "=== pmproxy load test ===" | tee -a $seq.full
+./src/pmproxy_load_test.python $port 100
+
+echo "=== check pmproxy is running ==="
+pminfo -v -h localhost@localhost:$port hinv.ncpu
+if [ $? -eq 0 ]; then
+    echo "pmproxy check passed"
+else
+    echo "pmproxy check failed"
+fi
+
+# valgrind takes awhile to shutdown too
 pmsignal $pid
-pmsleep 3
+pmsleep 3.5
 
 echo "=== valgrind stdout ===" | tee -a $seq.full
 cat $tmp.valout | _filter_valgrind
