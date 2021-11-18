@@ -75,12 +75,38 @@ else
 fi
 _wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
 
+# be prepared to retry ...
+#
+_talk_to_pmlogger()
+{
+    _i=0
+    while [ $_i -lt 10 ]
+    do
+	if [ -n "$3" ]
+	then
+	    ( echo "$1"; echo "$2"; echo "$3" ) | pmlc >$tmp.out 2>&1
+	else
+	    ( echo "$1"; echo "$2" ) | pmlc >$tmp.out 2>&1
+	fi
+	if grep 'Error' $tmp.out >/dev/null
+	then
+	    echo "_talk_to_pmlogger \"$1\" \"$2\" \"$3\": failed @ iter $_i" >>$seq.full
+	    cat $tmp.out >>$seq.full
+	    pmsleep 0.1
+	    _i=`expr $_i + 1`
+	else
+	    echo "_talk_to_pmlogger \"$1\" \"$2\" \"$3\": success @ iter $_i" >>$seq.full
+	    break
+	fi
+    done
+    cat $tmp.out
+}
+
 # Reset pmlogger
 echo "log sample.dynamic.meta.metric"
 # Log the sample pmda's sample.dynamic.meta.metric
-echo 'connect primary
-log mandatory on 500 msec { sample.dynamic.meta.metric }' \
-    | pmlc
+_talk_to_pmlogger 'connect primary' \
+		    'log mandatory on 500 msec { sample.dynamic.meta.metric }'
 
 # log a few samples
 sleep 2
@@ -113,10 +139,9 @@ egrep '(<mark>)|(sample.dynamic.meta.metric)' $tmp.out \
 echo "---------------------------------------------------------------"
 
 # Stop logging the sample pmda's sample.dynamic.meta.metric
-echo 'connect primary
-log mandatory off { sample.dynamic.meta.metric }
-flush' \
-| pmlc
+_talk_to_pmlogger 'connect primary' \
+		'log mandatory off { sample.dynamic.meta.metric }' \
+		'flush'
 
 echo >>$seq.full
 echo "pmlogger log ..." >>$seq.full
