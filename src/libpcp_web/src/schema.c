@@ -23,7 +23,7 @@
 #define STRINGIFY(s)	#s
 #define TO_STRING(s)	STRINGIFY(s)
 #define SERIES_VERSION	2
-#define SERVER_VERSION	5
+#define REDIS_VERSION	5
 
 extern sds		cursorcount;
 static sds		maxstreamlen;
@@ -1301,11 +1301,13 @@ redis_load_version_callback(
 	    	if (*endnum != '.') {
 		    infofmt(msg, "redis server version parse error");
 		    batoninfo(baton, PMLOG_ERROR, msg);
-	    	} else if (server_version < SERVER_VERSION) {
+	    	} else if (server_version < REDIS_VERSION) {
 		    infofmt(msg, "unsupported redis server (got v%u, expected v%u or above)", 
-				server_version, SERVER_VERSION);
+				server_version, REDIS_VERSION);
 	    	    batoninfo(baton, PMLOG_ERROR, msg);
 		    baton->slots->state = SLOTS_ERR_FATAL;
+		    /* set error flag and do not continue with other callbacks of this baton */
+		    baton->error = 1;
 	    	}
 	    	break;
 	    }
