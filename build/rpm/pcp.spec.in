@@ -2528,7 +2528,14 @@ PCP_PMDAS_DIR=@pcp_pmdas_dir@
 PCP_SYSCONFIG_DIR=@pcp_sysconfig_dir@
 PCP_PMCDCONF_PATH=@pcp_pmcdconf_path@
 # auto-install important PMDAs for RH Support (if not present already)
-for PMDA in dm nfsclient openmetrics ; do
+needinstall='dm'
+%if "@have_python@" == "true"
+needinstall="$needinstall nfsclient"
+%endif
+%if "@pmda_openmetrics@" == "true"
+needinstall="$needinstall openmetrics"
+%endif
+for PMDA in $needinstall ; do
     if ! grep -q "$PMDA/pmda$PMDA" "$PCP_PMCDCONF_PATH"
     then
 	%{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
@@ -2551,14 +2558,10 @@ pmieconf -c enable dmthin
 %else
     /sbin/chkconfig --add pmcd >/dev/null 2>&1
     /sbin/chkconfig --add pmlogger >/dev/null 2>&1
-    /sbin/chkconfig --add pmlogger_farm >/dev/null 2>&1
     /sbin/chkconfig --add pmie >/dev/null 2>&1
-    /sbin/chkconfig --add pmie_farm >/dev/null 2>&1
     /sbin/service pmcd condrestart
     /sbin/service pmlogger condrestart
-    /sbin/service pmlogger_farm condrestart
     /sbin/service pmie condrestart
-    /sbin/service pmie_farm condrestart
 %endif
 
 %if "@enable_selinux@" == "true"
