@@ -1806,6 +1806,7 @@ x11
 1357 pmda.podman valgrind local
 1358 pmda.podman local
 1359 libpcp local pmdbg
+1360 pmproxy valgrind local
 1362 pmda.postgresql local
 1367 labels pmda.simple local python dbpmda
 1368 labels help pmlogger pmdumplog local sanity
