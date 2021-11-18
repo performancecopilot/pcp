@@ -76,7 +76,7 @@ OutNoRoutes|NNN dropped because of missing route|network.ip.outnoroutes
 ReasmTimeout|NNN fragments dropped after timeout|network.ip.reasmtimeout
 ReasmReqds|NNN reassemblies required|network.ip.reasmreqds
 ReasmOKs|NNN packets reassembled ok|network.ip.reasmoks
-ReasmFails|NNN packet reassembles failed|network.ip.reasmfails
+ReasmFails|NNN packet reassemblies failed|network.ip.reasmfails
 FragOKs|NNN fragments received ok|network.ip.fragoks
 FragFails|NNN fragments failed|network.ip.fragfails
 FragCreates|NNN fragments created|network.ip.fragcreates
