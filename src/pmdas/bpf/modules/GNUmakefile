@@ -25,8 +25,11 @@ install_pcp install:	default
 #
 # clang-12 special notes: https://www.spinics.net/lists/netdev/msg689901.html
 
-%.bpf.o: %.bpf.c
-	$(PMDABPF_CLANG) -Wall -g -O2 -target bpf -D__TARGET_ARCH_x86 -c $< -o $@
+vmlinux.h: $(PMDABPF_VMLINUXH)
+	ln -s $< $@
+
+%.bpf.o: %.bpf.c vmlinux.h
+	$(PMDABPF_CLANG) -Wall -g -O2 -target bpf -D__TARGET_ARCH_$(PMDABPF_ARCH) -c $< -o $@
 	$(PMDABPF_LLVM_STRIP) -g $@
 
 %.skel.h: %.bpf.o
@@ -51,4 +54,4 @@ install_pcp install:	default
 	$(LINK.c) -lbpf -shared $^ -o $@
 
 clean::
-	rm -f $(MODULES) *.o *.skel.h
+	rm -f $(MODULES) *.o *.skel.h vmlinux.h

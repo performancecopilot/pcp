@@ -177,6 +177,12 @@ AC_ARG_WITH([pmdabpf-bpftool],
     [PMDABPF_BPFTOOL=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpf-bpftool=$withval"],
     [PMDABPF_BPFTOOL=''])
 
+AC_ARG_WITH([pmdabpf-btf],
+    [AC_HELP_STRING([--with-pmdabpf-btf],
+                    [path to kernel BTF sources (default is empty to use vendored kernel type information)])],
+    [PMDABPF_BTF=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpf-btf=$withval"],
+    [PMDABPF_BTF=''])
+
 AC_ARG_WITH([pmdabpftrace],
     [AC_HELP_STRING([--with-pmdabpftrace],
 		   [enable bpftrace pmda (default is on)])],
@@ -1166,35 +1172,62 @@ AC_SUBST(HAVE_LIBBPF, [$have_libbpf])
 PKG_CHECK_MODULES([libelf], [libelf], [have_libelf=true], [have_libelf=false])
 AC_SUBST(HAVE_LIBELF, [$have_libelf])
 
-dnl Auto-discover clang, llvm-strip and bpftool if not provided by the user
+dnl Auto-discover clang if not provided by the user
 if test -z "$PMDABPF_CLANG"; then
     AC_PATH_PROG(PMDABPF_CLANG, clang)
 fi
 pmdabpf_clang=$PMDABPF_CLANG
 AC_SUBST(pmdabpf_clang)
 
+dnl Auto-discover llvm-strip if not provided by the user
 if test -z "$PMDABPF_LLVM_STRIP"; then
     AC_PATH_PROG(PMDABPF_LLVM_STRIP, llvm-strip)
 fi
 pmdabpf_llvm_strip=$PMDABPF_LLVM_STRIP
 AC_SUBST(pmdabpf_llvm_strip)
 
+dnl Auto-discover bpftool if not provided by the user
 if test -z "$PMDABPF_BPFTOOL"; then
     AC_PATH_PROG(PMDABPF_BPFTOOL, bpftool)
 fi
 pmdabpf_bpftool=$PMDABPF_BPFTOOL
 AC_SUBST(pmdabpf_bpftool)
 
+dnl Get BPF CO-RE arch identifier
+AC_MSG_CHECKING([BPF CO-RE architecture identifier])
+pmdabpf_arch=`uname -m | sed 's/x86_64/x86/' | sed 's/aarch64/arm64/' | sed 's/ppc64le/powerpc/' | sed 's/mips.*/mips/'`
+AC_SUBST(pmdabpf_arch)
+AC_MSG_RESULT($pmdabpf_arch)
+
+dnl Generate vmlinux.h if PMDABPF_BTF is provided by the user,
+dnl otherwise fall back to vendored vmlinux.h
+pmdabpf_vmlinuxh=""
+if test -n "$PMDABPF_BTF"; then
+    pmdabpf_vmlinuxh="`pwd`/src/pmdas/bpf/vmlinux.h"
+    AC_MSG_NOTICE([generating $pmdabpf_vmlinuxh from $PMDABPF_BTF])
+    $PMDABPF_BPFTOOL btf dump file "$PMDABPF_BTF" format c > $pmdabpf_vmlinuxh
+else
+    pmdabpf_arch_vmlinux="`pwd`/src/pmdas/bpf/vendor/vmlinux/$pmdabpf_arch/vmlinux.h"
+    if test -f "$pmdabpf_arch_vmlinux"; then
+	pmdabpf_vmlinuxh="$pmdabpf_arch_vmlinux"
+    else
+	AC_MSG_NOTICE([vmlinux.h for architecture $pmdabpf_arch is not vendored, please use --with-pmdabpf-btf to generate a vmlinux.h for $pmdabpf_arch])
+    fi
+fi
+AC_SUBST(pmdabpf_vmlinuxh)
+AC_MSG_CHECKING([for vmlinux.h])
+if test -f "$pmdabpf_vmlinuxh"; then AC_MSG_RESULT($pmdabpf_vmlinuxh); else AC_MSG_RESULT(not found); fi
+
 AC_MSG_CHECKING([if the bpf PMDA should be included])
 pmda_bpf=false
 AS_IF([test "x$do_pmdabpf" = "xyes"], [pmda_bpf=true])
 AS_IF([test "x$do_pmdabpf" = "xcheck"], [
     dnl pmdabpf requires libbpf, libelf and bpftool
-    if test $clang_major_version -ge 10; then
-        $have_libbpf && $have_libelf && test -n "$pmdabpf_bpftool" && pmda_bpf=true
-    else
-        pmda_bpf=false
-    fi
+    $have_libbpf && $have_libelf && \
+	test $clang_major_version -ge 10 && \
+	test -x "$pmdabpf_bpftool" && \
+	test -f "$pmdabpf_vmlinuxh" && \
+	pmda_bpf=true
 ])
 AC_SUBST(PMDA_BPF, $pmda_bpf)
 if $pmda_bpf; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi

@@ -861,6 +861,8 @@ pcp_perl_prog
 PERL
 PMDA_BPFTRACE
 PMDA_BPF
+pmdabpf_vmlinuxh
+pmdabpf_arch
 pmdabpf_bpftool
 PMDABPF_BPFTOOL
 pmdabpf_llvm_strip
@@ -1056,6 +1058,7 @@ with_pmdabpf
 with_pmdabpf_clang
 with_pmdabpf_llvm_strip
 with_pmdabpf_bpftool
+with_pmdabpf_btf
 with_pmdabpftrace
 with_pmdajson
 with_pmdanutcracker
@@ -1803,6 +1806,8 @@ Optional Packages:
                           discovery)
   --with-pmdabpf-bpftool  path to bpftool (default is empty for auto
                           discovery)
+  --with-pmdabpf-btf      path to kernel BTF sources (default is empty to use
+                          vendored kernel type information)
   --with-pmdabpftrace     enable bpftrace pmda (default is on)
   --with-pmdajson         enable JSON pmda (default is on)
   --with-pmdanutcracker   enable nutcracker pmda (default is on)
@@ -3005,6 +3010,15 @@ if test "${with_pmdabpf_bpftool+set}" = set; then :
   withval=$with_pmdabpf_bpftool; PMDABPF_BPFTOOL=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpf-bpftool=$withval"
 else
   PMDABPF_BPFTOOL=''
+fi
+
+
+
+# Check whether --with-pmdabpf-btf was given.
+if test "${with_pmdabpf_btf+set}" = set; then :
+  withval=$with_pmdabpf_btf; PMDABPF_BTF=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpf-btf=$withval"
+else
+  PMDABPF_BTF=''
 fi
 
 
@@ -8397,6 +8411,35 @@ fi
 pmdabpf_bpftool=$PMDABPF_BPFTOOL
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking BPF CO-RE architecture identifier" >&5
+$as_echo_n "checking BPF CO-RE architecture identifier... " >&6; }
+pmdabpf_arch=`uname -m | sed 's/x86_64/x86/' | sed 's/aarch64/arm64/' | sed 's/ppc64le/powerpc/' | sed 's/mips.*/mips/'`
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pmdabpf_arch" >&5
+$as_echo "$pmdabpf_arch" >&6; }
+
+pmdabpf_vmlinuxh=""
+if test -n "$PMDABPF_BTF"; then
+    pmdabpf_vmlinuxh="`pwd`/src/pmdas/bpf/vmlinux.h"
+    { $as_echo "$as_me:${as_lineno-$LINENO}: generating $pmdabpf_vmlinuxh from $PMDABPF_BTF" >&5
+$as_echo "$as_me: generating $pmdabpf_vmlinuxh from $PMDABPF_BTF" >&6;}
+    $PMDABPF_BPFTOOL btf dump file "$PMDABPF_BTF" format c > $pmdabpf_vmlinuxh
+else
+    pmdabpf_arch_vmlinux="`pwd`/src/pmdas/bpf/vendor/vmlinux/$pmdabpf_arch/vmlinux.h"
+    if test -f "$pmdabpf_arch_vmlinux"; then
+	pmdabpf_vmlinuxh="$pmdabpf_arch_vmlinux"
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: vmlinux.h for architecture $pmdabpf_arch is not vendored, please use --with-pmdabpf-btf to generate a vmlinux.h for $pmdabpf_arch" >&5
+$as_echo "$as_me: vmlinux.h for architecture $pmdabpf_arch is not vendored, please use --with-pmdabpf-btf to generate a vmlinux.h for $pmdabpf_arch" >&6;}
+    fi
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for vmlinux.h" >&5
+$as_echo_n "checking for vmlinux.h... " >&6; }
+if test -f "$pmdabpf_vmlinuxh"; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pmdabpf_vmlinuxh" >&5
+$as_echo "$pmdabpf_vmlinuxh" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
+$as_echo "not found" >&6; }; fi
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if the bpf PMDA should be included" >&5
 $as_echo_n "checking if the bpf PMDA should be included... " >&6; }
 pmda_bpf=false
@@ -8405,11 +8448,11 @@ if test "x$do_pmdabpf" = "xyes"; then :
 fi
 if test "x$do_pmdabpf" = "xcheck"; then :
 
-        if test $clang_major_version -ge 10; then
-        $have_libbpf && $have_libelf && test -n "$pmdabpf_bpftool" && pmda_bpf=true
-    else
-        pmda_bpf=false
-    fi
+        $have_libbpf && $have_libelf && \
+	test $clang_major_version -ge 10 && \
+	test -x "$pmdabpf_bpftool" && \
+	test -f "$pmdabpf_vmlinuxh" && \
+	pmda_bpf=true
 
 fi
 PMDA_BPF=$pmda_bpf
