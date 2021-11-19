@@ -5,6 +5,7 @@
 // most of the branching configurable elements removed for the initial implementation
 
 #include "common.h"
+#include "core_fixes.bpf.h"
 
 #define MAX_ENTRIES	10240
 #define TASK_RUNNING 	0
@@ -57,7 +58,7 @@ int BPF_PROG(sched_swith, bool preempt, struct task_struct *prev,
 	u32 pid;
 	s64 delta;
 
-	if (prev->state == TASK_RUNNING)
+	if (get_task_state(prev) == TASK_RUNNING)
 		trace_enqueue(prev->tgid, prev->pid);
 
 	pid = next->pid;
