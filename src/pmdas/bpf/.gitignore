@@ -3,6 +3,7 @@ exports
 pmdabpf
 pmda_bpf.so
 modules/*.so
+modules/vmlinux.h
 
 dict.c
 dict.h

@@ -233,6 +233,8 @@ INKSCAPE = @inkscape@
 PMDABPF_CLANG = @pmdabpf_clang@
 PMDABPF_LLVM_STRIP = @pmdabpf_llvm_strip@
 PMDABPF_BPFTOOL = @pmdabpf_bpftool@
+PMDABPF_ARCH = @pmdabpf_arch@
+PMDABPF_VMLINUXH = @pmdabpf_vmlinuxh@
 
 HAVE_MANPAGES = @have_manpages@
 HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@
