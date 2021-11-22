@@ -69,9 +69,10 @@ _filter_discovery_unresolvable()
 
 _control_service_discovery()
 {
-    # Stop any peripheral long-running PCP services (anything not pmcd)
-    # that might be advertising on the network, potentially interfering
-    # with a test.  List of services here should match PM_SERVER_*_SPEC
-    # from <pcp/pmapi.h> (all except PM_SERVER_SERVICE_SPEC)
-    $sudo $PCP_BINADM_DIR/pmsignal -a pmproxy
+    echo "*** Initial service status ***" >> $here/$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mproxy|[p]mcd' \
+	>> $here/$seq.full
+    cat $PCP_LOG_DIR/pmproxy/pmproxy.log >> $here/$seq.full
+    cat $PCP_LOG_DIR/pmcd/pmcd.log >> $here/$seq.full
+    echo "*** End status information ***" >> $here/$seq.full
 }
