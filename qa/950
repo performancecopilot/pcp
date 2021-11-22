@@ -8,12 +8,13 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-. ./common.avahi
-avahi_notrun_checks
+. ./common.discovery
+_check_avahi_service
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "avahi_cleanup; exit \$status" 0 1 2 3 15
+service=pmproxy
+trap "_cleanup_avahi_service; exit \$status" 0 1 2 3 15
 
 _filter()
 {
@@ -23,11 +24,11 @@ _filter()
 }
 
 # real QA test starts here
-service=pmproxy
-avahi_service
+_control_avahi_service
 _wait_for_pmproxy
 sleep 5
-avahi_verify 2>&1 \
-| _filter
+
+_verify_avahi_service 2>&1 | _filter
+
 status=0
 exit

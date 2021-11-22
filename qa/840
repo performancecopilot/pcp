@@ -8,23 +8,17 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-. ./common.avahi
-avahi_notrun_checks
-
-_cleanup()
-{
-    avahi_cleanup
-}
+. ./common.discovery
+_check_avahi_service
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "_cleanup; cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
-
+service=pmcd
+trap "_cleanup_avahi_service; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-service=pmcd
-avahi_service
-avahi_verify
+_control_avahi_service
+_verify_avahi_service
 
 status=0
 exit

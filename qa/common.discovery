@@ -76,3 +76,116 @@ _control_service_discovery()
     cat $PCP_LOG_DIR/pmcd/pmcd.log >> $here/$seq.full
     echo "*** End status information ***" >> $here/$seq.full
 }
+
+_check_service_discovery()
+{
+    _get_libpcp_config
+    $service_discovery || _notrun "No support for service discovery"
+
+    avahi-daemon --check 2>/dev/null || _notrun "avahi-daemon is unavailable"
+    $discovery_available || _notrun "No discovery mechanisms are available"
+}
+
+_check_avahi_service()
+{
+    _check_service_discovery
+    which avahi-browse >/dev/null 2>&1 || _notrun "avahi-browse not installed"
+}
+
+_cleanup_avahi_service()
+{
+    cd $here
+    echo "avahi_cleanup: before pmsignal" >>$seq.full
+    grep_service=`echo "$service" | sed -e 's/./[&]/'`
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|$grep_service |$grep_service$' >>$seq.full
+    $sudo $PCP_BINADM_DIR/pmsignal -a "$service" >>$here/$seq.full 2>&1
+    pmsleep 0.5
+    echo "avahi_cleanup: after pmsignal" >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|$grep_service |$grep_service$' >>$seq.full
+    _restore_config $PCP_PMCDOPTIONS_PATH
+    _restore_config $PCP_PMPROXYOPTIONS_PATH
+    if $service_was_running
+    then
+	echo "Restart $service ..." >>$here/$seq.full
+	_service $service restart >>$here/$seq.full 2>&1
+	case "$service"
+	in
+	pmcd)
+	    _wait_for_pmcd
+	    ;;
+	pmproxy)
+	    _wait_for_pmproxy
+	    ;;
+	esac
+    else
+	echo "Stopping $service ..." >>$here/$seq.full
+	_service $service stop >>$here/$seq.full 2>&1
+    fi
+    rm -f $tmp.*
+}
+
+_control_avahi_service()
+{
+    _save_config $PCP_PMPROXYOPTIONS_PATH
+    cp $PCP_PMPROXYOPTIONS_PATH $tmp.options
+    echo "# edited for PCP QA test $seq" >$tmp.options
+    sed <$PCP_PMPROXYOPTIONS_PATH >>$tmp.options \
+	-e '/^-A/s/.*/# for PCP QA -A/'
+    $sudo cp $tmp.options $PCP_PMPROXYOPTIONS_PATH
+
+    _save_config $PCP_PMCDOPTIONS_PATH
+    cp $PCP_PMCDOPTIONS_PATH $tmp.options
+    echo "# edited for PCP QA test $seq" >$tmp.options
+    sed <$PCP_PMCDOPTIONS_PATH >>$tmp.options \
+	-e '/^-A/s/.*/# for PCP QA -A/'
+    $sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
+
+    service_was_running=false
+    [ -f $PCP_RUN_DIR/$service.pid ] && service_was_running=true
+    echo "service_was_running=$service_was_running" >>$here/$seq.full
+    _stop_auto_restart $service
+    $sudo "$PCP_RC_DIR/$service" restart >>$here/$seq.full 2>&1
+    _restore_auto_restart $service
+
+    _control_service_discovery
+}
+
+_verify_avahi_service()
+{
+    msg="$@"
+
+    [ "X$msg" = "X" ] && msg="Verify $service avahi service advertising"
+    echo $msg | tee -a $here/$seq.full
+
+    # strip any domain part ... e.g. if hostname is vm08.localdomain,
+    # avahi reports this as vm08.local
+    # look for a line like this ...
+    # = eth0 IPv4 PCP pmproxy on vm04.localdomain _pmproxy._tcp local
+    # + eth0 IPv6 PCP pmproxy on vm30 _pmroxy._tcp local
+    #
+    hostname=`hostname | sed -e 's/\..*//'`
+    echo "hostname=$hostname" >>$here/$seq.full
+    echo "avahi-browse -rt -d local _$service._tcp" >> $here/$seq.full
+    avahi-browse -rt -d local "_$service._tcp" > $tmp.out 2> $tmp.err
+    # sometimes we need a fair bit of time for avahi to register
+    for i in 0.1 0.3 1 2 3
+    do
+	[ -s $tmp.out ] && break
+	pmsleep $i
+	avahi-browse -rt -d local "_$service._tcp" > $tmp.out 2> $tmp.err
+    done
+    cat $tmp.err >>$here/$seq.full
+    cat $tmp.out | \
+	tee -a $here/$seq.full | \
+	sed -n \
+	    -e '/ '"$hostname"'[ .]/{
+s/  */ /g
+s/'"$hostname"'[^ ]*/HOSTNAME/
+s/[=+] [^ ]* /. <interface> /
+s/ IPv[46] / <protocol> /
+s/ \#[0-9] / /
+p
+q
+}'
+
+}

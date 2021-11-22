@@ -68,7 +68,7 @@ COMMON_SCRIPTS = common.install.cisco common.pcpweb
 COMMON = common.check common.config common.filter \
 	 common.product common.rc common.setup \
 	 common.secure common.gfs2 \
-	 common.qt common.avahi common.containers \
+	 common.qt common.containers \
 	 common.discovery common.compress \
 	 common.python common.openmetrics \
 	 common.bcc common.bpf common.bpftrace common.redis

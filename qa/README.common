@@ -39,7 +39,6 @@ Alternatively, QA scripts can include one of the following wrappers
 which themselves include common.product, common.filter and common.check
 in that order along with other service-specific initialization.
 
-    common.avahi
     common.compress
     common.discovery
     common.containers
