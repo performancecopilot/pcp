@@ -23,7 +23,7 @@ Chapter 4, :ref:`Record metrics from a remote system`, covers setup of logging f
 
 Chapter 5, :ref:`graph a performance metric`, introduces *pmchart* - a strip chart tool for Performance Co-Pilot.
 
-Chapter 6, :ref:`Automate performance problem detection`
+Chapter 6, :ref:`Automate performance problem detection`, introduces *pmieconf* which is used to display and modify variables or parameters controlling the details of the generated pmie rules.
 
 Chapter 7, :ref:`Setup automated rules to write to the system log`, introduces *pmieconf* - a utility for viewing and configuring variables from generalized *pmie* (1) rules.
 
