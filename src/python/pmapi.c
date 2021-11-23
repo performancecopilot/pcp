@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2020 Red Hat.
+ * Copyright (C) 2012-2021 Red Hat.
  * Copyright (C) 2009-2012 Michael T. Werner
  *
  * This file is part of the "pcp" module, the python interfaces for the
@@ -26,8 +26,20 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <pcp/pmapi.h>
-#include <pcp/libpcp.h>
-#include <pcp/deprecated.h>
+
+/* libpcp internal routines used by this module */
+PCP_CALL extern void __pmAddOptArchiveFolio(pmOptions *, char *);
+PCP_CALL extern void __pmAddOptArchiveList(pmOptions *, char *);
+PCP_CALL extern void __pmAddOptArchivePath(pmOptions *);
+PCP_CALL extern void __pmAddOptArchive(pmOptions *, char *);
+PCP_CALL extern void __pmAddOptContainer(pmOptions *, char *);
+PCP_CALL extern void __pmAddOptHostList(pmOptions *, char *);
+PCP_CALL extern void __pmAddOptHost(pmOptions *, char *);
+PCP_CALL extern void __pmSetLocalContextTable(pmOptions *, char *);
+PCP_CALL extern void __pmSetLocalContextFlag(pmOptions *);
+PCP_CALL extern void __pmEndOptions(pmOptions *);
+PCP_CALL extern void __pmServerStart(int, char **, int);
+PCP_CALL extern time_t __pmMktime(struct tm *);
 
 #if PY_MAJOR_VERSION >= 3
 #define MOD_ERROR_VAL NULL
@@ -111,23 +123,6 @@ getExtendedTimeBase(PyObject *self, PyObject *args, PyObject *keywords)
                         "i:PM_XTB_GET", keyword_list, &mode))
         return NULL;
     return Py_BuildValue("i", PM_XTB_GET(mode));
-}
-
-static PyObject *
-timevalSleep(PyObject *self, PyObject *args, PyObject *keywords)
-{
-    struct timeval ctv;
-    long seconds, useconds;
-    char *keyword_list[] = {"seconds", "useconds", NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(args, keywords,
-                        "ll:pmtimevalSleep", keyword_list, &seconds, &useconds))
-        return NULL;
-    ctv.tv_sec = seconds;
-    ctv.tv_usec = useconds;
-    __pmtimevalSleep(ctv);
-    Py_INCREF(Py_None);
-    return Py_None;
 }
 
 static PyObject *
@@ -1262,9 +1257,6 @@ static PyMethodDef methods[] = {
     { .ml_name = "PM_XTB_GET",
 	.ml_meth = (PyCFunction) getExtendedTimeBase,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
-    { .ml_name = "pmtimevalSleep",
-	.ml_meth = (PyCFunction) timevalSleep,
-        .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmtimevalToReal",
 	.ml_meth = (PyCFunction) timevalToReal,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
@@ -1649,9 +1641,9 @@ MOD_INIT(cpmapi)
      * subset of the debug flags - all of 'em seems like overkill
      * order here the same as the output from pmdbg -l
      */
-    dict_add(dict, "PM_DEBUG_APPL0", DBG_TRACE_APPL0);
-    dict_add(dict, "PM_DEBUG_APPL1", DBG_TRACE_APPL1);
-    dict_add(dict, "PM_DEBUG_APPL2", DBG_TRACE_APPL2);
+    dict_add(dict, "PM_DEBUG_APPL0", (1<<11) /*DBG_TRACE_APPL0*/);
+    dict_add(dict, "PM_DEBUG_APPL1", (1<<12) /*DBG_TRACE_APPL1*/);
+    dict_add(dict, "PM_DEBUG_APPL2", (1<<13) /*DBG_TRACE_APPL2*/);
 
     /*
      * for ease of maintenance make the order of the error codes

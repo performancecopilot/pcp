@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015,2017-2020 Red Hat.
+ * Copyright (C) 2013-2015,2017-2021 Red Hat.
  *
  * This file is part of the "pcp" module, the python interfaces for the
  * Performance Co-Pilot toolkit.
@@ -22,9 +22,11 @@
  */
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
-#include "pmapi.h"
-#include "pmda.h"
-#include "libpcp.h"
+#include <pcp/pmapi.h>
+#include <pcp/pmda.h>
+
+/* libpcp internal routines used by this module */
+PCP_CALL extern int __pmAddLabels(pmLabelSet **, const char *, int);
 
 #if PY_MAJOR_VERSION >= 3
 #define MOD_ERROR_VAL NULL
@@ -578,7 +580,7 @@ preinstance(pmInDom indom)
     return 0;
 }
 
-int
+static int
 instance(pmInDom indom, int a, char *b, pmInResult **rp, pmdaExt *pmda)
 {
     int sts;
@@ -589,18 +591,19 @@ instance(pmInDom indom, int a, char *b, pmInResult **rp, pmdaExt *pmda)
     return pmdaInstance(indom, a, b, rp, pmda);
 }
 
-int
+static int
 fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
 {
     char *s;
     int rc, sts, code;
     PyObject *arglist, *result;
-    __pmID_int *pmid = (__pmID_int *)&metric->m_desc.pmid;
+    unsigned int item = pmID_item(metric->m_desc.pmid);
+    unsigned int cluster = pmID_cluster(metric->m_desc.pmid);
 
     if (fetch_cb_func == NULL)
 	return PM_ERR_VALUE;
 
-    arglist = Py_BuildValue("(iiI)", pmid->cluster, pmid->item, inst);
+    arglist = Py_BuildValue("(iiI)", cluster, item, inst);
     if (arglist == NULL) {
 	pmNotifyErr(LOG_ERR, "fetch callback cannot alloc parameters");
 	return -EINVAL;
@@ -681,7 +684,7 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
     return sts;
 }
 
-int
+static int
 label_callback(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 {
     int sts = 0;
@@ -745,12 +748,12 @@ label_callback(pmInDom indom, unsigned int inst, pmLabelSet **lp)
     return sts;
 }
 
-int
-store_callback(__pmID_int *pmid, unsigned int inst, pmAtomValue av, int type)
+static int
+store_callback(pmID pmid, unsigned int inst, pmAtomValue av, int type)
 {
     int rc, code;
-    int item = pmid->item;
-    int cluster = pmid->cluster;
+    int item = pmID_item(pmid);
+    int cluster = pmID_cluster(pmid);
     PyObject *arglist, *result;
 
     switch (type) {
@@ -793,30 +796,31 @@ store_callback(__pmID_int *pmid, unsigned int inst, pmAtomValue av, int type)
 }
 
 static pmdaMetric *
-lookup_metric(__pmID_int *pmid, pmdaExt *pmda)
+lookup_metric(pmID pmid, pmdaExt *pmda)
 {
     int		i;
     pmdaMetric	*mp;
+    unsigned int item = pmID_item(pmid);
+    unsigned int cluster = pmID_cluster(pmid);
 
     for (i = 0; i < pmda->e_nmetrics; i++) {
 	mp = &pmda->e_metrics[i];
-	if (pmid->item != pmID_item(mp->m_desc.pmid))
+	if (item != pmID_item(mp->m_desc.pmid))
 	    continue;
-	if (pmid->cluster != pmID_cluster(mp->m_desc.pmid))
+	if (cluster != pmID_cluster(mp->m_desc.pmid))
 	    continue;
 	return mp;
     }
     return NULL;
 }
 
-int
+static int
 store(pmResult *result, pmdaExt *pmda)
 {
     int		i, j, sts, type;
     pmAtomValue	av;
     pmdaMetric  *mp;
     pmValueSet  *vsp;
-    __pmID_int  *pmid;
 
     maybe_refresh_all();
 
@@ -827,10 +831,9 @@ store(pmResult *result, pmdaExt *pmda)
 
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
-	pmid = (__pmID_int *)&vsp->pmid;
 
 	/* find the type associated with this PMID */
-	if ((mp = lookup_metric(pmid, pmda)) == NULL)
+	if ((mp = lookup_metric(vsp->pmid, pmda)) == NULL)
 	    return PM_ERR_PMID;
 	type = mp->m_desc.type;
 
@@ -838,7 +841,7 @@ store(pmResult *result, pmdaExt *pmda)
 	    sts = pmExtractValue(vsp->valfmt, &vsp->vlist[j],type, &av, type);
 	    if (sts < 0)
 		return sts;
-	    sts = store_callback(pmid, vsp->vlist[j].inst, av, type);
+	    sts = store_callback(vsp->pmid, vsp->vlist[j].inst, av, type);
 	    if (sts < 0)
 		return sts;
 	}
@@ -846,7 +849,7 @@ store(pmResult *result, pmdaExt *pmda)
     return 0;
 }
 
-int
+static int
 text(int ident, int type, char **buffer, pmdaExt *pmda)
 {
     PyObject *dict, *value, *key;
@@ -881,7 +884,7 @@ text(int ident, int type, char **buffer, pmdaExt *pmda)
     return 0;
 }
 
-int
+static int
 attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
 {
     PyObject *arglist, *result;
@@ -907,7 +910,7 @@ attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
     return 0;
 }
 
-void
+static void
 endContextCallBack(int ctx)
 {
     PyObject *arglist, *result;
