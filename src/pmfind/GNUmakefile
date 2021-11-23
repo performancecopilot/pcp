@@ -18,6 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 CFILES = pmfind.c
 HFILES = groups.h
 CMDTARGET = pmfind$(EXECSUFFIX)
+LDIRT = crontab pmfind.service
 
 ifeq "$(HAVE_LIBUV)" "true"
 CFILES += source.c
