@@ -148,7 +148,8 @@ MAKEOPTS = --no-print-directory
 
 ifdef PROJECT
 QTDIRDIRT = build debug release .obj .ui .moc .qrc *.xcodeproj *.app
-QTDIRT = *.a *.o ui_* moc_* qrc_* Info.plist Makefile* object_script.*
+QTDIRT = *.a *.o ui_* moc_* qrc_* Info.plist Makefile* object_script.* \
+	.qmake.stash
 endif
 DEPDIRT = dep dep.bak
 MANDIRT = *.[1-9].gz *.[1-9].bz2 *.[1-9].lzma *.[1-9].xz *.[1-9].tmp
