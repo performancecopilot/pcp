@@ -1,6 +1,6 @@
 """ Build script for the PCP python package """
 #
-# Copyright (C) 2012-2019 Red Hat.
+# Copyright (C) 2012-2019,2021 Red Hat.
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -10,7 +10,7 @@
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -32,6 +32,7 @@ setup(name = 'pcp',
     version = '5.0',
     description = 'Performance Co-Pilot collector, monitor and instrumentation APIs',
     long_description = long_description,
+    long_description_content_type = 'text/x-rst',
     license = 'GPLv2+',
     author = 'Performance Co-Pilot Development Team',
     author_email = 'pcp@groups.io',
@@ -57,10 +58,10 @@ setup(name = 'pcp',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX',
         'Operating System :: POSIX :: AIX',
-        'Operating System :: POSIX :: Linux',
         'Operating System :: POSIX :: BSD :: NetBSD',
         'Operating System :: POSIX :: BSD :: OpenBSD',
         'Operating System :: POSIX :: BSD :: FreeBSD',
+        'Operating System :: POSIX :: Linux',
         'Operating System :: POSIX :: SunOS/Solaris',
         'Operating System :: Unix',
         'Topic :: System :: Logging',
