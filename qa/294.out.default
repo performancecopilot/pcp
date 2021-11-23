@@ -1049,7 +1049,7 @@ interval:  0.50 sec
 N connects
 N-0 disconnects
 
-+++ pmie -h MY_HOSTNAME -c TMP.in -v -t 0.5 -T 1.5 +++
++++ pmie -h MY_HOSTNAME -c TMP.in -v -t 0.5 -T 1.75 +++
 expr_1: N N N
 
 expr_1: N N N
@@ -1062,7 +1062,7 @@ expr_1: N N N
 N connects
 N-0 disconnects
 
-+++ pmie -h MY_HOSTNAME -c TMP.in -v -t 0.5 -T 1.5 +++
++++ pmie -h MY_HOSTNAME -c TMP.in -v -t 0.5 -T 1.75 +++
 expr_1: ?
 
 expr_1: N

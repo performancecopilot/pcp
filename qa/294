@@ -189,9 +189,9 @@ _do pmprobe -v -h localhost hinv.ncpu
 _do pmval -h `hostname` -t 0.5 -s 3 sample.bin
 
 echo "kernel.all.load;" >$tmp.in
-_do pmie -h $PMPROXY_HOST -c $tmp.in -v -t 0.5 -T 1.5 
+_do pmie -h $PMPROXY_HOST -c $tmp.in -v -t 0.5 -T 1.75 
 echo "kernel.all.cpu.user :localhost;" >$tmp.in
-_do pmie -h $PMPROXY_HOST -c $tmp.in -v -t 0.5 -T 1.5 
+_do pmie -h $PMPROXY_HOST -c $tmp.in -v -t 0.5 -T 1.75 
 _do pmdumptext -h `hostname` -t 0.5 -s 2 sample.string.hullo
 _do pmdumptext -t 0.5 -s 2 localhost:sample.string.hullo
 _do pmdumptext -t 0.5 -s 2 `hostname`:kernel.all.load
