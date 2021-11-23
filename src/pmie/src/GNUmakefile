@@ -27,8 +27,8 @@ HFILES  = fun.h dstruct.h eval.h lexicon.h pragmatics.h stats.h \
 SKELETAL = hdr.sk fetch.sk misc.sk aggregate.sk unary.sk binary.sk \
 	merge.sk act.sk binary_str.sk
 
-LDIRT += $(YFILES:%.y=%.tab.?) fun.c fun.o $(TARGET) grammar.h \
-	$(DUMPER).o
+LDIRT += $(YFILES:%.y=%.tab.?) yacc.out fun.c fun.o $(TARGET) grammar.h \
+	$(DUMPER).o $(DUMPER)
 
 LLDLIBS = $(PCPLIB) $(LIB_FOR_MATH) $(LIB_FOR_REGEX)
 
