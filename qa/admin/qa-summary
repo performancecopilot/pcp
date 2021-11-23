@@ -157,7 +157,7 @@ BEGIN	{ OFS ="|" }
 	    $2 = "u318" "|" $2
 	  else if ($2 ~ /^ci-ubuntu2004-btf$/)
 	    $2 = "ub20" "|" $2
-	  else if ($2 ~ /^ci-ubuntu[1-9][0-9]$/)
+	  else if ($2 ~ /^ci-ubuntu[1-9][0-9]..$/)
 	    $2 = "u" substr($2,10,2) "|" $2
 	  else
 	    $2 = substr($2,1,2) "|" $2
