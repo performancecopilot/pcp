@@ -13,9 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-_check_series
-redis_version_major=`redis-server --version | sed -E 's/.*v=([0-9]).*/\1/g'`
-[ $redis_version_major -ge 6 ] || _notrun "Redis version too old (this test requires Redis v6+)"
+_check_redis_server
 
 _cleanup()
 {
