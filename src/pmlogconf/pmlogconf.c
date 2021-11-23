@@ -913,13 +913,13 @@ evaluate_state(group_t *group)
     if ((group->pmlogger || group->pmrep) && !group->pmlogconf) {
 	state = group->saved_state;
     } else if (evaluate_group(group)) {	/* probe */
-	if (reprobe == 0 && group->saved_state != 0)
+	if (group->saved_state != 0)
 	    state = group->saved_state;
 	else
 	    state = group->true_state;
 	group->success = 1;
     } else {
-	if (reprobe == 0 && group->saved_state != 0)
+	if (group->saved_state != 0)
 	    state = group->saved_state;
 	else
 	    state = group->false_state;

@@ -80,44 +80,10 @@ Differences ...
 Keep changes? [y] 
 Group: qa group one
 Log this group? [y] ...
-Differences ...
-*** TMP.orig ...
---- TMP.conf.new ...
-***************
-*** 22,35 ****
-  	sample.long.million
-  }
-  #----
-! #+ 02:x::
-! #----
-! #+ 03:y:default:
-! ## qa group three
-  log advisory on default {
-! 	sample.longlong.ten
-  }
-  #----
-  #+ 04:n:default:
-  ## qa group four
-  #----
---- 22,36 ----
-  	sample.long.million
-  }
-  #----
-! #+ 02:y:default:
-! ## qa group two
-  log advisory on default {
-! 	sample.ulong.ten
-  }
-  #----
-+ #+ 03:n:default:
-+ ## qa group three
-+ #----
-  #+ 04:n:default:
-  ## qa group four
-  #----
-Keep changes? [y] 
+No changes
+
 Group: qa group one
-Log this group? [y] ......
+Log this group? [y] .....
 Differences ...
 *** TMP.orig ...
 --- TMP.conf.new ...
@@ -132,18 +98,8 @@ Differences ...
   #----
 --- 18,23 ----
 ***************
-*** 26,31 ****
---- 25,31 ----
-  ## qa group two
-  log advisory on default {
-  	sample.ulong.ten
-+ 	sample.ulong.million
-  }
-  #----
-  #+ 03:n:default:
-***************
-*** 37,42 ****
---- 37,53 ----
+*** 36,41 ****
+--- 35,51 ----
   #+ 05:n:default:
   ## qa group five
   #----
@@ -185,15 +141,13 @@ log advisory on default {
 	sample.long.million
 }
 #----
-#+ 02:y:default:
-## qa group two
-log advisory on default {
-	sample.ulong.ten
-	sample.ulong.million
-}
+#+ 02:x::
 #----
-#+ 03:n:default:
+#+ 03:y:default:
 ## qa group three
+log advisory on default {
+	sample.longlong.ten
+}
 #----
 #+ 04:n:default:
 ## qa group four
