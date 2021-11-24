@@ -234,6 +234,7 @@ test_hostspec
 test_service_notify
 t_fetch
 timeshift
+time_stamp
 torture_api
 torture_cache
 torture-eol
