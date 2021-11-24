@@ -11,45 +11,45 @@ The aim of this guide is to assist first-time users to become more productive ri
 ⁠What This Guide Contains
 **************************
 
-This guide contains the following chapters:
+This guide contains the following topics:
 
-Chapter 1, :ref:`List the available performance metrics`, introduces the *pminfo* command to display various types of information about performance metrics available.
+1. :ref:`List the available performance metrics`, introduces the *pminfo* command to display various types of information about performance metrics available.   
 
-Chapter 2, :ref:`Add new metrics to the available set`, covers adding mounts metrics to *pmcd*.
+2. :ref:`Add new metrics to the available set`, covers adding mounts metrics to *pmcd*.
 
-Chapter 3, :ref:`Record metrics on my local system`, covers setup of logging to record metrics from local system.
+3. :ref:`Record metrics on my local system`, covers setup of logging to record metrics from local system.
 
-Chapter 4, :ref:`Record metrics from a remote system`, covers setup of logging from remote systems.
+4. :ref:`Record metrics from a remote system`, covers setup of logging from remote systems.
 
-Chapter 5, :ref:`graph a performance metric`, introduces *pmchart* - a strip chart tool for Performance Co-Pilot.
+5. :ref:`graph a performance metric`, introduces *pmchart* - a strip chart tool for Performance Co-Pilot.
 
-Chapter 6, :ref:`Automate performance problem detection`, introduces *pmieconf* which is used to display and modify variables or parameters controlling the details of the generated pmie rules.
+6. :ref:`Automate performance problem detection`, introduces *pmieconf* which is used to display and modify variables or parameters controlling the details of the generated pmie rules.
 
-Chapter 7, :ref:`Setup automated rules to write to the system log`, introduces *pmieconf* - a utility for viewing and configuring variables from generalized *pmie* (1) rules.
+7. :ref:`Setup automated rules to write to the system log`, introduces *pmieconf* - a utility for viewing and configuring variables from generalized *pmie* (1) rules.
 
-Chapter 8, :ref:`Record historical values for use with the pcp-dstat tool`, introduces *pcp-dstat* tool which is a general performance analysis tool to view multiple system resources instantly.
+8. :ref:`Record historical values for use with the pcp-dstat tool`, introduces *pcp-dstat* tool which is a general performance analysis tool to view multiple system resources instantly.
 
-Chapter 9, :ref:`Export metric values in a comma-separated format`, introduces *pmrep* which is a customizable performance metrics reporting tool.
+9. :ref:`Export metric values in a comma-separated format`, introduces *pmrep* which is a customizable performance metrics reporting tool.
 
-Chapter 10, :ref:`Using Charts`, introduces the basic functionality available in the PCP Strip Chart tool - pmchart.
+10. :ref:`Using Charts`, introduces the basic functionality available in the PCP Strip Chart tool - pmchart.
 
-Chapter 11, :ref:`Managing Archive Log`, covers PCP tools for creating and managing PCP archive logs.
+11. :ref:`Managing Archive Log`, covers PCP tools for creating and managing PCP archive logs.
 
-Chapter 12, :ref:`Automated Reasoning with pmie` covers the pmie tool within PCP that is designed for automated filtering and reasoning about performance.
+12. :ref:`Automated Reasoning with pmie` covers the pmie tool within PCP that is designed for automated filtering and reasoning about performance.
 
-Chapter 13, :ref:`Configuring Automated Reasoning`, covers customization of pmie rules using pmieconf.
+13. :ref:`Configuring Automated Reasoning`, covers customization of pmie rules using pmieconf.
 
-Chapter 14, :ref:`Analyzing Linux Containers`, introduces how to extract performance data from individual containers using the PCP tools.
+14. :ref:`Analyzing Linux Containers`, introduces how to extract performance data from individual containers using the PCP tools.
 
-Chapter 15, :ref:`Establishing Secure Connections`, covers setting up secure connections between PCP collector and monitor components. Also, how network connections can be made secure against eavesdropping, data tampering and man-in-the-middle class attacks.
+15. :ref:`Establishing Secure Connections`, covers setting up secure connections between PCP collector and monitor components. Also, how network connections can be made secure against eavesdropping, data tampering and man-in-the-middle class attacks.
 
-Chapter 16, :ref:`Establishing Secure Client Connections`, covers setting up secure connections between PCP collector and monitor components and discuss setting up certificates on both the collector and monitor hosts.
+16. :ref:`Establishing Secure Client Connections`, covers setting up secure connections between PCP collector and monitor components and discuss setting up certificates on both the collector and monitor hosts.
 
-Chapter 17, :ref:`Setup Authenticated Connections`, covers setting up authenticated connections between PCP collector and monitor components.
+17. :ref:`Setup Authenticated Connections`, covers setting up authenticated connections between PCP collector and monitor components.
 
-Chapter 18, :ref:`Importing data and creating PCP archives`, describes an alternative method of importing performance data into PCP by creating PCP archives from files or data streams that have no knowledge of PCP.
+18. :ref:`Importing data and creating PCP archives`, describes an alternative method of importing performance data into PCP by creating PCP archives from files or data streams that have no knowledge of PCP.
 
-Chapter 19, :ref:`Using 3D views`, covers performance visualisation with pmview.
+19. :ref:`Using 3D views`, covers performance visualisation with pmview.
 
 Audience for This Guide
 ************************
