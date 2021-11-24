@@ -68,9 +68,10 @@ main(int argc, char **argv)
 
 	}
 	printf("time_stamp: step %d", now.step);
+	printf(" delta %ld.%06d secs", (long)now.time.tv_sec, (int)now.time.tv_usec);
 	if (argc == 3)
 	    printf(" tag %s", argv[2]);
-	printf(" delta %ld.%06d secs\n", (long)now.time.tv_sec, (int)now.time.tv_usec);
+	putchar('\n');
     }
 
     return 0;
