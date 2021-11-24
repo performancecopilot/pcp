@@ -36,12 +36,12 @@ _cleanup()
     _wait_for_pmlogger
     if $pmproxy_was_running
     then
-	echo "Restart pmproxy ..." >>$here/$seq.full
-	_service pmproxy restart >>$here/$seq.full 2>&1
+	echo "Restart pmproxy ..." >>$seq.full
+	_service pmproxy restart >>$seq.full 2>&1
 	_wait_for_pmproxy
     else
-	echo "Stopping pmproxy ..." >>$here/$seq.full
-	_service pmproxy stop >>$here/$seq.full 2>&1
+	echo "Stopping pmproxy ..." >>$seq.full
+	_service pmproxy stop >>$seq.full 2>&1
     fi
     $sudo rm -rf $tmp.*
 }
@@ -55,7 +55,7 @@ _filter_pmproxy()
 
 _full_log()
 {
-    echo; echo $@ | tee -a $here/$seq.full
+    echo; echo $@ | tee -a $seq.full
 }
 
 # get current log volume of primary pmlogger, according to pmproxy
@@ -78,10 +78,24 @@ p
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
+src/time_stamp $tmp.stamp begin >>$seq.full
+
+export PMLOGGER_CHECK_SKIP_LOGCONF=yes
+
+# first remove all the old, stale, archives (the ones that might have
+# accumulated for hosts other than this one during previous QA runs)
+#
+find $PCP_ARCHIVE_DIR -type f -mtime +30 \
+| sed -e '/\/'"`hostname`"'\//d' \
+| while read f
+do
+    $sudo rm -f "$f"
+done
+src/time_stamp $tmp.stamp 'cleanup old archives' >>$seq.full
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
-echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq.full
 
 # real QA test starts here
 LOCALHOST=`hostname`
@@ -103,13 +117,15 @@ echo "pmproxy_pid=$pmproxy_pid" >>$seq.full
 
 #debug# echo "sudo gdb -p $pmproxy_pid"
 #debug# read x
+src/time_stamp $tmp.stamp 'restart pmproxy' >>$seq.full
 
 _full_log === creating archive in new archive directory 
 dir=$PCP_ARCHIVE_DIR/qa1661
 $sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; mkdir_and_chown $dir 775 $PCP_USER:$PCP_GROUP"
 # make sure no archive files left here from a previous run of this test
 $sudo rm -f $dir/testarchive.*
-$sudo sh -c "pmlogger -s 20 -t 1 -c config.default -l$tmp.pmlogger.log $dir/testarchive"
+$sudo sh -c "pmlogger -s 10 -t 0.5sec -c config.default -l$tmp.pmlogger.log $dir/testarchive"
+src/time_stamp $tmp.stamp 'pmlogger done' >>$seq.full
 
 _full_log === checking pmproxy file descriptors for deleted files, should be none 
 if [ -d /proc/$pmproxy_pid ]
@@ -133,6 +149,7 @@ else
     done
     exit
 fi
+src/time_stamp $tmp.stamp 'fd check' >>$seq.full
 
 _full_log === compressing the new archives, which also deletes the originals 
 for suff in 0 meta
@@ -146,27 +163,31 @@ do
     fi
     $sudo chown -R $PCP_USER $dir
 done
+src/time_stamp $tmp.stamp 'compression' >>$seq.full
 
 _full_log === restarting pmlogger # primary only
 _service pmlogger restart 2>&1 | _filter_pcp_start
 _wait_for_pmlogger
+src/time_stamp $tmp.stamp 'restart pmcd & pmlogger' >>$seq.full
 
 _full_log === wait for pmproxy to process filesystem events
 
 # unfortunately, it seems that simply finding all the archives
 # may take a while ... and there is no externally visible pmproxy
 # state we can wait on, so this host-specific heuristic is all I
-# can do to stop the test consistently failing on vm11 - kenj
+# can do to stop the test consistently failing on specific hosts
+# - kenj
 #
 case `hostname`
 in
     bozo.localdomain|vm11.localdomain)
-	    pmsleep 10
+	    pmsleep 4
 	    ;;
     *)
-	    pmsleep 5
+	    pmsleep 2
 	    ;;
 esac
+src/time_stamp $tmp.stamp 'wait for pmproxy' >>$seq.full
 
 _full_log === checking pmproxy file descriptors for deleted files, should be none 
 if [ -d /proc/$pmproxy_pid ]
@@ -176,6 +197,7 @@ else
     echo "Arrgh: pmproxy pid=$pmproxy_pid has vanished"
     exit
 fi
+src/time_stamp $tmp.stamp 'check for deleted files' >>$seq.full
 
 _full_log === checking pmproxy correctly switches logvol when pmlogger bumps to a new logvol
 retry=0
@@ -199,9 +221,22 @@ while true; do
 	fi
     fi
 done
-echo 'new volume' | $sudo pmlc -P >> $here/$seq.full 2>&1
+src/time_stamp $tmp.stamp 'found old volume #' >>$seq.full
+pminfo -f pmproxy.discover.logvol.change_vol >>$seq.full 2>&1
+( echo 'new volume'; echo 'log mandatory on once { sample.long.one }' ) | $sudo pmlc -P >> $seq.full 2>&1
 # make sure pmproxy has noticed ...
-sleep 1
+# there is no apparent way to make this deterministic, see comment above
+#
+case `hostname`
+in
+    bozo.localdomain|vm11.localdomain)
+	    pmsleep 4
+	    ;;
+    *)
+	    pmsleep 2
+	    ;;
+esac
+pminfo -f pmproxy.discover.logvol.change_vol >>$seq.full 2>&1
 newlogvol=`_log_volume`
 echo "newlogvol=$newlogvol" >>$seq.full
 if [ -z "$newlogvol" ]
@@ -218,12 +253,14 @@ then
 else
     echo passed
 fi
+src/time_stamp $tmp.stamp 'found new volume #' >>$seq.full
 
 _full_log === checking pmproxy survives pmlogger restart
 _service pmlogger restart 2>&1 | _filter_pcp_start
 _wait_for_pmlogger
 $sudo [ ! -d /proc/$pmproxy_pid/fd/ ] && echo FAIL && exit
 echo passed
+src/time_stamp $tmp.stamp 'check pmproxxy survives' >>$seq.full
 
 # success, all done
 status=0
