@@ -13,6 +13,7 @@ echo "QA output created by $seq"
 _check_avahi_service
 
 status=1	# failure is the default!
+service=pmcd
 $sudo rm -rf $tmp.* $seq.full
 trap "_cleanup_avahi_service; exit \$status" 0 1 2 3 15
 
