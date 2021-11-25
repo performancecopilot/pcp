@@ -25,7 +25,7 @@ static int ordinal;
 
 typedef struct {
     int			pid;
-    int			ordinal;
+    int			ordinal;	/* allocation number, -1 if deleted */
     struct timeval	tv;
     char		*iname;
     char		*exec;
@@ -188,7 +188,7 @@ proc_redo_indom(pmdaIndom *idp)
     }
     else {
 	/*
-	 * first 5 instances are fixed ... then cull with p(0.075)
+	 * first 4 instances are fixed ... then cull with p(0.075)
 	 */
 	int	j;
 	for (i = 4; i < MAX_PROCS; i++) {
@@ -240,7 +240,7 @@ proc_get_ordinal(int inst)
 {
     int		i;
     for (i = 0; i < MAX_PROCS; i++) {
-	if (proctab[i].pid == inst)
+	if (proctab[i].ordinal != -1 && proctab[i].pid == inst)
 	    return proctab[i].ordinal;
     }
     return 0;
@@ -251,7 +251,7 @@ char
 {
     int		i;
     for (i = 0; i < MAX_PROCS; i++) {
-	if (proctab[i].pid == inst)
+	if (proctab[i].ordinal != -1 && proctab[i].pid == inst)
 	    return proctab[i].exec;
     }
     return "botch";
@@ -263,7 +263,7 @@ proc_get_time(int inst)
     int			i;
     struct timeval	tv;
     for (i = 0; i < MAX_PROCS; i++) {
-	if (proctab[i].pid == inst) {
+	if (proctab[i].ordinal != -1 && proctab[i].pid == inst) {
 	    gettimeofday(&tv, NULL);
 	    /* value is msec */
 	    return (__uint64_t)(pmtimevalSub(&tv, &proctab[i].tv) * 1000);
