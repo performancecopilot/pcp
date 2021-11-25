@@ -2965,6 +2965,18 @@ _wait_for_port()
     fi
 }
 
+# wait for pmlogctl's pmlogger lock to clear
+#
+_wait_pmlogctl()
+{
+    _i=0
+    while [ $_i -lt 61 ]; do
+    	[ ! -f $PCP_ETC_DIR/pcp/pmlogger/lock ] && break
+	_i=`expr $_i + 1`
+	pmsleep 1
+    done
+}
+
 # get pid for the running primary pmlogger
 #
 _get_primary_logger_pid()
