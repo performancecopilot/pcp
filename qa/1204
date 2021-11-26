@@ -68,6 +68,7 @@ END	{ print "{ print }" }'
 #
 _filter_status()
 {
+    _wait_pmlogctl
     tee -a $seq.full \
     | $PCP_AWK_PROG -f $tmp.awk \
     | sed >$tmp.tmp \
