@@ -6,6 +6,7 @@ QA output created by 1626
 === wait for the maps to be updated
 === pmproxy.webgroup map size metrics should now be nonzero
 === check pmproxy cpu counters
+=== wait for the discovery metrics to appear
 === check for discovery partial metadata reads
 === check maxrss and datasz values
 === check maxrss doesnt grow after 100 basic restapi requests
