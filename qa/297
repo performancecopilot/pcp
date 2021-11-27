@@ -153,8 +153,10 @@ cat $tmp.log >>$seq.full
 
 echo "re-starting pmproxy ..."
 $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1 | _filter_pmproxy
+_wait_for_pmproxy 44322 $tmp.log
 
 sleep 4
+
 primary_logger_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmlogger | grep ' -P' | $PCP_AWK_PROG '{ print $2 }'`
 if [ -z "$primary_logger_pid" ]
 then
