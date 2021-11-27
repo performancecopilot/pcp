@@ -402,6 +402,13 @@ else
     echo "pmproxy check failed"
 fi
 
+# No clue why or how, but on vm21 (Debian 11) this sleep makes the test
+# reliably pass, rather than 
+#	Invalid JSON: on failed: No data available
+#	Invalid JSON: 1
+# for the derived metric values
+#
+sleep 3
 
 section "GET and POST /pmapi/derive"
 ## mandatory params: name, expr (or POST body)
