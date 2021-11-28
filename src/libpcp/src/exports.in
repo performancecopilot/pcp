@@ -788,3 +788,9 @@ PCP_3.35 {
     __pmDecodeIDList2;
     __pmHashFree;
 } PCP_3.34;
+
+PCP_3.36 {
+  global:
+    __pmDumpPDUTrace;
+} PCP_3.35;
+
