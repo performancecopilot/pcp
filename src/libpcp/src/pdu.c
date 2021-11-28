@@ -120,7 +120,7 @@ __pmDumpPDUTrace(FILE *f)
 	fprintf(f, "__pmDumpPDUTrace: recent PDUs ...\n");
 	for ( ; i < tracenext; i++) {
 	    p = i % NUMTRACE;
-	    fprintf(f, "%s", tracebuf[p].xmit ? "->xmit" : "<-recv");
+	    fprintf(f, "[%d] %s", i, tracebuf[p].xmit ? "xmit" : "recv");
 	    fprintf(f, " fd=%d type=%s len=%d\n",
 		tracebuf[p].fd,
 		__pmPDUTypeStr_r(tracebuf[p].type, strbuf, sizeof(strbuf)),
