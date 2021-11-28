@@ -1,0 +1,23 @@
+QA output created by 1363
+QA output created by 1361 --valgrind
+=== std out ===
+=== std err ===
++++++++++++++++++++++++++++
++ Mode: PDU_BINARY Pass 0 +
++++++++++++++++++++++++++++
+Recent PDUs trace:
+  xmit fd=5 type=LOG_CONTROL len=NNN
+  recv fd=4 type=LOG_CONTROL len=NNN
+  xmit fd=5 type=LOG_STATUS len=NNN
+  recv fd=4 type=LOG_STATUS len=NNN
+  xmit fd=5 type=LOG_STATUS_V2 len=NNN
+  recv fd=4 type=LOG_STATUS_V2 len=NNN
+  xmit fd=5 type=LOG_REQUEST len=NNN
+  recv fd=4 type=LOG_REQUEST len=NNN
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/pducheck -i 1 -Dappl1
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

@@ -6,6 +6,11 @@
  * Mongo PDU conversion exerciser --
  * 	+ if run standalone uses Send and Recv down its own pipe.
  *	+ if run remotely uses pdu-server at other end to echo PDUs
+ *
+ * -Dappl0
+ * 	extra info for credential PDUs
+ * -Dappl1
+ *	call __pmDumpPDUTTrace at end
  */
 
 #include <pcp/pmapi.h>
@@ -2215,6 +2220,9 @@ main(int argc, char **argv)
 
 
     pmUnloadNameSpace();
+
+    if (pmDebugOptions.appl1)
+	__pmDumpPDUTrace(stderr);
 
     exit(0);
 }

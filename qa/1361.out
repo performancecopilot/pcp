@@ -1,0 +1,13 @@
+QA output created by 1361
++++++++++++++++++++++++++++
++ Mode: PDU_BINARY Pass 0 +
++++++++++++++++++++++++++++
+Recent PDUs trace:
+  xmit fd=4 type=LOG_CONTROL len=NNN
+  recv fd=3 type=LOG_CONTROL len=NNN
+  xmit fd=4 type=LOG_STATUS len=NNN
+  recv fd=3 type=LOG_STATUS len=NNN
+  xmit fd=4 type=LOG_STATUS_V2 len=NNN
+  recv fd=3 type=LOG_STATUS_V2 len=NNN
+  xmit fd=4 type=LOG_REQUEST len=NNN
+  recv fd=3 type=LOG_REQUEST len=NNN
