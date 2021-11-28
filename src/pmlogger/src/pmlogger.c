@@ -837,6 +837,7 @@ control_port_ready(void)
 	    php = (__pmPDUHdr *)pb;
 	    fprintf(stderr, "Error: Unsolicited %s PDU from PMCD\n",
 		__pmPDUTypeStr(php->type));
+	    __pmDumpPDUTrace(stderr);
 	    disconnect(PM_ERR_IPC);
 	}
 	if (sts > 0)

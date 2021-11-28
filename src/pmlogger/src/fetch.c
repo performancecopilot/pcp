@@ -300,6 +300,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 		else {
 		    /* protocol botch, disconnect */
 		    fprintf(stderr, "myFetch: Unexpected %s PDU from PMCD\n", __pmPDUTypeStr(n));
+		    __pmDumpPDUTrace(stderr);
 		    disconnect(PM_ERR_IPC);
 		    changed = 0;
 		    __pmUnpinPDUBuf(pb);

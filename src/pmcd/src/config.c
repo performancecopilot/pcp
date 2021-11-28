@@ -1549,6 +1549,7 @@ AgentNegotiate(AgentInfo *aPtr)
     if (sts > 0) {
 	fprintf(stderr, "pmcd: unexpected PDU type (0x%x) at initial "
 		"exchange with %s PMDA\n", sts, aPtr->pmDomainLabel);
+	__pmDumpPDUTrace(stderr);
 	__pmUnpinPDUBuf(ack);
     }
     else if (sts == 0)

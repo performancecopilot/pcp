@@ -75,6 +75,7 @@ ConnectPMCD(void)
 	    fprintf(stderr, "Error PDU response from pmlogger %s", __pmPDUTypeStr(sts));
 	    fprintf(stderr, " not %s", __pmPDUTypeStr(PDU_LOG_STATUS));
 	    fprintf(stderr, " or %s as expected\n", __pmPDUTypeStr(PDU_LOG_STATUS_V2));
+	    __pmDumpPDUTrace(stderr);
 	    sts = 0;
 	    goto done;
 	}
@@ -594,6 +595,7 @@ void Status(int pid, int primary)
 	    fprintf(stderr, "Error PDU response from pmlogger %s", __pmPDUTypeStr(sts));
 	    fprintf(stderr, " not %s", __pmPDUTypeStr(PDU_LOG_STATUS));
 	    fprintf(stderr, " or %s as expected\n", __pmPDUTypeStr(PDU_LOG_STATUS_V2));
+	    __pmDumpPDUTrace(stderr);
 	    __pmUnpinPDUBuf(pb);
 	    return;
 	}

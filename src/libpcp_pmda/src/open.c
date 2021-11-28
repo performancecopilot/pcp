@@ -833,6 +833,7 @@ __pmdaSetupPDU(int infd, int outfd, int flags, const char *agentname)
 	pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s: version exchange failure, got PDU type %s expecting PDU_CREDS)",
 	    agentname,
 	    __pmPDUTypeStr_r(sts, strbuf, sizeof(strbuf)));
+	__pmDumpPDUTrace(stderr);
     }
 
     if (pinpdu > 0)

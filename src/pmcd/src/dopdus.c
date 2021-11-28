@@ -1330,6 +1330,7 @@ GetAttribute(ClientInfo *cp, int code)
 	}
     } else if (sts > 0) {	/* unexpected PDU type */
 	sts = PM_ERR_IPC;
+	__pmDumpPDUTrace(stderr);
     }
     if (pinpdu > 0)
 	__pmUnpinPDUBuf(pb);

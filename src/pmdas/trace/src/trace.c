@@ -309,6 +309,7 @@ readData(int clientfd, int *protocol)
     else {	/* unknown PDU type - bail & later kill connection */
 	pmNotifyErr(LOG_ERR, "unknown PDU - expected data PDU"
 		" (not type #%d)", sts);
+	__pmDumpPDUTrace(stderr);
 	return -1;
     }
 
