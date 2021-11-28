@@ -22,7 +22,7 @@ pmlogger_daily -N -V >$tmp.tmp
 
 if grep '^+ pmlogger_merge ' $tmp.tmp >/dev/null
 then
-    echo >&2 "Info: pmlogger_daily needs to be run"
+    echo >&2 "Info: pmlogger_daily needs to be run, doing it now ..."
     cat >$tmp.conf.in <<End-of-File
 # rewrite rules to accommodate oddness in archives from running PCP QA
 #
