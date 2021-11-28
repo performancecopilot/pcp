@@ -109,19 +109,23 @@ __pmDumpPDUTrace(FILE *f)
     unsigned int	p;
     char		strbuf[20];
 
-    fprintf(f, "Recent PDUs trace:\n");
     PM_LOCK(pdu_lock);
     if (tracenext < NUMTRACE)
 	i = 0;
     else
 	i = tracenext - NUMTRACE;
-    for ( ; i < tracenext; i++) {
-	p = i % NUMTRACE;
-	fprintf(f, "  %s", tracebuf[p].xmit ? "xmit" : "recv");
-	fprintf(f, " fd=%d type=%s len=%d\n",
-	    tracebuf[p].fd,
-	    __pmPDUTypeStr_r(tracebuf[p].type, strbuf, sizeof(strbuf)),
-	    tracebuf[p].len);
+    if (i == tracenext)
+	fprintf(f, "__pmDumpPDUTrace: no PDUs so far\n");
+    else {
+	fprintf(f, "__pmDumpPDUTrace: recent PDUs ...\n");
+	for ( ; i < tracenext; i++) {
+	    p = i % NUMTRACE;
+	    fprintf(f, "%s", tracebuf[p].xmit ? "->xmit" : "<-recv");
+	    fprintf(f, " fd=%d type=%s len=%d\n",
+		tracebuf[p].fd,
+		__pmPDUTypeStr_r(tracebuf[p].type, strbuf, sizeof(strbuf)),
+		tracebuf[p].len);
+	}
     }
     PM_UNLOCK(pdu_lock);
 }
