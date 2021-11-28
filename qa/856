@@ -80,9 +80,27 @@ _wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
 # Reset pmlogger
 echo "log sample.dynamic.meta.metric"
 # Log the sample pmda's sample.dynamic.meta.metric
-echo 'connect primary
+# ... may need to retry to get connected to the primary pmlogger
+#
+can_wait=10
+i=0
+while [ $i -lt $can_wait ]
+do
+    echo 'connect primary
 log mandatory on 500 msec { sample.dynamic.meta.metric }' \
-    | pmlc
+    | pmlc >$tmp.out 2>&1
+    if [ -s $tmp.out ]
+    then
+	:
+    else
+	# expect no output if all OK
+	#
+	break
+    fi
+    sleep 1
+    i=`expr $i + 1`
+done
+[ -s $tmp.out ] && cat $tmp.out
 
 # log a few samples
 sleep 2
