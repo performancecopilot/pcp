@@ -17,6 +17,7 @@
  * maxsize - monotonic increasing and rarely changes, so use pdu_lock
  * 	mutex to protect updates, but allow reads without locking
  * 	as seeing an unexpected newly updated value is benign
+ * tracebuf and tracenext - protected by pdu_lock
  *
  * On success, the result parameter from __pmGetPDU() points into a PDU
  * buffer that is pinned from the call to __pmFindPDUBuf().  It is the
@@ -55,13 +56,26 @@ __pmIsPduLock(void *lock)
 
 /*
  * Performance Instrumentation
- *  ... counts binary PDUs received and sent by low 4 bits of PDU type
+ *  ... counts binary PDUs received and sent by PDU type (actually type
+ *      minus PDU_START so array is indexed from 0)
+ *  ... trace buffer of recent PDUs successfully sent and received
  */
 
 static unsigned int	inctrs[PDU_MAX+1];
 static unsigned int	outctrs[PDU_MAX+1];
 PCP_DATA unsigned int	*__pmPDUCntIn = inctrs;
 PCP_DATA unsigned int	*__pmPDUCntOut = outctrs;
+
+typedef struct {
+    int		fd;
+    int		xmit;		/* 1 for xmit, 0 for recv */
+    int		type;
+    int		len;
+} trace_t;
+
+#define NUMTRACE 6
+static trace_t		tracebuf[NUMTRACE];
+static unsigned int	tracenext;
 
 static int		mypid = -1;
 static int              ceiling = PDU_CHUNK * 64;
@@ -71,6 +85,46 @@ static int		req_wait_done;
 
 #define HEADER	-1
 #define BODY	0
+
+static void
+trace_insert(int fd, int xmit, __pmPDUHdr *php)
+{
+    unsigned int	p;
+    PM_LOCK(pdu_lock);
+    p = (tracenext++) % NUMTRACE;
+    tracebuf[p].fd = fd;
+    tracebuf[p].xmit = xmit;
+    tracebuf[p].type = php->type;
+    tracebuf[p].len = php->len;
+    PM_UNLOCK(pdu_lock);
+}
+
+/*
+ * Report recent PDUs
+ */
+void
+__pmDumpPDUTrace(FILE *f)
+{
+    unsigned int	i;
+    unsigned int	p;
+    char		strbuf[20];
+
+    fprintf(f, "Recent PDUs trace:\n");
+    PM_LOCK(pdu_lock);
+    if (tracenext < NUMTRACE)
+	i = 0;
+    else
+	i = tracenext - NUMTRACE;
+    for ( ; i < tracenext; i++) {
+	p = i % NUMTRACE;
+	fprintf(f, "  %s", tracebuf[p].xmit ? "xmit" : "recv");
+	fprintf(f, " fd=%d type=%s len=%d\n",
+	    tracebuf[p].fd,
+	    __pmPDUTypeStr_r(tracebuf[p].type, strbuf, sizeof(strbuf)),
+	    tracebuf[p].len);
+    }
+    PM_UNLOCK(pdu_lock);
+}
 
 int
 __pmSetRequestTimeout(double timeout)
@@ -470,6 +524,7 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
     __pmOverrideLastFd(fd);
     if (php->type >= PDU_START && php->type <= PDU_FINISH)
 	__pmPDUCntOut[php->type-PDU_START]++;
+    trace_insert(fd, 1, php);
 
     return off;
 }
@@ -673,6 +728,7 @@ check_read_len:
     }
     if (php->type >= PDU_START && php->type <= PDU_FINISH)
 	__pmPDUCntIn[php->type-PDU_START]++;
+    trace_insert(fd, 0, php);
 
     /*
      * Note php points into the PDU buffer pdubuf that remains pinned

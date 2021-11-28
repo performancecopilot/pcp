@@ -419,6 +419,8 @@ pdu.o
     inctrs			# diag counters, no atomic updates
     outctrs			# diag counters, no atomic updates
     maxsize			# guarded by pdu_lock mutex
+    tracebuf			# guarded by pdu_lock mutex
+    tracenext			# guarded by pdu_lock mutex
 pmns.o
     pmns_lock			# local mutex
     lineno			# guarded by pmns_lock mutex

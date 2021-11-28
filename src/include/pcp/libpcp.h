@@ -435,6 +435,7 @@ PCP_DATA extern unsigned int *__pmPDUCntIn;
 PCP_DATA extern unsigned int *__pmPDUCntOut;
 PCP_CALL extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
 PCP_CALL extern void __pmDumpPDUCnt(FILE *);
+PCP_CALL extern void __pmDumpPDUTrace(FILE *);
 
 /* internal IPC protocol stuff */
 typedef int (*__pmConnectHostType)(int, int);
