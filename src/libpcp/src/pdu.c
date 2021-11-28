@@ -73,7 +73,7 @@ typedef struct {
     int		len;
 } trace_t;
 
-#define NUMTRACE 6
+#define NUMTRACE 8
 static trace_t		tracebuf[NUMTRACE];
 static unsigned int	tracenext;
 
