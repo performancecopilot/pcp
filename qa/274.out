@@ -280,7 +280,7 @@ Log finished
 dbpmda> open pipe pmdas/broken/broken_pmda_2_5 -D47104 -l TMP.log
 [DATE] broken_pmda_2_5(PID) Critical: __pmdaSetup: broken_pmda_2_5 PMDA: interface version 77 not supported (domain=249)
 pmdaDaemon() failed!
-pmdaversion: expecting PDU_CREDS, got PDU type 0
+pmdaversion: expecting PDU_CREDS, got EOF
 Warning: no version exchange with PMDA ./pmdas/broken/broken_pmda_2_5 after 3 secs
 Start broken_pmda_2_5 PMDA: ./pmdas/broken/broken_pmda_2_5 -D47104 -l TMP.log
 dbpmda> status

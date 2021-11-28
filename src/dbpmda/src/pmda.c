@@ -127,8 +127,10 @@ pmdaversion(void)
     else {
 	if (sts < 0)
 	    fprintf(stderr, "__pmGetPDU(%d): %s\n", fromPMDA, pmErrStr(sts));
+	else if (sts == 0)
+	    fprintf(stderr, "pmdaversion: expecting PDU_CREDS, got EOF\n");
 	else {
-	    fprintf(stderr, "pmdaversion: expecting PDU_CREDS, got PDU type %d\n", sts);
+	    fprintf(stderr, "pmdaversion: expecting PDU_CREDS, got PDU type %s\n", __pmPDUTypeStr(sts));
 	    __pmDumpPDUTrace(stderr);
 	}
 	fprintf(stderr, "Warning: no version exchange with PMDA %s after %d secs\n",
