@@ -52,10 +52,12 @@ s/[0-9][0-9]*/M/g
 	-e 's/localhost\.[a-zA-Z0-9]*/localhost/'
     # the check_local_creds: line's position in the output
     # is not deterministic, so deal with that ...
+    # Ditto for the control_req: line
     #
-    grep -v '^check_local_creds:' <$tmp.tmp
+    egrep -v '^(check_local_creds|control_req):' <$tmp.tmp
     echo "..."
-    grep '^check_local_creds:' <$tmp.tmp
+    egrep '^(check_local_creds|control_req):' <$tmp.tmp \
+    | LC_COLLATE=POSIX sort
 }
 
 _filter_dumplog()
