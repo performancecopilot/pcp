@@ -2489,23 +2489,51 @@ the Z field of the Tcp line from /proc/net/netstat
 @ network.tcp.tcpmigratereqfailure the TCPMigrateReqFailure field of the Tcp line from /proc/net/netstat
 @ network.ip.reasmoverlaps the ReasmOverlaps field of the Ip line from /proc/net/netstat
 @ network.mptcp.dssnomatchtcp the DSSNoMatchTCP field of the MPTcp line from /proc/net/netstat
+Multipath TCP DSS-mapping did not map with TCP's sequence numbers.
 @ network.mptcp.datacsumerr the DataCsumErr field of the MPTcp line from /proc/net/netstat
+Multipath TCP data checksum failures.
 @ network.mptcp.ofoqueuetail the OFOQueueTail field of the MPTcp line from /proc/net/netstat
+Multipath TCP segments inserted into OoO queue tail.
 @ network.mptcp.ofoqueue the OFOQueue field of the MPTcp line from /proc/net/netstat
+Multipath TCP segments inserted into OoO queue.
 @ network.mptcp.ofomerge the OFOMerge field of the MPTcp line from /proc/net/netstat
+Multipath TCP segments merged in OoO queue.
 @ network.mptcp.nodssinwindow the NoDSSInWindow field of the MPTcp line from /proc/net/netstat
+Multipath TCP segments not in MPTCP windows.
 @ network.mptcp.duplicatedata the DuplicateData field of the MPTcp line from /proc/net/netstat
+Multipath TCP segments discarded due to duplicate DSS.
 @ network.mptcp.addaddr the AddAddr field of the MPTcp line from /proc/net/netstat
+Multipath TCP received ADD_ADDR with echo-flag=0.
 @ network.mptcp.echoadd the EchoAdd field of the MPTcp line from /proc/net/netstat
+Multipath TCP received ADD_ADDR with echo-flag=1.
 @ network.mptcp.portadd the PortAdd field of the MPTcp line from /proc/net/netstat
+Multipath TCP received ADD_ADDR with a port-number.
 @ network.mptcp.mpjoinportsynrx the MPJoinPortSynRx field of the MPTcp line from /proc/net/netstat
+Multipath TCP received a SYN MP_JOIN with a different port-number.
 @ network.mptcp.mpjoinportsynackrx the MPJoinPortSynAckRx field of the MPTcp line from /proc/net/netstat
+Multipath TCP received a SYNACK MP_JOIN with a different port-number.
 @ network.mptcp.mpjoinportackrx the MPJoinPortAckRx field of the MPTcp line from /proc/net/netstat
+Multipath TCP received an ACK MP_JOIN with a different port-number.
 @ network.mptcp.mismatchportsynrx the MismatchPortSynRx field of the MPTcp line from /proc/net/netstat
+Multipath TCP received a SYN MP_JOIN with a mismatched port-number.
 @ network.mptcp.mismatchportackrx the MismatchPortAckRx field of the MPTcp line from /proc/net/netstat
+Multipath TCP received an ACK MP_JOIN with a mismatched port-number.
 @ network.mptcp.rmaddr the RmAddr field of the MPTcp line from /proc/net/netstat
+Multipath TCP RM_ADDR receives.
 @ network.mptcp.rmsubflow the RmSubflow field of the MPTcp line from /proc/net/netstat
+Multipath TCP subflows removed.
 @ network.mptcp.mppriotx the MPPrioTx field of the MPTcp line from /proc/net/netstat
+Multipath TCP MP_PRIO transmits.
 @ network.mptcp.mppriorx the MPPrioRx field of the MPTcp line from /proc/net/netstat
+Multipath TCP MP_PRIO receives.
 @ network.mptcp.rcvpruned the RcvPruned field of the MPTcp line from /proc/net/netstat
+Incoming multipath packet dropped due to memory limit.
 @ network.tcp.tcploss the TCPLOSS field of the Tcp line from /proc/net/netstat
+@ network.mptcp.mpfailtx the MPFailTx field of the MPTcp line from /proc/net/netstat
+Multipath TCP MP_FAIL transmits.
+@ network.mptcp.mpfailrx the MPFailRx field of the MPTcp line from /proc/net/netstat
+Multipath TCP MP_FAIL receives.
+@ network.mptcp.subflowstale the SubflowStale field of the MPTcp line from /proc/net/netstat
+Multipath TCP subflows entered 'stale' status.
+@ network.mptcp.subflowrecover the SubflowRecover field of the MPTcp line from /proc/net/netstat
+Multipath TCP subflows returned to active status after being stale.

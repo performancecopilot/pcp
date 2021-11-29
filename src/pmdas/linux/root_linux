@@ -1225,6 +1225,10 @@ network.mptcp {
     mppriotx		60:53:186
     mppriorx		60:53:187
     rcvpruned		60:53:188
+    mpfailtx		60:53:190
+    mpfailrx		60:53:191
+    subflowstale	60:53:192
+    subflowrecover	60:53:193
 }
 
 network.udp {

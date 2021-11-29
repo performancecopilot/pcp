@@ -107,4 +107,16 @@ network.mptcp.mppriorx
     value 35
 
 network.mptcp.rcvpruned
+    value 38
+
+network.mptcp.mpfailtx
     value 36
+
+network.mptcp.mpfailrx
+    value 37
+
+network.mptcp.subflowstale
+    value 39
+
+network.mptcp.subflowrecover
+    value 40
