@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2020 Red Hat.
+ * Copyright (c) 2012-2021 Red Hat.
  * Copyright (c) 2009-2010 Aconex. All Rights Reserved.
  * Copyright (c) 1995-2000,2009 Silicon Graphics, Inc. All Rights Reserved.
  *
@@ -89,7 +89,7 @@ typedef struct {
     int			reload;		/* require reload of maps */
     int			notify;		/* notify pmcd of changes */
     int			statsdir_code;	/* last statsdir stat code */
-    time_t		statsdir_ts;	/* last statsdir timestamp */
+    struct stat		statsdir_stat;	/* last statsdir stat struct */
     const char		*prefix;
     char		*pcptmpdir;		/* probably /var/tmp */
     char		*pcpvardir;		/* probably /var/pcp */
@@ -1080,16 +1080,25 @@ mmv_reload_maybe(pmdaExt *pmda)
      * versa), and so on.
      */
     if (stat(ap->statsdir, &s) >= 0) {
-	if (s.st_mtime != ap->statsdir_ts) {
+#if defined(HAVE_ST_MTIME_WITH_E)
+	if (s.st_mtime != ap->statsdir_stat.st_mtime)
+#elif defined(HAVE_ST_MTIME_WITH_SPEC)
+	if (s.st_mtimespec.tv_sec != ap->statsdir_stat.st_mtimespec.tv_sec ||
+	    s.st_mtimespec.tv_nsec != ap->statsdir_stat.st_mtimespec.tv_nsec)
+#else
+	if (s.st_mtim.tv_sec != ap->statsdir_stat.st_mtim.tv_sec ||
+	    s.st_mtim.tv_nsec != ap->statsdir_stat.st_mtim.tv_nsec)
+#endif
+	{
 	    need_reload++;
 	    ap->statsdir_code = 0;
-	    ap->statsdir_ts = s.st_mtime;
+	    ap->statsdir_stat = s;
 	}
     } else {
 	i = oserror();
 	if (ap->statsdir_code != i) {
 	    ap->statsdir_code = i;
-	    ap->statsdir_ts = 0;
+	    memset(&ap->statsdir_stat, 0, sizeof(ap->statsdir_stat));
 	    need_reload++;
 	}
     }
