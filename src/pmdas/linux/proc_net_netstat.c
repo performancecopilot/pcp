@@ -421,6 +421,14 @@ netstat_fields_t netstat_mptcp_fields[] = {
       .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPPRIORX] },
     { .field = "RcvPruned",
       .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_RCVPRUNED] },
+    { .field = "MPFailTx",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPFAILTX] },
+    { .field = "MPFailRx",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPFAILRX] },
+    { .field = "SubflowStale",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_SUBFLOWSTALE] },
+    { .field = "SubflowRecover",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_SUBFLOWRECOVER] },
 
     { .field = NULL, .offset = NULL }
 };
