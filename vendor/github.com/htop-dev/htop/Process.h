@@ -60,6 +60,26 @@ typedef enum ProcessField_ {
    LAST_PROCESSFIELD
 } ProcessField;
 
+/* Core process states (shared by platforms)
+ * NOTE: The enum has an ordering that is important!
+ * See processStateChar in process.c for ProcessSate -> letter mapping */
+typedef enum ProcessState_ {
+   UNKNOWN = 1,
+   RUNNABLE,
+   RUNNING,
+   QUEUED,
+   WAITING,
+   UNINTERRUPTIBLE_WAIT,
+   BLOCKED,
+   PAGING,
+   STOPPED,
+   TRACED,
+   ZOMBIE,
+   DEFUNCT,
+   IDLE,
+   SLEEPING
+} ProcessState;
+
 struct Settings_;
 
 /* Holds information about regions of the cmdline that should be
@@ -202,20 +222,8 @@ typedef struct Process_ {
    /* Number of major faults the process has made which have required loading a memory page from disk */
    unsigned long int majflt;
 
-   /*
-    * Process state (platform dependent):
-    *   D  -  Waiting
-    *   I  -  Idle
-    *   L  -  Acquiring lock
-    *   R  -  Running
-    *   S  -  Sleeping
-    *   T  -  Stopped (on a signal)
-    *   X  -  Dead
-    *   Z  -  Zombie
-    *   t  -  Tracing stop
-    *   ?  -  Unknown
-    */
-   char state;
+   /* Process state enum field (platform dependent) */
+   ProcessState state;
 
    /* Whether the process was updated during the current scan */
    bool updated;
@@ -278,8 +286,12 @@ void Process_writeField(const Process* this, RichString* str, ProcessField field
 int Process_compare(const void* v1, const void* v2);
 void Process_delete(Object* cast);
 extern const ProcessFieldData Process_fields[LAST_PROCESSFIELD];
+#define PROCESS_MIN_PID_DIGITS 5
 #define PROCESS_MAX_PID_DIGITS 19
+#define PROCESS_MIN_UID_DIGITS 5
+#define PROCESS_MAX_UID_DIGITS 19
 extern int Process_pidDigits;
+extern int Process_uidDigits;
 
 typedef Process* (*Process_New)(const struct Settings_*);
 typedef void (*Process_WriteField)(const Process*, RichString*, ProcessField);
@@ -336,6 +348,9 @@ static inline bool Process_isThread(const Process* this) {
 #define ONE_DECIMAL_P (1ULL * ONE_DECIMAL_T * ONE_DECIMAL_K)
 
 void Process_setupColumnWidths(void);
+
+/* Sets the size of the UID column based on the passed UID */
+void Process_setUidColumnWidth(uid_t maxUid);
 
 /* Takes number in bytes (base 1024). Prints 6 columns. */
 void Process_printBytes(RichString* str, unsigned long long number, bool coloring);

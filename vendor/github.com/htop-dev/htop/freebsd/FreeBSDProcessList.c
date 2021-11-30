@@ -109,8 +109,8 @@ ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* dynamicMeters, H
 
    size_t sizeof_cp_time_array = sizeof(unsigned long) * CPUSTATES;
    len = 2; sysctlnametomib("kern.cp_time", MIB_kern_cp_time, &len);
-   fpl->cp_time_o = xCalloc(cpus, sizeof_cp_time_array);
-   fpl->cp_time_n = xCalloc(cpus, sizeof_cp_time_array);
+   fpl->cp_time_o = xCalloc(CPUSTATES, sizeof(unsigned long));
+   fpl->cp_time_n = xCalloc(CPUSTATES, sizeof(unsigned long));
    len = sizeof_cp_time_array;
 
    // fetch initial single (or average) CPU clicks from kernel
@@ -578,15 +578,16 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
          proc->nice = PRIO_MAX + 1 + kproc->ki_pri.pri_level - PRI_MIN_IDLE;
       }
 
+      /* Taken from: https://github.com/freebsd/freebsd-src/blob/1ad2d87778970582854082bcedd2df0394fd4933/sys/sys/proc.h#L851 */
       switch (kproc->ki_stat) {
-      case SIDL:   proc->state = 'I'; break;
-      case SRUN:   proc->state = 'R'; break;
-      case SSLEEP: proc->state = 'S'; break;
-      case SSTOP:  proc->state = 'T'; break;
-      case SZOMB:  proc->state = 'Z'; break;
-      case SWAIT:  proc->state = 'D'; break;
-      case SLOCK:  proc->state = 'L'; break;
-      default:     proc->state = '?';
+      case SIDL:   proc->state = IDLE; break;
+      case SRUN:   proc->state = RUNNING; break;
+      case SSLEEP: proc->state = SLEEPING; break;
+      case SSTOP:  proc->state = STOPPED; break;
+      case SZOMB:  proc->state = ZOMBIE; break;
+      case SWAIT:  proc->state = WAITING; break;
+      case SLOCK:  proc->state = BLOCKED; break;
+      default:     proc->state = UNKNOWN;
       }
 
       if (Process_isKernelThread(proc))
@@ -595,7 +596,7 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
       proc->show = ! ((hideKernelThreads && Process_isKernelThread(proc)) || (hideUserlandThreads && Process_isUserlandThread(proc)));
 
       super->totalTasks++;
-      if (proc->state == 'R')
+      if (proc->state == RUNNING)
          super->runningTasks++;
       proc->updated = true;
    }
