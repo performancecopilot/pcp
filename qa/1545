@@ -53,8 +53,9 @@ pcp2xml -s 4 -t 4 -5 -r --names-change=update mmv.control.files mmv.test | _filt
 # started and at least one sample done, but we need to run mmv_genstats
 # before pcp2xml is done
 #
-pmsleep 3
-$here/src/mmv_genstats test 2
+pmsleep 2
+src/mmv_genstats test 2
+pmstore mmv.control.reload 1 >>$seq.full
 
 wait
 
