@@ -328,6 +328,9 @@ find_inst(hdr_t *h, int inst)
 {
     entry_t	*e;
 
+    if ((e = h->last) != NULL && e->inst < inst)
+	return NULL;
+
     for (e = h->first; e != NULL; e = e->next) {
 	if (e->inst == inst && e->state != PMDA_CACHE_EMPTY)
 	    break;
@@ -621,7 +624,11 @@ insert_cache(hdr_t *h, const char *name, int inst, int *sts)
 	    *sts = PM_ERR_INST;
 	    return e;
 	}
-	for (e = h->first; e != NULL; e = e->next) {
+	/* if this entry is beyond the (sorted) list end, avoid linear scan */
+	if ((e = h->last) == NULL || e->inst > inst)
+	    e = h->first;
+	/* linear search over linked list, starting at either first or last */
+	for (; e != NULL; e = e->next) {
 	    if (e->inst < inst)
 		last_e = e;
 	    else if (e->inst > inst)
