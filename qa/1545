@@ -54,7 +54,10 @@ pcp2xml -s 4 -t 4 -5 -r --names-change=update mmv.control.files mmv.test | _filt
 # before pcp2xml is done
 #
 pmsleep 2
-src/mmv_genstats test 2
+
+# and the mmv stats "interval" is 5 secs (2nd arg to mmv_genstats)
+#
+src/mmv_genstats test 5
 pmstore mmv.control.reload 1 >>$seq.full
 
 wait
