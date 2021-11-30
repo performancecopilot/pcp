@@ -104,7 +104,7 @@ do
 	    do
 		[ "$req_ctl $req_state" = "advisory maybe" ] && continue
 		echo ""
-		echo "$ctl $state -> $req_ctl $req_state"
+		echo "$ctl $state -> $req_ctl $req_state" | tee -a $seq.full
 		cat >$tmp.config <<End-of-File
 log $ctl $state {
     sample.colour [ "blue" ]
@@ -119,12 +119,12 @@ End-of-File
 		logger_pid=$pid
 		_wait_for_pmlogger $logger_pid $tmp.out
 		src/logcontrol -p $logger_pid enquire sample.colour
-		# give pmlogger a chance to run the request before
-		# killing it
+		# give pmlogger a chance to run the request before killing it
 		#
 		pmsleep 0.1sec
 		$sudo $signal -s TERM $logger_pid
 		_wait_pmlogger_end $logger_pid
+		cat $tmp.out >>$seq.full
 		cat $tmp.err $tmp.out | _filter_pmlogger
 		if [ -s $tmp.0 ]
 		then
