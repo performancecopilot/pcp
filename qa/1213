@@ -57,6 +57,7 @@ _filter()
 	-e 's/TERM [0-9][0-9]*/TERM <somepid>/' \
 	-e '/^------.*\/lock/s/.* /------ ... ls output ... /' \
     # end
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$seq.full
 }
 
 # Build filter for any existing non-qa and non-primary pmlogger instances.
@@ -195,7 +196,7 @@ _setup
 # 	you'll need to look at the $seq.full file to see the original output
 # 	order from pmlogctl
 #
-echo "=== not run as root"
+echo "=== not run as root" | tee -a $seq.full
 echo "- create -" | tee -a $seq.full
 pmlogctl -N -c $seq -p $tmp.policy create local: 2>$tmp.err | _filter | LC_COLLATE=POSIX sort
 _filter <$tmp.err | LC_COLLATE=POSIX sort
@@ -228,37 +229,37 @@ _filter <$tmp.err | LC_COLLATE=POSIX sort
 pmlogctl    -c $seq -p $tmp.policy destroy 2>&1 | _filter | LC_COLLATE=POSIX sort
 
 echo
-echo "=== missing \"primary\" field in policy file"
+echo "=== missing \"primary\" field in policy file" | tee -a $seq.full
 $sudo pmlogctl -c $seq -p $tmp.policy.bad.1 create local: 2>&1 | _filter
 pmlogctl status | _filter_status
 
 echo
-echo "=== bad \"primary\" field in policy file"
+echo "=== bad \"primary\" field in policy file" | tee -a $seq.full
 $sudo pmlogctl -c $seq -p $tmp.policy.bad.2 create local: 2>&1 | _filter
 pmlogctl status | _filter_status
 
 echo
-echo "=== missing \"directory\" field in policy file"
+echo "=== missing \"directory\" field in policy file" | tee -a $seq.full
 $sudo pmlogctl -c $seq -p $tmp.policy.bad.3 create local: 2>&1 | _filter
 pmlogctl status | _filter_status
 
 echo
-echo "=== missing [control] section in policy file"
+echo "=== missing [control] section in policy file" | tee -a $seq.full
 $sudo pmlogctl -c $seq -p $tmp.policy.bad.4 create local: 2>&1 | _filter
 pmlogctl status | _filter_status
 
 echo
-echo "=== bad [ident] section in policy file"
+echo "=== bad [ident] section in policy file" | tee -a $seq.full
 $sudo pmlogctl -c $seq -p $tmp.policy.bad.5 create local: 2>&1 | _filter
 pmlogctl status | _filter_status
 
 echo
-echo "=== empty [control] section in policy file"
+echo "=== empty [control] section in policy file" | tee -a $seq.full
 $sudo pmlogctl -c $seq -p $tmp.policy.bad.6 create local: 2>&1 | _filter
 pmlogctl status | _filter_status
 
 echo
-echo "=== missing \"primary\" field in control file"
+echo "=== missing \"primary\" field in control file" | tee -a $seq.full
 cat <<End-of-File >$tmp.control
 # Installed by PCP QA test $seq on `date`
 \$version=1.1
@@ -272,7 +273,7 @@ _filter <$tmp.err
 $sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-foo
 
 echo
-echo "=== missing \"directory\" field in control file"
+echo "=== missing \"directory\" field in control file" | tee -a $seq.full
 cat <<End-of-File >$tmp.control
 # Installed by PCP QA test $seq on `date`
 \$version=1.1
@@ -286,7 +287,7 @@ _filter <$tmp.err
 $sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-foo
 
 echo
-echo "=== host in class more than once"
+echo "=== host in class more than once" | tee -a $seq.full
 cat <<End-of-File >$tmp.control
 # Installed by PCP QA test $seq on `date`
 \$version=1.1
@@ -303,7 +304,7 @@ _filter <$tmp.err
 $sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq-bad
 
 echo
-echo "=== host in multiple classes"
+echo "=== host in multiple classes" | tee -a $seq.full
 $sudo pmlogctl start localhost 2>&1 | _filter
 pmlogctl status localhost | _filter_status
 $sudo pmlogctl stop localhost 2>&1 | _filter
@@ -314,30 +315,30 @@ $sudo pmlogctl destroy localhost 2>&1 | _filter
 pmlogctl status localhost | _filter_status
 
 echo
-echo "=== create the same entry twice"
+echo "=== create the same entry twice" | tee -a $seq.full
 $sudo pmlogctl -V -p $tmp.policy -c $seq create localhost 2>&1 | _filter
 pmlogctl status localhost | _filter_status
 
 echo
-echo "=== policy file missing"
+echo "=== policy file missing" | tee -a $seq.full
 $sudo pmlogctl -c $seq create local: 2>&1 | _filter
 pmlogctl status localhost | _filter_status
 $sudo pmlogctl -c $seq destroy local: 2>&1 | _filter
 pmlogctl status localhost | _filter_status
 
 echo
-echo "=== no host/class specified"
+echo "=== no host/class specified" | tee -a $seq.full
 $sudo pmlogctl destroy 2>&1 | _filter
 $sudo pmlogctl create 2>&1 | _filter
 $sudo pmlogctl start 2>&1 | _filter
 
 echo
-echo "=== bad action"
+echo "=== bad action" | tee -a $seq.full
 pmlogctl fubar
 $sudo pmlogctl snafu
 
 echo
-echo "=== mutex"
+echo "=== mutex" | tee -a $seq.full
 if ! $sudo $PCP_BINADM_DIR/pmlock $PCP_ETC_DIR/pcp/pmlogger/lock
 then
     echo "Arrgh, failed to get lock $PCP_ETC_DIR/pcp/pmlogger/lock"
