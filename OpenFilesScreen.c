@@ -10,12 +10,14 @@ in the source distribution for its full text.
 #include "OpenFilesScreen.h"
 
 #include <fcntl.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 
 #include "Macros.h"
 #include "Panel.h"
@@ -25,7 +27,7 @@ in the source distribution for its full text.
 
 
 typedef struct OpenFiles_Data_ {
-   char* data[7];
+   char* data[8];
 } OpenFiles_Data;
 
 typedef struct OpenFiles_ProcessData_ {
@@ -55,6 +57,8 @@ static size_t getIndexForType(char type) {
       return 5;
    case 't':
       return 6;
+   case 'o':
+      return 7;
    }
 
    /* should never reach here */
@@ -74,7 +78,7 @@ OpenFilesScreen* OpenFilesScreen_new(const Process* process) {
    } else {
       this->pid = process->pid;
    }
-   return (OpenFilesScreen*) InfoScreen_init(&this->super, process, NULL, LINES - 2, "   FD TYPE    MODE DEVICE           SIZE       NODE  NAME");
+   return (OpenFilesScreen*) InfoScreen_init(&this->super, process, NULL, LINES - 2, "   FD TYPE    MODE DEVICE           SIZE     OFFSET       NODE  NAME");
 }
 
 void OpenFilesScreen_delete(Object* this) {
@@ -115,13 +119,14 @@ static OpenFiles_ProcessData* OpenFilesScreen_getProcessData(pid_t pid) {
       close(fdnull);
       char buffer[32] = {0};
       xSnprintf(buffer, sizeof(buffer), "%d", pid);
-      execlp("lsof", "lsof", "-P", "-p", buffer, "-F", NULL);
+      execlp("lsof", "lsof", "-P", "-o", "-p", buffer, "-F", NULL);
       exit(127);
    }
    close(fdpair[1]);
 
    OpenFiles_Data* item = &(pdata->data);
    OpenFiles_FileData* fdata = NULL;
+   bool lsofIncludesFileSize = false;
 
    FILE* fd = fdopen(fdpair[0], "r");
    if (!fd) {
@@ -155,8 +160,17 @@ static OpenFiles_ProcessData* OpenFilesScreen_getProcessData(pid_t pid) {
       case 't':  /* file's type */
       {
          size_t index = getIndexForType(cmd);
-         free(item->data[index]);
-         item->data[index] = xStrdup(line + 1);
+         free_and_xStrdup(&item->data[index], line + 1);
+         break;
+      }
+      case 'o':  /* file's offset */
+      {
+         size_t index = getIndexForType(cmd);
+         if (String_startsWith(line + 1, "0t")) {
+            free_and_xStrdup(&item->data[index], line + 3);
+         } else {
+            free_and_xStrdup(&item->data[index], line + 1);
+         }
          break;
       }
       case 'c':  /* process command name  */
@@ -166,7 +180,6 @@ static OpenFiles_ProcessData* OpenFilesScreen_getProcessData(pid_t pid) {
       case 'k':  /* link count */
       case 'l':  /* file's lock status */
       case 'L':  /* process login name */
-      case 'o':  /* file's offset */
       case 'p':  /* process ID */
       case 'P':  /* protocol name */
       case 'R':  /* parent process ID */
@@ -175,6 +188,10 @@ static OpenFiles_ProcessData* OpenFilesScreen_getProcessData(pid_t pid) {
          /* ignore */
          break;
       }
+
+      if (cmd == 's')
+         lsofIncludesFileSize = true;
+
       free(line);
    }
    fclose(fd);
@@ -189,6 +206,25 @@ static OpenFiles_ProcessData* OpenFilesScreen_getProcessData(pid_t pid) {
       pdata->error = 1;
    } else {
       pdata->error = WEXITSTATUS(wstatus);
+   }
+
+   /* We got all information we need; no post-processing needed */
+   if (lsofIncludesFileSize)
+      return pdata;
+
+   /* On linux, `lsof -o -F` omits SIZE, so add it back. */
+   /* On macOS, `lsof -o -F` includes SIZE, so this block isn't needed.  If no open files have a filesize, this will still run, unfortunately. */
+   size_t fileSizeIndex = getIndexForType('s');
+   for (fdata = pdata->files; fdata != NULL; fdata = fdata->next) {
+      item = &fdata->data;
+      const char* filename = getDataForType(item, 'n');
+
+      struct stat st;
+      if (stat(filename, &st) == 0) {
+         char fileSizeBuf[21]; /* 20 (long long) + 1 (NULL) */
+         xSnprintf(fileSizeBuf, sizeof(fileSizeBuf), "%"PRIu64, st.st_size); /* st.st_size is long long on macOS, long on linux */
+         free_and_xStrdup(&item->data[fileSizeIndex], fileSizeBuf);
+      }
    }
 
    return pdata;
@@ -213,14 +249,15 @@ static void OpenFilesScreen_scan(InfoScreen* this) {
       while (fdata) {
          OpenFiles_Data* data = &fdata->data;
          size_t lenN = strlen(getDataForType(data, 'n'));
-         size_t sizeEntry = 5 + 7 + 4 + 10 + 10 + 10 + lenN + 7 /*spaces*/ + 1 /*null*/;
+         size_t sizeEntry = 5 + 7 + 4 + 10 + 10 + 10 + 10 + lenN + 8 /*spaces*/ + 1 /*null*/;
          char entry[sizeEntry];
-         xSnprintf(entry, sizeof(entry), "%5.5s %-7.7s %-4.4s %-10.10s %10.10s %10.10s  %s",
+         xSnprintf(entry, sizeof(entry), "%5.5s %-7.7s %-4.4s %-10.10s %10.10s %10.10s %10.10s  %s",
                    getDataForType(data, 'f'),
                    getDataForType(data, 't'),
                    getDataForType(data, 'a'),
                    getDataForType(data, 'D'),
                    getDataForType(data, 's'),
+                   getDataForType(data, 'o'),
                    getDataForType(data, 'i'),
                    getDataForType(data, 'n'));
          InfoScreen_addLine(this, entry);

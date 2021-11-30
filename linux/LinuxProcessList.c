@@ -45,6 +45,7 @@ in the source distribution for its full text.
 #include "Process.h"
 #include "Settings.h"
 #include "XUtils.h"
+#include "linux/CGroupUtils.h"
 #include "linux/LinuxProcess.h"
 #include "linux/Platform.h" // needed for GNU/hurd to get PATH_MAX  // IWYU pragma: keep
 
@@ -62,6 +63,10 @@ in the source distribution for its full text.
 #define O_PATH         010000000 // declare for ancient glibc versions
 #endif
 
+/* Not exposed yet. Defined at include/linux/sched.h */
+#ifndef PF_KTHREAD
+#define PF_KTHREAD 0x00200000
+#endif
 
 static long long btime = -1;
 
@@ -310,6 +315,22 @@ static inline unsigned long long LinuxProcessList_adjustTime(unsigned long long 
    return t * 100 / jiffy;
 }
 
+/* Taken from: https://github.com/torvalds/linux/blob/64570fbc14f8d7cb3fe3995f20e26bc25ce4b2cc/fs/proc/array.c#L120 */
+static inline ProcessState LinuxProcessList_getProcessState(char state) {
+   switch (state) {
+      case 'S': return SLEEPING;
+      case 'X': return DEFUNCT;
+      case 'Z': return ZOMBIE;
+      case 't': return TRACED;
+      case 'T': return STOPPED;
+      case 'D': return UNINTERRUPTIBLE_WAIT;
+      case 'R': return RUNNING;
+      case 'P': return BLOCKED;
+      case 'I': return IDLE;
+      default: return UNKNOWN;
+   }
+}
+
 static bool LinuxProcessList_readStatFile(Process* process, openat_arg_t procFd, char* command, size_t commLen) {
    LinuxProcess* lp = (LinuxProcess*) process;
 
@@ -335,7 +356,7 @@ static bool LinuxProcessList_readStatFile(Process* process, openat_arg_t procFd,
    location = end + 2;
 
    /* (3) state  -  %c */
-   process->state = location[0];
+   process->state = LinuxProcessList_getProcessState(location[0]);
    location += 2;
 
    /* (4) ppid  -  %d */
@@ -358,8 +379,9 @@ static bool LinuxProcessList_readStatFile(Process* process, openat_arg_t procFd,
    process->tpgid = strtol(location, &location, 10);
    location += 1;
 
-   /* Skip (9) flags  -  %u */
-   location = strchr(location, ' ') + 1;
+   /* (9) flags  -  %u */
+   lp->flags = strtoul(location, &location, 10);
+   location += 1;
 
    /* (10) minflt  -  %lu */
    process->minflt = strtoull(location, &location, 10);
@@ -654,6 +676,11 @@ static void LinuxProcessList_readMaps(LinuxProcess* process, openat_arg_t procFd
          if (String_startsWith(readptr, "/memfd:"))
             continue;
 
+         /* Virtualbox maps /dev/zero for memory allocation. That results in
+          * false positive, so ignore. */
+         if (String_eq(readptr, "/dev/zero (deleted)\n"))
+            continue;
+
          if (strstr(readptr, " (deleted)\n")) {
             proc->usesDeletedLib = true;
             if (!calcSize)
@@ -834,6 +861,10 @@ static void LinuxProcessList_readCGroupFile(LinuxProcess* process, openat_arg_t 
          free(process->cgroup);
          process->cgroup = NULL;
       }
+      if (process->cgroup_short) {
+         free(process->cgroup_short);
+         process->cgroup_short = NULL;
+      }
       return;
    }
    char output[PROC_LINE_LENGTH + 1];
@@ -846,9 +877,16 @@ static void LinuxProcessList_readCGroupFile(LinuxProcess* process, openat_arg_t 
       if (!ok)
          break;
 
-      char* group = strchr(buffer, ':');
-      if (!group)
-         break;
+      char* group = buffer;
+      for (size_t i = 0; i < 2; i++) {
+         group = strchrnul(group, ':');
+         if (!*group)
+            break;
+         group++;
+      }
+
+      char* eol = strchrnul(group, '\n');
+      *eol = '\0';
 
       if (at != output) {
          *at = ';';
@@ -859,7 +897,22 @@ static void LinuxProcessList_readCGroupFile(LinuxProcess* process, openat_arg_t 
       left -= wrote;
    }
    fclose(file);
+
+   bool changed = !process->cgroup || !String_eq(process->cgroup, output);
+
    free_and_xStrdup(&process->cgroup, output);
+
+   if (!changed)
+      return;
+
+   char* cgroup_short = CGroup_filterName(process->cgroup);
+   if (cgroup_short) {
+      free_and_xStrdup(&process->cgroup_short, cgroup_short);
+      free(cgroup_short);
+   } else {
+      free(process->cgroup_short);
+      process->cgroup_short = NULL;
+   }
 }
 
 #ifdef HAVE_VSERVER
@@ -1089,16 +1142,8 @@ delayacct_failure:
 static bool LinuxProcessList_readCmdlineFile(Process* process, openat_arg_t procFd) {
    char command[4096 + 1]; // max cmdline length on Linux
    ssize_t amtRead = xReadfileat(procFd, "cmdline", command, sizeof(command));
-   if (amtRead < 0)
+   if (amtRead <= 0)
       return false;
-
-   if (amtRead == 0) {
-      if (process->state != 'Z') {
-         process->isKernelThread = true;
-      }
-      Process_updateCmdline(process, NULL, 0, 0);
-      return true;
-   }
 
    int tokenEnd = 0;
    int tokenStart = 0;
@@ -1467,6 +1512,10 @@ static bool LinuxProcessList_recurseProcTree(LinuxProcessList* this, openat_arg_
       if (! LinuxProcessList_readStatFile(proc, procFd, statCommand, sizeof(statCommand)))
          goto errorReadingProcess;
 
+      if (lp->flags & PF_KTHREAD) {
+         proc->isKernelThread = true;
+      }
+
       if (tty_nr != proc->tty_nr && this->ttyDrivers) {
          free(proc->tty_name);
          proc->tty_name = LinuxProcessList_updateTtyDevice(this->ttyDrivers, proc->tty_nr);
@@ -1498,17 +1547,21 @@ static bool LinuxProcessList_recurseProcTree(LinuxProcessList* this, openat_arg_
          }
          #endif
 
-         if (! LinuxProcessList_readCmdlineFile(proc, procFd)) {
-            goto errorReadingProcess;
+         if (proc->isKernelThread) {
+            Process_updateCmdline(proc, NULL, 0, 0);
+         } else if (!LinuxProcessList_readCmdlineFile(proc, procFd)) {
+            Process_updateCmdline(proc, statCommand, 0, strlen(statCommand));
          }
 
          Process_fillStarttimeBuffer(proc);
 
          ProcessList_add(pl, proc);
       } else {
-         if (settings->updateProcessNames && proc->state != 'Z') {
-            if (! LinuxProcessList_readCmdlineFile(proc, procFd)) {
-               goto errorReadingProcess;
+         if (settings->updateProcessNames && proc->state != ZOMBIE) {
+            if (proc->isKernelThread) {
+               Process_updateCmdline(proc, NULL, 0, 0);
+            } else if (!LinuxProcessList_readCmdlineFile(proc, procFd)) {
+               Process_updateCmdline(proc, statCommand, 0, strlen(statCommand));
             }
          }
       }
@@ -1544,7 +1597,7 @@ static bool LinuxProcessList_recurseProcTree(LinuxProcessList* this, openat_arg_
       }
 
       if (!proc->cmdline && statCommand[0] &&
-          (proc->state == 'Z' || Process_isKernelThread(proc) || settings->showThreadNames)) {
+          (proc->state == ZOMBIE || Process_isKernelThread(proc) || settings->showThreadNames)) {
          Process_updateCmdline(proc, statCommand, 0, strlen(statCommand));
       }
 
