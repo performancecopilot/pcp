@@ -127,8 +127,9 @@ const MeterClass* const Platform_meterTypes[] = {
    NULL
 };
 
-void Platform_init(void) {
+bool Platform_init(void) {
    /* no platform-specific setup needed */
+   return true;
 }
 
 void Platform_done(void) {
@@ -284,6 +285,7 @@ bool Platform_getDiskIO(DiskIOData* data) {
    if (devstat_checkversion(NULL) < 0)
       return false;
 
+   // use static to plug memory leak; see #841
    static struct devinfo info = { 0 };
    struct statinfo current = { .dinfo = &info };
 

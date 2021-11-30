@@ -138,7 +138,7 @@ const ProcessFieldData Process_fields[LAST_PROCESSFIELD] = {
    },
    [ST_UID] = {
       .name = "ST_UID",
-      .title = "  UID ",
+      .title = "UID",
       .description = "User ID of the process owner",
       .flags = 0,
    },
@@ -165,7 +165,7 @@ const ProcessFieldData Process_fields[LAST_PROCESSFIELD] = {
    },
    [USER] = {
       .name = "USER",
-      .title = "USER      ",
+      .title = "USER       ",
       .description = "Username of the process owner (or user ID if name cannot be determined)",
       .flags = 0,
    },
@@ -211,7 +211,7 @@ const ProcessFieldData Process_fields[LAST_PROCESSFIELD] = {
 };
 
 Process* NetBSDProcess_new(const Settings* settings) {
-   NetBSDProcess* this = xCalloc(sizeof(NetBSDProcess), 1);
+   NetBSDProcess* this = xCalloc(1, sizeof(NetBSDProcess));
    Object_setClass(this, Class(NetBSDProcess));
    Process_init(&this->super, settings);
    return &this->super;

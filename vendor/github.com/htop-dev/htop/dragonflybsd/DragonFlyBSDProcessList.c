@@ -79,8 +79,8 @@ ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* dynamicMeters, H
 
    size_t sizeof_cp_time_array = sizeof(unsigned long) * CPUSTATES;
    len = 2; sysctlnametomib("kern.cp_time", MIB_kern_cp_time, &len);
-   dfpl->cp_time_o = xCalloc(cpus, sizeof_cp_time_array);
-   dfpl->cp_time_n = xCalloc(cpus, sizeof_cp_time_array);
+   dfpl->cp_time_o = xCalloc(CPUSTATES, sizeof(unsigned long));
+   dfpl->cp_time_n = xCalloc(CPUSTATES, sizeof(unsigned long));
    len = sizeof_cp_time_array;
 
    // fetch initial single (or average) CPU clicks from kernel
@@ -542,60 +542,61 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
       }
 
       // would be nice if we could store multiple states in proc->state (as enum) and have writeField render them
+      /* Taken from: https://github.com/DragonFlyBSD/DragonFlyBSD/blob/c163a4d7ee9c6857ee4e04a3a2cbb50c3de29da1/sys/sys/proc_common.h */
       switch (kproc->kp_stat) {
-      case SIDL:   proc->state = 'I'; isIdleProcess = true; break;
+      case SIDL:   proc->state = IDLE; isIdleProcess = true; break;
       case SACTIVE:
          switch (kproc->kp_lwp.kl_stat) {
             case LSSLEEP:
                if (kproc->kp_lwp.kl_flags & LWP_SINTR)					// interruptible wait short/long
                   if (kproc->kp_lwp.kl_slptime >= MAXSLP) {
-                     proc->state = 'I';
+                     proc->state = IDLE;
                      isIdleProcess = true;
                   } else {
-                     proc->state = 'S';
+                     proc->state = SLEEPING;
                   }
                else if (kproc->kp_lwp.kl_tdflags & TDF_SINTR)				// interruptible lwkt wait
-                  proc->state = 'S';
+                  proc->state = SLEEPING;
                else if (kproc->kp_paddr)						// uninterruptible wait
-                  proc->state = 'D';
+                  proc->state = UNINTERRUPTIBLE_WAIT;
                else									// uninterruptible lwkt wait
-                  proc->state = 'B';
+                  proc->state = UNINTERRUPTIBLE_WAIT;
                break;
             case LSRUN:
                if (kproc->kp_lwp.kl_stat == LSRUN) {
                   if (!(kproc->kp_lwp.kl_tdflags & (TDF_RUNNING | TDF_RUNQ)))
-                     proc->state = 'Q';
+                     proc->state = QUEUED;
                   else
-                     proc->state = 'R';
+                     proc->state = RUNNING;
                }
                break;
             case LSSTOP:
-               proc->state = 'T';
+               proc->state = STOPPED;
                break;
             default:
-               proc->state = 'A';
+               proc->state = PAGING;
                break;
          }
          break;
-      case SSTOP:  proc->state = 'T'; break;
-      case SZOMB:  proc->state = 'Z'; break;
-      case SCORE:  proc->state = 'C'; break;
-      default:     proc->state = '?';
+      case SSTOP:  proc->state = STOPPED; break;
+      case SZOMB:  proc->state = ZOMBIE; break;
+      case SCORE:  proc->state = BLOCKED; break;
+      default:     proc->state = UNKNOWN;
       }
 
       if (kproc->kp_flags & P_SWAPPEDOUT)
-         proc->state = 'W';
+         proc->state = SLEEPING;
       if (kproc->kp_flags & P_TRACED)
-         proc->state = 'T';
+         proc->state = TRACED;
       if (kproc->kp_flags & P_JAILED)
-         proc->state = 'J';
+         proc->state = TRACED;
 
       if (Process_isKernelThread(proc))
          super->kernelThreads++;
 
       super->totalTasks++;
 
-      if (proc->state == 'R')
+      if (proc->state == RUNNING)
          super->runningTasks++;
 
       proc->show = ! ((hideKernelThreads && Process_isKernelThread(proc)) || (hideUserlandThreads && Process_isUserlandThread(proc)));
