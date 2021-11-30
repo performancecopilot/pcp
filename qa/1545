@@ -57,7 +57,8 @@ pmsleep 2
 
 # and the mmv stats "interval" is 5 secs (2nd arg to mmv_genstats)
 #
-src/mmv_genstats test 5
+src/mmv_genstats test 5 &
+pmsleep 1
 pmstore mmv.control.reload 1 >>$seq.full
 
 wait
