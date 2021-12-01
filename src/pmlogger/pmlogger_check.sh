@@ -539,7 +539,10 @@ _check_logger()
     x=5
     [ ! -z "$PMCD_REQUEST_TIMEOUT" ] && x=$PMCD_REQUEST_TIMEOUT
 
-    [ -z "$PMLOGGER_REQUEST_TIMEOUT" ] && export PMLOGGER_REQUEST_TIMEOUT=2
+    # max delay (secs) before timing out our pmlc request ... if this
+    # pmlogger is just started, we may need to be a little patient
+    #
+    [ -z "$PMLOGGER_REQUEST_TIMEOUT" ] && export PMLOGGER_REQUEST_TIMEOUT=10
 
     # wait for maximum time of a connection and 20 requests
     #
@@ -555,12 +558,18 @@ _check_logger()
 	    # may need to wait for pmlogger to get going ... logic here
 	    # is based on _wait_for_pmlogger() in qa/common.check
 	    #
-	    if pmlc "$1" </dev/null 2>&1 \
+	    if pmlc "$1" </dev/null 2>&1 | tee $tmp/tmp \
 		    | grep "^Connected to .*pmlogger" >/dev/null
 	    then
 		# pmlogger socket has been set up ...
 		$VERBOSE && echo " done"
 		return 0
+	    else
+		if $VERY_VERBOSE
+		then
+		    echo "delay=$delay pid=$1 pmlc not connecting yet"
+		    cat $tmp/tmp
+		fi
 	    fi
 
 	    _plist=`_get_pids_by_name pmlogger`
