@@ -37,9 +37,11 @@ _value_filter()
     _values=`awk '/inst.*value/ {print $NF}' $tmp.value`
     for value in $_values
     do
-        if _within_tolerance "Expecting ${write_size} +- 10%" $value ${write_size} 10%; then
-            echo "found value ${write_size} +- 10%"
+        if _within_tolerance "Expecting ${write_size} +- 20%" $value ${write_size} 20%; then
+            echo "found value ${write_size} +- 20%"
             break
+	else
+	    echo "failed: $value not in range `expr 80 \* ${write_size} / 100` ... `expr 120 \* ${write_size} / 100`" >>$here/$seq.full
         fi
     done
 }

@@ -40,7 +40,7 @@ Updating the PMCD control file, and notifying PMCD ...
 Check bcc metrics have appeared ... X metrics and X values
 
 === report metric values ===
-found value 20971520 +- 10%
+found value 20971520 +- 20%
 
 === remove bcc agent ===
 Culling the Performance Metrics Name Space ...
