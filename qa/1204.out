@@ -6,6 +6,8 @@ Options:
  -a, --all apply action to all matching hosts
  -c NAME, --class=NAME pmlogger instances belong to the NAME class
  [default: default]
+ -C ARGS, --checkargs=ARGS
+ pass command line ARGS to pmlogger_check
  -f, --force force action if possible
  -i IDENT, --ident=IDENT
  over-ride instance id (only for create and cond-create)

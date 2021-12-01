@@ -61,6 +61,7 @@ cat >$tmp/usage <<End-of-File
 Options:
   -a,--all                      apply action to all matching hosts
   -c=NAME,--class=NAME    	${IAM} instances belong to the NAME class [default: default]
+  -C=ARGS,--checkargs=ARGS	pass command line ARGS to ${IAM}_check
   -f,--force                    force action if possible
   -i=IDENT,--ident=IDENT        over-ride instance id (only for create and cond-create)
   -m,--migrate			migrate matching processes to farm services (for create and check)
@@ -1283,7 +1284,7 @@ $1 == "'"$host"'"	{ print $4 }'`
 	$VERBOSE && echo "Installing control file: $CONTROLDIR/$ident"
 
 	$CP $tmp/control "$CONTROLDIR/$ident"
-	$CHECK -c "$CONTROLDIR/$ident"
+	$CHECK $CHECKARGS -c "$CONTROLDIR/$ident"
 	dir_args="`echo "$dir" | _expand_control`"
 	_check_started "$dir_args" || sts=1
     done
@@ -1400,7 +1401,7 @@ $1 == "'"$host"'"	{ print $4 }'`
 	    fi
 	    $VERBOSE && echo "Installing control file: $CONTROLDIR/$ident"
 	    $CP $tmp/control "$CONTROLDIR/$ident"
-	    $CHECK -c "$CONTROLDIR/$ident"
+	    $CHECK $CHECKARGS -c "$CONTROLDIR/$ident"
 	    dir_args="`echo "$dir" | _expand_control`"
 	    _check_started "$dir_args" || sts=1
 	fi
@@ -1526,7 +1527,7 @@ $1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ sub(/^#!#/,"",$1) }
 	    fi
 	    $CP $tmp/control "$control"
 	fi
-	$CHECK -c "$control"
+	$CHECK $CHECKARGS -c "$control"
 
 	_check_started "$args_dir" || sts=1
     done
@@ -1648,6 +1649,7 @@ SHOWME=false
 CP=cp
 RM=rm
 CHECK="sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/${IAM}_check"
+CHECKARGS=''
 KILL="$PCP_BINADM_DIR/pmsignal -s"
 MIGRATE=false
 VERBOSE=false
@@ -1665,6 +1667,9 @@ do
 		;;
 	-c)	CLASS="$2"
 		EXPLICIT_CLASS=true
+		shift
+		;;
+	-C)	CHECKARGS="$CHECKARGS $2"
 		shift
 		;;
 	-f)	FORCE=true

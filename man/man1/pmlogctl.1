@@ -22,6 +22,7 @@
 .SH SYNOPSIS
 \f3pmlogctl\f1
 [\f3\-afmNV?\f1]
+[\f3\-C\f1 \f2check_args\f1]
 [\f3\-c\f1 \f2class\f1]
 [\f3\-i\f1 \f2ident\f1]
 [\f3\-p\f1 \f2policy\f1]
@@ -264,7 +265,7 @@ class is used (this is the ``default'' class for the
 .B cond-create
 command when all else fails).
 .PP
-If more than one class evalutes to true then a composite
+If more than one class evaluates to true then a composite
 .BR pmlogger (1)
 configuration
 file is created and the instance is also assigned to the special
@@ -573,6 +574,20 @@ Set the name of the class for which
 .BR pmlogger (1)
 instances belong to as
 .IR class .
+.TP
+\fB\-C\fR \fIcheck_args\fR, \fB\-\-checkargs\fR=\fIcheck_args\fR
+.I check_args
+are additional command line arguments for
+.BR pmlogger_check (1)
+when it is called.
+This is most useful for options like
+.BR \-V .
+Multiple
+.B \-C
+options may be used and the various
+.I check_args
+options will be accumulated and all passed to
+.BR pmlogger_check (1).
 .TP
 \fB\-f\fR, \fB\-\-force\fR
 Force action if possible.

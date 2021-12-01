@@ -561,6 +561,7 @@ _pcp () {
     _arguments -A "-*" -S -s \
       '(- *)'{-\?,--help}'[display help message]' \
       "(-a --all $exargs)"{-a,--all}'[apply action to all instances]' \
+      "(-C --checkargs $exargs)"{-C+,--checkargs=}'[args to check program]:args:' \
       "(-c --class $exargs)"{-c+,--class=}'[specify class name]:class:' \
       "(-f --force $exargs)"{-f,--force}'[force action]' \
       "(-i --ident $exargs)"{-i+,--ident=}'[specify instance identifier]:ident:' \
