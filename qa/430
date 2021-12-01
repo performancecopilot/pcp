@@ -347,12 +347,7 @@ $2 == '"$pid"' { print; exit(0) }'
     then
 	$sudo cat $tmp.log \
 	| tee -a $here/$seq.full \
-	| sed \
-	    -e '/^... try /d' \
-	    -e '/delay=[0-9]*[0-9] pid=/{
-/^delay=/d
-s/delay=[0-9]*[0-9] pid=.*//
-}' \
+	| sed -e '/^... try /d' \
 	| _filter
     fi
 
