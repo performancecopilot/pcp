@@ -111,6 +111,7 @@ KILL=pmsignal
 TERSE=false
 VERBOSE=false
 VERY_VERBOSE=false
+VERY_VERY_VERBOSE=false
 CHECK_RUNLEVEL=false
 START_PMLOGGER=true
 STOP_PMLOGGER=false
@@ -175,7 +176,10 @@ do
 		;;
 	-T)	TERSE=true
 		;;
-	-V)	if $VERBOSE
+	-V)	if $VERY_VERBOSE
+		then
+		    VERY_VERY_VERBOSE=true
+		elif $VERBOSE
 		then
 		    VERY_VERBOSE=true
 		else
@@ -565,7 +569,7 @@ _check_logger()
 		$VERBOSE && echo " done"
 		return 0
 	    else
-		if $VERY_VERBOSE
+		if $VERY_VERY_VERBOSE
 		then
 		    echo "delay=$delay pid=$1 pmlc not connecting yet"
 		    cat $tmp/tmp
