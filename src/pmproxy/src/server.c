@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019 Red Hat.
+ * Copyright (c) 2018-2019,2021 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -125,7 +125,7 @@ server_init(int portcount, const char *localpath)
 			pmGetProgname());
 	return NULL;
     }
-    uv_mutex_init(&proxy->mutex);
+    uv_mutex_init(&proxy->write_mutex);
 
     count = portcount + (*localpath ? 1 : 0);
     if (count) {
@@ -229,7 +229,6 @@ void
 client_put(struct client *client)
 {
     unsigned int	refcount;
-    struct proxy	*proxy = client->proxy;
 
     uv_mutex_lock(&client->mutex);
     assert(client->refcount);
@@ -237,13 +236,6 @@ client_put(struct client *client)
     uv_mutex_unlock(&client->mutex);
 
     if (refcount == 0) {
-	/* remove client from the doubly-linked list */
-	uv_mutex_lock(&proxy->mutex);
-	if (client->next != NULL)
-	    client->next->prev = client->prev;
-	*client->prev = client->next;
-	uv_mutex_unlock(&proxy->mutex);
-
 	if (client->protocol & STREAM_PCP)
 	    on_pcp_client_close(client);
 	if (client->protocol & STREAM_HTTP)
@@ -252,7 +244,8 @@ client_put(struct client *client)
 	    on_redis_client_close(client);
 	if (client->protocol & STREAM_SECURE)
 	    on_secure_client_close(client);
-
+	if (client->buffer)
+	    sdsfree(client->buffer);
 	memset(client, 0, sizeof(*client));
 	free(client);
     }
@@ -494,14 +487,6 @@ on_client_connection(uv_stream_t *stream, int status)
     handle->data = (void *)proxy;
     client->proxy = proxy;
 
-    /* insert client into doubly-linked list at the head */
-    uv_mutex_lock(&proxy->mutex);
-    if ((client->next = proxy->first) != NULL)
-	proxy->first->prev = &client->next;
-    proxy->first = client;
-    client->prev = &proxy->first;
-    uv_mutex_unlock(&proxy->mutex);
-
     status = uv_read_start((uv_stream_t *)&client->stream.u.tcp,
 			    on_buffer_alloc, on_client_read);
     if (status != 0) {
@@ -719,7 +704,7 @@ shutdown_ports(void *arg)
     struct proxy	*proxy = (struct proxy *)arg;
     struct server	*server;
     struct stream	*stream;
-    int			i;
+    unsigned int	i;
 
     for (i = 0; i < proxy->nservers; i++) {
 	server = &proxy->servers[i];
@@ -756,7 +741,8 @@ dump_request_ports(FILE *output, void *arg)
     struct proxy	*proxy = (struct proxy *)arg;
     struct stream	*stream;
     uv_os_fd_t		uv_fd;
-    int			i, fd;
+    unsigned int	i;
+    int			fd;
 
     fprintf(output, "%s request port(s):\n"
 		"  sts fd   port  family address\n"

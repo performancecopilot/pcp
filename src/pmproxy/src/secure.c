@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Red Hat.
+ * Copyright (c) 2019,2021 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -16,7 +16,7 @@
 #include <openssl/opensslv.h>
 #include <openssl/ssl.h>
 
-/* called with proxy->mutex locked */
+/* called with proxy->write_mutex locked */
 static void
 remove_connection_from_queue(struct client *client)
 {
@@ -44,9 +44,9 @@ on_secure_client_close(struct client *client)
     if (pmDebugOptions.auth || pmDebugOptions.http)
 	fprintf(stderr, "%s: client %p\n", "on_secure_client_close", client);
 
-    uv_mutex_lock(&client->proxy->mutex);
+    uv_mutex_lock(&client->proxy->write_mutex);
     remove_connection_from_queue(client);
-    uv_mutex_unlock(&client->proxy->mutex);
+    uv_mutex_unlock(&client->proxy->write_mutex);
     /* client->read and client->write freed by SSL_free */
     SSL_free(client->secure.ssl);
 }
@@ -63,7 +63,7 @@ maybe_flush_ssl(struct proxy *proxy, struct client *client)
 	client->secure.pending.writes_count > 0)
 	return;
 
-    uv_mutex_lock(&proxy->mutex);
+    uv_mutex_lock(&proxy->write_mutex);
     if (proxy->pending_writes == NULL) {
     	proxy->pending_writes = client;
 	client->secure.pending.prev = client->secure.pending.next = NULL;
@@ -75,7 +75,7 @@ maybe_flush_ssl(struct proxy *proxy, struct client *client)
 	client->secure.pending.prev = c;
     }
     client->secure.pending.queued = 1;
-    uv_mutex_unlock(&proxy->mutex);
+    uv_mutex_unlock(&proxy->write_mutex);
 }
 
 static void
@@ -161,7 +161,7 @@ flush_secure_module(struct proxy *proxy)
     size_t		i, used;
     int			sts;
 
-    uv_mutex_lock(&proxy->mutex);
+    uv_mutex_lock(&proxy->write_mutex);
     head = &proxy->pending_writes;
     while ((client = *head) != NULL) {
 	flush_ssl_buffer(client);
@@ -212,7 +212,7 @@ flush_secure_module(struct proxy *proxy)
 		    sizeof(uv_buf_t) * client->secure.pending.writes_count);
 	}
     }
-    uv_mutex_unlock(&proxy->mutex);
+    uv_mutex_unlock(&proxy->write_mutex);
 }
 
 void
@@ -221,7 +221,8 @@ secure_client_write(struct client *client, struct stream_write_baton *request)
     struct proxy	*proxy = client->proxy;
     uv_buf_t		*dup;
     size_t		count, bytes;
-    int			i, sts, defer = 0, maybe = 0;
+    unsigned int	i;
+    int			sts, defer = 0, maybe = 0;
 
     for (i = 0; i < request->nbuffers; i++) {
 	if (defer == 0) {
