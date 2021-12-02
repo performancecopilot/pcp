@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019 Red Hat.
+ * Copyright (c) 2018-2019,2021 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -97,11 +97,11 @@ typedef struct http_client {
 
 typedef struct pcp_client {
     pcp_proxy_state_t	state;
-    sds			hostname;
     unsigned int	port : 16;
     unsigned int	certreq : 1;
     unsigned int	connected : 1;
     unsigned int	pad : 14;
+    sds			hostname;
     uv_connect_t	pmcd;
     uv_tcp_t		socket;
 } pcp_client_t;
@@ -136,8 +136,6 @@ typedef struct client {
 	pcp_client_t	pcp;
     } u;
     struct proxy	*proxy;
-    struct client	*next;
-    struct client	**prev;
     sds			buffer;
 } client_t;
 
@@ -161,7 +159,7 @@ typedef struct proxy {
     struct dict		*config;	/* configuration dictionary */
     uv_loop_t		*events;	/* global, async event loop */
     uv_callback_t	write_callbacks;
-    uv_mutex_t		mutex;		/* protects client lists and pending writes */
+    uv_mutex_t		write_mutex;	/* protects pending writes */
 } proxy_t;
 
 extern void proxylog(pmLogLevel, sds, void *);
