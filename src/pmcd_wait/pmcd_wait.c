@@ -48,8 +48,9 @@ PrintTimeout(void)
 {
     if (verbose) {
 	fprintf(stderr, "%s: Failed to connect to PMCD on host \"%s\""
-		" in %ld seconds\n",
-		pmGetProgname(), hostname, delta);
+		" in %ld %s\n",
+		pmGetProgname(), hostname, delta,
+		delta == 1 ? "second" : "seconds");
     }
 }
 
