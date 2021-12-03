@@ -8,7 +8,7 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-. ./common.filter
+. ./common.python
 . ./common.secure
 
 $python -c "from pcp import pmda" >/dev/null 2>&1
