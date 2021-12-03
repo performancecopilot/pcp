@@ -128,10 +128,13 @@ skip == 0		{ print }
 
 _count_pmies()
 {
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([P]ID)|([p]mie)' >>$here/$seq.full
     count=0
     if [ -d $PCP_TMP_DIR/pmie ] 
-    then cd $PCP_TMP_DIR/pmie
-    else return 0
+    then
+	cd $PCP_TMP_DIR/pmie
+    else
+	return 0
     fi
 
     ls -l >>$here/$seq.full
@@ -141,16 +144,16 @@ _count_pmies()
 
     for process in $plist
     do
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS -p $process >/dev/null 2>&1
+	$PCP_PS_PROG -p $process >/dev/null 2>&1
 	if [ $? = 1 ]
 	then
 	    echo "urk, $PCP_TMP_DIR/pmie/$process has no running pmie instance"
 	else
 	    count=`expr $count + 1`
-	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS -p $process >>$here/$seq.full
+	    $PCP_PS_PROG -p $process >>$here/$seq.full
 	    if which pstree >/dev/null 2>&1
 	    then
-		pstree $process >>$here/$seq.full
+		pstree -s -p $process >>$here/$seq.full
 	    fi
 	fi
     done
@@ -211,7 +214,7 @@ echo "pmie count at start of QA testing: $?" | tee -a $here/$seq.full
 echo
 
 echo === check default install operation === | tee -a $here/$seq.full
-_service pmie restart 2>&1 | _filter_pmie_start
+_service pmie restart 2>&1 | tee -a $here/$seq.full | _filter_pmie_start
 _wait_for_pmie
 _count_pmies
 # chkconfig no longer controls start-ability, expect non-zero
@@ -270,9 +273,9 @@ LOCALHOSTNAME   n n $tmp.locker/ok.$case -c $tmp.conf
 EOF
 rm -f $tmp.locker/ok.$case.lock
 touch $tmp.locker/ok.$case.lock
-$PCP_PS_PROG $PCP_PS_ALL_ARGS | grep '([P]ID)|([p]mie)' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([P]ID)|([p]mie)' >>$here/$seq.full
 pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log
-$PCP_PS_PROG $PCP_PS_ALL_ARGS | grep '([P]ID)|([p]mie)' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([P]ID)|([p]mie)' >>$here/$seq.full
 cat $tmp.warning.$case.log | _filter
 rm -f $tmp.warning.$case.log
 echo
