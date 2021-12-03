@@ -278,7 +278,7 @@ _service()
 		    eval `systemctl show --property=ActiveState $svc.service`
 		    if [ "$2" = start -o "$2" = restart ]
 		    then
-			if [ "$ActiveState" != active ]
+			if [ "$ActiveState" != active -a "$ActiveState" != activating ]
 			then
 			    echo "_service $1 $2: expecting $svc state=active, found state=$ActiveState" >>$here/$seq.full
 			    _systemctl_status $svc >>$here/$seq.full
@@ -326,7 +326,7 @@ _service()
 		eval `systemctl show --property=ActiveState $1.service`
 		if [ "$2" = start -o "$2" = restart ]
 		then
-		    if [ "$ActiveState" != active ]
+		    if [ "$ActiveState" != active -a "$ActiveState" != activating ]
 		    then
 			echo "_service $1 $2: expecting state=active, found state=$ActiveState" >>$here/$seq.full
 			_systemctl_status $1 >>$here/$seq.full
