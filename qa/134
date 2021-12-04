@@ -90,7 +90,7 @@ _do_time()
 			time=`echo "$time" | sed -e 's/\(.*\)000/\1/'`
 			;;
 	esac
-    	if grep $time $tmp.sed >/dev/null
+    	if grep "/${time}"'0\*/' $tmp.sed >/dev/null
 	then
 	    :
 	else
