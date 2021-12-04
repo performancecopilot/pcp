@@ -22,7 +22,7 @@ if [ $? -ne 0 ]; then
     _notrun "$msg"
     # NOTREACHED
 fi
-rm -f $seq.tmp
+rm -f $tmp.tmp
 
 rsignal=pmsignal
 status=1	# failure is the default!
