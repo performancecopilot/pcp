@@ -1,0 +1,9 @@
+[Unit]
+Description=Activate pmlogger_farm_check when pmlogger control files change
+
+[Path]
+PathChanged=@PCP_SYSCONF_DIR@/pmlogger/control
+PathChanged=@PCP_SYSCONF_DIR@/pmlogger/control.d
+
+[Install]
+RequiredBy=pmlogger_farm_check.service

@@ -24,7 +24,8 @@ OTHERS	= pmnewlog.sh control rc_pmlogger \
 	  pmlogger_farm_check.timer pmlogger_farm_check.service
 LDIRT	= crontab crontab.daily_report pmlogger.service \
 	  pmlogger_daily.service pmlogger_daily_report.service \
-	  pmlogger_check.service pmlogger_farm.service pmlogger_farm_check.service
+	  pmlogger_check.service pmlogger_farm.service pmlogger_farm_check.service \
+	  pmlogger_farm_check.path
 
 ifeq ($(TARGET_OS),linux)
 CRONTAB_USER = $(PCP_USER)
@@ -67,6 +68,7 @@ ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmlogger_farm.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_farm.service
 	$(INSTALL) -m 644 pmlogger_farm_check.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_farm_check.service
 	$(INSTALL) -m 644 pmlogger_farm_check.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_farm_check.timer
+	$(INSTALL) -m 644 pmlogger_farm_check.path $(PCP_SYSTEMDUNIT_DIR)/pmlogger_farm_check.path
 	$(INSTALL) -m 644 pmlogger_daily.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily.service
 	$(INSTALL) -m 644 pmlogger_check.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_check.timer
 	$(INSTALL) -m 644 pmlogger_check.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_check.service
@@ -111,6 +113,11 @@ pmlogger_farm.service : pmlogger_farm.service.in
 pmlogger_farm_check.service : pmlogger_farm_check.service.in
 	$(SED) <$< >$@ \
 	    -e 's;@PCP_BIN_DIR@;'$(PCP_BIN_DIR)';' \
+	# END
+	#
+pmlogger_farm_check.path : pmlogger_farm_check.path.in
+	$(SED) <$< >$@ \
+	    -e 's;@PCP_SYSCONF_DIR@;'$(PCP_SYSCONF_DIR)';' \
 	# END
 
 pmlogger_daily.service : pmlogger_daily.service.in

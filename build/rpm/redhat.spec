@@ -2960,6 +2960,7 @@ then
        %systemd_preun pmlogger_daily.timer
        %systemd_preun pmlogger_check.timer
        %systemd_preun pmlogger_farm_check.timer
+       %systemd_preun pmlogger_farm_check.path
        %systemd_preun pmie_farm_check.timer
 
        systemctl stop pmlogger.service >/dev/null 2>&1
@@ -3050,8 +3051,8 @@ PCP_LOG_DIR=%{_logsdir}
 
     # pmlogger_farm service inherits the same initial state as pmlogger service
     if systemctl is-enabled pmlogger.service >/dev/null; then
-	systemctl enable pmlogger_farm.service pmlogger_farm_check.service
-	systemctl start pmlogger_farm.service pmlogger_farm_check.service
+	systemctl enable pmlogger_farm.service pmlogger_farm_check.service pmlogger_farm_check.path
+	systemctl start pmlogger_farm.service pmlogger_farm_check.service pmlogger_farm_check.path
     fi
     # pmie_farm service inherits the same initial state as pmie service
     if systemctl is-enabled pmie.service >/dev/null; then
