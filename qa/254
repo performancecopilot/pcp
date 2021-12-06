@@ -32,6 +32,7 @@ cleanup()
 	_wait_pmcd_end
 	unset PMCD_SOCKET
 	_filter_pcp_start <$tmp.err
+	cat $tmp.log >>$here/$seq.full
         echo "Restart and ping pmcd ..."
 	# make sure pmcd's socket is torn down (failure on vm33, BSD 6.8)
 	#
@@ -42,6 +43,54 @@ cleanup()
 	_wait_for_pmlogger
     fi
     rm -rf $tmp $tmp.*
+}
+
+_hunt_pmcd_socket()
+{
+    rm -f $tmp.tmp
+    echo "hunting for pmcd socket ..." >>$here/$seq.full
+    netstat -a | grep ':44321' >>$here/$seq.full
+    if which fstat >/dev/null 2>&1
+    then
+	fstat | egrep '([P]ID)|(:[4]4321)' >$tmp.out 2>>$here/$seq.full
+	# fstat output ...
+	# pcp      pmcd       81043    0* internet stream tcp 0x0 *:44321
+	$PCP_AWK_PROG <$tmp.out '{ print $3 }' \
+	| sed -e '/PID/d' \
+	| LC_COLLATE=POSIX sort \
+	| uniq >$tmp.tmp 
+    elif which fuser >/dev/null 2>&1
+    then
+	# fuser output is mixed on stderr and stdout!
+	$sudo fuser 44321/tcp >$tmp.out 2>&1
+	# fuser output ...
+	# 44321/tcp:           624280
+	$PCP_AWK_PROG <$tmp.out '{ print $2 }' \
+	| LC_COLLATE=POSIX sort \
+	| uniq >$tmp.tmp 
+    fi
+    cat $tmp.out >>$here/$seq.full
+    if which pstree >/dev/null 2>&1
+    then
+	if pstree --help 2>&1 | grep '.--show-parents' >/dev/null
+	then
+	    _gnu_pstree=true
+	else
+	    _gnu_pstree=false
+	fi
+	cat $tmp.tmp \
+	| while read pid
+	do
+	    echo "pid=$pid" >>$here/$seq.full
+	    if $_gnu_pstree
+	    then
+		pstree --show-parents --show-pids $pid >>$here/$seq.full
+	    else
+		# BSD-style
+		pstree -p $pid >>$here/$seq.full
+	    fi
+	done
+    fi
 }
 
 trap "cleanup; exit \$status" 0 1 2 3 15
@@ -75,9 +124,11 @@ sleep 1
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
 #
 export PMCD_SOCKET=$tmp/pmcd.socket
-$PCP_PMCD_PROG -f -n $pmns -l $seq.full 2>$tmp.err &
+_hunt_pmcd_socket
+$PCP_PMCD_PROG -f -n $pmns -l $tmp.log 2>$tmp.err &
 pmcd=$!
 _wait_for_pmcd
+_hunt_pmcd_socket
 
 cd $here
 src/nameall -s 2 ""
