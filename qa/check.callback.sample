@@ -159,7 +159,20 @@ else
     fi
 fi
 
-# Check are all pmdas alive and well
+# Some PMDAs have trouble starting on some VMs ... if one of these
+# has failed, try restarting it
+pminfo -f pmcd.agent.status | grep 'value [^0]' >$tmp.out
+if grep '"nfsclient"' $tmp.out >/dev/null
+then
+    pmstore pmcd.control.sighup 1 >/dev/null
+    sleep 2
+elif grep '"openmetrics"' $tmp.out >/dev/null
+then
+    pmstore pmcd.control.sighup 1 >/dev/null
+    sleep 2
+fi
+
+# Check are all PMDAs alive and well
 #
 if pminfo -f pmcd.agent.status >$tmp.out 2>$tmp.err
 then
@@ -176,7 +189,7 @@ p
     do
 	if [ "$status" != 0 ]
 	then
-	    echo "check.callback: fail: pmda $name not well, status=$status!"
+	    echo "check.callback: fail: PMDA $name not well, status=$status!"
 	    $abort && status=1
 	fi
 	echo "$name" >>$tmp.pmdalist
@@ -187,7 +200,7 @@ p
 	then
 	    :
 	else
-	    echo "check.callback: fail: installed pmdas changed!"
+	    echo "check.callback: fail: installed PMDAs changed!"
 	    cat $tmp.out
 	    $abort && status=1
 	fi
