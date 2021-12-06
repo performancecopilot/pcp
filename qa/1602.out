@@ -23,7 +23,7 @@ cluster_known_nodes:3
 cluster_size:3
 
 == start pmproxy
-PING_PROXY
+PING
 PONG
 
 == redis-cli set two keys

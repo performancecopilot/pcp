@@ -1508,6 +1508,32 @@ _check_redis_server()
     _check_redis_server_version $redisport
 }
 
+# be prepared to "ping" the Redis server a few times until we see
+# the expected response
+#
+_check_redis_ping()
+{
+    if [ $# -ne 1 ]
+    then
+	echo "_check_redis_ping: botch: needs port# as only argument"
+	return
+    fi
+    echo "PING"
+    _i=0
+    while [ $_i -lt 10 ]
+    do
+	redis-cli -p $1 ping >$tmp.redis.tmp 2>&1
+	if grep PONG $tmp.redis.tmp
+	then
+	    rm -f $tmp.redis.tmp
+	    break
+	fi
+	pmsleep 0.125
+	_i=`expr $_i + 1`
+    done
+    [ -f $tmp.redis.tmp ] && cat $tmp.redis.tmp
+}
+
 # Check if the RediSearch module is installed
 _check_search()
 {

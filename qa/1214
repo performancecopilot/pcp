@@ -40,11 +40,9 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 echo "=== Start test redis-server ..."
 redisport=`_find_free_port`
-redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
-echo "PING"
-pmsleep 0.125
 options="-p $redisport"
-redis-cli $options ping
+redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
+_check_redis_ping $redisport
 echo
 echo "=== Start test pmproxy ..."
 proxyport=`_find_free_port`

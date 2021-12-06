@@ -54,9 +54,7 @@ _filter_port()
 redisport=`_find_free_port`
 echo "Start test Redis server ..."
 redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
-echo "PING"
-pmsleep 0.125
-redis-cli -p $redisport ping
+_check_redis_ping $redisport
 _check_redis_server_version $redisport
 
 # start pmproxy

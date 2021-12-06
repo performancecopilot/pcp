@@ -145,11 +145,9 @@ _sighup_pmcd
 
 echo "Start test Redis server ..."
 redisport=`_find_free_port`
-redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
-echo "PING"
-pmsleep 0.125
 options="-p $redisport"
-redis-cli $options ping
+redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
+_check_redis_ping $redisport
 _check_redis_server $redisport
 echo
 

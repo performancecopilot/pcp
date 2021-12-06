@@ -25,6 +25,7 @@ _cleanup()
 status=1	# failure is the default!
 hostname=`pmhostname`
 redisport=`_find_free_port`
+options="-p $redisport"
 
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -43,10 +44,7 @@ $sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
 
 echo "Start test Redis server ..."
 redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
-echo "PING"
-pmsleep 0.125
-options="-p $redisport"
-redis-cli $options ping
+_check_redis_ping $redisport
 _check_redis_server $redisport
 echo
 

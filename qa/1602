@@ -84,9 +84,7 @@ echo "proxyport=$proxyport" >>$seq.full
 echo "pmproxy_pid=$pmproxy_pid" >>$seq.full
 _wait_for_pmproxy $proxyport $tmp.pmproxy.log
 which netstat >/dev/null && netstat -a | egrep "$redisport1|$proxyport" >>$seq.full
-pmsleep 0.125
-echo "PING_PROXY"
-redis-cli -p $proxyport ping
+_check_redis_ping $proxyport
 echo
 
 # check pmproxy has started and is available for requests
