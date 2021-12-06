@@ -42,7 +42,7 @@ _filter()
 	-e '/^proc\.autogroup\.id: No value(s) available/d' \
 	-e '/^proc\.autogroup\.nice: No value(s) available/d' \
 	-e '/^proc\.id\.container: No data available/d' \
-	-e '/^proc\.namespaces\.envid No value(s) available/d' \
+	-e '/^proc\.namespaces\.envid: No value(s) available/d' \
 	-e '/^proc\.schedstat\.envid: Metric not supported/d' \
 	-e '/^proc\.schedstat\.pcount: Metric not supported/d' \
 	-e '/^proc\.schedstat\..*: No value(s) available/d' \
