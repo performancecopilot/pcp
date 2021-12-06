@@ -32,10 +32,11 @@ semodule_x_option=`semodule -h | grep "\-X"`
 # is used in the policy file and is known to selinux -t, but semodule
 # fails.
 # We cannot figure out why, so _notrun it!
+# Ditto for vm04 (CentOS Linux8.5.2111)
 #
 case `admin/whatami`
 in
-    *RHEL\ 8.5\ *)
+    *RHEL\ 8.5\ *|CentOS\ Linux8.5.*)
 	_notrun "dodge semodule and glusterd_log_t issue"
 	;;
 esac
