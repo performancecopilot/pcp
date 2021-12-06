@@ -15,6 +15,8 @@ echo "QA output created by $seq"
 [ $PCP_PLATFORM = linux ] || _notrun "Linux ZFS PMDA is Linux-specific (uses procfs)"
 grep -q zfs /proc/filesystems || _notrun "ZFS filesystem unsupported by the running kernel"
 which zpool > /dev/null || _notrun "zpool not found, please check your OpenZFS installation"
+zpool -? 2>&1 | grep -q "make sure that the zfs-fuse daemon is running."
+[ $? -eq 0 ] && _notrun "zfs-fuse is installed but test targets OpenZFS"
 
 for file in arcstats dmu_tx xuio_stats zfetchstats zil
 do
