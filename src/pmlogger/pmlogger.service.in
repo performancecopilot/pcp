@@ -5,6 +5,7 @@ After=network-online.target pmcd.service
 Before=pmlogger_check.timer pmlogger_daily.timer
 BindsTo=pmlogger_check.timer pmlogger_daily.timer
 Wants=pmcd.service
+Wants=pmlogger_farm.service
 
 [Service]
 Type=notify
