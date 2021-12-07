@@ -46,36 +46,6 @@ _filter_pmlc()
 	-e 's/^Reason: Unknown or illegal.*$/Reason: No PMCD agent for domain of request/'
 }
 
-# May have to try and retry pmlc before we succeed ... failure requiring
-# a retry is indicated by "Address already in use" on stderr
-#
-# pmlc commands are already in $tmp.pmlc
-# on success pmlc output is stashed in $tmp.out and $tmp.err
-#
-_try_pmlc()
-{
-    max_tries=10
-    i=0
-    while [ $i -lt $max_tries ]
-    do
-	pmlc -ie <$tmp.pmlc >$tmp.out 2>$tmp.err
-	if grep "Address already in use" $tmp.err >/dev/null
-	then
-	    i=`expr $i + 1`
-	    pmsleep 0.1
-	else
-	    echo "_try_pmlc: pass @ iter $i" >>$here/$seq.full
-	    cat $tmp.err $tmp.out >>$here/$seq.full
-	    break
-	fi
-    done
-    if [ $i -eq $max_tries ]
-    then
-	echo "_try_pmlc: failed" >>$here/$seq.full
-	cat $tmp.err $tmp.out >>$here/$seq.full
-    fi
-}
-
 _disable_agent_restart()
 {
     echo PMCD_RESTART_AGENTS=0 > $tmp.defaults

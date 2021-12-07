@@ -3182,3 +3182,34 @@ _webapi_response_filter()
 	-e '/Connection: Keep-Alive/d' \
     # end
 }
+
+# May have to try and retry pmlc before we succeed ... failure requiring
+# a retry is indicated by "Address already in use" on stderr
+#
+# pmlc commands are already in $tmp.pmlc
+# on success pmlc output is stashed in $tmp.out and $tmp.err and
+# appended to $here/$seq.full
+#
+_try_pmlc()
+{
+    max_tries=10
+    i=0
+    while [ $i -lt $max_tries ]
+    do
+	pmlc -ie <$tmp.pmlc >$tmp.out 2>$tmp.err
+	if grep "Address already in use" $tmp.err >/dev/null
+	then
+	    i=`expr $i + 1`
+	    pmsleep 0.1
+	else
+	    echo "_try_pmlc: pass @ iter $i" >>$here/$seq.full
+	    cat $tmp.out $tmp.err >>$here/$seq.full
+	    break
+	fi
+    done
+    if [ $i -eq $max_tries ]
+    then
+	echo "_try_pmlc: failed"
+	cat $tmp.out $tmp.err
+    fi
+}

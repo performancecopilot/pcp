@@ -77,19 +77,22 @@ _wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
 # Reset pmlogger
 echo "log sample.dynamic.meta.metric"
 # Log the sample pmda's sample.dynamic.meta.metric
-echo 'connect primary
-log mandatory on 500 msec { sample.dynamic.meta.metric }' \
-    | pmlc
+cat <<'End-of-File' >$tmp.pmlc
+connect primary
+log mandatory on 500 msec { sample.dynamic.meta.metric }
+End-of-File
+_try_pmlc
 
 # log a few samples
 sleep 2
 
 # check, to be sure !
 #
-echo 'connect primary
+cat <<'End-of-File' >$tmp.pmlc
+connect primary
 query sample.dynamic.meta.metric
-' \
-| pmlc >>$seq.full
+End-of-File
+_try_pmlc
 
 # killing off pmlogger (as expected) may start another pmlogger instance
 # thanks to systemd, so remember the current archive and the current log
