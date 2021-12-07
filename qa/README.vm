@@ -398,8 +398,8 @@ OpenIndiana
 
 OpenBSD
     https://en.wikipedia.org/wiki/OpenBSD_version_history
-    24 Aug 2020: 6.6, 6.7
     13 Sep 2021: 6.8, 6.9
+    08 Dec 2021: 6.9, 7.0
     # package search recipe (name only, not info or description)
     $ pkg_info -Q <pattern>
     # which package installs a file/directory
@@ -410,29 +410,13 @@ OpenBSD
     $ sudo pkg_add <package>
     # update all packages recipe
     $ sudo pkg_add -u
-    # release upgrade recipe
-    $ cd /tmp
-    $ wget https://mirror.vdms.com/pub/OpenBSD/6.7/amd64/bsd.rd
-                                                   ^^^^^ architecture
-					       ^^^ new version		   
-    $ wget https://mirror.vdms.com/pub/OpenBSD/6.7/amd64/SHA256.sig
-    $ signify -C -p /etc/signify/openbsd-67-base.pub -x SHA256.sig bsd.rd
-                                         ^^ new version, no "."
-    $ sudo mv /bsd.rd /bsd.rd.6.3
-    			      ^^^ old version
-    $ sudo mv bsd.rd /bsd.rd
-    $ sudo ln /bsd.rd /bsd.rd.6.7
-    			      ^^^ new version
-    $ sudo reboot
-    and in console window, when boot> prompt appears, enter
-    boot /bsd.rd
-    Welcome to the OpenBSD/amd64 6.4 installation program.
-    (I)nstall, (U)pgrade, (A)utoinstall or (S)hell? u
-    ...
-    reboot
+    # unattended release upgrade recipe ... only supported from
+    # one version to the next version
+    $ sudo sysupgrade
+    ... switch to console window after Fetching and Verifying sets ...
+    - will reboot and install fetched sets
+    - will reboot again
     $ sudo sysmerge
-    $ sudo syspatch
-    $ sudo reboot (if instructed to do so)
     $ sudo pkg_add -u
 
 Template
