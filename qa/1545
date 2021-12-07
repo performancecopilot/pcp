@@ -51,9 +51,9 @@ pcp2xml --samples=4 --interval=4 --ignore-unknown --raw --names-change=update mm
 
 # timing here is a bit tricky ... need long enough for pcp2xml to get
 # started and at least one sample done, but we need to run mmv_genstats
-# before pcp2xml is done
+# before pcp2xml gets to the second sample
 #
-pmsleep 3
+pmsleep 2.5
 
 # and the mmv stats "interval" is 5 secs (2nd arg to mmv_genstats)
 #
