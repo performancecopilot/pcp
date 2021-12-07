@@ -153,13 +153,24 @@ _count_pmies()
 	    $PCP_PS_PROG -p $process >>$here/$seq.full
 	    if which pstree >/dev/null 2>&1
 	    then
-		pstree -s -p $process >>$here/$seq.full
+		pstree $pstree_parents -p $process >>$here/$seq.full
 	    fi
 	fi
     done
 
     return $count
 }
+
+# Deal with pstree variants
+#
+pstree_parents=''
+if which pstree >/dev/null 2>&1
+then
+    if pstree --help 2>&1 | grep '.--show-parents' >/dev/null
+    then
+	pstree_parents='--show-parents'
+    fi
+fi
 
 # create a basic pmcd config file
 cat >$tmp.pmcd.conf << EOF
