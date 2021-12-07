@@ -68,6 +68,7 @@ s,/etc/init ,init,g;
 s,/etc/init,init,g;
 s,/usr/sbin/init,init,g;
 s,/sbin/init,init,g;
+s, /usr/bin/systemd\([ ">]\), init\1,;
 s, /usr/lib/systemd/systemd\([ ">]\), init\1,;
 s, /lib/systemd/systemd\([ ">]\), init\1,;
 s, /bin/systemd\([ ">]\), init\1,;

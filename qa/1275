@@ -42,6 +42,14 @@ then
     cat $tmp.out >>$seq.full
     _notrun "pmlogger man page not installed"
 fi
+if grep 'system has been minimized by removing packages' $tmp.out >/dev/null
+then
+    _notrun "man pages have been \"minimized\" away! container in CI?"
+fi
+
+# for triage if the sed fails to find the text we're expecting
+#
+cat $tmp.out >>$seq.full
 
 echo "=== should be in man page ==="
 sed -n <$tmp.out \

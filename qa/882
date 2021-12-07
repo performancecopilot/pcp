@@ -57,6 +57,7 @@ cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
 _service pcp stop >/dev/null 2>&1
+_wait_pmcd_end
 
 cat <<End-of-File >$tmp.tmp
 # Installed by PCP QA test $seq on `date`
@@ -78,11 +79,32 @@ fi
 _wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
 
 # Reset pmlogger
+#
 echo "log sample.dynamic.meta.metric"
+
 # Log the sample pmda's sample.dynamic.meta.metric
-echo 'connect primary
+#
+# May need to retry a few times before we can connect via pmlc
+#
+can_wait=10
+i=0
+while [ $i -lt $can_wait ]
+do
+    echo 'connect primary
 log mandatory on 500 msec { sample.dynamic.meta.metric }' \
-    | pmlc
+	| pmlc >$tmp.tmp 2>&1
+    if [ -s $tmp.tmp ]
+    then
+	# any output suggests something did not work
+	#
+	echo "iter $1: pmlc failed" >>$seq.full
+	cat $tmp.tmp >>$seq.full
+	sleep 1
+	i=`expr $i + 1`
+    else
+	break
+    fi
+done
 
 # log a few samples
 sleep 2
