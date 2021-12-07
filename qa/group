@@ -1845,6 +1845,7 @@ x11
 1442 pmlogrewrite local
 1455 pmlogrewrite labels pmdumplog local
 1457 pmproxy libpcp_web threads secure local
+1458 pmproxy libpcp_web threads local
 1466 pmlogctl pmcd pmiectl logutil local
 1480 pmda.lmsensors local
 1489 python pmrep pmimport local
