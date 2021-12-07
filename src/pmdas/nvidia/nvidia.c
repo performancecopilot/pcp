@@ -617,11 +617,16 @@ refresh(pcp_nvinfo_t *nvinfo, int need_processes)
     /* update indoms, cull old entries that remain inactive */
     if (need_processes) {
 	pmdaIndom	*proc_indomp = &indomtab[PROC_INDOM];
-	pmdaInstid	*it_set = proc_indomp->it_set;
+	pmdaInstid	*it_set = NULL;
 	size_t		bytes = nproc * sizeof(pmdaInstid);
 
-	if ((it_set = (pmdaInstid *)realloc(it_set, bytes)) == NULL)
+	if (bytes > 0) {
+	    it_set = (pmdaInstid *)realloc(proc_indomp->it_set, bytes);
+	    if (it_set == NULL)
+		free(proc_indomp->it_set);
+	} else if (proc_indomp->it_set != NULL) {
 	    free(proc_indomp->it_set);
+	}
 
 	if ((proc_indomp->it_set = it_set) != NULL) {
 	    for (i = j = 0; i < processes.hsize && j < nproc; i++) {
