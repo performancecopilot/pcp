@@ -427,10 +427,16 @@ on_client_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
     if (nread > 0) {
 	if (client->protocol == STREAM_UNKNOWN)
 	    client->protocol |= client_protocol(*buf->base);
+
+#ifdef HAVE_OPENSSL
 	if (client->protocol & STREAM_SECURE && proxy->ssl != NULL)
 	    on_secure_client_read(proxy, client, nread, buf);
 	else
 	    on_protocol_read(stream, nread, buf);
+#else
+	on_protocol_read(stream, nread, buf);
+#endif
+
     } else if (nread < 0) {
 	if (pmDebugOptions.af)
 	    fprintf(stderr, "%s: read error %ld "
