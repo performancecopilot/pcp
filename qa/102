@@ -46,6 +46,36 @@ _filter_pmlc()
 	-e 's/^Reason: Unknown or illegal.*$/Reason: No PMCD agent for domain of request/'
 }
 
+# May have to try and retry pmlc before we succeed ... failure requiring
+# a retry is indicated by "Address already in use" on stderr
+#
+# pmlc commands are already in $tmp.pmlc
+# on success pmlc output is stashed in $tmp.out and $tmp.err
+#
+_try_pmlc()
+{
+    max_tries=10
+    i=0
+    while [ $i -lt $max_tries ]
+    do
+	pmlc -ie <$tmp.pmlc >$tmp.out 2>$tmp.err
+	if grep "Address already in use" $tmp.err >/dev/null
+	then
+	    i=`expr $i + 1`
+	    pmsleep 0.1
+	else
+	    echo "_try_pmlc: pass @ iter $i" >>$here/$seq.full
+	    cat $tmp.err $tmp.out >>$here/$seq.full
+	    break
+	fi
+    done
+    if [ $i -eq $max_tries ]
+    then
+	echo "_try_pmlc: failed" >>$here/$seq.full
+	cat $tmp.err $tmp.out >>$here/$seq.full
+    fi
+}
+
 _disable_agent_restart()
 {
     echo PMCD_RESTART_AGENTS=0 > $tmp.defaults
@@ -66,7 +96,7 @@ _wait_for_pmcd
 _wait_for_pmlogger
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([P]ID)|([p]mlogger)' >>$here/$seq.full
 
-pmlc -ie <<End-of-File >$tmp.out 2>$tmp.err
+cat <<End-of-File >$tmp.pmlc
 # not connected
 query sample.drift
 advisory on 1 hour sample.drift
@@ -86,6 +116,7 @@ barf.no.metric
 }
 
 End-of-File
+_try_pmlc
 _filter_pmlc <$tmp.err
 _filter_pmlc <$tmp.out
 
@@ -99,10 +130,11 @@ End-of-File
     $sudo rm -f $tmp.*
     _start_up_pmlogger -L -c /dev/null -l $tmp.log -T 4 $tmp
     pmsleep 0.5
-    pmlc -ie <<End-of-File >$tmp.out 2>$tmp.err
+    cat <<End-of-File >$tmp.pmlc
 connect $pid
 log advisory on $delta sample.bin [100]
 End-of-File
+_try_pmlc
 _filter_pmlc <$tmp.err
 _filter_pmlc <$tmp.out
     $sudo $signal -s TERM $pid
@@ -111,11 +143,12 @@ _filter_pmlc <$tmp.out
 done
 pmsleep 0.5
 
-pmlc -ie <<End-of-File >$tmp.out 2>$tmp.err
+cat <<End-of-File >$tmp.pmlc
 connect primary
 log mandatory on 1 hour { sample.bin, sample.drift, sample.seconds }
 query sample.bin[333]
 End-of-File
+_try_pmlc
 _filter_pmlc <$tmp.err
 _filter_pmlc <$tmp.out
 
@@ -123,17 +156,18 @@ $sudo $signal -a pmdasample
 pmsleep 0.5				# time to cleanup
 pminfo -f sample >/dev/null 2>&1	# and make sure pmcd notices
 
-pmlc -ie <<End-of-File >$tmp.out 2>$tmp.err
+cat <<End-of-File >$tmp.pmlc
 connect primary
 query sample.bin[100]
 query sample.bin[100]
 End-of-File
+_try_pmlc
 _filter_pmlc <$tmp.err
 _filter_pmlc <$tmp.out
 
 $sudo $signal -a -s HUP pmcd
 pmsleep 0.5				# time to cleanup
-pmlc -ie <<End-of-File >$tmp.out 2>$tmp.err
+cat <<End-of-File >$tmp.pmlc
 connect primary
 query sample.bin[100]
 
@@ -142,6 +176,7 @@ query { sample.bin sample.drift,sample.seconds }
 query sample.bin [100,200,300 400 500,700]
 query sample.bin [100,"bin-200"]
 End-of-File
+_try_pmlc
 _filter_pmlc <$tmp.err
 # nl state is non-deterministic because pmlogger might, or might not,
 # have logger these metrics by now
@@ -149,13 +184,14 @@ _filter_pmlc <$tmp.err
 _filter_pmlc <$tmp.out \
 | sed -e 's/mand on    /mand on  nl/'
 
-pmlc -ie <<End-of-File >$tmp.out 2>$tmp.err
+cat <<End-of-File >$tmp.pmlc
 connect primary
 log mandatory maybe {
     sample.bin
     sample.drift, sample.seconds
 }
 End-of-File
+_try_pmlc
 _filter_pmlc <$tmp.err
 _filter_pmlc <$tmp.out
 
