@@ -9,7 +9,7 @@ Restart=no
 TimeoutStartSec=4h
 TimeoutStopSec=120
 ExecStart=@PCP_BIN_DIR@/pmlogctl -m check
-WorkingDirectory=/var/lib/pcp
+WorkingDirectory=@PCP_VAR_DIR@
 
 # root so pmlogctl can migrate pmloggers to the pmlogger_farm service
 Group=root

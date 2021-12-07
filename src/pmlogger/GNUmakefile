@@ -111,6 +111,7 @@ pmlogger_farm.service : pmlogger_farm.service.in
 pmlogger_farm_check.service : pmlogger_farm_check.service.in
 	$(SED) <$< >$@ \
 	    -e 's;@PCP_BIN_DIR@;'$(PCP_BIN_DIR)';' \
+	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
 	# END
 
 pmlogger_daily.service : pmlogger_daily.service.in

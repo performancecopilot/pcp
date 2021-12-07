@@ -96,6 +96,7 @@ pmie_farm.service : pmie_farm.service.in
 pmie_farm_check.service : pmie_farm_check.service.in
 	$(SED) <$< >$@ \
 	    -e 's;@PCP_BIN_DIR@;'$(PCP_BIN_DIR)';' \
+	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
 	# END
 
 pmie_check.service : pmie_check.service.in

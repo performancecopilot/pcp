@@ -2,8 +2,8 @@
 Description=pmie farm service
 Documentation=man:pmie(1)
 After=network-online.target pmcd.service
-Before=pmie_check.timer pmie_daily.timer
-BindsTo=pmie_farm_check.timer pmie_check.timer pmie_daily.timer
+Before=pmie_farm_check.timer pmie_daily.timer
+BindsTo=pmie_farm_check.timer pmie_daily.timer
 
 [Service]
 Type=@SD_SERVICE_TYPE@

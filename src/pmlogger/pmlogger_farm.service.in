@@ -2,8 +2,8 @@
 Description=pmlogger farm service
 Documentation=man:pmlogger(1)
 After=network-online.target pmcd.service
-Before=pmlogger_check.timer pmlogger_daily.timer
-BindsTo=pmlogger_farm_check.timer pmlogger_check.timer pmlogger_daily.timer
+Before=pmlogger_farm_check.timer pmlogger_daily.timer
+BindsTo=pmlogger_farm_check.timer pmlogger_daily.timer
 
 [Service]
 Type=@SD_SERVICE_TYPE@
