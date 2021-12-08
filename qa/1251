@@ -52,7 +52,11 @@ _run_man_k()
 _run_man_k "ls" >$tmp.out
 if [ -s $tmp.out ]
 then
-    : may be OK
+    if grep 'system has been minimized by removing packages' $tmp.out >/dev/null
+    then
+	_notrun "man pages have been \"minimized\" away! container in CI?"
+    fi
+    # may be OK
 else
     _notrun "man -k ls won't even work ... apropos/whatis index needs rebuilding?"
 fi
