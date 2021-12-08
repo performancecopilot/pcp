@@ -46,20 +46,12 @@ newlabel(void)
     __pmLogLabel	*lp = &logctl.label;
 
     /* check version number */
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
     if ((ilabel.ll_magic & 0xff) != PM_LOG_VERS02 &&
         (ilabel.ll_magic & 0xff) != PM_LOG_VERS03) {
 	fprintf(stderr,"%s: Error: version number %d (not %d or %d as expected) in archive (%s)\n",
 		pmGetProgname(), ilabel.ll_magic & 0xff, PM_LOG_VERS02, PM_LOG_VERS03, iname);
 	exit(1);
     }
-#else
-    if ((ilabel.ll_magic & 0xff) != PM_LOG_VERS02) {
-	fprintf(stderr,"%s: Error: version number %d (not %d as expected) in archive (%s)\n",
-		pmGetProgname(), ilabel.ll_magic & 0xff, PM_LOG_VERS02, iname);
-	exit(1);
-    }
-#endif
 
     /* copy magic number, host and timezone info, use our pid */
     lp->magic = ilabel.ll_magic;

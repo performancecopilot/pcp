@@ -1597,9 +1597,7 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PM_LOG_MAXHOSTLEN", PM_LOG_MAXHOSTLEN);
     dict_add(dict, "PM_LOG_MAGIC",    PM_LOG_MAGIC);
     dict_add(dict, "PM_LOG_VERS02",   PM_LOG_VERS02);
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
     dict_add(dict, "PM_LOG_VERS03",   PM_LOG_VERS03);
-#endif
     dict_add(dict, "PM_LOG_VOL_TI",   PM_LOG_VOL_TI);
     dict_add(dict, "PM_LOG_VOL_META", PM_LOG_VOL_META);
 

@@ -145,6 +145,15 @@ _control_avahi_service()
     echo "service_was_running=$service_was_running" >>$here/$seq.full
     _stop_auto_restart $service
     $sudo "$PCP_RC_DIR/$service" restart >>$here/$seq.full 2>&1
+    case "$service"
+    in
+    pmcd)
+	_wait_for_pmcd
+	;;
+    pmproxy)
+	_wait_for_pmproxy
+	;;
+    esac
     _restore_auto_restart $service
 
     _control_service_discovery

@@ -49,6 +49,16 @@ _filter()
     | _filter_cron_scripts
 }
 
+_filter_pmlc()
+{
+    sed -n \
+	-e '/Unable to connect/{
+s/local:/LOCALHOST/g
+p
+}' \
+    # end
+}
+
 status=1	# failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 LOCALHOST=`hostname`
@@ -90,7 +100,8 @@ $sudo rm -f $PCP_VAR_DIR/config/pmlogger/*.{tmp,saved} 2>/dev/null
 
 echo
 echo "Ping primary logger ..." | tee -a $seq.full
-echo 'connect primary' | pmlc
+echo 'connect primary' >$tmp.pmlc
+_try_pmlc
 
 echo
 echo "Expect this should do nothing ..." | tee -a $seq.full
@@ -98,7 +109,7 @@ touch $tmp.log
 $sudo chown $PCP_USER:$PCP_GROUP $tmp.log
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log"
 [ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq.full | _filter
-echo 'connect primary' | pmlc
+_try_pmlc
 
 pid=`_get_primary_logger_pid`
 if [ -z "$pid" ]
@@ -113,7 +124,8 @@ echo
 echo "Kill off primary logger ..." | tee -a $here/$seq.full
 _service pmlogger stop 2>&1 | _filter_pcp_stop
 _wait_pmlogger_end $pid
-echo 'connect primary' | pmlc 2>&1 | tee -a $here/$seq.full | _filter
+_try_pmlc
+cat $tmp.out $tmp.err | _filter_pmlc
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 && $sudo sh $tmp.cmd
 
@@ -125,7 +137,7 @@ echo
 echo "Expect this to re-start the primary logger ..." | tee -a $seq.full
 $sudo -u $PCP_USER -g $PCP_USER sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log"
 [ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq.full | _filter
-echo 'connect primary' | pmlc
+_try_pmlc
 
 # if it is present, get systemctl on the same page ...
 #
@@ -145,7 +157,8 @@ echo
 echo "Kill off primary logger ..." | tee -a $here/$seq.full
 _service pmlogger stop 2>&1 | _filter_pcp_stop
 _wait_pmlogger_end $pid
-echo 'connect primary' | pmlc 2>&1 | tee -a $here/$seq.full | _filter
+_try_pmlc
+cat $tmp.out $tmp.err | _filter_pmlc
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 && $sudo sh $tmp.cmd
 
@@ -157,7 +170,7 @@ echo
 echo "Expect this to quietly re-start the primary logger ..." | tee -a $seq.full
 $sudo -u $PCP_USER -g $PCP_USER sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -l $tmp.log"
 [ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq.full | _filter
-echo 'connect primary' | pmlc
+_try_pmlc
 
 echo
 echo "Expect this to get a mutex failure ..." | tee -a $seq.full
