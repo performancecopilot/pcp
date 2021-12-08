@@ -266,12 +266,10 @@ typedef struct {
     int			numpmid;	/* zero PMIDs to follow */
 } mark_t;
 
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
 // TODO I expect we need output version to track input version, else
 // a command line option in which case only V2 (in) -> v3 (out) is the
 // only sane thing (i.e. pmlogconv!)
 // NEEDS THOUGHT.
-#endif
 
 /*
  *  Global variables

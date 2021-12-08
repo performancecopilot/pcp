@@ -382,11 +382,7 @@ parseargs(int argc, char *argv[])
 
 	case 'V':	/* output log version */
 	    outarch.version = atoi(opts.optarg);
-	    if (outarch.version != PM_LOG_VERS02
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
-		&& outarch.version != PM_LOG_VERS03
-#endif
-		) {
+	    if (outarch.version != PM_LOG_VERS02 && outarch.version != PM_LOG_VERS03) {
 		pmprintf("%s: Error: unsupported version (%d) requested\n",
 			pmGetProgname(), outarch.version);
 		opts.errors++;
@@ -1548,11 +1544,7 @@ main(int argc, char **argv)
     }
 
     inarch.version = (inarch.label.ll_magic & 0xff);
-    if (inarch.version != PM_LOG_VERS02
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
-	&& inarch.version != PM_LOG_VERS03
-#endif
-	) {
+    if (inarch.version != PM_LOG_VERS02 && inarch.version != PM_LOG_VERS03) {
 	fprintf(stderr,"%s: Error: illegal version number %d in archive (%s)\n",
 		pmGetProgname(), inarch.version, inarch.name);
 	exit(1);
@@ -1560,13 +1552,11 @@ main(int argc, char **argv)
 
     if (outarch.version == 0)
 	outarch.version = inarch.version;
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
     if (outarch.version == PM_LOG_VERS02 && inarch.version == PM_LOG_VERS03) {
 	fprintf(stderr,"%s: Error: cannot create a v2 archive from v3 (%s)\n",
 		pmGetProgname(), inarch.name);
 	exit(1);
     }
-#endif
 
     /* output archive */
     if (iflag && Cflag == 0) {

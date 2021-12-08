@@ -175,11 +175,7 @@ main(int argc, char *argv[])
 
 	case 'V':	/* reset magic and version numbers */
 	    version = atoi(opts.optarg);
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
 	    if (version != PM_LOG_VERS02 && version != PM_LOG_VERS03) {
-#else
-	    if (version != PM_LOG_VERS02) {
-#endif
 		fprintf(stderr, "%s: unknown version number (%s)\n",
 			pmGetProgname(), opts.optarg);
 		opts.errors++;

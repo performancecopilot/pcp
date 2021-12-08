@@ -58,12 +58,7 @@ char		*pmcd_host;
 char		*pmcd_host_conn;
 char		*pmcd_host_label;
 int		host_context = PM_CONTEXT_HOST;	 /* pmcd / local context mode */
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
-// TODO at some point make this the default
-int		archive_version = PM_LOG_VERS02; /* Type of archive to create */
-#else
-int		archive_version = PM_LOG_VERS02; /* Type of archive to create */
-#endif
+int		archive_version = PM_LOG_VERS02; /* Type of archive to create by default */
 int		linger = 0;		/* linger with no tasks/events */
 int		notify_service_mgr = 0;	/* notify service manager when we're ready (daemon mode only) */
 int		pmlogger_reexec = 0;	/* set when PMLOGGER_REEXEC is set in the environment */
@@ -591,11 +586,7 @@ static pmLongOptions longopts[] = {
     { "", 0, 'u', 0, "output is unbuffered [default now, so -u is a no-op]" },
     { "username", 1, 'U', "USER", "in daemon mode, run as named user [default pcp]" },
     { "volsize", 1, 'v', "SIZE", "switch log volumes after size has been accumulated" },
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
-    { "version", 1, 'V', "NUM", "version for archive (default is 2)" },
-#else
     { "version", 1, 'V', "NUM", "version for archive (default and only version is 2)" },
-#endif
     { "", 1, 'x', "FD", "control file descriptor for running from pmRecordControl(3)" },
     { "", 0, 'y', 0, "set timezone for times to local time rather than from PMCD host" },
     PMOPT_HELP,
@@ -1129,7 +1120,6 @@ main(int argc, char **argv)
 
         case 'V': 
 	    archive_version = (int)strtol(opts.optarg, &endnum, 10);
-#ifdef __PCP_EXPERIMENTAL_ARCHIVE_VERSION3
 	    if (*endnum != '\0'
 		|| (archive_version != PM_LOG_VERS02 &&
 	            archive_version != PM_LOG_VERS03)) {
@@ -1137,13 +1127,6 @@ main(int argc, char **argv)
 			 pmGetProgname(), PM_LOG_VERS02, PM_LOG_VERS03); 
 		opts.errors++;
 	    }
-#else
-	    if (*endnum != '\0' || archive_version != PM_LOG_VERS02) {
-		pmprintf("%s: -V requires a version number of %d\n",
-			 pmGetProgname(), PM_LOG_VERS02); 
-		opts.errors++;
-	    }
-#endif
 	    break;
 
 	case 'x':		/* recording session control fd */
