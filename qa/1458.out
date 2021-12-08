@@ -1,0 +1,221 @@
+QA output created by 1458
+=== checking serial http operation ===
+=== out1 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out2 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out3 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out4 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== checking parallel http operation ===
+=== out1 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out2 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out3 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== out4 ===
+{
+    "context": "CONTEXT"
+    "metrics": [
+        {
+            "name": "sample.long.ten",
+            "series": "SERIES"
+            "pmid": "29.0.11",
+            "type": "32",
+            "sem": "instant",
+            "units": "none",
+            "labels": {
+                "agent": "sample",
+                "cluster": "zero",
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "role": "testing"
+            },
+            "text-oneline": "10 as a 32-bit integer",
+            "text-help": "10 as a 32-bit integer"
+        }
+    ]
+}
+=== checking serial https/TLS operation ===
+=== out1 ===
+Good!, empty output from curl
+=== out2 ===
+Good!, empty output from curl
+=== out3 ===
+Good!, empty output from curl
+=== out4 ===
+Good!, empty output from curl
+=== checking parallel https/TLS operation ===
+=== out1 ===
+Good!, empty output from curl
+=== out2 ===
+Good!, empty output from curl
+=== out3 ===
+Good!, empty output from curl
+=== out4 ===
+Good!, empty output from curl
+=== check pmproxy is running ===
+pmproxy check passed
+=== valgrind stdout ===
+=== valgrind stderr ===
+Log for pmproxy on HOST started DATE
+
+pmproxy: PID = PID
+pmproxy request port(s):
+  sts fd   port  family address
+  === ==== ===== ====== =======
+ok FD unix UNIX_DOMAIN_SOCKET
+ok FD PORT inet INADDR_ANY
+[DATE] pmproxy(PID) Info: pmproxy caught SIGTERM
+[DATE] pmproxy(PID) Info: pmproxy Shutdown
+
+Log finished DATE
