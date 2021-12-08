@@ -291,10 +291,8 @@ setup_secure_module(struct proxy *proxy)
 				SSL_OP_NO_TLSv1 |SSL_OP_NO_TLSv1_1;
 
     if ((option = pmIniFileLookup(config, "pmproxy", "secure.enabled"))) {
-	if (strncmp(option, "true", sdslen(option)) != 0) {
-	    proxy->ssl = NULL;
+	if (strncmp(option, "true", sdslen(option)) != 0)
 	    return;
-	}
     }
 
     if ((option = pmIniFileLookup(config, "pmproxy", "certificates")))

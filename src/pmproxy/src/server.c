@@ -242,7 +242,7 @@ client_put(struct client *client)
 	    on_http_client_close(client);
 	if (client->protocol & STREAM_REDIS)
 	    on_redis_client_close(client);
-	if (client->protocol & STREAM_SECURE && client->stream.secure)
+	if ((client->protocol & STREAM_SECURE) && client->stream.secure)
 	    on_secure_client_close(client);
 	if (client->buffer)
 	    sdsfree(client->buffer);
@@ -277,7 +277,7 @@ on_client_write(uv_write_t *writer, int status)
 			"on_client_write", status, client);
 
     if (status == 0) {
-	if (client->protocol & STREAM_SECURE && client->stream.secure)
+	if ((client->protocol & STREAM_SECURE) && client->stream.secure)
 	    on_secure_client_write(client);
 	if (client->protocol & STREAM_PCP)
 	    on_pcp_client_write(client);
@@ -429,7 +429,7 @@ on_client_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 	    client->protocol |= client_protocol(*buf->base);
 
 #ifdef HAVE_OPENSSL
-	if (client->protocol & STREAM_SECURE && proxy->ssl != NULL)
+	if ((client->protocol & STREAM_SECURE) && (proxy->ssl != NULL))
 	    on_secure_client_read(proxy, client, nread, buf);
 	else
 	    on_protocol_read(stream, nread, buf);
