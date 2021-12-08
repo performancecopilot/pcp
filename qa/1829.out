@@ -1,17 +1,21 @@
 QA output created by 1829
 Rewriting to v3 log format for sample-labels
 Dumping the v3 archive label for sample-labels
+Note: timezone set to local timezone of host "shard" from archive
+
 Log Label (Log Format Version 3)
 Performance metrics from host shard
-  commencing Tue Jan 28 10:31:51.043 2020
-  ending     Tue Jan 28 10:31:51.564 2020
+    commencing Tue Jan 28 10:31:51.043925 2020
+    ending     Tue Jan 28 10:31:51.564789 2020
 Archive timezone: AEDT-11
 PID for pmlogger: 440875
 Rewriting to v3 log format for mmv.help
 Dumping the v3 archive label for mmv.help
+Note: timezone set to local timezone of host "bozo-vm.localdomain" from archive
+
 Log Label (Log Format Version 3)
 Performance metrics from host bozo-vm.localdomain
-  commencing Thu Jun 17 15:32:40.788 2021
-  ending     Thu Jun 17 15:32:49.810 2021
+    commencing Thu Jun 17 15:32:40.788305 2021
+    ending     Thu Jun 17 15:32:49.810497 2021
 Archive timezone: AEST-10
 PID for pmlogger: 714871

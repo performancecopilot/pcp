@@ -49,10 +49,10 @@ do
 	exit
     fi
     echo "pmdumplog of v3 log format from $archive" >> $seq.full
-    pmdumplog -aeh $tmp.log3 >> $seq.full
+    pmdumplog -z -aeh $tmp.log3 >> $seq.full
 
     echo "Dumping the v3 archive label for $archive"
-    pmloglabel -L $tmp.log3
+    pmdumplog -z -L $tmp.log3
 done
 
 # success, all done
