@@ -2955,11 +2955,13 @@ then
        %systemd_preun pmie.service
        %systemd_preun pmie_farm.service
        %systemd_preun pmproxy.service
+       %systemd_preun pmfind.service
        %systemd_preun pmcd.service
-       %systemd_preun pmie_daily.timer
        %systemd_preun pmlogger_daily.timer
        %systemd_preun pmlogger_check.timer
        %systemd_preun pmlogger_farm_check.timer
+       %systemd_preun pmie_daily.timer
+       %systemd_preun pmie_check.timer
        %systemd_preun pmie_farm_check.timer
 
        systemctl stop pmlogger.service >/dev/null 2>&1
@@ -2967,6 +2969,7 @@ then
        systemctl stop pmie.service >/dev/null 2>&1
        systemctl stop pmie_farm.service >/dev/null 2>&1
        systemctl stop pmproxy.service >/dev/null 2>&1
+       systemctl stop pmfind.service >/dev/null 2>&1
        systemctl stop pmcd.service >/dev/null 2>&1
     %else
        /sbin/service pmlogger stop >/dev/null 2>&1
@@ -3006,25 +3009,17 @@ pmieconf -c enable dmthin
 %if !%{disable_systemd}
     systemctl restart pmcd >/dev/null 2>&1
     systemctl restart pmlogger >/dev/null 2>&1
-    systemctl restart pmlogger_farm >/dev/null 2>&1
     systemctl restart pmie >/dev/null 2>&1
-    systemctl restart pmie_farm >/dev/null 2>&1
     systemctl enable pmcd >/dev/null 2>&1
     systemctl enable pmlogger >/dev/null 2>&1
-    systemctl enable pmlogger_farm >/dev/null 2>&1
     systemctl enable pmie >/dev/null 2>&1
-    systemctl enable pmie_farm >/dev/null 2>&1
 %else
     /sbin/chkconfig --add pmcd >/dev/null 2>&1
     /sbin/chkconfig --add pmlogger >/dev/null 2>&1
-    /sbin/chkconfig --add pmlogger_farm >/dev/null 2>&1
     /sbin/chkconfig --add pmie >/dev/null 2>&1
-    /sbin/chkconfig --add pmie_farm >/dev/null 2>&1
     /sbin/service pmcd condrestart
     /sbin/service pmlogger condrestart
-    /sbin/service pmlogger_farm condrestart
     /sbin/service pmie condrestart
-    /sbin/service pmie_farm condrestart
 %endif
 %endif
 
@@ -3048,30 +3043,19 @@ PCP_LOG_DIR=%{_logsdir}
     # clean up any stale symlinks for deprecated pm*-poll services
     rm -f %{_sysconfdir}/systemd/system/pm*.requires/pm*-poll.* >/dev/null 2>&1 || true
 
-    # pmlogger_farm service inherits the same initial state as pmlogger service
-    if systemctl is-enabled pmlogger.service >/dev/null; then
-	systemctl enable pmlogger_farm.service pmlogger_farm_check.service
-	systemctl start pmlogger_farm.service pmlogger_farm_check.service
-    fi
-    # pmie_farm service inherits the same initial state as pmie service
-    if systemctl is-enabled pmie.service >/dev/null; then
-	systemctl enable pmie_farm.service pmie_farm_check.service
-	systemctl start pmie_farm.service pmie_farm_check.service
-    fi
-
     %systemd_postun_with_restart pmcd.service
     %systemd_post pmcd.service
     %systemd_postun_with_restart pmlogger.service
     %systemd_post pmlogger.service
     %systemd_postun_with_restart pmlogger_farm.service
     %systemd_post pmlogger_farm.service
-    %systemd_post pmlogger_farm_check.service
     %systemd_postun_with_restart pmie.service
     %systemd_post pmie.service
     %systemd_postun_with_restart pmie_farm.service
     %systemd_post pmie_farm.service
-    %systemd_post pmie_farm_check.service
-    systemctl condrestart pmproxy.service >/dev/null 2>&1
+    %systemd_postun_with_restart pmproxy.service
+    %systemd_post pmproxy.service
+    %systemd_post pmfind.service
 %else
     /sbin/chkconfig --add pmcd >/dev/null 2>&1
     /sbin/service pmcd condrestart
