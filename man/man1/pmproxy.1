@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013-2015,2018-2019 Red Hat.
+.\" Copyright (c) 2013-2015,2018-2019,2021 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -331,7 +331,7 @@ section can be used to explicitly enable or disable each of the
 different protocols.
 .PP
 The
-.I [pmseries]
+.I [redis]
 section allows connection information for one or more backing
 .B redis-server
 processes to be configured (hostnames and ports).
@@ -344,6 +344,14 @@ Alternatively, it can be a single
 host that will be queried using the "CLUSTER INFO" command to
 automatically configure multiple backing hosts, described at
 .BR https://redis.io/topics/cluster-spec .
+.PP
+In earlier versions of PCP (before 6) an alternative configuration
+setting section was used for this purpose \- Redis
+.I servers
+were specified in the
+.I [pmseries]
+section and this is still accepted as a fallback for backwards
+compatibility.
 .SH STARTING AND STOPPING PMPROXY
 Normally,
 .B pmproxy

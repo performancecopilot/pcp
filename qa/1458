@@ -116,10 +116,10 @@ openssl req \
 	-keyout $tmp.key -out $tmp.cert >$seq.full 2>&1
 # creates a self-signed (insecure) certificate, so for testing only
 
+echo "[redis]" >> $tmp.conf
+echo "enabled = false" >> $tmp.conf
 echo "[pmproxy]" >> $tmp.conf
-echo "pcp.enabled = true" >> $tmp.conf
 echo "http.enabled = true" >> $tmp.conf
-echo "redis.enabled = false" >> $tmp.conf
 echo "secure.enabled = false" >> $tmp.conf
 
 port=`_find_free_port`

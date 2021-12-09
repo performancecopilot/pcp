@@ -4248,6 +4248,7 @@ series_query_services(void *arg)
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
     pmSeriesModule	*module = baton->module;
     seriesModuleData	*data = getSeriesModuleData(module);
+    sds			option;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_services");
     seriesBatonCheckCount(baton, "series_query_services");
@@ -4261,11 +4262,15 @@ series_query_services(void *arg)
 	baton->slots = data->slots;
 	series_query_end_phase(baton);
     } else {
-	baton->slots = data->slots =
-	    redisSlotsConnect(
-		data->config, 1, baton->info,
-		series_query_end_phase, baton->userdata,
-		data->events, (void *)baton);
+	option = pmIniFileLookup(data->config, "redis", "enabled");
+	if (option && strcmp(option, "false") == 0)
+	    baton->error = -ENOTSUP;
+	else
+	    baton->slots = data->slots =
+		redisSlotsConnect(
+		    data->config, 1, baton->info,
+		    series_query_end_phase, baton->userdata,
+		    data->events, (void *)baton);
     }
 }
 
@@ -5258,6 +5263,7 @@ series_lookup_services(void *arg)
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
     pmSeriesModule	*module = baton->module;
     seriesModuleData	*data = getSeriesModuleData(module);
+    sds			option;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_services");
     seriesBatonReference(baton, "series_lookup_services");
@@ -5269,11 +5275,15 @@ series_lookup_services(void *arg)
 	baton->slots = data->slots;
 	series_query_end_phase(baton);
     } else {
-	baton->slots = data->slots =
-	    redisSlotsConnect(
-		data->config, 1, baton->info,
-		series_query_end_phase, baton->userdata,
-		data->events, (void *)baton);
+	option = pmIniFileLookup(data->config, "redis", "enabled");
+	if (option && strcmp(option, "false") == 0)
+	    baton->error = -ENOTSUP;
+	else
+	    baton->slots = data->slots =
+		redisSlotsConnect(
+		    data->config, 1, baton->info,
+		    series_query_end_phase, baton->userdata,
+		    data->events, (void *)baton);
     }
 }
 
