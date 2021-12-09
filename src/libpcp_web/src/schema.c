@@ -1685,11 +1685,15 @@ pmSeriesSetup(pmSeriesModule *module, void *arg)
 	module->on_setup(arg);
 	data->shareslots = 1;
     } else {
+	option = pmIniFileLookup(data->config, "redis", "enabled");
+	if (option && strcmp(option, "false") == 0)
+	    return -ENOTSUP;
+
 	/* establish an initial connection to Redis instance(s) */
 	flags = SLOTS_VERSION;
 
 	option = pmIniFileLookup(data->config, "pmsearch", "enabled");
-	if (option && strncmp(option, "true", sdslen(option)) == 0)
+	if (option && strcmp(option, "true") == 0)
 	    flags |= SLOTS_SEARCH;
 
 	data->slots = redisSlotsConnect(
@@ -1966,7 +1970,7 @@ pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
 
     /* double-check that we are supposed to be in here */
     if ((option = pmIniFileLookup(config, "discover", "enabled"))) {
-	if (strcasecmp(option, "false") == 0)
+	if (strcmp(option, "false") == 0)
 	    return 0;
     }
 

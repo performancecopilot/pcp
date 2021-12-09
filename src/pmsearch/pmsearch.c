@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Red Hat.
+ * Copyright (c) 2020-2021 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -428,11 +428,12 @@ main(int argc, char *argv[])
 	    pmIniFileUpdate(config, "pmsearch", "count", option);
 	}
 
-	if ((pmIniFileLookup(config, "pmseries", "servers")) == NULL ||
-	    (redis_host != NULL || redis_port != 6379)) {
+	if ((option = pmIniFileLookup(config, "redis", "servers")) == NULL)
+	    option = pmIniFileLookup(config, "pmseries", "servers");
+	if (option == NULL || redis_host != NULL || redis_port != 6379) {
 	    option = sdscatfmt(sdsempty(), "%s:%u",
 			redis_host? redis_host : "localhost", redis_port);
-	    pmIniFileUpdate(config, "pmseries", "servers", option);
+	    pmIniFileUpdate(config, "redis", "servers", option);
 	}
     }
 

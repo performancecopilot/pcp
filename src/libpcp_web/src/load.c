@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Red Hat.
+ * Copyright (c) 2017-2021 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -904,6 +904,7 @@ connect_redis_source_service(seriesLoadBaton *baton)
     pmSeriesModule	*module = (pmSeriesModule *)baton->module;
     seriesModuleData	*data = getSeriesModuleData(module);
     redisSlotsFlags	flags;
+    sds			option;
 
     /* attempt to re-use existing slots connections */
     if (data == NULL) {
@@ -912,14 +913,19 @@ connect_redis_source_service(seriesLoadBaton *baton)
 	baton->slots = data->slots;
 	series_load_end_phase(baton);
     } else {
-	flags = SLOTS_VERSION;
-	if ((baton->flags & PM_SERIES_FLAG_TEXT))
-	    flags |= SLOTS_SEARCH;
-	baton->slots = data->slots =
-	    redisSlotsConnect(
-		data->config, flags, baton->info,
-		series_load_end_phase, baton->userdata,
-		data->events, (void *)baton);
+	option = pmIniFileLookup(data->config, "redis", "enabled");
+	if (option && strcmp(option, "false") == 0) {
+	    baton->error = -ENOTSUP;
+	} else {
+	    flags = SLOTS_VERSION;
+	    if ((baton->flags & PM_SERIES_FLAG_TEXT))
+		flags |= SLOTS_SEARCH;
+	    baton->slots = data->slots =
+		redisSlotsConnect(
+		    data->config, flags, baton->info,
+		    series_load_end_phase, baton->userdata,
+		    data->events, (void *)baton);
+	}
     }
 }
 

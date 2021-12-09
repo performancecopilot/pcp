@@ -182,25 +182,31 @@ redisSlotsInit(dict *config, void *events)
 	return NULL;
     }
 
-    servers = pmIniFileLookup(config, "pmseries", "servers");
+    servers = pmIniFileLookup(config, "redis", "servers");
     if (servers == NULL)
-        servers = def_servers = sdsnew(default_server);
+	servers = pmIniFileLookup(config, "pmseries", "servers");
+    if (servers == NULL)
+	servers = def_servers = sdsnew(default_server);
 
-    username = pmIniFileLookup(config, "pmseries", "auth.username");
-    password = pmIniFileLookup(config, "pmseries", "auth.password");
+    username = pmIniFileLookup(config, "redis", "username");
+    if (username == NULL)
+	username = pmIniFileLookup(config, "pmseries", "auth.username");
+    password = pmIniFileLookup(config, "redis", "password");
+    if (password == NULL)
+	password = pmIniFileLookup(config, "pmseries", "auth.password");
 
     if ((slots->acc = redisClusterAsyncContextInit()) == NULL) {
 	/* Coverity CID370635 */
 	pmNotifyErr(LOG_ERR, "%s: %s failed\n",
 			"redisSlotsInit", "redisClusterAsyncContextInit");
 	sdsfree(def_servers);
-        return slots;
+	return slots;
     }
 
     if (slots->acc->err) {
         pmNotifyErr(LOG_ERR, "%s: %s\n", "redisSlotsInit", slots->acc->errstr);
 	sdsfree(def_servers);
-        return slots;
+	return slots;
     }
 
     sts = redisClusterSetOptionAddNodes(slots->acc->cc, servers);
@@ -292,6 +298,9 @@ redisSlotsReconnect(redisSlots *slots, redisSlotsFlags flags,
     int			sts = 0;
     static int		log_connection_errors = 1;
 
+    if (slots == NULL)
+	return;
+
     slots->state = SLOTS_CONNECTING;
     slots->conn_seq++;
 
@@ -361,7 +370,11 @@ redisSlotsConnect(dict *config, redisSlotsFlags flags,
 		void *userdata, void *events, void *arg)
 {
     redisSlots			*slots;
-    sds				msg;
+    sds				enabled, msg;
+
+    enabled = pmIniFileLookup(config, "redis", "enabled");
+    if (enabled && strcmp(enabled, "false") == 0)
+	return NULL;
 
     slots = redisSlotsInit(config, events);
     if (slots == NULL) {

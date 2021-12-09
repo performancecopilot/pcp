@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Red Hat.
+ * Copyright (c) 2020-2021 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -1046,6 +1046,7 @@ int
 pmSearchSetup(pmSearchModule *module, void *arg)
 {
     seriesModuleData	*data = getSeriesModuleData(module);
+    sds			option;
 
     if (data == NULL)
 	return -ENOMEM;
@@ -1058,6 +1059,10 @@ pmSearchSetup(pmSearchModule *module, void *arg)
 	module->on_setup(arg);
 	data->shareslots = 1;
     } else {
+	option = pmIniFileLookup(data->config, "redis", "enabled");
+	if (option && strcmp(option, "false") == 0)
+	    return -ENOTSUP;
+
 	/* establish an initial connection to Redis instance(s) */
 	data->slots = redisSlotsConnect(
 			data->config, SLOTS_SEARCH, module->on_info,

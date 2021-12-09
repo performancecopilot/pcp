@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Red Hat.
+ * Copyright (c) 2017-2021 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1279,11 +1279,12 @@ main(int argc, char *argv[])
 	 * Push command line options into the configuration, and ensure
 	 * we have some default for attemping Redis server connections.
 	 */
-	if ((option = pmIniFileLookup(config, "pmseries", "servers")) == NULL ||
-	    (redis_host != NULL || redis_port != 6379)) {
+	if ((option = pmIniFileLookup(config, "redis", "servers")) == NULL)
+	    option = pmIniFileLookup(config, "pmseries", "servers");
+	if (option == NULL || redis_host != NULL || redis_port != 6379) {
 	    option = sdscatfmt(sdsempty(), "%s:%u",
 			redis_host? redis_host : "localhost", redis_port);
-	    pmIniFileUpdate(config, "pmseries", "servers", option);
+	    pmIniFileUpdate(config, "redis", "servers", option);
 	}
     }
 
