@@ -19,6 +19,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+_check_series	# pmseries availability means libuv is in use
 _check_valgrind
 openssl help 2>/dev/null || _notrun "No openssl binary found"
 
