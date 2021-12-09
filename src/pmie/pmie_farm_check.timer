@@ -1,10 +1,11 @@
 [Unit]
-Description=5 minute check of pmie farm instances
+Description=Half-hourly check of pmie farm instances
 
 [Timer]
-# if enabled, runs 1m after boot and every 5 mins
+# if enabled, runs 1m after boot and every half hour
 OnBootSec=1min
-OnCalendar=*:00/5
+OnCalendar=*-*-* *:28:10
+OnCalendar=*-*-* *:58:10
 
 [Install]
 WantedBy=timers.target

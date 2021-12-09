@@ -1,10 +1,11 @@
 [Unit]
-Description=5 minute check of pmlogger farm instances
+Description=Half-hourly check of pmlogger farm instances
 
 [Timer]
-# if enabled, runs 1m after boot and every 5 mins
+# if enabled, runs 1m after boot and every half hour
 OnBootSec=1min
-OnCalendar=*:00/5
+OnCalendar=*-*-* *:25:10
+OnCalendar=*-*-* *:55:10
 
 [Install]
 WantedBy=timers.target
