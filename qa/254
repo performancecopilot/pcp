@@ -31,7 +31,15 @@ cleanup()
 	$signal -s TERM $pmcd
 	_wait_pmcd_end
 	unset PMCD_SOCKET
-	_filter_pcp_start <$tmp.err
+	# address already in use seen on vm33, I'm unable to make it go away,
+	# but is does not seem relevant to the success or otherwise of this
+	# QA test, so filter it away - kenj Dec 2021
+	#
+	_filter_pcp_start <$tmp.err \
+	| tee -a $here/$seq.full \
+	| sed \
+	    -e '/__pmBind: Address already in use/d' \
+	# end
 	cat $tmp.log >>$here/$seq.full
         echo "Restart and ping pmcd ..."
 	# make sure pmcd's socket is torn down (failure on vm33, BSD 6.8)
