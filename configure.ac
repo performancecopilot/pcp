@@ -492,6 +492,21 @@ if ! echo "$CFLAGS" | grep -- -Wshadow >/dev/null
 then
     AS_IF([test "x$cc_is_gcc" = xyes ],[PCFLAGS="$PCFLAGS -Wshadow"])
 fi
+dnl and we need to worry about off_t ... we need it to be 64-bits for V3 archives
+AC_MSG_CHECKING([sizeof off_t])
+cat <<End-of-File >conftest.c
+#include <sys/types.h>
+main() { printf("%d", (int)sizeof(off_t)); }
+End-of-File
+(eval $ac_compile) 2>&5
+(eval $ac_link) 2>&5
+ans=`./conftest`
+echo "./conftest -> \"$ans\"" >&5
+rm -rf conftest conftest.*
+AC_MSG_RESULT($ans)
+if test "$ans" = 4; then
+    PCFLAGS="$PCFLAGS -D_FILE_OFFSET_BITS=64"
+fi
 AC_SUBST(PCFLAGS)
 AC_SUBST(PLDFLAGS)
 

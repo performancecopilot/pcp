@@ -4255,6 +4255,22 @@ then
   PCFLAGS="$PCFLAGS -Wshadow"
 fi
 fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking sizeof off_t" >&5
+$as_echo_n "checking sizeof off_t... " >&6; }
+cat <<End-of-File >conftest.c
+#include <sys/types.h>
+main() { printf("%d", (int)sizeof(off_t)); }
+End-of-File
+(eval $ac_compile) 2>&5
+(eval $ac_link) 2>&5
+ans=`./conftest`
+echo "./conftest -> \"$ans\"" >&5
+rm -rf conftest conftest.*
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
+$as_echo "$ans" >&6; }
+if test "$ans" = 4; then
+    PCFLAGS="$PCFLAGS -D_FILE_OFFSET_BITS=64"
+fi
 
 
 
