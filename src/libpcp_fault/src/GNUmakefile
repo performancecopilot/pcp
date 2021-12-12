@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2018-2021 Red Hat.
+# Copyright (c) 2012-2021 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
-# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published
@@ -41,35 +41,34 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c result.c \
 HFILES = derive.h internal.h compiler.h pmdbg.h sha256.h sort_r.h \
 	avahi.h subnetprobe.h shellprobe.h \
 	$(JSONSL_HFILES)
+XFILES = sha256.c sha256.h sort_r.h
 YFILES = getdate.y derive_parser.y
-OTHERS	= fix_derive_parser_y derive_parser.y.in
+GENERATED_HFILES = pmdbg.h
+
 VERSION_SCRIPT = exports
 
-# files that will be symbolic-linked to here from libpcp directory
-LN_FILES = $(CFILES) $(HFILES) getdate.y $(OTHERS)
+# files that will be linked to here from libpcp directory
+CEXCLUDE = $(JSONSL_CFILES) $(XFILES)
+HEXCLUDE = $(JSONSL_HFILES) $(XFILES) pmdbg.h
+LN_FILES = getdate.y mk.pmdbg fix_derive_parser_y derive_parser.y.in
+LN_FILES += $(filter-out $(CEXCLUDE), $(CFILES))
+LN_FILES += $(filter-out $(HEXCLUDE), $(HFILES))
 
 CFLAGS_OPT = -DPM_FAULT_INJECTION=1 -DPM_MULTI_THREAD_DEBUG=1 -g -O0
 
-LCFLAGS = -DPCP_INTERNAL -Ideps
-LCFLAGS += '-DEXEC_SUFFIX="$(EXECSUFFIX)"' '-DDSO_SUFFIX="$(DSOSUFFIX)"'
-LLDLIBS	+= $(LIBPCP_CFLAGS)
+LCFLAGS = '-DEXEC_SUFFIX="$(EXECSUFFIX)"' '-DDSO_SUFFIX="$(DSOSUFFIX)"'
+LCFLAGS += $(LIBPCP_CFLAGS) -DPCP_INTERNAL -Ideps
 LLDLIBS	+= $(LIBPCP_LDLIBS) $(PCP_PMDALIB)
 
 ifeq "$(ENABLE_SECURE)" "true"
-LLDLIBS += $(LIB_FOR_SSL) $(LIB_FOR_NSS) $(LIB_FOR_NSPR) $(LIB_FOR_SASL)
-LCFLAGS += $(NSSCFLAGS) $(NSPRCFLAGS) $(SASLCFLAGS)
 CFILES += secureserver.c secureconnect.c
 endif
 
 ifeq "$(ENABLE_AVAHI)" "true"
-LLDLIBS += $(LIB_FOR_AVAHI)
-LCFLAGS += $(AVAHICFLAGS)
 CFILES += avahi.c
 endif
 
 ifeq "$(ENABLE_LZMA)" "true"
-LLDLIBS += $(LIB_FOR_LZMA)
-LCFLAGS += $(LZMACFLAGS)
 CFILES += io_xz.c
 endif
 
@@ -77,7 +76,6 @@ ifneq "$(TARGET_OS)" "mingw"
 CFILES += accounts.c
 else
 CFILES += win32.c
-LLDLIBS	+= -lpsapi -lws2_32
 endif
 
 ifeq "$(TARGET_OS)" "solaris"
@@ -109,14 +107,13 @@ LIBTARGET =
 SYMTARGET =
 endif
 
-LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) derive_parser.y *.c \
-	getdate.h check.done $(LN_FILES) $(JSONSL_XFILES) exports
+LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) *.c check.done \
+	$(LN_FILES) $(XFILES) $(JSONSL_XFILES) exports \
+	getdate.h derive_parser.y pmdbg.h
 
-base default : $(HFILES) $(CFILES) $(VERSION_SCRIPT) $(INFILES) \
-	$(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
-
-libpcp.so: $(SYMTARGET)
-	$(LN_S) $(SYMTARGET) libpcp.so
+base default : $(LN_FILES) $(XFILES) $(JSONSL_XFILES) \
+	$(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) \
+	$(VERSION_SCRIPT) $(INFILES)
 
 ifneq "$(SYMTARGET)" ""
 $(SYMTARGET): 
@@ -147,12 +144,6 @@ derive_parser.tab.h derive_parser.tab.c: derive_parser.y derive.h
 derive_parser.y: derive_parser.y.in fix_derive_parser_y
 	./fix_derive_parser_y
 
-ifeq "$(TARGET_OS)" "mingw"
-kernel_pmda_dso	= windows
-else
-kernel_pmda_dso	= $(TARGET_OS)
-endif
-
 install : default
 ifneq ($(LIBTARGET),)
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
@@ -167,19 +158,26 @@ ifneq ($(STATICLIBTARGET),)
 endif
 	$(INSTALL) -m 644 $(TOPDIR)/src/include/pcp/fault.h $(PCP_INC_DIR)/fault.h
 
+pmdbg.h : ../../include/pcp/pmapi.h mk.pmdbg
+	./mk.pmdbg
+
+ifneq ($(LIBTARGET),)
+$(LIBTARGET): $(VERSION_SCRIPT)
+endif
+
 $(VERSION_SCRIPT): ../../libpcp/src/$(VERSION_SCRIPT) mk.exports
 	./mk.exports
 
 ../../libpcp/src/$(VERSION_SCRIPT):
 	( cd ../../libpcp/src; ./mk.exports )
 
-pmdbg.h:	../../libpcp/src/pmdbg.h
-../../libpcp/src/pmdbg.h:
-	( cd ../../libpcp/src; ./mk.pmdbg )
-
 $(LN_FILES):
-	rm -f $@
+	@rm -f $@
 	$(LN_S) $(TOPDIR)/src/libpcp/src/$@ .
+
+$(XFILES):
+	@rm -f $@
+	$(LN_S) $(TOPDIR)/src/external/$@ .
 
 $(JSONSL_XFILES):
 	mkdir -p deps/jsonsl
@@ -191,7 +189,3 @@ install_pcp : install
 
 $(TOPDIR)/src/pmns/stdpmid:
 	cd $(@D); $(MAKE) $(@F)
-
-ifneq ($(LIBTARGET),)
-$(LIBTARGET): $(VERSION_SCRIPT)
-endif

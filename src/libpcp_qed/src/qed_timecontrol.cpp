@@ -30,9 +30,9 @@ QedTimeControl::QedTimeControl() : QProcess(NULL)
     my.bufferLength = sizeof(QmcTime::Packet);
 
     console->post("TimeControl::TimeControl: created");
-    my.buffer = (char *)malloc(my.bufferLength);
-    my.livePacket = (QmcTime::Packet *)malloc(sizeof(QmcTime::Packet));
-    my.archivePacket = (QmcTime::Packet *)malloc(sizeof(QmcTime::Packet));
+    my.buffer = (char *)calloc(1, my.bufferLength);
+    my.livePacket = (QmcTime::Packet *)calloc(1, sizeof(QmcTime::Packet));
+    my.archivePacket = (QmcTime::Packet *)calloc(1, sizeof(QmcTime::Packet));
     if (!my.buffer || !my.livePacket || !my.archivePacket)
 	QedApp::nomem();
     my.livePacket->magic = QmcTime::Magic;
@@ -62,6 +62,12 @@ void QedTimeControl::quit()
 {
     disconnect(this, SIGNAL(finished(int, QProcess::ExitStatus)), this,
 		    SLOT(endTimeControl()));
+    if (my.liveSocket)
+	disconnect(my.liveSocket, SIGNAL(disconnected()), this,
+			SLOT(liveCloseConnection()));
+    if (my.archiveSocket)
+	disconnect(my.archiveSocket, SIGNAL(disconnected()), this,
+			SLOT(archiveCloseConnection()));
     if (my.liveSocket) {
 	my.liveSocket->close();
 	my.liveSocket = NULL;
@@ -133,7 +139,7 @@ void QedTimeControl::addArchive(
 	my.archivePacket->end = endtime;
     }
 
-    if ((message = (QmcTime::Packet *)malloc(sz)) == NULL)
+    if ((message = (QmcTime::Packet *)calloc(1, sz)) == NULL)
 	QedApp::nomem();
     *message = *my.archivePacket;
     message->command = QmcTime::Bounds;
