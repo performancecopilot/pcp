@@ -1806,7 +1806,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	msgbuf_tmp = realloc(msgbuf, msgbuflen);
 	if (msgbuf_tmp == NULL) {
 	    int		msgbuflen_tmp = msgbuflen;
-	    msgbuf[msgbuflen - MSGCHUNK] = '\0';
+	    msgbuf[msgbuflen - MSGCHUNK - 1] = '\0';
 	    fprintf(stderr, "%s", msgbuf);
 	    vfprintf(stderr, fmt, arg);
 	    fputc('\n', stderr);
