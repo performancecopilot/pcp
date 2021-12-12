@@ -2,6 +2,7 @@
 # Copyright (c) 2012-2021 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published
@@ -69,9 +70,13 @@ endif
 
 ifneq "$(TARGET_OS)" "mingw"
 CFILES += accounts.c
-LLDLIBS	+= -lpsapi -lws2_32 -liphlpapi
 else
 CFILES += win32.c
+endif
+
+ifeq "$(TARGET_OS)" "solaris"
+# enables standards compliant thread-safe interfaces (accounts.c)
+LCFLAGS += -D_POSIX_PTHREAD_SEMANTICS
 endif
 
 ifeq "$(LIB_FOR_BASENAME)" "-lpcp"
@@ -90,7 +95,7 @@ LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) *.c check.done \
 
 base default : $(LN_FILES) $(XFILES) $(JSONSL_XFILES) \
 	$(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) \
-	$(VERSION_SCRIPT) $(INFILES)
+	$(INFILES)
 
 include $(BUILDRULES)
 
@@ -99,10 +104,11 @@ sha256.o: sha256.c sha256.h
 rtime.o: getdate.h
 derive.o derive_fetch.o: derive.h derive_parser.tab.h
 util.o:	pmdbg.h
-labels.o: sha256.o sort_r.h
+labels.o: sha256.h sort_r.h
+fault.o:	$(TOPDIR)/src/include/pcp/fault.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
-	$(TOPDIR)/src/include/pcp/platform_defs.h
+		$(TOPDIR)/src/include/pcp/platform_defs.h
 
 .NOTPARALLEL:
 getdate.h getdate.tab.c: getdate.y
@@ -116,8 +122,6 @@ derive_parser.y: derive_parser.y.in fix_derive_parser_y
 	./fix_derive_parser_y
 
 install : default
-
-# kernel_pmda_dso	= windows
 
 pmdbg.h : ../../include/pcp/pmapi.h mk.pmdbg
 	./mk.pmdbg
@@ -133,3 +137,10 @@ $(XFILES):
 $(JSONSL_XFILES):
 	mkdir -p deps/jsonsl
 	$(LN_S) -f $(realpath $(TOPDIR))/vendor/github.com/mnunberg/$(@:deps/%=%) $@
+
+default_pcp : default
+
+install_pcp : install
+
+$(TOPDIR)/src/pmns/stdpmid:
+	cd $(@D); $(MAKE) $(@F)
