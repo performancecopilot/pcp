@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2020 Red Hat.
+# Copyright (c) 2018-2021 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -35,7 +35,7 @@ default_pcp default: build-me
 
 include $(BUILDRULES)
 
-ifeq "$(PMDA_POSTGRESQL)" "true"
+ifeq "$(PMDA_MONGODB)" "true"
 build-me: check_domain
 install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)

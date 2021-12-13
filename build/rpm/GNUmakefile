@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2020 Red Hat.
+# Copyright (c) 2012-2021 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -80,6 +80,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@pmda_json@|$(PMDA_JSON)|g' \
 	    -e's|@pmda_nginx@|$(PMDA_NGINX)|g' \
 	    -e's|@pmda_oracle@|$(PMDA_ORACLE)|g' \
+	    -e's|@pmda_mongodb@|$(PMDA_MONGODB)|g' \
 	    -e's|@pmda_postgresql@|$(PMDA_POSTGRESQL)|g' \
 	    -e's|@pmda_postfix@|$(PMDA_POSTFIX)|g' \
 	    -e's|@pmda_elasticsearch@|$(PMDA_ELASTICSEARCH)|g' \

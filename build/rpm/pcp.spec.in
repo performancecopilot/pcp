@@ -351,6 +351,9 @@ Requires: pcp-pmda-mysql
 %if "@pmda_oracle@" == "true"
 Requires: pcp-pmda-oracle
 %endif
+%if "@pmda_mongodb@" == "true"
+Requires: pcp-pmda-mongodb
+%endif
 %if "@pmda_postgresql@" == "true"
 Requires: pcp-pmda-postgresql
 %endif
@@ -1518,6 +1521,32 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics for NFS Clients.
 #end pcp-pmda-nfsclient
 
+%if "@pmda_mongodb@" == "true"
+#
+# pcp-pmda-mongodb
+#
+%package pmda-mongodb
+License: GPLv2+
+Summary: Performance Co-Pilot (PCP) metrics for MongoDB
+URL: https://pcp.io
+Requires: pcp = @package_version@ pcp-libs = @package_version@
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+%if 0%{?rhel} == 0
+Requires: python3-pymongo
+%endif
+%else
+Requires: %{__python2}-pcp
+%if 0%{?rhel} == 0
+Requires: %{__python2}-pymongo
+%endif
+%endif
+%description pmda-mongodb
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from MongoDB.
+# end pcp-pmda-mongodb
+%endif
+
 %if "@pmda_postgresql@" == "true"
 #
 # pcp-pmda-postgresql
@@ -1631,30 +1660,6 @@ Obsoletes: pcp-pmda-lmsensors-debuginfo < 4.2.0
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Linux hardware monitoring sensors.
 # end pcp-pmda-lmsensors
-
-#
-# pcp-pmda-mongodb
-#
-%package pmda-mongodb
-License: GPLv2+
-Summary: Performance Co-Pilot (PCP) metrics for MongoDB
-URL: https://pcp.io
-Requires: pcp = @package_version@ pcp-libs = @package_version@
-%if "@enable_python3@" == "true"
-Requires: python3-pcp
-%if 0%{?rhel} == 0
-Requires: python3-pymongo
-%endif
-%else
-Requires: %{__python2}-pcp
-%if 0%{?rhel} == 0
-Requires: %{__python2}-pymongo
-%endif
-%endif
-%description pmda-mongodb
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics from MongoDB.
-# end pcp-pmda-mongodb
 
 #
 # pcp-pmda-mssql
@@ -2626,6 +2631,11 @@ pmieconf -c enable dmthin
 %{pmda_remove "$1" "oracle"}
 %endif
 
+%if "@pmda_mongodb@" == "true"
+%preun pmda-mongodb
+%{pmda_remove "$1" "mongodb"}
+%endif
+
 %if "@pmda_postgresql@" == "true"
 %preun pmda-postgresql
 %{pmda_remove "$1" "postgresql"}
@@ -2758,9 +2768,6 @@ pmieconf -c enable dmthin
 
 %preun pmda-lmsensors
 %{pmda_remove "$1" "lmsensors"}
-
-%preun pmda-mongodb
-%{pmda_remove "$1" "mongodb"}
 
 %preun pmda-mssql
 %{pmda_remove "$1" "mssql"}
@@ -3052,6 +3059,10 @@ PCP_SA_DIR=@pcp_sa_dir@
 %files pmda-postfix -f pcp-pmda-postfix-files.rpm
 %endif
 
+%if "@pmda_mongodb@" == "true"
+%files pmda-mongodb -f pcp-pmda-mongodb-files.rpm
+%endif
+
 %if "@pmda_postgresql@" == "true"
 %files pmda-postgresql -f pcp-pmda-postgresql-files.rpm
 %endif
@@ -3090,8 +3101,6 @@ PCP_SA_DIR=@pcp_sa_dir@
 %files pmda-haproxy -f pcp-pmda-haproxy-files.rpm
 
 %files pmda-lmsensors -f pcp-pmda-lmsensors-files.rpm
-
-%files pmda-mongodb -f pcp-pmda-mongodb-files.rpm
 
 %files pmda-mssql -f pcp-pmda-mssql-files.rpm
 

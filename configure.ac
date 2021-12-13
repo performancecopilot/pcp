@@ -1290,6 +1290,19 @@ fi
 AC_SUBST(PMDA_MYSQL, $pmda_mysql)
 if $pmda_mysql; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
+AC_MSG_CHECKING([if the mongodb PMDA should be included])
+pmda_mongodb=false
+if test "$have_python" = true
+then
+    dnl rpm build for mongodb PMDA needs python pymongo module
+    if $pcp_python_prog -c "import pymongo" >/dev/null 2>&1
+    then
+	pmda_mongodb=true
+    fi
+fi
+AC_SUBST(PMDA_MONGODB, $pmda_mongodb)
+if $pmda_mongodb; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
 AC_MSG_CHECKING([if the postgresql PMDA should be included])
 pmda_postgresql=false
 if test "$have_python" = true
