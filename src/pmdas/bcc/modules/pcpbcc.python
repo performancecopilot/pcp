@@ -14,6 +14,7 @@
 """ PCP BCC PMDA module base class """
 
 import re
+import platform
 import ctypes as ct
 from os import kill, listdir, path
 from collections import OrderedDict
@@ -347,6 +348,16 @@ class PCPBCCBase(object):
     def bcc_version_tuple():
         """ Returns BCC version as an int tuple (for comparisons) """
         return tuple(map(int, PCPBCCBase.bcc_version().split('.')))
+
+    @staticmethod
+    def kernel_version():
+        """Returns the kernel version"""
+        version_str = platform.release()
+        m = re.match(r'^(\d+)\.(\d+)\.(\d+)', version_str)
+        if m:
+            return tuple(map(int, m.groups()))
+        else:
+            return (0, 0, 0)
 
     def perf_buffer_poller(self):
         """ BPF poller """

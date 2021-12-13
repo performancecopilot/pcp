@@ -44,20 +44,6 @@ MODULE = 'execsnoop'
 BASENS = 'proc.exec.'
 units_none = pmUnits(0, 0, 0, 0, 0, 0)
 
-TASK_COMM_LEN = 16      # linux/sched.h
-ARGSIZE = 128           # should match #define in execsnoop.bpf
-
-class Data(ct.Structure):
-    """ execsnoop data struct """
-    _fields_ = [
-        ("pid", ct.c_uint),
-        ("ppid", ct.c_uint),
-        ("comm", ct.c_char * TASK_COMM_LEN),
-        ("type", ct.c_int),
-        ("argv", ct.c_char * ARGSIZE),
-        ("retval", ct.c_int),
-    ]
-
 class EventType(object):
     """ Event type """
     EVENT_ARG = 0
@@ -137,7 +123,7 @@ class PCPBCCModule(PCPBCCBase):
 
     def handle_event(self, _cpu, data, _size):
         """ Event handler """
-        event = ct.cast(data, ct.POINTER(Data)).contents
+        event = self.bpf["events"].event(data)
         skip = False
 
         if event.type == EventType.EVENT_ARG:
@@ -145,9 +131,9 @@ class PCPBCCModule(PCPBCCBase):
         elif event.type == EventType.EVENT_RET:
             if event.retval != 0 and not self.include_failed:
                 skip = True
-            if self.command and not re.search(self.command, event.comm):
+            if self.command and not re.search(bytes(self.command), event.comm):
                 skip = True
-            if self.args and not re.search(self.args, b" ".join(self.argv_cache[event.pid])):
+            if self.args and not re.search(bytes(self.args), b" ".join(self.argv_cache[event.pid])):
                 skip = True
 
             if not skip:
@@ -177,10 +163,14 @@ class PCPBCCModule(PCPBCCBase):
 
                 self.bpf_text = self.bpf_text.replace("MAXARG", str(self.max_args))
 
-            if self.debug:
-                self.log("BPF to be compiled:\n" + self.bpf_text.strip())
+            bpf_text = self.bpf_text
+            bpf_text = bpf_text.replace('UID_FILTER', '')
+            bpf_text = bpf_text.replace('container_should_be_filtered()', '0')
 
-            self.bpf = BPF(text=self.bpf_text)
+            if self.debug:
+                self.log("BPF to be compiled:\n" + bpf_text.strip())
+
+            self.bpf = BPF(text=bpf_text)
             execve_fnname = self.get_syscall_fnname("execve")
             self.bpf.attach_kprobe(event=execve_fnname, fn_name="syscall__execve")
             self.bpf.attach_kretprobe(event=execve_fnname, fn_name="do_ret_sys_execve")
