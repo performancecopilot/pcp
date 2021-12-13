@@ -30,7 +30,11 @@ from modules.pcpbcc import PCPBCCBase
 #
 # BPF program
 #
-bpf_src = "modules/runqlat.bpf"
+is_support_raw_tp = BPF.support_raw_tracepoint()
+if is_support_raw_tp:
+    bpf_src = "modules/runqlat_tp.bpf"
+else:
+    bpf_src = "modules/runqlat_kp.bpf"
 
 #
 # PCP BCC PMDA constants
@@ -59,6 +63,7 @@ class PCPBCCModule(PCPBCCBase):
                 self.proc_filter = self.config.get(MODULE, opt)
                 self.update_pids(self.get_proc_info(self.proc_filter))
 
+        self.log("Using BPF source file %s." % bpf_src)
         self.log("Initialized.")
 
     def metrics(self):
@@ -89,7 +94,23 @@ class PCPBCCModule(PCPBCCBase):
                 with open(path.dirname(__file__) + '/../' + bpf_src) as src:
                     self.bpf_text = src.read()
 
+                # BPF.kernel_struct_has_field requires BCC v0.23.0
+                # use kernel version check as alternative
+                # pylint: disable=no-member
+                if (
+                    hasattr(BPF, "kernel_struct_has_field")
+                    and BPF.kernel_struct_has_field(b"task_struct", b"__state") == 1
+                ) or self.kernel_version() >= (5, 14, 0):
+                    self.bpf_text = self.bpf_text.replace('STATE_FIELD', '__state')
+                else:
+                    self.bpf_text = self.bpf_text.replace('STATE_FIELD', 'state')
+
                 self.bpf_text = self.bpf_text.replace("FILTER", "PID_CHECK")
+                self.bpf_text = self.bpf_text.replace('FACTOR', 'delta /= 1000;')
+
+                self.bpf_text = self.bpf_text.replace('STORAGE', 'BPF_HISTOGRAM(dist);')
+                self.bpf_text = self.bpf_text.replace('STORE',
+                    'dist.increment(bpf_log2l(delta));')
 
             if not self.pids and self.proc_filter and self.proc_refresh:
                 self.log("No process to attach found, activation postponed.")
@@ -102,9 +123,11 @@ class PCPBCCModule(PCPBCCBase):
 
             self.reset_cache()
             self.bpf = BPF(text=bpf_text)
-            self.bpf.attach_kprobe(event="ttwu_do_wakeup", fn_name="trace_ttwu_do_wakeup")
-            self.bpf.attach_kprobe(event="wake_up_new_task", fn_name="trace_wake_up_new_task")
-            self.bpf.attach_kprobe(event_re=r"^finish_task_switch$|^finish_task_switch\.isra\.\d$", fn_name="trace_run")
+            if not is_support_raw_tp:
+                self.bpf.attach_kprobe(event="ttwu_do_wakeup", fn_name="trace_ttwu_do_wakeup")
+                self.bpf.attach_kprobe(event="wake_up_new_task", fn_name="trace_wake_up_new_task")
+                self.bpf.attach_kprobe(event_re=r"^finish_task_switch$|^finish_task_switch\.isra\.\d$",
+                                       fn_name="trace_run")
             self.log("Compiled.")
         except Exception as error: # pylint: disable=broad-except
             self.bpf = None

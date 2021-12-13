@@ -120,13 +120,14 @@ class PCPBCCModule(PCPBCCBase):
                 with open(path.dirname(__file__) + '/../' + bpf_src) as src:
                     self.bpf_text = src.read()
 
-                self.bpf_text = self.bpf_text.replace("FILTER", "FILTER_PID")
-
             if not self.pids and self.proc_filter and self.proc_refresh:
                 self.log("No process to attach found, activation postponed.")
                 return
 
             bpf_text = self.apply_pid_filter(self.bpf_text, self.pids, False)
+            bpf_text = bpf_text.replace('FILTER_PID', '')
+            bpf_text = bpf_text.replace('FILTER_FAMILY', '')
+            bpf_text = bpf_text.replace('container_should_be_filtered()', '0')
 
             if self.debug:
                 self.log("BPF to be compiled:\n" + bpf_text.strip())
@@ -155,21 +156,31 @@ class PCPBCCModule(PCPBCCBase):
 
     @staticmethod
     def ipv4_table_to_dict(table):
-        """ Build hashable dict from IPv4 BPF table """
-        return {TCPSessionKey(pid=k.pid,
-                              laddr=inet_ntop(AF_INET, pack("I", k.saddr)),
-                              lport=k.lport,
-                              daddr=inet_ntop(AF_INET, pack("I", k.daddr)),
-                              dport=k.dport):v.value for k, v in table.items()}
+        """Build hashable dict from IPv4 BPF table"""
+        return {
+            TCPSessionKey(
+                pid=k.pid,
+                laddr=inet_ntop(AF_INET, pack("I", k.saddr)),
+                lport=k.lport,
+                daddr=inet_ntop(AF_INET, pack("I", k.daddr)),
+                dport=k.dport,
+            ): v.value
+            for k, v in table.items()
+        }
 
     @staticmethod
     def ipv6_table_to_dict(table):
-        """ Build hashable dict from IPv6 BPF table """
-        return {TCPSessionKey(pid=k.pid,
-                              laddr=inet_ntop(AF_INET6, pack("QQ", k.saddr0, k.saddr1)),
-                              lport=k.lport,
-                              daddr=inet_ntop(AF_INET6, pack("QQ", k.daddr0, k.daddr1)),
-                              dport=k.dport):v.value for k, v in table.items()}
+        """Build hashable dict from IPv6 BPF table"""
+        return {
+            TCPSessionKey(
+                pid=k.pid,
+                laddr=inet_ntop(AF_INET6, k.saddr),
+                lport=k.lport,
+                daddr=inet_ntop(AF_INET6, k.daddr),
+                dport=k.dport,
+            ): v.value
+            for k, v in table.items()
+        }
 
     def refresh_stats(self):
         """ Refresh statistics from BPF table """
