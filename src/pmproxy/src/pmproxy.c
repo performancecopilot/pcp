@@ -266,11 +266,11 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 	 * Push command line options into the configuration, and ensure
 	 * we have some default for attemping Redis server connections.
 	 */
-	if ((option = pmIniFileLookup(config, "pmseries", "servers")) == NULL ||
+	if ((option = pmIniFileLookup(config, "redis", "servers")) == NULL ||
 	    (redis_host != NULL || redis_port != 6379)) {
 	    option = sdscatfmt(sdsempty(), "%s:%u",
 		    redis_host? redis_host : "localhost", redis_port);
-	    pmIniFileUpdate(config, "pmseries", "servers", option);
+	    pmIniFileUpdate(config, "redis", "servers", option);
 	}
     }
 
