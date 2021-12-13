@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Red Hat.  All Rights Reserved.
+ * Copyright (c) 2020-2021 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,7 +14,7 @@
 #include "util.h"
 
 static __pmHashCtl	valuesctl;	/* pointers to values in pmResult */
-static __pmHashCtl	typesctl;	/* metric types from pmLookupDesc */
+static __pmHashCtl	descsctl;	/* metric descs from pmLookupDesc */
 
 int
 values_hash(pmResult *result)
@@ -47,27 +47,33 @@ metric_values(pmID pmid)
 }
 
 int
-metric_type(pmID pmid)
+descs_hash(int numpmid, pmDesc *descs)
+{
+    unsigned int	i;
+    pmDesc		*dp;
+    int			sts;
+
+    if ((sts = __pmHashPreAlloc(numpmid, &descsctl)) < 0)
+	return sts;
+
+    for (i = 0; i < numpmid; i++) {
+	dp = &descs[i];
+	if ((sts = __pmHashAdd(dp->pmid, dp, &descsctl)) < 0)
+	    return sts;
+    }
+    return numpmid;
+}
+
+pmDesc *
+metric_desc(pmID pmid)
 {
     __pmHashNode	*node;
-    pmDesc		desc;
-    int			sts, *data;
 
     if (pmid == PM_IN_NULL)
-	return PM_TYPE_UNKNOWN;
-    if ((node = __pmHashSearch(pmid, &typesctl)) == NULL) {
-	if ((sts = pmLookupDesc(pmid, &desc)) < 0)
-	    return sts;
-	if ((data = malloc(sizeof(int))) == NULL)
-	    return sts;
-	*data = desc.type;
-	if ((sts = __pmHashAdd(pmid, data, &typesctl)) < 0) {
-	    free(data);
-	    return sts;
-	}
-	return *data;
-    }
-    return *(int *)node->data;
+	return NULL;
+    if ((node = __pmHashSearch(pmid, &descsctl)) == NULL)
+	return NULL;
+    return (pmDesc *)node->data;
 }
 
 int

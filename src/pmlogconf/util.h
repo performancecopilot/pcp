@@ -34,7 +34,9 @@ extern void fmt(const char *, char *, size_t, int, int, fmt_t, void *);
 
 extern int values_hash(pmResult *);
 extern pmValueSet *metric_values(pmID);
-extern int metric_type(pmID);
+
+extern int descs_hash(int, pmDesc *);
+extern pmDesc *metric_desc(pmID);
 
 typedef int (*numeric_cmp_t)(double, double);
 extern int number_equal(double, double);
