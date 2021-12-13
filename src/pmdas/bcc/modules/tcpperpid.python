@@ -32,16 +32,10 @@ from modules.pcpbcc import PCPBCCBase
 #
 # BPF program
 #
-bpf_src = "modules/tcplife.bpf"
-# Compat with kernel < 4.16, bcc < 0.6
-TRACEFS = "/sys/kernel/debug/tracing"
-bpf_src_old_tp = "modules/tcplife_old_tp.bpf"
-bpf_src_old_kb = "modules/tcplife_old_kb.bpf"
-if not path.exists(TRACEFS + "/events/sock/inet_sock_set_state"):
-    if path.exists(TRACEFS + "/events/tcp/tcp_set_state"):
-        bpf_src = bpf_src_old_tp
-    else:
-        bpf_src = bpf_src_old_kb
+if BPF.tracepoint_exists("sock", "inet_sock_set_state"):
+    bpf_src = "modules/tcplife_tp.bpf"
+else:
+    bpf_src = "modules/tcplife_kp.bpf"
 
 # Alternative, "high resolution" BPF
 bpf_highres = "modules/tcptop.bpf"
@@ -52,36 +46,6 @@ bpf_highres = "modules/tcptop.bpf"
 MODULE = 'tcpperpid'
 BASENS = 'proc.io.net.total.'
 units_bytes = pmUnits(1, 0, 0, PM_SPACE_BYTE, 0, 0)
-
-TASK_COMM_LEN = 16      # linux/sched.h
-
-class Data_ipv4(ct.Structure):
-    """ IPv4 data struct """
-    _fields_ = [
-        ("ts_us", ct.c_ulonglong),
-        ("pid", ct.c_ulonglong),
-        ("saddr", ct.c_ulonglong),
-        ("daddr", ct.c_ulonglong),
-        ("ports", ct.c_ulonglong),
-        ("rx_b", ct.c_ulonglong),
-        ("tx_b", ct.c_ulonglong),
-        ("span_us", ct.c_ulonglong),
-        ("task", ct.c_char * TASK_COMM_LEN)
-    ]
-
-class Data_ipv6(ct.Structure):
-    """ IPv6 data struct """
-    _fields_ = [
-        ("ts_us", ct.c_ulonglong),
-        ("pid", ct.c_ulonglong),
-        ("saddr", (ct.c_ulonglong * 2)),
-        ("daddr", (ct.c_ulonglong * 2)),
-        ("ports", ct.c_ulonglong),
-        ("rx_b", ct.c_ulonglong),
-        ("tx_b", ct.c_ulonglong),
-        ("span_us", ct.c_ulonglong),
-        ("task", ct.c_char * TASK_COMM_LEN)
-    ]
 
 #
 # PCP BCC Module
@@ -133,15 +97,14 @@ class PCPBCCModule(PCPBCCBase):
         self.log("Using BPF source file %s." % src)
 
         # Exit hard if impossible to continue
-        if self.bcc_version() == "0.6.1" and src == bpf_src_old_kb and not self.highres:
-            raise RuntimeError("BCC 0.6.1 bug makes it incompatible with this module "
-                               "on kernel < 4.15 in non-highres mode.")
+        if self.bcc_version_tuple() < (0, 6, 1) and not self.highres:
+            raise RuntimeError("BCC 0.6.1+ is required for this module in non-highres mode.")
 
         self.log("Initialized.")
 
     def handle_ipv4_event(self, _cpu, data, _size):
         """ IPv4 event handler """
-        event = ct.cast(data, ct.POINTER(Data_ipv4)).contents
+        event = self.bpf["ipv4_events"].event(data)
         pid = str(event.pid).zfill(6)
         self.lock.acquire()
         if pid not in self.ipv4_stats:
@@ -153,7 +116,7 @@ class PCPBCCModule(PCPBCCBase):
 
     def handle_ipv6_event(self, _cpu, data, _size):
         """ IPv6 event handler """
-        event = ct.cast(data, ct.POINTER(Data_ipv6)).contents
+        event = self.bpf["ipv6_events"].event(data)
         pid = str(event.pid).zfill(6)
         self.lock.acquire()
         if pid not in self.ipv6_stats:
@@ -199,31 +162,25 @@ class PCPBCCModule(PCPBCCBase):
                     self.bpf_text = src.read()
                 if self.highres:
                     self.bpf_text = self.bpf_text.replace("FILTER", "FILTER_PID")
-                # Compat with bcc < 0.6
-                self.log("Testing BCC compatilibility, possible errors below are safe to ignore.")
-                try:
-                    test_txt = self.bpf_text.replace("// NEW: ", "").replace("FILTER_PID", "")
-                    test_bpf = BPF(text=test_txt)
-                    test_bpf.cleanup()
-                    self.bpf_text = self.bpf_text.replace("// NEW: ", "")
-                except Exception: # pylint: disable=broad-except
-                    self.bpf_text = self.bpf_text.replace("// OLD: ", "")
-                self.log("Tested BCC compatilibility, possible errors above are safe to ignore.")
 
                 if self.dports:
                     filterp = " && ".join(["dport != %d" % port for port in self.dports])
                     filter_txt = "if (%s) { birth.delete(&sk); return 0; }" % filterp
-                    self.bpf_text = self.bpf_text.replace("//FILTER_DPORT", filter_txt)
+                    self.bpf_text = self.bpf_text.replace("FILTER_DPORT", filter_txt)
                 if self.lports:
                     filterp = " && ".join(["lport != %d" % port for port in self.lports])
                     filter_txt = "if (%s) { birth.delete(&sk); return 0; }" % filterp
-                    self.bpf_text = self.bpf_text.replace("//FILTER_LPORT", filter_txt)
+                    self.bpf_text = self.bpf_text.replace("FILTER_LPORT", filter_txt)
 
             if not self.pids and self.proc_filter and self.proc_refresh:
                 self.log("No process to attach found, activation postponed.")
                 return
 
             bpf_text = self.apply_pid_filter(self.bpf_text, self.pids, False)
+            bpf_text = bpf_text.replace('FILTER_PID', '')
+            bpf_text = bpf_text.replace('FILTER_DPORT', '')
+            bpf_text = bpf_text.replace('FILTER_LPORT', '')
+            bpf_text = bpf_text.replace('FILTER_FAMILY', '')
 
             if self.debug:
                 self.log("BPF to be compiled:\n" + bpf_text.strip())
