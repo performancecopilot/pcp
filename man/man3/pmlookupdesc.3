@@ -71,15 +71,15 @@ It is more efficient as the number of metrics increases, as it
 avoids round trip latency from multiple individual requests.
 Note that the error protocol guarantees there is a 1:1 relationship
 between the elements of
-.I desclist
+.I descs
 and
-.IR pmidlist ,
+.IR pmids ,
 hence both lists contain exactly
 .I numpmid
 elements.
 For this reason, the caller is expected to have pre-allocated a suitably
 sized array for
-.IR desclist .
+.IR descs .
 .PP
 The
 .CW pmDesc
@@ -284,7 +284,7 @@ error code (less than zero).
 .PP
 When errors are encountered, any metrics that cannot be looked up
 result in the corresponding descriptor element of
-.I desclist
+.I descs
 having its
 .I pmid
 field set to
