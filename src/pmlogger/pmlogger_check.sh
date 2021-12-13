@@ -1048,7 +1048,6 @@ END				{ print m }'`
 	    fi
 
 	    # Notify service manager (if any) for the primary logger ONLY.
-	    # TODO if no primary, notify for the first logger.
 	    [ "$primary" = y ] && args="-N $args"
 
 	    args="$args -m pmlogger_check"
