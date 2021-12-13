@@ -473,13 +473,19 @@ fetch_groups(void)
 {
     static pmResult	*result;
     const char		**names;
+    pmDesc		*descs;
     pmID		*pmids;
-    int			i, n, sts;
+    int			i, n, sts, count;
 
-    /* prepare arrays of names and identifiers for PMAPI metric lookup */
+    /* prepare arrays of names, descriptors and IDs for PMAPI metric lookup */
     if ((names = calloc(ngroups, sizeof(char *))) == NULL)
 	return -ENOMEM;
+    if ((descs = calloc(ngroups, sizeof(pmDesc))) == NULL) {
+	free(names);
+	return -ENOMEM;
+    }
     if ((pmids = calloc(ngroups, sizeof(pmID))) == NULL) {
+	free(descs);
 	free(names);
 	return -ENOMEM;
     }
@@ -490,15 +496,16 @@ fetch_groups(void)
 	    continue;
 	names[n++] = (const char *)groups[i].metric;
     }
+    count = n;
 
-    if ((sts = pmLookupName(n, names, pmids)) < 0) {
-	if (n == 1)
+    if ((sts = pmLookupName(count, names, pmids)) < 0) {
+	if (count == 1)
 	    groups[0].pmid = PM_ID_NULL;
 	else
 	    fprintf(stderr, "%s: cannot lookup metric names: %s\n",
 			    pmGetProgname(), pmErrStr(sts));
     }
-    else if ((sts = pmFetch(n, pmids, &result)) < 0) {
+    else if ((sts = pmFetch(count, pmids, &result)) < 0) {
 	fprintf(stderr, "%s: cannot fetch metric values: %s\n",
 			pmGetProgname(), pmErrStr(sts));
     }
@@ -510,6 +517,13 @@ fetch_groups(void)
 	    else
 		groups[i].pmid = pmids[n++];
 	}
+	/* descriptor lookup, descs_hash handles failure here */
+	(void) pmLookupDescs(count, pmids, descs);
+
+	/* create a hash over the descs for quick PMID lookup */
+	if ((sts = descs_hash(count, descs)) < 0)
+	    fprintf(stderr, "%s: cannot hash metric descs: %s\n",
+			    pmGetProgname(), pmErrStr(sts));
 	/* create a hash over the result for quick PMID lookup */
 	if ((sts = values_hash(result)) < 0)
 	    fprintf(stderr, "%s: cannot hash metric values: %s\n",
@@ -806,14 +820,16 @@ evaluate_string_regexp(group_t *group, regex_cmp_t compare)
     int			i, found;
     pmValueSet		*vsp;
     pmValue		*vp;
+    pmDesc		*dp;
     pmAtomValue		atom;
     regex_t		regex;
     int			sts, type;
 
-    if ((vsp = metric_values(group->pmid)) == NULL)
+    if ((vsp = metric_values(group->pmid)) == NULL ||
+        (dp = metric_desc(group->pmid)) == NULL)
 	return 0;
 
-    type = metric_type(group->pmid);
+    type = dp->type;
     if (type < 0 || type > PM_TYPE_STRING) {
 	fprintf(stderr, "%s: %s uses regular expression on non-scalar metric\n",
 		pmGetProgname(), group->tag);
@@ -849,11 +865,14 @@ evaluate_string_regexp(group_t *group, regex_cmp_t compare)
 static int
 evaluate_values(group_t *group, numeric_cmp_t ncmp, string_cmp_t scmp)
 {
-    int			type = metric_type(group->pmid);
+    pmDesc		*dp;
 
-    if (type == PM_TYPE_STRING)
+    if ((dp = metric_desc(group->pmid)) == NULL)
+	return 0;
+
+    if (dp->type == PM_TYPE_STRING)
 	return evaluate_string_values(group, scmp);
-    return evaluate_number_values(group, type, ncmp);
+    return evaluate_number_values(group, dp->type, ncmp);
 }
 
 int
