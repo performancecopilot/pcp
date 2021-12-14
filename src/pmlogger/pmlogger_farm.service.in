@@ -1,9 +1,8 @@
 [Unit]
 Description=pmlogger farm service
-Documentation=man:pmlogger(1)
-After=network-online.target pmcd.service
-Before=pmlogger_farm_check.timer pmlogger_daily.timer
-BindsTo=pmlogger_farm_check.timer pmlogger_daily.timer
+Documentation=man:pmlogger_check(1)
+Before=pmlogger_farm_check.timer
+BindsTo=pmlogger_farm_check.timer
 
 [Service]
 Type=@SD_SERVICE_TYPE@
@@ -15,10 +14,9 @@ TimeoutStopSec=120
 Environment="PMLOGGER_CHECK_PARAMS=--skip-primary"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger_timers
 ExecStart=@PCP_BINADM_DIR@/pmlogger_farm $PMLOGGER_CHECK_PARAMS
-
 WorkingDirectory=@PCP_VAR_DIR@
 Group=@PCP_GROUP@
 User=@PCP_USER@
 
 [Install]
-WantedBy=multi-user.target
+RequiredBy=pmlogger.service

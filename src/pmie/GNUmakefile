@@ -84,7 +84,6 @@ pmie.service : pmie.service.in
 
 pmie_farm.service : pmie_farm.service.in
 	$(SED) <$< >$@ \
-	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
 	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
 	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
 	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
@@ -95,6 +94,7 @@ pmie_farm.service : pmie_farm.service.in
 
 pmie_farm_check.service : pmie_farm_check.service.in
 	$(SED) <$< >$@ \
+	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
 	    -e 's;@PCP_BIN_DIR@;'$(PCP_BIN_DIR)';' \
 	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
 	# END

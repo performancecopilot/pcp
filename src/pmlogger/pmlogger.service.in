@@ -4,7 +4,7 @@ Documentation=man:pmlogger(1)
 After=network-online.target pmcd.service
 Before=pmlogger_check.timer pmlogger_daily.timer
 BindsTo=pmlogger_check.timer pmlogger_daily.timer
-Wants=pmcd.service pmlogger_farm.service
+Wants=pmcd.service
 
 [Service]
 Type=notify

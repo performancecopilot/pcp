@@ -1,9 +1,8 @@
 [Unit]
 Description=pmie farm service
-Documentation=man:pmie(1)
-After=network-online.target pmcd.service
-Before=pmie_farm_check.timer pmie_daily.timer
-BindsTo=pmie_farm_check.timer pmie_daily.timer
+Documentation=man:pmie_check(1)
+Before=pmie_farm_check.timer
+BindsTo=pmie_farm_check.timer
 
 [Service]
 Type=@SD_SERVICE_TYPE@
@@ -15,10 +14,9 @@ TimeoutStopSec=120
 Environment="PMIE_CHECK_PARAMS=--skip-primary"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmie_timers
 ExecStart=@PCP_BINADM_DIR@/pmie_farm $PMIE_CHECK_PARAMS
-
 WorkingDirectory=@PCP_VAR_DIR@
 Group=@PCP_GROUP@
 User=@PCP_USER@
 
 [Install]
-WantedBy=multi-user.target
+RequiredBy=pmie.service

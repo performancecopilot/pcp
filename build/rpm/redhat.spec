@@ -2951,40 +2951,36 @@ then
     # stop daemons before erasing the package
     %if !%{disable_systemd}
        %systemd_preun pmlogger.service
+       %systemd_preun pmlogger_check.timer
+       %systemd_preun pmlogger_daily.timer
        %systemd_preun pmlogger_farm.service
+       %systemd_preun pmlogger_farm_check.service
+       %systemd_preun pmlogger_farm_check.timer
        %systemd_preun pmie.service
+       %systemd_preun pmie_check.timer
+       %systemd_preun pmie_daily.timer
        %systemd_preun pmie_farm.service
+       %systemd_preun pmie_farm_check.service
+       %systemd_preun pmie_farm_check.timer
        %systemd_preun pmproxy.service
        %systemd_preun pmfind.service
        %systemd_preun pmcd.service
-       %systemd_preun pmlogger_daily.timer
-       %systemd_preun pmlogger_check.timer
-       %systemd_preun pmlogger_farm_check.timer
-       %systemd_preun pmie_daily.timer
-       %systemd_preun pmie_check.timer
-       %systemd_preun pmie_farm_check.timer
 
        systemctl stop pmlogger.service >/dev/null 2>&1
-       systemctl stop pmlogger_farm.service >/dev/null 2>&1
        systemctl stop pmie.service >/dev/null 2>&1
-       systemctl stop pmie_farm.service >/dev/null 2>&1
        systemctl stop pmproxy.service >/dev/null 2>&1
        systemctl stop pmfind.service >/dev/null 2>&1
        systemctl stop pmcd.service >/dev/null 2>&1
     %else
        /sbin/service pmlogger stop >/dev/null 2>&1
-       /sbin/service pmlogger_farm stop >/dev/null 2>&1
        /sbin/service pmie stop >/dev/null 2>&1
-       /sbin/service pmie_farm stop >/dev/null 2>&1
        /sbin/service pmproxy stop >/dev/null 2>&1
        /sbin/service pmcd stop >/dev/null 2>&1
 
        /sbin/chkconfig --del pcp >/dev/null 2>&1
        /sbin/chkconfig --del pmcd >/dev/null 2>&1
        /sbin/chkconfig --del pmlogger >/dev/null 2>&1
-       /sbin/chkconfig --del pmlogger_farm >/dev/null 2>&1
        /sbin/chkconfig --del pmie >/dev/null 2>&1
-       /sbin/chkconfig --del pmie_farm >/dev/null 2>&1
        /sbin/chkconfig --del pmproxy >/dev/null 2>&1
     %endif
     # cleanup namespace state/flag, may still exist
@@ -3047,12 +3043,8 @@ PCP_LOG_DIR=%{_logsdir}
     %systemd_post pmcd.service
     %systemd_postun_with_restart pmlogger.service
     %systemd_post pmlogger.service
-    %systemd_postun_with_restart pmlogger_farm.service
-    %systemd_post pmlogger_farm.service
     %systemd_postun_with_restart pmie.service
     %systemd_post pmie.service
-    %systemd_postun_with_restart pmie_farm.service
-    %systemd_post pmie_farm.service
     %systemd_postun_with_restart pmproxy.service
     %systemd_post pmproxy.service
     %systemd_post pmfind.service
@@ -3061,12 +3053,8 @@ PCP_LOG_DIR=%{_logsdir}
     /sbin/service pmcd condrestart
     /sbin/chkconfig --add pmlogger >/dev/null 2>&1
     /sbin/service pmlogger condrestart
-    /sbin/chkconfig --add pmlogger_farm >/dev/null 2>&1
-    /sbin/service pmlogger_farm condrestart
     /sbin/chkconfig --add pmie >/dev/null 2>&1
     /sbin/service pmie condrestart
-    /sbin/chkconfig --add pmie_farm >/dev/null 2>&1
-    /sbin/service pmie_farm condrestart
     /sbin/chkconfig --add pmproxy >/dev/null 2>&1
     /sbin/service pmproxy condrestart
 %endif
