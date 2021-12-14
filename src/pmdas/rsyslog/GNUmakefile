@@ -21,6 +21,8 @@ LDIRT	= domain.h root pmns *.log
 
 PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
 PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
+LOGCONFDIR = $(PCP_SYSCONF_DIR)/pmlogconf/$(IAM)
+LOGCONFVARDIR = $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
@@ -35,6 +37,9 @@ install: default
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/pmda$(IAM).pl pmda$(IAM).pl $(PMDAADMDIR)/pmda$(IAM).pl
+	$(INSTALL) -m 755 -d $(LOGCONFDIR)
+	$(INSTALL) -m 755 -d $(LOGCONFVARDIR)
+	$(INSTALL) -m 644 -t $(LOGCONFVARDIR)/summary pmlogconf.summary $(LOGCONFDIR)/summary
 	@$(INSTALL_MAN)
 
 default_pcp : default
