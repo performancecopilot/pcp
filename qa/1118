@@ -21,6 +21,13 @@ _label_filter()
     grep '"0-1"' | grep '"statistic":"histogram"' | grep '"lower_bound":0' | grep 'upper_bound":1' > /dev/null && echo 'OK'
 }
 
+_install_filter()
+{
+    sed \
+    -e "s/Using BPF source file .\+/Using BPF source file X/g" \
+    #end
+}
+
 cat <<EOF >$tmp.conf
 # Installed by PCP QA test $seq on `date`
 [pmda]
@@ -38,7 +45,7 @@ trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 # real QA test starts here
-_pmdabcc_install <$tmp.conf
+_pmdabcc_install <$tmp.conf | _install_filter
 _pmdabcc_wait_for_metric
 
 # Generate system activity for the BCC runqlat module

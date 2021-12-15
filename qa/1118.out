@@ -9,6 +9,7 @@ Info: runqlat
 Info: Modules configured.
 Info: Initializing modules:
 Info: runqlat
+Info: runqlat: Using BPF source file X
 Info: runqlat: Initialized.
 Info: Modules initialized.
 Info: Registering metrics:
@@ -25,6 +26,7 @@ Info: runqlat
 Info: Modules configured.
 Info: Initializing modules:
 Info: runqlat
+Info: runqlat: Using BPF source file X
 Info: runqlat: Initialized.
 Info: Modules initialized.
 Info: Registering metrics:
