@@ -203,14 +203,18 @@ setup_redis_module(struct proxy *proxy)
 {
     sds			option;
 
+    if ((option = pmIniFileLookup(config, "redis", "enabled")) &&
+	(strcmp(option, "false") == 0))
+	return;
+
     if ((option = pmIniFileLookup(config, "pmproxy", "redis.enabled")))
-	redis_protocol = (strncmp(option, "true", sdslen(option)) == 0);
+	redis_protocol = (strcmp(option, "true") == 0);
     if ((option = pmIniFileLookup(config, "pmseries", "enabled")))
-	series_queries = (strncmp(option, "true", sdslen(option)) == 0);
+	series_queries = (strcmp(option, "true") == 0);
     if ((option = pmIniFileLookup(config, "pmsearch", "enabled")))
-	search_queries = (strncmp(option, "true", sdslen(option)) == 0);
+	search_queries = (strcmp(option, "true") == 0);
     if ((option = pmIniFileLookup(config, "discover", "enabled")))
-	archive_discovery = (strncmp(option, "true", sdslen(option)) == 0);
+	archive_discovery = (strcmp(option, "true") == 0);
 
     if (proxy->slots == NULL && (redis_protocol || series_queries || search_queries || archive_discovery)) {
 	mmv_registry_t	*registry = proxymetrics(proxy, METRICS_REDIS);
