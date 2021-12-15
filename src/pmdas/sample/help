@@ -276,6 +276,12 @@ See /usr/include/sys/sysinfo.h for the definition of the sysinfo struct.
 For testing, only.  This metric is known, but no value is ever available
 
 @ sample.long.one 1 as a 32-bit integer
+The sample.long.* metrics provide a group of 32-bit integer metrics
+some with fixed values and one with a value that can be changed via
+pmstore(1).
+
+This one has the constant value 1.
+
 @ sample.long.ten 10 as a 32-bit integer
 @ sample.long.hundred 100 as a 32-bit integer
 @ sample.long.million 1000000 as a 32-bit integer
@@ -284,6 +290,12 @@ For testing, only.  This metric is known, but no value is ever available
 @ sample.long.bin_ctr like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
 
 @ sample.ulong.one 1 as a 32-bit unsigned integer
+The sample.ulong.* metrics provide a group of 32-bit unsigned integer
+metrics some with fixed values and one with a value that can be changed
+via pmstore(1).
+
+This one has the constant value 1.
+
 @ sample.ulong.ten 10 as a 32-bit unsigned integer
 @ sample.ulong.hundred 100 as a 32-bit unsigned integer
 @ sample.ulong.million 1000000 as a 32-bit unsigned integer
@@ -306,6 +318,12 @@ For testing, only.  This metric is known, but no value is ever available
 @ sample.longlong.bin_ctr like sample.bin but type 64, SEM_COUNTER and SPACE_KBYTE
 
 @ sample.ulonglong.one 1 as a 64-bit unsigned integer
+The sample.ulonglong.* metrics provide a group of 64-bit integer metrics
+some with fixed values and one with a value that can be changed via
+pmstore(1).
+
+This one has the constant value 1.
+
 @ sample.ulonglong.ten 10 as a 64-bit unsigned integer
 @ sample.ulonglong.hundred 100 as a 64-bit unsigned integer
 @ sample.ulonglong.million 1000000 as a 64-bit unsigned integer
@@ -314,6 +332,12 @@ For testing, only.  This metric is known, but no value is ever available
 @ sample.ulonglong.bin_ctr like sample.bin but type U64, SEM_COUNTER and SPACE_KBYTE
 
 @ sample.float.one 1 as a 32-bit floating point value
+The sample.float.* metrics provide a group of floating point metrics
+some with fixed values and one with a value that can be changed via
+pmstore(1).
+
+This one has the constant value 1.
+
 @ sample.float.ten 10 as a 32-bit floating point value
 @ sample.float.hundred 100 as a 32-bit floating point value
 @ sample.float.million 1000000 as a 32-bit floating point value
@@ -322,6 +346,12 @@ For testing, only.  This metric is known, but no value is ever available
 @ sample.float.bin_ctr like sample.bin but type FLOAT, SEM_COUNTER and SPACE_KBYTE
 
 @ sample.double.one 1 as a 64-bit floating point value
+The sample.double.* metrics provide a group of double precision floating
+point metrics some with fixed values and one with a value that can be
+changed via pmstore(1).
+
+This one has the constant value 1.
+
 @ sample.double.ten 10 as a 64-bit floating point value
 @ sample.double.hundred 100 as a 64-bit floating point value
 @ sample.double.million 1000000 as a 64-bit floating point value

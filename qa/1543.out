@@ -146,7 +146,7 @@ Series checked (indom)
                 "role": "testing"
             },
             "text-oneline": "1 as a 32-bit integer",
-            "text-help": "1 as a 32-bit integer"
+            "text-help": "The sample.long.* metrics provide a group of 32-bit integer metrics\u000Asome with fixed values and one with a value that can be changed via\u000Apmstore(1).\u000A\u000AThis one has the constant value 1."
         },
         {
             "name": "sample.long.ten",
@@ -307,7 +307,7 @@ Series checked (indom)
                 "role": "testing"
             },
             "text-oneline": "1 as a 32-bit integer",
-            "text-help": "1 as a 32-bit integer"
+            "text-help": "The sample.long.* metrics provide a group of 32-bit integer metrics\u000Asome with fixed values and one with a value that can be changed via\u000Apmstore(1).\u000A\u000AThis one has the constant value 1."
         },
         {
             "name": "sample.long.ten",

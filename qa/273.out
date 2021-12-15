@@ -514,7 +514,11 @@ Use pmstore(1) to change the value.
 
 sampledso.long.one
 Help:
-1 as a 32-bit integer
+The sampledso.long.* metrics provide a group of 32-bit integer metrics
+some with fixed values and one with a value that can be changed via
+pmstore(1).
+
+This one has the constant value 1.
 
 sampledso.long.ten
 Help:
@@ -542,7 +546,11 @@ like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
 
 sampledso.ulong.one
 Help:
-1 as a 32-bit unsigned integer
+The sampledso.ulong.* metrics provide a group of 32-bit unsigned integer
+metrics some with fixed values and one with a value that can be changed
+via pmstore(1).
+
+This one has the constant value 1.
 
 sampledso.ulong.ten
 Help:
@@ -618,7 +626,11 @@ like sample.bin but type 64, SEM_COUNTER and SPACE_KBYTE
 
 sampledso.ulonglong.one
 Help:
-1 as a 64-bit unsigned integer
+The sampledso.ulonglong.* metrics provide a group of 64-bit integer metrics
+some with fixed values and one with a value that can be changed via
+pmstore(1).
+
+This one has the constant value 1.
 
 sampledso.ulonglong.ten
 Help:
@@ -646,7 +658,11 @@ like sample.bin but type U64, SEM_COUNTER and SPACE_KBYTE
 
 sampledso.float.one
 Help:
-1 as a 32-bit floating point value
+The sampledso.float.* metrics provide a group of floating point metrics
+some with fixed values and one with a value that can be changed via
+pmstore(1).
+
+This one has the constant value 1.
 
 sampledso.float.ten
 Help:
@@ -674,7 +690,11 @@ like sample.bin but type FLOAT, SEM_COUNTER and SPACE_KBYTE
 
 sampledso.double.one
 Help:
-1 as a 64-bit floating point value
+The sampledso.double.* metrics provide a group of double precision floating
+point metrics some with fixed values and one with a value that can be
+changed via pmstore(1).
+
+This one has the constant value 1.
 
 sampledso.double.ten
 Help:
