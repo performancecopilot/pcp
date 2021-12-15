@@ -798,7 +798,7 @@ x11
 349 pmda.summary local pmda.install
 350 pmda.simple pmda local
 351 derive local
-352 derive pmlogger local pmdumplog pmda.sample
+352 derive pmlogger local pmdumplog pmda.sample help labels
 353 pmsocks remote
 354 folio local sanity pmlc
 355 trace local pmda.install pmda.trace
