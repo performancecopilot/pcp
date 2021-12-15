@@ -380,8 +380,12 @@ manageLabels(pmDesc *desc, const __pmTimestamp *tsp, int only_instances)
 	    ident = pmID_domain(desc->pmid);
 	else if (type == PM_LABEL_CLUSTER)
 	    ident = pmID_build(pmID_domain(desc->pmid), pmID_cluster(desc->pmid), 0);
-	else if (type == PM_LABEL_ITEM)
+	else if (type == PM_LABEL_ITEM) {
 	    ident = desc->pmid;
+	    if (IS_DERIVED(ident))
+		/* derived metric, rewrite cluster field ... */
+		ident = SET_DERIVED_LOGGED(ident);
+	}
 	else
 	    ident = PM_IN_NULL;
 
@@ -417,10 +421,16 @@ manageText(pmDesc *desc)
 	    types = text_types[i] | ident_types[j];
 	    level = text_types[i] | PM_TEXT_DIRECT;
 	    indom = ident_types[j] & PM_TEXT_INDOM;
-	    ident = indom ? desc->indom : desc->pmid;
+	    if (indom) {
+		if (desc->indom == PM_INDOM_NULL)
+		    /* singular metric, no indom help text */
+		    continue;
+		ident = desc->indom;
+	    }
+	    else {
+		ident = desc->pmid;
+	    }
 
-	    if (indom && desc->indom == PM_INDOM_NULL)
-		continue;
 
 	    /* Lookup returns >= 0 when the key exists */
 	    if (__pmLogLookupText(&archctl, ident, types, &text) >= 0)
@@ -428,8 +438,12 @@ manageText(pmDesc *desc)
 
 	    if (indom)
 		sts = pmLookupInDomText(ident, level, &text);
-	    else
+	    else {
 		sts = pmLookupText(ident, level, &text);
+		if (IS_DERIVED(ident))
+		    /* derived metric, rewrite cluster field ... */
+		    ident = SET_DERIVED_LOGGED(ident);
+	    }
 
 	    /*
 	     * Only cache indoms help texts (final parameter) - there
@@ -850,12 +864,12 @@ do_work(task_t *tp)
 		    fprintf(stderr, "__pmLogPutDesc: %s\n", pmErrStr(sts));
 		    exit(1);
 		}
-		free(names);
-		manageLabels(&desc, &resp_stamp, 0);
-		manageText(&desc);
 		if (IS_DERIVED_LOGGED(desc.pmid))
 		    /* derived metric, restore cluster field ... */
 		    desc.pmid = CLEAR_DERIVED_LOGGED(desc.pmid);
+		free(names);
+		manageLabels(&desc, &resp_stamp, 0);
+		manageText(&desc);
 	    }
 	    if (desc.type == PM_TYPE_EVENT) {
 		/*

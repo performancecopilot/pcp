@@ -719,7 +719,7 @@ x11
 270 local pmdumplog kernel pmlogextract
 271 archive local pmdumplog
 272 pmcd pmval pmprobe remote pmstore
-273 libpcp local pmval pmstore pmda.sample kernel
+273 libpcp local pmval pmstore pmda.sample kernel help
 274 pmda help local pmda.install dbpmda
 275 derive local kernel
 276 pmie pmval indom local
@@ -798,7 +798,7 @@ x11
 349 pmda.summary local pmda.install
 350 pmda.simple pmda local
 351 derive local
-352 derive pmlogger local pmdumplog pmda.sample
+352 derive pmlogger local pmdumplog pmda.sample help labels
 353 pmsocks remote
 354 folio local sanity pmlc
 355 trace local pmda.install pmda.trace
@@ -1108,7 +1108,7 @@ x11
 659 pmlogreduce local
 660:retired pmwebd local
 661:retired pmwebd local python kernel
-662 pmproxy pmda.sample local python pmda.sample
+662 pmproxy pmda.sample local python pmda.sample help
 663:retired pmwebd local python
 664 logutil local pmlogrewrite pmlogmv
 665 pmda.linux local
@@ -1637,7 +1637,7 @@ x11
 1188 pmda.dm local valgrind
 1189 find-filter local
 1190 other local
-1191 pmda.openmetrics local python
+1191 pmda.openmetrics local python help
 1192 containers local
 1193 pmlogrewrite labels help pmdumplog local pmlogextract
 1194 pmlogrewrite local
@@ -1857,7 +1857,7 @@ x11
 1532 pmda.zfs local
 1533 pmda.zfs local valgrind
 1534 pmda.zfs local valgrind
-1543 pmproxy local
+1543 pmproxy local help
 1544 pmproxy python local
 1545 pcp2xml python pcp2xxx local
 1546 pmrep python local
