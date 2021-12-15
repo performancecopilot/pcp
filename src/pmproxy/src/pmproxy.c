@@ -258,6 +258,8 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 			pmGetProgname(), inifile? inifile : "pmproxy.conf");
 	opts.errors++;
     } else {
+	int	fallback = 0;
+
 	/* Extract pmproxy configuration information needed immediately */
 	if ((option = pmIniFileLookup(config, "pmproxy", "maxpending")))
 	    *maxpending = atoi(option);
@@ -266,11 +268,17 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 	 * Push command line options into the configuration, and ensure
 	 * we have some default for attemping Redis server connections.
 	 */
-	if ((option = pmIniFileLookup(config, "redis", "servers")) == NULL ||
-	    (redis_host != NULL || redis_port != 6379)) {
+	if ((option = pmIniFileLookup(config, "redis", "servers")) == NULL) {
+	    if ((option = pmIniFileLookup(config, "pmseries", "servers")))
+	        fallback = 1;
+	}
+	if (option == NULL || redis_host != NULL || redis_port != 6379) {
 	    option = sdscatfmt(sdsempty(), "%s:%u",
 		    redis_host? redis_host : "localhost", redis_port);
-	    pmIniFileUpdate(config, "redis", "servers", option);
+	    if (!fallback)
+		pmIniFileUpdate(config, "redis", "servers", option);
+	    else
+		pmIniFileUpdate(config, "pmseries", "servers", option);
 	}
     }
 
