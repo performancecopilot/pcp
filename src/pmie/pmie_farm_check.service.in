@@ -2,6 +2,7 @@
 Description=Check and migrate non-primary pmie farm instances
 Documentation=man:pmiectl(1)
 ConditionPathExists=!@CRONTAB_PATH@
+PartOf=pmie_farm.service
 
 [Service]
 Type=exec

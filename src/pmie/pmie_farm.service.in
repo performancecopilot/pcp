@@ -3,6 +3,7 @@ Description=pmie farm service
 Documentation=man:pmie_check(1)
 Before=pmie_farm_check.timer
 BindsTo=pmie_farm_check.timer
+PartOf=pmie.service
 
 [Service]
 Type=@SD_SERVICE_TYPE@

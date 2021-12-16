@@ -12,8 +12,8 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# Administrative script to start the pmlogger_farm service.
-# All arguments to pmlogger_check are passed from pmlogger_farm.service.
+# Administrative script to start the pmie_farm service.
+# All arguments to pmie_check are passed from pmie_farm.service.
 #
 . $PCP_DIR/etc/pcp.env
 

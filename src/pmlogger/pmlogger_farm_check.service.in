@@ -2,6 +2,7 @@
 Description=Check and migrate non-primary pmlogger farm instances
 Documentation=man:pmlogctl(1)
 ConditionPathExists=!@CRONTAB_PATH@
+PartOf=pmlogger_farm.service
 
 [Service]
 Type=exec

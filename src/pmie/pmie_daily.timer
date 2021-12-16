@@ -1,7 +1,9 @@
 [Unit]
 Description=Daily processing of PMIE logs
+PartOf=pmie.service
 
 [Timer]
+Persistent=true
 OnCalendar=*-*-* 00:08:00
 
 [Install]

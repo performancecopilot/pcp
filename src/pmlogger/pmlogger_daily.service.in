@@ -2,6 +2,7 @@
 Description=Process archive logs
 Documentation=man:pmlogger_daily(1)
 ConditionPathExists=!@CRONTAB_PATH@
+PartOf=pmlogger.service
 
 [Service]
 Type=@SD_SERVICE_TYPE@
@@ -13,3 +14,6 @@ ExecStart=@PCP_BINADM_DIR@/pmlogger_daily $PMLOGGER_DAILY_PARAMS
 WorkingDirectory=@PCP_VAR_DIR@
 Group=@PCP_GROUP@
 User=@PCP_USER@
+
+[Install]
+RequiredBy=pmlogger.service

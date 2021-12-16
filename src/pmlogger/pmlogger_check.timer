@@ -1,5 +1,6 @@
 [Unit]
 Description=Half-hourly check of pmlogger instances
+PartOf=pmlogger.service
 
 [Timer]
 # if enabled, runs 1m after boot and every half hour

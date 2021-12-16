@@ -3,6 +3,7 @@ Description=pmlogger farm service
 Documentation=man:pmlogger_check(1)
 Before=pmlogger_farm_check.timer
 BindsTo=pmlogger_farm_check.timer
+PartOf=pmlogger.service
 
 [Service]
 Type=@SD_SERVICE_TYPE@
