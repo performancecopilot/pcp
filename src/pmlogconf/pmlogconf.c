@@ -504,10 +504,12 @@ fetch_groups(void)
 	else
 	    fprintf(stderr, "%s: cannot lookup metric names: %s\n",
 			    pmGetProgname(), pmErrStr(sts));
+	free(descs);
     }
     else if ((sts = pmFetch(count, pmids, &result)) < 0) {
 	fprintf(stderr, "%s: cannot fetch metric values: %s\n",
 			pmGetProgname(), pmErrStr(sts));
+	free(descs);
     }
     else {
 	/* associate metric identifier with each logging group */
