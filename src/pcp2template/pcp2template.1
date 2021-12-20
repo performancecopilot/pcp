@@ -154,7 +154,7 @@ Valid values for
 .I action
 are \fBupdate\fP (refresh metrics being sampled),
 \fBignore\fP (do nothing \- the default behaviour)
-and \fBabort\fP (exit the program if such an event happens).
+and \fBabort\fP (exit the program if such an event occurs).
 .TP
 \fB\-5\fR, \fB\-\-ignore\-unknown\fR
 Silently ignore any metric name that cannot be resolved.
@@ -225,7 +225,7 @@ but this option \fIwill\fP override per-metric specifications.
 Specify the
 .I config
 file or directory to use.
-In case \fIconfig\fP is a directory all files under it ending
+In case \fIconfig\fP is a directory all files in it ending
 \fB.conf\fR will be included.
 The default is the first found of:
 .IR ./pcp2XXX.conf ,
@@ -256,12 +256,16 @@ performance metrics.
 If
 .I derived
 starts with a slash (``/'') or with a dot (``.'') it will be
-interpreted as a derived metrics configuration file, otherwise it will
+interpreted as a PCP derived metrics configuration file, otherwise it will
 be interpreted as comma- or semicolon-separated derived metric expressions.
-For details see
+For complete description of derived metrics and PCP derived metrics
+configuration files see
 .BR pmLoadDerivedConfig (3)
 and
 .BR pmRegisterDerived (3).
+Alternatively, using
+.BR pmrep.conf (5)
+configuration syntax allows defining derived metrics as part of metricsets.
 .TP
 \fB\-G\fR, \fB\-\-no\-globals\fR
 Do not include global metrics in reporting (see
@@ -593,8 +597,8 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .PP
 For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
-.BR mkaf (1),
 .BR PCPIntro (1),
+.BR mkaf (1),
 .BR pcp (1),
 .BR pcp2elasticsearch (1),
 .BR pcp2graphite (1),
@@ -608,13 +612,13 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pminfo (1),
 .BR pmrep (1),
 .BR pmGetOptions (3),
-.BR pmSpecLocalPMDA (3),
 .BR pmLoadDerivedConfig (3),
 .BR pmParseUnitsStr (3),
 .BR pmRegisterDerived (3),
+.BR pmSpecLocalPMDA (3),
 .BR LOGARCHIVE (5),
 .BR pcp.conf (5),
-.BR PMNS (5),
-.BR pmrep.conf (5)
+.BR pmrep.conf (5),
+.BR PMNS (5)
 and
 .BR environ (7).

@@ -29,23 +29,23 @@ argument(s) on the
 .B pmrep
 command line.
 These metricspecs define individual metrics or pre-defined performance
-metricsets to be read from the configuration file described below.
+metricsets to be read from configuration files described below.
 For command line argument details see
 .BR pmrep (1).
 .PP
 The
 .B pmrep.conf
-configuration file allows setting default runtime values and defining
-any number of custom
+configuration file allows for setting default runtime values and
+defining any number of custom
 .I metricsets
 for
 .BR pmrep .
-A metricset is a user-defined set of arbitrary performance metrics.
+A metricset is a user-defined arbitrary set of performance metrics.
 This allows users to create specifically crafted metricsets
 particularly relevant for their application or environment.
 Instead of being dependent on what existing tools provide or collecting
-the needed data with several disjoint utilities users can
-define custom metricsets by merely editing
+the needed data with several disjoint utilities users can define custom
+metricsets by merely editing
 .BR pmrep.conf .
 See below for the \fImetricset\fP specification.
 .PP
@@ -65,10 +65,10 @@ environment variables (if any).
 Command line options override the corresponding configuration
 file options (if any).
 .SH FILE FORMAT
-The file has an ini-style syntax and consists of sections and options.
+The file has an ini-style syntax and consists of sections and settings.
 A section begins with the name of the section in square brackets and
 continues until the next section begins.
-An example section with two options follows:
+An example section with two settings follows:
 .sp 1
 .RS 4
 .nf
@@ -78,10 +78,9 @@ An example section with two options follows:
 .fi
 .RE
 .PP
-The supported value data types are string, integer, and boolean.
-String values need not to be quoted expect when whitespace needs to
-be included in the value (for instance, for the column separator);
-double quotes from quoted strings will be removed.
+The supported data types for values are string, integer, and boolean.
+Values should not to be quoted expect when the value consists solely
+of whitespace (i.e., a whitespace-only column separator).
 .PP
 A line comment starts with a hash sign (``#'') or a semicolon (``;'').
 Inline comments are not supported.
@@ -91,7 +90,7 @@ must be readable by the user invoking
 .BR pmrep .
 .PP
 Any option described below with a corresponding command line
-option contains additional description in
+option contains additional functional description in
 .BR pmrep (1).
 .SH SPECIAL SECTIONS
 .SS The [options] section
@@ -99,11 +98,12 @@ The
 .B [options]
 section is read every time
 .B pmrep
-is run and it defines the default runtime values (which may be
-overridden by the corresponding command line options).
-Metric specifications are not allowed in this section.
+is run and it defines the default runtime options.
+These options may be overridden by metricspec specific options
+or by command line options.
+Metrics are not allowed in this section.
 .PP
-\fBSection options\fP
+\fBAllowed settings\fP
 .PP
 version (integer)
 .RS 4
@@ -115,7 +115,7 @@ The only currently supported value is \fB1\fP.
 source (string)
 .RS 4
 Indicates the source for metrics.
-Interpreted as a PCP archive if the string contains a slash (``/'').
+Interpreted as a PCP archive if the value contains a slash (``/'').
 If set to the special character ``@'', local DSO PMDA context is used.
 Otherwise interpreted as a hostname.
 Corresponding command line paraters are \fB\-a\fP, \fB\-h\fP,
@@ -340,7 +340,7 @@ Defaults to \fBno\fP.
 .PP
 include_labels (boolean)
 .RS 4
-Indicates that metric labels should included in the output.
+Indicates that PCP metric labels should included in the output.
 Corresponding command line option is \fB\-m\fP.
 Defaults to \fBno\fP.
 .RE
@@ -356,7 +356,7 @@ Defaults to \fBno\fP.
 colxrow (string)
 .RS 4
 Indicates to swap columns and rows in \fIstdout\fP output using
-the given text label.
+the value as metric text label.
 Corresponding command line option is \fB\-X\fP.
 Undefined (no swapping) by default.
 .RE
@@ -426,7 +426,7 @@ repeat_header (integer)
 Indicates how often to repeat the header.
 Corresponding command line option is \fB\-E\fP.
 \fBauto\fR uses terminal height.
-Defaults to \fB0\fP (disabled).
+Defaults to \fB0\fP (header is not repeated).
 .RE
 .PP
 dynamic_header (boolean)
@@ -511,17 +511,16 @@ Undefined by default.
 The
 .B [global]
 section is used to define metrics that will be reported in addition to
-any other separately defined metrics or metricsets.
+any other separately defined metric or metricset.
 Configuration options are not allowed in this section.
 Global metrics are reported by default, the command line option \fB\-G\fP
 or the configuration file option \fBglobals\fP can be used to disable
 global metrics.
 .PP
-\fBSection options\fP
+\fBAllowed settings\fP
 .PP
 .RS 4
-No predefined options, only \fImetricspecs\fP allowed in this
-section.
+Only \fImetricspecs\fP are allowed in this section.
 See below for the metricspec specification.
 .RE
 .SH CUSTOM SECTIONS
@@ -529,21 +528,21 @@ Any other section than \fB[options]\fP or \fB[global]\fP will be
 interpreted as a new \fImetricset\fP specification.
 The section name is arbitrary, typically a reference to its
 coverage or purpose.
-A custom section can contain options, metricspecs, or both.
+A custom section may contain options, metricspecs, or both.
 .PP
-All the metrics specified in a custom section will be reported when
-\fBpmrep\fP is instructed to use the particular custom section.
-\fBpmrep\fP can be executed with more than one custom section (i.e.,
-metricset) defined in which case the combination of all the metrics
-specified in them will be reported.
+All the metrics specified in a custom section (metricset) will be
+reported when \fBpmrep\fP reports that particular metricset.
+More than one metricset (custom section) can be defined on the command
+line in which case \fBpmrep\fP reports the combination of all the
+metrics specified in the selected metricsets.
 .PP
-\fBSection options\fP
+\fBAllowed settings\fP
 .PP
 .RS 4
 Any option valid in the \fB[options]\fP section is also valid in a
 custom section.
-Any option or metric defined in the custom section will override
-the same option or metric possibly defined in an earlier section.
+Any option or metric defined in a custom section will override the same
+option or metric possibly defined earlier.
 See below for the metricspec specification.
 .RE
 .SH METRICSET SPECIFICATION
@@ -552,7 +551,7 @@ There are three forms of the
 First, on the command line a metricspec can start with a colon
 (``:'') to indicate a reference to a
 .I metricset
-to be read from the
+(custom section) to be read from a
 .B pmrep
 configuration file.
 Second, the \fIcompact form\fP of a metricspec is a one-line metric
@@ -565,21 +564,22 @@ The compact form of the metricspec is specified in detail in
 The third, \fIverbose form\fP of a metricspec, is valid only in the
 configuration file (see below).
 .PP
-A key containing a dot (``.'') is interpreted as a metric name (see
-above), a non-option key not containing a dot is interpreted as an
-identifier (see below).
-.PP
-The verbose form of a metricspec starts with a declaration consisting
-of a mandatory \fIidentifier\fP as the key and the actual performance
-metric name (a PMNS leaf node) as its value.
-This equals to the compact form of the metricspec defining the same
-performance metric without any of optional specifiers defined.
+In a custom section a key containing a dot (``.'') is interpreted as a
+metric name and a non-option key not containing a dot is interpreted as
+an identifier (handle) to bind related declarations together.
 The identifier is arbitrary and is not used otherwise except for
 binding the below specifiers and the metric together.
 .PP
+The verbose form of a metricspec starts with a declaration consisting of
+a mandatory \fIidentifier\fP as the key and a performance metric name (a
+PMNS node) as its value.
+This equals to the compact form of the metricspec defining the same
+performance metric without any of the optional specifiers defined.
+.PP
 The following specifiers are optional in the verbose form and can be
 used as keys in any order with an earlier declared identifier followed
-by a dot and the specifier (as in \fIidentifier\fP.\fIspecifier\fP):
+by a dot and the specifier (as in \fIidentifier\fP.\fIspecifier\fP).
+See also the example later below.
 .RS
 .TP 2
 .I label
@@ -619,7 +619,7 @@ some locally wanted default values.
 It then goes on to define the global metrics \fBkernel.all.sysfork\fP
 using the \fIcompact form\fP and \fBmem.util.allcache\fP using the
 \fIverbose form\fP of a metricspec.
-The latter is a derived metric using the later specified formula.
+The latter is a derived metric using the specified formula.
 Both of these metrics will be included in reporting unless disabled
 with \fB\-G\fP or \fBglobals = no\fP.
 .PP
@@ -636,8 +636,8 @@ The \fBsar\-w\fP set is an example how to mimic an existing tool with
 .PP
 The system default \fBpmrep\fP configuration files contain many more
 examples.
-Using the tab key on the command line after the colon can be used to
-complete available metricsets (with bash and zsh).
+The tab key on the command line after a colon completes available
+metricsets (with bash and zsh).
 .sp 1
 .PP
 .RS 4
@@ -651,9 +651,9 @@ space_scale = MB
 
 [global]
 kernel.all.sysfork = forks,,,,8
-allcache = mem.util.allcache
-allcache.formula = mem.util.bufmem + mem.util.cached + mem.util.slab
-allcache.width = 12
+cacheall = mem.util.allcache
+cacheall.formula = mem.util.bufmem + mem.util.cached + mem.util.slab
+cacheall.width = 12
 
 [db1]
 source = db\-host1.example.com
@@ -692,6 +692,6 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR PCPIntro (1),
 .BR pmrep (1),
 .BR pmGetOptions (3),
-.BR pmSpecLocalPMDA (3)
+.BR pmRegisterDerived (3)
 and
-.BR pmRegisterDerived (3).
+.BR pmSpecLocalPMDA (3).
