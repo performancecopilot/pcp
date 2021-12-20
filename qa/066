@@ -42,6 +42,7 @@ signal=$PCP_BINADM_DIR/pmsignal
 log=$PCP_PMCDLOG_PATH
 _needclean=true
 LOCALHOST=`hostname`
+LOGGING_DIR="$PCP_ARCHIVE_DIR"
 
 _filter_log()
 {
@@ -79,13 +80,6 @@ interrupt()
     _restore_auto_restart pmcd
     exit
 }
-
-if [ -d $PCP_LOG_DIR/pmlogger ]
-then
-    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
-else
-    LOGGING_DIR=$PCP_LOG_DIR
-fi
 
 cleanup()
 {

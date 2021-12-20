@@ -39,6 +39,7 @@ else
     esac
 fi
 
+LOGGING_DIR="$PCP_ARCHIVE_DIR"
 LOCALHOST=`hostname`
 _needclean=true
 status=0
@@ -47,13 +48,6 @@ _interrupt()
 {
     status=1
 }
-
-if [ -d $PCP_LOG_DIR/pmlogger ]
-then
-    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
-else
-    LOGGING_DIR=$PCP_LOG_DIR
-fi
 
 _cleanup()
 {

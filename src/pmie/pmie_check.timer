@@ -1,6 +1,5 @@
 [Unit]
 Description=Half-hourly check of PMIE instances
-PartOf=pmie.service
 
 [Timer]
 # if enabled, runs 1m after boot and every half hour

@@ -34,13 +34,6 @@ trap "_cleanup" 0 1 2 3 15
 
 _stop_auto_restart pmcd
 
-if [ -d $PCP_LOG_DIR/pmlogger ]
-then
-    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
-else
-    LOGGING_DIR=$PCP_LOG_DIR
-fi
-
 _service pcp stop | _filter_pcp_stop
 _wait_pmcd_end
 _writable_primary_logger
@@ -48,7 +41,7 @@ _writable_primary_logger
 _service pmcd start 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 _service pmlogger start 2>&1 | _filter_pcp_start
-_wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
+_wait_for_pmlogger
 
 # real QA test starts here
 _echo "expect this to be off"

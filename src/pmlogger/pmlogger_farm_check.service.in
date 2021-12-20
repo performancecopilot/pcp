@@ -2,7 +2,6 @@
 Description=Check and migrate non-primary pmlogger farm instances
 Documentation=man:pmlogctl(1)
 ConditionPathExists=!@CRONTAB_PATH@
-PartOf=pmlogger_farm.service
 
 [Service]
 Type=exec
@@ -14,6 +13,3 @@ WorkingDirectory=@PCP_VAR_DIR@
 # root so pmlogctl can migrate pmlogger processes to the pmlogger_farm service
 Group=root
 User=root
-
-[Install]
-RequiredBy=pmlogger_farm.service

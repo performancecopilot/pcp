@@ -12,7 +12,7 @@ Restart=always
 TimeoutStartSec=4h
 TimeoutStopSec=120
 # the pmlogger_farm service manages all pmloggers except the primary
-Environment="PMLOGGER_CHECK_PARAMS=--skip-primary"
+Environment="PMLOGGER_CHECK_PARAMS=--skip-primary --quick"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger_timers
 ExecStart=@PCP_BINADM_DIR@/pmlogger_farm $PMLOGGER_CHECK_PARAMS
 WorkingDirectory=@PCP_VAR_DIR@

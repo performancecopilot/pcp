@@ -40,12 +40,11 @@ _expect()
     echo "" | tee -a $seq.full
 }
 
+status=1
 _needclean=true
 TAG=000666000magic
-status=1
-[ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
-	PCP_PMLOGGERCONTROL_PATH="$PCP_SYSCONF_DIR/pmlogger/control"
-
+LOGGING_DIR="$PCP_ARCHIVE_DIR"
+rm -f $seq.full
 trap "_cleanup" 0 1 2 3 15
 
 _stop_auto_restart pmcd
@@ -67,15 +66,6 @@ _cleanup()
     $sudo rm -f $tmp.*
     exit $status
 }
-
-if [ -d $PCP_LOG_DIR/pmlogger ]
-then
-    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
-else
-    LOGGING_DIR=$PCP_LOG_DIR
-fi
-
-rm -f $seq.full
 
 # real QA test starts here
 

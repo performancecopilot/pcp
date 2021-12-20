@@ -13,16 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if [ -d "$PCP_ARCHIVE_DIR" ]
-then
-    LOGGING_DIR=$PCP_ARCHIVE_DIR
-elif [ -d $PCP_LOG_DIR/pmlogger ]
-then
-    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
-else
-    LOGGING_DIR=$PCP_LOG_DIR
-fi
-
 _filter()
 {
     [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
@@ -62,6 +52,7 @@ p
 status=1	# failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 LOCALHOST=`hostname`
+LOGGING_DIR="$PCP_ARCHIVE_DIR"
 trap "_cleanup; $sudo rm -f $tmp.* $LOGGING_DIR/$LOCALHOST/lock; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd

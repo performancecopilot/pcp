@@ -32,7 +32,7 @@ _needclean=true
 sleepy=false
 
 LOCALHOST=`hostname`
-LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+LOGGING_DIR="$PCP_ARCHIVE_DIR"
 CHECK=`which pmlogger_check`
 [ -z "$CHECK" -o ! -x "$CHECK" ] && \
     _notrun "Cannot find an executable pmlogger_check: \"$CHECK\""

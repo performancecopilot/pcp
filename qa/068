@@ -19,21 +19,10 @@ echo "QA output created by $seq"
 
 _needclean=true
 LOCALHOST=`hostname`
-
+LOGGING_DIR="$PCP_ARCHIVE_DIR"
 trap "_cleanup" 0 1 2 3 15
 
-# don't need to regenerate config.default with pmlogconf
-#
-export PMLOGGER_CHECK_SKIP_LOGCONF=yes
-
 _stop_auto_restart pmcd
-
-if [ -d $PCP_LOG_DIR/pmlogger ]
-then
-    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
-else
-    LOGGING_DIR=$PCP_LOG_DIR
-fi
 
 _cleanup()
 {

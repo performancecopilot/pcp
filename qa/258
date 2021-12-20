@@ -19,19 +19,13 @@ echo "QA output created by $seq"
 signal=$PCP_BINADM_DIR/pmsignal
 status=1
 LOCALHOST=`hostname`
+LOGGING_DIR="$PCP_ARCHIVE_DIR"
 _needclean=true
 
 _interrupt()
 {
     status=1
 }
-
-if [ -d $PCP_LOG_DIR/pmlogger ]
-then
-    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
-else
-    LOGGING_DIR=$PCP_LOG_DIR
-fi
 
 _cleanup()
 {

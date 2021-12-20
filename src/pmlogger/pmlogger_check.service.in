@@ -2,7 +2,6 @@
 Description=Check pmlogger instances are running
 Documentation=man:pmlogger_check(1)
 ConditionPathExists=!@CRONTAB_PATH@
-PartOf=pmlogger.service
 
 [Service]
 Type=@SD_SERVICE_TYPE@
@@ -16,6 +15,3 @@ ExecStart=@PCP_BINADM_DIR@/pmlogger_check $PMLOGGER_CHECK_PARAMS
 WorkingDirectory=@PCP_VAR_DIR@
 Group=@PCP_GROUP@
 User=@PCP_USER@
-
-[Install]
-RequiredBy=pmlogger.service

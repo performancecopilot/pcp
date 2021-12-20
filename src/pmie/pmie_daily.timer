@@ -1,6 +1,5 @@
 [Unit]
 Description=Daily processing of PMIE logs
-PartOf=pmie.service
 
 [Timer]
 Persistent=true

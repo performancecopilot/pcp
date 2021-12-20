@@ -18,13 +18,7 @@ which netstat >/dev/null 2>&1 || _notrun "netstat not installed"
 status=0
 clean=false
 LOCALHOST=`hostname`
-
-if [ -d $PCP_LOG_DIR/pmlogger ]
-then
-    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
-else
-    LOGGING_DIR=$PCP_LOG_DIR
-fi
+LOGGING_DIR="$PCP_ARCHIVE_DIR"
 
 _cleanup()
 {
