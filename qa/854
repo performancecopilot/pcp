@@ -2,6 +2,8 @@
 # PCP QA Test No. 854
 # Check PMCD state change notification, aka PMCD_ADD_AGENT
 #
+# This one checks sample.dynamic.meta.pmdesc.sem ... see also qa/1055
+#
 # Copyright (c) 2016 Red Hat, Inc.
 #
 
