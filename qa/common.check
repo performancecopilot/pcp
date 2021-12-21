@@ -3199,7 +3199,7 @@ _try_pmlc()
     while [ $i -lt $max_tries ]
     do
 	pmlc -ie <$tmp.pmlc >$tmp.out 2>$tmp.err
-	if grep "Address already in use" $tmp.err >/dev/null
+	if egrep "(Address already in use)|(Connection refused)" $tmp.err >/dev/null
 	then
 	    i=`expr $i + 1`
 	    pmsleep 0.1
