@@ -13,9 +13,7 @@
 _pmdabpf_check()
 {
     [ $PCP_PLATFORM = linux ] || _notrun "BPF test, only works with Linux"
-    [ -f /sys/kernel/btf/vmlinux ] \
-    || readelf -S /boot/vmlinux-$(uname -r) 2>&1 | grep -q BTF \
-    || _notrun "BTF not available"
+    [ -f /sys/kernel/btf/vmlinux ] || _notrun "BTF not available"
     [ -f $PCP_PMDAS_DIR/bpf/pmdabpf ] || _notrun "bpf PMDA not installed"
 }
 
