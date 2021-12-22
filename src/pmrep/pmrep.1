@@ -683,7 +683,7 @@ without PMCD.
 See also
 .BR \-K .
 .TP
-\fB-m\fR, \fB\-\-include\-labels\fR
+\fB\-m\fR, \fB\-\-include\-labels\fR
 Include PCP metric labels in the output.
 .TP
 \fB\-n\fR, \fB\-\-invert\-filter\fR
@@ -1045,7 +1045,7 @@ Display the slab total usage (in MB) of two specific slab instances:
 .RS +4
 .ft B
 .nf
-$ pmrep mem.slabinfo.slabs.total_size,,'kmalloc-4k|xfs_inode',MB
+$ pmrep mem.slabinfo.slabs.total_size,,'kmalloc\-4k|xfs_inode',MB
 .fi
 .ft P
 .RE
@@ -1094,7 +1094,7 @@ containing details about I/O requests by current
 .RS +4
 .ft B
 .nf
-$ pmrep \-gp \-i pmlogger :proc-io
+$ pmrep \-gp \-i pmlogger :proc\-io
 .fi
 .ft P
 .RE
@@ -1131,7 +1131,7 @@ on one minute interval at every full minute in a background process:
 .ft B
 .nf
 $ pmrep \-\-daemonize \-A 1m \-t 1m \-i '.*java.*' \-j \-o archive \-F ./a \\
-    :proc-info :proc-cpu :proc-mem :proc-io
+    :proc\-info :proc\-cpu :proc\-mem :proc\-io
 .fi
 .ft P
 .RE
@@ -1176,7 +1176,7 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR PCPIntro (1),
 .BR mkaf (1),
 .BR pcp (1),
-.BR pcp-atop (1),
+.BR pcp\-atop (1),
 .BR pcp2elasticsearch (1),
 .BR pcp2graphite (1),
 .BR pcp2influxdb (1),
