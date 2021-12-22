@@ -1,3 +1,6 @@
 sphinx-rtd-theme>=0.5.1
 sphinxcontrib-redoc
 sphinxcontrib-openapi
+
+# temporary fix for AttributeError: module 'mistune' has no attribute 'BlockGrammar'
+mistune<2.0.0
