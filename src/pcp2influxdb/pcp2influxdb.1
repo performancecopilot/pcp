@@ -72,7 +72,7 @@ See
 .BR pmrep.conf (5)
 for description of the
 .B pcp2influxdb.conf
-configuration file overall syntax.
+configuration file syntax.
 This page describes
 .B pcp2influxdb
 specific options and configuration file differences with
@@ -83,7 +83,7 @@ also lists some usage examples of which most are applicable with
 as well.
 .PP
 Only the command line options listed on this page are supported,
-other options recognized by
+other options available for
 .BR pmrep (1)
 are not supported.
 .PP
@@ -96,7 +96,7 @@ Command line options override the corresponding configuration
 file options (if any).
 .SH CONFIGURATION FILE
 .B pcp2influxdb
-uses a configuration file with overall syntax described in
+uses a configuration file with syntax described in
 .BR pmrep.conf (5).
 The following options are common with
 .BR pmrep.conf :
@@ -128,42 +128,43 @@ The following options are common with
 .BR space_scale_force ,
 .BR time_scale ,
 .BR time_scale_force .
-The
-.B output
-option is recognized but ignored for
+The rest of the
 .B pmrep.conf
-compatibility.
+options are recognized but ignored for compatibility.
 .SS pcp2influxdb specific options
 influx_server (string)
 .RS 4
-Specify the URL of InfluxDB server to send the metrics to.
+Specify the destination InfluxDB server.
 Corresponding command line option is \fB\-g\fP.
-Default is \fBhttp://127.0.0.1:8086\fP.
+Defaults to \fBhttp://127.0.0.1:8086\fP.
 .RE
 .PP
 influx_db (string)
 .RS 4
 Specify the metrics database.
 Corresponding command line option is \fB\-x\fP.
-Default is \fBpcp\fP.
+Defaults to \fBpcp\fP.
 .RE
 .PP
 influx_user (string)
 .RS 4
 Specify the username for the database.
 Corresponding command line option is \fB\-U\fP.
+Undefined by default (no authentication attempted).
 .RE
 .PP
 influx_pass (string)
 .RS 4
 Specify the password for the database.
 Corresponding command line option is \fB\-E\fP.
+Undefined by default (no authentication attempted).
 .RE
 .PP
 influx_tags (string)
 .RS 4
 Specify string of tags to add to the metrics.
 Corresponding command line option is \fB\-X\fP.
+Undefined by default.
 .RE
 .SH OPTIONS
 The available command line options are:
@@ -302,9 +303,8 @@ Specify the database
 .IR password .
 .TP
 \fB\-g\fR \fIserver\fR, \fB\-\-db\-server\fR=\fIserver\fR
-InfluxDB
-.I server
-to send the metrics to.
+Destination InfluxDB
+.IR server .
 .TP
 \fB\-G\fR, \fB\-\-no\-globals\fR
 Do not include global metrics in reporting (see
@@ -598,6 +598,9 @@ Display usage message and exit.
 .TP 5
 .I pcp2influxdb.conf
 \fBpcp2influxdb\fP configuration file (see \fB\-c\fP)
+.TP
+.I \f(CW$PCP_SYSCONF_DIR\fP/pmrep/*.conf
+system provided default \fBpmrep\fP configuration files
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.

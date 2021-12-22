@@ -71,7 +71,7 @@ See
 .BR pmrep.conf (5)
 for description of the
 .B pcp2elasticsearch.conf
-configuration file overall syntax.
+configuration file syntax.
 This page describes
 .B pcp2elasticsearch
 specific options and configuration file differences with
@@ -82,7 +82,7 @@ also lists some usage examples of which most are applicable with
 as well.
 .PP
 Only the command line options listed on this page are supported,
-other options recognized by
+other options available for
 .BR pmrep (1)
 are not supported.
 .PP
@@ -95,7 +95,7 @@ Command line options override the corresponding configuration
 file options (if any).
 .SH CONFIGURATION FILE
 .B pcp2elasticsearch
-uses a configuration file with overall syntax described in
+uses a configuration file with syntax described in
 .BR pmrep.conf (5).
 The following options are common with
 .BR pmrep.conf :
@@ -128,24 +128,22 @@ The following options are common with
 .BR space_scale_force ,
 .BR time_scale ,
 .BR time_scale_force .
-The
-.B output
-option is recognized but ignored for
+The rest of the
 .B pmrep.conf
-compatibility.
+options are recognized but ignored for compatibility.
 .SS pcp2elasticsearch specific options
 es_server (string)
 .RS 4
-Specify the URL of Elasticsearch server to send the metrics to.
+Specify the destination Elasticsearch server metric URL.
 Corresponding command line option is \fB\-g\fP.
-Default is \fBhttp://localhost:9200/\fP.
+Defaults to \fBhttp://localhost:9200/\fP.
 .RE
 .PP
 es_index (string)
 .RS 4
 Specify the Elasticsearch index for metric names.
 Corresponding command line option is \fB\-x\fP.
-Default is \fBpcp\fP.
+Defaults to \fBpcp\fP.
 .RE
 .PP
 es_hostid (string)
@@ -159,7 +157,7 @@ es_search_type (string)
 .RS 4
 Specify the Elasticsearch search type for measurements.
 Corresponding command line option is \fB\-p\fP.
-Defaults to \fBpcp-metric\fP.
+Defaults to \fBpcp\-metric\fP.
 .RE
 .SH OPTIONS
 The available command line options are:
@@ -294,9 +292,8 @@ Alternatively, using
 configuration syntax allows defining derived metrics as part of metricsets.
 .TP
 \fB\-g\fR \fIURL\fR, \fB\-\-es\-host\fR=\fIURL\fR
-Elasticsearch server
-.I URL
-to send the metrics to.
+Destination Elasticsearch server metric
+.IR URL .
 .TP
 \fB\-G\fR, \fB\-\-no\-globals\fR
 Do not include global metrics in reporting (see
@@ -376,7 +373,7 @@ without PMCD.
 See also
 .BR \-K .
 .TP
-\fB-m\fR, \fB\-\-include\-labels\fR
+\fB\-m\fR, \fB\-\-include\-labels\fR
 Include PCP metric labels in the output.
 .TP
 \fB\-n\fR, \fB\-\-invert\-filter\fR
@@ -432,7 +429,7 @@ Refer to
 for a complete description of the syntax for
 .IR origin .
 .TP
-\fB\-p\fR \fItype\fR, \fB\-\-es-search-type\fR=\fItype\fR
+\fB\-p\fR \fItype\fR, \fB\-\-es\-search\-type\fR=\fItype\fR
 Elasticsearch search
 .I type
 for measurements.
@@ -644,6 +641,9 @@ The actual metrics data document is similar to this example:
 .TP 5
 .I pcp2elasticsearch.conf
 \fBpcp2elasticsearch\fP configuration file (see \fB\-c\fP)
+.TP
+.I \f(CW$PCP_SYSCONF_DIR\fP/pmrep/*.conf
+system provided default \fBpmrep\fP configuration files
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.

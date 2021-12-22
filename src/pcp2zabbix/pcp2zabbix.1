@@ -72,7 +72,7 @@ See
 .BR pmrep.conf (5)
 for description of the
 .B pcp2zabbix.conf
-configuration file overall syntax.
+configuration file syntax.
 This page describes
 .B pcp2zabbix
 specific options and configuration file differences with
@@ -83,7 +83,7 @@ also lists some usage examples of which most are applicable with
 as well.
 .PP
 Only the command line options listed on this page are supported,
-other options recognized by
+other options available for
 .BR pmrep (1)
 are not supported.
 .PP
@@ -96,7 +96,7 @@ Command line options override the corresponding configuration
 file options (if any).
 .SH CONFIGURATION FILE
 .B pcp2zabbix
-uses a configuration file with overall syntax described in
+uses a configuration file with syntax described in
 .BR pmrep.conf (5).
 The following options are common with
 .BR pmrep.conf :
@@ -128,26 +128,24 @@ The following options are common with
 .BR space_scale_force ,
 .BR time_scale ,
 .BR time_scale_force .
-The
-.B output
-option is recognized but ignored for
+The rest of the
 .B pmrep.conf
-compatibility.
+options are recognized but ignored for compatibility.
 .SS pcp2zabbix specific options
 zabbix_server (string)
 .RS 4
-Hostname or IP address of Zabbix server to send the metrics to.
+Specify the destination Zabbix server hostname or IP address.
 If a host is monitored by a proxy, proxy hostname or IP address
 should be used instead.
 Corresponding command line option is \fB\-g\fP.
-Default is \fBlocalhost\fP.
+Defaults to \fBlocalhost\fP.
 .RE
 .PP
 zabbix_port (integer)
 .RS 4
-Specify port number of server trapper running on the server.
+Specify the port number of server trapper running on the server.
 Corresponding command line option is \fB\-p\fP.
-Default is \fB10051\fP.
+Defaults to \fB10051\fP.
 .RE
 .PP
 zabbix_host (string)
@@ -160,14 +158,14 @@ Defaults to the metrics source host.
 .PP
 zabbix_interval (string)
 .RS 4
-Indicates the interval to send the metrics to the Zabbix server.
-This can be longer than the generic \fIinterval\fP to minimize
+Indicates the interval to send metrics to the Zabbix server.
+This can be longer than the reporting \fIinterval\fP to minimize
 the overhead when communicating with the server (as each send
 creates a new connection).
 Follows the time syntax described in
 .BR PCPIntro (1).
 Corresponding command line option is \fB\-E\fP.
-Defaults to the generic \fIinterval\fP.
+Defaults to the reporting \fIinterval\fP.
 Zabbix tools send at most 250 metrics at a time.
 Ignored when reading metrics from PCP archives,
 in which case metrics will be sent roughly at 250 metric batches.
@@ -177,14 +175,14 @@ zabbix_prefix (string)
 .RS 4
 Specify the prefix for metrics sent to the Zabbix server.
 Corresponding command line option is \fB\-x\fP.
-Default is \fB.pcp\fP.
+Defaults to \fBpcp.\fP.
 .RE
 .PP
 zabbix_lld (boolean)
 .RS 4
 Specify whether to enable Zabbix low-level discovery.
 Corresponding command line option is \fB\-l\fP.
-Default is \fBno\fP.
+Defaults to \fBno\fP.
 .RE
 .SH OPTIONS
 The available command line options are:
@@ -325,9 +323,8 @@ to send metrics to the server.
 See \fBzabbix_interval\fP description above for details.
 .TP
 \fB\-g\fR \fIserver\fR, \fB\-\-zabbix\-server\fR=\fIserver\fR
-Zabbix
-.I server
-to send the metrics to.
+Destination Zabbix
+.IR server .
 .TP
 \fB\-G\fR, \fB\-\-no\-globals\fR
 Do not include global metrics in reporting (see
@@ -481,8 +478,7 @@ for a complete description of the syntax for
 .TP
 \fB\-p\fR \fIport\fR, \fB\-\-zabbix\-port\fR=\fIport\fR
 Zabbix server
-.I port
-number.
+.IR port .
 .TP
 \fB\-P\fR \fIprecision\fR, \fB\-\-precision\fR=\fIprecision\fR
 Use
@@ -610,7 +606,7 @@ Metrics
 for measurements sent to the server.
 .TP
 \fB\-X\fR \fIhostname\fR, \fB\-\-zabbix\-host\fR=\fIhostname\fR
-Specify the agent
+Agent
 .I hostname
 as registered in Zabbix frontend.
 .TP
@@ -641,6 +637,9 @@ Display usage message and exit.
 .TP 5
 .I pcp2zabbix.conf
 \fBpcp2zabbix\fP configuration file (see \fB\-c\fP)
+.TP
+.I \f(CW$PCP_SYSCONF_DIR\fP/pmrep/*.conf
+system provided default \fBpmrep\fP configuration files
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
