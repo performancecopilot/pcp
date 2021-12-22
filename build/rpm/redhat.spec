@@ -1798,11 +1798,13 @@ Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 Requires: python3-pcp
 %if 0%{?rhel} == 0
 Requires: python3-pymongo
+BuildRequires: python3-pymongo
 %endif
 %else
 Requires: %{__python2}-pcp
 %if 0%{?rhel} == 0
 Requires: %{__python2}-pymongo
+BuildRequires: %{__python2}-pymongo
 %endif
 %endif
 %description pmda-mongodb
