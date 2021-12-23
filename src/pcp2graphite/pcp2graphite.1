@@ -72,7 +72,7 @@ See
 .BR pmrep.conf (5)
 for description of the
 .B pcp2graphite.conf
-configuration file overall syntax.
+configuration file syntax.
 This page describes
 .B pcp2graphite
 specific options and configuration file differences with
@@ -83,7 +83,7 @@ also lists some usage examples of which most are applicable with
 as well.
 .PP
 Only the command line options listed on this page are supported,
-other options recognized by
+other options available for
 .BR pmrep (1)
 are not supported.
 .PP
@@ -96,7 +96,7 @@ Command line options override the corresponding configuration
 file options (if any).
 .SH CONFIGURATION FILE
 .B pcp2graphite
-uses a configuration file with overall syntax described in
+uses a configuration file with syntax described in
 .BR pmrep.conf (5).
 The following options are common with
 .BR pmrep.conf :
@@ -128,45 +128,43 @@ The following options are common with
 .BR space_scale_force ,
 .BR time_scale ,
 .BR time_scale_force .
-The
-.B output
-option is recognized but ignored for
+The rest of the
 .B pmrep.conf
-compatibility.
+options are recognized but ignored for compatibility.
 .SS pcp2graphite specific options
 graphite_host (string)
 .RS 4
-Hostname or IP address of Graphite server to send the metrics to.
+Specify the destination Graphite server hostname or IP address.
 Corresponding command line option is \fB\-g\fP.
-Default is \fBlocalhost\fP.
+Defaults to \fBlocalhost\fP.
 .RE
 .PP
 graphite_port (integer)
 .RS 4
-Specify port number of Graphite server (plaintext or pickle).
+Specify the port number of the Graphite server (plaintext or pickle).
 Corresponding command line options are \fB\-p\fP and \fB\-E\fP.
-Default is \fB2004\fP.
+Defaults to \fB2004\fP.
 .RE
 .PP
 pickle (boolean)
 .RS 4
-Specify whether to use pickle protocol.
+Specify whether to use the pickle protocol.
 Corresponding command line options are \fB\-p\fP and \fB\-E\fP.
-Default is \fByes\fP.
+Defaults to \fByes\fP.
 .RE
 .PP
 pickle_protocol (integer)
 .RS 4
-Specify pickle protocol version.
+Specify the pickle protocol version.
 Corresponding command line option is \fB\-X\fP.
-Default is \fB0\fP.
+Defaults to \fB0\fP.
 .RE
 .PP
 prefix (string)
 .RS 4
 Specify the prefix for metrics sent to the server.
 Corresponding command line option is \fB\-x\fP.
-Default is \fBpcp.\fP.
+Defaults to \fBpcp.\fP.
 .RE
 .SH OPTIONS
 The available command line options are:
@@ -306,9 +304,9 @@ Graphite server plaintext
 Using this option disables the pickle protocol.
 .TP
 \fB\-g\fR \fIserver\fR, \fB\-\-graphite\-host\fR=\fIserver\fR
-Graphite
+Destination Graphite
 .I server
-to send the metrics to.
+hostname or IP address.
 .TP
 \fB\-G\fR, \fB\-\-no\-globals\fR
 Do not include global metrics in reporting (see
@@ -603,6 +601,9 @@ Display usage message and exit.
 .TP 5
 .I pcp2graphite.conf
 \fBpcp2graphite\fP configuration file (see \fB\-c\fP)
+.TP
+.I \f(CW$PCP_SYSCONF_DIR\fP/pmrep/*.conf
+system provided default \fBpmrep\fP configuration files
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.

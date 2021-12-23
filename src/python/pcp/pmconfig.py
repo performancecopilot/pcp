@@ -424,14 +424,16 @@ class pmConfig(object):
                             sys.stderr.write("Failed to read configuration file ")
                             sys.stderr.write("'%s':\nNo value set for %s in [%s].\n" % (conf, key, spec))
                             sys.exit(1)
-                        if key not in self.util.keys:
-                            try:
-                                self.parse_metric_info(parsemet, key, all_sets.get(spec, key))
-                            except ValueError as error:
-                                conf = sources[spec]
-                                sys.stderr.write("Failed to read configuration file ")
-                                sys.stderr.write("'%s':\n" % conf + str(error) + ".\n")
-                                sys.exit(1)
+                        if key in self.util.keys or \
+                           (hasattr(self.util, 'keys_ignore') and key in self.util.keys_ignore):
+                            continue
+                        try:
+                            self.parse_metric_info(parsemet, key, all_sets.get(spec, key))
+                        except ValueError as error:
+                            conf = sources[spec]
+                            sys.stderr.write("Failed to read configuration file ")
+                            sys.stderr.write("'%s':\n" % conf + str(error) + ".\n")
+                            sys.exit(1)
                     for metric in parsemet:
                         name = parsemet[metric][:1][0]
                         confmet[name] = parsemet[metric][1:]

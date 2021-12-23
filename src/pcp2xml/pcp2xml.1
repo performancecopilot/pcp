@@ -70,7 +70,7 @@ See
 .BR pmrep.conf (5)
 for description of the
 .B pcp2xml.conf
-configuration file overall syntax.
+configuration file syntax.
 This page describes
 .B pcp2xml
 specific options and configuration file differences with
@@ -81,7 +81,7 @@ also lists some usage examples of which most are applicable with
 as well.
 .PP
 Only the command line options listed on this page are supported,
-other options recognized by
+other options available for
 .BR pmrep (1)
 are not supported.
 .PP
@@ -94,7 +94,7 @@ Command line options override the corresponding configuration
 file options (if any).
 .SH CONFIGURATION FILE
 .B pcp2xml
-uses a configuration file with overall syntax described in
+uses a configuration file with syntax described in
 .BR pmrep.conf (5).
 The following options are common with
 .BR pmrep.conf :
@@ -127,26 +127,24 @@ The following options are common with
 .BR space_scale_force ,
 .BR time_scale ,
 .BR time_scale_force .
-The
-.B output
-option is recognized but ignored for
+The rest of the
 .B pmrep.conf
-compatibility.
+options are recognized but ignored for compatibility.
 .SS pcp2xml specific options
 extended (boolean)
 .RS 4
 Write extended information about metrics.
 Corresponding command line option is \fB\-x\fP.
-Default is \fBno\fP.
+Defaults to \fBno\fP.
 .RE
 .PP
 everything (boolean)
 .RS 4
 Write everything known about metrics, including PCP internal IDs.
-Labels are, however, omitted for backward compatibility,
-use \fBinclude_labels yes\fP to include them as well.
+Labels are, however, omitted for backward compatibility.
+Enable \fBinclude_labels\fP to include them as well.
 Corresponding command line option is \fB\-X\fP.
-Default is \fBno\fP.
+Defaults to \fBno\fP.
 .RE
 .SH OPTIONS
 The available command line options are:
@@ -373,7 +371,7 @@ without PMCD.
 See also
 .BR \-K .
 .TP
-\fB-m\fR, \fB\-\-include\-labels\fR
+\fB\-m\fR, \fB\-\-include\-labels\fR
 Include PCP metric labels in the output.
 .TP
 \fB\-n\fR, \fB\-\-invert\-filter\fR
@@ -605,6 +603,9 @@ Display usage message and exit.
 .TP 5
 .I pcp2xml.conf
 \fBpcp2xml\fP configuration file (see \fB\-c\fP)
+.TP
+.I \f(CW$PCP_SYSCONF_DIR\fP/pmrep/*.conf
+system provided default \fBpmrep\fP configuration files
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.

@@ -280,7 +280,6 @@ def main():
 
         print("Preparing a new virtual environment with PCP preinstalled, this will take about 20 minutes...")
         started = datetime.now()
-        print("\nRunning setup...")
         runner.setup(args.pcp_path)
         for task in run_tasks:
             print(f"\nRunning task {task}...")
@@ -288,9 +287,10 @@ def main():
         duration_min = (datetime.now() - started).total_seconds() / 60
         print(f"\nVirtual environment setup done, took {duration_min:.0f}m.")
 
-        print("\nPlease run:\n")
-        print("    sudo -u pcpqa -i ./check XXX\n")
-        print("to run a QA test. PCP is already installed, from sources located in './pcp'.")
+        if all_tasks.index(args.until) >= all_tasks.index("install"):
+            print("\nPlease run:\n")
+            print("    sudo -u pcpqa -i ./check XXX\n")
+            print("to run a QA test. PCP is already installed, from sources located in './pcp'.")
         print("Starting a shell in the new virtual environment...\n")
         runner.shell()
     else:
