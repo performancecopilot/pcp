@@ -1229,11 +1229,11 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    touch $tmp/reexec
 	    if [ "$REEXEC_MODE" = force ]
 	    then
-		# -Q, force reexec
+		# -Z, force reexec
 		:
 	    elif [ "$REEXEC_MODE" = skip ]
 	    then
-		# -q, skip reexec
+		# -z, skip reexec
 		rm -f $tmp/reexec
 	    elif [ -f "$PCP_TMP_DIR/pmlogger/$pid" ]
 	    then
