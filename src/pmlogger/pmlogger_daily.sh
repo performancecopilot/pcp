@@ -276,6 +276,8 @@ Options:
   -x=TIME,--compress-after=TIME  compress archive data files after TIME (format DD[:HH[:MM]])
   -X=PROGRAM,--compressor=PROGRAM  use PROGRAM for archive data file compression
   -Y=REGEX,--regex=REGEX  egrep filter when compressing files ["$COMPRESSREGEX_DEFAULT"]
+  -Z                      QA mode, force pmlogger re-exec
+  -z                      QA mode, do not re-exec pmlogger
   --help
 EOF
 
@@ -295,6 +297,7 @@ MYARGS=""
 COMPRESSONLY=false
 OFLAG=false
 PFLAG=false
+REEXEC_MODE=normal
 TRACE=0
 RFLAG=false
 REWRITEALL=false
@@ -449,6 +452,10 @@ do
 		    continue
 		fi
 		;;
+	-Z)	REEXEC_MODE=force
+		;;
+	-z)	REEXEC_MODE=skip
+		;;
 	--)	shift
 		break
 		;;
@@ -565,25 +572,38 @@ then
     fi
 fi
 
-# if SaveLogs exists in the $PCP_LOG_DIR/pmlogger directory then save
-# $MYPROGLOG there as well with a unique name that contains the date and time
-# when we're run ... skip if -N (showme)
+# if SaveLogs exists in the $PCP_LOG_DIR/pmlogger directory and is writeable
+# then save $MYPROGLOG there as well with a unique name that contains the date
+# and time when we're run ... skip if -N (showme)
 #
-if $SHOWME
+if [ -d $PCP_LOG_DIR/pmlogger/SaveLogs -a -w $PCP_LOG_DIR/pmlogger/SaveLogs ]
 then
-    :
-else
-    if [ -d $PCP_LOG_DIR/pmlogger/SaveLogs ]
+    now="`date '+%Y%m%d.%H:%M:%S.%N'`"
+    link=`echo $MYPROGLOG | sed -e "s@.*$prog@$PCP_LOG_DIR/pmlogger/SaveLogs/$now-$prog@"`
+    if [ ! -f "$link" ]
     then
-	now="`date '+%Y%m%d.%H.%M.%S'`"
-	link=`echo $MYPROGLOG | sed -e "s/$prog/SaveLogs\/$prog.$now/"`
-	if [ ! -f "$link" ]
+	if $SHOWME
 	then
-	    if $SHOWME
+	    echo "+ ln $MYPROGLOG $link"
+	else
+	    ln $MYPROGLOG $link
+	    if [ -w $link ]
 	    then
-		echo "+ ln $MYPROGLOG $link"
-	    else
-		ln $MYPROGLOG $link
+		echo "--- Added by $prog when SaveLogs dir found ---" >>$link
+		echo "Start: `date '+%F %T.%N'`" >>$link
+		echo "Args: $ARGS" >>$link
+		if which pstree >/dev/null 2>&1
+		then
+		    if pstree -spa $$ >$tmp/tmp 2>&1
+		    then
+			echo "Called from:" >>$link
+			cat $tmp/tmp >>$link
+		    else
+			# pstree not functional for us ... -s not supported
+			# in older versions
+			:
+		    fi
+		fi
 	    fi
 	fi
     fi
@@ -1206,32 +1226,64 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    _warning "skipping log rotation because we don't know which pmlogger to signal"
 	elif ! $COMPRESSONLY
 	then
-	    # send pmlogger a SIGUSR2 to "roll the archive logs"
-	    #
-	    if $SHOWME
+	    touch $tmp/reexec
+	    if [ "$REEXEC_MODE" = force ]
 	    then
-		echo "+ $KILL -s USR2 $pid"
-	    else
-		$VERY_VERBOSE && echo >&2 "Sending SIGUSR2 to $pid"
-		$KILL -s USR2 "$pid"
-		if $VERY_VERBOSE
+		# -Q, force reexec
+		:
+	    elif [ "$REEXEC_MODE" = skip ]
+	    then
+		# -q, skip reexec
+		rm -f $tmp/reexec
+	    elif [ -f "$PCP_TMP_DIR/pmlogger/$pid" ]
+	    then
+		# if pmlogger is already creating an archive with today's
+		# date then "reexec" has already been done, so we do not need
+		# to do it again ... this can happen when systemd decides
+		# to run pmlogger_daily at pmlogger service start, rather
+		# than just at 00:10 (by default) as originally intended
+		# and implemented in the cron-driven approach
+		#
+		current_archive=`sed -n -e '3s;.*/;;p' <"$PCP_TMP_DIR/pmlogger/$pid"`
+		case "$current_archive"
+		in
+		    `pmdate %Y%m%d`*)
+				$VERBOSE && echo >&2 "Skip sending SIGUSR2 to $pid (reexec already done)"
+				rm -f $tmp/reexec
+				;;
+		esac
+	    fi
+	    if [ -f $tmp/reexec ]
+	    then
+		#
+		# send pmlogger a SIGUSR2 to "roll the archive logs"
+		#
+		if $SHOWME
 		then
-		    # We have seen in qa/793, but never in a "real"
-		    # deployment, cases where the pmlogger process
-		    # vanishes a short time after the SIGUSR2 has been
-		    # sent and caught, the process has called exec() and
-		    # main() has restarted.  This check is intended
-		    # detect and report when this happens if -VV is
-		    # in play.
-		    #
-		    sleep 1
-		    if $PCP_PS_PROG -p "$pid" 2>&1 | grep "^$pid[ 	]" >/dev/null
+		    echo "+ $KILL -s USR2 $pid"
+		else
+		    $VERBOSE && echo >&2 "Sending SIGUSR2 to reexec $pid"
+		    $KILL -s USR2 "$pid"
+		    if $VERY_VERBOSE
 		    then
-			: still alive
-		    else
-			echo >&2 "Error: pmlogger process $pid has vanished"
+			# We have seen in qa/793, but never in a "real"
+			# deployment, cases where the pmlogger process
+			# vanishes a short time after the SIGUSR2 has been
+			# sent and caught, the process has called exec() and
+			# main() has restarted.  This check is intended
+			# detect and report when this happens if -VV is
+			# in play.
+			#
+			sleep 1
+			if $PCP_PS_PROG -p "$pid" 2>&1 | grep "^$pid[ 	]" >/dev/null
+			then
+			    : still alive
+			else
+			    echo >&2 "Error: pmlogger process $pid has vanished"
+			fi
 		    fi
 		fi
+		rm -f $tmp/reexec
 	    fi
 	fi
 

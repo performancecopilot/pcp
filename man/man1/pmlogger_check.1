@@ -24,7 +24,7 @@
 [\f3\-l\f1 \f2logfile\f1]
 .br
 .B $PCP_BINADM_DIR/pmlogger_daily
-[\f3\-EfKMNoprRV?\f1]
+[\f3\-EfKMNoprRVzZ?\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-k\f1 \f2time\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -612,6 +612,24 @@ and
 specify different values for
 .I regex
 then the environment variable value is used and a warning is issued.
+.TP
+\fB\-z\fR
+This option causes
+.B pmlogger_daily
+to
+.B not
+\&``re-exec'', see
+.BR pmlogger (1),
+when it would otherwise choose to do so
+and is intended only for QA testing.
+.TP
+\fB\-Z\fR
+This option causes
+.B pmlogger_daily
+to ``re-exec'', see
+.BR pmlogger (1),
+whenever that is possible
+and is intended only for QA testing.
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.

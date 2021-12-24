@@ -261,14 +261,14 @@ then
     fi
 fi
 
-# if SaveLogs exists in the $PCP_LOG_DIR/pmlogger directory then save
-# $MYPROGLOG there as well with a unique name that contains the date and time
-# when we're run
+# if SaveLogs exists in the $PCP_LOG_DIR/pmlogger directory and is writeable
+# then save $MYPROGLOG there as well with a unique name that contains the date
+# and time when we're run ... skip if -N (showme)
 #
-if [ -d $PCP_LOG_DIR/pmlogger/SaveLogs ]
+if [ -d $PCP_LOG_DIR/pmlogger/SaveLogs -a -w $PCP_LOG_DIR/pmlogger/SaveLogs ]
 then
-    now="`date '+%Y%m%d.%H.%M.%S'`"
-    link=`echo $MYPROGLOG | sed -e "s/$prog/SaveLogs\/$prog.$now/"`
+    now="`date '+%Y%m%d.%H:%M:%S.%N'`"
+    link=`echo $MYPROGLOG | sed -e "s@.*$prog@$PCP_LOG_DIR/pmlogger/SaveLogs/$now-$prog@"`
     if [ ! -f "$link" ]
     then
 	if $SHOWME
@@ -276,6 +276,24 @@ then
 	    echo "+ ln $MYPROGLOG $link"
 	else
 	    ln $MYPROGLOG $link
+	    if [ -w $link ]
+	    then
+		echo "--- Added by $prog when SaveLogs dir found ---" >>$link
+		echo "Start: `date '+%F %T.%N'`" >>$link
+		echo "Args: $ARGS" >>$link
+		if which pstree >/dev/null 2>&1
+		then
+		    if pstree -spa $$ >$tmp/tmp 2>&1
+		    then
+			echo "Called from:" >>$link
+			cat $tmp/tmp >>$link
+		    else
+			# pstree not functional for us ... -s not supported
+			# in older versions
+			:
+		    fi
+		fi
+	    fi
 	fi
     fi
 fi
