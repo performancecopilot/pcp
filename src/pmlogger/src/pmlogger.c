@@ -104,9 +104,9 @@ run_done(int sts, char *msg)
 	    pmErrStr(lsts));
 
     if (msg != NULL)
-    	fprintf(stderr, "pmlogger: %s, %s\n", msg, log_switch_flag ? "reexec" : "exiting");
+	pmNotifyErr(LOG_INFO, "pmlogger: %s, %s\n", msg, log_switch_flag ? "reexec" : "exiting");
     else
-    	fprintf(stderr, "pmlogger: End of run time, %s\n", log_switch_flag ? "reexec" : "exiting");
+	pmNotifyErr(LOG_INFO, "pmlogger: End of run time, %s\n", log_switch_flag ? "reexec" : "exiting");
 
     /*
      * write the last last temporal index entry with the time stamp
