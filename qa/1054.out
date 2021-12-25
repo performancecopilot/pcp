@@ -8,7 +8,7 @@ Archive basename: ARCHIVE
 
 Group [N metrics] {
 } logged once: NNN bytes
-pmlogger: Sample limit reached, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Sample limit reached, exiting
 
 Log finished DATE
 
@@ -24,6 +24,6 @@ Group [N metrics] {
 
 Group [N metrics] {
 } logged every NNN sec: NNN bytes or NNN Mbytes/day
-pmlogger: Sample limit reached, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Sample limit reached, exiting
 
 Log finished DATE

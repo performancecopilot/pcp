@@ -122,7 +122,7 @@ Log for pmlogger on HOST started DATE
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
-pmlogger: Sample limit reached, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Sample limit reached, exiting
 
 Log finished DATE
 Test case - two metric names, common PMID, one group
@@ -248,7 +248,7 @@ Log for pmlogger on HOST started DATE
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
-pmlogger: Sample limit reached, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Sample limit reached, exiting
 
 Log finished DATE
 Test case - two metric names, common PMID, two groups
@@ -374,6 +374,6 @@ Log for pmlogger on HOST started DATE
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
-pmlogger: Sample limit reached, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Sample limit reached, exiting
 
 Log finished DATE

@@ -18,7 +18,7 @@ verbose=true
 
 # Anything to be merged?
 #
-pmlogger_daily -N -V >$tmp.tmp
+pmlogger_daily -N -V >$tmp.tmp 2>&1
 
 if grep '^+ pmlogger_merge ' $tmp.tmp >/dev/null
 then

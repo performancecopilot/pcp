@@ -25,5 +25,5 @@ Group [6 metrics] {
 	sample.bin
 	sample.control
 } logged every 2 sec: 252 bytes or 10.38 Mbytes/day
-pmlogger: End of run time, exiting
+[DATE] pmlogger(PID) Info: pmlogger: End of run time, exiting
 

@@ -49,7 +49,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -124,7 +124,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -196,7 +196,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -274,7 +274,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -355,7 +355,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -432,7 +432,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -505,7 +505,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -577,7 +577,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -651,7 +651,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -726,7 +726,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -800,7 +800,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -875,7 +875,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -945,7 +945,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -1021,7 +1021,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -1097,7 +1097,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -1171,7 +1171,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -1246,7 +1246,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -1318,7 +1318,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -1390,7 +1390,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -1465,7 +1465,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -1539,7 +1539,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -1614,7 +1614,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -1686,7 +1686,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -1760,7 +1760,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
@@ -1833,7 +1833,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
     inst [1 or "green"] value INT
     inst [2 or "blue"] value INT
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
-pmlogger: Caught signal 15, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE

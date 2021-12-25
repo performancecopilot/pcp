@@ -71,7 +71,8 @@ End-of-File
 
 sed <$tmp.log \
     -e '1,/^Archive basename:/d' \
-    -e '/^Log finished/d'
+    -e '/^Log finished/d' \
+| _filter_pmlogger_log
 
 # success, all done
 status=0

@@ -9,7 +9,7 @@ Archive basename: TMP
 Group ... {
 	...
 } logged every 0.100 sec: ...
-pmlogger: Caught signal 2, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 2, exiting
 
 Log finished DATE
 OK, found expected number of archive records

@@ -4,4 +4,3 @@ QA output created by 1108
 + export version; version=1.1
 + cd ...
 + get mutex lock
-+ pmsignal -s USR2 ... PID

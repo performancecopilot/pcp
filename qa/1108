@@ -60,9 +60,6 @@ _filter()
 	-e '/^+ pmlogger /s/pmlogger .*/pmlogger .../' \
 	-e '/^+ pmnewlog /s/pmnewlog .*/pmnewlog .../' \
 	-e '/^+ mkaf /s/mkaf .*/mkaf .../' \
-	-e '/^+ pmsignal/{
-s/ [0-9][0-9]*/ ... PID/
-}' \
 	-e '/^+ rm /d' \
 	-e '/^+ xz /d' \
 	-e '/^+ pmlogger_merge /d' \

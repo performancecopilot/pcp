@@ -66,6 +66,7 @@ _filter_log()
 	-e '/^\.\.\. logging for /d' \
 	-e '/no pmlogger instance running /d' \
 	-e '/skipping log rotation/d' \
+	-e '/^Skip sending SIGUSR2 to /d' \
 	-e '/[0-9][0-9]* identified/s//PID identified/' \
 	-e '/current [0-9][0-9.-]* archive/s//current DATE archive/' \
 	-e 's/ [0-9][0-9.-]*.index/ DATE.index/g' \

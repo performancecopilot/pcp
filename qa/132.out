@@ -17,6 +17,6 @@ pmlc request from HOST: mandatory on 0.0 sec
     instance: bin-700
     instance: bin-800
     instance: bin-900
-pmlogger: Sample limit reached, exiting
+[DATE] pmlogger(PID) Info: pmlogger: Sample limit reached, exiting
 
 Log finished DATE

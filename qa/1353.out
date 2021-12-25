@@ -1,16 +1,27 @@
 QA output created by 1353
 preprocessor cmd: PCP_BINADM_DIR/pmcpp -rs -I PCP_VAR_DIR/config/pmlogger TMP.config
 pass0:4 name="sample.bin"
+name[0] sample.bin key=NNN
 pass0:11 name="is_a_name_0"
+name[1] is_a_name_0 key=NNN
 pass0:12 name="is_a_name_1"
+name[2] is_a_name_1 key=NNN
 pass0:13 name="is_a_name_2"
+name[3] is_a_name_2 key=NNN
 pass0:14 name="is_a_name_3"
+name[4] is_a_name_3 key=NNN
 pass0:14 name="is_a_name_4"
+name[5] is_a_name_4 key=NNN
 pass0:17 name="is_a_name_5"
+name[6] is_a_name_5 key=NNN
 pass0:17 name="dup_key_"
+name[7] dup_key_ key=NNN
 pass0:17 name="key_dup_"
+name[8] key_dup_ key=NNN (synonym)
 pass0:18 name="sample.bin"
+dup name: sample.bin
 pass0:19 name="sample.bad.unknown"
+name[9] sample.bad.unknown key=NNN
 cache list[0]: "sample.bin"[L] 29.0.6 InDom:29.2
 cache list[1]: "key_dup_"[U] PM_ID_NULL -> "dup_key_"[U] PM_ID_NULL
 cache list[2]: "is_a_name_0"[U] PM_ID_NULL

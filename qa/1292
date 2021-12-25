@@ -34,7 +34,14 @@ _cleanup()
     cd $here
     [ -n "$pid" ] && kill -TERM $pid
     wait
-    cat $tmp.log | tee -a $seq.full | _filter
+    cat $tmp.log \
+    | tee -a $seq.full \
+    | _filter \
+    | sed \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/DATE/' \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
+	-e 's/pmlogger([1-9][0-9]*) Info:/pmlogger(PID) Info:/' \
+    # end
     $sudo rm -rf $tmp $tmp.*
 }
 

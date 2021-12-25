@@ -267,7 +267,7 @@ _service()
 			    if systemctl show --property=ActiveState $svc.timer 2>&1 \
 			      | grep '=active$' >/dev/null
 			    then
-				$_verbose && echo "_service: also stop $svc"
+				$_verbose && echo "_service: also stop $svc.timer $svc.service"
 				$sudo systemctl stop $svc.timer $svc.service
 			    fi
 			done
@@ -979,6 +979,8 @@ _wait_pmlogger_end()
 	    if [ "$_i" -ge 100 ]
 	    then
 		echo "_wait_pmlogger_end: failed to see $PCP_TMP_DIR/pmlogger/$_pid removed after 100 iterations"
+		cat "$PCP_TMP_DIR/pmlogger/$_pid"
+		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep "[P]ID|[p]mlogger|$_pid"
 		_systemctl_status pmlogger
 		#debug# set +x
 		return
@@ -3188,8 +3190,11 @@ _webapi_response_filter()
 # May have to try and retry pmlc before we succeed ... failure requiring
 # a retry is indicated by "Address already in use" on stderr
 #
+# If the optional argument is "expect-failure", then we're expecting this
+# to fail, otherwise we're expecting this to succeed (eventually).
+#
 # pmlc commands are already in $tmp.pmlc
-# on success pmlc output is stashed in $tmp.out and $tmp.err and
+# before returning pmlc output is stashed in $tmp.out and $tmp.err and
 # appended to $here/$seq.full
 #
 _try_pmlc()
@@ -3211,7 +3216,12 @@ _try_pmlc()
     done
     if [ $i -eq $max_tries ]
     then
-	echo "_try_pmlc: failed"
-	cat $tmp.out $tmp.err
+	if [ $# -eq 1 -a "$1" = expect-failure ]
+	then
+	    echo "_try_pmlc: fail as expected" >>$here/$seq.full
+	else
+	    echo "_try_pmlc: failed"
+	    cat $tmp.out $tmp.err
+	fi
     fi
 }
