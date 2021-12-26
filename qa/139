@@ -47,7 +47,7 @@ ls -l "$PCP_ARCHIVE_DIR/pmlogger_check.log.prev" >>$seq.full 2>&1
 cat "$PCP_ARCHIVE_DIR/pmlogger_check.log.prev" >> $seq.full 2>&1
 
 # real QA test starts here
-pmlc -ie <<End-of-File | _filter
+cat <<End-of-File >$tmp.pmlc
 connect primary
 query no_such_metric
 query sample.bad.unknown
@@ -55,3 +55,5 @@ query sample.bad.nosupport
 query sample.bad
 query sample
 End-of-File
+_try_pmlc
+cat $tmp.err $tmp.out | _filter
