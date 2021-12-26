@@ -1248,7 +1248,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		case "$current_archive"
 		in
 		    `pmdate %Y%m%d`*)
-				$VERBOSE && echo >&2 "Skip sending SIGUSR2 to $pid (reexec already done)"
+				$VERBOSE && echo "Skip sending SIGUSR2 to $pid (reexec already done)"
 				rm -f $tmp/reexec
 				;;
 		esac
@@ -1262,7 +1262,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		then
 		    echo "+ $KILL -s USR2 $pid"
 		else
-		    $VERBOSE && echo >&2 "Sending SIGUSR2 to reexec $pid"
+		    $VERBOSE && echo "Sending SIGUSR2 to reexec $pid"
 		    $KILL -s USR2 "$pid"
 		    if $VERY_VERBOSE
 		    then
