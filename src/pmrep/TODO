@@ -3,13 +3,13 @@
 - drop obsolete metricsets from config files
 - drop deprecated pmconfig.py methods
 
-- verify labels printing (-m)
+- verify metric labels printing (-m)
   - test instance vs metric labels
-- enhanced labels support [-M]
+- enhanced metric labels support [-M]
   - report metrics based on matched labels (pmrep -M foo:env=prod)
 - prom2json like output
   - https://github.com/prometheus/prom2json
-- consider labels support in pmrep.conf
+- consider metric labels support in pmrep.conf
 
 - change default precision to 2 (?)
 - generalized zabbix_interval (write to target in batches) (?)
