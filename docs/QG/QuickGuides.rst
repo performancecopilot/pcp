@@ -23,21 +23,21 @@ This guide contains the following topics:
 
 5. :ref:`graph a performance metric`, introduces *pmchart* - a strip chart tool for Performance Co-Pilot.
 
-6. :ref:`Automate performance problem detection`, introduces *pmieconf* which is used to display and modify variables or parameters controlling the details of the generated pmie rules.
+6. :ref:`Automate performance problem detection`, introduces *pmieconf* which is used to display and modify variables or parameters controlling the details of the generated *pmie* rules.
 
-7. :ref:`Setup automated rules to write to the system log`, introduces *pmieconf* - a utility for viewing and configuring variables from generalized *pmie* (1) rules.
+7. :ref:`Setup automated rules to write to the system log`, uses *pmieconf* - a utility for viewing and configuring variables from generalized *pmie* (1) rules.
 
 8. :ref:`Record historical values for use with the pcp-dstat tool`, introduces *pcp-dstat* tool which is a general performance analysis tool to view multiple system resources instantly.
 
 9. :ref:`Export metric values in a comma-separated format`, introduces *pmrep* which is a customizable performance metrics reporting tool.
 
-10. :ref:`Using Charts`, introduces the basic functionality available in the PCP Strip Chart tool - pmchart.
+10. :ref:`Using Charts`, introduces the basic functionality available in the PCP Strip Chart tool - *pmchart*.
 
 11. :ref:`Managing Archive Log`, covers PCP tools for creating and managing PCP archive logs.
 
-12. :ref:`Automated Reasoning with pmie` covers the pmie tool within PCP that is designed for automated filtering and reasoning about performance.
+12. :ref:`Automated Reasoning with pmie` covers the *pmie* tool within PCP that is designed for automated filtering and reasoning about performance.
 
-13. :ref:`Configuring Automated Reasoning`, covers customization of pmie rules using pmieconf.
+13. :ref:`Configuring Automated Reasoning`, covers customization of *pmie* rules using *pmieconf*.
 
 14. :ref:`Analyzing Linux Containers`, introduces how to extract performance data from individual containers using the PCP tools.
 
@@ -49,7 +49,7 @@ This guide contains the following topics:
 
 18. :ref:`Importing data and creating PCP archives`, describes an alternative method of importing performance data into PCP by creating PCP archives from files or data streams that have no knowledge of PCP.
 
-19. :ref:`Using 3D views`, covers performance visualisation with pmview.
+19. :ref:`Using 3D views`, covers performance visualisation with *pmview*.
 
 Audience for This Guide
 ************************
@@ -75,7 +75,7 @@ enter the command::
 
  man man
 
-When referring to man pages, this guide follows a standard convention: the section number in parentheses follows the item. For example, **pminfo(1)** 
+When referring to man pages, this guide follows a standard convention: the section number in parentheses follows the item. For example, `pminfo(1) <https://man7.org/linux/man-pages/man1/pminfo.1.html>`_ 
 refers to the man page in section 1 for the pminfo command.
 
 Web Site
@@ -100,7 +100,7 @@ The following conventions are used throughout this document:
    * - ``${PCP_VARIABLE}``
      - A brace-enclosed all-capital-letters syntax indicates a variable that has been sourced from the global ``${PCP_DIR}/etc/pcp.conf`` file. These special variables indicate parameters that affect all PCP commands, and are likely to be different between platforms.
    * - **command**
-     - This fixed-space font denotes literal items such as commands, files, routines, path names, signals, messages, and programming language structures. 
+     - This fixed-width font denotes literal items such as commands, files, routines, path names, signals, messages, and programming language structures. 
    * - *variable*
      - Italic typeface denotes variable entries and words or concepts being defined.                                                                      
    * - **user input**
@@ -118,6 +118,6 @@ The following conventions are used throughout this document:
 Reader Comments
 ****************
 
-If you have comments about the technical accuracy, content, or organization of this document, contact the PCP maintainers using either the email address or the web site listed earlier.
+If you have comments about the technical accuracy, content, or organization of this document, contact the PCP maintainers using either the `email address <pcp@groups.io>`_ or the `web site <https://pcp.io>`_.
 
 We value your comments and will respond to them promptly.
