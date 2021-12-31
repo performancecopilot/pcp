@@ -1,16 +1,23 @@
 QA output created by 920
+920:
 mode=drwxr-xr-x user=pcp group=pcp name=myhost
+mode=drwxr-xr-x user=pcp group=pcp name=primary
 
-pmlogger/myhost:
+920/myhost:
 mode=drwxr-xr-x user=pcp group=pcp name=YYYY
 
-pmlogger/myhost/YYYY:
+920/myhost/YYYY:
 mode=drwxr-xr-x user=pcp group=pcp name=NN
 
-pmlogger/myhost/YYYY/MM:
+920/myhost/YYYY/MM:
 mode=drwxr-xr-x user=pcp group=pcp name=NN
 
-pmlogger/myhost/YYYY/MM/DD:
+920/myhost/YYYY/MM/DD:
+mode=-rw-r--r-- user=pcp group=pcp name=YYYYMMDD.HH.MM.0
+mode=-rw-r--r-- user=pcp group=pcp name=YYYYMMDD.HH.MM.index
+mode=-rw-r--r-- user=pcp group=pcp name=YYYYMMDD.HH.MM.meta
+
+920/primary:
 mode=-rw-r--r-- user=pcp group=pcp name=YYYYMMDD.HH.MM.0
 mode=-rw-r--r-- user=pcp group=pcp name=YYYYMMDD.HH.MM.index
 mode=-rw-r--r-- user=pcp group=pcp name=YYYYMMDD.HH.MM.meta

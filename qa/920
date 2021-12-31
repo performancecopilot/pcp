@@ -39,7 +39,7 @@ _cleanup()
 	_restore_job_scheduler $tmp.cron $tmp.systemd $sudo
     fi
     cd $here
-    $sudo rm -rf $tmp $tmp.*
+    $sudo rm -rf $tmp $tmp.* $PCP_ARCHIVE_DIR/$seq
 }
 
 _report()
@@ -47,15 +47,16 @@ _report()
     # Note: some versions of ls(1), e.g. OS X, don't report directory
     # names from the command line (so no pmlogger: line below)
     #
-    if [ ! -d $tmp ]
+    if [ ! -d $PCP_ARCHIVE_DIR/$seq ]
     then
-	echo "Arrgh: directory $tmp not created"
+	echo "Arrgh: directory $PCP_ARCHIVE_DIR/$seq not created"
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger'
 	return
     fi
 
-    (cd $tmp; ls -lR pmlogger ) | $PCP_AWK_PROG '
-$1 == "pmlogger:"	{ next }
+
+    cd $PCP_ARCHIVE_DIR
+    ls -lR $seq | tee -a $here/$seq.full | $PCP_AWK_PROG '
 NF < 4		{ print; next }
 		{ print "mode=" $1 " user=" $3 " group=" $4 " name=" $NF }' \
     | sed \
@@ -71,6 +72,7 @@ NF < 4		{ print; next }
 	-e 's/[012][0-9]\.[0-5][0-9]\./HH.MM./' \
 	-e 's/\. user=/ user=/' \
     # end
+    cd $here
 }
 
 _filter_pmlogger_check()
@@ -96,13 +98,11 @@ cat <<End-of-File >$tmp.control
 # the goal here is to have a non-primary logger that has a deeply
 # nested directory structure for the logs
 \$version=1.1
-LOCALHOSTNAME   n   n   $tmp/pmlogger/myhost/2017/02/12 -c /dev/null -L -l $tmp.log.1
-LOCALHOSTNAME	y   n	$tmp/primary	-r -T24h10m -c config.default -v 100Mb -l $tmp.log.2
+LOCALHOSTNAME   n   n   PCP_ARCHIVE_DIR/$seq/myhost/2017/02/12 -c /dev/null -L -l $tmp.log.1
+LOCALHOSTNAME	y   n	PCP_ARCHIVE_DIR/$seq/primary	-r -T24h10m -c config.default -v 100Mb -l $tmp.log.2
 End-of-File
 _save_config $control
 $sudo cp $tmp.control $control
-$sudo mkdir -p $tmp/pmlogger $tmp/primary
-$sudo chown pcp:pcp $tmp/pmlogger $tmp/primary
 
 if [ -f $PCP_SYSCONFIG_DIR/pmlogger_timers ]
 then
@@ -148,7 +148,7 @@ _wait_for_pmlogger
 # save pmlogger logs for triage
 #
 echo "=== pmlogger -c /dev/null -L" >>$here/$seq.full
-ls -lR $tmp/pmlogger/myhost/2017/02/12 >>$here/$seq.full
+ls -lR $PCP_ARCHIVE_DIR/$seq/myhost/2017/02/12 >>$here/$seq.full
 cat $tmp.log.1 >>$here/$seq.full
 echo "=== pmlogger -c config.default" >>$here/$seq.full
 cat $tmp.log.2 >>$here/$seq.full
