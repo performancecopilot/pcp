@@ -309,8 +309,8 @@ bpf_register_module_metrics()
     }
 
     // set up indom mapping
-    metrictab = (pmdaMetric*) calloc(total_metrics, sizeof(pmdaMetric));
-    indomtab = (pmdaIndom*) calloc(total_indoms, sizeof(pmdaIndom));
+    metrictab = total_metrics ? (pmdaMetric*) calloc(total_metrics, sizeof(pmdaMetric)) : NULL;
+    indomtab = total_indoms ? (pmdaIndom*) calloc(total_indoms, sizeof(pmdaIndom)) : NULL;
 
     // each module needs to set up its tables, starting at the next available slot
     int current_metric = 0;
