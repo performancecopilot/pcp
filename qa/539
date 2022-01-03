@@ -35,7 +35,13 @@ _filter()
 
 rm -f $seq.full
 $sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.qa.$seq
-$sudo touch -t 199701020304.00 $PCP_LOG_DIR/NOTICES
+# Need date below to be different to today (pmpost uses the ordinal day in year
+# to check for "not today") ... previously we were using 19970102 which was fine
+# most of the time, it just failed on 2 Jan EVERY YEAR and it only took 24 years
+# before I noticed and fixed it!
+# - kenj 3 Jan 2022
+#
+$sudo touch -t `pmdate -1d %Y%d%m`0102.00 $PCP_LOG_DIR/NOTICES
 ls -l $PCP_LOG_DIR/NOTICES >>$here/$seq.full
 
 # real QA test starts here
