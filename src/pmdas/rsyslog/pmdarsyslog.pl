@@ -26,6 +26,7 @@ my $es_rebinds = 0;
 my ($ux_submitted, $ux_discarded, $ux_ratelimiters) = (0,0,0);
 my ($interval, $lasttime) = (0,0);
 my ($unrecog, $ignored) = (0,0);
+my ($ru_utime, $ru_stime, $ru_maxrss, $ru_minflt, $ru_majflt, $ru_inblock, $ru_oublock, $ru_nvcsw, $ru_nivcsw, $ru_openfiles) = (0,0,0,0,0,0,0,0,0,0);
 
 my $queue_indom = 0;
 my @queue_insts = ();
@@ -150,6 +151,17 @@ sub rsyslog_parser
 		unmatched_origin($origin);
 	    }
 	}
+	elsif ($origin eq "impstats") {
+	    if (m| utime=(\d+) stime=(\d+) maxrss=(\d+) minflt=(\d+) majflt=(\d+) inblock=(\d+) oublock=(\d+) nvcsw=(\d+) nivcsw=(\d+) openfiles=(\d+)|) {
+		($ru_utime, $ru_stime, $ru_maxrss, $ru_minflt, $ru_majflt, $ru_inblock, $ru_oublock, $ru_nvcsw, $ru_nivcsw, $ru_openfiles) = ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10);
+	    }
+	    elsif (m| utime=(\d+) stime=(\d+) maxrss=(\d+) minflt=(\d+) majflt=(\d+) inblock=(\d+) oublock=(\d+) nvcsw=(\d+) nivcsw=(\d+)|) {
+		($ru_utime, $ru_stime, $ru_maxrss, $ru_minflt, $ru_majflt, $ru_inblock, $ru_oublock, $ru_nvcsw, $ru_nivcsw, $ru_openfiles) = ($1,$2,$3,$4,$5,$6,$7,$8,$9,0);
+	    }
+	    else {
+		unmatched_origin($origin);
+	    }
+	}
 	elsif ($origin eq "core.queue") {
 	    if (m|pstats: (.+): origin=core\.queue size=(\d+) enqueued=(\d+) full=(\d+) discarded\.full=(\d+) discarded\.nf=(\d+) maxqsize=(\d+)|) {
 		# Modern capture of queue data
@@ -240,6 +252,17 @@ sub rsyslog_fetch_callback
 	if ($item == 20){ return ($es_response_bulkrejection, 1); }
 	if ($item == 21){ return ($es_response_other, 1); }
 	if ($item == 22){ return ($es_rebinds, 1); }
+
+	if ($item == 23){ return ($ru_utime, 1); }
+	if ($item == 24){ return ($ru_stime, 1); }
+	if ($item == 25){ return ($ru_maxrss, 1); }
+	if ($item == 26){ return ($ru_minflt, 1); }
+	if ($item == 27){ return ($ru_majflt, 1); }
+	if ($item == 28){ return ($ru_inblock, 1); }
+	if ($item == 29){ return ($ru_oublock, 1); }
+	if ($item == 30){ return ($ru_nvcsw, 1); }
+	if ($item == 31){ return ($ru_nivcsw, 1); }
+	if ($item == 32){ return ($ru_openfiles, 1); }
     }
     elsif ($cluster == 1) {	# queues
 	return (PM_ERR_INST, 0) unless ($inst != PM_IN_NULL);
@@ -412,6 +435,37 @@ $pmda->add_metric(pmda_pmid(0,22), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	'Count of reconnections made to Elasticsearch',
 	"If using 'rebindinterval' this will be the count of times\n" .
 	"omelasticsearch has reconnected to Elasticsearch");
+
+$pmda->add_metric(pmda_pmid(0,23), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,1,0,0,PM_TIME_USEC,PM_COUNT_ONE), 'rsyslog.resources.utime',
+	'Total time rsyslog spent in user mode (microseconds)','');
+$pmda->add_metric(pmda_pmid(0,24), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,1,0,0,PM_TIME_USEC,PM_COUNT_ONE), 'rsyslog.resources.stime',
+	'Total time rsyslog spent in system mode (microseconds)','');
+$pmda->add_metric(pmda_pmid(0,25), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.resources.maxrss',
+	'Maximum resident set size used by rsyslog (kilobytes)','');
+$pmda->add_metric(pmda_pmid(0,26), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.resources.minflt',
+	'Page reclaims (soft page faults)','');
+$pmda->add_metric(pmda_pmid(0,27), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.resources.majflt',
+	'Page faults (hard page faults)','');
+$pmda->add_metric(pmda_pmid(0,28), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.resources.inblock',
+	'Block input operations','');
+$pmda->add_metric(pmda_pmid(0,29), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.resources.oublock',
+	'Block output operations','');
+$pmda->add_metric(pmda_pmid(0,30), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.resources.nvcsw',
+	'Voluntary context switches','');
+$pmda->add_metric(pmda_pmid(0,31), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.resources.nivcsw',
+	'Involuntary context switches','');
+$pmda->add_metric(pmda_pmid(0,32), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.resources.openfiles',
+	'Number of files rsyslog has open','');
 
 $pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U64, $queue_indom, PM_SEM_INSTANT,
 	pmda_units(0,0,1,0,0,0), 'rsyslog.queues.size',
