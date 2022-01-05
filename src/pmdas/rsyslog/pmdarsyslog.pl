@@ -44,6 +44,23 @@ my $action_indom = 3;
 my @action_insts = ();
 use vars qw(%action_ids %action_values);
 
+my $udp_indom = 4;
+my @udp_insts = ();
+use vars qw(%udp_ids %udp_values);
+
+my $udpt_indom = 5;
+my @udpt_insts = ();
+use vars qw(%udpt_ids %udpt_values);
+
+my $ptcp_indom = 6;
+my @ptcp_insts = ();
+use vars qw(%ptcp_ids %ptcp_values);
+my ($ptcp_iowq_enqueued, $ptcp_iowq_maxqsize) = (0,0);
+
+my $fwd_indom = 7;
+my @fwd_insts = ();
+use vars qw(%fwd_ids %fwd_values);
+
 sub unmatched_origin
 {
     my $origin = $1;
@@ -199,6 +216,97 @@ sub rsyslog_parser
 	    else {
 		unmatched_origin($origin);
 	    }
+	}
+	elsif ($origin eq "imudp") {
+	    if (m|pstats: imudp\((.+)\): origin=imudp submitted=(\d+) disallowed=(\d+)|) {
+		# Modern capture of imudp data
+		my ($udpname, $udpid) = ($1, undef);
+
+		if (!defined($udp_ids{$udpname})) {
+		    $udpid = @udp_insts / 2;
+		    $udp_ids{$udpname} = $udpid;
+		    push @udp_insts, ($udpid, $udpname);
+		    $pmda->replace_indom($udp_indom, \@udp_insts);
+		}
+		$udp_values{$udpname} = [ $2, $3 ];
+	    }
+	    elsif (m|pstats: imudp\((.+)\): origin=imudp submitted=(\d+)|) {
+		# Modern capture of imudp data
+		my ($udpname, $udpid) = ($1, undef);
+
+		if (!defined($udp_ids{$udpname})) {
+		    $udpid = @udp_insts / 2;
+		    $udp_ids{$udpname} = $udpid;
+		    push @udp_insts, ($udpid, $udpname);
+		    $pmda->replace_indom($udp_indom, \@udp_insts);
+		}
+		$udp_values{$udpname} = [ $2, 0 ];
+	    }
+	    elsif (m|pstats: imudp\((.+)\): origin=imudp called\.recvmmsg=(\d+) called\.recvmsg=(\d+) msgs\.received=(\d+)|) {
+		# Modern capture of imudp *thread* data
+		my ($utname, $utid) = ($1, undef);
+
+		if (!defined($udpt_ids{$utname})) {
+		    $utid = @udpt_insts / 2;
+		    $udpt_ids{$utname} = $utid;
+		    push @udpt_insts, ($utid, $utname);
+		    $pmda->replace_indom($udpt_indom, \@udpt_insts);
+		}
+		$udpt_values{$utname} = [ $2, $3, $4 ];
+	    }
+	    else {
+		unmatched_origin($origin);
+	    }
+	}
+	elsif ($origin eq "imptcp") {
+	    if (m|pstats: imptcp\((.+)\): origin=imptcp submitted=(\d+) sessions\.opened=(\d+) sessions\.openfailed=(\d+) sessions\.closed=(\d+) bytes\.received=(\d+) bytes\.decompressed=(\d+)|) {
+		# Modern capture of imptcp data
+		my ($ptcpname, $ptcpid) = ($1, undef);
+
+		if (!defined($ptcp_ids{$ptcpname})) {
+		    $ptcpid = @ptcp_insts / 2;
+		    $ptcp_ids{$ptcpname} = $ptcpid;
+		    push @ptcp_insts, ($ptcpid, $ptcpname);
+		    $pmda->replace_indom($ptcp_indom, \@ptcp_insts);
+		}
+		$ptcp_values{$ptcpname} = [ $2, $3, $4, $5, $6, $7 ];
+	    }
+	    elsif (m|pstats: imptcp\((.+)\): origin=imptcp submitted=(\d+) bytes\.received=(\d+) bytes\.decompressed=(\d+)|) {
+		# Modern capture of imptcp data
+		my ($ptcpname, $ptcpid) = ($1, undef);
+
+		if (!defined($ptcp_ids{$ptcpname})) {
+		    $ptcpid = @ptcp_insts / 2;
+		    $ptcp_ids{$ptcpname} = $ptcpid;
+		    push @ptcp_insts, ($ptcpid, $ptcpname);
+		    $pmda->replace_indom($ptcp_indom, \@ptcp_insts);
+		}
+		$ptcp_values{$ptcpname} = [ $2, 0, 0, 0, $3, $4 ];
+	    }
+	    elsif (m|pstats: io-work-q: origin=imptcp enqueued=(\d+) maxqsize=(\d+)|) {
+		($ptcp_iowq_enqueued, $ptcp_iowq_maxqsize) = ($1, $2);
+	    }
+	    else {
+		unmatched_origin($origin);
+	    }
+	}
+	elsif ($origin eq "omfwd") {
+	    if (m|pstats: (.+): origin=omfwd bytes\.sent=(\d+)|) {
+		# Modern capture of omfwd data
+		my ($fwdname, $fwdid) = ($1, undef);
+
+		if (!defined($fwd_ids{$fwdname})) {
+		    $fwdid = @fwd_insts / 2;
+		    $fwd_ids{$fwdname} = $fwdid;
+		    push @fwd_insts, ($fwdid, $fwdname);
+		    $pmda->replace_indom($fwd_indom, \@fwd_insts);
+		}
+		$fwd_values{$fwdname} = [ $2 ];
+	    }
+	    else {
+		unmatched_origin($origin);
+	    }
+	}
 	else {
 	    # Count unrecognized origin values.
 	    my $oid = undef;
@@ -283,6 +391,9 @@ sub rsyslog_fetch_callback
 	if ($item == 30){ return ($ru_nvcsw, 1); }
 	if ($item == 31){ return ($ru_nivcsw, 1); }
 	if ($item == 32){ return ($ru_openfiles, 1); }
+
+	if ($item == 33){ return ($ptcp_iowq_enqueued, 1); }
+	if ($item == 34){ return ($ptcp_iowq_maxqsize, 1); }
     }
     elsif ($cluster == 1) {	# queues
 	return (PM_ERR_INST, 0) unless ($inst != PM_IN_NULL);
@@ -354,6 +465,66 @@ sub rsyslog_fetch_callback
 	if ($item == 2) { return ($avals[2], 1); }
 	if ($item == 3) { return ($avals[3], 1); }
 	if ($item == 4) { return ($avals[4], 1); }
+    }
+    elsif ($cluster == 5) {	# udp
+	return (PM_ERR_INST, 0) unless ($inst != PM_IN_NULL);
+	return (PM_ERR_INST, 0) unless ($inst <= @udp_insts);
+
+	my $uname = $udp_insts[$inst * 2 + 1];
+	return (PM_ERR_INST, 0) unless defined ($uname);
+
+	my $uvref = $udp_values{$uname};
+	return (PM_ERR_INST, 0) unless defined ($uvref);
+
+	my @uvals = @$uvref;
+	if ($item == 0) { return ($uvals[0], 1); }
+	if ($item == 1) { return ($uvals[1], 1); }
+    }
+    elsif ($cluster == 6) {	# udp.thread
+	return (PM_ERR_INST, 0) unless ($inst != PM_IN_NULL);
+	return (PM_ERR_INST, 0) unless ($inst <= @udpt_insts);
+
+	my $utname = $udpt_insts[$inst * 2 + 1];
+	return (PM_ERR_INST, 0) unless defined ($utname);
+
+	my $utvref = $udpt_values{$utname};
+	return (PM_ERR_INST, 0) unless defined ($utvref);
+
+	my @utvals = @$utvref;
+	if ($item == 0) { return ($utvals[0], 1); }
+	if ($item == 1) { return ($utvals[1], 1); }
+	if ($item == 2) { return ($utvals[2], 1); }
+    }
+    elsif ($cluster == 7) {	# ptcp
+	return (PM_ERR_INST, 0) unless ($inst != PM_IN_NULL);
+	return (PM_ERR_INST, 0) unless ($inst <= @ptcp_insts);
+
+	my $pname = $ptcp_insts[$inst * 2 + 1];
+	return (PM_ERR_INST, 0) unless defined ($pname);
+
+	my $pvref = $ptcp_values{$pname};
+	return (PM_ERR_INST, 0) unless defined ($pvref);
+
+	my @pvals = @$pvref;
+	if ($item == 0) { return ($pvals[0], 1); }
+	if ($item == 1) { return ($pvals[1], 1); }
+	if ($item == 2) { return ($pvals[2], 1); }
+	if ($item == 3) { return ($pvals[3], 1); }
+	if ($item == 4) { return ($pvals[4], 1); }
+	if ($item == 5) { return ($pvals[5], 1); }
+    }
+    elsif ($cluster == 8) {	# fwd
+	return (PM_ERR_INST, 0) unless ($inst != PM_IN_NULL);
+	return (PM_ERR_INST, 0) unless ($inst <= @fwd_insts);
+
+	my $fname = $fwd_insts[$inst * 2 + 1];
+	return (PM_ERR_INST, 0) unless defined ($fname);
+
+	my $fvref = $fwd_values{$fname};
+	return (PM_ERR_INST, 0) unless defined ($fvref);
+
+	my @fvals = @$fvref;
+	if ($item == 0) { return ($fvals[0], 1); }
     }
     return (PM_ERR_PMID, 0);
 }
@@ -504,6 +675,13 @@ $pmda->add_metric(pmda_pmid(0,32), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.resources.openfiles',
 	'Number of files rsyslog has open','');
 
+$pmda->add_metric(pmda_pmid(0,33), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.ptcp.ioworkq.enqueued',
+	'Current # of TCP log entries queued to the io-work-q','');
+$pmda->add_metric(pmda_pmid(0,34), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.ptcp.ioworkq.maxqsize',
+	'Maximum size reached for the io-work-q','');
+
 $pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U64, $queue_indom, PM_SEM_INSTANT,
 	pmda_units(0,0,1,0,0,0), 'rsyslog.queues.size',
 	'Current queue depth for each rsyslog queue',
@@ -578,6 +756,58 @@ $pmda->add_metric(pmda_pmid(4,4), PM_TYPE_U64, $action_indom, PM_SEM_COUNTER,
 
 $pmda->add_indom($action_indom, \@action_insts,
 	'Instance domain exporting each rsyslog action', '');
+
+$pmda->add_metric(pmda_pmid(5,0), PM_TYPE_U64, $udp_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.udp.submitted',
+	'Count of messages submitted for processing since startup', '');
+$pmda->add_metric(pmda_pmid(5,1), PM_TYPE_U64, $udp_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.udp.disallowed',
+	'Count of messages discarded due to disallowed sender', '');
+
+$pmda->add_indom($udp_indom, \@udp_insts,
+	'Instance domain exporting each rsyslog udp metric', '');
+
+$pmda->add_metric(pmda_pmid(6,0), PM_TYPE_U64, $udpt_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.udp.thread.recvmmsg',
+	'Count of recvmmsg() OS calls done', '');
+$pmda->add_metric(pmda_pmid(6,1), PM_TYPE_U64, $udpt_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.udp.thread.recvmsg',
+	'Count of recvmsg() OS calls done', '');
+$pmda->add_metric(pmda_pmid(6,2), PM_TYPE_U64, $udpt_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.udp.thread.received',
+	'Count of actual messages received', '');
+
+$pmda->add_indom($udpt_indom, \@udpt_insts,
+	'Instance domain exporting each rsyslog udp thread metric', '');
+
+$pmda->add_metric(pmda_pmid(7,0), PM_TYPE_U64, $ptcp_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.ptcp.submitted',
+	'Count of TCP messages submitted for processing since startup', '');
+$pmda->add_metric(pmda_pmid(7,1), PM_TYPE_U64, $ptcp_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.ptcp.sessions.opened',
+	'Count of TCP sessions opened', '');
+$pmda->add_metric(pmda_pmid(7,2), PM_TYPE_U64, $ptcp_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.ptcp.sessions.openfailed',
+	'Count of TCP session failures', '');
+$pmda->add_metric(pmda_pmid(7,3), PM_TYPE_U64, $ptcp_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.ptcp.sessions.closed',
+	'Count of TCP sessions closed', '');
+$pmda->add_metric(pmda_pmid(7,4), PM_TYPE_U64, $ptcp_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.ptcp.bytes.received',
+	'Count of bytes received via TCP', '');
+$pmda->add_metric(pmda_pmid(7,5), PM_TYPE_U64, $ptcp_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.ptcp.bytes.decompressed',
+	'Count of bytes decompressed for TCP', '');
+
+$pmda->add_indom($ptcp_indom, \@ptcp_insts,
+	'Instance domain exporting each rsyslog ptcp metric', '');
+
+$pmda->add_metric(pmda_pmid(8,0), PM_TYPE_U64, $fwd_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.fwd.bytes',
+	'Count of bytes sent through forwarder', '');
+
+$pmda->add_indom($fwd_indom, \@fwd_insts,
+	'Instance domain exporting each rsyslog fwd metric', '');
 
 $pmda->add_tail($statsfile, \&rsyslog_parser, 0);
 $pmda->set_fetch_callback(\&rsyslog_fetch_callback);
