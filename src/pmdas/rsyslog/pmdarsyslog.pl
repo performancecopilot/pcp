@@ -40,6 +40,10 @@ my $unmat_origin_indom = 2;
 my @unmat_origin_insts = ();
 use vars qw(%unmat_origin_ids %unmat_origin_values);
 
+my $action_indom = 3;
+my @action_insts = ();
+use vars qw(%action_ids %action_values);
+
 sub unmatched_origin
 {
     my $origin = $1;
@@ -179,6 +183,22 @@ sub rsyslog_parser
 		unmatched_origin($origin);
 	    }
 	}
+	elsif ($origin eq "core.action") {
+	    if (m|pstats: (.+): origin=core\.action processed=(\d+) failed=(\d+) suspended=(\d+) suspended\.duration=(\d+) resumed=(\d+)|) {
+		# Modern capture of action data
+		my ($aname, $aid) = ($1, undef);
+
+		if (!defined($action_ids{$aname})) {
+		    $aid = @action_insts / 2;
+		    $action_ids{$aname} = $aid;
+		    push @action_insts, ($aid, $aname);
+		    $pmda->replace_indom($action_indom, \@action_insts);
+		}
+		$action_values{$aname} = [ $2, $3, $4, $5, $6 ];
+	    }
+	    else {
+		unmatched_origin($origin);
+	    }
 	else {
 	    # Count unrecognized origin values.
 	    my $oid = undef;
@@ -317,6 +337,23 @@ sub rsyslog_fetch_callback
 	if ($item == 3) { return ($umovals[3], 1); }
 	if ($item == 4) { return ($umovals[4], 1); }
 	if ($item == 5) { return ($umovals[5], 1); }
+    }
+    elsif ($cluster == 4) {	# actions
+	return (PM_ERR_INST, 0) unless ($inst != PM_IN_NULL);
+	return (PM_ERR_INST, 0) unless ($inst <= @action_insts);
+
+	my $aname = $action_insts[$inst * 2 + 1];
+	return (PM_ERR_INST, 0) unless defined ($aname);
+
+	my $avref = $action_values{$aname};
+	return (PM_ERR_INST, 0) unless defined ($avref);
+
+	my @avals = @$avref;
+	if ($item == 0) { return ($avals[0], 1); }
+	if ($item == 1) { return ($avals[1], 1); }
+	if ($item == 2) { return ($avals[2], 1); }
+	if ($item == 3) { return ($avals[3], 1); }
+	if ($item == 4) { return ($avals[4], 1); }
     }
     return (PM_ERR_PMID, 0);
 }
@@ -520,6 +557,27 @@ $pmda->add_metric(pmda_pmid(3,0), PM_TYPE_U64, $unmat_origin_indom, PM_SEM_COUNT
 
 $pmda->add_indom($unmat_origin_indom, \@unmat_origin_insts,
 	'Cumulative counts for unmatched impstats origins', '');
+
+$pmda->add_metric(pmda_pmid(4,0), PM_TYPE_U64, $action_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.action.processed',
+	'Count of messages processed',
+	"The count of messages processed. Note that this includes both\n" .
+	"success and failures.");
+$pmda->add_metric(pmda_pmid(4,1), PM_TYPE_U64, $action_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.action.failed',
+	'Count of messages failed during processing','');
+$pmda->add_metric(pmda_pmid(4,2), PM_TYPE_U64, $action_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.action.suspended',
+	'Count of times the action suspended itself','');
+$pmda->add_metric(pmda_pmid(4,3), PM_TYPE_U64, $action_indom, PM_SEM_INSTANT,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.action.suspended_duration',
+	'Total number of seconds action was suspended','');
+$pmda->add_metric(pmda_pmid(4,4), PM_TYPE_U64, $action_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.action.resumed',
+	'Count of times the action resumed itself','');
+
+$pmda->add_indom($action_indom, \@action_insts,
+	'Instance domain exporting each rsyslog action', '');
 
 $pmda->add_tail($statsfile, \&rsyslog_parser, 0);
 $pmda->set_fetch_callback(\&rsyslog_fetch_callback);
