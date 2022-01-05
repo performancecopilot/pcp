@@ -219,7 +219,8 @@ do_logue(int type)
 	    if (j == i) {
 		/* need indom ... force one with my PID as the only instance */
 		int		*instid;
-		char	**instname;
+		char		**instname;
+		int		pdu_type;
 
 		if ((instid = (int *)malloc(sizeof(*instid))) == NULL) {
 		    sts = -oserror();
@@ -239,10 +240,15 @@ do_logue(int type)
 		instname[0] = (char *)&instname[1];
 		strcpy(instname[0], path);
 		/*
-		 * Note.	DO NOT free instid and instname ... they get hidden
-		 *		away in addindom() below __pmLogPutInDom()
+		 * Note.	DO NOT free instid[] and instname[]... they
+		 *		get hidden away in addindom() below
+		 *		__pmLogPutInDom()
 		 */
-		if ((sts = __pmLogPutInDom(&archctl, desc[i].indom, &stamp, 1, instid, instname)) < 0)
+		if (archive_version == PM_LOG_VERS03)
+		    pdu_type = TYPE_INDOM;
+		else
+		    pdu_type = TYPE_INDOM_V2;
+		if ((sts = __pmLogPutInDom(&archctl, desc[i].indom, &stamp, pdu_type, 1, instid, instname)) < 0)
 		    goto done;
 	    }
 	}

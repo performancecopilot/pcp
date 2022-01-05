@@ -80,11 +80,11 @@ doindom(pmResult *rp)
 	    mp->idp->inst = instlist;
 	    mp->idp->numinst = sts;
 #if 0	    // TODO use current when it => __pmTimestamp
-	    if ((sts = __pmLogPutInDom(&archctl, mp->idp->indom, &current, mp->idp->numinst, mp->idp->inst, mp->idp->name)) < 0) {
+	    if ((sts = __pmLogPutInDom(&archctl, mp->idp->indom, &current, TYPE_INDOM, mp->idp->numinst, mp->idp->inst, mp->idp->name)) < 0) {
 #else
 	    stamp.sec = current.tv_sec;
 	    stamp.nsec = current.tv_usec * 1000;
-	    if ((sts = __pmLogPutInDom(&archctl, mp->idp->indom, &stamp, mp->idp->numinst, mp->idp->inst, mp->idp->name)) < 0) {
+	    if ((sts = __pmLogPutInDom(&archctl, mp->idp->indom, &stamp, TYPE_INDOM_V2, mp->idp->numinst, mp->idp->inst, mp->idp->name)) < 0) {
 #endif
 		fprintf(stderr,
 		    "%s: Error: failed to add pmInDom: indom %s (for pmid %s): %s\n",

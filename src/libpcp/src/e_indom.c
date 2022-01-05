@@ -53,7 +53,7 @@ typedef struct {
 
 int
 __pmLogPutInDom(__pmArchCtl *acp, pmInDom indom, const __pmTimestamp * const tsp, 
-		int numinst, int *instlist, char **namelist)
+		int type, int numinst, int *instlist, char **namelist)
 {
     __pmLogCtl		*lcp = acp->ac_log;
     char		*str;
@@ -64,6 +64,26 @@ __pmLogPutInDom(__pmArchCtl *acp, pmInDom indom, const __pmTimestamp * const tsp
     int			*inst;
     int			*stridx;
     void		*out;
+    char		strbuf[20];
+
+    /*
+     * for V3 expect TYPE_INDOM or TYPE_INDOM_DELTA
+     * for V2 expect TYPE_INDOM_V2
+     */
+    if (__pmLogVersion(lcp) != PM_LOG_VERS03 && __pmLogVersion(lcp) != PM_LOG_VERS02) {
+	pmprintf("__pmLogPutInDom(...,indom=%s,type=%d,...): Botch: bad archive version %d\n",
+	    pmInDomStr_r(indom, strbuf, sizeof(strbuf)), type, __pmLogVersion(lcp));
+	pmflush();
+	return PM_ERR_GENERIC;
+    }
+    if ((__pmLogVersion(lcp) == PM_LOG_VERS03 &&
+	 type != TYPE_INDOM && type != TYPE_INDOM_DELTA) ||
+	(__pmLogVersion(lcp) == PM_LOG_VERS02 && type != TYPE_INDOM_V2)) {
+	pmprintf("__pmLogPutInDom(...,indom=%s,type=%d,...): Botch: bad type for archive version %d\n",
+	    pmInDomStr_r(indom, strbuf, sizeof(strbuf)), type, __pmLogVersion(lcp));
+	pmflush();
+	return PM_ERR_GENERIC;
+    }
 
     /*
      * Common leader fields on disk (before instances) ...
@@ -93,7 +113,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
 	    return -oserror();
 	/* swab all output fields */
 	v3->len = htonl(len);
-	v3->type = htonl(TYPE_INDOM);
+	v3->type = htonl(type);
 	__pmPutTimestamp(tsp, &v3->sec[0]);
 	v3->indom = __htonpmInDom(indom);
 	v3->numinst = htonl(numinst);
@@ -131,7 +151,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
     memcpy((void *)str, lenp, sizeof(*lenp));
 
     if ((sts = __pmFwrite(out, 1, len, lcp->mdfp)) != len) {
-	char	strbuf[20];
 	char	errmsg[PM_MAXERRMSGLEN];
 	pmprintf("__pmLogPutInDom(...,indom=%s,numinst=%d): write failed: returned %d expecting %zd: %s\n",
 	    pmInDomStr_r(indom, strbuf, sizeof(strbuf)), numinst, sts, len,
@@ -142,7 +161,17 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
     }
     free(out);
 
-    sts = addindom(lcp, indom, tsp, numinst, instlist, namelist, NULL, 0);
+    /*
+     * Update the indom's hash data structures ...
+     *
+     * For INDOM_DELTA, it is the caller's responsibility to call
+     * addindom(), or more likely the wrapper __pmLogAddInDom() for
+     * callers outside libpcp, with the _full_ indom, not the _delta_
+     * indom we've just written to the external metadata file above.
+     */
+    if (type != TYPE_INDOM_DELTA)
+	sts = addindom(lcp, indom, tsp, numinst, instlist, namelist, NULL, 0);
+
     return sts;
 }
 

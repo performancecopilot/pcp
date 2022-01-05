@@ -82,11 +82,12 @@ check_indom(pmi_context *current, pmInDom indom, int *needti)
     int		i;
     int		sts = 0;
     __pmArchCtl	*acp = &current->archctl;
+    int		type = current->version == PM_LOG_VERS03 ? TYPE_INDOM : TYPE_INDOM_V2;
 
     for (i = 0; i < current->nindom; i++) {
 	if (indom == current->indom[i].indom) {
 	    if (current->indom[i].meta_done == 0) {
-		if ((sts = __pmLogPutInDom(acp, current->indom[i].indom, &stamp, current->indom[i].ninstance, current->indom[i].inst, current->indom[i].name)) < 0)
+		if ((sts = __pmLogPutInDom(acp, current->indom[i].indom, &stamp, type, current->indom[i].ninstance, current->indom[i].inst, current->indom[i].name)) < 0)
 		    return sts;
 
 		current->indom[i].meta_done = 1;

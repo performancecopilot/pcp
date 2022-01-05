@@ -499,7 +499,7 @@ end:
 	__pmHashNode	*hp;
 	__pmLogInDom	*idp;
 	for (hp = ctxp->c_archctl->ac_log->hashindom.hash[i]; hp != NULL; hp = hp->next) {
-	    for (idp = (__pmLogInDom *)hp->data; idp != NULL; idp =idp->next) {
+	    for (idp = (__pmLogInDom *)hp->data; idp != NULL; idp = idp->next) {
 		v2_maps += idp->numinst * (sizeof(int) + sizeof(char *));
 		v2_count += idp->numinst;
 		for (j = 0; j < idp->numinst; j++) {

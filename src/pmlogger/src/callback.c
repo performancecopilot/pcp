@@ -50,6 +50,15 @@ typedef struct _AFctl {
 
 static AFctl_t		*achead = (AFctl_t *)0;
 
+/*
+ * All of the essential info for an indom ...
+ */
+typedef struct {
+    int		numinst;
+    int		*instlist;
+    char	**namelist;
+} myInDom_t;
+
 /* clear the "metric/instance was available at last fetch" flag for each metric
  * and instance in the specified fetchgroup.
  */
@@ -663,7 +672,7 @@ do_work(task_t *tp)
     long		new_meta_offset;
     int			pdu_bytes = 0;
     int			pdu_metrics = 0;
-    int			numinst;
+    int			numinst = -1;
     int			*instlist = NULL;
     char		**namelist;
     __pmTimestamp	resp_stamp;
@@ -977,12 +986,14 @@ do_work(task_t *tp)
 		     */
 		    if (instlist == NULL ||
 		        !same_indom(numinst, instlist, namelist, new_numinst, new_instlist, new_namelist)) {
-			numinst = new_numinst;
-			instlist = new_instlist;
-			namelist = new_namelist;
+			int	pdu_type;
 			stamp.sec = (__int32_t)resp->timestamp.tv_sec;
 			stamp.nsec = (__int32_t)resp->timestamp.tv_usec * 1000;
-			if ((sts = __pmLogPutInDom(&archctl, desc.indom, &stamp, numinst, instlist, namelist)) < 0) {
+			if (archive_version == PM_LOG_VERS03)
+			    pdu_type = TYPE_INDOM;
+			else
+			    pdu_type = TYPE_INDOM_V2;
+			if ((sts = __pmLogPutInDom(&archctl, desc.indom, &stamp, pdu_type, new_numinst, new_instlist, new_namelist)) < 0) {
 			    fprintf(stderr, "__pmLogPutInDom: %s\n", pmErrStr(sts));
 			    exit(1);
 			}
@@ -990,8 +1001,8 @@ do_work(task_t *tp)
 			    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
 				fprintf(stderr, "__pmLogPutInDom -> PMLOGPUTINDOM_DUP\n");
 			    }
-			    free(instlist);
-			    free(namelist);
+			    free(new_instlist);
+			    free(new_namelist);
 			}
 			manageLabels(&desc, &stamp, 1);
 			needti = 1;

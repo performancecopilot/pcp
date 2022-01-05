@@ -701,7 +701,8 @@ typedef struct __pmLogHdr {
  *       to the instance domain
  */
 typedef struct __pmLogInDom {
-    struct __pmLogInDom	*next;
+    struct __pmLogInDom	*next;			/* backwards in time */
+    struct __pmLogInDom	*prior;			/* forwards in time */
     __pmTimestamp	stamp;
     int			numinst;
     int			*instlist;		/* points into buf[] */
@@ -915,7 +916,7 @@ PCP_CALL extern int __pmLogCreate(const char *, const char *, int, __pmArchCtl *
 PCP_CALL extern __pmFILE *__pmLogNewFile(const char *, int);
 PCP_CALL extern void __pmLogClose(__pmArchCtl *);
 PCP_CALL extern int __pmLogPutDesc(__pmArchCtl *, const pmDesc *, int, char **);
-PCP_CALL extern int __pmLogPutInDom(__pmArchCtl *, pmInDom, const __pmTimestamp *, int, int *, char **);
+PCP_CALL extern int __pmLogPutInDom(__pmArchCtl *, pmInDom, const __pmTimestamp *, int, int, int *, char **);
 PCP_CALL extern int __pmLogPutResult(__pmArchCtl *, __pmPDU *);
 PCP_CALL extern int __pmLogPutResult2(__pmArchCtl *, __pmPDU *);
 PCP_CALL extern int __pmLogPutIndex(const __pmArchCtl *, const __pmTimestamp *);

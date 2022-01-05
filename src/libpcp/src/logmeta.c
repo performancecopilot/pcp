@@ -136,7 +136,7 @@ int
 addindom(__pmLogCtl *lcp, pmInDom indom, const __pmTimestamp *tsp, int numinst, 
          int *instlist, char **namelist, __int32_t *indom_buf, int allinbuf)
 {
-    __pmLogInDom	*idp, *idp_prev;
+    __pmLogInDom	*idp, *idp_prior;
     __pmLogInDom	*idp_cached, *idp_time;
     __pmHashNode	*hp;
     int			timecmp;
@@ -178,7 +178,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
      * time slot.
      */
     sts = 0;
-    idp_prev = NULL;
+    idp_prior = NULL;
     for (idp_cached = (__pmLogInDom *)hp->data; idp_cached; idp_cached = idp_cached->next) {
 	timecmp = __pmTimestampCmp(&idp_cached->stamp, &idp->stamp);
 
@@ -197,7 +197,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	 */
 	if (timecmp == 0) {
 	    assert(sts == 0);
-	    idp_time = idp_prev; /* just before this time slot */
+	    idp_time = idp_prior; /* just before this time slot */
 	    do {
 		/* Have we found a duplicate? */
 		if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
@@ -218,7 +218,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 		if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
 		    fprintf(stderr, "no\n");
 		/* Try the next one */
-		idp_prev = idp_cached;
+		idp_prior = idp_cached;
 		idp_cached = idp_cached->next;
 		if (idp_cached == NULL)
 		    break;
@@ -234,15 +234,15 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 		 * them. We do, however need to free idp.
 		 */
 		free(idp);
-		if (idp_prev == idp_time) {
+		if (idp_prior == idp_time) {
 		    /* The duplicate is already in the right place. */
 		    return sts; /* ok -- duplicate */
 		}
 
 		/* Unlink the duplicate and set it up to be re-inserted. */
 		assert(idp_cached != NULL);
-		if (idp_prev)
-		    idp_prev->next = idp_cached->next;
+		if (idp_prior)
+		    idp_prior->next = idp_cached->next;
 		else
 		    hp->data = (void *)idp_cached->next;
 		idp = idp_cached;
@@ -252,7 +252,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	     * Regardless of whether or not a duplicate was found, we will be
 	     * inserting the indom we have at the head of the time slot.
 	     */
-	    idp_prev = idp_time;
+	    idp_prior = idp_time;
 	    break;
 	}
 
@@ -260,28 +260,30 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	 * The time of the current cached item is after our time.
 	 * Just keep looking.
 	 */
-	idp_prev = idp_cached;
+	idp_prior = idp_cached;
     }
 
     /* Insert at the identified insertion point. */
-    if (idp_prev == NULL) {
+    if (idp_prior == NULL) {
 	idp->next = (__pmLogInDom *)hp->data;
+	idp->prior = NULL;
 	hp->data = (void *)idp;
     }
     else {
-	idp->next = idp_prev->next;
-	idp_prev->next = idp;
+	idp->next = idp_prior->next;
+	idp->prior = idp_prior;
+	idp_prior->next = idp;
     }
 
     return sts;
 }
 
-int
+    int
 addlabel(__pmArchCtl *acp, unsigned int type, unsigned int ident, int nsets,
 		pmLabelSet *labelsets, const __pmTimestamp *tsp)
 {
     __pmLogCtl		*lcp = acp->ac_log;
-    __pmLogLabelSet	*idp, *idp_prev;
+    __pmLogLabelSet	*idp, *idp_prior;
     __pmLogLabelSet	*idp_cached;
     __pmHashNode	*hp;
     __pmHashCtl		*l_hashtype;
@@ -347,7 +349,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":13", PM_FAULT_ALLOC);
     }
 
     sts = 0;
-    idp_prev = NULL;
+    idp_prior = NULL;
     for (idp_cached = (__pmLogLabelSet *)hp->data; idp_cached; idp_cached = idp_cached->next) {
 	timecmp = __pmTimestampCmp(&idp_cached->stamp, &idp->stamp);
 
@@ -362,17 +364,17 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":13", PM_FAULT_ALLOC);
 	 * The time of the current cached item is after our time.
 	 * Just keep looking.
 	 */
-	idp_prev = idp_cached;
+	idp_prior = idp_cached;
     }
 
     /* Insert at the identified insertion point. */
-    if (idp_prev == NULL) {
+    if (idp_prior == NULL) {
 	idp->next = (__pmLogLabelSet *)hp->data;
 	hp->data = (void *)idp;
     }
     else {
-	idp->next = idp_prev->next;
-	idp_prev->next = idp;
+	idp->next = idp_prior->next;
+	idp_prior->next = idp;
     }
 
     return sts;
@@ -480,7 +482,7 @@ static void
 check_dup_labels(const __pmArchCtl *acp)
 {
     __pmLogCtl		*lcp;
-    __pmLogLabelSet	*idp, *idp_prev, *idp_next;
+    __pmLogLabelSet	*idp, *idp_prior, *idp_next;
     __pmHashCtl		*hashlabels;
     __pmHashCtl		*l_hashtype;
     __pmHashNode	*hplabels, *hptype;
@@ -495,7 +497,7 @@ check_dup_labels(const __pmArchCtl *acp)
 	    l_hashtype = (__pmHashCtl *)hplabels->data;
 	    for (ident = 0; ident < l_hashtype->hsize; ++ident) {
 		for (hptype = l_hashtype->hash[ident]; hptype; hptype = hptype->next) {
-		    idp_prev = NULL;
+		    idp_prior = NULL;
 		    for (idp = (__pmLogLabelSet *)hptype->data; idp; idp = idp_next) {
 			idp_next = idp->next;
 			if (idp_next == NULL)
@@ -512,15 +514,15 @@ check_dup_labels(const __pmArchCtl *acp)
 			     * All label sets within idp were discarded.
 			     * unlink it and free it.
 			     */
-			    if (idp_prev)
-				idp_prev->next = idp_next;
+			    if (idp_prior)
+				idp_prior->next = idp_next;
 			    else
 				hptype->data = idp_next;
 			    free(idp->labelsets);
 			    free(idp);
 			}
 			else
-			    idp_prev = idp;
+			    idp_prior = idp;
 		    }
 		}
 	    }
