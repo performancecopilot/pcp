@@ -704,6 +704,7 @@ typedef struct __pmLogInDom {
     struct __pmLogInDom	*next;			/* backwards in time */
     struct __pmLogInDom	*prior;			/* forwards in time */
     __pmTimestamp	stamp;
+    int			isdelta;		/* 1 => delta indom semantics */
     int			numinst;
     int			*instlist;		/* points into buf[] */
     char		**namelist;		/* may pint into buf[] */

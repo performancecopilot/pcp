@@ -103,7 +103,8 @@ __pmLogPutInDom(__pmArchCtl *acp, pmInDom indom, const __pmTimestamp * const tsp
     len += (numinst > 0 ? numinst : 0) * (sizeof(instlist[0]) + sizeof(stridx[0]))
 	    + sizeof(__int32_t);
     for (i = 0; i < numinst; i++) {
-	len += strlen(namelist[i]) + 1;
+	if (namelist[i] != NULL)
+	    len += strlen(namelist[i]) + 1;
     }
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
@@ -140,11 +141,17 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
     stridx = (int *)&inst[numinst];
     str = (char *)&stridx[numinst];
     for (i = 0; i < numinst; i++) {
-	int	slen = strlen(namelist[i])+1;
 	inst[i] = htonl(instlist[i]);
-	memmove((void *)str, (void *)namelist[i], slen);
-	stridx[i] = htonl((int)((ptrdiff_t)str - (ptrdiff_t)&stridx[numinst]));
-	str += slen;
+	if (namelist[i] != NULL) {
+	    int	slen = strlen(namelist[i])+1;
+	    memmove((void *)str, (void *)namelist[i], slen);
+	    stridx[i] = htonl((int)((ptrdiff_t)str - (ptrdiff_t)&stridx[numinst]));
+	    str += slen;
+	}
+	else {
+	    /* deleted instance for TYPE_INDOM_DELTA */
+	    stridx[i] = -1;
+	}
     }
 
     /* trailer record length */
@@ -222,7 +229,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
     else
 	lbuf = *buf;
 
-    if (type == TYPE_INDOM) {
+    if (type == TYPE_INDOM || type == TYPE_INDOM_DELTA) {
 	__pmInDom_v3	*v3;
 	__pmTimestamp	stamp;
 	v3 = (__pmInDom_v3 *)&lbuf[-2];	/* len+type not in buf */
@@ -270,9 +277,16 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	namebase = (char *)&lbuf[k];
 	for (i = 0; i < inp->numinst; i++) {
 	    inp->instlist[i] = ntohl(inp->instlist[i]);
-	    inp->namelist[i] = &namebase[ntohl(stridx[i])];
-	    if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
-		fprintf(stderr, "inst[%d] %d or \"%s\" (idx=%d)\n", i, inp->instlist[i], inp->namelist[i], ntohl(stridx[i]));
+	    if (inp->instlist[i] >= 0 && ntohl(stridx[i]) >= 0) {
+		inp->namelist[i] = &namebase[ntohl(stridx[i])];
+		if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
+		    fprintf(stderr, "inst[%d] %d or \"%s\" (idx=%d)\n", i, inp->instlist[i], inp->namelist[i], ntohl(stridx[i]));
+	    }
+	    else {
+		inp->namelist[i] = NULL;
+		if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
+		    fprintf(stderr, "inst[%d] %d (idx=%d)\n", i, inp->instlist[i], ntohl(stridx[i]));
+	    }
 	}
     }
     else {

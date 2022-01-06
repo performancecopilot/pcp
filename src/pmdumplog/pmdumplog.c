@@ -536,7 +536,7 @@ dumpDiskInDom(__pmContext *ctxp)
 	    return;
 	}
 	rlen = (size_t)hdr.len - sizeof(__pmLogHdr) - sizeof(__int32_t);
-	if (hdr.type == TYPE_INDOM || hdr.type == TYPE_INDOM_V2) {
+	if (hdr.type == TYPE_INDOM || hdr.type == TYPE_INDOM_DELTA || hdr.type == TYPE_INDOM_V2) {
 	    __pmTimestamp	stamp;
 	    pmInResult		in;
 	    __int32_t		*buf;
@@ -549,11 +549,19 @@ dumpDiskInDom(__pmContext *ctxp)
 	    }
 	    dump_pmTimestamp(&stamp);
 	    printf(" InDom: %s", pmInDomStr(in.indom));
+	    if (hdr.type == TYPE_INDOM_DELTA)
+		printf(" delta");
 	    printf(" %d instances\n", in.numinst);
 	    if (in.numinst > 0) {
 	        for (i = 0; i < in.numinst; i++) {
-		    printf("   %d or \"%s\"\n",
-			in.instlist[i], in.namelist[i]);
+		    if (hdr.type == TYPE_INDOM_DELTA) {
+			if (in.instlist[i] < 0)
+			    printf("   del %d\n", in.instlist[i]);
+			else
+			    printf("   add %d or \"%s\"\n", in.instlist[i], in.namelist[i]);
+		    }
+		    else
+			printf("   %d or \"%s\"\n", in.instlist[i], in.namelist[i]);
 		}
 	    }
 	    free(buf);
@@ -561,7 +569,10 @@ dumpDiskInDom(__pmContext *ctxp)
 		free(in.namelist);
 	}
 	else {
-	    /* skip this record, not TYPE_INDOM nor TYPE_INDOM_V2 */
+	    /*
+	     * skip this record, not TYPE_INDOM nor TYPE_INDOM_DELTA nor
+	     * TYPE_INDOM_V2
+	     */
 	    __pmFseek(f, (off_t)rlen, SEEK_CUR);
 	}
 	/* trailer check */

@@ -50,15 +50,6 @@ typedef struct _AFctl {
 
 static AFctl_t		*achead = (AFctl_t *)0;
 
-/*
- * All of the essential info for an indom ...
- */
-typedef struct {
-    int		numinst;
-    int		*instlist;
-    char	**namelist;
-} myInDom_t;
-
 /* clear the "metric/instance was available at last fetch" flag for each metric
  * and instance in the specified fetchgroup.
  */
@@ -583,8 +574,8 @@ log_callback(int afid, void *data)
  * instlist[] and namelist[], it seems a bubble sort may be most
  * efficient
  */
-void
-sort_indom(int numinst, int *instlist, char **namelist)
+static void
+sort_indom(pmInResult *irp)
 {
     int		i;
     int		j;
@@ -592,17 +583,17 @@ sort_indom(int numinst, int *instlist, char **namelist)
     char	*tp;
     int		nswap;
 
-    for (i = numinst-1; i >= 0; i--) {
+    for (i = irp->numinst-1; i >= 0; i--) {
 	nswap = 0;
 	for (j = 1; j <= i; j++) {
-	    if (instlist[j-1] > instlist[j]) {
+	    if (irp->instlist[j-1] > irp->instlist[j]) {
 		nswap++;
-		ti = instlist[j-1];
-		instlist[j-1] = instlist[j];
-		instlist[j] = ti;
-		tp = namelist[j-1];
-		namelist[j-1] = namelist[j];
-		namelist[j] = tp;
+		ti = irp->instlist[j-1];
+		irp->instlist[j-1] = irp->instlist[j];
+		irp->instlist[j] = ti;
+		tp = irp->namelist[j-1];
+		irp->namelist[j-1] = irp->namelist[j];
+		irp->namelist[j] = tp;
 	    }
 	}
 	if (nswap == 0)
@@ -613,35 +604,193 @@ sort_indom(int numinst, int *instlist, char **namelist)
 /*
  * Test if two observations of the same indom are identical ...
  * we know the indoms are both sorted.
+ *
+ * Return value:
+ * 0 => no difference
+ * 1 => different
+ *
+ * Version 2 comparison ... can return quickly as soon as difference
+ * found.
  */
-int
-same_indom(int numinst_a, int *instlist_a, char **namelist_a, int numinst_b, int *instlist_b, char **namelist_b)
+static int
+same_indom(pmInResult *old, pmInResult *new)
 {
     int		i;
+    int		sts = 1;
 
-    if (numinst_a != numinst_b)
-	return 0;
+    if (old->numinst != new->numinst)
+	goto done;
 
     /* internal instance identifiers */
-    for (i = 0; i < numinst_a; i++) {
-	if (instlist_a[i] != instlist_b[i])
-	    return 0;
+    for (i = 0; i < old->numinst; i++) {
+	if (old->instlist[i] != new->instlist[i])
+	    goto done;
     }
 
     /*
      * external instance names (only bad PMDAs, like proc) should
      * assign different names to the same instance
      */
-    for (i = 0; i < numinst_a; i++) {
-	if (strcmp(namelist_a[i], namelist_b[i]) != 0)
-	    return 0;
+    for (i = 0; i < old->numinst; i++) {
+	if (strcmp(old->namelist[i], new->namelist[i]) != 0)
+	    goto done;
     }
+
+    sts = 0;
+
+done:
 
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
-	fprintf(stderr, "same_indom -> yes\n");
+	fprintf(stderr, "same_indom(%s) -> %s\n", pmInDomStr(old->indom),
+	    sts == 0 ? "same" : "different");
     }
 
-    return 1;
+    return sts;
+}
+
+
+/*
+ * Test if two observations of the same indom are identical ...
+ * we know the indoms are both sorted ... and if they are different,
+ * check to see if a delta indom format would be more storage
+ * efficient.
+ *
+ * Return value:
+ * 0 => no difference
+ * 1 => use full indom
+ * 2 => use delta indom (and populate *new_delta)
+ *
+ * Version 3 comparison ... no quick return is possible.
+ *
+ * Note on alloc() errors: report 'em and return "1", since this
+ * simply falls back to the V2 scheme (more or less).
+ */
+static int
+delta_indom(pmInResult *old, pmInResult *new, pmInResult *new_delta)
+{
+    int		i;
+    int		j;
+    int		k;
+    int		sts = 1;
+    int		*old_map = NULL;
+    int		*new_map = NULL;
+    int		add = 0;
+    int		del = 0;
+
+    /*
+     * Pass 1 ... build old_map[] and new_map[] to describe what's
+     * changed
+     */
+    old_map = (int *)calloc(old->numinst, sizeof(int));
+    if (old_map == NULL) {
+	pmNoMem("delta_indom: old_map", old->numinst * sizeof(int), PM_RECOV_ERR);
+	goto done;
+    }
+    new_map = (int *)calloc(new->numinst, sizeof(int));
+    if (new_map == NULL) {
+	pmNoMem("delta_indom: new_map", new->numinst * sizeof(int), PM_RECOV_ERR);
+	goto done;
+    }
+    for (i = 0, j = 0; i < old->numinst || j < new->numinst; ) {
+	if ((i < old->numinst && j == new->numinst) ||
+	    (i < old->numinst && j < new->numinst && old->instlist[i] < new->instlist[j])) {
+	    if (pmDebugOptions.appl0)
+		fprintf(stderr, "[%d] del %d -> %-29.29s\n", i, old->instlist[i], old->namelist[i]);
+	    del++;
+	    old_map[i] = 1;
+	    i++;
+	}
+	else if ((i == old->numinst && j < new->numinst) ||
+		 (i < old->numinst && j < new->numinst && old->instlist[i] > new->instlist[j])) {
+	    if (pmDebugOptions.appl0)
+		fprintf(stderr, "[%d] add %d -> %-29.29s\n", j, new->instlist[j], new->namelist[j]);
+	    add++;
+	    new_map[j] = 1;
+	    j++;
+	}
+	else if (old->instlist[i] == new->instlist[j]) {
+	    if (strcmp(old->namelist[i], new->namelist[j]) != 0) {
+		/*
+		 * Oops ... internal instance identifier is the same, but
+		 * the external instance name is different (really only the
+		 * proc PMDA might do this, other PMDAs are not supposed to
+		 * do this) ... just fall back to full indom
+		 */
+		if (pmDebugOptions.appl0)
+		    fprintf(stderr, "oops! same %d -> different %-29.29s ... %-29.29s\n", old->instlist[i], old->namelist[i], new->namelist[j]);
+		goto done;
+	    }
+	    if (pmDebugOptions.appl0)
+		fprintf(stderr, "same %d -> %-29.29s ... %-29.29s\n", old->instlist[i], old->namelist[i], new->namelist[j]);
+	    i++;
+	    j++;
+	}
+	else {
+	    fprintf(stderr, "delta_indom(): botch: i=%d old->numinst=%d j=%d new->numinst=%d\n", i, old->numinst, j, new->numinst);
+	    exit(1);
+	}
+    }
+
+    if (add + del == 0) {
+	/* no change */
+	sts = 0;
+	goto done;
+    }
+
+    /*
+     * Now a "del" takes a bit less space than an "add", but this
+     * heuristic is close enough to picking the smaller PDU encoding
+     */
+    if (add + del > new->numinst)
+	goto done;
+
+    /*
+     * Pass 2 - committed to delta indom now, need to build new_delta ...
+     */
+    new_delta->indom = new->indom;
+    new_delta->numinst = add + del;
+    /*
+     * See comments at head of function re. alloc() failures ...
+     */
+    new_delta->instlist = (int *)malloc(new_delta->numinst * sizeof(int));
+    if (new_delta->instlist == NULL) {
+	pmNoMem("delta_indom: new instlist", new_delta->numinst * sizeof(int), PM_RECOV_ERR);
+	goto done;
+    }
+    new_delta->namelist = (char **)malloc(new_delta->numinst * sizeof(char *));
+    if (new_delta->namelist == NULL) {
+	pmNoMem("delta_indom: new namelist", new_delta->numinst * sizeof(char *), PM_RECOV_ERR);
+	goto done;
+    }
+    k = 0;
+    for (i = 0; i < old->numinst; i++) {
+	if (old_map[i]) {
+	    new_delta->instlist[k] = -old->instlist[i];
+	    new_delta->namelist[k] = NULL;
+	    k++;
+	}
+    }
+    for (j = 0; j < new->numinst; j++) {
+	if (new_map[j]) {
+	    new_delta->instlist[k] = new->instlist[j];
+	    new_delta->namelist[k] = new->namelist[j];
+	    k++;
+	}
+    }
+    sts = 2;
+
+done:
+    if (old_map != NULL)
+	free(old_map);
+    if (new_map != NULL)
+	free(new_map);
+
+    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
+	fprintf(stderr, "delta_indom(%s) -> %s\n", pmInDomStr(old->indom),
+	    sts == 0 ? "same" : ( sts == 1 ? "full indom" : "delta indom" ));
+    }
+
+    return sts;
 }
 
 /*
@@ -672,9 +821,7 @@ do_work(task_t *tp)
     long		new_meta_offset;
     int			pdu_bytes = 0;
     int			pdu_metrics = 0;
-    int			numinst = -1;
-    int			*instlist = NULL;
-    char		**namelist;
+    pmInResult		old;
     __pmTimestamp	resp_stamp;
     __pmTimestamp	stamp;
     unsigned long	peek_offset;
@@ -896,8 +1043,9 @@ do_work(task_t *tp)
 		 * returned. The timestamp is then used to decide if
 		 * the indom needs to be refreshed.
 		 */
-		numinst = __localLogGetInDom(&logctl, desc.indom, &stamp, &instlist, &namelist);
-		if (numinst > 0 && __pmTimestampSub(&resp_stamp, &stamp) <= 0) {
+		old.indom = desc.indom;
+		old.numinst = __localLogGetInDom(&logctl, desc.indom, &stamp, &old.instlist, &old.namelist);
+		if (old.numinst > 0 && __pmTimestampSub(&resp_stamp, &stamp) <= 0) {
 		    /*
 		     * Already have indom with the same (or later, in the
 		     * case of some time warp) timestamp compared to the
@@ -917,10 +1065,10 @@ do_work(task_t *tp)
 			    stamp.sec, stamp.nsec);
 		    }
 		}
-		else if (numinst < 0) {
+		else if (old.numinst < 0) {
 		    needindom = 1;
 		    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
-			fprintf(stderr, "numinst=%d => needindom %s\n", numinst, pmInDomStr(desc.indom));
+			fprintf(stderr, "numinst=%d => needindom %s\n", old.numinst, pmInDomStr(desc.indom));
 		    }
 		}
 		else {
@@ -930,11 +1078,11 @@ do_work(task_t *tp)
 		     * Thus a potential numval^2 search.
                      */
 		    for (j = 0; j < vsp->numval; j++) {
-			for (k = 0; k < numinst; k++) {
-			    if (vsp->vlist[j].inst == instlist[k])
+			for (k = 0; k < old.numinst; k++) {
+			    if (vsp->vlist[j].inst == old.instlist[k])
 				break;
 			}
-			if (k == numinst) {
+			if (k == old.numinst) {
 			    needindom = 1;
 			    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
 				fprintf(stderr, "inst %d in pmResult, not in cached indom => needindom %s\n",
@@ -968,24 +1116,38 @@ do_work(task_t *tp)
 		     *	  here unless this indom is a duplicate (look for magic below
 		     *	  log{Put,Get}InDom) or the indom really has not changed.
 		     */
-		    int		new_numinst;
-		    int		*new_instlist;
-		    char	**new_namelist;
-		    if ((new_numinst = pmGetInDom(desc.indom, &new_instlist, &new_namelist)) < 0) {
-			fprintf(stderr, "pmGetInDom(%s): %s\n", pmInDomStr(desc.indom), pmErrStr(numinst));
+		    pmInResult	new;
+		    pmInResult	new_delta;
+		    new.indom = desc.indom;
+		    if ((new.numinst = pmGetInDom(desc.indom, &new.instlist, &new.namelist)) < 0) {
+			fprintf(stderr, "pmGetInDom(%s): %s\n", pmInDomStr(desc.indom), pmErrStr(new.numinst));
 			exit(1);
 		    }
 		    /*
 		     * sort the indom based in internal instance identifier
 		     */
-		    sort_indom(new_numinst, new_instlist, new_namelist);
+		    sort_indom(&new);
 		    /*
 		     * if this is the first time we've seen this indom,
 		     * or the current and previous indoms are different
 		     * we need to call __pmLogPutInDom()
+		     *
+		     * needindom from here on down ...
+		     * 0 => no change, add nothing to metadata
+		     * 1 => add full indom to metadata
+		     * 2 => add delta indom to metadata
 		     */
-		    if (instlist == NULL ||
-		        !same_indom(numinst, instlist, namelist, new_numinst, new_instlist, new_namelist)) {
+		    needindom = 0;
+		    if (old.numinst < 0)
+			needindom = 1;
+		    else if (archive_version == PM_LOG_VERS02) {
+			if (same_indom(&old, &new) == 1)
+			    needindom = 1;
+		    }
+		    else if (archive_version == PM_LOG_VERS03) {
+			needindom = delta_indom(&old, &new, &new_delta);
+		    }
+		    if (needindom == 1) {
 			int	pdu_type;
 			stamp.sec = (__int32_t)resp->timestamp.tv_sec;
 			stamp.nsec = (__int32_t)resp->timestamp.tv_usec * 1000;
@@ -993,25 +1155,39 @@ do_work(task_t *tp)
 			    pdu_type = TYPE_INDOM;
 			else
 			    pdu_type = TYPE_INDOM_V2;
-			if ((sts = __pmLogPutInDom(&archctl, desc.indom, &stamp, pdu_type, new_numinst, new_instlist, new_namelist)) < 0) {
-			    fprintf(stderr, "__pmLogPutInDom: %s\n", pmErrStr(sts));
+			if ((sts = __pmLogPutInDom(&archctl, desc.indom, &stamp, pdu_type, new.numinst, new.instlist, new.namelist)) < 0) {
+			    fprintf(stderr, "__pmLogPutInDom(%s): full: %s\n", pmInDomStr(desc.indom), pmErrStr(sts));
 			    exit(1);
 			}
 			if (sts == PMLOGPUTINDOM_DUP) {
 			    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
 				fprintf(stderr, "__pmLogPutInDom -> PMLOGPUTINDOM_DUP\n");
 			    }
-			    free(new_instlist);
-			    free(new_namelist);
+			    free(new.instlist);
+			    free(new.namelist);
 			}
 			manageLabels(&desc, &stamp, 1);
 			needti = 1;
 			if (pmDebugOptions.appl2)
-			    pmNotifyErr(LOG_INFO, "callback: indom (%s) changed", pmInDomStr(desc.indom));
+			    pmNotifyErr(LOG_INFO, "callback: indom (%s) full change", pmInDomStr(desc.indom));
+		    }
+		    else if (needindom == 2) {
+			if (pmDebugOptions.appl2)
+			    pmNotifyErr(LOG_INFO, "callback: indom (%s) delta change", pmInDomStr(desc.indom));
+			if ((sts = __pmLogPutInDom(&archctl, desc.indom, &stamp, TYPE_INDOM_DELTA, new_delta.numinst, new_delta.instlist, new_delta.namelist)) < 0) {
+			    fprintf(stderr, "__pmLogPutInDom(%s): delta: %s\n", pmInDomStr(desc.indom), pmErrStr(sts));
+			    exit(1);
+			}
+			if ((sts = __pmLogAddInDom(&archctl, &stamp, &new, NULL, 0)) < 0) {
+			    fprintf(stderr, "__pmLogAddInDom(%s): %s\n", pmInDomStr(desc.indom), pmErrStr(sts));
+			    exit(1);
+			}
+			free(new_delta.instlist);
+			free(new_delta.namelist);
 		    }
 		    else {
-			free(new_instlist);
-			free(new_namelist);
+			free(new.instlist);
+			free(new.namelist);
 		    }
 		}
 	    }

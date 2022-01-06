@@ -102,14 +102,23 @@ unpack_indom(elt_t *ep, pmInResult *inp)
 	}
 	for (j = 0; j < inp->numinst; j++) {
 	    ep->inst[j] = inp->instlist[j];
-	    ep->iname[j] = strdup(inp->namelist[j]);
-	    if (ep->iname[j] == NULL) {
-		fprintf(stderr, "Arrgh: iname[%d] malloc failed for indom %s\n", j, pmInDomStr(inp->indom));
-		exit(1);
+	    if (ep->inst[j] >= 0) {
+		ep->iname[j] = strdup(inp->namelist[j]);
+		if (ep->iname[j] == NULL) {
+		    fprintf(stderr, "Arrgh: iname[%d] malloc failed for indom %s\n", j, pmInDomStr(inp->indom));
+		    exit(1);
+		}
+		if (pmDebugOptions.appl0) {
+		    fprintf(stderr, "unpack (%d) inst=%d iname=%s\n", j, ep->inst[j], ep->iname[j]);
+		}
 	    }
-#ifdef DEBUG
-printf("[%d] inst=%d iname=%s\n", j, ep->inst[j], ep->iname[j]);
-#endif
+	    else {
+		/* assume TYPE_INDOM_DELTA */
+		ep->iname[j] = NULL;
+		if (pmDebugOptions.appl0) {
+		    fprintf(stderr, "unpack (%d) inst=%d\n", j, ep->inst[j]);
+		}
+	    }
 	}
     }
 }
@@ -147,6 +156,17 @@ do_indom(__int32_t *buf, int type)
     if ((allinbuf = __pmLogLoadInDom(NULL, 0, type, &in, &this_stamp, &buf)) < 0) {
 	fprintf(stderr, "__pmLoadLoadInDom: failed: %s\n", pmErrStr(allinbuf));
 	return;
+    }
+
+    if (pmDebugOptions.appl0) {
+	int	i;
+	fprintf(stderr, "indom type=%s (%d) numinst=%d\n", typename[type], type, in.numinst);
+	for (i = 0; i < in.numinst; i++) {
+	    if (in.namelist[i] != NULL)
+		fprintf(stderr, "(%d) inst=%d name=\"%s\"\n", i, in.instlist[i], in.namelist[i]);
+	    else
+		fprintf(stderr, "(%d) inst=%d\n", i, in.instlist[i]);
+	}
     }
 
     warn = 0;
@@ -202,8 +222,8 @@ do_indom(__int32_t *buf, int type)
 	ep->numinst = in.numinst;
 	ep->inst = NULL;
 	ep->iname = NULL;
-	if (wflag == 2) {
-	    /* -W, so unpack indom */
+	if (wflag > 0) {
+	    /* -w or -W, so unpack indom */
 	    unpack_indom(ep, &in);
 	}
     }
@@ -220,36 +240,46 @@ do_indom(__int32_t *buf, int type)
 	    dp->numinst = in.numinst;
 	    dp->inst = NULL;
 	    unpack_indom(dp, &in);
-	    if (ep->numinst != dp->numinst)
-		printf("  numinst changed from %d to %d\n", ep->numinst, dp->numinst);
-	    for (o = 0; o < ep->numinst; o++) {
+	    if (type == TYPE_INDOM_DELTA) {
 		for (d = 0; d < dp->numinst; d++) {
-		    if (ep->inst[o] == dp->inst[d]) {
-			if (strcmp(ep->iname[o], dp->iname[d]) != 0) {
-			    printf("  inst %d: changed ext name from \"%s\" to \"%s\"\n", ep->inst[o], ep->iname[o], dp->iname[d]);
-			    diffs++;
+		    if (dp->inst[d] < 0)
+			printf("  inst %d: delta dropped\n", -dp->inst[d]);
+		    else
+			printf("  inst %d: delta added (\"%s\")\n", dp->inst[d], dp->iname[d]);
+		}
+	    }
+	    else {
+		if (ep->numinst != dp->numinst)
+		    printf("  numinst changed from %d to %d\n", ep->numinst, dp->numinst);
+		for (o = 0; o < ep->numinst; o++) {
+		    for (d = 0; d < dp->numinst; d++) {
+			if (ep->inst[o] == dp->inst[d]) {
+			    if (strcmp(ep->iname[o], dp->iname[d]) != 0) {
+				printf("  inst %d: changed ext name from \"%s\" to \"%s\"\n", ep->inst[o], ep->iname[o], dp->iname[d]);
+				diffs++;
+			    }
+    #ifdef DEBUG
+			    else
+				printf("  inst %d: same\n", ep->inst[o]);
+    #endif
+			    dp->inst[d] = -1;
+			    break;
 			}
-#ifdef DEBUG
-			else
-			    printf("  inst %d: same\n", ep->inst[o]);
-#endif
-			dp->inst[d] = -1;
-			break;
+		    }
+		    if (d == dp->numinst) {
+			printf("  inst %d: dropped (\"%s\")\n", ep->inst[o], ep->iname[o]);
+			diffs++;
 		    }
 		}
-		if (d == dp->numinst) {
-		    printf("  inst %d: dropped (\"%s\")\n", ep->inst[o], ep->iname[o]);
-		    diffs++;
+		for (d = 0; d < dp->numinst; d++) {
+		    if (dp->inst[d] != -1) {
+			printf("  inst %d: added (\"%s\")\n", dp->inst[d], dp->iname[d]);
+			diffs++;
+		    }
 		}
+		if (diffs == 0)
+		    printf(" no differences\n");
 	    }
-	    for (d = 0; d < dp->numinst; d++) {
-		if (dp->inst[d] != -1) {
-		    printf("  inst %d: added (\"%s\")\n", dp->inst[d], dp->iname[d]);
-		    diffs++;
-		}
-	    }
-	    if (diffs == 0)
-		printf(" no differences\n");
 	    free_elt_fields(dp);
 	}
 	else
@@ -550,11 +580,9 @@ main(int argc, char *argv[])
 	else {
 	    switch (hdr.type) {
 		case TYPE_INDOM:
-		    do_indom(buf, TYPE_INDOM);
-		    break;
-
+		case TYPE_INDOM_DELTA:
 		case TYPE_INDOM_V2:
-		    do_indom(buf, TYPE_INDOM_V2);
+		    do_indom(buf, hdr.type);
 		    break;
 
 		case TYPE_LABEL:
