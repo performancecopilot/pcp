@@ -14,8 +14,9 @@
 # for more details.
 #
 
-# pylint: disable=bad-whitespace, line-too-long, too-many-return-statements
-# pylint: disable=broad-except
+# pylint: disable=line-too-long, too-many-return-statements
+# pylint: disable=too-many-statements, too-many-branches, too-many-lines
+# pylint: disable=broad-except, too-many-instance-attributes
 
 """ Performance Metrics Domain Agent exporting Elasticsearch metrics. """
 
@@ -43,11 +44,27 @@ from cpmapi import PM_ERR_PMID, PM_ERR_APPVERSION
 from cpmda import PMDA_FETCH_NOVALUES
 
 DEFAULT_PORT = 9200
-DEFAULT_URL = "http://localhost:%s/" % DEFAULT_PORT
+DEFAULT_URL = f"http://localhost:{DEFAULT_PORT}/"
 DEFAULT_VERSION = 2
 DEFAULT_USER = "root"
 
-class elasticsearchPMDA(PMDA):
+
+def _is_pmda_setup():
+    """checks if PMDA is in setup state"""
+    return os.environ.get('PCP_PYTHON_DOMAIN') or os.environ.get('PCP_PYTHON_PMNS')
+
+
+def _setup_urllib(url, auth, pasw):
+    """ Setup urllib """
+    passman = httprequest.HTTPPasswordMgrWithDefaultRealm()
+    passman.add_password(None, url, auth, pasw)
+    authhandler = httprequest.HTTPBasicAuthHandler(passman)
+    opener = httprequest.build_opener(authhandler)
+    httprequest.install_opener(opener)
+    return httprequest
+
+
+class ElasticsearchPmda(PMDA):
     """ PCP Elasticsearch PMDA """
     def __init__(self, name, domain):
         """ Constructor """
@@ -71,21 +88,21 @@ class elasticsearchPMDA(PMDA):
         self.master_node = None
         self.index = {}
 
-        if self.user != DEFAULT_USER and not self.is_pmda_setup():
-            self.log("Switching to user '%s'" % self.user)
+        if self.user != DEFAULT_USER and not _is_pmda_setup():
+            self.log(f"Switching to user '{self.user}'")
             self.set_user(self.user)
 
         self.connect_pmcd()
 
-        if not self.is_pmda_setup():
+        if not _is_pmda_setup():
             try:
                 connection = self.baseurl
-                self.request = self.setup_urllib(self.baseurl, self.auth, self.password)
+                self.request = _setup_urllib(self.baseurl, self.auth, self.password)
                 request = self.request.urlopen(self.baseurl)
                 request.read()
                 request.close()
             except (BaseException, Exception):
-                self.log("Failed Elasticsearch connection attempt at %s" % (connection))
+                self.log(f"Failed Elasticsearch connection attempt at {connection}")
 
         # metrics setup
         self.cluster_indom = PM_INDOM_NULL
@@ -301,10 +318,6 @@ class elasticsearchPMDA(PMDA):
         self.set_refresh(self.elasticsearch_refresh)
         self.set_fetch_callback(self.elasticsearch_fetch_callback)
 
-    def is_pmda_setup(self):
-        """checks if PMDA is in setup state"""
-        return os.environ.get('PCP_PYTHON_DOMAIN') or os.environ.get('PCP_PYTHON_PMNS')
-
     def read_config(self):
         """ Read Configuration file """
 
@@ -331,27 +344,18 @@ class elasticsearchPMDA(PMDA):
                 elif opt == 'password':
                     self.password = config.get('pmda', opt)
                 else:
-                    self.log("Ignoring directive '%s' in %s." % (opt, configfile))
-
-    def setup_urllib(self, url, auth, pasw):
-        """ Setup urllib """
-        passman = httprequest.HTTPPasswordMgrWithDefaultRealm()
-        passman.add_password(None, url, auth, pasw)
-        authhandler = httprequest.HTTPBasicAuthHandler(passman)
-        opener = httprequest.build_opener(authhandler)
-        httprequest.install_opener(opener)
-        return httprequest
+                    self.log(f"Ignoring directive '{opt}' in {configfile}.")
 
     def get_url(self, url):
         """ Perform HTTP GET """
-        # self.log(str("url: " + str(url)))
+        # self.log(f"url: {url}")
         req = None
         try:
             req = self.request.urlopen(url)
             self.error = False
         except (BaseException, Exception):
             if not self.error:
-                self.log("Failed to get URL %s" % (url))
+                self.log(f"Failed to get URL {url}")
             self.error = True
         if not req:
             if self.cluster:
@@ -381,6 +385,7 @@ class elasticsearchPMDA(PMDA):
             if request:
                 self.cluster = json.loads(request.read())
                 request.close()
+            return
 
         if cluster == self.nodes_cluster:
             temp = {}
@@ -390,7 +395,7 @@ class elasticsearchPMDA(PMDA):
                 temp = json.loads(request.read())
                 request.close()
             try:
-                self.nodes = dict()
+                self.nodes = {}
                 for _id, stats in temp['nodes'].items():
                     name = stats['name']
                     insts[name] = c_int(1)
@@ -399,6 +404,7 @@ class elasticsearchPMDA(PMDA):
                 pass
             self.nodes_insts.set_instances(self.nodes_indom, insts)
             self.replace_indom(self.nodes_indom, insts)
+            return
 
         if cluster in (self.node_info_cluster, self.master_node_cluster):
             temp = {}
@@ -417,7 +423,7 @@ class elasticsearchPMDA(PMDA):
                         pass
             else:
                 try:
-                    self.node_info = dict()
+                    self.node_info = {}
                     for _id, info in temp['nodes'].items():
                         name = info['name']
                         insts[name] = c_int(1)
@@ -426,12 +432,14 @@ class elasticsearchPMDA(PMDA):
                     pass
                 self.node_info_insts.set_instances(self.node_info_indom, insts)
                 self.replace_indom(self.node_info_indom, insts)
+            return
 
         if cluster == self.version_cluster:
             request = self.get_url(self.baseurl)
             if request:
                 self.info = json.loads(request.read())
                 request.close()
+            return
 
         if cluster in (self.search_cluster, self.perindex_cluster):
             temp = {}
@@ -451,6 +459,7 @@ class elasticsearchPMDA(PMDA):
                     pass
                 self.perindex_insts.set_instances(self.perindex_indom, insts)
                 self.replace_indom(self.perindex_indom, insts)
+            return
 
         if cluster == self.index_cluster:
             temp = {}
@@ -476,199 +485,199 @@ class elasticsearchPMDA(PMDA):
             try:
                 if item == 0:
                     return [str(self.cluster['cluster_name']), 1]
-                elif item == 1:
+                if item == 1:
                     return [str(self.cluster['status']), 1]
-                elif item == 2:
+                if item == 2:
                     return [self.cluster['timed_out'], 1]
-                elif item == 3:
+                if item == 3:
                     return [self.cluster['number_of_nodes'], 1]
-                elif item == 4:
+                if item == 4:
                     return [self.cluster['number_of_data_nodes'], 1]
-                elif item == 5:
+                if item == 5:
                     return [self.cluster['active_primary_shards'], 1]
-                elif item == 6:
+                if item == 6:
                     return [self.cluster['active_shards'], 1]
-                elif item == 7:
+                if item == 7:
                     return [self.cluster['relocating_shards'], 1]
-                elif item == 8:
+                if item == 8:
                     return [self.cluster['initializing_shards'], 1]
-                elif item == 9:
+                if item == 9:
                     return [self.cluster['unassigned_shards'], 1]
-                elif item == 10:
+                if item == 10:
                     if self.cluster['status'] == 'green':
                         return [0, 1]
-                    elif self.cluster['status'] == 'yellow':
+                    if self.cluster['status'] == 'yellow':
                         return [1, 1]
-                    elif self.cluster['status'] == 'red':
+                    if self.cluster['status'] == 'red':
                         return [2, 1]
             except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
-        if cluster == self.nodes_cluster:
+        elif cluster == self.nodes_cluster:
             if not self.nodes:
                 return [PMDA_FETCH_NOVALUES, 0]
             try:
                 node = self.nodes_insts.inst_name_lookup(inst)
                 if item == 0:
                     return [self.nodes[node]['indices']['completion']['size_in_bytes'], 1]
-                elif item == 1:
+                if item == 1:
                     return [self.nodes[node]['indices']['docs']['count'], 1]
-                elif item == 2:
+                if item == 2:
                     return [self.nodes[node]['indices']['docs']['num_docs'], 1]
-                elif item == 3:
+                if item == 3:
                     return [self.nodes[node]['indices']['cache']['field_evictions'], 1]
-                elif item == 4:
+                if item == 4:
                     return [self.nodes[node]['indices']['cache']['field_size_in_bytes'], 1]
-                elif item == 5:
+                if item == 5:
                     return [self.nodes[node]['indices']['cache']['filter_count'], 1]
-                elif item == 6:
+                if item == 6:
                     return [self.nodes[node]['indices']['cache']['filter_evictions'], 1]
-                elif item == 7:
+                if item == 7:
                     return [self.nodes[node]['indices']['cache']['filter_size_in_bytes'], 1]
-                elif item == 8:
+                if item == 8:
                     return [self.nodes[node]['indices']['merges']['current'], 1]
-                elif item == 9:
+                if item == 9:
                     return [self.nodes[node]['indices']['merges']['total'], 1]
-                elif item == 10:
+                if item == 10:
                     return [self.nodes[node]['indices']['merges']['total_time_in_millis'], 1]
-                elif item == 11:
+                if item == 11:
                     return [self.nodes[node]['jvm']['uptime_in_millis'], 1]
-                elif item == 12:
+                if item == 12:
                     return [self.nodes[node]['jvm']['uptime'], 1]
-                elif item == 13:
+                if item == 13:
                     return [self.nodes[node]['jvm']['mem']['heap_used_in_bytes'], 1]
-                elif item == 14:
+                if item == 14:
                     return [self.nodes[node]['jvm']['mem']['heap_committed_in_bytes'], 1]
-                elif item == 15:
+                if item == 15:
                     return [self.nodes[node]['jvm']['mem']['non_heap_used_in_bytes'], 1]
-                elif item == 16:
+                if item == 16:
                     return [self.nodes[node]['jvm']['mem']['non_heap_committed_in_bytes'], 1]
-                elif item == 17:
+                if item == 17:
                     return [self.nodes[node]['jvm']['threads']['count'], 1]
-                elif item == 18:
+                if item == 18:
                     return [self.nodes[node]['jvm']['threads']['peak_count'], 1]
-                elif item == 19:
+                if item == 19:
                     return [self.nodes[node]['jvm']['gc']['collection_count'], 1]
-                elif item == 20:
+                if item == 20:
                     return [self.nodes[node]['jvm']['gc']['collection_time_in_millis'], 1]
-                elif item == 21:
+                if item == 21:
                     return [self.nodes[node]['jvm']['gc']['collectors']['Copy']['collection_count'], 1]
-                elif item == 22:
+                if item == 22:
                     return [self.nodes[node]['jvm']['gc']['collectors']['Copy']['collection_time_in_millis'], 1]
-                elif item == 23:
+                if item == 23:
                     return [self.nodes[node]['jvm']['gc']['collectors']['ParNew']['collection_count'], 1]
-                elif item == 24:
+                if item == 24:
                     return [self.nodes[node]['jvm']['gc']['collectors']['ParNew']['collection_time_in_millis'], 1]
-                elif item == 25:
+                if item == 25:
                     return [self.nodes[node]['jvm']['gc']['collectors']['ConcurrentMarkSweep']['collection_count'], 1]
-                elif item == 26:
+                if item == 26:
                     return [self.nodes[node]['jvm']['gc']['collectors']['ConcurrentMarkSweep']['collection_time_in_millis'], 1]
-                elif item == 27:
+                if item == 27:
                     return [self.nodes[node]['indices']['docs']['deleted'], 1]
-                elif item == 28:
+                if item == 28:
                     return [self.nodes[node]['indices']['indexing']['index_total'], 1]
-                elif item == 29:
+                if item == 29:
                     return [self.nodes[node]['indices']['indexing']['index_time_in_millis'], 1]
-                elif item == 30:
+                if item == 30:
                     return [self.nodes[node]['indices']['indexing']['delete_total'], 1]
-                elif item == 31:
+                if item == 31:
                     return [self.nodes[node]['indices']['indexing']['delete_time_in_millis'], 1]
-                elif item == 32:
+                if item == 32:
                     return [self.nodes[node]['indices']['merges']['current_docs'], 1]
-                elif item == 33:
+                if item == 33:
                     return [self.nodes[node]['indices']['merges']['current_size_in_bytes'], 1]
-                elif item == 34:
+                if item == 34:
                     return [self.nodes[node]['indices']['merges']['total_docs'], 1]
-                elif item == 35:
+                if item == 35:
                     return [self.nodes[node]['indices']['merges']['total_size_in_bytes'], 1]
-                elif item == 36:
+                if item == 36:
                     return [self.nodes[node]['indices']['refresh']['total'], 1]
-                elif item == 37:
+                if item == 37:
                     return [self.nodes[node]['indices']['refresh']['total_time_in_millis'], 1]
-                elif item == 38:
+                if item == 38:
                     return [self.nodes[node]['indices']['flush']['total'], 1]
-                elif item == 39:
+                if item == 39:
                     return [self.nodes[node]['indices']['flush']['total_time_in_millis'], 1]
-                elif item == 40:
+                if item == 40:
                     return [self.nodes[node]['process']['timestamp'], 1]
-                elif item == 41:
+                if item == 41:
                     return [self.nodes[node]['process']['open_file_descriptors'], 1]
-                elif item == 42:
+                if item == 42:
                     return [self.nodes[node]['process']['cpu']['percent'], 1]
-                elif item == 43:
+                if item == 43:
                     return [self.nodes[node]['process']['cpu']['sys_in_millis'], 1]
-                elif item == 44:
+                if item == 44:
                     return [self.nodes[node]['process']['cpu']['user_in_millis'], 1]
-                elif item == 45:
+                if item == 45:
                     return [self.nodes[node]['process']['mem']['resident_in_bytes'], 1]
-                elif item == 46:
+                if item == 46:
                     return [self.nodes[node]['process']['mem']['total_virtual_in_bytes'], 1]
-                elif item == 47:
+                if item == 47:
                     return [self.nodes[node]['indices']['store']['size_in_bytes'], 1]
-                elif item == 48:
+                if item == 48:
                     return [self.nodes[node]['indices']['get']['total'], 1]
-                elif item == 49:
+                if item == 49:
                     return [self.nodes[node]['indices']['get']['time_in_millis'], 1]
-                elif item == 50:
+                if item == 50:
                     return [self.nodes[node]['indices']['get']['exists_total'], 1]
-                elif item == 51:
+                if item == 51:
                     return [self.nodes[node]['indices']['get']['exists_time_in_millis'], 1]
-                elif item == 52:
+                if item == 52:
                     return [self.nodes[node]['indices']['get']['missing_total'], 1]
-                elif item == 53:
+                if item == 53:
                     return [self.nodes[node]['indices']['get']['missing_time_in_millis'], 1]
-                elif item == 54:
+                if item == 54:
                     return [self.nodes[node]['indices']['search']['query_total'], 1]
-                elif item == 55:
+                if item == 55:
                     return [self.nodes[node]['indices']['search']['query_time_in_millis'], 1]
-                elif item == 56:
+                if item == 56:
                     return [self.nodes[node]['indices']['search']['fetch_total'], 1]
-                elif item == 57:
+                if item == 57:
                     return [self.nodes[node]['indices']['search']['fetch_time_in_millis'], 1]
-                elif item == 58:
+                if item == 58:
                     return [self.nodes[node]['transport']['server_open'], 1]
-                elif item == 59:
+                if item == 59:
                     return [self.nodes[node]['transport']['rx_count'], 1]
-                elif item == 60:
+                if item == 60:
                     return [self.nodes[node]['transport']['rx_size_in_bytes'], 1]
-                elif item == 61:
+                if item == 61:
                     return [self.nodes[node]['transport']['tx_count'], 1]
-                elif item == 62:
+                if item == 62:
                     return [self.nodes[node]['transport']['tx_size_in_bytes'], 1]
-                elif item == 63:
+                if item == 63:
                     return [self.nodes[node]['http']['current_open'], 1]
-                elif item == 64:
+                if item == 64:
                     return [self.nodes[node]['http']['total_opened'], 1]
             except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
-        if cluster == self.node_info_cluster:
+        elif cluster == self.node_info_cluster:
             if not self.node_info:
                 return [PMDA_FETCH_NOVALUES, 0]
             try:
                 node = self.node_info_insts.inst_name_lookup(inst)
                 if item == 0:
                     return [self.node_info[node]['jvm']['pid'], 1]
-                elif item == 1:
+                if item == 1:
                     return [str(self.node_info[node]['jvm']['version']), 1]
-                elif item == 2:
+                if item == 2:
                     return [str(self.node_info[node]['jvm']['vm_name']), 1]
-                elif item == 3:
+                if item == 3:
                     return [str(self.node_info[node]['jvm']['vm_version']), 1]
-                elif item == 4:
+                if item == 4:
                     return [self.node_info[node]['jvm']['mem']['heap_init_in_bytes'], 1]
-                elif item == 5:
+                if item == 5:
                     return [self.node_info[node]['jvm']['mem']['heap_max_in_bytes'], 1]
-                elif item == 6:
+                if item == 6:
                     return [self.node_info[node]['jvm']['mem']['non_heap_init_in_bytes'], 1]
-                elif item == 7:
+                if item == 7:
                     return [self.node_info[node]['jvm']['mem']['non_heap_max_in_bytes'], 1]
-                elif item == 8:
+                if item == 8:
                     return [self.node_info[node]['process']['max_file_descriptors'], 1]
             except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
-        if cluster == self.version_cluster:
+        elif cluster == self.version_cluster:
             if not self.info:
                 return [PMDA_FETCH_NOVALUES, 0]
             try:
@@ -677,75 +686,75 @@ class elasticsearchPMDA(PMDA):
             except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
-        if cluster == self.search_cluster:
+        elif cluster == self.search_cluster:
             if not self.search:
                 return [PMDA_FETCH_NOVALUES, 0]
             try:
                 if item == 0:
                     return [self.search['_shards']['total'], 1]
-                elif item == 1:
+                if item == 1:
                     return [self.search['_shards']['successful'], 1]
-                elif item == 2:
+                if item == 2:
                     return [self.search['_shards']['failed'], 1]
-                elif item == 3:
+                if item == 3:
                     return [self.search['_all']['primaries']['search']['query_total'], 1]
-                elif item == 4:
+                if item == 4:
                     return [self.search['_all']['primaries']['search']['query_time_in_millis'], 1]
-                elif item == 5:
+                if item == 5:
                     return [self.search['_all']['primaries']['search']['fetch_total'], 1]
-                elif item == 6:
+                if item == 6:
                     return [self.search['_all']['total']['search']['query_total'], 1]
-                elif item == 7:
+                if item == 7:
                     return [self.search['_all']['total']['search']['query_time_in_millis'], 1]
-                elif item == 8:
+                if item == 8:
                     return [self.search['_all']['total']['search']['fetch_total'], 1]
-                elif item == 9:
+                if item == 9:
                     return [self.search['_all']['total']['search']['fetch_time_in_millis'], 1]
             except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
-        if cluster == self.perindex_cluster:
+        elif cluster == self.perindex_cluster:
             if not self.search:
                 return [PMDA_FETCH_NOVALUES, 0]
             try:
                 index = self.perindex_insts.inst_name_lookup(inst)
                 if item == 0:
                     return [self.perindex[index]['primaries']['search']['query_total'], 1]
-                elif item == 1:
+                if item == 1:
                     return [self.perindex[index]['primaries']['search']['query_time_in_millis'], 1]
-                elif item == 2:
+                if item == 2:
                     return [self.perindex[index]['primaries']['search']['fetch_total'], 1]
-                elif item == 3:
+                if item == 3:
                     return [self.perindex[index]['primaries']['search']['fetch_time_in_millis'], 1]
-                elif item == 4:
+                if item == 4:
                     return [self.perindex[index]['total']['search']['query_total'], 1]
-                elif item == 5:
+                if item == 5:
                     return [self.perindex[index]['total']['search']['query_time_in_millis'], 1]
-                elif item == 6:
+                if item == 6:
                     return [self.perindex[index]['total']['search']['fetch_total'], 1]
-                elif item == 7:
+                if item == 7:
                     return [self.perindex[index]['total']['search']['fetch_time_in_millis'], 1]
             except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
-        if cluster == self.master_node_cluster:
+        elif cluster == self.master_node_cluster:
             if not self.master_node:
                 return [PMDA_FETCH_NOVALUES, 0]
             if item == 0:
                 return [self.master_node, 1]
 
-        if cluster == self.index_cluster:
+        elif cluster == self.index_cluster:
             if not self.index:
                 return [PMDA_FETCH_NOVALUES, 0]
             try:
                 index = self.index_insts.inst_name_lookup(inst)
                 if item == 0:
                     return [int(self.index[index]['settings']['index']['gateway_snapshot_interval']), 1]
-                elif item == 1:
+                if item == 1:
                     return [int(self.index[index]['settings']['index']['number_of_replicas']), 1]
-                elif item == 2:
+                if item == 2:
                     return [int(self.index[index]['settings']['index']['number_of_shards']), 1]
-                elif item == 3:
+                if item == 3:
                     return [int(self.index[index]['settings']['index']['version_created']), 1]
             except KeyError:
                 return [PM_ERR_APPVERSION, 0]
@@ -754,4 +763,4 @@ class elasticsearchPMDA(PMDA):
 
 
 if __name__ == '__main__':
-    elasticsearchPMDA('elasticsearch', 108).run()
+    ElasticsearchPmda('elasticsearch', 108).run()
