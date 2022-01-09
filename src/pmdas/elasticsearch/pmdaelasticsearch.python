@@ -68,7 +68,7 @@ class elasticsearchPMDA(PMDA):
         self.stat = {}
         self.search = {}
         self.perindex = {}
-        self.master_node = ()
+        self.master_node = None
         self.index = {}
 
         if self.user != DEFAULT_USER and not self.is_pmda_setup():
@@ -369,7 +369,7 @@ class elasticsearchPMDA(PMDA):
             if self.perindex:
                 self.perindex = {}
             if self.master_node:
-                self.master_node = ()
+                self.master_node = None
             if self.index:
                 self.index = {}
         return req
@@ -390,29 +390,42 @@ class elasticsearchPMDA(PMDA):
                 temp = json.loads(request.read())
                 request.close()
             try:
-                self.nodes = temp['nodes']
-                for nodes in temp['nodes']:
-                    insts[nodes] = c_int(1)
+                self.nodes = dict()
+                for _id, stats in temp['nodes'].items():
+                    name = stats['name']
+                    insts[name] = c_int(1)
+                    self.nodes[name] = stats
             except KeyError:
                 pass
             self.nodes_insts.set_instances(self.nodes_indom, insts)
             self.replace_indom(self.nodes_indom, insts)
 
-        if cluster == self.node_info_cluster:
+        if cluster in (self.node_info_cluster, self.master_node_cluster):
             temp = {}
             insts = {}
             request = self.get_url(self.baseurl + "_nodes")
             if request:
                 temp = json.loads(request.read())
                 request.close()
-            try:
-                self.node_info = temp['nodes']
-                for nodes in temp['nodes']:
-                    insts[nodes] = c_int(1)
-            except KeyError:
-                pass
-            self.node_info_insts.set_instances(self.node_info_indom, insts)
-            self.replace_indom(self.node_info_indom, insts)
+            if cluster == self.master_node_cluster:
+                self.master_node = None
+                for _id, info in temp['nodes'].items():
+                    try:
+                        if info['attributes']['master'] == "true":
+                            self.master_node = str(info['name'])
+                    except KeyError:
+                        pass
+            else:
+                try:
+                    self.node_info = dict()
+                    for _id, info in temp['nodes'].items():
+                        name = info['name']
+                        insts[name] = c_int(1)
+                        self.node_info[name] = info
+                except KeyError:
+                    pass
+                self.node_info_insts.set_instances(self.node_info_indom, insts)
+                self.replace_indom(self.node_info_indom, insts)
 
         if cluster == self.version_cluster:
             request = self.get_url(self.baseurl)
@@ -439,24 +452,21 @@ class elasticsearchPMDA(PMDA):
                 self.perindex_insts.set_instances(self.perindex_indom, insts)
                 self.replace_indom(self.perindex_indom, insts)
 
-        if cluster in (self.master_node_cluster, self.index_cluster):
+        if cluster == self.index_cluster:
             temp = {}
             insts = {}
-            request = self.get_url(self.baseurl + "_cluster/state")
+            request = self.get_url(self.baseurl + "_cluster/state/metadata")
             if request:
                 temp = json.loads(request.read())
                 request.close()
-            if cluster == self.master_node_cluster:
-                self.master_node = temp
-            else:
-                try:
-                    self.index = temp['metadata']['indices']
-                    for index in temp['metadata']['indices']:
-                        insts[index] = c_int(1)
-                except KeyError:
-                    pass
-                self.index_insts.set_instances(self.index_indom, insts)
-                self.replace_indom(self.index_indom, insts)
+            try:
+                self.index = temp['metadata']['indices']
+                for index in temp['metadata']['indices']:
+                    insts[index] = c_int(1)
+            except KeyError:
+                pass
+            self.index_insts.set_instances(self.index_indom, insts)
+            self.replace_indom(self.index_indom, insts)
 
     def elasticsearch_fetch_callback(self, cluster, item, inst):
         """ Fetch Callback """
@@ -662,7 +672,8 @@ class elasticsearchPMDA(PMDA):
             if not self.info:
                 return [PMDA_FETCH_NOVALUES, 0]
             try:
-                return [str(self.info['version']['number']), 1]
+                if item == 0:
+                    return [str(self.info['version']['number']), 1]
             except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
@@ -720,11 +731,8 @@ class elasticsearchPMDA(PMDA):
         if cluster == self.master_node_cluster:
             if not self.master_node:
                 return [PMDA_FETCH_NOVALUES, 0]
-            try:
-                if item == 0:
-                    return [str(self.master_node['master_node']), 1]
-            except KeyError:
-                return [PM_ERR_APPVERSION, 0]
+            if item == 0:
+                return [self.master_node, 1]
 
         if cluster == self.index_cluster:
             if not self.index:
