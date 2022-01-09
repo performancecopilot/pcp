@@ -439,7 +439,7 @@ class elasticsearchPMDA(PMDA):
                 self.perindex_insts.set_instances(self.perindex_indom, insts)
                 self.replace_indom(self.perindex_indom, insts)
 
-        if cluster in (self.master_node_cluster, cluster == self.index_cluster):
+        if cluster in (self.master_node_cluster, self.index_cluster):
             temp = {}
             insts = {}
             request = self.get_url(self.baseurl + "_cluster/state")
