@@ -277,7 +277,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	namebase = (char *)&lbuf[k];
 	for (i = 0; i < inp->numinst; i++) {
 	    inp->instlist[i] = ntohl(inp->instlist[i]);
-	    if (inp->instlist[i] >= 0 && ntohl(stridx[i]) >= 0) {
+	    if (inp->instlist[i] >= 0 && (__int32_t)ntohl(stridx[i]) >= 0) {
 		inp->namelist[i] = &namebase[ntohl(stridx[i])];
 		if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
 		    fprintf(stderr, "inst[%d] %d or \"%s\" (idx=%d)\n", i, inp->instlist[i], inp->namelist[i], ntohl(stridx[i]));
