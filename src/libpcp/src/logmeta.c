@@ -247,10 +247,12 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 
 		/* Unlink the duplicate and set it up to be re-inserted. */
 		assert(idp_cached != NULL);
-		if (idp_prior)
-		    idp_prior->next = idp_cached->next;
-		else
-		    hp->data = (void *)idp_cached->next;
+		/*
+		 * According to Coverity CID 374711 idp_prior cannot be
+		 * NULL here, so we're not at the head of the list
+		 */
+		assert(idp_prior != NULL);
+		idp_prior->next = idp_cached->next;
 		idp = idp_cached;
 	    }
 
