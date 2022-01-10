@@ -560,8 +560,12 @@ dumpDiskInDom(__pmContext *ctxp)
 			else
 			    printf("   add %d or \"%s\"\n", in.instlist[i], in.namelist[i]);
 		    }
-		    else
+		    else if (in.namelist[i] != NULL)
 			printf("   %d or \"%s\"\n", in.instlist[i], in.namelist[i]);
+		    else {
+			fprintf(stderr, "dumpDiskInDom: Botch: indom record type %d and namelist[%d] (inst %d) is NULL\n", hdr.type, i, in.instlist[i]);
+			exit(1);
+		    }
 		}
 		fflush(stdout);
 	    }
