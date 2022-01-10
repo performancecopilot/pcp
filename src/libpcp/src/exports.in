@@ -794,3 +794,8 @@ PCP_3.36 {
     __pmDumpPDUTrace;
 } PCP_3.35;
 
+PCP_3.37 {
+  global:
+    __pmLogUndeltaInDom;
+} PCP_3.36;
+

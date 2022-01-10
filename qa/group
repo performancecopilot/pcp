@@ -1780,7 +1780,7 @@ x11
 1331 verify local
 1332 archive pmdumplog local pmlogrewrite
 1333 archive pmdumplog local valgrind pmlogrewrite
-1334 pmlogger pmdumplog local
+1334 pmlogger pmdumplog local archive_v3
 1335 archive pmlogger local archive_v3 pmloglabel pmdumplog
 1336 archive pmlogger local archive_v3 valgrind pmloglabel pmdumplog
 1337 pmda.mssql local

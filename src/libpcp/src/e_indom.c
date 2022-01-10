@@ -177,7 +177,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
      * indom we've just written to the external metadata file above.
      */
     if (type != TYPE_INDOM_DELTA)
-	sts = addindom(lcp, indom, tsp, numinst, instlist, namelist, NULL, 0);
+	sts = addindom(lcp, indom, tsp, type, numinst, instlist, namelist, NULL, 0);
 
     return sts;
 }

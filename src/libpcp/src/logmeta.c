@@ -95,26 +95,30 @@ sameindom(const __pmLogInDom *idp1, const __pmLogInDom *idp2)
 }
 
 /*
- * Sort the given instance arrays based on ascending identifier,
- * before associating them with the __pmLogInDom.  This allows a
- * variety of optimised lookups in subsequent code that needs to
- * search for specific instances, compare instance domains, etc.
+ * Sort the given instance arrays based on ascending absolute
+ * internal instance identifier before associating them with the
+ * __pmLogInDom.  We need "absolute" instance identifiers here because
+ * values < 0 encode deletions for delta indoms.
+ * This allows a variety of optimised lookups in subsequent code that
+ * needs to search for specific instances, compare instance domains, etc.
  * Use an insertion sort because its often the case that we're
- * dealing with close-to-sorted data.  Because we have dependent
- * arrays, we cannot use the usual qsort/sort_r routines here.
+ * dealing with close-to-sorted data.  Also the "absolute" value
+ * ordering criteria and dependent array (namelist) means we cannot
+ * use the usual qsort/sort_r routines here.
  */
 static void
 addinsts(__pmLogInDom *idp, int numinst, int *instlist, char **namelist)
 {
-    int			i, j, id;
+    int			i, j, id, abs_id;
     char		*name;
 
     for (i = 0; i < numinst; i++) {
 	name = namelist[i];
 	id = instlist[i];
+	abs_id = abs(id);
 	j = i;
 
-	while (j > 0 && id < instlist[j-1]) {
+	while (j > 0 && abs_id < abs(instlist[j-1])) {
 	    namelist[j] = namelist[j-1];
 	    instlist[j] = instlist[j-1];
 	    j = j - 1;
@@ -133,8 +137,9 @@ addinsts(__pmLogInDom *idp, int numinst, int *instlist, char **namelist)
  * Filter out duplicates.
  */
 int
-addindom(__pmLogCtl *lcp, pmInDom indom, const __pmTimestamp *tsp, int numinst, 
-         int *instlist, char **namelist, __int32_t *indom_buf, int allinbuf)
+addindom(__pmLogCtl *lcp, pmInDom indom, const __pmTimestamp *tsp, int type,
+	 int numinst, int *instlist, char **namelist, __int32_t *indom_buf,
+	 int allinbuf)
 {
     __pmLogInDom	*idp, *idp_prior;
     __pmLogInDom	*idp_cached, *idp_time;
@@ -146,6 +151,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     if ((idp = (__pmLogInDom *)malloc(sizeof(__pmLogInDom))) == NULL)
 	return -oserror();
     idp->stamp = *tsp;		/* struct assignment */
+    idp->isdelta = (type == TYPE_INDOM_DELTA);
     idp->buf = indom_buf;
     idp->allinbuf = allinbuf;
     addinsts(idp, numinst, instlist, namelist);
@@ -266,13 +272,17 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     /* Insert at the identified insertion point. */
     if (idp_prior == NULL) {
 	idp->next = (__pmLogInDom *)hp->data;
-	idp->prior = NULL;
 	hp->data = (void *)idp;
     }
     else {
 	idp->next = idp_prior->next;
-	idp->prior = idp_prior;
 	idp_prior->next = idp;
+    }
+    if (idp_cached == NULL)
+	idp->prior = NULL;
+    else {
+	idp->prior = idp_cached->prior;
+	idp_cached->prior = idp;
     }
 
     return sts;
@@ -669,10 +679,10 @@ __pmLogAddPMNSNode(__pmArchCtl *acp, pmID pmid, const char *name)
 }
 
 int
-__pmLogAddInDom(__pmArchCtl *acp, const __pmTimestamp *tsp, const pmInResult *in,
+__pmLogAddInDom(__pmArchCtl *acp, const __pmTimestamp *tsp, int type, const pmInResult *in,
 		__int32_t *tbuf, int allinbuf)
 {
-    return addindom(acp->ac_log, in->indom, tsp,
+    return addindom(acp->ac_log, in->indom, tsp, type,
 		    in->numinst, in->instlist, in->namelist, tbuf, allinbuf);
 }
 
@@ -841,7 +851,7 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 		    goto end;
 	    }/*for*/
 	}
-	else if (h.type == TYPE_INDOM || h.type == TYPE_INDOM_V2) {
+	else if (h.type == TYPE_INDOM || h.type == TYPE_INDOM_DELTA || h.type == TYPE_INDOM_V2) {
 	    __pmTimestamp	stamp;
 	    pmInResult		in;
 	    __int32_t		*buf;
@@ -855,7 +865,7 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 		/*
 		 * we have instances, so in.namelist is not NULL
 		 */
-		if ((sts = __pmLogAddInDom(acp, &stamp, &in, buf, allinbuf)) < 0) {
+		if ((sts = __pmLogAddInDom(acp, &stamp, h.type, &in, buf, allinbuf)) < 0) {
 		    free(buf);
 		    if (!allinbuf)
 			free(in.namelist);
@@ -1200,6 +1210,116 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":5", PM_FAULT_ALLOC);
     return __pmHashAdd((int)dp->pmid, (void *)tdp, &lcp->hashpmid);
 }
 
+void
+__pmLogUndeltaInDom(pmInDom indom,__pmLogInDom *idp)
+{
+    __pmLogInDom	*tidp;		/* prior full indom */
+    __pmLogInDom	*didp;		/* following delta indom */
+    /*
+     * "next" is in reverse chronological order
+     */
+    for (tidp = idp->next; tidp != NULL; tidp = tidp->next) {
+	if (!tidp->isdelta)
+	    break;
+    }
+    if (tidp == NULL) {
+	char	strbuf[20];
+	pmprintf("__pmLogUndeltaInDom: Botch: InDom %s: no full indom record\n",  pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
+	pmprintf("__pmLogInDom next chain:\n");
+	for (tidp = idp; tidp != NULL; tidp = tidp->next) {
+	    pmprintf("%p isdelta=%d numinst=%d\n", tidp, tidp->isdelta, tidp->numinst);
+	}
+	pmflush();
+	return;
+    }
+
+    /*
+     * found the previous full indom, now march forward in time replacing
+     * each delta indom with a reconstructed full indom
+     */
+    for ( ; tidp != NULL; ) {
+	int	numinst;
+	int	*instlist;
+	char	**namelist;
+	int	i;		/* index over last full indom */
+	int	j;		/* index over delta indom */
+	int	k;		/* index over new full indom we're building */
+	numinst = tidp->numinst;
+	didp = tidp->prior;
+	for (j = 0; j < didp->numinst; j++) {
+	    if (didp->instlist[j] >= 0)
+		numinst++;
+	    else
+		numinst--;
+	}
+	if ((instlist = (int *)malloc(numinst * sizeof(int *))) == NULL) {
+	    pmNoMem("__pmLogUndeltaInDom instlist", numinst * sizeof(int *), PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+	if ((namelist = (char  **)malloc(numinst * sizeof(char **))) == NULL) {
+	    pmNoMem("__pmLogUndeltaInDom namelist", numinst * sizeof(char **), PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+	if (pmDebugOptions.logmeta) {
+	    char	strbuf[20];
+	    fprintf(stderr, "__pmLogUndeltaInDom(%s, ...): @", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
+	    StrTimestamp(&didp->stamp);
+	    fprintf(stderr, " didp=%p numinst: %d -> %d\n", didp, didp->numinst, numinst);
+	}
+	for (i = j = k = 0; i < tidp->numinst || j < didp->numinst; ) {
+	    if (i < tidp->numinst && j < didp->numinst) {
+		if (didp->instlist[j] < 0 && tidp->instlist[i] == -didp->instlist[j]) {
+		    /* delete old instance */
+		    if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
+			fprintf(stderr, "[-] del from [%d] inst %d \"%s\"\n", j, didp->instlist[j], didp->namelist[j]);
+		    i++;
+		    j++;
+		    continue;
+		}
+		else if (didp->instlist[j] > 0 && tidp->instlist[i] > didp->instlist[j]) {
+		    /* add new instance in correct sorted position */
+		    if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
+			fprintf(stderr, "[%d] add from [%d] inst %d \"%s\"\n", k, j, didp->instlist[j], didp->namelist[j]);
+		    instlist[k] = didp->instlist[j];
+		    namelist[k] = didp->namelist[j];
+		    k++;
+		    j++;
+		    continue;
+		}
+	    }
+	    if (i < tidp->numinst) {
+		/* copy instance from end of old indom */
+		if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
+		    fprintf(stderr, "[%d] dup from [%d] inst %d \"%s\"\n", k, i, tidp->instlist[i], tidp->namelist[i]);
+		instlist[k] = tidp->instlist[i];
+		namelist[k] = tidp->namelist[i];
+		k++;
+		i++;
+	    }
+	    else if (j < didp->numinst) {
+		/* add new instance at end of indom */
+		if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
+		    fprintf(stderr, "[%d] append from [%d] inst %d \"%s\"\n", k, j, didp->instlist[j], didp->namelist[j]);
+		instlist[k] = didp->instlist[j];
+		namelist[k] = didp->namelist[j];
+		k++;
+		j++;
+	    }
+	}
+	didp->numinst = numinst;
+	didp->instlist = instlist;
+	didp->namelist = namelist;
+	didp->isdelta = 0;
+
+	if (didp == idp) {
+	    /* done when we're back to the starting point */
+	    break;
+	}
+
+	tidp = didp->next;
+    }
+}
+
 static __pmLogInDom *
 searchindom(__pmLogCtl *lcp, pmInDom indom, __pmTimestamp *tsp)
 {
@@ -1219,9 +1339,12 @@ searchindom(__pmLogCtl *lcp, pmInDom indom, __pmTimestamp *tsp)
     idp = (__pmLogInDom *)hp->data;
     if (tsp != NULL) {
 	for ( ; idp != NULL; idp = idp->next) {
-	    /*
-	     * need first one at or earlier than the requested time
-	     */
+	    if (idp->isdelta) {
+		/*
+		 * Need to "un-delta" this delta indom record
+		 */
+		__pmLogUndeltaInDom(indom, idp);
+	    }
 	    if (__pmTimestampCmp(&idp->stamp, tsp) <= 0)
 		break;
 	    if (pmDebugOptions.logmeta) {

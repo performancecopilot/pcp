@@ -563,6 +563,7 @@ dumpDiskInDom(__pmContext *ctxp)
 		    else
 			printf("   %d or \"%s\"\n", in.instlist[i], in.namelist[i]);
 		}
+		fflush(stdout);
 	    }
 	    free(buf);
 	    if (in.namelist != NULL && !allinbuf)
@@ -609,12 +610,15 @@ dumpInDom(__pmContext *ctxp)
 	    for ( ; ; ) {
 		for (idp = (__pmLogInDom *)hp->data; idp->next != ldp; idp =idp->next)
 			;
+		if (idp->isdelta)
+		    __pmLogUndeltaInDom((pmInDom)hp->key, idp);
 		dump_pmTimestamp(&idp->stamp);
 		printf(" %d instances\n", idp->numinst);
 		for (j = 0; j < idp->numinst; j++) {
 		    printf("   %d or \"%s\"\n",
 			idp->instlist[j], idp->namelist[j]);
 		}
+		fflush(stdout);
 		if (idp == (__pmLogInDom *)hp->data)
 		    break;
 		ldp = idp;

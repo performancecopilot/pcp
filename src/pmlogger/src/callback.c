@@ -762,19 +762,57 @@ delta_indom(pmInResult *old, pmInResult *new, pmInResult *new_delta)
 	pmNoMem("delta_indom: new namelist", new_delta->numinst * sizeof(char *), PM_RECOV_ERR);
 	goto done;
     }
-    k = 0;
-    for (i = 0; i < old->numinst; i++) {
-	if (old_map[i]) {
-	    new_delta->instlist[k] = -old->instlist[i];
-	    new_delta->namelist[k] = NULL;
-	    k++;
+    /*
+     * need to emit instances in sorted abs(instance number) order ...
+     * the logic on the read-path in __pmLogUndeltaInDom() assumes this
+     */
+    for (i = j = k = 0; i < old->numinst || j < new->numinst; ) {
+	if (i < old->numinst && j < new->numinst) {
+	    if (!old_map[i]) {
+		i++;
+		continue;
+	    }
+	    if (!new_map[j]) {
+		j++;
+		continue;
+	    }
+	    /*
+	     * both are candidates ... choose the smaller instance number
+	     */
+	    if (old->instlist[i] < new->instlist[j]) {
+		/* delete instance in middle of indom */
+		new_delta->instlist[k] = -old->instlist[i];
+		new_delta->namelist[k] = NULL;
+		k++;
+		i++;
+	    }
+	    else {
+		/* add instance in middle of indom */
+		new_delta->instlist[k] = new->instlist[j];
+		new_delta->namelist[k] = new->namelist[j];
+		k++;
+		j++;
+	    }
+	    continue;
 	}
-    }
-    for (j = 0; j < new->numinst; j++) {
-	if (new_map[j]) {
-	    new_delta->instlist[k] = new->instlist[j];
-	    new_delta->namelist[k] = new->namelist[j];
-	    k++;
+	if (i < old->numinst) {
+	    if (old_map[i]) {
+		/* delete from end of indom */
+		new_delta->instlist[k] = -old->instlist[i];
+		new_delta->namelist[k] = NULL;
+		k++;
+	    }
+	    i++;
+	}
+	else {
+	    /* j < new->numinst */
+	    if (new_map[j]) {
+		/* add to end of indom */
+		new_delta->instlist[k] = new->instlist[j];
+		new_delta->namelist[k] = new->namelist[j];
+		k++;
+	    }
+	    j++;
 	}
     }
     sts = 2;
@@ -1149,6 +1187,8 @@ do_work(task_t *tp)
 		    }
 		    if (needindom == 1) {
 			int	pdu_type;
+			if (pmDebugOptions.appl2)
+			    pmNotifyErr(LOG_INFO, "callback: indom (%s) full change", pmInDomStr(desc.indom));
 			stamp.sec = (__int32_t)resp->timestamp.tv_sec;
 			stamp.nsec = (__int32_t)resp->timestamp.tv_usec * 1000;
 			if (archive_version == PM_LOG_VERS03)
@@ -1168,22 +1208,24 @@ do_work(task_t *tp)
 			}
 			manageLabels(&desc, &stamp, 1);
 			needti = 1;
-			if (pmDebugOptions.appl2)
-			    pmNotifyErr(LOG_INFO, "callback: indom (%s) full change", pmInDomStr(desc.indom));
 		    }
 		    else if (needindom == 2) {
 			if (pmDebugOptions.appl2)
 			    pmNotifyErr(LOG_INFO, "callback: indom (%s) delta change", pmInDomStr(desc.indom));
+			stamp.sec = (__int32_t)resp->timestamp.tv_sec;
+			stamp.nsec = (__int32_t)resp->timestamp.tv_usec * 1000;
 			if ((sts = __pmLogPutInDom(&archctl, desc.indom, &stamp, TYPE_INDOM_DELTA, new_delta.numinst, new_delta.instlist, new_delta.namelist)) < 0) {
 			    fprintf(stderr, "__pmLogPutInDom(%s): delta: %s\n", pmInDomStr(desc.indom), pmErrStr(sts));
 			    exit(1);
 			}
-			if ((sts = __pmLogAddInDom(&archctl, &stamp, &new, NULL, 0)) < 0) {
+			if ((sts = __pmLogAddInDom(&archctl, &stamp, TYPE_INDOM_DELTA, &new, NULL, 0)) < 0) {
 			    fprintf(stderr, "__pmLogAddInDom(%s): %s\n", pmInDomStr(desc.indom), pmErrStr(sts));
 			    exit(1);
 			}
 			free(new_delta.instlist);
 			free(new_delta.namelist);
+			manageLabels(&desc, &stamp, 1);
+			needti = 1;
 		    }
 		    else {
 			free(new.instlist);

@@ -776,7 +776,7 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, __pmTimestamp *tsp, pmInResult *in
 	__pmArchCtl	*acp = ctxp->c_archctl;
 	char		errmsg[PM_MAXERRMSGLEN];
 
-	sts = __pmLogAddInDom(acp, tsp, in, NULL, 0);
+	sts = __pmLogAddInDom(acp, tsp, TYPE_INDOM_V2, in, NULL, 0);
 	if (sts < 0)
 	    fprintf(stderr, "%s: failed to add indom for %s: %s\n",
 			"pmDiscoverInvokeInDomCallBacks", pmIDStr(in->indom),

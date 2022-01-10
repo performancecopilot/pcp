@@ -1,6 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1364
 # pmlogger delta-indom write path ... check on-disk metadata
+# and verify that libpcp can load and "undelta" the indom
+#
 # non-valgrind variant, see qa/1365 for the valgrind variant
 #
 # Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
@@ -51,6 +53,8 @@ _filter()
 BEGIN				{ skip = 0 }
 $2 == "InDom:" && $3 == "2.1"	{ skip = 1; next }
 skip == 1 && $2 == "InDom:"	{ skip = 0 }
+$1 == "InDom:" && $2 == "2.1"	{ skip = 2; next }
+skip == 2 && $1 == "InDom:"	{ skip = 0 }
 skip == 0			{ print }'
 }
 
@@ -70,7 +74,7 @@ pmstore sample.proc.reset 1
 pmlogger -V 2 -c $tmp.config -l $tmp.log -s 20 $tmp.v2
 cat $tmp.log >>$seq.full
 echo "=== V2 archive ===" | tee -a $seq.full
-pmdumplog -I $tmp.v2 | tee -a $seq.full | _filter | tee $tmp.v2.dump
+pmdumplog -Ii $tmp.v2 | tee -a $seq.full | _filter | tee $tmp.v2.dump
 
 pmstore sample.proc.reset 1
 if $do_valgrind
@@ -84,7 +88,7 @@ cat $tmp.log >>$seq.full
 
 echo
 echo "=== V3 archive ===" | tee -a $seq.full
-pmdumplog -I $tmp.v3 | tee -a $seq.full | _filter | tee $tmp.v3.dump
+pmdumplog -Ii $tmp.v3 | tee -a $seq.full | _filter | tee $tmp.v3.dump
 
 echo
 echo "=== diffs ... ==="

@@ -92,8 +92,15 @@ filter == 1			{ if ($NF != 0) gsub(/[0-9][0-9]*$/,"TIME") }
 }
 
 # real QA test starts here
+echo "=== V2 ==="
 ( pmdumplog -a tmparch/sample-proc 2>&1 \
   ; pmdumplog -I tmparch/sample-proc 2>&1 \
+) | _filter
+
+echo
+echo "=== V3 ==="
+( pmdumplog -a tmparch/sample-proc_v3 2>&1 \
+  ; pmdumplog -I tmparch/sample-proc_v3 2>&1 \
 ) | _filter
 
 # success, all done
