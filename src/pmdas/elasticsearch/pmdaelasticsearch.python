@@ -526,15 +526,16 @@ class ElasticsearchPmda(PMDA):
                 return [PMDA_FETCH_NOVALUES, 0]
             try:
                 node = self.nodes_insts.inst_name_lookup(inst)
+                data = self.nodes[node]
                 if item in (0, 47):
-                    return [self.nodes[node]['indices']['store']['size_in_bytes'], 1]
+                    return [data['indices']['store']['size_in_bytes'], 1]
                 if item == 1:
-                    return [self.nodes[node]['indices']['docs']['count'], 1]
+                    return [data['indices']['docs']['count'], 1]
                 if item == 2:
                     # The 'nodes.indices.docs.num_docs', item #2, does not
                     # exist in the '_nodes/stats' API JSON payload
                     # (Elasticsearch V1 or V7).
-                    #  [self.nodes[node]['indices']['docs']['num_docs'], 1]
+                    #  [data['indices']['docs']['num_docs'], 1]
                     return [PM_ERR_APPVERSION, 0]
                 if item in (3, 4, 5, 6, 7):
                     # The 'nodes.indices.cache.field_evictions',
@@ -542,36 +543,36 @@ class ElasticsearchPmda(PMDA):
                     # '.filter_evictions', and '.filter_size_in_bytes', items
                     # #3 thru #7, do not exist in the '_nodes/stats' API JSON
                     # payload (Elasticsearch V1 or V7).
-                    #   [self.nodes[node]['indices']['cache']['field_evictions'], 1]
-                    #   [self.nodes[node]['indices']['cache']['field_size_in_bytes'], 1]
-                    #   [self.nodes[node]['indices']['cache']['filter_count'], 1]
-                    #   [self.nodes[node]['indices']['cache']['filter_evictions'], 1]
-                    #   [self.nodes[node]['indices']['cache']['filter_size_in_bytes'], 1]
+                    #   [data['indices']['cache']['field_evictions'], 1]
+                    #   [data['indices']['cache']['field_size_in_bytes'], 1]
+                    #   [data['indices']['cache']['filter_count'], 1]
+                    #   [data['indices']['cache']['filter_evictions'], 1]
+                    #   [data['indices']['cache']['filter_size_in_bytes'], 1]
                     return [PM_ERR_APPVERSION, 0]
                 if item == 8:
-                    return [self.nodes[node]['indices']['merges']['current'], 1]
+                    return [data['indices']['merges']['current'], 1]
                 if item == 9:
-                    return [self.nodes[node]['indices']['merges']['total'], 1]
+                    return [data['indices']['merges']['total'], 1]
                 if item == 10:
-                    return [self.nodes[node]['indices']['merges']['total_time_in_millis'], 1]
+                    return [data['indices']['merges']['total_time_in_millis'], 1]
                 if item == 11:
-                    return [self.nodes[node]['jvm']['uptime_in_millis'], 1]
+                    return [data['jvm']['uptime_in_millis'], 1]
                 if item == 12:
                     # The 'nodes.jvm.uptime', item #12, does not exist in
                     # the '_nodes/stats' API JSON payload (Elasticsearch V1 or V7).
                     return [PM_ERR_APPVERSION, 0]
                 if item == 13:
-                    return [self.nodes[node]['jvm']['mem']['heap_used_in_bytes'], 1]
+                    return [data['jvm']['mem']['heap_used_in_bytes'], 1]
                 if item == 14:
-                    return [self.nodes[node]['jvm']['mem']['heap_committed_in_bytes'], 1]
+                    return [data['jvm']['mem']['heap_committed_in_bytes'], 1]
                 if item == 15:
-                    return [self.nodes[node]['jvm']['mem']['non_heap_used_in_bytes'], 1]
+                    return [data['jvm']['mem']['non_heap_used_in_bytes'], 1]
                 if item == 16:
-                    return [self.nodes[node]['jvm']['mem']['non_heap_committed_in_bytes'], 1]
+                    return [data['jvm']['mem']['non_heap_committed_in_bytes'], 1]
                 if item == 17:
-                    return [self.nodes[node]['jvm']['threads']['count'], 1]
+                    return [data['jvm']['threads']['count'], 1]
                 if item == 18:
-                    return [self.nodes[node]['jvm']['threads']['peak_count'], 1]
+                    return [data['jvm']['threads']['peak_count'], 1]
                 if item in (19, 20, 21, 22, 23, 24, 25, 26):
                     # The 'nodes.jvm.gc.collection_count',
                     # '.collection_time_in_millis',
@@ -580,41 +581,41 @@ class ElasticsearchPmda(PMDA):
                     # '.collectors.{Copy|ParNew|ConcurrentMarkSweep}.collection_time_in_millis',
                     # items #19 thru #26, do not exist in the '_nodes/stats'
                     # API JSON payload (Elasticsearch V1 or V7).
-                    #   [self.nodes[node]['jvm']['gc']['collection_count'], 1]
-                    #   [self.nodes[node]['jvm']['gc']['collection_time_in_millis'], 1]
-                    #   [self.nodes[node]['jvm']['gc']['collectors']['Copy']['collection_count'], 1]
-                    #   [self.nodes[node]['jvm']['gc']['collectors']['Copy']['collection_time_in_millis'], 1]
-                    #   [self.nodes[node]['jvm']['gc']['collectors']['ParNew']['collection_count'], 1]
-                    #   [self.nodes[node]['jvm']['gc']['collectors']['ParNew']['collection_time_in_millis'], 1]
-                    #   [self.nodes[node]['jvm']['gc']['collectors']['ConcurrentMarkSweep']['collection_count'], 1]
-                    #   [self.nodes[node]['jvm']['gc']['collectors']['ConcurrentMarkSweep']['collection_time_in_millis'], 1]
+                    #   [data['jvm']['gc']['collection_count'], 1]
+                    #   [data['jvm']['gc']['collection_time_in_millis'], 1]
+                    #   [data['jvm']['gc']['collectors']['Copy']['collection_count'], 1]
+                    #   [data['jvm']['gc']['collectors']['Copy']['collection_time_in_millis'], 1]
+                    #   [data['jvm']['gc']['collectors']['ParNew']['collection_count'], 1]
+                    #   [data['jvm']['gc']['collectors']['ParNew']['collection_time_in_millis'], 1]
+                    #   [data['jvm']['gc']['collectors']['ConcurrentMarkSweep']['collection_count'], 1]
+                    #   [data['jvm']['gc']['collectors']['ConcurrentMarkSweep']['collection_time_in_millis'], 1]
                     return [PM_ERR_APPVERSION, 0]
                 if item == 27:
-                    return [self.nodes[node]['indices']['docs']['deleted'], 1]
+                    return [data['indices']['docs']['deleted'], 1]
                 if item == 28:
-                    return [self.nodes[node]['indices']['indexing']['index_total'], 1]
+                    return [data['indices']['indexing']['index_total'], 1]
                 if item == 29:
-                    return [self.nodes[node]['indices']['indexing']['index_time_in_millis'], 1]
+                    return [data['indices']['indexing']['index_time_in_millis'], 1]
                 if item == 30:
-                    return [self.nodes[node]['indices']['indexing']['delete_total'], 1]
+                    return [data['indices']['indexing']['delete_total'], 1]
                 if item == 31:
-                    return [self.nodes[node]['indices']['indexing']['delete_time_in_millis'], 1]
+                    return [data['indices']['indexing']['delete_time_in_millis'], 1]
                 if item == 32:
-                    return [self.nodes[node]['indices']['merges']['current_docs'], 1]
+                    return [data['indices']['merges']['current_docs'], 1]
                 if item == 33:
-                    return [self.nodes[node]['indices']['merges']['current_size_in_bytes'], 1]
+                    return [data['indices']['merges']['current_size_in_bytes'], 1]
                 if item == 34:
-                    return [self.nodes[node]['indices']['merges']['total_docs'], 1]
+                    return [data['indices']['merges']['total_docs'], 1]
                 if item == 35:
-                    return [self.nodes[node]['indices']['merges']['total_size_in_bytes'], 1]
+                    return [data['indices']['merges']['total_size_in_bytes'], 1]
                 if item == 36:
-                    return [self.nodes[node]['indices']['refresh']['total'], 1]
+                    return [data['indices']['refresh']['total'], 1]
                 if item == 37:
-                    return [self.nodes[node]['indices']['refresh']['total_time_in_millis'], 1]
+                    return [data['indices']['refresh']['total_time_in_millis'], 1]
                 if item == 38:
-                    return [self.nodes[node]['indices']['flush']['total'], 1]
+                    return [data['indices']['flush']['total'], 1]
                 if item == 39:
-                    return [self.nodes[node]['indices']['flush']['total_time_in_millis'], 1]
+                    return [data['indices']['flush']['total_time_in_millis'], 1]
                 if item == 40:
                     # The '_nodes/stats' JSON payload contains "timestamp"
                     # fields for each sub-section report marking the time at
@@ -622,55 +623,55 @@ class ElasticsearchPmda(PMDA):
                     # placing into the JSON payload. This is not a usable metric
                     # and was never setup properly.
                     #
-                    #   [self.nodes[node]['process']['timestamp'], 1]
+                    #   [data['process']['timestamp'], 1]
                     return [PM_ERR_APPVERSION, 0]
                 if item == 41:
-                    return [self.nodes[node]['process']['open_file_descriptors'], 1]
+                    return [data['process']['open_file_descriptors'], 1]
                 if item == 42:
-                    return [self.nodes[node]['process']['cpu']['percent'], 1]
+                    return [data['process']['cpu']['percent'], 1]
                 if item == 43:
-                    return [self.nodes[node]['process']['cpu']['sys_in_millis'], 1]
+                    return [data['process']['cpu']['sys_in_millis'], 1]
                 if item == 44:
-                    return [self.nodes[node]['process']['cpu']['user_in_millis'], 1]
+                    return [data['process']['cpu']['user_in_millis'], 1]
                 if item == 45:
-                    return [self.nodes[node]['process']['mem']['resident_in_bytes'], 1]
+                    return [data['process']['mem']['resident_in_bytes'], 1]
                 if item == 46:
-                    return [self.nodes[node]['process']['mem']['total_virtual_in_bytes'], 1]
+                    return [data['process']['mem']['total_virtual_in_bytes'], 1]
                 # Item 47 is the same as item 0.
                 if item == 48:
-                    return [self.nodes[node]['indices']['get']['total'], 1]
+                    return [data['indices']['get']['total'], 1]
                 if item == 49:
-                    return [self.nodes[node]['indices']['get']['time_in_millis'], 1]
+                    return [data['indices']['get']['time_in_millis'], 1]
                 if item == 50:
-                    return [self.nodes[node]['indices']['get']['exists_total'], 1]
+                    return [data['indices']['get']['exists_total'], 1]
                 if item == 51:
-                    return [self.nodes[node]['indices']['get']['exists_time_in_millis'], 1]
+                    return [data['indices']['get']['exists_time_in_millis'], 1]
                 if item == 52:
-                    return [self.nodes[node]['indices']['get']['missing_total'], 1]
+                    return [data['indices']['get']['missing_total'], 1]
                 if item == 53:
-                    return [self.nodes[node]['indices']['get']['missing_time_in_millis'], 1]
+                    return [data['indices']['get']['missing_time_in_millis'], 1]
                 if item == 54:
-                    return [self.nodes[node]['indices']['search']['query_total'], 1]
+                    return [data['indices']['search']['query_total'], 1]
                 if item == 55:
-                    return [self.nodes[node]['indices']['search']['query_time_in_millis'], 1]
+                    return [data['indices']['search']['query_time_in_millis'], 1]
                 if item == 56:
-                    return [self.nodes[node]['indices']['search']['fetch_total'], 1]
+                    return [data['indices']['search']['fetch_total'], 1]
                 if item == 57:
-                    return [self.nodes[node]['indices']['search']['fetch_time_in_millis'], 1]
+                    return [data['indices']['search']['fetch_time_in_millis'], 1]
                 if item == 58:
-                    return [self.nodes[node]['transport']['server_open'], 1]
+                    return [data['transport']['server_open'], 1]
                 if item == 59:
-                    return [self.nodes[node]['transport']['rx_count'], 1]
+                    return [data['transport']['rx_count'], 1]
                 if item == 60:
-                    return [self.nodes[node]['transport']['rx_size_in_bytes'], 1]
+                    return [data['transport']['rx_size_in_bytes'], 1]
                 if item == 61:
-                    return [self.nodes[node]['transport']['tx_count'], 1]
+                    return [data['transport']['tx_count'], 1]
                 if item == 62:
-                    return [self.nodes[node]['transport']['tx_size_in_bytes'], 1]
+                    return [data['transport']['tx_size_in_bytes'], 1]
                 if item == 63:
-                    return [self.nodes[node]['http']['current_open'], 1]
+                    return [data['http']['current_open'], 1]
                 if item == 64:
-                    return [self.nodes[node]['http']['total_opened'], 1]
+                    return [data['http']['total_opened'], 1]
             except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
@@ -679,24 +680,25 @@ class ElasticsearchPmda(PMDA):
                 return [PMDA_FETCH_NOVALUES, 0]
             try:
                 node = self.node_info_insts.inst_name_lookup(inst)
+                data = self.node_info[node]
                 if item == 0:
-                    return [self.node_info[node]['jvm']['pid'], 1]
+                    return [data['jvm']['pid'], 1]
                 if item == 1:
-                    return [str(self.node_info[node]['jvm']['version']), 1]
+                    return [str(data['jvm']['version']), 1]
                 if item == 2:
-                    return [str(self.node_info[node]['jvm']['vm_name']), 1]
+                    return [str(data['jvm']['vm_name']), 1]
                 if item == 3:
-                    return [str(self.node_info[node]['jvm']['vm_version']), 1]
+                    return [str(data['jvm']['vm_version']), 1]
                 if item == 4:
-                    return [self.node_info[node]['jvm']['mem']['heap_init_in_bytes'], 1]
+                    return [data['jvm']['mem']['heap_init_in_bytes'], 1]
                 if item == 5:
-                    return [self.node_info[node]['jvm']['mem']['heap_max_in_bytes'], 1]
+                    return [data['jvm']['mem']['heap_max_in_bytes'], 1]
                 if item == 6:
-                    return [self.node_info[node]['jvm']['mem']['non_heap_init_in_bytes'], 1]
+                    return [data['jvm']['mem']['non_heap_init_in_bytes'], 1]
                 if item == 7:
-                    return [self.node_info[node]['jvm']['mem']['non_heap_max_in_bytes'], 1]
+                    return [data['jvm']['mem']['non_heap_max_in_bytes'], 1]
                 if item == 8:
-                    return [self.node_info[node]['process']['max_file_descriptors'], 1]
+                    return [data['process']['max_file_descriptors'], 1]
             except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
@@ -743,22 +745,23 @@ class ElasticsearchPmda(PMDA):
                 return [PMDA_FETCH_NOVALUES, 0]
             try:
                 index = self.perindex_insts.inst_name_lookup(inst)
+                data = self.perindex[index]
                 if item == 0:
-                    return [self.perindex[index]['primaries']['search']['query_total'], 1]
+                    return [data['primaries']['search']['query_total'], 1]
                 if item == 1:
-                    return [self.perindex[index]['primaries']['search']['query_time_in_millis'], 1]
+                    return [data['primaries']['search']['query_time_in_millis'], 1]
                 if item == 2:
-                    return [self.perindex[index]['primaries']['search']['fetch_total'], 1]
+                    return [data['primaries']['search']['fetch_total'], 1]
                 if item == 3:
-                    return [self.perindex[index]['primaries']['search']['fetch_time_in_millis'], 1]
+                    return [data['primaries']['search']['fetch_time_in_millis'], 1]
                 if item == 4:
-                    return [self.perindex[index]['total']['search']['query_total'], 1]
+                    return [data['total']['search']['query_total'], 1]
                 if item == 5:
-                    return [self.perindex[index]['total']['search']['query_time_in_millis'], 1]
+                    return [data['total']['search']['query_time_in_millis'], 1]
                 if item == 6:
-                    return [self.perindex[index]['total']['search']['fetch_total'], 1]
+                    return [data['total']['search']['fetch_total'], 1]
                 if item == 7:
-                    return [self.perindex[index]['total']['search']['fetch_time_in_millis'], 1]
+                    return [data['total']['search']['fetch_time_in_millis'], 1]
             except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
@@ -773,14 +776,15 @@ class ElasticsearchPmda(PMDA):
                 return [PMDA_FETCH_NOVALUES, 0]
             try:
                 index = self.index_insts.inst_name_lookup(inst)
+                data = self.index[index]['settings']['index']
                 if item in (0, 4):
-                    return [int(self.index[index]['settings']['index']['gateway']['snapshot_interval']), 1]
+                    return [int(data['gateway']['snapshot_interval']), 1]
                 if item == 1:
-                    return [int(self.index[index]['settings']['index']['number_of_replicas']), 1]
+                    return [int(data['number_of_replicas']), 1]
                 if item == 2:
-                    return [int(self.index[index]['settings']['index']['number_of_shards']), 1]
+                    return [int(data['number_of_shards']), 1]
                 if item in (3, 5):
-                    return [int(self.index[index]['settings']['index']['version']['created']), 1]
+                    return [int(data['version']['created']), 1]
             except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
