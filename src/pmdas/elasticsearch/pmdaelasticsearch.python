@@ -135,34 +135,34 @@ class ElasticsearchPmda(PMDA):
         self.nodes_cluster = 1
         self.nodes_metrics = [
             # Name -                                                                   type -          semantics -     units -                           help
-            [ 'nodes.indices.size_in_bytes',                                           PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], #  0
-            [ 'nodes.indices.docs.count',                                              PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], #  1
-            [ 'nodes.indices.docs.num_docs',                                           PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], #  2
-            [ 'nodes.indices.cache.field_evictions',                                   PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], #  3
-            [ 'nodes.indices.cache.field_size_in_bytes',                               PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], #  4
-            [ 'nodes.indices.cache.filter_count',                                      PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], #  5
-            [ 'nodes.indices.cache.filter_evictions',                                  PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], #  6
-            [ 'nodes.indices.cache.filter_size_in_bytes',                              PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], #  7
+            [ 'nodes.indices.size_in_bytes',                                           PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], #  0 - deprecated (now item 47)
+            [ 'nodes.indices.docs.count',                                              PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], #  1
+            [ 'nodes.indices.docs.num_docs',                                           PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], #  2 - bad metric
+            [ 'nodes.indices.cache.field_evictions',                                   PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], #  3 - bad metric
+            [ 'nodes.indices.cache.field_size_in_bytes',                               PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], #  4 - bad metric
+            [ 'nodes.indices.cache.filter_count',                                      PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], #  5 - bad metric
+            [ 'nodes.indices.cache.filter_evictions',                                  PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], #  6 - bad metric
+            [ 'nodes.indices.cache.filter_size_in_bytes',                              PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], #  7 - bad metric
             [ 'nodes.indices.merges.current',                                          PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], #  8
             [ 'nodes.indices.merges.total',                                            PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], #  9
             [ 'nodes.indices.merges.total_time_in_millis',                             PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 10
             [ 'nodes.jvm.uptime_in_millis',                                            PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 11
-            [ 'nodes.jvm.uptime',                                                      PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 12
-            [ 'nodes.jvm.mem.heap_used_in_bytes',                                      PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 13
+            [ 'nodes.jvm.uptime',                                                      PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 12 - bad metric
+            [ 'nodes.jvm.mem.heap_used_in_bytes',                                      PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 13
             [ 'nodes.jvm.mem.heap_committed_in_bytes',                                 PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 14
             [ 'nodes.jvm.mem.non_heap_used_in_bytes',                                  PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 15
             [ 'nodes.jvm.mem.non_heap_committed_in_bytes',                             PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 16
             [ 'nodes.jvm.threads.count',                                               PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 17
             [ 'nodes.jvm.threads.peak_count',                                          PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 18
-            [ 'nodes.jvm.gc.collection_count',                                         PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 19
-            [ 'nodes.jvm.gc.collection_time_in_millis',                                PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 20
-            [ 'nodes.jvm.gc.collectors.Copy.collection_count',                         PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 21
-            [ 'nodes.jvm.gc.collectors.Copy.collection_time_in_millis',                PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 22
-            [ 'nodes.jvm.gc.collectors.ParNew.collection_count',                       PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 23
-            [ 'nodes.jvm.gc.collectors.ParNew.collection_time_in_millis',              PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 24
-            [ 'nodes.jvm.gc.collectors.ConcurrentMarkSweep.collection_count',          PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 25
-            [ 'nodes.jvm.gc.collectors.ConcurrentMarkSweep.collection_time_in_millis', PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 26
-            [ 'nodes.indices.docs.deleted',                                            PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 27
+            [ 'nodes.jvm.gc.collection_count',                                         PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 19 - bad metric
+            [ 'nodes.jvm.gc.collection_time_in_millis',                                PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 20 - bad metric
+            [ 'nodes.jvm.gc.collectors.Copy.collection_count',                         PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 21 - bad metric
+            [ 'nodes.jvm.gc.collectors.Copy.collection_time_in_millis',                PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 22 - bad metric
+            [ 'nodes.jvm.gc.collectors.ParNew.collection_count',                       PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 23 - bad metric
+            [ 'nodes.jvm.gc.collectors.ParNew.collection_time_in_millis',              PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 24 - bad metric
+            [ 'nodes.jvm.gc.collectors.ConcurrentMarkSweep.collection_count',          PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 25 - bad metric
+            [ 'nodes.jvm.gc.collectors.ConcurrentMarkSweep.collection_time_in_millis', PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 26 - bad metric
+            [ 'nodes.indices.docs.deleted',                                            PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 27
             [ 'nodes.indices.indexing.index_total',                                    PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 28
             [ 'nodes.indices.indexing.index_time_in_millis',                           PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 29
             [ 'nodes.indices.indexing.delete_total',                                   PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 30
@@ -175,7 +175,7 @@ class ElasticsearchPmda(PMDA):
             [ 'nodes.indices.refresh.total_time_in_millis',                            PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 37
             [ 'nodes.indices.flush.total',                                             PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 38
             [ 'nodes.indices.flush.total_time_in_millis',                              PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 39
-            [ 'nodes.process.timestamp',                                               PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 40
+            [ 'nodes.process.timestamp',                                               PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 40 - not usable
             [ 'nodes.process.open_file_descriptors',                                   PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 41
             [ 'nodes.process.cpu.percent',                                             PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 42
             [ 'nodes.process.cpu.sys_in_millis',                                       PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 43
@@ -218,7 +218,7 @@ class ElasticsearchPmda(PMDA):
             [ 'nodes.jvm.version',                    PM_TYPE_STRING, PM_SEM_INSTANT,  pmUnits(0,0,0,0,0,0),             '' ], # 1
             [ 'nodes.jvm.vm_name',                    PM_TYPE_STRING, PM_SEM_INSTANT,  pmUnits(0,0,0,0,0,0),             '' ], # 2
             [ 'nodes.jvm.vm_version',                 PM_TYPE_STRING, PM_SEM_INSTANT,  pmUnits(0,0,0,0,0,0),             '' ], # 3
-            [ 'nodes.jvm.mem.heap_init_in_bytes',     PM_TYPE_U64,    PM_SEM_INSTANT,  pmUnits(0,0,0,0,0,0),             '' ], # 4
+            [ 'nodes.jvm.mem.heap_init_in_bytes',     PM_TYPE_U64,    PM_SEM_INSTANT,  pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 4
             [ 'nodes.jvm.mem.heap_max_in_bytes',      PM_TYPE_U64,    PM_SEM_INSTANT,  pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 5
             [ 'nodes.jvm.mem.non_heap_init_in_bytes', PM_TYPE_U64,    PM_SEM_INSTANT,  pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 6
             [ 'nodes.jvm.mem.non_heap_max_in_bytes',  PM_TYPE_U64,    PM_SEM_INSTANT,  pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 7
@@ -248,16 +248,18 @@ class ElasticsearchPmda(PMDA):
         self.search_cluster = 4
         self.search_metrics = [
             # Name -                                              type -       semantics -     units -                          help
-            [ 'search.shards.total',                              PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),            'Number of shards in the elasticsearch cluster'               ], # 0
-            [ 'search.shards.successful',                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),            'Number of successful shards in the elasticsearch cluster'    ], # 1
-            [ 'search.shards.failed',                             PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),            'Number of failed shards in the elasticsearch cluster'        ], # 2
-            [ 'search.all.primaries.search.query_total',          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search queries to all elasticsearch primaries'     ], # 3
-            [ 'search.all.primaries.search.query_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all elasticsearch primaries' ], # 4
-            [ 'search.all.primaries.search.fetch_total',          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all elasticsearch primaries' ], # 5
-            [ 'search.all.total.search.query_total',              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search queries to all elasticsearch primaries'     ], # 6
-            [ 'search.all.total.search.query_time_in_millis',     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all elasticsearch primaries' ], # 7
-            [ 'search.all.total.search.fetch_total',              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all elasticsearch primaries'     ], # 8
-            [ 'search.all.total.fetch_time_in_millis',            PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all elasticsearch primaries' ], # 9
+            [ 'search.shards.total',                              PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),            'Number of shards in the elasticsearch cluster'                       ], #  0
+            [ 'search.shards.successful',                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),            'Number of successfully searched shards in the elasticsearch cluster' ], #  1
+            [ 'search.shards.failed',                             PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),            'Number of failed shards in searches in the elasticsearch cluster'    ], #  2
+            [ 'search.all.primaries.search.query_total',          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search queries to all primary shards'                      ], #  3
+            [ 'search.all.primaries.search.query_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all primary shards'                  ], #  4
+            [ 'search.all.primaries.search.fetch_total',          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all primary shards'                      ], #  5
+            [ 'search.all.total.search.query_total',              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search queries to all index shards'                        ], #  6
+            [ 'search.all.total.search.query_time_in_millis',     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all index shards'                    ], #  7
+            [ 'search.all.total.search.fetch_total',              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all index shards'                        ], #  8
+            [ 'search.all.total.fetch_time_in_millis',            PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all index shards (deprecated)'       ], #  9
+            [ 'search.all.total.search.fetch_time_in_millis',     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all index shards'                    ], # 10
+            [ 'search.all.primaries.search.fetch_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all primary shards'                  ], # 11
         ]
 
         for item, metric in enumerate(self.search_metrics):
@@ -273,14 +275,14 @@ class ElasticsearchPmda(PMDA):
         self.perindex_cluster = 5
         self.perindex_metrics = [
             # Name -                                                   type -       semantics -     units -                          help
-            [ 'search.perindex.primaries.search.query_total',          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all elasticsearch primaries'     ], # 0
-            [ 'search.perindex.primaries.search.query_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all elasticsearch primaries' ], # 1
-            [ 'search.perindex.primaries.search.fetch_total',          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all elasticsearch primaries'     ], # 2
-            [ 'search.perindex.primaries.search.fetch_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all elasticsearch primaries' ], # 3
-            [ 'search.perindex.total.search.query_total',              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search queries to all elasticsearch primaries'     ], # 4
-            [ 'search.perindex.total.search.query_time_in_millis',     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all elasticsearch primaries' ], # 5
-            [ 'search.perindex.total.search.fetch_total',              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all elasticsearch primaries'     ], # 6
-            [ 'search.perindex.total.search.fetch_time_in_millis',     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all elasticsearch primaries' ], # 7
+            [ 'search.perindex.primaries.search.query_total',          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all index primary shards'     ], # 0
+            [ 'search.perindex.primaries.search.query_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all index primary shards' ], # 1
+            [ 'search.perindex.primaries.search.fetch_total',          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all index primary shards'     ], # 2
+            [ 'search.perindex.primaries.search.fetch_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all index primary shards' ], # 3
+            [ 'search.perindex.total.search.query_total',              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search queries to all index shards'             ], # 4
+            [ 'search.perindex.total.search.query_time_in_millis',     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all index shards'         ], # 5
+            [ 'search.perindex.total.search.fetch_total',              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all index shards'             ], # 6
+            [ 'search.perindex.total.search.fetch_time_in_millis',     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all index shards'         ], # 7
         ]
         for item, metric in enumerate(self.perindex_metrics):
             self.add_metric(name + '.' + metric[0],
@@ -308,10 +310,12 @@ class ElasticsearchPmda(PMDA):
         self.index_cluster = 7
         self.index_metrics = [
             # Name -                                      type -       semantics -     units -               help
-            [ 'index.settings.gateway_snapshot_interval', PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Interval between gateway snapshots'                      ], # 0
-            [ 'index.settings.number_of_replicas',        PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Number of replicas of shards index setting'              ], # 1
-            [ 'index.settings.number_of_shards',          PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Number of shards index setting'                          ], # 2
-            [ 'index.settings.version_created',           PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'The version of elasticsearch the index was created with' ], # 3
+            [ 'index.settings.gateway_snapshot_interval', PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Interval between gateway snapshots (deprecated)'          ], # 0
+            [ 'index.settings.number_of_replicas',        PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Number of replicas of shards index setting'               ], # 1
+            [ 'index.settings.number_of_shards',          PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Number of shards index setting'                           ], # 2
+            [ 'index.settings.version_created',           PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'The version stamp at time of index creation (deprecated)' ], # 3
+            [ 'index.settings.gateway.snapshot_interval', PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Interval between gateway snapshots'                       ], # 4
+            [ 'index.settings.version.created',           PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'The version stamp at time of index creation'              ], # 5
         ]
         for item, metric in enumerate(self.index_metrics):
             self.add_metric(name + '.' + metric[0],
@@ -522,22 +526,28 @@ class ElasticsearchPmda(PMDA):
                 return [PMDA_FETCH_NOVALUES, 0]
             try:
                 node = self.nodes_insts.inst_name_lookup(inst)
-                if item == 0:
-                    return [self.nodes[node]['indices']['completion']['size_in_bytes'], 1]
+                if item in (0, 47):
+                    return [self.nodes[node]['indices']['store']['size_in_bytes'], 1]
                 if item == 1:
                     return [self.nodes[node]['indices']['docs']['count'], 1]
                 if item == 2:
-                    return [self.nodes[node]['indices']['docs']['num_docs'], 1]
-                if item == 3:
-                    return [self.nodes[node]['indices']['cache']['field_evictions'], 1]
-                if item == 4:
-                    return [self.nodes[node]['indices']['cache']['field_size_in_bytes'], 1]
-                if item == 5:
-                    return [self.nodes[node]['indices']['cache']['filter_count'], 1]
-                if item == 6:
-                    return [self.nodes[node]['indices']['cache']['filter_evictions'], 1]
-                if item == 7:
-                    return [self.nodes[node]['indices']['cache']['filter_size_in_bytes'], 1]
+                    # The 'nodes.indices.docs.num_docs', item #2, does not
+                    # exist in the '_nodes/stats' API JSON payload
+                    # (Elasticsearch V1 or V7).
+                    #  [self.nodes[node]['indices']['docs']['num_docs'], 1]
+                    return [PM_ERR_APPVERSION, 0]
+                if item in (3, 4, 5, 6, 7):
+                    # The 'nodes.indices.cache.field_evictions',
+                    # '.field_size_in_bytes', '.filter_count',
+                    # '.filter_evictions', and '.filter_size_in_bytes', items
+                    # #3 thru #7, do not exist in the '_nodes/stats' API JSON
+                    # payload (Elasticsearch V1 or V7).
+                    #   [self.nodes[node]['indices']['cache']['field_evictions'], 1]
+                    #   [self.nodes[node]['indices']['cache']['field_size_in_bytes'], 1]
+                    #   [self.nodes[node]['indices']['cache']['filter_count'], 1]
+                    #   [self.nodes[node]['indices']['cache']['filter_evictions'], 1]
+                    #   [self.nodes[node]['indices']['cache']['filter_size_in_bytes'], 1]
+                    return [PM_ERR_APPVERSION, 0]
                 if item == 8:
                     return [self.nodes[node]['indices']['merges']['current'], 1]
                 if item == 9:
@@ -547,7 +557,9 @@ class ElasticsearchPmda(PMDA):
                 if item == 11:
                     return [self.nodes[node]['jvm']['uptime_in_millis'], 1]
                 if item == 12:
-                    return [self.nodes[node]['jvm']['uptime'], 1]
+                    # The 'nodes.jvm.uptime', item #12, does not exist in
+                    # the '_nodes/stats' API JSON payload (Elasticsearch V1 or V7).
+                    return [PM_ERR_APPVERSION, 0]
                 if item == 13:
                     return [self.nodes[node]['jvm']['mem']['heap_used_in_bytes'], 1]
                 if item == 14:
@@ -560,22 +572,23 @@ class ElasticsearchPmda(PMDA):
                     return [self.nodes[node]['jvm']['threads']['count'], 1]
                 if item == 18:
                     return [self.nodes[node]['jvm']['threads']['peak_count'], 1]
-                if item == 19:
-                    return [self.nodes[node]['jvm']['gc']['collection_count'], 1]
-                if item == 20:
-                    return [self.nodes[node]['jvm']['gc']['collection_time_in_millis'], 1]
-                if item == 21:
-                    return [self.nodes[node]['jvm']['gc']['collectors']['Copy']['collection_count'], 1]
-                if item == 22:
-                    return [self.nodes[node]['jvm']['gc']['collectors']['Copy']['collection_time_in_millis'], 1]
-                if item == 23:
-                    return [self.nodes[node]['jvm']['gc']['collectors']['ParNew']['collection_count'], 1]
-                if item == 24:
-                    return [self.nodes[node]['jvm']['gc']['collectors']['ParNew']['collection_time_in_millis'], 1]
-                if item == 25:
-                    return [self.nodes[node]['jvm']['gc']['collectors']['ConcurrentMarkSweep']['collection_count'], 1]
-                if item == 26:
-                    return [self.nodes[node]['jvm']['gc']['collectors']['ConcurrentMarkSweep']['collection_time_in_millis'], 1]
+                if item in (19, 20, 21, 22, 23, 24, 25, 26):
+                    # The 'nodes.jvm.gc.collection_count',
+                    # '.collection_time_in_millis',
+                    # '.collectors.{Copy|ParNew|ConcurrentMarkSweep}.collection_count',
+                    # and
+                    # '.collectors.{Copy|ParNew|ConcurrentMarkSweep}.collection_time_in_millis',
+                    # items #19 thru #26, do not exist in the '_nodes/stats'
+                    # API JSON payload (Elasticsearch V1 or V7).
+                    #   [self.nodes[node]['jvm']['gc']['collection_count'], 1]
+                    #   [self.nodes[node]['jvm']['gc']['collection_time_in_millis'], 1]
+                    #   [self.nodes[node]['jvm']['gc']['collectors']['Copy']['collection_count'], 1]
+                    #   [self.nodes[node]['jvm']['gc']['collectors']['Copy']['collection_time_in_millis'], 1]
+                    #   [self.nodes[node]['jvm']['gc']['collectors']['ParNew']['collection_count'], 1]
+                    #   [self.nodes[node]['jvm']['gc']['collectors']['ParNew']['collection_time_in_millis'], 1]
+                    #   [self.nodes[node]['jvm']['gc']['collectors']['ConcurrentMarkSweep']['collection_count'], 1]
+                    #   [self.nodes[node]['jvm']['gc']['collectors']['ConcurrentMarkSweep']['collection_time_in_millis'], 1]
+                    return [PM_ERR_APPVERSION, 0]
                 if item == 27:
                     return [self.nodes[node]['indices']['docs']['deleted'], 1]
                 if item == 28:
@@ -603,7 +616,14 @@ class ElasticsearchPmda(PMDA):
                 if item == 39:
                     return [self.nodes[node]['indices']['flush']['total_time_in_millis'], 1]
                 if item == 40:
-                    return [self.nodes[node]['process']['timestamp'], 1]
+                    # The '_nodes/stats' JSON payload contains "timestamp"
+                    # fields for each sub-section report marking the time at
+                    # which each of those fields was actually gathered before
+                    # placing into the JSON payload. This is not a usable metric
+                    # and was never setup properly.
+                    #
+                    #   [self.nodes[node]['process']['timestamp'], 1]
+                    return [PM_ERR_APPVERSION, 0]
                 if item == 41:
                     return [self.nodes[node]['process']['open_file_descriptors'], 1]
                 if item == 42:
@@ -616,8 +636,7 @@ class ElasticsearchPmda(PMDA):
                     return [self.nodes[node]['process']['mem']['resident_in_bytes'], 1]
                 if item == 46:
                     return [self.nodes[node]['process']['mem']['total_virtual_in_bytes'], 1]
-                if item == 47:
-                    return [self.nodes[node]['indices']['store']['size_in_bytes'], 1]
+                # Item 47 is the same as item 0.
                 if item == 48:
                     return [self.nodes[node]['indices']['get']['total'], 1]
                 if item == 49:
@@ -712,8 +731,10 @@ class ElasticsearchPmda(PMDA):
                     return [self.search['_all']['total']['search']['query_time_in_millis'], 1]
                 if item == 8:
                     return [self.search['_all']['total']['search']['fetch_total'], 1]
-                if item == 9:
+                if item in (9, 10):
                     return [self.search['_all']['total']['search']['fetch_time_in_millis'], 1]
+                if item == 11:
+                    return [self.search['_all']['primaries']['search']['fetch_time_in_millis'], 1]
             except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
@@ -752,14 +773,14 @@ class ElasticsearchPmda(PMDA):
                 return [PMDA_FETCH_NOVALUES, 0]
             try:
                 index = self.index_insts.inst_name_lookup(inst)
-                if item == 0:
-                    return [int(self.index[index]['settings']['index']['gateway_snapshot_interval']), 1]
+                if item in (0, 4):
+                    return [int(self.index[index]['settings']['index']['gateway']['snapshot_interval']), 1]
                 if item == 1:
                     return [int(self.index[index]['settings']['index']['number_of_replicas']), 1]
                 if item == 2:
                     return [int(self.index[index]['settings']['index']['number_of_shards']), 1]
-                if item == 3:
-                    return [int(self.index[index]['settings']['index']['version_created']), 1]
+                if item in (3, 5):
+                    return [int(self.index[index]['settings']['index']['version']['created']), 1]
             except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
