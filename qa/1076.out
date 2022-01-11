@@ -20,3 +20,18 @@ badarchives/badmeta-2.meta: sample.drift [29.0.7]: bad type (16) in pmDesc
 badarchives/badmeta-2.meta: sample.drift [29.0.7]: domain of pmid (29) != domain of indom (33)
 Note: timezone set to local timezone of host "gonzo" from archive
 
+
+=== badarchives/badmeta-3 ===
+__pmLogLoadInDom: InDom 29.2: instance[0]: dodgey instance identifier (100) and/or string index (-1)
+pmlogcheck: cannot open archive "badarchives/badmeta-3": Corrupted record in a PCP archive log
+Checking abandoned.
+
+=== badarchives/badmeta-4 ===
+__pmLogLoadInDom: InDom 29.2: instance[8]: dodgey instance identifier (-1) and/or string index (64)
+pmlogcheck: cannot open archive "badarchives/badmeta-4": Corrupted record in a PCP archive log
+Checking abandoned.
+
+=== badarchives/badmeta-5 ===
+__pmLogLoadInDom: InDom: 29.2 instance[1]: bad string index (76) > max index based on record length (72)
+pmlogcheck: cannot open archive "badarchives/badmeta-5": Corrupted record in a PCP archive log
+Checking abandoned.

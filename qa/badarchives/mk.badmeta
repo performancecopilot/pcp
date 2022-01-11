@@ -2,15 +2,15 @@
 #
 # Recipes for making badmeta-* family of archives.
 # 
-# Every one is based on a version of ./ok-foo, with binary editing using
-# bvi (or similar) and cut-n-paste with dd.
+# Each one is based on a version of ../archives/ok-foo, with binary
+# editing using bvi (or similar) and cut-n-paste with dd.
 #
 # This is the good .meta file
 #
 # Byte offsets into ok-foo.meta
 # 0	start label record
 # 132	start metric pmcd.pmlogger.host
-# 	+0 record header len (58)
+# 	+0 record header len (58 or 0x3A)
 # 	+4 type (1, TYPE_DESC)
 #	+8 pmid (start of pmDesc)
 #	+12 type
@@ -20,11 +20,17 @@
 #	+28 numnames
 #	+32 len name[0]
 #	+36... name[0]
-# 186	record trailer len
+# 186	record trailer len (58 or 0x3A)
 # 190	start indom 2.1
-# 	+0 record header len (41)
+# 	+0 record header len (41 or 0x29)
 # 	+4 type (2, TYPE_INDOM_V2)
-# ...
+#	+8 timestamp (for V2 archive)
+#	+16 indom (0x800029)
+#	+20 numinst (1)
+#	+24 instlist[0] (5403 or 0x151B)
+#	+28 strindex[0] (0)
+#	+32 namelist[0] ("5403")
+# 227	record trailer len (41 or 0x29)
 # 231	start metric pmcd.pmlogger.port
 # ...
 # 289	start metric pmcd.pmlogger.archive
@@ -36,7 +42,27 @@
 # 455	start metric sample.bin
 # ...
 # 505	start indom 29.2
-# ...
+#	+0 record header len (172 or 0xAC)
+# 	+4 type (2, TYPE_INDOM_V2)
+#	+8 timestamp (for V2 archive)
+#	+16 indom (0x7400002)
+#	+20 numinst (9)
+#	+24 instlist[0] (100 or 0x64)
+#	+28 instlist[1] (200 or 0xC8)
+#	+32 instlist[2] (300 or 0x12C)
+#	...
+#	+56 instlist[8] (900 or 0x384)
+#	+60 strindex[0] (0)
+#	+64 strindex[1] (8)
+#	+68 strindex[2] (16)
+#	...
+#	+92 strindex[8] (64)
+#	+96 namelist[0] ("bin-100")
+#	+104 namelist[1] ("bin-200")
+#	+112 namelist[2] ("bin-300")
+#	...
+#	+160 namelist[8] ("bin-900")
+# 673	record trailer len (172 or 0xAC)
 # 677	start metric sample.colour
 # ...
 # 730	start indom 29.1
@@ -44,7 +70,7 @@
 # 797	start sample.seconds
 #	
 
-src=./ok-foo
+src=../archives/ok-foo
 
 tmp=/var/tmp/$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
@@ -65,7 +91,7 @@ then
     X="$1"
     rm -f badmeta-$X.*
 else
-    echo "Usage: mkbadmeta [case#]"
+    echo "Usage: mk.badmeta [case#]"
     exit 1
 fi
 
@@ -84,6 +110,22 @@ in
 	echo '475s\\....\\00000007\\' >>$tmp.ex
 	echo '374s\\....\\DDD66000\\' >>$tmp.ex
 	echo '701s\\....\\33375000\\' >>$tmp.ex
+	;;
+
+    3)	# negative strindex for "bin-100"
+	cp $src.meta badmeta-$X.meta
+	echo '565s\\....\\FFFFFFFF\\' >>$tmp.ex
+	;;
+
+    4)	# negative instance identifier for "bin-900"
+	cp $src.meta badmeta-$X.meta
+	echo '561s\\....\\FFFFFFFF\\' >>$tmp.ex
+	;;
+
+    5)	# strindex points past end of record for "bin-200"
+    	# 0x4C => 76
+	cp $src.meta badmeta-$X.meta
+	echo '569s\\....\\0000004C\\' >>$tmp.ex
 	;;
 
     *)
@@ -118,7 +160,7 @@ do
     then
 	:
     else
-	target=`echo $file | sed -e "s/badmeta-$X\./.\/ok-foo./"`
+	target=`echo $file | sed -e "s@badmeta-$X\.@../archives/ok-foo.@"`
 	if cp $target $file
 	then
 	    :
