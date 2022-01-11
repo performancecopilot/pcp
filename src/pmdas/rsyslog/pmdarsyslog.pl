@@ -425,11 +425,6 @@ sub rsyslog_fetch_callback
 
 	my @unovals = @$unovref;
 	if ($item == 0) { return ($unovals[0], 1); }
-	if ($item == 1) { return ($unovals[1], 1); }
-	if ($item == 2) { return ($unovals[2], 1); }
-	if ($item == 3) { return ($unovals[3], 1); }
-	if ($item == 4) { return ($unovals[4], 1); }
-	if ($item == 5) { return ($unovals[5], 1); }
     }
     elsif ($cluster == 3) {	# unmatched origins
 	return (PM_ERR_INST, 0) unless ($inst != PM_IN_NULL);
@@ -443,11 +438,6 @@ sub rsyslog_fetch_callback
 
 	my @umovals = @$umovref;
 	if ($item == 0) { return ($umovals[0], 1); }
-	if ($item == 1) { return ($umovals[1], 1); }
-	if ($item == 2) { return ($umovals[2], 1); }
-	if ($item == 3) { return ($umovals[3], 1); }
-	if ($item == 4) { return ($umovals[4], 1); }
-	if ($item == 5) { return ($umovals[5], 1); }
     }
     elsif ($cluster == 4) {	# actions
 	return (PM_ERR_INST, 0) unless ($inst != PM_IN_NULL);
