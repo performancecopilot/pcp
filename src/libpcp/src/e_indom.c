@@ -205,6 +205,7 @@ __pmLogLoadInDom(__pmArchCtl *acp, int rlen, int type, pmInResult *inp, __pmTime
     int			k;
     int			n;
     __int32_t		*stridx;
+    int			idx;
     char		*namebase;
     __int32_t		*lbuf;
     int			sts;
@@ -277,15 +278,49 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	namebase = (char *)&lbuf[k];
 	for (i = 0; i < inp->numinst; i++) {
 	    inp->instlist[i] = ntohl(inp->instlist[i]);
-	    if (inp->instlist[i] >= 0 && (__int32_t)ntohl(stridx[i]) >= 0) {
-		inp->namelist[i] = &namebase[ntohl(stridx[i])];
+	    idx = ntohl(stridx[i]);
+	    if (inp->instlist[i] >= 0 && idx >= 0) {
+		/*
+		 * crude sanity check ... if the index points to the
+		 * start of the name that is past the end of the input
+		 * record, the record is corrupted
+		 */
+		if (&namebase[idx] > ((char *)lbuf)+rlen) {
+		    if (pmDebugOptions.logmeta) {
+			char	strbuf[20];
+			fprintf(stderr, "__pmLogLoadInDom: InDom: %s instance[%d]: bad string index (%d) > max index based on record length (%zd)\n",
+			    pmInDomStr_r(inp->indom, strbuf, sizeof(strbuf)),
+			    i, idx, ((char *)lbuf)+rlen - namebase);
+		    }
+		    free(lbuf);
+#if defined(HAVE_32BIT_PTR)
+#else
+		    free(inp->namelist);
+#endif
+		    return PM_ERR_LOGREC;
+		}
+		inp->namelist[i] = &namebase[idx];
 		if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
-		    fprintf(stderr, "inst[%d] %d or \"%s\" (idx=%d)\n", i, inp->instlist[i], inp->namelist[i], ntohl(stridx[i]));
+		    fprintf(stderr, "inst[%d] %d or \"%s\" (idx=%d)\n", i, inp->instlist[i], inp->namelist[i], idx);
 	    }
-	    else {
+	    else if (type == TYPE_INDOM_DELTA && inp->instlist[i] < 0) {
 		inp->namelist[i] = NULL;
 		if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
-		    fprintf(stderr, "inst[%d] %d (idx=%d)\n", i, inp->instlist[i], ntohl(stridx[i]));
+		    fprintf(stderr, "inst[%d] %d (delta indom)\n", i, inp->instlist[i]);
+	    }
+	    else {
+		if (pmDebugOptions.logmeta) {
+		    char	strbuf[20];
+		    fprintf(stderr, "__pmLogLoadInDom: InDom %s: instance[%d]: dodgey instance identifier (%d) and/or string index (%d)\n", 
+			pmInDomStr_r(inp->indom, strbuf, sizeof(strbuf)),
+			i, inp->instlist[i], idx);
+		}
+		free(lbuf);
+#if defined(HAVE_32BIT_PTR)
+#else
+		free(inp->namelist);
+#endif
+		return PM_ERR_LOGREC;
 	    }
 	}
     }
