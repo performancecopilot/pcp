@@ -25,11 +25,19 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 for args in "-z -a archives/foo+.meta" "-z -W badarchives/old611.meta" \
-	"-z -aW archives/vldb-disks.meta"
+	"-z -aW archives/vldb-disks.meta" "-z -aW tmparch/sample-proc_v3.meta"
 do
     echo
     echo "=== $args ==="
-    src/scanmeta $args
+    src/scanmeta $args 2>&1 \
+    | case "$args"
+    in
+	*tmparch*)
+	    sed -e 's/ @ [0-9:.]*/ @ TIMESTAMP/'
+	    ;;
+	*)
+	    cat
+    esac
 done
 
 # success, all done
