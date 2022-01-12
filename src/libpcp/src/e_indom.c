@@ -206,6 +206,7 @@ __pmLogLoadInDom(__pmArchCtl *acp, int rlen, int type, pmInResult *inp, __pmTime
     int			n;
     __int32_t		*stridx;
     int			idx;
+    int			max_idx;
     char		*namebase;
     __int32_t		*lbuf;
     int			sts;
@@ -242,6 +243,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	inp->numinst = ntohl(v3->numinst);
 	k++;
 	inp->instlist = (int *)&v3->data;
+	if (acp != NULL) {
+	    /* fixed fields (minus len+type), minus instlist[], minus strindex[] */
+	    max_idx = rlen - sizeof(v3) - 2*sizeof(__int32_t) - 2*inp->numinst*sizeof(__int32_t);
+	}
     }
     else if (type == TYPE_INDOM_V2) {
 	__pmInDom_v2	*v2;
@@ -253,6 +258,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	inp->numinst = ntohl(v2->numinst);
 	k++;
 	inp->instlist = (int *)&v2->data;
+	if (acp != NULL) {
+	    /* fixed fields (minus len+type), minus instlist[], minus strindex[] */
+	    max_idx = rlen - sizeof(v2) - 2*sizeof(__int32_t) - 2*inp->numinst*sizeof(__int32_t);
+	}
     }
     else {
 	fprintf(stderr, "__pmLogLoadInDom: botch type=%d\n", type);
@@ -280,24 +289,26 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	    inp->instlist[i] = ntohl(inp->instlist[i]);
 	    idx = ntohl(stridx[i]);
 	    if (inp->instlist[i] >= 0 && idx >= 0) {
-		/*
-		 * crude sanity check ... if the index points to the
-		 * start of the name that is past the end of the input
-		 * record, the record is corrupted
-		 */
-		if (&namebase[idx] > ((char *)lbuf)+rlen) {
-		    if (pmDebugOptions.logmeta) {
-			char	strbuf[20];
-			fprintf(stderr, "__pmLogLoadInDom: InDom: %s instance[%d]: bad string index (%d) > max index based on record length (%zd)\n",
-			    pmInDomStr_r(inp->indom, strbuf, sizeof(strbuf)),
-			    i, idx, ((char *)lbuf)+rlen - namebase);
+		if (acp != NULL) {
+		    /*
+		     * crude sanity check ... if the index points to the
+		     * start of the name that is past the end of the input
+		     * record, the record is corrupted
+		     */
+		    if (idx > max_idx) {
+			if (pmDebugOptions.logmeta) {
+			    char	strbuf[20];
+			    fprintf(stderr, "__pmLogLoadInDom: InDom: %s instance[%d]: bad string index (%d) > max index based on record length (%d)\n",
+				pmInDomStr_r(inp->indom, strbuf, sizeof(strbuf)),
+				i, idx, max_idx);
+			}
+			free(lbuf);
+    #if defined(HAVE_32BIT_PTR)
+    #else
+			free(inp->namelist);
+    #endif
+			return PM_ERR_LOGREC;
 		    }
-		    free(lbuf);
-#if defined(HAVE_32BIT_PTR)
-#else
-		    free(inp->namelist);
-#endif
-		    return PM_ERR_LOGREC;
 		}
 		inp->namelist[i] = &namebase[idx];
 		if (pmDebugOptions.logmeta && pmDebugOptions.desperate)

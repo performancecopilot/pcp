@@ -1522,7 +1522,7 @@ x11
 1073 pmda.linux local kernel
 1074 threads valgrind local helgrind
 1075 pmlogrewrite valgrind local
-1076 pmlogcheck local
+1076 pmlogcheck local archive
 1077 pmcd libpcp archive local kernel
 1078 pcp python pidstat local
 1079 pcp atop local

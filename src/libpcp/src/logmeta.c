@@ -160,7 +160,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	char    strbuf[20];
 	fprintf(stderr, "addindom( ..., %s, ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
 	StrTimestamp(tsp);
-	fprintf(stderr, ", numinst=%d)\n", numinst);
+	fprintf(stderr, ", type=%s, numinst=%d, ...)\n", typeStr(type), numinst);
     }
 
     if ((hp = __pmHashSearch((unsigned int)indom, &lcp->hashindom)) == NULL) {
