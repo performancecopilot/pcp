@@ -279,7 +279,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	inp->namelist = (char **)malloc(inp->numinst * sizeof(char*));
 	if (inp->namelist == NULL) {
-	    free(lbuf);
+	    if (acp != NULL)
+		free(lbuf);
 	    return -oserror();
 	}
 #endif
@@ -303,10 +304,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 				i, idx, max_idx);
 			}
 			free(lbuf);
-    #if defined(HAVE_32BIT_PTR)
-    #else
+#if defined(HAVE_32BIT_PTR)
+#else
 			free(inp->namelist);
-    #endif
+#endif
 			return PM_ERR_LOGREC;
 		    }
 		}
@@ -326,7 +327,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 			pmInDomStr_r(inp->indom, strbuf, sizeof(strbuf)),
 			i, inp->instlist[i], idx);
 		}
-		free(lbuf);
+		if (acp != NULL)
+		    free(lbuf);
 #if defined(HAVE_32BIT_PTR)
 #else
 		free(inp->namelist);
