@@ -54,6 +54,7 @@ makes it especially useful for those seeking centralized monitoring of distribut
    QG/AuthenticatedConnections
    QG/ImportData
    QG/Use3DViews
+   QG/CompareArchivesAndReportDifferences
 
 .. toctree::
    :caption: User's and Administrator's Guide
