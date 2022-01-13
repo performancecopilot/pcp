@@ -222,6 +222,16 @@ class ElasticsearchPmda(PMDA):
             [ 'nodes.jvm.buffer_pools.mapped.count',                                   PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 84
             [ 'nodes.jvm.buffer_pools.mapped.used_in_bytes',                           PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 85
             [ 'nodes.jvm.buffer_pools.mapped.total_capacity_in_bytes',                 PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 86
+            [ 'nodes.indices.search.query_current',                                    PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 87
+            [ 'nodes.indices.search.fetch_current',                                    PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 88
+            [ 'nodes.indices.search.open_contexts',                                    PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 89
+            [ 'nodes.indices.get.current',                                             PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 90
+            [ 'nodes.indices.indexing.index_current',                                  PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 91
+            [ 'nodes.indices.indexing.delete_current',                                 PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 92
+            [ 'nodes.indices.indexing.noop_update_total',                              PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 93
+            [ 'nodes.indices.indexing.is_throttled',                                   PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 94
+            [ 'nodes.indices.indexing.throttle_time_in_millis',                        PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 95
+            [ 'nodes.indices.store.throttle_time_in_millis',                           PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 96
         ]
 
         for item, metric in enumerate(self.nodes_metrics):
@@ -297,14 +307,20 @@ class ElasticsearchPmda(PMDA):
         self.perindex_cluster = 5
         self.perindex_metrics = [
             # Name -                                                   type -       semantics -     units -                          help
-            [ 'search.perindex.primaries.search.query_total',          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all index primary shards'     ], # 0
-            [ 'search.perindex.primaries.search.query_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all index primary shards' ], # 1
-            [ 'search.perindex.primaries.search.fetch_total',          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all index primary shards'     ], # 2
-            [ 'search.perindex.primaries.search.fetch_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all index primary shards' ], # 3
-            [ 'search.perindex.total.search.query_total',              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search queries to all index shards'             ], # 4
-            [ 'search.perindex.total.search.query_time_in_millis',     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all index shards'         ], # 5
-            [ 'search.perindex.total.search.fetch_total',              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all index shards'             ], # 6
-            [ 'search.perindex.total.search.fetch_time_in_millis',     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all index shards'         ], # 7
+            [ 'search.perindex.primaries.search.query_total',          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search queries to all index primary shards'         ], #  0
+            [ 'search.perindex.primaries.search.query_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all index primary shards'     ], #  1
+            [ 'search.perindex.primaries.search.fetch_total',          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all index primary shards'         ], #  2
+            [ 'search.perindex.primaries.search.fetch_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all index primary shards'     ], #  3
+            [ 'search.perindex.total.search.query_total',              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search queries to all index shards'                 ], #  4
+            [ 'search.perindex.total.search.query_time_in_millis',     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all index shards'             ], #  5
+            [ 'search.perindex.total.search.fetch_total',              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all index shards'                 ], #  6
+            [ 'search.perindex.total.search.fetch_time_in_millis',     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all index shards'             ], #  7
+            [ 'search.perindex.primaries.search.open_contexts',        PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),            'Current number of open search contexts for primary shards'    ], #  8
+            [ 'search.perindex.primaries.search.query_current',        PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),            'Current number of search queries to all index primary shards' ], #  9
+            [ 'search.perindex.primaries.search.fetch_current',        PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),            'Current number of search fetches to all index primary shards' ], # 10
+            [ 'search.perindex.total.search.open_contexts',            PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),            'Current number of open search contexts for all index shards'  ], # 11
+            [ 'search.perindex.total.search.query_current',            PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),            'Current number of search queries to all index shards'         ], # 12
+            [ 'search.perindex.total.search.fetch_current',            PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),            'Current number of search fetches to all index shards'         ], # 13
         ]
         for item, metric in enumerate(self.perindex_metrics):
             self.add_metric(name + '.' + metric[0],
@@ -738,6 +754,26 @@ class ElasticsearchPmda(PMDA):
                     return [data['jvm']['buffer_pools']['mapped']['used_in_bytes'], 1]
                 if item == 86:
                     return [data['jvm']['buffer_pools']['mapped']['total_capacity_in_bytes'], 1]
+                if item == 87:
+                    return [data['indices']['search']['query_current'], 1]
+                if item == 88:
+                    return [data['indices']['search']['fetch_current'], 1]
+                if item == 89:
+                    return [data['indices']['search']['open_contexts'], 1]
+                if item == 90:
+                    return [data['indices']['get']['current'], 1]
+                if item == 91:
+                    return [data['indices']['indexing']['index_current'], 1]
+                if item == 92:
+                    return [data['indices']['indexing']['delete_current'], 1]
+                if item == 93:
+                    return [data['indices']['indexing']['noop_update_total'], 1]
+                if item == 94:
+                    return [data['indices']['indexing']['is_throttled'], 1]
+                if item == 95:
+                    return [data['indices']['indexing']['throttle_time_in_millis'], 1]
+                if item == 96:
+                    return [data['indices']['store']['throttle_time_in_millis'], 1]
             except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
@@ -828,6 +864,18 @@ class ElasticsearchPmda(PMDA):
                     return [data['total']['search']['fetch_total'], 1]
                 if item == 7:
                     return [data['total']['search']['fetch_time_in_millis'], 1]
+                if item == 8:
+                    return [data['primaries']['search']['open_contexts'], 1]
+                if item == 9:
+                    return [data['primaries']['search']['query_current'], 1]
+                if item == 10:
+                    return [data['primaries']['search']['fetch_current'], 1]
+                if item == 11:
+                    return [data['total']['search']['open_contexts'], 1]
+                if item == 12:
+                    return [data['total']['search']['query_current'], 1]
+                if item == 13:
+                    return [data['total']['search']['fetch_current'], 1]
             except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
