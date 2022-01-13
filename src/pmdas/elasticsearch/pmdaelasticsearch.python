@@ -37,7 +37,7 @@ from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 from pcp.pmapi import pmUnits
 from pcp.pmapi import pmContext as PCP
 from cpmapi import PM_INDOM_NULL
-from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING
+from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING, PM_TYPE_FLOAT
 from cpmapi import PM_SEM_COUNTER, PM_SEM_INSTANT, PM_SEM_DISCRETE
 from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_TIME_MSEC
 from cpmapi import PM_ERR_PMID, PM_ERR_APPVERSION
@@ -264,7 +264,85 @@ class ElasticsearchPmda(PMDA):
             [ 'nodes.indices.recovery.current_as_source',                              PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 126
             [ 'nodes.indices.recovery.current_as_target',                              PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 127
             [ 'nodes.indices.recovery.throttle_time_in_millis',                        PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 128
+            [ 'nodes.network.tcp.active_opens',                                        PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 129
+            [ 'nodes.network.tcp.passive_opens',                                       PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 130
+            [ 'nodes.network.tcp.curr_estab',                                          PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 131
+            [ 'nodes.network.tcp.in_segs',                                             PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 132
+            [ 'nodes.network.tcp.out_segs',                                            PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 133
+            [ 'nodes.network.tcp.retrans_segs',                                        PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 134
+            [ 'nodes.network.tcp.estab_resets',                                        PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 135
+            [ 'nodes.network.tcp.attempt_fails',                                       PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 136
+            [ 'nodes.network.tcp.in_errs',                                             PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 137
+            [ 'nodes.network.tcp.out_rsts',                                            PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 138
+            [ 'nodes.fs.total.total_in_bytes',                                         PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 139
+            [ 'nodes.fs.total.free_in_bytes',                                          PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 140
+            # Not sure difference between "free_in_bytes" and "available_in_bytes"
+            [ 'nodes.fs.total.available_in_bytes',                                     PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 141
+            [ 'nodes.fs.total.disk_reads',                                             PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 142
+            [ 'nodes.fs.total.disk_writes',                                            PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 143
+            [ 'nodes.fs.total.disk_io_op',                                             PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 144
+            [ 'nodes.fs.total.disk_read_size_in_bytes',                                PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 145
+            [ 'nodes.fs.total.disk_write_size_in_bytes',                               PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 146
+            [ 'nodes.fs.total.disk_io_size_in_bytes',                                  PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 147
         ]
+        self.network_map = {
+            129: 'active_opens',
+            130: 'passive_opens',
+            131: 'curr_estab',
+            132: 'in_segs',
+            133: 'out_segs',
+            134: 'retrans_segs',
+            135: 'estab_resets',
+            136: 'attempt_fails',
+            137: 'in_errs',
+            138: 'out_rsts',
+        }
+        self.fs_map = {
+            139: 'total_in_bytes',
+            140: 'free_in_bytes',
+            141: 'available_in_bytes',
+            142: 'disk_reads',
+            143: 'disk_writes',
+            144: 'disk_io_op',
+            145: 'disk_read_size_in_bytes',
+            146: 'disk_write_size_in_bytes',
+            147: 'disk_io_size_in_bytes',
+        }
+        # 148 - 159 (3 x 4)
+        idx = 148
+        self.breaker_map = {}
+        for breaker in [ "request", "fielddata", "parent" ]:
+            metrics = [
+                [ f'nodes.breakers.{breaker}.limit_size_in_bytes',     PM_TYPE_U64,   PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ],
+                [ f'nodes.breakers.{breaker}.estimated_size_in_bytes', PM_TYPE_U64,   PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ],
+                [ f'nodes.breakers.{breaker}.overhead',                PM_TYPE_FLOAT, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ],
+                [ f'nodes.breakers.{breaker}.tripped',                 PM_TYPE_U32,   PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ],
+            ]
+            self.nodes_metrics.extend(metrics)
+            self.breaker_map[idx]   = ( breaker, 'limit_size_in_bytes' )
+            self.breaker_map[idx+1] = ( breaker, 'estimated_size_in_bytes' )
+            self.breaker_map[idx+2] = ( breaker, 'overhead' )
+            self.breaker_map[idx+3] = ( breaker, 'tripped' )
+            idx += 4
+        # 160 - 261 (17 x 6)
+        self.thread_pool_map = {}
+        for thread_pool in [ "generic", "index", "fetch_shard_store", "get", "snapshot", "merge", "suggest", "bulk", "optimize", "warmer", "flush", "search", "fetch_shard_started", "listener", "percolate", "management", "refresh" ]:
+            metrics = [
+                [ f'nodes.thread_pool.{thread_pool}.threads',   PM_TYPE_U32, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),            '' ],
+                [ f'nodes.thread_pool.{thread_pool}.queue',     PM_TYPE_U32, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),            '' ],
+                [ f'nodes.thread_pool.{thread_pool}.active',    PM_TYPE_U32, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),            '' ],
+                [ f'nodes.thread_pool.{thread_pool}.rejected',  PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), '' ],
+                [ f'nodes.thread_pool.{thread_pool}.largest',   PM_TYPE_U32, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),            '' ],
+                [ f'nodes.thread_pool.{thread_pool}.completed', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), '' ],
+            ]
+            self.nodes_metrics.extend(metrics)
+            self.thread_pool_map[idx]   = ( thread_pool, 'threads' )
+            self.thread_pool_map[idx+1] = ( thread_pool, 'queue' )
+            self.thread_pool_map[idx+2] = ( thread_pool, 'active' )
+            self.thread_pool_map[idx+3] = ( thread_pool, 'rejected' )
+            self.thread_pool_map[idx+4] = ( thread_pool, 'largest' )
+            self.thread_pool_map[idx+5] = ( thread_pool, 'completed' )
+            idx += 6
 
         for item, metric in enumerate(self.nodes_metrics):
             self.add_metric(name + '.' + metric[0],
@@ -870,6 +948,18 @@ class ElasticsearchPmda(PMDA):
                     return [data['indices']['recovery']['current_as_target'], 1]
                 if item == 128:
                     return [data['indices']['recovery']['throttle_time_in_millis'], 1]
+                if item in self.network_map:
+                    metric = self.network_map[item]
+                    return [data['network']['tcp'][metric], 1]
+                if item in self.fs_map:
+                    metric = self.fs_map[item]
+                    return [data['fs']['total'][metric], 1]
+                if item in self.breaker_map:
+                    breaker, metric = self.breaker_map[item]
+                    return [data['breakers'][breaker][metric], 1]
+                if item in self.thread_pool_map:
+                    thread_pool, metric = self.thread_pool_map[item]
+                    return [data['thread_pool'][thread_pool][metric], 1]
             except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
