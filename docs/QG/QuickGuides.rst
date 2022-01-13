@@ -51,6 +51,8 @@ This guide contains the following topics:
 
 19. :ref:`Using 3D views`, covers performance visualisation with *pmview*.
 
+20. :ref:`Compare Archives and Report Significant Differences`, introduces the *pmdiff* tool that compares the average values for every metric in a given time window, for changes that are likely to be of interest when searching for performance regressions.
+
 Audience for This Guide
 ************************
 
