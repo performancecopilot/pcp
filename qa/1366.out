@@ -1,0 +1,412 @@
+QA output created by 1366
+=== pmdumplog ===
+
+
+TIMESTAMP 1 metric
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [5 or "0005 /usr/opt/bin/loko"] value 5
+        inst [8 or "0008 /usr/local/yobo"] value 8
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [10 or "0010 /etc/koko"] value 10
+        inst [14 or "0014 /etc/jester"] value 14
+        inst [15 or "0015 /usr/bin/loko"] value 15
+        inst [16 or "0016 /usr/local/pierrot"] value 16
+        inst [18 or "0018 /etc/yobo"] value 18
+        inst [19 or "0019 /usr/bin/jojo"] value 19
+        inst [20 or "0020 /usr/local/koko"] value 20
+
+TIMESTAMP 1 metric
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [5 or "0005 /usr/opt/bin/loko"] value 5
+        inst [8 or "0008 /usr/local/yobo"] value 8
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [14 or "0014 /etc/jester"] value 14
+        inst [15 or "0015 /usr/bin/loko"] value 15
+        inst [16 or "0016 /usr/local/pierrot"] value 16
+        inst [18 or "0018 /etc/yobo"] value 18
+        inst [19 or "0019 /usr/bin/jojo"] value 19
+        inst [20 or "0020 /usr/local/koko"] value 20
+
+TIMESTAMP 1 metric
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [5 or "0005 /usr/opt/bin/loko"] value 5
+        inst [8 or "0008 /usr/local/yobo"] value 8
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [14 or "0014 /etc/jester"] value 14
+        inst [15 or "0015 /usr/bin/loko"] value 15
+        inst [19 or "0019 /usr/bin/jojo"] value 19
+        inst [20 or "0020 /usr/local/koko"] value 20
+
+TIMESTAMP 1 metric
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [5 or "0005 /usr/opt/bin/loko"] value 5
+        inst [8 or "0008 /usr/local/yobo"] value 8
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [14 or "0014 /etc/jester"] value 14
+        inst [15 or "0015 /usr/bin/loko"] value 15
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+
+TIMESTAMP 1 metric
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [5 or "0005 /usr/opt/bin/loko"] value 5
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [14 or "0014 /etc/jester"] value 14
+        inst [15 or "0015 /usr/bin/loko"] value 15
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+
+TIMESTAMP 1 metric
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [5 or "0005 /usr/opt/bin/loko"] value 5
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [14 or "0014 /etc/jester"] value 14
+        inst [15 or "0015 /usr/bin/loko"] value 15
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+        inst [22 or "0022 /etc/bozo"] value 22
+
+TIMESTAMP 1 metric
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [5 or "0005 /usr/opt/bin/loko"] value 5
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [14 or "0014 /etc/jester"] value 14
+        inst [15 or "0015 /usr/bin/loko"] value 15
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+        inst [22 or "0022 /etc/bozo"] value 22
+
+TIMESTAMP 1 metric
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [5 or "0005 /usr/opt/bin/loko"] value 5
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [15 or "0015 /usr/bin/loko"] value 15
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+        inst [22 or "0022 /etc/bozo"] value 22
+
+TIMESTAMP 1 metric
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [15 or "0015 /usr/bin/loko"] value 15
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+        inst [22 or "0022 /etc/bozo"] value 22
+
+TIMESTAMP 1 metric
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [15 or "0015 /usr/bin/loko"] value 15
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+        inst [22 or "0022 /etc/bozo"] value 22
+
+TIMESTAMP 1 metric
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+        inst [22 or "0022 /etc/bozo"] value 22
+        inst [23 or "0023 /usr/bin/bobo"] value 23
+
+TIMESTAMP 1 metric
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+        inst [22 or "0022 /etc/bozo"] value 22
+        inst [23 or "0023 /usr/bin/bobo"] value 23
+
+TIMESTAMP 1 metric
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+        inst [22 or "0022 /etc/bozo"] value 22
+        inst [23 or "0023 /usr/bin/bobo"] value 23
+        inst [24 or "0024 /usr/local/jester"] value 24
+        inst [25 or "0025 /usr/opt/bin/loko"] value 25
+
+TIMESTAMP 1 metric
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+        inst [22 or "0022 /etc/bozo"] value 22
+        inst [23 or "0023 /usr/bin/bobo"] value 23
+        inst [24 or "0024 /usr/local/jester"] value 24
+        inst [25 or "0025 /usr/opt/bin/loko"] value 25
+
+TIMESTAMP 1 metric
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+        inst [22 or "0022 /etc/bozo"] value 22
+        inst [23 or "0023 /usr/bin/bobo"] value 23
+        inst [24 or "0024 /usr/local/jester"] value 24
+        inst [25 or "0025 /usr/opt/bin/loko"] value 25
+
+TIMESTAMP 1 metric
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+        inst [22 or "0022 /etc/bozo"] value 22
+        inst [23 or "0023 /usr/bin/bobo"] value 23
+        inst [24 or "0024 /usr/local/jester"] value 24
+        inst [25 or "0025 /usr/opt/bin/loko"] value 25
+        inst [26 or "0026 /etc/pierrot"] value 26
+
+TIMESTAMP 1 metric
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+        inst [22 or "0022 /etc/bozo"] value 22
+        inst [23 or "0023 /usr/bin/bobo"] value 23
+        inst [24 or "0024 /usr/local/jester"] value 24
+        inst [25 or "0025 /usr/opt/bin/loko"] value 25
+        inst [26 or "0026 /etc/pierrot"] value 26
+
+TIMESTAMP 1 metric
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+        inst [22 or "0022 /etc/bozo"] value 22
+        inst [23 or "0023 /usr/bin/bobo"] value 23
+        inst [24 or "0024 /usr/local/jester"] value 24
+        inst [25 or "0025 /usr/opt/bin/loko"] value 25
+        inst [27 or "0027 /usr/bin/waldo"] value 27
+        inst [28 or "0028 /usr/local/yobo"] value 28
+
+TIMESTAMP 1 metric
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+        inst [22 or "0022 /etc/bozo"] value 22
+        inst [23 or "0023 /usr/bin/bobo"] value 23
+        inst [24 or "0024 /usr/local/jester"] value 24
+        inst [25 or "0025 /usr/opt/bin/loko"] value 25
+        inst [27 or "0027 /usr/bin/waldo"] value 27
+        inst [28 or "0028 /usr/local/yobo"] value 28
+
+TIMESTAMP 1 metric
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+        inst [22 or "0022 /etc/bozo"] value 22
+        inst [23 or "0023 /usr/bin/bobo"] value 23
+        inst [24 or "0024 /usr/local/jester"] value 24
+        inst [27 or "0027 /usr/bin/waldo"] value 27
+        inst [28 or "0028 /usr/local/yobo"] value 28
+        inst [29 or "0029 /usr/opt/bin/jojo"] value 29
+        inst [30 or "0030 /etc/koko"] value 30
+
+=== pminfo -f ===
+
+
+sample.proc.ordinal
+    inst [1 or "0001 init"] value 1
+    inst [2 or "0002 /etc/bozo"] value 2
+    inst [3 or "0003 /usr/bin/bobo"] value 3
+    inst [4 or "0004 /usr/local/jester"] value 4
+    inst [5 or "0005 /usr/opt/bin/loko"] value 5
+    inst [8 or "0008 /usr/local/yobo"] value 8
+    inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+    inst [10 or "0010 /etc/koko"] value 10
+    inst [14 or "0014 /etc/jester"] value 14
+    inst [15 or "0015 /usr/bin/loko"] value 15
+    inst [16 or "0016 /usr/local/pierrot"] value 16
+    inst [18 or "0018 /etc/yobo"] value 18
+    inst [19 or "0019 /usr/bin/jojo"] value 19
+    inst [20 or "0020 /usr/local/koko"] value 20
+
+=== pmval -a ===
+
+metric:    sample.proc.ordinal
+archive:   tmparch/sample-proc_v3
+host:      LOCALHOST
+start:     DATESTAMP
+end:       DATESTAMP
+semantics: instantaneous value
+units:     none
+samples:   20
+interval:  0.25 sec
+TIMESTAMP  No values available
+full label for instance[0]: 0001 init
+full label for instance[1]: 0002 /etc/bozo
+full label for instance[2]: 0003 /usr/bin/bobo
+full label for instance[3]: 0004 /usr/local/jester
+full label for instance[4]: 0005 /usr/opt/bin/loko
+full label for instance[5]: 0008 /usr/local/yobo
+full label for instance[6]: 0009 /usr/opt/bin/jojo
+full label for instance[7]: 0010 /etc/koko
+full label for instance[8]: 0014 /etc/jester
+full label for instance[9]: 0015 /usr/bin/loko
+full label for instance[10]: 0016 /usr/local/pierrot
+full label for instance[11]: 0018 /etc/yobo
+full label for instance[12]: 0019 /usr/bin/jojo
+full label for instance[13]: 0020 /usr/local/koko
+full label for instance[14]: 0021 /usr/opt/bin/lala
+full label for instance[15]: 0022 /etc/bozo
+full label for instance[16]: 0023 /usr/bin/bobo
+full label for instance[17]: 0024 /usr/local/jester
+full label for instance[18]: 0025 /usr/opt/bin/loko
+full label for instance[19]: 0026 /etc/pierrot
+full label for instance[20]: 0027 /usr/bin/waldo
+full label for instance[21]: 0028 /usr/local/yobo
+full label for instance[22]: 0029 /usr/opt/bin/jojo
+full label for instance[23]: 0030 /etc/koko
+
+              0001 init 0002 /etc/b 0003 /usr/b 0004 /usr/l 0005 /usr/o 0008 /usr/l 0009 /usr/o 0010 /etc/k 0014 /etc/j 0015 /usr/b 0016 /usr/l 0018 /etc/y 0019 /usr/b 0020 /usr/l 0021 /usr/o 0022 /etc/b 0023 /usr/b 0024 /usr/l 0025 /usr/o 0026 /etc/p 0027 /usr/b 0028 /usr/l 0029 /usr/o 0030 /etc/k 
+TIMESTAMP          1           2           3           4           5           8           9           ?          14          15          16          18          19          20           ?           ?           ?           ?           ?           ?           ?           ?           ?           ? 
+TIMESTAMP          1           2           3           4           5           8           9           ?          14          15           ?           ?          19          20           ?           ?           ?           ?           ?           ?           ?           ?           ?           ? 
+TIMESTAMP          1           2           3           4           5           8           9           ?          14          15           ?           ?           ?          20           ?           ?           ?           ?           ?           ?           ?           ?           ?           ? 
+TIMESTAMP          1           2           3           4           5           ?           9           ?          14          15           ?           ?           ?          20          21           ?           ?           ?           ?           ?           ?           ?           ?           ? 
+TIMESTAMP          1           2           3           4           5           ?           9           ?          14          15           ?           ?           ?          20          21           ?           ?           ?           ?           ?           ?           ?           ?           ? 
+TIMESTAMP          1           2           3           4           5           ?           9           ?          14          15           ?           ?           ?          20          21          22           ?           ?           ?           ?           ?           ?           ?           ? 
+TIMESTAMP          1           2           3           4           5           ?           9           ?           ?          15           ?           ?           ?          20          21          22           ?           ?           ?           ?           ?           ?           ?           ? 
+TIMESTAMP          1           2           3           4           ?           ?           9           ?           ?          15           ?           ?           ?          20          21          22           ?           ?           ?           ?           ?           ?           ?           ? 
+TIMESTAMP          1           2           3           4           ?           ?           9           ?           ?          15           ?           ?           ?          20          21          22           ?           ?           ?           ?           ?           ?           ?           ? 
+TIMESTAMP          1           2           3           4           ?           ?           9           ?           ?           ?           ?           ?           ?          20          21          22           ?           ?           ?           ?           ?           ?           ?           ? 
+TIMESTAMP          1           2           3           4           ?           ?           9           ?           ?           ?           ?           ?           ?          20          21          22          23           ?           ?           ?           ?           ?           ?           ? 
+TIMESTAMP          1           2           3           4           ?           ?           9           ?           ?           ?           ?           ?           ?          20          21          22          23           ?           ?           ?           ?           ?           ?           ? 
+TIMESTAMP          1           2           3           4           ?           ?           9           ?           ?           ?           ?           ?           ?          20          21          22          23          24          25           ?           ?           ?           ?           ? 
+TIMESTAMP          1           2           3           4           ?           ?           9           ?           ?           ?           ?           ?           ?          20          21          22          23          24          25           ?           ?           ?           ?           ? 
+TIMESTAMP          1           2           3           4           ?           ?           9           ?           ?           ?           ?           ?           ?          20          21          22          23          24          25           ?           ?           ?           ?           ? 
+TIMESTAMP          1           2           3           4           ?           ?           9           ?           ?           ?           ?           ?           ?          20          21          22          23          24          25          26           ?           ?           ?           ? 
+TIMESTAMP          1           2           3           4           ?           ?           9           ?           ?           ?           ?           ?           ?          20          21          22          23          24          25           ?           ?           ?           ?           ? 
+TIMESTAMP          1           2           3           4           ?           ?           9           ?           ?           ?           ?           ?           ?          20          21          22          23          24          25           ?          27          28           ?           ? 
+TIMESTAMP          1           2           3           4           ?           ?           9           ?           ?           ?           ?           ?           ?          20          21          22          23          24           ?           ?          27          28           ?           ? 
+
+=== pmdumptext ===
+[ 1] sample.proc.ordinal["0001 init"]
+[ 2] sample.proc.ordinal["0002 /etc/bozo"]
+[ 3] sample.proc.ordinal["0003 /usr/bin/bobo"]
+[ 4] sample.proc.ordinal["0004 /usr/local/jester"]
+[ 5] sample.proc.ordinal["0009 /usr/opt/bin/jojo"]
+[ 6] sample.proc.ordinal["0020 /usr/local/koko"]
+[ 7] sample.proc.ordinal["0021 /usr/opt/bin/lala"]
+[ 8] sample.proc.ordinal["0022 /etc/bozo"]
+[ 9] sample.proc.ordinal["0023 /usr/bin/bobo"]
+[10] sample.proc.ordinal["0024 /usr/local/jester"]
+[11] sample.proc.ordinal["0027 /usr/bin/waldo"]
+[12] sample.proc.ordinal["0028 /usr/local/yobo"]
+[13] sample.proc.ordinal["0029 /usr/opt/bin/jojo"]
+[14] sample.proc.ordinal["0030 /etc/koko"]
+[15] sample.proc.ordinal["0025 /usr/opt/bin/loko"]
+[16] sample.proc.ordinal["0026 /etc/pierrot"]
+[17] sample.proc.ordinal["0015 /usr/bin/loko"]
+[18] sample.proc.ordinal["0005 /usr/opt/bin/loko"]
+[19] sample.proc.ordinal["0014 /etc/jester"]
+[20] sample.proc.ordinal["0008 /usr/local/yobo"]
+[21] sample.proc.ordinal["0019 /usr/bin/jojo"]
+[22] sample.proc.ordinal["0016 /usr/local/pierrot"]
+[23] sample.proc.ordinal["0018 /etc/yobo"]
+[24] sample.proc.ordinal["0010 /etc/koko"]
+
+	    1	    2	    3	    4	    5	    6	    7	    8	    9	   10	   11	   12	   13	   14	   15	   16	   17	   18	   19	   20	   21	   22	   23	   24
+DATESTAMP	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?
+DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	?	?	?	?	?	?	?	?	?	?	15.000	5.000	14.000	8.000	19.000	16.000	18.000	?
+DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	?	?	?	?	?	?	?	?	?	?	15.000	5.000	14.000	8.000	19.000	?	?	?
+DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	?	?	?	?	?	?	?	?	?	?	15.000	5.000	14.000	8.000	?	?	?	?
+DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	21.000	?	?	?	?	?	?	?	?	?	15.000	5.000	14.000	?	?	?	?	?
+DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	21.000	?	?	?	?	?	?	?	?	?	15.000	5.000	14.000	?	?	?	?	?
+DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	21.000	22.000	?	?	?	?	?	?	?	?	15.000	5.000	14.000	?	?	?	?	?
+DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	21.000	22.000	?	?	?	?	?	?	?	?	15.000	5.000	?	?	?	?	?	?
+DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	21.000	22.000	?	?	?	?	?	?	?	?	15.000	?	?	?	?	?	?	?
+DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	21.000	22.000	?	?	?	?	?	?	?	?	15.000	?	?	?	?	?	?	?
+DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	21.000	22.000	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?
+DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	21.000	22.000	23.000	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?
+DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	21.000	22.000	23.000	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?
+DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	21.000	22.000	23.000	24.000	?	?	?	?	25.000	?	?	?	?	?	?	?	?	?
+DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	21.000	22.000	23.000	24.000	?	?	?	?	25.000	?	?	?	?	?	?	?	?	?
+DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	21.000	22.000	23.000	24.000	?	?	?	?	25.000	?	?	?	?	?	?	?	?	?
+DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	21.000	22.000	23.000	24.000	?	?	?	?	25.000	26.000	?	?	?	?	?	?	?	?
+DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	21.000	22.000	23.000	24.000	?	?	?	?	25.000	?	?	?	?	?	?	?	?	?
+DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	21.000	22.000	23.000	24.000	27.000	28.000	?	?	25.000	?	?	?	?	?	?	?	?	?
+DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	21.000	22.000	23.000	24.000	27.000	28.000	?	?	?	?	?	?	?	?	?	?	?	?

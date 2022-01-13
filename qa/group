@@ -1812,10 +1812,12 @@ x11
 1363 libpcp local valgrind
 1364 pmlogger archive_v3 local
 1365 pmlogger archive_v3 local valgrind
+1366 archive_v3 pmdumplog local
 1367 labels pmda.simple local python dbpmda
 1368 labels help pmlogger pmdumplog local sanity
 1369 labels pmcd pmlogger pmdumplog local pmda.sample
 1370 man local
+1371 archive_v3 pmdumplog local valgrind
 1372 pmie local
 1379 pmproxy local
 1383 pmlogrewrite labels pmdumplog local

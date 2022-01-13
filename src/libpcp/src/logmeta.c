@@ -1215,17 +1215,28 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":5", PM_FAULT_ALLOC);
 void
 __pmLogUndeltaInDom(pmInDom indom,__pmLogInDom *idp)
 {
-    __pmLogInDom	*tidp;		/* prior full indom */
-    __pmLogInDom	*didp;		/* following delta indom */
+    __pmLogInDom	*tidp;		/* full indom */
+    __pmLogInDom	*didp;		/* delta indom */
+    char		strbuf[20];
+
+    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
+	fprintf(stderr, "__pmLogUndeltaInDom(%s, %p): @", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), idp);
+	StrTimestamp(&idp->stamp);
+	fprintf(stderr, " next=%p prior=%p numinst=%d isdelta=%d\n", idp->next, idp->prior, idp->numinst, idp->isdelta);
+    }
     /*
      * "next" is in reverse chronological order
      */
     for (tidp = idp->next; tidp != NULL; tidp = tidp->next) {
+	if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
+	    fprintf(stderr, "try next: %p @", tidp);
+	    StrTimestamp(&tidp->stamp);
+	    fprintf(stderr, " next=%p prior=%p numinst=%d isdelta=%d\n", tidp->next, tidp->prior, tidp->numinst, tidp->isdelta);
+	}
 	if (!tidp->isdelta)
 	    break;
     }
     if (tidp == NULL) {
-	char	strbuf[20];
 	pmprintf("__pmLogUndeltaInDom: Botch: InDom %s: no full indom record\n",  pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
 	pmprintf("__pmLogInDom next chain:\n");
 	for (tidp = idp; tidp != NULL; tidp = tidp->next) {
@@ -1239,15 +1250,14 @@ __pmLogUndeltaInDom(pmInDom indom,__pmLogInDom *idp)
      * found the previous full indom, now march forward in time replacing
      * each delta indom with a reconstructed full indom
      */
-    for ( ; tidp != NULL; ) {
+    for (didp = tidp->prior ; didp != NULL; ) {
 	int	numinst;
 	int	*instlist;
 	char	**namelist;
 	int	i;		/* index over last full indom */
 	int	j;		/* index over delta indom */
 	int	k;		/* index over new full indom we're building */
-	numinst = tidp->numinst;
-	didp = tidp->prior;
+	numinst = didp->next->numinst;
 	for (j = 0; j < didp->numinst; j++) {
 	    if (didp->instlist[j] >= 0)
 		numinst++;
@@ -1263,10 +1273,9 @@ __pmLogUndeltaInDom(pmInDom indom,__pmLogInDom *idp)
 	    /*NOTREACHED*/
 	}
 	if (pmDebugOptions.logmeta) {
-	    char	strbuf[20];
-	    fprintf(stderr, "__pmLogUndeltaInDom(%s, ...): @", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
+	    fprintf(stderr, "__pmLogUndeltaInDom(%s, %p): undelta %p @", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), idp, didp);
 	    StrTimestamp(&didp->stamp);
-	    fprintf(stderr, " didp=%p numinst: %d -> %d\n", didp, didp->numinst, numinst);
+	    fprintf(stderr, " next=%p prior=%p numinst=%d (-> %d) isdelta=%d\n", didp->next, didp->prior, didp->numinst, numinst, didp->isdelta);
 	}
 	for (i = j = k = 0; i < tidp->numinst || j < didp->numinst; ) {
 	    if (i < tidp->numinst && j < didp->numinst) {
@@ -1310,6 +1319,11 @@ __pmLogUndeltaInDom(pmInDom indom,__pmLogInDom *idp)
 	}
 	didp->numinst = numinst;
 	didp->instlist = instlist;
+#if defined(HAVE_32BIT_PTR)
+#else
+	/* don't need old namelist[] any more */
+	free(didp->namelist);
+#endif
 	didp->namelist = namelist;
 	didp->isdelta = 0;
 
@@ -1318,7 +1332,8 @@ __pmLogUndeltaInDom(pmInDom indom,__pmLogInDom *idp)
 	    break;
 	}
 
-	tidp = didp->next;
+	tidp = didp;
+	didp = didp->prior;
     }
 }
 
@@ -1589,6 +1604,10 @@ pmLookupInDomArchive(pmInDom indom, const char *name)
 	}
 
 	for (idp = (__pmLogInDom *)hp->data; idp != NULL; idp = idp->next) {
+	    if (idp->isdelta) {
+		/* Need to "un-delta" this delta indom record */
+		__pmLogUndeltaInDom(indom, idp);
+	    }
 	    /* full match */
 	    for (j = 0; j < idp->numinst; j++) {
 		if (strcmp(name, idp->namelist[j]) == 0) {
@@ -1643,6 +1662,10 @@ pmNameInDomArchive(pmInDom indom, int inst, char **name)
 	}
 
 	for (idp = (__pmLogInDom *)hp->data; idp != NULL; idp = idp->next) {
+	    if (idp->isdelta) {
+		/* Need to "un-delta" this delta indom record */
+		__pmLogUndeltaInDom(indom, idp);
+	    }
 	    for (j = 0; j < idp->numinst; j++) {
 		if (idp->instlist[j] == inst) {
 		    if ((*name = strdup(idp->namelist[j])) == NULL)
@@ -1763,6 +1786,10 @@ pmGetInDomArchive_ctx(__pmContext *ctxp, pmInDom indom, int **instlist, char ***
     }
 
     for (idp = (__pmLogInDom *)hp->data; idp != NULL; idp = idp->next) {
+	if (idp->isdelta) {
+	    /* Need to "un-delta" this delta indom record */
+	    __pmLogUndeltaInDom(indom, idp);
+	}
 	if (idp->numinst > HASH_THRESHOLD) {
 	    big_indom = 1;
 	    reset_ihash();
