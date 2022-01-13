@@ -232,6 +232,38 @@ class ElasticsearchPmda(PMDA):
             [ 'nodes.indices.indexing.is_throttled',                                   PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 94
             [ 'nodes.indices.indexing.throttle_time_in_millis',                        PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 95
             [ 'nodes.indices.store.throttle_time_in_millis',                           PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 96
+            [ 'nodes.indices.warmer.current',                                          PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 97
+            [ 'nodes.indices.warmer.total',                                            PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 98
+            [ 'nodes.indices.warmer.total_time_in_millis',                             PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 99
+            [ 'nodes.indices.filter_cache.memory_size_in_bytes',                       PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 100
+            [ 'nodes.indices.filter_cache.evictions',                                  PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 101
+            [ 'nodes.indices.id_cache.memory_size_in_bytes',                           PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 102
+            [ 'nodes.indices.fielddata.memory_size_in_bytes',                          PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 103
+            [ 'nodes.indices.fielddata.evictions',                                     PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 104
+            [ 'nodes.indices.percolate.total',                                         PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 105
+            [ 'nodes.indices.percolate.time_in_millis',                                PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 106
+            [ 'nodes.indices.percolate.current',                                       PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 107
+            [ 'nodes.indices.percolate.memory_size_in_bytes',                          PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 108
+            [ 'nodes.indices.percolate.queries',                                       PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 109
+            [ 'nodes.indices.completion.size_in_bytes',                                PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 110
+            [ 'nodes.indices.segments.count',                                          PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 111
+            [ 'nodes.indices.segments.memory_in_bytes',                                PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 112
+            [ 'nodes.indices.segments.index_writer_memory_in_bytes',                   PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 113
+            [ 'nodes.indices.segments.index_writer_max_memory_in_bytes',               PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 114
+            [ 'nodes.indices.segments.version_map_memory_in_bytes',                    PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 115
+            [ 'nodes.indices.segments.fixed_bit_set_memory_in_bytes',                  PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 116
+            [ 'nodes.indices.translog.operations',                                     PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 117
+            [ 'nodes.indices.translog.size_in_bytes',                                  PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 118
+            [ 'nodes.indices.suggest.total',                                           PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 119
+            [ 'nodes.indices.suggest.time_in_millis',                                  PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 120
+            [ 'nodes.indices.suggest.current',                                         PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 121
+            [ 'nodes.indices.query_cache.memory_size_in_bytes',                        PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 122
+            [ 'nodes.indices.query_cache.evictions',                                   PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 123
+            [ 'nodes.indices.query_cache.hit_count',                                   PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 124
+            [ 'nodes.indices.query_cache.miss_count',                                  PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 125
+            [ 'nodes.indices.recovery.current_as_source',                              PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 126
+            [ 'nodes.indices.recovery.current_as_target',                              PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 127
+            [ 'nodes.indices.recovery.throttle_time_in_millis',                        PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 128
         ]
 
         for item, metric in enumerate(self.nodes_metrics):
@@ -774,6 +806,70 @@ class ElasticsearchPmda(PMDA):
                     return [data['indices']['indexing']['throttle_time_in_millis'], 1]
                 if item == 96:
                     return [data['indices']['store']['throttle_time_in_millis'], 1]
+                if item == 97:
+                    return [data['indices']['warmer']['current'], 1]
+                if item == 98:
+                    return [data['indices']['warmer']['total'], 1]
+                if item == 99:
+                    return [data['indices']['warmer']['total_time_in_millis'], 1]
+                if item == 100:
+                    return [data['indices']['filter_cache']['memory_size_in_bytes'], 1]
+                if item == 101:
+                    return [data['indices']['filter_cache']['evictions'], 1]
+                if item == 102:
+                    return [data['indices']['id_cache']['memory_size_in_bytes'], 1]
+                if item == 103:
+                    return [data['indices']['fielddata']['memory_size_in_bytes'], 1]
+                if item == 104:
+                    return [data['indices']['fielddata']['evictions'], 1]
+                if item == 105:
+                    return [data['indices']['percolate']['total'], 1]
+                if item == 106:
+                    return [data['indices']['percolate']['time_in_millis'], 1]
+                if item == 107:
+                    return [data['indices']['percolate']['current'], 1]
+                if item == 108:
+                    return [data['indices']['percolate']['memory_size_in_bytes'], 1]
+                if item == 109:
+                    return [data['indices']['percolate']['queries'], 1]
+                if item == 110:
+                    return [data['indices']['completion']['size_in_bytes'], 1]
+                if item == 111:
+                    return [data['indices']['segments']['count'], 1]
+                if item == 112:
+                    return [data['indices']['segments']['memory_in_bytes'], 1]
+                if item == 113:
+                    return [data['indices']['segments']['index_writer_memory_in_bytes'], 1]
+                if item == 114:
+                    return [data['indices']['segments']['index_writer_max_memory_in_bytes'], 1]
+                if item == 115:
+                    return [data['indices']['segments']['version_map_memory_in_bytes'], 1]
+                if item == 116:
+                    return [data['indices']['segments']['fixed_bit_set_memory_in_bytes'], 1]
+                if item == 117:
+                    return [data['indices']['translog']['operations'], 1]
+                if item == 118:
+                    return [data['indices']['translog']['size_in_bytes'], 1]
+                if item == 119:
+                    return [data['indices']['suggest']['total'], 1]
+                if item == 120:
+                    return [data['indices']['suggest']['time_in_millis'], 1]
+                if item == 121:
+                    return [data['indices']['suggest']['current'], 1]
+                if item == 122:
+                    return [data['indices']['query_cache']['memory_size_in_bytes'], 1]
+                if item == 123:
+                    return [data['indices']['query_cache']['evictions'], 1]
+                if item == 124:
+                    return [data['indices']['query_cache']['hit_count'], 1]
+                if item == 125:
+                    return [data['indices']['query_cache']['miss_count'], 1]
+                if item == 126:
+                    return [data['indices']['recovery']['current_as_source'], 1]
+                if item == 127:
+                    return [data['indices']['recovery']['current_as_target'], 1]
+                if item == 128:
+                    return [data['indices']['recovery']['throttle_time_in_millis'], 1]
             except KeyError:
                 return [PM_ERR_APPVERSION, 0]
 
