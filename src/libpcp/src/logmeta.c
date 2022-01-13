@@ -1264,12 +1264,12 @@ __pmLogUndeltaInDom(pmInDom indom,__pmLogInDom *idp)
 	    else
 		numinst--;
 	}
-	if ((instlist = (int *)malloc(numinst * sizeof(int *))) == NULL) {
-	    pmNoMem("__pmLogUndeltaInDom instlist", numinst * sizeof(int *), PM_FATAL_ERR);
+	if ((instlist = (int *)malloc(numinst * sizeof(instlist[0]))) == NULL) {
+	    pmNoMem("__pmLogUndeltaInDom instlist", numinst * sizeof(instlist[0]), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
-	if ((namelist = (char  **)malloc(numinst * sizeof(char **))) == NULL) {
-	    pmNoMem("__pmLogUndeltaInDom namelist", numinst * sizeof(char **), PM_FATAL_ERR);
+	if ((namelist = (char  **)malloc(numinst * sizeof(namelist[0]))) == NULL) {
+	    pmNoMem("__pmLogUndeltaInDom namelist", numinst * sizeof(namelist[0]), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
 	if (pmDebugOptions.logmeta) {
