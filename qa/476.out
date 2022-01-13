@@ -5,6 +5,7 @@ Ignoring: TMP.control[18]: non-numeric threshold: bad2	!=	123 456
 Ignoring: TMP.control[20]: illegal operator: bad3 ! = 1 2 3
 Ignoring: TMP.control[22]: non-numeric threshold: bad4 > = 1 2 3
 Ignoring: TMP.control[24]: illegal operator: bad5 ?
+Ignoring: TMP.control[26]: % 0 is never true: bad6 % 0
 __pmFaultInject(test) not registered
 === Fault Injection Summary Report ===
 ok1: guard trip>0, 0 trips, 0 faults

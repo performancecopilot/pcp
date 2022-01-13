@@ -58,6 +58,8 @@ bad3 ! = 1 2 3
 bad4 > = 1 2 3
 # bad operator
 bad5 ?
+# bad % 0
+bad6 % 0
 End-of-File
 src/check_fault_injection -Dfault 2>&1 | _filter
 

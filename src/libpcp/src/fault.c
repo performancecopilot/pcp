@@ -173,6 +173,10 @@ __pmFaultInject(const char *ident, int class)
 		    }
 		    while (*lp && isspace((int)*lp)) lp++;
 		    thres = (int)strtol(lp, &lp, 10);
+		    if (thres == 0 && op == PM_FAULT_MOD) {
+			fprintf(stderr, "Ignoring: %s[%d]: %% 0 is never true: %s\n", fname, lineno, line);
+			continue;
+		    }
 		    while (*lp && isspace((int)*lp)) lp++;
 		    if (*lp != '\0') {
 			fprintf(stderr, "Ignoring: %s[%d]: non-numeric threshold: %s\n", fname, lineno, line);
@@ -233,7 +237,10 @@ __pmFaultInject(const char *ident, int class)
 	    	__pmFault_arm = (cp->ntrip != cp->thres) ? class : 0;
 		break;
 	    case PM_FAULT_MOD:
-	    	__pmFault_arm = ((cp->ntrip % cp->thres) == 1) ? class : 0;
+		if (cp->thres == 0)
+		    __pmFault_arm = 0;
+		else
+		    __pmFault_arm = ((cp->ntrip % cp->thres) == 1) ? class : 0;
 		break;
 	}
 	if (__pmFault_arm != 0)
