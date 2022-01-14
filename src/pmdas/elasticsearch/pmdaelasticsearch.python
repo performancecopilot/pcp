@@ -108,18 +108,18 @@ class ElasticsearchPmda(PMDA):
         self.cluster_indom = PM_INDOM_NULL
         self.cluster_cluster = 0
         self.cluster_metrics = [
-            # Name - type - semantics - units - help
-            [ 'cluster.cluster_name',          PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),  'Name of the elasticsearch cluster'],
-            [ 'cluster.status.colour',         PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),  'Status (green,yellow,red) of the elasticsearch cluster'],
-            [ 'cluster.timed_out',             PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),  'Timed out status (0:false,1:true) of the elasticsearch cluster'],
-            [ 'cluster.number_of_nodes',       PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),  'Number of nodes in the elasticsearch cluster'],
-            [ 'cluster.number_of_data_nodes',  PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),  'Number of data nodes in the elasticsearch cluster'],
-            [ 'cluster.active_primary_shards', PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),  'Number of active primary shards in the elasticsearch cluster'],
-            [ 'cluster.active_shards',         PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),  'Number of primary shards in the elasticsearch cluster'],
-            [ 'cluster.relocating_shards',     PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),  'Number of relocating shards in the elasticsearch cluster'],
-            [ 'cluster.initializing_shards',   PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),  'Number of initializing shards in the elasticsearch cluster'],
-            [ 'cluster.unassigned_shards',     PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),  'Number of unassigned shards in the elasticsearch cluster'],
-            [ 'cluster.status.code',           PM_TYPE_32,     PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),  'Status code (0:green,1:yellow,2:red) of the elasticsearch cluster'],
+            # Name -                           type -          semantics -     units -               help
+            [ 'cluster.cluster_name',          PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Name of the elasticsearch cluster'                                 ], #  0
+            [ 'cluster.status.colour',         PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Status (green,yellow,red) of the elasticsearch cluster'            ], #  1
+            [ 'cluster.timed_out',             PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Timed out status (0:false,1:true) of the elasticsearch cluster'    ], #  2
+            [ 'cluster.number_of_nodes',       PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Number of nodes in the elasticsearch cluster'                      ], #  3
+            [ 'cluster.number_of_data_nodes',  PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Number of data nodes in the elasticsearch cluster'                 ], #  4
+            [ 'cluster.active_primary_shards', PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Number of active primary shards in the elasticsearch cluster'      ], #  5
+            [ 'cluster.active_shards',         PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Number of primary shards in the elasticsearch cluster'             ], #  6
+            [ 'cluster.relocating_shards',     PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Number of relocating shards in the elasticsearch cluster'          ], #  7
+            [ 'cluster.initializing_shards',   PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Number of initializing shards in the elasticsearch cluster'        ], #  8
+            [ 'cluster.unassigned_shards',     PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Number of unassigned shards in the elasticsearch cluster'          ], #  9
+            [ 'cluster.status.code',           PM_TYPE_32,     PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Status code (0:green,1:yellow,2:red) of the elasticsearch cluster' ], # 10
         ]
 
         for item, metric in enumerate(self.cluster_metrics):
@@ -134,72 +134,72 @@ class ElasticsearchPmda(PMDA):
         self.add_indom(self.nodes_insts, 'elasticsearch cluster nodes')
         self.nodes_cluster = 1
         self.nodes_metrics = [
-            # Name - type - semantics - units - help
-            [ 'nodes.indices.size_in_bytes',                                           PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 0
-            [ 'nodes.indices.docs.count',                                               PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 1
-            [ 'nodes.indices.docs.num_docs',                                           PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 2
-            [ 'nodes.indices.cache.field_evictions',                                   PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 3
-            [ 'nodes.indices.cache.field_size_in_bytes',                               PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 4
-            [ 'nodes.indices.cache.filter_count',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 5
-            [ 'nodes.indices.cache.filter_evictions',                                  PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 6
-            [ 'nodes.indices.cache.filter_size_in_bytes',                              PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 7
-            [ 'nodes.indices.merges.current',                                          PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 8
-            [ 'nodes.indices.merges.total',                                            PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 9
-            [ 'nodes.indices.merges.total_time_in_millis',                             PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  ''], # 10
-            [ 'nodes.jvm.uptime_in_millis',                                            PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  ''], # 11
-            [ 'nodes.jvm.uptime',                                                      PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  ''], # 12
-            [ 'nodes.jvm.mem.heap_used_in_bytes',                                      PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),  ''], # 13
-            [ 'nodes.jvm.mem.heap_committed_in_bytes',                                 PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 14
-            [ 'nodes.jvm.mem.non_heap_used_in_bytes',                                  PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 15
-            [ 'nodes.jvm.mem.non_heap_committed_in_bytes',                             PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 16
-            [ 'nodes.jvm.threads.count',                                               PM_TYPE_U32, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),  ''], # 17
-            [ 'nodes.jvm.threads.peak_count',                                          PM_TYPE_U32, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),  ''], # 18
-            [ 'nodes.jvm.gc.collection_count',                                         PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 19
-            [ 'nodes.jvm.gc.collection_time_in_millis',                                PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  ''], # 20
-            [ 'nodes.jvm.gc.collectors.Copy.collection_count',                         PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 21
-            [ 'nodes.jvm.gc.collectors.Copy.collection_time_in_millis',                PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  ''], # 22
-            [ 'nodes.jvm.gc.collectors.ParNew.collection_count',                       PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 23
-            [ 'nodes.jvm.gc.collectors.ParNew.collection_time_in_millis',              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  ''], # 24
-            [ 'nodes.jvm.gc.collectors.ConcurrentMarkSweep.collection_count',          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 25
-            [ 'nodes.jvm.gc.collectors.ConcurrentMarkSweep.collection_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  ''], # 26
-            [ 'nodes.indices.docs.deleted',                                            PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 27
-            [ 'nodes.indices.indexing.index_total',                                    PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 28
-            [ 'nodes.indices.indexing.index_time_in_millis',                           PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  ''], # 29
-            [ 'nodes.indices.indexing.delete_total',                                   PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 30
-            [ 'nodes.indices.indexing.delete_time_in_millis',                          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  ''], # 31
-            [ 'nodes.indices.merges.current_docs',                                     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 32
-            [ 'nodes.indices.merges.current_size_in_bytes',                            PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 33
-            [ 'nodes.indices.merges.total_docs',                                       PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 34
-            [ 'nodes.indices.merges.total_size_in_bytes',                              PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 35
-            [ 'nodes.indices.refresh.total',                                           PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 36
-            [ 'nodes.indices.refresh.total_time_in_millis',                            PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  ''], # 37
-            [ 'nodes.indices.flush.total',                                             PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 38
-            [ 'nodes.indices.flush.total_time_in_millis',                              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  ''], # 39
-            [ 'nodes.process.timestamp',                                               PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),  ''], # 40
-            [ 'nodes.process.open_file_descriptors',                                   PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),  ''], # 41
-            [ 'nodes.process.cpu.percent',                                             PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),  ''], # 42
-            [ 'nodes.process.cpu.sys_in_millis',                                       PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  ''], # 43
-            [ 'nodes.process.cpu.user_in_millis',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  ''], # 44
-            [ 'nodes.process.mem.resident_in_bytes',                                   PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 45
-            [ 'nodes.process.mem.total_virtual_in_bytes',                              PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 46
-            [ 'nodes.indices.store.size_in_bytes',                                     PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 47
-            [ 'nodes.indices.get.total',                                               PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 48
-            [ 'nodes.indices.get.time_in_millis',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  ''], # 49
-            [ 'nodes.indices.get.exists_total',                                        PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 50
-            [ 'nodes.indices.get.exists_time_in_millis',                               PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  ''], # 51
-            [ 'nodes.indices.get.missing_total',                                       PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 52
-            [ 'nodes.indices.get.missing_time_in_millis',                              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  ''], # 53
-            [ 'nodes.indices.search.query_total',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 54
-            [ 'nodes.indices.search.query_time_in_millis',                             PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  ''], # 55
-            [ 'nodes.indices.search.fetch_total',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 56
-            [ 'nodes.indices.search.fetch_time_in_millis',                             PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  ''], # 57
-            [ 'nodes.transport.server_open',                                           PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),  ''], # 58
-            [ 'nodes.transport.rx_count',                                              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 59
-            [ 'nodes.transport.rx_size_in_bytes',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 60
-            [ 'nodes.transport.tx_count',                                              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 61
-            [ 'nodes.transport.tx_size_in_bytes',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(1,0,0,PM_SPACE_BYTE,0,0),  ''], # 62
-            [ 'nodes.http.current_open',                                               PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),  ''], # 63
-            [ 'nodes.http.total_opened',                                               PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  ''], # 64
+            # Name -                                                                   type -          semantics -     units -                           help
+            [ 'nodes.indices.size_in_bytes',                                           PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], #  0
+            [ 'nodes.indices.docs.count',                                              PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], #  1
+            [ 'nodes.indices.docs.num_docs',                                           PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], #  2
+            [ 'nodes.indices.cache.field_evictions',                                   PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], #  3
+            [ 'nodes.indices.cache.field_size_in_bytes',                               PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], #  4
+            [ 'nodes.indices.cache.filter_count',                                      PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], #  5
+            [ 'nodes.indices.cache.filter_evictions',                                  PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], #  6
+            [ 'nodes.indices.cache.filter_size_in_bytes',                              PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], #  7
+            [ 'nodes.indices.merges.current',                                          PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], #  8
+            [ 'nodes.indices.merges.total',                                            PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], #  9
+            [ 'nodes.indices.merges.total_time_in_millis',                             PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 10
+            [ 'nodes.jvm.uptime_in_millis',                                            PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 11
+            [ 'nodes.jvm.uptime',                                                      PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 12
+            [ 'nodes.jvm.mem.heap_used_in_bytes',                                      PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 13
+            [ 'nodes.jvm.mem.heap_committed_in_bytes',                                 PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 14
+            [ 'nodes.jvm.mem.non_heap_used_in_bytes',                                  PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 15
+            [ 'nodes.jvm.mem.non_heap_committed_in_bytes',                             PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 16
+            [ 'nodes.jvm.threads.count',                                               PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 17
+            [ 'nodes.jvm.threads.peak_count',                                          PM_TYPE_U32,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 18
+            [ 'nodes.jvm.gc.collection_count',                                         PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 19
+            [ 'nodes.jvm.gc.collection_time_in_millis',                                PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 20
+            [ 'nodes.jvm.gc.collectors.Copy.collection_count',                         PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 21
+            [ 'nodes.jvm.gc.collectors.Copy.collection_time_in_millis',                PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 22
+            [ 'nodes.jvm.gc.collectors.ParNew.collection_count',                       PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 23
+            [ 'nodes.jvm.gc.collectors.ParNew.collection_time_in_millis',              PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 24
+            [ 'nodes.jvm.gc.collectors.ConcurrentMarkSweep.collection_count',          PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 25
+            [ 'nodes.jvm.gc.collectors.ConcurrentMarkSweep.collection_time_in_millis', PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 26
+            [ 'nodes.indices.docs.deleted',                                            PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 27
+            [ 'nodes.indices.indexing.index_total',                                    PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 28
+            [ 'nodes.indices.indexing.index_time_in_millis',                           PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 29
+            [ 'nodes.indices.indexing.delete_total',                                   PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 30
+            [ 'nodes.indices.indexing.delete_time_in_millis',                          PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 31
+            [ 'nodes.indices.merges.current_docs',                                     PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 32
+            [ 'nodes.indices.merges.current_size_in_bytes',                            PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 33
+            [ 'nodes.indices.merges.total_docs',                                       PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 34
+            [ 'nodes.indices.merges.total_size_in_bytes',                              PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 35
+            [ 'nodes.indices.refresh.total',                                           PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 36
+            [ 'nodes.indices.refresh.total_time_in_millis',                            PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 37
+            [ 'nodes.indices.flush.total',                                             PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 38
+            [ 'nodes.indices.flush.total_time_in_millis',                              PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 39
+            [ 'nodes.process.timestamp',                                               PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 40
+            [ 'nodes.process.open_file_descriptors',                                   PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 41
+            [ 'nodes.process.cpu.percent',                                             PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 42
+            [ 'nodes.process.cpu.sys_in_millis',                                       PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 43
+            [ 'nodes.process.cpu.user_in_millis',                                      PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 44
+            [ 'nodes.process.mem.resident_in_bytes',                                   PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 45
+            [ 'nodes.process.mem.total_virtual_in_bytes',                              PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 46
+            [ 'nodes.indices.store.size_in_bytes',                                     PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 47
+            [ 'nodes.indices.get.total',                                               PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 48
+            [ 'nodes.indices.get.time_in_millis',                                      PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 49
+            [ 'nodes.indices.get.exists_total',                                        PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 50
+            [ 'nodes.indices.get.exists_time_in_millis',                               PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 51
+            [ 'nodes.indices.get.missing_total',                                       PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 52
+            [ 'nodes.indices.get.missing_time_in_millis',                              PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 53
+            [ 'nodes.indices.search.query_total',                                      PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 54
+            [ 'nodes.indices.search.query_time_in_millis',                             PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 55
+            [ 'nodes.indices.search.fetch_total',                                      PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 56
+            [ 'nodes.indices.search.fetch_time_in_millis',                             PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0),  '' ], # 57
+            [ 'nodes.transport.server_open',                                           PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 58
+            [ 'nodes.transport.rx_count',                                              PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 59
+            [ 'nodes.transport.rx_size_in_bytes',                                      PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 60
+            [ 'nodes.transport.tx_count',                                              PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 61
+            [ 'nodes.transport.tx_size_in_bytes',                                      PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 62
+            [ 'nodes.http.current_open',                                               PM_TYPE_U64,    PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),             '' ], # 63
+            [ 'nodes.http.total_opened',                                               PM_TYPE_U64,    PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  '' ], # 64
         ]
 
         for item, metric in enumerate(self.nodes_metrics):
@@ -213,16 +213,16 @@ class ElasticsearchPmda(PMDA):
         self.add_indom(self.node_info_insts, 'elasticsearch cluster nodes')
         self.node_info_cluster = 2
         self.node_info_metrics = [
-            # Name - type - semantics - units - help
-            [ 'nodes.jvm.pid',                        PM_TYPE_U32,    PM_SEM_DISCRETE, pmUnits(0,0,0,0,0,0),             ''], # 0
-            [ 'nodes.jvm.version',                    PM_TYPE_STRING, PM_SEM_INSTANT,  pmUnits(0,0,0,0,0,0),             ''], # 1
-            [ 'nodes.jvm.vm_name',                    PM_TYPE_STRING, PM_SEM_INSTANT,  pmUnits(0,0,0,0,0,0),             ''], # 2
-            [ 'nodes.jvm.vm_version',                 PM_TYPE_STRING, PM_SEM_INSTANT,  pmUnits(0,0,0,0,0,0),             ''], # 3
-            [ 'nodes.jvm.mem.heap_init_in_bytes',     PM_TYPE_U64,    PM_SEM_INSTANT,  pmUnits(0,0,0,0,0,0),             ''], # 4
-            [ 'nodes.jvm.mem.heap_max_in_bytes',      PM_TYPE_U64,    PM_SEM_INSTANT,  pmUnits(1,0,0,PM_SPACE_BYTE,0,0), ''], # 5
-            [ 'nodes.jvm.mem.non_heap_init_in_bytes', PM_TYPE_U64,    PM_SEM_INSTANT,  pmUnits(1,0,0,PM_SPACE_BYTE,0,0), ''], # 6
-            [ 'nodes.jvm.mem.non_heap_max_in_bytes',  PM_TYPE_U64,    PM_SEM_INSTANT,  pmUnits(1,0,0,PM_SPACE_BYTE,0,0), ''], # 7
-            [ 'nodes.process.max_file_descriptors',   PM_TYPE_U64,    PM_SEM_DISCRETE, pmUnits(0,0,0,0,0,0),             ''], # 8
+            # Name -                                  type -          semantics -      units -                           help
+            [ 'nodes.jvm.pid',                        PM_TYPE_U32,    PM_SEM_DISCRETE, pmUnits(0,0,0,0,0,0),             '' ], # 0
+            [ 'nodes.jvm.version',                    PM_TYPE_STRING, PM_SEM_INSTANT,  pmUnits(0,0,0,0,0,0),             '' ], # 1
+            [ 'nodes.jvm.vm_name',                    PM_TYPE_STRING, PM_SEM_INSTANT,  pmUnits(0,0,0,0,0,0),             '' ], # 2
+            [ 'nodes.jvm.vm_version',                 PM_TYPE_STRING, PM_SEM_INSTANT,  pmUnits(0,0,0,0,0,0),             '' ], # 3
+            [ 'nodes.jvm.mem.heap_init_in_bytes',     PM_TYPE_U64,    PM_SEM_INSTANT,  pmUnits(0,0,0,0,0,0),             '' ], # 4
+            [ 'nodes.jvm.mem.heap_max_in_bytes',      PM_TYPE_U64,    PM_SEM_INSTANT,  pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 5
+            [ 'nodes.jvm.mem.non_heap_init_in_bytes', PM_TYPE_U64,    PM_SEM_INSTANT,  pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 6
+            [ 'nodes.jvm.mem.non_heap_max_in_bytes',  PM_TYPE_U64,    PM_SEM_INSTANT,  pmUnits(1,0,0,PM_SPACE_BYTE,0,0), '' ], # 7
+            [ 'nodes.process.max_file_descriptors',   PM_TYPE_U64,    PM_SEM_DISCRETE, pmUnits(0,0,0,0,0,0),             '' ], # 8
         ]
         for item, metric in enumerate(self.node_info_metrics):
             self.add_metric(name + '.' + metric[0],
@@ -234,8 +234,8 @@ class ElasticsearchPmda(PMDA):
         self.version_indom = PM_INDOM_NULL
         self.version_cluster = 3
         self.version_metrics = [
-            # Name - type - semantics - units - help
-            [ 'version.number', PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Version number of elasticsearch'],
+            # Name -            type -          semantics -     units -               help
+            [ 'version.number', PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Version number of elasticsearch' ], # 0
         ]
         for item, metric in enumerate(self.version_metrics):
             self.add_metric(name + '.' + metric[0],
@@ -247,16 +247,17 @@ class ElasticsearchPmda(PMDA):
         self.search_indom = PM_INDOM_NULL
         self.search_cluster = 4
         self.search_metrics = [
-            [ 'search.shards.total', PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Number of shards in the elasticsearch cluster'],
-            [ 'search.shards.successful', PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Number of successful shards in the elasticsearch cluster'],
-            [ 'search.shards.failed', PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Number of failed shards in the elasticsearch cluster'],
-            [ 'search.all.primaries.search.query_total', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search queries to all elasticsearch primaries'],
-            [ 'search.all.primaries.search.query_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all elasticsearch primaries'],
-            [ 'search.all.primaries.search.fetch_total', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all elasticsearch primaries'],
-            [ 'search.all.total.search.query_total', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search queries to all elasticsearch primaries'],
-            [ 'search.all.total.search.query_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all elasticsearch primaries'],
-            [ 'search.all.total.search.fetch_total', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all elasticsearch primaries'],
-            [ 'search.all.total.fetch_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all elasticsearch primaries'],
+            # Name -                                              type -       semantics -     units -                          help
+            [ 'search.shards.total',                              PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),            'Number of shards in the elasticsearch cluster'               ], # 0
+            [ 'search.shards.successful',                         PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),            'Number of successful shards in the elasticsearch cluster'    ], # 1
+            [ 'search.shards.failed',                             PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0),            'Number of failed shards in the elasticsearch cluster'        ], # 2
+            [ 'search.all.primaries.search.query_total',          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search queries to all elasticsearch primaries'     ], # 3
+            [ 'search.all.primaries.search.query_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all elasticsearch primaries' ], # 4
+            [ 'search.all.primaries.search.fetch_total',          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all elasticsearch primaries' ], # 5
+            [ 'search.all.total.search.query_total',              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search queries to all elasticsearch primaries'     ], # 6
+            [ 'search.all.total.search.query_time_in_millis',     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all elasticsearch primaries' ], # 7
+            [ 'search.all.total.search.fetch_total',              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all elasticsearch primaries'     ], # 8
+            [ 'search.all.total.fetch_time_in_millis',            PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all elasticsearch primaries' ], # 9
         ]
 
         for item, metric in enumerate(self.search_metrics):
@@ -271,14 +272,15 @@ class ElasticsearchPmda(PMDA):
         self.add_indom(self.perindex_insts, 'elasticsearch indices')
         self.perindex_cluster = 5
         self.perindex_metrics = [
-            [ 'search.perindex.primaries.search.query_total', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all elasticsearch primaries'],
-            [ 'search.perindex.primaries.search.query_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all elasticsearch primaries'],
-            [ 'search.perindex.primaries.search.fetch_total', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all elasticsearch primaries'],
-            [ 'search.perindex.primaries.search.fetch_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all elasticsearch primaries'],
-            [ 'search.perindex.total.search.query_total', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search queries to all elasticsearch primaries'],
-            [ 'search.perindex.total.search.query_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all elasticsearch primaries'],
-            [ 'search.perindex.total.search.fetch_total', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all elasticsearch primaries'],
-            [ 'search.perindex.total.search.fetch_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all elasticsearch primaries'],
+            # Name -                                                   type -       semantics -     units -                          help
+            [ 'search.perindex.primaries.search.query_total',          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all elasticsearch primaries'     ], # 0
+            [ 'search.perindex.primaries.search.query_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all elasticsearch primaries' ], # 1
+            [ 'search.perindex.primaries.search.fetch_total',          PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all elasticsearch primaries'     ], # 2
+            [ 'search.perindex.primaries.search.fetch_time_in_millis', PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all elasticsearch primaries' ], # 3
+            [ 'search.perindex.total.search.query_total',              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search queries to all elasticsearch primaries'     ], # 4
+            [ 'search.perindex.total.search.query_time_in_millis',     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search queries to all elasticsearch primaries' ], # 5
+            [ 'search.perindex.total.search.fetch_total',              PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE), 'Number of search fetches to all elasticsearch primaries'     ], # 6
+            [ 'search.perindex.total.search.fetch_time_in_millis',     PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,1,0,0,PM_TIME_MSEC,0), 'Time spent in search fetches to all elasticsearch primaries' ], # 7
         ]
         for item, metric in enumerate(self.perindex_metrics):
             self.add_metric(name + '.' + metric[0],
@@ -290,7 +292,8 @@ class ElasticsearchPmda(PMDA):
         self.master_node_indom = PM_INDOM_NULL
         self.master_node_cluster = 6
         self.master_node_metrics = [
-            [ 'cluster.master_node', PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Internal identifier of the master node of the cluster'],
+            # Name -                 type -          semantics -     units -               help
+            [ 'cluster.master_node', PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Internal identifier of the master node of the cluster' ], # 0
         ]
         for item, metric in enumerate(self.master_node_metrics):
             self.add_metric(name + '.' + metric[0],
@@ -304,10 +307,11 @@ class ElasticsearchPmda(PMDA):
         self.add_indom(self.index_insts, 'elasticsearch indices')
         self.index_cluster = 7
         self.index_metrics = [
-            [ 'index.settings.gateway_snapshot_interval', PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Interval between gateway snapshots'],
-            [ 'index.settings.number_of_replicas', PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Number of replicas of shards index setting'],
-            [ 'index.settings.number_of_shards', PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Number of shards index setting'],
-            [ 'index.settings.version_created', PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'The version of elasticsearch the index was created with'],
+            # Name -                                      type -       semantics -     units -               help
+            [ 'index.settings.gateway_snapshot_interval', PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Interval between gateway snapshots'                      ], # 0
+            [ 'index.settings.number_of_replicas',        PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Number of replicas of shards index setting'              ], # 1
+            [ 'index.settings.number_of_shards',          PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'Number of shards index setting'                          ], # 2
+            [ 'index.settings.version_created',           PM_TYPE_U64, PM_SEM_INSTANT, pmUnits(0,0,0,0,0,0), 'The version of elasticsearch the index was created with' ], # 3
         ]
         for item, metric in enumerate(self.index_metrics):
             self.add_metric(name + '.' + metric[0],
