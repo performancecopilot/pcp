@@ -46,9 +46,12 @@ static int	hflag;
 static int	iflag;
 static int	lflag;
 static int	mflag;
+static int	oflag;
 static int	wflag;
 static int	nrec;
 static int	version;
+
+static off_t	offset;
 
 static __pmLogLabel	label;
 
@@ -63,6 +66,7 @@ usage(void)
     fprintf(stderr, " -i               report instance domain records\n");
     fprintf(stderr, " -l               report label records\n");
     fprintf(stderr, " -m               report metric records [default]\n");
+    fprintf(stderr, " -o               report byte offset to start of record\n");
     fprintf(stderr, " -w               only warn about badness\n");
     fprintf(stderr, " -W               only warn verbosely about badness\n");
     fprintf(stderr, " -z               set reporting timezone to pmcd from archive\n");
@@ -229,7 +233,10 @@ do_indom(__int32_t *buf, int type)
     }
     if (iflag || (warn && wflag > 0)) {
 	/* if warn is set, ep must have been assigned a value */
-	printf("[%d] @ ", nrec);
+	printf("[%d] ", nrec);
+	if (oflag)
+	    printf("+%ld ", (long)offset);
+	printf("@ ");
 	__pmPrintTimestamp(stdout, &this_stamp);
 	printf(" indom %s numinst %d", pmInDomStr(in.indom), in.numinst);
 	if (warn) {
@@ -308,7 +315,10 @@ do_desc(__int32_t *buf)
     dp->indom = __ntohpmInDom(dp->indom);
     dp->units = __ntohpmUnits(dp->units);
     dp->pmid = __ntohpmID(dp->pmid);
-    printf("[%d] metric %s (", nrec, pmIDStr(dp->pmid));
+    printf("[%d] ", nrec);
+    if (oflag)
+	printf("+%ld ", (long)offset);
+    printf("metric %s (",  pmIDStr(dp->pmid));
     numnames = ntohl(buf[sizeof(pmDesc)/sizeof(int)]);
     names = (char **)malloc(numnames*sizeof(char *));
     if (names == NULL) {
@@ -344,7 +354,10 @@ do_desc(__int32_t *buf)
 void
 do_label(int type)
 {
-    printf("[%d] label @ ", nrec);
+    printf("[%d] ", nrec);
+    if (oflag)
+	printf("+%ld ", (long)offset);
+    printf("label @ ");
     __pmPrintTimestamp(stdout, &label.start);
     if (type == TYPE_LABEL)
 	printf(" TODO");
@@ -361,7 +374,10 @@ do_help(__int32_t *buf)
     pmInDom	indom;
     char	*p;
 
-    printf("[%d] text ", nrec);
+    printf("[%d] ", nrec);
+    if (oflag)
+	printf("+%ld ", (long)offset);
+    printf("text ");
     type = ntohl(buf[0]);
     if ((type & PM_TEXT_INDOM) == PM_TEXT_INDOM) {
 	pmid = __ntohpmInDom(buf[1]);
@@ -394,7 +410,6 @@ main(int argc, char *argv[])
     int		tzh;				/* initial timezone handle */
     int		zflag = 0;			/* for -z */
     char 	*tz = NULL;			/* for -Z timezone */
-    off_t	offset;
     __pmFILE	*f;
     __pmLogHdr	hdr;
 
@@ -402,7 +417,7 @@ main(int argc, char *argv[])
     setlinebuf(stdout);
     setlinebuf(stderr);
 
-    while ((c = getopt(argc, argv, "aD:hilmwWzZ:")) != EOF) {
+    while ((c = getopt(argc, argv, "aD:hilmowWzZ:")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* report all */
@@ -432,6 +447,10 @@ main(int argc, char *argv[])
 
 	case 'm':	/* report metrics */
 	    mflag = 1;
+	    break;
+
+	case 'o':	/* report byte offsets */
+	    oflag = 1;
 	    break;
 
 	case 'w':	/* report warnings */
