@@ -443,3 +443,38 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== pmlogsummary ===
+=== std out ===
+
+sample.proc.ordinal ["0001 init"] 1.000 none
+sample.proc.ordinal ["0002 /etc/bozo"] 2.000 none
+sample.proc.ordinal ["0003 /usr/bin/bobo"] 3.000 none
+sample.proc.ordinal ["0004 /usr/local/jester"] 4.000 none
+sample.proc.ordinal ["0005 /usr/opt/bin/loko"] 5.000 none
+sample.proc.ordinal ["0008 /usr/local/yobo"] 8.000 none
+sample.proc.ordinal ["0009 /usr/opt/bin/jojo"] 9.000 none
+sample.proc.ordinal ["0010 /etc/koko"] 10.000 none
+sample.proc.ordinal ["0014 /etc/jester"] 14.000 none
+sample.proc.ordinal ["0015 /usr/bin/loko"] 15.000 none
+sample.proc.ordinal ["0016 /usr/local/pierrot"] 16.000 none
+sample.proc.ordinal ["0018 /etc/yobo"] 18.000 none
+sample.proc.ordinal ["0019 /usr/bin/jojo"] 19.000 none
+sample.proc.ordinal ["0020 /usr/local/koko"] 20.000 none
+sample.proc.ordinal ["0021 /usr/opt/bin/lala"] 21.000 none
+sample.proc.ordinal ["0022 /etc/bozo"] 22.000 none
+sample.proc.ordinal ["0023 /usr/bin/bobo"] 23.000 none
+sample.proc.ordinal ["0024 /usr/local/jester"] 24.000 none
+sample.proc.ordinal ["0025 /usr/opt/bin/loko"] 25.000 none
+sample.proc.ordinal ["0026 /etc/pierrot"] 26.000 none
+sample.proc.ordinal ["0027 /usr/bin/waldo"] 27.000 none
+sample.proc.ordinal ["0028 /usr/local/yobo"] 28.000 none
+sample.proc.ordinal ["0029 /usr/opt/bin/jojo"] 29.000 none
+sample.proc.ordinal ["0030 /etc/koko"] 30.000 none
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogsummary -z -x tmparch/sample-proc_v3 sample.proc.ordinal
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
