@@ -87,7 +87,7 @@ do_meta(__pmFILE *f)
 	    fprintf(stderr, "Error: metadata read failed: len %d not %d\n", sts, need);
 	    exit(1);
 	}
-	if (header.type < TYPE_DESC || header.type > TYPE_TEXT) {
+	if (header.type < TYPE_DESC || header.type > TYPE_MAX) {
 	    fprintf(stderr, "Error: bad metadata type: %d\n", header.type);
 	    exit(1);
 	}
@@ -120,9 +120,7 @@ do_meta(__pmFILE *f)
 		}
 		break;
 	    case TYPE_INDOM:
-		// TODO
-fprintf(stderr, "do_meta: botch record type TYPE_INDOM\n");
-		break;
+	    case TYPE_INDOM_DELTA:
 	    case TYPE_INDOM_V2:
 		if (vflag || dflag || rflag) {
 		    pmInDom	indom;
@@ -132,11 +130,21 @@ fprintf(stderr, "do_meta: botch record type TYPE_INDOM\n");
 		    char	*str;
 
 		    bufp = buf;
-		    bufp += sizeof(pmTimeval);
+		    if (header.type == TYPE_INDOM_V2)
+			bufp += 2*sizeof(__int32_t);
+		    else
+			bufp += 3*sizeof(__int32_t);
 		    indom = __ntohpmInDom(*((__pmPDU *)bufp));
 		    bufp += sizeof(pmInDom);
-		    if (vflag)
-			printf("INDOM: %s", pmInDomStr(indom));
+		    if (vflag) {
+			if (header.type == TYPE_INDOM)
+			    printf("INDOM: %s", pmInDomStr(indom));
+			else if (header.type == TYPE_INDOM_DELTA)
+			    printf("INDOM_DELTA: %s", pmInDomStr(indom));
+			else
+			    printf("INDOM_V2: %s", pmInDomStr(indom));
+
+		    }
 		    for (i = 0, indomp = indom_tab; i < nindom; i++, indomp++) {
 			if (indomp->indom == indom)
 			    break;
@@ -165,7 +173,10 @@ fprintf(stderr, "do_meta: botch record type TYPE_INDOM\n");
 		    ninst = ntohl(*((__pmPDU *)bufp));
 		    bufp += sizeof(__pmPDU);
 		    /* record type, timestamp, indom, numinst */
-		    indomp->bytes += sizeof(__pmPDU) + sizeof(pmTimeval) + sizeof(pmInDom) + sizeof(__pmPDU);
+		    if (header.type == TYPE_INDOM_V2)
+			indomp->bytes += sizeof(__pmPDU) + 2*sizeof(__int32_t) + sizeof(pmInDom) + sizeof(__pmPDU);
+		    else
+			indomp->bytes += sizeof(__pmPDU) + 3*sizeof(__int32_t) + sizeof(pmInDom) + sizeof(__pmPDU);
 		    if (vflag) {
 			printf(" %d instance", ninst);
 			if (ninst > 1)
@@ -175,6 +186,12 @@ fprintf(stderr, "do_meta: botch record type TYPE_INDOM\n");
 		    str = (char *)&bufp[2*ninst*sizeof(__pmPDU)];
 		    for (j = 0; j < ninst; j++) {
 			inst = ntohl(*((__pmPDU *)bufp));
+			if (inst < 0) {
+			    /* INDOM_DELTA and del instance */
+			    if (vflag && j == ninst-1)
+				printf(" ... ");
+			    continue;
+			}
 			bufp += sizeof(__pmPDU);
 			stridx[j] = ntohl(stridx[j]);
 			if (vflag) {
@@ -238,20 +255,36 @@ fprintf(stderr, "do_meta: botch record type TYPE_INDOM\n");
 			printf("TEXT: TODO ... nothing reported as yet\n");
 		}
 		break;
+	    default:
+		fprintf(stderr, "Metadata botch: record type = %d\n", header.type);
+		exit(1);
+		/*NOTREACHED*/
 	}
 
 	__pmFread(&trailer, 1, sizeof(trailer), f);
 	oheadbytes += sizeof(trailer);
     }
 
+    /*
+     * aggregate all the idom-type stats into *[TYPE_INDOM]
+     */
+    nrec[TYPE_INDOM] += nrec[TYPE_INDOM_DELTA] + nrec[TYPE_INDOM_V2];
+    bytes[TYPE_INDOM] += bytes[TYPE_INDOM_DELTA] + bytes[TYPE_INDOM_V2];
+
+    /*
+     * aggregate all the label-type stats into *[TYPE_LABEL]
+     */
+    nrec[TYPE_LABEL] += nrec[TYPE_LABEL_V2];
+    bytes[TYPE_LABEL] += bytes[TYPE_LABEL_V2];
+
     if (nrec[TYPE_DESC] > 0) {
 	printf("  metrics: %ld bytes [%.0f%%, %d records]\n",
 	    bytes[TYPE_DESC], 100*(float)bytes[TYPE_DESC]/sbuf.st_size, nrec[TYPE_DESC]);
     }
 
-    if (nrec[TYPE_INDOM_V2] > 0) {
+    if (nrec[TYPE_INDOM] > 0) {
 	printf("  indoms: %ld bytes [%.0f%%, %d records",
-	    bytes[TYPE_INDOM_V2], 100*(float)bytes[TYPE_INDOM_V2]/sbuf.st_size, nrec[TYPE_INDOM_V2]);
+	    bytes[TYPE_INDOM], 100*(float)bytes[TYPE_INDOM]/sbuf.st_size, nrec[TYPE_INDOM]);
 	if (dflag) {
 	    j = 0;
 	    if (indom_tab != NULL) {
@@ -267,7 +300,7 @@ fprintf(stderr, "do_meta: botch record type TYPE_INDOM\n");
 	if (dflag && indom_tab != NULL) {
 	    qsort(indom_tab, nindom, sizeof(indom_tab[0]), indom_compar);
 	    for (indomp = indom_tab; indomp < &indom_tab[nindom]; indomp++) {
-		if (thres != -1 && 100*(float)sum_bytes/bytes[TYPE_INDOM_V2] > thres) {
+		if (thres != -1 && 100*(float)sum_bytes/bytes[TYPE_INDOM] > thres) {
 		    /* -x cutoff reached */
 		    printf("    ...\n");
 		    break;
@@ -295,9 +328,9 @@ fprintf(stderr, "do_meta: botch record type TYPE_INDOM\n");
 	}
     }
 
-    if (nrec[TYPE_LABEL_V2] > 0) {
+    if (nrec[TYPE_LABEL] > 0) {
 	printf("  labels: %ld bytes [%.0f%%, %d records]\n",
-	    bytes[TYPE_LABEL_V2], 100*(float)bytes[TYPE_LABEL_V2]/sbuf.st_size, nrec[TYPE_LABEL_V2]);
+	    bytes[TYPE_LABEL], 100*(float)bytes[TYPE_LABEL]/sbuf.st_size, nrec[TYPE_LABEL]);
     }
 
     if (nrec[TYPE_TEXT] > 0) {
@@ -307,7 +340,7 @@ fprintf(stderr, "do_meta: botch record type TYPE_INDOM\n");
 
     printf("  overhead: %ld bytes [%.0f%%]\n",
 	oheadbytes, 100*(float)oheadbytes/sbuf.st_size);
-    sbuf.st_size -= (bytes[TYPE_DESC] + bytes[TYPE_INDOM_V2] + bytes[TYPE_LABEL_V2] + bytes[TYPE_TEXT] + oheadbytes);
+    sbuf.st_size -= (bytes[TYPE_DESC] + bytes[TYPE_INDOM] + bytes[TYPE_LABEL] + bytes[TYPE_TEXT] + oheadbytes);
 
     if (sbuf.st_size != 0)
 	printf("  unaccounted for: %ld bytes\n", (long)sbuf.st_size);
