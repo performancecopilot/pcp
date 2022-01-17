@@ -206,7 +206,7 @@ __pmLogLoadInDom(__pmArchCtl *acp, int rlen, int type, pmInResult *inp, __pmTime
     int			n;
     __int32_t		*stridx;
     int			idx;
-    int			max_idx;
+    int			max_idx = -1;		/* pander to gcc */
     char		*namebase;
     __int32_t		*lbuf;
     int			sts;

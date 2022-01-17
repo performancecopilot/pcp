@@ -1,0 +1,69 @@
+#!/bin/sh
+# PCP QA Test No. 1375
+# simplest pmlogextract test for V3 archives ... no delta indoms
+#
+# Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/<something>/<else>/' \
+    # end
+}
+
+# real QA test starts here
+
+if $do_valgrind
+then
+    _run_valgrind ...your test goes here...
+else
+    pmlogextract tmparch/sampledso-no-delta_v3 -Dlogmeta $tmp 2>&1
+fi \
+| sed -e "s@$tmp@TMP@g" \
+| _filter
+
+src/scanmeta -a tmparch/sampledso-no-delta_v3.meta >$tmp.input
+src/scanmeta -a $tmp.meta >$tmp.output
+
+meld $tmp.input $tmp.output
+
+pmdumplog -aI tmparch/sampledso-no-delta_v3 >$tmp.input
+pmdumplog -aI $tmp >$tmp.output
+
+meld $tmp.input $tmp.output
+
+# success, all done
+exit
