@@ -291,8 +291,8 @@ void
 bpf_register_module_metrics()
 {
     // identify how much space we need and set up metric table area
-    int total_metrics = 0;
-    int total_indoms = 0;
+    size_t total_metrics = 0;
+    size_t total_indoms = 0;
     int cache_op_status;
     module* bpf_module;
     char indom[64];
@@ -309,8 +309,8 @@ bpf_register_module_metrics()
     }
 
     // set up indom mapping
-    metrictab = (pmdaMetric*) calloc(total_metrics, sizeof(pmdaMetric));
-    indomtab = (pmdaIndom*) calloc(total_indoms, sizeof(pmdaIndom));
+    metrictab = total_metrics ? (pmdaMetric*) calloc(total_metrics, sizeof(pmdaMetric)) : NULL;
+    indomtab = total_indoms ? (pmdaIndom*) calloc(total_indoms, sizeof(pmdaIndom)) : NULL;
 
     // each module needs to set up its tables, starting at the next available slot
     int current_metric = 0;
