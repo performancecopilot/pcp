@@ -8,8 +8,8 @@ tmparch/sample-proc.index:
   overhead: 132 bytes [31%]
 tmparch/sample-proc.meta:
   metrics: 383 bytes [6%, 8 records]
-  indoms: 4316 bytes [64%, 14 records]
-  labels: 554 bytes [8%, 4 records]
+  indoms: NNNN bytes [NN%, 14 records]
+  labels: NNN bytes [N%, 4 records]
   texts: 1086 bytes [16%, 8 records]
   overhead: 404 bytes [6%]
 
@@ -22,7 +22,7 @@ tmparch/sample-proc_v3.index:
   overhead: 808 bytes [63%]
 tmparch/sample-proc_v3.meta:
   metrics: 383 bytes [9%, 8 records]
-  indoms: 1088 bytes [26%, 14 records]
-  labels: 570 bytes [14%, 4 records]
+  indoms: NNNN bytes [NN%, 14 records]
+  labels: NNN bytes [N%, 4 records]
   texts: 1086 bytes [26%, 8 records]
   overhead: 1080 bytes [26%]
