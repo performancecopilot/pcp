@@ -23,7 +23,7 @@ Export metric values in a comma-separated format
 
 .. Important::
 
-   *pmrep* use *output* target for reporting. The default target is *stdout*. **-o csv** or **--output=csv** print metrics in CSV (comma-separated values) format.
+   *pmrep* uses the *output* target for reporting. The default target is *stdout*. **-o csv** or **--output=csv** print metrics in CSV (comma-separated values) format.
 
 4. To display per-device disk reads and writes from the host server1 using two seconds interval in CSV output format:
 
