@@ -45,6 +45,9 @@ _filter()
 {
     tee -a $seq.full \
     | sed \
+	-e '/data:/{
+s/[0-9][0-9]* bytes/NNNNN bytes/
+}' \
 	-e '/indoms:/{
 s/[0-9][0-9]* bytes/NNNN bytes/
 s/[0-9][0-9]*%/NN%/

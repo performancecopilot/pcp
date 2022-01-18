@@ -3,7 +3,7 @@ QA output created by 1373 --valgrind
 === V2 ===
 === std out ===
 tmparch/sample-proc.0:
-  data: 11928 bytes [95%, 22 records]
+  data: NNNNN bytes [95%, 22 records]
   overhead: 572 bytes [5%]
 tmparch/sample-proc.index:
   index: 300 bytes [69%, 15 entries]
@@ -25,7 +25,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === V3 ===
 === std out ===
 tmparch/sample-proc_v3.0:
-  data: 11928 bytes [91%, 22 records]
+  data: NNNNN bytes [91%, 22 records]
   overhead: 1248 bytes [9%]
 tmparch/sample-proc_v3.index:
   index: 480 bytes [37%, 15 entries]
