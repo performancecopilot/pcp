@@ -1,6 +1,10 @@
 #!/bin/sh
 # PCP QA Test No. 1375
-# simplest pmlogextract test for V3 archives ... no delta indoms
+# simplest pmlogextract test for V3 (and V2) archives ... no
+# delta indoms, so output archive should be the same as the
+# input archive
+#
+# non-valgrind variant, see qa/1376 for the valgrind variant
 #
 # Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
 #
@@ -46,24 +50,60 @@ _filter()
 
 # real QA test starts here
 
-if $do_valgrind
-then
-    _run_valgrind ...your test goes here...
-else
-    pmlogextract tmparch/sampledso-no-delta_v3 -Dlogmeta $tmp 2>&1
-fi \
-| sed -e "s@$tmp@TMP@g" \
-| _filter
+for version in 2 3
+do
+    echo
+    echo "--- Version $version archive ---"
+    case $version
+    in
+	2)	suff=''
+		;;
+	3)	suff='_v3'
+		;;
+    esac
 
-src/scanmeta -a tmparch/sampledso-no-delta_v3.meta >$tmp.input
-src/scanmeta -a $tmp.meta >$tmp.output
+    rm -f $tmp.0 $tmp.meta $tmp.index
 
-meld $tmp.input $tmp.output
+    if $do_valgrind
+    then
+	_run_valgrind pmlogextract tmparch/sampledso-no-delta$suff $tmp
+    else
+	pmlogextract tmparch/sampledso-no-delta$suff $tmp 2>&1
+    fi \
+    | sed -e "s@$tmp@TMP@g" \
+    | _filter
 
-pmdumplog -aI tmparch/sampledso-no-delta_v3 >$tmp.input
-pmdumplog -aI $tmp >$tmp.output
+    echo "=== scanmeta for input ===" >>$seq.full
+    src/scanmeta -a tmparch/sampledso-no-delta$suff.meta 2>&1 \
+    | tee -a $seq.full \
+    | sed -e 's/^\[[0-9][0-9]*/[NN/' \
+    | LC_COLLATE=POSIX sort >$tmp.input
 
-meld $tmp.input $tmp.output
+    echo >>$seq.full
+    echo "=== scanmeta for output ===" >>$seq.full
+    src/scanmeta -a $tmp.meta 2>&1 \
+    | tee -a $seq.full \
+    | sed -e 's/^\[[0-9][0-9]*/[NN/' \
+    | LC_COLLATE=POSIX sort >$tmp.output
+
+    echo "=== scanmeta diffs ==="
+    diff $tmp.input $tmp.output
+
+    echo "=== dumplog for input ===" >>$seq.full
+    pmdumplog -aI tmparch/sampledso-no-delta$suff 2>&1 \
+    | tee -a $seq.full \
+    | sed -e '/^PID for pmlogger:/s/[0-9][0-9]*/<PID>/' >$tmp.input
+
+    echo >>$seq.full
+    echo "=== dumplog for output ===" >>$seq.full
+    pmdumplog -aI $tmp 2>&1 \
+    | tee -a $seq.full \
+    | sed -e '/^PID for pmlogger:/s/[0-9][0-9]*/<PID>/' >$tmp.output
+
+    echo "=== pmdumplog diffs ==="
+    diff $tmp.input $tmp.output
+
+done
 
 # success, all done
 exit

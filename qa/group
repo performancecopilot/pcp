@@ -1821,6 +1821,8 @@ x11
 1372 pmie local
 1373 pmlogsize archive_v3 local
 1374 pmlogsize archive_v3 local valgrind
+1375 pmlogextract pmdumplog archive_v3 local
+1376 pmlogextract pmdumplog archive_v3 local valgrind
 1379 pmproxy local
 1383 pmlogrewrite labels pmdumplog local
 1385 pmda.openmetrics local python
