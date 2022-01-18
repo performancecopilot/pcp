@@ -64,7 +64,7 @@ def _setup_urllib(url, auth, pasw):
     return httprequest
 
 
-class ElasticsearchPmda(PMDA):
+class ElasticsearchPMDA(PMDA):
     """ PCP Elasticsearch PMDA """
     def __init__(self, name, domain):
         """ Constructor """
@@ -1092,4 +1092,4 @@ class ElasticsearchPmda(PMDA):
 
 
 if __name__ == '__main__':
-    ElasticsearchPmda('elasticsearch', 108).run()
+    ElasticsearchPMDA('elasticsearch', 108).run()
