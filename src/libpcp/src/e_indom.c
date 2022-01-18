@@ -243,10 +243,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	inp->numinst = ntohl(v3->numinst);
 	k++;
 	inp->instlist = (int *)&v3->data;
-	if (acp != NULL) {
-	    /* rlen minus fixed fields (plus len+type), minus instlist[], minus strindex[] */
-	    max_idx = rlen - 5*sizeof(__int32_t) - 2*inp->numinst*sizeof(__int32_t);
-	}
+	/* rlen minus fixed fields (plus len+type), minus instlist[], minus strindex[] */
+	max_idx = rlen - 5*sizeof(__int32_t) - 2*inp->numinst*sizeof(__int32_t);
     }
     else if (type == TYPE_INDOM_V2) {
 	__pmInDom_v2	*v2;
@@ -258,14 +256,13 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	inp->numinst = ntohl(v2->numinst);
 	k++;
 	inp->instlist = (int *)&v2->data;
-	if (acp != NULL) {
-	    /* rlen minus fixed fields (plus len+type), minus instlist[], minus strindex[] */
-	    max_idx = rlen - 4*sizeof(__int32_t) - 2*inp->numinst*sizeof(__int32_t);
-	}
+	/* rlen minus fixed fields (plus len+type), minus instlist[], minus strindex[] */
+	max_idx = rlen - 4*sizeof(__int32_t) - 2*inp->numinst*sizeof(__int32_t);
     }
     else {
-	fprintf(stderr, "__pmLogLoadInDom: botch type=%d\n", type);
-	exit(1);
+	if (pmDebugOptions.logmeta)
+	    fprintf(stderr, "__pmLogLoadInDom: botch type=%d\n", type);
+	return -EINVAL;
     }
     if (inp->numinst > 0) {
 	k += inp->numinst;
