@@ -243,8 +243,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	inp->numinst = ntohl(v3->numinst);
 	k++;
 	inp->instlist = (int *)&v3->data;
-	/* rlen minus fixed fields (plus len+type), minus instlist[], minus strindex[] */
-	max_idx = rlen - 5*sizeof(__int32_t) - 2*inp->numinst*sizeof(__int32_t);
+	if (acp != NULL) {
+	    /* rlen minus fixed fields (plus len+type), minus instlist[], minus strindex[] */
+	    max_idx = rlen - 5*sizeof(__int32_t) - 2*inp->numinst*sizeof(__int32_t);
+	}
     }
     else if (type == TYPE_INDOM_V2) {
 	__pmInDom_v2	*v2;
@@ -256,8 +258,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	inp->numinst = ntohl(v2->numinst);
 	k++;
 	inp->instlist = (int *)&v2->data;
-	/* rlen minus fixed fields (plus len+type), minus instlist[], minus strindex[] */
-	max_idx = rlen - 4*sizeof(__int32_t) - 2*inp->numinst*sizeof(__int32_t);
+	if (acp != NULL) {
+	    /* rlen minus fixed fields (plus len+type), minus instlist[], minus strindex[] */
+	    max_idx = rlen - 4*sizeof(__int32_t) - 2*inp->numinst*sizeof(__int32_t);
+	}
     }
     else {
 	if (pmDebugOptions.logmeta)
