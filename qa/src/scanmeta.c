@@ -48,6 +48,7 @@ static int	lflag;
 static int	mflag;
 static int	oflag;
 static int	wflag;
+static int	xflag;
 static int	nrec;
 static int	version;
 
@@ -69,6 +70,7 @@ usage(void)
     fprintf(stderr, " -o               report byte offset to start of record\n");
     fprintf(stderr, " -w               only warn about badness\n");
     fprintf(stderr, " -W               only warn verbosely about badness\n");
+    fprintf(stderr, " -x               dump record in hex\n");
     fprintf(stderr, " -z               set reporting timezone to pmcd from archive\n");
     fprintf(stderr, " -Z timezone      set reporting timezone\n");
 }
@@ -457,7 +459,7 @@ main(int argc, char *argv[])
     setlinebuf(stdout);
     setlinebuf(stderr);
 
-    while ((c = getopt(argc, argv, "aD:hilmowWzZ:")) != EOF) {
+    while ((c = getopt(argc, argv, "aD:hilmowWxzZ:")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* report all */
@@ -499,6 +501,10 @@ main(int argc, char *argv[])
 
 	case 'W':	/* verbosely report warnings */
 	    wflag = 2;
+	    break;
+
+	case 'x':	/* dump records in hex */
+	    xflag = 1;
 	    break;
 
 	case 'z':	/* timezone from archive */
@@ -630,6 +636,23 @@ main(int argc, char *argv[])
 		fprintf(stderr, "[%d] body read error: expected %d bytes, got %d\n",
 			nrec, len, nb);
 	    exit(1);
+	}
+	
+	if (xflag) {
+	    int		i;
+	    if (nrec == 0)
+		printf("[%d] len=%d magic=0x%x (version=%d) @ offset=%lld\n", nrec, hdr.len, hdr.type, version, (long long)offset);
+	    else
+		printf("[%d] len=%d type=%s (%d) @ offset=%lld\n", nrec, hdr.len, typename[hdr.type], hdr.type, (long long)offset);
+	    for (i = 0; i < len; i++) {
+		if ((i % 8) == 0) {
+		    if (i > 0)
+			putchar('\n');
+		    printf("%4d", i);
+		}
+		printf(" %8x", buf[i]);
+	    }
+	    putchar('\n');
 	}
 
 	switch (hdr.type) {
