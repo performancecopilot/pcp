@@ -20,41 +20,177 @@ use PCP::PMDA;
 my $pmda = PCP::PMDA->new('rsyslog', 107);
 my $statsfile = pmda_config('PCP_LOG_DIR') . '/rsyslog/stats';
 my ($es_connfail, $es_submits, $es_failed, $es_success) = (0,0,0,0);
+my ($es_failed_http, $es_failed_httprequests, $es_failed_es) = (0,0,0);
+my ($es_response_bad, $es_response_duplicate, $es_response_badargument, $es_response_bulkrejection, $es_response_other) = (0,0,0,0,0);
+my $es_rebinds = 0;
 my ($ux_submitted, $ux_discarded, $ux_ratelimiters) = (0,0,0);
 my ($interval, $lasttime) = (0,0);
+my ($unrecog, $ignored) = (0,0);
 
 my $queue_indom = 0;
 my @queue_insts = ();
 use vars qw(%queue_ids %queue_values);
 
-# .* rsyslogd-pstats:
-# imuxsock: submitted=37 ratelimit.discarded=0 ratelimit.numratelimiters=22 
-# elasticsearch: connfail=0 submits=0 failed=0 success=0 
-# [main Q]: size=1 enqueued=1436 full=0 maxqsize=3 
+my $unrec_origin_indom = 1;
+my @unrec_origin_insts = ();
+use vars qw(%unrec_origin_ids %unrec_origin_values);
+
+my $unmat_origin_indom = 2;
+my @unmat_origin_insts = ();
+use vars qw(%unmat_origin_ids %unmat_origin_values);
+
+sub unmatched_origin
+{
+    my $origin = $1;
+    my $oid = undef;
+
+    if (!defined($unmat_origin_ids{$origin})) {
+	$oid = @unmat_origin_insts / 2;
+	$unmat_origin_ids{$origin} = $oid;
+	$unmat_origin_values{$origin} = [ 0 ];
+	push @unmat_origin_insts, ($oid, $origin);
+	$pmda->replace_indom($unmat_origin_indom, \@unmat_origin_insts);
+    }
+    $unmat_origin_values{$origin}[0]++;
+}
 
 sub rsyslog_parser
 {
     ( undef, $_ ) = @_;
 
     #$pmda->log("rsyslog_parser got line: $_");
-    if (m|rsyslogd-pstats:|) {
-	my $timenow = time;
-	if ($lasttime != 0) {
-	    if ($timenow > $lasttime) {
-		$interval = $timenow - $lasttime;
-		$lasttime = $timenow;
-	    }
-	} else {
+    if (! m|rsyslogd-pstats:|) {
+	# Not a log entry we can process
+	$ignored++;
+	return;
+    }
+
+    my $timenow = time;
+    if ($lasttime != 0) {
+	if ($timenow > $lasttime) {
+	    $interval = $timenow - $lasttime;
 	    $lasttime = $timenow;
 	}
+    } else {
+	$lasttime = $timenow;
     }
-    if (m|imuxsock: submitted=(\d+) ratelimit.discarded=(\d+) ratelimit.numratelimiters=(\d+)|) {
+
+    if (m| origin=(.*?) |) {
+	# "Modern" statistics
+	my $origin = $1;
+
+	if ($origin eq "imuxsock") {
+	    if (m| submitted=(\d+) ratelimit\.discarded=(\d+) ratelimit\.numratelimiters=(\d+)|) {
+		# Modern capture of the imuxsock action data
+		($ux_submitted, $ux_discarded, $ux_ratelimiters) = ($1,$2,$3);
+	    }
+	    else {
+		unmatched_origin($origin);
+	    }
+	}
+	elsif ($origin eq "omelasticsearch") {
+	    if (m| submitted=(\d+) failed\.http=(\d+) failed\.httprequests=(\d+) failed\.checkConn=(\d+) failed\.es=(\d+) response\.success=(\d+) response\.bad=(\d+) response\.duplicate=(\d+) response\.badargument=(\d+) response\.bulkrejection=(\d+) response\.other=(\d+) rebinds=(\d+)|) {
+		# Modern capture of the omelasticsearch action data
+		my $submitted = $1;
+		my $failed_http = $2;
+		my $failed_httprequests = $3;
+		my $failed_checkConn = $4;
+		my $failed_es = $5;
+		my $response_success = $6;
+		my $response_bad = $7;
+		my $response_duplicate = $8;
+		my $response_badargument = $9;
+		my $response_bulkrejection = $10;
+		my $response_other = $11;
+		my $rebinds = $12;
+		($es_connfail, $es_submits, $es_failed, $es_success) = (
+		    $failed_checkConn, $submitted, ($failed_http + $failed_httprequests + $failed_es + $response_bad + $response_duplicate + $response_badargument + $response_bulkrejection + $response_other), $response_success
+		);
+		# New
+		($es_failed_http, $es_failed_httprequests, $es_failed_es) = ($failed_http, $failed_httprequests, $failed_es);
+		($es_response_bad, $es_response_duplicate, $es_response_badargument, $es_response_bulkrejection, $es_response_other) = (
+		    $response_bad, $response_duplicate, $response_badargument, $response_bulkrejection, $response_other
+		);
+		$es_rebinds = $rebinds;
+	    }
+	    elsif (m| submitted=(\d+) failed\.http=(\d+) failed\.httprequests=(\d+) failed\.checkConn=(\d+) failed\.es=(\d+) response\.success=(\d+) response\.bad=(\d+) response\.duplicate=(\d+) response\.badargument=(\d+) response\.bulkrejection=(\d+) response\.other=(\d+)|) {
+		# Modern capture of the omelasticsearch action data
+		my $submitted = $1;
+		my $failed_http = $2;
+		my $failed_httprequests = $3;
+		my $failed_checkConn = $4;
+		my $failed_es = $5;
+		my $response_success = $6;
+		my $response_bad = $7;
+		my $response_duplicate = $8;
+		my $response_badargument = $9;
+		my $response_bulkrejection = $10;
+		my $response_other = $11;
+		($es_connfail, $es_submits, $es_failed, $es_success) = (
+		    $failed_checkConn, $submitted, ($failed_http + $failed_httprequests + $failed_es + $response_bad + $response_duplicate + $response_badargument + $response_bulkrejection + $response_other), $response_success
+		);
+		# New
+		($es_failed_http, $es_failed_httprequests, $es_failed_es) = ($failed_http, $failed_httprequests, $failed_es);
+		($es_response_bad, $es_response_duplicate, $es_response_badargument, $es_response_bulkrejection, $es_response_other) = (
+		    $response_bad, $response_duplicate, $response_badargument, $response_bulkrejection, $response_other
+		);
+	    }
+	    elsif (m| submitted=(\d+) failed\.http=(\d+) failed\.httprequests=(\d+) failed\.checkConn=(\d+) failed\.es=(\d+)|) {
+		# Psuedo-modern capture of the omelasticsearch action data
+		my $submitted = $1;
+		my $failed_http = $2;
+		my $failed_httprequests = $3;
+		my $failed_checkConn = $4;
+		my $failed_es = $5;
+		($es_connfail, $es_submits, $es_failed, $es_success) = ($failed_checkConn, $submitted, ($failed_http + $failed_httprequests + $failed_es), 0);
+		# New
+		($es_failed_http, $es_failed_httprequests, $es_failed_es) = ($failed_http, $failed_httprequests, $failed_es);
+	    }
+	    else {
+		unmatched_origin($origin);
+	    }
+	}
+	elsif ($origin eq "core.queue") {
+	    if (m|pstats: (.+): origin=core\.queue size=(\d+) enqueued=(\d+) full=(\d+) discarded\.full=(\d+) discarded\.nf=(\d+) maxqsize=(\d+)|) {
+		# Modern capture of queue data
+		my ($qname, $qid) = ($1, undef);
+
+		if (!defined($queue_ids{$qname})) {
+		    $qid = @queue_insts / 2;
+		    $queue_ids{$qname} = $qid;
+		    push @queue_insts, ($qid, $qname);
+		    $pmda->replace_indom($queue_indom, \@queue_insts);
+		}
+		$queue_values{$qname} = [ $2, $3, $4, $7, $5, $6 ];
+	    }
+	    else {
+		unmatched_origin($origin);
+	    }
+	}
+	else {
+	    # Count unrecognized origin values.
+	    my $oid = undef;
+
+	    if (!defined($unrec_origin_ids{$origin})) {
+		$oid = @unrec_origin_insts / 2;
+		$unrec_origin_ids{$origin} = $oid;
+		$unrec_origin_values{$origin} = [ 0 ];
+		push @unrec_origin_insts, ($oid, $origin);
+		$pmda->replace_indom($unrec_origin_indom, \@unrec_origin_insts);
+	    }
+	    $unrec_origin_values{$origin}[0]++;
+	}
+    }
+    elsif (m|imuxsock: submitted=(\d+) ratelimit\.discarded=(\d+) ratelimit\.numratelimiters=(\d+)|) {
+	# Legacy capture of the imuxsock action data
 	($ux_submitted, $ux_discarded, $ux_ratelimiters) = ($1,$2,$3);
     }
     elsif (m|elasticsearch: connfail=(\d+) submits=(\d+) failed=(\d+) success=(\d+)|) {
+	# Legacy capture of the omelasticsearch action data
 	($es_connfail, $es_submits, $es_failed, $es_success) = ($1,$2,$3,$4);
     }
-    elsif (m|stats: (.+): size=(\d+) enqueued=(\d+) full=(\d+) maxqsize=(\d+)|) {
+    elsif (m|pstats: (.+): size=(\d+) enqueued=(\d+) full=(\d+) maxqsize=(\d+)|) {
+	# Legacy capture of queue data
 	my ($qname, $qid) = ($1, undef);
 
 	if (!defined($queue_ids{$qname})) {
@@ -63,7 +199,11 @@ sub rsyslog_parser
 	    push @queue_insts, ($qid, $qname);
 	    $pmda->replace_indom($queue_indom, \@queue_insts);
 	}
-	$queue_values{$qname} = [ $2, $3, $4, $5 ];
+	$queue_values{$qname} = [ $2, $3, $4, $5, 0, 0 ];
+    }
+    else {
+	# Count of unrecognized rsyslog-pstats log lines.
+	$unrecog++;
     }
 }
 
@@ -78,28 +218,82 @@ sub rsyslog_fetch_callback
     if ($cluster == 0) {
 	return (PM_ERR_INST, 0) unless ($inst == PM_IN_NULL);
 	if ($item == 0) { return ($interval, 1); }
+
 	if ($item == 1) { return ($ux_submitted, 1); }
-	if ($item == 2)	{ return ($ux_discarded, 1); }
-	if ($item == 3)	{ return ($ux_ratelimiters, 1); }
-	if ($item == 8)	{ return ($es_connfail, 1); }
-	if ($item == 9)	{ return ($es_submits, 1); }
+	if ($item == 2) { return ($ux_discarded, 1); }
+	if ($item == 3) { return ($ux_ratelimiters, 1); }
+
+	if ($item == 8) { return ($es_connfail, 1); }
+	if ($item == 9) { return ($es_submits, 1); }
 	if ($item == 10){ return ($es_failed, 1); }
 	if ($item == 11){ return ($es_success, 1); }
+
+	if ($item == 12){ return ($unrecog, 1); }
+	if ($item == 13){ return ($ignored, 1); }
+
+	if ($item == 14){ return ($es_failed_http, 1); }
+	if ($item == 15){ return ($es_failed_httprequests, 1); }
+	if ($item == 16){ return ($es_failed_es, 1); }
+	if ($item == 17){ return ($es_response_bad, 1); }
+	if ($item == 18){ return ($es_response_duplicate, 1); }
+	if ($item == 19){ return ($es_response_badargument, 1); }
+	if ($item == 20){ return ($es_response_bulkrejection, 1); }
+	if ($item == 21){ return ($es_response_other, 1); }
+	if ($item == 22){ return ($es_rebinds, 1); }
     }
     elsif ($cluster == 1) {	# queues
 	return (PM_ERR_INST, 0) unless ($inst != PM_IN_NULL);
 	return (PM_ERR_INST, 0) unless ($inst <= @queue_insts);
+
 	my $qname = $queue_insts[$inst * 2 + 1];
+	return (PM_ERR_INST, 0) unless defined ($qname);
+
 	my $qvref = $queue_values{$qname};
-	my @qvals;
-
 	return (PM_ERR_INST, 0) unless defined ($qvref);
-	@qvals = @$qvref;
 
+	my @qvals = @$qvref;
 	if ($item == 0) { return ($qvals[0], 1); }
-	if ($item == 1)	{ return ($qvals[1], 1); }
-	if ($item == 2)	{ return ($qvals[2], 1); }
+	if ($item == 1) { return ($qvals[1], 1); }
+	if ($item == 2) { return ($qvals[2], 1); }
 	if ($item == 3) { return ($qvals[3], 1); }
+	if ($item == 4) { return ($qvals[4], 1); }
+	if ($item == 5) { return ($qvals[5], 1); }
+    }
+    elsif ($cluster == 2) {	# unrecognized origins
+	return (PM_ERR_INST, 0) unless ($inst != PM_IN_NULL);
+	return (PM_ERR_INST, 0) unless ($inst <= @unrec_origin_insts);
+
+	my $unoname = $unrec_origin_insts[$inst * 2 + 1];
+	return (PM_ERR_INST, 0) unless defined ($unoname);
+
+	my $unovref = $unrec_origin_values{$unoname};
+	return (PM_ERR_INST, 0) unless defined ($unovref);
+
+	my @unovals = @$unovref;
+	if ($item == 0) { return ($unovals[0], 1); }
+	if ($item == 1) { return ($unovals[1], 1); }
+	if ($item == 2) { return ($unovals[2], 1); }
+	if ($item == 3) { return ($unovals[3], 1); }
+	if ($item == 4) { return ($unovals[4], 1); }
+	if ($item == 5) { return ($unovals[5], 1); }
+    }
+    elsif ($cluster == 3) {	# unmatched origins
+	return (PM_ERR_INST, 0) unless ($inst != PM_IN_NULL);
+	return (PM_ERR_INST, 0) unless ($inst <= @unmat_origin_insts);
+
+	my $umoname = $unmat_origin_insts[$inst * 2 + 1];
+	return (PM_ERR_INST, 0) unless defined ($umoname);
+
+	my $umovref = $unmat_origin_values{$umoname};
+	return (PM_ERR_INST, 0) unless defined ($umovref);
+
+	my @umovals = @$umovref;
+	if ($item == 0) { return ($umovals[0], 1); }
+	if ($item == 1) { return ($umovals[1], 1); }
+	if ($item == 2) { return ($umovals[2], 1); }
+	if ($item == 3) { return ($umovals[3], 1); }
+	if ($item == 4) { return ($umovals[4], 1); }
+	if ($item == 5) { return ($umovals[5], 1); }
     }
     return (PM_ERR_PMID, 0);
 }
@@ -109,8 +303,9 @@ die "Cannot find a valid rsyslog statistics named pipe: " . $statsfile . "\n" un
 $pmda->connect_pmcd;
 
 $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,1,0,0,PM_TIME_SEC,0), 'rsyslog.interval',
+	pmda_units(0,1,0,0,PM_TIME_SEC,PM_COUNT_ONE), 'rsyslog.interval',
 	'Time interval observed between samples', '');
+
 $pmda->add_metric(pmda_pmid(0,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.imuxsock.submitted',
 	'Cumulative count of unix domain socket input messages queued',
@@ -124,39 +319,113 @@ $pmda->add_metric(pmda_pmid(0,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	"process being deemed to be sending messages too quickly (refer to\n" .
 	"parameters ratelimitburst, ratelimitinterval and ratelimitseverity");
 $pmda->add_metric(pmda_pmid(0,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	pmda_units(0,0,0,0,0,0), 'rsyslog.imuxsock.numratelimiters',
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.imuxsock.numratelimiters',
 	'Count of messages received that could be subject to rate limiting',
 	"Cumulative count of messages that rsyslog received and performed a\n" .
 	"credentials (PID) lookup for subsequent rate limiting decisions.\n" .
 	"The message would have to be at rate-limit-severity or lower, with\n" .
 	"rate limiting enabled, in order for this count to be incremented.");
+
 $pmda->add_metric(pmda_pmid(0,8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.elasticsearch.connfail',
-	'Count of failed connections while attempting to send events', '');
+	'Count of failed connections while attempting to send events',
+	"Number of times rsyslog detected a connection loss via a HTTP health" .
+	"check (either the 'connfail' or 'failed.checkConn' metric).");
 $pmda->add_metric(pmda_pmid(0,9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.elasticsearch.submits',
-	'Count of valid submissions of events to elasticsearch indexer', '');
+	'Count of valid submissions of events to elasticsearch',
+	"Number of messages submitted for processing (with both success and\n" .
+	" error result; either the 'submits' or 'submitted' metric).");
 $pmda->add_metric(pmda_pmid(0,10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.elasticsearch.failed',
 	'Count of failed attempts to send events to elasticsearch',
-	'This count is often a good indicator of malformed JSON messages');
+	"This count is often a good indicator of malformed JSON messages\n" .
+	"(is either the 'failed' metric, or a combination of the 'failed.es',\n" .
+	"'failed.http', 'failed.httprequests', 'response.bad', 'response.duplicate',\n" .
+	"'response.badargument', 'response.bulkrejection', and 'response.other'\n" .
+	"metrics).");
 $pmda->add_metric(pmda_pmid(0,11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.elasticsearch.success',
-	'Count of successfully acknowledged events from elasticsearch', '');
+	'Count of successfully acknowledged events from elasticsearch',
+	"Number of records successfully sent in bulk index requests - counts\n" .
+	"the number of successful responses.  Note that this reflects the value\n" .
+	"of the 'success' metric, or the 'response.success', when present.");
+
+$pmda->add_metric(pmda_pmid(0,12), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.impstats.ignored',
+	'Count of impstats log lines ignored', '');
+$pmda->add_metric(pmda_pmid(0,13), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.impstats.unrecog',
+	'Count of unrecognized impstas log lines', '');
+
+$pmda->add_metric(pmda_pmid(0,14), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.elasticsearch.failure.http',
+	'Count of message failures due to connection like-problems', "");
+$pmda->add_metric(pmda_pmid(0,15), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.elasticsearch.failure.httprequests',
+	'Count of http request failures',
+	"The count of http request failures. Note that a single http request\n" .
+	"may be used to submit multiple messages, so this number may be (much)\n" .
+	"lower than failed.http.");
+$pmda->add_metric(pmda_pmid(0,16), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.elasticsearch.failure.es',
+	'Count of failures due to Elasticsearch error replies',
+	"The count of failures due to error responses from Elasticsearch. Note\n" .
+	"that this counter does NOT count the number of failed messages but\n" .
+	"the number of times a failure occurred (a potentially much smaller\n" .
+	"number).");
+$pmda->add_metric(pmda_pmid(0,17), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.elasticsearch.response.bad',
+	'Count of unrecognized responses from Elasticsearch',
+	"The count of times omelasticsearch received a response in a bulk index\n" .
+	"response that was unrecognized or unable to be parsed. This may indicate\n" .
+	"that omelasticsearch is attempting to communicate with a version of\n" .
+	"Elasticsearch that is incompatible, or is otherwise sending back data\n" .
+	"in the response that cannot be handled.");
+$pmda->add_metric(pmda_pmid(0,18), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.elasticsearch.response.duplicate',
+	'Count of duplicate records detected by Elasticsearch',
+	"The count of records in the bulk index request that were duplicates of\n" .
+	"already existing records - this will only be reported if using\n" .
+	"writeoperation='create' and 'bulkid' to assign each record a unique ID");
+$pmda->add_metric(pmda_pmid(0,19), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.elasticsearch.response.badargument',
+	'Count of bad data sent by omelasticsearch',
+	"The count of times omelasticsearch received a response that had a\n" .
+	"status indicating omelasticsearch sent bad data to Elasticsearch. For\n" .
+	"example, status 400 and an error message indicating omelasticsearch\n" .
+	"attempted to store a non-numeric string value in a numeric field.");
+$pmda->add_metric(pmda_pmid(0,20), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.elasticsearch.response.bulkrejection',
+	'Count of bulk indexing requests rejected',
+	"The count of times omelasticsearch received a response that had a\n" .
+	"status indicating Elasticsearch was unable to process the record at\n" .
+	"this time - status 429.");
+$pmda->add_metric(pmda_pmid(0,21), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.elasticsearch.response.other',
+	'Count of unexpected HTTP status codes encountered',
+	"The count of times omelasticsearch received a response not recognized\n" .
+	"as one of the expected responses, typically some other 4xx or 5xx http\n" .
+	"status.");
+$pmda->add_metric(pmda_pmid(0,22), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.elasticsearch.rebinds',
+	'Count of reconnections made to Elasticsearch',
+	"If using 'rebindinterval' this will be the count of times\n" .
+	"omelasticsearch has reconnected to Elasticsearch");
 
 $pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U64, $queue_indom, PM_SEM_INSTANT,
-	pmda_units(0,0,0,0,0,0), 'rsyslog.queues.size',
+	pmda_units(0,0,1,0,0,0), 'rsyslog.queues.size',
 	'Current queue depth for each rsyslog queue',
 	"As messages arrive they are enqueued to the main message queue\n" .
 	"(for example) -this counter is incremented for each such message.");
 $pmda->add_metric(pmda_pmid(1,1), PM_TYPE_U64, $queue_indom, PM_SEM_COUNTER,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.queues.enqueued',
+	pmda_units(0,0,1,0,0,0), 'rsyslog.queues.enqueued',
 	'Cumulative count of nessages enqueued to individual queues',
 	"As messages arrive they are added to the main message processing\n" .
 	"queue, either individually or in batches in the case of messages\n" .
 	"arriving on the network.");
 $pmda->add_metric(pmda_pmid(1,2), PM_TYPE_U64, $queue_indom, PM_SEM_COUNTER,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.queues.full',
+	pmda_units(0,0,1,0,0,0), 'rsyslog.queues.full',
 	'Cumulative count of message arrivals with a full queue',
 	"When messages are enqueued, a check is first made to ensure the\n" .
 	"queue is not full.  If it is, this counter is incremented.  The\n" .
@@ -166,14 +435,37 @@ $pmda->add_metric(pmda_pmid(1,2), PM_TYPE_U64, $queue_indom, PM_SEM_COUNTER,
 	"rsyslog is not able to process messages quickly enough given the\n" .
 	"current arrival rate.");
 $pmda->add_metric(pmda_pmid(1,3), PM_TYPE_U64, $queue_indom, PM_SEM_INSTANT,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'rsyslog.queues.maxsize',
+	pmda_units(0,0,1,0,0,0), 'rsyslog.queues.maxsize',
 	'Maximum depth reached by an individual queue',
 	"When messages arrive (for example) they are enqueued to the main\n" .
 	"message queue - if the queue length on arrival is now greater than\n" .
 	"ever before observed, we set this value to the current queue size");
+$pmda->add_metric(pmda_pmid(1,4), PM_TYPE_U64, $queue_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.queues.discarded.full',
+	'Number of messages discarded because the queue was full', '');
+$pmda->add_metric(pmda_pmid(1,5), PM_TYPE_U64, $queue_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.queues.discarded.nf',
+	'Number of messages discarded because the queue was nearly full',
+	"When messages arrive and the queue is nearly full (over the\n" .
+	"configured threshold), messages of lower-than-configured priority\n" .
+	"are discarded to save space for higher severity ones.");
 
 $pmda->add_indom($queue_indom, \@queue_insts,
 	'Instance domain exporting each rsyslog queue', '');
+
+$pmda->add_metric(pmda_pmid(2,0), PM_TYPE_U64, $unrec_origin_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.impstats.origins.unrecog',
+	'Cumulative count for an unrecognized origin', '');
+
+$pmda->add_indom($unrec_origin_indom, \@unrec_origin_insts,
+	'Cumulative counts for unrecognized impstats origins', '');
+
+$pmda->add_metric(pmda_pmid(3,0), PM_TYPE_U64, $unmat_origin_indom, PM_SEM_COUNTER,
+	pmda_units(0,0,1,0,0,0), 'rsyslog.impstats.origins.unmatched',
+	'Cumulative count for an unmatched origin entries', '');
+
+$pmda->add_indom($unmat_origin_indom, \@unmat_origin_insts,
+	'Cumulative counts for unmatched impstats origins', '');
 
 $pmda->add_tail($statsfile, \&rsyslog_parser, 0);
 $pmda->set_fetch_callback(\&rsyslog_fetch_callback);
