@@ -74,7 +74,7 @@ usage(void)
 }
 
 static char	*typename[] = {
-    "0?", "DESC", "INDOM_V2", "LABEL", "TEXT", "INDOM", "INDOM_DELTA", "7?"
+    "0?", "DESC", "INDOM_V2", "LABEL_V2", "TEXT", "INDOM", "INDOM_DELTA", "LABEL", "8?"
 };
 
 /*
@@ -239,7 +239,7 @@ do_indom(__int32_t *buf, int type)
 	printf("@ ");
 	__pmPrintTimestamp(stdout, &this_stamp);
 	printf(" indom %s numinst %d", pmInDomStr(in.indom), in.numinst);
-	if (warn) {
+	if (warn && wflag > 0) {
 	    int	o, d;
 	    int	diffs = 0;
 	    printf(" duplicate #%d\n", ndup);
@@ -265,10 +265,10 @@ do_indom(__int32_t *buf, int type)
 				printf("  inst %d: changed ext name from \"%s\" to \"%s\"\n", ep->inst[o], ep->iname[o], dp->iname[d]);
 				diffs++;
 			    }
-    #ifdef DEBUG
+#ifdef DEBUG
 			    else
 				printf("  inst %d: same\n", ep->inst[o]);
-    #endif
+#endif
 			    dp->inst[d] = -1;
 			    break;
 			}
@@ -352,24 +352,10 @@ do_desc(__int32_t *buf)
 }
 
 void
-do_label(int type)
-{
-    printf("[%d] ", nrec);
-    if (oflag)
-	printf("+%ld ", (long)offset);
-    printf("label @ ");
-    __pmPrintTimestamp(stdout, &label.start);
-    if (type == TYPE_LABEL)
-	printf(" TODO");
-    else
-	printf(" TODO");
-    putchar('\n');
-}
-
-void
 do_help(__int32_t *buf)
 {
     int		type;
+    char	*verbosity;
     pmID	pmid;
     pmInDom	indom;
     char	*p;
@@ -377,15 +363,21 @@ do_help(__int32_t *buf)
     printf("[%d] ", nrec);
     if (oflag)
 	printf("+%ld ", (long)offset);
-    printf("text ");
     type = ntohl(buf[0]);
+    if ((type & PM_TEXT_ONELINE) == PM_TEXT_ONELINE)
+	verbosity = "oneline";
+    else if ((type & PM_TEXT_HELP) == PM_TEXT_HELP)
+	verbosity = "help";
+    else
+	verbosity = "unknown";
+    printf("%s text ", verbosity);
     if ((type & PM_TEXT_INDOM) == PM_TEXT_INDOM) {
-	pmid = __ntohpmInDom(buf[1]);
-	printf("pmid %s ", pmIDStr(pmid));
+	indom = __ntohpmInDom(buf[1]);
+	printf("indom %s ", pmInDomStr(indom));
     }
     else {
-	indom = __ntohpmID(buf[1]);
-	printf("indom %s ", pmInDomStr(indom));
+	pmid = __ntohpmID(buf[1]);
+	printf("pmid %s ", pmIDStr(pmid));
     }
     printf("\n    ");
     for (p = (char *)&buf[2]; *p; p++) {
@@ -393,6 +385,54 @@ do_help(__int32_t *buf)
 	if (*p == '\n')
 	    printf("    ");
     }
+    putchar('\n');
+}
+
+void
+do_label(__int32_t *buf, int type)
+{
+    __pmTimestamp	stamp;
+    int			i;
+    int			k;
+    struct {
+	int	type;
+	char	*type_str;
+    } type_map[] = {
+	{ PM_LABEL_CONTEXT,	"context" },
+	{ PM_LABEL_DOMAIN,	"domain" },
+	{ PM_LABEL_INDOM,	"indom" },
+	{ PM_LABEL_CLUSTER,	"cluster" },
+	{ PM_LABEL_ITEM,	"item" },
+	{ PM_LABEL_INSTANCES,	"instances" },
+	{ -1,			NULL }
+    };
+    printf("[%d] metric label @ ", nrec);
+    if (type == TYPE_LABEL) {
+	__pmLoadTimestamp(&buf[0], &stamp);
+	k = 3; 
+    }
+    else {
+	__pmLoadTimeval(&buf[0], &stamp);
+	k = 2; 
+    }
+    __pmPrintTimestamp(stdout, &stamp);
+    for (i = 0; type_map[i].type != -1; i++) {
+	if (ntohl(buf[k]) == type_map[i].type)
+	    break;
+    }
+    if (type_map[i].type != -1)
+	printf(" type=%s", type_map[i].type_str);
+    else
+	printf(" type=%d (unknown)", ntohl(buf[k]));
+    printf(" ident=%d nsets=%d", ntohl(buf[k+1]), ntohl(buf[k+2]));
+    putchar('\n');
+}
+
+void
+do_archive_label(void)
+{
+    printf("[%d] archive label @ ", nrec);
+    __pmPrintTimestamp(stdout, &label.start);
     putchar('\n');
 }
 
@@ -592,48 +632,42 @@ main(int argc, char *argv[])
 	    exit(1);
 	}
 
-	if (hdr.type == (PM_LOG_MAGIC|PM_LOG_VERS03))
-	    do_label(3);
-	else if (hdr.type == (PM_LOG_MAGIC|PM_LOG_VERS02))
-	    do_label(2);
-	else {
-	    switch (hdr.type) {
-		case TYPE_INDOM:
-		case TYPE_INDOM_DELTA:
-		case TYPE_INDOM_V2:
-		    do_indom(buf, hdr.type);
+	switch (hdr.type) {
+	    case PM_LOG_MAGIC|PM_LOG_VERS03:
+	    case PM_LOG_MAGIC|PM_LOG_VERS02:
+		do_archive_label();
+		break;
+
+	    case TYPE_INDOM:
+	    case TYPE_INDOM_DELTA:
+	    case TYPE_INDOM_V2:
+		if (!iflag)
 		    break;
+		do_indom(buf, hdr.type);
+		break;
 
-		case TYPE_LABEL:
-		case TYPE_LABEL_V2:
-		    /* odd but the bad archive qa/612 uses sort of needs this */
+	    case TYPE_LABEL:
+	    case TYPE_LABEL_V2:
+		if (!lflag)
 		    break;
+		do_label(buf, hdr.type);
+		break;
 
-		case TYPE_DESC:
-		    if (!mflag)
-			break;
-		    do_desc(buf);
+	    case TYPE_DESC:
+		if (!mflag)
 		    break;
+		do_desc(buf);
+		break;
 
-		case TYPE_TEXT:
-		    if (!hflag)
-			break;
-		    do_help(buf);
+	    case TYPE_TEXT:
+		if (!hflag)
 		    break;
+		do_help(buf);
+		break;
 
-		default:
-		    if (nrec != 0) {
-			fprintf(stderr, "[%d] error bad type %d\n", nrec, hdr.type);
-			exit(1);
-		    }
-		    if (hdr.type == (PM_LOG_MAGIC | PM_LOG_VERS02))
-			continue;
-		    if (hdr.type == (PM_LOG_MAGIC | PM_LOG_VERS03))
-			continue;
-		    fprintf(stderr, "[%d] error bad magic %x != %x\n", nrec, hdr.type, (PM_LOG_MAGIC | PM_LOG_VERS02));
-		    exit(1);
-
-	    }
+	    default:
+		fprintf(stderr, "[%d] error bad type %d\n", nrec, hdr.type);
+		exit(1);
 	}
     }
 
