@@ -29,6 +29,7 @@ _pmLogGet(__pmArchCtl *acp, int vol, __int32_t **pb)
     int		head;
     int		tail;
     int		sts;
+    int		type;
     long	offset;
     char	*p;
     __int32_t	*lpb;
@@ -105,17 +106,19 @@ again:
 	return PM_ERR_LOGREC;
     }
 
+    type = ntohl(lpb[1]);
+
     if (pmDebugOptions.log) {
 	if (vol != PM_LOG_VOL_META ||
-	    ntohl(lpb[1]) == TYPE_INDOM || ntohl(lpb[1]) == TYPE_INDOM_V2) {
+	    type == TYPE_INDOM || type ==TYPE_INDOM_DELTA || type == TYPE_INDOM_V2) {
 	    fprintf(stderr, "@");
 	    if (sts >= 0) {
 		__pmTimestamp	stamp;
 		if (vol != PM_LOG_VOL_META)
 		    __pmLoadTimeval(&lpb[2], &stamp);
-		else if (ntohl(lpb[1]) == TYPE_INDOM)
+		else if (type == TYPE_INDOM || type ==TYPE_INDOM_DELTA)
 		    __pmLoadTimestamp(&lpb[1], &stamp);
-		else if (ntohl(lpb[1]) == TYPE_INDOM_V2)
+		else if (type == TYPE_INDOM_V2)
 		    __pmLoadTimeval(&lpb[1], &stamp);
 		__pmPrintTimestamp(stderr, &stamp);
 	    }
@@ -130,12 +133,12 @@ again:
 	__pmTimestamp	stamp;
 	fprintf(stderr, "_pmLogGet");
 	if (vol != PM_LOG_VOL_META ||
-	    ntohl(lpb[1]) == TYPE_INDOM || ntohl(lpb[1]) == TYPE_INDOM_V2) {
+	    type == TYPE_INDOM || type ==TYPE_INDOM_DELTA || type == TYPE_INDOM_V2) {
 	    if (vol != PM_LOG_VOL_META)
 		__pmLoadTimeval(&lpb[2], &stamp);
-	    else if (ntohl(lpb[1]) == TYPE_INDOM)
+	    else if (type == TYPE_INDOM || type ==TYPE_INDOM_DELTA)
 		__pmLoadTimestamp(&lpb[1], &stamp);
-	    else if (ntohl(lpb[1]) == TYPE_INDOM_V2)
+	    else if (type == TYPE_INDOM_V2)
 		__pmLoadTimeval(&lpb[1], &stamp);
 	    fprintf(stderr, " timestamp=");
 	    __pmPrintTimestamp(stderr, &stamp);

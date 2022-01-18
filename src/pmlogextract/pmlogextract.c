@@ -55,6 +55,23 @@ static pmOptions opts = {
 };
 
 /*
+ * name of metadata record type
+ */
+static char *
+metarectypestr(int type)
+{
+    static char		*typename[] = {
+	"0?", "DESC", "INDOM_V2", "LABEL_V2", "TEXT", "INDOM",
+	"INDOM_DELTA", "LABEL", "8?" };
+    static char		*unknown = "UNKNOWN!";
+
+    if (type >= TYPE_DESC && type <= TYPE_MAX)
+	return typename[type];
+    else
+	return unknown;
+}
+
+/*
  * extract metric name(s) from metadata pdu buffer
  */
 void
@@ -276,7 +293,7 @@ typedef struct {
  */
 static int	exit_status;
 static int	inarchvers = PM_LOG_VERS02;	/* version of input archive */
-static int	outarchvers = PM_LOG_VERS02;	/* version of output archive */
+static int	outarchvers;			/* version of output archive */
 static int	first_datarec = 1;		/* first record flag */
 static int	pre_startwin = 1;		/* outside time win flag */
 static int	written;			/* num log writes so far */
@@ -492,7 +509,7 @@ newlabel(void)
     inarchvers = f_iap->label.ll_magic & 0xff;
     outarchvers = inarchvers;
 
-    if (inarchvers != PM_LOG_VERS02) {
+    if (inarchvers != PM_LOG_VERS02 && inarchvers != PM_LOG_VERS03) {
 	fprintf(stderr,"%s: Error: illegal version number %d in archive (%s)\n",
 		pmGetProgname(), inarchvers, f_iap->name);
 	abandon_extract();
@@ -888,18 +905,29 @@ append_indomreclist(int indx)
     reclist_t		*rec;
     __pmHashNode	*hp;
     __int32_t		*pdu;
+    int			type;
     int			indom;
+    __pmTimestamp	stamp;
 
     iap = &inarch[indx];
     pdu = iap->pb[META];
-    indom = ntoh_pmInDom(pdu[4]);
+    type = ntohl(pdu[1]);
+
+    if (type == TYPE_INDOM || type == TYPE_INDOM_DELTA) {
+	__pmLoadTimestamp(&pdu[2], &stamp);
+	indom = ntoh_pmInDom(pdu[5]);
+    }
+    else {
+	__pmLoadTimeval(&pdu[2], &stamp);
+	indom = ntoh_pmInDom(pdu[4]);
+    }
 
     if ((hp = __pmHashSearch(indom, &rindom)) == NULL) {
 	/* append new record */
 	curr = mk_reclist_t();
 	curr->pdu = pdu;
-	curr->stamp.tv_sec = ntohl(pdu[2]);
-	curr->stamp.tv_usec = ntohl(pdu[3]);
+	curr->stamp.tv_sec = stamp.sec;
+	curr->stamp.tv_usec = stamp.nsec / 1000;
 	curr->desc.indom = indom;
 
 	if (__pmHashAdd(indom, (void *)curr, &rindom) < 0) {
@@ -914,16 +942,16 @@ append_indomreclist(int indx)
 	if (curr->pdu == NULL) {
 	    /* insert new record */
 	    curr->pdu = iap->pb[META];
-	    curr->stamp.tv_sec = ntohl(curr->pdu[2]);
-	    curr->stamp.tv_usec = ntohl(curr->pdu[3]);
+	    curr->stamp.tv_sec = stamp.sec;
+	    curr->stamp.tv_usec = stamp.nsec / 1000;
 	}
 	else {
 	    /* do NOT discard old record; append new record */
 	    curr->recs = add_reclist_t(curr);
 	    rec = &curr->recs[curr->nrecs];
 	    rec->pdu = pdu;
-	    rec->stamp.tv_sec = ntohl(pdu[2]);
-	    rec->stamp.tv_usec = ntohl(pdu[3]);
+	    rec->stamp.tv_sec = stamp.sec;
+	    rec->stamp.tv_usec = stamp.nsec / 1000;
 	    rec->desc.indom = indom;
 	    curr->nrecs++;
 	}
@@ -936,29 +964,43 @@ append_indomreclist(int indx)
  * Append a new record to the label set meta record hash
  */
 void
-append_labelsetreclist(int i)
+append_labelsetreclist(int i, int type)
 {
     inarch_t		*iap;
     __pmHashNode	*hp;
     __pmHashCtl		*hash2;
+    __pmTimestamp	stamp;
     reclist_t		*rec;
     int			sts;
-    int			type;
+    int			ltype;		/* label type */
     int			id;
+    int			k;
 
     iap = &inarch[i];
 
     /* Initialize the new record. */
     rec = mk_reclist_t();
     rec->pdu = iap->pb[META];
-    rec->stamp.tv_sec = ntohl(rec->pdu[2]);
-    rec->stamp.tv_usec = ntohl(rec->pdu[3]);
+    if (type == TYPE_LABEL) {
+	__pmLoadTimestamp(&rec->pdu[2], &stamp);
+	k = 5;
+    }
+    else if (type == TYPE_LABEL_V2) {
+	__pmLoadTimeval(&rec->pdu[2], &stamp);
+	k = 4;
+    }
+    else {
+	fprintf(stderr, "append_labelsetreclist: Botch type=%s (%d)\n", metarectypestr(type), type);
+	exit(1);
+    }
+    rec->stamp.tv_sec = stamp.sec;
+    rec->stamp.tv_usec = stamp.nsec / 1000;
 
     /*
-     * Label sets are stored in a 2 level hash table. First hashed by type.
+     * Label sets are stored in a 2 level hash table. First hashed by ltype.
      */
-    type = ntoh_pmLabelType(rec->pdu[4]);
-    if ((hp = __pmHashSearch(type, &rlabelset)) == NULL) {
+    ltype = ntoh_pmLabelType(rec->pdu[k++]);
+    if ((hp = __pmHashSearch(ltype, &rlabelset)) == NULL) {
 	/* This label type was not found. Create a hash table for it. */
 	if ((hash2 = (__pmHashCtl *) malloc(sizeof(*hash2))) == NULL) {
 	    fprintf(stderr, "%s: Error: cannot malloc space for hash table.\n",
@@ -968,7 +1010,7 @@ append_labelsetreclist(int i)
 	}
 	__pmHashInit(hash2);
 
-	sts = __pmHashAdd(type, (void *)hash2, &rlabelset);
+	sts = __pmHashAdd(ltype, (void *)hash2, &rlabelset);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: cannot add secondary hash table.\n",
 		    pmGetProgname());
@@ -983,7 +1025,7 @@ append_labelsetreclist(int i)
      * Add the new label set record, even if one with the same type and id
      * already exists.
      */
-    id = ntoh_pmID(iap->pb[META][5]);
+    id = ntoh_pmID(iap->pb[META][k++]);
     sts = __pmHashAdd(id, (void *)rec, hash2);
     if (sts < 0) {
 	fprintf(stderr, "%s: Error: cannot add label set record.\n",
@@ -1185,8 +1227,8 @@ write_rec(reclist_t *rec)
 	    h = (__pmLogHdr *)rec->pdu;
 	    len = ntohl(h->len);
 	    type = ntohl(h->type);
-	    fprintf(stderr, "write_rec: record len=%d, type=%d @ offset=%d\n",
-	    	len, type, (int)(__pmFtell(logctl.mdfp) - sizeof(__pmLogHdr)));
+	    fprintf(stderr, "write_rec: record len=%d, type=%s (%d) @ offset=%d\n",
+	    	len, metarectypestr(type), type, (int)(__pmFtell(logctl.mdfp) - sizeof(__pmLogHdr)));
 	    if (type == TYPE_DESC) {
 		pmDesc	*dp;
 		pmDesc	desc;
@@ -1204,49 +1246,75 @@ write_rec(reclist_t *rec)
 		fprintf(stderr, "PMID: %s name: %*.*s\n", pmIDStr(desc.pmid), len, len, name);
 		pmPrintDesc(stderr, &desc);
 	    }
-	    else if (type == TYPE_INDOM || type == TYPE_INDOM_V2) {
+	    else if (type == TYPE_INDOM || type == TYPE_INDOM_DELTA || type == TYPE_INDOM_V2) {
 		__int32_t	*buf;
+		__int32_t	*ibuf;
 		pmInResult	in;
 		__pmTimestamp	stamp;
 		int		allinbuf;
-
-		buf = &rec->pdu[2];
-		allinbuf = __pmLogLoadInDom(NULL, 0, type, &in, &stamp, &buf);
-		if (allinbuf < 0) {
-		    fprintf(stderr, "write_rec: __pmLogLoadInDom(type=%d): failed: %s\n", type, pmErrStr(allinbuf));
+		/*
+		 * __pmLogLoadInDom() below may re-write (ntohl()) some of
+		 * the PDU buffer, so we need to operate on a copy for this
+		 * diagnostic code ...
+		 */
+		if ((buf = (__int32_t *)malloc(len)) == NULL) {
+		    fprintf(stderr, "malloc for dup indom buf failed\n");
 		}
 		else {
-		    fprintf(stderr, "INDOM: %s when: ", pmInDomStr(in.indom));
-		    __pmPrintTimestamp(stderr, &stamp);
-		    fprintf(stderr, " numinst: %d", in.numinst);
-		    if (in.numinst > 0) {
-			int		i;
-			for (i = 0; i < in.numinst; i++) {
-			    fprintf(stderr, " [%d] %d", i, in.instlist[i]);
-			}
+		    memcpy(buf, rec->pdu, len);
+
+		    ibuf = &buf[2];
+		    allinbuf = __pmLogLoadInDom(NULL, 0, type, &in, &stamp, &ibuf);
+		    if (allinbuf < 0) {
+			fprintf(stderr, "write_rec: __pmLogLoadInDom(type=%s (%d)): failed: %s\n", metarectypestr(type), type, pmErrStr(allinbuf));
 		    }
-		    fputc('\n', stderr);
+		    else {
+			fprintf(stderr, "INDOM: %s when: ", pmInDomStr(in.indom));
+			__pmPrintTimestamp(stderr, &stamp);
+			fprintf(stderr, " numinst: %d", in.numinst);
+			if (in.numinst > 0) {
+			    int		i;
+			    for (i = 0; i < in.numinst; i++) {
+				fprintf(stderr, " [%d] %d", i, in.instlist[i]);
+			    }
+			}
+			fputc('\n', stderr);
+		    }
+		    if (!allinbuf)
+			free(in.namelist);
+		    free(buf);
 		}
-		if (!allinbuf)
-		    free(in.namelist);
 	    }
-	    else if (type == TYPE_LABEL_V2) {
-		pmTimeval	*tvp;
-		pmTimeval	when;
+	    else if (type == TYPE_LABEL) {
+		__pmTimestamp	when;
 		int		k = 2;
 		int		label_type;
 		int		ident;
 		char		buf[1024];
 
-		tvp = (pmTimeval *)&rec->pdu[k];
-		when.tv_sec = ntohl(tvp->tv_sec);
-		when.tv_usec = ntohl(tvp->tv_usec);
-		k += sizeof(pmTimeval)/sizeof(rec->pdu[0]);
+		__pmLoadTimestamp(&rec->pdu[k], &when);
+		k += 3;
 		label_type = ntoh_pmLabelType((unsigned int)rec->pdu[k++]);
 		ident = ntoh_pmInDom((unsigned int)rec->pdu[k++]);
 		fprintf(stderr, "LABELSET: %s when: ",
 			__pmLabelIdentString(ident, label_type, buf, sizeof(buf)));
-		__pmPrintTimeval(stderr, &when);
+		__pmPrintTimestamp(stderr, &when);
+		fputc('\n', stderr);
+	    }
+	    else if (type == TYPE_LABEL_V2) {
+		__pmTimestamp	when;
+		int		k = 2;
+		int		label_type;
+		int		ident;
+		char		buf[1024];
+
+		__pmLoadTimeval(&rec->pdu[k], &when);
+		k += 2;
+		label_type = ntoh_pmLabelType((unsigned int)rec->pdu[k++]);
+		ident = ntoh_pmInDom((unsigned int)rec->pdu[k++]);
+		fprintf(stderr, "LABELSET: %s when: ",
+			__pmLabelIdentString(ident, label_type, buf, sizeof(buf)));
+		__pmPrintTimestamp(stderr, &when);
 		fputc('\n', stderr);
 	    }
 	    else if (type == TYPE_TEXT) {
@@ -1363,9 +1431,14 @@ write_priorlabelset(int type, int ident, const struct timeval *now)
     /* Write the chosen record, if it has not already been written. */
     if (other_labelset != NULL && other_labelset->pdu != NULL &&
 	other_labelset->written != WRITTEN) {
+	__pmTimestamp	stamp;
+	stamp.sec = now->tv_sec;
+	stamp.nsec = now->tv_usec * 1000;
 	other_labelset->written = MARK_FOR_WRITE;
-	other_labelset->pdu[2] = htonl(now->tv_sec);
-	other_labelset->pdu[3] = htonl(now->tv_usec);
+	if (outarchvers == PM_LOG_VERS02)
+	    __pmPutTimeval(&stamp, &other_labelset->pdu[2]);
+	else
+	    __pmPutTimestamp(&stamp, &other_labelset->pdu[2]);
 	write_rec(other_labelset);
     }
 }
@@ -1461,9 +1534,9 @@ write_metareclist(pmResult *result, int *needti)
     pmID		pmid;
     pmInDom		indom;
     __pmHashNode	*hp;
-    struct timeval	*stamp;		/* ptr to timestamp in result */
+    struct timeval	*tv;		/* ptr to timestamp in result */
 
-    stamp = &result->timestamp;
+    tv = &result->timestamp;
 
     /* if pmid in result matches a pmid in desc then write desc */
     for (n = 0; n < result->numpmid; n++) {
@@ -1509,9 +1582,9 @@ write_metareclist(pmResult *result, int *needti)
 	}
 
 	/* Write out the label set records associated with this pmid. */
-	write_priorlabelset(PM_LABEL_ITEM, pmid, stamp);
-	write_priorlabelset(PM_LABEL_DOMAIN, pmid, stamp);
-	write_priorlabelset(PM_LABEL_CLUSTER, pmid, stamp);
+	write_priorlabelset(PM_LABEL_ITEM, pmid, tv);
+	write_priorlabelset(PM_LABEL_DOMAIN, pmid, tv);
+	write_priorlabelset(PM_LABEL_CLUSTER, pmid, tv);
 
 	/*
 	 * Write out any help text records associated with this pmid.
@@ -1537,7 +1610,7 @@ write_metareclist(pmResult *result, int *needti)
 		other_indom = curr_indom;
 	    else {
 		assert(curr_indom->sorted == 1);
-		other_indom = indom_closest(curr_indom, stamp);
+		other_indom = indom_closest(curr_indom, tv);
 	    }
 
 	    if (other_indom != NULL && other_indom->written != WRITTEN) {
@@ -1549,9 +1622,13 @@ write_metareclist(pmResult *result, int *needti)
 		 */
 		if (other_indom->pdu != NULL) { 
 		    other_indom->written = MARK_FOR_WRITE;
-		    other_indom->pdu[2] = htonl(stamp->tv_sec);
-		    other_indom->pdu[3] = htonl(stamp->tv_usec);
-
+		    __pmTimestamp	stamp;
+		    stamp.sec = tv->tv_sec;
+		    stamp.nsec = tv->tv_usec * 1000;
+		    if (outarchvers == PM_LOG_VERS02)
+			__pmPutTimeval(&stamp, &other_indom->pdu[2]);
+		    else
+			__pmPutTimestamp(&stamp, &other_indom->pdu[2]);
 		    /* make sure to set needti, when writing out the indom */
 		    *needti = 1;
 		    write_rec(other_indom);
@@ -1560,8 +1637,8 @@ write_metareclist(pmResult *result, int *needti)
 		assert(other_indom->desc.indom == indom);
 
 		/* Write out the label set records associated with this indom */
-		write_priorlabelset(PM_LABEL_INDOM, indom, stamp);
-		write_priorlabelset(PM_LABEL_INSTANCES, indom, stamp);
+		write_priorlabelset(PM_LABEL_INDOM, indom, tv);
+		write_priorlabelset(PM_LABEL_INSTANCES, indom, tv);
 
 		/* Write out any help text records associated with this indom */
 		write_textreclist(PM_TEXT_INDOM | PM_TEXT_ONELINE, indom);
@@ -1631,12 +1708,12 @@ nextmeta(void)
 {
     int		indx;
     int		j;
-    int		type;
+    int		type;			/* record type */
     int		want;
     int		numeof = 0;
     int		sts;
     pmID	pmid;			/* pmid for TYPE_DESC */
-    pmInDom	indom;			/* indom for TYPE_INDOM_V2 */
+    pmInDom	indom;			/* indom for TYPE_INDOM* */
     __pmLogCtl	*lcp;
     __pmContext	*ctxp;
     inarch_t	*iap;			/* pointer to input archive control */
@@ -1742,12 +1819,15 @@ againmeta:
 		goto againmeta;
 	    }
 	}
-	else if (type == TYPE_INDOM_V2) {
+	else if (type == TYPE_INDOM || type == TYPE_INDOM_V2) {
 	    /*
 	     * if ml is defined, then look for instance domain in the list
 	     * if indom is not in the list then discard it immediately
 	     */
-	    indom = ntoh_pmInDom(iap->pb[META][4]);
+	    if (type == TYPE_INDOM)
+		indom = ntoh_pmInDom(iap->pb[META][5]);
+	    else
+		indom = ntoh_pmInDom(iap->pb[META][4]);
 	    want = 0;
 	    if (ml == NULL)
 	        want = 1;
@@ -1773,7 +1853,7 @@ againmeta:
 	        goto againmeta;
 	    }
 	}
-	else if (type == TYPE_LABEL_V2) {
+	else if (type == TYPE_LABEL || type == TYPE_LABEL_V2) {
 	    /* Decide which label sets we want to keep. */
 	    want = 0;
 	    if (ml == NULL) {
@@ -1782,8 +1862,14 @@ againmeta:
 	        want = 1;
 	    }
 	    else {
-		type = ntoh_pmLabelType(iap->pb[META][4]);
-		switch (type) {
+		int	k;
+		int	ltype;			/* label type */
+		if (type == TYPE_LABEL)
+		    k = 5;
+		else
+		    k = 4;
+		ltype = ntoh_pmLabelType(iap->pb[META][k++]);
+		switch (ltype) {
 		case PM_LABEL_CONTEXT:
 		    /*
 		     * Keep all label sets not associated with a specific metric
@@ -1796,7 +1882,7 @@ againmeta:
 		    /*
 		     * Keep only the label sets whose metrics also being kept.
 		     */
-		    pmid = ntoh_pmID(iap->pb[META][5]);
+		    pmid = ntoh_pmID(iap->pb[META][k]);
 		    pmid = pmID_domain(pmid); /* Extract the domain */
 		    for (j=0; j<ml_numpmid; j++) {
 			if (pmid == pmID_domain(ml[j].desc->pmid))
@@ -1807,7 +1893,7 @@ againmeta:
 		    /*
 		     * Keep only the label sets whose metrics also being kept.
 		     */
-		    pmid = ntoh_pmID(iap->pb[META][5]);
+		    pmid = ntoh_pmID(iap->pb[META][k]);
 		    pmid = pmID_build(pmID_domain(pmid), pmID_cluster(pmid), 0);
 		    for (j=0; j<ml_numpmid; j++) {
 			if (pmid == pmID_build(pmID_domain(ml[j].desc->pmid),
@@ -1819,7 +1905,7 @@ againmeta:
 		    /*
 		     * Keep only the label sets whose metrics also being kept.
 		     */
-		    pmid = ntoh_pmID(iap->pb[META][5]);
+		    pmid = ntoh_pmID(iap->pb[META][k]);
 		    for (j=0; j<ml_numpmid; j++) {
 			if (pmid == ml[j].desc->pmid)
 			    want = 1;
@@ -1831,7 +1917,7 @@ againmeta:
 		     * Keep only the label sets whose instance domains are also being kept.
 		     * These are the domains of the metrics which are being kept.
 		     */
-		    indom = ntoh_pmInDom(iap->pb[META][5]);
+		    indom = ntoh_pmInDom(iap->pb[META][k]);
 		    for (j=0; j<ml_numpmid; j++) {
 			if (indom == ml[j].desc->indom)
 			    want = 1;
@@ -1839,7 +1925,7 @@ againmeta:
 		    break;
 		default:
 		    fprintf(stderr, "%s: Error: invalid label set type: %d\n",
-			    pmGetProgname(), type);
+			    pmGetProgname(), ltype);
 		    abandon_extract();
 		    /*NOTREACHED*/
 		}
@@ -1850,7 +1936,7 @@ againmeta:
 		 * Add to label set list.
 		 * append_labelsetreclist() sets pb[META] to NULL
 		 */
-		append_labelsetreclist(indx);
+		append_labelsetreclist(indx, type);
 	    }
 	    else {
 	        /* META: don't want this meta */
