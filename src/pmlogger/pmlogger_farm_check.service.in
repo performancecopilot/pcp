@@ -4,7 +4,7 @@ Documentation=man:pmlogctl(1)
 ConditionPathExists=!@CRONTAB_PATH@
 
 [Service]
-Type=exec
+Type=@SD_SERVICE_TYPE@
 Restart=no
 TimeoutStartSec=4h
 TimeoutStopSec=120
