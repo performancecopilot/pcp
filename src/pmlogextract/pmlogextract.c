@@ -16,8 +16,9 @@
  *
  * Debug flags:
  * appl0	parser if -c configfile specified
- * appl1	reclist operations
- * appl2	EOF tests
+ * appl1	malloc's and reclist operations
+ * appl2	time window and EOF tests
+ * appl3	in/out version decisions
  */
 
 #include <math.h>
@@ -44,6 +45,7 @@ static pmLongOptions longopts[] = {
     PMOPT_START,
     { "samples", 1, 's', "NUM", "terminate after NUM log records have been written" },
     PMOPT_FINISH,
+    { "outputversion", 1, 'V', "VERSION", "output archive version" },
     { "", 1, 'v', "SAMPLES", "switch log volumes after this many samples" },
     { "", 0, 'w', 0, "ignore day/month/year" },
     { "", 0, 'x', 0, "skip metrics with mismatched metadata" },
@@ -54,7 +56,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "c:D:dfmS:s:T:v:wxZ:z?",
+    .short_options = "c:D:dfmS:s:T:V:v:wxZ:z?",
     .long_options = longopts,
     .short_usage = "[options] input-archive output-archive",
 };
@@ -288,17 +290,11 @@ typedef struct {
     int			numpmid;	/* zero PMIDs to follow */
 } mark_t;
 
-// TODO I expect we need output version to track input version, else
-// a command line option in which case only V2 (in) -> v3 (out) is the
-// only sane thing (i.e. pmlogconv!)
-// NEEDS THOUGHT.
-
 /*
  *  Global variables
  */
 static int	exit_status;
-static int	inarchvers = PM_LOG_VERS02;	/* version of input archive */
-static int	outarchvers;			/* version of output archive */
+static int	outarchvers = -1;		/* version of output archive */
 static int	first_datarec = 1;		/* first record flag */
 static int	pre_startwin = 1;		/* outside time win flag */
 static int	written;			/* num log writes so far */
@@ -473,10 +469,52 @@ static void
 newlabel(void)
 {
     int			indx;
+    int			max_inarchvers = -1;
     inarch_t		*f_iap = NULL;		/* first non-empty archive */
     inarch_t		*l_iap = NULL;		/* last non-empty archive */
     inarch_t		*iap;
     __pmLogLabel	*lp = &logctl.label;
+
+    /*
+     * check archive version numbers
+     * - output version is max(input versions) || as per -V command line
+     * - input versions must all be <= output version
+     * - only verion 2 and 3 is supported
+     */
+    for (indx=0; indx<inarchnum; indx++) {
+	int		vers;
+	iap = &inarch[indx];
+	
+	if (iap->ctx == PM_ERR_NODATA) {
+	    /* empty input archive, nothing to check here ... */
+	    continue;
+	}
+
+	vers = (iap->label.ll_magic & 0xff);
+	if (pmDebugOptions.appl3)
+	    fprintf(stderr, "archive: %s version: %d\n", iap->name, vers);
+	if (vers != PM_LOG_VERS02 && vers != PM_LOG_VERS03) {
+	    fprintf(stderr,"%s: Error: illegal version number %d in archive (%s)\n",
+		    pmGetProgname(), vers, iap->name);
+	    abandon_extract();
+	    /*NOTREACHED*/
+	}
+
+	if (vers > max_inarchvers)
+	    max_inarchvers = vers;
+	if (outarchvers != -1 && vers > outarchvers) {
+	    fprintf(stderr, 
+		"%s: Error: input archive version must be no more than %d\n"
+		"archive: %s version: %d\n",
+		    pmGetProgname(), outarchvers, iap->name, vers);
+	    abandon_extract();
+	    /*NOTREACHED*/
+        }
+    }
+    if (outarchvers == -1)
+	outarchvers = max_inarchvers;
+    if (pmDebugOptions.appl3)
+	fprintf(stderr, "output archive version: %d\n", outarchvers);
 
     /*
      * set outarch to inarch[indx] of first non-empty archive to start
@@ -495,19 +533,8 @@ newlabel(void)
 	/*NOTREACHED*/
     }
 
-    /* check version number */
-    inarchvers = f_iap->label.ll_magic & 0xff;
-    outarchvers = inarchvers;
-
-    if (inarchvers != PM_LOG_VERS02 && inarchvers != PM_LOG_VERS03) {
-	fprintf(stderr,"%s: Error: illegal version number %d in archive (%s)\n",
-		pmGetProgname(), inarchvers, f_iap->name);
-	abandon_extract();
-	/*NOTREACHED*/
-    }
-
     /* copy magic number, pid, host and timezone */
-    lp->magic = f_iap->label.ll_magic;
+    lp->magic = PM_LOG_MAGIC | outarchvers;
     lp->pid = (int)getpid();
     free(lp->hostname);
     lp->hostname = strdup(f_iap->label.ll_hostname);
@@ -537,6 +564,7 @@ newlabel(void)
     free(lp->zoneinfo);
     lp->zoneinfo = NULL;
 
+
     /* reset outarch as appropriate, depending on other input archives */
     for (indx=0; indx<inarchnum; indx++) {
 	iap = &inarch[indx];
@@ -545,18 +573,6 @@ newlabel(void)
 	    /* empty input archive, nothing to check here ... */
 	    continue;
 	}
-
-	/* Ensure all archives of the same version number */
-        if ((iap->label.ll_magic & 0xff) != inarchvers) {
-	    fprintf(stderr, 
-		"%s: Error: input archives with different version numbers\n"
-		"archive: %s version: %d\n"
-		"archive: %s version: %d\n",
-		    pmGetProgname(), f_iap->name, inarchvers,
-		    iap->name, (iap->label.ll_magic & 0xff));
-	    abandon_extract();
-	    /*NOTREACHED*/
-        }
 
 	/* Ensure all archives of the same host */
 	if (strcmp(lp->hostname, iap->label.ll_hostname) != 0) {
@@ -2241,6 +2257,18 @@ parseargs(int argc, char *argv[])
 	    Targ = opts.optarg;
 	    break;
 
+	case 'V':	/* output archive version */
+	    outarchvers = (int)strtol(opts.optarg, &endnum, 10);
+	    if (*endnum != '\0' || outarchvers < 0) {
+		pmprintf("%s: -V requires numeric argument\n", pmGetProgname());
+		opts.errors++;
+	    }
+	    if (outarchvers != PM_LOG_VERS03 && outarchvers != PM_LOG_VERS02) {
+		pmprintf("%s: -V value must be 2 or 3\n", pmGetProgname());
+		opts.errors++;
+	    }
+	    break;
+
 	case 'v':	/* number of samples per volume */
 	    varg = (int)strtol(opts.optarg, &endnum, 10);
 	    if (*endnum != '\0' || varg < 0) {
@@ -2424,10 +2452,10 @@ writerlist(rlist_t **rlready, __pmTimestamp *mintime)
 	restime.nsec = (*rlready)->res->timestamp.tv_usec * 1000;
 
         if (__pmTimestampCmp(&restime, mintime) > 0) {
-#if 0
-fprintf(stderr, "writelist: restime %d.%09d mintime %d.%09d ", restime.sec, restime.nsec, mintime->sec, mintime->nsec);
-fprintf(stderr, " break!\n");
-#endif
+	    if (pmDebugOptions.appl1) {
+		fprintf(stderr, "writelist: restime %" FMT_INT64 ".%09d mintime %" FMT_INT64 ".%09d ", restime.sec, restime.nsec, mintime->sec, mintime->nsec);
+		fprintf(stderr, " break!\n");
+	    }
 	    break;
 	}
 
@@ -3013,18 +3041,16 @@ main(int argc, char **argv)
 		/*NOTREACHED*/
 	    }
 	    insertresult(&rlready, iap->_Nresult);
-#if 0
-{
-    rlist_t	*rp;
-    int		i;
+	    if (pmDebugOptions.appl1) {
+		rlist_t		*rp;
+		int		i;
 
-    fprintf(stderr, "rlready");
-    for (i = 0, rp = rlready; rp != NULL; i++, rp = rp->next) {
-	fprintf(stderr, " [%d] t=%d.%06d numpmid=%d", i, (int)rp->res->timestamp.tv_sec, (int)rp->res->timestamp.tv_usec, rp->res->numpmid);
-    }
-    fprintf(stderr, " now=%d.%06d\n", now.tv_sec, now.tv_usec);
-}
-#endif
+		fprintf(stderr, "rlready");
+		for (i = 0, rp = rlready; rp != NULL; i++, rp = rp->next) {
+		    fprintf(stderr, " [%d] t=%d.%06d numpmid=%d", i, (int)rp->res->timestamp.tv_sec, (int)rp->res->timestamp.tv_usec, rp->res->numpmid);
+		}
+		fprintf(stderr, " now=%" FMT_INT64 ".%09d\n", now.sec, now.nsec);
+	    }
 
 	    writerlist(&rlready, &curlog);
 
@@ -3079,10 +3105,10 @@ cleanup:
 	new_meta_offset = __pmFtell(logctl.mdfp);
 	assert(new_meta_offset >= 0);
 
-#if 0
-	fprintf(stderr, "*** last tstamp: \n\tmintime=%d.%09d \n\ttmptime=%d.%09d \n\tlogend=%d.%09d \n\twinend=%d.%09d \n\tcurrent=%d.%09d\n",
-	    mintime.sec, mintime.nsec, tmptime.sec, tmptime.nsec, logend.sec, logend.nsec, winend.sec, winend.nsec, current.sec, current.nsec);
-#endif
+	if (pmDebugOptions.appl2) {
+	    fprintf(stderr, "*** last tstamp: \n\tmintime=%" FMT_INT64 ".%09d \n\ttmptime=%" FMT_INT64 ".%09d \n\tlogend=%" FMT_INT64 ".%09d \n\twinend=%" FMT_INT64 ".%09d \n\tcurrent=%" FMT_INT64 ".%09d\n",
+		mintime.sec, mintime.nsec, tmptime.sec, tmptime.nsec, logend.sec, logend.nsec, winend.sec, winend.nsec, current.sec, current.nsec);
+	}
 
 	__pmFseek(archctl.ac_mfp, old_log_offset, SEEK_SET);
 	__pmLogPutIndex(&archctl, &current);

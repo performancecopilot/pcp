@@ -5,14 +5,14 @@
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-MKARCH	= foo.0 mv-foo.0 noti-foo.0 noti-ok-foo.0 null.0 \
+MKARCH	= foo.0 foo_v2.0 foo_v3.0 mv-foo.0 noti-foo.0 noti-ok-foo.0 null.0 \
 	bar.0 mv-bar.0 noti-bar.0 \
 	bigbin.0 mv-bigbin.0 noti-bigbin.0 truncbin.0 \
 	interp.0 mv-interp.0 noti-interp.0 \
 	gap.0 gap2.0 reduce-gap.0 \
 	dodgey-some.0 dodgey-all.0 dodgey-mixed.0 bad-1.0 \
 	sample-proc.0 sample-proc_v3.0 \
-	sampledso-no-delta.0 sampledso-no-delta_v3.0
+	sampledso-no-delta_v2.0 sampledso-no-delta_v3.0
 
 LDIRT = $(MKARCH) \
 	$(patsubst %.0,%.meta,$(MKARCH)) $(patsubst %.0,%.index,$(MKARCH)) \
@@ -50,6 +50,14 @@ endif
 foo.0:	config.foo
 	rm -f foo.index foo.meta foo.0
 	pmlogger -c config.foo -s 8 foo
+
+foo_v2.0:	config.foo
+	rm -f foo_v2.index foo_v2.meta foo_v2.0
+	pmlogger -V2 -c config.foo -s 8 foo_v2
+
+foo_v3.0:	config.foo
+	rm -f foo_v3.index foo_v3.meta foo_v3.0
+	pmlogger -V3 -c config.foo -s 8 foo_v3
 
 mv-foo.0:	config.foo
 	rm -f mv-foo.index mv-foo.meta mv-foo.?
@@ -163,11 +171,11 @@ dodgey-mixed.0:	make.dodgey config.dodgey-mixed
 sample-proc.0 sample-proc_v3.0: make.sample-proc
 	./make.sample-proc
 
-sampledso-no-delta.0 sampledso-no-delta_v3.0:
-	rm -f sampledso-no-delta.* sampledso-no-delta_v3.*
+sampledso-no-delta_v2.0 sampledso-no-delta_v3.0:
+	rm -f sampledso-no-delta_v2.* sampledso-no-delta_v3.*
 	rm -rf tmp
 	mkdir tmp
 	echo "log mandatory on 250msec { sampledso.long.ten sampledso.longlong.ten sampledso.bin }" >tmp/config
-	pmlogger -s 3 -c tmp/config -V2 sampledso-no-delta
+	pmlogger -s 3 -c tmp/config -V2 sampledso-no-delta_v2
 	pmlogger -s 3 -c tmp/config -V3 sampledso-no-delta_v3
 	rm -rf tmp

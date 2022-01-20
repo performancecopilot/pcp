@@ -1,0 +1,71 @@
+#!/bin/sh
+# PCP QA Test No. 1377
+# pmlogextract -V option checks
+#
+# Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+echo "=== no error cases ==="
+for args in tmparch/foo_v2 tmparch/foo_v3 "-V3 tmparch/foo_v2" \
+	"tmparch/foo_v2 tmparch/foo_v3" "-V3 tmparch/foo_v2 tmparch/foo_v3"
+do
+    echo
+    echo "=== $args ==="
+    rm -f $tmp.0 $tmp.meta $tmp.index
+    pmlogextract $args $tmp 2>&1 | _filter
+    if [ -f $tmp.0 ]
+    then
+	pmdumplog -l $tmp | grep Format
+    fi
+done
+
+echo
+echo "=== error cases ==="
+for args in "-V2 tmparch/foo_v3" "-V2 tmparch/foo_v3 tmparch/foo_v2" \
+	"tmparch/foo_v2 badarchives/badlabel-2 tmparch/foo_v3"
+do
+    echo
+    echo "=== $args ==="
+    rm -f $tmp.0 $tmp.meta $tmp.index
+    pmlogextract $args $tmp 2>&1 | _filter
+    if [ -f $tmp.0 ]
+    then
+	pmdumplog -l $tmp | grep Format
+    fi
+done
+
+# success, all done
+exit
