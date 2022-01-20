@@ -26,7 +26,7 @@
  */
 typedef struct reclist {
     __int32_t		*pdu;		/* PDU ptr */
-    pmTimeval		stamp;		/* for indom and label records */
+    __pmTimestamp	stamp;		/* for indom and label records */
     pmDesc		desc;
     unsigned int	written : 16;	/* written PDU status */
     unsigned int	sorted : 16;	/* sorted indom status */

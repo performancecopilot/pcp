@@ -13,6 +13,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+ *
+ * Debug flags:
+ * appl0	parser if -c configfile specified
+ * appl1	reclist operations
+ * appl2	EOF tests
  */
 
 #include <math.h>
@@ -329,18 +334,18 @@ static __pmHashCtl	rpmidoneline;	/* pmid oneline records to be written */
 static __pmHashCtl	rpmidtext;	/* pmid text records to be written */
 static __pmHashCtl	rlabelset;	/* label sets to be written */
 
-static pmTimeval	curlog;		/* most recent timestamp in log */
-static pmTimeval	current;	/* most recent timestamp overall */
+static __pmTimestamp	curlog;		/* most recent timestamp in log */
+static __pmTimestamp	current;	/* most recent timestamp overall */
 
 /* time window stuff */
-static struct timeval logstart_tval;	/* extracted log start */
-static struct timeval logend_tval;	/* extracted log end */
-static struct timeval winstart_tval;	/* window start tval*/
-static struct timeval winend_tval;	/* window end tval*/
+static struct timeval logstart_tv;	/* extracted log start */
+static struct timeval logend_tv;	/* extracted log end */
+static struct timeval winstart_tv;	/* window start tval*/
+static struct timeval winend_tv;	/* window end tval*/
 
-static pmTimeval 	winstart = {-1,0};	/* window start time */
-static pmTimeval	winend = {-1,0};	/* window end time */
-static pmTimeval	logend = {-1,0};	/* log end time */
+static __pmTimestamp	winstart = {-1,0};	/* window start time */
+static __pmTimestamp	winend = {-1,0};	/* window end time */
+static __pmTimestamp	logend = {-1,0};	/* log end time */
 
 /* command line args */
 char	*configfile;			/* -c arg - name of config file */
@@ -360,18 +365,6 @@ char	*Aarg;				/* -A arg - non-existent */
 char	*Oarg;				/* -O arg - non-existent */
 
 /*--- START FUNCTIONS -------------------------------------------------------*/
-
-/*
- * return negative (lt), zero (eq) or positive (gt) as the pmTimeval's compare
- * a < b, a == b or a > b
- */
-static int
-tvcmp(pmTimeval *a, pmTimeval *b)
-{
-    if (a->tv_sec != b->tv_sec)
-	return a->tv_sec - b->tv_sec;
-    return a->tv_usec - b->tv_usec;
-}
 
 void
 abandon_extract(void)
@@ -447,22 +440,19 @@ _report(__pmFILE *fp)
  *  switch output volumes
  */
 static void
-newvolume(char *base, pmTimeval *tvp)
+newvolume(char *base, __pmTimestamp *tsp)
 {
     __pmFILE		*newfp;
     int			nextvol = archctl.ac_curvol + 1;
 
     if ((newfp = __pmLogNewFile(base, nextvol)) != NULL) {
-	struct timeval	stamp;
 	__pmFclose(archctl.ac_mfp);
 	archctl.ac_mfp = newfp;
 	logctl.label.vol = archctl.ac_curvol = nextvol;
 	__pmLogWriteLabel(archctl.ac_mfp, &logctl.label);
 	__pmFflush(archctl.ac_mfp);
-	stamp.tv_sec = ntohl(tvp->tv_sec);
-	stamp.tv_usec = ntohl(tvp->tv_usec);
 	fprintf(stderr, "%s: New log volume %d, at ", pmGetProgname(), nextvol);
-	pmPrintStamp(stderr, &stamp);
+	__pmPrintTimestamp(stderr, tsp);
 	fputc('\n', stderr);
     }
     else {
@@ -926,8 +916,7 @@ append_indomreclist(int indx)
 	/* append new record */
 	curr = mk_reclist_t();
 	curr->pdu = pdu;
-	curr->stamp.tv_sec = stamp.sec;
-	curr->stamp.tv_usec = stamp.nsec / 1000;
+	curr->stamp = stamp;		/* struct assignment */
 	curr->desc.indom = indom;
 
 	if (__pmHashAdd(indom, (void *)curr, &rindom) < 0) {
@@ -942,16 +931,14 @@ append_indomreclist(int indx)
 	if (curr->pdu == NULL) {
 	    /* insert new record */
 	    curr->pdu = iap->pb[META];
-	    curr->stamp.tv_sec = stamp.sec;
-	    curr->stamp.tv_usec = stamp.nsec / 1000;
+	    curr->stamp = stamp;		/* struct assignment */
 	}
 	else {
 	    /* do NOT discard old record; append new record */
 	    curr->recs = add_reclist_t(curr);
 	    rec = &curr->recs[curr->nrecs];
 	    rec->pdu = pdu;
-	    rec->stamp.tv_sec = stamp.sec;
-	    rec->stamp.tv_usec = stamp.nsec / 1000;
+	    rec->stamp = stamp;			/* struct assignment */
 	    rec->desc.indom = indom;
 	    curr->nrecs++;
 	}
@@ -993,8 +980,7 @@ append_labelsetreclist(int i, int type)
 	fprintf(stderr, "append_labelsetreclist: Botch type=%s (%d)\n", metarectypestr(type), type);
 	exit(1);
     }
-    rec->stamp.tv_sec = stamp.sec;
-    rec->stamp.tv_usec = stamp.nsec / 1000;
+    rec->stamp = stamp;		/* struct assignment */
 
     /*
      * Label sets are stored in a 2 level hash table. First hashed by ltype.
@@ -1368,7 +1354,7 @@ write_rec(reclist_t *rec)
  * at the given time.
  */
 static void
-write_priorlabelset(int type, int ident, const struct timeval *now)
+write_priorlabelset(int type, int ident, const __pmTimestamp *now)
 {
     __pmHashNode	*hp;
     reclist_t		*curr_labelset;	/* current labelset record */
@@ -1407,17 +1393,17 @@ write_priorlabelset(int type, int ident, const struct timeval *now)
     other_labelset = NULL;
     curr_labelset = (reclist_t *)hp->data;
     while (curr_labelset != NULL) {
-	if (curr_labelset->stamp.tv_sec < now->tv_sec ||
-	    (curr_labelset->stamp.tv_sec == now->tv_sec &&
-	     curr_labelset->stamp.tv_usec <= now->tv_usec)) {
+	if (curr_labelset->stamp.sec < now->sec ||
+	    (curr_labelset->stamp.sec == now->sec &&
+	     curr_labelset->stamp.nsec <= now->nsec)) {
 	    /*
 	     * labelset is in list, labelset has pdu
 	     * and timestamp in pdu suits us
 	     */
 	    if (other_labelset == NULL ||
-		other_labelset->stamp.tv_sec < curr_labelset->stamp.tv_sec ||
-		(other_labelset->stamp.tv_sec == curr_labelset->stamp.tv_sec &&
-		 other_labelset->stamp.tv_usec <= curr_labelset->stamp.tv_usec)){
+		other_labelset->stamp.sec < curr_labelset->stamp.sec ||
+		(other_labelset->stamp.sec == curr_labelset->stamp.sec &&
+		 other_labelset->stamp.nsec <= curr_labelset->stamp.nsec)){
 		/*
 		 * We already have a perfectly good labelset,
 		 * but curr_labelset has a better timestamp
@@ -1431,14 +1417,11 @@ write_priorlabelset(int type, int ident, const struct timeval *now)
     /* Write the chosen record, if it has not already been written. */
     if (other_labelset != NULL && other_labelset->pdu != NULL &&
 	other_labelset->written != WRITTEN) {
-	__pmTimestamp	stamp;
-	stamp.sec = now->tv_sec;
-	stamp.nsec = now->tv_usec * 1000;
 	other_labelset->written = MARK_FOR_WRITE;
-	if (outarchvers == PM_LOG_VERS02)
-	    __pmPutTimeval(&stamp, &other_labelset->pdu[2]);
+	if (outarchvers == PM_LOG_VERS03)
+	    __pmPutTimestamp(now, &other_labelset->pdu[2]);
 	else
-	    __pmPutTimestamp(&stamp, &other_labelset->pdu[2]);
+	    __pmPutTimeval(now, &other_labelset->pdu[2]);
 	write_rec(other_labelset);
     }
 }
@@ -1463,7 +1446,7 @@ indom_compare(const void *a, const void *b)
     reclist_t		*ar = (reclist_t *)a;
     reclist_t		*br = (reclist_t *)b;
 
-    return tvcmp(&ar->stamp, &br->stamp);
+    return __pmTimestampCmp(&ar->stamp, &br->stamp);
 }
 
 static reclist_t *
@@ -1487,11 +1470,10 @@ indom_lookup(int indom)
  * closest previous timestamp to the one from the current result.
  */
 static reclist_t *
-indom_closest(reclist_t *recs, struct timeval *stamp)
+indom_closest(reclist_t *recs, __pmTimestamp *tsp)
 {
     unsigned int	first, last, count, middle, previous;
     reclist_t		*indom, *array = &recs->recs[0];
-    pmTimeval		tv = { stamp->tv_sec, stamp->tv_usec };
     int			sts = -1;
 
     first = 0;
@@ -1500,7 +1482,7 @@ indom_closest(reclist_t *recs, struct timeval *stamp)
 
     while (first <= last) {
 	indom = &array[middle];
-	sts = tvcmp(&indom->stamp, &tv);
+	sts = __pmTimestampCmp(&indom->stamp, tsp);
 	if (sts == 0)
 	    return indom;
 	previous = middle;
@@ -1518,7 +1500,7 @@ indom_closest(reclist_t *recs, struct timeval *stamp)
     }
     indom = &array[middle];
     if (previous != middle)	/* avoid unnecessary comparison */
-	sts = tvcmp(&indom->stamp, &tv);
+	sts = __pmTimestampCmp(&indom->stamp, tsp);
     if (sts < 0)
 	return indom;
     return NULL;
@@ -1534,9 +1516,10 @@ write_metareclist(pmResult *result, int *needti)
     pmID		pmid;
     pmInDom		indom;
     __pmHashNode	*hp;
-    struct timeval	*tv;		/* ptr to timestamp in result */
+    __pmTimestamp	stamp;		/* ptr to timestamp in result */
 
-    tv = &result->timestamp;
+    stamp.sec = result->timestamp.tv_sec;
+    stamp.nsec = result->timestamp.tv_usec * 1000;
 
     /* if pmid in result matches a pmid in desc then write desc */
     for (n = 0; n < result->numpmid; n++) {
@@ -1582,9 +1565,9 @@ write_metareclist(pmResult *result, int *needti)
 	}
 
 	/* Write out the label set records associated with this pmid. */
-	write_priorlabelset(PM_LABEL_ITEM, pmid, tv);
-	write_priorlabelset(PM_LABEL_DOMAIN, pmid, tv);
-	write_priorlabelset(PM_LABEL_CLUSTER, pmid, tv);
+	write_priorlabelset(PM_LABEL_ITEM, pmid, &stamp);
+	write_priorlabelset(PM_LABEL_DOMAIN, pmid, &stamp);
+	write_priorlabelset(PM_LABEL_CLUSTER, pmid, &stamp);
 
 	/*
 	 * Write out any help text records associated with this pmid.
@@ -1610,7 +1593,7 @@ write_metareclist(pmResult *result, int *needti)
 		other_indom = curr_indom;
 	    else {
 		assert(curr_indom->sorted == 1);
-		other_indom = indom_closest(curr_indom, tv);
+		other_indom = indom_closest(curr_indom, &stamp);
 	    }
 
 	    if (other_indom != NULL && other_indom->written != WRITTEN) {
@@ -1622,13 +1605,10 @@ write_metareclist(pmResult *result, int *needti)
 		 */
 		if (other_indom->pdu != NULL) { 
 		    other_indom->written = MARK_FOR_WRITE;
-		    __pmTimestamp	stamp;
-		    stamp.sec = tv->tv_sec;
-		    stamp.nsec = tv->tv_usec * 1000;
-		    if (outarchvers == PM_LOG_VERS02)
-			__pmPutTimeval(&stamp, &other_indom->pdu[2]);
-		    else
+		    if (outarchvers == PM_LOG_VERS03)
 			__pmPutTimestamp(&stamp, &other_indom->pdu[2]);
+		    else
+			__pmPutTimeval(&stamp, &other_indom->pdu[2]);
 		    /* make sure to set needti, when writing out the indom */
 		    *needti = 1;
 		    write_rec(other_indom);
@@ -1637,8 +1617,8 @@ write_metareclist(pmResult *result, int *needti)
 		assert(other_indom->desc.indom == indom);
 
 		/* Write out the label set records associated with this indom */
-		write_priorlabelset(PM_LABEL_INDOM, indom, tv);
-		write_priorlabelset(PM_LABEL_INSTANCES, indom, tv);
+		write_priorlabelset(PM_LABEL_INDOM, indom, &stamp);
+		write_priorlabelset(PM_LABEL_INSTANCES, indom, &stamp);
 
 		/* Write out any help text records associated with this indom */
 		write_textreclist(PM_TEXT_INDOM | PM_TEXT_ONELINE, indom);
@@ -1652,6 +1632,7 @@ write_metareclist(pmResult *result, int *needti)
 
 /*
  *  create a mark record
+ * TODO .. need version-conditonal when pmResult changes
  */
 __int32_t *
 _createmark(void)
@@ -1676,7 +1657,8 @@ _createmark(void)
 
     markp->len = (int)sizeof(mark_t);
     markp->type = markp->from = 0;
-    markp->timestamp = current;
+    markp->timestamp.tv_sec = current.sec;
+    markp->timestamp.tv_usec = current.nsec / 1000;
     markp->timestamp.tv_usec += 1000;	/* + 1msec */
     if (markp->timestamp.tv_usec > 1000000) {
 	markp->timestamp.tv_usec -= 1000000;
@@ -1687,14 +1669,14 @@ _createmark(void)
 }
 
 void
-checklogtime(pmTimeval *this, int indx)
+checklogtime(__pmTimestamp *this, int indx)
 {
-    if ((curlog.tv_sec == 0 && curlog.tv_usec == 0) ||
-	(curlog.tv_sec > this->tv_sec ||
-	(curlog.tv_sec == this->tv_sec && curlog.tv_usec > this->tv_usec))) {
+    if ((curlog.sec == 0 && curlog.nsec == 0) ||
+	(curlog.sec > this->sec ||
+	(curlog.sec == this->sec && curlog.nsec > this->nsec))) {
 	    ilog = indx;
-	    curlog.tv_sec = this->tv_sec;
-	    curlog.tv_usec = this->tv_usec;
+	    curlog.sec = this->sec;
+	    curlog.nsec = this->nsec;
     }
 }
 
@@ -2019,13 +2001,13 @@ againmeta:
 static int
 nextlog(void)
 {
-    int		indx;
-    int		eoflog = 0;	/* number of log files at eof */
-    int		sts;
-    pmTimeval	curtime;
-    __pmArchCtl	*acp;
-    __pmContext	*ctxp;
-    inarch_t	*iap;
+    int			indx;
+    int			eoflog = 0;	/* number of log files at eof */
+    int			sts;
+    __pmTimestamp	curtime;
+    __pmArchCtl		*acp;
+    __pmContext		*ctxp;
+    inarch_t		*iap;
 
 
     for (indx=0; indx<inarchnum; indx++) {
@@ -2091,8 +2073,8 @@ againlog:
 	 * set current log time - this is only done so that we can
 	 * determine whether to keep or discard the log
 	 */
-	curtime.tv_sec = iap->_result->timestamp.tv_sec;
-	curtime.tv_usec = iap->_result->timestamp.tv_usec;
+	curtime.sec = iap->_result->timestamp.tv_sec;
+	curtime.nsec = iap->_result->timestamp.tv_usec * 1000;
 
 	/*
 	 * check for prologue/epilogue records ... 
@@ -2147,7 +2129,7 @@ againlog:
 	 * start time, then we may want it
 	 *	(irrespective of the current window end time)
 	 */
-	if (tvcmp(&curtime, &winstart) < 0) {
+	if (__pmTimestampCmp(&curtime, &winstart) < 0) {
 	    /*
 	     * log is not in time window - discard result and get next record
 	     */
@@ -2342,16 +2324,15 @@ parseconfig(void)
  *  we are outside of time window & exit ... return -1
  */
 static int
-checkwinend(pmTimeval now)
+checkwinend(__pmTimestamp *tsp)
 {
-    int		indx;
-    int		sts;
-    pmTimeval	tmptime;
-    inarch_t	*iap;
-    __int32_t	*markpdu;	/* mark b/n time windows */
-    mark_t      *p;
-
-    if (winend.tv_sec < 0 || tvcmp(&now, &winend) <= 0)
+    int			indx;
+    int			sts;
+    __pmTimestamp	tmptime;
+    inarch_t		*iap;
+    __int32_t		*markpdu;	/* mark b/n time windows */
+    mark_t		*p;
+    if (winend.sec < 0 || __pmTimestampCmp(tsp, &winend) <= 0)
 	return(0);
 
     /*
@@ -2364,24 +2345,24 @@ checkwinend(pmTimeval now)
     if (!warg)
 	return(-1);
 
-    winstart.tv_sec += NUM_SEC_PER_DAY;
-    winend.tv_sec += NUM_SEC_PER_DAY;
+    winstart.sec += NUM_SEC_PER_DAY;
+    winend.sec += NUM_SEC_PER_DAY;
     pre_startwin = 1;
 
     /*
      * if start of next window is later than max termination
      * then bail out here
      */
-    if (tvcmp(&winstart, &logend) > 0)
+    if (__pmTimestampCmp(&winstart, &logend) > 0)
 	    return(-1);
 
     ilog = -1;
     for (indx=0; indx<inarchnum; indx++) {
 	iap = &inarch[indx];
 	if (iap->_Nresult != NULL) {
-	    tmptime.tv_sec = iap->_Nresult->timestamp.tv_sec;
-	    tmptime.tv_usec = iap->_Nresult->timestamp.tv_usec;
-	    if (tvcmp(&tmptime, &winstart) < 0) {
+	    tmptime.sec = iap->_Nresult->timestamp.tv_sec;
+	    tmptime.nsec = iap->_Nresult->timestamp.tv_usec * 1000;
+	    if (__pmTimestampCmp(&tmptime, &winstart) < 0) {
 		/* free _result and _Nresult */
 		if (iap->_result != iap->_Nresult) {
 		    free(iap->_Nresult);
@@ -2395,9 +2376,10 @@ checkwinend(pmTimeval now)
 	    }
 	}
 	if (iap->pb[LOG] != NULL) {
-	    tmptime.tv_sec = ntohl(iap->pb[LOG][3]);
-	    tmptime.tv_usec = ntohl(iap->pb[LOG][4]);
-	    if (tvcmp(&tmptime, &winstart) < 0) {
+	    // TODO need version-specific code for V3
+	    tmptime.sec = ntohl(iap->pb[LOG][3]);
+	    tmptime.nsec = ntohl(iap->pb[LOG][4]) * 1000;
+	    if (__pmTimestampCmp(&tmptime, &winstart) < 0) {
 		/*
 		 * free PDU buffer ... it is probably a mark
 		 * and has not been pinned
@@ -2427,24 +2409,23 @@ checkwinend(pmTimeval now)
 
 
 void
-writerlist(rlist_t **rlready, pmTimeval mintime)
+writerlist(rlist_t **rlready, __pmTimestamp *mintime)
 {
-    int		sts;
-    int		needti = 0;	/* need to flush/update */
-    pmTimeval	titime  = {0,0};/* time of last temporal index write */
-    pmTimeval	restime;	/* time of result */
-    struct timeval tstamp;	/* temporary time stamp */
-    rlist_t	*elm;		/* element of rlready to be written out */
-    __int32_t	*pb;		/* pdu buffer */
+    int			sts;
+    int			needti = 0;	/* need to flush/update */
+    __pmTimestamp	titime  = {0,0};/* time of last temporal index write */
+    __pmTimestamp	restime;	/* time of result */
+    rlist_t		*elm;		/* element of rlready to be written out */
+    __int32_t		*pb;		/* pdu buffer */
     unsigned long	peek_offset;
 
     while (*rlready != NULL) {
-	restime.tv_sec = (*rlready)->res->timestamp.tv_sec;
-	restime.tv_usec = (*rlready)->res->timestamp.tv_usec;
+	restime.sec = (*rlready)->res->timestamp.tv_sec;
+	restime.nsec = (*rlready)->res->timestamp.tv_usec * 1000;
 
-        if (tvcmp(&restime, &mintime) > 0) {
+        if (__pmTimestampCmp(&restime, mintime) > 0) {
 #if 0
-fprintf(stderr, "writelist: restime %d.%06d mintime %d.%06d ", restime.tv_sec, restime.tv_usec, mintime.tv_sec, mintime.tv_usec);
+fprintf(stderr, "writelist: restime %d.%09d mintime %d.%09d ", restime.sec, restime.nsec, mintime->sec, mintime->nsec);
 fprintf(stderr, " break!\n");
 #endif
 	    break;
@@ -2475,10 +2456,8 @@ fprintf(stderr, " break!\n");
 	if (pre_startwin)
 	    pre_startwin = 0;
 
-	/* We need to write out the relevant context labelsm if any. */
-	tstamp.tv_sec = mintime.tv_sec;
-	tstamp.tv_usec = mintime.tv_usec;
-	write_priorlabelset(PM_LABEL_CONTEXT, PM_IN_NULL, &tstamp);
+	/* We need to write out the relevant context labels if any. */
+	write_priorlabelset(PM_LABEL_CONTEXT, PM_IN_NULL, mintime);
 
 	/* convert log record to a pdu */
 	sts = __pmEncodeResult(PDU_OVERRIDE2, elm->res, (__pmPDU **)&pb);
@@ -2492,7 +2471,12 @@ fprintf(stderr, " break!\n");
         /* switch volumes if required */
         if (varg > 0) {
             if (written > 0 && (written % varg) == 0) {
-                newvolume(outarchname, (pmTimeval *)&pb[3]);
+		__pmTimestamp	stamp;
+		if (outarchvers == PM_LOG_VERS03)
+		    __pmLoadTimestamp(&pb[3], &stamp);
+		else
+		    __pmLoadTimeval(&pb[3], &stamp);
+                newvolume(outarchname, &stamp);
 	    }
         }
 	/*
@@ -2502,7 +2486,12 @@ fprintf(stderr, " break!\n");
 	peek_offset = __pmFtell(archctl.ac_mfp);
 	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
 	if (peek_offset > 0x7fffffff) {
-	    newvolume(outarchname, (pmTimeval *)&pb[3]);
+	    __pmTimestamp	stamp;
+	    if (outarchvers == PM_LOG_VERS03)
+		__pmLoadTimestamp(&pb[3], &stamp);
+	    else
+		__pmLoadTimeval(&pb[3], &stamp);
+	    newvolume(outarchname, &stamp);
 	}
 
 	/* write out the descriptor and instance domain pdu's first */
@@ -2530,12 +2519,11 @@ fprintf(stderr, " break!\n");
 	 * make sure that we do not write out the temporal index more
 	 * than once for the same timestamp
 	 */
-	if (needti && tvcmp(&titime, &restime) >= 0)
+	if (needti && __pmTimestampCmp(&titime, &restime) >= 0)
 	    needti = 0;
 
 	/* flush/update */
 	if (needti) {
-	    __pmTimestamp	stamp;
 	    titime = restime;
 
 	    __pmFflush(archctl.ac_mfp);
@@ -2552,9 +2540,7 @@ fprintf(stderr, " break!\n");
             __pmFseek(archctl.ac_mfp, (long)old_log_offset, SEEK_SET);
             __pmFseek(logctl.mdfp, (long)old_meta_offset, SEEK_SET);
 
-	    stamp.sec = restime.tv_sec;
-	    stamp.nsec = restime.tv_usec * 1000;
-            __pmLogPutIndex(&archctl, &stamp);
+            __pmLogPutIndex(&archctl, &restime);
 
             __pmFseek(archctl.ac_mfp, (long)new_log_offset, SEEK_SET);
             __pmFseek(logctl.mdfp, (long)new_meta_offset, SEEK_SET);
@@ -2661,22 +2647,22 @@ do_not_need_mark(inarch_t *iap)
 int
 main(int argc, char **argv)
 {
-    int		indx;
-    int		j;
-    int		sts;
-    int		stslog;			/* sts from nextlog() */
-    int		stsmeta;		/* sts from nextmeta() */
-    int		nempty = 0;		/* number of empty input archives */
+    int			indx;
+    int			j;
+    int			sts;
+    int			stslog;		/* sts from nextlog() */
+    int			stsmeta;	/* sts from nextmeta() */
+    int			nempty = 0;	/* number of empty input archives */
 
     char	*msg;
 
-    pmTimeval 	now = {0,0};		/* the current time */
-    pmTimeval 	mintime = {0,0};
-    pmTimeval 	tmptime = {0,0};
+    __pmTimestamp	now = {0,0};	/* the current time */
+    __pmTimestamp	mintime = {0,0};
+    __pmTimestamp	tmptime = {0,0};
 
-    pmTimeval	tstamp;			/* temporary timestamp */
-    inarch_t	*iap;			/* ptr to archive control */
-    rlist_t	*rlready = NULL;	/* results ready for writing */
+    __pmTimestamp	tstamp;		/* temporary timestamp */
+    inarch_t		*iap;		/* ptr to archive control */
+    rlist_t		*rlready = NULL;	/* results ready for writing */
 
     struct timeval	unused;
 
@@ -2778,28 +2764,28 @@ main(int argc, char **argv)
 
 	if (indx == 0) {
 	    /* start time */
-	    logstart_tval.tv_sec = iap->label.ll_start.tv_sec;
-	    logstart_tval.tv_usec = iap->label.ll_start.tv_usec;
+	    logstart_tv.tv_sec = iap->label.ll_start.tv_sec;
+	    logstart_tv.tv_usec = iap->label.ll_start.tv_usec;
 
 	    /* end time */
-	    logend_tval.tv_sec = unused.tv_sec;
-	    logend_tval.tv_usec = unused.tv_usec;
+	    logend_tv.tv_sec = unused.tv_sec;
+	    logend_tv.tv_usec = unused.tv_usec;
 	}
 	else {
 	    /* get the earlier start time */
-	    if (logstart_tval.tv_sec > iap->label.ll_start.tv_sec ||
-		(logstart_tval.tv_sec == iap->label.ll_start.tv_sec &&
-		logstart_tval.tv_usec > iap->label.ll_start.tv_usec)) {
-		    logstart_tval.tv_sec = iap->label.ll_start.tv_sec;
-		    logstart_tval.tv_usec = iap->label.ll_start.tv_usec;
+	    if (logstart_tv.tv_sec > iap->label.ll_start.tv_sec ||
+		(logstart_tv.tv_sec == iap->label.ll_start.tv_sec &&
+		logstart_tv.tv_usec > iap->label.ll_start.tv_usec)) {
+		    logstart_tv.tv_sec = iap->label.ll_start.tv_sec;
+		    logstart_tv.tv_usec = iap->label.ll_start.tv_usec;
 	    }
 
 	    /* get the later end time */
-	    if (logend_tval.tv_sec < unused.tv_sec ||
-		(logend_tval.tv_sec == unused.tv_sec &&
-		logend_tval.tv_usec < unused.tv_usec)) {
-		    logend_tval.tv_sec = unused.tv_sec;
-		    logend_tval.tv_usec = unused.tv_usec;
+	    if (logend_tv.tv_sec < unused.tv_sec ||
+		(logend_tv.tv_sec == unused.tv_sec &&
+		logend_tv.tv_usec < unused.tv_usec)) {
+		    logend_tv.tv_sec = unused.tv_sec;
+		    logend_tv.tv_usec = unused.tv_usec;
 	    }
 	}
     } /*for(indx)*/
@@ -2810,8 +2796,8 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    logctl.label.start.sec = logstart_tval.tv_sec;
-    logctl.label.start.nsec = logstart_tval.tv_usec * 1000;
+    logctl.label.start.sec = logstart_tv.tv_sec;
+    logctl.label.start.nsec = logstart_tv.tv_usec * 1000;
 
     /*
      * process config file
@@ -2879,23 +2865,23 @@ main(int argc, char **argv)
 
     /* set winstart and winend timevals */
     sts = pmParseTimeWindow(Sarg, Targ, Aarg, Oarg,
-			    &logstart_tval, &logend_tval,
-			    &winstart_tval, &winend_tval, &unused, &msg);
+			    &logstart_tv, &logend_tv,
+			    &winstart_tv, &winend_tv, &unused, &msg);
     if (sts < 0) {
 	fprintf(stderr, "%s: Invalid time window specified: %s\n",
 		pmGetProgname(), msg);
 	abandon_extract();
 	/*NOTREACHED*/
     }
-    winstart.tv_sec = winstart_tval.tv_sec;
-    winstart.tv_usec = winstart_tval.tv_usec;
-    winend.tv_sec = winend_tval.tv_sec;
-    winend.tv_usec = winend_tval.tv_usec;
-    logend.tv_sec = logend_tval.tv_sec;
-    logend.tv_usec = logend_tval.tv_usec;
+    winstart.sec = winstart_tv.tv_sec;
+    winstart.nsec = winstart_tv.tv_usec * 1000;
+    winend.sec = winend_tv.tv_sec;
+    winend.nsec = winend_tv.tv_usec * 1000;
+    logend.sec = logend_tv.tv_sec;
+    logend.nsec = logend_tv.tv_usec * 1000;
 
     if (warg) {
-	if (winstart.tv_sec + NUM_SEC_PER_DAY < winend.tv_sec) {
+	if (winstart.sec + NUM_SEC_PER_DAY < winend.sec) {
 	    fprintf(stderr, "%s: Warning: -S and -T must specify a time window within\nthe same day, for -w to be used.  Ignoring -w flag.\n", pmGetProgname());
 	    warg = 0;
 	}
@@ -2903,10 +2889,10 @@ main(int argc, char **argv)
 
     ilog = -1;
     written = 0;
-    curlog.tv_sec = 0;
-    curlog.tv_usec = 0;
-    current.tv_sec = 0;
-    current.tv_usec = 0;
+    curlog.sec = 0;
+    curlog.nsec = 0;
+    current.sec = 0;
+    current.nsec = 0;
     first_datarec = 1;
     pre_startwin = 1;
 
@@ -2933,8 +2919,8 @@ main(int argc, char **argv)
      */
     while (sarg == -1 || written < sarg) {
 	ilog = -1;
-	curlog.tv_sec = 0;
-	curlog.tv_usec = 0;
+	curlog.sec = 0;
+	curlog.nsec = 0;
 	old_meta_offset = __pmFtell(logctl.mdfp);
 	assert(old_meta_offset >= 0);
 
@@ -2949,27 +2935,29 @@ main(int argc, char **argv)
 	 * set ilog
 	 * (this is a bit more complex when tflag is specified)
 	 */
-	mintime.tv_sec = mintime.tv_usec = 0;
+	mintime.sec = mintime.nsec = 0;
 	for (indx=0; indx<inarchnum; indx++) {
 	    if (inarch[indx]._Nresult != NULL) {
-		tstamp.tv_sec = inarch[indx]._Nresult->timestamp.tv_sec;
-		tstamp.tv_usec = inarch[indx]._Nresult->timestamp.tv_usec;
+		// TODO ... need conditional V3 logic here
+		tstamp.sec = inarch[indx]._Nresult->timestamp.tv_sec;
+		tstamp.nsec = inarch[indx]._Nresult->timestamp.tv_usec * 1000;
 		checklogtime(&tstamp, indx);
 
 		if (ilog == indx) {
 		    tmptime = curlog;
-		    if (mintime.tv_sec <= 0 || tvcmp(&mintime, &tmptime) > 0)
+		    if (mintime.sec <= 0 || __pmTimestampCmp(&mintime, &tmptime) > 0)
 		        mintime = tmptime;
 		}
 	    }
 	    else if (inarch[indx].pb[LOG] != NULL) {
-		tstamp.tv_sec = inarch[indx].pb[LOG][3]; /* no swab needed */
-		tstamp.tv_usec = inarch[indx].pb[LOG][4]; /* no swab needed */
+		// TODO ... need conditional V3 logic here
+		tstamp.sec = inarch[indx].pb[LOG][3]; /* no swab needed */
+		tstamp.nsec = inarch[indx].pb[LOG][4] * 1000; /* no swab needed */
 		checklogtime(&tstamp, indx);
 
 		if (ilog == indx) {
 		    tmptime = curlog;
-		    if (mintime.tv_sec <= 0 || tvcmp(&mintime, &tmptime) > 0)
+		    if (mintime.sec <= 0 || __pmTimestampCmp(&mintime, &tmptime) > 0)
 		        mintime = tmptime;
 		}
 	    }
@@ -2987,10 +2975,10 @@ main(int argc, char **argv)
 	 * note - mark (after last archive) will be created, but this
 	 * break, will prevent it from being written out
 	 */
-	if (tvcmp(&now, &logend) > 0)
+	if (__pmTimestampCmp(&now, &logend) > 0)
 	    break;
 
-	sts = checkwinend(now);
+	sts = checkwinend(&now);
 	if (sts < 0)
 	    break;
 	if (sts > 0)
@@ -3038,7 +3026,7 @@ main(int argc, char **argv)
 }
 #endif
 
-	    writerlist(&rlready, curlog);
+	    writerlist(&rlready, &curlog);
 
 	    /*
 	     * writerlist frees elm (elements of rlready) but does not
@@ -3080,8 +3068,6 @@ cleanup:
     }
     else {
 	/* write the last time stamp */
-	__pmTimestamp	stamp;
-
 	__pmFflush(archctl.ac_mfp);
 	__pmFflush(logctl.mdfp);
 
@@ -3094,14 +3080,12 @@ cleanup:
 	assert(new_meta_offset >= 0);
 
 #if 0
-	fprintf(stderr, "*** last tstamp: \n\tmintime=%d.%06d \n\ttmptime=%d.%06d \n\tlogend=%d.%06d \n\twinend=%d.%06d \n\tcurrent=%d.%06d\n",
-	    mintime.tv_sec, mintime.tv_usec, tmptime.tv_sec, tmptime.tv_usec, logend.tv_sec, logend.tv_usec, winend.tv_sec, winend.tv_usec, current.tv_sec, current.tv_usec);
+	fprintf(stderr, "*** last tstamp: \n\tmintime=%d.%09d \n\ttmptime=%d.%09d \n\tlogend=%d.%09d \n\twinend=%d.%09d \n\tcurrent=%d.%09d\n",
+	    mintime.sec, mintime.nsec, tmptime.sec, tmptime.nsec, logend.sec, logend.nsec, winend.sec, winend.nsec, current.sec, current.nsec);
 #endif
 
 	__pmFseek(archctl.ac_mfp, old_log_offset, SEEK_SET);
-	stamp.sec = current.tv_sec;
-	stamp.nsec = current.tv_usec * 1000;
-	__pmLogPutIndex(&archctl, &stamp);
+	__pmLogPutIndex(&archctl, &current);
 
 	/* need to fix up label with new start-time */
 	writelabel_metati(1);
