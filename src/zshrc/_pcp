@@ -583,6 +583,7 @@ _pcp () {
       "(-S --start $exargs)"{-S+,--start=}'[set start of time window]:timespec:' \
       "(-s --samples $exargs)"{-s+,--samples=}'[specify number of log records to write]:samples:' \
       "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:' \
+      "(-V --outputversion $exargs)"-V+'[output archive version]' \
       "(-v $exargs)"-v+'[switch log volumes after this many samples]:volsamples:' \
       "(-w $exargs)"-w'[ignore day/month/year]' \
       "(-x $exargs)"-x'[skip metrics with mismatched metadata]' \

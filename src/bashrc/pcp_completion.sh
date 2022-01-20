@@ -97,8 +97,8 @@ _pcp_complete()
         arg_regex="-[Ccip]"
     ;;
     pmlogextract)
-        all_args="cdfmSsTvwxZz"
-        arg_regex="-[cSsTvZ]"
+        all_args="cdfmSsTVvwxZz"
+        arg_regex="-[cSsTVvZ]"
     ;;
     pmlogger)
         all_args="CcHIhKLlmNnoPprsTtUuVvxy"
