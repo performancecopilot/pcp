@@ -904,6 +904,7 @@ pmseries_request_load(struct client *client, pmSeriesBaton *baton)
 	http_reply(client, message, HTTP_STATUS_CONFLICT,
 			HTTP_FLAG_JSON, baton->options);
     } else {
+        baton->loading.data = baton;         
 	uv_queue_work(client->proxy->events, &baton->loading,
 			pmseries_load_work, pmseries_load_done);
     }
