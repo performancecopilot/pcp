@@ -5,7 +5,7 @@ QA output created by 1375 --valgrind
 === std out ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmlogextract tmparch/sampledso-no-delta TMP
+Command: pmlogextract tmparch/sampledso-no-delta_v2 TMP
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

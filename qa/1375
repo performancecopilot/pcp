@@ -54,27 +54,20 @@ for version in 2 3
 do
     echo
     echo "--- Version $version archive ---"
-    case $version
-    in
-	2)	suff=''
-		;;
-	3)	suff='_v3'
-		;;
-    esac
 
     rm -f $tmp.0 $tmp.meta $tmp.index
 
     if $do_valgrind
     then
-	_run_valgrind pmlogextract tmparch/sampledso-no-delta$suff $tmp
+	_run_valgrind pmlogextract tmparch/sampledso-no-delta_v$version $tmp
     else
-	pmlogextract tmparch/sampledso-no-delta$suff $tmp 2>&1
+	pmlogextract tmparch/sampledso-no-delta_v$version $tmp 2>&1
     fi \
     | sed -e "s@$tmp@TMP@g" \
     | _filter
 
     echo "=== scanmeta for input ===" >>$seq.full
-    src/scanmeta -a tmparch/sampledso-no-delta$suff.meta 2>&1 \
+    src/scanmeta -a tmparch/sampledso-no-delta_v$version.meta 2>&1 \
     | tee -a $seq.full \
     | sed -e 's/^\[[0-9][0-9]*/[NN/' \
     | LC_COLLATE=POSIX sort >$tmp.input
@@ -90,7 +83,7 @@ do
     diff $tmp.input $tmp.output
 
     echo "=== dumplog for input ===" >>$seq.full
-    pmdumplog -aI tmparch/sampledso-no-delta$suff 2>&1 \
+    pmdumplog -aI tmparch/sampledso-no-delta_v$version 2>&1 \
     | tee -a $seq.full \
     | sed -e '/^PID for pmlogger:/s/[0-9][0-9]*/<PID>/' >$tmp.input
 
