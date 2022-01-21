@@ -25,6 +25,7 @@ Checking policies.
 ! allow [pcp_pmcd_t] [container_var_run_t] : [sock_file] { getattr write };
   allow [pcp_pmcd_t] [var_run_t] : [sock_file] { getattr write };
   allow [pcp_pmcd_t] [debugfs_t] : [file] { append getattr ioctl open read write };
+  allow [pcp_pmcd_t] [debugfs_t] : [dir] { read };
 ! allow [pcp_pmcd_t] [pcp_pmie_exec_t] : [file] { execute execute_no_trans open read map };
   allow [pcp_pmcd_t] [pcp_var_lib_t] : [fifo_file] { getattr read open unlink };
   allow [pcp_pmcd_t] [proc_kcore_t] : [file] { getattr };
