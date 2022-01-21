@@ -571,12 +571,12 @@ class ElasticsearchPMDA(PMDA):
                 request.close()
             if cluster == self.master_node_cluster:
                 self.master_node = None
-                for _id, info in temp['nodes'].items():
-                    try:
+                try:
+                    for _id, info in temp['nodes'].items():
                         if info['attributes']['master'] == "true":
                             self.master_node = str(info['name'])
-                    except KeyError:
-                        pass
+                except KeyError:
+                    pass
             else:
                 try:
                     self.node_info = {}

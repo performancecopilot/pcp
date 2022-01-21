@@ -5,6 +5,7 @@ deps/
 *.h
 GNUlocaldefs
 exports
+mk.pmdbg
 libpcp_fault.*
 derive_parser.y.in
 fix_derive_parser_y
