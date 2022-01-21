@@ -27,6 +27,7 @@ LIBS_SUBDIRS = \
 	libpcp_gui \
 	libpcp_mmv \
 	libpcp_import \
+	libpcp_archive \
 	libpcp_qed \
 	libpcp_qmc \
 	libpcp_qwt \

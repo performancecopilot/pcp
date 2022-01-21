@@ -9,7 +9,7 @@ Standards-Version: 3.9.3
 X-Python3-Version: >= 3.3
 
 Package: pcp
-Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, ?{python-pcp}, ?{python}, libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}), libpcp-web1 (= ${binary:Version}), libpcp3 (= ${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, ?{python-pcp}, ?{python}, libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}), libpcp-web1 (= ${binary:Version}), libpcp-archive1 (= ${binary:Version}), libpcp3 (= ${binary:Version})
 Recommends: libpcp-pmda-perl
 Conflicts: pgpool2, dstat, pcp-webapi, pcp-manager
 Suggests: pcp-gui, libpcp-import-perl, ?{bpftrace}, ?{python3-bpfcc}, redis-server
@@ -237,6 +237,34 @@ Architecture: any
 Description: Performance Co-Pilot data import library
  The libpcp-web package contains the runtime environment required
  by a PMDA to parse and extract metric data from a JSON file.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp-archive1-dev
+Section: libdevel
+Depends: ${misc:Depends}, libpcp-archive1 (= ${binary:Version}), libpcp3-dev
+Architecture: any
+Description: Performance Co-Pilot archive writing library and headers
+ The libpcp-archive-dev package contains the library and header files
+ needed to build an application that creates a Performance Co-Pilot
+ (PCP) archive suitable for use with the PCP tools.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp-archive1
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Section: libs
+Architecture: any
+Description: Performance Co-Pilot archive writing library
+ The libpcp-archive package contains the runtime environment required
+ by an application that creates a Performance Co-Pilot (PCP) archive
+ suitable for use with the PCP tools.
  .
  The Performance Co-Pilot provides a unifying abstraction for
  all of the interesting performance data in a system, and allows

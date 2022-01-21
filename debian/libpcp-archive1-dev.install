@@ -1,0 +1,4 @@
+usr/include/pcp/archive.h
+usr/lib/libpcp_archive.a
+usr/lib/libpcp_archive.so
+usr/lib/pkgconfig/libpcp_archive.pc

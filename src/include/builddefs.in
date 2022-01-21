@@ -57,7 +57,8 @@ LIBPCP_ABIDIR ?= src
 PCPLIB_LDFLAGS = -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) \
 		 -L$(TOPDIR)/src/libpcp_web/$(LIBPCP_ABIDIR) \
 		 -L$(TOPDIR)/src/libpcp_pmda/$(LIBPCP_ABIDIR) \
-		 -L$(TOPDIR)/src/libpcp_mmv/$(LIBPCP_ABIDIR)
+		 -L$(TOPDIR)/src/libpcp_mmv/$(LIBPCP_ABIDIR) \
+		 -L$(TOPDIR)/src/libpcp_archive/$(LIBPCP_ABIDIR)
 # backward compatibility
 PCP_LIBS = $(PCPLIB_LDFLAGS)
 
@@ -961,6 +962,7 @@ PCP_TRACELIB = -lpcp_trace $(PCPLIB)
 PCP_MMVLIB = -lpcp_mmv $(PCPLIB)
 PCPWEBLIB_EXTRAS = $(LIB_FOR_OPENSSL) $(LIB_FOR_LIBUV) $(PCP_PMDALIB) $(PCP_MMVLIB)
 PCP_WEBLIB = -lpcp_web $(PCPWEBLIB_EXTRAS)
+PCP_ARCHIVELIB = -lpcp_archive
 
 ifdef PCP_ALTLIBS
 ifeq ($(PCP_LIB_DIR),$(PCP_LIB32_DIR))

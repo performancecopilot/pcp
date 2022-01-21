@@ -1,0 +1,8 @@
+PCP_ARCHIVE_1.0 {
+  global:
+	pmaSortIndom;
+	pmaSameIndom;
+	pmaDeltaIndom;
+
+  local: *;
+};

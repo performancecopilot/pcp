@@ -15,8 +15,9 @@
 #ifndef _LOGGER_H
 #define _LOGGER_H
 
-#include "pmapi.h"
-#include "libpcp.h"
+#include <pcp/pmapi.h>
+#include <pcp/libpcp.h>
+#include <pcp/archive.h>
 #include <assert.h>
 
 /*

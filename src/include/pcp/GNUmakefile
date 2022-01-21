@@ -24,7 +24,7 @@ HFILES = pmapi.h impl.h pmda.h pmtime.h pmdaroot.h pmafm.h \
 	 trace.h trace_dev.h mmv_stats.h mmv_dev.h import.h \
 	 config32.h config64.h platform32.h platform64.h \
 	 pmjson.h pmhttp.h pmdbg.h pmwebapi.h deprecated.h \
-	 ini.h sds.h dict.h
+	 ini.h sds.h dict.h archive.h
 INFILES = config.h.in configsz.h.in platform_defs.h.in platformsz.h.in
 CONFFILES = config.h configsz.h platform_defs.h platformsz.h
 GENERATED_HFILES = $(CONFFILES)

@@ -27,7 +27,7 @@ YFILES	= gram.y
 LCFLAGS += $(PIECFLAGS)
 LLDFLAGS += $(PIELDFLAGS)
 
-LLDLIBS	= $(PCPLIB) $(LIB_FOR_PTHREADS)
+LLDLIBS	= $(PCP_ARCHIVELIB) $(PCPLIB) $(LIB_FOR_PTHREADS)
 LDIRT	= *.log foo.* gram.h lex.c y.tab.? $(YFILES:%.y=%.tab.?) $(CMDTARGET)
 
 default:	$(CMDTARGET)
