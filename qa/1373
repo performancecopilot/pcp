@@ -64,9 +64,9 @@ s/[0-9][0-9]*%/N%/
 echo "=== V2 ==="
 if $do_valgrind
 then
-    _run_valgrind pmlogsize tmparch/sample-proc
+    _run_valgrind pmlogsize tmparch/sample-proc_v2
 else
-    pmlogsize tmparch/sample-proc 2>&1
+    pmlogsize tmparch/sample-proc_v2 2>&1
 fi \
 | _filter
 

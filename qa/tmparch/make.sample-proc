@@ -36,11 +36,4 @@ do
     # now make the archive
     #
     pmlogger -c $tmp.config -V $vers -s 20 sample-proc_v$vers
-
-    if [ $vers = 2 ]
-    then
-	# perserve the old v2 archive name
-	#
-	pmlogmv sample-proc_v2 sample-proc
-    fi
 done
