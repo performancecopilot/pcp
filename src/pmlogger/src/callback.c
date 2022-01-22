@@ -218,7 +218,7 @@ setavail(pmResult *resp)
  * This has been taken straight from logmeta.c in libpcp. It is required
  * here to get the timestamp of the indom. 
  * Note that the tp argument is used to return the timestamp of the indom.
- * It is a merger of __pmLogGetIndom and searchindom.
+ * It is a merger of __pmLogGetInDom and searchindom.
  */
 static int
 __localLogGetInDom(__pmLogCtl *lcp, pmInDom indom, __pmTimestamp *tsp, int **instlist, char ***namelist)
@@ -901,7 +901,7 @@ do_work(task_t *tp)
 		    /*
 		     * sort the indom based in internal instance identifier
 		     */
-		    pmaSortIndom(&new);
+		    pmaSortInDom(&new);
 		    /*
 		     * if this is the first time we've seen this indom,
 		     * or the current and previous indoms are different
@@ -916,11 +916,11 @@ do_work(task_t *tp)
 		    if (old.numinst < 0)
 			needindom = 1;
 		    else if (archive_version == PM_LOG_VERS02) {
-			if (pmaSameIndom(&old, &new) == 1)
+			if (!pmaSameInDom(&old, &new))
 			    needindom = 1;
 		    }
 		    else if (archive_version == PM_LOG_VERS03) {
-			needindom = pmaDeltaIndom(&old, &new, &new_delta);
+			needindom = pmaDeltaInDom(&old, &new, &new_delta);
 		    }
 		    if (needindom == 1) {
 			int	pdu_type;

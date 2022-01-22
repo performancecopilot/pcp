@@ -24,7 +24,7 @@
  * efficient
  */
 void
-pmaSortIndom(pmInResult *irp)
+pmaSortInDom(pmInResult *irp)
 {
     int		i;
     int		j;
@@ -55,43 +55,40 @@ pmaSortIndom(pmInResult *irp)
  * we know the indoms are both sorted.
  *
  * Return value:
- * 0 => no difference
- * 1 => different
- *
- * Version 2 comparison ... can return quickly as soon as difference
- * found.
+ * 1 => no difference
+ * 0 => different
  */
 int
-pmaSameIndom(pmInResult *old, pmInResult *new)
+pmaSameInDom(pmInResult *old, pmInResult *new)
 {
     int		i;
-    int		sts = 1;
+    int		sts = 0;
 
     if (old->numinst != new->numinst)
 	goto done;
 
-    /* internal instance identifiers */
+    /* check internal instance identifiers */
     for (i = 0; i < old->numinst; i++) {
 	if (old->instlist[i] != new->instlist[i])
 	    goto done;
     }
 
     /*
-     * external instance names (only bad PMDAs, like proc) should
-     * assign different names to the same instance
+     * check external instance names:  only bad PMDAs (like proc)
+     * should assign different names to the same instance
      */
     for (i = 0; i < old->numinst; i++) {
 	if (strcmp(old->namelist[i], new->namelist[i]) != 0)
 	    goto done;
     }
 
-    sts = 0;
+    sts = 1;
 
 done:
 
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
-	fprintf(stderr, "pmaSameIndom(%s) -> %s\n", pmInDomStr(old->indom),
-	    sts == 0 ? "same" : "different");
+	fprintf(stderr, "pmaSameInDom(%s) -> %s\n", pmInDomStr(old->indom),
+	    sts == 1 ? "same" : "different");
     }
 
     return sts;
@@ -109,13 +106,11 @@ done:
  * 1 => use full indom
  * 2 => use delta indom (and populate *new_delta)
  *
- * Version 3 comparison ... no quick return is possible.
- *
  * Note on alloc() errors: report 'em and return "1", since this
  * simply falls back to the V2 scheme (more or less).
  */
 int
-pmaDeltaIndom(pmInResult *old, pmInResult *new, pmInResult *new_delta)
+pmaDeltaInDom(pmInResult *old, pmInResult *new, pmInResult *new_delta)
 {
     int		i;
     int		j;
@@ -132,12 +127,12 @@ pmaDeltaIndom(pmInResult *old, pmInResult *new, pmInResult *new_delta)
      */
     old_map = (int *)calloc(old->numinst, sizeof(int));
     if (old_map == NULL) {
-	pmNoMem("pmaDeltaIndom: old_map", old->numinst * sizeof(int), PM_RECOV_ERR);
+	pmNoMem("pmaDeltaInDom: old_map", old->numinst * sizeof(int), PM_RECOV_ERR);
 	goto done;
     }
     new_map = (int *)calloc(new->numinst, sizeof(int));
     if (new_map == NULL) {
-	pmNoMem("pmaDeltaIndom: new_map", new->numinst * sizeof(int), PM_RECOV_ERR);
+	pmNoMem("pmaDeltaInDom: new_map", new->numinst * sizeof(int), PM_RECOV_ERR);
 	goto done;
     }
     for (i = 0, j = 0; i < old->numinst || j < new->numinst; ) {
@@ -175,7 +170,7 @@ pmaDeltaIndom(pmInResult *old, pmInResult *new, pmInResult *new_delta)
 	    j++;
 	}
 	else {
-	    fprintf(stderr, "pmaDeltaIndom(): botch: i=%d old->numinst=%d j=%d new->numinst=%d\n", i, old->numinst, j, new->numinst);
+	    fprintf(stderr, "pmaDeltaInDom(): botch: i=%d old->numinst=%d j=%d new->numinst=%d\n", i, old->numinst, j, new->numinst);
 	    exit(1);
 	}
     }
@@ -203,12 +198,12 @@ pmaDeltaIndom(pmInResult *old, pmInResult *new, pmInResult *new_delta)
      */
     new_delta->instlist = (int *)malloc(new_delta->numinst * sizeof(int));
     if (new_delta->instlist == NULL) {
-	pmNoMem("pmaDeltaIndom: new instlist", new_delta->numinst * sizeof(int), PM_RECOV_ERR);
+	pmNoMem("pmaDeltaInDom: new instlist", new_delta->numinst * sizeof(int), PM_RECOV_ERR);
 	goto done;
     }
     new_delta->namelist = (char **)malloc(new_delta->numinst * sizeof(char *));
     if (new_delta->namelist == NULL) {
-	pmNoMem("pmaDeltaIndom: new namelist", new_delta->numinst * sizeof(char *), PM_RECOV_ERR);
+	pmNoMem("pmaDeltaInDom: new namelist", new_delta->numinst * sizeof(char *), PM_RECOV_ERR);
 	goto done;
     }
     /*
@@ -230,7 +225,7 @@ pmaDeltaIndom(pmInResult *old, pmInResult *new, pmInResult *new_delta)
 	     */
 	    if (old->instlist[i] < new->instlist[j]) {
 		/* delete instance in middle of indom */
-		new_delta->instlist[k] = -old->instlist[i];
+		new_delta->instlist[k] = old->instlist[i];
 		new_delta->namelist[k] = NULL;
 		k++;
 		i++;
@@ -247,7 +242,7 @@ pmaDeltaIndom(pmInResult *old, pmInResult *new, pmInResult *new_delta)
 	if (i < old->numinst) {
 	    if (old_map[i]) {
 		/* delete from end of indom */
-		new_delta->instlist[k] = -old->instlist[i];
+		new_delta->instlist[k] = old->instlist[i];
 		new_delta->namelist[k] = NULL;
 		k++;
 	    }
@@ -273,7 +268,7 @@ done:
 	free(new_map);
 
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
-	fprintf(stderr, "pmaDeltaIndom(%s) -> %s\n", pmInDomStr(old->indom),
+	fprintf(stderr, "pmaDeltaInDom(%s) -> %s\n", pmInDomStr(old->indom),
 	    sts == 0 ? "same" : ( sts == 1 ? "full indom" : "delta indom" ));
     }
 

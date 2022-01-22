@@ -555,7 +555,7 @@ dumpDiskInDom(__pmContext *ctxp)
 	    if (in.numinst > 0) {
 	        for (i = 0; i < in.numinst; i++) {
 		    if (hdr.type == TYPE_INDOM_DELTA) {
-			if (in.instlist[i] < 0)
+			if (in.namelist[i] == NULL)
 			    printf("   del %d\n", in.instlist[i]);
 			else
 			    printf("   add %d or \"%s\"\n", in.instlist[i], in.namelist[i]);

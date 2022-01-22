@@ -95,30 +95,25 @@ sameindom(const __pmLogInDom *idp1, const __pmLogInDom *idp2)
 }
 
 /*
- * Sort the given instance arrays based on ascending absolute
- * internal instance identifier before associating them with the
- * __pmLogInDom.  We need "absolute" instance identifiers here because
- * values < 0 encode deletions for delta indoms.
+ * Sort the given instance arrays based on ascending internal instance
+ * identifier before associating them with the __pmLogInDom.
  * This allows a variety of optimised lookups in subsequent code that
  * needs to search for specific instances, compare instance domains, etc.
  * Use an insertion sort because its often the case that we're
- * dealing with close-to-sorted data.  Also the "absolute" value
- * ordering criteria and dependent array (namelist) means we cannot
- * use the usual qsort/sort_r routines here.
+ * dealing with close-to-sorted data.
  */
 static void
 addinsts(__pmLogInDom *idp, int numinst, int *instlist, char **namelist)
 {
-    int			i, j, id, abs_id;
+    int			i, j, id;
     char		*name;
 
     for (i = 0; i < numinst; i++) {
 	name = namelist[i];
 	id = instlist[i];
-	abs_id = abs(id);
 	j = i;
 
-	while (j > 0 && abs_id < abs(instlist[j-1])) {
+	while (j > 0 && id < instlist[j-1]) {
 	    namelist[j] = namelist[j-1];
 	    instlist[j] = instlist[j-1];
 	    j = j - 1;
@@ -1259,7 +1254,7 @@ __pmLogUndeltaInDom(pmInDom indom,__pmLogInDom *idp)
 	int	k;		/* index over new full indom we're building */
 	numinst = didp->next->numinst;
 	for (j = 0; j < didp->numinst; j++) {
-	    if (didp->instlist[j] >= 0)
+	    if (didp->namelist[j] != NULL)
 		numinst++;
 	    else
 		numinst--;
@@ -1279,7 +1274,7 @@ __pmLogUndeltaInDom(pmInDom indom,__pmLogInDom *idp)
 	}
 	for (i = j = k = 0; i < tidp->numinst || j < didp->numinst; ) {
 	    if (i < tidp->numinst && j < didp->numinst) {
-		if (didp->instlist[j] < 0 && tidp->instlist[i] == -didp->instlist[j]) {
+		if (didp->namelist[j] == NULL && tidp->instlist[i] == didp->instlist[j]) {
 		    /* delete old instance */
 		    if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
 			fprintf(stderr, "[-] del from [%d] inst %d \"%s\"\n", j, didp->instlist[j], didp->namelist[j]);
@@ -1287,7 +1282,7 @@ __pmLogUndeltaInDom(pmInDom indom,__pmLogInDom *idp)
 		    j++;
 		    continue;
 		}
-		else if (didp->instlist[j] > 0 && tidp->instlist[i] > didp->instlist[j]) {
+		else if (didp->namelist[j] != NULL && tidp->instlist[i] > didp->instlist[j]) {
 		    /* add new instance in correct sorted position */
 		    if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
 			fprintf(stderr, "[%d] add from [%d] inst %d \"%s\"\n", k, j, didp->instlist[j], didp->namelist[j]);

@@ -2237,23 +2237,23 @@ STAMP-2 InDom: 29.12 14 instances
    19 or "0019 /usr/bin/jojo"
    20 or "0020 /usr/local/koko"
 STAMP-3 InDom: 29.12 delta 1 instances
-   del -10
+   del 10
 STAMP-4 InDom: 29.12 delta 2 instances
-   del -16
-   del -18
+   del 16
+   del 18
 STAMP-5 InDom: 29.12 delta 2 instances
-   del -19
+   del 19
    add 21 or "0021 /usr/opt/bin/lala"
 STAMP-6 InDom: 29.12 delta 1 instances
-   del -8
+   del 8
 STAMP-7 InDom: 29.12 delta 1 instances
    add 22 or "0022 /etc/bozo"
 STAMP-9 InDom: 29.12 delta 1 instances
-   del -14
+   del 14
 STAMP-10 InDom: 29.12 delta 1 instances
-   del -5
+   del 5
 STAMP-12 InDom: 29.12 delta 2 instances
-   del -15
+   del 15
    add 23 or "0023 /usr/bin/bobo"
 STAMP-14 InDom: 29.12 delta 2 instances
    add 24 or "0024 /usr/local/jester"
@@ -2261,10 +2261,10 @@ STAMP-14 InDom: 29.12 delta 2 instances
 STAMP-17 InDom: 29.12 delta 1 instances
    add 26 or "0026 /etc/pierrot"
 STAMP-19 InDom: 29.12 delta 3 instances
-   del -26
+   del 26
    add 27 or "0027 /usr/bin/waldo"
    add 28 or "0028 /usr/local/yobo"
 STAMP-21 InDom: 29.12 delta 3 instances
-   del -25
+   del 25
    add 29 or "0029 /usr/opt/bin/jojo"
    add 30 or "0030 /etc/koko"

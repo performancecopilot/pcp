@@ -251,7 +251,7 @@ do_indom(__int32_t *buf, int type)
 	    unpack_indom(dp, &in);
 	    if (type == TYPE_INDOM_DELTA) {
 		for (d = 0; d < dp->numinst; d++) {
-		    if (dp->inst[d] < 0)
+		    if (dp->iname[d] == NULL)
 			printf("  inst %d: delta dropped\n", -dp->inst[d]);
 		    else
 			printf("  inst %d: delta added (\"%s\")\n", dp->inst[d], dp->iname[d]);

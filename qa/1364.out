@@ -280,21 +280,21 @@ TIMESTAMP InDom: 29.12 delta 1 instances
 TIMESTAMP InDom: 29.12 delta 1 instances
    add 10 or "0010 /etc/koko"
 TIMESTAMP InDom: 29.12 delta 3 instances
-   del -7
+   del 7
    add 11 or "0011 /usr/bin/lala"
    add 12 or "0012 /usr/local/bozo"
 TIMESTAMP InDom: 29.12 delta 3 instances
-   del -12
+   del 12
    add 13 or "0013 /usr/opt/bin/bobo"
    add 14 or "0014 /etc/jester"
 TIMESTAMP InDom: 29.12 delta 2 instances
-   del -11
+   del 11
    add 15 or "0015 /usr/bin/loko"
 TIMESTAMP InDom: 29.12 delta 2 instances
    add 16 or "0016 /usr/local/pierrot"
    add 17 or "0017 /usr/opt/bin/waldo"
 TIMESTAMP InDom: 29.12 delta 2 instances
-   del -6
+   del 6
    add 18 or "0018 /etc/yobo"
 
 Instance Domains in the Log ...
@@ -542,19 +542,19 @@ TIMESTAMP 14 instances
 > TIMESTAMP InDom: 29.12 delta 1 instances
 >    add 10 or "0010 /etc/koko"
 > TIMESTAMP InDom: 29.12 delta 3 instances
->    del -7
+>    del 7
 >    add 11 or "0011 /usr/bin/lala"
 >    add 12 or "0012 /usr/local/bozo"
 > TIMESTAMP InDom: 29.12 delta 3 instances
->    del -12
+>    del 12
 >    add 13 or "0013 /usr/opt/bin/bobo"
 >    add 14 or "0014 /etc/jester"
 > TIMESTAMP InDom: 29.12 delta 2 instances
->    del -11
+>    del 11
 >    add 15 or "0015 /usr/bin/loko"
 > TIMESTAMP InDom: 29.12 delta 2 instances
 >    add 16 or "0016 /usr/local/pierrot"
 >    add 17 or "0017 /usr/opt/bin/waldo"
 > TIMESTAMP InDom: 29.12 delta 2 instances
->    del -6
+>    del 6
 >    add 18 or "0018 /etc/yobo"

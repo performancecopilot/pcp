@@ -418,7 +418,7 @@ typedef struct pmProfile {
 
 /*
  * Result structure for instance domain queries
- * Only the PMDAs and pmcd need to know about this.
+ * Only the PMDAs, pmcd and libpcp_archive clients need to know about this.
  */
 typedef struct pmInResult {
     pmInDom	indom;		/* instance domain */

@@ -150,7 +150,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
 	}
 	else {
 	    /* deleted instance for TYPE_INDOM_DELTA */
-	    stridx[i] = -1;
+	    stridx[i] = htonl(-1);
 	}
     }
 
@@ -290,7 +290,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	for (i = 0; i < inp->numinst; i++) {
 	    inp->instlist[i] = ntohl(inp->instlist[i]);
 	    idx = ntohl(stridx[i]);
-	    if (inp->instlist[i] >= 0 && idx >= 0) {
+	    if (idx >= 0) {
 		if (acp != NULL) {
 		    /*
 		     * crude sanity check ... if the index points to the
@@ -316,7 +316,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 		if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
 		    fprintf(stderr, "inst[%d] %d or \"%s\" (idx=%d)\n", i, inp->instlist[i], inp->namelist[i], idx);
 	    }
-	    else if (type == TYPE_INDOM_DELTA && inp->instlist[i] < 0) {
+	    else if (type == TYPE_INDOM_DELTA && idx == -1) {
 		inp->namelist[i] = NULL;
 		if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
 		    fprintf(stderr, "inst[%d] %d (delta indom)\n", i, inp->instlist[i]);
