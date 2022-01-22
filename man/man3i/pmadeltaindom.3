@@ -1,0 +1,139 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMADELTAINDOM 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmaDeltaInDom\f1 \- generate a ``delta indom'' if two observations of an instance domain are different
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/archive.h>
+.sp
+void pmaDeltaInDom(pmInResult *\fIold\fP, pmInResult *\fInew\fP, pmInResult *\fInew_delta\fP);
+.sp
+cc ... \-lpcp_archive \-lpcp
+.ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and they may not work, or may provide
+different semantics at some point in the future.
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\fR\\$2
+.el \fI\\$1\fR\\$2
+..
+Checks if two observations of the same instance domain are identical, and
+if they are
+.BR not ,
+tries to generate a ``delta indom'' to describe the
+differences.
+.PP
+The code assumes (a)
+.IR old -> indom " == " new -> indom
+and (b) both the instance domains are sorted in ascending internal
+instance identifier sequence; see
+.BR pmaSortInDom (3)
+to see how to make the second condition true.
+.PP
+The ``delta indom'' format is only supported for V3 archives and it
+is the caller's responsibility to determine if calling
+.B pmaDeltaInDom
+is appropriate, rather than calling
+.B pmaSameInDom (3)
+which is the preferred method for V2 archives.
+.PP
+.B pmaDeltaInDom
+returns 0 if the
+.I old
+and
+.I new
+instance domains are the same.
+.PP
+A return value of 1 indicates that the instance domains are different
+and the ``delta indom'' format is
+.B not
+more efficient; in this case
+.I new_delta
+is not modified.
+.PP
+A return value of 2 indicates that the instance domains are different
+and
+.I new_delta
+has been set up to describe the ``delta indom'' encoding of the
+differences;  in this case the caller is responsible for freeing
+.IR new_delta -> instlist
+and
+.IR new_delta -> namelist.
+.PP
+The instance domains are considered different if any of the
+following hold:
+.IP 1. 4n
+.IR old -> numinst " != " new -> numinst
+.IP 2. 4n
+For some i,
+.IR old -> instlist [ i ] " != " new -> instlist [ i ]
+.IP 3. 4n
+For some i, the strings pointed to by
+.IR old -> namelist [ i ]
+and
+.IR new -> instlist [ i ]
+are not identical
+.SH DELTA INDOM FORMAT
+As for a regular instance domain,
+.IR new_delta -> numinst
+defines the number of instance specifications.
+.PP
+If
+.IR new_delta -> namelist [ i "] == NULL"
+then the instance identified by
+.IR new_delta -> instlist [ i ]
+has been
+.B deleted
+from the instance domain.
+.PP
+If
+.IR new_delta -> namelist [ i "] != NULL"
+then the instance identified by
+.IR new_delta -> instlist [ i ]
+has been
+.B added
+to the instance domain.
+.PP
+Because the ``delta indom'' is only likely to have short-term relevance
+to the caller, the
+.IR new_delta -> namelist [ i ]
+entries that are not NULL will point
+back into
+.IR old -> namelist [ j ]
+or
+.IR new -> namelist [ k ]
+and so
+.I old
+and
+.I new
+should not be freed until the caller has finished with
+.IR new_delta .
+.
+.SH DIAGNOSTICS
+None.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmaSortInDom (3)
+and
+.BR pmaSameInDom (3).
