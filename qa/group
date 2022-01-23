@@ -1058,7 +1058,7 @@ x11
 609 pmdumplog local
 610 libpcp local
 611 pmlogger pmdumplog local
-612 other local
+612 other local archive archive_v3
 613 pmdumplog local kernel
 614 pmns local
 615 pmlogsize local
@@ -1522,7 +1522,7 @@ x11
 1073 pmda.linux local kernel
 1074 threads valgrind local helgrind
 1075 pmlogrewrite valgrind local
-1076 pmlogcheck local archive
+1076 pmlogcheck local archive archive_v3
 1077 pmcd libpcp archive local kernel
 1078 pcp python pidstat local
 1079 pcp atop local

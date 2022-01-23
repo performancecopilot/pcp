@@ -266,7 +266,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
     else {
 	if (pmDebugOptions.logmeta)
 	    fprintf(stderr, "__pmLogLoadInDom: botch type=%d\n", type);
-	return -EINVAL;
+	goto bad;
     }
     if (inp->numinst > 0) {
 	k += inp->numinst;
@@ -289,6 +289,16 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	namebase = (char *)&lbuf[k];
 	for (i = 0; i < inp->numinst; i++) {
 	    inp->instlist[i] = ntohl(inp->instlist[i]);
+	    if (inp->instlist[i] < 0) {
+		/* bad internal instance identifier */
+		if (pmDebugOptions.logmeta) {
+		    char	strbuf[20];
+		    fprintf(stderr, "__pmLogLoadInDom: InDom: %s: instance[%d]: bad instance identifier (%d)\n", 
+			pmInDomStr_r(inp->indom, strbuf, sizeof(strbuf)),
+			i, inp->instlist[i]);
+		}
+		goto bad;
+	    }
 	    idx = ntohl(stridx[i]);
 	    if (idx >= 0) {
 		if (acp != NULL) {
@@ -304,12 +314,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 				pmInDomStr_r(inp->indom, strbuf, sizeof(strbuf)),
 				i, idx, max_idx);
 			}
-			free(lbuf);
-#if defined(HAVE_32BIT_PTR)
-#else
-			free(inp->namelist);
-#endif
-			return PM_ERR_LOGREC;
+			goto bad;
 		    }
 		}
 		inp->namelist[i] = &namebase[idx];
@@ -317,24 +322,20 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 		    fprintf(stderr, "inst[%d] %d or \"%s\" (idx=%d)\n", i, inp->instlist[i], inp->namelist[i], idx);
 	    }
 	    else if (type == TYPE_INDOM_DELTA && idx == -1) {
+		/* instance deleted ... */
 		inp->namelist[i] = NULL;
 		if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
 		    fprintf(stderr, "inst[%d] %d (delta indom)\n", i, inp->instlist[i]);
 	    }
 	    else {
+		/* NOT (TYPE_INDOM_DELTA and idx == -1) and idx < 0 */
 		if (pmDebugOptions.logmeta) {
 		    char	strbuf[20];
-		    fprintf(stderr, "__pmLogLoadInDom: InDom %s: instance[%d]: dodgey instance identifier (%d) and/or string index (%d)\n", 
+		    fprintf(stderr, "__pmLogLoadInDom: InDom: %s instance[%d]: bad string index (%d)\n",
 			pmInDomStr_r(inp->indom, strbuf, sizeof(strbuf)),
-			i, inp->instlist[i], idx);
+			i, idx);
 		}
-		if (acp != NULL)
-		    free(lbuf);
-#if defined(HAVE_32BIT_PTR)
-#else
-		free(inp->namelist);
-#endif
-		return PM_ERR_LOGREC;
+		goto bad;
 	    }
 	}
     }
@@ -351,4 +352,13 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	*buf = lbuf;
 
     return sts;
+
+bad:
+    if (acp != NULL)
+	free(lbuf);
+#if defined(HAVE_32BIT_PTR)
+#else
+    free(inp->namelist);
+#endif
+    return PM_ERR_LOGREC;
 }

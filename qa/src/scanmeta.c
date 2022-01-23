@@ -108,7 +108,7 @@ unpack_indom(elt_t *ep, pmInResult *inp)
 	}
 	for (j = 0; j < inp->numinst; j++) {
 	    ep->inst[j] = inp->instlist[j];
-	    if (ep->inst[j] >= 0) {
+	    if (inp->namelist[j] != NULL) {
 		ep->iname[j] = strdup(inp->namelist[j]);
 		if (ep->iname[j] == NULL) {
 		    fprintf(stderr, "Arrgh: iname[%d] malloc failed for indom %s\n", j, pmInDomStr(inp->indom));

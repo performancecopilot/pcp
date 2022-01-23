@@ -22,12 +22,12 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 
 === badarchives/badmeta-3 ===
-__pmLogLoadInDom: InDom 29.2: instance[0]: dodgey instance identifier (100) and/or string index (-1)
+__pmLogLoadInDom: InDom: 29.2 instance[0]: bad string index (-1)
 pmlogcheck: cannot open archive "badarchives/badmeta-3": Corrupted record in a PCP archive log
 Checking abandoned.
 
 === badarchives/badmeta-4 ===
-__pmLogLoadInDom: InDom 29.2: instance[8]: dodgey instance identifier (-1) and/or string index (64)
+__pmLogLoadInDom: InDom: 29.2: instance[8]: bad instance identifier (-1)
 pmlogcheck: cannot open archive "badarchives/badmeta-4": Corrupted record in a PCP archive log
 Checking abandoned.
 
