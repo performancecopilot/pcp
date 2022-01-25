@@ -797,5 +797,6 @@ PCP_3.36 {
 PCP_3.37 {
   global:
     __pmLogUndeltaInDom;
+    __pmLogSearchInDom;
 } PCP_3.36;
 

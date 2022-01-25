@@ -1277,7 +1277,7 @@ __pmLogUndeltaInDom(pmInDom indom,__pmLogInDom *idp)
 		if (didp->namelist[j] == NULL && tidp->instlist[i] == didp->instlist[j]) {
 		    /* delete old instance */
 		    if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
-			fprintf(stderr, "[-] del from [%d] inst %d \"%s\"\n", j, didp->instlist[j], didp->namelist[j]);
+			fprintf(stderr, "[-] del from [%d] inst %d \"%s\"\n", j, tidp->instlist[i], tidp->namelist[i]);
 		    i++;
 		    j++;
 		    continue;
@@ -1332,15 +1332,19 @@ __pmLogUndeltaInDom(pmInDom indom,__pmLogInDom *idp)
     }
 }
 
-static __pmLogInDom *
-searchindom(__pmLogCtl *lcp, pmInDom indom, __pmTimestamp *tsp)
+/*
+ * Internal InDom search for archives ... returns pointer to the
+ * __pmLogInDom if found
+ */
+__pmLogInDom *
+__pmLogSearchInDom(__pmLogCtl *lcp, pmInDom indom, __pmTimestamp *tsp)
 {
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
 
     if (pmDebugOptions.logmeta) {
 	char	strbuf[20];
-	fprintf(stderr, "searchindom( ..., %s, ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
+	fprintf(stderr, "__pmLogSearchInDom( ..., %s, ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
 	StrTimestamp(tsp);
 	fprintf(stderr, ")\n");
     }
@@ -1388,7 +1392,7 @@ int
 __pmLogGetInDom(__pmArchCtl *acp, pmInDom indom, __pmTimestamp *tsp, int **instlist, char ***namelist)
 {
     __pmLogCtl		*lcp = acp->ac_log;
-    __pmLogInDom	*idp = searchindom(lcp, indom, tsp);
+    __pmLogInDom	*idp = __pmLogSearchInDom(lcp, indom, tsp);
 
     if (idp == NULL)
 	return PM_ERR_INDOM_LOG;
@@ -1404,7 +1408,7 @@ __pmLogLookupInDom(__pmArchCtl *acp, pmInDom indom, __pmTimestamp *tsp,
 		   const char *name)
 {
     __pmLogCtl		*lcp = acp->ac_log;
-    __pmLogInDom	*idp = searchindom(lcp, indom, tsp);
+    __pmLogInDom	*idp = __pmLogSearchInDom(lcp, indom, tsp);
     int			i;
 
     if (idp == NULL)
@@ -1437,7 +1441,7 @@ int
 __pmLogNameInDom(__pmArchCtl *acp, pmInDom indom, __pmTimestamp *tsp, int inst, char **name)
 {
     __pmLogCtl		*lcp = acp->ac_log;
-    __pmLogInDom	*idp = searchindom(lcp, indom, tsp);
+    __pmLogInDom	*idp = __pmLogSearchInDom(lcp, indom, tsp);
     int			i;
 
     if (idp == NULL)

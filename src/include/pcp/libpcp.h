@@ -929,6 +929,7 @@ PCP_CALL extern int __pmLogLoadMeta(__pmArchCtl *);
 PCP_CALL extern int __pmLogAddDesc(__pmArchCtl *, const pmDesc *);
 PCP_CALL extern int __pmLogAddInDom(__pmArchCtl *, const __pmTimestamp *, int, const pmInResult *, __int32_t *, int);
 PCP_CALL extern void __pmLogUndeltaInDom(pmInDom, __pmLogInDom *);
+PCP_CALL extern __pmLogInDom *__pmLogSearchInDom(__pmLogCtl *, pmInDom, __pmTimestamp *);
 PCP_CALL extern int __pmLogAddPMNSNode(__pmArchCtl *, pmID, const char *);
 PCP_CALL extern int __pmLogAddLabelSets(__pmArchCtl *, const __pmTimestamp *, unsigned int, unsigned int, int, pmLabelSet *);
 PCP_CALL extern int __pmLogAddText(__pmArchCtl *, unsigned int, unsigned int, const char *);
