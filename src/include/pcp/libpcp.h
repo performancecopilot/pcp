@@ -871,6 +871,18 @@ typedef struct {
 } __pmLogTrimInDom;
 
 /*
+ * Instance domain for internal use ... especially when packing/unpacking
+ * delta indom records from an archive
+ */
+typedef struct {
+    __pmTimestamp	stamp;		/* when */
+    pmInDom		indom;		/* instance domain */
+    int			numinst;	/* number of instances */
+    int			*instlist;	/* instance ids */
+    char		**namelist;	/* instance names */
+} __pmLogInDom_int;
+
+/*
  * Nested per-instance trimming control (potentially one of these for
  * _every_ instance in _every_ "large" indom), accessed as a hash using
  * the internal instance identifier as the key from hashinst.
@@ -928,8 +940,9 @@ PCP_CALL extern int __pmLogWriteLabel(__pmFILE *, const __pmLogLabel *);
 PCP_CALL extern int __pmLogLoadMeta(__pmArchCtl *);
 PCP_CALL extern int __pmLogAddDesc(__pmArchCtl *, const pmDesc *);
 PCP_CALL extern int __pmLogAddInDom(__pmArchCtl *, const __pmTimestamp *, int, const pmInResult *, __int32_t *, int);
-PCP_CALL extern void __pmLogUndeltaInDom(pmInDom, __pmLogInDom *);
+PCP_CALL extern int __pmLogEncodeInDom(__pmLogCtl *, int, const __pmLogInDom_int * const, __int32_t **);
 PCP_CALL extern __pmLogInDom *__pmLogSearchInDom(__pmLogCtl *, pmInDom, __pmTimestamp *);
+PCP_CALL extern void __pmLogUndeltaInDom(pmInDom, __pmLogInDom *);
 PCP_CALL extern int __pmLogAddPMNSNode(__pmArchCtl *, pmID, const char *);
 PCP_CALL extern int __pmLogAddLabelSets(__pmArchCtl *, const __pmTimestamp *, unsigned int, unsigned int, int, pmLabelSet *);
 PCP_CALL extern int __pmLogAddText(__pmArchCtl *, unsigned int, unsigned int, const char *);
