@@ -479,17 +479,17 @@ __pmLogLoadMeta: PMID: 60.0.10 name: swap.in
 pmGetInDomArchive(PM_INDOM_NULL) -> Unknown or illegal instance domain identifier
 pmLookupInDomArchive(PM_INDOM_NULL, foobar) -> Unknown or illegal instance domain identifier
 pmNameInDomArchive(PM_INDOM_NULL, 1234567) -> Unknown or illegal instance domain identifier
-searchindom( ..., PM_INDOM_NULL, TIMESTAMP)
+__pmLogSearchInDom( ..., PM_INDOM_NULL, TIMESTAMP)
 __pmLogGetInDom(PM_INDOM_NULL) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., PM_INDOM_NULL, TIMESTAMP)
+__pmLogSearchInDom( ..., PM_INDOM_NULL, TIMESTAMP)
 __pmLogLookupInDom(PM_INDOM_NULL, foobar) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., PM_INDOM_NULL, TIMESTAMP)
+__pmLogSearchInDom( ..., PM_INDOM_NULL, TIMESTAMP)
 __pmLogNameInDom(PM_INDOM_NULL, 1234567) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., PM_INDOM_NULL, TIMESTAMP)
+__pmLogSearchInDom( ..., PM_INDOM_NULL, TIMESTAMP)
 __pmLogGetInDom(PM_INDOM_NULL) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., PM_INDOM_NULL, TIMESTAMP)
+__pmLogSearchInDom( ..., PM_INDOM_NULL, TIMESTAMP)
 __pmLogLookupInDom(PM_INDOM_NULL, foobar) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., PM_INDOM_NULL, TIMESTAMP)
+__pmLogSearchInDom( ..., PM_INDOM_NULL, TIMESTAMP)
 __pmLogNameInDom(PM_INDOM_NULL, 1234567) -> Instance domain identifier not defined in the PCP archive log
 pmGetInDomArchive(60.2) -> 3
    [1] 1 minute
@@ -500,43 +500,43 @@ pmLookupInDomArchive(60.2, 1 minute) -> 1
 pmLookupInDomArchive(60.2, 1) -> 1
 pmNameInDomArchive(60.2, 1234567) -> Instance identifier not defined in the PCP archive log
 pmNameInDomArchive(60.2, 1) -> 1 minute
-searchindom( ..., 60.2, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 request @ 08:48:29.436806000 is too early for indom @ 08:48:34.052818000
 __pmLogGetInDom(60.2) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.2, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 request @ 08:48:29.436806000 is too early for indom @ 08:48:34.052818000
 __pmLogLookupInDom(60.2, foobar) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.2, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 request @ 08:48:29.436806000 is too early for indom @ 08:48:34.052818000
 __pmLogLookupInDom(60.2, 1 minute) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.2, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 request @ 08:48:29.436806000 is too early for indom @ 08:48:34.052818000
 __pmLogLookupInDom(60.2, 1) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.2, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 request @ 08:48:29.436806000 is too early for indom @ 08:48:34.052818000
 __pmLogNameInDom(60.2, 1234567) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.2, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 request @ 08:48:29.436806000 is too early for indom @ 08:48:34.052818000
 __pmLogNameInDom(60.2, 1) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.2, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 success for indom @ 08:48:34.052818000
 __pmLogGetInDom(60.2) -> 3
    [1] 1 minute
    [5] 5 minute
    [15] 15 minute
-searchindom( ..., 60.2, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 success for indom @ 08:48:34.052818000
 __pmLogLookupInDom(60.2, foobar) -> Instance identifier not defined in the PCP archive log
-searchindom( ..., 60.2, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 success for indom @ 08:48:34.052818000
 __pmLogLookupInDom(60.2, 1 minute) -> 1
-searchindom( ..., 60.2, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 success for indom @ 08:48:34.052818000
 __pmLogLookupInDom(60.2, 1) -> 1
-searchindom( ..., 60.2, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 success for indom @ 08:48:34.052818000
 __pmLogNameInDom(60.2, 1234567) -> Instance identifier not defined in the PCP archive log
-searchindom( ..., 60.2, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.2, TIMESTAMP)
 success for indom @ 08:48:34.052818000
 __pmLogNameInDom(60.2, 1) -> 1 minute
 pmGetInDomArchive(60.123) -> Instance domain identifier not defined in the PCP archive log
@@ -545,27 +545,27 @@ pmLookupInDomArchive(60.123, 1 minute) -> Instance domain identifier not defined
 pmLookupInDomArchive(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
 pmNameInDomArchive(60.123, 1234567) -> Instance domain identifier not defined in the PCP archive log
 pmNameInDomArchive(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.123, TIMESTAMP)
 __pmLogGetInDom(60.123) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.123, TIMESTAMP)
 __pmLogLookupInDom(60.123, foobar) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.123, TIMESTAMP)
 __pmLogLookupInDom(60.123, 1 minute) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.123, TIMESTAMP)
 __pmLogLookupInDom(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.123, TIMESTAMP)
 __pmLogNameInDom(60.123, 1234567) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.123, TIMESTAMP)
 __pmLogNameInDom(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.123, TIMESTAMP)
 __pmLogGetInDom(60.123) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.123, TIMESTAMP)
 __pmLogLookupInDom(60.123, foobar) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.123, TIMESTAMP)
 __pmLogLookupInDom(60.123, 1 minute) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.123, TIMESTAMP)
 __pmLogLookupInDom(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.123, TIMESTAMP)
 __pmLogNameInDom(60.123, 1234567) -> Instance domain identifier not defined in the PCP archive log
-searchindom( ..., 60.123, TIMESTAMP)
+__pmLogSearchInDom( ..., 60.123, TIMESTAMP)
 __pmLogNameInDom(60.123, 1) -> Instance domain identifier not defined in the PCP archive log
