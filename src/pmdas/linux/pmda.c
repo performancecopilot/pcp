@@ -9279,25 +9279,25 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return 0;
 	    switch (item) {
 	    case TTY_TX:
-		atom->ull = ttydev->tx; /* tty.serial.tx */
+		atom->ul = ttydev->tx; /* tty.serial.tx */
 		break;
 	    case TTY_RX:
-		atom->ull = ttydev->rx; /* tty.serial.rx */
+		atom->ul = ttydev->rx; /* tty.serial.rx */
 		break;
 	    case TTY_FRAME:
-		atom->ull = ttydev->frame; /* tty.serial.frame */
+		atom->ul = ttydev->frame; /* tty.serial.frame */
 		break;
 	    case TTY_PARITY:
-		atom->ull = ttydev->parity; /* tty.serial.parity */
+		atom->ul = ttydev->parity; /* tty.serial.parity */
 		break;
 	    case TTY_BRK:
-		atom->ull = ttydev->brk; /* tty.serial.brk */
+		atom->ul = ttydev->brk; /* tty.serial.brk */
 		break;
 	    case TTY_OVERRUN:
-		atom->ull = ttydev->overrun; /* tty.serial.overrun */
+		atom->ul = ttydev->overrun; /* tty.serial.overrun */
 		break;
 	    case TTY_IRQ:
-		atom->ull = ttydev->irq; /* tty.serial.irq */
+		atom->ul = ttydev->irq; /* tty.serial.irq */
 		break;
 
 	    default:
