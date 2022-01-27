@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2013,2017-2018 Red Hat.
+ * Copyright (c) 2013,2017-2018,2022 Red Hat.
  * Copyright (c) 1995-2000 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -39,6 +39,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
     pmID		pmid;
     pmDesc		desc;
     int			npmids;
+    int			pinpdu;
     pmID		*pmidlist;
     char		**namelist = NULL;
     char		*name;
@@ -48,7 +49,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
     pmResult		*result;
     int			ctxnum;
     int			length;
-    pmTimeval		when;
+    pmTimeval		unused;
     int			ident;
     int			type;
     pmInDom		indom;
@@ -58,10 +59,10 @@ __pmdaMainPDU(pmdaInterface *dispatch)
     pmLabelSet		*labels = NULL;
     char		*buffer;
     pmProfile  		*new_profile;
-    static pmProfile	*profile = NULL;
+    static pmProfile	*profile;
     static int		first_time = 1;
-    static pmdaExt	*pmda = NULL;
-    int			pinpdu;
+    static pmdaExt	*pmda;
+    static __pmResult	*rp;
 
     /* Initial version checks */
     if (first_time) {
@@ -170,11 +171,36 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	 * can ignore ctxnum, since pmcd has already used this to send
 	 * the correct profile, if required
 	 */
-	sts = __pmDecodeFetch(pb, &ctxnum, &when, &npmids, &pmidlist);
+	sts = __pmDecodeFetch(pb, &ctxnum, &unused, &npmids, &pmidlist);
 	if (sts >= 0) {
 	    sts = dispatch->version.any.fetch(npmids, pmidlist, &result, pmda);
 	    __pmUnpinPDUBuf(pmidlist);
 	}
+
+	/*
+	 * Highwater mark sized __pmResult for PDU handling routines;
+	 * the PMDA fetch interface continues to use the original
+	 * pmResult structure for backward compatibility - this is OK
+	 * because individual PMDAs do not set the fetch timestamps.
+	 */
+	if (sts >= 0 && (rp == NULL || npmids > rp->numpmid)) {
+	    if (rp) {
+		rp->numpmid = 0;
+		__pmFreeResult(rp);
+	    }
+	    if ((rp = __pmAllocResult(npmids)) == NULL) {
+		sts = -ENOMEM;
+		psts = __pmSendError(pmda->e_outfd, FROM_ANON, sts);
+		if (psts < 0) {
+		    pmNotifyErr(LOG_DEBUG, "__pmSendError(%d,...,%d) ACK failed:%s\n",
+			    pmda->e_outfd, sts, pmErrStr(psts));
+		}
+		break;
+	    }
+	    memset(&rp->timestamp, 0, sizeof(rp->timestamp));
+	    rp->numpmid = npmids;
+	}
+
 	if (sts < 0) {
 	    psts = __pmSendError(pmda->e_outfd, FROM_ANON, sts);
 	    if (psts < 0) {
@@ -182,7 +208,14 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 			pmda->e_outfd, sts, pmErrStr(psts));
 	    }
 	} else {
-	    psts = __pmSendResult(pmda->e_outfd, FROM_ANON, result);
+	    int	i;
+
+	    rp->timestamp.sec = result->timestamp.tv_sec; /* changed state */
+	    for (i = 0; i < result->numpmid; i++)
+		rp->vset[i] = result->vset[i];
+	    rp->numpmid = result->numpmid;
+
+	    psts = __pmSendResult(pmda->e_outfd, FROM_ANON, rp);
 	    if (psts < 0) {
 		pmNotifyErr(LOG_DEBUG, "__pmSendResult(%d,...) failed: %s\n",
 			pmda->e_outfd, pmErrStr(psts));
@@ -433,10 +466,13 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	if (pmDebugOptions.libpmda)
 	    pmNotifyErr(LOG_DEBUG, "Received PDU_RESULT\n");
 
-	if ((sts = __pmDecodeResult(pb, &result)) >= 0)
-	    sts = dispatch->version.any.store(result, pmda);
+	if (rp) {
+	    rp->numpmid = 0;
+	    __pmFreeResult(rp);
+	}
+	if ((sts = __pmDecodeResult(pb, &rp)) >= 0)
+	    sts = dispatch->version.any.store(__pmOffsetResult(rp), pmda);
 	__pmSendError(pmda->e_outfd, FROM_ANON, sts);
-	pmFreeResult(result);
 	break;
 
     case PDU_CONTROL_REQ:

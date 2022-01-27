@@ -1,7 +1,7 @@
 /*
  * General Utility Routines
  *
- * Copyright (c) 2012-2018,2021 Red Hat.
+ * Copyright (c) 2012-2018,2021-2022 Red Hat.
  * Copyright (c) 2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -833,7 +833,6 @@ void
 __pmPrintResult_ctx(__pmContext *ctxp, FILE *f, const __pmResult *resp)
 {
     int		i;
-    struct timespec ts;
 
     if (ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
@@ -841,9 +840,7 @@ __pmPrintResult_ctx(__pmContext *ctxp, FILE *f, const __pmResult *resp)
     save_debug();
     fprintf(f, "__pmResult dump from " PRINTF_P_PFX "%p timestamp: %" FMT_INT64 ".%06d ",
 	resp, resp->timestamp.sec, resp->timestamp.nsec);
-    ts.tv_sec = resp->timestamp.sec;
-    ts.tv_nsec = resp->timestamp.nsec;
-    pmPrintHighResStamp(f, &ts);
+    __pmPrintTimestamp(f, &resp->timestamp);
     fprintf(f, " numpmid: %d\n", resp->numpmid);
     for (i = 0; i < resp->numpmid; i++)
 	dump_valueset(ctxp, f, resp->vset[i]);
@@ -866,8 +863,10 @@ __pmDumpHighResResult_ctx(__pmContext *ctxp, FILE *f, const pmHighResResult *hre
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     save_debug();
-    fprintf(f, "pmHighResResult dump from " PRINTF_P_PFX "%p timestamp: %d.%09d ",
-	hresp, (int)hresp->timestamp.tv_sec, (int)hresp->timestamp.tv_nsec);
+    fprintf(f, "%s dump from " PRINTF_P_PFX "%p timestamp: %lld.%09lld ",
+	    "pmHighResResult", hresp,
+	    (long long)hresp->timestamp.tv_sec,
+	    (long long)hresp->timestamp.tv_nsec);
     pmPrintHighResStamp(f, &hresp->timestamp);
     fprintf(f, " numpmid: %d\n", hresp->numpmid);
     for (i = 0; i < hresp->numpmid; i++)
@@ -879,7 +878,6 @@ void
 __pmDumpHighResResult(FILE *f, const pmHighResResult *hresp)
 {
     __pmDumpHighResResult_ctx(NULL, f, hresp);
-
 }
 
 static void
@@ -1231,6 +1229,19 @@ int
 pmtimespecNow(struct timespec *ts)
 {
     return __pmGetTimespec(ts);
+}
+
+int
+__pmGetTimestamp(__pmTimestamp *timestamp)
+{
+    struct timespec ts;
+    int sts;
+
+    if ((sts = pmtimespecNow(&ts)) < 0)
+	return sts;
+    timestamp->sec = ts.tv_sec;
+    timestamp->nsec = ts.tv_nsec;
+    return sts;
 }
 
 /*
@@ -1981,7 +1992,7 @@ __pmSetClientId(const char *id)
     const char		*name = "pmcd.client.whoami";
     pmID		pmid;
     int			sts;
-    pmResult		store;
+    __pmResult		store;
     pmValueSet		pmvs;
     pmValueBlock	*pmvb;
     char        	host[MAXHOSTNAMELEN];

@@ -56,29 +56,29 @@ Temporal Index
 00:00:06.000000000	      0          659          904
 
 [40 bytes]
-00:00:01.000000 1 metric
+00:00:01.000000000 1 metric
     30.0.10 (sampledso.long.one): value 1
 
 [72 bytes]
-00:00:02.000000 2 metrics
+00:00:02.000000000 2 metrics
     30.0.10 (sampledso.long.one): value 1
     30.0.98 (sampledso.ulonglong.one): value 1
 
 [100 bytes]
-00:00:03.000000 3 metrics
+00:00:03.000000000 3 metrics
     30.0.10 (sampledso.long.one): value 1
     30.0.98 (sampledso.ulonglong.one): value 1
     30.0.15 (sampledso.float.one): value 1
 
 [132 bytes]
-00:00:04.000000 4 metrics
+00:00:04.000000000 4 metrics
     30.0.10 (sampledso.long.one): value 1
     30.0.98 (sampledso.ulonglong.one): value 1
     30.0.15 (sampledso.float.one): value 1
     30.0.25 (sampledso.double.one): value 1
 
 [172 bytes]
-00:00:05.000000 5 metrics
+00:00:05.000000000 5 metrics
     30.0.10 (sampledso.long.one): value 1
     30.0.98 (sampledso.ulonglong.one): value 1
     30.0.15 (sampledso.float.one): value 1
@@ -86,7 +86,7 @@ Temporal Index
     30.0.31 (sampledso.string.hullo): value "hullo world!"
 
 [256 bytes]
-00:00:06.000000 6 metrics
+00:00:06.000000000 6 metrics
     30.0.10 (sampledso.long.one): value 1
     30.0.98 (sampledso.ulonglong.one): value 1
     30.0.15 (sampledso.float.one): value 1
@@ -160,29 +160,29 @@ Temporal Index
 00:00:06.000000000	      0          659          904
 
 [40 bytes]
-00:00:01.000000 1 metric
+00:00:01.000000000 1 metric
     30.0.10 (sampledso.long.one): value 1
 
 [72 bytes]
-00:00:02.000000 2 metrics
+00:00:02.000000000 2 metrics
     30.0.10 (sampledso.long.one): value 1
     30.0.98 (sampledso.ulonglong.one): value 1
 
 [100 bytes]
-00:00:03.000000 3 metrics
+00:00:03.000000000 3 metrics
     30.0.10 (sampledso.long.one): value 1
     30.0.98 (sampledso.ulonglong.one): value 1
     30.0.15 (sampledso.float.one): value 1
 
 [132 bytes]
-00:00:04.000000 4 metrics
+00:00:04.000000000 4 metrics
     30.0.10 (sampledso.long.one): value 1
     30.0.98 (sampledso.ulonglong.one): value 1
     30.0.15 (sampledso.float.one): value 1
     30.0.25 (sampledso.double.one): value 1
 
 [172 bytes]
-00:00:05.000000 5 metrics
+00:00:05.000000000 5 metrics
     30.0.10 (sampledso.long.one): value 1
     30.0.98 (sampledso.ulonglong.one): value 1
     30.0.15 (sampledso.float.one): value 1
@@ -190,7 +190,7 @@ Temporal Index
     30.0.31 (sampledso.string.hullo): value "hullo world!"
 
 [256 bytes]
-00:00:06.000000 6 metrics
+00:00:06.000000000 6 metrics
     30.0.10 (sampledso.long.one): value 1
     30.0.98 (sampledso.ulonglong.one): value 1
     30.0.15 (sampledso.float.one): value 1

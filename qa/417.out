@@ -299,7 +299,7 @@ pmdumplog: pmFetch: Corrupted record in a PCP archive log
 Note: timezone set to local timezone of host "moomba" from archive
 
 
-16:02:31.554564 20 metrics
+16:02:31.554564000 20 metrics
     1.80.7 (irix.disk.dev.total):
         inst [131329 or "dks1d1"] value 2818602300
         inst [131330 or "dks1d2"] value 2818572381

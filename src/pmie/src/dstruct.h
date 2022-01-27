@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2013-2015,2020 Red Hat.
+ * Copyright (c) 2013-2015,2020,2022 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -215,7 +215,7 @@ typedef struct task {
     int		  nrules;	/* number of rules in this task */
     Symbol	  *rules;	/* array of rules to be evaluated */
     Host          *hosts;	/* fetches to be executed and waiting */
-    pmResult	  *rslt;	/* for secret agent mode */
+    __pmResult	  *rslt;	/* for secret agent mode */
 } Task;
 
 /* value semantics - as in pmDesc plus following */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013,2017 Red Hat.
+ * Copyright (c) 2013,2017,2022 Red Hat.
  * Copyright (c) 1995,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -403,9 +403,9 @@ dopmda(int pdu)
     int			sts;
     pmDesc		desc;
     pmDesc		*desc_list = NULL;
-    pmResult		*result = NULL;
+    __pmResult		*result = NULL;
     pmLabelSet		*labelset = NULL;
-    pmInResult	*inresult;
+    pmInResult		*inresult;
     __pmPDU		*pb;
     int			i;
     int			j;
@@ -465,10 +465,10 @@ dopmda(int pdu)
 		    if ((pinpdu = sts = __pmGetPDU(fromPMDA, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_RESULT) {
 			if ((sts = __pmDecodeResult(pb, &result)) >= 0) {
 			    if (desc_list) 
-				_dbDumpResult(stdout, result, desc_list);
+				_dbPrintResult(stdout, result, desc_list);
 			    else
-				__pmDumpResult(stdout, result);
-			    pmFreeResult(result);
+				__pmPrintResult(stdout, result);
+			    __pmFreeResult(result);
 			}
 			else
 			    printf("Error: __pmDecodeResult() failed: %s\n", pmErrStr(sts));
@@ -552,7 +552,7 @@ dopmda(int pdu)
 			printf("Error: __pmDecodeResult() failed: %s\n", 
 			       pmErrStr(lsts));
 		    else if (pmDebugOptions.fetch)
-			__pmDumpResult(stdout, result);
+			__pmPrintResult(stdout, result);
 		}
 		else if (sts == PDU_ERROR) {
 		    if ((ksts = __pmDecodeError(pb, &lsts)) >= 0)
@@ -580,15 +580,15 @@ dopmda(int pdu)
 		return;
 	    }
 
-	    if ((sts = fillResult(result, desc.type)) < 0) {
-		pmFreeResult(result);
+	    if ((sts = fillValues(result->vset[0], desc.type)) < 0) {
+		__pmFreeResult(result);
 		__pmUnpinPDUBuf(pb);
 		return;
 	    }
 
 	    printf("Sending Result...\n");
 	    sts = __pmSendResult(toPMDA, FROM_ANON, result);
-	    pmFreeResult(result);	
+	    __pmFreeResult(result);	
 	    __pmUnpinPDUBuf(pb);
 	    if (sts >= 0) {
 		if ((pinpdu = sts = __pmGetPDU(fromPMDA, ANY_SIZE, TIMEOUT_NEVER, 
@@ -889,12 +889,11 @@ dopmda(int pdu)
 }
 
 int
-fillResult(pmResult *result, int type)
+fillValues(pmValueSet *vsp, int type)
 {
     int		i;
     int		sts = 0;
     pmAtomValue	atom;
-    pmValueSet	*vsp;
     char	*endbuf = NULL;
 
     switch(type) {
@@ -946,8 +945,6 @@ fillResult(pmResult *result, int type)
     }
 
     if (sts >= 0) {
-	vsp = result->vset[0];
-
 	if (vsp->numval == 0) {
 	    printf("Error: %s not available!\n", pmIDStr(param.pmid));
 	    sts = PM_ERR_VALUE;

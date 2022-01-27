@@ -32,8 +32,9 @@ main(int argc, char **argv)
     char	**inamelist;
     int		numpmid = 0;
     int		default_metrics = 0;
-    pmResult	*req;
-    pmResult	*status;
+    __pmResult	*req;
+    __pmResult	*status;
+    pmResult	*result;
     pmDesc	desc;
 
     pmSetProgname(argv[0]);
@@ -157,7 +158,7 @@ Options\n\
 	exit(1);
     }
 
-    if ((sts = pmFetch(numpmid, pmidlist, &req)) < 0) {
+    if ((sts = __pmFetch(NULL, numpmid, pmidlist, &req)) < 0) {
 	printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -167,19 +168,19 @@ Options\n\
 	exit(1);
     }
 
-    __pmDumpResult(stdout, req);
+    __pmPrintResult(stdout, req);
 
     printf("\nbase store test (failures not unexpected) ...\n");
-    if ((sts = pmStore(req)) < 0)
+    if ((sts = pmStore(__pmOffsetResult(req))) < 0)
 	printf("pmStore: %s\n", pmErrStr(sts));
     else
 	printf("pmStore: OK\n");
 
     printf("\nnumpmid == 0 tests (failures expected) ...\n");
     req->numpmid = 0;
-    __pmDumpResult(stdout, req);
+    __pmPrintResult(stdout, req);
 
-    if ((sts = pmStore(req)) < 0)
+    if ((sts = pmStore(__pmOffsetResult(req))) < 0)
 	printf("pmStore: %s\n", pmErrStr(sts));
     else
 	printf("pmStore: botch, PM_ERR_TOOSMALL expected\n");
@@ -187,16 +188,16 @@ Options\n\
 	printf("__pmControlLog: %s\n", pmErrStr(sts));
     else {
 	printf("__pmControlLog: OK\n");
-	__pmDumpResult(stdout, status);
-	pmFreeResult(status);
+	__pmPrintResult(stdout, status);
+	__pmFreeResult(status);
     }
 
     printf("\nnumval == 0 tests (failures expected) ...\n");
     req->numpmid = numpmid;
     req->vset[1]->numval = 0;
-    __pmDumpResult(stdout, req);
+    __pmPrintResult(stdout, req);
 
-    if ((sts = pmStore(req)) < 0)
+    if ((sts = pmStore(__pmOffsetResult(req))) < 0)
 	printf("pmStore: %s\n", pmErrStr(sts));
     else
 	printf("pmStore: botch, PM_ERR_VALUE expected\n");
@@ -204,16 +205,16 @@ Options\n\
 	printf("__pmControlLog: %s\n", pmErrStr(sts));
     else {
 	printf("__pmControlLog: OK\n");
-	__pmDumpResult(stdout, status);
-	pmFreeResult(status);
+	__pmPrintResult(stdout, status);
+	__pmFreeResult(status);
     }
 
     printf("\nnumval < 0 tests (failures expected) ...\n");
     req->vset[1]->numval = 1;
     req->vset[2]->numval = PM_ERR_NOAGENT;
-    __pmDumpResult(stdout, req);
+    __pmPrintResult(stdout, req);
 
-    if ((sts = pmStore(req)) < 0)
+    if ((sts = pmStore(__pmOffsetResult(req))) < 0)
 	printf("pmStore: %s\n", pmErrStr(sts));
     else
 	printf("pmStore: botch, PM_ERR_VALUE expected\n");
@@ -221,12 +222,12 @@ Options\n\
 	printf("__pmControlLog: %s\n", pmErrStr(sts));
     else {
 	printf("__pmControlLog: OK\n");
-	__pmDumpResult(stdout, status);
-	pmFreeResult(status);
+	__pmPrintResult(stdout, status);
+	__pmFreeResult(status);
     }
 
     /* exercise *.needprofile */
-    pmFreeResult(req);
+    __pmFreeResult(req);
 
     if (default_metrics) {
 	i = 0;
@@ -256,11 +257,11 @@ Options\n\
 	exit(1);
     }
 
-    if ((sts = pmFetch(numpmid, pmidlist, &req)) < 0) {
+    if ((sts = pmFetch(numpmid, pmidlist, &result)) < 0) {
 	printf("pmFetch: botch, %s\n", pmErrStr(sts));
 	exit(1);
     }
-    __pmDumpResult(stdout, req);
+    __pmDumpResult(stdout, result);
 
     if ((sts = pmLookupDesc(pmidlist[1], &desc)) < 0) {
 	fprintf(stderr, "pmLookupDesc: %s\n", pmErrStr(sts));
@@ -287,11 +288,11 @@ Options\n\
     free(instlist);
     free(inamelist);
 
-    if ((sts = pmFetch(numpmid, pmidlist, &req)) < 0) {
+    if ((sts = pmFetch(numpmid, pmidlist, &result)) < 0) {
 	printf("pmFetch: botch, %s\n", pmErrStr(sts));
 	exit(1);
     }
-    __pmDumpResult(stdout, req);
+    __pmDumpResult(stdout, result);
 
     exit(0);
 }

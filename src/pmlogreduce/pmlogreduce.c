@@ -1,7 +1,7 @@
 /*
  * pmlogreduce - statistical reduction of a PCP archive log
  *
- * Copyright (c) 2014,2017,2021 Red Hat.
+ * Copyright (c) 2014,2017,2021-2022 Red Hat.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -46,7 +46,7 @@
 /*
  * globals defined in pmlogreduce.h
  */
-pmTimeval	current;		/* most recent timestamp overall */
+__pmTimestamp	current;		/* most recent timestamp overall */
 char		*iname;			/* name of input archive */
 pmLogLabel	ilabel;			/* input archive label */
 int		numpmid;		/* all metrics from the input archive */
@@ -204,12 +204,11 @@ main(int argc, char **argv)
     int		sts;
     int		vers;
     char	*msg;
-    pmResult	*irp;		/* input pmResult */
-    pmResult	*orp;		/* output pmResult */
+    __pmResult	*irp;		/* input pmResult */
+    __pmResult	*orp;		/* output pmResult */
     __pmPDU	*pb;		/* pdu buffer */
     struct timeval	unused;
     unsigned long	peek_offset;
-    __pmTimestamp	stamp;
 
     /* no derived or anon metrics, please */
     __pmSetInternalState(PM_STATE_PMCS);
@@ -324,10 +323,8 @@ main(int argc, char **argv)
      *		- write labels
      */
     newlabel();
-    current.tv_sec = winstart_tval.tv_sec;
-    current.tv_usec = winstart_tval.tv_usec;
-    logctl.label.start.sec = winstart_tval.tv_sec;
-    logctl.label.start.nsec = winstart_tval.tv_usec * 1000;
+    current.sec = logctl.label.start.sec = winstart_tval.tv_sec;
+    current.nsec = logctl.label.start.nsec = winstart_tval.tv_usec * 1000;
     /* write label record */
     writelabel();
     /*
@@ -349,9 +346,7 @@ main(int argc, char **argv)
      * All the initial metadata has been generated, add timestamp
      */
     __pmFflush(logctl.mdfp);
-    stamp.sec = current.tv_sec;
-    stamp.nsec = current.tv_usec * 1000;
-    __pmLogPutIndex(&archctl, &stamp);
+    __pmLogPutIndex(&archctl, &current);
 
     written = 0;
 
@@ -367,22 +362,22 @@ main(int argc, char **argv)
 		    pmGetProgname(), iname, pmErrStr(sts));
 	    goto cleanup;
 	}
-	if ((sts = pmFetch(numpmid, pmidlist, &irp)) < 0) {
+	if ((sts = __pmFetch(NULL, numpmid, pmidlist, &irp)) < 0) {
 	    if (sts == PM_ERR_EOL)
 		break;
 	    fprintf(stderr,
 		"%s: Error: pmFetch failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
-	if (irp->timestamp.tv_sec > winend_tval.tv_sec ||
-	    (irp->timestamp.tv_sec == winend_tval.tv_sec &&
-	     irp->timestamp.tv_usec > winend_tval.tv_usec)) {
+	if (irp->timestamp.sec > winend_tval.tv_sec ||
+	    (irp->timestamp.sec == winend_tval.tv_sec &&
+	     irp->timestamp.nsec > winend_tval.tv_usec * 1000)) {
 	    /* past end time as per -T */
 	    break;
 	}
 	if (pmDebugOptions.appl2) {
 	    fprintf(stderr, "input record ...\n");
-	    __pmDumpResult(stderr, irp);
+	    __pmPrintResult(stderr, irp);
 	}
 
 	/*
@@ -407,17 +402,19 @@ main(int argc, char **argv)
 		fprintf(stderr, "output record ... none!\n");
 	    else {
 		fprintf(stderr, "output record ...\n");
-		__pmDumpResult(stderr, orp);
+		__pmPrintResult(stderr, orp);
 	    }
 	}
 	if (orp == NULL)
 	    goto next;
 
+	/* TODO: need version 3 archive support here */
+
 	/*
 	 * convert log record to a PDU, and enforce V2 encoding semantics,
 	 * then write it out
 	 */
-	sts = __pmEncodeResult(PDU_OVERRIDE2, orp, &pb);
+	sts = __pmEncodeResult(orp, &pb);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
@@ -427,27 +424,21 @@ main(int argc, char **argv)
 	/* switch volumes if required */
 	if (varg > 0) {
 	    if (written > 0 && (written % varg) == 0) {
-		__pmTimestamp	next_stamp;
-		next_stamp.sec = irp->timestamp.tv_sec;
-		next_stamp.nsec = irp->timestamp.tv_usec * 1000;
-		newvolume(oname, &next_stamp);
+		newvolume(oname, &irp->timestamp);
 	    }
 	}
 	/*
 	 * Even without a -v option, we may need to switch volumes
 	 * if the data file exceeds 2^31-1 bytes
 	 */
+	/* TODO: version 3 archive support */
 	peek_offset = __pmFtell(archctl.ac_mfp);
 	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
 	if (peek_offset > 0x7fffffff) {
-	    __pmTimestamp	next_stamp;
-	    next_stamp.sec = irp->timestamp.tv_sec;
-	    next_stamp.nsec = irp->timestamp.tv_usec * 1000;
-	    newvolume(oname, &next_stamp);
+	    newvolume(oname, &irp->timestamp);
 	}
 
-	current.tv_sec = orp->timestamp.tv_sec;
-	current.tv_usec = orp->timestamp.tv_usec;
+	current = orp->timestamp;
 
 	doindom(orp);
 
@@ -464,15 +455,13 @@ main(int argc, char **argv)
 	rewrite_free();
 
 next:
-	pmFreeResult(irp);
+	__pmFreeResult(irp);
     }
 
     /* write the last time stamp */
     __pmFflush(archctl.ac_mfp);
     __pmFflush(logctl.mdfp);
-    stamp.sec = current.tv_sec;
-    stamp.nsec = current.tv_usec * 1000;
-    __pmLogPutIndex(&archctl, &stamp);
+    __pmLogPutIndex(&archctl, &current);
 
     exit(exit_status);
 

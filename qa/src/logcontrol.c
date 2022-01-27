@@ -32,10 +32,10 @@ main(int argc, char **argv)
     char	*state_arg;
     int		state;
     const char	**name;
-    pmResult	*request;
+    __pmResult	*request;
     pmDesc	desc;
     int		inst;
-    pmResult	*status;
+    __pmResult	*status;
     int		delta = 5000;
 
     pmSetProgname(argv[0]);
@@ -201,7 +201,7 @@ USAGE:
 	}
     }
 
-    if ((sts = pmFetch(numpmid, pmidlist, &request)) < 0) {
+    if ((sts = __pmFetch(NULL, numpmid, pmidlist, &request)) < 0) {
 	printf("pmFetch: %s\n", pmErrStr(sts));
 	exit(1);
     }
@@ -253,8 +253,8 @@ USAGE:
     }
 
     free(pmidlist);
-    pmFreeResult(request);
-    pmFreeResult(status);
+    __pmFreeResult(request);
+    __pmFreeResult(status);
     if ((sts = pmWhichContext()) < 0) {
 	printf("%s: pmWhichContext: %s\n", pmGetProgname(), pmErrStr(sts));
 	goto done;

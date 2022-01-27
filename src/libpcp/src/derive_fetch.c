@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2009,2014 Ken McDonell.  All Rights Reserved.
- * Copyright (c) 2021 Red Hat.
+ * Copyright (c) 2021-2022 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -2042,17 +2042,11 @@ __dmpostvalueset(__pmContext *ctxp, struct timespec *stamp, int vnumpmid,
 }
 
 void
-__dmpostfetch(__pmContext *ctxp, pmResult **result)
+__dmpostfetch(__pmContext *ctxp, __pmResult **result)
 {
     struct timespec	timestamp;
-#if 0	// TODO when result -> __pmResult
     __pmResult		*newrp;
     __pmResult		*rp = *result;
-#else
-    pmResult		*newrp;
-    pmResult		*rp = *result;
-    __pmResult		*__newrp;
-#endif
     ctl_t		*cp = (ctl_t *)ctxp->c_dm;
     int			fails;
 
@@ -2060,52 +2054,21 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
     if (cp == NULL || cp->fetch_has_dm == 0)
 	return;
 
-    if ((__newrp = __pmAllocResult(cp->numpmid)) == NULL) {
+    if ((newrp = __pmAllocResult(cp->numpmid)) == NULL) {
 	pmNoMem("__dmpostfetch: newrp", sizeof(__pmResult) + (cp->numpmid - 1) * sizeof(pmValueSet *), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
-    newrp = __pmOffsetResult(__newrp);
     newrp->numpmid = cp->numpmid;
     newrp->timestamp = rp->timestamp;
 
-    timestamp.tv_sec = rp->timestamp.tv_sec;
-    timestamp.tv_nsec = rp->timestamp.tv_usec * 1000;
+    timestamp.tv_sec = rp->timestamp.sec;
+    timestamp.tv_nsec = rp->timestamp.nsec;
     fails = __dmpostvalueset(ctxp, &timestamp, rp->numpmid, rp->vset,
 				newrp->numpmid, newrp->vset);
     if (fails > 0 && pmDebugOptions.derive)
-	__pmDumpResult_ctx(ctxp, stderr, rp);
+	__pmPrintResult_ctx(ctxp, stderr, rp);
 
-    /* cull the original pmResult and return the rewritten one */
-    pmFreeResult(rp);
-    *result = newrp;
-}
-
-void
-__dmposthighresfetch(__pmContext *ctxp, pmHighResResult **result)
-{
-    pmHighResResult	*newrp, *rp = *result;
-    size_t		need;
-    ctl_t		*cp = (ctl_t *)ctxp->c_dm;
-    int			fails;
-
-    /* if needed, __dminit() called in __dmopencontext beforehand */
-    if (cp == NULL || cp->fetch_has_dm == 0)
-	return;
-
-    need = sizeof(pmHighResResult) + (cp->numpmid - 1) * sizeof(pmValueSet *);
-    if ((newrp = (pmHighResResult *)malloc(need)) == NULL) {
-	pmNoMem("__dmposthighresfetch: newrp", need, PM_FATAL_ERR);
-	/*NOTREACHED*/
-    }
-    newrp->numpmid = cp->numpmid;
-    newrp->timestamp = rp->timestamp;
-
-    fails = __dmpostvalueset(ctxp, &rp->timestamp, rp->numpmid, rp->vset,
-				newrp->numpmid, newrp->vset);
-    if (fails > 0 && pmDebugOptions.derive)
-	__pmDumpHighResResult_ctx(ctxp, stderr, rp);
-
-    /* cull the original pmHighResResult and return the rewritten one */
-    pmFreeHighResResult(rp);
+    /* cull the original __pmResult and return the rewritten one */
+    __pmFreeResult(rp);
     *result = newrp;
 }

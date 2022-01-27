@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017,2020-2021 Red Hat.
+ * Copyright (c) 2012-2017,2020-2022 Red Hat.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -48,7 +48,7 @@ typedef struct {
  */
 static __pmHashCtl	pc_hc;
 
-static int LogCheckForNextArchive(__pmContext *, int, pmResult **);
+static int LogCheckForNextArchive(__pmContext *, int, __pmResult **);
 static int LogChangeToNextArchive(__pmContext *);
 static int LogChangeToPreviousArchive(__pmContext *);
 
@@ -888,23 +888,24 @@ logputresult(int version, __pmArchCtl *acp, __pmPDU *pb)
      *
      * If version == 1, pb[] does not have room for trailer len.
      * If version == 2, pb[] does have room for trailer len.
+     * If version == 3, like 2 but different timestamp and into a v3 archive.
      */
     __pmLogCtl		*lcp = acp->ac_log;
+    __pmPDU		*start = &pb[2];
     int			sz;
     int			sts = 0;
     int			save_from;
-    __pmPDU		*start = &pb[2];
 
     if (lcp->state == PM_LOG_STATE_NEW) {
-	int		i;
-	pmTimeval	*tvp; /* TODO: Y2038 */
 	/*
 	 * first result, do the label record
 	 */
-	i = sizeof(__pmPDUHdr) / sizeof(__pmPDU);
-	tvp = (pmTimeval *)&pb[i];
-	lcp->label.start.sec = ntohl(tvp->tv_sec);
-	lcp->label.start.nsec = ntohl(tvp->tv_usec) * 1000;
+	if (version >= 3)
+	    /* 4 => sizeof(__pmPDUHdr) / sizeof(__pmPDU) + numpmid */
+	    __pmLoadTimespec((__int32_t *)&pb[4], &lcp->label.start);
+	else
+	    /* 3 => sizeof(__pmPDUHdr) / sizeof(__pmPDU) */
+	    __pmLoadTimeval((__int32_t *)&pb[3], &lcp->label.start);
 	lcp->label.vol = PM_LOG_VOL_TI;
 	__pmLogWriteLabel(lcp->tifp, &lcp->label);
 	lcp->label.vol = PM_LOG_VOL_META;
@@ -942,12 +943,12 @@ logputresult(int version, __pmArchCtl *acp, __pmPDU *pb)
 	}
     }
     else {
-	/* assume version == 2 */
+	/* version == 2 or version == 3 */
 	start[(sz-1)/sizeof(__pmPDU)] = start[0];
 	if ((sts = __pmFwrite(start, 1, sz, acp->ac_mfp)) != sz) {
 	    char	errmsg[PM_MAXERRMSGLEN];
-	    pmprintf("__pmLogPutResult2: write failed: returns %d expecting %d: %s\n",
-	    	sts, sz, osstrerror_r(errmsg, sizeof(errmsg)));
+	    pmprintf("__pmLogPutResult%d: write failed: returns %d expecting %d: %s\n",
+	    	version, sts, sz, osstrerror_r(errmsg, sizeof(errmsg)));
 	    pmflush();
 	    sts = -oserror();
 	}
@@ -980,12 +981,22 @@ __pmLogPutResult2(__pmArchCtl *acp, __pmPDU *pb)
 }
 
 /*
+ * new routine, pb[] does have room for trailer, so only 1 write
+ * needed and this time we generate v3 archives
+ */
+int
+__pmLogPutResult3(__pmArchCtl *acp, __pmPDU *pb)
+{
+    return logputresult(3, acp, pb);
+}
+
+/*
  * check if PDU buffer seems even half-way reasonable ...
  * only used when trying to locate end of archive.
  * return 0 for OK, -1 for bad.
  */
 static int
-paranoidCheck(int len, __pmPDU *pb)
+paranoidCheck(int len, int version, __pmPDU *pb)
 {
     int			numpmid;
     size_t		hdrsz;		/* bytes for the PDU head+tail */
@@ -995,13 +1006,20 @@ paranoidCheck(int len, __pmPDU *pb)
     int			vbsize;		/* size of pmValueBlocks */
     int			numval;		/* number of values */
     int			valfmt;
+    __pmPDU		*data;
 
     struct result_t {			/* from p_result.c */
 	__pmPDUHdr		hdr;
 	pmTimeval		timestamp;	/* when returned */
 	int			numpmid;	/* no. of PMIDs to follow */
 	__pmPDU			data[1];	/* zero or more */
-    }			*pp;
+    }			*rp;
+    struct highres_result_t {		/* from p_result.c */
+	__pmPDUHdr		hdr;
+	int			numpmid;	/* no. of PMIDs to follow */
+	pmTimespec		timestamp;	/* when returned */
+	__pmPDU			data[2];	/* zero or more */
+    }			*hrp;
     struct vlist_t {			/* from p_result.c */
 	pmID			pmid;
 	int			numval;		/* no. of vlist els to follow, or error */
@@ -1010,29 +1028,37 @@ paranoidCheck(int len, __pmPDU *pb)
     }			*vlp;
 
     /*
-     * to start with, need space for result_t with no data (__pmPDU)
+     * to start with, need space for *result_t with no data (__pmPDU)
      * ... this is the external size, which consists of
      * <header len>
-     * <timestamp> (2 words)
+     * <timestamp> (2/4 words)
      * <numpmid>
      * <trailer len>
      *
-     * it is confusing because *pb and result_t include the fake
+     * it is confusing because *pb and *result_t include the fake
      * __pmPDUHdr which is not really in the external file
      */
-    hdrsz = 5 * sizeof(__pmPDU);
+
+    if (version >= PM_LOG_VERS03) {
+	hrp = (struct highres_result_t *)pb;
+	numpmid = ntohl(hrp->numpmid);
+	hdrsz = 7 * sizeof(__pmPDU);
+	data = hrp->data;
+    } else {
+	rp = (struct result_t *)pb;
+	numpmid = ntohl(rp->numpmid);
+	hdrsz = 5 * sizeof(__pmPDU);
+	data = rp->data;
+    }
 
     if (len < hdrsz) {
 	if (pmDebugOptions.log) {
-	    fprintf(stderr, "\nparanoidCheck: len=%d, min len=%d\n",
-		len, (int)hdrsz);
-	    dumpbuf(len, &pb[3]); /* skip first 3 words, start @ timestamp */
+	    fprintf(stderr, "\nparanoidCheck: len=%d, min len=%zu\n",
+		len, hdrsz);
+	    dumpbuf(len, &pb[3]); /* skip first 3 words (PDU header) */
 	}
 	return -1;
     }
-
-    pp = (struct result_t *)pb;
-    numpmid = ntohl(pp->numpmid);
 
     /*
      * This is a re-implementation of much of __pmDecodeResult()
@@ -1043,7 +1069,7 @@ paranoidCheck(int len, __pmPDU *pb)
 	    if (pmDebugOptions.log) {
 		fprintf(stderr, "\nparanoidCheck: numpmid=%d len=%d, expected len=%d\n",
 		    numpmid, len, (int)hdrsz);
-		dumpbuf(len, &pb[3]); /* skip first 3 words, start @ timestamp */
+		dumpbuf(len, &pb[3]); /* skip first 3 words (PDU header) */
 	    }
 	    return -1;
 	}
@@ -1060,13 +1086,13 @@ paranoidCheck(int len, __pmPDU *pb)
 
     vsize = vbsize = 0;
     for (i = 0; i < numpmid; i++) {
-	vlp = (struct vlist_t *)&pp->data[vsize/sizeof(__pmPDU)];
+	vlp = (struct vlist_t *)&data[vsize/sizeof(__pmPDU)];
 	vsize += sizeof(vlp->pmid) + sizeof(vlp->numval);
 	if (len < hdrsz + vsize + vbsize) {
 	    if (pmDebugOptions.log) {
 		fprintf(stderr, "\nparanoidCheck: vset[%d] len=%d, need len>=%d (%d+%d+%d)\n",
 		    i, len, (int)(hdrsz + vsize + vbsize), (int)hdrsz, vsize, vbsize);
-		dumpbuf(len, &pb[3]); /* skip first 3 words, start @ timestamp */
+		dumpbuf(len, &pb[3]); /* skip first 3 words (PDU header) */
 	    }
 	    return -1;
 	}
@@ -1082,7 +1108,7 @@ paranoidCheck(int len, __pmPDU *pb)
 		if (pmDebugOptions.log) {
 		    fprintf(stderr, "\nparanoidCheck: vset[%d] bad valfmt=%d\n",
 			i, valfmt);
-		    dumpbuf(len, &pb[3]); /* skip first 3 words, start @ timestamp */
+		    dumpbuf(len, &pb[3]); /* skip first 3 words (PDU header) */
 		}
 		return -1;
 	    }
@@ -1106,7 +1132,7 @@ paranoidCheck(int len, __pmPDU *pb)
 			if (pmDebugOptions.log) {
 			    fprintf(stderr, "\nparanoidCheck: vset[%d] val[%d], bad pval index=%d not in range 0..%d\n",
 				i, j, index, (int)(len / sizeof(__pmPDU)));
-			    dumpbuf(len, &pb[3]); /* skip first 3 words, start @ timestamp */
+			    dumpbuf(len, &pb[3]); /* skip first 3 words (PDU header) */
 			}
 			return -1;
 		    }
@@ -1118,7 +1144,7 @@ paranoidCheck(int len, __pmPDU *pb)
 			if (pmDebugOptions.log) {
 			    fprintf(stderr, "\nparanoidCheck: vset[%d] val[%d], bad vlen=%d\n",
 				i, j, vlen);
-			    dumpbuf(len, &pb[3]); /* skip first 3 words, start @ timestamp */
+			    dumpbuf(len, &pb[3]); /* skip first 3 words (PDU header) */
 			}
 			return -1;
 		    }
@@ -1132,7 +1158,7 @@ paranoidCheck(int len, __pmPDU *pb)
 }
 
 static int
-paranoidLogRead(__pmContext *ctxp, int mode, __pmFILE *peekf, pmResult **result)
+paranoidLogRead(__pmContext *ctxp, int mode, __pmFILE *peekf, __pmResult **result)
 {
     return __pmLogRead_ctx(ctxp, mode, peekf, result, PMLOGREAD_TO_EOF);
 }
@@ -1148,25 +1174,19 @@ paranoidLogRead(__pmContext *ctxp, int mode, __pmFILE *peekf, pmResult **result)
  */
 
 int
-__pmLogGenerateMark_ctx(__pmContext *ctxp, int mode, pmResult **result)
+__pmLogGenerateMark_ctx(__pmContext *ctxp, int mode, __pmResult **result)
 {
     __pmLogCtl		*lcp = ctxp->c_archctl->ac_log;
-#if 0		// TODO when *result => __pmResult
     __pmResult		*pr;
-#else
-    pmResult		*pr;
-    __pmResult		*__pr;
-#endif
     int			sts;
     __pmTimestamp	end;
 
     PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
-    if ((__pr = __pmAllocResult(0)) == NULL) {
+    if ((pr = __pmAllocResult(0)) == NULL) {
 	pmNoMem("generateMark", sizeof(__pmResult), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
-    pr = __pmOffsetResult(__pr);
 
     /*
      * A mark record has numpmid == 0 and the timestamp set to one millisecond
@@ -1178,22 +1198,20 @@ __pmLogGenerateMark_ctx(__pmContext *ctxp, int mode, pmResult **result)
 	    free(pr);
 	    return sts;
 	}
-	pr->timestamp.tv_sec = lcp->endtime.sec;
-	pr->timestamp.tv_usec = lcp->endtime.nsec / 1000;
-	pr->timestamp.tv_usec += 1000;
-	if (pr->timestamp.tv_usec > 1000000) {
-	    pr->timestamp.tv_usec -= 1000000;
-	    pr->timestamp.tv_sec++;
+	pr->timestamp = lcp->endtime;
+	pr->timestamp.nsec += 1000000;
+	if (pr->timestamp.nsec > 1000000000) {
+	    pr->timestamp.nsec -= 1000000000;
+	    pr->timestamp.sec++;
 	}
     }
     else {
-	pr->timestamp.tv_sec = lcp->label.start.sec;
-	pr->timestamp.tv_usec = lcp->label.start.nsec / 1000;
-	if (pr->timestamp.tv_usec >= 1000)
-	    pr->timestamp.tv_usec -= 1000;
+	pr->timestamp = lcp->label.start;
+	if (pr->timestamp.nsec >= 1000000)
+	    pr->timestamp.nsec -= 1000000;
 	else {
-	    pr->timestamp.tv_usec = 1000000 - 1000 + pr->timestamp.tv_usec;;
-	    pr->timestamp.tv_sec--;
+	    pr->timestamp.nsec = 1000000000 - 1000000 + pr->timestamp.nsec;
+	    pr->timestamp.sec--;
 	}
     }
     *result = pr;
@@ -1201,7 +1219,7 @@ __pmLogGenerateMark_ctx(__pmContext *ctxp, int mode, pmResult **result)
 }
 
 int
-__pmLogGenerateMark(__pmLogCtl *lcp, int mode, pmResult **result)
+__pmLogGenerateMark(__pmLogCtl *lcp, int mode, __pmResult **result)
 {
     int		sts;
     __pmContext	*ctxp;
@@ -1230,6 +1248,68 @@ clearMarkDone(__pmContext *ctxp)
     }
 }
 
+static int
+pmlogwritemark2(__pmFILE *fp, const __pmTimestamp *last_stamp)
+{
+    struct {			/* from p_result.c */
+	__pmPDU		hdr;
+	pmTimeval	timestamp;      /* when returned */
+	int		numpmid;        /* zero PMIDs to follow */
+	__pmPDU		tail;
+    } mark2;
+
+    mark2.hdr = mark2.tail = htonl((int)sizeof(mark2));
+    mark2.timestamp.tv_sec = last_stamp->sec;
+    mark2.timestamp.tv_usec = last_stamp->nsec + 1000000; /* + 1msec */
+    if (mark2.timestamp.tv_usec > 1000000) {
+        mark2.timestamp.tv_usec -= 1000000;
+        mark2.timestamp.tv_sec++;
+    }
+    mark2.timestamp.tv_sec = htonl(mark2.timestamp.tv_sec);
+    mark2.timestamp.tv_usec = htonl(mark2.timestamp.tv_usec);
+    mark2.numpmid = htonl(0);
+
+    if (__pmFwrite(&mark2, 1, sizeof(mark2), fp) != sizeof(mark2))
+        return -oserror();
+
+    return 0;
+}
+
+static int
+pmlogwritemark3(__pmFILE *fp, const __pmTimestamp *last_stamp)
+{
+    struct {			/* from p_result.c */
+	__pmPDU		hdr;
+	int		numpmid;        /* zero PMIDs to follow */
+	pmTimespec	timestamp;      /* when returned */
+	__pmPDU		tail;
+    } mark3;
+
+    mark3.hdr = mark3.tail = htonl((int)sizeof(mark3));
+    mark3.timestamp.tv_sec = last_stamp->sec;
+    mark3.timestamp.tv_nsec = last_stamp->nsec + 1000000; /* + 1msec */
+    if (mark3.timestamp.tv_nsec > 1000000000) {
+	mark3.timestamp.tv_nsec -= 1000000000;
+	mark3.timestamp.tv_sec++;
+    }
+    __htonll((char *)&mark3.timestamp.tv_sec);
+    __htonll((char *)&mark3.timestamp.tv_nsec);
+    mark3.numpmid = htonl(0);
+
+    if (__pmFwrite(&mark3, 1, sizeof(mark3), fp) != sizeof(mark3))
+	return -oserror();
+
+    return 0;
+}
+
+int
+__pmLogWriteMark(__pmFILE *fp, int version, const __pmTimestamp *last_stamp)
+{
+    if (version >= PM_LOG_VERS03)
+	return pmlogwritemark3(fp, last_stamp);
+    return pmlogwritemark2(fp, last_stamp);
+}
+
 /*
  * read next forward or backward from the log
  *
@@ -1243,7 +1323,7 @@ clearMarkDone(__pmContext *ctxp)
  * can be carried down the call stack.
  */
 int
-__pmLogRead_ctx(__pmContext *ctxp, int mode, __pmFILE *peekf, pmResult **result, int option)
+__pmLogRead_ctx(__pmContext *ctxp, int mode, __pmFILE *peekf, __pmResult **result, int option)
 {
     __pmLogCtl	*lcp;
     __pmArchCtl	*acp;
@@ -1255,6 +1335,7 @@ __pmLogRead_ctx(__pmContext *ctxp, int mode, __pmFILE *peekf, pmResult **result,
     __pmPDU	*pb;
     __pmFILE	*f;
     int		n;
+    int		version;
     ctx_ctl_t	ctx_ctl = { NULL, 0 };
 
     sts = lock_ctx(ctxp, &ctx_ctl);
@@ -1263,6 +1344,7 @@ __pmLogRead_ctx(__pmContext *ctxp, int mode, __pmFILE *peekf, pmResult **result,
 
     lcp = ctxp->c_archctl->ac_log;
     acp = ctxp->c_archctl;
+    version = __pmLogLabelVersion(&lcp->label);
 
     /*
      * Strip any XTB data from mode, its not used here
@@ -1496,14 +1578,16 @@ again:
     else {
 	__pmPDUHdr *header = (__pmPDUHdr *)pb;
 	header->len = sizeof(*header) + rlen;
-	header->type = PDU_RESULT;
+	if (version >= PM_LOG_VERS03)
+	    header->type = PDU_HIGHRES_RESULT;
+	else
+	    header->type = PDU_RESULT;
 	header->from = FROM_ANON;
 	/* swab PDU buffer - done later in __pmDecodeResult */
 
 	if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
-	    int	j;
+	    int		j, jend = PM_PDU_SIZE(header->len);
 	    char	*p;
-	    int	jend = PM_PDU_SIZE(header->len);
 
 	    /* clear the padding bytes, lest they contain garbage */
 	    p = (char *)pb + header->len;
@@ -1553,7 +1637,7 @@ again:
 	goto func_return;
     }
 
-    if (option == PMLOGREAD_TO_EOF && paranoidCheck(head, pb) == -1) {
+    if (option == PMLOGREAD_TO_EOF && paranoidCheck(head, version, pb) == -1) {
 	__pmUnpinPDUBuf(pb);
 	sts = PM_ERR_LOGREC;
 	goto func_return;
@@ -1563,18 +1647,17 @@ again:
 	__pmFseek(f, -(long)sizeof(trail), SEEK_CUR);
 
     __pmOverrideLastFd(__pmFileno(f));
-    sts = __pmDecodeResult_ctx(ctxp, pb, result); /* also swabs the result */
+    sts = (version >= PM_LOG_VERS03) ?
+	    __pmDecodeHighResResult_ctx(ctxp, pb, result) :
+	    __pmDecodeResult_ctx(ctxp, pb, result); /* also swabs the result */
 
     if (pmDebugOptions.log) {
 	head -= sizeof(head) + sizeof(trail);
 	if (sts >= 0) {
 	    double delta;
-	    __pmTimestamp stamp;
 	    fprintf(stderr, "@");
-	    pmPrintStamp(stderr, &(*result)->timestamp);
-	    stamp.sec = (__int64_t)(*result)->timestamp.tv_sec;
-	    stamp.nsec = (__int32_t)(*result)->timestamp.tv_usec * 1000;
-	    delta = __pmTimestampSub(&stamp, &lcp->label.start);
+	    __pmPrintTimestamp(stderr, &(*result)->timestamp);
+	    delta = __pmTimestampSub(&(*result)->timestamp, &lcp->label.start);
 	    fprintf(stderr, " (t=%.6f)", delta);
 	}
 	else {
@@ -1596,7 +1679,7 @@ again:
 
     if (pmDebugOptions.pdu) {
 	fprintf(stderr, "__pmLogRead timestamp=");
-	pmPrintStamp(stderr, &(*result)->timestamp);
+	__pmPrintTimestamp(stderr, &(*result)->timestamp);
 	fprintf(stderr, " " PRINTF_P_PFX "%p ... " PRINTF_P_PFX "%p", &pb[3], &pb[head/sizeof(__pmPDU)+3]);
 	fputc('\n', stderr);
 	dumpbuf(rlen, &pb[3]);		/* see above to explain "3" */
@@ -1614,7 +1697,7 @@ func_return:
 }
 
 int
-__pmLogRead(__pmArchCtl *acp, int mode, __pmFILE *peekf, pmResult **result, int option)
+__pmLogRead(__pmArchCtl *acp, int mode, __pmFILE *peekf, __pmResult **result, int option)
 {
     int		sts;
     __pmContext	*ctxp;
@@ -1654,7 +1737,7 @@ check_all_derived(int numpmid, pmID pmidlist[])
 }
 
 int
-__pmLogFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **result)
+__pmLogFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmResult **result)
 {
     int		i;
     int		j;
@@ -1663,12 +1746,7 @@ __pmLogFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **result)
     int		sts = 0;
     int		found;
     double	tdiff;
-#if 0		// TODO when *result => __pmResult
     __pmResult	*newres;
-#else
-    pmResult	*newres;
-    __pmResult	*__newres;
-#endif
     pmDesc	desc;
     int		kval;
     __pmHashNode	*hp;
@@ -1722,18 +1800,17 @@ more:
 	    nskip = 0;
 	    while (__pmLogRead_ctx(ctxp, ctxp_mode == PM_MODE_FORW ? PM_MODE_BACK : PM_MODE_FORW, NULL, result, PMLOGREAD_NEXT) >= 0) {
 		nskip++;
-		tmp.sec = (*result)->timestamp.tv_sec;
-		tmp.nsec = (*result)->timestamp.tv_usec * 1000;
+		tmp = (*result)->timestamp;
 		tdiff = __pmTimestampSub(&tmp, &ctxp->c_origin);
 		if (ctxp_mode == PM_MODE_FORW && tdiff < 0) {
 		    /* too far ... next one forward is the one we need */
-		    pmFreeResult(*result);
+		    __pmFreeResult(*result);
 		    *result = NULL;
 		    break;
 		}
 		else if (ctxp_mode == PM_MODE_BACK && tdiff > 0) {
 		    /* too far ... next one back is the one we need */
-		    pmFreeResult(*result);
+		    __pmFreeResult(*result);
 		    *result = NULL;
 		    break;
 		}
@@ -1744,13 +1821,13 @@ more:
 		     * in the right direction to avoid reading it twice
 		     * (once above and once the next time through here)
 		     */
-		    pmFreeResult(*result);
+		    __pmFreeResult(*result);
 		    *result = NULL;
 		    break;
 		}
 		ctxp->c_archctl->ac_offset = __pmFtell(ctxp->c_archctl->ac_mfp);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_curvol;
-		pmFreeResult(*result);
+		__pmFreeResult(*result);
 		tmp.sec = -1;
 	    }
 	    ctxp->c_archctl->ac_serial = 1;
@@ -1774,13 +1851,12 @@ more:
 	}
 	if ((sts = __pmLogRead_ctx(ctxp, ctxp->c_mode, NULL, result, PMLOGREAD_NEXT)) < 0)
 	    break;
-	tmp.sec = (*result)->timestamp.tv_sec;
-	tmp.nsec = (*result)->timestamp.tv_usec * 1000;
+	tmp = (*result)->timestamp;
 	tdiff = __pmTimestampSub(&tmp, &ctxp->c_origin);
 	if ((tdiff < 0 && ctxp_mode == PM_MODE_FORW) ||
 	    (tdiff > 0 && ctxp_mode == PM_MODE_BACK)) {
 		nskip++;
-		pmFreeResult(*result);
+		__pmFreeResult(*result);
 		*result = NULL;
 		continue;
 	}
@@ -1789,7 +1865,7 @@ more:
 	    if (nskip) {
 		fprintf(stderr, "__pmLogFetch: ctx=%d skip %d to ",
 		    pmWhichContext(), nskip);
-		    pmPrintStamp(stderr, &(*result)->timestamp);
+		    __pmPrintTimestamp(stderr, &(*result)->timestamp);
 		    fputc('\n', stderr);
 		}
 #ifdef DESPERATE
@@ -1800,8 +1876,7 @@ more:
 	}
     }
     if (found) {
-	ctxp->c_origin.sec = (*result)->timestamp.tv_sec;
-	ctxp->c_origin.nsec = (*result)->timestamp.tv_usec * 1000;
+	ctxp->c_origin = (*result)->timestamp;
     }
 
     if (*result != NULL && (*result)->numpmid == 0) {
@@ -1811,7 +1886,7 @@ more:
 	 * otherwise keep searching
 	 */
 	if (numpmid != 0) {
-	    pmFreeResult(*result);
+	    __pmFreeResult(*result);
 	    goto more;
 	}
     }
@@ -1833,11 +1908,10 @@ more:
 	     *     pmFreeResult
 	     */
 
-	    if ((__newres = __pmAllocResult(numpmid)) == NULL) {
+	    if ((newres = __pmAllocResult(numpmid)) == NULL) {
 		pmNoMem("__pmLogFetch.newres", sizeof(__pmResult) + (numpmid -1)* sizeof(pmValueSet *), PM_FATAL_ERR);
 		/* NOTREACHED */
 	    }
-	    newres = __pmOffsetResult(__newres);
 	    newres->numpmid = numpmid;
 	    newres->timestamp = (*result)->timestamp;
 	    u = 0;
@@ -1883,9 +1957,9 @@ more:
 		 * not one of our pmids was in the log record, try
 		 * another log record ...
 		 */
-		pmFreeResult(*result);
+		__pmFreeResult(*result);
 		newres->numpmid = 0;		/* don't free vset's */
-		pmFreeResult(newres);
+		__pmFreeResult(newres);
 		goto more;
 	    }
 	    /*
@@ -1893,7 +1967,7 @@ more:
 	     * pdubuf or the pmid_ctl struct
 	     */
 	    (*result)->numpmid = 0;		/* don't free vset's */
-	    pmFreeResult(*result);
+	    __pmFreeResult(*result);
 	    *result = newres;
 	}
 	else
@@ -1921,7 +1995,7 @@ more:
 		char	errmsg[PM_MAXERRMSGLEN];
 		pmNotifyErr(LOG_WARNING, "__pmLogFetch: missing pmDesc for pmID %s: %s",
 			    pmIDStr_r(desc.pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-		pmFreeResult(newres);
+		__pmFreeResult(newres);
 		break;
 	    }
 	    if (desc.indom == PM_INDOM_NULL)
@@ -2217,11 +2291,11 @@ __pmLogSetTime(__pmContext *ctxp)
 		 * back up one record ...
 		 * index points to the END of the record!
 		 */
-		pmResult	*result;
+		__pmResult	*result;
 		if (pmDebugOptions.log)
 		    fprintf(stderr, " back up ...\n");
 		if (__pmLogRead_ctx(ctxp, PM_MODE_BACK, NULL, &result, PMLOGREAD_NEXT) >= 0)
-		    pmFreeResult(result);
+		    __pmFreeResult(result);
 		if (pmDebugOptions.log)
 		    fprintf(stderr, "...");
 	    }
@@ -2380,16 +2454,17 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, __pmTimestamp *tsp)
     struct stat	sbuf;
     __pmFILE	*f;
     long	save = 0;
-    pmResult	*rp = NULL;
-    pmResult	*nrp;
+    __pmResult	*rp = NULL;
+    __pmResult	*nrp;
     int		i;
     int		sts;
     int		found;
     int		head;
     long	offset;
     int		vol;
-    __pmoff32_t	logend;
-    __pmoff32_t	physend = 0;
+    int		vers = __pmLogVersion(lcp);
+    size_t	logend;
+    size_t	physend = 0;
 
     PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
@@ -2439,9 +2514,9 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, __pmTimestamp *tsp)
 	if (sbuf.st_size <= __pmLogLabelSize(lcp))
 	    goto prior_vol;
 
-	physend = (__pmoff32_t)sbuf.st_size;
-	if (sizeof(off_t) > sizeof(__pmoff32_t)) {
-	    /* 64-bit off_t */
+	physend = sbuf.st_size;
+	if (sizeof(off_t) > sizeof(__pmoff32_t) && vers == PM_LOG_VERS02) {
+	    /* 64-bit off_t, version 2 archives */
 	    if (physend != sbuf.st_size) {
 		/* oops, 32-bit offset not the same */
 		pmNotifyErr(LOG_ERR, "pmGetArchiveEnd: PCP archive file"
@@ -2494,7 +2569,7 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, __pmTimestamp *tsp)
 		/* this is badly damaged! */
 		if (pmDebugOptions.log) {
 		    fprintf(stderr, "pmGetArchiveEnd: "
-                            "Error reading record ending at posn=%d ti[%d]@",
+                            "Error reading record ending at posn=%zu ti[%d]@",
 			    logend, i);
 		    __pmPrintTimestamp(stderr, &lcp->ti[i].stamp);
 		    fputc('\n', stderr);
@@ -2521,7 +2596,7 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, __pmTimestamp *tsp)
 	    /* this one is ok, remember it as it may be the last one */
 	    found = 1;
 	    if (rp != NULL)
-		pmFreeResult(rp);
+		__pmFreeResult(rp);
 	    rp = nrp;
 	}
 	if (found)
@@ -2547,11 +2622,9 @@ prior_vol:
 	__pmFclose(f);
 
     if (found) {
-	tsp->sec = rp->timestamp.tv_sec;
-	tsp->nsec = rp->timestamp.tv_usec * 1000;
+	*tsp = rp->timestamp;
 	if (vol == lcp->maxvol) {
-	    lcp->endtime.sec = rp->timestamp.tv_sec;
-	    lcp->endtime.nsec = rp->timestamp.tv_usec * 1000;
+	    lcp->endtime = rp->timestamp;
 	    lcp->physend = physend;
 	}
 	sts = 0;
@@ -2561,7 +2634,7 @@ prior_vol:
 	 * rp is not NULL from found==1 path _or_ from error break
 	 * after an initial paranoidLogRead() success
 	 */
-	pmFreeResult(rp);
+	__pmFreeResult(rp);
     }
 
     return sts;
@@ -2715,7 +2788,7 @@ __pmLogChangeArchive(__pmContext *ctxp, int arch)
  * so that the current context can be carried down the call stack.
  */
 static int
-LogCheckForNextArchive(__pmContext *ctxp, int mode, pmResult **result)
+LogCheckForNextArchive(__pmContext *ctxp, int mode, __pmResult **result)
 {
     __pmArchCtl	*acp;
     int		sts = 0;
@@ -2744,7 +2817,7 @@ LogCheckForNextArchive(__pmContext *ctxp, int mode, pmResult **result)
 }
 
 int
-__pmLogCheckForNextArchive(__pmLogCtl *lcp, int mode, pmResult **result)
+__pmLogCheckForNextArchive(__pmLogCtl *lcp, int mode, __pmResult **result)
 {
     int		sts;
     __pmContext	*ctxp;

@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2012-2013,2019 Red Hat.
+ * Copyright (c) 2012-2013,2019,2022 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -24,8 +24,8 @@
  * second to last pmResult which will have a negated numpmid value.
  */
 
-pmResult **
-SplitResult(pmResult *res)
+static __pmResult **
+SplitResult(__pmResult *res)
 {
     int		i, j;
     static int	*aFreq = NULL;	/* Freq. histogram: pmids for each agent */
@@ -33,7 +33,7 @@ SplitResult(pmResult *res)
     static int	nDoms = 0;		/* No. of entries in two tables above */
     int		nGood;
     int		need;
-    pmResult	**results;
+    __pmResult	**results;
 
     /* Allocate the frequency histogram and array for mapping from agent to
      * result list index.  Because a SIGHUP reconfiguration may have caused a
@@ -79,21 +79,17 @@ SplitResult(pmResult *res)
 	}
     resIndex[nAgents] = nGood;
 
-    /*
-     * Note: do not convert to __pmResult, the pmcd-pmda interfaces and
-     * 	 and pmcd internally will continue to use pmResult
-     */
     need = nGood + 1 + ((aFreq[nAgents]) ? 1 : 0);
-    need *= sizeof(pmResult *);
-    if ((results = (pmResult **) malloc(need)) == NULL) {
+    need *= sizeof(__pmResult *);
+    if ((results = (__pmResult **) malloc(need)) == NULL) {
 	pmNoMem("SplitResult.results", need, PM_FATAL_ERR);
 	/* NOTREACHED */
     }
     j = 0;
     for (i = 0; i <= nAgents; i++)
 	if (aFreq[i]) {
-	    need = (int)sizeof(pmResult) + (aFreq[i] - 1) * (int)sizeof(pmValueSet *);
-	    results[j] = (pmResult *) malloc(need);
+	    need = (int)sizeof(__pmResult) + (aFreq[i] - 1) * (int)sizeof(pmValueSet *);
+	    results[j] = (__pmResult *) malloc(need);
 	    if (results[j] == NULL) {
 		pmNoMem("SplitResult.domain", need, PM_FATAL_ERR);
 	    }
@@ -102,8 +98,8 @@ SplitResult(pmResult *res)
 	}
 
     /* Make the "end of list" pmResult */
-    if ((results[j] = (pmResult *) malloc(sizeof(pmResult))) == NULL) {
-	pmNoMem("SplitResult.domain", sizeof(pmResult), PM_FATAL_ERR);
+    if ((results[j] = (__pmResult *) malloc(sizeof(__pmResult))) == NULL) {
+	pmNoMem("SplitResult.domain", sizeof(__pmResult), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
     results[j]->numpmid = 0;
@@ -138,8 +134,8 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
     int		sts;
     int		s = 0;
     AgentInfo	*ap;
-    pmResult	*result;
-    pmResult	**dResult;
+    __pmResult	*result;
+    __pmResult	**dResult;
     int		i;
     __pmFdSet	readyFds;
     __pmFdSet	waitFds;
@@ -167,8 +163,9 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	if (ap->ipcType == AGENT_DSO) {
 	    if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 		ap->ipc.dso.dispatch.version.four.ext->e_context = cp - client;
-	    s = ap->ipc.dso.dispatch.version.any.store(dResult[i],
-				       ap->ipc.dso.dispatch.version.any.ext);
+	    s = ap->ipc.dso.dispatch.version.any.store(
+					__pmOffsetResult(dResult[i]),
+					ap->ipc.dso.dispatch.version.any.ext);
 	}
 	else {
 	    if (ap->status.notReady == 0) {
@@ -257,8 +254,6 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 		    sts = ss;
 		else {
 		    if (s < 0) {
-			extern int CheckError(AgentInfo *, int);
-
 			sts = CheckError(ap, s);
 			pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_RESULT, sts);
 		    }
@@ -310,7 +305,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	    CleanupClient(cp, ss);
     }
 
-    pmFreeResult(result);
+    __pmFreeResult(result);
     i = 0;
     do {
 	s = dResult[i]->numpmid;

@@ -1,33 +1,25 @@
 /*
- * Copyright (c) 2013-2018 Red Hat.
+ * Copyright (c) 2013-2018,2022 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- *
- * Thread-safe note
- *
- * myFetch() returns a PDU buffer that is pinned from _pmGetPDU() or
- * __pmEncodeResult() and this needs to be unpinned by the myFetch()
- * caller when safe to do so.
  */
 
 #include "logger.h"
 
 static int
-myLocalFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmPDU **pdup)
+myLocalFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmResult **result)
 {
-    pmResult	*result;
     pmID	*newlist = NULL;
     int		newcnt, have_dm, n;
-    int		sts;
 
     /* for derived metrics, may need to rewrite the pmidlist */
     have_dm = newcnt = __pmPrepareFetch(ctxp, numpmid, pmidlist, &newlist);
@@ -37,7 +29,7 @@ myLocalFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	pmidlist = newlist;
     }
 
-    if ((n = __pmFetchLocal(ctxp, numpmid, pmidlist, &result)) < 0) {
+    if ((n = __pmFetchLocal(ctxp, numpmid, pmidlist, result)) < 0) {
 	if (newlist != NULL)
 	    free(newlist);
 	return n;
@@ -45,15 +37,12 @@ myLocalFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmPDU **pdup)
 
     /* process derived metrics, if any */
     if (have_dm) {
-	__pmFinishResult(ctxp, n, &result);
+	__pmFinishResult(ctxp, n, result);
 	if (newlist != NULL)
 	    free(newlist);
     }
 
-    sts = __pmEncodeResult(0, result, pdup);
-    pmFreeResult(result);
-
-    return sts;
+    return 0;
 }
 
 /*
@@ -71,19 +60,42 @@ typedef struct {
     int			numpmid;	/* no. of PMIDs to follow */
     __pmPDU		data[1];	/* zero or more */
 } result_t;
+typedef struct {
+    __pmPDUHdr		hdr;		/* three word (3x int) PDU header */
+    int			numpmid;	/* count of PMIDs to follow */
+    pmTimespec		timestamp;	/* 64bit-aligned time */
+    __pmPDU		data[2];	/* zero or more (2 for alignment) */
+} highres_result_t;
+
 /*
- * from libpcp/src/internal.h ... used for -Dfetch output
+ * byte swabbing like libpcp/src/internal.h ... used for -Dfetch output only
  */
 #ifdef HAVE_NETWORK_BYTEORDER
-#define __ntohpmID(a)           (a)
+#define fetch_ntohpmID(a)	(a)
+#define fetch_ntohll(a)		/* noop */
 #else
-#define __ntohpmID(a)           htonl(a)
+#define fetch_ntohpmID(a)           htonl(a)
+static void
+fetch_htonll(char *p)
+{
+    char	c;
+    int		i;
+
+    for (i = 0; i < 4; i++) {
+	c = p[i];
+	p[i] = p[7-i];
+	p[7-i] = c;
+    }
+}
+#define fetch_ntohll(v) fetch_htonll(v)
 #endif
 
 int
-myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
+myFetch(int numpmid, pmID pmidlist[], __pmResult **result)
 {
     int			n = 0;
+    int			fd; /* pmcd */
+    int			sts;
     int			changed = 0;
     int			ctx;
     __pmPDU		*pb;
@@ -106,21 +118,19 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	PM_UNLOCK(ctxp->c_lock);
 	if (ctxp->c_type != PM_CONTEXT_HOST) {
 	    if (ctxp->c_type == PM_CONTEXT_LOCAL)
-		n = myLocalFetch(ctxp, numpmid, pmidlist, pdup);
-	    else
-		n = PM_ERR_NOTHOST;
-	    return n;
+		return myLocalFetch(ctxp, numpmid, pmidlist, result);
+	    return PM_ERR_NOTHOST;
 	}
     }
     else
 	return PM_ERR_NOCONTEXT;
 
-    if (ctxp->c_pmcd->pc_fd == -1) {
+    if ((fd = ctxp->c_pmcd->pc_fd) < 0) {
 	/* lost connection, try to get it back */
 	n = reconnect();
-	if (n < 0) {
+	if (n < 0)
 	    return n;
-	}
+	fd = ctxp->c_pmcd->pc_fd;
     }
 
     if (ctxp->c_sent == 0) {
@@ -130,14 +140,16 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	 */
 	if (pmDebugOptions.profile)
 	    fprintf(stderr, "myFetch: calling __pmSendProfile, context: %d\n", ctx);
-	if ((n = __pmSendProfile(ctxp->c_pmcd->pc_fd, FROM_ANON, ctx, ctxp->c_instprof)) >= 0)
+	if ((n = __pmSendProfile(fd, FROM_ANON, ctx, ctxp->c_instprof)) >= 0)
 	    ctxp->c_sent = 1;
     }
 
     if (n >= 0) {
-	int		newcnt;
 	pmID		*newlist = NULL;
+	int		newcnt;
 	int		have_dm;
+	int		highres;
+	int		pdutype;
 
 	/* for derived metrics, may need to rewrite the pmidlist */
 	have_dm = newcnt = __pmPrepareFetch(ctxp, numpmid, pmidlist, &newlist);
@@ -147,10 +159,17 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	    pmidlist = newlist;
 	}
 
-	n = __pmSendFetch(ctxp->c_pmcd->pc_fd, FROM_ANON, ctx, numpmid, pmidlist);
+	if ((__pmFeaturesIPC(fd) & PDU_FLAG_HIGHRES)) {
+	    pdutype = PDU_HIGHRES_FETCH;
+	    highres = 1;
+	} else {
+	    pdutype = PDU_FETCH;
+	    highres = 0;
+	}
+	n = __pmSendFetchPDU(fd, FROM_ANON, ctx, numpmid, pmidlist, pdutype);
 	if (n >= 0) {
 	    do {
-		n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
+		n = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
 		/*
 		 * expect PDU_RESULT or
 		 *        PDU_ERROR(changed > 0)+PDU_RESULT or
@@ -163,7 +182,6 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 		if (pmDebugOptions.fetch) {
 		    fprintf(stderr, "myFetch returns ...\n");
 		    if (n == PDU_ERROR) {
-			int		sts;
 			int		flag = 0;
 
 			__pmDecodeError(pb, &sts);
@@ -187,8 +205,11 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 			}
 			fputc('\n', stderr);
 		    }
-		    else if (n == PDU_RESULT) {
+		    else if ((n == PDU_HIGHRES_RESULT && highres) ||
+			     (n == PDU_RESULT && !highres)) {
 			/*
+			 * TODO: reassess this, is this still true? ...
+			 *
 			 * not safe to decode result here, so have to make
 			 * do with a shallow dump of the PDU using logic
 			 * from libpcp/__pmDecodeResult()
@@ -198,20 +219,35 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 			int		i;
 			int		vsize;
 			pmID		pmid;
-			struct timeval	timestamp;
 			char		*name;
-			result_t	*pp;
 			vlist_t		*vlp;
-			pp = (result_t *)pb;
+			__pmPDU		*data;
+
 			/* assume PDU is valid ... it comes from pmcd */
-			lnumpmid = ntohl(pp->numpmid);
-			timestamp.tv_sec = ntohl(pp->timestamp.tv_sec);
-			timestamp.tv_usec = ntohl(pp->timestamp.tv_usec);
-			fprintf(stderr, "pmResult timestamp: %d.%06d numpmid: %d\n", (int)timestamp.tv_sec, (int)timestamp.tv_usec, lnumpmid);
+			if (n == PDU_HIGHRES_RESULT) {
+			    highres_result_t	*pp = (highres_result_t *)pb;
+			    __pmTimestamp	timestamp;
+
+			    data = &pp->data[0];
+			    lnumpmid = ntohl(pp->numpmid);
+			    memcpy(&timestamp, &pp->timestamp, sizeof(timestamp));
+			    fetch_ntohll((char *)&timestamp.sec);
+			    fetch_ntohll((char *)&timestamp.nsec);
+			    fprintf(stderr, "pmHighResResult timestamp: %lld.%09d numpmid: %d\n", (long long)timestamp.sec, (int)timestamp.nsec, lnumpmid);
+			} else {
+			    result_t		*pp = (result_t *)pb;
+			    struct timeval	timestamp;
+
+			    data = &pp->data[0];
+			    lnumpmid = ntohl(pp->numpmid);
+			    timestamp.tv_sec = ntohl(pp->timestamp.tv_sec);
+			    timestamp.tv_usec = ntohl(pp->timestamp.tv_usec);
+			    fprintf(stderr, "pmResult timestamp: %d.%06d numpmid: %d\n", (int)timestamp.tv_sec, (int)timestamp.tv_usec, lnumpmid);
+			}
 			vsize = 0;
 			for (i = 0; i < lnumpmid; i++) {
-			    vlp = (vlist_t *)&pp->data[vsize/sizeof(__pmPDU)];
-			    pmid = __ntohpmID(vlp->pmid);
+			    vlp = (vlist_t *)&data[vsize/sizeof(__pmPDU)];
+			    pmid = fetch_ntohpmID(vlp->pmid);
 			    numval = ntohl(vlp->numval);
 			    fprintf(stderr, "  %s", pmIDStr(pmid));
 			    if (pmNameID(pmid, &name) == 0) {
@@ -231,41 +267,16 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 			fprintf(stderr, "__pmGetPDU: Error: %s\n", pmErrStr(n));
 		}
 
-		if (n == PDU_RESULT) {
-		    /*
-		     * Success with a pmResult in a pdubuf.
-		     *
-		     * Need to process derived metrics, if any.
-		     * This is ugly, we need to decode the pdubuf, rebuild
-		     * the pmResult and encode back into a pdubuf ... the
-		     * fastpath of not doing all of this needs to be
-		     * preserved in the common case where derived metrics
-		     * are not being logged.
-		     */
-		    if (have_dm) {
-			pmResult	*result;
-			__pmPDU		*npb;
-			int		sts;
-
-			if ((sts = __pmDecodeResult(pb, &result)) < 0) {
-			    n = sts;
-			}
-			else {
-			    __pmFinishResult(ctxp, sts, &result);
-			    if ((sts = __pmEncodeResult(ctxp->c_pmcd->pc_fd, result, &npb)) < 0) {
-				pmFreeResult(result);
-				n = sts;
-			    }
-			    else {
-				/* using PDU with derived metrics */
-				__pmUnpinPDUBuf(pb);
-				*pdup = npb;
-				pmFreeResult(result);
-			    }
-			}
-		    }
-		    else
-			*pdup = pb;
+		if ((n == PDU_HIGHRES_RESULT && highres) || (n == PDU_RESULT && !highres)) {
+		    /* Success with a result in a PDU buffer */
+		    sts = (n == PDU_RESULT) ?
+			    __pmDecodeResult_ctx(ctxp, pb, result) :
+			    __pmDecodeHighResResult_ctx(ctxp, pb, result);
+		    __pmUnpinPDUBuf(pb);
+		    if (sts < 0)
+			n = sts;
+		    else if (have_dm)
+			__pmFinishResult(ctxp, sts, result);
 		}
 		else if (n == PDU_ERROR) {
 		    __pmDecodeError(pb, &n);
@@ -315,7 +326,6 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	    }
 
 	    if (changed & PMCD_ADD_AGENT) {
-		int	sts;
 		/*
 		 * PMCD_DROP_AGENT does not matter, no values are returned.
 		 * Trying to restart (PMCD_RESTART_AGENT) is less interesting

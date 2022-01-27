@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2022 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -284,14 +284,14 @@ PrintState(int arg_state)
 }
 
 
-/* this pmResult is built during parsing of each pmlc statement.
+/* this __pmResult is built during parsing of each pmlc statement.
  * the metrics and indoms likewise
  */
-extern pmResult	*logreq;
-extern metric_t	*metric;
-extern int	n_metrics;
-extern indom_t	*indom;
-extern int	n_indoms;
+extern __pmResult	*logreq;
+extern metric_t		*metric;
+extern int		n_metrics;
+extern indom_t		*indom;
+extern int		n_indoms;
 
 void
 Query(void)
@@ -299,7 +299,7 @@ Query(void)
     int		i, j, k, inst;
     metric_t	*mp;
     pmValueSet	*vsp;
-    pmResult	*res;
+    __pmResult	*res;
 
     if (!connected())
 	return;
@@ -319,7 +319,7 @@ Query(void)
 	vsp = res->vset[i];
 	if (mp->pmid != vsp->pmid) {
 	    fprintf(stderr, "GAK! %s not found in returned result\n", mp->name);
-	    pmFreeResult(res);
+	    __pmFreeResult(res);
 	    return;
 	}
 	puts(mp->name);
@@ -368,7 +368,7 @@ Query(void)
 	}
 	putchar('\n');
     }
-    pmFreeResult(res);
+    __pmFreeResult(res);
 }
 
 void LogCtl(int arg_control, int arg_state, int delta)
@@ -376,7 +376,7 @@ void LogCtl(int arg_control, int arg_state, int delta)
     int		i;
     metric_t	*mp;
     pmValueSet	*vsp;
-    pmResult	*res;
+    __pmResult	*res;
     int		newstate, newdelta;	/* from pmlogger */
     int		expstate = 0;		/* expected from pmlogger */
     int		expdelta;
@@ -435,7 +435,7 @@ void LogCtl(int arg_control, int arg_state, int delta)
 	vsp = res->vset[i];
 	if (mp->pmid != vsp->pmid) {
 	    fprintf(stderr, "GAK! %s not found in returned result\n", mp->name);
-	    pmFreeResult(res);
+	    __pmFreeResult(res);
 	    return;
 	}
 	if (vsp->numval < 0) {
@@ -535,7 +535,7 @@ void LogCtl(int arg_control, int arg_state, int delta)
 		putchar('\n');
 	}
     }
-    pmFreeResult(res);
+    __pmFreeResult(res);
 }
 
 /*

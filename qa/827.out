@@ -305,14 +305,14 @@ old -> new changes
 +21:49:32.119225000	      0         4762         2504
  
  [112 bytes]
- 21:49:30.119325 3 metrics
+ 21:49:30.119325000 3 metrics
 @@ -242,7 +242,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [22801 or "22801"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [22801 or "22801"] value "/tmp/new_snmp"
  
 -[1420 bytes]
 +[2260 bytes]
- 21:49:31.119176 70 metrics
+ 21:49:31.119176000 70 metrics
      60.14.82 (network.udplite.sndbuferrors): value 0
      60.14.81 (network.udplite.recvbuferrors): value 0
 @@ -315,7 +315,7 @@
@@ -321,7 +321,7 @@ old -> new changes
  
 -[1420 bytes]
 +[2260 bytes]
- 21:49:32.119225 70 metrics
+ 21:49:32.119225000 70 metrics
      60.14.82 (network.udplite.sndbuferrors): value 0
      60.14.81 (network.udplite.recvbuferrors): value 0
 
@@ -385,4 +385,4 @@ new -> ref changes ... expect at most, metadata offset change for temporal index
 +10:10:27.855335000	      0          351          272
  
  [140 bytes]
- 10:10:27.854449 3 metrics
+ 10:10:27.854449000 3 metrics

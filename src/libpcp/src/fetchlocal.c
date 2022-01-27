@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2021 Red Hat.
+ * Copyright (c) 2021-2022 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -134,21 +134,15 @@ dsofetch(const char *caller, __pmContext *ctxp, int ctx, int j,
  */
 
 int
-__pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **result)
+__pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmResult **result)
 {
     int		sts;
     int		ctx;
     int		j;
     int		k;
     int		n;
-#if 0		// TODO when ans, *result => __pmResult
+    pmResult	*tmp_ans;	/* maintains timeless PMDA fetch interface */
     __pmResult	*ans;
-    __pmResult	*tmp_ans;
-#else
-    pmResult	*ans;
-    pmResult	*tmp_ans;
-    __pmResult	*__ans;
-#endif
 
     if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
 	/* Local context requires single-threaded applications */
@@ -167,24 +161,27 @@ __pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **resul
 	return sts;
 
     /*
-     * this is very ugly ... the DSOs have a high-water mark
-     * allocation algorithm for the result skeleton, but the
-     * code that calls us assumes it has freedom to retain
-     * this result structure for as long as it wishes, and
-     * then to call pmFreeResult
-     *
-     * we make another skeleton, selectively copy and return that
+     * There's two issues being addressed here:
+     * - the DSOs have a high-water mark allocation algorithm
+     *   for the result skeleton, but the code that calls us
+     *   assumes it has freedom to retain this result structure
+     *   for as long as it wishes, and then to call one of the
+     *   pmFreeResult variants.
+     * - the PMDA fetch API requires a pmResult but we may be
+     *   using either timespec of timeval resolutions (i.e. in
+     *   highres sampling mode, or traditional mode).
+     * 
+     * So we make a __pmResult, selectively copy and return it.
      */
-    if ((__ans = __pmAllocResult(numpmid)) == NULL)
+    if ((ans = __pmAllocResult(numpmid)) == NULL)
 	return -oserror();
-    ans = __pmOffsetResult(__ans);
+
     /* mark all metrics as not picked, yet */
-    for (j = 0; j < numpmid; j++) {
+    for (j = 0; j < numpmid; j++)
 	ans->vset[j] = NULL;
-    }
 
     ans->numpmid = numpmid;
-    pmtimevalNow(&ans->timestamp);
+    __pmGetTimestamp(&ans->timestamp);
 
     for (j = 0; j < numpmid; j++) {
 	int cnt, res;
@@ -204,90 +201,6 @@ __pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **resul
 	for (n = 0, k = j; k < numpmid && n < cnt; k++) {
 	    if (pmidlist[k] == splitlist[n]) {
 		sts = copyvset("__pmFetchLocal", splitlist[n], res,
-				tmp_ans->vset, n, ans->vset, k);
-		if (sts < 0) {
-		    free(ans);
-		    return sts;
-		}
-		n++;
-	    }
-	}
-    }
-    *result = ans;
-    return 0;
-}
-
-int
-__pmHighResFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmHighResResult **result)
-{
-    int		sts;
-    int		ctx;
-    int		j;
-    int		k;
-    int		n;
-#if 0		// TODO when ans, *result => __pmResult
-    __pmResult	*ans;
-    __pmResult	*tmp_ans;
-#else
-    pmHighResResult *ans;
-    pmResult	*tmp_ans;
-    __pmResult	*__ans;
-#endif
-
-    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
-	/* Local context requires single-threaded applications */
-	return PM_ERR_THREAD;
-    if (numpmid < 1)
-	return PM_ERR_TOOSMALL;
-
-    ctx = __pmPtrToHandle(ctxp);
-
-    /*
-     * Check if we have enough space to accomodate "best" case scenario -
-     * all pmids are from the same domain
-     */
-    if (splitmax < numpmid &&
-	(sts = resize_splitlist(numpmid)) < 0)
-	return sts;
-
-    /*
-     * this is very ugly ... the DSOs have a high-water mark
-     * allocation algorithm for the result skeleton, but the
-     * code that calls us assumes it has freedom to retain
-     * this result structure for as long as it wishes, and
-     * then to call pmFreeResult
-     *
-     * we make another skeleton, selectively copy and return that
-     */
-    if ((__ans = __pmAllocResult(numpmid)) == NULL)
-	return -oserror();
-    ans = __pmOffsetHighResResult(__ans);
-    /* mark all metrics as not picked, yet */
-    for (j = 0; j < numpmid; j++) {
-	ans->vset[j] = NULL;
-    }
-
-    ans->numpmid = numpmid;
-    pmtimespecNow(&ans->timestamp);
-
-    for (j = 0; j < numpmid; j++) {
-	int cnt;
-
-	if (ans->vset[j] != NULL)
-	    /* picked up in a previous fetch */
-	    continue;
-
-	sts = dsofetch("__pmHighResFetchLocal", ctxp, ctx,
-			j, pmidlist, numpmid, &cnt, &tmp_ans);
-
-	/* Copy results back
-	 *
-	 * Note: We DO NOT have to free tmp_ans since DSO PMDA would
-	 *		ALWAYS return a pointer to the static area.
-	 */
-	for (n = 0, k = j; k < numpmid && n < cnt; k++) {
-	    if (pmidlist[k] == splitlist[n]) {
-		sts = copyvset("__pmHighResFetchLocal", splitlist[n], sts,
 				tmp_ans->vset, n, ans->vset, k);
 		if (sts < 0) {
 		    free(ans);

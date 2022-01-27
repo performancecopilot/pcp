@@ -1,11 +1,12 @@
 /*
  * Copyright (c) 2018 Ken McDonell, Inc.  All Rights Reserved.
- * 
+ * Copyright (c) 2022 Red Hat.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -114,7 +115,7 @@ cleanup(int all)
 }
 
 void
-do_data(__pmFILE *f, char *fname)
+do_data(__pmFILE *f, int version, char *fname)
 {
     long	oheadbytes = __pmFtell(f);
     long	bytes = 0;
@@ -134,7 +135,7 @@ do_data(__pmFILE *f, char *fname)
     struct stat	sbuf;
     metric_t	*metricp;
     __pmPDUHdr *php;
-    pmResult	*rp;
+    __pmResult	*rp;
 
     nmetric = 0;
     metric_tab = NULL;
@@ -147,8 +148,13 @@ do_data(__pmFILE *f, char *fname)
 	oheadbytes += sizeof(header);
 	header = ntohl(header);
 	rlen = header - (int)sizeof(header) - (int)sizeof(trailer);
-	bytes += rlen - sizeof(pmTimeval) - sizeof(__pmPDU);
-	oheadbytes += sizeof(pmTimeval) + sizeof(__pmPDU);
+	if (version >= PM_LOG_VERS03) {
+	    bytes += rlen - sizeof(pmTimespec) - sizeof(__pmPDU);
+	    oheadbytes += sizeof(pmTimespec) + sizeof(__pmPDU);
+	} else {
+	    bytes += rlen - sizeof(pmTimeval) - sizeof(__pmPDU);
+	    oheadbytes += sizeof(pmTimeval) + sizeof(__pmPDU);
+	}
 	need = rlen + sizeof(__pmPDUHdr);
 	buf = (char *)__pmFindPDUBuf(need);
 	if (buf == NULL) {
@@ -167,13 +173,21 @@ do_data(__pmFILE *f, char *fname)
 
 	php = (__pmPDUHdr *)buf;
 	php->len = header + sizeof(trailer);
-	php->type = PDU_RESULT;
 	php->from = FROM_ANON;
-
-	sts = __pmDecodeResult((__pmPDU *)buf, &rp);
-	if (sts < 0) {
-	    fprintf(stderr, "Error: __pmDecodeResult failed: %s\n", pmErrStr(sts));
-	    exit(1);
+	if (version >= PM_LOG_VERS03) {
+	    php->type = PDU_HIGHRES_RESULT;
+	    if ((sts = __pmDecodeHighResResult((__pmPDU *)buf, &rp)) < 0) {
+		fprintf(stderr, "Error: %s failed: %s\n",
+				"__pmDecodeHighResResult", pmErrStr(sts));
+		exit(1);
+	    }
+	} else {
+	    php->type = PDU_RESULT;
+	    if ((sts = __pmDecodeResult((__pmPDU *)buf, &rp)) < 0) {
+		fprintf(stderr, "Error: %s failed: %s\n",
+				"__pmDecodeResult", pmErrStr(sts));
+		exit(1);
+	    }
 	}
 
 	__pmFread(&trailer, 1, sizeof(trailer), f);
@@ -335,7 +349,7 @@ do_data(__pmFILE *f, char *fname)
 
 	}
 
-	pmFreeResult(rp);
+	__pmFreeResult(rp);
 	if ((sts = __pmUnpinPDUBuf(buf)) < 0) {
 	    fprintf(stderr, "Error: __pmUnpinPDUBuf failed: %s\n", pmErrStr(sts));
 	    exit(1);
@@ -396,7 +410,4 @@ do_data(__pmFILE *f, char *fname)
 	printf("  unaccounted for: %ld bytes\n", (long)sbuf.st_size);
 
     cleanup(1);
-
-    return;
 }
-

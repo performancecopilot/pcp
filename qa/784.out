@@ -10,7 +10,7 @@ PMID: 138.0.0
     Semantics: instant  Units: none
 dbpmda> fetch mic.mgmt.numcards
 PMID(s): 138.0.0
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   138.0.0 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
 dbpmda> 

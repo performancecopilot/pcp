@@ -215,102 +215,102 @@ InDom: 29.3
 
 --- dump values for sample.bin ---
 Note: timezone set to local timezone of host "gonzo" from archive
-10:46:07.406806 1 metric
+10:46:07.406806000 1 metric
     29.0.6 (sample.bin):
         inst [300 or "bin-300"] value 300
         inst [700 or "bin-700"] value 700
         inst [100 or "bin-100"] value 100
-10:47:07.419122 1 metric
+10:47:07.419122000 1 metric
     29.0.6 (sample.bin):
         inst [300 or "bin-300"] value 300
         inst [700 or "bin-700"] value 700
         inst [100 or "bin-100"] value 100
-10:48:07.406714 1 metric
+10:48:07.406714000 1 metric
     29.0.6 (sample.bin):
         inst [300 or "bin-300"] value 300
         inst [700 or "bin-700"] value 700
         inst [100 or "bin-100"] value 100
-10:49:07.407160 1 metric
+10:49:07.407160000 1 metric
     29.0.6 (sample.bin):
         inst [300 or "bin-300"] value 300
         inst [700 or "bin-700"] value 700
         inst [100 or "bin-100"] value 100
-10:50:07.407387 1 metric
+10:50:07.407387000 1 metric
     29.0.6 (sample.bin):
         inst [300 or "bin-300"] value 300
         inst [700 or "bin-700"] value 700
         inst [100 or "bin-100"] value 100
-10:51:07.407667 1 metric
+10:51:07.407667000 1 metric
     29.0.6 (sample.bin):
         inst [300 or "bin-300"] value 300
         inst [700 or "bin-700"] value 700
         inst [100 or "bin-100"] value 100
-10:52:07.407885 1 metric
+10:52:07.407885000 1 metric
     29.0.6 (sample.bin):
         inst [300 or "bin-300"] value 300
         inst [700 or "bin-700"] value 700
         inst [100 or "bin-100"] value 100
-10:53:07.408341 1 metric
+10:53:07.408341000 1 metric
     29.0.6 (sample.bin):
         inst [300 or "bin-300"] value 300
         inst [700 or "bin-700"] value 700
         inst [100 or "bin-100"] value 100
-10:54:07.408606 1 metric
+10:54:07.408606000 1 metric
     29.0.6 (sample.bin):
         inst [300 or "bin-300"] value 300
         inst [700 or "bin-700"] value 700
         inst [100 or "bin-100"] value 100
-10:55:07.409073 1 metric
+10:55:07.409073000 1 metric
     29.0.6 (sample.bin):
         inst [300 or "bin-300"] value 300
         inst [700 or "bin-700"] value 700
         inst [100 or "bin-100"] value 100
-10:56:07.409201 1 metric
+10:56:07.409201000 1 metric
     29.0.6 (sample.bin):
         inst [300 or "bin-300"] value 300
         inst [700 or "bin-700"] value 700
         inst [100 or "bin-100"] value 100
-10:57:07.409462 1 metric
+10:57:07.409462000 1 metric
     29.0.6 (sample.bin):
         inst [300 or "bin-300"] value 300
         inst [700 or "bin-700"] value 700
         inst [100 or "bin-100"] value 100
-10:58:07.409875 1 metric
+10:58:07.409875000 1 metric
     29.0.6 (sample.bin):
         inst [300 or "bin-300"] value 300
         inst [700 or "bin-700"] value 700
         inst [100 or "bin-100"] value 100
-10:59:07.410254 1 metric
+10:59:07.410254000 1 metric
     29.0.6 (sample.bin):
         inst [300 or "bin-300"] value 300
         inst [700 or "bin-700"] value 700
         inst [100 or "bin-100"] value 100
-11:00:07.410567 1 metric
+11:00:07.410567000 1 metric
     29.0.6 (sample.bin):
         inst [300 or "bin-300"] value 300
         inst [700 or "bin-700"] value 700
         inst [100 or "bin-100"] value 100
-11:01:07.410735 1 metric
+11:01:07.410735000 1 metric
     29.0.6 (sample.bin):
         inst [300 or "bin-300"] value 300
         inst [700 or "bin-700"] value 700
         inst [100 or "bin-100"] value 100
-11:02:07.411038 1 metric
+11:02:07.411038000 1 metric
     29.0.6 (sample.bin):
         inst [300 or "bin-300"] value 300
         inst [700 or "bin-700"] value 700
         inst [100 or "bin-100"] value 100
-11:03:07.411488 1 metric
+11:03:07.411488000 1 metric
     29.0.6 (sample.bin):
         inst [300 or "bin-300"] value 300
         inst [700 or "bin-700"] value 700
         inst [100 or "bin-100"] value 100
-11:04:07.411683 1 metric
+11:04:07.411683000 1 metric
     29.0.6 (sample.bin):
         inst [300 or "bin-300"] value 300
         inst [700 or "bin-700"] value 700
         inst [100 or "bin-100"] value 100
-11:05:07.411966 1 metric
+11:05:07.411966000 1 metric
     29.0.6 (sample.bin):
         inst [300 or "bin-300"] value 300
         inst [700 or "bin-700"] value 700
@@ -318,130 +318,130 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 --- dump values for sample.drift ---
 Note: timezone set to local timezone of host "gonzo" from archive
-10:46:07.406806 1 metric
+10:46:07.406806000 1 metric
     29.0.7 (sample.drift): value 111
-10:47:07.419122 1 metric
+10:47:07.419122000 1 metric
     29.0.7 (sample.drift): value 88
-10:48:07.406714 1 metric
+10:48:07.406714000 1 metric
     29.0.7 (sample.drift): value 83
-10:49:07.407160 1 metric
+10:49:07.407160000 1 metric
     29.0.7 (sample.drift): value 58
-10:50:07.407387 1 metric
+10:50:07.407387000 1 metric
     29.0.7 (sample.drift): value 26
-10:51:07.407667 1 metric
+10:51:07.407667000 1 metric
     29.0.7 (sample.drift): value 74
-10:52:07.407885 1 metric
+10:52:07.407885000 1 metric
     29.0.7 (sample.drift): value 75
-10:53:07.408341 1 metric
+10:53:07.408341000 1 metric
     29.0.7 (sample.drift): value 86
-10:54:07.408606 1 metric
+10:54:07.408606000 1 metric
     29.0.7 (sample.drift): value 119
-10:55:07.409073 1 metric
+10:55:07.409073000 1 metric
     29.0.7 (sample.drift): value 150
-10:56:07.409201 1 metric
+10:56:07.409201000 1 metric
     29.0.7 (sample.drift): value 153
-10:57:07.409462 1 metric
+10:57:07.409462000 1 metric
     29.0.7 (sample.drift): value 189
-10:58:07.409875 1 metric
+10:58:07.409875000 1 metric
     29.0.7 (sample.drift): value 234
-10:59:07.410254 1 metric
+10:59:07.410254000 1 metric
     29.0.7 (sample.drift): value 282
-11:00:07.410567 1 metric
+11:00:07.410567000 1 metric
     29.0.7 (sample.drift): value 303
-11:01:07.410735 1 metric
+11:01:07.410735000 1 metric
     29.0.7 (sample.drift): value 271
-11:02:07.411038 1 metric
+11:02:07.411038000 1 metric
     29.0.7 (sample.drift): value 267
-11:03:07.411488 1 metric
+11:03:07.411488000 1 metric
     29.0.7 (sample.drift): value 249
-11:04:07.411683 1 metric
+11:04:07.411683000 1 metric
     29.0.7 (sample.drift): value 242
-11:05:07.411966 1 metric
+11:05:07.411966000 1 metric
     29.0.7 (sample.drift): value 208
 
 --- dump values for sample.mirage ---
 Note: timezone set to local timezone of host "gonzo" from archive
-10:46:07.406806 1 metric
+10:46:07.406806000 1 metric
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 32
         inst [13 or "m-13"] value 1330
-10:47:07.419122 1 metric
+10:47:07.419122000 1 metric
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 27
         inst [13 or "m-13"] value 1325
-10:48:07.406714 1 metric
+10:48:07.406714000 1 metric
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 22
         inst [13 or "m-13"] value 1320
         inst [17 or "m-17"] value 1717
-10:49:07.407160 1 metric
+10:49:07.407160000 1 metric
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 15
         inst [13 or "m-13"] value 1313
         inst [17 or "m-17"] value 1711
-10:50:07.407387 1 metric
+10:50:07.407387000 1 metric
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 7
         inst [17 or "m-17"] value 1704
-10:51:07.407667 1 metric
+10:51:07.407667000 1 metric
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 99
         inst [17 or "m-17"] value 1797
-10:52:07.407885 1 metric
+10:52:07.407885000 1 metric
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 93
         inst [17 or "m-17"] value 1791
-10:53:07.408341 1 metric
+10:53:07.408341000 1 metric
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 87
         inst [17 or "m-17"] value 1785
-10:54:07.408606 1 metric
+10:54:07.408606000 1 metric
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 80
         inst [17 or "m-17"] value 1778
-10:55:07.409073 1 metric
+10:55:07.409073000 1 metric
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 72
         inst [17 or "m-17"] value 1770
         inst [24 or "m-24"] value 2466
-10:56:07.409201 1 metric
+10:56:07.409201000 1 metric
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 65
         inst [17 or "m-17"] value 1764
         inst [24 or "m-24"] value 2461
-10:57:07.409462 1 metric
+10:57:07.409462000 1 metric
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 59
         inst [24 or "m-24"] value 2456
-10:58:07.409875 1 metric
+10:58:07.409875000 1 metric
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 54
         inst [24 or "m-24"] value 2451
-10:59:07.410254 1 metric
+10:59:07.410254000 1 metric
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 49
         inst [24 or "m-24"] value 2446
-11:00:07.410567 1 metric
+11:00:07.410567000 1 metric
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 42
         inst [24 or "m-24"] value 2441
-11:01:07.410735 1 metric
+11:01:07.410735000 1 metric
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 36
         inst [24 or "m-24"] value 2435
-11:02:07.411038 1 metric
+11:02:07.411038000 1 metric
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 31
         inst [24 or "m-24"] value 2430
-11:03:07.411488 1 metric
+11:03:07.411488000 1 metric
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 26
         inst [24 or "m-24"] value 2425
-11:04:07.411683 1 metric
+11:04:07.411683000 1 metric
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 20
         inst [24 or "m-24"] value 2419
-11:05:07.411966 1 metric
+11:05:07.411966000 1 metric
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 14
         inst [24 or "m-24"] value 2413

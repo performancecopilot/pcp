@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013,2022 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -26,7 +26,7 @@
  * current context is not locked.
  */
 int
-pmStore_ctx(__pmContext *ctxp, const pmResult *result)
+pmStore_ctx(__pmContext *ctxp, const __pmResult *result)
 {
     int		need_unlock = 0;
     int		n;
@@ -142,9 +142,34 @@ pmapi_return:
 }
 
 int
-pmStore(const pmResult *result)
+pmStore(const pmResult *rp)
 {
-    int	sts;
-    sts = pmStore_ctx(NULL, result);
+    __pmResult	*newrp;
+    int		i, sts;
+
+    /*
+     * Create a small internal result structure (wrapper)
+     * to interface the caller-provided structure to the
+     * rest of libpcp.  It's thrown away on completion,
+     * but provides correct format and alignment.
+     */
+    if ((newrp = __pmAllocResult(rp->numpmid)) == NULL) {
+	pmNoMem("pmStore: newrp", sizeof(__pmResult) + (rp->numpmid - 1) * sizeof(pmValueSet *), PM_RECOV_ERR);
+	return -ENOMEM;
+    }
+
+    newrp->numpmid = rp->numpmid;
+    newrp->timestamp.sec = rp->timestamp.tv_sec;
+    newrp->timestamp.nsec = rp->timestamp.tv_usec * 1000;
+
+    /* thin wrapper to alloc less - use callers structure */
+    for (i = 0; i < rp->numpmid; i++)
+	newrp->vset[i] = rp->vset[i];
+
+    sts = pmStore_ctx(NULL, newrp);
+
+    /* make sure to not free within the callers structure */
+    newrp->numpmid = 0;
+    __pmFreeResult(newrp);
     return sts;
 }

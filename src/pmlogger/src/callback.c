@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018,2021 Red Hat.
+ * Copyright (c) 2014-2018,2021-2022 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,12 +22,12 @@ int	last_log_offset;
 #define CLEAR_DERIVED_LOGGED(x) pmID_build(pmID_domain(x), ~2048 & pmID_cluster(x), pmID_item(x))
 
 /*
- * pro tem, we have a single context with the pmcd providing the
- * results, hence need to send the profile each time
+ * We have a single context with the pmcd providing the results,
+ * hence need to send the profile each time.
  */
-static int one_context = 1;
+static int	one_context = 1;
 
-struct timeval	last_stamp;
+__pmTimestamp	last_stamp;
 __pmHashCtl	hist_hash;
 
 /*
@@ -38,8 +38,7 @@ __pmHashCtl	hist_hash;
 typedef struct _lastfetch {
     struct _lastfetch	*lf_next;
     fetchctl_t		*lf_fp;
-    pmResult		*lf_resp;
-    __pmPDU		*lf_pb;
+    __pmResult		*lf_resp;
 } lastfetch_t;
 
 typedef struct _AFctl {
@@ -116,7 +115,7 @@ clearavail(fetchctl_t *fcp)
 }
 
 static void
-setavail(pmResult *resp)
+setavail(__pmResult *resp)
 {
     int			i;
 
@@ -160,7 +159,7 @@ setavail(pmResult *resp)
 	    php->ph_indom = ((optreq_t *)hp->data)->r_desc->indom;
 	    /*
 	     * now create a new insthist list for all the instances in the
-	     * pmResult and we're done
+	     * __pmResult and we're done
 	     */
 	    php->ph_numinst = vsp->numval;
 	    ihp = (insthist_t *)calloc(vsp->numval, sizeof(insthist_t));
@@ -267,11 +266,11 @@ done:
 
 
 /*
- * compare pmResults for a particular metric, and return 1 if
+ * compare __pmResults for a particular metric, and return 1 if
  * the set of instances has changed.
  */
 static int
-check_inst(pmValueSet *vsp, int hint, pmResult *lrp)
+check_inst(pmValueSet *vsp, int hint, __pmResult *lrp)
 {
     int		i;
     int		j;
@@ -289,7 +288,7 @@ check_inst(pmValueSet *vsp, int hint, pmResult *lrp)
 	if (i == lrp->numpmid) {
 	    fprintf(stderr, "check_inst: cannot find PMID %s in last result ...\n",
 		pmIDStr(vsp->pmid));
-	    __pmDumpResult(stderr, lrp);
+	    __pmPrintResult(stderr, lrp);
 	    return 0;
 	}
     }
@@ -431,7 +430,6 @@ manageText(pmDesc *desc)
 		ident = desc->pmid;
 	    }
 
-
 	    /* Lookup returns >= 0 when the key exists */
 	    if (__pmLogLookupText(&archctl, ident, types, &text) >= 0)
 		continue;
@@ -455,7 +453,7 @@ manageText(pmDesc *desc)
 		sts = __pmLogPutText(&archctl, ident, types, text, indom);
 		free(text);
 		if (sts < 0)
-			break;
+		    break;
 	    }
 	}
     }
@@ -552,6 +550,20 @@ lookupTaskCacheNames(pmID pmid, char ***namesptr)
     return numnames;
 }
 
+static size_t
+pduresultbytes(__pmResult *resp)
+{
+    size_t	need, vneed;
+    int		pdutype;
+
+    if (archive_version >= PM_LOG_VERS03)
+	pdutype = PDU_HIGHRES_RESULT;
+    else
+	pdutype = PDU_RESULT;
+    __pmGetResultSize(pdutype, resp->numpmid, resp->vset, &need, &vneed);
+    return need + vneed;
+}
+
 /*
  * Warning: called in signal handler context ... be careful
  */
@@ -580,9 +592,8 @@ do_work(task_t *tp)
     int			sts;
     fetchctl_t		*fp;
     indomctl_t		*idp;
-    pmResult		*resp;
-    __pmPDU		*pb_in;
-    __pmPDU		*pb_out;
+    __pmResult		*resp;
+    __pmPDU		*pb;
     AFctl_t		*acp;
     lastfetch_t		*lfp;
     lastfetch_t		*free_lfp;
@@ -596,8 +607,8 @@ do_work(task_t *tp)
     long		new_meta_offset;
     int			pdu_bytes = 0;
     int			pdu_metrics = 0;
+    size_t		pdu_payload;
     __pmLogInDom_io	old;
-    __pmTimestamp	resp_stamp;
     unsigned long	peek_offset;
 
     label_offset = __pmLogLabelSize(archctl.ac_log);
@@ -633,9 +644,9 @@ do_work(task_t *tp)
 	    }
 	    if (fp == (fetchctl_t *)0) {
 		lfp->lf_fp = (fetchctl_t *)0;	/* mark lastfetch_t as free */
-		if (lfp->lf_resp != (pmResult *)0) {
-		    pmFreeResult(lfp->lf_resp);
-		    lfp->lf_resp =(pmResult *)0;
+		if (lfp->lf_resp != NULL) {
+		    __pmFreeResult(lfp->lf_resp);
+		    lfp->lf_resp = NULL;
 		}
 	    }
 	}
@@ -679,7 +690,7 @@ do_work(task_t *tp)
 
 	clearavail(fp);
 
-	if ((sts = changed = myFetch(fp->f_numpmid, fp->f_pmidlist, &pb_in)) < 0) {
+	if ((sts = changed = myFetch(fp->f_numpmid, fp->f_pmidlist, &resp)) < 0) {
 	    if (sts == -EINTR) {
 		/* disconnect() already done in myFetch() */
 		return;
@@ -692,14 +703,10 @@ do_work(task_t *tp)
 	    }
 	    continue;
 	}
+	pdu_payload = pduresultbytes(resp);
 
 	if (pmDebugOptions.appl2)
 	    pmNotifyErr(LOG_INFO, "callback: fetch group %p (%d metrics, 0x%x change)", fp, fp->f_numpmid, changed);
-
-	/*
-	 * hook to rewrite PDU buffer ...
-	 */
-	pb_in = rewrite_pdu(pb_in, archive_version);
 
 	if (rflag) {
 	    /*
@@ -708,18 +715,18 @@ do_work(task_t *tp)
 	     * a PDU buffer is reformatted to make len shorter by one int
 	     * before the record is written to the external file
 	     */
-	    pdu_bytes += ((__pmPDUHdr *)pb_in)->len - sizeof (__pmPDUHdr) + 
-		2*sizeof(int); 
+	    pdu_bytes += pdu_payload - sizeof (__pmPDUHdr) + 2*sizeof(int); 
 	    pdu_metrics += fp->f_numpmid;
 	}
 
 	/*
 	 * Even without a -v option, we may need to switch volumes
-	 * if the data file exceeds 2^31-1 bytes
+	 * if the data file exceeds 2^31-1 bytes (pre-v3 archives)
 	 */
 	peek_offset = __pmFtell(archctl.ac_mfp);
-	peek_offset += ((__pmPDUHdr *)pb_in)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
-	if (peek_offset > 0x7fffffff) {
+	peek_offset += pdu_payload - sizeof(__pmPDUHdr) + 2*sizeof(int);
+	if ((peek_offset > 0x7fffffff && archive_version < PM_LOG_VERS03) ||
+	    (peek_offset >= LONG_MAX-1 && archive_version >= PM_LOG_VERS03)) {
 	    if (pmDebugOptions.appl2)
 		pmNotifyErr(LOG_INFO, "callback: new volume based on max size, currently %ld", __pmFtell(archctl.ac_mfp));
 	    (void)newvolume(VOL_SW_MAX);
@@ -727,39 +734,35 @@ do_work(task_t *tp)
 
 	/*
 	 * Output write ordering ... need to do any required metadata
-	 * changes first, then the pmResult, then optionally a new
+	 * changes first, then the fetch result, then optionally a new
 	 * index entry.
 	 *
 	 * But for 32-bit pointer platforms, __pmDecodeResult changes the
 	 * pointers in the input PDU buffer for the non INSITU values and
 	 * __pmDecodeResult also does potential hton*() translation
-	 * within the the input PDU buffer and if we have derived metrics
-	 * we need to rewrite the PMIDs, and this can't be done until after
-	 * the input PDU buffer is decoded into a pmResult.
+	 * within the input PDU buffer.  If we have derived metrics we
+	 * need to rewrite the PMIDs too, which can't be done until after
+	 * the input PDU buffer is decoded into a pmResult.  Finally, if
+	 * writing a version 2 archive after a high resolution fetch, or
+	 * a version 3 archive after a original fetch, result timestamp
+	 * translation is required.
 	 *
-	 * So in general there is no real choice but to call
-	 * _pmDecodeResult, do all the pmResult processing and after
-	 * the metadata changes have been written out, call
-	 * __pmEncodeResult to re-encode a PDU buffer before doing
-	 * the pmResult write.
+	 * So in general there is no real choice but to first call
+	 * __pmDecodeResult (done in myFetch), do the result processing
+	 * and after the metadata changes have been written out, call
+	 * __pmEncodeResult to encode the right PDU buffer before doing
+	 * the correct style of result write.
 	 */
 	last_log_offset = __pmFtell(archctl.ac_mfp);
 	assert(last_log_offset >= 0);
 
-	resp = NULL; /* silence coverity */
-	if ((sts = __pmDecodeResult(pb_in, &resp)) < 0) {
-	    fprintf(stderr, "__pmDecodeResult: %s\n", pmErrStr(sts));
-	    exit(1);
-	}
 	setavail(resp);
-	resp_stamp.sec = resp->timestamp.tv_sec;
-	resp_stamp.nsec = resp->timestamp.tv_usec * 1000;
 
 	if (changed & PMCD_LABEL_CHANGE) {
 	    /*
 	     * Change to the context labels associated with logged host
 	     */
-	    putlabels(PM_LABEL_CONTEXT, PM_IN_NULL, &resp_stamp);
+	    putlabels(PM_LABEL_CONTEXT, PM_IN_NULL, &resp->timestamp);
 	}
 
 	needti = 0;
@@ -798,7 +801,7 @@ do_work(task_t *tp)
 		    /* derived metric, restore cluster field ... */
 		    desc.pmid = CLEAR_DERIVED_LOGGED(desc.pmid);
 		free(names);
-		manageLabels(&desc, &resp_stamp, 0);
+		manageLabels(&desc, &resp->timestamp, 0);
 		manageText(&desc);
 	    }
 	    if (desc.type == PM_TYPE_EVENT) {
@@ -819,7 +822,7 @@ do_work(task_t *tp)
 		 */
 		old.indom = desc.indom;
 		(void)__localLogGetInDom(&logctl, &old);
-		if (old.numinst > 0 && __pmTimestampSub(&resp_stamp, &old.stamp) <= 0) {
+		if (old.numinst > 0 && __pmTimestampSub(&resp->timestamp, &old.stamp) <= 0) {
 		    /*
 		     * Already have indom with the same (or later, in the
 		     * case of some time warp) timestamp compared to the
@@ -834,7 +837,7 @@ do_work(task_t *tp)
 		    needindom = 0;
 		    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
 			fprintf(stderr, "time warp: pmResult: % " FMT_INT64 ".%09d last %s indom: %" FMT_INT64 ".%09d\n",
-			    resp_stamp.sec, resp_stamp.nsec,
+			    resp->timestamp.sec, resp->timestamp.nsec,
 			    pmInDomStr(old.indom),
 			    old.stamp.sec, old.stamp.nsec);
 		    }
@@ -918,17 +921,16 @@ do_work(task_t *tp)
 			if (!pmaSameInDom(&old, &new))
 			    needindom = 1;
 		    }
-		    else if (archive_version == PM_LOG_VERS03) {
+		    else if (archive_version >= PM_LOG_VERS03) {
 			needindom = pmaDeltaInDom(&old, &new, &new_delta);
 		    }
 		    if (needindom == 1) {
 			int	pdu_type;
 			if (pmDebugOptions.appl2)
 			    pmNotifyErr(LOG_INFO, "callback: indom (%s) full change", pmInDomStr(desc.indom));
-			new.stamp.sec = (__int32_t)resp->timestamp.tv_sec;
-			new.stamp.nsec = (__int32_t)resp->timestamp.tv_usec * 1000;
+			new.stamp = resp->timestamp;	/* struct assignment */
 			new.indom = desc.indom;
-			if (archive_version == PM_LOG_VERS03)
+			if (archive_version >= PM_LOG_VERS03)
 			    pdu_type = TYPE_INDOM;
 			else
 			    pdu_type = TYPE_INDOM_V2;
@@ -950,8 +952,7 @@ do_work(task_t *tp)
 		    else if (needindom == 2) {
 			if (pmDebugOptions.appl2)
 			    pmNotifyErr(LOG_INFO, "callback: indom (%s) delta change", pmInDomStr(desc.indom));
-			new_delta.stamp.sec = (__int32_t)resp->timestamp.tv_sec;
-			new_delta.stamp.nsec = (__int32_t)resp->timestamp.tv_usec * 1000;
+			new_delta.stamp = resp->timestamp;	/* struct assignment */
 			new_delta.indom = desc.indom;
 			/* emit delta indom record */
 			if ((sts = __pmLogPutInDom(&archctl, TYPE_INDOM_DELTA, &new_delta)) < 0) {
@@ -989,10 +990,10 @@ do_work(task_t *tp)
 
 	if (tp->t_dm != 0) {
 	    /*
-	     * pmResult contains at least one derived metric, rewrite
+	     * Result contains at least one derived metric, rewrite
 	     * the cluster field of the PMID(s) (set the top bit)
 	     * before output ... no need to restore PMID(s) because
-	     * we're finished with this pmResult once the write is
+	     * we're finished with this result once the write is
 	     * done.
 	     *
 	     * This forces the PMID in the archive to NOT look like
@@ -1006,15 +1007,26 @@ do_work(task_t *tp)
 	    }
 	}
 
-	if ((sts = __pmEncodeResult(__pmFileno(archctl.ac_mfp), resp, &pb_out)) < 0) {
-	    fprintf(stderr, "__pmEncodeResult: %s\n", pmErrStr(sts));
-	    exit(1);
+	if (archive_version >= PM_LOG_VERS03) {
+	    if ((sts = __pmEncodeHighResResult(resp, &pb)) < 0) {
+		fprintf(stderr, "__pmEncodeHighResResult: %s\n", pmErrStr(sts));
+		exit(1);
+	    }
+	    if ((sts = __pmLogPutResult3(&archctl, pb)) < 0) {
+		fprintf(stderr, "__pmLogPutResult3: (encode) %s\n", pmErrStr(sts));
+		exit(1);
+	    }
+	} else {
+	    if ((sts = __pmEncodeResult(resp, &pb)) < 0) {
+		fprintf(stderr, "__pmEncodeResult: %s\n", pmErrStr(sts));
+		exit(1);
+	    }
+	    if ((sts = __pmLogPutResult2(&archctl, pb)) < 0) {
+		fprintf(stderr, "__pmLogPutResult2: (encode) %s\n", pmErrStr(sts));
+		exit(1);
+	    }
 	}
-	if ((sts = __pmLogPutResult2(&archctl, pb_out)) < 0) {
-	    fprintf(stderr, "__pmLogPutResult2: (encode) %s\n", pmErrStr(sts));
-	    exit(1);
-	}
-	__pmUnpinPDUBuf(pb_out);
+	__pmUnpinPDUBuf(pb);
 	__pmOverrideLastFd(__pmFileno(archctl.ac_mfp));
 
 	if (__pmFtell(archctl.ac_mfp) > flushsize) {
@@ -1029,16 +1041,13 @@ do_work(task_t *tp)
 	     * result (but if this is the first one, skip the label
 	     * record, what a crock), ... ditto for the meta data
 	     */
-	    __pmTimestamp	stamp;
 	    new_offset = __pmFtell(archctl.ac_mfp);
 	    assert(new_offset >= 0);
 	    new_meta_offset = __pmFtell(logctl.mdfp);
 	    assert(new_meta_offset >= 0);
 	    __pmFseek(archctl.ac_mfp, last_log_offset, SEEK_SET);
 	    __pmFseek(logctl.mdfp, old_meta_offset, SEEK_SET);
-	    stamp.sec = (__int32_t)resp->timestamp.tv_sec;
-	    stamp.nsec = (__int32_t)resp->timestamp.tv_usec * 1000;
-	    __pmLogPutIndex(&archctl, &stamp);
+	    __pmLogPutIndex(&archctl, &resp->timestamp);
 	    /*
 	     * ... and put them back
 	     */
@@ -1049,16 +1058,13 @@ do_work(task_t *tp)
 
 	last_stamp = resp->timestamp;	/* struct assignment */
 
-	if (lfp->lf_resp != (pmResult *)0) {
+	if (lfp->lf_resp != NULL) {
 	    /*
-	     * release memory that is allocated and pinned in pmDecodeResult
+	     * release memory that is allocated in pmDecodeResult
 	     */
-	    pmFreeResult(lfp->lf_resp);
+	    __pmFreeResult(lfp->lf_resp);
 	}
 	lfp->lf_resp = resp;
-	if (lfp->lf_pb != NULL)
-	    __pmUnpinPDUBuf(lfp->lf_pb);
-	lfp->lf_pb = pb_in;
     }
 
     if (rflag && tp->t_size == 0 && pdu_metrics > 0) {
@@ -1134,37 +1140,14 @@ do_work(task_t *tp)
 	if (pmDebugOptions.appl2)
 	    pmNotifyErr(LOG_INFO, "callback: new volume based on size (%d)", (int)__pmFtell(archctl.ac_mfp));
     }
-
 }
 
 int
 putmark(void)
 {
-    struct {
-	__pmPDU		hdr;
-	pmTimeval	timestamp;	/* when returned */
-	int		numpmid;	/* zero PMIDs to follow */
-	__pmPDU		tail;
-    } mark;
-
-    if (last_stamp.tv_sec == 0 && last_stamp.tv_usec == 0)
-	/* no earlier pmResult, no point adding a mark record */
+    if (last_stamp.sec == 0 && last_stamp.nsec == 0)
+	/* no earlier result, no point adding a mark record */
 	return 0;
 
-    mark.hdr = htonl((int)sizeof(mark));
-    mark.tail = mark.hdr;
-    mark.timestamp.tv_sec = last_stamp.tv_sec;
-    mark.timestamp.tv_usec = last_stamp.tv_usec + 1000;	/* + 1msec */
-    if (mark.timestamp.tv_usec > 1000000) {
-	mark.timestamp.tv_usec -= 1000000;
-	mark.timestamp.tv_sec++;
-    }
-    mark.timestamp.tv_sec = htonl(mark.timestamp.tv_sec);
-    mark.timestamp.tv_usec = htonl(mark.timestamp.tv_usec);
-    mark.numpmid = htonl(0);
-
-    if (__pmFwrite(&mark, 1, sizeof(mark), archctl.ac_mfp) != sizeof(mark))
-	return -oserror();
-    else
-	return 0;
+    return __pmLogWriteMark(archctl.ac_mfp, archive_version, &last_stamp);
 }

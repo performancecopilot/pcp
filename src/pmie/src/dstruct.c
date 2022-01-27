@@ -2,14 +2,14 @@
  * dstruct.c - central data structures and associated operations
  ***********************************************************************
  *
- * Copyright (c) 2013-2015,2020 Red Hat.
+ * Copyright (c) 2013-2015,2020,2022 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -557,7 +557,7 @@ agentId(const char *name)
 void
 newResult(Task *t)
 {
-    pmResult	 *rslt;
+    __pmResult	 *rslt;
     Symbol	 *sym;
     pmValueSet	 *vset;
     pmValueBlock *vblk;
@@ -565,8 +565,11 @@ newResult(Task *t)
     int		 len;
 
     /* allocate pmResult */
-    rslt = (pmResult *) zalloc(sizeof(pmResult) + (t->nrules - 1) * sizeof(pmValueSet *));
+    if ((rslt = __pmAllocResult(t->nrules)) == NULL)
+	pmNoMem("pmie.newResult", sizeof(__pmResult) + (t->nrules - 1) * sizeof(pmValueSet *), PM_FATAL_ERR);
+
     rslt->numpmid = t->nrules;
+    memset(&rslt->timestamp, 0, sizeof(rslt->timestamp));
 
     /* allocate pmValueSet's */
     sym = t->rules;

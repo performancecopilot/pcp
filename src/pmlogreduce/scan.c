@@ -1,6 +1,6 @@
 #include "pmlogreduce.h"
 
-static struct timeval	last_tv = { 0, 0 };
+static __pmTimestamp	last_stamp = { 0, 0 };
 static int		ictx_b = -1;
 
 extern struct timeval	winstart_tval;
@@ -29,9 +29,10 @@ extern struct timeval	winstart_tval;
  */
 
 void
-doscan(struct timeval *end)
+doscan(__pmTimestamp *end)
 {
-    pmResult		*rp;
+    struct timeval	last_tv;
+    __pmResult		*rp;
     value_t		*vp;
     int			sts;
     int			i;
@@ -71,7 +72,7 @@ doscan(struct timeval *end)
 
     for (nr = 0; ; nr++) {
 
-	if ((sts = pmFetchArchive(&rp)) < 0) {
+	if ((sts = __pmFetchArchive(NULL, &rp)) < 0) {
 	    if (sts == PM_ERR_EOL)
 		break;
 	    fprintf(stderr,
@@ -81,7 +82,7 @@ doscan(struct timeval *end)
 	if (pmDebugOptions.appl2) {
 	    if (nr == 0) {
 		fprintf(stderr, "scan starts at ");
-		pmPrintStamp(stderr, &rp->timestamp);
+		__pmPrintTimestamp(stderr, &rp->timestamp);
 		fprintf(stderr, "\n");
 	    }
 	}
@@ -92,6 +93,7 @@ doscan(struct timeval *end)
 	     * pretend there is data between the previous data record
 	     * and the next data record
 	     * Logic copied from pmlogextract.
+	     * TODO: version 3 archive support needed here.
 	     */
 	    struct {
 		__pmPDU		len;
@@ -107,8 +109,8 @@ doscan(struct timeval *end)
 	     */
 	    markrec.len = sizeof(markrec) - sizeof(__pmPDU);
 	    markrec.type = markrec.from = 0;
-	    markrec.timestamp.tv_sec = htonl(rp->timestamp.tv_sec);
-	    markrec.timestamp.tv_usec = htonl(rp->timestamp.tv_usec);
+	    markrec.timestamp.tv_sec = htonl(rp->timestamp.sec);
+	    markrec.timestamp.tv_usec = htonl(rp->timestamp.nsec / 1000);
 	    markrec.numpmid = 0;
 	    if ((sts = __pmLogPutResult2(&archctl, (__pmPDU *)&markrec)) < 0) {
 		fprintf(stderr, "%s: Error: __pmLogPutResult2: mark record write: %s\n",
@@ -121,15 +123,14 @@ doscan(struct timeval *end)
 	     */
 	}
 
-	if (rp->timestamp.tv_sec > end->tv_sec ||
-	    (rp->timestamp.tv_sec == end->tv_sec &&
-	     rp->timestamp.tv_usec > end->tv_usec)) {
+	if ((rp->timestamp.sec > end->sec) ||
+	    (rp->timestamp.sec == end->sec && rp->timestamp.nsec > end->nsec)) {
 	    /*
 	     * past the end of the interval, remember timestamp so we
 	     * can resume here next time
 	     */
-	    last_tv = rp->timestamp;	/* struct assignment */
-	    pmFreeResult(rp);
+	    last_stamp = rp->timestamp;	/* struct assignment */
+	    __pmFreeResult(rp);
 	    break;
 	}
 
@@ -194,7 +195,7 @@ doscan(struct timeval *end)
 		    ;
 		}
 		if (pmDebugOptions.appl1) {
-		    pmPrintStamp(stderr, &rp->timestamp);
+		    __pmPrintTimestamp(stderr, &rp->timestamp);
 		    fprintf(stderr, ": seen %s (%s) inst %d\n",
 			namelist[i], pmIDStr(pmidlist[i]),
 			vsp->vlist[j].inst);
@@ -203,20 +204,22 @@ doscan(struct timeval *end)
 	    }
 	}
 
-	pmFreeResult(rp);
+	__pmFreeResult(rp);
     }
     if (pmDebugOptions.appl2) {
 	fprintf(stderr, "scan ends at ");
-	pmPrintStamp(stderr, &last_tv);
+	__pmPrintTimestamp(stderr, &last_stamp);
 	if (sts == PM_ERR_EOL)
 	    fprintf(stderr, " [EOL]");
 	fprintf(stderr, " (%d records)\n", nr);
     }
 
+    last_tv.tv_sec = last_stamp.sec;
+    last_tv.tv_usec = last_stamp.nsec / 1000;
     if ((sts = pmSetMode(PM_MODE_FORW, &last_tv, 0)) < 0) {
 	fprintf(stderr,
 	    "%s: doscan: Error: pmSetMode (ictx_b) time=", pmGetProgname());
-	pmPrintStamp(stderr, &last_tv);
+	__pmPrintTimestamp(stderr, &last_stamp);
 	fprintf(stderr,
 	    " failed: %s\n", pmErrStr(sts));
 	exit(1);

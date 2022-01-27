@@ -10,7 +10,7 @@ Specification error in configuration file (TMP.config)
 
 === metric sample.wrap.longlong { type -> U32 } ===
 pmlogrewrite: Error: sample.wrap.longlong (29.0.59): extracting value from type 64 to U32: Negative value in conversion to unsigned
-pmResult dump ... numpmid: 18
+__pmResult dump ... numpmid: 18
   29.0.78 (sample.dynamic.instant): No values returned!
   29.0.77 (sample.dynamic.discrete): No values returned!
   29.0.76 (sample.dynamic.counter): No values returned!
@@ -53,7 +53,7 @@ Archive "TMP.new" not created.
 
 === metric sample.wrap.ulonglong { type -> 64 } ===
 pmlogrewrite: Error: sample.wrap.ulonglong (29.0.60): extracting value from type U64 to 64: Truncation in value conversion
-pmResult dump ... numpmid: 18
+__pmResult dump ... numpmid: 18
   29.0.78 (sample.dynamic.instant): No values returned!
   29.0.77 (sample.dynamic.discrete): No values returned!
   29.0.76 (sample.dynamic.counter): No values returned!
@@ -154,7 +154,7 @@ pmExtractValue:  234 [U64] -> 234 [U64]
 pmConvScale: 234 [Mbyte / count] -> 2453667840 [byte / count x 10]
 pmExtractValue:  2453667840 [U64] -> Error: Truncation in value conversion [32]
 pmlogrewrite: Error: sample.drift (29.0.7): extracting value from type U64 to 32: Truncation in value conversion
-pmResult dump ... numpmid: 3
+__pmResult dump ... numpmid: 3
   29.0.37 (sample.mirage): numval: 5 valfmt: 0 vlist[]:
     inst [0 or ???] value 54
     inst [22 or ???] value 2253

@@ -29,23 +29,23 @@ Temporal Index
 15:54:14.652514000	      0          513          276
 
 [48 bytes]
-15:52:44.652242 1 metric
+15:52:44.652242000 1 metric
     3.8.0 (proc.psinfo.pid):
         inst [1472 or "001472 /usr/bin/python /ifs/user/tyearke/test/./wait_launcher.py"] value 1472
         inst [1516 or "001516 /usr/bin/python /ifs/user/tyearke/test/wait.py"] value 1516
 
 [48 bytes]
-15:53:14.653792 1 metric
+15:53:14.653792000 1 metric
     3.8.0 (proc.psinfo.pid):
         inst [1472 or "001472 /usr/bin/python /ifs/user/tyearke/test/./wait_launcher.py"] value 1472
         inst [1533 or "001533 /usr/bin/python /ifs/user/tyearke/test/wait.py"] value 1533
 
 [48 bytes]
-15:53:44.652233 1 metric
+15:53:44.652233000 1 metric
     3.8.0 (proc.psinfo.pid):
         inst [1472 or "001472 /usr/bin/python /ifs/user/tyearke/test/./wait_launcher.py"] value 1472
         inst [1533 or "001533 /usr/bin/python /ifs/user/tyearke/test/wait.py"] value 1533
 
 [28 bytes]
-15:54:14.652514 1 metric
+15:54:14.652514000 1 metric
     3.8.0 (proc.psinfo.pid): No values returned!

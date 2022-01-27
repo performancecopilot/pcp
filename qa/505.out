@@ -20,7 +20,7 @@ Output archive contains: 5 files
 -04:34:48.368813000	      2          851          340
 +04:34:48.368813000	      2          851          352
  
- 04:34:40.368661 3 metrics
+ 04:34:40.368661000 3 metrics
      2.3.3 (pmcd.pmlogger.host): inst [5407 or "5407"] value "gonzo.melbourne.sgi.com"
 
 === -i metric sample.seconds { type -> U64 } ===
@@ -43,5 +43,5 @@ Output archive contains: 5 files
 -04:34:48.368813000	      2          851          340
 +04:34:48.368813000	      2          851          352
  
- 04:34:40.368661 3 metrics
+ 04:34:40.368661000 3 metrics
      2.3.3 (pmcd.pmlogger.host): inst [5407 or "5407"] value "gonzo.melbourne.sgi.com"

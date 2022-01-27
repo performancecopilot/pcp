@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2014-2016,2018 Red Hat.
+ * Copyright (c) 2014-2016,2018,2022 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -118,9 +118,9 @@ typedef struct {
 #define VOL_SW_MAX     5
 
 /* initial time of day from remote PMCD */
-extern struct timeval	epoch;
+extern __pmTimestamp	epoch;
 
-/* offset to start of last written pmResult */
+/* offset to start of last written result */
 extern int	last_log_offset;
 
 /* yylex() gets input from here ... */
@@ -129,7 +129,7 @@ extern FILE		*yyin;
 extern char		*configfile;
 extern int		lineno;
 
-extern int myFetch(int, pmID *, __pmPDU **);
+extern int myFetch(int, pmID *, __pmResult **);
 extern void yyerror(char *);
 extern void yywarn(char *);
 extern void yylinemarker(char *);
@@ -147,14 +147,13 @@ extern int chk_all(task_t *, pmID);
 extern int newvolume(int);
 extern void validate_metrics(void);
 extern void check_dynamic_metrics();
-extern int do_control_req(pmResult *, int, int, int, int);
+extern int do_control_req(__pmResult *, int, int, int, int);
 
 extern void disconnect(int);
 extern int reconnect(void);
 extern int do_prologue(void);
 extern int do_epilogue(void);
 extern void run_done(int,char *);
-extern __pmPDU *rewrite_pdu(__pmPDU *, int);
 extern int putmark(void);
 extern void dumpit(void);
 
@@ -180,7 +179,7 @@ extern int control_req(int ctlfd);
 extern int client_req(void);
 extern __pmHashCtl	hist_hash;
 extern unsigned int	denyops;	/* for access control (ops not allowed) */
-extern struct timeval	last_stamp;
+extern __pmTimestamp	last_stamp;
 extern int		clientfd;
 #define CFD_INET	0
 #define CFD_IPV6	1

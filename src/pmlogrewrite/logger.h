@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013,2018,2021 Red Hat.
+ * Copyright (c) 2013,2018,2021-2022 Red Hat.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -171,7 +171,7 @@ typedef struct {
     pmLogLabel	label;
     __int32_t	*metarec;
     __int32_t	*logrec;
-    pmResult	*rp;
+    __pmResult	*rp;
     int		mark;		/* need EOL marker */
 } inarch_t;
 

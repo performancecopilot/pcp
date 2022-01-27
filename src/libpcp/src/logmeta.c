@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018,2020-2021 Red Hat.
+ * Copyright (c) 2013-2018,2020-2022 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -1833,11 +1833,28 @@ __pmLoadTimestamp(const __int32_t *buf, __pmTimestamp *tsp)
      * need to dodge endian issues here ... want the MSB 32-bits of sec
      * from buf[0] and the LSB 32 bits of sec from buf[1]
      */
-    tsp->sec = ((((__int64_t)buf[0]) << 32) & 0xffffffff00000000LL) | (buf[1] & 0xffffffff);;
+    tsp->sec = ((((__int64_t)buf[0]) << 32) & 0xffffffff00000000LL) | (buf[1] & 0xffffffff);
     tsp->nsec = buf[2];
     __ntohpmTimestamp(tsp);
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
 	fprintf(stderr, "__pmLoadTimestamp: network(%08x%08x %08x nsec)", buf[0], buf[1], buf[2]);
+	fprintf(stderr, " -> %" FMT_INT64 ".%09d (%llx %x nsec)\n", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec);
+    }
+}
+
+/* TODO: remove once on-disk pmHighResResult no longer uses pmTimespec */
+void
+__pmLoadTimespec(const __int32_t *buf, __pmTimestamp *tsp)
+{
+    pmTimespec	ts;
+
+    ts.tv_sec = ((((__int64_t)buf[1]) << 32) & 0xffffffff00000000LL) | (buf[0] & 0xffffffff);
+    ts.tv_nsec = ((((__int64_t)buf[3]) << 32) & 0xffffffff00000000LL) | (buf[2] & 0xffffffff);
+    __ntohpmTimespec(&ts);
+    tsp->sec = ts.tv_sec;
+    tsp->nsec = ts.tv_nsec;
+    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
+	fprintf(stderr, "__pmLoadTimespec: network(%08x%08x %08x%08x nsec)", buf[0], buf[1], buf[2], buf[3]);
 	fprintf(stderr, " -> %" FMT_INT64 ".%09d (%llx %x nsec)\n", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec);
     }
 }

@@ -1,15 +1,15 @@
 /*
  * pmlogrewrite - config-driven stream editor for PCP archives
  *
- * Copyright (c) 2013-2018,2021 Red Hat.
+ * Copyright (c) 2013-2018,2021-2022 Red Hat.
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -1422,9 +1422,8 @@ do_newlabelsets(void)
      * Traverse the list of label change records and emit any new label sets
      * at the globally adjusted start time.
      */
-    stamp.sec = inarch.rp->timestamp.tv_sec;
-    stamp.nsec = inarch.rp->timestamp.tv_usec * 1000;
-    
+    stamp = inarch.rp->timestamp;	/* struct assignment */
+
     for (lp = label_root; lp != NULL; lp = lp->l_next) {
 	/* Is this a new label record? */
 	if (! ((lp->flags & LABEL_NEW)))
@@ -1478,8 +1477,7 @@ do_newlabelsets(void)
 	     * Any global time adjustment done after the first record is output
 	     * above
 	     */
-	    outarch.logctl.label.start.sec = inarch.rp->timestamp.tv_sec;
-	    outarch.logctl.label.start.nsec = inarch.rp->timestamp.tv_usec * 1000;
+	    outarch.logctl.label.start = inarch.rp->timestamp;
 	    /* need to fix start-time in label records */
 	    writelabel(1);
 	    needti = 1;
@@ -1751,18 +1749,15 @@ main(int argc, char **argv)
 		newvolume(outarch.archctl.ac_curvol+1);
 	}
 	if (pmDebugOptions.appl0) {
-	    __pmTimestamp	stamp;
 	    fprintf(stderr, "Log: read ");
-	    stamp.sec = inarch.rp->timestamp.tv_sec;
-	    stamp.nsec = inarch.rp->timestamp.tv_usec * 1000;
-	    __pmPrintTimestamp(stderr, &stamp);
+	    __pmPrintTimestamp(stderr, &inarch.rp->timestamp);
 	    fprintf(stderr, " numpmid=%d @ offset=%ld\n", inarch.rp->numpmid, in_offset);
 	}
 
 	if (ti_idx < inarch.ctxp->c_archctl->ac_log->numti) {
 	    __pmLogTI	*tip = &inarch.ctxp->c_archctl->ac_log->ti[ti_idx];
-	    if (tip->stamp.sec == inarch.rp->timestamp.tv_sec &&
-	        tip->stamp.nsec == inarch.rp->timestamp.tv_usec * 1000) {
+	    if (tip->stamp.sec == inarch.rp->timestamp.sec &&
+	        tip->stamp.nsec == inarch.rp->timestamp.nsec) {
 		/*
 		 * timestamp on input pmResult matches next temporal index
 		 * entry for input archive ... make sure matching temporal
@@ -1778,18 +1773,7 @@ main(int argc, char **argv)
 	 * adjustment ... flows to output pmResult, indom entries in
 	 * metadata, temporal index entries and label records
 	 * */
-#if 0	// TODO when pmResult converted
 	fixstamp(&inarch.rp->timestamp);
-#else
-	{
-	    __pmTimestamp	stamp;
-	    stamp.sec = inarch.rp->timestamp.tv_sec;
-	    stamp.nsec = inarch.rp->timestamp.tv_usec * 1000;
-	    fixstamp(&stamp);
-	    inarch.rp->timestamp.tv_sec = stamp.sec;
-	    inarch.rp->timestamp.tv_usec = stamp.nsec / 1000;
-	}
-#endif
 
 	/*
 	 * Write out any new label sets before any other data using the adjusted
@@ -1878,10 +1862,10 @@ main(int argc, char **argv)
 		    __pmPutTimestamp(&stamp, (__int32_t *)&inarch.metarec[2]);
 		}
 		/* if time of indom > next pmResult stop processing metadata */
-		if (stamp.sec > inarch.rp->timestamp.tv_sec)
+		if (stamp.sec > inarch.rp->timestamp.sec)
 		    break;
-		if (stamp.sec == inarch.rp->timestamp.tv_sec &&
-		    stamp.nsec > inarch.rp->timestamp.tv_usec * 1000)
+		if (stamp.sec == inarch.rp->timestamp.sec &&
+		    stamp.nsec > inarch.rp->timestamp.nsec)
 		    break;
 		needti = 1;
 		do_indom();
@@ -1894,10 +1878,10 @@ main(int argc, char **argv)
 		    __pmPutTimeval(&stamp, (__int32_t *)&inarch.metarec[2]);
 		}
 		/* if time of indom > next pmResult stop processing metadata */
-		if (stamp.sec > inarch.rp->timestamp.tv_sec)
+		if (stamp.sec > inarch.rp->timestamp.sec)
 		    break;
-		if (stamp.sec == inarch.rp->timestamp.tv_sec &&
-		    stamp.nsec > inarch.rp->timestamp.tv_usec * 1000)
+		if (stamp.sec == inarch.rp->timestamp.sec &&
+		    stamp.nsec > inarch.rp->timestamp.nsec)
 		    break;
 		needti = 1;
 		do_indom();
@@ -1910,10 +1894,10 @@ main(int argc, char **argv)
 		    __pmPutTimestamp(&stamp, (__int32_t *)&inarch.metarec[2]);
 		}
 		/* if time of label set  > next pmResult stop processing metadata */
-		if (stamp.sec > inarch.rp->timestamp.tv_sec)
+		if (stamp.sec > inarch.rp->timestamp.sec)
 		    break;
-		if (stamp.sec == inarch.rp->timestamp.tv_sec &&
-		    stamp.nsec > inarch.rp->timestamp.tv_usec * 1000)
+		if (stamp.sec == inarch.rp->timestamp.sec &&
+		    stamp.nsec > inarch.rp->timestamp.nsec)
 		    break;
 		needti = 1;
 		do_labelset();
@@ -1926,10 +1910,10 @@ main(int argc, char **argv)
 		    __pmPutTimeval(&stamp, (__int32_t *)&inarch.metarec[2]);
 		}
 		/* if time of label set  > next pmResult stop processing metadata */
-		if (stamp.sec > inarch.rp->timestamp.tv_sec)
+		if (stamp.sec > inarch.rp->timestamp.sec)
 		    break;
-		if (stamp.sec == inarch.rp->timestamp.tv_sec &&
-		    stamp.nsec > inarch.rp->timestamp.tv_usec * 1000)
+		if (stamp.sec == inarch.rp->timestamp.sec &&
+		    stamp.nsec > inarch.rp->timestamp.nsec)
 		    break;
 		needti = 1;
 		do_labelset();
@@ -1951,15 +1935,13 @@ main(int argc, char **argv)
 	if (first_datarec) {
 	    first_datarec = 0;
 	    /* any global time adjustment done after nextlog() above */
-	    outarch.logctl.label.start.sec = inarch.rp->timestamp.tv_sec;
-	    outarch.logctl.label.start.nsec = inarch.rp->timestamp.tv_usec * 1000;
+	    outarch.logctl.label.start = inarch.rp->timestamp;
 	    /* need to fix start-time in label records */
 	    writelabel(1);
 	    needti = 1;
 	}
 
-	tstamp.sec = inarch.rp->timestamp.tv_sec;
-	tstamp.nsec = inarch.rp->timestamp.tv_usec * 1000;
+	tstamp = inarch.rp->timestamp;
 
 	if (needti) {
 	    __pmFflush(outarch.logctl.mdfp);

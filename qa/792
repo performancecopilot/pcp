@@ -24,6 +24,7 @@ _filter()
 {
     sed \
 	-e "s,$PCP_RUN_DIR,PCP_RUN_DIR,g" \
+	-e 's,^__pmResult,pmResult,g' \
 	-e '/^pmWhichContext()/d' \
 	-e '/^_/s/: .*/: .../' \
     | _filter_dumpresult \

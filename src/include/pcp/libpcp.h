@@ -7,7 +7,7 @@
  *	remain fixed across releases, and they may not work, or may
  *	provide different semantics at some point in the future.
  *
- * Copyright (c) 2012-2021 Red Hat.
+ * Copyright (c) 2012-2022 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -376,14 +376,15 @@ PCP_CALL extern int __pmSendError(int, int, int);
 PCP_CALL extern int __pmDecodeError(__pmPDU *, int *);
 PCP_CALL extern int __pmSendXtendError(int, int, int, int);
 PCP_CALL extern int __pmDecodeXtendError(__pmPDU *, int *, int *);
-PCP_CALL extern int __pmSendResult(int, int, const pmResult *);
-PCP_CALL extern int __pmEncodeResult(int, const pmResult *, __pmPDU **);
-PCP_CALL extern int __pmSendHighResResult(int, int, const pmHighResResult *);
-PCP_CALL extern int __pmEncodeHighResResult(const pmHighResResult *, __pmPDU **);
-PCP_CALL extern int __pmDecodeResult(__pmPDU *, pmResult **);
-PCP_CALL extern int __pmDecodeHighResResult(__pmPDU *, pmHighResResult **);
+PCP_CALL extern int __pmSendResult(int, int, const __pmResult *);
+PCP_CALL extern int __pmEncodeResult(const __pmResult *, __pmPDU **);
+PCP_CALL extern int __pmSendHighResResult(int, int, const __pmResult *);
+PCP_CALL extern int __pmEncodeHighResResult(const __pmResult *, __pmPDU **);
+PCP_CALL extern int __pmDecodeResult(__pmPDU *, __pmResult **);
+PCP_CALL extern int __pmDecodeHighResResult(__pmPDU *, __pmResult **);
 PCP_CALL extern int __pmSendProfile(int, int, int, pmProfile *);
 PCP_CALL extern int __pmDecodeProfile(__pmPDU *, int *, pmProfile **);
+PCP_CALL extern int __pmSendFetchPDU(int, int, int, int, pmID *, int);
 PCP_CALL extern int __pmSendFetch(int, int, int, int, pmID *);
 PCP_CALL extern int __pmDecodeFetch(__pmPDU *, int *, void *, int *, pmID **);
 PCP_CALL extern int __pmSendHighResFetch(int, int, int, int, pmID *);
@@ -423,6 +424,7 @@ PCP_CALL extern int __pmDecodeLabelReq(__pmPDU *, int *, int *);
 PCP_CALL extern int __pmSendLabel(int, int, int, int, pmLabelSet *, int);
 PCP_CALL extern int __pmDecodeLabel(__pmPDU *, int *, int *, pmLabelSet **, int *);
 PCP_CALL unsigned int __pmServerGetFeaturesFromPDU(__pmPDU *);
+PCP_CALL extern int __pmFeaturesIPC(int);
 
 /* PDU buffer services */
 PCP_CALL extern __pmPDU *__pmFindPDUBuf(int);
@@ -696,7 +698,7 @@ typedef struct __pmLogHdr {
  *     as well as buffer allocation, the namelist has been allocated
  *     separately and so both the buf and namelist should be freed.
  *
- * NOTE: timestamp is pmTimeVal for V2 archives and pmTimespec fo
+ * NOTE: timestamp is pmTimeVal for V2 archives and pmTimespec for
  *       V3 archives
  *
  * NOTE: the same structure is used for TYPE_INDOM_DELTA records, except
@@ -937,11 +939,13 @@ PCP_CALL extern int __pmLogPutDesc(__pmArchCtl *, const pmDesc *, int, char **);
 PCP_CALL extern int __pmLogPutInDom(__pmArchCtl *, int, const __pmLogInDom_io * const);
 PCP_CALL extern int __pmLogPutResult(__pmArchCtl *, __pmPDU *);
 PCP_CALL extern int __pmLogPutResult2(__pmArchCtl *, __pmPDU *);
+PCP_CALL extern int __pmLogPutResult3(__pmArchCtl *, __pmPDU *);
 PCP_CALL extern int __pmLogPutIndex(const __pmArchCtl *, const __pmTimestamp *);
 PCP_CALL extern int __pmLogLoadIndex(__pmLogCtl *);
 PCP_CALL extern int __pmLogPutLabels(__pmArchCtl *, unsigned int, unsigned int, int, pmLabelSet *, const __pmTimestamp *);
 PCP_CALL extern int __pmLogPutText(__pmArchCtl *, unsigned int , unsigned int, char *, int);
 PCP_CALL extern int __pmLogWriteLabel(__pmFILE *, const __pmLogLabel *);
+PCP_CALL extern int __pmLogWriteMark(__pmFILE *, int, const __pmTimestamp *);
 PCP_CALL extern int __pmLogLoadMeta(__pmArchCtl *);
 PCP_CALL extern int __pmLogAddDesc(__pmArchCtl *, const pmDesc *);
 PCP_CALL extern int __pmLogAddInDom(__pmArchCtl *, int, const __pmLogInDom_io *, __int32_t *, int);
@@ -954,10 +958,10 @@ PCP_CALL extern int __pmLogAddText(__pmArchCtl *, unsigned int, unsigned int, co
 PCP_CALL extern int __pmLogAddVolume(__pmArchCtl *, unsigned int);
 #define PMLOGREAD_NEXT		0
 #define PMLOGREAD_TO_EOF	1
-PCP_CALL extern int __pmLogRead(__pmArchCtl *, int, __pmFILE *, pmResult **, int);
-PCP_CALL extern int __pmLogRead_ctx(__pmContext *, int, __pmFILE *, pmResult **, int);
+PCP_CALL extern int __pmLogRead(__pmArchCtl *, int, __pmFILE *, __pmResult **, int);
+PCP_CALL extern int __pmLogRead_ctx(__pmContext *, int, __pmFILE *, __pmResult **, int);
 PCP_CALL extern int __pmLogChangeVol(__pmArchCtl *, int);
-PCP_CALL extern int __pmLogFetch(__pmContext *, int, pmID *, pmResult **);
+PCP_CALL extern int __pmLogFetch(__pmContext *, int, pmID *, __pmResult **);
 PCP_CALL extern int __pmLogGetInDom(__pmArchCtl *, pmInDom, __pmTimestamp *, int **, char ***);
 PCP_CALL extern int __pmGetArchiveEnd(__pmArchCtl *, __pmTimestamp *);
 PCP_CALL extern int __pmLogLookupDesc(__pmArchCtl *, pmID, pmDesc *);
@@ -985,11 +989,18 @@ PCP_CALL extern __pmContext *__pmHandleToPtr(int);
  */
 
 /* pmFetch helper routines, hooks for derivations and local contexts */
+PCP_CALL extern int __pmFetch(__pmContext *, int, pmID *, __pmResult **);
+PCP_CALL extern int __pmFetchLocal(__pmContext *, int, pmID *, __pmResult **);
+PCP_CALL extern int __pmFetchArchive(__pmContext *, __pmResult **);
 PCP_CALL extern int __pmPrepareFetch(__pmContext *, int, const pmID *, pmID **);
-PCP_CALL extern int __pmFinishResult(__pmContext *, int, pmResult **);
+PCP_CALL extern int __pmFinishResult(__pmContext *, int, __pmResult **);
 PCP_CALL extern int __pmFinishHighResResult(__pmContext *, int, pmHighResResult **);
-PCP_CALL extern int __pmFetchLocal(__pmContext *, int, pmID *, pmResult **);
-PCP_CALL extern int __pmHighResFetchLocal(__pmContext *, int, pmID *, pmHighResResult **);
+PCP_CALL extern int __pmFetchLocal(__pmContext *, int, pmID *, __pmResult **);
+PCP_CALL extern int __pmHighResFetchLocal(__pmContext *, int, pmID *, __pmResult **);
+PCP_CALL extern int __pmDecodeResult_ctx(__pmContext *, __pmPDU *, __pmResult **);
+PCP_CALL extern int __pmDecodeHighResResult_ctx(__pmContext *, __pmPDU *, __pmResult **);
+PCP_CALL extern void __pmGetResultSize(int, int, pmValueSet * const *, size_t *, size_t *);
+PCP_CALL extern void __pmSortInstances(__pmResult *);
 
 /* safely insert an atom value into a pmValue */
 PCP_CALL extern int __pmStuffValue(const pmAtomValue *, pmValue *, int);
@@ -1054,8 +1065,8 @@ typedef struct {
 #define PDU_LOG_REQUEST		0x8002
 #define PDU_LOG_STATUS		0x8003
 PCP_CALL extern int __pmConnectLogger(const char *, int *, int *);
-PCP_CALL extern int __pmSendLogControl(int, const pmResult *, int, int, int);
-PCP_CALL extern int __pmDecodeLogControl(const __pmPDU *, pmResult **, int *, int *, int *);
+PCP_CALL extern int __pmSendLogControl(int, const __pmResult *, int, int, int);
+PCP_CALL extern int __pmDecodeLogControl(const __pmPDU *, __pmResult **, int *, int *, int *);
 PCP_CALL extern int __pmSendLogRequest(int, int);
 PCP_CALL extern int __pmDecodeLogRequest(const __pmPDU *, int *);
 PCP_CALL extern int __pmSendLogStatus(int, __pmLoggerStatus *);
@@ -1066,7 +1077,7 @@ PCP_CALL extern void __pmFreeLogStatus(__pmLoggerStatus *, int);
 PCP_CALL extern int __pmLoggerTimeout(void);
 
 /* other interfaces shared by pmlc and pmlogger */
-PCP_CALL extern int __pmControlLog(int, const pmResult *, int, int, int, pmResult **);
+PCP_CALL extern int __pmControlLog(int, const __pmResult *, int, int, int, __pmResult **);
 #define PM_LOG_OFF		0	/* state */
 #define PM_LOG_MAYBE		1
 #define PM_LOG_ON		2
@@ -1299,6 +1310,7 @@ PCP_CALL extern void __pmtimevalSleep(struct timeval);
 PCP_CALL extern void __pmtimevalPause(struct timeval);
 
 /* manipulate internal timestamps */
+PCP_CALL extern int __pmGetTimestamp(__pmTimestamp *);
 PCP_CALL extern double __pmTimevalSub(const pmTimeval *, const pmTimeval *);
 PCP_CALL extern double __pmTimespecSub(const pmTimespec *, const pmTimespec *);
 PCP_CALL extern double __pmTimestampSub(const __pmTimestamp *, const __pmTimestamp *);
@@ -1407,14 +1419,14 @@ PCP_CALL extern __pmResult *__pmAllocResult(int);
  * after, the start of the __pmResult (rp)
  */
 static inline pmResult *
-__pmOffsetResult(__pmResult *rp)
+__pmOffsetResult(const __pmResult *rp)
 {
    return (pmResult *)(&((char *)rp)[offsetof(__pmResult,numpmid) - offsetof(pmResult,numpmid)]);
 }
 
 /* same for pmHighResResult ... */
 static inline pmHighResResult *
-__pmOffsetHighResResult(__pmResult *rp)
+__pmOffsetHighResResult(const __pmResult *rp)
 {
    return (pmHighResResult *)(&((char *)rp)[offsetof(__pmResult,numpmid) - offsetof(pmHighResResult,numpmid)]);
 }
@@ -1429,6 +1441,7 @@ PCP_CALL extern void __pmFreeProfile(pmProfile *);
 PCP_CALL extern void __pmFreeResultValues(pmResult *);
 PCP_CALL extern void __pmFreeHighResResultValues(pmHighResResult *);
 PCP_CALL extern void __pmFreeDerived(__pmContext *);
+PCP_CALL extern void __pmFreeResult(__pmResult *);
 
 /* diagnostics for formatting or printing miscellaneous data structures */
 PCP_CALL extern void __pmDumpContext(FILE *, int, pmInDom);
@@ -1506,6 +1519,7 @@ PCP_CALL extern void __pmLogFreeLabel(__pmLogLabel *);
  * Does endian-safe "hton" for Put, and "ntoh" for Load functions.
  */
 PCP_CALL extern void __pmLoadTimestamp(const __int32_t *, __pmTimestamp *);
+PCP_CALL extern void __pmLoadTimespec(const __int32_t *, __pmTimestamp *);
 PCP_CALL extern void __pmLoadTimeval(const __int32_t *, __pmTimestamp *);
 PCP_CALL extern void __pmPutTimestamp(const __pmTimestamp *, __int32_t *);
 PCP_CALL extern void __pmPutTimeval(const __pmTimestamp *, __int32_t *);

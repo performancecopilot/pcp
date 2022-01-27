@@ -4,10 +4,10 @@ QA output created by 613
 Note: timezone set to local timezone of host "localhost" from archive
 
 
-00:00:28.000000 1 metric
+00:00:28.000000000 1 metric
     60.12.0 (kernel.uname.release): value "some:åäöšŠžŽ€🙃§½¼¾:unicode"
 
-00:00:29.000000 3 metrics
+00:00:29.000000000 3 metrics
     60.26.0 (kernel.all.uptime): value 7654321
     29.0.15 (sample.float.one): value 7654321
     60.12.0 (kernel.uname.release): value "3.2.1"
@@ -18,19 +18,19 @@ Note: timezone set to local timezone of host "localhost" from archive
 
 Log finished at Thu Jan  1 00:00:29 1970 - dump in reverse order
 
-00:00:29.000000 3 metrics
+00:00:29.000000000 3 metrics
     60.26.0 (kernel.all.uptime): value 7654321
     29.0.15 (sample.float.one): value 7654321
     60.12.0 (kernel.uname.release): value "3.2.1"
 
-00:00:28.000000 1 metric
+00:00:28.000000000 1 metric
     60.12.0 (kernel.uname.release): value "some:åäöšŠžŽ€🙃§½¼¾:unicode"
 
 === pmdumlog -S @00:00:28 -T @00:00:28 ===
 Note: timezone set to local timezone of host "localhost" from archive
 
 
-00:00:28.000000 1 metric
+00:00:28.000000000 1 metric
     60.12.0 (kernel.uname.release): value "some:åäöšŠžŽ€🙃§½¼¾:unicode"
 
 === pmdumlog -r -S @00:00:28 -T @00:00:28 ===
@@ -39,7 +39,7 @@ Note: timezone set to local timezone of host "localhost" from archive
 
 Log finished at Thu Jan  1 00:00:28 1970 - dump in reverse order
 
-00:00:28.000000 1 metric
+00:00:28.000000000 1 metric
     60.12.0 (kernel.uname.release): value "some:åäöšŠžŽ€🙃§½¼¾:unicode"
 
 === pmval -a -S @00:00:28 ===

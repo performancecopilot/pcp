@@ -41,47 +41,47 @@ PMID: 125.0.8
     Semantics: counter  Units: Kbyte
 dbpmda> fetch zswap.pool_limit_hit
 PMID(s): 125.0.0
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   125.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value 1
 dbpmda> fetch zswap.reject_reclaim_fail
 PMID(s): 125.0.1
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   125.0.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value 2
 dbpmda> fetch zswap.reject_alloc_fail
 PMID(s): 125.0.2
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   125.0.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value 32
 dbpmda> fetch zswap.reject_kmemcache_fail
 PMID(s): 125.0.3
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   125.0.3 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value 198
 dbpmda> fetch zswap.reject_compress_poor
 PMID(s): 125.0.4
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   125.0.4 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value 11
 dbpmda> fetch zswap.written_back_pages
 PMID(s): 125.0.5
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   125.0.5 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value 50933760
 dbpmda> fetch zswap.duplicate_entry
 PMID(s): 125.0.6
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   125.0.6 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value 309
 dbpmda> fetch zswap.pool_pages
 PMID(s): 125.0.7
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   125.0.7 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value 8192000
 dbpmda> fetch zswap.stored_pages
 PMID(s): 125.0.8
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   125.0.8 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value 365047808
 dbpmda> 
@@ -95,6 +95,6 @@ PMID: 125.0.0
     Semantics: counter  Units: count
 dbpmda> fetch zswap.pool_limit_hit
 PMID(s): 125.0.0
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   125.0.0 (<noname>): No values returned!
 dbpmda> 

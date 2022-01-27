@@ -18,7 +18,7 @@ Dump Instance Profile state=INCLUDE, 0 profiles
 dbpmda> # Test the valid metrics
 dbpmda> fetch broken.valid.one broken.valid.two broken.valid.three
 PMID(s): 249.0.0 249.0.1 249.0.7
-pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 3
+__pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 3
   249.0.0 (broken.valid.one): numval: 1 valfmt: 0 vlist[]:
    value 1 REAL 0x1
   249.0.1 (broken.valid.two): numval: 3 valfmt: 0 vlist[]:
@@ -36,7 +36,7 @@ The number of calls to the PMDA-supplied fetch callback function.
 dbpmda> # Test for metric not defined in table but in the PMNS and fetch callback
 dbpmda> fetch broken.bogus.one
 PMID(s): 249.0.2
-pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 1
+__pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 1
   249.0.2 (broken.bogus.one): Unknown or illegal metric identifier
 dbpmda> # Test for metric not defined in table and PMNS but in the fetch callback
 dbpmda> fetch broken.bogus.two
@@ -51,7 +51,7 @@ Type 'help' for a list of commands.
 dbpmda> # Test for multiple fetch with an invalid metric between valid metrics
 dbpmda> fetch broken.valid.one broken.bogus.one broken.valid.two
 PMID(s): 249.0.0 249.0.2 249.0.1
-pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 3
+__pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 3
   249.0.0 (broken.valid.one): numval: 1 valfmt: 0 vlist[]:
    value 2 REAL 0x2
   249.0.2 (broken.bogus.one): Unknown or illegal metric identifier
@@ -62,17 +62,17 @@ pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 3
 dbpmda> # Test for illegal data types
 dbpmda> fetch broken.bad.type
 PMID(s): 249.0.5
-pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 1
+__pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 1
   249.0.5 (broken.bad.type): Unknown or illegal metric type
 dbpmda> # Test for metric with no fetch support
 dbpmda> fetch broken.no.fetch
 PMID(s): 249.0.9
-pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 1
+__pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 1
   249.0.9 (broken.no.fetch): Unknown or illegal metric identifier
 dbpmda> # Test for metric with no help
 dbpmda> fetch broken.no.help broken.no.shorthelp broken.no.longhelp
 PMID(s): 249.0.10 249.0.11 249.0.12
-pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 3
+__pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 3
   249.0.10 (broken.no.help): numval: 1 valfmt: 0 vlist[]:
    value 55 REAL 0x37
   249.0.11 (broken.no.shorthelp): numval: 1 valfmt: 0 vlist[]:
@@ -94,24 +94,24 @@ PMID: 249.0.12
 dbpmda> # Test for handling of bad semantics
 dbpmda> fetch broken.bad.semantics
 PMID(s): 249.1.1
-pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 1
+__pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 1
   249.1.1 (broken.bad.semantics): numval: 1 valfmt: 0 vlist[]:
    value 333 REAL 0x14d
 dbpmda> # Test for handling of bad scale
 dbpmda> fetch broken.bad.scale
 PMID(s): 249.1.2
-pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 1
+__pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 1
   249.1.2 (broken.bad.scale): numval: 1 valfmt: 0 vlist[]:
    value 12345 REAL 0x3039
 dbpmda> # Test for handling of empty instance lists
 dbpmda> fetch broken.no.instances
 PMID(s): 249.0.14
-pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 1
+__pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 1
   249.0.14 (broken.no.instances): No values returned!
 dbpmda> # Test for handling of missing instances in fetch
 dbpmda> fetch broken.no.instfetch
 PMID(s): 249.0.13
-pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 1
+__pmResult dump from ADDR timestamp: EPOCH in LOCALTIME numpmid: 1
   249.0.13 (broken.no.instfetch): numval: 2 valfmt: 0 vlist[]:
     inst [50 or ???] value 44 REAL 0x2c
     inst [9 or ???] value 46 REAL 0x2e

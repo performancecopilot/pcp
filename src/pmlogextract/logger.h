@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Red Hat.
+ * Copyright (c) 2018,2022 Red Hat.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -43,8 +43,8 @@ typedef struct {
     char		*name;
     pmLogLabel		label;
     __int32_t		*pb[2];		/* current physical record buffer */
-    pmResult		*_result;
-    pmResult		*_Nresult;
+    __pmResult		*_result;
+    __pmResult		*_Nresult;
     int			eof[2];
     int			mark;		/* need EOL marker */
     int			recnum;
@@ -69,10 +69,10 @@ typedef struct {
 
 
 /*
- *  pmResult list
+ *  __pmResult list
  */
 typedef struct __rlist_t {
-    pmResult		*res;		/* ptr to pmResult */
+    __pmResult		*res;		/* ptr to __pmResult */
     struct __rlist_t	*next;		/* ptr to next element in list */
 } rlist_t;
 
@@ -84,7 +84,7 @@ typedef struct __rlist_t {
 extern int	ml_numpmid;		/* num pmid in ml list */
 extern int	ml_size;		/* actual size of ml array */
 extern mlist_t	*ml;			/* list of pmids with indoms */
-extern rlist_t	*rl;			/* list of pmResults */
+extern rlist_t	*rl;			/* list of __pmResults */
 
 /*
  * metrics with mismatched metadata across archives that are to be
@@ -120,8 +120,8 @@ extern void	dometric(const char *);
 #define ntoh_pmTextType(ltype) ntohl(ltype)
 
 /* internal routines */
-extern void insertresult(rlist_t **, pmResult *);
-extern pmResult *searchmlist(pmResult *);
+extern void insertresult(rlist_t **, __pmResult *);
+extern __pmResult *searchmlist(__pmResult *);
 extern void abandon_extract(void);
 
 /* command line args needed across source files */

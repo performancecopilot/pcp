@@ -1,14 +1,14 @@
 /*
  * pmResult rewrite methods for pmlogrewrite
  *
- * Copyright (c) 2017,2021 Red Hat.
+ * Copyright (c) 2017,2021-2022 Red Hat.
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -56,7 +56,7 @@ static int		len_save = 0;
  * for the number of values expected for this metric
  */
 static int
-save_vset(pmResult *rp, int idx)
+save_vset(__pmResult *rp, int idx)
 {
     pmValueSet	*vsp;
     int		need;
@@ -94,7 +94,7 @@ save_vset(pmResult *rp, int idx)
  * free the pval for the jth instance of the ith metric
  */
 static void
-free_pval(pmResult *rp, int i, int j)
+free_pval(__pmResult *rp, int i, int j)
 {
     if (pmDebugOptions.appl2) {
 	fprintf(stderr, "free_pval: free(" PRINTF_P_PFX "%p) pmid=%s inst=%d\n",
@@ -108,7 +108,7 @@ free_pval(pmResult *rp, int i, int j)
  * pmValueSet and put the old one back in place
  */
 static void
-clean_vset(pmResult *rp)
+clean_vset(__pmResult *rp)
 {
     int		i;
     int		j;
@@ -369,7 +369,7 @@ rescale(int i, metricspec_t *mp)
 	    fprintf(stderr, "%s: Botch: %s (%s): extracting value: %s\n",
 			pmGetProgname(), mp->old_name, pmIDStr(mp->old_desc.pmid), pmErrStr(sts));
 	    inarch.rp->vset[i]->numval = j;
-	    __pmDumpResult(stderr, inarch.rp);
+	    __pmPrintResult(stderr, inarch.rp);
 	    abandon();
 	    /*NOTREACHED*/
 	}
@@ -384,7 +384,7 @@ rescale(int i, metricspec_t *mp)
 			pmGetProgname(), mp->old_name, pmIDStr(mp->old_desc.pmid), pmUnitsStr(&mp->old_desc.units));
 	    fprintf(stderr, " to %s failed: %s\n", pmUnitsStr(&mp->new_desc.units), pmErrStr(sts));
 	    inarch.rp->vset[i]->numval = j;
-	    __pmDumpResult(stderr, inarch.rp);
+	    __pmPrintResult(stderr, inarch.rp);
 	    abandon();
 	    /*NOTREACHED*/
 	}
@@ -412,7 +412,7 @@ rescale(int i, metricspec_t *mp)
 	    fprintf(stderr, "%s: Botch: %s (%s): stuffing value %s (type=%s) into rewritten pmResult: %s\n",
 			pmGetProgname(), mp->old_name, pmIDStr(mp->old_desc.pmid), pmAtomStr(&oval, mp->old_desc.type), pmTypeStr(mp->old_desc.type), pmErrStr(sts));
 	    inarch.rp->vset[i]->numval = j;
-	    __pmDumpResult(stderr, inarch.rp);
+	    __pmPrintResult(stderr, inarch.rp);
 	    abandon();
 	    /*NOTREACHED*/
 	}
@@ -448,7 +448,7 @@ retype(int i, metricspec_t *mp)
 			pmGetProgname(), mp->old_name, pmIDStr(mp->old_desc.pmid), pmTypeStr(mp->old_desc.type));
 	    fprintf(stderr, " to %s: %s\n", pmTypeStr(mp->new_desc.type), pmErrStr(sts));
 	    inarch.rp->vset[i]->numval = j;
-	    __pmDumpResult(stderr, inarch.rp);
+	    __pmPrintResult(stderr, inarch.rp);
 	    abandon();
 	    /*NOTREACHED*/
 	}
@@ -476,7 +476,7 @@ retype(int i, metricspec_t *mp)
 	    fprintf(stderr, "%s: Botch: %s (%s): stuffing value %s (type=%s) into rewritten pmResult: %s\n",
 			pmGetProgname(), mp->old_name, pmIDStr(mp->old_desc.pmid), pmAtomStr(&val, mp->new_desc.type), pmTypeStr(mp->new_desc.type), pmErrStr(sts));
 	    inarch.rp->vset[i]->numval = j;
-	    __pmDumpResult(stderr, inarch.rp);
+	    __pmPrintResult(stderr, inarch.rp);
 	    abandon();
 	    /*NOTREACHED*/
 	}
@@ -666,7 +666,8 @@ do_result(void)
 	unsigned long	out_offset;
 	unsigned long	peek_offset;
 	peek_offset = __pmFtell(outarch.archctl.ac_mfp);
-	sts = __pmEncodeResult(PDU_OVERRIDE2, inarch.rp, (__pmPDU **)&inarch.logrec);
+	/* TODO: version 3 archive support */
+	sts = __pmEncodeResult(inarch.rp, (__pmPDU **)&inarch.logrec);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
@@ -697,8 +698,8 @@ do_result(void)
 	if (pmDebugOptions.appl0) {
 	    struct timeval	stamp;
 	    fprintf(stderr, "Log: write ");
-	    stamp.tv_sec = inarch.rp->timestamp.tv_sec;
-	    stamp.tv_usec = inarch.rp->timestamp.tv_usec;
+	    stamp.tv_sec = inarch.rp->timestamp.sec;
+	    stamp.tv_usec = inarch.rp->timestamp.nsec / 1000;
 	    pmPrintStamp(stderr, &stamp);
 	    fprintf(stderr, " numpmid=%d @ offset=%ld\n", inarch.rp->numpmid, out_offset);
 	}
@@ -716,5 +717,5 @@ do_result(void)
 	inarch.rp->vset[i]->numval = orig_numval[i];
     free(orig_numval);
 
-    pmFreeResult(inarch.rp);
+    __pmFreeResult(inarch.rp);
 }

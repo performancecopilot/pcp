@@ -12,7 +12,7 @@ typedef struct value {
     struct value	*next;		/* next for this metric */
     int			inst;		/* instance id */
     pmAtomValue		value;		/* last output value */
-    struct timeval	timestamp;	/* time of last output value */
+    __pmTimestamp	timestamp;	/* time of last output value */
     /*
      * last interval value interpretation ... set in doscan() and used in
      * rewrite()
@@ -53,7 +53,7 @@ typedef struct {
 #define MODE_REWRITE	1
 #define MODE_SKIP	2
 
-extern pmTimeval	current;	/* most recent timestamp overall */
+extern __pmTimestamp	current;	/* most recent timestamp overall */
 extern char		*iname;		/* name of input archive */
 extern pmLogLabel	ilabel;		/* input archive label */
 extern int		numpmid;	/* all metrics from the input archive */
@@ -75,9 +75,9 @@ extern void	newlabel(void);
 extern void	writelabel(void);
 extern void	newvolume(char *, __pmTimestamp *);
 
-extern pmResult *rewrite(pmResult *);
+extern __pmResult *rewrite(__pmResult *);
 extern void	rewrite_free(void);
 
 extern void	dometric(const char *);
-extern void	doindom(pmResult *);
-extern void	doscan(struct timeval *);
+extern void	doindom(__pmResult *);
+extern void	doscan(__pmTimestamp *);

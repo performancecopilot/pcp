@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2014-2018,2021 Red Hat.
+ * Copyright (c) 2014-2018,2021-2022 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -69,24 +69,6 @@ static pmOptions opts = {
     .override = overrides,
 };
 
-/*
- * return -1, 0 or 1 as the struct timeval's compare
- * a < b, a == b or a > b
- */
-static int
-tvcmp(struct timeval a, struct timeval b)
-{
-    if (a.tv_sec < b.tv_sec)
-	return -1;
-    if (a.tv_sec > b.tv_sec)
-	return 1;
-    if (a.tv_usec < b.tv_usec)
-	return -1;
-    if (a.tv_usec > b.tv_usec)
-	return 1;
-    return 0;
-}
-
 static void
 dump_timeval(struct timeval *stamp)
 {
@@ -142,7 +124,7 @@ dump_pmTimestamp(__pmTimestamp *tsp)
 }
 
 static int
-do_size(pmResult *rp)
+do_size(__pmResult *rp)
 {
     int		nbyte = 0;
     int		i;
@@ -156,7 +138,10 @@ do_size(pmResult *rp)
      * start with sizes of the header len, timestamp, numpmid, and
      * trailer len
      */
-    nbyte = sizeof(int) + sizeof(pmTimeval) + sizeof(int);
+    if (version == PM_LOG_VERS03)
+	nbyte = sizeof(int) + sizeof(pmTimespec) + sizeof(int);
+    else
+	nbyte = sizeof(int) + sizeof(pmTimeval) + sizeof(int);
     						/* len + timestamp + len */
     nbyte += sizeof(int);
     							/* numpmid */
@@ -409,7 +394,7 @@ dump_metric(int numnames, char **names, pmValueSet *vsp, int index, int indom, i
 }
 
 static void
-dump_result(pmResult *resp)
+dump_result(__pmResult *resp)
 {
     int		i;
     int		j;
@@ -423,7 +408,7 @@ dump_result(pmResult *resp)
 	printf("[%d bytes]\n", nbyte);
     }
 
-    dump_timeval(&resp->timestamp);
+    dump_pmTimestamp(&resp->timestamp);
 
     if (resp->numpmid == 0) {
 	printf("  <mark>\n");
@@ -1109,10 +1094,10 @@ main(int argc, char *argv[])
     int			vflag = 0;
     int			mode = PM_MODE_FORW;
     __pmContext		*ctxp;
-    pmResult		*raw_result;
-    pmResult		*skel_result = NULL;
-    pmResult		*result;
-    struct timeval	done;
+    __pmResult		*raw_result;
+    __pmResult		*skel_result = NULL;
+    __pmResult		*result;
+    __pmTimestamp	done;
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -1266,13 +1251,12 @@ main(int argc, char *argv[])
 
     if (numpmid > 0) {
 	/*
-	 * setup dummy pmResult
+	 * setup dummy __pmResult
 	 */
-	skel_result = (pmResult *)malloc(sizeof(pmResult)+(numpmid-1)*sizeof(pmValueSet *));
+	skel_result = __pmAllocResult(numpmid);
 	if (skel_result == NULL) {
 	    fprintf(stderr, "%s: malloc(skel_result): %s\n", pmGetProgname(), osstrerror());
 	    exit(1);
-
 	}
     }
 
@@ -1324,23 +1308,25 @@ main(int argc, char *argv[])
 	if (mode == PM_MODE_FORW) {
 	    if (opts.start_optarg != NULL || opts.finish_optarg != NULL) {
 		/* -S or -T */
-		done = opts.finish;
+		done.sec = opts.finish.tv_sec;
+		done.nsec = opts.finish.tv_usec * 1000;
 	    }
 	    else {
 		/* read the whole archive */
-		done.tv_sec = INT_MAX;
-		done.tv_usec = 0;
+		done.sec = INT_MAX;
+		done.nsec = 0;
 	    }
 	}
 	else {
 	    if (opts.start_optarg != NULL || opts.finish_optarg != NULL) {
 		/* -S or -T */
-		done = opts.start;
+		done.sec = opts.start.tv_sec;
+		done.nsec = opts.start.tv_usec * 1000;
 	    }
 	    else {
 		/* read the whole archive backwards */
-		done.tv_sec = 0;
-		done.tv_usec = 0;
+		done.sec = 0;
+		done.nsec = 0;
 	    }
 	}
 	sts = 0;
@@ -1361,6 +1347,7 @@ main(int argc, char *argv[])
 		 */
 		int	picked = 0;
 		int	j;
+
 		skel_result->timestamp = raw_result->timestamp;
 		for (j = 0; j < numpmid; j++)
 		    skel_result->vset[j] = NULL;
@@ -1375,7 +1362,7 @@ main(int argc, char *argv[])
 		}
 		if (picked == 0) {
 		    /* no metrics of interest, skip this record */
-		    pmFreeResult(raw_result);
+		    __pmFreeResult(raw_result);
 		    continue;
 		}
 		skel_result->numpmid = picked;
@@ -1390,22 +1377,24 @@ main(int argc, char *argv[])
 	    }
 	    else {
 		/* not interesting */
-		pmFreeResult(raw_result);
+		__pmFreeResult(raw_result);
 		continue;
 	    }
 	    if (first && mode == PM_MODE_BACK) {
 		first = 0;
 		printf("\nLog finished at %24.24s - dump in reverse order\n",
-			pmCtime((const time_t *)&result->timestamp.tv_sec, timebuf));
+			pmCtime((const time_t *)&result->timestamp.sec, timebuf));
 	    }
-	    if ((mode == PM_MODE_FORW && tvcmp(result->timestamp, done) > 0) ||
-		(mode == PM_MODE_BACK && tvcmp(result->timestamp, done) < 0)) {
+	    if ((mode == PM_MODE_FORW &&
+		 __pmTimestampCmp(&result->timestamp, &done) > 0) ||
+		(mode == PM_MODE_BACK &&
+		 __pmTimestampCmp(&result->timestamp, &done) < 0)) {
 		sts = PM_ERR_EOL;
 		break;
 	    }
 	    putchar('\n');
 	    dump_result(result);
-	    pmFreeResult(raw_result);
+	    __pmFreeResult(raw_result);
 	}
 	if (sts != PM_ERR_EOL) {
 	    fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));

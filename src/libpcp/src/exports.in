@@ -796,8 +796,23 @@ PCP_3.36 {
 
 PCP_3.37 {
   global:
-    __pmLogUndeltaInDom;
+    pmHighResFetchArchive;
+    pmHighResSortInstances;
+    __pmDecodeHighResResult_ctx;
+    __pmEncodeHighResResult;
+    __pmDecodeResult_ctx;
+    __pmGetResultSize;
+    __pmSortInstances;
+    __pmLogWriteMark;
+    __pmSendFetchPDU;
+    __pmFetch;
+    __pmFetchLocal;
+    __pmFetchArchive;
+    __pmFreeResult;
+    __pmGetTimestamp;
+    __pmLogPutResult3;
     __pmLogSearchInDom;
+    __pmLogUndeltaInDom;
     __pmLogEncodeInDom;
     __pmLogMetaTypeStr;
     __pmLogMetaTypeStr_r;

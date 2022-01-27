@@ -63,13 +63,13 @@ Temporal Index
 04:34:40.258477000	      0          851         1768
 
 [152 bytes]
-04:34:32.257504 3 metrics
+04:34:32.257504000 3 metrics
     2.3.3 (pmcd.pmlogger.host): inst [5403 or "5403"] value "gonzo.melbourne.sgi.com"
     2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
     2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
 
 [212 bytes]
-04:34:33.248687 5 metrics
+04:34:33.248687000 5 metrics
     29.0.46 (sample.lights): value "yellow"
     29.0.7 (sample.drift): value 150
     29.0.6 (sample.bin):
@@ -89,7 +89,7 @@ Temporal Index
     29.0.2 (sample.seconds): value 890
 
 [212 bytes]
-04:34:34.248493 5 metrics
+04:34:34.248493000 5 metrics
     29.0.46 (sample.lights): value "yellow"
     29.0.7 (sample.drift): value 108
     29.0.6 (sample.bin):
@@ -109,7 +109,7 @@ Temporal Index
     29.0.2 (sample.seconds): value 891
 
 [212 bytes]
-04:34:35.258377 5 metrics
+04:34:35.258377000 5 metrics
     29.0.46 (sample.lights): value "green"
     29.0.7 (sample.drift): value 108
     29.0.6 (sample.bin):
@@ -129,7 +129,7 @@ Temporal Index
     29.0.2 (sample.seconds): value 892
 
 [212 bytes]
-04:34:36.258416 5 metrics
+04:34:36.258416000 5 metrics
     29.0.46 (sample.lights): value "green"
     29.0.7 (sample.drift): value 90
     29.0.6 (sample.bin):
@@ -149,7 +149,7 @@ Temporal Index
     29.0.2 (sample.seconds): value 893
 
 [212 bytes]
-04:34:37.258585 5 metrics
+04:34:37.258585000 5 metrics
     29.0.46 (sample.lights): value "green"
     29.0.7 (sample.drift): value 101
     29.0.6 (sample.bin):
@@ -169,7 +169,7 @@ Temporal Index
     29.0.2 (sample.seconds): value 894
 
 [212 bytes]
-04:34:38.258389 5 metrics
+04:34:38.258389000 5 metrics
     29.0.46 (sample.lights): value "green"
     29.0.7 (sample.drift): value 127
     29.0.6 (sample.bin):
@@ -189,7 +189,7 @@ Temporal Index
     29.0.2 (sample.seconds): value 895
 
 [212 bytes]
-04:34:39.258408 5 metrics
+04:34:39.258408000 5 metrics
     29.0.46 (sample.lights): value "green"
     29.0.7 (sample.drift): value 135
     29.0.6 (sample.bin):
@@ -209,7 +209,7 @@ Temporal Index
     29.0.2 (sample.seconds): value 896
 
 [208 bytes]
-04:34:40.258477 5 metrics
+04:34:40.258477000 5 metrics
     29.0.46 (sample.lights): value "red"
     29.0.7 (sample.drift): value 156
     29.0.6 (sample.bin):

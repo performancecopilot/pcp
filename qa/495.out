@@ -67,12 +67,12 @@ non-null -> non-null cases
 -13:33:50.240133000	      0          862          488
 +13:33:50.240133000	      0          862          456
  
- 13:33:44.278486 3 metrics
+ 13:33:44.278486000 3 metrics
 @@ -67,7 +67,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
- 13:33:47.240183 3 metrics
+ 13:33:47.240183000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -75,12 +75,7 @@
@@ -93,7 +93,7 @@ non-null -> non-null cases
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
- 13:33:50.240133 3 metrics
+ 13:33:50.240133000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -100,12 +95,7 @@
@@ -130,12 +130,12 @@ non-null -> non-null cases
 -13:33:50.240133000	      0          862          488
 +13:33:50.240133000	      0          862          456
  
- 13:33:44.278486 3 metrics
+ 13:33:44.278486000 3 metrics
 @@ -67,7 +67,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
- 13:33:47.240183 3 metrics
+ 13:33:47.240183000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -75,12 +75,7 @@
@@ -156,7 +156,7 @@ non-null -> non-null cases
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
- 13:33:50.240133 3 metrics
+ 13:33:50.240133000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -100,12 +95,7 @@
@@ -193,12 +193,12 @@ non-null -> non-null cases
 -13:33:50.240133000	      0          862          488
 +13:33:50.240133000	      0          862          456
  
- 13:33:44.278486 3 metrics
+ 13:33:44.278486000 3 metrics
 @@ -67,7 +67,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
- 13:33:47.240183 3 metrics
+ 13:33:47.240183000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -75,12 +75,7 @@
@@ -219,7 +219,7 @@ non-null -> non-null cases
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
- 13:33:50.240133 3 metrics
+ 13:33:50.240133000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -100,12 +95,7 @@
@@ -256,12 +256,12 @@ non-null -> non-null cases
 -13:33:50.240133000	      0          862          488
 +13:33:50.240133000	      0          862          456
  
- 13:33:44.278486 3 metrics
+ 13:33:44.278486000 3 metrics
 @@ -67,7 +67,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
- 13:33:47.240183 3 metrics
+ 13:33:47.240183000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -75,12 +75,7 @@
@@ -282,7 +282,7 @@ non-null -> non-null cases
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
- 13:33:50.240133 3 metrics
+ 13:33:50.240133000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -100,12 +95,7 @@
@@ -319,12 +319,12 @@ non-null -> non-null cases
 -13:33:50.240133000	      0          862          488
 +13:33:50.240133000	      0          862          456
  
- 13:33:44.278486 3 metrics
+ 13:33:44.278486000 3 metrics
 @@ -67,7 +67,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
- 13:33:47.240183 3 metrics
+ 13:33:47.240183000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -75,12 +75,7 @@
@@ -345,7 +345,7 @@ non-null -> non-null cases
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
- 13:33:50.240133 3 metrics
+ 13:33:50.240133000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -100,12 +95,7 @@
@@ -382,12 +382,12 @@ non-null -> non-null cases
 -13:33:50.240133000	      0          862          488
 +13:33:50.240133000	      0          862          456
  
- 13:33:44.278486 3 metrics
+ 13:33:44.278486000 3 metrics
 @@ -67,7 +67,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
- 13:33:47.240183 3 metrics
+ 13:33:47.240183000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -75,12 +75,7 @@
@@ -408,7 +408,7 @@ non-null -> non-null cases
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
- 13:33:50.240133 3 metrics
+ 13:33:50.240133000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -100,12 +95,7 @@
@@ -445,12 +445,12 @@ non-null -> non-null cases
 -13:33:50.240133000	      0          862          488
 +13:33:50.240133000	      0          862          456
  
- 13:33:44.278486 3 metrics
+ 13:33:44.278486000 3 metrics
 @@ -67,7 +67,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
- 13:33:47.240183 3 metrics
+ 13:33:47.240183000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -75,12 +75,7 @@
@@ -471,7 +471,7 @@ non-null -> non-null cases
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
- 13:33:50.240133 3 metrics
+ 13:33:50.240133000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -100,12 +95,7 @@
@@ -508,12 +508,12 @@ non-null -> non-null cases
 -13:33:50.240133000	      0          862          488
 +13:33:50.240133000	      0          862          456
  
- 13:33:44.278486 3 metrics
+ 13:33:44.278486000 3 metrics
 @@ -67,7 +67,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
- 13:33:47.240183 3 metrics
+ 13:33:47.240183000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -75,12 +75,7 @@
@@ -534,7 +534,7 @@ non-null -> non-null cases
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
- 13:33:50.240133 3 metrics
+ 13:33:50.240133000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -100,12 +95,7 @@
@@ -575,12 +575,12 @@ Instance 12345 from OUTPUT clause not found in new indom 29.8
 -13:33:50.240133000	      0          862          488
 +13:33:50.240133000	      0          862          444
  
- 13:33:44.278486 3 metrics
+ 13:33:44.278486000 3 metrics
 @@ -67,7 +67,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
- 13:33:47.240183 3 metrics
+ 13:33:47.240183000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -75,12 +75,7 @@
@@ -601,7 +601,7 @@ Instance 12345 from OUTPUT clause not found in new indom 29.8
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
- 13:33:50.240133 3 metrics
+ 13:33:50.240133000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -100,12 +95,7 @@
@@ -642,12 +642,12 @@ Instance "m-12345" from OUTPUT clause not found in new indom 29.8
 -13:33:50.240133000	      0          862          488
 +13:33:50.240133000	      0          862          444
  
- 13:33:44.278486 3 metrics
+ 13:33:44.278486000 3 metrics
 @@ -67,7 +67,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
- 13:33:47.240183 3 metrics
+ 13:33:47.240183000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -75,12 +75,7 @@
@@ -668,7 +668,7 @@ Instance "m-12345" from OUTPUT clause not found in new indom 29.8
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
- 13:33:50.240133 3 metrics
+ 13:33:50.240133000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -100,12 +95,7 @@
@@ -707,12 +707,12 @@ Instance 11 from OUTPUT clause not found in new indom 29.8
 -13:33:50.240133000	      0          862          488
 +13:33:50.240133000	      0          862          456
  
- 13:33:44.278486 3 metrics
+ 13:33:44.278486000 3 metrics
 @@ -67,7 +67,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
- 13:33:47.240183 3 metrics
+ 13:33:47.240183000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -75,12 +75,7 @@
@@ -733,7 +733,7 @@ Instance 11 from OUTPUT clause not found in new indom 29.8
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
- 13:33:50.240133 3 metrics
+ 13:33:50.240133000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -100,12 +95,7 @@
@@ -772,12 +772,12 @@ Instance 2 from OUTPUT clause not found in old indom 29.3
 -13:33:50.240133000	      0          862          488
 +13:33:50.240133000	      0          862          444
  
- 13:33:44.278486 3 metrics
+ 13:33:44.278486000 3 metrics
 @@ -67,7 +67,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
- 13:33:47.240183 3 metrics
+ 13:33:47.240183000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -75,12 +75,7 @@
@@ -798,7 +798,7 @@ Instance 2 from OUTPUT clause not found in old indom 29.3
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
- 13:33:50.240133 3 metrics
+ 13:33:50.240133000 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
 @@ -100,12 +95,7 @@
@@ -837,12 +837,12 @@ non-null -> null cases
 -04:34:34.248493000	      0          851          496
 +04:34:34.248493000	      0          851          480
  
- 04:34:32.257504 3 metrics
+ 04:34:32.257504000 3 metrics
 @@ -64,7 +64,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
- 04:34:33.248687 5 metrics
+ 04:34:33.248687000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
 @@ -78,13 +78,10 @@
@@ -856,7 +856,7 @@ non-null -> null cases
 +    29.0.5 (sample.colour): value 119
      29.0.2 (sample.seconds): value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
 @@ -98,8 +95,5 @@
@@ -889,12 +889,12 @@ non-null -> null cases
 -04:34:34.248493000	      0          851          496
 +04:34:34.248493000	      0          851          480
  
- 04:34:32.257504 3 metrics
+ 04:34:32.257504000 3 metrics
 @@ -64,7 +64,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
- 04:34:33.248687 5 metrics
+ 04:34:33.248687000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
 @@ -78,13 +78,10 @@
@@ -908,7 +908,7 @@ non-null -> null cases
 +    29.0.5 (sample.colour): value 220
      29.0.2 (sample.seconds): value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
 @@ -98,8 +95,5 @@
@@ -941,12 +941,12 @@ non-null -> null cases
 -04:34:34.248493000	      0          851          496
 +04:34:34.248493000	      0          851          480
  
- 04:34:32.257504 3 metrics
+ 04:34:32.257504000 3 metrics
 @@ -64,7 +64,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
- 04:34:33.248687 5 metrics
+ 04:34:33.248687000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
 @@ -78,13 +78,10 @@
@@ -960,7 +960,7 @@ non-null -> null cases
 +    29.0.5 (sample.colour): value 220
      29.0.2 (sample.seconds): value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
 @@ -98,8 +95,5 @@
@@ -993,12 +993,12 @@ non-null -> null cases
 -04:34:34.248493000	      0          851          496
 +04:34:34.248493000	      0          851          480
  
- 04:34:32.257504 3 metrics
+ 04:34:32.257504000 3 metrics
 @@ -64,7 +64,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
- 04:34:33.248687 5 metrics
+ 04:34:33.248687000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
 @@ -78,13 +78,10 @@
@@ -1012,7 +1012,7 @@ non-null -> null cases
 +    29.0.5 (sample.colour): value 119
      29.0.2 (sample.seconds): value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
 @@ -98,8 +95,5 @@
@@ -1045,12 +1045,12 @@ non-null -> null cases
 -04:34:34.248493000	      0          851          496
 +04:34:34.248493000	      0          851          480
  
- 04:34:32.257504 3 metrics
+ 04:34:32.257504000 3 metrics
 @@ -64,7 +64,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
- 04:34:33.248687 5 metrics
+ 04:34:33.248687000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
 @@ -78,13 +78,10 @@
@@ -1064,7 +1064,7 @@ non-null -> null cases
 +    29.0.5 (sample.colour): value 321
      29.0.2 (sample.seconds): value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
 @@ -98,8 +95,5 @@
@@ -1097,12 +1097,12 @@ non-null -> null cases
 -04:34:34.248493000	      0          851          496
 +04:34:34.248493000	      0          851          480
  
- 04:34:32.257504 3 metrics
+ 04:34:32.257504000 3 metrics
 @@ -64,7 +64,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
- 04:34:33.248687 5 metrics
+ 04:34:33.248687000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
 @@ -78,13 +78,10 @@
@@ -1116,7 +1116,7 @@ non-null -> null cases
 +    29.0.5 (sample.colour): value 119
      29.0.2 (sample.seconds): value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
 @@ -98,8 +95,5 @@
@@ -1149,12 +1149,12 @@ non-null -> null cases
 -04:34:34.248493000	      0          851          496
 +04:34:34.248493000	      0          851          480
  
- 04:34:32.257504 3 metrics
+ 04:34:32.257504000 3 metrics
 @@ -64,7 +64,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
- 04:34:33.248687 5 metrics
+ 04:34:33.248687000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
 @@ -78,13 +78,10 @@
@@ -1168,7 +1168,7 @@ non-null -> null cases
 +    29.0.5 (sample.colour): value 321
      29.0.2 (sample.seconds): value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
 @@ -98,8 +95,5 @@
@@ -1201,12 +1201,12 @@ non-null -> null cases
 -04:34:34.248493000	      0          851          496
 +04:34:34.248493000	      0          851          480
  
- 04:34:32.257504 3 metrics
+ 04:34:32.257504000 3 metrics
 @@ -64,7 +64,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
- 04:34:33.248687 5 metrics
+ 04:34:33.248687000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
 @@ -78,13 +78,10 @@
@@ -1220,7 +1220,7 @@ non-null -> null cases
 +    29.0.5 (sample.colour): value 660
      29.0.2 (sample.seconds): value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
 @@ -98,8 +95,5 @@
@@ -1253,12 +1253,12 @@ non-null -> null cases
 -04:34:34.248493000	      0          851          496
 +04:34:34.248493000	      0          851          480
  
- 04:34:32.257504 3 metrics
+ 04:34:32.257504000 3 metrics
 @@ -64,7 +64,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
- 04:34:33.248687 5 metrics
+ 04:34:33.248687000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
 @@ -78,13 +78,10 @@
@@ -1272,7 +1272,7 @@ non-null -> null cases
 +    29.0.5 (sample.colour): value 220
      29.0.2 (sample.seconds): value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
 @@ -98,8 +95,5 @@
@@ -1307,12 +1307,12 @@ Instance 12345 from OUTPUT clause not found in old indom 29.1
 -04:34:34.248493000	      0          851          496
 +04:34:34.248493000	      0          851          468
  
- 04:34:32.257504 3 metrics
+ 04:34:32.257504000 3 metrics
 @@ -64,7 +64,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
- 04:34:33.248687 5 metrics
+ 04:34:33.248687000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
 @@ -78,13 +78,10 @@
@@ -1326,7 +1326,7 @@ Instance 12345 from OUTPUT clause not found in old indom 29.1
 +    29.0.5 (sample.colour): No values returned!
      29.0.2 (sample.seconds): value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
 @@ -98,8 +95,5 @@
@@ -1361,12 +1361,12 @@ Instance "purple" from OUTPUT clause not found in old indom 29.1
 -04:34:34.248493000	      0          851          496
 +04:34:34.248493000	      0          851          468
  
- 04:34:32.257504 3 metrics
+ 04:34:32.257504000 3 metrics
 @@ -64,7 +64,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
- 04:34:33.248687 5 metrics
+ 04:34:33.248687000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
 @@ -78,13 +78,10 @@
@@ -1380,7 +1380,7 @@ Instance "purple" from OUTPUT clause not found in old indom 29.1
 +    29.0.5 (sample.colour): No values returned!
      29.0.2 (sample.seconds): value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
 @@ -98,8 +95,5 @@
@@ -1417,7 +1417,7 @@ Instance 0 from OUTPUT clause not found in new indom 29.2
 -    29.0.2 (sample.seconds): value 890
 +    29.0.2 (sample.seconds): inst [0 or ???] value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
 @@ -102,4 +102,4 @@
          inst [0 or "red"] value 122
          inst [1 or "green"] value 223
@@ -1444,7 +1444,7 @@ Instance 0 from OUTPUT clause not found in new indom 29.2
 -    29.0.2 (sample.seconds): value 890
 +    29.0.2 (sample.seconds): inst [100 or "bin-100"] value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
 @@ -102,4 +102,4 @@
          inst [0 or "red"] value 122
          inst [1 or "green"] value 223
@@ -1471,7 +1471,7 @@ Instance 0 from OUTPUT clause not found in new indom 29.2
 -    29.0.2 (sample.seconds): value 890
 +    29.0.2 (sample.seconds): inst [300 or "bin-300"] value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
 @@ -102,4 +102,4 @@
          inst [0 or "red"] value 122
          inst [1 or "green"] value 223
@@ -1500,7 +1500,7 @@ Instance 0 from OUTPUT clause not found in new indom 29.2
 -    29.0.2 (sample.seconds): value 890
 +    29.0.2 (sample.seconds): inst [0 or ???] value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
 @@ -102,4 +102,4 @@
          inst [0 or "red"] value 122
          inst [1 or "green"] value 223
@@ -1527,7 +1527,7 @@ Instance 0 from OUTPUT clause not found in new indom 29.2
 -    29.0.2 (sample.seconds): value 890
 +    29.0.2 (sample.seconds): inst [0 or ???] value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
 @@ -102,4 +102,4 @@
          inst [0 or "red"] value 122
          inst [1 or "green"] value 223
@@ -1554,7 +1554,7 @@ Instance 0 from OUTPUT clause not found in new indom 29.2
 -    29.0.2 (sample.seconds): value 890
 +    29.0.2 (sample.seconds): inst [0 or ???] value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
 @@ -102,4 +102,4 @@
          inst [0 or "red"] value 122
          inst [1 or "green"] value 223
@@ -1581,7 +1581,7 @@ Instance 0 from OUTPUT clause not found in new indom 29.2
 -    29.0.2 (sample.seconds): value 890
 +    29.0.2 (sample.seconds): inst [0 or ???] value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
 @@ -102,4 +102,4 @@
          inst [0 or "red"] value 122
          inst [1 or "green"] value 223
@@ -1608,7 +1608,7 @@ Instance 0 from OUTPUT clause not found in new indom 29.2
 -    29.0.2 (sample.seconds): value 890
 +    29.0.2 (sample.seconds): inst [0 or ???] value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
 @@ -102,4 +102,4 @@
          inst [0 or "red"] value 122
          inst [1 or "green"] value 223
@@ -1635,7 +1635,7 @@ Instance 0 from OUTPUT clause not found in new indom 29.2
 -    29.0.2 (sample.seconds): value 890
 +    29.0.2 (sample.seconds): inst [0 or ???] value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
 @@ -102,4 +102,4 @@
          inst [0 or "red"] value 122
          inst [1 or "green"] value 223
@@ -1664,7 +1664,7 @@ Instance 12345 from OUTPUT clause not found in new indom 29.2
 -    29.0.2 (sample.seconds): value 890
 +    29.0.2 (sample.seconds): inst [12345 or ???] value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
 @@ -102,4 +102,4 @@
          inst [0 or "red"] value 122
          inst [1 or "green"] value 223
@@ -1693,7 +1693,7 @@ Instance "purple" from OUTPUT clause not found in new indom 29.2
 -    29.0.2 (sample.seconds): value 890
 +    29.0.2 (sample.seconds): inst [0 or ???] value 890
  
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
 @@ -102,4 +102,4 @@
          inst [0 or "red"] value 122
          inst [1 or "green"] value 223
@@ -1722,12 +1722,12 @@ spaces in inames cases
 -08:20:54.341775000	      0         1563          748
 +08:20:54.341775000	      0         1563          716
  
- 08:20:43.084980 3 metrics
+ 08:20:43.084980000 3 metrics
 @@ -92,14 +92,11 @@
      2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
  
- 08:20:47.964018 18 metrics
+ 08:20:47.964018000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
      1.82.10 (irix.disk.all.read): value 3741558
 -    1.18.3 (irix.kernel.all.load):
@@ -1742,7 +1742,7 @@ spaces in inames cases
      1.10.3 (irix.kernel.all.pswitch): value 154960095
      1.10.2 (irix.swap.pagesout): value 651
  
- 08:20:54.341775 18 metrics
+ 08:20:54.341775000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158411
      1.82.10 (irix.disk.all.read): value 3741643
 -    1.18.3 (irix.kernel.all.load):
@@ -1773,12 +1773,12 @@ spaces in inames cases
 -08:20:54.341775000	      0         1563          748
 +08:20:54.341775000	      0         1563          716
  
- 08:20:43.084980 3 metrics
+ 08:20:43.084980000 3 metrics
 @@ -92,14 +92,11 @@
      2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
  
- 08:20:47.964018 18 metrics
+ 08:20:47.964018000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
      1.82.10 (irix.disk.all.read): value 3741558
 -    1.18.3 (irix.kernel.all.load):
@@ -1793,7 +1793,7 @@ spaces in inames cases
      1.10.3 (irix.kernel.all.pswitch): value 154960095
      1.10.2 (irix.swap.pagesout): value 651
  
- 08:20:54.341775 18 metrics
+ 08:20:54.341775000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158411
      1.82.10 (irix.disk.all.read): value 3741643
 -    1.18.3 (irix.kernel.all.load):
@@ -1824,12 +1824,12 @@ spaces in inames cases
 -08:20:54.341775000	      0         1563          748
 +08:20:54.341775000	      0         1563          716
  
- 08:20:43.084980 3 metrics
+ 08:20:43.084980000 3 metrics
 @@ -92,14 +92,11 @@
      2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
  
- 08:20:47.964018 18 metrics
+ 08:20:47.964018000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
      1.82.10 (irix.disk.all.read): value 3741558
 -    1.18.3 (irix.kernel.all.load):
@@ -1844,7 +1844,7 @@ spaces in inames cases
      1.10.3 (irix.kernel.all.pswitch): value 154960095
      1.10.2 (irix.swap.pagesout): value 651
  
- 08:20:54.341775 18 metrics
+ 08:20:54.341775000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158411
      1.82.10 (irix.disk.all.read): value 3741643
 -    1.18.3 (irix.kernel.all.load):
@@ -1875,12 +1875,12 @@ spaces in inames cases
 -08:20:54.341775000	      0         1563          748
 +08:20:54.341775000	      0         1563          716
  
- 08:20:43.084980 3 metrics
+ 08:20:43.084980000 3 metrics
 @@ -92,14 +92,11 @@
      2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
  
- 08:20:47.964018 18 metrics
+ 08:20:47.964018000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
      1.82.10 (irix.disk.all.read): value 3741558
 -    1.18.3 (irix.kernel.all.load):
@@ -1895,7 +1895,7 @@ spaces in inames cases
      1.10.3 (irix.kernel.all.pswitch): value 154960095
      1.10.2 (irix.swap.pagesout): value 651
  
- 08:20:54.341775 18 metrics
+ 08:20:54.341775000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158411
      1.82.10 (irix.disk.all.read): value 3741643
 -    1.18.3 (irix.kernel.all.load):
@@ -1926,12 +1926,12 @@ spaces in inames cases
 -08:20:54.341775000	      0         1563          748
 +08:20:54.341775000	      0         1563          716
  
- 08:20:43.084980 3 metrics
+ 08:20:43.084980000 3 metrics
 @@ -92,14 +92,11 @@
      2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
  
- 08:20:47.964018 18 metrics
+ 08:20:47.964018000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
      1.82.10 (irix.disk.all.read): value 3741558
 -    1.18.3 (irix.kernel.all.load):
@@ -1946,7 +1946,7 @@ spaces in inames cases
      1.10.3 (irix.kernel.all.pswitch): value 154960095
      1.10.2 (irix.swap.pagesout): value 651
  
- 08:20:54.341775 18 metrics
+ 08:20:54.341775000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158411
      1.82.10 (irix.disk.all.read): value 3741643
 -    1.18.3 (irix.kernel.all.load):
@@ -1977,12 +1977,12 @@ spaces in inames cases
 -08:20:54.341775000	      0         1563          748
 +08:20:54.341775000	      0         1563          716
  
- 08:20:43.084980 3 metrics
+ 08:20:43.084980000 3 metrics
 @@ -92,14 +92,11 @@
      2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
  
- 08:20:47.964018 18 metrics
+ 08:20:47.964018000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
      1.82.10 (irix.disk.all.read): value 3741558
 -    1.18.3 (irix.kernel.all.load):
@@ -1997,7 +1997,7 @@ spaces in inames cases
      1.10.3 (irix.kernel.all.pswitch): value 154960095
      1.10.2 (irix.swap.pagesout): value 651
  
- 08:20:54.341775 18 metrics
+ 08:20:54.341775000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158411
      1.82.10 (irix.disk.all.read): value 3741643
 -    1.18.3 (irix.kernel.all.load):
@@ -2028,12 +2028,12 @@ spaces in inames cases
 -08:20:54.341775000	      0         1563          748
 +08:20:54.341775000	      0         1563          716
  
- 08:20:43.084980 3 metrics
+ 08:20:43.084980000 3 metrics
 @@ -92,14 +92,11 @@
      2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
  
- 08:20:47.964018 18 metrics
+ 08:20:47.964018000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
      1.82.10 (irix.disk.all.read): value 3741558
 -    1.18.3 (irix.kernel.all.load):
@@ -2048,7 +2048,7 @@ spaces in inames cases
      1.10.3 (irix.kernel.all.pswitch): value 154960095
      1.10.2 (irix.swap.pagesout): value 651
  
- 08:20:54.341775 18 metrics
+ 08:20:54.341775000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158411
      1.82.10 (irix.disk.all.read): value 3741643
 -    1.18.3 (irix.kernel.all.load):
@@ -2079,12 +2079,12 @@ spaces in inames cases
 -08:20:54.341775000	      0         1563          748
 +08:20:54.341775000	      0         1563          716
  
- 08:20:43.084980 3 metrics
+ 08:20:43.084980000 3 metrics
 @@ -92,14 +92,11 @@
      2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
  
- 08:20:47.964018 18 metrics
+ 08:20:47.964018000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
      1.82.10 (irix.disk.all.read): value 3741558
 -    1.18.3 (irix.kernel.all.load):
@@ -2099,7 +2099,7 @@ spaces in inames cases
      1.10.3 (irix.kernel.all.pswitch): value 154960095
      1.10.2 (irix.swap.pagesout): value 651
  
- 08:20:54.341775 18 metrics
+ 08:20:54.341775000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158411
      1.82.10 (irix.disk.all.read): value 3741643
 -    1.18.3 (irix.kernel.all.load):
@@ -2132,12 +2132,12 @@ Instance "159" from OUTPUT clause not found in old indom 1.5
 -08:20:54.341775000	      0         1563          748
 +08:20:54.341775000	      0         1563          696
  
- 08:20:43.084980 3 metrics
+ 08:20:43.084980000 3 metrics
 @@ -92,14 +92,11 @@
      2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
  
- 08:20:47.964018 18 metrics
+ 08:20:47.964018000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
      1.82.10 (irix.disk.all.read): value 3741558
 -    1.18.3 (irix.kernel.all.load):
@@ -2152,7 +2152,7 @@ Instance "159" from OUTPUT clause not found in old indom 1.5
      1.10.3 (irix.kernel.all.pswitch): value 154960095
      1.10.2 (irix.swap.pagesout): value 651
  
- 08:20:54.341775 18 metrics
+ 08:20:54.341775000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158411
      1.82.10 (irix.disk.all.read): value 3741643
 -    1.18.3 (irix.kernel.all.load):
@@ -2179,7 +2179,7 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
  PMID: 1.10.11 (irix.kernel.all.cpu.user)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -95,7 +95,7 @@
- 08:20:47.964018 18 metrics
+ 08:20:47.964018000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
 -    1.82.10 (irix.disk.all.read): value 3741558
 +    1.82.10 (irix.disk.all.read): inst [0 or ???] value 3741558
@@ -2187,7 +2187,7 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
          inst [1 or "1 minute"] value 0.76855469
          inst [5 or "5 minute"] value 1.3691406
 @@ -119,7 +119,7 @@
- 08:20:54.341775 18 metrics
+ 08:20:54.341775000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158411
 -    1.82.10 (irix.disk.all.read): value 3741643
 +    1.82.10 (irix.disk.all.read): inst [0 or ???] value 3741643
@@ -2208,7 +2208,7 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
  PMID: 1.10.11 (irix.kernel.all.cpu.user)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -95,7 +95,7 @@
- 08:20:47.964018 18 metrics
+ 08:20:47.964018000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
 -    1.82.10 (irix.disk.all.read): value 3741558
 +    1.82.10 (irix.disk.all.read): inst [5 or "5 minute"] value 3741558
@@ -2216,7 +2216,7 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
          inst [1 or "1 minute"] value 0.76855469
          inst [5 or "5 minute"] value 1.3691406
 @@ -119,7 +119,7 @@
- 08:20:54.341775 18 metrics
+ 08:20:54.341775000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158411
 -    1.82.10 (irix.disk.all.read): value 3741643
 +    1.82.10 (irix.disk.all.read): inst [5 or "5 minute"] value 3741643
@@ -2237,7 +2237,7 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
  PMID: 1.10.11 (irix.kernel.all.cpu.user)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -95,7 +95,7 @@
- 08:20:47.964018 18 metrics
+ 08:20:47.964018000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
 -    1.82.10 (irix.disk.all.read): value 3741558
 +    1.82.10 (irix.disk.all.read): inst [1 or "1 minute"] value 3741558
@@ -2245,7 +2245,7 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
          inst [1 or "1 minute"] value 0.76855469
          inst [5 or "5 minute"] value 1.3691406
 @@ -119,7 +119,7 @@
- 08:20:54.341775 18 metrics
+ 08:20:54.341775000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158411
 -    1.82.10 (irix.disk.all.read): value 3741643
 +    1.82.10 (irix.disk.all.read): inst [1 or "1 minute"] value 3741643
@@ -2266,7 +2266,7 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
  PMID: 1.10.11 (irix.kernel.all.cpu.user)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -95,7 +95,7 @@
- 08:20:47.964018 18 metrics
+ 08:20:47.964018000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
 -    1.82.10 (irix.disk.all.read): value 3741558
 +    1.82.10 (irix.disk.all.read): inst [1 or "1 minute"] value 3741558
@@ -2274,7 +2274,7 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
          inst [1 or "1 minute"] value 0.76855469
          inst [5 or "5 minute"] value 1.3691406
 @@ -119,7 +119,7 @@
- 08:20:54.341775 18 metrics
+ 08:20:54.341775000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158411
 -    1.82.10 (irix.disk.all.read): value 3741643
 +    1.82.10 (irix.disk.all.read): inst [1 or "1 minute"] value 3741643
@@ -2295,7 +2295,7 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
  PMID: 1.10.11 (irix.kernel.all.cpu.user)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -95,7 +95,7 @@
- 08:20:47.964018 18 metrics
+ 08:20:47.964018000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
 -    1.82.10 (irix.disk.all.read): value 3741558
 +    1.82.10 (irix.disk.all.read): inst [1 or "1 minute"] value 3741558
@@ -2303,7 +2303,7 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
          inst [1 or "1 minute"] value 0.76855469
          inst [5 or "5 minute"] value 1.3691406
 @@ -119,7 +119,7 @@
- 08:20:54.341775 18 metrics
+ 08:20:54.341775000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158411
 -    1.82.10 (irix.disk.all.read): value 3741643
 +    1.82.10 (irix.disk.all.read): inst [1 or "1 minute"] value 3741643
@@ -2324,7 +2324,7 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
  PMID: 1.10.11 (irix.kernel.all.cpu.user)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -95,7 +95,7 @@
- 08:20:47.964018 18 metrics
+ 08:20:47.964018000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
 -    1.82.10 (irix.disk.all.read): value 3741558
 +    1.82.10 (irix.disk.all.read): inst [15 or "15 minute"] value 3741558
@@ -2332,7 +2332,7 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
          inst [1 or "1 minute"] value 0.76855469
          inst [5 or "5 minute"] value 1.3691406
 @@ -119,7 +119,7 @@
- 08:20:54.341775 18 metrics
+ 08:20:54.341775000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158411
 -    1.82.10 (irix.disk.all.read): value 3741643
 +    1.82.10 (irix.disk.all.read): inst [15 or "15 minute"] value 3741643
@@ -2353,7 +2353,7 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
  PMID: 1.10.11 (irix.kernel.all.cpu.user)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -95,7 +95,7 @@
- 08:20:47.964018 18 metrics
+ 08:20:47.964018000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
 -    1.82.10 (irix.disk.all.read): value 3741558
 +    1.82.10 (irix.disk.all.read): inst [15 or "15 minute"] value 3741558
@@ -2361,7 +2361,7 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
          inst [1 or "1 minute"] value 0.76855469
          inst [5 or "5 minute"] value 1.3691406
 @@ -119,7 +119,7 @@
- 08:20:54.341775 18 metrics
+ 08:20:54.341775000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158411
 -    1.82.10 (irix.disk.all.read): value 3741643
 +    1.82.10 (irix.disk.all.read): inst [15 or "15 minute"] value 3741643
@@ -2382,7 +2382,7 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
  PMID: 1.10.11 (irix.kernel.all.cpu.user)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -95,7 +95,7 @@
- 08:20:47.964018 18 metrics
+ 08:20:47.964018000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
 -    1.82.10 (irix.disk.all.read): value 3741558
 +    1.82.10 (irix.disk.all.read): inst [15 or "15 minute"] value 3741558
@@ -2390,7 +2390,7 @@ Instance 0 from OUTPUT clause not found in new indom 1.5
          inst [1 or "1 minute"] value 0.76855469
          inst [5 or "5 minute"] value 1.3691406
 @@ -119,7 +119,7 @@
- 08:20:54.341775 18 metrics
+ 08:20:54.341775000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158411
 -    1.82.10 (irix.disk.all.read): value 3741643
 +    1.82.10 (irix.disk.all.read): inst [15 or "15 minute"] value 3741643
@@ -2413,7 +2413,7 @@ Instance "159" from OUTPUT clause not found in new indom 1.5
  PMID: 1.10.11 (irix.kernel.all.cpu.user)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 @@ -95,7 +95,7 @@
- 08:20:47.964018 18 metrics
+ 08:20:47.964018000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158394
 -    1.82.10 (irix.disk.all.read): value 3741558
 +    1.82.10 (irix.disk.all.read): inst [0 or ???] value 3741558
@@ -2421,7 +2421,7 @@ Instance "159" from OUTPUT clause not found in new indom 1.5
          inst [1 or "1 minute"] value 0.76855469
          inst [5 or "5 minute"] value 1.3691406
 @@ -119,7 +119,7 @@
- 08:20:54.341775 18 metrics
+ 08:20:54.341775000 18 metrics
      1.82.11 (irix.disk.all.write): value 2158411
 -    1.82.10 (irix.disk.all.read): value 3741643
 +    1.82.10 (irix.disk.all.read): inst [0 or ???] value 3741643

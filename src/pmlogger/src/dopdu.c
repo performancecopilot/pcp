@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018,2021 Red Hat.
+ * Copyright (c) 2012-2018,2021-2022 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -87,7 +87,7 @@ dumpit(void)
  * stolen from __pmDumpResult
  */
 static void
-dumpcontrol(FILE *f, const pmResult *resp, int dovalue)
+dumpcontrol(FILE *f, const __pmResult *resp, int dovalue)
 {
     int		i;
     int		j;
@@ -773,25 +773,21 @@ gethistflags(pmID pmid, int inst)
 }
 
 /*
- * Take a pmResult (from a control log request) and half-clone it: return a
- * pointer to a new pmResult struct which shares the pmValueSets in the
+ * Take a result (from a control log request) and half-clone it: return a
+ * pointer to a new result struct which shares the pmValueSets in the
  * original that have numval > 0, and has null pointers for the pmValueSets
  * in the original with numval <= 0
- *
- * Note:	do not convert to __pmResult, the pmlc protocol for a
- *		control log request uses pmResult
  */
-static pmResult *
-siamise_request(pmResult *request)
+static __pmResult *
+siamise_request(__pmResult *request)
 {
-    int		i, need;
+    int		i;
     pmValueSet	*vsp;
-    pmResult	*result;
+    __pmResult	*result;
 
-    need = sizeof(pmResult) + (request->numpmid - 1) * sizeof(pmValueSet *);
-    result = (pmResult *)malloc(need);
+    result = __pmAllocResult(request->numpmid);
     if (result == NULL) {
-	pmNoMem("siamise_request: malloc pmResult", need, PM_FATAL_ERR);
+	pmNoMem("siamise_request: malloc result", sizeof(__pmResult) + (request->numpmid - 1) * sizeof(pmValueSet *), PM_FATAL_ERR);
     }
     for (i = 0; i < request->numpmid; i++) {
 	vsp = request->vset[i];
@@ -928,19 +924,19 @@ no_info:
 
 
 int
-do_control_req(pmResult *request, int control, int state, int arg_delta, int sendresult)
+do_control_req(__pmResult *request, int control, int state, int arg_delta, int sendresult)
 {
     int			sts;
-    pmResult		*result;
     int			siamised = 0;	/* the verb from siamese (as in twins) */
+    int			reqstate = 0;
     int			i;
     int			j;
     int			val;
+    __pmResult		*result;
     pmValueSet		*vsp;
     optreq_t		*rqp;
     task_t		*tp;
     time_t		now;
-    int			reqstate = 0;
 
     if (pmDebugOptions.pmlc) {
 	fprintf(stderr, "do_control_req: control=%d state=%d delta=%d request ...\n",
@@ -1001,7 +997,7 @@ do_control_req(pmResult *request, int control, int state, int arg_delta, int sen
 	    pmNotifyErr(LOG_ERR,
 			 "do_control: error sending Error PDU to client: %s\n",
 			 pmErrStr(sts));
-	pmFreeResult(request);
+	__pmFreeResult(request);
 	return sts;
     }
 
@@ -1099,8 +1095,8 @@ do_control_req(pmResult *request, int control, int state, int arg_delta, int sen
      */
 
     result = request;
-    result->timestamp.tv_sec = result->timestamp.tv_usec = 0;	/* for purify */
-    /* write the current state of affairs into the result _pmResult */
+    result->timestamp.sec = result->timestamp.nsec = 0;	/* init'd */
+    /* write the current state of affairs into the result __pmResult */
     for (i = 0; i < request->numpmid; i++) {
 
 	if (control == PM_LOG_MANDATORY || control == PM_LOG_ADVISORY) {
@@ -1200,9 +1196,8 @@ do_control_req(pmResult *request, int control, int state, int arg_delta, int sen
 	}
     }
 
-    if (pmDebugOptions.pmlc) {
-	__pmDumpResult(stderr, result);
-    }
+    if (pmDebugOptions.pmlc)
+	__pmPrintResult(stderr, result);
 
     if (sendresult && (sts = __pmSendResult(clientfd, FROM_ANON, result)) < 0)
 		pmNotifyErr(LOG_ERR,
@@ -1210,12 +1205,16 @@ do_control_req(pmResult *request, int control, int state, int arg_delta, int sen
 			     pmErrStr(sts));
 
     if (siamised) {
-	for (i = 0; i < request->numpmid; i++)
-	    if (request->vset[i]->numval <= 0)
+	for (i = 0; i < request->numpmid; i++) {
+	    if (request->vset[i]->numval <= 0) {
 		free(result->vset[i]);
-	free(result);
+		result->vset[i] = NULL;
+	    }
+	}
+	result->numpmid = 0;
+	__pmFreeResult(result);
     }
-    pmFreeResult(request);
+    __pmFreeResult(request);
 
     return 0;
 }
@@ -1228,7 +1227,7 @@ do_control(__pmPDU *pb)
     int			state;
     int			ldelta;
     int			sendresult = 1;
-    pmResult		*request;
+    __pmResult		*request;
 
     /*
      * TODO	- encoding for logging interval in requests and results?
@@ -1239,7 +1238,7 @@ do_control(__pmPDU *pb)
 	    pmNotifyErr(LOG_ERR,
 			 "do_control: error sending Error PDU to client: %s\n",
 			 pmErrStr(sts));
-	pmFreeResult(request);
+	__pmFreeResult(request);
 	return sts;
     }
     sts = do_control_req(request, control, state, ldelta, sendresult);
@@ -1252,11 +1251,10 @@ do_control(__pmPDU *pb)
 static int
 sendstatus(void)
 {
-    int				rv;
-    int				version;
-    static int			firsttime = 1;
-    static char			*tzlogger;
-    struct timeval		now;
+    int			sts;
+    int			version;
+    static int		firsttime = 1;
+    static char		*tzlogger;
 
     if (firsttime) {
         tzlogger = __pmTimezone();
@@ -1267,7 +1265,7 @@ sendstatus(void)
 	return version;
 
     if (version >= LOG_PDU_VERSION2) {
-	__pmLoggerStatus		ls;
+	__pmLoggerStatus	ls;
 
 	if ((ls.state = logctl.state) == PM_LOG_STATE_NEW) {
 	    ls.start.sec = ls.start.nsec = 0;
@@ -1275,11 +1273,8 @@ sendstatus(void)
 	    ls.start = logctl.label.start;	/* struct assignment */
 	}
 
-	ls.last.sec = last_stamp.tv_sec;
-	ls.last.nsec = last_stamp.tv_usec * 1000;
-	pmtimevalNow(&now);
-	ls.now.sec = now.tv_sec;
-	ls.now.nsec = now.tv_usec * 1000;
+	ls.last = last_stamp;	/* struct assignment */
+	__pmGetTimestamp(&ls.now);
 	ls.vol = archctl.ac_curvol;
 	ls.size = __pmFtell(archctl.ac_mfp);
 	assert(ls.size >= 0);
@@ -1287,49 +1282,46 @@ sendstatus(void)
 	ls.pmcd.hostname = ls.pmcd.fqdn = ls.pmcd.timezone = ls.pmcd.zoneinfo = NULL;
 	ls.pmlogger.timezone = ls.pmlogger.zoneinfo = NULL;
 
+        /* string should equal pmcd_host[]. */
 	if ((ls.pmcd.hostname = strdup(logctl.label.hostname)) == NULL) {
-	    int		sts = -oserror();
 	    pmNoMem("sendstatus: hostname", strlen(logctl.label.hostname), PM_RECOV_ERR);
-	    return sts;
+	    return -ENOMEM;
 	}
-        /* BTW, that string should equal pmcd_host[]. */
 
-        /* NB: FQDN cleanup: there is no such thing as 'the fully
-           qualified domain name' of a server: it may have several or
-           none; the set may have changed since the time the log
-           archive was collected.  Now that we store the then-current
-           pmcd.hostname in the hostname (and thus get it reported
-           in hostname), we could pass something else informative
-           in the fqdn slot.  Namely, pmcd_host_conn[], which is the
-           access path pmlogger's using to get to the pmcd. */
+	/*
+	 * Re FQDN: there is no such thing as 'the fully qualified
+	 * domain name' of a server: it may have several or none;
+	 * the set may have changed since the time the archive was
+	 * collected.  Now that we store the then-current value of
+	 * pmcd.hostname in the hostname (and thus get it reported
+	 * in hostname), we can pass something else informative
+	 * in the FQDN slot.  Namely, pmcd_host_conn[], which is
+	 * the access path pmlogger is using to get to the pmcd.
+	 */
 	if ((ls.pmcd.fqdn = strdup(pmcd_host_conn)) == NULL) {
-	    int		sts = -oserror();
 	    pmNoMem("sendstatus: fqdn", strlen(pmcd_host_conn), PM_RECOV_ERR);
 	    __pmFreeLogStatus(&ls, 0);
-	    return sts;
+	    return -ENOMEM;
 	}
 
 	if ((ls.pmcd.timezone = strdup(logctl.label.timezone)) == NULL) {
-	    int		sts = -oserror();
 	    pmNoMem("sendstatus: pmcd.timezone", strlen(logctl.label.timezone), PM_RECOV_ERR);
 	    __pmFreeLogStatus(&ls, 0);
-	    return sts;
+	    return -ENOMEM;
 	}
 	if (tzlogger != NULL) {
 	    if ((ls.pmlogger.timezone = strdup(tzlogger)) == NULL) {
-		int	sts = -oserror();
 		pmNoMem("sendstatus: pmlogger.timezone", strlen(tzlogger), PM_RECOV_ERR);
 		__pmFreeLogStatus(&ls, 0);
-		return sts;
+		return -ENOMEM;
 	    }
 	}
 
-	rv = __pmSendLogStatus(clientfd, &ls);
+	sts = __pmSendLogStatus(clientfd, &ls);
 	__pmFreeLogStatus(&ls, 0);
+	return sts;
     }
-    else
-	rv = PM_ERR_IPC;
-    return rv;
+    return PM_ERR_IPC;
 }
 
 static int

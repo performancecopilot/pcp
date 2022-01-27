@@ -48,8 +48,8 @@ pmdumplog diffs ...
 +22:33:24.637736000	      0          132          132
  
  [136 bytes]
--09:33:24.637736 3 metrics
-+22:33:24.637736 3 metrics
+-09:33:24.637736000 3 metrics
++22:33:24.637736000 3 metrics
      2.3.3 (pmcd.pmlogger.host): inst [21308 or "21308"] value "ha1.melbourne.sgi.com"
      2.3.0 (pmcd.pmlogger.port): inst [21308 or "21308"] value 4333
      2.3.2 (pmcd.pmlogger.archive): inst [21308 or "21308"] value "/usr/people/chatz/end"
@@ -85,8 +85,8 @@ pmdumplog diffs ...
 +19:53:54.637736000	      0          132          132
  
  [136 bytes]
--09:33:24.637736 3 metrics
-+19:53:54.637736 3 metrics
+-09:33:24.637736000 3 metrics
++19:53:54.637736000 3 metrics
      2.3.3 (pmcd.pmlogger.host): inst [21308 or "21308"] value "ha1.melbourne.sgi.com"
      2.3.0 (pmcd.pmlogger.port): inst [21308 or "21308"] value 4333
      2.3.2 (pmcd.pmlogger.archive): inst [21308 or "21308"] value "/usr/people/chatz/end"
@@ -122,8 +122,8 @@ pmdumplog diffs ...
 +19:53:54.637736000	      0          132          132
  
  [136 bytes]
--09:33:24.637736 3 metrics
-+19:53:54.637736 3 metrics
+-09:33:24.637736000 3 metrics
++19:53:54.637736000 3 metrics
      2.3.3 (pmcd.pmlogger.host): inst [21308 or "21308"] value "ha1.melbourne.sgi.com"
      2.3.0 (pmcd.pmlogger.port): inst [21308 or "21308"] value 4333
      2.3.2 (pmcd.pmlogger.archive): inst [21308 or "21308"] value "/usr/people/chatz/end"
@@ -159,8 +159,8 @@ pmdumplog diffs ...
 +23:12:54.637736000	      0          132          132
  
  [136 bytes]
--09:33:24.637736 3 metrics
-+23:12:54.637736 3 metrics
+-09:33:24.637736000 3 metrics
++23:12:54.637736000 3 metrics
      2.3.3 (pmcd.pmlogger.host): inst [21308 or "21308"] value "ha1.melbourne.sgi.com"
      2.3.0 (pmcd.pmlogger.port): inst [21308 or "21308"] value 4333
      2.3.2 (pmcd.pmlogger.archive): inst [21308 or "21308"] value "/usr/people/chatz/end"
@@ -201,8 +201,8 @@ pmdumplog diffs ...
 +00:00:00.000736000	      0          132          132
  
  [136 bytes]
--09:33:24.637736 3 metrics
-+00:00:00.000736 3 metrics
+-09:33:24.637736000 3 metrics
++00:00:00.000736000 3 metrics
      2.3.3 (pmcd.pmlogger.host): inst [21308 or "21308"] value "ha1.melbourne.sgi.com"
      2.3.0 (pmcd.pmlogger.port): inst [21308 or "21308"] value 4333
      2.3.2 (pmcd.pmlogger.archive): inst [21308 or "21308"] value "/usr/people/chatz/end"

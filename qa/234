@@ -31,7 +31,7 @@ _xtract()
 {
     # pmdumplog -D1 produces something like ...
     #
-    # pmResult dump from 0x100051d0 timestamp: 882429086.522227 18:11:26.522 ...
+    # __pmResult dump from 0x100051d0 timestamp: 882429086.522227 18:11:26.522 ...
     #  29.0.64 (sample.rapid): numval: 1 valfmt: 0 vlist[]:
     #   value 1810065408
     # ...
@@ -40,7 +40,7 @@ _xtract()
     # ...
     # <empty line>
     #
-    # the initial archive processing may cause the same pmResult to
+    # the initial archive processing may cause the same __pmResult to
     # be reported twice, hence the sort at the end
     #
     # _xtract produces 3 columns:  time  time_t  value
@@ -50,7 +50,7 @@ _xtract()
     pmdumplog -D1 $tmp.merge $1 2>&1 \
     | tee -a $here/$seq.full \
     | $PCP_AWK_PROG '
-$1 == "pmResult"		{ state=1; time=$7; stamp=$6; next }
+$1 == "__pmResult"		{ state=1; time=$7; stamp=$6; next }
 state == 1 && /\('"$1"'\)/	{ state=2; next }
 state == 2			{ state=0; print time,stamp,$2; next }
 NF==0				{ state=0; next }' \
