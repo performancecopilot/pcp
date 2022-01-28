@@ -15,6 +15,7 @@
  */
 
 #include "pmapi.h"
+#include "libpcp.h"
 #include "archive.h"
 
 /*
@@ -24,7 +25,7 @@
  * efficient
  */
 void
-pmaSortInDom(pmInResult *irp)
+pmaSortInDom(__pmLogInDom_io *lidp)
 {
     int		i;
     int		j;
@@ -32,17 +33,17 @@ pmaSortInDom(pmInResult *irp)
     char	*tp;
     int		nswap;
 
-    for (i = irp->numinst-1; i >= 0; i--) {
+    for (i = lidp->numinst-1; i >= 0; i--) {
 	nswap = 0;
 	for (j = 1; j <= i; j++) {
-	    if (irp->instlist[j-1] > irp->instlist[j]) {
+	    if (lidp->instlist[j-1] > lidp->instlist[j]) {
 		nswap++;
-		ti = irp->instlist[j-1];
-		irp->instlist[j-1] = irp->instlist[j];
-		irp->instlist[j] = ti;
-		tp = irp->namelist[j-1];
-		irp->namelist[j-1] = irp->namelist[j];
-		irp->namelist[j] = tp;
+		ti = lidp->instlist[j-1];
+		lidp->instlist[j-1] = lidp->instlist[j];
+		lidp->instlist[j] = ti;
+		tp = lidp->namelist[j-1];
+		lidp->namelist[j-1] = lidp->namelist[j];
+		lidp->namelist[j] = tp;
 	    }
 	}
 	if (nswap == 0)
@@ -59,7 +60,7 @@ pmaSortInDom(pmInResult *irp)
  * 0 => different
  */
 int
-pmaSameInDom(pmInResult *old, pmInResult *new)
+pmaSameInDom(__pmLogInDom_io *old, __pmLogInDom_io *new)
 {
     int		i;
     int		sts = 0;
@@ -108,9 +109,10 @@ done:
  *
  * Note on alloc() errors: report 'em and return "1", since this
  * simply falls back to the V2 scheme (more or less).
+ * TODO ... fix alloc error ... fallback to pmaSameInDom()
  */
 int
-pmaDeltaInDom(pmInResult *old, pmInResult *new, pmInResult *new_delta)
+pmaDeltaInDom(__pmLogInDom_io *old, __pmLogInDom_io *new, __pmLogInDom_io *new_delta)
 {
     int		i;
     int		j;

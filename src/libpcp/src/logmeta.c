@@ -132,9 +132,7 @@ addinsts(__pmLogInDom *idp, int numinst, int *instlist, char **namelist)
  * Filter out duplicates.
  */
 int
-addindom(__pmLogCtl *lcp, pmInDom indom, const __pmTimestamp *tsp, int type,
-	 int numinst, int *instlist, char **namelist, __int32_t *indom_buf,
-	 int allinbuf)
+addindom(__pmLogCtl *lcp, int type, const __pmLogInDom_io *lidp, __int32_t *indom_buf, int allinbuf)
 {
     __pmLogInDom	*idp, *idp_prior;
     __pmLogInDom	*idp_cached, *idp_time;
@@ -145,22 +143,22 @@ addindom(__pmLogCtl *lcp, pmInDom indom, const __pmTimestamp *tsp, int type,
 PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     if ((idp = (__pmLogInDom *)malloc(sizeof(__pmLogInDom))) == NULL)
 	return -oserror();
-    idp->stamp = *tsp;		/* struct assignment */
+    idp->stamp = lidp->stamp;		/* struct assignment */
     idp->isdelta = (type == TYPE_INDOM_DELTA);
     idp->buf = indom_buf;
     idp->allinbuf = allinbuf;
-    addinsts(idp, numinst, instlist, namelist);
+    addinsts(idp, lidp->numinst, lidp->instlist, lidp->namelist);
 
     if (pmDebugOptions.logmeta) {
 	char    strbuf[20];
-	fprintf(stderr, "addindom( ..., %s, ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
-	StrTimestamp(tsp);
-	fprintf(stderr, ", type=%s, numinst=%d, ...)\n", typeStr(type), numinst);
+	fprintf(stderr, "addindom( ..., %s, ", pmInDomStr_r(lidp->indom, strbuf, sizeof(strbuf)));
+	StrTimestamp(&lidp->stamp);
+	fprintf(stderr, ", type=%s, numinst=%d, ...)\n", typeStr(type), lidp->numinst);
     }
 
-    if ((hp = __pmHashSearch((unsigned int)indom, &lcp->hashindom)) == NULL) {
+    if ((hp = __pmHashSearch((unsigned int)lidp->indom, &lcp->hashindom)) == NULL) {
 	idp->next = NULL;
-	sts = __pmHashAdd((unsigned int)indom, (void *)idp, &lcp->hashindom);
+	sts = __pmHashAdd((unsigned int)lidp->indom, (void *)idp, &lcp->hashindom);
 	if (sts > 0) {
 	    /* __pmHashAdd returns 1 for success, but we want 0. */
 	    sts = 0;
@@ -204,7 +202,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 		if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
 		    char	strbuf[20];
 		    fprintf(stderr, "indom: %s sameindom(",
-			pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
+			pmInDomStr_r(lidp->indom, strbuf, sizeof(strbuf)));
 		    __pmPrintTimestamp(stderr, &idp_cached->stamp);
 		    fprintf(stderr, "[%d numinst],", idp_cached->numinst);
 		    __pmPrintTimestamp(stderr, &idp->stamp);
@@ -676,11 +674,9 @@ __pmLogAddPMNSNode(__pmArchCtl *acp, pmID pmid, const char *name)
 }
 
 int
-__pmLogAddInDom(__pmArchCtl *acp, const __pmTimestamp *tsp, int type, const pmInResult *in,
-		__int32_t *tbuf, int allinbuf)
+__pmLogAddInDom(__pmArchCtl *acp, int type, const __pmLogInDom_io *lidp, __int32_t *tbuf, int allinbuf)
 {
-    return addindom(acp->ac_log, in->indom, tsp, type,
-		    in->numinst, in->instlist, in->namelist, tbuf, allinbuf);
+    return addindom(acp->ac_log, type, lidp, tbuf, allinbuf);
 }
 
 int
@@ -849,23 +845,22 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 	    }/*for*/
 	}
 	else if (h.type == TYPE_INDOM || h.type == TYPE_INDOM_DELTA || h.type == TYPE_INDOM_V2) {
-	    __pmTimestamp	stamp;
-	    pmInResult		in;
+	    __pmLogInDom_io	lid;
 	    __int32_t		*buf;
 	    int			allinbuf;
 
-	    if ((allinbuf = __pmLogLoadInDom(acp, rlen, h.type, &in, &stamp, &buf)) < 0) {
+	    if ((allinbuf = __pmLogLoadInDom(acp, rlen, h.type, &lid, &buf)) < 0) {
 		sts = allinbuf;
 		goto end;
 	    }
-	    if (in.numinst > 0) {
+	    if (lid.numinst > 0) {
 		/*
 		 * we have instances, so in.namelist is not NULL
 		 */
-		if ((sts = __pmLogAddInDom(acp, &stamp, h.type, &in, buf, allinbuf)) < 0) {
+		if ((sts = __pmLogAddInDom(acp, h.type, &lid, buf, allinbuf)) < 0) {
 		    free(buf);
 		    if (!allinbuf)
-			free(in.namelist);
+			free(lid.namelist);
 		    goto end;
 		}
 		/* If this indom was a duplicate, then we need to free tbuf and
@@ -873,7 +868,7 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 		if (sts == PMLOGPUTINDOM_DUP) {
 		    free(buf);
 		    if (!allinbuf)
-			free(in.namelist);
+			free(lid.namelist);
 		}
 	    }
 	    else {

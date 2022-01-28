@@ -91,27 +91,27 @@ typedef struct elt {
 } elt_t;
 
 void
-unpack_indom(elt_t *ep, pmInResult *inp)
+unpack_indom(elt_t *ep, __pmLogInDom_io *lidp)
 {
     int		j;
 
     if (ep->numinst > 0) {
-	ep->inst = (int *)malloc(inp->numinst * sizeof(int));
+	ep->inst = (int *)malloc(lidp->numinst * sizeof(int));
 	if (ep->inst == NULL) {
-	    fprintf(stderr, "Arrgh: inst[] malloc failed for indom %s\n", pmInDomStr(inp->indom));
+	    fprintf(stderr, "Arrgh: inst[] malloc failed for indom %s\n", pmInDomStr(lidp->indom));
 	    exit(1);
 	}
-	ep->iname = (char **)malloc(inp->numinst * sizeof(char *));
+	ep->iname = (char **)malloc(lidp->numinst * sizeof(char *));
 	if (ep->iname == NULL) {
-	    fprintf(stderr, "Arrgh: iname[] malloc failed for indom %s\n", pmInDomStr(inp->indom));
+	    fprintf(stderr, "Arrgh: iname[] malloc failed for indom %s\n", pmInDomStr(lidp->indom));
 	    exit(1);
 	}
-	for (j = 0; j < inp->numinst; j++) {
-	    ep->inst[j] = inp->instlist[j];
-	    if (inp->namelist[j] != NULL) {
-		ep->iname[j] = strdup(inp->namelist[j]);
+	for (j = 0; j < lidp->numinst; j++) {
+	    ep->inst[j] = lidp->instlist[j];
+	    if (lidp->namelist[j] != NULL) {
+		ep->iname[j] = strdup(lidp->namelist[j]);
 		if (ep->iname[j] == NULL) {
-		    fprintf(stderr, "Arrgh: iname[%d] malloc failed for indom %s\n", j, pmInDomStr(inp->indom));
+		    fprintf(stderr, "Arrgh: iname[%d] malloc failed for indom %s\n", j, pmInDomStr(lidp->indom));
 		    exit(1);
 		}
 		if (pmDebugOptions.appl0) {
@@ -152,26 +152,25 @@ do_indom(__int32_t *buf, int type)
     static elt_t		*head = NULL;
     static elt_t		dup = { NULL, 0, 0, NULL, NULL };
     static int			ndup = 0;
-    pmInResult			in;
-    __pmTimestamp		this_stamp;
+    __pmLogInDom_io		lid;
     int				warn;
     elt_t			*ep = NULL;	/* pander to gcc */
     elt_t			*tp;
     elt_t			*dp = &dup;
 
-    if ((allinbuf = __pmLogLoadInDom(NULL, 0, type, &in, &this_stamp, &buf)) < 0) {
+    if ((allinbuf = __pmLogLoadInDom(NULL, 0, type, &lid, &buf)) < 0) {
 	fprintf(stderr, "__pmLoadLoadInDom: failed: %s\n", pmErrStr(allinbuf));
 	return;
     }
 
     if (pmDebugOptions.appl0) {
 	int	i;
-	fprintf(stderr, "indom type=%s (%d) numinst=%d\n", typename[type], type, in.numinst);
-	for (i = 0; i < in.numinst; i++) {
-	    if (in.namelist[i] != NULL)
-		fprintf(stderr, "(%d) inst=%d name=\"%s\"\n", i, in.instlist[i], in.namelist[i]);
+	fprintf(stderr, "indom type=%s (%d) numinst=%d\n", typename[type], type, lid.numinst);
+	for (i = 0; i < lid.numinst; i++) {
+	    if (lid.namelist[i] != NULL)
+		fprintf(stderr, "(%d) inst=%d name=\"%s\"\n", i, lid.instlist[i], lid.namelist[i]);
 	    else
-		fprintf(stderr, "(%d) inst=%d\n", i, in.instlist[i]);
+		fprintf(stderr, "(%d) inst=%d\n", i, lid.instlist[i]);
 	}
     }
 
@@ -182,10 +181,10 @@ do_indom(__int32_t *buf, int type)
 	 * for the same indom.
 	 * Use a linked list of indoms previously seen.
 	 */
-	if (__pmTimestampSub(&this_stamp, &prior_stamp) == 0) {
+	if (__pmTimestampSub(&lid.stamp, &prior_stamp) == 0) {
 	    /* same timestamp as previous indom */
 	    for (ep = head; ep != NULL; ep = ep->next) {
-		if (ep->indom == in.indom) {
+		if (ep->indom == lid.indom) {
 		    /* indom match => duplicate */
 		    ndup++;
 		    warn++;
@@ -199,8 +198,8 @@ do_indom(__int32_t *buf, int type)
 		 */
 		ep = (elt_t *)malloc(sizeof(elt_t));
 		if (ep == NULL) {
-		    fprintf(stderr, "Arrgh: elt malloc failed for indom %s @ ", pmInDomStr(in.indom));
-		    __pmPrintTimestamp(stderr, &this_stamp);
+		    fprintf(stderr, "Arrgh: elt malloc failed for indom %s @ ", pmInDomStr(lid.indom));
+		    __pmPrintTimestamp(stderr, &lid.stamp);
 		    exit(1);
 		}
 		ep->next = head;
@@ -217,20 +216,20 @@ do_indom(__int32_t *buf, int type)
 	    }
 	    ep = head = (elt_t *)malloc(sizeof(elt_t));
 	    if (head == NULL) {
-		fprintf(stderr, "Arrgh: head malloc failed for indom %s @ ", pmInDomStr(in.indom));
-		__pmPrintTimestamp(stderr, &this_stamp);
+		fprintf(stderr, "Arrgh: head malloc failed for indom %s @ ", pmInDomStr(lid.indom));
+		__pmPrintTimestamp(stderr, &lid.stamp);
 		exit(1);
 	    }
 	    ep->next = NULL;
 	    ndup = 0;
 	}
-	ep->indom = in.indom;
-	ep->numinst = in.numinst;
+	ep->indom = lid.indom;
+	ep->numinst = lid.numinst;
 	ep->inst = NULL;
 	ep->iname = NULL;
 	if (wflag > 0) {
 	    /* -w or -W, so unpack indom */
-	    unpack_indom(ep, &in);
+	    unpack_indom(ep, &lid);
 	}
     }
     if (iflag || (warn && wflag > 0)) {
@@ -239,16 +238,16 @@ do_indom(__int32_t *buf, int type)
 	if (oflag)
 	    printf("+%ld ", (long)offset);
 	printf("@ ");
-	__pmPrintTimestamp(stdout, &this_stamp);
-	printf(" indom %s numinst %d", pmInDomStr(in.indom), in.numinst);
+	__pmPrintTimestamp(stdout, &lid.stamp);
+	printf(" indom %s numinst %d", pmInDomStr(lid.indom), lid.numinst);
 	if (warn && wflag > 0) {
 	    int	o, d;
 	    int	diffs = 0;
 	    printf(" duplicate #%d\n", ndup);
-	    dp->indom = in.indom;
-	    dp->numinst = in.numinst;
+	    dp->indom = lid.indom;
+	    dp->numinst = lid.numinst;
 	    dp->inst = NULL;
-	    unpack_indom(dp, &in);
+	    unpack_indom(dp, &lid);
 	    if (type == TYPE_INDOM_DELTA) {
 		for (d = 0; d < dp->numinst; d++) {
 		    if (dp->iname[d] == NULL)
@@ -294,10 +293,10 @@ do_indom(__int32_t *buf, int type)
 	else
 	    putchar('\n');
     }
-    prior_stamp = this_stamp;
+    prior_stamp = lid.stamp;
 
-    if (in.namelist != NULL && !allinbuf)
-	free(in.namelist);
+    if (lid.namelist != NULL && !allinbuf)
+	free(lid.namelist);
 }
 
 void

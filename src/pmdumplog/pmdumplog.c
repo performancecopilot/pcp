@@ -537,41 +537,40 @@ dumpDiskInDom(__pmContext *ctxp)
 	}
 	rlen = (size_t)hdr.len - sizeof(__pmLogHdr) - sizeof(__int32_t);
 	if (hdr.type == TYPE_INDOM || hdr.type == TYPE_INDOM_DELTA || hdr.type == TYPE_INDOM_V2) {
-	    __pmTimestamp	stamp;
-	    pmInResult		in;
+	    __pmLogInDom_io	lid;
 	    __int32_t		*buf;
 	    int			allinbuf;
 	    int			i;
 
-	    if ((allinbuf = __pmLogLoadInDom(ctxp->c_archctl, rlen, hdr.type, &in, &stamp, &buf)) < 0) {
+	    if ((allinbuf = __pmLogLoadInDom(ctxp->c_archctl, rlen, hdr.type, &lid, &buf)) < 0) {
 		fprintf(stderr, "dumpDiskInDom: __pmLogLoadInDom failed: %s\n", pmErrStr(allinbuf));
 		exit(1);
 	    }
-	    dump_pmTimestamp(&stamp);
-	    printf(" InDom: %s", pmInDomStr(in.indom));
+	    dump_pmTimestamp(&lid.stamp);
+	    printf(" InDom: %s", pmInDomStr(lid.indom));
 	    if (hdr.type == TYPE_INDOM_DELTA)
 		printf(" delta");
-	    printf(" %d instances\n", in.numinst);
-	    if (in.numinst > 0) {
-	        for (i = 0; i < in.numinst; i++) {
+	    printf(" %d instances\n", lid.numinst);
+	    if (lid.numinst > 0) {
+	        for (i = 0; i < lid.numinst; i++) {
 		    if (hdr.type == TYPE_INDOM_DELTA) {
-			if (in.namelist[i] == NULL)
-			    printf("   del %d\n", in.instlist[i]);
+			if (lid.namelist[i] == NULL)
+			    printf("   del %d\n", lid.instlist[i]);
 			else
-			    printf("   add %d or \"%s\"\n", in.instlist[i], in.namelist[i]);
+			    printf("   add %d or \"%s\"\n", lid.instlist[i], lid.namelist[i]);
 		    }
-		    else if (in.namelist[i] != NULL)
-			printf("   %d or \"%s\"\n", in.instlist[i], in.namelist[i]);
+		    else if (lid.namelist[i] != NULL)
+			printf("   %d or \"%s\"\n", lid.instlist[i], lid.namelist[i]);
 		    else {
-			fprintf(stderr, "dumpDiskInDom: Botch: indom record type %d and namelist[%d] (inst %d) is NULL\n", hdr.type, i, in.instlist[i]);
+			fprintf(stderr, "dumpDiskInDom: Botch: indom record type %d and namelist[%d] (inst %d) is NULL\n", hdr.type, i, lid.instlist[i]);
 			exit(1);
 		    }
 		}
 		fflush(stdout);
 	    }
 	    free(buf);
-	    if (in.namelist != NULL && !allinbuf)
-		free(in.namelist);
+	    if (lid.namelist != NULL && !allinbuf)
+		free(lid.namelist);
 	}
 	else {
 	    /*

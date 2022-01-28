@@ -1247,11 +1247,10 @@ write_rec(reclist_t *rec)
 		pmPrintDesc(stderr, &desc);
 	    }
 	    else if (type == TYPE_INDOM || type == TYPE_INDOM_DELTA || type == TYPE_INDOM_V2) {
-		__int32_t	*buf;
-		__int32_t	*ibuf;
-		pmInResult	in;
-		__pmTimestamp	stamp;
-		int		allinbuf;
+		__int32_t		*buf;
+		__int32_t		*ibuf;
+		__pmLogInDom_io	lid;
+		int			allinbuf;
 		/*
 		 * __pmLogLoadInDom() below may re-write (ntohl()) some of
 		 * the PDU buffer, so we need to operate on a copy for this
@@ -1264,24 +1263,24 @@ write_rec(reclist_t *rec)
 		    memcpy(buf, rec->pdu, len);
 
 		    ibuf = &buf[2];
-		    allinbuf = __pmLogLoadInDom(NULL, 0, type, &in, &stamp, &ibuf);
+		    allinbuf = __pmLogLoadInDom(NULL, 0, type, &lid, &ibuf);
 		    if (allinbuf < 0) {
 			fprintf(stderr, "write_rec: __pmLogLoadInDom(type=%s (%d)): failed: %s\n", metarectypestr(type), type, pmErrStr(allinbuf));
 		    }
 		    else {
-			fprintf(stderr, "INDOM: %s when: ", pmInDomStr(in.indom));
-			__pmPrintTimestamp(stderr, &stamp);
-			fprintf(stderr, " numinst: %d", in.numinst);
-			if (in.numinst > 0) {
+			fprintf(stderr, "INDOM: %s when: ", pmInDomStr(lid.indom));
+			__pmPrintTimestamp(stderr, &lid.stamp);
+			fprintf(stderr, " numinst: %d", lid.numinst);
+			if (lid.numinst > 0) {
 			    int		i;
-			    for (i = 0; i < in.numinst; i++) {
-				fprintf(stderr, " [%d] %d", i, in.instlist[i]);
+			    for (i = 0; i < lid.numinst; i++) {
+				fprintf(stderr, " [%d] %d", i, lid.instlist[i]);
 			    }
 			}
 			fputc('\n', stderr);
 		    }
 		    if (!allinbuf)
-			free(in.namelist);
+			free(lid.namelist);
 		    free(buf);
 		}
 	    }
@@ -1698,14 +1697,10 @@ __pmLogInDom *
 foo(__pmLogCtl *lcp, __int32_t **buf)
 {
     __int32_t		*ibuf = *buf;
-    int			len;
-    int			type;
     pmInDom		indom;
     __pmTimestamp	stamp;
     __pmLogInDom	*idp;
 
-    len = ntohl(ibuf[0]);
-    type = ntohl(ibuf[1]);
     __pmLoadTimestamp(&ibuf[2], &stamp);
     indom = ntoh_pmInDom(ibuf[5]);
 
@@ -1890,7 +1885,7 @@ againmeta:
 		 */
 		if (type == TYPE_INDOM_DELTA) {
 		    __pmLogInDom	*idp;
-		    __pmLogInDom_int	lid;
+		    __pmLogInDom_io	lid;
 		    __int32_t		*new;
 		    int			lsts;
 		    lid.indom = ntoh_pmInDom(iap->pb[META][5]);

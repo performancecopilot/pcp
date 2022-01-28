@@ -71,21 +71,19 @@ doindom(pmResult *rp)
 	}
 
 	if (need) {
+	    __pmLogInDom_io	lid;
 	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "Add metadata: indom %s for metric %s\n", pmInDomStr(mp->idp->indom), pmIDStr(vsp->pmid));
 	    }
 	    if (mp->idp->name != NULL) free(mp->idp->name);
 	    if (mp->idp->inst != NULL) free(mp->idp->inst);
-	    mp->idp->name = names;
-	    mp->idp->inst = instlist;
-	    mp->idp->numinst = sts;
-#if 0	    // TODO use current when it => __pmTimestamp
-	    if ((sts = __pmLogPutInDom(&archctl, mp->idp->indom, &current, TYPE_INDOM, mp->idp->numinst, mp->idp->inst, mp->idp->name)) < 0) {
-#else
-	    stamp.sec = current.tv_sec;
-	    stamp.nsec = current.tv_usec * 1000;
-	    if ((sts = __pmLogPutInDom(&archctl, mp->idp->indom, &stamp, TYPE_INDOM_V2, mp->idp->numinst, mp->idp->inst, mp->idp->name)) < 0) {
-#endif
+	    lid.indom = mp->idp->indom;
+	    lid.stamp.sec = current.tv_sec;
+	    lid.stamp.nsec = current.tv_usec * 1000;
+	    lid.numinst = mp->idp->numinst = sts;
+	    lid.instlist = mp->idp->inst = instlist;
+	    lid.namelist = mp->idp->name = names;
+	    if ((sts = __pmLogPutInDom(&archctl, TYPE_INDOM_V2, &lid))< 0) {
 		fprintf(stderr,
 		    "%s: Error: failed to add pmInDom: indom %s (for pmid %s): %s\n",
 			pmGetProgname(), pmInDomStr(mp->idp->indom), pmIDStr(vsp->pmid), pmErrStr(sts));

@@ -28,9 +28,9 @@
 extern "C" {
 #endif
 
-PCP_CALL extern void pmaSortInDom(pmInResult *);
-PCP_CALL extern int pmaSameInDom(pmInResult *, pmInResult *);
-PCP_CALL extern int pmaDeltaInDom(pmInResult *, pmInResult *, pmInResult *);
+PCP_CALL extern void pmaSortInDom(__pmLogInDom_io *);
+PCP_CALL extern int pmaSameInDom(__pmLogInDom_io *, __pmLogInDom_io *);
+PCP_CALL extern int pmaDeltaInDom(__pmLogInDom_io *, __pmLogInDom_io *, __pmLogInDom_io *);
 
 #ifdef __cplusplus
 }

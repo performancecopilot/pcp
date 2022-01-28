@@ -657,13 +657,18 @@ typedef struct __pmLogHdr {
     int		type;	/* see TYPE_* #defines below */
 } __pmLogHdr;
 
-#define TYPE_DESC		1	/* header, pmDesc, trailer */
-#define TYPE_INDOM_V2		2	/* header, __pmLogInDom_v2, trailer */
+#define TYPE_DESC		1	/* header, pmDesc, trailer          */
+#define TYPE_INDOM_V2		2	/* header, __pmInDom_v2, trailer    */
+					/*         (with pmTimeval)         */
 #define TYPE_LABEL_V2		3	/* header, __pmLogLabelSet, trailer */
 					/*         (with pmTimeval)         */
-#define TYPE_TEXT		4	/* header, __pmLogText, trailer */
-#define TYPE_INDOM		5	/* header, __pmLogInDom, trailer */
-#define TYPE_INDOM_DELTA	6	/* header, __pmLogInDom, trailer */
+#define TYPE_TEXT		4	/* header, __pmLogText, trailer     */
+#define TYPE_INDOM		5	/* header, __pmInDom_v3, trailer    */
+					/*         ("full" indom variant,   */
+					/*          with __pmTimestamp)     */
+#define TYPE_INDOM_DELTA	6	/* header, __pmInDom_v3, trailer    */
+					/*         ("delta" indom variant,  */
+					/*          with __pmTimestamp)     */
 #define TYPE_LABEL		7	/* header, __pmLogLabelSet, trailer */
 					/*         (with __pmTimestamp)     */
 #define TYPE_MAX TYPE_LABEL
@@ -872,7 +877,7 @@ typedef struct {
 
 /*
  * Instance domain for internal use ... especially when packing/unpacking
- * delta indom records from an archive
+ * external indom records from an archive
  */
 typedef struct {
     __pmTimestamp	stamp;		/* when */
@@ -880,7 +885,7 @@ typedef struct {
     int			numinst;	/* number of instances */
     int			*instlist;	/* instance ids */
     char		**namelist;	/* instance names */
-} __pmLogInDom_int;
+} __pmLogInDom_io;
 
 /*
  * Nested per-instance trimming control (potentially one of these for
@@ -929,7 +934,7 @@ PCP_CALL extern int __pmLogCreate(const char *, const char *, int, __pmArchCtl *
 PCP_CALL extern __pmFILE *__pmLogNewFile(const char *, int);
 PCP_CALL extern void __pmLogClose(__pmArchCtl *);
 PCP_CALL extern int __pmLogPutDesc(__pmArchCtl *, const pmDesc *, int, char **);
-PCP_CALL extern int __pmLogPutInDom(__pmArchCtl *, pmInDom, const __pmTimestamp *, int, int, int *, char **);
+PCP_CALL extern int __pmLogPutInDom(__pmArchCtl *, int, const __pmLogInDom_io * const);
 PCP_CALL extern int __pmLogPutResult(__pmArchCtl *, __pmPDU *);
 PCP_CALL extern int __pmLogPutResult2(__pmArchCtl *, __pmPDU *);
 PCP_CALL extern int __pmLogPutIndex(const __pmArchCtl *, const __pmTimestamp *);
@@ -939,8 +944,8 @@ PCP_CALL extern int __pmLogPutText(__pmArchCtl *, unsigned int , unsigned int, c
 PCP_CALL extern int __pmLogWriteLabel(__pmFILE *, const __pmLogLabel *);
 PCP_CALL extern int __pmLogLoadMeta(__pmArchCtl *);
 PCP_CALL extern int __pmLogAddDesc(__pmArchCtl *, const pmDesc *);
-PCP_CALL extern int __pmLogAddInDom(__pmArchCtl *, const __pmTimestamp *, int, const pmInResult *, __int32_t *, int);
-PCP_CALL extern int __pmLogEncodeInDom(__pmLogCtl *, int, const __pmLogInDom_int * const, __int32_t **);
+PCP_CALL extern int __pmLogAddInDom(__pmArchCtl *, int, const __pmLogInDom_io *, __int32_t *, int);
+PCP_CALL extern int __pmLogEncodeInDom(__pmLogCtl *, int, const __pmLogInDom_io * const, __int32_t **);
 PCP_CALL extern __pmLogInDom *__pmLogSearchInDom(__pmLogCtl *, pmInDom, __pmTimestamp *);
 PCP_CALL extern void __pmLogUndeltaInDom(pmInDom, __pmLogInDom *);
 PCP_CALL extern int __pmLogAddPMNSNode(__pmArchCtl *, pmID, const char *);
@@ -1489,7 +1494,7 @@ PCP_CALL extern void __pmFreeHighResResult(pmHighResResult *);
 /*
  * Loading archive records from disk ...
  */
-PCP_CALL extern int __pmLogLoadInDom(__pmArchCtl *, int, int, pmInResult *, __pmTimestamp *, __int32_t **);
+PCP_CALL extern int __pmLogLoadInDom(__pmArchCtl *, int, int, __pmLogInDom_io *, __int32_t **);
 PCP_CALL extern int __pmLogLoadLabel(__pmFILE *, __pmLogLabel *);
 PCP_CALL extern void __pmLogFreeLabel(__pmLogLabel *);
 
