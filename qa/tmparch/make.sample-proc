@@ -18,7 +18,7 @@ log mandatory on 250 msec {
 }
 End-of-File
 
-rm -f sample-proc.index sample-proc.meta sample-proc.0
+rm -f sample-proc_v2.index sample-proc_v2.meta sample-proc_v2.0
 rm -f sample-proc_v3.index sample-proc_v3.meta sample-proc_v3.0
 
 for vers in 2 3

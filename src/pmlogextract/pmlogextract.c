@@ -19,6 +19,7 @@
  * appl1	malloc's and reclist operations
  * appl2	time window and EOF tests
  * appl3	in/out version decisions
+ * appl4	indom juggling
  */
 
 #include <math.h>
@@ -248,9 +249,6 @@ printsem(FILE *f, int sem)
 /*
  *  global constants
  */
-#define LOG			0
-#define META			1
-#define LOG_META		2
 #define NUM_SEC_PER_DAY		86400
 
 #define NOT_WRITTEN		0
@@ -1249,11 +1247,10 @@ write_rec(reclist_t *rec)
 		pmPrintDesc(stderr, &desc);
 	    }
 	    else if (type == TYPE_INDOM || type == TYPE_INDOM_DELTA || type == TYPE_INDOM_V2) {
-		__int32_t	*buf;
-		__int32_t	*ibuf;
-		pmInResult	in;
-		__pmTimestamp	stamp;
-		int		allinbuf;
+		__int32_t		*buf;
+		__int32_t		*ibuf;
+		__pmLogInDom_io	lid;
+		int			allinbuf;
 		/*
 		 * __pmLogLoadInDom() below may re-write (ntohl()) some of
 		 * the PDU buffer, so we need to operate on a copy for this
@@ -1266,24 +1263,24 @@ write_rec(reclist_t *rec)
 		    memcpy(buf, rec->pdu, len);
 
 		    ibuf = &buf[2];
-		    allinbuf = __pmLogLoadInDom(NULL, 0, type, &in, &stamp, &ibuf);
+		    allinbuf = __pmLogLoadInDom(NULL, 0, type, &lid, &ibuf);
 		    if (allinbuf < 0) {
 			fprintf(stderr, "write_rec: __pmLogLoadInDom(type=%s (%d)): failed: %s\n", metarectypestr(type), type, pmErrStr(allinbuf));
 		    }
 		    else {
-			fprintf(stderr, "INDOM: %s when: ", pmInDomStr(in.indom));
-			__pmPrintTimestamp(stderr, &stamp);
-			fprintf(stderr, " numinst: %d", in.numinst);
-			if (in.numinst > 0) {
+			fprintf(stderr, "INDOM: %s when: ", pmInDomStr(lid.indom));
+			__pmPrintTimestamp(stderr, &lid.stamp);
+			fprintf(stderr, " numinst: %d", lid.numinst);
+			if (lid.numinst > 0) {
 			    int		i;
-			    for (i = 0; i < in.numinst; i++) {
-				fprintf(stderr, " [%d] %d", i, in.instlist[i]);
+			    for (i = 0; i < lid.numinst; i++) {
+				fprintf(stderr, " [%d] %d", i, lid.instlist[i]);
 			    }
 			}
 			fputc('\n', stderr);
 		    }
 		    if (!allinbuf)
-			free(in.namelist);
+			free(lid.namelist);
 		    free(buf);
 		}
 	    }
@@ -1696,6 +1693,50 @@ checklogtime(__pmTimestamp *this, int indx)
     }
 }
 
+__pmLogInDom *
+foo(__pmLogCtl *lcp, __int32_t **buf)
+{
+    __int32_t		*ibuf = *buf;
+    pmInDom		indom;
+    __pmTimestamp	stamp;
+    __pmLogInDom	*idp;
+
+    __pmLoadTimestamp(&ibuf[2], &stamp);
+    indom = ntoh_pmInDom(ibuf[5]);
+
+    idp = __pmLogSearchInDom(lcp, indom, &stamp);
+
+    if (idp != NULL)
+	return idp;
+    else {
+	int		numinst;
+	__int32_t	*stridx;
+	char		*strbase;
+	int		idx;
+	int		i;
+	int		j;
+	fprintf(stderr, "foo: Botch: indom %s @ ", pmInDomStr(indom));
+	__pmPrintTimestamp(stderr, &stamp);
+	fprintf(stderr, ": not found from __pmLogCtl\n");
+	numinst = ntohl(ibuf[6]);
+	fprintf(stderr, "InDom from archive record (numinst %d) ...\n", numinst);
+	j = 7;
+	stridx = &ibuf[j + numinst];
+	strbase = (char *)&stridx[numinst];
+	for (i = 0; i < numinst; i++) {
+	    idx = ntohl(*stridx);
+	    fprintf(stderr, "[%d] %d idx=%d", i, ntohl(ibuf[j]), idx);
+	    if (idx >= 0)
+		fprintf(stderr, " add \"%s\"\n", &strbase[idx]);
+	    else
+		fprintf(stderr, " del\n");
+	    stridx++;
+	    j++;
+	}
+	return NULL;
+    }
+}
+
 
 /*
  * pick next meta record - if all meta is at EOF return -1
@@ -1817,12 +1858,12 @@ againmeta:
 		goto againmeta;
 	    }
 	}
-	else if (type == TYPE_INDOM || type == TYPE_INDOM_V2) {
+	else if (type == TYPE_INDOM || type == TYPE_INDOM_DELTA || type == TYPE_INDOM_V2) {
 	    /*
 	     * if ml is defined, then look for instance domain in the list
 	     * if indom is not in the list then discard it immediately
 	     */
-	    if (type == TYPE_INDOM)
+	    if (type == TYPE_INDOM || type == TYPE_INDOM_DELTA)
 		indom = ntoh_pmInDom(iap->pb[META][5]);
 	    else
 		indom = ntoh_pmInDom(iap->pb[META][4]);
@@ -1842,6 +1883,33 @@ againmeta:
 		 * append_indomreclist() sets pb[META] to NULL
 		 * append_indomreclist() may unpin the pdu buffer
 		 */
+		if (type == TYPE_INDOM_DELTA) {
+		    __pmLogInDom	*idp;
+		    __pmLogInDom_io	lid;
+		    __int32_t		*new;
+		    int			lsts;
+		    lid.indom = ntoh_pmInDom(iap->pb[META][5]);
+		    idp = foo(lcp, &iap->pb[META]);
+		    if (idp == NULL) {
+			// TODO InDomStr
+			fprintf(stderr, "nextmeta: Botch: delta indom failed\n");
+			abandon_extract();
+			/*NOTREACHED*/
+		    }
+		    lid.stamp = idp->stamp;
+		    lid.numinst = idp->numinst;
+		    lid.instlist = idp->instlist;
+		    lid.namelist = idp->namelist;
+
+		    lsts = __pmLogEncodeInDom(lcp, type, &lid, &new);
+		    if (lsts < 0) {
+			fprintf(stderr, "nextmeta: Botch: delta indom rewrite failed: %s\n", pmErrStr(lsts));
+			abandon_extract();
+			/*NOTREACHED*/
+		    }
+		    free(iap->pb[META]);
+		    iap->pb[META] = new;
+		}
 		append_indomreclist(indx);
 	    }
 	    else {

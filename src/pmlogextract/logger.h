@@ -39,18 +39,20 @@ typedef struct reclist {
  *  Input archive control
  */
 typedef struct {
-    int		ctx;
-    char	*name;
-    pmLogLabel	label;
-    __int32_t	*pb[2];
-    pmResult	*_result;
-    pmResult	*_Nresult;
-    int		eof[2];
-    int		mark;		/* need EOL marker */
-    int		recnum;
-    int64_t	pmcd_pid;	/* from prologue/epilogue records */
-    int32_t	pmcd_seqnum;	/* from prologue/epilogue records */
+    int			ctx;
+    char		*name;
+    pmLogLabel		label;
+    __int32_t		*pb[2];		/* current physical record buffer */
+    pmResult		*_result;
+    pmResult		*_Nresult;
+    int			eof[2];
+    int			mark;		/* need EOL marker */
+    int			recnum;
+    int64_t		pmcd_pid;	/* from prologue/epilogue records */
+    int32_t		pmcd_seqnum;	/* from prologue/epilogue records */
 } inarch_t;
+#define LOG			0	/* pb[] & eof[] index for data volume */
+#define META			1	/* pb[] & eof[] index for metadata */
 
 extern inarch_t	*inarch;	/* input archive control(s) */
 extern int	inarchnum;	/* number of input archives */

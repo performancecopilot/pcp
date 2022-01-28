@@ -20,9 +20,11 @@
 .ft 3
 #include <pcp/pmapi.h>
 .br
+#include <pcp/libpcp.h>
+.br
 #include <pcp/archive.h>
 .sp
-void pmaSortInDom(pmInResult *\fIirp\fP);
+void pmaSortInDom(__pmLogInDom_io *\fIlidp\fP);
 .sp
 cc ... \-lpcp_archive \-lpcp
 .ft 1
@@ -39,12 +41,12 @@ different semantics at some point in the future.
 .el \fI\\$1\fR\\$2
 ..
 The instance domain identified by
-.I irp
+.I lidp
 is sorted in ascending internal instance identifier value.
 Both the
-.IR irp -> instlist []
+.IR lidp -> instlist []
 array and the corresponding
-.IR irp -> namelist []
+.IR lidp -> namelist []
 array are sorted.
 .PP
 Since instance domains are usually sorted (at their source by a PMDA),

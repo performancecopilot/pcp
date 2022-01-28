@@ -112,6 +112,8 @@ sleep 2
 PMLOGGER_PORT=$port3 \
 pmlogger -c $tmp.c.config -l $tmp.c.log -s 10 $tmp.c >$tmp.c.err 2>&1
 echo >>$seq.full
+
+wait
 echo "log for archive 'c' ..." >>$seq.full
 cat $tmp.c.err $tmp.c.log | tee -a $seq.full | _filter_pmlogger_log
 

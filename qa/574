@@ -53,6 +53,8 @@ pmlogger -c $tmp.conf -V2 -s 1 -l $tmp.pmlog $tmp.logv2
 cat $tmp.pmlog >>$seq.full
 echo "---" >>$seq.full
 pminfo -a $tmp.logv2 >>$seq.full
+echo "---" >>$seq.full
+pmdumplog -aI $tmp.logv2 >>$seq.full
 
 src/torture_api -i -v -s2 -a $tmp.logv2 2>&1 | _filter_torture_api
 

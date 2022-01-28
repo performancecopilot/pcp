@@ -77,11 +77,11 @@ do_logue(int type)
     pmResult	*res_pmcd = NULL;	/* for values from pmcd */
     __pmPDU	*pb;
     pmAtomValue	atom;
-    __pmTimestamp	stamp;
     char	path[MAXPATHLEN];
     char	host[MAXHOSTNAMELEN];
     long	offset;
     int		free_cp;
+    __pmLogInDom_io	lid;
 
     /* start to build the pmResult */
     if ((__res = __pmAllocResult(n_metric)) == NULL)
@@ -91,8 +91,8 @@ do_logue(int type)
     res->numpmid = n_metric;
     if (type == PROLOGUE) {
 	last_stamp = res->timestamp = epoch;	/* struct assignment */
-	stamp.sec = (__int32_t)epoch.tv_sec;
-	stamp.nsec = (__int32_t)epoch.tv_usec * 1000;
+	lid.stamp.sec = (__int32_t)epoch.tv_sec;
+	lid.stamp.nsec = (__int32_t)epoch.tv_usec * 1000;
     }
     else {
 	res->timestamp = last_stamp;	/* struct assignment */
@@ -248,7 +248,11 @@ do_logue(int type)
 		    pdu_type = TYPE_INDOM;
 		else
 		    pdu_type = TYPE_INDOM_V2;
-		if ((sts = __pmLogPutInDom(&archctl, desc[i].indom, &stamp, pdu_type, 1, instid, instname)) < 0)
+		lid.indom = desc[i].indom;
+		lid.numinst = 1;
+		lid.instlist = instid;
+		lid.namelist = instname;
+		if ((sts = __pmLogPutInDom(&archctl, pdu_type, &lid)) < 0)
 		    goto done;
 	    }
 	}
@@ -257,7 +261,7 @@ do_logue(int type)
 	offset = __pmLogLabelSize(&logctl);
 	__pmFseek(archctl.ac_mfp, offset, SEEK_SET);
 	__pmFseek(logctl.mdfp, offset, SEEK_SET);
-	__pmLogPutIndex(&archctl, &stamp);
+	__pmLogPutIndex(&archctl, &lid.stamp);
 	__pmFseek(archctl.ac_mfp, 0L, SEEK_END);
 	__pmFseek(logctl.mdfp, 0L, SEEK_END);
     }

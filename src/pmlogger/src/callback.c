@@ -221,7 +221,7 @@ setavail(pmResult *resp)
  * It is a merger of __pmLogGetInDom and searchindom.
  */
 static int
-__localLogGetInDom(__pmLogCtl *lcp, pmInDom indom, __pmTimestamp *tsp, int **instlist, char ***namelist)
+__localLogGetInDom(__pmLogCtl *lcp, __pmLogInDom_io *lidp)
 {
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
@@ -229,9 +229,9 @@ __localLogGetInDom(__pmLogCtl *lcp, pmInDom indom, __pmTimestamp *tsp, int **ins
 
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
 	fprintf(stderr, "__localLogGetInDom( ..., %s) -> ",
-	    pmInDomStr(indom));
+	    pmInDomStr(lidp->indom));
 
-    if ((hp = __pmHashSearch((unsigned int)indom, &lcp->hashindom)) == NULL) {
+    if ((hp = __pmHashSearch((unsigned int)lidp->indom, &lcp->hashindom)) == NULL) {
 	sts = -1;
 	goto done;
     }
@@ -243,11 +243,10 @@ __localLogGetInDom(__pmLogCtl *lcp, pmInDom indom, __pmTimestamp *tsp, int **ins
 	goto done;
     }
 
-    *instlist = idp->instlist;
-    *namelist = idp->namelist;
-    *tsp = idp->stamp;
-
+    lidp->stamp = idp->stamp;
     sts = idp->numinst;
+    lidp->instlist = idp->instlist;
+    lidp->namelist = idp->namelist;
 
 done:
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
@@ -255,12 +254,13 @@ done:
 	    fprintf(stderr, "%d (__pmHashSearch failed)\n", sts);
 	else if (sts >= 0) {
 	    fprintf(stderr, "%d @ ", sts);
-	    __pmPrintTimestamp(stderr, tsp);
+	    __pmPrintTimestamp(stderr, &lidp->stamp);
 	    fputc('\n', stderr);
 	}
 	else
 	    fprintf(stderr, "%s\n", pmErrStr(sts));
     }
+    lidp->numinst = sts;
 
     return sts;
 }
@@ -596,9 +596,8 @@ do_work(task_t *tp)
     long		new_meta_offset;
     int			pdu_bytes = 0;
     int			pdu_metrics = 0;
-    pmInResult		old;
+    __pmLogInDom_io	old;
     __pmTimestamp	resp_stamp;
-    __pmTimestamp	stamp;
     unsigned long	peek_offset;
 
     label_offset = __pmLogLabelSize(archctl.ac_log);
@@ -819,8 +818,8 @@ do_work(task_t *tp)
 		 * the indom needs to be refreshed.
 		 */
 		old.indom = desc.indom;
-		old.numinst = __localLogGetInDom(&logctl, desc.indom, &stamp, &old.instlist, &old.namelist);
-		if (old.numinst > 0 && __pmTimestampSub(&resp_stamp, &stamp) <= 0) {
+		(void)__localLogGetInDom(&logctl, &old);
+		if (old.numinst > 0 && __pmTimestampSub(&resp_stamp, &old.stamp) <= 0) {
 		    /*
 		     * Already have indom with the same (or later, in the
 		     * case of some time warp) timestamp compared to the
@@ -836,14 +835,14 @@ do_work(task_t *tp)
 		    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
 			fprintf(stderr, "time warp: pmResult: % " FMT_INT64 ".%09d last %s indom: %" FMT_INT64 ".%09d\n",
 			    resp_stamp.sec, resp_stamp.nsec,
-			    pmInDomStr(desc.indom),
-			    stamp.sec, stamp.nsec);
+			    pmInDomStr(old.indom),
+			    old.stamp.sec, old.stamp.nsec);
 		    }
 		}
 		else if (old.numinst < 0) {
 		    needindom = 1;
 		    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
-			fprintf(stderr, "numinst=%d => needindom %s\n", old.numinst, pmInDomStr(desc.indom));
+			fprintf(stderr, "numinst=%d => needindom %s\n", old.numinst, pmInDomStr(old.indom));
 		    }
 		}
 		else {
@@ -891,8 +890,8 @@ do_work(task_t *tp)
 		     *	  here unless this indom is a duplicate (look for magic below
 		     *	  log{Put,Get}InDom) or the indom really has not changed.
 		     */
-		    pmInResult	new;
-		    pmInResult	new_delta;
+		    __pmLogInDom_io	new;
+		    __pmLogInDom_io	new_delta;
 		    new.indom = desc.indom;
 		    if ((new.numinst = pmGetInDom(desc.indom, &new.instlist, &new.namelist)) < 0) {
 			fprintf(stderr, "pmGetInDom(%s): %s\n", pmInDomStr(desc.indom), pmErrStr(new.numinst));
@@ -926,13 +925,15 @@ do_work(task_t *tp)
 			int	pdu_type;
 			if (pmDebugOptions.appl2)
 			    pmNotifyErr(LOG_INFO, "callback: indom (%s) full change", pmInDomStr(desc.indom));
-			stamp.sec = (__int32_t)resp->timestamp.tv_sec;
-			stamp.nsec = (__int32_t)resp->timestamp.tv_usec * 1000;
+			new.stamp.sec = (__int32_t)resp->timestamp.tv_sec;
+			new.stamp.nsec = (__int32_t)resp->timestamp.tv_usec * 1000;
+			new.indom = desc.indom;
 			if (archive_version == PM_LOG_VERS03)
 			    pdu_type = TYPE_INDOM;
 			else
 			    pdu_type = TYPE_INDOM_V2;
-			if ((sts = __pmLogPutInDom(&archctl, desc.indom, &stamp, pdu_type, new.numinst, new.instlist, new.namelist)) < 0) {
+			/* emit full indom record */
+			if ((sts = __pmLogPutInDom(&archctl, pdu_type, &new)) < 0) {
 			    fprintf(stderr, "__pmLogPutInDom(%s): full: %s\n", pmInDomStr(desc.indom), pmErrStr(sts));
 			    exit(1);
 			}
@@ -943,25 +944,32 @@ do_work(task_t *tp)
 			    free(new.instlist);
 			    free(new.namelist);
 			}
-			manageLabels(&desc, &stamp, 1);
+			manageLabels(&desc, &new.stamp, 1);
 			needti = 1;
 		    }
 		    else if (needindom == 2) {
 			if (pmDebugOptions.appl2)
 			    pmNotifyErr(LOG_INFO, "callback: indom (%s) delta change", pmInDomStr(desc.indom));
-			stamp.sec = (__int32_t)resp->timestamp.tv_sec;
-			stamp.nsec = (__int32_t)resp->timestamp.tv_usec * 1000;
-			if ((sts = __pmLogPutInDom(&archctl, desc.indom, &stamp, TYPE_INDOM_DELTA, new_delta.numinst, new_delta.instlist, new_delta.namelist)) < 0) {
+			new_delta.stamp.sec = (__int32_t)resp->timestamp.tv_sec;
+			new_delta.stamp.nsec = (__int32_t)resp->timestamp.tv_usec * 1000;
+			new_delta.indom = desc.indom;
+			/* emit delta indom record */
+			if ((sts = __pmLogPutInDom(&archctl, TYPE_INDOM_DELTA, &new_delta)) < 0) {
 			    fprintf(stderr, "__pmLogPutInDom(%s): delta: %s\n", pmInDomStr(desc.indom), pmErrStr(sts));
 			    exit(1);
 			}
-			if ((sts = __pmLogAddInDom(&archctl, &stamp, TYPE_INDOM_DELTA, &new, NULL, 0)) < 0) {
+			/*
+			 * IMPORTANT ... need to add the full indom (new)
+			 * not new_delta into the hashed structures here
+			 */
+			new.stamp = new_delta.stamp;	/* struct assignment */
+			if ((sts = __pmLogAddInDom(&archctl, TYPE_INDOM_DELTA, &new, NULL, 0)) < 0) {
 			    fprintf(stderr, "__pmLogAddInDom(%s): %s\n", pmInDomStr(desc.indom), pmErrStr(sts));
 			    exit(1);
 			}
 			free(new_delta.instlist);
 			free(new_delta.namelist);
-			manageLabels(&desc, &stamp, 1);
+			manageLabels(&desc, &new_delta.stamp, 1);
 			needti = 1;
 		    }
 		    else {
@@ -1021,6 +1029,7 @@ do_work(task_t *tp)
 	     * result (but if this is the first one, skip the label
 	     * record, what a crock), ... ditto for the meta data
 	     */
+	    __pmTimestamp	stamp;
 	    new_offset = __pmFtell(archctl.ac_mfp);
 	    assert(new_offset >= 0);
 	    new_meta_offset = __pmFtell(logctl.mdfp);

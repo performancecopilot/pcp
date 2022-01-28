@@ -51,19 +51,22 @@ typedef struct {
     				/* will be expanded if numinst > 0 */
 } __pmInDom_v2;
 
+/*
+ * pack an indom into a physical metadata record
+ * - lcp required to provide archive version
+ * - type controls format
+ * - caller must free allocated buf[]
+ */
 int
-__pmLogPutInDom(__pmArchCtl *acp, pmInDom indom, const __pmTimestamp * const tsp, 
-		int type, int numinst, int *instlist, char **namelist)
+__pmLogEncodeInDom(__pmLogCtl *lcp, int type, const __pmLogInDom_io * const lidp, __int32_t **buf)
 {
-    __pmLogCtl		*lcp = acp->ac_log;
     char		*str;
-    int			sts = 0;
     int			i;
     size_t		len;
     __int32_t		*lenp;
     int			*inst;
     int			*stridx;
-    void		*out;
+    __int32_t		*out;
     char		strbuf[20];
 
     /*
@@ -71,16 +74,16 @@ __pmLogPutInDom(__pmArchCtl *acp, pmInDom indom, const __pmTimestamp * const tsp
      * for V2 expect TYPE_INDOM_V2
      */
     if (__pmLogVersion(lcp) != PM_LOG_VERS03 && __pmLogVersion(lcp) != PM_LOG_VERS02) {
-	pmprintf("__pmLogPutInDom(...,indom=%s,type=%d,...): Botch: bad archive version %d\n",
-	    pmInDomStr_r(indom, strbuf, sizeof(strbuf)), type, __pmLogVersion(lcp));
+	pmprintf("__pmLogEncodeInDom(...,indom=%s,type=%d,...): Botch: bad archive version %d\n",
+	    pmInDomStr_r(lidp->indom, strbuf, sizeof(strbuf)), type, __pmLogVersion(lcp));
 	pmflush();
 	return PM_ERR_GENERIC;
     }
     if ((__pmLogVersion(lcp) == PM_LOG_VERS03 &&
 	 type != TYPE_INDOM && type != TYPE_INDOM_DELTA) ||
 	(__pmLogVersion(lcp) == PM_LOG_VERS02 && type != TYPE_INDOM_V2)) {
-	pmprintf("__pmLogPutInDom(...,indom=%s,type=%d,...): Botch: bad type for archive version %d\n",
-	    pmInDomStr_r(indom, strbuf, sizeof(strbuf)), type, __pmLogVersion(lcp));
+	pmprintf("__pmLogEncodeInDom(...,indom=%s,type=%d,...): Botch: bad type for archive version %d\n",
+	    pmInDomStr_r(lidp->indom, strbuf, sizeof(strbuf)), type, __pmLogVersion(lcp));
 	pmflush();
 	return PM_ERR_GENERIC;
     }
@@ -100,11 +103,11 @@ __pmLogPutInDom(__pmArchCtl *acp, pmInDom indom, const __pmTimestamp * const tsp
     else
 	return PM_ERR_LABEL;
 
-    len += (numinst > 0 ? numinst : 0) * (sizeof(instlist[0]) + sizeof(stridx[0]))
+    len += (lidp->numinst > 0 ? lidp->numinst : 0) * (sizeof(lidp->instlist[0]) + sizeof(stridx[0]))
 	    + sizeof(__int32_t);
-    for (i = 0; i < numinst; i++) {
-	if (namelist[i] != NULL)
-	    len += strlen(namelist[i]) + 1;
+    for (i = 0; i < lidp->numinst; i++) {
+	if (lidp->namelist[i] != NULL)
+	    len += strlen(lidp->namelist[i]) + 1;
     }
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
@@ -115,10 +118,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
 	/* swab all output fields */
 	v3->len = htonl(len);
 	v3->type = htonl(type);
-	__pmPutTimestamp(tsp, &v3->sec[0]);
-	v3->indom = __htonpmInDom(indom);
-	v3->numinst = htonl(numinst);
-	out = (void *)v3;
+	__pmPutTimestamp(&lidp->stamp, &v3->sec[0]);
+	v3->indom = __htonpmInDom(lidp->indom);
+	v3->numinst = htonl(lidp->numinst);
+	out = (__int32_t *)v3;
 	inst = (int *)&v3->data;
 	lenp = &v3->len;
     }
@@ -130,22 +133,22 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
 	/* swab all output fields */
 	v2->len = htonl(len);
 	v2->type = htonl(TYPE_INDOM_V2);
-	__pmPutTimeval(tsp, &v2->sec);
-	v2->indom = __htonpmInDom(indom);
-	v2->numinst = htonl(numinst);
-	out = (void *)v2;
+	__pmPutTimeval(&lidp->stamp, &v2->sec);
+	v2->indom = __htonpmInDom(lidp->indom);
+	v2->numinst = htonl(lidp->numinst);
+	out = (__int32_t *)v2;
 	inst = (int *)&v2->data;
 	lenp = &v2->len;
     }
 
-    stridx = (int *)&inst[numinst];
-    str = (char *)&stridx[numinst];
-    for (i = 0; i < numinst; i++) {
-	inst[i] = htonl(instlist[i]);
-	if (namelist[i] != NULL) {
-	    int	slen = strlen(namelist[i])+1;
-	    memmove((void *)str, (void *)namelist[i], slen);
-	    stridx[i] = htonl((int)((ptrdiff_t)str - (ptrdiff_t)&stridx[numinst]));
+    stridx = (int *)&inst[lidp->numinst];
+    str = (char *)&stridx[lidp->numinst];
+    for (i = 0; i < lidp->numinst; i++) {
+	inst[i] = htonl(lidp->instlist[i]);
+	if (lidp->namelist[i] != NULL) {
+	    int	slen = strlen(lidp->namelist[i])+1;
+	    memmove((void *)str, (void *)lidp->namelist[i], slen);
+	    stridx[i] = htonl((int)((ptrdiff_t)str - (ptrdiff_t)&stridx[lidp->numinst]));
 	    str += slen;
 	}
 	else {
@@ -157,16 +160,37 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
     /* trailer record length */
     memcpy((void *)str, lenp, sizeof(*lenp));
 
-    if ((sts = __pmFwrite(out, 1, len, lcp->mdfp)) != len) {
+    *buf = out;
+    return 0;
+}
+
+/*
+ * output the metadata record for an indom
+ */
+int
+__pmLogPutInDom(__pmArchCtl *acp, int type, const __pmLogInDom_io * const lidp)
+{
+    __pmLogCtl		*lcp = acp->ac_log;
+    int			sts;
+    __int32_t		*buf;
+    size_t		len;
+    char		strbuf[20];
+
+    sts = __pmLogEncodeInDom(lcp, type, lidp, &buf);
+    if (sts < 0)
+	return sts;
+
+    len = ntohl(buf[0]);
+    if ((sts = __pmFwrite(buf, 1, len, lcp->mdfp)) != len) {
 	char	errmsg[PM_MAXERRMSGLEN];
 	pmprintf("__pmLogPutInDom(...,indom=%s,numinst=%d): write failed: returned %d expecting %zd: %s\n",
-	    pmInDomStr_r(indom, strbuf, sizeof(strbuf)), numinst, sts, len,
+	    pmInDomStr_r(lidp->indom, strbuf, sizeof(strbuf)), lidp->numinst, sts, len,
 	    osstrerror_r(errmsg, sizeof(errmsg)));
 	pmflush();
-	free(out);
+	free(buf);
 	return -oserror();
     }
-    free(out);
+    free(buf);
 
     /*
      * Update the indom's hash data structures ...
@@ -177,9 +201,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
      * indom we've just written to the external metadata file above.
      */
     if (type != TYPE_INDOM_DELTA)
-	sts = addindom(lcp, indom, tsp, type, numinst, instlist, namelist, NULL, 0);
+	sts = addindom(lcp, type, lidp, NULL, 0);
 
     return sts;
+
 }
 
 /*
@@ -192,14 +217,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
  * pmlogrewrite (and others) use, acp == NULL
  *	*buf already contains the on-disk record (after the header)
  *
- * The InDom is unpacked into *inp, and the return value is 1 if
- * inp->namelist[] entries points into buf[], otherwise the return
- * value is 0 and inp->namelist also needs to be freed by the caller
+ * The InDom is unpacked into *lidp, and the return value is 1 if
+ * lidp->namelist[] entries points into buf[], otherwise the return
+ * value is 0 and lidp->namelist also needs to be freed by the caller
  * if it is not NULL
  */
 
 int
-__pmLogLoadInDom(__pmArchCtl *acp, int rlen, int type, pmInResult *inp, __pmTimestamp *tsp, __int32_t **buf)
+__pmLogLoadInDom(__pmArchCtl *acp, int rlen, int type, __pmLogInDom_io *lidp, __int32_t **buf)
 {
     int			i;
     int			k;
@@ -233,34 +258,32 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 
     if (type == TYPE_INDOM || type == TYPE_INDOM_DELTA) {
 	__pmInDom_v3	*v3;
-	__pmTimestamp	stamp;
 	v3 = (__pmInDom_v3 *)&lbuf[-2];	/* len+type not in buf */
-	__pmLoadTimestamp(&v3->sec[0], &stamp);
-	*tsp = stamp;	/* struct assignment */
+	__pmLoadTimestamp(&v3->sec[0], &lidp->stamp);
 	k = (sizeof(v3->sec)+sizeof(v3->nsec))/sizeof(__int32_t);
-	inp->indom = __ntohpmInDom(v3->indom);
+	lidp->indom = __ntohpmInDom(v3->indom);
 	k++;
-	inp->numinst = ntohl(v3->numinst);
+	lidp->numinst = ntohl(v3->numinst);
 	k++;
-	inp->instlist = (int *)&v3->data;
+	lidp->instlist = (int *)&v3->data;
 	if (acp != NULL) {
 	    /* rlen minus fixed fields (plus len+type), minus instlist[], minus strindex[] */
-	    max_idx = rlen - 5*sizeof(__int32_t) - 2*inp->numinst*sizeof(__int32_t);
+	    max_idx = rlen - 5*sizeof(__int32_t) - 2*lidp->numinst*sizeof(__int32_t);
 	}
     }
     else if (type == TYPE_INDOM_V2) {
 	__pmInDom_v2	*v2;
 	v2 = (__pmInDom_v2 *)&lbuf[-2];	/* len+type not in lbuf */
-	__pmLoadTimeval(&v2->sec, tsp);
+	__pmLoadTimeval(&v2->sec, &lidp->stamp);
 	k = (sizeof(v2->sec)+sizeof(v2->usec))/sizeof(__int32_t);
-	inp->indom = __ntohpmInDom(v2->indom);
+	lidp->indom = __ntohpmInDom(v2->indom);
 	k++;
-	inp->numinst = ntohl(v2->numinst);
+	lidp->numinst = ntohl(v2->numinst);
 	k++;
-	inp->instlist = (int *)&v2->data;
+	lidp->instlist = (int *)&v2->data;
 	if (acp != NULL) {
 	    /* rlen minus fixed fields (plus len+type), minus instlist[], minus strindex[] */
-	    max_idx = rlen - 4*sizeof(__int32_t) - 2*inp->numinst*sizeof(__int32_t);
+	    max_idx = rlen - 4*sizeof(__int32_t) - 2*lidp->numinst*sizeof(__int32_t);
 	}
     }
     else {
@@ -268,34 +291,34 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	    fprintf(stderr, "__pmLogLoadInDom: botch type=%d\n", type);
 	goto bad;
     }
-    if (inp->numinst > 0) {
-	k += inp->numinst;
+    if (lidp->numinst > 0) {
+	k += lidp->numinst;
 	stridx = (__int32_t *)&lbuf[k];
 #if defined(HAVE_32BIT_PTR)
-	inp->namelist = (char **)stridx;
+	lidp->namelist = (char **)stridx;
 	sts = 1; /* allocation is all in lbuf */
 #else
 	sts = 0; /* allocation for namelist + lbuf */
 	/* need to allocate to hold the pointers */
 PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
-	inp->namelist = (char **)malloc(inp->numinst * sizeof(char*));
-	if (inp->namelist == NULL) {
+	lidp->namelist = (char **)malloc(lidp->numinst * sizeof(char*));
+	if (lidp->namelist == NULL) {
 	    if (acp != NULL)
 		free(lbuf);
 	    return -oserror();
 	}
 #endif
-	k += inp->numinst;
+	k += lidp->numinst;
 	namebase = (char *)&lbuf[k];
-	for (i = 0; i < inp->numinst; i++) {
-	    inp->instlist[i] = ntohl(inp->instlist[i]);
-	    if (inp->instlist[i] < 0) {
+	for (i = 0; i < lidp->numinst; i++) {
+	    lidp->instlist[i] = ntohl(lidp->instlist[i]);
+	    if (lidp->instlist[i] < 0) {
 		/* bad internal instance identifier */
 		if (pmDebugOptions.logmeta) {
 		    char	strbuf[20];
 		    fprintf(stderr, "__pmLogLoadInDom: InDom: %s: instance[%d]: bad instance identifier (%d)\n", 
-			pmInDomStr_r(inp->indom, strbuf, sizeof(strbuf)),
-			i, inp->instlist[i]);
+			pmInDomStr_r(lidp->indom, strbuf, sizeof(strbuf)),
+			i, lidp->instlist[i]);
 		}
 		goto bad;
 	    }
@@ -311,28 +334,28 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 			if (pmDebugOptions.logmeta) {
 			    char	strbuf[20];
 			    fprintf(stderr, "__pmLogLoadInDom: InDom: %s instance[%d]: bad string index (%d) > max index based on record length (%d)\n",
-				pmInDomStr_r(inp->indom, strbuf, sizeof(strbuf)),
+				pmInDomStr_r(lidp->indom, strbuf, sizeof(strbuf)),
 				i, idx, max_idx);
 			}
 			goto bad;
 		    }
 		}
-		inp->namelist[i] = &namebase[idx];
+		lidp->namelist[i] = &namebase[idx];
 		if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
-		    fprintf(stderr, "inst[%d] %d or \"%s\" (idx=%d)\n", i, inp->instlist[i], inp->namelist[i], idx);
+		    fprintf(stderr, "inst[%d] %d or \"%s\" (idx=%d)\n", i, lidp->instlist[i], lidp->namelist[i], idx);
 	    }
 	    else if (type == TYPE_INDOM_DELTA && idx == -1) {
 		/* instance deleted ... */
-		inp->namelist[i] = NULL;
+		lidp->namelist[i] = NULL;
 		if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
-		    fprintf(stderr, "inst[%d] %d (delta indom)\n", i, inp->instlist[i]);
+		    fprintf(stderr, "inst[%d] %d (delta indom)\n", i, lidp->instlist[i]);
 	    }
 	    else {
 		/* NOT (TYPE_INDOM_DELTA and idx == -1) and idx < 0 */
 		if (pmDebugOptions.logmeta) {
 		    char	strbuf[20];
 		    fprintf(stderr, "__pmLogLoadInDom: InDom: %s instance[%d]: bad string index (%d)\n",
-			pmInDomStr_r(inp->indom, strbuf, sizeof(strbuf)),
+			pmInDomStr_r(lidp->indom, strbuf, sizeof(strbuf)),
 			i, idx);
 		}
 		goto bad;
@@ -340,10 +363,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	}
     }
     else {
-	inp->namelist = NULL;
+	lidp->namelist = NULL;
 	/*
-	 * sts value here does not matter, because inp->numinst <= 0 and
-	 * so inp->namelist will never be referenced
+	 * sts value here does not matter, because lidp->numinst <= 0 and
+	 * so lidp->namelist will never be referenced
 	 */
 	sts = 1;
     }
@@ -358,7 +381,7 @@ bad:
 	free(lbuf);
 #if defined(HAVE_32BIT_PTR)
 #else
-    free(inp->namelist);
+    free(lidp->namelist);
 #endif
     return PM_ERR_LOGREC;
 }

@@ -197,57 +197,58 @@ change_inst_by_inst(pmInDom indom, int old, int new)
 static void
 _pmUnpackInDom(__int32_t *recbuf, pmInDom *indom, __pmTimestamp *tsp, int *numinst, int **instlist, char ***inamelist)
 {
-    __pmLogHdr	*hdr;
-    __int32_t	*buf;
-    int		type;
-    int		i;
-    pmInResult	in;
-    int		allinbuf;
-    char	*s;
-    size_t	size;
+    __pmLogHdr		*hdr;
+    __int32_t		*buf;
+    int			type;
+    int			i;
+    __pmLogInDom_io	lid;
+    int			allinbuf;
+    char		*s;
+    size_t		size;
 
     hdr = (__pmLogHdr *)recbuf;
     type = htonl(hdr->type);
     /* buffer for __pmLogLoadInDom has to start AFTER the header */
     buf = &recbuf[2];
-    allinbuf = __pmLogLoadInDom(NULL, 0, type, &in, tsp, &buf);
+    allinbuf = __pmLogLoadInDom(NULL, 0, type, &lid, &buf);
     if (allinbuf < 0) {
 	fprintf(stderr, "_pmUnpackInDom: __pmLogLoadInDom(type=%d): failed: %s\n", type, pmErrStr(allinbuf));
 	abandon();
 	/*NOTREACHED*/
     }
-    if (in.numinst < 1) {
-	fprintf(stderr, "_pmUnpackInDom: InDom %s dodgey: numinst=%d\n", pmInDomStr(in.indom), in.numinst);
+    if (lid.numinst < 1) {
+	fprintf(stderr, "_pmUnpackInDom: InDom %s dodgey: numinst=%d\n", pmInDomStr(lid.indom), lid.numinst);
 	abandon();
 	/*NOTREACHED*/
     }
+    *tsp = lid.stamp;		/* struct assignment */
 #if 0
-fprintf(stderr, "numinst=%d indom=%s inst[0] %d or \"%s\" inst[%d] %d or \"%s\"\n", in.numinst, pmInDomStr(in.indom), in.instlist[0], in.namelist[0], in.numinst-1, in.instlist[in.numinst-1], in.namelist[in.numinst-1]);
+fprintf(stderr, "numinst=%d indom=%s inst[0] %d or \"%s\" inst[%d] %d or \"%s\"\n", lid.numinst, pmInDomStr(lid.indom), lid.instlist[0], lid.namelist[0], lid.numinst-1, lid.instlist[lid.numinst-1], lid.namelist[lid.numinst-1]);
 #endif
 
     /* Copy the instances to a new buffer */
-    *numinst = in.numinst;
-    *indom = in.indom;
-    *instlist = (int *)malloc(in.numinst * sizeof(int));
+    *numinst = lid.numinst;
+    *indom = lid.indom;
+    *instlist = (int *)malloc(lid.numinst * sizeof(int));
     if (*instlist == NULL) {
-	fprintf(stderr, "_pmUnpackInDom instlist malloc(%d) failed: %s\n", (int)(in.numinst * sizeof(int)), strerror(errno));
+	fprintf(stderr, "_pmUnpackInDom instlist malloc(%d) failed: %s\n", (int)(lid.numinst * sizeof(int)), strerror(errno));
 	abandon();
 	/*NOTREACHED*/
     }
-    for (i = 0; i < in.numinst; i++)
-	(*instlist)[i] = in.instlist[i];
+    for (i = 0; i < lid.numinst; i++)
+	(*instlist)[i] = lid.instlist[i];
 
 #if 0
-fprintf(stderr, "after instlist assignment, instlist[0] = %d instlist[%d] = %d\n", (*instlist)[i], in.numinst-1, (*instlist)[in.numinst-1]);
+fprintf(stderr, "after instlist assignment, instlist[0] = %d instlist[%d] = %d\n", (*instlist)[i], lid.numinst-1, (*instlist)[lid.numinst-1]);
 #endif
 
     /*
      * Copy the name list to a new buffer. Place the pointers and the names
      * in the same buffer so that they can be easily freed.
      */
-    size = in.numinst * sizeof(char *);
-    for (i = 0; i < in.numinst; i++)
-	size += strlen(in.namelist[i]) + 1;
+    size = lid.numinst * sizeof(char *);
+    for (i = 0; i < lid.numinst; i++)
+	size += strlen(lid.namelist[i]) + 1;
     *inamelist = (char **)malloc(size);
     if (*inamelist == NULL) {
 	fprintf(stderr, "_pmUnpackInDom inamelist malloc(%d) failed: %s\n",
@@ -255,15 +256,15 @@ fprintf(stderr, "after instlist assignment, instlist[0] = %d instlist[%d] = %d\n
 	abandon();
 	/*NOTREACHED*/
     }
-    s = (char *)(*inamelist + in.numinst);
-    for (i = 0; i < in.numinst; i++) {
+    s = (char *)(*inamelist + lid.numinst);
+    for (i = 0; i < lid.numinst; i++) {
 	(*inamelist)[i] = s;
-	strcpy(s, in.namelist[i]);
-	s += strlen(in.namelist[i]) + 1;
+	strcpy(s, lid.namelist[i]);
+	s += strlen(lid.namelist[i]) + 1;
     }
 
     if (!allinbuf)
-	free(in.namelist);
+	free(lid.namelist);
 }
 
 static void
@@ -316,17 +317,15 @@ void
 do_indom(void)
 {
     long	out_offset;
-    pmInDom	indom = { 0 };
-    __pmTimestamp	stamp;
-    int		numinst = 0;
-    int		*instlist;
-    char	**inamelist;
     indomspec_t	*ip;
     int		sts;
     int		i;
     int		j;
     int		need_alloc = 0;
     int		pdu_type;
+    __pmLogInDom_io	lid;
+
+    lid.numinst = 0;
 
     if (outarch.version == PM_LOG_VERS02)
 	pdu_type = TYPE_INDOM_V2;
@@ -334,23 +333,23 @@ do_indom(void)
 	pdu_type = TYPE_INDOM;
 
     out_offset = __pmFtell(outarch.logctl.mdfp);
-    _pmUnpackInDom(inarch.metarec, &indom, &stamp, &numinst, &instlist, &inamelist);
+    _pmUnpackInDom(inarch.metarec, &lid.indom, &lid.stamp, &lid.numinst, &lid.instlist, &lid.namelist);
 
     /*
      * global time stamp adjustment (if any has already been done in the
      * record buffer, so this is reflected in the unpacked value of stamp.
      */
     for (ip = indom_root; ip != NULL; ip = ip->i_next) {
-	if (ip->old_indom != indom)
+	if (ip->old_indom != lid.indom)
 	    continue;
 	if (ip->indom_flags & INDOM_DUPLICATE) {
 	    /*
 	     * Save the old indom without changes, then operate on the
 	     * duplicate.
 	     */
-	    if ((sts = __pmLogPutInDom(&outarch.archctl, indom, &stamp, pdu_type, numinst, instlist, inamelist)) < 0) {
+	    if ((sts = __pmLogPutInDom(&outarch.archctl, pdu_type, &lid)) < 0) {
 		fprintf(stderr, "%s: Error: __pmLogPutInDom: %s: %s\n",
-				pmGetProgname(), pmInDomStr(indom), pmErrStr(sts));
+				pmGetProgname(), pmInDomStr(lid.indom), pmErrStr(sts));
 		abandon();
 		/*NOTREACHED*/
 	    }
@@ -358,43 +357,43 @@ do_indom(void)
 	    /*
 	     * If the old indom was not a duplicate, then libpcp, via
 	     * __pmLogPutInDom(), assumes control of the storage pointed to by
-	     * instlist and inamelist. In that case, we need to operate on copies
+	     * lid.instlist and lid.namelist. In that case, we need to operate on copies
 	     * from this point on.
 	     */
 	    if (sts != PMLOGPUTINDOM_DUP)
-		_pmDupInDomData(numinst, &instlist, &inamelist);
+		_pmDupInDomData(lid.numinst, &lid.instlist, &lid.namelist);
 
 	    if (pmDebugOptions.appl0) {
-		fprintf(stderr, "Metadata: write pre-duplicate InDom %s @ offset=%ld\n", pmInDomStr(indom), out_offset);
+		fprintf(stderr, "Metadata: write pre-duplicate InDom %s @ offset=%ld\n", pmInDomStr(lid.indom), out_offset);
 	    }
 	    out_offset = __pmFtell(outarch.logctl.mdfp);
 	}
 	if (ip->new_indom != ip->old_indom)
-	    indom = ip->new_indom;
+	    lid.indom = ip->new_indom;
 	for (i = 0; i < ip->numinst; i++) {
-	    for (j = 0; j < numinst; j++) {
-		if (ip->old_inst[i] == instlist[j])
+	    for (j = 0; j < lid.numinst; j++) {
+		if (ip->old_inst[i] == lid.instlist[j])
 		    break;
 	    }
-	    if (j == numinst)
+	    if (j == lid.numinst)
 		continue;
 	    if (ip->inst_flags[i] & INST_DELETE) {
 		if (pmDebugOptions.appl1)
 		    fprintf(stderr, "Delete: instance %s (%d) for indom %s\n", ip->old_iname[i], ip->old_inst[i], pmInDomStr(ip->old_indom));
 		j++;
-		while (j < numinst) {
-		    instlist[j-1] = instlist[j];
-		    inamelist[j-1] = inamelist[j];
+		while (j < lid.numinst) {
+		    lid.instlist[j-1] = lid.instlist[j];
+		    lid.namelist[j-1] = lid.namelist[j];
 		    j++;
 		}
 		need_alloc = 1;
-		numinst--;
+		lid.numinst--;
 	    }
 	    else {
 		if (ip->inst_flags[i] & INST_CHANGE_INST)
-		    instlist[j] = ip->new_inst[i];
+		    lid.instlist[j] = ip->new_inst[i];
 		if (ip->inst_flags[i] & INST_CHANGE_INAME) {
-		    inamelist[j] = ip->new_iname[i];
+		    lid.namelist[j] = ip->new_iname[i];
 		    need_alloc = 1;
 		}
 		if ((ip->inst_flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) && pmDebugOptions.appl1) {
@@ -409,50 +408,50 @@ do_indom(void)
 	}
     }
 
-    if (numinst > 0) {
+    if (lid.numinst > 0) {
 	/*
 	 * some instances remain ... work to be done
 	 */
 
 	if (need_alloc) {
 	    /*
-	     * __pmLogPutInDom assumes the elements of inamelist[] point into
-	     * of a contiguous allocation starting at inamelist[0] ... if we've
+	     * __pmLogPutInDom assumes the elements of lid.namelist[] point into
+	     * of a contiguous allocation starting at lid.namelist[0] ... if we've
 	     * changed an instance name or moved instance names about, then we
-	     * need to reallocate the strings for inamelist[]
+	     * need to reallocate the strings for lid.namelist[]
 	     */
 	    int	need = 0;
 	    char	*new;
 	    char	*p;
 
-	    for (j = 0; j < numinst; j++)
-		need += strlen(inamelist[j]) + 1;
+	    for (j = 0; j < lid.numinst; j++)
+		need += strlen(lid.namelist[j]) + 1;
 	    new = (char *)malloc(need);
 	    if (new == NULL) {
-		fprintf(stderr, "inamelist[] malloc(%d) failed: %s\n", need, strerror(errno));
+		fprintf(stderr, "lid.namelist[] malloc(%d) failed: %s\n", need, strerror(errno));
 		abandon();
 		/*NOTREACHED*/
 	    }
 	    p = new;
-	    for (j = 0; j < numinst; j++) {
-		strcpy(p, inamelist[j]);
-		inamelist[j] = p;
+	    for (j = 0; j < lid.numinst; j++) {
+		strcpy(p, lid.namelist[j]);
+		lid.namelist[j] = p;
 		p += strlen(p) + 1;
 	    }
 	}
 
 	/*
 	 * libpcp, via __pmLogPutInDom(), assumes control of the storage pointed
-	 * to by instlist and inamelist.
+	 * to by lid.instlist and lid.namelist.
 	 */
-	if ((sts = __pmLogPutInDom(&outarch.archctl, indom, &stamp, pdu_type, numinst, instlist, inamelist)) < 0) {
+	if ((sts = __pmLogPutInDom(&outarch.archctl, pdu_type, &lid)) < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutInDom: %s: %s\n",
-			    pmGetProgname(), pmInDomStr(indom), pmErrStr(sts));
+			    pmGetProgname(), pmInDomStr(lid.indom), pmErrStr(sts));
 	    abandon();
 	    /*NOTREACHED*/
 	}
 	if (pmDebugOptions.appl0) {
-	    fprintf(stderr, "Metadata: write InDom %s @ offset=%ld\n", pmInDomStr(indom), out_offset);
+	    fprintf(stderr, "Metadata: write InDom %s @ offset=%ld\n", pmInDomStr(lid.indom), out_offset);
 	}
 
 	/*
@@ -461,14 +460,14 @@ do_indom(void)
 	 */
 	if (sts == PMLOGPUTINDOM_DUP) {
 	    if (need_alloc)
-		free(inamelist[0]);
-	    free(inamelist);
-	    free(instlist);
+		free(lid.namelist[0]);
+	    free(lid.namelist);
+	    free(lid.instlist);
 	}
     }
     else {
 	/* all instances have been deleted */
-	free(inamelist);
-	free(instlist);
+	free(lid.namelist);
+	free(lid.instlist);
     }
 }

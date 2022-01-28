@@ -775,8 +775,15 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, __pmTimestamp *tsp, pmInResult *in
 	__pmContext	*ctxp = __pmHandleToPtr(p->ctx);
 	__pmArchCtl	*acp = ctxp->c_archctl;
 	char		errmsg[PM_MAXERRMSGLEN];
+	__pmLogInDom_io	lid;
 
-	sts = __pmLogAddInDom(acp, tsp, TYPE_INDOM_V2, in, NULL, 0);
+	lid.stamp = *tsp;	/* struct assignment */
+	lid.indom = in->indom;
+	lid.numinst = in->numinst;
+	lid.instlist = in->instlist;
+	lid.namelist = in->namelist;
+
+	sts = __pmLogAddInDom(acp, TYPE_INDOM_V2, &lid, NULL, 0);
 	if (sts < 0)
 	    fprintf(stderr, "%s: failed to add indom for %s: %s\n",
 			"pmDiscoverInvokeInDomCallBacks", pmIDStr(in->indom),

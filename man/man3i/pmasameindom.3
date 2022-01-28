@@ -20,9 +20,11 @@
 .ft 3
 #include <pcp/pmapi.h>
 .br
+#include <pcp/libpcp.h>
+.br
 #include <pcp/archive.h>
 .sp
-void pmaSameInDom(pmInResult *\fIold\fP, pmInResult *\fInew\fP);
+void pmaSameInDom(__pmLogInDom_io *\fIold\fP, __pmLogInDom_io *\fInew\fP);
 .sp
 cc ... \-lpcp_archive \-lpcp
 .ft 1

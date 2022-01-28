@@ -35,9 +35,7 @@ main(int argc, char **argv)
     __pmPDU	*pdp;
     pmTimeval	epoch = { 0, 0 };
     __pmTimestamp	stamp;
-    int		numinst;
-    int		*ilist;
-    char	**nlist;
+    __pmLogInDom_io	lid;
 
     /* trim cmd name of leading directory components */
     pmSetProgname(argv[0]);
@@ -148,12 +146,14 @@ Options:\n\
 	    exit(1);
 	}
 	if (desc.indom != PM_INDOM_NULL) {
-	    if ((numinst = pmGetInDom(desc.indom, &ilist, &nlist)) < 0) {
-		printf("pmGetInDom: %s: %s\n", pmInDomStr(desc.indom), pmErrStr(numinst));
+	    if ((lid.numinst = pmGetInDom(desc.indom, &lid.instlist, &lid.namelist)) < 0) {
+		printf("pmGetInDom: %s: %s\n", pmInDomStr(desc.indom), pmErrStr(lid.numinst));
 		exit(1);
 	    }
-	    if ((sts = __pmLogPutInDom(&archctl, desc.indom, &stamp, TYPE_INDOM_V2, numinst, ilist, nlist)) < 0) {
-		fprintf(stderr, "%s: __pmLogPutInDom(...,indom=%s,numinst=%d,...) failed: %s\n", pmGetProgname(), pmInDomStr(desc.indom), numinst, pmErrStr(sts));
+	    lid.indom = desc.indom;
+	    lid.stamp = stamp;
+	    if ((sts = __pmLogPutInDom(&archctl, TYPE_INDOM_V2, &lid)) < 0) {
+		fprintf(stderr, "%s: __pmLogPutInDom(...,indom=%s,numinst=%d,...) failed: %s\n", pmGetProgname(), pmInDomStr(desc.indom), lid.numinst, pmErrStr(sts));
 		exit(1);
 	    }
 	}
