@@ -16,6 +16,7 @@
 
 #include "pmapi.h"
 #include "libpcp.h"
+#include "../libpcp/src/internal.h"
 #include "archive.h"
 
 /*
@@ -107,9 +108,13 @@ done:
  * 1 => use full indom
  * 2 => use delta indom (and populate *new_delta)
  *
- * Note on alloc() errors: report 'em and return "1", since this
- * simply falls back to the V2 scheme (more or less).
- * TODO ... fix alloc error ... fallback to pmaSameInDom()
+ * Only makes sense to be called for V3 archives ... an assumption we
+ * cannot check here as the args don't give a way to determine the
+ * associated archive version.
+ *
+ * Note on alloc() errors in pmaDeltaInDom():
+ *     report 'em and use pmaSameInDom() ... this simply falls back
+ *     to the V2 scheme (more or less).
  */
 int
 pmaDeltaInDom(__pmLogInDom_io *old, __pmLogInDom_io *new, __pmLogInDom_io *new_delta)
@@ -130,12 +135,12 @@ pmaDeltaInDom(__pmLogInDom_io *old, __pmLogInDom_io *new, __pmLogInDom_io *new_d
     old_map = (int *)calloc(old->numinst, sizeof(int));
     if (old_map == NULL) {
 	pmNoMem("pmaDeltaInDom: old_map", old->numinst * sizeof(int), PM_RECOV_ERR);
-	goto done;
+	goto fallback;
     }
     new_map = (int *)calloc(new->numinst, sizeof(int));
     if (new_map == NULL) {
 	pmNoMem("pmaDeltaInDom: new_map", new->numinst * sizeof(int), PM_RECOV_ERR);
-	goto done;
+	goto fallback;
     }
     for (i = 0, j = 0; i < old->numinst || j < new->numinst; ) {
 	if ((i < old->numinst && j == new->numinst) ||
@@ -193,6 +198,7 @@ pmaDeltaInDom(__pmLogInDom_io *old, __pmLogInDom_io *new, __pmLogInDom_io *new_d
     /*
      * Pass 2 - committed to delta indom now, need to build new_delta ...
      */
+    new_delta->stamp = new->stamp;
     new_delta->indom = new->indom;
     new_delta->numinst = add + del;
     /*
@@ -206,7 +212,7 @@ pmaDeltaInDom(__pmLogInDom_io *old, __pmLogInDom_io *new, __pmLogInDom_io *new_d
     new_delta->namelist = (char **)malloc(new_delta->numinst * sizeof(char *));
     if (new_delta->namelist == NULL) {
 	pmNoMem("pmaDeltaInDom: new namelist", new_delta->numinst * sizeof(char *), PM_RECOV_ERR);
-	goto done;
+	goto fallback;
     }
     /*
      * need to emit instances in sorted abs(instance number) order ...
@@ -262,6 +268,15 @@ pmaDeltaInDom(__pmLogInDom_io *old, __pmLogInDom_io *new, __pmLogInDom_io *new_d
 	}
     }
     sts = 2;
+    goto done;
+
+fallback:
+    /*
+     * in we have a malloc failure, revert to the old-style (V2)
+     * pmaSameInDom() method, but notice the return codes are
+     * inverted
+     */
+    sts = 1 - pmaSameInDom(old, new);
 
 done:
     if (old_map != NULL)
@@ -273,6 +288,174 @@ done:
 	fprintf(stderr, "pmaDeltaInDom(%s) -> %s\n", pmInDomStr(old->indom),
 	    sts == 0 ? "same" : ( sts == 1 ? "full indom" : "delta indom" ));
     }
+
+    return sts;
+}
+
+/*
+ * Given an external metadata record that contains a "delta" indom
+ * (in buf), find the corresponding __pmLogInDom structure from
+ * lcp->hashindom.
+ *
+ * This assumes the archive has also been opened with pmNewContext
+ * so that all of the metadata has been loaded.
+ *
+ * The __pmLogInDom structure is expected to be found and the search
+ * will also ensure the indom has been "undelta'd" in the process.
+ */
+__pmLogInDom *
+pmaUndeltaInDom(__pmLogCtl *lcp, __int32_t *buf)
+{
+    pmInDom		indom;
+    __pmTimestamp	stamp;
+    __pmLogInDom	*idp;
+
+    __pmLoadTimestamp(&buf[2], &stamp);
+    indom = __ntohpmInDom(buf[5]);
+
+    idp = __pmLogSearchInDom(lcp, indom, &stamp);
+
+    if (idp != NULL)
+	return idp;
+    else {
+	int		numinst;
+	__int32_t	*stridx;
+	char		*strbase;
+	int		idx;
+	int		i;
+	int		j;
+	fprintf(stderr, "pmaUndeltaInDom: Botch: indom %s @ ", pmInDomStr(indom));
+	__pmPrintTimestamp(stderr, &stamp);
+	fprintf(stderr, ": not found from __pmLogCtl\n");
+	numinst = ntohl(buf[6]);
+	fprintf(stderr, "InDom from archive record (numinst %d) ...\n", numinst);
+	j = 7;
+	stridx = &buf[j + numinst];
+	strbase = (char *)&stridx[numinst];
+	for (i = 0; i < numinst; i++) {
+	    idx = ntohl(*stridx);
+	    fprintf(stderr, "[%d] %d idx=%d", i, ntohl(buf[j]), idx);
+	    if (idx >= 0)
+		fprintf(stderr, " add \"%s\"\n", &strbase[idx]);
+	    else
+		fprintf(stderr, " del\n");
+	    stridx++;
+	    j++;
+	}
+	return NULL;
+    }
+}
+
+static __pmHashCtl	hashindom;
+typedef struct {
+    __int32_t		*buf;
+    int			allinbuf;
+    __pmLogInDom_io	lid;
+}
+indom_ctl;
+
+/*
+ * rbuf is a physical indom record for a V3 archive
+ *
+ * pmaTryDeltaInDom() checks to see if "delta" indom encoding would
+ * be more efficient ... this involves maintaining a per-indom copy
+ * of the last "full" indom that was seen by pmaTryDeltaInDom().
+ *
+ * If "delta" indom format is preferred, a reformatted physical indom
+ * record is returned via a (new) rbuf and the old rbuf is free'd.
+ *
+ * Because we need to extract the __pmInDom_io from the initial rbuf
+ * and this involves rewriting rbuf (at least some ntohl() magic) and
+ * also because we keep the __pmInDom_io in a hashed cache until the next
+ * time we see the same indom, pmaTryDeltaInDom() makes a copy of rbuf.
+ */
+int
+pmaTryDeltaInDom(__pmLogCtl *lcp, __int32_t **rbuf)
+{
+    int			rlen;
+    int			type;
+    int			sts = 0;
+    __int32_t		*tmp;
+    pmInDom		indom;
+    indom_ctl		this;
+    indom_ctl		*last;
+    __pmHashNode	*hnp;
+
+    type = ntohl((*rbuf)[1]);
+    if (type != TYPE_INDOM) {
+	/* if not V3 indom record, nothing to do */
+	return -1;
+    }
+    rlen = ntohl((*rbuf)[0]);
+
+    /* make a copy of rbuf */
+    if ((this.buf = (__int32_t *)malloc(rlen)) == NULL) {
+	pmNoMem("pmaTryDeltaInDom: buf copy", rlen, PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    memcpy(this.buf, *rbuf, rlen);
+
+    indom = __ntohpmInDom(this.buf[5]);
+    tmp = &this.buf[2];
+    if ((this.allinbuf = __pmLogLoadInDom(NULL, rlen, type, &this.lid, &tmp)) < 0) {
+	fprintf(stderr, "pmaTryDeltaInDom: Botch: __pmLogLoadInDom for indom %s: %s\n",
+	    pmInDomStr(indom), pmErrStr(this.allinbuf));
+	exit(1);
+    }
+
+    if ((hnp = __pmHashSearch((unsigned int)indom, &hashindom)) == NULL) {
+	indom_ctl	*new;
+	int		lsts;
+	/* first time for this indom */
+	if  ((lsts = __pmHashAdd((unsigned int)indom, NULL, &hashindom)) < 0) {
+	    fprintf(stderr, "pmaTryDeltaInDom: Botch: __pmHashAdd for indom %s: %s\n",
+		pmInDomStr(indom), pmErrStr(lsts));
+	    exit(1);
+	}
+	if ((hnp = __pmHashSearch((unsigned int)indom, &hashindom)) == NULL) {
+	    fprintf(stderr, "pmaTryDeltaInDom: Botch: __pmHashSearch for indom %s: failed\n",
+		pmInDomStr(indom));
+	    exit(1);
+	}
+	new = (indom_ctl *)malloc(sizeof(*new));
+	if (new == NULL) {
+	    pmNoMem("pmaTryDeltaInDom: indom_ctl malloc", sizeof(*new), PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+	hnp->data = (void *)new;
+	last = new;
+    }
+    else {
+	__pmLogInDom_io		delta;
+	int			lsts;
+	last = (indom_ctl *)hnp->data;
+	lsts = pmaDeltaInDom(&last->lid, &this.lid, &delta);
+	if (lsts == 2) {
+	    __int32_t		*new;
+	    /*
+	     * "delta" indom is preferred ... rewrite away
+	     */
+	    lsts = __pmLogEncodeInDom(lcp, TYPE_INDOM_DELTA, &delta, &new);
+	    if (lsts < 0) {
+		fprintf(stderr, "pmaTryDeltaInDom: Botch: __pmLogEncodeInDom for indom %s: %s\n",
+		    pmInDomStr(indom), pmErrStr(lsts));
+		exit(1);
+	    }
+	    free(*rbuf);
+	    *rbuf = new;
+	    free(delta.instlist);
+	    free(delta.namelist);
+	    sts = 1;
+	}
+
+	/* free old "last" */
+	if (!last->allinbuf)
+	    free(last->lid.namelist);
+	free(last->buf);
+    }
+
+    /* this -> last */
+    memcpy(last, &this, sizeof(this));
 
     return sts;
 }

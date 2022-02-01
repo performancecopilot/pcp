@@ -1,6 +1,8 @@
 usr/share/man/man3/pmaDeltaInDom.3.gz
 usr/share/man/man3/pmaSameInDom.3.gz
 usr/share/man/man3/pmaSortInDom.3.gz
+usr/share/man/man3/pmaTryDeltaInDom.3.gz
+usr/share/man/man3/pmaUndeltaInDom.3.gz
 usr/include/pcp/archive.h
 usr/lib/libpcp_archive.a
 usr/lib/libpcp_archive.so

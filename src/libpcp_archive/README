@@ -4,3 +4,7 @@ This library contains "helper" routines for apps that need to write
 PCP archives.
 
 There are some spartan man pages, see <pcp/archive.h> for prototypes.
+
+This library is NOT thread-safe, because at this stage all of the
+intended client apps are single threaded, e.g. pmlogextract,
+pmlogrewrite, pmlogreduce.

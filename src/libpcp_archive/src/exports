@@ -3,6 +3,8 @@ PCP_ARCHIVE_1.0 {
 	pmaSortInDom;
 	pmaSameInDom;
 	pmaDeltaInDom;
+	pmaTryDeltaInDom;
+	pmaUndeltaInDom;
 
   local: *;
 };
