@@ -239,6 +239,8 @@ do_indom(__int32_t *buf, int type)
 	    printf("+%ld ", (long)offset);
 	printf("@ ");
 	__pmPrintTimestamp(stdout, &lid.stamp);
+	if (type == TYPE_INDOM_DELTA)
+	    printf(" delta");
 	printf(" indom %s numinst %d", pmInDomStr(lid.indom), lid.numinst);
 	if (warn && wflag > 0) {
 	    int	o, d;

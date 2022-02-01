@@ -195,15 +195,15 @@ Note: timezone set to local timezone of pmcd from archive
 [22] help text pmid 29.0.156 
     A global counter starts at 1 and increases each time a new fake "process"
     is created.
-[23] @ TIMESTAMP indom 29.12 numinst 1
-[24] @ TIMESTAMP indom 29.12 numinst 2
-[25] @ TIMESTAMP indom 29.12 numinst 2
-[26] @ TIMESTAMP indom 29.12 numinst 1
-[27] @ TIMESTAMP indom 29.12 numinst 1
-[28] @ TIMESTAMP indom 29.12 numinst 1
-[29] @ TIMESTAMP indom 29.12 numinst 1
-[30] @ TIMESTAMP indom 29.12 numinst 2
-[31] @ TIMESTAMP indom 29.12 numinst 2
-[32] @ TIMESTAMP indom 29.12 numinst 1
-[33] @ TIMESTAMP indom 29.12 numinst 3
-[34] @ TIMESTAMP indom 29.12 numinst 3
+[23] @ TIMESTAMP delta indom 29.12 numinst 1
+[24] @ TIMESTAMP delta indom 29.12 numinst 2
+[25] @ TIMESTAMP delta indom 29.12 numinst 2
+[26] @ TIMESTAMP delta indom 29.12 numinst 1
+[27] @ TIMESTAMP delta indom 29.12 numinst 1
+[28] @ TIMESTAMP delta indom 29.12 numinst 1
+[29] @ TIMESTAMP delta indom 29.12 numinst 1
+[30] @ TIMESTAMP delta indom 29.12 numinst 2
+[31] @ TIMESTAMP delta indom 29.12 numinst 2
+[32] @ TIMESTAMP delta indom 29.12 numinst 1
+[33] @ TIMESTAMP delta indom 29.12 numinst 3
+[34] @ TIMESTAMP delta indom 29.12 numinst 3
