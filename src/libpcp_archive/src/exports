@@ -1,5 +1,7 @@
 PCP_ARCHIVE_1.0 {
   global:
+	pmaLogGet;
+	pmaLogPut;
 	pmaSortInDom;
 	pmaSameInDom;
 	pmaDeltaInDom;

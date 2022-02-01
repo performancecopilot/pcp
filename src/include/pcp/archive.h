@@ -28,8 +28,13 @@
 extern "C" {
 #endif
 
-PCP_CALL extern void pmaSortInDom(__pmLogInDom_io *);
+/* physical archive i/o */
+PCP_CALL extern int pmaLogGet(__pmArchCtl *, int, __int32_t **);
+PCP_CALL extern int pmaLogPut(__pmFILE *, __int32_t *);
+
+/* indom manipulations */
 PCP_CALL extern int pmaSameInDom(__pmLogInDom_io *, __pmLogInDom_io *);
+PCP_CALL extern void pmaSortInDom(__pmLogInDom_io *);
 PCP_CALL extern int pmaDeltaInDom(__pmLogInDom_io *, __pmLogInDom_io *, __pmLogInDom_io *);
 PCP_CALL extern __pmLogInDom *pmaUndeltaInDom(__pmLogCtl *, __int32_t *);
 PCP_CALL extern int pmaTryDeltaInDom(__pmLogCtl *, __int32_t **);

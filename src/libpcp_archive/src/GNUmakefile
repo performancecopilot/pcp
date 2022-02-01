@@ -18,8 +18,8 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-CFILES	= indom.c
-HFILES	= private.h
+CFILES	= io.c indom.c
+HFILES	= 
 
 LIBCONFIG = libpcp_archive.pc
 VERSION_SCRIPT = exports
