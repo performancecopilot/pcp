@@ -7,6 +7,8 @@ artifactory:
 container:
   containerfile: |
     FROM registry.centos.org/centos:8
+    RUN sed -i '/mirrorlist=/d' /etc/yum.repos.d/CentOS-Linux-*
+    RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
     RUN dnf install -y sudo glibc-langpack-en
     RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm # libuv-devel
     RUN useradd --create-home pcpbuild
