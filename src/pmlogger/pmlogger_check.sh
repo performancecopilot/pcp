@@ -983,8 +983,8 @@ END				{ print m }'`
 	then
 	    if [ "X$primary" = Xy ]
 	    then
-		# pcp-zeroconf environment variables (if present) take precedence
-		envs=`grep -h ^PMLOGGER "$PMLOGGERENVS" "$PMLOGGERZEROCONFENVS" 2>/dev/null`
+		# User configuration takes precedence over pcp-zeroconf
+		envs=`grep -h ^PMLOGGER "$PMLOGGERZEROCONFENVS" "$PMLOGGERENVS" 2>/dev/null`
 		args="-P $args"
 		iam=" primary"
 		# clean up port-map, just in case
