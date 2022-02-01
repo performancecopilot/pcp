@@ -1230,10 +1230,6 @@ write_rec(reclist_t *rec)
     __pmLogHdr	*h;
     int		rlen;
 
-    h = (__pmLogHdr *)rec->pdu;
-    rlen = ntohl(h->len);
-    type = ntohl(h->type);
-
     if (rec->written == MARK_FOR_WRITE) {
 	if (rec->pdu == NULL) {
 	    fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
@@ -1241,6 +1237,10 @@ write_rec(reclist_t *rec)
 	    abandon_extract();
 	    /*NOTREACHED*/
 	}
+
+	h = (__pmLogHdr *)rec->pdu;
+	rlen = ntohl(h->len);
+	type = ntohl(h->type);
 
 	if (pmDebugOptions.logmeta) {
 	    fprintf(stderr, "write_rec: record len=%d, type=%s (%d) @ offset=%d\n",
@@ -1363,6 +1363,7 @@ write_rec(reclist_t *rec)
 	    if (sts < 0) {
 		fprintf(stderr, "Botch: pmaTryDeltaInDom failed: %d\n", sts);
 		abandon_extract();
+		/*NOTREACHED*/
 	    }
 	    if (pmDebugOptions.logmeta && sts == 1) {
 		h = (__pmLogHdr *)rec->pdu;
