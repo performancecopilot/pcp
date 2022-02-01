@@ -1,10 +1,10 @@
 policy_module(pcpupstream,@PACKAGE_VERSION@);
 
 require {
-        attribute domain;
-        attribute userdomain;
-        attribute file_type;
-        attribute pcp_domain;
+	attribute domain;
+	attribute userdomain;
+	attribute file_type;
+	attribute pcp_domain;
 
 	type pcp_pmcd_t;
 	type tmp_t;
@@ -24,40 +24,40 @@ require {
 	type openvswitch_exec_t; # pmda.openvswitch
 	type samba_var_t; # pmda.samba
 	type websm_port_t; # pmda.openmetrics
-        type system_cronjob_t;
-        type user_home_t;
-        type user_tmp_t;
-        type debugfs_t;
-        @PCP_NSFS_T@
-        @PCP_UNRESERVED_PORT@
-        type hostname_exec_t;
-        @PCP_TRACEFS@
-        type haproxy_t;
-        type haproxy_var_lib_t;
-        type sysctl_fs_t; #RHBZ1505888
-        type sysfs_t; #RHBZ1545245
-        type modules_object_t; # pcp.lio, pcp.bcc
-        type setfiles_exec_t;
-        type mdadm_exec_t;
-        type named_exec_t;
-        type ndc_exec_t;
-        type proc_mdstat_t;
-        @PCP_NUMAD_CONTEXT@
-        type sysctl_irq_t; #pmda.bcc
-        type unconfined_t; #RHBZ1443632
-        @PCP_UNCONFINED_SERVICE@
-        type configfs_t; #pcp.lio
-        type ldconfig_exec_t;
-        type sysctl_net_t;
-        type proc_net_t; #RHBZ1517656
-        @PCP_DMA_DEVICE@
-        type fixed_disk_device_t;
-        type fsadm_exec_t;
+	type system_cronjob_t;
+	type user_home_t;
+	type user_tmp_t;
+	type debugfs_t;
+	@PCP_NSFS_T@
+	@PCP_UNRESERVED_PORT@
+	type hostname_exec_t;
+	@PCP_TRACEFS@
+	type haproxy_t;
+	type haproxy_var_lib_t;
+	type sysctl_fs_t; #RHBZ1505888
+	type sysfs_t; #RHBZ1545245
+	type modules_object_t; # pcp.lio, pcp.bcc
+	type setfiles_exec_t;
+	type mdadm_exec_t;
+	type named_exec_t;
+	type ndc_exec_t;
+	type proc_mdstat_t;
+	@PCP_NUMAD_CONTEXT@
+	type sysctl_irq_t; #pmda.bcc
+	type unconfined_t; #RHBZ1443632
+	@PCP_UNCONFINED_SERVICE@
+	type configfs_t; #pcp.lio
+	type ldconfig_exec_t;
+	type sysctl_net_t;
+	type proc_net_t; #RHBZ1517656
+	@PCP_DMA_DEVICE@
+	type fixed_disk_device_t;
+	type fsadm_exec_t;
 	type kernel_t;
 	type kmsg_device_t;
-        type proc_kcore_t;
+	type proc_kcore_t;
 	@PCP_PROC_SECURITY_T@
-        type su_exec_t;
+	type su_exec_t;
 	type var_run_t;
 	@PCP_VIRT_VAR_RUN_T@
 	@PCP_RPCBIND_VAR_RUN_T@
@@ -71,7 +71,7 @@ require {
 	type xserver_misc_device_t;
 	type device_t;
 
-        class sem { unix_read associate getattr read };
+	class sem { unix_read associate getattr read };
 	class lnk_file { create read getattr setattr };
 	class file { append create execute execute_no_trans getattr setattr ioctl lock open read write unlink @PCP_HOSTNAME_EXEC_MAP@ };
 	class dir { add_name open read search write getattr lock ioctl };
@@ -93,13 +93,13 @@ require {
 	class filesystem { mount quotaget };
 	class blk_file { ioctl open read };
 	class msgq { unix_read };
-        class unix_dgram_socket { sendto };
-        class dbus { send_msg };
-        @PCP_BPF_CLASS@
+	class unix_dgram_socket { sendto };
+	class dbus { send_msg };
+	@PCP_BPF_CLASS@
 	class system { module_request };
 	@PCP_NETLINK_GENERIC_SOCKET_CLASS@
 	@PCP_NETLINK_TCPDIAG_SOCKET_CLASS@
-        @PCP_LOCKDOWN_CLASS@
+	@PCP_LOCKDOWN_CLASS@
 }
 
 #============= init_t ==============
