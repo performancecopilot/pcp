@@ -963,7 +963,7 @@ do_work(task_t *tp)
 			 * not new_delta into the hashed structures here
 			 */
 			new.stamp = new_delta.stamp;	/* struct assignment */
-			if ((sts = __pmLogAddInDom(&archctl, TYPE_INDOM_DELTA, &new, NULL, 0)) < 0) {
+			if ((sts = __pmLogAddInDom(&archctl, TYPE_INDOM, &new, NULL, 0)) < 0) {
 			    fprintf(stderr, "__pmLogAddInDom(%s): %s\n", pmInDomStr(desc.indom), pmErrStr(sts));
 			    exit(1);
 			}
