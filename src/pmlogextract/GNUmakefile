@@ -15,14 +15,14 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES	= pmlogextract.c logio.c error.c metriclist.c
+CFILES	= pmlogextract.c error.c metriclist.c
 HFILES	= logger.h
 LFILES  = lex.l
 YFILES	= gram.y
 
 CMDTARGET = pmlogextract$(EXECSUFFIX)
 
-LLDLIBS	= $(PCPLIB) $(PCP_ARCHIVELIB) $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS)
+LLDLIBS	= $(PCP_ARCHIVELIB) $(PCPLIB) $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS)
 LDIRT	= $(YFILES:%.y=%.tab.?)
 
 default:	$(CMDTARGET)

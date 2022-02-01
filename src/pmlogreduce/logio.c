@@ -17,25 +17,6 @@
 
 #include "pmlogreduce.h"
 
-int
-_pmLogPut(__pmFILE *f, __pmPDU *pb)
-{
-    int		rlen = ntohl(pb[0]);
-    int		sts;
-
-    if (pmDebugOptions.log) {
-	fprintf(stderr, "_pmLogPut: fd=%d rlen=%d\n",
-	    __pmFileno(f), rlen);
-    }
-
-    if ((sts = (int)__pmFwrite(pb, 1, rlen, f)) != rlen) {
-	if (pmDebugOptions.log)
-	    fprintf(stderr, "_pmLogPut: fwrite=%d %s\n", sts, osstrerror());
-	return -oserror();
-    }
-    return 0;
-}
-
 /*
  * construct new external label, and check label records from
  * input archives

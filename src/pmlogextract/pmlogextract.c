@@ -26,10 +26,10 @@
 #include <ctype.h>
 #include <sys/stat.h>
 #include <assert.h>
-#include "pmapi.h"
-#include "libpcp.h"
-#include "archive.h"
-#include "logger.h"
+#include "pcp/pmapi.h"
+#include "pcp/libpcp.h"
+#include "pcp/archive.h"
+#include "./logger.h"
 
 long totalmalloc;
 static pmUnits nullunits;
@@ -726,6 +726,20 @@ findnadd_indomreclist(int indom)
 }
 
 /*
+ * borrowed from __ntohpmUnits() in endian.c in libpcp (that function is
+ * not exported there, so not callable here)
+ */
+static pmUnits
+ntoh_pmUnits(pmUnits units)
+{
+    unsigned int x;
+
+    x = ntohl(*(unsigned int *)&units);
+    units = *(pmUnits *)&x;
+    return units;
+}
+
+/*
  *  append a new record to the desc meta record list if not seen
  *  before, else check the desc meta record is semantically the
  *  same as the last desc meta record for this pmid from this source
@@ -1360,8 +1374,8 @@ write_rec(reclist_t *rec)
 	}
 
 	/* write out the pdu ; exit if write failed */
-	if ((sts = _pmLogPut(logctl.mdfp, rec->pdu)) < 0) {
-	    fprintf(stderr, "%s: Error: _pmLogPut: meta data : %s\n",
+	if ((sts = pmaLogPut(logctl.mdfp, rec->pdu)) < 0) {
+	    fprintf(stderr, "%s: Error: pmaLogPut: meta data : %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 	    abandon_extract();
 	    /*NOTREACHED*/
@@ -1751,7 +1765,7 @@ nextmeta(void)
 	    abandon_extract();
 	    /*NOTREACHED*/
 	}
-	/* Need to hold c_lock for _pmLogGet() */
+	/* Need to hold c_lock for pmaLogGet() */
 
 	lcp = ctxp->c_archctl->ac_log;
 
@@ -1767,11 +1781,11 @@ nextmeta(void)
 againmeta:
 	/* get next meta record */
 
-	if ((sts = _pmLogGet(ctxp->c_archctl, PM_LOG_VOL_META, &iap->pb[META])) < 0) {
+	if ((sts = pmaLogGet(ctxp->c_archctl, PM_LOG_VOL_META, &iap->pb[META])) < 0) {
 	    iap->eof[META] = 1;
 	    ++numeof;
 	    if (sts != PM_ERR_EOL) {
-		fprintf(stderr, "%s: Error: _pmLogGet[meta %s]: %s\n",
+		fprintf(stderr, "%s: Error: pmaLogGet[meta %s]: %s\n",
 			pmGetProgname(), iap->name, pmErrStr(sts));
 		_report(lcp->mdfp);
 		abandon_extract();

@@ -211,11 +211,8 @@ extern int	yyparse(void);
 #define W_NEXT	2
 #define W_NONE	3
 
-extern int	_pmLogGet(__pmArchCtl *, int, __int32_t **);
-extern int	_pmLogPut(FILE *, __int32_t *);
 extern int	_pmLogRename(const char *, const char *);
 extern int	_pmLogRemove(const char *, int);
-extern pmUnits	ntoh_pmUnits(pmUnits);
 #define ntoh_pmInDom(indom) ntohl(indom)
 #define ntoh_pmID(pmid)     ntohl(pmid)
 

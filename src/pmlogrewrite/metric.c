@@ -92,6 +92,20 @@ typedef struct {
 } desc_t;
 
 /*
+ * borrowed from __ntohpmUnits() in endian.c in libpcp (that function is
+ * not exported there, so not callable here)
+ */
+static pmUnits
+ntoh_pmUnits(pmUnits units)
+{
+    unsigned int x;
+
+    x = ntohl(*(unsigned int *)&units);
+    units = *(pmUnits *)&x;
+    return units;
+}
+
+/*
  * reverse the logic of __pmLogPutDesc()
  */
 static void

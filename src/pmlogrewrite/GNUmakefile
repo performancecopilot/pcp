@@ -18,13 +18,13 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-CFILES	= pmlogrewrite.c util.c logio.c metric.c indom.c result.c label.c text.c
+CFILES	= pmlogrewrite.c util.c metric.c indom.c result.c label.c text.c
 HFILES	= logger.h
 LFILES  = lex.l
 YFILES	= gram.y
 
 CMDTARGET = pmlogrewrite$(EXECSUFFIX)
-LLDLIBS	= $(PCPLIB) $(LIB_FOR_MATH)
+LLDLIBS	= $(PCP_ARCHIVELIB) $(PCPLIB) $(LIB_FOR_MATH)
 LDIRT	+= $(YFILES:%.y=%.tab.?)
 
 default:	$(CMDTARGET)
@@ -48,7 +48,7 @@ default_pcp:	default
 
 install_pcp:	install
 
-gram.tab.o indom.o label.o text.o lex.o logio.o metric.o pmlogrewrite.o result.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+gram.tab.o indom.o label.o text.o lex.o metric.o pmlogrewrite.o result.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 
 check:: $(CFILES) $(HFILES) gram.tab.h gram.tab.c
 	$(CLINT) $^

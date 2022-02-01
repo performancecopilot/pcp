@@ -27,11 +27,12 @@
 #include <ctype.h>
 #include <sys/stat.h>
 #include <assert.h>
-#include "pmapi.h"
-#include "libpcp.h"
-#include "logger.h"
-#include <assert.h>
+#include "pcp/pmapi.h"
+#include "pcp/libpcp.h"
+#include "pcp/archive.h"
 #include "../libpcp/src/internal.h"
+#include "./logger.h"
+#include <assert.h>
 
 global_t	global;
 indomspec_t	*indom_root;
@@ -223,9 +224,9 @@ nextmeta()
     __pmArchCtl		*acp = inarch.ctxp->c_archctl;
     __pmLogCtl		*lcp = acp->ac_log;
 
-    if ((sts = _pmLogGet(acp, PM_LOG_VOL_META, &inarch.metarec)) < 0) {
+    if ((sts = pmaLogGet(acp, PM_LOG_VOL_META, &inarch.metarec)) < 0) {
 	if (sts != PM_ERR_EOL) {
-	    fprintf(stderr, "%s: Error: _pmLogGet[meta %s]: %s\n",
+	    fprintf(stderr, "%s: Error: pmaLogGet[meta %s]: %s\n",
 		    pmGetProgname(), inarch.name, pmErrStr(sts));
 	    _report(lcp->mdfp);
 	}
