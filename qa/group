@@ -1824,7 +1824,9 @@ x11
 1375 pmlogextract pmdumplog archive_v3 local
 1376 pmlogextract pmdumplog archive_v3 local valgrind
 1377 pmlogextract pmdumplog local
+1378 pmlogextract pmdumplog archive_v3 local
 1379 pmproxy local
+1380 pmlogextract pmdumplog archive_v3 local valgrind
 1383 pmlogrewrite labels pmdumplog local
 1385 pmda.openmetrics local python
 1388 pmproxy local secure
