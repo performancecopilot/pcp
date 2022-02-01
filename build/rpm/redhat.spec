@@ -2676,10 +2676,8 @@ exit 0
 chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
 %if 0%{?rhel}
 %if !%{disable_systemd}
-    systemctl restart pmcd >/dev/null 2>&1
-    systemctl restart pmlogger >/dev/null 2>&1
-    systemctl enable pmcd >/dev/null 2>&1
-    systemctl enable pmlogger >/dev/null 2>&1
+    systemctl restart pmcd pmlogger >/dev/null 2>&1
+    systemctl enable pmcd pmlogger >/dev/null 2>&1
 %else
     /sbin/chkconfig --add pmcd >/dev/null 2>&1
     /sbin/chkconfig --add pmlogger >/dev/null 2>&1
@@ -2942,8 +2940,7 @@ exit 0
 %preun zeroconf
 if [ "$1" -eq 0 ]
 then
-    %systemd_preun pmlogger_daily_report.timer
-    %systemd_preun pmlogger_daily_report.service
+    %systemd_preun pmlogger_daily_report.timer pmlogger_daily_report.service
 fi
 %endif
 
@@ -2952,27 +2949,9 @@ if [ "$1" -eq 0 ]
 then
     # stop daemons before erasing the package
     %if !%{disable_systemd}
-       %systemd_preun pmlogger.service
-       %systemd_preun pmlogger_check.timer
-       %systemd_preun pmlogger_daily.timer
-       %systemd_preun pmlogger_farm.service
-       %systemd_preun pmlogger_farm_check.service
-       %systemd_preun pmlogger_farm_check.timer
-       %systemd_preun pmie.service
-       %systemd_preun pmie_check.timer
-       %systemd_preun pmie_daily.timer
-       %systemd_preun pmie_farm.service
-       %systemd_preun pmie_farm_check.service
-       %systemd_preun pmie_farm_check.timer
-       %systemd_preun pmproxy.service
-       %systemd_preun pmfind.service
-       %systemd_preun pmcd.service
+       %systemd_preun pmlogger_check.timer pmlogger_daily.timer pmlogger_farm_check.timer pmlogger_farm_check.service pmlogger_farm.service pmlogger.service pmie_check.timer pmie_daily.timer pmie_farm_check.timer pmie_farm_check.service pmie_farm.service pmie.service pmproxy.service pmfind.service pmcd.service
 
-       systemctl stop pmlogger.service >/dev/null 2>&1
-       systemctl stop pmie.service >/dev/null 2>&1
-       systemctl stop pmproxy.service >/dev/null 2>&1
-       systemctl stop pmfind.service >/dev/null 2>&1
-       systemctl stop pmcd.service >/dev/null 2>&1
+       systemctl stop pmlogger.service pmie.service pmproxy.service pmfind.service pmcd.service >/dev/null 2>&1
     %else
        /sbin/service pmlogger stop >/dev/null 2>&1
        /sbin/service pmie stop >/dev/null 2>&1
@@ -3005,12 +2984,8 @@ done
 pmieconf -c enable dmthin
 %if 0%{?rhel}
 %if !%{disable_systemd}
-    systemctl restart pmcd >/dev/null 2>&1
-    systemctl restart pmlogger >/dev/null 2>&1
-    systemctl restart pmie >/dev/null 2>&1
-    systemctl enable pmcd >/dev/null 2>&1
-    systemctl enable pmlogger >/dev/null 2>&1
-    systemctl enable pmie >/dev/null 2>&1
+    systemctl restart pmcd pmlogger pmie >/dev/null 2>&1
+    systemctl enable pmcd pmlogger pmie >/dev/null 2>&1
 %else
     /sbin/chkconfig --add pmcd >/dev/null 2>&1
     /sbin/chkconfig --add pmlogger >/dev/null 2>&1
