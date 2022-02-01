@@ -28,6 +28,7 @@
 #include <assert.h>
 #include "pmapi.h"
 #include "libpcp.h"
+#include "archive.h"
 #include "logger.h"
 
 long totalmalloc;
@@ -1211,6 +1212,13 @@ void
 write_rec(reclist_t *rec)
 {
     int		sts;
+    int		type;
+    __pmLogHdr	*h;
+    int		rlen;
+
+    h = (__pmLogHdr *)rec->pdu;
+    rlen = ntohl(h->len);
+    type = ntohl(h->type);
 
     if (rec->written == MARK_FOR_WRITE) {
 	if (rec->pdu == NULL) {
@@ -1221,17 +1229,12 @@ write_rec(reclist_t *rec)
 	}
 
 	if (pmDebugOptions.logmeta) {
-	    __pmLogHdr	*h;
-	    int		len;
-	    int		type;
-	    h = (__pmLogHdr *)rec->pdu;
-	    len = ntohl(h->len);
-	    type = ntohl(h->type);
 	    fprintf(stderr, "write_rec: record len=%d, type=%s (%d) @ offset=%d\n",
-	    	len, metarectypestr(type), type, (int)(__pmFtell(logctl.mdfp) - sizeof(__pmLogHdr)));
+	    	rlen, metarectypestr(type), type, (int)(__pmFtell(logctl.mdfp) - sizeof(__pmLogHdr)));
 	    if (type == TYPE_DESC) {
 		pmDesc	*dp;
 		pmDesc	desc;
+		int	len;
 		int	*namelen;
 		char	*name;	/* just first name for diag */
 		dp = (pmDesc *)((void *)rec->pdu + sizeof(__pmLogHdr));
@@ -1256,11 +1259,11 @@ write_rec(reclist_t *rec)
 		 * the PDU buffer, so we need to operate on a copy for this
 		 * diagnostic code ...
 		 */
-		if ((buf = (__int32_t *)malloc(len)) == NULL) {
+		if ((buf = (__int32_t *)malloc(rlen)) == NULL) {
 		    fprintf(stderr, "malloc for dup indom buf failed\n");
 		}
 		else {
-		    memcpy(buf, rec->pdu, len);
+		    memcpy(buf, rec->pdu, rlen);
 
 		    ibuf = &buf[2];
 		    allinbuf = __pmLogLoadInDom(NULL, 0, type, &lid, &ibuf);
@@ -1338,6 +1341,21 @@ write_rec(reclist_t *rec)
 	    }
 	    else {
 		fprintf(stderr, "Botch: bad type: %d\n", type);
+	    }
+	}
+
+	if (type == TYPE_INDOM) {
+	    sts = pmaTryDeltaInDom(&logctl, &rec->pdu);
+	    if (sts < 0) {
+		fprintf(stderr, "Botch: pmaTryDeltaInDom failed: %d\n", sts);
+		abandon_extract();
+	    }
+	    if (pmDebugOptions.logmeta && sts == 1) {
+		h = (__pmLogHdr *)rec->pdu;
+		rlen = ntohl(h->len);
+		type = ntohl(h->type);
+		fprintf(stderr, "write_rec: delta indom rewrite len=%d, type=%s (%d) @ offset=%d\n",
+	    	rlen, metarectypestr(type), type, (int)(__pmFtell(logctl.mdfp) - sizeof(__pmLogHdr)));
 	    }
 	}
 
@@ -1693,51 +1711,6 @@ checklogtime(__pmTimestamp *this, int indx)
     }
 }
 
-__pmLogInDom *
-foo(__pmLogCtl *lcp, __int32_t **buf)
-{
-    __int32_t		*ibuf = *buf;
-    pmInDom		indom;
-    __pmTimestamp	stamp;
-    __pmLogInDom	*idp;
-
-    __pmLoadTimestamp(&ibuf[2], &stamp);
-    indom = ntoh_pmInDom(ibuf[5]);
-
-    idp = __pmLogSearchInDom(lcp, indom, &stamp);
-
-    if (idp != NULL)
-	return idp;
-    else {
-	int		numinst;
-	__int32_t	*stridx;
-	char		*strbase;
-	int		idx;
-	int		i;
-	int		j;
-	fprintf(stderr, "foo: Botch: indom %s @ ", pmInDomStr(indom));
-	__pmPrintTimestamp(stderr, &stamp);
-	fprintf(stderr, ": not found from __pmLogCtl\n");
-	numinst = ntohl(ibuf[6]);
-	fprintf(stderr, "InDom from archive record (numinst %d) ...\n", numinst);
-	j = 7;
-	stridx = &ibuf[j + numinst];
-	strbase = (char *)&stridx[numinst];
-	for (i = 0; i < numinst; i++) {
-	    idx = ntohl(*stridx);
-	    fprintf(stderr, "[%d] %d idx=%d", i, ntohl(ibuf[j]), idx);
-	    if (idx >= 0)
-		fprintf(stderr, " add \"%s\"\n", &strbase[idx]);
-	    else
-		fprintf(stderr, " del\n");
-	    stridx++;
-	    j++;
-	}
-	return NULL;
-    }
-}
-
-
 /*
  * pick next meta record - if all meta is at EOF return -1
  * (normally this function returns 0)
@@ -1889,10 +1862,9 @@ againmeta:
 		    __int32_t		*new;
 		    int			lsts;
 		    lid.indom = ntoh_pmInDom(iap->pb[META][5]);
-		    idp = foo(lcp, &iap->pb[META]);
+		    idp = pmaUndeltaInDom(lcp, iap->pb[META]);
 		    if (idp == NULL) {
-			// TODO InDomStr
-			fprintf(stderr, "nextmeta: Botch: delta indom failed\n");
+			fprintf(stderr, "nextmeta: Botch: undelta indom failed for indom %s\n", pmInDomStr(lid.indom));
 			abandon_extract();
 			/*NOTREACHED*/
 		    }
@@ -1909,6 +1881,8 @@ againmeta:
 		    }
 		    free(iap->pb[META]);
 		    iap->pb[META] = new;
+		    /* and now it is no longer in "delta" indom format */
+		    iap->pb[META][1] = htonl(TYPE_INDOM);
 		}
 		append_indomreclist(indx);
 	    }
