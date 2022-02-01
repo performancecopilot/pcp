@@ -1,6 +1,6 @@
 #
-# PMLOGGER environment variables defined in this file take precedence over
-# the same variables defined in the standard pmlogger config file.
+# PMLOGGER environment variables defined in the standard pmlogger config file
+# take precedence over the same variables defined in this file.
 #
 # The PMLOGGER_INTERVAL setting affects the default primary pmlogger recording
 # frequency. This only affects the *default* interval setting when specified
