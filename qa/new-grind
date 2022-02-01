@@ -152,6 +152,7 @@ else
     $PCP_AWK_PROG <$oldseq >$oldseq.new-grind '
 BEGIN			{ done = 0 }
 NF == 1 && $1 == "#" && done == 0	{
+			  print "#"
 			  print "# non-valgrind variant, see qa/'$newseq' for the valgrind variant"
 			  done = 1
 			}
@@ -166,6 +167,7 @@ NF == 0			{ exit }
 /non-valgrind variant/	{ next }
 /PCP QA Test No/	{ sub(/'$oldseq'$/, "'$newseq'") }
 NF == 1 && $1 == "#" && done == 0	{
+			  print "#"
 			  print "# valgrind variant, see qa/'$oldseq' for the non-valgrind variant"
 			  done = 1
 			}
