@@ -1,3 +1,32 @@
+pcp-5.3.6 (2 February 2022)
+    - Client tools and utilities:
+	pmlogconf: switch to the bulk pmLookupDescs(3) interface
+	pmlogconf: fix reprobing with interactive changes
+    - Server-side utilities and log management scripts:
+	pmlogger: prioritize user configuration over pcp-zeroconf
+	pmlogger, pmie farms: stabilization and back-compat fixups
+	pmproxy: fix race on teardown of pcp protocol proxy clients
+	pmproxy: when secure.enabled is false, do not attempt to init libssl
+	pmproxy: correctly fallback to [pmseries] redis settings
+    - PMDA additions, enhancements and bug fixes:
+	pmdabcc: sync bcc PMDA modules with upstream bcc tools
+	pmdaelasticsearch: add elasticsearch `indices` metrics
+	pmdaelasticsearch: add missing metrics for existing groups
+	pmdaelasticsearch: add updated nodes.jvm.* metrics
+	pmdaelasticsearch: use _nodes API to determine master node
+	pmdaelasticsearch: correct when _cluster/state API is invoked
+	pmdaelasticsearch: fix origins.unmatched and origins.unrecog metrics
+	pmdanvidia: fix mishandling of zero-byte size passed to realloc
+	pmdarsyslog: add a pmlogconf file for rsyslog metrics
+	pmdarsyslog: fix to work with more modern rsyslog versions
+	pmdarsyslog: add support for rsyslog resource statistic
+	pmdarsyslog: add support for rsyslog action metrics
+	pmdarsyslog: add omfw, imudp, and imptcp metrics
+    - libpcp, libpcp_pmda, libpcp_web and language bindings:
+	libpcp_pmda: add indom cache fast-paths for inst lookup
+	libpcp_web: stop Redis init tasks if Redis version is unsupported
+	libpcp_web: honour config settings that disable redis completely
+
 pcp-5.3.5 (10 November 2021)
     - Client tools and utilities:
 	pmlogger: massive startup latency improvements over slow links
