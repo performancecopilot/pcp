@@ -24,10 +24,12 @@ require {
 	type kernel_t;
 	type kmsg_device_t;
 	type ldconfig_exec_t;
+	type mdadm_conf_t;
 	type mdadm_exec_t;
 	type modules_object_t; # pcp.lio, pcp.bcc
 	type named_exec_t;
 	type ndc_exec_t;
+	type ntop_port_t;
 	type openvswitch_exec_t; # pmda.openvswitch
 	type pcp_log_t;
 	type pcp_pmcd_t;
@@ -50,17 +52,19 @@ require {
 	type sysctl_irq_t; #pmda.bcc
 	type sysctl_net_t;
 	type sysfs_t; #RHBZ1545245
+	type syslogd_t;
+	type syslogd_var_run_t;
 	type system_cronjob_t;
 	type tmp_t;
 	type unconfined_t; #RHBZ1443632
 	type user_home_t;
 	type user_tmp_t;
 	type var_run_t;
+	type virt_image_t;
 	type websm_port_t; # pmda.openmetrics
 	type xserver_misc_device_t;
 	@PCP_CONTAINER_VAR_RUN_T@
 	@PCP_DMA_DEVICE@
-	@PCP_GLUSTERD_LOG_T@
 	@PCP_KMOD_EXEC_T@
 	@PCP_NSFS_T@
 	@PCP_NUMAD_CONTEXT@
@@ -78,7 +82,7 @@ require {
 	class chr_file { open read write };
 	class dbus { send_msg };
 	class dir { add_name open read search write getattr lock ioctl };
-	class fifo_file { getattr read open unlink lock ioctl }; # qa/455
+	class fifo_file { getattr read open unlink lock ioctl write }; # qa/455
 	class file { append create execute execute_no_trans getattr setattr ioctl lock open read write unlink @PCP_HOSTNAME_EXEC_MAP@ };
 	class filesystem { mount quotaget };
 	class lnk_file { create read getattr setattr };
@@ -238,6 +242,8 @@ allow pcp_pmcd_t modules_object_t:lnk_file read;
 #type=AVC msg=audit(XXX.26): avc:  denied  { execute execute_no_trans open read } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:mdadm_exec_t:s0 tclass=file permissive=0
 allow pcp_pmcd_t mdadm_exec_t:file { execute execute_no_trans open read };
 
+allow pcp_pmcd_t mdadm_conf_t:file { getattr open read };
+
 #type=AVC msg=audit(XXX.71): avc:  denied  { execute } for  pid=YYYY comm="pmdaX" name="unbound-control" dev="vda1" ino=7050199 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:named_exec_t:s0 tclass=file permissive=0
 allow pcp_pmcd_t named_exec_t:file execute;
 allow pcp_pmcd_t ndc_exec_t:file { execute execute_no_trans };
@@ -300,6 +306,19 @@ allow pcp_pmcd_t postgresql_var_run_t:sock_file { write };
 
 # type=AVC msg=audit(YYY.104): avc:  denied  { sys_ptrace } for  pid=9375 comm="pmdaproc" capability=19  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=cap_userns permissive=1
 @PCP_CAPUSERNS_PTRACE_RULE_PMCD@
+
+allow pcp_pmcd_t ntop_port_t:tcp_socket name_connect;
+
+allow pcp_pmcd_t pcp_log_t:fifo_file { getattr open read };
+
+allow pcp_pmcd_t virt_image_t:dir search;
+
+allow pcp_pmcd_t syslogd_var_run_t:dir read;
+
+allow pcp_pmcd_t syslogd_var_run_t:file { getattr open read };
+
+#!!!! This avc can be allowed using the boolean 'domain_can_mmap_files'
+allow pcp_pmcd_t syslogd_var_run_t:file map;
 
 #============= pcp_pmlogger_t ==============
 #type=AVC msg=audit(XXX.44): avc:  denied  { open write } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:kmsg_device_t:s0 tclass=chr_file permissive=0
@@ -383,6 +402,9 @@ allow pcp_pmproxy_t sysctl_net_t:file { getattr open read };
 #type=AVC msg=audit(YYY.72): avc:  denied  { read } for  pid=28833 comm="pmproxy" name="unix" dev="proc" ino=4026532015 scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:proc_net_t:s0 tclass=file
 #RHBZ1517656
 allow pcp_pmproxy_t proc_net_t:file read;
+
+#type=AVC msg=audit(YYY.73): avc:  denied  { read } for  pid=35314 comm="pmproxy" name="pmlogger" dev="dm-92" ino=134 scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:pcp_log_t:s0 tclass=lnk_file
+allow pcp_pmproxy_t pcp_log_t:lnk_file read;
 
 #============= pmda-smart ==============
 
@@ -485,3 +507,6 @@ allow pcp_pmcd_t drbd_exec_t:file { execute execute_no_trans };
 # type=AVC msg=audit(XXX.88): avc:  denied  { getattr } for  pid=YYYY comm="ss" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_tcpdiag_socket permissive=1
 # type=AVC msg=audit(XXX.89): avc:  denied  { nlmsg_read } for  pid=YYYY comm="ss" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_tcpdiag_socket permissive=1
 @PCP_NETLINK_TCPDIAG_SOCKET_RULE@
+
+#============= syslogd_t ==============
+allow syslogd_t pcp_log_t:fifo_file { open read write };
