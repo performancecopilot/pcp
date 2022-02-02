@@ -47,6 +47,7 @@ static int	iflag;
 static int	lflag;
 static int	mflag;
 static int	oflag;
+static int	tflag;
 static int	wflag;
 static int	xflag;
 static int	nrec;
@@ -68,6 +69,7 @@ usage(void)
     fprintf(stderr, " -l               report label records\n");
     fprintf(stderr, " -m               report metric records [default]\n");
     fprintf(stderr, " -o               report byte offset to start of record\n");
+    fprintf(stderr, " -t               report metadata record types\n");
     fprintf(stderr, " -w               only warn about badness\n");
     fprintf(stderr, " -W               only warn verbosely about badness\n");
     fprintf(stderr, " -x               dump record in hex\n");
@@ -235,6 +237,8 @@ do_indom(__int32_t *buf, int type)
     if (iflag || (warn && wflag > 0)) {
 	/* if warn is set, ep must have been assigned a value */
 	printf("[%d] ", nrec);
+	if (tflag)
+	    printf("<%s> ", typename[type]);
 	if (oflag)
 	    printf("+%ld ", (long)offset);
 	printf("@ ");
@@ -319,6 +323,8 @@ do_desc(__int32_t *buf)
     dp->units = __ntohpmUnits(dp->units);
     dp->pmid = __ntohpmID(dp->pmid);
     printf("[%d] ", nrec);
+    if (tflag)
+	printf("<%s> ", typename[TYPE_DESC]);
     if (oflag)
 	printf("+%ld ", (long)offset);
     printf("metric %s (",  pmIDStr(dp->pmid));
@@ -364,6 +370,8 @@ do_help(__int32_t *buf)
     char	*p;
 
     printf("[%d] ", nrec);
+    if (tflag)
+	printf("<%s> ", typename[TYPE_TEXT]);
     if (oflag)
 	printf("+%ld ", (long)offset);
     type = ntohl(buf[0]);
@@ -392,7 +400,7 @@ do_help(__int32_t *buf)
 }
 
 void
-do_label(__int32_t *buf, int type)
+do_metric_label(__int32_t *buf, int type)
 {
     __pmTimestamp	stamp;
     int			i;
@@ -409,7 +417,10 @@ do_label(__int32_t *buf, int type)
 	{ PM_LABEL_INSTANCES,	"instances" },
 	{ -1,			NULL }
     };
-    printf("[%d] metric label @ ", nrec);
+    printf("[%d] ", nrec);
+    if (tflag)
+	printf("<%s> ", typename[type]);
+    printf("metric label @ ");
     if (type == TYPE_LABEL) {
 	__pmLoadTimestamp(&buf[0], &stamp);
 	k = 3; 
@@ -432,9 +443,12 @@ do_label(__int32_t *buf, int type)
 }
 
 void
-do_archive_label(void)
+do_archive_label(int archversion)
 {
-    printf("[%d] archive label @ ", nrec);
+    printf("[%d] ", nrec);
+    if (tflag)
+	printf("<V%d> ", archversion);
+    printf("archive label @ ");
     __pmPrintTimestamp(stdout, &label.start);
     putchar('\n');
 }
@@ -460,7 +474,7 @@ main(int argc, char *argv[])
     setlinebuf(stdout);
     setlinebuf(stderr);
 
-    while ((c = getopt(argc, argv, "aD:hilmowWxzZ:")) != EOF) {
+    while ((c = getopt(argc, argv, "aD:hilmotwWxzZ:")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* report all */
@@ -494,6 +508,10 @@ main(int argc, char *argv[])
 
 	case 'o':	/* report byte offsets */
 	    oflag = 1;
+	    break;
+
+	case 't':	/* report metadata record types */
+	    tflag = 1;
 	    break;
 
 	case 'w':	/* report warnings */
@@ -659,7 +677,7 @@ main(int argc, char *argv[])
 	switch (hdr.type) {
 	    case PM_LOG_MAGIC|PM_LOG_VERS03:
 	    case PM_LOG_MAGIC|PM_LOG_VERS02:
-		do_archive_label();
+		do_archive_label(hdr.type & 0xf);
 		break;
 
 	    case TYPE_INDOM:
@@ -674,7 +692,7 @@ main(int argc, char *argv[])
 	    case TYPE_LABEL_V2:
 		if (!lflag)
 		    break;
-		do_label(buf, hdr.type);
+		do_metric_label(buf, hdr.type);
 		break;
 
 	    case TYPE_DESC:
