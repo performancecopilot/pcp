@@ -89,10 +89,6 @@ PCP_CONTAINER_VAR_RUN_T="type container_var_run_t; \# pmda.podman"
 PCP_CONTAINER_VAR_RUN_RULE="allow pcp_pmcd_t container_var_run_t:sock_file { getattr write };"
 endif
 
-ifeq "$(PCP_SELINUX_GLUSTERD_LOG)" "true"
-PCP_GLUSTERD_LOG_RULE="optional_policy(\`glusterd_manage_log(pcp_pmcd_t)')"
-endif
-
 ifeq "$(PCP_SELINUX_RPCBIND_VAR_RUN)" "true"
 PCP_RPCBIND_VAR_RUN_T="type rpcbind_var_run_t; \# pmda.shping"
 PCP_RPCBIND_VAR_RUN_RULE="allow pcp_pmcd_t rpcbind_var_run_t:sock_file write;"
