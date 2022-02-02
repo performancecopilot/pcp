@@ -249,9 +249,6 @@ allow pcp_pmcd_t proc_mdstat_t:file { getattr open read };
 #type=AVC msg=audit(YYY.36): avc:  denied  { unix_read } for  pid=1423 comm="pmdalinux" key=-559038737  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:numad_t:s0 tclass=msgq permissive=0
 @PCP_NUMAD_RULE@
 
-#type=AVC msg=audit(XXX.28): avc:  denied  { open read write } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:glusterd_log_t:s0 tclass=file permissive=0
-@PCP_GLUSTERD_LOG_RULE@
-
 #pmda.bcc
 #type=AVC msg=audit(XXX.34): avc:  denied  { execmem setrlimit ptrace } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_pmcd_t:s0 tclass=process permissive=0
 allow pcp_pmcd_t self:process { execmem setrlimit ptrace };
