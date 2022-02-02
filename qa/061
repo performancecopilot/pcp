@@ -121,7 +121,7 @@ End-of-File
 		src/logcontrol -p $logger_pid enquire sample.colour
 		# give pmlogger a chance to run the request before killing it
 		#
-		pmsleep 0.1sec
+		pmsleep 0.5sec
 		$sudo $signal -s TERM $logger_pid
 		_wait_pmlogger_end $logger_pid
 		cat $tmp.out >>$seq.full
