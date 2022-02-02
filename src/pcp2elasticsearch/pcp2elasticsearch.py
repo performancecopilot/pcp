@@ -410,7 +410,7 @@ class pcp2elasticsearch(object):
                                 {'properties':{'@timestamp':{'type':'epoch_milli'},
                                                '@host-id':{'type':'string'}}}}}
             headers = {'content-type': 'application/json'} # Do we need this?
-            url = self.es_server+'/'+self.es_index
+            url = self.es_server + '/' + self.es_index
             requests.put(url, data=json.dumps(body), headers=headers)
             if self.es_failed:
                 sys.stderr.write("Reconnected to Elasticsearch server %s.\n" % (self.es_server))
