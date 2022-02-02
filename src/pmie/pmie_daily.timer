@@ -2,6 +2,7 @@
 Description=Daily processing of PMIE logs
 
 [Timer]
+Persistent=true
 OnCalendar=*-*-* 00:08:00
 
 [Install]

@@ -45,6 +45,7 @@ nconfig=$tmp.pmcd.conf.new
 log=$PCP_PMCDLOG_PATH
 LOCALHOST=`hostname`
 LOCALHOST_FULL=`pmhostname`
+LOGGING_DIR="$PCP_ARCHIVE_DIR"
 _needclean=true
 
 rm -f $seq.full
@@ -103,13 +104,6 @@ skip > 0				{ skip--; next }
     #
 
 }
-
-if [ -d $PCP_LOG_DIR/pmlogger ]
-then
-    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
-else
-    LOGGING_DIR=$PCP_LOG_DIR
-fi
 
 cleanup()
 {

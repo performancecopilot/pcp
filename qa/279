@@ -17,6 +17,7 @@ echo "QA output created by $seq"
 status=1	# failure is the default!
 killer=`pwd`/src/killparent
 LOCALHOST=`hostname`
+LOGGING_DIR="$PCP_ARCHIVE_DIR"
 _needclean=true
 
 rm -f $seq.full
@@ -75,13 +76,6 @@ _filter_pmcd()
 	-e '/^$PCP_RC_DIR\/pmcd: pmcd not running/d' \
     # end
 }
-
-if [ -d $PCP_LOG_DIR/pmlogger ]
-then
-    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
-else
-    LOGGING_DIR=$PCP_LOG_DIR
-fi
 
 _save_config $PCP_PMCDCONF_PATH
 _disable_loggers

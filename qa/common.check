@@ -262,7 +262,7 @@ _service()
 			# good reason for this)
 			# ditto for pmlogger_daily and pmlogger_daily-poll
 			#
-			for svc in pmlogger_check pmlogger_daily pmlogger_daily-poll
+			for svc in pmlogger_check pmlogger_daily pmlogger_farm_check pmlogger_daily-poll
 			do
 			    if systemctl show --property=ActiveState $svc.timer 2>&1 \
 			      | grep '=active$' >/dev/null
@@ -1940,9 +1940,11 @@ _remove_job_scheduler()
     $rc_sudo rm -f $rc_cron_backup $rc_systemd_state
 
     if systemctl cat pmie_daily.timer >/dev/null 2>&1; then
-	for i in pmie.service pmie_daily.timer pmie_check.timer pmlogger_daily.timer \
+	for i in pmie.service pmie_daily.timer \
+		pmie_check.timer pmie_farm_check.timer \
 		pmlogger_daily_report.timer pmlogger_daily_report-poll.timer \
-		pmlogger_daily-poll.timer pmlogger_check.timer ; do
+		pmlogger_daily-poll.timer pmlogger_daily.timer \
+		pmlogger_check.timer pmlogger_farm_check.timer ; do
 	    $rc_sudo systemctl is-active "$i" > /dev/null || continue
 	    $rc_sudo systemctl stop $i >/dev/null
 	    echo "$i" >> $rc_systemd_state

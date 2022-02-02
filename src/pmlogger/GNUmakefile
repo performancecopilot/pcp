@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2021 Red Hat.
+# Copyright (c) 2013-2022 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -99,7 +99,6 @@ pmlogger.service : pmlogger.service.in
 
 pmlogger_farm.service : pmlogger_farm.service.in
 	$(SED) <$< >$@ \
-	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
 	    -e 's;@PCP_SYSCONFIG_DIR@;'$(PCP_SYSCONFIG_DIR)';' \
 	    -e 's;@PCP_BINADM_DIR@;'$(PCP_BINADM_DIR)';' \
 	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
@@ -110,7 +109,10 @@ pmlogger_farm.service : pmlogger_farm.service.in
 
 pmlogger_farm_check.service : pmlogger_farm_check.service.in
 	$(SED) <$< >$@ \
+	    -e 's;@CRONTAB_PATH@;'$(CRONTAB_PATH)';' \
 	    -e 's;@PCP_BIN_DIR@;'$(PCP_BIN_DIR)';' \
+	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';' \
+	    -e 's;@SD_SERVICE_TYPE@;'$(SD_SERVICE_TYPE)';' \
 	# END
 
 pmlogger_daily.service : pmlogger_daily.service.in
