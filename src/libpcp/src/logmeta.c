@@ -1060,8 +1060,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":16", PM_FAULT_ALLOC);
 	    if (sts < 0)
 		goto end;
 	}
-	else
-	    __pmFseek(f, (long)rlen, SEEK_CUR);
+	else {
+	    if (pmDebugOptions.logmeta) {
+		fprintf(stderr, "%s: bad metadata record type (%d) @ offset=%d\n",
+				"__pmLogLoadMeta", h.type, (int)(__pmFtell(f) - sizeof(check)));
+
+	    }
+	    return PM_ERR_RECTYPE;
+	}
 	n = (int)__pmFread(&check, 1, sizeof(check), f);
 	check = ntohl(check);
 	if (n != sizeof(check) || h.len != check) {
