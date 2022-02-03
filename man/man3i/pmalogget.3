@@ -65,7 +65,7 @@ when it is no longer needed.
 The record header length and trailer length is checked, but otherwise
 .I rbuf
 is not processed, and in particular the record remains in network byte-order.
-.SH DIAGNOSTICS
+.SH DIAGNOSTICS AND RETURN VALUES
 The return value is 0 if all is well, else PM_ERR_EOL for end of file,
 else some other error code less than zero.
 .SH SEE ALSO

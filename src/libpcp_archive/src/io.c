@@ -14,9 +14,10 @@
  * for more details.
  */
 
-#include "pmapi.h"
-#include "libpcp.h"
-#include "archive.h"
+#include "pcp/pmapi.h"
+#include "pcp/libpcp.h"
+#include "pcp/archive.h"
+#include "../libpcp/src/internal.h"
 #include <assert.h>
 
 /*
@@ -189,4 +190,112 @@ pmaLogPut(__pmFILE *f, __int32_t *rbuf)
 	return -oserror();
     }
     return 0;
+}
+
+/*
+ * rbuf is a physical data record from an archive
+ *
+ * pmaRewriteData() is used to rewrite (reformat) rbuf from version
+ * invers format into the equivalent data record for a version
+ * outvers archive.
+ */
+int
+pmaRewriteData(__pmLogCtl *lcp, int outvers, __int32_t **rbuf)
+{
+    int		invers = __pmLogVersion(lcp);
+
+    if (invers == PM_LOG_VERS02) {
+	if (outvers == invers)
+	    return 0;	/* no-op */
+	if (outvers != PM_LOG_VERS03)
+	    return PM_ERR_APPVERSION;	/* only V2 -> V3 makes sense */
+    }
+    else if (invers == PM_LOG_VERS03) {
+	if (outvers == invers)
+	    return 0;	/* no-op */
+	return PM_ERR_APPVERSION;	/* only V3 -> V3 makes sense */
+    }
+
+    return PM_ERR_NYI;
+}
+
+/*
+ * rbuf is a physical metadata record from an archive
+ *
+ * pmaRewriteMeta() is used to rewrite (reformat) rbuf from version
+ * invers format into the equivalent metadata record for a version
+ * outvers archive.
+ */
+int
+pmaRewriteMeta(__pmLogCtl *lcp, int outvers, __int32_t **rbuf)
+{
+    int			invers = __pmLogVersion(lcp);
+    int			rlen;
+    int			type;
+    int			sts;
+    int			allinbuf;
+    pmInDom		indom;
+    __pmLogInDom_io	lid;
+    __int32_t		*ibuf = *rbuf;
+    __int32_t		*tmp;
+    __int32_t		*new;
+
+    if (invers == PM_LOG_VERS02) {
+	if (outvers == invers)
+	    return 0;	/* no-op */
+	if (outvers != PM_LOG_VERS03)
+	    return PM_ERR_APPVERSION;	/* only V2 -> V3 makes sense */
+    }
+    else if (invers == PM_LOG_VERS03) {
+	if (outvers == invers)
+	    return 0;	/* no-op */
+	return PM_ERR_APPVERSION;	/* only V3 -> V3 makes sense */
+    }
+
+    /*
+     * only have to worry about V2 -> v3 translation from here on
+     */
+    rlen = ntohl(ibuf[0]);
+    type = ntohl(ibuf[1]);
+
+    sts = 0;
+    switch (type) {
+	case TYPE_DESC:
+	case TYPE_TEXT:
+	    /* nothing to be done */
+	    break;
+
+	case TYPE_INDOM_V2:
+	    /* committed to rewrite, don't worry about trashing rbuf */
+	    indom = __ntohpmInDom(ibuf[5]);
+	    tmp = &ibuf[2];
+	    if ((allinbuf = __pmLogLoadInDom(NULL, rlen, type, &lid, &tmp)) < 0) {
+		fprintf(stderr, "pmaRewriteMeta: Botch: __pmLogLoadInDom for indom %s: %s\n",
+		    pmInDomStr(indom), pmErrStr(allinbuf));
+		exit(1);
+	    }
+
+	    sts = __pmLogEncodeInDom(NULL, TYPE_INDOM, &lid, &new);
+	    if (sts < 0) {
+		fprintf(stderr, "pmaRewriteMeta: Botch: __pmLogEncodeInDom for indom %s: %s\n",
+		    pmInDomStr(indom), pmErrStr(sts));
+		exit(1);
+	    }
+	    if (!allinbuf)
+		free(lid.namelist);
+	    free(*rbuf);
+	    *rbuf = new;
+	    sts = 1;
+	    break;
+
+	case TYPE_LABEL_V2:
+	    // TODO
+	    sts = PM_ERR_NYI;
+	    break
+
+	default:
+	    sts = PM_ERR_RECTYPE;
+    }
+
+    return sts;
 }

@@ -2,6 +2,8 @@ PCP_ARCHIVE_1.0 {
   global:
 	pmaLogGet;
 	pmaLogPut;
+	pmaRewriteData;
+	pmaRewriteMeta;
 	pmaSortInDom;
 	pmaSameInDom;
 	pmaDeltaInDom;

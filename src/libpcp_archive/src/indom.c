@@ -14,10 +14,10 @@
  * for more details.
  */
 
-#include "pmapi.h"
-#include "libpcp.h"
+#include "pcp/pmapi.h"
+#include "pcp/libpcp.h"
 #include "../libpcp/src/internal.h"
-#include "archive.h"
+#include "pcp/archive.h"
 
 /*
  * Sort an indom into ascending external instance identifier order.
