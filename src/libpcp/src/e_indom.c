@@ -69,23 +69,25 @@ __pmLogEncodeInDom(__pmLogCtl *lcp, int type, const __pmLogInDom_io * const lidp
     __int32_t		*out;
     char		strbuf[20];
 
-    /*
-     * for V3 expect TYPE_INDOM or TYPE_INDOM_DELTA
-     * for V2 expect TYPE_INDOM_V2
-     */
-    if (__pmLogVersion(lcp) != PM_LOG_VERS03 && __pmLogVersion(lcp) != PM_LOG_VERS02) {
-	pmprintf("__pmLogEncodeInDom(...,indom=%s,type=%d,...): Botch: bad archive version %d\n",
-	    pmInDomStr_r(lidp->indom, strbuf, sizeof(strbuf)), type, __pmLogVersion(lcp));
-	pmflush();
-	return PM_ERR_GENERIC;
-    }
-    if ((__pmLogVersion(lcp) == PM_LOG_VERS03 &&
-	 type != TYPE_INDOM && type != TYPE_INDOM_DELTA) ||
-	(__pmLogVersion(lcp) == PM_LOG_VERS02 && type != TYPE_INDOM_V2)) {
-	pmprintf("__pmLogEncodeInDom(...,indom=%s,type=%d,...): Botch: bad type for archive version %d\n",
-	    pmInDomStr_r(lidp->indom, strbuf, sizeof(strbuf)), type, __pmLogVersion(lcp));
-	pmflush();
-	return PM_ERR_GENERIC;
+    if (lcp != NULL) {
+	/*
+	 * for V3 expect TYPE_INDOM or TYPE_INDOM_DELTA
+	 * for V2 expect TYPE_INDOM_V2
+	 */
+	if (__pmLogVersion(lcp) != PM_LOG_VERS03 && __pmLogVersion(lcp) != PM_LOG_VERS02) {
+	    pmprintf("__pmLogEncodeInDom(...,indom=%s,type=%d,...): Botch: bad archive version %d\n",
+		pmInDomStr_r(lidp->indom, strbuf, sizeof(strbuf)), type, __pmLogVersion(lcp));
+	    pmflush();
+	    return PM_ERR_GENERIC;
+	}
+	if ((__pmLogVersion(lcp) == PM_LOG_VERS03 &&
+	     type != TYPE_INDOM && type != TYPE_INDOM_DELTA) ||
+	    (__pmLogVersion(lcp) == PM_LOG_VERS02 && type != TYPE_INDOM_V2)) {
+	    pmprintf("__pmLogEncodeInDom(...,indom=%s,type=%d,...): Botch: bad type for archive version %d\n",
+		pmInDomStr_r(lidp->indom, strbuf, sizeof(strbuf)), type, __pmLogVersion(lcp));
+	    pmflush();
+	    return PM_ERR_GENERIC;
+	}
     }
 
     /*
@@ -96,9 +98,9 @@ __pmLogEncodeInDom(__pmLogCtl *lcp, int type, const __pmLogInDom_io * const lidp
      *     + 64 bits for sec
      */
     len = 5 * sizeof(__int32_t);
-    if (__pmLogVersion(lcp) == PM_LOG_VERS03)
+    if (type == TYPE_INDOM || type == TYPE_INDOM_DELTA)
 	len += sizeof(__int64_t);
-    else if (__pmLogVersion(lcp) == PM_LOG_VERS02)
+    else if (type == TYPE_INDOM_V2)
 	len += sizeof(__int32_t);
     else
 	return PM_ERR_LABEL;
@@ -111,7 +113,8 @@ __pmLogEncodeInDom(__pmLogCtl *lcp, int type, const __pmLogInDom_io * const lidp
     }
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
-    if (__pmLogVersion(lcp) == PM_LOG_VERS03) {
+    if (type == TYPE_INDOM || type == TYPE_INDOM_DELTA) {
+	/* Version 3 */
 	__pmInDom_v3	*v3;
 	if ((v3 = (__pmInDom_v3 *)malloc(len)) == NULL)
 	    return -oserror();
@@ -126,7 +129,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
 	lenp = &v3->len;
     }
     else {
-	/* __pmLogVersion(lcp) == PM_LOG_VERS02 */
+	/* Version 2 */
 	__pmInDom_v2	*v2;
 	if ((v2 = (__pmInDom_v2 *)malloc(len)) == NULL)
 	    return -oserror();
