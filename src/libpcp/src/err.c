@@ -51,13 +51,18 @@ __pmIsErrLock(void *lock)
  *     related errors together.
  *
  *     All of the errors in pmapi.h and here are also defined for
- *     Perl applications in src/perl/PMDA/PMDA.pm and for Python
- *     applications in src/python/pmapi.c.  To ease maintenance
- *     effort we aim to keep the _order_ of the error codes the same
- *     here and in the Perl and Python definitions.
+ *     Perl applications in src/perl/PMDA/PMDA.pm (in 2 places) and
+ *     for Python applications in src/python/pmapi.c.
+ *
+ *     To ease maintenance effort we aim to keep the _order_ of the
+ *     error codes the same here and in the Perl and Python
+ *     definitions.
  *
  *     And finally if you modify this table at all, be sure to check
- *     for remakes in the QA suite, e.g. 006
+ *     for remakes in the QA suite
+ *         $ cd ../../pmerr; make; sudo make install
+ *         $ cd ../../qa; ./check -g pmerr
+ *     Expect (at least) that QA 006.out will need to be remade.
  * 
  */
 static const struct {
@@ -189,6 +194,8 @@ static const struct {
 	"No support for metric label metadata" },
     { PM_ERR_PMDAFENCED,	"PM_ERR_PMDAFENCED",
 	"PMDA is currently fenced and unable to respond to requests" },
+    { PM_ERR_RECTYPE,		"PM_ERR_RECTYPE",
+	"Incorrect record type in an archive" },
     /* insert new libpcp error codes here */
     { PM_ERR_NYI,		"PM_ERR_NYI",
 	"Functionality not yet implemented" },

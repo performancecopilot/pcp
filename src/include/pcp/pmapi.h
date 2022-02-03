@@ -221,6 +221,7 @@ typedef struct pmDesc {
 #define PM_ERR_BADDERIVE	(-PM_ERR_BASE-64)   /* Derived metric definition failed */
 #define PM_ERR_NOLABELS		(-PM_ERR_BASE-65)   /* No support for label metadata */
 #define PM_ERR_PMDAFENCED	(-PM_ERR_BASE-66)   /* PMDA is currently fenced and unable to respond to requests */
+#define PM_ERR_RECTYPE		(-PM_ERR_BASE-67)   /* Incorrect record type in an archive */
 
 /* retired PM_ERR_CTXBUSY (-PM_ERR_BASE-97) Context is busy */
 #define PM_ERR_BOTCH		(-PM_ERR_BASE-97)   /* Internal inconsistency detected or assertion failed */

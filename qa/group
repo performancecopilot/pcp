@@ -109,6 +109,8 @@ pmrep
 pmpost
 # pmdate
 pmdate
+# pmerr
+pmerr
 # pcp and sub-commands
 pcp
 # pmclient demo apps
@@ -452,7 +454,7 @@ x11
 003 pdu pmcd mem_leak local ostest kernel pmda.sample
 004 context local ostest sanity
 005 context archive local ostest sanity
-006 libpcp local ostest
+006 libpcp local ostest pmerr
 007 fetch local ostest sanity
 008 pmda kernel ostest local not_in_ci
 009:retired kernel local ostest
@@ -1056,7 +1058,7 @@ x11
 607 libpcp local
 608 pmpost local
 609 pmdumplog local
-610 libpcp local
+610 libpcp local pmerr
 611 pmlogger pmdumplog local
 612 other local archive archive_v3
 613 pmdumplog local kernel
@@ -1082,7 +1084,7 @@ x11
 633 pmlogger local
 634 kernel local pmval timezone kernel
 635 pmda.linux kernel remote
-636 libpcp local
+636 libpcp local pmerr
 637 other pmlogmv pmlogrewrite pmdumplog local
 638 pmns local
 639 pmns local
