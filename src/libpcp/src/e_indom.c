@@ -103,7 +103,7 @@ __pmLogEncodeInDom(__pmLogCtl *lcp, int type, const __pmLogInDom_io * const lidp
     else if (type == TYPE_INDOM_V2)
 	len += sizeof(__int32_t);
     else
-	return PM_ERR_LABEL;
+	return PM_ERR_RECTYPE;
 
     len += (lidp->numinst > 0 ? lidp->numinst : 0) * (sizeof(lidp->instlist[0]) + sizeof(stridx[0]))
 	    + sizeof(__int32_t);
