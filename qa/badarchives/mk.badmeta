@@ -5,7 +5,7 @@
 # Each one is based on a version of ../archives/ok-foo, with binary
 # editing using bvi (or similar) and cut-n-paste with dd.
 #
-# This is the good .meta file
+# This is the good V2 .meta file
 #
 # Byte offsets into ok-foo.meta
 # 0	start label record
@@ -126,6 +126,22 @@ in
     	# 0x4C => 76
 	cp $src.meta badmeta-$X.meta
 	echo '569s\\....\\0000004C\\' >>$tmp.ex
+	;;
+
+    6)	# V3 metadata records in a V2 archive
+	cp ../tmparch/sample-proc_v2.index badmeta-$X.index
+	cp ../tmparch/sample-proc_v2.0 badmeta-$X.0
+	cp ../tmparch/sample-proc_v2.meta badmeta-$X.meta
+        # skip=808 gets us past the V3 label record
+	dd if=../tmparch/sample-proc_v3.meta ibs=1 skip=808 >>badmeta-$X.meta
+	;;
+
+    7)	# V2 metadata records in a V3 archive
+	cp ../tmparch/sample-proc_v3.index badmeta-$X.index
+	cp ../tmparch/sample-proc_v3.0 badmeta-$X.0
+	cp ../tmparch/sample-proc_v3.meta badmeta-$X.meta
+        # skip=132 gets us past the V2 label record
+	dd if=../tmparch/sample-proc_v2.meta ibs=1 skip=132 >>badmeta-$X.meta
 	;;
 
     *)
