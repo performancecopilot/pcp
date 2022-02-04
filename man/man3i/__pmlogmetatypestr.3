@@ -15,17 +15,17 @@
 .\"
 .TH PMLOGMETATYPESTR 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmLogMetaTypeStr\f1,
-\f3pmLogMetaTypeStr_r\f1 \- convert an archive metadata record type into a string
+\f3__pmLogMetaTypeStr\f1,
+\f3__pmLogMetaTypeStr_r\f1 \- convert an archive metadata record type into a string
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .br
 #include <pcp/libpcp.h>
 .sp
-const char *pmLogMetaTypeStr(int \fItype\fP);
+const char *__pmLogMetaTypeStr(int \fItype\fP);
 .br
-char *pmTLogMetaypeStr_r(int \fItype\fP, char *\fIbuf\fP, int \fIbuflen\fP);
+char *__pmTLogMetaypeStr_r(int \fItype\fP, char *\fIbuf\fP, int \fIbuflen\fP);
 .sp
 cc ... \-lpcp
 .ft 1

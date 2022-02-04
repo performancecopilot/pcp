@@ -152,6 +152,8 @@ usr/share/man/man3/pmLoadDerivedConfig.3.gz
 usr/share/man/man3/pmLoadNameSpace.3.gz
 usr/share/man/man3/__pmLocalPMDA.3.gz
 usr/share/man/man3/pmLocaltime.3.gz
+usr/share/man/man3/__pmLogMetaTypeStr.3.gz
+usr/share/man/man3/__pmLogMetaTypeStr_r.3.gz
 usr/share/man/man3/pmLookupDesc.3.gz
 usr/share/man/man3/pmLookupDescs.3.gz
 usr/share/man/man3/pmLookupInDom.3.gz
