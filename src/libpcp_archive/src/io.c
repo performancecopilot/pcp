@@ -291,7 +291,7 @@ pmaRewriteMeta(__pmLogCtl *lcp, int outvers, __int32_t **rbuf)
 	case TYPE_LABEL_V2:
 	    // TODO
 	    sts = PM_ERR_NYI;
-	    break
+	    break;
 
 	default:
 	    sts = PM_ERR_RECTYPE;

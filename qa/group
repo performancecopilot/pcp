@@ -1829,6 +1829,8 @@ x11
 1378 pmlogextract pmdumplog archive_v3 local
 1379 pmproxy local
 1380 pmlogextract pmdumplog archive_v3 local valgrind
+1381 pmlogcheck local
+1382 pmlogcheck local valgrind
 1383 pmlogrewrite labels pmdumplog local
 1385 pmda.openmetrics local python
 1388 pmproxy local secure

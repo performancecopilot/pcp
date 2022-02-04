@@ -77,10 +77,6 @@ usage(void)
     fprintf(stderr, " -Z timezone      set reporting timezone\n");
 }
 
-static char	*typename[] = {
-    "0?", "DESC", "INDOM_V2", "LABEL_V2", "TEXT", "INDOM", "INDOM_DELTA", "LABEL", "8?"
-};
-
 /*
  * linked list of indoms at the same time
  */
@@ -167,7 +163,7 @@ do_indom(__int32_t *buf, int type)
 
     if (pmDebugOptions.appl0) {
 	int	i;
-	fprintf(stderr, "indom type=%s (%d) numinst=%d\n", typename[type], type, lid.numinst);
+	fprintf(stderr, "indom type=%s (%d) numinst=%d\n", __pmLogMetaTypeStr(type), type, lid.numinst);
 	for (i = 0; i < lid.numinst; i++) {
 	    if (lid.namelist[i] != NULL)
 		fprintf(stderr, "(%d) inst=%d name=\"%s\"\n", i, lid.instlist[i], lid.namelist[i]);
@@ -238,7 +234,7 @@ do_indom(__int32_t *buf, int type)
 	/* if warn is set, ep must have been assigned a value */
 	printf("[%d] ", nrec);
 	if (tflag)
-	    printf("<%s> ", typename[type]);
+	    printf("<%s> ", __pmLogMetaTypeStr(type));
 	if (oflag)
 	    printf("+%ld ", (long)offset);
 	printf("@ ");
@@ -324,7 +320,7 @@ do_desc(__int32_t *buf)
     dp->pmid = __ntohpmID(dp->pmid);
     printf("[%d] ", nrec);
     if (tflag)
-	printf("<%s> ", typename[TYPE_DESC]);
+	printf("<%s> ", __pmLogMetaTypeStr(TYPE_DESC));
     if (oflag)
 	printf("+%ld ", (long)offset);
     printf("metric %s (",  pmIDStr(dp->pmid));
@@ -371,7 +367,7 @@ do_help(__int32_t *buf)
 
     printf("[%d] ", nrec);
     if (tflag)
-	printf("<%s> ", typename[TYPE_TEXT]);
+	printf("<%s> ", __pmLogMetaTypeStr(TYPE_TEXT));
     if (oflag)
 	printf("+%ld ", (long)offset);
     type = ntohl(buf[0]);
@@ -419,7 +415,7 @@ do_metric_label(__int32_t *buf, int type)
     };
     printf("[%d] ", nrec);
     if (tflag)
-	printf("<%s> ", typename[type]);
+	printf("<%s> ", __pmLogMetaTypeStr(type));
     printf("metric label @ ");
     if (type == TYPE_LABEL) {
 	__pmLoadTimestamp(&buf[0], &stamp);
@@ -635,7 +631,7 @@ main(int argc, char *argv[])
 	    if (nrec == 0)
 		fprintf(stderr, "read: len=%d magic=0x%x (version=%d) @ offset=%lld\n", hdr.len, hdr.type, version, (long long)offset);
 	    else
-		fprintf(stderr, "read: len=%d type=%s (%d) @ offset=%lld\n", hdr.len, typename[hdr.type], hdr.type, (long long)offset);
+		fprintf(stderr, "read: len=%d type=%s (%d) @ offset=%lld\n", hdr.len, __pmLogMetaTypeStr(hdr.type), hdr.type, (long long)offset);
 	}
 	len = hdr.len - sizeof(hdr);
 	if (len > buflen) {
@@ -662,7 +658,7 @@ main(int argc, char *argv[])
 	    if (nrec == 0)
 		printf("[%d] len=%d magic=0x%x (version=%d) @ offset=%lld\n", nrec, hdr.len, hdr.type, version, (long long)offset);
 	    else
-		printf("[%d] len=%d type=%s (%d) @ offset=%lld\n", nrec, hdr.len, typename[hdr.type], hdr.type, (long long)offset);
+		printf("[%d] len=%d type=%s (%d) @ offset=%lld\n", nrec, hdr.len, __pmLogMetaTypeStr(hdr.type), hdr.type, (long long)offset);
 	    for (i = 0; i < len; i++) {
 		if ((i % 8) == 0) {
 		    if (i > 0)

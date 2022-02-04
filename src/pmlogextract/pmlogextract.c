@@ -64,23 +64,6 @@ static pmOptions opts = {
 };
 
 /*
- * name of metadata record type
- */
-static char *
-metarectypestr(int type)
-{
-    static char		*typename[] = {
-	"0?", "DESC", "INDOM_V2", "LABEL_V2", "TEXT", "INDOM",
-	"INDOM_DELTA", "LABEL", "8?" };
-    static char		*unknown = "UNKNOWN!";
-
-    if (type >= TYPE_DESC && type <= TYPE_MAX)
-	return typename[type];
-    else
-	return unknown;
-}
-
-/*
  * extract metric name(s) from metadata pdu buffer
  */
 void
@@ -1006,7 +989,7 @@ append_labelsetreclist(int i, int type)
 	k = 4;
     }
     else {
-	fprintf(stderr, "append_labelsetreclist: Botch type=%s (%d)\n", metarectypestr(type), type);
+	fprintf(stderr, "append_labelsetreclist: Botch type=%s (%d)\n", __pmLogMetaTypeStr(type), type);
 	exit(1);
     }
     rec->stamp = stamp;		/* struct assignment */
@@ -1244,7 +1227,7 @@ write_rec(reclist_t *rec)
 
 	if (pmDebugOptions.logmeta) {
 	    fprintf(stderr, "write_rec: record len=%d, type=%s (%d) @ offset=%d\n",
-	    	rlen, metarectypestr(type), type, (int)(__pmFtell(logctl.mdfp) - sizeof(__pmLogHdr)));
+	    	rlen, __pmLogMetaTypeStr(type), type, (int)(__pmFtell(logctl.mdfp) - sizeof(__pmLogHdr)));
 	    if (type == TYPE_DESC) {
 		pmDesc	*dp;
 		pmDesc	desc;
@@ -1282,7 +1265,7 @@ write_rec(reclist_t *rec)
 		    ibuf = &buf[2];
 		    allinbuf = __pmLogLoadInDom(NULL, 0, type, &lid, &ibuf);
 		    if (allinbuf < 0) {
-			fprintf(stderr, "write_rec: __pmLogLoadInDom(type=%s (%d)): failed: %s\n", metarectypestr(type), type, pmErrStr(allinbuf));
+			fprintf(stderr, "write_rec: __pmLogLoadInDom(type=%s (%d)): failed: %s\n", __pmLogMetaTypeStr(type), type, pmErrStr(allinbuf));
 		    }
 		    else {
 			fprintf(stderr, "INDOM: %s when: ", pmInDomStr(lid.indom));
@@ -1370,7 +1353,7 @@ write_rec(reclist_t *rec)
 		rlen = ntohl(h->len);
 		type = ntohl(h->type);
 		fprintf(stderr, "write_rec: delta indom rewrite len=%d, type=%s (%d) @ offset=%d\n",
-	    	rlen, metarectypestr(type), type, (int)(__pmFtell(logctl.mdfp) - sizeof(__pmLogHdr)));
+	    	rlen, __pmLogMetaTypeStr(type), type, (int)(__pmFtell(logctl.mdfp) - sizeof(__pmLogHdr)));
 	    }
 	}
 
@@ -1898,6 +1881,13 @@ againmeta:
 		    iap->pb[META] = new;
 		    /* and now it is no longer in "delta" indom format */
 		    iap->pb[META][1] = htonl(TYPE_INDOM);
+		}
+		else if (type == TYPE_INDOM_V2 && outarchvers == PM_LOG_VERS03) {
+		    int			lsts;
+
+		    lsts = pmaRewriteMeta(lcp, outarchvers, &iap->pb[META]);
+		    // TODO
+fprintf(stderr, "pmaRewriteMeta -> %d\n", lsts);
 		}
 		append_indomreclist(indx);
 	    }

@@ -364,7 +364,6 @@ logconnect.o
 logcontrol.o
 logmeta.o
     ihash			# single-threaded PM_SCOPE_LOGPORT
-    typename			# on error code path for diags, don't bother
 logportmap.o
     nlogports			# single-threaded PM_SCOPE_LOGPORT
     szlogport			# single-threaded PM_SCOPE_LOGPORT

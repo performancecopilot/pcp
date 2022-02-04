@@ -952,7 +952,6 @@ PCP_CALL extern int __pmLogAddPMNSNode(__pmArchCtl *, pmID, const char *);
 PCP_CALL extern int __pmLogAddLabelSets(__pmArchCtl *, const __pmTimestamp *, unsigned int, unsigned int, int, pmLabelSet *);
 PCP_CALL extern int __pmLogAddText(__pmArchCtl *, unsigned int, unsigned int, const char *);
 PCP_CALL extern int __pmLogAddVolume(__pmArchCtl *, unsigned int);
-
 #define PMLOGREAD_NEXT		0
 #define PMLOGREAD_TO_EOF	1
 PCP_CALL extern int __pmLogRead(__pmArchCtl *, int, __pmFILE *, pmResult **, int);
@@ -967,6 +966,8 @@ PCP_CALL extern int __pmLogLookupInDom(__pmArchCtl *, pmInDom, __pmTimestamp *, 
 PCP_CALL extern int __pmLogLookupLabel(__pmArchCtl *, unsigned int, unsigned int, pmLabelSet **, const __pmTimestamp *);
 PCP_CALL extern int __pmLogLookupText(__pmArchCtl *, unsigned int , unsigned int, char **);
 PCP_CALL extern int __pmLogNameInDom(__pmArchCtl *, pmInDom, __pmTimestamp *, int, char **);
+PCP_CALL extern const char *__pmLogMetaTypeStr(int);
+PCP_CALL extern char *__pmLogMetaTypeStr_r(int, char *, int);
 PCP_CALL extern const char *__pmLogLocalSocketDefault(int, char *buf, size_t bufSize);
 PCP_CALL extern const char *__pmLogLocalSocketUser(int, char *buf, size_t bufSize);
 PCP_CALL extern int __pmLogCompressedSuffix(const char *);

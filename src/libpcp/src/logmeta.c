@@ -11,13 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- *
- * Thread-safe notes
- *
- * - only static here is typename[] in typeStr() ... this is only used
- *   on an unlikely error path when -Dlogmeta is in effect, so don't
- *   bother with any locking
- *
  */
 
 #include "pmapi.h"
@@ -29,34 +22,6 @@
 
 /* bytes for a length field in a header/trailer, or a string length field */
 #define LENSIZE	4
-
-/*
- * external metadata record types -> string
- */
-static char *
-typeStr(int type)
-{
-    static char	typename[16];
-    switch (type) {
-	case TYPE_DESC:
-		    return "DESC";
-	case TYPE_INDOM_V2:
-		    return "INDOM_V2";
-	case TYPE_LABEL_V2:
-		    return "LABEL_V2";
-	case TYPE_TEXT:
-		    return "TEXT";
-	case TYPE_INDOM:
-		    return "INDOM";
-	case TYPE_INDOM_DELTA:
-		    return "INDOM_DELTA";
-	case TYPE_LABEL:
-		    return "LABEL";
-	default:
-		    snprintf(typename, sizeof(typename)-1, "BAD (%d)", type);
-		    return typename;
-    }
-}
 
 static void
 StrTimestamp(const __pmTimestamp *tsp)
@@ -153,7 +118,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	char    strbuf[20];
 	fprintf(stderr, "addindom( ..., %s, ", pmInDomStr_r(lidp->indom, strbuf, sizeof(strbuf)));
 	StrTimestamp(&lidp->stamp);
-	fprintf(stderr, ", type=%s, numinst=%d, ...)\n", typeStr(type), lidp->numinst);
+	fprintf(stderr, ", type=%s, numinst=%d, ...)\n", __pmLogMetaTypeStr_r(type, strbuf, sizeof(strbuf)), lidp->numinst);
     }
 
     if ((hp = __pmHashSearch((unsigned int)lidp->indom, &lcp->hashindom)) == NULL) {
@@ -746,8 +711,10 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 	    goto end;
 	}
 	if (pmDebugOptions.logmeta) {
-	    fprintf(stderr, "__pmLogLoadMeta: record len=%d, type=%s @ offset=%d\n",
-		h.len, typeStr(h.type), (int)(__pmFtell(f) - sizeof(__pmLogHdr)));
+	    char    strbuf[15];
+	    fprintf(stderr, "__pmLogLoadMeta: record len=%d, type=%s (%d) @ offset=%d\n",
+		h.len, __pmLogMetaTypeStr_r(h.type, strbuf, sizeof(strbuf)),
+		h.type, (int)(__pmFtell(f) - sizeof(__pmLogHdr)));
 	}
 	rlen = h.len - (int)sizeof(__pmLogHdr) - (int)sizeof(int);
 	if (h.type == TYPE_DESC) {

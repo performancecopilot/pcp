@@ -1418,10 +1418,41 @@ pmTypeStr(int type)
     return "???";
 }
 
+/*
+ * thread-safe version of __pmLogMetaTypeStr() ... buflen
+ * should be at least 17
+ */
 char *
 pmTypeStr_r(int type, char *buf, int buflen)
 {
     pmsprintf(buf, buflen, "%s", pmTypeStr(type));
+    return buf;
+}
+
+/*
+ * Return the name of metadata record type
+ */
+const char *
+__pmLogMetaTypeStr(int type)
+{
+    static char		*typename[] = {
+	"???", "DESC", "INDOM_V2", "LABEL_V2", "TEXT", "INDOM",
+	"INDOM_DELTA", "LABEL"
+    };
+
+    if (type >= 0 && type < sizeof(typename) / sizeof(typename[0]))
+	return typename[type];
+    return "???";
+}
+
+/*
+ * thread-safe version of __pmLogMetaTypeStr() ... buflen
+ * should be at least 15
+ */
+char *
+__pmLogMetaTypeStr_r(int type, char *buf, int buflen)
+{
+    pmsprintf(buf, buflen, "%s", __pmLogMetaTypeStr(type));
     return buf;
 }
 

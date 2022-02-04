@@ -799,5 +799,7 @@ PCP_3.37 {
     __pmLogUndeltaInDom;
     __pmLogSearchInDom;
     __pmLogEncodeInDom;
+    __pmLogMetaTypeStr;
+    __pmLogMetaTypeStr_r;
 } PCP_3.36;
 
