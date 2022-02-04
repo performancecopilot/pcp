@@ -170,6 +170,7 @@ main(int argc, char *argv[])
     char		*archpathname;	/* from the command line */
     char		*archdirname;	/* after dirname() */
     char		archname[MAXPATHLEN];	/* full pathname to base of archive name */
+    char		*tmp;
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -206,7 +207,8 @@ main(int argc, char *argv[])
     __pmEndOptions(&opts);
 
     archpathname = argv[opts.optind];
-    archbasename = strdup(basename(strdup(archpathname)));
+    archbasename = strdup(basename((tmp = strdup(archpathname))));
+    free(tmp);
     /*
      * treat foo.index, foo.meta, foo.NNN along with any supported
      * compressed file suffixes as all equivalent
@@ -228,7 +230,8 @@ main(int argc, char *argv[])
 	    __pmLogBaseName(archbasename);
     }
 
-    archdirname = dirname(strdup(archpathname));
+    tmp = strdup(archpathname);
+    archdirname = dirname(tmp);
     if (vflag)
 	fprintf(stderr, "Scanning for components of archive \"%s\"\n", archpathname);
     nfile = scandir(archdirname, &namelist, filter, NULL);
@@ -254,7 +257,9 @@ main(int argc, char *argv[])
 	if (pass0(path) == STS_FATAL)
 	    /* unrepairable or unrepaired error */
 	    sts = STS_FATAL;
+	free(namelist[i]);
     }
+    free(namelist);
     if (meta_state == STATE_MISSING) {
 	fprintf(stderr, "%s%c%s.meta: missing metadata file\n", archdirname, sep, archbasename);
 	sts = STS_FATAL;
@@ -327,5 +332,6 @@ main(int argc, char *argv[])
 	    fprintf(stderr, "Processed %d <mark> records\n", mark_count);
     }
 
+    free(tmp);
     return 0;
 }

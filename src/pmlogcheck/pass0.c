@@ -117,10 +117,12 @@ pass0(char *fname)
 {
     int		len;
     int		check;
+    int		type;
     int		i;
     int		sts;
     int		nrec = 0;
     int		is = IS_UNKNOWN;
+    int		eol;
     char	*p;
     __pmFILE	*f = NULL;
     int		label_ok = STS_OK;
@@ -154,18 +156,26 @@ pass0(char *fname)
 	exit(1);
     }
 
-    if (vflag)
+    if (vflag) {
 	fprintf(stderr, "%s: start pass0 ... ", fname);
+	eol = 0;
+    }
 
+    type = 0;
     while ((sts = __pmFread(&len, 1, sizeof(len), f)) == sizeof(len)) {
 	len = ntohl(len);
 	len -= 2 * sizeof(len);
-	/* gobble stuff between header and trailer without looking at it */
+	/*
+	 * gobble stuff between header and trailer without looking at it
+	 * ... except for the record type in the case of metadata records
+	 */
 	for (i = 0; i < len; i++) {
 	    check = __pmFgetc(f);
 	    if (check == EOF) {
-		if (vflag)
+		if (vflag && !eol) {
 		    fputc('\n', stderr);
+		    eol = 1;
+		}
 		if (nrec == 0)
 		    fprintf(stderr, "%s: unexpected EOF in label record body, wanted %d, got %d bytes\n", fname, len, i);
 		else
@@ -173,10 +183,18 @@ pass0(char *fname)
 		sts = STS_FATAL;
 		goto done;
 	    }
+	    if (is == IS_META && i <= 3 && nrec > 0) {
+		/*
+		 * first word (after len) for metadata record, save type
+		 */
+		type = (type << 8) | check;
+	    }
 	}
 	if ((sts = __pmFread(&check, 1, sizeof(check), f)) != sizeof(check)) {
-	    if (vflag)
+	    if (vflag && !eol) {
 		fputc('\n', stderr);
+		eol = 1;
+	    }
 	    if (nrec == 0)
 		fprintf(stderr, "%s: unexpected EOF in label record trailer, wanted %d, got %d bytes\n", fname, (int)sizeof(check), sts);
 	    else
@@ -187,8 +205,10 @@ pass0(char *fname)
 	check = ntohl(check);
 	len += 2 * sizeof(len);
 	if (check != len) {
-	    if (vflag)
+	    if (vflag && !eol) {
 		fputc('\n', stderr);
+		eol = 1;
+	    }
 	    if (nrec == 0)
 		fprintf(stderr, "%s: label record length mismatch: header %d != trailer %d\n", fname, len, check);
 	    else
@@ -205,7 +225,6 @@ pass0(char *fname)
 		label_ok = xsts;
 	}
 
-	nrec++;
 	if (is == IS_INDEX) {
 	    /* for index files, done label record, now eat index records */
 	    size_t	record_size;
@@ -220,12 +239,16 @@ pass0(char *fname)
 		/* NOTREACHED */
 	    }
 
+	    nrec++;
 	    while ((sts = __pmFread(buffer, 1, record_size, f)) == record_size) { 
 		nrec++;
 	    }
+	    free(buffer);
 	    if (sts != 0) {
-		if (vflag)
+		if (vflag && !eol) {
 		    fputc('\n', stderr);
+		    eol = 1;
+		}
 		fprintf(stderr, "%s[record %d]: unexpected EOF in index entry, wanted %zd, got %d bytes\n", fname, nrec, record_size, sts);
 		index_state = STATE_BAD;
 		sts = STS_FATAL;
@@ -233,17 +256,57 @@ pass0(char *fname)
 	    }
 	    goto empty_check;
 	}
+	else if (is == IS_META && nrec > 0) {
+	    switch (type) {
+		case TYPE_DESC:
+		case TYPE_TEXT:
+		    /* good for all versions */
+		    break;
+
+		case TYPE_INDOM:
+		case TYPE_INDOM_DELTA:
+		case TYPE_LABEL:
+		    /* not good for V2 */
+		    if ((goldenmagic & 0xff) == PM_LOG_VERS02) {
+			if (vflag && !eol) {
+			    fputc('\n', stderr);
+			    eol = 1;
+			}
+			fprintf(stderr, "%s[record %d]: unexpected record type %s (%d) for V2 archive\n", fname, nrec, __pmLogMetaTypeStr(type), type);
+			sts = STS_FATAL;
+		    }
+		    break;
+
+		case TYPE_INDOM_V2:
+		case TYPE_LABEL_V2:
+		    /* not good for V3 */
+		    if ((goldenmagic & 0xff) == PM_LOG_VERS03) {
+			if (vflag && !eol) {
+			    fputc('\n', stderr);
+			    eol = 1;
+			}
+			fprintf(stderr, "%s[record %d]: unexpected record type %s (%d) for V3 archive\n", fname, nrec, __pmLogMetaTypeStr(type), type);
+			sts = STS_FATAL;
+		    }
+		    break;
+	    }
+	}
+	nrec++;
     }
     if (sts != 0) {
-	if (vflag)
+	if (vflag && !eol) {
 	    fputc('\n', stderr);
+	    eol = 1;
+	}
 	fprintf(stderr, "%s[record %d]: unexpected EOF in record header, wanted %d, got %d bytes\n", fname, nrec, (int)sizeof(len), sts);
 	sts = STS_FATAL;
     }
 empty_check:
     if (sts != STS_FATAL && nrec < 2) {
-	if (vflag)
+	if (vflag && !eol) {
 	    fputc('\n', stderr);
+	    eol = 1;
+	}
 	fprintf(stderr, "%s: contains no PCP data\n", fname);
 	sts = STS_WARNING;
     }
