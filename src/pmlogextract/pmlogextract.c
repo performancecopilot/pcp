@@ -1873,7 +1873,7 @@ againmeta:
 
 		    lsts = __pmLogEncodeInDom(lcp, type, &lid, &new);
 		    if (lsts < 0) {
-			fprintf(stderr, "nextmeta: Botch: delta indom rewrite failed: %s\n", pmErrStr(lsts));
+			fprintf(stderr, "nextmeta: Botch: delta indom encode failed: %s\n", pmErrStr(lsts));
 			abandon_extract();
 			/*NOTREACHED*/
 		    }
@@ -1886,8 +1886,11 @@ againmeta:
 		    int			lsts;
 
 		    lsts = pmaRewriteMeta(lcp, outarchvers, &iap->pb[META]);
-		    // TODO
-fprintf(stderr, "pmaRewriteMeta -> %d\n", lsts);
+		    if (lsts < 0) {
+			fprintf(stderr, "nextmeta: Botch: pmaRewriteMeta failed: %s\n", pmErrStr(lsts));
+			abandon_extract();
+			/*NOTREACHED*/
+		    }
 		}
 		append_indomreclist(indx);
 	    }
