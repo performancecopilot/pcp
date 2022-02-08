@@ -55,30 +55,6 @@ badarchives/badmeta-6.meta[record 65]: unexpected record type INDOM_DELTA (6) fo
 badarchives/badmeta-6.meta[record 66]: unexpected record type INDOM_DELTA (6) for V2 archive
 badarchives/badmeta-6.meta[record 67]: unexpected record type INDOM_DELTA (6) for V2 archive
 badarchives/badmeta-6.meta[record 68]: unexpected record type INDOM_DELTA (6) for V2 archive
-addlabel( ..., 1, 4294967295, 07:37:04.775256000, nsets=1)
-addlabel( ..., 2, 29, 07:37:04.775256000, nsets=1)
-addlabel( ..., 8, 121634816, 07:37:04.775256000, nsets=1)
-addlabel( ..., 32, 121634828, 07:37:04.775256000, nsets=14)
-addtext( ..., 29.0.158, ONELINE)
-addtext( ..., 29.12 (indom), ONELINE)
-addtext( ..., 29.0.158, HELP)
-addtext( ..., 29.12 (indom), HELP)
-addtext( ..., 29.0.157, ONELINE)
-addtext( ..., 29.0.157, HELP)
-addtext( ..., 29.0.156, ONELINE)
-addtext( ..., 29.0.156, HELP)
-addlabel( ..., 1, 4294967295, 07:37:09.664528000, nsets=1)
-addlabel( ..., 2, 29, 07:37:09.664528000, nsets=1)
-addlabel( ..., 8, 121634816, 07:37:09.664528000, nsets=1)
-addlabel( ..., 32, 121634828, 07:37:09.664528000, nsets=14)
-addtext( ..., 29.0.158, ONELINE)
-addtext( ..., 29.12 (indom), ONELINE)
-addtext( ..., 29.0.158, HELP)
-addtext( ..., 29.12 (indom), HELP)
-addtext( ..., 29.0.157, ONELINE)
-addtext( ..., 29.0.157, HELP)
-addtext( ..., 29.0.156, ONELINE)
-addtext( ..., 29.0.156, HELP)
 Note: timezone set to local timezone of host "bozo.localdomain" from archive
 
 
@@ -101,29 +77,5 @@ badarchives/badmeta-7.meta[record 65]: unexpected record type INDOM_V2 (2) for V
 badarchives/badmeta-7.meta[record 66]: unexpected record type INDOM_V2 (2) for V3 archive
 badarchives/badmeta-7.meta[record 67]: unexpected record type INDOM_V2 (2) for V3 archive
 badarchives/badmeta-7.meta[record 68]: unexpected record type INDOM_V2 (2) for V3 archive
-addlabel( ..., 1, 4294967295, 07:37:09.664528000, nsets=1)
-addlabel( ..., 2, 29, 07:37:09.664528000, nsets=1)
-addlabel( ..., 8, 121634816, 07:37:09.664528000, nsets=1)
-addlabel( ..., 32, 121634828, 07:37:09.664528000, nsets=14)
-addtext( ..., 29.0.158, ONELINE)
-addtext( ..., 29.12 (indom), ONELINE)
-addtext( ..., 29.0.158, HELP)
-addtext( ..., 29.12 (indom), HELP)
-addtext( ..., 29.0.157, ONELINE)
-addtext( ..., 29.0.157, HELP)
-addtext( ..., 29.0.156, ONELINE)
-addtext( ..., 29.0.156, HELP)
-addlabel( ..., 1, 4294967295, 07:37:04.775256000, nsets=1)
-addlabel( ..., 2, 29, 07:37:04.775256000, nsets=1)
-addlabel( ..., 8, 121634816, 07:37:04.775256000, nsets=1)
-addlabel( ..., 32, 121634828, 07:37:04.775256000, nsets=14)
-addtext( ..., 29.0.158, ONELINE)
-addtext( ..., 29.12 (indom), ONELINE)
-addtext( ..., 29.0.158, HELP)
-addtext( ..., 29.12 (indom), HELP)
-addtext( ..., 29.0.157, ONELINE)
-addtext( ..., 29.0.157, HELP)
-addtext( ..., 29.0.156, ONELINE)
-addtext( ..., 29.0.156, HELP)
 Note: timezone set to local timezone of host "bozo.localdomain" from archive
 

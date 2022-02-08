@@ -25,6 +25,8 @@ _filter()
     | sed \
 	-e '/^__pmLogLoadMeta:/d' \
 	-e '/^addindom(/d' \
+	-e '/^addlabel(/d' \
+	-e '/^addtext(/d' \
     # end
 }
 
@@ -38,7 +40,7 @@ do
     archive=`echo $file | sed -e 's/\.meta$//'`
     echo
     echo "=== $archive ==="
-    pmlogcheck -Dlogmeta -z $archive 2>&1 | _filter
+    pmlogcheck -z -Dlogmeta -z $archive 2>&1 | _filter
 done
 
 # success, all done
