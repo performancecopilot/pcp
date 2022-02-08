@@ -8,6 +8,10 @@ URL:     https://pcp.io
 %global  artifactory https://performancecopilot.jfrog.io/artifactory
 Source0: %{artifactory}/pcp-source-release/pcp-%{version}.src.tar.gz
 
+# The additional linker flags break out-of-tree PMDAs.
+# https://bugzilla.redhat.com/show_bug.cgi?id=2043092
+%undefine _package_note_flags
+
 %if 0%{?fedora} >= 26 || 0%{?rhel} > 7
 %global __python2 python2
 %else

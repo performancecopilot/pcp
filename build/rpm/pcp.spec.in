@@ -9,6 +9,10 @@ BuildRoot: @build_root@
 Distribution: @package_distribution@
 Source0: pcp-%{version}.src.tar.gz
 
+# The additional linker flags break out-of-tree PMDAs.
+# https://bugzilla.redhat.com/show_bug.cgi?id=2043092
+%undefine _package_note_flags
+
 %if 0%{?rhel} > 7
 %global __requires_exclude ^perl-LDAP$
 %endif
