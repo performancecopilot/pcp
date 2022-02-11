@@ -86,7 +86,8 @@ _do_time()
     do
 	case "$time"
 	in
-	    *000)	# nsec precision, but usec value
+	    *.??????000)
+			# nsec precision, but usec value
 			time=`echo "$time" | sed -e 's/\(.*\)000/\1/'`
 			;;
 	esac
