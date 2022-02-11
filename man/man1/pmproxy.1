@@ -289,12 +289,37 @@ This option implies \f3pmproxy\f1 is running in \f3timeseries\f1 mode.
 Operate in automatic archive timeseries discovery mode.
 This mode of operation will enable the
 .BR PMWEBAPI (3)
-REST APIs, detect system archives created by
+REST APIs, dynamiclly and automatically detect active system
+archives being written by
 .BR pmlogger (1)
 and import them into a
-.BR redis-server (1)
-automatically, for fast, scalable time series querying described in
+.BR redis-server (1),
+for fast, scalable time series querying described in
 .BR pmseries (1).
+Note that in this mode of operation,
+.B pmproxy
+only "log-tails" and ingests actively growing archives, e.g. as written by one or more
+.BR pmlogger (1)
+instances.
+When an archive is first discovered (usually but not limited to
+.B pmproxy
+startup),
+all metadata is loaded and sent to the configured
+.BR redis-server (1)
+however note that only
+.B new
+archive metric value data from the tail end of each archive is ingested.
+Compressed archives never grow and so are ignored.
+See the
+.B \-\-load
+option to
+.BR pmseries (1)
+for a supported mechanism for manually loading all of the metric value data
+from previously collected (inactive) archives,
+whether compressed or not.
+It would be normal, though not mandated, for a set of archives being manually loaded
+to cover the same time period, e.g. archive data for a particular week for one or more
+hosts in the same data-centre.
 .TP
 \f3\-U\f1 \f2username\f1, \f3\-\-username\f1=\f2username\f1
 Assume the identity of the given
