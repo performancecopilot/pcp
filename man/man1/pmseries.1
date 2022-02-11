@@ -56,12 +56,20 @@ runs in several different modes \- either querying
 timeseries identifiers, metadata or values (already
 stored in Redis), or manually loading timeseries
 into Redis.
-The latter mode is seldom used, however, since
+The latter mode is generally only used for loading
+previously collected (inactive) archives,
+since
 .BR pmproxy (1)
-will automatically perform this function for local
+will automatically perform this function for "live" (actively growing)
+local
 .BR pmlogger (1)
 instances,
 when running in its default time series mode.
+See the
+.B "TIMESERIES LOADING"
+section below and the
+.B \-L
+option for further details.
 .PP
 Without command line options specifying otherwise,
 .B pmseries
