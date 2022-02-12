@@ -57,7 +57,7 @@ llvm-devel
 lm_sensors
 mailx
 make
-man
+man-db
 mandoc
 mariadb
 memcached
@@ -116,7 +116,6 @@ python3-rtslib
 python3-setuptools
 python3-six
 qt-devel
-qt4-devel
 qt5-qtbase-devel
 qt5-qtsvg-devel
 qtchooser
