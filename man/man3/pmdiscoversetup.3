@@ -77,8 +77,21 @@ are created, written to, compressed and eventually deleted.
 The underlying archive life-cycle is normally managed by the PCP log management infrustructure (see
 .BR pmlogger_daily (1)).
 Discovered archives that are active (currently being written) are "log-tailed" to extract near live/real-time
-performance data which is then passed off via registered callbacks for further processing.
-Archives that are compressed or inactive are tracked/monitored but not log-tailed.
+performance data which is then passed off via registered callbacks for further processing, e.g. to add the data to a
+.BR redis-server (1)
+instance.
+Archives that are compressed or inactive are tracked/monitored but
+.B not
+log-tailed - this is because compressed archives never grow and so log-tailing
+would never discover any new data.
+See the
+.B \-\-load
+option in
+.BR pmseries (1)
+for a supported mechanism for ingesting previously collected (inctive)
+PCP archives, whether compressed or not, into a
+.BR redis-server (1)
+instance.
 .P
 The
 .B pmDiscover
@@ -144,7 +157,7 @@ and as new data is written to active archive log volume and metadata files.
 In the case of
 .BR pmproxy (1),
 callbacks are registered to capture performance data, which is then sent to
-.BR redis (1)
+.BR redis-server (1)
 as the database back-end for fast scalable time-series queries by clients
 of the
 .BR PMWEBAPI (3)
@@ -163,7 +176,7 @@ Generally zero on success, or on error a negative return code, see
 .BR pmerr (1).
 .SH FILES
 The default archive directory is
-.BR $PCP_LOG_DIR ,
+.BR $PCP_ARCHIVE_DIR ,
 which is normally
 .BR /var/log/pcp/pmlogger .
 The API recursively descends all sub-directories and also dynamically discovers any new directories or archives found therein.
