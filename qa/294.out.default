@@ -1106,7 +1106,7 @@ N-0 disconnects
 N connects
 N-0 disconnects
 
-+++ pmstat -S +0.25sec -t 0.5sec -a TMP.arch -z +++
++++ pmstat -S +0.4sec -t 0.5sec -a TMP.arch -z +++
 Note: timezone set to local timezone of host "MY_HOSTNAME" from archive
 
 @ DATE
