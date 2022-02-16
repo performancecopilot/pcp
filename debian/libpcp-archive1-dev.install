@@ -1,6 +1,6 @@
 usr/share/man/man3/pmaDeltaInDom.3.gz
-usr/share/man/man3/pmaLogGet.3.gz
-usr/share/man/man3/pmaLogPut.3.gz
+usr/share/man/man3/pmaGetLog.3.gz
+usr/share/man/man3/pmaPutLog.3.gz
 usr/share/man/man3/pmaRewriteData.3.gz
 usr/share/man/man3/pmaRewriteMeta.3.gz
 usr/share/man/man3/pmaSameInDom.3.gz

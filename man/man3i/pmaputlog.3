@@ -13,9 +13,9 @@
 .\" for more details.
 .\"
 .\"
-.TH PMALOGGET 3 "PCP" "Performance Co-Pilot"
+.TH PMAPUTLOG 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmaLogPut\f1 \- direct write of the next record from an archive file
+\f3pmaPutLog\f1 \- direct write of the next record from an archive file
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -24,7 +24,7 @@
 .br
 #include <pcp/archive.h>
 .sp
-void pmaLogPut(FILE *\fIf\fP, __int32_t *\fIrbuf\fP);
+void pmaPutLog(FILE *\fIf\fP, __int32_t *\fIrbuf\fP);
 .sp
 cc ... \-lpcp_archive \-lpcp
 .ft 1
@@ -60,6 +60,6 @@ data volume) that is associated with
 The return value is 0 if all is well, else
 some error code less than zero.
 .SH SEE ALSO
-.BR pmaLogPut (3)
+.BR pmaGetLog (3)
 and
 .BR PMAPI (3).

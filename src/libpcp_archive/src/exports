@@ -1,7 +1,7 @@
 PCP_ARCHIVE_1.0 {
   global:
-	pmaLogGet;
-	pmaLogPut;
+	pmaGetLog;
+	pmaPutLog;
 	pmaRewriteData;
 	pmaRewriteMeta;
 	pmaSortInDom;

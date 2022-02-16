@@ -1358,8 +1358,8 @@ write_rec(reclist_t *rec)
 	}
 
 	/* write out the pdu ; exit if write failed */
-	if ((sts = pmaLogPut(logctl.mdfp, rec->pdu)) < 0) {
-	    fprintf(stderr, "%s: Error: pmaLogPut: meta data : %s\n",
+	if ((sts = pmaPutLog(logctl.mdfp, rec->pdu)) < 0) {
+	    fprintf(stderr, "%s: Error: pmaPutLog: meta data : %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 	    abandon_extract();
 	    /*NOTREACHED*/
@@ -1749,7 +1749,7 @@ nextmeta(void)
 	    abandon_extract();
 	    /*NOTREACHED*/
 	}
-	/* Need to hold c_lock for pmaLogGet() */
+	/* Need to hold c_lock for pmaGetLog() */
 
 	lcp = ctxp->c_archctl->ac_log;
 
@@ -1765,11 +1765,11 @@ nextmeta(void)
 againmeta:
 	/* get next meta record */
 
-	if ((sts = pmaLogGet(ctxp->c_archctl, PM_LOG_VOL_META, &iap->pb[META])) < 0) {
+	if ((sts = pmaGetLog(ctxp->c_archctl, PM_LOG_VOL_META, &iap->pb[META])) < 0) {
 	    iap->eof[META] = 1;
 	    ++numeof;
 	    if (sts != PM_ERR_EOL) {
-		fprintf(stderr, "%s: Error: pmaLogGet[meta %s]: %s\n",
+		fprintf(stderr, "%s: Error: pmaGetLog[meta %s]: %s\n",
 			pmGetProgname(), iap->name, pmErrStr(sts));
 		_report(lcp->mdfp);
 		abandon_extract();
