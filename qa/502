@@ -26,7 +26,7 @@ _filter()
 	-e "s;$tmp;TMP;g" \
 	-e "s;/$$\.;/PID.;g" \
 	-e '/^__pm/d' \
-	-e '/^pmaLogGet:/d' \
+	-e '/^pmaGetLog:/d' \
 	-e '/^logputresult:/d' \
 	-e '/[-+ ]\[[0-9][0-9]* bytes]/d' \
 	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/"
