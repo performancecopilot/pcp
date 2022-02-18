@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2012-2021 Red Hat.
+ * Copyright (c) 2012-2022 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -343,19 +343,17 @@ extern int pmLookupDesc_ctx(__pmContext *, int, pmID, pmDesc *) _PCP_HIDDEN;
 extern int pmNameInDom_ctx(__pmContext *, pmInDom, int, char **) _PCP_HIDDEN;
 extern int pmLookupInDom_ctx(__pmContext *, pmInDom, const char *) _PCP_HIDDEN;
 extern int pmGetInDomArchive_ctx(__pmContext *, pmInDom, int **, char ***) _PCP_HIDDEN;
-extern int pmFetch_ctx(__pmContext *, int, pmID *, pmResult **) _PCP_HIDDEN;
-extern int pmStore_ctx(__pmContext *, const pmResult *) _PCP_HIDDEN;
-extern int __pmDecodeResult_ctx(__pmContext *, __pmPDU *, pmResult **) _PCP_HIDDEN;
-extern int __pmDecodeHighResResult_ctx(__pmContext *, __pmPDU *, pmHighResResult **) _PCP_HIDDEN;
-extern int __pmSendResult_ctx(__pmContext *, int, int, const pmResult *) _PCP_HIDDEN;
-extern int __pmSendHighResResult_ctx(__pmContext *, int, int, const pmHighResResult *) _PCP_HIDDEN;
+extern int pmFetch_ctx(__pmContext *, int, pmID *, __pmResult **) _PCP_HIDDEN;
+extern int pmStore_ctx(__pmContext *, const __pmResult *) _PCP_HIDDEN;
+extern int __pmSendResult_ctx(__pmContext *, int, int, const __pmResult *) _PCP_HIDDEN;
+extern int __pmSendHighResResult_ctx(__pmContext *, int, int, const __pmResult *) _PCP_HIDDEN;
 extern void __pmDumpResult_ctx(__pmContext *, FILE *, const pmResult *) _PCP_HIDDEN;
-extern void __pmDump__Result_ctx(__pmContext *, FILE *, const __pmResult *) _PCP_HIDDEN;
 extern void __pmDumpHighResResult_ctx(__pmContext *, FILE *, const pmHighResResult *) _PCP_HIDDEN;
+extern void __pmPrintResult_ctx(__pmContext *, FILE *, const __pmResult *) _PCP_HIDDEN;
 extern int pmGetArchiveEnd_ctx(__pmContext *, __pmTimestamp *) _PCP_HIDDEN;
 extern int __pmGetArchiveEnd_ctx(__pmContext *, __pmTimestamp *) _PCP_HIDDEN;
-extern int __pmLogGenerateMark_ctx(__pmContext *, int, pmResult **) _PCP_HIDDEN;
-extern int __pmLogCheckForNextArchive(__pmLogCtl *, int, pmResult **);
+extern int __pmLogGenerateMark_ctx(__pmContext *, int, __pmResult **) _PCP_HIDDEN;
+extern int __pmLogCheckForNextArchive(__pmLogCtl *, int, __pmResult **) _PCP_HIDDEN;
 
 #ifdef BUILD_WITH_LOCK_ASSERTS
 #include <assert.h>
@@ -395,7 +393,6 @@ extern int __pmSetFeaturesIPC(int, int, int) _PCP_HIDDEN;
 extern int __pmSetDataIPC(int, void *) _PCP_HIDDEN;
 extern int __pmDataIPCSize(void) _PCP_HIDDEN;
 extern int __pmLastVersionIPC(void) _PCP_HIDDEN;
-extern int __pmFeaturesIPC(int) _PCP_HIDDEN;
 extern int __pmDataIPC(int, void *) _PCP_HIDDEN;
 
 extern int __pmGetSockOpt(int, int, int, void *, __pmSockLen *) _PCP_HIDDEN;
@@ -417,8 +414,8 @@ extern int __pmLogOpen(const char *, __pmContext *) _PCP_HIDDEN;
 extern int __pmLogReopen(const char *, __pmContext *) _PCP_HIDDEN;
 extern const char *__pmLogName_r(const char *, int, char *, int) _PCP_HIDDEN;
 extern const char *__pmLogName(const char *, int) _PCP_HIDDEN;	/* NOT thread-safe */
-extern int __pmLogGenerateMark(__pmLogCtl *, int, pmResult **) _PCP_HIDDEN;
-extern int __pmLogFetchInterp(__pmContext *, int, pmID *, pmResult **) _PCP_HIDDEN;
+extern int __pmLogGenerateMark(__pmLogCtl *, int, __pmResult **) _PCP_HIDDEN;
+extern int __pmLogFetchInterp(__pmContext *, int, pmID *, __pmResult **) _PCP_HIDDEN;
 extern int __pmGetArchiveLabel(__pmLogCtl *, pmLogLabel *) _PCP_HIDDEN;
 extern __pmTimestamp *__pmLogStartTime(__pmArchCtl *) _PCP_HIDDEN;
 extern int __pmLogSetTime(__pmContext *) _PCP_HIDDEN;

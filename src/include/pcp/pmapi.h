@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2021 Red Hat.
+ * Copyright (c) 2012-2022 Red Hat.
  * Copyright (c) 1997,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -548,9 +548,10 @@ PCP_CALL extern int pmHighResFetch(int, pmID *, pmHighResResult **);
 #define PMCD_NAMES_CHANGE	(1<<4)
 
 /*
- * Variant that is used to return a pmResult from an archive
+ * Variant that is used to return a result from an archive.
  */
 PCP_CALL extern int pmFetchArchive(pmResult **);
+PCP_CALL extern int pmHighResFetchArchive(pmHighResResult **);
 
 /*
  * Support for metric values annotated with name:value pairs (labels).
@@ -696,6 +697,7 @@ PCP_CALL extern int pmConvScale(int, const pmAtomValue *, const pmUnits *, pmAto
 
 /* Sort instances for each metric within a pmResult */
 PCP_CALL extern void pmSortInstances(pmResult *);
+PCP_CALL extern void pmHighResSortInstances(pmHighResResult *);
 
 /* Adjust collection time and/or mode for pmFetch */
 PCP_CALL extern int pmSetMode(int, const struct timeval *, int);

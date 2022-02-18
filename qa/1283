@@ -43,9 +43,12 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #
 _filter()
 {
+#	-e '/^__pmResult dump/s/dump .*/dump .../' \
     sed \
 	-e "s;$PCP_PMDAS_DIR;PCP_PMDA_DIR;g" \
-	-e '/^pmResult dump/s/dump .*/dump .../' \
+	-e 's/from 0x[0-9a-f]*/from ADDR/g' \
+	-e 's/timestamp: 0.0*0 /TIMESTAMP /' \
+	-e 's/[0-2][0-9]:00:00.0*0/TIME/' \
 	-e "s/-U `id -un`/-U ME/" \
 	-e '/ value /{
 s/ [0-9][0-9]*/ NUMBER/

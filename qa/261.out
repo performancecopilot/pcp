@@ -77,7 +77,7 @@ Temporal Index
 10:55:07.409073000	      0          816          892
 10:55:07.409073000	      0          935         1084
 
-10:51:07.407667 3 metrics
+10:51:07.407667000 3 metrics
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 99
         inst [15 or "m-15"] value 1598
@@ -97,7 +97,7 @@ Temporal Index
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-10:52:07.407885 3 metrics
+10:52:07.407885000 3 metrics
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 93
         inst [15 or "m-15"] value 1592
@@ -117,7 +117,7 @@ Temporal Index
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-10:53:07.408341 3 metrics
+10:53:07.408341000 3 metrics
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 87
         inst [15 or "m-15"] value 1586
@@ -138,7 +138,7 @@ Temporal Index
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-10:54:07.408606 3 metrics
+10:54:07.408606000 3 metrics
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 80
         inst [15 or "m-15"] value 1579
@@ -160,7 +160,7 @@ Temporal Index
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-10:55:07.409073 3 metrics
+10:55:07.409073000 3 metrics
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 72
         inst [15 or "m-15"] value 1571

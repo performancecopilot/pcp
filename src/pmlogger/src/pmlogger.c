@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018,2021 Red Hat.
+ * Copyright (c) 2012-2018,2021-2022 Red Hat.
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -65,7 +65,7 @@ int		pmlogger_reexec = 0;	/* set when PMLOGGER_REEXEC is set in the environment 
 int		pmlc_ipc_version = LOG_PDU_VERSION;
 int		rflag;			/* report sizes */
 int		Cflag;			/* parse config and exit */
-struct timeval	epoch;
+__pmTimestamp	epoch;
 struct timeval	delta = { 60, 0 };	/* default logging interval */
 int		sig_code;		/* caught signal */
 int		qa_case;		/* QA error injection state */
@@ -95,7 +95,7 @@ run_done(int sts, char *msg)
     if (pmDebugOptions.services || (pmDebugOptions.log && pmDebugOptions.desperate)) {
 	fprintf(stderr, "run_done(%d, %s) last_log_offset=%d last_stamp=",
 		sts, msg, last_log_offset);
-	pmPrintStamp(stderr, &last_stamp);
+	__pmPrintTimestamp(stderr, &last_stamp);
 	fputc('\n', stderr);
     }
 
@@ -113,14 +113,11 @@ run_done(int sts, char *msg)
      * of the last pmResult and the seek pointer set to the offset
      * _before_ the last log record
      */
-    if (last_stamp.tv_sec != 0) {
-	__pmTimestamp	tmp;
-	tmp.sec = (__int32_t)last_stamp.tv_sec;
-	tmp.nsec = (__int32_t)last_stamp.tv_usec * 1000;;
+    if (last_stamp.sec != 0) {
 	if (last_log_offset < __pmLogLabelSize(archctl.ac_log))
 	    fprintf(stderr, "run_done: Botch: last_log_offset = %ld\n", (long)last_log_offset);
 	__pmFseek(archctl.ac_mfp, last_log_offset, SEEK_SET);
-	__pmLogPutIndex(&archctl, &tmp);
+	__pmLogPutIndex(&archctl, &last_stamp);
     }
 
     /*
@@ -931,15 +928,15 @@ main(int argc, char **argv)
     pid_t               target_pid = 0;
     int			exit_code = 0;
     char		*exit_msg;
-    const char		*name = "pmcd.timezone";
-    pmID		pmid;
-    pmResult		*resp;
+    const char		*names[2] = { "pmcd.timezone", "pmcd.zoneinfo" };;
+    pmID		pmids[2];
+    pmHighResResult	*resp;
     pmValueSet		*vp;
-    struct timeval	myepoch;
+    struct timespec	myepoch;
     struct timeval	nowait = {0, 0};
     FILE		*fp;		/* pipe from pmcpp */
 
-    gettimeofday(&myepoch, NULL);
+    pmtimespecNow(&myepoch);
 
     save_args(argc, argv);
     pmGetUsername(&username);
@@ -1381,10 +1378,10 @@ main(int argc, char **argv)
     }
 
     if (pmDebugOptions.appl5) {
-	struct timeval	now;
+	struct timespec	now;
 
-	gettimeofday(&now, NULL);
-	fprintf(stderr, "Elapsed: %.6f sec\n", pmtimevalSub(&now, &myepoch));
+	pmtimespecNow(&now);
+	fprintf(stderr, "Elapsed: %.9f sec\n", pmtimespecSub(&now, &myepoch));
 	__pmDumpPDUCnt(stderr);
     }
 
@@ -1436,22 +1433,27 @@ main(int argc, char **argv)
      * Note the label record has been set up, but not written yet
      */
 
-    pmtimevalNow(&epoch);
+    __pmGetTimestamp(&epoch);
     sts = pmUseContext(ctx);
 
-    /* TODO: support pmcd.zoneinfo also with v3 archives */
     if (sts >= 0)
-	sts = pmLookupName(1, &name, &pmid);
+	sts = pmLookupName(2, names, pmids);
     if (sts >= 0)
-	sts = pmFetch(1, &pmid, &resp);
+	sts = pmHighResFetch(2, pmids, &resp);
     if (sts >= 0) {
 	vp = resp->vset[0];
+	if (vp->numval > 1) { /* pmcd.zoneinfo present */
+	    if (logctl.label.zoneinfo)
+		free(logctl.label.zoneinfo);
+	    logctl.label.zoneinfo = strdup(vp->vlist[1].value.pval->vbuf);
+	}
 	if (vp->numval > 0) { /* pmcd.timezone present */
 	    if (logctl.label.timezone)
 		free(logctl.label.timezone);
 	    logctl.label.timezone = strdup(vp->vlist[0].value.pval->vbuf);
 	    /* prefer to use remote time to avoid clock drift problems */
-	    epoch = resp->timestamp;		/* struct assignment */
+	    epoch.sec = resp->timestamp.tv_sec;
+	    epoch.nsec = resp->timestamp.tv_nsec;
 	    if (! use_localtime)
 		pmNewZone(logctl.label.timezone);
 	}
@@ -1460,7 +1462,7 @@ main(int argc, char **argv)
 		    "main: Could not get timezone from host %s\n",
 		    pmcd_host);
 	}
-	pmFreeResult(resp);
+	pmFreeHighResResult(resp);
     }
 
     /* do ParseTimeWindow stuff for -T */
@@ -1490,7 +1492,8 @@ main(int argc, char **argv)
         tsub(&last_delta, &now_tv);
 	__pmAFregister(&last_delta, NULL, run_done_callback);
 
-        last_stamp = res_end;
+        last_stamp.sec = res_end.tv_sec;
+        last_stamp.nsec = res_end.tv_usec * 1000;
     }
 
     fprintf(stderr, "Archive basename: %s\n", archName);
@@ -1742,9 +1745,8 @@ newvolume(int vol_switch_type)
 	    /*
 	     * nothing has been logged as yet, force out the label records
 	     */
-	    pmtimevalNow(&last_stamp);	/* TODO: use __pmTimestamp */
-	    logctl.label.start.sec = (__int32_t)last_stamp.tv_sec;
-	    logctl.label.start.nsec = (__int32_t)(last_stamp.tv_usec * 1000);
+	    __pmGetTimestamp(&last_stamp);
+	    logctl.label.start = last_stamp;	/* struct assignment */
 	    logctl.label.vol = PM_LOG_VOL_TI;
 	    __pmLogWriteLabel(logctl.tifp, &logctl.label);
 	    logctl.label.vol = PM_LOG_VOL_META;

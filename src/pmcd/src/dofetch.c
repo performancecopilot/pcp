@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2019,2021 Red Hat.
+ * Copyright (c) 2012-2019,2021-2022 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -353,11 +353,11 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
  * Extract the flags that indicate those state changes here.
  */
 static int
-ExtractState(pmResult *result)
+ExtractState(void *timestamp)
 {
     unsigned char	byte;
 
-    memcpy(&byte, &result->timestamp, sizeof(unsigned char));
+    memcpy(&byte, timestamp, sizeof(unsigned char));
     return (int)byte;
 }
 
@@ -431,7 +431,7 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
     if (nPmids > maxnpmids) {
 	if (endResult != NULL) {
 	    endResult->numpmid = 0;	/* don't free vset's */
-	    pmFreeResult(__pmOffsetResult(endResult));
+	    __pmFreeResult(endResult);
 	}
 	if ((endResult = __pmAllocResult(nPmids)) == NULL) {
 	    pmNoMem("DoFetch.endResult", sizeof(__pmResult) + (nPmids - 1) * sizeof(pmValueSet *), PM_FATAL_ERR);
@@ -462,7 +462,7 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
 		maxFd = fd;
 	    nWait++;
 	} else {
-	    changes |= ExtractState(results[j]);
+	    changes |= ExtractState(&results[j]->timestamp);
 	}
     }
     /* Construct pmResult for bad-pmID list */
@@ -523,14 +523,17 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
 	    if (sts > 0)
 		pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 	    if (sts == PDU_RESULT) {
-		if ((sts = __pmDecodeResult(pb, &results[i])) >= 0) {
+		__pmResult *rp;
+		if ((sts = __pmDecodeResult(pb, &rp)) >= 0) {
+		    results[i] = __pmOffsetResult(rp);
 		    if (results[i]->numpmid == aFreq[i]) {
-			changes |= ExtractState(results[i]);
+			changes |= ExtractState(&rp->timestamp);
 		    } else {
 			if (pmDebugOptions.appl0)
 			    pmNotifyErr(LOG_ERR, "DoFetch: \"%s\" agent given %d pmIDs, returned %d\n",
 					 ap->pmDomainLabel, aFreq[i], results[i]->numpmid);
-			pmFreeResult(results[i]);
+			__pmFreeResult(rp);
+			results[i] = NULL;
 			sts = PM_ERR_IPC;
 		    }
 		}
@@ -563,7 +566,6 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
 		if (sts == PM_ERR_PMDANOTREADY) {
 		    /* the agent is indicating it can't handle PDUs for now */
 		    int k;
-		    extern int CheckError(AgentInfo *ap, int sts);
 
 		    for (k = 0; k < dList[j].listSize; k++)
 			results[i]->vset[k]->numval = PM_ERR_AGAIN;
@@ -584,10 +586,7 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
 	MarkStateChanges(changes);
 
     endResult->numpmid = nPmids;
-    if (pdutype == PDU_HIGHRES_FETCH)
-	__pmGetTimespec(&__pmOffsetHighResResult(endResult)->timestamp);
-    else	/* PDU_FETCH */
-	pmtimevalNow(&__pmOffsetResult(endResult)->timestamp);
+    __pmGetTimestamp(&endResult->timestamp);
 
     /* The order of the pmIDs in the per-domain results is the same as in the
      * original request, but on a per-domain basis.  resIndex is an array of
@@ -612,8 +611,8 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
     }
     if (sts == 0)
 	sts = (pdutype == PDU_HIGHRES_FETCH) ?
-		__pmSendHighResResult(cip->fd, FROM_ANON, __pmOffsetHighResResult(endResult)) :
-		__pmSendResult(cip->fd, FROM_ANON, __pmOffsetResult(endResult));
+		__pmSendHighResResult(cip->fd, FROM_ANON, endResult) :
+		__pmSendResult(cip->fd, FROM_ANON, endResult);
 
     if (sts < 0) {
 	pmcd_trace(TR_XMIT_ERR, cip->fd, pdutype, sts);

@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2014-2018 Red Hat.
+ * Copyright (c) 2014-2018,2022 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -400,7 +400,7 @@ add_dynamic_metric(const char *name, void *data)
     int		sendresult = 0;
     pmID	pmid;
     dynroot_t	*d = (dynroot_t *)data;
-    pmResult	*logreq;
+    __pmResult	*logreq;
     __pmHashNode *hp;
 
     if ((sts = pmLookupName(1, &name, &pmid)) < 0 || pmid == PM_ID_NULL) {
@@ -415,13 +415,11 @@ add_dynamic_metric(const char *name, void *data)
     }
 
     /*
-     * construct the pmResult for the control log request
+     * construct the __pmResult for the control log request
      * - only has one valueset, with one value
-     * Note:	do not convert to __pmResult, the pmlc protocol for a
-     *		control log request uses pmResult
      */
-    logreq = (pmResult *)malloc(sizeof(pmResult));
-    memset(logreq, 0, sizeof(pmResult));
+    logreq =__pmAllocResult(1);
+    memset(logreq, 0, sizeof(__pmResult));
     logreq->vset[0] = (pmValueSet *)malloc(sizeof(pmValueSet));
     memset(logreq->vset[0], 0, sizeof(pmValueSet));
     logreq->numpmid = 1;
@@ -429,7 +427,7 @@ add_dynamic_metric(const char *name, void *data)
 
     /*
      * Call the control request function
-     * Note:	do_control_req() frees our logreq (pmResult)
+     * Note:	do_control_req() frees our logreq (__pmResult)
      */
     timedelta = d->delta.tv_sec*1000 + d->delta.tv_usec/1000;
     sts = do_control_req(logreq, d->control, d->state, timedelta, sendresult=0);

@@ -49,8 +49,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
     int		e;
     int		code;
     int		proto;
-    pmResult	*rp;
-    pmHighResResult	*hrrp;
+    __pmResult	*rp;
     pmProfile	*profp;
     int		ctxnum;
     int		fail = -1;
@@ -115,10 +114,10 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    }
 	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ PDU_RESULT:\n");
-		__pmDumpResult(stderr, rp);
+		__pmPrintResult(stderr, rp);
 	    }
 	    e = __pmSendResult(fd, mypid, rp);
-	    pmFreeResult(rp);
+	    __pmFreeResult(rp);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendResult: %s\n", pmGetProgname(), pmErrStr(e));
 		break;
@@ -127,16 +126,16 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 	case PDU_HIGHRES_RESULT:
-	    if ((e = __pmDecodeHighResResult(pb, &hrrp)) < 0) {
+	    if ((e = __pmDecodeHighResResult(pb, &rp)) < 0) {
 		fprintf(stderr, "%s: Error: DecodeHighResResult: %s\n", pmGetProgname(), pmErrStr(e));
 		break;
 	    }
 	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ PDU_HIGHRES_RESULT:\n");
-		__pmDumpHighResResult(stderr, hrrp);
+		__pmPrintResult(stderr, rp);
 	    }
-	    e = __pmSendHighResResult(fd, mypid, hrrp);
-	    pmFreeHighResResult(hrrp);
+	    e = __pmSendHighResResult(fd, mypid, rp);
+	    __pmFreeResult(rp);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendHighResResult: %s\n", pmGetProgname(), pmErrStr(e));
 		break;
@@ -564,10 +563,10 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "+ PDU_LOG_CONTROL: control=%d state=%d rate=%d\n",
 		    control, state, rate);
-		__pmDumpResult(stderr, rp);
+		__pmPrintResult(stderr, rp);
 	    }
 	    e = __pmSendLogControl(fd, rp, control, state, rate);
-	    pmFreeResult(rp);
+	    __pmFreeResult(rp);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendLogControl: %s\n", pmGetProgname(), pmErrStr(e));
 		break;

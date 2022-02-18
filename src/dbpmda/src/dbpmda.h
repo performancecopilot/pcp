@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013,2022 Red Hat.
  * Copyright (c) 1997 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -40,8 +40,9 @@ extern void doargs(void);
 extern void printindom(FILE *, pmInResult *);
 extern void dohelp(int, int);
 extern void dostatus(void);
-extern int fillResult(pmResult *, int);
+extern int fillValues(pmValueSet *, int);
 extern void _dbDumpResult(FILE *, pmResult *, pmDesc *);
+extern void _dbPrintResult(FILE *, __pmResult *, pmDesc *);
 
 /* pmda exerciser routines */
 extern void opendso(char *, char *, int);

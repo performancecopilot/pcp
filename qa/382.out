@@ -16,7 +16,7 @@ dbpmda> open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.lo
 Start pmdasample PMDA: $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
 dbpmda> fetch sample.percontext.pdu
 PMID(s): 29.0.43
-pmResult dump ...
+__pmResult dump ...
   29.0.43 (sample.percontext.pdu): numval: 1 valfmt: 0 vlist[]:
    value 3
 dbpmda> close
@@ -40,7 +40,7 @@ dbpmda> open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.lo
 Start pmdasample PMDA: $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
 dbpmda> fetch sample.percontext.pdu
 PMID(s): 29.0.43
-pmResult dump ...
+__pmResult dump ...
   29.0.43 (sample.percontext.pdu): numval: 1 valfmt: 0 vlist[]:
    value 3
 dbpmda> quit
@@ -62,7 +62,7 @@ dbpmda> open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.lo
 Start pmdasample PMDA: $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
 dbpmda> fetch sample.percontext.pdu
 PMID(s): 29.0.43
-pmResult dump ...
+__pmResult dump ...
   29.0.43 (sample.percontext.pdu): numval: 1 valfmt: 0 vlist[]:
    value 3
 dbpmda> exit
@@ -84,7 +84,7 @@ dbpmda> open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.lo
 Start pmdasample PMDA: $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
 dbpmda> fetch sample.percontext.pdu
 PMID(s): 29.0.43
-pmResult dump ...
+__pmResult dump ...
   29.0.43 (sample.percontext.pdu): numval: 1 valfmt: 0 vlist[]:
    value 3
 dbpmda> 
@@ -106,17 +106,17 @@ dbpmda> open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.lo
 Start pmdasample PMDA: $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
 dbpmda> fetch sample.percontext.pdu
 PMID(s): 29.0.43
-pmResult dump ...
+__pmResult dump ...
   29.0.43 (sample.percontext.pdu): numval: 1 valfmt: 0 vlist[]:
    value 3
 dbpmda> fetch sample.percontext.pdu
 PMID(s): 29.0.43
-pmResult dump ...
+__pmResult dump ...
   29.0.43 (sample.percontext.pdu): numval: 1 valfmt: 0 vlist[]:
    value 5
 dbpmda> fetch sample.percontext.pdu
 PMID(s): 29.0.43
-pmResult dump ...
+__pmResult dump ...
   29.0.43 (sample.percontext.pdu): numval: 1 valfmt: 0 vlist[]:
    value 7
 dbpmda> 

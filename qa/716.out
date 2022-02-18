@@ -10,7 +10,7 @@ PMID: 253.0.0
     Semantics: instant  Units: none
 dbpmda> fetch simple.numfetch
 PMID(s): 253.0.0
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   253.0.0 (simple.numfetch): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
 dbpmda> text simple.numfetch
@@ -26,7 +26,7 @@ PMID: 253.0.1
     Semantics: instant  Units: none
 dbpmda> fetch simple.color
 PMID(s): 253.0.1
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   253.0.1 (simple.color): numval: 3 valfmt: 0 vlist[]:
     inst [0 or ???] value NUMBER
     inst [1 or ???] value NUMBER
@@ -47,7 +47,7 @@ PMID: 253.2.4
     Semantics: instant  Units: none
 dbpmda> fetch simple.now
 PMID(s): 253.2.4
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   253.2.4 (simple.now): numval: 3 valfmt: 0 vlist[]:
     inst [0 or ???] value NUMBER
     inst [1 or ???] value NUMBER

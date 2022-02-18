@@ -29,7 +29,7 @@ main(int argc, char **argv)
     int		nmetric = sizeof(metrics)/sizeof(metrics[0]);
     pmID	*pmids;
     pmDesc	desc;
-    pmResult	*rp;
+    __pmResult	*rp;
     __pmLogCtl	logctl;
     __pmArchCtl	archctl;
     __pmPDU	*pdp;
@@ -159,13 +159,13 @@ Options:\n\
 	}
     }
     for (i = 0; i < nmetric; i++) {
-	if ((sts = pmFetch(i+1, pmids, &rp)) < 0) {
+	if ((sts = __pmFetch(NULL, i+1, pmids, &rp)) < 0) {
 	    fprintf(stderr, "%s: pmFetch(%d, ...) failed: %s\n", pmGetProgname(), i+1, pmErrStr(sts));
 	    exit(1);
 	}
-	rp->timestamp.tv_sec = ++epoch.tv_sec;
-	rp->timestamp.tv_usec = epoch.tv_usec;
-	if ((sts = __pmEncodeResult(__pmFileno(archctl.ac_mfp), rp, &pdp)) < 0) {
+	rp->timestamp.sec = ++epoch.tv_sec;
+	rp->timestamp.nsec = epoch.tv_usec * 1000;
+	if ((sts = __pmEncodeResult(rp, &pdp)) < 0) {
 	    fprintf(stderr, "%s: __pmEncodeResult failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
@@ -185,7 +185,7 @@ Options:\n\
 	    }
 	}
 	__pmUnpinPDUBuf(pdp);
-	pmFreeResult(rp);
+	__pmFreeResult(rp);
     }
 
     __pmFflush(archctl.ac_mfp);

@@ -3,7 +3,7 @@ dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29 -l TMP.log
 Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29 -l TMP.log
 dbpmda> fetch sample.long.million
 PMID(s): 29.0.13
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   29.0.13 (sample.long.million): numval: 1 valfmt: 0 vlist[]:
    value 1000000 ...
 dbpmda> # pmns from non-existent file
@@ -13,7 +13,7 @@ dbpmda: Cannot load namespace from "/tmp/no/such/file": No such file or director
 dbpmda: Reload default namespace
 dbpmda> fetch sample.long.million
 PMID(s): 29.0.13
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   29.0.13 (sample.long.million): numval: 1 valfmt: 0 vlist[]:
    value 1000000 ...
 dbpmda> # pmns from /dev/null
@@ -23,7 +23,7 @@ dbpmda: Cannot load namespace from "/dev/null": Problems parsing PMNS definition
 dbpmda: Reload default namespace
 dbpmda> fetch sample.long.million
 PMID(s): 29.0.13
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   29.0.13 (sample.long.million): numval: 1 valfmt: 0 vlist[]:
    value 1000000 ...
 dbpmda> # near-emtpy pmns
@@ -34,7 +34,7 @@ Error: Unknown metric name
 Type 'help' for a list of commands.
 dbpmda> fetch empty
 PMID(s): 29.0.13
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   29.0.13 (empty): numval: 1 valfmt: 0 vlist[]:
    value 1000000 ...
 dbpmda> 

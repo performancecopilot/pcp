@@ -54,7 +54,7 @@ Temporal Index
 12:47:40.000000000	      0          730          868
 
 [368 bytes]
-12:47:37.000000 9 metrics
+12:47:37.000000000 9 metrics
     245.0.1 (kernel.all.cpu.user): value 0.0199
     245.0.2 (kernel.all.cpu.nice): value 0
     245.0.3 (kernel.all.cpu.sys): value 0.053199999
@@ -75,7 +75,7 @@ Temporal Index
         inst [2 or "scd0"] value 0
 
 [368 bytes]
-12:47:40.000000 9 metrics
+12:47:40.000000000 9 metrics
     245.0.1 (kernel.all.cpu.user): value 0.0167
     245.0.2 (kernel.all.cpu.nice): value 0
     245.0.3 (kernel.all.cpu.sys): value 0.02
@@ -149,7 +149,7 @@ Temporal Index
 12:46:13.000000000	      0          730          868
 
 [368 bytes]
-12:46:10.000000 9 metrics
+12:46:10.000000000 9 metrics
     245.0.1 (kernel.all.cpu.user): value 0.039900001
     245.0.2 (kernel.all.cpu.nice): value 0
     245.0.3 (kernel.all.cpu.sys): value 0.039900001
@@ -170,7 +170,7 @@ Temporal Index
         inst [2 or "scd0"] value 0
 
 [368 bytes]
-12:46:13.000000 9 metrics
+12:46:13.000000000 9 metrics
     245.0.1 (kernel.all.cpu.user): value 0.0133
     245.0.2 (kernel.all.cpu.nice): value 0
     245.0.3 (kernel.all.cpu.sys): value 0.0133
@@ -232,7 +232,7 @@ Temporal Index
 00:00:30.000000000	      0          492          508
 
 [188 bytes]
-00:00:15.000000 6 metrics
+00:00:15.000000000 6 metrics
     245.0.1 (kernel.all.cpu.user): value 0.75
     245.0.2 (kernel.all.cpu.nice): value 0
     245.0.3 (kernel.all.cpu.sys): value 0.25
@@ -241,7 +241,7 @@ Temporal Index
     245.0.6 (kernel.all.cpu.idle): value 0
 
 [188 bytes]
-00:00:30.000000 6 metrics
+00:00:30.000000000 6 metrics
     245.0.1 (kernel.all.cpu.user): value 0.85619998
     245.0.2 (kernel.all.cpu.nice): value 0
     245.0.3 (kernel.all.cpu.sys): value 0.14380001
@@ -286,7 +286,7 @@ Temporal Index
 00:00:06.000000000	      0          370          532
 
 [200 bytes]
-00:00:03.000000 3 metrics
+00:00:03.000000000 3 metrics
     245.0.1 (disk.dev.total):
         inst [0 or "sda"] value 3.3399999
         inst [1 or "sdb"] value 10.03
@@ -301,7 +301,7 @@ Temporal Index
         inst [2 or "scd0"] value 0
 
 [200 bytes]
-00:00:06.000000 3 metrics
+00:00:06.000000000 3 metrics
     245.0.1 (disk.dev.total):
         inst [0 or "sda"] value 9.2700005
         inst [1 or "sdb"] value 83.440002
@@ -370,7 +370,7 @@ Temporal Index
 00:00:06.000000000	      0          730          868
 
 [368 bytes]
-00:00:03.000000 9 metrics
+00:00:03.000000000 9 metrics
     245.0.1 (kernel.all.cpu.user): value 0.3612
     245.0.2 (kernel.all.cpu.nice): value 0
     245.0.3 (kernel.all.cpu.sys): value 0.2207
@@ -391,7 +391,7 @@ Temporal Index
         inst [2 or "scd0"] value 0
 
 [368 bytes]
-00:00:06.000000 9 metrics
+00:00:06.000000000 9 metrics
     245.0.1 (kernel.all.cpu.user): value 0.0099999998
     245.0.2 (kernel.all.cpu.nice): value 0
     245.0.3 (kernel.all.cpu.sys): value 0.023399999
@@ -465,7 +465,7 @@ Temporal Index
 00:00:06.000000000	      0          717          772
 
 [320 bytes]
-00:00:03.000000 9 metrics
+00:00:03.000000000 9 metrics
     245.0.1 (kernel.all.cpu.user): value 0.0099999998
     245.0.2 (kernel.all.cpu.nice): value 0
     245.0.3 (kernel.all.cpu.sys): value 0.0066999998
@@ -483,7 +483,7 @@ Temporal Index
         inst [1 or "sdb"] value 0
 
 [320 bytes]
-00:00:06.000000 9 metrics
+00:00:06.000000000 9 metrics
     245.0.1 (kernel.all.cpu.user): value 0.0099999998
     245.0.2 (kernel.all.cpu.nice): value 0
     245.0.3 (kernel.all.cpu.sys): value 0.0066999998
@@ -537,7 +537,7 @@ Temporal Index
 00:00:06.000000000	      0          370          532
 
 [200 bytes]
-00:00:03.000000 3 metrics
+00:00:03.000000000 3 metrics
     245.0.1 (disk.dev.total):
         inst [0 or "sda"] value 0
         inst [1 or "sdb"] value 5
@@ -552,7 +552,7 @@ Temporal Index
         inst [2 or "scd0"] value 0
 
 [200 bytes]
-00:00:06.000000 3 metrics
+00:00:06.000000000 3 metrics
     245.0.1 (disk.dev.total):
         inst [0 or "sda"] value 3.3199999
         inst [1 or "sdb"] value 0
@@ -603,7 +603,7 @@ Temporal Index
 00:00:04.000000000	      0          370          532
 
 [200 bytes]
-00:00:02.000000 3 metrics
+00:00:02.000000000 3 metrics
     245.0.1 (disk.dev.total):
         inst [0 or "sda"] value 98.010002
         inst [1 or "sdb"] value 0
@@ -618,7 +618,7 @@ Temporal Index
         inst [2 or "scd0"] value 0
 
 [200 bytes]
-00:00:04.000000 3 metrics
+00:00:04.000000000 3 metrics
     245.0.1 (disk.dev.total):
         inst [0 or "sda"] value 113.33
         inst [1 or "sdb"] value 1
@@ -700,7 +700,7 @@ Temporal Index
 00:00:30.000000000	      0          959         1348
 
 [608 bytes]
-00:00:15.000000 13 metrics
+00:00:15.000000000 13 metrics
     245.0.1 (kernel.all.cpu.user): value 0.8538
     245.0.2 (kernel.all.cpu.nice): value 0
     245.0.3 (kernel.all.cpu.sys): value 0.1462
@@ -737,7 +737,7 @@ Temporal Index
         inst [2 or "scd0"] value 0
 
 [608 bytes]
-00:00:30.000000 13 metrics
+00:00:30.000000000 13 metrics
     245.0.1 (kernel.all.cpu.user): value 0.83279997
     245.0.2 (kernel.all.cpu.nice): value 0
     245.0.3 (kernel.all.cpu.sys): value 0.1672
@@ -865,7 +865,7 @@ Temporal Index
 00:00:06.000000000	      0         1224         4420
 
 [2144 bytes]
-00:00:03.000000 9 metrics
+00:00:03.000000000 9 metrics
     245.0.1 (kernel.all.cpu.user): value 0.84670001
     245.0.2 (kernel.all.cpu.nice): value 0
     245.0.3 (kernel.all.cpu.sys): value 0.1533
@@ -997,7 +997,7 @@ Temporal Index
         inst [39 or "scd0"] value 0
 
 [2144 bytes]
-00:00:06.000000 9 metrics
+00:00:06.000000000 9 metrics
     245.0.1 (kernel.all.cpu.user): value 0.88330001
     245.0.2 (kernel.all.cpu.nice): value 0
     245.0.3 (kernel.all.cpu.sys): value 0.1167
@@ -1186,7 +1186,7 @@ Temporal Index
 00:00:30.000000000	      0          743          736
 
 [188 bytes]
-00:00:15.000000 6 metrics
+00:00:15.000000000 6 metrics
     245.0.1 (kernel.all.cpu.user): value 0.86000001
     245.0.2 (kernel.all.cpu.nice): value 0
     245.0.3 (kernel.all.cpu.sys): value 0.14
@@ -1195,7 +1195,7 @@ Temporal Index
     245.0.6 (kernel.all.cpu.idle): value 0
 
 [416 bytes]
-00:00:30.000000 9 metrics
+00:00:30.000000000 9 metrics
     245.0.1 (kernel.all.cpu.user): value 0.86049998
     245.0.2 (kernel.all.cpu.nice): value 0
     245.0.3 (kernel.all.cpu.sys): value 0.13950001
@@ -1294,7 +1294,7 @@ Temporal Index
 15:51:01.000000000	      0         1089         3588
 
 [1728 bytes]
-15:49:59.000000 13 metrics
+15:49:59.000000000 13 metrics
     245.0.1 (kernel.all.cpu.user): value 0.1462
     245.0.2 (kernel.all.cpu.nice): value 0
     245.0.3 (kernel.all.cpu.sys): value 0.1088
@@ -1401,7 +1401,7 @@ Temporal Index
         inst [12 or "sdb5"] value 0
 
 [1728 bytes]
-15:51:01.000000 13 metrics
+15:51:01.000000000 13 metrics
     245.0.1 (kernel.all.cpu.user): value 0.1909
     245.0.2 (kernel.all.cpu.nice): value 0.00039999999
     245.0.3 (kernel.all.cpu.sys): value 0.081

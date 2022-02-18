@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014,2021 Red Hat.
+ * Copyright (c) 2012-2014,2021-2022 Red Hat.
  * Copyright (c) 1995-2000 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -62,7 +62,7 @@ typedef struct {
     __pmPDU		data[2];	/* zero or more (2 for alignment) */
 } highres_result_t;
 
-static void
+void
 __pmGetResultSize(int pdutype, int numpmid, pmValueSet * const *vset,
 		size_t *needp, size_t *vneedp)
 {
@@ -153,14 +153,13 @@ __pmEncodeValueSet(__pmPDU *pdubuf, int numpmid, pmValueSet * const *vset,
 }
 
 int
-__pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdu)
+__pmEncodeResult(const __pmResult *result, __pmPDU **pdu)
 {
     size_t	need, vneed;
     __pmPDU	*pdubuf;
     result_t	*pp;
     int		type = PDU_RESULT;
 
-    (void)targetfd;
     __pmGetResultSize(type, result->numpmid, result->vset, &need, &vneed);
 
     /*
@@ -172,8 +171,8 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdu)
     pp = (result_t *)pdubuf;
     pp->hdr.len = (int)(need + vneed);
     pp->hdr.type = type;
-    pp->timestamp.tv_sec = htonl((__int32_t)(result->timestamp.tv_sec));
-    pp->timestamp.tv_usec = htonl((__int32_t)(result->timestamp.tv_usec));
+    pp->timestamp.tv_sec = htonl((__int32_t)(result->timestamp.sec));
+    pp->timestamp.tv_usec = htonl((__int32_t)(result->timestamp.nsec / 1000));
     pp->numpmid = htonl(result->numpmid);
 
     __pmEncodeValueSet(pdubuf, result->numpmid, result->vset,
@@ -185,7 +184,7 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdu)
 }
 
 int
-__pmEncodeHighResResult(const pmHighResResult *result, __pmPDU **pdu)
+__pmEncodeHighResResult(const __pmResult *result, __pmPDU **pdu)
 {
     size_t		need, vneed;
     __pmPDU		*pdubuf;
@@ -204,8 +203,8 @@ __pmEncodeHighResResult(const pmHighResResult *result, __pmPDU **pdu)
     pp->hdr.len = (int)(need + vneed);
     pp->hdr.type = type;
     pp->numpmid = htonl(result->numpmid);
-    pp->timestamp.tv_sec = (__int64_t)(result->timestamp.tv_sec);
-    pp->timestamp.tv_nsec = (__int64_t)(result->timestamp.tv_nsec);
+    pp->timestamp.tv_sec = result->timestamp.sec;
+    pp->timestamp.tv_nsec = result->timestamp.nsec;
     __htonll((char *)&pp->timestamp.tv_sec);
     __htonll((char *)&pp->timestamp.tv_nsec);
 
@@ -221,7 +220,7 @@ __pmEncodeHighResResult(const pmHighResResult *result, __pmPDU **pdu)
  * Internal variant of __pmSendResult() with current context.
  */
 int
-__pmSendResult_ctx(__pmContext *ctxp, int fd, int from, const pmResult *result)
+__pmSendResult_ctx(__pmContext *ctxp, int fd, int from, const __pmResult *result)
 {
     int		sts;
     __pmPDU	*pdubuf = NULL;
@@ -231,8 +230,8 @@ __pmSendResult_ctx(__pmContext *ctxp, int fd, int from, const pmResult *result)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     if (pmDebugOptions.pdu)
-	__pmDumpResult_ctx(ctxp, stderr, result);
-    if ((sts = __pmEncodeResult(fd, result, &pdubuf)) < 0)
+	__pmPrintResult_ctx(ctxp, stderr, result);
+    if ((sts = __pmEncodeResult(result, &pdubuf)) < 0)
 	return sts;
     pp = (result_t *)pdubuf;
     pp->hdr.from = from;
@@ -242,7 +241,7 @@ __pmSendResult_ctx(__pmContext *ctxp, int fd, int from, const pmResult *result)
 }
 
 int
-__pmSendResult(int fd, int from, const pmResult *result)
+__pmSendResult(int fd, int from, const __pmResult *result)
 {
     return __pmSendResult_ctx(NULL, fd, from, result);
 }
@@ -251,7 +250,7 @@ __pmSendResult(int fd, int from, const pmResult *result)
  * Internal variant of __pmSendHighResResult() with current context.
  */
 int
-__pmSendHighResResult_ctx(__pmContext *ctxp, int fd, int from, const pmHighResResult *result)
+__pmSendHighResResult_ctx(__pmContext *ctxp, int fd, int from, const __pmResult *result)
 {
     __pmPDU		*pdubuf = NULL;
     highres_result_t	*pp;
@@ -261,7 +260,7 @@ __pmSendHighResResult_ctx(__pmContext *ctxp, int fd, int from, const pmHighResRe
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     if (pmDebugOptions.pdu)
-	__pmDumpHighResResult_ctx(ctxp, stderr, result);
+	__pmPrintResult_ctx(ctxp, stderr, result);
     if ((sts = __pmEncodeHighResResult(result, &pdubuf)) < 0)
 	return sts;
     pp = (highres_result_t *)pdubuf;
@@ -272,7 +271,7 @@ __pmSendHighResResult_ctx(__pmContext *ctxp, int fd, int from, const pmHighResRe
 }
 
 int
-__pmSendHighResResult(int fd, int from, const pmHighResResult *result)
+__pmSendHighResResult(int fd, int from, const __pmResult *result)
 {
     return __pmSendHighResResult_ctx(NULL, fd, from, result);
 }
@@ -705,25 +704,21 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 #endif
 
 /*
- * Internal variant of __pmDecodeResult() with current context.
+ * Internal variant of __pmDecodeResult() with current context and
+ * internal result structure format.
  *
  * Enter here with pdubuf already pinned ... result may point into
  * _another_ pdu buffer that is pinned on exit
  */
 int
-__pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
+__pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, __pmResult **result)
 {
     int		sts;
     int		numpmid;	/* number of metrics */
     char	*pduend;	/* end pointer for incoming buffer */
     size_t	bytes, nopad;
     result_t	*pp;
-#if 0	// TODO when pr,*result -> __pmResult
     __pmResult	*pr;
-#else
-    __pmResult	*__pr;
-    pmResult	*pr;
-#endif
 
     if (ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
@@ -754,13 +749,11 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 	return PM_ERR_IPC;
     }
 
-    if ((__pr = (__pmResult *)__pmAllocResult(numpmid)) == NULL)
+    if ((pr = __pmAllocResult(numpmid)) == NULL)
 	return -oserror();
-
-    pr = __pmOffsetResult(__pr);
     pr->numpmid = numpmid;
-    pr->timestamp.tv_sec = ntohl(pp->timestamp.tv_sec);
-    pr->timestamp.tv_usec = ntohl(pp->timestamp.tv_usec);
+    pr->timestamp.sec = ntohl(pp->timestamp.tv_sec);
+    pr->timestamp.nsec = ntohl(pp->timestamp.tv_usec) * 1000;
 
     bytes = sizeof(result_t) - sizeof(__pmPDU);
     nopad = sizeof(pp->hdr) + sizeof(pp->timestamp) + sizeof(pp->numpmid);
@@ -768,12 +761,12 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
     if ((sts = __pmDecodeValueSet(pdubuf, pp->hdr.len, pp->data, pduend,
 				  numpmid, bytes, nopad, pr->vset)) < 0) {
 	pr->numpmid = 0;	/* force no pmValueSet's to free */
-	pmFreeResult(pr);
+	__pmFreeResult(pr);
 	return sts;
     }
 
     if (pmDebugOptions.pdu)
-	__pmDumpResult_ctx(ctxp, stderr, pr);
+	__pmPrintResult_ctx(ctxp, stderr, pr);
 
     /*
      * Note we return with the input buffer (pdubuf) still pinned and
@@ -785,7 +778,7 @@ __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmResult **result)
 }
 
 int
-__pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
+__pmDecodeResult(__pmPDU *pdubuf, __pmResult **result)
 {
     return __pmDecodeResult_ctx(NULL, pdubuf, result);
 }
@@ -797,13 +790,13 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
  * _another_ pdu buffer that is pinned on exit
  */
 int
-__pmDecodeHighResResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmHighResResult **result)
+__pmDecodeHighResResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, __pmResult **result)
 {
     int			sts;
     int			numpmid;	/* number of metrics */
     char		*pduend;	/* end pointer for incoming buffer */
     size_t		bytes, nopad;
-    pmHighResResult	*pr;
+    __pmResult		*pr;
     highres_result_t	*pp;
 
     if (ctxp != NULL)
@@ -835,27 +828,27 @@ __pmDecodeHighResResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmHighResResult 
 	return PM_ERR_IPC;
     }
 
-    if ((pr = (pmHighResResult *)malloc(sizeof(pmHighResResult) +
-			 	(numpmid - 1) * sizeof(pmValueSet *))) == NULL)
+    if ((pr = __pmAllocResult(numpmid)) == NULL)
 	return -oserror();
 
     pr->numpmid = numpmid;
     __ntohll((char *)&pp->timestamp.tv_sec);
-    pr->timestamp.tv_sec = pp->timestamp.tv_sec;
+    pr->timestamp.sec = pp->timestamp.tv_sec;
     __ntohll((char *)&pp->timestamp.tv_nsec);
-    pr->timestamp.tv_nsec = pp->timestamp.tv_nsec;
+    pr->timestamp.nsec = pp->timestamp.tv_nsec;
 
     bytes = sizeof(highres_result_t) - (sizeof(__pmPDU) * 2);
     nopad = sizeof(pp->hdr) + sizeof(pp->numpmid) + sizeof(pp->timestamp);
 
     if ((sts = __pmDecodeValueSet(pdubuf, pp->hdr.len, pp->data, pduend,
 				  numpmid, bytes, nopad, pr->vset)) < 0) {
-	free(pr);
+	pr->numpmid = 0;	/* force no pmValueSet's to free */
+	__pmFreeResult(pr);
 	return sts;
     }
 
     if (pmDebugOptions.pdu)
-	__pmDumpHighResResult_ctx(ctxp, stderr, pr);
+	__pmPrintResult_ctx(ctxp, stderr, pr);
 
     /*
      * Note we return with the input buffer (pdubuf) still pinned and
@@ -867,7 +860,7 @@ __pmDecodeHighResResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, pmHighResResult 
 }
 
 int
-__pmDecodeHighResResult(__pmPDU *pdubuf, pmHighResResult **result)
+__pmDecodeHighResResult(__pmPDU *pdubuf, __pmResult **result)
 {
     return __pmDecodeHighResResult_ctx(NULL, pdubuf, result);
 }

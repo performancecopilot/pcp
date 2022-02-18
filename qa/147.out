@@ -4,7 +4,7 @@ Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29 -l TMP.log
 dbpmda> getdesc on
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
     inst [200 or ???] value 200
@@ -22,7 +22,7 @@ dbpmda> profile 29.2 add 600
 dbpmda> profile 29.2 add 800
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 4 valfmt: 0 vlist[]:
     inst [200 or ???] value 200
     inst [400 or ???] value 400
@@ -36,7 +36,7 @@ dbpmda> profile 29.2 delete 700
 dbpmda> profile 29.2 delete 900
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 4 valfmt: 0 vlist[]:
     inst [200 or ???] value 200
     inst [400 or ???] value 400

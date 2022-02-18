@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2022 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -80,7 +80,7 @@ __pmAllocResult(int numpmid)
 PM_FAULT_RETURN(NULL);
 
     PM_INIT_LOCKS();
-    
+
     new = (result_pool_t *)malloc(sizeof(*new));
     if (new == NULL) {
 	if (pmDebugOptions.alloc)
@@ -88,11 +88,13 @@ PM_FAULT_RETURN(NULL);
 	return NULL;
     }
 
+    if (numpmid < 1)
+	numpmid = 1;
     need = sizeof(__pmResult) + (numpmid - 1) * sizeof(pmValueSet *);
     new->rp = (__pmResult *)malloc(need);
     if (new->rp == NULL) {
 	if (pmDebugOptions.alloc)
-	    fprintf(stderr, "__pmAllocResult: __pmResult %zd failed\n", need);
+	    fprintf(stderr, "__pmAllocResult: __pmResult %zu failed\n", need);
 	free(new);
 	return NULL;
     }
@@ -112,6 +114,47 @@ PM_FAULT_RETURN(NULL);
     PM_UNLOCK(result_lock);
 
     return new->rp;
+}
+
+/*
+ * special debug callback (used via null result) ... no-op w/out -Dalloc
+ */
+static void
+__pmDumpResultPool(void)
+{
+    if (pmDebugOptions.alloc) {
+	result_pool_t	*pool;
+	size_t		n = 0;
+
+	for (pool = result_pool; pool != NULL; pool = pool->next) {
+	    fprintf(stderr, "__pmResult [%zu] %p -> rp %p\n", n, pool, pool->rp);
+	    n++;
+	}
+	if (n == 0)
+	    fprintf(stderr, "__pmResult pool is empty\n");
+    }
+}
+
+static size_t
+__pmSizeResultPool(void)
+{
+    result_pool_t	*pool;
+    size_t		size = 0;
+
+    for (pool = result_pool; pool != NULL; pool = pool->next)
+	size++;
+    return size;
+}
+
+static void
+__pmFreeResultFromPool(result_pool_t *pool, result_pool_t *prior)
+{
+    if (prior == NULL)
+	result_pool = pool->next;
+    else
+	prior->next = pool->next;
+    free(pool->rp);
+    free(pool);
 }
 
 static void
@@ -151,11 +194,57 @@ __pmFreeResultValueSets(pmValueSet **ppvstart, pmValueSet **ppvsend)
 }
 
 void
+__pmFreeResult(__pmResult *result)
+{
+    result_pool_t	*pool, *prior = NULL;
+
+    PM_INIT_LOCKS();
+    PM_LOCK(result_lock);
+
+    if (result == NULL) {
+	__pmDumpResultPool();
+	PM_UNLOCK(result_lock);
+	return;
+    }
+
+    if (pmDebugOptions.alloc)
+	fprintf(stderr, "%s(" PRINTF_P_PFX "%p) (%zu in pool)",
+			"__pmFreeResult", result, __pmSizeResultPool());
+
+    for (pool = result_pool; pool != NULL; pool = pool->next) {
+	if (result == pool->rp) {
+	    if (pmDebugOptions.alloc)
+		fprintf(stderr, " [in " PRINTF_P_PFX "%p]", pool->rp);
+	    break;
+	}
+	prior = pool;
+    }
+    if (pmDebugOptions.alloc)
+	fputc('\n', stderr);
+    if (result->numpmid > 0)
+	__pmFreeResultValueSets(result->vset, &result->vset[result->numpmid]);
+    if (pool != NULL)
+	__pmFreeResultFromPool(pool, prior);
+    /* else on-stack */
+    PM_UNLOCK(result_lock);
+}
+
+void
 __pmFreeResultValues(pmResult *result)
 {
     if (pmDebugOptions.alloc)
-	fprintf(stderr, "__pmFreeResultValues(" PRINTF_P_PFX "%p) numpmid=%d\n",
-	    result, result->numpmid);
+	fprintf(stderr, "%s(" PRINTF_P_PFX "%p) numpmid=%d\n",
+		"__pmFreeResultValues", result, result->numpmid);
+    if (result->numpmid > 0)
+	__pmFreeResultValueSets(result->vset, &result->vset[result->numpmid]);
+}
+
+void
+__pmFreeHighResResultValues(pmHighResResult *result)
+{
+    if (pmDebugOptions.alloc)
+	fprintf(stderr, "%s(" PRINTF_P_PFX "%p) numpmid=%d\n",
+		"__pmFreeHighResResultValues", result, result->numpmid);
     if (result->numpmid > 0)
 	__pmFreeResultValueSets(result->vset, &result->vset[result->numpmid]);
 }
@@ -163,35 +252,20 @@ __pmFreeResultValues(pmResult *result)
 void
 pmFreeResult(pmResult *result)
 {
-    result_pool_t	*pool;
-    result_pool_t	*prior = NULL;
+    result_pool_t	*pool, *prior = NULL;
 
     PM_INIT_LOCKS();
     PM_LOCK(result_lock);
 
     if (result == NULL) {
-	/*
-	 * special debug callback .. or no-op w/out -Dalloc
-	 */
-	if (pmDebugOptions.alloc) {
-	    int	n = 0;
-	    for (pool = result_pool; pool != NULL; pool = pool->next) {
-		fprintf(stderr, "__pmResult [%d] %p -> rp %p\n", n, pool, pool->rp);
-		n++;
-	    }
-	    if (n == 0)
-		fprintf(stderr, "__pmResult pool is empty\n");
-	}
+	__pmDumpResultPool();
 	PM_UNLOCK(result_lock);
 	return;
     }
 
-    if (pmDebugOptions.alloc) {
-	int	n = 0;
-	for (pool = result_pool; pool != NULL; pool = pool->next)
-	    n++;
-	fprintf(stderr, "pmFreeResult(" PRINTF_P_PFX "%p) (%d in pool)", result, n);
-    }
+    if (pmDebugOptions.alloc)
+	fprintf(stderr, "%s(" PRINTF_P_PFX "%p) (%zu in pool)",
+			"pmFreeResult", result, __pmSizeResultPool());
 
     for (pool = result_pool; pool != NULL; pool = pool->next) {
 	if (result == __pmOffsetResult(pool->rp)) {
@@ -204,41 +278,30 @@ pmFreeResult(pmResult *result)
     if (pmDebugOptions.alloc)
 	fputc('\n', stderr);
     __pmFreeResultValues(result);
-    if (pool != NULL) {
-	if (prior == NULL)
-	    result_pool = pool->next;
-	else
-	    prior->next = pool->next;
-	free(pool->rp);
-	free(pool);
-    }
-    else {
-	free(result);
-    }
+    if (pool != NULL)
+	__pmFreeResultFromPool(pool, prior);
+    else
+	free(result);	/* not allocated by __pmAllocResult */
     PM_UNLOCK(result_lock);
-}
-
-void
-__pmFreeHighResResultValues(pmHighResResult *result)
-{
-    if (pmDebugOptions.alloc)
-	fprintf(stderr, "__pmFreeHighResResultValues(" PRINTF_P_PFX "%p) numpmid=%d\n",
-	    result, result->numpmid);
-    if (result->numpmid > 0)
-	__pmFreeResultValueSets(result->vset, &result->vset[result->numpmid]);
 }
 
 void
 __pmFreeHighResResult(pmHighResResult *result)
 {
-    result_pool_t	*pool;
-    result_pool_t	*prior = NULL;
+    result_pool_t	*pool, *prior = NULL;
 
     PM_INIT_LOCKS();
     PM_LOCK(result_lock);
 
+    if (result == NULL) {
+	__pmDumpResultPool();
+	PM_UNLOCK(result_lock);
+	return;
+    }
+
     if (pmDebugOptions.alloc)
-	fprintf(stderr, "__pmFreeHighResResult(" PRINTF_P_PFX "%p)", result);
+	fprintf(stderr, "%s(" PRINTF_P_PFX "%p) (%zu in pool)",
+			"pmFreeHighResResult", result, __pmSizeResultPool());
 
     for (pool = result_pool; pool != NULL; pool = pool->next) {
 	if (result == __pmOffsetHighResResult(pool->rp)) {
@@ -251,16 +314,15 @@ __pmFreeHighResResult(pmHighResResult *result)
     if (pmDebugOptions.alloc)
 	fputc('\n', stderr);
     __pmFreeHighResResultValues(result);
-    if (pool != NULL) {
-	if (prior == NULL)
-	    result_pool = pool->next;
-	else
-	    prior->next = pool->next;
-	free(pool->rp);
-	free(pool);
-    }
-    else {
-	free(result);
-    }
+    if (pool != NULL)
+	__pmFreeResultFromPool(pool, prior);
+    else
+	free(result);	/* not allocated by __pmAllocResult */
     PM_UNLOCK(result_lock);
+}
+
+void
+pmFreeHighResResult(pmHighResResult *result)
+{
+    return __pmFreeHighResResult(result);
 }

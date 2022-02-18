@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2012-2018,2020-2021 Red Hat.
+ * Copyright (c) 2012-2018,2020-2022 Red Hat.
  * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004,2006,2008 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -235,9 +235,9 @@ pmGetHostName(int handle, char *buf, int buflen)
     __pmContext *ctxp;
     const char	*name;
     pmID	pmid;
-    pmResult	*resp;
-    int		save_handle;
+    __pmResult	*resp;
     __pmContext	*save_ctxp;
+    int		save_handle;
     int		sts = 0;
 
     PM_INIT_LOCKS();
@@ -277,10 +277,10 @@ pmGetHostName(int handle, char *buf, int buflen)
 		    (resp->vset[0]->valfmt == PM_VAL_DPTR || resp->vset[0]->valfmt == PM_VAL_SPTR)) {
 		    /* pmcd.hostname present */
 		    strncpy(buf, resp->vset[0]->vlist[0].value.pval->vbuf, buflen);
-		    pmFreeResult(resp);
+		    __pmFreeResult(resp);
 		    break;
 		}
-		pmFreeResult(resp);
+		__pmFreeResult(resp);
 		/* FALLTHROUGH */
 	    }
 

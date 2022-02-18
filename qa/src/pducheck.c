@@ -284,8 +284,8 @@ _z(void)
     int			k;
     int			n;
     pmID		pmid;
-    pmResult		*rp = NULL;
-    pmHighResResult	*hrrp = NULL;
+    __pmResult		*rp = NULL;
+    __pmResult		*resp = NULL;
     pmValueBlock	myvb;
     pmValueBlock	*gvbp;
     pmValueBlock	*xvbp;
@@ -375,13 +375,11 @@ _z(void)
 
 /* PDU_RESULT */
     {
-    pmResult		*resp = NULL;
-
-    num = 7;		/* the _maximum_ number of merics we have */
-    rp = (pmResult *)malloc(sizeof(*rp) + (num -1)*sizeof(pmValueSet *));
+    num = 7;		/* the _maximum_ number of metrics we have */
+    rp = __pmAllocResult(num);
     rp->numpmid = 0;
-    rp->timestamp.tv_sec = 30 * 60 * 60;	/* 30 hrs after the epoch */
-    rp->timestamp.tv_usec = 123456;		/* plus a gnat */
+    rp->timestamp.sec = 30 * 60 * 60;	/* 30 hrs after the epoch */
+    rp->timestamp.nsec = 123456000;	/* plus a gnat */
     /* singular instance, insitu value */
     rp->vset[0] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
     rp->numpmid = 1;
@@ -495,12 +493,12 @@ _z(void)
 	    }
 	}
     }
-    if (resp->timestamp.tv_sec != rp->timestamp.tv_sec)
-	fprintf(stderr, "Botch: Result: tv_sec: got: %d expect: %d\n",
-	    (int)resp->timestamp.tv_sec, (int)rp->timestamp.tv_sec);
-    if (resp->timestamp.tv_usec != rp->timestamp.tv_usec)
-	fprintf(stderr, "Botch: Result: tv_usec: got: %d expect: %d\n",
-	    (int)resp->timestamp.tv_usec, (int)rp->timestamp.tv_usec);
+    if (resp->timestamp.sec != rp->timestamp.sec)
+	fprintf(stderr, "Botch: Result: sec: got: %ld expect: %ld\n",
+	    (long)resp->timestamp.sec, (long)rp->timestamp.sec);
+    if (resp->timestamp.nsec != rp->timestamp.nsec)
+	fprintf(stderr, "Botch: Result: nsec: got: %d expect: %d\n",
+	    (int)resp->timestamp.nsec, (int)rp->timestamp.nsec);
     if (resp->numpmid != rp->numpmid)
 	fprintf(stderr, "Botch: Result: numpmid: got: %d expect: %d\n",
 	    resp->numpmid, rp->numpmid);
@@ -578,103 +576,101 @@ _z(void)
 	}
     }
     if (resp != NULL)
-	pmFreeResult(resp);
+	__pmFreeResult(resp);
     }
 
 /* PDU_HIGRES_RESULT */
     {
-    pmHighResResult	*hrresp = NULL;
-
     num = 7;		/* the _maximum_ number of merics we have */
-    hrrp = (pmHighResResult *)malloc(sizeof(*hrrp) + (num -1)*sizeof(pmValueSet *));
-    hrrp->numpmid = 0;
-    hrrp->timestamp.tv_sec = 30 * 60 * 60;	/* 30 hrs after the epoch */
-    hrrp->timestamp.tv_nsec = 123456789;	/* plus a gnat */
+    rp = __pmAllocResult(num);
+    rp->numpmid = 0;
+    rp->timestamp.sec = 30 * 60 * 60;	/* 30 hrs after the epoch */
+    rp->timestamp.nsec = 123456789;	/* plus a gnat */
     /* singular instance, insitu value */
-    hrrp->vset[0] = (pmValueSet *)malloc(sizeof(*hrrp->vset[0]));
-    hrrp->numpmid = 1;
-    hrrp->vset[0]->pmid = 0xdead;
-    hrrp->vset[0]->numval = 1;
-    hrrp->vset[0]->valfmt = PM_VAL_INSITU;
-    hrrp->vset[0]->vlist[0].inst = PM_IN_NULL;
-    hrrp->vset[0]->vlist[0].value.lval = 1234;
+    rp->vset[0] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
+    rp->numpmid = 1;
+    rp->vset[0]->pmid = 0xdead;
+    rp->vset[0]->numval = 1;
+    rp->vset[0]->valfmt = PM_VAL_INSITU;
+    rp->vset[0]->vlist[0].inst = PM_IN_NULL;
+    rp->vset[0]->vlist[0].value.lval = 1234;
     /* 3 instances, all values insitu */
-    hrrp->vset[1] = (pmValueSet *)malloc(sizeof(*hrrp->vset[1])+2*sizeof(pmValue));
-    hrrp->numpmid = 2;
-    hrrp->vset[1]->pmid = 0xbeef;
-    hrrp->vset[1]->numval = 3;
-    hrrp->vset[1]->valfmt = PM_VAL_INSITU;
-    hrrp->vset[1]->vlist[0].inst = 2;
-    hrrp->vset[1]->vlist[0].value.lval = 2345;
-    hrrp->vset[1]->vlist[1].inst = 4;
-    hrrp->vset[1]->vlist[1].value.lval = 3456;
-    hrrp->vset[1]->vlist[2].inst = 8;
-    hrrp->vset[1]->vlist[2].value.lval = 4567;
+    rp->vset[1] = (pmValueSet *)malloc(sizeof(*rp->vset[1])+2*sizeof(pmValue));
+    rp->numpmid = 2;
+    rp->vset[1]->pmid = 0xbeef;
+    rp->vset[1]->numval = 3;
+    rp->vset[1]->valfmt = PM_VAL_INSITU;
+    rp->vset[1]->vlist[0].inst = 2;
+    rp->vset[1]->vlist[0].value.lval = 2345;
+    rp->vset[1]->vlist[1].inst = 4;
+    rp->vset[1]->vlist[1].value.lval = 3456;
+    rp->vset[1]->vlist[2].inst = 8;
+    rp->vset[1]->vlist[2].value.lval = 4567;
     /* singular instance, STRING value in pmValueBlock */
-    hrrp->vset[2] = (pmValueSet *)malloc(sizeof(*hrrp->vset[0]));
-    hrrp->numpmid = 3;
-    hrrp->vset[2]->pmid = pmidlist[0];
-    hrrp->vset[2]->numval = 1;
-    hrrp->vset[2]->valfmt = PM_VAL_DPTR;
-    hrrp->vset[2]->vlist[0].inst = PM_IN_NULL;
-    hrrp->vset[2]->vlist[0].value.pval = &myvb;
-    hrrp->vset[2]->vlist[0].value.pval->vtype = PM_TYPE_STRING;
-    hrrp->vset[2]->vlist[0].value.pval->vlen = PM_VAL_HDR_SIZE + 2;
+    rp->vset[2] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
+    rp->numpmid = 3;
+    rp->vset[2]->pmid = pmidlist[0];
+    rp->vset[2]->numval = 1;
+    rp->vset[2]->valfmt = PM_VAL_DPTR;
+    rp->vset[2]->vlist[0].inst = PM_IN_NULL;
+    rp->vset[2]->vlist[0].value.pval = &myvb;
+    rp->vset[2]->vlist[0].value.pval->vtype = PM_TYPE_STRING;
+    rp->vset[2]->vlist[0].value.pval->vlen = PM_VAL_HDR_SIZE + 2;
     av.cp = "0";
-    hrrp->vset[2]->vlist[0].value.pval = NULL;
-    if ((e = __pmStuffValue(&av, &hrrp->vset[2]->vlist[0], PM_TYPE_STRING)) < 0) {
+    rp->vset[2]->vlist[0].value.pval = NULL;
+    if ((e = __pmStuffValue(&av, &rp->vset[2]->vlist[0], PM_TYPE_STRING)) < 0) {
 	fprintf(stderr, "Error: __pmStuffValue highres vset[2] PM_TYPE_STRING: %s\n", pmErrStr(e));
 	fatal = 1;
 	goto cleanup;
     }
-    hrrp->vset[2]->vlist[0].value.pval->vbuf[0] = '0' + pass;
+    rp->vset[2]->vlist[0].value.pval->vbuf[0] = '0' + pass;
     /* singular instance, U64 value in pmValueBlock */
-    hrrp->vset[3] = (pmValueSet *)malloc(sizeof(*hrrp->vset[0]));
-    hrrp->numpmid = 4;
-    hrrp->vset[3]->pmid = pmidlist[1];
-    hrrp->vset[3]->numval = 1;
-    hrrp->vset[3]->vlist[0].inst = PM_IN_NULL;
+    rp->vset[3] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
+    rp->numpmid = 4;
+    rp->vset[3]->pmid = pmidlist[1];
+    rp->vset[3]->numval = 1;
+    rp->vset[3]->vlist[0].inst = PM_IN_NULL;
     av.ull = 0x8765432112345678LL;
-    if ((e = __pmStuffValue(&av, &hrrp->vset[3]->vlist[0], PM_TYPE_U64)) < 0) {
+    if ((e = __pmStuffValue(&av, &rp->vset[3]->vlist[0], PM_TYPE_U64)) < 0) {
 	fprintf(stderr, "Error: __pmStuffValue highres vset[3] PM_TYPE_U64: %s\n", pmErrStr(e));
 	fatal = 1;
 	goto cleanup;
     }
-    hrrp->vset[3]->valfmt = e;
+    rp->vset[3]->valfmt = e;
     /* singular instance, FLOAT value in pmValueBlock */
-    hrrp->vset[4] = (pmValueSet *)malloc(sizeof(*hrrp->vset[0]));
-    hrrp->numpmid = 5;
-    hrrp->vset[4]->pmid = pmidlist[2];
-    hrrp->vset[4]->numval = 1;
-    hrrp->vset[4]->vlist[0].inst = PM_IN_NULL;
+    rp->vset[4] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
+    rp->numpmid = 5;
+    rp->vset[4]->pmid = pmidlist[2];
+    rp->vset[4]->numval = 1;
+    rp->vset[4]->vlist[0].inst = PM_IN_NULL;
     av.f = 4.3E+21;
-    if ((e = __pmStuffValue(&av, &hrrp->vset[4]->vlist[0], PM_TYPE_FLOAT)) < 0) {
+    if ((e = __pmStuffValue(&av, &rp->vset[4]->vlist[0], PM_TYPE_FLOAT)) < 0) {
 	fprintf(stderr, "Error: __pmStuffValue highres vset[4] PM_TYPE_FLOAT: %s\n", pmErrStr(e));
 	fatal = 1;
 	goto cleanup;
     }
-    hrrp->vset[4]->valfmt = e;
+    rp->vset[4]->valfmt = e;
     /* singular instance, DOUBLE value in pmValueBlock */
-    hrrp->vset[5] = (pmValueSet *)malloc(sizeof(*hrrp->vset[0]));
-    hrrp->numpmid = 6;
-    hrrp->vset[5]->pmid = pmidlist[3];
-    hrrp->vset[5]->numval = 1;
-    hrrp->vset[5]->vlist[0].inst = PM_IN_NULL;
+    rp->vset[5] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
+    rp->numpmid = 6;
+    rp->vset[5]->pmid = pmidlist[3];
+    rp->vset[5]->numval = 1;
+    rp->vset[5]->vlist[0].inst = PM_IN_NULL;
     av.d = 4.56E+123;
-    if ((e = __pmStuffValue(&av, &hrrp->vset[5]->vlist[0], PM_TYPE_DOUBLE)) < 0) {
+    if ((e = __pmStuffValue(&av, &rp->vset[5]->vlist[0], PM_TYPE_DOUBLE)) < 0) {
 	fprintf(stderr, "Error: __pmStuffValue highres vset[5] PM_TYPE_DOUBLE: %s\n", pmErrStr(e));
 	fatal = 1;
 	goto cleanup;
     }
-    hrrp->vset[5]->valfmt = e;
+    rp->vset[5]->valfmt = e;
     /* no values */
-    hrrp->vset[6] = (pmValueSet *)malloc(sizeof(*hrrp->vset[0]));
-    hrrp->numpmid = 7;
-    hrrp->vset[6]->pmid = 0xdeadcafe;
-    hrrp->vset[6]->numval = PM_ERR_GENERIC;
+    rp->vset[6] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
+    rp->numpmid = 7;
+    rp->vset[6]->pmid = 0xdeadcafe;
+    rp->vset[6]->numval = PM_ERR_GENERIC;
 
     /* done with setup, do it! */
-    if ((e = __pmSendHighResResult(fd[1], mypid, hrrp)) < 0) {
+    if ((e = __pmSendHighResResult(fd[1], mypid, rp)) < 0) {
 	fprintf(stderr, "Error: SendHighResResult: %s\n", pmErrStr(e));
 	fatal = 1;
 	goto cleanup;
@@ -696,53 +692,53 @@ _z(void)
 	    goto cleanup;
 	}
 	else {
-	    if ((e = __pmDecodeHighResResult(pb, &hrresp)) < 0) {
+	    if ((e = __pmDecodeHighResResult(pb, &resp)) < 0) {
 		fprintf(stderr, "Error: DecodeHighResResult: %s\n", pmErrStr(e));
 		fatal = 1;
 		goto cleanup;
 	    }
 	}
     }
-    if (hrresp->timestamp.tv_sec != hrrp->timestamp.tv_sec)
-	fprintf(stderr, "Botch: HighResResult: tv_sec: got: %d expect: %d\n",
-	    (int)hrresp->timestamp.tv_sec, (int)hrrp->timestamp.tv_sec);
-    if (hrresp->timestamp.tv_nsec != hrrp->timestamp.tv_nsec)
-	fprintf(stderr, "Botch: HighResResult: tv_nsec: got: %d expect: %d\n",
-	    (int)hrresp->timestamp.tv_nsec, (int)hrrp->timestamp.tv_nsec);
-    if (hrresp->numpmid != hrrp->numpmid)
+    if (resp->timestamp.sec != rp->timestamp.sec)
+	fprintf(stderr, "Botch: HighResResult: sec: got: %ld expect: %ld\n",
+	    (long)resp->timestamp.sec, (long)rp->timestamp.sec);
+    if (resp->timestamp.nsec != rp->timestamp.nsec)
+	fprintf(stderr, "Botch: HighResResult: nsec: got: %d expect: %d\n",
+	    (int)resp->timestamp.nsec, (int)rp->timestamp.nsec);
+    if (resp->numpmid != rp->numpmid)
 	fprintf(stderr, "Botch: HighResResult: numpmid: got: %d expect: %d\n",
-	    hrresp->numpmid, hrrp->numpmid);
-    for (i = 0; i < hrrp->numpmid; i++) {
-	if (hrresp->vset[i]->pmid != hrrp->vset[i]->pmid)
+	    resp->numpmid, rp->numpmid);
+    for (i = 0; i < rp->numpmid; i++) {
+	if (resp->vset[i]->pmid != rp->vset[i]->pmid)
 	    fprintf(stderr, "Botch: HighResResult: vset[%d].pmid: got: 0x%x expect: 0x%x\n",
-		i, hrresp->vset[i]->pmid, hrrp->vset[i]->pmid);
-	if (hrresp->vset[i]->numval != hrrp->vset[i]->numval) {
+		i, resp->vset[i]->pmid, rp->vset[i]->pmid);
+	if (resp->vset[i]->numval != rp->vset[i]->numval) {
 	    fprintf(stderr, "Botch: HighResResult: vset[%d].numval: got: %d expect: %d\n",
-		i, hrresp->vset[i]->numval, hrrp->vset[i]->numval);
+		i, resp->vset[i]->numval, rp->vset[i]->numval);
 	    continue;
 	}
-	if (hrresp->vset[i]->numval < 0)
+	if (resp->vset[i]->numval < 0)
 	    continue;
-	if (hrresp->vset[i]->valfmt != hrrp->vset[i]->valfmt)
+	if (resp->vset[i]->valfmt != rp->vset[i]->valfmt)
 	    fprintf(stderr, "Botch: HighResResult: vset[%d].valfmt: got: %d expect: %d\n",
-		i, hrresp->vset[i]->valfmt, hrrp->vset[i]->valfmt);
-	for (j = 0; j < hrrp->vset[i]->numval; j++) {
-	    if (hrresp->vset[i]->vlist[j].inst != hrrp->vset[i]->vlist[j].inst)
+		i, resp->vset[i]->valfmt, rp->vset[i]->valfmt);
+	for (j = 0; j < rp->vset[i]->numval; j++) {
+	    if (resp->vset[i]->vlist[j].inst != rp->vset[i]->vlist[j].inst)
 		fprintf(stderr, "Botch: HighResResult: vset[%d][%d].inst: got: %d expect: %d\n",
-		    i, j, hrresp->vset[i]->vlist[j].inst,
-		    hrrp->vset[i]->vlist[j].inst);
-	    if (hrresp->vset[i]->valfmt != hrrp->vset[i]->valfmt)
+		    i, j, resp->vset[i]->vlist[j].inst,
+		    rp->vset[i]->vlist[j].inst);
+	    if (resp->vset[i]->valfmt != rp->vset[i]->valfmt)
 		continue;
-	    if (hrresp->vset[i]->valfmt == PM_VAL_INSITU) {
-		if (hrresp->vset[i]->vlist[j].value.lval != hrrp->vset[i]->vlist[j].value.lval)
+	    if (resp->vset[i]->valfmt == PM_VAL_INSITU) {
+		if (resp->vset[i]->vlist[j].value.lval != rp->vset[i]->vlist[j].value.lval)
 		    fprintf(stderr, "Botch: HighResResult: insitu vset[%d][%d].value.lval: got: %d expect: %d\n",
-			i, j, hrresp->vset[i]->vlist[j].value.lval,
-			hrrp->vset[i]->vlist[j].value.lval);
+			i, j, resp->vset[i]->vlist[j].value.lval,
+			rp->vset[i]->vlist[j].value.lval);
 		continue;
 	    }
 	    /* NOT insitu */
-	    gvbp = hrresp->vset[i]->vlist[j].value.pval;
-	    xvbp = hrrp->vset[i]->vlist[j].value.pval;
+	    gvbp = resp->vset[i]->vlist[j].value.pval;
+	    xvbp = rp->vset[i]->vlist[j].value.pval;
 	    if (gvbp->vlen != xvbp->vlen)
 		fprintf(stderr, "Botch: HighResResult: vset[%d][%d].value.pval->vlen: got %d expect %d\n",
 		    i, j, gvbp->vlen, xvbp->vlen);
@@ -785,8 +781,8 @@ _z(void)
 	    }
 	}
     }
-    if (hrresp != NULL)
-	pmFreeHighResResult(hrresp);
+    if (resp != NULL)
+	__pmFreeResult(resp);
     }
 
 /* PDU_PROFILE */
@@ -1846,7 +1842,7 @@ _z(void)
 		goto cleanup;
 	    }
 	    else {
-		pmResult	*logresp;
+		__pmResult	*logresp;
 
 		if ((e = __pmDecodeLogControl(pb, &logresp, &control, &state, &rate)) < 0) {
 		    fprintf(stderr, "Error: DecodeLogControl: numval=%d %s\n", nv, pmErrStr(e));
@@ -1889,7 +1885,7 @@ _z(void)
 			    }
 			}
 		    }
-		    pmFreeResult(logresp);
+		    __pmFreeResult(logresp);
 		}
 	    }
 	}
@@ -2049,23 +2045,8 @@ cleanup:
 	free(rp);
     }
 
-    /* done with hrrp by now */
-    if (hrrp != NULL) {
-	for (i = 0; i < hrrp->numpmid; i++) {
-	    if (hrrp->vset[i]->numval > 0 && hrrp->vset[i]->valfmt == PM_VAL_DPTR) {
-		for (j = 0; j < hrrp->vset[i]->numval; j++) {
-		    if (hrrp->vset[i]->vlist[j].value.pval != NULL)
-			free(hrrp->vset[i]->vlist[j].value.pval);
-		}
-	    }
-	    free(hrrp->vset[i]);
-	}
-	free(hrrp);
-    }
-
     if (fatal)
 	exit(1);
-
 }
 
 int

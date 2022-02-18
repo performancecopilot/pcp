@@ -18,14 +18,14 @@
 
 #include "localconfig.h"
 
-static pmResult	*_store;
-static pmDesc	_desc;
-static int	_numinst;
-static int	*_instlist;
-static char	**_inamelist;
-static int	_text;
-static int	_indom_text;
-static int	ctlport;
+static __pmResult	*_store;
+static pmDesc		_desc;
+static int		_numinst;
+static int		*_instlist;
+static char		**_inamelist;
+static int		_text;
+static int		_indom_text;
+static int		ctlport;
 
 static void
 _ConnectLogger(void)
@@ -131,7 +131,8 @@ exer(int numpmid, pmID *pmidlist, int xpecterr)
     int		err = 0;
     pmDesc	desc;
     char	*buf;
-    pmResult	*resp, *lresp;
+    pmResult	*resp;
+    __pmResult	*lresp;
 
     for (i = 0; i < 4; i++) {
 	if (!xpecterr)
@@ -215,7 +216,7 @@ exer(int numpmid, pmID *pmidlist, int xpecterr)
 	    pmFreeResult(resp);
 	}
 
-	if ((n = pmStore(_store)) < 0) {
+	if ((n = pmStore(__pmOffsetResult(_store))) < 0) {
 	    fprintf(stderr, "pmStore: %s", pmErrStr(n));
 	    if (xpecterr)
 		fprintf(stderr, " -- error expected\n");
@@ -237,7 +238,7 @@ exer(int numpmid, pmID *pmidlist, int xpecterr)
 	    }
 	}
 	else {
-	    pmFreeResult(lresp);
+	    __pmFreeResult(lresp);
 	}
 
     }
@@ -338,7 +339,7 @@ Options:\n\
 	}
 	exit(1);
     }
-    if ((n = pmFetch(1, pmidlist, &_store)) < 0) {
+    if ((n = __pmFetch(NULL, 1, pmidlist, &_store)) < 0) {
 	fprintf(stderr, "initial pmFetch failed: %s\n", pmErrStr(n));
 	exit(1);
     }

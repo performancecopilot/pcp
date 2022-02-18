@@ -1,24 +1,23 @@
 #include "pmlogreduce.h"
 #include <inttypes.h>
 
-static pmResult	*orp;
+static __pmResult	*orp;
 
 /*
  * Must either re-write the pmResult, or return NULL for non-fatal
  * errors, else report and exit for catastrophic errors ...
  */
-pmResult *
-rewrite(pmResult *rp)
+__pmResult *
+rewrite(__pmResult *rp)
 {
     int			i;
     int			sts;
 
-    if ((orp = (pmResult *)malloc(sizeof(pmResult) +
-			(rp->numpmid - 1) * sizeof(pmValueSet *))) == NULL) {
+    if ((orp = __pmAllocResult(rp->numpmid)) == NULL) {
 	fprintf(stderr,
-		"%s: rewrite: cannot malloc pmResult for %d metrics\n",
+		"%s: rewrite: cannot malloc result for %d metrics\n",
 		    pmGetProgname(), rp->numpmid);
-	    exit(1);
+	exit(1);
     }
     orp->numpmid = 0;
     orp->timestamp = rp->timestamp;	/* struct assignment */

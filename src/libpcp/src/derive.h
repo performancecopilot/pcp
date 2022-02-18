@@ -1,11 +1,12 @@
 /*
  * Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
- * 
+ * Copyright (c) 2022 Red Hat.
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -159,8 +160,7 @@ extern void __dmbind(int, __pmContext *, int, int) _PCP_HIDDEN;
 extern void __dmclosecontext(__pmContext *) _PCP_HIDDEN;
 extern int __dmdesc(__pmContext *, int, pmID, pmDesc *) _PCP_HIDDEN;
 extern int __dmprefetch(__pmContext *, int, const pmID *, pmID **) _PCP_HIDDEN;
-extern void __dmpostfetch(__pmContext *, pmResult **) _PCP_HIDDEN;
-extern void __dmposthighresfetch(__pmContext *, pmHighResResult **) _PCP_HIDDEN;
+extern void __dmpostfetch(__pmContext *, __pmResult **) _PCP_HIDDEN;
 extern void __dmdumpexpr(node_t *, int) _PCP_HIDDEN;
 extern char *__dmnode_type_str(int) _PCP_HIDDEN;
 extern int __dmhelptext(pmID, int, char **) _PCP_HIDDEN;

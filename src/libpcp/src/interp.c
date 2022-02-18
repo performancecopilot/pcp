@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2015-2017 Red Hat.
+ * Copyright (c) 2015-2017,2022 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -109,7 +109,7 @@ typedef struct pmidcntl {		/* metric control */
 } pmidcntl_t;
 
 typedef struct {
-    pmResult	*rp;		/* cached pmResult from __pmLogRead */
+    __pmResult	*rp;		/* cached pmResult from __pmLogRead */
     int		sts;		/* from __pmLogRead */
     char	*c_name;	/* log name */
     int		vol;		/* log volume */
@@ -132,7 +132,7 @@ static long	nr[PM_MODE_BACK+1];
  * called with the context lock held
  */
 static int
-cache_read(__pmContext *ctxp, int mode, pmResult **rp)
+cache_read(__pmContext *ctxp, int mode, __pmResult **rp)
 {
     __pmArchCtl	*acp = ctxp->c_archctl;
     long	posn;
@@ -196,17 +196,12 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
 	    else
 		__pmFseek(acp->ac_mfp, cp->head_posn, SEEK_SET);
 	    if (pmDebugOptions.log && pmDebugOptions.desperate) {
-		__pmTimestamp	stamp;
+		__pmTimestamp	tmp;
 		double		t_this;
-#if 0	// TODO when __pmResult change made
 		tmp = cp->rp->timestamp;	/* struct assignment */
-#else
-		stamp.sec = (__int32_t)cp->rp->timestamp.tv_sec;
-		stamp.nsec = (__int32_t)cp->rp->timestamp.tv_usec * 1000;
-#endif
-		t_this = __pmTimestampSub(&stamp, __pmLogStartTime(acp));
+		t_this = __pmTimestampSub(&tmp, __pmLogStartTime(acp));
 		fprintf(stderr, "hit cache[%d] t=%.6f\n",
-		    (int)(cp - cache), t_this);
+			(int)(cp - cache), t_this);
 		nr_cache[mode]++;
 	    }
 	    acp->ac_mark_done = 0;
@@ -220,7 +215,7 @@ cache_read(__pmContext *ctxp, int mode, pmResult **rp)
     nr[mode]++;
 
     if (lfup->rp != NULL)
-	pmFreeResult(lfup->rp);
+	__pmFreeResult(lfup->rp);
 
     /*
      * We need to know when we cross archive or volume boundaries.
@@ -393,7 +388,7 @@ dumpicp(const char *tag, instcntl_t *icp)
  * UPD_MARK_BACK, &done - specifically looking for upper bound
  */
 static int
-update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int *done, int *seen_mark)
+update_bounds(__pmContext *ctxp, double t_req, __pmResult *logrp, int do_mark, int *done, int *seen_mark)
 {
     /*
      * for every metric in the result from the log
@@ -401,26 +396,21 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
      *     if we have ever asked for this metric and instance, update the
      *        range bounds, if necessary
      */
-    int		k;
-    int		i;
-    __pmHashCtl	*hcp = &ctxp->c_archctl->ac_pmid_hc;
+    int			k;
+    int			i;
+    __pmHashCtl		*hcp = &ctxp->c_archctl->ac_pmid_hc;
     __pmHashNode	*hp;
     __pmHashNode	*ihp;
-    pmidcntl_t	*pcp;
-    instcntl_t	*icp;
-    double	t_this;
-    __pmTimestamp	stamp;
-    int		changed;
-    static int	ignore_mark_records = -1;
+    pmidcntl_t		*pcp;
+    instcntl_t		*icp;
+    double		t_this;
+    __pmTimestamp	tmp;
+    int			changed;
+    static int		ignore_mark_records = -1;
     static double	ignore_mark_gap = 0;
 
-#if 0	// TODO when __pmResult change made
     tmp = logrp->timestamp;		/* struct assignment */
-#else
-    stamp.sec = (__int32_t)logrp->timestamp.tv_sec;
-    stamp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
-#endif
-    t_this = __pmTimestampSub(&stamp, __pmLogStartTime(ctxp->c_archctl));
+    t_this = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 
     if (logrp->numpmid == 0) {
 	if (ignore_mark_records == -1) {
@@ -481,7 +471,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 	     */
 	    double	t_next = -1;
 	    double	t_prior = -1;
-	    pmResult	*peek;
+	    __pmResult	*peek;
 	    int		sts;
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    int		save_arch = 0;
@@ -505,14 +495,9 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		 */
 		goto check;
 	    }
-#if 0	// TODO when __pmResult change made
 	    tmp = peek->timestamp;		/* stuct assignment */
-#else
-	    stamp.sec = (__int32_t)peek->timestamp.tv_sec;
-	    stamp.nsec = (__int32_t)peek->timestamp.tv_usec * 1000;
-#endif
-	    t_next = __pmTimestampSub(&stamp, __pmLogStartTime(ctxp->c_archctl));
-	    pmFreeResult(peek);
+	    t_next = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+	    __pmFreeResult(peek);
 
 	    /* backup -> should be <next> record */
 	    sts = __pmLogRead_ctx(ctxp, PM_MODE_BACK, NULL, &peek, PMLOGREAD_NEXT);
@@ -523,7 +508,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		/* should not happen ... */
 		goto restore;
 	    }
-	    pmFreeResult(peek);
+	    __pmFreeResult(peek);
 
 	    /* backup -> should be <mark> record */
 	    sts = __pmLogRead_ctx(ctxp, PM_MODE_BACK, NULL, &peek, PMLOGREAD_NEXT);
@@ -538,7 +523,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		if (pmDebugOptions.interp)
 		    fprintf(stderr, "update_bounds: mark unread <mark> expecting <mark> got numpmid=%d\n", peek->numpmid);
 	    }
-	    pmFreeResult(peek);
+	    __pmFreeResult(peek);
 
 	    /* <prior> */
 	    sts = __pmLogRead_ctx(ctxp, PM_MODE_BACK, NULL, &peek, PMLOGREAD_NEXT);
@@ -552,14 +537,9 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		 */
 		goto check;
 	    }
-#if 0	// TODO when __pmResult change made
-	    tmp = peek.timestamp;		/* struct assignment */
-#else
-	    stamp.sec = (__int32_t)peek->timestamp.tv_sec;
-	    stamp.nsec = (__int32_t)peek->timestamp.tv_usec * 1000;
-#endif
-	    t_prior = __pmTimestampSub(&stamp, __pmLogStartTime(ctxp->c_archctl));
-	    pmFreeResult(peek);
+	    tmp = peek->timestamp;		/* struct assignment */
+	    t_prior = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+	    __pmFreeResult(peek);
 
 	    /* backup -> should be <prior> record */
 	    sts = __pmLogRead_ctx(ctxp, PM_MODE_FORW, NULL, &peek, PMLOGREAD_NEXT);
@@ -570,7 +550,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		/* should not happen ... */
 		goto restore;
 	    }
-	    pmFreeResult(peek);
+	    __pmFreeResult(peek);
 
 	    /* backup -> should be <mark> record */
 	    sts = __pmLogRead_ctx(ctxp, PM_MODE_FORW, NULL, &peek, PMLOGREAD_NEXT);
@@ -585,7 +565,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		if (pmDebugOptions.interp)
 		    fprintf(stderr, "update_bounds: mark reread <mark> expecting <mark> got numpmid=%d\n", peek->numpmid);
 	    }
-	    pmFreeResult(peek);
+	    __pmFreeResult(peek);
 	    goto check;
 
 restore:
@@ -834,11 +814,11 @@ check:
 static int
 do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
 {
-    pmResult	*logrp;
-    __pmTimestamp	stamp;
-    double	t_this;
-    int		err;
-    int		sts;
+    __pmResult		*logrp;
+    __pmTimestamp	tmp;
+    double		t_this;
+    int			err;
+    int			sts;
 
     /*
      * now roll forwards in the direction of log reading
@@ -846,13 +826,8 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
      */
     if (ctxp->c_delta > 0) {
 	while ((err = cache_read(ctxp, PM_MODE_FORW, &logrp)) >= 0) {
-#if 0	// TODO when __pmResult change made
 	    tmp = logrp->timestamp;		/* struct assignment */
-#else
-	    stamp.sec = (__int32_t)logrp->timestamp.tv_sec;
-	    stamp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
-#endif
-	    t_this = __pmTimestampSub(&stamp, __pmLogStartTime(ctxp->c_archctl));
+	    t_this = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 	    if (t_this > t_req)
 		break;
 
@@ -869,13 +844,8 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
     }
     else {
 	while ((err = cache_read(ctxp, PM_MODE_BACK, &logrp)) >= 0) {
-#if 0	// TODO when __pmResult change made
 	    tmp = logrp->timestamp;		/* struct assignment */
-#else
-	    stamp.sec = (__int32_t)logrp->timestamp.tv_sec;
-	    stamp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
-#endif
-	    t_this = __pmTimestampSub(&stamp, __pmLogStartTime(ctxp->c_archctl));
+	    t_this = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 	    if (t_this < t_req)
 		break;
 
@@ -1073,37 +1043,26 @@ time_caliper(__pmContext *ctxp, instcntl_t *icp)
 #define NUIS_LAST_TRIM		7
 
 int
-__pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **result)
+__pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmResult **result)
 {
-    int		i;
-    int		j;
-    int		k;
-    int		sts;
-    double	t_req;
-    double	t_this;
-#if 0		// TODO when result => __pmResult
-    pmResult	*rp;
-#else
-    pmResult	*rp;
-    __pmResult	*__rp;
-#endif
-    pmResult	*logrp;
-    __pmHashCtl	*hcp = &ctxp->c_archctl->ac_pmid_hc;
-    __pmHashNode	*hp;
-    __pmHashNode	*ihp;
-    pmidcntl_t	*pcp = NULL;	/* initialize to pander to gcc */
-    instcntl_t	*icp = NULL;	/* initialize to pander to gcc */
-    instcntl_t	*ub, *ub_prev;
-    int		back = 0;
-    int		forw = 0;
-    int		done;
-    int		done_roll;
-    int		seen_mark;
-    static int	dowrap = -1;
-    __pmTimestamp	stamp;
-    struct timeval delta_tv = {0};
+    int			i, j, k, sts;
+    double		t_req, t_this;
+    __pmResult		*rp, *logrp;
+    __pmHashCtl		*hcp = &ctxp->c_archctl->ac_pmid_hc;
+    __pmHashNode	*hp, *ihp;
+    pmidcntl_t		*pcp = NULL;	/* initialize to pander to gcc */
+    instcntl_t		*icp = NULL;	/* initialize to pander to gcc */
+    instcntl_t		*ub, *ub_prev;
+    int			back = 0;
+    int			forw = 0;
+    int			done;
+    int			done_roll;
+    int			seen_mark;
+    static int		dowrap = -1;
+    __pmTimestamp	tmp;
+    struct timeval	delta_tv = {0};
     				/* number of unbound items scanned */
-    long	nuis[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+    long		nuis[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
     PM_LOCK(__pmLock_extcall);
     if (dowrap == -1) {
@@ -1289,9 +1248,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	 */
 	if (ctxp->c_delta > 0) {
 	    while (cache_read(ctxp, PM_MODE_BACK, &logrp) >= 0) {
-		stamp.sec = (__int32_t)logrp->timestamp.tv_sec;
-		stamp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
-		t_this = __pmTimestampSub(&stamp, __pmLogStartTime(ctxp->c_archctl));
+		tmp = logrp->timestamp;		/* struct assignment */
+		t_this = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 		if (t_this <= t_req) {
 		    break;
 		}
@@ -1306,9 +1264,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	}
 	else {
 	    while (cache_read(ctxp, PM_MODE_FORW, &logrp) >= 0) {
-		stamp.sec = (__int32_t)logrp->timestamp.tv_sec;
-		stamp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
-		t_this = __pmTimestampSub(&stamp, __pmLogStartTime(ctxp->c_archctl));
+		tmp = logrp->timestamp;		/* struct assignment */
+		t_this = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 		if (t_this > t_req) {
 		    break;
 		}
@@ -1445,9 +1402,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		}
 		break;
 	    }
-	    stamp.sec = (__int32_t)logrp->timestamp.tv_sec;
-	    stamp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
-	    t_this = __pmTimestampSub(&stamp, __pmLogStartTime(ctxp->c_archctl));
+	    tmp = logrp->timestamp;		/* struct assignment */
+	    t_this = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 	    if (ctxp->c_delta < 0 && t_this >= t_req) {
 		/* going backwards, and not up to t_req yet */
 		ctxp->c_archctl->ac_offset = __pmFtell(ctxp->c_archctl->ac_mfp);
@@ -1592,9 +1548,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		}
 		break;
 	    }
-	    stamp.sec = (__int32_t)logrp->timestamp.tv_sec;
-	    stamp.nsec = (__int32_t)logrp->timestamp.tv_usec * 1000;
-	    t_this = __pmTimestampSub(&stamp, __pmLogStartTime(ctxp->c_archctl));
+	    tmp = logrp->timestamp;		/* struct assignment */
+	    t_this = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 	    if (ctxp->c_delta > 0 && t_this <= t_req) {
 		/* going forwards, and not up to t_req yet */
 		ctxp->c_archctl->ac_offset = __pmFtell(ctxp->c_archctl->ac_mfp);
@@ -1710,13 +1665,10 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 
     /* Build the final result. */
 PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
-    if ((__rp = __pmAllocResult(numpmid)) == NULL) {
+    if ((rp = __pmAllocResult(numpmid)) == NULL) {
 	return -oserror();
     }
-
-    rp = __pmOffsetResult(__rp);
-    rp->timestamp.tv_sec = ctxp->c_origin.sec;
-    rp->timestamp.tv_usec = ctxp->c_origin.nsec / 1000;
+    rp->timestamp = ctxp->c_origin;
     rp->numpmid = numpmid;
 
     for (j = 0; j < numpmid; j++) {
@@ -1821,10 +1773,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 						av.ul += avp_prior->ul;
 					    }
 					    else {
-						__uint32_t	tmp;
-						tmp = avp_prior->ul - avp_next->ul;
+						__uint32_t	ul;
+						ul = avp_prior->ul - avp_next->ul;
 						av.ul = 0.5 + avp_prior->ul -
-						    (t_req - icp->t_prior) * tmp /
+						    (t_req - icp->t_prior) * ul /
 						    (icp->t_next - icp->t_prior);
 					    }
 					}
@@ -2033,24 +1985,24 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 #endif
 					    }
 					    else {
-						__uint64_t	tmp;
-						tmp = ull_prior - ull_next;
+						__uint64_t	ull;
+						ull = ull_prior - ull_next;
 #if !defined(HAVE_CAST_U64_DOUBLE)
 						{
-						    double xtmp;
+						    double xull;
 						    
 						    if (SIGN_64_MASK & av.ull)
-							xtmp = (double)(__int64_t)(tmp & (~SIGN_64_MASK)) + (__uint64_t)SIGN_64_MASK;
+							xull = (double)(__int64_t)(ull & (~SIGN_64_MASK)) + (__uint64_t)SIGN_64_MASK;
 						    else
-							xtmp = (double)(__int64_t)tmp;
+							xull = (double)(__int64_t)ull;
 						    
 						    av.ull = (__uint64_t)(0.5 + (double)ull_prior -
-									  (t_req - icp->t_prior) * xtmp /
+									  (t_req - icp->t_prior) * xull /
 									  (icp->t_next - icp->t_prior));
 						}
 #else
 						av.ull = (__uint64_t)(0.5 + (double)ull_prior -
-								      (t_req - icp->t_prior) * (double)tmp /
+								      (t_req - icp->t_prior) * (double)ull /
 								      (icp->t_next - icp->t_prior));
 #endif
 					    }
@@ -2068,9 +2020,9 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 			}
 		    }
 		    else if (pcp->desc.type == PM_TYPE_DOUBLE) {
-			int			need;
 			pmValueBlock	*vp;
-			int			ok = 1;
+			int		need;
+			int		ok = 1;
 			
 			need = PM_VAL_HDR_SIZE + sizeof(double);
 			if ((vp = (pmValueBlock *)malloc(need)) == NULL) {
@@ -2102,8 +2054,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 				/* assume COUNTER */
 				if (icp->t_prior >= 0 && icp->t_next >= 0) {
 				    pmAtomValue	av;
-				    void		*avp_prior = (void *)icp->v_prior.pval->vbuf;
-				    void		*avp_next = (void *)icp->v_next.pval->vbuf;
+				    void	*avp_prior = (void *)icp->v_prior.pval->vbuf;
+				    void	*avp_next = (void *)icp->v_next.pval->vbuf;
 				    double	d_prior;
 				    double	d_next;
 				    memcpy((void *)&av.d, avp_prior, sizeof(av.d));
@@ -2203,7 +2155,7 @@ bad_alloc:
     rp->vset[j]->numval = i;
     while (++j < numpmid)
 	rp->vset[j]->numval = 0;
-    pmFreeResult(rp);
+    __pmFreeResult(rp);
 
     return sts;
 
@@ -2363,7 +2315,7 @@ __pmFreeInterpData(__pmContext *ctxp)
 		cp->c_name = NULL;
 	    }
 	    if (cp->rp != NULL) {
-		pmFreeResult(cp->rp);
+		__pmFreeResult(cp->rp);
 		cp->rp = NULL;
 	    }
 	    cp->used = 0;

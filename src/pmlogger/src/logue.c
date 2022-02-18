@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017,2021 Red Hat.
+ * Copyright (c) 2017,2021-2022 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -68,31 +68,21 @@ do_logue(int type)
     int		i;
     int		j;
     pid_t	mypid = getpid();
-#if 0		// TODO when __pmEncodeResult => __pmResult
     __pmResult	*res;			/* the output pmResult */
-#else
-    pmResult	*res;			/* the output pmResult */
-    __pmResult	*__res;			/* temporary pointer */
-#endif
-    pmResult	*res_pmcd = NULL;	/* for values from pmcd */
     __pmPDU	*pb;
     pmAtomValue	atom;
     char	path[MAXPATHLEN];
     char	host[MAXHOSTNAMELEN];
-    long	offset;
-    int		free_cp;
+    pmHighResResult	*res_pmcd = NULL; /* values from pmcd */
     __pmLogInDom_io	lid;
 
-    /* start to build the pmResult */
-    if ((__res = __pmAllocResult(n_metric)) == NULL)
+    /* start to build the internal __pmResult */
+    if ((res = __pmAllocResult(n_metric)) == NULL)
 	return -oserror();
-    res = __pmOffsetResult(__res);
 
     res->numpmid = n_metric;
     if (type == PROLOGUE) {
-	last_stamp = res->timestamp = epoch;	/* struct assignment */
-	lid.stamp.sec = (__int32_t)epoch.tv_sec;
-	lid.stamp.nsec = (__int32_t)epoch.tv_usec * 1000;
+	last_stamp = res->timestamp = lid.stamp = epoch; /* struct assignment */
     }
     else {
 	res->timestamp = last_stamp;	/* struct assignment */
@@ -100,10 +90,10 @@ do_logue(int type)
 	 * epilogue, last plus 1msec as the default ... hope pmFetch gives
 	 * us a better answer below
 	 */
-	res->timestamp.tv_usec += 1000;
-	if (res->timestamp.tv_usec > 999999) {
-	    res->timestamp.tv_usec -= 1000000;
-	    res->timestamp.tv_sec++;
+	res->timestamp.nsec += 1000000;
+	if (res->timestamp.nsec > 999999999) {
+	    res->timestamp.nsec -= 1000000000;
+	    res->timestamp.sec++;
 	}
     }
 
@@ -111,6 +101,8 @@ do_logue(int type)
 	res->vset[i] = NULL;
 
     for (i = 0; i < n_metric; i++) {
+	int	free_cp = 0;
+
 	res->vset[i] = (pmValueSet *)malloc(sizeof(pmValueSet));
 	if (res->vset[i] == NULL) {
 	    sts = -oserror();
@@ -119,7 +111,6 @@ do_logue(int type)
 	res->vset[i]->pmid = desc[i].pmid;
 	res->vset[i]->numval = 1;
 	/* special case for each value 0 .. n_metric-1 */
-	free_cp = 0;
 	if (desc[i].pmid == PMID(2,3,3)) {
 	    __pmHostEnt *servInfo;
 	    /* my fully qualified hostname, cloned from the pmcd PMDA */
@@ -161,16 +152,18 @@ do_logue(int type)
 	    res->vset[i]->vlist[0].inst = (int)mypid;
 	}
 	else if (desc[i].pmid == PMID(2,0,23)) {
-	    pmID	pmid[2];
+	    pmID		pmid[2];
 	    /*
 	     * pmcd.pid and pmcd.seqnum we need from pmcd ...
 	     */
-	    pmid[0] = PMID(2,0,23);
-	    pmid[1] = PMID(2,0,24);
-	    // TODO needs to be pmHighResFetch()
-	    sts = pmFetch(2, pmid, &res_pmcd);
+	    pmid[0] = PMID(2,0,23);	/* pmcd.pid */
+	    pmid[1] = PMID(2,0,24);	/* pmcd.seqnum */
+
+	    sts = pmHighResFetch(2, pmid, &res_pmcd);
 	    if (sts >= 0 && type == EPILOGUE) {
-		last_stamp = res->timestamp = res_pmcd->timestamp;	/* struct assignment */
+		last_stamp.sec = res_pmcd->timestamp.tv_sec;
+		last_stamp.nsec = res_pmcd->timestamp.tv_nsec;
+		res->timestamp = last_stamp;	/* struct assignment */
 	    }
 	    if (sts >= 0 && res_pmcd->vset[0]->numval == 1 &&
 	        (res_pmcd->vset[0]->valfmt == PM_VAL_SPTR || res_pmcd->vset[0]->valfmt == PM_VAL_DPTR))
@@ -195,18 +188,29 @@ do_logue(int type)
 	res->vset[i]->valfmt = sts;
     }
 
-    if ((sts = __pmEncodeResult(__pmFileno(archctl.ac_mfp), res, &pb)) < 0)
+    if (archive_version >= PM_LOG_VERS03)
+	sts = __pmEncodeHighResResult(res, &pb);
+    else
+	sts = __pmEncodeResult(res, &pb);
+    if (sts < 0)
 	goto done;
 
-    __pmOverrideLastFd(__pmFileno(archctl.ac_mfp));	/* force use of log version */
+    /* force use of log version */
+    __pmOverrideLastFd(__pmFileno(archctl.ac_mfp));
     /* and write to the archive data file ... */
     last_log_offset = __pmFtell(archctl.ac_mfp);
-    sts = __pmLogPutResult2(&archctl, pb);
+
+    if (archive_version >= PM_LOG_VERS03)
+	sts = __pmLogPutResult3(&archctl, pb);
+    else
+	sts = __pmLogPutResult2(&archctl, pb);
     __pmUnpinPDUBuf(pb);
     if (sts < 0)
 	goto done;
 
     if (type == PROLOGUE) {
+	long	offset;
+
 	for (i = 0; i < n_metric; i++) {
 	    if ((sts = __pmLogPutDesc(&archctl, &desc[i], 1, &names[i])) < 0)
 		goto done;
@@ -280,9 +284,9 @@ done:
 	}
     }
     res->numpmid = 0;		/* don't free vset's */
-    pmFreeResult(res);
+    __pmFreeResult(res);
     if (res_pmcd != NULL)
-	pmFreeResult(res_pmcd);
+	pmFreeHighResResult(res_pmcd);
 
     return sts;
 }

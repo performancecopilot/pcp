@@ -141,7 +141,7 @@ Full help text for indom 'eek'
         [0] name(2,25) : value(29,42) [instances]
   label[6]  instance=3 of indom=245.1     InDom 245.1[3] labels (72 bytes): {"NewInstancesLabel245_1__3":"ReplacementInstancesLabel245_1__3Content"}
         [0] name(2,25) : value(29,42) [instances]
-pmResult ... numpmid: 6
+__pmResult ... numpmid: 6
   245.0.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 123 1.7235971e-43 0x7b
   245.0.2 (<noname>): numval: 2 valfmt: 1 vlist[]:
@@ -202,7 +202,7 @@ Full help text for my.metric.foo
   text[3] indom=245.1 
 Full help text for indom 'eek'
   No labels.
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   245.0.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [2 or ???] value 6543210987654
 
@@ -606,7 +606,7 @@ Full help text for indom 'eek'
         [0] name(2,25) : value(29,42) [instances]
   label[6]  instance=3 of indom=245.1     InDom 245.1[3] labels (72 bytes): {"NewInstancesLabel245_1__3":"ReplacementInstancesLabel245_1__3Content"}
         [0] name(2,25) : value(29,42) [instances]
-pmResult ... numpmid: 6
+__pmResult ... numpmid: 6
   245.0.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 123 1.7235971e-43 0x7b
   245.0.2 (<noname>): numval: 2 valfmt: 1 vlist[]:
@@ -667,7 +667,7 @@ Full help text for my.metric.foo
   text[3] indom=245.1 
 Full help text for indom 'eek'
   No labels.
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   245.0.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [2 or ???] value 6543210987654
 

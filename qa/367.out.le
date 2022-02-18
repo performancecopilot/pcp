@@ -20,7 +20,7 @@ QA output created by 367
 032:        1 ffffffff       2f   3ffc00        1        1 ffffffff       31 
 040: deadcafe ffffcfc7  6000006 30007e7e  300000c 87654321 12345678  4000008 
 048: 63691a7d  500000c 599b979b 8f205a13 
-pmResult dump from ADDR timestamp: 108000.123456 06:00:00.123 numpmid: 7
+__pmResult dump from ADDR timestamp: 108000.123456000 06:00:00.123456000 numpmid: 7
   0.55.685 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 1234 0 0x4d2
   0.47.751 (<noname>): numval: 3 valfmt: 0 vlist[]:
@@ -37,7 +37,7 @@ pmResult dump from ADDR timestamp: 108000.123456 06:00:00.123 numpmid: 7
    value 4.56e+123
   378.2930.766 (<noname>): Generic error, already reported above
 + PDU_RESULT:
-pmResult dump from ADDR timestamp: 108000.123456 06:00:00.123 numpmid: 7
+__pmResult dump from ADDR timestamp: 108000.123456000 06:00:00.123456000 numpmid: 7
   0.55.685 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 1234 0 0x4d2
   0.47.751 (<noname>): numval: 3 valfmt: 0 vlist[]:
@@ -53,7 +53,7 @@ pmResult dump from ADDR timestamp: 108000.123456 06:00:00.123 numpmid: 7
   0.4095.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value 4.56e+123
   378.2930.766 (<noname>): Generic error, already reported above
-pmResult dump from ADDR timestamp: 108000.123456 06:00:00.123 numpmid: 7
+__pmResult dump from ADDR timestamp: 108000.123456000 06:00:00.123456000 numpmid: 7
   0.55.685 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 1234 0 0x4d2
   0.47.751 (<noname>): numval: 3 valfmt: 0 vlist[]:
@@ -85,7 +85,7 @@ pmResult dump from ADDR timestamp: 108000.123456 06:00:00.123 numpmid: 7
 032:     c03f  1000000  1000000 ffffffff 31000000   fc3f00  1000000  1000000 
 040: ffffffff 33000000 fecaadde c7cfffff  6000006 7e7e0030  c000003 21436587 
 048: 78563412  8000004 63691a7d  500000c 599b979b 8f205a13 
-pmHighResResult dump from ADDR timestamp: 108000.123456789 06:00:00.123456789 numpmid: 7
+__pmResult dump from ADDR timestamp: 108000.123456789 06:00:00.123456789 numpmid: 7
   0.55.685 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 1234 0 0x4d2
   0.47.751 (<noname>): numval: 3 valfmt: 0 vlist[]:
@@ -102,7 +102,7 @@ pmHighResResult dump from ADDR timestamp: 108000.123456789 06:00:00.123456789 nu
    value 4.56e+123
   378.2930.766 (<noname>): Generic error, already reported above
 + PDU_HIGHRES_RESULT:
-pmHighResResult dump from ADDR timestamp: 108000.123456789 06:00:00.123456789 numpmid: 7
+__pmResult dump from ADDR timestamp: 108000.123456789 06:00:00.123456789 numpmid: 7
   0.55.685 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 1234 0 0x4d2
   0.47.751 (<noname>): numval: 3 valfmt: 0 vlist[]:
@@ -118,7 +118,7 @@ pmHighResResult dump from ADDR timestamp: 108000.123456789 06:00:00.123456789 nu
   0.4095.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value 4.56e+123
   378.2930.766 (<noname>): Generic error, already reported above
-pmHighResResult dump from ADDR timestamp: 108000.123456789 06:00:00.123456789 numpmid: 7
+__pmResult dump from ADDR timestamp: 108000.123456789 06:00:00.123456789 numpmid: 7
   0.55.685 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 1234 0 0x4d2
   0.47.751 (<noname>): numval: 3 valfmt: 0 vlist[]:
@@ -446,13 +446,13 @@ namelist dump: numnames = 11
 008: ffffffff     beef        3        2      929        4      d80        8 
 016:     11d7 
 + PDU_LOG_CONTROL: control=11 state=1 rate=1000
-pmResult dump from ADDR timestamp: NOW TODAY numpmid: 2
+__pmResult dump from ADDR timestamp: NOW TODAY numpmid: 2
   0.55.685 (<noname>): Operation not permitted
   0.47.751 (<noname>): numval: 3 valfmt: 0 vlist[]:
     inst [2 or ???] value 2345 0 0x929
     inst [4 or ???] value 3456 0 0xd80
     inst [8 or ???] value 4567 0 0x11d7
-pmResult dump from ADDR timestamp: NOW TODAY numpmid: 2
+__pmResult dump from ADDR timestamp: NOW TODAY numpmid: 2
   0.55.685 (<noname>): Operation not permitted
   0.47.751 (<noname>): numval: 3 valfmt: 0 vlist[]:
     inst [2 or ???] value 2345 0 0x929
@@ -467,13 +467,13 @@ pmResult dump from ADDR timestamp: NOW TODAY numpmid: 2
 008:        0     beef        3        2      929        4      d80        8 
 016:     11d7 
 + PDU_LOG_CONTROL: control=11 state=1 rate=1000
-pmResult dump from ADDR timestamp: NOW TODAY numpmid: 2
+__pmResult dump from ADDR timestamp: NOW TODAY numpmid: 2
   0.55.685 (<noname>): No values returned!
   0.47.751 (<noname>): numval: 3 valfmt: 0 vlist[]:
     inst [2 or ???] value 2345 0 0x929
     inst [4 or ???] value 3456 0 0xd80
     inst [8 or ???] value 4567 0 0x11d7
-pmResult dump from ADDR timestamp: NOW TODAY numpmid: 2
+__pmResult dump from ADDR timestamp: NOW TODAY numpmid: 2
   0.55.685 (<noname>): No values returned!
   0.47.751 (<noname>): numval: 3 valfmt: 0 vlist[]:
     inst [2 or ???] value 2345 0 0x929
@@ -488,14 +488,14 @@ pmResult dump from ADDR timestamp: NOW TODAY numpmid: 2
 008:        1 ffffffff      4d2     beef        3        2      929        4 
 016:      d80        8     11d7 
 + PDU_LOG_CONTROL: control=11 state=1 rate=1000
-pmResult dump from ADDR timestamp: NOW TODAY numpmid: 2
+__pmResult dump from ADDR timestamp: NOW TODAY numpmid: 2
   0.55.685 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 1234 0 0x4d2
   0.47.751 (<noname>): numval: 3 valfmt: 0 vlist[]:
     inst [2 or ???] value 2345 0 0x929
     inst [4 or ???] value 3456 0 0xd80
     inst [8 or ???] value 4567 0 0x11d7
-pmResult dump from ADDR timestamp: NOW TODAY numpmid: 2
+__pmResult dump from ADDR timestamp: NOW TODAY numpmid: 2
   0.55.685 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 1234 0 0x4d2
   0.47.751 (<noname>): numval: 3 valfmt: 0 vlist[]:

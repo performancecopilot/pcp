@@ -12,7 +12,7 @@ PMID: 100.0.0
     Semantics: instant  Units: sec
 dbpmda> fetch named.interval
 PMID(s): 100.0.0
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   100.0.0 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value NUMBER NUMBER HEXNUMBER
 dbpmda> 

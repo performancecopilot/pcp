@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2013 Ken McDonell, Inc.  All Rights Reserved.
- * 
+ * Copyright (c) 2022 Red Hat.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- *
  */
 
 #include <math.h>
@@ -21,7 +21,7 @@
 typedef struct {
     int			inst;
     double		lastval;	/* value from previous sample */
-    struct timeval	lasttime;	/* time of previous sample */
+    __pmTimestamp	lasttime;	/* time of previous sample */
 } instData;
 
 typedef struct {
@@ -79,7 +79,18 @@ print_metric(FILE *f, pmID pmid)
 }
 
 static void
-print_stamp(FILE *f, struct timeval *stamp)
+print_stamp_msec(FILE *f, __pmTimestamp *tp)
+{
+    struct tm   tmp;
+    time_t      now;
+
+    now = (time_t)tp->sec;
+    pmLocaltime(&now, &tmp);
+    fprintf(f, "%02d:%02d:%02d.%03d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)(tp->nsec/1000000));
+}
+
+static void
+print_stamp(FILE *f, __pmTimestamp *stamp)
 {
     if (dayflag) {
 	char	*ddmm;
@@ -87,28 +98,28 @@ print_stamp(FILE *f, struct timeval *stamp)
 	char	timebuf[32];	/* for pmCtime result + .xxx */
 	time_t	time;
 
-	time = stamp->tv_sec;
+	time = stamp->sec;
 	ddmm = pmCtime(&time, timebuf);
 	ddmm[10] = ' ';
 	ddmm[11] = '\0';
 	yr = &ddmm[20];
 	fprintf(f, "%s", ddmm);
-	pmPrintStamp(f, stamp);
+	print_stamp_msec(f, stamp);
 	fprintf(f, " %4.4s", yr);
     }
     else
-	pmPrintStamp(f, stamp);
+	print_stamp_msec(f, stamp);
 }
 
 static double
-unwrap(double current, struct timeval *curtime, checkData *checkdata, int index)
+unwrap(double current, __pmTimestamp *curtime, checkData *checkdata, int index)
 {
     double	outval = current;
     int		wrapflag = 0;
     char	*str = NULL;
 
     if ((current - checkdata->instlist[index]->lastval) < 0.0 &&
-        checkdata->instlist[index]->lasttime.tv_sec > 0) {
+        checkdata->instlist[index]->lasttime.sec > 0) {
 	switch (checkdata->desc.type) {
 	    case PM_TYPE_32:
 	    case PM_TYPE_U32:
@@ -150,7 +161,7 @@ static void
 newHashInst(pmValue *vp,
 	checkData *checkdata,		/* updated by this function */
 	int valfmt,
-	struct timeval *timestamp,	/* timestamp for this sample */
+	__pmTimestamp *timestamp,	/* timestamp for this sample */
 	int pos)			/* position of this inst in instlist */
 {
     int		sts;
@@ -204,7 +215,7 @@ static void
 newHashItem(pmValueSet *vsp,
 	pmDesc *desc,
 	checkData *checkdata,		/* output from this function */
-	struct timeval *timestamp)	/* timestamp for this sample */
+	__pmTimestamp *timestamp)	/* timestamp for this sample */
 {
     int j;
 
@@ -232,8 +243,14 @@ newHashItem(pmValueSet *vsp,
     }
 }
 
+static double
+timestampToReal(const __pmTimestamp *val)
+{
+    return val->sec + ((long double)val->nsec / (long double)1000000000);
+}
+
 static void
-docheck(pmResult *result)
+docheck(__pmResult *result)
 {
     int			i, j, k;
     int			sts;
@@ -244,7 +261,7 @@ docheck(pmResult *result)
     __pmHashNode	*hptr = NULL;
     checkData		*checkdata = NULL;
     double		diff;
-    struct timeval	timediff;
+    __pmTimestamp	timediff;
 
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
@@ -280,7 +297,7 @@ docheck(pmResult *result)
 		fprintf(stderr, ": pmLookupDesc failed: %s\n", pmErrStr(sts));
 		/*
 		 * add to hashlist to suppress repeated error messages
-		 * ... but of course no checks on pmResult values that depend
+		 * ... but of course no checks on result values that depend
 		 * on the pmDesc are possible
 		 */
 		if (__pmHashAdd(vsp->pmid, NULL, &hashlist) < 0) {
@@ -371,13 +388,13 @@ docheck(pmResult *result)
 		}
 
 		timediff = result->timestamp;
-		tsub(&timediff, &(checkdata->instlist[k]->lasttime));
-		if (timediff.tv_sec < 0 || timediff.tv_usec < 0) {
+		__pmTimestampSub(&timediff, &(checkdata->instlist[k]->lasttime));
+		if (timediff.sec < 0 || timediff.nsec < 0) {
 		    /* clip negative values at zero */
-		    timediff.tv_sec = 0;
-		    timediff.tv_usec = 0;
+		    timediff.sec = 0;
+		    timediff.nsec = 0;
 		}
-		diff = pmtimevalToReal(&timediff);
+		diff = timestampToReal(&timediff);
 		if ((sts = pmExtractValue(vsp->valfmt, vp, checkdata->desc.type, &av, PM_TYPE_DOUBLE)) < 0) {
 		    fprintf(stderr, "%s.%d:[", l_archname, l_ctxp->c_archctl->ac_vol);
 		    print_stamp(stderr, &result->timestamp);
@@ -397,7 +414,7 @@ docheck(pmResult *result)
 			fprintf(stderr, ": current counter value is %.0f\n", av.d);
 		    }
 		    if (nowrap == 0)
-			unwrap(av.d, &(result->timestamp), checkdata, k);
+			unwrap(av.d, &result->timestamp, checkdata, k);
 		}
 		checkdata->instlist[k]->lastval = av.d;
 		checkdata->instlist[k]->lasttime = result->timestamp;
@@ -411,16 +428,14 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 {
     struct timeval	timespan;
     int			sts;
-    pmResult		*result;
-    struct timeval	label_stamp;
-    struct timeval	last_stamp;
-    struct timeval	delta_stamp;
+    __pmResult		*result;
+    __pmTimestamp	label_stamp;
+    __pmTimestamp	last_stamp;
+    __pmTimestamp	delta_stamp;
 
     l_ctxp = ctxp;
     l_archname = archname;
-
-    label_stamp.tv_sec = goldenstart.sec;
-    label_stamp.tv_usec = goldenstart.nsec / 1000;
+    label_stamp = goldenstart;
 
     if (vflag)
 	fprintf(stderr, "%s: start pass3\n", archname);
@@ -446,7 +461,8 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
     }
 
     sts = 0;
-    last_stamp = opts->start;
+    last_stamp.sec = opts->start.tv_sec;
+    last_stamp.nsec = opts->start.tv_usec * 1000;
     for ( ; ; ) {
 	/*
 	 * we need the next record with no fancy checks or record
@@ -458,8 +474,8 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 	    break;
 	result_count++;
 	delta_stamp = result->timestamp;
-	tsub(&delta_stamp, &label_stamp);
-	if (delta_stamp.tv_sec < 0 || delta_stamp.tv_usec < 0) {
+	__pmTimestampSub(&delta_stamp, &label_stamp);
+	if (delta_stamp.sec < 0 || delta_stamp.nsec < 0) {
 	    fprintf(stderr, "%s.%d:[", l_archname, l_ctxp->c_archctl->ac_vol);
 	    print_stamp(stderr, &result->timestamp);
 	    fprintf(stderr, "]: timestamp before label timestamp: ");
@@ -467,7 +483,7 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 	    fprintf(stderr, "\n");
 	}
 	delta_stamp = result->timestamp;
-	tsub(&delta_stamp, &last_stamp);
+	__pmTimestampSub(&delta_stamp, &last_stamp);
 	if (pmDebugOptions.appl0) {
 	    int		i;
 	    int		sum_val = 0;
@@ -486,7 +502,7 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 		else
 		    cnt_err++;
 	    }
-	    fprintf(stderr, "] delta(stamp)=%.3fsec", pmtimevalToReal(&delta_stamp));
+	    fprintf(stderr, "] delta(stamp)=%.3fsec", timestampToReal(&delta_stamp));
 	    fprintf(stderr, " numpmid=%d sum(numval)=%d", result->numpmid, sum_val);
 	    if (cnt_noval > 0)
 		fprintf(stderr, " count(numval=0)=%d", cnt_noval);
@@ -494,7 +510,7 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 		fprintf(stderr, " count(numval<0)=%d", cnt_err);
 	    fputc('\n', stderr);
 	}
-	if (delta_stamp.tv_sec < 0 || delta_stamp.tv_usec < 0) {
+	if (delta_stamp.sec < 0 || delta_stamp.nsec < 0) {
 	    /* time went backwards! */
 	    fprintf(stderr, "%s.%d:[", l_archname, l_ctxp->c_archctl->ac_vol);
 	    print_stamp(stderr, &result->timestamp);
@@ -504,9 +520,9 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 	}
 
 	last_stamp = result->timestamp;
-	if ((opts->finish.tv_sec > result->timestamp.tv_sec) ||
-	    ((opts->finish.tv_sec == result->timestamp.tv_sec) &&
-	     (opts->finish.tv_usec >= result->timestamp.tv_usec))) {
+	if ((opts->finish.tv_sec > result->timestamp.sec) ||
+	    ((opts->finish.tv_sec == result->timestamp.sec) &&
+	     (opts->finish.tv_usec >= result->timestamp.nsec / 1000))) {
 	    if (result->numpmid == 0) {
 		/*
 		 * MARK record ... make sure wrap check is not done
@@ -520,7 +536,7 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 		     hptr = __pmHashWalk(&hashlist, PM_HASH_WALK_NEXT)) {
 		    checkdata = (checkData *)hptr->data;
 		    for (k = 0; k < checkdata->listsize; k++) {
-			checkdata->instlist[k]->lasttime.tv_sec = 0;
+			checkdata->instlist[k]->lasttime.sec = 0;
 		    }
 		}
 
@@ -528,10 +544,10 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 	    }
 	    else
 		docheck(result);
-	    pmFreeResult(result);
+	    __pmFreeResult(result);
 	}
 	else {
-	    pmFreeResult(result);
+	    __pmFreeResult(result);
 	    sts = PM_ERR_EOL;
 	    break;
 	}

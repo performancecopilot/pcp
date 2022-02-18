@@ -33,20 +33,20 @@ QA output created by 488
 +11:22:42.021829000	      0          541         1764
  
  [152 bytes]
- 22:22:42.025955 3 metrics
+ 22:22:42.025955000 3 metrics
 @@ -48,10 +45,9 @@
      2.3.0 (pmcd.pmlogger.port): inst [19856 or "19856"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [19856 or "19856"] value "/var/adm/pcplog/rattle/970517.22.22"
  
 -[60 bytes]
--22:22:42.060877 2 metrics
+-22:22:42.060877000 2 metrics
 +[40 bytes]
-+22:22:42.060877 1 metric
++22:22:42.060877000 1 metric
      1.26.7 (hinv.ndisk): value 2
 -    1.18.2 (hinv.ncpu): value 1
  
  [40 bytes]
- 23:22:42.011766 1 metric
+ 23:22:42.011766000 1 metric
 
 === metric hinv.ncpu { delete } metric hinv.ndisk { delete } ===
 --- pmns diffs ---
@@ -85,18 +85,18 @@ QA output created by 488
 +11:22:42.021829000	      0          491         1724
  
  [152 bytes]
- 22:22:42.025955 3 metrics
+ 22:22:42.025955000 3 metrics
 @@ -48,11 +42,6 @@
      2.3.0 (pmcd.pmlogger.port): inst [19856 or "19856"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [19856 or "19856"] value "/var/adm/pcplog/rattle/970517.22.22"
  
 -[60 bytes]
--22:22:42.060877 2 metrics
+-22:22:42.060877000 2 metrics
 -    1.26.7 (hinv.ndisk): value 2
 -    1.18.2 (hinv.ncpu): value 1
 -
  [40 bytes]
- 23:22:42.011766 1 metric
+ 23:22:42.011766000 1 metric
      1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 
 === metric 1.*.* { delete } ===
@@ -143,162 +143,162 @@ QA output created by 488
 +11:22:42.021829000	      0          431          284
  
  [152 bytes]
- 22:22:42.025955 3 metrics
+ 22:22:42.025955000 3 metrics
      2.3.3 (pmcd.pmlogger.host): inst [19856 or "19856"] value "rattle.melbourne.sgi.com"
      2.3.0 (pmcd.pmlogger.port): inst [19856 or "19856"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [19856 or "19856"] value "/var/adm/pcplog/rattle/970517.22.22"
 -
 -[60 bytes]
--22:22:42.060877 2 metrics
+-22:22:42.060877000 2 metrics
 -    1.26.7 (hinv.ndisk): value 2
 -    1.18.2 (hinv.ncpu): value 1
 -
 -[40 bytes]
--23:22:42.011766 1 metric
+-23:22:42.011766000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--00:22:42.011769 1 metric
+-00:22:42.011769000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--01:22:42.021786 1 metric
+-01:22:42.021786000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--02:22:42.021860 1 metric
+-02:22:42.021860000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--03:22:42.021802 1 metric
+-03:22:42.021802000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.013671875
 -
 -[40 bytes]
--04:22:42.021770 1 metric
+-04:22:42.021770000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.01953125
 -
 -[40 bytes]
--05:22:42.021778 1 metric
+-05:22:42.021778000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 1
 -
 -[40 bytes]
--06:22:42.021821 1 metric
+-06:22:42.021821000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2
 -
 -[40 bytes]
--07:22:42.021856 1 metric
+-07:22:42.021856000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--08:22:42.021800 1 metric
+-08:22:42.021800000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--09:22:42.021779 1 metric
+-09:22:42.021779000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.043945312
 -
 -[40 bytes]
--10:22:42.021778 1 metric
+-10:22:42.021778000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.015625
 -
 -[40 bytes]
--11:22:42.021792 1 metric
+-11:22:42.021792000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--12:22:42.021765 1 metric
+-12:22:42.021765000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--13:22:42.021842 1 metric
+-13:22:42.021842000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--14:22:42.021790 1 metric
+-14:22:42.021790000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--15:22:42.021773 1 metric
+-15:22:42.021773000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--16:22:42.021805 1 metric
+-16:22:42.021805000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 1
 -
 -[40 bytes]
--17:22:42.021780 1 metric
+-17:22:42.021780000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--18:22:42.021791 1 metric
+-18:22:42.021791000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--19:22:42.021793 1 metric
+-19:22:42.021793000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--20:22:42.021801 1 metric
+-20:22:42.021801000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.025390625
 -
 -[40 bytes]
--21:22:42.021790 1 metric
+-21:22:42.021790000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2.0019531
 -
 -[40 bytes]
--22:22:42.021803 1 metric
+-22:22:42.021803000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 1
 -
 -[40 bytes]
--23:22:42.021802 1 metric
+-23:22:42.021802000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 1
 -
 -[40 bytes]
--00:22:42.021807 1 metric
+-00:22:42.021807000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2
 -
 -[40 bytes]
--01:22:42.021768 1 metric
+-01:22:42.021768000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.01171875
 -
 -[40 bytes]
--02:22:42.021793 1 metric
+-02:22:42.021793000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.0087890625
 -
 -[40 bytes]
--03:22:42.021779 1 metric
+-03:22:42.021779000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--04:22:42.021751 1 metric
+-04:22:42.021751000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2
 -
 -[40 bytes]
--05:22:42.021823 1 metric
+-05:22:42.021823000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--06:22:42.021848 1 metric
+-06:22:42.021848000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2.9785156
 -
 -[40 bytes]
--07:22:42.021907 1 metric
+-07:22:42.021907000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--08:22:42.021884 1 metric
+-08:22:42.021884000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--09:22:42.021802 1 metric
+-09:22:42.021802000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--10:22:42.021782 1 metric
+-10:22:42.021782000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
 -
 -[40 bytes]
--11:22:42.021829 1 metric
+-11:22:42.021829000 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.032226562
 
 === metric 40.*.* { delete } metric 1.25.* { delete } ===
@@ -453,7 +453,7 @@ QA output created by 488
 +14:25:20.177207000	      0         1477         3660
  
 -[724 bytes]
--14:25:09.043538 28 metrics
+-14:25:09.043538000 28 metrics
 -    40.0.8 (40.0.8): No values returned!
 -    40.0.7 (40.0.7): No values returned!
 -    40.0.5 (40.0.5): No values returned!
@@ -463,7 +463,7 @@ QA output created by 488
 -    40.0.1 (40.0.1): No values returned!
 -    40.0.0 (40.0.0): No values returned!
 +[588 bytes]
-+14:25:09.043538 18 metrics
++14:25:09.043538000 18 metrics
      1.80.7 (disk.dev.total):
          inst [131329 or "dks1d1"] value 2818705566
          inst [131330 or "dks1d2"] value 2818573273
@@ -487,7 +487,7 @@ QA output created by 488
      1.10.3 (kernel.all.pswitch): value 4563510
  
 -[820 bytes]
--14:25:10.198847 28 metrics
+-14:25:10.198847000 28 metrics
 -    40.0.8 (40.0.8): value 817
 -    40.0.7 (40.0.7): value 1917
 -    40.0.5 (40.0.5): value 17
@@ -497,7 +497,7 @@ QA output created by 488
 -    40.0.1 (40.0.1): value 26300
 -    40.0.0 (40.0.0): value 1800
 +[588 bytes]
-+14:25:10.198847 18 metrics
++14:25:10.198847000 18 metrics
      1.80.7 (disk.dev.total):
          inst [131329 or "dks1d1"] value 2818705566
          inst [131330 or "dks1d2"] value 2818573273
@@ -521,7 +521,7 @@ QA output created by 488
      1.10.3 (kernel.all.pswitch): value 4564200
  
 -[820 bytes]
--14:25:12.206910 28 metrics
+-14:25:12.206910000 28 metrics
 -    40.0.8 (40.0.8): value 870
 -    40.0.7 (40.0.7): value 1941
 -    40.0.5 (40.0.5): value 23
@@ -531,7 +531,7 @@ QA output created by 488
 -    40.0.1 (40.0.1): value 27100
 -    40.0.0 (40.0.0): value 1900
 +[588 bytes]
-+14:25:12.206910 18 metrics
++14:25:12.206910000 18 metrics
      1.80.7 (disk.dev.total):
          inst [131329 or "dks1d1"] value 2818705570
          inst [131330 or "dks1d2"] value 2818573273
@@ -555,7 +555,7 @@ QA output created by 488
      1.10.3 (kernel.all.pswitch): value 4564693
  
 -[820 bytes]
--14:25:14.181366 28 metrics
+-14:25:14.181366000 28 metrics
 -    40.0.8 (40.0.8): value 870
 -    40.0.7 (40.0.7): value 2124
 -    40.0.5 (40.0.5): value 29
@@ -565,7 +565,7 @@ QA output created by 488
 -    40.0.1 (40.0.1): value 28600
 -    40.0.0 (40.0.0): value 2200
 +[588 bytes]
-+14:25:14.181366 18 metrics
++14:25:14.181366000 18 metrics
      1.80.7 (disk.dev.total):
          inst [131329 or "dks1d1"] value 2818705571
          inst [131330 or "dks1d2"] value 2818573273
@@ -589,7 +589,7 @@ QA output created by 488
      1.10.3 (kernel.all.pswitch): value 4565347
  
 -[820 bytes]
--14:25:16.183338 28 metrics
+-14:25:16.183338000 28 metrics
 -    40.0.8 (40.0.8): value 873
 -    40.0.7 (40.0.7): value 2312
 -    40.0.5 (40.0.5): value 30
@@ -599,7 +599,7 @@ QA output created by 488
 -    40.0.1 (40.0.1): value 30500
 -    40.0.0 (40.0.0): value 2300
 +[588 bytes]
-+14:25:16.183338 18 metrics
++14:25:16.183338000 18 metrics
      1.80.7 (disk.dev.total):
          inst [131329 or "dks1d1"] value 2818705571
          inst [131330 or "dks1d2"] value 2818573273
@@ -623,7 +623,7 @@ QA output created by 488
      1.10.3 (kernel.all.pswitch): value 4566026
  
 -[820 bytes]
--14:25:18.175695 28 metrics
+-14:25:18.175695000 28 metrics
 -    40.0.8 (40.0.8): value 907
 -    40.0.7 (40.0.7): value 2378
 -    40.0.5 (40.0.5): value 39
@@ -633,7 +633,7 @@ QA output created by 488
 -    40.0.1 (40.0.1): value 32200
 -    40.0.0 (40.0.0): value 2400
 +[588 bytes]
-+14:25:18.175695 18 metrics
++14:25:18.175695000 18 metrics
      1.80.7 (disk.dev.total):
          inst [131329 or "dks1d1"] value 2818705571
          inst [131330 or "dks1d2"] value 2818573273
@@ -657,7 +657,7 @@ QA output created by 488
      1.10.3 (kernel.all.pswitch): value 4566488
  
 -[820 bytes]
--14:25:20.177207 28 metrics
+-14:25:20.177207000 28 metrics
 -    40.0.8 (40.0.8): value 941
 -    40.0.7 (40.0.7): value 2436
 -    40.0.5 (40.0.5): value 50
@@ -667,7 +667,7 @@ QA output created by 488
 -    40.0.1 (40.0.1): value 33700
 -    40.0.0 (40.0.0): value 2700
 +[588 bytes]
-+14:25:20.177207 18 metrics
++14:25:20.177207000 18 metrics
      1.80.7 (disk.dev.total):
          inst [131329 or "dks1d1"] value 2818705571
          inst [131330 or "dks1d2"] value 2818573273
@@ -896,14 +896,14 @@ QA output created by 488
 +11:05:07.411966000	      0         2391         3656
  
  [156 bytes]
- 10:45:08.440968 3 metrics
+ 10:45:08.440968000 3 metrics
 @@ -207,10 +186,9 @@
      2.3.0 (pmcd.pmlogger.port): inst [24763 or "24763"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [24763 or "24763"] value "/usr/people/kenmcd/isms/pcp/qa/src/mirage"
  
 -[176 bytes]
 +[168 bytes]
- 10:46:07.406806 3 metrics
+ 10:46:07.406806000 3 metrics
      29.0.37 (sample.mirage):
 -        inst [0 or "m-00"] value 32
          inst [12 or "m-12"] value 1231
@@ -915,7 +915,7 @@ QA output created by 488
  
 -[176 bytes]
 +[168 bytes]
- 10:47:07.419122 3 metrics
+ 10:47:07.419122000 3 metrics
      29.0.37 (sample.mirage):
 -        inst [0 or "m-00"] value 27
          inst [12 or "m-12"] value 1226
@@ -927,7 +927,7 @@ QA output created by 488
  
 -[192 bytes]
 +[184 bytes]
- 10:48:07.406714 3 metrics
+ 10:48:07.406714000 3 metrics
      29.0.37 (sample.mirage):
 -        inst [0 or "m-00"] value 22
          inst [12 or "m-12"] value 1221
@@ -939,7 +939,7 @@ QA output created by 488
  
 -[200 bytes]
 +[192 bytes]
- 10:49:07.407160 3 metrics
+ 10:49:07.407160000 3 metrics
      29.0.37 (sample.mirage):
 -        inst [0 or "m-00"] value 15
          inst [12 or "m-12"] value 1214
@@ -951,7 +951,7 @@ QA output created by 488
  
 -[200 bytes]
 +[192 bytes]
- 10:50:07.407387 3 metrics
+ 10:50:07.407387000 3 metrics
      29.0.37 (sample.mirage):
 -        inst [0 or "m-00"] value 7
          inst [12 or "m-12"] value 1206
@@ -963,7 +963,7 @@ QA output created by 488
  
 -[184 bytes]
 +[176 bytes]
- 10:51:07.407667 3 metrics
+ 10:51:07.407667000 3 metrics
      29.0.37 (sample.mirage):
 -        inst [0 or "m-00"] value 99
          inst [15 or "m-15"] value 1598
@@ -975,7 +975,7 @@ QA output created by 488
  
 -[184 bytes]
 +[176 bytes]
- 10:52:07.407885 3 metrics
+ 10:52:07.407885000 3 metrics
      29.0.37 (sample.mirage):
 -        inst [0 or "m-00"] value 93
          inst [15 or "m-15"] value 1592
@@ -987,7 +987,7 @@ QA output created by 488
  
 -[192 bytes]
 +[184 bytes]
- 10:53:07.408341 3 metrics
+ 10:53:07.408341000 3 metrics
      29.0.37 (sample.mirage):
 -        inst [0 or "m-00"] value 87
          inst [15 or "m-15"] value 1586
@@ -999,7 +999,7 @@ QA output created by 488
  
 -[200 bytes]
 +[192 bytes]
- 10:54:07.408606 3 metrics
+ 10:54:07.408606000 3 metrics
      29.0.37 (sample.mirage):
 -        inst [0 or "m-00"] value 80
          inst [15 or "m-15"] value 1579
@@ -1011,7 +1011,7 @@ QA output created by 488
  
 -[192 bytes]
 +[184 bytes]
- 10:55:07.409073 3 metrics
+ 10:55:07.409073000 3 metrics
      29.0.37 (sample.mirage):
 -        inst [0 or "m-00"] value 72
          inst [15 or "m-15"] value 1571
@@ -1023,7 +1023,7 @@ QA output created by 488
  
 -[184 bytes]
 +[176 bytes]
- 10:56:07.409201 3 metrics
+ 10:56:07.409201000 3 metrics
      29.0.37 (sample.mirage):
 -        inst [0 or "m-00"] value 65
          inst [17 or "m-17"] value 1764
@@ -1035,7 +1035,7 @@ QA output created by 488
  
 -[176 bytes]
 +[168 bytes]
- 10:57:07.409462 3 metrics
+ 10:57:07.409462000 3 metrics
      29.0.37 (sample.mirage):
 -        inst [0 or "m-00"] value 59
          inst [22 or "m-22"] value 2258
@@ -1047,7 +1047,7 @@ QA output created by 488
  
 -[176 bytes]
 +[168 bytes]
- 10:58:07.409875 3 metrics
+ 10:58:07.409875000 3 metrics
      29.0.37 (sample.mirage):
 -        inst [0 or "m-00"] value 54
          inst [22 or "m-22"] value 2253
@@ -1059,7 +1059,7 @@ QA output created by 488
  
 -[192 bytes]
 +[184 bytes]
- 10:59:07.410254 3 metrics
+ 10:59:07.410254000 3 metrics
      29.0.37 (sample.mirage):
 -        inst [0 or "m-00"] value 49
          inst [22 or "m-22"] value 2248
@@ -1071,7 +1071,7 @@ QA output created by 488
  
 -[184 bytes]
 +[176 bytes]
- 11:00:07.410567 3 metrics
+ 11:00:07.410567000 3 metrics
      29.0.37 (sample.mirage):
 -        inst [0 or "m-00"] value 42
          inst [24 or "m-24"] value 2441
@@ -1083,7 +1083,7 @@ QA output created by 488
  
 -[176 bytes]
 +[168 bytes]
- 11:01:07.410735 3 metrics
+ 11:01:07.410735000 3 metrics
      29.0.37 (sample.mirage):
 -        inst [0 or "m-00"] value 36
          inst [24 or "m-24"] value 2435
@@ -1095,7 +1095,7 @@ QA output created by 488
  
 -[176 bytes]
 +[168 bytes]
- 11:02:07.411038 3 metrics
+ 11:02:07.411038000 3 metrics
      29.0.37 (sample.mirage):
 -        inst [0 or "m-00"] value 31
          inst [24 or "m-24"] value 2430
@@ -1107,7 +1107,7 @@ QA output created by 488
  
 -[184 bytes]
 +[176 bytes]
- 11:03:07.411488 3 metrics
+ 11:03:07.411488000 3 metrics
      29.0.37 (sample.mirage):
 -        inst [0 or "m-00"] value 26
          inst [24 or "m-24"] value 2425
@@ -1119,7 +1119,7 @@ QA output created by 488
  
 -[184 bytes]
 +[168 bytes]
- 11:04:07.411683 3 metrics
+ 11:04:07.411683000 3 metrics
      29.0.37 (sample.mirage):
 -        inst [0 or "m-00"] value 20
          inst [24 or "m-24"] value 2419
@@ -1136,7 +1136,7 @@ QA output created by 488
  
 -[176 bytes]
 +[160 bytes]
- 11:05:07.411966 3 metrics
+ 11:05:07.411966000 3 metrics
      29.0.37 (sample.mirage):
 -        inst [0 or "m-00"] value 14
          inst [24 or "m-24"] value 2413

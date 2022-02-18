@@ -121,7 +121,7 @@ PMID: 70.1.6
     Semantics: instant  Units: none
 dbpmda> fetch mmv.test.strings mmv.test.counter
 PMID(s): 70.1.6 70.1.1
-pmResult ... numpmid: 2
+__pmResult ... numpmid: 2
   70.1.6 (<noname>): numval: 2 valfmt: 1 vlist[]:
     inst [0 or ???] value STRING
     inst [1 or ???] value STRING

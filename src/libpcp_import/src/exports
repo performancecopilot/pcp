@@ -38,3 +38,10 @@ PCP_IMPORT_1.2 {
     pmiPutLabel;
     pmiCluster;
 } PCP_IMPORT_1.1;
+
+PCP_IMPORT_1.3 {
+  global:
+    pmiWrite2;
+    pmiHighResWrite;
+    pmiPutHighResResult;
+} PCP_IMPORT_1.2;

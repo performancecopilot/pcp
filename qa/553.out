@@ -24,17 +24,17 @@ PMID: 118.2.3
     Semantics: instant  Units: none
 dbpmda> fetch gluster.volume.dist.count
 PMID(s): 118.2.1
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   118.2.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
     inst [0 or ???] value 1
 dbpmda> fetch gluster.volume.stripe.count
 PMID(s): 118.2.2
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   118.2.2 (<noname>): numval: 1 valfmt: 0 vlist[]:
     inst [0 or ???] value 2
 dbpmda> fetch gluster.volume.replica.count
 PMID(s): 118.2.3
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   118.2.3 (<noname>): numval: 1 valfmt: 0 vlist[]:
     inst [0 or ???] value 3
 dbpmda> 
@@ -48,7 +48,7 @@ PMID: 118.2.0
     Semantics: instant  Units: none
 dbpmda> fetch gluster.volume.profile
 PMID(s): 118.2.0
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   118.2.0 (<noname>): numval: 1 valfmt: 0 vlist[]:
     inst [0 or ???] value 1
 dbpmda> store gluster.volume.profile "1"
@@ -83,7 +83,7 @@ PMID: 118.0.0
     Semantics: counter  Units: byte
 dbpmda> fetch gluster.brick.read_bytes
 PMID(s): 118.0.0
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   118.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [0 or ???] value 42
 dbpmda> desc gluster.brick.write_bytes
@@ -92,7 +92,7 @@ PMID: 118.0.1
     Semantics: counter  Units: byte
 dbpmda> fetch gluster.brick.write_bytes
 PMID(s): 118.0.1
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   118.0.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [0 or ???] value 24
 dbpmda> 
@@ -118,22 +118,22 @@ PMID: 118.1.75
     Semantics: counter  Units: count
 dbpmda> fetch gluster.brick.latency.getxattr.avg
 PMID(s): 118.1.74
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   118.1.74 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [0 or ???] value 101.4
 dbpmda> fetch gluster.brick.latency.getxattr.min
 PMID(s): 118.1.72
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   118.1.72 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [0 or ???] value 68
 dbpmda> fetch gluster.brick.latency.getxattr.max
 PMID(s): 118.1.73
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   118.1.73 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [0 or ???] value 134
 dbpmda> fetch gluster.brick.latency.getxattr.count
 PMID(s): 118.1.75
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   118.1.75 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [0 or ???] value 2
 dbpmda> 

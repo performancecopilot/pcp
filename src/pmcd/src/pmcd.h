@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2019,2021 Red Hat.
+ * Copyright (c) 2012-2019,2021-2022 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -232,7 +232,7 @@ extern void MarkStateChanges(unsigned int);
 extern void CleanupClient(ClientInfo *, int);
 extern int ClientsAttributes(AgentInfo *);
 extern int AgentsAttributes(int);
-extern pmResult **SplitResult(pmResult *);
+extern int CheckError(AgentInfo *, int);
 
 /*
  * Highest known file descriptor used for a Client or an Agent connection.

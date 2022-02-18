@@ -1,11 +1,12 @@
 /*
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ * Copyright (c) 2022 Red Hat.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -36,8 +37,9 @@ summaryMainLoop(char *pmdaname, int clientfd, pmdaInterface *dtp)
     int			npmids;
     pmID		*pmidlist;
     pmResult		*result;
+    __pmResult		*rp;
     int			ctxnum;
-    pmTimeval		when;
+    pmTimeval		unused;
     int			ident;
     int			type;
     pmInDom		indom;
@@ -135,9 +137,7 @@ summaryMainLoop(char *pmdaname, int clientfd, pmdaInterface *dtp)
 		     * can ignore ctxnum, since pmcd has already used this to send
 		     * the correct profile, if required
 		     */
-		    sts = __pmDecodeFetch(pb_pmcd, &ctxnum, &when, &npmids, &pmidlist);
-
-		    /* Ignore "when"; pmcd should intercept archive log requests */
+		    sts = __pmDecodeFetch(pb_pmcd, &ctxnum, &unused, &npmids, &pmidlist);
 		    if (sts >= 0) {
 			sts = dtp->version.two.fetch(npmids, pmidlist, &result,
 						     dtp->version.two.ext);
@@ -146,12 +146,20 @@ summaryMainLoop(char *pmdaname, int clientfd, pmdaInterface *dtp)
 		    if (sts < 0)
 			__pmSendError(outfd, FROM_ANON, sts);
 		    else {
-			int st;
-			st =__pmSendResult(outfd, FROM_ANON, result);
-			if (st < 0) {
-			    pmNotifyErr(LOG_ERR, 
+			if ((rp = __pmAllocResult(result->numpmid)) == NULL)
+			    __pmSendError(outfd, FROM_ANON, -ENOMEM);
+			else {
+			    int st, i;
+			    rp->numpmid = result->numpmid;
+			    for (i = 0; i < rp->numpmid; i++)
+				rp->vset[i] = result->vset[i];
+			    st =__pmSendResult(outfd, FROM_ANON, rp);
+			    if (st < 0)
+				pmNotifyErr(LOG_ERR, 
 					  "Cannot send fetch result: %s\n",
 					  pmErrStr(st));
+			    rp->numpmid = 0;
+			    __pmFreeResult(rp);
 			}
 			(*freeResultCallback)(result);
 		    }
@@ -200,11 +208,11 @@ summaryMainLoop(char *pmdaname, int clientfd, pmdaInterface *dtp)
 		    break;
 
 		case PDU_RESULT:
-		    if ((sts = __pmDecodeResult(pb_pmcd, &result)) >= 0)
-			sts = dtp->version.two.store(result,
+		    if ((sts = __pmDecodeResult(pb_pmcd, &rp)) >= 0)
+			sts = dtp->version.two.store(__pmOffsetResult(rp),
 						     dtp->version.two.ext);
 		    __pmSendError(outfd, FROM_ANON, sts);
-		    pmFreeResult(result);
+		    __pmFreeResult(rp);
 		    break;
 
 		case PDU_ERROR:

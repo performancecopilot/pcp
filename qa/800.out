@@ -5,12 +5,12 @@ Start pmdaproc PMDA: PCP_PMDAS_DIR/proc/pmdaproc -d 3
 dbpmda> getdesc on
 dbpmda> fetch hotproc.control.config_gen
 PMID(s): 3.NUMBER.NUMBER
-pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+__pmResult dump from ADDR timestamp: 0.000000000 TIME000000 numpmid: 1
   3.NUMBER.NUMBER (hotproc.control.config_gen): numval: 1 valfmt: 0 vlist[]:
    value 0
 dbpmda> fetch hotproc.control.config
 PMID(s): 3.NUMBER.NUMBER
-pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+__pmResult dump from ADDR timestamp: 0.000000000 TIME000000 numpmid: 1
   3.NUMBER.NUMBER (hotproc.control.config): numval: 1 valfmt: 1 vlist[]:
    value ""
 dbpmda> 
@@ -34,7 +34,7 @@ Sending Result...
 dbpmda> wait 3
 dbpmda> fetch hotproc.nprocs
 PMID(s): 3.NUMBER.NUMBER
-pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+__pmResult dump from ADDR timestamp: 0.000000000 TIME000000 numpmid: 1
   3.NUMBER.NUMBER (hotproc.nprocs): numval: 1 valfmt: 0 vlist[]:
    value 0
 dbpmda> 
@@ -63,13 +63,13 @@ Getting Result Structure...
 Sending Result...
 dbpmda> fetch hotproc.control.config
 PMID(s): 3.NUMBER.NUMBER
-pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+__pmResult dump from ADDR timestamp: 0.000000000 TIME000000 numpmid: 1
   3.NUMBER.NUMBER (hotproc.control.config): numval: 1 valfmt: 1 vlist[]:
    value "(uid == 0)"
 dbpmda> wait 3
 dbpmda> fetch hotproc.nprocs
 PMID(s): 3.NUMBER.NUMBER
-pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+__pmResult dump from ADDR timestamp: 0.000000000 TIME000000 numpmid: 1
   3.NUMBER.NUMBER (hotproc.nprocs): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
 dbpmda> 
@@ -99,7 +99,7 @@ Sending Result...
 dbpmda> wait 3
 dbpmda> fetch hotproc.nprocs
 PMID(s): 3.NUMBER.NUMBER
-pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+__pmResult dump from ADDR timestamp: 0.000000000 TIME000000 numpmid: 1
   3.NUMBER.NUMBER (hotproc.nprocs): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
 dbpmda> 

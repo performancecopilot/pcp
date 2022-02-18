@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021 Red Hat.
+ * Copyright (c) 2017-2022 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -158,26 +158,25 @@ newvolume(pmi_context *current, pmTimeval *tvp)
 }
 
 int
-_pmi_put_result(pmi_context *current, pmResult *result)
+_pmi_put_result(pmi_context *current, __pmResult *result)
 {
     int		sts;
     __pmPDU	*pb;
     __pmArchCtl	*acp = &current->archctl;
     int		k;
     int		needti;
-    char	*p = getenv("PCP_LOGIMPORT_MAXLOGSZ");
+    char	*p;
     unsigned long off;
-    unsigned long max_logsz = p ? strtoul(p, NULL, 10) : 0x7fffffff;
+    unsigned long max_logsz;
 
     /*
      * some front-end tools use lazy discovery of instances and/or process
      * data in non-deterministic order ... it is simpler for everyone if
      * we sort the values into ascending instance order.
      */
-    pmSortInstances(result);
+    __pmSortInstances(result);
 
-    stamp.sec = result->timestamp.tv_sec;
-    stamp.nsec = result->timestamp.tv_usec * 1000;
+    stamp = result->timestamp;	/* struct assignment */
 
     /* One time processing for the start of the context. */
     sts = check_context_start(current);
@@ -185,7 +184,7 @@ _pmi_put_result(pmi_context *current, pmResult *result)
 	return sts;
 
     __pmOverrideLastFd(__pmFileno(acp->ac_mfp));
-    if ((sts = __pmEncodeResult(__pmFileno(acp->ac_mfp), result, &pb)) < 0)
+    if ((sts = __pmEncodeResult(result, &pb)) < 0)
 	return sts;
 
     needti = 0;
@@ -196,19 +195,27 @@ _pmi_put_result(pmi_context *current, pmResult *result)
 	    return sts;
 	}
     }
-    if (needti) {
+    if (needti)
 	__pmLogPutIndex(acp, &stamp);
-    }
+
+    if ((p = getenv("PCP_LOGIMPORT_MAXLOGSZ")) != NULL)
+	max_logsz = strtoul(p, NULL, 10);
+    else if (current->version >= PM_LOG_VERS03)
+	max_logsz = LONG_MAX;
+    else  /* PM_LOG_VERS02 */
+	max_logsz = 0x7fffffff;
 
     off = __pmFtell(acp->ac_mfp) + ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
     if (off >= max_logsz)
     	newvolume(current, (pmTimeval *)&pb[3]);
-    if ((sts = __pmLogPutResult2(acp, pb)) < 0) {
-	__pmUnpinPDUBuf(pb);
-	return sts;
-    }
+
+    sts = current->version >= PM_LOG_VERS03 ?
+	    __pmLogPutResult3(acp, pb) : __pmLogPutResult2(acp, pb);
 
     __pmUnpinPDUBuf(pb);
+
+    if (sts < 0)
+	return sts;
     return 0;
 }
 
@@ -222,8 +229,7 @@ _pmi_put_text(pmi_context *current)
     int		needti;
 
     /* last_stamp has been set by the caller. */
-    stamp.sec = current->last_stamp.tv_sec;
-    stamp.nsec = current->last_stamp.tv_usec * 1000;
+    stamp = current->last_stamp;
 
     /* One time processing for the start of the context. */
     sts = check_context_start(current);
@@ -285,8 +291,7 @@ _pmi_put_label(pmi_context *current)
     int		needti;
 
     /* last_stamp has been set by the caller. */
-    stamp.sec = current->last_stamp.tv_sec;
-    stamp.nsec = current->last_stamp.tv_usec * 1000;
+    stamp = current->last_stamp;
 
     /* One time processing for the start of the context. */
     sts = check_context_start(current);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013,2017 Red Hat.
+ * Copyright (c) 2013,2017,2022 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -607,26 +607,23 @@ dostatus(void)
 
 
 /*
- * Modified version of __pmDumpResult to use a descriptor list
+ * Modified versions of __pmPrintResult that use a descriptor list
  * instead of calling pmLookupDesc.
  * Notes:
  *   - desc_list should not be NULL
  */
 
-void
-_dbDumpResult(FILE *f, pmResult *resp, pmDesc *desc_list)
+static void
+_dbPrintValueset(FILE *f, int npmid, pmValueSet **vset, pmDesc *desc_list)
 {
     int		i;
     int		j;
     int		n;
     char	**names;
 
-    fprintf(f, "pmResult dump from " PRINTF_P_PFX "%p timestamp: %d.%06d ",
-        resp, (int)resp->timestamp.tv_sec, (int)resp->timestamp.tv_usec);
-    pmPrintStamp(f, &resp->timestamp);
-    fprintf(f, " numpmid: %d\n", resp->numpmid);
-    for (i = 0; i < resp->numpmid; i++) {
-	pmValueSet	*vsp = resp->vset[i];
+    fprintf(f, " numpmid: %d\n", npmid);
+    for (i = 0; i < npmid; i++) {
+	pmValueSet	*vsp = vset[i];
 	names = NULL; /* silence coverity */
 	n = pmNameAll(vsp->pmid, &names);
 	if (n < 0)
@@ -674,13 +671,31 @@ _dbDumpResult(FILE *f, pmResult *resp, pmDesc *desc_list)
 	    fprintf(f, "value ");
 	    pmPrintValue(f, vsp->valfmt, desc_list[i].type, vp, 1);
 	    fputc('\n', f);
-	}/*for*/
-    }/*for*/
-}/*_dbDumpResult*/
+	}
+    }
+}
 
-static void	**gc = NULL;	/* for Garbage Collection (GC), see below */
-static int	gc_len = 0;	/* length of gc[] */
-static int	gc_have = 0;	/* elements of gc[] in use */
+void
+_dbDumpResult(FILE *f, pmResult *resp, pmDesc *desc_list)
+{
+    fprintf(f, "pmResult dump from " PRINTF_P_PFX "%p timestamp: %lld.%06d ",
+        resp, (long long)resp->timestamp.tv_sec, (int)resp->timestamp.tv_usec);
+    pmPrintStamp(f, &resp->timestamp);
+    _dbPrintValueset(f, resp->numpmid, resp->vset, desc_list);
+}
+
+void
+_dbPrintResult(FILE *f, __pmResult *resp, pmDesc *desc_list)
+{
+    fprintf(f, "__pmResult dump from " PRINTF_P_PFX "%p timestamp: %lld.%09d ",
+        resp, (long long)resp->timestamp.sec, (int)resp->timestamp.nsec);
+    __pmPrintTimestamp(f, &resp->timestamp);
+    _dbPrintValueset(f, resp->numpmid, resp->vset, desc_list);
+}
+
+static void	**gc;		/* for Garbage Collection (GC), see below */
+static int	gc_len;		/* length of gc[] */
+static int	gc_have;	/* elements of gc[] in use */
 
 /*
  * accumulate garbage

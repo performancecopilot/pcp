@@ -1,7 +1,7 @@
 /*
  * pmlogextract - extract desired metrics from PCP archive logs
  *
- * Copyright (c) 2014-2018,2021 Red Hat.
+ * Copyright (c) 2014-2018,2021-2022 Red Hat.
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,10 +26,10 @@
 #include <ctype.h>
 #include <sys/stat.h>
 #include <assert.h>
-#include "pcp/pmapi.h"
-#include "pcp/libpcp.h"
-#include "pcp/archive.h"
-#include "./logger.h"
+#include "pmapi.h"
+#include "libpcp.h"
+#include "archive.h"
+#include "logger.h"
 
 long totalmalloc;
 static pmUnits nullunits;
@@ -248,21 +248,8 @@ printsem(FILE *f, int sem)
  *  Input archive control is in logger.h
  */
 
-
 /*
- *  PDU for pmResult (PDU_RESULT)
- */
-typedef struct {
-    pmID		pmid;
-    int			numval;		/* no. of vlist els to follow, or err */
-    int			valfmt;		/* insitu or pointer */
-    __pmValue_PDU	vlist[1];	/* zero or more */
-} vlist_t;
-
-// TODO ... this only works for V2 archives ... need V3 struct
-// or alternate logic
-/*
- *  Mark record
+ *  Mark records
  */
 typedef struct {
     __int32_t		len;
@@ -270,7 +257,15 @@ typedef struct {
     __int32_t		from;
     pmTimeval		timestamp;	/* when returned */
     int			numpmid;	/* zero PMIDs to follow */
-} mark_t;
+} mark2_t;
+
+typedef struct {
+    __int32_t		len;
+    __int32_t		type;
+    __int32_t		from;
+    int			numpmid;	/* zero PMIDs to follow */
+    pmTimespec		timestamp;	/* when returned */
+} mark3_t;
 
 /*
  *  Global variables
@@ -283,7 +278,7 @@ static int	written;			/* num log writes so far */
 int		ml_numpmid;			/* num pmid in ml list */
 int		ml_size;			/* actual size of ml array */
 mlist_t		*ml;				/* list of pmids with indoms */
-rlist_t		*rl;				/* list of pmResults */
+rlist_t		*rl;				/* list of __pmResults */
 int		skip_ml_numpmid;		/* num entries in skip_ml list */
 pmID		*skip_ml;
 
@@ -1536,7 +1531,7 @@ indom_closest(reclist_t *recs, __pmTimestamp *tsp)
 }
 
 void
-write_metareclist(pmResult *result, int *needti)
+write_metareclist(__pmResult *result, int *needti)
 {
     int			n, count;
     reclist_t		*curr_desc;	/* current desc record */
@@ -1547,8 +1542,7 @@ write_metareclist(pmResult *result, int *needti)
     __pmHashNode	*hp;
     __pmTimestamp	stamp;		/* ptr to timestamp in result */
 
-    stamp.sec = result->timestamp.tv_sec;
-    stamp.nsec = result->timestamp.tv_usec * 1000;
+    stamp = result->timestamp;
 
     /* if pmid in result matches a pmid in desc then write desc */
     for (n = 0; n < result->numpmid; n++) {
@@ -1660,37 +1654,70 @@ write_metareclist(pmResult *result, int *needti)
 /* --- End of reclist functions --- */
 
 /*
- *  create a mark record
- * TODO .. need version-conditonal when pmResult changes
+ *  create mark records
  */
 __int32_t *
-_createmark(void)
+_createmark2(void)
 {
-    mark_t	*markp;
+    mark2_t	*markp;
 
     /*
      * add space for trailer in case __pmLogPutResult2() is called with
      * this PDU buffer
      */
-    markp = (mark_t *)malloc(sizeof(mark_t)+sizeof(int));
+    markp = (mark2_t *)malloc(sizeof(mark2_t)+sizeof(int));
     if (markp == NULL) {
-	fprintf(stderr, "%s: Error: mark_t malloc: %s\n",
+	fprintf(stderr, "%s: Error: mark2_t malloc: %s\n",
 		pmGetProgname(), osstrerror());
 	abandon_extract();
 	/*NOTREACHED*/
     }
     if (pmDebugOptions.appl1) {
-        totalmalloc += sizeof(mark_t);
-        fprintf(stderr, "_createmark : allocated %d\n", (int)sizeof(mark_t));
+        totalmalloc += sizeof(mark2_t);
+        fprintf(stderr, "_createmark2: allocated %d\n", (int)sizeof(mark2_t));
     }
 
-    markp->len = (int)sizeof(mark_t);
+    markp->len = (int)sizeof(mark2_t);
     markp->type = markp->from = 0;
     markp->timestamp.tv_sec = current.sec;
     markp->timestamp.tv_usec = current.nsec / 1000;
     markp->timestamp.tv_usec += 1000;	/* + 1msec */
     if (markp->timestamp.tv_usec > 1000000) {
 	markp->timestamp.tv_usec -= 1000000;
+	markp->timestamp.tv_sec++;
+    }
+    markp->numpmid = 0;
+    return((__int32_t *)markp);
+}
+
+__int32_t *
+_createmark3(void)
+{
+    mark3_t	*markp;
+
+    /*
+     * add space for trailer in case __pmLogPutResult3() is called with
+     * this PDU buffer
+     */
+    markp = (mark3_t *)malloc(sizeof(mark3_t)+sizeof(int));
+    if (markp == NULL) {
+	fprintf(stderr, "%s: Error: mark3_t malloc: %s\n",
+		pmGetProgname(), osstrerror());
+	abandon_extract();
+	/*NOTREACHED*/
+    }
+    if (pmDebugOptions.appl1) {
+        totalmalloc += sizeof(mark3_t);
+        fprintf(stderr, "_createmark3: allocated %d\n", (int)sizeof(mark3_t));
+    }
+
+    markp->len = (int)sizeof(mark3_t);
+    markp->type = markp->from = 0;
+    markp->timestamp.tv_sec = current.sec;
+    markp->timestamp.tv_nsec = current.nsec;
+    markp->timestamp.tv_nsec += 1000000; /* + 1msec */
+    if (markp->timestamp.tv_nsec > 1000000000) {
+	markp->timestamp.tv_nsec -= 1000000000;
 	markp->timestamp.tv_sec++;
     }
     markp->numpmid = 0;
@@ -1759,7 +1786,7 @@ nextmeta(void)
 	 *   emit some metadata and LATER ON determine the associated
 	 *   pmid needs to be added to ml_skip[].  This is unfortunate
 	 *   but not catastrophic, provided the corresponding pmid never
-	 *   appears in an output pmResult.
+	 *   appears in an output __pmResult.
 	 */
 
 againmeta:
@@ -2106,7 +2133,7 @@ nextlog(void)
 	acp = ctxp->c_archctl;
 
 againlog:
-	if ((sts=__pmLogRead_ctx(ctxp, PM_MODE_FORW, NULL, &iap->_result, PMLOGREAD_NEXT)) < 0) {
+	if ((sts =__pmLogRead_ctx(ctxp, PM_MODE_FORW, NULL, &iap->_result, PMLOGREAD_NEXT)) < 0) {
 	    if (sts != PM_ERR_EOL) {
 		fprintf(stderr, "%s: Error: __pmLogRead[log %s]: %s\n",
 			pmGetProgname(), iap->name, pmErrStr(sts));
@@ -2125,9 +2152,13 @@ againlog:
 		iap->eof[LOG] = 1;
 		++eoflog;
 	    }
-	    else {
+	    else if (outarchvers == PM_LOG_VERS03) {
 		iap->mark = 1;
-		iap->pb[LOG] = _createmark();
+		iap->pb[LOG] = _createmark3();
+	    }
+	    else if (outarchvers == PM_LOG_VERS02) {
+		iap->mark = 1;
+		iap->pb[LOG] = _createmark2();
 	    }
 	    PM_UNLOCK(ctxp->c_lock);
 	    continue;
@@ -2139,8 +2170,7 @@ againlog:
 	 * set current log time - this is only done so that we can
 	 * determine whether to keep or discard the log
 	 */
-	curtime.sec = iap->_result->timestamp.tv_sec;
-	curtime.nsec = iap->_result->timestamp.tv_usec * 1000;
+	curtime = iap->_result->timestamp;
 
 	/*
 	 * check for prologue/epilogue records ... 
@@ -2165,7 +2195,7 @@ againlog:
 				pmGetProgname(), iap->name, iap->recnum, pmErrStr(lsts));
 			if (pmDebugOptions.desperate) {
 			    PM_UNLOCK(ctxp->c_lock);
-			    __pmDumpResult(stderr, iap->_result);
+			    __pmPrintResult(stderr, iap->_result);
 			    PM_LOCK(ctxp->c_lock);
 			}
 		    }
@@ -2180,7 +2210,7 @@ againlog:
 				pmGetProgname(), iap->name, iap->recnum, pmErrStr(lsts));
 			if (pmDebugOptions.desperate) {
 			    PM_UNLOCK(ctxp->c_lock);
-			    __pmDumpResult(stderr, iap->_result);
+			    __pmPrintResult(stderr, iap->_result);
 			    PM_LOCK(ctxp->c_lock);
 			}
 		    }
@@ -2199,7 +2229,7 @@ againlog:
 	    /*
 	     * log is not in time window - discard result and get next record
 	     */
-	    pmFreeResult(iap->_result);
+	    __pmFreeResult(iap->_result);
 	    iap->_result = NULL;
 	    goto againlog;
 	}
@@ -2214,7 +2244,7 @@ againlog:
             else if (ml == NULL && skip_ml == NULL) {
                 /*
 		 * ml is NOT defined and skip_ml[] is empty so, we want
-		 * everything => use the input pmResult
+		 * everything => use the input __pmResult
 		 */
                 iap->_Nresult = iap->_result;
             }
@@ -2229,7 +2259,7 @@ againlog:
 
             if (iap->_Nresult == NULL) {
                 /* dont want any of the metrics in _result, try again */
-		pmFreeResult(iap->_result);
+		__pmFreeResult(iap->_result);
 		iap->_result = NULL;
                 goto againlog;
             }
@@ -2396,6 +2426,25 @@ parseconfig(void)
     return(-errflag);
 }
 
+#ifdef HAVE_NETWORK_BYTEORDER
+#define time_ntohll(a)	/* noop */
+#define time_htonll(a)	/* noop */
+#else
+static void
+time_htonll(char *p)
+{
+    char	c;
+    int		i;
+
+    for (i = 0; i < 4; i++) {
+	c = p[i];
+	p[i] = p[7-i];
+	p[7-i] = c;
+    }
+}
+#define time_ntohll(v) time_htonll(v)
+#endif
+
 /*
  *  we are within time window ... return 0
  *  we are outside of time window & mk new window ... return 1
@@ -2408,8 +2457,8 @@ checkwinend(__pmTimestamp *tsp)
     int			sts;
     __pmTimestamp	tmptime;
     inarch_t		*iap;
-    __int32_t		*markpdu;	/* mark b/n time windows */
-    mark_t		*p;
+    int			vers;
+
     if (winend.sec < 0 || __pmTimestampCmp(tsp, &winend) <= 0)
 	return(0);
 
@@ -2436,17 +2485,18 @@ checkwinend(__pmTimestamp *tsp)
 
     ilog = -1;
     for (indx=0; indx<inarchnum; indx++) {
+
 	iap = &inarch[indx];
+	vers = (iap->label.ll_magic & 0xff);
 	if (iap->_Nresult != NULL) {
-	    tmptime.sec = iap->_Nresult->timestamp.tv_sec;
-	    tmptime.nsec = iap->_Nresult->timestamp.tv_usec * 1000;
+	    tmptime = iap->_Nresult->timestamp;
 	    if (__pmTimestampCmp(&tmptime, &winstart) < 0) {
 		/* free _result and _Nresult */
 		if (iap->_result != iap->_Nresult) {
 		    free(iap->_Nresult);
 		}
 		if (iap->_result != NULL) {
-		    pmFreeResult(iap->_result);
+		    __pmFreeResult(iap->_result);
 		    iap->_result = NULL;
 		}
 		iap->_Nresult = NULL;
@@ -2454,9 +2504,16 @@ checkwinend(__pmTimestamp *tsp)
 	    }
 	}
 	if (iap->pb[LOG] != NULL) {
-	    // TODO need version-specific code for V3
-	    tmptime.sec = ntohl(iap->pb[LOG][3]);
-	    tmptime.nsec = ntohl(iap->pb[LOG][4]) * 1000;
+	    if (vers == PM_LOG_VERS03) {
+		tmptime.sec = iap->pb[LOG][4];
+		tmptime.nsec = iap->pb[LOG][6];
+		time_ntohll((char *)&tmptime.sec);
+		time_ntohll((char *)&tmptime.nsec);
+	    }
+	    else /* vers == PM_LOG_VERS02 */ {
+		tmptime.sec = ntohl(iap->pb[LOG][3]);
+		tmptime.nsec = ntohl(iap->pb[LOG][4]) * 1000;
+	    }
 	    if (__pmTimestampCmp(&tmptime, &winstart) < 0) {
 		/*
 		 * free PDU buffer ... it is probably a mark
@@ -2466,22 +2523,17 @@ checkwinend(__pmTimestamp *tsp)
 		iap->pb[LOG] = NULL;
 	    }
 	}
-    } /*for(indx)*/
+    }
 
     /* must create "mark" record and write it out */
     /* (need only one mark record) */
-    markpdu = _createmark();
-    p = (mark_t *)markpdu;
-    p->timestamp.tv_sec = htonl(p->timestamp.tv_sec);
-    p->timestamp.tv_usec = htonl(p->timestamp.tv_usec);
-    if ((sts = __pmLogPutResult2(&archctl, (__pmPDU *)markpdu)) < 0) {
-	fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
+    if ((sts = __pmLogWriteMark(archctl.ac_mfp, outarchvers, &current)) < 0) {
+	fprintf(stderr, "%s: Error: __pmLogWriteMark: log data: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	abandon_extract();
 	/*NOTREACHED*/
     }
     written++;
-    free(markpdu);
     return(1);
 }
 
@@ -2498,9 +2550,7 @@ writerlist(rlist_t **rlready, __pmTimestamp *mintime)
     unsigned long	peek_offset;
 
     while (*rlready != NULL) {
-	restime.sec = (*rlready)->res->timestamp.tv_sec;
-	restime.nsec = (*rlready)->res->timestamp.tv_usec * 1000;
-
+	restime = (*rlready)->res->timestamp;
         if (__pmTimestampCmp(&restime, mintime) > 0) {
 	    if (pmDebugOptions.appl1) {
 		fprintf(stderr, "writelist: restime %" FMT_INT64 ".%09d mintime %" FMT_INT64 ".%09d ", restime.sec, restime.nsec, mintime->sec, mintime->nsec);
@@ -2519,8 +2569,7 @@ writerlist(rlist_t **rlready, __pmTimestamp *mintime)
 	 */
 	if (first_datarec) {
 	    first_datarec = 0;
-	    logctl.label.start.sec = elm->res->timestamp.tv_sec;
-	    logctl.label.start.nsec = elm->res->timestamp.tv_usec * 1000;
+	    logctl.label.start = elm->res->timestamp;
             logctl.state = PM_LOG_STATE_INIT;
             writelabel_data();
         }
@@ -2538,7 +2587,7 @@ writerlist(rlist_t **rlready, __pmTimestamp *mintime)
 	write_priorlabelset(PM_LABEL_CONTEXT, PM_IN_NULL, mintime);
 
 	/* convert log record to a pdu */
-	sts = __pmEncodeResult(PDU_OVERRIDE2, elm->res, (__pmPDU **)&pb);
+	sts = __pmEncodeResult(elm->res, (__pmPDU **)&pb);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
@@ -2641,27 +2690,64 @@ writerlist(rlist_t **rlready, __pmTimestamp *mintime)
     }
 }
 
-
 /*
  *  mark record has been created and assigned to iap->pb[LOG]
- *  write it out
+ *  write it out (version 3 log variant)
  */
-void
-writemark(inarch_t *iap)
+static void
+writemark3(inarch_t *iap)
 {
     int		sts;
-    mark_t      *p = (mark_t *)iap->pb[LOG];
+    mark3_t      *p = (mark3_t *)iap->pb[LOG];
 
     if (!iap->mark) {
 	fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
-	fprintf(stderr, "    writemark called, but mark not set\n");
+	fprintf(stderr, "    writemark3 called, but mark not set\n");
 	abandon_extract();
 	/*NOTREACHED*/
     }
 
     if (p == NULL) {
 	fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
-	fprintf(stderr, "    writemark called, but no pdu\n");
+	fprintf(stderr, "    writemark3 called, but no pdu\n");
+	abandon_extract();
+	/*NOTREACHED*/
+    }
+
+    time_htonll((char *)&p->timestamp.tv_sec);
+    time_htonll((char *)&p->timestamp.tv_nsec);
+
+    if ((sts = __pmLogPutResult3(&archctl, (__pmPDU *)iap->pb[LOG])) < 0) {
+	fprintf(stderr, "%s: Error: __pmLogPutResult3: log data: %s\n",
+		pmGetProgname(), pmErrStr(sts));
+	abandon_extract();
+	/*NOTREACHED*/
+    }
+    written++;
+    free(iap->pb[LOG]);
+    iap->pb[LOG] = NULL;
+}
+
+/*
+ *  mark record has been created and assigned to iap->pb[LOG]
+ *  write it out (version 2 log variant)
+ */
+static void
+writemark2(inarch_t *iap)
+{
+    int		sts;
+    mark2_t      *p = (mark2_t *)iap->pb[LOG];
+
+    if (!iap->mark) {
+	fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
+	fprintf(stderr, "    writemark2 called, but mark not set\n");
+	abandon_extract();
+	/*NOTREACHED*/
+    }
+
+    if (p == NULL) {
+	fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
+	fprintf(stderr, "    writemark2 called, but no pdu\n");
 	abandon_extract();
 	/*NOTREACHED*/
     }
@@ -2684,27 +2770,25 @@ static int
 do_not_need_mark(inarch_t *iap)
 {
     int			indx, j;
-    struct timeval	tstamp;
-    struct timeval	smallest_tstamp;
+    __pmTimestamp	tstamp;
+    __pmTimestamp	smallest_tstamp;
 
     if (old_mark_logic || iap->pmcd_pid == -1 || iap->pmcd_seqnum == -1)
 	/* no epilogue/prologue for me ... */
 	return 0;
 
     j = -1;
-    smallest_tstamp.tv_sec = INT_MAX;
-    smallest_tstamp.tv_usec = 999999;
+    smallest_tstamp.sec = INT64_MAX;
+    smallest_tstamp.nsec = 999999999;
     for (indx=0; indx<inarchnum; indx++) {
 	if (&inarch[indx] == iap)
 	    continue;
 	if (inarch[indx]._result != NULL) {
-	    tstamp.tv_sec = inarch[indx]._result->timestamp.tv_sec;
-	    tstamp.tv_usec = inarch[indx]._result->timestamp.tv_usec;
-	    if (tstamp.tv_sec < smallest_tstamp.tv_sec || 
-		(tstamp.tv_sec == smallest_tstamp.tv_sec && tstamp.tv_usec < smallest_tstamp.tv_usec)) {
+	    tstamp = inarch[indx]._result->timestamp;
+	    if (tstamp.sec < smallest_tstamp.sec || 
+		(tstamp.sec == smallest_tstamp.sec && tstamp.nsec < smallest_tstamp.nsec)) {
 		j = indx;
-		smallest_tstamp.tv_sec = tstamp.tv_sec;
-		smallest_tstamp.tv_usec = tstamp.tv_usec;
+		smallest_tstamp = tstamp;
 	    }
 	}
     }
@@ -2726,6 +2810,7 @@ int
 main(int argc, char **argv)
 {
     int			indx;
+    int			vers;
     int			j;
     int			sts;
     int			stslog;		/* sts from nextlog() */
@@ -3015,10 +3100,10 @@ main(int argc, char **argv)
 	 */
 	mintime.sec = mintime.nsec = 0;
 	for (indx=0; indx<inarchnum; indx++) {
+	    vers = (inarch[indx].label.ll_magic & 0xff);
 	    if (inarch[indx]._Nresult != NULL) {
 		// TODO ... need conditional V3 logic here
-		tstamp.sec = inarch[indx]._Nresult->timestamp.tv_sec;
-		tstamp.nsec = inarch[indx]._Nresult->timestamp.tv_usec * 1000;
+		tstamp = inarch[indx]._Nresult->timestamp;
 		checklogtime(&tstamp, indx);
 
 		if (ilog == indx) {
@@ -3028,9 +3113,13 @@ main(int argc, char **argv)
 		}
 	    }
 	    else if (inarch[indx].pb[LOG] != NULL) {
-		// TODO ... need conditional V3 logic here
-		tstamp.sec = inarch[indx].pb[LOG][3]; /* no swab needed */
-		tstamp.nsec = inarch[indx].pb[LOG][4] * 1000; /* no swab needed */
+		if (vers == PM_LOG_VERS03) {
+		    tstamp.sec = inarch[indx].pb[LOG][4]; /* no swab needed */
+		    tstamp.nsec = inarch[indx].pb[LOG][6]; /* no swab needed */
+		} else /* PM_LOG_VERS02 */ {
+		    tstamp.sec = inarch[indx].pb[LOG][3]; /* no swab needed */
+		    tstamp.nsec = inarch[indx].pb[LOG][4] * 1000; /* no swab needed */
+		}
 		checklogtime(&tstamp, indx);
 
 		if (ilog == indx) {
@@ -3079,8 +3168,10 @@ main(int argc, char **argv)
 		free(iap->pb[LOG]);
 		iap->pb[LOG] = NULL;
 	    }
-	    else
-		writemark(iap);
+	    else if (outarchvers == PM_LOG_VERS03)
+		writemark3(iap);
+	    else if (outarchvers == PM_LOG_VERS02)
+		writemark2(iap);
 	}
 	else {
 	    /* result is to be written out, but there is no _Nresult */
@@ -3097,7 +3188,7 @@ main(int argc, char **argv)
 
 		fprintf(stderr, "rlready");
 		for (i = 0, rp = rlready; rp != NULL; i++, rp = rp->next) {
-		    fprintf(stderr, " [%d] t=%d.%06d numpmid=%d", i, (int)rp->res->timestamp.tv_sec, (int)rp->res->timestamp.tv_usec, rp->res->numpmid);
+		    fprintf(stderr, " [%d] t=%ld.%09d numpmid=%d", i, (long)rp->res->timestamp.sec, (int)rp->res->timestamp.nsec, rp->res->numpmid);
 		}
 		fprintf(stderr, " now=%" FMT_INT64 ".%09d\n", now.sec, now.nsec);
 	    }
@@ -3128,7 +3219,7 @@ main(int argc, char **argv)
 		free(iap->_Nresult);
 	    }
 	    if (iap->_result != NULL) {
-		pmFreeResult(iap->_result);
+		__pmFreeResult(iap->_result);
 		iap->_result = NULL;
 	    }
 	    iap->_Nresult = NULL;

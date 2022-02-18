@@ -21,7 +21,7 @@ _xtract()
     pmdumplog -D1 archives/binning $1 >$tmp.out 2>$tmp.err
     cat $tmp.err $tmp.out \
     | $PCP_AWK_PROG '
-$1 == "pmResult"                { state=1; time=$7; stamp=$6; next }
+$1 == "__pmResult"                { state=1; time=$7; stamp=$6; next }
 state == 1 && /\('"$1"'\)/      { state=2; next }
 state == 2                      { state=0; print time,stamp,$2; next }
 NF==0                           { state=0; next }' \

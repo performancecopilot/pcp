@@ -2,12 +2,13 @@
  * metriclist.c
  *
  * Copyright (c) 1997,2005 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ * Copyright (c) 2022 Red Hat.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -17,78 +18,6 @@
 #include "pmapi.h"
 #include "libpcp.h"
 #include "logger.h"
-
-/*
- * extract the pmid in vsetp and all its instances, and put it in
- * a pmResult of its own
- */
-void
-extractpmid(pmValueSet *vsetp, struct timeval *timestamp, pmResult **resp)
-{
-    int			i;
-    int			size;
-    pmResult		*result;
-    pmValueBlock	*vbp;		/* value block pointer */
-
-
-    result = (pmResult *)malloc(sizeof(pmResult));
-    if (result == NULL) {
-	fprintf(stderr, "%s: Error: cannot malloc space in \"extractpmid\".\n",
-		pmGetProgname());
-	exit(1);
-    }
-
-    size = sizeof(pmValueSet) + (vsetp->numval-1) * sizeof(pmValue);
-    result->vset[0] = (pmValueSet *)malloc(size);
-    if (result->vset[0] == NULL) {
-	fprintf(stderr, "%s: Error: cannot malloc space in \"extractpmid\".\n",
-		pmGetProgname());
-	exit(1);
-    }
-
-
-    result->timestamp.tv_sec = timestamp->tv_sec;
-    result->timestamp.tv_usec = timestamp->tv_usec;
-    result->numpmid = 1;
-    result->vset[0]->pmid = vsetp->pmid;
-    result->vset[0]->numval = vsetp->numval;
-    result->vset[0]->valfmt = vsetp->valfmt;
-
-
-    for(i=0; i<vsetp->numval; i++) {
-	result->vset[0]->vlist[i].inst = vsetp->vlist[i].inst;
-	if (vsetp->valfmt == PM_VAL_INSITU)
-	    result->vset[0]->vlist[i].value = vsetp->vlist[i].value;
-	else {
-	    vbp = vsetp->vlist[i].value.pval;
-
-	    size = (int)vbp->vlen;
-	    result->vset[0]->vlist[i].value.pval = (pmValueBlock *)malloc(size);
-	    if (result->vset[0]->vlist[i].value.pval == NULL) {
-		fprintf(stderr,
-		    "%s: Error: cannot malloc space in \"extractpmid\".\n",
-			pmGetProgname());
-		exit(1);
-    	    }
-
-	    result->vset[0]->vlist[i].value.pval->vtype = vbp->vtype;
-	    result->vset[0]->vlist[i].value.pval->vlen = vbp->vlen;
-
-	    /*
-	     * in a pmValueBlock, the first byte is assigned to vtype,
-	     * and the subsequent 3 bytes are assigned to vlen - that's
-	     * a total of 4 bytes - the rest is used for vbuf
-	     */
-	    if (vbp->vlen < 4) {
-		fprintf(stderr, "%s: Warning: pmValueBlock vlen (%u) is too small\n", pmGetProgname(), vbp->vlen);
-	    }
-	    memcpy(result->vset[0]->vlist[i].value.pval->vbuf,
-						vbp->vbuf, vbp->vlen-4);
-	}
-    } /*for(i)*/
-
-    *resp = result;
-}
 
 rlist_t *
 mk_rlist_t(void)
@@ -124,9 +53,9 @@ insertrlist(rlist_t **rlist, rlist_t *elm)
 	return;
     }
 
-    if (elm->res->timestamp.tv_sec < (*rlist)->res->timestamp.tv_sec ||
-	(elm->res->timestamp.tv_sec == (*rlist)->res->timestamp.tv_sec &&
-	elm->res->timestamp.tv_usec <= (*rlist)->res->timestamp.tv_usec)) {
+    if (elm->res->timestamp.sec < (*rlist)->res->timestamp.sec ||
+	(elm->res->timestamp.sec == (*rlist)->res->timestamp.sec &&
+	elm->res->timestamp.nsec <= (*rlist)->res->timestamp.nsec)) {
 	    curr = *rlist;
 	    *rlist = elm;
 	    (*rlist)->next = curr;
@@ -137,9 +66,9 @@ insertrlist(rlist_t **rlist, rlist_t *elm)
     prev = *rlist;
 
     while (curr != NULL) {
-	if (elm->res->timestamp.tv_sec < curr->res->timestamp.tv_sec ||
-	    (elm->res->timestamp.tv_sec == curr->res->timestamp.tv_sec &&
-	    elm->res->timestamp.tv_usec <= curr->res->timestamp.tv_usec)) {
+	if (elm->res->timestamp.sec < curr->res->timestamp.sec ||
+	    (elm->res->timestamp.sec == curr->res->timestamp.sec &&
+	    elm->res->timestamp.nsec <= curr->res->timestamp.nsec)) {
 		break;
 	}
 	prev = curr;
@@ -152,10 +81,10 @@ insertrlist(rlist_t **rlist, rlist_t *elm)
 
 
 /*
- * insert pmResult in rlist list
+ * insert __pmResult in rlist list
  */
 void
-insertresult(rlist_t **rlist, pmResult *result)
+insertresult(rlist_t **rlist, __pmResult *result)
 {
     rlist_t	*elm;
 
@@ -171,8 +100,8 @@ insertresult(rlist_t **rlist, pmResult *result)
  * and not in the skip list skip_ml and optionally cherry-pick requested
  * instances
  */
-pmResult *
-searchmlist(pmResult *_Oresult)
+__pmResult *
+searchmlist(__pmResult *_Oresult)
 {
     int		i;
     int		j;
@@ -184,7 +113,7 @@ searchmlist(pmResult *_Oresult)
     int		numpmid = 0;
     int		*ilist;
     int		*jlist = NULL;
-    pmResult	*_Nresult;
+    __pmResult	*_Nresult;
     pmValue	*vlistp = NULL;		/* temporary list of instances */
     pmValueSet	*vsetp;			/* value set pointer */
 
@@ -259,13 +188,12 @@ searchmlist(pmResult *_Oresult)
      * numpmid pmid matches were found (some or all pmid's are ready
      * for writing), so allocate space for new result
      */
-    _Nresult = (pmResult *) malloc(sizeof(pmResult) +
-					(numpmid - 1) * sizeof(pmValueSet *));
+    _Nresult = __pmAllocResult(numpmid);
     if (_Nresult == NULL)
 	goto nomem;
 
-    _Nresult->timestamp.tv_sec = _Oresult->timestamp.tv_sec;
-    _Nresult->timestamp.tv_usec = _Oresult->timestamp.tv_usec;
+    _Nresult->timestamp.sec = _Oresult->timestamp.sec;
+    _Nresult->timestamp.nsec = _Oresult->timestamp.nsec;
     _Nresult->numpmid = numpmid;
 
     if (ml != NULL) {
@@ -289,7 +217,7 @@ searchmlist(pmResult *_Oresult)
         if (ml != NULL && ml[j].numinst != -1 && vsetp->numval > 0) {
 	    /*
 	     * specific instances requested ... need to
-	     * find which ones are in the pmResult and
+	     * find which ones are in the __pmResult and
 	     * vlistp[k] identfies the kth instance we will
 	     * require
 	     */
@@ -298,7 +226,7 @@ searchmlist(pmResult *_Oresult)
 	    found = 0;
 	    /* requested instances loop ... */
 	    for (q=0; q<ml[j].numinst; q++) {
-		/* instances in pmResult loop ... */
+		/* instances in __pmResult loop ... */
 		for (r=0; r<vsetp->numval; r++) {
 		    if (ml[j].instlist[q] == vsetp->vlist[r].inst) {
 			vlistp[found].inst = vsetp->vlist[r].inst;

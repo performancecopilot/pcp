@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013,2017 Red Hat.
+ * Copyright (c) 2013,2017,2022 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -205,7 +205,7 @@ dodso(int pdu)
     pmDesc		*desc_list = NULL;
     pmResult		*result;
     pmLabelSet		*labelset = NULL;
-    pmInResult	*inresult;
+    pmInResult		*inresult;
     int			i;
     int			j;
     char		*buffer;
@@ -331,7 +331,7 @@ dodso(int pdu)
 	    else if (pmDebugOptions.fetch)
 		_dbDumpResult(stdout, result, desc_list);
 	 
-	    sts = fillResult(result, desc.type);
+	    sts = fillValues(result->vset[0], desc.type);
 	    if (sts < 0) {
 		pmFreeResult(result);
 		return;

@@ -1,11 +1,12 @@
 /*
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
- * 
+ * Copyright (c) 2022 Red Hat.
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -20,7 +21,7 @@
 int
 _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 {
-    pmResult	*rp;
+    __pmResult	*rp;
     int		i;
     pmID	pmid;
     pmValueSet	*vsp;
@@ -38,10 +39,10 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
     mp = &current->metric[hp->midx];
 
     if (current->result == NULL) {
-	/* first time */
-	current->result = (pmResult *)calloc(1, sizeof(pmResult));
+	/* first time - do not use __pmAllocResult due to realloc requirement */
+	current->result = (__pmResult *)calloc(1, sizeof(__pmResult));
 	if (current->result == NULL) {
-	    pmNoMem("_pmi_stuff_value: result calloc", sizeof(pmResult), PM_FATAL_ERR);
+	    pmNoMem("_pmi_stuff_value: result calloc", sizeof(__pmResult), PM_FATAL_ERR);
 	}
     }
     rp = current->result;
@@ -57,8 +58,8 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
     }
     if (i == rp->numpmid) {
 	rp->numpmid++;
-	size = sizeof(pmResult) + (rp->numpmid-1)*sizeof(pmValueSet *);
-	rp = current->result = (pmResult *)realloc(current->result, size);
+	size = sizeof(__pmResult) + (rp->numpmid-1)*sizeof(pmValueSet *);
+	rp = current->result = (__pmResult *)realloc(current->result, size);
 	if (current->result == NULL) {
 	    pmNoMem("_pmi_stuff_value: result realloc", size, PM_FATAL_ERR);
 	}

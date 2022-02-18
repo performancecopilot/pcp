@@ -17,17 +17,17 @@ PMID: 135.0.4
     Semantics: counter  Units: byte
 dbpmda> fetch gpfs.fsios.cluster
 PMID(s): 135.0.1
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   135.0.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [0 or ???] value STRING
 dbpmda> fetch gpfs.fsios.filesystem
 PMID(s): 135.0.2
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   135.0.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [0 or ???] value STRING
 dbpmda> fetch gpfs.fsios.read_bytes
 PMID(s): 135.0.4
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   135.0.4 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [0 or ???] value NUMBER
 dbpmda> instance 135.0

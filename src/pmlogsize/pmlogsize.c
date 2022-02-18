@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Red Hat.
+ * Copyright (c) 2021-2022 Red Hat.
  * Copyright (c) 2018 Ken McDonell.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -119,6 +119,7 @@ do_work(char *fname)
 {
     __pmFILE		*f;
     int			sts;
+    int			version;
     long		extsize;
     long		intsize;
     __pmLogLabel	label;
@@ -146,6 +147,7 @@ do_work(char *fname)
 	fprintf(stderr, "%s: cannot load label record: %s\n", fname, pmErrStr(sts));
         return;
     }
+    version = label.magic & 0xff;
 
     printf("%s:", fname);
     if (intsize != extsize) {
@@ -154,11 +156,11 @@ do_work(char *fname)
     putchar('\n');
 
     if (label.vol == PM_LOG_VOL_TI)
-	do_index(f, label.magic & 0xff);
+	do_index(f, version);
     else if (label.vol == PM_LOG_VOL_META)
 	do_meta(f);
     else
-	do_data(f, fname);
+	do_data(f, version, fname);
 
     __pmLogFreeLabel(&label);
     __pmFclose(f);

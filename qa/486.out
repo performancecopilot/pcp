@@ -249,7 +249,7 @@ pmdumplog diffs ...
 +11:05:07.411966000	      0         2635         3816
  
  [156 bytes]
- 10:45:08.440968 3 metrics
+ 10:45:08.440968000 3 metrics
 @@ -216,7 +216,7 @@
          inst [14 or "m-14"] value 1429
          inst [15 or "m-15"] value 1528
@@ -486,7 +486,7 @@ pmdumplog diffs ...
 +11:05:07.411966000	      0         2648         3816
  
  [156 bytes]
- 10:45:08.440968 3 metrics
+ 10:45:08.440968000 3 metrics
 @@ -216,7 +216,7 @@
          inst [14 or "m-14"] value 1429
          inst [15 or "m-15"] value 1528
@@ -915,7 +915,7 @@ pmdumplog diffs ...
 +11:22:42.021829000	      0          589         1784
  
  [152 bytes]
- 22:22:42.025955 3 metrics
+ 22:22:42.025955000 3 metrics
 
 === metric 29.*.* { sem->DISCRETE } metric pmcd.pmlogger.port { sem->COUNTER } ===
 pmdumplog diffs ...
@@ -1458,14 +1458,14 @@ pmdumplog diffs ...
 +11:05:07.411966000	      0         2638         4044
  
  [156 bytes]
- 10:45:08.440968 3 metrics
+ 10:45:08.440968000 3 metrics
 @@ -207,7 +207,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [24763 or "24763"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [24763 or "24763"] value "/usr/people/kenmcd/isms/pcp/qa/src/mirage"
  
 -[176 bytes]
 +[188 bytes]
- 10:46:07.406806 3 metrics
+ 10:46:07.406806000 3 metrics
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 32
 @@ -227,7 +227,7 @@
@@ -1474,7 +1474,7 @@ pmdumplog diffs ...
  
 -[176 bytes]
 +[188 bytes]
- 10:47:07.419122 3 metrics
+ 10:47:07.419122000 3 metrics
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 27
 @@ -247,7 +247,7 @@
@@ -1483,7 +1483,7 @@ pmdumplog diffs ...
  
 -[192 bytes]
 +[204 bytes]
- 10:48:07.406714 3 metrics
+ 10:48:07.406714000 3 metrics
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 22
 @@ -269,7 +269,7 @@
@@ -1492,7 +1492,7 @@ pmdumplog diffs ...
  
 -[200 bytes]
 +[212 bytes]
- 10:49:07.407160 3 metrics
+ 10:49:07.407160000 3 metrics
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 15
 @@ -292,7 +292,7 @@
@@ -1501,7 +1501,7 @@ pmdumplog diffs ...
  
 -[200 bytes]
 +[212 bytes]
- 10:50:07.407387 3 metrics
+ 10:50:07.407387000 3 metrics
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 7
 @@ -315,7 +315,7 @@
@@ -1510,7 +1510,7 @@ pmdumplog diffs ...
  
 -[184 bytes]
 +[196 bytes]
- 10:51:07.407667 3 metrics
+ 10:51:07.407667000 3 metrics
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 99
 @@ -336,7 +336,7 @@
@@ -1519,7 +1519,7 @@ pmdumplog diffs ...
  
 -[184 bytes]
 +[196 bytes]
- 10:52:07.407885 3 metrics
+ 10:52:07.407885000 3 metrics
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 93
 @@ -357,7 +357,7 @@
@@ -1528,7 +1528,7 @@ pmdumplog diffs ...
  
 -[192 bytes]
 +[204 bytes]
- 10:53:07.408341 3 metrics
+ 10:53:07.408341000 3 metrics
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 87
 @@ -379,7 +379,7 @@
@@ -1537,7 +1537,7 @@ pmdumplog diffs ...
  
 -[200 bytes]
 +[212 bytes]
- 10:54:07.408606 3 metrics
+ 10:54:07.408606000 3 metrics
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 80
 @@ -402,7 +402,7 @@
@@ -1546,7 +1546,7 @@ pmdumplog diffs ...
  
 -[192 bytes]
 +[204 bytes]
- 10:55:07.409073 3 metrics
+ 10:55:07.409073000 3 metrics
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 72
 @@ -424,7 +424,7 @@
@@ -1555,7 +1555,7 @@ pmdumplog diffs ...
  
 -[184 bytes]
 +[196 bytes]
- 10:56:07.409201 3 metrics
+ 10:56:07.409201000 3 metrics
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 65
 @@ -445,7 +445,7 @@
@@ -1564,7 +1564,7 @@ pmdumplog diffs ...
  
 -[176 bytes]
 +[188 bytes]
- 10:57:07.409462 3 metrics
+ 10:57:07.409462000 3 metrics
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 59
 @@ -465,7 +465,7 @@
@@ -1573,7 +1573,7 @@ pmdumplog diffs ...
  
 -[176 bytes]
 +[188 bytes]
- 10:58:07.409875 3 metrics
+ 10:58:07.409875000 3 metrics
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 54
 @@ -485,7 +485,7 @@
@@ -1582,7 +1582,7 @@ pmdumplog diffs ...
  
 -[192 bytes]
 +[204 bytes]
- 10:59:07.410254 3 metrics
+ 10:59:07.410254000 3 metrics
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 49
 @@ -507,7 +507,7 @@
@@ -1591,7 +1591,7 @@ pmdumplog diffs ...
  
 -[184 bytes]
 +[196 bytes]
- 11:00:07.410567 3 metrics
+ 11:00:07.410567000 3 metrics
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 42
 @@ -528,7 +528,7 @@
@@ -1600,7 +1600,7 @@ pmdumplog diffs ...
  
 -[176 bytes]
 +[188 bytes]
- 11:01:07.410735 3 metrics
+ 11:01:07.410735000 3 metrics
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 36
 @@ -548,7 +548,7 @@
@@ -1609,7 +1609,7 @@ pmdumplog diffs ...
  
 -[176 bytes]
 +[188 bytes]
- 11:02:07.411038 3 metrics
+ 11:02:07.411038000 3 metrics
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 31
 @@ -568,7 +568,7 @@
@@ -1618,7 +1618,7 @@ pmdumplog diffs ...
  
 -[184 bytes]
 +[196 bytes]
- 11:03:07.411488 3 metrics
+ 11:03:07.411488000 3 metrics
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 26
 @@ -589,7 +589,7 @@
@@ -1627,7 +1627,7 @@ pmdumplog diffs ...
  
 -[184 bytes]
 +[196 bytes]
- 11:04:07.411683 3 metrics
+ 11:04:07.411683000 3 metrics
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 20
 @@ -610,7 +610,7 @@
@@ -1636,7 +1636,7 @@ pmdumplog diffs ...
  
 -[176 bytes]
 +[188 bytes]
- 11:05:07.411966 3 metrics
+ 11:05:07.411966000 3 metrics
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 14
 
@@ -1661,14 +1661,14 @@ pmdumplog diffs ...
 +21:59:04.005134000	      0         1305         5396
  
  [152 bytes]
- 21:58:59.005168 3 metrics
+ 21:58:59.005168000 3 metrics
 @@ -82,7 +82,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [3931 or "3931"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [3931 or "3931"] value "/home/kenj/src/pcpqa/src/sample_expr"
  
 -[572 bytes]
 +[568 bytes]
- 21:58:59.505162 13 metrics
+ 21:58:59.505162000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 770
      29.0.83 (sample.kbyte_ctr): value 23132
 @@ -114,7 +114,7 @@
@@ -1677,7 +1677,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[568 bytes]
- 21:59:00.005135 13 metrics
+ 21:59:00.005135000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 726
      29.0.83 (sample.kbyte_ctr): value 23979
 @@ -146,7 +146,7 @@
@@ -1686,7 +1686,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[568 bytes]
- 21:59:00.505139 13 metrics
+ 21:59:00.505139000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 414
      29.0.83 (sample.kbyte_ctr): value 24629
 @@ -178,7 +178,7 @@
@@ -1695,7 +1695,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[568 bytes]
- 21:59:01.005139 13 metrics
+ 21:59:01.005139000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 1019
      29.0.83 (sample.kbyte_ctr): value 26082
 @@ -210,7 +210,7 @@
@@ -1704,7 +1704,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[568 bytes]
- 21:59:01.505136 13 metrics
+ 21:59:01.505136000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 294
      29.0.83 (sample.kbyte_ctr): value 26857
 @@ -242,7 +242,7 @@
@@ -1713,7 +1713,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[568 bytes]
- 21:59:02.005131 13 metrics
+ 21:59:02.005131000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 752
      29.0.83 (sample.kbyte_ctr): value 27023
 @@ -274,7 +274,7 @@
@@ -1722,7 +1722,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[568 bytes]
- 21:59:02.505139 13 metrics
+ 21:59:02.505139000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 851
      29.0.83 (sample.kbyte_ctr): value 27691
 @@ -306,7 +306,7 @@
@@ -1731,7 +1731,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[568 bytes]
- 21:59:03.005138 13 metrics
+ 21:59:03.005138000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 435
      29.0.83 (sample.kbyte_ctr): value 28370
 @@ -338,7 +338,7 @@
@@ -1740,7 +1740,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[568 bytes]
- 21:59:03.505139 13 metrics
+ 21:59:03.505139000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 439
      29.0.83 (sample.kbyte_ctr): value 29635
 @@ -370,7 +370,7 @@
@@ -1749,7 +1749,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[568 bytes]
- 21:59:04.005134 13 metrics
+ 21:59:04.005134000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 447
      29.0.83 (sample.kbyte_ctr): value 30198
 
@@ -1774,14 +1774,14 @@ pmdumplog diffs ...
 +21:59:04.005134000	      0         1305         5324
  
  [152 bytes]
- 21:58:59.005168 3 metrics
+ 21:58:59.005168000 3 metrics
 @@ -82,7 +82,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [3931 or "3931"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [3931 or "3931"] value "/home/kenj/src/pcpqa/src/sample_expr"
  
 -[572 bytes]
 +[560 bytes]
- 21:58:59.505162 13 metrics
+ 21:58:59.505162000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 770
      29.0.83 (sample.kbyte_ctr): value 23132
 @@ -114,7 +114,7 @@
@@ -1790,7 +1790,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[560 bytes]
- 21:59:00.005135 13 metrics
+ 21:59:00.005135000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 726
      29.0.83 (sample.kbyte_ctr): value 23979
 @@ -146,7 +146,7 @@
@@ -1799,7 +1799,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[560 bytes]
- 21:59:00.505139 13 metrics
+ 21:59:00.505139000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 414
      29.0.83 (sample.kbyte_ctr): value 24629
 @@ -178,7 +178,7 @@
@@ -1808,7 +1808,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[560 bytes]
- 21:59:01.005139 13 metrics
+ 21:59:01.005139000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 1019
      29.0.83 (sample.kbyte_ctr): value 26082
 @@ -210,7 +210,7 @@
@@ -1817,7 +1817,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[560 bytes]
- 21:59:01.505136 13 metrics
+ 21:59:01.505136000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 294
      29.0.83 (sample.kbyte_ctr): value 26857
 @@ -242,7 +242,7 @@
@@ -1826,7 +1826,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[560 bytes]
- 21:59:02.005131 13 metrics
+ 21:59:02.005131000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 752
      29.0.83 (sample.kbyte_ctr): value 27023
 @@ -274,7 +274,7 @@
@@ -1835,7 +1835,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[560 bytes]
- 21:59:02.505139 13 metrics
+ 21:59:02.505139000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 851
      29.0.83 (sample.kbyte_ctr): value 27691
 @@ -306,7 +306,7 @@
@@ -1844,7 +1844,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[560 bytes]
- 21:59:03.005138 13 metrics
+ 21:59:03.005138000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 435
      29.0.83 (sample.kbyte_ctr): value 28370
 @@ -338,7 +338,7 @@
@@ -1853,7 +1853,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[560 bytes]
- 21:59:03.505139 13 metrics
+ 21:59:03.505139000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 439
      29.0.83 (sample.kbyte_ctr): value 29635
 @@ -370,7 +370,7 @@
@@ -1862,7 +1862,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[560 bytes]
- 21:59:04.005134 13 metrics
+ 21:59:04.005134000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 447
      29.0.83 (sample.kbyte_ctr): value 30198
 
@@ -1915,7 +1915,7 @@ pmdumplog diffs ...
 @@ -50,7 +50,7 @@
  
  [60 bytes]
- 22:22:42.060877 2 metrics
+ 22:22:42.060877000 2 metrics
 -    1.26.7 (hinv.ndisk): value 2
 +    1.26.7 (hinv.ndisk): inst [0 or ???] value 2
      1.18.2 (hinv.ncpu): value 1
@@ -1938,7 +1938,7 @@ pmdumplog diffs ...
 @@ -50,7 +50,7 @@
  
  [60 bytes]
- 22:22:42.060877 2 metrics
+ 22:22:42.060877000 2 metrics
 -    1.26.7 (hinv.ndisk): value 2
 +    1.26.7 (hinv.ndisk): inst [5 or ???] value 2
      1.18.2 (hinv.ncpu): value 1
@@ -1966,14 +1966,14 @@ pmdumplog diffs ...
 +04:34:40.258477000	      0          851         1656
  
  [152 bytes]
- 04:34:32.257504 3 metrics
+ 04:34:32.257504000 3 metrics
 @@ -64,7 +64,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
 -[212 bytes]
 +[196 bytes]
- 04:34:33.248687 5 metrics
+ 04:34:33.248687000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
 @@ -78,13 +78,10 @@
@@ -1989,7 +1989,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
 @@ -98,13 +95,10 @@
@@ -2005,7 +2005,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:35.258377 5 metrics
+ 04:34:35.258377000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 108
 @@ -118,13 +112,10 @@
@@ -2021,7 +2021,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:36.258416 5 metrics
+ 04:34:36.258416000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 90
 @@ -138,13 +129,10 @@
@@ -2037,7 +2037,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:37.258585 5 metrics
+ 04:34:37.258585000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 101
 @@ -158,13 +146,10 @@
@@ -2053,7 +2053,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:38.258389 5 metrics
+ 04:34:38.258389000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 127
 @@ -178,13 +163,10 @@
@@ -2069,7 +2069,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:39.258408 5 metrics
+ 04:34:39.258408000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 135
 @@ -198,13 +180,10 @@
@@ -2085,7 +2085,7 @@ pmdumplog diffs ...
  
 -[208 bytes]
 +[192 bytes]
- 04:34:40.258477 5 metrics
+ 04:34:40.258477000 5 metrics
      29.0.46 (sample.lights): value "red"
      29.0.7 (sample.drift): value 156
 @@ -218,8 +197,5 @@
@@ -2120,14 +2120,14 @@ pmdumplog diffs ...
 +04:34:40.258477000	      0          851         1656
  
  [152 bytes]
- 04:34:32.257504 3 metrics
+ 04:34:32.257504000 3 metrics
 @@ -64,7 +64,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
 -[212 bytes]
 +[196 bytes]
- 04:34:33.248687 5 metrics
+ 04:34:33.248687000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
 @@ -78,13 +78,10 @@
@@ -2143,7 +2143,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
 @@ -98,13 +95,10 @@
@@ -2159,7 +2159,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:35.258377 5 metrics
+ 04:34:35.258377000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 108
 @@ -118,13 +112,10 @@
@@ -2175,7 +2175,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:36.258416 5 metrics
+ 04:34:36.258416000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 90
 @@ -138,13 +129,10 @@
@@ -2191,7 +2191,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:37.258585 5 metrics
+ 04:34:37.258585000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 101
 @@ -158,13 +146,10 @@
@@ -2207,7 +2207,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:38.258389 5 metrics
+ 04:34:38.258389000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 127
 @@ -178,13 +163,10 @@
@@ -2223,7 +2223,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:39.258408 5 metrics
+ 04:34:39.258408000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 135
 @@ -198,13 +180,10 @@
@@ -2239,7 +2239,7 @@ pmdumplog diffs ...
  
 -[208 bytes]
 +[192 bytes]
- 04:34:40.258477 5 metrics
+ 04:34:40.258477000 5 metrics
      29.0.46 (sample.lights): value "red"
      29.0.7 (sample.drift): value 156
 @@ -218,8 +197,5 @@
@@ -2274,14 +2274,14 @@ pmdumplog diffs ...
 +04:34:40.258477000	      0          851         1656
  
  [152 bytes]
- 04:34:32.257504 3 metrics
+ 04:34:32.257504000 3 metrics
 @@ -64,7 +64,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
 -[212 bytes]
 +[196 bytes]
- 04:34:33.248687 5 metrics
+ 04:34:33.248687000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
 @@ -78,13 +78,10 @@
@@ -2297,7 +2297,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
 @@ -98,13 +95,10 @@
@@ -2313,7 +2313,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:35.258377 5 metrics
+ 04:34:35.258377000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 108
 @@ -118,13 +112,10 @@
@@ -2329,7 +2329,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:36.258416 5 metrics
+ 04:34:36.258416000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 90
 @@ -138,13 +129,10 @@
@@ -2345,7 +2345,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:37.258585 5 metrics
+ 04:34:37.258585000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 101
 @@ -158,13 +146,10 @@
@@ -2361,7 +2361,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:38.258389 5 metrics
+ 04:34:38.258389000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 127
 @@ -178,13 +163,10 @@
@@ -2377,7 +2377,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:39.258408 5 metrics
+ 04:34:39.258408000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 135
 @@ -198,13 +180,10 @@
@@ -2393,7 +2393,7 @@ pmdumplog diffs ...
  
 -[208 bytes]
 +[192 bytes]
- 04:34:40.258477 5 metrics
+ 04:34:40.258477000 5 metrics
      29.0.46 (sample.lights): value "red"
      29.0.7 (sample.drift): value 156
 @@ -218,8 +197,5 @@
@@ -2428,14 +2428,14 @@ pmdumplog diffs ...
 +04:34:40.258477000	      0          851         1656
  
  [152 bytes]
- 04:34:32.257504 3 metrics
+ 04:34:32.257504000 3 metrics
 @@ -64,7 +64,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
 -[212 bytes]
 +[196 bytes]
- 04:34:33.248687 5 metrics
+ 04:34:33.248687000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
 @@ -78,13 +78,10 @@
@@ -2451,7 +2451,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
 @@ -98,13 +95,10 @@
@@ -2467,7 +2467,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:35.258377 5 metrics
+ 04:34:35.258377000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 108
 @@ -118,13 +112,10 @@
@@ -2483,7 +2483,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:36.258416 5 metrics
+ 04:34:36.258416000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 90
 @@ -138,13 +129,10 @@
@@ -2499,7 +2499,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:37.258585 5 metrics
+ 04:34:37.258585000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 101
 @@ -158,13 +146,10 @@
@@ -2515,7 +2515,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:38.258389 5 metrics
+ 04:34:38.258389000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 127
 @@ -178,13 +163,10 @@
@@ -2531,7 +2531,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:39.258408 5 metrics
+ 04:34:39.258408000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 135
 @@ -198,13 +180,10 @@
@@ -2547,7 +2547,7 @@ pmdumplog diffs ...
  
 -[208 bytes]
 +[192 bytes]
- 04:34:40.258477 5 metrics
+ 04:34:40.258477000 5 metrics
      29.0.46 (sample.lights): value "red"
      29.0.7 (sample.drift): value 156
 @@ -218,8 +197,5 @@
@@ -2582,14 +2582,14 @@ pmdumplog diffs ...
 +04:34:40.258477000	      0          851         1656
  
  [152 bytes]
- 04:34:32.257504 3 metrics
+ 04:34:32.257504000 3 metrics
 @@ -64,7 +64,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
 -[212 bytes]
 +[196 bytes]
- 04:34:33.248687 5 metrics
+ 04:34:33.248687000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
 @@ -78,13 +78,10 @@
@@ -2605,7 +2605,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
 @@ -98,13 +95,10 @@
@@ -2621,7 +2621,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:35.258377 5 metrics
+ 04:34:35.258377000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 108
 @@ -118,13 +112,10 @@
@@ -2637,7 +2637,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:36.258416 5 metrics
+ 04:34:36.258416000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 90
 @@ -138,13 +129,10 @@
@@ -2653,7 +2653,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:37.258585 5 metrics
+ 04:34:37.258585000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 101
 @@ -158,13 +146,10 @@
@@ -2669,7 +2669,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:38.258389 5 metrics
+ 04:34:38.258389000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 127
 @@ -178,13 +163,10 @@
@@ -2685,7 +2685,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:39.258408 5 metrics
+ 04:34:39.258408000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 135
 @@ -198,13 +180,10 @@
@@ -2701,7 +2701,7 @@ pmdumplog diffs ...
  
 -[208 bytes]
 +[192 bytes]
- 04:34:40.258477 5 metrics
+ 04:34:40.258477000 5 metrics
      29.0.46 (sample.lights): value "red"
      29.0.7 (sample.drift): value 156
 @@ -218,8 +197,5 @@
@@ -2736,14 +2736,14 @@ pmdumplog diffs ...
 +04:34:40.258477000	      0          851         1656
  
  [152 bytes]
- 04:34:32.257504 3 metrics
+ 04:34:32.257504000 3 metrics
 @@ -64,7 +64,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
 -[212 bytes]
 +[196 bytes]
- 04:34:33.248687 5 metrics
+ 04:34:33.248687000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
 @@ -78,13 +78,10 @@
@@ -2759,7 +2759,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
 @@ -98,13 +95,10 @@
@@ -2775,7 +2775,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:35.258377 5 metrics
+ 04:34:35.258377000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 108
 @@ -118,13 +112,10 @@
@@ -2791,7 +2791,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:36.258416 5 metrics
+ 04:34:36.258416000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 90
 @@ -138,13 +129,10 @@
@@ -2807,7 +2807,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:37.258585 5 metrics
+ 04:34:37.258585000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 101
 @@ -158,13 +146,10 @@
@@ -2823,7 +2823,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:38.258389 5 metrics
+ 04:34:38.258389000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 127
 @@ -178,13 +163,10 @@
@@ -2839,7 +2839,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:39.258408 5 metrics
+ 04:34:39.258408000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 135
 @@ -198,13 +180,10 @@
@@ -2855,7 +2855,7 @@ pmdumplog diffs ...
  
 -[208 bytes]
 +[192 bytes]
- 04:34:40.258477 5 metrics
+ 04:34:40.258477000 5 metrics
      29.0.46 (sample.lights): value "red"
      29.0.7 (sample.drift): value 156
 @@ -218,8 +197,5 @@
@@ -2890,14 +2890,14 @@ pmdumplog diffs ...
 +04:34:40.258477000	      0          851         1656
  
  [152 bytes]
- 04:34:32.257504 3 metrics
+ 04:34:32.257504000 3 metrics
 @@ -64,7 +64,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
 -[212 bytes]
 +[196 bytes]
- 04:34:33.248687 5 metrics
+ 04:34:33.248687000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
 @@ -78,13 +78,10 @@
@@ -2913,7 +2913,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
 @@ -98,13 +95,10 @@
@@ -2929,7 +2929,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:35.258377 5 metrics
+ 04:34:35.258377000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 108
 @@ -118,13 +112,10 @@
@@ -2945,7 +2945,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:36.258416 5 metrics
+ 04:34:36.258416000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 90
 @@ -138,13 +129,10 @@
@@ -2961,7 +2961,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:37.258585 5 metrics
+ 04:34:37.258585000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 101
 @@ -158,13 +146,10 @@
@@ -2977,7 +2977,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:38.258389 5 metrics
+ 04:34:38.258389000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 127
 @@ -178,13 +163,10 @@
@@ -2993,7 +2993,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:39.258408 5 metrics
+ 04:34:39.258408000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 135
 @@ -198,13 +180,10 @@
@@ -3009,7 +3009,7 @@ pmdumplog diffs ...
  
 -[208 bytes]
 +[192 bytes]
- 04:34:40.258477 5 metrics
+ 04:34:40.258477000 5 metrics
      29.0.46 (sample.lights): value "red"
      29.0.7 (sample.drift): value 156
 @@ -218,8 +197,5 @@
@@ -3044,14 +3044,14 @@ pmdumplog diffs ...
 +04:34:40.258477000	      0          851         1656
  
  [152 bytes]
- 04:34:32.257504 3 metrics
+ 04:34:32.257504000 3 metrics
 @@ -64,7 +64,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
 -[212 bytes]
 +[196 bytes]
- 04:34:33.248687 5 metrics
+ 04:34:33.248687000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
 @@ -78,13 +78,10 @@
@@ -3067,7 +3067,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:34.248493 5 metrics
+ 04:34:34.248493000 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
 @@ -98,13 +95,10 @@
@@ -3083,7 +3083,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:35.258377 5 metrics
+ 04:34:35.258377000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 108
 @@ -118,13 +112,10 @@
@@ -3099,7 +3099,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:36.258416 5 metrics
+ 04:34:36.258416000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 90
 @@ -138,13 +129,10 @@
@@ -3115,7 +3115,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:37.258585 5 metrics
+ 04:34:37.258585000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 101
 @@ -158,13 +146,10 @@
@@ -3131,7 +3131,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:38.258389 5 metrics
+ 04:34:38.258389000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 127
 @@ -178,13 +163,10 @@
@@ -3147,7 +3147,7 @@ pmdumplog diffs ...
  
 -[212 bytes]
 +[196 bytes]
- 04:34:39.258408 5 metrics
+ 04:34:39.258408000 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 135
 @@ -198,13 +180,10 @@
@@ -3163,7 +3163,7 @@ pmdumplog diffs ...
  
 -[208 bytes]
 +[192 bytes]
- 04:34:40.258477 5 metrics
+ 04:34:40.258477000 5 metrics
      29.0.46 (sample.lights): value "red"
      29.0.7 (sample.drift): value 156
 @@ -218,8 +197,5 @@
@@ -3198,14 +3198,14 @@ pmdumplog diffs ...
 +21:59:04.005134000	      0         1305         4172
  
  [152 bytes]
- 21:58:59.005168 3 metrics
+ 21:58:59.005168000 3 metrics
 @@ -82,7 +82,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [3931 or "3931"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [3931 or "3931"] value "/home/kenj/src/pcpqa/src/sample_expr"
  
 -[572 bytes]
 +[432 bytes]
- 21:58:59.505162 13 metrics
+ 21:58:59.505162000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 770
      29.0.83 (sample.kbyte_ctr): value 23132
 @@ -95,15 +95,7 @@
@@ -3231,7 +3231,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[432 bytes]
- 21:59:00.005135 13 metrics
+ 21:59:00.005135000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 726
      29.0.83 (sample.kbyte_ctr): value 23979
 @@ -127,15 +119,7 @@
@@ -3257,7 +3257,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[432 bytes]
- 21:59:00.505139 13 metrics
+ 21:59:00.505139000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 414
      29.0.83 (sample.kbyte_ctr): value 24629
 @@ -159,15 +143,7 @@
@@ -3283,7 +3283,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[432 bytes]
- 21:59:01.005139 13 metrics
+ 21:59:01.005139000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 1019
      29.0.83 (sample.kbyte_ctr): value 26082
 @@ -191,15 +167,7 @@
@@ -3309,7 +3309,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[432 bytes]
- 21:59:01.505136 13 metrics
+ 21:59:01.505136000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 294
      29.0.83 (sample.kbyte_ctr): value 26857
 @@ -223,15 +191,7 @@
@@ -3335,7 +3335,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[432 bytes]
- 21:59:02.005131 13 metrics
+ 21:59:02.005131000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 752
      29.0.83 (sample.kbyte_ctr): value 27023
 @@ -255,15 +215,7 @@
@@ -3361,7 +3361,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[432 bytes]
- 21:59:02.505139 13 metrics
+ 21:59:02.505139000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 851
      29.0.83 (sample.kbyte_ctr): value 27691
 @@ -287,15 +239,7 @@
@@ -3387,7 +3387,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[432 bytes]
- 21:59:03.005138 13 metrics
+ 21:59:03.005138000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 435
      29.0.83 (sample.kbyte_ctr): value 28370
 @@ -319,15 +263,7 @@
@@ -3413,7 +3413,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[432 bytes]
- 21:59:03.505139 13 metrics
+ 21:59:03.505139000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 439
      29.0.83 (sample.kbyte_ctr): value 29635
 @@ -351,15 +287,7 @@
@@ -3439,7 +3439,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[432 bytes]
- 21:59:04.005134 13 metrics
+ 21:59:04.005134000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 447
      29.0.83 (sample.kbyte_ctr): value 30198
 @@ -383,15 +311,7 @@
@@ -3481,14 +3481,14 @@ pmdumplog diffs ...
 +21:59:04.005134000	      0         1305         4172
  
  [152 bytes]
- 21:58:59.005168 3 metrics
+ 21:58:59.005168000 3 metrics
 @@ -82,7 +82,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [3931 or "3931"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [3931 or "3931"] value "/home/kenj/src/pcpqa/src/sample_expr"
  
 -[572 bytes]
 +[432 bytes]
- 21:58:59.505162 13 metrics
+ 21:58:59.505162000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 770
      29.0.83 (sample.kbyte_ctr): value 23132
 @@ -95,15 +95,7 @@
@@ -3514,7 +3514,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[432 bytes]
- 21:59:00.005135 13 metrics
+ 21:59:00.005135000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 726
      29.0.83 (sample.kbyte_ctr): value 23979
 @@ -127,15 +119,7 @@
@@ -3540,7 +3540,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[432 bytes]
- 21:59:00.505139 13 metrics
+ 21:59:00.505139000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 414
      29.0.83 (sample.kbyte_ctr): value 24629
 @@ -159,15 +143,7 @@
@@ -3566,7 +3566,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[432 bytes]
- 21:59:01.005139 13 metrics
+ 21:59:01.005139000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 1019
      29.0.83 (sample.kbyte_ctr): value 26082
 @@ -191,15 +167,7 @@
@@ -3592,7 +3592,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[432 bytes]
- 21:59:01.505136 13 metrics
+ 21:59:01.505136000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 294
      29.0.83 (sample.kbyte_ctr): value 26857
 @@ -223,15 +191,7 @@
@@ -3618,7 +3618,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[432 bytes]
- 21:59:02.005131 13 metrics
+ 21:59:02.005131000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 752
      29.0.83 (sample.kbyte_ctr): value 27023
 @@ -255,15 +215,7 @@
@@ -3644,7 +3644,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[432 bytes]
- 21:59:02.505139 13 metrics
+ 21:59:02.505139000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 851
      29.0.83 (sample.kbyte_ctr): value 27691
 @@ -287,15 +239,7 @@
@@ -3670,7 +3670,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[432 bytes]
- 21:59:03.005138 13 metrics
+ 21:59:03.005138000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 435
      29.0.83 (sample.kbyte_ctr): value 28370
 @@ -319,15 +263,7 @@
@@ -3696,7 +3696,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[432 bytes]
- 21:59:03.505139 13 metrics
+ 21:59:03.505139000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 439
      29.0.83 (sample.kbyte_ctr): value 29635
 @@ -351,15 +287,7 @@
@@ -3722,7 +3722,7 @@ pmdumplog diffs ...
  
 -[572 bytes]
 +[432 bytes]
- 21:59:04.005134 13 metrics
+ 21:59:04.005134000 13 metrics
      29.0.85 (sample.byte_rate_perhour): value 447
      29.0.83 (sample.kbyte_ctr): value 30198
 @@ -383,15 +311,7 @@

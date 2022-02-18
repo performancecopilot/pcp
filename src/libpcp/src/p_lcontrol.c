@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2013,2022 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -37,7 +37,7 @@ typedef struct {
 } control_req_t;
 
 int
-__pmSendLogControl(int fd, const pmResult *request, int control, int state, int delta)
+__pmSendLogControl(int fd, const __pmResult *request, int control, int state, int delta)
 {
     pmValueSet		*vsp;
     int			i;
@@ -48,7 +48,7 @@ __pmSendLogControl(int fd, const pmResult *request, int control, int state, int 
     int			sts;
 
     if (pmDebugOptions.pdu)
-	__pmDumpResult(stderr, request);
+	__pmPrintResult(stderr, request);
 
     /* advisory+maybe logging and retrospective logging (delta < 0) are not
      *permitted
@@ -101,7 +101,7 @@ __pmSendLogControl(int fd, const pmResult *request, int control, int state, int 
 }
 
 int
-__pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, int *state, int *delta)
+__pmDecodeLogControl(const __pmPDU *pdubuf, __pmResult **request, int *control, int *state, int *delta)
 {
     int			sts;
     int			i;
@@ -111,8 +111,7 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, in
     char		*pduend;
     int			numpmid;
     size_t		need;
-    pmResult		*req;
-    __pmResult		*__req;
+    __pmResult		*req;
     pmValueSet		*vsp;
     vlist_t		*vp;
 
@@ -131,11 +130,10 @@ __pmDecodeLogControl(const __pmPDU *pdubuf, pmResult **request, int *control, in
 	return PM_ERR_IPC;
     if (numpmid >= (INT_MAX - sizeof(pmResult)) / sizeof(pmValueSet *))
 	return PM_ERR_IPC;
-    if ((__req = __pmAllocResult(numpmid)) == NULL) {
+    if ((req = __pmAllocResult(numpmid)) == NULL) {
 	pmNoMem("__pmDecodeLogControl.req", sizeof(__pmResult) + (numpmid - 1) * sizeof(pmValueSet *), PM_RECOV_ERR);
 	return -oserror();
     }
-    req = __pmOffsetResult(__req);
     req->numpmid = numpmid;
 
     sts = PM_ERR_IPC;
@@ -189,6 +187,6 @@ corrupt:
     for (i-- ; i >= 0; i--)
 	free(req->vset[i]);
     req->numpmid = 0;		/* don't free vset's */
-    pmFreeResult(req);
+    __pmFreeResult(req);
     return sts;
 }

@@ -1,7 +1,7 @@
 #include "pmlogreduce.h"
 
 void
-doindom(pmResult *rp)
+doindom(__pmResult *rp)
 {
     pmValueSet		*vsp;
     int			i;
@@ -34,7 +34,7 @@ doindom(pmResult *rp)
 	    fprintf(stderr,
 		"%s: doindom: Arrgh, unexpected PMID %s @ vset[%d]\n",
 		    pmGetProgname(), pmIDStr(vsp->pmid), i);
-	    __pmDumpResult(stderr, rp);
+	    __pmPrintResult(stderr, rp);
 	    exit(1);
 	}
 	if (mp->idp == NULL)
@@ -78,8 +78,7 @@ doindom(pmResult *rp)
 	    if (mp->idp->name != NULL) free(mp->idp->name);
 	    if (mp->idp->inst != NULL) free(mp->idp->inst);
 	    lid.indom = mp->idp->indom;
-	    lid.stamp.sec = current.tv_sec;
-	    lid.stamp.nsec = current.tv_usec * 1000;
+	    lid.stamp = current;	/* struct assignment */
 	    lid.numinst = mp->idp->numinst = sts;
 	    lid.instlist = mp->idp->inst = instlist;
 	    lid.namelist = mp->idp->name = names;
@@ -100,8 +99,7 @@ doindom(pmResult *rp)
 
     if (needti) {
 	__pmFflush(logctl.mdfp);
-	stamp.sec = current.tv_sec;
-	stamp.nsec = current.tv_usec * 1000;
+	stamp = current;	/* struct assignment */
 	__pmLogPutIndex(&archctl, &stamp);
     }
 }

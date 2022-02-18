@@ -15,8 +15,8 @@ tmparch/sample-proc_v2.meta:
 
 === V3 ===
 tmparch/sample-proc_v3.0:
-  data: NNNNN bytes [91%, 22 records]
-  overhead: 1248 bytes [9%]
+  data: NNNNN bytes [89%, 22 records]
+  overhead: 1424 bytes [11%]
 tmparch/sample-proc_v3.index:
   index: 480 bytes [37%, 15 entries]
   overhead: 808 bytes [63%]

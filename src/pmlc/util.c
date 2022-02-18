@@ -1,38 +1,36 @@
 /*
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ * Copyright (c) 2022 Red Hat.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "pmapi.h"
+#include "libpcp.h"
 #include "pmlc.h"
 
 /* this pmResult is built after parsing the current statement.  The action
  * routines (Status, LogReq) send it to the logger as a request.
  */
-pmResult	*logreq = NULL;
-int		sz_logreq = 0;
-int		n_logreq = 0;
+__pmResult	*logreq;
+int		sz_logreq;
+int		n_logreq;
 
-int		n_metrics = 0;
-int		sz_metrics = 0;
-metric_t	*metric = NULL;
+int		n_metrics;
+int		sz_metrics;
+metric_t	*metric;
 
-int		n_indoms = 0;
-int		sz_indoms = 0;
-indom_t		*indom = NULL;
+int		n_indoms;
+int		sz_indoms;
+indom_t		*indom;
 
 void
 freemetrics(void)
@@ -207,19 +205,21 @@ endmetrics(void)
 
     /* free any old values in the reusable pmResult skeleton */
     if (n_logreq) {
-	for (i = 0; i < n_logreq; i++)
+	for (i = 0; i < n_logreq; i++) {
 	    free(logreq->vset[i]);
+	    logreq->vset[i] = NULL;
+	}
+	logreq->numpmid = 0;
 	n_logreq = 0;
     }
 
     /* build a result from the metrics and instances in the metric array */
     if (n_metrics > sz_logreq) {
 	if (sz_logreq)
-	    free(logreq);
-	need = sizeof(pmResult) + (n_metrics - 1) * sizeof(pmValueSet *);
+	    __pmFreeResult(logreq);
 	/* - 1 because a pmResult already contains one pmValueSet ptr */
-	if ((logreq = (pmResult *)malloc(need)) == NULL) {
-	    pmNoMem("building result to send", need, PM_FATAL_ERR);
+	if ((logreq = __pmAllocResult(n_metrics)) == NULL) {
+	    pmNoMem("building result to send", sizeof(__pmResult) + (n_metrics - 1) * sizeof(pmValueSet *), PM_FATAL_ERR);
 	}
 	sz_logreq = n_metrics;
     }

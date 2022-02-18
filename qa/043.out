@@ -1,5 +1,5 @@
 QA output created by 043
-pmResult ... numpmid: 3
+__pmResult ... numpmid: 3
   2.0.0 (pmcd.control.debug): numval: 1 valfmt: 0 vlist[]:
    value INTEGER
   30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:
@@ -13,12 +13,12 @@ base store test (failures not unexpected) ...
 pmStore: OK
 
 numpmid == 0 tests (failures expected) ...
-pmResult ... numpmid: 0
+__pmResult ... numpmid: 0
 pmStore: Insufficient elements in list
 __pmControlLog: Insufficient elements in list
 
 numval == 0 tests (failures expected) ...
-pmResult ... numpmid: 3
+__pmResult ... numpmid: 3
   2.0.0 (pmcd.control.debug): numval: 1 valfmt: 0 vlist[]:
    value INTEGER
   30.0.14 (sampledso.long.write_me): No values returned!
@@ -28,7 +28,7 @@ pmResult ... numpmid: 3
     inst [2 or "blue"] value INTEGER
 pmStore: Missing metric value(s)
 __pmControlLog: OK
-pmResult ... numpmid: 3
+__pmResult ... numpmid: 3
   2.0.0 (pmcd.control.debug): numval: 1 valfmt: 0 vlist[]:
    value INTEGER
   30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:
@@ -39,7 +39,7 @@ pmResult ... numpmid: 3
     inst [2 or "blue"] value INTEGER
 
 numval < 0 tests (failures expected) ...
-pmResult ... numpmid: 3
+__pmResult ... numpmid: 3
   2.0.0 (pmcd.control.debug): numval: 1 valfmt: 0 vlist[]:
    value INTEGER
   30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:
@@ -47,7 +47,7 @@ pmResult ... numpmid: 3
   29.0.5 (sample.dupnames.four.colour, sample.colour): No PMCD agent for domain of request
 pmStore: Missing metric value(s)
 __pmControlLog: OK
-pmResult ... numpmid: 3
+__pmResult ... numpmid: 3
   2.0.0 (pmcd.control.debug): numval: 1 valfmt: 0 vlist[]:
    value INTEGER
   30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:
