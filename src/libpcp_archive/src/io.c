@@ -300,8 +300,14 @@ pmaRewriteMeta(__pmLogCtl *lcp, int outvers, __int32_t **rbuf)
     return sts;
 }
 
-pmaPutMark(__pmFILE *f, int version, __pmTimestamp *tsp) {
+int
+pmaPutMark(__pmFILE *f, int version, __pmTimestamp *tsp)
+{
+    return 0;
 }
 
-pmaCreateMark(int version,  __pmTimestamp *tsp,  __int32_t **rbuf) {
+int
+pmaCreateMark(int version,  __pmTimestamp *tsp,  __int32_t **rbuf)
+{
+    return 0;
 }
