@@ -269,6 +269,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmResult **result)
 
 		if ((n == PDU_HIGHRES_RESULT && highres) || (n == PDU_RESULT && !highres)) {
 		    /* Success with a result in a PDU buffer */
+		    PM_LOCK(ctxp->c_lock);
 		    sts = (n == PDU_RESULT) ?
 			    __pmDecodeResult_ctx(ctxp, pb, result) :
 			    __pmDecodeHighResResult_ctx(ctxp, pb, result);
@@ -277,6 +278,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmResult **result)
 			n = sts;
 		    else if (have_dm)
 			__pmFinishResult(ctxp, sts, result);
+		    PM_UNLOCK(ctxp->c_lock);
 		}
 		else if (n == PDU_ERROR) {
 		    __pmDecodeError(pb, &n);
