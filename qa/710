@@ -33,7 +33,10 @@ then
     echo
     echo "=== dumplog ==="
     pmdumplog -dilmst $tmp.pcplog 2>&1 | filter_dump
-    pmdumplog -a $tmp.pcplog >>$seq.full
+
+    cat $tmp.out >>$seq.full
+    echo "---" >>$seq.full
+    pmdumplog -Dlog -a $tmp.pcplog >>$seq.full 2>&1
 else
     cat $tmp.out
     echo "check_import python script gave non-zero result"
