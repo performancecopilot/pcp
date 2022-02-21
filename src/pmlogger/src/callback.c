@@ -895,6 +895,7 @@ do_work(task_t *tp)
 		     */
 		    __pmLogInDom_io	new;
 		    __pmLogInDom_io	new_delta;
+		    new.stamp = resp->timestamp;	/* struct assignment */
 		    new.indom = desc.indom;
 		    if ((new.numinst = pmGetInDom(desc.indom, &new.instlist, &new.namelist)) < 0) {
 			fprintf(stderr, "pmGetInDom(%s): %s\n", pmInDomStr(desc.indom), pmErrStr(new.numinst));
