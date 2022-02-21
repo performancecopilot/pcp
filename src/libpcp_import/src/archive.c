@@ -135,7 +135,7 @@ check_metric(pmi_context *current, pmID pmid, int *needti)
 }
 
 static void
-newvolume(pmi_context *current, pmTimeval *tvp)
+newvolume(pmi_context *current)
 {
     __pmFILE		*newfp;
     __pmArchCtl		*acp = &current->archctl;
@@ -207,7 +207,7 @@ _pmi_put_result(pmi_context *current, __pmResult *result)
 
     off = __pmFtell(acp->ac_mfp) + ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
     if (off >= max_logsz)
-    	newvolume(current, (pmTimeval *)&pb[3]);
+    	newvolume(current);
 
     sts = current->version >= PM_LOG_VERS03 ?
 	    __pmLogPutResult3(acp, pb) : __pmLogPutResult2(acp, pb);
