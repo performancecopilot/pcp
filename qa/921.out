@@ -5,6 +5,13 @@ QA output created by 921
 3 values for pmcd.numagents
 3 <mark> records
 7565 timestamps
++++ -l
+Note: timezone set to local timezone of host "super.elastic.org" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host super.elastic.org
+    commencing Fri Jan 10 17:58:09.600347 2014
+    ending     Mon Jan 13 08:59:49.930068 2014
 
 +++ -M
 7556 values for kernel.all.nprocs
@@ -31,36 +38,36 @@ QA output created by 921
 Note: timezone set to local timezone of host "super.elastic.org" from archive
 
 
-Sat Jan 11 10:48:09.957106000 2014  <mark>
+Sat Jan 11 10:48:09.957106 2014  <mark>
 
-Sat Jan 11 10:49:47.697863000 2014 1 metric
+Sat Jan 11 10:49:47.697863 2014 1 metric
     2.0.2 (pmcd.numagents): value 4
 
-Sun Jan 12 10:48:47.695244000 2014  <mark>
+Sun Jan 12 10:48:47.695244 2014  <mark>
 
-Sun Jan 12 10:50:27.000221000 2014 1 metric
+Sun Jan 12 10:50:27.000221 2014 1 metric
     2.0.2 (pmcd.numagents): value 4
 
-Sun Jan 12 17:47:27.000808000 2014  <mark>
+Sun Jan 12 17:47:27.000808 2014  <mark>
 
-Sun Jan 12 17:48:50.231867000 2014 1 metric
+Sun Jan 12 17:48:50.231867 2014 1 metric
     2.0.2 (pmcd.numagents): value 4
 
 +++ -Mxxz pmcd.numagents
 Note: timezone set to local timezone of host "super.elastic.org" from archive
 
 
-Sat Jan 11 10:48:09.957106000 2014 (60600.356759000)  <mark>
+Sat Jan 11 10:48:09.957106 2014 (60600.356759)  <mark>
 
-Sat Jan 11 10:49:47.697863000 2014 (60698.097516000) 1 metric
+Sat Jan 11 10:49:47.697863 2014 (60698.097516) 1 metric
     2.0.2 (pmcd.numagents): value 4
 
-Sun Jan 12 10:48:47.695244000 2014 (147038.094897000)  <mark>
+Sun Jan 12 10:48:47.695244 2014 (147038.094897)  <mark>
 
-Sun Jan 12 10:50:27.000221000 2014 (147137.399874000) 1 metric
+Sun Jan 12 10:50:27.000221 2014 (147137.399874) 1 metric
     2.0.2 (pmcd.numagents): value 4
 
-Sun Jan 12 17:47:27.000808000 2014 (172157.400461000)  <mark>
+Sun Jan 12 17:47:27.000808 2014 (172157.400461)  <mark>
 
-Sun Jan 12 17:48:50.231867000 2014 (172240.631520000) 1 metric
+Sun Jan 12 17:48:50.231867 2014 (172240.631520) 1 metric
     2.0.2 (pmcd.numagents): value 4

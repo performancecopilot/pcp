@@ -143,7 +143,7 @@ dump_pmTimestamp(const __pmTimestamp *tsp)
 	if (version == PM_LOG_VERS03)
 	    printf(" (%.9f)", __pmTimestampSub(tsp, &label.start));
 	else
-	    printf(" (%.6f)", __pmTimestampSub(tsp, &label.start) / 1000);
+	    printf(" (%.6f)", __pmTimestampSub(tsp, &label.start));
     }
 }
 
