@@ -78,20 +78,20 @@ PMID: 60.18.7 (hinv.machine)
 
 Instance Domains in the Log ...
 
-14:39:13.883258000 2 metrics
+14:39:13.883258 2 metrics
     60.18.7 (hinv.machine): value "linux"
     60.1.1 (mem.util.used): value 13573328
 
-14:39:14.883562000 1 metric
+14:39:14.883562 1 metric
     60.1.1 (mem.util.used): value 13573380
 
-14:39:15.882319000 1 metric
+14:39:15.882319 1 metric
     60.1.1 (mem.util.used): value 13573256
 
-14:39:16.882447000 1 metric
+14:39:16.882447 1 metric
     60.1.1 (mem.util.used): value 13573256
 
-14:39:17.882326000 1 metric
+14:39:17.882326 1 metric
     60.1.1 (mem.util.used): value 13573800
 === pmrep archive creation with scaled values
 Recording 1 metrics to TMP.new_archive5:
@@ -114,31 +114,31 @@ PMID: 60.0.39 (disk.dev.write_bytes)
 
 Instance Domains in the Log ...
 InDom: 60.1
-00:28:01.923022000 2 instances
+00:28:01.923022 2 instances
    0 or "sda"
    2 or "sdc"
 
-00:28:01.923022000 1 metric
+00:28:01.923022 1 metric
     60.0.39 (disk.dev.write_bytes):
         inst [0 or "sda"] value 369846691
         inst [2 or "sdc"] value 948239088
 
-00:29:01.925641000 1 metric
+00:29:01.925641 1 metric
     60.0.39 (disk.dev.write_bytes):
         inst [0 or "sda"] value 369847163
         inst [2 or "sdc"] value 948239160
 
-00:30:01.923324000 1 metric
+00:30:01.923324 1 metric
     60.0.39 (disk.dev.write_bytes):
         inst [0 or "sda"] value 369847575
         inst [2 or "sdc"] value 948239236
 
-00:31:01.922091000 1 metric
+00:31:01.922091 1 metric
     60.0.39 (disk.dev.write_bytes):
         inst [0 or "sda"] value 369848903
         inst [2 or "sdc"] value 948239408
 
-00:32:01.922742000 1 metric
+00:32:01.922742 1 metric
     60.0.39 (disk.dev.write_bytes):
         inst [0 or "sda"] value 369849315
         inst [2 or "sdc"] value 948239540

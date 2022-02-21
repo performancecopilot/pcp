@@ -155,14 +155,14 @@ Running diff TMP.original.txt TMP.extracted.txt
 >         [0] name(2,3) : value(7,1) [instances]
 2586,2591d2585
 < InDom: 60.0
-< 08:40:29.125510000 4 instances
+< 08:40:29.125510 4 instances
 <    0 or "cpu0"
 <    1 or "cpu1"
 <    2 or "cpu2"
 <    3 or "cpu3"
 2638a2633,2638
 > InDom: 60.200
-> 08:40:29.125510000 4 instances
+> 08:40:29.125510 4 instances
 >    0 or "cpu0"
 >    1 or "cpu1"
 >    2 or "cpu2"

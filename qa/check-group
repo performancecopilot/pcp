@@ -193,3 +193,12 @@ fi
 
 comm -12 $tmp.scripts $tmp.group >$tmp.tmp
 echo "$report_group in group and QA scripts `wc -l <$tmp.tmp | sed -e 's/ //g'` times"
+
+if $debug
+then
+    for suff in scripts group
+    do
+	echo "Saving tmp.$suff ..."
+	mv $tmp.$suff tmp.$suff
+    done
+fi

@@ -41,7 +41,7 @@ TIMESTAMP 1 instances
    LOGGER_PID or "LOGGER_PID"
 
 Temporal Index
-			Log Vol    end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 
@@ -116,7 +116,7 @@ TIMESTAMP 1 instances
    LOGGER_PID or "LOGGER_PID"
 
 Temporal Index
-			Log Vol    end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET

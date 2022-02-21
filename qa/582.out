@@ -36,12 +36,12 @@ PMID: 2.3.3 (pmcd.pmlogger.host)
 
 Instance Domains in the Log ...
 InDom: 29.1
-04:34:33.248687000 3 instances
+04:34:33.248687 3 instances
    0 or "red"
    1 or "green"
    2 or "blue"
 InDom: 29.2
-04:34:33.248687000 9 instances
+04:34:33.248687 9 instances
    100 or "bin-100"
    200 or "bin-200"
    300 or "bin-300"
@@ -52,66 +52,66 @@ InDom: 29.2
    800 or "bin-800"
    900 or "bin-900"
 InDom: 2.1
-04:34:32.257504000 1 instances
+04:34:32.257504 1 instances
    5403 or "5403"
 
 Temporal Index
-			Log Vol    end(meta)     end(log)
-04:34:32.257504000	      0          132          132
-04:34:33.248687000	      0          350          284
-04:34:40.258477000	      0          851         1768
+		Log Vol    end(meta)     end(log)
+04:34:32.257504	      0          132          132
+04:34:33.248687	      0          350          284
+04:34:40.258477	      0          851         1768
 
 [56 bytes]
-04:34:33.248687000 1 metric
+04:34:33.248687 1 metric
     29.0.5 (sample.colour):
         inst [0 or "red"] value 119
         inst [1 or "green"] value 220
         inst [2 or "blue"] value 321
 
 [56 bytes]
-04:34:34.248493000 1 metric
+04:34:34.248493 1 metric
     29.0.5 (sample.colour):
         inst [0 or "red"] value 122
         inst [1 or "green"] value 223
         inst [2 or "blue"] value 324
 
 [56 bytes]
-04:34:35.258377000 1 metric
+04:34:35.258377 1 metric
     29.0.5 (sample.colour):
         inst [0 or "red"] value 125
         inst [1 or "green"] value 226
         inst [2 or "blue"] value 327
 
 [56 bytes]
-04:34:36.258416000 1 metric
+04:34:36.258416 1 metric
     29.0.5 (sample.colour):
         inst [0 or "red"] value 128
         inst [1 or "green"] value 229
         inst [2 or "blue"] value 330
 
 [56 bytes]
-04:34:37.258585000 1 metric
+04:34:37.258585 1 metric
     29.0.5 (sample.colour):
         inst [0 or "red"] value 131
         inst [1 or "green"] value 232
         inst [2 or "blue"] value 333
 
 [56 bytes]
-04:34:38.258389000 1 metric
+04:34:38.258389 1 metric
     29.0.5 (sample.colour):
         inst [0 or "red"] value 134
         inst [1 or "green"] value 235
         inst [2 or "blue"] value 336
 
 [56 bytes]
-04:34:39.258408000 1 metric
+04:34:39.258408 1 metric
     29.0.5 (sample.colour):
         inst [0 or "red"] value 137
         inst [1 or "green"] value 238
         inst [2 or "blue"] value 339
 
 [56 bytes]
-04:34:40.258477000 1 metric
+04:34:40.258477 1 metric
     29.0.5 (sample.colour):
         inst [0 or "red"] value 140
         inst [1 or "green"] value 241

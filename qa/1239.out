@@ -984,7 +984,7 @@ Running pmdumplog -zhide archives/20180416.10.00
 Running pmdumplog -iteh TMP.pmlogrewrite
 Running diff TMP.original.txt TMP.rewritten.txt
 3057a3058,5548
-> 10:01:25.325401000
+> 10:01:25.325401
 >     InDom 3.9[7084] labels (24 bytes): {"new_name":"new_value"}
 >         [0] name(2,8) : value(12,11) [instances]
 >     InDom 3.9[7083] labels (24 bytes): {"new_name":"new_value"}

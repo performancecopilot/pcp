@@ -27,10 +27,10 @@ PMID: 245.0.1 (metric.a)
 Instance Domains in the Log ...
 
 Temporal Index
-			Log Vol    end(meta)     end(log)
-01:02:00.000000000	      0          132          132
-01:02:00.000000000	      0          372          132
-13:02:00.000000000	      0          372          788
+		Log Vol    end(meta)     end(log)
+01:02:00.000000	      0          132          132
+01:02:00.000000	      0          372          132
+13:02:00.000000	      0          372          788
 
 [164 bytes]
 01:02:00.000000 5 metrics

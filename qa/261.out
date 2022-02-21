@@ -25,7 +25,7 @@ PMID: 29.0.37 (sample.mirage)
 
 Instance Domains in the Log ...
 InDom: 29.2
-10:51:07.407667000 9 instances
+10:51:07.407667 9 instances
    100 or "bin-100"
    200 or "bin-200"
    300 or "bin-300"
@@ -36,14 +36,14 @@ InDom: 29.2
    800 or "bin-800"
    900 or "bin-900"
 InDom: 29.3
-10:51:07.407667000 6 instances
+10:51:07.407667 6 instances
    0 or "m-00"
    15 or "m-15"
    17 or "m-17"
    18 or "m-18"
    19 or "m-19"
    21 or "m-21"
-10:53:07.408341000 7 instances
+10:53:07.408341 7 instances
    0 or "m-00"
    15 or "m-15"
    17 or "m-17"
@@ -51,7 +51,7 @@ InDom: 29.3
    19 or "m-19"
    21 or "m-21"
    22 or "m-22"
-10:54:07.408606000 8 instances
+10:54:07.408606 8 instances
    0 or "m-00"
    15 or "m-15"
    17 or "m-17"
@@ -60,7 +60,7 @@ InDom: 29.3
    21 or "m-21"
    22 or "m-22"
    23 or "m-23"
-10:55:07.409073000 7 instances
+10:55:07.409073 7 instances
    0 or "m-00"
    15 or "m-15"
    17 or "m-17"
@@ -70,14 +70,14 @@ InDom: 29.3
    24 or "m-24"
 
 Temporal Index
-			Log Vol    end(meta)     end(log)
-10:51:07.407667000	      0          132          132
-10:53:07.408341000	      0          565          500
-10:54:07.408606000	      0          684          692
-10:55:07.409073000	      0          816          892
-10:55:07.409073000	      0          935         1084
+		Log Vol    end(meta)     end(log)
+10:51:07.407667	      0          132          132
+10:53:07.408341	      0          565          500
+10:54:07.408606	      0          684          692
+10:55:07.409073	      0          816          892
+10:55:07.409073	      0          935         1084
 
-10:51:07.407667000 3 metrics
+10:51:07.407667 3 metrics
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 99
         inst [15 or "m-15"] value 1598
@@ -97,7 +97,7 @@ Temporal Index
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-10:52:07.407885000 3 metrics
+10:52:07.407885 3 metrics
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 93
         inst [15 or "m-15"] value 1592
@@ -117,7 +117,7 @@ Temporal Index
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-10:53:07.408341000 3 metrics
+10:53:07.408341 3 metrics
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 87
         inst [15 or "m-15"] value 1586
@@ -138,7 +138,7 @@ Temporal Index
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-10:54:07.408606000 3 metrics
+10:54:07.408606 3 metrics
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 80
         inst [15 or "m-15"] value 1579
@@ -160,7 +160,7 @@ Temporal Index
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-10:55:07.409073000 3 metrics
+10:55:07.409073 3 metrics
     29.0.37 (sample.mirage):
         inst [0 or "m-00"] value 72
         inst [15 or "m-15"] value 1571

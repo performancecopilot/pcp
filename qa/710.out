@@ -1,4 +1,7 @@
 QA output created by 710
+=== logcheck ===
+
+=== dumplog ===
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
     commencing DATE
@@ -20,7 +23,7 @@ TIMESTAMP 3 instances
    15 or "15 minute"
 
 Temporal Index
-			Log Vol    end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 TIMESTAMP      0          132          132
 TIMESTAMP      0          316          132
 TIMESTAMP      0         1401          252

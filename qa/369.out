@@ -270,7 +270,7 @@ TIMESTAMP 3 instances
    3 or "blah"
 
 Temporal Index
-			Log Vol    end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 TIMESTAMP      0          132          132
 TIMESTAMP      0          531          132
 TIMESTAMP      0         1616          536
@@ -735,7 +735,7 @@ TIMESTAMP 3 instances
    3 or "blah"
 
 Temporal Index
-			Log Vol    end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 TIMESTAMP      0          132          132
 TIMESTAMP      0          531          132
 TIMESTAMP      0         1616          536

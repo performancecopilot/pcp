@@ -37,16 +37,16 @@ Running diff TMP.original.txt TMP.extracted.txt
 > normal process id instance).
 3942,3947d3941
 < InDom: 2.1
-< 08:40:29.081356000 1 instances
+< 08:40:29.081356 1 instances
 <    22069 or "22069"
-< 08:40:29.308973000 2 instances
+< 08:40:29.308973 2 instances
 <    0 or "primary"
 <    22069 or "22069"
 12230a12225,12230
 > InDom: 2.200
-> 08:40:29.081356000 1 instances
+> 08:40:29.081356 1 instances
 >    22069 or "22069"
-> 08:40:29.308973000 2 instances
+> 08:40:29.308973 2 instances
 >    0 or "primary"
 >    22069 or "22069"
 Running pmlogrewrite -c TMP.config archives/20180127.08.40 TMP.pmlogrewrite

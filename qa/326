@@ -69,9 +69,16 @@ _filter_pmval_live()
 
 _filter_pmval_arch()
 {
+    # strip preamble, mask timestamp, deal with arithmetic imprecision
+    # and map this
+    # 07:59:58.062                    !
+    # to this
+    # 07:59:58.062  No values available
+    #
     sed \
 	-e '1,/^interval:/d' \
 	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]*[0-9]/TIMESTAMP/g' \
+	-e 's/                  !/No values available/' \
     | $PCP_AWK_PROG '
 /No values available/	{ print; next }
 0 <= $2 && $2 < 1.1	{ $2 = "non-negative number, less than 1.1" }
@@ -217,6 +224,10 @@ cat $tmp.pmval >>$seq.full
 echo >>$seq.full
 echo "unfiltered pmval archive output" >>$seq.full
 pmval -t 1 -a $tmp sample.milliseconds >>$seq.full 2>&1
+
+echo >>$seq.full
+echo "archive dump" >>$seq.full
+pmdumplog -m $tmp sample.milliseconds >>$seq.full 2>&1
 
 status=0
 exit

@@ -8,7 +8,7 @@ Performance metrics from host LOCALHOST
     ending     month-day TIMESTAMP-0 year
 
 Temporal Index
-			Log Vol    end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 TIMESTAMP-0     0       OFFSET       OFFSET
 Metrics in archive:
     pmcd.pmlogger.host
@@ -25,7 +25,7 @@ Performance metrics from host LOCALHOST
     ending     month-day TIMESTAMP-1 year
 
 Temporal Index
-			Log Vol    end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 TIMESTAMP-0     0       OFFSET       OFFSET
 TIMESTAMP-1     0       OFFSET       OFFSET
 Metrics in archive:
@@ -46,7 +46,7 @@ Performance metrics from host LOCALHOST
     ending     month-day TIMESTAMP-1 year
 
 Temporal Index
-			Log Vol    end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 TIMESTAMP-0     0       OFFSET       OFFSET
 TIMESTAMP-1     0       OFFSET       OFFSET
 Metrics in archive:
@@ -66,7 +66,7 @@ Performance metrics from host LOCALHOST
     ending     month-day TIMESTAMP-2 year
 
 Temporal Index
-			Log Vol    end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 TIMESTAMP-0     0       OFFSET       OFFSET
 TIMESTAMP-1     0       OFFSET       OFFSET
 TIMESTAMP-2     1       OFFSET       OFFSET
@@ -88,7 +88,7 @@ Performance metrics from host LOCALHOST
     ending     month-day TIMESTAMP-4 year
 
 Temporal Index
-			Log Vol    end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 TIMESTAMP-0     0       OFFSET       OFFSET
 TIMESTAMP-1     0       OFFSET       OFFSET
 TIMESTAMP-2     1       OFFSET       OFFSET
@@ -115,7 +115,7 @@ Performance metrics from host LOCALHOST
     ending     month-day TIMESTAMP-5 year
 
 Temporal Index
-			Log Vol    end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 TIMESTAMP-0     0       OFFSET       OFFSET
 TIMESTAMP-1     0       OFFSET       OFFSET
 TIMESTAMP-2     1       OFFSET       OFFSET

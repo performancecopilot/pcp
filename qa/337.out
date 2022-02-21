@@ -27,7 +27,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 Instance Domains in the Log ...
 InDom: 29.2
-13:33:47.240183000 9 instances
+13:33:47.240183 9 instances
    100 or "bin-100"
    200 or "bin-200"
    300 or "bin-300"
@@ -38,32 +38,32 @@ InDom: 29.2
    800 or "bin-800"
    900 or "bin-900"
 InDom: 29.3
-13:33:47.240183000 5 instances
+13:33:47.240183 5 instances
    0 or "m-00"
    4 or "m-04"
    9 or "m-09"
    10 or "m-10"
    11 or "m-11"
-13:33:59.246804000 5 instances
+13:33:59.246804 5 instances
    0 or "m-00"
    4 or "m-04"
    9 or "m-09"
    10 or "m-10"
    12 or "m-12"
-13:34:20.240151000 5 instances
+13:34:20.240151 5 instances
    0 or "m-00"
    4 or "m-04"
    12 or "m-12"
    13 or "m-13"
    14 or "m-14"
 InDom: 29.8
-13:33:47.240183000 5 instances
+13:33:47.240183 5 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
    3 or "i-3"
    4 or "i-4"
-13:33:53.239873000 8 instances
+13:33:53.239873 8 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -72,7 +72,7 @@ InDom: 29.8
    5 or "i-5"
    6 or "i-6"
    7 or "i-7"
-13:33:56.240149000 11 instances
+13:33:56.240149 11 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -85,17 +85,17 @@ InDom: 29.8
    9 or "i-9"
    10 or "i-10"
 InDom: 2.1
-13:33:44.278486000 1 instances
+13:33:44.278486 1 instances
    32221 or "32221"
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 
-13:33:44.278486000 3 metrics
+13:33:44.278486 3 metrics
     2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
     2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
     2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
 
-13:33:47.240183000 3 metrics
+13:33:47.240183 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -119,7 +119,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:50.240133000 3 metrics
+13:33:50.240133 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -143,7 +143,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:53.239873000 3 metrics
+13:33:53.239873 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -170,7 +170,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:56.240149000 3 metrics
+13:33:56.240149 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -200,7 +200,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:59.246804000 3 metrics
+13:33:59.246804 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -230,7 +230,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:34:02.240135000 3 metrics
+13:34:02.240135 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -260,7 +260,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:34:05.240135000 3 metrics
+13:34:05.240135 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -290,7 +290,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:34:08.240144000 3 metrics
+13:34:08.240144 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -319,7 +319,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:34:11.240044000 3 metrics
+13:34:11.240044 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -348,7 +348,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:34:14.240141000 3 metrics
+13:34:14.240141 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -377,7 +377,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:34:17.240135000 3 metrics
+13:34:17.240135 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -406,7 +406,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:34:20.240151000 3 metrics
+13:34:20.240151 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -436,7 +436,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:34:23.239994000 3 metrics
+13:34:23.239994 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -466,7 +466,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:34:26.240139000 3 metrics
+13:34:26.240139 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -496,7 +496,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:34:29.240141000 3 metrics
+13:34:29.240141 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -608,7 +608,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 Instance Domains in the Log ...
 InDom: 29.2
-13:33:50.622527000 9 instances
+13:33:50.622527 9 instances
    100 or "bin-100"
    200 or "bin-200"
    300 or "bin-300"
@@ -619,33 +619,33 @@ InDom: 29.2
    800 or "bin-800"
    900 or "bin-900"
 InDom: 29.3
-13:33:50.622527000 5 instances
+13:33:50.622527 5 instances
    0 or "m-00"
    4 or "m-04"
    9 or "m-09"
    10 or "m-10"
    11 or "m-11"
-13:33:57.622530000 5 instances
+13:33:57.622530 5 instances
    0 or "m-00"
    4 or "m-04"
    9 or "m-09"
    10 or "m-10"
    12 or "m-12"
 InDom: 29.8
-13:33:50.622527000 5 instances
+13:33:50.622527 5 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
    3 or "i-3"
    4 or "i-4"
-13:33:51.622526000 6 instances
+13:33:51.622526 6 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
    3 or "i-3"
    4 or "i-4"
    5 or "i-5"
-13:33:52.622521000 7 instances
+13:33:52.622521 7 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -653,7 +653,7 @@ InDom: 29.8
    4 or "i-4"
    5 or "i-5"
    6 or "i-6"
-13:33:53.622515000 8 instances
+13:33:53.622515 8 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -662,7 +662,7 @@ InDom: 29.8
    5 or "i-5"
    6 or "i-6"
    7 or "i-7"
-13:33:54.622336000 9 instances
+13:33:54.622336 9 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -672,7 +672,7 @@ InDom: 29.8
    6 or "i-6"
    7 or "i-7"
    8 or "i-8"
-13:33:55.622548000 10 instances
+13:33:55.622548 10 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -683,7 +683,7 @@ InDom: 29.8
    7 or "i-7"
    8 or "i-8"
    9 or "i-9"
-13:33:56.622470000 11 instances
+13:33:56.622470 11 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -696,17 +696,17 @@ InDom: 29.8
    9 or "i-9"
    10 or "i-10"
 InDom: 2.1
-13:33:49.623143000 1 instances
+13:33:49.623143 1 instances
    32224 or "32224"
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 
-13:33:49.623143000 3 metrics
+13:33:49.623143 3 metrics
     2.3.3 (pmcd.pmlogger.host): inst [32224 or "32224"] value "ken.engr.acx"
     2.3.0 (pmcd.pmlogger.port): inst [32224 or "32224"] value 4331
     2.3.2 (pmcd.pmlogger.archive): inst [32224 or "32224"] value "/home/kmcdonell/src/pcpqa/src/mirage-2"
 
-13:33:50.622527000 3 metrics
+13:33:50.622527 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -730,7 +730,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:51.622526000 3 metrics
+13:33:51.622526 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -755,7 +755,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:52.622521000 3 metrics
+13:33:52.622521 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -781,7 +781,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:53.622515000 3 metrics
+13:33:53.622515 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -808,7 +808,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:54.622336000 3 metrics
+13:33:54.622336 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -836,7 +836,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:55.622548000 3 metrics
+13:33:55.622548 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -865,7 +865,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:56.622470000 3 metrics
+13:33:56.622470 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -895,7 +895,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:57.622530000 3 metrics
+13:33:57.622530 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -925,7 +925,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:58.622527000 3 metrics
+13:33:58.622527 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -955,7 +955,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:59.622493000 3 metrics
+13:33:59.622493 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1057,7 +1057,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 Instance Domains in the Log ...
 InDom: 29.2
-13:33:47.240183000 9 instances
+13:33:47.240183 9 instances
    100 or "bin-100"
    200 or "bin-200"
    300 or "bin-300"
@@ -1067,7 +1067,7 @@ InDom: 29.2
    700 or "bin-700"
    800 or "bin-800"
    900 or "bin-900"
-13:33:50.622527000 9 instances
+13:33:50.622527 9 instances
    100 or "bin-100"
    200 or "bin-200"
    300 or "bin-300"
@@ -1078,65 +1078,57 @@ InDom: 29.2
    800 or "bin-800"
    900 or "bin-900"
 InDom: 29.3
-13:33:47.240183000 5 instances
+13:33:47.240183 5 instances
    0 or "m-00"
    4 or "m-04"
    9 or "m-09"
    10 or "m-10"
    11 or "m-11"
-13:33:50.622527000 5 instances
+13:33:50.622527 5 instances
    0 or "m-00"
    4 or "m-04"
    9 or "m-09"
    10 or "m-10"
    11 or "m-11"
-13:33:57.622530000 5 instances
+13:33:57.622530 5 instances
    0 or "m-00"
    4 or "m-04"
    9 or "m-09"
    10 or "m-10"
    12 or "m-12"
-13:33:59.246804000 5 instances
+13:33:59.246804 5 instances
    0 or "m-00"
    4 or "m-04"
    9 or "m-09"
    10 or "m-10"
    12 or "m-12"
-13:34:20.240151000 5 instances
+13:34:20.240151 5 instances
    0 or "m-00"
    4 or "m-04"
    12 or "m-12"
    13 or "m-13"
    14 or "m-14"
 InDom: 29.8
-13:33:47.240183000 5 instances
+13:33:47.240183 5 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
    3 or "i-3"
    4 or "i-4"
-13:33:50.622527000 5 instances
+13:33:50.622527 5 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
    3 or "i-3"
    4 or "i-4"
-13:33:51.622526000 6 instances
-   0 or "i-0"
-   1 or "i-1"
-   2 or "i-2"
-   3 or "i-3"
-   4 or "i-4"
-   5 or "i-5"
-13:33:52.622521000 7 instances
+13:33:51.622526 6 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
    3 or "i-3"
    4 or "i-4"
    5 or "i-5"
-   6 or "i-6"
-13:33:53.239873000 8 instances
+13:33:52.622521 7 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -1144,8 +1136,7 @@ InDom: 29.8
    4 or "i-4"
    5 or "i-5"
    6 or "i-6"
-   7 or "i-7"
-13:33:53.622515000 8 instances
+13:33:53.239873 8 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -1154,7 +1145,16 @@ InDom: 29.8
    5 or "i-5"
    6 or "i-6"
    7 or "i-7"
-13:33:54.622336000 9 instances
+13:33:53.622515 8 instances
+   0 or "i-0"
+   1 or "i-1"
+   2 or "i-2"
+   3 or "i-3"
+   4 or "i-4"
+   5 or "i-5"
+   6 or "i-6"
+   7 or "i-7"
+13:33:54.622336 9 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -1164,7 +1164,7 @@ InDom: 29.8
    6 or "i-6"
    7 or "i-7"
    8 or "i-8"
-13:33:55.622548000 10 instances
+13:33:55.622548 10 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -1175,7 +1175,7 @@ InDom: 29.8
    7 or "i-7"
    8 or "i-8"
    9 or "i-9"
-13:33:56.240149000 11 instances
+13:33:56.240149 11 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -1187,7 +1187,7 @@ InDom: 29.8
    8 or "i-8"
    9 or "i-9"
    10 or "i-10"
-13:33:56.622470000 11 instances
+13:33:56.622470 11 instances
    0 or "i-0"
    1 or "i-1"
    2 or "i-2"
@@ -1200,19 +1200,19 @@ InDom: 29.8
    9 or "i-9"
    10 or "i-10"
 InDom: 2.1
-13:33:44.278486000 1 instances
+13:33:44.278486 1 instances
    32221 or "32221"
-13:33:49.623143000 1 instances
+13:33:49.623143 1 instances
    32224 or "32224"
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 
-13:33:44.278486000 3 metrics
+13:33:44.278486 3 metrics
     2.3.3 (pmcd.pmlogger.host): inst [32221 or "32221"] value "ken.engr.acx"
     2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
     2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
 
-13:33:47.240183000 3 metrics
+13:33:47.240183 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1236,12 +1236,12 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:49.623143000 3 metrics
+13:33:49.623143 3 metrics
     2.3.3 (pmcd.pmlogger.host): inst [32224 or "32224"] value "ken.engr.acx"
     2.3.0 (pmcd.pmlogger.port): inst [32224 or "32224"] value 4331
     2.3.2 (pmcd.pmlogger.archive): inst [32224 or "32224"] value "/home/kmcdonell/src/pcpqa/src/mirage-2"
 
-13:33:50.240133000 3 metrics
+13:33:50.240133 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1265,7 +1265,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:50.622527000 3 metrics
+13:33:50.622527 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1289,7 +1289,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:51.622526000 3 metrics
+13:33:51.622526 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1314,7 +1314,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:52.622521000 3 metrics
+13:33:52.622521 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1340,7 +1340,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:53.239873000 3 metrics
+13:33:53.239873 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1367,7 +1367,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:53.622515000 3 metrics
+13:33:53.622515 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1394,7 +1394,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:54.622336000 3 metrics
+13:33:54.622336 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1422,7 +1422,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:55.622548000 3 metrics
+13:33:55.622548 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1451,7 +1451,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:56.240149000 3 metrics
+13:33:56.240149 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1481,7 +1481,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:56.622470000 3 metrics
+13:33:56.622470 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1511,7 +1511,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:57.622530000 3 metrics
+13:33:57.622530 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1541,7 +1541,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:58.622527000 3 metrics
+13:33:58.622527 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1571,7 +1571,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:59.246804000 3 metrics
+13:33:59.246804 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1601,7 +1601,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:59.622493000 3 metrics
+13:33:59.622493 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1631,9 +1631,9 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:33:59.623493000  <mark>
+13:33:59.623493  <mark>
 
-13:34:02.240135000 3 metrics
+13:34:02.240135 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1663,7 +1663,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:34:05.240135000 3 metrics
+13:34:05.240135 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1693,7 +1693,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:34:08.240144000 3 metrics
+13:34:08.240144 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1722,7 +1722,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:34:11.240044000 3 metrics
+13:34:11.240044 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1751,7 +1751,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:34:14.240141000 3 metrics
+13:34:14.240141 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1780,7 +1780,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:34:17.240135000 3 metrics
+13:34:17.240135 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1809,7 +1809,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:34:20.240151000 3 metrics
+13:34:20.240151 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1839,7 +1839,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:34:23.239994000 3 metrics
+13:34:23.239994 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1869,7 +1869,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:34:26.240139000 3 metrics
+13:34:26.240139 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
@@ -1899,7 +1899,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
         inst [800 or "bin-800"] value 800
         inst [900 or "bin-900"] value 900
 
-13:34:29.240141000 3 metrics
+13:34:29.240141 3 metrics
     29.0.80 (sample.many.int):
         inst [0 or "i-0"] value 0
         inst [1 or "i-1"] value 1
