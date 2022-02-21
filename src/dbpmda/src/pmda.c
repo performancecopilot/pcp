@@ -896,29 +896,37 @@ fillValues(pmValueSet *vsp, int type)
     pmAtomValue	atom;
     char	*endbuf = NULL;
 
+    setoserror(0);	/* clear errno */
     switch(type) {
     case PM_TYPE_32:
 	atom.l = (int)strtol(param.name, &endbuf, 10);
+	if (oserror() != 0)
+	    sts = -oserror();	/* ERANGE */
 	break;
     case PM_TYPE_U32:
 	atom.ul = (unsigned int)strtoul(param.name, &endbuf, 10);
+	if (oserror() != 0)
+	    sts = -oserror();	/* ERANGE */
 	break;
     case PM_TYPE_64:
 	atom.ll = strtoll(param.name, &endbuf, 10);
+	if (oserror() != 0)
+	    sts = -oserror();	/* ERANGE */
 	break;
     case PM_TYPE_U64:
 	atom.ull = strtoull(param.name, &endbuf, 10);
+	if (oserror() != 0)
+	    sts = -oserror();	/* ERANGE */
 	break;
     case PM_TYPE_FLOAT:
-	atom.d = strtod(param.name, &endbuf);
-	if (atom.d < FLT_MIN || atom.d > FLT_MAX)
-	    sts = -ERANGE;
-	else {
-	    atom.f = atom.d;
-	}
+	atom.f = strtof(param.name, &endbuf);
+	if (oserror() != 0)
+	    sts = -oserror();	/* ERANGE */
 	break;
     case PM_TYPE_DOUBLE:
 	atom.d = strtod(param.name, &endbuf);
+	if (oserror() != 0)
+	    sts = -oserror();	/* ERANGE */
 	break;
     case PM_TYPE_STRING:
 	atom.cp = (char *)malloc(strlen(param.name) + 1);

@@ -388,7 +388,7 @@ docheck(__pmResult *result)
 		}
 
 		timediff = result->timestamp;
-		__pmTimestampSub(&timediff, &(checkdata->instlist[k]->lasttime));
+		__pmTimestampDec(&timediff, &(checkdata->instlist[k]->lasttime));
 		if (timediff.sec < 0 || timediff.nsec < 0) {
 		    /* clip negative values at zero */
 		    timediff.sec = 0;
@@ -474,7 +474,7 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 	    break;
 	result_count++;
 	delta_stamp = result->timestamp;
-	__pmTimestampSub(&delta_stamp, &label_stamp);
+	__pmTimestampDec(&delta_stamp, &label_stamp);
 	if (delta_stamp.sec < 0 || delta_stamp.nsec < 0) {
 	    fprintf(stderr, "%s.%d:[", l_archname, l_ctxp->c_archctl->ac_vol);
 	    print_stamp(stderr, &result->timestamp);
@@ -483,7 +483,7 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 	    fprintf(stderr, "\n");
 	}
 	delta_stamp = result->timestamp;
-	__pmTimestampSub(&delta_stamp, &last_stamp);
+	__pmTimestampDec(&delta_stamp, &last_stamp);
 	if (pmDebugOptions.appl0) {
 	    int		i;
 	    int		sum_val = 0;
