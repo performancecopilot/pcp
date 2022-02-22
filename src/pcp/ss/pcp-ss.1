@@ -23,11 +23,34 @@
 reports socket statistics collected by the
 .BR pmdasockets (1)
 PMDA agent.
-The command is intended to be closely compatible with many of the
+The command is intended to be reasonably compatible with many of the
 .BR ss (8)
 command line options and reporting formats, but also offer
 the advantages of local or remote monitoring (in live mode) and
 also historical replay from a previously recorded PCP archive.
+Note that since
+.BR ss (1)
+has many command line options, many of which are the same as standard PCP command line options as described in
+.BR PCPIntro (1),
+the
+.B pcp-ss
+tool should always be invoked by users
+using the
+.B pcp
+front-end.
+This allows standard PCP commandline options such as
+.BR \-h ,
+.BR \-a ,
+.BR \-S ,
+.BR \-T ,
+.BR \-O ,
+.BR \-z ,
+etc to be passed without conflict with
+.BR ss (1)
+options.
+See the
+.B EXAMPLES
+sections below for typical usage and command lines.
 .PP
 Live mode uses the
 .B pcp
@@ -97,7 +120,7 @@ and also (in archive mode), the requested start time or offset, and timezone
 using the following options:
 .TP 5
 \fB\-h\fP, \fB\-\-host\fP
-The remote hostname to connect to in live mode
+The remote hostname to connect to in live mode.
 .TP 5
 \fB\-a\fP, \fB\-\-archive\fP
 The archive file to use for historical sampling
