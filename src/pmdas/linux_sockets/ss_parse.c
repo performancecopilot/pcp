@@ -193,7 +193,7 @@ ss_parse(char *line, int has_state_field, ss_stats_t *ss)
     memset(&ss_p, 0, sizeof(ss_p));
     if (has_state_field) {
 	sscanf(line, "%s %s %u %u %s %s",
-	    ss_p.netid, ss_p.state, &ss_p.sendq, &ss_p.recvq, ss_p.src, ss_p.dst);
+	    ss_p.netid, ss_p.state, &ss_p.recvq, &ss_p.sendq, ss_p.src, ss_p.dst);
 	for (i=0; i < 6; i++)
 	    p = skip(p, ' ');
 
@@ -201,7 +201,7 @@ ss_parse(char *line, int has_state_field, ss_stats_t *ss)
 	/* Some filters cause ss to omit the State column */
 	strcpy(ss_p.state, "FILTER");
 	sscanf(line, "%s %u %u %s %s",
-	    ss_p.netid, &ss_p.sendq, &ss_p.recvq, ss_p.src, ss_p.dst);
+	    ss_p.netid, &ss_p.recvq, &ss_p.sendq, ss_p.src, ss_p.dst);
 	for (i=0; i < 5; i++)
 	    p = skip(p, ' ');
     }

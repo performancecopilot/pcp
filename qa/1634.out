@@ -222,101 +222,6 @@ network.persocket.recvq PMID: 251.1.2
     inst [19 or "udp6/[::]:5355"] value 0
     inst [20 or "udp6/[::]:57169"] value 0
     inst [21 or "udp6/[::1]:323"] value 0
-    inst [22 or "tcp/0.0.0.0:4330"] value 5
-    inst [23 or "tcp/0.0.0.0:4331"] value 5
-    inst [24 or "tcp/0.0.0.0:5355"] value 4096
-    inst [25 or "tcp/127.0.0.1:5900"] value 4096
-    inst [26 or "tcp/0.0.0.0:4333"] value 5
-    inst [27 or "tcp/0.0.0.0:4334"] value 5
-    inst [28 or "tcp/192.168.122.1:53"] value 32
-    inst [29 or "tcp/127.0.0.53%lo:53"] value 4096
-    inst [30 or "tcp/0.0.0.0:22"] value 128
-    inst [31 or "tcp/0.0.0.0:44321"] value 5
-    inst [32 or "tcp/0.0.0.0:44322"] value 128
-    inst [33 or "tcp/0.0.0.0:44323"] value 128
-    inst [34 or "tcp/10.0.0.10:52528"] value 0
-    inst [35 or "tcp/10.0.0.10:37772"] value 0
-    inst [36 or "tcp/10.0.0.10:40476"] value 0
-    inst [37 or "tcp/10.0.0.10:39570"] value 0
-    inst [38 or "tcp/10.0.0.10:54724"] value 0
-    inst [39 or "tcp/10.0.0.10:33370"] value 0
-    inst [40 or "tcp/10.0.0.10:33818"] value 0
-    inst [41 or "tcp/10.0.0.10:46992"] value 0
-    inst [42 or "tcp/10.0.0.10:54716"] value 0
-    inst [43 or "tcp/10.0.0.10:50002"] value 0
-    inst [44 or "tcp/10.0.0.10:44352"] value 0
-    inst [45 or "tcp/10.0.0.10:50552"] value 0
-    inst [46 or "tcp/10.0.0.10:48876"] value 0
-    inst [47 or "tcp/10.0.0.10:44864"] value 0
-    inst [48 or "tcp/10.0.0.10:54718"] value 0
-    inst [49 or "tcp/10.0.0.10:54770"] value 0
-    inst [50 or "tcp/10.0.0.10:54728"] value 0
-    inst [51 or "tcp/10.0.0.10:54700"] value 0
-    inst [52 or "tcp/127.0.0.1:38136"] value 0
-    inst [53 or "tcp/192.168.122.1:50782"] value 0
-    inst [54 or "tcp/10.0.0.10:40550"] value 0
-    inst [55 or "tcp/10.0.0.10:60522"] value 0
-    inst [56 or "tcp/10.0.0.10:37084"] value 0
-    inst [57 or "tcp/10.0.0.10:54726"] value 0
-    inst [58 or "tcp/10.40.192.30:37076"] value 0
-    inst [59 or "tcp/10.40.192.30:56982"] value 0
-    inst [60 or "tcp/10.0.0.10:39738"] value 0
-    inst [61 or "tcp/192.168.122.1:50404"] value 0
-    inst [62 or "tcp/192.168.122.1:50400"] value 0
-    inst [63 or "tcp/10.0.0.10:42088"] value 0
-    inst [64 or "tcp/10.0.0.10:40018"] value 0
-    inst [65 or "tcp/10.0.0.10:34974"] value 0
-    inst [66 or "tcp/10.0.0.10:38786"] value 0
-    inst [67 or "tcp/10.0.0.10:51582"] value 0
-    inst [68 or "tcp/10.0.0.10:36226"] value 0
-    inst [69 or "tcp/10.0.0.10:57700"] value 0
-    inst [70 or "tcp/10.0.0.10:43446"] value 0
-    inst [71 or "tcp/10.0.0.10:54710"] value 0
-    inst [72 or "tcp/10.0.0.10:49410"] value 0
-    inst [73 or "tcp/10.0.0.10:43176"] value 0
-    inst [74 or "tcp/10.0.0.10:54720"] value 0
-    inst [75 or "tcp/10.0.0.10:54832"] value 0
-    inst [76 or "tcp/10.0.0.10:40556"] value 0
-    inst [77 or "tcp/10.0.0.10:54722"] value 0
-    inst [78 or "tcp6/[::]:4330"] value 5
-    inst [79 or "tcp6/[::]:4331"] value 5
-    inst [80 or "tcp6/[::]:5355"] value 4096
-    inst [81 or "tcp6/[::]:4333"] value 5
-    inst [82 or "tcp6/[::]:4334"] value 5
-    inst [83 or "tcp/*:80"] value 511
-    inst [84 or "tcp6/[::]:22"] value 128
-    inst [85 or "tcp/*:3000"] value 4096
-    inst [86 or "tcp/*:443"] value 511
-    inst [87 or "tcp6/[::]:44321"] value 5
-    inst [88 or "tcp6/[::]:44322"] value 128
-    inst [89 or "tcp6/[::]:44323"] value 128
-    inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
-
-network.persocket.sendq PMID: 251.1.3
-    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
-    Semantics: instant  Units: count
-    inst [0 or "udp/10.0.0.10:49693"] value 0
-    inst [1 or "udp/192.168.1.169:58624"] value 0
-    inst [2 or "udp/10.0.0.10:42866"] value 0
-    inst [3 or "udp/10.0.0.10:59350"] value 0
-    inst [4 or "udp/10.0.0.10:35730"] value 0
-    inst [5 or "udp/10.0.0.10:60347"] value 0
-    inst [6 or "udp/10.0.0.10:44822"] value 0
-    inst [7 or "udp/10.0.0.10:36997"] value 0
-    inst [8 or "udp/224.0.0.251:5353"] value 0
-    inst [9 or "udp/0.0.0.0:5353"] value 0
-    inst [10 or "udp/0.0.0.0:5355"] value 0
-    inst [11 or "udp/0.0.0.0:47368"] value 0
-    inst [12 or "udp/10.0.0.10:47737"] value 0
-    inst [13 or "udp/0.0.0.0:40125"] value 0
-    inst [14 or "udp/192.168.122.1:53"] value 0
-    inst [15 or "udp/127.0.0.53%lo:53"] value 0
-    inst [16 or "udp/0.0.0.0%virbr0:67"] value 0
-    inst [17 or "udp/127.0.0.1:323"] value 0
-    inst [18 or "udp6/[::]:5353"] value 0
-    inst [19 or "udp6/[::]:5355"] value 0
-    inst [20 or "udp6/[::]:57169"] value 0
-    inst [21 or "udp6/[::1]:323"] value 0
     inst [22 or "tcp/0.0.0.0:4330"] value 0
     inst [23 or "tcp/0.0.0.0:4331"] value 0
     inst [24 or "tcp/0.0.0.0:5355"] value 0
@@ -385,6 +290,101 @@ network.persocket.sendq PMID: 251.1.3
     inst [87 or "tcp6/[::]:44321"] value 0
     inst [88 or "tcp6/[::]:44322"] value 0
     inst [89 or "tcp6/[::]:44323"] value 0
+    inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
+
+network.persocket.sendq PMID: 251.1.3
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
+    Semantics: instant  Units: count
+    inst [0 or "udp/10.0.0.10:49693"] value 0
+    inst [1 or "udp/192.168.1.169:58624"] value 0
+    inst [2 or "udp/10.0.0.10:42866"] value 0
+    inst [3 or "udp/10.0.0.10:59350"] value 0
+    inst [4 or "udp/10.0.0.10:35730"] value 0
+    inst [5 or "udp/10.0.0.10:60347"] value 0
+    inst [6 or "udp/10.0.0.10:44822"] value 0
+    inst [7 or "udp/10.0.0.10:36997"] value 0
+    inst [8 or "udp/224.0.0.251:5353"] value 0
+    inst [9 or "udp/0.0.0.0:5353"] value 0
+    inst [10 or "udp/0.0.0.0:5355"] value 0
+    inst [11 or "udp/0.0.0.0:47368"] value 0
+    inst [12 or "udp/10.0.0.10:47737"] value 0
+    inst [13 or "udp/0.0.0.0:40125"] value 0
+    inst [14 or "udp/192.168.122.1:53"] value 0
+    inst [15 or "udp/127.0.0.53%lo:53"] value 0
+    inst [16 or "udp/0.0.0.0%virbr0:67"] value 0
+    inst [17 or "udp/127.0.0.1:323"] value 0
+    inst [18 or "udp6/[::]:5353"] value 0
+    inst [19 or "udp6/[::]:5355"] value 0
+    inst [20 or "udp6/[::]:57169"] value 0
+    inst [21 or "udp6/[::1]:323"] value 0
+    inst [22 or "tcp/0.0.0.0:4330"] value 5
+    inst [23 or "tcp/0.0.0.0:4331"] value 5
+    inst [24 or "tcp/0.0.0.0:5355"] value 4096
+    inst [25 or "tcp/127.0.0.1:5900"] value 4096
+    inst [26 or "tcp/0.0.0.0:4333"] value 5
+    inst [27 or "tcp/0.0.0.0:4334"] value 5
+    inst [28 or "tcp/192.168.122.1:53"] value 32
+    inst [29 or "tcp/127.0.0.53%lo:53"] value 4096
+    inst [30 or "tcp/0.0.0.0:22"] value 128
+    inst [31 or "tcp/0.0.0.0:44321"] value 5
+    inst [32 or "tcp/0.0.0.0:44322"] value 128
+    inst [33 or "tcp/0.0.0.0:44323"] value 128
+    inst [34 or "tcp/10.0.0.10:52528"] value 0
+    inst [35 or "tcp/10.0.0.10:37772"] value 0
+    inst [36 or "tcp/10.0.0.10:40476"] value 0
+    inst [37 or "tcp/10.0.0.10:39570"] value 0
+    inst [38 or "tcp/10.0.0.10:54724"] value 0
+    inst [39 or "tcp/10.0.0.10:33370"] value 0
+    inst [40 or "tcp/10.0.0.10:33818"] value 0
+    inst [41 or "tcp/10.0.0.10:46992"] value 0
+    inst [42 or "tcp/10.0.0.10:54716"] value 0
+    inst [43 or "tcp/10.0.0.10:50002"] value 0
+    inst [44 or "tcp/10.0.0.10:44352"] value 0
+    inst [45 or "tcp/10.0.0.10:50552"] value 0
+    inst [46 or "tcp/10.0.0.10:48876"] value 0
+    inst [47 or "tcp/10.0.0.10:44864"] value 0
+    inst [48 or "tcp/10.0.0.10:54718"] value 0
+    inst [49 or "tcp/10.0.0.10:54770"] value 0
+    inst [50 or "tcp/10.0.0.10:54728"] value 0
+    inst [51 or "tcp/10.0.0.10:54700"] value 0
+    inst [52 or "tcp/127.0.0.1:38136"] value 0
+    inst [53 or "tcp/192.168.122.1:50782"] value 0
+    inst [54 or "tcp/10.0.0.10:40550"] value 0
+    inst [55 or "tcp/10.0.0.10:60522"] value 0
+    inst [56 or "tcp/10.0.0.10:37084"] value 0
+    inst [57 or "tcp/10.0.0.10:54726"] value 0
+    inst [58 or "tcp/10.40.192.30:37076"] value 0
+    inst [59 or "tcp/10.40.192.30:56982"] value 0
+    inst [60 or "tcp/10.0.0.10:39738"] value 0
+    inst [61 or "tcp/192.168.122.1:50404"] value 0
+    inst [62 or "tcp/192.168.122.1:50400"] value 0
+    inst [63 or "tcp/10.0.0.10:42088"] value 0
+    inst [64 or "tcp/10.0.0.10:40018"] value 0
+    inst [65 or "tcp/10.0.0.10:34974"] value 0
+    inst [66 or "tcp/10.0.0.10:38786"] value 0
+    inst [67 or "tcp/10.0.0.10:51582"] value 0
+    inst [68 or "tcp/10.0.0.10:36226"] value 0
+    inst [69 or "tcp/10.0.0.10:57700"] value 0
+    inst [70 or "tcp/10.0.0.10:43446"] value 0
+    inst [71 or "tcp/10.0.0.10:54710"] value 0
+    inst [72 or "tcp/10.0.0.10:49410"] value 0
+    inst [73 or "tcp/10.0.0.10:43176"] value 0
+    inst [74 or "tcp/10.0.0.10:54720"] value 0
+    inst [75 or "tcp/10.0.0.10:54832"] value 0
+    inst [76 or "tcp/10.0.0.10:40556"] value 0
+    inst [77 or "tcp/10.0.0.10:54722"] value 0
+    inst [78 or "tcp6/[::]:4330"] value 5
+    inst [79 or "tcp6/[::]:4331"] value 5
+    inst [80 or "tcp6/[::]:5355"] value 4096
+    inst [81 or "tcp6/[::]:4333"] value 5
+    inst [82 or "tcp6/[::]:4334"] value 5
+    inst [83 or "tcp/*:80"] value 511
+    inst [84 or "tcp6/[::]:22"] value 128
+    inst [85 or "tcp/*:3000"] value 4096
+    inst [86 or "tcp/*:443"] value 511
+    inst [87 or "tcp6/[::]:44321"] value 5
+    inst [88 or "tcp6/[::]:44322"] value 128
+    inst [89 or "tcp6/[::]:44323"] value 128
     inst [90 or "tcp/[::ffff:127.0.0.1]:3000"] value 0
 
 network.persocket.src PMID: 251.1.4
@@ -6274,38 +6274,6 @@ network.persocket.recvq PMID: 251.1.2
     inst [7 or "udp6/[::]:41634"] value 0
     inst [8 or "udp6/[::]:5353"] value 0
     inst [9 or "udp6/[::1]:53"] value 0
-    inst [10 or "tcp/0.0.0.0:22"] value 128
-    inst [11 or "tcp/127.0.0.1:38971"] value 4096
-    inst [12 or "tcp/0.0.0.0:44321"] value 5
-    inst [13 or "tcp/0.0.0.0:10050"] value 128
-    inst [14 or "tcp/0.0.0.0:4330"] value 5
-    inst [15 or "tcp/127.0.0.1:6379"] value 511
-    inst [16 or "tcp/127.0.0.1:11211"] value 1024
-    inst [17 or "tcp/192.168.123.1:53"] value 32
-    inst [18 or "tcp/127.0.0.53%lo:53"] value 4096
-    inst [19 or "tcp/127.0.0.1:53"] value 256
-    inst [20 or "tcp/192.168.122.245:22"] value 0
-    inst [21 or "tcp6/[::]:22"] value 128
-    inst [22 or "tcp6/[::]:44321"] value 5
-    inst [23 or "tcp6/[::]:10050"] value 128
-    inst [24 or "tcp6/[::]:4330"] value 5
-    inst [25 or "tcp6/[::1]:6379"] value 511
-    inst [26 or "tcp/*:80"] value 511
-    inst [27 or "tcp6/[::1]:53"] value 256
-
-network.persocket.sendq PMID: 251.1.3
-    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
-    Semantics: instant  Units: count
-    inst [0 or "udp/0.0.0.0:5353"] value 0
-    inst [1 or "udp/0.0.0.0:38162"] value 0
-    inst [2 or "udp/192.168.123.1:53"] value 0
-    inst [3 or "udp/127.0.0.53%lo:53"] value 0
-    inst [4 or "udp/127.0.0.1:53"] value 0
-    inst [5 or "udp/0.0.0.0%virbr0:67"] value 0
-    inst [6 or "udp/192.168.122.245%enp1s0:68"] value 0
-    inst [7 or "udp6/[::]:41634"] value 0
-    inst [8 or "udp6/[::]:5353"] value 0
-    inst [9 or "udp6/[::1]:53"] value 0
     inst [10 or "tcp/0.0.0.0:22"] value 0
     inst [11 or "tcp/127.0.0.1:38971"] value 0
     inst [12 or "tcp/0.0.0.0:44321"] value 0
@@ -6324,6 +6292,38 @@ network.persocket.sendq PMID: 251.1.3
     inst [25 or "tcp6/[::1]:6379"] value 0
     inst [26 or "tcp/*:80"] value 0
     inst [27 or "tcp6/[::1]:53"] value 0
+
+network.persocket.sendq PMID: 251.1.3
+    Data Type: 32-bit int  InDom: 251.0 0x3ec00000
+    Semantics: instant  Units: count
+    inst [0 or "udp/0.0.0.0:5353"] value 0
+    inst [1 or "udp/0.0.0.0:38162"] value 0
+    inst [2 or "udp/192.168.123.1:53"] value 0
+    inst [3 or "udp/127.0.0.53%lo:53"] value 0
+    inst [4 or "udp/127.0.0.1:53"] value 0
+    inst [5 or "udp/0.0.0.0%virbr0:67"] value 0
+    inst [6 or "udp/192.168.122.245%enp1s0:68"] value 0
+    inst [7 or "udp6/[::]:41634"] value 0
+    inst [8 or "udp6/[::]:5353"] value 0
+    inst [9 or "udp6/[::1]:53"] value 0
+    inst [10 or "tcp/0.0.0.0:22"] value 128
+    inst [11 or "tcp/127.0.0.1:38971"] value 4096
+    inst [12 or "tcp/0.0.0.0:44321"] value 5
+    inst [13 or "tcp/0.0.0.0:10050"] value 128
+    inst [14 or "tcp/0.0.0.0:4330"] value 5
+    inst [15 or "tcp/127.0.0.1:6379"] value 511
+    inst [16 or "tcp/127.0.0.1:11211"] value 1024
+    inst [17 or "tcp/192.168.123.1:53"] value 32
+    inst [18 or "tcp/127.0.0.53%lo:53"] value 4096
+    inst [19 or "tcp/127.0.0.1:53"] value 256
+    inst [20 or "tcp/192.168.122.245:22"] value 0
+    inst [21 or "tcp6/[::]:22"] value 128
+    inst [22 or "tcp6/[::]:44321"] value 5
+    inst [23 or "tcp6/[::]:10050"] value 128
+    inst [24 or "tcp6/[::]:4330"] value 5
+    inst [25 or "tcp6/[::1]:6379"] value 511
+    inst [26 or "tcp/*:80"] value 511
+    inst [27 or "tcp6/[::1]:53"] value 256
 
 network.persocket.src PMID: 251.1.4
     Data Type: string  InDom: 251.0 0x3ec00000

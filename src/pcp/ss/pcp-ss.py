@@ -55,10 +55,10 @@ class SS(object):
         """ define command line arguments """
         p = argparse.ArgumentParser()
         p.add_argument('-V', '--version', action='store_true', help='output version information')
-        p.add_argument('-n', '--numeric', action='store_true', help='don\'t resolve service names (currently always set)')
-        p.add_argument('-r', '--resolve', action='store_true', help='resolve host names (currently always set)')
-        p.add_argument('-a', '--all', action='store_true', help='display all sockets')
-        p.add_argument('-l', '--listening', action='store_true', help='display listening sockets')
+        p.add_argument('-n', '--numeric', action='store_true', help='don\'t resolve service names or port names (currently always set)')
+        p.add_argument('-r', '--resolve', action='store_true', help='resolve host names (currently never set)')
+        p.add_argument('-a', '--all', action='store_true', help='display sockets in any state, not just listening')
+        p.add_argument('-l', '--listening', action='store_true', help='display only listening sockets')
         p.add_argument('-o', '--options', action='store_true', help='show timer information')
         p.add_argument('-e', '--extended', action='store_true', help='show detailed socket information')
         p.add_argument('-m', '--memory', action='store_true', help='show socket memory usage')
@@ -89,6 +89,7 @@ class SS(object):
             args.tcp = args.udp = args.mptcp = args.sctp = args.packet = args.dccp = args.raw = args.unix = True
 
         if not (args.ipv4 or args.ipv6):
+            # default to both ipv4 and ipv6, subject to the prevailing filter
             args.ipv4 = args.ipv6 = True
 
         if args.all:
@@ -110,7 +111,7 @@ class SS(object):
         pcp_host = os.getenv("PCP_HOST")
         pcp_archive = os.getenv("PCP_ARCHIVE")
 
-        # time window
+        # time window - only via environment: too many clashes with ss args
         pcp_origin = os.getenv("PCP_ORIGIN_TIME")
         pcp_start_time = os.getenv("PCP_START_TIME")
         pcp_align_time = os.getenv("PCP_ALIGN_TIME")
@@ -266,14 +267,28 @@ class SS(object):
             ret = True
         return ret
 
+    def filter_ipv46(self, inst):
+        """ filter on ip v4 or v6 """
+        ret = False
+        if self.valuesD["src"][inst]:
+            v6 = self.valuesD["src"][inst][0] == '['
+        elif self.valuesD["dst"][inst]:
+            v6 = self.valuesD["dst"][inst][0] == '['
+        else:
+            v6 = False
+        if self.args.ipv6 and v6:
+            ret = True
+        if self.args.ipv4 and not v6:
+            ret = True
+        return ret
+
     def filter_listening(self, inst):
-        """ filter on tcp state """
+        """ filter on tcp state, return True if socket is listening """
         if self.args.all:
             return True
-        netid = self.valuesD["netid"][inst]
         state = self.valuesD["state"][inst]
         if self.args.listening:
-            if state != "LISTEN" and netid in ("tcp", "tcp6"):
+            if state != "LISTEN":
                 return False
         return True
 
@@ -284,6 +299,8 @@ class SS(object):
             print("Netid  State  Recv-Q Send-Q %25s %-25s  Process" % ("Local Address:Port", "Peer Address:Port"))
         for inst in self.instD:
             if not self.filter_netid(inst) or not self.filter_listening(inst):
+                continue
+            if not self.filter_ipv46(inst):
                 continue
             out = ""
             out += self.strfield("%-6s", "netid", inst)
