@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
+ * Copyright (c) 2022 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -88,7 +89,7 @@ process_labeled_datagram(
     if (label_exists) {
         int update_success = update_metric_value(config, container, label->type, datagram, &label->value);
         if (update_success != 1) {
-            METRIC_PROCESSING_ERR_LOG("%s REASON: sematically incorrect values.", throwing_away_msg);
+            METRIC_PROCESSING_ERR_LOG("%s REASON: semantically incorrect values.", throwing_away_msg);
             status = 0;
         } else {
             status = update_success;
@@ -194,11 +195,11 @@ create_label(
     *out = label;
     size_t labels_length = strlen(datagram->tags) + 1;
     (*out)->labels = (char*) malloc(sizeof(char) * labels_length);
-    ALLOC_CHECK("Unable to allocate memory for labels string in metric label record.");
+    ALLOC_CHECK((*out)->labels, "Unable to allocate memory for labels string in metric label record.");
     memcpy((*out)->labels, datagram->tags, labels_length);
     struct metric_label_metadata* meta = 
         (struct metric_label_metadata*) malloc(sizeof(struct metric_label_metadata));
-    ALLOC_CHECK("Unable to allocate memory for metric label metadata.");
+    ALLOC_CHECK(meta, "Unable to allocate memory for metric label metadata.");
     (*out)->meta = meta;
     (*out)->type = METRIC_TYPE_NONE;
     meta->instance_label_segment_str = NULL;
@@ -271,7 +272,7 @@ free_metric_label(struct agent_config* config, struct metric_label* label) {
                 free_duration_value(config, label->value);
                 break;
             case METRIC_TYPE_NONE:
-                // not an actualy metric
+                // not actually a metric
                 break;
         }
         free(label);

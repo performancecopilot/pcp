@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
+ * Copyright (c) 2022 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -44,7 +45,7 @@ str_duplicate_callback(void* privdata, const void* key)
     (void)privdata;
     size_t length = strlen(key) + 1;
     char* duplicate = malloc(length);
-    ALLOC_CHECK("Unable to duplicate key.");
+    ALLOC_CHECK(duplicate, "Unable to duplicate key.");
     memcpy(duplicate, key, length);
     return duplicate;
 }

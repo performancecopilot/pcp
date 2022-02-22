@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
+ * Copyright (c) 2022 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,7 +29,7 @@
 void
 create_exact_duration_value(long long unsigned int value, void** out) {
     struct exact_duration_collection* collection = (struct exact_duration_collection*) malloc(sizeof(struct exact_duration_collection));
-    ALLOC_CHECK("Unable to assign memory for duration values collection.");
+    ALLOC_CHECK(collection, "Unable to assign memory for duration values collection.");
     *collection = (struct exact_duration_collection) { 0 };
     update_exact_duration_value(value, collection);
     *out = collection;
@@ -43,10 +44,10 @@ void
 update_exact_duration_value(double value, struct exact_duration_collection* collection) {
     long int new_length = collection->length + 1;
     double** new_values = realloc(collection->values, sizeof(double*) * new_length);
-    ALLOC_CHECK("Unable to allocate memory for collection value.");
+    ALLOC_CHECK(new_values, "Unable to allocate memory for collection value.");
     collection->values = new_values;
     collection->values[collection->length] = (double*) malloc(sizeof(double));
-    ALLOC_CHECK("Unable to allocate memory for duration collection value.");
+    ALLOC_CHECK(collection->values[collection->length], "Unable to allocate memory for duration collection value.");
     *(collection->values[collection->length]) = value;
     collection->length = new_length;
 }
@@ -78,7 +79,7 @@ remove_exact_duration_item(struct exact_duration_collection* collection, double 
         return 0;
     }
     collection = realloc(collection, sizeof(double*) * collection->length - 1);
-    ALLOC_CHECK("Unable to resize exact duration collection.");
+    ALLOC_CHECK(collection, "Unable to resize exact duration collection.");
     collection->length -= 1;
     return 1;
 }

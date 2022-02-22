@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
+ * Copyright (c) 2022 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -45,7 +46,6 @@ parser_exec(void* args) {
         parse_datagram = &ragel_parser_parse;
     }
     struct unprocessed_statsd_datagram* datagram;
-    ALLOC_CHECK("Unable to allocate space for unprocessed statsd datagram.");
     char delim[] = "\n";
     struct timespec t0, t1;
     unsigned long time_spent_parsing;
@@ -75,7 +75,7 @@ parser_exec(void* args) {
             clock_gettime(CLOCK_MONOTONIC, &t1);
             struct parser_to_aggregator_message* message =
                 (struct parser_to_aggregator_message*) malloc(sizeof(struct parser_to_aggregator_message));
-            ALLOC_CHECK("Unable to assign memory for parser to aggregator message.");
+            ALLOC_CHECK(message, "Unable to assign memory for parser to aggregator message.");
             time_spent_parsing = (t1.tv_nsec) - (t0.tv_nsec);
             message->time = time_spent_parsing;
             if (success) {
@@ -94,7 +94,7 @@ parser_exec(void* args) {
     VERBOSE_LOG(2, "Parser exiting.");
     struct parser_to_aggregator_message* message =
         (struct parser_to_aggregator_message*) malloc(sizeof(struct parser_to_aggregator_message));
-    ALLOC_CHECK("Unable to assign memory for parser to aggregator message.");
+    ALLOC_CHECK(message, "Unable to assign memory for parser to aggregator message.");
     message->type = PARSER_RESULT_END;
     message->time = 0;
     message->data = NULL;
@@ -112,7 +112,7 @@ parser_exec(void* args) {
 struct parser_args*
 create_parser_args(struct agent_config* config, chan_t* network_listener_to_parser, chan_t* parser_to_aggregator) {
     struct parser_args* args = (struct parser_args*) malloc(sizeof(struct parser_args));
-    ALLOC_CHECK("Unable to assign memory for parser arguments.");
+    ALLOC_CHECK(args, "Unable to assign memory for parser arguments.");
     args->config = config;
     args->network_listener_to_parser = network_listener_to_parser;
     args->parser_to_aggregator = parser_to_aggregator;
