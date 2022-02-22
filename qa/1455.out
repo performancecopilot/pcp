@@ -4,7 +4,7 @@ Running pmdumplog -zhide archives/20180415.09.16
 Running pmdumplog -iteh TMP.newlabels
 Running diff TMP.original.txt TMP.rewritten.txt
 3057a3058,3070
-> 09:16:18.661615000
+> 09:16:18.661615
 >     Cluster 60.0 labels (43 bytes): {"cluster_60_0_label":"cluster_60_0_value"}
 >         [0] name(2,18) : value(22,20) [cluster]
 >     Cluster 60.7 labels (43 bytes): {"cluster_60_7_label":"cluster_60_7_value"}

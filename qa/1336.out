@@ -21,6 +21,10 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 < Log Label (Log Format Version 2)
 ---
 > Log Label (Log Format Version 3)
+8c8
+< 		Log Vol    end(meta)     end(log)
+---
+> 			Log Vol    end(meta)     end(log)
 15c15
 < Command: pmdumplog -lt TMP.2 sample
 ---

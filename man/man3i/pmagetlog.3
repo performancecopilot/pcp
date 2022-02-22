@@ -13,9 +13,9 @@
 .\" for more details.
 .\"
 .\"
-.TH PMALOGGET 3 "PCP" "Performance Co-Pilot"
+.TH PMAGETLOG 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmaLogGet\f1 \- direct read of the next record from an archive file
+\f3pmaGetLog\f1 \- direct read of the next record from an archive file
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -24,7 +24,7 @@
 .br
 #include <pcp/archive.h>
 .sp
-void pmaLogGet(__pmArchctl *\fIacp\fP, int \fIvol\fP, __int32_t **\fIrbuf\fP);
+void pmaGetLog(__pmArchctl *\fIacp\fP, int \fIvol\fP, __int32_t **\fIrbuf\fP);
 .sp
 cc ... \-lpcp_archive \-lpcp
 .ft 1
@@ -70,7 +70,7 @@ The return value is 0 if all is well, else PM_ERR_EOL for end of file,
 else some other error code less than zero.
 .SH SEE ALSO
 .BR free (3),
-.BR pmaLogGet (3),
+.BR pmaPutLog (3),
 .BR PMAPI (3)
 and
 .BR __pmLogread (3).

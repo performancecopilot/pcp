@@ -224,9 +224,9 @@ nextmeta()
     __pmArchCtl		*acp = inarch.ctxp->c_archctl;
     __pmLogCtl		*lcp = acp->ac_log;
 
-    if ((sts = pmaLogGet(acp, PM_LOG_VOL_META, &inarch.metarec)) < 0) {
+    if ((sts = pmaGetLog(acp, PM_LOG_VOL_META, &inarch.metarec)) < 0) {
 	if (sts != PM_ERR_EOL) {
-	    fprintf(stderr, "%s: Error: pmaLogGet[meta %s]: %s\n",
+	    fprintf(stderr, "%s: Error: pmaGetLog[meta %s]: %s\n",
 		    pmGetProgname(), inarch.name, pmErrStr(sts));
 	    _report(lcp->mdfp);
 	}

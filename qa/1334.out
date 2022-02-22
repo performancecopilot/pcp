@@ -201,7 +201,7 @@ STAMP-1 1 instances
    PID or "PID"
 
 Temporal Index
-			Log Vol    end(meta)     end(log)
+		Log Vol    end(meta)     end(log)
 STAMP-1	      0          NNNN          NNNN
 STAMP-2	      0          NNNN          NNNN
 STAMP-3	      0         NNNN         NNNN
@@ -1197,6 +1197,7 @@ Performance metrics from host LOCALHOST
     commencing ...
     ending ...
 Archive timezone: ...
+Archive zoneinfo: :Australia/Melbourne
 PID for pmlogger: PID
 
 Descriptions for Metrics in the Log ...

@@ -19,8 +19,8 @@ pmdumplog diffs ...
  
  Instance Domains in the Log ...
  InDom: 29.2
--21:10:11.878990000 9 instances
-+21:10:41.878990000 9 instances
+-21:10:11.878990 9 instances
++21:10:41.878990 9 instances
     100 or "bin-100"
     200 or "bin-200"
     300 or "bin-300"
@@ -28,8 +28,8 @@ pmdumplog diffs ...
     800 or "bin-800"
     900 or "bin-900"
  InDom: 30.2
--21:10:11.876269000 9 instances
-+21:10:41.876269000 9 instances
+-21:10:11.876269 9 instances
++21:10:41.876269 9 instances
     100 or "bin-100"
     200 or "bin-200"
     300 or "bin-300"
@@ -37,31 +37,31 @@ pmdumplog diffs ...
     800 or "bin-800"
     900 or "bin-900"
  InDom: 2.1
--21:10:11.751520000 1 instances
-+21:10:41.751520000 1 instances
+-21:10:11.751520 1 instances
++21:10:41.751520 1 instances
     1933 or "1933"
  
  Temporal Index
- 			Log Vol    end(meta)     end(log)
--21:10:11.751520000	      0          132          132
--21:10:11.876269000	      0          350          284
--21:10:11.878990000	      0          652          428
--21:10:12.128378000	      0         1727         2924
-+21:10:41.751520000	      0          132          132
-+21:10:41.876269000	      0          350          284
-+21:10:41.878990000	      0          652          428
-+21:10:42.128378000	      0         1727         2924
+ 		Log Vol    end(meta)     end(log)
+-21:10:11.751520	      0          132          132
+-21:10:11.876269	      0          350          284
+-21:10:11.878990	      0          652          428
+-21:10:12.128378	      0         1727         2924
++21:10:41.751520	      0          132          132
++21:10:41.876269	      0          350          284
++21:10:41.878990	      0          652          428
++21:10:42.128378	      0         1727         2924
  
  [152 bytes]
--21:10:11.751520000 3 metrics
-+21:10:41.751520000 3 metrics
+-21:10:11.751520 3 metrics
++21:10:41.751520 3 metrics
      2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
      2.3.0 (pmcd.pmlogger.port): inst [1933 or "1933"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [1933 or "1933"] value "/home/kenj/src/pcpqa/src/rewrite"
  
  [144 bytes]
--21:10:11.876269000 2 metrics
-+21:10:41.876269000 2 metrics
+-21:10:11.876269 2 metrics
++21:10:41.876269 2 metrics
      30.0.114 (sampledso.double.bin_ctr):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
@@ -69,8 +69,8 @@ pmdumplog diffs ...
      30.0.22 (sampledso.longlong.hundred): value 100
  
  [512 bytes]
--21:10:11.878990000 7 metrics
-+21:10:41.878990000 7 metrics
+-21:10:11.878990 7 metrics
++21:10:41.878990 7 metrics
      30.0.95 (sampledso.ulong.hundred): value 100
      30.0.50 (sampledso.part_bin):
          inst [100 or "bin-100"] value 100
@@ -78,8 +78,8 @@ pmdumplog diffs ...
          inst [900 or "bin-900"] value 900
  
  [592 bytes]
--21:10:11.889681000 8 metrics
-+21:10:41.889681000 8 metrics
+-21:10:11.889681 8 metrics
++21:10:41.889681 8 metrics
      30.0.104 (sampledso.long.bin_ctr):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
@@ -87,8 +87,8 @@ pmdumplog diffs ...
          inst [900 or "bin-900"] value 900
  
  [144 bytes]
--21:10:12.001333000 2 metrics
-+21:10:42.001333000 2 metrics
+-21:10:12.001333 2 metrics
++21:10:42.001333 2 metrics
      30.0.114 (sampledso.double.bin_ctr):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
@@ -96,8 +96,8 @@ pmdumplog diffs ...
      30.0.22 (sampledso.longlong.hundred): value 100
  
  [512 bytes]
--21:10:12.003326000 7 metrics
-+21:10:42.003326000 7 metrics
+-21:10:12.003326 7 metrics
++21:10:42.003326 7 metrics
      30.0.95 (sampledso.ulong.hundred): value 100
      30.0.50 (sampledso.part_bin):
          inst [100 or "bin-100"] value 100
@@ -105,8 +105,8 @@ pmdumplog diffs ...
          inst [900 or "bin-900"] value 900
  
  [592 bytes]
--21:10:12.047643000 8 metrics
-+21:10:42.047643000 8 metrics
+-21:10:12.047643 8 metrics
++21:10:42.047643 8 metrics
      30.0.104 (sampledso.long.bin_ctr):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
@@ -114,8 +114,8 @@ pmdumplog diffs ...
          inst [900 or "bin-900"] value 900
  
  [144 bytes]
--21:10:12.126320000 2 metrics
-+21:10:42.126320000 2 metrics
+-21:10:12.126320 2 metrics
++21:10:42.126320 2 metrics
      30.0.114 (sampledso.double.bin_ctr):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
@@ -123,8 +123,8 @@ pmdumplog diffs ...
      30.0.22 (sampledso.longlong.hundred): value 100
  
  [512 bytes]
--21:10:12.128378000 7 metrics
-+21:10:42.128378000 7 metrics
+-21:10:12.128378 7 metrics
++21:10:42.128378 7 metrics
      30.0.95 (sampledso.ulong.hundred): value 100
      30.0.50 (sampledso.part_bin):
          inst [100 or "bin-100"] value 100
@@ -150,8 +150,8 @@ pmdumplog diffs ...
  
  Instance Domains in the Log ...
  InDom: 29.2
--21:10:11.878990000 9 instances
-+21:10:11.879990000 9 instances
+-21:10:11.878990 9 instances
++21:10:11.879990 9 instances
     100 or "bin-100"
     200 or "bin-200"
     300 or "bin-300"
@@ -159,8 +159,8 @@ pmdumplog diffs ...
     800 or "bin-800"
     900 or "bin-900"
  InDom: 30.2
--21:10:11.876269000 9 instances
-+21:10:11.877269000 9 instances
+-21:10:11.876269 9 instances
++21:10:11.877269 9 instances
     100 or "bin-100"
     200 or "bin-200"
     300 or "bin-300"
@@ -168,31 +168,31 @@ pmdumplog diffs ...
     800 or "bin-800"
     900 or "bin-900"
  InDom: 2.1
--21:10:11.751520000 1 instances
-+21:10:11.752520000 1 instances
+-21:10:11.751520 1 instances
++21:10:11.752520 1 instances
     1933 or "1933"
  
  Temporal Index
- 			Log Vol    end(meta)     end(log)
--21:10:11.751520000	      0          132          132
--21:10:11.876269000	      0          350          284
--21:10:11.878990000	      0          652          428
--21:10:12.128378000	      0         1727         2924
-+21:10:11.752520000	      0          132          132
-+21:10:11.877269000	      0          350          284
-+21:10:11.879990000	      0          652          428
-+21:10:12.129378000	      0         1727         2924
+ 		Log Vol    end(meta)     end(log)
+-21:10:11.751520	      0          132          132
+-21:10:11.876269	      0          350          284
+-21:10:11.878990	      0          652          428
+-21:10:12.128378	      0         1727         2924
++21:10:11.752520	      0          132          132
++21:10:11.877269	      0          350          284
++21:10:11.879990	      0          652          428
++21:10:12.129378	      0         1727         2924
  
  [152 bytes]
--21:10:11.751520000 3 metrics
-+21:10:11.752520000 3 metrics
+-21:10:11.751520 3 metrics
++21:10:11.752520 3 metrics
      2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
      2.3.0 (pmcd.pmlogger.port): inst [1933 or "1933"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [1933 or "1933"] value "/home/kenj/src/pcpqa/src/rewrite"
  
  [144 bytes]
--21:10:11.876269000 2 metrics
-+21:10:11.877269000 2 metrics
+-21:10:11.876269 2 metrics
++21:10:11.877269 2 metrics
      30.0.114 (sampledso.double.bin_ctr):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
@@ -200,8 +200,8 @@ pmdumplog diffs ...
      30.0.22 (sampledso.longlong.hundred): value 100
  
  [512 bytes]
--21:10:11.878990000 7 metrics
-+21:10:11.879990000 7 metrics
+-21:10:11.878990 7 metrics
++21:10:11.879990 7 metrics
      30.0.95 (sampledso.ulong.hundred): value 100
      30.0.50 (sampledso.part_bin):
          inst [100 or "bin-100"] value 100
@@ -209,8 +209,8 @@ pmdumplog diffs ...
          inst [900 or "bin-900"] value 900
  
  [592 bytes]
--21:10:11.889681000 8 metrics
-+21:10:11.890681000 8 metrics
+-21:10:11.889681 8 metrics
++21:10:11.890681 8 metrics
      30.0.104 (sampledso.long.bin_ctr):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
@@ -218,8 +218,8 @@ pmdumplog diffs ...
          inst [900 or "bin-900"] value 900
  
  [144 bytes]
--21:10:12.001333000 2 metrics
-+21:10:12.002333000 2 metrics
+-21:10:12.001333 2 metrics
++21:10:12.002333 2 metrics
      30.0.114 (sampledso.double.bin_ctr):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
@@ -227,8 +227,8 @@ pmdumplog diffs ...
      30.0.22 (sampledso.longlong.hundred): value 100
  
  [512 bytes]
--21:10:12.003326000 7 metrics
-+21:10:12.004326000 7 metrics
+-21:10:12.003326 7 metrics
++21:10:12.004326 7 metrics
      30.0.95 (sampledso.ulong.hundred): value 100
      30.0.50 (sampledso.part_bin):
          inst [100 or "bin-100"] value 100
@@ -236,8 +236,8 @@ pmdumplog diffs ...
          inst [900 or "bin-900"] value 900
  
  [592 bytes]
--21:10:12.047643000 8 metrics
-+21:10:12.048643000 8 metrics
+-21:10:12.047643 8 metrics
++21:10:12.048643 8 metrics
      30.0.104 (sampledso.long.bin_ctr):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
@@ -245,8 +245,8 @@ pmdumplog diffs ...
          inst [900 or "bin-900"] value 900
  
  [144 bytes]
--21:10:12.126320000 2 metrics
-+21:10:12.127320000 2 metrics
+-21:10:12.126320 2 metrics
++21:10:12.127320 2 metrics
      30.0.114 (sampledso.double.bin_ctr):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
@@ -254,8 +254,8 @@ pmdumplog diffs ...
      30.0.22 (sampledso.longlong.hundred): value 100
  
  [512 bytes]
--21:10:12.128378000 7 metrics
-+21:10:12.129378000 7 metrics
+-21:10:12.128378 7 metrics
++21:10:12.129378 7 metrics
      30.0.95 (sampledso.ulong.hundred): value 100
      30.0.50 (sampledso.part_bin):
          inst [100 or "bin-100"] value 100
@@ -310,7 +310,7 @@ pmdumplog diffs ...
  Instance Domains in the Log ...
 -InDom: 29.2
 +InDom: 109.2
- 21:10:11.878990000 9 instances
+ 21:10:11.878990 9 instances
     100 or "bin-100"
     200 or "bin-200"
 
@@ -387,7 +387,7 @@ pmdumplog diffs ...
 @@ -109,24 +109,24 @@
  
  [144 bytes]
- 21:10:11.876269000 2 metrics
+ 21:10:11.876269 2 metrics
 -    30.0.114 (sampledso.double.bin_ctr):
 +    123.0.114 (sampledso.double.bin_ctr):
          inst [100 or "bin-100"] value 100
@@ -398,7 +398,7 @@ pmdumplog diffs ...
 +    123.0.22 (sampledso.longlong.hundred): value 100
  
  [512 bytes]
- 21:10:11.878990000 7 metrics
+ 21:10:11.878990 7 metrics
 -    30.0.95 (sampledso.ulong.hundred): value 100
 -    30.0.50 (sampledso.part_bin):
 +    123.0.95 (sampledso.ulong.hundred): value 100
@@ -418,7 +418,7 @@ pmdumplog diffs ...
 @@ -160,14 +160,14 @@
  
  [592 bytes]
- 21:10:11.889681000 8 metrics
+ 21:10:11.889681 8 metrics
 -    30.0.104 (sampledso.long.bin_ctr):
 +    123.0.104 (sampledso.long.bin_ctr):
          inst [100 or "bin-100"] value 100
@@ -437,7 +437,7 @@ pmdumplog diffs ...
 @@ -202,24 +202,24 @@
  
  [144 bytes]
- 21:10:12.001333000 2 metrics
+ 21:10:12.001333 2 metrics
 -    30.0.114 (sampledso.double.bin_ctr):
 +    123.0.114 (sampledso.double.bin_ctr):
          inst [100 or "bin-100"] value 100
@@ -448,7 +448,7 @@ pmdumplog diffs ...
 +    123.0.22 (sampledso.longlong.hundred): value 100
  
  [512 bytes]
- 21:10:12.003326000 7 metrics
+ 21:10:12.003326 7 metrics
 -    30.0.95 (sampledso.ulong.hundred): value 100
 -    30.0.50 (sampledso.part_bin):
 +    123.0.95 (sampledso.ulong.hundred): value 100
@@ -468,7 +468,7 @@ pmdumplog diffs ...
 @@ -253,14 +253,14 @@
  
  [592 bytes]
- 21:10:12.047643000 8 metrics
+ 21:10:12.047643 8 metrics
 -    30.0.104 (sampledso.long.bin_ctr):
 +    123.0.104 (sampledso.long.bin_ctr):
          inst [100 or "bin-100"] value 100
@@ -487,7 +487,7 @@ pmdumplog diffs ...
 @@ -295,24 +295,24 @@
  
  [144 bytes]
- 21:10:12.126320000 2 metrics
+ 21:10:12.126320 2 metrics
 -    30.0.114 (sampledso.double.bin_ctr):
 +    123.0.114 (sampledso.double.bin_ctr):
          inst [100 or "bin-100"] value 100
@@ -498,7 +498,7 @@ pmdumplog diffs ...
 +    123.0.22 (sampledso.longlong.hundred): value 100
  
  [512 bytes]
- 21:10:12.128378000 7 metrics
+ 21:10:12.128378 7 metrics
 -    30.0.95 (sampledso.ulong.hundred): value 100
 -    30.0.50 (sampledso.part_bin):
 +    123.0.95 (sampledso.ulong.hundred): value 100
@@ -566,7 +566,7 @@ pmdumplog diffs ...
  Instance Domains in the Log ...
 -InDom: 29.2
 +InDom: 109.2
- 21:10:11.878990000 9 instances
+ 21:10:11.878990 9 instances
     100 or "bin-100"
     200 or "bin-200"
 
@@ -582,7 +582,7 @@ pmdumplog diffs ...
 @@ -664,9 +664,9 @@
     0 or "sda"
  InDom: 60.2
- 20:10:22.959242000 3 instances
+ 20:10:22.959242 3 instances
 -   1 or "1 minute"
 -   5 or "5 minute"
 -   15 or "15 minute"
@@ -590,17 +590,17 @@ pmdumplog diffs ...
 +   300 or "300 second"
 +   900 or "900 second"
  InDom: 60.10
- 20:10:22.959242000 7 instances
+ 20:10:22.959242 7 instances
     0 or "sda1"
 @@ -998,7 +998,7 @@
- 			Log Vol    end(meta)     end(log)
- 20:10:22.289859000	      0          132          132
- 20:10:22.959242000	      0          350          280
--20:10:24.305845000	      0        28161        42316
-+20:10:24.305845000	      0        28165        42316
+ 		Log Vol    end(meta)     end(log)
+ 20:10:22.289859	      0          132          132
+ 20:10:22.959242	      0          350          280
+-20:10:24.305845	      0        28161        42316
++20:10:24.305845	      0        28165        42316
  
  [148 bytes]
- 20:10:22.289859000 3 metrics
+ 20:10:22.289859 3 metrics
 @@ -1557,9 +1557,9 @@
      60.2.2 (kernel.all.runnable): value 1
      60.2.1 (kernel.all.lastpid): value 2950
@@ -910,12 +910,12 @@ pmdumplog -i diffs ...
 --- TMP.in
 +++ TMP.out
 @@ -27,7 +27,7 @@
- 20:10:22.959242000 2 instances
+ 20:10:22.959242 2 instances
     0 or "cpu0"
     1 or "cpu1"
 -InDom: 60.9
 +InDom: 123.0
- 20:10:22.959242000 304 instances
+ 20:10:22.959242 304 instances
     1 or "000001 /sbin/init"
     2 or "000002 (kthreadd)"
 
@@ -925,7 +925,7 @@ pmdumplog -m diffs ...
 @@ -7,7 +7,7 @@
      2.3.2 (pmcd.pmlogger.archive): inst [2950 or "2950"] value "/home/kenj/src/pcpqa/src/proc"
  
- 20:10:22.959242000 214 metrics
+ 20:10:22.959242 214 metrics
 -    60.51.0 (proc.fd.count):
 +    123.51.0 (proc.fd.count):
          inst [29922 or "029922 /usr/lib/pcp/bin/pmcd -T 3"] value 29
@@ -1296,7 +1296,7 @@ pmdumplog -m diffs ...
 @@ -646,7 +646,7 @@
          inst [1 or "cpu1"] value 2782080
  
- 20:10:23.300460000 214 metrics
+ 20:10:23.300460 214 metrics
 -    60.51.0 (proc.fd.count):
 +    123.51.0 (proc.fd.count):
          inst [29922 or "029922 /usr/lib/pcp/bin/pmcd -T 3"] value 29
@@ -1667,7 +1667,7 @@ pmdumplog -m diffs ...
 @@ -1285,7 +1285,7 @@
          inst [1 or "cpu1"] value 2782080
  
- 20:10:23.802930000 214 metrics
+ 20:10:23.802930 214 metrics
 -    60.51.0 (proc.fd.count):
 +    123.51.0 (proc.fd.count):
          inst [29922 or "029922 /usr/lib/pcp/bin/pmcd -T 3"] value 29
@@ -2038,7 +2038,7 @@ pmdumplog -m diffs ...
 @@ -1924,7 +1924,7 @@
          inst [1 or "cpu1"] value 2782080
  
- 20:10:24.305845000 214 metrics
+ 20:10:24.305845 214 metrics
 -    60.51.0 (proc.fd.count):
 +    123.51.0 (proc.fd.count):
          inst [29922 or "029922 /usr/lib/pcp/bin/pmcd -T 3"] value 29

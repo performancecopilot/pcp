@@ -1260,7 +1260,7 @@ pmlogwritemark2(__pmFILE *fp, const __pmTimestamp *last_stamp)
 
     mark2.hdr = mark2.tail = htonl((int)sizeof(mark2));
     mark2.timestamp.tv_sec = last_stamp->sec;
-    mark2.timestamp.tv_usec = last_stamp->nsec + 1000000; /* + 1msec */
+    mark2.timestamp.tv_usec = (last_stamp->nsec / 1000) + 1000; /* + 1msec */
     if (mark2.timestamp.tv_usec > 1000000) {
         mark2.timestamp.tv_usec -= 1000000;
         mark2.timestamp.tv_sec++;

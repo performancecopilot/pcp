@@ -45,6 +45,9 @@ END	{ print nprocs,"values for kernel.all.nprocs"
 echo "+++ no args"
 pmdumplog archives/bug-1044 | _filter
 
+echo "+++ -l"
+pmdumplog -zl archives/bug-1044
+
 echo
 echo "+++ -M"
 pmdumplog archives/bug-1044 -M | _filter

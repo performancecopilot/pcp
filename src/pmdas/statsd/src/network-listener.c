@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
+ * Copyright (c) 2022 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -62,7 +63,7 @@ network_listener_exec(void* args) {
     if (bind(fd, res->ai_addr, res->ai_addrlen) == -1) {
         DIE("failed binding socket (err=%s)", strerror(errno));
     }
-    VERBOSE_LOG(0, "Socket enstablished.");
+    VERBOSE_LOG(0, "Socket established.");
     VERBOSE_LOG(0, "Waiting for datagrams.");
     fcntl(fd, F_SETFL, O_NONBLOCK);
     struct timeval tv;
@@ -88,9 +89,9 @@ network_listener_exec(void* args) {
                 VERBOSE_LOG(2, "Datagram too large for buffer: truncated and skipped");
             } else {
                 struct unprocessed_statsd_datagram* datagram = (struct unprocessed_statsd_datagram*) malloc(sizeof(struct unprocessed_statsd_datagram));
-                ALLOC_CHECK("Unable to assign memory for struct representing unprocessed datagrams.");
+                ALLOC_CHECK(datagram, "Unable to assign memory for struct representing unprocessed datagrams.");
                 datagram->value = (char*) malloc(sizeof(char) * (count + 1));
-                ALLOC_CHECK("Unable to assign memory for datagram value.");
+                ALLOC_CHECK(datagram->value, "Unable to assign memory for datagram value.");
                 memcpy(datagram->value, buffer, count);
                 datagram->value[count] = '\0';
                 if (strcmp(end_message, datagram->value) == 0) {
@@ -111,7 +112,7 @@ network_listener_exec(void* args) {
     }
     VERBOSE_LOG(2, "Network listener thread exiting.");
     struct unprocessed_statsd_datagram* datagram = (struct unprocessed_statsd_datagram*) malloc(sizeof(struct unprocessed_statsd_datagram));
-    ALLOC_CHECK("Unable to assign memory for struct representing unprocessed datagrams.");
+    ALLOC_CHECK(datagram, "Unable to assign memory for struct representing unprocessed datagrams.");
     size_t length = strlen(end_message) + 1;
     datagram->value = (char*) malloc(sizeof(char) * length);
     memcpy(datagram->value, end_message, length);
@@ -144,7 +145,7 @@ free_unprocessed_datagram(struct unprocessed_statsd_datagram* datagram) {
 struct network_listener_args*
 create_listener_args(struct agent_config* config, chan_t* network_listener_to_parser) {
     struct network_listener_args* listener_args = (struct network_listener_args*) malloc(sizeof(struct network_listener_args));
-    ALLOC_CHECK("Unable to assign memory for listener arguments.");
+    ALLOC_CHECK(listener_args, "Unable to assign memory for listener arguments.");
     listener_args->config = config;
     listener_args->network_listener_to_parser = network_listener_to_parser;
     return listener_args;

@@ -4,6 +4,8 @@
 #
 # Copyright (c) 2020 Red Hat.  All Rights Reserved.
 #
+# check-group-exclude: pmdumplog
+#
 
 seq=`basename $0`
 if [ $# -eq 0 ]

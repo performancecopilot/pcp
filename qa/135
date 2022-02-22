@@ -56,6 +56,7 @@ s/FOO/TIME/
 s/P-.*/P-LAST\//
 }'
     mv $tmp.sed.tmp $tmp.sed
+    cat $tmp.sed >>$seq.full
 
     sed -f $tmp.sed $tmp.tmp \
     | sed -e 's/value .*/value .../' \
@@ -92,8 +93,9 @@ $sudo $signal -s TERM $logger_pid
 _wait_pmlogger_end $logger_pid
 
 echo
-echo "=== forwards ==="
+echo "=== forwards ===" | tee -a $seq.full
 pmdumplog -lm $tmp \
+| tee -a $seq.full \
 | sed \
     -e '/^$/d' \
     -e '/^[0-9]/{
@@ -106,8 +108,9 @@ s/\n/ /
 LC_COLLATE=POSIX sort -o $tmp.list $tmp.list
 
 echo
-echo "=== backwards ==="
+echo "=== backwards ===" | tee -a $seq.full
 pmdumplog -lmr $tmp \
+| tee -a $seq.full \
 | sed \
     -e '/^$/d' \
     -e '/^[0-9]/{

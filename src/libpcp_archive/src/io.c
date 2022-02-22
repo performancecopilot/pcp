@@ -30,7 +30,7 @@
  * other error code
  */
 int
-pmaLogGet(__pmArchCtl *acp, int vol, __int32_t **rbuf)
+pmaGetLog(__pmArchCtl *acp, int vol, __int32_t **rbuf)
 {
     __pmLogCtl	*lcp = acp->ac_log;
     int		head;
@@ -50,7 +50,7 @@ pmaLogGet(__pmArchCtl *acp, int vol, __int32_t **rbuf)
     offset = __pmFtell(f);
     assert(offset >= 0);
     if (pmDebugOptions.log) {
-	fprintf(stderr, "pmaLogGet: fd=%d vol=%d posn=%ld ",
+	fprintf(stderr, "pmaGetLog: fd=%d vol=%d posn=%ld ",
 	    __pmFileno(f), vol, offset);
     }
 
@@ -81,7 +81,7 @@ again:
 
     if ((lbuf = (__int32_t *)malloc(ntohl(head))) == NULL) {
 	if (pmDebugOptions.log)
-	    fprintf(stderr, "Error: pmaLogGet:(%d) %s\n",
+	    fprintf(stderr, "Error: pmaGetLog:(%d) %s\n",
 		(int)ntohl(head), osstrerror());
 	__pmFseek(f, offset, SEEK_SET);
 	return -oserror();
@@ -138,7 +138,7 @@ again:
     if (pmDebugOptions.pdu) {
 	int		i, j;
 	__pmTimestamp	stamp;
-	fprintf(stderr, "pmaLogGet");
+	fprintf(stderr, "pmaGetLog");
 	if (vol != PM_LOG_VOL_META ||
 	    type == TYPE_INDOM || type ==TYPE_INDOM_DELTA || type == TYPE_INDOM_V2) {
 	    if (vol != PM_LOG_VOL_META)
@@ -174,19 +174,19 @@ again:
  * returns 0 on success, else error code
  */
 int
-pmaLogPut(__pmFILE *f, __int32_t *rbuf)
+pmaPutLog(__pmFILE *f, __int32_t *rbuf)
 {
     int		rlen = ntohl(rbuf[0]);
     int		sts;
 
     if (pmDebugOptions.log) {
-	fprintf(stderr, "pmaLogPut: fd=%d rlen=%d\n",
+	fprintf(stderr, "pmaPutLog: fd=%d rlen=%d\n",
 	    __pmFileno(f), rlen);
     }
 
     if ((sts = (int)__pmFwrite(rbuf, 1, rlen, f)) != rlen) {
 	if (pmDebugOptions.log)
-	    fprintf(stderr, "pmaLogPut: fwrite=%d %s\n", sts, osstrerror());
+	    fprintf(stderr, "pmaPutLog: fwrite=%d %s\n", sts, osstrerror());
 	return -oserror();
     }
     return 0;
@@ -298,4 +298,16 @@ pmaRewriteMeta(__pmLogCtl *lcp, int outvers, __int32_t **rbuf)
     }
 
     return sts;
+}
+
+int
+pmaPutMark(__pmFILE *f, int version, __pmTimestamp *tsp)
+{
+    return 0;
+}
+
+int
+pmaCreateMark(int version,  __pmTimestamp *tsp,  __int32_t **rbuf)
+{
+    return 0;
 }

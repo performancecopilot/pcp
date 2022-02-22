@@ -44,226 +44,226 @@ pmdumplog diffs ...
  
  Instance Domains in the Log ...
 -InDom: 1.5
--23:22:42.011766000 3 instances
+-23:22:42.011766 3 instances
 -   1 or "1 minute"
 +InDom: 42.10
-+02:23:12.011766000 3 instances
++02:23:12.011766 3 instances
 +   1 or "1 minute is not very long unlike this string"
     5 or "5 minute"
 -   15 or "15 minute"
 +   9999 or "forever"
  InDom: 2.1
--22:22:42.025955000 1 instances
-+01:23:12.025955000 1 instances
+-22:22:42.025955 1 instances
++01:23:12.025955 1 instances
     19856 or "19856"
  
  Temporal Index
- 			Log Vol    end(meta)     end(log)
--22:22:42.025955000	      0          132          132
--22:22:42.060877000	      0          351          284
--23:22:42.011766000	      0          450          344
--11:22:42.021829000	      0          590         1784
-+01:23:12.025955000	      0          132          132
-+01:23:12.060877000	      0          351          284
-+02:23:12.011766000	      0          460          356
-+14:23:12.021829000	      0          618         2228
+ 		Log Vol    end(meta)     end(log)
+-22:22:42.025955	      0          132          132
+-22:22:42.060877	      0          351          284
+-23:22:42.011766	      0          450          344
+-11:22:42.021829	      0          590         1784
++01:23:12.025955	      0          132          132
++01:23:12.060877	      0          351          284
++02:23:12.011766	      0          460          356
++14:23:12.021829	      0          618         2228
  
--22:22:42.025955000 3 metrics
-+01:23:12.025955000 3 metrics
+-22:22:42.025955 3 metrics
++01:23:12.025955 3 metrics
      2.3.3 (pmcd.pmlogger.host): inst [19856 or "19856"] value "rattle.melbourne.sgi.com"
      2.3.0 (pmcd.pmlogger.port): inst [19856 or "19856"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [19856 or "19856"] value "/var/adm/pcplog/rattle/970517.22.22"
  
--22:22:42.060877000 2 metrics
+-22:22:42.060877 2 metrics
 -    1.26.7 (hinv.ndisk): value 2
 -    1.18.2 (hinv.ncpu): value 1
-+01:23:12.060877000 2 metrics
++01:23:12.060877 2 metrics
 +    42.26.7 (hinv.ndisk): value 2
 +    42.18.2 (hinv.number_of_cpus): value 1
  
--23:22:42.011766000 1 metric
+-23:22:42.011766 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
-+02:23:12.011766000 1 metric
++02:23:12.011766 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
  
--00:22:42.011769000 1 metric
+-00:22:42.011769 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
-+03:23:12.011769000 1 metric
++03:23:12.011769 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
  
--01:22:42.021786000 1 metric
+-01:22:42.021786 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
-+04:23:12.021786000 1 metric
++04:23:12.021786 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
  
--02:22:42.021860000 1 metric
+-02:22:42.021860 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
-+05:23:12.021860000 1 metric
++05:23:12.021860 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
  
--03:22:42.021802000 1 metric
+-03:22:42.021802 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.013671875
-+06:23:12.021802000 1 metric
++06:23:12.021802 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0.013671875
  
--04:22:42.021770000 1 metric
+-04:22:42.021770 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.01953125
-+07:23:12.021770000 1 metric
++07:23:12.021770 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0.01953125
  
--05:22:42.021778000 1 metric
+-05:22:42.021778 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 1
-+08:23:12.021778000 1 metric
++08:23:12.021778 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 1
  
--06:22:42.021821000 1 metric
+-06:22:42.021821 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2
-+09:23:12.021821000 1 metric
++09:23:12.021821 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 2
  
--07:22:42.021856000 1 metric
+-07:22:42.021856 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
-+10:23:12.021856000 1 metric
++10:23:12.021856 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
  
--08:22:42.021800000 1 metric
+-08:22:42.021800 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
-+11:23:12.021800000 1 metric
++11:23:12.021800 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
  
--09:22:42.021779000 1 metric
+-09:22:42.021779 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.043945312
-+12:23:12.021779000 1 metric
++12:23:12.021779 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0.0439453125
  
--10:22:42.021778000 1 metric
+-10:22:42.021778 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.015625
-+13:23:12.021778000 1 metric
++13:23:12.021778 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0.015625
  
--11:22:42.021792000 1 metric
+-11:22:42.021792 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
-+14:23:12.021792000 1 metric
++14:23:12.021792 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
  
--12:22:42.021765000 1 metric
+-12:22:42.021765 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
-+15:23:12.021765000 1 metric
++15:23:12.021765 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
  
--13:22:42.021842000 1 metric
+-13:22:42.021842 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
-+16:23:12.021842000 1 metric
++16:23:12.021842 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
  
--14:22:42.021790000 1 metric
+-14:22:42.021790 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
-+17:23:12.021790000 1 metric
++17:23:12.021790 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
  
--15:22:42.021773000 1 metric
+-15:22:42.021773 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
-+18:23:12.021773000 1 metric
++18:23:12.021773 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
  
--16:22:42.021805000 1 metric
+-16:22:42.021805 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 1
-+19:23:12.021805000 1 metric
++19:23:12.021805 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 1
  
--17:22:42.021780000 1 metric
+-17:22:42.021780 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
-+20:23:12.021780000 1 metric
++20:23:12.021780 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
  
--18:22:42.021791000 1 metric
+-18:22:42.021791 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
-+21:23:12.021791000 1 metric
++21:23:12.021791 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
  
--19:22:42.021793000 1 metric
+-19:22:42.021793 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
-+22:23:12.021793000 1 metric
++22:23:12.021793 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
  
--20:22:42.021801000 1 metric
+-20:22:42.021801 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.025390625
-+23:23:12.021801000 1 metric
++23:23:12.021801 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0.025390625
  
--21:22:42.021790000 1 metric
+-21:22:42.021790 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2.0019531
-+00:23:12.021790000 1 metric
++00:23:12.021790 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 2.001953125
  
--22:22:42.021803000 1 metric
+-22:22:42.021803 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 1
-+01:23:12.021803000 1 metric
++01:23:12.021803 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 1
  
--23:22:42.021802000 1 metric
+-23:22:42.021802 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 1
-+02:23:12.021802000 1 metric
++02:23:12.021802 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 1
  
--00:22:42.021807000 1 metric
+-00:22:42.021807 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2
-+03:23:12.021807000 1 metric
++03:23:12.021807 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 2
  
--01:22:42.021768000 1 metric
+-01:22:42.021768 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.01171875
-+04:23:12.021768000 1 metric
++04:23:12.021768 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0.01171875
  
--02:22:42.021793000 1 metric
+-02:22:42.021793 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.0087890625
-+05:23:12.021793000 1 metric
++05:23:12.021793 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0.0087890625
  
--03:22:42.021779000 1 metric
+-03:22:42.021779 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
-+06:23:12.021779000 1 metric
++06:23:12.021779 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
  
--04:22:42.021751000 1 metric
+-04:22:42.021751 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2
-+07:23:12.021751000 1 metric
++07:23:12.021751 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 2
  
--05:22:42.021823000 1 metric
+-05:22:42.021823 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
-+08:23:12.021823000 1 metric
++08:23:12.021823 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
  
--06:22:42.021848000 1 metric
+-06:22:42.021848 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 2.9785156
-+09:23:12.021848000 1 metric
++09:23:12.021848 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 2.978515625
  
--07:22:42.021907000 1 metric
+-07:22:42.021907 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
-+10:23:12.021907000 1 metric
++10:23:12.021907 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
  
--08:22:42.021884000 1 metric
+-08:22:42.021884 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
-+11:23:12.021884000 1 metric
++11:23:12.021884 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
  
--09:22:42.021802000 1 metric
+-09:22:42.021802 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
-+12:23:12.021802000 1 metric
++12:23:12.021802 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
  
--10:22:42.021782000 1 metric
+-10:22:42.021782 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0
-+13:23:12.021782000 1 metric
++13:23:12.021782 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0
  
--11:22:42.021829000 1 metric
+-11:22:42.021829 1 metric
 -    1.18.3 (irix.kernel.all.load): inst [1 or "1 minute"] value 0.032226562
-+14:23:12.021829000 1 metric
++14:23:12.021829 1 metric
 +    42.18.3 (load): inst [1 or "1 minute is not very long unlike this string"] value 0.0322265625
 === std out ===
 === std err ===
@@ -298,13 +298,13 @@ pmdumplog diffs ...
      Data Type: string  InDom: 2.1 0x800001
      Semantics: discrete  Units: none
 @@ -74,7 +74,7 @@
- 			Log Vol    end(meta)     end(log)
- 21:58:59.005168000	      0          132          132
- 21:58:59.505162000	      0          350          284
--21:59:04.005134000	      0         1305         5432
-+21:59:04.005134000	      0         1305         4028
+ 		Log Vol    end(meta)     end(log)
+ 21:58:59.005168	      0          132          132
+ 21:58:59.505162	      0          350          284
+-21:59:04.005134	      0         1305         5432
++21:59:04.005134	      0         1305         4028
  
- 21:58:59.005168000 3 metrics
+ 21:58:59.005168 3 metrics
      2.3.3 (pmcd.pmlogger.host): inst [3931 or "3931"] value "bozo.localdomain"
 @@ -93,15 +93,7 @@
      29.0.67 (sample.scale_step.count_up): value 1
@@ -512,9 +512,9 @@ pmdumplog diffs ...
  
  Instance Domains in the Log ...
  InDom: 29.2
--10:46:07.406806000 9 instances
+-10:46:07.406806 9 instances
 -   100 or "bin-100"
-+10:46:07.406806000 4 instances
++10:46:07.406806 4 instances
     200 or "bin-200"
     300 or "bin-300"
 -   400 or "bin-400"
@@ -524,32 +524,32 @@ pmdumplog diffs ...
     800 or "bin-800"
 -   900 or "bin-900"
  InDom: 29.3
--10:46:07.406806000 5 instances
+-10:46:07.406806 5 instances
 -   0 or "m-00"
-+10:46:07.406806000 4 instances
++10:46:07.406806 4 instances
     12 or "m-12"
     13 or "m-13"
     14 or "m-14"
     15 or "m-15"
--10:47:07.419122000 5 instances
+-10:47:07.419122 5 instances
 -   0 or "m-00"
-+10:47:07.419122000 4 instances
++10:47:07.419122 4 instances
     12 or "m-12"
     13 or "m-13"
     15 or "m-15"
     16 or "m-16"
--10:48:07.406714000 7 instances
+-10:48:07.406714 7 instances
 -   0 or "m-00"
-+10:48:07.406714000 6 instances
++10:48:07.406714 6 instances
     12 or "m-12"
     13 or "m-13"
     15 or "m-15"
     16 or "m-16"
     17 or "m-17"
     18 or "m-18"
--10:49:07.407160000 8 instances
+-10:49:07.407160 8 instances
 -   0 or "m-00"
-+10:49:07.407160000 7 instances
++10:49:07.407160 7 instances
     12 or "m-12"
     13 or "m-13"
     15 or "m-15"
@@ -557,9 +557,9 @@ pmdumplog diffs ...
     18 or "m-18"
     19 or "m-19"
     20 or "m-20"
--10:50:07.407387000 8 instances
+-10:50:07.407387 8 instances
 -   0 or "m-00"
-+10:50:07.407387000 7 instances
++10:50:07.407387 7 instances
     12 or "m-12"
     15 or "m-15"
     17 or "m-17"
@@ -567,26 +567,26 @@ pmdumplog diffs ...
     19 or "m-19"
     20 or "m-20"
     21 or "m-21"
--10:51:07.407667000 6 instances
+-10:51:07.407667 6 instances
 -   0 or "m-00"
-+10:51:07.407667000 5 instances
++10:51:07.407667 5 instances
     15 or "m-15"
     17 or "m-17"
     18 or "m-18"
     19 or "m-19"
     21 or "m-21"
--10:53:07.408341000 7 instances
+-10:53:07.408341 7 instances
 -   0 or "m-00"
-+10:53:07.408341000 6 instances
++10:53:07.408341 6 instances
     15 or "m-15"
     17 or "m-17"
     18 or "m-18"
     19 or "m-19"
     21 or "m-21"
     22 or "m-22"
--10:54:07.408606000 8 instances
+-10:54:07.408606 8 instances
 -   0 or "m-00"
-+10:54:07.408606000 7 instances
++10:54:07.408606 7 instances
     15 or "m-15"
     17 or "m-17"
     18 or "m-18"
@@ -594,142 +594,142 @@ pmdumplog diffs ...
     21 or "m-21"
     22 or "m-22"
     23 or "m-23"
--10:55:07.409073000 7 instances
+-10:55:07.409073 7 instances
 -   0 or "m-00"
-+10:55:07.409073000 6 instances
++10:55:07.409073 6 instances
     15 or "m-15"
     17 or "m-17"
     19 or "m-19"
     22 or "m-22"
     23 or "m-23"
     24 or "m-24"
--10:56:07.409201000 6 instances
+-10:56:07.409201 6 instances
 -   0 or "m-00"
-+10:56:07.409201000 5 instances
++10:56:07.409201 5 instances
     17 or "m-17"
     22 or "m-22"
     23 or "m-23"
     24 or "m-24"
     25 or "m-25"
--10:57:07.409462000 5 instances
+-10:57:07.409462 5 instances
 -   0 or "m-00"
-+10:57:07.409462000 4 instances
++10:57:07.409462 4 instances
     22 or "m-22"
     23 or "m-23"
     24 or "m-24"
     25 or "m-25"
--10:58:07.409875000 5 instances
+-10:58:07.409875 5 instances
 -   0 or "m-00"
-+10:58:07.409875000 4 instances
++10:58:07.409875 4 instances
     22 or "m-22"
     23 or "m-23"
     24 or "m-24"
     26 or "m-26"
--10:59:07.410254000 7 instances
+-10:59:07.410254 7 instances
 -   0 or "m-00"
-+10:59:07.410254000 6 instances
++10:59:07.410254 6 instances
     22 or "m-22"
     23 or "m-23"
     24 or "m-24"
     26 or "m-26"
     27 or "m-27"
     28 or "m-28"
--11:00:07.410567000 6 instances
+-11:00:07.410567 6 instances
 -   0 or "m-00"
-+11:00:07.410567000 5 instances
++11:00:07.410567 5 instances
     24 or "m-24"
     26 or "m-26"
     27 or "m-27"
     28 or "m-28"
     29 or "m-29"
--11:01:07.410735000 5 instances
+-11:01:07.410735 5 instances
 -   0 or "m-00"
-+11:01:07.410735000 4 instances
++11:01:07.410735 4 instances
     24 or "m-24"
     26 or "m-26"
     27 or "m-27"
     28 or "m-28"
--11:02:07.411038000 5 instances
+-11:02:07.411038 5 instances
 -   0 or "m-00"
-+11:02:07.411038000 4 instances
++11:02:07.411038 4 instances
     24 or "m-24"
     27 or "m-27"
     28 or "m-28"
     30 or "m-30"
--11:03:07.411488000 6 instances
+-11:03:07.411488 6 instances
 -   0 or "m-00"
-+11:03:07.411488000 5 instances
++11:03:07.411488 5 instances
     24 or "m-24"
     27 or "m-27"
     28 or "m-28"
     30 or "m-30"
     31 or "m-31"
--11:04:07.411683000 6 instances
+-11:04:07.411683 6 instances
 -   0 or "m-00"
-+11:04:07.411683000 4 instances
++11:04:07.411683 4 instances
     24 or "m-24"
     27 or "m-27"
     30 or "m-30"
     32 or "m-32"
 -   33 or "m-33"
--11:05:07.411966000 5 instances
+-11:05:07.411966 5 instances
 -   0 or "m-00"
-+11:05:07.411966000 3 instances
++11:05:07.411966 3 instances
     24 or "m-24"
     27 or "m-27"
     30 or "m-30"
 -   33 or "m-33"
  InDom: 2.1
- 10:45:08.440968000 1 instances
+ 10:45:08.440968 1 instances
     24763 or "24763"
 @@ -182,92 +153,70 @@
- 			Log Vol    end(meta)     end(log)
- 10:45:08.440968000	      0          132          132
- 10:46:07.406806000	      0          351          288
--10:47:07.419122000	      0          771          464
--10:48:07.406714000	      0          864          640
--10:49:07.407160000	      0          983          832
--10:50:07.407387000	      0         1115         1032
--10:51:07.407667000	      0         1247         1232
--10:53:07.408341000	      0         1353         1600
--10:54:07.408606000	      0         1472         1792
--10:55:07.409073000	      0         1604         1992
--10:56:07.409201000	      0         1723         2184
--10:57:07.409462000	      0         1829         2368
--10:58:07.409875000	      0         1922         2544
--10:59:07.410254000	      0         2015         2720
--11:00:07.410567000	      0         2134         2912
--11:01:07.410735000	      0         2240         3096
--11:02:07.411038000	      0         2333         3272
--11:03:07.411488000	      0         2426         3448
--11:04:07.411683000	      0         2532         3632
--11:05:07.411966000	      0         2638         3816
-+10:47:07.419122000	      0          636          476
-+10:48:07.406714000	      0          716          664
-+10:49:07.407160000	      0          822          884
-+10:50:07.407387000	      0          941         1120
-+10:51:07.407667000	      0         1060         1356
-+10:53:07.408341000	      0         1153         1764
-+10:54:07.408606000	      0         1259         1984
-+10:55:07.409073000	      0         1378         2220
-+10:56:07.409201000	      0         1484         2440
-+10:57:07.409462000	      0         1577         2644
-+10:58:07.409875000	      0         1657         2832
-+10:59:07.410254000	      0         1737         3020
-+11:00:07.410567000	      0         1843         3240
-+11:01:07.410735000	      0         1936         3444
-+11:02:07.411038000	      0         2016         3632
-+11:03:07.411488000	      0         2096         3820
-+11:04:07.411683000	      0         2189         4024
-+11:05:07.411966000	      0         2269         4212
+ 		Log Vol    end(meta)     end(log)
+ 10:45:08.440968	      0          132          132
+ 10:46:07.406806	      0          351          288
+-10:47:07.419122	      0          771          464
+-10:48:07.406714	      0          864          640
+-10:49:07.407160	      0          983          832
+-10:50:07.407387	      0         1115         1032
+-10:51:07.407667	      0         1247         1232
+-10:53:07.408341	      0         1353         1600
+-10:54:07.408606	      0         1472         1792
+-10:55:07.409073	      0         1604         1992
+-10:56:07.409201	      0         1723         2184
+-10:57:07.409462	      0         1829         2368
+-10:58:07.409875	      0         1922         2544
+-10:59:07.410254	      0         2015         2720
+-11:00:07.410567	      0         2134         2912
+-11:01:07.410735	      0         2240         3096
+-11:02:07.411038	      0         2333         3272
+-11:03:07.411488	      0         2426         3448
+-11:04:07.411683	      0         2532         3632
+-11:05:07.411966	      0         2638         3816
++10:47:07.419122	      0          636          476
++10:48:07.406714	      0          716          664
++10:49:07.407160	      0          822          884
++10:50:07.407387	      0          941         1120
++10:51:07.407667	      0         1060         1356
++10:53:07.408341	      0         1153         1764
++10:54:07.408606	      0         1259         1984
++10:55:07.409073	      0         1378         2220
++10:56:07.409201	      0         1484         2440
++10:57:07.409462	      0         1577         2644
++10:58:07.409875	      0         1657         2832
++10:59:07.410254	      0         1737         3020
++11:00:07.410567	      0         1843         3240
++11:01:07.410735	      0         1936         3444
++11:02:07.411038	      0         2016         3632
++11:03:07.411488	      0         2096         3820
++11:04:07.411683	      0         2189         4024
++11:05:07.411966	      0         2269         4212
  
- 10:45:08.440968000 3 metrics
+ 10:45:08.440968 3 metrics
      2.3.3 (pmcd.pmlogger.host): inst [24763 or "24763"] value "gonzo.melbourne.sgi.com"
      2.3.0 (pmcd.pmlogger.port): inst [24763 or "24763"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [24763 or "24763"] value "/usr/people/kenmcd/isms/pcp/qa/src/mirage"
  
--10:46:07.406806000 3 metrics
-+10:46:07.406806000 2 metrics
+-10:46:07.406806 3 metrics
++10:46:07.406806 2 metrics
      29.0.37 (sample.mirage):
 -inst [0 or "m-00"] value 113
  inst [12 or "m-12"] value 4328
@@ -749,8 +749,8 @@ pmdumplog diffs ...
          inst [800 or "bin-800"] value 800
 -        inst [900 or "bin-900"] value 900
  
--10:47:07.419122000 3 metrics
-+10:47:07.419122000 2 metrics
+-10:47:07.419122 3 metrics
++10:47:07.419122 2 metrics
      29.0.37 (sample.mirage):
 -inst [0 or "m-00"] value 95
  inst [12 or "m-12"] value 4310
@@ -770,8 +770,8 @@ pmdumplog diffs ...
          inst [800 or "bin-800"] value 800
 -        inst [900 or "bin-900"] value 900
  
--10:48:07.406714000 3 metrics
-+10:48:07.406714000 2 metrics
+-10:48:07.406714 3 metrics
++10:48:07.406714 2 metrics
      29.0.37 (sample.mirage):
 -inst [0 or "m-00"] value 77
  inst [12 or "m-12"] value 4293
@@ -793,8 +793,8 @@ pmdumplog diffs ...
          inst [800 or "bin-800"] value 800
 -        inst [900 or "bin-900"] value 900
  
--10:49:07.407160000 3 metrics
-+10:49:07.407160000 2 metrics
+-10:49:07.407160 3 metrics
++10:49:07.407160 2 metrics
      29.0.37 (sample.mirage):
 -inst [0 or "m-00"] value 53
  inst [12 or "m-12"] value 4268
@@ -817,8 +817,8 @@ pmdumplog diffs ...
          inst [800 or "bin-800"] value 800
 -        inst [900 or "bin-900"] value 900
  
--10:50:07.407387000 3 metrics
-+10:50:07.407387000 2 metrics
+-10:50:07.407387 3 metrics
++10:50:07.407387 2 metrics
      29.0.37 (sample.mirage):
 -inst [0 or "m-00"] value 25
  inst [12 or "m-12"] value 4240
@@ -841,8 +841,8 @@ pmdumplog diffs ...
          inst [800 or "bin-800"] value 800
 -        inst [900 or "bin-900"] value 900
  
--10:51:07.407667000 3 metrics
-+10:51:07.407667000 2 metrics
+-10:51:07.407667 3 metrics
++10:51:07.407667 2 metrics
      29.0.37 (sample.mirage):
 -inst [0 or "m-00"] value 348
  inst [15 or "m-15"] value 5618
@@ -863,8 +863,8 @@ pmdumplog diffs ...
          inst [800 or "bin-800"] value 800
 -        inst [900 or "bin-900"] value 900
  
--10:52:07.407885000 3 metrics
-+10:52:07.407885000 2 metrics
+-10:52:07.407885 3 metrics
++10:52:07.407885 2 metrics
      29.0.37 (sample.mirage):
 -inst [0 or "m-00"] value 327
  inst [15 or "m-15"] value 5597
@@ -885,8 +885,8 @@ pmdumplog diffs ...
          inst [800 or "bin-800"] value 800
 -        inst [900 or "bin-900"] value 900
  
--10:53:07.408341000 3 metrics
-+10:53:07.408341000 2 metrics
+-10:53:07.408341 3 metrics
++10:53:07.408341 2 metrics
      29.0.37 (sample.mirage):
 -inst [0 or "m-00"] value 306
  inst [15 or "m-15"] value 5576
@@ -908,8 +908,8 @@ pmdumplog diffs ...
          inst [800 or "bin-800"] value 800
 -        inst [900 or "bin-900"] value 900
  
--10:54:07.408606000 3 metrics
-+10:54:07.408606000 2 metrics
+-10:54:07.408606 3 metrics
++10:54:07.408606 2 metrics
      29.0.37 (sample.mirage):
 -inst [0 or "m-00"] value 281
  inst [15 or "m-15"] value 5551
@@ -932,8 +932,8 @@ pmdumplog diffs ...
          inst [800 or "bin-800"] value 800
 -        inst [900 or "bin-900"] value 900
  
--10:55:07.409073000 3 metrics
-+10:55:07.409073000 2 metrics
+-10:55:07.409073 3 metrics
++10:55:07.409073 2 metrics
      29.0.37 (sample.mirage):
 -inst [0 or "m-00"] value 253
  inst [15 or "m-15"] value 5523
@@ -955,8 +955,8 @@ pmdumplog diffs ...
          inst [800 or "bin-800"] value 800
 -        inst [900 or "bin-900"] value 900
  
--10:56:07.409201000 3 metrics
-+10:56:07.409201000 2 metrics
+-10:56:07.409201 3 metrics
++10:56:07.409201 2 metrics
      29.0.37 (sample.mirage):
 -inst [0 or "m-00"] value 229
  inst [17 or "m-17"] value 6202
@@ -977,8 +977,8 @@ pmdumplog diffs ...
          inst [800 or "bin-800"] value 800
 -        inst [900 or "bin-900"] value 900
  
--10:57:07.409462000 3 metrics
-+10:57:07.409462000 2 metrics
+-10:57:07.409462 3 metrics
++10:57:07.409462 2 metrics
      29.0.37 (sample.mirage):
 -inst [0 or "m-00"] value 207
  inst [22 or "m-22"] value 7938
@@ -998,8 +998,8 @@ pmdumplog diffs ...
          inst [800 or "bin-800"] value 800
 -        inst [900 or "bin-900"] value 900
  
--10:58:07.409875000 3 metrics
-+10:58:07.409875000 2 metrics
+-10:58:07.409875 3 metrics
++10:58:07.409875 2 metrics
      29.0.37 (sample.mirage):
 -inst [0 or "m-00"] value 190
  inst [22 or "m-22"] value 7921
@@ -1019,8 +1019,8 @@ pmdumplog diffs ...
          inst [800 or "bin-800"] value 800
 -        inst [900 or "bin-900"] value 900
  
--10:59:07.410254000 3 metrics
-+10:59:07.410254000 2 metrics
+-10:59:07.410254 3 metrics
++10:59:07.410254 2 metrics
      29.0.37 (sample.mirage):
 -inst [0 or "m-00"] value 172
  inst [22 or "m-22"] value 7903
@@ -1042,8 +1042,8 @@ pmdumplog diffs ...
          inst [800 or "bin-800"] value 800
 -        inst [900 or "bin-900"] value 900
  
--11:00:07.410567000 3 metrics
-+11:00:07.410567000 2 metrics
+-11:00:07.410567 3 metrics
++11:00:07.410567 2 metrics
      29.0.37 (sample.mirage):
 -inst [0 or "m-00"] value 148
  inst [24 or "m-24"] value 8582
@@ -1064,8 +1064,8 @@ pmdumplog diffs ...
          inst [800 or "bin-800"] value 800
 -        inst [900 or "bin-900"] value 900
  
--11:01:07.410735000 3 metrics
-+11:01:07.410735000 2 metrics
+-11:01:07.410735 3 metrics
++11:01:07.410735 2 metrics
      29.0.37 (sample.mirage):
 -inst [0 or "m-00"] value 127
  inst [24 or "m-24"] value 8561
@@ -1085,8 +1085,8 @@ pmdumplog diffs ...
          inst [800 or "bin-800"] value 800
 -        inst [900 or "bin-900"] value 900
  
--11:02:07.411038000 3 metrics
-+11:02:07.411038000 2 metrics
+-11:02:07.411038 3 metrics
++11:02:07.411038 2 metrics
      29.0.37 (sample.mirage):
 -inst [0 or "m-00"] value 109
  inst [24 or "m-24"] value 8543
@@ -1106,8 +1106,8 @@ pmdumplog diffs ...
          inst [800 or "bin-800"] value 800
 -        inst [900 or "bin-900"] value 900
  
--11:03:07.411488000 3 metrics
-+11:03:07.411488000 2 metrics
+-11:03:07.411488 3 metrics
++11:03:07.411488 2 metrics
      29.0.37 (sample.mirage):
 -inst [0 or "m-00"] value 91
  inst [24 or "m-24"] value 8525
@@ -1128,8 +1128,8 @@ pmdumplog diffs ...
          inst [800 or "bin-800"] value 800
 -        inst [900 or "bin-900"] value 900
  
--11:04:07.411683000 3 metrics
-+11:04:07.411683000 2 metrics
+-11:04:07.411683 3 metrics
++11:04:07.411683 2 metrics
      29.0.37 (sample.mirage):
 -inst [0 or "m-00"] value 70
  inst [24 or "m-24"] value 8504
@@ -1150,8 +1150,8 @@ pmdumplog diffs ...
          inst [800 or "bin-800"] value 800
 -        inst [900 or "bin-900"] value 900
  
--11:05:07.411966000 3 metrics
-+11:05:07.411966000 2 metrics
+-11:05:07.411966 3 metrics
++11:05:07.411966 2 metrics
      29.0.37 (sample.mirage):
 -inst [0 or "m-00"] value 49
  inst [24 or "m-24"] value 8483

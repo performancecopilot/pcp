@@ -60,7 +60,7 @@ Performance metrics from host brutus.corp
     commencing Mon Jun 24 08:35:46.591324 1996
     ending     Mon Jun 24 08:35:46.591324 1996
 
-08:35:46.591324000 11 metrics
+08:35:46.591324 11 metrics
 ...
 
 === window in archive, timezone of archive ===
@@ -71,7 +71,7 @@ Performance metrics from host brutus.corp
     commencing Mon Jun 24 08:35:46.591324 1996
     ending     Mon Jun 24 08:35:46.591324 1996
 
-08:35:46.591324000 11 metrics
+08:35:46.591324 11 metrics
 ...
 
 === window in archive, UTC timezone ===
@@ -82,7 +82,7 @@ Performance metrics from host brutus.corp
     commencing Mon Jun 24 08:35:46.591324 1996
     ending     Mon Jun 24 08:35:46.591324 1996
 
-08:35:46.591324000 11 metrics
+08:35:46.591324 11 metrics
 ...
 
 === window after archive end, local TZ=EST-10 ===

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
+ * Copyright (c) 2022 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,7 +36,7 @@ tag_comparator(const void* x, const void* y) {
 }
 
 /**
- * Converts tag_collection* struct to JSON string that is sorted by keys and contains no duplicities (right-most wins) 
+ * Converts tag_collection* struct to JSON string that is sorted by keys and contains no duplicates (right-most wins) 
  */
 char*
 tag_collection_to_json(struct tag_collection* tags) {
@@ -72,7 +73,7 @@ tag_collection_to_json(struct tag_collection* tags) {
     buffer[current_size] = '}';
     buffer[current_size + 1] = '\0';
     char* result = malloc(sizeof(char) * (current_size + 2));
-    ALLOC_CHECK("Unable to allocate memory for tags json.");
+    ALLOC_CHECK(result, "Unable to allocate memory for tags json.");
     memcpy(result, buffer, current_size + 2);
     return result;
 }

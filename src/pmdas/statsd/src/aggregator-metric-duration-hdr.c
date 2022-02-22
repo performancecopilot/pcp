@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
+ * Copyright (c) 2022 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,7 +30,7 @@ void
 create_hdr_duration_value(long long unsigned int value, void** out) {
     struct hdr_histogram* histogram;
     hdr_init(1, INT64_C(3600000000), 3, &histogram);
-    ALLOC_CHECK("Unable to allocate memory for histogram");
+    ALLOC_CHECK(histogram, "Unable to allocate memory for histogram");
     hdr_record_value(histogram, value);
     *out = histogram;
 }
