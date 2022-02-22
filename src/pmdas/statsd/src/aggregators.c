@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
+ * Copyright (c) 2022 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,7 +31,7 @@
 #include "aggregator-stats.h"
 
 /**
- * Mutex guarding aggregator proccesing, so there are no race condiditions if we request debug output.
+ * Mutex guarding aggregator proccesing, so there are no race conditions if we request debug output.
  */
 static pthread_mutex_t g_aggregator_processing_lock;
 
@@ -126,7 +127,7 @@ free_parser_to_aggregator_message(struct parser_to_aggregator_message* message) 
 }
 
 /**
- * Creates arguments for Agregator thread
+ * Creates arguments for Aggregator thread
  * @arg config - Application config
  * @arg parsed_channel - Parser -> Aggregator channel
  * @arg pcp_request_channel - PCP -> Aggregator channel
@@ -142,7 +143,7 @@ create_aggregator_args(
     struct pmda_stats_container* s
 ) {
     struct aggregator_args* args = (struct aggregator_args*) malloc(sizeof(struct aggregator_args));
-    ALLOC_CHECK("Unable to assign memory for parser aguments.");
+    ALLOC_CHECK(args, "Unable to assign memory for parser arguments.");
     args->config = config;
     args->parser_to_aggregator = parser_to_aggregator;
     args->metrics_container = m;

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
+ * Copyright (c) 2022 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,7 +47,7 @@ void signal_handler(int num) {
     instance[index].i_inst = index; \
     len = pmsprintf(buff, 20, "%s", name) + 1; \
     instance[index].i_name = (char*) malloc(sizeof(char) * len); \
-    ALLOC_CHECK("Unable to allocate memory for static PMDA instance descriptor."); \
+    ALLOC_CHECK(instance[index].i_name, "Unable to allocate memory for static PMDA instance descriptor."); \
     memcpy(instance[index].i_name, buff, len);
 
 /**
@@ -60,10 +61,10 @@ create_statsd_hardcoded_instances(struct pmda_data_extension* data) {
     size_t hardcoded_count = 3;
 
     data->pcp_instance_domains = (pmdaIndom*) malloc(hardcoded_count * sizeof(pmdaIndom));
-    ALLOC_CHECK("Unable to allocate memory for static PMDA instance domains.");
+    ALLOC_CHECK(data->pcp_instance_domains, "Unable to allocate memory for static PMDA instance domains.");
     
     pmdaInstid* stats_metric_counters_indom = (pmdaInstid*) malloc(sizeof(pmdaInstid) * 4);
-    ALLOC_CHECK("Unable to allocate memory for static PMDA instance domain descriptor.");
+    ALLOC_CHECK(stats_metric_counters_indom, "Unable to allocate memory for static PMDA instance domain descriptor.");
     data->pcp_instance_domains[0].it_indom = STATS_METRIC_COUNTERS_INDOM;
     data->pcp_instance_domains[0].it_numinst = 4;
     data->pcp_instance_domains[0].it_set = stats_metric_counters_indom;
@@ -73,7 +74,7 @@ create_statsd_hardcoded_instances(struct pmda_data_extension* data) {
     SET_INST_NAME(stats_metric_counters_indom, "total", 3);
 
     pmdaInstid* statsd_metric_default_duration_indom = (pmdaInstid*) malloc(sizeof(pmdaInstid) * 9);
-    ALLOC_CHECK("Unable to allocate memory for static PMDA instance domain descriptors.");
+    ALLOC_CHECK(statsd_metric_default_duration_indom, "Unable to allocate memory for static PMDA instance domain descriptors.");
     data->pcp_instance_domains[1].it_indom = STATSD_METRIC_DEFAULT_DURATION_INDOM;
     data->pcp_instance_domains[1].it_numinst = 9;
     data->pcp_instance_domains[1].it_set = statsd_metric_default_duration_indom;
@@ -89,7 +90,7 @@ create_statsd_hardcoded_instances(struct pmda_data_extension* data) {
     SET_INST_NAME(statsd_metric_default_duration_indom, "/std_deviation", 8);
 
     pmdaInstid* statsd_metric_default_indom = (pmdaInstid*) malloc(sizeof(pmdaInstid));
-    ALLOC_CHECK("Unable to allocate memory for default dynamic metric instance domain descriptior");
+    ALLOC_CHECK(statsd_metric_default_indom, "Unable to allocate memory for default dynamic metric instance domain descriptor");
     data->pcp_instance_domains[2].it_indom = STATSD_METRIC_DEFAULT_INDOM;
     data->pcp_instance_domains[2].it_numinst = 1;
     data->pcp_instance_domains[2].it_set = statsd_metric_default_indom;
@@ -108,7 +109,7 @@ create_statsd_hardcoded_metrics(struct pmda_data_extension* data) {
     size_t i;
     size_t hardcoded_count = 14;
     data->pcp_metrics = (pmdaMetric*) malloc(hardcoded_count * sizeof(pmdaMetric));
-    ALLOC_CHECK("Unable to allocate space for static PMDA metrics.");
+    ALLOC_CHECK(data->pcp_metrics, "Unable to allocate space for static PMDA metrics.");
     // helper containing only reference to priv data same for all hardcoded metrics
     static struct pmda_metric_helper helper;
     size_t agent_stat_count = 7;
@@ -217,7 +218,7 @@ free_shared_data(struct agent_config* config, struct pmda_data_extension* data) 
 }
 
 /**
- * Initializes structure which is used as private data container accross all PCP related callbacks
+ * Initializes structure which is used as private data container across all PCP related callbacks
  * @arg args - All args passed to 'PCP exchange' thread
  */
 static void

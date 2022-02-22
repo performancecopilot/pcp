@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
+ * Copyright (c) 2022 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,7 +30,7 @@ set_default_config(struct agent_config* config) {
     config->max_unprocessed_packets = 2048;
     config->verbose = 0;
     config->debug_output_filename = (char*) malloc(sizeof(char) * 6);
-    ALLOC_CHECK("Unable to allocate memory for debug output filename");
+    ALLOC_CHECK(config->debug_output_filename, "Unable to allocate memory for debug output filename");
     memcpy(config->debug_output_filename, "debug", 6);
     config->show_version = 0;
     config->port = 8125;
@@ -79,7 +80,7 @@ ini_line_handler(void* user, const char* section, const char* name, const char* 
     } else if (MATCH("debug_output_filename")) {
         free(dest->debug_output_filename);
         dest->debug_output_filename = (char*) malloc(length);
-        ALLOC_CHECK("Unable to asssing memory for config debug_output_filename");
+        ALLOC_CHECK(dest->debug_output_filename, "Unable to assign memory for config debug_output_filename");
         memcpy(dest->debug_output_filename, value, length);
     } else if (MATCH("version")) {
         long unsigned int param = strtoul(value, NULL, 10);

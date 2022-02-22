@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
+ * Copyright (c) 2022 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -66,7 +67,7 @@ parse(char* buffer, struct statsd_datagram** datagram);
 int
 basic_parser_parse(char* buffer, struct statsd_datagram** datagram) {
     *datagram = (struct statsd_datagram*) malloc(sizeof(struct statsd_datagram));
-    ALLOC_CHECK("Unabel to allocate space for statsd structured datagram.");
+    ALLOC_CHECK(datagram, "Unable to allocate space for statsd structured datagram.");
     *(*datagram) = (struct statsd_datagram) {0};
     int length = strlen(buffer);
     if (buffer[length - 1] == '\n')
@@ -131,7 +132,7 @@ parse(char* buffer, struct statsd_datagram** datagram) {
                     continue;
                 } else if (buffer[i] == ',' || buffer[i] == ':') {
                     (*datagram)->name = (char *) malloc(current_segment_length + 1);
-                    ALLOC_CHECK("Not enough memory to save metric attribute.");
+                    ALLOC_CHECK((*datagram)->name, "Not enough memory to save metric attribute.");
                     memcpy((*datagram)->name, &buffer[segment_start], current_segment_length + 1);
                     (*datagram)->name[current_segment_length] = '\0';
                     segment_start = i + 1;
@@ -151,7 +152,7 @@ parse(char* buffer, struct statsd_datagram** datagram) {
                     continue;
                 } else if (buffer[i] == '=' || (past_type && buffer[i] == ':')) {
                     tag_key = (char *) realloc(tag_key, current_segment_length + 1);
-                    ALLOC_CHECK("Not enough memory for tag key buffer.");
+                    ALLOC_CHECK(tag_key, "Not enough memory for tag key buffer.");
                     tag_allocated_flags = tag_allocated_flags | 1 << 1;
                     memcpy(tag_key, &buffer[segment_start], current_segment_length);
                     tag_key[current_segment_length] = '\0';
@@ -170,23 +171,23 @@ parse(char* buffer, struct statsd_datagram** datagram) {
                 } else if ((buffer[i] == ',' || buffer[i] == ':') ||
                             (past_type && (buffer[i] == ',' || buffer[i] == '\0'))) {
                     tag_value = (char *) realloc(tag_value, current_segment_length + 1);
-                    ALLOC_CHECK("Not enough memory for tag value buffer.");
+                    ALLOC_CHECK(tag_value, "Not enough memory for tag value buffer.");
                     tag_allocated_flags = tag_allocated_flags | 1 << 0;
                     memcpy(tag_value, &buffer[segment_start], current_segment_length + 1);
                     tag_value[current_segment_length] = '\0';
                     size_t key_len = strlen(tag_key) + 1;
                     size_t value_len = strlen(tag_value) + 1;
                     struct tag* t = (struct tag*) malloc(sizeof(struct tag));
-                    ALLOC_CHECK("Unable to allocate memory for tag.");
+                    ALLOC_CHECK(t, "Unable to allocate memory for tag.");
                     t->key = (char*) malloc(key_len);
-                    ALLOC_CHECK("Unable to allocate memory for tag key.");
+                    ALLOC_CHECK(t->key, "Unable to allocate memory for tag key.");
                     t->value = (char*) malloc(value_len);
-                    ALLOC_CHECK("Unable to allocate memory for tag value.");
+                    ALLOC_CHECK(t->value, "Unable to allocate memory for tag value.");
                     memcpy(t->key, tag_key, key_len);
                     memcpy(t->value, tag_value, value_len);
                     if (!any_tags) {
                         tags = (struct tag_collection*) malloc(sizeof(struct tag_collection));
-                        ALLOC_CHECK("Unable to allocate memory for tag collection.");
+                        ALLOC_CHECK(tags, "Unable to allocate memory for tag collection.");
                         field_allocated_flags = field_allocated_flags | 1 << 0;
                         tags->values = (struct tag**) malloc(sizeof(struct tag*));
                         tags->values[0] = t;
@@ -194,7 +195,7 @@ parse(char* buffer, struct statsd_datagram** datagram) {
                         any_tags = 1;
                     } else {
                         struct tag** new_tags = (struct tag**) realloc(tags->values, sizeof(struct tag*) * (tags->length + 1));
-                        ALLOC_CHECK("Unable to allocate memory for tags.");
+                        ALLOC_CHECK(new_tags, "Unable to allocate memory for tags.");
                         tags->values = new_tags;
                         tags->values[tags->length] = t;
                         tags->length++;

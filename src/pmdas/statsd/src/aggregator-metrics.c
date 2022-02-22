@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
+ * Copyright (c) 2022 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -48,11 +49,11 @@ init_pmda_metrics(struct agent_config* config) {
     };
     struct pmda_metrics_container* container =
         (struct pmda_metrics_container*) malloc(sizeof(struct pmda_metrics_container));
-    ALLOC_CHECK("Unable to create PMDA metrics container.");
+    ALLOC_CHECK(container, "Unable to create PMDA metrics container.");
     pthread_mutex_init(&container->mutex, NULL);
     struct pmda_metrics_dict_privdata* dict_data = 
         (struct pmda_metrics_dict_privdata*) malloc(sizeof(struct pmda_metrics_dict_privdata));    
-    ALLOC_CHECK("Unable to create priv PMDA metrics container data.");
+    ALLOC_CHECK(dict_data, "Unable to create priv PMDA metrics container data.");
     dict_data->config = config;
     dict_data->container = container;
     metrics* m = dictCreate(&metric_dict_callbacks, dict_data);
@@ -77,7 +78,7 @@ create_metric_dict_key(char* key) {
         key
     ) + 1;
     char* result = malloc(key_size);
-    ALLOC_CHECK("Unable to allocate memory for hashtable key");
+    ALLOC_CHECK(result, "Unable to allocate memory for hashtable key");
     memcpy(result, &buffer, key_size);
     return result;
 }
@@ -177,7 +178,7 @@ free_metric(struct agent_config* config, struct metric* item) {
             free_duration_value(config, item->value);
             break;
         case METRIC_TYPE_NONE:
-            // not an actualy metric
+            // not actually a metric
             break;
     }
     if (item != NULL) {
@@ -247,7 +248,7 @@ write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container
                 print_duration_metric(config, f, item);
                 break;
             case METRIC_TYPE_NONE:
-                // not an actualy metric error case
+                // not actually a metric error case
                 break;
         }
         count++;
@@ -296,11 +297,11 @@ find_metric_by_name(struct pmda_metrics_container* container, char* key, struct 
 int
 create_metric(struct agent_config* config, struct statsd_datagram* datagram, struct metric** out) {
     struct metric* item = (struct metric*) malloc(sizeof(struct metric));
-    ALLOC_CHECK("Unable to allocate memory for metric.");
+    ALLOC_CHECK(item, "Unable to allocate memory for metric.");
     *out = item;
     size_t len = strlen(datagram->name) + 1;
     (*out)->name = (char*) malloc(len);
-    ALLOC_CHECK("Unable to allocate memory for copy of metric name.");
+    ALLOC_CHECK((*out)->name, "Unable to allocate memory for copy of metric name.");
     strncpy((*out)->name, datagram->name, len);
     (*out)->meta = create_metric_meta(datagram);
     (*out)->children = NULL;
@@ -467,7 +468,7 @@ check_metric_name_available(struct pmda_metrics_container* container, char* key)
 struct metric_metadata*
 create_metric_meta(struct statsd_datagram* datagram) {
     struct metric_metadata* meta = (struct metric_metadata*) malloc(sizeof(struct metric_metadata));
-    ALLOC_CHECK("Unable to allocate memory for metric metadata.");
+    ALLOC_CHECK(meta, "Unable to allocate memory for metric metadata.");
     *meta = (struct metric_metadata) { 0 };
     meta->pmid = PM_ID_NULL;
     if (datagram->type == METRIC_TYPE_DURATION) {
@@ -478,7 +479,7 @@ create_metric_meta(struct statsd_datagram* datagram) {
     char name[1024];
     size_t len = pmsprintf(name, 1024, "statsd.%s", datagram->name) + 1;
     meta->pcp_name = (char*) malloc(sizeof(char) * len);
-    ALLOC_CHECK("Unable to allocate memory for metric pcp name");
+    ALLOC_CHECK(meta->pcp_name, "Unable to allocate memory for metric pcp name");
     memcpy((char*)meta->pcp_name, name, len);
     meta->pcp_metric_index = 0;
     meta->pcp_instance_map = NULL;

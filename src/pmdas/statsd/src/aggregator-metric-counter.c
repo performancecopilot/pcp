@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
+ * Copyright (c) 2022 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,7 +40,7 @@ create_counter_value(struct agent_config* config, struct statsd_datagram* datagr
         return 0;
     }
     *out = (double*) malloc(sizeof(double));
-    ALLOC_CHECK("Unable to allocate memory for copy of metric value.");
+    ALLOC_CHECK(*out, "Unable to allocate memory for copy of metric value.");
     *(double*)*out = new_value;
     return 1;
 }

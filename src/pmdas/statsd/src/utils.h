@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020 Red Hat.
  * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
+ * Copyright (c) 2020-2022 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,6 @@
 
 #include <stdlib.h>
 #include <pthread.h>
-#include <errno.h>
 #include <pcp/pmapi.h>
 #include <pcp/pmda.h>
 
@@ -51,9 +50,9 @@
 /**
  * Checks if last allocation was OK 
  */
-#define ALLOC_CHECK(desc, ...) \
-    if (errno == ENOMEM) { \
-        DIE(desc, ## __VA_ARGS__); \
+#define ALLOC_CHECK(ptr, desc, ...) \
+    if ((ptr) == NULL) { \
+        DIE((desc), ## __VA_ARGS__); \
     } \
 
 /**
