@@ -36,9 +36,8 @@
  */
 int
 ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
-	*datagram = (struct statsd_datagram*) malloc(sizeof(struct statsd_datagram));
-	*(*datagram) = (struct statsd_datagram) {0};
-	ALLOC_CHECK("Not enough memory to save datagram");
+	*datagram = (struct statsd_datagram*) calloc(1, sizeof(struct statsd_datagram));
+	ALLOC_CHECK(*datagram, "Not enough memory to save datagram");
 	size_t length = strlen(str);
 	char *p = str, *pe = (str + length + 1);
 	char *eof = pe;
@@ -73,7 +72,7 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 		action name_parsed {
 			size_t current_segment_length = current_index - current_segment_start_index;
 			(*datagram)->name = (char*) malloc(current_segment_length + 1);
-			ALLOC_CHECK("Not enough memory to save metric name");
+			ALLOC_CHECK((*datagram)->name, "Not enough memory to save metric name");
 			memcpy(
 				(*datagram)->name,
 				&str[current_segment_start_index],
@@ -87,16 +86,16 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 			size_t key_len = strlen(tag_key) + 1;
 			size_t value_len = strlen(tag_value) + 1;
 			struct tag* t = (struct tag*) malloc(sizeof(struct tag));
-			ALLOC_CHECK("Unable to allocate memory for tag.");
+			ALLOC_CHECK(t, "Unable to allocate memory for tag.");
 			t->key = (char*) malloc(key_len);
-			ALLOC_CHECK("Unable to allocate memory for tag key.");
+			ALLOC_CHECK(t->key, "Unable to allocate memory for tag key.");
 			memcpy(t->key, tag_key, key_len);
 			t->value = (char*) malloc(value_len);
-			ALLOC_CHECK("Unable to allocate memory for tag value.");
+			ALLOC_CHECK(t->value, "Unable to allocate memory for tag value.");
 			memcpy(t->value, tag_value, value_len);
 			if (!any_tags) {
 				tags = (struct tag_collection*) malloc(sizeof(struct tag_collection));
-				ALLOC_CHECK("Unable to allocate memory for tag collection.");
+				ALLOC_CHECK(tags, "Unable to allocate memory for tag collection.");
 				tags->values = (struct tag**) malloc(sizeof(struct tag*));
 				tags->values[0] = t;
 				tags->length = 1;
@@ -104,7 +103,7 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 			} else {
 				struct tag** new_tags =
 					(struct tag**) realloc(tags->values, sizeof(struct tag*) * (tags->length + 1));
-				ALLOC_CHECK("Unable to allocate memory for tags");
+				ALLOC_CHECK(new_tags, "Unable to allocate memory for tags");
 				if (tags != NULL) {
 					tags->values = new_tags;
 					tags->values[tags->length] = t;
@@ -154,7 +153,7 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 		action tag_key_parsed {
 			size_t current_segment_length = current_index - current_segment_start_index;
 			tag_key = (char *) realloc(tag_key, current_segment_length + 1);
-			ALLOC_CHECK("Not enough memory for tag key buffer.");
+			ALLOC_CHECK(tag_key, "Not enough memory for tag key buffer.");
 			tag_key_allocated = 1;
 			memcpy(
 				tag_key,
@@ -168,7 +167,7 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 		action tag_value_parsed {
 			size_t current_segment_length = current_index - current_segment_start_index;
 			tag_value = (char *) realloc(tag_value, current_segment_length + 1);
-			ALLOC_CHECK("Not enough memory for tag key buffer.");
+			ALLOC_CHECK(tag_value, "Not enough memory for tag key buffer.");
 			tag_value_allocated = 1;
 			memcpy(
 				tag_value,
