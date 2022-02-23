@@ -2591,7 +2591,7 @@ writerlist(rlist_t **rlready, __pmTimestamp *mintime)
 
 	/* convert log record to a pdu */
 	sts = (outarchvers == PM_LOG_VERS02) ?
-		__pmEncodeResult(elm->res, (__pmPDU **)&pb) :
+		__pmEncodeResult(&logctl, elm->res, (__pmPDU **)&pb) :
 		__pmEncodeHighResResult(elm->res, (__pmPDU **)&pb);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",

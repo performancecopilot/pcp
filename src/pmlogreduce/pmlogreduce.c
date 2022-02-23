@@ -411,11 +411,11 @@ main(int argc, char **argv)
 	    goto next;
 
 	/*
-	 * convert log record to a PDU, enforce V2/V3 encoding semantics,
+	 * convert log record to a PDU, enforce encoding semantics,
 	 * then write it out
 	 */
 	sts = (vers == PM_LOG_VERS02) ?
-		__pmEncodeResult(orp, &pb) :
+		__pmEncodeResult(archctl.ac_log,orp, &pb) :
 		__pmEncodeHighResResult(orp, &pb);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",

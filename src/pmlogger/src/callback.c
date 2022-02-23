@@ -1018,7 +1018,7 @@ do_work(task_t *tp)
 		exit(1);
 	    }
 	} else {
-	    if ((sts = __pmEncodeResult(resp, &pb)) < 0) {
+	    if ((sts = __pmEncodeResult(&logctl, resp, &pb)) < 0) {
 		fprintf(stderr, "__pmEncodeResult: %s\n", pmErrStr(sts));
 		exit(1);
 	    }

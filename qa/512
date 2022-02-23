@@ -50,7 +50,11 @@ _filter()
 {
     tee -a $seq.full \
     | sed -n \
-	-e '/lock(/s/^[^ ][^ ]* //p' \
+	-e '/lock(/{
+s/.* unlock(/unlock(/
+s/.* lock(/lock(/
+p
+}' \
     | LC_COLLATE=POSIX sort \
     | uniq
 }

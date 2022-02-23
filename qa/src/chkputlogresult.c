@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2014,2022 Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2017 Red Hat.
  *
  * Excercise __pmLogPutResult() and __pmLogPutResult2().
@@ -17,7 +17,10 @@ main(int argc, char **argv)
     int		i;
     int		sts;
     int		bflag = 0;
+    char	*endnum;
     int		errflag = 0;
+    int		version = PM_LOG_VERS02;
+    int		indom_record_type = TYPE_INDOM_V2;
     const char	*metrics[] = {
 	"sampledso.long.one",
 	"sampledso.ulonglong.one",
@@ -40,7 +43,7 @@ main(int argc, char **argv)
     /* trim cmd name of leading directory components */
     pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "bD::?")) != EOF) {
+    while ((c = getopt(argc, argv, "bD:V:?")) != EOF) {
 	switch (c) {
 
 	case 'b':	/* backwards compatibility */
@@ -54,6 +57,20 @@ main(int argc, char **argv)
 		    pmGetProgname(), optarg);
 		errflag++;
 	    }
+	    break;
+
+	case 'V':	/* archive version */
+	    version = (int)strtol(optarg, &endnum, 10);
+	    if (*endnum != '\0') {
+		fprintf(stderr, "%s: -V requires numeric argument\n", pmGetProgname());
+		errflag++;
+	    }
+	    if (version != PM_LOG_VERS02 && version != PM_LOG_VERS03) {
+		fprintf(stderr, "%s: illegal -V value\n", pmGetProgname());
+		errflag++;
+	    }
+	    if (version == PM_LOG_VERS03)
+		indom_record_type = TYPE_INDOM;
 	    break;
 
 	case '?':
@@ -71,6 +88,7 @@ Options:\n\
   -b                  backwards compatibility (use __pmLogPutResult() instead\n\
                       __pmLogPutResult2(), the default\n\
   -D debugflag[,...]\n\
+  -V archiveversion\n\
 ",
                 pmGetProgname());
         exit(1);
@@ -85,7 +103,7 @@ Options:\n\
     memset(&logctl, 0, sizeof(logctl));
     memset(&archctl, 0, sizeof(archctl));
     archctl.ac_log = &logctl;
-    if ((sts = __pmLogCreate("qatest", argv[optind], PM_LOG_VERS02, &archctl)) != 0) {
+    if ((sts = __pmLogCreate("qatest", argv[optind], version, &archctl)) != 0) {
 	fprintf(stderr, "%s: __pmLogCreate failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -152,7 +170,7 @@ Options:\n\
 	    }
 	    lid.indom = desc.indom;
 	    lid.stamp = stamp;
-	    if ((sts = __pmLogPutInDom(&archctl, TYPE_INDOM_V2, &lid)) < 0) {
+	    if ((sts = __pmLogPutInDom(&archctl, indom_record_type, &lid)) < 0) {
 		fprintf(stderr, "%s: __pmLogPutInDom(...,indom=%s,numinst=%d,...) failed: %s\n", pmGetProgname(), pmInDomStr(desc.indom), lid.numinst, pmErrStr(sts));
 		exit(1);
 	    }
@@ -165,7 +183,7 @@ Options:\n\
 	}
 	rp->timestamp.sec = ++epoch.tv_sec;
 	rp->timestamp.nsec = epoch.tv_usec * 1000;
-	if ((sts = __pmEncodeResult(rp, &pdp)) < 0) {
+	if ((sts = __pmEncodeResult(&logctl, rp, &pdp)) < 0) {
 	    fprintf(stderr, "%s: __pmEncodeResult failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}

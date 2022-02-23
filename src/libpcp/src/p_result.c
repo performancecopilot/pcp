@@ -153,7 +153,7 @@ __pmEncodeValueSet(__pmPDU *pdubuf, int numpmid, pmValueSet * const *vset,
 }
 
 int
-__pmEncodeResult(const __pmResult *result, __pmPDU **pdu)
+__pmEncodeResult(const __pmLogCtl *lcp, const __pmResult *result, __pmPDU **pdu)
 {
     size_t	need, vneed;
     __pmPDU	*pdubuf;
@@ -225,13 +225,16 @@ __pmSendResult_ctx(__pmContext *ctxp, int fd, int from, const __pmResult *result
     int		sts;
     __pmPDU	*pdubuf = NULL;
     result_t	*pp;
+    __pmLogCtl	*lcp = NULL;
 
     if (ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     if (pmDebugOptions.pdu)
 	__pmPrintResult_ctx(ctxp, stderr, result);
-    if ((sts = __pmEncodeResult(result, &pdubuf)) < 0)
+    if (ctxp != NULL && ctxp->c_type == PM_CONTEXT_ARCHIVE)
+	lcp = ctxp->c_archctl->ac_log;
+    if ((sts = __pmEncodeResult(lcp, result, &pdubuf)) < 0)
 	return sts;
     pp = (result_t *)pdubuf;
     pp->hdr.from = from;

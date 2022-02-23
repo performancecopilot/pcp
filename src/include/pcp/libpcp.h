@@ -377,7 +377,7 @@ PCP_CALL extern int __pmDecodeError(__pmPDU *, int *);
 PCP_CALL extern int __pmSendXtendError(int, int, int, int);
 PCP_CALL extern int __pmDecodeXtendError(__pmPDU *, int *, int *);
 PCP_CALL extern int __pmSendResult(int, int, const __pmResult *);
-PCP_CALL extern int __pmEncodeResult(const __pmResult *, __pmPDU **);
+/* see below for __pmEncodeResult() */
 PCP_CALL extern int __pmSendHighResResult(int, int, const __pmResult *);
 PCP_CALL extern int __pmEncodeHighResResult(const __pmResult *, __pmPDU **);
 PCP_CALL extern int __pmDecodeResult(__pmPDU *, __pmResult **);
@@ -822,6 +822,8 @@ typedef struct {
 /* state values */
 #define PM_LOG_STATE_NEW	0
 #define PM_LOG_STATE_INIT	1
+
+PCP_CALL extern int __pmEncodeResult(const __pmLogCtl *, const __pmResult *, __pmPDU **);
 
 /*
  * Minimal information to retain for each archive in a multi-archive context
