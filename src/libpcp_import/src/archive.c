@@ -166,8 +166,8 @@ _pmi_put_result(pmi_context *current, __pmResult *result)
     int		k;
     int		needti;
     char	*p;
+    __uint64_t	max_logsz;
     unsigned long off;
-    unsigned long max_logsz;
 
     /*
      * some front-end tools use lazy discovery of instances and/or process
@@ -184,7 +184,10 @@ _pmi_put_result(pmi_context *current, __pmResult *result)
 	return sts;
 
     __pmOverrideLastFd(__pmFileno(acp->ac_mfp));
-    if ((sts = __pmEncodeResult(result, &pb)) < 0)
+    sts = current->version >= PM_LOG_VERS03 ?
+		__pmEncodeHighResResult(result, &pb) :
+		__pmEncodeResult(result, &pb);
+    if (sts < 0)
 	return sts;
 
     needti = 0;
@@ -199,9 +202,9 @@ _pmi_put_result(pmi_context *current, __pmResult *result)
 	__pmLogPutIndex(acp, &stamp);
 
     if ((p = getenv("PCP_LOGIMPORT_MAXLOGSZ")) != NULL)
-	max_logsz = strtoul(p, NULL, 10);
+	max_logsz = strtoull(p, NULL, 10);
     else if (current->version >= PM_LOG_VERS03)
-	max_logsz = LONG_MAX;
+	max_logsz = LONGLONG_MAX;
     else  /* PM_LOG_VERS02 */
 	max_logsz = 0x7fffffff;
 

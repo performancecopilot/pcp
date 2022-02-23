@@ -663,38 +663,43 @@ do_result(void)
      * only output numpmid == 0 case if input was a mark record
      */
     if (orig_numpmid == 0 || inarch.rp->numpmid > 0) {
+	__pmPDU		*logrec = (__pmPDU *)inarch.logrec;
 	unsigned long	out_offset;
 	unsigned long	peek_offset;
 	peek_offset = __pmFtell(outarch.archctl.ac_mfp);
-	/* TODO: version 3 archive support */
-	sts = __pmEncodeResult(inarch.rp, (__pmPDU **)&inarch.logrec);
+	sts = (outarch.version == PM_LOG_VERS02) ?
+		__pmEncodeResult(inarch.rp, &logrec) :
+		__pmEncodeHighResResult(inarch.rp, &logrec);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 	    abandon();
 	    /*NOTREACHED*/
 	}
-	peek_offset += ((__pmPDUHdr *)inarch.logrec)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
-	if (peek_offset > 0x7fffffff) {
+	peek_offset += ((__pmPDUHdr *)logrec)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
+	if ((outarch.version == PM_LOG_VERS02 && peek_offset > 0x7fffffff) ||
+	    ((int64_t)peek_offset > LONGLONG_MAX)) {
 	    /*
-	     * data file size will exceed 2^31-1 bytes, so force
-	     * volume switch
+	     * data file size will exceed maximum (2^31-1 bytes for v2),
+	     * so force a volume switch
 	     */
 	    newvolume(outarch.archctl.ac_curvol+1);
 	}
 	out_offset = __pmFtell(outarch.archctl.ac_mfp);
-	if ((sts = __pmLogPutResult2(&outarch.archctl, (__pmPDU *)inarch.logrec)) < 0) {
-	    fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
+	sts = (outarch.version == PM_LOG_VERS02) ?
+		__pmLogPutResult2(&outarch.archctl, logrec) :
+		__pmLogPutResult3(&outarch.archctl, logrec);
+	if (sts < 0) {
+	    fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 	    abandon();
 	    /*NOTREACHED*/
 	}
 	/*
-	 * do not free inarch.logrec ... this is a libpcp record buffer,
-	 * so Unpin it
+	 * do not free logrec ... this is a libpcp record buffer, so unpin it
 	 */
-	__pmUnpinPDUBuf(inarch.logrec);
-	
+	__pmUnpinPDUBuf(logrec);
+
 	if (pmDebugOptions.appl0) {
 	    struct timeval	stamp;
 	    fprintf(stderr, "Log: write ");

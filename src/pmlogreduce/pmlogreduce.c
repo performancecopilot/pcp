@@ -208,6 +208,7 @@ main(int argc, char **argv)
     __pmResult	*orp;		/* output pmResult */
     __pmPDU	*pb;		/* pdu buffer */
     struct timeval	unused;
+    __uint64_t		max_offset;
     unsigned long	peek_offset;
 
     /* no derived or anon metrics, please */
@@ -348,6 +349,7 @@ main(int argc, char **argv)
     __pmFflush(logctl.mdfp);
     __pmLogPutIndex(&archctl, &current);
 
+    max_offset = (vers == PM_LOG_VERS02) ? 0x7fffffff : LONGLONG_MAX;
     written = 0;
 
     /*
@@ -408,13 +410,13 @@ main(int argc, char **argv)
 	if (orp == NULL)
 	    goto next;
 
-	/* TODO: need version 3 archive support here */
-
 	/*
-	 * convert log record to a PDU, and enforce V2 encoding semantics,
+	 * convert log record to a PDU, enforce V2/V3 encoding semantics,
 	 * then write it out
 	 */
-	sts = __pmEncodeResult(orp, &pb);
+	sts = (vers == PM_LOG_VERS02) ?
+		__pmEncodeResult(orp, &pb) :
+		__pmEncodeHighResResult(orp, &pb);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
@@ -429,12 +431,12 @@ main(int argc, char **argv)
 	}
 	/*
 	 * Even without a -v option, we may need to switch volumes
-	 * if the data file exceeds 2^31-1 bytes
+	 * if the data file exceeds 2^31-1 bytes (for v2 archives)
+	 * or 2^63-1 bytes (for v3 archives and beyond).
 	 */
-	/* TODO: version 3 archive support */
 	peek_offset = __pmFtell(archctl.ac_mfp);
 	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
-	if (peek_offset > 0x7fffffff) {
+	if (peek_offset > max_offset) {
 	    newvolume(oname, &irp->timestamp);
 	}
 
@@ -443,7 +445,9 @@ main(int argc, char **argv)
 	doindom(orp);
 
 	/* write out log record */
-	sts = __pmLogPutResult2(&archctl, pb);
+	sts = (vers == PM_LOG_VERS02) ?
+		__pmLogPutResult2(&archctl, pb) :
+		__pmLogPutResult3(&archctl, pb);
 	__pmUnpinPDUBuf(pb);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",

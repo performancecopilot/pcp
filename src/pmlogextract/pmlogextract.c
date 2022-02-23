@@ -2547,7 +2547,10 @@ writerlist(rlist_t **rlready, __pmTimestamp *mintime)
     __pmTimestamp	restime;	/* time of result */
     rlist_t		*elm;		/* element of rlready to be written out */
     __int32_t		*pb;		/* pdu buffer */
+    __uint64_t		max_offset;
     unsigned long	peek_offset;
+
+    max_offset = (outarchvers == PM_LOG_VERS02) ? 0x7fffffff : LONGLONG_MAX;
 
     while (*rlready != NULL) {
 	restime = (*rlready)->res->timestamp;
@@ -2587,7 +2590,9 @@ writerlist(rlist_t **rlready, __pmTimestamp *mintime)
 	write_priorlabelset(PM_LABEL_CONTEXT, PM_IN_NULL, mintime);
 
 	/* convert log record to a pdu */
-	sts = __pmEncodeResult(elm->res, (__pmPDU **)&pb);
+	sts = (outarchvers == PM_LOG_VERS02) ?
+		__pmEncodeResult(elm->res, (__pmPDU **)&pb) :
+		__pmEncodeHighResResult(elm->res, (__pmPDU **)&pb);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
@@ -2608,11 +2613,12 @@ writerlist(rlist_t **rlready, __pmTimestamp *mintime)
         }
 	/*
 	 * Even without a -v option, we may need to switch volumes
-	 * if the data file exceeds 2^31-1 bytes
+	 * if the data file exceeds 2^31-1 bytes (for v2 archives)
+	 * or 2^63-1 bytes (for v3 archives and beyond).
 	 */
 	peek_offset = __pmFtell(archctl.ac_mfp);
 	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
-	if (peek_offset > 0x7fffffff) {
+	if (peek_offset > max_offset) {
 	    __pmTimestamp	stamp;
 	    if (outarchvers == PM_LOG_VERS03)
 		__pmLoadTimestamp(&pb[3], &stamp);
@@ -2627,8 +2633,11 @@ writerlist(rlist_t **rlready, __pmTimestamp *mintime)
 	/* write out log record */
 	old_log_offset = __pmFtell(archctl.ac_mfp);
 	assert(old_log_offset >= 0);
-	if ((sts = __pmLogPutResult2(&archctl, (__pmPDU *)pb)) < 0) {
-	    fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
+	sts = (outarchvers == PM_LOG_VERS02) ?
+		__pmLogPutResult2(&archctl, (__pmPDU *)pb) :
+		__pmLogPutResult3(&archctl, (__pmPDU *)pb);
+	if (sts < 0) {
+	    fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 	    abandon_extract();
 	    /*NOTREACHED*/
