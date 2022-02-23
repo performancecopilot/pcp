@@ -2324,10 +2324,6 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
     | egrep '^[[ 	]][[ 	]]*(class |)icmp_socket$' >/dev/null \
     && pcp_selinux_icmp_socket_class=true
 
-    seinfo -x --class=lockdown $seinfo_common_flag 2>/dev/null \
-    | egrep '^[[ 	]][[ 	]]*(class |)lockdown$' >/dev/null \
-    && pcp_selinux_lockdown_class=true
-
     dnl these ones are for pcpqa.te
 
     seinfo -x --class=netlink_selinux_socket $seinfo_common_flag 2>/dev/null \
@@ -2387,7 +2383,6 @@ AC_SUBST(pcp_selinux_sbd_exec)
 AC_SUBST(pcp_selinux_capability2_syslog)
 AC_SUBST(pcp_selinux_capability2_bpf)
 AC_SUBST(pcp_selinux_icmp_socket_class)
-AC_SUBST(pcp_selinux_lockdown_class)
 AC_SUBST(pcp_selinux_glusterd_log)
 
 dnl for pcpqa.te

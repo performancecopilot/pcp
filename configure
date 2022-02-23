@@ -738,7 +738,6 @@ pcp_selinux_security
 pcp_selinux_sudo_exec
 pcp_selinux_initrc_tmp
 pcp_selinux_glusterd_log
-pcp_selinux_lockdown_class
 pcp_selinux_icmp_socket_class
 pcp_selinux_capability2_bpf
 pcp_selinux_capability2_syslog
@@ -12513,11 +12512,6 @@ if test "x$enable_selinux" != "xfalse"; then :
     seinfo -x --class=icmp_socket $seinfo_common_flag 2>/dev/null \
     | egrep '^[ 	][ 	]*(class |)icmp_socket$' >/dev/null \
     && pcp_selinux_icmp_socket_class=true
-
-    seinfo -x --class=lockdown $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)lockdown$' >/dev/null \
-    && pcp_selinux_lockdown_class=true
-
 
     seinfo -x --class=netlink_selinux_socket $seinfo_common_flag 2>/dev/null \
     | egrep '^[ 	][ 	]*(class |)netlink_selinux_socket$' >/dev/null \
