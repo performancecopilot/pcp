@@ -1,0 +1,67 @@
+QA output created by 1984
+
+== create initial config
+Creating config file "TMPCONFIG" using default settings ...
+
+
+== update config with redis metrics
+
+Differences ...
+*** DIFF INPUT FILE
+--- DIFF OUTPUT FILE
+***************
+*** 10,16 ****
+  #
+  #+ groupdir TMPPATH
+  #
+! #+ redis:x::
+  #----
+  # DO NOT UPDATE THE FILE ABOVE THIS LINE
+  # Otherwise any changes may be lost the next time pmlogconf is
+--- 10,20 ----
+  #
+  #+ groupdir TMPPATH
+  #
+! #+ redis:y:default:
+! ## metrics used by the redis-server(1) service
+! log advisory on default {
+! 	redis
+! }
+  #----
+  # DO NOT UPDATE THE FILE ABOVE THIS LINE
+  # Otherwise any changes may be lost the next time pmlogconf is
+
+== verify no subsequent change
+
+No changes
+
+== update config without redis metrics
+
+Differences ...
+*** DIFF INPUT FILE
+--- DIFF OUTPUT FILE
+***************
+*** 10,20 ****
+  #
+  #+ groupdir TMPPATH
+  #
+! #+ redis:y:default:
+! ## metrics used by the redis-server(1) service
+! log advisory on default {
+! 	redis
+! }
+  #----
+  # DO NOT UPDATE THE FILE ABOVE THIS LINE
+  # Otherwise any changes may be lost the next time pmlogconf is
+--- 10,16 ----
+  #
+  #+ groupdir TMPPATH
+  #
+! #+ redis:x::
+  #----
+  # DO NOT UPDATE THE FILE ABOVE THIS LINE
+  # Otherwise any changes may be lost the next time pmlogconf is
+
+== verify no subsequent change
+
+No changes
