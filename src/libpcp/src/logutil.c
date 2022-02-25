@@ -125,7 +125,7 @@ __pmLogLabelVersion(const __pmLogLabel *llp)
 }
 
 int
-__pmLogVersion(__pmLogCtl *lcp)
+__pmLogVersion(const __pmLogCtl *lcp)
 {
     return __pmLogLabelVersion(&lcp->label);
 }

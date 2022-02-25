@@ -931,8 +931,8 @@ typedef struct {
 #define __PM_MODE_MASK	0xffff
 
 /* internal archive routines */
-PCP_CALL extern int __pmLogVersion(__pmLogCtl *);
-PCP_CALL extern size_t __pmLogLabelSize(__pmLogCtl *);
+PCP_CALL extern int __pmLogVersion(const __pmLogCtl *);
+PCP_CALL extern size_t __pmLogLabelSize(const __pmLogCtl *);
 PCP_CALL extern int __pmLogChkLabel(__pmArchCtl *, __pmFILE *, __pmLogLabel *, int);
 PCP_CALL extern int __pmLogCreate(const char *, const char *, int, __pmArchCtl *);
 PCP_CALL extern __pmFILE *__pmLogNewFile(const char *, int);
