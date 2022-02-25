@@ -1398,13 +1398,13 @@ static void *
 resize_array(void *array, size_t entrysz, long oldsz, long newsz, const char *e)
 {
 	size_t		size, reset;
-	void		*ptr;
+	void		*ptr = NULL;
 
 	reset = newsz;
 	if (array)
 		reset -= oldsz;
-	size = newsz * entrysz;
-	ptr = realloc(array, size);
+	if ((size = newsz * entrysz) > 0)
+	    ptr = realloc(array, size);
 	ptrverify(ptr, e, (long)size);
 
 	/* set any new entries (possibly all) to zero initially */
