@@ -1283,9 +1283,11 @@ pmlogwritemark3(__pmFILE *fp, const __pmTimestamp *last_stamp)
 	int		numpmid;        /* zero PMIDs to follow */
 	pmTimespec	timestamp;      /* when returned */
 	__pmPDU		tail;
+	int		pad;	/* explicit padding for size calculation */
     } mark3;
+    const size_t	length = sizeof(mark3) - sizeof(mark3.pad);
 
-    mark3.hdr = mark3.tail = htonl((int)sizeof(mark3));
+    mark3.hdr = mark3.tail = htonl((int)length);
     mark3.timestamp.tv_sec = last_stamp->sec;
     mark3.timestamp.tv_nsec = last_stamp->nsec + 1000000; /* + 1msec */
     if (mark3.timestamp.tv_nsec > 1000000000) {
@@ -1296,7 +1298,7 @@ pmlogwritemark3(__pmFILE *fp, const __pmTimestamp *last_stamp)
     __htonll((char *)&mark3.timestamp.tv_nsec);
     mark3.numpmid = htonl(0);
 
-    if (__pmFwrite(&mark3, 1, sizeof(mark3), fp) != sizeof(mark3))
+    if (__pmFwrite(&mark3, 1, length, fp) != length)
 	return -oserror();
 
     return 0;
