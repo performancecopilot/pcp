@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat.
+ * Copyright (c) 2012-2018,2022 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -35,6 +35,7 @@ PMI_CALL extern int pmiUseContext(int);
 PMI_CALL extern int pmiEnd(void);
 PMI_CALL extern int pmiSetHostname(const char *);
 PMI_CALL extern int pmiSetTimezone(const char *);
+PMI_CALL extern int pmiSetVersion(int);
 PMI_CALL extern int pmiAddMetric(const char *, pmID, int, pmInDom, int, pmUnits);
 PMI_CALL extern int pmiAddInstance(pmInDom, const char *, int);
 PMI_CALL extern int pmiPutValue(const char *, const char *, const char *);
@@ -74,8 +75,8 @@ PMI_CALL extern void pmiDump(void);
 #define PMI_ERR_BADMETRICNAME	(-PMI_ERR_BASE-12) /* Illegal metric name */
 #define PMI_ERR_BADTIMESTAMP	(-PMI_ERR_BASE-13) /* Illegal result timestamp */
 #define PMI_ERR_BADTEXTTYPE	(-PMI_ERR_BASE-14) /* Illegal text type */
-#define PMI_ERR_BADTEXTCLASS	(-PMI_ERR_BASE-15) /* Illegal text type */
-#define PMI_ERR_BADTEXTID	(-PMI_ERR_BASE-16) /* Illegal text type */
+#define PMI_ERR_BADTEXTCLASS	(-PMI_ERR_BASE-15) /* Illegal text class */
+#define PMI_ERR_BADTEXTID	(-PMI_ERR_BASE-16) /* Illegal text identifier */
 #define PMI_ERR_EMPTYTEXTCONTENT (-PMI_ERR_BASE-17)/* Empty text content */
 #define PMI_ERR_DUPTEXT         (-PMI_ERR_BASE-18) /* Duplicate text */
 #define PMI_ERR_BADLABELTYPE    (-PMI_ERR_BASE-19) /* Illegal label type */
@@ -84,6 +85,7 @@ PMI_CALL extern void pmiDump(void);
 #define PMI_ERR_EMPTYLABELNAME  (-PMI_ERR_BASE-22) /* Empty label name */
 #define PMI_ERR_EMPTYLABELVALUE (-PMI_ERR_BASE-23) /* Empty label value */
 #define PMI_ERR_ADDLABELERROR   (-PMI_ERR_BASE-24) /* Error adding label */
+#define PMI_ERR_BADVERSION      (-PMI_ERR_BASE-25) /* Illegal log version */
 
 #ifdef __cplusplus
 }

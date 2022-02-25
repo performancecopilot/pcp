@@ -273,7 +273,7 @@ pmiErrStr_r(int code, char *buf, int buflen)
 	    msg = "Illegal label type";
 	    break;
 	case PMI_ERR_BADLABELID:
-	    msg = "Illegal label id";
+	    msg = "Illegal label identifier";
 	    break;
 	case PMI_ERR_BADLABELINSTANCE:
 	    msg = "Illegal label instance";
@@ -286,6 +286,9 @@ pmiErrStr_r(int code, char *buf, int buflen)
 	    break;
 	case PMI_ERR_ADDLABELERROR:
 	    msg = "Error adding label";
+	    break;
+	case PMI_ERR_BADVERSION:
+	    msg = "Illegal log version";
 	    break;
 	default:
 	    return pmErrStr_r(code, buf, buflen);
@@ -485,9 +488,12 @@ pmiSetHostname(const char *value)
 	return PM_ERR_NOCONTEXT;
     current->hostname = strdup(value);
     if (current->hostname == NULL) {
-	pmNoMem("pmiSetHostname", strlen(value)+1, PM_FATAL_ERR);
+	pmNoMem("pmiSetHostname", strlen(value)+1, PM_RECOV_ERR);
+	current->last_sts = -ENOMEM;
+    } else {
+	current->last_sts = 0;
     }
-    return current->last_sts = 0;
+    return current->last_sts;
 }
 
 int
@@ -497,9 +503,26 @@ pmiSetTimezone(const char *value)
 	return PM_ERR_NOCONTEXT;
     current->timezone = strdup(value);
     if (current->timezone == NULL) {
-	pmNoMem("pmiSetTimezone", strlen(value)+1, PM_FATAL_ERR);
+	pmNoMem("pmiSetTimezone", strlen(value)+1, PM_RECOV_ERR);
+	current->last_sts = -ENOMEM;
+    } else {
+	current->last_sts = 0;
     }
-    return current->last_sts = 0;
+    return current->last_sts;
+}
+
+int
+pmiSetVersion(int version)
+{
+    if (current == NULL)
+	return PM_ERR_NOCONTEXT;
+    if (version != PM_LOG_VERS02 && version != PM_LOG_VERS03) {
+	current->last_sts = PMI_ERR_BADVERSION;
+    } else {
+	current->version = version;
+	current->last_sts = 0;
+    }
+    return current->last_sts;
 }
 
 static int
@@ -584,29 +607,33 @@ pmiAddMetric(const char *name, pmID pmid, int type, pmInDom indom, int sem, pmUn
 	    return current->last_sts = PMI_ERR_BADSEM;
     }
 
-    current->nmetric++;
-    size = current->nmetric * sizeof(pmi_metric);
-    current->metric = (pmi_metric *)realloc(current->metric, size);
-    if (current->metric == NULL) {
-	pmNoMem("pmiAddMetric: pmi_metric", size, PM_FATAL_ERR);
+    /* do not attempt a too-large allocation from bad input */
+    if (current->nmetric >= LONG_MAX / sizeof(pmi_metric) - 1)
+	return -ENOMEM;
+
+    size = (current->nmetric + 1) * sizeof(pmi_metric);
+    mp = (pmi_metric *)realloc(current->metric, size);
+    if (mp == NULL) {
+	pmNoMem("pmiAddMetric: pmi_metric", size, PM_RECOV_ERR);
+	return current->last_sts = -ENOMEM;
     }
-    mp = &current->metric[current->nmetric-1];
+    current->metric = mp;
+    mp = &current->metric[current->nmetric];
     if (pmid != PM_ID_NULL) {
 	mp->pmid = pmid;
     } else {
 	/* choose a PMID on behalf of the caller - check boundaries first */
-	item = cluster = current->nmetric;
-	if (item >= (1<<22)) {	/* enough room for unique item:cluster? */
-	    current->nmetric--;
+	item = cluster = current->nmetric + 1;
+	if (item >= (1<<22))	/* enough room for unique item:cluster? */
 	    return current->last_sts = PMI_ERR_DUPMETRICID;	/* wrap */
-	}
 	item %= (1<<10);
 	cluster >>= 10;
 	mp->pmid = pmID_build(PMI_DOMAIN, cluster, item);
     }
     mp->name = strdup(name);
     if (mp->name == NULL) {
-	pmNoMem("pmiAddMetric: name", strlen(name)+1, PM_FATAL_ERR);
+	pmNoMem("pmiAddMetric: name", strlen(name)+1, PM_RECOV_ERR);
+	return current->last_sts = -ENOMEM;
     }
     mp->desc.pmid = mp->pmid;
     mp->desc.type = type;
@@ -614,6 +641,7 @@ pmiAddMetric(const char *name, pmID pmid, int type, pmInDom indom, int sem, pmUn
     mp->desc.sem = sem;
     mp->desc.units = units;
     mp->meta_done = 0;
+    current->nmetric++;
 
     return current->last_sts = 0;
 }
@@ -1168,15 +1196,17 @@ pmiPutHighResResult(const pmHighResResult *result)
 int
 pmiPutMark(void)
 {
-    __pmTimestamp	*last_stamp = &current->last_stamp;
-    __pmArchCtl		*acp = &current->archctl;
+    __pmTimestamp	*last_stamp;
+    __pmArchCtl		*acp;
 
     if (current == NULL)
 	return PM_ERR_NOCONTEXT;
 
+    acp = &current->archctl;
+    last_stamp = &current->last_stamp;
+
     if (last_stamp->sec == 0 && last_stamp->nsec == 0)
 	/* no earlier result, no point adding a mark record */
 	return 0;
-
     return __pmLogWriteMark(acp->ac_mfp, current->version, last_stamp);
 }

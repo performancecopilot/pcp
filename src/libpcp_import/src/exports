@@ -44,4 +44,5 @@ PCP_IMPORT_1.3 {
     pmiWrite2;
     pmiHighResWrite;
     pmiPutHighResResult;
+    pmiSetVersion;
 } PCP_IMPORT_1.2;

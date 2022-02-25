@@ -1,6 +1,6 @@
 """Wrapper module for libpcp_import - Performace Co-Pilot Log Import API
 #
-# Copyright (C) 2012-2021 Red Hat.
+# Copyright (C) 2012-2022 Red Hat.
 #
 # This file is part of the "pcp" module, the python interfaces for the
 # Performance Co-Pilot toolkit.
@@ -96,6 +96,9 @@ LIBPCP_IMPORT.pmiSetHostname.argtypes = [c_char_p]
 
 LIBPCP_IMPORT.pmiSetTimezone.restype = c_int
 LIBPCP_IMPORT.pmiSetTimezone.argtypes = [c_char_p]
+
+LIBPCP_IMPORT.pmiSetVersion.restype = c_int
+LIBPCP_IMPORT.pmiSetVersion.argtypes = [c_int]
 
 LIBPCP_IMPORT.pmiAddMetric.restype = c_int
 LIBPCP_IMPORT.pmiAddMetric.argtypes = [
@@ -226,6 +229,19 @@ class pmiLogImport(object):
         if not isinstance(timezone, bytes):
             timezone = timezone.encode('utf-8')
         status = LIBPCP_IMPORT.pmiSetTimezone(c_char_p(timezone))
+        if status < 0:
+            raise pmiErr(status)
+        return status
+
+    def pmiSetVersion(self, version):
+        """PMI - set the output archive version (2 or 3)
+        """
+        status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
+        if status < 0:
+            raise pmiErr(status)
+        if not isinstance(version, int):
+            version = 2
+        status = LIBPCP_IMPORT.pmiSetVersion(version)
         if status < 0:
             raise pmiErr(status)
         return status

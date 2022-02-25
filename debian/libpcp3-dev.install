@@ -143,6 +143,7 @@ usr/share/man/man3/pmiPutValue.3.gz
 usr/share/man/man3/pmiPutValueHandle.3.gz
 usr/share/man/man3/pmiSetHostname.3.gz
 usr/share/man/man3/pmiSetTimezone.3.gz
+usr/share/man/man3/pmiSetVersion.3.gz
 usr/share/man/man3/pmiStart.3.gz
 usr/share/man/man3/pmiUnits.3.gz
 usr/share/man/man3/pmiUseContext.3.gz
