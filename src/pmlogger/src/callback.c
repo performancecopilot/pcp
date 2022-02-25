@@ -609,6 +609,7 @@ do_work(task_t *tp)
     int			pdu_metrics = 0;
     size_t		pdu_payload;
     __pmLogInDom_io	old;
+    __uint64_t		max_offset;
     unsigned long	peek_offset;
 
     label_offset = __pmLogLabelSize(archctl.ac_log);
@@ -721,12 +722,13 @@ do_work(task_t *tp)
 
 	/*
 	 * Even without a -v option, we may need to switch volumes
-	 * if the data file exceeds 2^31-1 bytes (pre-v3 archives)
+	 * if the data file exceeds 2^31-1 bytes (v2 archives) or
+	 * 2^63-1 bytes (for v3 archives).
 	 */
+	max_offset = (archive_version == PM_LOG_VERS02) ? 0x7fffffff : LONGLONG_MAX;
 	peek_offset = __pmFtell(archctl.ac_mfp);
 	peek_offset += pdu_payload - sizeof(__pmPDUHdr) + 2*sizeof(int);
-	if ((peek_offset > 0x7fffffff && archive_version < PM_LOG_VERS03) ||
-	    (peek_offset >= LONG_MAX-1 && archive_version >= PM_LOG_VERS03)) {
+	if (peek_offset > max_offset) {
 	    if (pmDebugOptions.appl2)
 		pmNotifyErr(LOG_INFO, "callback: new volume based on max size, currently %ld", __pmFtell(archctl.ac_mfp));
 	    (void)newvolume(VOL_SW_MAX);
