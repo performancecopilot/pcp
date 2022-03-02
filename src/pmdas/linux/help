@@ -201,6 +201,15 @@ I/O submission patterns using various techniques (typically, sorting
 and merging adjacent requests into larger ones to reduce seek activity,
 but certainly not limited to that).
 
+@ hinv.map.scsi_id scsi disk physical device unique identifier
+The unique identifier (e.g World Wide Id) of a scsi device. SCSI path
+aliases to the same physical device share the same ID string, e.g.
+for multipath scsi path names. This can be used to aggregate traffic
+statistics to each physical device and to determine the proportion
+of traffic over different paths. See also multipathd(1), where the
+same ID strings (WWID) are used to identify different paths to each
+physical device.
+
 @ disk.dev.avactive per-disk count of active time
 Counts the number of milliseconds for which at least one I/O is in
 progress for each device.

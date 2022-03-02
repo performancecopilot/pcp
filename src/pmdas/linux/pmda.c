@@ -559,6 +559,12 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_STAT,59), PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+/* hinv.map.scsi_id */
+    { NULL,
+      { PMDA_PMID(CLUSTER_STAT,103), PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+
 /* disk.dev.read_rawactive */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,72), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
