@@ -1,0 +1,356 @@
+QA output created by 1828
+== Checking metric values - scsi-map-root-001.tgz
+
+disk.dev.avactive
+    inst [N or "nvme0n1"] value 9138481
+    inst [N or "sda"] value 84
+    inst [N or "sdb"] value 2812
+    inst [N or "sdc"] value 2118
+    inst [N or "sdd"] value 2796
+    inst [N or "sde"] value 2799
+
+disk.dev.aveq
+    inst [N or "nvme0n1"] value 66636403
+    inst [N or "sda"] value 59
+    inst [N or "sdb"] value 3333
+    inst [N or "sdc"] value 2351
+    inst [N or "sdd"] value 3335
+    inst [N or "sde"] value 3334
+
+disk.dev.blkdiscard
+    inst [N or "nvme0n1"] value 30542152
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "sdd"] value 0
+    inst [N or "sde"] value 0
+
+disk.dev.blkread
+    inst [N or "nvme0n1"] value 115267968
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 4488
+    inst [N or "sdc"] value 2440
+    inst [N or "sdd"] value 4488
+    inst [N or "sde"] value 4488
+
+disk.dev.blktotal
+    inst [N or "nvme0n1"] value 409879922
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 4488
+    inst [N or "sdc"] value 2440
+    inst [N or "sdd"] value 4488
+    inst [N or "sde"] value 4488
+
+disk.dev.blkwrite
+    inst [N or "nvme0n1"] value 294611954
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "sdd"] value 0
+    inst [N or "sde"] value 0
+
+disk.dev.capacity
+    inst [N or "nvme0n1"] value 250059096
+    inst [N or "sdb"] value 102400
+    inst [N or "sdc"] value 102400
+    inst [N or "sdd"] value 102400
+    inst [N or "sde"] value 102400
+
+disk.dev.discard
+    inst [N or "nvme0n1"] value 240927
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "sdd"] value 0
+    inst [N or "sde"] value 0
+
+disk.dev.discard_bytes
+    inst [N or "nvme0n1"] value 15271076
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "sdd"] value 0
+    inst [N or "sde"] value 0
+
+disk.dev.discard_merge
+    inst [N or "nvme0n1"] value 0
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "sdd"] value 0
+    inst [N or "sde"] value 0
+
+disk.dev.discard_rawactive
+    inst [N or "nvme0n1"] value 247696
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "sdd"] value 0
+    inst [N or "sde"] value 0
+
+disk.dev.flush
+    inst [N or "nvme0n1"] value 578748
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 1
+    inst [N or "sdc"] value 1
+    inst [N or "sdd"] value 1
+    inst [N or "sde"] value 1
+
+disk.dev.flush_rawactive
+    inst [N or "nvme0n1"] value 2081931
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "sdd"] value 0
+    inst [N or "sde"] value 0
+
+disk.dev.read
+    inst [N or "nvme0n1"] value 2501871
+    inst [N or "sda"] value 38
+    inst [N or "sdb"] value 242
+    inst [N or "sdc"] value 190
+    inst [N or "sdd"] value 212
+    inst [N or "sde"] value 221
+
+disk.dev.read_bytes
+    inst [N or "nvme0n1"] value 57633984
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 2244
+    inst [N or "sdc"] value 1220
+    inst [N or "sdd"] value 2244
+    inst [N or "sde"] value 2244
+
+disk.dev.read_merge
+    inst [N or "nvme0n1"] value 74600
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "sdd"] value 0
+    inst [N or "sde"] value 0
+
+disk.dev.read_rawactive
+    inst [N or "nvme0n1"] value 1334911
+    inst [N or "sda"] value 59
+    inst [N or "sdb"] value 3333
+    inst [N or "sdc"] value 2351
+    inst [N or "sdd"] value 3335
+    inst [N or "sde"] value 3334
+
+disk.dev.scheduler
+    inst [N or "nvme0n1"] value "unknown"
+    inst [N or "sda"] value "unknown"
+    inst [N or "sdb"] value "unknown"
+    inst [N or "sdc"] value "unknown"
+    inst [N or "sdd"] value "unknown"
+    inst [N or "sde"] value "unknown"
+
+disk.dev.total
+    inst [N or "nvme0n1"] value 10545709
+    inst [N or "sda"] value 38
+    inst [N or "sdb"] value 243
+    inst [N or "sdc"] value 191
+    inst [N or "sdd"] value 213
+    inst [N or "sde"] value 222
+
+disk.dev.total_bytes
+    inst [N or "nvme0n1"] value 204939961
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 2244
+    inst [N or "sdc"] value 1220
+    inst [N or "sdd"] value 2244
+    inst [N or "sde"] value 2244
+
+disk.dev.total_rawactive
+    inst [N or "nvme0n1"] value 64306775
+    inst [N or "sda"] value 59
+    inst [N or "sdb"] value 3333
+    inst [N or "sdc"] value 2351
+    inst [N or "sdd"] value 3335
+    inst [N or "sde"] value 3334
+
+disk.dev.write
+    inst [N or "nvme0n1"] value 8043838
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 1
+    inst [N or "sdc"] value 1
+    inst [N or "sdd"] value 1
+    inst [N or "sde"] value 1
+
+disk.dev.write_bytes
+    inst [N or "nvme0n1"] value 147305977
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "sdd"] value 0
+    inst [N or "sde"] value 0
+
+disk.dev.write_merge
+    inst [N or "nvme0n1"] value 566577
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "sdd"] value 0
+    inst [N or "sde"] value 0
+
+disk.dev.write_rawactive
+    inst [N or "nvme0n1"] value 62971864
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "sdd"] value 0
+    inst [N or "sde"] value 0
+
+disk.dm.avactive
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 9252310
+    inst [3 or "mpathb"] value 1491
+    inst [1 or "shack-root"] value 9252153
+    inst [2 or "shack-swap"] value 5730
+
+disk.dm.aveq
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 655808441
+    inst [3 or "mpathb"] value 4241
+    inst [1 or "shack-root"] value 640006468
+    inst [2 or "shack-swap"] value 313603
+
+disk.dm.blkdiscard
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 27090784
+    inst [3 or "mpathb"] value 0
+    inst [1 or "shack-root"] value 27090784
+    inst [2 or "shack-swap"] value 0
+
+disk.dm.blkread
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 115244190
+    inst [3 or "mpathb"] value 8876
+    inst [1 or "shack-root"] value 115103598
+    inst [2 or "shack-swap"] value 115984
+
+disk.dm.blktotal
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 409745576
+    inst [3 or "mpathb"] value 8876
+    inst [1 or "shack-root"] value 414544030
+    inst [2 or "shack-swap"] value 265488
+
+disk.dm.blkwrite
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 294501386
+    inst [3 or "mpathb"] value 0
+    inst [1 or "shack-root"] value 299440432
+    inst [2 or "shack-swap"] value 149504
+
+disk.dm.capacity
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 247958528
+    inst [3 or "mpathb"] value 102400
+    inst [1 or "shack-root"] value 231182336
+    inst [2 or "shack-swap"] value 16773120
+
+disk.dm.discard
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 240848
+    inst [3 or "mpathb"] value 0
+    inst [1 or "shack-root"] value 240848
+    inst [2 or "shack-swap"] value 0
+
+disk.dm.discard_bytes
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 13545392
+    inst [3 or "mpathb"] value 0
+    inst [1 or "shack-root"] value 13545392
+    inst [2 or "shack-swap"] value 0
+
+disk.dm.discard_merge
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 0
+    inst [3 or "mpathb"] value 0
+    inst [1 or "shack-root"] value 0
+    inst [2 or "shack-swap"] value 0
+
+disk.dm.discard_rawactive
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 247941
+    inst [3 or "mpathb"] value 0
+    inst [1 or "shack-root"] value 248900
+    inst [2 or "shack-swap"] value 0
+
+disk.dm.flush
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 0
+    inst [3 or "mpathb"] value 0
+    inst [1 or "shack-root"] value 0
+    inst [2 or "shack-swap"] value 0
+
+disk.dm.flush_rawactive
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 0
+    inst [3 or "mpathb"] value 0
+    inst [1 or "shack-root"] value 0
+    inst [2 or "shack-swap"] value 0
+
+disk.dm.read
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 2575826
+    inst [3 or "mpathb"] value 206
+    inst [1 or "shack-root"] value 2561887
+    inst [2 or "shack-swap"] value 13797
+
+disk.dm.read_bytes
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 57622095
+    inst [3 or "mpathb"] value 4438
+    inst [1 or "shack-root"] value 57551799
+    inst [2 or "shack-swap"] value 57992
+
+disk.dm.read_merge
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 0
+    inst [3 or "mpathb"] value 0
+    inst [1 or "shack-root"] value 0
+    inst [2 or "shack-swap"] value 0
+
+disk.dm.read_rawactive
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 1712593
+    inst [3 or "mpathb"] value 4241
+    inst [1 or "shack-root"] value 1711352
+    inst [2 or "shack-swap"] value 5672
+
+disk.dm.total
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 11137043
+    inst [3 or "mpathb"] value 206
+    inst [1 or "shack-root"] value 11080936
+    inst [2 or "shack-swap"] value 32485
+
+disk.dm.total_bytes
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 204872788
+    inst [3 or "mpathb"] value 4438
+    inst [1 or "shack-root"] value 207272015
+    inst [2 or "shack-swap"] value 132744
+
+disk.dm.total_rawactive
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 655560500
+    inst [3 or "mpathb"] value 4241
+    inst [1 or "shack-root"] value 639757568
+    inst [2 or "shack-swap"] value 313603
+
+disk.dm.write
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 8561217
+    inst [3 or "mpathb"] value 0
+    inst [1 or "shack-root"] value 8519049
+    inst [2 or "shack-swap"] value 18688
+
+disk.dm.write_bytes
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 147250693
+    inst [3 or "mpathb"] value 0
+    inst [1 or "shack-root"] value 149720216
+    inst [2 or "shack-swap"] value 74752
+
+disk.dm.write_merge
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 0
+    inst [3 or "mpathb"] value 0
+    inst [1 or "shack-root"] value 0
+    inst [2 or "shack-swap"] value 0
+
+disk.dm.write_rawactive
+    inst [0 or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 653847907
+    inst [3 or "mpathb"] value 0
+    inst [1 or "shack-root"] value 638046216
+    inst [2 or "shack-swap"] value 307931
+
+hinv.map.scsi_id
+    inst [N or "nvme0n1"] value "2002538878103cb18"
+    inst [N or "sda"] value "unknown"
+    inst [N or "sdb"] value "333333330000007d1"
+    inst [N or "sdc"] value "333333330000007d1"
+    inst [N or "sdd"] value "333333330000007d1"
+    inst [N or "sde"] value "333333330000007d1"
+
+== done
+
