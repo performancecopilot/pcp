@@ -890,6 +890,52 @@ is_capacity_metric(int cluster, int item)
     return 0;
 }
 
+/* return static string for scsi device ID, or "unknown" */
+char *
+_pm_scsi_id(const char *device)
+{
+    int fd;
+    char *id = NULL;
+    static char buf[1024];
+    char path[MAXNAMELEN];
+
+    /*
+     * Extract wwid from /sys/block/<device>/device/wwid
+     */
+    pmsprintf(path, sizeof(path), "%s/sys/block/%s/device/wwid",
+		    linux_statspath, device);
+    if (access(path, R_OK) != 0) /* try alternate path */
+	pmsprintf(path, sizeof(path), "%s/sys/block/%s/wwid",
+			linux_statspath, device);
+    if ((fd = open(path, O_RDONLY)) >= 0) {
+	if (read(fd, buf, sizeof(buf)) > 0) {
+	    if ((id = strchr(buf, '\n')) != NULL)
+	    	*id = '\0';
+	    /*
+	     * Map known wwid prefixes back to canonical numeric form.
+	     * See kernel function scsi_vpd_lun_id() in scsi_lib.c
+	     */
+	    if (strncmp(buf, "t10.", 4) == 0) {
+	    	buf[3] = '1';
+		id = buf + 3;
+	    }
+	    else if (strncmp(buf, "eui.", 4) == 0) {
+	    	buf[3] = '2';
+		id = buf + 3;
+	    }
+	    else if (strncmp(buf, "naa.", 4) == 0) {
+	    	buf[3] = '3';
+		id = buf + 3;
+	    }
+	    else
+		id = buf; /* default */
+	}
+	close(fd);
+    }
+
+    return id ? id : "unknown";
+}
+
 char *
 _pm_ioscheduler(const char *device)
 {
@@ -1040,6 +1086,11 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (p == NULL)
 		return PM_ERR_INST;
 	    atom->cp = _pm_ioscheduler(p->namebuf);
+	    break;
+	case 103: /* hinv.map.scsi_id */
+	    if (p == NULL)
+		return PM_ERR_INST;
+	    atom->cp = _pm_scsi_id(p->namebuf);
 	    break;
 	case 72: /* disk.dev.read_rawactive already ms from /proc/diskstats */
 	    if (p == NULL)
