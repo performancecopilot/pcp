@@ -8,6 +8,7 @@ import re
 import requests
 import hashlib
 import datetime
+import time
 
 
 class TimeoutHTTPAdapter(requests.adapters.HTTPAdapter):  # lgtm[py/missing-call-to-init]
@@ -202,6 +203,9 @@ def main():
 
         artifactory.upload_build_info(args.version, build_name, args.build_number, build_artifacts)
         updated_repositories.add(repository_key)
+
+    print("Waiting 5 minutes before recalculating repository metadata...")
+    time.sleep(60 * 5)
 
     # schedule recalculation and GPG signing of repository metadata
     for repository in updated_repositories:
