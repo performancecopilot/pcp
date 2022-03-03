@@ -116,9 +116,9 @@ log mandatory on 1 sec {
 End-of-File
 
 $sudo rm -f core*
-# -D 511 is all of the PMAPI debug flags, excluding PM_TRACE_AF (the
-# latter is non-deterministic, unfortunately)
-pmlogger -D 511 -c $tmp.config -s 2 -l $tmp.log $tmp >$tmp.out 2>&1 &
+# for extra points, exercise all the oldest debug flag code paths
+#
+pmlogger -D pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta -c $tmp.config -s 2 -l $tmp.log $tmp >$tmp.out 2>&1 &
 logger_pid=$!
 
 wait
@@ -146,6 +146,8 @@ pmdumplog $tmp 2>&1 \
 | tee -a $seq.full \
 | _filter_dumplog \
 | sed -n -e '/TIMESTAMP/s/STAMP.*/STAMP/p'
+
+cat $tmp.log >>$seq.full
 
 # and truncate the test here!
 #
