@@ -50,8 +50,14 @@ pmaGetLog(__pmArchCtl *acp, int vol, __int32_t **rbuf)
     offset = __pmFtell(f);
     assert(offset >= 0);
     if (pmDebugOptions.log) {
-	fprintf(stderr, "pmaGetLog: fd=%d vol=%d posn=%ld ",
-	    __pmFileno(f), vol, offset);
+	fprintf(stderr, "pmaGetLog: fd=%d", __pmFileno(f));
+	if (vol == PM_LOG_VOL_TI)
+	    fprintf(stderr, " index,");
+	else if (vol == PM_LOG_VOL_META) 
+	    fprintf(stderr, " meta,");
+	else
+	    fprintf(stderr, "vol=%d", vol);
+	fprintf(stderr, " posn=%ld", offset);
     }
 
 again:
@@ -113,21 +119,34 @@ again:
 	return PM_ERR_LOGREC;
     }
 
-    type = ntohl(lbuf[1]);
+    if (vol == PM_LOG_VOL_META)
+	type = ntohl(lbuf[1]);
+    else
+	type = -1;
 
     if (pmDebugOptions.log) {
 	if (vol != PM_LOG_VOL_META ||
 	    type == TYPE_INDOM || type ==TYPE_INDOM_DELTA || type == TYPE_INDOM_V2) {
-	    fprintf(stderr, "@");
 	    if (sts >= 0) {
-		__pmTimestamp	stamp;
-		if (vol != PM_LOG_VOL_META)
+		__pmTimestamp	stamp = { -1, 0 };
+		if (vol != PM_LOG_VOL_META) {
+		    if (__pmLogVersion(lcp) >= PM_LOG_VERS03)
+			__pmLoadTimestamp(&lbuf[1], &stamp);
+		    else
+			__pmLoadTimeval(&lbuf[1], &stamp);
+		}
+		else if (type == TYPE_INDOM || type ==TYPE_INDOM_DELTA) {
+		    fprintf(stderr, " %s", __pmLogMetaTypeStr(type));
+		    __pmLoadTimestamp(&lbuf[2], &stamp);
+		}
+		else if (type == TYPE_INDOM_V2) {
+		    fprintf(stderr, " %s", __pmLogMetaTypeStr(type));
 		    __pmLoadTimeval(&lbuf[2], &stamp);
-		else if (type == TYPE_INDOM || type ==TYPE_INDOM_DELTA)
-		    __pmLoadTimestamp(&lbuf[1], &stamp);
-		else if (type == TYPE_INDOM_V2)
-		    __pmLoadTimeval(&lbuf[1], &stamp);
-		__pmPrintTimestamp(stderr, &stamp);
+		}
+		if (stamp.sec != -1) {
+		    fprintf(stderr, " @");
+		    __pmPrintTimestamp(stderr, &stamp);
+		}
 	    }
 	    else
 		fprintf(stderr, "unknown time");
@@ -137,18 +156,24 @@ again:
 
     if (pmDebugOptions.pdu) {
 	int		i, j;
-	__pmTimestamp	stamp;
+	__pmTimestamp	stamp = { -1, 0 };
 	fprintf(stderr, "pmaGetLog");
 	if (vol != PM_LOG_VOL_META ||
 	    type == TYPE_INDOM || type ==TYPE_INDOM_DELTA || type == TYPE_INDOM_V2) {
-	    if (vol != PM_LOG_VOL_META)
-		__pmLoadTimeval(&lbuf[2], &stamp);
+	    if (vol != PM_LOG_VOL_META) {
+		    if (__pmLogVersion(lcp) >= PM_LOG_VERS03)
+			__pmLoadTimestamp(&lbuf[1], &stamp);
+		    else
+			__pmLoadTimeval(&lbuf[1], &stamp);
+	    }
 	    else if (type == TYPE_INDOM || type ==TYPE_INDOM_DELTA)
-		__pmLoadTimestamp(&lbuf[1], &stamp);
+		__pmLoadTimestamp(&lbuf[2], &stamp);
 	    else if (type == TYPE_INDOM_V2)
-		__pmLoadTimeval(&lbuf[1], &stamp);
-	    fprintf(stderr, " timestamp=");
-	    __pmPrintTimestamp(stderr, &stamp);
+		__pmLoadTimeval(&lbuf[2], &stamp);
+	    if (stamp.sec != -1) {
+		fprintf(stderr, " timestamp=");
+		__pmPrintTimestamp(stderr, &stamp);
+	    }
 	}
 	fprintf(stderr, " " PRINTF_P_PFX "%p ... " PRINTF_P_PFX "%p", lbuf, &lbuf[ntohl(head)/sizeof(__int32_t) - 1]);
 	fputc('\n', stderr);

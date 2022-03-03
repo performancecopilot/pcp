@@ -184,9 +184,7 @@ _pmi_put_result(pmi_context *current, __pmResult *result)
 	return sts;
 
     __pmOverrideLastFd(__pmFileno(acp->ac_mfp));
-    sts = current->version >= PM_LOG_VERS03 ?
-		__pmEncodeHighResResult(result, &pb) :
-		__pmEncodeResult(acp->ac_log, result, &pb);
+    sts = __pmEncodeResult(acp->ac_log, result, &pb);
     if (sts < 0)
 	return sts;
 

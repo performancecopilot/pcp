@@ -263,8 +263,9 @@ typedef struct {
     __int32_t		len;
     __int32_t		type;
     __int32_t		from;
-    int			numpmid;	/* zero PMIDs to follow */
-    pmTimespec		timestamp;	/* when returned */
+    __int32_t		sec[2];
+    __int32_t		nsec;
+    __int32_t		numpmid;
 } mark3_t;
 
 /*
@@ -316,6 +317,8 @@ static struct timeval logend_tv;	/* extracted log end */
 static struct timeval winstart_tv;	/* window start tval*/
 static struct timeval winend_tv;	/* window end tval*/
 
+static __pmTimestamp	logstart;		/* real earliest start time */
+static __pmTimestamp	logend;
 static __pmTimestamp	winstart = {-1,0};	/* window start time */
 static __pmTimestamp	winend = {-1,0};	/* window end time */
 static __pmTimestamp	logend = {-1,0};	/* log end time */
@@ -467,7 +470,7 @@ newlabel(void)
 	    continue;
 	}
 
-	vers = (iap->label.ll_magic & 0xff);
+	vers = (iap->label.magic & 0xff);
 	if (pmDebugOptions.appl3)
 	    fprintf(stderr, "archive: %s version: %d\n", iap->name, vers);
 	if (vers != PM_LOG_VERS02 && vers != PM_LOG_VERS03) {
@@ -514,33 +517,41 @@ newlabel(void)
     lp->magic = PM_LOG_MAGIC | outarchvers;
     lp->pid = (int)getpid();
     free(lp->hostname);
-    lp->hostname = strdup(f_iap->label.ll_hostname);
+    lp->hostname = strdup(f_iap->label.hostname);
     if (farg) {
 	/*
-	 * use timezone from _first_ non-empty archive ...
+	 * use timezone and zoneinfo from _first_ non-empty archive ...
 	 * this is the OLD default
 	 */
 	free(lp->timezone);
-	lp->timezone = strdup(f_iap->label.ll_tz);
+	lp->timezone = strdup(f_iap->label.timezone);
+	if (lp->zoneinfo != NULL)
+	    free(lp->zoneinfo);
+	if (f_iap->label.zoneinfo != NULL)
+	    lp->zoneinfo = strdup(f_iap->label.zoneinfo);
+	else
+	    lp->zoneinfo = NULL;
     }
     else {
 	/*
-	 * use timezone from the _last_ non-empty archive ...
+	 * use timezone and zoneinfo from the _last_ non-empty archive ...
 	 * this is the NEW default
 	 */
 	for (indx=inarchnum-1; indx>=0; indx--) {
 	    if (inarch[indx].ctx != PM_ERR_NODATA) {
 		l_iap = &inarch[indx];
 		free(lp->timezone);
-		lp->timezone = strdup(l_iap->label.ll_tz);
+		lp->timezone = strdup(l_iap->label.timezone);
+		if (lp->zoneinfo != NULL)
+		    free(lp->zoneinfo);
+		if (l_iap->label.zoneinfo != NULL)
+		    lp->zoneinfo = strdup(l_iap->label.zoneinfo);
+		else
+		    lp->zoneinfo = NULL;
 		break;
 	    }
 	}
     }
-    /* TODO: v3 archive zoneinfo */
-    free(lp->zoneinfo);
-    lp->zoneinfo = NULL;
-
 
     /* reset outarch as appropriate, depending on other input archives */
     for (indx=0; indx<inarchnum; indx++) {
@@ -552,19 +563,19 @@ newlabel(void)
 	}
 
 	/* Ensure all archives of the same host */
-	if (strcmp(lp->hostname, iap->label.ll_hostname) != 0) {
+	if (strcmp(lp->hostname, iap->label.hostname) != 0) {
 	    fprintf(stderr,"%s: Error: host name mismatch for input archives\n",
 		    pmGetProgname());
 	    fprintf(stderr, "archive: %s host: %s\n",
-		    f_iap->name, f_iap->label.ll_hostname);
+		    f_iap->name, f_iap->label.hostname);
 	    fprintf(stderr, "archive: %s host: %s\n",
-		    iap->name, iap->label.ll_hostname);
+		    iap->name, iap->label.hostname);
 	    abandon_extract();
 	    /*NOTREACHED*/
 	}
 
 	/* Ensure all archives of the same timezone */
-	if (strcmp(lp->timezone, iap->label.ll_tz) != 0) {
+	if (strcmp(lp->timezone, iap->label.timezone) != 0) {
 	    const char	*log_used;
 
 	    if (farg)
@@ -579,7 +590,7 @@ newlabel(void)
 	    fprintf(stderr, "archive: %s timezone: %s [will be used]\n",
 		    log_used, lp->timezone);
 	    fprintf(stderr, "archive: %s timezone: %s [will be ignored]\n",
-		    iap->name, iap->label.ll_tz);
+		    iap->name, iap->label.timezone);
 	}
     } /*for(indx)*/
 }
@@ -1693,7 +1704,8 @@ _createmark2(void)
 __int32_t *
 _createmark3(void)
 {
-    mark3_t	*markp;
+    mark3_t		*markp;
+    __pmTimestamp	stamp = { 0, 1000000 };		/* 1msec */
 
     /*
      * add space for trailer in case __pmLogPutResult3() is called with
@@ -1713,13 +1725,8 @@ _createmark3(void)
 
     markp->len = (int)sizeof(mark3_t);
     markp->type = markp->from = 0;
-    markp->timestamp.tv_sec = current.sec;
-    markp->timestamp.tv_nsec = current.nsec;
-    markp->timestamp.tv_nsec += 1000000; /* + 1msec */
-    if (markp->timestamp.tv_nsec > 1000000000) {
-	markp->timestamp.tv_nsec -= 1000000000;
-	markp->timestamp.tv_sec++;
-    }
+    __pmTimestampInc(&stamp, &current);
+    __pmPutTimestamp(&stamp, &markp->sec[0]);
     markp->numpmid = 0;
     return((__int32_t *)markp);
 }
@@ -1731,8 +1738,7 @@ checklogtime(__pmTimestamp *this, int indx)
 	(curlog.sec > this->sec ||
 	(curlog.sec == this->sec && curlog.nsec > this->nsec))) {
 	    ilog = indx;
-	    curlog.sec = this->sec;
-	    curlog.nsec = this->nsec;
+	    curlog = *this;		/* struct assignment */
     }
 }
 
@@ -2426,25 +2432,6 @@ parseconfig(void)
     return(-errflag);
 }
 
-#ifdef HAVE_NETWORK_BYTEORDER
-#define time_ntohll(a)	/* noop */
-#define time_htonll(a)	/* noop */
-#else
-static void
-time_htonll(char *p)
-{
-    char	c;
-    int		i;
-
-    for (i = 0; i < 4; i++) {
-	c = p[i];
-	p[i] = p[7-i];
-	p[7-i] = c;
-    }
-}
-#define time_ntohll(v) time_htonll(v)
-#endif
-
 /*
  *  we are within time window ... return 0
  *  we are outside of time window & mk new window ... return 1
@@ -2455,7 +2442,6 @@ checkwinend(__pmTimestamp *tsp)
 {
     int			indx;
     int			sts;
-    __pmTimestamp	tmptime;
     inarch_t		*iap;
     int			vers;
 
@@ -2469,29 +2455,58 @@ checkwinend(__pmTimestamp *tsp)
      *		     set pre_startwin, discard logs before winstart,
      * 		     and write out mark
      */
-    if (!warg)
+    if (!warg) {
+	if (pmDebugOptions.appl2) {
+	    fprintf(stderr, "checkwinend: done: current ");
+	    __pmPrintTimestamp(stderr, tsp);
+	    fprintf(stderr, " after winend ");
+	    __pmPrintTimestamp(stderr, &winend);
+	    fputc('\n', stderr);
+	}
 	return(-1);
+    }
 
     winstart.sec += NUM_SEC_PER_DAY;
     winend.sec += NUM_SEC_PER_DAY;
+    if (pmDebugOptions.appl2) {
+	fprintf(stderr, "checkwinend: 24-hr roll window to ");
+	__pmPrintTimestamp(stderr, &winstart);
+	fprintf(stderr, " ... ");
+	__pmPrintTimestamp(stderr, &winend);
+	fputc('\n', stderr);
+    }
     pre_startwin = 1;
 
     /*
      * if start of next window is later than max termination
      * then bail out here
      */
-    if (__pmTimestampCmp(&winstart, &logend) > 0)
-	    return(-1);
+    if (__pmTimestampCmp(&winstart, &logend) > 0) {
+	if (pmDebugOptions.appl2) {
+	    fprintf(stderr, "checkwinend: done: winstart ");
+	    __pmPrintTimestamp(stderr, &winstart);
+	    fprintf(stderr, " after logend ");
+	    __pmPrintTimestamp(stderr, &logend);
+	    fputc('\n', stderr);
+	}
+	return(-1);
+    }
 
     ilog = -1;
     for (indx=0; indx<inarchnum; indx++) {
 
 	iap = &inarch[indx];
-	vers = (iap->label.ll_magic & 0xff);
+	vers = (iap->label.magic & 0xff);
 	if (iap->_Nresult != NULL) {
-	    tmptime = iap->_Nresult->timestamp;
-	    if (__pmTimestampCmp(&tmptime, &winstart) < 0) {
+	    if (__pmTimestampCmp(&iap->_Nresult->timestamp, &winstart) < 0) {
 		/* free _result and _Nresult */
+		if (pmDebugOptions.appl2) {
+		    fprintf(stderr, "checkwinend: inarch[%d]: last timestamp ", indx);
+		    __pmPrintTimestamp(stderr, &iap->_Nresult->timestamp);
+		    fprintf(stderr, " after winstart ");
+		    __pmPrintTimestamp(stderr, &winstart);
+		    fputc('\n', stderr);
+		}
 		if (iap->_result != iap->_Nresult) {
 		    free(iap->_Nresult);
 		}
@@ -2504,21 +2519,28 @@ checkwinend(__pmTimestamp *tsp)
 	    }
 	}
 	if (iap->pb[LOG] != NULL) {
-	    if (vers == PM_LOG_VERS03) {
-		tmptime.sec = iap->pb[LOG][4];
-		tmptime.nsec = iap->pb[LOG][6];
-		time_ntohll((char *)&tmptime.sec);
-		time_ntohll((char *)&tmptime.nsec);
-	    }
-	    else /* vers == PM_LOG_VERS02 */ {
-		tmptime.sec = ntohl(iap->pb[LOG][3]);
-		tmptime.nsec = ntohl(iap->pb[LOG][4]) * 1000;
+	    __pmTimestamp	tmptime;
+	    if (vers >= PM_LOG_VERS03)
+		__pmLoadTimestamp(&iap->pb[LOG][3], &tmptime);
+	    else
+		__pmLoadTimeval(&iap->pb[LOG][3], &tmptime);
+	    if (pmDebugOptions.appl2) {
+		fprintf(stderr, "checkwinend: inarch[%d]: PDU timestamp ", indx);
+		__pmPrintTimestamp(stderr, &tmptime);
+		fputc('\n', stderr);
 	    }
 	    if (__pmTimestampCmp(&tmptime, &winstart) < 0) {
 		/*
 		 * free PDU buffer ... it is probably a mark
 		 * and has not been pinned
 		 */
+		if (pmDebugOptions.appl2) {
+		    fprintf(stderr, "checkwinend: inarch[%d]: PDU timestamp ", indx);
+		    __pmPrintTimestamp(stderr, &tmptime);
+		    fprintf(stderr, " after winstart ");
+		    __pmPrintTimestamp(stderr, &winstart);
+		    fputc('\n', stderr);
+		}
 		free(iap->pb[LOG]);
 		iap->pb[LOG] = NULL;
 	    }
@@ -2590,9 +2612,7 @@ writerlist(rlist_t **rlready, __pmTimestamp *mintime)
 	write_priorlabelset(PM_LABEL_CONTEXT, PM_IN_NULL, mintime);
 
 	/* convert log record to a pdu */
-	sts = (outarchvers == PM_LOG_VERS02) ?
-		__pmEncodeResult(&logctl, elm->res, (__pmPDU **)&pb) :
-		__pmEncodeHighResResult(elm->res, (__pmPDU **)&pb);
+	sts = __pmEncodeResult(&logctl, elm->res, (__pmPDU **)&pb);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
@@ -2723,9 +2743,6 @@ writemark3(inarch_t *iap)
 	/*NOTREACHED*/
     }
 
-    time_htonll((char *)&p->timestamp.tv_sec);
-    time_htonll((char *)&p->timestamp.tv_nsec);
-
     if ((sts = __pmLogPutResult3(&archctl, (__pmPDU *)iap->pb[LOG])) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogPutResult3: log data: %s\n",
 		pmGetProgname(), pmErrStr(sts));
@@ -2837,6 +2854,7 @@ main(int argc, char **argv)
     rlist_t		*rlready = NULL;	/* results ready for writing */
 
     struct timeval	unused;
+    __pmTimestamp	end;
 
     __pmHashInit(&rdesc);	/* hash of meta desc records to write */
     __pmHashInit(&rindom);	/* hash of meta indom records to write */
@@ -2884,6 +2902,8 @@ main(int argc, char **argv)
 
 
     for (indx=0; indx<inarchnum; indx++, opts.optind++) {
+	__pmContext	*ctxp;
+
 	iap = &inarch[indx];
 
 	iap->name = argv[opts.optind];
@@ -2918,17 +2938,33 @@ main(int argc, char **argv)
 	    exit(1);
 	}
 
-	if ((sts = pmGetArchiveLabel(&iap->label)) < 0) {
+	if ((ctxp = __pmHandleToPtr(iap->ctx)) == NULL) {
+	    fprintf(stderr, "%s: setup botch: __pmHandleToPtr(%s) returns NULL!\n", pmGetProgname(), iap->name);
+	    abandon_extract();
+	    /*NOTREACHED*/
+	}
+
+	memset((void *)&iap->label, 0, sizeof(iap->label));
+	if ((sts = __pmLogLoadLabel(ctxp->c_archctl->ac_log->mdfp, &iap->label)) < 0) {
 	    fprintf(stderr, "%s: Error: cannot get archive label record (%s): %s\n", pmGetProgname(), iap->name, pmErrStr(sts));
 	    exit(1);
 	}
 
-	if ((sts = pmGetArchiveEnd(&unused)) < 0) {
+	/*
+	 * Note: This application is single threaded, and once we have ctxp
+	 *       the associated __pmContext will not move and will only be
+	 *       accessed or modified synchronously either here or in libpcp.
+	 *       We unlock the context so that it can be locked as required
+	 *       within libpcp.
+	 */
+	PM_UNLOCK(ctxp->c_lock);
+
+	if ((sts = __pmGetArchiveEnd(ctxp->c_archctl, &end)) < 0) {
 	    fprintf(stderr, "%s: Error: cannot get end of archive (%s): %s\n",
 		pmGetProgname(), iap->name, pmErrStr(sts));
 	    if (desperate) {
-		unused.tv_sec = INT_MAX;
-		unused.tv_usec = 0;
+		end.sec = INT64_MAX;
+		end.nsec = 0;
 	    }
 	    else
 		exit(1);
@@ -2936,28 +2972,41 @@ main(int argc, char **argv)
 
 	if (indx == 0) {
 	    /* start time */
-	    logstart_tv.tv_sec = iap->label.ll_start.tv_sec;
-	    logstart_tv.tv_usec = iap->label.ll_start.tv_usec;
-
+	    logstart = iap->label.start;	/* struct assignment */
 	    /* end time */
-	    logend_tv.tv_sec = unused.tv_sec;
-	    logend_tv.tv_usec = unused.tv_usec;
+	    logend = end;			/* struct assignment */
+	    if (pmDebugOptions.appl2) {
+		fprintf(stderr, "[%d] intial set log* ", indx);
+		__pmPrintTimestamp(stderr, &logstart);
+		fprintf(stderr, " ... ");
+		__pmPrintTimestamp(stderr, &logend);
+		fputc('\n', stderr);
+	    }
+
 	}
 	else {
 	    /* get the earlier start time */
-	    if (logstart_tv.tv_sec > iap->label.ll_start.tv_sec ||
-		(logstart_tv.tv_sec == iap->label.ll_start.tv_sec &&
-		logstart_tv.tv_usec > iap->label.ll_start.tv_usec)) {
-		    logstart_tv.tv_sec = iap->label.ll_start.tv_sec;
-		    logstart_tv.tv_usec = iap->label.ll_start.tv_usec;
+	    if (logstart.sec > iap->label.start.sec ||
+		(logstart.sec == iap->label.start.sec &&
+		logstart.nsec > iap->label.start.nsec)) {
+		    logstart = iap->label.start;	/* struct assignment */
+		    if (pmDebugOptions.appl2) {
+			fprintf(stderr, "[%d] set logstart ", indx);
+			__pmPrintTimestamp(stderr, &logstart);
+			fputc('\n', stderr);
+		    }
 	    }
 
 	    /* get the later end time */
-	    if (logend_tv.tv_sec < unused.tv_sec ||
-		(logend_tv.tv_sec == unused.tv_sec &&
-		logend_tv.tv_usec < unused.tv_usec)) {
-		    logend_tv.tv_sec = unused.tv_sec;
-		    logend_tv.tv_usec = unused.tv_usec;
+	    if (logend.sec < end.sec ||
+		(logend.sec == end.sec &&
+		logend.nsec < end.nsec)) {
+		    logend = end;		/* struct assignment */
+		    if (pmDebugOptions.appl2) {
+			fprintf(stderr, "[%d] set logend ", indx);
+			__pmPrintTimestamp(stderr, &logend);
+			fputc('\n', stderr);
+		    }
 	    }
 	}
     } /*for(indx)*/
@@ -2968,8 +3017,7 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    logctl.label.start.sec = logstart_tv.tv_sec;
-    logctl.label.start.nsec = logstart_tv.tv_usec * 1000;
+    logctl.label.start = logstart;		/* struct assignment */
 
     /*
      * process config file
@@ -2982,13 +3030,13 @@ main(int argc, char **argv)
 	/* use TZ from metrics source (first non-empty input archive) */
 	for (indx=0; indx<inarchnum; indx++) {
 	    if (inarch[indx].ctx != PM_ERR_NODATA) {
-		if ((sts = pmNewZone(inarch[indx].label.ll_tz)) < 0) {
+		if ((sts = pmNewZone(inarch[indx].label.timezone)) < 0) {
 		    fprintf(stderr, "%s: Cannot set context timezone: %s\n",
 			    pmGetProgname(), pmErrStr(sts));
 		    exit_status = 1;
 		    goto cleanup;
 		}
-		printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n", inarch[indx].label.ll_hostname);
+		printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n", inarch[indx].label.hostname);
 		break;
 	    }
 	}
@@ -3045,12 +3093,28 @@ main(int argc, char **argv)
 	abandon_extract();
 	/*NOTREACHED*/
     }
-    winstart.sec = winstart_tv.tv_sec;
-    winstart.nsec = winstart_tv.tv_usec * 1000;
-    winend.sec = winend_tv.tv_sec;
-    winend.nsec = winend_tv.tv_usec * 1000;
-    logend.sec = logend_tv.tv_sec;
-    logend.nsec = logend_tv.tv_usec * 1000;
+    if (Sarg != NULL || Aarg != NULL || Oarg != NULL) {
+	winstart.sec = winstart_tv.tv_sec;
+	winstart.nsec = winstart_tv.tv_usec * 1000;
+    }
+    if (Targ != NULL || Aarg != NULL) {
+	winend.sec = winend_tv.tv_sec;
+	winend.nsec = winend_tv.tv_usec * 1000;
+	/*
+	 * add 1 to winend.sec to dodge truncation in the conversion
+	 * from usec to nsec ... without this we risk missing the very
+	 * the last input data record and (less likely) the last indom
+	 * metadata record
+	 */
+	winend.sec++;
+    }
+    if (pmDebugOptions.appl2) {
+	fprintf(stderr, "after arg processing: win* ");
+	__pmPrintTimestamp(stderr, &winstart);
+	fprintf(stderr, " ... ");
+	__pmPrintTimestamp(stderr, &winend);
+	fputc('\n', stderr);
+    }
 
     if (warg) {
 	if (winstart.sec + NUM_SEC_PER_DAY < winend.sec) {
@@ -3109,11 +3173,9 @@ main(int argc, char **argv)
 	 */
 	mintime.sec = mintime.nsec = 0;
 	for (indx=0; indx<inarchnum; indx++) {
-	    vers = (inarch[indx].label.ll_magic & 0xff);
+	    vers = (inarch[indx].label.magic & 0xff);
 	    if (inarch[indx]._Nresult != NULL) {
-		// TODO ... need conditional V3 logic here
-		tstamp = inarch[indx]._Nresult->timestamp;
-		checklogtime(&tstamp, indx);
+		checklogtime(&inarch[indx]._Nresult->timestamp, indx);
 
 		if (ilog == indx) {
 		    tmptime = curlog;
@@ -3122,13 +3184,11 @@ main(int argc, char **argv)
 		}
 	    }
 	    else if (inarch[indx].pb[LOG] != NULL) {
-		if (vers == PM_LOG_VERS03) {
-		    tstamp.sec = inarch[indx].pb[LOG][4]; /* no swab needed */
-		    tstamp.nsec = inarch[indx].pb[LOG][6]; /* no swab needed */
-		} else /* PM_LOG_VERS02 */ {
-		    tstamp.sec = inarch[indx].pb[LOG][3]; /* no swab needed */
-		    tstamp.nsec = inarch[indx].pb[LOG][4] * 1000; /* no swab needed */
-		}
+		if (vers >= PM_LOG_VERS03)
+		    __pmLoadTimestamp(&inarch[indx].pb[LOG][3], &tstamp);
+		else
+		    __pmLoadTimeval(&inarch[indx].pb[LOG][3], &tstamp);
+
 		checklogtime(&tstamp, indx);
 
 		if (ilog == indx) {
@@ -3137,6 +3197,14 @@ main(int argc, char **argv)
 		        mintime = tmptime;
 		}
 	    }
+	}
+	if (pmDebugOptions.appl2) {
+	    fprintf(stderr, "pick [%d] curlog ", ilog);
+	    __pmPrintTimestamp(stderr, &curlog);
+	    fprintf(stderr, " mintime ");
+	    __pmPrintTimestamp(stderr, &mintime);
+	    fputc('\n', stderr);
+
 	}
 
 	/*
@@ -3151,8 +3219,24 @@ main(int argc, char **argv)
 	 * note - mark (after last archive) will be created, but this
 	 * break, will prevent it from being written out
 	 */
-	if (__pmTimestampCmp(&now, &logend) > 0)
+	if (pmDebugOptions.appl2) {
+	    fprintf(stderr, "done? now ");
+	    __pmPrintTimestamp(stderr, &now);
+	    fprintf(stderr, " > logend ");
+	    __pmPrintTimestamp(stderr, &logend);
+	    fprintf(stderr, "?\n");
+
+	}
+	if (__pmTimestampCmp(&now, &logend) > 0) {
+	    if (pmDebugOptions.appl2) {
+		fprintf(stderr, "done now ");
+		__pmPrintTimestamp(stderr, &now);
+		fprintf(stderr, " > logend ");
+		__pmPrintTimestamp(stderr, &logend);
+		fprintf(stderr, "?\n");
+	    }
 	    break;
+	}
 
 	sts = checkwinend(&now);
 	if (sts < 0)
@@ -3160,6 +3244,14 @@ main(int argc, char **argv)
 	if (sts > 0)
 	    continue;
 
+	if (pmDebugOptions.appl2) {
+	    fprintf(stderr, "update current from ");
+	    __pmPrintTimestamp(stderr, &current);
+	    fprintf(stderr, " to ");
+	    __pmPrintTimestamp(stderr, &curlog);
+	    fputc('\n', stderr);
+
+	}
 	current = curlog;
 
 	/* prepare to write out log record */
