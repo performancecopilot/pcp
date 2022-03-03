@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018 Red Hat.
+ * Copyright (c) 2014-2018,2022 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,18 +20,6 @@
 #include <inttypes.h>
 #include <limits.h>
 #include <float.h>
-
-#ifndef LLONG_MAX
-#define LLONG_MAX LONGLONG_MAX
-#endif
-#ifndef LLONG_MIN
-#define LLONG_MIN -LLONG_MAX-1L
-#endif
-#ifndef ULLONG_MAX
-#define ULLONG_MAX ULONGLONG_MAX
-#endif
-
-/* ------------------------------------------------------------------------ */
 
 /*
  * An individual fetch-group is a linked list of requests tied to a
@@ -118,22 +106,12 @@ struct __pmFetchGroupItem {
 };
 typedef struct __pmFetchGroupItem *pmFGI;
 
-/* ------------------------------------------------------------------------ */
-/* Internal functions for finding, converting data. */
-
 static inline struct timespec *
 pmfg_timespec_from_timeval(const struct timeval *tv, struct timespec *ts)
 {
     ts->tv_sec = tv->tv_sec;
     ts->tv_nsec = tv->tv_usec * 1000;
     return ts;
-}
-
-static inline double
-pmfg_timespec_delta(const struct timespec *ap, const struct timespec *bp)
-{
-     return (double)(ap->tv_sec - bp->tv_sec) +
-	    (long double)(ap->tv_nsec - bp->tv_nsec) / (long double)1000000000;
 }
 
 /*
@@ -382,8 +360,8 @@ pmfg_prep_conversion(const pmDesc *desc, const char *scale, pmFGC conv, int otyp
 }
 
 /*
- * Extract value from pmResult interior.  Extends pmExtractValue/pmAtomStr with
- * string<->numeric conversion support.
+ * Extract value from result value sets.
+ * Extends pmExtractValue/pmAtomStr with string<->numeric conversion support.
  */
 static int
 __pmExtractValue2(int valfmt, const pmValue *ival, int itype, pmAtomValue *oval, int otype)
@@ -497,13 +475,13 @@ __pmStuffDoubleValue(double val, pmAtomValue *oval, int otype)
 		oval->ul = val;
 	    break;
 	case PM_TYPE_64:
-	    if (val > (double)LLONG_MAX || val < (double)LLONG_MIN)
+	    if (val > (double)LONGLONG_MAX || val < (double)(-LONGLONG_MAX-1L))
 		sts = PM_ERR_TRUNC;
 	    else
 		oval->ll = val;
 	    break;
 	case PM_TYPE_U64:
-	    if (val > (double)ULLONG_MAX)
+	    if (val > (double)ULONGLONG_MAX)
 		sts = PM_ERR_TRUNC;
 	    else if (val < 0.0)
 		sts = PM_ERR_SIGN;
@@ -627,7 +605,7 @@ pmfg_reinit_event(pmFGI item)
 
 /*
  * Find the pmValue corresponding to the item within the given
- * pmResult.  Convert it to given output type, including possible
+ * valueset.  Convert it to given output type, including possible
  * string<->number conversions.
  */
 static int
@@ -734,7 +712,7 @@ pmfg_extract_convert_item(pmFG pmfg, pmID metric_pmid, int metric_inst,
 
 	    prev_r = pmfg->prevResult;
 	    pmfg_timespec_from_timeval(&prev_r->timestamp, &prev_t);
-	    deltaT = pmfg_timespec_delta(timestamp, &prev_t);
+	    deltaT = pmtimespecSub(timestamp, &prev_t);
 
 	    if (deltaT < epsilon)	/* avoid division by zero */
 		deltaT = epsilon;	/* (chose not to PM_ERR_CONV here) */
@@ -1224,11 +1202,8 @@ pmfg_clear_profile(pmFG pmfg)
 }
 
 
-/* ------------------------------------------------------------------------ */
-/* Public functions exported from libpcp and in pmapi.h */
-
 /*
- * Create a new fetchgroup.  Take a duplicate of the incoming pcp context.
+ * Create a new fetchgroup with an associated new PMAPI context.
  * Return 0 and set *ptr on success.
  */
 int
