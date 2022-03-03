@@ -1208,5 +1208,5 @@ pmiPutMark(void)
     if (last_stamp->sec == 0 && last_stamp->nsec == 0)
 	/* no earlier result, no point adding a mark record */
 	return 0;
-    return __pmLogWriteMark(acp->ac_mfp, current->version, last_stamp);
+    return __pmLogWriteMark(acp->ac_mfp, current->version, last_stamp, 1);
 }

@@ -1152,5 +1152,5 @@ putmark(void)
 	/* no earlier result, no point adding a mark record */
 	return 0;
 
-    return __pmLogWriteMark(archctl.ac_mfp, archive_version, &last_stamp);
+    return __pmLogWriteMark(archctl.ac_mfp, archive_version, &last_stamp, 1);
 }

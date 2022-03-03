@@ -2527,7 +2527,7 @@ checkwinend(__pmTimestamp *tsp)
 
     /* must create "mark" record and write it out */
     /* (need only one mark record) */
-    if ((sts = __pmLogWriteMark(archctl.ac_mfp, outarchvers, &current)) < 0) {
+    if ((sts = __pmLogWriteMark(archctl.ac_mfp, outarchvers, &current, 1)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogWriteMark: log data: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	abandon_extract();
