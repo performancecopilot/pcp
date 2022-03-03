@@ -12,7 +12,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "pcp/pmapi.h"
-#include "pcp/libpcp.h"
+#include "libpcp.h"
 
 /* from internal.h ... */
 #ifdef HAVE_NETWORK_BYTEORDER
