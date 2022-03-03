@@ -62,8 +62,31 @@ typedef struct {
     __pmPDU		data[2];	/* zero or more (2 for alignment) */
 } highres_result_t;
 
+/*
+ * __pmResult record, Version 3
+ * The real on-disk format starts at "from" (which is really "len")
+ * but the libpcp routines fake this out to be a PDU format, which
+ * adds 2 __int32_t fields at the start
+ */
+typedef struct {
+    __int32_t	len;		/* PDU header -- repacked */
+    __int32_t	type;		/* ditto */
+    __int32_t	from;		/* ditto -- becomes len */
+    __int32_t	sec[2];		/* __pmTimestamp */
+    __int32_t	nsec;
+    __int32_t	numpmid;
+    __int32_t	data[1];	/* zero or more */
+} log_result_v3_t;
+
+/*
+ * This routine gets used for both PDUs and external log records, so
+ * "type" is one of
+ * - PDU_HIGHRES_RESULT - PDU
+ * - PDU_RESULT - PDU or V2 archive
+ * - PM_LOG_VERS03 - V3 archive
+ */
 void
-__pmGetResultSize(int pdutype, int numpmid, pmValueSet * const *vset,
+__pmGetResultSize(int type, int numpmid, pmValueSet * const *vset,
 		size_t *needp, size_t *vneedp)
 {
     size_t	need;	/* bytes for the PDU */
@@ -71,10 +94,16 @@ __pmGetResultSize(int pdutype, int numpmid, pmValueSet * const *vset,
     int		i, j;
    
     vneed = 0;
-    if (pdutype == PDU_HIGHRES_RESULT)
+    if (type == PDU_HIGHRES_RESULT)
 	need = sizeof(highres_result_t) - (sizeof(__pmPDU) * 2);
-    else
+    else if (type == PDU_RESULT)
 	need = sizeof(result_t) - sizeof(__pmPDU);
+    else if (type == PM_LOG_VERS03)
+	need = sizeof(log_result_v3_t) - sizeof(__int32_t);
+    else {
+	fprintf(stderr, "__pmGetResultSize: Botch: type=%d not allowed\n", type);
+	exit(1);
+    }
 
     /* now add space for each vlist_t (data field in result structures) */
     for (i = 0; i < numpmid; i++) {
@@ -153,14 +182,16 @@ __pmEncodeValueSet(__pmPDU *pdubuf, int numpmid, pmValueSet * const *vset,
 }
 
 int
-__pmEncodeResult(const __pmResult *result, __pmPDU **pdu)
+__pmEncodeResult(const __pmLogCtl *lcp, const __pmResult *result, __pmPDU **pdu)
 {
     size_t	need, vneed;
     __pmPDU	*pdubuf;
-    result_t	*pp;
     int		type = PDU_RESULT;
 
-    __pmGetResultSize(type, result->numpmid, result->vset, &need, &vneed);
+    if (lcp != NULL && __pmLogVersion(lcp) == PM_LOG_VERS03)
+	__pmGetResultSize(PM_LOG_VERS03, result->numpmid, result->vset, &need, &vneed);
+    else
+	__pmGetResultSize(type, result->numpmid, result->vset, &need, &vneed);
 
     /*
      * Need to reserve additional space for trailer (an int) in case the
@@ -168,15 +199,28 @@ __pmEncodeResult(const __pmResult *result, __pmPDU **pdu)
      */
     if ((pdubuf = __pmFindPDUBuf((int)(need + vneed + sizeof(int)))) == NULL)
 	return -oserror();
-    pp = (result_t *)pdubuf;
-    pp->hdr.len = (int)(need + vneed);
-    pp->hdr.type = type;
-    pp->timestamp.tv_sec = htonl((__int32_t)(result->timestamp.sec));
-    pp->timestamp.tv_usec = htonl((__int32_t)(result->timestamp.nsec / 1000));
-    pp->numpmid = htonl(result->numpmid);
+    if (lcp != NULL && __pmLogVersion(lcp) == PM_LOG_VERS03) {
+	log_result_v3_t	*lrp;
+	lrp = (log_result_v3_t *)pdubuf;
+	lrp->len = (int)(need + vneed);
+	lrp->from = 0;			/* not used for log records */
+	lrp->type = PDU_RESULT;		/* not used for log records */
+	__pmPutTimestamp(&result->timestamp, &lrp->sec[0]);
+	lrp->numpmid = htonl(result->numpmid);
+	__pmEncodeValueSet(pdubuf, result->numpmid, result->vset,
+			(vlist_t *)lrp->data, pdubuf + need/sizeof(__pmPDU));
+    }
+    else {
+	result_t	*pp;
+	pp = (result_t *)pdubuf;
+	pp->hdr.len = (int)(need + vneed);
+	pp->hdr.type = type;
+	__pmPutTimeval(&result->timestamp, (__int32_t *)&pp->timestamp);
+	pp->numpmid = htonl(result->numpmid);
 
-    __pmEncodeValueSet(pdubuf, result->numpmid, result->vset,
+	__pmEncodeValueSet(pdubuf, result->numpmid, result->vset,
 			(vlist_t *)pp->data, pdubuf + need/sizeof(__pmPDU));
+    }
 
     /* Note PDU remains pinned ... see thread-safe comments above */
     *pdu = pdubuf;
@@ -225,13 +269,16 @@ __pmSendResult_ctx(__pmContext *ctxp, int fd, int from, const __pmResult *result
     int		sts;
     __pmPDU	*pdubuf = NULL;
     result_t	*pp;
+    __pmLogCtl	*lcp = NULL;
 
     if (ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     if (pmDebugOptions.pdu)
 	__pmPrintResult_ctx(ctxp, stderr, result);
-    if ((sts = __pmEncodeResult(result, &pdubuf)) < 0)
+    if (ctxp != NULL && ctxp->c_type == PM_CONTEXT_ARCHIVE)
+	lcp = ctxp->c_archctl->ac_log;
+    if ((sts = __pmEncodeResult(lcp, result, &pdubuf)) < 0)
 	return sts;
     pp = (result_t *)pdubuf;
     pp->hdr.from = from;
@@ -277,9 +324,9 @@ __pmSendHighResResult(int fd, int from, const __pmResult *result)
 }
 
 #if defined(HAVE_64BIT_PTR)
-static int
+int
 __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
-		int numpmid, int preamble, int unaligned, pmValueSet *vset[])
+		int numpmid, int preamble, int unaligned, pmValueSet **vset)
 {
     char	*newbuf;
     int		valfmt;
@@ -386,6 +433,7 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 					    "__pmDecodeValueSet", i, j);
 			return PM_ERR_IPC;
 		    }
+
 		    __ntohpmValueBlock(pduvbp);
 		    if (pduvbp->vlen < PM_VAL_HDR_SIZE ||
 			pduvbp->vlen > pdulen) {
@@ -560,7 +608,7 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 
 #elif defined(HAVE_32BIT_PTR)
 
-static int
+int
 __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 		int numpmid, int preamble, int unaligned, pmValueSet *vset[])
 {
@@ -713,52 +761,72 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
 int
 __pmDecodeResult_ctx(__pmContext *ctxp, __pmPDU *pdubuf, __pmResult **result)
 {
-    int		sts;
-    int		numpmid;	/* number of metrics */
-    char	*pduend;	/* end pointer for incoming buffer */
-    size_t	bytes, nopad;
-    result_t	*pp;
-    __pmResult	*pr;
+    int			sts;
+    int			numpmid;	/* number of metrics */
+    int			len = pdubuf[0];
+    __pmPDU		*vset;
+    char		*pduend;	/* end pointer for incoming buffer */
+    size_t		bytes, nopad;
+    int			maxnumpmid;
+    __pmResult		*pr;
+    __pmTimestamp	stamp;
 
     if (ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
-    pp = (result_t *)pdubuf;
-    pduend = (char *)pdubuf + pp->hdr.len;
-    bytes = sizeof(result_t) - sizeof(__pmPDU);
+    if (ctxp != NULL && ctxp->c_type == PM_CONTEXT_ARCHIVE && __pmLogVersion(ctxp->c_archctl->ac_log) == PM_LOG_VERS03) {
+	/*
+	 * V3 archive
+	 */
+	log_result_v3_t	*lrp = (log_result_v3_t *)pdubuf;
+	pduend = (char *)pdubuf + len;
+	bytes = sizeof(log_result_v3_t) - sizeof(__int32_t);
+	nopad = bytes;
+	numpmid = ntohl(lrp->numpmid);
+	__pmLoadTimestamp((__int32_t *)&lrp->sec[0], &stamp);
+	vset = (__pmPDU *)lrp->data;
+    }
+    else {
+	/*
+	 * over the wire PDU or V2 archive
+	 */
+	result_t	*pp = (result_t *)pdubuf;
+	pduend = (char *)pdubuf + len;
+	bytes = sizeof(result_t) - sizeof(__pmPDU);
+	nopad = sizeof(pp->hdr) + sizeof(pp->timestamp) + sizeof(pp->numpmid);
+	numpmid = ntohl(pp->numpmid);
+	__pmLoadTimeval((__int32_t *)&pp->timestamp, &stamp);
+	vset = pp->data;
+    }
+
     if (pduend - (char *)pdubuf < bytes) {
 	if (pmDebugOptions.pdu && pmDebugOptions.desperate)
 	    fprintf(stderr, "%s: Bad: len=%d smaller than min %d\n",
-			    "__pmDecodeResult", pp->hdr.len, (int)bytes);
+			    "__pmDecodeResult", len, (int)bytes);
 	return PM_ERR_IPC;
     }
 
-    numpmid = ntohl(pp->numpmid);
-    if (numpmid < 0 || numpmid > pp->hdr.len) {
+    if (numpmid < 0 || numpmid > len) {
 	if (pmDebugOptions.pdu && pmDebugOptions.desperate)
 	    fprintf(stderr, "%s: Bad: numpmid=%d negative or not smaller "
 			    "than PDU len %d\n", "__pmDecodeResult",
-			    numpmid, pp->hdr.len);
+			    numpmid, len);
 	return PM_ERR_IPC;
     }
-    bytes = (INT_MAX - sizeof(pmResult)) / sizeof(pmValueSet *);
-    if (numpmid >= bytes) {
+    maxnumpmid = (INT_MAX - sizeof(pmResult)) / sizeof(pmValueSet *);
+    if (numpmid >= maxnumpmid) {
 	if (pmDebugOptions.pdu && pmDebugOptions.desperate)
 	    fprintf(stderr, "%s: Bad: numpmid=%d larger than max %ld\n",
-			    "__pmDecodeResult", numpmid, (long)bytes);
+			    "__pmDecodeResult", numpmid, (long)maxnumpmid);
 	return PM_ERR_IPC;
     }
 
     if ((pr = __pmAllocResult(numpmid)) == NULL)
 	return -oserror();
     pr->numpmid = numpmid;
-    pr->timestamp.sec = ntohl(pp->timestamp.tv_sec);
-    pr->timestamp.nsec = ntohl(pp->timestamp.tv_usec) * 1000;
+    pr->timestamp = stamp;		/* struct asssignment */
 
-    bytes = sizeof(result_t) - sizeof(__pmPDU);
-    nopad = sizeof(pp->hdr) + sizeof(pp->timestamp) + sizeof(pp->numpmid);
-
-    if ((sts = __pmDecodeValueSet(pdubuf, pp->hdr.len, pp->data, pduend,
+    if ((sts = __pmDecodeValueSet(pdubuf, len, vset, pduend,
 				  numpmid, bytes, nopad, pr->vset)) < 0) {
 	pr->numpmid = 0;	/* force no pmValueSet's to free */
 	__pmFreeResult(pr);

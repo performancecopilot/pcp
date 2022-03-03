@@ -801,6 +801,7 @@ PCP_3.37 {
     __pmDecodeHighResResult_ctx;
     __pmEncodeHighResResult;
     __pmDecodeResult_ctx;
+    __pmDecodeValueSet;
     __pmGetResultSize;
     __pmSortInstances;
     __pmLogWriteMark;

@@ -59,7 +59,7 @@ typedef struct {
  * start immediately after this
  */
 size_t
-__pmLogLabelSize(__pmLogCtl *lcp)
+__pmLogLabelSize(const __pmLogCtl *lcp)
 {
     size_t	bytes;
     int		version = __pmLogVersion(lcp);

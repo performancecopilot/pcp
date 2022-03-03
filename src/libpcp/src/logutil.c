@@ -125,7 +125,7 @@ __pmLogLabelVersion(const __pmLogLabel *llp)
 }
 
 int
-__pmLogVersion(__pmLogCtl *lcp)
+__pmLogVersion(const __pmLogCtl *lcp)
 {
     return __pmLogLabelVersion(&lcp->label);
 }
@@ -899,12 +899,12 @@ logputresult(int version, __pmArchCtl *acp, __pmPDU *pb)
     if (lcp->state == PM_LOG_STATE_NEW) {
 	/*
 	 * first result, do the label record
+	 *
+	 * pb[3] => 3 __int32_t's before the timestamp starts
 	 */
 	if (version >= 3)
-	    /* 4 => sizeof(__pmPDUHdr) / sizeof(__pmPDU) + numpmid */
-	    __pmLoadTimespec((__int32_t *)&pb[4], &lcp->label.start);
+	    __pmLoadTimestamp((__int32_t *)&pb[3], &lcp->label.start);
 	else
-	    /* 3 => sizeof(__pmPDUHdr) / sizeof(__pmPDU) */
 	    __pmLoadTimeval((__int32_t *)&pb[3], &lcp->label.start);
 	lcp->label.vol = PM_LOG_VOL_TI;
 	__pmLogWriteLabel(lcp->tifp, &lcp->label);
@@ -1013,25 +1013,31 @@ paranoidCheck(int len, int version, __pmPDU *pb)
 	pmTimeval		timestamp;	/* when returned */
 	int			numpmid;	/* no. of PMIDs to follow */
 	__pmPDU			data[1];	/* zero or more */
-    }			*rp;
-    struct highres_result_t {		/* from p_result.c */
-	__pmPDUHdr		hdr;
-	int			numpmid;	/* no. of PMIDs to follow */
-	pmTimespec		timestamp;	/* when returned */
-	__pmPDU			data[2];	/* zero or more */
-    }			*hrp;
+    } *rp;
+
+    struct log_result_v3_t {		/* from p_result.c */
+	__int32_t	len;		/* PDU header -- repacked */
+	__int32_t	type;		/* ditto */
+	__int32_t	from;		/* ditto -- becomes len */
+	__int32_t	sec[2];		/* __pmTimestamp */
+	__int32_t	nsec;
+	__int32_t	numpmid;
+	__int32_t	data[1];	/* zero or more */
+    } *v3rp;
+
+    
     struct vlist_t {			/* from p_result.c */
-	pmID			pmid;
-	int			numval;		/* no. of vlist els to follow, or error */
-	int			valfmt;		/* insitu or pointer */
-	__pmValue_PDU		vlist[1];	/* zero or more */
-    }			*vlp;
+	pmID		pmid;
+	int		numval;		/* no. of vlist els to follow, or error */
+	int		valfmt;		/* insitu or pointer */
+	__pmValue_PDU	vlist[1];	/* zero or more */
+    } *vlp;
 
     /*
      * to start with, need space for *result_t with no data (__pmPDU)
      * ... this is the external size, which consists of
      * <header len>
-     * <timestamp> (2/4 words)
+     * <timestamp>
      * <numpmid>
      * <trailer len>
      *
@@ -1040,10 +1046,10 @@ paranoidCheck(int len, int version, __pmPDU *pb)
      */
 
     if (version >= PM_LOG_VERS03) {
-	hrp = (struct highres_result_t *)pb;
-	numpmid = ntohl(hrp->numpmid);
-	hdrsz = 7 * sizeof(__pmPDU);
-	data = hrp->data;
+	v3rp = (struct log_result_v3_t *)pb;
+	numpmid = ntohl(v3rp->numpmid);
+	hdrsz = 7 * sizeof(__int32_t);
+	data = (__pmPDU *)v3rp->data;
     } else {
 	rp = (struct result_t *)pb;
 	numpmid = ntohl(rp->numpmid);
@@ -1580,10 +1586,7 @@ again:
     else {
 	__pmPDUHdr *header = (__pmPDUHdr *)pb;
 	header->len = sizeof(*header) + rlen;
-	if (version >= PM_LOG_VERS03)
-	    header->type = PDU_HIGHRES_RESULT;
-	else
-	    header->type = PDU_RESULT;
+	header->type = PDU_RESULT;
 	header->from = FROM_ANON;
 	/* swab PDU buffer - done later in __pmDecodeResult */
 
@@ -1649,9 +1652,7 @@ again:
 	__pmFseek(f, -(long)sizeof(trail), SEEK_CUR);
 
     __pmOverrideLastFd(__pmFileno(f));
-    sts = (version >= PM_LOG_VERS03) ?
-	    __pmDecodeHighResResult_ctx(ctxp, pb, result) :
-	    __pmDecodeResult_ctx(ctxp, pb, result); /* also swabs the result */
+    sts = __pmDecodeResult_ctx(ctxp, pb, result); /* also swabs the result */
 
     if (pmDebugOptions.log) {
 	head -= sizeof(head) + sizeof(trail);

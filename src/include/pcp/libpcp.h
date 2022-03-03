@@ -377,11 +377,12 @@ PCP_CALL extern int __pmDecodeError(__pmPDU *, int *);
 PCP_CALL extern int __pmSendXtendError(int, int, int, int);
 PCP_CALL extern int __pmDecodeXtendError(__pmPDU *, int *, int *);
 PCP_CALL extern int __pmSendResult(int, int, const __pmResult *);
-PCP_CALL extern int __pmEncodeResult(const __pmResult *, __pmPDU **);
+/* see below for __pmEncodeResult() */
 PCP_CALL extern int __pmSendHighResResult(int, int, const __pmResult *);
 PCP_CALL extern int __pmEncodeHighResResult(const __pmResult *, __pmPDU **);
 PCP_CALL extern int __pmDecodeResult(__pmPDU *, __pmResult **);
 PCP_CALL extern int __pmDecodeHighResResult(__pmPDU *, __pmResult **);
+PCP_CALL extern int __pmDecodeValueSet(__pmPDU *, int, __pmPDU *, char *, int, int, int, pmValueSet **);
 PCP_CALL extern int __pmSendProfile(int, int, int, pmProfile *);
 PCP_CALL extern int __pmDecodeProfile(__pmPDU *, int *, pmProfile **);
 PCP_CALL extern int __pmSendFetchPDU(int, int, int, int, pmID *, int);
@@ -655,8 +656,8 @@ PCP_CALL extern int __pmGetDomainLabels(int, const char *, pmLabelSet **);
  * used as a trailer
  */
 typedef struct __pmLogHdr {
-    int		len;	/* record length, includes header and trailer */
-    int		type;	/* see TYPE_* #defines below */
+    __int32_t		len;	/* record length, includes header and trailer */
+    __int32_t		type;	/* see TYPE_* #defines below */
 } __pmLogHdr;
 
 #define TYPE_DESC		1	/* header, pmDesc, trailer          */
@@ -823,6 +824,8 @@ typedef struct {
 #define PM_LOG_STATE_NEW	0
 #define PM_LOG_STATE_INIT	1
 
+PCP_CALL extern int __pmEncodeResult(const __pmLogCtl *, const __pmResult *, __pmPDU **);
+
 /*
  * Minimal information to retain for each archive in a multi-archive context
  */
@@ -929,8 +932,8 @@ typedef struct {
 #define __PM_MODE_MASK	0xffff
 
 /* internal archive routines */
-PCP_CALL extern int __pmLogVersion(__pmLogCtl *);
-PCP_CALL extern size_t __pmLogLabelSize(__pmLogCtl *);
+PCP_CALL extern int __pmLogVersion(const __pmLogCtl *);
+PCP_CALL extern size_t __pmLogLabelSize(const __pmLogCtl *);
 PCP_CALL extern int __pmLogChkLabel(__pmArchCtl *, __pmFILE *, __pmLogLabel *, int);
 PCP_CALL extern int __pmLogCreate(const char *, const char *, int, __pmArchCtl *);
 PCP_CALL extern __pmFILE *__pmLogNewFile(const char *, int);
@@ -1519,7 +1522,6 @@ PCP_CALL extern void __pmLogFreeLabel(__pmLogLabel *);
  * Does endian-safe "hton" for Put, and "ntoh" for Load functions.
  */
 PCP_CALL extern void __pmLoadTimestamp(const __int32_t *, __pmTimestamp *);
-PCP_CALL extern void __pmLoadTimespec(const __int32_t *, __pmTimestamp *);
 PCP_CALL extern void __pmLoadTimeval(const __int32_t *, __pmTimestamp *);
 PCP_CALL extern void __pmPutTimestamp(const __pmTimestamp *, __int32_t *);
 PCP_CALL extern void __pmPutTimeval(const __pmTimestamp *, __int32_t *);

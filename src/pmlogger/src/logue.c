@@ -188,10 +188,7 @@ do_logue(int type)
 	res->vset[i]->valfmt = sts;
     }
 
-    if (archive_version >= PM_LOG_VERS03)
-	sts = __pmEncodeHighResResult(res, &pb);
-    else
-	sts = __pmEncodeResult(res, &pb);
+    sts = __pmEncodeResult(&logctl, res, &pb);
     if (sts < 0)
 	goto done;
 
