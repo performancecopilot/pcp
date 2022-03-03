@@ -1010,20 +1010,16 @@ do_work(task_t *tp)
 	    }
 	}
 
+	if ((sts = __pmEncodeResult(&logctl, resp, &pb)) < 0) {
+	    fprintf(stderr, "__pmEncodeResult: %s\n", pmErrStr(sts));
+	    exit(1);
+	}
 	if (archive_version >= PM_LOG_VERS03) {
-	    if ((sts = __pmEncodeHighResResult(resp, &pb)) < 0) {
-		fprintf(stderr, "__pmEncodeHighResResult: %s\n", pmErrStr(sts));
-		exit(1);
-	    }
 	    if ((sts = __pmLogPutResult3(&archctl, pb)) < 0) {
 		fprintf(stderr, "__pmLogPutResult3: (encode) %s\n", pmErrStr(sts));
 		exit(1);
 	    }
 	} else {
-	    if ((sts = __pmEncodeResult(resp, &pb)) < 0) {
-		fprintf(stderr, "__pmEncodeResult: %s\n", pmErrStr(sts));
-		exit(1);
-	    }
 	    if ((sts = __pmLogPutResult2(&archctl, pb)) < 0) {
 		fprintf(stderr, "__pmLogPutResult2: (encode) %s\n", pmErrStr(sts));
 		exit(1);
@@ -1152,5 +1148,5 @@ putmark(void)
 	/* no earlier result, no point adding a mark record */
 	return 0;
 
-    return __pmLogWriteMark(archctl.ac_mfp, archive_version, &last_stamp);
+    return __pmLogWriteMark(archctl.ac_mfp, archive_version, &last_stamp, 1);
 }

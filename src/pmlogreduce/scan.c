@@ -92,29 +92,13 @@ doscan(__pmTimestamp *end)
 	     * Mark record ... copy into the output file as we cannot
 	     * pretend there is data between the previous data record
 	     * and the next data record
-	     * Logic copied from pmlogextract.
-	     * TODO: version 3 archive support needed here.
 	     */
-	    struct {
-		__pmPDU		len;
-		__pmPDU		type;
-		__pmPDU		from;
-		pmTimeval	timestamp;
-		int		numpmid;	/* zero PMIDs to follow */
-		__pmPDU		trailer;
-	    } markrec;
-	    /*
-	     * add space for, but don't bump length for, trailer so
-	     * __pmLogPutResult2() has space for trailer in the buffer
-	     */
-	    markrec.len = sizeof(markrec) - sizeof(__pmPDU);
-	    markrec.type = markrec.from = 0;
-	    markrec.timestamp.tv_sec = htonl(rp->timestamp.sec);
-	    markrec.timestamp.tv_usec = htonl(rp->timestamp.nsec / 1000);
-	    markrec.numpmid = 0;
-	    if ((sts = __pmLogPutResult2(&archctl, (__pmPDU *)&markrec)) < 0) {
-		fprintf(stderr, "%s: Error: __pmLogPutResult2: mark record write: %s\n",
-			pmGetProgname(), pmErrStr(sts));
+	    __pmFILE	*mfp = archctl.ac_mfp;
+	    int		version = __pmLogVersion(archctl.ac_log);
+
+	    if ((sts = __pmLogWriteMark(mfp, version, &rp->timestamp, 0)) < 0) {
+		fprintf(stderr, "%s: Error: __pmLogWriteMark v%d: %s\n",
+			pmGetProgname(), version, pmErrStr(sts));
 		exit(1);
 	    }
 	    /*
