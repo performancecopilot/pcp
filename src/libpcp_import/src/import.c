@@ -1079,8 +1079,14 @@ _pmi_write(__pmTimestamp *timestamp)
 	if (current->result != NULL) {
 	    current->result->timestamp = *timestamp;
 	    sts = _pmi_put_result(current, current->result);
-	    /* careful here - do not use __pmFreeResult */
-	    pmFreeResult(__pmOffsetResult(current->result));
+	    /*
+	     * careful here - do not use __pmFreeResult because
+	     * we've realloc'd current->result, and we can't
+	     * call pmFreeResult(__pmOffsetResult(current->result))
+	     * because the arg is not alloc'd
+	     */
+	    __pmFreeResultValues(__pmOffsetResult(current->result));
+	    free(current->result);
 	    current->result = NULL;
 	}
 
