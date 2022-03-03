@@ -15,7 +15,7 @@ printstamp(struct timeval *tp)
     time_t		clock = (time_t)tp->tv_sec;
 
     tmp = localtime(&clock);
-    printf("%02d:%02d:%02d.%06" FMT_INT64, tmp->tm_hour, tmp->tm_min, tmp->tm_sec, tp->tv_usec);
+    printf("%02d:%02d:%02d.%06d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)tp->tv_usec);
 }
 
 int

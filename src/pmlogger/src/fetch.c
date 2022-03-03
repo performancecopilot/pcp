@@ -160,6 +160,48 @@ myFetch(int numpmid, pmID pmidlist[], __pmResult **result)
 			}
 			fputc('\n', stderr);
 		    }
+		    else if ((n == PDU_HIGHRES_RESULT && highres) ||
+			     (n == PDU_RESULT && !highres)) {
+			/*
+			 * We cannot decode the result here (that's still
+			 * to come later on), so copy the PDU buffer,
+			 * decode that, do the diagnostics, and release
+			 * the duplicated storage.
+			 */
+			//int		len;
+			//int		lsts;
+			//int		i;
+			int		lnumpmid = -1;
+			//int		numval;
+			//__pmPDU		*copy;
+			//pmID		pmid;
+			//char		*name;
+
+			/* TODO */
+			
+
+			/* assume PDU is valid ... it comes from pmcd */
+			if (n == PDU_HIGHRES_RESULT) {
+			    __pmTimestamp	timestamp = {0, 0};
+
+			    fprintf(stderr, "pmHighResResult timestamp: %lld.%09d numpmid: %d\n", (long long)timestamp.sec, (int)timestamp.nsec, lnumpmid);
+			} else {
+			    struct timeval	timestamp = {0, 0};
+
+			    fprintf(stderr, "pmResult timestamp: %d.%06d numpmid: %d\n", (int)timestamp.tv_sec, (int)timestamp.tv_usec, lnumpmid);
+			}
+			//for (i = 0; i < lnumpmid; i++) {
+			    //fprintf(stderr, "  %s", pmIDStr(pmid));
+			    //if (pmNameID(pmid, &name) == 0) {
+				//fprintf(stderr, " (%s)", name);
+				//free(name);
+			    //}
+			    //fprintf(stderr, ": numval: %d", numval);
+			    //if (numval > 0)
+				//fprintf(stderr, " valfmt: %d", ntohl(vlp->valfmt));
+			    //fputc('\n', stderr);
+			//}
+		    }
 		    else if (n == PDU_HIGHRES_RESULT && !highres)
 			fprintf(stderr, "__pmGetPDU: bad PDU_HIGHRES_RESULT\n");
 		    else if (n == PDU_RESULT && highres)
