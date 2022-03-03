@@ -11,7 +11,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include "pcp/pmapi.h"
+#include <pcp/pmapi.h>
 #include "libpcp.h"
 
 /* from internal.h ... */

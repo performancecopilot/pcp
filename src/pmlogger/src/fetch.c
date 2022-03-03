@@ -202,11 +202,16 @@ myFetch(int numpmid, pmID pmidlist[], __pmResult **result)
 			    //fputc('\n', stderr);
 			//}
 		    }
+		    else if (n == PDU_HIGHRES_RESULT && !highres)
+			fprintf(stderr, "__pmGetPDU: bad PDU_HIGHRES_RESULT\n");
+		    else if (n == PDU_RESULT && highres)
+			fprintf(stderr, "__pmGetPDU: bad PDU_RESULT\n");
 		    else
 			fprintf(stderr, "__pmGetPDU: Error: %s\n", pmErrStr(n));
 		}
 
-		if ((n == PDU_HIGHRES_RESULT && highres) || (n == PDU_RESULT && !highres)) {
+		if ((n == PDU_HIGHRES_RESULT && highres) ||
+		    (n == PDU_RESULT && !highres)) {
 		    /* Success with a result in a PDU buffer */
 		    PM_LOCK(ctxp->c_lock);
 		    sts = (n == PDU_RESULT) ?

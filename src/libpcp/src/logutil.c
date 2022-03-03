@@ -1255,7 +1255,7 @@ clearMarkDone(__pmContext *ctxp)
 }
 
 static int
-pmlogwritemark2(__pmFILE *fp, const __pmTimestamp *last_stamp)
+pmlogwritemark2(__pmFILE *fp, const __pmTimestamp *last_stamp, int msecs)
 {
     struct {			/* from p_result.c */
 	__pmPDU		hdr;
@@ -1266,7 +1266,7 @@ pmlogwritemark2(__pmFILE *fp, const __pmTimestamp *last_stamp)
 
     mark2.hdr = mark2.tail = htonl((int)sizeof(mark2));
     mark2.timestamp.tv_sec = last_stamp->sec;
-    mark2.timestamp.tv_usec = (last_stamp->nsec / 1000) + 1000; /* + 1msec */
+    mark2.timestamp.tv_usec = (last_stamp->nsec / 1000) + (msecs * 1000); /* + N ms */
     if (mark2.timestamp.tv_usec > 1000000) {
         mark2.timestamp.tv_usec -= 1000000;
         mark2.timestamp.tv_sec++;
@@ -1282,7 +1282,7 @@ pmlogwritemark2(__pmFILE *fp, const __pmTimestamp *last_stamp)
 }
 
 static int
-pmlogwritemark3(__pmFILE *fp, const __pmTimestamp *last_stamp)
+pmlogwritemark3(__pmFILE *fp, const __pmTimestamp *last_stamp, int msecs)
 {
     struct {			/* from p_result.c */
 	__pmPDU		hdr;
@@ -1295,7 +1295,7 @@ pmlogwritemark3(__pmFILE *fp, const __pmTimestamp *last_stamp)
 
     mark3.hdr = mark3.tail = htonl((int)length);
     mark3.timestamp.tv_sec = last_stamp->sec;
-    mark3.timestamp.tv_nsec = last_stamp->nsec + 1000000; /* + 1msec */
+    mark3.timestamp.tv_nsec = last_stamp->nsec + (msecs * 1000000); /* + N ms */
     if (mark3.timestamp.tv_nsec > 1000000000) {
 	mark3.timestamp.tv_nsec -= 1000000000;
 	mark3.timestamp.tv_sec++;
@@ -1311,11 +1311,11 @@ pmlogwritemark3(__pmFILE *fp, const __pmTimestamp *last_stamp)
 }
 
 int
-__pmLogWriteMark(__pmFILE *fp, int version, const __pmTimestamp *last_stamp)
+__pmLogWriteMark(__pmFILE *fp, int version, const __pmTimestamp *last_stamp, int msecs)
 {
     if (version >= PM_LOG_VERS03)
-	return pmlogwritemark3(fp, last_stamp);
-    return pmlogwritemark2(fp, last_stamp);
+	return pmlogwritemark3(fp, last_stamp, msecs);
+    return pmlogwritemark2(fp, last_stamp, msecs);
 }
 
 /*
