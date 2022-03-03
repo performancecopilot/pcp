@@ -9,6 +9,7 @@ agenttimeout
 aggrstore
 anon-sa
 archctl_segfault
+archend
 archfetch
 archinst
 arch_maxfd
@@ -211,6 +212,7 @@ record-setarg
 rootclient
 rtimetest
 scale
+scandata
 scanmeta
 semstr
 sha1int2ext

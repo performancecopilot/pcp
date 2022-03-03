@@ -231,5 +231,5 @@ Options:\n\
     stamp.nsec = epoch.nsec;
     __pmLogPutIndex(&archctl, &stamp);
 
-    return 0;
+    exit(0);
 }
