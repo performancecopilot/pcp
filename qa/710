@@ -2,7 +2,7 @@
 # PCP QA Test No. 710
 # Exercise python PMI layer using a real script
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012,2022 Red Hat.
 #
 
 seq=`basename $0`
@@ -24,6 +24,7 @@ filter_dump()
 }
 
 # real QA test starts here
+echo && echo "=== Check import v2"
 $python $here/src/check_import.py $tmp.pcplog >$tmp.out 2>&1
 if [ $? -eq 0 ]
 then
@@ -40,6 +41,23 @@ then
 else
     cat $tmp.out
     echo "check_import python script gave non-zero result"
+fi
+
+# same again but for version 3 archive format
+echo && echo "=== Check import v3"
+$python $here/src/check_import.py $tmp.pcplog3 3 >$tmp.out 2>&1
+if [ $? -eq 0 ]
+then
+    echo "=== logcheck ==="
+    pmlogcheck $tmp.pcplog3
+
+    echo
+    echo "=== dumplog ==="
+    pmdumplog -dilmst $tmp.pcplog3 2>&1 | filter_dump
+    pmdumplog -a $tmp.pcplog3 >>$seq.full
+else
+    cat $tmp.out
+    echo "check_import python script gave non-zero result for v3"
 fi
 
 # success, all done

@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 
-# Copyright (c) 2019,2021 Red Hat.  All Rights Reserved.
+# Copyright (c) 2019,2021,2022 Red Hat.  All Rights Reserved.
 # Copyright (c) 2011 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -50,10 +50,24 @@ class MSSQLPMDA(PMDA):
 
     def sanitize(self, string):
         """ quoting - escape backslashes, single quotes and semi colons """
+        if string is None:
+            return ''
+        elif not isinstance(string, str):
+            string = str(string)
         string = string.replace("\\", "\\\\")
         string = string.replace("'", "\\'")
         string = string.replace(";", "\\;")
         return string
+
+    def intobool(self, string):
+        """ convert configuration input into valid boolean-typed return """
+        if string is None:
+            return False
+        elif not isinstance(string, str):
+            string = str(string)
+        if string.lower() in ['true', '1', 't', 'y', 'yes']:
+            return True
+        return False
 
     def __init__(self, name, domain):
         """ constructor """
@@ -1021,7 +1035,7 @@ class MSSQLPMDA(PMDA):
         except:
             self.timeout = 2    # 2 second timeout by default
         try:
-            self.trusted = bool(conf_vars["authentication.trusted"])
+            self.trusted = self.intobool(conf_vars["authentication.trusted"])
         except:
             self.trusted = False
         # first try Assessment API credentials, else our local config file,
@@ -1034,7 +1048,7 @@ class MSSQLPMDA(PMDA):
                 self.password = assessment.readline().strip()
         except:
             self.username = conf_vars["authentication.username"]
-            self.password = str(conf_vars["authentication.password"])
+            self.password = conf_vars["authentication.password"]
         self.username = self.sanitize(self.username)
         self.password = self.sanitize(self.password)
 
@@ -1067,8 +1081,8 @@ class MSSQLPMDA(PMDA):
         for row in rows:
             instname = row[column].replace(" ", "_")
             instances[instname] = c_int(1)
-            self.debug("mssql_refresh_instances",
-                       "indom=0x%04x instname=%s" % (indom, instname))
+            #self.debug("mssql_refresh_instances",
+            #           "indom=0x%04x instname=%s" % (indom, instname))
 
     def mssql_refresh_indom(self, indom):
         """ refresh names and identifiers for given indom """
@@ -1088,12 +1102,12 @@ class MSSQLPMDA(PMDA):
 
         # update the indom
         self.replace_indom(indom, instances)
-        self.debug("mssql_refresh_indom",
-                   "indom=0x%04x instances=%s" % (indom, instances))
+        #self.debug("mssql_refresh_indom",
+        #           "indom=0x%04x instances=%s" % (indom, instances))
 
     def mssql_refresh(self, cluster):
         """ refresh values for the given cluster """
-        self.debug("mssql_refresh", "cluster %d started" % cluster)
+        #self.debug("mssql_refresh", "cluster %d started" % cluster)
         if cluster < 100:   # reserved for os_perf_counter clusters
             self.mssql_refresh_dm_os_perf(cluster)
         elif cluster in self.dm_io_vfiles_clusters.keys():
@@ -1108,11 +1122,11 @@ class MSSQLPMDA(PMDA):
         elif cluster in self.dm_os_wait_stats_clusters.keys():
             self.mssql_refresh_dm_values(cluster,
                     self.dm_os_wait_stats_clusters, self.dm_os_wait_stats_items)
-        self.debug("mssql_refresh", "cluster %d finished" % cluster)
+        #self.debug("mssql_refresh", "cluster %d finished" % cluster)
 
     def mssql_refresh_dm_os_perf(self, cluster):
         """ refresh values for the given os_perf cluster """
-        self.debug("mssql_refresh_dm_os_perf", "cluster %d" % cluster)
+        #self.debug("mssql_refresh_dm_os_perf", "cluster %d" % cluster)
 
         # execute the SQL statement for this cluster
         cursor = self.mssql_cursor()
@@ -1143,16 +1157,16 @@ class MSSQLPMDA(PMDA):
     def mssql_refresh_dm_os_perf_metric(self, metric, rows):
         """ extract and stash os_perf metric values from given rows """
         for row in rows:
-            self.debug("mssql_refresh_dm_os_perf_metric", "row %s" % str(row))
+            #self.debug("mssql_refresh_dm_os_perf_metric", "row %s" % str(row))
             if row[self.ROW_OS_PERF_NAME] != metric[self.METRIC_QUERYDATA]:
                 continue
             # found the correct metric for this row - update value
             instance = row[self.ROW_OS_PERF_INST].replace(" ", "_")
             metric[self.METRIC_VALUES][instance] = row[self.ROW_OS_PERF_VALUE]
-            self.debug("mssql_refresh_dm_os_perf_metric",
-                       "%s metric %s has value %s for instance %s" %
-                       (row[self.ROW_OS_PERF_NAME], metric[self.METRIC_NAME],
-                        str(row[self.ROW_OS_PERF_VALUE]), instance))
+            #self.debug("mssql_refresh_dm_os_perf_metric",
+            #           "%s metric %s has value %s for instance %s" %
+            #           (row[self.ROW_OS_PERF_NAME], metric[self.METRIC_NAME],
+            #            str(row[self.ROW_OS_PERF_VALUE]), instance))
 
     def mssql_refresh_dm_values(self, cluster, clusters, items):
         """ refresh multiple metrics values for the given cluster """
@@ -1199,8 +1213,8 @@ class MSSQLPMDA(PMDA):
 
     def mssql_fetch_callback(self, cluster, item, inst):
         """ Called for each instance of each fetched metric """
-        self.debug("mssql_fetch_callback",
-                   "entered [%d.%d] inst=%d" % (cluster, item, inst))
+        #self.debug("mssql_fetch_callback",
+        #           "entered [%d.%d] inst=%d" % (cluster, item, inst))
 
         pmid = self.PM_ID(cluster, item)
         metric = self.metrics[pmid]
@@ -1210,9 +1224,9 @@ class MSSQLPMDA(PMDA):
         indom = metric[self.METRIC_META].m_desc.indom
         values = metric[self.METRIC_VALUES]
 
-        self.debug("mssql_fetch_callback",
-                   "%s pmid 0x%04x [%d.%d] inst=%d, indom=0x%04x" %
-                   (name, pmid, cluster, item, inst, indom))
+        #self.debug("mssql_fetch_callback",
+        #           "%s pmid 0x%04x [%d.%d] inst=%d, indom=0x%04x" %
+        #           (name, pmid, cluster, item, inst, indom))
 
         # get the rowdata for this indom and instance
         try:
@@ -1225,9 +1239,9 @@ class MSSQLPMDA(PMDA):
                 value = values[instname]
         except KeyError:
             # no values available
-            self.debug("mssql_fetch_callback",
-                       "no value for pmid=0x%04x name=%s inst=%d" %
-                       (pmid, name, inst))
+            #self.debug("mssql_fetch_callback",
+            #           "no value for pmid=0x%04x name=%s inst=%d" %
+            #           (pmid, name, inst))
             return [c_api.PM_ERR_VALUE, 0]
         except:
             self.error("mssql_fetch_callback",

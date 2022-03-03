@@ -1,7 +1,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
-.\" Copyright (c) 2018 Red Hat.
+.\" Copyright (c) 2018,2022 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -37,8 +37,8 @@ pmiStart($\fIarchive\fP, $\fIinherit\fP);
 As part of the Performance Co-Pilot Log Import API (see
 .BR LOGIMPORT (3)),
 .B pmiStart
-creates a new context.  Each context maintains the following
-state and metadata:
+creates a new context.
+Each context maintains the following state and metadata:
 .IP \(bu 3n
 The base name (\c
 .IR archive )
@@ -46,12 +46,19 @@ for the physical  files
 that constitute the output PCP archive.
 .IP \(bu 3n
 The source hostname for the data that will be written to the
-PCP archive.  Defaults to the hostname of the localhost, but can be set using
+PCP archive.
+Defaults to the hostname of the localhost, but can be set using
 .BR pmiSetHostname (3).
 .IP \(bu 3n
 The source timezone for the
-PCP archive.  Defaults to the timezone of the localhost, but can be set using
+PCP archive.
+Defaults to the timezone of the localhost, but can be set using
 .BR pmiSetTimezone (3).
+.IP \(bu 3n
+The output archive version number for the
+PCP archive.
+Defaults to the traditional version 2 format, but can be set using
+.BR pmiSetVersion (3).
 .IP \(bu 3n
 Metrics and instance domains, as defined by
 .BR pmiAddMetric (3).
@@ -135,6 +142,7 @@ always returns a positive context identifier.
 .BR pmiPutLabel (3),
 .BR pmiSetHostname (3),
 .BR pmiSetTimezone (3),
+.BR pmiSetVersion (3),
 .BR pmiUseContext (3)
 and
 .BR pmiWrite (3).

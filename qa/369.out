@@ -67,8 +67,8 @@ pmiPutLabel: OK
 pmiPutLabel: OK
 pmiPutLabel: OK
 pmiPutLabel: Error: Illegal label type
-pmiPutLabel: Error: Illegal label id
-pmiPutLabel: Error: Illegal label id
+pmiPutLabel: Error: Illegal label identifier
+pmiPutLabel: Error: Illegal label identifier
 pmiPutLabel: Error: Illegal label instance
 pmiPutLabel: Error: Label name is empty
 pmiPutLabel: Error: Label value is empty
@@ -305,7 +305,11 @@ Perl wrapper version ...
 *PCP::LogImport::EXPORT_TAGS
 *PCP::LogImport::ISA
 *PCP::LogImport::PMI_DOMAIN
+*PCP::LogImport::PMI_ERR_ADDLABELERROR
 *PCP::LogImport::PMI_ERR_BADHANDLE
+*PCP::LogImport::PMI_ERR_BADLABELID
+*PCP::LogImport::PMI_ERR_BADLABELINSTANCE
+*PCP::LogImport::PMI_ERR_BADLABELTYPE
 *PCP::LogImport::PMI_ERR_BADMETRICNAME
 *PCP::LogImport::PMI_ERR_BADSEM
 *PCP::LogImport::PMI_ERR_BADTEXTCLASS
@@ -313,12 +317,15 @@ Perl wrapper version ...
 *PCP::LogImport::PMI_ERR_BADTEXTTYPE
 *PCP::LogImport::PMI_ERR_BADTIMESTAMP
 *PCP::LogImport::PMI_ERR_BADTYPE
+*PCP::LogImport::PMI_ERR_BADVERSION
 *PCP::LogImport::PMI_ERR_DUPINSTID
 *PCP::LogImport::PMI_ERR_DUPINSTNAME
 *PCP::LogImport::PMI_ERR_DUPMETRICID
 *PCP::LogImport::PMI_ERR_DUPMETRICNAME
 *PCP::LogImport::PMI_ERR_DUPTEXT
 *PCP::LogImport::PMI_ERR_DUPVALUE
+*PCP::LogImport::PMI_ERR_EMPTYLABELNAME
+*PCP::LogImport::PMI_ERR_EMPTYLABELVALUE
 *PCP::LogImport::PMI_ERR_EMPTYTEXTCONTENT
 *PCP::LogImport::PMI_ERR_INSTNOTNULL
 *PCP::LogImport::PMI_ERR_INSTNULL
@@ -386,6 +393,7 @@ Perl wrapper version ...
 *PCP::LogImport::pmiPutValueHandle
 *PCP::LogImport::pmiSetHostname
 *PCP::LogImport::pmiSetTimezone
+*PCP::LogImport::pmiSetVersion
 *PCP::LogImport::pmiStart
 *PCP::LogImport::pmiUnits
 *PCP::LogImport::pmiUseContext
@@ -399,7 +407,11 @@ EXPORT_TAGS
 ISA
 PCP::LogImport symbols ...
 PMI_DOMAIN
+PMI_ERR_ADDLABELERROR
 PMI_ERR_BADHANDLE
+PMI_ERR_BADLABELID
+PMI_ERR_BADLABELINSTANCE
+PMI_ERR_BADLABELTYPE
 PMI_ERR_BADMETRICNAME
 PMI_ERR_BADSEM
 PMI_ERR_BADTEXTCLASS
@@ -407,12 +419,15 @@ PMI_ERR_BADTEXTID
 PMI_ERR_BADTEXTTYPE
 PMI_ERR_BADTIMESTAMP
 PMI_ERR_BADTYPE
+PMI_ERR_BADVERSION
 PMI_ERR_DUPINSTID
 PMI_ERR_DUPINSTNAME
 PMI_ERR_DUPMETRICID
 PMI_ERR_DUPMETRICNAME
 PMI_ERR_DUPTEXT
 PMI_ERR_DUPVALUE
+PMI_ERR_EMPTYLABELNAME
+PMI_ERR_EMPTYLABELVALUE
 PMI_ERR_EMPTYTEXTCONTENT
 PMI_ERR_INSTNOTNULL
 PMI_ERR_INSTNULL
@@ -480,6 +495,7 @@ pmiPutValue
 pmiPutValueHandle
 pmiSetHostname
 pmiSetTimezone
+pmiSetVersion
 pmiStart
 pmiUnits
 pmiUseContext

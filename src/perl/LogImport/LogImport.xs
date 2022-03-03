@@ -95,6 +95,10 @@ pmiSetTimezone(value)
 	char	*value;
 
 int
+pmiSetVersion(value)
+	int	value;
+
+int
 pmiAddMetric(name, pmid, type, indom, sem, units)
 	const char	*name;
 	pmID		pmid;

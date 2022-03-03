@@ -666,6 +666,9 @@ do_result(void)
 	__pmPDU		*logrec = (__pmPDU *)inarch.logrec;
 	unsigned long	out_offset;
 	unsigned long	peek_offset;
+	__uint64_t	max_offset;
+
+	max_offset = (outarch.version == PM_LOG_VERS02) ? 0x7fffffff : LONGLONG_MAX;
 	peek_offset = __pmFtell(outarch.archctl.ac_mfp);
 	sts = __pmEncodeResult(outarch.archctl.ac_log, inarch.rp, &logrec);
 	if (sts < 0) {
@@ -675,11 +678,10 @@ do_result(void)
 	    /*NOTREACHED*/
 	}
 	peek_offset += ((__pmPDUHdr *)logrec)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
-	if ((outarch.version == PM_LOG_VERS02 && peek_offset > 0x7fffffff) ||
-	    ((int64_t)peek_offset > LONGLONG_MAX)) {
+	if (peek_offset > max_offset) {
 	    /*
 	     * data file size will exceed maximum (2^31-1 bytes for v2),
-	     * so force a volume switch
+	     * or 2^63-1 bytes (for v3+), so force a volume switch
 	     */
 	    newvolume(outarch.archctl.ac_curvol+1);
 	}

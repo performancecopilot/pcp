@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+.\" Copyright (c) 2022 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -13,37 +13,44 @@
 .\" for more details.
 .\"
 .\"
-.TH PMISETTIMEZONE 3 "" "Performance Co-Pilot"
+.TH PMISETVERSION 3 "" "Performance Co-Pilot"
 .SH NAME
-\f3pmiSetTimezone\f1 \- set the source timezone for a LOGIMPORT archive
-.SH "C SYNOPSIS"
+\f3pmiSetVersion\f1 \- set the archive version for a LOGIMPORT archive
+.SH C SYNOPSIS
 .ft 3
 #include <pcp/pmapi.h>
 .br
 #include <pcp/import.h>
 .sp
-int pmiSetTimezone(const char *\fIvalue\fP);
+int pmiSetVersion(int \fIvalue\fP);
 .sp
 cc ... \-lpcp_import \-lpcp
 .ft 1
-.SH "Perl SYNOPSIS"
+.SH PERL SYNOPSIS
 .ft 3
 use PCP::LogImport;
 .sp
-pmiSetTimezone($\fIvalue\fP);
+pmiSetVersion($\fIvalue\fP);
+.ft 1
+.SH PYTHON SYNOPSIS
+.ft 3
+from pcp import pmi
+.sp
+log = pmi.pmiLogImport(\fIpath\fP).pmiSetVersion(\fIvalue\fP)
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see
 .BR LOGIMPORT (3)),
-.B pmiSetTimezone
-sets the source timezone in the current context to be
+.B pmiSetVersion
+sets the output archive version in the current context to be
 .IR value .
 .PP
 In the absence of a call to
-.B pmiSetTimezone
-the source timezone defaults to the timezone of the localhost.
+.B pmiSetVersion
+the version currently defaults to the traditional v2 format.
+In a future major version of PCP it will default to v3 format.
 .SH DIAGNOSTICS
-.B pmiSetTimezone
+.B pmiSetVersion
 returns zero on success else a negative value that can be turned into an
 error message by calling
 .BR pmiErrStr (3).
@@ -51,6 +58,6 @@ error message by calling
 .BR LOGIMPORT (3),
 .BR pmiErrStr (3),
 .BR pmiSetHostname (3),
-.BR pmiSetVersion (3)
+.BR pmiSetTimezone (3)
 and
 .BR pmiStart (3).

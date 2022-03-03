@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Red Hat.
+ * Copyright (C) 2013-2014,2022 Red Hat.
  *
  * This file is part of the "pcp" module, the python interfaces for the
  * Performance Co-Pilot toolkit.
@@ -121,6 +121,7 @@ MOD_INIT(cpmi)
     pmi_edict_add(dict, edict, "PMI_ERR_EMPTYLABELNAME", PMI_ERR_EMPTYLABELNAME);
     pmi_edict_add(dict, edict, "PMI_ERR_EMPTYLABELVALUE", PMI_ERR_EMPTYLABELVALUE);
     pmi_edict_add(dict, edict, "PMI_ERR_ADDLABELERROR", PMI_ERR_ADDLABELERROR);
+    pmi_edict_add(dict, edict, "PMI_ERR_BADVERSION", PMI_ERR_BADVERSION);
 
     return MOD_SUCCESS_VAL(module);
 }
