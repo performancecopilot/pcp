@@ -113,6 +113,7 @@ enum {
 	CLUSTER_ZRAM_BD_STAT,	/* 89 /sys/block/zram[0-9]/bd_stat metrics */
 	CLUSTER_NET_ALL,	/* 90 /proc/net/dev aggregate metrics */
 	CLUSTER_FCHOST,		/* 91 /sys/class/fc_host metrics */
+	CLUSTER_WWID,		/* 92 multipath aggregated stats */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };
@@ -185,6 +186,7 @@ enum {
 	FCHOST_INDOM,		/* 39 - fibrechannel hosts */
 	INTERRUPT_CPU_INDOM,	/* 40 - per-CPU interrupt lines */
 	SOFTIRQ_CPU_INDOM,	/* 41 - per-CPU soft IRQs */
+	WWID_INDOM,		/* 42 - per-WWID multipath device */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };
