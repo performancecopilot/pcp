@@ -255,8 +255,9 @@ typedef struct {
     __int32_t		len;
     __int32_t		type;
     __int32_t		from;
-    pmTimeval		timestamp;	/* when returned */
-    int			numpmid;	/* zero PMIDs to follow */
+    __int32_t		sec;
+    __int32_t		usec;
+    __int32_t		numpmid;	/* zero PMIDs to follow */
 } mark2_t;
 
 typedef struct {
@@ -1671,6 +1672,7 @@ __int32_t *
 _createmark2(void)
 {
     mark2_t	*markp;
+    __pmTimestamp	stamp = { 0, 1000000 };		/* 1msec */
 
     /*
      * add space for trailer in case __pmLogPutResult2() is called with
@@ -1690,13 +1692,8 @@ _createmark2(void)
 
     markp->len = (int)sizeof(mark2_t);
     markp->type = markp->from = 0;
-    markp->timestamp.tv_sec = current.sec;
-    markp->timestamp.tv_usec = current.nsec / 1000;
-    markp->timestamp.tv_usec += 1000;	/* + 1msec */
-    if (markp->timestamp.tv_usec > 1000000) {
-	markp->timestamp.tv_usec -= 1000000;
-	markp->timestamp.tv_sec++;
-    }
+    __pmTimestampInc(&stamp, &current);
+    __pmPutTimeval(&stamp, &markp->sec);
     markp->numpmid = 0;
     return((__int32_t *)markp);
 }
@@ -2778,9 +2775,6 @@ writemark2(inarch_t *iap)
 	/*NOTREACHED*/
     }
 
-    p->timestamp.tv_sec = htonl(p->timestamp.tv_sec);
-    p->timestamp.tv_usec = htonl(p->timestamp.tv_usec);
-
     if ((sts = __pmLogPutResult2(&archctl, (__pmPDU *)iap->pb[LOG])) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		pmGetProgname(), pmErrStr(sts));
@@ -2973,8 +2967,12 @@ main(int argc, char **argv)
 	if (indx == 0) {
 	    /* start time */
 	    logstart = iap->label.start;	/* struct assignment */
+	    logstart_tv.tv_sec = iap->label.start.sec;
+	    logstart_tv.tv_usec = iap->label.start.nsec / 1000;
 	    /* end time */
 	    logend = end;			/* struct assignment */
+	    logend_tv.tv_sec = end.sec;
+	    logend_tv.tv_usec = end.nsec / 1000;
 	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "[%d] intial set log* ", indx);
 		__pmPrintTimestamp(stderr, &logstart);
@@ -3092,6 +3090,17 @@ main(int argc, char **argv)
 		pmGetProgname(), msg);
 	abandon_extract();
 	/*NOTREACHED*/
+    }
+    if (pmDebugOptions.appl2) {
+	fprintf(stderr, "pmParseTimeWindow -> %d win*_tv ", sts);
+	pmPrintStamp(stderr, &winstart_tv);
+	fprintf(stderr, " ... ");
+	pmPrintStamp(stderr, &winend_tv);
+	fprintf(stderr, " log*_tv ");
+	pmPrintStamp(stderr, &logstart_tv);
+	fprintf(stderr, " ... ");
+	pmPrintStamp(stderr, &logend_tv);
+	fputc('\n', stderr);
     }
     if (Sarg != NULL || Aarg != NULL || Oarg != NULL) {
 	winstart.sec = winstart_tv.tv_sec;
