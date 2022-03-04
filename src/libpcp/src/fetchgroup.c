@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018 Red Hat.
+ * Copyright (c) 2014-2018,2022 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,18 +21,6 @@
 #include <limits.h>
 #include <float.h>
 
-#ifndef LLONG_MAX
-#define LLONG_MAX LONGLONG_MAX
-#endif
-#ifndef LLONG_MIN
-#define LLONG_MIN -LLONG_MAX-1L
-#endif
-#ifndef ULLONG_MAX
-#define ULLONG_MAX ULONGLONG_MAX
-#endif
-
-/* ------------------------------------------------------------------------ */
-
 /*
  * An individual fetch-group is a linked list of requests tied to a
  * particular pcp context (which the fetchgroup owns).	NB: This is
@@ -41,7 +29,7 @@
 struct __pmFetchGroup {
     int	ctx;			/* our pcp context */
     int wrap;			/* wrap-handling flag, set at fg-create-time */
-    pmResult *prevResult;
+    pmHighResResult *prevResult;
     struct __pmFetchGroupItem *items;
     pmID *unique_pmids;
     size_t num_unique_pmids;
@@ -66,7 +54,7 @@ typedef struct __pmFetchGroupConversionSpec *pmFGC;
  */
 struct __pmFetchGroupItem {
     struct __pmFetchGroupItem *next;
-    enum { pmfg_item, pmfg_indom, pmfg_event, pmfg_timestamp } type;
+    enum { pmfg_item, pmfg_indom, pmfg_event, pmfg_timeval, pmfg_timespec } type;
 
     union {
 	struct {
@@ -112,14 +100,14 @@ struct __pmFetchGroupItem {
 	    unsigned *output_num;	/* NB: may be NULL */
 	} event;
 	struct {
+	    struct timespec *output_value;	/* NB: may be NULL */
+	} timespec;
+	struct {
 	    struct timeval *output_value;	/* NB: may be NULL */
-	} timestamp;
+	} timeval;
     } u;
 };
 typedef struct __pmFetchGroupItem *pmFGI;
-
-/* ------------------------------------------------------------------------ */
-/* Internal functions for finding, converting data. */
 
 static inline struct timespec *
 pmfg_timespec_from_timeval(const struct timeval *tv, struct timespec *ts)
@@ -127,13 +115,6 @@ pmfg_timespec_from_timeval(const struct timeval *tv, struct timespec *ts)
     ts->tv_sec = tv->tv_sec;
     ts->tv_nsec = tv->tv_usec * 1000;
     return ts;
-}
-
-static inline double
-pmfg_timespec_delta(const struct timespec *ap, const struct timespec *bp)
-{
-     return (double)(ap->tv_sec - bp->tv_sec) +
-	    (long double)(ap->tv_nsec - bp->tv_nsec) / (long double)1000000000;
 }
 
 /*
@@ -382,8 +363,8 @@ pmfg_prep_conversion(const pmDesc *desc, const char *scale, pmFGC conv, int otyp
 }
 
 /*
- * Extract value from pmResult interior.  Extends pmExtractValue/pmAtomStr with
- * string<->numeric conversion support.
+ * Extract value from result value sets.
+ * Extends pmExtractValue/pmAtomStr with string<->numeric conversion support.
  */
 static int
 __pmExtractValue2(int valfmt, const pmValue *ival, int itype, pmAtomValue *oval, int otype)
@@ -497,13 +478,13 @@ __pmStuffDoubleValue(double val, pmAtomValue *oval, int otype)
 		oval->ul = val;
 	    break;
 	case PM_TYPE_64:
-	    if (val > (double)LLONG_MAX || val < (double)LLONG_MIN)
+	    if (val > (double)LONGLONG_MAX || val < (double)(-LONGLONG_MAX-1L))
 		sts = PM_ERR_TRUNC;
 	    else
 		oval->ll = val;
 	    break;
 	case PM_TYPE_U64:
-	    if (val > (double)ULLONG_MAX)
+	    if (val > (double)ULONGLONG_MAX)
 		sts = PM_ERR_TRUNC;
 	    else if (val < 0.0)
 		sts = PM_ERR_SIGN;
@@ -542,13 +523,23 @@ __pmStuffDoubleValue(double val, pmAtomValue *oval, int otype)
 }
 
 static void
-pmfg_reinit_timestamp(pmFGI item)
+pmfg_reinit_timespec(pmFGI item)
 {
     assert(item != NULL);
-    assert(item->type == pmfg_timestamp);
+    assert(item->type == pmfg_timespec);
 
-    if (item->u.timestamp.output_value)
-	memset(item->u.timestamp.output_value, 0, sizeof(struct timeval));
+    if (item->u.timespec.output_value)
+	memset(item->u.timespec.output_value, 0, sizeof(struct timespec));
+}
+
+static void
+pmfg_reinit_timeval(pmFGI item)
+{
+    assert(item != NULL);
+    assert(item->type == pmfg_timeval);
+
+    if (item->u.timeval.output_value)
+	memset(item->u.timeval.output_value, 0, sizeof(struct timeval));
 }
 
 static void
@@ -627,7 +618,7 @@ pmfg_reinit_event(pmFGI item)
 
 /*
  * Find the pmValue corresponding to the item within the given
- * pmResult.  Convert it to given output type, including possible
+ * valueset.  Convert it to given output type, including possible
  * string<->number conversions.
  */
 static int
@@ -726,15 +717,13 @@ pmfg_extract_convert_item(pmFG pmfg, pmID metric_pmid, int metric_inst,
 
     if (conv->rate_convert) {
 	if (pmfg->prevResult) {
-	    pmResult *prev_r;
+	    pmHighResResult *prev_r;
 	    pmAtomValue prev_v;
-	    struct timespec prev_t;
 	    double deltaT, delta;
 	    const double epsilon = 0.000000001;	/* 1 nanosecond */
 
 	    prev_r = pmfg->prevResult;
-	    pmfg_timespec_from_timeval(&prev_r->timestamp, &prev_t);
-	    deltaT = pmfg_timespec_delta(timestamp, &prev_t);
+	    deltaT = pmtimespecSub(timestamp, &prev_r->timestamp);
 
 	    if (deltaT < epsilon)	/* avoid division by zero */
 		deltaT = epsilon;	/* (chose not to PM_ERR_CONV here) */
@@ -785,7 +774,7 @@ pmfg_extract_convert_item(pmFG pmfg, pmID metric_pmid, int metric_inst,
 }
 
 static void
-pmfg_fetch_item(pmFG pmfg, pmFGI item, pmResult *newResult)
+pmfg_fetch_item(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
 {
     int sts;
     pmAtomValue v;
@@ -813,13 +802,10 @@ pmfg_fetch_item(pmFG pmfg, pmFGI item, pmResult *newResult)
     }
 
     if (item->u.item.conv.rate_convert || item->u.item.conv.unit_convert) {
-	struct timespec timestamp;
-
-	pmfg_timespec_from_timeval(&newResult->timestamp, &timestamp),
 	sts = pmfg_extract_convert_item(pmfg,
 			item->u.item.metric_pmid, item->u.item.metric_inst, 0,
 		 	&item->u.item.metric_desc, &item->u.item.conv,
-			newResult->vset, newResult->numpmid, &timestamp,
+			newResult->vset, newResult->numpmid, &newResult->timestamp,
 			&v, item->u.item.output_type);
 	if (sts < 0)
 	    goto out;
@@ -844,18 +830,32 @@ out:
 }
 
 static void
-pmfg_fetch_timestamp(pmFG pmfg, pmFGI item, pmResult *newResult)
+pmfg_fetch_timespec(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
 {
-    assert(item->type == pmfg_timestamp);
+    assert(item->type == pmfg_timespec);
     assert(newResult != NULL);
     (void) pmfg;
 
-    if (item->u.timestamp.output_value)
-	*item->u.timestamp.output_value = newResult->timestamp;
+    if (item->u.timespec.output_value)
+	*item->u.timespec.output_value = newResult->timestamp;
 }
 
 static void
-pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmResult *newResult)
+pmfg_fetch_timeval(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
+{
+    assert(item->type == pmfg_timeval);
+    assert(newResult != NULL);
+    (void) pmfg;
+
+    if (item->u.timeval.output_value) {
+	unsigned int microseconds = newResult->timestamp.tv_nsec / 1000;
+	item->u.timeval.output_value->tv_usec = microseconds;
+	item->u.timeval.output_value->tv_sec = newResult->timestamp.tv_sec;
+    }
+}
+
+static void
+pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
 {
     int sts = 0;
     int i;
@@ -870,7 +870,7 @@ pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmResult *newResult)
     /*
      * Find our pmid in the newResult.	If rate-converting, we'll need to
      * find the corresponding pmid (and each instance) anew in the previous
-     * pmResult.
+     * result.
      */
     for (i = 0; i < newResult->numpmid; i++) {
 	if (newResult->vset[i]->pmid == item->u.indom.metric_pmid)
@@ -984,13 +984,11 @@ pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmResult *newResult)
 	/* Fetch & convert the actual value. */
 	if (item->u.indom.conv.rate_convert ||
 	    item->u.indom.conv.unit_convert) {
-	    struct timespec timestamp;
-
-	    pmfg_timespec_from_timeval(&newResult->timestamp, &timestamp);
 	    stss = pmfg_extract_convert_item(pmfg, item->u.indom.metric_pmid,
 				jv->inst, 0, &item->u.indom.metric_desc,
 				&item->u.indom.conv,
-				newResult->vset, newResult->numpmid, &timestamp,
+				newResult->vset, newResult->numpmid,
+				&newResult->timestamp,
 				&v, item->u.indom.output_type);
 	    if (stss < 0)
 		goto out1;
@@ -1100,7 +1098,7 @@ pmfg_fetch_event_field(pmFG pmfg, pmFGI item, unsigned int *output_num,
 }
 
 static void
-pmfg_fetch_event(pmFG pmfg, pmFGI item, pmResult *newResult)
+pmfg_fetch_event(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
 {
     int sts = 0;
     int i;
@@ -1224,11 +1222,8 @@ pmfg_clear_profile(pmFG pmfg)
 }
 
 
-/* ------------------------------------------------------------------------ */
-/* Public functions exported from libpcp and in pmapi.h */
-
 /*
- * Create a new fetchgroup.  Take a duplicate of the incoming pcp context.
+ * Create a new fetchgroup with an associated new PMAPI context.
  * Return 0 and set *ptr on success.
  */
 int
@@ -1387,7 +1382,7 @@ out:
 }
 
 int
-pmExtendFetchGroup_timestamp(pmFG pmfg, struct timeval *out_value)
+pmExtendFetchGroup_timespec(pmFG pmfg, struct timespec *out_value)
 {
     pmFGI item;
 
@@ -1398,16 +1393,47 @@ pmExtendFetchGroup_timestamp(pmFG pmfg, struct timeval *out_value)
     if (item == NULL)
 	return -ENOMEM;
 
-    item->type = pmfg_timestamp;
-    item->u.timestamp.output_value = out_value;
+    item->type = pmfg_timespec;
+    item->u.timespec.output_value = out_value;
 
-    pmfg_reinit_timestamp(item);
+    pmfg_reinit_timespec(item);
 
     /* link in */
     item->next = pmfg->items;
     pmfg->items = item;
 
     return 0;
+}
+
+int
+pmExtendFetchGroup_timeval(pmFG pmfg, struct timeval *out_value)
+{
+    pmFGI item;
+
+    if (pmfg == NULL)
+	return -EINVAL;
+
+    item = calloc(1, sizeof(*item));
+    if (item == NULL)
+	return -ENOMEM;
+
+    item->type = pmfg_timeval;
+    item->u.timeval.output_value = out_value;
+
+    pmfg_reinit_timeval(item);
+
+    /* link in */
+    item->next = pmfg->items;
+    pmfg->items = item;
+
+    return 0;
+}
+
+int
+pmExtendFetchGroup_timestamp(pmFG pmfg, struct timeval *out_value)
+{
+    /* backwards compatibility */
+    return pmExtendFetchGroup_timeval(pmfg, out_value);
 }
 
 int
@@ -1610,8 +1636,8 @@ pmFetchGroup(pmFG pmfg)
 {
     int sts;
     pmFGI item;
-    pmResult *newResult;
-    pmResult dummyResult;
+    pmHighResResult *newResult;
+    pmHighResResult dummyResult;
 
     if (pmfg == NULL)
 	return -EINVAL;
@@ -1622,8 +1648,11 @@ pmFetchGroup(pmFG pmfg)
      */
     for (item = pmfg->items; item; item = item->next) {
 	switch (item->type) {
-	    case pmfg_timestamp:
-		pmfg_reinit_timestamp(item);
+	    case pmfg_timespec:
+		pmfg_reinit_timespec(item);
+		break;
+	    case pmfg_timeval:
+		pmfg_reinit_timeval(item);
 		break;
 	    case pmfg_item:
 		if (item->u.item.metric_desc.sem != PM_SEM_DISCRETE)
@@ -1646,27 +1675,29 @@ pmFetchGroup(pmFG pmfg)
     if (sts != 0)
 	return sts;
 
-    sts = pmFetch(pmfg->num_unique_pmids, pmfg->unique_pmids, &newResult);
+    sts = pmHighResFetch(pmfg->num_unique_pmids, pmfg->unique_pmids, &newResult);
     if (sts < 0 || newResult == NULL) {
 	/*
 	 * Populate an empty fetch result, which will send out the
 	 * appropriate PM_ERR_VALUE etc. indications to the fetchgroup
 	 * items.
 	 */
-	gettimeofday(&dummyResult.timestamp, NULL);
-	dummyResult.numpmid = 0;
-	dummyResult.vset[0] = NULL;
+	memset(&dummyResult, 0, sizeof(dummyResult));
+	__pmGetTimespec(&dummyResult.timestamp);
 	newResult = &dummyResult;
     }
 
     /* Sort instances so that the indom fetchgroups come out conveniently */
-    pmSortInstances(newResult);
+    pmHighResSortInstances(newResult);
 
     /* Walk the fetchgroup. */
     for (item = pmfg->items; item; item = item->next) {
 	switch (item->type) {
-	    case pmfg_timestamp:
-		pmfg_fetch_timestamp(pmfg, item, newResult);
+	    case pmfg_timeval:
+		pmfg_fetch_timeval(pmfg, item, newResult);
+		break;
+	    case pmfg_timespec:
+		pmfg_fetch_timespec(pmfg, item, newResult);
 		break;
 	    case pmfg_item:
 		pmfg_fetch_item(pmfg, item, newResult);
@@ -1690,11 +1721,11 @@ pmFetchGroup(pmFG pmfg)
      */
     if (newResult != &dummyResult) {
 	if (pmfg->prevResult)
-	    pmFreeResult(pmfg->prevResult);
+	    pmFreeHighResResult(pmfg->prevResult);
 	pmfg->prevResult = newResult;
     }
 
-    /* NB: we pass through the pmFetch() sts. */
+    /* NB: we pass through the pmHighResFetch() sts. */
     return sts;
 }
 
@@ -1725,7 +1756,8 @@ pmClearFetchGroup(pmFG pmfg)
 	    case pmfg_event:
 		pmfg_reinit_event(item);
 		break;
-	    case pmfg_timestamp:
+	    case pmfg_timespec:
+	    case pmfg_timeval:
 		/* no dynamically allocated content. */
 		break;
 	    default:
@@ -1737,7 +1769,7 @@ pmClearFetchGroup(pmFG pmfg)
     pmfg->items = NULL;
 
     if (pmfg->prevResult)
-	pmFreeResult(pmfg->prevResult);
+	pmFreeHighResResult(pmfg->prevResult);
     pmfg->prevResult = NULL;
     if (pmfg->unique_pmids)
 	free(pmfg->unique_pmids);
