@@ -23,7 +23,7 @@ _filter()
     # "dbpmda> $" filter for Linux
     sed \
     	-e '/pmResult/s/0x[^ ]*/ADDR/g' \
-    	-e '/pmResult/s/amp: 0.000000 .* numpmid:/amp: EPOCH in LOCALTIME numpmid:/' \
+    	-e '/pmResult/s/amp: 0.000000000 .* numpmid:/amp: EPOCH in LOCALTIME numpmid:/' \
     	-e '/Error: .*() failed/s/Broken pipe/[PMDA died]/' \
     	-e '/Error: .*() failed/s/PDU empty, PMDA may have died/[PMDA died]/' \
 	-e "s;$tmp;TMP;g" \
