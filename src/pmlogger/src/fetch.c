@@ -126,8 +126,8 @@ myFetch(int numpmid, pmID pmidlist[], __pmResult **result)
 	    do {
 		n = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
 		/*
-		 * expect PDU_RESULT or
-		 *        PDU_ERROR(changed > 0)+PDU_RESULT or
+		 * expect PDU_[HIGHRES_]RESULT or
+		 *        PDU_ERROR(changed > 0)+PDU_[HIGHRES_]RESULT or
 		 *        PDU_ERROR(real error < 0 from PMCD) or
 		 *        0 (end of file)
 		 *        < 0 (local error or IPC problem)
