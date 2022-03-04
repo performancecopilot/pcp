@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2014-2018 Red Hat, Inc.  All Rights Reserved.
+.\" Copyright (c) 2014-2020,2022 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -20,6 +20,8 @@
 \f3pmExtendFetchGroup_indom\f1,
 \f3pmExtendFetchGroup_event\f1,
 \f3pmExtendFetchGroup_timestamp\f1,
+\f3pmExtendFetchGroup_timespec\f1,
+\f3pmExtendFetchGroup_timeval\f1,
 \f3pmFetchGroup\f1,
 \f3pmGetFetchGroupContext\f1,
 \f3pmClearFetchGroup\f1,
@@ -45,6 +47,12 @@ int pmExtendFetchGroup_event(pmFG \fIpmfg\fP, const char *\fImetric\fP, const ch
 .br
 .ti -8n
 int pmExtendFetchGroup_timestamp(pmFG \fIpmfg\fP, struct timeval *\fIout_value\fP);
+.br
+.ti -8n
+int pmExtendFetchGroup_timespec(pmFG \fIpmfg\fP, struct timespec *\fIout_value\fP);
+.br
+.ti -8n
+int pmExtendFetchGroup_timeval(pmFG \fIpmfg\fP, struct timeval *\fIout_value\fP);
 .br
 .ti -8n
 int pmGetFetchGroupContext(pmFG \fIpmfg\fP);
@@ -419,12 +427,18 @@ Those are indicated with a negative return code.
 .in +8n
 .ti -8n
 int pmExtendFetchGroup_timestamp(pmFG \fIpmfg\fP, struct timeval *\fIout_value\fP);
+.br
+.ti -8n
+int pmExtendFetchGroup_timespec(pmFG \fIpmfg\fP, struct timespec *\fIout_value\fP);
+.br
+.ti -8n
+int pmExtendFetchGroup_timeval(pmFG \fIpmfg\fP, struct timeval *\fIout_value\fP);
 .sp
 .in
 .hy
 .ad
 .ft 1
-This function registers interest in the \fBpmResult\fP timestamp.
+These functions register interest in the \fBpmHighResResult\fP timestamp.
 If the \fIout_value\fP pointer is non-NULL, at every future
 \fBpmFetchGroup\fR call, the corresponding result timestamp will be
 copied there.
@@ -462,7 +476,7 @@ rate-conversion failure due to lack of a previous value.
 .PP
 However, temporarily absent metrics with discrete semantics are exempt
 from some sentinel/error processing: if a \fBpmFetchGroup\fP fails to
-collect a result for a discrete metric (pmResult
+collect a result for a discrete metric (pmHighResResult
 pmValueSet.numval==0), then the last seen valid value (if any) is
 retained.
 This is intended to ease the processing of sets of archives with a
@@ -623,7 +637,7 @@ registration until the \fBpmDestroyFetchGroup\fP call.
 .SH "SEE ALSO"
 .BR PMAPI (3),
 .BR pmLookupName (3),
-.BR pmFetch (3),
+.BR pmHighResFetch (3),
 .BR pmParseUnitsStr (3),
 .BR pmUseContext (3),
 .BR pmRegisterDerived (3)

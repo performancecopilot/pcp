@@ -796,6 +796,8 @@ PCP_3.36 {
 
 PCP_3.37 {
   global:
+    pmExtendFetchGroup_timespec;
+    pmExtendFetchGroup_timeval;
     pmHighResFetchArchive;
     pmHighResSortInstances;
     __pmDecodeHighResResult_ctx;
