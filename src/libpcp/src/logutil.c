@@ -1315,7 +1315,6 @@ pmlogwritemark3(__pmFILE *fp, const __pmTimestamp *last_stamp, int msecs)
 int
 __pmLogWriteMark(__pmFILE *fp, int version, const __pmTimestamp *last_stamp, int msecs)
 {
-fprintf(stderr, "__pmLogWriteMark: msecs=%d\n", msecs);
     if (version >= PM_LOG_VERS03)
 	return pmlogwritemark3(fp, last_stamp, msecs);
     return pmlogwritemark2(fp, last_stamp, msecs);
