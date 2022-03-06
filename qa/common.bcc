@@ -333,6 +333,11 @@ _pmdabcc_try_compile()
 	    cat bcc.log >>$here/$seq.full
 	    _notrun "Failed to load bcc program, see $seq.full for details"
 	fi
+	if grep 'Failed to attach BPF program' bcc.log >/dev/null
+	then
+	    cat bcc.log >>$here/$seq.full
+	    _notrun "Failed to attach bcc program, see $seq.full for details"
+	fi
 	$sudo rm -f bcc.log
     fi
 }
