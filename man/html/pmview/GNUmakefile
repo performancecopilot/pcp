@@ -15,7 +15,7 @@ $(BINTAR): $(PCPLOGS) $(CONFIGS)
 	for f in `echo $^`; do \
 	    echo $(BUNDLE)/$$f >> $$CDIR/manifest; \
 	done; \
-	$(TAR) --format ustar -T $$CDIR/manifest -cf - | $(ZIP) --best --no-name > $$CDIR/$(BINTAR); \
+	$(TAR) --format ustar -T $$CDIR/manifest --sort=name --mtime="@$(SOURCE_DATE_EPOCH)" --owner=0 --group=0 --numeric-owner --mode=u=wrX,og=rX -cf - | $(ZIP) --best --no-name > $$CDIR/$(BINTAR); \
 	echo "Created $(BINTAR)"
 
 include $(BUILDRULES)
