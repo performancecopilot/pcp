@@ -154,6 +154,9 @@ uninstallspark = cat $(dirdoc).dirs | sed -e "s,^,$(dirpcp_export_spark)/," | xa
 uninstallgui = cat $(dirgui).dirs | sed -e "s,^,$(dirpcp)/," | xargs rm -fr
 unrpathperl = find $(allperldir) -name \*.so | xargs chrpath -d
 
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/buildflags.mk
+
 build: build-arch build-indep
 build-arch: build-stamp
 build-indep: build-stamp
