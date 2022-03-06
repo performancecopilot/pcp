@@ -117,7 +117,8 @@ gpucom.o:	gpumetrics.h
 atop.o atopsar.o various.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 
 check::	$(CFILES) $(HFILES)
-	$(CLINT) $^
+	#$(CLINT) $^
+	#disabled due to https://bugzilla.redhat.com/show_bug.cgi?id=2056773
 
 check::	$(MAN_PAGES)
 	$(MANLINT) $^
