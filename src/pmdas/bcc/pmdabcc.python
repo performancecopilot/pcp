@@ -358,7 +358,7 @@ class BCCPMDA(PMDA):
             return PM_ERR_BADSTORE
 
 argc = len(sys.argv)
-trycompile = ""
+trycompile = ''
 if argc == 2 and sys.argv[1].startswith('--'):
     if sys.argv[1].startswith('--trycompile='):
         trycompile = sys.argv[1][13:]
