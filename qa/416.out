@@ -23,7 +23,7 @@ Metric: news.articles.total
    28.0.201
 dbpmda> fetch news.articles.total
 PMID(s): 28.0.201
-__pmResult dump from ADDR timestamp: 0.000000 TIMESTAMP numpmid: 1
+__pmResult dump from ADDR timestamp: 0.000000000 TIMESTAMP numpmid: 1
   28.0.201 (news.articles.total): numval: 1 valfmt: 0 vlist[]:
    value 800 1.1210388e-42 0x320
 dbpmda> desc news.articles.count
@@ -39,7 +39,7 @@ pmInDom: 28.0
 [  4] inst: 5 name: "sgi.engr.all"
 dbpmda> fetch news.articles.count
 PMID(s): 28.0.301
-__pmResult dump from ADDR timestamp: 0.000000 TIMESTAMP numpmid: 1
+__pmResult dump from ADDR timestamp: 0.000000000 TIMESTAMP numpmid: 1
   28.0.301 (news.articles.count): numval: 5 valfmt: 0 vlist[]:
     inst [1 or ???] value 0 0 0x0
     inst [2 or ???] value 0 0 0x0

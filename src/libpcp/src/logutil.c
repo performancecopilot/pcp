@@ -1048,7 +1048,7 @@ paranoidCheck(int len, int version, __pmPDU *pb)
     if (version >= PM_LOG_VERS03) {
 	v3rp = (struct log_result_v3_t *)pb;
 	numpmid = ntohl(v3rp->numpmid);
-	hdrsz = 7 * sizeof(__int32_t);
+	hdrsz = 6 * sizeof(__int32_t);
 	data = (__pmPDU *)v3rp->data;
     } else {
 	rp = (struct result_t *)pb;
@@ -1257,25 +1257,27 @@ clearMarkDone(__pmContext *ctxp)
 static int
 pmlogwritemark2(__pmFILE *fp, const __pmTimestamp *last_stamp, int msecs)
 {
-    struct {			/* from p_result.c */
-	__pmPDU		hdr;
-	pmTimeval	timestamp;      /* when returned */
-	int		numpmid;        /* zero PMIDs to follow */
-	__pmPDU		tail;
-    } mark2;
+    struct {			/* same as in p_result.c */
+	__int32_t	head;		/* len */
+	__int32_t	sec;
+	__int32_t	usec;
+	__int32_t	numpmid;	/* 0 */
+	__int32_t	tail;		/* len */
+    } mark;
 
-    mark2.hdr = mark2.tail = htonl((int)sizeof(mark2));
-    mark2.timestamp.tv_sec = last_stamp->sec;
-    mark2.timestamp.tv_usec = (last_stamp->nsec / 1000) + (msecs * 1000); /* + N ms */
-    if (mark2.timestamp.tv_usec > 1000000) {
-        mark2.timestamp.tv_usec -= 1000000;
-        mark2.timestamp.tv_sec++;
+    mark.head = mark.tail = htonl((int)sizeof(mark));
+    mark.numpmid = htonl(0);
+    if (msecs) {
+	/* optional increment */
+	__pmTimestamp	stamp = { 0, 0 };
+	stamp.nsec = msecs * 1000000;
+	__pmTimestampInc(&stamp, last_stamp);
+	__pmPutTimeval(&stamp, &mark.sec);
     }
-    mark2.timestamp.tv_sec = htonl(mark2.timestamp.tv_sec);
-    mark2.timestamp.tv_usec = htonl(mark2.timestamp.tv_usec);
-    mark2.numpmid = htonl(0);
+    else
+	__pmPutTimeval(last_stamp, &mark.sec);
 
-    if (__pmFwrite(&mark2, 1, sizeof(mark2), fp) != sizeof(mark2))
+    if (__pmFwrite(&mark, 1, sizeof(mark), fp) != sizeof(mark))
         return -oserror();
 
     return 0;
@@ -1284,27 +1286,27 @@ pmlogwritemark2(__pmFILE *fp, const __pmTimestamp *last_stamp, int msecs)
 static int
 pmlogwritemark3(__pmFILE *fp, const __pmTimestamp *last_stamp, int msecs)
 {
-    struct {			/* from p_result.c */
-	__pmPDU		hdr;
-	int		numpmid;        /* zero PMIDs to follow */
-	pmTimespec	timestamp;      /* when returned */
-	__pmPDU		tail;
-	int		pad;	/* explicit padding for size calculation */
-    } mark3;
-    const size_t	length = sizeof(mark3) - sizeof(mark3.pad);
+    struct {			/* same as in p_result.c */
+	__int32_t	head;		/* len */
+	__int32_t	sec[2];
+	__int32_t	nsec;
+	__int32_t	numpmid;	/* 0 */
+	__int32_t	tail;		/* len */
+    } mark;
 
-    mark3.hdr = mark3.tail = htonl((int)length);
-    mark3.timestamp.tv_sec = last_stamp->sec;
-    mark3.timestamp.tv_nsec = last_stamp->nsec + (msecs * 1000000); /* + N ms */
-    if (mark3.timestamp.tv_nsec > 1000000000) {
-	mark3.timestamp.tv_nsec -= 1000000000;
-	mark3.timestamp.tv_sec++;
+    mark.head = mark.tail = htonl((int)sizeof(mark));
+    mark.numpmid = htonl(0);
+    if (msecs) {
+	/* optional increment */
+	__pmTimestamp	stamp = { 0, 0 };
+	stamp.nsec = msecs * 1000000;
+	__pmTimestampInc(&stamp, last_stamp);
+	__pmPutTimestamp(&stamp, &mark.sec[0]);
     }
-    __htonll((char *)&mark3.timestamp.tv_sec);
-    __htonll((char *)&mark3.timestamp.tv_nsec);
-    mark3.numpmid = htonl(0);
+    else
+	__pmPutTimestamp(last_stamp, &mark.sec[0]);
 
-    if (__pmFwrite(&mark3, 1, length, fp) != length)
+    if (__pmFwrite(&mark, 1, sizeof(mark), fp) != sizeof(mark))
 	return -oserror();
 
     return 0;

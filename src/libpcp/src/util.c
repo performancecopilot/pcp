@@ -838,7 +838,7 @@ __pmPrintResult_ctx(__pmContext *ctxp, FILE *f, const __pmResult *resp)
 	PM_ASSERT_IS_LOCKED(ctxp->c_lock);
 
     save_debug();
-    fprintf(f, "__pmResult dump from " PRINTF_P_PFX "%p timestamp: %" FMT_INT64 ".%06d ",
+    fprintf(f, "__pmResult dump from " PRINTF_P_PFX "%p timestamp: %" FMT_INT64 ".%09d ",
 	resp, resp->timestamp.sec, resp->timestamp.nsec);
     __pmPrintTimestamp(f, &resp->timestamp);
     fprintf(f, " numpmid: %d\n", resp->numpmid);

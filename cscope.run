@@ -37,7 +37,7 @@ if $rebuild || [ ! -f cscope.files ]
 then
     rm -f cscope.out cscope.files
     git ls-files >$tmp.tmp
-    find src qa -type f -a \( -name "*.[chly]" -o -name "*.h.in" -o -name "*.cpp" \) \
+    find src qa -type f -a \( -name "*.[chly]" -o -name "*.h.in" -o -name "*.y.in" -o -name "*.cpp" \) \
     | while read file
     do
 	if grep "^$file\$" $tmp.tmp >/dev/null

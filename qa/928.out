@@ -2,9 +2,9 @@ QA output created by 928
 +++ __pmLogPutresult() +++
 Expect timestamps to start @14:49:48.067305985
 sampledso.long.one -> 30.0.10
-sampledso.ulonglong.one -> 30.0.98
-sampledso.float.one -> 30.0.15
-sampledso.double.one -> 30.0.25
+sampledso.ulonglong.ten -> 30.0.99
+sampledso.float.hundred -> 30.0.17
+sampledso.double.million -> 30.0.28
 sampledso.string.hullo -> 30.0.31
 sampledso.bin -> 30.0.6
 __pmLogPutResult: 1 metrics ...
@@ -25,13 +25,13 @@ PMID: 30.0.6 (sampledso.bin)
 PMID: 30.0.31 (sampledso.string.hullo)
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 30.0.25 (sampledso.double.one)
+PMID: 30.0.28 (sampledso.double.million)
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 30.0.15 (sampledso.float.one)
+PMID: 30.0.17 (sampledso.float.hundred)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 30.0.98 (sampledso.ulonglong.one)
+PMID: 30.0.99 (sampledso.ulonglong.ten)
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 PMID: 30.0.10 (sampledso.long.one)
@@ -54,7 +54,7 @@ InDom: 30.2
 Temporal Index
 		Log Vol    end(meta)     end(log)
 14:49:48.067305	      0          132          132
-14:49:54.067305	      0          659          904
+14:49:54.067305	      0          667          904
 
 [40 bytes]
 14:49:49.067305 1 metric
@@ -63,35 +63,35 @@ Temporal Index
 [72 bytes]
 14:49:50.067305 2 metrics
     30.0.10 (sampledso.long.one): value 1
-    30.0.98 (sampledso.ulonglong.one): value 1
+    30.0.99 (sampledso.ulonglong.ten): value 10
 
 [100 bytes]
 14:49:51.067305 3 metrics
     30.0.10 (sampledso.long.one): value 1
-    30.0.98 (sampledso.ulonglong.one): value 1
-    30.0.15 (sampledso.float.one): value 1
+    30.0.99 (sampledso.ulonglong.ten): value 10
+    30.0.17 (sampledso.float.hundred): value 100
 
 [132 bytes]
 14:49:52.067305 4 metrics
     30.0.10 (sampledso.long.one): value 1
-    30.0.98 (sampledso.ulonglong.one): value 1
-    30.0.15 (sampledso.float.one): value 1
-    30.0.25 (sampledso.double.one): value 1
+    30.0.99 (sampledso.ulonglong.ten): value 10
+    30.0.17 (sampledso.float.hundred): value 100
+    30.0.28 (sampledso.double.million): value 1000000
 
 [172 bytes]
 14:49:53.067305 5 metrics
     30.0.10 (sampledso.long.one): value 1
-    30.0.98 (sampledso.ulonglong.one): value 1
-    30.0.15 (sampledso.float.one): value 1
-    30.0.25 (sampledso.double.one): value 1
+    30.0.99 (sampledso.ulonglong.ten): value 10
+    30.0.17 (sampledso.float.hundred): value 100
+    30.0.28 (sampledso.double.million): value 1000000
     30.0.31 (sampledso.string.hullo): value "hullo world!"
 
 [256 bytes]
 14:49:54.067305 6 metrics
     30.0.10 (sampledso.long.one): value 1
-    30.0.98 (sampledso.ulonglong.one): value 1
-    30.0.15 (sampledso.float.one): value 1
-    30.0.25 (sampledso.double.one): value 1
+    30.0.99 (sampledso.ulonglong.ten): value 10
+    30.0.17 (sampledso.float.hundred): value 100
+    30.0.28 (sampledso.double.million): value 1000000
     30.0.31 (sampledso.string.hullo): value "hullo world!"
     30.0.6 (sampledso.bin):
         inst [100 or "bin-100"] value 100
@@ -107,9 +107,9 @@ Temporal Index
 +++ __pmLogPutresult2() +++
 Expect timestamps to start @14:49:48.067305985
 sampledso.long.one -> 30.0.10
-sampledso.ulonglong.one -> 30.0.98
-sampledso.float.one -> 30.0.15
-sampledso.double.one -> 30.0.25
+sampledso.ulonglong.ten -> 30.0.99
+sampledso.float.hundred -> 30.0.17
+sampledso.double.million -> 30.0.28
 sampledso.string.hullo -> 30.0.31
 sampledso.bin -> 30.0.6
 __pmLogPutResult2: 1 metrics ...
@@ -130,13 +130,13 @@ PMID: 30.0.6 (sampledso.bin)
 PMID: 30.0.31 (sampledso.string.hullo)
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 30.0.25 (sampledso.double.one)
+PMID: 30.0.28 (sampledso.double.million)
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 30.0.15 (sampledso.float.one)
+PMID: 30.0.17 (sampledso.float.hundred)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 30.0.98 (sampledso.ulonglong.one)
+PMID: 30.0.99 (sampledso.ulonglong.ten)
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 PMID: 30.0.10 (sampledso.long.one)
@@ -159,7 +159,7 @@ InDom: 30.2
 Temporal Index
 		Log Vol    end(meta)     end(log)
 14:49:48.067305	      0          132          132
-14:49:54.067305	      0          659          904
+14:49:54.067305	      0          667          904
 
 [40 bytes]
 14:49:49.067305 1 metric
@@ -168,35 +168,35 @@ Temporal Index
 [72 bytes]
 14:49:50.067305 2 metrics
     30.0.10 (sampledso.long.one): value 1
-    30.0.98 (sampledso.ulonglong.one): value 1
+    30.0.99 (sampledso.ulonglong.ten): value 10
 
 [100 bytes]
 14:49:51.067305 3 metrics
     30.0.10 (sampledso.long.one): value 1
-    30.0.98 (sampledso.ulonglong.one): value 1
-    30.0.15 (sampledso.float.one): value 1
+    30.0.99 (sampledso.ulonglong.ten): value 10
+    30.0.17 (sampledso.float.hundred): value 100
 
 [132 bytes]
 14:49:52.067305 4 metrics
     30.0.10 (sampledso.long.one): value 1
-    30.0.98 (sampledso.ulonglong.one): value 1
-    30.0.15 (sampledso.float.one): value 1
-    30.0.25 (sampledso.double.one): value 1
+    30.0.99 (sampledso.ulonglong.ten): value 10
+    30.0.17 (sampledso.float.hundred): value 100
+    30.0.28 (sampledso.double.million): value 1000000
 
 [172 bytes]
 14:49:53.067305 5 metrics
     30.0.10 (sampledso.long.one): value 1
-    30.0.98 (sampledso.ulonglong.one): value 1
-    30.0.15 (sampledso.float.one): value 1
-    30.0.25 (sampledso.double.one): value 1
+    30.0.99 (sampledso.ulonglong.ten): value 10
+    30.0.17 (sampledso.float.hundred): value 100
+    30.0.28 (sampledso.double.million): value 1000000
     30.0.31 (sampledso.string.hullo): value "hullo world!"
 
 [256 bytes]
 14:49:54.067305 6 metrics
     30.0.10 (sampledso.long.one): value 1
-    30.0.98 (sampledso.ulonglong.one): value 1
-    30.0.15 (sampledso.float.one): value 1
-    30.0.25 (sampledso.double.one): value 1
+    30.0.99 (sampledso.ulonglong.ten): value 10
+    30.0.17 (sampledso.float.hundred): value 100
+    30.0.28 (sampledso.double.million): value 1000000
     30.0.31 (sampledso.string.hullo): value "hullo world!"
     30.0.6 (sampledso.bin):
         inst [100 or "bin-100"] value 100

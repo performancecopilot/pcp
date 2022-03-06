@@ -60,7 +60,7 @@ dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29 -l TMP.log
 Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29 -l TMP.log
 dbpmda> fetch sample.secret.foo.one, my.derived, sample.secret.foo.two
 PMID(s): 29.0.1001 511.0.3 29.0.1002
-__pmResult dump from ADDR timestamp: 0.000000 HH:00:00.000000000 numpmid: 3
+__pmResult dump from ADDR timestamp: 0.000000000 HH:00:00.000000000 numpmid: 3
   29.0.1001 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 1 1.4012985e-45 ADDR
   511.0.3 (my.derived): No values returned!

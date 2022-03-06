@@ -23,9 +23,9 @@ main(int argc, char **argv)
     int		indom_record_type = TYPE_INDOM_V2;
     const char	*metrics[] = {
 	"sampledso.long.one",
-	"sampledso.ulonglong.one",
-	"sampledso.float.one",
-	"sampledso.double.one",
+	"sampledso.ulonglong.ten",
+	"sampledso.float.hundred",
+	"sampledso.double.million",
 	"sampledso.string.hullo",
 	"sampledso.bin",
     };
