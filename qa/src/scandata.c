@@ -40,12 +40,22 @@ usage(void)
     fprintf(stderr, " -x               dump record in hex\n");
 }
 
+/*
+ * preamble in buffer for PDU format (not required for archive record)
+ * but needed to make offsets for vsets correct
+ *
+ * len:type:from:... for PDU cf len:... for archive record
+ *
+ * units for EXTRA are __int32_t words
+ */
+#define EXTRA 2
+
 int
 main(int argc, char *argv[])
 {
     __int32_t	len;
-    int		buflen;
-    __int32_t	*buf;
+    int		buflen = 0;
+    __int32_t	*buf = NULL;
     __int32_t	*data;
     int		in;
     int		nb;
@@ -101,12 +111,6 @@ main(int argc, char *argv[])
 	fprintf(stderr, "Failed to open %s: %s\n", argv[optind], strerror(errno));
 	exit(1);
     }
-    buflen = 0;
-    buf = (__int32_t *)malloc(buflen);
-    if (buf == NULL) {
-	fprintf(stderr, "Arrgh: buf malloc failed\n");
-	exit(1);
-    }
 
     if ((f = __pmFopen(argv[optind], "r")) == NULL) {
 	fprintf(stderr, "Failed to __pmFopen %s: %s\n", argv[optind], strerror(errno));
@@ -143,15 +147,17 @@ main(int argc, char *argv[])
 	}
 	rem = len - sizeof(len);
 	if (len > buflen) {
+	    if (buf)
+		__pmUnpinPDUBuf(buf);
 	    buflen = len;
-	    buf = (__int32_t *)realloc(buf, buflen);
+	    buf = (__int32_t *)__pmFindPDUBuf(buflen + EXTRA*sizeof(__int32_t));
 	    if (buf == NULL) {
-		fprintf(stderr, "Arrgh: buf realloc failed\n");
+		fprintf(stderr, "Arrgh: __pmFindPDUBuf(%d) failed\n", EXTRA*sizeof(__int32_t));
 		exit(1);
 	    }
 	}
-	buf[0] = htonl(len);
-	if ((nb = read(in, &buf[1], rem)) != rem) {
+	buf[EXTRA+0] = htonl(len);
+	if ((nb = read(in, &buf[EXTRA+1], rem)) != rem) {
 	    if (nb == 0)
 		fprintf(stderr, "[%d] body read error: end of file\n", nrec);
 	    else if (nb < 0)
@@ -162,60 +168,68 @@ main(int argc, char *argv[])
 	}
 	
 	if (vflag && nrec > 0) {
-	    __pmResult	result;
+	    __pmResult	*rp;
+	    int		numpmid;
 	    int		preamble;
 	    int		i;
 	    int		j;
+
 	    if (version == PM_LOG_VERS03) {
 		__pmTimestamp	stamp;
-		__pmLoadTimestamp(&buf[1], &stamp);
+		__pmLoadTimestamp(&buf[EXTRA+1], &stamp);
 		printf("Timestamp: ");
 		__pmPrintTimestamp(stdout, &stamp);
-		result.numpmid = ntohl(buf[4]);
-		data = &buf[5];
+		numpmid = ntohl(buf[EXTRA+4]);
+		data = &buf[EXTRA+5];
 		putchar('\n');
 	    }
 	    else {
 		__pmTimestamp	stamp;
-		__pmLoadTimeval(&buf[1], &stamp);
+		__pmLoadTimeval(&buf[EXTRA+1], &stamp);
 		printf("Timestamp: ");
 		__pmPrintTimestamp(stdout, &stamp);
-		result.numpmid = ntohl(buf[3]);
-		data = &buf[4];
+		numpmid = ntohl(buf[EXTRA+3]);
+		data = &buf[EXTRA+4];
 	    }
-	    printf(" numpmid: %d\n", result.numpmid);
-	    preamble = (data - buf + 2) * sizeof(data[0]);
-	    sts = __pmDecodeValueSet((__pmPDU *)&buf[-2], len+sizeof(buf[0]), (__pmPDU *)data, (char *)&buf[((len+2)/sizeof(buf[0]))-1], result.numpmid, preamble, preamble, result.vset);
+	    printf(" numpmid: %d\n", numpmid);
+	    if ((rp = __pmAllocResult(numpmid)) == NULL) {
+		fprintf(stderr, "__pmAllocResult(%d) failed!\n", numpmid);
+		exit(1);
+	    }
+	    rp->numpmid = numpmid;
+	    preamble = (data - buf) * sizeof(data[0]);
+	    sts = __pmDecodeValueSet((__pmPDU *)buf, len+sizeof(buf[0]), (__pmPDU *)data, (char *)&buf[((EXTRA*sizeof(__int32_t)+len)/sizeof(buf[0]))-1], numpmid, preamble, preamble, rp->vset);
 	    if (sts < 0)
 		printf("sts=%d (%s)\n", sts, pmErrStr(sts));
 	    else {
-		for (i = 0; i < result.numpmid; i++) {
-		    printf("[%d] %s numval: %d valfmt: %d\n", i, pmIDStr(result.vset[i]->pmid), result.vset[i]->numval, result.vset[i]->valfmt);
-		    for (j = 0; j < result.vset[i]->numval; j++) {
-			pmValue	*vp = &result.vset[i]->vlist[j];
+		for (i = 0; i < numpmid; i++) {
+		    printf("[%d] %s numval: %d valfmt: %d\n", i, pmIDStr(rp->vset[i]->pmid), rp->vset[i]->numval, rp->vset[i]->valfmt);
+		    for (j = 0; j < rp->vset[i]->numval; j++) {
+			pmValue	*vp = &rp->vset[i]->vlist[j];
 			printf("    inst[%d]: ", vp->inst);
-			if (result.vset[i]->valfmt == PM_VAL_INSITU)
+			if (rp->vset[i]->valfmt == PM_VAL_INSITU)
 			    pmPrintValue(stdout, PM_VAL_INSITU, PM_TYPE_UNKNOWN, vp, 1);
-			else if (result.vset[i]->valfmt == PM_VAL_DPTR || result.vset[i]->valfmt == PM_VAL_SPTR)
-			    pmPrintValue(stdout, result.vset[i]->valfmt, (int)vp->value.pval->vtype, vp, 1);
+			else if (rp->vset[i]->valfmt == PM_VAL_DPTR || rp->vset[i]->valfmt == PM_VAL_SPTR)
+			    pmPrintValue(stdout, rp->vset[i]->valfmt, (int)vp->value.pval->vtype, vp, 1);
 			else
-			    printf("bad valfmt %d", result.vset[i]->valfmt);
+			    printf("bad valfmt %d", rp->vset[i]->valfmt);
 			putchar('\n');
 		    }
 		}
-		__pmFreeResult(&result);
 	    }
+	    __pmFreeResult(rp);
 	}
 	
 	if (xflag) {
 	    int		i;
+printf("len=%d 0x%x\n", len, len);
 	    for (i = 0; i < len / sizeof(buf[0]); i++) {
 		if ((i % 8) == 0) {
 		    if (i > 0)
 			putchar('\n');
 		    printf("%4d", i);
 		}
-		printf(" %8x", buf[i]);
+		printf(" %8x", buf[EXTRA+i]);
 	    }
 	    putchar('\n');
 	}

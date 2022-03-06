@@ -21,8 +21,11 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
+mkdir $tmp
+cd $tmp
+
 # real QA test starts here
-src/check_pmiend_fdleak
+$here/src/check_pmiend_fdleak
 status=$?
 
 exit
