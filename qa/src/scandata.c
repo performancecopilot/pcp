@@ -152,7 +152,7 @@ main(int argc, char *argv[])
 	    buflen = len;
 	    buf = (__int32_t *)__pmFindPDUBuf(buflen + EXTRA*sizeof(__int32_t));
 	    if (buf == NULL) {
-		fprintf(stderr, "Arrgh: __pmFindPDUBuf(%d) failed\n", EXTRA*sizeof(__int32_t));
+		fprintf(stderr, "Arrgh: __pmFindPDUBuf(%zd) failed\n", EXTRA*sizeof(__int32_t));
 		exit(1);
 	    }
 	}
