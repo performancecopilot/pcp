@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2021 Red Hat.
+ * Copyright (c) 2021-2022 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -103,6 +103,13 @@ pmtimevalFromReal(double secs, struct timeval *val)
 {
     val->tv_sec = (time_t)secs;
     val->tv_usec = (long)((long double)(secs - val->tv_sec) * (long double)1000000 + (long double)0.5);
+}
+
+void
+pmtimespecFromReal(double secs, struct timespec *val)
+{
+    val->tv_sec = (time_t)secs;
+    val->tv_nsec = (long)((long double)(secs - val->tv_sec) * (long double)1000000000 + (long double)0.5);
 }
 
 /*

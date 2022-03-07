@@ -5,18 +5,18 @@ main(int argc, char *argv[])
 {
     int			sts;
     char		*err;
-    struct timeval	time;
+    struct timespec	time;
 
     while (argc > 1) {
 	printf("\"%s\"", argv[1]);
-	sts = pmParseInterval(argv[1], &time, &err);
+	sts = pmParseHighResInterval(argv[1], &time, &err);
 	if (sts == -1) {
 	    printf(" Error:\n%s", err);
 	    free(err);
 	}
 	else if (sts == 0) {
-	    printf(" Time: %lld.%06ld sec\n",
-			(long long)time.tv_sec, (long)time.tv_usec);
+	    printf(" Time: %lld.%09ld sec\n",
+			(long long)time.tv_sec, (long)time.tv_nsec);
 	}
 	else {
 	    printf(" Bogus return value: %d\n", sts);

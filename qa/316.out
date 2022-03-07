@@ -1,5 +1,73 @@
 QA output created by 316
 
+nanoseconds ...
+"123nanosecond" Time: 0.000000123 sec
+"123NANOSECOND" Time: 0.000000123 sec
+"123nanoseconds" Time: 0.000000123 sec
+"123NANOSECONDS" Time: 0.000000123 sec
+"123nsec" Time: 0.000000123 sec
+"123NSEC" Time: 0.000000123 sec
+"123nsecs" Time: 0.000000123 sec
+"123NSECS" Time: 0.000000123 sec
+"45.67nanosecond" Time: 0.000000046 sec
+"45.67NANOSECOND" Time: 0.000000046 sec
+"45.67nanoseconds" Time: 0.000000046 sec
+"45.67NANOSECONDS" Time: 0.000000046 sec
+"45.67nsec" Time: 0.000000046 sec
+"45.67NSEC" Time: 0.000000046 sec
+"45.67nsecs" Time: 0.000000046 sec
+"45.67NSECS" Time: 0.000000046 sec
+"8.nanosecond" Time: 0.000000008 sec
+"8.NANOSECOND" Time: 0.000000008 sec
+"8.nanoseconds" Time: 0.000000008 sec
+"8.NANOSECONDS" Time: 0.000000008 sec
+"8.nsec" Time: 0.000000008 sec
+"8.NSEC" Time: 0.000000008 sec
+"8.nsecs" Time: 0.000000008 sec
+"8.NSECS" Time: 0.000000008 sec
+"   9.123   nanosecond" Time: 0.000000009 sec
+"   9.123   NANOSECOND" Time: 0.000000009 sec
+"   9.123   nanoseconds" Time: 0.000000009 sec
+"   9.123   NANOSECONDS" Time: 0.000000009 sec
+"   9.123   nsec" Time: 0.000000009 sec
+"   9.123   NSEC" Time: 0.000000009 sec
+"   9.123   nsecs" Time: 0.000000009 sec
+"   9.123   NSECS" Time: 0.000000009 sec
+
+microseconds ...
+"123microsecond" Time: 0.000123000 sec
+"123MICROSECOND" Time: 0.000123000 sec
+"123microseconds" Time: 0.000123000 sec
+"123MICROSECONDS" Time: 0.000123000 sec
+"123usec" Time: 0.000123000 sec
+"123USEC" Time: 0.000123000 sec
+"123usecs" Time: 0.000123000 sec
+"123USECS" Time: 0.000123000 sec
+"45.67microsecond" Time: 0.000045670 sec
+"45.67MICROSECOND" Time: 0.000045670 sec
+"45.67microseconds" Time: 0.000045670 sec
+"45.67MICROSECONDS" Time: 0.000045670 sec
+"45.67usec" Time: 0.000045670 sec
+"45.67USEC" Time: 0.000045670 sec
+"45.67usecs" Time: 0.000045670 sec
+"45.67USECS" Time: 0.000045670 sec
+"8.microsecond" Time: 0.000008000 sec
+"8.MICROSECOND" Time: 0.000008000 sec
+"8.microseconds" Time: 0.000008000 sec
+"8.MICROSECONDS" Time: 0.000008000 sec
+"8.usec" Time: 0.000008000 sec
+"8.USEC" Time: 0.000008000 sec
+"8.usecs" Time: 0.000008000 sec
+"8.USECS" Time: 0.000008000 sec
+"   9.123   microsecond" Time: 0.000009123 sec
+"   9.123   MICROSECOND" Time: 0.000009123 sec
+"   9.123   microseconds" Time: 0.000009123 sec
+"   9.123   MICROSECONDS" Time: 0.000009123 sec
+"   9.123   usec" Time: 0.000009123 sec
+"   9.123   USEC" Time: 0.000009123 sec
+"   9.123   usecs" Time: 0.000009123 sec
+"   9.123   USECS" Time: 0.000009123 sec
+
 milliseconds ...
 "123millisecond" Time: 0.123000 sec
 "123MILLISECOND" Time: 0.123000 sec
@@ -186,8 +254,8 @@ some hybrids ...
 "1min30sec" Time: 90.000000 sec
 "1d1h1m1s1msec" Time: 90061.001000 sec
 "1.5 hr 10 min 15 sec" Time: 6015.000000 sec
-"1 2 3 4 5 6 7 8 9 10" Time: 55.000000 sec
-"55seconds" Time: 55.000000 sec
+"1 2 3 4 5 6 7 8 9 10" Time: 55.000000000 sec
+"55seconds" Time: 55.000000000 sec
 
 some errors ...
 "123+sec" Error:
