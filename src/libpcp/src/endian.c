@@ -77,6 +77,13 @@ __ntohpmLabel(pmLabel * const label)
 }
 #endif
 
+static void
+__htonpmTimespec(pmTimespec * const tsp)
+{
+    __htonll((char *)&tsp->tv_sec);
+    __htonll((char *)&tsp->tv_nsec);
+}
+
 #ifndef __htonpmValueBlock
 static void
 htonEventArray(pmValueBlock * const vb, int highres)
@@ -349,24 +356,6 @@ __ntohpmCred(__pmCred cred)
     cred = *(__pmCred *)&x;
 
     return cred;
-}
-#endif
-
-#ifndef __htonpmTimespec
-void
-__htonpmTimespec(pmTimespec * const tsp)
-{
-    __htonll((char *)&tsp->tv_sec);
-    __htonll((char *)&tsp->tv_nsec);
-}
-#endif
-
-#ifndef __ntohpmTimespec
-void
-__ntohpmTimespec(pmTimespec * const tsp)
-{
-    __ntohll((char *)&tsp->tv_sec);
-    __ntohll((char *)&tsp->tv_nsec);
 }
 #endif
 

@@ -60,8 +60,6 @@ extern int __pmGetDate(struct timespec *, char const *, struct timespec const *)
 #define __ntohpmLabel(a)	/* noop */
 #define __htonpmValueBlock(a)	/* noop */
 #define __ntohpmValueBlock(a)	/* noop */
-#define __htonpmTimespec(a)	/* noop */
-#define __ntohpmTimespec(a)	/* noop */
 #define __htonpmTimestamp(a)	/* noop */
 #define __ntohpmTimestamp(a)	/* noop */
 #define __htonf(a)		/* noop */
@@ -94,8 +92,6 @@ extern void __htonpmLabel(pmLabel * const) _PCP_HIDDEN;
 extern void __ntohpmLabel(pmLabel * const) _PCP_HIDDEN;
 extern void __htonpmValueBlock(pmValueBlock * const) _PCP_HIDDEN;
 extern void __ntohpmValueBlock(pmValueBlock * const) _PCP_HIDDEN;
-extern void __htonpmTimespec(pmTimespec * const ) _PCP_HIDDEN;
-extern void __ntohpmTimespec(pmTimespec * const ) _PCP_HIDDEN;
 extern void __htonpmTimestamp(__pmTimestamp * const );
 extern void __ntohpmTimestamp(__pmTimestamp * const );
 extern void __htonf(char *) _PCP_HIDDEN;	/* float */
