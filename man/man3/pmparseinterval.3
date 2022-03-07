@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2022 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -15,7 +16,8 @@
 .\"
 .TH PMPARSEINTERVAL 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmParseInterval\f1 \- convert interval string to \fBtimeval\fR structure
+\f3pmParseInterval\f1,
+\f3pmParseHighResInterval\f1 \- convert interval string to binary time structure
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -24,7 +26,10 @@
 .hy 0
 .in +8n
 .ti -8n
-int pmParseInterval(const char *\fIstring\fP, struct timeval *\fIrslt\fP, char\ **\fIerrmsg\fP);
+int pmParseInterval(const char *\fIstring\fP, struct timeval *\fIurslt\fP, char\ **\fIerrmsg\fP);
+.br
+.ti -8n
+int pmParseHighResInterval(const char *\fIstring\fP, struct timespec *\fInrslt\fP, char\ **\fIerrmsg\fP);
 .sp
 .in
 .hy
@@ -44,8 +49,20 @@ specifying an interval of time and fills in the
 and
 .B tv_usec
 components of the
-.I rslt
-structure to represent that interval.
+.I urslt
+structure to represent that interval (microsecond precision).
+.PP
+Similary,
+.B pmParseHighResInterval
+parses the argument
+.I string
+and fills in the
+.B tv_sec
+and
+.B tv_nsec
+components of the
+.I nrslt
+structure to represent that interval (nanosecond precision).
 .PP
 The input
 .I string

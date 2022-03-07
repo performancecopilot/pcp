@@ -21,16 +21,16 @@ _cleanup()
 {
     if $needclean
     then
+	# ensure cleanup of any pmie just started
+	_service pmie stop >>$here/$seq.full 2>&1
+	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >/dev/null 2>&1
+	$sudo rm -f ${PCP_PMIECONTROL_PATH}.d/qa-$seq
+	_wait_pmie_end
 	if $pmie_was_running
 	then
 	    _restore_auto_restart pmie
 	    _service pmie start >>$here/$seq.full 2>&1
-	else
-	    _service pmie stop >>$here/$seq.full 2>&1
-	    $sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >/dev/null 2>&1
-	    _wait_pmie_end
 	fi
-	$sudo rm -f ${PCP_PMIECONTROL_PATH}.d/qa-$seq
 	needclean=false
     fi
     cd $here

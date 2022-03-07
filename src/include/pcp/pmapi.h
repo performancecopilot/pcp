@@ -755,6 +755,7 @@ PCP_CALL extern char *pmEventFlagsStr_r(int, char *, int);
 
 /* Parse -t, -S, -T, -A and -O options */
 PCP_CALL extern int pmParseInterval(const char *, struct timeval *, char **);
+PCP_CALL extern int pmParseHighResInterval(const char *, struct timespec *, char **);
 PCP_CALL extern int pmParseTimeWindow(
       const char *, const char *, const char *, const char *,
       const struct timeval *, const struct timeval *,
@@ -1303,6 +1304,7 @@ PCP_CALL extern int pmtimespecNow(struct timespec *);
 PCP_CALL extern void pmtimespecDec(struct timespec *, const struct timespec *);
 PCP_CALL extern double pmtimespecSub(const struct timespec *, const struct timespec *);
 PCP_CALL extern double pmtimespecToReal(const struct timespec *);
+PCP_CALL extern void pmtimespecFromReal(double, struct timespec *);
 PCP_CALL extern void pmPrintHighResStamp(FILE *, const struct timespec *);
 
 /* filesystem path name separator */

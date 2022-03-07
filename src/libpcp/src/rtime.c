@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2014-2015,2018 Red Hat.
+ * Copyright (c) 2014-2015,2018,2022 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -63,12 +63,16 @@ static const struct {
     int		len;		/* length of scale name */
     int		scale;		/* <0 -divisor, else multiplier */
 } int_tab[] = {
+    { "nanosecond",    10, -1000000000 }, 
+    { "microsecond",   11, -1000000 }, 
     { "millisecond",   11, -1000 }, 
     { "second",		6,     1 },
     { "minute",		6,    60 },
     { "hour",		4,  3600 },
     { "day",		3, 86400 },
     { "msec",		4, -1000 },
+    { "usec",		4, -1000000 },
+    { "nsec",		4, -1000000000 },
     { "sec",		3,     1 },
     { "min",		3,    60 },
     { "hr",		2,  3600 },
@@ -217,10 +221,10 @@ parseError(const char *spec, const char *point, char *msg, char **rslt)
 }
 
 
-int		/* 0 -> ok, -1 -> error */
-pmParseInterval(
+static int	/* 0 -> ok, -1 -> error */
+__pmParseInterval(
     const char *spec,		/* interval to parse */
-    struct timeval *rslt,	/* result stored here */
+    double *rslt,		/* result stored here */
     char **errmsg)		/* error message */
 {
     const char	*scan = spec;
@@ -279,11 +283,41 @@ pmParseInterval(
 	return -1;
     }
 
-    /* convert into seconds and microseconds */
-    pmtimevalFromReal(sec, rslt);
+    *rslt = sec;
     return 0;
 }
 
+int		/* 0 -> ok, -1 -> error */
+pmParseInterval(
+    const char *spec,		/* interval to parse */
+    struct timeval *rslt,	/* result stored here */
+    char **errmsg)		/* error message */
+{
+    double	secs;
+    int		sts;
+
+    if ((sts = __pmParseInterval(spec, &secs, errmsg)) < 0)
+	return sts;
+    /* convert into seconds and microseconds */
+    pmtimevalFromReal(secs, rslt);
+    return 0;
+}
+
+int		/* 0 -> ok, -1 -> error */
+pmParseHighResInterval(
+    const char *spec,		/* interval to parse */
+    struct timespec *rslt,	/* result stored here */
+    char **errmsg)		/* error message */
+{
+    double	secs;
+    int		sts;
+
+    if ((sts = __pmParseInterval(spec, &secs, errmsg)) < 0)
+	return sts;
+    /* convert into seconds and nanoseconds */
+    pmtimespecFromReal(secs, rslt);
+    return 0;
+}
 
 int		/* 0 -> ok, -1 -> error */
 __pmParseCtime(
