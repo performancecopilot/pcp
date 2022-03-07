@@ -1,5 +1,5 @@
 /*
- * utils for pmlogextract
+ * utils for pmlogreduce
  *
  * Copyright (c) 2017 Red Hat.
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
