@@ -28,6 +28,36 @@ _args()
     done
 }
 
+do_nsec()
+{
+    arg=""
+    for a
+    do
+	_args "$a" nanosecond nanoseconds nsec nsecs
+    done
+    # sed needed for arithmetic precision and rounding differences between machines
+    #
+    eval src/parsehighresinterval $arg \
+    | sed \
+	-e 's/0.122999999 sec/0.123000000 sec/' \
+	-e 's/0.007999999 sec/0.008000000 sec/'
+}
+
+do_usec()
+{
+    arg=""
+    for a
+    do
+	_args "$a" microsecond microseconds usec usecs
+    done
+    # sed needed for arithmetic precision and rounding differences between machines
+    #
+    eval src/parsehighresinterval $arg \
+    | sed \
+	-e 's/0.122999999 sec/0.123000000 sec/' \
+	-e 's/0.007999999 sec/0.008000000 sec/'
+}
+
 do_msec()
 {
     arg=""
@@ -91,6 +121,14 @@ do_day()
 # real QA test starts here
 
 echo
+echo "nanoseconds ..."
+do_nsec 123 45.67 8. "   9.123   "
+
+echo
+echo "microseconds ..."
+do_usec 123 45.67 8. "   9.123   "
+
+echo
 echo "milliseconds ..."
 do_msec 123 45.67 8. "   9.123   "
 
@@ -115,7 +153,7 @@ echo "some hybrids ..."
 src/parseinterval 1min30sec 1d1h1m1s1msec "1.5 hr 10 min 15 sec" \
 | sed \
     -e 's/90061.000999 sec/90061.001000 sec/'
-src/parseinterval "1 2 3 4 5 6 7 8 9 10" 55seconds
+src/parsehighresinterval "1 2 3 4 5 6 7 8 9 10" 55seconds
 
 echo
 echo "some errors ..."
