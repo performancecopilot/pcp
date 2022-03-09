@@ -1835,7 +1835,8 @@ __pmLoadTimestamp(const __int32_t *buf, __pmTimestamp *tsp)
      */
     tsp->sec = ((((__int64_t)buf[0]) << 32) & 0xffffffff00000000LL) | (buf[1] & 0xffffffff);
     tsp->nsec = buf[2];
-    __ntohpmTimestamp(tsp);
+    __ntohll((char *)&tsp->sec);
+    tsp->nsec = ntohl(tsp->nsec);
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
 	fprintf(stderr, "__pmLoadTimestamp: network(%08x%08x %08x nsec)", buf[0], buf[1], buf[2]);
 	fprintf(stderr, " -> %" FMT_INT64 ".%09d (%llx %x nsec)\n", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec);
@@ -1856,9 +1857,10 @@ __pmLoadTimeval(const __int32_t *buf, __pmTimestamp *tsp)
 void
 __pmPutTimestamp(const __pmTimestamp *tsp, __int32_t *buf)
 {
-    __pmTimestamp	stamp;
-    stamp = *tsp;
-    __htonpmTimestamp(&stamp);
+    __pmTimestamp	stamp = *tsp;
+
+    __htonll((char *)&stamp.sec);
+    stamp.nsec = htonl(stamp.nsec);
     /*
      * need to dodge endian issues here ... want the MSB 32-bits of sec
      * in buf[0] and the LSB 32 bits of sec in buf[1]

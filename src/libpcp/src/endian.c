@@ -359,25 +359,6 @@ __ntohpmCred(__pmCred cred)
 }
 #endif
 
-#ifndef __htonpmTimestamp
-void
-__htonpmTimestamp(__pmTimestamp * const tsp)
-{
-    __htonll((char *)&tsp->sec);
-    tsp->nsec = htonl(tsp->nsec);
-}
-#endif
-
-#ifndef __ntohpmTimestamp
-void
-__ntohpmTimestamp(__pmTimestamp * const tsp)
-{
-    __ntohll((char *)&tsp->sec);
-    tsp->nsec = ntohl(tsp->nsec);
-}
-#endif
-
-
 #ifndef __htonf
 void
 __htonf(char *p)
