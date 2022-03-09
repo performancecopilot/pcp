@@ -1,0 +1,26 @@
+QA output created by 1386
+QA output created by 1384 --valgrind
+
+--- Version 2 archive ---
+=== std out ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogextract tmparch/sampledso-no-delta_v2 TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== scanmeta diffs ===
+=== pmdumplog diffs ===
+
+--- Version 3 archive ---
+=== std out ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogextract tmparch/sampledso-no-delta_v3 TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== scanmeta diffs ===
+=== pmdumplog diffs ===

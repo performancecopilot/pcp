@@ -163,21 +163,17 @@ _pmUnpackLabelSet(__int32_t *recbuf, unsigned int *ltype, unsigned int *ident,
     tbuf = (char *)recbuf;
     k = sizeof(__pmLogHdr);
     if (type == TYPE_LABEL) {
-	memcpy((void *)&tsp->sec, (void *)&recbuf[2], sizeof(tsp->sec));
-	tsp->nsec = recbuf[4];
-	__ntohpmTimestamp(tsp);
+	__pmLoadTimestamp(&recbuf[2], tsp);
 	k += 3 * sizeof(__int32_t);
     }
     else if (type == TYPE_LABEL_V2) {
-	tsp->sec = ntohl(recbuf[2]);
-	tsp->nsec = ntohl(recbuf[3]) * 1000;
+	__pmLoadTimeval(&recbuf[2], tsp);
 	k += 2 * sizeof(__int32_t);
     }
     else {
 	fprintf(stderr, "_pmUnpackLabelSet: Botch: type=%d\n", type);
 	exit(1);
     }
-
 
     *ltype = ntohl(*((unsigned int*)&tbuf[k]));
     k += sizeof(*ltype);

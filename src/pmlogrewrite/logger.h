@@ -28,14 +28,18 @@ extern int	wflag;		/* -w from command line */
 typedef struct {
     int			flags;		/* GLOBAL_* flags */
     __pmTimestamp	time;		/* timestamp shift */
-    char		hostname[PM_LOG_MAXHOSTLEN];
-    char		tz[PM_TZ_MAXLEN]; 
+    char		*hostname;
+    char		*timezone;
+    char		*zoneinfo;
+    int			features;
 } global_t;
 
 /* values for global_t flags */
 #define GLOBAL_CHANGE_TIME	1
 #define GLOBAL_CHANGE_HOSTNAME	2
-#define GLOBAL_CHANGE_TZ	4
+#define GLOBAL_CHANGE_TIMEZONE	4
+#define GLOBAL_CHANGE_ZONEINFO	8
+#define GLOBAL_CHANGE_FEATURES	16
 
 extern global_t global;
 
@@ -164,15 +168,15 @@ extern labelspec_t	*label_root;
  *  Input archive control
  */
 typedef struct {
-    int		ctx;
-    int		version;	/* input log version (2/3) */
-    __pmContext	*ctxp;
-    char	*name;
-    pmLogLabel	label;
-    __int32_t	*metarec;
-    __int32_t	*logrec;
-    __pmResult	*rp;
-    int		mark;		/* need EOL marker */
+    int			ctx;
+    int			version;	/* input log version (2/3) */
+    __pmContext		*ctxp;
+    char		*name;
+    __pmLogLabel	label;
+    __int32_t		*metarec;
+    __int32_t		*logrec;
+    __pmResult		*rp;
+    int			mark;		/* need EOL marker */
 } inarch_t;
 
 extern inarch_t		inarch;		/* input archive */

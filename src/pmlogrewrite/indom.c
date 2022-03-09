@@ -195,76 +195,75 @@ change_inst_by_inst(pmInDom indom, int old, int new)
  * reverse the logic of __pmLogPutInDom()
  */
 static void
-_pmUnpackInDom(__int32_t *recbuf, pmInDom *indom, __pmTimestamp *tsp, int *numinst, int **instlist, char ***inamelist)
+_pmUnpackInDom(__int32_t *recbuf, __pmLogInDom_io *lidp)
 {
     __pmLogHdr		*hdr;
     __int32_t		*buf;
     int			type;
     int			i;
-    __pmLogInDom_io	lid;
     int			allinbuf;
     char		*s;
     size_t		size;
+    int			*instlist;
+    char		**namelist;
 
     hdr = (__pmLogHdr *)recbuf;
     type = htonl(hdr->type);
     /* buffer for __pmLogLoadInDom has to start AFTER the header */
     buf = &recbuf[2];
-    allinbuf = __pmLogLoadInDom(NULL, 0, type, &lid, &buf);
+    allinbuf = __pmLogLoadInDom(NULL, 0, type, lidp, &buf);
     if (allinbuf < 0) {
 	fprintf(stderr, "_pmUnpackInDom: __pmLogLoadInDom(type=%d): failed: %s\n", type, pmErrStr(allinbuf));
 	abandon();
 	/*NOTREACHED*/
     }
-    if (lid.numinst < 1) {
-	fprintf(stderr, "_pmUnpackInDom: InDom %s dodgey: numinst=%d\n", pmInDomStr(lid.indom), lid.numinst);
+    if (lidp->numinst < 1) {
+	fprintf(stderr, "_pmUnpackInDom: InDom %s dodgey: numinst=%d\n", pmInDomStr(lidp->indom), lidp->numinst);
 	abandon();
 	/*NOTREACHED*/
     }
-    *tsp = lid.stamp;		/* struct assignment */
 #if 0
-fprintf(stderr, "numinst=%d indom=%s inst[0] %d or \"%s\" inst[%d] %d or \"%s\"\n", lid.numinst, pmInDomStr(lid.indom), lid.instlist[0], lid.namelist[0], lid.numinst-1, lid.instlist[lid.numinst-1], lid.namelist[lid.numinst-1]);
+fprintf(stderr, "numinst=%d indom=%s inst[0] %d or \"%s\" inst[%d] %d or \"%s\"\n", lidp->numinst, pmInDomStr(lidp->indom), lidp->instlist[0], lidp->namelist[0], lidp->numinst-1, lidp->instlist[lidp->numinst-1], lidp->namelist[lidp->numinst-1]);
 #endif
 
     /* Copy the instances to a new buffer */
-    *numinst = lid.numinst;
-    *indom = lid.indom;
-    *instlist = (int *)malloc(lid.numinst * sizeof(int));
-    if (*instlist == NULL) {
-	fprintf(stderr, "_pmUnpackInDom instlist malloc(%d) failed: %s\n", (int)(lid.numinst * sizeof(int)), strerror(errno));
+    instlist = (int *)malloc(lidp->numinst * sizeof(int));
+    if (instlist == NULL) {
+	fprintf(stderr, "_pmUnpackInDom instlist malloc(%d) failed: %s\n", (int)(lidp->numinst * sizeof(int)), strerror(errno));
 	abandon();
 	/*NOTREACHED*/
     }
-    for (i = 0; i < lid.numinst; i++)
-	(*instlist)[i] = lid.instlist[i];
+    for (i = 0; i < lidp->numinst; i++)
+	instlist[i] = lidp->instlist[i];
+    lidp->instlist = instlist;
 
 #if 0
-fprintf(stderr, "after instlist assignment, instlist[0] = %d instlist[%d] = %d\n", (*instlist)[i], lid.numinst-1, (*instlist)[lid.numinst-1]);
+fprintf(stderr, "after instlist assignment, instlist[0] = %d instlist[%d] = %d\n", (*instlist)[i], lidp->numinst-1, (*instlist)[lidp->numinst-1]);
 #endif
 
     /*
      * Copy the name list to a new buffer. Place the pointers and the names
      * in the same buffer so that they can be easily freed.
      */
-    size = lid.numinst * sizeof(char *);
-    for (i = 0; i < lid.numinst; i++)
-	size += strlen(lid.namelist[i]) + 1;
-    *inamelist = (char **)malloc(size);
-    if (*inamelist == NULL) {
-	fprintf(stderr, "_pmUnpackInDom inamelist malloc(%d) failed: %s\n",
+    size = lidp->numinst * sizeof(char *);
+    for (i = 0; i < lidp->numinst; i++)
+	size += strlen(lidp->namelist[i]) + 1;
+    namelist = (char **)malloc(size);
+    if (namelist == NULL) {
+	fprintf(stderr, "_pmUnpackInDom namelist malloc(%d) failed: %s\n",
 		(int)size, strerror(errno));
 	abandon();
 	/*NOTREACHED*/
     }
-    s = (char *)(*inamelist + lid.numinst);
-    for (i = 0; i < lid.numinst; i++) {
-	(*inamelist)[i] = s;
-	strcpy(s, lid.namelist[i]);
-	s += strlen(lid.namelist[i]) + 1;
+    s = (char *)(namelist + lidp->numinst);
+    for (i = 0; i < lidp->numinst; i++) {
+	namelist[i] = s;
+	strcpy(s, lidp->namelist[i]);
+	s += strlen(lidp->namelist[i]) + 1;
     }
-
     if (!allinbuf)
-	free(lid.namelist);
+	free(lidp->namelist);
+    lidp->namelist = namelist;
 }
 
 static void
@@ -333,7 +332,7 @@ do_indom(void)
 	pdu_type = TYPE_INDOM;
 
     out_offset = __pmFtell(outarch.logctl.mdfp);
-    _pmUnpackInDom(inarch.metarec, &lid.indom, &lid.stamp, &lid.numinst, &lid.instlist, &lid.namelist);
+    _pmUnpackInDom(inarch.metarec, &lid);
 
     /*
      * global time stamp adjustment (if any has already been done in the

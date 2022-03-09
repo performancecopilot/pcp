@@ -158,21 +158,23 @@ newlabel(void)
     /* create magic number with output version */
     lp->magic = PM_LOG_MAGIC | outarch.version;
 
-    /* copy pid, host and timezone */
-    lp->pid = inarch.label.ll_pid;
+    /* copy pid, host, timezone, etc */
+    // TODO WARN about no-ops for changes to V3 label fields in V2 output?
+    lp->pid = inarch.label.pid;
+    lp->features = (global.flags & GLOBAL_CHANGE_FEATURES) ?
+	global.features : inarch.label.features;
     if (lp->hostname)
 	free(lp->hostname);
     lp->hostname = (global.flags & GLOBAL_CHANGE_HOSTNAME) ?
-	strdup(global.hostname) : strdup(inarch.label.ll_hostname);
+	global.hostname : inarch.label.hostname;
     if (lp->timezone)
 	free(lp->timezone);
-    lp->timezone = (global.flags & GLOBAL_CHANGE_TZ) ?
-	strdup(global.tz) : strdup(inarch.label.ll_tz);
-
-    /* TODO: v3 archive zoneinfo support - need highres inarch.label */
+    lp->timezone = (global.flags & GLOBAL_CHANGE_TIMEZONE) ?
+	global.timezone : inarch.label.timezone;
     if (lp->zoneinfo)
 	free(lp->zoneinfo);
-    lp->zoneinfo = NULL;
+    lp->zoneinfo = (global.flags & GLOBAL_CHANGE_ZONEINFO) ?
+	global.zoneinfo : inarch.label.zoneinfo;
 }
 
 /*
@@ -508,10 +510,15 @@ reportconfig(void)
 
     printf("PCP Archive Log Rewrite Specifications Summary\n");
     change |= (global.flags != 0);
+    // TODO WARN about no-ops for changes to V3 label fields in V2 output?
     if (global.flags & GLOBAL_CHANGE_HOSTNAME)
-	printf("Hostname:\t%s -> %s\n", inarch.label.ll_hostname, global.hostname);
-    if (global.flags & GLOBAL_CHANGE_TZ)
-	printf("Timezone:\t%s -> %s\n", inarch.label.ll_tz, global.tz);
+	printf("Hostname:\t%s -> %s\n", inarch.label.hostname, global.hostname);
+    if (global.flags & GLOBAL_CHANGE_TIMEZONE)
+	printf("Timezone:\t%s -> %s\n", inarch.label.timezone, global.timezone);
+    if (global.flags & GLOBAL_CHANGE_ZONEINFO)
+	printf("Zoneinfo:\t%s -> %s\n", inarch.label.zoneinfo, global.zoneinfo);
+    if (global.flags & GLOBAL_CHANGE_FEATURES)
+	printf("Features:\t%d -> %d\n", inarch.label.features, global.features);
     if (global.flags & GLOBAL_CHANGE_TIME) {
 	static struct tm	*tmp;
 	char			*sign = "";
@@ -735,14 +742,19 @@ anychange(void)
     int			i;
 
     if (global.flags != 0) {
+    // TODO WARN about no-ops for changes to V3 label fields in V2 output?
 	if (pmDebugOptions.appl3) {
 	    fprintf(stderr, "anychange: global.flags (%d,", global.flags);
 	    if (global.flags & GLOBAL_CHANGE_TIME)
 		fprintf(stderr, " CHANGE_TIME");
 	    if (global.flags & GLOBAL_CHANGE_HOSTNAME)
 		fprintf(stderr, " CHANGE_HOSTNAME");
-	    if (global.flags & GLOBAL_CHANGE_TZ)
-		fprintf(stderr, " CHANGE_TZ");
+	    if (global.flags & GLOBAL_CHANGE_TIMEZONE)
+		fprintf(stderr, " CHANGE_TIMEZONE");
+	    if (global.flags & GLOBAL_CHANGE_ZONEINFO)
+		fprintf(stderr, " CHANGE_ZONEINFO");
+	    if (global.flags & GLOBAL_CHANGE_FEATURES)
+		fprintf(stderr, " CHANGE_FEATURES");
 	    fprintf(stderr, ") != 0\n");
 	}
 	return 1;
@@ -1536,13 +1548,13 @@ main(int argc, char **argv)
      */
     PM_UNLOCK(inarch.ctxp->c_lock);
 
-    if ((sts = pmGetArchiveLabel(&inarch.label)) < 0) {
+    if ((sts = __pmLogLoadLabel(inarch.ctxp->c_archctl->ac_log->mdfp, &inarch.label)) < 0) {
 	fprintf(stderr, "%s: Error: cannot get archive label record (%s): %s\n",
 		pmGetProgname(), inarch.name, pmErrStr(sts));
 	exit(1);
     }
 
-    inarch.version = (inarch.label.ll_magic & 0xff);
+    inarch.version = (inarch.label.magic & 0xff);
     if (inarch.version != PM_LOG_VERS02 && inarch.version != PM_LOG_VERS03) {
 	fprintf(stderr,"%s: Error: illegal version number %d in archive (%s)\n",
 		pmGetProgname(), inarch.version, inarch.name);

@@ -843,7 +843,9 @@ new_indom_instance_label(int indom)
 	TOK_DUPLICATE
 	TOK_METRIC
 	TOK_HOSTNAME
-	TOK_TZ
+	TOK_TIMEZONE
+	TOK_ZONEINFO
+	TOK_FEATURES
 	TOK_TIME
 	TOK_NAME
 	TOK_INST
@@ -916,35 +918,82 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 			    pmsprintf(mess, sizeof(mess), "Duplicate global hostname clause");
 			    yyerror(mess);
 			}
-			if (strcmp(inarch.label.ll_hostname, $3) == 0) {
+			if (inarch.label.hostname != NULL && strcmp(inarch.label.hostname, $3) == 0) {
 			    /* no change ... */
 			    if (wflag) {
-				pmsprintf(mess, sizeof(mess), "Global hostname (%s): No change", inarch.label.ll_hostname);
+				pmsprintf(mess, sizeof(mess), "Global hostname (%s): No change", inarch.label.hostname);
 				yywarn(mess);
 			    }
+			    free($3);
 			}
 			else {
-			    strncpy(global.hostname, $3, sizeof(global.hostname)-1);
+			    global.hostname = $3;
 			    global.flags |= GLOBAL_CHANGE_HOSTNAME;
 			}
-			free($3);
 		    }
-		| TOK_TZ TOK_ASSIGN TOK_STRING
+		| TOK_TIMEZONE TOK_ASSIGN TOK_STRING
 		    {
-			if (global.flags & GLOBAL_CHANGE_TZ) {
-			    pmsprintf(mess, sizeof(mess), "Duplicate global tz clause");
+			if (global.flags & GLOBAL_CHANGE_TIMEZONE) {
+			    pmsprintf(mess, sizeof(mess), "Duplicate global timezone clause");
 			    yyerror(mess);
 			}
-			if (strcmp(inarch.label.ll_tz, $3) == 0) {
+			if (inarch.label.timezone != NULL && strcmp(inarch.label.timezone, $3) == 0) {
 			    /* no change ... */
 			    if (wflag) {
-				pmsprintf(mess, sizeof(mess), "Global timezone (%s): No change", inarch.label.ll_tz);
+				pmsprintf(mess, sizeof(mess), "Global timezone (%s): No change", inarch.label.timezone);
+				yywarn(mess);
+			    }
+			    free($3);
+			}
+			else {
+			    global.timezone =  $3;
+			    global.flags |= GLOBAL_CHANGE_TIMEZONE;
+			}
+		    }
+		| TOK_ZONEINFO TOK_ASSIGN TOK_STRING
+		    {
+			if (global.flags & GLOBAL_CHANGE_ZONEINFO) {
+			    pmsprintf(mess, sizeof(mess), "Duplicate global zoneinfo clause");
+			    yyerror(mess);
+			}
+			if (outarch.version < PM_LOG_VERS03) {
+			    pmsprintf(mess, sizeof(mess), "Global zoneinfo clause requires output archive version of 3 or greater");
+			    yyerror(mess);
+			}
+			if (inarch.label.zoneinfo != NULL && strcmp(inarch.label.zoneinfo, $3) == 0) {
+			    /* no change ... */
+			    if (wflag) {
+				pmsprintf(mess, sizeof(mess), "Global zoneinfo (%s): No change", inarch.label.zoneinfo);
+				yywarn(mess);
+			    }
+			    free($3);
+			}
+			else {
+			    global.zoneinfo = $3;
+			    global.flags |= GLOBAL_CHANGE_ZONEINFO;
+			}
+		    }
+		| TOK_FEATURES TOK_ASSIGN TOK_NUMBER
+		    {
+			int	features = atoi($3);
+			if (global.flags & GLOBAL_CHANGE_FEATURES) {
+			    pmsprintf(mess, sizeof(mess), "Duplicate global features clause");
+			    yyerror(mess);
+			}
+			if (outarch.version < PM_LOG_VERS03) {
+			    pmsprintf(mess, sizeof(mess), "Global features clause requires output archive version of 3 or greater");
+			    yyerror(mess);
+			}
+			if (inarch.label.features == features) {
+			    /* no change ... */
+			    if (wflag) {
+				pmsprintf(mess, sizeof(mess), "Global features (%d): No change", inarch.label.features);
 				yywarn(mess);
 			    }
 			}
 			else {
-			    strncpy(global.tz, $3, sizeof(global.tz)-1);
-			    global.flags |= GLOBAL_CHANGE_TZ;
+			    global.features = features;
+			    global.flags |= GLOBAL_CHANGE_FEATURES;
 			}
 			free($3);
 		    }
@@ -974,14 +1023,34 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 			pmsprintf(mess, sizeof(mess), "Expecting -> in hostname clause");
 			yyerror(mess);
 		    }
-		| TOK_TZ TOK_ASSIGN
+		| TOK_TIMEZONE TOK_ASSIGN
 		    {
-			pmsprintf(mess, sizeof(mess), "Expecting timezone string in tz clause");
+			pmsprintf(mess, sizeof(mess), "Expecting timezone string in timezone clause");
 			yyerror(mess);
 		    }
-		| TOK_TZ
+		| TOK_TIMEZONE
 		    {
-			pmsprintf(mess, sizeof(mess), "Expecting -> in tz clause");
+			pmsprintf(mess, sizeof(mess), "Expecting -> in timezone clause");
+			yyerror(mess);
+		    }
+		| TOK_ZONEINFO TOK_ASSIGN
+		    {
+			pmsprintf(mess, sizeof(mess), "Expecting zoneinfo string in zoneinfo clause");
+			yyerror(mess);
+		    }
+		| TOK_ZONEINFO
+		    {
+			pmsprintf(mess, sizeof(mess), "Expecting -> in zoneinfo clause");
+			yyerror(mess);
+		    }
+		| TOK_FEATURES TOK_ASSIGN
+		    {
+			pmsprintf(mess, sizeof(mess), "Expecting features value in features clause");
+			yyerror(mess);
+		    }
+		| TOK_FEATURES
+		    {
+			pmsprintf(mess, sizeof(mess), "Expecting -> in features clause");
 			yyerror(mess);
 		    }
 		| TOK_TIME TOK_ASSIGN

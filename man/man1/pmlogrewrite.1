@@ -194,7 +194,18 @@ Enable verbose mode.
 .TP
 \fB\-V\fR \fIversion\fR, \fB\-\-version\fR=\fIversion\fR
 Specifies the version of the output PCP archive being produced.
-Currently only version 2 archive format is supported.
+Currently versions 2 and 3 of the archive format is supported.
+The version of
+.I inlog
+must be at least
+.I version
+(so version upgrade is allowed, but version downgrade is not).
+By default, in the absence of the
+.I \-V
+option, the version of
+.I outlog
+is the same as the version of
+.IR inlog .
 .TP
 \fB\-w\fR, \fB\-\-warnings\fR
 Emit warnings.
@@ -296,6 +307,10 @@ A more complex example would be ``\-23:59:59.999''
 to move the timestamps backwards by one millisecond less than one day.
 .RE
 .PP
+.KW TIMEZONE
+.KW ->
+\f(BI"\fP\fItimezone\fP\f(BI"\fP
+.br
 .KW TZ
 .KW ->
 \f(BI"\fP\fItimezone\fP\f(BI"\fP
@@ -308,7 +323,64 @@ collected from a host with a local timezone of
 .IR timezone .
 .I timezone
 must be enclosed in quotes, and should conform to the valid
-timezone syntax rules for the local platform.
+timezone syntax rules for the local platform, usually a Posix
+TZ format, e.g.\&
+.BR AEST-10 .
+See
+.BR tzset (3)
+for more information.
+.PP
+.KW TZ
+is an alias for
+.KW TIMEZONE .
+.RE
+.PP
+.KW ZONEINFO
+.KW ->
+\f(BI"\fP\fIzoneinfo\fP\f(BI"\fP
+.RS +4n
+.PP
+Modifies the label records in the
+.I outlog
+PCP archive, so that the metrics will appear to have been
+collected from a host with a local timezone of
+.IR zoneinfo .
+.I zoneinfo
+must be enclosed in quotes, and should conform to the valid
+zoneinfo timezone syntax rules for the local platform, usually a colon
+followed by a pathname below
+.IR /usr/share/zoneinfo ,
+e.g.\&
+.BR :Africa/Timbuktu .
+See
+.BR tzset (3)
+for more information.
+.PP
+The
+.KW zoneinfo
+clause is only allowed if the output archive version is at least 3.
+.RE
+.PP
+.KW FEATURES
+.KW ->
+\fIfeature-bits\fP
+.RS +4n
+.PP
+Modifies the label records in the
+.I outlog
+PCP archive, so that the metrics will appear to have been
+collected from system with a
+.BR pmlogger (1)
+that supports the ``features''
+defined by the integer value
+.IR feature-bits ,
+which is formed by ``or''ing the desired feature flags
+as defined in
+.BR LOGARCHIVE (5).
+.PP
+The
+.KW features
+clause is only allowed if the output archive version is at least 3.
 .RE
 .RE
 .PP
@@ -1405,12 +1477,15 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmdumplog (1),
-.BR pmlogger (1),
 .BR pmlogextract (1),
+.BR pmlogger (1),
 .BR pmloglabel (1),
 .BR pmlogreduce (1),
+.BR PMAPI (3),
 .BR pmdaInstance (3),
 .BR pmLookupDesc (3),
+.BR tzset (3),
+.BR LOGARCHIVE (5),
 .BR pcp.conf (5),
 .BR pcp.env (5)
 and

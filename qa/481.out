@@ -156,7 +156,7 @@ Specification error in configuration file (TMP.conf)
 
 === global dup tz clause (expect error) ===
 Specification error in configuration file (TMP.conf)
-[line 4] Duplicate global tz clause
+[line 4] Duplicate global timezone clause
 
 === global dup time clause (expect error) ===
 Specification error in configuration file (TMP.conf)
