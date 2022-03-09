@@ -2,7 +2,7 @@
  * Denki (電気, Japanese for 'electricity'), PMDA for electricity related 
  * metrics
  *
- * Copyright (c) 2012-2014,2017,2021 Red Hat.
+ * Copyright (c) 2012-2014,2017,2021,2022 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -278,20 +278,6 @@ static pmdaMetric metrictab[] = {
 static int	isDSO = 1;		/* =0 I am a daemon */
 static char	*username;
 
-/* data and function prototypes for dynamic instance domain handling */
-static struct raplratedom {
-	int	inst_id;
-	char	*rapl_name;
-} raplratedoms[] = {
-	{ 1, "temp" }
-};
-static struct raplrawdom {
-	int	inst_id;
-	char	*rapl_name;
-} raplrawdoms[] = {
-	{ 1, "temp" }
-};
-
 static void denki_rapl_clear(void);
 static void denki_rapl_init(void);
 static void denki_rapl_check(void);
@@ -356,8 +342,7 @@ denki_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	if (cluster == 0) {
 		if (item == 0) {			/* rapl.rate */
-			struct raplratedom *tsp;
-			if ((sts = pmdaCacheLookup(*rate_indom, inst, NULL, (void *)&tsp)) != PMDA_CACHE_ACTIVE) {
+			if ((sts = pmdaCacheLookup(*rate_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
 				if (sts < 0)
 					pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
 				return PM_ERR_INST;
@@ -365,8 +350,7 @@ denki_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			atom->ul = lookup_rapl_dom(inst)/1000000;
 		}
 		else if (item == 1) {			/* rapl.raw */
-			struct raplrawdom *tsp;
-			if ((sts = pmdaCacheLookup(*raw_indom, inst, NULL, (void *)&tsp)) != PMDA_CACHE_ACTIVE) {
+			if ((sts = pmdaCacheLookup(*raw_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
 				if (sts < 0)
 					pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
 				return PM_ERR_INST;
@@ -447,9 +431,6 @@ denki_rapl_clear(void)
 	if (sts < 0)
 		pmNotifyErr(LOG_ERR, "pmdaCacheOp(INACTIVE) failed: indom=%s: %s",
 	pmInDomStr(*raw_indom), pmErrStr(sts));
-#ifdef DESPERATE
-	__pmdaCacheDump(stderr, *now_indom, 1);
-#endif
 }
 
 /* 
@@ -459,8 +440,8 @@ static void
 denki_rapl_init(void)
 {
 	int		sts;
-	int		dom,pkg,domcnt=0;
-	char		tmp[BUFSIZ];
+	int		dom,pkg;
+	char		tmp[80];
 
 	for(pkg=0;pkg<total_packages;pkg++) {
 		for(dom=0;dom<NUM_RAPL_DOMAINS;dom++) {
@@ -473,25 +454,21 @@ denki_rapl_init(void)
 					pmsprintf(tmp,sizeof(tmp),"%s",event_names[pkg][dom]);
 
 				/* rapl.rate */
-				sts = pmdaCacheStore(*rate_indom, PMDA_CACHE_ADD, tmp, &raplratedoms[domcnt]);
+				sts = pmdaCacheStore(*rate_indom, PMDA_CACHE_ADD, tmp, NULL);
 				if (sts < 0) {
 					pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s", pmErrStr(sts));
 					return;
 				}
 				/* rapl.raw */
-				sts = pmdaCacheStore(*raw_indom, PMDA_CACHE_ADD, tmp, &raplrawdoms[domcnt]);
+				sts = pmdaCacheStore(*raw_indom, PMDA_CACHE_ADD, tmp, NULL);
 				if (sts < 0) {
 					pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s", pmErrStr(sts));
 					return;
 				}
-				domcnt++;
 			}
 		}
 	}
 
-#ifdef DESPERATE
-    __pmdaCacheDump(stderr, *now_indom, 1);
-#endif
 	if (pmdaCacheOp(*rate_indom, PMDA_CACHE_SIZE_ACTIVE) < 1)
 		pmNotifyErr(LOG_WARNING, "\"rapl.rate\" instance domain is empty");
 	if (pmdaCacheOp(*raw_indom, PMDA_CACHE_SIZE_ACTIVE) < 1)
@@ -504,9 +481,6 @@ denki_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 	int		serial;
 
 	switch (type) {
-		case PM_LABEL_DOMAIN:
-			pmdaAddLabels(lpp, "{\"role\":\"testing\"}");
-			break;
 		case PM_LABEL_INDOM:
 			serial = pmInDom_serial((pmInDom)ident);
 			if (serial == RAPLRATE_INDOM) {
@@ -516,28 +490,21 @@ denki_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 				pmdaAddLabels(lpp, "{\"indom_name\":\"raplraw\"}");
 			}
 			break;
-		case PM_LABEL_CLUSTER:
 		case PM_LABEL_ITEM:
+			if (pmID_cluster(ident) != 1)
+				break;
+			if (pmID_item(ident) == 0)	/* energy_now_raw */
+				pmdaAddLabels(lpp, "{\"units\":\"watt hours\"}");
+			if (pmID_item(ident) == 1)	/* energy_now_rate */
+				pmdaAddLabels(lpp, "{\"units\":\"watts\"}");
+			break;
 		/* no labels to add for these types, fall through */
+		case PM_LABEL_DOMAIN:
+		case PM_LABEL_CLUSTER:
 		default:
-		break;
+			break;
 	}
 	return pmdaLabel(ident, type, lpp, pmda);
-}
-
-static int
-denki_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
-{
-    struct raplratedom *tsp;
-
-    if (pmdaCacheLookup(indom, inst, NULL, (void *)&tsp) != PMDA_CACHE_ACTIVE)
-	return 0;
-
-    if (pmInDom_serial(indom) == RAPLRATE_INDOM)
-    	return pmdaAddLabels(lp, "{\"units\":\"%s\"}", tsp->rapl_name);
-    if (pmInDom_serial(indom) == RAPLRAW_INDOM)
-    	return pmdaAddLabels(lp, "{\"units\":\"%s\"}", tsp->rapl_name);
-    return 0;
 }
 
 /*
@@ -563,7 +530,6 @@ denki_init(pmdaInterface *dp)
     dp->version.seven.label = denki_label;
 
     pmdaSetFetchCallBack(dp, denki_fetchCallBack);
-    pmdaSetLabelCallBack(dp, denki_labelCallBack);
 
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), metrictab,
 		sizeof(metrictab)/sizeof(metrictab[0]));

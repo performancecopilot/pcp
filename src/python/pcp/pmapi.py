@@ -1,6 +1,6 @@
 """ Wrapper module for LIBPCP - the core Performace Co-Pilot API
 #
-# Copyright (C) 2012-2021 Red Hat
+# Copyright (C) 2012-2022 Red Hat
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -517,6 +517,22 @@ class pmResult(Structure):
     def get_inst(self, vset_idx, vlist_idx):
         """ Return the inst for vlist[vlist_idx] of vset[vset_idx] """
         return self.get_vlist(vset_idx, vlist_idx).inst
+
+class pmHighResResult(pmResult):
+    """Structure returned by pmHighResFetch - a pmResult but with a timespec
+    """
+    _fields_ = [("timestamp", timespec),
+                ("numpmid", c_int),
+                # array N of pointer to pmValueSet
+                ("vset", (POINTER(pmValueSet)) * 1)]
+    def __init__(self):
+        pmResult.__init__(self)
+        self.numpmid = 0
+
+    def __str__(self):
+        vals = range(self.numpmid)
+        vstr = str([" %s" % str(self.vset[i].contents) for i in vals])
+        return "pmHighResResult@%#lx id#=%d " % (addressof(self), self.numpmid) + vstr
 
 pmID = c_uint
 pmInDom = c_uint
@@ -2673,8 +2689,10 @@ LIBPCP.pmExtendFetchGroup_event.argtypes = [c_void_p, c_char_p, c_char_p, c_char
                                             c_uint,
                                             POINTER(c_uint),
                                             POINTER(c_int)]
-LIBPCP.pmExtendFetchGroup_timestamp.restype = c_int
-LIBPCP.pmExtendFetchGroup_timestamp.argtypes = [c_void_p, POINTER(timeval)]
+LIBPCP.pmExtendFetchGroup_timeval.restype = c_int
+LIBPCP.pmExtendFetchGroup_timeval.argtypes = [c_void_p, POINTER(timeval)]
+LIBPCP.pmExtendFetchGroup_timespec.restype = c_int
+LIBPCP.pmExtendFetchGroup_timespec.argtypes = [c_void_p, POINTER(timespec)]
 LIBPCP.pmFetchGroup.restype = c_int
 LIBPCP.pmFetchGroup.argtypes = [c_void_p]
 
@@ -2713,23 +2731,46 @@ class fetchgroup(object):
                 raise pmErr(self.sts.value)
             return self.value.dref(self.pmtype)
 
-
-    class fetchgroup_timestamp(object):
+    class fetchgroup_timespec(object):
         """
-        An internal class to receive value for a single timestamp.
+        An internal class to receive value for a single timespec.
         It may be called as if it were a function object to decode
-        the timestamp, which was set at the most recent
+        the timespec, which was set at the most recent
         .fetch() call, into a datetime object.
         """
 
         def __init__(self, ctx):
-            """Allocate a single instance to receive a fetchgroup timestamp."""
+            """Allocate a single instance to receive a fetchgroup timespec."""
+            self.value = timespec()
+            self.ctx = ctx
+
+        def __call__(self):
+            """
+            Retrieve a converted value of a timespec, if available.  Use
+            pmLocaltime() to convert to a datetime object.
+            """
+            ts = self.ctx.pmLocaltime(self.value.tv_sec)
+            us = int(self.value.tv_nsec) / 1000
+            dt = datetime.datetime(ts.tm_year+1900, ts.tm_mon+1, ts.tm_mday,
+                                   ts.tm_hour, ts.tm_min, ts.tm_sec, us, None)
+            return dt
+
+    class fetchgroup_timeval(object):
+        """
+        An internal class to receive value for a single timeval.
+        It may be called as if it were a function object to decode
+        the timeval, which was set at the most recent
+        .fetch() call, into a datetime object.
+        """
+
+        def __init__(self, ctx):
+            """Allocate a single instance to receive a fetchgroup timeval."""
             self.value = timeval()
             self.ctx = ctx
 
         def __call__(self):
             """
-            Retrieve a converted value of a timestamp, if available.  Use
+            Retrieve a converted value of a timeval, if available.  Use
             pmLocaltime() to convert to a datetime object.
             """
             ts = self.ctx.pmLocaltime(self.value.tv_sec)
@@ -2738,6 +2779,8 @@ class fetchgroup(object):
                                    ts.tm_hour, ts.tm_min, ts.tm_sec, us, None)
             return dt
 
+    # create the backward compatibility alias
+    fetchgroup_timestamp = fetchgroup_timeval
 
     class fetchgroup_indom(object):
         """
@@ -2928,15 +2971,26 @@ class fetchgroup(object):
         self.items.append(vv) # keep registered pmAtomValue/etc. alive
         return vv
 
-    def extend_timestamp(self):
-        """Extend the fetchgroup with a timestamp query. """
-        v = fetchgroup.fetchgroup_timestamp(self.ctx)
-        sts = LIBPCP.pmExtendFetchGroup_timestamp(self.pmfg,
-                                                  pointer(v.value))
+    def extend_timespec(self):
+        """Extend the fetchgroup with a timespec query. """
+        v = fetchgroup.fetchgroup_timespec(self.ctx)
+        sts = LIBPCP.pmExtendFetchGroup_timespec(self.pmfg, pointer(v.value))
+        if sts < 0:
+            raise pmErr(sts)
+        self.items.append(v) # keep registered timespec alive
+        return v
+
+    def extend_timeval(self):
+        """Extend the fetchgroup with a timeval query. """
+        v = fetchgroup.fetchgroup_timeval(self.ctx)
+        sts = LIBPCP.pmExtendFetchGroup_timeval(self.pmfg, pointer(v.value))
         if sts < 0:
             raise pmErr(sts)
         self.items.append(v) # keep registered timeval alive
         return v
+
+    # backward compatibility alias
+    extend_timestamp = extend_timeval
 
     def extend_event(self, metric=None, field=None, ftype=None, scale=None, instance=None, maxnum=100):
         # pylint: disable=C0330

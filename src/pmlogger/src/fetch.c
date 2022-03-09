@@ -45,51 +45,6 @@ myLocalFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmResult **resul
     return 0;
 }
 
-/*
- * from libpcp/src/p_result.c ... used for -Dfetch output
- */
-typedef struct {
-    pmID		pmid;
-    int			numval;		/* no. of vlist els to follow, or error */
-    int			valfmt;		/* insitu or pointer */
-    __pmValue_PDU	vlist[1];	/* zero or more */
-} vlist_t;
-typedef struct {
-    __pmPDUHdr		hdr;
-    pmTimeval		timestamp;	/* when returned */
-    int			numpmid;	/* no. of PMIDs to follow */
-    __pmPDU		data[1];	/* zero or more */
-} result_t;
-typedef struct {
-    __pmPDUHdr		hdr;		/* three word (3x int) PDU header */
-    int			numpmid;	/* count of PMIDs to follow */
-    pmTimespec		timestamp;	/* 64bit-aligned time */
-    __pmPDU		data[2];	/* zero or more (2 for alignment) */
-} highres_result_t;
-
-/*
- * byte swabbing like libpcp/src/internal.h ... used for -Dfetch output only
- */
-#ifdef HAVE_NETWORK_BYTEORDER
-#define fetch_ntohpmID(a)	(a)
-#define fetch_ntohll(a)		/* noop */
-#else
-#define fetch_ntohpmID(a)           htonl(a)
-static void
-fetch_htonll(char *p)
-{
-    char	c;
-    int		i;
-
-    for (i = 0; i < 4; i++) {
-	c = p[i];
-	p[i] = p[7-i];
-	p[7-i] = c;
-    }
-}
-#define fetch_ntohll(v) fetch_htonll(v)
-#endif
-
 int
 myFetch(int numpmid, pmID pmidlist[], __pmResult **result)
 {
@@ -171,8 +126,8 @@ myFetch(int numpmid, pmID pmidlist[], __pmResult **result)
 	    do {
 		n = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
 		/*
-		 * expect PDU_RESULT or
-		 *        PDU_ERROR(changed > 0)+PDU_RESULT or
+		 * expect PDU_[HIGHRES_]RESULT or
+		 *        PDU_ERROR(changed > 0)+PDU_[HIGHRES_]RESULT or
 		 *        PDU_ERROR(real error < 0 from PMCD) or
 		 *        0 (end of file)
 		 *        < 0 (local error or IPC problem)
@@ -205,69 +160,16 @@ myFetch(int numpmid, pmID pmidlist[], __pmResult **result)
 			}
 			fputc('\n', stderr);
 		    }
-		    else if ((n == PDU_HIGHRES_RESULT && highres) ||
-			     (n == PDU_RESULT && !highres)) {
-			/*
-			 * TODO: reassess this, is this still true? ...
-			 *
-			 * not safe to decode result here, so have to make
-			 * do with a shallow dump of the PDU using logic
-			 * from libpcp/__pmDecodeResult()
-			 */
-			int		lnumpmid;
-			int		numval;
-			int		i;
-			int		vsize;
-			pmID		pmid;
-			char		*name;
-			vlist_t		*vlp;
-			__pmPDU		*data;
-
-			/* assume PDU is valid ... it comes from pmcd */
-			if (n == PDU_HIGHRES_RESULT) {
-			    highres_result_t	*pp = (highres_result_t *)pb;
-			    __pmTimestamp	timestamp;
-
-			    data = &pp->data[0];
-			    lnumpmid = ntohl(pp->numpmid);
-			    memcpy(&timestamp, &pp->timestamp, sizeof(timestamp));
-			    fetch_ntohll((char *)&timestamp.sec);
-			    fetch_ntohll((char *)&timestamp.nsec);
-			    fprintf(stderr, "pmHighResResult timestamp: %lld.%09d numpmid: %d\n", (long long)timestamp.sec, (int)timestamp.nsec, lnumpmid);
-			} else {
-			    result_t		*pp = (result_t *)pb;
-			    struct timeval	timestamp;
-
-			    data = &pp->data[0];
-			    lnumpmid = ntohl(pp->numpmid);
-			    timestamp.tv_sec = ntohl(pp->timestamp.tv_sec);
-			    timestamp.tv_usec = ntohl(pp->timestamp.tv_usec);
-			    fprintf(stderr, "pmResult timestamp: %d.%06d numpmid: %d\n", (int)timestamp.tv_sec, (int)timestamp.tv_usec, lnumpmid);
-			}
-			vsize = 0;
-			for (i = 0; i < lnumpmid; i++) {
-			    vlp = (vlist_t *)&data[vsize/sizeof(__pmPDU)];
-			    pmid = fetch_ntohpmID(vlp->pmid);
-			    numval = ntohl(vlp->numval);
-			    fprintf(stderr, "  %s", pmIDStr(pmid));
-			    if (pmNameID(pmid, &name) == 0) {
-				fprintf(stderr, " (%s)", name);
-				free(name);
-			    }
-			    fprintf(stderr, ": numval: %d", numval);
-			    if (numval > 0)
-				fprintf(stderr, " valfmt: %d", ntohl(vlp->valfmt));
-			    fputc('\n', stderr);
-			    vsize += sizeof(vlp->pmid) + sizeof(vlp->numval);
-			    if (numval > 0)
-				vsize += sizeof(vlp->valfmt) + ntohl(vlp->numval) * sizeof(__pmValue_PDU);
-			}
-		    }
+		    else if (n == PDU_HIGHRES_RESULT && !highres)
+			fprintf(stderr, "__pmGetPDU: bad PDU_HIGHRES_RESULT\n");
+		    else if (n == PDU_RESULT && highres)
+			fprintf(stderr, "__pmGetPDU: bad PDU_RESULT\n");
 		    else
 			fprintf(stderr, "__pmGetPDU: Error: %s\n", pmErrStr(n));
 		}
 
-		if ((n == PDU_HIGHRES_RESULT && highres) || (n == PDU_RESULT && !highres)) {
+		if ((n == PDU_HIGHRES_RESULT && highres) ||
+		    (n == PDU_RESULT && !highres)) {
 		    /* Success with a result in a PDU buffer */
 		    PM_LOCK(ctxp->c_lock);
 		    sts = (n == PDU_RESULT) ?

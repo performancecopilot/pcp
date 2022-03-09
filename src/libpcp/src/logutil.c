@@ -125,7 +125,7 @@ __pmLogLabelVersion(const __pmLogLabel *llp)
 }
 
 int
-__pmLogVersion(__pmLogCtl *lcp)
+__pmLogVersion(const __pmLogCtl *lcp)
 {
     return __pmLogLabelVersion(&lcp->label);
 }
@@ -899,12 +899,12 @@ logputresult(int version, __pmArchCtl *acp, __pmPDU *pb)
     if (lcp->state == PM_LOG_STATE_NEW) {
 	/*
 	 * first result, do the label record
+	 *
+	 * pb[3] => 3 __int32_t's before the timestamp starts
 	 */
 	if (version >= 3)
-	    /* 4 => sizeof(__pmPDUHdr) / sizeof(__pmPDU) + numpmid */
-	    __pmLoadTimespec((__int32_t *)&pb[4], &lcp->label.start);
+	    __pmLoadTimestamp((__int32_t *)&pb[3], &lcp->label.start);
 	else
-	    /* 3 => sizeof(__pmPDUHdr) / sizeof(__pmPDU) */
 	    __pmLoadTimeval((__int32_t *)&pb[3], &lcp->label.start);
 	lcp->label.vol = PM_LOG_VOL_TI;
 	__pmLogWriteLabel(lcp->tifp, &lcp->label);
@@ -1013,25 +1013,31 @@ paranoidCheck(int len, int version, __pmPDU *pb)
 	pmTimeval		timestamp;	/* when returned */
 	int			numpmid;	/* no. of PMIDs to follow */
 	__pmPDU			data[1];	/* zero or more */
-    }			*rp;
-    struct highres_result_t {		/* from p_result.c */
-	__pmPDUHdr		hdr;
-	int			numpmid;	/* no. of PMIDs to follow */
-	pmTimespec		timestamp;	/* when returned */
-	__pmPDU			data[2];	/* zero or more */
-    }			*hrp;
+    } *rp;
+
+    struct log_result_v3_t {		/* from p_result.c */
+	__int32_t	len;		/* PDU header -- repacked */
+	__int32_t	type;		/* ditto */
+	__int32_t	from;		/* ditto -- becomes len */
+	__int32_t	sec[2];		/* __pmTimestamp */
+	__int32_t	nsec;
+	__int32_t	numpmid;
+	__int32_t	data[1];	/* zero or more */
+    } *v3rp;
+
+    
     struct vlist_t {			/* from p_result.c */
-	pmID			pmid;
-	int			numval;		/* no. of vlist els to follow, or error */
-	int			valfmt;		/* insitu or pointer */
-	__pmValue_PDU		vlist[1];	/* zero or more */
-    }			*vlp;
+	pmID		pmid;
+	int		numval;		/* no. of vlist els to follow, or error */
+	int		valfmt;		/* insitu or pointer */
+	__pmValue_PDU	vlist[1];	/* zero or more */
+    } *vlp;
 
     /*
      * to start with, need space for *result_t with no data (__pmPDU)
      * ... this is the external size, which consists of
      * <header len>
-     * <timestamp> (2/4 words)
+     * <timestamp>
      * <numpmid>
      * <trailer len>
      *
@@ -1040,10 +1046,10 @@ paranoidCheck(int len, int version, __pmPDU *pb)
      */
 
     if (version >= PM_LOG_VERS03) {
-	hrp = (struct highres_result_t *)pb;
-	numpmid = ntohl(hrp->numpmid);
-	hdrsz = 7 * sizeof(__pmPDU);
-	data = hrp->data;
+	v3rp = (struct log_result_v3_t *)pb;
+	numpmid = ntohl(v3rp->numpmid);
+	hdrsz = 6 * sizeof(__int32_t);
+	data = (__pmPDU *)v3rp->data;
     } else {
 	rp = (struct result_t *)pb;
 	numpmid = ntohl(rp->numpmid);
@@ -1249,67 +1255,69 @@ clearMarkDone(__pmContext *ctxp)
 }
 
 static int
-pmlogwritemark2(__pmFILE *fp, const __pmTimestamp *last_stamp)
+pmlogwritemark2(__pmFILE *fp, const __pmTimestamp *last_stamp, int msecs)
 {
-    struct {			/* from p_result.c */
-	__pmPDU		hdr;
-	pmTimeval	timestamp;      /* when returned */
-	int		numpmid;        /* zero PMIDs to follow */
-	__pmPDU		tail;
-    } mark2;
+    struct {			/* same as in p_result.c */
+	__int32_t	head;		/* len */
+	__int32_t	sec;
+	__int32_t	usec;
+	__int32_t	numpmid;	/* 0 */
+	__int32_t	tail;		/* len */
+    } mark;
 
-    mark2.hdr = mark2.tail = htonl((int)sizeof(mark2));
-    mark2.timestamp.tv_sec = last_stamp->sec;
-    mark2.timestamp.tv_usec = (last_stamp->nsec / 1000) + 1000; /* + 1msec */
-    if (mark2.timestamp.tv_usec > 1000000) {
-        mark2.timestamp.tv_usec -= 1000000;
-        mark2.timestamp.tv_sec++;
+    mark.head = mark.tail = htonl((int)sizeof(mark));
+    mark.numpmid = htonl(0);
+    if (msecs) {
+	/* optional increment */
+	__pmTimestamp	stamp = { 0, 0 };
+	stamp.nsec = msecs * 1000000;
+	__pmTimestampInc(&stamp, last_stamp);
+	__pmPutTimeval(&stamp, &mark.sec);
     }
-    mark2.timestamp.tv_sec = htonl(mark2.timestamp.tv_sec);
-    mark2.timestamp.tv_usec = htonl(mark2.timestamp.tv_usec);
-    mark2.numpmid = htonl(0);
+    else
+	__pmPutTimeval(last_stamp, &mark.sec);
 
-    if (__pmFwrite(&mark2, 1, sizeof(mark2), fp) != sizeof(mark2))
+    if (__pmFwrite(&mark, 1, sizeof(mark), fp) != sizeof(mark))
         return -oserror();
 
     return 0;
 }
 
 static int
-pmlogwritemark3(__pmFILE *fp, const __pmTimestamp *last_stamp)
+pmlogwritemark3(__pmFILE *fp, const __pmTimestamp *last_stamp, int msecs)
 {
-    struct {			/* from p_result.c */
-	__pmPDU		hdr;
-	int		numpmid;        /* zero PMIDs to follow */
-	pmTimespec	timestamp;      /* when returned */
-	__pmPDU		tail;
-	int		pad;	/* explicit padding for size calculation */
-    } mark3;
-    const size_t	length = sizeof(mark3) - sizeof(mark3.pad);
+    struct {			/* same as in p_result.c */
+	__int32_t	head;		/* len */
+	__int32_t	sec[2];
+	__int32_t	nsec;
+	__int32_t	numpmid;	/* 0 */
+	__int32_t	tail;		/* len */
+    } mark;
 
-    mark3.hdr = mark3.tail = htonl((int)length);
-    mark3.timestamp.tv_sec = last_stamp->sec;
-    mark3.timestamp.tv_nsec = last_stamp->nsec + 1000000; /* + 1msec */
-    if (mark3.timestamp.tv_nsec > 1000000000) {
-	mark3.timestamp.tv_nsec -= 1000000000;
-	mark3.timestamp.tv_sec++;
+    mark.head = mark.tail = htonl((int)sizeof(mark));
+    mark.numpmid = htonl(0);
+    if (msecs) {
+	/* optional increment */
+	__pmTimestamp	stamp = { 0, 0 };
+	stamp.nsec = msecs * 1000000;
+	__pmTimestampInc(&stamp, last_stamp);
+	__pmPutTimestamp(&stamp, &mark.sec[0]);
     }
-    __htonll((char *)&mark3.timestamp.tv_sec);
-    __htonll((char *)&mark3.timestamp.tv_nsec);
-    mark3.numpmid = htonl(0);
+    else
+	__pmPutTimestamp(last_stamp, &mark.sec[0]);
 
-    if (__pmFwrite(&mark3, 1, length, fp) != length)
+    if (__pmFwrite(&mark, 1, sizeof(mark), fp) != sizeof(mark))
 	return -oserror();
 
     return 0;
 }
 
 int
-__pmLogWriteMark(__pmFILE *fp, int version, const __pmTimestamp *last_stamp)
+__pmLogWriteMark(__pmFILE *fp, int version, const __pmTimestamp *last_stamp, int msecs)
 {
     if (version >= PM_LOG_VERS03)
-	return pmlogwritemark3(fp, last_stamp);
-    return pmlogwritemark2(fp, last_stamp);
+	return pmlogwritemark3(fp, last_stamp, msecs);
+    return pmlogwritemark2(fp, last_stamp, msecs);
 }
 
 /*
@@ -1580,10 +1588,7 @@ again:
     else {
 	__pmPDUHdr *header = (__pmPDUHdr *)pb;
 	header->len = sizeof(*header) + rlen;
-	if (version >= PM_LOG_VERS03)
-	    header->type = PDU_HIGHRES_RESULT;
-	else
-	    header->type = PDU_RESULT;
+	header->type = PDU_RESULT;
 	header->from = FROM_ANON;
 	/* swab PDU buffer - done later in __pmDecodeResult */
 
@@ -1649,9 +1654,7 @@ again:
 	__pmFseek(f, -(long)sizeof(trail), SEEK_CUR);
 
     __pmOverrideLastFd(__pmFileno(f));
-    sts = (version >= PM_LOG_VERS03) ?
-	    __pmDecodeHighResResult_ctx(ctxp, pb, result) :
-	    __pmDecodeResult_ctx(ctxp, pb, result); /* also swabs the result */
+    sts = __pmDecodeResult_ctx(ctxp, pb, result); /* also swabs the result */
 
     if (pmDebugOptions.log) {
 	head -= sizeof(head) + sizeof(trail);

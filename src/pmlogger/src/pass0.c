@@ -217,6 +217,7 @@ cache_bind(void)
     if (i != num_to_bind) {
 	/* Snarfoo! */
 	fprintf(stderr, "cache_bind(): setup %d metrics, expecting %d metrics\n", i, num_to_bind);
+	goto cleanup;
     }
 
     if ((sts = pmLookupName(num_to_bind, (const char **)namelist, pmidlist)) < 0) {
@@ -258,6 +259,7 @@ cache_bind(void)
     if (i != num_to_bind) {
 	/* Snarfoo! */
 	fprintf(stderr, "cache_bind(): metadata for %d metrics, expecting %d metrics\n", i, num_to_bind);
+	goto cleanup;
     }
 
 cleanup:

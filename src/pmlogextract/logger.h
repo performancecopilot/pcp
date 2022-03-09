@@ -41,7 +41,7 @@ typedef struct reclist {
 typedef struct {
     int			ctx;
     char		*name;
-    pmLogLabel		label;
+    __pmLogLabel	label;
     __int32_t		*pb[2];		/* current physical record buffer */
     __pmResult		*_result;
     __pmResult		*_Nresult;

@@ -2864,7 +2864,7 @@ __dmchildren(__pmContext *ctxp, int derive_locked, const char *name, char ***off
 		    status[num_chn-1] = cp->mlist[i].name[start+len] == '\0' ? PMNS_LEAF_STATUS : PMNS_NONLEAF_STATUS;
 		    if (pmDebugOptions.derive && pmDebugOptions.appl2) {
 			fprintf(stderr, " (status=%d)", status[num_chn-1]);
-		}
+		    }
 		}
 		if (pmDebugOptions.derive && pmDebugOptions.appl2) {
 		    fputc('\n', stderr);

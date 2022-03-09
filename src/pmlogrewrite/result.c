@@ -670,9 +670,7 @@ do_result(void)
 
 	max_offset = (outarch.version == PM_LOG_VERS02) ? 0x7fffffff : LONGLONG_MAX;
 	peek_offset = __pmFtell(outarch.archctl.ac_mfp);
-	sts = (outarch.version == PM_LOG_VERS02) ?
-		__pmEncodeResult(inarch.rp, &logrec) :
-		__pmEncodeHighResResult(inarch.rp, &logrec);
+	sts = __pmEncodeResult(outarch.archctl.ac_log, inarch.rp, &logrec);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
 		    pmGetProgname(), pmErrStr(sts));

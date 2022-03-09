@@ -9,6 +9,7 @@ agenttimeout
 aggrstore
 anon-sa
 archctl_segfault
+archend
 archfetch
 archinst
 arch_maxfd
@@ -173,6 +174,7 @@ obs
 parsehostattrs
 parsehostspec
 parseinterval
+parsehighresinterval
 parsemetricspec
 permslist.old
 pcp_lite_crash
@@ -211,6 +213,7 @@ record-setarg
 rootclient
 rtimetest
 scale
+scandata
 scanmeta
 semstr
 sha1int2ext

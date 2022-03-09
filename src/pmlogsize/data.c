@@ -136,11 +136,19 @@ do_data(__pmFILE *f, int version, char *fname)
     metric_t	*metricp;
     __pmPDUHdr *php;
     __pmResult	*rp;
+    __pmContext	*ctxp = NULL;
 
     nmetric = 0;
     metric_tab = NULL;
 
     ctx = pmNewContext(PM_CONTEXT_ARCHIVE, fname);	/* OK if this fails */
+    if (ctx >= 0) {
+	ctxp = __pmHandleToPtr(ctx);			/* ditto */
+	if (ctxp != NULL) {
+	    /* once we have the pointer, release the lock */
+	    PM_UNLOCK(ctxp->c_lock);
+	}
+    }
 
     __pmFstat(f, &sbuf);
 
@@ -164,40 +172,38 @@ do_data(__pmFILE *f, int version, char *fname)
 
 	/*
 	 * read record, but leave prefix space for __pmPDUHdr so we can
-	 * use __pmDecodeResult() below
+	 * use __pmDecodeResult_ctx() below
 	 */
 	if ((sts = __pmFread(&buf[sizeof(__pmPDUHdr)], 1, rlen, f)) != rlen) {
 	    fprintf(stderr, "Error: data read failed: len %d not %d\n", sts, need);
 	    exit(1);
 	}
 
+	__pmFread(&trailer, 1, sizeof(trailer), f);
+	oheadbytes += sizeof(trailer);
+	nrec++;
+
+	if (ctxp == NULL)
+	    continue;
+
 	php = (__pmPDUHdr *)buf;
 	php->len = header + sizeof(trailer);
 	php->from = FROM_ANON;
-	if (version >= PM_LOG_VERS03) {
-	    php->type = PDU_HIGHRES_RESULT;
-	    if ((sts = __pmDecodeHighResResult((__pmPDU *)buf, &rp)) < 0) {
-		fprintf(stderr, "Error: %s failed: %s\n",
-				"__pmDecodeHighResResult", pmErrStr(sts));
-		exit(1);
-	    }
-	} else {
-	    php->type = PDU_RESULT;
-	    if ((sts = __pmDecodeResult((__pmPDU *)buf, &rp)) < 0) {
-		fprintf(stderr, "Error: %s failed: %s\n",
-				"__pmDecodeResult", pmErrStr(sts));
-		exit(1);
-	    }
+	php->type = PDU_RESULT;
+	PM_LOCK(ctxp->c_lock);
+	if ((sts = __pmDecodeResult_ctx(ctxp, (__pmPDU *)buf, &rp)) < 0) {
+	    fprintf(stderr, "Error: %s failed: %s\n",
+			    "__pmDecodeResult", pmErrStr(sts));
+	    exit(1);
 	}
-
-	__pmFread(&trailer, 1, sizeof(trailer), f);
-	oheadbytes += sizeof(trailer);
+	PM_UNLOCK(ctxp->c_lock);
 
 	if (rp->numpmid == 0) {
 	    /* <mark> record */
 	    if (rflag)
 		cleanup(0);
 	    nmark++;
+	    nrec--;
 	    continue;
 	}
 
@@ -355,7 +361,6 @@ do_data(__pmFILE *f, int version, char *fname)
 	    exit(1);
 	}
 
-	nrec++;
     }
 
     printf("  data: %ld bytes [%.0f%%, %d records",

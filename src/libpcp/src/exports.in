@@ -796,11 +796,17 @@ PCP_3.36 {
 
 PCP_3.37 {
   global:
+    pmtimespecToReal;
+    pmtimespecFromReal;
+    pmExtendFetchGroup_timespec;
+    pmExtendFetchGroup_timeval;
     pmHighResFetchArchive;
     pmHighResSortInstances;
+    pmParseHighResInterval;
     __pmDecodeHighResResult_ctx;
     __pmEncodeHighResResult;
     __pmDecodeResult_ctx;
+    __pmDecodeValueSet;
     __pmGetResultSize;
     __pmSortInstances;
     __pmLogWriteMark;

@@ -69,7 +69,9 @@ usr/share/man/man3/pmEventFlagsStr_r.3.gz
 usr/share/man/man3/pmExtendFetchGroup_event.3.gz
 usr/share/man/man3/pmExtendFetchGroup_indom.3.gz
 usr/share/man/man3/pmExtendFetchGroup_item.3.gz
+usr/share/man/man3/pmExtendFetchGroup_timespec.3.gz
 usr/share/man/man3/pmExtendFetchGroup_timestamp.3.gz
+usr/share/man/man3/pmExtendFetchGroup_timeval.3.gz
 usr/share/man/man3/pmExtractValue.3.gz
 usr/share/man/man3/__pmFdLookupIPC.3.gz
 usr/share/man/man3/pmFetch.3.gz
@@ -185,6 +187,7 @@ usr/share/man/man3/pmParseDebug.3.gz
 usr/share/man/man3/__pmParseDebug.3.gz
 usr/share/man/man3/__pmParseHostAttrsSpec.3.gz
 usr/share/man/man3/__pmParseHostSpec.3.gz
+usr/share/man/man3/pmParseHighResInterval.3.gz
 usr/share/man/man3/pmParseInterval.3.gz
 usr/share/man/man3/pmParseMetricSpec.3.gz
 usr/share/man/man3/__pmParseTime.3.gz

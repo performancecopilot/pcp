@@ -1842,23 +1842,6 @@ __pmLoadTimestamp(const __int32_t *buf, __pmTimestamp *tsp)
     }
 }
 
-/* TODO: remove once on-disk pmHighResResult no longer uses pmTimespec */
-void
-__pmLoadTimespec(const __int32_t *buf, __pmTimestamp *tsp)
-{
-    pmTimespec	ts;
-
-    ts.tv_sec = ((((__int64_t)buf[1]) << 32) & 0xffffffff00000000LL) | (buf[0] & 0xffffffff);
-    ts.tv_nsec = ((((__int64_t)buf[3]) << 32) & 0xffffffff00000000LL) | (buf[2] & 0xffffffff);
-    __ntohpmTimespec(&ts);
-    tsp->sec = ts.tv_sec;
-    tsp->nsec = ts.tv_nsec;
-    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
-	fprintf(stderr, "__pmLoadTimespec: network(%08x%08x %08x%08x nsec)", buf[0], buf[1], buf[2], buf[3]);
-	fprintf(stderr, " -> %" FMT_INT64 ".%09d (%llx %x nsec)\n", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec);
-    }
-}
-
 void
 __pmLoadTimeval(const __int32_t *buf, __pmTimestamp *tsp)
 {

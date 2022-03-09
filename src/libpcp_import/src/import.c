@@ -1079,8 +1079,14 @@ _pmi_write(__pmTimestamp *timestamp)
 	if (current->result != NULL) {
 	    current->result->timestamp = *timestamp;
 	    sts = _pmi_put_result(current, current->result);
-	    /* careful here - do not use __pmFreeResult */
-	    pmFreeResult(__pmOffsetResult(current->result));
+	    /*
+	     * careful here - do not use __pmFreeResult because
+	     * we've realloc'd current->result, and we can't
+	     * call pmFreeResult(__pmOffsetResult(current->result))
+	     * because the arg is not alloc'd
+	     */
+	    __pmFreeResultValues(__pmOffsetResult(current->result));
+	    free(current->result);
 	    current->result = NULL;
 	}
 
@@ -1208,5 +1214,5 @@ pmiPutMark(void)
     if (last_stamp->sec == 0 && last_stamp->nsec == 0)
 	/* no earlier result, no point adding a mark record */
 	return 0;
-    return __pmLogWriteMark(acp->ac_mfp, current->version, last_stamp);
+    return __pmLogWriteMark(acp->ac_mfp, current->version, last_stamp, 1);
 }

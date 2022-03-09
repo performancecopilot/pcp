@@ -22,9 +22,9 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	pcp_lite_crash.c compare.c mkfiles.c nameall.c nullinst.c \
 	storepdu.c fetchpdu.c badloglabel.c interp_bug2.c interp_bug.c \
 	xmktime.c descreqX2.c recon.c torture_indom.c \
-	fetchrate.c stripmark.c pmnsinarchives.c \
+	fetchrate.c stripmark.c pmnsinarchives.c pmnsunload.c \
 	endian.c chk_memleak.c chk_metric_types.c mark-bug.c \
-	pmnsunload.c parsemetricspec.c parseinterval.c \
+	parsemetricspec.c parseinterval.c parsehighresinterval.c \
 	pducheck.c pducrash.c pdu-server.c \
 	pmprintf.c pmsprintf.c pmsocks_objstyle.c numberstr.c \
 	read-bf.c write-bf.c slow_af.c indom.c tztest.c \
@@ -51,7 +51,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	timeshift.c checkstructs.c bcc_profile.c sha1int2ext.c \
 	getdomainname.c profilecrash.c store_and_fetch.c test_service_notify.c \
 	ctx_derive.c pmstrn.c pmfstring.c pmfg-derived.c mmv_help.c sizeof.c \
-	stampconv.c time_stamp.c
+	stampconv.c time_stamp.c archend.c scandata.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig

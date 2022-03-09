@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2014,2022 Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2017 Red Hat.
  *
  * Excercise __pmLogPutResult() and __pmLogPutResult2().
@@ -17,12 +17,15 @@ main(int argc, char **argv)
     int		i;
     int		sts;
     int		bflag = 0;
+    char	*endnum;
     int		errflag = 0;
+    int		version = PM_LOG_VERS02;
+    int		indom_record_type = TYPE_INDOM_V2;
     const char	*metrics[] = {
 	"sampledso.long.one",
-	"sampledso.ulonglong.one",
-	"sampledso.float.one",
-	"sampledso.double.one",
+	"sampledso.ulonglong.ten",
+	"sampledso.float.hundred",
+	"sampledso.double.million",
 	"sampledso.string.hullo",
 	"sampledso.bin",
     };
@@ -33,14 +36,19 @@ main(int argc, char **argv)
     __pmLogCtl	logctl;
     __pmArchCtl	archctl;
     __pmPDU	*pdp;
-    pmTimeval	epoch = { 0, 0 };
+    /*
+     * epoch timestamp:
+     * sec 0x0a0b0c = 658188 = 7d 14h 49m 48s (relative to UTC)
+     * nsec 0x04030201 = 67305985
+     */
+    __pmTimestamp	epoch = { 0x0a0b0c, 0x04030201 };
     __pmTimestamp	stamp;
     __pmLogInDom_io	lid;
 
     /* trim cmd name of leading directory components */
     pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "bD::?")) != EOF) {
+    while ((c = getopt(argc, argv, "bD:V:?")) != EOF) {
 	switch (c) {
 
 	case 'b':	/* backwards compatibility */
@@ -54,6 +62,20 @@ main(int argc, char **argv)
 		    pmGetProgname(), optarg);
 		errflag++;
 	    }
+	    break;
+
+	case 'V':	/* archive version */
+	    version = (int)strtol(optarg, &endnum, 10);
+	    if (*endnum != '\0') {
+		fprintf(stderr, "%s: -V requires numeric argument\n", pmGetProgname());
+		errflag++;
+	    }
+	    if (version != PM_LOG_VERS02 && version != PM_LOG_VERS03) {
+		fprintf(stderr, "%s: illegal -V value\n", pmGetProgname());
+		errflag++;
+	    }
+	    if (version == PM_LOG_VERS03)
+		indom_record_type = TYPE_INDOM;
 	    break;
 
 	case '?':
@@ -71,10 +93,16 @@ Options:\n\
   -b                  backwards compatibility (use __pmLogPutResult() instead\n\
                       __pmLogPutResult2(), the default\n\
   -D debugflag[,...]\n\
+  -V archiveversion\n\
 ",
                 pmGetProgname());
         exit(1);
     }
+
+    putenv("TZ=UTC");
+    printf("Expect timestamps to start @");
+    __pmPrintTimestamp(stdout, &epoch);
+    putchar('\n');
 
     if ((sts = pmNewContext(PM_CONTEXT_HOST, "local:")) < 0) {
 	fprintf(stderr, "%s: Cannot connect to PMCD on \"local:\": %s\n",
@@ -85,7 +113,7 @@ Options:\n\
     memset(&logctl, 0, sizeof(logctl));
     memset(&archctl, 0, sizeof(archctl));
     archctl.ac_log = &logctl;
-    if ((sts = __pmLogCreate("qatest", argv[optind], PM_LOG_VERS02, &archctl)) != 0) {
+    if ((sts = __pmLogCreate("qatest", argv[optind], version, &archctl)) != 0) {
 	fprintf(stderr, "%s: __pmLogCreate failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -95,8 +123,8 @@ Options:\n\
      * make the archive label deterministic
      */
     logctl.label.pid = 1234;
-    logctl.label.start.sec = epoch.tv_sec;
-    logctl.label.start.nsec = epoch.tv_usec * 1000;
+    logctl.label.start.sec = epoch.sec;
+    logctl.label.start.nsec = epoch.nsec;
     if (logctl.label.hostname)
 	free(logctl.label.hostname);
     logctl.label.hostname = strdup("happycamper");
@@ -125,8 +153,8 @@ Options:\n\
 
     __pmFflush(archctl.ac_mfp);
     __pmFflush(logctl.mdfp);
-    stamp.sec = epoch.tv_sec;
-    stamp.nsec = epoch.tv_usec * 1000;
+    stamp.sec = epoch.sec;
+    stamp.nsec = epoch.nsec;
     __pmLogPutIndex(&archctl, &stamp);
 
     pmids = (pmID *)malloc(nmetric*sizeof(pmID));
@@ -152,7 +180,7 @@ Options:\n\
 	    }
 	    lid.indom = desc.indom;
 	    lid.stamp = stamp;
-	    if ((sts = __pmLogPutInDom(&archctl, TYPE_INDOM_V2, &lid)) < 0) {
+	    if ((sts = __pmLogPutInDom(&archctl, indom_record_type, &lid)) < 0) {
 		fprintf(stderr, "%s: __pmLogPutInDom(...,indom=%s,numinst=%d,...) failed: %s\n", pmGetProgname(), pmInDomStr(desc.indom), lid.numinst, pmErrStr(sts));
 		exit(1);
 	    }
@@ -160,12 +188,12 @@ Options:\n\
     }
     for (i = 0; i < nmetric; i++) {
 	if ((sts = __pmFetch(NULL, i+1, pmids, &rp)) < 0) {
-	    fprintf(stderr, "%s: pmFetch(%d, ...) failed: %s\n", pmGetProgname(), i+1, pmErrStr(sts));
+	    fprintf(stderr, "%s: __pmFetch(%d, ...) failed: %s\n", pmGetProgname(), i+1, pmErrStr(sts));
 	    exit(1);
 	}
-	rp->timestamp.sec = ++epoch.tv_sec;
-	rp->timestamp.nsec = epoch.tv_usec * 1000;
-	if ((sts = __pmEncodeResult(rp, &pdp)) < 0) {
+	rp->timestamp.sec = ++epoch.sec;
+	rp->timestamp.nsec = epoch.nsec;
+	if ((sts = __pmEncodeResult(&logctl, rp, &pdp)) < 0) {
 	    fprintf(stderr, "%s: __pmEncodeResult failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
@@ -178,10 +206,19 @@ Options:\n\
 	    }
 	}
 	else {
-	    printf("__pmLogPutResult2: %d metrics ...\n", i+1);
-	    if ((sts = __pmLogPutResult2(&archctl, pdp)) < 0) {
-		fprintf(stderr, "%s: __pmLogPutResult2 failed: %s\n", pmGetProgname(), pmErrStr(sts));
-		exit(1);
+	    if (version == PM_LOG_VERS03) {
+		printf("__pmLogPutResult3: %d metrics ...\n", i+1);
+		if ((sts = __pmLogPutResult3(&archctl, pdp)) < 0) {
+		    fprintf(stderr, "%s: __pmLogPutResult3 failed: %s\n", pmGetProgname(), pmErrStr(sts));
+		    exit(1);
+		}
+	    }
+	    else {
+		printf("__pmLogPutResult2: %d metrics ...\n", i+1);
+		if ((sts = __pmLogPutResult2(&archctl, pdp)) < 0) {
+		    fprintf(stderr, "%s: __pmLogPutResult2 failed: %s\n", pmGetProgname(), pmErrStr(sts));
+		    exit(1);
+		}
 	    }
 	}
 	__pmUnpinPDUBuf(pdp);
@@ -190,9 +227,9 @@ Options:\n\
 
     __pmFflush(archctl.ac_mfp);
     __pmFflush(logctl.mdfp);
-    stamp.sec = epoch.tv_sec;
-    stamp.nsec = epoch.tv_usec * 1000;
+    stamp.sec = epoch.sec;
+    stamp.nsec = epoch.nsec;
     __pmLogPutIndex(&archctl, &stamp);
 
-    return 0;
+    exit(0);
 }
