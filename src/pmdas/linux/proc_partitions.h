@@ -59,6 +59,7 @@ typedef struct {
     char		*udevnamebuf; /* from udev if we have it, else NULL */
     char		*dmname;      /* symlink from /dev/mapper, else NULL */
     char		*mdname;      /* symlink from /dev/md, else NULL */
+    char		*wwidname;    /* wwid of sd path, else NULL */
     zram_stat_t		*zram;
     unsigned long long	rd_ios;
     unsigned long long	rd_merges;
@@ -79,7 +80,7 @@ typedef struct {
     unsigned int	fl_ticks;
 } partitions_entry_t;
 
-extern int refresh_proc_partitions(pmInDom, pmInDom, pmInDom, pmInDom, pmInDom, int, int);
+extern int refresh_proc_partitions(pmInDom, pmInDom, pmInDom, pmInDom, pmInDom, pmInDom, int, int);
 extern int is_partitions_metric(pmID);
 extern int is_capacity_metric(int, int);
 extern int proc_partitions_fetch(pmdaMetric *, unsigned int, pmAtomValue *);
