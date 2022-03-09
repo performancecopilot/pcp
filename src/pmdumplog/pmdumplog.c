@@ -991,10 +991,12 @@ dumpLabel(int verbose)
     }
 
     if (verbose) {
-	if (label.timezone)
+	if (label.timezone != NULL && label.timezone[0] != '\0')
 	    printf("Archive timezone: %s\n", label.timezone);
-	if (label.zoneinfo)
+	if (label.zoneinfo != NULL && label.zoneinfo[0] != '\0')
 	    printf("Archive zoneinfo: %s\n", label.zoneinfo);
+	if (label.features != 0)
+	    printf("Archive features: 0x%x\n", label.features);
 	printf("PID for pmlogger: %" FMT_PID "\n", label.pid);
     }
 }
