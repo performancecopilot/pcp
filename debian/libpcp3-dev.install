@@ -193,6 +193,7 @@ usr/share/man/man3/pmParseInterval.3.gz
 usr/share/man/man3/pmParseMetricSpec.3.gz
 usr/share/man/man3/__pmParseHighResTime.3.gz
 usr/share/man/man3/__pmParseTime.3.gz
+usr/share/man/man3/pmParseHighResTimeWindow.3.gz
 usr/share/man/man3/pmParseTimeWindow.3.gz
 usr/share/man/man3/pmParseUnitsStr.3.gz
 usr/share/man/man3/pmPathSeparator.3.gz

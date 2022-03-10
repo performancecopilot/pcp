@@ -760,6 +760,10 @@ PCP_CALL extern int pmParseTimeWindow(
       const char *, const char *, const char *, const char *,
       const struct timeval *, const struct timeval *,
       struct timeval *, struct timeval *, struct timeval *, char **);
+PCP_CALL extern int pmParseHighResTimeWindow(
+      const char *, const char *, const char *, const char *,
+      const struct timespec *, const struct timespec *,
+      struct timespec *, struct timespec *, struct timespec *, char **);
 
 /* Sentinel value for end-time parameters in time window parsing */
 #if PM_SIZEOF_TIME_T == 8

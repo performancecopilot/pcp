@@ -88,17 +88,17 @@ static const int	numint = sizeof(int_tab) / sizeof(int_tab[0]);
 #define NEG_OFFSET	2
 
 
-/* Compare struct timevals */
-static int	/* 0 -> equal, -1 -> tv1 < tv2, 1 -> tv1 > tv2 */
-tvcmp(struct timeval tv1, struct timeval tv2)
+/* Compare struct timespecs */
+static int	/* 0 -> equal, -1 -> t1 < t2, 1 -> t1 > t2 */
+tscmp(struct timespec t1, struct timespec t2)
 {
-    if (tv1.tv_sec < tv2.tv_sec)
+    if (t1.tv_sec < t2.tv_sec)
 	return -1;
-    if (tv1.tv_sec > tv2.tv_sec)
+    if (t1.tv_sec > t2.tv_sec)
 	return 1;
-    if (tv1.tv_usec < tv2.tv_usec)
+    if (t1.tv_nsec < t2.tv_nsec)
 	return -1;
-    if (tv1.tv_usec > tv2.tv_usec)
+    if (t1.tv_nsec > t2.tv_nsec)
 	return 1;
     return 0;
 }
@@ -726,9 +726,6 @@ __pmParseTime(
     return sts;
 }
 
-/* This function is designed to encapsulate the interpretation of
-   the -S, -T, -A and -O command line switches for use by the PCP
-   client tools. */
 int    /* 1 -> ok, 0 -> warning, -1 -> error */
 pmParseTimeWindow(
     const char      *swStart,   /* argument of -S switch, may be NULL */
@@ -742,12 +739,55 @@ pmParseTimeWindow(
     struct timeval  *rsltOffset,/* offset time returned here */
     char            **errMsg)	/* error message, please free */
 {
-    struct timeval  astart;
-    struct timeval  start;
-    struct timeval  end;
-    struct timeval  offset;
-    struct timeval  aoffset;
-    struct timeval  tval;
+    struct timespec logstart;
+    struct timespec logend;
+    struct timespec start;
+    struct timespec end;
+    struct timespec offset;
+    int		    sts;
+
+    logstart.tv_sec = logStart->tv_sec;
+    logstart.tv_nsec = logStart->tv_usec * 1000;
+    logend.tv_sec = logEnd->tv_sec;
+    logend.tv_nsec = logEnd->tv_usec * 1000;
+
+    if ((sts = pmParseHighResTimeWindow(swStart, swEnd, swAlign, swOffset,
+			&logstart, &logend, &start, &end, &offset, errMsg)) < 0)
+	return sts;
+
+    rsltStart->tv_sec = start.tv_sec;
+    rsltStart->tv_usec = start.tv_nsec / 1000;
+    rsltEnd->tv_sec = end.tv_sec;
+    rsltEnd->tv_usec = end.tv_nsec / 1000;
+    rsltOffset->tv_sec = offset.tv_sec;
+    rsltOffset->tv_usec = offset.tv_nsec / 1000;
+    return sts;
+}
+
+/*
+ * This function is designed to encapsulate the interpretation of
+ * the -S, -T, -A and -O command line switches for use by the PCP
+ * client tools.
+ */
+int    /* 1 -> ok, 0 -> warning, -1 -> error */
+pmParseHighResTimeWindow(
+    const char      *swStart,   /* argument of -S switch, may be NULL */
+    const char      *swEnd,     /* argument of -T switch, may be NULL */
+    const char      *swAlign,   /* argument of -A switch, may be NULL */
+    const char	    *swOffset,	/* argument of -O switch, may be NULL */
+    const struct timespec *logStart,  /* start of log or current time */
+    const struct timespec *logEnd,    /* end of log or tv_sec == PM_MAX_TIME_T */
+    struct timespec *rsltStart, /* start time returned here */
+    struct timespec *rsltEnd,   /* end time returned here */
+    struct timespec *rsltOffset,/* offset time returned here */
+    char            **errMsg)	/* error message, please free */
+{
+    struct timespec astart;
+    struct timespec start;
+    struct timespec end;
+    struct timespec offset;
+    struct timespec aoffset;
+    struct timespec tspec;
     const char	    *scan;
     __int64_t	    delta = 0;	/* initialize to pander to gcc */
     __int64_t 	    align;
@@ -758,38 +798,39 @@ pmParseTimeWindow(
     start = *logStart;
     end = *logEnd;
     if (end.tv_sec == PM_MAX_TIME_T)
-	end.tv_usec = 999999;
+	end.tv_nsec = 999999999;
 
     /* parse -S argument and adjust start accordingly */
     if (swStart) {
-	if (__pmParseTime(swStart, &start, &end, &start, errMsg) < 0)
+	if (__pmParseHighResTime(swStart, &start, &end, &start, errMsg) < 0)
 	    return -1;
     }
 
     /* sanity check -S */
-    if (tvcmp(start, *logStart) < 0)
+    if (tscmp(start, *logStart) < 0) {
 	/* move start forwards to the beginning of the archive */
 	start = *logStart;
+    }
 
     /* parse -A argument and adjust start accordingly */
     if (swAlign) {
 	scan = swAlign;
-	if (pmParseInterval(scan, &tval, errMsg) < 0)
+	if (pmParseHighResInterval(scan, &tspec, errMsg) < 0)
 	    return -1;
-	if (tval.tv_sec == 0 && tval.tv_usec == 0) {
+	if (tspec.tv_sec == 0 && tspec.tv_nsec == 0) {
 	    parseError(swAlign, swAlign, alignmsg, errMsg);
 	    return -1;
 	}
-	delta = tval.tv_usec + 1000000 * (__int64_t)tval.tv_sec;
-	align = start.tv_usec + 1000000 * (__int64_t)start.tv_sec;
+	delta = tspec.tv_nsec + 1000000000 * (__int64_t)tspec.tv_sec;
+	align = start.tv_nsec + 1000000000 * (__int64_t)start.tv_sec;
 	blign = (align / delta) * delta;
 	if (blign < align)
 	    blign += delta;
-	astart.tv_sec = (time_t)(blign / 1000000);
-	astart.tv_usec = (int)(blign % 1000000);
+	astart.tv_sec = (time_t)(blign / 1000000000);
+	astart.tv_nsec = (int)(blign % 1000000000);
 
 	/* sanity check -S after alignment */
-	if (tvcmp(astart, *logStart) >= 0 && tvcmp(astart, *logEnd) <= 0)
+	if (tscmp(astart, *logStart) >= 0 && tscmp(astart, *logEnd) <= 0)
 	    start = astart;
 	else {
 	    parseError(swAlign, swAlign, alignmsg, errMsg);
@@ -799,40 +840,40 @@ pmParseTimeWindow(
 
     /* parse -T argument and adjust end accordingly */
     if (swEnd) {
-	if (__pmParseTime(swEnd, &start, &end, &end, errMsg) < 0)
+	if (__pmParseHighResTime(swEnd, &start, &end, &end, errMsg) < 0)
 	    return -1;
     }
 
     /* sanity check -T */
-    if (tvcmp(end, *logEnd) > 0)
+    if (tscmp(end, *logEnd) > 0)
 	/* move end backwards to the end of the archive */
 	end = *logEnd;
 
     /* parse -O argument and align if required */
     offset = start;
     if (swOffset) {
-	if (__pmParseTime(swOffset, &start, &end, &offset, errMsg) < 0)
+	if (__pmParseHighResTime(swOffset, &start, &end, &offset, errMsg) < 0)
 	    return -1;
 
 	/* sanity check -O */
-	if (tvcmp(offset, start) < 0)
+	if (tscmp(offset, start) < 0)
 	    offset = start;
-	else if (tvcmp(offset, end) > 0)
+	else if (tscmp(offset, end) > 0)
 	    offset = end;
 
 	if (swAlign) {
-	    align = offset.tv_usec + 1000000 * (__int64_t)offset.tv_sec;
+	    align = offset.tv_nsec + 1000000000 * (__int64_t)offset.tv_sec;
 	    blign = (align / delta) * delta;
 	    if (blign < align)
 		blign += delta;
-	    align = end.tv_usec + 1000000 * (__int64_t)end.tv_sec;
+	    align = end.tv_nsec + 1000000000 * (__int64_t)end.tv_sec;
 	    if (blign > align)
 		blign -= delta;
-	    aoffset.tv_sec = (time_t)(blign / 1000000);
-	    aoffset.tv_usec = (int)(blign % 1000000);
+	    aoffset.tv_sec = (time_t)(blign / 1000000000);
+	    aoffset.tv_nsec = (int)(blign % 1000000000);
 
 	    /* sanity check -O after alignment */
-	    if (tvcmp(aoffset, start) >= 0 && tvcmp(aoffset, end) <= 0)
+	    if (tscmp(aoffset, start) >= 0 && tscmp(aoffset, end) <= 0)
 		offset = aoffset;
 	    else {
 		parseError(swAlign, swAlign, alignmsg, errMsg);
