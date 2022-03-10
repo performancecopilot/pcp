@@ -175,6 +175,10 @@ parameter.
 The value passed in the request will be sent back in the
 response \- all responses will be in JSON object form in
 this case, with top level "client" and "result" fields.
+.PP
+REST API clients can optionally submit an URL-encoded query string
+in the body of the HTTP request unless otherwise noted.
+In this case the POST method must be used instead of the GET method.
 .SS GET \fI/series/query\fR \- \fBpmSeriesQuery\fR(3)
 .TS
 box;

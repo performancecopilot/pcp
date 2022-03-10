@@ -1921,6 +1921,7 @@ x11
 1694 pidstat local python pcp pmlogextract
 1695 pmproxy valgrind local
 1696 pmproxy valgrind local
+1697 pmproxy valgrind local
 1700 pmda.bpftrace local python
 1701 pmda.bpftrace local python
 1702 pmda.bpftrace local python
