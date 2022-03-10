@@ -464,21 +464,23 @@ static char *
 _pm_scsi_id(const char *device)
 {
     int fd;
+    int n;
     char *id = NULL;
+    char *prefix = linux_statspath ? linux_statspath : "";
     static char buf[1024];
     char path[MAXNAMELEN];
 
     /*
      * Extract wwid from /sys/block/<device>/device/wwid
      */
-    pmsprintf(path, sizeof(path), "%s/sys/block/%s/device/wwid",
-		    linux_statspath, device);
-    if (access(path, R_OK) != 0) /* try alternate path */
-	pmsprintf(path, sizeof(path), "%s/sys/block/%s/wwid",
-			linux_statspath, device);
-    if ((fd = open(path, O_RDONLY)) >= 0) {
-	if (read(fd, buf, sizeof(buf)) > 0) {
-	    if ((id = strchr(buf, '\n')) != NULL)
+    n = pmsprintf(path, sizeof(path), "%s/sys/block/%s/device/wwid", prefix, device);
+    if (n <= 0 || access(path, F_OK) != 0) /* try alternate path */
+	n = pmsprintf(path, sizeof(path), "%s/sys/block/%s/wwid", prefix, device);
+    if (n > 0 && (fd = open(path, O_RDONLY)) >= 0) {
+	n = read(fd, buf, sizeof(buf));
+	close(fd);
+	if (n > 0) {
+	    if ((id = strrchr(buf, '\n')) != NULL)
 	    	*id = '\0';
 	    /*
 	     * Map known wwid prefixes back to canonical numeric form.
@@ -499,7 +501,6 @@ _pm_scsi_id(const char *device)
 	    else
 		id = buf; /* default */
 	}
-	close(fd);
     }
 
     return id ? id : "unknown";
@@ -1585,10 +1586,8 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	 * disk.wwid.* is aggregated from disk.dev instance(s)
 	 */
 	memset(atom, 0, sizeof(*atom));
-	pmdaCacheLookup(INDOM(WWID_INDOM), inst, &inst_wwid, NULL);
-	if (inst_wwid == NULL)
+	if (pmdaCacheLookup(INDOM(WWID_INDOM), inst, &inst_wwid, NULL) < 0 || inst_wwid == NULL)
 	    return PM_ERR_INST;
-	// fprintf(stderr, "DEBUG proc_partitions_fetch CLUSTER_WWID: item=%d inst=%d %s\n", item, inst, inst_wwid);
 	scsi_paths[0] = '\0';
 	for (pmdaCacheOp(INDOM(DISK_INDOM), PMDA_CACHE_WALK_REWIND);;) {
 	    /* walk all disk.dev instances and aggregate by wwid */
@@ -1609,7 +1608,7 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case 3: /* disk.wwid.scsi_paths */
 		if ((len = strlen(scsi_paths)) > 0)
 		    strcat(scsi_paths, " ");
-		strncat(scsi_paths, p->namebuf, sizeof(scsi_paths)-len);
+		strncat(scsi_paths, p->namebuf, sizeof(scsi_paths)-len-1);
 		atom->cp = scsi_paths;
 	    	break;
 	    case 4: /* disk.wwid.read */
