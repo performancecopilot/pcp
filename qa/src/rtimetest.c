@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2015,2022 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -16,7 +16,7 @@
 #include "libpcp.h"
 
 void
-set_tm(struct timeval *ntv, struct tm *ntm, struct tm *btm, int mon,
+set_tm(struct timespec *nts, struct tm *ntm, struct tm *btm, int mon,
        int mday, int hour, int min)
 {
     memcpy(ntm, btm, sizeof(struct tm));
@@ -29,9 +29,9 @@ set_tm(struct timeval *ntv, struct tm *ntm, struct tm *btm, int mon,
     if (min > 0)
 	ntm->tm_min = min;
 
-    if (ntv != NULL) {
-	ntv->tv_sec = __pmMktime(ntm);
-	ntv->tv_usec = 0;
+    if (nts != NULL) {
+	nts->tv_sec = __pmMktime(ntm);
+	nts->tv_nsec = 0;
     }
 }
 
@@ -50,9 +50,9 @@ dump_dt(char *str, struct tm *atm)
 int
 main(int argc, char *argv[])
 {
-    struct timeval tvstart;	// .tv_sec .tv_usec
-    struct timeval tvend;
-    struct timeval tvrslt;
+    struct timespec tsstart;	// .tv_sec .tv_nsec
+    struct timespec tsend;
+    struct timespec tsrslt;
     struct tm tmstart;		// .tm_sec .tm_min .tm_hour .tm_mday
     // .tm_mon .tm_year .tm_wday .tm_yday
     struct tm tmend;
@@ -95,10 +95,10 @@ main(int argc, char *argv[])
     }
 
     ttstart = 1390057730;
-    tvstart.tv_sec = ttstart;
-    tvstart.tv_usec = 0;
+    tsstart.tv_sec = ttstart;
+    tsstart.tv_nsec = 0;
     localtime_r(&ttstart, &tmstart);	// time_t => tm
-    set_tm(&tvend, &tmend, &tmstart, 0, 27, 11, 28);
+    set_tm(&tsend, &tmend, &tmstart, 0, 27, 11, 28);
     printf("   ");
     dump_dt("start ", &tmstart);
     printf("   ");
@@ -116,11 +116,11 @@ main(int argc, char *argv[])
     char *tmtmp_c = strchr(tmtmp_str, '\n');
     if (tmtmp_c)
 	*tmtmp_c = ' ';
-    if (__pmParseTime(tmtmp_str, &tvstart, &tvend, &tvrslt, &errmsg) != 0) {
+    if (__pmParseHighResTime(tmtmp_str, &tsstart, &tsend, &tsrslt, &errmsg) != 0) {
 	printf ("%s: %s\n", errmsg, tmtmp_str);
     }
     
-    clock = tvrslt.tv_sec;
+    clock = tsrslt.tv_sec;
     localtime_r(&clock, &tmrslt);	// time_t => tm
     printf("   ");
     dump_dt(tmtmp_str, &tmrslt);
@@ -220,16 +220,16 @@ main(int argc, char *argv[])
 
 	len = strftime(buffer, sizeof(buffer), fmt, &tmtmp);
 	if (len != 0) {
-	    struct timeval  rsltStart;
-	    struct timeval  rsltEnd;
-	    struct timeval  rsltOffset;
+	    struct timespec rsltStart;
+	    struct timespec rsltEnd;
+	    struct timespec rsltOffset;
 	    if (strcmp(fmt, "now") == 0)
 		printf
 		    ("These time terms for a specific day are relative to the current time.\n");
-	    if (__pmParseTime(buffer, &tvstart, &tvend, &tvrslt, &errmsg) != 0) {
+	    if (__pmParseHighResTime(buffer, &tsstart, &tsend, &tsrslt, &errmsg) != 0) {
 		printf ("%s: %s\n", errmsg, tmtmp_str);
 	    }
-	    clock = tvrslt.tv_sec;
+	    clock = tsrslt.tv_sec;
 	    localtime_r(&clock, &tmrslt);	// time_t => tm
 
 	    if (pmDebugOptions.appl0)
@@ -240,7 +240,7 @@ main(int argc, char *argv[])
 
 	    printf("#1 ");
 	    dump_dt(buffer, &tmrslt);
-	    if (pmParseTimeWindow(buffer, NULL, NULL, NULL, &tvstart, &tvend, &rsltStart, &rsltEnd, &rsltOffset, &errmsg) < 0) {
+	    if (pmParseHighResTimeWindow(buffer, NULL, NULL, NULL, &tsstart, &tsend, &rsltStart, &rsltEnd, &rsltOffset, &errmsg) < 0) {
 		printf ("%s: %s\n", errmsg, tmtmp_str);
 	    }
 	    clock = rsltStart.tv_sec;

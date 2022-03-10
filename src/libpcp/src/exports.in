@@ -803,6 +803,9 @@ PCP_3.37 {
     pmHighResFetchArchive;
     pmHighResSortInstances;
     pmParseHighResInterval;
+    pmParseHighResTimeWindow;
+    __pmConvertHighResTime;
+    __pmParseHighResTime;
     __pmDecodeHighResResult_ctx;
     __pmEncodeHighResResult;
     __pmDecodeResult_ctx;

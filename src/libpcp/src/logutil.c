@@ -2476,7 +2476,7 @@ __pmGetArchiveEnd_ctx(__pmContext *ctxp, __pmTimestamp *tsp)
     /*
      * default, when all else fails ...
      */
-    tsp->sec = INT_MAX;
+    tsp->sec = PM_MAX_TIME_T;
     tsp->nsec = 0;
 
     /*

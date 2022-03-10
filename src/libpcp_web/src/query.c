@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021 Red Hat.
+ * Copyright (c) 2017-2022 Red Hat.
  * Copyright (c) 2020 Yushan ZHANG.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -5445,7 +5445,7 @@ static void
 parsetime(seriesQueryBaton *baton, sds string, struct timeval *result, const char *source)
 {
     struct timeval	start = { 0, 0 };
-    struct timeval	end = { INT_MAX, 0 };
+    struct timeval	end = { PM_MAX_TIME_T, 0 };
     char		*error;
     sds			msg;
     int			sts;
@@ -5551,7 +5551,7 @@ initSeriesGetValues(seriesQueryBaton *baton, int nseries, sds *series,
 	gettimeofday(&offset, NULL);
 	tsub(&offset, &timing->start);
 	timing->start = offset;
-	timing->end.tv_sec = INT_MAX;
+	timing->end.tv_sec = PM_MAX_TIME_T;
     }
     if (window->count)
 	parseuint(baton, window->count, &timing->count, "count");
