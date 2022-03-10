@@ -2,7 +2,7 @@
  * pmie.c - performance inference engine
  ***********************************************************************
  *
- * Copyright (c) 2013-2015,2017,2020 Red Hat.
+ * Copyright (c) 2013-2015,2017,2020,2022 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -760,7 +760,7 @@ getargs(int argc, char *argv[])
     if (archives) {
 	pmtimevalFromReal(last, &tv2);
     } else {
-	tv2.tv_sec = INT_MAX;		/* sizeof(time_t) == sizeof(int) */
+	tv2.tv_sec = PM_MAX_TIME_T;
 	tv2.tv_usec = 0;
     }
     if (pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
@@ -815,7 +815,7 @@ getargs(int argc, char *argv[])
     if (archives) {
 	pmtimevalFromReal(last, &tv2);
     } else {
-	tv2.tv_sec = INT_MAX;
+	tv2.tv_sec = PM_MAX_TIME_T;
 	tv2.tv_usec = 0;
     }
     if (pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
@@ -904,7 +904,7 @@ interact(void)
 		if (archives) {
 		    pmtimevalFromReal(last, &tv2);
 		} else {
-		    tv2.tv_sec = INT_MAX;
+		    tv2.tv_sec = PM_MAX_TIME_T;
 		    tv2.tv_usec = 0;
 		}
 		if (__pmParseTime(token, &tv1, &tv2, &tv1, &msg) < 0) {

@@ -1,7 +1,7 @@
 /*
  * Common argument parsing for all PMAPI client tools.
  *
- * Copyright (c) 2014-2018,2020-2021 Red Hat.
+ * Copyright (c) 2014-2018,2020-2022 Red Hat.
  * Copyright (C) 1987-2014 Free Software Foundation, Inc.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -46,7 +46,7 @@ __pmUpdateBounds(pmOptions *opts, int index, struct timeval *begin, struct timev
 	return sts;
     }
     if ((sts = pmGetArchiveEnd(&logend)) < 0) {
-	logend.tv_sec = INT_MAX;
+	logend.tv_sec = PM_MAX_TIME_T;
 	logend.tv_usec = 0;
 	fflush(stdout);
 	fprintf(stderr, "%s: Cannot locate end of archive %s: %s\n",
@@ -89,7 +89,7 @@ __pmBoundaryOptions(pmOptions *opts, struct timeval *begin, struct timeval *end)
     if (opts->context != PM_CONTEXT_ARCHIVE) {
 	/* live/local context, open ended - start now, never end */
 	pmtimevalNow(begin);
-	end->tv_sec = INT_MAX;
+	end->tv_sec = PM_MAX_TIME_T;
 	end->tv_usec = 0;
     } else if (opts->narchives == 1) {
 	/* Singular archive context, which may contain more than one archive. */

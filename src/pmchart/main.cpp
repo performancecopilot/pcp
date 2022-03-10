@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014,2016,2021 Red Hat.
+ * Copyright (c) 2014,2016,2021-2022 Red Hat.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2007-2009, Aconex.  All Rights Reserved.
  * 
@@ -688,7 +688,8 @@ main(int argc, char ** argv)
     else if (liveGroup->numContexts() > 0) {
 	liveGroup->defaultTZ(tzLabel, tzString);
 	pmtimevalNow(&logStartTime);
-	logEndTime.tv_sec = logEndTime.tv_usec = INT_MAX;
+	logEndTime.tv_sec = logEndTime.tv_usec = PM_MAX_TIME_T;
+	logEndTime.tv_usec = 0;
 	if ((sts = pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
 					opts.align_optarg, opts.origin_optarg,
 					&logStartTime, &logEndTime, &opts.start,

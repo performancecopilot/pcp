@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2022 Red Hat.
  * Copyright (c) 1997,2004-2006 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
  * 
@@ -1081,8 +1081,8 @@ main(int argc, char *argv[])
 
     if (isLive) {
 	pmtimevalNow(&logStartTime);
-	logEndTime.tv_sec = INT_MAX;
-	logEndTime.tv_usec = INT_MAX;
+	logEndTime.tv_sec = PM_MAX_TIME_T;
+	logEndTime.tv_usec = 0;
     }
     else {
 	group->updateBounds();
@@ -1090,8 +1090,8 @@ main(int argc, char *argv[])
 	logStartTime = group->logStart();
 	logEndTime = group->logEnd();
 	if (pmtimevalToReal(&logEndTime) <= pmtimevalToReal(&logStartTime)) {
-	    logEndTime.tv_sec = INT_MAX;
-	    logEndTime.tv_usec = INT_MAX;	
+	    logEndTime.tv_sec = PM_MAX_TIME_T;
+	    logEndTime.tv_usec = 0;
 	}
     }
 

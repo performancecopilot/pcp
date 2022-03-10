@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2022 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -15,7 +16,8 @@
 .\"
 .TH PMPARSETIME 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3__pmParseTime\f1 \- parse time point specification
+\f3__pmParseTime\f1,
+\f3__pmParseHighResTime\f1 \- parse time point specification
 .SH "C SYNOPSIS"
 .ft 3
 #include "pmapi.h"
@@ -27,6 +29,9 @@
 .in +8n
 .ti -8n
 int __pmParseTime(const char *\fIstring\fP, struct timeval *\fIlogStart\fP, struct\ timeval\ *\fIlogEnd\fP, struct\ timeval\ *\fIrslt\fP, char\ **\fIerrMsg\fP);
+.br
+.ti -8n
+int __pmParseHighResTime(const char *\fIstring\fP, struct timespec *\fIlogStart\fP, struct\ timespec\ *\fIlogEnd\fP, struct\ timespec\ *\fIrslt\fP, char\ **\fIerrMsg\fP);
 .sp
 .in
 .hy
@@ -42,10 +47,12 @@ remain fixed across releases, and they may not work, or may provide
 different semantics at some point in the future.
 .SH DESCRIPTION
 .B __pmParseTime
-is designed to encapsulate the interpretation of a time point specification in
-command line switches for use by the PCP client tools.
+and
+.B __PmParseHighResTime
+are designed to encapsulate the interpretation of a time point specification
+in command line switches for use by the PCP client tools.
 .P
-This function expects to be called with the time point specification as
+These functions expects to be called with the time point specification as
 .BR string .
 If the tool is running against PCP archive(s), you also
 need to supply the start time of the first (only) archive as
@@ -62,26 +69,32 @@ If the tool is running against a live feed of performance data,
 should be the current time (but could be aligned on the next second
 for example), while
 .B logEnd
-should have its tv_sec component set to INT_MAX.
+should have its tv_sec component set to PM_MAX_TIME_T.
 .P
 The
 .B rslt
-structure must be allocated before calling
-.BR __pmParseTime .
+structure must be allocated before either calling
+.B __pmParseTime
+or
+.BR __pmParseHighResTime .
 .P
 You also need to set the current PCP reporting time zone to correctly
 reflect the \-z and \-Z command line parameters before calling
-.BR __pmParseTime .
+.B __pmParseTime
+or
+.BR __pmParseHighResTime .
 See
 .BR pmUseZone (3)
 and friends for information on how this is done.
 .P
-If the conversion is successful,
+If the conversion is successful, both
 .B __pmParseTime
-returns 0, and fills in
+and
+.B __pmParseHighResTime
+return 0, and fill in
 .B rslt
-with the time value defined by the input
-parameters.  If the argument strings could not be parsed, it returns \-1
+with the time value defined by the input parameters.
+If the argument strings could not be parsed, it returns \-1
 and a dynamically allocated error message string in
 .BR errMsg .
 Be sure to

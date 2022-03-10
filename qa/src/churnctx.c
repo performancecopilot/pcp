@@ -364,7 +364,7 @@ Options:\n\
 	}
   	startTime = label.ll_start;
 	if ((sts = pmGetArchiveEnd(&endTime)) < 0) {
-	    endTime.tv_sec = INT_MAX;
+	    endTime.tv_sec = PM_MAX_TIME_T;
 	    endTime.tv_usec = 0;
 	    fflush(stdout);
 	    fprintf(stderr, "%s: Cannot locate end of archive: %s\n",
@@ -376,7 +376,7 @@ Options:\n\
     }
     else {
 	gettimeofday(&startTime, NULL);
-	endTime.tv_sec = INT_MAX;
+	endTime.tv_sec = PM_MAX_TIME_T;
 	endTime.tv_usec = 0;
     }
 

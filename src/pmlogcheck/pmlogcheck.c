@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2022 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
  * 
@@ -83,7 +83,7 @@ dumpLabel(void)
     pmPrintStamp(stderr, &label.ll_start);
     fprintf(stderr, " %4.4s\n", yr);
 
-    if (opts.finish.tv_sec == INT_MAX) {
+    if (opts.finish.tv_sec == PM_MAX_TIME_T) {
         /* pmGetArchiveEnd() failed! */
         fprintf(stderr, "  ending     UNKNOWN\n");
     }

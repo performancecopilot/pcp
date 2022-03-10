@@ -44,8 +44,8 @@ main(int argc, char **argv)
     time_t		t;
     struct tm		old;
     struct tm		new;
-    struct timeval	epoch = { 0, 0 };
-    struct timeval	tv;
+    struct timespec	epoch = { 0, 0 };
+    struct timespec	tspec;
     char		*errmsg;
     int			delta;
 
@@ -164,13 +164,13 @@ main(int argc, char **argv)
     if (dflag)
 	new.tm_isdst = 1;
 
-    __pmConvertTime(&new, &epoch, &tv);
+    __pmConvertHighResTime(&new, &epoch, &tspec);
 
     if (vflag)
-	fprintf(stderr, "want: %ld %04d-%02d-%02d %02d:%02d:%02d dst=%d\n", 
-	    (long)tv.tv_sec, new.tm_year+1900, new.tm_mon+1, new.tm_mday, new.tm_hour, new.tm_min, new.tm_sec, new.tm_isdst);
+	fprintf(stderr, "want: %lld %04d-%02d-%02d %02d:%02d:%02d dst=%d\n", 
+	    (long long)tspec.tv_sec, new.tm_year+1900, new.tm_mon+1, new.tm_mday, new.tm_hour, new.tm_min, new.tm_sec, new.tm_isdst);
 
-    delta = tv.tv_sec - t;
+    delta = tspec.tv_sec - t;
 
     if (delta < 0) {
 	printf("-");

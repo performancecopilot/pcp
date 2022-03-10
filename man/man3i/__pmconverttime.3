@@ -16,7 +16,8 @@
 .\"
 .TH PMCONVERTTIME 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3__pmConvertTime\f1 \- convert \fBtm\fR structure to \fBtimeval\fR structure
+\f3__pmConvertTime\f1,
+\f3__pmConvertHighResTime\f1 \- convert \fBtm\fR structure into seconds
 .SH "C SYNOPSIS"
 .ft 3
 #include "pmapi.h"
@@ -28,6 +29,9 @@
 .in +8n
 .ti -8n
 int __pmConvertTime(struct tm *\fItmin\fP, struct timeval *\fIorigin\fP, struct\ timeval\ *\fIrslt\fP);
+.br
+.ti -8n
+int __pmConvertHighResTime(struct tm *\fItmin\fP, struct timespec *\fIorigin\fP, struct\ timespec\ *\fIrslt\fP);
 .sp
 .in
 .hy
@@ -43,7 +47,9 @@ remain fixed across releases, and they may not work, or may provide
 different semantics at some point in the future.
 .SH DESCRIPTION
 .B __pmConvertTime
-accepts a
+and
+.B __pmConvertHighResTime
+accept a
 .B tm
 structure that has been filled in by
 .BR __pmParseCtime (3)
@@ -51,7 +57,7 @@ and a reference time point
 .BR origin ,
 and fills in the given
 .B rslt
-structure with the time the user meant when he specified a partial
+structure with the time the user meant when specifying a partial
 .B ctime
 or positive or negative time
 .BR interval .
@@ -65,8 +71,10 @@ offset, in which case it is the end
 time of the log.
 .PP
 .B __pmConvertTime
-returns 0 if successful.
-It returns \-1 and writes an error message to
+and
+.B __pmConvertHighResTime
+return 0 if successful.
+They return \-1 and write an error message to
 .BR stderr ,
 if an error is detected.
 .PP

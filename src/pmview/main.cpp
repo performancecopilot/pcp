@@ -432,7 +432,8 @@ main(int argc, char **argv)
 	activeGroup = liveGroup;
 	liveGroup->defaultTZ(a.my.tzLabel, a.my.tzString);
 	gettimeofday(&a.my.logStartTime, NULL);
-	a.my.logEndTime.tv_sec = a.my.logEndTime.tv_usec = INT_MAX;
+	a.my.logEndTime.tv_sec = PM_MAX_TIME_T;
+	a.my.logEndTime.tv_usec = 0;
 	if ((sts = pmParseTimeWindow(a.my.Sflag, a.my.Tflag,
 					a.my.Aflag, a.my.Oflag,
 					&a.my.logStartTime, &a.my.logEndTime,

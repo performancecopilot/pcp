@@ -242,7 +242,7 @@ __pmParseInterval(
 
     /* parse components of spec */
     while (*scan != '\0') {
-	if (! parseDouble(&scan, 0.0, (double)INT_MAX, &d))
+	if (! parseDouble(&scan, 0.0, (double)PM_MAX_TIME_T, &d))
 	    break;
 	while (*scan != '\0' && isspace((int)*scan))
 	    scan++;
@@ -357,7 +357,7 @@ __pmParseCtime(
 	if (parseChar(&scan, ':')) {
 	    if (parseDouble(&scan, 0.0, 61.0, &d)) {
 		tm.tm_sec = (time_t)d;
-		tm.tm_yday = (int)((long double)1000000 * (long double)(d - tm.tm_sec));
+		tm.tm_yday = (int)((long double)1000000000 * (long double)(d - tm.tm_sec));
 	    }
 	}
     }
@@ -431,31 +431,55 @@ __pmParseCtime(
 int	/* 0 ok, -1 error */
 __pmConvertTime(
     struct tm *tmin,		/* absolute or +ve or -ve offset time */
-    struct timeval *origin,	/* defaults and origin for offset */
+    struct timeval *orig,	/* defaults and origin for offset */
     struct timeval *rslt)	/* result stored here */
 {
+    struct timespec origin, result;
+    int sts;
+
+    origin.tv_sec = orig->tv_sec;
+    if (orig->tv_usec == 999999)
+	origin.tv_nsec = 999999999;
+    else
+	origin.tv_nsec = orig->tv_usec * 1000;
+
+    if ((sts = __pmConvertHighResTime(tmin, &origin, &result)) < 0)
+	return sts;
+
+    rslt->tv_sec = result.tv_sec;
+    rslt->tv_usec = result.tv_nsec / 1000;
+    return sts;
+}
+
+
+int	/* 0 ok, -1 error */
+__pmConvertHighResTime(
+    struct tm *tmin,		/* absolute or +ve or -ve offset time */
+    struct timespec *origin,	/* defaults and origin for offset */
+    struct timespec *result)	/* result stored here */
+{
     time_t	    t;
-    struct timeval  tval = *origin;
+    struct timespec tspec = *origin;
     struct tm	    tm;
 
     /* positive offset interval */
     if (tmin->tm_wday == PLUS_OFFSET) {
-	tval.tv_usec += tmin->tm_yday;
-	if (tval.tv_usec > 1000000) {
-	    tval.tv_usec -= 1000000;
-	    tval.tv_sec++;
+	tspec.tv_nsec += tmin->tm_yday;
+	if (tspec.tv_nsec > 1000000000) {
+	    tspec.tv_nsec -= 1000000000;
+	    tspec.tv_sec++;
 	}
-	tval.tv_sec += tmin->tm_sec;
+	tspec.tv_sec += tmin->tm_sec;
     }
 
     /* negative offset interval */
     else if (tmin->tm_wday == NEG_OFFSET) {
-	if (tval.tv_usec < tmin->tm_yday) {
-	    tval.tv_usec += 1000000;
-	    tval.tv_sec--;
+	if (tspec.tv_nsec < tmin->tm_yday) {
+	    tspec.tv_nsec += 1000000000;
+	    tspec.tv_sec--;
 	}
-	tval.tv_usec -= tmin->tm_yday;
-	tval.tv_sec -= tmin->tm_sec;
+	tspec.tv_nsec -= tmin->tm_yday;
+	tspec.tv_sec -= tmin->tm_sec;
     }
 
     /* absolute time */
@@ -463,12 +487,12 @@ __pmConvertTime(
 	/* tmin completely specified */
 	if (tmin->tm_year != -1) {
 	    tm = *tmin;
-	    tval.tv_usec = tmin->tm_yday;
+	    tspec.tv_nsec = tmin->tm_yday;
 	}
 
 	/* tmin partially specified */
 	else {
-	    t = (time_t)tval.tv_sec;
+	    t = tspec.tv_sec;
 	    pmLocaltime(&t, &tm);
 	    tm.tm_isdst = -1;
 
@@ -486,7 +510,7 @@ __pmConvertTime(
 		tm.tm_hour = tmin->tm_hour;
 		tm.tm_min = tmin->tm_min;
 		tm.tm_sec = tmin->tm_sec;
-		tval.tv_usec = tmin->tm_yday;
+		tspec.tv_nsec = tmin->tm_yday;
 	    }
 	    else if (tmin->tm_mday != -1) {
 		if (tmin->tm_mday < tm.tm_mday)
@@ -495,7 +519,7 @@ __pmConvertTime(
 		tm.tm_hour = tmin->tm_hour;
 		tm.tm_min = tmin->tm_min;
 		tm.tm_sec = tmin->tm_sec;
-		tval.tv_usec = tmin->tm_yday;
+		tspec.tv_nsec = tmin->tm_yday;
 	    }
 	    else if (tmin->tm_hour != -1) {
 		if (tmin->tm_hour < tm.tm_hour)
@@ -503,26 +527,26 @@ __pmConvertTime(
 		tm.tm_hour = tmin->tm_hour;
 		tm.tm_min = tmin->tm_min;
 		tm.tm_sec = tmin->tm_sec;
-		tval.tv_usec = tmin->tm_yday;
+		tspec.tv_nsec = tmin->tm_yday;
 	    }
 	    else if (tmin->tm_min != -1) {
 		if (tmin->tm_min < tm.tm_min)
 		    tm.tm_hour++;
 		tm.tm_min = tmin->tm_min;
 		tm.tm_sec = tmin->tm_sec;
-		tval.tv_usec = tmin->tm_yday;
+		tspec.tv_nsec = tmin->tm_yday;
 	    }
 	    else if (tmin->tm_sec != -1) {
 		if (tmin->tm_sec < tm.tm_sec)
 		    tm.tm_min++;
 		tm.tm_sec = tmin->tm_sec;
-		tval.tv_usec = tmin->tm_yday;
+		tspec.tv_nsec = tmin->tm_yday;
 	    }
 	}
-	tval.tv_sec = __pmMktime(&tm);
+	tspec.tv_sec = __pmMktime(&tm);
     }
 
-    *rslt = tval;
+    *result = tspec;
     return 0;
 }
 
@@ -581,76 +605,60 @@ glib_relative_date(const char *date_string)
 static int
 glib_get_date(
     const char		*scan,
-    struct timeval	*start,
-    struct timeval	*end,
-    struct timeval	*rslt)
+    struct timespec	*start,
+    struct timespec	*end,
+    struct timespec	*rslt)
 {
-    int sts;
     int rel_type;
-    struct timespec tsrslt;
 
     rel_type = glib_relative_date(scan);
 
     if (rel_type == NO_OFFSET)
-	sts = __pmGetDate(&tsrslt, scan, NULL);
-    else if (rel_type == NEG_OFFSET && end->tv_sec < INT_MAX) {
-	struct timespec tsend;
-	tsend.tv_sec = end->tv_sec;
-	tsend.tv_nsec = end->tv_usec * 1000;
-	sts = __pmGetDate(&tsrslt, scan, &tsend);
-    }
-    else {
-	struct timespec tsstart;
-	tsstart.tv_sec = start->tv_sec;
-	tsstart.tv_nsec = start->tv_usec * 1000;
-	sts = __pmGetDate(&tsrslt, scan, &tsstart);
-    }
-    if (sts < 0)
-	return sts;
-
-    rslt->tv_sec = tsrslt.tv_sec;
-    rslt->tv_usec = tsrslt.tv_nsec / 1000;
-    return 0;
+	return __pmGetDate(rslt, scan, NULL);
+    else if (rel_type == NEG_OFFSET && end->tv_sec < PM_MAX_TIME_T)
+	return __pmGetDate(rslt, scan, end);
+    else
+	return __pmGetDate(rslt, scan, start);
 }
 
 int	/* 0 -> ok, -1 -> error */
-__pmParseTime(
+__pmParseHighResTime(
     const char	    *string,	/* string to be parsed */
-    struct timeval  *logStart,	/* start of log or current time */
-    struct timeval  *logEnd,	/* end of log or tv_sec == INT_MAX */
-				/* assumes sizeof(t_time) == sizeof(int) */
-    struct timeval  *rslt,	/* if parsed ok, result filled in */
+    struct timespec *logStart,	/* start of log or current time */
+    struct timespec *logEnd,	/* end of log or tv_sec == LONG_MAX */
+				/* assumes sizeof(time_t) == sizeof(long) */
+    struct timespec *rslt,	/* if parsed ok, result filled in */
     char	    **errMsg)	/* error message, please free */
 {
     struct tm	    tm;
     const char	    *scan;
-    struct timeval  start;
-    struct timeval  end;
-    struct timeval  tval;
+    struct timespec start;
+    struct timespec end;
+    struct timespec tspec;
 
     *errMsg = NULL;
     start = *logStart;
     end = *logEnd;
-    if (end.tv_sec == INT_MAX)
-	end.tv_usec = 999999;
+    if (end.tv_sec == PM_MAX_TIME_T)
+	end.tv_nsec = 999999999;
     scan = string;
 
     /* ctime string */
     if (parseChar(&scan, '@')) {
 	if (__pmParseCtime(scan, &tm, errMsg) >= 0) {
 	    tm.tm_wday = NO_OFFSET;
-	    __pmConvertTime(&tm, &start, rslt);
+	    __pmConvertHighResTime(&tm, &start, rslt);
 	    return 0;
 	}
     }
 
     /* relative to end of archive */
-    else if (end.tv_sec < INT_MAX && parseChar(&scan, '-')) {
-	if (pmParseInterval(scan, &tval, errMsg) >= 0) {
+    else if (end.tv_sec < PM_MAX_TIME_T && parseChar(&scan, '-')) {
+	if (pmParseHighResInterval(scan, &tspec, errMsg) >= 0) {
 	    tm.tm_wday = NEG_OFFSET;
-	    tm.tm_sec = (int)tval.tv_sec;
-	    tm.tm_yday = (int)tval.tv_usec;
-	    __pmConvertTime(&tm, &end, rslt);
+	    tm.tm_sec = tspec.tv_sec;
+	    tm.tm_yday = tspec.tv_nsec;
+	    __pmConvertHighResTime(&tm, &end, rslt);
 	    return 0;
 	}
     }
@@ -658,11 +666,11 @@ __pmParseTime(
     /* relative to start of archive or current time */
     else {
 	parseChar(&scan, '+');
-	if (pmParseInterval(scan, &tval, errMsg) >= 0) {
+	if (pmParseHighResInterval(scan, &tspec, errMsg) >= 0) {
 	    tm.tm_wday = PLUS_OFFSET;
-	    tm.tm_sec = (int)tval.tv_sec;
-	    tm.tm_yday = (int)tval.tv_usec;
-	    __pmConvertTime(&tm,  &start, rslt);
+	    tm.tm_sec = tspec.tv_sec;
+	    tm.tm_yday = tspec.tv_nsec;
+	    __pmConvertHighResTime(&tm, &start, rslt);
 	    return 0;
 	}
     }
@@ -670,8 +678,8 @@ __pmParseTime(
     /*
      * if we get here, *errMsg is not NULL, because one of
      * - __pmParseCtime(), or
-     * - pmParseInterval(), or
-     * - the other pmParseInterval()
+     * - pmParseHighResInterval(), or
+     * - the other pmParseHighResInterval()
      * returned a value < 0 ... if glib_get_date() fails we're
      * going to return with the previously set *errMsg
      */
@@ -693,6 +701,30 @@ __pmParseTime(
     return 0;
 }
 
+int	/* 0 -> ok, -1 -> error */
+__pmParseTime(
+    const char	    *string,	/* string to be parsed */
+    struct timeval  *logStart,	/* start of log or current time */
+    struct timeval  *logEnd,	/* end of log or tv_sec == PM_MAX_TIME_T */
+    struct timeval  *rslt,	/* if parsed ok, result filled in */
+    char	    **errMsg)	/* error message, please free */
+{
+    struct timespec start, end, result;
+    int		    sts;
+
+    start.tv_sec = logStart->tv_sec;
+    start.tv_nsec = logStart->tv_usec * 1000;
+    end.tv_sec = logEnd->tv_sec;
+    end.tv_nsec = logEnd->tv_usec * 1000;
+
+    if ((sts = __pmParseHighResTime(string, &start, &end, &result, errMsg)) < 0)
+	return sts;
+
+    rslt->tv_sec = result.tv_sec;
+    rslt->tv_usec = result.tv_nsec / 1000;
+
+    return sts;
+}
 
 /* This function is designed to encapsulate the interpretation of
    the -S, -T, -A and -O command line switches for use by the PCP
@@ -704,7 +736,7 @@ pmParseTimeWindow(
     const char      *swAlign,   /* argument of -A switch, may be NULL */
     const char	    *swOffset,	/* argument of -O switch, may be NULL */
     const struct timeval  *logStart,  /* start of log or current time */
-    const struct timeval  *logEnd,    /* end of log or tv_sec == INT_MAX */
+    const struct timeval  *logEnd,    /* end of log or tv_sec == PM_MAX_TIME_T */
     struct timeval  *rsltStart, /* start time returned here */
     struct timeval  *rsltEnd,   /* end time returned here */
     struct timeval  *rsltOffset,/* offset time returned here */
@@ -725,7 +757,7 @@ pmParseTimeWindow(
     /* default values for start and end */
     start = *logStart;
     end = *logEnd;
-    if (end.tv_sec == INT_MAX)
+    if (end.tv_sec == PM_MAX_TIME_T)
 	end.tv_usec = 999999;
 
     /* parse -S argument and adjust start accordingly */
