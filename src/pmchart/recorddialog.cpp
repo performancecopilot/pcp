@@ -349,8 +349,8 @@ void RecordDialog::startLoggers()
 	control << "V0\n";
 	control << "F" << my.folio << "\n";
 	control << "Ppmchart\n" << "R\n";
-	for (int i = 0; i < control.size(); i++)
-	    process->write(control.at(i).toLatin1());
+	for (int j = 0; j < control.size(); j++)
+	    process->write(control.at(j).toLatin1());
     }
 }
 
