@@ -72,7 +72,7 @@ devices all share the same statistics in the kernel as the st devices.
 @ 60.39 fibre channel host bus adapters
 @ 60.40 per-processor IRQs
 @ 60.41 per-processor soft IRQs
-
+@ 60.42 scsi devices identified by unique WWID
 
 @ kernel.uname.release release level of the running kernel
 Release level of the running kernel as reported via the release[]
