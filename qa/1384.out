@@ -7,3 +7,52 @@ QA output created by 1384
 --- Version 3 archive ---
 === scanmeta diffs ===
 === pmdumplog diffs ===
+
+Expect timezone to change ...
+3c3
+< Log Label (Log Format Version 2)
+---
+> Log Label (Log Format Version 3)
+5,7c5,7
+<     commencing Tue Feb  7 05:27:05.069038 1995
+<     ending     Tue Feb  7 05:27:50.002267 1995
+< Archive timezone: EST-11EST-10,86/2:00,303/2:00
+---
+>     commencing Tue Feb  7 04:27:05.069038000 1995
+>     ending     Tue Feb  7 04:27:50.002267000 1995
+> Archive timezone: AEST-10
+
+Expect zoneinfo to be added ...
+3c3
+< Log Label (Log Format Version 2)
+---
+> Log Label (Log Format Version 3)
+5,6c5,6
+<     commencing Tue Feb  7 05:27:05.069038 1995
+<     ending     Tue Feb  7 05:27:50.002267 1995
+---
+>     commencing Tue Feb  7 05:27:05.069038000 1995
+>     ending     Tue Feb  7 05:27:50.002267000 1995
+7a8
+> Archive zoneinfo: :Africa/Timbuktu
+
+Expect features to be added ...
+3c3
+< Log Label (Log Format Version 2)
+---
+> Log Label (Log Format Version 3)
+5,6c5,6
+<     commencing Tue Feb  7 05:27:05.069038 1995
+<     ending     Tue Feb  7 05:27:50.002267 1995
+---
+>     commencing Tue Feb  7 05:27:05.069038000 1995
+>     ending     Tue Feb  7 05:27:50.002267000 1995
+7a8
+> Archive features: 0x1
+
+Expect errors ...
+Specification error in configuration file (TMP.1)
+[line 2] Global zoneinfo clause requires output archive version of 3 or greater
+
+Specification error in configuration file (TMP.2)
+[line 2] Global features clause requires output archive version of 3 or greater
