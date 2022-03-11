@@ -6,11 +6,9 @@ artifactory:
 
 container:
   containerfile: |
-    FROM registry.centos.org/centos:8
-    RUN sed -i '/mirrorlist=/d' /etc/yum.repos.d/CentOS-Linux-*
-    RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
+    FROM quay.io/centos/centos:stream8
     RUN dnf install -y sudo glibc-langpack-en
-    RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm # libuv-devel
+    RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
     RUN systemctl mask dnf-makecache.service # https://bugzilla.redhat.com/show_bug.cgi?id=1814337
@@ -19,9 +17,9 @@ container:
 
 tasks:
   setup: |
-    sudo yum -y install dnf-plugins-core
-    sudo yum config-manager --set-enabled powertools
-    sudo dnf install -y which libuv # see BZ 1809314
+    sudo dnf -y install dnf-plugins-core
+    sudo dnf config-manager --set-enabled powertools
+    sudo dnf install -y which hostname libuv # need to install libuv, see BZ 1809314
     sudo dnf module install -y libuv/devel
     sudo dnf -y -b install $(qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
   build: |

@@ -1,0 +1,125 @@
+# PCP required package list for CentOS 8.2.2004 x86_64
+# created by kenj on vm04.localdomain Mon Oct 12 23:16:58 EDT 2020
+#
+List::MoreUtils cpan
+Net::SNMP cpan
+Spreadsheet::Read cpan
+Spreadsheet::XLSX cpan
+audit
+autoconf
+bash
+bc
+bind-utils
+bison
+bpftrace
+# in CI centos8-container already has coreutils-single installed and this
+# conflicts with coreutils
+coreutils not4ci
+cronie
+curl-minimal
+cyrus-sasl
+cyrus-sasl-devel
+cyrus-sasl-lib
+cyrus-sasl-md5
+cyrus-sasl-plain
+ed
+flex
+gawk
+gcc
+gcc-c++
+gdb
+git
+git-core
+grep
+iproute
+httpd
+initscripts
+libbpf
+libicu-devel
+libpfm-devel
+libuv-devel
+libvirt-daemon
+libvirt-daemon-driver-qemu
+llvm
+llvm-devel
+lm_sensors
+make
+man-db
+mandoc
+mariadb
+memcached
+mesa-dri-drivers
+ncurses-devel
+net-tools
+nmap
+nspr-devel
+nss-devel
+nss-tools
+openssl
+openssl-devel
+perl
+perl-CPAN
+perl-DBD-MySQL
+perl-Date-Manip
+perl-ExtUtils-MakeMaker
+perl-File-Slurp
+perl-JSON
+perl-LDAP
+#perl-Net-SNMP			! dnf will not install this one
+#perl-Spreadsheet-WriteExcel	! dnf will not install this one
+#perl-Spreadsheet-XLSX		! dnf will not install this one
+perl-Text-CSV_XS
+perl-Time-HiRes
+perl-TimeDate
+perl-XML-LibXML
+perl-XML-TokeParser
+perl-autodie
+perl-interpreter
+perl-libwww-perl
+pkgconf-pkg-config
+platform-python-devel
+platform-python-setuptools
+podman-docker
+postfix-perl-scripts
+postgresql
+psmisc
+python3-bcc
+python3-elasticsearch
+python3-jsonpointer
+python3-libs
+python3-libvirt
+python3-lxml
+python3-prometheus_client
+python3-psycopg2
+python3-pyodbc
+python3-requests
+python3-rtslib
+python3-setuptools
+python3-six
+qt5-qtbase-devel
+qt5-qtsvg-devel
+ragel
+rdma-core-devel
+readline-devel
+redis
+rpm-build
+rrdtool
+rrdtool-perl
+sed
+selinux-policy
+selinux-policy-devel
+selinux-policy-targeted
+setools
+setools-console
+smartmontools
+socat
+sqlite
+sqlite-libs
+sysstat
+systemd-devel
+systemtap-sdt-devel
+time
+valgrind
+xfsprogs
+xkeyboard-config
+xz-devel
