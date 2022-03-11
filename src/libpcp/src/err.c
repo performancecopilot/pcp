@@ -60,6 +60,7 @@ __pmIsErrLock(void *lock)
  *
  *     And finally if you modify this table at all, be sure to check
  *     for remakes in the QA suite
+ *	   $ make; sudo make install
  *         $ cd ../../pmerr; make; sudo make install
  *         $ cd ../../qa; ./check -g pmerr
  *     Expect (at least) that QA 006.out will need to be remade.
@@ -196,6 +197,8 @@ static const struct {
 	"PMDA is currently fenced and unable to respond to requests" },
     { PM_ERR_RECTYPE,		"PM_ERR_RECTYPE",
 	"Incorrect record type in an archive" },
+    { PM_ERR_FEATURE,		"PM_ERR_FEATURE",
+	"Archive feature not supported" },
     /* insert new libpcp error codes here */
     { PM_ERR_NYI,		"PM_ERR_NYI",
 	"Functionality not yet implemented" },

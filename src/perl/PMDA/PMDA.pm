@@ -36,6 +36,7 @@ require DynaLoader;
 	PM_ERR_LOGCHANGETYPE PM_ERR_LOGCHANGESEM PM_ERR_LOGCHANGEINDOM
 	PM_ERR_LOGCHANGEUNITS PM_ERR_NEEDCLIENTCERT
 	PM_ERR_BADDERIVE PM_ERR_NOLABELS PM_ERR_PMDAFENCED PM_ERR_RECTYPE
+	PM_ERR_FEATURE
 	PM_ERR_NYI
 	PMDA_FETCH_NOVALUES PMDA_FETCH_STATIC PMDA_FETCH_DYNAMIC
 );
@@ -155,6 +156,7 @@ sub PM_ERR_BADDERIVE	{ -12409; }	# Derived metric definition failed
 sub PM_ERR_NOLABELS	{ -12410; }	# No support for metric label metadata
 sub PM_ERR_PMDAFENCED	{ -12411; }	# PMDA is currently fenced and unable to respond to requests
 sub PM_ERR_RECTYPE	{ -12412; }	# Incorrect record type in an archive
+sub PM_ERR_FEATURE	{ -12413; }	# Archive feature not supported
 
 sub PM_ERR_NYI		{ -21344; }	# Functionality not yet implemented
 
