@@ -370,6 +370,7 @@ static pmdaIndom indomtab[] = {
     { FCHOST_INDOM, 0, NULL },
     { INTERRUPT_CPU_INDOM, 0, NULL },
     { SOFTIRQ_CPU_INDOM, 0, NULL },
+    { WWID_INDOM, 0, NULL },
 };
 
 
@@ -558,6 +559,12 @@ static pmdaMetric metrictab[] = {
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,59), PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* hinv.map.scsi_id */
+    { NULL,
+      { PMDA_PMID(CLUSTER_STAT,103), PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 
 /* disk.dev.read_rawactive */
     { NULL, 
@@ -6849,6 +6856,143 @@ static pmdaMetric metrictab[] = {
     { NULL, { PMDA_PMID(CLUSTER_FCHOST, FCHOST_HINV_NFCHOST), PM_TYPE_U32,
 	PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+/* disk.wwid.scsi_paths */
+    { NULL,
+      { PMDA_PMID(CLUSTER_WWID,3), PM_TYPE_STRING, WWID_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* disk.wwid.read */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,4), KERNEL_ULONG, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.wwid.write */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,5), KERNEL_ULONG, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.wwid.total */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,28), PM_TYPE_U64, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.wwid.blkread */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,6), KERNEL_ULONG, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.wwid.blkwrite */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,7), KERNEL_ULONG, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.wwid.blktotal */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,36), PM_TYPE_U64, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.wwid.read_bytes */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,38), KERNEL_ULONG, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* disk.wwid.write_bytes */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,39), KERNEL_ULONG, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* disk.wwid.total_bytes */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,40), KERNEL_ULONG, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+
+/* disk.wwid.avactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,46), PM_TYPE_U32, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.wwid.aveq */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,47), PM_TYPE_U32, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.wwid.read_merge */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,49), KERNEL_ULONG, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.wwid.write_merge */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,50), KERNEL_ULONG, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.wwid.scheduler */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,59), PM_TYPE_STRING, WWID_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* hinv.map.scsi_id */
+    { NULL,
+      { PMDA_PMID(CLUSTER_WWID,103), PM_TYPE_STRING, WWID_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+
+/* disk.wwid.read_rawactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,72), PM_TYPE_U32, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.wwid.write_rawactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,73), PM_TYPE_U32, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.wwid.total_rawactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,79), PM_TYPE_U32, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.wwid.capacity */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,87), PM_TYPE_U64, WWID_INDOM, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* disk.wwid.discard */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,88), KERNEL_ULONG, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.wwid.blkdiscard */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,89), KERNEL_ULONG, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.wwid.discard_bytes */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,90), KERNEL_ULONG, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* disk.wwid.discard_merge */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,91), KERNEL_ULONG, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.wwid.discard_rawactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,92), PM_TYPE_U32, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.wwid.flush */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,93), KERNEL_ULONG, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.wwid.flush_rawactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,94), PM_TYPE_U32, WWID_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
 };
 
 typedef struct {
@@ -6905,12 +7049,13 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	return sts;
 
     if (need_refresh[CLUSTER_PARTITIONS] ||
+	need_refresh[CLUSTER_WWID] ||
 	need_refresh[CLUSTER_ZRAM_DEVICES] ||
 	need_refresh[REFRESH_PROC_DISKSTATS] ||
 	need_refresh[REFRESH_PROC_PARTITIONS]) {
     	lsts = refresh_proc_partitions(INDOM(DISK_INDOM),
 			INDOM(PARTITIONS_INDOM), INDOM(ZRAM_INDOM),
-			INDOM(DM_INDOM), INDOM(MD_INDOM),
+			INDOM(DM_INDOM), INDOM(MD_INDOM), INDOM(WWID_INDOM),
 			need_refresh[REFRESH_PROC_DISKSTATS],
 			need_refresh[REFRESH_PROC_PARTITIONS]);
 	if (lsts < 0 && sts == 0)
@@ -9145,6 +9290,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_DM:
     case CLUSTER_MD:
     case CLUSTER_MDADM:
+    case CLUSTER_WWID:
 	return proc_partitions_fetch(mdesc, inst, atom);
 
     case CLUSTER_NET_SOFTNET:
@@ -9458,6 +9604,11 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	case CLUSTER_ZRAM_BD_STAT:
 	    need_refresh[cluster]++;
 	    need_refresh[CLUSTER_ZRAM_DEVICES]++;
+	    need_refresh[REFRESH_PROC_DISKSTATS]++;
+	    break;
+
+	case CLUSTER_WWID:
+	    need_refresh[cluster]++;
 	    need_refresh[REFRESH_PROC_DISKSTATS]++;
 	    break;
 

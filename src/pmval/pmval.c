@@ -1,15 +1,15 @@
 /*
  * pmval - simple performance metrics value dumper
  *
- * Copyright (c) 2014-2015 Red Hat.
+ * Copyright (c) 2014-2015,2022 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -407,7 +407,7 @@ printhdr(Context *x)
 	printf("host:      %s\n", x->hostname);
 	time = opts.origin.tv_sec;
 	printf("start:     %s", pmCtime(&time, tbfr));
-	if (opts.finish.tv_sec != INT_MAX) {
+	if (opts.finish.tv_sec != PM_MAX_TIME_T) {
 	    time = opts.finish.tv_sec;
 	    printf("end:       %s", pmCtime(&time, tbfr));
 	}
@@ -1143,7 +1143,7 @@ main(int argc, char *argv[])
     if (!opts.guiport)
 	opts.guiport = -1;
     if (!opts.finish.tv_sec)
-	opts.finish.tv_sec = INT_MAX;
+	opts.finish.tv_sec = PM_MAX_TIME_T;
     if (opts.interval.tv_sec == 0 && opts.interval.tv_usec == 0)
 	opts.interval.tv_sec = 1;
 
@@ -1153,7 +1153,7 @@ main(int argc, char *argv[])
 
     if (!(opts.guiflag || opts.guiport != -1) &&
 	opts.samples < 0 &&
-	opts.finish.tv_sec != INT_MAX &&
+	opts.finish.tv_sec != PM_MAX_TIME_T &&
 	amode != PM_MODE_FORW) {
 	double start, finish, origin, delta;
 

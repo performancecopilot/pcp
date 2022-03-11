@@ -58,6 +58,7 @@ hinv {
 
 hinv.map {
     scsi		60:15:0
+    scsi_id		60:0:103
     cpu_num		60:18:6
     cpu_node		60:18:8
     dmname		60:54:13
@@ -370,6 +371,7 @@ disk {
     partitions
     dm
     md
+    wwid
 }
 
 disk.dev {
@@ -390,7 +392,7 @@ disk.dev {
     total_rawactive	60:0:79
     aveq		60:0:47
     scheduler		60:0:59
-    capacity		60:0:87
+    capacity            60:0:87
     discard		60:0:88
     blkdiscard		60:0:89
     discard_bytes	60:0:90
@@ -506,6 +508,35 @@ disk.partitions {
     discard_rawactive	60:10:21
     flush		60:10:22
     flush_rawactive	60:10:23
+}
+
+disk.wwid {
+    scsi_paths		60:92:3
+    read		60:92:4
+    write		60:92:5
+    total		60:92:28
+    blkread		60:92:6
+    blkwrite		60:92:7
+    blktotal		60:92:36
+    read_bytes		60:92:38
+    write_bytes		60:92:39
+    total_bytes		60:92:40
+    read_merge		60:92:49
+    write_merge		60:92:50
+    avactive		60:92:46
+    read_rawactive	60:92:72
+    write_rawactive	60:92:73
+    total_rawactive	60:92:79
+    aveq		60:92:47
+    scheduler		60:92:59
+    capacity            60:92:87
+    discard		60:92:88
+    blkdiscard		60:92:89
+    discard_bytes	60:92:90
+    discard_merge	60:92:91
+    discard_rawactive	60:92:92
+    flush		60:92:93
+    flush_rawactive	60:92:94
 }
 
 zram {

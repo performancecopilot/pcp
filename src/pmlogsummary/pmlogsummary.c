@@ -207,7 +207,7 @@ printlabel(void)
     pmPrintStamp(stdout, &opts.start);
     printf(" %4.4s\n", yr);
 
-    if (opts.finish.tv_sec == INT_MAX) {
+    if (opts.finish.tv_sec == PM_MAX_TIME_T) {
 	/* pmGetArchiveEnd() failed! */
 	printf("  ending     UNKNOWN\n");
     }

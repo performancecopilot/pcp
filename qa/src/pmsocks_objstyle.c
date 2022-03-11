@@ -129,7 +129,7 @@ Options\n\
     }
     else {
 	gettimeofday(&startTime, NULL);
-	endTime.tv_sec = INT_MAX;
+	endTime.tv_sec = PM_MAX_TIME_T;
     }
 
     if (zflag) {

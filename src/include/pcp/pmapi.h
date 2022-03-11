@@ -760,6 +760,17 @@ PCP_CALL extern int pmParseTimeWindow(
       const char *, const char *, const char *, const char *,
       const struct timeval *, const struct timeval *,
       struct timeval *, struct timeval *, struct timeval *, char **);
+PCP_CALL extern int pmParseHighResTimeWindow(
+      const char *, const char *, const char *, const char *,
+      const struct timespec *, const struct timespec *,
+      struct timespec *, struct timespec *, struct timespec *, char **);
+
+/* Sentinel value for end-time parameters in time window parsing */
+#if PM_SIZEOF_TIME_T == 8
+#define PM_MAX_TIME_T	LONGLONG_MAX
+#else
+#define PM_MAX_TIME_T	INT_MAX
+#endif
 
 /* Reporting timezone */
 PCP_CALL extern int pmUseZone(const int);

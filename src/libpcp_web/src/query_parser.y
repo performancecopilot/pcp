@@ -2,7 +2,7 @@
 /*
  * query_parser.y - yacc/bison grammar for the PCP time series language
  *
- * Copyright (c) 2017-2021 Red Hat.
+ * Copyright (c) 2017-2022 Red Hat.
  * Copyright (c) 2020 Yushan ZHANG.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -1157,7 +1157,7 @@ static void
 parsetime(PARSER *lp, struct timeval *result, const char *string)
 {
     struct timeval start = { 0, 0 };
-    struct timeval end = { INT_MAX, 0 };
+    struct timeval end = { PM_MAX_TIME_T, 0 };
     char	*error;
     int		sts;
 
@@ -1219,7 +1219,7 @@ newrange(PARSER *lp, const char *string)
 	gettimeofday(&offset, NULL);
 	tsub(&offset, &tp->start);
 	tp->start = offset;
-	tp->end.tv_sec = INT_MAX;
+	tp->end.tv_sec = PM_MAX_TIME_T;
 	tp->window.range = sdsnew(string);
     }
 }

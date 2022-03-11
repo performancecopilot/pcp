@@ -1323,9 +1323,14 @@ PCP_CALL extern int __pmTimestampCmp(const __pmTimestamp *, const __pmTimestamp 
 
 /* reverse ctime, time interval parsing, time conversions */
 PCP_CALL extern int __pmParseCtime(const char *, struct tm *, char **);
-PCP_CALL extern int __pmParseTime(const char *, struct timeval *, struct timeval *,
-			 struct timeval *, char **);
-PCP_CALL extern int __pmConvertTime(struct tm *, struct timeval *, struct timeval *);
+PCP_CALL extern int __pmParseTime(const char *, struct timeval *,
+				struct timeval *, struct timeval *, char **);
+PCP_CALL extern int __pmParseHighResTime(const char *, struct timespec *,
+				struct timespec *, struct timespec *, char **);
+PCP_CALL extern int __pmConvertTime(struct tm *, struct timeval *,
+				struct timeval *);
+PCP_CALL extern int __pmConvertHighResTime(struct tm *, struct timespec *,
+				struct timespec *);
 PCP_CALL extern time_t __pmMktime(struct tm *);
 
 /* Query server features - used for expressing protocol capabilities */
