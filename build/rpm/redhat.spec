@@ -290,7 +290,16 @@ BuildRequires: qt5-qtsvg-devel
 Requires: bash xz gawk sed grep findutils which %{_hostname_executable}
 Requires: pcp-libs = %{version}-%{release}
 %if !%{disable_selinux}
+
+# rpm boolean dependencies are supported since RHEL 8
+%if 0%{?fedora} >= 35 || 0%{?rhel} >= 8
+# This ensures that the pcp-selinux package and all it's dependencies are not pulled
+# into containers and other systems that do not use SELinux
+Requires: (pcp-selinux = %{version}-%{release} if selinux-policy-targeted)
+%else
 Requires: pcp-selinux = %{version}-%{release}
+%endif
+
 %endif
 
 %global _confdir        %{_sysconfdir}/pcp
