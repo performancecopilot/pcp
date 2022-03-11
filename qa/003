@@ -177,6 +177,7 @@ do
 	    -e "/disk\.dm\..*: $unavailable/d" \
 	    -e "/disk\.md\..*: $unavailable/d" \
 	    -e "/disk\.partitions\./d" \
+	    -e "/disk\.wwid\..*: $unavailable/d" \
 	    -e "/disk\.xvm\..*: $unavailable/d" \
 	    -e "/filesys\.readonly: $unknown/d" \
 	    -e "/hinv\.cpu\..*: $unavailable/d" \
