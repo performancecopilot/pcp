@@ -220,7 +220,16 @@ fi
 }
 
 %if "@enable_selinux@" == "true"
+
+# rpm boolean dependencies are supported since RHEL 8
+%if 0%{?fedora} >= 35 || 0%{?rhel} >= 8
+# This ensures that the pcp-selinux package and all it's dependencies are not pulled
+# into containers and other systems that do not use SELinux
+Requires: (pcp-selinux = @package_version@ if selinux-policy-targeted)
+%else
 Requires: pcp-selinux = @package_version@
+%endif
+
 %endif
 
 Requires: pcp-libs = @package_version@
