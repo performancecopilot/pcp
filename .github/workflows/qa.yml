@@ -52,6 +52,7 @@ jobs:
         run: |
           python3 -c 'import yaml' || pip3 install pyyaml
           mkdir -p artifacts/build artifacts/test
+          touch artifacts/build/.keep
 
           build/ci/ci-run.py ${{ matrix.platform }} setup
 
@@ -62,6 +63,9 @@ jobs:
         run: build/ci/ci-run.py ${{ matrix.platform }} artifacts build --path artifacts/build
 
       - name: Publish build artifacts
+        # always() is required here to run this step even if the build fails
+        # otherwise the platform will be skipped in the test report (it should be flagged as broken)
+        if: always()
         uses: actions/upload-artifact@v2
         with:
           name: build-${{ matrix.platform }}
