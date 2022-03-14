@@ -3039,6 +3039,7 @@ __pmLogFeaturesStr(__uint32_t features)
 	pmNoMem("__pmLogFeaturesStr: malloc", 1, PM_RECOV_ERR);
 	return NULL;
     }
+    ans[0] = '\0';
 
     for (pos = 31; pos >= 0; pos--) {
 	if (check & 0x80000000) {
