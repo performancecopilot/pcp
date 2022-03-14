@@ -408,6 +408,9 @@ pmlogctl
 # pmiectl
 pmiectl
 
+# pmconfig
+pmconfig
+
 # pcp2... pcp2xxx is generic
 pcp2xxx
 pcp2elasticsearch
@@ -899,7 +902,7 @@ x11
 448 libpcp local
 449 threads local flakey pmns
 450 pmlogextract local #584487 pmval
-451 threads local
+451 threads local pmconfig
 452 pmda.linux local
 453 perl local sanity kernel
 454 pmcd local pmda.sample
@@ -1392,7 +1395,7 @@ x11
 941 pmcd local
 942 threads valgrind local helgrind
 943 pmprobe pmda.proc local
-944 pmcd secure local pmstore pmda.sample
+944 pmcd secure local pmstore pmda.sample pmconfig
 945 pmlogrewrite pmda.xfs local pmdumplog
 946 pmfind avahi local
 947 pmlogger local pmdumplog pmda.sample
@@ -1402,7 +1405,7 @@ x11
 951 pmie local pmval kernel
 952 threads valgrind local helgrind
 953 libpcp threads local
-954 libpcp threads derive local
+954 libpcp threads derive local pmconfig
 955:retired pmda.linux local kernel dbpmda
 956 pmcd local
 957 pmda.linux local valgrind
@@ -1446,7 +1449,7 @@ x11
 995 python local
 996 pmdiff local
 997 pmlogextract local pmlogcheck pmdumplog
-998 threads libpcp local
+998 threads libpcp local pmconfig
 999 pmns local
 1000 pmdumptext local
 1001 pmchart local x11
@@ -1457,7 +1460,7 @@ x11
 1006 pmchart local x11
 1007 pmchart local kernel x11
 1008 pmdumptext libpcp_qmc local kernel x11
-1009 pmdumptext libpcp_qmc local x11
+1009 pmdumptext libpcp_qmc local x11 pmconfig
 1010 pmdumptext pmlogger libpcp_qmc local x11
 1011 pmdumptext pmval libpcp_qmc local x11 pmdumplog
 1012 pmdumptext libpcp_qmc local x11
@@ -1471,7 +1474,7 @@ x11
 1020:retired libpcp_qmc local flakey pmstore x11
 1021 libpcp_qmc local x11
 1022 pmdumptext local kernel x11
-1023 pmdumptext local x11
+1023 pmdumptext local x11 pmconfig
 1024 pmda.linux local kernel
 1025 pmdumptext pmlogger pmdumplog pmloglabel local x11
 1026 pmdumptext remote kernel x11
@@ -1783,8 +1786,8 @@ x11
 1332 archive pmdumplog local pmlogrewrite
 1333 archive pmdumplog local valgrind pmlogrewrite
 1334 pmlogger pmdumplog local archive_v3
-1335 archive pmlogger local archive_v3 pmloglabel pmdumplog
-1336 archive pmlogger local archive_v3 valgrind pmloglabel pmdumplog
+1335 archive pmlogger local archive_v3 pmloglabel pmdumplog pmconfig
+1336 archive pmlogger local archive_v3 valgrind pmloglabel pmdumplog pmconfig
 1337 pmda.mssql local
 1338 pmlogrewrite labels pmdumplog local
 1339 pmda.sample pmda.proc pmcd_wait pmda.install local
@@ -1854,7 +1857,7 @@ x11
 1416 pmlogrewrite local
 1422 pmda.mmv local valgrind
 1423 pcp2spark python pcp2xxx local
-1433 pmproxy local
+1433 pmproxy local pmconfig
 1434 pmda.nfsclient local
 1435 pmda.elasticsearch local
 1436 pmda.postgresql local
@@ -1969,7 +1972,7 @@ x11
 1825 libpcp pmcd local valgrind
 1826 libpcp pmcd local
 1828 pmda.linux local
-1829 archive pmlogrewrite local archive_v3 pmdumplog local
+1829 archive pmlogrewrite local archive_v3 pmdumplog local pmconfig
 1837 pmproxy local
 1844 pmdumptext libpcp_qmc remote
 1850 pmseries libpcp_web local
