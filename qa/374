@@ -25,7 +25,7 @@ _filter()
     | sed \
 	-e '/^pmlogger .* on host .* is logging metrics from host .*/d' \
 	-e '/^PMCD host/d' \
-	-e '/^TIMESTAMP started/d' \
+	-e '/^log started/d' \
     | $PCP_AWK_PROG '
 /datax/				{ skip = 3 }
 skip > 0			{ skip--; next }
