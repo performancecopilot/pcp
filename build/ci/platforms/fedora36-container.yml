@@ -2,11 +2,11 @@ type: container
 
 artifactory:
   package_type: rpm
-  deploy_path: /fedora/33/x86_64/pcp
+  deploy_path: /fedora/36/x86_64/pcp
 
 container:
   containerfile: |
-    FROM registry.fedoraproject.org/fedora:33
+    FROM registry.fedoraproject.org/fedora:36
     RUN dnf install -y systemd
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
@@ -22,7 +22,7 @@ tasks:
   copy_build_artifacts: |
     cp pcp-*/build/rpm/*.rpm ../artifacts/build
   install: |
-    sudo rpm -iv pcp-*/build/rpm/*.rpm
+    sudo rpm -Uv pcp-*/build/rpm/*.rpm
     echo 'pcpqa ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/pcpqa
   init_qa: |
     sudo systemctl start redis
