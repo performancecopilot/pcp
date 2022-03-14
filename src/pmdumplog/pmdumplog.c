@@ -1000,8 +1000,12 @@ dumpLabel(int verbose)
 	    printf("Archive features: 0x%x", label.features);
 	    if (label.features & mask) {
 		char	*bits = __pmLogFeaturesStr(label.features & mask);
-		printf(" [unknown: %s]", bits);
-		free(bits);
+		if (bits != NULL) {
+		    printf(" [unknown: %s]", bits);
+		    free(bits);
+		}
+		else
+		    printf(" [unknown: 0x%x]", label.features & mask);
 	    }
 	    putchar('\n');
 	}

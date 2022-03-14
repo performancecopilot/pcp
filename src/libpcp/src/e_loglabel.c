@@ -377,8 +377,12 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 	     */
 	    if (pmDebugOptions.log) {
 		char		*bits = __pmLogFeaturesStr(lp->features & mask);
-		fprintf(stderr, " features 0x%x [unknown: %s]", lp->features, bits);
-		free(bits);
+		if (bits != NULL) {
+		    fprintf(stderr, " features 0x%x [unknown: %s]", lp->features, bits);
+		    free(bits);
+		}
+		else
+		    fprintf(stderr, " features 0x%x [unknown: 0x%x]", lp->features, lp->features & mask);
 	    }
 	    version = PM_ERR_FEATURE;
 	    goto func_return;
@@ -396,8 +400,12 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 	__pmPrintTimestamp(stderr, &lp->start);
 	if (lp->features != 0) {
 	    char	*bits = __pmLogFeaturesStr(lp->features);
-	    fprintf(stderr, " features=0x%x \"%s\"", lp->features, bits);
-	    free(bits);
+	    if (bits != NULL) {
+		fprintf(stderr, " features=0x%x \"%s\"", lp->features, bits);
+		free(bits);
+	    }
+	    else
+		fprintf(stderr, " features=0x%x \"???\"", lp->features);
 	}
 	fprintf(stderr, " host=%s", lp->hostname);
 	if (lp->timezone)

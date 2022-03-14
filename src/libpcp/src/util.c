@@ -3021,6 +3021,9 @@ pmInDom_build(unsigned int domain, unsigned int serial)
  * Convert archive feature bits into a string ... result is variable
  * length and not static, so result is malloc'd and 
  * __pmLogFeaturesStr_r() is not required.
+ *
+ * Return NULL on alloc error ... caller should test before calling
+ * free().
  */
 char *
 __pmLogFeaturesStr(__uint32_t features)
@@ -3032,7 +3035,11 @@ __pmLogFeaturesStr(__uint32_t features)
     int		unknown = 0;
     char	buf[8];		/* enough for bit_NN */
 
-    ans[0] = '\0';
+    if (ans == NULL) {
+	pmNoMem("__pmLogFeaturesStr: malloc", 1, PM_RECOV_ERR);
+	return NULL;
+    }
+
     for (pos = 31; pos >= 0; pos--) {
 	if (check & 0x80000000) {
 	    char	*ans_tmp;
@@ -3052,8 +3059,10 @@ __pmLogFeaturesStr(__uint32_t features)
 		len++;
 	    ans_tmp = (char *)realloc(ans, len);
 	    if (ans_tmp == NULL) {
-		// TODO NoMem
-		return ans;
+		pmNoMem("__pmLogFeaturesStr: realloc", len, PM_RECOV_ERR);
+		/* best we can do ... */
+		free(ans);
+		return NULL;
 	    }
 	    ans = ans_tmp;
 	    if (unknown > 0)
