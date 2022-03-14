@@ -4,10 +4,10 @@ QA output created by 049
 __pmFopen("archives/ok-mv-bigbin.SUFF, "r"): no decompress
 __pmFopen("archives/ok-mv-bigbin.SUFF, "r"): no decompress
 __pmFopen("archives/ok-mv-bigbin.SUFF, "r"): no decompress
-chkLabel: fd=<n1> vol=0 [magic=50052602 version=2 vol=0 pid=PID host=HOSTNAME
+chkLabel: fd=<n1> vol=0 [magic=0x50052602 version=2 vol=0 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 0
-chkLabel: fd=<n2> vol=-2 [magic=50052602 version=2 vol=-2 pid=PID host=HOSTNAME
-chkLabel: fd=<n3> vol=-1 [magic=50052602 version=2 vol=-1 pid=PID host=HOSTNAME
+chkLabel: fd=<n2> vol=-2 [magic=0x50052602 version=2 vol=-2 pid=PID host=HOSTNAME
+chkLabel: fd=<n3> vol=-1 [magic=0x50052602 version=2 vol=-1 pid=PID host=HOSTNAME
 __pmLogSetTime(0) TIME delta=0 before start ti@TIME vol=0 posn=OFFSET serial=1
 __pmFopen("archives/ok-mv-bigbin.0", "r"): no decompress
 __pmLogChangeVol: change to volume 0
@@ -15,39 +15,39 @@ __pmFopen("archives/ok-mv-bigbin.0", "r"): no decompress
 __pmLogChangeVol: change to volume 0
 __pmLogSetTime(1) TIME delta=0 before start ti@TIME vol=0 posn=OFFSET serial=1
 __pmFopen("archives/ok-mv-bigbin.1", "r"): no decompress
-chkLabel: fd=<n5> vol=1 [magic=50052602 version=2 vol=1 pid=PID host=HOSTNAME
+chkLabel: fd=<n5> vol=1 [magic=0x50052602 version=2 vol=1 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 1
 @TIME len=header+484+trailer
 __pmFopen("archives/ok-mv-bigbin.2", "r"): no decompress
-chkLabel: fd=<n5> vol=2 [magic=50052602 version=2 vol=2 pid=PID host=HOSTNAME
+chkLabel: fd=<n5> vol=2 [magic=0x50052602 version=2 vol=2 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 2
 @TIME len=header+484+trailer
 __pmFopen("archives/ok-mv-bigbin.3", "r"): no decompress
-chkLabel: fd=<n5> vol=3 [magic=50052602 version=2 vol=3 pid=PID host=HOSTNAME
+chkLabel: fd=<n5> vol=3 [magic=0x50052602 version=2 vol=3 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 3
 @TIME len=header+484+trailer
 __pmFopen("archives/ok-mv-bigbin.4", "r"): no decompress
-chkLabel: fd=<n5> vol=4 [magic=50052602 version=2 vol=4 pid=PID host=HOSTNAME
+chkLabel: fd=<n5> vol=4 [magic=0x50052602 version=2 vol=4 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 4
 @TIME len=header+484+trailer
 __pmFopen("archives/ok-mv-bigbin.5", "r"): no decompress
-chkLabel: fd=<n5> vol=5 [magic=50052602 version=2 vol=5 pid=PID host=HOSTNAME
+chkLabel: fd=<n5> vol=5 [magic=0x50052602 version=2 vol=5 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 5
 @TIME len=header+484+trailer
 __pmFopen("archives/ok-mv-bigbin.6", "r"): no decompress
-chkLabel: fd=<n5> vol=6 [magic=50052602 version=2 vol=6 pid=PID host=HOSTNAME
+chkLabel: fd=<n5> vol=6 [magic=0x50052602 version=2 vol=6 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 6
 @TIME len=header+484+trailer
 __pmFopen("archives/ok-mv-bigbin.7", "r"): no decompress
-chkLabel: fd=<n5> vol=7 [magic=50052602 version=2 vol=7 pid=PID host=HOSTNAME
+chkLabel: fd=<n5> vol=7 [magic=0x50052602 version=2 vol=7 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 7
 @TIME len=header+484+trailer
 __pmFopen("archives/ok-mv-bigbin.8", "r"): no decompress
-chkLabel: fd=<n5> vol=8 [magic=50052602 version=2 vol=8 pid=PID host=HOSTNAME
+chkLabel: fd=<n5> vol=8 [magic=0x50052602 version=2 vol=8 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 8
 @TIME len=header+484+trailer
 __pmFopen("archives/ok-mv-bigbin.9", "r"): no decompress
-chkLabel: fd=<n5> vol=9 [magic=50052602 version=2 vol=9 pid=PID host=HOSTNAME
+chkLabel: fd=<n5> vol=9 [magic=0x50052602 version=2 vol=9 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 9
 @TIME len=header+484+trailer
 

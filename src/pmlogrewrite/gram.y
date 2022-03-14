@@ -837,6 +837,8 @@ new_indom_instance_label(int indom)
 	TOK_MINUS
 	TOK_COLON
 	TOK_COMMA
+	TOK_LPAREN
+	TOK_RPAREN
 	TOK_ASSIGN
 	TOK_GLOBAL
 	TOK_INDOM
@@ -873,6 +875,7 @@ new_indom_instance_label(int indom)
 	TOK_INSTANCE
 	TOK_NEW
 	TOK_VALUE
+	TOK_BITS
 
 %token<str>	TOK_GNAME TOK_NUMBER TOK_STRING TOK_TEXT_STRING TOK_HNAME TOK_FLOAT
 %token<str>	TOK_JSON_STRING TOK_JSON_NUMBER
@@ -884,7 +887,9 @@ new_indom_instance_label(int indom)
 %type<str>	hname
 %type<indom>	indom_int null_or_indom
 %type<pmid>	pmid_int pmid_or_name
-%type<ival>	signnumber number rescaleopt duplicateopt texttype texttypes opttexttypes pmid_domain pmid_cluster
+%type<ival>	signnumber number feature_bits bits_list
+%type<ival>	rescaleopt duplicateopt texttype texttypes opttexttypes
+%type<ival>	pmid_domain pmid_cluster
 %type<dval>	float
 %type<str>	textstring opttextvalue jsonname jsonvalue jsonnumber
 
@@ -973,9 +978,8 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 			    global.flags |= GLOBAL_CHANGE_ZONEINFO;
 			}
 		    }
-		| TOK_FEATURES TOK_ASSIGN TOK_NUMBER
+		| TOK_FEATURES TOK_ASSIGN feature_bits
 		    {
-			int	features = atoi($3);
 			if (global.flags & GLOBAL_CHANGE_FEATURES) {
 			    pmsprintf(mess, sizeof(mess), "Duplicate global features clause");
 			    yyerror(mess);
@@ -984,7 +988,7 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 			    pmsprintf(mess, sizeof(mess), "Global features clause requires output archive version of 3 or greater");
 			    yyerror(mess);
 			}
-			if (inarch.label.features == features) {
+			if (inarch.label.features == $3) {
 			    /* no change ... */
 			    if (wflag) {
 				pmsprintf(mess, sizeof(mess), "Global features (%d): No change", inarch.label.features);
@@ -992,10 +996,9 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 			    }
 			}
 			else {
-			    global.features = features;
+			    global.features = $3;
 			    global.flags |= GLOBAL_CHANGE_FEATURES;
 			}
-			free($3);
 		    }
 		| TOK_TIME TOK_ASSIGN signtime
 		    {
@@ -1064,6 +1067,57 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 			yyerror(mess);
 		    }
 		;
+
+feature_bits	: TOK_NUMBER
+		    {
+			$$ = atoi($1);
+			free($1);
+		    }
+		| TOK_BITS TOK_LPAREN bits_list TOK_RPAREN
+		    {
+			$$ = $3;
+		    }
+		| TOK_BITS TOK_LPAREN bits_list
+		    {
+			pmsprintf(mess, sizeof(mess), "Expecting ) after \"bits(\" in features clause");
+			yyerror(mess);
+		    }
+		| TOK_BITS TOK_LPAREN
+		    {
+			pmsprintf(mess, sizeof(mess), "Expecting list of bit numbers after \"bits(\" in features clause");
+			yyerror(mess);
+		    }
+		| TOK_BITS
+		    {
+			pmsprintf(mess, sizeof(mess), "Expecting ( after \"bits\" in features clause");
+			yyerror(mess);
+		    }
+		;
+
+bits_list	: TOK_NUMBER
+		    {
+			int	b;
+			b = atoi($1);
+			if (b < 0 || b > 31) {
+			    pmsprintf(mess, sizeof(mess), "Bit \"%s\" not in the range 0..31", $1);
+			    yyerror(mess);
+			}
+			$$ = (__uint32_t)1 << b;
+			free($1);
+		    }
+		| bits_list TOK_COMMA TOK_NUMBER
+		    {
+			int	b;
+			b = atoi($3);
+			if (b < 0 || b > 31) {
+			    pmsprintf(mess, sizeof(mess), "Bit \"%s\" not in the range 0..31", $3);
+			    yyerror(mess);
+			}
+			$$ = $1 | (__uint32_t)1 << b;
+			free($3);
+		    }
+		;
+
 
 	/*
 	 * ambiguity in lexical scanner ... handle here

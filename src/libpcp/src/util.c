@@ -3016,3 +3016,53 @@ pmInDom_build(unsigned int domain, unsigned int serial)
     memcpy(&indom, &indom_int, sizeof(indom));
     return indom;
 }
+
+/*
+ * Convert archive feature bits into a string ... result is variable
+ * length and not static, so result is malloc'd and 
+ * __pmLogFeaturesStr_r() is not required.
+ */
+char *
+__pmLogFeaturesStr(__uint32_t features)
+{
+    char	*ans = (char *)malloc(1);
+    int		len = 1;
+    __uint32_t	check = features;
+    int		pos;
+    int		unknown = 0;
+    char	buf[8];		/* enough for bit_NN */
+
+    ans[0] = '\0';
+    for (pos = 31; pos >= 0; pos--) {
+	if (check & 0x80000000) {
+	    char	*ans_tmp;
+	    char	*append;
+	    switch (pos) {
+		case 31:	/* QA */
+			append = "QA";
+			break;
+
+		default:
+			append = buf;
+			snprintf(buf, 8, "bit_%02d", pos);
+			break;
+	    }
+	    len += strlen(append) + 1;
+	    if (unknown > 0)
+		len++;
+	    ans_tmp = (char *)realloc(ans, len);
+	    if (ans_tmp == NULL) {
+		// TODO NoMem
+		return ans;
+	    }
+	    ans = ans_tmp;
+	    if (unknown > 0)
+		strcat(ans, " ");
+	    strcat(ans, append);
+	    unknown++;
+	}
+	check = check << 1;
+    }
+
+    return(ans);
+}

@@ -995,8 +995,16 @@ dumpLabel(int verbose)
 	    printf("Archive timezone: %s\n", label.timezone);
 	if (label.zoneinfo != NULL && label.zoneinfo[0] != '\0')
 	    printf("Archive zoneinfo: %s\n", label.zoneinfo);
-	if (label.features != 0)
-	    printf("Archive features: 0x%x\n", label.features);
+	if (label.features != 0) {
+	    __uint32_t	mask = ~(PM_LOG_FEATURE_CURRENT);
+	    printf("Archive features: 0x%x", label.features);
+	    if (label.features & mask) {
+		char	*bits = __pmLogFeaturesStr(label.features & mask);
+		printf(" [unknown: %s]", bits);
+		free(bits);
+	    }
+	    putchar('\n');
+	}
 	printf("PID for pmlogger: %" FMT_PID "\n", label.pid);
     }
 }
@@ -1227,10 +1235,17 @@ main(int argc, char *argv[])
     }
 
     if ((sts = ctxid = pmNewContext(PM_CONTEXT_ARCHIVE, opts.archives[0])) < 0) {
-	fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		pmGetProgname(), opts.archives[0], pmErrStr(sts));
-	exit(1);
+	if (sts == PM_ERR_FEATURE) {
+	    fprintf(stderr, "%s: Warning: unsupported feature bits, other errors may follow ...\n", pmGetProgname());
+	    sts = ctxid = pmNewContext(PM_CONTEXT_ARCHIVE | PM_CTXFLAG_NO_FEATURE_CHECK, opts.archives[0]);
+	}
+	if (sts < 0) {
+	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
+		    pmGetProgname(), opts.archives[0], pmErrStr(sts));
+	    exit(1);
+	}
     }
+
     /* complete TZ and time window option (origin) setup */
     if (pmGetContextOptions(ctxid, &opts)) {
 	pmflush();

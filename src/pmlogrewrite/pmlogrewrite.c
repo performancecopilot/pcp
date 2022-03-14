@@ -1533,9 +1533,16 @@ main(int argc, char **argv)
 		    pmGetProgname(), inarch.name);
 	    exit(0);
 	}
-	fprintf(stderr, "%s: Error: cannot open archive \"%s\": %s\n",
-		pmGetProgname(), inarch.name, pmErrStr(inarch.ctx));
-	exit(1);
+	if (inarch.ctx == PM_ERR_FEATURE) {
+	    fprintf(stderr, "%s: Warning: archive \"%s\": unsupported feature bits, other errors may follow ...\n",
+		    pmGetProgname(), inarch.name);
+	    inarch.ctx = pmNewContext(PM_CONTEXT_ARCHIVE | PM_CTXFLAG_NO_FEATURE_CHECK, inarch.name);
+	}
+	if (inarch.ctx < 0) {
+	    fprintf(stderr, "%s: Error: cannot open archive \"%s\": %s\n",
+		    pmGetProgname(), inarch.name, pmErrStr(inarch.ctx));
+	    exit(1);
+	}
     }
     inarch.ctxp = __pmHandleToPtr(inarch.ctx);
     assert(inarch.ctxp != NULL);

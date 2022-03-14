@@ -819,6 +819,7 @@ PCP_3.37 {
     __pmFetchArchive;
     __pmFreeResult;
     __pmGetTimestamp;
+    __pmLogFeaturesStr;
     __pmLogPutResult3;
     __pmLogSearchInDom;
     __pmLogUndeltaInDom;

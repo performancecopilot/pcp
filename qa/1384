@@ -3,6 +3,7 @@
 # simplest pmlogrewrite test for V3 (and V2) archives ... no
 # delta indoms, so output archive should be the same as the
 # input archive
+# also feature bits rewriting tests
 #
 # non-valgrind variant, see qa/1386 for the valgrind variant
 #
@@ -115,7 +116,7 @@ End-of-File
 
 cat <<'End-of-File' >$tmp.2
 global {
-    features -> 1
+    features -> 2147483655
 }
 End-of-File
 
@@ -136,11 +137,22 @@ diff $tmp.label.[23]
 rm -f $tmp.eek.*
 
 echo
-echo "Expect features to be added ..."
+echo "Expect feature bits 0,1,2 and 31 to be added ..."
 pmlogrewrite -V 3 -c $tmp.2 archives/bozo.client_v2 $tmp.eek 2>&1 | _filter
 pmdumplog -z -L $tmp.eek >$tmp.label.3
 diff $tmp.label.[23]
-rm -f $tmp.eek.*
+
+echo
+echo "Expect feature bit 0 and 1 to be removed ..."
+cat <<'End-of-File' >$tmp.2
+global {
+    features -> BITS(31,2)
+}
+End-of-File
+pmlogrewrite -V 3 -c $tmp.2 $tmp.eek $tmp.urk 2>&1 | _filter
+pmdumplog -z -L $tmp.urk >$tmp.label.4
+diff $tmp.label.[34]
+rm -f $tmp.eek.* $tmp.urk.*
 
 echo
 echo "Expect errors ..."
@@ -148,6 +160,55 @@ pmlogrewrite -c $tmp.1 archives/bozo.client_v2 $tmp.eek 2>&1 | _filter
 rm -f $tmp.eek.*
 
 echo
+pmlogrewrite -c $tmp.2 archives/bozo.client_v2 $tmp.eek 2>&1 | _filter
+rm -f $tmp.eek.*
+
+echo
+cat <<'End-of-File' >$tmp.2
+global {
+    # missing )
+    features -> bits(31.32
+}
+End-of-File
+pmlogrewrite -c $tmp.2 archives/bozo.client_v2 $tmp.eek 2>&1 | _filter
+rm -f $tmp.eek.*
+
+echo
+cat <<'End-of-File' >$tmp.2
+global {
+    # space not comma
+    features -> bits(31 32)
+}
+End-of-File
+pmlogrewrite -c $tmp.2 archives/bozo.client_v2 $tmp.eek 2>&1 | _filter
+rm -f $tmp.eek.*
+
+echo
+cat <<'End-of-File' >$tmp.2
+global {
+    # missing list...)
+    features -> bits(
+}
+End-of-File
+pmlogrewrite -c $tmp.2 archives/bozo.client_v2 $tmp.eek 2>&1 | _filter
+rm -f $tmp.eek.*
+
+echo
+cat <<'End-of-File' >$tmp.2
+global {
+    # missing (list...)
+    features -> bits
+}
+End-of-File
+pmlogrewrite -c $tmp.2 archives/bozo.client_v2 $tmp.eek 2>&1 | _filter
+rm -f $tmp.eek.*
+
+echo
+cat <<'End-of-File' >$tmp.2
+global {
+    features -> bits(33)
+}
+End-of-File
 pmlogrewrite -c $tmp.2 archives/bozo.client_v2 $tmp.eek 2>&1 | _filter
 rm -f $tmp.eek.*
 

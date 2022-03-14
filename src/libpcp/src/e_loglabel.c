@@ -363,14 +363,49 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 	goto func_return;
     }
 
+    if (acp->ac_chkfeatures) {
+	/*
+	 * Check feature bits
+	 */
+	__uint32_t	myfeatures = PM_LOG_FEATURE_CURRENT;
+	__uint32_t	mask = ~myfeatures;
+
+	if (lp->features & mask) {
+	    /*
+	     * Oops, archive features include at least one "bit" that we
+	     * don't know how to support
+	     */
+	    if (pmDebugOptions.log) {
+		char		*bits = __pmLogFeaturesStr(lp->features & mask);
+		fprintf(stderr, " features 0x%x [unknown: %s]", lp->features, bits);
+		free(bits);
+	    }
+	    version = PM_ERR_FEATURE;
+	    goto func_return;
+	}
+    }
+
     if (__pmSetVersionIPC(__pmFileno(f), PDU_VERSION) < 0) {
 	version = -oserror();
 	goto func_return;
     }
 
-    if (pmDebugOptions.log)
-	fprintf(stderr, " [magic=%8x version=%d vol=%d pid=%d host=%s]",
-		lp->magic, version, lp->vol, lp->pid, lp->hostname);
+    if (pmDebugOptions.log) {
+	fprintf(stderr, " [magic=0x%08x version=%d vol=%d pid=%d start=",
+		lp->magic, version, lp->vol, lp->pid);
+	__pmPrintTimestamp(stderr, &lp->start);
+	if (lp->features != 0) {
+	    char	*bits = __pmLogFeaturesStr(lp->features);
+	    fprintf(stderr, " features=0x%x \"%s\"", lp->features, bits);
+	    free(bits);
+	}
+	fprintf(stderr, " host=%s", lp->hostname);
+	if (lp->timezone)
+	    fprintf(stderr, " tz=%s", lp->timezone);
+	if (lp->zoneinfo)
+	    fprintf(stderr, " zoneinfo=%s", lp->zoneinfo);
+	fputc(']', stderr);
+    }
 
     /*
      * If we have the label record, and nothing else this is really

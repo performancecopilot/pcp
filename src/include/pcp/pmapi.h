@@ -359,6 +359,8 @@ PCP_CALL extern int pmNewContext(int, const char *);
 #define PM_CTXFLAG_RELAXED	(1U<<12)/* encrypted if possible else not */
 #define PM_CTXFLAG_AUTH		(1U<<13)/* make authenticated connection */
 #define PM_CTXFLAG_CONTAINER	(1U<<14)/* container connection attribute */
+					/* don't check V3 archive features */
+#define PM_CTXFLAG_NO_FEATURE_CHECK	(1U<<15)
 
 /*
  * Duplicate current context -- returns handle to new one for pmUseContext()
@@ -636,25 +638,28 @@ typedef struct pmTimespec {
 /*
  * Label Record at the start of every log file - as exported above
  * the PMAPI ...
- * NOTE platform MAXHOSTNAMELEN is a bad choice here for ll_hostname[], as
- *	it may vary on different hosts ... we then used PM_LOG_MAXHOSTLEN
- *	instead, sized to be the same as MAXHOSTNAMELEN in IRIX 5.3, then
- *	transitioned to dynamically allocated hostname length (up to 64K).
  * NOTE	that the struct timeval means we have another struct (__pmLogLabel)
  *	for internal use that has a __pmTimestamp in place of the struct
- *	timeval.  Most recently this transitioned to nanosecond precision
- *	available with timespec.
+ *	timeval.
  */
 #define PM_LOG_MAGIC		0x50052600
 #define PM_LOG_VERS02		0x2
 #define PM_LOG_VERS03		0x3
 #define PM_LOG_VOL_TI		-2	/* temporal index */
 #define PM_LOG_VOL_META		-1	/* meta data */
-#define PM_LOG_MAXHOSTLEN	64	/* v2 only, deprecated with v3 */
-#define PM_TZ_MAXLEN		40	/* v2 only, deprecated with v3 */
-#define PM_MAX_HOSTNAMELEN	256	/* max supported for v3 onward */
-#define PM_MAX_TIMEZONELEN	256	/* max supported for v3 onward */
-#define PM_MAX_ZONEINFOLEN	256	/* max supported (new with v3) */
+#define PM_LOG_MAXHOSTLEN	64	/* V2 only, deprecated with V3 */
+#define PM_TZ_MAXLEN		40	/* V2 only, deprecated with V3 */
+#define PM_MAX_HOSTNAMELEN	256	/* max supported for V3 onward */
+#define PM_MAX_TIMEZONELEN	256	/* max supported for V3 onward */
+#define PM_MAX_ZONEINFOLEN	256	/* max supported (new with V3) */
+
+/*
+ * feature bits for V3 archives
+ */
+#define PM_LOG_FEATURE_NONE	0
+#define PM_LOG_FEATURE_QA	(1U<<31)	/* QA not for general use */
+/* the currently supported feature bits */
+#define PM_LOG_FEATURE_CURRENT		PM_LOG_FEATURE_NONE | PM_LOG_FEATURE_QA
 
 typedef struct pmLogLabel {
     int		ll_magic;	/* PM_LOG_MAGIC | log format version no. */

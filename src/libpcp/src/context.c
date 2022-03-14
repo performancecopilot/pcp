@@ -648,7 +648,7 @@ addName(const char *dirname, char *list, size_t *listsize,
     /* Allocate more space */
     if (list == NULL) {
 	if ((list = malloc(dirsize + itemsize + 1)) == NULL) {
-	    pmNoMem("initArchive", itemsize + 1, PM_FATAL_ERR);
+	    pmNoMem("initarchive", itemsize + 1, PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
 	*listsize = 0;
@@ -656,7 +656,7 @@ addName(const char *dirname, char *list, size_t *listsize,
     else {
 	/* The comma goes where the previous nul was */
 	if ((list_new = realloc(list, dirsize + *listsize + itemsize + 1)) == NULL) {
-	    pmNoMem("initArchive", *listsize + itemsize + 1, PM_FATAL_ERR);
+	    pmNoMem("initarchive", *listsize + itemsize + 1, PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
 	list = list_new;
@@ -709,7 +709,7 @@ expandArchiveList(const char *names)
 	 * We need nul terminated copy of the name fpr opendir(3).
 	 */
 	if ((dirname = malloc(length + 1)) == NULL) {
-	    pmNoMem("initArchive", length + 1, PM_FATAL_ERR);
+	    pmNoMem("initarchive", length + 1, PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
 	memcpy(dirname, current, length);
@@ -765,6 +765,9 @@ expandArchiveList(const char *names)
  * 'name' may be a single archive name or a list of archive names separated by
  * commas.
  *
+ * 'chkfeature' is 0 to skip feature bits checks for V3 archives, else 1
+ * for the default behaviour to check feature bits.
+ *
  * Coming soon:
  * - name can be one or more glob expressions specifying the archives of
  *   interest.
@@ -772,7 +775,7 @@ expandArchiveList(const char *names)
  * NB: no locks are being held at entry.
  */
 static int
-initarchive(__pmContext	*ctxp, const char *name)
+initarchive(__pmContext	*ctxp, const char *name, int chkfeatures)
 {
     int			i;
     int			sts;
@@ -796,7 +799,7 @@ initarchive(__pmContext	*ctxp, const char *name)
 
     /* Allocate the structure for overal control of the archive(s). */
     if ((ctxp->c_archctl = (__pmArchCtl *)malloc(sizeof(__pmArchCtl))) == NULL) {
-	pmNoMem("initArchive", sizeof(__pmArchCtl), PM_FATAL_ERR);
+	pmNoMem("initarchive", sizeof(__pmArchCtl), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
     acp = ctxp->c_archctl;
@@ -806,6 +809,7 @@ initarchive(__pmContext	*ctxp, const char *name)
     acp->ac_log_list = NULL;
     acp->ac_log = NULL;
     acp->ac_mark_done = 0;
+    acp->ac_chkfeatures = chkfeatures;
 
     /*
      * The list of names may contain one or more directories. Examine the
@@ -876,27 +880,27 @@ initarchive(__pmContext	*ctxp, const char *name)
 						   (acp->ac_num_logs + 1) *
 						   sizeof(*acp->ac_log_list));
 	    if (list_new == NULL) {
-		pmNoMem("initArchive: list_new",
+		pmNoMem("initarchive: list_new",
 			  (acp->ac_num_logs + 1) * sizeof(*acp->ac_log_list),
 			  PM_FATAL_ERR);
 		/* NOTREACHED */
 	    }
 	    acp->ac_log_list = list_new;
 	    if ((mlcp = (__pmMultiLogCtl *)malloc(sizeof(__pmMultiLogCtl))) == NULL) {
-		pmNoMem("initArchive: __pmMultiLogCtl", sizeof(__pmMultiLogCtl), PM_FATAL_ERR);
+		pmNoMem("initarchive: __pmMultiLogCtl", sizeof(__pmMultiLogCtl), PM_FATAL_ERR);
 		/* NOTREACHED */
 	    }
 	    if ((mlcp->name = strdup(current)) == NULL) {
-		pmNoMem("initArchive: name", strlen(current) + 1, PM_FATAL_ERR);
+		pmNoMem("initarchive: name", strlen(current) + 1, PM_FATAL_ERR);
 		/* NOTREACHED */
 	    }
 	    if ((mlcp->hostname = strdup(lp->hostname)) == NULL) {
-		pmNoMem("initArchive: hostname", strlen(lp->hostname) + 1, PM_FATAL_ERR);
+		pmNoMem("initarchive: hostname", strlen(lp->hostname) + 1, PM_FATAL_ERR);
 		/* NOTREACHED */
 	    }
 	    if (lp->timezone != NULL) {
 		if ((mlcp->timezone = strdup(lp->timezone)) == NULL) {
-		    pmNoMem("initArchive: timezone", strlen(lp->timezone) + 1, PM_FATAL_ERR);
+		    pmNoMem("initarchive: timezone", strlen(lp->timezone) + 1, PM_FATAL_ERR);
 		    /* NOTREACHED */
 		}
 	    }
@@ -904,7 +908,7 @@ initarchive(__pmContext	*ctxp, const char *name)
 		mlcp->timezone = NULL;
 	    if (lp->zoneinfo != NULL) {
 		if ((mlcp->zoneinfo = strdup(lp->zoneinfo)) == NULL) {
-		    pmNoMem("initArchive: zoneinfo", strlen(lp->zoneinfo) + 1, PM_FATAL_ERR);
+		    pmNoMem("initarchive: zoneinfo", strlen(lp->zoneinfo) + 1, PM_FATAL_ERR);
 		    /* NOTREACHED */
 		}
 	    }
@@ -1184,7 +1188,7 @@ INIT_CONTEXT:
          * is OK because no other thread can validly touch our
          * partly-initialized context.
          */
-        sts = initarchive(new, name);
+        sts = initarchive(new, name, !(type & PM_CTXFLAG_NO_FEATURE_CHECK));
         if (sts < 0)
 	    goto FAILED;
     }

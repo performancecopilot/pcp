@@ -17,18 +17,25 @@ status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
+# older version ...
 # __pmLogChkLabel: fd=3 vol=0 [magic=50052602 version=2 vol=0 pid=3901 host=bozo]
+# PCP 6.0 or later ...
+# __pmLogChkLabel: fd=3 vol=0 [magic=0x50052603 version=3 vol=0 pid=2422889 start=15:23:53.120655741 features=0x80000001 "QA bit_00" host=bozo-vm.localdomain tz=AEDT-11 zoneinfo=:Australia/Melbourne]
+#
 # __pmLogSetTime(0) 17:29:20.472 delta=0 at ti[0]@17:29:20.472 vol=0 posn=132 serial=1
 _filter()
 {
     sed \
+	-e 's/]/ ]/g' \
 	-e 's/pid=[0-9][0-9]*/pid=PID/' \
 	-e 's/host=[a-zA-Z][a-zA-Z0-9_]*/host=HOST/' \
+	-e 's/tz=[^ ]*/tz=TZ/' \
 	-e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9]*[0-9]/TIME/g' \
 	-e 's/TIME (t=[0-9][0-9.]*)/TIME/g' \
 	-e 's/bad trailer len=132/bad trailer len=0/' \
 	-e '/__pmLogChkLabel/s/fd=[0-9]/fd=N/' \
 	-e '/^__pmFopen/s/\.[^"]*",/.SUFFIX",/' \
+	-e 's/ ]/]/g' \
     | $PCP_AWK_PROG '
 $1 == "__pmLogOpen:"	{ print >"'$tmp'.0"; next }
 			{ print >"'$tmp'.1" }'

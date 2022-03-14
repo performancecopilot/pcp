@@ -36,7 +36,8 @@ Expect zoneinfo to be added ...
 7a8
 > Archive zoneinfo: :Africa/Timbuktu
 
-Expect features to be added ...
+Expect feature bits 0,1,2 and 31 to be added ...
+pmdumplog: Warning: unsupported feature bits, other errors may follow ...
 3c3
 < Log Label (Log Format Version 2)
 ---
@@ -48,7 +49,15 @@ Expect features to be added ...
 >     commencing Tue Feb  7 05:27:05.069038000 1995
 >     ending     Tue Feb  7 05:27:50.002267000 1995
 7a8
-> Archive features: 0x1
+> Archive features: 0x80000007 [unknown: bit_02 bit_01 bit_00]
+
+Expect feature bit 0 and 1 to be removed ...
+pmlogrewrite: Warning: archive "TMP.eek": unsupported feature bits, other errors may follow ...
+pmdumplog: Warning: unsupported feature bits, other errors may follow ...
+8c8
+< Archive features: 0x80000007 [unknown: bit_02 bit_01 bit_00]
+---
+> Archive features: 0x80000004 [unknown: bit_02]
 
 Expect errors ...
 Specification error in configuration file (TMP.1)
@@ -56,3 +65,18 @@ Specification error in configuration file (TMP.1)
 
 Specification error in configuration file (TMP.2)
 [line 2] Global features clause requires output archive version of 3 or greater
+
+Specification error in configuration file (TMP.2)
+[line 3] Expecting list of bit numbers after "bits(" in features clause
+
+Specification error in configuration file (TMP.2)
+[line 3] Expecting ) after "bits(" in features clause
+
+Specification error in configuration file (TMP.2)
+[line 4] Expecting list of bit numbers after "bits(" in features clause
+
+Specification error in configuration file (TMP.2)
+[line 4] Expecting ( after "bits" in features clause
+
+Specification error in configuration file (TMP.2)
+[line 2] Bit "33" not in the range 0..31

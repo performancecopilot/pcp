@@ -771,7 +771,7 @@ typedef struct {
     int			pid;		/* PID of logger */
     __pmTimestamp	start;		/* start of this log */
     int			vol;		/* current log volume no. */
-    uint32_t		features;	/* current enabled features */
+    __uint32_t		features;	/* current enabled features */
     char		*hostname;	/* hostname at collection host */
     char		*timezone;	/* squashed $TZ at collection host */
     char		*zoneinfo;	/* detailed $TZ at collection host */
@@ -848,6 +848,7 @@ typedef struct {
     long		ac_offset;	/* fseek ptr for archives */
     int			ac_vol;		/* volume for ac_offset */
     int			ac_serial;	/* serial access pattern for archives */
+    int			ac_chkfeatures;	/* 1 => check featutre bits */
     __pmHashCtl		ac_pmid_hc;	/* per PMID controls for INTERP */
     double		ac_end;		/* time at end of archive */
     void		*ac_want;	/* used in interp.c */
@@ -1481,6 +1482,7 @@ PCP_CALL extern const char *__pmLabelTypeString(int);
 PCP_CALL extern const char *__pmGetLabelConfigHostName(char *, size_t);
 PCP_CALL extern const char *__pmGetLabelConfigMachineID(char *, size_t);
 PCP_CALL extern const char *__pmGetLabelConfigDomainName(char *, size_t);
+PCP_CALL extern char *__pmLogFeaturesStr(__uint32_t);
 
 /* log file rotation */
 PCP_CALL extern FILE *__pmRotateLog(const char *, const char *, FILE *, int *);

@@ -377,6 +377,17 @@ defined by the integer value
 which is formed by ``or''ing the desired feature flags
 as defined in
 .BR LOGARCHIVE (5).
+Alternatively,
+.IR feature-bits
+can be specified using the ``macro''
+.KW BITS()
+that takes a comma separated argument list of integers (in the inclusive
+range 0 to 31) and sets the corresponding bits.  For example
+.RS +4n
+.ft CW
+features -> bits(31,7,1)
+.ft P
+.RE
 .PP
 The
 .KW features
