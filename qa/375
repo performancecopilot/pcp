@@ -34,7 +34,7 @@ _filter()
     | sed \
 	-e '/^pmlogger .* on host .* is logging metrics from host .*/d' \
 	-e '/^PMCD host/d' \
-	-e '/^TIMESTAMP started/d' \
+	-e '/^log started/d' \
     | $PCP_AWK_PROG '
 $1 == "log" && $2 == "size"	{ if ($3 > 100 && $3 <= 200) $3 = "more than 100"
 				  else if ($3 > 200 && $3 <= 400) $3 = "more than 200"
