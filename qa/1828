@@ -35,6 +35,10 @@ _slice_sort_reassemble()
 	-e 's/\([0-9][0-9]*\) or "rbd/N or "rbd/' \
 	-e 's/\([0-9][0-9]*\) or "nbd/N or "nbd/' \
 	-e 's/\([0-9][0-9]*\) or "nvme/N or "nvme/' \
+	-e 's/\([0-9][0-9]*\) or "luks-01568490-8910-4c31-84bd-b4ddb53858c0/N or "luks-01568490-8910-4c31-84bd-b4ddb53858c0/' \
+	-e 's/\([0-9][0-9]*\) or "mpathb/N or "mpathb/' \
+	-e 's/\([0-9][0-9]*\) or "shack-root/N or "shack-root/' \
+	-e 's/\([0-9][0-9]*\) or "shack-swap/N or "shack-swap/' \
     | $here/src/sortinst
 }
 
