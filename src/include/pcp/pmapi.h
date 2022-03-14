@@ -659,7 +659,7 @@ typedef struct pmTimespec {
 #define PM_LOG_FEATURE_NONE	0
 #define PM_LOG_FEATURE_QA	(1U<<31)	/* QA not for general use */
 /* the currently supported feature bits */
-#define PM_LOG_FEATURE_CURRENT		PM_LOG_FEATURE_NONE | PM_LOG_FEATURE_QA
+#define PM_LOG_FEATURES		(PM_LOG_FEATURE_NONE | PM_LOG_FEATURE_QA)
 
 typedef struct pmLogLabel {
     int		ll_magic;	/* PM_LOG_MAGIC | log format version no. */

@@ -367,7 +367,7 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 	/*
 	 * Check feature bits
 	 */
-	__uint32_t	myfeatures = PM_LOG_FEATURE_CURRENT;
+	__uint32_t	myfeatures = PM_LOG_FEATURES;
 	__uint32_t	mask = ~myfeatures;
 
 	if (lp->features & mask) {

@@ -996,7 +996,7 @@ dumpLabel(int verbose)
 	if (label.zoneinfo != NULL && label.zoneinfo[0] != '\0')
 	    printf("Archive zoneinfo: %s\n", label.zoneinfo);
 	if (label.features != 0) {
-	    __uint32_t	mask = ~(PM_LOG_FEATURE_CURRENT);
+	    __uint32_t	mask = ~(PM_LOG_FEATURES);
 	    printf("Archive features: 0x%x", label.features);
 	    if (label.features & mask) {
 		char	*bits = __pmLogFeaturesStr(label.features & mask);

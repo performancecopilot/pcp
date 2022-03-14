@@ -466,6 +466,26 @@ static const char *sasl_version_string(void)
 #endif
 
 static const char *
+myfeatures(void)
+{
+    static char	*arch_features = NULL;
+    /*
+     * cheat a little using __pmLock_extcall ... just want mutual exclusion
+     * here to call __pmLogFeaturesStr() once and only once
+     */
+    PM_LOCK(__pmLock_extcall);
+    if (arch_features == NULL) {
+	 /*
+	  * hide the "QA" feature ...
+	  */
+	 arch_features = __pmLogFeaturesStr(PM_LOG_FEATURES & ~PM_LOG_FEATURE_QA);
+    }
+    PM_UNLOCK(__pmLock_extcall);
+
+    return arch_features;
+}
+
+static const char *
 ipv6_enabled(void)
 {
 #if defined(IS_LINUX)
@@ -565,6 +585,7 @@ static struct {
 	{ "transparent_decompress", TRANSPARENT_DECOMPRESS },	/* from pcp-4.0.0 */
 	{ "compress_suffixes",	compress_suffix_list },		/* from pcp-4.0.1 */
 	{ "v3_archives",	enabled },			/* from pcp-6.0.0 */
+	{ "archive_features",	myfeatures },			/* from pcp-6.0.0 */
 };
 
 void

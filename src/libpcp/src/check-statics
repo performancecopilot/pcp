@@ -165,11 +165,12 @@ discovery.o
     def_timeout			# guarded by __pmLock_extcall mutex
 config.o
     ?__pmNativeConfig		# const
-    config_lock		# local mutex
+    config_lock			# local mutex
     state			# guarded by config_lock
     ?features			# const
     ?pcp_dir			# one-trip initialization then read-only
     ?init			# one-trip initialization then read-only
+    arch_features		# guarded by __pmLock_extcall mutex
 connectlocal.o
     atexit_installed		# guarded by __pmLock_libpcp mutex
     buffer			# assert safe, see notes in connectlocal.c
