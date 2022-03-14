@@ -83,8 +83,8 @@ Instance Domains in the Log ...
 
 Temporal Index
 		Log Vol    end(meta)     end(log)
-TIMESTAMP      0          132          132
-TIMESTAMP      0          244          132
+TIMESTAMP	      0          132          132
+TIMESTAMP	      0          244          132
 
 [116 bytes]
 TIMESTAMP 2 metrics

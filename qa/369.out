@@ -271,9 +271,9 @@ TIMESTAMP 3 instances
 
 Temporal Index
 		Log Vol    end(meta)     end(log)
-TIMESTAMP      0          132          132
-TIMESTAMP      0          531          132
-TIMESTAMP      0         1616          536
+TIMESTAMP	      0          132          132
+TIMESTAMP	      0          531          132
+TIMESTAMP	      0         1616          536
 
 [228 bytes]
 TIMESTAMP 6 metrics
@@ -752,9 +752,9 @@ TIMESTAMP 3 instances
 
 Temporal Index
 		Log Vol    end(meta)     end(log)
-TIMESTAMP      0          132          132
-TIMESTAMP      0          531          132
-TIMESTAMP      0         1616          536
+TIMESTAMP	      0          132          132
+TIMESTAMP	      0          531          132
+TIMESTAMP	      0         1616          536
 
 [228 bytes]
 TIMESTAMP 6 metrics
