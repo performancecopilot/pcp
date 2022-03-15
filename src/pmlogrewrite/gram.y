@@ -826,6 +826,7 @@ new_indom_instance_label(int indom)
 %union {
     char		*str;
     int			ival;
+    unsigned int	uival;
     double		dval;
     pmInDom		indom;
     pmID		pmid;
@@ -887,7 +888,8 @@ new_indom_instance_label(int indom)
 %type<str>	hname
 %type<indom>	indom_int null_or_indom
 %type<pmid>	pmid_int pmid_or_name
-%type<ival>	signnumber number feature_bits bits_list
+%type<ival>	signnumber number
+%type<uival>	feature_bits bits_list
 %type<ival>	rescaleopt duplicateopt texttype texttypes opttexttypes
 %type<ival>	pmid_domain pmid_cluster
 %type<dval>	float
@@ -1070,7 +1072,8 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 
 feature_bits	: TOK_NUMBER
 		    {
-			$$ = atoi($1);
+			char	*q;
+			$$ = (unsigned int)strtoul($1, &q, 10);
 			free($1);
 		    }
 		| TOK_BITS TOK_LPAREN bits_list TOK_RPAREN
@@ -1102,7 +1105,7 @@ bits_list	: TOK_NUMBER
 			    pmsprintf(mess, sizeof(mess), "Bit \"%s\" not in the range 0..31", $1);
 			    yyerror(mess);
 			}
-			$$ = (__uint32_t)1 << b;
+			$$ = (unsigned int)1 << b;
 			free($1);
 		    }
 		| bits_list TOK_COMMA TOK_NUMBER
@@ -1113,7 +1116,7 @@ bits_list	: TOK_NUMBER
 			    pmsprintf(mess, sizeof(mess), "Bit \"%s\" not in the range 0..31", $3);
 			    yyerror(mess);
 			}
-			$$ = $1 | (__uint32_t)1 << b;
+			$$ = (unsigned int)$1 | ((unsigned int)1 << b);
 			free($3);
 		    }
 		;
