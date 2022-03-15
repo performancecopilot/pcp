@@ -59,7 +59,7 @@ def read_testlog(
 ) -> List[Test]:
     tests: List[Test] = []
     testlog_path = os.path.join(testartifacts_dir, "test.log")
-    with open(testlog_path, encoding="utf-8") as testlog_file:
+    with open(testlog_path, encoding="utf-8", errors="backslashreplace") as testlog_file:
         for line in testlog_file:
             # [xx%] will be displayed if there are more than 9 tests
             #  Xs ... will be displayed if test was already run
