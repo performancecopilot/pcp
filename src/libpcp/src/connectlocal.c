@@ -432,11 +432,11 @@ __pmConnectLocal(__pmHashCtl *attrs)
 	/*
 	 * the PMDA interface / PMAPI version discovery as a "challenge" ...
 	 * for pmda_interface it is all the bits being set,
-	 * for pmapi_version it is the complement of the one you are using now
+	 * for pmapi_version it is the complement of the oldest supported.
 	 */
 	challenge = 0xff;
 	dp->dispatch.comm.pmda_interface = challenge;
-	dp->dispatch.comm.pmapi_version = (~PMAPI_VERSION) & 0xff;
+	dp->dispatch.comm.pmapi_version = PMAPI_VERSION_2 & 0xff;
 	dp->dispatch.comm.flags = 0;
 	dp->dispatch.status = 0;
 
@@ -463,7 +463,8 @@ connected:
 		dlclose(dp->handle);
 		dp->domain = -1;
 	    }
-	    else if (dp->dispatch.comm.pmapi_version != PMAPI_VERSION_2) {
+	    else if (dp->dispatch.comm.pmapi_version != PMAPI_VERSION_2 &&
+		     dp->dispatch.comm.pmapi_version != PMAPI_VERSION_3) {
 		pmprintf("__pmConnectLocal: Error: Unknown PMAPI version %d "
 			 "in \"%s\" DSO\n",
 			 dp->dispatch.comm.pmapi_version, dp->name);

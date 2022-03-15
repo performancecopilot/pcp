@@ -54,8 +54,11 @@
 extern "C" {
 #endif
 
-#define PMAPI_VERSION_2	2
-#define PMAPI_VERSION	PMAPI_VERSION_2
+#define PMAPI_VERSION_2	2	/* traditional PMAPI */
+#define PMAPI_VERSION_3	3	/* nanosec precision */
+#ifndef PMAPI_VERSION
+#define PMAPI_VERSION	PMAPI_VERSION_2   /* default */
+#endif
 
 /*
  * -------- Naming Services --------
@@ -1030,10 +1033,14 @@ typedef struct pmOptions {
     int			narchives;
     char **		hosts;
     char **		archives;
+#if PMAPI_VERSION == PMAPI_VERSION_3
+    struct timeval	unused[4];
+#else
     struct timeval	start;
     struct timeval	finish;
     struct timeval	origin;
     struct timeval	interval;
+#endif
     char *		align_optarg;
     char *		start_optarg;
     char *		finish_optarg;
@@ -1048,6 +1055,12 @@ typedef struct pmOptions {
     unsigned int	nsflag  : 1;
     unsigned int	Lflag   : 1;
     unsigned int	zeroes  : 28;
+#if PMAPI_VERSION == PMAPI_VERSION_3
+    struct timespec	start;
+    struct timespec	finish;
+    struct timespec	origin;
+    struct timespec	interval;
+#endif
 } pmOptions;
 
 PCP_CALL extern int pmgetopt_r(int, char *const *, pmOptions *);

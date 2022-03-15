@@ -3,7 +3,7 @@
  */
 
 /*
- * exercise meta-Data services for an archive
+ * exercise meta-data services for an archive
  */
 
 #include <ctype.h>
@@ -83,15 +83,16 @@ int
 main(int argc, char **argv)
 {
     int		c;
+    int		i;
     int		sts;
     int		ctx[2];
     int		errflag = 0;
     char	*archive = "foo";
     char	*namespace = PM_NS_DEFAULT;
     static char	*usage = "[-D debugspec] [-a archive] [-n namespace] [-v]";
-    int		i;
-    pmLogLabel	loglabel;
-    pmLogLabel	duplabel;
+    struct timeval	start;
+    pmHighResLogLabel	loglabel;
+    pmHighResLogLabel	duplabel;
 
     pmSetProgname(argv[0]);
 
@@ -140,11 +141,14 @@ main(int argc, char **argv)
 	printf("%s: Cannot connect to archive \"%s\": %s\n", pmGetProgname(), archive, pmErrStr(ctx[0]));
 	exit(1);
     }
-    if ((sts = pmGetArchiveLabel(&loglabel)) < 0) {
+    if ((sts = pmGetHighResArchiveLabel(&loglabel)) < 0) {
 	printf("%s: pmGetArchiveLabel(%d): %s\n", pmGetProgname(), ctx[0], pmErrStr(sts));
 	exit(1);
     }
-    if ((sts = pmSetMode(PM_MODE_INTERP, &loglabel.ll_start, 5)) < 0) {
+    start.tv_sec = loglabel.start.tv_sec;
+    start.tv_usec = loglabel.start.tv_nsec / 1000;
+    /* TODO: switch to using pmSetHighResMode here */
+    if ((sts = pmSetMode(PM_MODE_INTERP, &start, 5)) < 0) {
 	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -152,28 +156,32 @@ main(int argc, char **argv)
 	printf("%s: Cannot dup context: %s\n", pmGetProgname(), pmErrStr(ctx[1]));
 	exit(1);
     }
-    if ((sts = pmGetArchiveLabel(&duplabel)) < 0) {
-	printf("%s: pmGetArchiveLabel(%d): %s\n", pmGetProgname(), ctx[1], pmErrStr(sts));
+    if ((sts = pmGetHighResArchiveLabel(&duplabel)) < 0) {
+	printf("%s: pmGetHighResArchiveLabel(%d): %s\n", pmGetProgname(), ctx[1], pmErrStr(sts));
 	exit(1);
     }
-    if (loglabel.ll_magic != duplabel.ll_magic ||
-	loglabel.ll_pid != duplabel.ll_pid ||
- 	loglabel.ll_start.tv_sec != duplabel.ll_start.tv_sec ||
-	loglabel.ll_start.tv_usec != duplabel.ll_start.tv_usec ||
-	strcmp(loglabel.ll_hostname, duplabel.ll_hostname) != 0 ||
-	strcmp(loglabel.ll_tz, duplabel.ll_tz) != 0) {
-	printf("Error: pmLogLabel mismatch\n");
-	printf("First context: magic=0x%x pid=%" FMT_PID " start=%ld.%06ld\n",
-		loglabel.ll_magic, loglabel.ll_pid,
-		(long)loglabel.ll_start.tv_sec,
-		(long)loglabel.ll_start.tv_usec);
-	printf("host=%s TZ=%s\n", loglabel.ll_hostname, loglabel.ll_tz);
-	printf("Error: pmLogLabel mismatch\n");
-	printf("Dup context: magic=0x%x pid=%" FMT_PID " start=%ld.%06ld\n",
-		duplabel.ll_magic, duplabel.ll_pid,
-		(long)duplabel.ll_start.tv_sec,
-		(long)duplabel.ll_start.tv_usec);
-	printf("host=%s TZ=%s\n", duplabel.ll_hostname, duplabel.ll_tz);
+    if (loglabel.magic != duplabel.magic ||
+	loglabel.pid != duplabel.pid ||
+ 	loglabel.start.tv_sec != duplabel.start.tv_sec ||
+	loglabel.start.tv_nsec != duplabel.start.tv_nsec ||
+	strcmp(loglabel.hostname, duplabel.hostname) != 0 ||
+	strcmp(loglabel.timezone, duplabel.timezone) != 0 ||
+	((loglabel.zoneinfo || duplabel.zoneinfo) &&
+	  strcmp(loglabel.zoneinfo, duplabel.zoneinfo) != 0)) {
+	printf("Error: pmHighResLogLabel mismatch\n");
+	printf("First context: magic=0x%x pid=%" FMT_PID " start=%lld.%09ld\n",
+		loglabel.magic, loglabel.pid,
+		(long long)loglabel.start.tv_sec,
+		(long)loglabel.start.tv_nsec);
+	printf("hostname=%s timezone=%s zoneinfo=%s\n",
+		loglabel.hostname, loglabel.timezone, loglabel.zoneinfo);
+	printf("Error: pmHighResLogLabel mismatch\n");
+	printf("Dup context: magic=0x%x pid=%" FMT_PID " start=%lld.%09ld\n",
+		duplabel.magic, duplabel.pid,
+		(long long)duplabel.start.tv_sec,
+		(long)duplabel.start.tv_nsec);
+	printf("hostname=%s timezone=%s zoneinfo=%s\n",
+		duplabel.hostname, duplabel.timezone, duplabel.zoneinfo);
 	exit(1);
     }
 

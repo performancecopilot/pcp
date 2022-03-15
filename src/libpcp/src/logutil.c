@@ -2359,17 +2359,20 @@ __pmLogSetTime(__pmContext *ctxp)
     return 0;
 }
 
-/* Read the label of the current archive. */
-int
-__pmGetArchiveLabel(__pmLogCtl *lcp, pmLogLabel *lp)
+/*
+ * Different routines implement the different API versions.
+ * We also have to copy the structure to hide differences
+ * between the internal and external structure versions.
+ */
+typedef int (*pmgetlabel_t)(__pmLogCtl *, void *);
+
+static int
+__pmGetOriginalArchiveLabel(__pmLogCtl *lcp, void *userdata)
 {
+    pmLogLabel		*lp = (pmLogLabel *)userdata;
     __pmLogLabel	*rlp = &lcp->label;
     size_t		bytes;
 
-    /*
-     * we have to copy the structure to hide the differences
-     * between the internal and external structure versions.
-     */
     lp->ll_magic = rlp->magic;
     lp->ll_pid = (pid_t)rlp->pid;
     lp->ll_start.tv_sec = rlp->start.sec;
@@ -2383,9 +2386,34 @@ __pmGetArchiveLabel(__pmLogCtl *lcp, pmLogLabel *lp)
     return 0;
 }
 
+static int
+__pmGetHighResArchiveLabel(__pmLogCtl *lcp, void *userdata)
+{
+    pmHighResLogLabel	*lp = (pmHighResLogLabel *)userdata;
+    __pmLogLabel	*rlp = &lcp->label;
+    size_t		bytes;
+
+    lp->magic = rlp->magic;
+    lp->pid = (pid_t)rlp->pid;
+    lp->start.tv_sec = rlp->start.sec;
+    lp->start.tv_nsec = rlp->start.nsec;
+    bytes = MINIMUM(strlen(rlp->hostname), PM_MAX_HOSTNAMELEN - 1);
+    memcpy(lp->hostname, rlp->hostname, bytes);
+    lp->hostname[bytes] = '\0';
+    bytes = MINIMUM(strlen(rlp->timezone), PM_MAX_TIMEZONELEN - 1);
+    memcpy(lp->timezone, rlp->timezone, bytes);
+    lp->timezone[bytes] = '\0';
+    bytes = rlp->zoneinfo == NULL ? 0 :
+	    MINIMUM(strlen(rlp->zoneinfo), PM_MAX_ZONEINFOLEN - 1);
+    if (bytes)
+	memcpy(lp->zoneinfo, rlp->zoneinfo, bytes);
+    lp->zoneinfo[bytes] = '\0';
+    return 0;
+}
+
 /* Read the label of the first archive in the context. */
-int
-pmGetArchiveLabel(pmLogLabel *lp)
+static int
+__pmGetArchiveLabel(pmgetlabel_t getlabel, void *userdata)
 {
     int		save_arch = 0;		/* pander to gcc */
     int		save_vol = 0;		/* pander to gcc */
@@ -2422,7 +2450,7 @@ pmGetArchiveLabel(pmLogLabel *lp)
     }
 
     /* Get the label. */
-    if ((sts = __pmGetArchiveLabel(lcp, lp)) < 0) {
+    if ((sts = getlabel(lcp, userdata)) < 0) {
 	PM_UNLOCK(ctxp->c_lock);
 	return sts;
     }
@@ -2442,6 +2470,20 @@ pmGetArchiveLabel(pmLogLabel *lp)
 
     PM_UNLOCK(ctxp->c_lock);
     return 0;
+}
+
+/* Pass back the label in the original label format. */
+int
+pmGetArchiveLabel(pmLogLabel *lp)
+{
+    return __pmGetArchiveLabel(__pmGetOriginalArchiveLabel, (void *)lp);
+}
+
+/* Pass back the label in the high resolution label format. */
+int
+pmGetHighResArchiveLabel(pmHighResLogLabel *lp)
+{
+    return __pmGetArchiveLabel(__pmGetHighResArchiveLabel, (void *)lp);
 }
 
 /*
@@ -2669,13 +2711,25 @@ __pmGetArchiveEnd(__pmArchCtl *acp, __pmTimestamp *tsp)
 int
 pmGetArchiveEnd(struct timeval *tp)
 {
-    int			sts;
     __pmTimestamp	stamp;
+    int			sts;
 
     sts = pmGetArchiveEnd_ctx(NULL, &stamp);
     tp->tv_sec = stamp.sec;
     tp->tv_usec = stamp.nsec / 1000;
+    return sts;
+}
 
+/* Get the high resolution end time of the final archive in the context. */
+int
+pmGetHighResArchiveEnd(struct timespec *ts)
+{
+    __pmTimestamp	stamp;
+    int			sts;
+
+    sts = pmGetArchiveEnd_ctx(NULL, &stamp);
+    ts->tv_sec = stamp.sec;
+    ts->tv_nsec = stamp.nsec;
     return sts;
 }
 

@@ -1309,7 +1309,9 @@ PCP_CALL extern char *__pmZoneinfo(void);
 /* string conversion to value of given type, suitable for pmStore */
 PCP_CALL extern int __pmStringValue(const char *, pmAtomValue *, int);
 
-/* timeval-based delays */
+/* time-based delays */
+PCP_CALL extern void __pmtimespecSleep(struct timespec);
+PCP_CALL extern void __pmtimespecPause(struct timespec);
 PCP_CALL extern void __pmtimevalSleep(struct timeval);
 PCP_CALL extern void __pmtimevalPause(struct timeval);
 
