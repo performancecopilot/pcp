@@ -49,7 +49,7 @@ class RabbitmqPMDA(PMDA):
         self.port = DEFAULT_PORT
         self.url = None
         self.queue_names = []
-        self.stats = dict()
+        self.stats = {}
         self.read_config()
         self.build_url()
         self.rabbit_fetch()
@@ -156,7 +156,7 @@ class RabbitmqPMDA(PMDA):
 
     def rabbit_fetch(self):
         """ fetches result from HTTP GET request """
-        self.stats = dict()
+        self.stats = {}
         self.queue_names = []
 
         try:

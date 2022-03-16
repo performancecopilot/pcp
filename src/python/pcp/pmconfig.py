@@ -572,13 +572,13 @@ class pmConfig(object):
                 if not inst[0]:
                     inst = ([pmapi.c_api.PM_IN_NULL], [None]) # pmcd.pmie.logfile
             # Reject unsupported types
-            if not (desc.contents.type == pmapi.c_api.PM_TYPE_32 or
-                    desc.contents.type == pmapi.c_api.PM_TYPE_U32 or
-                    desc.contents.type == pmapi.c_api.PM_TYPE_64 or
-                    desc.contents.type == pmapi.c_api.PM_TYPE_U64 or
-                    desc.contents.type == pmapi.c_api.PM_TYPE_FLOAT or
-                    desc.contents.type == pmapi.c_api.PM_TYPE_DOUBLE or
-                    desc.contents.type == pmapi.c_api.PM_TYPE_STRING):
+            if desc.contents.type not in (pmapi.c_api.PM_TYPE_32,
+                                          pmapi.c_api.PM_TYPE_U32,
+                                          pmapi.c_api.PM_TYPE_64,
+                                          pmapi.c_api.PM_TYPE_U64,
+                                          pmapi.c_api.PM_TYPE_FLOAT,
+                                          pmapi.c_api.PM_TYPE_DOUBLE,
+                                          pmapi.c_api.PM_TYPE_STRING):
                 raise pmapi.pmErr(pmapi.c_api.PM_ERR_TYPE)
             instances = self.util.instances if not self._tmp else self._tmp
             if hasattr(self.util, 'omit_flat') and self.util.omit_flat and not inst[1][0]:

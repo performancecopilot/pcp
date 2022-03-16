@@ -19,6 +19,7 @@ mandoc -T lint "$@" \
     | grep -v ' UNSUPP: ' \
     | grep -v ' WARNING: missing date' \
     | grep -v ' WARNING: cannot parse date' \
+    | grep -v ' STYLE: input text line longer than 80 bytes' \
 > $tmp/mandoc 2>&1
 
 if test -s $tmp/mandoc

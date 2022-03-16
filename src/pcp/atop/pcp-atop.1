@@ -215,7 +215,8 @@ When
 notices that the daemon is active, it reads these GPU utilization
 counters with every interval.
 .PP
-Find a description about the utilization counters in the section OUTPUT DESCRIPTION.
+Find a description about the utilization counters in the section
+OUTPUT DESCRIPTION.
 .SH INTERACTIVE COMMANDS
 When running
 .B pcp-atop
@@ -712,8 +713,8 @@ A PCP archive can be read and visualized again with the
 .B \-r
 option.
 The argument is a comma-separated list of names, each
-of which may be the base name of an archive or the name of a directory containing
-one or more archives.
+of which may be the base name of an archive or the name of a directory
+containing one or more archives.
 If no argument is specified, the file
 .BI $PCP_LOG_DIR/pmlogger/HOST/YYYYMMDD
 is opened for input (where
@@ -1262,7 +1263,8 @@ When the comma-separated list exceeds
 the width of the column, a hexadecimal value is shown.
 .TP 9
 .B LOCKSZ
-The virtual amount of memory being locked (i.e. non-swappable) by this process (or user).
+The virtual amount of memory being locked (i.e. non-swappable) by this process
+(or user).
 .TP 9
 .B MAJFLT
 The number of page faults issued by this process that have been solved
@@ -2018,8 +2020,8 @@ for further details on activating these metrics.
 .PP
 The semantics of the per-process network statistics deviate slightly from the
 .BR atop (1)
-tool: instead of the number of TCP/UDP packets sent/received (which may be inaccurate
-due to TCP segmentation offload),
+tool: instead of the number of TCP/UDP packets sent/received (which may be
+inaccurate due to TCP segmentation offload),
 .BR pcp-atop
 shows the number of tcp_sendmsg()/udp_sendmsg()/etc. kernel calls per process.
 .SH FILES

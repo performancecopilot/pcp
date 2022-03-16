@@ -149,11 +149,17 @@ disable=print-statement,
         bad-option-value, # older pylint versions don't recognize options from newer pylint versions
         no-else-continue,
         wrong-import-order,
-	consider-using-with, # Python 2 doesn't support this
-        super-with-arguments, # Python 2 doesn't support this
-        raise-missing-from, # Python 2 doesn't support this
         relative-beyond-top-level,
-        unsubscriptable-object # https://github.com/PyCQA/pylint/issues/3882
+        unsubscriptable-object, # https://github.com/PyCQA/pylint/issues/3882
+        use-implicit-booleaness-not-comparison,
+
+        # Python 2 doesn't support the following code changes
+        # remove these once PCP drops support for Python 2
+        consider-using-with,
+        super-with-arguments,
+        raise-missing-from,
+        consider-using-f-string,
+        unspecified-encoding
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

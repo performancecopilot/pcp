@@ -592,7 +592,7 @@ class DstatTool(object):
         except ConfigParser.Error as cfgerr:
             sys.stderr.write("Config parse failure: %s\n" % cfgerr.message())
             sys.exit(1)
-        except Exception as cfgerr:
+        except Exception:
             sys.stderr.write("Cannot parse configs in %s\n" % paths)
             sys.exit(1)
 

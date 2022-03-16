@@ -2819,6 +2819,7 @@ class fetchgroup(object):
                 vv.append((self.icodes[i],
                            self.inames[i].decode('utf-8') if self.inames[i] else None,
                            # nested lambda for proper i capture
+                           # pylint: disable=cell-var-from-loop
                            (lambda i: (lambda: decode_one(self, i)))(i)))
             return vv
 
@@ -2863,6 +2864,7 @@ class fetchgroup(object):
                 dt = datetime.datetime(ts.tm_year+1900, ts.tm_mon+1, ts.tm_mday,
                                        ts.tm_hour, ts.tm_min, ts.tm_sec, us, None)
                 # nested lambda for proper i capture
+                # pylint: disable=cell-var-from-loop
                 vv.append((dt,
                            (lambda i: (lambda: decode_one(self, i)))(i)))
             return vv

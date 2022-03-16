@@ -240,7 +240,7 @@ class Metric(object):
             else:
                 self.msem = c_api.PM_SEM_INSTANT
 
-            if ((self.typeline == 'histogram' or self.typeline == 'summary')
+            if (self.typeline in ('histogram', 'summary')
                 and 'count' in pieces): # regardless of UNIT; *_sum peer has proper type
                 self.munits = pmUnits(0, 0, 1, 0, 0, 0) # simple count
             elif self.typeline == 'histogram' and 'bucket' in pieces: # ditto
@@ -1068,7 +1068,7 @@ class OpenMetricsPMDA(PMDA):
 
     def lookup_regex(self, pat):
         ''' cache of compiled regex '''
-        if pat not in self.regex_cache.keys():
+        if pat not in self.regex_cache:
             self.regex_cache[pat] = re.compile(r"%s" % pat)
             self.debug("lookup_regex: added '%s'" % pat) if self.dbg else None
         return self.regex_cache[pat]

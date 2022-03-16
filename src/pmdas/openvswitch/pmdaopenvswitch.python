@@ -38,9 +38,9 @@ class OpenvswitchPMDA(PMDA):
         """ (Constructor) Initialisation - register metrics, callbacks, drop privileges """
         PMDA.__init__(self, name, domain)
         self.verbose = False # True for debugging diagnostics
-        self.switch_info_json = dict()
-        self.port_info_json = dict()
-        self.flow_json = dict()
+        self.switch_info_json = {}
+        self.port_info_json = {}
+        self.flow_json = {}
         self.switch_names = []
         self.port_info_names = []
         self.flow_names = []
@@ -141,7 +141,7 @@ class OpenvswitchPMDA(PMDA):
     def get_switch_info_json(self):
         """ Convert the commandline output to json """
         query = ["ovs-vsctl", "--format=json", "list", "bridge"]
-        self.switch_info_json = dict()
+        self.switch_info_json = {}
         self.switch_names = []
 
         try:
@@ -174,7 +174,7 @@ class OpenvswitchPMDA(PMDA):
 
     def get_port_info_json(self):
         """ Convert the commandline output to json """
-        self.port_info_json = dict()
+        self.port_info_json = {}
         self.port_info_names = []
 
         for val in self.switch_names:
@@ -215,7 +215,7 @@ class OpenvswitchPMDA(PMDA):
 
     def get_flow_json(self):
         """ Convert the commandline output to json """
-        self.flow_json = dict()
+        self.flow_json = {}
         self.flow_names = []
 
         for val in self.switch_names:

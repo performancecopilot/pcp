@@ -413,7 +413,7 @@ class CpuUtilReporter:
         if self.header_print:
             self.printer("\n%-10s\t%-3s\t%-5s\t%-6s\t%-5s\t%-8s\t%-5s\t%-6s\t%-7s\t%-7s\t%-6s\t%-6s"%("Timestamp","CPU","%usr","%nice","%sys","%iowait","%irq","%soft","%steal","%guest","%nice","%idle"))
             self.header_print = False
-        if self.mpstat_options.cpu_list == "ALL" or self.mpstat_options.cpu_list == "ON":
+        if self.mpstat_options.cpu_list in ("ALL", "ON"):
             self.header_print = True
         if not isinstance(self.mpstat_options.cpu_list, list):
             cpu_util = cpu_utils.get_totalcpu_util()
@@ -555,13 +555,13 @@ class DisplayOptions:
         return self.mpstatoptions.no_options or (self.mpstatoptions.cpu_filter and not self.mpstatoptions.interrupts_filter)
 
     def display_total_cpu_usage(self):
-        return self.mpstatoptions.interrupts_filter and (self.mpstatoptions.interrupt_type == "SUM" or self.mpstatoptions.interrupt_type == "ALL")
+        return self.mpstatoptions.interrupts_filter and self.mpstatoptions.interrupt_type in ("SUM", "ALL")
 
     def display_hard_interrupt_usage(self):
-        return self.mpstatoptions.interrupts_filter and (self.mpstatoptions.interrupt_type == "CPU" or self.mpstatoptions.interrupt_type == "ALL")
+        return self.mpstatoptions.interrupts_filter and self.mpstatoptions.interrupt_type in ("CPU", "ALL")
 
     def display_soft_interrupt_usage(self):
-        return self.mpstatoptions.interrupts_filter and (self.mpstatoptions.interrupt_type == "SCPU" or self.mpstatoptions.interrupt_type == "ALL")
+        return self.mpstatoptions.interrupts_filter and self.mpstatoptions.interrupt_type in ("SCPU", "ALL")
 
 class MpstatReport(pmcc.MetricGroupPrinter):
     Machine_info_count = 0

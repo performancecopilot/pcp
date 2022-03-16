@@ -80,7 +80,7 @@ class PCPBCCModule(PCPBCCBase):
         if sort_key[0] == "-":
             sort_key = sort_key[1:]
             self.sort_reversed = True
-        if sort_key not in self.sort_fns.keys():
+        if sort_key not in self.sort_fns:
             raise RuntimeError("Sort key must be one of %s." % ", ".join(self.sort_fns.keys()))
         self.sort_fn = self.sort_fns[sort_key]
 
