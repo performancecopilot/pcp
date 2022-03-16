@@ -1,106 +1,110 @@
 policy_module(pcpupstream,@PACKAGE_VERSION@);
 
 require {
-        attribute domain;
-        attribute userdomain;
-        attribute file_type;
-        attribute pcp_domain;
+	attribute domain;
+	attribute file_type;
+	attribute pcp_domain;
+	attribute userdomain;
 
-	type pcp_pmcd_t;
-	type tmp_t;
+	type cluster_tmpfs_t;
+	type configfs_t; #pcp.lio
+	type debugfs_t;
+	type default_t;
+	type device_t;
+	type drbd_exec_t;
+	type fixed_disk_device_t;
+	type fs_t;
+	type fsadm_exec_t;
+	type gpmctl_t;
+	type haproxy_t;
+	type haproxy_var_lib_t;
+	type hostname_exec_t;
 	type init_t;
 	type initrc_tmp_t;
-	type default_t;
-	type gpmctl_t;
-	type pcp_pmlogger_t;
-	type pcp_pmlogger_exec_t;
-	type pcp_var_lib_t;
-	type pcp_log_t;
-	type pcp_pmie_t;
-	type pcp_pmproxy_t;
-	type pcp_tmp_t;
-	type pcp_pmie_exec_t; # pmda.summary
-	type ping_exec_t; # pmda.netcheck
-	type openvswitch_exec_t; # pmda.openvswitch
-	type samba_var_t; # pmda.samba
-	type websm_port_t; # pmda.openmetrics
-        type system_cronjob_t;
-        type user_home_t;
-        type user_tmp_t;
-        type debugfs_t;
-        @PCP_NSFS_T@
-        @PCP_UNRESERVED_PORT@
-        type hostname_exec_t;
-        @PCP_TRACEFS@
-        type haproxy_t;
-        type haproxy_var_lib_t;
-        type sysctl_fs_t; #RHBZ1505888
-        type sysfs_t; #RHBZ1545245
-        type modules_object_t; # pcp.lio, pcp.bcc
-        type setfiles_exec_t;
-        type mdadm_exec_t;
-        type named_exec_t;
-        type ndc_exec_t;
-        type proc_mdstat_t;
-        @PCP_NUMAD_CONTEXT@
-        @PCP_GLUSTERD_LOG_T@
-        type sysctl_irq_t; #pmda.bcc
-        type unconfined_t; #RHBZ1443632
-        @PCP_UNCONFINED_SERVICE@
-        type configfs_t; #pcp.lio
-        type ldconfig_exec_t;
-        type sysctl_net_t;
-        type proc_net_t; #RHBZ1517656
-        @PCP_DMA_DEVICE@
-        type fixed_disk_device_t;
-        type fsadm_exec_t;
 	type kernel_t;
 	type kmsg_device_t;
-        type proc_kcore_t;
-	@PCP_PROC_SECURITY_T@
-        type su_exec_t;
-	type var_run_t;
-	@PCP_VIRT_VAR_RUN_T@
-	@PCP_RPCBIND_VAR_RUN_T@
-	@PCP_CONTAINER_VAR_RUN_T@
+	type ldconfig_exec_t;
+	type mdadm_conf_t;
+	type mdadm_exec_t;
+	type modules_object_t; # pcp.lio, pcp.bcc
+	type named_exec_t;
+	type ndc_exec_t;
+	type ntop_port_t;
+	type openvswitch_exec_t; # pmda.openvswitch
+	type pcp_log_t;
+	type pcp_pmcd_t;
+	type pcp_pmie_exec_t; # pmda.summary
+	type pcp_pmie_t;
+	type pcp_pmlogger_exec_t;
+	type pcp_pmlogger_t;
+	type pcp_pmproxy_t;
+	type pcp_tmp_t;
+	type pcp_var_lib_t;
+	type ping_exec_t; # pmda.netcheck
 	type postgresql_var_run_t;
-	type fs_t;
-	type cluster_tmpfs_t;
-	type drbd_exec_t;
-	@PCP_SBD_EXEC_T@
-	@PCP_KMOD_EXEC_T@
+	type proc_kcore_t;
+	type proc_mdstat_t;
+	type proc_net_t; #RHBZ1517656
+	type samba_var_t; # pmda.samba
+	type setfiles_exec_t;
+	type su_exec_t;
+	type sysctl_fs_t; #RHBZ1505888
+	type sysctl_irq_t; #pmda.bcc
+	type sysctl_net_t;
+	type sysfs_t; #RHBZ1545245
+	type syslogd_t;
+	type syslogd_var_run_t;
+	type system_cronjob_t;
+	type tmp_t;
+	type unconfined_t; #RHBZ1443632
+	type user_home_t;
+	type user_tmp_t;
+	type var_run_t;
+	type virt_image_t;
+	type websm_port_t; # pmda.openmetrics
 	type xserver_misc_device_t;
-	type device_t;
+	@PCP_CONTAINER_VAR_RUN_T@
+	@PCP_DMA_DEVICE@
+	@PCP_KMOD_EXEC_T@
+	@PCP_NSFS_T@
+	@PCP_NUMAD_CONTEXT@
+	@PCP_PROC_SECURITY_T@
+	@PCP_RPCBIND_VAR_RUN_T@
+	@PCP_SBD_EXEC_T@
+	@PCP_TRACEFS@
+	@PCP_UNCONFINED_SERVICE@
+	@PCP_UNRESERVED_PORT@
+	@PCP_VIRT_VAR_RUN_T@
 
-        class sem { unix_read associate getattr read };
-	class lnk_file { create read getattr setattr };
-	class file { append create execute execute_no_trans getattr setattr ioctl lock open read write unlink @PCP_HOSTNAME_EXEC_MAP@ };
-	class dir { add_name open read search write getattr lock ioctl };
-	class unix_stream_socket connectto;
-	class capability { kill dac_override sys_ptrace sys_pacct net_admin chown sys_chroot ipc_lock ipc_owner sys_resource fowner sys_rawio fsetid };
-	@PCP_CAPABILITY2_SYSLOG_CLASS@
-	@PCP_CAPABILITY2_BPF_CLASS@
-	@PCP_CAPUSERNS_PTRACE@
-	class chr_file { open read write };
-	class fifo_file { getattr read open unlink lock ioctl }; # qa/455
-	class process { signull signal execmem setrlimit ptrace setcap }; #RHBZ1443632, pmda.netcheck (setcap)
-	@PCP_RAWIP_SOCKET_CLASS@
-	@PCP_ICMP_SOCKET_CLASS@
+	class blk_file { ioctl open read };
 	class capability net_raw; # pmda.netcheck
+	class capability { kill dac_override sys_ptrace sys_pacct net_admin chown sys_chroot ipc_lock ipc_owner sys_resource fowner sys_rawio fsetid };
+	class chr_file { open read write };
+	class dbus { send_msg };
+	class dir { add_name open read search write getattr lock ioctl };
+	class fifo_file { getattr read open unlink lock ioctl write }; # qa/455
+	class file { append create execute execute_no_trans getattr setattr ioctl lock open read write unlink @PCP_HOSTNAME_EXEC_MAP@ };
+	class filesystem { mount quotaget };
+	class lnk_file { create read getattr setattr };
+	class msgq { unix_read };
+	class process { signull signal execmem setrlimit ptrace setcap }; #RHBZ1443632, pmda.netcheck (setcap)
+	class sem { unix_read associate getattr read };
+	class shm { unix_read associate getattr read };
 	class sock_file { getattr write }; #RHBZ1633211, RHBZ1449671
+	class system { module_request };
 	class tcp_socket { name_bind name_connect };
 	class udp_socket { name_bind };
-	class shm { unix_read associate getattr read };
-	class filesystem { mount quotaget };
-	class blk_file { ioctl open read };
-	class msgq { unix_read };
-        class unix_dgram_socket { sendto };
-        class dbus { send_msg };
-        @PCP_BPF_CLASS@
-	class system { module_request };
+	class unix_dgram_socket { sendto };
+	class unix_stream_socket connectto;
+	@PCP_BPF_CLASS@
+	@PCP_CAPABILITY2_BPF_CLASS@
+	@PCP_CAPABILITY2_SYSLOG_CLASS@
+	@PCP_CAPUSERNS_PTRACE@
+	@PCP_ICMP_SOCKET_CLASS@
+	@PCP_LOCKDOWN_CLASS@
 	@PCP_NETLINK_GENERIC_SOCKET_CLASS@
 	@PCP_NETLINK_TCPDIAG_SOCKET_CLASS@
-        @PCP_LOCKDOWN_CLASS@
+	@PCP_RAWIP_SOCKET_CLASS@
 }
 
 #============= init_t ==============
@@ -239,6 +243,8 @@ allow pcp_pmcd_t modules_object_t:lnk_file read;
 #type=AVC msg=audit(XXX.26): avc:  denied  { execute execute_no_trans open read } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:mdadm_exec_t:s0 tclass=file permissive=0
 allow pcp_pmcd_t mdadm_exec_t:file { execute execute_no_trans open read };
 
+allow pcp_pmcd_t mdadm_conf_t:file { getattr open read };
+
 #type=AVC msg=audit(XXX.71): avc:  denied  { execute } for  pid=YYYY comm="pmdaX" name="unbound-control" dev="vda1" ino=7050199 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:named_exec_t:s0 tclass=file permissive=0
 allow pcp_pmcd_t named_exec_t:file execute;
 allow pcp_pmcd_t ndc_exec_t:file { execute execute_no_trans };
@@ -249,9 +255,6 @@ allow pcp_pmcd_t proc_mdstat_t:file { getattr open read };
 #type=AVC msg=audit(YYY.35): avc:  denied  { unix_read } for  pid=1423 comm="pmdalinux" key=-559038737  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:numad_t:s0 tclass=msgq permissive=0
 #type=AVC msg=audit(YYY.36): avc:  denied  { unix_read } for  pid=1423 comm="pmdalinux" key=-559038737  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:numad_t:s0 tclass=msgq permissive=0
 @PCP_NUMAD_RULE@
-
-#type=AVC msg=audit(XXX.28): avc:  denied  { open read write } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:glusterd_log_t:s0 tclass=file permissive=0
-@PCP_GLUSTERD_LOG_RULE@
 
 #pmda.bcc
 #type=AVC msg=audit(XXX.34): avc:  denied  { execmem setrlimit ptrace } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_pmcd_t:s0 tclass=process permissive=0
@@ -304,6 +307,19 @@ allow pcp_pmcd_t postgresql_var_run_t:sock_file { write };
 
 # type=AVC msg=audit(YYY.104): avc:  denied  { sys_ptrace } for  pid=9375 comm="pmdaproc" capability=19  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=cap_userns permissive=1
 @PCP_CAPUSERNS_PTRACE_RULE_PMCD@
+
+allow pcp_pmcd_t ntop_port_t:tcp_socket name_connect;
+
+allow pcp_pmcd_t pcp_log_t:fifo_file { getattr open read };
+
+allow pcp_pmcd_t virt_image_t:dir search;
+
+allow pcp_pmcd_t syslogd_var_run_t:dir read;
+
+allow pcp_pmcd_t syslogd_var_run_t:file { getattr open read };
+
+#!!!! This avc can be allowed using the boolean 'domain_can_mmap_files'
+allow pcp_pmcd_t syslogd_var_run_t:file map;
 
 #============= pcp_pmlogger_t ==============
 #type=AVC msg=audit(XXX.44): avc:  denied  { open write } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:kmsg_device_t:s0 tclass=chr_file permissive=0
@@ -387,6 +403,9 @@ allow pcp_pmproxy_t sysctl_net_t:file { getattr open read };
 #type=AVC msg=audit(YYY.72): avc:  denied  { read } for  pid=28833 comm="pmproxy" name="unix" dev="proc" ino=4026532015 scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:proc_net_t:s0 tclass=file
 #RHBZ1517656
 allow pcp_pmproxy_t proc_net_t:file read;
+
+#type=AVC msg=audit(YYY.73): avc:  denied  { read } for  pid=35314 comm="pmproxy" name="pmlogger" dev="dm-92" ino=134 scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:pcp_log_t:s0 tclass=lnk_file
+allow pcp_pmproxy_t pcp_log_t:lnk_file read;
 
 #============= pmda-smart ==============
 
@@ -489,3 +508,6 @@ allow pcp_pmcd_t drbd_exec_t:file { execute execute_no_trans };
 # type=AVC msg=audit(XXX.88): avc:  denied  { getattr } for  pid=YYYY comm="ss" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_tcpdiag_socket permissive=1
 # type=AVC msg=audit(XXX.89): avc:  denied  { nlmsg_read } for  pid=YYYY comm="ss" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_tcpdiag_socket permissive=1
 @PCP_NETLINK_TCPDIAG_SOCKET_RULE@
+
+#============= syslogd_t ==============
+allow syslogd_t pcp_log_t:fifo_file { open read write };
