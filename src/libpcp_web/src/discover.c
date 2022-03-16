@@ -1727,15 +1727,12 @@ pmDiscoverDecodeMetaLabelSet(uint32_t *buf, int buflen, int type, __pmTimestamp 
     char		*json, *tbuf = (char *)buf;
     pmLabelSet		*labelsets = NULL;
     pmTimeval		*tvp;
-    int			type;
     int			ident;
     int			nsets;
     int			inst;
     int			jsonlen;
     int			nlabels;
     int			i, j, k;
-
-    (void)type;	/* TODO: placeholder for v3 archives */
 
     k = 0;
     tvp = (pmTimeval *)&tbuf[k];
