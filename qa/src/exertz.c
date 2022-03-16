@@ -182,15 +182,15 @@ Options\n\
 
     if (tzhost != (char *)0) {
 	if (type == PM_CONTEXT_ARCHIVE) {
-	    pmLogLabel	label;
-	    if ((sts = pmGetArchiveLabel(&label)) < 0) {
+	    pmHighResLogLabel	label;
+	    if ((sts = pmGetHighResArchiveLabel(&label)) < 0) {
 		fprintf(stderr, "%s: Cannot get archive label record: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
-	    if (strcmp(tzhost, label.ll_hostname) != 0) {
+	    if (strcmp(tzhost, label.hostname) != 0) {
 		fprintf(stderr, "%s: mismatched host name between -z (%s) and archive (%s)\n",
-		    pmGetProgname(), tzhost, label.ll_hostname);
+		    pmGetProgname(), tzhost, label.hostname);
 		exit(1);
 	    }
 	}

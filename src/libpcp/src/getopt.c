@@ -34,20 +34,20 @@ enum {
  * times and adjust the time window boundaries accordingly.
  */
 static int
-__pmUpdateBounds(pmOptions *opts, int index, struct timeval *begin, struct timeval *end)
+__pmUpdateBounds(pmOptions *opts, int index, struct timespec *begin, struct timespec *end)
 {
-    struct timeval logend;
-    pmLogLabel label;
+    struct pmHighResLogLabel label;
+    struct timespec logend;
     int sts;
 
-    if ((sts = pmGetArchiveLabel(&label)) < 0) {
+    if ((sts = pmGetHighResArchiveLabel(&label)) < 0) {
 	pmprintf("%s: Cannot get archive %s label record: %s\n",
 		pmGetProgname(), opts->archives[index], pmErrStr(sts));
 	return sts;
     }
-    if ((sts = pmGetArchiveEnd(&logend)) < 0) {
+    if ((sts = pmGetHighResArchiveEnd(&logend)) < 0) {
 	logend.tv_sec = PM_MAX_TIME_T;
-	logend.tv_usec = 0;
+	logend.tv_nsec = 0;
 	fflush(stdout);
 	fprintf(stderr, "%s: Cannot locate end of archive %s: %s\n",
 		pmGetProgname(), opts->archives[index], pmErrStr(sts));
@@ -60,13 +60,13 @@ __pmUpdateBounds(pmOptions *opts, int index, struct timeval *begin, struct timev
 
     if (index == 0) {
 	/* the first archive in the set forms the initial boundaries */
-	*begin = label.ll_start;
+	*begin = label.start;
 	*end = logend;
     } else {
 	/* must now check if this archive pre- or post- dates others */
-	if (pmtimevalSub(begin, &label.ll_start) > 0.0)
-	    *begin = label.ll_start;
-	if (pmtimevalSub(end, &logend) < 0.0)
+	if (pmtimespecSub(begin, &label.start) > 0.0)
+	    *begin = label.start;
+	if (pmtimespecSub(end, &logend) < 0.0)
 	    *end = logend;
     }
     return 0;
@@ -81,16 +81,16 @@ __pmUpdateBounds(pmOptions *opts, int index, struct timeval *begin, struct timev
  * Note - called with an active context via pmGetContextOptions.
  */
 static int
-__pmBoundaryOptions(pmOptions *opts, struct timeval *begin, struct timeval *end)
+__pmBoundaryOptions(pmOptions *opts, struct timespec *begin, struct timespec *end)
 {
     int	i;
     int	ctx, sts = 0;
 
     if (opts->context != PM_CONTEXT_ARCHIVE) {
 	/* live/local context, open ended - start now, never end */
-	pmtimevalNow(begin);
+	pmtimespecNow(begin);
 	end->tv_sec = PM_MAX_TIME_T;
-	end->tv_usec = 0;
+	end->tv_nsec = 0;
     } else if (opts->narchives == 1) {
 	/* Singular archive context, which may contain more than one archive. */
 	if ((sts = __pmUpdateBounds(opts, 0, begin, end)) < 0)
@@ -156,22 +156,14 @@ pmGetContextOptions(int ctxid, pmOptions *opts)
 
     /* time window setup */
     if (!opts->errors && window) {
-	struct timeval first_boundary, last_boundary;
-	char *msg = NULL;
+	struct timespec first_boundary, last_boundary;
 
 	if (__pmBoundaryOptions(opts, &first_boundary, &last_boundary) < 0)
 	    opts->errors++;
-	else if (pmParseTimeWindow(
-			opts->start_optarg, opts->finish_optarg,
-			opts->align_optarg, opts->origin_optarg,
-			&first_boundary, &last_boundary,
-			&opts->start, &opts->finish, &opts->origin,
-			&msg) < 0) {
-	    pmprintf("%s: invalid time window.\n%s\n", pmGetProgname(), msg);
-	    opts->errors++;
-	}
-	if (msg)
-	    free(msg);
+	else if (opts->version >= PMAPI_VERSION_3)
+	    __pmParseTimeWindow3(opts, &first_boundary, &last_boundary);
+	else
+	    __pmParseTimeWindow2(opts, &first_boundary, &last_boundary);
     }
 
     if (opts->errors) {
@@ -198,8 +190,8 @@ __pmEndOptions(pmOptions *opts)
 	return;
 
     /* inform caller of the struct version used */
-    if (opts->version != PMAPI_VERSION_2)
-	opts->version = PMAPI_VERSION_2;
+    if (opts->version != PMAPI_VERSION_2 && opts->version != PMAPI_VERSION_3)
+	opts->version = PMAPI_VERSION;
 
     if (!opts->context) {
 	if (opts->Lflag)
@@ -768,15 +760,10 @@ __pmSetSampleCount(pmOptions *opts, char *arg)
 static void
 __pmSetSampleInterval(pmOptions *opts, char *arg)
 {
-    char *endnum;
-
-    if (pmParseInterval(arg, &opts->interval, &endnum) < 0) {
-	pmprintf("%s: -t argument not in pmParseInterval(3) format:\n",
-		pmGetProgname());
-	pmprintf("%s\n", endnum);
-	opts->errors++;
-	free(endnum);
-    }
+    if (opts->version >= PMAPI_VERSION_3)
+	__pmSetSampleInterval3(opts, arg);
+    else
+	__pmSetSampleInterval2(opts, arg);
 }
 
 static void

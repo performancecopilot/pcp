@@ -800,10 +800,14 @@ PCP_3.37 {
     pmtimespecFromReal;
     pmExtendFetchGroup_timespec;
     pmExtendFetchGroup_timeval;
+    pmGetHighResArchiveLabel;
+    pmGetHighResArchiveEnd;
     pmHighResFetchArchive;
     pmHighResSortInstances;
     pmParseHighResInterval;
     pmParseHighResTimeWindow;
+    __pmtimespecPause;
+    __pmtimespecSleep;
     __pmConvertHighResTime;
     __pmParseHighResTime;
     __pmDecodeHighResResult_ctx;

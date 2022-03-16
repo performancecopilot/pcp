@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2021 Red Hat.
+# Copyright (c) 2012-2022 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -38,8 +38,9 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c result.c \
 	stuffvalue.c endian.c config.c auxconnect.c auxserver.c discovery.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive_fetch.c events.c lock.c hash.c \
-	fault.c access.c getopt.c io.c io_stdio.c exec.c sha256.c \
-	shellprobe.c subnetprobe.c strings.c deprecated.c \
+	fault.c access.c getopt.c getopt2.c getopt3.c \
+	io.c io_stdio.c exec.c sha256.c strings.c \
+	shellprobe.c subnetprobe.c deprecated.c \
 	e_loglabel.c e_index.c e_indom.c e_labels.c \
 	$(JSONSL_CFILES)
 HFILES = derive.h internal.h compiler.h pmdbg.h sha256.h sort_r.h \
