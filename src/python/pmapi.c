@@ -1494,6 +1494,7 @@ MOD_INIT(cpmapi)
     PyModule_AddObject(module, "pmErrSymDict", edict);
 
     dict_add(dict, "PMAPI_VERSION_2", PMAPI_VERSION_2);
+    dict_add(dict, "PMAPI_VERSION_3", PMAPI_VERSION_3);
     dict_add(dict, "PMAPI_VERSION", PMAPI_VERSION);
 
     dict_add_unsigned(dict, "PM_ID_NULL", PM_ID_NULL);

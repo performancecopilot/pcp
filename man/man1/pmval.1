@@ -1,7 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2015-2018 Red Hat.
+.\" Copyright (c) 2015-2018,2022 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -422,8 +422,9 @@ Use . (dot) for a \(lqmatch all\(rq
 .TP
 \fB\-X\fR, \fB\-\-timestamp\fR
 When replaying from an archive, this option requests that the
-timestamp be reported with additional date information and microsecond
-precision, for example
+timestamp be reported with additional date information and increased
+precision (microseconds with a single \fB\-X\fR, nanoseconds with an
+additional \fB\-X\fR), for example
 .B "Sat\ May\ 22\ 20:32:20.971633\ 2021"
 instead of the default format, for example
 .BR "20:32:20.971" .

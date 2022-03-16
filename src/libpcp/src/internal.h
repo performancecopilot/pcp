@@ -408,7 +408,6 @@ extern const char *__pmLogName_r(const char *, int, char *, int) _PCP_HIDDEN;
 extern const char *__pmLogName(const char *, int) _PCP_HIDDEN;	/* NOT thread-safe */
 extern int __pmLogGenerateMark(__pmLogCtl *, int, __pmResult **) _PCP_HIDDEN;
 extern int __pmLogFetchInterp(__pmContext *, int, pmID *, __pmResult **) _PCP_HIDDEN;
-extern int __pmGetArchiveLabel(__pmLogCtl *, pmLogLabel *) _PCP_HIDDEN;
 extern __pmTimestamp *__pmLogStartTime(__pmArchCtl *) _PCP_HIDDEN;
 extern int __pmLogSetTime(__pmContext *) _PCP_HIDDEN;
 extern void __pmLogResetInterp(__pmContext *) _PCP_HIDDEN;
@@ -449,5 +448,13 @@ extern char *__pmLabelFlagString(int, char *, int) _PCP_HIDDEN;
 /* logmeta.c hooks */
 extern int addindom(__pmLogCtl *, int, const __pmLogInDom_io *, __int32_t *, int) _PCP_HIDDEN;
 extern int addlabel(__pmArchCtl *, unsigned int, unsigned int, int, pmLabelSet *, const __pmTimestamp *) _PCP_HIDDEN;
+
+/* getopt.c ABI-version-specific details */
+extern void __pmParseTimeWindow2(pmOptions *,
+			struct timespec *, struct timespec *) _PCP_HIDDEN;
+extern void __pmParseTimeWindow3(pmOptions *,
+			struct timespec *, struct timespec *) _PCP_HIDDEN;
+extern void __pmSetSampleInterval2(pmOptions *, char *) _PCP_HIDDEN;
+extern void __pmSetSampleInterval3(pmOptions *, char *) _PCP_HIDDEN;
 
 #endif /* _LIBPCP_INTERNAL_H */

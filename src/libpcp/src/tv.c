@@ -116,29 +116,27 @@ pmtimespecFromReal(double secs, struct timespec *val)
  * Sleep for a specified amount of time
  */
 void
-__pmtimevalSleep(struct timeval interval)
+__pmtimespecSleep(struct timespec delay)
 {
-    struct timespec delay;
     struct timespec left;
-    int sts;
-
-    delay.tv_sec = interval.tv_sec;
-    delay.tv_nsec = interval.tv_usec * 1000;
 
     for (;;) {		/* loop to catch early wakeup by nanosleep */
-	sts = nanosleep(&delay, &left);
+	int sts = nanosleep(&delay, &left);
 	if (sts == 0 || (sts < 0 && oserror() != EINTR))
 	    break;
 	delay = left;
     }
 }
 
-/* convert timeval to timespec */
-static void
-tospec(struct timeval *tv, struct timespec *ts)
+void
+__pmtimevalSleep(struct timeval delay)
 {
-    ts->tv_nsec = tv->tv_usec * 1000;
-    ts->tv_sec = tv->tv_sec;
+    struct timespec	delta;	/* higher resolution delay */
+
+    delta.tv_sec = delay.tv_sec;
+    delta.tv_nsec = delay.tv_usec * 1000;
+
+    __pmtimespecSleep(delta);
 }
 
 #if !defined(IS_MINGW)
@@ -151,20 +149,30 @@ pmtimevalNow(struct timeval *tv)
 
 /* sleep until given timeval */
 void
-__pmtimevalPause(struct timeval sched)
+__pmtimespecPause(struct timespec sched)
 {
-    int sts;
-    struct timeval curr;	/* current time */
+    struct timespec curr;	/* current time */
     struct timespec delay;	/* interval to sleep */
     struct timespec left;	/* remaining sleep time */
 
-    pmtimevalNow(&curr);
-    pmtimevalDec(&sched, &curr);
-    tospec(&sched, &delay);
+    pmtimespecNow(&curr);
+    pmtimespecDec(&sched, &curr);
+    delay = sched;
     for (;;) {		/* loop to catch early wakeup by nanosleep */
-	sts = nanosleep(&delay, &left);
+	int sts = nanosleep(&delay, &left);
 	if (sts == 0 || (sts < 0 && oserror() != EINTR))
 	    break;
 	delay = left;
     }
+}
+
+void
+__pmtimevalPause(struct timeval sched)
+{
+    struct timespec until;	/* higher resolution sched */
+
+    until.tv_sec = sched.tv_sec;
+    until.tv_nsec = sched.tv_usec * 1000;
+
+    __pmtimespecPause(until);
 }
