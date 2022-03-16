@@ -873,6 +873,7 @@ PMDABPF_CLANG
 HAVE_LIBELF
 libelf_LIBS
 libelf_CFLAGS
+libbpf_version
 HAVE_LIBBPF
 libbpf_LIBS
 libbpf_CFLAGS
@@ -8218,6 +8219,16 @@ $as_echo "yes" >&6; }
 fi
 HAVE_LIBBPF=$have_libbpf
 
+if $have_libbpf; then :
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking libbpf version" >&5
+$as_echo_n "checking libbpf version... " >&6; }
+    libbpf_version=`$PKG_CONFIG --modversion libbpf`
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $libbpf_version" >&5
+$as_echo "$libbpf_version" >&6; }
+
+fi
 
 
 pkg_failed=no
