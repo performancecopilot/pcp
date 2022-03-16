@@ -175,10 +175,6 @@ do
 	    dma_device_t)
 		echo '/allow \[pcp_pmcd_t] \[dma_device_t]/d' >>$tmp.sed
 		;;
-	    glusterd_log_t)
-		echo '/allow \[pcp_pmcd_t] \[glusterd_log_t]/d' >>$tmp.sed
-		;;
-
 	esac
     fi
 done
