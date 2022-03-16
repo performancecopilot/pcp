@@ -20,7 +20,7 @@
 
 /* Decode various archive metafile records (desc, indom, labels, helptext) */
 static int pmDiscoverDecodeMetaDesc(uint32_t *, int, pmDesc *, int *, char ***);
-static int pmDiscoverDecodeMetaInDom(uint32_t *, int, __pmTimestamp *, pmInResult *);
+static int pmDiscoverDecodeMetaInDom(__int32_t *, int, int, __pmTimestamp *, pmInResult *);
 static int pmDiscoverDecodeMetaHelpText(uint32_t *, int, int *, int *, char **);
 static int pmDiscoverDecodeMetaLabelSet(uint32_t *, int, __pmTimestamp *, int *, int *, int *, pmLabelSet **);
 
@@ -754,7 +754,7 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, __pmTimestamp *tsp, pmInResult *in
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
     char		buf[32], inbuf[32];
-    int			i, sts = PMLOGPUTINDOM_DUP; /* free after callbacks */
+    int			i, sts = 0;
 
     if (pmDebugOptions.discovery) {
 	fprintf(stderr, "%s[%s]: %s numinst %d indom %s\n",
@@ -799,12 +799,8 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, __pmTimestamp *tsp, pmInResult *in
     }
 
 out:
-    if (sts == PMLOGPUTINDOM_DUP) {
-	for (i = 0; i < in->numinst; i++)
-	    free(in->namelist[i]);
-	free(in->namelist);
-	free(in->instlist);
-    }
+    /* do not free the pmInResult - buffer is managed by caller */
+    return;
 }
 
 static void
@@ -1099,15 +1095,11 @@ process_metadata(pmDiscover *p)
 	    break;
 
 	case TYPE_INDOM:
-	    mmv_inc(data->map, data->metrics[DISCOVER_DECODE_INDOM]);
-	    // TODO
-fprintf(stderr, "process_metadata: botch record type TYPE_INDOM\n");
-	    break;
-
 	case TYPE_INDOM_V2:
-	    /* decode indom result from buffer */
+	case TYPE_INDOM_DELTA:
+	    /* decode indom, indom_v2 or indom_delta result from buffer */
 	    mmv_inc(data->map, data->metrics[DISCOVER_DECODE_INDOM]);
-	    if ((e = pmDiscoverDecodeMetaInDom(buf, len, &stamp, &inresult)) < 0) {
+	    if ((e = pmDiscoverDecodeMetaInDom((__int32_t *)buf, len, hdr.type, &stamp, &inresult)) < 0) {
 		if (pmDebugOptions.discovery)
 		    fprintf(stderr, "%s failed: err=%d %s\n",
 				    "pmDiscoverDecodeMetaInDom", e, pmErrStr(e));
@@ -1692,46 +1684,24 @@ pmDiscoverDecodeMetaDesc(uint32_t *buf, int buflen, pmDesc *p_desc, int *p_numna
 }
 
 /*
- * Decode a metadata indom record in buf of length len.
+ * Decode a metadata indom record (of given type) in buf of length len.
  * Return 0 on success.
  */
 static int
-pmDiscoverDecodeMetaInDom(uint32_t *buf, int len, __pmTimestamp *tsp, pmInResult *inresult)
+pmDiscoverDecodeMetaInDom(__int32_t *buf, int len, int type, __pmTimestamp *tsp, pmInResult *inresult)
 {
-    pmTimeval		*tvp;
-    uint32_t		*namesbuf;
-    uint32_t		*index;
-    char		*str;
-    int			j;
-    pmInResult		ir;
+    int			sts;
+    __pmLogInDom_io	lid;
 
-    tvp = (pmTimeval *)&buf[0];
-    tsp->sec = ntohl(tvp->tv_sec);
-    tsp->nsec = ntohl(tvp->tv_usec) * 1000;
-    ir.indom = __ntohpmInDom(buf[2]);
-    ir.numinst = ntohl(buf[3]);
-    ir.instlist = NULL;
-    ir.namelist = NULL;
-
-    if (ir.numinst > 0) {
-	if ((ir.instlist = (int *)calloc(ir.numinst, sizeof(int))) == NULL)
-	    return -ENOMEM;
-	ir.namelist = (char **)calloc(ir.numinst, sizeof(char *));
-	if (ir.namelist == NULL) {
-	    free(ir.instlist);
-	    return -ENOMEM;
-	}
-	namesbuf = &buf[4];
-	index = &namesbuf[ir.numinst];
-	str = (char *)&namesbuf[ir.numinst + ir.numinst];
-	for (j=0; j < ir.numinst; j++) {
-	    ir.instlist[j] = ntohl(namesbuf[j]);
-	    ir.namelist[j] = strdup(&str[ntohl(index[j])]);
-	}
+    if ((sts = __pmLogLoadInDom(NULL, len, type, &lid, &buf)) == 0) {
+	inresult->indom = lid.indom;
+	inresult->numinst = lid.numinst;
+	inresult->instlist = lid.instlist;
+	inresult->namelist = lid.namelist;
+	*tsp = lid.stamp;
     }
 
-    *inresult = ir;
-    return 0;
+    return sts;
 }
 
 static int
