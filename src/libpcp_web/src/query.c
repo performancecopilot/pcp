@@ -190,8 +190,7 @@ freeSeriesGetSID(seriesGetSID *sid)
 
     seriesBatonCheckMagic(sid, MAGIC_SID, "freeSeriesGetSID");
     sdsfree(sid->name);
-    if (sid->metric)
-	sdsfree(sid->metric);
+    sdsfree(sid->metric);
     needfree = sid->freed;
     memset(sid, 0, sizeof(seriesGetSID));
     if (needfree)
