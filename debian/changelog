@@ -1,3 +1,10 @@
+pcp (5.3.7-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Updates for reproducible-builds (closes: #1006860, #1006861, #1006864)
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 01 Apr 2022 09:12:16 +1100
+
 pcp (5.3.6-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
