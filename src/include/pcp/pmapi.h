@@ -622,8 +622,10 @@ PCP_CALL extern int pmMergeLabelSets(pmLabelSet **, int, char *, int,
 PCP_CALL extern void pmFreeLabelSets(pmLabelSet *, int);
 
 /*
- * struct timeval is sometimes 2 x 64-bit ... we use a 2 x 32-bit format for
- * PDUs, internally within libpcp and for (external) archive logs
+ * struct timeval is sometimes 2 x 64-bit ... for backwards compatibility
+ * we use a 2 x 32-bit format for down-rev PDUs, and on-disk in version 2
+ * archive logs.  Current PDUs and on-disk format version 3 do not use 32
+ * bit seconds in timestamps.
  */
 typedef struct pmTimeval {
     __int32_t	tv_sec;		/* seconds since Jan. 1, 1970 */

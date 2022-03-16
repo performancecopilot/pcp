@@ -22,7 +22,7 @@
 static int pmDiscoverDecodeMetaDesc(uint32_t *, int, pmDesc *, int *, char ***);
 static int pmDiscoverDecodeMetaInDom(__int32_t *, int, int, __pmTimestamp *, pmInResult *);
 static int pmDiscoverDecodeMetaHelpText(uint32_t *, int, int *, int *, char **);
-static int pmDiscoverDecodeMetaLabelSet(uint32_t *, int, __pmTimestamp *, int *, int *, int *, pmLabelSet **);
+static int pmDiscoverDecodeMetaLabelSet(uint32_t *, int, int, __pmTimestamp *, int *, int *, int *, pmLabelSet **);
 
 /* array of registered callbacks, see pmDiscoverSetup() */
 static int discoverCallBackTableSize;
@@ -1112,7 +1112,7 @@ process_metadata(pmDiscover *p)
 	case TYPE_LABEL_V2:
 	    /* decode labelset from buffer */
 	    mmv_inc(data->map, data->metrics[DISCOVER_DECODE_LABEL]);
-	    if ((e = pmDiscoverDecodeMetaLabelSet(buf, len, &stamp, &id, &type, &nsets, &labelset)) < 0) {
+	    if ((e = pmDiscoverDecodeMetaLabelSet(buf, len, hdr.type, &stamp, &id, &type, &nsets, &labelset)) < 0) {
 		if (pmDebugOptions.discovery)
 		    fprintf(stderr, "%s failed: err=%d %s\n",
 				    "pmDiscoverDecodeMetaLabelSet", e, pmErrStr(e));
@@ -1722,7 +1722,7 @@ pmDiscoverDecodeMetaHelpText(uint32_t *buf, int len, int *type, int *id, char **
 }
 
 static int
-pmDiscoverDecodeMetaLabelSet(uint32_t *buf, int buflen, __pmTimestamp *tsp, int *identp, int *typep, int *nsetsp, pmLabelSet **setsp)
+pmDiscoverDecodeMetaLabelSet(uint32_t *buf, int buflen, int type, __pmTimestamp *tsp, int *identp, int *typep, int *nsetsp, pmLabelSet **setsp)
 {
     char		*json, *tbuf = (char *)buf;
     pmLabelSet		*labelsets = NULL;
@@ -1734,6 +1734,8 @@ pmDiscoverDecodeMetaLabelSet(uint32_t *buf, int buflen, __pmTimestamp *tsp, int 
     int			jsonlen;
     int			nlabels;
     int			i, j, k;
+
+    (void)type;	/* TODO: placeholder for v3 archives */
 
     k = 0;
     tvp = (pmTimeval *)&tbuf[k];

@@ -248,7 +248,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     return sts;
 }
 
-    int
+int
 addlabel(__pmArchCtl *acp, unsigned int type, unsigned int ident, int nsets,
 		pmLabelSet *labelsets, const __pmTimestamp *tsp)
 {
