@@ -17,6 +17,16 @@ aborted=true
 myname=`basename $0`
 iam=$myname  #  a synonym
 
+# Suggested by Andreas Gerstmayr on 11 Mar 2022
+#
+if which timeout >/dev/null 2>&1
+then
+    use_timeout=true
+    max_timeout=5m
+else
+    use_timeout=false
+fi
+
 # lock (and PID) file to prevent concurrent QA execution
 #
 CHECKLOCK=/tmp/PCP-QA-LOCK
@@ -389,8 +399,14 @@ do
 	    ./check.callback --precheck $seq >$tmp.callback.pre 2>&1
 	fi
 
-	./$seq >$tmp.out 2>&1
-	sts=$?
+	if $use_timeout
+	then
+	    timeout -s ABRT $max_timeout ./$seq >$tmp.out 2>&1
+	    sts=$?
+	else
+	    ./$seq >$tmp.out 2>&1
+	    sts=$?
+	fi
 
 	if $check_config
 	then

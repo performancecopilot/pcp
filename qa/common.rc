@@ -129,3 +129,9 @@ fi
 # insensitive matching
 #
 export LC_COLLATE=POSIX
+
+# If we're using timeout(1) -s ABRT from check, it helps to trap the
+# SIGABRT (signal 6), explain why you're quitting, then kill yourself
+# with SIGTERM
+#
+trap 'echo "!!!"; echo "!!! Killed from check by timeout ..."; echo "!!!"; pmsignal -s TERM '$$ 6
