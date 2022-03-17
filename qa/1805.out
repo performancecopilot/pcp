@@ -80,43 +80,49 @@ network.mptcp.portadd
     value 26
 
 network.mptcp.mpjoinportsynrx
-    value 27
-
-network.mptcp.mpjoinportsynackrx
     value 28
 
-network.mptcp.mpjoinportackrx
+network.mptcp.mpjoinportsynackrx
     value 29
 
-network.mptcp.mismatchportsynrx
+network.mptcp.mpjoinportackrx
     value 30
 
-network.mptcp.mismatchportackrx
+network.mptcp.mismatchportsynrx
     value 31
 
-network.mptcp.rmaddr
+network.mptcp.mismatchportackrx
     value 32
 
-network.mptcp.rmsubflow
+network.mptcp.rmaddr
     value 33
 
-network.mptcp.mppriotx
-    value 34
-
-network.mptcp.mppriorx
+network.mptcp.rmsubflow
     value 35
 
-network.mptcp.rcvpruned
-    value 38
-
-network.mptcp.mpfailtx
+network.mptcp.mppriotx
     value 36
 
-network.mptcp.mpfailrx
+network.mptcp.mppriorx
     value 37
 
-network.mptcp.subflowstale
+network.mptcp.rcvpruned
+    value 40
+
+network.mptcp.mpfailtx
+    value 38
+
+network.mptcp.mpfailrx
     value 39
 
+network.mptcp.subflowstale
+    value 41
+
 network.mptcp.subflowrecover
-    value 40
+    value 42
+
+network.mptcp.addaddrdrop
+    value 27
+
+network.mptcp.rmaddrdrop
+    value 34

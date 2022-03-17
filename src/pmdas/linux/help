@@ -2553,6 +2553,10 @@ Multipath TCP MP_FAIL receives.
 Multipath TCP subflows entered 'stale' status.
 @ network.mptcp.subflowrecover the SubflowRecover field of the MPTcp line from /proc/net/netstat
 Multipath TCP subflows returned to active status after being stale.
+@ network.mptcp.addaddrdrop the AddAddrDrop field of the MPTcp line from /proc/net/netstat
+Multipath TCP incoming ADD_ADDR drops.
+@ network.mptcp.rmaddrdrop the RmAddrDrop field of the MPTcp line from /proc/net/netstat
+Multipath TCP incoming RM_ADDR drops.
 
 @ disk.wwid.scsi_paths per-device/wwid scsi paths to same physical device
 The value of this string typed metric is the sd paths to the same physical

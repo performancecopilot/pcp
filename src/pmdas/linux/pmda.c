@@ -4592,6 +4592,16 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_NETSTAT,193), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
+/* network.mptcp.addaddrdrops */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_ADDADDRDROPS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,194), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.rmaddrdrops */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_RMADDRDROPS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,195), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 /* hinv.map.scsi */
     { NULL, 
       { PMDA_PMID(CLUSTER_SCSI,0), PM_TYPE_STRING, SCSI_INDOM, PM_SEM_DISCRETE, 
