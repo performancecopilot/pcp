@@ -712,10 +712,15 @@ PCP_CALL extern void pmHighResSortInstances(pmHighResResult *);
 
 /* Adjust collection time and/or mode for pmFetch */
 PCP_CALL extern int pmSetMode(int, const struct timeval *, int);
+PCP_CALL extern int pmHighResSetMode(int, const struct timespec *, const struct timespec *);
 #define PM_MODE_LIVE	0
 #define PM_MODE_INTERP	1
 #define PM_MODE_FORW	2
 #define PM_MODE_BACK	3
+/* Extended time base definitions and macros - for pmSetMode(3) only */
+#define PM_XTB_FLAG	0x1000000
+#define PM_XTB_SET(m)	(PM_XTB_FLAG | ((m) << 16))
+#define PM_XTB_GET(m)	(((m) & PM_XTB_FLAG) ? (((m) & 0xff0000) >> 16) : -1)
 
 /* Modify the value of one or more metrics */
 PCP_CALL extern int pmStore(const pmResult *);
@@ -757,12 +762,6 @@ PCP_CALL extern const char *pmNumberStr(double);		/* NOT thread-safe */
 PCP_CALL extern char *pmNumberStr_r(double, char *, int);
 PCP_CALL extern const char *pmEventFlagsStr(int);		/* NOT thread-safe */
 PCP_CALL extern char *pmEventFlagsStr_r(int, char *, int);
-
-/* Extended time base definitions and macros */
-#define PM_XTB_FLAG	0x1000000
-
-#define PM_XTB_SET(type) (PM_XTB_FLAG | ((type) << 16))
-#define PM_XTB_GET(x) (((x) & PM_XTB_FLAG) ? (((x) & 0xff0000) >> 16) : -1)
 
 /* Parse -t, -S, -T, -A and -O options */
 PCP_CALL extern int pmParseInterval(const char *, struct timeval *, char **);
@@ -1333,7 +1332,9 @@ PCP_CALL extern void pmPrintStamp(FILE *, const struct timeval *);
 
 /* struct timespec manipulations */
 PCP_CALL extern int pmtimespecNow(struct timespec *);
+PCP_CALL extern void pmtimespecInc(struct timespec *, const struct timespec *);
 PCP_CALL extern void pmtimespecDec(struct timespec *, const struct timespec *);
+PCP_CALL extern double pmtimespecAdd(const struct timespec *, const struct timespec *);
 PCP_CALL extern double pmtimespecSub(const struct timespec *, const struct timespec *);
 PCP_CALL extern double pmtimespecToReal(const struct timespec *);
 PCP_CALL extern void pmtimespecFromReal(double, struct timespec *);

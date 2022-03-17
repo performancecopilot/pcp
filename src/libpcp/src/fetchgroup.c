@@ -1308,37 +1308,32 @@ pmExtendFetchGroup_item(pmFG pmfg,
 	__pmContext *ctxp = __pmHandleToPtr(pmfg->ctx);
 
 	if (ctxp->c_type == PM_CONTEXT_ARCHIVE) {
-	    struct timeval saved_origin;
-#if 0	// when pmSetHighResMode() exists
-	    struct timespec archive_end;
-#else
-	    struct timeval archive_end;
-#endif
-	    __pmTimestamp	stamp;
-	    int saved_mode, saved_delta;
+	    struct timespec saved_origin, saved_delta, archive_end;
+	    int saved_mode, saved_direction;
 
 	    saved_origin.tv_sec = ctxp->c_origin.sec;
-	    saved_origin.tv_usec = ctxp->c_origin.nsec / 1000;
+	    saved_origin.tv_nsec = ctxp->c_origin.nsec;
 	    saved_mode = ctxp->c_mode;
-	    saved_delta = ctxp->c_delta;
-	    sts = pmGetArchiveEnd_ctx(ctxp, &stamp);
+	    saved_delta.tv_sec = ctxp->c_delta.sec;
+	    saved_delta.tv_nsec = ctxp->c_delta.nsec;
+	    saved_direction = ctxp->c_direction;
 	    PM_UNLOCK(ctxp->c_lock);
+	    sts = pmGetHighResArchiveEnd(&archive_end);
 	    if (sts < 0)
 		goto out;
-	    archive_end.tv_sec = stamp.sec;
-#if 0	// when pmSetHighResMode() exists
-	    archive_end.tv_nsec = stamp.nsec;
-	    sts = pmSetHighResMode(PM_MODE_BACK, &archive_end, 0);
-#else
-	    archive_end.tv_usec = stamp.nsec / 1000;
-	    sts = pmSetMode(PM_MODE_BACK, &archive_end, 0);
-#endif
+	    sts = pmHighResSetMode(PM_MODE_BACK, &archive_end, NULL);
 	    if (sts < 0)
 		goto out;
 	    /* try again */
 	    sts = pmfg_lookup_item(metric, instance, item);
 	    /* go back to saved position */
-	    rc = pmSetMode(saved_mode, &saved_origin, saved_delta);
+	    if (saved_direction) {
+		if (saved_delta.tv_sec)
+		    saved_delta.tv_sec *= saved_direction;
+		else
+		    saved_delta.tv_nsec *= saved_direction;
+	    }
+	    rc = pmHighResSetMode(saved_mode, &saved_origin, &saved_delta);
 	    if (sts < 0)
 		goto out;
 	    if (rc < 0) {
@@ -1533,38 +1528,32 @@ pmExtendFetchGroup_event(pmFG pmfg,
 	__pmContext *ctxp = __pmHandleToPtr(pmfg->ctx);
 
 	if (ctxp->c_type == PM_CONTEXT_ARCHIVE) {
-#if 0	// when pmSetHighResMode() exists
-	    struct timespec archive_end;
-	    struct timespec saved_origin;
-#else
-	    struct timeval archive_end;
-	    struct timeval saved_origin;
-#endif
-	    __pmTimestamp	stamp;
-	    int saved_mode, saved_delta;
+	    struct timespec saved_origin, saved_delta, archive_end;
+	    int saved_mode, saved_direction;
 
 	    saved_origin.tv_sec = ctxp->c_origin.sec;
-	    saved_origin.tv_usec = ctxp->c_origin.nsec / 1000;
+	    saved_origin.tv_nsec = ctxp->c_origin.nsec;
 	    saved_mode = ctxp->c_mode;
-	    saved_delta = ctxp->c_delta;
-	    sts = pmGetArchiveEnd_ctx(ctxp, &stamp);
+	    saved_delta.tv_sec = ctxp->c_delta.sec;
+	    saved_delta.tv_nsec = ctxp->c_delta.nsec;
+	    saved_direction = ctxp->c_direction;
 	    PM_UNLOCK(ctxp->c_lock);
+	    sts = pmGetHighResArchiveEnd(&archive_end);
 	    if (sts < 0)
 		goto out;
-	    archive_end.tv_sec = stamp.sec;
-#if 0	// when pmSetHighResMode() exists
-	    archive_end.tv_nsec = stamp.nsec;
-	    sts = pmSetHighResMode(PM_MODE_BACK, &archive_end, 0);
-#else
-	    archive_end.tv_usec = stamp.nsec / 1000;
-	    sts = pmSetMode(PM_MODE_BACK, &archive_end, 0);
-#endif
+	    sts = pmHighResSetMode(PM_MODE_BACK, &archive_end, NULL);
 	    if (sts < 0)
 		goto out;
 	    /* try again */
 	    sts = pmfg_lookup_event(metric, instance, field, item);
 	    /* go back to saved position */
-	    rc = pmSetMode(saved_mode, &saved_origin, saved_delta);
+	    if (saved_direction) {
+		if (saved_delta.tv_sec)
+		    saved_delta.tv_sec *= saved_direction;
+		else
+		    saved_delta.tv_nsec *= saved_direction;
+	    }
+	    rc = pmHighResSetMode(saved_mode, &saved_origin, &saved_delta);
 	    if (sts < 0)
 		goto out;
 	    if (rc < 0) {

@@ -917,7 +917,8 @@ typedef struct {
     __pmPMCDCtl		*c_pmcd;	/* pmcd control for HOST contexts */
     __pmArchCtl		*c_archctl;	/* log control for ARCHIVE contexts */
     __pmTimestamp	c_origin;	/* pmFetch time origin / current time */
-    int			c_delta;	/* for updating origin */
+    __pmTimestamp	c_delta;	/* for updating origin */
+    int			c_direction;	/* signedness of delta (-1/0/1) */
     int			c_sent;		/* profile has been sent to pmcd */
     pmProfile		*c_instprof;	/* instance profile */
     void		*c_dm;		/* derived metrics, if any */

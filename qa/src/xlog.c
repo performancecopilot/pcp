@@ -90,7 +90,7 @@ main(int argc, char **argv)
     char	*archive = "foo";
     char	*namespace = PM_NS_DEFAULT;
     static char	*usage = "[-D debugspec] [-a archive] [-n namespace] [-v]";
-    struct timeval	start;
+    struct timespec	delta = { 0, 5000000 };	/* 5 msec */
     pmHighResLogLabel	loglabel;
     pmHighResLogLabel	duplabel;
 
@@ -142,14 +142,11 @@ main(int argc, char **argv)
 	exit(1);
     }
     if ((sts = pmGetHighResArchiveLabel(&loglabel)) < 0) {
-	printf("%s: pmGetArchiveLabel(%d): %s\n", pmGetProgname(), ctx[0], pmErrStr(sts));
+	printf("%s: pmGetHighResArchiveLabel(%d): %s\n", pmGetProgname(), ctx[0], pmErrStr(sts));
 	exit(1);
     }
-    start.tv_sec = loglabel.start.tv_sec;
-    start.tv_usec = loglabel.start.tv_nsec / 1000;
-    /* TODO: switch to using pmSetHighResMode here */
-    if ((sts = pmSetMode(PM_MODE_INTERP, &start, 5)) < 0) {
-	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
+    if ((sts = pmHighResSetMode(PM_MODE_INTERP, &loglabel.start, &delta)) < 0) {
+	printf("%s: pmHighResSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
     if ((ctx[1] = pmDupContext()) < 0) {

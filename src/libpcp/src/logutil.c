@@ -2096,12 +2096,13 @@ __pmLogSetTime(__pmContext *ctxp)
     mode = ctxp->c_mode & __PM_MODE_MASK; /* strip XTB data */
 
     if (mode == PM_MODE_INTERP)
-	mode = ctxp->c_delta > 0 ? PM_MODE_FORW : PM_MODE_BACK;
+	mode = ctxp->c_direction > 0 ? PM_MODE_FORW : PM_MODE_BACK;
 
     if (pmDebugOptions.log) {
 	fprintf(stderr, "%s(%d) ", "__pmLogSetTime", pmWhichContext());
 	__pmPrintTimestamp(stderr, &ctxp->c_origin);
-	fprintf(stderr, " delta=%d", ctxp->c_delta);
+	fprintf(stderr, " delta=%s%lld.%09ld", ctxp->c_direction < 0 ? "-" : "",
+		(long long)ctxp->c_delta.sec, (long)ctxp->c_delta.nsec);
     }
 
     /*

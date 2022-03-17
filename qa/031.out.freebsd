@@ -81,7 +81,7 @@ children of "" ...
     swap                <s = 1>
 
 Real-time result ...
-pmResult ... numpmid: 12
+pmHighResResult ... numpmid: 12
   85.2.8 (disk.all.total): numval: 1 valfmt: 1 vlist[]:
    value NUMBER
   PM_ID_NULL (<noname>): No PMDA, no values [filtered]

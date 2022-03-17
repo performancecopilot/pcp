@@ -13,7 +13,7 @@ __pmLogChangeVol: change to volume 0
 chkLabel: fd=<n2> vol=-2 [magic=0x50052602 version=2 vol=-2 pid=PID start=TIMESTAMP host=HOST]
 chkLabel: fd=<n3> vol=-1 [magic=0x50052602 version=2 vol=-1 pid=PID start=TIMESTAMP host=HOST]
 __pmLogRead: fd=<n4> (peek) mode=back vol=0 posn=OFFSET @TIMESTAMP len=header+LEN+trailer
-__pmLogSetTime(0) TIMESTAMP delta=0 at ti[0]@TIMESTAMP vol=0 posn=OFFSET serial=1
+__pmLogSetTime(0) TIMESTAMP delta=0.000000000 at ti[0]@TIMESTAMP vol=0 posn=OFFSET serial=1
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
     commencing DATE
@@ -33,7 +33,7 @@ __pmLogChangeVol: change to volume 0
 chkLabel: fd=<n2> vol=-2 [magic=0x50052602 version=2 vol=-2 pid=PID start=TIMESTAMP host=HOST]
 chkLabel: fd=<n3> vol=-1 [magic=0x50052602 version=2 vol=-1 pid=PID start=TIMESTAMP host=HOST]
 __pmLogRead: fd=<n4> (peek) mode=back vol=0 posn=OFFSET @TIMESTAMP len=header+LEN+trailer
-__pmLogSetTime(0) TIMESTAMP delta=0 at ti[0]@TIMESTAMP vol=0 posn=OFFSET serial=1
+__pmLogSetTime(0) TIMESTAMP delta=0.000000000 at ti[0]@TIMESTAMP vol=0 posn=OFFSET serial=1
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
     commencing DATE
@@ -53,7 +53,7 @@ __pmLogChangeVol: change to volume 0
 chkLabel: fd=<n2> vol=-2 [magic=0x50052602 version=2 vol=-2 pid=PID start=TIMESTAMP host=HOST]
 chkLabel: fd=<n3> vol=-1 [magic=0x50052602 version=2 vol=-1 pid=PID start=TIMESTAMP host=HOST]
 __pmLogRead: fd=<n4> (peek) mode=back vol=0 posn=OFFSET @TIMESTAMP len=header+LEN+trailer
-__pmLogSetTime(0) TIMESTAMP delta=0 at ti[0]@TIMESTAMP vol=0 posn=OFFSET serial=1
+__pmLogSetTime(0) TIMESTAMP delta=0.000000000 at ti[0]@TIMESTAMP vol=0 posn=OFFSET serial=1
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
     commencing DATE

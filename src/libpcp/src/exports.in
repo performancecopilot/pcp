@@ -796,12 +796,15 @@ PCP_3.36 {
 
 PCP_3.37 {
   global:
+    pmtimespecAdd;
+    pmtimespecInc;
     pmtimespecToReal;
     pmtimespecFromReal;
     pmExtendFetchGroup_timespec;
     pmExtendFetchGroup_timeval;
     pmGetHighResArchiveLabel;
     pmGetHighResArchiveEnd;
+    pmHighResSetMode;
     pmHighResFetchArchive;
     pmHighResSortInstances;
     pmParseHighResInterval;

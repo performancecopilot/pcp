@@ -26,6 +26,7 @@ do
     | tee -a $seq.full \
     | sed \
 	-e 's/posn=[0-9]*/posn=OFFSET/' \
+	-e 's/delta=0\.0*/delta=0/' \
 	-e 's/__pmLogChkLabel/chkLabel/g' \
 	-e '/__pmLogRead/d' \
 	-e '/LogLoadMeta/d' \

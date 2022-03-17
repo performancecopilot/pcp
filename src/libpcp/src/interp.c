@@ -824,7 +824,7 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
      * now roll forwards in the direction of log reading
      * to make sure we are up to t_req
      */
-    if (ctxp->c_delta > 0) {
+    if (ctxp->c_direction > 0) {
 	while ((err = cache_read(ctxp, PM_MODE_FORW, &logrp)) >= 0) {
 	    tmp = logrp->timestamp;		/* struct assignment */
 	    t_this = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
@@ -872,19 +872,6 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
     return 0;
 }
 
-#define pmXTBdeltaToTimeval(d, m, t) { \
-    (t)->tv_sec = 0; \
-    (t)->tv_usec = (long)0; \
-    switch(PM_XTB_GET(m)) { \
-    case PM_TIME_NSEC: (t)->tv_usec = (long)((d) / 1000); break; \
-    case PM_TIME_USEC: (t)->tv_usec = (long)(d); break; \
-    case PM_TIME_MSEC: (t)->tv_sec = (d) / 1000; (t)->tv_usec = (long)(1000 * ((d) % 1000)); break; \
-    case PM_TIME_SEC: (t)->tv_sec = (d); break; \
-    case PM_TIME_MIN: (t)->tv_sec = (d) * 60; break; \
-    case PM_TIME_HOUR: (t)->tv_sec = (d) * 360; break; \
-    default: (t)->tv_sec = (d) / 1000; (t)->tv_usec = (long)(1000 * ((d) % 1000)); break; \
-    } \
-}
 
 #define HASH_THRESHOLD 16
 
@@ -1060,9 +1047,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmResult *
     int			seen_mark;
     static int		dowrap = -1;
     __pmTimestamp	tmp;
-    struct timeval	delta_tv = {0};
-    				/* number of unbound items scanned */
     long		nuis[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+			/* number of unbound items scanned */
 
     PM_LOCK(__pmLock_extcall);
     if (dowrap == -1) {
@@ -1246,7 +1232,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmResult *
 	 * back-up (relative to the direction we are reading the log)
 	 * to make sure
 	 */
-	if (ctxp->c_delta > 0) {
+	if (ctxp->c_direction > 0) {
 	    while (cache_read(ctxp, PM_MODE_BACK, &logrp) >= 0) {
 		tmp = logrp->timestamp;		/* struct assignment */
 		t_this = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
@@ -1328,7 +1314,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmResult *
 	if (icp->t_prior < 0 || icp->t_prior > t_req) {
 	    if (back == 0 && !done_roll) {
 		done_roll = 1;
-		if (ctxp->c_delta > 0)  {
+		if (ctxp->c_direction > 0)  {
 		    /* forwards before scanning back */
 		    sts = do_roll(ctxp, t_req, &seen_mark);
 		    if (sts < 0) {
@@ -1351,7 +1337,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmResult *
 	 *  	to try and bound t_req with valid values
 	 */
 	if ((IS_UNDEFINED(icp->s_prior) && !IS_SCANNED(icp->s_prior)) ||
-	    (icp->t_prior > t_req && (ctxp->c_delta < 0 || !IS_SCANNED(icp->s_prior))) ||
+	    (icp->t_prior > t_req && (ctxp->c_direction < 0 || !IS_SCANNED(icp->s_prior))) ||
 	    (IS_MARK(icp->s_next) && icp->t_prior == t_req)) {
 	    back++;
 	    icp->search = 1;
@@ -1404,7 +1390,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmResult *
 	    }
 	    tmp = logrp->timestamp;		/* struct assignment */
 	    t_this = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
-	    if (ctxp->c_delta < 0 && t_this >= t_req) {
+	    if (ctxp->c_direction < 0 && t_this >= t_req) {
 		/* going backwards, and not up to t_req yet */
 		ctxp->c_archctl->ac_offset = __pmFtell(ctxp->c_archctl->ac_mfp);
 		assert(ctxp->c_archctl->ac_offset >= 0);
@@ -1473,7 +1459,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmResult *
 	if (icp->t_next < 0 || icp->t_next < t_req) {
 	    if (forw == 0 && !done_roll) {
 		done_roll = 1;
-		if (ctxp->c_delta < 0)  {
+		if (ctxp->c_direction < 0)  {
 		    /* backwards before scanning forwards */
 		    sts = do_roll(ctxp, t_req, &seen_mark);
 		    if (sts < 0) {
@@ -1496,7 +1482,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmResult *
 	 *  	to try and bound t_req with valid values
 	 */
 	if ((IS_UNDEFINED(icp->s_next) && !IS_SCANNED(icp->s_next)) ||
-	    (icp->t_next < t_req && (ctxp->c_delta > 0 || !IS_SCANNED(icp->s_next))) ||
+	    (icp->t_next < t_req && (ctxp->c_direction > 0 || !IS_SCANNED(icp->s_next))) ||
 	    (IS_MARK(icp->s_prior) && icp->t_next == t_req)) {
 	    forw++;
 	    icp->search = 1;
@@ -1550,7 +1536,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmResult *
 	    }
 	    tmp = logrp->timestamp;		/* struct assignment */
 	    t_this = __pmTimestampSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
-	    if (ctxp->c_delta > 0 && t_this <= t_req) {
+	    if (ctxp->c_direction > 0 && t_this <= t_req) {
 		/* going forwards, and not up to t_req yet */
 		ctxp->c_archctl->ac_offset = __pmFtell(ctxp->c_archctl->ac_mfp);
 		assert(ctxp->c_archctl->ac_offset >= 0);
@@ -2109,9 +2095,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
     sts = 0;
 
 all_done:
-    pmXTBdeltaToTimeval(ctxp->c_delta, ctxp->c_mode, &delta_tv);
-    ctxp->c_origin.sec += delta_tv.tv_sec;
-    ctxp->c_origin.nsec += delta_tv.tv_usec * 1000;
+    ctxp->c_origin.sec += ctxp->c_delta.sec;
+    ctxp->c_origin.nsec += ctxp->c_delta.nsec;
     while (ctxp->c_origin.nsec > 1000000000) {
 	ctxp->c_origin.sec++;
 	ctxp->c_origin.nsec -= 1000000000;

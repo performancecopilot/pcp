@@ -26,6 +26,12 @@ pmtimevalAdd(const struct timeval *ap, const struct timeval *bp)
      return (double)(ap->tv_sec + bp->tv_sec) + (long double)(ap->tv_usec + bp->tv_usec) / (long double)1000000;
 }
 
+double
+pmtimespecAdd(const struct timespec *ap, const struct timespec *bp)
+{
+     return (double)(ap->tv_sec + bp->tv_sec) + (long double)(ap->tv_nsec + bp->tv_nsec) / (long double)1000000000;
+}
+
 /*
  * struct additive time, *ap = *ap + *bp
  */
@@ -36,6 +42,17 @@ pmtimevalInc(struct timeval *ap, const struct timeval *bp)
      ap->tv_usec += bp->tv_usec;
      if (ap->tv_usec >= 1000000) {
 	ap->tv_usec -= 1000000;
+	ap->tv_sec++;
+    }
+}
+
+void
+pmtimespecInc(struct timespec *ap, const struct timespec *bp)
+{
+     ap->tv_sec += bp->tv_sec;
+     ap->tv_nsec += bp->tv_nsec;
+     if (ap->tv_nsec >= 1000000000) {
+	ap->tv_nsec -= 1000000000;
 	ap->tv_sec++;
     }
 }

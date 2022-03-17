@@ -357,7 +357,7 @@ pmHighResFetchArchive(pmHighResResult **result)
 }
 
 int
-pmSetMode(int mode, const struct timeval *when, int delta)
+__pmSetMode(int mode, const __pmTimestamp *when, const __pmTimestamp *delta, int direction)
 {
     int		sts;
     __pmContext	*ctxp;
@@ -373,7 +373,8 @@ pmSetMode(int mode, const struct timeval *when, int delta)
 	    else {
 		ctxp->c_origin.sec = ctxp->c_origin.nsec = 0;
 		ctxp->c_mode = mode;
-		ctxp->c_delta = delta;
+		ctxp->c_delta = *delta;
+		ctxp->c_direction = direction;
 		sts = 0;
 	    }
 	}
@@ -390,11 +391,11 @@ pmSetMode(int mode, const struct timeval *when, int delta)
 		     * special case of NULL for timestamp
 		     * => do not update notion of "current" time
 		     */
-		    ctxp->c_origin.sec = when->tv_sec;
-		    ctxp->c_origin.nsec = when->tv_usec * 1000;
+		    ctxp->c_origin = *when;
 		}
 		ctxp->c_mode = mode;
-		ctxp->c_delta = delta;
+		ctxp->c_delta = *delta;
+		ctxp->c_direction = direction;
 		lsts = __pmLogSetTime(ctxp);
 		if (lsts < 0) {
 		    /*
@@ -403,8 +404,9 @@ pmSetMode(int mode, const struct timeval *when, int delta)
 		     */
 		    if (pmDebugOptions.log) {
 			char	errmsg[PM_MAXERRMSGLEN];
-			fprintf(stderr, "pmSetMode: __pmLogSetTime failed: %s\n",
-			    pmErrStr_r(lsts, errmsg, sizeof(errmsg)));
+			fprintf(stderr, "%s: %s failed: %s\n",
+				"pmSetMode", "__pmLogSetTime",
+				pmErrStr_r(lsts, errmsg, sizeof(errmsg)));
 		    }
 		}
 		__pmLogResetInterp(ctxp);
@@ -417,4 +419,85 @@ pmSetMode(int mode, const struct timeval *when, int delta)
     }
 
     return sts;
+}
+
+int
+pmSetMode(int mode, const struct timeval *when, int delta)
+{
+    __pmTimestamp	offset, interval;
+    int			direction;
+
+    if (delta < 0)
+	direction = -1;
+    else if (delta > 0)
+	direction = 1;
+    else
+	direction = 0;
+
+    /* convert milliseconds (with optional extended time base) to sec/nsec */
+    switch(PM_XTB_GET(mode)) {
+    case PM_TIME_NSEC:
+	interval.sec = 0;
+	interval.nsec = delta;
+	break;
+    case PM_TIME_USEC:
+	interval.sec = 0;
+	interval.nsec = delta * 1000;
+	break;
+    case PM_TIME_SEC:
+	interval.sec = delta;
+	interval.nsec = 0;
+	break;
+    case PM_TIME_MIN:
+	interval.sec = delta * 60;
+	interval.nsec = 0;
+	break;
+    case PM_TIME_HOUR:
+	interval.sec = delta * 360;
+	interval.nsec = 0;
+	break;
+    case PM_TIME_MSEC:
+    default:
+	interval.sec = delta / 1000;
+	interval.nsec = 1000000 * (delta % 1000);
+	break;
+    }
+
+    if (when == NULL)
+	return __pmSetMode(mode, NULL, &interval, direction);
+
+    offset.sec = when->tv_sec;
+    offset.nsec = when->tv_usec * 1000;
+    return __pmSetMode(mode, &offset, &interval, direction);
+}
+
+int
+pmHighResSetMode(int mode, const struct timespec *when, const struct timespec *delta)
+{
+    __pmTimestamp	offset, interval;
+    int			direction;
+
+    /* set internal delta time */
+    if (delta != NULL) {
+	interval.sec = delta->tv_sec;
+	interval.nsec = delta->tv_nsec;
+    } else {
+	interval.sec = interval.nsec = 0;
+    }
+
+    /* set internal delta direction */
+    if (delta == NULL)
+	direction = 0;
+    else if (delta->tv_sec < 0 || delta->tv_nsec < 0)
+	direction = -1;
+    else if (delta->tv_sec || delta->tv_nsec)
+	direction = 1;
+    else
+	direction = 0;
+
+    if (when == NULL)
+	return __pmSetMode(mode, NULL, &interval, direction);
+    offset.sec = when->tv_sec;
+    offset.nsec = when->tv_nsec;
+    return __pmSetMode(mode, &offset, &interval, direction);
 }

@@ -1107,7 +1107,8 @@ INIT_CONTEXT:
     new->c_type = (type & PM_CONTEXT_TYPEMASK);
     new->c_mode = 0;
     new->c_origin.sec = new->c_origin.nsec = 0;
-    new->c_delta = 0;
+    new->c_delta.sec = new->c_delta.nsec = 0;
+    new->c_direction = 0;
     new->c_sent = 0;
     new->c_flags = (type & ~PM_CONTEXT_TYPEMASK);
     if ((new->c_instprof = (pmProfile *)calloc(1, sizeof(pmProfile))) == NULL) {
@@ -1425,6 +1426,7 @@ pmDupContext(void)
     newcon->c_mode = oldcon->c_mode;
     newcon->c_origin = oldcon->c_origin;
     newcon->c_delta = oldcon->c_delta;
+    newcon->c_direction = oldcon->c_direction;
     newcon->c_flags = oldcon->c_flags;
 
     /* clone the per-domain profiles (if any) */
@@ -1519,22 +1521,22 @@ pmDupContext(void)
 		 * We need to duplicate the name and the hostname of each
 		 * archive in the list.
 		 */
-		if ((newmlcp->name = strdup (newmlcp->name)) == NULL) {
+		if ((newmlcp->name = strdup(newmlcp->name)) == NULL) {
 		    sts = -oserror();
 		    goto done_locked;
 		}
-		if ((newmlcp->hostname = strdup (newmlcp->hostname)) == NULL) {
+		if ((newmlcp->hostname = strdup(newmlcp->hostname)) == NULL) {
 		    sts = -oserror();
 		    goto done_locked;
 		}
 		if (newmlcp->timezone != NULL) {
-		    if ((newmlcp->timezone = strdup (newmlcp->timezone)) == NULL) {
+		    if ((newmlcp->timezone = strdup(newmlcp->timezone)) == NULL) {
 			sts = -oserror();
 			goto done_locked;
 		    }
 		}
 		if (newmlcp->zoneinfo != NULL) {
-		    if ((newmlcp->zoneinfo = strdup (newmlcp->zoneinfo)) == NULL) {
+		    if ((newmlcp->zoneinfo = strdup(newmlcp->zoneinfo)) == NULL) {
 			sts = -oserror();
 			goto done_locked;
 		    }
@@ -1816,7 +1818,9 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 	    if (con->c_type == PM_CONTEXT_HOST || con->c_type == PM_CONTEXT_ARCHIVE) {
 		fprintf(f, " origin=%" FMT_INT64 ".%09d",
 		    con->c_origin.sec, con->c_origin.nsec);
-		fprintf(f, " delta=%d\n", con->c_delta);
+		fprintf(f, " delta=%s%" FMT_INT64 ".%09d\n",
+		    con->c_direction < 0 ? "-" : "",
+		    con->c_delta.sec, con->c_delta.nsec);
 	    }
 	    __pmDumpProfile(f, indom, con->c_instprof);
 	}

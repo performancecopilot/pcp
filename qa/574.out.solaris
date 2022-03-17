@@ -76,35 +76,35 @@ children of "" ...
 
 Archive result ...
 Fetch of disk.all.total:
-pmResult ... numpmid: 1
+pmHighResResult ... numpmid: 1
   75.1.2 (disk.all.total): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
 Fetch of kernel.all.pswitch:
-pmResult ... numpmid: 1
+pmHighResResult ... numpmid: 1
   75.0.23 (kernel.all.pswitch): numval: 1 valfmt: 0-or-1 vlist[]:
    value NUMBER
 Fetch of kernel.all.cpu.user:
-pmResult ... numpmid: 1
+pmHighResResult ... numpmid: 1
   75.0.1 (kernel.all.cpu.user): numval: 1 valfmt: 0-or-1 vlist[]:
    value NUMBER
 Fetch of kernel.all.cpu.wait.total:
-pmResult ... numpmid: 1
+pmHighResResult ... numpmid: 1
   75.0.3 (kernel.all.cpu.wait.total): numval: 1 valfmt: 0-or-1 vlist[]:
    value NUMBER
 Fetch of hinv.ncpu:
-pmResult ... numpmid: 1
+pmHighResResult ... numpmid: 1
   75.0.56 (hinv.ncpu): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
 Fetch of sampledso.aggregate.hullo:
-pmResult ... numpmid: 1
+pmHighResResult ... numpmid: 1
   30.0.34 (sampledso.aggregate.hullo): numval: 1 valfmt: 1 vlist[]:
    value STRING AGGREGATE
 Fetch of sample.seconds:
-pmResult ... numpmid: 1
+pmHighResResult ... numpmid: 1
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
 Fetch of sample.colour:
-pmResult ... numpmid: 1
+pmHighResResult ... numpmid: 1
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
     inst [1 or "green"] value NUMBER

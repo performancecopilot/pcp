@@ -237,18 +237,18 @@ parse_args(int argc, char **argv)
 void
 load_namespace(char *path)
 {
-    struct timeval	now, then;
+    struct timespec	now, then;
     int sts;
 
-    gettimeofday(&then, (struct timezone *)0);
+    pmtimespecNow(&then);
     _op++;
     if ((sts = pmLoadASCIINameSpace(path, 1)) < 0) {
 	_err++;
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), path, pmErrStr(sts));
 	exit(1);
     }
-    gettimeofday(&now, (struct timezone *)0);
-    printf("Name space load: %.2f msec\n", pmtimevalSub(&now, &then)*1000);
+    pmtimespecNow(&now);
+    printf("Name space load: %.2f msec\n", pmtimespecSub(&now, &then)*1000000);
 }
 
 void
@@ -262,7 +262,7 @@ test_api(void)
     int			n;
     int			numpmid = MAXNAMES;
     char		**names;
-    pmResult		*resp;
+    pmHighResResult	*resp;
     pmDesc		desc;
 
     _op++;
@@ -318,18 +318,18 @@ test_api(void)
      * have one yet.
      */
     if (context_type == PM_CONTEXT_ARCHIVE) {
-	struct timeval	when;
+	struct timespec	when, delta = { 1, 0 };
 
 	_op++;
-	if ((n = pmGetArchiveEnd(&when)) < 0) {
+	if ((n = pmGetHighResArchiveEnd(&when)) < 0) {
 	    _err++;
-	    printf("pmGetArchiveEnd: %s\n", pmErrStr(n));
+	    printf("pmGetHighResArchiveEnd: %s\n", pmErrStr(n));
 	}
 
 	_op++;
-	if ((n = pmSetMode(PM_MODE_BACK, &when, 1000)) < 0) {
+	if ((n = pmHighResSetMode(PM_MODE_BACK, &when, &delta)) < 0) {
 	    _err++;
-	    printf("pmSetMode(PM_MODE_BACK): %s\n", pmErrStr(n));
+	    printf("pmHighResSetMode(PM_MODE_BACK): %s\n", pmErrStr(n));
 	}
     }
 
@@ -439,10 +439,7 @@ test_api(void)
     }
 
     if (context_type == PM_CONTEXT_ARCHIVE) {
-	struct timeval	when;
-
-        when.tv_sec = 0;
-	when.tv_usec = 0;
+	struct timespec	when = { 0, 0 };
 
 	if (vflag) 
 	    printf("\nArchive result ...\n");
@@ -450,23 +447,23 @@ test_api(void)
 	    if (midlist[i] == PM_ID_NULL)
 		continue; 
 	    _op++;
-	    if ((n = pmSetMode(PM_MODE_FORW, &when, 0)) < 0) {
+	    if ((n = pmHighResSetMode(PM_MODE_FORW, &when, NULL)) < 0) {
 		_err++;
-		printf("pmSetMode(PM_MODE_FORW): %s\n", pmErrStr(n));
+		printf("pmHighResSetMode(PM_MODE_FORW): %s\n", pmErrStr(n));
 	    }
 	    else {
 		_op++;
                 if (vflag)
                     printf("Fetch of %s:\n", namelist[i]);
-		if ((n = pmFetch(1, &midlist[i], &resp)) < 0) {
+		if ((n = pmHighResFetch(1, &midlist[i], &resp)) < 0) {
 		    _err++;
-		    printf("Archive pmFetch: %s\n", pmErrStr(n));
+		    printf("Archive pmHighResFetch: %s\n", pmErrStr(n));
 		}
 		else {
 		    if (vflag)
-			__pmDumpResult(stdout, resp);
+			__pmDumpHighResResult(stdout, resp);
 		    _op++;
-		    pmFreeResult(resp);
+		    pmFreeHighResResult(resp);
 		}
 	    }
   	}/*for*/
@@ -474,23 +471,23 @@ test_api(void)
 
     else if (context_type == PM_CONTEXT_HOST) {
 	_op++;
-	if ((n = pmSetMode(PM_MODE_LIVE, (struct timeval *)0, 0)) < 0) {
+	if ((n = pmHighResSetMode(PM_MODE_LIVE, NULL, NULL)) < 0) {
 	    _err++;
-	    printf("pmSetMode(PM_MODE_LIVE): %s\n", pmErrStr(n));
+	    printf("pmHighResSetMode(PM_MODE_LIVE): %s\n", pmErrStr(n));
 	}
 	else {
 	    _op++;
-	    if ((n = pmFetch(numpmid, midlist, &resp)) < 0) {
+	    if ((n = pmHighResFetch(numpmid, midlist, &resp)) < 0) {
 		_err++;
-		printf("real-time pmFetch: %s\n", pmErrStr(n));
+		printf("real-time pmHighResFetch: %s\n", pmErrStr(n));
 	    }
 	    else {
 		if (vflag) {
 		    printf("\nReal-time result ...\n");
-		    __pmDumpResult(stdout, resp);
+		    __pmDumpHighResResult(stdout, resp);
 		}
 		_op++;
-		pmFreeResult(resp);
+		pmFreeHighResResult(resp);
 	    }
 	}
     }
@@ -500,7 +497,7 @@ test_api(void)
 int
 main(int argc, char **argv)
 {
-  parse_args(argc, argv);
+    parse_args(argc, argv);
 
     if (dump_metrics == 1) {
 	int i;
@@ -510,17 +507,17 @@ main(int argc, char **argv)
 	exit(0);
     }
 
-  if (pmns_style == 2) {
-    /* test it the new way with distributed namespace */
-    /* i.e. no client loaded namespace */
-    test_api();
-  }
-  else {
-    /* test it the old way with namespace file */
-    load_namespace(namespace);
-    test_api();
-  }
+    if (pmns_style == 2) {
+	/* test it the new way with distributed namespace */
+	/* i.e. no client loaded namespace */
+	test_api();
+    }
+    else {
+	/* test it the old way with namespace file */
+	load_namespace(namespace);
+	test_api();
+    }
 
-  printf("\nUnexpected failure for %d of %d PMAPI operations\n", _err, _op);
-  exit(0);
+    printf("\nUnexpected failure for %d of %d PMAPI operations\n", _err, _op);
+    exit(0);
 }
