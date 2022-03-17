@@ -2,6 +2,7 @@ domain.h
 exports
 pmdabpf
 pmda_bpf.so
+modules/*.skel.h
 modules/*.so
 modules/vmlinux.h
 

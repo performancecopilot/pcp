@@ -61,6 +61,8 @@ static pmdaOptions opts = {
     .long_options = longopts,
 };
 
+dict *pmda_config;
+
 /*
  * callback provided to pmdaFetch
  */
@@ -192,6 +194,7 @@ bpf_load_modules(dict *cfg)
     sds *entry_key_split;
     sds sds_enabled;
     sds sds_true;
+    unsigned int cluster_id;
 
     sds_enabled = (sdsnew("enabled"));
     sds_true = (sdsnew("true"));
@@ -235,6 +238,15 @@ bpf_load_modules(dict *cfg)
             continue;
         }
 
+        cluster_id = pmdaCacheStore(CACHE_CLUSTER_IDS, PMDA_CACHE_ADD, module_name, bpf_module);
+        free(module_name);
+        // replace module_name with a pointer to memory allocated by pmdaCacheStore
+        ret = pmdaCacheLookup(CACHE_CLUSTER_IDS, cluster_id, &module_name, NULL);
+        if (ret < 0) {
+            pmNotifyErr(LOG_ERR, "failed to load module name from cache: %s\n", pmErrStr(ret));
+            continue;
+        }
+
         pmNotifyErr(LOG_INFO, "initialising %s", module_name);
 
         // module_name is passed so that the recipient can prepend the string
@@ -243,13 +255,14 @@ bpf_load_modules(dict *cfg)
         if (ret != 0) {
             libbpf_strerror(ret, errorstring, 1023);
             pmNotifyErr(LOG_ERR, "module initialisation failed: %s, %d, %s", module_name, ret, errorstring);
-            free(module_name);
+            ret = pmdaCacheStore(CACHE_CLUSTER_IDS, PMDA_CACHE_HIDE, module_name, bpf_module);
+            if (ret < 0) {
+                pmNotifyErr(LOG_ERR, "failed to set state of pmda cache entry to hidden: %s\n", pmErrStr(ret));
+            }
             continue;
         }
 
-        unsigned int cluster_id = pmdaCacheStore(CACHE_CLUSTER_IDS, PMDA_CACHE_ADD, module_name, bpf_module);
         pmNotifyErr(LOG_INFO, "module (%s) initialised with cluster_id = %d", module_name, cluster_id);
-
         module_count++;
     }
 
@@ -261,7 +274,7 @@ bpf_load_modules(dict *cfg)
 }
 
 void
-bpf_shutdown_modules()
+bpf_shutdown()
 {
     int cache_op_status;
     module* bpf_module;
@@ -277,6 +290,10 @@ bpf_shutdown_modules()
         pmNotifyErr(LOG_INFO, "module (%s) shutting down", name);
         bpf_module->shutdown();
         cache_op_status = pmdaCacheOp(CACHE_CLUSTER_IDS, PMDA_CACHE_WALK_NEXT);
+    }
+
+    if (pmda_config) {
+        dictRelease(pmda_config);
     }
 
     pmNotifyErr(LOG_INFO, "shutdown complete");
@@ -435,13 +452,17 @@ static int
 dict_handler(void *arg, const char *section, const char *key, const char *value)
 {
     dict	*config = (dict *)arg;
-    sds		name = sdsempty();
+    sds		name;
+    int		sts;
 
-    name = sdscatfmt(name, "%s:%s", section ? section : pmGetProgname(), key);
-    return dictReplace(config, name, sdsnew(value)) != DICT_OK;
+    name = sdscatfmt(sdsempty(), "%s:%s", section ? section : pmGetProgname(), key);
+    sts = dictReplace(config, name, sdsnew(value)) != DICT_OK;
+    sdsfree(name);
+    return sts;
 }
 
-dict * bpf_config_load()
+static dict*
+bpf_config_load()
 {
     char* config_filename;
     int ret;
@@ -480,20 +501,22 @@ dict * bpf_config_load()
 void 
 bpf_init(pmdaInterface *dp)
 {
-    if (isDSO)
+    if (isDSO) {
         pmdaDSO(dp, PMDA_INTERFACE_7, "bpf", NULL);
+        atexit(bpf_shutdown);
+    }
 
     if (dp->status != 0)
         return;
 
-    dict * config = bpf_config_load();
+    pmda_config = bpf_config_load();
 
     // libbpf setup
     bpf_setrlimit();
     libbpf_set_print(bpf_printfn);
 
     pmNotifyErr(LOG_INFO, "loading modules");
-    bpf_load_modules(config);
+    bpf_load_modules(pmda_config);
 
     pmNotifyErr(LOG_INFO, "registering metrics");
     bpf_register_module_metrics();
@@ -539,7 +562,7 @@ main(int argc, char **argv)
     bpf_init(&dispatch);
     pmdaMain(&dispatch);
 
-    bpf_shutdown_modules();
+    bpf_shutdown();
 
     exit(0);
 }

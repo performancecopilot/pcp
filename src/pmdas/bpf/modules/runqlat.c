@@ -7,6 +7,7 @@
 #define NUM_LATENCY_SLOTS 63
 pmdaInstid runqlat_instances[NUM_LATENCY_SLOTS];
 
+struct runqlat_bpf *bpf_obj;
 int runqlat_fd = -1;
 #define INDOM_COUNT 1
 #define RUNQLAT_INDOM 0
@@ -81,7 +82,6 @@ void runqlat_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaIndom *i
 
 int runqlat_init(dict *cfg, char *module_name)
 {
-    struct runqlat_bpf *bpf_obj;
     char errorstring[1024];
     int ret;
 
@@ -120,6 +120,9 @@ void runqlat_shutdown()
     if (runqlat_fd != 0) {
         close(runqlat_fd);
         runqlat_fd = -1;
+    }
+    if (bpf_obj) {
+        runqlat_bpf__destroy(bpf_obj);
     }
 }
 
