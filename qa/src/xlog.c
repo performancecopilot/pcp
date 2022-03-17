@@ -163,8 +163,7 @@ main(int argc, char **argv)
 	loglabel.start.tv_nsec != duplabel.start.tv_nsec ||
 	strcmp(loglabel.hostname, duplabel.hostname) != 0 ||
 	strcmp(loglabel.timezone, duplabel.timezone) != 0 ||
-	((loglabel.zoneinfo || duplabel.zoneinfo) &&
-	  strcmp(loglabel.zoneinfo, duplabel.zoneinfo) != 0)) {
+	strcmp(loglabel.zoneinfo, duplabel.zoneinfo) != 0) {
 	printf("Error: pmHighResLogLabel mismatch\n");
 	printf("First context: magic=0x%x pid=%" FMT_PID " start=%lld.%09ld\n",
 		loglabel.magic, loglabel.pid,
