@@ -145,7 +145,7 @@ Options\n\
     __pmLogReads = 0;
 
     putchar('\n');
-    end.tv_sec = 0x7fffffff;
+    end.tv_sec = PM_MAX_TIME_T;
     end.tv_usec = 0;
     sts = pmSetMode(PM_MODE_BACK, &end, 0);
     if (sts < 0) {

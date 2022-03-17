@@ -34,7 +34,7 @@ main(int argc, char **argv)
     pmID	pmid[3];
     const char	*name[] = { "sample.seconds", "sample.drift", "sample.milliseconds" };
     pmDesc	desc[3];
-    struct timeval tend = {0x7fffffff, 0};
+    struct timeval tend = {PM_MAX_TIME_T, 0};
 
     pmSetProgname(argv[0]);
 

@@ -179,7 +179,7 @@ thread_C(void *arg)
 {
     int		iter = *((int *)arg);
     int		ctx;
-    struct timeval tend = {0x7fffffff, 0};
+    struct timeval tend = {PM_MAX_TIME_T, 0};
     pmID	pmid;
     pmResult	*rp;
     int		sts;
