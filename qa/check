@@ -401,7 +401,9 @@ do
 
 	if $use_timeout
 	then
-	    timeout -s ABRT $max_timeout ./$seq >$tmp.out 2>&1
+	    # -s 6 => SIGABRT ... see trap in common.rc
+	    #
+	    timeout -s 6 $max_timeout ./$seq >$tmp.out 2>&1
 	    sts=$?
 	else
 	    ./$seq >$tmp.out 2>&1
