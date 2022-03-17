@@ -1110,16 +1110,16 @@ class MSSQLPMDA(PMDA):
         #self.debug("mssql_refresh", "cluster %d started" % cluster)
         if cluster < 100:   # reserved for os_perf_counter clusters
             self.mssql_refresh_dm_os_perf(cluster)
-        elif cluster in self.dm_io_vfiles_clusters.keys():
+        elif cluster in self.dm_io_vfiles_clusters:
             self.mssql_refresh_dm_values(cluster,
                     self.dm_io_vfiles_clusters, self.dm_io_vfiles_items)
-        elif cluster in self.dm_os_execreq_clusters.keys():
+        elif cluster in self.dm_os_execreq_clusters:
             self.mssql_refresh_dm_values(cluster,
                     self.dm_os_execreq_clusters, self.dm_os_execreq_items)
-        elif cluster in self.dm_os_workers_clusters.keys():
+        elif cluster in self.dm_os_workers_clusters:
             self.mssql_refresh_dm_values(cluster,
                     self.dm_os_workers_clusters, self.dm_os_workers_items)
-        elif cluster in self.dm_os_wait_stats_clusters.keys():
+        elif cluster in self.dm_os_wait_stats_clusters:
             self.mssql_refresh_dm_values(cluster,
                     self.dm_os_wait_stats_clusters, self.dm_os_wait_stats_items)
         #self.debug("mssql_refresh", "cluster %d finished" % cluster)

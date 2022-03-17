@@ -89,7 +89,7 @@ class PCPBCCModule(PCPBCCBase):
                 raise RuntimeError("Language must be set when no process found on startup!")
             self.lang = utils.detect_language(self.methods.keys(), self.pid)
             self.log("Language not set, detected: %s." % str(self.lang))
-        if self.lang not in self.methods.keys():
+        if self.lang not in self.methods:
             raise RuntimeError("Language must be one of: %s." % str(self.methods.keys()))
 
         self.log("Initialized.")

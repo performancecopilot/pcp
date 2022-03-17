@@ -515,7 +515,7 @@ class PCP2Zabbix(object):
         except socket.timeout as err:
             sys.stderr.write("Zabbix connection timed out: %s\n" % str(err))
             return False
-        except KeyboardInterrupt as err:
+        except KeyboardInterrupt:
             sys.exit(1)
         finally:
             zabbix.close()

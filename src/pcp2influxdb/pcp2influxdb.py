@@ -69,7 +69,7 @@ class Metric(object):
 
     def __init__(self, name):
         self.name = self.sanitize_name(name)
-        self.fields = dict()
+        self.fields = {}
         self.tags = None
         self.ts = None
 
