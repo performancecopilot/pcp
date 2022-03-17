@@ -7,6 +7,7 @@
 #define NUM_LATENCY_SLOTS 63
 pmdaInstid biolatency_instances[NUM_LATENCY_SLOTS];
 
+struct biolatency_bpf *bpf_obj;
 int biolatency_fd = -1;
 #define INDOM_COUNT 1
 #define BIOLATENCY_INDOM 0
@@ -81,7 +82,6 @@ void biolatency_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaIndom
 
 int biolatency_init(dict *cfg, char *module_name)
 {
-    struct biolatency_bpf *bpf_obj;
     char errorstring[1024];
     int ret;
 
@@ -120,6 +120,9 @@ void biolatency_shutdown()
     if (biolatency_fd != 0) {
         close(biolatency_fd);
         biolatency_fd = -1;
+    }
+    if (bpf_obj) {
+        biolatency_bpf__destroy(bpf_obj);
     }
 }
 
