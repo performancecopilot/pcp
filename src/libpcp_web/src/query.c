@@ -172,6 +172,7 @@ freeSeriesGetLabelMap(seriesGetLabelMap *value)
     sdsfree(value->mapID);
     sdsfree(value->mapKey);
     memset(value, 0, sizeof(seriesGetLabelMap));
+    free(value);
 }
 
 static void
@@ -4341,6 +4342,7 @@ reverse_map(seriesQueryBaton *baton, redisMap *map, int nkeys, redisReply **elem
 		key = sdsnewlen(hash->str, hash->len);
 		val = sdsnewlen(name->str, name->len);
 		redisMapInsert(map, key, val);
+		sdsfree(key); // map has keyDup set
 	    } else {
 		infofmt(msg, "expected string key for hashmap (type=%s)",
 			redis_reply_type(hash));
