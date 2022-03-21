@@ -76,7 +76,7 @@ Checking policies.
   allow [pcp_pmcd_t] [virt_image_t] : [dir] { search };
   allow [pcp_pmcd_t] [syslogd_var_run_t] : [dir] { read };
   allow [pcp_pmcd_t] [syslogd_var_run_t] : [file] { getattr open read };
-  allow [pcp_pmcd_t] [syslogd_var_run_t] : [file] { map };
+! allow [pcp_pmcd_t] [syslogd_var_run_t] : [file] { map };
   allow [pcp_pmlogger_t] [kmsg_device_t] : [chr_file] { open write };
   allow [pcp_pmlogger_t] self : [capability] { kill sys_ptrace fowner fsetid };
   allow [pcp_pmlogger_t] [unconfined_t] : [process] { signal };

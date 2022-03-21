@@ -43,6 +43,7 @@ ifeq "$(PCP_SELINUX_HOSTNAME_EXEC_MAP)" "true"
 PCP_HOSTNAME_EXEC_MAP="map"
 PCP_TMP_MAP="map"
 PCP_FSADM_EXEC_MAP="map"
+PCP_SYSLOGD_VAR_RUN_MAP_RULE="allow pcp_pmcd_t syslogd_var_run_t:file map;"
 PCP_LDCONFIG_EXEC_MAP_RULE="allow pcp_pmcd_t ldconfig_exec_t:file map;"
 PCP_DEFAULT_MAP_RULE="allow pcp_pmcd_t default_t:file { map execute };"
 endif

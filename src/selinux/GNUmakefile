@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2018,2020-2021 Red Hat.
+# Copyright (c) 2017-2018,2020-2022 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -54,6 +54,7 @@ $(IAM).te: $(IAM).te.in
 		-e 's+@PCP_TMP_MAP@+'$(PCP_TMP_MAP)'+' \
 		-e 's+@PCP_DEFAULT_MAP_RULE@+'$(PCP_DEFAULT_MAP_RULE)'+' \
 		-e 's+@PCP_LDCONFIG_EXEC_MAP_RULE@+'$(PCP_LDCONFIG_EXEC_MAP_RULE)'+' \
+		-e 's+@PCP_SYSLOGD_VAR_RUN_MAP_RULE@+'$(PCP_SYSLOGD_VAR_RUN_MAP_RULE)'+' \
 		-e 's+@PCP_UNCONFINED_SERVICE@+'$(PCP_UNCONFINED_SERVICE)'+' \
 		-e 's+@PCP_UNCONFINED_SERVICE_RULE@+'$(PCP_UNCONFINED_SERVICE_RULE)'+' \
 		-e 's+@PCP_PMCD_UNCONFINED_SERVICE_RULE@+'$(PCP_PMCD_UNCONFINED_SERVICE_RULE)'+' \
