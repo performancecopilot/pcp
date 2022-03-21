@@ -16,7 +16,7 @@ do
     then
 	# now is the origin a clone of the official PCP repo?
 	#
-	if git config --get remote.origin.url | grep '.*@github.com:.*/pcp.git' >/dev/null
+	if git config --get remote.origin.url | grep '/github.com.*/pcp$' >/dev/null
 	then
 	    break
 	fi
