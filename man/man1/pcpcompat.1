@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2019-2020 Red Hat.
+.\" Copyright (c) 2019-2022 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -37,6 +37,32 @@ includes PCP archives created over 20 years ago!).
 From time to time the PCP developers deprecate and remove PCP utilities,
 replacing them with new versions of utilities providing comparable features.
 This page describes replacement utilities for historical PCP tools.
+.SH PYTHON2
+PCP provides
+.BR python (1)
+interfaces for the
+.BR PMAPI (3)
+(Performance Metrics API), the
+.BR PMDA (3)
+API (Performance Metrics Domain Agents), the
+.BR mmv_stats_register (3)
+API (Memory-Mapped Values) and PCP archive log creation
+.BR LOGIMPORT (3)
+API.
+.PP
+With
+.B python
+version 2 end-of-life since 2020 we have deprecated the
+.B python
+version 2 interfaces in PCP (shipped, but no longer supported).
+In the next major release of PCP (v7) version 2 support will be
+retired (completely removed).
+All PCP APIs and
+.BR python -based
+tools support
+.B python
+version 3 and have for several years \- upgrading is strongly
+recommended.
 .SH SAR2PCP
 The
 .BR sar2pcp (1)
@@ -173,7 +199,12 @@ services could use the scalable time series REST APIs described on
 .BR pmproxy (1),
 .BR pmseries (1),
 .BR pmdabpftrace (1),
+.BR python (1),
 .BR redis-server (1),
-.BR grafana-server (1)
+.BR grafana-server (1),
+.BR mmv_stats_register (3),
+.BR LOGIMPORT (3),
+.BR PMAPI (3),
+.BR PMDA (3)
 and
 .BR PMWEBAPI (3).
