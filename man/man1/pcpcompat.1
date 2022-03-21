@@ -63,13 +63,17 @@ tools support
 .B python
 version 3 and have for several years \- upgrading is strongly
 recommended.
-.SH SAR2PCP
+.SH SAR2PCP, IOSTAT2PCP
 The
 .BR sar2pcp (1)
-utility is now deprecated, and will be retired in a future version of
-PCP (v6).
+and
+.BR iostat2pcp (1)
+utilities are deprecated, and will be retired in a future version of
+PCP (v7).
 This is being replaced by native support for generating PCP archives
-within the tools of the sysstat package (which provides
+within the tools of the
+.I sysstat
+package (which provides
 .B sar
 itself, as well as the
 .B sadf
@@ -191,6 +195,7 @@ services could use the scalable time series REST APIs described on
 .SH SEE ALSO
 .BR pcp (1),
 .BR pmcd (1),
+.BR iostat2pcp (1),
 .BR sar2pcp (1),
 .BR pmrep (1),
 .BR pmfind (1),
