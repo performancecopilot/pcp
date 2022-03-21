@@ -1690,16 +1690,37 @@ pmDiscoverDecodeMetaDesc(uint32_t *buf, int buflen, pmDesc *p_desc, int *p_numna
 static int
 pmDiscoverDecodeMetaInDom(__int32_t *buf, int len, int type, __pmTimestamp *tsp, pmInResult *inresult)
 {
-    int			sts;
+    int			sts = 0;
+    int			allinbuf;
     __pmLogInDom_io	lid;
 
-    if ((sts = __pmLogLoadInDom(NULL, len, type, &lid, &buf)) == 0) {
+    if ((allinbuf = __pmLogLoadInDom(NULL, len, type, &lid, &buf)) >= 0) {
 	inresult->indom = lid.indom;
 	inresult->numinst = lid.numinst;
 	inresult->instlist = lid.instlist;
-	inresult->namelist = lid.namelist;
+	if (allinbuf) {
+	    /*
+	     * 32-bit architecture and namelist[] is really part
+	     * of buf[], so need to alloc a new namelist[]
+	     */
+	    char	**namelist;
+	    int		i;
+	    namelist = (char **)malloc(lid.numinst * sizeof(char *));
+	    if (namelist == NULL) {
+		pmNoMem("pmDiscoverDecodeMetaInDom", lid.numinst * sizeof(char *), PM_FATAL_ERR);
+		/* NOTREACHED */
+	    }
+	    for (i = 0; i < lid.numinst; i++) {
+		namelist[i] = lid.namelist[i];
+	    }
+	    inresult->namelist = namelist;
+	}
+	else
+	    inresult->namelist = lid.namelist;
 	*tsp = lid.stamp;
     }
+    else
+	sts = allinbuf;
 
     return sts;
 }
