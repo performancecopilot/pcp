@@ -218,6 +218,7 @@ then
     exit 1
 fi
 
+configenv=''
 if $dodeb
 then
     # On Debian-based platforms, the debian/rules file already captures 
@@ -558,13 +559,25 @@ debian_build()
 	echo "Botch: cannot find debian/rules"
 	exit 1
     fi
-    debian_opts=`sed -n <debian/rules -e '/^configure_paths/s/^[^=]*= *//p'`
-    if [ -z "$debian_opts" ]
+    debian_paths=`sed -n <debian/rules -e '/^configure_paths/s/^[^=]*= *//p'`
+    if [ -z "$debian_paths" ]
     then
 	echo "Botch: cannot get config options from configure_paths in debian/rules"
 	exit 1
     fi
-    configopts="$debian_opts $configopts"
+    configopts="$debian_paths $configopts"
+    debian_env=`sed -n <debian/rules -e '/^configure_tools/{
+s/^[^=]*= *//
+s/export *//
+s/;//
+p
+}'`
+    if [ -z "$debian_env" ]
+    then
+	echo "Botch: cannot get env settings from configure_tools in debian/rules"
+	exit 1
+    fi
+    configenv="$debian_env"
     configure_pcp
     prepare_debian_control
     sanity_check_settings
@@ -595,7 +608,8 @@ prepare_build()
 configure_pcp()
 {
     echo
-    echo "== Configuring pcp, log is in $LOGDIR/pcp ($configopts)"
+    echo "== Configuring pcp, log is in $LOGDIR/pcp $configenv ($configopts)"
+    [ -n "$configenv" ] && export $configenv
 
     rm -f $tmp/failed
     if $verbose
