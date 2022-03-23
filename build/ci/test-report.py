@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import sys
 import os
 import shutil
 import argparse
@@ -8,7 +7,7 @@ import json
 import csv
 from enum import Enum
 from collections import defaultdict
-from typing import List, Dict
+from typing import IO, List, Dict, Optional, Tuple
 import requests
 
 
@@ -72,7 +71,7 @@ def read_testlog(
                 test_no = (success_m or notrun_m or failed_m or cancelled_m).group(1)
 
                 test = Test(test_no)
-                test.groups = groups[test_no]
+                test.groups = groups.get(test_no, [])
                 test.platform = platform
                 test.path = testartifacts_dir
                 test.start, test.stop = test_durations[test_no]
@@ -108,7 +107,7 @@ def read_testlog(
     return tests
 
 
-def read_platforms(qa_dir: str, artifacts_path: str) -> List[Test]:
+def read_platforms(qa_dir: str, artifacts_path: str) -> Tuple[List[str], List[Test]]:
     groups = read_test_groups(os.path.join(qa_dir, "group"))
     platforms = set()
     tests = []
@@ -128,8 +127,8 @@ def read_platforms(qa_dir: str, artifacts_path: str) -> List[Test]:
     return list(platforms), tests
 
 
-def print_test_report_csv(tests: List[Test], f):
-    writer = csv.writer(f)
+def write_test_report_csv(tests: List[Test], out: IO):
+    writer = csv.writer(out)
     writer.writerow(["Name", "Groups", "Platform", "Start", "Stop", "Duration", "Status"])
     for test in tests:
         writer.writerow(
@@ -145,42 +144,66 @@ def print_test_report_csv(tests: List[Test], f):
         )
 
 
-def print_test_summary(tests: List[Test]):
-    print("TEST SUMMARY")
+def test_summary_short_platform(platform: str) -> str:
+    return (
+        platform.replace("-container", "")
+        .replace("fedora", "f")
+        .replace("centos-stream", "el")
+        .replace("centos", "el")
+        .replace("debian", "deb")
+        .replace("ubuntu", "ubu")
+    )
 
-    failed_tests = [t for t in tests if t.status in [Test.Status.Failed, Test.Status.Broken]]
-    if not failed_tests:
-        print("No test failures.")
+
+def write_test_summary(platforms: List[str], tests: List[Test], out: IO):
+    for test in tests:
+        if test.status in [Test.Status.Failed, Test.Status.Broken]:
+            break
+    else:
+        out.write("No failed tests.\n")
         return
 
-    print("\nAll failed tests:")
-    failed_tests_by_name = defaultdict(list)
-    for test in failed_tests:
-        failed_tests_by_name[test.name].append(test)
-    failed_tests_by_name_count = {name: len(tests) for name, tests in failed_tests_by_name.items()}
-    print(" ".join(sorted(failed_tests_by_name.keys(), key=int)))
+    platforms = sorted(platforms)
+    platform_short = {platform: test_summary_short_platform(platform) for platform in platforms}
 
-    failed_tests_by_platform = defaultdict(list)
-    for test in failed_tests:
-        failed_tests_by_platform[test.platform].append(test)
-    print()
-    for platform in sorted(failed_tests_by_platform):
-        print(f"{platform}:", " ".join(map(lambda t: t.name, failed_tests_by_platform[platform])))
+    tests_grouped = defaultdict(dict)
+    for test in tests:
+        tests_grouped[test.name][test.platform] = test
 
-    print("\nMost failed tests:")
-    failed_tests_by_name_sorted = sorted(
-        failed_tests_by_name_count.items(),
-        key=lambda t: t[1],
-        reverse=True,
-    )
-    print(f"{'Test':>5}  {'Count':>5}")
-    for name, count in failed_tests_by_name_sorted[:10]:
-        print(f"{name:>5}  {count:>5}")
+    summary = " Test "
+    for platform in platforms:
+        summary += f" {platform_short[platform]}"
+    summary += "  Groups\n"
 
-    print(f"\n::error::{len(failed_tests_by_name)} test failures ({len(failed_tests)} unique)")
+    for test_name in sorted(tests_grouped, key=int):
+        test_line = f" {int(test_name):4d} "
+        for platform in platforms:
+            col_width = len(platform_short[platform])
+            test_line += " "
+
+            test = tests_grouped[test_name].get(platform)
+            if test and test.status == Test.Status.Passed:
+                test_line += " ".center(col_width)
+            elif test and test.status in [Test.Status.Failed, Test.Status.Broken]:
+                test_line += "X".center(col_width)
+            else:
+                test_line += "-".center(col_width)
+
+        groups = sorted(list(tests_grouped[test_name].values())[0].groups)
+        test_line += f"  {' '.join(groups)}"
+
+        # skip tests without any failures
+        if "X" in test_line:
+            summary += test_line + "\n"
+
+    summary += "\nLegend:\n"
+    summary += "  Passed  ( )\n"
+    summary += "  Failure (X)\n"
+    summary += "  Skipped (-)\n"
+    out.write(summary)
 
 
-def write_allure_result(test: Test, commit: str, allure_results_path: str):
+def write_allure_test_result(test: Test, allure_results_path: str, source_url: Optional[str]):
     allure_result = {
         "name": f"QA {test.name}",
         "fullName": f"QA #{test.name} on {test.platform}",
@@ -198,12 +221,12 @@ def write_allure_result(test: Test, commit: str, allure_results_path: str):
         "links": [
             {
                 "type": "test_case",
-                "url": f"https://github.com/performancecopilot/pcp/blob/{commit}/qa/{test.name}",
+                "url": f"{source_url}/qa/{test.name}" if source_url else "",
                 "name": "Source",
             },
             {
                 "type": "test_case",
-                "url": f"https://github.com/performancecopilot/pcp/blob/{commit}/qa/{test.name}.out",
+                "url": f"{source_url}/qa/{test.name}.out" if source_url else "",
                 "name": "Expected output",
             },
         ],
@@ -246,12 +269,36 @@ def write_allure_result(test: Test, commit: str, allure_results_path: str):
         json.dump(allure_result, f)
 
 
+# pylint: disable=too-many-arguments
+def write_allure_results(
+    allure_results_path: str,
+    tests: List[Test],
+    source_url: Optional[str],
+    build_name: Optional[str],
+    build_url: Optional[str],
+    report_url: Optional[str],
+):
+    os.makedirs(allure_results_path, exist_ok=True)
+    for test in tests:
+        write_allure_test_result(test, allure_results_path, source_url)
+
+    executor = {
+        "name": "GitHub Actions",
+        "type": "github",
+        "buildName": build_name,
+        "buildUrl": build_url,
+        "reportUrl": report_url,
+    }
+    with open(os.path.join(allure_results_path, "executor.json"), "w") as f:
+        json.dump(executor, f)
+
+
 def send_slack_notification(
-    slack_channel: str,
-    github_run_url: str,
-    qa_report_url: str,
     platforms: List[str],
     tests: List[Test],
+    slack_channel: str,
+    build_url: str,
+    report_url: str,
 ):
     platform_stats = defaultdict(lambda: {"passed": 0, "failed": 0, "skipped": 0, "cancelled": 0})
     for test in tests:
@@ -309,7 +356,7 @@ def send_slack_notification(
                         "type": "section",
                         "text": {
                             "type": "mrkdwn",
-                            "text": f"*<{github_run_url}|View build logs>*\n*<{qa_report_url}|View QA report>*",
+                            "text": f"*<{build_url}|View build logs>*\n*<{report_url}|View QA report>*",
                         },
                     }
                 ]
@@ -331,35 +378,32 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--qa", default="./qa")
     parser.add_argument("--artifacts")
-    parser.add_argument("--commit")
-    parser.add_argument("--summary", action="store_true")
+    parser.add_argument("--summary", type=argparse.FileType("w"))
     parser.add_argument("--csv", type=argparse.FileType("w"))
     parser.add_argument("--allure-results", dest="allure_results")
-    parser.add_argument("--slack-channel", dest="slack_channel")  # required only for slack message
-    parser.add_argument("--github-run-url", dest="github_run_url")  # required only for slack message
-    parser.add_argument("--qa-report-url", dest="qa_report_url")  # required only for slack message
+    parser.add_argument("--source-url", dest="source_url")  # require for allure report
+    parser.add_argument("--build-name", dest="build_name")  # require for allure report
+    parser.add_argument("--build-url", dest="build_url")  # required for allure report and slack message
+    parser.add_argument("--report-url", dest="report_url")  # required for allure report and slack message
+    parser.add_argument("--slack-channel", dest="slack_channel")  # required for slack message
     args = parser.parse_args()
 
     platforms, tests = read_platforms(args.qa, args.artifacts)
 
     if args.summary:
-        print_test_summary(tests)
+        write_test_summary(platforms, tests, args.summary)
 
     if args.csv:
-        print_test_report_csv(tests, args.csv)
+        write_test_report_csv(tests, args.csv)
 
     if args.allure_results:
-        if not args.commit:
-            print("Please specify a commit hash when generating an allure report.", file=sys.stderr)
-            sys.exit(1)
-
-        os.makedirs(args.allure_results, exist_ok=True)
-        for test in tests:
-            write_allure_result(test, args.commit, args.allure_results)
+        write_allure_results(
+            args.allure_results, tests, args.source_url, args.build_name, args.build_url, args.report_url
+        )
 
     if args.slack_channel:
         print()
-        send_slack_notification(args.slack_channel, args.github_run_url, args.qa_report_url, platforms, tests)
+        send_slack_notification(platforms, tests, args.slack_channel, args.build_url, args.report_url)
 
 
 if __name__ == "__main__":
