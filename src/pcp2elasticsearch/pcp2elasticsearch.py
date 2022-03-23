@@ -1,7 +1,7 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2015-2019 Marko Myllynen <myllynen@redhat.com>
-# Copyright (C) 2014-2018 Red Hat.
+# Copyright (C) 2015-2021 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2014-2018,2022 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -28,7 +28,10 @@ import sys
 
 # Our imports
 import json
-import requests
+try:
+    import urllib.request as httprequest
+except Exception:
+    import urllib2 as httprequest
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
@@ -59,7 +62,8 @@ class pcp2elasticsearch(object):
         # Configuration directives
         self.keys = ('source', 'output', 'derived', 'header', 'globals',
                      'samples', 'interval', 'type', 'precision', 'daemonize',
-                     'es_server', 'es_index', 'es_hostid', 'es_search_type',
+                     'es_server', 'es_auth', 'es_password',
+                     'es_index', 'es_hostid', 'es_search_type',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
                      'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
@@ -110,11 +114,14 @@ class pcp2elasticsearch(object):
 
         self.es_server = ES_SERVER
         self.es_index = ES_INDEX
+        self.es_auth = None
+        self.es_password = None
         self.es_search_type = ES_SEARCH_TYPE
         self.es_hostid = None
         self.es_failed = False
 
         # Internal
+        self.request = None
         self.runtime = -1
 
         # Performance metrics store
@@ -296,6 +303,15 @@ class pcp2elasticsearch(object):
         if pmapi.c_api.pmSetContextOptions(self.context.ctx, self.opts.mode, self.opts.delta):
             raise pmapi.pmUsageErr()
 
+    def setup_urllib(self):
+        """ Setup urllib """
+        mgr = httprequest.HTTPPasswordMgrWithDefaultRealm()
+        mgr.add_password(None, self.es_server, self.es_auth, self.es_password)
+        authhandler = httprequest.HTTPBasicAuthHandler(mgr)
+        opener = httprequest.build_opener(authhandler)
+        httprequest.install_opener(opener)
+        return httprequest
+
     def validate_config(self):
         """ Validate configuration options """
         if self.version != CONFVER:
@@ -309,6 +325,15 @@ class pcp2elasticsearch(object):
 
         self.pmconfig.validate_metrics(curr_insts=not self.live_filter)
         self.pmconfig.finalize_options()
+
+        try:
+            self.request = self.setup_urllib()
+            request = self.request.urlopen(self.es_server)
+            request.read()
+            request.close()
+        except (BaseException, Exception):
+            sys.stderr.write("Cannot connect to Elasticsearch server %s, continuing.\n" % (self.es_server))
+            self.es_failed = True
 
     def execute(self):
         """ Fetch and report """
@@ -401,15 +426,18 @@ class pcp2elasticsearch(object):
                     'mappings': {'pcp-metric':
                                 {'properties':{'@timestamp':{'type':'epoch_milli'},
                                                '@host-id':{'type':'string'}}}}}
-            headers = {'content-type': 'application/json'} # Do we need this?
+            data = json.dumps(body).encode('utf-8')
+            headers = {'content-type': 'application/json'}
             url = self.es_server + '/' + self.es_index
-            requests.put(url, data=json.dumps(body), headers=headers)
+            req = httprequest.Request(url=url, data=data, headers=headers, method='PUT')
+            with httprequest.urlopen(req) as f:
+                f.close()
             if self.es_failed:
                 sys.stderr.write("Reconnected to Elasticsearch server %s.\n" % (self.es_server))
             self.es_failed = False
         except Exception as put_failed:
             if not self.es_failed:
-                sys.stderr.write("Can't connect to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(put_failed)))
+                sys.stderr.write("Cannot connect to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(put_failed)))
             self.es_failed = True
             return
 
@@ -478,10 +506,19 @@ class pcp2elasticsearch(object):
                             insts.append({inst_key: name, last_part: value})
 
         try:
+            data = json.dumps(es_doc).encode('utf-8')
             url = self.es_server + '/' + self.es_index + '/' + self.es_search_type
-            requests.post(url, data=json.dumps(es_doc), headers=headers)
+            req = httprequest.Request(url=url, data=data, headers=headers, method='POST')
+            with httprequest.urlopen(req) as f:
+                f.close()
+            if self.es_failed:
+                sys.stderr.write("Reconnected to Elasticsearch server %s.\n" % (self.es_server))
+            self.es_failed = False
+
         except Exception as post_failed:
-            sys.stderr.write("Cannot send to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(post_failed)))
+            if not self.es_failed:
+                sys.stderr.write("Cannot send to Elasticsearch server %s: %s, continuing.\n" % (self.es_server, str(post_failed)))
+            self.es_failed = True
             return
 
     def finalize(self):

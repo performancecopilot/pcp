@@ -18,8 +18,8 @@ $python -c "import requests" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python requests module not installed"
 
 port=9200
-$PCP_BINADM_DIR/telnet-probe -c localhost $port \
-       && _notrun "Someone already listening on typical Elasticsearch $port"
+$PCP_BINADM_DIR/telnet-probe -c localhost $port
+[ $? -eq 1 ] || _notrun "Elasticsearch port $port is already in use"
 
 $sudo rm -rf $seq.full $tmp.*
 signal=$PCP_BINADM_DIR/pmsignal

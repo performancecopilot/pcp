@@ -1,7 +1,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (C) 2015-2021 Marko Myllynen <myllynen@redhat.com>
-.\" Copyright (C) 2016-2018 Red Hat.
+.\" Copyright (C) 2016-2018,2022 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -139,6 +139,18 @@ es_server (string)
 Specify the URL of Elasticsearch server to send the metrics to.
 Corresponding command line option is \fB\-g\fP.
 Default is \fBhttp://localhost:9200/\fP.
+.RE
+.PP
+es_auth (string)
+.RS 4
+Specify the user name to use with Elasticsearch requests.
+Defaults to none.
+.RE
+.PP
+es_password (string)
+.RS 4
+Specify the pass word to use with Elasticsearch requests.
+Defaults to none.
 .RE
 .PP
 es_index (string)
