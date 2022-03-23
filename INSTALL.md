@@ -18,7 +18,7 @@ PCP package from source, and how to install and finally run it.
 Make sure you run the following steps as root, if you are not root, run:
 
 ```
-# sudo su
+$ sudo su
 ```
 
 If you are using Debian, or a Debian-based distribution like Ubuntu,
