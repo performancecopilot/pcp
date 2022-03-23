@@ -819,14 +819,15 @@ PCP_3.37 {
     __pmDecodeValueSet;
     __pmGetResultSize;
     __pmSortInstances;
-    __pmLogWriteMark;
     __pmSendFetchPDU;
     __pmFetch;
     __pmFetchLocal;
     __pmFetchArchive;
     __pmFreeResult;
     __pmGetTimestamp;
+    __pmLogWriteMark;
     __pmLogFeaturesStr;
+    __pmLogLoadLabelSet;
     __pmLogPutResult3;
     __pmLogSearchInDom;
     __pmLogUndeltaInDom;
