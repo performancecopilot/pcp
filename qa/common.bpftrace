@@ -110,3 +110,47 @@ _pmdabpftrace_generate_openat_syscall_activity()
         sleep 0.5
     done
 }
+
+# $1 is a .bt script ... check the probes it references are really
+# defined in the running kernel
+#
+_pmdabpftrace_check_probes()
+{
+    if [ ! -f "$1" ]
+    then
+	echo "_pmdabpfteace_check_probes: Warning: cannot find bpftrace script: $1"
+	return
+    fi
+    $sudo bpftrace -l >$tmp.probes
+
+    # strip the script to get just the list of known probes, then check
+    # these against the bpftrace -l output
+    #
+
+    rm -f $tmp.missing
+
+    tr ',' '\012' <"$1" \
+    | sed -n \
+	-e 's/^[ 	]*//' \
+	-e 's/^kretprobe/kprobe/' \
+	-e '/^hardware:/p' \
+	-e '/^kprobe:/p' \
+	-e '/^kprobe:/p' \
+	-e '/^software:/p' \
+	-e '/^tracepoint:/p' \
+    | while read probe
+    do
+	if grep "^$probe\$" <$tmp.probes >/dev/null
+	then
+	    :
+	else
+	    echo "$probe" >>$tmp.missing
+	fi
+    done
+
+    if [ -s $tmp.missing ]
+    then
+	_notrun "Missing bpftrace probe(s): `tr '\012' ' ' <$tmp.missing`"
+	# NOTREACHED
+    fi
+}

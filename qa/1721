@@ -9,6 +9,7 @@ echo "QA output created by $seq"
 . ./common.bpftrace
 
 _pmdabpftrace_check
+_pmdabpftrace_check_probes $PCP_PMDAS_DIR/bpftrace/autostart/biolatency.bt
 
 status=1       # failure is the default!
 $sudo rm -rf $tmp.* $seq.full
