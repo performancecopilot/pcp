@@ -872,11 +872,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 		/* decode on-disk timestamp and labels from buffer */
 		sts = __pmLogLoadLabelSet(tbuf, rlen, h.type,
 				&stamp, &type, &ident, &nsets, &labelsets);
+		if (sts >= 0)
+		    sts = addlabel(acp, type, ident, nsets, labelsets, &stamp);
 	    }
 	    free(tbuf);
-
-	    if (sts >= 0)
-		sts = addlabel(acp, type, ident, nsets, labelsets, &stamp);
 	    if (sts < 0)
 		goto end;
 	}

@@ -208,6 +208,9 @@ __pmLogLoadLabelSet(char *tbuf, int rlen, int rtype, __pmTimestamp *stamp,
     nsets = ntohl(*((unsigned int *)&tbuf[k]));
     k += sizeof(*nsetsp);
 
+    if (nsets >= PM_MAXLABELS * 6)
+	return PM_ERR_LOGREC;
+
     if (nsets > 0 &&
 	(labelsets = (pmLabelSet *)calloc(nsets, sizeof(pmLabelSet))) == NULL) {
 	return -oserror();
