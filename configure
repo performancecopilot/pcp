@@ -726,6 +726,7 @@ pcp_selinux_security_class
 pcp_selinux_sock_file_class
 pcp_selinux_netlink_audit_socket_class
 pcp_selinux_netlink_selinux_socket_class
+pcp_selinux_mdadm_conf
 pcp_selinux_kmod_exec
 pcp_selinux_faillog
 pcp_selinux_logrotate
@@ -12412,6 +12413,7 @@ pcp_selinux_xauth_exec=false
 pcp_selinux_logrotate=false
 pcp_selinux_faillog=false
 pcp_selinux_kmod_exec=false
+pcp_selinux_mdadm_conf=false
 
 pcp_selinux_netlink_selinux_socket_class=false
 pcp_selinux_netlink_audit_socket_class=false
@@ -12459,6 +12461,8 @@ if test "x$enable_selinux" != "xfalse"; then :
 	&& pcp_selinux_dma_device=true
     grep '^[ 	][ 	]*glusterd_log_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_glusterd_log=true
+    grep '^[ 	][ 	]*mdadm_conf_t_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_mdadm_conf=true
 
 
     grep '^[ 	][ 	]*initrc_tmp_t$' <conftest.out >/dev/null \
@@ -12564,6 +12568,7 @@ if test "x$enable_selinux" != "xfalse"; then :
 
 
 fi
+
 
 
 
