@@ -1524,6 +1524,8 @@ PCP_CALL extern void __pmFreeHighResResult(pmHighResResult *);
 PCP_CALL extern int __pmLogLoadInDom(__pmArchCtl *, int, int, __pmLogInDom_io *, __int32_t **);
 PCP_CALL extern int __pmLogLoadLabel(__pmFILE *, __pmLogLabel *);
 PCP_CALL extern void __pmLogFreeLabel(__pmLogLabel *);
+PCP_CALL extern int __pmLogLoadLabelSet(char *, int, int, __pmTimestamp *,
+					int *, int *, int *, pmLabelSet **);
 
 /*
  * Routines to pack (Put) and unpack (Load) each timestamp format

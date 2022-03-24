@@ -581,7 +581,7 @@ http_add_parameter(dict *parameters,
     return 0;
 }
 
-static int
+int
 http_parameters(const char *url, size_t length, dict **parameters)
 {
     const char		*end = url + length;

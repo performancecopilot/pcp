@@ -844,17 +844,12 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 	    }
 	}
 	else if (h.type == TYPE_LABEL || h.type == TYPE_LABEL_V2) {
-	    char		*tbuf;
-	    int			k;
-	    int			j;
+	    __pmTimestamp	stamp;
 	    int			type;
 	    int			ident;
 	    int			nsets;
-	    int			inst;
-	    int			jsonlen;
-	    int			nlabels;
-	    __pmTimestamp	stamp;
-	    pmLabelSet		*labelsets = NULL;
+	    pmLabelSet		*labelsets;
+	    char		*tbuf;
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 	    if ((tbuf = (char *)malloc(rlen)) == NULL) {
@@ -872,103 +867,16 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":11", PM_FAULT_ALLOC);
 		}
 		else
 		    sts = PM_ERR_LOGREC;
-		free(tbuf);
-		goto end;
-	    }
-
-	    k = 0;
-	    if (h.type == TYPE_LABEL_V2) {
-		__pmLoadTimeval((__int32_t *)&tbuf[k], &stamp);
-		k += 2*sizeof(__int32_t);
 	    }
 	    else {
-		__pmLoadTimestamp((__int32_t *)&tbuf[k], &stamp);
-		k += sizeof(__uint64_t) + sizeof(__int32_t);
-	    }
-
-	    type = ntohl(*((unsigned int*)&tbuf[k]));
-	    k += sizeof(type);
-
-	    ident = ntohl(*((unsigned int*)&tbuf[k]));
-	    k += sizeof(ident);
-
-	    nsets = *((unsigned int *)&tbuf[k]);
-	    nsets = ntohl(nsets);
-	    k += sizeof(nsets);
-
-	    if (nsets > 0 &&
-		(labelsets = (pmLabelSet *)calloc(nsets, sizeof(pmLabelSet))) == NULL) {
-		sts = -oserror();
-		free(tbuf);
-		goto end;
-	    }
-
-	    for (i = 0; i < nsets; i++) {
-		inst = *((unsigned int*)&tbuf[k]);
-		inst = ntohl(inst);
-		k += sizeof(inst);
-		labelsets[i].inst = inst;
-
-		jsonlen = ntohl(*((unsigned int*)&tbuf[k]));
-		k += sizeof(jsonlen);
-		labelsets[i].jsonlen = jsonlen;
-
-		if (jsonlen < 0 || jsonlen > PM_MAXLABELJSONLEN) {
-		    if (pmDebugOptions.logmeta)
-			fprintf(stderr, "%s: corrupted json in labelset. jsonlen=%d\n",
-					"__pmLogLoadMeta", jsonlen);
-		    sts = PM_ERR_LOGREC;
-		    free(labelsets);
-		    free(tbuf);
-		    goto end;
-		}
-
-		if ((labelsets[i].json = (char *)malloc(jsonlen+1)) == NULL) {
-		    sts = -oserror();
-		    free(labelsets);
-		    free(tbuf);
-		    goto end;
-		}
-
-		memcpy((void *)labelsets[i].json, (void *)&tbuf[k], jsonlen);
-		labelsets[i].json[jsonlen] = '\0';
-		k += jsonlen;
-
-		/* label nlabels */
-		nlabels = ntohl(*((unsigned int *)&tbuf[k]));
-		k += sizeof(nlabels);
-		labelsets[i].nlabels = nlabels;
-
-		if (nlabels > 0) { /* nlabels < 0 is an error code. skip it here */
-		    if (nlabels > PM_MAXLABELS || k + nlabels * sizeof(pmLabel) > rlen) {
-			/* corrupt archive metadata detected. GH #475 */
-			if (pmDebugOptions.logmeta)
-			    fprintf(stderr, "%s: corrupted labelset. nlabels=%d\n",
-					    "__pmLogLoadMeta", nlabels);
-			sts = PM_ERR_LOGREC;
-			free(labelsets);
-			free(tbuf);
-			goto end;
-		    }
-
-		    if ((labelsets[i].labels = (pmLabel *)calloc(nlabels, sizeof(pmLabel))) == NULL) {
-			sts = -oserror();
-			free(labelsets);
-			free(tbuf);
-			goto end;
-		    }
-
-		    /* label pmLabels */
-		    for (j = 0; j < nlabels; j++) {
-			labelsets[i].labels[j] = *((pmLabel *)&tbuf[k]);
-			__ntohpmLabel(&labelsets[i].labels[j]);
-			k += sizeof(pmLabel);
-		    }
-		}
+		/* decode on-disk timestamp and labels from buffer */
+		sts = __pmLogLoadLabelSet(tbuf, rlen, h.type,
+				&stamp, &type, &ident, &nsets, &labelsets);
+		if (sts >= 0)
+		    sts = addlabel(acp, type, ident, nsets, labelsets, &stamp);
 	    }
 	    free(tbuf);
-
-	    if ((sts = addlabel(acp, type, ident, nsets, labelsets, &stamp)) < 0)
+	    if (sts < 0)
 		goto end;
 	}
 	else if (h.type == TYPE_TEXT) {

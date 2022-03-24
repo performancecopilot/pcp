@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017,2020-2021 Red Hat.
+ * Copyright (c) 2012-2017,2020-2022 Red Hat.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2021, Ken McDonell.  All Rights Reserved.
  *
@@ -176,4 +176,106 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":12", PM_FAULT_ALLOC);
     free(out);
 
     return addlabel(acp, type, ident, nsets, labelsets, tsp);
+}
+
+int
+__pmLogLoadLabelSet(char *tbuf, int rlen, int rtype, __pmTimestamp *stamp,
+		int *typep, int *identp, int *nsetsp, pmLabelSet **labelsetsp)
+{
+    pmLabelSet		*labelsets = NULL;
+    int			jsonlen, nlabels, nsets, inst;
+    int			i, j, k, sts;
+
+    *nsetsp = 0;
+    *labelsetsp = NULL;
+
+    k = 0;
+    if (rtype == TYPE_LABEL_V2) {
+	__pmLoadTimeval((__int32_t *)&tbuf[k], stamp);
+	k += 2*sizeof(__int32_t);
+    }
+    else {
+	__pmLoadTimestamp((__int32_t *)&tbuf[k], stamp);
+	k += sizeof(__uint64_t) + sizeof(__int32_t);
+    }
+
+    *typep = ntohl(*((unsigned int*)&tbuf[k]));
+    k += sizeof(*typep);
+
+    *identp = ntohl(*((unsigned int*)&tbuf[k]));
+    k += sizeof(*identp);
+
+    nsets = ntohl(*((unsigned int *)&tbuf[k]));
+    k += sizeof(*nsetsp);
+
+    if (nsets >= PM_MAXLABELS * 6)
+	return PM_ERR_LOGREC;
+
+    if (nsets > 0 &&
+	(labelsets = (pmLabelSet *)calloc(nsets, sizeof(pmLabelSet))) == NULL) {
+	return -oserror();
+    }
+
+    for (i = 0; i < nsets; i++) {
+	inst = *((unsigned int*)&tbuf[k]);
+	inst = ntohl(inst);
+	k += sizeof(inst);
+	labelsets[i].inst = inst;
+
+	jsonlen = ntohl(*((unsigned int*)&tbuf[k]));
+	k += sizeof(jsonlen);
+	labelsets[i].jsonlen = jsonlen;
+
+	if (jsonlen < 0 || jsonlen > PM_MAXLABELJSONLEN) {
+	    if (pmDebugOptions.logmeta)
+		fprintf(stderr, "%s: corrupted json in labelset. jsonlen=%d\n",
+				"__pmLogLoadLabelSet", jsonlen);
+	    sts = PM_ERR_LOGREC;
+	    free(labelsets);
+	    return sts;
+	}
+
+	if ((labelsets[i].json = (char *)malloc(jsonlen+1)) == NULL) {
+	    sts = -oserror();
+	    free(labelsets);
+	    return sts;
+	}
+
+	memcpy((void *)labelsets[i].json, (void *)&tbuf[k], jsonlen);
+	labelsets[i].json[jsonlen] = '\0';
+	k += jsonlen;
+
+	/* label nlabels */
+	nlabels = ntohl(*((unsigned int *)&tbuf[k]));
+	k += sizeof(nlabels);
+	labelsets[i].nlabels = nlabels;
+
+	if (nlabels > 0) { /* nlabels < 0 is an error code. skip it here */
+	    if (nlabels > PM_MAXLABELS || k + nlabels * sizeof(pmLabel) > rlen) {
+		/* corrupt archive metadata detected. GH #475 */
+		if (pmDebugOptions.logmeta)
+		    fprintf(stderr, "%s: corrupted labelset. nlabels=%d\n",
+				    "__pmLogLoadLabelSet", nlabels);
+		sts = PM_ERR_LOGREC;
+		free(labelsets);
+		return sts;
+	    }
+
+	    if ((labelsets[i].labels = (pmLabel *)calloc(nlabels, sizeof(pmLabel))) == NULL) {
+		sts = -oserror();
+		free(labelsets);
+		return sts;
+	    }
+
+	    /* label pmLabels */
+	    for (j = 0; j < nlabels; j++) {
+		labelsets[i].labels[j] = *((pmLabel *)&tbuf[k]);
+		__ntohpmLabel(&labelsets[i].labels[j]);
+		k += sizeof(pmLabel);
+	    }
+	}
+    }
+    *nsetsp = nsets;
+    *labelsetsp = labelsets;
+    return 0;
 }

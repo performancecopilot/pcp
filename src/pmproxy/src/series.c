@@ -12,6 +12,7 @@
  * License for more details.
  */
 #include "server.h"
+#include "util.h"
 #include <assert.h>
 
 typedef enum pmSeriesRestKey {
@@ -833,30 +834,26 @@ static int
 pmseries_request_body(struct client *client, const char *content, size_t length)
 {
     pmSeriesBaton	*baton = (pmSeriesBaton *)client->u.http.data;
-    sds			series;
 
     if (pmDebugOptions.http)
 	fprintf(stderr, "series servlet body (client=%p)\n", client);
 
-    if (client->u.http.parser.method != HTTP_POST)
+    if (client->u.http.parser.method != HTTP_POST || client->u.http.parameters != NULL)
 	return 0;
 
     switch (baton->restkey) {
     case RESTKEY_LOAD:
     case RESTKEY_QUERY:
-	sdsfree(baton->query);
-	baton->query = sdsnewlen(content, length);
-	break;
-
     case RESTKEY_DESC:
     case RESTKEY_INSTS:
     case RESTKEY_LABELS:
     case RESTKEY_METRIC:
     case RESTKEY_SOURCE:
     case RESTKEY_VALUES:
-	series = sdsnewlen(content, length);
-	baton->sids = sdssplitlen(series, length, "\n", 1, &baton->nsids);
-	sdsfree(series);
+	/* parse URL encoded parameters in the request body */
+	/* in the same way as the URL query string */
+	http_parameters(content, length, &client->u.http.parameters);
+	pmseries_setup_request_parameters(client, baton, client->u.http.parameters);
 	break;
 
     default:

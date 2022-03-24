@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2021 Red Hat.
+ * Copyright (c) 2018-2022 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -523,7 +523,6 @@ pmDiscoverMonitor(sds path, void (*callback)(pmDiscover *))
 #ifdef HAVE_NETWORK_BYTEORDER
 #define __ntohpmInDom(a)        (a)
 #define __ntohpmUnits(a)        (a)
-#define __ntohpmLabel(a)        (a)
 #define __ntohpmID(a)           (a)
 #else
 #define __ntohpmInDom(a)        ntohl(a)
@@ -537,16 +536,6 @@ __ntohpmUnits(pmUnits units)
     x = ntohl(*(unsigned int *)&units);
     units = *(pmUnits *)&x;
     return units;
-}
-
-static void
-__ntohpmLabel(pmLabel * const label)
-{
-    label->name = ntohs(label->name);
-    /* label->namelen is one byte */
-    /* label->flags is one byte */
-    label->value = ntohs(label->value);
-    label->valuelen = ntohs(label->valuelen);
 }
 #endif
 
@@ -1112,7 +1101,7 @@ process_metadata(pmDiscover *p)
 	case TYPE_LABEL_V2:
 	    /* decode labelset from buffer */
 	    mmv_inc(data->map, data->metrics[DISCOVER_DECODE_LABEL]);
-	    if ((e = pmDiscoverDecodeMetaLabelSet(buf, len, hdr.type, &stamp, &id, &type, &nsets, &labelset)) < 0) {
+	    if ((e = pmDiscoverDecodeMetaLabelSet(buf, len, hdr.type, &stamp, &type, &id, &nsets, &labelset)) < 0) {
 		if (pmDebugOptions.discovery)
 		    fprintf(stderr, "%s failed: err=%d %s\n",
 				    "pmDiscoverDecodeMetaLabelSet", e, pmErrStr(e));
@@ -1743,101 +1732,7 @@ pmDiscoverDecodeMetaHelpText(uint32_t *buf, int len, int *type, int *id, char **
 }
 
 static int
-pmDiscoverDecodeMetaLabelSet(uint32_t *buf, int buflen, int type, __pmTimestamp *tsp, int *identp, int *typep, int *nsetsp, pmLabelSet **setsp)
+pmDiscoverDecodeMetaLabelSet(uint32_t *buf, int buflen, int type, __pmTimestamp *tsp, int *typep, int *idp, int *nsetsp, pmLabelSet **setsp)
 {
-    char		*json, *tbuf = (char *)buf;
-    pmLabelSet		*labelsets = NULL;
-    pmTimeval		*tvp;
-    int			ident;
-    int			nsets;
-    int			inst;
-    int			jsonlen;
-    int			nlabels;
-    int			i, j, k;
-
-    k = 0;
-    tvp = (pmTimeval *)&tbuf[k];
-    tsp->sec = ntohl(tvp->tv_sec);
-    tsp->nsec = ntohl(tvp->tv_usec) * 1000;
-    k += sizeof(*tvp);
-
-    type = ntohl(*((unsigned int*)&tbuf[k]));
-    k += sizeof(type);
-
-    ident = ntohl(*((unsigned int*)&tbuf[k]));
-    k += sizeof(ident);
-
-    nsets = *((unsigned int *)&tbuf[k]);
-    nsets = ntohl(nsets);
-    k += sizeof(nsets);
-
-    if (pmDebugOptions.discovery)
-	fprintf(stderr, "DECODE LABELSET type=%d (%s) ident=%d nsets=%d\n",
-	    type, __pmLabelTypeString(type), ident, nsets);
-
-    if (nsets < 0)
-    	return PM_ERR_IPC;
-    if (nsets == 0)
-	goto success;
-
-    if ((labelsets = (pmLabelSet *)calloc(nsets, sizeof(pmLabelSet))) == NULL)
-	return -ENOMEM;
-
-    for (i = 0; i < nsets; i++) {
-	inst = *((unsigned int*)&tbuf[k]);
-	inst = ntohl(inst);
-	k += sizeof(inst);
-	labelsets[i].inst = inst;
-
-	jsonlen = ntohl(*((unsigned int*)&tbuf[k]));
-	k += sizeof(jsonlen);
-	labelsets[i].jsonlen = jsonlen;
-
-	if (jsonlen < 0 || jsonlen > PM_MAXLABELJSONLEN)
-	    goto corrupt;
-	json = (char *)&tbuf[k];
-	k += jsonlen;
-	if (jsonlen > 0) {
-	    if ((labelsets[i].json = strndup(json, jsonlen)) == NULL) {
-		pmFreeLabelSets(labelsets, nsets);
-		return -ENOMEM;
-	    }
-	}
-
-	/* setup the label nlabels count */
-	nlabels = ntohl(*((unsigned int *)&tbuf[k]));
-	k += sizeof(nlabels);
-	labelsets[i].nlabels = nlabels;
-
-	if (nlabels >= PM_MAXLABELS)
-	    goto corrupt;
-
-	if (nlabels > 0) { /* less than zero is an err code, skip it */
-	    if (nlabels > PM_MAXLABELS || k + nlabels * sizeof(pmLabel) > buflen)
-	    	goto corrupt;
-	    labelsets[i].labels = (pmLabel *)calloc(nlabels, sizeof(pmLabel));
-	    if (labelsets[i].labels == NULL) {
-		pmFreeLabelSets(labelsets, nsets);
-		return -ENOMEM;
-	    }
-	    /* setup the label pmLabel structures */
-	    for (j = 0; j < nlabels; j++) {
-		labelsets[i].labels[j] = *((pmLabel *)&tbuf[k]);
-		__ntohpmLabel(&labelsets[i].labels[j]);
-		k += sizeof(pmLabel);
-	    }
-	}
-    }
-
-success:
-    *identp = ident;
-    *typep = type;
-    *nsetsp = nsets;
-    *setsp = labelsets;
-    return 0;
-
-corrupt:
-    if (labelsets)
-	pmFreeLabelSets(labelsets, nsets);
-    return PM_ERR_IPC;
+    return __pmLogLoadLabelSet((char *)buf, buflen, type, tsp, typep, idp, nsetsp, setsp);
 }
