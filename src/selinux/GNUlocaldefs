@@ -150,3 +150,8 @@ ifeq "$(PCP_SELINUX_KMOD_EXEC)" "true"
 PCP_KMOD_EXEC_T="type kmod_exec_t;"
 PCP_KMOD_EXEC_RULE="allow pcp_pmcd_t kmod_exec_t:file { execute execute_no_trans };"
 endif
+
+ifeq "$(PCP_SELINUX_MDADM_CONF)" "true"
+PCP_MDADM_CONF_T="type mdadm_conf_t;"
+PCP_MDADM_CONF_RULE="allow pcp_pmcd_t mdadm_conf_t:file { getattr open read };"
+endif

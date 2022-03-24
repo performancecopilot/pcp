@@ -2133,6 +2133,7 @@ pcp_selinux_xauth_exec=false
 pcp_selinux_logrotate=false
 pcp_selinux_faillog=false
 pcp_selinux_kmod_exec=false
+pcp_selinux_mdadm_conf=false
 
 pcp_selinux_netlink_selinux_socket_class=false
 pcp_selinux_netlink_audit_socket_class=false
@@ -2183,6 +2184,8 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
 	&& pcp_selinux_dma_device=true
     grep '^[[ 	]][[ 	]]*glusterd_log_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_glusterd_log=true
+    grep '^[[ 	]][[ 	]]*mdadm_conf_t_t$' <conftest.out >/dev/null \
+	&& pcp_selinux_mdadm_conf=true
 
     dnl these ones are for pcpqa.te
 
@@ -2341,6 +2344,7 @@ AC_SUBST(pcp_selinux_xauth_exec)
 AC_SUBST(pcp_selinux_logrotate)
 AC_SUBST(pcp_selinux_faillog)
 AC_SUBST(pcp_selinux_kmod_exec)
+AC_SUBST(pcp_selinux_mdadm_conf)
 
 AC_SUBST(pcp_selinux_netlink_selinux_socket_class)
 AC_SUBST(pcp_selinux_netlink_audit_socket_class)
