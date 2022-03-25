@@ -186,8 +186,10 @@ def write_test_summary(platforms: List[str], tests: List[Test], out: IO):
                 test_line += " ".center(col_width)
             elif test and test.status in [Test.Status.Failed, Test.Status.Broken]:
                 test_line += "X".center(col_width)
-            else:
+            elif test and test.status == Test.Status.Skipped:
                 test_line += "-".center(col_width)
+            else:
+                test_line += "?".center(col_width)
 
         groups = sorted(list(tests_grouped[test_name].values())[0].groups)
         test_line += f"  {' '.join(groups)}"
@@ -200,6 +202,7 @@ def write_test_summary(platforms: List[str], tests: List[Test], out: IO):
     summary += "  Passed  ( )\n"
     summary += "  Failure (X)\n"
     summary += "  Skipped (-)\n"
+    summary += "  Missing (?)\n"
     out.write(summary)
 
 
