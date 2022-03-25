@@ -2,17 +2,17 @@
 name: CI
 on:
   push:
-    # run on all branches, no tags
+    # run on main branch, no tags
     branches:
-      - '**'
+      - main
     tags-ignore:
       - '**'
-  pull_request:
 
 jobs:
   qa:
     name: ${{ matrix.platform }}
     runs-on: ${{ matrix.os }}
+    # do not mark the workflow as failed if an experimental distro (e.g. rawhide) fails
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       fail-fast: false
@@ -54,6 +54,7 @@ jobs:
         run: |
           python3 -c 'import yaml' || pip3 install pyyaml
           mkdir -p artifacts/build artifacts/test
+          touch artifacts/build/.keep
 
           build/ci/ci-run.py ${{ matrix.platform }} setup
 
@@ -63,7 +64,10 @@ jobs:
       - name: Copy build artifacts
         run: build/ci/ci-run.py ${{ matrix.platform }} artifacts build --path artifacts/build
 
-      - name: Publish build artifacts
+      - name: Upload build artifacts
+        # always() is required here to run this step even if the build fails
+        # otherwise the platform will be skipped in the test report (it should be flagged as broken)
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: build-${{ matrix.platform }}
@@ -80,11 +84,11 @@ jobs:
         run: build/ci/ci-run.py ${{ matrix.platform }} task qa_sanity
 
       - name: Copy test results
-        # always() is required here to run this step even if the QA step fails
+        # always() is required here to run this step even if the QA step fails or times out
         if: always() && steps.init_qa.outcome == 'success'
         run: build/ci/ci-run.py ${{ matrix.platform }} artifacts test --path artifacts/test
 
-      - name: Publish test results
+      - name: Upload test results
         if: always() && steps.init_qa.outcome == 'success'
         uses: actions/upload-artifact@v3
         with:
