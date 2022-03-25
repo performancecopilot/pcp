@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - '*.*.*'
+      - '!*alpha'
+      - '!*beta'
   workflow_dispatch:
 
 jobs:
