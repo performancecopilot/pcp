@@ -792,12 +792,24 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
     int		version;
     int		sts;
 
-    if ((sts = __pmLogFindOpen(ctxp->c_archctl, name)) < 0)
+    if ((sts = __pmLogFindOpen(ctxp->c_archctl, name)) < 0) {
+	if (pmDebugOptions.log && pmDebugOptions.desperate) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmLogOpen(..., %s, ...): __pmLogFindOpen: %s\n",
+		name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
 	return sts;
+    }
 
     acp->ac_curvol = -1;
-    if ((sts = __pmLogChangeVol(acp, lcp->minvol)) < 0)
+    if ((sts = __pmLogChangeVol(acp, lcp->minvol)) < 0) {
+	if (pmDebugOptions.log && pmDebugOptions.desperate) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmLogOpen(..., %s, ...): __pmLogChangeVol: %s\n",
+		name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
 	goto cleanup;
+    }
     else
 	version = sts;
 
@@ -805,8 +817,14 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 
     if (lcp->tifp) {
 	sts = __pmLogChkLabel(acp, lcp->tifp, &label, PM_LOG_VOL_TI);
-	if (sts < 0)
+	if (sts < 0) {
+	    if (pmDebugOptions.log && pmDebugOptions.desperate) {
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "__pmLogOpen(..., %s, ...): __pmLogChkLabel TI: %s\n",
+		    name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    }
 	    goto cleanup;
+	}
 	if (sts != version) {
 	    /* mismatch between meta & actual data versions! */
 	    sts = PM_ERR_LABEL;
@@ -821,8 +839,14 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 	logFreeLabel(&label);
     }
 
-    if ((sts = __pmLogChkLabel(acp, lcp->mdfp, &label, PM_LOG_VOL_META)) < 0)
+    if ((sts = __pmLogChkLabel(acp, lcp->mdfp, &label, PM_LOG_VOL_META)) < 0) {
+	if (pmDebugOptions.log && pmDebugOptions.desperate) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmLogOpen(..., %s, ...): __pmLogChkLabel META: %s\n",
+		name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
 	goto cleanup;
+    }
     else if (sts != version) {	/* version mismatch between meta & ti */
 	sts = PM_ERR_LABEL;
 	goto cleanup;
@@ -832,14 +856,32 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
      * Perform consistency checks between this label and the labels of other
      * archives possibly making up this context.
      */
-    if ((sts = checkLabelConsistency(ctxp, &lcp->label)) < 0)
+    if ((sts = checkLabelConsistency(ctxp, &lcp->label)) < 0) {
+	if (pmDebugOptions.log && pmDebugOptions.desperate) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmLogOpen(..., %s, ...): checkLabelConsistency: %s\n",
+		name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
 	goto cleanup;
+    }
 
-    if ((sts = __pmLogLoadMeta(acp)) < 0)
+    if ((sts = __pmLogLoadMeta(acp)) < 0) {
+	if (pmDebugOptions.log && pmDebugOptions.desperate) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmLogOpen(..., %s, ...): __pmLogLoadMeta: %s\n",
+		name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
 	goto cleanup;
+    }
 
-    if ((sts = __pmLogLoadIndex(lcp)) < 0)
+    if ((sts = __pmLogLoadIndex(lcp)) < 0) {
+	if (pmDebugOptions.log && pmDebugOptions.desperate) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmLogOpen(..., %s, ...): __pmLogLoadIndex: %s\n",
+		name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
 	goto cleanup;
+    }
 
     if (lcp->label.pid != label.pid ||
 	strcmp(lcp->label.hostname, label.hostname) != 0) {
