@@ -334,6 +334,7 @@ def send_slack_notification(
     slack_channel: str,
     build_url: str,
     report_url: str,
+    summary_url: str,
 ):
     platform_stats = defaultdict(lambda: {"passed": 0, "failed": 0, "skipped": 0, "cancelled": 0})
     for test in tests:
@@ -391,7 +392,9 @@ def send_slack_notification(
                         "type": "section",
                         "text": {
                             "type": "mrkdwn",
-                            "text": f"*<{build_url}|View build logs>*\n*<{report_url}|View QA report>*",
+                            "text": f"*<{build_url}|View build logs>*\n"
+                            f"*<{report_url}|View QA report>*\n"
+                            f"*<{summary_url}|View test summary>*",
                         },
                     }
                 ]
@@ -421,6 +424,7 @@ def main():
     parser.add_argument("--build-url", dest="build_url")  # required for allure report and slack message
     parser.add_argument("--report-url", dest="report_url")  # required for allure report and slack message
     parser.add_argument("--slack-channel", dest="slack_channel")  # required for slack message
+    parser.add_argument("--summary-url", dest="summary_url")  # required for slack message
     args = parser.parse_args()
 
     platforms, tests = read_platforms(args.qa, args.artifacts)
@@ -438,7 +442,7 @@ def main():
 
     if args.slack_channel:
         print()
-        send_slack_notification(platforms, tests, args.slack_channel, args.build_url, args.report_url)
+        send_slack_notification(platforms, tests, args.slack_channel, args.build_url, args.report_url, args.summary_url)
 
 
 if __name__ == "__main__":

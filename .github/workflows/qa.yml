@@ -106,6 +106,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       report_id: ${{ steps.parse_test_results.outputs.report_id }}
+      summary_url: ${{ steps.publish_test_summary.outputs.summary_url }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
@@ -172,6 +173,7 @@ jobs:
           path: qareport.zip
 
       - name: Publish test summary
+        id: publish_test_summary
         uses: actions/github-script@v6
         continue-on-error: true
         with:
@@ -189,6 +191,7 @@ jobs:
                 summary: '```\n' + fs.readFileSync('summary.txt', 'utf8') + '\n```',
               }
             });
+            console.log(`::set-output name=summary_url::${response.data.html_url}`);
 
   publish_report:
     name: Publish Test Report
@@ -200,10 +203,10 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - name: Checkout performancecopilot/qa-reports
+      - name: Checkout ${{ github.repository_owner }}/qa-reports
         uses: actions/checkout@v3
         with:
-          repository: performancecopilot/qa-reports
+          repository: ${{ github.repository_owner }}/qa-reports
           path: qa-reports
           ssh-key: ${{ secrets.QA_REPORT_DEPLOY_KEY }}
 
@@ -248,8 +251,10 @@ jobs:
             --artifacts artifacts \
             --slack-channel "${SLACK_CHANNEL}" \
             --build-url  "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
-            --report-url "https://${{ github.repository_owner }}.github.io/qa-reports/reports/${REPORT_ID}/"
+            --report-url "https://${{ github.repository_owner }}.github.io/qa-reports/reports/${REPORT_ID}/" \
+            --summary-url "${SUMMARY_URL}"
         env:
-          SLACK_CHANNEL: C011ERBFQGN
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           REPORT_ID: ${{ needs.create_report.outputs.report_id }}
+          SUMMARY_URL: ${{ needs.create_report.outputs.summary_url }}
