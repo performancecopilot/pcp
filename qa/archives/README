@@ -6,6 +6,10 @@ PCP code base is expected to handle gracefully.
 
 These ones are checked into the git tree.
 
+The goal here is that pmlogcheck -w should report no issues for all
+the archives in this directory.  The ./check-archives script may be
+used to check this.
+
 For some of them, the makefile and the associated pmlogger
 configuration files and scripts provide recipes for recreating them.
 
