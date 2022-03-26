@@ -145,7 +145,7 @@ End-of-File
 cat $tmp.conf >>$seq.full
 arch=ok-truncbin
 rm -f $tmp.arch/*
-cp archives/$arch.* $tmp.arch
+cp badarchives/$arch.* $tmp.arch
 ls -l $tmp.arch >>$seq.full
 pmlogrewrite -Dlog -iwv -c $tmp.conf $tmp.arch/$arch 2>$tmp.err >$tmp.out
 cat $tmp.out $tmp.err \
@@ -157,7 +157,7 @@ s/\.0/.EXT/
 }'
 ls $tmp.arch
 ls -l $tmp.arch >>$seq.full
-_cmp archives/$arch $tmp.arch/$arch
+_cmp badarchives/$arch $tmp.arch/$arch
 
 # success, all done
 exit

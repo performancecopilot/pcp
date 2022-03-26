@@ -613,6 +613,11 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
     }
     sts = __pmLogOpen(name, ctxp);
     if (sts < 0) {
+	if (pmDebugOptions.log && pmDebugOptions.desperate) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmFindOrOpenArchive(..., %s, ...): __pmLogOpen: %s\n",
+		name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
 #ifdef PM_MULTI_THREAD
 	__pmDestroyMutex(&lcp->lc_lock);
 #endif
@@ -841,8 +846,14 @@ initarchive(__pmContext	*ctxp, const char *name, int chkfeatures)
 	 * if necessary
 	 */
 	sts = __pmFindOrOpenArchive(ctxp, current, multi_arch);
-	if (sts < 0)
+	if (sts < 0) {
+	    if (pmDebugOptions.log && pmDebugOptions.desperate) {
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "initarchive(..., %s, ...): __pmFindOrOpenArchive: %s\n",
+		    name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    }
 	    goto error;
+	}
 
 	/*
 	 * Obtain the start time of this archive. The end time could change
@@ -945,11 +956,23 @@ initarchive(__pmContext	*ctxp, const char *name, int chkfeatures)
 	 * implementation, open the first archive and switch to the first volume.
 	 */
 	sts = __pmLogChangeArchive(ctxp, 0);
-	if (sts < 0)
+	if (sts < 0) {
+	    if (pmDebugOptions.log && pmDebugOptions.desperate) {
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "initarchive(..., %s, ...): __pmLogChangeArchive: %s\n",
+		    name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    }
 	    goto error;
+	}
 	sts = __pmLogChangeVol(acp, acp->ac_log->minvol);
-	if (sts < 0)
+	if (sts < 0) {
+	    if (pmDebugOptions.log && pmDebugOptions.desperate) {
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "initarchive(..., %s, ...): __pmLogChangeVol(..., %d, ...): %s\n",
+		    name, acp->ac_log->minvol, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    }
 	    goto error;
+	}
     }
 
     /* start after header + label record + trailer */

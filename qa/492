@@ -83,15 +83,15 @@ rm -rf $tmp.configdir $tmp.link
 
 echo
 echo "=== truncated archive ==="
-pmlogrewrite archives/ok-truncbin $tmp.new 2>&1 | _filter
-echo "input records: `_cnt_logrecs archives/ok-truncbin`"
+pmlogrewrite badarchives/ok-truncbin $tmp.new 2>&1 | _filter
+echo "input records: `_cnt_logrecs badarchives/ok-truncbin`"
 echo "output records: `_cnt_logrecs $tmp.new`"
 
 echo
 echo "=== truncated archive -d ==="
 rm -f $tmp.new.*
-pmlogrewrite -d archives/ok-truncbin $tmp.new 2>&1 | _filter
-echo "input records: `_cnt_logrecs archives/ok-truncbin`"
+pmlogrewrite -d badarchives/ok-truncbin $tmp.new 2>&1 | _filter
+echo "input records: `_cnt_logrecs badarchives/ok-truncbin`"
 echo "output records: `_cnt_logrecs $tmp.new`"
 
 echo

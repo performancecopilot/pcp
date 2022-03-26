@@ -136,7 +136,7 @@ End-of-File
 cat $tmp.conf >>$seq.full
 arch=ok-truncbin
 rm -f $tmp.arch/*
-cp archives/$arch.* $tmp.arch
+cp badarchives/$arch.* $tmp.arch
 ls -l $tmp.arch >>$seq.full
 # Note: 204XXX filtering is because stdio does not always return the same
 #       value on different platforms ... it is 204800 (EOF) on OpenBSD 6.3
@@ -155,7 +155,7 @@ s/\.0/.EXT/
 # end
 ls $tmp.arch
 ls -l $tmp.arch >>$seq.full
-_cmp archives/$arch $tmp.arch/$arch
+_cmp badarchives/$arch $tmp.arch/$arch
 
 # success, all done
 exit

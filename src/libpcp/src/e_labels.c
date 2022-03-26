@@ -208,8 +208,12 @@ __pmLogLoadLabelSet(char *tbuf, int rlen, int rtype, __pmTimestamp *stamp,
     nsets = ntohl(*((unsigned int *)&tbuf[k]));
     k += sizeof(*nsetsp);
 
-    if (nsets >= PM_MAXLABELS * 6)
+    if (nsets < 0) {
+	if (pmDebugOptions.logmeta)
+		fprintf(stderr, "%s: illegal nsets (%d)\n",
+				"__pmLogLoadLabelSet", nsets);
 	return PM_ERR_LOGREC;
+    }
 
     if (nsets > 0 &&
 	(labelsets = (pmLabelSet *)calloc(nsets, sizeof(pmLabelSet))) == NULL) {

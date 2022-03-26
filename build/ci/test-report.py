@@ -155,22 +155,24 @@ def test_summary_short_platform(platform: str) -> str:
     )
 
 
-def write_test_summary(platforms: List[str], tests: List[Test], out: IO):
-    for test in tests:
-        if test.status in [Test.Status.Failed, Test.Status.Broken]:
-            break
-    else:
-        out.write("No failed tests.\n")
-        return
-
-    platforms = sorted(platforms)
-    platform_short = {platform: test_summary_short_platform(platform) for platform in platforms}
-
+def test_summary_tests(tests: List[Test]):
     tests_grouped = defaultdict(dict)
+    platform_set = set()
+    has_failed_tests = False
     for test in tests:
         tests_grouped[test.name][test.platform] = test
+        platform_set.add(test.platform)
+        if not has_failed_tests and test.status in [Test.Status.Failed, Test.Status.Broken]:
+            has_failed_tests = True
 
-    summary = " Test "
+    if not has_failed_tests:
+        return ""
+
+    platforms = sorted(platform_set)
+    platform_short = {platform: test_summary_short_platform(platform) for platform in platforms}
+
+    summary = "=== Failed Tests ===\n\n"
+    summary += " Test "
     for platform in platforms:
         summary += f" {platform_short[platform]}"
     summary += "  Groups\n"
@@ -196,10 +198,43 @@ def write_test_summary(platforms: List[str], tests: List[Test], out: IO):
         if "X" in test_line:
             summary += test_line + "\n"
 
-    summary += "\nLegend:\n"
-    summary += "  Passed  ( )\n"
-    summary += "  Failure (X)\n"
-    summary += "  Skipped (-)\n"
+    summary += "\nLegend: ( ) Passed, (X) Failure, (-) Skipped\n\n\n"
+    return summary
+
+
+def test_summary_platforms(platforms: List[str], tests: List[Test]):
+    platform_stats = {platform: {"passed": 0, "failed": 0, "skipped": 0, "cancelled": 0} for platform in platforms}
+    for test in tests:
+        if test.status == Test.Status.Passed:
+            platform_stats[test.platform]["passed"] += 1
+        elif test.status == Test.Status.Skipped:
+            platform_stats[test.platform]["skipped"] += 1
+        elif test.status == Test.Status.Broken and test.message == "test cancelled":
+            platform_stats[test.platform]["cancelled"] += 1
+        elif test.status in [Test.Status.Failed, Test.Status.Broken]:
+            platform_stats[test.platform]["failed"] += 1
+
+    summary = "=== Platform Summary ===\n\n"
+    summary += f"{'Platform':25}  Pass Fail Skip\n"
+    for platform, stats in sorted(platform_stats.items()):
+        summary += f"{platform:25}  {stats['passed']:4d} {stats['failed']:4d} {stats['skipped']:4d}"
+        if stats["passed"] == 0:
+            summary += "  X build broken\n"
+        elif stats["cancelled"] > 0:
+            summary += "  X QA ran into a timeout\n"
+        elif stats["failed"] == 0:
+            summary += "  ✓\n"
+        else:
+            summary += "\n"
+    summary += "\n\n"
+    return summary
+
+
+def write_test_summary(platforms: List[str], tests: List[Test], out: IO, build_url: str, report_url: str):
+    summary = test_summary_tests(tests)
+    summary += test_summary_platforms(platforms, tests)
+    summary += f"Build:  {build_url}\n"
+    summary += f"Report: {report_url}\n"
     out.write(summary)
 
 
@@ -299,6 +334,7 @@ def send_slack_notification(
     slack_channel: str,
     build_url: str,
     report_url: str,
+    summary_url: str,
 ):
     platform_stats = defaultdict(lambda: {"passed": 0, "failed": 0, "skipped": 0, "cancelled": 0})
     for test in tests:
@@ -356,7 +392,9 @@ def send_slack_notification(
                         "type": "section",
                         "text": {
                             "type": "mrkdwn",
-                            "text": f"*<{build_url}|View build logs>*\n*<{report_url}|View QA report>*",
+                            "text": f"*<{build_url}|View build logs>*\n"
+                            f"*<{report_url}|View QA report>*\n"
+                            f"*<{summary_url}|View test summary>*",
                         },
                     }
                 ]
@@ -386,12 +424,13 @@ def main():
     parser.add_argument("--build-url", dest="build_url")  # required for allure report and slack message
     parser.add_argument("--report-url", dest="report_url")  # required for allure report and slack message
     parser.add_argument("--slack-channel", dest="slack_channel")  # required for slack message
+    parser.add_argument("--summary-url", dest="summary_url")  # required for slack message
     args = parser.parse_args()
 
     platforms, tests = read_platforms(args.qa, args.artifacts)
 
     if args.summary:
-        write_test_summary(platforms, tests, args.summary)
+        write_test_summary(platforms, tests, args.summary, args.build_url, args.report_url)
 
     if args.csv:
         write_test_report_csv(tests, args.csv)
@@ -403,7 +442,7 @@ def main():
 
     if args.slack_channel:
         print()
-        send_slack_notification(platforms, tests, args.slack_channel, args.build_url, args.report_url)
+        send_slack_notification(platforms, tests, args.slack_channel, args.build_url, args.report_url, args.summary_url)
 
 
 if __name__ == "__main__":
