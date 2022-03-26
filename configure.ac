@@ -2184,7 +2184,7 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
 	&& pcp_selinux_dma_device=true
     grep '^[[ 	]][[ 	]]*glusterd_log_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_glusterd_log=true
-    grep '^[[ 	]][[ 	]]*mdadm_conf_t_t$' <conftest.out >/dev/null \
+    grep '^[[ 	]][[ 	]]*mdadm_conf_t$' <conftest.out >/dev/null \
 	&& pcp_selinux_mdadm_conf=true
 
     dnl these ones are for pcpqa.te
