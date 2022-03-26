@@ -2,11 +2,23 @@ TOPDIR = ../../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM	= bpf
-MODULES	= biolatency.so runqlat.so
+LDLIBS = $(PCP_WEBLIB) -lbpf -lelf -lz -lm -ldl
 MODULETMP = $(PCP_PMDAS_DIR)/$(IAM)/modules
 MODULEDIR = $(PCP_PMDASADM_DIR)/$(IAM)/modules
 
-default_pcp default:	$(MODULES)
+MODULES	= \
+	biolatency.so \
+	runqlat.so \
+	execsnoop.so \
+
+COMMON_OBJ = \
+	trace_helpers.o \
+	syscall_helpers.o \
+	errno_helpers.o \
+	map_helpers.o \
+	uprobe_helpers.o \
+
+default_pcp default:	$(COMMON_OBJ) $(MODULES)
 
 include $(BUILDRULES)
 
@@ -50,8 +62,11 @@ vmlinux.h: $(PMDABPF_VMLINUXH)
 
 # endif
 
-%.so: %.o
-	$(LINK.c) -lbpf -shared $^ -o $@
+%.so: %.o $(COMMON_OBJ)
+	$(LINK.c) -shared $^ -o $@ $(LDLIBS)
+
+%_helpers.o: %_helpers.c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 
 clean::
 	rm -f $(MODULES) *.o *.skel.h vmlinux.h
