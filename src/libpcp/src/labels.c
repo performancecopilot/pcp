@@ -1352,7 +1352,7 @@ getlabels(int ident, int type, pmLabelSet **sets, int *nsets)
 	    sts = 0;
 	    if ((type & PM_LABEL_INSTANCES) && ctxp->c_sent == 0) {
 	    	/* profile not current for label instances request */
-		if (pmDebugOptions.indom || pmDebugOptions.labels) {
+		if (pmDebugOptions.profile || pmDebugOptions.labels) {
 		    fprintf(stderr, "dolabels: sent profile, indom=%d\n", ident);
 		    __pmDumpProfile(stderr, ident, ctxp->c_instprof);
 		}

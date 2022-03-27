@@ -1210,7 +1210,7 @@ typedef struct {
     int	profile;	/* Changes and xmits for instance profile */
     int	value;		/* Metric value extraction and conversion */
     int	context;	/* Changes to PMAPI contexts */
-    int	indom;		/* Low-level instance profile xfers */
+    int	indom;		/* Instance domain operations */
     int	pdubuf;		/* PDU buffer operations */
     int	log;		/* Archive log manipulations */
     int	logmeta;	/* Archive metadata operations */

@@ -50,7 +50,7 @@ static int		argc;
 void
 reset_profile(void)
 {
-    if (pmDebugOptions.indom && ctxp->c_instprof != NULL) {
+    if (pmDebugOptions.profile && ctxp->c_instprof != NULL) {
 	fprintf(stderr, "Before reset_profile ...\n");
 	__pmDumpProfile(stderr, PM_INDOM_NULL, ctxp->c_instprof);
     }
@@ -64,7 +64,7 @@ reset_profile(void)
     memset(profile, 0, sizeof(pmProfile));
     profile->state = PM_PROFILE_INCLUDE;        /* default global state */
     profile_changed = 1;
-    if (pmDebugOptions.indom) {
+    if (pmDebugOptions.profile) {
 	fprintf(stderr, "After reset_profile ...\n");
 	__pmDumpProfile(stderr, PM_INDOM_NULL, ctxp->c_instprof);
     }
