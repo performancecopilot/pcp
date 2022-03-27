@@ -29,7 +29,7 @@ debug=false
 
 _xtract()
 {
-    # pmdumplog -D1 produces something like ...
+    # pmdumplog -Dpdu produces something like ...
     #
     # __pmResult dump from 0x100051d0 timestamp: 882429086.522227 18:11:26.522 ...
     #  29.0.64 (sample.rapid): numval: 1 valfmt: 0 vlist[]:
@@ -47,7 +47,7 @@ _xtract()
     #
     # Usage: _xtract metric
     #
-    pmdumplog -D1 $tmp.merge $1 2>&1 \
+    pmdumplog -Dpdu $tmp.merge $1 2>&1 \
     | tee -a $here/$seq.full \
     | $PCP_AWK_PROG '
 $1 == "__pmResult"		{ state=1; time=$7; stamp=$6; next }

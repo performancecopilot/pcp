@@ -158,7 +158,6 @@ End-of-File
 
     # the failures
     #
-    # echo "log mandatory on once proc" | pmlc -h $host $pid -D1
     echo "connect 0@$host" | pmlc 2>&1 | _filter
 
     # cleanup

@@ -82,7 +82,6 @@ End-of-File
 
     # the failures
     #
-    # echo "log mandatory on once sample" | pmlc -h $host $pid -D1
     echo "connect $pid@$me" | ssh -q pcpqa@$host "sh -c 'PMCD_CONNECT_TIMEOUT=$PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT=$PMCD_REQUEST_TIMEOUT pmlc'" >$tmp.out 2>$tmp.err
     cat $tmp.err $tmp.out | _filter
 

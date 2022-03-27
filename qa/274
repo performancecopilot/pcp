@@ -120,7 +120,7 @@ _remove()
 trap "_remove; rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 dbpmda -ie 2>&1 <<End-of-File | _filter
-open pipe pmdas/broken/broken_pmda_2_0 -D47104 -l $tmp.log
+open pipe pmdas/broken/broken_pmda_2_0 -Dlibpmda,appl2,appl0 -l $tmp.log
 status
 # Test the valid metrics
 fetch broken.valid.one broken.valid.two broken.valid.three
@@ -164,7 +164,7 @@ then
 fi
 
 dbpmda -ie 2>&1 <<End-of-File | _filter
-open pipe pmdas/broken/broken_pmda_2_1 -D47104 -l $tmp.log
+open pipe pmdas/broken/broken_pmda_2_1 -Dlibpmda,appl2,appl0 -l $tmp.log
 status
 wait 5
 fetch broken.bad.indom
@@ -183,7 +183,7 @@ then
 fi
 
 dbpmda -ie 2>&1 <<End-of-File | _filter
-open pipe pmdas/broken/broken_pmda_2_2 -D47104 -l $tmp.log
+open pipe pmdas/broken/broken_pmda_2_2 -Dlibpmda,appl2,appl0 -l $tmp.log
 status
 close
 quit
@@ -200,7 +200,7 @@ then
 fi
 
 dbpmda -ie 2>&1 <<End-of-File | _filter
-open pipe pmdas/broken/broken_pmda_2_3 -D47104 -l $tmp.log
+open pipe pmdas/broken/broken_pmda_2_3 -Dlibpmda,appl2,appl0 -l $tmp.log
 status
 close
 quit
@@ -217,7 +217,7 @@ then
 fi
 
 dbpmda -ie 2>&1 <<End-of-File | _filter
-open pipe pmdas/broken/broken_pmda_2_4 -D47104 -l $tmp.log
+open pipe pmdas/broken/broken_pmda_2_4 -Dlibpmda,appl2,appl0 -l $tmp.log
 status
 text broken.valid.one
 close
@@ -235,7 +235,7 @@ then
 fi
 
 dbpmda -ie 2>&1 <<End-of-File | _filter | _filterStartBrokenPMDA25
-open pipe pmdas/broken/broken_pmda_2_5 -D47104 -l $tmp.log
+open pipe pmdas/broken/broken_pmda_2_5 -Dlibpmda,appl2,appl0 -l $tmp.log
 status
 text broken.valid.one
 close

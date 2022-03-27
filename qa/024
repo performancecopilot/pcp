@@ -19,7 +19,7 @@ export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
 
 _filter()
 {
-    # unfortunatley, -D16 maps to an internal debug flag for some PMDAs
+    # unfortunatley, -Dcontext maps to an internal debug flag for some PMDAs
     # for nodes et al
     # filter for __pmDecodeXtendError diag because datum is not
     # invariant
@@ -103,13 +103,13 @@ remote=`./getpmcdhosts -L -n 1 -a sample 2>$tmp.out`
 
 # real QA test starts here
 echo "=== expected to pass ==="
-src/chkctx2 -D16 2>&1 | _filter
+src/chkctx2 -Dcontext 2>&1 | _filter
 echo ""
-src/chkctx2 -D16 -h localhost 2>&1 | _filter
+src/chkctx2 -Dcontext -h localhost 2>&1 | _filter
 echo ""
-src/chkctx2 -D16 -h `hostname` 2>&1 | _filter
+src/chkctx2 -Dcontext -h `hostname` 2>&1 | _filter
 echo ""
-src/chkctx2 -D16 -h $remote 2>&1 | _filter
+src/chkctx2 -Dcontext -h $remote 2>&1 | _filter
 echo ""
 
 PCP_LITE_SAMPLE=yes
@@ -117,7 +117,7 @@ export PCP_LITE_SAMPLE
 
 echo | tee -a $seq.full
 echo "=== try CONTEXT_LOCAL ===" | tee -a $seq.full
-$sudo_local_ctx src/chkctx2_lite -D16 -L 2>&1 \
+$sudo_local_ctx src/chkctx2_lite -Dcontext -L 2>&1 \
 | tee -a $seq.full \
 | _filter \
 | _filter2 \

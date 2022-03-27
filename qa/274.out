@@ -1,7 +1,7 @@
 QA output created by 274
 === Install broken namespace ===
-dbpmda> open pipe pmdas/broken/broken_pmda_2_0 -D47104 -l TMP.log
-Start broken_pmda_2_0 PMDA: ./pmdas/broken/broken_pmda_2_0 -D47104 -l TMP.log
+dbpmda> open pipe pmdas/broken/broken_pmda_2_0 -Dlibpmda,appl2,appl0 -l TMP.log
+Start broken_pmda_2_0 PMDA: ./pmdas/broken/broken_pmda_2_0 -Dlibpmda,appl2,appl0 -l TMP.log
 dbpmda> status
 
 Namespace:              (default)
@@ -159,8 +159,8 @@ broken pmda Debug: Received PDU_FETCH
 broken pmda Error: pmdaFetch: Instance 10 of PMID 249.0.13 not handled by fetch callback
 
 Log finished
-dbpmda> open pipe pmdas/broken/broken_pmda_2_1 -D47104 -l TMP.log
-Start broken_pmda_2_1 PMDA: ./pmdas/broken/broken_pmda_2_1 -D47104 -l TMP.log
+dbpmda> open pipe pmdas/broken/broken_pmda_2_1 -Dlibpmda,appl2,appl0 -l TMP.log
+Start broken_pmda_2_1 PMDA: ./pmdas/broken/broken_pmda_2_1 -Dlibpmda,appl2,appl0 -l TMP.log
 dbpmda> status
 
 Namespace:              (default)
@@ -190,8 +190,8 @@ broken pmda Debug: pmdaConnect: PMDA broken_pmda_2_1: opened pipe to pmcd, infd 
 broken pmda Error: PMDA Initialisation Failed
 
 Log finished
-dbpmda> open pipe pmdas/broken/broken_pmda_2_2 -D47104 -l TMP.log
-Start broken_pmda_2_2 PMDA: ./pmdas/broken/broken_pmda_2_2 -D47104 -l TMP.log
+dbpmda> open pipe pmdas/broken/broken_pmda_2_2 -Dlibpmda,appl2,appl0 -l TMP.log
+Start broken_pmda_2_2 PMDA: ./pmdas/broken/broken_pmda_2_2 -Dlibpmda,appl2,appl0 -l TMP.log
 dbpmda> status
 
 Namespace:              (default)
@@ -214,8 +214,8 @@ broken pmda Debug: pmdaConnect: PMDA broken_pmda_2_2: opened pipe to pmcd, infd 
 broken pmda Error: PMDA Initialisation Failed
 
 Log finished
-dbpmda> open pipe pmdas/broken/broken_pmda_2_3 -D47104 -l TMP.log
-Start broken_pmda_2_3 PMDA: ./pmdas/broken/broken_pmda_2_3 -D47104 -l TMP.log
+dbpmda> open pipe pmdas/broken/broken_pmda_2_3 -Dlibpmda,appl2,appl0 -l TMP.log
+Start broken_pmda_2_3 PMDA: ./pmdas/broken/broken_pmda_2_3 -Dlibpmda,appl2,appl0 -l TMP.log
 dbpmda> status
 
 Namespace:              (default)
@@ -238,8 +238,8 @@ broken pmda Debug: pmdaConnect: PMDA broken_pmda_2_3: opened pipe to pmcd, infd 
 broken pmda Error: PMDA Initialisation Failed
 
 Log finished
-dbpmda> open pipe pmdas/broken/broken_pmda_2_4 -D47104 -l TMP.log
-Start broken_pmda_2_4 PMDA: ./pmdas/broken/broken_pmda_2_4 -D47104 -l TMP.log
+dbpmda> open pipe pmdas/broken/broken_pmda_2_4 -Dlibpmda,appl2,appl0 -l TMP.log
+Start broken_pmda_2_4 PMDA: ./pmdas/broken/broken_pmda_2_4 -Dlibpmda,appl2,appl0 -l TMP.log
 dbpmda> status
 
 Namespace:              (default)
@@ -277,12 +277,12 @@ broken pmda Debug: Received PDU_TEXT_REQ
 broken pmda Debug: Received PDU_TEXT_REQ
 
 Log finished
-dbpmda> open pipe pmdas/broken/broken_pmda_2_5 -D47104 -l TMP.log
+dbpmda> open pipe pmdas/broken/broken_pmda_2_5 -Dlibpmda,appl2,appl0 -l TMP.log
 [DATE] broken_pmda_2_5(PID) Critical: __pmdaSetup: broken_pmda_2_5 PMDA: interface version 77 not supported (domain=249)
 pmdaDaemon() failed!
 pmdaversion: expecting PDU_CREDS, got EOF
 Warning: no version exchange with PMDA ./pmdas/broken/broken_pmda_2_5 after 3 secs
-Start broken_pmda_2_5 PMDA: ./pmdas/broken/broken_pmda_2_5 -D47104 -l TMP.log
+Start broken_pmda_2_5 PMDA: ./pmdas/broken/broken_pmda_2_5 -Dlibpmda,appl2,appl0 -l TMP.log
 dbpmda> status
 
 Namespace:              (default)

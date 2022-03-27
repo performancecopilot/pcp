@@ -157,7 +157,7 @@ do
     echo "start `date`" >>$seq.full
 
     DEBUG=
-    DEBUG=-D16
+    DEBUG=-Dcontext
     src/recon $DEBUG >$tmp.out 2>&1 &
 
     pmsleep 1.1
