@@ -15,11 +15,13 @@ def check_trend(history_trend_path: IO):
     current = history[0]["data"]
     previous = history[1]["data"]
 
-    fmt = lambda x: f"{x:+3d}".replace("+0", " 0")
-    print(f"Failed tests:  {current['failed']:4d} ({fmt(current['failed']-previous['failed'])})")
-    print(f"Broken tests:  {current['broken']:4d} ({fmt(current['broken']-previous['broken'])})")
-    print(f"Skipped tests: {current['skipped']:4d} ({fmt(current['skipped']-previous['skipped'])})")
-    print(f"Passed tests:  {current['passed']:4d} ({fmt(current['passed']-previous['passed'])})")
+    print("Current test results, compared to the previous test run:\n")
+
+    fmt = lambda x: f"{x:+5d}".replace("+0", " 0")
+    print(f"Failed tests:  {current['failed']:5d} ({fmt(current['failed']-previous['failed'])})")
+    print(f"Broken tests:  {current['broken']:5d} ({fmt(current['broken']-previous['broken'])})")
+    print(f"Skipped tests: {current['skipped']:5d} ({fmt(current['skipped']-previous['skipped'])})")
+    print(f"Passed tests:  {current['passed']:5d} ({fmt(current['passed']-previous['passed'])})")
     print()
 
     failures_diff = (current["failed"] + current["broken"]) - (previous["failed"] + previous["broken"])
