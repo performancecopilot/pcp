@@ -219,9 +219,9 @@ def test_summary_platforms(platforms: List[str], tests: List[Test]):
     for platform, stats in sorted(platform_stats.items()):
         summary += f"{platform:25}  {stats['passed']:4d} {stats['failed']:4d} {stats['skipped']:4d}"
         if stats["passed"] == 0:
-            summary += "  X build broken\n"
+            summary += "  build broken\n"
         elif stats["cancelled"] > 0:
-            summary += "  X QA ran into a timeout\n"
+            summary += "  QA ran into a timeout\n"
         elif stats["failed"] == 0:
             summary += "  ✓\n"
         else:
