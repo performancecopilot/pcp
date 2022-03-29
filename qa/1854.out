@@ -1,0 +1,13 @@
+QA output created by 1854
+Create version 2 archive via logger
+Verify version 2 archive created...
+Log Label (Log Format Version 2)
+Create version 3 archive via logger
+Verify version 3 archive created...
+Log Label (Log Format Version 3)
+Create version 2 archive via import
+Verify version 2 archive created...
+Log Label (Log Format Version 2)
+Create version 3 archive via import
+Verify version 3 archive created...
+Log Label (Log Format Version 3)
