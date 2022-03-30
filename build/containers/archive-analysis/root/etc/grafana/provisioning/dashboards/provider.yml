@@ -1,0 +1,7 @@
+apiVersion: 1
+
+providers:
+- name: Default
+  type: file
+  options:
+    path: /var/lib/grafana/plugins/performancecopilot-pcp-app/datasources/redis/dashboards/

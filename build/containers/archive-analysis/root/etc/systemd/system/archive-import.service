@@ -1,0 +1,15 @@
+[Unit]
+Description=PCP archives import
+Requires=redis.service
+After=redis.service
+
+[Service]
+Type=exec
+Restart=on-failure
+StandardOutput=journal+console
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/archive-import.py
+SyslogIdentifier=import
+
+[Install]
+WantedBy=multi-user.target

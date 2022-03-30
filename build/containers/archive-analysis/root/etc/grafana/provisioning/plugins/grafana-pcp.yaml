@@ -1,0 +1,7 @@
+apiVersion: 1
+
+apps:
+- type: performancecopilot-pcp-app
+  org_id: 1
+  org_name: Performance Co-Pilot
+  disabled: false
