@@ -242,7 +242,7 @@ jobs:
           git push -f
           popd
 
-          echo "::notice::Test report is available at https://${{ github.repository_owner }}.github.io/qa-reports/reports/${REPORT_ID}/"
+          echo "::notice::Test report is available at https://${{ github.repository_owner }}.github.io/qa-reports/reports/${REPORT_ID}"
         env:
           REPORT_ID: ${{ needs.create_report.outputs.report_id }}
 
