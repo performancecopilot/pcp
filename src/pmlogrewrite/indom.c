@@ -15,9 +15,10 @@
  * for more details.
  */
 
-#include "pmapi.h"
-#include "libpcp.h"
-#include "logger.h"
+#include "pcp/pmapi.h"
+#include "pcp/libpcp.h"
+#include "pcp/archive.h"
+#include "./logger.h"
 #include <assert.h>
 #include "../libpcp/src/internal.h"
 
@@ -198,25 +199,39 @@ static void
 _pmUnpackInDom(__int32_t *recbuf, __pmLogInDom_io *lidp)
 {
     __pmLogHdr		*hdr;
-    __int32_t		*buf;
     int			type;
-    int			i;
-    int			allinbuf;
-    char		*s;
-    size_t		size;
-    int			*instlist;
-    char		**namelist;
+    int			sts;
 
     hdr = (__pmLogHdr *)recbuf;
     type = htonl(hdr->type);
-    /* buffer for __pmLogLoadInDom has to start AFTER the header */
-    buf = &recbuf[2];
-    allinbuf = __pmLogLoadInDom(NULL, 0, type, lidp, &buf);
-    if (allinbuf < 0) {
-	fprintf(stderr, "_pmUnpackInDom: __pmLogLoadInDom(type=%d): failed: %s\n", type, pmErrStr(allinbuf));
-	abandon();
-	/*NOTREACHED*/
+    if (type == TYPE_INDOM_DELTA) {
+	__pmLogInDom	*idp;
+	lidp->indom = ntoh_pmInDom(recbuf[5]);
+	idp = pmaUndeltaInDom(inarch.ctxp->c_archctl->ac_log, recbuf);
+	if (idp == NULL) {
+	    fprintf(stderr, "_pmUnpackInDom: Botch: undelta indom failed for indom %s\n", pmInDomStr(lidp->indom));
+	    abandon();
+	    /*NOTREACHED*/
+	}
+	lidp->stamp = idp->stamp;
+	lidp->numinst = idp->numinst;
+	lidp->instlist = idp->instlist;
+	lidp->namelist = idp->namelist;
+	/* don't free lidp->namelist or lidp->namelist[i] or lidp->instlist */
+	lidp->alloc = 0;
     }
+    else {
+	__int32_t	*buf;
+	/* buffer for __pmLogLoadInDom has to start AFTER the header */
+	buf = &recbuf[2];
+	sts = __pmLogLoadInDom(NULL, 0, type, lidp, &buf);
+	if (sts < 0) {
+	    fprintf(stderr, "_pmUnpackInDom: __pmLogLoadInDom(type=%d): failed: %s\n", type, pmErrStr(sts));
+	    abandon();
+	    /*NOTREACHED*/
+	}
+    }
+
     if (lidp->numinst < 1) {
 	fprintf(stderr, "_pmUnpackInDom: InDom %s dodgey: numinst=%d\n", pmInDomStr(lidp->indom), lidp->numinst);
 	abandon();
@@ -226,80 +241,6 @@ _pmUnpackInDom(__int32_t *recbuf, __pmLogInDom_io *lidp)
 fprintf(stderr, "numinst=%d indom=%s inst[0] %d or \"%s\" inst[%d] %d or \"%s\"\n", lidp->numinst, pmInDomStr(lidp->indom), lidp->instlist[0], lidp->namelist[0], lidp->numinst-1, lidp->instlist[lidp->numinst-1], lidp->namelist[lidp->numinst-1]);
 #endif
 
-    /* Copy the instances to a new buffer */
-    instlist = (int *)malloc(lidp->numinst * sizeof(int));
-    if (instlist == NULL) {
-	fprintf(stderr, "_pmUnpackInDom instlist malloc(%d) failed: %s\n", (int)(lidp->numinst * sizeof(int)), strerror(errno));
-	abandon();
-	/*NOTREACHED*/
-    }
-    for (i = 0; i < lidp->numinst; i++)
-	instlist[i] = lidp->instlist[i];
-    lidp->instlist = instlist;
-
-#if 0
-fprintf(stderr, "after instlist assignment, instlist[0] = %d instlist[%d] = %d\n", (*instlist)[i], lidp->numinst-1, (*instlist)[lidp->numinst-1]);
-#endif
-
-    /*
-     * Copy the name list to a new buffer. Place the pointers and the names
-     * in the same buffer so that they can be easily freed.
-     */
-    size = lidp->numinst * sizeof(char *);
-    for (i = 0; i < lidp->numinst; i++)
-	size += strlen(lidp->namelist[i]) + 1;
-    namelist = (char **)malloc(size);
-    if (namelist == NULL) {
-	fprintf(stderr, "_pmUnpackInDom namelist malloc(%d) failed: %s\n",
-		(int)size, strerror(errno));
-	abandon();
-	/*NOTREACHED*/
-    }
-    s = (char *)(namelist + lidp->numinst);
-    for (i = 0; i < lidp->numinst; i++) {
-	namelist[i] = s;
-	strcpy(s, lidp->namelist[i]);
-	s += strlen(lidp->namelist[i]) + 1;
-    }
-    if (!allinbuf)
-	free(lidp->namelist);
-    lidp->namelist = namelist;
-}
-
-static void
-_pmDupInDomData(int numinst, int **instlist, char ***inamelist)
-{
-    int		*new_ilist;
-    char	**new_namelist;
-    size_t	size;
-
-    /* Copy the instance list. */
-    size = numinst * sizeof(int);
-    new_ilist = (int *)malloc(size);
-    if (new_ilist == NULL) {
-	fprintf(stderr, "_pmDupInDomData instlist malloc(%d) failed: %s\n",
-		(int)size, strerror(errno));
-	abandon();
-	/*NOTREACHED*/
-    }
-    memcpy (new_ilist, *instlist, size);
-    *instlist = new_ilist;
-
-    /*
-     * Copy the name list. It's ok to share the same string buffer.
-     * It will be reallocated and the string pointers updated, if necessary,
-     * later.
-     */
-    size = numinst * sizeof(char *);
-    new_namelist = (char **)malloc(size);
-    if (new_namelist == NULL) {
-	fprintf(stderr, "_pmpmDupInDomData inamelist malloc(%d) failed: %s\n",
-		(int)size, strerror(errno));
-	abandon();
-	/*NOTREACHED*/
-    }
-    memcpy (new_namelist, *inamelist, size);
-    *inamelist = new_namelist;
 }
 
 /*
@@ -313,26 +254,38 @@ _pmDupInDomData(int numinst, int **instlist, char ***inamelist)
  * 	away.
  */
 void
-do_indom(void)
+do_indom(int type)
 {
     long	out_offset;
     indomspec_t	*ip;
     int		sts;
     int		i;
     int		j;
-    int		need_alloc = 0;
     int		pdu_type;
     __pmLogInDom_io	lid;
+    __pmLogInDom_io	*dup_lid;
 
     lid.numinst = 0;
-
-    if (outarch.version == PM_LOG_VERS02)
-	pdu_type = TYPE_INDOM_V2;
-    else
-	pdu_type = TYPE_INDOM;
+    lid.alloc = 0;
 
     out_offset = __pmFtell(outarch.logctl.mdfp);
     _pmUnpackInDom(inarch.metarec, &lid);
+
+    /*
+     * Only safe approach from here one is to duplicate lid
+     * so that all elements, particularly namelist and each
+     * namelist[] are malloc'd
+     */
+    if ((dup_lid = __pmDupLogInDom_io(&lid)) == NULL) {
+	fprintf(stderr, "%s: Error: __pmDupLogInDom_io: %s: NULL\n",
+			pmGetProgname(), pmInDomStr(lid.indom));
+	abandon();
+	/*NOTREACHED*/
+    }
+    __pmFreeLogInDom_io(&lid);
+    lid = *dup_lid;		/* struct assignment */
+    lid.alloc &= ~PMLID_SELF;      /* don't free lid */
+    free(dup_lid);
 
     /*
      * global time stamp adjustment (if any has already been done in the
@@ -345,7 +298,26 @@ do_indom(void)
 	    /*
 	     * Save the old indom without changes, then operate on the
 	     * duplicate.
+	     *
+	     * For V3 archives, give ``delta'' indom a try ...
 	     */
+	    if (outarch.version > PM_LOG_VERS02) {
+		int		lsts;
+
+		lsts = pmaTryDeltaInDom(outarch.archctl.ac_log, NULL, &lid);
+		if (lsts < 0) {
+		    fprintf(stderr, "Botch: pmaTryDeltaInDom duplicate failed: %d\n", lsts);
+		    abandon();
+		    /*NOTREACHED*/
+		}
+		else if (lsts == 1) {
+		    pdu_type = TYPE_INDOM_DELTA;
+		}
+		else
+		    pdu_type = TYPE_INDOM;
+	    }
+	    else
+		pdu_type = TYPE_INDOM_V2;
 	    if ((sts = __pmLogPutInDom(&outarch.archctl, pdu_type, &lid)) < 0) {
 		fprintf(stderr, "%s: Error: __pmLogPutInDom: %s: %s\n",
 				pmGetProgname(), pmInDomStr(lid.indom), pmErrStr(sts));
@@ -355,15 +327,31 @@ do_indom(void)
 
 	    /*
 	     * If the old indom was not a duplicate, then libpcp, via
-	     * __pmLogPutInDom(), assumes control of the storage pointed to by
-	     * lid.instlist and lid.namelist. In that case, we need to operate on copies
-	     * from this point on.
+	     * __pmLogPutInDom(), assumes control of the storage pointed to
+	     * by lid.instlist and lid.namelist. In that case, we need to
+	     * operate on another copy from this point on.
 	     */
-	    if (sts != PMLOGPUTINDOM_DUP)
-		_pmDupInDomData(lid.numinst, &lid.instlist, &lid.namelist);
+	    if (sts != PMLOGPUTINDOM_DUP) {
+		lid.alloc &= ~(PMLID_INSTLIST|PMLID_NAMELIST|PMLID_NAMES);
+		if ((dup_lid = __pmDupLogInDom_io(&lid)) == NULL) {
+		    fprintf(stderr, "%s: Error: __pmDupLogInDom_io: duplicate %s: NULL\n",
+				    pmGetProgname(), pmInDomStr(lid.indom));
+		    abandon();
+		    /*NOTREACHED*/
+		}
+		__pmFreeLogInDom_io(&lid);
+		lid = *dup_lid;			/* struct assignment */
+		lid.alloc &= ~PMLID_SELF;      /* don't free lid */
+		free(dup_lid);
+	    }
 
 	    if (pmDebugOptions.appl0) {
-		fprintf(stderr, "Metadata: write pre-duplicate InDom %s @ offset=%ld\n", pmInDomStr(lid.indom), out_offset);
+		fprintf(stderr, "Metadata: write pre-duplicate ");
+		if (pdu_type == TYPE_INDOM_DELTA)
+		    fprintf(stderr, "Delta ");
+		else if (pdu_type == TYPE_INDOM_V2)
+		    fprintf(stderr, "V2 ");
+		fprintf(stderr, "InDom %s @ offset=%ld\n", pmInDomStr(lid.indom), out_offset);
 	    }
 	    out_offset = __pmFtell(outarch.logctl.mdfp);
 	}
@@ -379,21 +367,26 @@ do_indom(void)
 	    if (ip->inst_flags[i] & INST_DELETE) {
 		if (pmDebugOptions.appl1)
 		    fprintf(stderr, "Delete: instance %s (%d) for indom %s\n", ip->old_iname[i], ip->old_inst[i], pmInDomStr(ip->old_indom));
+		free(lid.namelist[j]);
 		j++;
 		while (j < lid.numinst) {
 		    lid.instlist[j-1] = lid.instlist[j];
 		    lid.namelist[j-1] = lid.namelist[j];
 		    j++;
 		}
-		need_alloc = 1;
 		lid.numinst--;
 	    }
 	    else {
 		if (ip->inst_flags[i] & INST_CHANGE_INST)
 		    lid.instlist[j] = ip->new_inst[i];
 		if (ip->inst_flags[i] & INST_CHANGE_INAME) {
-		    lid.namelist[j] = ip->new_iname[i];
-		    need_alloc = 1;
+		    free(lid.namelist[j]);
+		    if ((lid.namelist[j] = strdup(ip->new_iname[i])) == NULL) {
+			fprintf(stderr, "new_iname[%d] strdup(%s) failed: %s\n",
+			    j, ip->new_iname[i], strerror(errno));
+			abandon();
+			/*NOTREACHED*/
+		    }
 		}
 		if ((ip->inst_flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) && pmDebugOptions.appl1) {
 		    if ((ip->inst_flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) == (INST_CHANGE_INST | INST_CHANGE_INAME))
@@ -410,63 +403,54 @@ do_indom(void)
     if (lid.numinst > 0) {
 	/*
 	 * some instances remain ... work to be done
+	 *
+	 * For V3 archives, give ``delta'' indom a try ...
 	 */
+	if (outarch.version > PM_LOG_VERS02) {
+	    int		lsts;
 
-	if (need_alloc) {
-	    /*
-	     * __pmLogPutInDom assumes the elements of lid.namelist[] point into
-	     * of a contiguous allocation starting at lid.namelist[0] ... if we've
-	     * changed an instance name or moved instance names about, then we
-	     * need to reallocate the strings for lid.namelist[]
-	     */
-	    int	need = 0;
-	    char	*new;
-	    char	*p;
-
-	    for (j = 0; j < lid.numinst; j++)
-		need += strlen(lid.namelist[j]) + 1;
-	    new = (char *)malloc(need);
-	    if (new == NULL) {
-		fprintf(stderr, "lid.namelist[] malloc(%d) failed: %s\n", need, strerror(errno));
+	    lsts = pmaTryDeltaInDom(outarch.archctl.ac_log, NULL, &lid);
+	    if (lsts < 0) {
+		fprintf(stderr, "Botch: pmaTryDeltaInDom failed: %d\n", lsts);
 		abandon();
 		/*NOTREACHED*/
 	    }
-	    p = new;
-	    for (j = 0; j < lid.numinst; j++) {
-		strcpy(p, lid.namelist[j]);
-		lid.namelist[j] = p;
-		p += strlen(p) + 1;
+	    else if (lsts == 1) {
+		pdu_type = TYPE_INDOM_DELTA;
 	    }
+	    else
+		pdu_type = TYPE_INDOM;
 	}
+	else
+	    pdu_type = TYPE_INDOM_V2;
 
-	/*
-	 * libpcp, via __pmLogPutInDom(), assumes control of the storage pointed
-	 * to by lid.instlist and lid.namelist.
-	 */
 	if ((sts = __pmLogPutInDom(&outarch.archctl, pdu_type, &lid)) < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutInDom: %s: %s\n",
 			    pmGetProgname(), pmInDomStr(lid.indom), pmErrStr(sts));
 	    abandon();
 	    /*NOTREACHED*/
 	}
-	if (pmDebugOptions.appl0) {
-	    fprintf(stderr, "Metadata: write InDom %s @ offset=%ld\n", pmInDomStr(lid.indom), out_offset);
-	}
-
 	/*
-	 * If the indom was a duplicate, then we are responsible for freeing the
-	 * associated storage.
+	 * for everything except TYPE_INDOM_DELTA, libpcp, via
+	 * __pmLogPutInDom(), assumes control of the storage pointed
+	 * to by lid.instlist and lid.namelist ... we're only concerned
+	 * about memory leakage here, as linking this stuff into libpcp's
+	 * hashed indom structures is not needed for pmlogrewrite because
+	 * we're relying on the one-deep cache of the last full indom that
+	 * is being managed below pmaTryDeltaInDom()
 	 */
-	if (sts == PMLOGPUTINDOM_DUP) {
-	    if (need_alloc)
-		free(lid.namelist[0]);
-	    free(lid.namelist);
-	    free(lid.instlist);
+	if (pdu_type != TYPE_INDOM_DELTA)
+	    lid.alloc &= ~(PMLID_INSTLIST|PMLID_NAMELIST|PMLID_NAMES);
+
+	if (pmDebugOptions.appl0) {
+	    fprintf(stderr, "Metadata: write ");
+	    if (pdu_type == TYPE_INDOM_DELTA)
+		fprintf(stderr, "Delta ");
+	    else if (pdu_type == TYPE_INDOM_V2)
+		fprintf(stderr, "V2 ");
+	    fprintf(stderr, "InDom %s @ offset=%ld\n", pmInDomStr(lid.indom), out_offset);
 	}
     }
-    else {
-	/* all instances have been deleted */
-	free(lid.namelist);
-	free(lid.instlist);
-    }
+
+    __pmFreeLogInDom_io(&lid);
 }

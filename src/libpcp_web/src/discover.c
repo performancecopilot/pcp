@@ -771,6 +771,7 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, __pmTimestamp *tsp, pmInResult *in
 	lid.numinst = in->numinst;
 	lid.instlist = in->instlist;
 	lid.namelist = in->namelist;
+	lid.alloc = 0;
 
 	sts = __pmLogAddInDom(acp, TYPE_INDOM_V2, &lid, NULL, 0);
 	if (sts < 0)
@@ -1680,14 +1681,13 @@ static int
 pmDiscoverDecodeMetaInDom(__int32_t *buf, int len, int type, __pmTimestamp *tsp, pmInResult *inresult)
 {
     int			sts = 0;
-    int			allinbuf;
     __pmLogInDom_io	lid;
 
-    if ((allinbuf = __pmLogLoadInDom(NULL, len, type, &lid, &buf)) >= 0) {
+    if ((sts = __pmLogLoadInDom(NULL, len, type, &lid, &buf)) >= 0) {
 	inresult->indom = lid.indom;
 	inresult->numinst = lid.numinst;
 	inresult->instlist = lid.instlist;
-	if (allinbuf) {
+	if ((lid.alloc & PMLID_NAMELIST) == 0) {
 	    /*
 	     * 32-bit architecture and namelist[] is really part
 	     * of buf[], so need to alloc a new namelist[]
@@ -1707,9 +1707,8 @@ pmDiscoverDecodeMetaInDom(__int32_t *buf, int len, int type, __pmTimestamp *tsp,
 	else
 	    inresult->namelist = lid.namelist;
 	*tsp = lid.stamp;
+	sts = 0;
     }
-    else
-	sts = allinbuf;
 
     return sts;
 }

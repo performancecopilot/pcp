@@ -891,7 +891,16 @@ typedef struct {
     int			numinst;	/* number of instances */
     int			*instlist;	/* instance ids */
     char		**namelist;	/* instance names */
+    int			alloc;		/* PMLID_... allocation flag bits */
 } __pmLogInDom_io;
+
+#define PMLID_SELF	1		/* __pmLogInDom_io is malloc'd */
+#define PMLID_INSTLIST	2		/* instlist[] is malloc'd */
+#define PMLID_NAMELIST	4		/* namelist[] is malloc'd */
+#define PMLID_NAMES	8		/* namelist[i] strings are malloc'd */
+
+PCP_CALL extern void __pmFreeLogInDom_io(__pmLogInDom_io *);
+PCP_CALL extern __pmLogInDom_io *__pmDupLogInDom_io(__pmLogInDom_io *);
 
 /*
  * Nested per-instance trimming control (potentially one of these for

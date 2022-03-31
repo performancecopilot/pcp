@@ -258,7 +258,6 @@ pmaRewriteMeta(__pmLogCtl *lcp, int outvers, __int32_t **rbuf)
     int			rlen;
     int			type;
     int			sts;
-    int			allinbuf;
     pmInDom		indom;
     __pmLogInDom_io	lid;
     __int32_t		*ibuf = *rbuf;
@@ -294,9 +293,9 @@ pmaRewriteMeta(__pmLogCtl *lcp, int outvers, __int32_t **rbuf)
 	    /* committed to rewrite, don't worry about trashing rbuf */
 	    indom = __ntohpmInDom(ibuf[5]);
 	    tmp = &ibuf[2];
-	    if ((allinbuf = __pmLogLoadInDom(NULL, rlen, type, &lid, &tmp)) < 0) {
+	    if ((sts = __pmLogLoadInDom(NULL, rlen, type, &lid, &tmp)) < 0) {
 		fprintf(stderr, "pmaRewriteMeta: Botch: __pmLogLoadInDom for indom %s: %s\n",
-		    pmInDomStr(indom), pmErrStr(allinbuf));
+		    pmInDomStr(indom), pmErrStr(sts));
 		exit(1);
 	    }
 
@@ -306,8 +305,7 @@ pmaRewriteMeta(__pmLogCtl *lcp, int outvers, __int32_t **rbuf)
 		    pmInDomStr(indom), pmErrStr(sts));
 		exit(1);
 	    }
-	    if (!allinbuf)
-		free(lid.namelist);
+	    __pmFreeLogInDom_io(&lid);
 	    free(*rbuf);
 	    *rbuf = new;
 	    sts = 1;

@@ -1257,7 +1257,6 @@ write_rec(reclist_t *rec)
 		__int32_t		*buf;
 		__int32_t		*ibuf;
 		__pmLogInDom_io	lid;
-		int			allinbuf;
 		/*
 		 * __pmLogLoadInDom() below may re-write (ntohl()) some of
 		 * the PDU buffer, so we need to operate on a copy for this
@@ -1270,9 +1269,9 @@ write_rec(reclist_t *rec)
 		    memcpy(buf, rec->pdu, rlen);
 
 		    ibuf = &buf[2];
-		    allinbuf = __pmLogLoadInDom(NULL, 0, type, &lid, &ibuf);
-		    if (allinbuf < 0) {
-			fprintf(stderr, "write_rec: __pmLogLoadInDom(type=%s (%d)): failed: %s\n", __pmLogMetaTypeStr(type), type, pmErrStr(allinbuf));
+		    sts = __pmLogLoadInDom(NULL, 0, type, &lid, &ibuf);
+		    if (sts < 0) {
+			fprintf(stderr, "write_rec: __pmLogLoadInDom(type=%s (%d)): failed: %s\n", __pmLogMetaTypeStr(type), type, pmErrStr(sts));
 		    }
 		    else {
 			fprintf(stderr, "INDOM: %s when: ", pmInDomStr(lid.indom));
@@ -1286,8 +1285,7 @@ write_rec(reclist_t *rec)
 			}
 			fputc('\n', stderr);
 		    }
-		    if (!allinbuf)
-			free(lid.namelist);
+		    __pmFreeLogInDom_io(&lid);
 		    free(buf);
 		}
 	    }
@@ -1318,7 +1316,7 @@ write_rec(reclist_t *rec)
 		k += 2;
 		label_type = ntoh_pmLabelType((unsigned int)rec->pdu[k++]);
 		ident = ntoh_pmInDom((unsigned int)rec->pdu[k++]);
-		fprintf(stderr, "LABELSET: %s when: ",
+		fprintf(stderr, "V2 LABELSET: %s when: ",
 			__pmLabelIdentString(ident, label_type, buf, sizeof(buf)));
 		__pmPrintTimestamp(stderr, &when);
 		fputc('\n', stderr);
@@ -1349,7 +1347,7 @@ write_rec(reclist_t *rec)
 	}
 
 	if (type == TYPE_INDOM) {
-	    sts = pmaTryDeltaInDom(&logctl, &rec->pdu);
+	    sts = pmaTryDeltaInDom(&logctl, &rec->pdu, NULL);
 	    if (sts < 0) {
 		fprintf(stderr, "Botch: pmaTryDeltaInDom failed: %d\n", sts);
 		abandon_extract();
@@ -1900,6 +1898,7 @@ againmeta:
 		    lid.numinst = idp->numinst;
 		    lid.instlist = idp->instlist;
 		    lid.namelist = idp->namelist;
+		    lid.alloc = 0;
 
 		    lsts = __pmLogEncodeInDom(lcp, type, &lid, &new);
 		    if (lsts < 0) {
@@ -2014,7 +2013,10 @@ againmeta:
 		 * Add to label set list.
 		 * append_labelsetreclist() sets pb[META] to NULL
 		 */
-		append_labelsetreclist(indx, type);
+		if (outarchvers == PM_LOG_VERS03)
+		    append_labelsetreclist(indx, TYPE_LABEL);
+		else
+		    append_labelsetreclist(indx, TYPE_LABEL_V2);
 	    }
 	    else {
 	        /* META: don't want this meta */

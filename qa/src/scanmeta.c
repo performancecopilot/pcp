@@ -145,7 +145,7 @@ free_elt_fields(elt_t *ep)
 void
 do_indom(__int32_t *buf, int type)
 {
-    int				allinbuf;
+    int				sts;
     static __pmTimestamp	prior_stamp = { 0, 0 };
     static elt_t		*head = NULL;
     static elt_t		dup = { NULL, 0, 0, NULL, NULL };
@@ -156,8 +156,8 @@ do_indom(__int32_t *buf, int type)
     elt_t			*tp;
     elt_t			*dp = &dup;
 
-    if ((allinbuf = __pmLogLoadInDom(NULL, 0, type, &lid, &buf)) < 0) {
-	fprintf(stderr, "__pmLoadLoadInDom: failed: %s\n", pmErrStr(allinbuf));
+    if ((sts = __pmLogLoadInDom(NULL, 0, type, &lid, &buf)) < 0) {
+	fprintf(stderr, "__pmLoadLoadInDom: failed: %s\n", pmErrStr(sts));
 	return;
     }
 
@@ -297,8 +297,7 @@ do_indom(__int32_t *buf, int type)
     }
     prior_stamp = lid.stamp;
 
-    if (lid.namelist != NULL && !allinbuf)
-	free(lid.namelist);
+    __pmFreeLogInDom_io(&lid);
 }
 
 void

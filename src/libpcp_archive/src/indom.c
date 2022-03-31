@@ -88,7 +88,7 @@ pmaSameInDom(__pmLogInDom_io *old, __pmLogInDom_io *new)
 
 done:
 
-    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
+    if (pmDebugOptions.indom) {
 	fprintf(stderr, "pmaSameInDom(%s) -> %s\n", pmInDomStr(old->indom),
 	    sts == 1 ? "same" : "different");
     }
@@ -145,7 +145,7 @@ pmaDeltaInDom(__pmLogInDom_io *old, __pmLogInDom_io *new, __pmLogInDom_io *new_d
     for (i = 0, j = 0; i < old->numinst || j < new->numinst; ) {
 	if ((i < old->numinst && j == new->numinst) ||
 	    (i < old->numinst && j < new->numinst && old->instlist[i] < new->instlist[j])) {
-	    if (pmDebugOptions.appl0)
+	    if (pmDebugOptions.indom)
 		fprintf(stderr, "[%d] del %d -> %-29.29s\n", i, old->instlist[i], old->namelist[i]);
 	    del++;
 	    old_map[i] = 1;
@@ -153,7 +153,7 @@ pmaDeltaInDom(__pmLogInDom_io *old, __pmLogInDom_io *new, __pmLogInDom_io *new_d
 	}
 	else if ((i == old->numinst && j < new->numinst) ||
 		 (i < old->numinst && j < new->numinst && old->instlist[i] > new->instlist[j])) {
-	    if (pmDebugOptions.appl0)
+	    if (pmDebugOptions.indom)
 		fprintf(stderr, "[%d] add %d -> %-29.29s\n", j, new->instlist[j], new->namelist[j]);
 	    add++;
 	    new_map[j] = 1;
@@ -167,11 +167,11 @@ pmaDeltaInDom(__pmLogInDom_io *old, __pmLogInDom_io *new, __pmLogInDom_io *new_d
 		 * proc PMDA might do this, other PMDAs are not supposed to
 		 * do this) ... just fall back to full indom
 		 */
-		if (pmDebugOptions.appl0)
+		if (pmDebugOptions.indom)
 		    fprintf(stderr, "oops! same %d -> different %-29.29s ... %-29.29s\n", old->instlist[i], old->namelist[i], new->namelist[j]);
 		goto done;
 	    }
-	    if (pmDebugOptions.appl0)
+	    if (pmDebugOptions.indom)
 		fprintf(stderr, "same %d -> %-29.29s ... %-29.29s\n", old->instlist[i], old->namelist[i], new->namelist[j]);
 	    i++;
 	    j++;
@@ -201,6 +201,7 @@ pmaDeltaInDom(__pmLogInDom_io *old, __pmLogInDom_io *new, __pmLogInDom_io *new_d
     new_delta->stamp = new->stamp;
     new_delta->indom = new->indom;
     new_delta->numinst = add + del;
+    new_delta->alloc = (PMLID_INSTLIST | PMLID_NAMELIST);
     /*
      * See comments at head of function re. alloc() failures ...
      */
@@ -272,7 +273,7 @@ pmaDeltaInDom(__pmLogInDom_io *old, __pmLogInDom_io *new, __pmLogInDom_io *new_d
 
 fallback:
     /*
-     * in we have a malloc failure, revert to the old-style (V2)
+     * if we have a malloc failure, revert to the old-style (V2)
      * pmaSameInDom() method, but notice the return codes are
      * inverted
      */
@@ -284,7 +285,7 @@ done:
     if (new_map != NULL)
 	free(new_map);
 
-    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
+    if (pmDebugOptions.indom) {
 	fprintf(stderr, "pmaDeltaInDom(%s) -> %s\n", pmInDomStr(old->indom),
 	    sts == 0 ? "same" : ( sts == 1 ? "full indom" : "delta indom" ));
     }
@@ -349,58 +350,84 @@ pmaUndeltaInDom(__pmLogCtl *lcp, __int32_t *buf)
 static __pmHashCtl	hashindom;
 typedef struct {
     __int32_t		*buf;
-    int			allinbuf;
     __pmLogInDom_io	lid;
 }
 indom_ctl;
 
 /*
- * rbuf is a physical indom record for a V3 archive
+ * The input indom is provided either via lidp (an already loaded 
+ * indom) or rbuf (a physical indom record) for a V3 archive ...
+ * AND this must be the same for ALL calls to pmaTryDeltaInDom()
+ * for a given lcp.
  *
  * pmaTryDeltaInDom() checks to see if "delta" indom encoding would
  * be more efficient ... this involves maintaining a per-indom copy
  * of the last "full" indom that was seen by pmaTryDeltaInDom().
  *
- * If "delta" indom format is preferred, a reformatted physical indom
- * record is returned via a (new) rbuf and the old rbuf is free'd.
+ * If "delta" indom format is preferred, a new indom is returned
+ * via lidpp or rbuf and the old one is free'd
  *
- * Because we need to extract the __pmInDom_io from the initial rbuf
- * and this involves rewriting rbuf (at least some ntohl() magic) and
- * also because we keep the __pmInDom_io in a hashed cache until the next
- * time we see the same indom, pmaTryDeltaInDom() makes a copy of rbuf.
+ * In the rbuf case we need to extract the __pmInDom_io from the
+ * initial rbuf and this involves rewriting rbuf (at least some ntohl()
+ * magic) and also because we keep the __pmInDom_io in a hashed cache
+ * until the next time we see the same indom, pmaTryDeltaInDom() makes
+ * a copy of rbuf.
  */
 int
-pmaTryDeltaInDom(__pmLogCtl *lcp, __int32_t **rbuf)
+pmaTryDeltaInDom(__pmLogCtl *lcp, __int32_t **rbuf, __pmLogInDom_io *lidp)
 {
     int			rlen;
     int			type;
     int			sts = 0;
+    int			i;
     __int32_t		*tmp;
     pmInDom		indom;
     indom_ctl		this;
     indom_ctl		*last;
     __pmHashNode	*hnp;
+    int			first_time = 0;
 
-    type = ntohl((*rbuf)[1]);
-    if (type != TYPE_INDOM) {
-	/* if not V3 indom record, nothing to do */
-	return -1;
+    /*
+     * Need exactly ONE of rbuf and lidp to be NULL ... the real
+     * input indom is provided by the other parameter.
+     */
+    if ((rbuf == NULL && lidp == NULL) || (rbuf != NULL && lidp != NULL))
+	return -2;
+
+    if (rbuf) {
+	type = ntohl((*rbuf)[1]);
+	if (type != TYPE_INDOM) {
+	    /* if not V3 indom record, nothing to do */
+	    return -1;
+	}
+	rlen = ntohl((*rbuf)[0]);
+
+	/* make a copy of rbuf */
+	if ((this.buf = (__int32_t *)malloc(rlen)) == NULL) {
+	    pmNoMem("pmaTryDeltaInDom: buf copy", rlen, PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+	memcpy(this.buf, *rbuf, rlen);
+
+	indom = __ntohpmInDom(this.buf[5]);
+	tmp = &this.buf[2];
+	if ((sts = __pmLogLoadInDom(NULL, rlen, type, &this.lid, &tmp)) < 0) {
+	    fprintf(stderr, "pmaTryDeltaInDom: Botch: __pmLogLoadInDom for indom %s: %s\n",
+		pmInDomStr(indom), pmErrStr(sts));
+	    exit(1);
+	}
     }
-    rlen = ntohl((*rbuf)[0]);
-
-    /* make a copy of rbuf */
-    if ((this.buf = (__int32_t *)malloc(rlen)) == NULL) {
-	pmNoMem("pmaTryDeltaInDom: buf copy", rlen, PM_FATAL_ERR);
-	/*NOTREACHED*/
-    }
-    memcpy(this.buf, *rbuf, rlen);
-
-    indom = __ntohpmInDom(this.buf[5]);
-    tmp = &this.buf[2];
-    if ((this.allinbuf = __pmLogLoadInDom(NULL, rlen, type, &this.lid, &tmp)) < 0) {
-	fprintf(stderr, "pmaTryDeltaInDom: Botch: __pmLogLoadInDom for indom %s: %s\n",
-	    pmInDomStr(indom), pmErrStr(this.allinbuf));
-	exit(1);
+    else {
+	__pmLogInDom_io	*tmp_lidp;
+	indom = lidp->indom;
+	if ((tmp_lidp = __pmDupLogInDom_io(lidp)) == NULL) {
+	    fprintf(stderr, "pmaTryDeltaInDom: Botch: __pmDupLogInDom_io for indom %s: NULL\n",
+		pmInDomStr(indom));
+	    exit(1);
+	}
+	this.lid = *tmp_lidp;		/* struct assignment */
+	this.lid.alloc &= ~PMLID_SELF;	/* don't free this */
+	free(tmp_lidp);
     }
 
     if ((hnp = __pmHashSearch((unsigned int)indom, &hashindom)) == NULL) {
@@ -424,6 +451,7 @@ pmaTryDeltaInDom(__pmLogCtl *lcp, __int32_t **rbuf)
 	}
 	hnp->data = (void *)new;
 	last = new;
+	first_time = 1;
     }
     else {
 	__pmLogInDom_io		delta;
@@ -435,26 +463,54 @@ pmaTryDeltaInDom(__pmLogCtl *lcp, __int32_t **rbuf)
 	    /*
 	     * "delta" indom is preferred ... rewrite away
 	     */
-	    lsts = __pmLogEncodeInDom(lcp, TYPE_INDOM_DELTA, &delta, &new);
-	    if (lsts < 0) {
-		fprintf(stderr, "pmaTryDeltaInDom: Botch: __pmLogEncodeInDom for indom %s: %s\n",
-		    pmInDomStr(indom), pmErrStr(lsts));
-		exit(1);
+	    if (rbuf) {
+		lsts = __pmLogEncodeInDom(lcp, TYPE_INDOM_DELTA, &delta, &new);
+		if (lsts < 0) {
+		    fprintf(stderr, "pmaTryDeltaInDom: Botch: __pmLogEncodeInDom for indom %s: %s\n",
+			pmInDomStr(indom), pmErrStr(lsts));
+		    exit(1);
+		}
+		free(*rbuf);
+		*rbuf = new;
+		__pmFreeLogInDom_io(&delta);
+
+		/* free old "last" record buffer */
+		free(last->buf);
 	    }
-	    free(*rbuf);
-	    *rbuf = new;
-	    free(delta.instlist);
-	    free(delta.namelist);
+	    else {
+		/*
+		 * pmaDeltaIndom() above leaves delta.namelist[i] elements
+		 * pointing into the strings of last->lid->namelist[j] ,,,
+		 * we need to copy these so *lidp survives if last is
+		 * free'd
+		 */
+		for (i = 0; i < delta.numinst; i++) {
+		    if (delta.namelist[i] != NULL) {
+			char	*name;
+			if ((name = strdup(delta.namelist[i])) == NULL) {
+			    pmNoMem("pmaTryDeltaInDom: namelist[i]", strlen(delta.namelist[i]), PM_FATAL_ERR);
+			    /*NOTREACHED*/
+			}
+			delta.namelist[i] = name;
+		    }
+		}
+		delta.alloc |= PMLID_NAMES;
+		__pmFreeLogInDom_io(lidp);
+		*lidp = delta;			/* struct assignment */
+	    }
 	    sts = 1;
 	}
+	else if (lsts < 0) {
+	    fprintf(stderr, "pmaTryDeltaInDom: Botch: pmaDeltaInDom for indom %s: %s\n",
+		pmInDomStr(indom), pmErrStr(lsts));
+	    exit(1);
+	}
 
-	/* free old "last" */
-	if (!last->allinbuf)
-	    free(last->lid.namelist);
-	free(last->buf);
     }
 
-    /* this -> last */
+    /* for next time we're called ... this -> last */
+    if (!first_time)
+	__pmFreeLogInDom_io(&last->lid);
     memcpy(last, &this, sizeof(this));
 
     return sts;

@@ -1479,7 +1479,10 @@ do_newlabelsets(void)
 	}
 
 	if (pmDebugOptions.appl0) {
-	    fprintf(stderr, "Metadata: write LabelSet %s @ offset=%ld\n",
+	    fprintf(stderr, "Metadata: write ");
+	    if (outarch.version == PM_LOG_VERS02)
+		fprintf(stderr, "V2 ");
+	    fprintf(stderr, "LabelSet %s @ offset=%ld\n",
 		    __pmLabelIdentString(ident, type, buf, sizeof(buf)), out_offset);
 	}
 
@@ -1737,7 +1740,7 @@ main(int argc, char **argv)
     /*
      * loop
      *	- get next log record
-     *	- write out new/changed meta data required by this log record
+     *	- write out new/changed metadata required by this log record
      *	- write out log
      *	- do ti update if necessary
      */
@@ -1815,10 +1818,20 @@ main(int argc, char **argv)
 			fprintf(stderr, "Metadata: read EOF @ offset=%ld\n", in_offset);
 		    else if (stsmeta == TYPE_DESC)
 			fprintf(stderr, "Metadata: read PMID %s @ offset=%ld\n", pmIDStr(ntoh_pmID(inarch.metarec[2])), in_offset);
+		    else if (stsmeta == TYPE_INDOM_V2)
+			fprintf(stderr, "Metadata: read V2 InDom %s @ offset=%ld\n", pmInDomStr(ntoh_pmInDom((unsigned int)inarch.metarec[4])), in_offset);
+		    else if (stsmeta == TYPE_LABEL_V2)
+			fprintf(stderr, "Metadata: read V2 LabelSet @ offset=%ld\n", in_offset);
+		    else if (stsmeta == TYPE_TEXT)
+			fprintf(stderr, "Metadata: read Text @ offset=%ld\n", in_offset);
 		    else if (stsmeta == TYPE_INDOM)
 			fprintf(stderr, "Metadata: read InDom %s @ offset=%ld\n", pmInDomStr(ntoh_pmInDom((unsigned int)inarch.metarec[5])), in_offset);
-		    else if (stsmeta == TYPE_INDOM_V2)
-			fprintf(stderr, "Metadata: read InDom %s @ offset=%ld\n", pmInDomStr(ntoh_pmInDom((unsigned int)inarch.metarec[4])), in_offset);
+		    else if (stsmeta == TYPE_INDOM_DELTA)
+			fprintf(stderr, "Metadata: read Delta InDom %s @ offset=%ld\n", pmInDomStr(ntoh_pmInDom((unsigned int)inarch.metarec[5])), in_offset);
+		    else if (stsmeta == TYPE_LABEL)
+			fprintf(stderr, "Metadata: read LabelSet @ offset=%ld\n", in_offset);
+		    else
+			fprintf(stderr, "Metadata: read botch type=%d\n", stsmeta);
 		}
 	    }
 	    if (stsmeta < 0) {
@@ -1873,7 +1886,7 @@ main(int argc, char **argv)
 		 */
 		do_desc();
 	    }
-	    else if (stsmeta == TYPE_INDOM) {
+	    else if (stsmeta == TYPE_INDOM || stsmeta == TYPE_INDOM_DELTA) {
 		__pmTimestamp	stamp;
 		__pmLoadTimestamp((__int32_t *)&inarch.metarec[2], &stamp);
 		if (fixstamp(&stamp)) {
@@ -1887,7 +1900,7 @@ main(int argc, char **argv)
 		    stamp.nsec > inarch.rp->timestamp.nsec)
 		    break;
 		needti = 1;
-		do_indom();
+		do_indom(stsmeta);
 	    }
 	    else if (stsmeta == TYPE_INDOM_V2) {
 		__pmTimestamp	stamp;
@@ -1903,7 +1916,7 @@ main(int argc, char **argv)
 		    stamp.nsec > inarch.rp->timestamp.nsec)
 		    break;
 		needti = 1;
-		do_indom();
+		do_indom(stsmeta);
 	    }
 	    else if (stsmeta == TYPE_LABEL) {
 		__pmTimestamp	stamp;
@@ -1942,7 +1955,7 @@ main(int argc, char **argv)
 		do_text();
 	    }
 	    else {
-		fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",
+		fprintf(stderr, "%s: Error: unrecognised metadata type: %d\n",
 		    pmGetProgname(), stsmeta);
 		abandon();
 		/*NOTREACHED*/

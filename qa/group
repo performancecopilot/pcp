@@ -1838,11 +1838,14 @@ x11
 1384 pmlogrewrite pmdumplog archive_v3 local
 1385 pmda.openmetrics local python
 1386 pmlogrewrite pmdumplog archive_v3 local valgrind
+1387 pmlogrewrite pmdumplog archive_v3 local
 1388 pmproxy local secure
 1389:retired pmwebd local
 1390 atop pcp local
 1391 pmproxy local secure
+1392 pmlogrewrite pmdumplog archive_v3 local valgrind
 1393 pmda.linux local
+1394 pmlogrewrite pmlogextract archive pmdumplog archive_v3 local
 1395 pmda.openmetrics local python
 1396 pcp python pidstat local archive
 1397 pmda.smart local valgrind

@@ -834,5 +834,7 @@ PCP_3.37 {
     __pmLogEncodeInDom;
     __pmLogMetaTypeStr;
     __pmLogMetaTypeStr_r;
+    __pmDupLogInDom_io;
+    __pmFreeLogInDom_io;
 } PCP_3.36;
 

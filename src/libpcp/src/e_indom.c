@@ -220,10 +220,8 @@ __pmLogPutInDom(__pmArchCtl *acp, int type, const __pmLogInDom_io * const lidp)
  * pmlogrewrite (and others) use, acp == NULL
  *	*buf already contains the on-disk record (after the header)
  *
- * The InDom is unpacked into *lidp, and the return value is 1 if
- * lidp->namelist[] entries points into buf[], otherwise the return
- * value is 0 and lidp->namelist also needs to be freed by the caller
- * if it is not NULL
+ * The InDom is unpacked into *lidp, and the caller should later call
+ * __pmFreeLogInDom_io() to release the storage associated with *lidp.
  */
 
 int
@@ -237,7 +235,6 @@ __pmLogLoadInDom(__pmArchCtl *acp, int rlen, int type, __pmLogInDom_io *lidp, __
     int			max_idx = -1;		/* pander to gcc */
     char		*namebase;
     __int32_t		*lbuf;
-    int			sts;
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
     if (acp != NULL) {
@@ -294,14 +291,13 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	    fprintf(stderr, "__pmLogLoadInDom: botch type=%d\n", type);
 	goto bad;
     }
+    lidp->alloc = 0;
     if (lidp->numinst > 0) {
 	k += lidp->numinst;
 	stridx = (__int32_t *)&lbuf[k];
 #if defined(HAVE_32BIT_PTR)
 	lidp->namelist = (char **)stridx;
-	sts = 1; /* allocation is all in lbuf */
 #else
-	sts = 0; /* allocation for namelist + lbuf */
 	/* need to allocate to hold the pointers */
 PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 	lidp->namelist = (char **)malloc(lidp->numinst * sizeof(char*));
@@ -310,6 +306,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 		free(lbuf);
 	    return -oserror();
 	}
+	lidp->alloc |= PMLID_NAMELIST;
 #endif
 	k += lidp->numinst;
 	namebase = (char *)&lbuf[k];
@@ -367,24 +364,16 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
     }
     else {
 	lidp->namelist = NULL;
-	/*
-	 * sts value here does not matter, because lidp->numinst <= 0 and
-	 * so lidp->namelist will never be referenced
-	 */
-	sts = 1;
     }
 
     if (acp != NULL)
 	*buf = lbuf;
 
-    return sts;
+    return 0;
 
 bad:
     if (acp != NULL)
 	free(lbuf);
-#if defined(HAVE_32BIT_PTR)
-#else
-    free(lidp->namelist);
-#endif
+    __pmFreeLogInDom_io(lidp);
     return PM_ERR_LOGREC;
 }

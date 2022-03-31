@@ -814,34 +814,37 @@ __pmLogLoadMeta(__pmArchCtl *acp)
 	else if (h.type == TYPE_INDOM || h.type == TYPE_INDOM_DELTA || h.type == TYPE_INDOM_V2) {
 	    __pmLogInDom_io	lid;
 	    __int32_t		*buf;
-	    int			allinbuf;
 
-	    if ((allinbuf = __pmLogLoadInDom(acp, rlen, h.type, &lid, &buf)) < 0) {
-		sts = allinbuf;
+	    if ((sts = __pmLogLoadInDom(acp, rlen, h.type, &lid, &buf)) < 0) {
 		goto end;
 	    }
 	    if (lid.numinst > 0) {
 		/*
 		 * we have instances, so in.namelist is not NULL
 		 */
-		if ((sts = __pmLogAddInDom(acp, h.type, &lid, buf, allinbuf)) < 0) {
+		if ((sts = __pmLogAddInDom(acp, h.type, &lid, buf, (lid.alloc & PMLID_NAMELIST) == 0)) < 0) {
 		    free(buf);
-		    if (!allinbuf)
-			free(lid.namelist);
+		    __pmFreeLogInDom_io(&lid);
 		    goto end;
 		}
 		/* If this indom was a duplicate, then we need to free tbuf and
 		   namelist, as appropriate. */
 		if (sts == PMLOGPUTINDOM_DUP) {
 		    free(buf);
-		    if (!allinbuf)
-			free(lid.namelist);
+		    __pmFreeLogInDom_io(&lid);
 		}
 	    }
 	    else {
 		/* no instances, or an error */
 		free(buf);
 	    }
+	    /*
+	     * don't free namelist ... it will have been salted away in
+	     * __pmLogAddInDom() and maybe free'd later in
+	     * logFreeHashInDom()
+	     */
+	    lid.alloc &= (~PMLID_NAMELIST);
+	    __pmFreeLogInDom_io(&lid);
 	}
 	else if (h.type == TYPE_LABEL || h.type == TYPE_LABEL_V2) {
 	    __pmTimestamp	stamp;
@@ -910,7 +913,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":16", PM_FAULT_ALLOC);
 	    k += sizeof(type);
 	    if (!(type & (PM_TEXT_ONELINE|PM_TEXT_HELP))) {
 		if (pmDebugOptions.logmeta) {
-		    fprintf(stderr, "__pmLogLoadMeta: bad text type -> %x\n",
+		    fprintf(stderr, "__pmLogLoadMeta: bad text type -> 0x%x\n",
 			    type);
 		}
 		free(tbuf);
@@ -922,7 +925,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":16", PM_FAULT_ALLOC);
 		ident = __ntohpmID(*((unsigned int *)&tbuf[k]));
 	    else {
 		if (pmDebugOptions.logmeta) {
-		    fprintf(stderr, "%s: bad text ident -> %x\n",
+		    fprintf(stderr, "%s: bad text ident -> 0x%x\n",
 				    "__pmLogLoadMeta", type);
 		}
 		free(tbuf);
@@ -1791,4 +1794,138 @@ __pmPutTimeval(const __pmTimestamp *tsp, __int32_t *buf)
 	fprintf(stderr, "__pmPutTimeval: %" FMT_INT64 ".%09d (%llx %x nsec %x usec)", tsp->sec, tsp->nsec, (long long)tsp->sec, tsp->nsec, tsp->nsec / 1000);
 	fprintf(stderr, " -> network(%08x %08x usec)\n", buf[0], buf[1]);
     }
+}
+
+/*
+ * Free a __pmLogInDom_io struct ... a bit trickier than normal
+ * because different parts of the struct may, or may not, be
+ * malloc'd (as opposed to pointing into a buffer) ... the "alloc"
+ * flags field determines what neeeds to be done.
+ */
+void
+__pmFreeLogInDom_io(__pmLogInDom_io *lidp)
+{
+    if ((lidp->alloc & ~(PMLID_SELF|PMLID_INSTLIST|PMLID_NAMELIST|PMLID_NAMES)) != 0) {
+	fprintf(stderr, "__pmFreeLogInDom_io(%p): Warning: bogus alloc flags: 0x%x\n",
+		lidp, lidp->alloc & ~(PMLID_SELF|PMLID_INSTLIST|PMLID_NAMELIST|PMLID_NAMES));
+    }
+
+    if (pmDebugOptions.indom) {
+	fprintf(stderr, "__pmFreeLogInDom_io(%p) alloc 0x%x numinst %d",
+		lidp, lidp->alloc, lidp->numinst);
+	if (lidp->instlist == NULL)
+	    fprintf(stderr, " instlist NULL");
+	else {
+	    if (lidp->numinst > 0) {
+		fprintf(stderr, " instlist %p", &lidp->instlist[0]);
+		if (lidp->numinst > 1)
+		    fprintf(stderr, "...%p", &lidp->instlist[lidp->numinst-1]);
+	    }
+	}
+	if (lidp->namelist == NULL)
+	    fprintf(stderr, " namelist NULL");
+	else {
+	    if (lidp->numinst > 0) {
+		fprintf(stderr, " namelist %p", &lidp->namelist[0]);
+		if (lidp->numinst > 1)
+		    fprintf(stderr, "...%p", &lidp->namelist[lidp->numinst-1]);
+	    }
+	    if (lidp->numinst > 0) {
+		if (lidp->namelist[0] == NULL)
+		    fprintf(stderr, " namelist[0] NULL");
+		else
+		    fprintf(stderr, " namelist[0] %p \"%s\"", lidp->namelist[0], lidp->namelist[0]);
+		if (lidp->numinst > 1) {
+		    if (lidp->namelist[lidp->numinst-1] == NULL)
+			fprintf(stderr, " namelist[%d] NULL", lidp->numinst-1);
+		    else
+			fprintf(stderr, "... namelist[%d] %p \"%s\"", lidp->numinst-1, lidp->namelist[lidp->numinst-1], lidp->namelist[lidp->numinst-1]);
+		}
+	    }
+	}
+	fputc('\n', stderr);
+    }
+
+    if (lidp->numinst >= 0) {
+
+	if (lidp->alloc & PMLID_NAMES && lidp->namelist != NULL) {
+	    int		i;
+	    for (i = 0; i < lidp->numinst; i++) {
+		if (lidp->namelist[i] != NULL) {
+		    free(lidp->namelist[i]);
+		    lidp->namelist[i] = NULL;
+		}
+	    }
+	}
+
+	if (lidp->alloc & PMLID_NAMELIST && lidp->namelist != NULL)
+	    free(lidp->namelist);
+
+	if (lidp->alloc & PMLID_INSTLIST && lidp->instlist != NULL)
+	    free(lidp->instlist);
+
+	if (lidp->alloc & PMLID_SELF)
+	    free(lidp);
+    }
+
+    /*
+     * initialize everything, avoids double free in case we're called
+     * twice for the same lidp
+     */
+    memset((void *)lidp, 0, sizeof(*lidp));
+
+}
+
+/*
+ * Duplicate a __pmLogInDom_io struct in a manner that shares no storage
+ * with the original (all of the compnents are malloc'd)
+ */
+__pmLogInDom_io *
+__pmDupLogInDom_io(__pmLogInDom_io *lidp)
+{
+    __pmLogInDom_io	*new;
+    int			i;
+
+    if ((new = (__pmLogInDom_io *)malloc(sizeof(__pmLogInDom_io))) == NULL) {
+	pmNoMem("__pmDupLogInDom_io base", sizeof(__pmLogInDom_io), PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    new->alloc = PMLID_SELF;
+
+    new->stamp = lidp->stamp;
+    new->indom = lidp->indom;
+    new->numinst = lidp->numinst;
+    new->namelist = NULL;
+    new->instlist = NULL;
+
+    if ((new->instlist = (int *)malloc(new->numinst * sizeof(new->instlist[0]))) == NULL) {
+	__pmFreeLogInDom_io(new);
+	pmNoMem("__pmDupLogInDom_io instlist", new->numinst * sizeof(new->instlist[0]), PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    new->alloc |= PMLID_INSTLIST;
+    
+    for (i = 0; i < new->numinst; i++)
+	new->instlist[i] = lidp->instlist[i];
+
+    if ((new->namelist = (char **)malloc(new->numinst * sizeof(new->namelist[0]))) == NULL) {
+	__pmFreeLogInDom_io(new);
+	pmNoMem("__pmDupLogInDom_io namelist", new->numinst * sizeof(new->namelist[0]), PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    new->alloc |= PMLID_NAMELIST;
+    
+    for (i = 0; i < new->numinst; i++) {
+	if ((new->namelist[i] = strdup(lidp->namelist[i])) == NULL) {
+	    int		len = strlen(lidp->namelist[i]);
+	    while (i++ < new->numinst)
+		new->namelist[i] = NULL;
+	    __pmFreeLogInDom_io(new);
+	    pmNoMem("__pmDupLogInDom_io namelist[]", len, PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+    }
+    new->alloc |= PMLID_NAMES;
+
+    return new;
 }

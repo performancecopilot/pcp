@@ -858,7 +858,10 @@ do_labelset(void)
 		}
 			    
 		if (pmDebugOptions.appl0) {
-		    fprintf(stderr, "Metadata: write LabelSet %s @ offset=%ld\n",
+		    fprintf(stderr, "Metadata: write ");
+		    if (outarch.version == PM_LOG_VERS02)
+			fprintf(stderr, "V2 ");
+		    fprintf(stderr, "LabelSet %s @ offset=%ld\n",
 			    __pmLabelIdentString(lp->new_id, type,
 						 idbuf, sizeof(idbuf)),
 			    out_offset);
@@ -983,7 +986,10 @@ do_labelset(void)
 	}
 
 	if (pmDebugOptions.appl0) {
-	    fprintf(stderr, "Metadata: write LabelSet %s @ offset=%ld\n",
+	    fprintf(stderr, "Metadata: write ");
+	    if (outarch.version == PM_LOG_VERS02)
+		fprintf(stderr, "V2 ");
+	    fprintf(stderr, "LabelSet %s @ offset=%ld\n",
 		    __pmLabelIdentString(ident, type, idbuf, sizeof(idbuf)),
 		    out_offset);
 	}

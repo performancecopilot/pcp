@@ -246,6 +246,7 @@ __localLogGetInDom(__pmLogCtl *lcp, __pmLogInDom_io *lidp)
     sts = idp->numinst;
     lidp->instlist = idp->instlist;
     lidp->namelist = idp->namelist;
+    lidp->alloc = 0;
 
 done:
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
@@ -823,6 +824,7 @@ do_work(task_t *tp)
 		 * the indom needs to be refreshed.
 		 */
 		old.indom = desc.indom;
+		old.alloc = 0;
 		(void)__localLogGetInDom(&logctl, &old);
 		if (old.numinst > 0 && __pmTimestampSub(&resp->timestamp, &old.stamp) <= 0) {
 		    /*
@@ -899,10 +901,12 @@ do_work(task_t *tp)
 		    __pmLogInDom_io	new_delta;
 		    new.stamp = resp->timestamp;	/* struct assignment */
 		    new.indom = desc.indom;
+		    new.alloc = 0;
 		    if ((new.numinst = pmGetInDom(desc.indom, &new.instlist, &new.namelist)) < 0) {
 			fprintf(stderr, "pmGetInDom(%s): %s\n", pmInDomStr(desc.indom), pmErrStr(new.numinst));
 			exit(1);
 		    }
+		    new.alloc = (PMLID_INSTLIST | PMLID_NAMELIST);
 		    /*
 		     * sort the indom based in internal instance identifier
 		     */

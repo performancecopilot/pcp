@@ -178,12 +178,14 @@ Options:\n\
 		printf("pmGetInDom: %s: %s\n", pmInDomStr(desc.indom), pmErrStr(lid.numinst));
 		exit(1);
 	    }
+	    lid.alloc = (PMLID_INSTLIST | PMLID_NAMELIST);
 	    lid.indom = desc.indom;
 	    lid.stamp = stamp;
 	    if ((sts = __pmLogPutInDom(&archctl, indom_record_type, &lid)) < 0) {
 		fprintf(stderr, "%s: __pmLogPutInDom(...,indom=%s,numinst=%d,...) failed: %s\n", pmGetProgname(), pmInDomStr(desc.indom), lid.numinst, pmErrStr(sts));
 		exit(1);
 	    }
+	    __pmFreeLogInDom_io(&lid);
 	}
     }
     for (i = 0; i < nmetric; i++) {

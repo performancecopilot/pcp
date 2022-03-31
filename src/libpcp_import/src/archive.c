@@ -93,6 +93,7 @@ check_indom(pmi_context *current, pmInDom indom, int *needti)
 		lid.numinst = current->indom[i].ninstance;
 		lid.instlist = current->indom[i].inst;
 		lid.namelist = current->indom[i].name;
+		lid.alloc = 0;
 		if ((sts = __pmLogPutInDom(acp, type, &lid)) < 0)
 		    return sts;
 

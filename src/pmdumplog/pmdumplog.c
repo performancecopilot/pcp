@@ -548,11 +548,11 @@ dumpDiskInDom(void)
 	if (hdr.type == TYPE_INDOM || hdr.type == TYPE_INDOM_DELTA || hdr.type == TYPE_INDOM_V2) {
 	    __pmLogInDom_io	lid;
 	    __int32_t		*buf;
-	    int			allinbuf;
+	    int			sts;;
 	    int			i;
 
-	    if ((allinbuf = __pmLogLoadInDom(ctxp->c_archctl, rlen, hdr.type, &lid, &buf)) < 0) {
-		fprintf(stderr, "dumpDiskInDom: __pmLogLoadInDom failed: %s\n", pmErrStr(allinbuf));
+	    if ((sts = __pmLogLoadInDom(ctxp->c_archctl, rlen, hdr.type, &lid, &buf)) < 0) {
+		fprintf(stderr, "dumpDiskInDom: __pmLogLoadInDom failed: %s\n", pmErrStr(sts));
 		exit(1);
 	    }
 	    dump_pmTimestamp(&lid.stamp);
@@ -578,8 +578,7 @@ dumpDiskInDom(void)
 		fflush(stdout);
 	    }
 	    free(buf);
-	    if (lid.namelist != NULL && !allinbuf)
-		free(lid.namelist);
+	    __pmFreeLogInDom_io(&lid);
 	}
 	else {
 	    /*
