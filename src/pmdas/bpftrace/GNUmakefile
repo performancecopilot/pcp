@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2020 Red Hat.
+# Copyright (c) 2019-2020,2022 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@ LDIRT    = domain.h root pmns $(IAM).log
 CONFIG   = bpftrace.conf
 
 DOMAIN   = BPFTRACE
-SUBDIRS  = bpftrace autostart
+SUBDIRS  = bpftrace autostart examples
 
 PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
 PMDACONFIG = $(PCP_SYSCONF_DIR)/$(IAM)

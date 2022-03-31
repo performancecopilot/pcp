@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020,2022 Red Hat.
+# Copyright (c) 2022 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -16,9 +16,9 @@ TOPDIR = ../../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM       = bpftrace
+SCRIPTS = $(shell echo *.bt)
 
-AUTOSTARTDIR = $(PCP_SYSCONF_DIR)/$(IAM)/autostart
-AUTOSTARTTMPDIR = $(PCP_PMDAS_DIR)/$(IAM)/autostart
+EX_DIR = $(PCP_SHARE_DIR)/pmdas/bpftrace/examples
 
 include $(BUILDRULES)
 
@@ -27,6 +27,5 @@ default_pcp default:	$(SUBDIRS)
 
 install_pcp install:	default $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
-	$(INSTALL) -m 755 -d $(AUTOSTARTDIR)
-	$(INSTALL) -m 755 -d $(AUTOSTARTTMPDIR)
-	$(INSTALL) -m 644 -t $(AUTOSTARTTMPDIR)/README README $(AUTOSTARTDIR)/README
+	$(INSTALL) -m 755 -d $(EX_DIR)
+	$(INSTALL) -m 644 $(SCRIPTS) $(EX_DIR)

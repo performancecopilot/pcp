@@ -2268,7 +2268,7 @@ total_manifest() {
     awk '{print $NF}' $DIST_MANIFEST
 }
 basic_manifest() {
-    total_manifest | cull '/pcp-doc/|/testsuite/|/man/|/examples/'
+    total_manifest | cull '/pcp-doc/|/testsuite/|/man/|pcp/examples/'
 }
 
 #
