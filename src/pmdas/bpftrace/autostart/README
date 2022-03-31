@@ -1,0 +1,10 @@
+bpftrace scripts in this directory will be started when the bpftrace PMDA starts.
+
+Example scripts are stored at:
+/usr/share/pcp/pmdas/bpftrace/examples
+
+Additional bpftrace tools can be found at:
+https://github.com/iovisor/bpftrace/tree/master/tools
+
+Please refer to the bpftrace repository for further documentation materials:
+https://github.com/iovisor/bpftrace
