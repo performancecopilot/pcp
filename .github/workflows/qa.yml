@@ -145,35 +145,15 @@ jobs:
 
           cat summary.txt
 
-      - name: Create interactive test report
-        run: |
-          cp build/ci/allure/categories.json allure-results
-          if [[ -f qa-reports/reports/latest/history/history.json.gz ]]; then
-            gunzip qa-reports/reports/latest/history/history.json.gz
-            cp -r qa-reports/reports/latest/history allure-results
-          fi
-          /opt/allure-*/bin/allure generate
-
-      - name: Create qareport.zip
-        run: |
-          cp build/ci/allure/README.md allure-report
-          cp build/ci/allure/open_report.sh allure-report
-          gzip allure-report/history/history.json
-          # zip report before uploading, because GitHub uploads files in individual HTTP calls
-          cd allure-report && zip -q -r ../qareport.zip . && cd ..
-
-      - name: Check for regressions
-        run: build/ci/check-trend.py --history-trend allure-report/history/history-trend.json
-        continue-on-error: true
-
-      - name: Upload test report
+      - name: Upload test summary
         uses: actions/upload-artifact@v3
         with:
-          name: qareport
-          path: qareport.zip
+          name: qasummary
+          path: summary.txt
 
       - name: Publish test summary
         id: publish_test_summary
+        if: github.event_name != 'pull_request'
         uses: actions/github-script@v6
         continue-on-error: true
         with:
@@ -193,6 +173,33 @@ jobs:
             });
             console.log(`::set-output name=summary_url::${response.data.html_url}`);
             console.log(`::notice::Test summary is available at ${response.data.html_url}`);
+
+      - name: Create interactive test report
+        run: |
+          cp build/ci/allure/categories.json allure-results
+          if [[ -f qa-reports/reports/latest/history/history.json.gz ]]; then
+            gunzip qa-reports/reports/latest/history/history.json.gz
+            cp -r qa-reports/reports/latest/history allure-results
+          fi
+          /opt/allure-*/bin/allure generate
+
+      - name: Create qareport.zip
+        run: |
+          cp build/ci/allure/README.md allure-report
+          cp build/ci/allure/open_report.sh allure-report
+          gzip allure-report/history/history.json
+          # zip report before uploading, because GitHub uploads files in individual HTTP calls
+          cd allure-report && zip -q -r ../qareport.zip . && cd ..
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v3
+        with:
+          name: qareport
+          path: qareport.zip
+
+      - name: Check for regressions
+        run: build/ci/check-trend.py --history-trend allure-report/history/history-trend.json
+        continue-on-error: true
 
   publish_report:
     name: Publish Test Report
