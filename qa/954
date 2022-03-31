@@ -13,6 +13,13 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+# libpcp_fault WILL have lock_debug=true, if it is installed
+#
+if [ -f $PCP_LIB_DIR/libpcp_fault.so ]
+then
+    export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
+fi
+
 pmconfig -L | grep lock_debug=true >/dev/null || _notrun libpcp not built with -DPM_MULTI_THREAD_DEBUG
 
 _cleanup()
