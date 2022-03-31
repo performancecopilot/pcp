@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2016,2022 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -16,23 +16,30 @@
 .\"
 .TH PMFETCHARCHIVE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmFetchArchive\f1 \- get performance metrics directly from a set if archive logs
+\f3pmFetchArchive\f1,
+\f3pmHighResFetchArchive\f1 \- get performance metric values directly from archive logs
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 int pmFetchArchive(pmResult **\fIresult\fP);
+.br
+int pmFetchHighResArchive(pmHighResResult **\fIresult\fP);
 .sp
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
+The
 .B pmFetchArchive
-is a variant of
+and
+.B pmHighResFetchArchive
+APIs are variants of the
 .BR pmFetch (3)
-that may only be used when the current
+and
+.BR pmHighResFetch (3)
+interfaces that may only be used when the current
 Performance Metrics Application Programming Interface (PMAPI)
-context
-is associated with a set of archive logs.
+context is associated with a set of archive logs.
 .PP
 The
 .I result
@@ -42,17 +49,20 @@ consequently there is no notion of a list of desired metrics,
 and the instance profile of the PMAPI context is ignored.
 .PP
 .B pmFetchArchive
+and
+.B pmHighResFetchArchive
 may return a
 .I result
 in which
 .I numpmid
-is zero.  This is a
+is zero.
+This is a
 .I <mark>
 record that indicates a temporal discontinuity in the time series
-of performance metrics.  This can happen at the boundary between archive logs
-in a set
-or if the archive log associated
-with the current PMAPI context was created using
+of performance metrics.
+This can happen at the boundary between archive logs in a set or if
+the archive log associated with the current PMAPI context was created
+using
 .BR pmlogextract (1)
 to concatenate two or more PCP archive logs, and the
 .I <mark>
@@ -61,39 +71,59 @@ the start of the next input archive.
 .PP
 It is expected that
 .B pmFetchArchive
-would be used to create utilities that scan sets of archive logs,
+and
+.B pmHighResFetchArchive
+will be used to create utilities that scan sets of archive logs,
 while the more common access to the archives would be via the
-.BR pmFetch (3)
-interface.
+.B pmFetch
+and
+.B pmHighResFetch
+interfaces.
 .PP
 To skip records within the set of archive logs, use
 .BR pmSetMode (3)
+or
+.BR pmHighResSetMode (3)
 to change the collection time within the current
-PMAPI context, then call
-.BR pmFetchArchive.
+PMAPI context, then call either
+.B pmFetchArchive
+or
+.BR pmHighResFetchArchive .
 .PP
 Note that the
 .I result
-returned by
+returned by both
 .B pmFetchArchive
+and
+.B pmHighResFetchArchive
 is dynamically allocated, and
-must be released using
-.BR pmFreeResult (3),
-not
+must be released using either
+.BR pmFreeResult (3)
+or
+.BR pmFreeHighResResult (3),
+but not
 .BR free (3).
 See
-.BR pmFetch (3)
-and
+.BR pmFetch (3),
+.BR pmHighResFetch (3),
 .BR pmFreeResult (3)
+and
+.BR pmFreeHighResResult (3)
 for further details.
 .PP
+Both
 .B pmFetchArchive
+and
+.B pmHighResFetchArchive
 returns zero on success.
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_NOTARCHIVE\f1
 the current PMAPI context is not associated with a set of archive logs
 .SH SEE ALSO
 .BR PMAPI (3),
+.BR pmHighResFetch (3),
+.BR pmHighResSetMode (3),
+.BR pmFreeHighResResult (3),
 .BR pmFetch (3),
 .BR pmFreeResult (3),
 .BR pmNewContext (3),

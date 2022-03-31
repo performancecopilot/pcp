@@ -192,6 +192,7 @@ jobs:
               }
             });
             console.log(`::set-output name=summary_url::${response.data.html_url}`);
+            console.log(`::notice::Test summary is available at ${response.data.html_url}`);
 
   publish_report:
     name: Publish Test Report
@@ -241,7 +242,7 @@ jobs:
           git push -f
           popd
 
-          echo "::notice::Complete test report is available at https://${{ github.repository_owner }}.github.io/qa-reports/reports/${REPORT_ID}/"
+          echo "::notice::Test report is available at https://${{ github.repository_owner }}.github.io/qa-reports/reports/${REPORT_ID}"
         env:
           REPORT_ID: ${{ needs.create_report.outputs.report_id }}
 

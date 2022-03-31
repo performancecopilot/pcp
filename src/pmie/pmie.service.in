@@ -8,10 +8,13 @@ Wants=pmcd.service
 
 [Service]
 Type=notify
-Restart=always
 NotifyAccess=all
-TimeoutSec=120
-
+# The pmie service manages the primary pmie (only)
+Environment="PMIE_CHECK_PARAMS=--only-primary"
+EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmie
+TimeoutStartSec=120
+TimeoutStopSec=120
+Restart=always
 ExecStart=@PCP_RC_DIR@/pmie start-systemd
 ExecStop=@PCP_RC_DIR@/pmie stop-systemd
 PIDFile=@PCP_RUN_DIR@/pmie.pid

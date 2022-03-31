@@ -303,7 +303,13 @@ pmiStart(const char *archive, int inherit)
 {
     pmi_context	*old_current;
     char	*np;
+    int		archive_version;
     int		c = current - context_tab;
+
+    if ((np = pmGetOptionalConfig("PCP_ARCHIVE_VERSION")) != NULL)
+	archive_version = atoi(np);
+    else
+	archive_version = PM_LOG_VERS02; /* safe fallback */
 
     ncontext++;
     context_tab = (pmi_context *)realloc(context_tab, ncontext*sizeof(context_tab[0]));
@@ -314,7 +320,7 @@ pmiStart(const char *archive, int inherit)
     current = &context_tab[ncontext-1];
 
     current->state = CONTEXT_START;
-    current->version = PM_LOG_VERS02;
+    current->version = archive_version;
     current->archive = strdup(archive);
     if (current->archive == NULL) {
 	pmNoMem("pmiStart", strlen(archive)+1, PM_FATAL_ERR);

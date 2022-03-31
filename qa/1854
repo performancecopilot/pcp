@@ -1,0 +1,66 @@
+#!/bin/sh
+# PCP QA Test No. 1854
+# Check that PCP_ARCHIVE_VERSION works as advertised.
+#
+# Copyright (c) 2022 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_label()
+{
+    tee -a $seq.full | \
+    sed \
+	-e '/^Performance metrics/d' \
+	-e '/commencing/d' \
+	-e '/ending/d' \
+    # end
+}
+
+# real QA test starts here
+export PCP_DERIVED_CONFIG=""
+
+cat >> $tmp.config <<EOF
+log mandatory on once { hinv.ncpu }
+EOF
+
+echo "Create version 2 archive via logger"
+PCP_ARCHIVE_VERSION=2 pmlogger -T.1 -l $tmp.log2 -c $tmp.config $tmp.logger2
+cat $tmp.log2 >> $seq.full
+echo "Verify version 2 archive created..."
+pmloglabel -l $tmp.logger2 | _filter_label
+
+echo "Create version 3 archive via logger"
+PCP_ARCHIVE_VERSION=3 pmlogger -T.1 -l $tmp.log3 -c $tmp.config $tmp.logger3
+cat $tmp.log3 >> $seq.full
+echo "Verify version 3 archive created..."
+pmloglabel -l $tmp.logger3 | _filter_label
+
+echo "Create version 2 archive via import"
+PCP_ARCHIVE_VERSION=2 ./src/check_pmi_errconv $tmp.import2 2>>$seq.full
+echo "Verify version 2 archive created..."
+pmloglabel -l $tmp.import2 | _filter_label
+
+echo "Create version 3 archive via import"
+PCP_ARCHIVE_VERSION=3 ./src/check_pmi_errconv $tmp.import3 2>>$seq.full
+echo "Verify version 3 archive created..."
+pmloglabel -l $tmp.import3 | _filter_label
+
+# success, all done
+exit

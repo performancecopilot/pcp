@@ -1,18 +1,18 @@
 #!/bin/sh
 #
-# Copyright (c) 2012-2015,2020 Red Hat.
+# Copyright (c) 2012-2015,2020-2022 Red Hat.
 # Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 # The following is for chkconfig on RedHat based systems
 # chkconfig: 2345 94 06
 # description: pmie is a performance inference engine for the Performance Co-Pilot (PCP)
@@ -120,33 +120,29 @@ _reboot_setup()
     fi
 }
 
-# Note: _start_pmcheck() runs in the background, in parallel with the rest
-# of the script (except in a container environment). It might complete well
-# after the caller so tmpfile handling is especially problematic.  The goal
-# is to speed bootup by starting potentially slow (remote monitoring) pmie
-# processes in the background.
-#
+# Note: _start_pmcheck() starts some or all pmies configured in the
+# control file(s), subject to $PMIE_CHECK_PARAMS if set. The environment
+# may restrict this to just the primary pmie with --only-primary, or to
+# all pmies except the primary with the --skip-primary flag. If neither
+# are set, then all configured pmies will be started.
 _start_pmcheck()
 {
     bgstatus=0
     bgtmp=`mktemp -d "$PCP_TMPFILE_DIR/pmie_rc_start.XXXXXXXXX"` || exit 1
     trap "rm -rf $tmp $bgtmp; exit \$bgstatus" 0 1 2 3 15
 
-    wait_option=''
-    [ ! -z "$PMCD_WAIT_TIMEOUT" ] && wait_option="-t $PMCD_WAIT_TIMEOUT" 
-
-    pmie_check >$bgtmp/pmie 2>&1
+    pmie_check $VFLAG $PMIE_CHECK_PARAMS >$bgtmp/pmcheck.out 2>$bgtmp/pmcheck
     bgstatus=$?
-    if [ -s $bgtmp/pmie ]
+    if [ -s $bgtmp/pmcheck ]
     then
-	logfile=$PCP_LOG_DIR/pmie/pmie_check.log
-	mv -f $bgtmp/pmie $logfile
+	logfile="$PCP_LOG_DIR/pmie/pmie_check.log"
+	mv -f $bgtmp/pmcheck $logfile
 
 	message="pmie_check start failed in $prog, see $logfile"
 	$PCP_SYSLOG_PROG -p daemon.warning "$message"
 	$PCP_BINADM_DIR/pmpost "$message"
     fi
-    return $bgstatus
+    return $bgstatus # pmie_check is now complete
 }
 
 _start_pmie()
@@ -241,8 +237,10 @@ shift `expr $OPTIND - 1`
 if [ $VERBOSE_CTL = on ]
 then                            # For a verbose startup and shutdown
     ECHO=$PCP_ECHO_PROG
+    VFLAG='-V'
 else                            # For a quiet startup and shutdown
     ECHO=:
+    VFLAG=
 fi
 
 case "$1" in

@@ -58,7 +58,7 @@ char		*pmcd_host;
 char		*pmcd_host_conn;
 char		*pmcd_host_label;
 int		host_context = PM_CONTEXT_HOST;	 /* pmcd / local context mode */
-int		archive_version = PM_LOG_VERS02; /* Type of archive to create by default */
+int		archive_version;	/* Type of archive to create by default */
 int		linger = 0;		/* linger with no tasks/events */
 int		notify_service_mgr = 0;	/* notify service manager when we're ready (daemon mode only) */
 int		pmlogger_reexec = 0;	/* set when PMLOGGER_REEXEC is set in the environment */
@@ -943,6 +943,10 @@ main(int argc, char **argv)
     sep = pmPathSeparator();
     if ((endnum = getenv("PMLOGGER_INTERVAL")) != NULL)
 	delta.tv_sec = atoi(endnum);
+    if ((endnum = pmGetOptionalConfig("PCP_ARCHIVE_VERSION")) != NULL)
+	archive_version = atoi(endnum);
+    else
+	archive_version = PM_LOG_VERS02;	/* safe fallback */
 
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
