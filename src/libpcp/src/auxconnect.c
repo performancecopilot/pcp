@@ -1633,7 +1633,7 @@ __pmRecv(int socket, void *buffer, size_t length, int flags)
 
     size = recv(socket, buffer, length, flags);
     if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
-	fprintf(stderr, "%s:__pmRecv(%d, ..., %d, " PRINTF_P_PFX "%x) -> %d",
+	fprintf(stderr, "%s:__pmRecv(%d, ..., %d, 0x%x) -> %d",
 		__FILE__, socket, (int)length, flags, (int)size);
 	if (size < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];

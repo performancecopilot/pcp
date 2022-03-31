@@ -1615,7 +1615,7 @@ __pmRecv(int fd, void *buffer, size_t length, int flags)
 	size = recv(fd, buffer, length, flags);
     }
     if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
-	fprintf(stderr, "%d, ..., %d, " PRINTF_P_PFX "%x) -> %d\n",
+	fprintf(stderr, "%d, ..., %d, 0x%x) -> %d\n",
 	    fd, (int)length, flags, (int)size);
     }
     return size;
