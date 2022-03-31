@@ -1,19 +1,19 @@
 #
 # Common sh(1) procedures to be used in PCP rc scripts
 #
-# Copyright (c) 2014-2015 Red Hat.
+# Copyright (c) 2014-2015,2019-2022 Red Hat.
 # Copyright (c) 2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 
 # source the PCP configuration environment variables
 . $PCP_DIR/etc/pcp.env
@@ -522,7 +522,7 @@ migrate_pid_service()
 	    continue
 	fi
 
-	if echo $1 >>"$cgprocs" 2>/dev/null; then
+	if ! echo $1 >>"$cgprocs" 2>/dev/null; then
 	    $verbose && echo "$iam: failed to add pid $1 to service \"$2\" using namespace \"$namespace\""
 	    $verbose && echo $cgprocs && echo $1 >>"$cgprocs"
 	    continue
