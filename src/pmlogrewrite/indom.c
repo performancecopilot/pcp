@@ -409,17 +409,15 @@ do_indom(int type)
 	if (outarch.version > PM_LOG_VERS02) {
 	    int		lsts;
 
+	    pdu_type = TYPE_INDOM;
 	    lsts = pmaTryDeltaInDom(outarch.archctl.ac_log, NULL, &lid);
 	    if (lsts < 0) {
 		fprintf(stderr, "Botch: pmaTryDeltaInDom failed: %d\n", lsts);
 		abandon();
 		/*NOTREACHED*/
 	    }
-	    else if (lsts == 1) {
+	    else if (lsts == 1)
 		pdu_type = TYPE_INDOM_DELTA;
-	    }
-	    else
-		pdu_type = TYPE_INDOM;
 	}
 	else
 	    pdu_type = TYPE_INDOM_V2;
