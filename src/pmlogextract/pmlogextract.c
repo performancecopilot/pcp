@@ -1752,7 +1752,7 @@ nextmeta(void)
     int		sts;
     pmID	pmid;			/* pmid for TYPE_DESC */
     pmInDom	indom;			/* indom for TYPE_INDOM* */
-    __pmLogCtl	*lcp;
+    __pmLogCtl	*lcp;			/* input archive */
     __pmContext	*ctxp;
     inarch_t	*iap;			/* pointer to input archive control */
 
@@ -1914,9 +1914,9 @@ againmeta:
 		else if (type == TYPE_INDOM_V2 && outarchvers == PM_LOG_VERS03) {
 		    int			lsts;
 
-		    lsts = pmaRewriteMeta(lcp, outarchvers, &iap->pb[META]);
+		    lsts = pmaRewriteMeta(lcp, archctl.ac_log, &iap->pb[META]);
 		    if (lsts < 0) {
-			fprintf(stderr, "nextmeta: Botch: pmaRewriteMeta failed: %s\n", pmErrStr(lsts));
+			fprintf(stderr, "nextmeta: Botch: pmaRewriteMeta %s failed: %s\n", __pmLogMetaTypeStr(TYPE_INDOM_V2), pmErrStr(lsts));
 			abandon_extract();
 			/*NOTREACHED*/
 		    }
@@ -2013,10 +2013,18 @@ againmeta:
 		 * Add to label set list.
 		 * append_labelsetreclist() sets pb[META] to NULL
 		 */
-		if (outarchvers == PM_LOG_VERS03)
-		    append_labelsetreclist(indx, TYPE_LABEL);
-		else
-		    append_labelsetreclist(indx, TYPE_LABEL_V2);
+		if (type == TYPE_LABEL_V2 && outarchvers == PM_LOG_VERS03) {
+		    int			lsts;
+
+		    lsts = pmaRewriteMeta(lcp, archctl.ac_log, &iap->pb[META]);
+		    if (lsts < 0) {
+			fprintf(stderr, "nextmeta: Botch: pmaRewriteMeta %s failed: %s\n", __pmLogMetaTypeStr(TYPE_LABEL_V2), pmErrStr(lsts));
+			abandon_extract();
+			/*NOTREACHED*/
+		    }
+		    type = TYPE_LABEL;
+		}
+		append_labelsetreclist(indx, type);
 	    }
 	    else {
 	        /* META: don't want this meta */
@@ -2832,7 +2840,6 @@ int
 main(int argc, char **argv)
 {
     int			indx;
-    int			vers;
     int			j;
     int			sts;
     int			stslog;		/* sts from nextlog() */
@@ -3184,9 +3191,13 @@ main(int argc, char **argv)
 	 */
 	mintime.sec = mintime.nsec = 0;
 	for (indx=0; indx<inarchnum; indx++) {
-	    vers = (inarch[indx].label.magic & 0xff);
 	    if (inarch[indx]._Nresult != NULL) {
 		checklogtime(&inarch[indx]._Nresult->timestamp, indx);
+		if (pmDebugOptions.appl2) {
+		    fprintf(stderr, "result [%d] stamp ", ilog);
+		    __pmPrintTimestamp(stderr, &inarch[indx]._Nresult->timestamp);
+		    fputc('\n', stderr);
+		}
 
 		if (ilog == indx) {
 		    tmptime = curlog;
@@ -3195,12 +3206,24 @@ main(int argc, char **argv)
 		}
 	    }
 	    else if (inarch[indx].pb[LOG] != NULL) {
-		if (vers >= PM_LOG_VERS03)
+		/*
+		 * Note:
+		 *	this is going to be a <mark> record, but the
+		 *	PDU buffer is already loaded with the record
+		 *	in the correct OUTPUT format, so use that version
+		 *	not the input archive version.
+		 */
+		if (outarchvers >= PM_LOG_VERS03)
 		    __pmLoadTimestamp(&inarch[indx].pb[LOG][3], &tstamp);
 		else
 		    __pmLoadTimeval(&inarch[indx].pb[LOG][3], &tstamp);
 
 		checklogtime(&tstamp, indx);
+		if (pmDebugOptions.appl2) {
+		    fprintf(stderr, "PDU [%d] stamp ", ilog);
+		    __pmPrintTimestamp(stderr, &tstamp);
+		    fputc('\n', stderr);
+		}
 
 		if (ilog == indx) {
 		    tmptime = curlog;
@@ -3226,10 +3249,6 @@ main(int argc, char **argv)
 	 */
 	now = curlog;
 
-	/*
-	 * note - mark (after last archive) will be created, but this
-	 * break, will prevent it from being written out
-	 */
 	if (pmDebugOptions.appl2) {
 	    fprintf(stderr, "done? now ");
 	    __pmPrintTimestamp(stderr, &now);
@@ -3238,6 +3257,11 @@ main(int argc, char **argv)
 	    fprintf(stderr, "?\n");
 
 	}
+
+	/*
+	 * note - mark (after last archive) will be created, but this
+	 * break, will prevent it from being written out
+	 */
 	if (__pmTimestampCmp(&now, &logend) > 0) {
 	    if (pmDebugOptions.appl2) {
 		fprintf(stderr, "done now ");
