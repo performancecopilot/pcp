@@ -60,9 +60,9 @@ do
     rm -f ${tmp}_v$vers.*
     if $do_valgrind
     then
-	_run_valgrind src/chkputlogresult -V $vers ${tmp}_v$vers
+	_run_valgrind src/chklogputresult -V $vers -m -m ${tmp}_v$vers
     else
-	src/chkputlogresult -V $vers ${tmp}_v$vers 2>&1
+	src/chklogputresult -V $vers -m -m ${tmp}_v$vers 2>&1
     fi \
     | _filter
 

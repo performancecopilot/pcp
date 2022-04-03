@@ -38,12 +38,12 @@ chkctx2
 chkctx2_lite
 chkctx2_lite.c
 chkhelp
+chklogputresult
 chk_memleak
 chk_metric_types
 chknumval
 chkopenlog
 chkoptfetch
-chkputlogresult
 chktrim
 churnctx
 clientid

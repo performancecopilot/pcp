@@ -39,7 +39,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	pmdacache.c check_import.c unpack.c hrunpack.c aggrstore.c atomstr.c \
 	semstr.c grind_conv.c getconfig.c err.c torture_logmeta.c keycache.c \
 	keycache2.c pmdaqueue.c drain-server.c template.c anon-sa.c \
-	username.c rtimetest.c getcontexthost.c badpmda.c chkputlogresult.c \
+	username.c rtimetest.c getcontexthost.c badpmda.c chklogputresult.c \
 	churnctx.c badUnitsStr_r.c units-parse.c rootclient.c derived.c \
 	lookupnametest.c getversion.c pdubufbounds.c statvfs.c storepmcd.c \
 	github-50.c archfetch.c sortinst.c fetchgroup.c loadconfig2.c \
@@ -714,8 +714,13 @@ test_encodings:	test_encodings.c
 test_hostspec:	test_hostspec.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $^ $(LDLIBS) $(LIB_FOR_CMOCKA)
-
 endif
+
+# --- need libpcp_archive
+
+chklogputresult:	chklogputresult.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $^ $(LDLIBS) -lpcp_archive
 
 ifneq ($(NVIDIAQALIB),)
 $(NVIDIAQALIB):	nvidia-ml.o
@@ -736,7 +741,7 @@ chkhelp.o:	libpcp.h
 chk_memleak.o:	libpcp.h
 chknumval.o:	libpcp.h
 chkoptfetch.o:	libpcp.h
-chkputlogresult.o:	libpcp.h
+chklogputresult.o:	libpcp.h
 churnctx.o:	libpcp.h
 clientid.o:	libpcp.h
 clienttimeout.o:	libpcp.h

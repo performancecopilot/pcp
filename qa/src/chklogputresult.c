@@ -3,11 +3,12 @@
  * Copyright (c) 2014,2022 Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2017 Red Hat.
  *
- * Excercise __pmLogPutResult() and __pmLogPutResult2().
+ * Excercise __pmLogPutResult() and __pmLogPutResult[23]() and pmaPutMark().
  */
 
 #include <pcp/pmapi.h>
 #include "libpcp.h"
+#include <pcp/archive.h>
 #include <assert.h>
 
 int
@@ -17,6 +18,7 @@ main(int argc, char **argv)
     int		i;
     int		sts;
     int		bflag = 0;
+    int		mark = 0;
     char	*endnum;
     int		errflag = 0;
     int		version = PM_LOG_VERS02;
@@ -41,14 +43,13 @@ main(int argc, char **argv)
      * sec 0x0a0b0c = 658188 = 7d 14h 49m 48s (relative to UTC)
      * nsec 0x04030201 = 67305985
      */
-    __pmTimestamp	epoch = { 0x0a0b0c, 0x04030201 };
-    __pmTimestamp	stamp;
+    __pmTimestamp	stamp = { 0x0a0b0c, 0x04030201 };
     __pmLogInDom_io	lid;
 
     /* trim cmd name of leading directory components */
     pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "bD:V:?")) != EOF) {
+    while ((c = getopt(argc, argv, "bD:mV:?")) != EOF) {
 	switch (c) {
 
 	case 'b':	/* backwards compatibility */
@@ -62,6 +63,10 @@ main(int argc, char **argv)
 		    pmGetProgname(), optarg);
 		errflag++;
 	    }
+	    break;
+
+	case 'm':	/* end with <mark> record ... repeat for muptiples */
+	    mark++;
 	    break;
 
 	case 'V':	/* archive version */
@@ -91,7 +96,7 @@ main(int argc, char **argv)
 \n\
 Options:\n\
   -b                  backwards compatibility (use __pmLogPutResult() instead\n\
-                      __pmLogPutResult2(), the default\n\
+                      __pmLogPutResult[23](), the default\n\
   -D debugflag[,...]\n\
   -V archiveversion\n\
 ",
@@ -101,7 +106,7 @@ Options:\n\
 
     putenv("TZ=UTC");
     printf("Expect timestamps to start @");
-    __pmPrintTimestamp(stdout, &epoch);
+    __pmPrintTimestamp(stdout, &stamp);
     putchar('\n');
 
     if ((sts = pmNewContext(PM_CONTEXT_HOST, "local:")) < 0) {
@@ -123,8 +128,8 @@ Options:\n\
      * make the archive label deterministic
      */
     logctl.label.pid = 1234;
-    logctl.label.start.sec = epoch.sec;
-    logctl.label.start.nsec = epoch.nsec;
+    logctl.label.start.sec = stamp.sec;
+    logctl.label.start.nsec = stamp.nsec;
     if (logctl.label.hostname)
 	free(logctl.label.hostname);
     logctl.label.hostname = strdup("happycamper");
@@ -153,8 +158,6 @@ Options:\n\
 
     __pmFflush(archctl.ac_mfp);
     __pmFflush(logctl.mdfp);
-    stamp.sec = epoch.sec;
-    stamp.nsec = epoch.nsec;
     __pmLogPutIndex(&archctl, &stamp);
 
     pmids = (pmID *)malloc(nmetric*sizeof(pmID));
@@ -193,15 +196,17 @@ Options:\n\
 	    fprintf(stderr, "%s: __pmFetch(%d, ...) failed: %s\n", pmGetProgname(), i+1, pmErrStr(sts));
 	    exit(1);
 	}
-	rp->timestamp.sec = ++epoch.sec;
-	rp->timestamp.nsec = epoch.nsec;
+	rp->timestamp.sec = ++stamp.sec;
+	rp->timestamp.nsec = stamp.nsec;
 	if ((sts = __pmEncodeResult(&logctl, rp, &pdp)) < 0) {
 	    fprintf(stderr, "%s: __pmEncodeResult failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 	__pmOverrideLastFd(__pmFileno(archctl.ac_mfp));
 	if (bflag) {
-	    printf("__pmLogPutResult: %d metrics ...\n", i+1);
+	    printf("__pmLogPutResult: %d metrics @", i+1);
+	    __pmPrintTimestamp(stdout, &rp->timestamp);
+	    printf(" ...\n");
 	    if ((sts = __pmLogPutResult(&archctl, pdp)) < 0) {
 		fprintf(stderr, "%s: __pmLogPutResult failed: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
@@ -209,14 +214,18 @@ Options:\n\
 	}
 	else {
 	    if (version == PM_LOG_VERS03) {
-		printf("__pmLogPutResult3: %d metrics ...\n", i+1);
+		printf("__pmLogPutResult3: %d metrics @", i+1);
+		__pmPrintTimestamp(stdout, &rp->timestamp);
+		printf(" ...\n");
 		if ((sts = __pmLogPutResult3(&archctl, pdp)) < 0) {
 		    fprintf(stderr, "%s: __pmLogPutResult3 failed: %s\n", pmGetProgname(), pmErrStr(sts));
 		    exit(1);
 		}
 	    }
 	    else {
-		printf("__pmLogPutResult2: %d metrics ...\n", i+1);
+		printf("__pmLogPutResult2: %d metrics @", i+1);
+		__pmPrintTimestamp(stdout, &rp->timestamp);
+		printf(" ...\n");
 		if ((sts = __pmLogPutResult2(&archctl, pdp)) < 0) {
 		    fprintf(stderr, "%s: __pmLogPutResult2 failed: %s\n", pmGetProgname(), pmErrStr(sts));
 		    exit(1);
@@ -227,10 +236,24 @@ Options:\n\
 	__pmFreeResult(rp);
     }
 
+    /* optionally add <mark> records at 500msec intervals */
+    while (mark > 0) {
+	__pmTimestamp	inc = { 0, 500000000 };
+
+	__pmTimestampInc(&stamp, &inc);
+	printf("pmaPutMark: @");
+	__pmPrintTimestamp(stdout, &stamp);
+	putchar('\n');
+	if ((sts = pmaPutMark(&archctl, &stamp)) < 0) {
+	    fprintf(stderr, "%s: -maPutMark failed: %s\n", pmGetProgname(), pmErrStr(sts));
+	    exit(1);
+	}
+
+	mark--;
+    }
+
     __pmFflush(archctl.ac_mfp);
     __pmFflush(logctl.mdfp);
-    stamp.sec = epoch.sec;
-    stamp.nsec = epoch.nsec;
     __pmLogPutIndex(&archctl, &stamp);
 
     exit(0);

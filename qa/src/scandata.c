@@ -191,7 +191,13 @@ main(int argc, char *argv[])
 		numpmid = ntohl(buf[EXTRA+3]);
 		data = &buf[EXTRA+4];
 	    }
-	    printf(" numpmid: %d\n", numpmid);
+	    printf(" numpmid: %d", numpmid);
+	    if (numpmid == 0) {
+		printf(" <mark>\n");
+		goto done;
+	    }
+	    putchar('\n');
+
 	    if ((rp = __pmAllocResult(numpmid)) == NULL) {
 		fprintf(stderr, "__pmAllocResult(%d) failed!\n", numpmid);
 		exit(1);
@@ -203,7 +209,7 @@ main(int argc, char *argv[])
 		printf("sts=%d (%s)\n", sts, pmErrStr(sts));
 	    else {
 		for (i = 0; i < numpmid; i++) {
-		    printf("[%d] %s numval: %d valfmt: %d\n", i, pmIDStr(rp->vset[i]->pmid), rp->vset[i]->numval, rp->vset[i]->valfmt);
+		    printf("  <%d> %s numval: %d valfmt: %d\n", i, pmIDStr(rp->vset[i]->pmid), rp->vset[i]->numval, rp->vset[i]->valfmt);
 		    for (j = 0; j < rp->vset[i]->numval; j++) {
 			pmValue	*vp = &rp->vset[i]->vlist[j];
 			printf("    inst[%d]: ", vp->inst);
@@ -219,6 +225,7 @@ main(int argc, char *argv[])
 	    }
 	    __pmFreeResult(rp);
 	}
+done:
 	
 	if (xflag) {
 	    int		i;

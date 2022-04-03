@@ -21,12 +21,12 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 export TZ=UTC
 
 echo "+++ __pmLogPutresult() +++"
-src/chkputlogresult -b $tmp.1
+src/chklogputresult -b $tmp.1
 pmdumplog -dilmst $tmp.1
 
 echo
 echo "+++ __pmLogPutresult2() +++"
-src/chkputlogresult $tmp.2
+src/chklogputresult $tmp.2
 pmdumplog -dilmst $tmp.2
 
 echo
