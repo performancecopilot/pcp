@@ -13,20 +13,18 @@
 .\" for more details.
 .\"
 .\"
-.TH PMAPUTMARK 3 "PCP" "Performance Co-Pilot"
+.TH PMLOGWRITEMARK 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmaPutMark\f1 \- write a <mark> record to an archive
+\f3__pmLogWriteMark\f1 \- append a <mark> record to a PCP archive
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .br
 #include <pcp/libpcp.h>
-.br
-#include <pcp/archive.h>
 .sp
-int pmaPutMark(__pmArchCtl *\fIacp\fP, __pmTimestamp *\fItsp\fP)
+int __pmLogWriteMark(__pmArchCtl *\fIacp\fP, const __pmTimestamp *\fIlast_stamp\fP, const __pmTimestamp *\fIinc\fP)
 .sp
-cc ... \-lpcp_archive \-lpcp
+cc ... \-lpcp
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot
@@ -40,8 +38,7 @@ they may not work or may provide different semantics.
 .ie t \f(CW\\$1\fR\\$2
 .el \fI\\$1\fR\\$2
 ..
-.PP
-.B pmaPutMark
+.B __pmLogWriteMark
 appends a <mark> record to the current data file of a PCP archive.
 A <mark> record indicates a dicontinuity in the time series of
 logged data in the archive, see
@@ -49,15 +46,16 @@ logged data in the archive, see
 for more information.
 .PP
 The timestamp of the <mark> record is given by
-.I tsp
-and if this needs any small increment over the timestamp of the
-last
-.B pmResult
-then the caller must have done this before calling
-.BR pmaPutMark .
+.I last_stamp
+optionally incremented by
+.I inc
+unless
+.I inc
+is NULL (in which case no increment is done).
 .PP
-The I/O stream for writing and the archive version for the format
-of the <mark> record are determined from
+The current data volume's I/O stream and the archive version
+(determines the format of the <mark> record)
+are determined from
 .BR acp .
 .SH DIAGNOSTICS AND RETURN VALUES
 The return value is 0 if all is well, else
@@ -68,4 +66,4 @@ message by calling
 .BR PCPIntro (1),
 .BR PMAPI (3)
 and
-.BR pmaPutLog (3).
+.BR __pmLogWrite (3).

@@ -244,7 +244,7 @@ Options:\n\
 	printf("pmaPutMark: @");
 	__pmPrintTimestamp(stdout, &stamp);
 	putchar('\n');
-	if ((sts = pmaPutMark(&archctl, &stamp)) < 0) {
+	if ((sts = __pmLogWriteMark(&archctl, &stamp, NULL)) < 0) {
 	    fprintf(stderr, "%s: -maPutMark failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}

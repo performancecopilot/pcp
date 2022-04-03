@@ -1148,9 +1148,11 @@ do_work(task_t *tp)
 int
 putmark(void)
 {
+    __pmTimestamp	msec = { 0, 1000000 };		/* 1msec */
+
     if (last_stamp.sec == 0 && last_stamp.nsec == 0)
 	/* no earlier result, no point adding a mark record */
 	return 0;
 
-    return __pmLogWriteMark(archctl.ac_mfp, archive_version, &last_stamp, 1);
+    return __pmLogWriteMark(&archctl, &last_stamp, &msec);
 }

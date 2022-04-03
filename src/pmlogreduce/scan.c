@@ -93,10 +93,9 @@ doscan(__pmTimestamp *end)
 	     * pretend there is data between the previous data record
 	     * and the next data record
 	     */
-	    __pmFILE	*mfp = archctl.ac_mfp;
 	    int		version = __pmLogVersion(archctl.ac_log);
 
-	    if ((sts = __pmLogWriteMark(mfp, version, &rp->timestamp, 0)) < 0) {
+	    if ((sts = __pmLogWriteMark(&archctl, &rp->timestamp, NULL)) < 0) {
 		fprintf(stderr, "%s: Error: __pmLogWriteMark v%d: %s\n",
 			pmGetProgname(), version, pmErrStr(sts));
 		exit(1);

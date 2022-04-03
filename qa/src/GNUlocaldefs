@@ -718,10 +718,6 @@ endif
 
 # --- need libpcp_archive
 
-chklogputresult:	chklogputresult.c
-	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $^ $(LDLIBS) -lpcp_archive
-
 ifneq ($(NVIDIAQALIB),)
 $(NVIDIAQALIB):	nvidia-ml.o
 	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $@ $< $(LDLIBS)

@@ -2451,6 +2451,8 @@ checkwinend(__pmTimestamp *tsp)
     int			sts;
     inarch_t		*iap;
     int			vers;
+    __pmTimestamp	msec = { 0, 1000000 };		/* 1msec */
+
 
     if (winend.sec < 0 || __pmTimestampCmp(tsp, &winend) <= 0)
 	return(0);
@@ -2556,7 +2558,7 @@ checkwinend(__pmTimestamp *tsp)
 
     /* must create "mark" record and write it out */
     /* (need only one mark record) */
-    if ((sts = __pmLogWriteMark(archctl.ac_mfp, outarchvers, &current, 1)) < 0) {
+    if ((sts = __pmLogWriteMark(&archctl, &current, &msec)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogWriteMark: log data: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	abandon_extract();

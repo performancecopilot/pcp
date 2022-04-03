@@ -1296,70 +1296,67 @@ clearMarkDone(__pmContext *ctxp)
     }
 }
 
-static int
-pmlogwritemark2(__pmFILE *fp, const __pmTimestamp *last_stamp, int msecs)
-{
-    struct {			/* same as in p_result.c */
-	__int32_t	head;		/* len */
-	__int32_t	sec;
-	__int32_t	usec;
-	__int32_t	numpmid;	/* 0 */
-	__int32_t	tail;		/* len */
-    } mark;
-
-    mark.head = mark.tail = htonl((int)sizeof(mark));
-    mark.numpmid = htonl(0);
-    if (msecs) {
-	/* optional increment */
-	__pmTimestamp	stamp = { 0, 0 };
-	stamp.nsec = msecs * 1000000;
-	__pmTimestampInc(&stamp, last_stamp);
-	__pmPutTimeval(&stamp, &mark.sec);
-    }
-    else
-	__pmPutTimeval(last_stamp, &mark.sec);
-
-    if (__pmFwrite(&mark, 1, sizeof(mark), fp) != sizeof(mark))
-        return -oserror();
-
-    return 0;
-}
-
-static int
-pmlogwritemark3(__pmFILE *fp, const __pmTimestamp *last_stamp, int msecs)
-{
-    struct {			/* same as in p_result.c */
-	__int32_t	head;		/* len */
-	__int32_t	sec[2];
-	__int32_t	nsec;
-	__int32_t	numpmid;	/* 0 */
-	__int32_t	tail;		/* len */
-    } mark;
-
-    mark.head = mark.tail = htonl((int)sizeof(mark));
-    mark.numpmid = htonl(0);
-    if (msecs) {
-	/* optional increment */
-	__pmTimestamp	stamp = { 0, 0 };
-	stamp.nsec = msecs * 1000000;
-	__pmTimestampInc(&stamp, last_stamp);
-	__pmPutTimestamp(&stamp, &mark.sec[0]);
-    }
-    else
-	__pmPutTimestamp(last_stamp, &mark.sec[0]);
-
-    if (__pmFwrite(&mark, 1, sizeof(mark), fp) != sizeof(mark))
-	return -oserror();
-
-    return 0;
-}
-
+/*
+ * Output a <mark> record ... last_stamp is the base timestamp and
+ * the timestamp of the <mark> record is last_stamp + inc (if inc
+ * is not NULL) else last_stamp.
+ *
+ * archive <mark> record is an array of __int32_t values
+ * V2			V3
+ * [0] len (header)	[0] len (header)
+ * [1] sec		[1]&[2] sec
+ * [2] nsec		[3] nsec
+ * [3] numpmid (0)	[4] numpmid (0)
+ * [4] len (trailer)	[5] len (trailer)
+ */
 int
-__pmLogWriteMark(__pmFILE *fp, int version, const __pmTimestamp *last_stamp, int msecs)
+__pmLogWriteMark(__pmArchCtl *acp, const __pmTimestamp *last_stamp, const __pmTimestamp *inc)
 {
-    if (version >= PM_LOG_VERS03)
-	return pmlogwritemark3(fp, last_stamp, msecs);
-    return pmlogwritemark2(fp, last_stamp, msecs);
+    __int32_t		buf[6];		/* enough for V3 */
+    int			vers;
+    size_t		rlen;
+    int			k = 0;
+    int			sts;
+    __pmTimestamp	stamp;
+
+    stamp = *last_stamp;		/* struct assignment */
+    if (inc != NULL) {
+	/* optional increment */
+	__pmTimestampInc(&stamp, inc);
+    }
+
+    vers = __pmLogVersion(acp->ac_log);
+
+    if (vers >= PM_LOG_VERS03)
+	rlen = 6 * sizeof(__int32_t);
+    else
+	rlen = 5 * sizeof(__int32_t);
+
+    buf[k++] = htonl(rlen);	/* header len */
+
+    if (vers >= PM_LOG_VERS03) {
+	__pmPutTimestamp(&stamp, &buf[k]);
+	k += 3;
+    }
+    else {
+	__pmPutTimeval(&stamp, &buf[k]);
+	k += 2;
+    }
+
+    buf[k++] = 0;		/* numpmid */
+    buf[k] = buf[0];		/* trailer len */
+
+    sts = (int)__pmFwrite((__pmPDU *)buf, 1, rlen, acp->ac_mfp);
+    if (sts != rlen) {
+	if (pmDebugOptions.log) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmLogWriteMark: version %d write failed: returns %d expecting %zd: %s\n",
+		vers, sts, rlen, osstrerror_r(errmsg, sizeof(errmsg)));
+	}
+	sts = -oserror();
+    }
+
+    return sts;
 }
 
 /*

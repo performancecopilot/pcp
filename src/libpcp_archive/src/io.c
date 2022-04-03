@@ -218,61 +218,6 @@ pmaPutLog(__pmFILE *f, __int32_t *rbuf)
 }
 
 /*
- * Output a <mark> record ... tsp is the timestamp of the <mark> record
- * so any increment beyond the timestamp of the last pmResult must be
- * by the caller, before calling pmaPutMark().
- *
- *
- * archive record is an array of __int32_t values
- * V2			V3
- * [0] len (header)	[0] len (header)
- * [1] sec		[1]&[2] sec
- * [2] nsec		[3] nsec
- * [3] numpmid (0)	[4] numpmid (0)
- * [4] len (trailer)	[5] len (trailer)
- */
-int
-pmaPutMark(__pmArchCtl *acp, __pmTimestamp *tsp)
-{
-    __int32_t		buf[6];		/* enough for V3 */
-    int			vers;
-    size_t		rlen;
-    int			k = 0;
-    int			sts;
-
-    vers = __pmLogVersion(acp->ac_log);
-
-    if (vers >= PM_LOG_VERS03)
-	rlen = 6 * sizeof(__int32_t);
-    else
-	rlen = 5 * sizeof(__int32_t);
-
-    buf[k++] = htonl(rlen);	/* header len */
-
-    if (vers >= PM_LOG_VERS03) {
-	__pmPutTimestamp(tsp, &buf[k]);
-	k += 3;
-    }
-    else {
-	__pmPutTimeval(tsp, &buf[k]);
-	k += 2;
-    }
-
-    buf[k++] = 0;		/* numpmid */
-    buf[k] = buf[0];		/* trailer len */
-
-    sts = (int)__pmFwrite((__pmPDU *)buf, 1, rlen, acp->ac_mfp);
-    if (sts != rlen) {
-	char	errmsg[PM_MAXERRMSGLEN];
-	fprintf(stderr, "pmaPutMark: version %d write failed: returns %d expecting %zd: %s\n",
-		vers, sts, rlen, osstrerror_r(errmsg, sizeof(errmsg)));
-	sts = -oserror();
-    }
-
-    return sts;
-}
-
-/*
  * rbuf is a physical data record (pmResult) from an archive
  *
  * pmaRewriteData() is used to rewrite (reformat) rbuf from version

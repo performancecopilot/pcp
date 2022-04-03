@@ -31,7 +31,6 @@ extern "C" {
 /* physical archive i/o and format rewriting */
 PCP_CALL extern int pmaGetLog(__pmArchCtl *, int, __int32_t **);
 PCP_CALL extern int pmaPutLog(__pmFILE *, __int32_t *);
-PCP_CALL extern int pmaPutMark(__pmArchCtl *, __pmTimestamp *);
 PCP_CALL extern int pmaRewriteData(__pmLogCtl *, __pmLogCtl *, __int32_t **);
 PCP_CALL extern int pmaRewriteMeta(__pmLogCtl *, __pmLogCtl *, __int32_t **);
 

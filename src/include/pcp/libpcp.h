@@ -960,7 +960,7 @@ PCP_CALL extern int __pmLogEncodeLabels(__pmLogCtl *, unsigned int, unsigned int
 PCP_CALL extern int __pmLogPutLabels(__pmArchCtl *, unsigned int, unsigned int, int, pmLabelSet *, const __pmTimestamp *);
 PCP_CALL extern int __pmLogPutText(__pmArchCtl *, unsigned int, unsigned int, char *, int);
 PCP_CALL extern int __pmLogWriteLabel(__pmFILE *, const __pmLogLabel *);
-PCP_CALL extern int __pmLogWriteMark(__pmFILE *, int, const __pmTimestamp *, int);
+PCP_CALL extern int __pmLogWriteMark(__pmArchCtl *, const __pmTimestamp *, const __pmTimestamp *);
 PCP_CALL extern int __pmLogLoadMeta(__pmArchCtl *);
 PCP_CALL extern int __pmLogAddDesc(__pmArchCtl *, const pmDesc *);
 PCP_CALL extern int __pmLogAddInDom(__pmArchCtl *, int, const __pmLogInDom_io *, __int32_t *, int);

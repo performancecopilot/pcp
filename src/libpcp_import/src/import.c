@@ -1210,6 +1210,7 @@ pmiPutMark(void)
 {
     __pmTimestamp	*last_stamp;
     __pmArchCtl		*acp;
+    __pmTimestamp	msec = { 0, 1000000 };		/* 1msec */
 
     if (current == NULL)
 	return PM_ERR_NOCONTEXT;
@@ -1220,5 +1221,5 @@ pmiPutMark(void)
     if (last_stamp->sec == 0 && last_stamp->nsec == 0)
 	/* no earlier result, no point adding a mark record */
 	return 0;
-    return __pmLogWriteMark(acp->ac_mfp, current->version, last_stamp, 1);
+    return __pmLogWriteMark(acp, last_stamp, &msec);
 }
