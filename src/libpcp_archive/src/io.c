@@ -218,16 +218,72 @@ pmaPutLog(__pmFILE *f, __int32_t *rbuf)
 }
 
 /*
- * rbuf is a physical data record from an archive
+ * Output a <mark> record ... tsp is the timestamp of the <mark> record
+ * so any increment beyond the timestamp of the last pmResult must be
+ * by the caller, before calling pmaPutMark().
+ *
+ *
+ * archive record is an array of __int32_t values
+ * V2			V3
+ * [0] len (header)	[0] len (header)
+ * [1] sec		[1]&[2] sec
+ * [2] nsec		[3] nsec
+ * [3] numpmid (0)	[4] numpmid (0)
+ * [4] len (trailer)	[5] len (trailer)
+ */
+int
+pmaPutMark(__pmArchCtl *acp, __pmTimestamp *tsp)
+{
+    __int32_t		buf[6];		/* enough for V3 */
+    int			vers;
+    size_t		rlen;
+    int			k = 0;
+    int			sts;
+
+    vers = __pmLogVersion(acp->ac_log);
+
+    if (vers >= PM_LOG_VERS03)
+	rlen = 6 * sizeof(__int32_t);
+    else
+	rlen = 5 * sizeof(__int32_t);
+
+    buf[k++] = htonl(rlen);	/* header len */
+
+    if (vers >= PM_LOG_VERS03) {
+	__pmPutTimestamp(tsp, &buf[k]);
+	k += 3;
+    }
+    else {
+	__pmPutTimeval(tsp, &buf[k]);
+	k += 2;
+    }
+
+    buf[k++] = 0;		/* numpmid */
+    buf[k] = buf[0];		/* trailer len */
+
+    sts = (int)__pmFwrite((__pmPDU *)buf, 1, rlen, acp->ac_mfp);
+    if (sts != rlen) {
+	char	errmsg[PM_MAXERRMSGLEN];
+	fprintf(stderr, "pmaPutMark: version %d write failed: returns %d expecting %zd: %s\n",
+		vers, sts, rlen, osstrerror_r(errmsg, sizeof(errmsg)));
+	sts = -oserror();
+    }
+
+    return sts;
+}
+
+/*
+ * rbuf is a physical data record (pmResult) from an archive
  *
  * pmaRewriteData() is used to rewrite (reformat) rbuf from version
  * invers format into the equivalent data record for a version
  * outvers archive.
  */
 int
-pmaRewriteData(__pmLogCtl *lcp, int outvers, __int32_t **rbuf)
+pmaRewriteData(__pmLogCtl *inlcp, __pmLogCtl *outlcp, __int32_t **rbuf)
 {
-    int		invers = __pmLogVersion(lcp);
+    int		invers = __pmLogVersion(inlcp);
+    int		outvers = __pmLogVersion(outlcp);
 
     if (invers == PM_LOG_VERS02) {
 	if (outvers == invers)
@@ -252,9 +308,10 @@ pmaRewriteData(__pmLogCtl *lcp, int outvers, __int32_t **rbuf)
  * outvers archive.
  */
 int
-pmaRewriteMeta(__pmLogCtl *lcp, int outvers, __int32_t **rbuf)
+pmaRewriteMeta(__pmLogCtl *inlcp, __pmLogCtl *outlcp, __int32_t **rbuf)
 {
-    int			invers = __pmLogVersion(lcp);
+    int			invers = __pmLogVersion(inlcp);
+    int			outvers = __pmLogVersion(outlcp);
     int			rlen;
     int			type;
     int			sts;
@@ -263,6 +320,12 @@ pmaRewriteMeta(__pmLogCtl *lcp, int outvers, __int32_t **rbuf)
     __int32_t		*ibuf = *rbuf;
     __int32_t		*tmp;
     __int32_t		*new;
+    __pmTimestamp	stamp;
+    int			labtype;
+    int			ident;
+    int			nsets;
+    pmLabelSet		*labelsetp;
+    int			i;
 
     if (invers == PM_LOG_VERS02) {
 	if (outvers == invers)
@@ -312,8 +375,28 @@ pmaRewriteMeta(__pmLogCtl *lcp, int outvers, __int32_t **rbuf)
 	    break;
 
 	case TYPE_LABEL_V2:
-	    // TODO
-	    sts = PM_ERR_NYI;
+	    tmp = &ibuf[2];
+	    if ((sts = __pmLogLoadLabelSet((char *)tmp, rlen, TYPE_LABEL_V2, &stamp, &labtype, &ident, &nsets, &labelsetp)) < 0) {
+		fprintf(stderr, "pmaRewriteMeta: Botch: __pmLogLoadLabelSets: %s\n",
+		    pmErrStr(sts));
+		exit(1);
+	    }
+
+	    sts = __pmLogEncodeLabels(outlcp, labtype, ident, nsets, labelsetp, &stamp, &new);
+	    if (sts < 0) {
+		fprintf(stderr, "pmaRewriteMeta: Botch: __pmLogEncodeLabels: %s\n",
+		    pmErrStr(sts));
+		exit(1);
+	    }
+	    for (i = 0; i < nsets; i++) {
+		free(labelsetp[i].json);
+		free(labelsetp[i].labels);
+	    }
+	    free(labelsetp);
+	    free(*rbuf);
+	    *rbuf = new;
+
+	    sts = 1;
 	    break;
 
 	default:
@@ -321,16 +404,4 @@ pmaRewriteMeta(__pmLogCtl *lcp, int outvers, __int32_t **rbuf)
     }
 
     return sts;
-}
-
-int
-pmaPutMark(__pmFILE *f, int version, __pmTimestamp *tsp)
-{
-    return 0;
-}
-
-int
-pmaCreateMark(int version,  __pmTimestamp *tsp,  __int32_t **rbuf)
-{
-    return 0;
 }

@@ -1,0 +1,71 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMAPUTMARK 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmaPutMark\f1 \- write a <mark> record to an archive
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/libpcp.h>
+.br
+#include <pcp/archive.h>
+.sp
+int pmaPutMark(__pmArchCtl *\fIacp\fP, __pmTimestamp *\fItsp\fP)
+.sp
+cc ... \-lpcp_archive \-lpcp
+.ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and at some point in the future
+they may not work or may provide different semantics.
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\fR\\$2
+.el \fI\\$1\fR\\$2
+..
+.PP
+.B pmaPutMark
+appends a <mark> record to the current data file of a PCP archive.
+A <mark> record indicates a dicontinuity in the time series of
+logged data in the archive, see
+.BR PCPIntro (1)
+for more information.
+.PP
+The timestamp of the <mark> record is given by
+.I tsp
+and if this needs any small increment over the timestamp of the
+last
+.B pmResult
+then the caller must have done this before calling
+.BR pmaPutMark .
+.PP
+The I/O stream for writing and the archive version for the format
+of the <mark> record are determined from
+.BR acp .
+.SH DIAGNOSTICS AND RETURN VALUES
+The return value is 0 if all is well, else
+some error code less than zero that can be turned into an error
+message by calling
+.BR pmErrStr (3).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR PMAPI (3)
+and
+.BR pmaPutLog (3).
