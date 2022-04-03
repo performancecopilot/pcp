@@ -56,13 +56,17 @@ typedef struct {
     				/* will be expanded if nsets > 0 */
 } __pmExtLabelSet_v2;
 
+/*
+ * pack a set of labels into a physical metadata record
+ * - lcp required to provide archive version
+ * - caller must free allocated buf[]
+ */
 int
-__pmLogPutLabels(__pmArchCtl *acp, unsigned int type, unsigned int ident,
-		int nsets, pmLabelSet *labelsets, const __pmTimestamp * const tsp)
+__pmLogEncodeLabels(__pmLogCtl *lcp, unsigned int type, unsigned int ident,
+		int nsets, pmLabelSet *labelsets, const __pmTimestamp * const tsp,
+		__int32_t **buf)
 {
-    __pmLogCtl		*lcp = acp->ac_log;
     char		*ptr;
-    int			sts = 0;
     int			i, j;
     size_t		len;
     __int32_t		*lenp;
@@ -162,18 +166,40 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":12", PM_FAULT_ALLOC);
 	}
     }
 
+    /* trailer record length */
     memcpy((void *)ptr, lenp, sizeof(*lenp));
 
-    if ((sts = __pmFwrite(out, 1, len, lcp->mdfp)) != len) {
+    *buf = out;
+    return 0;
+}
+
+/*
+ * output the metadata record for a set of labels
+ */
+int
+__pmLogPutLabels(__pmArchCtl *acp, unsigned int type, unsigned int ident,
+		int nsets, pmLabelSet *labelsets, const __pmTimestamp * const tsp)
+{
+    __pmLogCtl		*lcp = acp->ac_log;
+    int			sts;
+    __int32_t		*buf;
+    size_t		len;
+
+    sts = __pmLogEncodeLabels(lcp, type, ident, nsets, labelsets, tsp, &buf);
+    if (sts < 0)
+	return sts;
+
+    len = ntohl(buf[0]);
+    if ((sts = __pmFwrite(buf, 1, len, lcp->mdfp)) != len) {
 	char	errmsg[PM_MAXERRMSGLEN];
 
 	pmprintf("__pmLogPutLabels(...,type=%d,ident=%d): write failed: returned %d expecting %zd: %s\n",
 		type, ident, sts, len, osstrerror_r(errmsg, sizeof(errmsg)));
 	pmflush();
-	free(out);
+	free(buf);
 	return -oserror();
     }
-    free(out);
+    free(buf);
 
     return addlabel(acp, type, ident, nsets, labelsets, tsp);
 }
