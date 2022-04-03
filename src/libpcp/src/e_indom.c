@@ -53,8 +53,8 @@ typedef struct {
 
 /*
  * pack an indom into a physical metadata record
- * - lcp required to provide archive version
- * - type controls format
+ * - lcp required to provide archive version (else NULL)
+ * - type controls format (and must match version from lcp if not NULL)
  * - caller must free allocated buf[]
  */
 int
