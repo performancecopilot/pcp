@@ -1,0 +1,155 @@
+#!/bin/sh
+# PCP QA Test No. 1402
+# more serious v3 do nothing and V2 -> V3 conversions
+#
+# Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+_filter_scanmeta()
+{
+    sed \
+	-e 's/^\[[0-9][0-9]*/[NN/' \
+	-e 's/@ [0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9]*/@ TIMESTAMP/' \
+    # end
+}
+
+# Expect some diffs ... dates, times, log label fields not in V2 and
+# metric values are obvious.
+# This is a bit different (and needs the awk at the end) ...
+#   Instance Domains on-disk ...
+#   20:38:36.689295000 InDom: 2.1 1 instances
+#      2123889 or "2123889"	<-- pmlogger PID
+#   InDom: 2.1
+#   20:38:36.689295000 1 instances
+#      2123889 or "2123889"	<-- pmlogger PID
+#
+_filter_dumplog()
+{
+    sed \
+	-e '/^ *commencing /s/commencing .*/commencing DATESTAMP/' \
+	-e '/^ *ending /s/ending .*/ending DATESTAMP/' \
+	-e '/ inst /s/value [0-9][0-9]*$/value NNN/' \
+	-e 's/^[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9]*/TIMESTAMP/' \
+	-e '/event record/s/ [0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9]*/ TIMESTAMP/' \
+	-e '/^PID for pmlogger:/s/[0-9][0-9]*/<PID>/' \
+	-e '/(pmcd\.pmlogger\./s/: .*/: .../' \
+	-e '/Archive zoneinfo:/d' \
+    | $PCP_AWK_PROG '
+BEGIN				{ whack = 0; skip = 0 }
+/InDom: 2.1 1 instances$/	{ whack = 1; print; next }
+whack > 0			{ whack--;
+				  if (whack == 0) {
+				    print "pmlogger PID"
+				    next
+				  }
+				}
+/^InDom: 2.1$/			{ skip = 1; print; next }
+skip == 1 && NF == 0		{ skip = 0 }
+skip == 1 && /[0-9][0-9]* or/	{ print "pmlogger PID"; next }
+				{ print }'
+}
+
+# real QA test starts here
+
+for tool in pmlogextract pmlogrewrite
+do
+    for invers in 2 3
+    do
+	echo
+	echo "--- $tool input version V$invers ---"
+
+	rm -f $tmp.0 $tmp.meta $tmp.index
+
+	if $do_valgrind
+	then
+	    _run_valgrind $tool -V 3 archives/omnibus_v$invers $tmp
+	else
+	    $tool -V 3 archives/omnibus_v2 $tmp 2>&1
+	fi \
+	| _filter
+
+	echo "=== pmlogcheck ===" >>$seq.full
+	pmlogcheck -w $tmp
+
+	echo "=== scanmeta for expected output ===" >>$seq.full
+	src/scanmeta -o -a archives/omnibus_v3.meta 2>&1 \
+	| tee -a $seq.full \
+	| _filter_scanmeta \
+	| LC_COLLATE=POSIX sort >$tmp.expected
+
+	echo >>$seq.full
+	echo "=== scanmeta for actual output ===" >>$seq.full
+	src/scanmeta -o -a $tmp.meta 2>&1 \
+	| tee -a $seq.full \
+	| _filter_scanmeta \
+	| LC_COLLATE=POSIX sort >$tmp.output
+
+	echo "=== scanmeta diffs ==="
+	diff $tmp.expected $tmp.output
+
+	echo "=== dumplog for expected output ===" >>$seq.full
+	pmdumplog -aI archives/omnibus_v3 2>&1 \
+	| tee -a $seq.full \
+	| _filter_dumplog >$tmp.expected
+
+	echo >>$seq.full
+	echo "=== dumplog for actual output ===" >>$seq.full
+	pmdumplog -aI $tmp 2>&1 \
+	| tee -a $seq.full \
+	| _filter_dumplog >$tmp.output
+
+	# Note:
+	# 	pmlogrewrite uses a slightly different heurisitic to
+	# 	deal with event records, hence the second temporal index
+	# 	entry shows a metadata offset of 1531 compared to 1131
+	# 	in the original ... this has been deeply triaged and
+	# 	would seem to be OK, and not something than can easily
+	# 	be changed in pmlogrewrite
+	#
+	echo "=== pmdumplog diffs ==="
+	diff $tmp.expected $tmp.output
+
+    done
+done
+
+# success, all done
+exit
