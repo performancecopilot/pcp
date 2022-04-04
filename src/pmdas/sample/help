@@ -686,8 +686,8 @@ Dummy event records are generated in a fixed pattern to help QA.
 
 Once all setups have been returned, the cycle is repeated.
 
-See event.reset to exert explicit control over the next batch of event
-records to be returned.
+See sample.event.reset to exert explicit control over the next batch of
+event records to be returned.
 
 @ sample.event.no_indom_records More dummy event records
 Like sample.event.records but without the instance domain.
@@ -702,8 +702,8 @@ Dummy high resolution event records generated in a fixed pattern to help QA.
 
 Once all setups have been returned, the cycle is repeated.
 
-See event.reset_highres to exert explicit control over the next batch of event
-records to be returned.
+See sample.event.reset_highres to exert explicit control over the next
+batch of event records to be returned.
 
 @ sample.event.reset_highres reset highres event record state
 Used for QA, should take one of the values 0, 1, 2 or 3
