@@ -102,6 +102,9 @@ do
     fi \
     | _filter
 
+    echo "=== pmlogcheck ===" >>$seq.full
+    pmlogcheck -w $tmp
+
     echo "=== scanmeta for expected output ===" >>$seq.full
     src/scanmeta -a tmparch/sample-proc_v3.meta 2>&1 \
     | tee -a $seq.full \
