@@ -1805,9 +1805,9 @@ main(int argc, char **argv)
 	    do_newlabelsets();
 
 	/*
-	 * process metadata until find an indom record with timestamp
-	 * after the current log record, or a metric record for a pmid
-	 * that is not in the current log record
+	 * process metadata until we find an indom or label record with
+	 * timestamp after the current log record, or a metric record
+	 * for a pmid that is not in the current log record
 	 */
 	for ( ; ; ) {
 	    if (stsmeta == 0) {
