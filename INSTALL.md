@@ -15,21 +15,15 @@ PCP package from source, and how to install and finally run it.
 
 ### 1. Linux Installation
 
-Make sure you run the following steps as root, if you are not root, run:
-
-```
-$ sudo su
-```
-
 If you are using Debian, or a Debian-based distribution like Ubuntu,
 PCP is included in the distribution (as of late 2008).  Run:
 ```
-# apt-get install pcp
+$ sudo apt-get install pcp
 ```
 
 If you are using a RPM based distribution and have the binary rpm:
 ```
-# rpm -Uvh pcp-*.rpm
+$ sudo rpm -Uvh pcp-*.rpm
 ```
 ... and skip to the final section (below) - "Post-install steps".
 
@@ -293,6 +287,7 @@ You will need to start the PCP Collection Daemon (PMCD), as root:
 
 Linux:
 ```
+$ su root
 # systemctl start pmcd  (or...)
 # service pmcd start  (or...)
 # /etc/init.d/pmcd start  (or...)
@@ -300,7 +295,7 @@ Linux:
 ```
 Mac OS X:
 ```
-# /Library/StartupItems/pcp/pmcd start
+$ sudo /Library/StartupItems/pcp/pmcd start
 ```
 Windows:
 ```
@@ -313,7 +308,7 @@ Solaris:
 Once you have started the PMCD daemon, you can list all performance
 metrics using the pminfo(1) command, E.g.
 ```
-# pminfo -fmdt   (you don't have to be root for this, but you may need to
+$ pminfo -fmdt   (you don't have to be root for this, but you may need to
 		  type rehash so your shell finds the pminfo command).
 ```
 If you are writing scripts, you may find the output from pmprobe(1)
@@ -322,8 +317,8 @@ PCP client tools included.
 
 PCP can be configured to automatically log certain performance metrics
 for one or more hosts. The scripts to do this are documented in
-pmlogger_check(1). By default this facility is not enabled. If you want
-to use it, you need to
+pmlogger_check(1).  On some platforms (non-Linux), this facility is not
+enabled by defaults. If you want to use it, you need to
 
 - determine which metrics to log and how often you need them
 - edit $PCP_SYSCONF_DIR/pmlogger/control
@@ -344,7 +339,7 @@ The pmie (Performance Metrics Inference Engine) daemon is _not_
 configured to start by default. To enable it, you may want to (on
 Linux platforms with chkconfig).
 ```
-# su root
+$ su root
 # chkconfig pmie on
 # edit the pmie control file (usually below $PCP_SYSCONF_DIR/pmie)
 # edit the config file (usually $PCP_SYSCONF_DIR/pmie/config.default)
@@ -366,7 +361,7 @@ Note: $PCP_PMDAS_DIR is normally /var/pcp/pmdas, see pcp.conf(5).
 
 Web Server metrics
 ```
-# su root
+$ su root
 # cd $PCP_PMDAS_DIR/apache  (i.e. cd /var/pcp/pmdas/apache)
 # ./Install
 # Check everything is working OK
@@ -384,11 +379,12 @@ Other PMDAs in the pcp package include:
 - memcache - monitor memcache server stats
 - mmv - export memory-mapped value stats from an application
 - mounts - keep track of mounted file systems
+- mongodb - monitor MongoDB NoSQL databases
 - mysql - monitor MySQL relational databases
 - oracle - monitor Oracle relational databases
 - postgres - monitor PostGreSQL relational databases
 - process - keep an eye on critical processes/daemons
-- roomtemp - monitor room temp (needs suitable probe)
+- redis - monitor Redis NoSQL databases
 - rsyslog - monitor the reliable system log daemon
 - sendmail - monitor sendmail statistics
 - shping - ping critical system services, extract response times
