@@ -1355,6 +1355,8 @@ __pmLogWriteMark(__pmArchCtl *acp, const __pmTimestamp *last_stamp, const __pmTi
 	}
 	sts = -oserror();
     }
+    else
+	sts = 0;
 
     return sts;
 }
