@@ -154,7 +154,7 @@ do_link(int vol)
 		    break;
 	}
 	if (access(src, F_OK) == 0) {
-	    /* src exists ... offto the races */
+	    /* src exists ... off to the races */
 	    switch (vol) {
 		case PM_LOG_VOL_TI:
 			snprintf(dst, sizeof(src), "%s.index%s", newname, *suff);
@@ -174,12 +174,26 @@ do_link(int vol)
 	    if (showme)
 		printf("+ ln %s %s\n", src, dst);
 	    else {
-		if (verbose)
-		    printf("link %s -> %s\n", src, dst);
 		if (link(src, dst) < 0) {
-		    fprintf(stderr, "pmlogmv: link %s -> %s failed: %s\n", src, dst, strerror(errno));
-		    return -1;
+		    if (errno == EXDEV) {
+			/* link() failed cross-device, need to copy ... */
+			int	sts;
+			char	cmd[2*MAXPATHLEN+4];
+			snprintf(cmd, sizeof(cmd), "cp %s %s", src, dst);
+			if ((sts = system(cmd)) != 0) {
+			    fprintf(stderr, "pmlogmv: copy %s -> %s failed: %s\n", src, dst, strerror(errno));
+			    return -1;
+			}
+			else if (verbose)
+			    printf("copy %s -> %s\n", src, dst);
+		    }
+		    else {
+			fprintf(stderr, "pmlogmv: link %s -> %s failed: %s\n", src, dst, strerror(errno));
+			return -1;
+		    }
 		}
+		else if (verbose)
+		    printf("link %s -> %s\n", src, dst);
 	    }
 	    lastvol = vol;
 	    return 1;

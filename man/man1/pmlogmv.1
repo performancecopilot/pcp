@@ -52,7 +52,8 @@ file system full events, etc.
 .PP
 The implementation of
 .B pmlogmv
-uses hard links in the file system and so follows the semantic
+tries to use
+hard links in the file system and so follows the semantic
 restrictions of
 .IR ln (2)
 which for most systems means the directories containing both
@@ -60,9 +61,17 @@ the
 .I oldname
 and the
 .I newname
-PCP archive files need to be writeable and within the
+PCP archive files need to be within the
 .B same
 file system.
+When this is not possible,
+.B pmlogmv
+falls back to using
+.BR cp (1)
+to copy
+.I oldname
+to
+.IR newname .
 .SH OPTIONS
 The available command line options are:
 .TP 5
