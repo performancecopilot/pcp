@@ -155,7 +155,6 @@ new/mv-foo.index
 new/mv-foo.meta
 
 === error case for ln failing ===
-link ./mv-foo.0 -> new/mv-foo.0
 pmlogmv: link ./mv-foo.0 -> new/mv-foo.0 failed: Permission denied
 exit status 1
 ls: cannot access new/*: No such file or directory
