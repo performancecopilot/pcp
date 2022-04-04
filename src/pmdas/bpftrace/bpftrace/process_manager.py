@@ -177,6 +177,7 @@ class ProcessManager():
                 if s.metadata.name == script.metadata.name:
                     script.state.error = f"Script name {script.metadata.name} is already in use by another script."
                     script.state.status = Status.Error
+                    self.logger.info(f"script: failed to start {script} due to error: {script.state.error}")
                     self.pipe.send(script)
                     return
 

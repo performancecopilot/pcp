@@ -264,10 +264,7 @@ class BPFtracePMDA(PMDA):
             return False
         return True
 
-    def register_autostart_scripts(self):
-        pmdas_dir = PCP.pmGetConfig('PCP_PMDAS_DIR')
-        autostart_dir = f"{pmdas_dir}/bpftrace/autostart"
-
+    def register_autostart_scripts_from_directory(self, autostart_dir: str):
         try:
             if not self.exclusive_writable_by_root(autostart_dir):
                 self.logger.error(f"Austostart directory {autostart_dir} "
@@ -295,6 +292,14 @@ class BPFtracePMDA(PMDA):
             script.username = pwd.getpwuid(os.getuid()).pw_name
             script.metadata.name = Path(script_path).stem
             self.register_script(script, update_ctx=False)
+
+    def register_autostart_scripts(self):
+        pmdas_dir = PCP.pmGetConfig('PCP_PMDAS_DIR')
+        sysconf_dir = PCP.pmGetConfig('PCP_SYSCONF_DIR')
+        autostart_dirs = [f"{sysconf_dir}/bpftrace/autostart", f"{pmdas_dir}/bpftrace/autostart"]
+
+        for autostart_dir in autostart_dirs:
+            self.register_autostart_scripts_from_directory(autostart_dir)
 
     def store_callback(self, cluster: int, item: int, inst: int, val: str):
         """PMDA store callback"""
