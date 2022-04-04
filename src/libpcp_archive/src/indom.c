@@ -419,6 +419,7 @@ pmaTryDeltaInDom(__pmLogCtl *lcp, __int32_t **rbuf, __pmLogInDom_io *lidp)
     }
     else {
 	__pmLogInDom_io	*tmp_lidp;
+	this.buf = NULL;
 	indom = lidp->indom;
 	if ((tmp_lidp = __pmDupLogInDom_io(lidp)) == NULL) {
 	    fprintf(stderr, "pmaTryDeltaInDom: Botch: __pmDupLogInDom_io for indom %s: NULL\n",
