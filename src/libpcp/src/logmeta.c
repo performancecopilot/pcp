@@ -1864,15 +1864,17 @@ __pmFreeLogInDom_io(__pmLogInDom_io *lidp)
 	if (lidp->alloc & PMLID_INSTLIST && lidp->instlist != NULL)
 	    free(lidp->instlist);
 
-	if (lidp->alloc & PMLID_SELF)
-	    free(lidp);
     }
 
-    /*
-     * initialize everything, avoids double free in case we're called
-     * twice for the same lidp
-     */
-    memset((void *)lidp, 0, sizeof(*lidp));
+    if (lidp->alloc & PMLID_SELF)
+	free(lidp);
+    else {
+	/*
+	 * initialize everything, avoids double free in case we're called
+	 * twice for the same lidp
+	 */
+	memset((void *)lidp, 0, sizeof(*lidp));
+    }
 
 }
 
