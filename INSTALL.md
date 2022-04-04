@@ -15,6 +15,12 @@ PCP package from source, and how to install and finally run it.
 
 ### 1. Linux Installation
 
+Make sure you run the following steps as root, if you are not root, run:
+
+```
+$ sudo su
+```
+
 If you are using Debian, or a Debian-based distribution like Ubuntu,
 PCP is included in the distribution (as of late 2008).  Run:
 ```
