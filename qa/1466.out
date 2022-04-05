@@ -1,2 +1,2 @@
 QA output created by 1466
-PASSED, found pmsleep process in pmcd.service cgroup
+PASSED, found pmpause process in pmcd.service cgroup
