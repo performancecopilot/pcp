@@ -3338,7 +3338,8 @@ PCP_LOG_DIR=%{_logsdir}
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Fri Apr 01 2022 Nathan Scott <nathans@redhat.com> - 5.3.7-1
+* Tue Apr 05 2022 Nathan Scott <nathans@redhat.com> - 5.3.7-1
+- Add disk.wwid aggregated multipath metrics (BZ 1293444)
 - Update to latest PCP sources.
 
 * Wed Feb 02 2022 Nathan Scott <nathans@redhat.com> - 5.3.6-1
