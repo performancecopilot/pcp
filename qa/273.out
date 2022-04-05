@@ -1020,8 +1020,8 @@ Dummy event records are generated in a fixed pattern to help QA.
 
 Once all setups have been returned, the cycle is repeated.
 
-See event.reset to exert explicit control over the next batch of event
-records to be returned.
+See sampledso.event.reset to exert explicit control over the next batch of
+event records to be returned.
 
 sampledso.event.highres_records
 Help:
@@ -1029,8 +1029,8 @@ Dummy high resolution event records generated in a fixed pattern to help QA.
 
 Once all setups have been returned, the cycle is repeated.
 
-See event.reset_highres to exert explicit control over the next batch of event
-records to be returned.
+See sampledso.event.reset_highres to exert explicit control over the next
+batch of event records to be returned.
 
 sampledso.event.no_indom_records
 Help:
