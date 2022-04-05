@@ -2,7 +2,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/denki
-ROOTFILES = bigsystem.tgz Thinkpad_L480_bat_busy.tgz
+ROOTFILES = bigsystem.tgz Thinkpad_L480_bat_busy.tgz apple_silicon_macbook.tgz
 
 default setup default_pcp:
 

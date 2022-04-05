@@ -105,5 +105,42 @@ denki.bat.power_now
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","userid":USERID}
     value 0
 
+### Installing test dataset 3...
+
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+Updating the PMCD control file, and notifying PMCD ...
+Check denki metrics have appeared ... 5 metrics and 3 values
+
+denki.rapl.rate
+    Data Type: 32-bit unsigned int  InDom: 156.0 0x27000000
+    Semantics: counter  Units: none
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
+No value(s) available!
+
+denki.rapl.raw
+    Data Type: 32-bit unsigned int  InDom: 156.1 0x27000001
+    Semantics: instant  Units: none
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
+No value(s) available!
+
+denki.bat.energy_now_raw
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt hours","userid":USERID}
+    value 15.23
+
+denki.bat.energy_now_rate
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watts","userid":USERID}
+    value 0
+
+denki.bat.power_now
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","userid":USERID}
+    value 4.077
+
 ### Removing test datasets...
 

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 # PCP QA Test No. 1653
 # Checks for pmda-denki
 #
@@ -61,6 +61,7 @@ echo
 cd $here/denki/
 tar xzf bigsystem.tgz
 tar xzf Thinkpad_L480_bat_busy.tgz
+tar xzf apple_silicon_macbook.tgz
 
 echo
 echo "### Installing test dataset 1..."
@@ -84,10 +85,21 @@ $sudo ./Install 2>&1
 pminfo -dfFl denki | _filter_labels
 
 echo
+echo "### Installing test dataset 3..."
+echo
+ROOTPATH="$here/denki/apple_silicon_macbook"
+$sudo sed -ie \
+	"s,^args.*,args=\"-U root -r ${ROOTPATH}\","  \
+	Install
+$sudo ./Install 2>&1
+pminfo -dfFl denki | _filter_labels
+
+echo
 echo "### Removing test datasets..."
 echo
 rm -rf $here/denki/bigsystem
 rm -rf $here/denki/Thinkpad_L480_bat_busy
+rm -rf $here/denki/apple_silicon_macbook
 
 # success, all done
 exit

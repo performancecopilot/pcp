@@ -42,6 +42,7 @@ static char filenames[MAX_PACKAGES][NUM_RAPL_DOMAINS][256]; /* pathes to the rap
 static int detect_rapl_packages(void);			/* detect RAPL packages, cpu cores */
 static int detect_rapl_domains(void);			/* detect RAPL domains */
 static int read_rapl(void);				/* read RAPL values */
+static int detect_battery(void);			/* detect battery */
 static int read_battery(void);				/* read battery values */
 static int compute_energy_rate(void);			/* compute discharge rate from BAT0 values */
 long long lookup_rapl_dom(int);				/* map instance to 2-dimensional domain matrix */
@@ -160,31 +161,108 @@ time_t secondsnow, secondsold;		/* time stamps, to understand if we need to reco
 double energy_diff_d, energy_rate_d;	/* amount of used energy / computed energy consumption	  	*/
 
 static int battery_comp_rate = 60;	/* timespan in sec, after which we recompute energy_rate_d      */
+char battery_basepath[512];		/* path to the battery						*/
+char energy_now_file[512];		/* energy now file, different between models			*/
+double energy_convert_factor = 10000.0;	/* factor for fixing <battery-dir>/energy_now / charge_now to kwh */
+
+/* detect battery */
+static int detect_battery(void) {
+	char	filename[BUFSIZ],dirname[512],type[32];
+	DIR	*directory;
+	FILE 	*fff;
+
+	struct dirent *ep;
+
+	pmsprintf(dirname,sizeof(dirname),"%s/sys/class/power_supply/",rootpath);
+	directory = opendir (dirname);
+	if (directory != NULL) {
+		while ( ( ep = readdir (directory) ) ) {
+			puts (ep->d_name);
+
+			// skip entries '.' and '..'
+			if ( ep->d_name[0] == '.')
+				continue;
+
+			pmsprintf(filename,sizeof(filename),"%s%s/type",dirname,ep->d_name);
+			fff=fopen(filename,"r");
+			if (fff==NULL) {
+				pmNotifyErr(LOG_DEBUG, "Could not access %s",filename);
+				continue;
+			}
+			if ( fscanf(fff,"%s",type) != 1) {
+				pmNotifyErr(LOG_DEBUG, "Could not read contents of %s",filename);
+				continue;
+			}
+			fclose(fff);
+			// pmNotifyErr(LOG_DEBUG, "successfully read %s : %s",filename,type);
+			if ( strcmp(type,"Battery") == 0 ) {
+			 	pmNotifyErr(LOG_DEBUG, "%s%s seems to be a battery!",dirname,ep->d_name);
+				pmsprintf(battery_basepath,sizeof(battery_basepath),"%s%s",dirname,ep->d_name);
+				has_bat=1;
+			}
+
+		}
+		(void) closedir (directory);
+    	}
+	else {
+		pmNotifyErr(LOG_DEBUG, "Couldn't open directory %s/sys/class/power_supply.",rootpath);
+		return 0;
+	}
+
+	// find out wether charge_now or energy_now is used
+	pmsprintf(filename,sizeof(filename),"%s/charge_now",battery_basepath);
+	fff=fopen(filename,"r");
+	if (fff==NULL) {
+		pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
+	}
+	else {
+		pmNotifyErr(LOG_DEBUG, "battery path has %s file.",filename);
+		pmsprintf(energy_now_file,sizeof(energy_now_file),"charge_now");
+		energy_convert_factor = 100000.0;
+	}
+
+	pmsprintf(filename,sizeof(filename),"%s/energy_now",battery_basepath);
+	fff=fopen(filename,"r");
+	if (fff==NULL) {
+		pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
+	}
+	else {
+		pmNotifyErr(LOG_DEBUG, "battery path has %s file.",filename);
+		pmsprintf(energy_now_file,sizeof(energy_now_file),"energy_now");
+		energy_convert_factor = 1000000.0;
+	}
+
+    return 0;
+}
 
 /* read the current battery values */
 static int read_battery(void) {
 	char filename[BUFSIZ];
 	FILE *fff;
 
-	pmsprintf(filename,sizeof(filename),"%s/sys/class/power_supply/BAT0/energy_now",rootpath);
+	pmsprintf(filename,sizeof(filename),"%s/%s",battery_basepath,energy_now_file);
 	fff=fopen(filename,"r");
 	if (fff==NULL) {
-		pmNotifyErr(LOG_DEBUG, "DENKI: No battery found.");
+		pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
 		return 1;
 	}
 	if ( fscanf(fff,"%lld",&energy_now) != 1)
-		pmNotifyErr(LOG_DEBUG, "DENKI: Could not read energy_now.");
+		pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
 	fclose(fff);
 
-	pmsprintf(filename,sizeof(filename),"%s/sys/class/power_supply/BAT0/power_now",rootpath);
+	pmsprintf(filename,sizeof(filename),"%s/power_now",battery_basepath);
 	fff=fopen(filename,"r");
 	if (fff==NULL) {
-		pmNotifyErr(LOG_DEBUG, "DENKI: No battery found.");
+		pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
 		return 1;
 	}
 	if ( fscanf(fff,"%lld",&power_now) != 1)
-		pmNotifyErr(LOG_DEBUG, "DENKI: Could not read power_now.");
+		pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
 	fclose(fff);
+
+	// correct power_now, if we got a negative value
+	if ( power_now<0 )
+		power_now*=-1.0;
 
 	return 0;
 }
@@ -205,7 +283,7 @@ static int compute_energy_rate(void) {
 	if ( ( secondsnow - secondsold ) >= battery_comp_rate ) {
 
 		// computing how many Wh were used up in battery_comp_rate
-		energy_diff_d = (energy_now_old - energy_now)/1000000.0;
+		energy_diff_d = (energy_now_old - energy_now)/energy_convert_factor;
 
 		// computing how many W would be used in 1h
 		energy_rate_d = energy_diff_d * 3600 / battery_comp_rate;
@@ -360,7 +438,7 @@ denki_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	else if (cluster == 1) {
 		if (item == 0)				/* denki.energy_now_raw */
-			atom->d = energy_now/1000000.0;
+			atom->d = energy_now/energy_convert_factor;
 		else if (item == 1)			/* denki.energy_now_rate */
 			atom->d = energy_rate_d;
 		else if (item == 2)			/* denki.power_now */
@@ -589,16 +667,9 @@ main(int argc, char **argv)
     	denki_rapl_check();	// now we register the found rapl indoms
     }
     closedir(directory);
-    
-    pmsprintf(filename,sizeof(filename),"%s/sys/class/power_supply/BAT0",rootpath);
-    directory = opendir(filename);
-    if ( directory == NULL )
-    	pmNotifyErr(LOG_DEBUG, "detected no battery");
-    else {
-    	pmNotifyErr(LOG_DEBUG, "detected battery");
-	has_bat=1;
-    }
 
+    detect_battery();
+    
     pmdaMain(&dispatch);
 
     exit(0);
