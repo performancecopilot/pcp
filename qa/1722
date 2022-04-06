@@ -12,16 +12,22 @@ _pmdabpftrace_check
 echo "tracepoint:syscalls:sys_enter_openat" >$tmp.tmp
 _pmdabpftrace_check_probes $tmp.tmp
 
+
+_cleanup()
+{
+    $sudo rm -f $PCP_PMDAS_DIR/bpftrace/autostart/*.bt
+    _pmdabpftrace_cleanup
+}
+
 status=1       # failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 
 _prepare_pmda bpftrace
-trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 
 # real QA test starts here
-_pmdabpftrace_clean_autostart_scripts
 cat <<EOF | sudo tee $PCP_PMDAS_DIR/bpftrace/autostart/script.bt > /dev/null
 // name: testscript
 BEGIN { @scalar = 2; }
