@@ -18,12 +18,6 @@ _pmdabpftrace_check()
     [ -f $PCP_PMDAS_DIR/bpftrace/pmdabpftrace.python ] || _notrun "bpftrace PMDA not installed"
 }
 
-_pmdabpftrace_clean_autostart_scripts()
-{
-    $sudo cp -r $PCP_PMDAS_DIR/bpftrace/autostart $PCP_PMDAS_DIR/bpftrace/autostart.backup
-    $sudo rm $PCP_PMDAS_DIR/bpftrace/autostart/*
-}
-
 _pmdabpftrace_install_filter()
 {
     sed \
@@ -67,10 +61,6 @@ _pmdabpftrace_cleanup()
     cat $PCP_LOG_DIR/pmcd/bpftrace.log >> $here/$seq.full
     if [ -f $PCP_PMDAS_DIR/bpftrace/bpftrace.conf.backup ]; then
         $sudo mv $PCP_PMDAS_DIR/bpftrace/bpftrace.conf.backup $PCP_PMDAS_DIR/bpftrace/bpftrace.conf
-    fi
-    if [ -d $PCP_PMDAS_DIR/bpftrace/autostart.backup ]; then
-        $sudo rm -r $PCP_PMDAS_DIR/bpftrace/autostart
-        $sudo mv $PCP_PMDAS_DIR/bpftrace/autostart.backup $PCP_PMDAS_DIR/bpftrace/autostart
     fi
 
     # note: _restore_auto_restart pmcd done in _cleanup_pmda()
