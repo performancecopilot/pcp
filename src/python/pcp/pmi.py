@@ -50,11 +50,11 @@
         del log
 """
 
-from pcp.pmapi import pmID, pmInDom, pmUnits, pmResult
+from pcp.pmapi import pmID, pmInDom, pmUnits, pmHighResResult, pmResult
 from cpmi import pmiErrSymDict, PMI_MAXERRMSGLEN
 
 import ctypes
-from ctypes import cast, c_int, c_uint, c_char_p, POINTER
+from ctypes import cast, c_int, c_uint, c_longlong, c_char_p, POINTER
 
 # Performance Co-Pilot PMI library (C)
 LIBPCP_IMPORT = ctypes.CDLL(ctypes.util.find_library("pcp_import"))
@@ -116,8 +116,14 @@ LIBPCP_IMPORT.pmiGetHandle.argtypes = [c_char_p, c_char_p]
 LIBPCP_IMPORT.pmiPutValueHandle.restype = c_int
 LIBPCP_IMPORT.pmiPutValueHandle.argtypes = [c_int, c_char_p]
 
-LIBPCP_IMPORT.pmiWrite.restype = c_int
-LIBPCP_IMPORT.pmiWrite.argtypes = [c_int, c_int]
+LIBPCP_IMPORT.pmiWrite2.restype = c_int
+LIBPCP_IMPORT.pmiWrite2.argtypes = [c_longlong, c_int]
+
+LIBPCP_IMPORT.pmiHighResWrite.restype = c_int
+LIBPCP_IMPORT.pmiHighResWrite.argtypes = [c_longlong, c_int]
+
+LIBPCP_IMPORT.pmiPutHighResResult.restype = c_int
+LIBPCP_IMPORT.pmiPutHighResResult.argtypes = [POINTER(pmHighResResult)]
 
 LIBPCP_IMPORT.pmiPutResult.restype = c_int
 LIBPCP_IMPORT.pmiPutResult.argtypes = [POINTER(pmResult)]
@@ -344,12 +350,22 @@ class pmiLogImport(object):
             raise pmiErr(status)
         return status
 
+    def pmiHighResWrite(self, sec, nsec):
+        """PMI - flush data to a Log Import archive """
+        status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
+        if status < 0:
+            raise pmiErr(status)
+        status = LIBPCP_IMPORT.pmiHighResWrite(sec, nsec)
+        if status < 0:
+            raise pmiErr(status)
+        return status
+
     def pmiWrite(self, sec, usec):
         """PMI - flush data to a Log Import archive """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr(status)
-        status = LIBPCP_IMPORT.pmiWrite(sec, usec)
+        status = LIBPCP_IMPORT.pmiWrite2(sec, usec)
         if status < 0:
             raise pmiErr(status)
         return status
@@ -370,6 +386,16 @@ class pmiLogImport(object):
         if status < 0:
             raise pmiErr(status)
         status = LIBPCP_IMPORT.pmiPutResult(cast(result, POINTER(pmResult)))
+        if status < 0:
+            raise pmiErr(status)
+        return status
+
+    def put_highres_result(self, result):
+        """PMI - add a data record to a Log Import archive """
+        status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
+        if status < 0:
+            raise pmiErr(status)
+        status = LIBPCP_IMPORT.pmiPutHighResResult(cast(result, POINTER(pmHighResResult)))
         if status < 0:
             raise pmiErr(status)
         return status
