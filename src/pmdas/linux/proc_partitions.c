@@ -480,6 +480,7 @@ _pm_scsi_id(const char *device)
 	n = read(fd, buf, sizeof(buf));
 	close(fd);
 	if (n > 0) {
+	    buf[n-1] = '\0';
 	    if ((id = strrchr(buf, '\n')) != NULL)
 	    	*id = '\0';
 	    /*

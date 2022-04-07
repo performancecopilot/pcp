@@ -75,21 +75,6 @@ class ServiceTests(unittest.TestCase):
         script = self.service.refresh_script(script.script_id)
         self.assertIsNone(script)
 
-    def testTooManyKeys(self):
-        config = PMDAConfig()
-        config.max_throughput = 4 * 1024
-        self.setup(config)
-
-        script = self.service.register_script(Script('profile:hz:999 { @test1[kstack,ustack] = count(); }'))
-        for _i in range(20):
-            script = self.service.refresh_script(script.script_id)
-            if script.state.status == 'error':
-                break
-            time.sleep(1)
-        script = self.service.refresh_script(script.script_id)
-        self.assertEqual(script.state.status, 'error')
-        self.assertRegex(script.state.error, 'BPFtrace output exceeds limit of .+ bytes per second')
-
     def testTooMuchOutput(self):
         config = PMDAConfig()
         config.max_throughput = 4 * 1024

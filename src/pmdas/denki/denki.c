@@ -191,6 +191,7 @@ static int detect_battery(void) {
 			}
 			if ( fscanf(fff,"%s",type) != 1) {
 				pmNotifyErr(LOG_DEBUG, "Could not read contents of %s",filename);
+				fclose(fff);
 				continue;
 			}
 			fclose(fff);
@@ -219,6 +220,7 @@ static int detect_battery(void) {
 		pmNotifyErr(LOG_DEBUG, "battery path has %s file.",filename);
 		pmsprintf(energy_now_file,sizeof(energy_now_file),"charge_now");
 		energy_convert_factor = 100000.0;
+		fclose(fff);
 	}
 
 	pmsprintf(filename,sizeof(filename),"%s/energy_now",battery_basepath);
@@ -230,9 +232,10 @@ static int detect_battery(void) {
 		pmNotifyErr(LOG_DEBUG, "battery path has %s file.",filename);
 		pmsprintf(energy_now_file,sizeof(energy_now_file),"energy_now");
 		energy_convert_factor = 1000000.0;
+		fclose(fff);
 	}
 
-    return 0;
+	return 0;
 }
 
 /* read the current battery values */

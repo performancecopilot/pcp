@@ -9,19 +9,25 @@ echo "QA output created by $seq"
 . ./common.bpftrace
 
 _pmdabpftrace_check
-_pmdabpftrace_check_probes $PCP_PMDAS_DIR/bpftrace/autostart/biolatency.bt
+_pmdabpftrace_check_probes $PCP_SHARE_DIR/pmdas/bpftrace/examples/biolatency.bt
+
+_cleanup()
+{
+    $sudo rm -f $PCP_PMDAS_DIR/bpftrace/autostart/*.bt
+    _pmdabpftrace_cleanup
+}
+
 
 status=1       # failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 
 _prepare_pmda bpftrace
-trap "_pmdabpftrace_cleanup; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 
 # real QA test starts here
-_pmdabpftrace_clean_autostart_scripts
-$sudo cp $PCP_PMDAS_DIR/bpftrace/autostart.backup/biolatency.bt $PCP_PMDAS_DIR/bpftrace/autostart
+$sudo cp $PCP_SHARE_DIR/pmdas/bpftrace/examples/biolatency.bt $PCP_PMDAS_DIR/bpftrace/autostart
 cat <<EOF | _pmdabpftrace_install
 # Installed by PCP QA test $seq on `date`
 EOF
