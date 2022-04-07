@@ -118,10 +118,14 @@ typedef struct {
     int                 narchives;
     char **             hosts;
     char **             archives;
+#if PMAPI_VERSION == PMAPI_VERSION_3
+    struct timeval      unused[4];
+#else
     struct timeval      start;
     struct timeval      finish;
     struct timeval      origin;
     struct timeval      interval;
+#endif
     char *              align_optarg;
     char *              start_optarg;
     char *              finish_optarg;
@@ -136,6 +140,12 @@ typedef struct {
     unsigned int        nsflag  : 1;
     unsigned int        Lflag   : 1;
     unsigned int        zeroes  : 28;
+#if PMAPI_VERSION == PMAPI_VERSION_3
+    struct timespec     start;
+    struct timespec     finish;
+    struct timespec     origin;
+    struct timespec     interval;
+#endif
 } pmOptions;
 .in -0.25i
 .fi
@@ -149,7 +159,13 @@ fields describe how the rest of the pmOptions structure is to be
 interpreted.
 These fields can be zeroed, specifying a default interpretation.
 Alternatively, the PMAPI_VERSION macro can be used to specify the
-API level to use (currently, values of 2 or less are allowed).
+API level to use (currently, values of 3 or less are allowed).
+Version 2 is the default, version 3 introduces high resolution
+time window and interval fields (i.e. using struct timespec as
+opposed to struct timeval).
+When using the latter form, before including <pcp/pmapi.h> the
+PMAPI_VERSION macro must be set to 3 to ensure the correct layout
+of pmOptions structure is used by the application.
 The
 .I flags
 field can be used to modify option processing behaviour as
