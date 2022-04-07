@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2016,2022 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -16,12 +16,17 @@
 .\"
 .TH PMGETARCHIVEEND 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmGetArchiveEnd\f1 \- locate logical end of file for a set of archive logs
+\f3pmGetArchiveEnd\f1,
+\f3pmGetHighResArchiveEnd\f1 \- locate logical end of file for a set of archive logs
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-int pmGetArchiveEnd(struct timeval *\fItvp\fP);
+.nf
+int pmGetArchiveEnd(struct timeval *\fItp\fP);
+.br
+int pmGetHighResArchiveEnd(struct timespec *\fItp\fP);
+.fi
 .sp
 cc ... \-lpcp
 .ft 1
@@ -29,12 +34,16 @@ cc ... \-lpcp
 Assuming the current PMAPI context
 is associated with a set of archive logs,
 .B pmGetArchiveEnd
+and
+.B pmGetHighResArchiveEnd
 will attempt to find the logical end of file (after
 the last complete record in the set of archives),
 and return the last recorded timestamp via
-.IR tvp .
+.IR tp .
 This timestamp may be passed to
 .BR pmSetMode (3)
+or
+.BR pmSetHighResMode (3)
 to reliably position the context at the last valid
 log record, e.g. in preparation for subsequent reading in
 reverse chronological order.
@@ -49,19 +58,24 @@ due to write buffering that is not aligned with the logical record
 boundaries.
 .PP
 .B pmGetArchiveEnd
-returns an error less than zero if the context is neither valid,
-nor associated with a set of archives, or the set of archives is seriously
-corrupted.
+and
+.B pmGetHighResArchiveEnd
+return an error less than zero if the context is neither valid,
+nor associated with a set of archives, or the set of archives is
+seriously corrupted.
 Otherwise, the return value is 0 if there has been no change of
 state since the last call, or 1 if the logical end of file has
 advanced since the last call.
 .PP
 In the absence of an error, the result returned via
-.I tvp
+.I tp
 is well-defined.
 .PP
+Both
 .BR pmGetArchiveEnd
-preserves the positioning state of the log file prior to
+and
+.BR pmGetHighResArchiveEnd
+preserve the positioning state of the log file prior to
 this function call.
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_NOCONTEXT\f1
@@ -94,6 +108,10 @@ function.
 .BR pmFetchArchive (3),
 .BR pmGetArchiveLabel (3),
 .BR pmGetConfig (3),
+.BR pmGetHighResArchiveLabel (3),
+.BR pmHighResFetch (3),
+.BR pmHighResFetchArchive (3),
+.BR pmHighResSetMode (3),
 .BR pmSetMode (3),
 .BR pcp.conf (5)
 and

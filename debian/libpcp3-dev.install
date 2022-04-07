@@ -131,6 +131,7 @@ usr/share/man/man3/pmGetContextOptions.3.gz
 usr/share/man/man3/pmGetDerivedControl.3.gz
 usr/share/man/man3/pmGetDomainLabels.3.gz
 usr/share/man/man3/pmGetFetchGroupContext.3.gz
+usr/share/man/man3/pmGetHighResArchiveEnd.3.gz
 usr/share/man/man3/pmGetHostName.3.gz
 usr/share/man/man3/pmGetInDom.3.gz
 usr/share/man/man3/pmGetInDomArchive.3.gz
