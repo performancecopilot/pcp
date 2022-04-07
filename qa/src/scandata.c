@@ -229,7 +229,6 @@ done:
 	
 	if (xflag) {
 	    int		i;
-printf("len=%d 0x%x\n", len, len);
 	    for (i = 0; i < len / sizeof(buf[0]); i++) {
 		if ((i % 8) == 0) {
 		    if (i > 0)
