@@ -206,7 +206,7 @@ QA output created by 513
 [label] checking all-zeroes structure
   __pmDecodeLabel: sts = -12366 (IPC protocol failure)
 [label] checking large nsets field
-  __pmDecodeLabel: sts = -12 (Cannot allocate memory)
+  __pmDecodeLabel: sts = -12366 (IPC protocol failure)
 [label] checking large nlabels field
   __pmDecodeLabel: sts = -12366 (IPC protocol failure)
 [label] checking large json offset field
