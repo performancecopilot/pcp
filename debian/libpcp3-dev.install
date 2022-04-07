@@ -146,6 +146,7 @@ usr/share/man/man3/pmGetVersion.3.gz
 usr/share/man/man3/pmHighResFetch.3.gz
 usr/share/man/man3/pmHighResFetchArchive.3.gz
 usr/share/man/man3/pmHighResSetMode.3.gz
+usr/share/man/man3/pmHighResSortInstances.3.gz
 usr/share/man/man3/pmIDStr.3.gz
 usr/share/man/man3/pmIDStr_r.3.gz
 usr/share/man/man3/pmID_build.3.gz
