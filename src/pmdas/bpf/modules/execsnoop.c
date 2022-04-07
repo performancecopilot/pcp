@@ -29,7 +29,7 @@
 #include "trace_helpers.h"
 
 #define PERF_BUFFER_PAGES   64
-#define PERF_POLL_TIMEOUT_MS	100
+#define PERF_POLL_TIMEOUT_MS	50
 #define NSEC_PRECISION (NSEC_PER_SEC / 1000)
 #define MAX_ARGS_KEY 259
 
@@ -53,8 +53,57 @@ pmdaInstid *execsnoop_instances;
 struct execsnoop_bpf *obj;
 struct perf_buffer *pb = NULL;
 struct event *event;
-char arg_val[FULL_MAX_ARGS_ARR];
 
+/* cache array */
+struct tailq_entry {
+    struct event event;
+    TAILQ_ENTRY(tailq_entry) entries;
+};
+
+TAILQ_HEAD(tailhead, tailq_entry) head;
+int queuelength;
+
+static struct tailq_entry* allocElm()
+{
+    struct tailq_entry *item;
+    item = malloc(sizeof(*item));
+    return item;
+}
+
+static void push(struct tailq_entry *elm)
+{
+    if (queuelength > env.process_count)
+    {
+        struct tailq_entry *l;
+        l = head.tqh_first;
+        TAILQ_REMOVE(&head, l, entries);
+        free(l);
+        queuelength--;
+    }
+    TAILQ_INSERT_TAIL(&head, elm, entries);
+    queuelength++;
+}
+
+static bool get_item(unsigned int offset, struct tailq_entry* val)
+{
+    struct tailq_entry *i;
+    unsigned int iter = 0;
+    bool exist = 0;
+
+    TAILQ_FOREACH_REVERSE(i, &head, tailhead, entries) {
+        if (offset == iter) {
+            *val = *i;
+            exist = 1;
+            break;
+        } else {
+            exist = 0;
+        }
+        iter++;
+    }
+    return exist;
+}
+
+char arg_val[FULL_MAX_ARGS_ARR];
 unsigned int indom_id_mapping[INDOM_COUNT];
 
 #define METRIC_COUNT 6
@@ -148,7 +197,7 @@ void execsnoop_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaIndom 
     metrics[RET] = (struct pmdaMetric)
     { /* m_user */ NULL,
         { /* m_desc */
-            PMDA_PMID(cluster_id, 3), PM_TYPE_U32, indom_id_mapping[EXECSNOOP_INDOM],
+            PMDA_PMID(cluster_id, 3), PM_TYPE_32, indom_id_mapping[EXECSNOOP_INDOM],
             PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
         }
     };
@@ -202,20 +251,31 @@ static void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
 {
     event = data;
     handle_args(event);
+
+    struct tailq_entry *elm = allocElm();
+
+    elm->event.pid = event->pid;
+    elm->event.ppid = event->ppid;
+    elm->event.uid = event->uid;
+    elm->event.retval = event->retval;
+    elm->event.args_count = event->args_count;
+    elm->event.args_size = event->args_size;
     strncpy(elm->event.comm, event->comm, sizeof(event->comm));
     strncpy(elm->event.args, arg_val, sizeof(arg_val));
 
-    strncpy(elm->event.comm, event->comm, sizeof(event->comm));
-    strncpy(elm->event.args, arg_val, sizeof(arg_val));
     /* TODO: use pcre lib */
-    if (env.name && strstr(event->comm, env.name) == NULL)
+    if (env.name && strstr(elm->event.comm, env.name) == NULL) {
+        free(elm);
         return;
+    }
 
     /* TODO: use pcre lib */
-    if (env.line && strstr(event->comm, env.line) == NULL)
+    if (env.line && strstr(elm->event.comm, env.line) == NULL) {
+        free(elm);
         return;
+    }
 
-    handle_args(event);
+    push(elm);
 }
 
 static void handle_lost_events(void *ctx, int cpu, __u64 lost_cnt)
@@ -282,53 +342,67 @@ int execsnoop_init(dict *cfg, char *module_name)
     /* internal/external instance ids */
     fill_instids(env.process_count, &execsnoop_instances);
 
+    /* Initialize the tail queue. */
+    TAILQ_INIT(&head);
+
     return err != 0;
 }
 
 void execsnoop_shutdown()
 {
+    struct tailq_entry *itemp;
+
     free(execsnoop_instances);
     perf_buffer__free(pb);
     execsnoop_bpf__destroy(obj);
+    /* Free the entire cache queue. */
+    while ((itemp = TAILQ_FIRST(&head))) {
+        TAILQ_REMOVE(&head, itemp, entries);
+        free(itemp);
+    }
 }
-
 
 void execsnoop_refresh(unsigned int item)
 {
-    /* do nothing */
+    perf_buffer__poll(pb, PERF_POLL_TIMEOUT_MS);
 }
 
 int execsnoop_fetch_to_atom(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {
+    struct tailq_entry value;
+    bool exist;
+
     if (inst == PM_IN_NULL) {
         return PM_ERR_INST;
     }
 
-    perf_buffer__poll(pb, PERF_POLL_TIMEOUT_MS);
+    exist = get_item(inst, &value);
+    if (!exist)
+       return PMDA_FETCH_NOVALUES;
 
     /* bpf.execsnoop.comm */
     if (item == COMM) {
-        atom->cp = event->comm;
+        atom->cp = value.event.comm;
     }
     /* bpf.execsnoop.pid */
     if (item == PID) {
-        atom->ul = event->pid;
+        atom->ul = value.event.pid;
     }
     /* bpf.execsnoop.ppid */
     if (item == PPID) {
-        atom->ul = event->ppid;
+        atom->ul = value.event.ppid;
     }
     /* bpf.execsnoop.ret */
     if (item == RET) {
-        atom->ul = event->retval;
+        atom->l = value.event.retval;
     }
     /* bpf.execsnoop.args */
     if (item == ARGS) {
-        atom->cp = arg_val;
+        atom->cp = value.event.args;
     }
     /* bpf.execsnoop.uid */
     if (item == UID) {
-        atom->ul = event->uid;
+        atom->ul = value.event.uid;
     }
 
     return PMDA_FETCH_STATIC;
