@@ -297,6 +297,13 @@ usr/share/man/man3/pmsprintf.3.gz
 usr/share/man/man3/pmstrncat.3.gz
 usr/share/man/man3/pmstrncpy.3.gz
 usr/share/man/man3/pmtime.3.gz
+usr/share/man/man3/pmtimespecAdd.3.gz
+usr/share/man/man3/pmtimespecDec.3.gz
+usr/share/man/man3/pmtimespecFromReal.3.gz
+usr/share/man/man3/pmtimespecInc.3.gz
+usr/share/man/man3/pmtimespecNow.3.gz
+usr/share/man/man3/pmtimespecSub.3.gz
+usr/share/man/man3/pmtimespecToReal.3.gz
 usr/share/man/man3/pmtimevalAdd.3.gz
 usr/share/man/man3/pmtimevalDec.3.gz
 usr/share/man/man3/pmtimevalFromReal.3.gz
