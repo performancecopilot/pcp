@@ -45,6 +45,7 @@ typedef struct {
     __int32_t		*pb[2];		/* current physical record buffer */
     __pmResult		*_result;
     __pmResult		*_Nresult;
+    __pmTimestamp	laststamp;
     int			eof[2];
     int			mark;		/* need EOL marker */
     int			recnum;

@@ -64,6 +64,139 @@ static pmOptions opts = {
 };
 
 /*
+ *  global constants
+ */
+#define NUM_SEC_PER_DAY		86400
+
+#define NOT_WRITTEN		0
+#define MARK_FOR_WRITE		1
+#define WRITTEN			2
+
+/*
+ *  reclist_t is in logger.h
+ *	(list of pdu's to write out at start of time window)
+ */
+
+/*
+ *  Input archive control is in logger.h
+ */
+
+/*
+ *  Global variables
+ */
+static int	exit_status;
+static int	outarchvers = -1;		/* version of output archive */
+static int	first_datarec = 1;		/* first record flag */
+static int	pre_startwin = 1;		/* outside time win flag */
+static int	written;			/* num log writes so far */
+int		ml_numpmid;			/* num pmid in ml list */
+int		ml_size;			/* actual size of ml array */
+mlist_t		*ml;				/* list of pmids with indoms */
+rlist_t		*rl;				/* list of __pmResults */
+int		skip_ml_numpmid;		/* num entries in skip_ml list */
+pmID		*skip_ml;
+
+
+off_t		new_log_offset;			/* new log offset */
+off_t		new_meta_offset;		/* new meta offset */
+off_t		old_log_offset;			/* old log offset */
+off_t		old_meta_offset;		/* old meta offset */
+static off_t	flushsize = 100000;		/* bytes before flush */
+
+
+/* archive control stuff */
+char			*outarchname;	/* name of output archive */
+static __pmLogCtl	logctl;		/* output log control */
+static __pmArchCtl	archctl;	/* output archive control */
+inarch_t		*inarch;	/* input archive control(s) */
+int			inarchnum;	/* number of input archives */
+
+int			ilog;		/* index of earliest log */
+
+static __pmHashCtl	rdesc;		/* meta desc records to be written */
+static __pmHashCtl	rindom;		/* meta indom records to be written */
+static __pmHashCtl	rindomoneline;	/* indom oneline records to be written */
+static __pmHashCtl	rindomtext;	/* indom text records to be written */
+static __pmHashCtl	rpmidoneline;	/* pmid oneline records to be written */
+static __pmHashCtl	rpmidtext;	/* pmid text records to be written */
+static __pmHashCtl	rlabelset;	/* label sets to be written */
+
+static __pmTimestamp	curlog;		/* most recent timestamp in log */
+static __pmTimestamp	current;	/* most recent timestamp overall */
+
+/* time window stuff */
+static struct timeval logstart_tv;	/* extracted log start */
+static struct timeval logend_tv;	/* extracted log end */
+static struct timeval winstart_tv;	/* window start tval*/
+static struct timeval winend_tv;	/* window end tval*/
+
+static __pmTimestamp	logstart;		/* real earliest start time */
+static __pmTimestamp	logend;
+static __pmTimestamp	winstart = {-1,0};	/* window start time */
+static __pmTimestamp	winend = {-1,0};	/* window end time */
+static __pmTimestamp	logend = {-1,0};	/* log end time */
+
+/* command line args */
+char	*configfile;			/* -c arg - name of config file */
+int	farg;				/* -f arg - use first timezone */
+int	old_mark_logic;			/* -m arg - <mark> b/n archives */
+int	sarg = -1;			/* -s arg - finish after X samples */
+char	*Sarg;				/* -S arg - window start */
+char	*Targ;				/* -T arg - window end */
+int	varg = -1;			/* -v arg - switch log vol every X */
+int	warg;				/* -w arg - ignore day/month/year */
+int	xarg;				/* -x arg - skip metrics with mismatched metadata */
+int	zarg;				/* -z arg - use archive timezone */
+char	*tz;				/* -Z arg - use timezone from user */
+
+/* cmd line args that could exist, but don't (needed for pmParseTimeWin) */
+char	*Aarg;				/* -A arg - non-existent */
+char	*Oarg;				/* -O arg - non-existent */
+
+/*--- START FUNCTIONS -------------------------------------------------------*/
+
+/*
+ * fatal error, dump state of input and output streams
+ */
+void
+dump_state(void)
+{
+    int		i;
+
+    for (i = 0; i < inarchnum; i++) {
+	fprintf(stderr, "in [%d] %s: LOG PDU", i, inarch[i].name);
+	if (inarch[i].pb[LOG] == NULL)
+	    fprintf(stderr, " NULL");
+	else
+	    fprintf(stderr, " %p", inarch[i].pb[LOG]);
+	fprintf(stderr, " META PDU");
+	if (inarch[i].pb[META] == NULL)
+	    fprintf(stderr, " NULL");
+	else
+	    fprintf(stderr, " %p", inarch[i].pb[META]);
+	fprintf(stderr, " result");
+	if (inarch[i]._result == NULL)
+	    fprintf(stderr, " NULL");
+	else
+	    fprintf(stderr, " %p", inarch[i]._result);
+	fprintf(stderr, " Nresult");
+	if (inarch[i]._Nresult == NULL)
+	    fprintf(stderr, " NULL");
+	else
+	    fprintf(stderr, " %p", inarch[i]._Nresult);
+	fprintf(stderr, " laststamp ");
+	__pmPrintTimestamp(stderr, &inarch[i].laststamp);
+	fprintf(stderr, " mark %d", inarch[i].mark);
+	fprintf(stderr, " LOG eof %d META eof %d", inarch[i].eof[LOG], inarch[i].eof[META]);
+	fprintf(stderr, " recnum %d pmcd_pid %" FMT_INT64 " pmcd_seqnum %d\n",
+	    inarch[i].recnum, inarch[i].pmcd_pid, inarch[i].pmcd_seqnum);
+    }
+
+    fprintf(stderr, "out %s: version %d written %d\n", 
+	outarchname, outarchvers, written);
+}
+
+/*
  * extract metric name(s) from metadata pdu buffer
  */
 void
@@ -229,119 +362,6 @@ printsem(FILE *f, int sem)
 	    break;
     }
 }
-
-/*
- *  global constants
- */
-#define NUM_SEC_PER_DAY		86400
-
-#define NOT_WRITTEN		0
-#define MARK_FOR_WRITE		1
-#define WRITTEN			2
-
-/*
- *  reclist_t is in logger.h
- *	(list of pdu's to write out at start of time window)
- */
-
-/*
- *  Input archive control is in logger.h
- */
-
-/*
- *  Mark records
- */
-typedef struct {
-    __int32_t		len;
-    __int32_t		type;
-    __int32_t		from;
-    __int32_t		sec;
-    __int32_t		usec;
-    __int32_t		numpmid;	/* zero PMIDs to follow */
-} mark2_t;
-
-typedef struct {
-    __int32_t		len;
-    __int32_t		type;
-    __int32_t		from;
-    __int32_t		sec[2];
-    __int32_t		nsec;
-    __int32_t		numpmid;
-} mark3_t;
-
-/*
- *  Global variables
- */
-static int	exit_status;
-static int	outarchvers = -1;		/* version of output archive */
-static int	first_datarec = 1;		/* first record flag */
-static int	pre_startwin = 1;		/* outside time win flag */
-static int	written;			/* num log writes so far */
-int		ml_numpmid;			/* num pmid in ml list */
-int		ml_size;			/* actual size of ml array */
-mlist_t		*ml;				/* list of pmids with indoms */
-rlist_t		*rl;				/* list of __pmResults */
-int		skip_ml_numpmid;		/* num entries in skip_ml list */
-pmID		*skip_ml;
-
-
-off_t		new_log_offset;			/* new log offset */
-off_t		new_meta_offset;		/* new meta offset */
-off_t		old_log_offset;			/* old log offset */
-off_t		old_meta_offset;		/* old meta offset */
-static off_t	flushsize = 100000;		/* bytes before flush */
-
-
-/* archive control stuff */
-char			*outarchname;	/* name of output archive */
-static __pmLogCtl	logctl;		/* output log control */
-static __pmArchCtl	archctl;	/* output archive control */
-inarch_t		*inarch;	/* input archive control(s) */
-int			inarchnum;	/* number of input archives */
-
-int			ilog;		/* index of earliest log */
-
-static __pmHashCtl	rdesc;		/* meta desc records to be written */
-static __pmHashCtl	rindom;		/* meta indom records to be written */
-static __pmHashCtl	rindomoneline;	/* indom oneline records to be written */
-static __pmHashCtl	rindomtext;	/* indom text records to be written */
-static __pmHashCtl	rpmidoneline;	/* pmid oneline records to be written */
-static __pmHashCtl	rpmidtext;	/* pmid text records to be written */
-static __pmHashCtl	rlabelset;	/* label sets to be written */
-
-static __pmTimestamp	curlog;		/* most recent timestamp in log */
-static __pmTimestamp	current;	/* most recent timestamp overall */
-
-/* time window stuff */
-static struct timeval logstart_tv;	/* extracted log start */
-static struct timeval logend_tv;	/* extracted log end */
-static struct timeval winstart_tv;	/* window start tval*/
-static struct timeval winend_tv;	/* window end tval*/
-
-static __pmTimestamp	logstart;		/* real earliest start time */
-static __pmTimestamp	logend;
-static __pmTimestamp	winstart = {-1,0};	/* window start time */
-static __pmTimestamp	winend = {-1,0};	/* window end time */
-static __pmTimestamp	logend = {-1,0};	/* log end time */
-
-/* command line args */
-char	*configfile;			/* -c arg - name of config file */
-int	farg;				/* -f arg - use first timezone */
-int	old_mark_logic;			/* -m arg - <mark> b/n archives */
-int	sarg = -1;			/* -s arg - finish after X samples */
-char	*Sarg;				/* -S arg - window start */
-char	*Targ;				/* -T arg - window end */
-int	varg = -1;			/* -v arg - switch log vol every X */
-int	warg;				/* -w arg - ignore day/month/year */
-int	xarg;				/* -x arg - skip metrics with mismatched metadata */
-int	zarg;				/* -z arg - use archive timezone */
-char	*tz;				/* -Z arg - use timezone from user */
-
-/* cmd line args that could exist, but don't (needed for pmParseTimeWin) */
-char	*Aarg;				/* -A arg - non-existent */
-char	*Oarg;				/* -O arg - non-existent */
-
-/*--- START FUNCTIONS -------------------------------------------------------*/
 
 void
 abandon_extract(void)
@@ -1224,6 +1244,7 @@ write_rec(reclist_t *rec)
 	if (rec->pdu == NULL) {
 	    fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
 	    fprintf(stderr,"    record is marked for write, but pdu is NULL\n");
+	    dump_state();
 	    abandon_extract();
 	    /*NOTREACHED*/
 	}
@@ -1663,69 +1684,6 @@ write_metareclist(__pmResult *result, int *needti)
 
 /* --- End of reclist functions --- */
 
-/*
- *  create mark records
- */
-__int32_t *
-_createmark2(void)
-{
-    mark2_t	*markp;
-    __pmTimestamp	stamp = { 0, 1000000 };		/* 1msec */
-
-    /*
-     * add space for trailer in case __pmLogPutResult2() is called with
-     * this PDU buffer
-     */
-    markp = (mark2_t *)malloc(sizeof(mark2_t)+sizeof(int));
-    if (markp == NULL) {
-	fprintf(stderr, "%s: Error: mark2_t malloc: %s\n",
-		pmGetProgname(), osstrerror());
-	abandon_extract();
-	/*NOTREACHED*/
-    }
-    if (pmDebugOptions.appl1) {
-        totalmalloc += sizeof(mark2_t);
-        fprintf(stderr, "_createmark2: allocated %d\n", (int)sizeof(mark2_t));
-    }
-
-    markp->len = (int)sizeof(mark2_t);
-    markp->type = markp->from = 0;
-    __pmTimestampInc(&stamp, &current);
-    __pmPutTimeval(&stamp, &markp->sec);
-    markp->numpmid = 0;
-    return((__int32_t *)markp);
-}
-
-__int32_t *
-_createmark3(void)
-{
-    mark3_t		*markp;
-    __pmTimestamp	stamp = { 0, 1000000 };		/* 1msec */
-
-    /*
-     * add space for trailer in case __pmLogPutResult3() is called with
-     * this PDU buffer
-     */
-    markp = (mark3_t *)malloc(sizeof(mark3_t)+sizeof(int));
-    if (markp == NULL) {
-	fprintf(stderr, "%s: Error: mark3_t malloc: %s\n",
-		pmGetProgname(), osstrerror());
-	abandon_extract();
-	/*NOTREACHED*/
-    }
-    if (pmDebugOptions.appl1) {
-        totalmalloc += sizeof(mark3_t);
-        fprintf(stderr, "_createmark3: allocated %d\n", (int)sizeof(mark3_t));
-    }
-
-    markp->len = (int)sizeof(mark3_t);
-    markp->type = markp->from = 0;
-    __pmTimestampInc(&stamp, &current);
-    __pmPutTimestamp(&stamp, &markp->sec[0]);
-    markp->numpmid = 0;
-    return((__int32_t *)markp);
-}
-
 void
 checklogtime(__pmTimestamp *this, int indx)
 {
@@ -1769,6 +1727,7 @@ nextmeta(void)
 	if (iap->pb[META] != NULL) {
 	    fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
 	    fprintf(stderr, "    iap->pb[META] is not NULL\n");
+	    dump_state();
 	    abandon_extract();
 	    /*NOTREACHED*/
 	}
@@ -2125,17 +2084,15 @@ nextlog(void)
 	    continue;
 	}
 
+	/* at eof, but not yet done <mark> record, nothing to do here */
+	if (iap->mark)
+	    continue;
+
 	/* if we already have a log record then skip this archive */
 	if (iap->_Nresult != NULL) {
 	    continue;
 	}
 
-	/* if mark has been written out, then log is at EOF */
-	if (iap->mark) {
-	    iap->eof[LOG] = 1;
-	    ++eoflog;
-	    continue;
-	}
 
 	if ((ctxp = __pmHandleToPtr(iap->ctx)) == NULL) {
 	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmGetProgname(), iap->ctx);
@@ -2156,26 +2113,23 @@ againlog:
 		    /*NOTREACHED*/
 	    }
 	    /*
-	     * if the first data record has not been written out, then
-	     * do not generate a mark record, and you may as well ignore
-	     * this archive
+	     * if the first data record has not been written out, then do
+	     * not generate a <mark> record, and you may as well ignore
+	     * this archive, else get ready for a <mark> records
 	     */
 	    if (first_datarec) {
-		iap->mark = 1;
 		iap->eof[LOG] = 1;
 		++eoflog;
 	    }
-	    else if (outarchvers == PM_LOG_VERS03) {
+	    else {
 		iap->mark = 1;
-		iap->pb[LOG] = _createmark3();
-	    }
-	    else if (outarchvers == PM_LOG_VERS02) {
-		iap->mark = 1;
-		iap->pb[LOG] = _createmark2();
+		iap->pb[LOG] = NULL;
 	    }
 	    PM_UNLOCK(ctxp->c_lock);
 	    continue;
 	}
+	else
+	    iap->laststamp = iap->_result->timestamp;	/* struct assignment */
 	iap->recnum++;
 	assert(iap->_result != NULL);
 
@@ -2556,14 +2510,17 @@ checkwinend(__pmTimestamp *tsp)
 	}
     }
 
-    /* must create "mark" record and write it out */
-    /* (need only one mark record) */
+    /*
+     * after 24-hr window roll we must create a <mark> record and
+     * write it out
+     */
     if ((sts = __pmLogWriteMark(&archctl, &current, &msec)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogWriteMark: log data: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	abandon_extract();
 	/*NOTREACHED*/
     }
+    __pmTimestampInc(&current, &msec);
     written++;
     return(1);
 }
@@ -2728,76 +2685,6 @@ writerlist(rlist_t **rlready, __pmTimestamp *mintime)
     }
 }
 
-/*
- *  mark record has been created and assigned to iap->pb[LOG]
- *  write it out (version 3 log variant)
- */
-static void
-writemark3(inarch_t *iap)
-{
-    int		sts;
-    mark3_t      *p = (mark3_t *)iap->pb[LOG];
-
-    if (!iap->mark) {
-	fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
-	fprintf(stderr, "    writemark3 called, but mark not set\n");
-	abandon_extract();
-	/*NOTREACHED*/
-    }
-
-    if (p == NULL) {
-	fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
-	fprintf(stderr, "    writemark3 called, but no pdu\n");
-	abandon_extract();
-	/*NOTREACHED*/
-    }
-
-    if ((sts = __pmLogPutResult3(&archctl, (__pmPDU *)iap->pb[LOG])) < 0) {
-	fprintf(stderr, "%s: Error: __pmLogPutResult3: log data: %s\n",
-		pmGetProgname(), pmErrStr(sts));
-	abandon_extract();
-	/*NOTREACHED*/
-    }
-    written++;
-    free(iap->pb[LOG]);
-    iap->pb[LOG] = NULL;
-}
-
-/*
- *  mark record has been created and assigned to iap->pb[LOG]
- *  write it out (version 2 log variant)
- */
-static void
-writemark2(inarch_t *iap)
-{
-    int		sts;
-    mark2_t      *p = (mark2_t *)iap->pb[LOG];
-
-    if (!iap->mark) {
-	fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
-	fprintf(stderr, "    writemark2 called, but mark not set\n");
-	abandon_extract();
-	/*NOTREACHED*/
-    }
-
-    if (p == NULL) {
-	fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
-	fprintf(stderr, "    writemark2 called, but no pdu\n");
-	abandon_extract();
-	/*NOTREACHED*/
-    }
-
-    if ((sts = __pmLogPutResult2(&archctl, (__pmPDU *)iap->pb[LOG])) < 0) {
-	fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
-		pmGetProgname(), pmErrStr(sts));
-	abandon_extract();
-	/*NOTREACHED*/
-    }
-    written++;
-    free(iap->pb[LOG]);
-    iap->pb[LOG] = NULL;
-}
-
 static int
 do_not_need_mark(inarch_t *iap)
 {
@@ -2854,7 +2741,6 @@ main(int argc, char **argv)
     __pmTimestamp	mintime = {0,0};
     __pmTimestamp	tmptime = {0,0};
 
-    __pmTimestamp	tstamp;		/* temporary timestamp */
     inarch_t		*iap;		/* ptr to archive control */
     rlist_t		*rlready = NULL;	/* results ready for writing */
 
@@ -3196,7 +3082,7 @@ main(int argc, char **argv)
 	    if (inarch[indx]._Nresult != NULL) {
 		checklogtime(&inarch[indx]._Nresult->timestamp, indx);
 		if (pmDebugOptions.appl2) {
-		    fprintf(stderr, "result [%d] stamp ", ilog);
+		    fprintf(stderr, "result [%d] stamp ", indx);
 		    __pmPrintTimestamp(stderr, &inarch[indx]._Nresult->timestamp);
 		    fputc('\n', stderr);
 		}
@@ -3207,23 +3093,13 @@ main(int argc, char **argv)
 		        mintime = tmptime;
 		}
 	    }
-	    else if (inarch[indx].pb[LOG] != NULL) {
-		/*
-		 * Note:
-		 *	this is going to be a <mark> record, but the
-		 *	PDU buffer is already loaded with the record
-		 *	in the correct OUTPUT format, so use that version
-		 *	not the input archive version.
-		 */
-		if (outarchvers >= PM_LOG_VERS03)
-		    __pmLoadTimestamp(&inarch[indx].pb[LOG][3], &tstamp);
-		else
-		    __pmLoadTimeval(&inarch[indx].pb[LOG][3], &tstamp);
-
-		checklogtime(&tstamp, indx);
+	    else if (inarch[indx].mark) {
+		checklogtime(&inarch[indx].laststamp, indx);
 		if (pmDebugOptions.appl2) {
-		    fprintf(stderr, "PDU [%d] stamp ", ilog);
-		    __pmPrintTimestamp(stderr, &tstamp);
+		    fprintf(stderr, "mark [%d] ", indx);
+		    __pmPrintTimestamp(stderr, &inarch[indx].laststamp);
+		    if (indx == ilog)
+			fprintf(stderr, " (ilog)");
 		    fputc('\n', stderr);
 		}
 
@@ -3234,6 +3110,7 @@ main(int argc, char **argv)
 		}
 	    }
 	}
+
 	if (pmDebugOptions.appl2) {
 	    fprintf(stderr, "pick [%d] curlog ", ilog);
 	    __pmPrintTimestamp(stderr, &curlog);
@@ -3261,7 +3138,7 @@ main(int argc, char **argv)
 	}
 
 	/*
-	 * note - mark (after last archive) will be created, but this
+	 * note - mark (after last archive) will be setup, but this
 	 * break, will prevent it from being written out
 	 */
 	if (__pmTimestampCmp(&now, &logend) > 0) {
@@ -3295,6 +3172,7 @@ main(int argc, char **argv)
 	if (ilog < 0 || ilog >= inarchnum) {
 	    fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
 	    fprintf(stderr, "    log file index = %d\n", ilog);
+	    dump_state();
 	    abandon_extract();
 	    /*NOTREACHED*/
 	}
@@ -3303,19 +3181,50 @@ main(int argc, char **argv)
 	iap = &inarch[ilog];
 	if (iap->mark) {
 	    if (do_not_need_mark(iap)) {
-		free(iap->pb[LOG]);
-		iap->pb[LOG] = NULL;
+		;
 	    }
-	    else if (outarchvers == PM_LOG_VERS03)
-		writemark3(iap);
-	    else if (outarchvers == PM_LOG_VERS02)
-		writemark2(iap);
+	    else {
+		/*
+		 * if we are NOT the last input archive, then output
+		 * a <mark> record
+		 */
+		 int	i;
+		 int	last = 1;
+		 for (i = 0; i < inarchnum; i++) {
+		    if (i == ilog)
+			continue;
+		    if (!inarch[i].eof[LOG]) {
+			last = 0;
+			break;
+		    }
+		}
+		if (!last) {
+		    /*
+		     * really write <mark> after end of an input archive
+		     */
+		    __pmTimestamp	msec = { 0, 1000000 };		/* 1msec */
+		    __pmTimestampInc(&iap->laststamp, &msec);
+		    if ((sts = __pmLogWriteMark(&archctl, &iap->laststamp, NULL)) < 0) {
+			fprintf(stderr, "%s: __pmLogWriteMark failed: %s\n",
+				pmGetProgname(), pmErrStr(sts));
+			exit_status = 1;
+			goto cleanup;
+		    }
+		    current = iap->laststamp;
+		    written++;
+		}
+	    }
+
+	    /* once mark has been processes, then log is at EOF */
+	    iap->mark = 0;
+	    iap->eof[LOG] = 1;
 	}
 	else {
 	    /* result is to be written out, but there is no _Nresult */
 	    if (iap->_Nresult == NULL) {
 		fprintf(stderr, "%s: Fatal Error!\n", pmGetProgname());
 		fprintf(stderr, "    pick == LOG and _Nresult = NULL\n");
+		dump_state();
 		abandon_extract();
 		/*NOTREACHED*/
 	    }
@@ -3337,7 +3246,6 @@ main(int argc, char **argv)
 	     * writerlist frees elm (elements of rlready) but does not
 	     * free _result & _Nresult
 	     *
-	     * free _result & _Nresult
 	     *	_Nresult may contain space that was allocated
 	     *	in __pmStuffValue this space has PM_VAL_SPTR format,
 	     *	and has to be freed first
