@@ -3344,7 +3344,7 @@ PCP_LOG_DIR=%{_logsdir}
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Wed Mar 30 2022 Nathan Scott <nathans@redhat.com> - 6.0.0-1
+* Fri Jul 01 2022 Nathan Scott <nathans@redhat.com> - 6.0.0-1
 - https://github.com/performancecopilot/pcp/projects/1
 
 * Wed Nov 10 2021 Nathan Scott <nathans@redhat.com> - 5.3.5-1
