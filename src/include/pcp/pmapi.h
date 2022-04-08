@@ -724,6 +724,7 @@ PCP_CALL extern int pmHighResSetMode(int, const struct timespec *, const struct 
 
 /* Modify the value of one or more metrics */
 PCP_CALL extern int pmStore(const pmResult *);
+PCP_CALL extern int pmHighResStore(const pmHighResResult *);
 
 /* Get help and descriptive text */
 PCP_CALL extern int pmLookupText(pmID, int, char **);

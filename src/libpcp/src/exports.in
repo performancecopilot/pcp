@@ -804,6 +804,7 @@ PCP_3.37 {
     pmExtendFetchGroup_timeval;
     pmGetHighResArchiveLabel;
     pmGetHighResArchiveEnd;
+    pmHighResStore;
     pmHighResSetMode;
     pmHighResFetchArchive;
     pmHighResSortInstances;
@@ -838,4 +839,3 @@ PCP_3.37 {
     __pmFreeLogInDom_io;
     __pmLogEncodeLabels;
 } PCP_3.36;
-
