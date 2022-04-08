@@ -1,12 +1,12 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2012-2016 Red Hat Inc.
+# Copyright (C) 2012-2016,2022 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -99,13 +99,13 @@ def test_pcp(self):
     except pmapi.pmErr as error:
         self.assertTrue(False)
 
-    # pmFetch
+    # pmHighResFetch
     try:
-        results = ctx.pmFetch(self.ncpu_id)
-        print("pmFetch:", results)
+        results = ctx.pmHighResFetch(self.ncpu_id)
+        print("pmHighResFetch:", results)
         self.assertTrue(True)
     except pmapi.pmErr as error:
-        print("pmFetch: ", error)
+        print("pmHighResFetch: ", error)
         self.assertTrue(False)
 
     # pmExtractValue
@@ -301,13 +301,13 @@ def test_pcp(self):
         print("pmAddProfile: ", error)
         self.assertTrue(False)
 
-    # pmParseInterval
+    # pmParseHighResInterval
     try:
-        (delta, errmsg) = ctx.pmParseInterval("3 seconds")
-        print("pmParseInterval:", delta)
+        (delta, errmsg) = ctx.pmParseHighResInterval("3 seconds")
+        print("pmParseHighResInterval:", delta)
         self.assertTrue(True)
     except pmapi.pmErr as error:
-        print("pmFetch: ", error)
+        print("pmParseHighResInterval: ", error)
         self.assertTrue(False)
 
     # pmParseUnitsStr
@@ -346,29 +346,29 @@ def test_pcp(self):
         print("pmParseUnitsStr: ", error)
         self.assertTrue(True)
 
-    # pmFetch
+    # pmHighResFetch
     try:
-        results = ctx.pmFetch(self.metric_ids)
-        print("pmFetch:", results)
+        results = ctx.pmHighResFetch(self.metric_ids)
+        print("pmHighResFetch:", results)
         self.assertTrue(True)
     except pmapi.pmErr as error:
-        print("pmFetch: ", error)
+        print("pmHighResFetch: ", error)
         self.assertTrue(False)
 
-    # pmSortInstances
+    # pmHighResSortInstances
     try:
-        ctx.pmSortInstances(results)
-        print("pmSortInstances: ok")
+        ctx.pmHighResSortInstances(results)
+        print("pmHighResSortInstances: ok")
     except pmapi.pmErr as error:
-        print("pmSortInstances: ", error)
+        print("pmHighResSortInstances: ", error)
         self.assertTrue(False)
 
-    # pmStore
+    # pmHighResStore
     try:
-        ctx.pmStore(results)
+        ctx.pmHighResStore(results)
         self.assertTrue(False)
     except pmapi.pmErr as error:
-        print("pmStore: ", error)
+        print("pmHighResStore: ", error)
         self.assertTrue(True)
 
     for i in range(results.contents.numpmid):
@@ -412,9 +412,9 @@ def test_pcp(self):
     semstr = ctx.pmSemStr(api.PM_SEM_COUNTER)
     print("pmSemStr", semstr)
 
-    # pmtimevalSleep
-    ctx.pmtimevalSleep(delta)
-    print("pmtimevalSleep")
+    # pmtimespecSleep
+    ctx.pmtimespecSleep(delta)
+    print("pmtimespecSleep")
 
     # pmDupContext
     context = ctx.pmDupContext()
@@ -438,30 +438,29 @@ def test_pcp(self):
     if self.archive_type:
         # pmSetMode
         try:
-            ctx.pmSetMode(api.PM_MODE_INTERP, results.contents.timestamp, 0)
-            print("pmSetMode: ok")
+            ctx.pmHighResSetMode(api.PM_MODE_INTERP, results.contents.timestamp, 0)
+            print("pmHighResSetMode: ok")
             self.assertTrue(True)
         except pmapi.pmErr as error:
-            print("pmSetMode: ", error)
+            print("pmHighResSetMode: ", error)
             self.assertTrue(False)
-
 
         # pmGetArchiveLabel
         try:
-            loglabel = ctx.pmGetArchiveLabel()
-            print("pmGetArchiveLabel: ok")
+            loglabel = ctx.pmGetHighResArchiveLabel()
+            print("pmGetHighResArchiveLabel: ok")
             self.assertTrue(True)
         except pmapi.pmErr as error:
-            print("pmGetArchiveLabel: ", error)
+            print("pmGetHighResArchiveLabel: ", error)
             self.assertTrue(False)
 
         # pmGetArchiveEnd
         try:
-            tval = ctx.pmGetArchiveEnd()
-            print("pmGetArchiveEnd: ", tval)
+            tval = ctx.pmGetHighResArchiveEnd()
+            print("pmGetHighResArchiveEnd: ", tval)
             self.assertTrue(True)
         except pmapi.pmErr as error:
-            print("pmGetArchiveEnd: ", error)
+            print("pmGetHighResArchiveEnd: ", error)
             self.assertTrue(False)
 
     # pmPrintValue
@@ -488,9 +487,9 @@ def test_pcp(self):
                 "sample.double.bin * delta(sample.double.bin_ctr)")
         average = ctx.pmLookupName("pcpqa.derivation")
         descs = ctx.pmLookupDescs(average)
-        results = ctx.pmFetch(average)
-        ctx.pmtimevalSleep(delta)
-        results = ctx.pmFetch(average)
+        results = ctx.pmHighResFetch(average)
+        ctx.pmtimespecSleep(delta)
+        results = ctx.pmHighResFetch(average)
         atom = ctx.pmExtractValue(results.contents.get_valfmt(0),
                                       results.contents.get_vlist(0, 0),
                                       descs[0].contents.type,
@@ -506,8 +505,8 @@ def test_pcp(self):
         self.assertTrue(True)
 
     # pmFreeResult
-    ctx.pmFreeResult(results)
-    print("pmFreeResult")
+    ctx.pmFreeHighResResult(results)
+    print("pmFreeHighResResult")
 
     del ctx
 
