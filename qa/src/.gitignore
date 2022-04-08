@@ -252,6 +252,7 @@ unpack
 unpickargs
 units-parse
 username
+wait_for_values
 whichtimezone
 wrap_int
 write-bf

@@ -1997,6 +1997,7 @@ x11
 1897 pmda.hacluster local valgrind
 1898 pmda.bpf local
 1899 fetch local
+1900 pmda.bpf local valgrind
 1901 pmlogger local
 1902 help local
 1914 atop local
