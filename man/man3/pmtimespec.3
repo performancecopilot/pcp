@@ -14,45 +14,45 @@
 .\" for more details.
 .\"
 .\"
-.TH PMTIMEVALNOW 3 "PCP" "Performance Co-Pilot"
+.TH PMTIMESPECNOW 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmtimevalNow\f1,
-\f3pmtimevalInc\f1,
-\f3pmtimevalDec\f1,
-\f3pmtimevalAdd\f1,
-\f3pmtimevalSub\f1,
-\f3pmtimevalToReal\f1,
-\f3pmtimevalFromReal\f1,
-\f3pmPrintStamp\f1 \- helper routines for time stored as a struct timeval
+\f3pmtimespecNow\f1,
+\f3pmtimespecInc\f1,
+\f3pmtimespecDec\f1,
+\f3pmtimespecAdd\f1,
+\f3pmtimespecSub\f1,
+\f3pmtimespecToReal\f1,
+\f3pmtimespecFromReal\f1,
+\f3pmPrintHighResStamp\f1 \- helper routines for time stored as a struct timespec
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-void pmtimevalNow(struct timeval *\fItv\fP);
+void pmtimespecNow(struct timespec *\fItp\fP);
 .br
-void pmtimevalInc(struct timeval *\fIap\fP, const struct timeval *\fIbp\fP);
+void pmtimespecInc(struct timespec *\fIap\fP, const struct timespec *\fIbp\fP);
 .br
-void pmtimevalDec(struct timeval *\fIap\fP, const struct timeval *\fIbp\fP);
+void pmtimespecDec(struct timespec *\fIap\fP, const struct timespec *\fIbp\fP);
 .br
-double pmtimevalAdd(const struct timeval *\fIap\fP, const struct timeval *\fIbp\fP);
+double pmtimespecAdd(const struct timespec *\fIap\fP, const struct timespec *\fIbp\fP);
 .br
-double pmtimevalSub(const struct timeval *\fIap\fP, const struct timeval *\fIbp\fP);
+double pmtimespecSub(const struct timespec *\fIap\fP, const struct timespec *\fIbp\fP);
 .br
-double pmtimevalToReal(const struct timeval *\fIval\fP);
+double pmtimespecToReal(const struct timespec *\fItp\fP);
 .br
-void pmtimevalFromReal(double \fIsecs\fP, struct timeval *\fIval\fP);
+void pmtimespecFromReal(double \fIsecs\fP, struct timespec *\fItp\fP);
 .br
-void pmPrintStamp(FILE *\fIf\fP, const struct timeval *\fItp\fP);
+void pmPrintHighResStamp(FILE *\fIf\fP, const struct timespec *\fItp\fP);
 .sp
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-.B pmtimevalNow
+.B pmtimespecNow
 is a platform-independent method that returns the current system time
 since the Epoch in
-.IR tv .
+.IR tp .
 .PP
-.B pmtimevalInc
+.B pmtimespecInc
 adds the time in
 .I ap
 to the time in
@@ -60,7 +60,7 @@ to the time in
 and stores the result in
 .IR ap .
 Similarly
-.B pmtimevalDec
+.B pmtimespecDec
 subtracts the time in
 .I bp
 from the time in
@@ -68,40 +68,38 @@ from the time in
 and stores the result in
 .IR ap .
 .PP
-.B pmtimevalAdd
+.B pmtimespecAdd
 (and
-.BR pmtimevalSub )
+.BR pmtimespecSub )
 add (and subtract) times and return the result as a double value.
 The time in the
 .I ap
 argument is not changed.
 .PP
-.B pmtimevalToReal
+.B pmtimespecToReal
 converts the time in
 .I tp
 to an equivalent double value.
-.B pmtimevalFromReal
+.B pmtimespecFromReal
 provides the reverse conversion, taking the time in
 .I secs
 and returning the equivalent time in
-.IR val .
+.IR tp .
 .PP
-.B pmPrintStamp
+.B pmPrintHighResStamp
 prints the timestamp from
 .I tp
 on the stream
 .I f
 in the local time (as returned by
 .BR pmLocaltime (3))
-in the format HH:MM:SS.XXX.
+in the format HH:MM:SS.XXXXXXXXX.
 .SH NOTES
-For variants of these interfaces using nanosecond precision
-and the timespec structure, refer to
-.BR pmtimespecNow (3).
+For variants of these interfaces using microsecond precision
+and the timeval structure, refer to
+.BR pmtimevalNow (3).
 .SH SEE ALSO
-.BR gettimeofday (2),
-.BR time (2),
 .BR PMAPI (3),
 .BR pmLocaltime (3)
 and
-.BR pmtimespecNow (3).
+.BR pmtimevalNow (3).

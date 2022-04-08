@@ -32,16 +32,20 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _service pmcd restart 2>&1 >> $seq.full
 # in a known clean systemd service state now
 _wait_for_pmcd
+pmcdpid=`_get_pids_by_name pmcd`
 
 # add a process to the pmcd service cgroup
 pmpause >/dev/null 2>&1 &
 pid=$!
 echo pid=$pid >> $seq.full
+echo cgroup=`cat /proc/$pid/cgroup` >> $seq.full
 $sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; migrate_pid_service -v $pid pmcd.service" 2>&1 >> $seq.full
 
 echo pmsleep >> $seq.full
 pmsleep 2
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS >> $seq.full
+echo new cgroup=`cat /proc/$pid/cgroup` >> $seq.full
+echo pmcd cgroup=`cat /proc/$pmcdpid/cgroup` >> $seq.full
 
 if systemctl status pmcd.service 2>&1 | tee -a $tmp.sts | grep -q -s pmpause
 then

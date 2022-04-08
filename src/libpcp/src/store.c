@@ -173,3 +173,36 @@ pmStore(const pmResult *rp)
     __pmFreeResult(newrp);
     return sts;
 }
+
+int
+pmHighResStore(const pmHighResResult *rp)
+{
+    __pmResult	*newrp;
+    int		i, sts;
+
+    /*
+     * Create a small internal result structure (wrapper)
+     * to interface the caller-provided structure to the
+     * rest of libpcp.  It's thrown away on completion,
+     * but provides correct format and alignment.
+     */
+    if ((newrp = __pmAllocResult(rp->numpmid)) == NULL) {
+	pmNoMem("pmHighResStore: newrp", sizeof(__pmResult) + (rp->numpmid - 1) * sizeof(pmValueSet *), PM_RECOV_ERR);
+	return -ENOMEM;
+    }
+
+    newrp->numpmid = rp->numpmid;
+    newrp->timestamp.sec = rp->timestamp.tv_sec;
+    newrp->timestamp.nsec = rp->timestamp.tv_nsec;
+
+    /* thin wrapper to alloc less - use callers structure */
+    for (i = 0; i < rp->numpmid; i++)
+	newrp->vset[i] = rp->vset[i];
+
+    sts = pmStore_ctx(NULL, newrp);
+
+    /* make sure to not free within the callers structure */
+    newrp->numpmid = 0;
+    __pmFreeResult(newrp);
+    return sts;
+}

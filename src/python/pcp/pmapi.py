@@ -549,21 +549,50 @@ class pmResult(Structure):
         """ Return the inst for vlist[vlist_idx] of vset[vset_idx] """
         return self.get_vlist(vset_idx, vlist_idx).inst
 
-class pmHighResResult(pmResult):
-    """Structure returned by pmHighResFetch - a pmResult but with a timespec
+class pmHighResResult(Structure):
+    """Structure returned by pmHighResFetch, uses struct timespec for time
     """
     _fields_ = [("timestamp", timespec),
                 ("numpmid", c_int),
                 # array N of pointer to pmValueSet
                 ("vset", (POINTER(pmValueSet)) * 1)]
     def __init__(self):
-        pmResult.__init__(self)
+        Structure.__init__(self)
         self.numpmid = 0
 
     def __str__(self):
         vals = range(self.numpmid)
         vstr = str([" %s" % str(self.vset[i].contents) for i in vals])
         return "pmHighResResult@%#lx id#=%d " % (addressof(self), self.numpmid) + vstr
+
+    def get_pmid(self, vset_idx):
+        """ Return the pmid of vset[vset_idx] """
+        vsetptr = cast(self.vset, POINTER(pmValueSetPtr))
+        return vsetptr[vset_idx].contents.pmid
+
+    def get_valfmt(self, vset_idx):
+        """ Return the valfmt of vset[vset_idx] """
+        vsetptr = cast(self.vset, POINTER(POINTER(pmValueSet)))
+        return vsetptr[vset_idx].contents.valfmt
+
+    def get_numval(self, vset_idx):
+        """ Return the numval of vset[vset_idx] """
+        vsetptr = cast(self.vset, POINTER(POINTER(pmValueSet)))
+        return vsetptr[vset_idx].contents.numval
+
+    def get_vset(self, vset_idx):
+        """ Return the vset[vset_idx] """
+        vsetptr = cast(self.vset, POINTER(POINTER(pmValueSet)))
+        return vsetptr[vset_idx]
+
+    def get_vlist(self, vset_idx, vlist_idx):
+        """ Return the vlist[vlist_idx] of vset[vset_idx] """
+        listptr = cast(self.get_vset(vset_idx).contents.vlist, POINTER(pmValue))
+        return listptr[vlist_idx]
+
+    def get_inst(self, vset_idx, vlist_idx):
+        """ Return the inst for vlist[vlist_idx] of vset[vset_idx] """
+        return self.get_vlist(vset_idx, vlist_idx).inst
 
 pmID = c_uint
 pmInDom = c_uint
@@ -848,6 +877,9 @@ LIBPCP.pmFreeHighResResult.argtypes = [POINTER(pmHighResResult)]
 
 LIBPCP.pmStore.restype = c_int
 LIBPCP.pmStore.argtypes = [POINTER(pmResult)]
+
+LIBPCP.pmHighResStore.restype = c_int
+LIBPCP.pmHighResStore.argtypes = [POINTER(pmHighResResult)]
 
 
 ##
@@ -1989,7 +2021,7 @@ class pmContext(object):
         if origin is not None:
             when = pointer(origin)
         delta = None
-        if interval is not None:
+        if interval is not None and interval != 0:
             delta = pointer(interval)
         status = LIBPCP.pmHighResSetMode(mode, when, delta)
         if status < 0:
@@ -2151,6 +2183,19 @@ class pmContext(object):
         if status < 0:
             raise pmErr(status)
         status = LIBPCP.pmStore(result)
+        if status < 0:
+            raise pmErr(status)
+        return result
+
+    def pmHighResStore(self, result):
+        """PMAPI - Set values on target source, inverse of pmHighResFetch
+        pmresult = pmHighResStore(pmHighResResult* pmresult)
+        """
+        LIBPCP.pmHighResStore.argtypes = [(type(result))]
+        status = LIBPCP.pmUseContext(self.ctx)
+        if status < 0:
+            raise pmErr(status)
+        status = LIBPCP.pmHighResStore(result)
         if status < 0:
             raise pmErr(status)
         return result
@@ -2694,9 +2739,9 @@ class pmContext(object):
             raise pmErr(status)
 
     @staticmethod
-    def pmSortHighResInstances(result_p):
+    def pmHighResSortInstances(result_p):
         """PMAPI - sort all metric instances in result returned by pmHighResFetch """
-        LIBPCP.pmSortHighResInstances(result_p)
+        LIBPCP.pmHighResSortInstances(result_p)
 
     @staticmethod
     def pmSortInstances(result_p):

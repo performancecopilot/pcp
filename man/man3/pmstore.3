@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2022 Red Hat.  All Rights Reserved.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -15,13 +16,16 @@
 .\"
 .TH PMSTORE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmStore\f1 \- modify values of performance metrics
+\f3pmStore\f1,
+\f3pmHighResStore\f1 \- modify values of performance metrics
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 .nf
 int pmStore(const pmResult *\fIresult\fP);
+.br
+int pmHighResStore(const pmHighResResult *\fIresult\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -36,55 +40,71 @@ performance metrics,
 e.g. to reset a counter to zero, or to modify a ``metric'' which is a control
 variable for some agent collecting performance metrics.
 .PP
-The routine
+The routines
 .B pmStore
-is a lightweight inverse of
-.BR pmFetch (3).
+and
+.B pmHighResStore
+are lightweight inverses of
+.BR pmFetch (3)
+and
+.BR pmHighResFetch (3)
+respectively.
 .PP
 The caller must build the
-.CW pmResult
+.I result
 data structure (of course, this could have been returned from an earlier
 .BR pmFetch (3)
-call) and then call
-.BR pmStore .
+or
+.BR pmHighResFetch (3)
+call).
 .PP
-It is an error to pass a request to
+It is an error to pass a
+.I result
+to
 .B pmStore
+or
+.B pmHighResStore
 in which the
 .CW numval
 field within any of the
 .B pmValueSet
-structure has a value less than one.
+structures has a value less than one.
 .PP
 The current
 Performance Metrics Application Programming Interface (PMAPI)
 context must be one with a host as the source of metrics, and the
 current value of the nominated metrics will be changed, i.e.
 .B pmStore
+and
+.B pmHighResStore
 cannot be used to make retrospective changes to information in either
 the archive logs, or in the recent past for real-time sources of metrics.
 .PP
 The return code from
 .B pmStore
+and
+.B pmHighResStore
 is zero for success.
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_GENERIC\f1
 At least one of the modifications was rejected.
-No other status is available
-from below the PMAPI (this is the lightweight part of the functionality!).  In
-cases where the outcome of
+No other status is available from below the PMAPI (this is the
+lightweight part of the functionality!).
+In cases where the outcome of storing into individual metrics is
+important, the caller should make one call to either
 .B pmStore
-for individual metrics is important, the caller should make one call to
-.B pmStore
-for each metric. On the other hand, a bulk modification can be performed in a
-single
-.B pmStore
-call for situations in which the outcome is not critical.
+or
+.B pmHighResStore
+for each metric.
+On the other hand, a bulk modification can be performed in a
+single call for situations in which the outcome is not critical.
 .IP \f3PM_ERR_NOTHOST\f1
 The current PMAPI context is an archive rather than a host, or it
 is a host that is not set to the current time, i.e. has been ``rewound''
 to the recent past using
-.BR pmSetMode (3).
+.BR pmSetMode (3)
+or
+.BR pmHighResSetMode (3).
 .IP \f3PM_ERR_TOOSMALL\f1
 The number of metrics specified in
 .I result
@@ -99,6 +119,8 @@ has a
 field with a value less than one.
 .SH SEE ALSO
 .BR PMAPI (3),
-.BR pmFetch (3)
+.BR pmFetch (3),
+.BR pmHighResFetch (3),
+.BR pmHighResSetMode (3)
 and
 .BR pmSetMode (3).
