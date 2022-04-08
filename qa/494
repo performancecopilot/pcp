@@ -60,11 +60,13 @@ _cmp2()
     pminfo -d -a $1 $3
     echo "--- output metadata ---"
     pminfo -d -a $2 $3
-    pmval -zr -f 1 -w 12 -U $1 $3 | tee -a $seq.full >$tmp.in
-    pmval -zr -f 1 -w 12 -U $2 $3 | tee -a $seq.full >$tmp.out
+    pmval $TIMEZONE -r -f 1 -w 12 -U $1 $3 | tee -a $seq.full >$tmp.in
+    pmval $TIMEZONE -r -f 1 -w 12 -U $2 $3 | tee -a $seq.full >$tmp.out
     echo "pmval diffs ..."
     diff -u $tmp.in $tmp.out | _filter
 }
+
+TIMEZONE=-z
 
 # real QA test starts here
 sed -e '/^#/d' <<End-of-File | while read arch_args spec
@@ -87,6 +89,7 @@ do
     _cmp `echo $arch_args | sed -e 's/|.*//'` $tmp.new
 done
 
+TIMEZONE='-Z PST8PDT9'
 sed -e '/^#/d' <<End-of-File | while read arch_args spec
 # archive[|arg1[|arg2[|...]]]	spec|metric...
 # double -> 
@@ -106,6 +109,7 @@ do
     done
 done
 
+TIMEZONE=-z
 echo | tee -a $seq.full
 echo "=== proc metrics migration ===" | tee -a $seq.full
 cat <<End-of-File >$tmp.config
