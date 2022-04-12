@@ -46,7 +46,7 @@ PCP_SYSCONF_DIR=@pcp_sysconf_dir@
 PCP_RC_DIR=@pcp_rc_dir@
 
 # directory for sysconfig controls
-# Standard path: /etc/sysconf (Redhat-specific)
+# Standard path: /etc/sysconfig (Red Hat/Fedora/SUSE-specific)
 #		 <empty> if no sysconfig support
 PCP_SYSCONFIG_DIR=@pcp_sysconfig_dir@
 
