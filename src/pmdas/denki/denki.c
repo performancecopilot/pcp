@@ -44,7 +44,7 @@ static int detect_rapl_domains(void);			/* detect RAPL domains */
 static int read_rapl(void);				/* read RAPL values */
 static int detect_battery(void);			/* detect battery */
 static int read_battery(void);				/* read battery values */
-static int compute_energy_rate(void);			/* compute discharge rate from BAT0 values */
+static int compute_energy_rate(void);			/* compute discharge rate from battery values */
 long long lookup_rapl_dom(int);				/* map instance to 2-dimensional domain matrix */
 
 static char rootpath[512] = "/";			/* path to rootpath, gets changed for regression tests */
@@ -153,17 +153,17 @@ static int read_rapl(void) {
 
 
 
-long long energy_now = 0;		/* BAT0/energy_now readings, BAT0 chargelevel in microWh	*/
+long long energy_now = 0;		/* <battery>/energy_now or <battery>/charge_now readings		*/
 long long energy_now_old = 0;
-long long power_now=0;			/* BAT0/power_now readings, driver computed power consumption   */
+long long power_now=0;			/* <battery>/power_now readings, driver computed power consumption	*/
 
-time_t secondsnow, secondsold;		/* time stamps, to understand if we need to recompute	   	*/
-double energy_diff_d, energy_rate_d;	/* amount of used energy / computed energy consumption	  	*/
+time_t secondsnow, secondsold;		/* time stamps, to understand if we need to recompute	   		*/
+double energy_diff_d, energy_rate_d;	/* amount of used energy / computed energy consumption	  		*/
 
-static int battery_comp_rate = 60;	/* timespan in sec, after which we recompute energy_rate_d      */
-char battery_basepath[512];		/* path to the battery						*/
-char energy_now_file[512];		/* energy now file, different between models			*/
-double energy_convert_factor = 10000.0;	/* factor for fixing <battery-dir>/energy_now / charge_now to kwh */
+static int battery_comp_rate = 60;	/* timespan in sec, after which we recompute energy_rate_d      	*/
+char battery_basepath[512];		/* path to the battery							*/
+char energy_now_file[512];		/* energy now file, different between models				*/
+double energy_convert_factor = 10000.0;	/* factor for fixing <battery>/energy_now / charge_now to kwh 		*/
 
 /* detect battery */
 static int detect_battery(void) {
@@ -183,24 +183,58 @@ static int detect_battery(void) {
 			if ( ep->d_name[0] == '.')
 				continue;
 
+			pmNotifyErr(LOG_DEBUG, "Is %s%s a battery we should provide metrics for?",dirname,ep->d_name);
+
 			pmsprintf(filename,sizeof(filename),"%s%s/type",dirname,ep->d_name);
 			fff=fopen(filename,"r");
 			if (fff==NULL) {
-				pmNotifyErr(LOG_DEBUG, "Could not access %s",filename);
+				pmNotifyErr(LOG_DEBUG, "Could not access file 'type' in that directory, assuming it's no battery.");
 				continue;
 			}
 			if ( fscanf(fff,"%s",type) != 1) {
-				pmNotifyErr(LOG_DEBUG, "Could not read contents of %s",filename);
+				pmNotifyErr(LOG_DEBUG, "Could not read contents of %s, assuming it's no battery.",filename);
 				fclose(fff);
 				continue;
 			}
 			fclose(fff);
-			// pmNotifyErr(LOG_DEBUG, "successfully read %s : %s",filename,type);
-			if ( strcmp(type,"Battery") == 0 ) {
-			 	pmNotifyErr(LOG_DEBUG, "%s%s seems to be a battery!",dirname,ep->d_name);
-				pmsprintf(battery_basepath,sizeof(battery_basepath),"%s%s",dirname,ep->d_name);
-				has_bat=1;
+
+			if ( strcmp(type,"Battery") != 0 ) {
+			 	pmNotifyErr(LOG_DEBUG, "No, contents of file 'type' in the directory is not 'Battery'.");
+				continue;
 			}
+
+			// We need at least one of charge_now / energy_now / power_now for a battery
+			pmsprintf(filename,sizeof(filename),"%s%s/charge_now",dirname,ep->d_name);
+			if( access( filename, F_OK ) == 0 ) {
+			 	pmNotifyErr(LOG_DEBUG, "file %s found",filename);
+				pmsprintf(energy_now_file,sizeof(energy_now_file),"charge_now");
+				energy_convert_factor = 100000.0;
+			} 
+			else {
+			 	pmNotifyErr(LOG_DEBUG, "file %s not found",filename);
+				pmsprintf(filename,sizeof(filename),"%s%s/energy_now",dirname,ep->d_name);
+				if( access( filename, F_OK ) == 0 ) {
+			 		pmNotifyErr(LOG_DEBUG, "file %s found",filename);
+					pmsprintf(energy_now_file,sizeof(energy_now_file),"energy_now");
+					energy_convert_factor = 1000000.0;
+				}
+				else {
+			 		pmNotifyErr(LOG_DEBUG, "file %s not found",filename);
+					pmsprintf(filename,sizeof(filename),"%s%s/power_now",dirname,ep->d_name);
+					if( access( filename, F_OK ) == 0 ) {
+			 			pmNotifyErr(LOG_DEBUG, "file %s found",filename);
+					}
+					else {
+			 			pmNotifyErr(LOG_DEBUG, "file %s not found",filename);
+			 			pmNotifyErr(LOG_DEBUG, "assuming this is no battery.");
+						continue;
+					}
+				}
+			}
+
+			pmNotifyErr(LOG_DEBUG, "assuming this is a battery we should provide metrics for.");
+			pmsprintf(battery_basepath,sizeof(battery_basepath),"%s%s",dirname,ep->d_name);
+			has_bat=1;
 
 		}
 		(void) closedir (directory);
@@ -208,31 +242,6 @@ static int detect_battery(void) {
 	else {
 		pmNotifyErr(LOG_DEBUG, "Couldn't open directory %s/sys/class/power_supply.",rootpath);
 		return 0;
-	}
-
-	// find out wether charge_now or energy_now is used
-	pmsprintf(filename,sizeof(filename),"%s/charge_now",battery_basepath);
-	fff=fopen(filename,"r");
-	if (fff==NULL) {
-		pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
-	}
-	else {
-		pmNotifyErr(LOG_DEBUG, "battery path has %s file.",filename);
-		pmsprintf(energy_now_file,sizeof(energy_now_file),"charge_now");
-		energy_convert_factor = 100000.0;
-		fclose(fff);
-	}
-
-	pmsprintf(filename,sizeof(filename),"%s/energy_now",battery_basepath);
-	fff=fopen(filename,"r");
-	if (fff==NULL) {
-		pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
-	}
-	else {
-		pmNotifyErr(LOG_DEBUG, "battery path has %s file.",filename);
-		pmsprintf(energy_now_file,sizeof(energy_now_file),"energy_now");
-		energy_convert_factor = 1000000.0;
-		fclose(fff);
 	}
 
 	return 0;
@@ -270,7 +279,7 @@ static int read_battery(void) {
 	return 0;
 }
 
-/* compute energy consumption from BAT0/energy_now values */
+/* compute energy consumption from <battery-dir>/energy_now values */
 static int compute_energy_rate(void) {
 
 	secondsnow = time(NULL);
