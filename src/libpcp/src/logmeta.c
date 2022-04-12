@@ -37,6 +37,10 @@ sameinst(const __pmLogInDom *a, const __pmLogInDom *b, int index)
 {
     if (a->instlist[index] != b->instlist[index])
 	return 0;
+    if (a->namelist[index] == NULL && b->namelist[index] == 0)
+	return 1;
+    if (a->namelist[index] == NULL || b->namelist[index] == NULL)
+	return 0;
     return strcmp(a->namelist[index], b->namelist[index]) == 0;
 }
 

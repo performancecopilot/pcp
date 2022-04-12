@@ -737,7 +737,7 @@ out:
 }
 
 static void
-pmDiscoverInvokeInDomCallBacks(pmDiscover *p, __pmTimestamp *tsp, pmInResult *in)
+pmDiscoverInvokeInDomCallBacks(pmDiscover *p, int type, __pmTimestamp *tsp, pmInResult *in)
 {
     discoverModuleData	*data = getDiscoverModuleData(p->module);
     pmDiscoverCallBacks	*callbacks;
@@ -773,7 +773,7 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, __pmTimestamp *tsp, pmInResult *in
 	lid.namelist = in->namelist;
 	lid.alloc = 0;
 
-	sts = __pmLogAddInDom(acp, TYPE_INDOM_V2, &lid, NULL, 0);
+	sts = __pmLogAddInDom(acp, type, &lid, NULL, 0);
 	if (sts < 0)
 	    fprintf(stderr, "%s: failed to add indom for %s: %s\n",
 			"pmDiscoverInvokeInDomCallBacks", pmIDStr(in->indom),
@@ -1095,7 +1095,7 @@ process_metadata(pmDiscover *p)
 				    "pmDiscoverDecodeMetaInDom", e, pmErrStr(e));
 		break;
 	    }
-	    pmDiscoverInvokeInDomCallBacks(p, &stamp, &inresult);
+	    pmDiscoverInvokeInDomCallBacks(p, hdr.type, &stamp, &inresult);
 	    break;
 
 	case TYPE_LABEL:

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Red Hat.
+ * Copyright (c) 2020-2022 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -325,9 +325,12 @@ pmSearchDiscoverInDom(pmDiscoverEvent *event, pmInResult *in, void *arg)
 
     redis_search_text_add(baton->slots, PM_SEARCH_TYPE_INDOM,
 			buffer, buffer, oneline, helptext, baton);
-    for (i = 0; i < in->numinst; i++)
+    for (i = 0; i < in->numinst; i++) {
+	if (in->namelist[i] == NULL)
+	    continue;
 	redis_search_text_add(baton->slots, PM_SEARCH_TYPE_INST,
 			in->namelist[i], buffer, NULL, NULL, baton);
+    }
     if (oneline)
 	free(oneline);
     if (helptext)
