@@ -56,7 +56,7 @@ metric_t	*metriclist;
 __pmArchCtl	archctl;		/* output archive control */
 __pmLogCtl	logctl;			/* output log control */
 /* command line args */
-double		targ = 600.0;		/* -t arg - interval b/n output samples */
+struct timespec	targ = { 600, 0};	/* -t arg - interval b/n output samples */
 int		sarg = -1;		/* -s arg - finish after X samples */
 char		*Sarg;			/* -S arg - window start */
 char		*Targ;			/* -T arg - window end */
@@ -151,8 +151,10 @@ parseargs(int argc, char *argv[])
 		free(msg);
 		opts.errors++;
 	    }
-	    else
-		targ = pmtimevalToReal(&interval);
+	    else {
+		targ.tv_sec = interval.tv_sec;
+		targ.tv_nsec = interval.tv_usec * 1000;
+	    }
 	    break;
 
 	case 'v':	/* number of samples per volume */
@@ -208,6 +210,7 @@ main(int argc, char **argv)
     __pmResult	*orp;		/* output pmResult */
     __pmPDU	*pb;		/* pdu buffer */
     struct timeval	unused;
+    struct timespec	start;
     __uint64_t		max_offset;
     unsigned long	peek_offset;
 
@@ -301,9 +304,10 @@ main(int argc, char **argv)
 	fprintf(stderr, "End time: %s", buf);
     }
 
-    if ((sts = pmSetMode(PM_MODE_INTERP | PM_XTB_SET(PM_TIME_SEC),
-                         &winstart_tval, (int)targ)) < 0) {
-	fprintf(stderr, "%s: pmSetMode(PM_MODE_INTERP ...) failed: %s\n",
+    start.tv_sec = winstart_tval.tv_sec;
+    start.tv_nsec = winstart_tval.tv_usec * 1000;
+    if ((sts = pmHighResSetMode(PM_MODE_INTERP, &start, &targ)) < 0) {
+	fprintf(stderr, "%s: pmHighResSetMode(PM_MODE_INTERP ...) failed: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }

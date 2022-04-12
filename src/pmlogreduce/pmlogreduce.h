@@ -62,7 +62,6 @@ extern char		**namelist;	/* ditto */
 extern metric_t		*metriclist;	/* ditto */
 extern __pmArchCtl	archctl;	/* output archive control */
 extern __pmLogCtl	logctl;		/* output log control */
-extern double		targ;		/* -t arg - interval b/n output samples */
 extern int		sarg;		/* -s arg - finish after X samples */
 extern char		*Sarg;		/* -S arg - window start */
 extern char		*Targ;		/* -T arg - window end */
