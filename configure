@@ -3315,18 +3315,22 @@ $as_echo "#define IS_DARWIN 1" >>confdefs.h
 
     target_distro=macosx
     version=`sw_vers -productVersion`
-    CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing"
+    CFLAGS="-fPIC -fno-strict-aliasing"
     case "$version"
     in
 	10.0-5.*)
-	    	    ;;
+	    CFLAGS="$CFLAGS -no-cpp-precomp"
+	    ;;
 	10.6-9.*|10.10-3.*)
 	    target_distro=cocoa
-	    CFLAGS="$CFLAGS -arch i386 -arch x86_64"
+	    CFLAGS="$CFLAGS -no-cpp-precomp -arch i386 -arch x86_64"
+	    ;;
+	11.*|12.*)
+	    target_distro=cocoa
 	    ;;
 	*)
-	    	    target_distro=cocoa
-	    CFLAGS="$CFLAGS -arch x86_64"
+	    target_distro=cocoa
+	    CFLAGS="$CFLAGS -no-cpp-precomp -arch x86_64"
 	    ;;
     esac
     export CFLAGS
