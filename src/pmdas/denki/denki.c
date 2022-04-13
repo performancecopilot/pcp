@@ -63,12 +63,14 @@ static int detect_rapl_packages(void) {
 		fff=fopen(filename,"r");
 		if (fff==NULL) break;
 		if ( fscanf(fff,"%d",&package) != 1 )
-			pmNotifyErr(LOG_DEBUG, "Could not read!");
+			if (pmDebugOptions.appl0)
+				pmNotifyErr(LOG_DEBUG, "Could not read %s!", filename);
 		printf("\tcore %d (package %d)\n",i,package);
 		fclose(fff);
 
 		if (package < 0 || package >= MAX_PACKAGES) {
-			pmNotifyErr(LOG_ERR, "package number %d invalid, range 0-%u", package, MAX_PACKAGES);
+			if (pmDebugOptions.appl0)
+				pmNotifyErr(LOG_ERR, "package number %d invalid, range 0-%u in %s", package, MAX_PACKAGES, filename);
 			continue;
 		}
 
@@ -113,13 +115,15 @@ static int detect_rapl_domains(void) {
 				basename[pkg],pkg,i-1);
 			fff=fopen(tempfile,"r");
 			if (fff==NULL) {
-    				// pmNotifyErr(LOG_DEBUG, "Could not open %s", tempfile);
+				if (pmDebugOptions.appl0)
+    					pmNotifyErr(LOG_DEBUG, "Could not open %s", tempfile);
 				valid[pkg][i]=0;
 				continue;
 			}
 			valid[pkg][i]=1;
 			if ( fscanf(fff,"%255s",event_names[pkg][i]) != 1 )
-    				pmNotifyErr(LOG_DEBUG, "Could not read from %s", event_names[pkg][i]);
+				if (pmDebugOptions.appl0)
+    					pmNotifyErr(LOG_DEBUG, "Could not read from %s", event_names[pkg][i]);
 			fclose(fff);
 			pmsprintf(filenames[pkg][i],sizeof(filenames[pkg][i]),"%s/intel-rapl:%d:%d/energy_uj",
 				basename[pkg],pkg,i-1);
@@ -177,62 +181,70 @@ static int detect_battery(void) {
 	directory = opendir (dirname);
 	if (directory != NULL) {
 		while ( ( ep = readdir (directory) ) ) {
-			puts (ep->d_name);
 
 			// skip entries '.' and '..'
 			if ( ep->d_name[0] == '.')
 				continue;
 
-			pmNotifyErr(LOG_DEBUG, "Is %s%s a battery we should provide metrics for?",dirname,ep->d_name);
+			if (pmDebugOptions.appl0)
+				pmNotifyErr(LOG_DEBUG, "Is %s%s a battery we should provide metrics for?",dirname,ep->d_name);
 
 			pmsprintf(filename,sizeof(filename),"%s%s/type",dirname,ep->d_name);
 			fff=fopen(filename,"r");
 			if (fff==NULL) {
-				pmNotifyErr(LOG_DEBUG, "Could not access file 'type' in that directory, assuming it's no battery.");
+				if (pmDebugOptions.appl0)
+					pmNotifyErr(LOG_DEBUG, "Could not access file 'type' in that directory, assuming it's no battery.");
 				continue;
 			}
 			if ( fscanf(fff,"%s",type) != 1) {
-				pmNotifyErr(LOG_DEBUG, "Could not read contents of %s, assuming it's no battery.",filename);
+				if (pmDebugOptions.appl0)
+					pmNotifyErr(LOG_DEBUG, "Could not read contents of %s, assuming it's no battery.",filename);
 				fclose(fff);
 				continue;
 			}
 			fclose(fff);
 
 			if ( strcmp(type,"Battery") != 0 ) {
-			 	pmNotifyErr(LOG_DEBUG, "No, contents of file 'type' in the directory is not 'Battery'.");
+				if (pmDebugOptions.appl0)
+			 		pmNotifyErr(LOG_DEBUG, "No, contents of file 'type' in the directory is not 'Battery'.");
 				continue;
 			}
 
 			// We need at least one of charge_now / energy_now / power_now for a battery
 			pmsprintf(filename,sizeof(filename),"%s%s/charge_now",dirname,ep->d_name);
 			if( access( filename, F_OK ) == 0 ) {
-			 	pmNotifyErr(LOG_DEBUG, "file %s found",filename);
+				if (pmDebugOptions.appl0)
+			 		pmNotifyErr(LOG_DEBUG, "file %s found",filename);
 				pmsprintf(energy_now_file,sizeof(energy_now_file),"charge_now");
 				energy_convert_factor = 100000.0;
 			} 
 			else {
-			 	pmNotifyErr(LOG_DEBUG, "file %s not found",filename);
+				if (pmDebugOptions.appl0)
+			 		pmNotifyErr(LOG_DEBUG, "file %s not found",filename);
 				pmsprintf(filename,sizeof(filename),"%s%s/energy_now",dirname,ep->d_name);
 				if( access( filename, F_OK ) == 0 ) {
-			 		pmNotifyErr(LOG_DEBUG, "file %s found",filename);
+					if (pmDebugOptions.appl0)
+			 			pmNotifyErr(LOG_DEBUG, "file %s found",filename);
 					pmsprintf(energy_now_file,sizeof(energy_now_file),"energy_now");
 					energy_convert_factor = 1000000.0;
 				}
 				else {
-			 		pmNotifyErr(LOG_DEBUG, "file %s not found",filename);
+					if (pmDebugOptions.appl0)
+			 			pmNotifyErr(LOG_DEBUG, "file %s not found",filename);
 					pmsprintf(filename,sizeof(filename),"%s%s/power_now",dirname,ep->d_name);
 					if( access( filename, F_OK ) == 0 ) {
 			 			pmNotifyErr(LOG_DEBUG, "file %s found",filename);
 					}
 					else {
-			 			pmNotifyErr(LOG_DEBUG, "file %s not found",filename);
-			 			pmNotifyErr(LOG_DEBUG, "assuming this is no battery.");
+						if (pmDebugOptions.appl0)
+			 				pmNotifyErr(LOG_DEBUG, "file %s not found, assuming this is no battery.",filename);
 						continue;
 					}
 				}
 			}
 
-			pmNotifyErr(LOG_DEBUG, "assuming this is a battery we should provide metrics for.");
+			if (pmDebugOptions.appl0)
+				pmNotifyErr(LOG_DEBUG, "assuming this is a battery we should provide metrics for.");
 			pmsprintf(battery_basepath,sizeof(battery_basepath),"%s%s",dirname,ep->d_name);
 			has_bat=1;
 
@@ -240,7 +252,8 @@ static int detect_battery(void) {
 		(void) closedir (directory);
     	}
 	else {
-		pmNotifyErr(LOG_DEBUG, "Couldn't open directory %s/sys/class/power_supply.",rootpath);
+		if (pmDebugOptions.appl0)
+			pmNotifyErr(LOG_DEBUG, "Couldn't open directory %s/sys/class/power_supply.",rootpath);
 		return 0;
 	}
 
@@ -255,21 +268,25 @@ static int read_battery(void) {
 	pmsprintf(filename,sizeof(filename),"%s/%s",battery_basepath,energy_now_file);
 	fff=fopen(filename,"r");
 	if (fff==NULL) {
-		pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
+		if (pmDebugOptions.appl0)
+			pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
 		return 1;
 	}
 	if ( fscanf(fff,"%lld",&energy_now) != 1)
-		pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
+		if (pmDebugOptions.appl0)
+			pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
 	fclose(fff);
 
 	pmsprintf(filename,sizeof(filename),"%s/power_now",battery_basepath);
 	fff=fopen(filename,"r");
 	if (fff==NULL) {
-		pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
+		if (pmDebugOptions.appl0)
+			pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
 		return 1;
 	}
 	if ( fscanf(fff,"%lld",&power_now) != 1)
-		pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
+		if (pmDebugOptions.appl0)
+			pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
 	fclose(fff);
 
 	// correct power_now, if we got a negative value
@@ -299,7 +316,8 @@ static int compute_energy_rate(void) {
 
 		// computing how many W would be used in 1h
 		energy_rate_d = energy_diff_d * 3600 / battery_comp_rate;
-		// pmNotifyErr(LOG_DEBUG, "DENKI: new computation, currently %f W/h are consumed",energy_rate_d);
+		if (pmDebugOptions.appl0)
+			pmNotifyErr(LOG_DEBUG, "DENKI: new computation, currently %f W/h are consumed",energy_rate_d);
 
 		secondsold = secondsnow;
 		energy_now_old = energy_now;
