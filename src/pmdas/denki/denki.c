@@ -247,8 +247,7 @@ static int detect_battery(void) {
 				}
 			}
 
-			if (pmDebugOptions.appl0)
-				pmNotifyErr(LOG_DEBUG, "assuming this is a battery we should provide metrics for.");
+			pmNotifyErr(LOG_INFO, "Assuming %s%s is a battery we should provide metrics for.",dirname,ep->d_name);
 			pmsprintf(battery_basepath,sizeof(battery_basepath),"%s%s",dirname,ep->d_name);
 			has_bat=1;
 			break;
@@ -661,8 +660,7 @@ denki_init(pmdaInterface *dp)
     } else {
 	has_rapl=1;
     	detect_rapl_packages();
-	if (pmDebugOptions.appl0)
-	    pmNotifyErr(LOG_DEBUG, "RAPL detected, with %d cpu-cores and %d rapl-packages.", total_cores, total_packages);
+	pmNotifyErr(LOG_INFO, "RAPL detected, with %d cpu-cores and %d rapl-packages.", total_cores, total_packages);
     	detect_rapl_domains();
     	denki_rapl_check();	// now we register the found rapl indoms
     }
