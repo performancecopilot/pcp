@@ -47,7 +47,7 @@ $PCP_PS_PROG $PCP_PS_ALL_FLAGS >> $seq.full
 echo new cgroup=`cat /proc/$pid/cgroup` >> $seq.full
 echo pmcd cgroup=`cat /proc/$pmcdpid/cgroup` >> $seq.full
 
-if systemctl status pmcd.service 2>&1 | tee -a $tmp.sts | grep -q -s pmpause
+if systemctl status pmcd.service 2>&1 | tee $tmp.sts | grep -q -s pmpause
 then
     echo PASSED, found pmpause process in pmcd.service cgroup
 else
@@ -57,6 +57,10 @@ else
     cgslice=`systemctl status pmcd.service | $PCP_AWK_PROG '/CGroup:/ {print $2}'`
     echo cgslice=${cgslice} | tee -a $seq.full
     find ${cgroot} -type d -name pmcd.service -print -exec ls -l {} ";" | tee -a $seq.full
+    echo cgroup.procs=${cgslice}/cgroup.procs >> $seq.full
+    cat ${cgslice}/cgroup.procs >> $seq.full
+    echo systemctl output >> $seq.full
+    cat $tmp.sts >> $seq.full
 fi
 
 # all done
