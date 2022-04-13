@@ -20,6 +20,7 @@ _cleanup()
     cd $here
     $sudo cp $tmp.install $PCP_PMDAS_DIR/denki/Install
     _cleanup_pmda denki
+    $sudo rm -rf $tmp $tmp.*
 }
 
 status=0	# success is the default!
