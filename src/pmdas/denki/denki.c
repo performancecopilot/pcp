@@ -247,7 +247,7 @@ static int detect_battery(void) {
 				pmNotifyErr(LOG_DEBUG, "assuming this is a battery we should provide metrics for.");
 			pmsprintf(battery_basepath,sizeof(battery_basepath),"%s%s",dirname,ep->d_name);
 			has_bat=1;
-
+			break;
 		}
 		(void) closedir (directory);
     	}
