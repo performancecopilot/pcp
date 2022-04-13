@@ -63,12 +63,14 @@ static int detect_rapl_packages(void) {
 		fff=fopen(filename,"r");
 		if (fff==NULL) break;
 		if ( fscanf(fff,"%d",&package) != 1 )
-			pmNotifyErr(LOG_DEBUG, "Could not read!");
+			if (pmDebugOptions.appl0)
+				pmNotifyErr(LOG_DEBUG, "Could not read %s!", filename);
 		printf("\tcore %d (package %d)\n",i,package);
 		fclose(fff);
 
 		if (package < 0 || package >= MAX_PACKAGES) {
-			pmNotifyErr(LOG_ERR, "package number %d invalid, range 0-%u", package, MAX_PACKAGES);
+			if (pmDebugOptions.appl0)
+				pmNotifyErr(LOG_ERR, "package number %d invalid, range 0-%u in %s", package, MAX_PACKAGES, filename);
 			continue;
 		}
 
@@ -98,11 +100,13 @@ static int detect_rapl_domains(void) {
 		pmsprintf(tempfile,sizeof(tempfile),"%s/name",basename[pkg]);
 		fff=fopen(tempfile,"r");
 		if (fff==NULL) {
-    			pmNotifyErr(LOG_ERR, "read_rapl() could not open %s", tempfile);
+			if (pmDebugOptions.appl0)
+    				pmNotifyErr(LOG_ERR, "read_rapl() could not open %s", tempfile);
 			return -1;
 		}
 		if ( fscanf(fff,"%255s",event_names[pkg][i]) != 1)
-    			pmNotifyErr(LOG_ERR, "read_rapl() could not read %s",event_names[pkg][i]);
+			if (pmDebugOptions.appl0)
+    				pmNotifyErr(LOG_ERR, "read_rapl() could not read %s",event_names[pkg][i]);
 		valid[pkg][i]=1;
 		fclose(fff);
 		pmsprintf(filenames[pkg][i],sizeof(filenames[pkg][i]),"%s/energy_uj",basename[pkg]);
@@ -113,13 +117,15 @@ static int detect_rapl_domains(void) {
 				basename[pkg],pkg,i-1);
 			fff=fopen(tempfile,"r");
 			if (fff==NULL) {
-    				// pmNotifyErr(LOG_DEBUG, "Could not open %s", tempfile);
+				if (pmDebugOptions.appl0)
+    					pmNotifyErr(LOG_DEBUG, "Could not open %s", tempfile);
 				valid[pkg][i]=0;
 				continue;
 			}
 			valid[pkg][i]=1;
 			if ( fscanf(fff,"%255s",event_names[pkg][i]) != 1 )
-    				pmNotifyErr(LOG_DEBUG, "Could not read from %s", event_names[pkg][i]);
+				if (pmDebugOptions.appl0)
+    					pmNotifyErr(LOG_DEBUG, "Could not read from %s", event_names[pkg][i]);
 			fclose(fff);
 			pmsprintf(filenames[pkg][i],sizeof(filenames[pkg][i]),"%s/intel-rapl:%d:%d/energy_uj",
 				basename[pkg],pkg,i-1);
@@ -138,11 +144,13 @@ static int read_rapl(void) {
 			if (valid[pkg][dom]) {
 				fff=fopen(filenames[pkg][dom],"r");
 				if (fff==NULL) {
-    					pmNotifyErr(LOG_ERR, "read_rapl() could not open %s",filenames[pkg][dom]);
+					if (pmDebugOptions.appl0)
+    						pmNotifyErr(LOG_ERR, "read_rapl() could not open %s",filenames[pkg][dom]);
 				}
 				else {
 					if ( fscanf(fff,"%lld",&raplvars[pkg][dom]) != 1)
-    						pmNotifyErr(LOG_ERR, "read_rapl() could not read %s",filenames[pkg][dom]);
+						if (pmDebugOptions.appl0)
+    							pmNotifyErr(LOG_ERR, "read_rapl() could not read %s",filenames[pkg][dom]);
 					fclose(fff);
 				}
 			}
@@ -167,7 +175,7 @@ double energy_convert_factor = 10000.0;	/* factor for fixing <battery>/energy_no
 
 /* detect battery */
 static int detect_battery(void) {
-	char	filename[BUFSIZ],dirname[512],type[32];
+	char	filename[MAXPATHLEN],dirname[MAXPATHLEN],type[32];
 	DIR	*directory;
 	FILE 	*fff;
 
@@ -177,70 +185,78 @@ static int detect_battery(void) {
 	directory = opendir (dirname);
 	if (directory != NULL) {
 		while ( ( ep = readdir (directory) ) ) {
-			puts (ep->d_name);
 
 			// skip entries '.' and '..'
 			if ( ep->d_name[0] == '.')
 				continue;
 
-			pmNotifyErr(LOG_DEBUG, "Is %s%s a battery we should provide metrics for?",dirname,ep->d_name);
+			if (pmDebugOptions.appl0)
+				pmNotifyErr(LOG_DEBUG, "Is %s%s a battery we should provide metrics for?",dirname,ep->d_name);
 
 			pmsprintf(filename,sizeof(filename),"%s%s/type",dirname,ep->d_name);
 			fff=fopen(filename,"r");
 			if (fff==NULL) {
-				pmNotifyErr(LOG_DEBUG, "Could not access file 'type' in that directory, assuming it's no battery.");
+				if (pmDebugOptions.appl0)
+					pmNotifyErr(LOG_DEBUG, "Could not access file 'type' in that directory, assuming it's no battery.");
 				continue;
 			}
 			if ( fscanf(fff,"%s",type) != 1) {
-				pmNotifyErr(LOG_DEBUG, "Could not read contents of %s, assuming it's no battery.",filename);
+				if (pmDebugOptions.appl0)
+					pmNotifyErr(LOG_DEBUG, "Could not read contents of %s, assuming it's no battery.",filename);
 				fclose(fff);
 				continue;
 			}
 			fclose(fff);
 
 			if ( strcmp(type,"Battery") != 0 ) {
-			 	pmNotifyErr(LOG_DEBUG, "No, contents of file 'type' in the directory is not 'Battery'.");
+				if (pmDebugOptions.appl0)
+			 		pmNotifyErr(LOG_DEBUG, "No, contents of file 'type' in the directory is not 'Battery'.");
 				continue;
 			}
 
 			// We need at least one of charge_now / energy_now / power_now for a battery
 			pmsprintf(filename,sizeof(filename),"%s%s/charge_now",dirname,ep->d_name);
 			if( access( filename, F_OK ) == 0 ) {
-			 	pmNotifyErr(LOG_DEBUG, "file %s found",filename);
+				if (pmDebugOptions.appl0)
+			 		pmNotifyErr(LOG_DEBUG, "file %s found",filename);
 				pmsprintf(energy_now_file,sizeof(energy_now_file),"charge_now");
 				energy_convert_factor = 100000.0;
 			} 
 			else {
-			 	pmNotifyErr(LOG_DEBUG, "file %s not found",filename);
+				if (pmDebugOptions.appl0)
+			 		pmNotifyErr(LOG_DEBUG, "file %s not found",filename);
 				pmsprintf(filename,sizeof(filename),"%s%s/energy_now",dirname,ep->d_name);
 				if( access( filename, F_OK ) == 0 ) {
-			 		pmNotifyErr(LOG_DEBUG, "file %s found",filename);
+					if (pmDebugOptions.appl0)
+			 			pmNotifyErr(LOG_DEBUG, "file %s found",filename);
 					pmsprintf(energy_now_file,sizeof(energy_now_file),"energy_now");
 					energy_convert_factor = 1000000.0;
 				}
 				else {
-			 		pmNotifyErr(LOG_DEBUG, "file %s not found",filename);
+					if (pmDebugOptions.appl0)
+			 			pmNotifyErr(LOG_DEBUG, "file %s not found",filename);
 					pmsprintf(filename,sizeof(filename),"%s%s/power_now",dirname,ep->d_name);
 					if( access( filename, F_OK ) == 0 ) {
 			 			pmNotifyErr(LOG_DEBUG, "file %s found",filename);
 					}
 					else {
-			 			pmNotifyErr(LOG_DEBUG, "file %s not found",filename);
-			 			pmNotifyErr(LOG_DEBUG, "assuming this is no battery.");
+						if (pmDebugOptions.appl0)
+			 				pmNotifyErr(LOG_DEBUG, "file %s not found, assuming this is no battery.",filename);
 						continue;
 					}
 				}
 			}
 
-			pmNotifyErr(LOG_DEBUG, "assuming this is a battery we should provide metrics for.");
+			pmNotifyErr(LOG_INFO, "Assuming %s%s is a battery we should provide metrics for.",dirname,ep->d_name);
 			pmsprintf(battery_basepath,sizeof(battery_basepath),"%s%s",dirname,ep->d_name);
 			has_bat=1;
-
+			break;
 		}
 		(void) closedir (directory);
     	}
 	else {
-		pmNotifyErr(LOG_DEBUG, "Couldn't open directory %s/sys/class/power_supply.",rootpath);
+		if (pmDebugOptions.appl0)
+			pmNotifyErr(LOG_DEBUG, "Couldn't open directory %s/sys/class/power_supply.",rootpath);
 		return 0;
 	}
 
@@ -249,27 +265,31 @@ static int detect_battery(void) {
 
 /* read the current battery values */
 static int read_battery(void) {
-	char filename[BUFSIZ];
+	char filename[MAXPATHLEN];
 	FILE *fff;
 
 	pmsprintf(filename,sizeof(filename),"%s/%s",battery_basepath,energy_now_file);
 	fff=fopen(filename,"r");
 	if (fff==NULL) {
-		pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
+		if (pmDebugOptions.appl0)
+			pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
 		return 1;
 	}
 	if ( fscanf(fff,"%lld",&energy_now) != 1)
-		pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
+		if (pmDebugOptions.appl0)
+			pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
 	fclose(fff);
 
 	pmsprintf(filename,sizeof(filename),"%s/power_now",battery_basepath);
 	fff=fopen(filename,"r");
 	if (fff==NULL) {
-		pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
+		if (pmDebugOptions.appl0)
+			pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
 		return 1;
 	}
 	if ( fscanf(fff,"%lld",&power_now) != 1)
-		pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
+		if (pmDebugOptions.appl0)
+			pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
 	fclose(fff);
 
 	// correct power_now, if we got a negative value
@@ -299,7 +319,8 @@ static int compute_energy_rate(void) {
 
 		// computing how many W would be used in 1h
 		energy_rate_d = energy_diff_d * 3600 / battery_comp_rate;
-		// pmNotifyErr(LOG_DEBUG, "DENKI: new computation, currently %f W/h are consumed",energy_rate_d);
+		if (pmDebugOptions.appl0)
+			pmNotifyErr(LOG_DEBUG, "DENKI: new computation, currently %f W/h are consumed",energy_rate_d);
 
 		secondsold = secondsnow;
 		energy_now_old = energy_now;
@@ -601,8 +622,12 @@ denki_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
  * Initialise the agent (both daemon and DSO).
  */
 void 
+__PMDA_INIT_CALL
 denki_init(pmdaInterface *dp)
 {
+    char		filename[MAXPATHLEN];
+    DIR			*directory;
+
     if (isDSO) {
 	int sep = pmPathSeparator();
 	pmsprintf(mypath, sizeof(mypath), "%s%c" "denki" "%c" "help",
@@ -623,6 +648,25 @@ denki_init(pmdaInterface *dp)
 
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), metrictab,
 		sizeof(metrictab)/sizeof(metrictab[0]));
+
+    if (pmDebugOptions.appl0)
+	pmNotifyErr(LOG_DEBUG, "configured to use this rootpath: %s", rootpath);
+
+    pmsprintf(filename,sizeof(filename),"%s/sys/class/powercap/intel-rapl",rootpath);
+    directory = opendir(filename);
+    if ( directory == NULL ) {
+	if (pmDebugOptions.appl0)
+	    pmNotifyErr(LOG_DEBUG, "RAPL not detected");
+    } else {
+	has_rapl=1;
+    	detect_rapl_packages();
+	pmNotifyErr(LOG_INFO, "RAPL detected, with %d cpu-cores and %d rapl-packages.", total_cores, total_packages);
+    	detect_rapl_domains();
+    	denki_rapl_check();	// now we register the found rapl indoms
+    }
+    closedir(directory);
+
+    detect_battery();
 }
 
 /*
@@ -631,9 +675,7 @@ denki_init(pmdaInterface *dp)
 int
 main(int argc, char **argv)
 {
-    char		filename[BUFSIZ];
     int			c,sep = pmPathSeparator();
-    DIR			*directory;
     pmdaInterface	dispatch;
 
     isDSO = 0;
@@ -665,23 +707,6 @@ main(int argc, char **argv)
     pmdaConnect(&dispatch);
     denki_init(&dispatch);
 
-    pmNotifyErr(LOG_DEBUG, "configured to use this rootpath: %s", rootpath);
-
-    pmsprintf(filename,sizeof(filename),"%s/sys/class/powercap/intel-rapl",rootpath);
-    directory = opendir(filename);
-    if ( directory == NULL )
-    	pmNotifyErr(LOG_DEBUG, "RAPL not detected");
-    else {
-	has_rapl=1;
-    	detect_rapl_packages();
-    	pmNotifyErr(LOG_DEBUG, "RAPL detected, with %d cpu-cores and %d rapl-packages.", total_cores, total_packages);
-    	detect_rapl_domains();
-    	denki_rapl_check();	// now we register the found rapl indoms
-    }
-    closedir(directory);
-
-    detect_battery();
-    
     pmdaMain(&dispatch);
 
     exit(0);

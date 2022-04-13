@@ -1876,6 +1876,7 @@ x11
 1490 python local labels
 1495 pmlogrewrite labels pmdumplog local
 1511 pmcd local pmda.sample
+1515 pmda.denki local
 1530 pmda.zfs local valgrind
 1531 pmda.zfs local valgrind
 1532 pmda.zfs local
