@@ -510,7 +510,7 @@ migrate_pid_service()
     cgslice=`systemctl status $2 | $PCP_AWK_PROG '/CGroup:/ {print $2}'`
 
     # get a path to cgroup.procs with write access
-    for namespace in "" /systemd /unified /pids /memory; do
+    for namespace in "" /unified /systemd /pids /memory; do
 	cgprocs=${cgroot}${namespace}${cgslice}/cgroup.procs
 	if [ ! -e "$cgprocs" ]; then
 	    $verbose && echo "$iam: couldn't find cgroup.procs for service \"$2\", using namespace \"$namespace\""

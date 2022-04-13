@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Red Hat.
+ * Copyright (c) 2017-2022 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -1013,6 +1013,9 @@ pmwebapi_new_instance(indom_t *indom, int inst, sds name)
 {
     struct instance	*instance;
 
+    if (name == NULL || sdslen(name) == 0)
+	return NULL;
+
     if ((instance = calloc(1, sizeof(instance_t))) == NULL)
 	return NULL;
     instance->inst = inst;
@@ -1027,7 +1030,10 @@ struct instance *
 pmwebapi_add_instance(struct indom *indom, int inst, char *name)
 {
     struct instance	*instance;
-    size_t		length = strlen(name);
+    size_t		length;
+
+    if (name == NULL || (length = strlen(name)) == 0)
+	return NULL;
 
     if ((instance = dictFetchValue(indom->insts, &inst)) != NULL) {
 	/* has the external name changed for this internal identifier? */
@@ -1078,6 +1084,8 @@ pmwebapi_add_indom_instances(struct context *context, struct indom *indom)
 
     if ((sts = pmGetInDom(indom->indom, &instlist, &namelist)) >= 0) {
 	for (i = 0; i < sts; i++) {
+	    if (namelist[i] == NULL || namelist[i][0] == '\0')
+		continue;
 	    instance = pmwebapi_add_instance(indom, instlist[i], namelist[i]);
 	    instance->updated = 1;
 	    count++;
