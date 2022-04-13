@@ -100,11 +100,13 @@ static int detect_rapl_domains(void) {
 		pmsprintf(tempfile,sizeof(tempfile),"%s/name",basename[pkg]);
 		fff=fopen(tempfile,"r");
 		if (fff==NULL) {
-    			pmNotifyErr(LOG_ERR, "read_rapl() could not open %s", tempfile);
+			if (pmDebugOptions.appl0)
+    				pmNotifyErr(LOG_ERR, "read_rapl() could not open %s", tempfile);
 			return -1;
 		}
 		if ( fscanf(fff,"%255s",event_names[pkg][i]) != 1)
-    			pmNotifyErr(LOG_ERR, "read_rapl() could not read %s",event_names[pkg][i]);
+			if (pmDebugOptions.appl0)
+    				pmNotifyErr(LOG_ERR, "read_rapl() could not read %s",event_names[pkg][i]);
 		valid[pkg][i]=1;
 		fclose(fff);
 		pmsprintf(filenames[pkg][i],sizeof(filenames[pkg][i]),"%s/energy_uj",basename[pkg]);
@@ -142,11 +144,13 @@ static int read_rapl(void) {
 			if (valid[pkg][dom]) {
 				fff=fopen(filenames[pkg][dom],"r");
 				if (fff==NULL) {
-    					pmNotifyErr(LOG_ERR, "read_rapl() could not open %s",filenames[pkg][dom]);
+					if (pmDebugOptions.appl0)
+    						pmNotifyErr(LOG_ERR, "read_rapl() could not open %s",filenames[pkg][dom]);
 				}
 				else {
 					if ( fscanf(fff,"%lld",&raplvars[pkg][dom]) != 1)
-    						pmNotifyErr(LOG_ERR, "read_rapl() could not read %s",filenames[pkg][dom]);
+						if (pmDebugOptions.appl0)
+    							pmNotifyErr(LOG_ERR, "read_rapl() could not read %s",filenames[pkg][dom]);
 					fclose(fff);
 				}
 			}
@@ -171,7 +175,7 @@ double energy_convert_factor = 10000.0;	/* factor for fixing <battery>/energy_no
 
 /* detect battery */
 static int detect_battery(void) {
-	char	filename[BUFSIZ],dirname[512],type[32];
+	char	filename[MAXPATHLEN],dirname[MAXPATHLEN],type[32];
 	DIR	*directory;
 	FILE 	*fff;
 
@@ -262,7 +266,7 @@ static int detect_battery(void) {
 
 /* read the current battery values */
 static int read_battery(void) {
-	char filename[BUFSIZ];
+	char filename[MAXPATHLEN];
 	FILE *fff;
 
 	pmsprintf(filename,sizeof(filename),"%s/%s",battery_basepath,energy_now_file);
@@ -619,8 +623,12 @@ denki_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
  * Initialise the agent (both daemon and DSO).
  */
 void 
+__PMDA_INIT_CALL
 denki_init(pmdaInterface *dp)
 {
+    char		filename[MAXPATHLEN];
+    DIR			*directory;
+
     if (isDSO) {
 	int sep = pmPathSeparator();
 	pmsprintf(mypath, sizeof(mypath), "%s%c" "denki" "%c" "help",
@@ -641,6 +649,26 @@ denki_init(pmdaInterface *dp)
 
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), metrictab,
 		sizeof(metrictab)/sizeof(metrictab[0]));
+
+    if (pmDebugOptions.appl0)
+	pmNotifyErr(LOG_DEBUG, "configured to use this rootpath: %s", rootpath);
+
+    pmsprintf(filename,sizeof(filename),"%s/sys/class/powercap/intel-rapl",rootpath);
+    directory = opendir(filename);
+    if ( directory == NULL ) {
+	if (pmDebugOptions.appl0)
+	    pmNotifyErr(LOG_DEBUG, "RAPL not detected");
+    } else {
+	has_rapl=1;
+    	detect_rapl_packages();
+	if (pmDebugOptions.appl0)
+	    pmNotifyErr(LOG_DEBUG, "RAPL detected, with %d cpu-cores and %d rapl-packages.", total_cores, total_packages);
+    	detect_rapl_domains();
+    	denki_rapl_check();	// now we register the found rapl indoms
+    }
+    closedir(directory);
+
+    detect_battery();
 }
 
 /*
@@ -649,9 +677,7 @@ denki_init(pmdaInterface *dp)
 int
 main(int argc, char **argv)
 {
-    char		filename[BUFSIZ];
     int			c,sep = pmPathSeparator();
-    DIR			*directory;
     pmdaInterface	dispatch;
 
     isDSO = 0;
@@ -683,23 +709,6 @@ main(int argc, char **argv)
     pmdaConnect(&dispatch);
     denki_init(&dispatch);
 
-    pmNotifyErr(LOG_DEBUG, "configured to use this rootpath: %s", rootpath);
-
-    pmsprintf(filename,sizeof(filename),"%s/sys/class/powercap/intel-rapl",rootpath);
-    directory = opendir(filename);
-    if ( directory == NULL )
-    	pmNotifyErr(LOG_DEBUG, "RAPL not detected");
-    else {
-	has_rapl=1;
-    	detect_rapl_packages();
-    	pmNotifyErr(LOG_DEBUG, "RAPL detected, with %d cpu-cores and %d rapl-packages.", total_cores, total_packages);
-    	detect_rapl_domains();
-    	denki_rapl_check();	// now we register the found rapl indoms
-    }
-    closedir(directory);
-
-    detect_battery();
-    
     pmdaMain(&dispatch);
 
     exit(0);
