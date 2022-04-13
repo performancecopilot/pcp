@@ -30,6 +30,8 @@
 \f3pmdaEventReleaseHighResArray\f1,
 \f3pmdaEventAddHighResRecord\f1,
 \f3pmdaEventAddHighResMissedRecord\f1,
+\f3pmdaEventAddHighResParam\f1,
+\f3pmdaEventGetHighResAddr\f1,
 \f3pmdaEventHighResAddParam\f1,
 \f3pmdaEventHighResGetAddr\f1 \- utilities for PMDAs to build packed arrays of event records
 .ad
@@ -85,10 +87,10 @@ int pmdaEventAddHighResRecord(int \fIidx\fP, struct timespec *\fIts\fP, int\ \fI
 int pmdaEventAddHighResMissedRecord(int \fIidx\fP, struct timespec *\fIts\fP, int\ \fInmissed\fP);
 .br
 .ti -8n
-int pmdaEventHighResAddParam(int \fIidx\fP, pmID \fIpmid\fP, int \fItype\fP, pmAtomValue\ *\fIavp\fP);
+int pmdaEventAddHighResParam(int \fIidx\fP, pmID \fIpmid\fP, int \fItype\fP, pmAtomValue\ *\fIavp\fP);
 .br
 .ti -8n
-pmHighResEventArray *pmdaEventHighResGetAddr(int \fIidx\fP);
+pmHighResEventArray *pmdaEventGetHighResAddr(int \fIidx\fP);
 .sp
 .in
 .hy
@@ -237,6 +239,16 @@ field of the
 structure that the
 .B pmdaFetchCallBack
 method should return.
+.PP
+.B pmdaEventHighResAddParam
+and
+.B pmdaEventHighResGetAddr
+are previous names for
+.B pmdaEventAddHighResParam
+and
+.B pmdaEventGetHighResAddr
+(respectively)
+that have been maintained for backwards compatibility.
 .SH EXAMPLE
 The following skeletal code shows how these routines might be used.
 .PP

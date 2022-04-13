@@ -306,8 +306,8 @@ main(int argc, char **argv)
 
     start.tv_sec = winstart_tval.tv_sec;
     start.tv_nsec = winstart_tval.tv_usec * 1000;
-    if ((sts = pmHighResSetMode(PM_MODE_INTERP, &start, &targ)) < 0) {
-	fprintf(stderr, "%s: pmHighResSetMode(PM_MODE_INTERP ...) failed: %s\n",
+    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &start, &targ)) < 0) {
+	fprintf(stderr, "%s: pmSetModeHighRes(PM_MODE_INTERP ...) failed: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }

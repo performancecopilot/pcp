@@ -189,8 +189,8 @@ Options\n\
 	}
 	if (highres) {
 	    for (i = 0; i < iterations; i++) {
-		if ((n = pmHighResFetch(numpmid, pmidlist, &hresp)) < 0) {
-		    fprintf(stderr, "pmHighResFetch: %s\n", pmErrStr(n));
+		if ((n = pmFetchHighRes(numpmid, pmidlist, &hresp)) < 0) {
+		    fprintf(stderr, "pmFetchHighRes: %s\n", pmErrStr(n));
 		    exit(1);
 		}
 		pmFreeHighResResult(hresp);

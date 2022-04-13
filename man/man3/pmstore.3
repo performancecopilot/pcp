@@ -17,7 +17,7 @@
 .TH PMSTORE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmStore\f1,
-\f3pmHighResStore\f1 \- modify values of performance metrics
+\f3pmStoreHighRes\f1 \- modify values of performance metrics
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -25,7 +25,7 @@
 .nf
 int pmStore(const pmResult *\fIresult\fP);
 .br
-int pmHighResStore(const pmHighResResult *\fIresult\fP);
+int pmStoreHighRes(const pmHighResResult *\fIresult\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -43,11 +43,11 @@ variable for some agent collecting performance metrics.
 The routines
 .B pmStore
 and
-.B pmHighResStore
+.B pmStoreHighRes
 are lightweight inverses of
 .BR pmFetch (3)
 and
-.BR pmHighResFetch (3)
+.BR pmFetchHighRes (3)
 respectively.
 .PP
 The caller must build the
@@ -55,7 +55,7 @@ The caller must build the
 data structure (of course, this could have been returned from an earlier
 .BR pmFetch (3)
 or
-.BR pmHighResFetch (3)
+.BR pmFetchHighRes (3)
 call).
 .PP
 It is an error to pass a
@@ -63,7 +63,7 @@ It is an error to pass a
 to
 .B pmStore
 or
-.B pmHighResStore
+.B pmStoreHighRes
 in which the
 .CW numval
 field within any of the
@@ -76,14 +76,14 @@ context must be one with a host as the source of metrics, and the
 current value of the nominated metrics will be changed, i.e.
 .B pmStore
 and
-.B pmHighResStore
+.B pmStoreHighRes
 cannot be used to make retrospective changes to information in either
 the archive logs, or in the recent past for real-time sources of metrics.
 .PP
 The return code from
 .B pmStore
 and
-.B pmHighResStore
+.B pmStoreHighRes
 is zero for success.
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_GENERIC\f1
@@ -94,7 +94,7 @@ In cases where the outcome of storing into individual metrics is
 important, the caller should make one call to either
 .B pmStore
 or
-.B pmHighResStore
+.B pmStoreHighRes
 for each metric.
 On the other hand, a bulk modification can be performed in a
 single call for situations in which the outcome is not critical.
@@ -104,7 +104,7 @@ is a host that is not set to the current time, i.e. has been ``rewound''
 to the recent past using
 .BR pmSetMode (3)
 or
-.BR pmHighResSetMode (3).
+.BR pmSetModeHighRes (3).
 .IP \f3PM_ERR_TOOSMALL\f1
 The number of metrics specified in
 .I result
@@ -120,7 +120,7 @@ field with a value less than one.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmFetch (3),
-.BR pmHighResFetch (3),
-.BR pmHighResSetMode (3)
+.BR pmFetchHighRes (3),
+.BR pmSetModeHighRes (3)
 and
 .BR pmSetMode (3).

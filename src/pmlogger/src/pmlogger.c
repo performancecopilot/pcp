@@ -1443,7 +1443,7 @@ main(int argc, char **argv)
     if (sts >= 0)
 	sts = pmLookupName(2, names, pmids);
     if (sts >= 0)
-	sts = pmHighResFetch(2, pmids, &resp);
+	sts = pmFetchHighRes(2, pmids, &resp);
     if (sts >= 0) {
 	vp = resp->vset[0];
 	if (vp->numval > 1) { /* pmcd.zoneinfo present */

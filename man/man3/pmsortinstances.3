@@ -17,7 +17,7 @@
 .TH PMSORTINSTANCES 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmSortInstances\f1,
-\f3pmHighResSortInstances\f1 \- sort performance metric values on instance identifier
+\f3pmSortHighResInstances\f1 \- sort performance metric values on instance identifier
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -25,7 +25,7 @@
 .nf
 void pmSortInstances(pmResult *\fIresult\fP);
 .br
-int pmHighResSortInstances(pmHighResResult *\fIresult\fP);
+int pmSortHighResInstances(pmHighResResult *\fIresult\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -42,7 +42,7 @@ may be used to guarantee that for each performance metric in the
 from
 .BR pmFetch (3)
 or
-.BR pmHighResFetch (3),
+.BR pmFetchHighRes (3),
 the instances are in ascending instance identifier sequence.
 .PP
 This is useful when computing rates from two consecutive samples.
@@ -50,4 +50,4 @@ This is useful when computing rates from two consecutive samples.
 .BR PMAPI (3),
 .BR pmFetch (3)
 and
-.BR pmHighResFetch (3).
+.BR pmFetchHighRes (3).

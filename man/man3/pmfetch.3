@@ -18,7 +18,8 @@
 .TH PMFETCH 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmFetch\f1,
-\f3pmHighResFetch\f1, \- get performance metric values
+\f3pmFetchHighRes\f1,
+\f3pmHighResFetch\f1 \- get performance metric values
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -26,7 +27,7 @@
 .nf
 int pmFetch(int \fInumpmid\fP, pmID *\fIpmidlist\fP, pmResult **\fIresult\fP);
 .br
-int pmHighResFetch(int \fInumpmid\fP, pmID *\fIpmidlist\fP, pmHighResResult **\fIresult\fP);
+int pmFetchHighRes(int \fInumpmid\fP, pmID *\fIpmidlist\fP, pmHighResResult **\fIresult\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -54,7 +55,7 @@ fetch the values for these performance metrics.
 A call to either
 .B pmFetch
 or
-.B pmHighResFetch
+.B pmFetchHighRes
 is executed in the context of a source of metrics,
 instance profile and collection time,
 previously established by calls to
@@ -108,7 +109,7 @@ typedef struct {
 .ft 1
 .PP
 The principal result from
-.B pmHighResFetch
+.B pmFetchHighRes
 is exactly the same in terms of value sets, however a higher resolution
 timestamp (nanosecond instead of microsecond precision) is available in
 the
@@ -118,7 +119,7 @@ structure.
 .ft CW
 .nf
 .in +0.5i
-/* Result returned by pmHighResFetch() */
+/* Result returned by pmFetchHighRes() */
 typedef struct {
       struct timespec timestamp;      /* time stamped by collector */
       int             numpmid;        /* number of PMIDs */
@@ -277,7 +278,7 @@ and order of entries in
 completely deterministic,
 and greatly simplifies the application programming logic
 after the call to
-.B pmHighResFetch
+.B pmFetchHighRes
 or
 .BR pmFetch .
 .PP
@@ -310,7 +311,7 @@ function will be non-negative.
 Similarly, the
 .I result
 structure returned by
-.B pmHighResFetch
+.B pmFetchHighRes
 operates under the same principles, and should be released via
 .BR pmFreeHighResResult (3).
 .PP
@@ -345,9 +346,14 @@ returned by
 (or
 .CW pmHighResResult
 returned by
-.BR pmHighResFetch )
+.BR pmFetchHighRes )
 has the same interpretation independent of the return value being
 zero or greater than zero.
+.PP
+.B pmHighResFetch
+is a previous name for
+.B pmFetchHighRes
+that has been maintained for backwards compatibility.
 .SH SEE ALSO
 .BR pmcd (1),
 .BR pmAddProfile (3),
@@ -371,7 +377,7 @@ and
 Note that
 .B pmFetch
 and
-.B pmHighResFetch
+.B pmFetchHighRes
 are the most primitive methods of fetching metric values from the PMCS.
 See the
 .BR pmFetchGroup (3)
@@ -384,7 +390,7 @@ traversal, conversions, and scaling.
 As mentioned above,
 .B pmFetch
 and
-.B pmHighResFetch
+.B pmFetchHighRes
 return error codes
 .I insitu
 in the argument
@@ -398,7 +404,7 @@ will return a negative error code which may be examined using
 Currently PCP archives do not support high resolution timestamps,
 until this is addressed when fetching records from an archive log
 the
-.B pmHighResFetch
+.B pmFetchHighRes
 will fail with the not-yet-implemented error code.
 .IP \f3PM_ERR_EOL\f1
 When fetching records from an archive log,

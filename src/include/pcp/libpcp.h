@@ -1011,7 +1011,7 @@ PCP_CALL extern int __pmPrepareFetch(__pmContext *, int, const pmID *, pmID **);
 PCP_CALL extern int __pmFinishResult(__pmContext *, int, __pmResult **);
 PCP_CALL extern int __pmFinishHighResResult(__pmContext *, int, pmHighResResult **);
 PCP_CALL extern int __pmFetchLocal(__pmContext *, int, pmID *, __pmResult **);
-PCP_CALL extern int __pmHighResFetchLocal(__pmContext *, int, pmID *, __pmResult **);
+PCP_CALL extern int __pmFetchHighResLocal(__pmContext *, int, pmID *, __pmResult **);
 PCP_CALL extern int __pmDecodeResult_ctx(__pmContext *, __pmPDU *, __pmResult **);
 PCP_CALL extern int __pmDecodeHighResResult_ctx(__pmContext *, __pmPDU *, __pmResult **);
 PCP_CALL extern void __pmGetResultSize(int, int, pmValueSet * const *, size_t *, size_t *);

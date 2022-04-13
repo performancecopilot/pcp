@@ -159,7 +159,7 @@ do_logue(int type)
 	    pmid[0] = PMID(2,0,23);	/* pmcd.pid */
 	    pmid[1] = PMID(2,0,24);	/* pmcd.seqnum */
 
-	    sts = pmHighResFetch(2, pmid, &res_pmcd);
+	    sts = pmFetchHighRes(2, pmid, &res_pmcd);
 	    if (sts >= 0 && type == EPILOGUE) {
 		last_stamp.sec = res_pmcd->timestamp.tv_sec;
 		last_stamp.nsec = res_pmcd->timestamp.tv_nsec;

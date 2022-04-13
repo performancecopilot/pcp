@@ -100,7 +100,7 @@ main(int argc, char **argv)
 
     pmtimespecNow(&before);
     for (iter=0; iter < iterations; iter++) {
-	sts = highres ? pmHighResFetch(1, &pmid, &hresult) :
+	sts = highres ? pmFetchHighRes(1, &pmid, &hresult) :
 			pmFetch(1, &pmid, &result);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: iteration %d : %s\n",

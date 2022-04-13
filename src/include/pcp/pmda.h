@@ -796,6 +796,9 @@ PMDA_CALL extern int pmdaEventResetHighResArray(int);
 PMDA_CALL extern int pmdaEventReleaseHighResArray(int);
 PMDA_CALL extern int pmdaEventAddHighResRecord(int, struct timespec *, int);
 PMDA_CALL extern int pmdaEventAddHighResMissedRecord(int, struct timespec *, int);
+PMDA_CALL extern int pmdaEventAddHighResParam(int, pmID, int, pmAtomValue *);
+PMDA_CALL extern pmHighResEventArray *pmdaEventGetHighResAddr(int);
+/* old names retained for backwards compatibility */
 PMDA_CALL extern int pmdaEventHighResAddParam(int, pmID, int, pmAtomValue *);
 PMDA_CALL extern pmHighResEventArray *pmdaEventHighResGetAddr(int);
 

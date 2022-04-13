@@ -98,8 +98,8 @@ main(int argc, char **argv)
     }
 
     if (highres) {
-	if ((n = pmHighResFetch(numpmid, midlist, &hrslt)) < 0) {
-	    fprintf(stderr, "pmHighResFetch: %s\n", pmErrStr(n));
+	if ((n = pmFetchHighRes(numpmid, midlist, &hrslt)) < 0) {
+	    fprintf(stderr, "pmFetchHighRes: %s\n", pmErrStr(n));
 	    exit(1);
 	}
 	if (timestamp)

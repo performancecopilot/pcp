@@ -175,7 +175,7 @@ pmStore(const pmResult *rp)
 }
 
 int
-pmHighResStore(const pmHighResResult *rp)
+pmStoreHighRes(const pmHighResResult *rp)
 {
     __pmResult	*newrp;
     int		i, sts;
@@ -187,7 +187,7 @@ pmHighResStore(const pmHighResResult *rp)
      * but provides correct format and alignment.
      */
     if ((newrp = __pmAllocResult(rp->numpmid)) == NULL) {
-	pmNoMem("pmHighResStore: newrp", sizeof(__pmResult) + (rp->numpmid - 1) * sizeof(pmValueSet *), PM_RECOV_ERR);
+	pmNoMem("pmStoreHighRes: newrp", sizeof(__pmResult) + (rp->numpmid - 1) * sizeof(pmValueSet *), PM_RECOV_ERR);
 	return -ENOMEM;
     }
 

@@ -506,7 +506,7 @@ typedef struct pmResult {
 } pmResult;
 
 /*
- * Result returned by pmHighResFetch() and high resolution event timer
+ * Result returned by pmFetchHighRes() and high resolution event timer
  * result from pmUnpackHighResEventRecords()
  */
 typedef struct pmHighResResult {
@@ -537,6 +537,8 @@ typedef union {
  * the number of metrics in the agument.  
  */
 PCP_CALL extern int pmFetch(int, pmID *, pmResult **);
+PCP_CALL extern int pmFetchHighRes(int, pmID *, pmHighResResult **);
+/* older name maintained for backwards compatibility */
 PCP_CALL extern int pmHighResFetch(int, pmID *, pmHighResResult **);
 
 /*
@@ -557,7 +559,7 @@ PCP_CALL extern int pmHighResFetch(int, pmID *, pmHighResResult **);
  * Variant that is used to return a result from an archive.
  */
 PCP_CALL extern int pmFetchArchive(pmResult **);
-PCP_CALL extern int pmHighResFetchArchive(pmHighResResult **);
+PCP_CALL extern int pmFetchHighResArchive(pmHighResResult **);
 
 /*
  * Support for metric values annotated with name:value pairs (labels).
@@ -708,11 +710,11 @@ PCP_CALL extern int pmConvScale(int, const pmAtomValue *, const pmUnits *, pmAto
 
 /* Sort instances for each metric within a pmResult */
 PCP_CALL extern void pmSortInstances(pmResult *);
-PCP_CALL extern void pmHighResSortInstances(pmHighResResult *);
+PCP_CALL extern void pmSortHighResInstances(pmHighResResult *);
 
 /* Adjust collection time and/or mode for pmFetch */
 PCP_CALL extern int pmSetMode(int, const struct timeval *, int);
-PCP_CALL extern int pmHighResSetMode(int, const struct timespec *, const struct timespec *);
+PCP_CALL extern int pmSetModeHighRes(int, const struct timespec *, const struct timespec *);
 #define PM_MODE_LIVE	0
 #define PM_MODE_INTERP	1
 #define PM_MODE_FORW	2
@@ -724,7 +726,7 @@ PCP_CALL extern int pmHighResSetMode(int, const struct timespec *, const struct 
 
 /* Modify the value of one or more metrics */
 PCP_CALL extern int pmStore(const pmResult *);
-PCP_CALL extern int pmHighResStore(const pmHighResResult *);
+PCP_CALL extern int pmStoreHighRes(const pmHighResResult *);
 
 /* Get help and descriptive text */
 PCP_CALL extern int pmLookupText(pmID, int, char **);

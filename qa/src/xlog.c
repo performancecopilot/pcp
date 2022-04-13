@@ -145,8 +145,8 @@ main(int argc, char **argv)
 	printf("%s: pmGetHighResArchiveLabel(%d): %s\n", pmGetProgname(), ctx[0], pmErrStr(sts));
 	exit(1);
     }
-    if ((sts = pmHighResSetMode(PM_MODE_INTERP, &loglabel.start, &delta)) < 0) {
-	printf("%s: pmHighResSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
+    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &loglabel.start, &delta)) < 0) {
+	printf("%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
     if ((ctx[1] = pmDupContext()) < 0) {

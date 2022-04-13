@@ -735,7 +735,9 @@ PCP_3.32 {
 
     pmHighResFetch;
 
+#if 0
     __pmHighResFetchLocal;
+#endif
     __pmHighResFinishResult;
     __pmSendHighResFetch;
     __pmDecodeHighResFetch;
@@ -804,10 +806,11 @@ PCP_3.37 {
     pmExtendFetchGroup_timeval;
     pmGetHighResArchiveLabel;
     pmGetHighResArchiveEnd;
-    pmHighResStore;
-    pmHighResSetMode;
-    pmHighResFetchArchive;
-    pmHighResSortInstances;
+    pmStoreHighRes;
+    pmSetModeHighRes;
+    pmFetchHighRes;
+    pmFetchHighResArchive;
+    pmSortHighResInstances;
     pmParseHighResInterval;
     pmParseHighResTimeWindow;
     __pmtimespecPause;
@@ -822,6 +825,7 @@ PCP_3.37 {
     __pmSortInstances;
     __pmSendFetchPDU;
     __pmFetch;
+    __pmFetchHighResLocal;
     __pmFetchLocal;
     __pmFetchArchive;
     __pmFreeResult;

@@ -99,7 +99,16 @@ def test_pcp(self):
     except pmapi.pmErr as error:
         self.assertTrue(False)
 
-    # pmHighResFetch
+    # pmFetchHighRes
+    try:
+        results = ctx.pmFetchHighRes(self.ncpu_id)
+        print("pmFetchHighRes:", results)
+        self.assertTrue(True)
+    except pmapi.pmErr as error:
+        print("pmFetchHighRes: ", error)
+        self.assertTrue(False)
+
+    # pmHighResFetch (deprecated, but still supported)
     try:
         results = ctx.pmHighResFetch(self.ncpu_id)
         print("pmHighResFetch:", results)
@@ -346,29 +355,29 @@ def test_pcp(self):
         print("pmParseUnitsStr: ", error)
         self.assertTrue(True)
 
-    # pmHighResFetch
+    # pmFetchHighRes
     try:
-        results = ctx.pmHighResFetch(self.metric_ids)
-        print("pmHighResFetch:", results)
+        results = ctx.pmFetchHighRes(self.metric_ids)
+        print("pmFetchHighRes:", results)
         self.assertTrue(True)
     except pmapi.pmErr as error:
-        print("pmHighResFetch: ", error)
+        print("pmFetchHighRes: ", error)
         self.assertTrue(False)
 
-    # pmHighResSortInstances
+    # pmSortHighResInstances
     try:
-        ctx.pmHighResSortInstances(results)
-        print("pmHighResSortInstances: ok")
+        ctx.pmSortHighResInstances(results)
+        print("pmSortHighResInstances: ok")
     except pmapi.pmErr as error:
-        print("pmHighResSortInstances: ", error)
+        print("pmSortHighResInstances: ", error)
         self.assertTrue(False)
 
-    # pmHighResStore
+    # pmStoreHighRes
     try:
-        ctx.pmHighResStore(results)
+        ctx.pmStoreHighRes(results)
         self.assertTrue(False)
     except pmapi.pmErr as error:
-        print("pmHighResStore: ", error)
+        print("pmStoreHighRes: ", error)
         self.assertTrue(True)
 
     for i in range(results.contents.numpmid):
@@ -438,11 +447,11 @@ def test_pcp(self):
     if self.archive_type:
         # pmSetMode
         try:
-            ctx.pmHighResSetMode(api.PM_MODE_INTERP, results.contents.timestamp, 0)
-            print("pmHighResSetMode: ok")
+            ctx.pmSetModeHighRes(api.PM_MODE_INTERP, results.contents.timestamp, 0)
+            print("pmSetModeHighRes: ok")
             self.assertTrue(True)
         except pmapi.pmErr as error:
-            print("pmHighResSetMode: ", error)
+            print("pmSetModeHighRes: ", error)
             self.assertTrue(False)
 
         # pmGetArchiveLabel
@@ -487,9 +496,9 @@ def test_pcp(self):
                 "sample.double.bin * delta(sample.double.bin_ctr)")
         average = ctx.pmLookupName("pcpqa.derivation")
         descs = ctx.pmLookupDescs(average)
-        results = ctx.pmHighResFetch(average)
+        results = ctx.pmFetchHighRes(average)
         ctx.pmtimespecSleep(delta)
-        results = ctx.pmHighResFetch(average)
+        results = ctx.pmFetchHighRes(average)
         atom = ctx.pmExtractValue(results.contents.get_valfmt(0),
                                       results.contents.get_vlist(0, 0),
                                       descs[0].contents.type,

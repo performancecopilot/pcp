@@ -354,7 +354,7 @@ pmdaEventAddParam(int idx, pmID pmid, int type, pmAtomValue *avp)
 }
 
 int
-pmdaEventHighResAddParam(int idx, pmID pmid, int type, pmAtomValue *avp)
+pmdaEventAddHighResParam(int idx, pmID pmid, int type, pmAtomValue *avp)
 {
     int			sts;
     bufctl_t		*bp;
@@ -365,6 +365,13 @@ pmdaEventHighResAddParam(int idx, pmID pmid, int type, pmAtomValue *avp)
 	hrerp->er_nparams++;
     }
     return sts;
+}
+
+/* older name maintained for backwards compatibility */
+int
+pmdaEventHighResAddParam(int idx, pmID pmid, int type, pmAtomValue *avp)
+{
+    return pmdaEventAddHighResParam(idx, pmid, type, avp);
 }
 
 /*
@@ -386,7 +393,7 @@ pmdaEventGetAddr(int idx)
 }
 
 pmHighResEventArray *
-pmdaEventHighResGetAddr(int idx)
+pmdaEventGetHighResAddr(int idx)
 {
     pmHighResEventArray	*hreap;
 
@@ -397,4 +404,11 @@ pmdaEventHighResGetAddr(int idx)
     hreap->ea_type = PM_TYPE_HIGHRES_EVENT;
     hreap->ea_len = bufs[idx].bptr - bufs[idx].baddr;
     return hreap;
+}
+
+/* older name maintained for backwards compatibility */
+pmHighResEventArray *
+pmdaEventHighResGetAddr(int idx)
+{
+    return pmdaEventGetHighResAddr(idx);
 }

@@ -50,7 +50,7 @@ pmSortInstances(pmResult *rp)
 }
 
 void
-pmHighResSortInstances(pmHighResResult *rp)
+pmSortHighResInstances(pmHighResResult *rp)
 {
     sortinsts(rp->numpmid, &rp->vset[0]);
 }

@@ -550,7 +550,7 @@ class pmResult(Structure):
         return self.get_vlist(vset_idx, vlist_idx).inst
 
 class pmHighResResult(Structure):
-    """Structure returned by pmHighResFetch, uses struct timespec for time
+    """Structure returned by pmFetchHighRes, uses struct timespec for time
     """
     _fields_ = [("timestamp", timespec),
                 ("numpmid", c_int),
@@ -828,8 +828,8 @@ LIBPCP.pmDelProfile.argtypes = [c_uint, c_int, POINTER(c_int)]
 LIBPCP.pmSetMode.restype = c_int
 LIBPCP.pmSetMode.argtypes = [c_int, POINTER(timeval), c_int]
 
-LIBPCP.pmHighResSetMode.restype = c_int
-LIBPCP.pmHighResSetMode.argtypes = [c_int, POINTER(timespec), POINTER(timespec)]
+LIBPCP.pmSetModeHighRes.restype = c_int
+LIBPCP.pmSetModeHighRes.argtypes = [c_int, POINTER(timespec), POINTER(timespec)]
 
 LIBPCP.pmReconnectContext.restype = c_int
 LIBPCP.pmReconnectContext.argtypes = [c_int]
@@ -866,6 +866,9 @@ LIBPCP.pmCtime.argtypes = [POINTER(c_long), c_char_p]
 LIBPCP.pmFetch.restype = c_int
 LIBPCP.pmFetch.argtypes = [c_int, POINTER(c_uint), POINTER(POINTER(pmResult))]
 
+LIBPCP.pmFetchHighRes.restype = c_int
+LIBPCP.pmFetchHighRes.argtypes = [c_int, POINTER(c_uint), POINTER(POINTER(pmHighResResult))]
+# old name preserved for backwards compatibility
 LIBPCP.pmHighResFetch.restype = c_int
 LIBPCP.pmHighResFetch.argtypes = [c_int, POINTER(c_uint), POINTER(POINTER(pmHighResResult))]
 
@@ -878,8 +881,8 @@ LIBPCP.pmFreeHighResResult.argtypes = [POINTER(pmHighResResult)]
 LIBPCP.pmStore.restype = c_int
 LIBPCP.pmStore.argtypes = [POINTER(pmResult)]
 
-LIBPCP.pmHighResStore.restype = c_int
-LIBPCP.pmHighResStore.argtypes = [POINTER(pmHighResResult)]
+LIBPCP.pmStoreHighRes.restype = c_int
+LIBPCP.pmStoreHighRes.argtypes = [POINTER(pmHighResResult)]
 
 
 ##
@@ -911,8 +914,8 @@ LIBPCP.pmNameInDomArchive.argtypes = [pmInDom, c_int]
 LIBPCP.pmFetchArchive.restype = c_int
 LIBPCP.pmFetchArchive.argtypes = [POINTER(POINTER(pmResult))]
 
-LIBPCP.pmHighResFetchArchive.restype = c_int
-LIBPCP.pmHighResFetchArchive.argtypes = [POINTER(POINTER(pmHighResResult))]
+LIBPCP.pmFetchHighResArchive.restype = c_int
+LIBPCP.pmFetchHighResArchive.argtypes = [POINTER(POINTER(pmHighResResult))]
 
 
 ##
@@ -980,7 +983,7 @@ LIBPCP.pmPrintValue.argtypes = [c_void_p, c_int, c_int, POINTER(pmValue), c_int]
 
 LIBPCP.pmParseHighResInterval.restype = c_int
 LIBPCP.pmParseHighResInterval.argtypes = [c_char_p, POINTER(timespec),
-                                   POINTER(c_char_p)]
+                                          POINTER(c_char_p)]
 
 LIBPCP.pmParseInterval.restype = c_int
 LIBPCP.pmParseInterval.argtypes = [c_char_p, POINTER(timeval),
@@ -997,8 +1000,8 @@ LIBPCP.pmflush.argtypes = []
 LIBPCP.pmprintf.restype = c_int
 LIBPCP.pmprintf.argtypes = [c_char_p]
 
-LIBPCP.pmHighResSortInstances.restype = None
-LIBPCP.pmHighResSortInstances.argtypes = [POINTER(pmHighResResult)]
+LIBPCP.pmSortHighResInstances.restype = None
+LIBPCP.pmSortHighResInstances.argtypes = [POINTER(pmHighResResult)]
 
 LIBPCP.pmSortInstances.restype = None
 LIBPCP.pmSortInstances.argtypes = [POINTER(pmResult)]
@@ -2010,9 +2013,9 @@ class pmContext(object):
             raise pmErr(status)
         return status
 
-    def pmHighResSetMode(self, mode, origin, interval):
+    def pmSetModeHighRes(self, mode, origin, interval):
         """PMAPI - set interpolation mode for reading archive files
-        code = pmHighResSetMode(c_api.PM_MODE_INTERP, timespec, timespec)
+        code = pmSetModeHighRes(c_api.PM_MODE_INTERP, timespec, timespec)
         """
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
@@ -2023,7 +2026,7 @@ class pmContext(object):
         delta = None
         if interval is not None and interval != 0:
             delta = pointer(interval)
-        status = LIBPCP.pmHighResSetMode(mode, when, delta)
+        status = LIBPCP.pmSetModeHighRes(mode, when, delta)
         if status < 0:
             raise pmErr(status)
         return status
@@ -2146,8 +2149,22 @@ class pmContext(object):
             raise pmErr(status)
         return result_p
 
-    def pmHighResFetch(self, pmidA):
+    def pmFetchHighRes(self, pmidA):
         """PMAPI - Fetch pmHighResResult from the target source
+
+        pmHighResResult* pmresult = pmFetchHighRes(c_uint pmid[])
+        """
+        result_p = POINTER(pmHighResResult)()
+        status = LIBPCP.pmUseContext(self.ctx)
+        if status < 0:
+            raise pmErr(status)
+        status = LIBPCP.pmFetchHighRes(len(pmidA), pmidA, byref(result_p))
+        if status < 0:
+            raise pmErr(status)
+        return result_p
+
+    def pmHighResFetch(self, pmidA):
+        """PMAPI - Fetch pmHighResResult from the target source (deprecated)
 
         pmHighResResult* pmresult = pmHighResFetch(c_uint pmid[])
         """
@@ -2155,7 +2172,7 @@ class pmContext(object):
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        status = LIBPCP.pmHighResFetch(len(pmidA), pmidA, byref(result_p))
+        status = LIBPCP.pmFetchHighRes(len(pmidA), pmidA, byref(result_p))
         if status < 0:
             raise pmErr(status)
         return result_p
@@ -2187,15 +2204,15 @@ class pmContext(object):
             raise pmErr(status)
         return result
 
-    def pmHighResStore(self, result):
-        """PMAPI - Set values on target source, inverse of pmHighResFetch
-        pmresult = pmHighResStore(pmHighResResult* pmresult)
+    def pmStoreHighRes(self, result):
+        """PMAPI - Set values on target source, inverse of pmFetchHighRes
+        pmresult = pmStoreHighRes(pmHighResResult* pmresult)
         """
-        LIBPCP.pmHighResStore.argtypes = [(type(result))]
+        LIBPCP.pmStoreHighRes.argtypes = [(type(result))]
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        status = LIBPCP.pmHighResStore(result)
+        status = LIBPCP.pmStoreHighRes(result)
         if status < 0:
             raise pmErr(status)
         return result
@@ -2324,16 +2341,16 @@ class pmContext(object):
             raise pmErr(status)
         return result_p
 
-    def pmHighResFetchArchive(self):
+    def pmFetchHighResArchive(self):
         """PMAPI - Fetch raw measurements from the target source
 
-        pmHighResResult* pmresult = pmHighResFetchArchive()
+        pmHighResResult* pmresult = pmFetchHighResArchive()
         """
         result_p = POINTER(pmHighResResult)()
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        status = LIBPCP.pmHighResFetchArchive(byref(result_p))
+        status = LIBPCP.pmFetchHighResArchive(byref(result_p))
         if status < 0:
             raise pmErr(status)
         return result_p
@@ -2739,9 +2756,9 @@ class pmContext(object):
             raise pmErr(status)
 
     @staticmethod
-    def pmHighResSortInstances(result_p):
-        """PMAPI - sort all metric instances in result returned by pmHighResFetch """
-        LIBPCP.pmHighResSortInstances(result_p)
+    def pmSortHighResInstances(result_p):
+        """PMAPI - sort all metric instances in result returned by pmFetchHighRes """
+        LIBPCP.pmSortHighResInstances(result_p)
 
     @staticmethod
     def pmSortInstances(result_p):
@@ -2898,7 +2915,7 @@ class pmContext(object):
 
         if self.type == c_api.PM_CONTEXT_ARCHIVE:
             mode, step = pmContext.get_mode_step(archive, interpol, interval)
-            self.pmHighResSetMode(mode, options.pmGetOptionHighResOrigin(), step)
+            self.pmSetModeHighRes(mode, options.pmGetOptionHighResOrigin(), step)
 
 # ----- fetchgroup API
 

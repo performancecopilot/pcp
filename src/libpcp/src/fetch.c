@@ -276,7 +276,7 @@ pmFetch(int numpmid, pmID *pmidlist, pmResult **result)
 }
 
 int
-pmHighResFetch(int numpmid, pmID *pmidlist, pmHighResResult **result)
+pmFetchHighRes(int numpmid, pmID *pmidlist, pmHighResResult **result)
 {
     __pmResult	*rp;
     int		sts;
@@ -291,6 +291,15 @@ pmHighResFetch(int numpmid, pmID *pmidlist, pmHighResResult **result)
 	*result = ans;
     }
     return sts;
+}
+
+/*
+ * older name, maintained for backwards compatibility
+ */
+int 
+pmHighResFetch(int numpmid, pmID *pmidlist, pmHighResResult **result)
+{
+    return pmFetchHighRes(numpmid, pmidlist, result);
 }
 
 int
@@ -340,7 +349,7 @@ pmFetchArchive(pmResult **result)
 }
 
 int
-pmHighResFetchArchive(pmHighResResult **result)
+pmFetchHighResArchive(pmHighResResult **result)
 {
     __pmResult	*rp;
     int		sts;
@@ -472,7 +481,7 @@ pmSetMode(int mode, const struct timeval *when, int delta)
 }
 
 int
-pmHighResSetMode(int mode, const struct timespec *when, const struct timespec *delta)
+pmSetModeHighRes(int mode, const struct timespec *when, const struct timespec *delta)
 {
     __pmTimestamp	offset, interval;
     int			direction;

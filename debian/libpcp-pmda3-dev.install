@@ -28,6 +28,8 @@ usr/share/man/man3/pmdaEventAddRecord.3.gz
 usr/share/man/man3/pmdaEventClients.3.gz
 usr/share/man/man3/pmdaEventEndClient.3.gz
 usr/share/man/man3/pmdaEventGetAddr.3.gz
+usr/share/man/man3/pmdaEventAddHighResParam.3.gz
+usr/share/man/man3/pmdaEventGetHighResAddr.3.gz
 usr/share/man/man3/pmdaEventHighResAddParam.3.gz
 usr/share/man/man3/pmdaEventHighResGetAddr.3.gz
 usr/share/man/man3/pmdaEventNewActiveQueue.3.gz

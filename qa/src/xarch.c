@@ -160,8 +160,8 @@ main(int argc, char **argv)
 
     when.tv_sec = 0;
     when.tv_nsec = 0;
-    if ((sts = pmHighResSetMode(PM_MODE_FORW, &when, NULL)) < 0) {
-	printf("%s: pmHighResSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
+    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &when, NULL)) < 0) {
+	printf("%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
@@ -169,8 +169,8 @@ main(int argc, char **argv)
         printf("%s: Cannot dup context to archive \"%s\": %s\n", pmGetProgname(), archive, pmErrStr(ctx[0]));
         exit(1);
     }
-    if ((sts = pmHighResSetMode(PM_MODE_FORW, &when, NULL)) < 0) {
-        printf("%s: pmHighResSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
+    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &when, NULL)) < 0) {
+        printf("%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
         exit(1);
     }
 
@@ -211,9 +211,9 @@ main(int argc, char **argv)
 
     printf("\nPass 1: forward scan\n");
     for (;;) {
-	if ((sts = pmHighResFetch(numpmid, pmidlist, &resp)) < 0) {
+	if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmHighResFetch: %s\n", pmGetProgname(), pmErrStr(sts));
+		printf("%s: pmFetchHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
 	    break;
 	}
 	resnum++;
@@ -229,16 +229,16 @@ main(int argc, char **argv)
     printf("\nPass 2: backwards scan\n");
     when.tv_sec = PM_MAX_TIME_T;
     when.tv_nsec = 0;
-    if ((sts = pmHighResSetMode(PM_MODE_BACK, &when, 0)) < 0) {
+    if ((sts = pmSetModeHighRes(PM_MODE_BACK, &when, 0)) < 0) {
 	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
     n = 0;
     for (;;) {
-	if ((sts = pmHighResFetch(numpmid, pmidlist, &resp)) < 0) {
+	if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmHighResFetch: %s\n", pmGetProgname(), pmErrStr(sts));
+		printf("%s: pmFetchHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
 	    break;
 	}
 	n++;
@@ -257,15 +257,15 @@ main(int argc, char **argv)
     pmUseContext(ctx[0]);
     when.tv_sec = 0;
     when.tv_nsec = 0;
-    if ((sts = pmHighResSetMode(PM_MODE_FORW, &when, NULL)) < 0) {
-	printf("%s: pmHighResSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
+    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &when, NULL)) < 0) {
+	printf("%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
     pmUseContext(ctx[1]);
     when.tv_sec = PM_MAX_TIME_T;
     when.tv_nsec = 0;
-    if ((sts = pmHighResSetMode(PM_MODE_BACK, &when, 0)) < 0) {
-	printf("%s: pmHighResSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
+    if ((sts = pmSetModeHighRes(PM_MODE_BACK, &when, 0)) < 0) {
+	printf("%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
@@ -273,9 +273,9 @@ main(int argc, char **argv)
     n = 0;
     while (!done) {
 	pmUseContext(ctx[0]);
-	if ((sts = pmHighResFetch(numpmid, pmidlist, &resp)) < 0) {
+	if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmHighResFetch: %s\n", pmGetProgname(), pmErrStr(sts));
+		printf("%s: pmFetchHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
 	    done = 1;
 	}
 	else {
@@ -285,9 +285,9 @@ main(int argc, char **argv)
 	}
 
 	pmUseContext(ctx[1]);
-	if ((sts = pmHighResFetch(numpmid, pmidlist, &resp)) < 0) {
+	if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
-		printf("%s: pmHighResFetch: %s\n", pmGetProgname(), pmErrStr(sts));
+		printf("%s: pmFetchHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
 	    done = 1;
 	}
 	else {
@@ -318,16 +318,16 @@ main(int argc, char **argv)
 		when = resvec[resnum - 1]->timestamp;
 		pmtimespecInc(&when, &microsec);
 	    }
-	    if ((sts = pmHighResSetMode(PM_MODE_FORW, &when, NULL)) < 0) {
-		printf("%s: pmHighResSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
+	    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &when, NULL)) < 0) {
+		printf("%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 
 	    n = i;
 	    for (;;) {
-		if ((sts = pmHighResFetch(numpmid, pmidlist, &resp)) < 0) {
+		if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
 		    if (sts != PM_ERR_EOL)
-			printf("%s: pmHighResFetch: %s\n", pmGetProgname(), pmErrStr(sts));
+			printf("%s: pmFetchHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
 		    break;
 		}
 		j++;
@@ -361,15 +361,15 @@ main(int argc, char **argv)
 		    when.tv_sec--;
 		}
 	    }
-	    if ((sts = pmHighResSetMode(PM_MODE_BACK, &when, NULL)) < 0) {
-		printf("%s: pmHighResSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
+	    if ((sts = pmSetModeHighRes(PM_MODE_BACK, &when, NULL)) < 0) {
+		printf("%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 
 	    for (;;) {
-		if ((sts = pmHighResFetch(numpmid, pmidlist, &resp)) < 0) {
+		if ((sts = pmFetchHighRes(numpmid, pmidlist, &resp)) < 0) {
 		    if (sts != PM_ERR_EOL)
-			printf("%s: pmHighResFetch: %s\n", pmGetProgname(), pmErrStr(sts));
+			printf("%s: pmFetchHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
 		    break;
 		}
 		cmpres(i, resvec[i], resp);
@@ -386,32 +386,32 @@ main(int argc, char **argv)
     printf("\nPass 6: EOL tests, forwards and backwards\n");
     when = loglabel.start;
     when.tv_sec--;
-    if ((sts = pmHighResSetMode(PM_MODE_BACK, &when, NULL)) < 0) {
-	printf("%s: pmHighResSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
+    if ((sts = pmSetModeHighRes(PM_MODE_BACK, &when, NULL)) < 0) {
+	printf("%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
-    if ((sts = pmHighResFetchArchive(&resp)) < 0) {
+    if ((sts = pmFetchHighResArchive(&resp)) < 0) {
 	if (sts != PM_ERR_EOL)
-	    printf("%s: pmHighResFetchArchive: %s\n", pmGetProgname(), pmErrStr(sts));
+	    printf("%s: pmFetchHighResArchive: %s\n", pmGetProgname(), pmErrStr(sts));
     }
     else {
-	printf("%s: pmHighResFetchArchive: unexpected success before start of log\n", pmGetProgname());
+	printf("%s: pmFetchHighResArchive: unexpected success before start of log\n", pmGetProgname());
 	__pmDumpHighResResult(stdout, resp);
 	pmFreeHighResResult(resp);
     }
 
     when.tv_sec = PM_MAX_TIME_T;
     when.tv_nsec = 0;
-    if ((sts = pmHighResSetMode(PM_MODE_FORW, &when, NULL)) < 0) {
-	printf("%s: pmHighResSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
+    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &when, NULL)) < 0) {
+	printf("%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
-    if ((sts = pmHighResFetchArchive(&resp)) < 0) {
+    if ((sts = pmFetchHighResArchive(&resp)) < 0) {
 	if (sts != PM_ERR_EOL)
-	    printf("%s: pmHighResFetchArchive: %s\n", pmGetProgname(), pmErrStr(sts));
+	    printf("%s: pmFetchHighResArchive: %s\n", pmGetProgname(), pmErrStr(sts));
     }
     else {
-	printf("%s: pmHighResFetchArchive: unexpected success after end of log\n", pmGetProgname());
+	printf("%s: pmFetchHighResArchive: unexpected success after end of log\n", pmGetProgname());
 	__pmDumpHighResResult(stdout, resp);
 	pmFreeHighResResult(resp);
     }

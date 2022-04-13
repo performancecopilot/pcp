@@ -17,7 +17,7 @@
 .TH PMSETMODE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmSetMode\f1,
-\f3pmHighResSetMode\f1 \- set collection time parameters for the current PMAPI context
+\f3pmSetModeHighRes\f1 \- set collection time parameters for the current PMAPI context
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -25,7 +25,7 @@
 .nf
 int pmSetMode(int \fImode\fP, const struct timeval *\fIwhen\fP, int \fIdelta\fP);
 .br
-int pmHighResSetMode(int \fImode\fP, const struct timespec *\fIwhen\fP, const struct timespec *\fIdelta\fP);
+int pmSetModeHighRes(int \fImode\fP, const struct timespec *\fIwhen\fP, const struct timespec *\fIdelta\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -37,7 +37,7 @@ cc ... \-lpcp
 ..
 .B pmSetMode
 and
-.B pmHighResSetMode
+.B pmSetModeHighRes
 are used to define the collection time and/or mode for accessing
 performance metrics and meta-data in the current
 Performance Metrics Application Programming Interface (PMAPI)
@@ -173,7 +173,7 @@ is interpreted as milliseconds (but see the LARGE DELTA VALUES
 section below).
 .PP
 In the
-.B pmHighResSetMode
+.B pmSetModeHighRes
 variant of this interface, the
 .I delta
 parameter is a
@@ -255,13 +255,13 @@ To perform the same operations, using high resolution time:
 struct timespec mytime, mydelta = { -10, 0 };
 
 mytime.tv_sec = PM_MAX_TIME_T; /* or use pmGetHighResArchiveEnd(&mtime) */
-pmHighResSetMode(PM_MODE_BACK, &mytime, NULL);
-pmHighResFetchArchive(&result);
+pmSetModeHighRes(PM_MODE_BACK, &mytime, NULL);
+pmFetchHighResArchive(&result);
 mytime = result->timestamp;
 pmFreeHighResResult(result);
-pmHighResSetMode(PM_MODE_INTERP, &mytime, &mydelta);
+pmSetModeHighRes(PM_MODE_INTERP, &mytime, &mydelta);
 
-while (pmHighResFetch(numpmid, pmidlist, &result) != PM_ERR_EOL) {
+while (pmFetchHighRes(numpmid, pmidlist, &result) != PM_ERR_EOL) {
     /*
      * process interpolated metric values as of
      * result->timestamp
@@ -276,7 +276,7 @@ while (pmHighResFetch(numpmid, pmidlist, &result) != PM_ERR_EOL) {
 The simplest mechanism to set large values for
 .I delta
 is to use the
-.B pmHighResSetMode
+.B pmSetModeHighRes
 interface.
 However, the
 .B pmSetMode

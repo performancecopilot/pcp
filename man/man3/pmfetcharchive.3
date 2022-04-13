@@ -17,7 +17,7 @@
 .TH PMFETCHARCHIVE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmFetchArchive\f1,
-\f3pmHighResFetchArchive\f1 \- get performance metric values directly from archive logs
+\f3pmFetchHighResArchive\f1 \- get performance metric values directly from archive logs
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -32,11 +32,11 @@ cc ... \-lpcp
 The
 .B pmFetchArchive
 and
-.B pmHighResFetchArchive
+.B pmFetchHighResArchive
 APIs are variants of the
 .BR pmFetch (3)
 and
-.BR pmHighResFetch (3)
+.BR pmFetchHighRes (3)
 interfaces that may only be used when the current
 Performance Metrics Application Programming Interface (PMAPI)
 context is associated with a set of archive logs.
@@ -50,7 +50,7 @@ and the instance profile of the PMAPI context is ignored.
 .PP
 .B pmFetchArchive
 and
-.B pmHighResFetchArchive
+.B pmFetchHighResArchive
 may return a
 .I result
 in which
@@ -72,30 +72,30 @@ the start of the next input archive.
 It is expected that
 .B pmFetchArchive
 and
-.B pmHighResFetchArchive
+.B pmFetchHighResArchive
 will be used to create utilities that scan sets of archive logs,
 while the more common access to the archives would be via the
 .B pmFetch
 and
-.B pmHighResFetch
+.B pmFetchHighRes
 interfaces.
 .PP
 To skip records within the set of archive logs, use
 .BR pmSetMode (3)
 or
-.BR pmHighResSetMode (3)
+.BR pmSetModeHighRes (3)
 to change the collection time within the current
 PMAPI context, then call either
 .B pmFetchArchive
 or
-.BR pmHighResFetchArchive .
+.BR pmFetchHighResArchive .
 .PP
 Note that the
 .I result
 returned by both
 .B pmFetchArchive
 and
-.B pmHighResFetchArchive
+.B pmFetchHighResArchive
 is dynamically allocated, and
 must be released using either
 .BR pmFreeResult (3)
@@ -105,7 +105,7 @@ but not
 .BR free (3).
 See
 .BR pmFetch (3),
-.BR pmHighResFetch (3),
+.BR pmFetchHighRes (3),
 .BR pmFreeResult (3)
 and
 .BR pmFreeHighResResult (3)
@@ -114,15 +114,15 @@ for further details.
 Both
 .B pmFetchArchive
 and
-.B pmHighResFetchArchive
+.B pmFetchHighResArchive
 returns zero on success.
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_NOTARCHIVE\f1
 the current PMAPI context is not associated with a set of archive logs
 .SH SEE ALSO
 .BR PMAPI (3),
-.BR pmHighResFetch (3),
-.BR pmHighResSetMode (3),
+.BR pmFetchHighRes (3),
+.BR pmSetModeHighRes (3),
 .BR pmFreeHighResResult (3),
 .BR pmFetch (3),
 .BR pmFreeResult (3),

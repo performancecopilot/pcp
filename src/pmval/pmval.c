@@ -277,7 +277,7 @@ getvals(Context *x,		/* in - full pm description */
 	 * pmid we are after, or a mark record
 	 */
 	for ( ; ; ) {
-	    e = pmHighResFetchArchive(&r);
+	    e = pmFetchHighResArchive(&r);
 	    if (e < 0)
 		break;
 
@@ -300,7 +300,7 @@ getvals(Context *x,		/* in - full pm description */
 	}
     }
     else {
-	e = pmHighResFetch(1, &(x->pmid), &r);
+	e = pmFetchHighRes(1, &(x->pmid), &r);
 	i = 0;
     }
 

@@ -191,3 +191,9 @@ PCP_PMDA_3.11 {
   global:
     pmdaCachePurgeCallback;
 } PCP_PMDA_3.10;
+
+PCP_PMDA_3.12 {
+  global:
+    pmdaEventAddHighResParam;
+    pmdaEventGetHighResAddr;
+} PCP_PMDA_3.11;

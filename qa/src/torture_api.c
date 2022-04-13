@@ -327,9 +327,9 @@ test_api(void)
 	}
 
 	_op++;
-	if ((n = pmHighResSetMode(PM_MODE_BACK, &when, &delta)) < 0) {
+	if ((n = pmSetModeHighRes(PM_MODE_BACK, &when, &delta)) < 0) {
 	    _err++;
-	    printf("pmHighResSetMode(PM_MODE_BACK): %s\n", pmErrStr(n));
+	    printf("pmSetModeHighRes(PM_MODE_BACK): %s\n", pmErrStr(n));
 	}
     }
 
@@ -447,17 +447,17 @@ test_api(void)
 	    if (midlist[i] == PM_ID_NULL)
 		continue; 
 	    _op++;
-	    if ((n = pmHighResSetMode(PM_MODE_FORW, &when, NULL)) < 0) {
+	    if ((n = pmSetModeHighRes(PM_MODE_FORW, &when, NULL)) < 0) {
 		_err++;
-		printf("pmHighResSetMode(PM_MODE_FORW): %s\n", pmErrStr(n));
+		printf("pmSetModeHighRes(PM_MODE_FORW): %s\n", pmErrStr(n));
 	    }
 	    else {
 		_op++;
                 if (vflag)
                     printf("Fetch of %s:\n", namelist[i]);
-		if ((n = pmHighResFetch(1, &midlist[i], &resp)) < 0) {
+		if ((n = pmFetchHighRes(1, &midlist[i], &resp)) < 0) {
 		    _err++;
-		    printf("Archive pmHighResFetch: %s\n", pmErrStr(n));
+		    printf("Archive pmFetchHighRes: %s\n", pmErrStr(n));
 		}
 		else {
 		    if (vflag)
@@ -471,15 +471,15 @@ test_api(void)
 
     else if (context_type == PM_CONTEXT_HOST) {
 	_op++;
-	if ((n = pmHighResSetMode(PM_MODE_LIVE, NULL, NULL)) < 0) {
+	if ((n = pmSetModeHighRes(PM_MODE_LIVE, NULL, NULL)) < 0) {
 	    _err++;
-	    printf("pmHighResSetMode(PM_MODE_LIVE): %s\n", pmErrStr(n));
+	    printf("pmSetModeHighRes(PM_MODE_LIVE): %s\n", pmErrStr(n));
 	}
 	else {
 	    _op++;
-	    if ((n = pmHighResFetch(numpmid, midlist, &resp)) < 0) {
+	    if ((n = pmFetchHighRes(numpmid, midlist, &resp)) < 0) {
 		_err++;
-		printf("real-time pmHighResFetch: %s\n", pmErrStr(n));
+		printf("real-time pmFetchHighRes: %s\n", pmErrStr(n));
 	    }
 	    else {
 		if (vflag) {

@@ -35,7 +35,7 @@ cc ... \-lpcp
 The variable sized results returned by
 .BR pmFetch (3)
 and
-.BR pmHighResFetch (3)
+.BR pmFetchHighRes (3)
 are allocated below the
 Performance Metrics Application Programming Interface (PMAPI)
 using a combination of dynamic (i.e. \c
@@ -64,7 +64,7 @@ by
 Similarly, memory allocated for the high resolution timestamped
 .I result
 structure returned from
-.BR pmHighResFetch (3)
+.BR pmFetchHighRes (3)
 should be released by a call to
 .BR pmFreeHighResResult .
 .SH SEE ALSO
@@ -72,4 +72,4 @@ should be released by a call to
 .BR PMAPI (3),
 .BR pmFetch (3)
 and
-.BR pmHighResFetch (3).
+.BR pmFetchHighRes (3).

@@ -342,16 +342,16 @@ sample_fetch_highres_events(pmValueBlock **vbpp, int inst)
 		    return sts;
 		stamp.tv_sec++;
 		atom.ul = 1;
-		if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
+		if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
 		    return sts;
 		if ((sts = pmdaEventAddHighResRecord(hrarray[inst], &stamp, flags)) < 0)
 		    return sts;
 		stamp.tv_sec++;
 		atom.ul = 2;
-		if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
+		if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
 		    return sts;
 		atom.ll = -3;
-		if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_64, PM_TYPE_64, &atom)) < 0)
+		if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_64, PM_TYPE_64, &atom)) < 0)
 		    return sts;
 		break;
 	    case 3:
@@ -368,48 +368,48 @@ sample_fetch_highres_events(pmValueBlock **vbpp, int inst)
 		    return sts;
 		stamp.tv_sec++;
 		atom.ul = 4;
-		if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
+		if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
 		    return sts;
 		atom.ull = 5;
-		if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_u64, PM_TYPE_U64, &atom)) < 0)
+		if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_u64, PM_TYPE_U64, &atom)) < 0)
 		    return sts;
 		atom.cp = "6";
-		if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_string, PM_TYPE_STRING, &atom)) < 0)
+		if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_string, PM_TYPE_STRING, &atom)) < 0)
 		    return sts;
 		flags = PM_EVENT_FLAG_POINT;
 		if ((sts = pmdaEventAddHighResRecord(hrarray[inst], &stamp, flags)) < 0)
 		    return sts;
 		stamp.tv_sec++;
 		atom.ul = 7;
-		if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
+		if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
 		    return sts;
 		atom.d = 8;
-		if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_double, PM_TYPE_DOUBLE, &atom)) < 0)
+		if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_double, PM_TYPE_DOUBLE, &atom)) < 0)
 		    return sts;
 		atom.d = -9;
-		if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_double, PM_TYPE_DOUBLE, &atom)) < 0)
+		if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_double, PM_TYPE_DOUBLE, &atom)) < 0)
 		    return sts;
 		flags = PM_EVENT_FLAG_END;
 		if ((sts = pmdaEventAddHighResRecord(hrarray[inst], &stamp, flags)) < 0)
 		    return sts;
 		stamp.tv_sec++;
 		atom.ul = 10;
-		if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
+		if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
 		    return sts;
 		atom.ull = 11;
-		if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_u64, PM_TYPE_U64, &atom)) < 0)
+		if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_u64, PM_TYPE_U64, &atom)) < 0)
 		    return sts;
 		atom.cp = "twelve";
-		if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_string, PM_TYPE_STRING, &atom)) < 0)
+		if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_string, PM_TYPE_STRING, &atom)) < 0)
 		    return sts;
 		atom.cp = "thirteen";
-		if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_string, PM_TYPE_STRING, &atom)) < 0)
+		if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_string, PM_TYPE_STRING, &atom)) < 0)
 		    return sts;
 		atom.l = -14;
-		if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_32, PM_TYPE_32, &atom)) < 0)
+		if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_32, PM_TYPE_32, &atom)) < 0)
 		    return sts;
 		atom.ul = 15;
-		if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_u32, PM_TYPE_U32, &atom)) < 0)
+		if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_u32, PM_TYPE_U32, &atom)) < 0)
 		    return sts;
 		/* "missed" 7000 records */
 		if ((sts = pmdaEventAddHighResMissedRecord(hrarray[inst], &stamp, 7000)) < 0)
@@ -420,13 +420,13 @@ sample_fetch_highres_events(pmValueBlock **vbpp, int inst)
 		    return sts;
 		stamp.tv_sec++;
 		atom.ul = 16;
-		if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
+		if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
 		    return sts;
 		atom.f = -17;
-		if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_float, PM_TYPE_FLOAT, &atom)) < 0)
+		if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_float, PM_TYPE_FLOAT, &atom)) < 0)
 		    return sts;
 		atom.vbp = aggr;
-		if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_aggregate, PM_TYPE_AGGREGATE, &atom)) < 0)
+		if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_aggregate, PM_TYPE_AGGREGATE, &atom)) < 0)
 		    return sts;
 		break;
 	    case -1:
@@ -436,10 +436,10 @@ sample_fetch_highres_events(pmValueBlock **vbpp, int inst)
 		    return sts;
 		stamp.tv_sec++;
 		atom.ul = c;
-		if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
+		if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_type, PM_TYPE_U32, &atom)) < 0)
 		    return sts;
 		/* pmid that is not in PMNS and not known to the PMDA */
-		if ((sts = pmdaEventHighResAddParam(hrarray[inst], PMDA_PMID(100,200), PM_TYPE_U32, &atom)) < 0)
+		if ((sts = pmdaEventAddHighResParam(hrarray[inst], PMDA_PMID(100,200), PM_TYPE_U32, &atom)) < 0)
 		    return sts;
 		break;
 	}
@@ -459,19 +459,19 @@ sample_fetch_highres_events(pmValueBlock **vbpp, int inst)
 	    return sts;
 	pmsprintf(record1, sizeof(record1), "fetch #%d", xnhrfetch);
 	atom.cp = record1;
-	if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_string, PM_TYPE_STRING, &atom)) < 0)
+	if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_string, PM_TYPE_STRING, &atom)) < 0)
 	    return sts;
 	if ((xnhrfetch % 3) == 0) {
 	    if ((sts = pmdaEventAddHighResRecord(hrarray[inst], &stamp, flags)) < 0)
 		return sts;
 	    atom.cp = record2;
-	    if ((sts = pmdaEventHighResAddParam(hrarray[inst], pmid_string, PM_TYPE_STRING, &atom)) < 0)
+	    if ((sts = pmdaEventAddHighResParam(hrarray[inst], pmid_string, PM_TYPE_STRING, &atom)) < 0)
 		return sts;
 	}
 	xnhrfetch++;
     }
 
-    *vbpp = (pmValueBlock *)pmdaEventHighResGetAddr(hrarray[inst]);
+    *vbpp = (pmValueBlock *)pmdaEventGetHighResAddr(hrarray[inst]);
 
     return 0;
 }

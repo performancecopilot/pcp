@@ -1321,7 +1321,7 @@ pmExtendFetchGroup_item(pmFG pmfg,
 	    sts = pmGetHighResArchiveEnd(&archive_end);
 	    if (sts < 0)
 		goto out;
-	    sts = pmHighResSetMode(PM_MODE_BACK, &archive_end, NULL);
+	    sts = pmSetModeHighRes(PM_MODE_BACK, &archive_end, NULL);
 	    if (sts < 0)
 		goto out;
 	    /* try again */
@@ -1333,7 +1333,7 @@ pmExtendFetchGroup_item(pmFG pmfg,
 		else
 		    saved_delta.tv_nsec *= saved_direction;
 	    }
-	    rc = pmHighResSetMode(saved_mode, &saved_origin, &saved_delta);
+	    rc = pmSetModeHighRes(saved_mode, &saved_origin, &saved_delta);
 	    if (sts < 0)
 		goto out;
 	    if (rc < 0) {
@@ -1541,7 +1541,7 @@ pmExtendFetchGroup_event(pmFG pmfg,
 	    sts = pmGetHighResArchiveEnd(&archive_end);
 	    if (sts < 0)
 		goto out;
-	    sts = pmHighResSetMode(PM_MODE_BACK, &archive_end, NULL);
+	    sts = pmSetModeHighRes(PM_MODE_BACK, &archive_end, NULL);
 	    if (sts < 0)
 		goto out;
 	    /* try again */
@@ -1553,7 +1553,7 @@ pmExtendFetchGroup_event(pmFG pmfg,
 		else
 		    saved_delta.tv_nsec *= saved_direction;
 	    }
-	    rc = pmHighResSetMode(saved_mode, &saved_origin, &saved_delta);
+	    rc = pmSetModeHighRes(saved_mode, &saved_origin, &saved_delta);
 	    if (sts < 0)
 		goto out;
 	    if (rc < 0) {
@@ -1664,7 +1664,7 @@ pmFetchGroup(pmFG pmfg)
     if (sts != 0)
 	return sts;
 
-    sts = pmHighResFetch(pmfg->num_unique_pmids, pmfg->unique_pmids, &newResult);
+    sts = pmFetchHighRes(pmfg->num_unique_pmids, pmfg->unique_pmids, &newResult);
     if (sts < 0 || newResult == NULL) {
 	/*
 	 * Populate an empty fetch result, which will send out the
@@ -1677,7 +1677,7 @@ pmFetchGroup(pmFG pmfg)
     }
 
     /* Sort instances so that the indom fetchgroups come out conveniently */
-    pmHighResSortInstances(newResult);
+    pmSortHighResInstances(newResult);
 
     /* Walk the fetchgroup. */
     for (item = pmfg->items; item; item = item->next) {
@@ -1714,7 +1714,7 @@ pmFetchGroup(pmFG pmfg)
 	pmfg->prevResult = newResult;
     }
 
-    /* NB: we pass through the pmHighResFetch() sts. */
+    /* NB: we pass through the pmFetchHighRes() sts. */
     return sts;
 }
 
