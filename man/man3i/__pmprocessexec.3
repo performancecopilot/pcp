@@ -172,7 +172,12 @@ When an error does occur
 cleans up any allocations made in the current call and uses
 .I handle
 to clean up any allocations made by previous calls so there
-is no need for the caller to worry about memory leaks.
+is no need for the caller to worry about memory leaks, and
+then (re)sets
+.I handle
+to
+.B NULL
+before returning.
 .PP
 .B __pmProcessUnpickArgs
 returns 0 on success.  In the case of an unterminated string,
