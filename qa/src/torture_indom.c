@@ -104,6 +104,11 @@ do_test(char *name)
 	return PM_ERR_INDOM;
     }
 
+    if ((err = pmFetch(1, &pmid, &r1)) < 0) {
+	fprintf(stderr, "pmFetch failed for %s: %s\n", name, pmErrStr(err));
+	return err;
+    }
+
     if ((err = pmGetInDom(desc.indom, &instlist, &namelist)) < 0) {
 	fprintf(stderr, "pmGetInDom failed for %s: %s\n", name, pmErrStr(err));
 	return err;
@@ -134,11 +139,6 @@ do_test(char *name)
 	    return PM_ERR_GENERIC;
 	}
 	free(myname);
-    }
-    
-    if ((err = pmFetch(1, &pmid, &r1)) < 0) {
-	fprintf(stderr, "pmFetch failed for %s: %s\n", name, pmErrStr(err));
-	return err;
     }
 
     if ((err = pmDelProfile(desc.indom, 0, (int *)0)) < 0) {
@@ -448,6 +448,11 @@ Options\n\
     if (type == PM_CONTEXT_ARCHIVE) {
 	if ((sts = pmGetArchiveLabel(&label)) < 0) {
 	    fprintf(stderr, "%s: Cannot get archive label record: %s\n",
+		pmGetProgname(), pmErrStr(sts));
+	    exit(1);
+	}
+	if ((sts = pmSetMode(PM_MODE_FORW, NULL, 1)) < 0) {
+	    fprintf(stderr, "%s: Cannot set archive mode: %s\n",
 		pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
