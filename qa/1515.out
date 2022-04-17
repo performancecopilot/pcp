@@ -7,8 +7,6 @@ Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
 Check denki metrics have appeared ... X metrics and Y values
 === std out ===
-	Detected X cores in Y packages
-
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
