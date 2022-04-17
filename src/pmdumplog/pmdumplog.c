@@ -163,17 +163,17 @@ do_size(__pmResult *rp)
      * trailer len
      */
     if (version == PM_LOG_VERS03)
-	nbyte = sizeof(int) + sizeof(pmTimespec) + sizeof(int);
+	nbyte = sizeof(__int32_t) + 3 * sizeof(__int32_t) + sizeof(__int32_t);
     else
-	nbyte = sizeof(int) + sizeof(pmTimeval) + sizeof(int);
-    						/* len + timestamp + len */
-    nbyte += sizeof(int);
+	nbyte = sizeof(__int32_t) + 2 * sizeof(__int32_t) + sizeof(__int32_t);
+    							/* len + timestamp + len */
+    nbyte += sizeof(__int32_t);
     							/* numpmid */
     for (i = 0; i < rp->numpmid; i++) {
 	pmValueSet	*vsp = rp->vset[i];
-	nbyte += sizeof(pmID) + sizeof(int);		/* + pmid[i], numval */
+	nbyte += sizeof(pmID) + sizeof(__int32_t);	/* + pmid[i], numval */
 	if (vsp->numval > 0) {
-	    nbyte += sizeof(int);			/* + valfmt */
+	    nbyte += sizeof(__int32_t);			/* + valfmt */
 	    for (j = 0; j < vsp->numval; j++) {
 		nbyte += sizeof(__pmValue_PDU);		/* + pmValue[j] */
 		if (vsp->valfmt != PM_VAL_INSITU)
