@@ -17,7 +17,7 @@
 .SH NAME
 \f3sheet2pcp\f1 \- import spreadsheet data and create a PCP archive
 .SH SYNOPSIS
-\fBsheet2pcp\fR [\fB\-h\fR \fIhost\fR] [\fB\-Z\fR \fItimezone\fR] \fIinfile\fR \fImapfile\fR \fIoutfile\fR
+\fBsheet2pcp\fR [\fB\-h\fR \fIhost\fR] [\fB\-V\fR \fIversion\fR] [\fB\-Z\fR \fItimezone\fR] \fIinfile\fR \fImapfile\fR \fIoutfile\fR
 .SH DESCRIPTION
 .de SAMPLE
 .RS 2n
@@ -62,6 +62,17 @@ The \fB\-h\fR option is an alternate to the
 \fBhostname\fR attribute of the \fB<sheet>\fR element in \fImapfile\fR
 described below.  If both are specified, the value from \fImapfile\fR is
 used.
+.PP
+The
+.B \-V
+option specifies the version for the output PCP archive.
+By default the archive version
+.B $PCP_ARCHIVE_VERSION
+(set to 2 in current PCP releases)
+is iused, and the only values
+currently supported for
+.I version
+are 2 or 3.
 .PP
 The \fB\-Z\fR option is an alternate to the
 \fBtimezone\fR attribute of the \fB<sheet>\fR element in \fImapfile\fR

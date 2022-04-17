@@ -53,6 +53,8 @@ my $label_zone;
 my $datefmt = "DMY";	# default order of date fields
 my %options;		# for command line arguments
 
+my $version;		# -V version
+
 sub dodate($)
 {
     # convert datetime format DD[/-]MM[/-]YY[YY] HH:MM[:SS] from spreadsheet
@@ -441,10 +443,10 @@ sub domap($)
     }
 }
 
-my $sts = getopts('h:Z:', \%options);
+my $sts = getopts('h:V:Z:', \%options);
 
 if (!defined($sts) || $#ARGV != 2) {
-    print "Usage: sheet2pcp [-h host] [-Z timezone] infile mapfile outfile\n";
+    print "Usage: sheet2pcp [-h host] [-V version] [-Z timezone] infile mapfile outfile\n";
     exit(1);
 }
 
@@ -459,6 +461,14 @@ if (exists($options{Z})) {
 # initialize the output archive so we can add the metadata from the mapfile
 #
 pmiStart($ARGV[2], 0);
+
+if (exists($options{V})) {
+    $version = $options{V};
+    if (pmiSetVersion($version) < 0) {
+	print "sheet2pcp: Illegal -V value, must be 2 or 3\n";
+	exit(1);
+    }
+}
 
 if (exists($options{h})) {
     if (pmiSetHostname($options{h}) < 0) {
