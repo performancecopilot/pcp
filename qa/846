@@ -1,6 +1,8 @@
 #!/bin/sh
 # simple exerciser for sheet2pcp - XLSX variant
 #
+# PCP_ARCHIVE_VERSION V2 variant, see 1409 for the V3 variant.
+#
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
 
@@ -29,7 +31,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 cat <<'End-of-File' >$tmp.mapfile
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- For PCP QA 372 -->
+<!-- For PCP QA 846 -->
 <sheet heading="1" hostname="time.greenwich.com" datefmt="DMY">
     <metric sem="PM_SEM_COUNTER">metric.a</metric>
     <metric sem="PM_SEM_COUNTER">metric.b</metric>
@@ -47,7 +49,7 @@ End-of-File
 
 echo "=== XLSX ==="
 rm -f $tmp.0 $tmp.index $tmp.meta
-sheet2pcp sheet/simple-resave.xlsx $tmp.mapfile $tmp 2>&1
+sheet2pcp -V2 sheet/simple-resave.xlsx $tmp.mapfile $tmp 2>&1
 [ -f $tmp.0 ] && pmdumplog -dilmstz $tmp
 
 # success, all done

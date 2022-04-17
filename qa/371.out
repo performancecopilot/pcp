@@ -1,9 +1,9 @@
 QA output created by 371
 Usage and file existence checks ...
-Usage: sheet2pcp [-h host] [-Z timezone] infile mapfile outfile
-Usage: sheet2pcp [-h host] [-Z timezone] infile mapfile outfile
-Usage: sheet2pcp [-h host] [-Z timezone] infile mapfile outfile
-Usage: sheet2pcp [-h host] [-Z timezone] infile mapfile outfile
+Usage: sheet2pcp [-h host] [-V version] [-Z timezone] infile mapfile outfile
+Usage: sheet2pcp [-h host] [-V version] [-Z timezone] infile mapfile outfile
+Usage: sheet2pcp [-h host] [-V version] [-Z timezone] infile mapfile outfile
+Usage: sheet2pcp [-h host] [-V version] [-Z timezone] infile mapfile outfile
 sheet2pcp: Failed to open mapfile "/no/such/file"
 
 Mapfile syntax errors ...

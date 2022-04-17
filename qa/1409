@@ -1,8 +1,7 @@
 #!/bin/sh
-# PCP QA Test No. 372
-# simple exerciser for sheet2pcp - base CSV variant
+# simple exerciser for sheet2pcp - XLSX variant
 #
-# PCP_ARCHIVE_VERSION V2 variant, see 1406 for the V3 variant.
+# PCP_ARCHIVE_VERSION V3 variant, see 846 for the V2 variant.
 #
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
@@ -19,10 +18,10 @@ which sheet2pcp >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "sheet2pcp not installed"
 perl -e "use XML::TokeParser" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl XML::TokeParser module not installed"
+perl -e "use Spreadsheet::XLSX" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl Spreadsheet::XLSX module not installed"
 perl -e "use Spreadsheet::Read" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl Spreadsheet::Read module not installed"
-perl -e "use Text::CSV_XS" >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "perl Text::CSV_XS module not installed"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -32,7 +31,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 cat <<'End-of-File' >$tmp.mapfile
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- For PCP QA 372 -->
+<!-- For PCP QA 1409 -->
 <sheet heading="1" hostname="time.greenwich.com" datefmt="DMY">
     <metric sem="PM_SEM_COUNTER">metric.a</metric>
     <metric sem="PM_SEM_COUNTER">metric.b</metric>
@@ -48,29 +47,10 @@ cat <<'End-of-File' >$tmp.mapfile
 </sheet>
 End-of-File
 
-echo "=== CSV ==="
+echo "=== XLSX ==="
 rm -f $tmp.0 $tmp.index $tmp.meta
-sheet2pcp -V2 sheet/simple.csv $tmp.mapfile $tmp 2>&1
+sheet2pcp -V3 sheet/simple-resave.xlsx $tmp.mapfile $tmp 2>&1
 [ -f $tmp.0 ] && pmdumplog -dilmstz $tmp
-
-echo
-echo "=== resaved CSV ==="
-rm -f $tmp.0 $tmp.index $tmp.meta
-sheet2pcp -V2 sheet/simple-resave.csv $tmp.mapfile $tmp 2>&1
-[ -f $tmp.0 ] && pmdumplog -dilmstz $tmp
-
-echo
-echo "=== /dev/null ==="
-rm -f $tmp.0 $tmp.index $tmp.meta
-sheet2pcp -V2 /dev/null $tmp.mapfile $tmp 2>&1
-[ -f $tmp.0 ] && pmdumplog -dilmstz $tmp
-
-echo
-echo "=== bad datetime CSV ==="
-rm -f $tmp.0 $tmp.index $tmp.meta
-cp sheet/simple.csv $tmp.baddate.csv
-echo '34/13/2010 13:02:03;13;20;27;4;"bad-date"' >>$tmp.baddate.csv
-sheet2pcp -V2 $tmp.baddate.csv $tmp.mapfile $tmp 2>&1
 
 # success, all done
 exit
