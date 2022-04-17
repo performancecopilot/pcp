@@ -228,7 +228,15 @@ _filter_pmdumplog()
 	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/TIMESTAMP/' \
 	-e '/^\(Performance metrics from host\) [^ ][^ ]*/s//\1 HOST/' \
 	-e '/^archive:/s/\(  *\).*/\1ARCHIVE/' \
-	-e '/^host:/s/\(  *\).*/\1HOST/'
+	-e '/^host:/s/\(  *\).*/\1HOST/' \
+    | if [ $# -eq 1 -a X"$1" = "X--any-version" ]
+    then
+	sed -e '/(Log Format Version [0-9][0-9]*)/s/ [23])/ OK)/' \
+	    -e 's/^			Log Vol/		Log Vol/' \
+	# end
+    else
+	cat
+    fi
 }
 
 # pmdumptext
