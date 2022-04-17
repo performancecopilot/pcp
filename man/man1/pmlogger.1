@@ -66,10 +66,13 @@ the standard archive base name template is
 The
 .B \-V
 option specifies the version for the archive that is generated.
-By default a version 2 archive is generated, and the only value
+By default the archive version
+.B $PCP_ARCHIVE_VERSION
+(set to 2 in current PCP releases)
+is generated, and the only values
 currently supported for
 .I version
-is 2.
+are 2 or 3.
 .PP
 Unless directed to another host by the
 .B \-h
