@@ -125,6 +125,11 @@ _save_prev_file()
 #
 _is_archive()
 {
+    if [ $# -ne 1 ]
+    then
+	echo >&2 "Usage: _is_archive file"
+	return 1
+    fi
     if [ ! -f "$1" ]
     then
 	return 1
@@ -144,10 +149,18 @@ _is_archive()
 	| od -X \
 	| $PCP_AWK_PROG '
 BEGIN						{ sts = 1 }
-NR == 1 && NF == 5 && $2 == "0000" && $3 == "0084" && $4 == "5005" && $5 == "2600" { sts = 0 }
-NR == 1 && NF == 5 && $2 == "0000" && $3 == "8400" && $4 == "0550" && $5 == "0026" { sts = 0 }
-NR == 1 && NF == 3 && $2 == "00000084" && $3 == "50052600" { sts = 0 }
-NR == 1 && NF == 3 && $2 == "84000000" && $3 == "00260550" { sts = 0 }
+# V3 big endian
+NR == 1 && NF == 3 && $2 == "00000328" && $3 == "50052600" { sts = 0; next }	
+# V3 little endian
+NR == 1 && NF == 3 && $2 == "28030000" && $3 == "00260550" { sts = 0; next }	
+# V1 or V2 big endian
+NR == 1 && NF == 3 && $2 == "00000084" && $3 == "50052600" { sts = 0; next }	
+# V1 or V2 little endian
+NR == 1 && NF == 3 && $2 == "84000000" && $3 == "00260550" { sts = 0; next }	
+# V1 or V2 big endian when od -X => 16-bit words
+NR == 1 && NF == 5 && $2 == "0000" && $3 == "0084" && $4 == "5005" && $5 == "2600" { sts = 0; next }
+# V1 or V2 little endian when od -X => 16-bit words
+NR == 1 && NF == 5 && $2 == "0000" && $3 == "8400" && $4 == "0550" && $5 == "0026" { sts = 0; next }
 END						{ exit sts }'
     fi
     return $?

@@ -1,0 +1,13 @@
+QA output created by 1878
+Usage botch
+Usage: _is_archive file
+sts=1
+
+=== /no/such/file ===
+sts=1
+
+=== tmparch/foo_v2.meta ===
+sts=0
+
+=== tmparch/foo_v3.0 ===
+sts=0
