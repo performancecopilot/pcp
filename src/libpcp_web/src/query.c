@@ -3022,7 +3022,9 @@ series_calculate_statistical(node_t *np, nodetype_t func)
 		    pmsprintf(sum_data_str, sizeof(sum_data_str), "%le", sum_data / n_samples);
 		    break;
 		default:
-		    /* .. TODO any other statistical functions such as stddev, variance, mode, median etc */
+		    /* .. TODO: standard deviation, variance, mode, median, etc */
+		    sum_data_str[0] = '\0';	/* for coverity */
+		    assert(0);
 		    break;
 		}
 
