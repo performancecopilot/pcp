@@ -50,7 +50,7 @@ pmdumplog -l $tmp 2>&1 \
 | sed -e 's/host /Host /' \
       -e "s/$realhost\$/HOST/" \
       -e "s/$host\$/HOST/" \
-| _filter_pmdumplog \
+| _filter_pmdumplog --any-version \
 | sed -e 's/Host /host /'
 
 rm -f $tmp.*
