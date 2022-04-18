@@ -1864,6 +1864,7 @@ x11
 1409 sheet2pcp pmimport pmdumplog perl local archive_v3
 1410 sheet2pcp pmimport pmdumplog perl local archive_v3
 1411 ganglia2pcp local pmdumplog archive_v3
+1412 pmimport pmdumplog perl local archive_v3
 1415 pmda.mmv labels local
 1416 pmlogrewrite local
 1422 pmda.mmv local valgrind

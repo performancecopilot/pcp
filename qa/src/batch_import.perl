@@ -7,6 +7,8 @@
 use strict;
 use warnings;
 
+use Getopt::Std;
+
 $| = 1;		# don't buffer output
 use PCP::LogImport;
 
@@ -14,6 +16,9 @@ my $ctx1;
 my $ctx2;
 my $hdl1;
 my $hdl2;
+
+my %args;
+my $version;		# -V version
 
 sub check
 {
@@ -26,8 +31,21 @@ sub check
     }
 }
 
+my $sts = getopt('V:', \%args);
+
+if (!defined($sts) || $#ARGV != -1) {
+    print "Usage: batch_import [-V version]\n";
+    exit(1);
+}
+
 $ctx1 = pmiStart("myarchive", 0);
 check($ctx1, "pmiStart");
+
+if (exists($args{V})) {
+    $version = $args{V};
+    $_ = pmiSetVersion($version);
+    check($_, "pmiSetVersion");
+}
 
 $_ = pmiSetHostname("batching.com");
 check($_, "pmiSetHostname");

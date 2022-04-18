@@ -1,4 +1,4 @@
-QA output created by 528
+QA output created by 1412
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Data Type: 64-bit unsigned int  InDom: 245.1 0x3d400001
@@ -67,7 +67,7 @@ event.flags PMID: 511.0.1
 event.missed PMID: 511.0.2
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-Log Label (Log Format Version 2)
+Log Label (Log Format Version 3)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
@@ -83,20 +83,20 @@ PMID: 245.0.7 (my.metric.strung)
 Instance Domains in the Log ...
 
 Temporal Index
-		Log Vol    end(meta)     end(log)
-TIMESTAMP	      0          132          132
-TIMESTAMP	      0          244          132
+			Log Vol    end(meta)     end(log)
+TIMESTAMP	      0          808          808
+TIMESTAMP	      0          920          808
 
-[116 bytes]
+[120 bytes]
 TIMESTAMP 2 metrics
     245.0.7 (my.metric.strung): value "a first string value"
     245.0.5 (my.metric.string): value "a second string value"
 
-[68 bytes]
+[72 bytes]
 TIMESTAMP 1 metric
     245.0.5 (my.metric.string): value "a third string value"
 
-[116 bytes]
+[120 bytes]
 TIMESTAMP 2 metrics
     245.0.5 (my.metric.string): value "a fourth string value"
     245.0.7 (my.metric.strung): value "a fifth string value"

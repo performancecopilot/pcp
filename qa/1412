@@ -1,8 +1,8 @@
 #!/bin/sh
-# PCP QA Test No. 528
+# PCP QA Test No. 1412
 # Exercising log import API batching extensions.
 #
-# PCP_ARCHIVE_VERSION V2 variant, see 1412 for the V3 variant.
+# PCP_ARCHIVE_VERSION V3 variant, see 528 for the V2 variant.
 #
 # Copyright (c) 2013 Red Hat.
 #
@@ -60,7 +60,7 @@ cd $tmp.dir
 
 # real QA test starts here
 rm -f myarchive.*
-perl $here/src/batch_import.perl -V2 2>&1 | tee -a $here/$seq.full | _filter3
+perl $here/src/batch_import.perl -V3 2>&1 | tee -a $here/$seq.full | _filter3
 pminfo -dm -a myarchive
 pmdumplog -dilmst myarchive 2>&1 | _filter2
 
