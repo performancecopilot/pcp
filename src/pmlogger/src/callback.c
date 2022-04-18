@@ -551,17 +551,20 @@ lookupTaskCacheNames(pmID pmid, char ***namesptr)
     return numnames;
 }
 
+/*
+ * want the size in the archive file, not the size over the wire
+ */
 static size_t
 pduresultbytes(__pmResult *resp)
 {
     size_t	need, vneed;
-    int		pdutype;
 
+    __pmGetResultSize(PDU_RESULT, resp->numpmid, resp->vset, &need, &vneed);
+    /*
+     * extra word for sec in timestamp for V3
+     */
     if (archive_version >= PM_LOG_VERS03)
-	pdutype = PDU_HIGHRES_RESULT;
-    else
-	pdutype = PDU_RESULT;
-    __pmGetResultSize(pdutype, resp->numpmid, resp->vset, &need, &vneed);
+	need += sizeof(__int32_t);
     return need + vneed;
 }
 

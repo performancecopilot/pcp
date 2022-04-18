@@ -1,8 +1,8 @@
-#! /bin/sh
-# PCP QA Test No. 466
+#!/bin/sh
+# PCP QA Test No. 1413
 # pmlogger -r
 #
-# PCP_ARCHIVE_VERSION V2 variant, see 1413 for the V3 variant.
+# PCP_ARCHIVE_VERSION V3 variant, see 466 for the V2 variant.
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright 2014 Red Hat
@@ -20,7 +20,7 @@ status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-cat <<End-of-File | pmlogger -V2 -r -l $tmp.log -T 3sec $tmp
+cat <<End-of-File | pmlogger -V3 -r -l $tmp.log -T 3sec $tmp
 log mandatory on once {
     sample.control
 }
