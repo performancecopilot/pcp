@@ -26,26 +26,24 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
-#define NUM_RAPL_DOMAINS	10
+#define MAX_RAPL_DOMAINS	10
 #define MAX_PACKAGES		16
 #define MAX_CPUS		2147483648
+#define MAX_BATTERIES		8
 
-static int has_rapl, has_bat;				/* Has the system rapl or battery? */
+static int has_rapl = 0, has_bat = 0;			/* Has the system any rapl or battery? */
 
 static int total_cores, total_packages;			/* detected cpu cores and rapl packages */
 static int package_map[MAX_PACKAGES];
-char event_names[MAX_PACKAGES][NUM_RAPL_DOMAINS][256];	/* rapl domain names */
-long long raplvars[MAX_PACKAGES][NUM_RAPL_DOMAINS];	/* rapl domain readings */
-static int valid[MAX_PACKAGES][NUM_RAPL_DOMAINS];	/* Is this rapl domain valid? */
-static char filenames[MAX_PACKAGES][NUM_RAPL_DOMAINS][256]; /* pathes to the rapl domains */
+char event_names[MAX_PACKAGES][MAX_RAPL_DOMAINS][256];	/* rapl domain names */
+long long raplvars[MAX_PACKAGES][MAX_RAPL_DOMAINS];	/* rapl domain readings */
+static int valid[MAX_PACKAGES][MAX_RAPL_DOMAINS];	/* Is this rapl domain valid? */
+static char filenames[MAX_PACKAGES][MAX_RAPL_DOMAINS][256]; /* pathes to the rapl domains */
 
 static int detect_rapl_packages(void);			/* detect RAPL packages, cpu cores */
 static int detect_rapl_domains(void);			/* detect RAPL domains */
-static int read_rapl(void);				/* read RAPL values */
-static int detect_battery(void);			/* detect battery */
-static int read_battery(void);				/* read battery values */
-static int compute_energy_rate(void);			/* compute discharge rate from battery values */
 long long lookup_rapl_dom(int);				/* map instance to 2-dimensional domain matrix */
+static int read_rapl(void);				/* read RAPL values */
 
 static char rootpath[512] = "/";			/* path to rootpath, gets changed for regression tests */
 
@@ -56,7 +54,8 @@ static int detect_rapl_packages(void) {
 	FILE *fff;
 	int package,i;
 
-	for(i=0;i<MAX_PACKAGES;i++) package_map[i]=-1;
+	for(i=0;i<MAX_PACKAGES;i++)
+		package_map[i]=-1;
 
 	for(i=0;i<MAX_CPUS;i++) {
 		pmsprintf(filename,sizeof(filename),"%s/sys/devices/system/cpu/cpu%d/topology/physical_package_id",rootpath,i);
@@ -65,7 +64,8 @@ static int detect_rapl_packages(void) {
 		if ( fscanf(fff,"%d",&package) != 1 )
 			if (pmDebugOptions.appl0)
 				pmNotifyErr(LOG_DEBUG, "Could not read %s!", filename);
-		printf("\tcore %d (package %d)\n",i,package);
+		if (pmDebugOptions.appl0)
+			pmNotifyErr(LOG_DEBUG, "found core %d (package %d)",i,package);
 		fclose(fff);
 
 		if (package < 0 || package >= MAX_PACKAGES) {
@@ -82,8 +82,7 @@ static int detect_rapl_packages(void) {
 
 	total_cores=i;
 
-	printf("\tDetected %d cores in %d packages\n\n",
-		total_cores,total_packages);
+	pmNotifyErr(LOG_INFO, "RAPL detected, with %d cpu-cores and %d rapl-packages.", total_cores, total_packages);
 
 	return 0;
 }
@@ -112,7 +111,7 @@ static int detect_rapl_domains(void) {
 		pmsprintf(filenames[pkg][i],sizeof(filenames[pkg][i]),"%s/energy_uj",basename[pkg]);
 
 		/* Handle subdomains */
-		for(i=1;i<NUM_RAPL_DOMAINS;i++) {
+		for(i=1;i<MAX_RAPL_DOMAINS;i++) {
 			pmsprintf(tempfile,sizeof(tempfile),"%s/intel-rapl:%d:%d/name",
 				basename[pkg],pkg,i-1);
 			fff=fopen(tempfile,"r");
@@ -140,7 +139,7 @@ static int read_rapl(void) {
 	FILE	*fff;
 
 	for(pkg=0;pkg<total_packages;pkg++) {
-		for(dom=0;dom<NUM_RAPL_DOMAINS;dom++) {
+		for(dom=0;dom<MAX_RAPL_DOMAINS;dom++) {
 			if (valid[pkg][dom]) {
 				fff=fopen(filenames[pkg][dom],"r");
 				if (fff==NULL) {
@@ -161,25 +160,45 @@ static int read_rapl(void) {
 
 
 
-long long energy_now = 0;		/* <battery>/energy_now or <battery>/charge_now readings		*/
-long long energy_now_old = 0;
-long long power_now=0;			/* <battery>/power_now readings, driver computed power consumption	*/
+int batteries = 0;					/* How many batteries has this system?					*/
+static int battery_comp_rate = 60;			/* timespan in sec, after which we recompute energy_rate_d      	*/
 
-time_t secondsnow, secondsold;		/* time stamps, to understand if we need to recompute	   		*/
-double energy_diff_d, energy_rate_d;	/* amount of used energy / computed energy consumption	  		*/
+							/* Careful with battery counting!
+							   If we have one battery (batteries==1), that batteries data
+							   is in energy_now[0], power_now[0] and so on.				*/
 
-static int battery_comp_rate = 60;	/* timespan in sec, after which we recompute energy_rate_d      	*/
-char battery_basepath[512];		/* path to the battery							*/
-char energy_now_file[512];		/* energy now file, different between models				*/
-double energy_convert_factor = 10000.0;	/* factor for fixing <battery>/energy_now / charge_now to kwh 		*/
+long long energy_now[MAX_BATTERIES];			/* <battery>/energy_now or <battery>/charge_now readings		*/
+long long energy_now_old[MAX_BATTERIES];
+long long power_now[MAX_BATTERIES];			/* <battery>/power_now readings, driver computed power consumption	*/
 
-/* detect battery */
-static int detect_battery(void) {
+time_t secondsnow, secondsold;						/* time stamps, to understand if we need to recompute	*/
+double energy_diff_d[MAX_BATTERIES], energy_rate_d[MAX_BATTERIES];	/* amount of used energy / computed energy consumption	*/
+
+char battery_basepath[MAX_BATTERIES][512];		/* path to the batteries						*/
+char energy_now_file[MAX_BATTERIES][512];		/* energy now file, different between models				*/
+double energy_convert_factor[MAX_BATTERIES];		/* factor for fixing <battery>/energy_now / charge_now to kwh 		*/
+
+static int detect_batteries(void);			/* detect batteries */
+static int read_batteries(void);			/* read battery values */
+static int compute_energy_rate(void);			/* compute discharge rate from battery values */
+
+/* detect batteries */
+static int detect_batteries(void) {
 	char	filename[MAXPATHLEN],dirname[MAXPATHLEN],type[32];
 	DIR	*directory;
 	FILE 	*fff;
+	int	i;
 
 	struct dirent *ep;
+
+	// Initialize per battery counters
+	for(i=0;i<MAX_BATTERIES;i++) {
+		energy_now[i]=0;
+		energy_now_old[i]=0;
+		power_now[i]=0;
+		energy_convert_factor[i] = 10000.0;
+		energy_rate_d[i] = 0.0;
+	}
 
 	pmsprintf(dirname,sizeof(dirname),"%s/sys/class/power_supply/",rootpath);
 	directory = opendir (dirname);
@@ -219,8 +238,9 @@ static int detect_battery(void) {
 			if( access( filename, F_OK ) == 0 ) {
 				if (pmDebugOptions.appl0)
 			 		pmNotifyErr(LOG_DEBUG, "file %s found",filename);
-				pmsprintf(energy_now_file,sizeof(energy_now_file),"charge_now");
-				energy_convert_factor = 100000.0;
+				batteries++;
+				energy_convert_factor[batteries-1] = 100000.0;
+				pmsprintf(energy_now_file[batteries-1],sizeof(energy_now_file[batteries-1]),"charge_now");
 			} 
 			else {
 				if (pmDebugOptions.appl0)
@@ -229,8 +249,9 @@ static int detect_battery(void) {
 				if( access( filename, F_OK ) == 0 ) {
 					if (pmDebugOptions.appl0)
 			 			pmNotifyErr(LOG_DEBUG, "file %s found",filename);
-					pmsprintf(energy_now_file,sizeof(energy_now_file),"energy_now");
-					energy_convert_factor = 1000000.0;
+					batteries++;
+					energy_convert_factor[batteries-1] = 1000000.0;
+					pmsprintf(energy_now_file[batteries-1],sizeof(energy_now_file[batteries-1]),"energy_now");
 				}
 				else {
 					if (pmDebugOptions.appl0)
@@ -238,6 +259,7 @@ static int detect_battery(void) {
 					pmsprintf(filename,sizeof(filename),"%s%s/power_now",dirname,ep->d_name);
 					if( access( filename, F_OK ) == 0 ) {
 			 			pmNotifyErr(LOG_DEBUG, "file %s found",filename);
+						batteries++;
 					}
 					else {
 						if (pmDebugOptions.appl0)
@@ -248,9 +270,9 @@ static int detect_battery(void) {
 			}
 
 			pmNotifyErr(LOG_INFO, "Assuming %s%s is a battery we should provide metrics for.",dirname,ep->d_name);
-			pmsprintf(battery_basepath,sizeof(battery_basepath),"%s%s",dirname,ep->d_name);
+			pmsprintf(battery_basepath[batteries-1],sizeof(battery_basepath[batteries-1]),"%s%s",dirname,ep->d_name);
 			has_bat=1;
-			break;
+			continue;
 		}
 		(void) closedir (directory);
     	}
@@ -264,37 +286,40 @@ static int detect_battery(void) {
 }
 
 /* read the current battery values */
-static int read_battery(void) {
+static int read_batteries(void) {
 	char filename[MAXPATHLEN];
 	FILE *fff;
 
-	pmsprintf(filename,sizeof(filename),"%s/%s",battery_basepath,energy_now_file);
-	fff=fopen(filename,"r");
-	if (fff==NULL) {
-		if (pmDebugOptions.appl0)
-			pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
-		return 1;
-	}
-	if ( fscanf(fff,"%lld",&energy_now) != 1)
-		if (pmDebugOptions.appl0)
-			pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
-	fclose(fff);
+	for (int bat=0; bat<batteries; bat++) {
 
-	pmsprintf(filename,sizeof(filename),"%s/power_now",battery_basepath);
-	fff=fopen(filename,"r");
-	if (fff==NULL) {
-		if (pmDebugOptions.appl0)
-			pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
-		return 1;
+		pmsprintf(filename,sizeof(filename),"%s/%s",battery_basepath[bat],energy_now_file[bat]);
+		fff=fopen(filename,"r");
+		if (fff==NULL) {
+			if (pmDebugOptions.appl0)
+				pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
+			continue;
+		}
+		if ( fscanf(fff,"%lld",&energy_now[bat]) != 1)
+			if (pmDebugOptions.appl0)
+				pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
+		fclose(fff);
+	
+		pmsprintf(filename,sizeof(filename),"%s/power_now",battery_basepath[bat]);
+		fff=fopen(filename,"r");
+		if (fff==NULL) {
+			if (pmDebugOptions.appl0)
+				pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
+			continue;
+		}
+		if ( fscanf(fff,"%lld",&power_now[bat]) != 1)
+			if (pmDebugOptions.appl0)
+				pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
+		fclose(fff);
+	
+		// correct power_now, if we got a negative value
+		if ( power_now[bat]<0 )
+			power_now[bat]*=-1.0;
 	}
-	if ( fscanf(fff,"%lld",&power_now) != 1)
-		if (pmDebugOptions.appl0)
-			pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
-	fclose(fff);
-
-	// correct power_now, if we got a negative value
-	if ( power_now<0 )
-		power_now*=-1.0;
 
 	return 0;
 }
@@ -307,23 +332,25 @@ static int compute_energy_rate(void) {
 	// Special handling for first call after starting pmda-denki
 	if ( secondsold == 0) {
 		secondsold = secondsnow;
-		energy_now_old = energy_now;
-		energy_rate_d = 0.0;
-	}
+		for (int i=0; i<batteries; i++)
+			energy_now_old[i] = energy_now[i];
+        }
 
-	// Do a computation all battery_comp_rate seconds
+	// Time for a new computation?
 	if ( ( secondsnow - secondsold ) >= battery_comp_rate ) {
+		for (int i=0; i<batteries; i++) {
 
-		// computing how many Wh were used up in battery_comp_rate
-		energy_diff_d = (energy_now_old - energy_now)/energy_convert_factor;
+			// computing how many Wh were used up in battery_comp_rate
+			energy_diff_d[i] = (energy_now_old[i] - energy_now[i])/energy_convert_factor[i];
 
-		// computing how many W would be used in 1h
-		energy_rate_d = energy_diff_d * 3600 / battery_comp_rate;
-		if (pmDebugOptions.appl0)
-			pmNotifyErr(LOG_DEBUG, "DENKI: new computation, currently %f W/h are consumed",energy_rate_d);
+			// computing how many W would be used in 1h
+			energy_rate_d[i] = energy_diff_d[i] * 3600 / battery_comp_rate;
+			if (pmDebugOptions.appl0)
+				pmNotifyErr(LOG_DEBUG, "new computation, currently %f W/h are consumed",energy_rate_d[i]);
 
+			energy_now_old[i] = energy_now[i];
+		}
 		secondsold = secondsnow;
-		energy_now_old = energy_now;
 	}
 
 	return 0;
@@ -334,11 +361,11 @@ static int compute_energy_rate(void) {
  *
  * denki.rapl.rate		- usage rates from RAPL
  * denki.rapl.raw		- plain raw values from RAPL
- * denki.bat.energy_now_raw	- BAT0/energy_now raw reading, 
+ * denki.bat.energy_now_raw	- <battery>/energy_now raw reading, 
  *				  current battery charge in Wh
- * denki.bat.energy_now_rate	- BAT0, current rate of discharging if postive value,
+ * denki.bat.energy_now_rate	- <battery>, current rate of discharging if postive value,
  *				  or current charging rate if negative value
- * denki.bat.power_now		- BAT0/power_now raw reading
+ * denki.bat.power_now		- <battery>/power_now raw reading
  */
 
 /*
@@ -349,15 +376,24 @@ static int compute_energy_rate(void) {
  */
 
 static pmdaIndom indomtab[] = {
-#define RAPLRATE_INDOM	0	/* serial number for "rapl.rate" instance domain */
+#define RAPLRATE_INDOM		0	/* serial number for "rapl.rate" instance domain */
     { RAPLRATE_INDOM, 0, NULL },
-#define RAPLRAW_INDOM	1	/* serial number for "rapl.raw" instance domain */
-    { RAPLRAW_INDOM, 0, NULL }
+#define RAPLRAW_INDOM		1	/* serial number for "rapl.raw" instance domain */
+    { RAPLRAW_INDOM, 0, NULL },
+#define ENERGYNOWRAW_INDOM	2	/* serial number for "energy_now_raw" instance domain */
+    { ENERGYNOWRAW_INDOM, 0, NULL },
+#define ENERGYNOWRATE_INDOM	3	/* serial number for "energy_now_rate" instance domain */
+    { ENERGYNOWRATE_INDOM, 0, NULL },
+#define POWERNOW_INDOM		4	/* serial number for "power_now" instance domain */
+    { POWERNOW_INDOM, 0, NULL }
 };
 
 /* this is merely a convenience */
-static pmInDom	*rate_indom = &indomtab[RAPLRATE_INDOM].it_indom;
-static pmInDom	*raw_indom = &indomtab[RAPLRAW_INDOM].it_indom;
+static pmInDom	*raplrate_indom = &indomtab[RAPLRATE_INDOM].it_indom;
+static pmInDom	*raplraw_indom = &indomtab[RAPLRAW_INDOM].it_indom;
+static pmInDom	*energynowraw_indom = &indomtab[ENERGYNOWRAW_INDOM].it_indom;
+static pmInDom	*energynowrate_indom = &indomtab[ENERGYNOWRATE_INDOM].it_indom;
+static pmInDom	*powernow_indom = &indomtab[POWERNOW_INDOM].it_indom;
 
 /*
  * All metrics supported in this PMDA - one table entry for each.
@@ -372,17 +408,17 @@ static pmdaMetric metrictab[] = {
 	{ NULL,
 	{ PMDA_PMID(0,1), PM_TYPE_U32, RAPLRAW_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, },
-/* energy_now_raw */
+/* bat.energy_now_raw */
 	{ NULL,
-	{ PMDA_PMID(1,0), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT,
+	{ PMDA_PMID(1,0), PM_TYPE_DOUBLE, ENERGYNOWRAW_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, },
-/* energy_now_rate */
+/* bat.energy_now_rate */
 	{ NULL,
-	{ PMDA_PMID(1,1), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT,
+	{ PMDA_PMID(1,1), PM_TYPE_DOUBLE, ENERGYNOWRATE_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, },
-/* power_now */
+/* bat.power_now */
 	{ NULL,
-	{ PMDA_PMID(1,2), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT,
+	{ PMDA_PMID(1,2), PM_TYPE_DOUBLE, POWERNOW_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, }
 };
 
@@ -392,6 +428,7 @@ static char	*username;
 static void denki_rapl_clear(void);
 static void denki_rapl_init(void);
 static void denki_rapl_check(void);
+static void denki_bat_init(void);
 
 static char	mypath[MAXPATHLEN];
 
@@ -402,6 +439,7 @@ static pmLongOptions longopts[] = {
     PMDAOPT_DOMAIN,
     PMDAOPT_LOGFILE,
     { "rootpath", 1, 'r', "ROOTPATH", "use non-default rootpath instead of /" },
+    { "debug", 1, 'C', "DEBUG", "enable in-pmda debug output" },
     PMDAOPT_USERNAME,
     PMOPT_HELP,
     PMDA_OPTIONS_TEXT("\nExactly one of the following options may appear:"),
@@ -412,12 +450,12 @@ static pmLongOptions longopts[] = {
     PMDA_OPTIONS_END
 };
 static pmdaOptions opts = {
-    .short_options = "D:d:i:l:r:pu:U:6:?",
+    .short_options = "C:D:d:i:l:r:pu:U:6:?",
     .long_options = longopts,
 };
 
 /*
- * Our rapl readings are in a 2-dimensional array, map them here
+ * Our rapl readings are in a 2-dimension array, map them here
  * to the 1-dimentional indom numbers
  */
 long long lookup_rapl_dom(int instance) {
@@ -425,7 +463,7 @@ long long lookup_rapl_dom(int instance) {
 	int		pkg,dom,domcnt=0;
 
 	for(pkg=0;pkg<total_packages;pkg++) {
-		for(dom=0;dom<NUM_RAPL_DOMAINS;dom++) {
+		for(dom=0;dom<MAX_RAPL_DOMAINS;dom++) {
 			if (valid[pkg][dom]) {
 				if (instance == domcnt)
 					return raplvars[pkg][dom];
@@ -448,12 +486,15 @@ denki_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	if (inst != PM_IN_NULL &&
 		!((cluster == 0 && item == 0) || 
-		(cluster == 0 && item == 1)))
+	 	  (cluster == 0 && item == 1) ||
+	 	  (cluster == 1 && item == 0) ||
+	 	  (cluster == 1 && item == 1) ||
+	 	  (cluster == 1 && item == 2)))
 	return PM_ERR_INST;
 
 	if (cluster == 0) {
 		if (item == 0) {			/* rapl.rate */
-			if ((sts = pmdaCacheLookup(*rate_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
+			if ((sts = pmdaCacheLookup(*raplrate_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
 				if (sts < 0)
 					pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
 				return PM_ERR_INST;
@@ -461,7 +502,7 @@ denki_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			atom->ul = lookup_rapl_dom(inst)/1000000;
 		}
 		else if (item == 1) {			/* rapl.raw */
-			if ((sts = pmdaCacheLookup(*raw_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
+			if ((sts = pmdaCacheLookup(*raplraw_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
 				if (sts < 0)
 					pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
 				return PM_ERR_INST;
@@ -470,12 +511,30 @@ denki_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		}
 	}
 	else if (cluster == 1) {
-		if (item == 0)				/* denki.energy_now_raw */
-			atom->d = energy_now/energy_convert_factor;
-		else if (item == 1)			/* denki.energy_now_rate */
-			atom->d = energy_rate_d;
-		else if (item == 2)			/* denki.power_now */
-			atom->d = power_now/1000000.0;
+		if (item == 0) {			/* denki.energy_now_raw */
+			if ((sts = pmdaCacheLookup(*energynowraw_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
+				if (sts < 0)
+					pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
+				return PM_ERR_INST;
+			}
+			atom->d = energy_now[inst]/energy_convert_factor[inst];
+		}
+		else if (item == 1) {			/* denki.energy_now_rate */
+			if ((sts = pmdaCacheLookup(*energynowrate_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
+				if (sts < 0)
+					pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
+				return PM_ERR_INST;
+			}
+			atom->d = energy_rate_d[inst];
+		}
+		else if (item == 2) {			/* denki.power_now */
+			if ((sts = pmdaCacheLookup(*powernow_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
+				if (sts < 0)
+					pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
+				return PM_ERR_INST;
+			}
+			atom->d = power_now[inst]/1000000.0;
+		}
 		else
 			return PM_ERR_PMID;
 	}
@@ -496,7 +555,7 @@ denki_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	if (has_rapl)
 		read_rapl();
 	if (has_bat) {
-		read_battery();
+		read_batteries();
 		compute_energy_rate();
 	}
 	return pmdaFetch(numpmid, pmidlist, resp, pmda);
@@ -533,15 +592,15 @@ denki_rapl_clear(void)
 {
 	int		sts;
 
-	sts = pmdaCacheOp(*rate_indom, PMDA_CACHE_INACTIVE);
+	sts = pmdaCacheOp(*raplrate_indom, PMDA_CACHE_INACTIVE);
 	if (sts < 0)
 		pmNotifyErr(LOG_ERR, "pmdaCacheOp(INACTIVE) failed: indom=%s: %s",
-	pmInDomStr(*rate_indom), pmErrStr(sts));
+	pmInDomStr(*raplrate_indom), pmErrStr(sts));
 
-	sts = pmdaCacheOp(*raw_indom, PMDA_CACHE_INACTIVE);
+	sts = pmdaCacheOp(*raplraw_indom, PMDA_CACHE_INACTIVE);
 	if (sts < 0)
 		pmNotifyErr(LOG_ERR, "pmdaCacheOp(INACTIVE) failed: indom=%s: %s",
-	pmInDomStr(*raw_indom), pmErrStr(sts));
+	pmInDomStr(*raplraw_indom), pmErrStr(sts));
 }
 
 /* 
@@ -555,7 +614,7 @@ denki_rapl_init(void)
 	char		tmp[80];
 
 	for(pkg=0;pkg<total_packages;pkg++) {
-		for(dom=0;dom<NUM_RAPL_DOMAINS;dom++) {
+		for(dom=0;dom<MAX_RAPL_DOMAINS;dom++) {
 			if (valid[pkg][dom]) {
 				/* instance names need to be unique, so if >1 rapl packages,
 				   we prepend the rapl-domain counter */
@@ -565,13 +624,13 @@ denki_rapl_init(void)
 					pmsprintf(tmp,sizeof(tmp),"%s",event_names[pkg][dom]);
 
 				/* rapl.rate */
-				sts = pmdaCacheStore(*rate_indom, PMDA_CACHE_ADD, tmp, NULL);
+				sts = pmdaCacheStore(*raplrate_indom, PMDA_CACHE_ADD, tmp, NULL);
 				if (sts < 0) {
 					pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s", pmErrStr(sts));
 					return;
 				}
 				/* rapl.raw */
-				sts = pmdaCacheStore(*raw_indom, PMDA_CACHE_ADD, tmp, NULL);
+				sts = pmdaCacheStore(*raplraw_indom, PMDA_CACHE_ADD, tmp, NULL);
 				if (sts < 0) {
 					pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s", pmErrStr(sts));
 					return;
@@ -580,11 +639,51 @@ denki_rapl_init(void)
 		}
 	}
 
-	if (pmdaCacheOp(*rate_indom, PMDA_CACHE_SIZE_ACTIVE) < 1)
+	if (pmdaCacheOp(*raplrate_indom, PMDA_CACHE_SIZE_ACTIVE) < 1)
 		pmNotifyErr(LOG_WARNING, "\"rapl.rate\" instance domain is empty");
-	if (pmdaCacheOp(*raw_indom, PMDA_CACHE_SIZE_ACTIVE) < 1)
+	if (pmdaCacheOp(*raplraw_indom, PMDA_CACHE_SIZE_ACTIVE) < 1)
 		pmNotifyErr(LOG_WARNING, "\"rapl.raw\" instance domain is empty");
 }
+
+/* 
+ * register batteries as indoms
+ */
+static void
+denki_bat_init(void)
+{
+	int		sts;
+	char		tmp[80];
+
+	if (pmDebugOptions.appl0)
+		pmNotifyErr(LOG_DEBUG, "bat_init, batteries:%d",batteries);
+
+	for(int battery=0; battery<batteries; battery++) {
+
+		pmsprintf(tmp,sizeof(tmp),"battery-%d",battery);
+
+		/* bat.energynowraw */
+		sts = pmdaCacheStore(*energynowraw_indom, PMDA_CACHE_ADD, tmp, NULL);
+		if (sts < 0) {
+			pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s", pmErrStr(sts));
+			return;
+		}
+
+		/* bat.energynowrate */
+		sts = pmdaCacheStore(*energynowrate_indom, PMDA_CACHE_ADD, tmp, NULL);
+		if (sts < 0) {
+			pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s", pmErrStr(sts));
+			return;
+		}
+
+		/* bat.powernow */
+		sts = pmdaCacheStore(*powernow_indom, PMDA_CACHE_ADD, tmp, NULL);
+		if (sts < 0) {
+			pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s", pmErrStr(sts));
+			return;
+		}
+	}
+}
+
 
 static int
 denki_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
@@ -594,20 +693,23 @@ denki_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 	switch (type) {
 		case PM_LABEL_INDOM:
 			serial = pmInDom_serial((pmInDom)ident);
-			if (serial == RAPLRATE_INDOM) {
-				pmdaAddLabels(lpp, "{\"indom_name\":\"raplrate\"}");
+			switch (serial) {
+				case RAPLRATE_INDOM:
+					pmdaAddLabels(lpp, "{\"indom_name\":\"raplrate\"}");
+					break;
+				case RAPLRAW_INDOM:
+					pmdaAddLabels(lpp, "{\"indom_name\":\"raplraw\"}");
+					break;
+				case ENERGYNOWRAW_INDOM:
+					pmdaAddLabels(lpp, "{\"indom_name\":\"energynowraw\"}");
+					break;
+				case ENERGYNOWRATE_INDOM:
+					pmdaAddLabels(lpp, "{\"indom_name\":\"energynowrate\"}");
+					break;
+				case POWERNOW_INDOM:
+					pmdaAddLabels(lpp, "{\"indom_name\":\"powernow\"}");
+					break;
 			}
-			if (serial == RAPLRAW_INDOM) {
-				pmdaAddLabels(lpp, "{\"indom_name\":\"raplraw\"}");
-			}
-			break;
-		case PM_LABEL_ITEM:
-			if (pmID_cluster(ident) != 1)
-				break;
-			if (pmID_item(ident) == 0)	/* energy_now_raw */
-				pmdaAddLabels(lpp, "{\"units\":\"watt hours\"}");
-			if (pmID_item(ident) == 1)	/* energy_now_rate */
-				pmdaAddLabels(lpp, "{\"units\":\"watts\"}");
 			break;
 		/* no labels to add for these types, fall through */
 		case PM_LABEL_DOMAIN:
@@ -660,13 +762,14 @@ denki_init(pmdaInterface *dp)
     } else {
 	has_rapl=1;
     	detect_rapl_packages();
-	pmNotifyErr(LOG_INFO, "RAPL detected, with %d cpu-cores and %d rapl-packages.", total_cores, total_packages);
     	detect_rapl_domains();
     	denki_rapl_check();	// now we register the found rapl indoms
     }
     closedir(directory);
 
-    detect_battery();
+    detect_batteries();
+    if (has_bat)
+	    denki_bat_init();
 }
 
 /*
@@ -693,6 +796,9 @@ main(int argc, char **argv)
         		strncpy(rootpath, opts.optarg, sizeof(rootpath));
 			rootpath[sizeof(rootpath)-1] = '\0';
             		break;
+		case 'C':
+                	pmSetDebug("appl0");
+                	break;
         }
     }
 
