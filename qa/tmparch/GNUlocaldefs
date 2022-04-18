@@ -43,6 +43,8 @@ else
 CONFIG_INTERP = config1.interp
 endif
 
+DEFAULT_ARCHIVE_VERSION=$(shell [ -f /etc/pcp.conf ] && sed -n -e '/^PCP_ARCHIVE_VERSION=/s/.*=//p' /etc/pcp.conf)
+
 #
 # rules to make archives
 #
@@ -76,7 +78,11 @@ null.0:	foo.0
 	rm -f null.index null.meta null.0
 	ln foo.meta null.meta
 	ln foo.index null.index
-	dd ibs=132 count=1 if=foo.0 of=null.0
+	if [ "$(DEFAULT_ARCHIVE_VERSION)" = 3 ]; then \
+	    dd ibs=808 count=1 if=foo.0 of=null.0 ;\
+	else \
+	    dd ibs=132 count=1 if=foo.0 of=null.0 ;\
+	fi
 
 bar.0:	config.bar
 	rm -f bar.index bar.meta bar.0
@@ -110,14 +116,25 @@ truncbin.0:	bigbin.0
 	rm -f truncbin.index truncbin.meta truncbin.0
 	ln bigbin.meta truncbin.meta
 	ln bigbin.index truncbin.index
-	dd ibs=1024 count=200 if=bigbin.0 of=truncbin.0
+	# V2 len here is label size + 204668 = 200K
+	# V3 len here is label size + 204668 + 416*4 (bigger timestamps)
+	if [ "$(DEFAULT_ARCHIVE_VERSION)" = 3 ]; then \
+	    dd ibs=1 count=207140 if=bigbin.0 of=truncbin.0 ;\
+	else \
+	    dd ibs=1 count=204800 if=bigbin.0 of=truncbin.0 ;\
+	fi
 
 # truncated in the middle of the first pmResult
 bad-1.0:	bigbin.0
 	rm -f bad-1.index bad-1.meta bad-1.0
 	ln foo.meta bad-1.meta
 	ln foo.index bad-1.index
-	dd ibs=1 count=140 if=foo.0 of=bad-1.0
+	# len here is label size + 8
+	if [ "$(DEFAULT_ARCHIVE_VERSION)" = 3 ]; then \
+	    dd ibs=1 count=816 if=foo.0 of=bad-1.0;\
+	else \
+	    dd ibs=1 count=140 if=foo.0 of=bad-1.0;\
+	fi
 
 interp.0:	$(CONFIG_INTERP)
 	rm -f interp.index interp.meta interp.0

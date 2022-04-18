@@ -68,7 +68,9 @@ log mandatory on default {
 End-of-File
 
 $sudo rm -f big1.*
-pmlogger -r -c $tmp.config -l $tmp.out -t 10msec -s 2049 tmparch/big1
+# Needs to be a V2 archive to trigger the volume switch at 2Gb
+#
+pmlogger -V2 -r -c $tmp.config -l $tmp.out -t 10msec -s 2049 tmparch/big1
 echo >>$here/tmparch/$iam.log
 cat $tmp.out >>$here/tmparch/$iam.log
 echo >>$here/tmparch/$iam.log
