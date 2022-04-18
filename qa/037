@@ -17,7 +17,11 @@ echo "QA output created by $seq"
 #
 _filter()
 {
-    sed -e '/^refcnt/s/=/ /g' \
+    sed -e '/^refcnt/{
+s/=/ /g
+s/ offset 132 / offset AFTERLABEL /
+s/ offset 808 / offset AFTERLABEL /
+}' \
 	-e 's/tifd=[0-9]*/tifd=N/g' \
 	-e 's/mdfd=[0-9]*/mdfd=N/g' \
 	-e 's/mfd=[0-9]*/mfd=N/g' \

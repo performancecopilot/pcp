@@ -5,7 +5,7 @@ Archive tmparch/foo
 === Context 0 ===
 Dump Contexts: current -> contexts[0] handle 0
 contexts[0] handle 0: log tmparch/foo: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
-refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin TIME delta 0.005000000
+refcnt 2 vol 0 offset AFTERLABEL (vol 0) serial 1 origin TIME delta 0.005000000
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
 	sampledso.milliseconds - not known
@@ -43,7 +43,7 @@ desc: type=6 indom=0xffffffff sem=4 units=none
 === Context 1 ===
 Dump Contexts: current -> contexts[1] handle 1
 contexts[1] handle 1: log tmparch/foo: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
-refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin SAME TIME delta 0.005000000
+refcnt 2 vol 0 offset AFTERLABEL (vol 0) serial 1 origin SAME TIME delta 0.005000000
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
 	sampledso.milliseconds - not known
@@ -83,7 +83,7 @@ Archive tmparch/bar
 === Context 0 ===
 Dump Contexts: current -> contexts[0] handle 0
 contexts[0] handle 0: log tmparch/bar: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
-refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin TIME delta 0.005000000
+refcnt 2 vol 0 offset AFTERLABEL (vol 0) serial 1 origin TIME delta 0.005000000
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
 	sample.seconds - not known
@@ -111,7 +111,7 @@ desc: type=0 indom=0x7800002 sem=3 units=none
 === Context 1 ===
 Dump Contexts: current -> contexts[1] handle 1
 contexts[1] handle 1: log tmparch/bar: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
-refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin SAME TIME delta 0.005000000
+refcnt 2 vol 0 offset AFTERLABEL (vol 0) serial 1 origin SAME TIME delta 0.005000000
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
 	sample.seconds - not known
@@ -141,7 +141,7 @@ Archive tmparch/mv-foo
 === Context 0 ===
 Dump Contexts: current -> contexts[0] handle 0
 contexts[0] handle 0: log tmparch/mv-foo: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
-refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin TIME delta 0.005000000
+refcnt 2 vol 0 offset AFTERLABEL (vol 0) serial 1 origin TIME delta 0.005000000
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
 	sampledso.milliseconds - not known
@@ -179,7 +179,7 @@ desc: type=6 indom=0xffffffff sem=4 units=none
 === Context 1 ===
 Dump Contexts: current -> contexts[1] handle 1
 contexts[1] handle 1: log tmparch/mv-foo: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
-refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin SAME TIME delta 0.005000000
+refcnt 2 vol 0 offset AFTERLABEL (vol 0) serial 1 origin SAME TIME delta 0.005000000
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
 	sampledso.milliseconds - not known
@@ -219,7 +219,7 @@ Archive tmparch/mv-bar
 === Context 0 ===
 Dump Contexts: current -> contexts[0] handle 0
 contexts[0] handle 0: log tmparch/mv-bar: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
-refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin TIME delta 0.005000000
+refcnt 2 vol 0 offset AFTERLABEL (vol 0) serial 1 origin TIME delta 0.005000000
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
 	sample.seconds - not known
@@ -247,7 +247,7 @@ desc: type=0 indom=0x7800002 sem=3 units=none
 === Context 1 ===
 Dump Contexts: current -> contexts[1] handle 1
 contexts[1] handle 1: log tmparch/mv-bar: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
-refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin SAME TIME delta 0.005000000
+refcnt 2 vol 0 offset AFTERLABEL (vol 0) serial 1 origin SAME TIME delta 0.005000000
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
 	sample.seconds - not known
@@ -277,7 +277,7 @@ Archive tmparch/noti-foo
 === Context 0 ===
 Dump Contexts: current -> contexts[0] handle 0
 contexts[0] handle 0: log tmparch/noti-foo: mode=INTERP profile=NOT_SENT tifd=N-1 mdfd=N mfd=N
-refcnt 2 vol 0 offset 132 (vol 0) serial 0 origin TIME delta 0.005000000
+refcnt 2 vol 0 offset AFTERLABEL (vol 0) serial 0 origin TIME delta 0.005000000
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
 	sampledso.milliseconds - not known
@@ -315,7 +315,7 @@ desc: type=6 indom=0xffffffff sem=4 units=none
 === Context 1 ===
 Dump Contexts: current -> contexts[1] handle 1
 contexts[1] handle 1: log tmparch/noti-foo: mode=INTERP profile=NOT_SENT tifd=N-1 mdfd=N mfd=N
-refcnt 2 vol 0 offset 132 (vol 0) serial 0 origin SAME TIME delta 0.005000000
+refcnt 2 vol 0 offset AFTERLABEL (vol 0) serial 0 origin SAME TIME delta 0.005000000
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
 	sampledso.milliseconds - not known
@@ -355,7 +355,7 @@ Archive tmparch/noti-bar
 === Context 0 ===
 Dump Contexts: current -> contexts[0] handle 0
 contexts[0] handle 0: log tmparch/noti-bar: mode=INTERP profile=NOT_SENT tifd=N-1 mdfd=N mfd=N
-refcnt 2 vol 0 offset 132 (vol 0) serial 0 origin TIME delta 0.005000000
+refcnt 2 vol 0 offset AFTERLABEL (vol 0) serial 0 origin TIME delta 0.005000000
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
 	sample.seconds - not known
@@ -383,7 +383,7 @@ desc: type=0 indom=0x7800002 sem=3 units=none
 === Context 1 ===
 Dump Contexts: current -> contexts[1] handle 1
 contexts[1] handle 1: log tmparch/noti-bar: mode=INTERP profile=NOT_SENT tifd=N-1 mdfd=N mfd=N
-refcnt 2 vol 0 offset 132 (vol 0) serial 0 origin SAME TIME delta 0.005000000
+refcnt 2 vol 0 offset AFTERLABEL (vol 0) serial 0 origin SAME TIME delta 0.005000000
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
 	sample.seconds - not known
