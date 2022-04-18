@@ -26,8 +26,12 @@ logcheck()
     pcplog="$2"
 
     # should be no errors/warnings and pcp tools should also not fail
-    pmlogsummary -z -f -a $pcplog
-    [ $? -eq 0 ] && echo "pminfo reports no issues in $safile"
+    pmlogsummary -z -f -a $pcplog >$tmp.out
+    sts=$?
+    sed <$tmp.out \
+	-e '/(Log Format Version [0-9][0-9]*)/s/ [23])/ OK)/' \
+    # end
+    [ $sts -eq 0 ] && echo "pminfo reports no issues in $safile"
 }
 
 # backwards compatibility route - silence is golden
