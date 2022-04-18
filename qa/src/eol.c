@@ -10,13 +10,13 @@
 #include "libpcp.h"
 
 static void
-printstamp(struct timeval *tp)
+printstamp(struct timespec *ts)
 {
     static struct tm	*tmp;
-    time_t		clock = (time_t)tp->tv_sec;
+    time_t		clock = (time_t)ts->tv_sec;
 
     tmp = localtime(&clock);
-    printf("%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)(tp->tv_usec/1000));
+    printf("%02d:%02d:%02d.%09d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)(ts->tv_nsec));
 }
 
 int
@@ -27,11 +27,11 @@ main(int argc, char **argv)
     int		errflag = 0;
     int		ahtype = 0;
     char	*host = NULL;			/* pander to gcc */
-    pmLogLabel	label;				/* get hostname for archives */
+    pmHighResLogLabel	label;			/* get hostname for archives */
     char	*namespace = PM_NS_DEFAULT;
-    pmResult	*result;
-    pmResult	*prev;
-    struct timeval	end;
+    pmHighResResult	*result;
+    pmHighResResult	*prev;
+    struct timespec	end;
     int		numpmid = 3;
     char	*name[] = { "sample.seconds", "sample.drift", "sample.milliseconds" };
 
@@ -96,7 +96,7 @@ Options\n\
 	exit(1);
     }
 
-    if ((sts = pmGetArchiveLabel(&label)) < 0) {
+    if ((sts = pmGetHighResArchiveLabel(&label)) < 0) {
 	fprintf(stderr, "%s: Cannot get archive label record: %s\n",
 	    pmGetProgname(), pmErrStr(sts));
 	exit(1);
@@ -113,12 +113,12 @@ Options\n\
 	}
     }
 
-    sts = pmGetArchiveEnd(&end);
+    sts = pmGetHighResArchiveEnd(&end);
     if (sts < 0) {
-	printf("pmGetArchiveEnd: %s\n", pmErrStr(sts));
+	printf("pmGetHighResArchiveEnd: %s\n", pmErrStr(sts));
     }
     else {
-	printf("pmGetArchiveEnd time: ");
+	printf("pmGetHighResArchiveEnd time: ");
 	printstamp(&end);
 	printf("\n");
     }
@@ -126,67 +126,67 @@ Options\n\
     __pmLogReads = 0;
 
     putchar('\n');
-    sts = pmSetMode(PM_MODE_BACK, &end, 0);
+    sts = pmSetModeHighRes(PM_MODE_BACK, &end, 0);
     if (sts < 0) {
-	printf("pmSetMode: %s\n", pmErrStr(sts));
+	printf("pmSetModeHighRes: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    sts = pmFetchArchive(&result);
+    sts = pmFetchHighResArchive(&result);
     if (sts < 0) {
-	printf("pmFetchArchive: %s\n", pmErrStr(sts));
+	printf("pmFetchHighResArchive: %s\n", pmErrStr(sts));
     }
     else {
 	printf("last result time (direct): ");
 	printstamp(&result->timestamp);
 	printf("\n");
-	pmFreeResult(result);
+	pmFreeHighResResult(result);
     }
     printf("required %d log reads\n", __pmLogReads);
     __pmLogReads = 0;
 
     putchar('\n');
     end.tv_sec = PM_MAX_TIME_T;
-    end.tv_usec = 0;
-    sts = pmSetMode(PM_MODE_BACK, &end, 0);
+    end.tv_nsec = 0;
+    sts = pmSetModeHighRes(PM_MODE_BACK, &end, 0);
     if (sts < 0) {
-	printf("pmSetMode: %s\n", pmErrStr(sts));
+	printf("pmSetModeHighRes: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    sts = pmFetchArchive(&result);
+    sts = pmFetchHighResArchive(&result);
     if (sts < 0) {
-	printf("pmFetchArchive: %s\n", pmErrStr(sts));
+	printf("pmFetchHighResArchive: %s\n", pmErrStr(sts));
     }
     else {
 	printf("last result time (indirect): ");
 	printstamp(&result->timestamp);
 	printf("\n");
-	pmFreeResult(result);
+	pmFreeHighResResult(result);
     }
     printf("required %d log reads\n", __pmLogReads);
     __pmLogReads = 0;
 
     putchar('\n');
-    prev = (pmResult *)0;
+    prev = (pmHighResResult *)0;
     end.tv_sec = 0;
-    sts = pmSetMode(PM_MODE_FORW, &end, 0);
+    sts = pmSetModeHighRes(PM_MODE_FORW, &end, 0);
     if (sts < 0) {
-	printf("pmSetMode: %s\n", pmErrStr(sts));
+	printf("pmSetModeHighRes: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    while ((sts = pmFetchArchive(&result)) >= 0) {
-	if (prev != (pmResult *)0)
-	    pmFreeResult(prev);
+    while ((sts = pmFetchHighResArchive(&result)) >= 0) {
+	if (prev != (pmHighResResult *)0)
+	    pmFreeHighResResult(prev);
 	prev = result;
     }
-    printf("pmFetchArchive: %s\n", pmErrStr(sts));
-    if (prev == (pmResult *)0) {
+    printf("pmFetchHighResArchive: %s\n", pmErrStr(sts));
+    if (prev == (pmHighResResult *)0) {
 	printf("no results!\n");
     }
     else {
 	printf("last result time (serial): ");
 	printstamp(&prev->timestamp);
 	printf("\n");
-	pmFreeResult(prev);
+	pmFreeHighResResult(prev);
     }
     printf("required %d log reads\n", __pmLogReads);
     __pmLogReads = 0;
