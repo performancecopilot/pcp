@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 926
+# PCP QA Test No. 1411
 # Exercise the ganglia2pcp utility
 #
 # PCP_ARCHIVE_VERSION V3 variant, see 926 for the V2 variant.
