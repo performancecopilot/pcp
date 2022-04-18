@@ -34,6 +34,8 @@ my %rrd_stats;
 
 our $deltaT;
 
+my $version;		# -V version
+
 my $zone = "";	# default to local timezone unless -Z on command line
 
 # Conversion routines for ganglia -> pcp
@@ -401,10 +403,10 @@ my %rrd_found;
 
 my %args;
 
-my $sts = getopt('f:s:e:Z:h:d:', \%args);
+my $sts = getopt('f:s:e:V:Z:h:d:', \%args);
 
 if (!defined($sts) || $#ARGV != 0) {
-    print "Usage: ganglia2pcp [-s start] [-e end] [-f output file name] [-d output file dir ] [-Z timezone] [-h hostname] input_dir \n";
+    print "Usage: ganglia2pcp [-s start] [-e end] [-f output file name] [-d output file dir ] [-V version] [-Z timezone] [-h hostname] input_dir \n";
     exit(1);
 }
 
@@ -532,6 +534,14 @@ if (exists($args{d})){
 
 pmiStart("$outdir/$outfile", 0) >= 0
 	or die "pmiStart($outfile, 0): " . pmiErrStr(-1) . "\n";
+
+if (exists($args{V})) {
+    $version = $args{V};
+    if (pmiSetVersion($version) < 0) {
+	print "ganglia2pcp: Illegal -V value, must be 2 or 3\n";
+	exit(1);
+    }
+}
 
 
 if($label_zone){

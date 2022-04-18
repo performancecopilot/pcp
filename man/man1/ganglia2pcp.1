@@ -24,6 +24,7 @@
 [\fB\-f\fR \fIoutfile\fR]
 [\fB\-h\fR \fIhostname\fR]
 [\fB\-s\fR \fIstart\fR]
+[\fB\-V\fR \fIversion\fR]
 [\fB\-Z\fR \fItimezone\fR]
 \fIinput_dir\fR
 .SH DESCRIPTION
@@ -90,6 +91,18 @@ The
 .I start
 argument specifies a start time in a format understood by str2time.
 The default start time is 24 prior to current time.
+.TP
+\fB\-V\fR \fIversion\fR
+The
+.B \-V
+option specifies the version for the output PCP archive.
+By default the archive version
+.B $PCP_ARCHIVE_VERSION
+(set to 2 in current PCP releases)
+is used, and the only values
+currently supported for
+.I version
+are 2 or 3.
 .TP
 \fB\-Z\fR \fItimezone\fR
 The
