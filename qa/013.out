@@ -3,7 +3,7 @@ For PCP 1.1 Expect cannot open archive error message, and no core file ...
 For PCP 2.0 -l tmparch/foo.meta is a synonym for -l src/foo, so this works ...
 
 === tmparch/foo.meta: exists ===
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
