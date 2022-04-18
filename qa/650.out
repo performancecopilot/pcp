@@ -11,8 +11,8 @@ pmcd.pmlogger.host
 event.flags
 event.missed
 = archive contents...
-Log Label (Log Format Version 2)
-Performance metrics from host ...
+Log Label (Log Format Version OK)
+Performance metrics from host HOST
 
 Descriptions for Metrics in the Log ...
 PMID: 2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect)
@@ -137,8 +137,8 @@ pmcd.pmlogger.host
 event.flags
 event.missed
 = archive contents...
-Log Label (Log Format Version 2)
-Performance metrics from host ...
+Log Label (Log Format Version OK)
+Performance metrics from host HOST
 
 Descriptions for Metrics in the Log ...
 PMID: 2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect)
@@ -263,8 +263,8 @@ pmcd.pmlogger.host
 event.flags
 event.missed
 = archive contents...
-Log Label (Log Format Version 2)
-Performance metrics from host ...
+Log Label (Log Format Version OK)
+Performance metrics from host HOST
 
 Descriptions for Metrics in the Log ...
 PMID: 2.4.1 (pmcd.agent.status or sample.secret.foo.bar.max.redirect)
