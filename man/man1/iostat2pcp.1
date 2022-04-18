@@ -21,6 +21,7 @@
 [\fB\-v\fR]
 [\fB\-S\fR \fIstart\fR]
 [\fB\-t\fR \fIinterval\fR]
+[\fB\-V\fR \fIversion\fR]
 [\fB\-Z\fR \fItimezone\fR]
 \fIinfile\fR
 \fIoutfile\fR
@@ -91,6 +92,17 @@ The \fB\-S\fR option may be used to specify as start time for the
 first real sample in \fIinfile\fR, where \fIstart\fR must have the format
 \&\s-1HH:MM:SS\s0.
 This option is ignored if timestamps are found in the input stream.
+.PP
+The
+.B \-V
+option specifies the version for the output PCP archive.
+By default the archive version
+.B $PCP_ARCHIVE_VERSION
+(set to 2 in current PCP releases)
+is used, and the only values
+currently supported for
+.I version
+are 2 or 3.
 .PP
 The \fB\-Z\fR option may be used to specify a timezone.
 It must have the format +HHMM (for hours and minutes East of \s-1UTC\s0)

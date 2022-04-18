@@ -46,6 +46,7 @@ my $sts;
 my %options;		# for command line arguments
 my $sample = -1;
 my $interval = undef;
+my $version;		# -V version
 my $in_dev = 0;		# in Device: group
 my $dev_style;		# "d0" for original -d Device: data,
 			# "d1" for -d Device: data with discard columns
@@ -335,10 +336,10 @@ sub sample_done()
     $putsts = 0;
 }
 
-$sts = getopts('S:t:vZ:', \%options);
+$sts = getopts('S:t:V:vZ:', \%options);
 
 if (!defined($sts) || $#ARGV != 1) {
-    print "Usage: iostat2pcp [-v] [-S start] [-t interval] [-Z timezone] infile outfile\n";
+    print "Usage: iostat2pcp [-v] [-S start] [-t interval] [-V version] [-Z timezone] infile outfile\n";
     exit(1);
 }
 
@@ -354,6 +355,14 @@ if (exists($options{Z})) {
 }
 
 pmiStart($ARGV[1], 0);
+
+if (exists($options{V})) {
+    $version = $options{V};
+    if (pmiSetVersion($version) < 0) {
+	print "iostat2pcp: Illegal -V value, must be 2 or 3\n";
+	exit(1);
+    }
+}
 
 open(INFILE, "<" . $ARGV[0])
     or die "iostat2pcp: Failed to open infile \"$ARGV[0]\"\n";

@@ -1,7 +1,9 @@
 #!/bin/sh
-# PCP QA Test No. 373
+# PCP QA Test No. 1417
 #
 # iostat2pcp exerciser
+#
+# PCP_ARCHIVE_VERSION V3 variant, see 373 for the V2 variant.
 #
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
@@ -36,7 +38,7 @@ do
     echo
     echo "=== $infile ==="
     rm -f $tmp.0 $tmp.index $tmp.meta
-    iostat2pcp -V2 -v $infile $tmp
+    iostat2pcp -V3 -v $infile $tmp
 
     if [ -f $tmp.0 ]
     then

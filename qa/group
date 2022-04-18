@@ -425,6 +425,7 @@ pcp2zabbix
 # ...2pcp
 sheet2pcp
 ganglia2pcp
+iostat2pcp
 
 # man pages
 man
@@ -825,7 +826,7 @@ x11
 370 pmimport local derive pmdumplog perl pmval
 371 sheet2pcp pmimport local pmdumplog perl
 372 sheet2pcp pmimport local pmdumplog perl
-373 pmimport local perl pmdumplog
+373 iostat2pcp pmimport local perl pmdumplog
 374 pmlc pmlogger remote pmdumplog
 375 pmlc pmlogger remote pmdumplog
 376 trace local pmda.install pmda.trace
@@ -1869,6 +1870,7 @@ x11
 1414 pmlc pmlogger pmdumplog archive_v3 local
 1415 pmda.mmv labels local
 1416 pmlogrewrite local
+1417 iostat2pcp pmimport perl pmdumplog archive_v3 local
 1422 pmda.mmv local valgrind
 1423 pcp2spark python pcp2xxx local
 1433 pmproxy local pmconfig
