@@ -17,7 +17,11 @@
 .SH NAME
 \f3sheet2pcp\f1 \- import spreadsheet data and create a PCP archive
 .SH SYNOPSIS
-\fBsheet2pcp\fR [\fB\-h\fR \fIhost\fR] [\fB\-V\fR \fIversion\fR] [\fB\-Z\fR \fItimezone\fR] \fIinfile\fR \fImapfile\fR \fIoutfile\fR
+\fBsheet2pcp\fR
+[\fB\-h\fR \fIhost\fR]
+[\fB\-V\fR \fIversion\fR]
+[\fB\-Z\fR \fItimezone\fR]
+\fIinfile\fR \fImapfile\fR \fIoutfile\fR
 .SH DESCRIPTION
 .de SAMPLE
 .RS 2n
@@ -69,7 +73,7 @@ option specifies the version for the output PCP archive.
 By default the archive version
 .B $PCP_ARCHIVE_VERSION
 (set to 2 in current PCP releases)
-is iused, and the only values
+is used, and the only values
 currently supported for
 .I version
 are 2 or 3.
