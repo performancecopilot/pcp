@@ -1,8 +1,8 @@
-#! /bin/sh
-# PCP QA Test No. 374
+#!/bin/sh
+# PCP QA Test No. 1414
 # pmlogger (PCP 2.0) and pmlc (assorted) version compatibility
 #
-# PCP_ARCHIVE_VERSION V2 variant, see 1414 for the V3 variant.
+# PCP_ARCHIVE_VERSION V3 variant, see 375 for the V2 variant.
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -39,7 +39,15 @@ _filter()
 	-e '/^log started/d' \
     | $PCP_AWK_PROG '
 $1 == "log" && $2 == "size"	{ if ($3 > 100 && $3 <= 200) $3 = "more than 100"
-				  else if ($3 > 200 && $3 <= 400) $3 = "more than 200"
+				  else if ($3 > 200 && $3 <= 300) $3 = "more than 200"
+				  else if ($3 > 300 && $3 <= 400) $3 = "more than 300"
+				  else if ($3 > 400 && $3 <= 500) $3 = "more than 400"
+				  else if ($3 > 500 && $3 <= 600) $3 = "more than 500"
+				  else if ($3 > 600 && $3 <= 700) $3 = "more than 600"
+				  else if ($3 > 700 && $3 <= 800) $3 = "more than 700"
+				  else if ($3 > 800 && $3 <= 900) $3 = "more than 800"
+				  else if ($3 > 900 && $3 <= 1000) $3 = "more than 900"
+				  else if ($3 > 1000 && $3 <= 1100) $3 = "more than 1000"
 				}
 				{ print }'
 }
@@ -52,7 +60,7 @@ _speak_to_me()
     # version logic in libpcp, then pmlc there will only be able to connect
     # to pmlogger here if we force pmlogger to offer LOG_PDU_VERSION2
     #
-    _start_up_pmlogger -V2 --pmlc-ipc-version=2 -L -c /dev/null -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1
+    _start_up_pmlogger -V3 --pmlc-ipc-version=2 -L -c /dev/null -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1
     _wait_for_pmlogger $pid /tmp/$$.log
 
     # the success cases
