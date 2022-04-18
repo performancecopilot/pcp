@@ -83,6 +83,8 @@ fi
 
 pmdumplog -t $tmp \
 | _filter_pmdumplog \
+| sed \
+    -e 's/^			Log Vol/		Log Vol/' \
 | $PCP_AWK_PROG '
 $1 == "TIMESTAMP" && NF == 4	{ print "TIMESTAMP       " $2 "       OFFSET       OFFSET"; next }
 				{ print }'
