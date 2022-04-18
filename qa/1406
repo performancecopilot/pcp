@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 372
+# PCP QA Test No. 1406
 # simple exerciser for sheet2pcp - base CSV variant
 #
 # PCP_ARCHIVE_VERSION V3 variant, see 372 for the V2 variant.
