@@ -7,7 +7,7 @@ Archive basename: ARCHIVE
 [DATE] pmlogger(PID) Info: pmlogger: Sample limit reached, exiting
 
 Log finished DATE
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
@@ -78,7 +78,7 @@ Archive basename: ARCHIVE
 [DATE] pmlogger(PID) Info: pmlogger: Sample limit reached, exiting
 
 Log finished DATE
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
