@@ -26,9 +26,10 @@ _do_time()
 	-e "/\"$logger_pid\"/s/$logger_pid/LOGGER_PID/g" \
 	-e '/pmcd.pmlogger.port/s/value .*/value PORT/' \
 	-e '/pmcd.pmlogger.host/s/value ".*/value "HOST"/' \
-	-e '/pmcd.pmlogger.archive/s/value ".*/value "PATH"/'
+	-e '/pmcd.pmlogger.archive/s/value ".*/value "PATH"/' \
+    # end
     sed -n <$tmp.tmp \
-      -e 's/.*\([0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]*[0-9]\).*/\1/p' \
+        -e 's/.*\([0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]*[0-9]\).*/\1/p' \
     | LC_COLLATE=POSIX sort -u \
     | while read time
     do
@@ -96,6 +97,7 @@ echo
 echo "=== forwards ===" | tee -a $seq.full
 pmdumplog -lm $tmp \
 | tee -a $seq.full \
+| sed -e '/(Log Format Version [0-9][0-9]*)/s/ [23])/ OK)/' \
 | sed \
     -e '/^$/d' \
     -e '/^[0-9]/{
@@ -111,6 +113,7 @@ echo
 echo "=== backwards ===" | tee -a $seq.full
 pmdumplog -lmr $tmp \
 | tee -a $seq.full \
+| sed -e '/(Log Format Version [0-9][0-9]*)/s/ [23])/ OK)/' \
 | sed \
     -e '/^$/d' \
     -e '/^[0-9]/{
