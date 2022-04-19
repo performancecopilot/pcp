@@ -2,7 +2,7 @@ QA output created by 134
 
 === logger started, nothing logged ===
 MYLOG.0 initial OK
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host LOCALHOST
     commencing month-day TIMESTAMP-0 year
     ending     month-day TIMESTAMP-0 year
@@ -18,8 +18,8 @@ Metrics in archive:
     pmcd.seqnum
 
 === first volume, one result ===
-MYLOG.0 incr 40 bytes
-Log Label (Log Format Version 2)
+MYLOG.0 incr OK
+Log Label (Log Format Version OK)
 Performance metrics from host LOCALHOST
     commencing month-day TIMESTAMP-0 year
     ending     month-day TIMESTAMP-1 year
@@ -40,7 +40,7 @@ New log volume 1
 === second empty volume ===
 MYLOG.0 unchanged
 MYLOG.1 initial OK
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host LOCALHOST
     commencing month-day TIMESTAMP-0 year
     ending     month-day TIMESTAMP-1 year
@@ -60,7 +60,7 @@ Metrics in archive:
 === second volume, one result ===
 MYLOG.0 unchanged
 MYLOG.1 incr 0-400 bytes
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host LOCALHOST
     commencing month-day TIMESTAMP-0 year
     ending     month-day TIMESTAMP-2 year
@@ -82,7 +82,7 @@ Metrics in archive:
 === second volume, second + third result ===
 MYLOG.0 unchanged
 MYLOG.1 incr 0-400 bytes
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host LOCALHOST
     commencing month-day TIMESTAMP-0 year
     ending     month-day TIMESTAMP-4 year
@@ -109,7 +109,7 @@ Metrics in archive:
 === logger done ===
 MYLOG.0 unchanged
 MYLOG.1 incr 0-400 bytes
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host LOCALHOST
     commencing month-day TIMESTAMP-0 year
     ending     month-day TIMESTAMP-5 year
