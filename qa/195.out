@@ -21,7 +21,6 @@ pmdumplog: Cannot locate end of archive tmparch/bad-1: Corrupted record in a PCP
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
 
-pmdumplog: Warning: cannot get end of archive timestamp: Corrupted record in a PCP archive log
 Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
@@ -132,7 +131,6 @@ pmdumplog: Cannot locate end of archive tmparch/bad-1.0: Corrupted record in a P
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
 
-pmdumplog: Warning: cannot get end of archive timestamp: Corrupted record in a PCP archive log
 Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
@@ -144,7 +142,6 @@ pmdumplog: Cannot locate end of archive tmparch/bad-1.index: Corrupted record in
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
 
-pmdumplog: Warning: cannot get end of archive timestamp: Corrupted record in a PCP archive log
 Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
@@ -156,7 +153,6 @@ pmdumplog: Cannot locate end of archive tmparch/bad-1.meta: Corrupted record in 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
 
-pmdumplog: Warning: cannot get end of archive timestamp: Corrupted record in a PCP archive log
 Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
