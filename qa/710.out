@@ -71,7 +71,7 @@ TIMESTAMP	      0          808          808
 TIMESTAMP	      0          996          808
 TIMESTAMP	      0         2109          936
 
-[108 bytes]
+[104 bytes]
 TIMESTAMP 2 metrics
     245.0.1 (hinv.ncpu): value 42
     60.2.0 (kernel.all.load):
@@ -79,5 +79,5 @@ TIMESTAMP 2 metrics
         inst [5 or "5 minute"] value DOUBLE
         inst [15 or "15 minute"] value DOUBLE
 
-[28 bytes]
+[24 bytes]
 TIMESTAMP  <mark>
