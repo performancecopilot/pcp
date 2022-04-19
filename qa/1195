@@ -44,7 +44,13 @@ done
 #
 for suff in 0 meta index
 do
-    dd if=tmparch/foo.$suff of=$tmp/1.$suff ibs=1 count=132 >/dev/null 2>&1
+    if [ "$PCP_ARCHIVE_VERSION" = 3 ]
+    then
+	labelsize=808
+    else
+	labelsize=132
+    fi
+    dd if=tmparch/foo.$suff of=$tmp/1.$suff ibs=1 count=$labelsize >/dev/null 2>&1
     cp tmparch/foo.$suff $tmp/2.$suff
 done
 
