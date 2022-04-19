@@ -1,6 +1,7 @@
 #!/bin/sh
 # PCP QA Test No. 1025
 # Test out handling of > MAXHOSTNAMELEN (64) hostnames
+# (for V2 archives only)
 #
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -21,14 +22,21 @@ log mandatory on 1 sec {
 }
 EOF
 
-pmlogger -s1 -c $tmp.config -l $tmp.log $tmp.arch 1>$tmp.out 2>&1
+pmlogger -V2 -s1 -c $tmp.config -l $tmp.log $tmp.arch 1>$tmp.out 2>&1
 cat $tmp.log >> $seq.full
 
 bighostname="abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcde"
 pmloglabel -h $bighostname $tmp.arch >> $seq.full
 
-pmdumplog -l $tmp.arch | sed -e '/commencing/d' -e '/ending/d'
+pmdumplog -l $tmp.arch \
+| sed \
+    -e '/commencing/d' \
+    -e '/ending/d' \
+# end
 
+# this reports nothing
+#
+echo "silence is golden ..."
 pmdumptext -C -a $tmp.arch $bighostname:$metric
 
 # success, all done
