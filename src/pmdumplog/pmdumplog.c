@@ -1325,9 +1325,8 @@ main(int argc, char *argv[])
 	/* no -T, use end from libpcp */
 	sts = pmGetHighResArchiveEnd(&end);
 	if (sts < 0) {
-	    fprintf(stderr, "%s: Cannot get end of archive timestamp: %s\n",
+	    fprintf(stderr, "%s: Warning: cannot get end of archive timestamp: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
-	    exit(1);
 	}
     }
 
