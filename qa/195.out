@@ -1,13 +1,13 @@
 QA output created by 195
 
 === tmparch/mv-bigbin ===
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
 
 === tmparch/foo ===
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
@@ -21,97 +21,97 @@ pmdumplog: Cannot locate end of archive tmparch/bad-1: Corrupted record in a PCP
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
 
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     UNKNOWN
 
 === tmparch/mv-bigbin.0 ===
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
 
 === tmparch/mv-bigbin.1 ===
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
 
 === tmparch/mv-bigbin.2 ===
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
 
 === tmparch/mv-bigbin.3 ===
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
 
 === tmparch/mv-bigbin.4 ===
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
 
 === tmparch/mv-bigbin.5 ===
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
 
 === tmparch/mv-bigbin.6 ===
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
 
 === tmparch/mv-bigbin.7 ===
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
 
 === tmparch/mv-bigbin.8 ===
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
 
 === tmparch/mv-bigbin.9 ===
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
 
 === tmparch/mv-bigbin.index ===
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
 
 === tmparch/mv-bigbin.meta ===
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
 
 === tmparch/foo.0 ===
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
 
 === tmparch/foo.index ===
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
 
 === tmparch/foo.meta ===
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
@@ -131,7 +131,7 @@ pmdumplog: Cannot locate end of archive tmparch/bad-1.0: Corrupted record in a P
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
 
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     UNKNOWN
@@ -142,7 +142,7 @@ pmdumplog: Cannot locate end of archive tmparch/bad-1.index: Corrupted record in
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
 
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     UNKNOWN
@@ -153,7 +153,7 @@ pmdumplog: Cannot locate end of archive tmparch/bad-1.meta: Corrupted record in 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
 
-Log Label (Log Format Version 2)
+Log Label (Log Format Version OK)
 Performance metrics from host HOST
     commencing DATE
     ending     UNKNOWN

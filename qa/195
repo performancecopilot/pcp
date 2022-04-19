@@ -20,5 +20,5 @@ for arch in tmparch/mv-bigbin tmparch/foo tmparch/null tmparch/bad-1 \
 do
     echo
     echo "=== $arch ==="
-    pmdumplog -l $arch 2>&1 | _filter_pmdumplog
+    pmdumplog -l $arch 2>&1 | _filter_pmdumplog --any-version
 done
