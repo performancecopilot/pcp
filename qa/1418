@@ -1,6 +1,8 @@
 #!/bin/sh
-# PCP QA Test No. 369
+# PCP QA Test No. 1418
 # Check out libpcp_import
+#
+# PCP_ARCHIVE_VERSION V3 variant, see 369 for the V2 variant.
 #
 # Copyright (c) 2012 Red Hat.
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
@@ -59,14 +61,14 @@ cd $tmp
 
 # real QA test starts here
 echo "C version ..." | tee -a $here/$seq.full
-$here/src/check_import -V2 2>&1 | tee -a $here/$seq.full | _filter1
+$here/src/check_import -V3 2>&1 | tee -a $here/$seq.full | _filter1
 pminfo -dm -a myarchive
 pmdumplog -dilmst myarchive 2>&1 | _filter2
 
 echo
 echo "Perl wrapper version ..." | tee -a $here/$seq.full
 rm -f myarchive.*
-perl $here/src/check_import.perl -V2 2>&1 | tee -a $here/$seq.full | _filter3
+perl $here/src/check_import.perl -V3 2>&1 | tee -a $here/$seq.full | _filter3
 pminfo -dm -a myarchive
 pmdumplog -dilmst myarchive 2>&1 | _filter2
 

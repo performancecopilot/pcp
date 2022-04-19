@@ -29,11 +29,13 @@ main(int argc, char **argv)
     int		hdl2;
     int		errflag = 0;
     int		c;
-    static char	*usage = "[-D debugspec] ";
+    int		Vflag = 0;
+    int		version;
+    static char	*usage = "[-D debugspec] [-V version]";
 
     pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "D:")) != EOF) {
+    while ((c = getopt(argc, argv, "D:V:")) != EOF) {
 	switch (c) {
 
 	case 'D':	/* debug options */
@@ -43,6 +45,11 @@ main(int argc, char **argv)
 		    pmGetProgname(), optarg);
 		errflag++;
 	    }
+	    break;
+
+	case 'V':	/* output archive version */
+	    version = atoi(optarg);
+	    Vflag++;
 	    break;
 
 	case '?':
@@ -61,6 +68,12 @@ main(int argc, char **argv)
 
     ctx1 = pmiStart("myarchive", 0);
     check(ctx1, "pmiStart");
+    if (Vflag) {
+	sts = pmiSetVersion(version);
+	check(sts, "pmiSetVersion");
+	if (sts < 0)
+	    exit(1);
+    }
     pmiDump();
 
     sts = pmiSetHostname("somehost.com");

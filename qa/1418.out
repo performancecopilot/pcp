@@ -1,4 +1,4 @@
-QA output created by 369
+QA output created by 1418
 C version ...
 pmiDump: context 0 of 0 Error: current context is not defined.
 pmiStart: OK ->1
@@ -238,7 +238,7 @@ event.flags PMID: 511.0.1
 event.missed PMID: 511.0.2
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-Log Label (Log Format Version 2)
+Log Label (Log Format Version 3)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
@@ -271,12 +271,12 @@ TIMESTAMP 3 instances
    3 or "blah"
 
 Temporal Index
-		Log Vol    end(meta)     end(log)
-TIMESTAMP	      0          132          132
-TIMESTAMP	      0          531          132
-TIMESTAMP	      0         1616          536
+			Log Vol    end(meta)     end(log)
+TIMESTAMP	      0          808          808
+TIMESTAMP	      0         1211          808
+TIMESTAMP	      0         2324         1228
 
-[228 bytes]
+[232 bytes]
 TIMESTAMP 6 metrics
     245.0.1 (my.metric.foo): value 123
     245.0.2 (my.metric.bar):
@@ -287,16 +287,16 @@ TIMESTAMP 6 metrics
     245.0.4 (my.metric.double): value 1.23456789012
     245.0.6 (my.metric.float): value -1.234567
 
-[88 bytes]
+[92 bytes]
 TIMESTAMP 2 metrics
     245.0.1 (my.metric.foo): value 4321
     245.0.5 (my.metric.string): value "a second string value"
 
-[68 bytes]
+[72 bytes]
 TIMESTAMP 1 metric
     245.0.5 (my.metric.string): value "a third string value"
 
-[20 bytes]
+[24 bytes]
 TIMESTAMP  <mark>
 
 Perl wrapper version ...
@@ -720,7 +720,7 @@ event.flags PMID: 511.0.1
 event.missed PMID: 511.0.2
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-Log Label (Log Format Version 2)
+Log Label (Log Format Version 3)
 Performance metrics from host HOST
     commencing DATE
     ending     DATE
@@ -753,12 +753,12 @@ TIMESTAMP 3 instances
    3 or "blah"
 
 Temporal Index
-		Log Vol    end(meta)     end(log)
-TIMESTAMP	      0          132          132
-TIMESTAMP	      0          531          132
-TIMESTAMP	      0         1616          536
+			Log Vol    end(meta)     end(log)
+TIMESTAMP	      0          808          808
+TIMESTAMP	      0         1211          808
+TIMESTAMP	      0         2324         1228
 
-[228 bytes]
+[232 bytes]
 TIMESTAMP 6 metrics
     245.0.1 (my.metric.foo): value 123
     245.0.2 (my.metric.bar):
@@ -769,14 +769,14 @@ TIMESTAMP 6 metrics
     245.0.4 (my.metric.double): value 1.23456789012
     245.0.6 (my.metric.float): value -1.234567
 
-[88 bytes]
+[92 bytes]
 TIMESTAMP 2 metrics
     245.0.1 (my.metric.foo): value 4321
     245.0.5 (my.metric.string): value "a second string value"
 
-[68 bytes]
+[72 bytes]
 TIMESTAMP 1 metric
     245.0.5 (my.metric.string): value "a third string value"
 
-[20 bytes]
+[24 bytes]
 TIMESTAMP  <mark>

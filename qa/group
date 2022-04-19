@@ -1871,6 +1871,7 @@ x11
 1415 pmda.mmv labels local
 1416 pmlogrewrite local
 1417 iostat2pcp pmimport perl pmdumplog archive_v3 local
+1418 pmimport sanity pmdumplog perl archive_v3 local
 1422 pmda.mmv local valgrind
 1423 pcp2spark python pcp2xxx local
 1433 pmproxy local pmconfig
