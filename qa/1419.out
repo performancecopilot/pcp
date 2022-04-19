@@ -1,13 +1,13 @@
-QA output created by 136
-MYLOG.0 800-1000 bytes
-MYLOG.1 600-800 bytes
-MYLOG.2 600-800 bytes
-MYLOG.3 600-800 bytes
-MYLOG.4 800-1000 bytes
+QA output created by 1419
+MYLOG.0 1400-1600 bytes
+MYLOG.1 1200-1400 bytes
+MYLOG.2 1200-1400 bytes
+MYLOG.3 1200-1400 bytes
+MYLOG.4 1400-1600 bytes
 
 
 Temporal Index
-		Log Vol    end(meta)     end(log)
+			Log Vol    end(meta)     end(log)
 TIMESTAMP-0            0       OFFSET       OFFSET
 TIMESTAMP-1            1       OFFSET       OFFSET
 TIMESTAMP-2            2       OFFSET       OFFSET
