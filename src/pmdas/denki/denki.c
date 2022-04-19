@@ -289,8 +289,9 @@ static int detect_batteries(void) {
 static int read_batteries(void) {
 	char filename[MAXPATHLEN];
 	FILE *fff;
+	int bat;
 
-	for (int bat=0; bat<batteries; bat++) {
+	for (bat=0; bat<batteries; bat++) {
 
 		pmsprintf(filename,sizeof(filename),"%s/%s",battery_basepath[bat],energy_now_file[bat]);
 		fff=fopen(filename,"r");
@@ -328,17 +329,18 @@ static int read_batteries(void) {
 static int compute_energy_rate(void) {
 
 	secondsnow = time(NULL);
+	int i;
 
 	// Special handling for first call after starting pmda-denki
 	if ( secondsold == 0) {
 		secondsold = secondsnow;
-		for (int i=0; i<batteries; i++)
+		for (i=0; i<batteries; i++)
 			energy_now_old[i] = energy_now[i];
         }
 
 	// Time for a new computation?
 	if ( ( secondsnow - secondsold ) >= battery_comp_rate ) {
-		for (int i=0; i<batteries; i++) {
+		for (i=0; i<batteries; i++) {
 
 			// computing how many Wh were used up in battery_comp_rate
 			energy_diff_d[i] = (energy_now_old[i] - energy_now[i])/energy_convert_factor[i];
@@ -651,13 +653,13 @@ denki_rapl_init(void)
 static void
 denki_bat_init(void)
 {
-	int		sts;
+	int		sts,battery;
 	char		tmp[80];
 
 	if (pmDebugOptions.appl0)
 		pmNotifyErr(LOG_DEBUG, "bat_init, batteries:%d",batteries);
 
-	for(int battery=0; battery<batteries; battery++) {
+	for(battery=0; battery<batteries; battery++) {
 
 		pmsprintf(tmp,sizeof(tmp),"battery-%d",battery);
 
