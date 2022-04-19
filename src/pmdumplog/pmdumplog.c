@@ -1132,6 +1132,8 @@ main(int argc, char *argv[])
     __pmResult		*skel_result = NULL;
     __pmResult		*result;
     __pmTimestamp	done;
+    struct timespec	start;
+    struct timespec	end;
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -1304,6 +1306,30 @@ main(int argc, char *argv[])
 	exit(1);
     }
     version = label.magic & 0xff;
+    if (opts.start_optarg != NULL) {
+	/* -S, use that as the window start */
+	start.tv_sec = opts.start.tv_sec;
+	start.tv_nsec = opts.start.tv_usec * 1000;
+    }
+    else {
+	/* no -S, use start from label */
+	start.tv_sec = label.start.sec;
+	start.tv_nsec = label.start.nsec;
+    }
+    if (opts.finish_optarg != NULL) {
+	/* -T, use that as the window start */
+	end.tv_sec = opts.finish.tv_sec;
+	end.tv_nsec = opts.finish.tv_usec * 1000;
+    }
+    else {
+	/* no -T, use end from libpcp */
+	sts = pmGetHighResArchiveEnd(&end);
+	if (sts < 0) {
+	    fprintf(stderr, "%s: Cannot get end of archive timestamp: %s\n",
+		    pmGetProgname(), pmErrStr(sts));
+	    exit(1);
+	}
+    }
 
     if (numpmid > 0) {
 	/*
@@ -1317,11 +1343,12 @@ main(int argc, char *argv[])
     }
 
     if (mode == PM_MODE_FORW)
-	sts = pmSetMode(mode, &opts.start, 0);
-    else
-	sts = pmSetMode(mode, &opts.finish, 0);
+	sts = pmSetModeHighRes(mode, &start, NULL);
+    else {
+	sts = pmSetModeHighRes(mode, &end, NULL);
+    }
     if (sts < 0) {
-	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
+	fprintf(stderr, "%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
@@ -1354,7 +1381,7 @@ main(int argc, char *argv[])
 		done.nsec = opts.finish.tv_usec * 1000;
 	    }
 	    else {
-		/* read the whole archive */
+		/* read the whole archive forward */
 		done.sec = INT_MAX;
 		done.nsec = 0;
 	    }
