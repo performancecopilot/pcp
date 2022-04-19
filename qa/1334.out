@@ -1419,7 +1419,7 @@ STAMP-1 5 metrics
     2.0.23 (pmcd.pid): ...
     2.0.24 (pmcd.seqnum): ...
 
-[740 bytes]
+[736 bytes]
 STAMP-2 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
@@ -1467,7 +1467,7 @@ STAMP-2 3 metrics
         inst [19 or "0019 /usr/bin/jojo"] value 19
         inst [20 or "0020 /usr/local/koko"] value 20
 
-[692 bytes]
+[688 bytes]
 STAMP-3 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
@@ -1512,7 +1512,7 @@ STAMP-3 3 metrics
         inst [19 or "0019 /usr/bin/jojo"] value 19
         inst [20 or "0020 /usr/local/koko"] value 20
 
-[596 bytes]
+[592 bytes]
 STAMP-4 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
@@ -1551,7 +1551,7 @@ STAMP-4 3 metrics
         inst [19 or "0019 /usr/bin/jojo"] value 19
         inst [20 or "0020 /usr/local/koko"] value 20
 
-[596 bytes]
+[592 bytes]
 STAMP-5 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
@@ -1590,7 +1590,7 @@ STAMP-5 3 metrics
         inst [20 or "0020 /usr/local/koko"] value 20
         inst [21 or "0021 /usr/opt/bin/lala"] value 21
 
-[548 bytes]
+[544 bytes]
 STAMP-6 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
@@ -1626,7 +1626,7 @@ STAMP-6 3 metrics
         inst [20 or "0020 /usr/local/koko"] value 20
         inst [21 or "0021 /usr/opt/bin/lala"] value 21
 
-[596 bytes]
+[592 bytes]
 STAMP-7 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
@@ -1665,7 +1665,7 @@ STAMP-7 3 metrics
         inst [21 or "0021 /usr/opt/bin/lala"] value 21
         inst [22 or "0022 /etc/bozo"] value 22
 
-[596 bytes]
+[592 bytes]
 STAMP-8 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
@@ -1704,7 +1704,7 @@ STAMP-8 3 metrics
         inst [21 or "0021 /usr/opt/bin/lala"] value 21
         inst [22 or "0022 /etc/bozo"] value 22
 
-[548 bytes]
+[544 bytes]
 STAMP-9 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
@@ -1740,7 +1740,7 @@ STAMP-9 3 metrics
         inst [21 or "0021 /usr/opt/bin/lala"] value 21
         inst [22 or "0022 /etc/bozo"] value 22
 
-[500 bytes]
+[496 bytes]
 STAMP-10 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
@@ -1773,7 +1773,7 @@ STAMP-10 3 metrics
         inst [21 or "0021 /usr/opt/bin/lala"] value 21
         inst [22 or "0022 /etc/bozo"] value 22
 
-[500 bytes]
+[496 bytes]
 STAMP-11 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
@@ -1806,7 +1806,7 @@ STAMP-11 3 metrics
         inst [21 or "0021 /usr/opt/bin/lala"] value 21
         inst [22 or "0022 /etc/bozo"] value 22
 
-[500 bytes]
+[496 bytes]
 STAMP-12 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
@@ -1839,7 +1839,7 @@ STAMP-12 3 metrics
         inst [22 or "0022 /etc/bozo"] value 22
         inst [23 or "0023 /usr/bin/bobo"] value 23
 
-[500 bytes]
+[496 bytes]
 STAMP-13 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
@@ -1872,7 +1872,7 @@ STAMP-13 3 metrics
         inst [22 or "0022 /etc/bozo"] value 22
         inst [23 or "0023 /usr/bin/bobo"] value 23
 
-[596 bytes]
+[592 bytes]
 STAMP-14 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
@@ -1911,7 +1911,7 @@ STAMP-14 3 metrics
         inst [24 or "0024 /usr/local/jester"] value 24
         inst [25 or "0025 /usr/opt/bin/loko"] value 25
 
-[596 bytes]
+[592 bytes]
 STAMP-15 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
@@ -1950,7 +1950,7 @@ STAMP-15 3 metrics
         inst [24 or "0024 /usr/local/jester"] value 24
         inst [25 or "0025 /usr/opt/bin/loko"] value 25
 
-[596 bytes]
+[592 bytes]
 STAMP-16 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
@@ -1989,7 +1989,7 @@ STAMP-16 3 metrics
         inst [24 or "0024 /usr/local/jester"] value 24
         inst [25 or "0025 /usr/opt/bin/loko"] value 25
 
-[644 bytes]
+[640 bytes]
 STAMP-17 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
@@ -2031,7 +2031,7 @@ STAMP-17 3 metrics
         inst [25 or "0025 /usr/opt/bin/loko"] value 25
         inst [26 or "0026 /etc/pierrot"] value 26
 
-[644 bytes]
+[640 bytes]
 STAMP-18 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
@@ -2073,7 +2073,7 @@ STAMP-18 3 metrics
         inst [25 or "0025 /usr/opt/bin/loko"] value 25
         inst [26 or "0026 /etc/pierrot"] value 26
 
-[692 bytes]
+[688 bytes]
 STAMP-19 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
@@ -2118,7 +2118,7 @@ STAMP-19 3 metrics
         inst [27 or "0027 /usr/bin/waldo"] value 27
         inst [28 or "0028 /usr/local/yobo"] value 28
 
-[692 bytes]
+[688 bytes]
 STAMP-20 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
@@ -2163,7 +2163,7 @@ STAMP-20 3 metrics
         inst [27 or "0027 /usr/bin/waldo"] value 27
         inst [28 or "0028 /usr/local/yobo"] value 28
 
-[740 bytes]
+[736 bytes]
 STAMP-21 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
