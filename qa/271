@@ -21,13 +21,17 @@ trap "rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 _filter()
 {
     _filter_dbg \
-    | _filter_pmdumplog \
+    | _filter_pmdumplog --any-version \
     | sed \
 	-e 's/]/ ]/g' \
 	-e 's/__pmLogChkLabel/chkLabel/g' \
 	-e 's/TIMESTAMP (t=[0-9][0-9.]*)/TIMESTAMP/g' \
 	-e 's/tz=[^ ]*/tz=TZ/' \
 	-e 's/ ]/]/g' \
+	-e '/magic=/{
+s/2 version=2/X version=X/
+s/3 version=3/X version=X/
+}' \
     | grep -v "$tmp.tmp" \
     | grep -v "$tmp.out" \
     | $PCP_AWK_PROG '
