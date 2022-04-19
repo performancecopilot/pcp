@@ -13,6 +13,8 @@
  * for more details.
  */
 
+#define PMAPI_VERSION 3
+
 #include "pmapi.h"
 #include "libpcp.h"
 #include <ctype.h>
@@ -62,6 +64,7 @@ static pmLongOptions longopts[] = {
 
 static int overrides(int, pmOptions *);
 static pmOptions opts = {
+    .version = PMAPI_VERSION_3,
     .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_STDOUT_TZ | PM_OPTFLAG_BOUNDARIES,
     .short_options = "aD:dehIilLmMn:rS:sT:tv:xZ:z?",
     .long_options = longopts,
@@ -1132,8 +1135,6 @@ main(int argc, char *argv[])
     __pmResult		*skel_result = NULL;
     __pmResult		*result;
     __pmTimestamp	done;
-    struct timespec	start;
-    struct timespec	end;
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -1306,29 +1307,6 @@ main(int argc, char *argv[])
 	exit(1);
     }
     version = label.magic & 0xff;
-    if (opts.start_optarg != NULL) {
-	/* -S, use that as the window start */
-	start.tv_sec = opts.start.tv_sec;
-	start.tv_nsec = opts.start.tv_usec * 1000;
-    }
-    else {
-	/* no -S, use start from label */
-	start.tv_sec = label.start.sec;
-	start.tv_nsec = label.start.nsec;
-    }
-    if (opts.finish_optarg != NULL) {
-	/* -T, use that as the window start */
-	end.tv_sec = opts.finish.tv_sec;
-	end.tv_nsec = opts.finish.tv_usec * 1000;
-    }
-    else {
-	/* no -T, use end from libpcp */
-	sts = pmGetHighResArchiveEnd(&end);
-	if (sts < 0) {
-	    fprintf(stderr, "%s: Warning: cannot get end of archive timestamp: %s\n",
-		    pmGetProgname(), pmErrStr(sts));
-	}
-    }
 
     if (numpmid > 0) {
 	/*
@@ -1342,9 +1320,9 @@ main(int argc, char *argv[])
     }
 
     if (mode == PM_MODE_FORW)
-	sts = pmSetModeHighRes(mode, &start, NULL);
+	sts = pmSetModeHighRes(mode, &opts.start, NULL);
     else {
-	sts = pmSetModeHighRes(mode, &end, NULL);
+	sts = pmSetModeHighRes(mode, &opts.finish, NULL);
     }
     if (sts < 0) {
 	fprintf(stderr, "%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
@@ -1377,7 +1355,7 @@ main(int argc, char *argv[])
 	    if (opts.start_optarg != NULL || opts.finish_optarg != NULL) {
 		/* -S or -T */
 		done.sec = opts.finish.tv_sec;
-		done.nsec = opts.finish.tv_usec * 1000;
+		done.nsec = opts.finish.tv_nsec;
 	    }
 	    else {
 		/* read the whole archive forward */
@@ -1389,7 +1367,7 @@ main(int argc, char *argv[])
 	    if (opts.start_optarg != NULL || opts.finish_optarg != NULL) {
 		/* -S or -T */
 		done.sec = opts.start.tv_sec;
-		done.nsec = opts.start.tv_usec * 1000;
+		done.nsec = opts.start.tv_nsec;
 	    }
 	    else {
 		/* read the whole archive backwards */
