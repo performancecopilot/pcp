@@ -54,7 +54,7 @@ $1 ~ /\.0$/	{ if (l0 == 0) {
 			  # V2 archives
 		          print $1,"initial OK"
 		      }
-		      if ($2 > 808 && $2 < 1000) {
+		      else if ($2 > 808 && $2 < 1000) {
 			  # V3 archives
 		          print $1,"initial OK"
 		      }
