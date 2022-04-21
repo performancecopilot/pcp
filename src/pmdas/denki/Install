@@ -26,6 +26,7 @@ dso_opt=false
 socket_opt=false
 pmns_source=root_denki
 
+# args="-U root -D appl0"
 # args="-U root -r <directory>"
 args="-U root"
 
