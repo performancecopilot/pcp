@@ -289,9 +289,8 @@ static int detect_batteries(void) {
 static int read_batteries(void) {
 	char filename[MAXPATHLEN];
 	FILE *fff;
-	int bat;
 
-	for (bat=0; bat<batteries; bat++) {
+	for (int bat=0; bat<batteries; bat++) {
 
 		pmsprintf(filename,sizeof(filename),"%s/%s",battery_basepath[bat],energy_now_file[bat]);
 		fff=fopen(filename,"r");
@@ -329,18 +328,17 @@ static int read_batteries(void) {
 static int compute_energy_rate(void) {
 
 	secondsnow = time(NULL);
-	int i;
 
 	// Special handling for first call after starting pmda-denki
 	if ( secondsold == 0) {
 		secondsold = secondsnow;
-		for (i=0; i<batteries; i++)
+		for (int i=0; i<batteries; i++)
 			energy_now_old[i] = energy_now[i];
         }
 
 	// Time for a new computation?
 	if ( ( secondsnow - secondsold ) >= battery_comp_rate ) {
-		for (i=0; i<batteries; i++) {
+		for (int i=0; i<batteries; i++) {
 
 			// computing how many Wh were used up in battery_comp_rate
 			energy_diff_d[i] = (energy_now_old[i] - energy_now[i])/energy_convert_factor[i];
@@ -441,7 +439,7 @@ static pmLongOptions longopts[] = {
     PMDAOPT_DOMAIN,
     PMDAOPT_LOGFILE,
     { "rootpath", 1, 'r', "ROOTPATH", "use non-default rootpath instead of /" },
-    { "debug", 1, 'C', "DEBUG", "enable in-pmda debug output" },
+    { "debug", 1, 'D', "DEBUG", "enable in-pmda debug output" },
     PMDAOPT_USERNAME,
     PMOPT_HELP,
     PMDA_OPTIONS_TEXT("\nExactly one of the following options may appear:"),
@@ -452,12 +450,12 @@ static pmLongOptions longopts[] = {
     PMDA_OPTIONS_END
 };
 static pmdaOptions opts = {
-    .short_options = "C:D:d:i:l:r:pu:U:6:?",
+    .short_options = "D:d:i:l:r:pu:U:6:?",
     .long_options = longopts,
 };
 
 /*
- * Our rapl readings are in a 2-dimension array, map them here
+ * Our rapl readings are in a 2-dimensional array, map them here
  * to the 1-dimentional indom numbers
  */
 long long lookup_rapl_dom(int instance) {
@@ -486,13 +484,8 @@ denki_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	unsigned int	cluster = pmID_cluster(mdesc->m_desc.pmid);
 	unsigned int	item = pmID_item(mdesc->m_desc.pmid);
 
-	if (inst != PM_IN_NULL &&
-		!((cluster == 0 && item == 0) || 
-	 	  (cluster == 0 && item == 1) ||
-	 	  (cluster == 1 && item == 0) ||
-	 	  (cluster == 1 && item == 1) ||
-	 	  (cluster == 1 && item == 2)))
-	return PM_ERR_INST;
+	if (inst != PM_IN_NULL && mdesc->m_desc.indom == PM_INDOM_NULL)
+		return PM_ERR_INST;
 
 	if (cluster == 0) {
 		if (item == 0) {			/* rapl.rate */
@@ -653,13 +646,13 @@ denki_rapl_init(void)
 static void
 denki_bat_init(void)
 {
-	int		sts,battery;
+	int		sts;
 	char		tmp[80];
 
 	if (pmDebugOptions.appl0)
 		pmNotifyErr(LOG_DEBUG, "bat_init, batteries:%d",batteries);
 
-	for(battery=0; battery<batteries; battery++) {
+	for(int battery=0; battery<batteries; battery++) {
 
 		pmsprintf(tmp,sizeof(tmp),"battery-%d",battery);
 
@@ -703,13 +696,13 @@ denki_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 					pmdaAddLabels(lpp, "{\"indom_name\":\"raplraw\"}");
 					break;
 				case ENERGYNOWRAW_INDOM:
-					pmdaAddLabels(lpp, "{\"indom_name\":\"energynowraw\"}");
+					pmdaAddLabels(lpp, "{\"units\":\"watt hours\"}");
 					break;
 				case ENERGYNOWRATE_INDOM:
-					pmdaAddLabels(lpp, "{\"indom_name\":\"energynowrate\"}");
+					pmdaAddLabels(lpp, "{\"units\":\"watt\"}");
 					break;
 				case POWERNOW_INDOM:
-					pmdaAddLabels(lpp, "{\"indom_name\":\"powernow\"}");
+					pmdaAddLabels(lpp, "{\"units\":\"watt\"}");
 					break;
 			}
 			break;
@@ -798,9 +791,6 @@ main(int argc, char **argv)
         		strncpy(rootpath, opts.optarg, sizeof(rootpath));
 			rootpath[sizeof(rootpath)-1] = '\0';
             		break;
-		case 'C':
-                	pmSetDebug("appl0");
-                	break;
         }
     }
 
