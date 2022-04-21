@@ -441,7 +441,6 @@ static pmLongOptions longopts[] = {
     PMDAOPT_DOMAIN,
     PMDAOPT_LOGFILE,
     { "rootpath", 1, 'r', "ROOTPATH", "use non-default rootpath instead of /" },
-    { "debug", 1, 'D', "DEBUG", "enable in-pmda debug output" },
     PMDAOPT_USERNAME,
     PMOPT_HELP,
     PMDA_OPTIONS_TEXT("\nExactly one of the following options may appear:"),
