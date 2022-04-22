@@ -33,8 +33,7 @@
 #define NSEC_PRECISION (NSEC_PER_SEC / 1000)
 #define MAX_ARGS_KEY 259
 
-#define INDOM_COUNT 1
-#define EXECSNOOP_INDOM 0
+#define INDOM_COUNT 2
 
 static struct env {
     bool fails;
@@ -49,10 +48,11 @@ static struct env {
     .process_count = 20,
 };
 
-pmdaInstid *execsnoop_instances;
+pmdaInstid *execsnoop_instances, *execsnoop_lost;
 struct execsnoop_bpf *obj;
 struct perf_buffer *pb = NULL;
 struct event *event;
+int lost_events;
 
 /* cache array */
 struct tailq_entry {
@@ -106,8 +106,9 @@ static bool get_item(unsigned int offset, struct tailq_entry* val)
 char arg_val[FULL_MAX_ARGS_ARR];
 unsigned int indom_id_mapping[INDOM_COUNT];
 
-#define METRIC_COUNT 6
-enum metric_name { COMM, PID, PPID, RET, ARGS, UID, };
+#define METRIC_COUNT 7
+enum metric_name { COMM, PID, PPID, RET, ARGS, UID, LOST };
+enum metric_indom { EXECSNOOP_INDOM, LOST_EVENTS };
 
 char* metric_names[METRIC_COUNT] = {
     "execsnoop.comm",
@@ -116,6 +117,7 @@ char* metric_names[METRIC_COUNT] = {
     "execsnoop.ret",
     "execsnoop.args",
     "execsnoop.uid",
+    "execsnoop.lost",
 };
 
 char* metric_text_oneline[METRIC_COUNT] = {
@@ -125,6 +127,7 @@ char* metric_text_oneline[METRIC_COUNT] = {
     "Return value of exec()",
     "Details of the arguments",
     "User identifier",
+    "Number of the lost events",
 };
 
 char* metric_text_long[METRIC_COUNT] = {
@@ -134,6 +137,7 @@ char* metric_text_long[METRIC_COUNT] = {
     "Return value of exec()",
     "Details of the arguments",
     "User identifier",
+    "Number of the lost events",
 };
 
 unsigned int execsnoop_metric_count()
@@ -217,12 +221,29 @@ void execsnoop_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaIndom 
             PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
         }
     };
+    /* bpf.execsnoop.uid */
+    metrics[LOST] = (struct pmdaMetric)
+    { /* m_user */ NULL,
+        { /* m_desc */
+            PMDA_PMID(cluster_id, 6), PM_TYPE_U32, indom_id_mapping[LOST_EVENTS],
+            PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+        }
+    };
 
+    /* EXECSNOOP_INDOM */
     indoms[0] = (struct pmdaIndom)
     {
         indom_id_mapping[EXECSNOOP_INDOM],
         env.process_count,
         execsnoop_instances,
+    };
+
+    /* LOST_EVENTS InDom */
+    indoms[1] = (struct pmdaIndom)
+    {
+        indom_id_mapping[LOST_EVENTS],
+        1,
+        execsnoop_lost,
     };
 }
 
@@ -280,7 +301,7 @@ static void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
 
 static void handle_lost_events(void *ctx, int cpu, __u64 lost_cnt)
 {
-    pmNotifyErr(LOG_ERR, "Lost %llu events on CPU #%d!", lost_cnt, cpu);
+    lost_events = lost_cnt;
 }
 
 int execsnoop_init(dict *cfg, char *module_name)
@@ -341,6 +362,7 @@ int execsnoop_init(dict *cfg, char *module_name)
 
     /* internal/external instance ids */
     fill_instids(env.process_count, &execsnoop_instances);
+    fill_instids(env.process_count, &execsnoop_lost);
 
     /* Initialize the tail queue. */
     TAILQ_INIT(&head);
@@ -353,6 +375,7 @@ void execsnoop_shutdown()
     struct tailq_entry *itemp;
 
     free(execsnoop_instances);
+    free(execsnoop_lost);
     perf_buffer__free(pb);
     execsnoop_bpf__destroy(obj);
     /* Free the entire cache queue. */
@@ -403,6 +426,10 @@ int execsnoop_fetch_to_atom(unsigned int item, unsigned int inst, pmAtomValue *a
     /* bpf.execsnoop.uid */
     if (item == UID) {
         atom->ul = value.event.uid;
+    }
+    /* bpf.execsnoop.lost */
+    if (item == LOST) {
+        atom->ul = lost_events;
     }
 
     return PMDA_FETCH_STATIC;
