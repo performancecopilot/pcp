@@ -408,6 +408,7 @@ _filter_optional_pmda_instances()
         -e '/inst \[140 or "libvirt"]/d' \
         -e '/inst \[151 or "bpftrace"]/d' \
         -e '/inst \[153 or "zfs"]/d' \
+        -e '/inst \[156 or "denki"]/d' \
 	-e '/inst \[142 or "lio"]/d' \
 	-e '/inst \[144 or "openmetrics"]/d' \
 	-e '/inst \[149 or "bcc"]/d' \
