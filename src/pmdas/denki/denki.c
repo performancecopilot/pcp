@@ -219,7 +219,7 @@ static int detect_batteries(void) {
 					pmNotifyErr(LOG_DEBUG, "Could not access file 'type' in that directory, assuming it's no battery.");
 				continue;
 			}
-			if ( fscanf(fff,"%s",type) != 1) {
+			if ( fscanf(fff,"%31s",type) != 1) {
 				if (pmDebugOptions.appl0)
 					pmNotifyErr(LOG_DEBUG, "Could not read contents of %s, assuming it's no battery.",filename);
 				fclose(fff);
