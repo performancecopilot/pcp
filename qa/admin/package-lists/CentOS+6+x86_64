@@ -91,7 +91,6 @@ rrdtool-perl
 sed
 selinux-policy
 selinux-policy-targeted
-setools
 setools-console
 smartmontools
 sqlite
