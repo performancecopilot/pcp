@@ -133,6 +133,24 @@ git subtree push --prefix vendor/github.com/redis/hiredis \
   https://github.com/andreasgerstmayr/hiredis.git some-updates
 ```
 
+Example vendoring a subdirectory of a remote repository:
+```
+# Initial vendoring
+git remote add bcc https://github.com/iovisor/bcc.git
+git fetch bcc
+git checkout bcc/master
+git subtree split --prefix libbpf-tools --branch bcc-libbpf-tools-split
+git checkout main
+git subtree add --prefix vendor/github.com/iovisor/bcc/libbpf-tools bcc-libbpf-tools-split --squash
+
+# Pull changes from the remote repository
+git fetch bcc
+git checkout bcc/master
+git subtree split --prefix libbpf-tools --branch bcc-libbpf-tools-split
+git checkout main
+git subtree merge --prefix vendor/github.com/iovisor/bcc/libbpf-tools bcc-libbpf-tools-split --squash
+```
+
 **Note:** All modifications of vendored code should be pushed upstream. The
 goal is to be a good open source citizen and contribute changes back, and to
 keep the differences minimal in order to ease future updates of vendored code.
