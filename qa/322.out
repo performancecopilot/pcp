@@ -4,12 +4,12 @@ QA output created by 322
 last log entry   DATE
 current time     DATE
 log volume       0
-log size more than 200
+log size [label] plus some
 New log volume 1
 last log entry   DATE
 current time     DATE
 log volume       1
-log size more than 100
+log size [label]
 pmcd.simabi
     adv  off nl             
 

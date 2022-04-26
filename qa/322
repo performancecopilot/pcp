@@ -16,18 +16,24 @@ echo "QA output created by $seq"
 
 rm -f $seq.full
 
+# based on version 2 or 3 archive remotely ($1)
+#
 _filter()
 {
-    _filter_pmdumplog \
+    tee -a $seq.full \
+    | _filter_pmdumplog \
     | sed \
 	-e '/^pmlogger .* on host .* is logging metrics from host .*/d' \
 	-e '/^PMCD host/d' \
 	-e '/^log started/d' \
     | $PCP_AWK_PROG '
+BEGIN				{ if ("'"$1"'" >= 3) labelsize=808
+				  else labelsize=132
+				}
 /datax/				{ skip = 3 }
 skip > 0			{ skip--; next }
-$1 == "log" && $2 == "size"	{ if ($3 > 100 && $3 <= 200) $3 = "more than 100"
-				  else if ($3 > 200 && $3 <= 400) $3 = "more than 200"
+$1 == "log" && $2 == "size"	{ if ($3 == labelsize) $3 = "[label]"
+				  else if ($3 > labelsize) $3 = "[label] plus some"
 				}
 				{ print }'
 }
@@ -96,6 +102,9 @@ End-of-File
 	exit
     fi
 
+    eval `ssh -q pcpqa@$host grep PCP_ARCHIVE_VERSION /etc/pcp.conf`
+    echo "$host: PCP_ARCHIVE_VERSION=$PCP_ARCHIVE_VERSION" >>$seq.full
+
     for i in 1 2 3 4 5 6 7 8 9 10
     do
 	( echo ; echo "iteration $i" ) >>$seq.full
@@ -117,7 +126,7 @@ End-of-File
 
     # the success cases
     #
-    cat <<End-of-File | pmlc 2>&1 | _filter
+    cat <<End-of-File | pmlc 2>&1 | _filter $PCP_ARCHIVE_VERSION
 connect $pid@$host
 status
 new volume
@@ -145,7 +154,7 @@ End-of-File
     ssh -q pcpqa@$host "ls -l /tmp/$base.*" >>$seq.full 2>&1
     ssh -q pcpqa@$host "cat /tmp/$base.log" >>$seq.full 2>&1
 
-    cat <<End-of-File | pmlc 2>&1 | _filter
+    cat <<End-of-File | pmlc 2>&1 | _filter $PCP_ARCHIVE_VERSION
 connect $pid@$host
 log mandatory off pmcd.agent.type ["sampledso"]
 query pmcd.agent.type ["sample" "pmcd" "sampledso"]
@@ -158,7 +167,7 @@ End-of-File
 
     # the failures
     #
-    echo "connect 0@$host" | pmlc 2>&1 | _filter
+    echo "connect 0@$host" | pmlc 2>&1 | _filter $PCP_ARCHIVE_VERSION
 
     # cleanup
     #
