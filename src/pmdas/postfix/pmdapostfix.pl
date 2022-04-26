@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2015 Red Hat.
+# Copyright (c) 2012-2015,2022 Red Hat.
 # Copyright (c) 2009-2010 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -55,8 +55,6 @@ my @postfix_received_dom = (
 		0 => 'local',
 		1 => 'smtp',
 	     );
-
-my $setup = defined($ENV{'PCP_PERL_PMNS'}) || defined($ENV{'PCP_PERL_DOMAIN'});
 
 sub postfix_do_refresh
 {
@@ -212,7 +210,7 @@ $logstats{"received"}{1} = 0;
 
 # Note:
 # Environment variables.
-# $PMDA_POSTFIX_QSHAPE: alternative executable qshape scrpipt (for QA)
+# $PMDA_POSTFIX_QSHAPE: alternative executable qshape script (for QA)
 #                       ... over-rides default and command line argument.
 #			... over-rides default arguments -b 10 -t $refresh
 # $PMDA_POSTFIX_REFRESH: alternative refresh rate (for QA)
@@ -228,7 +226,7 @@ if (defined($ENV{'PMDA_POSTFIX_QSHAPE'})) {
     $qshape = $ENV{'PMDA_POSTFIX_QSHAPE'};
     $qshape_args = '';
 }
-if (!$setup) { $pmda->log("qshape cmd: $qshape $qshape_args <qname>"); }
+unless (pmda_install()) { $pmda->log("qshape cmd: $qshape $qshape_args <qname>"); }
 
 if (defined($ENV{'PMDA_POSTFIX_REFRESH'})) { $refresh = $ENV{'PMDA_POSTFIX_REFRESH'}; }
 
@@ -238,12 +236,15 @@ foreach my $file ( @logfiles ) {
     }
 }
 if (defined($ENV{'PMDA_POSTFIX_LOG'})) { $logfile = $ENV{'PMDA_POSTFIX_LOG'}; } 
-unless(defined($logfile))
-{
-    $pmda->log("Fatal: No Postfix log file found in: @logfiles");
-    die 'No Postfix log file found';
+unless (pmda_install()) {
+    if (defined($logfile)) {
+	$pmda->log("logfile: $logfile");
+    } else {
+	$pmda->log("Warning: assuming logfile: $logfiles[0] as no Postfix log found yet from: @logfiles");
+    }
 }
-if (!$setup) { $pmda->log("logfile: $logfile"); }
+# set a good default if none found, before continuing
+unless (defined($logfile)) { $logfile = $logfiles[0]; }
 
 $pmda->add_indom($postfix_queues_indom, \@postfix_queues_dom, '', '');
 $pmda->add_indom($postfix_sent_indom, \@postfix_sent_dom, '', '');
