@@ -105,7 +105,6 @@ sed
 selinux-policy
 selinux-policy-devel
 selinux-policy-targeted
-setools
 setools-console
 smartmontools
 socat

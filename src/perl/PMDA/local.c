@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017 Red Hat.
+ * Copyright (c) 2012-2017,2022 Red Hat.
  * Copyright (c) 2008-2011 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -139,18 +139,15 @@ int
 local_tail(char *file, scalar_t *callback, int cookie)
 {
     int fd = open(file, O_RDONLY | O_NDELAY);
-    struct stat stats;
+    struct stat stats = {0};
     int me;
 
-    if (fd < 0) {
-	pmNotifyErr(LOG_ERR, "open failed (%s): %s", file, osstrerror());
-	exit(1);
-    }
-    if (fstat(fd, &stats) < 0) {
-	pmNotifyErr(LOG_ERR, "fstat failed (%s): %s", file, osstrerror());
-	exit(1);
-    }
-    lseek(fd, 0L, SEEK_END);
+    if (fd < 0)
+	pmNotifyErr(LOG_INFO, "open failed (%s): %s", file, osstrerror());
+    else if (fstat(fd, &stats) < 0)
+	pmNotifyErr(LOG_INFO, "fstat failed (%s): %s", file, osstrerror());
+    else 
+	lseek(fd, 0L, SEEK_END);
     me = local_file(FILE_TAIL, fd, callback, cookie);
     files[me].me.tail.path = strdup(file);
     files[me].me.tail.dev = stats.st_dev;
@@ -416,10 +413,11 @@ local_pmdaMain(pmdaInterface *self)
 	}
 
 	for (i = 0; i < nfiles; i++) {
-	    fd = files[i].fd;
 	    /* check for log rotation or host reconnection needed */
 	    if ((count % 10) == 0)	/* but only once every 10 */
 		local_connection(&files[i]);
+	    if ((fd = files[i].fd) < 0)
+		continue;
 	    if (files[i].type != FILE_TAIL && !(__pmFD_ISSET(fd, &readyfds)))
 		continue;
 	    offset = 0;
@@ -431,21 +429,16 @@ multiread:
 		     (oserror() == EAGAIN) ||
 		     (oserror() == EWOULDBLOCK)))
 		    continue;
-		if (files[i].type == FILE_SOCK) {
-		    close(files[i].fd);
-		    files[i].fd = -1;
-		    continue;
-		}
-		pmNotifyErr(LOG_ERR, "Data read error on %s: %s\n",
-				local_filetype(files[i].type), osstrerror());
-		exit(1);
+		close(files[i].fd);
+		files[i].fd = -1;
+		continue;
 	    }
 	    if (bytes == 0) {
 		if (files[i].type == FILE_TAIL)
 		    continue;
-		pmNotifyErr(LOG_ERR, "No data to read - %s may be closed\n",
-				local_filetype(files[i].type));
-		exit(1);
+		close(files[i].fd);
+		files[i].fd = -1;
+		continue;
 	    }
 	    /*
 	     * good read ... data up to buffer + offset + bytes is all OK
