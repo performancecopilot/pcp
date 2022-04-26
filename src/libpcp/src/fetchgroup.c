@@ -22,6 +22,19 @@
 #include <float.h>
 
 /*
+ * Cache to avoid unnecessary repeated calls to pmGetInDom for individual
+ * instance domains.  This involves a round trip to pmcd and it does not
+ * change frequently (certainly not for processing results of one sample).
+ */
+struct __pmInDomCache {
+   pmInDom	indom;
+   int		*codes;	/* saved from pmGetInDom */
+   char		**names;
+   unsigned int	size;
+   int		refreshed;
+};
+
+/*
  * An individual fetch-group is a linked list of requests tied to a
  * particular pcp context (which the fetchgroup owns).	NB: This is
  * opaque to the PMAPI client.
@@ -31,8 +44,10 @@ struct __pmFetchGroup {
     int wrap;			/* wrap-handling flag, set at fg-create-time */
     pmHighResResult *prevResult;
     struct __pmFetchGroupItem *items;
+    struct __pmInDomCache *unique_indoms;
     pmID *unique_pmids;
     size_t num_unique_pmids;
+    size_t num_unique_indoms;
 };
 
 /*
@@ -69,9 +84,6 @@ struct __pmFetchGroupItem {
 	struct {
 	    pmID metric_pmid;
 	    pmDesc metric_desc;
-	    int *indom_codes;	/* saved from pmGetInDom */
-	    char **indom_names;
-	    unsigned indom_size;
 	    struct __pmFetchGroupConversionSpec conv;
 	    int *output_inst_codes;	/* NB: may be NULL */
 	    char **output_inst_names;	/* NB: may be NULL */
@@ -149,9 +161,7 @@ pmfg_add_pmid(pmFG pmfg, pmID pmid)
 /*
  * Populate given pmFGI item structure based on common lookup &
  * verification for pmfg inputs.  Adjust instance profile to
- * include requested instance.  If it's a derived metric, we 
- * don't know what instance domain(s) it could involve, so we
- * clear the instance profile entirely.
+ * include requested instance.
  */
 static int
 pmfg_lookup_item(const char *metric, const char *instance, pmFGI item)
@@ -187,9 +197,12 @@ pmfg_lookup_item(const char *metric, const char *instance, pmFGI item)
 
 /* Same for a whole indom.  Add the whole instance profile.  */
 static int
-pmfg_lookup_indom(const char *metric, pmFGI item)
+pmfg_lookup_indom(pmFG pmfg, const char *metric, pmFGI item)
 {
-    int sts;
+    struct __pmInDomCache *indoms;
+    pmInDom indom;
+    size_t size;
+    int i, sts;
 
     assert(item != NULL);
     assert(item->type == pmfg_indom);
@@ -202,14 +215,34 @@ pmfg_lookup_indom(const char *metric, pmFGI item)
 	return sts;
 
     /* As a convenience to users, we also accept non-indom'd metrics */
-    if (item->u.indom.metric_desc.indom == PM_INDOM_NULL)
+    if ((indom = item->u.indom.metric_desc.indom) == PM_INDOM_NULL)
 	return 0;
+
+    /*
+     * Insert into the instance domain cache if not seen previously
+     */
+    for (i = 0; i < pmfg->num_unique_indoms; i++) {
+	if (pmfg->unique_indoms[i].indom == indom)
+	    return 0;
+    }
+
+    size = sizeof(struct __pmInDomCache) * (pmfg->num_unique_indoms + 1);
+    indoms = realloc(pmfg->unique_indoms, size);
+
+    if (indoms == NULL)
+	return -ENOMEM;
+    pmfg->unique_indoms = indoms;
+    pmfg->unique_indoms[pmfg->num_unique_indoms].indom = indom;
+    pmfg->unique_indoms[pmfg->num_unique_indoms].codes = NULL;
+    pmfg->unique_indoms[pmfg->num_unique_indoms].names = NULL;
+    pmfg->unique_indoms[pmfg->num_unique_indoms].refreshed = 0;
+    pmfg->num_unique_indoms++;
 
     /*
      * Add all instances; this will override any other past or future
      * piecemeal instance requests from __pmExtendFetchGroup_lookup.
      */
-    return pmAddProfile(item->u.indom.metric_desc.indom, 0, NULL);
+    return pmAddProfile(indom, 0, NULL);
 }
 
 /* Same for an event field.  */
@@ -572,7 +605,7 @@ pmfg_reinit_indom(pmFGI item)
 
     if (item->u.indom.output_inst_names)
 	for (i = 0; i < item->u.indom.output_maxnum; i++)
-	    item->u.indom.output_inst_names[i] = NULL;	/* break ref into indom_names[] */
+	    item->u.indom.output_inst_names[i] = NULL;	/* ptr into names[] */
 
     if (item->u.indom.output_stss)
 	for (i = 0; i < item->u.indom.output_maxnum; i++)
@@ -857,11 +890,11 @@ pmfg_fetch_timeval(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
 static void
 pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
 {
-    int sts = 0;
-    int i;
-    unsigned j;
-    int need_indom_refresh;
+    int i, sts = 0;
+    unsigned int j, k;
+    struct __pmInDomCache *cache;
     const pmValueSet *iv;
+    pmInDom indom;
 
     assert(item != NULL);
     assert(item->type == pmfg_indom);
@@ -901,36 +934,43 @@ pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
 
     /*
      * Analyze newResult to see whether it only contains instances we
-     * already know.  This is unfortunately an O(N**2) operation.  It
-     * could be made a bit faster if we build a pmGetInDom()- variant
-     * that provides instances in sorted order.
+     * already know.
      */
-    need_indom_refresh = 0;
-    if (item->u.indom.output_inst_names) {	/* Caller interested at all? */
-	for (j = 0; j < (unsigned)iv->numval; j++) {
-	    unsigned k;
-	    for (k = 0; k < item->u.indom.indom_size; k++)
-		if (item->u.indom.indom_codes[k] == iv->vlist[j].inst)
+    cache = NULL;
+    indom = item->u.indom.metric_desc.indom;
+    for (j = 0; j < pmfg->num_unique_indoms; j++) {
+	if (indom != pmfg->unique_indoms[j].indom)
+	    continue;
+	cache = &pmfg->unique_indoms[j];
+	break;
+    }
+    if (cache && cache->refreshed &&
+	item->u.indom.output_inst_names) {	/* Caller interested at all? */
+	for (j = 0; j < (unsigned int)iv->numval; j++) {
+	    for (k = 0; k < cache->size; k++)
+		if (cache->codes[k] == iv->vlist[j].inst)
 		    break;
-	    if (k >= item->u.indom.indom_size) {
-		need_indom_refresh = 1;
+	    if (k >= cache->size) {
+		cache->refreshed = 0;
 		break;
 	    }
 	}
     }
-    if (need_indom_refresh) {
-	free(item->u.indom.indom_codes);
-	free(item->u.indom.indom_names);
-	sts = pmGetInDom(item->u.indom.metric_desc.indom,
-			&item->u.indom.indom_codes, &item->u.indom.indom_names);
+    if (cache && !cache->refreshed) {
+	cache->refreshed = 1;
+	free(cache->codes);
+	free(cache->names);
+	sts = pmGetInDom(indom, &cache->codes, &cache->names);
 	if (sts < 1) {
 	    /* Need to manually clear; pmGetInDom claims they are undefined. */
-	    item->u.indom.indom_codes = NULL;
-	    item->u.indom.indom_names = NULL;
-	    item->u.indom.indom_size = 0;
+	    cache->codes = NULL;
+	    cache->names = NULL;
+	    cache->size = 0;
 	}
 	else {
-	    item->u.indom.indom_size = sts;
+	    if (sts < 0)
+		cache->refreshed = 0;
+	    cache->size = sts;
 	}
 	/*
 	 * NB: Even if the pmGetInDom failed, we can proceed with
@@ -965,18 +1005,19 @@ pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
 	 * results from pmGetIndom.
 	 */
 	if (item->u.indom.output_inst_names) {
-	    unsigned k;
-
-	    for (k = 0; k < item->u.indom.indom_size; k++) {
-		if (item->u.indom.indom_codes[k] == jv->inst) {
-		    /*
-		     * NB: copy the indom name char* by value.
-		     * The user is not supposed to modify / free this pointer,
-		     * or use it after a subsequent fetch or delete operation.
-		     */
-		    item->u.indom.output_inst_names[j] =
-				item->u.indom.indom_names[k];
-		    break;
+	    if (cache == NULL)
+		item->u.indom.output_inst_names[j] = NULL;
+	    else {
+	        for (k = 0; k < cache->size; k++) {
+		    if (cache->codes[k] == jv->inst) {
+			/*
+			 * NB: copy the indom name char* by value.
+			 * User may not modify / free this pointer,
+			 * nor use it after subsequent fetch / delete.
+			 */
+			item->u.indom.output_inst_names[j] = cache->names[k];
+			break;
+		    }
 		}
 	    }
 	}
@@ -1199,8 +1240,7 @@ out:
 static int
 pmfg_clear_profile(pmFG pmfg)
 {
-    int sts;
-    pmFGI item;
+    int i, sts;
 
     sts = pmUseContext(pmfg->ctx);
     if (sts != 0)
@@ -1214,10 +1254,9 @@ pmfg_clear_profile(pmFG pmfg)
      * Any errors here are benign (or rather there's nothing we can do
      * about 'em), so ignore pmDelProfile() return value.
      */
-    for (item = pmfg->items; item; item = item->next) {
-	if (item->u.item.metric_desc.indom != PM_INDOM_NULL)
-	    (void)pmDelProfile(item->u.item.metric_desc.indom, 0, NULL);
-    }
+    for (i = 0; i < pmfg->num_unique_indoms; i++)
+	(void)pmDelProfile(pmfg->unique_indoms[i].indom, 0, NULL);
+
     return 0;
 }
 
@@ -1455,7 +1494,7 @@ pmExtendFetchGroup_indom(pmFG pmfg,
 
     item->type = pmfg_indom;
 
-    sts = pmfg_lookup_indom(metric, item);
+    sts = pmfg_lookup_indom(pmfg, metric, item);
     if (sts != 0)
 	goto out;
 
@@ -1630,7 +1669,6 @@ pmFetchGroup(pmFG pmfg)
 
     if (pmfg == NULL)
 	return -EINVAL;
-
     /*
      * Walk the fetchgroup, reinitializing every output spot, regardless of
      * later errors.
@@ -1725,6 +1763,7 @@ int
 pmClearFetchGroup(pmFG pmfg)
 {
     pmFGI item;
+    size_t n;
 
     if (pmfg == NULL)
 	return -EINVAL;
@@ -1739,8 +1778,6 @@ pmClearFetchGroup(pmFG pmfg)
 		break;
 	    case pmfg_indom:
 		pmfg_reinit_indom(item);
-		free(item->u.indom.indom_codes);
-		free(item->u.indom.indom_names);
 		break;
 	    case pmfg_event:
 		pmfg_reinit_event(item);
@@ -1760,10 +1797,20 @@ pmClearFetchGroup(pmFG pmfg)
     if (pmfg->prevResult)
 	pmFreeHighResResult(pmfg->prevResult);
     pmfg->prevResult = NULL;
+
     if (pmfg->unique_pmids)
 	free(pmfg->unique_pmids);
     pmfg->unique_pmids = NULL;
     pmfg->num_unique_pmids = 0;
+
+    for (n = 0; n < pmfg->num_unique_indoms; n++) {
+	free(pmfg->unique_indoms[n].codes);
+	free(pmfg->unique_indoms[n].names);
+    }
+    if (pmfg->unique_indoms)
+	free(pmfg->unique_indoms);
+    pmfg->unique_indoms = NULL;
+    pmfg->num_unique_indoms = 0;
 
     return pmfg_clear_profile(pmfg);
 }
