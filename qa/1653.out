@@ -14,27 +14,27 @@ denki.rapl.rate
     Data Type: 32-bit unsigned int  InDom: 156.0 0x27000000
     Semantics: counter  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
-    inst [0 or "0-package-1"] value 8826
-    inst [1 or "0-core"] value 3483
-    inst [2 or "1-package-0"] value 13719
-    inst [3 or "1-core"] value 8334
     inst [0 or "0-package-1"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
     inst [1 or "0-core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
     inst [2 or "1-package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
     inst [3 or "1-core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
+    inst [2 or "1-package-0"] value 13719
+    inst [1 or "0-core"] value 3483
+    inst [3 or "1-core"] value 8334
+    inst [0 or "0-package-1"] value 8826
 
 denki.rapl.raw
     Data Type: 32-bit unsigned int  InDom: 156.1 0x27000001
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
-    inst [0 or "0-package-1"] value 8826
-    inst [1 or "0-core"] value 3483
-    inst [2 or "1-package-0"] value 13719
-    inst [3 or "1-core"] value 8334
     inst [0 or "0-package-1"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
     inst [1 or "0-core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
     inst [2 or "1-package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
     inst [3 or "1-core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
+    inst [2 or "1-package-0"] value 13719
+    inst [1 or "0-core"] value 3483
+    inst [3 or "1-core"] value 8334
+    inst [0 or "0-package-1"] value 8826
 
 denki.bat.energy_now_raw
     Data Type: double  InDom: 156.2 0x27000002
@@ -77,22 +77,22 @@ denki.bat.energy_now_raw
     Data Type: double  InDom: 156.2 0x27000002
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt hours","userid":USERID}
-    inst [0 or "battery-0"] value 15.23
-    inst [0 or "battery-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt hours","userid":USERID}
+    inst [0 or "BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt hours","userid":USERID}
+    inst [0 or "BATTERY-N"] value 15.23
 
 denki.bat.energy_now_rate
     Data Type: double  InDom: 156.3 0x27000003
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
-    inst [0 or "battery-0"] value 0
-    inst [0 or "battery-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
+    inst [0 or "BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
+    inst [0 or "BATTERY-N"] value 0
 
 denki.bat.power_now
     Data Type: double  InDom: 156.4 0x27000004
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
-    inst [0 or "battery-0"] value 4.077
-    inst [0 or "battery-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
+    inst [0 or "BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
+    inst [0 or "BATTERY-N"] value 4.077
 
 ### Installing test dataset Thinkpad_T460s_2_batteries ...
 
@@ -105,54 +105,54 @@ denki.rapl.rate
     Data Type: 32-bit unsigned int  InDom: 156.0 0x27000000
     Semantics: counter  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
-    inst [0 or "package-0"] value 2977
-    inst [1 or "core"] value 1568
-    inst [2 or "uncore"] value 1
-    inst [3 or "dram"] value 2120
     inst [0 or "package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
     inst [1 or "core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
     inst [2 or "uncore"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
     inst [3 or "dram"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
+    inst [2 or "uncore"] value 1
+    inst [1 or "core"] value 1568
+    inst [3 or "dram"] value 2120
+    inst [0 or "package-0"] value 2977
 
 denki.rapl.raw
     Data Type: 32-bit unsigned int  InDom: 156.1 0x27000001
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
-    inst [0 or "package-0"] value 2977
-    inst [1 or "core"] value 1568
-    inst [2 or "uncore"] value 1
-    inst [3 or "dram"] value 2120
     inst [0 or "package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
     inst [1 or "core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
     inst [2 or "uncore"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
     inst [3 or "dram"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
+    inst [2 or "uncore"] value 1
+    inst [1 or "core"] value 1568
+    inst [3 or "dram"] value 2120
+    inst [0 or "package-0"] value 2977
 
 denki.bat.energy_now_raw
     Data Type: double  InDom: 156.2 0x27000002
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt hours","userid":USERID}
-    inst [0 or "battery-0"] value 15.87
-    inst [1 or "battery-1"] value 14.94
-    inst [0 or "battery-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt hours","userid":USERID}
-    inst [1 or "battery-1"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt hours","userid":USERID}
+    inst [0 or "BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt hours","userid":USERID}
+    inst [1 or "BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt hours","userid":USERID}
+    inst [1 or "BATTERY-N"] value 14.94
+    inst [0 or "BATTERY-N"] value 15.87
 
 denki.bat.energy_now_rate
     Data Type: double  InDom: 156.3 0x27000003
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
-    inst [0 or "battery-0"] value 0
-    inst [1 or "battery-1"] value 0
-    inst [0 or "battery-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
-    inst [1 or "battery-1"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
+    inst [0 or "BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
+    inst [1 or "BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
+    inst [0 or "BATTERY-N"] value 0
+    inst [1 or "BATTERY-N"] value 0
 
 denki.bat.power_now
     Data Type: double  InDom: 156.4 0x27000004
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
-    inst [0 or "battery-0"] value 0
-    inst [1 or "battery-1"] value 1.576
-    inst [0 or "battery-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
-    inst [1 or "battery-1"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
+    inst [0 or "BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
+    inst [1 or "BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
+    inst [0 or "BATTERY-N"] value 0
+    inst [1 or "BATTERY-N"] value 1.576
 
 ### Installing test dataset Thinkpad_L480_bat_busy ...
 
@@ -165,48 +165,48 @@ denki.rapl.rate
     Data Type: 32-bit unsigned int  InDom: 156.0 0x27000000
     Semantics: counter  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
-    inst [0 or "package-0"] value 26716
-    inst [1 or "core"] value 12628
-    inst [2 or "uncore"] value 2711
-    inst [3 or "dram"] value 7743
     inst [0 or "package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
     inst [1 or "core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
     inst [2 or "uncore"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
     inst [3 or "dram"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
+    inst [1 or "core"] value 12628
+    inst [0 or "package-0"] value 26716
+    inst [2 or "uncore"] value 2711
+    inst [3 or "dram"] value 7743
 
 denki.rapl.raw
     Data Type: 32-bit unsigned int  InDom: 156.1 0x27000001
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
-    inst [0 or "package-0"] value 26716
-    inst [1 or "core"] value 12628
-    inst [2 or "uncore"] value 2711
-    inst [3 or "dram"] value 7743
     inst [0 or "package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
     inst [1 or "core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
     inst [2 or "uncore"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
     inst [3 or "dram"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
+    inst [1 or "core"] value 12628
+    inst [0 or "package-0"] value 26716
+    inst [2 or "uncore"] value 2711
+    inst [3 or "dram"] value 7743
 
 denki.bat.energy_now_raw
     Data Type: double  InDom: 156.2 0x27000002
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt hours","userid":USERID}
-    inst [0 or "battery-0"] value 34.71
-    inst [0 or "battery-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt hours","userid":USERID}
+    inst [0 or "BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt hours","userid":USERID}
+    inst [0 or "BATTERY-N"] value 34.71
 
 denki.bat.energy_now_rate
     Data Type: double  InDom: 156.3 0x27000003
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
-    inst [0 or "battery-0"] value 0
-    inst [0 or "battery-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
+    inst [0 or "BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
+    inst [0 or "BATTERY-N"] value 0
 
 denki.bat.power_now
     Data Type: double  InDom: 156.4 0x27000004
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
-    inst [0 or "battery-0"] value 26.439
-    inst [0 or "battery-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
+    inst [0 or "BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
+    inst [0 or "BATTERY-N"] value 26.439
 
 ### Removing test datasets...
 

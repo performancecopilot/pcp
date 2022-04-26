@@ -44,6 +44,13 @@ _filter_labels()
     # end
 }
 
+_filter_instnames()
+{
+    sed \
+	-e "s/battery-[0-9][0-9]*/BATTERY-N/g" \
+    # end
+}
+
 _filter()
 {
     sed \
@@ -78,7 +85,13 @@ do
 	"s,^args.*,args=\"-U root -r ${ROOTPATH}\","  \
 	Install
     $sudo ./Install 2>&1
-    pminfo -dfFl denki | _filter_labels
+    echo $dataset >> $here/$seq.full
+    pminfo -dfFl denki \
+	    | tee -a $here/$seq.full \
+	    | $here/src/sortinst -v \
+	    | _filter_instnames \
+	    | _filter_labels \
+    #end
 done
 
 echo
