@@ -962,14 +962,14 @@ pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmHighResResult *newResult)
 	free(cache->names);
 	sts = pmGetInDom(indom, &cache->codes, &cache->names);
 	if (sts < 1) {
+	    if (sts < 0)
+		cache->refreshed = 0;
 	    /* Need to manually clear; pmGetInDom claims they are undefined. */
 	    cache->codes = NULL;
 	    cache->names = NULL;
 	    cache->size = 0;
 	}
 	else {
-	    if (sts < 0)
-		cache->refreshed = 0;
 	    cache->size = sts;
 	}
 	/*
