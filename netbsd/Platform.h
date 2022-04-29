@@ -34,7 +34,9 @@ in the source distribution for its full text.
 #define PLATFORM_LONG_OPTIONS \
    // End of list
 
-extern const ProcessField Platform_defaultFields[];
+extern const ScreenDefaults Platform_defaultScreens[];
+
+extern const unsigned int Platform_numberOfDefaultScreens;
 
 /* see /usr/include/sys/signal.h */
 extern const SignalItem Platform_signals[];

@@ -40,7 +40,7 @@ static inline bool String_startsWith(const char* s, const char* match) {
    return strncmp(s, match, strlen(match)) == 0;
 }
 
-bool String_contains_i(const char* s1, const char* s2);
+bool String_contains_i(const char* s1, const char* s2, bool multi);
 
 static inline bool String_eq(const char* s1, const char* s2) {
    return strcmp(s1, s2) == 0;
@@ -53,8 +53,6 @@ char* String_trim(const char* in) ATTR_MALLOC;
 char** String_split(const char* s, char sep, size_t* n);
 
 void String_freeArray(char** s);
-
-char* String_getToken(const char* line, unsigned short int numMatch) ATTR_MALLOC;
 
 char* String_readLine(FILE* fd) ATTR_MALLOC;
 

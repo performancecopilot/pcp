@@ -43,13 +43,13 @@ typedef unsigned long long int memory_t;
 typedef struct ProcessList_ {
    const Settings* settings;
 
-   Vector* processes;
-   Vector* processes2;
-   Hashtable* processTable;
+   Vector* processes;         /* all known processes; sort order can vary and differ from display order */
+   Vector* displayList;       /* process tree flattened in display order (borrowed);
+                                 updated in ProcessList_updateDisplayList when rebuilding panel */
+   Hashtable* processTable;   /* fast known process lookup by PID */
    UsersTable* usersTable;
 
-   Hashtable* displayTreeSet;
-   Hashtable* draftingTreeSet;
+   bool needsSort;
 
    Hashtable* dynamicMeters;  /* runtime-discovered meters */
    Hashtable* dynamicColumns; /* runtime-discovered Columns */
@@ -108,7 +108,7 @@ void ProcessList_add(ProcessList* this, Process* p);
 
 void ProcessList_remove(ProcessList* this, const Process* p);
 
-void ProcessList_sort(ProcessList* this);
+void ProcessList_updateDisplayList(ProcessList* this);
 
 ProcessField ProcessList_keyAt(const ProcessList* this, int at);
 
