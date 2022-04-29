@@ -70,6 +70,10 @@ in the source distribution for its full text.
 #include "LibSensors.h"
 #endif
 
+#ifndef O_PATH
+#define O_PATH         010000000 // declare for ancient glibc versions
+#endif
+
 
 #ifdef HAVE_LIBCAP
 enum CapMode {
@@ -79,7 +83,22 @@ enum CapMode {
 };
 #endif
 
-const ProcessField Platform_defaultFields[] = { PID, USER, PRIORITY, NICE, M_VIRT, M_RESIDENT, M_SHARE, STATE, PERCENT_CPU, PERCENT_MEM, TIME, COMM, 0 };
+bool Running_containerized = false;
+
+const ScreenDefaults Platform_defaultScreens[] = {
+   {
+      .name = "Main",
+      .columns = "PID USER PRIORITY NICE M_VIRT M_RESIDENT M_SHARE STATE PERCENT_CPU PERCENT_MEM TIME Command",
+      .sortKey = "PERCENT_CPU",
+   },
+   {
+      .name = "I/O",
+      .columns = "PID USER IO_PRIORITY IO_RATE IO_READ_RATE IO_WRITE_RATE PERCENT_SWAP_DELAY PERCENT_IO_DELAY Command",
+      .sortKey = "IO_RATE",
+   },
+};
+
+const unsigned int Platform_numberOfDefaultScreens = ARRAYSIZE(Platform_defaultScreens);
 
 const SignalItem Platform_signals[] = {
    { .name = " 0 Cancel",    .number = 0 },
@@ -338,7 +357,7 @@ void Platform_setMemoryValues(Meter* this) {
    this->values[3] = pl->cachedMem;
    this->values[4] = pl->availableMem;
 
-   if (lpl->zfs.enabled != 0) {
+   if (lpl->zfs.enabled != 0 && !Running_containerized) {
       this->values[0] -= lpl->zfs.size;
       this->values[3] += lpl->zfs.size;
    }
@@ -712,18 +731,47 @@ static void Platform_Battery_getSysData(double* percent, ACPresence* isOnAC) {
    uint64_t totalFull = 0;
    uint64_t totalRemain = 0;
 
-   struct dirent* dirEntry = NULL;
+   const struct dirent* dirEntry;
    while ((dirEntry = readdir(dir))) {
       const char* entryName = dirEntry->d_name;
 
-      if (String_startsWith(entryName, "BAT")) {
-         char buffer[1024] = {0};
-         char filePath[256];
-         xSnprintf(filePath, sizeof filePath, SYS_POWERSUPPLY_DIR "/%s/uevent", entryName);
+#ifdef HAVE_OPENAT
+      int entryFd = openat(dirfd(dir), entryName, O_DIRECTORY | O_PATH);
+      if (entryFd < 0)
+         continue;
+#else
+      char entryFd[4096];
+      xSnprintf(entryFd, sizeof(entryFd), SYS_POWERSUPPLY_DIR "/%s", entryName);
+#endif
 
-         ssize_t r = xReadfile(filePath, buffer, sizeof(buffer));
+      enum { AC, BAT } type;
+      if (String_startsWith(entryName, "BAT")) {
+         type = BAT;
+      } else if (String_startsWith(entryName, "AC")) {
+         type = AC;
+      } else {
+         char buffer[32];
+         ssize_t ret = xReadfileat(entryFd, "type", buffer, sizeof(buffer));
+         if (ret <= 0)
+            goto next;
+
+         /* drop optional trailing newlines */
+         for (char* buf = &buffer[(size_t)ret - 1]; *buf == '\n'; buf--)
+            *buf = '\0';
+
+         if (String_eq(buffer, "Battery"))
+            type = BAT;
+         else if (String_eq(buffer, "Mains"))
+            type = AC;
+         else
+            goto next;
+      }
+
+      if (type == BAT) {
+         char buffer[1024];
+         ssize_t r = xReadfileat(entryFd, "uevent", buffer, sizeof(buffer));
          if (r < 0)
-            continue;
+            goto next;
 
          bool full = false;
          bool now = false;
@@ -765,18 +813,15 @@ static void Platform_Battery_getSysData(double* percent, ACPresence* isOnAC) {
          if (!now && full && !isnan(capacityLevel))
             totalRemain += capacityLevel * fullCharge;
 
-      } else if (String_startsWith(entryName, "AC")) {
-         char buffer[2] = {0};
+      } else if (type == AC) {
          if (*isOnAC != AC_ERROR)
-            continue;
+            goto next;
 
-         char filePath[256];
-         xSnprintf(filePath, sizeof(filePath), SYS_POWERSUPPLY_DIR "/%s/online", entryName);
-
-         ssize_t r = xReadfile(filePath, buffer, sizeof(buffer));
+         char buffer[2];
+         ssize_t r = xReadfileat(entryFd, "online", buffer, sizeof(buffer));
          if (r < 1) {
             *isOnAC = AC_ERROR;
-            continue;
+            goto next;
          }
 
          if (buffer[0] == '0')
@@ -784,6 +829,9 @@ static void Platform_Battery_getSysData(double* percent, ACPresence* isOnAC) {
          else if (buffer[0] == '1')
             *isOnAC = AC_PRESENT;
       }
+
+next:
+      Compat_openatArgClose(entryFd);
    }
 
    closedir(dir);
@@ -970,6 +1018,30 @@ bool Platform_init(void) {
 #ifdef HAVE_SENSORS_SENSORS_H
    LibSensors_init();
 #endif
+
+   char target[PATH_MAX];
+   ssize_t ret = readlink(PROCDIR "/self/ns/pid", target, sizeof(target) - 1);
+   if (ret > 0) {
+      target[ret] = '\0';
+
+      if (!String_eq("pid:[4026531836]", target)) { // magic constant PROC_PID_INIT_INO from include/linux/proc_ns.h#L46
+         Running_containerized = true;
+         return true; // early return
+      }
+   }
+
+   FILE* fd = fopen(PROCDIR "/1/mounts", "r");
+   if (fd) {
+      char lineBuffer[256];
+      while (fgets(lineBuffer, sizeof(lineBuffer), fd)) {
+         // detect lxc or overlayfs and guess that this means we are running containerized
+         if (String_startsWith(lineBuffer, "lxcfs ") || String_startsWith(lineBuffer, "overlay ")) {
+            Running_containerized = true;
+            break;
+         }
+      }
+      fclose(fd);
+   } // if (fd)
 
    return true;
 }

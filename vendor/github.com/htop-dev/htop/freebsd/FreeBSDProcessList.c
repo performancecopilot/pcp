@@ -509,6 +509,9 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
          proc->pgrp = kproc->ki_pgid;
          proc->st_uid = kproc->ki_uid;
          proc->starttime_ctime = kproc->ki_start.tv_sec;
+         if (proc->starttime_ctime < 0) {
+            proc->starttime_ctime = super->realtimeMs / 1000;
+         }
          Process_fillStarttimeBuffer(proc);
          proc->user = UsersTable_getRef(super->usersTable, proc->st_uid);
          ProcessList_add(super, proc);
@@ -516,7 +519,7 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
          FreeBSDProcessList_updateExe(kproc, proc);
          FreeBSDProcessList_updateProcessName(fpl->kd, kproc, proc);
 
-         if (settings->flags & PROCESS_FLAG_CWD) {
+         if (settings->ss->flags & PROCESS_FLAG_CWD) {
             FreeBSDProcessList_updateCwd(kproc, proc);
          }
 
@@ -549,6 +552,8 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
          }
       }
 
+      free_and_xStrdup(&fp->emul, kproc->ki_emul);
+
       // from FreeBSD source /src/usr.bin/top/machine.c
       proc->m_virt = kproc->ki_size / ONE_K;
       proc->m_resident = kproc->ki_rssize * pageSizeKb;
@@ -557,6 +562,7 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
 
       proc->percent_cpu = 100.0 * ((double)kproc->ki_pctcpu / (double)kernelFScale);
       proc->percent_mem = 100.0 * proc->m_resident / (double)(super->totalMem);
+      Process_updateCPUFieldWidths(proc->percent_cpu);
 
       if (kproc->ki_stat == SRUN && kproc->ki_oncpu != NOCPU) {
          proc->processor = kproc->ki_oncpu;

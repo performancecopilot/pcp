@@ -54,7 +54,7 @@ void Process_setupColumnWidths() {
       return;
    }
 
-   Process_pidDigits = ceil(log10(maxPid));
+   Process_pidDigits = (int)log10(maxPid) + 1;
    assert(Process_pidDigits <= PROCESS_MAX_PID_DIGITS);
 }
 
@@ -64,7 +64,7 @@ void Process_setUidColumnWidth(uid_t maxUid) {
       return;
    }
 
-   Process_uidDigits = ceil(log10(maxUid));
+   Process_uidDigits = (int)log10(maxUid) + 1;
    assert(Process_uidDigits <= PROCESS_MAX_UID_DIGITS);
 }
 
@@ -211,7 +211,12 @@ void Process_printTime(RichString* str, unsigned long long totalHundredths, bool
       int years = days / 365;
       int daysLeft = days - 365 * years;
 
-      if (daysLeft >= 100) {
+      if (years >= 10000000) {
+         RichString_appendnAscii(str, yearColor, "eternity ", 9);
+      } else if (years >= 1000) {
+         len = xSnprintf(buffer, sizeof(buffer), "%7dy ", years);
+         RichString_appendnAscii(str, yearColor, buffer, len);
+      } else if (daysLeft >= 100) {
          len = xSnprintf(buffer, sizeof(buffer), "%3dy", years);
          RichString_appendnAscii(str, yearColor, buffer, len);
          len = xSnprintf(buffer, sizeof(buffer), "%3dd ", daysLeft);
@@ -397,7 +402,7 @@ static inline char* stpcpyWithNewlineConversion(char* dstStr, const char* srcStr
  * This function makes the merged Command string. It also stores the offsets of the
  * basename, comm w.r.t the merged Command string - these offsets will be used by
  * Process_writeCommand() for coloring. The merged Command string is also
- * returned by Process_getCommandStr() for searching, sorting and filtering.
+ * returned by Process_getCommand() for searching, sorting and filtering.
  */
 void Process_makeCommandStr(Process* this) {
    ProcessMergedCommand* mc = &this->mergedCommand;
@@ -417,7 +422,7 @@ void Process_makeCommandStr(Process* this) {
       return;
    if (this->state == ZOMBIE && !this->mergedCommand.str)
       return;
-   if (Process_isUserlandThread(this) && settings->showThreadNames && (showThreadNames == mc->prevShowThreadNames))
+   if (Process_isUserlandThread(this) && settings->showThreadNames && (showThreadNames == mc->prevShowThreadNames) && (mc->prevMergeSet == showMergedCommand))
       return;
 
    /* this->mergedCommand.str needs updating only if its state or contents changed.
@@ -516,10 +521,13 @@ void Process_makeCommandStr(Process* this) {
    assert(cmdlineBasenameStart <= (int)strlen(cmdline));
 
    if (!showMergedCommand || !procExe || !procComm) { /* fall back to cmdline */
-      if (showMergedCommand && (!Process_isUserlandThread(this) || showThreadNames) && !procExe && procComm && strlen(procComm)) { /* Prefix column with comm */
+      if ((showMergedCommand || (Process_isUserlandThread(this) && showThreadNames)) && procComm && strlen(procComm)) { /* set column to or prefix it with comm */
          if (strncmp(cmdline + cmdlineBasenameStart, procComm, MINIMUM(TASK_COMM_LEN - 1, strlen(procComm))) != 0) {
             WRITE_HIGHLIGHT(0, strlen(procComm), commAttr, CMDLINE_HIGHLIGHT_FLAG_COMM);
             str = stpcpy(str, procComm);
+
+            if(!showMergedCommand)
+               return;
 
             WRITE_SEPARATOR;
          }
@@ -729,23 +737,22 @@ void Process_printLeftAlignedField(RichString* str, int attr, const char* conten
    RichString_appendChr(str, attr, ' ', width + 1 - columns);
 }
 
-void Process_printPercentage(float val, char* buffer, int n, int* attr) {
+void Process_printPercentage(float val, char* buffer, int n, uint8_t width, int* attr) {
    if (val >= 0) {
       if (val < 99.9F) {
          if (val < 0.05F) {
             *attr = CRT_colors[PROCESS_SHADOW];
          }
-         xSnprintf(buffer, n, "%4.1f ", val);
-      } else if (val < 999) {
-         *attr = CRT_colors[PROCESS_MEGABYTES];
-         xSnprintf(buffer, n, "%3d. ", (int)val);
+         xSnprintf(buffer, n, "%*.1f ", width, val);
       } else {
          *attr = CRT_colors[PROCESS_MEGABYTES];
-         xSnprintf(buffer, n, "%4d ", (int)val);
+         if (val < 100.0F)
+            val = 100.0F; // Don't round down and display "val" as "99".
+         xSnprintf(buffer, n, "%*.0f ", width, val);
       }
    } else {
       *attr = CRT_colors[PROCESS_SHADOW];
-      xSnprintf(buffer, n, " N/A ");
+      xSnprintf(buffer, n, "%*.*s ", width, width, "N/A");
    }
 }
 
@@ -784,7 +791,8 @@ void Process_writeField(const Process* this, RichString* str, ProcessField field
          attr = CRT_colors[PROCESS_THREAD];
          baseattr = CRT_colors[PROCESS_THREAD_BASENAME];
       }
-      if (!this->settings->treeView || this->indent == 0) {
+      const ScreenSettings* ss = this->settings->ss;
+      if (!ss->treeView || this->indent == 0) {
          Process_writeCommand(this, attr, baseattr, str);
          return;
       }
@@ -868,7 +876,15 @@ void Process_writeField(const Process* this, RichString* str, ProcessField field
       Process_printLeftAlignedField(str, attr, cwd, 25);
       return;
    }
-   case ELAPSED: Process_printTime(str, /* convert to hundreds of a second */ this->processList->realtimeMs / 10 - 100 * this->starttime_ctime, coloring); return;
+   case ELAPSED: {
+      const uint64_t rt = this->processList->realtimeMs;
+      const uint64_t st = this->starttime_ctime * 1000;
+      const uint64_t dt =
+         rt < st ? 0 :
+         rt - st;
+      Process_printTime(str, /* convert to hundreds of a second */ dt / 10, coloring);
+      return;
+   }
    case MAJFLT: Process_printCount(str, this->majflt, coloring); return;
    case MINFLT: Process_printCount(str, this->minflt, coloring); return;
    case M_RESIDENT: Process_printKBytes(str, this->m_resident, coloring); return;
@@ -885,13 +901,13 @@ void Process_writeField(const Process* this, RichString* str, ProcessField field
 
       xSnprintf(buffer, n, "%4ld ", this->nlwp);
       break;
-   case PERCENT_CPU: Process_printPercentage(this->percent_cpu, buffer, n, &attr); break;
+   case PERCENT_CPU: Process_printPercentage(this->percent_cpu, buffer, n, Process_fieldWidths[PERCENT_CPU], &attr); break;
    case PERCENT_NORM_CPU: {
       float cpuPercentage = this->percent_cpu / this->processList->activeCPUs;
-      Process_printPercentage(cpuPercentage, buffer, n, &attr);
+      Process_printPercentage(cpuPercentage, buffer, n, Process_fieldWidths[PERCENT_CPU], &attr);
       break;
    }
-   case PERCENT_MEM: Process_printPercentage(this->percent_mem, buffer, n, &attr); break;
+   case PERCENT_MEM: Process_printPercentage(this->percent_mem, buffer, n, 4, &attr); break;
    case PGRP: xSnprintf(buffer, n, "%*d ", Process_pidDigits, this->pgrp); break;
    case PID: xSnprintf(buffer, n, "%*d ", Process_pidDigits, this->pid); break;
    case PPID: xSnprintf(buffer, n, "%*d ", Process_pidDigits, this->ppid); break;
@@ -916,13 +932,13 @@ void Process_writeField(const Process* this, RichString* str, ProcessField field
          case BLOCKED:
          case DEFUNCT:
          case STOPPED:
+         case UNINTERRUPTIBLE_WAIT:
          case ZOMBIE:
             attr = CRT_colors[PROCESS_D_STATE];
             break;
 
          case QUEUED:
          case WAITING:
-         case UNINTERRUPTIBLE_WAIT:
          case IDLE:
          case SLEEPING:
             attr = CRT_colors[PROCESS_SHADOW];
@@ -974,7 +990,7 @@ void Process_writeField(const Process* this, RichString* str, ProcessField field
 
 void Process_display(const Object* cast, RichString* out) {
    const Process* this = (const Process*) cast;
-   const ProcessField* fields = this->settings->fields;
+   const ProcessField* fields = this->settings->ss->fields;
    for (int i = 0; fields[i]; i++)
       As_Process(this)->writeField(this, out, fields[i]);
 
@@ -1010,7 +1026,7 @@ void Process_done(Process* this) {
 /* This function returns the string displayed in Command column, so that sorting
  * happens on what is displayed - whether comm, full path, basename, etc.. So
  * this follows Process_writeField(COMM) and Process_writeCommand */
-const char* Process_getCommandStr(const Process* this) {
+const char* Process_getCommand(const Process* this) {
    if ((Process_isUserlandThread(this) && this->settings->showThreadNames) || !this->mergedCommand.str) {
       return this->cmdline;
    }
@@ -1026,7 +1042,6 @@ const ProcessClass Process_class = {
       .compare = Process_compare
    },
    .writeField = Process_writeField,
-   .getCommandStr = Process_getCommandStr,
 };
 
 void Process_init(Process* this, const Settings* settings) {
@@ -1092,8 +1107,9 @@ int Process_compare(const void* v1, const void* v2) {
    const Process* p2 = (const Process*)v2;
 
    const Settings* settings = p1->settings;
+   const ScreenSettings* ss = settings->ss;
 
-   ProcessField key = Settings_getActiveSortKey(settings);
+   ProcessField key = ScreenSettings_getActiveSortKey(ss);
 
    int result = Process_compareByKey(p1, p2, key);
 
@@ -1101,7 +1117,7 @@ int Process_compare(const void* v1, const void* v2) {
    if (!result)
       return SPACESHIP_NUMBER(p1->pid, p2->pid);
 
-   return (Settings_getActiveDirection(settings) == 1) ? result : -result;
+   return (ScreenSettings_getActiveDirection(ss) == 1) ? result : -result;
 }
 
 int Process_compareByKey_Base(const Process* p1, const Process* p2, ProcessField key) {
@@ -1173,6 +1189,7 @@ int Process_compareByKey_Base(const Process* p1, const Process* p2, ProcessField
    case USER:
       return SPACESHIP_NULLSTR(p1->user, p2->user);
    default:
+      CRT_debug("Process_compareByKey_Base() called with key %d", key);
       assert(0 && "Process_compareByKey_Base: default key reached"); /* should never be reached */
       return SPACESHIP_NUMBER(p1->pid, p2->pid);
    }
@@ -1247,4 +1264,37 @@ void Process_updateExe(Process* this, const char* exe) {
       this->procExeBasenameOffset = 0;
    }
    this->mergedCommand.exeChanged = true;
+}
+
+uint8_t Process_fieldWidths[LAST_PROCESSFIELD] = { 0 };
+
+void Process_resetFieldWidths() {
+   for (size_t i = 0; i < LAST_PROCESSFIELD; i++) {
+      if (!Process_fields[i].autoWidth)
+         continue;
+
+      size_t len = strlen(Process_fields[i].title);
+      assert(len <= UINT8_MAX);
+      Process_fieldWidths[i] = (uint8_t)len;
+   }
+}
+
+void Process_updateFieldWidth(ProcessField key, size_t width) {
+   if (width > UINT8_MAX)
+      Process_fieldWidths[key] = UINT8_MAX;
+   else if (width > Process_fieldWidths[key])
+      Process_fieldWidths[key] = (uint8_t)width;
+}
+
+void Process_updateCPUFieldWidths(float percentage) {
+   if (percentage < 99.9) {
+      Process_updateFieldWidth(PERCENT_CPU, 4);
+      Process_updateFieldWidth(PERCENT_NORM_CPU, 4);
+      return;
+   }
+
+   uint8_t width = ceil(log10(percentage + .2));
+
+   Process_updateFieldWidth(PERCENT_CPU, width);
+   Process_updateFieldWidth(PERCENT_NORM_CPU, width);
 }

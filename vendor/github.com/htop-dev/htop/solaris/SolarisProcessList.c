@@ -451,7 +451,7 @@ static int SolarisProcessList_walkproc(psinfo_t* _psinfo, lwpsinfo_t* _lwpsinfo,
       Process_updateComm(proc, _psinfo->pr_fname);
       Process_updateCmdline(proc, _psinfo->pr_psargs, 0, 0);
 
-      if (proc->settings->flags & PROCESS_FLAG_CWD) {
+      if (proc->settings->ss->flags & PROCESS_FLAG_CWD) {
          SolarisProcessList_updateCwd(_psinfo->pr_pid, proc);
       }
    }
@@ -463,8 +463,11 @@ static int SolarisProcessList_walkproc(psinfo_t* _psinfo, lwpsinfo_t* _lwpsinfo,
       proc->tgid            = (_psinfo->pr_ppid * 1024);
       sproc->realppid       = _psinfo->pr_ppid;
       sproc->realtgid       = _psinfo->pr_ppid;
+
       // See note above (in common section) about this BINARY FRACTION
       proc->percent_cpu     = ((uint16_t)_psinfo->pr_pctcpu / (double)32768) * (double)100.0;
+      Process_updateCPUFieldWidths(proc->percent_cpu);
+
       proc->time            = _psinfo->pr_time.tv_sec;
       if (!preExisting) { // Tasks done only for NEW processes
          proc->isUserlandThread = false;
@@ -492,6 +495,8 @@ static int SolarisProcessList_walkproc(psinfo_t* _psinfo, lwpsinfo_t* _lwpsinfo,
       proc->show = !(pl->settings->hideKernelThreads && proc->isKernelThread);
    } else { // We are not in the master LWP, so jump to the LWP handling code
       proc->percent_cpu        = ((uint16_t)_lwpsinfo->pr_pctcpu / (double)32768) * (double)100.0;
+      Process_updateCPUFieldWidths(proc->percent_cpu);
+
       proc->time               = _lwpsinfo->pr_time.tv_sec;
       if (!preExisting) { // Tasks done only for NEW LWPs
          proc->isUserlandThread    = true;

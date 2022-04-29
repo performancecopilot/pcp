@@ -49,6 +49,8 @@ void Panel_init(Panel* this, int x, int y, int w, int h, const ObjectClass* type
    this->y = y;
    this->w = w;
    this->h = h;
+   this->cursorX = 0;
+   this->cursorY = 0;
    this->eventHandlerState = NULL;
    this->items = Vector_new(type, owner, DEFAULT_SIZE);
    this->scrollV = 0;
@@ -57,6 +59,7 @@ void Panel_init(Panel* this, int x, int y, int w, int h, const ObjectClass* type
    this->oldSelected = 0;
    this->selectedLen = 0;
    this->needsRedraw = true;
+   this->cursorOn = false;
    this->wasFocus = false;
    RichString_beginAllocated(this->header);
    this->defaultBar = fuBar;
@@ -70,6 +73,11 @@ void Panel_done(Panel* this) {
    Vector_delete(this->items);
    FunctionBar_delete(this->defaultBar);
    RichString_delete(&this->header);
+}
+
+void Panel_setCursorToSelection(Panel* this) {
+   this->cursorY = this->y + this->selected - this->scrollV + 1;
+   this->cursorX = this->x + this->selectedLen - this->scrollH;
 }
 
 void Panel_setSelectionColor(Panel* this, ColorElements colorId) {
@@ -330,7 +338,6 @@ void Panel_draw(Panel* this, bool force_redraw, bool focus, bool highlightSelect
    this->oldSelected = this->selected;
    this->wasFocus = focus;
    this->needsRedraw = false;
-   move(0, 0);
 }
 
 static int Panel_headerHeight(const Panel* this) {
@@ -484,4 +491,17 @@ HandlerResult Panel_selectByTyping(Panel* this, int ch) {
    }
 
    return IGNORED;
+}
+
+int Panel_getCh(Panel* this) {
+   if (this->cursorOn) {
+      move(this->cursorY, this->cursorX);
+      curs_set(1);
+   } else {
+      curs_set(0);
+   }
+#ifdef HAVE_SET_ESCDELAY
+   set_escdelay(25);
+#endif
+   return getch();
 }
