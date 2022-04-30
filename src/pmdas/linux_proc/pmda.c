@@ -4,13 +4,13 @@
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2002 International Business Machines Corp.
  * Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
- * Copyright (c) 2012-2021 Red Hat.
- * 
+ * Copyright (c) 2012-2022 Red Hat.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -1756,7 +1756,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (item == 0) /* proc.psinfo.pid */
 		atom->ul = entry->id;
 	    else           /* proc.psinfo.psargs */
-		atom->cp = entry->name + 7;
+		atom->cp = entry->psargs;
 	    break;
 	}
 	if (item == 40) { /* proc.psinfo.wchan_s */
