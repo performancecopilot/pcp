@@ -6,13 +6,13 @@
 # ----------------------------------------------------------------------
 
 AC_PREREQ([2.69])
-AC_INIT([htop], [3.1.2], [htop@groups.io], [], [https://htop.dev/])
+AC_INIT([htop], [3.2.0], [htop@groups.io], [], [https://htop.dev/])
 
 AC_CONFIG_SRCDIR([htop.c])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_HEADERS([config.h])
 
-AC_CANONICAL_TARGET
+AC_CANONICAL_HOST
 AM_INIT_AUTOMAKE([-Wall std-options subdir-objects])
 
 # ----------------------------------------------------------------------
@@ -22,7 +22,7 @@ AM_INIT_AUTOMAKE([-Wall std-options subdir-objects])
 # Checks for platform.
 # ----------------------------------------------------------------------
 
-case "$target_os" in
+case "$host_os" in
 linux*|gnu*)
    my_htop_platform=linux
    AC_DEFINE([HTOP_LINUX], [], [Building for Linux.])
@@ -419,13 +419,23 @@ case "$enable_unwind" in
          AC_CHECK_LIB([lzma], [lzma_index_buffer_decode])
       fi
       AC_CHECK_LIB([unwind], [backtrace], [], [enable_unwind=no])
-      AC_CHECK_HEADERS([libunwind.h], [], [enable_unwind=no])
+      AC_CHECK_HEADERS([libunwind.h], [], [
+         old_CFLAGS="$CFLAGS"
+         CFLAGS="$CFLAGS -I/usr/include/libunwind"
+         AC_CHECK_HEADERS([libunwind/libunwind.h], [], [
+            enable_unwind=no
+            CFLAGS="$old_CFLAGS"
+         ])
+      ])
       ;;
    no)
       ;;
    yes)
       AC_CHECK_LIB([unwind], [backtrace], [], [AC_MSG_ERROR([can not find required library libunwind])])
-      AC_CHECK_HEADERS([libunwind.h], [], [AC_MSG_ERROR([can not find require header file libunwind.h])])
+      AC_CHECK_HEADERS([libunwind.h], [], [
+         CFLAGS="$CFLAGS -I/usr/include/libunwind"
+         AC_CHECK_HEADERS([libunwind/libunwind.h], [], [AC_MSG_ERROR([can not find required header file libunwind.h])])
+      ])
       ;;
    *)
       AC_MSG_ERROR([bad value '$enable_unwind' for --enable-unwind])
@@ -446,8 +456,18 @@ case "$enable_hwloc" in
    no)
       ;;
    yes)
-      AC_CHECK_LIB([hwloc], [hwloc_get_proc_cpubind], [], [AC_MSG_ERROR([can not find required library libhwloc])])
-      AC_CHECK_HEADERS([hwloc.h], [], [AC_MSG_ERROR([can not find require header file hwloc.h])])
+      m4_ifdef([PKG_PROG_PKG_CONFIG], [
+         PKG_PROG_PKG_CONFIG()
+         PKG_CHECK_MODULES(HWLOC, hwloc, [
+               CFLAGS="$CFLAGS $HWLOC_CFLAGS" LIBS="$LIBS $HWLOC_LIBS"
+            ], [
+               AC_CHECK_LIB([hwloc], [hwloc_get_proc_cpubind], [], [AC_MSG_ERROR([can not find required library libhwloc])])
+               AC_CHECK_HEADERS([hwloc.h], [], [AC_MSG_ERROR([can not find require header file hwloc.h])])
+            ])
+         ], [
+            AC_CHECK_LIB([hwloc], [hwloc_get_proc_cpubind], [], [AC_MSG_ERROR([can not find required library libhwloc])])
+            AC_CHECK_HEADERS([hwloc.h], [], [AC_MSG_ERROR([can not find require header file hwloc.h])])
+         ])
       ;;
    *)
       AC_MSG_ERROR([bad value '$enable_hwloc' for --enable-hwloc])
@@ -703,7 +723,7 @@ AC_SUBST([AM_CPPFLAGS])
 # We're done, let's go!
 # ----------------------------------------------------------------------
 
-AC_DEFINE_UNQUOTED([COPYRIGHT], ["(C) 2004-2019 Hisham Muhammad. (C) 2020-2021 htop dev team."], [Copyright message.])
+AC_DEFINE_UNQUOTED([COPYRIGHT], ["(C) 2004-2019 Hisham Muhammad. (C) 2020-2022 htop dev team."], [Copyright message.])
 
 AM_CONDITIONAL([HTOP_LINUX], [test "$my_htop_platform" = linux])
 AM_CONDITIONAL([HTOP_FREEBSD], [test "$my_htop_platform" = freebsd])

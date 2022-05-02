@@ -9,3 +9,5 @@ done
 == check cwd value for self
     inst [MYPID sh] value "CWD"
 done
+== check for psargs with leading space
+done

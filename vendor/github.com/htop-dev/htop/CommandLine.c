@@ -53,15 +53,17 @@ static void printHelpFlag(const char* name) {
           "-d --delay=DELAY                Set the delay between updates, in tenths of seconds\n"
           "-F --filter=FILTER              Show only the commands matching the given filter\n"
           "-h --help                       Print this help screen\n"
-          "-H --highlight-changes[=DELAY]  Highlight new and old processes\n"
-          "-M --no-mouse                   Disable the mouse\n"
-          "-p --pid=PID[,PID,PID...]       Show only the given PIDs\n"
+          "-H --highlight-changes[=DELAY]  Highlight new and old processes\n", name);
+#ifdef HAVE_GETMOUSE
+   printf("-M --no-mouse                   Disable the mouse\n");
+#endif
+   printf("-p --pid=PID[,PID,PID...]       Show only the given PIDs\n"
           "   --readonly                   Disable all system and process changing features\n"
           "-s --sort-key=COLUMN            Sort by COLUMN in list view (try --sort-key=help for a list)\n"
           "-t --tree                       Show the tree view (can be combined with -s)\n"
           "-u --user[=USERNAME]            Show only processes for a given user (or $USER)\n"
           "-U --no-unicode                 Do not use unicode but plain ASCII\n"
-          "-V --version                    Print version info\n", name);
+          "-V --version                    Print version info\n");
    Platform_longOptionsUsage(name);
    printf("\n"
           "Long options may be passed with a single dash.\n\n"
@@ -328,7 +330,7 @@ int CommandLine_run(const char* name, int argc, char** argv) {
       settings->enableMouse = false;
 #endif
    if (flags.treeView)
-      settings->treeView = true;
+      settings->ss->treeView = true;
    if (flags.highlightChanges)
       settings->highlightChanges = true;
    if (flags.highlightDelaySecs != -1)
@@ -337,9 +339,9 @@ int CommandLine_run(const char* name, int argc, char** argv) {
       // -t -s <key> means "tree sorted by key"
       // -s <key> means "list sorted by key" (previous existing behavior)
       if (!flags.treeView) {
-         settings->treeView = false;
+         settings->ss->treeView = false;
       }
-      Settings_setSortKey(settings, flags.sortKey);
+      ScreenSettings_setSortKey(settings->ss, flags.sortKey);
    }
 
    CRT_init(settings, flags.allowUnicode);
@@ -347,7 +349,7 @@ int CommandLine_run(const char* name, int argc, char** argv) {
    MainPanel* panel = MainPanel_new();
    ProcessList_setPanel(pl, (Panel*) panel);
 
-   MainPanel_updateTreeFunctions(panel, settings->treeView);
+   MainPanel_updateLabels(panel, settings->ss->treeView, flags.commFilter);
 
    State state = {
       .settings = settings,
@@ -370,15 +372,10 @@ int CommandLine_run(const char* name, int argc, char** argv) {
    CommandLine_delay(pl, 75);
    ProcessList_scan(pl, false);
 
-   if (settings->allBranchesCollapsed)
+   if (settings->ss->allBranchesCollapsed)
       ProcessList_collapseAllBranches(pl);
 
-   ScreenManager_run(scr, NULL, NULL);
-
-   attron(CRT_colors[RESET_COLOR]);
-   mvhline(LINES - 1, 0, ' ', COLS);
-   attroff(CRT_colors[RESET_COLOR]);
-   refresh();
+   ScreenManager_run(scr, NULL, NULL, NULL);
 
    Platform_done();
 

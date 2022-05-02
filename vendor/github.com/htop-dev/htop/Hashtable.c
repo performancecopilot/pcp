@@ -90,7 +90,7 @@ size_t Hashtable_count(const Hashtable* this) {
 
 /* https://oeis.org/A014234 */
 static const uint64_t OEISprimes[] = {
-   2, 3, 7, 13, 31, 61, 127, 251, 509, 1021, 2039, 4093, 8191,
+   7, 13, 31, 61, 127, 251, 509, 1021, 2039, 4093, 8191,
    16381, 32749, 65521, 131071, 262139, 524287, 1048573,
    2097143, 4194301, 8388593, 16777213, 33554393,
    67108859, 134217689, 268435399, 536870909, 1073741789,
@@ -191,10 +191,14 @@ void Hashtable_setSize(Hashtable* this, size_t size) {
    if (size <= this->items)
       return;
 
+   size_t newSize = nextPrime(size);
+   if (newSize == this->size)
+      return;
+
    HashtableItem* oldBuckets = this->buckets;
    size_t oldSize = this->size;
 
-   this->size = nextPrime(size);
+   this->size = newSize;
    this->buckets = (HashtableItem*) xCalloc(this->size, sizeof(HashtableItem));
    this->items = 0;
 
@@ -282,7 +286,7 @@ void* Hashtable_remove(Hashtable* this, ht_key_t key) {
 
    /* shrink on load-factor < 0.125 */
    if (8 * this->items < this->size)
-      Hashtable_setSize(this, this->size / 2);
+      Hashtable_setSize(this, this->size / 3); /* account for nextPrime rounding up */
 
    return res;
 }

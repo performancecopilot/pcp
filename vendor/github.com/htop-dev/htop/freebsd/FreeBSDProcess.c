@@ -37,8 +37,8 @@ const ProcessFieldData Process_fields[LAST_PROCESSFIELD] = {
    [M_VIRT] = { .name = "M_VIRT", .title = " VIRT ", .description = "Total program size in virtual memory", .flags = 0, .defaultSortDesc = true, },
    [M_RESIDENT] = { .name = "M_RESIDENT", .title = "  RES ", .description = "Resident set size, size of the text and data sections, plus stack usage", .flags = 0, .defaultSortDesc = true, },
    [ST_UID] = { .name = "ST_UID", .title = "UID", .description = "User ID of the process owner", .flags = 0, },
-   [PERCENT_CPU] = { .name = "PERCENT_CPU", .title = "CPU% ", .description = "Percentage of the CPU time the process used in the last sampling", .flags = 0, .defaultSortDesc = true, },
-   [PERCENT_NORM_CPU] = { .name = "PERCENT_NORM_CPU", .title = "NCPU%", .description = "Normalized percentage of the CPU time the process used in the last sampling (normalized by cpu count)", .flags = 0, .defaultSortDesc = true, },
+   [PERCENT_CPU] = { .name = "PERCENT_CPU", .title = "CPU% ", .description = "Percentage of the CPU time the process used in the last sampling", .flags = 0, .defaultSortDesc = true, .autoWidth = true, },
+   [PERCENT_NORM_CPU] = { .name = "PERCENT_NORM_CPU", .title = "NCPU%", .description = "Normalized percentage of the CPU time the process used in the last sampling (normalized by cpu count)", .flags = 0, .defaultSortDesc = true, .autoWidth = true, },
    [PERCENT_MEM] = { .name = "PERCENT_MEM", .title = "MEM% ", .description = "Percentage of the memory the process is using, based on resident memory size", .flags = 0, .defaultSortDesc = true, },
    [USER] = { .name = "USER", .title = "USER       ", .description = "Username of the process owner (or user ID if name cannot be determined)", .flags = 0, },
    [TIME] = { .name = "TIME", .title = "  TIME+  ", .description = "Total time the process has spent in user and system time", .flags = 0, .defaultSortDesc = true, },
@@ -49,6 +49,7 @@ const ProcessFieldData Process_fields[LAST_PROCESSFIELD] = {
    [CWD] = { .name = "CWD", .title = "CWD                       ", .description = "The current working directory of the process", .flags = PROCESS_FLAG_CWD, },
    [JID] = { .name = "JID", .title = "JID", .description = "Jail prison ID", .flags = 0, .pidColumn = true, },
    [JAIL] = { .name = "JAIL", .title = "JAIL        ", .description = "Jail prison name", .flags = 0, },
+   [EMULATION] = { .name = "EMULATION", .title = "EMULATION        ", .description = "System call emulation environment (ABI)", .flags = 0, },
 };
 
 Process* FreeBSDProcess_new(const Settings* settings) {
@@ -61,6 +62,7 @@ Process* FreeBSDProcess_new(const Settings* settings) {
 void Process_delete(Object* cast) {
    FreeBSDProcess* this = (FreeBSDProcess*) cast;
    Process_done((Process*)cast);
+   free(this->emul);
    free(this->jname);
    free(this);
 }
@@ -76,6 +78,9 @@ static void FreeBSDProcess_writeField(const Process* this, RichString* str, Proc
    case JID: xSnprintf(buffer, n, "%*d ", Process_pidDigits, fp->jid); break;
    case JAIL:
       Process_printLeftAlignedField(str, attr, fp->jname ? fp->jname : "N/A", 11);
+      return;
+   case EMULATION:
+      Process_printLeftAlignedField(str, attr, fp->emul ? fp->emul : "N/A", 16);
       return;
    default:
       Process_writeField(this, str, field);
@@ -94,6 +99,8 @@ static int FreeBSDProcess_compareByKey(const Process* v1, const Process* v2, Pro
       return SPACESHIP_NUMBER(p1->jid, p2->jid);
    case JAIL:
       return SPACESHIP_NULLSTR(p1->jname, p2->jname);
+   case EMULATION:
+      return SPACESHIP_NULLSTR(p1->emul, p2->emul);
    default:
       return Process_compareByKey_Base(v1, v2, key);
    }

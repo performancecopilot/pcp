@@ -94,13 +94,28 @@ void* xReallocArrayZero(void* ptr, size_t prevmemb, size_t newmemb, size_t size)
    return ret;
 }
 
-inline bool String_contains_i(const char* s1, const char* s2) {
-   return strcasestr(s1, s2) != NULL;
+inline bool String_contains_i(const char* s1, const char* s2, bool multi) {
+   // we have a multi-string search term, handle as special case for performance reasons
+   if (multi && strstr(s2, "|")) {
+      size_t nNeedles;
+      char** needles = String_split(s2, '|', &nNeedles);
+      for (size_t i = 0; i < nNeedles; i++) {
+         if (strcasestr(s1, needles[i]) != NULL) {
+            String_freeArray(needles);
+            return true;
+         }
+       }
+       String_freeArray(needles);
+       return false;
+   } else {
+      return strcasestr(s1, s2) != NULL;
+   }
 }
 
 char* String_cat(const char* s1, const char* s2) {
    const size_t l1 = strlen(s1);
    const size_t l2 = strlen(s2);
+   assert(SIZE_MAX - l1 > l2);
    char* out = xMalloc(l1 + l2 + 1);
    memcpy(out, s1, l1);
    memcpy(out + l1, s2, l2);
@@ -122,10 +137,10 @@ char* String_trim(const char* in) {
 }
 
 char** String_split(const char* s, char sep, size_t* n) {
-   const unsigned int rate = 10;
+   const size_t rate = 10;
    char** out = xCalloc(rate, sizeof(char*));
    size_t ctr = 0;
-   unsigned int blocks = rate;
+   size_t blocks = rate;
    const char* where;
    while ((where = strchr(s, sep)) != NULL) {
       size_t size = (size_t)(where - s);
@@ -160,36 +175,9 @@ void String_freeArray(char** s) {
    free(s);
 }
 
-char* String_getToken(const char* line, const unsigned short int numMatch) {
-   const size_t len = strlen(line);
-   char inWord = 0;
-   unsigned short int count = 0;
-   char match[50];
-
-   size_t foundCount = 0;
-
-   for (size_t i = 0; i < len; i++) {
-      char lastState = inWord;
-      inWord = line[i] == ' ' ? 0 : 1;
-
-      if (lastState == 0 && inWord == 1)
-         count++;
-
-      if (inWord == 1) {
-         if (count == numMatch && line[i] != ' ' && line[i] != '\0' && line[i] != '\n' && line[i] != (char)EOF) {
-            match[foundCount] = line[i];
-            foundCount++;
-         }
-      }
-   }
-
-   match[foundCount] = '\0';
-   return xStrdup(match);
-}
-
 char* String_readLine(FILE* fd) {
-   const unsigned int step = 1024;
-   unsigned int bufSize = step;
+   const size_t step = 1024;
+   size_t bufSize = step;
    char* buffer = xMalloc(step + 1);
    char* at = buffer;
    for (;;) {

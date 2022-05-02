@@ -12,6 +12,7 @@ in the source distribution for its full text.
 #include <stdlib.h>
 #include <string.h>
 #include <mach/mach.h>
+#include <sys/dirent.h>
 
 #include "CRT.h"
 #include "Process.h"
@@ -26,7 +27,7 @@ const ProcessFieldData Process_fields[LAST_PROCESSFIELD] = {
    [PPID] = { .name = "PPID", .title = "PPID", .description = "Parent process ID", .flags = 0, .pidColumn = true, },
    [PGRP] = { .name = "PGRP", .title = "PGRP", .description = "Process group ID", .flags = 0, .pidColumn = true, },
    [SESSION] = { .name = "SESSION", .title = "SID", .description = "Process's session ID", .flags = 0, .pidColumn = true, },
-   [TTY] = { .name = "TTY", .title = "TTY      ", .description = "Controlling terminal", .flags = 0, },
+   [TTY] = { .name = "TTY", .title = "TTY      ", .description = "Controlling terminal", .flags = PROCESS_FLAG_TTY, },
    [TPGID] = { .name = "TPGID", .title = "TPGID", .description = "Process ID of the fg process group of the controlling terminal", .flags = 0, .pidColumn = true, },
    [MINFLT] = { .name = "MINFLT", .title = "     MINFLT ", .description = "Number of minor faults which have not required loading a memory page from disk", .flags = 0, .defaultSortDesc = true, },
    [MAJFLT] = { .name = "MAJFLT", .title = "     MAJFLT ", .description = "Number of major faults which have required loading a memory page from disk", .flags = 0, .defaultSortDesc = true, },
@@ -38,8 +39,8 @@ const ProcessFieldData Process_fields[LAST_PROCESSFIELD] = {
    [M_VIRT] = { .name = "M_VIRT", .title = " VIRT ", .description = "Total program size in virtual memory", .flags = 0, .defaultSortDesc = true, },
    [M_RESIDENT] = { .name = "M_RESIDENT", .title = "  RES ", .description = "Resident set size, size of the text and data sections, plus stack usage", .flags = 0, .defaultSortDesc = true, },
    [ST_UID] = { .name = "ST_UID", .title = "UID", .description = "User ID of the process owner", .flags = 0, },
-   [PERCENT_CPU] = { .name = "PERCENT_CPU", .title = "CPU% ", .description = "Percentage of the CPU time the process used in the last sampling", .flags = 0, .defaultSortDesc = true, },
-   [PERCENT_NORM_CPU] = { .name = "PERCENT_NORM_CPU", .title = "NCPU%", .description = "Normalized percentage of the CPU time the process used in the last sampling (normalized by cpu count)", .flags = 0, .defaultSortDesc = true, },
+   [PERCENT_CPU] = { .name = "PERCENT_CPU", .title = "CPU% ", .description = "Percentage of the CPU time the process used in the last sampling", .flags = 0, .defaultSortDesc = true, .autoWidth = true, },
+   [PERCENT_NORM_CPU] = { .name = "PERCENT_NORM_CPU", .title = "NCPU%", .description = "Normalized percentage of the CPU time the process used in the last sampling (normalized by cpu count)", .flags = 0, .defaultSortDesc = true, .autoWidth = true, },
    [PERCENT_MEM] = { .name = "PERCENT_MEM", .title = "MEM% ", .description = "Percentage of the memory the process is using, based on resident memory size", .flags = 0, .defaultSortDesc = true, },
    [USER] = { .name = "USER", .title = "USER       ", .description = "Username of the process owner (or user ID if name cannot be determined)", .flags = 0, },
    [TIME] = { .name = "TIME", .title = "  TIME+  ", .description = "Total time the process has spent in user and system time", .flags = 0, .defaultSortDesc = true, },
@@ -276,6 +277,18 @@ static long long int nanosecondsToCentiseconds(uint64_t nanoseconds) {
    return nanoseconds / nanoseconds_per_second * centiseconds_per_second;
 }
 
+static char* DarwinProcess_getDevname(dev_t dev) {
+   if (dev == NODEV) {
+      return NULL;
+   }
+   char buf[sizeof("/dev/") + MAXNAMLEN];
+   char *name = devname_r(dev, S_IFCHR, buf, MAXNAMLEN);
+   if (name) {
+      return xStrdup(name);
+   }
+   return NULL;
+}
+
 void DarwinProcess_setFromKInfoProc(Process* proc, const struct kinfo_proc* ps, bool exists) {
    DarwinProcess* dp = (DarwinProcess*)proc;
 
@@ -306,15 +319,8 @@ void DarwinProcess_setFromKInfoProc(Process* proc, const struct kinfo_proc* ps, 
       proc->isKernelThread = false;
       proc->isUserlandThread = false;
       dp->translated = ps->kp_proc.p_flag & P_TRANSLATED;
-
       proc->tty_nr = ps->kp_eproc.e_tdev;
-      const char* name = (ps->kp_eproc.e_tdev != NODEV) ? devname(ps->kp_eproc.e_tdev, S_IFCHR) : NULL;
-      if (!name) {
-         free(proc->tty_name);
-         proc->tty_name = NULL;
-      } else {
-         free_and_xStrdup(&proc->tty_name, name);
-      }
+      proc->tty_name = NULL;
 
       proc->starttime_ctime = ep->p_starttime.tv_sec;
       Process_fillStarttimeBuffer(proc);
@@ -322,8 +328,25 @@ void DarwinProcess_setFromKInfoProc(Process* proc, const struct kinfo_proc* ps, 
       DarwinProcess_updateExe(ep->p_pid, proc);
       DarwinProcess_updateCmdLine(ps, proc);
 
-      if (proc->settings->flags & PROCESS_FLAG_CWD) {
+      if (proc->settings->ss->flags & PROCESS_FLAG_CWD) {
          DarwinProcess_updateCwd(ep->p_pid, proc);
+      }
+   }
+
+   if (proc->tty_name == NULL && (dev_t)proc->tty_nr != NODEV) {
+      /* The call to devname() is extremely expensive (due to lstat)
+       * and represents ~95% of htop's CPU usage when there is high
+       * process turnover.
+       *
+       * To mitigate this we only fetch TTY information if the TTY
+       * field is enabled in the settings.
+       */
+      if (proc->settings->ss->flags & PROCESS_FLAG_TTY) {
+         proc->tty_name = DarwinProcess_getDevname(proc->tty_nr);
+         if (!proc->tty_name) {
+            /* devname failed: prevent us from calling it again */
+            proc->tty_nr = NODEV;
+         }
       }
    }
 
@@ -354,6 +377,7 @@ void DarwinProcess_setFromLibprocPidinfo(DarwinProcess* proc, DarwinProcessList*
       } else {
          proc->super.percent_cpu = 0.0;
       }
+      Process_updateCPUFieldWidths(proc->super.percent_cpu);
 
       proc->super.time = nanosecondsToCentiseconds(total_current_time_ns);
       proc->super.nlwp = pti.pti_threadnum;

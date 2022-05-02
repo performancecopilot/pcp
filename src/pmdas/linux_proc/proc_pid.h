@@ -1,14 +1,14 @@
 /*
  * Linux /proc/<pid>/... Clusters
  *
- * Copyright (c) 2013-2015,2018-2021 Red Hat.
+ * Copyright (c) 2013-2015,2018-2022 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -227,7 +227,8 @@ typedef struct {
     int			pad;
     unsigned int	fetched;   /* PROC_PID_FLAG_* values (sample attempt) */
     unsigned int	success;   /* PROC_PID_FLAG_* values (sample success) */
-    char		*name;	/* full command line and args */
+    char		*name;	/* full command line and args prefixed by PID */
+    char		*psargs;   /* offset to start of process arguments in name */
     char		*instname; /* external instance name (truncated <pid> cmdline) */
 
     /* buffers for which length is held below (here for struct alignment) */
