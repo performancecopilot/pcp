@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Red Hat.
+ * Copyright (c) 2021-2022 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,65 +21,70 @@ static ss_stats_t ss_p;
 /* boolean value with no separate value, default 0 */
 #define PM_TYPE_BOOL (PM_TYPE_UNKNOWN-1)
 
+/* helper macros to extract field address and size */
+#define SSFIELD(str,type,f) {(str), (sizeof(str)-1), type, (&(f)), (sizeof(f))}
+#define SSNULLFIELD(str) {(str), (sizeof(str)-1), PM_TYPE_UNKNOWN, NULL}
+
 static struct {
     char *field;
     int len;
     int type;
     void *addr;
+    int size;
     int found;
 } parse_table[] = {
-    { "timer:", 6, PM_TYPE_STRING, &ss_p.timer_str },
-    { "uid:", 4, PM_TYPE_U32, &ss_p.uid },
-    { "ino:", 4, PM_TYPE_64, &ss_p.inode },
-    { "sk:", 3, PM_TYPE_U64, &ss_p.sk },
-    { "cgroup:", 7, PM_TYPE_STRING, &ss_p.cgroup },
-    { "v6only:", 7, PM_TYPE_32, &ss_p.v6only },
-    { "--- ", 4, PM_TYPE_UNKNOWN, NULL  },
-    { "<-> ", 4, PM_TYPE_UNKNOWN, NULL  },
-    { "--> ", 4, PM_TYPE_UNKNOWN, NULL  },
-    { "skmem:", 6, PM_TYPE_STRING, &ss_p.skmem_str,  },
-    { "ts ", 3, PM_TYPE_BOOL, &ss_p.ts },
-    { "sack ", 5, PM_TYPE_BOOL, &ss_p.sack },
-    { "cubic ", 6, PM_TYPE_BOOL, &ss_p.cubic },
-    { "wscale:", 7, PM_TYPE_STRING, &ss_p.wscale_str },
-    { "rto:", 4, PM_TYPE_DOUBLE, &ss_p.rto },
-    { "rtt:", 4, PM_TYPE_STRING, &ss_p.round_trip_str  },
-    { "ato:", 4, PM_TYPE_DOUBLE, &ss_p.ato },
-    { "backoff:", 8, PM_TYPE_32, &ss_p.backoff },
-    { "mss:", 4, PM_TYPE_U32, &ss_p.mss },
-    { "pmtu:", 5, PM_TYPE_U32, &ss_p.pmtu },
-    { "rcvmss:", 7, PM_TYPE_U32, &ss_p.rcvmss },
-    { "advmss:", 7, PM_TYPE_U32, &ss_p.advmss },
-    { "cwnd:", 5, PM_TYPE_U32, &ss_p.cwnd },
-    { "lost:", 5, PM_TYPE_32, &ss_p.lost },
-    { "ssthresh:", 9, PM_TYPE_U32, &ss_p.ssthresh },
-    { "bytes_sent:", 11, PM_TYPE_U64, &ss_p.bytes_sent },
-    { "bytes_retrans:", 14, PM_TYPE_U64, &ss_p.bytes_retrans },
-    { "bytes_acked:", 12, PM_TYPE_U64, &ss_p.bytes_acked },
-    { "bytes_received:", 15, PM_TYPE_U64, &ss_p.bytes_received },
-    { "segs_out:", 9, PM_TYPE_U32, &ss_p.segs_out },
-    { "segs_in:", 8, PM_TYPE_U32, &ss_p.segs_in },
-    { "data_segs_out:", 14, PM_TYPE_U32, &ss_p.data_segs_out },
-    { "data_segs_in:", 13, PM_TYPE_U32, &ss_p.data_segs_in },
-    { "send ", 5, PM_TYPE_DOUBLE, &ss_p.send }, /* no ':' */
-    { "lastsnd:", 8, PM_TYPE_U32, &ss_p.lastsnd },
-    { "lastrcv:", 8, PM_TYPE_U32, &ss_p.lastrcv },
-    { "lastack:", 8, PM_TYPE_U32, &ss_p.lastack },
-    { "pacing_rate ", 12, PM_TYPE_DOUBLE, &ss_p.pacing_rate }, /* no ':' */
-    { "delivery_rate ", 14, PM_TYPE_DOUBLE, &ss_p.delivery_rate }, /* no ':' */
-    { "delivered:", 10, PM_TYPE_U32, &ss_p.delivered },
-    { "app_limited ", 12, PM_TYPE_BOOL, &ss_p.app_limited },
-    { "reord_seen:", 11, PM_TYPE_32, &ss_p.reord_seen },
-    { "busy:", 5, PM_TYPE_U64, &ss_p.busy },
-    { "unacked:", 8, PM_TYPE_32, &ss_p.unacked },
-    { "rwnd_limited:", 13, PM_TYPE_U64, &ss_p.rwnd_limited },
-    { "retrans:", 8, PM_TYPE_STRING, &ss_p.retrans_str },
-    { "dsack_dups:", 11, PM_TYPE_U32, &ss_p.dsack_dups },
-    { "rcv_rtt:", 8, PM_TYPE_DOUBLE, &ss_p.rcv_rtt },
-    { "rcv_space:", 10, PM_TYPE_32, &ss_p.rcv_space },
-    { "rcv_ssthresh:", 13, PM_TYPE_32, &ss_p.rcv_ssthresh },
-    { "minrtt:", 7, PM_TYPE_DOUBLE, &ss_p.minrtt },
-    { "notsent:", 8, PM_TYPE_U32, &ss_p.notsent },
+    SSFIELD("timer:", PM_TYPE_STRING, ss_p.timer_str),
+    SSFIELD("uid:", PM_TYPE_U32, ss_p.uid),
+    SSFIELD("ino:", PM_TYPE_64, ss_p.inode),
+    SSFIELD("sk:", PM_TYPE_U64, ss_p.sk),
+    SSFIELD("cgroup:", PM_TYPE_STRING, ss_p.cgroup),
+    SSFIELD("v6only:", PM_TYPE_32, ss_p.v6only),
+    SSNULLFIELD("--- "),
+    SSNULLFIELD("<-> "),
+    SSNULLFIELD("--> "),
+    SSFIELD("skmem:", PM_TYPE_STRING, ss_p.skmem_str),
+    SSFIELD("ts ", PM_TYPE_BOOL, ss_p.ts),
+    SSFIELD("sack ", PM_TYPE_BOOL, ss_p.sack),
+    SSFIELD("cubic ", PM_TYPE_BOOL, ss_p.cubic),
+    SSFIELD("wscale:", PM_TYPE_STRING, ss_p.wscale_str),
+    SSFIELD("rto:", PM_TYPE_DOUBLE, ss_p.rto),
+    SSFIELD("rtt:", PM_TYPE_STRING, ss_p.round_trip_str),
+    SSFIELD("ato:", PM_TYPE_DOUBLE, ss_p.ato),
+    SSFIELD("backoff:", PM_TYPE_32, ss_p.backoff),
+    SSFIELD("mss:", PM_TYPE_U32, ss_p.mss),
+    SSFIELD("pmtu:", PM_TYPE_U32, ss_p.pmtu),
+    SSFIELD("rcvmss:", PM_TYPE_U32, ss_p.rcvmss),
+    SSFIELD("advmss:", PM_TYPE_U32, ss_p.advmss),
+    SSFIELD("cwnd:", PM_TYPE_U32, ss_p.cwnd),
+    SSFIELD("lost:", PM_TYPE_32, ss_p.lost),
+    SSFIELD("ssthresh:", PM_TYPE_U32, ss_p.ssthresh),
+    SSFIELD("bytes_sent:", PM_TYPE_U64, ss_p.bytes_sent),
+    SSFIELD("bytes_retrans:", PM_TYPE_U64, ss_p.bytes_retrans),
+    SSFIELD("bytes_acked:", PM_TYPE_U64, ss_p.bytes_acked),
+    SSFIELD("bytes_received:", PM_TYPE_U64, ss_p.bytes_received),
+    SSFIELD("segs_out:", PM_TYPE_U32, ss_p.segs_out),
+    SSFIELD("segs_in:", PM_TYPE_U32, ss_p.segs_in),
+    SSFIELD("data_segs_out:", PM_TYPE_U32, ss_p.data_segs_out),
+    SSFIELD("data_segs_in:", PM_TYPE_U32, ss_p.data_segs_in),
+    SSFIELD("send ", PM_TYPE_DOUBLE, ss_p.send), /* no ':' */
+    SSFIELD("lastsnd:", PM_TYPE_U32, ss_p.lastsnd),
+    SSFIELD("lastrcv:", PM_TYPE_U32, ss_p.lastrcv),
+    SSFIELD("lastack:", PM_TYPE_U32, ss_p.lastack),
+    SSFIELD("pacing_rate ", PM_TYPE_DOUBLE, ss_p.pacing_rate), /* no ':' */
+    SSFIELD("delivery_rate ", PM_TYPE_DOUBLE, ss_p.delivery_rate), /* no ':' */
+    SSFIELD("delivered:", PM_TYPE_U32, ss_p.delivered),
+    SSFIELD("app_limited ", PM_TYPE_BOOL, ss_p.app_limited),
+    SSFIELD("reord_seen:", PM_TYPE_32, ss_p.reord_seen),
+    SSFIELD("busy:", PM_TYPE_U64, ss_p.busy),
+    SSFIELD("unacked:", PM_TYPE_32, ss_p.unacked),
+    SSFIELD("rwnd_limited:", PM_TYPE_U64, ss_p.rwnd_limited),
+    SSFIELD("retrans:", PM_TYPE_STRING, ss_p.retrans_str),
+    SSFIELD("dsack_dups:", PM_TYPE_U32, ss_p.dsack_dups),
+    SSFIELD("rcv_rtt:", PM_TYPE_DOUBLE, ss_p.rcv_rtt),
+    SSFIELD("rcv_space:", PM_TYPE_32, ss_p.rcv_space),
+    SSFIELD("rcv_ssthresh:", PM_TYPE_32, ss_p.rcv_ssthresh),
+    SSFIELD("minrtt:", PM_TYPE_DOUBLE, ss_p.minrtt),
+    SSFIELD("notsent:", PM_TYPE_U32, ss_p.notsent),
 
     { NULL }
 };
@@ -225,8 +230,11 @@ ss_parse(char *line, int has_state_field, ss_stats_t *ss)
 		    if (*p == '(')
 		    	p++;
 		    r = (char *)parse_table[i].addr;
-		    for (s=p; *s && *s != ' ' && *s != '\n' && *s != ')'; s++)
-			*r++ = *s; /* TODO check r len */
+		    for (s=p; *s && *s != ' ' && *s != '\n' && *s != ')'; s++) {
+			*r++ = *s;
+			if (r - (char *)parse_table[i].addr >= parse_table[i].size - 1)
+			    break;
+		    }
 		    *r = '\0';
 		    break;
 		case PM_TYPE_32:

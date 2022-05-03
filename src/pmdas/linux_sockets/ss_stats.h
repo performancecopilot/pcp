@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2021 Red Hat.
- * 
+ * Copyright (c) 2021-2022 Red Hat.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -26,7 +26,7 @@ typedef struct ss_stats {
     __int32_t		timer_retrans;
     __uint32_t		uid;
     __uint64_t		sk;
-    char		cgroup[64];
+    char		cgroup[128];
     __int32_t		v6only;
     char		skmem_str[64];
     __int32_t		skmem_rmem_alloc;
