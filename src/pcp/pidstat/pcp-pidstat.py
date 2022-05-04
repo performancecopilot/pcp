@@ -779,6 +779,7 @@ class PidstatOptions(pmapi.pmOptions):
     process_name = None
     process_name_with_args = False
     ps_args_flag=False
+    show_process_cpu_util = False
     show_process_memory_util = False
     show_process_priority = False
     show_process_stack_util = False
@@ -800,11 +801,21 @@ class PidstatOptions(pmapi.pmOptions):
         elif self.show_process_priority and self.show_process_stack_util:
             print("Error: -R is incompatible with -k")
             return False
+        elif self.show_process_priority and self.show_process_cpu_util:
+            print("Error: -R is incompatible with -u")
+            return False
         elif self.show_process_memory_util and self.show_process_stack_util:
             print("Error: -r is incompatible with -k")
             return False
+        elif self.show_process_memory_util and self.show_process_cpu_util:
+            print("Error: -r is incompatible with -u")
+            return False
+        elif self.show_process_cpu_util and self.show_process_stack_util:
+            print("Error: -u is incompatible with -k")
+            return False
         elif (self.show_process_memory_util or self.show_process_stack_util or
-              self.show_process_priority) and self.show_process_state:
+              self.show_process_priority or self.show_process_cpu_util) and
+              self.show_process_state:
             print("Error: Incompatible flags provided")
             return False
         elif self.flag_error:
@@ -813,26 +824,33 @@ class PidstatOptions(pmapi.pmOptions):
         elif self.ps_args_flag:
             print("Error: Incorrect usage of the -l flag")
             return False
-        else:
-            return True
 
-    def extraOptions(self, opt,optarg, index):
-        if opt == 'k':
-            PidstatOptions.show_process_stack_util = True
+        if not self.show_process_state and not self.show_process_cpu_util:
+            # Determine if we are defaulting to -u.
+            if not any(self.show_process_memory_util, self.show_process_stack_util,
+                       self.show_process_priority):
+                self.show_process_cpu_util = True
+        return True
+
+    def extraOptions(self, opt, optarg, index):
+        if opt == 'u':
+            self.show_process_cpu_util = True
+        elif opt == 'k':
+            self.show_process_stack_util = True
         elif opt == 'r':
-            PidstatOptions.show_process_memory_util = True
+            self.show_process_memory_util = True
         elif opt == 'R':
-            PidstatOptions.show_process_priority = True
-        #process state
+            self.show_process_priority = True
         elif opt == 'B':
-            if PidstatOptions.show_process_state:
+            #process state
+            if self.show_process_state:
                 #print("Error: Cannot use -B multiple times")
-                PidstatOptions.flag_error = True
-            PidstatOptions.show_process_state = True
+                self.flag_error = True
+            self.show_process_state = True
             if optarg in ["All", "all"]:
-                PidstatOptions.filterstate = "all"
+                self.filterstate = "all"
             elif optarg in ["detail", "Detail"]:
-                PidstatOptions.filterstate = "detail"
+                self.filterstate = "detail"
             else:
                 # tried to handle the error usage like pcp-pidstat.py -B all R,S
                 # or pcp-pidstat.py -B detail all
@@ -840,45 +858,45 @@ class PidstatOptions(pmapi.pmOptions):
                 # we ignore the following ones. So pcp-pidstat.py -B detail all will treat it as
                 # pcp.pidstat.py -B detail
 
-                #if not PidstatOptions.flag_error:
-                #   if (PidstatOptions.filterstate == "all" or PidstatOptions.filterstate == "detail"):
+                #if not self.flag_error:
+                #   if (self.filterstate == "all" or self.filterstate == "detail"):
                 #       print("Error: Use either all/detail or specific filters for states")
-                #       PidstatOptions.flag_error = True
+                #       self.flag_error = True
                 #   else:
 
                 # need to put checks for correct states in this string like UN,TT
                 # shouldnt be accepted because TT isnt a valid state
                 # TODO: make sure only R,S,T,D,Z are part of this optarg so if
                 # anything other than these exists in
-                # PidstatOptions.filterstate, we might want to flag error of usage ?
+                # self.filterstate, we might want to flag error of usage ?
 
-                PidstatOptions.filterstate += optarg.replace(',', ' ').split(' ')
+                self.filterstate += optarg.replace(',', ' ').split(' ')
         elif opt == 'G':
-            PidstatOptions.process_name = optarg
+            self.process_name = optarg
         elif opt == 'I':
-            PidstatOptions.per_processor_usage = True
+            self.per_processor_usage = True
         elif opt == 'U':
-            PidstatOptions.show_process_user = True
-            PidstatOptions.filtered_process_user = optarg
+            self.show_process_user = True
+            self.filtered_process_user = optarg
         elif opt == 'p':
             if optarg == "ALL":
-                PidstatOptions.pid_filter = None
+                self.pid_filter = None
             elif optarg == "SELF":
-                PidstatOptions.pid_filter = "SELF"
-                PidstatOptions.pid_list = os.getpid()
+                self.pid_filter = "SELF"
+                self.pid_list = os.getpid()
             else:
-                PidstatOptions.pid_filter = "LIST"
+                self.pid_filter = "LIST"
                 try:
-                    PidstatOptions.pid_list = list(map(lambda x:int(x),optarg.split(',')))
+                    self.pid_list = list(map(lambda x:int(x),optarg.split(',')))
                 except ValueError:
                     print("Invalid Process Id List: use comma separated pids without whitespaces")
                     sys.exit(1)
         elif opt == 'f':
-            PidstatOptions.timefmt = optarg
+            self.timefmt = optarg
         elif opt == 'l':
-            if PidstatOptions.process_name_with_args:
-                PidstatOptions.ps_args_flag=True
-            PidstatOptions.process_name_with_args = True
+            if self.process_name_with_args:
+                self.ps_args_flag=True
+            self.process_name_with_args = True
 
     def override(self, opt):
         """ Override standard PCP options to match pidstat(1) """
@@ -887,7 +905,7 @@ class PidstatOptions(pmapi.pmOptions):
     #After reading in the provided command line options
     #initalize them by passing them in
     def __init__(self):
-        pmapi.pmOptions.__init__(self,"a:s:t:G:IU::p:RrkVZ:z?:f:B:l")
+        pmapi.pmOptions.__init__(self,"a:s:t:G:IU::p:RrukVZ:z?:f:B:l")
         self.pmSetOptionCallback(self.extraOptions)
         self.pmSetOverrideCallback(self.override)
         self.pmSetLongOptionHeader("General options")
@@ -905,6 +923,7 @@ class PidstatOptions(pmapi.pmOptions):
         self.pmSetLongOption("", 0, "R", "",
                              "Report realtime priority and scheduling policy information.")
         self.pmSetLongOption("", 0,"r","","Report page faults and memory utilization.")
+        self.pmSetLongOption("", 0,"u","","Report CPU utilization.")
         self.pmSetLongOption("", 0,"k","","Report stack utilization.")
         self.pmSetLongOption("", 0,"f","","Format the timestamp output")
         self.pmSetLongOption("", 0, "B", "state1,state2,..",
@@ -979,6 +998,8 @@ class PidstatReport(pmcc.MetricGroupPrinter):
                                                  printdecorator.Print, PidstatOptions)
 
             report.print_report(timestamp, header_indentation, value_indentation)
+
+        #===========================================================================================================
         elif PidstatOptions.show_process_memory_util:
             process_memory_util = CpuProcessMemoryUtil(metric_repository)
             process_filter = ProcessFilter(PidstatOptions)
@@ -989,6 +1010,8 @@ class PidstatReport(pmcc.MetricGroupPrinter):
                                                   printdecorator.Print, PidstatOptions)
 
             report.print_report(timestamp, header_indentation, value_indentation)
+
+        #===========================================================================================================
         elif PidstatOptions.show_process_priority:
             process_priority = CpuProcessPriorities(metric_repository)
             process_filter = ProcessFilter(PidstatOptions)
@@ -1010,8 +1033,9 @@ class PidstatReport(pmcc.MetricGroupPrinter):
                                              printdecorator.Print, PidstatOptions)
 
             report.print_report(timestamp, header_indentation, value_indentation)
+
         #===========================================================================================================
-        else:
+        elif PidstatOptions.show_process_cpu_util:
             cpu_usage = CpuUsage(metric_repository)
             process_filter = ProcessFilter(PidstatOptions)
             stdout = StdoutPrinter()
@@ -1028,20 +1052,16 @@ if __name__ == "__main__":
         if not opts.checkOptions():
             raise pmapi.pmUsageErr
         if opts.show_process_state:
-            missing = manager.checkMissingMetrics(PIDSTAT_METRICS_B)
+            metrics_list = PIDSTAT_METRICS_B
         elif opts.process_name_with_args:
-            missing = manager.checkMissingMetrics(PIDSTAT_METRICS_L)
+            metrics_list = PIDSTAT_METRICS_L
         else:
-            missing = manager.checkMissingMetrics(PIDSTAT_METRICS)
+            metrics_list = PIDSTAT_METRICS
+        missing = manager.checkMissingMetrics(metrics_list)
         if missing is not None:
             sys.stderr.write('Error: not all required metrics are available\nMissing %s\n' % (missing))
             sys.exit(1)
-        if opts.process_name_with_args:
-            manager['pidstat'] = PIDSTAT_METRICS_L
-        elif opts.show_process_state:
-            manager['pidstat'] = PIDSTAT_METRICS_B
-        else:
-            manager['pidstat'] = PIDSTAT_METRICS
+        manager['pidstat'] = metrics_list
         manager.printer = PidstatReport()
         sts = manager.run()
         sys.exit(sts)
