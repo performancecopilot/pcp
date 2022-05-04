@@ -1,0 +1,74 @@
+#!/bin/sh
+# PCP QA Test No. 1856
+# Exercise pcp-dstat top-alike functionality.
+#
+# Copyright (c) 2022 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+DSTAT="$PCP_BINADM_DIR/pcp-dstat"
+test -f "$DSTAT" || _notrun "$DSTAT is not installed, skipped"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+username=`id -u -n`
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+dstat()
+{
+    message="$1"
+    shift
+    options="$@"
+
+    echo "$message"
+
+    pcp_options="pcp -z --origin=+1.1 --archive $here/archives/pcp-atop"
+    $pcp_options dstat --time $options 1 2 >$tmp.out 2>$tmp.err
+
+    echo "=== std out"
+    cat $tmp.out
+    echo "=== std err"
+    cat $tmp.err
+    echo "=== done" && echo
+}
+
+filter_info()
+{
+    sed \
+        -e "/^$(printf '\t')/d" \
+        -e "/^.GCC /d" \
+        -e "s/^Python .*/Python VERSION/g" \
+        -e "s,$PCP_SYSCONF_DIR,/etc/pcp,g" \
+        -e "s,pcp-dstat $PCP_VERSION,pcp-dstat VERSION,g" \
+        -e "s/\"User:\",\"$username\"/\"User:\",\"USER\"/g" \
+        -e "s/\"Date:\",\".*\"/\"Date:\",\"DATE\"/g" \
+        -e "s,--output $tmp.csv,--output TMP.csv,g" \
+    #end
+}
+
+# real QA test starts here
+export TERM=ansi
+
+dstat "Top CPU" --cpu --top-cpu --output $tmp.csv | filter_info
+echo "CSV contents" | tee -a $here/$seq.full
+cat $tmp.csv | tee -a $here/$seq.full | filter_info
+
+dstat "Top I/O" --top-bio-adv --top-bio --output $tmp.csv2 | filter_info
+echo "CSV contents" | tee -a $here/$seq.full
+cat $tmp.csv2 | tee -a $here/$seq.full | filter_info
+
+# success, all done
+exit

@@ -1,0 +1,30 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
+#
+
+[top-mem]
+label = most expensive
+top = proc.psinfo.rss
+top.label = memory process
+width = 18
+grouptype = 4
+cmd = proc.psinfo.cmd
+cmd.width = 12
+rss = proc.psinfo.rss
+rss.width = 5
+rss.printtype = f
+rss.colorstep = 1024
+
+[top-oom]
+label = out of memory
+top = proc.psinfo.oom_score
+top.label = kill score
+width = 18
+grouptype = 4
+cmd = proc.psinfo.cmd
+cmd.width = 13
+rss = proc.psinfo.oom_score
+rss.width = 4
+rss.printtype = f
+rss.colorstep = 1000
+
