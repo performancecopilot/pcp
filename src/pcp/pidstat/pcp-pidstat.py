@@ -48,6 +48,7 @@ PIDSTAT_METRICS = [
     'proc.psinfo.guest_time',
     'proc.psinfo.maj_flt',
     'proc.psinfo.minflt',
+    'proc.psinfo.nvctxsw',
     'proc.psinfo.pid',
     'proc.psinfo.policy',
     'proc.psinfo.processor',
@@ -55,6 +56,7 @@ PIDSTAT_METRICS = [
     'proc.psinfo.rt_priority',
     'proc.psinfo.stime',
     'proc.psinfo.utime',
+    'proc.psinfo.vctxsw',
     'proc.psinfo.vsize',
 ]
 
@@ -252,10 +254,10 @@ class CpuProcessPriorities:
         return sorted(pid_dict.values())
 
 class ProcessMemoryUtil:
-    def __init__(self, instance, delta_time,  metric_repository):
+    def __init__(self, instance, delta_time, metric_repository):
         self.instance = instance
-        self.__metric_repository = metric_repository
         self.delta_time = delta_time
+        self.__metric_repository = metric_repository
 
     def pid(self):
         return self.__metric_repository.current_value('proc.psinfo.pid', self.instance)
@@ -343,6 +345,54 @@ class CpuProcessStackUtil:
 
     def get_processes(self):
         return map((lambda pid: (ProcessStackUtil(pid, self.__metric_repository))), self.__pids())
+
+    def __pids(self):
+        pid_dict = self.__metric_repository.current_values('proc.psinfo.pid')
+        return sorted(pid_dict.values())
+
+
+class ProcessCtxsw:
+    def __init__(self, instance, delta_time, metric_repository):
+        self.instance = instance
+        self.delta_time = delta_time
+        self.__metric_repository = metric_repository
+
+    def pid(self):
+        return self.__metric_repository.current_value('proc.psinfo.pid', self.instance)
+
+    def user_id(self):
+        return self.__metric_repository.current_value('proc.id.uid', self.instance)
+
+    def process_name(self):
+        return self.__metric_repository.current_value('proc.psinfo.cmd', self.instance)
+
+    def process_name_with_args(self):
+        return self.__metric_repository.current_value('proc.psinfo.psargs', self.instance)
+
+    def ctxsw(self):
+        c_vctxsw = self.__metric_repository.current_value('proc.psinfo.vctxsw', self.instance)
+        p_vctxsw = self.__metric_repository.previous_value('proc.psinfo.vctxsw', self.instance)
+        if c_vctxsw is None or p_vctxsw is None:
+            return None
+        return float("%.2f" % ((c_vctxsw - p_vctxsw)/self.delta_time))
+
+    def nvctxsw(self):
+        c_nvctxsw = self.__metric_repository.current_value('proc.psinfo.nvctxsw', self.instance)
+        p_nvctxsw = self.__metric_repository.previous_value('proc.psinfo.nvctxsw', self.instance)
+        if c_nvctxsw is None or p_nvctxsw is None:
+            return None
+        return float("%.2f" % ((c_nvctxsw - p_nvctxsw)/self.delta_time))
+
+    def user_name(self):
+        return self.__metric_repository.current_value('proc.id.uid_nm', self.instance)
+
+
+class CpuProcessCtxsw:
+    def __init__(self, metric_repository):
+        self.__metric_repository = metric_repository
+
+    def get_processes(self, delta_time):
+        return map((lambda pid: (ProcessCtxsw(pid, delta_time, self.__metric_repository))), self.__pids())
 
     def __pids(self):
         pid_dict = self.__metric_repository.current_values('proc.psinfo.pid')
@@ -701,8 +751,8 @@ class CpuProcessMemoryUtilReporter:
     def __init__(self, process_memory_util, process_filter, delta_time, printer, pidstat_options):
         self.process_memory_util = process_memory_util
         self.process_filter = process_filter
-        self.printer = printer
         self.delta_time = delta_time
+        self.printer = printer
         self.pidstat_options = pidstat_options
 
     def print_report(self, timestamp, header_indentation, value_indentation):
@@ -771,6 +821,41 @@ class CpuProcessStackUtilReporter:
                                   process.pid(), process.stack_size(),
                                   process.process_name()))
 
+class CpuProcessCtxswReporter:
+    def __init__(self, process_ctxsw, process_filter, delta_time, printer, pidstat_options):
+        self.process_ctxsw = process_ctxsw
+        self.process_filter = process_filter
+        self.delta_time = delta_time
+        self.printer = printer
+        self.pidstat_options = pidstat_options
+
+    def print_report(self, timestamp, header_indentation, value_indentation):
+        self.printer ("Timestamp" + header_indentation + "UID\tPID\tcswch/s\tnvcswch/s\tCommand")
+        processes = self.process_filter.filter_processes(self.process_ctxsw.get_processes(self.delta_time))
+        for process in processes:
+            if self.pidstat_options.show_process_user:
+                if self.pidstat_options.process_name_with_args:
+                    self.printer("%s%s%s\t%s\t%s\t%s\t%s" %
+                                 (timestamp, value_indentation, process.user_name(),
+                                  process.pid(), process.ctxsw(), process.nvctxsw(),
+                                  process.process_name_with_args()))
+                else :
+                    self.printer("%s%s%s\t%s\t%s\t%s\t%s" %
+                                 (timestamp, value_indentation, process.user_name(),
+                                  process.pid(), process.ctxsw(), process.nvctxsw(),
+                                  process.process_name()))
+            else:
+                if self.pidstat_options.process_name_with_args:
+                    self.printer("%s%s%s\t%s\t%s\t%s\t%s" %
+                                 (timestamp, value_indentation, process.user_id(),
+                                  process.pid(), process.ctxsw(), process.nvctxsw(),
+                                  process.process_name_with_args()))
+                else :
+                    self.printer("%s%s%s\t%s\t%s\t%s\t%s" %
+                                 (timestamp, value_indentation, process.user_id(),
+                                  process.pid(), process.ctxsw(), process.nvctxsw(),
+                                  process.process_name()))
+
 
 class NoneHandlingPrinterDecorator:
     def __init__(self, printer):
@@ -786,7 +871,7 @@ class PidstatOptions(pmapi.pmOptions):
     #After reading in the provided command line options
     #initalize them by passing them in
     def __init__(self):
-        pmapi.pmOptions.__init__(self,"a:s:t:G:IU::p:RrukVZ:z?:f:B:l")
+        pmapi.pmOptions.__init__(self,"a:s:t:G:IU::p:RruwkVZ:z?:f:B:l")
         self.pmSetOptionCallback(self.extraOptions)
         self.pmSetOverrideCallback(self.override)
         self.pmSetLongOptionHeader("General options")
@@ -796,17 +881,18 @@ class PidstatOptions(pmapi.pmOptions):
         self.pmSetLongOption("process-name", 1, "G", "NAME",
                              "Select process names using regular expression.")
         self.pmSetLongOption("", 0, "I", "", "Show CPU usage per processor.")
-        self.pmSetLongOption("user-name", 2, "U","[USERNAME]",
+        self.pmSetLongOption("user-name", 2, "U", "[USERNAME]",
                              "Show real user name of the tasks and optionally filter by user name.")
         self.pmSetLongOption("pid-list", 1, "p", "PID1,PID2..  ",
                              "Show stats for specified pids; " +
                              "use SELF for current process and ALL for all processes.")
         self.pmSetLongOption("", 0, "R", "",
                              "Report realtime priority and scheduling policy information.")
-        self.pmSetLongOption("", 0,"r","","Report page faults and memory utilization.")
-        self.pmSetLongOption("", 0,"u","","Report CPU utilization.")
-        self.pmSetLongOption("", 0,"k","","Report stack utilization.")
-        self.pmSetLongOption("", 0,"f","","Format the timestamp output")
+        self.pmSetLongOption("", 0, "r", "", "Report page faults and memory utilization.")
+        self.pmSetLongOption("", 0, "u", "", "Report CPU utilization.")
+        self.pmSetLongOption("", 0, "k", "", "Report stack utilization.")
+        self.pmSetLongOption("", 0, "w", "", "Report task switching activity.")
+        self.pmSetLongOption("", 0, "f", "", "Format the timestamp output (strftime format accepted)")
         self.pmSetLongOption("", 0, "B", "state1,state2,..",
                              "Report process state information. " +
                              "Use -B [all] or -B [comma separated states]. " +
@@ -821,6 +907,7 @@ class PidstatOptions(pmapi.pmOptions):
         self.process_name_with_args = False
         self.ps_args_flag=False
         self.show_process_cpu_util = False
+        self.show_process_ctxsw = False
         self.show_process_memory_util = False
         self.show_process_priority = False
         self.show_process_stack_util = False
@@ -837,7 +924,8 @@ class PidstatOptions(pmapi.pmOptions):
 
     def checkOptions(self):
         if ((self.show_process_memory_util or self.show_process_stack_util or
-            self.show_process_priority or self.show_process_cpu_util) and
+             self.show_process_priority or self.show_process_cpu_util or
+             self.show_process_ctxsw) and
             self.show_process_state):
             print("Error: Incompatible flags provided")
             return False
@@ -851,12 +939,14 @@ class PidstatOptions(pmapi.pmOptions):
             return True
         # Determine if we are defaulting to -u.
         if not any([self.show_process_memory_util, self.show_process_stack_util,
-                   self.show_process_priority]):
+                    self.show_process_priority, self.show_process_ctxsw]):
             self.show_process_cpu_util = True
         return True
 
     def extraOptions(self, opt, optarg, index):
-        if opt == 'u':
+        if opt == 'w':
+            self.show_process_ctxsw = True
+        elif opt == 'u':
             self.show_process_cpu_util = True
         elif opt == 'k':
             self.show_process_stack_util = True
@@ -992,13 +1082,23 @@ class PidstatReport(pmcc.MetricGroupPrinter):
                                              printdecorator.Print, self.opts)
             report.print_report(timestamp, header_indentation, value_indentation)
         else:
-            if self.opts.show_process_stack_util:
-                process_stack_util = CpuProcessStackUtil(metric_repository)
+            if self.opts.show_process_cpu_util:
+                cpu_usage = CpuUsage(metric_repository)
                 process_filter = ProcessFilter(self.opts)
                 stdout = StdoutPrinter()
                 printdecorator = NoneHandlingPrinterDecorator(stdout)
-                report = CpuProcessStackUtilReporter(process_stack_util, process_filter,
-                                                     printdecorator.Print, self.opts)
+                report = CpuUsageReporter(cpu_usage, process_filter, interval_in_seconds,
+                                          printdecorator.Print, self.opts)
+                report.print_report(timestamp, ncpu, header_indentation, value_indentation)
+
+            if self.opts.show_process_ctxsw:
+                process_ctxsw = CpuProcessCtxsw(metric_repository)
+                process_filter = ProcessFilter(self.opts)
+                stdout = StdoutPrinter()
+                printdecorator = NoneHandlingPrinterDecorator(stdout)
+                report = CpuProcessCtxswReporter(process_ctxsw, process_filter,
+                                                 interval_in_seconds,
+                                                 printdecorator.Print, self.opts)
                 report.print_report(timestamp, header_indentation, value_indentation)
 
             if self.opts.show_process_memory_util:
@@ -1011,6 +1111,15 @@ class PidstatReport(pmcc.MetricGroupPrinter):
                                                       printdecorator.Print, self.opts)
                 report.print_report(timestamp, header_indentation, value_indentation)
 
+            if self.opts.show_process_stack_util:
+                process_stack_util = CpuProcessStackUtil(metric_repository)
+                process_filter = ProcessFilter(self.opts)
+                stdout = StdoutPrinter()
+                printdecorator = NoneHandlingPrinterDecorator(stdout)
+                report = CpuProcessStackUtilReporter(process_stack_util, process_filter,
+                                                     printdecorator.Print, self.opts)
+                report.print_report(timestamp, header_indentation, value_indentation)
+
             if self.opts.show_process_priority:
                 process_priority = CpuProcessPriorities(metric_repository)
                 process_filter = ProcessFilter(self.opts)
@@ -1019,15 +1128,6 @@ class PidstatReport(pmcc.MetricGroupPrinter):
                 report = CpuProcessPrioritiesReporter(process_priority, process_filter,
                                                       printdecorator.Print, self.opts)
                 report.print_report(timestamp, header_indentation, value_indentation)
-
-            if self.opts.show_process_cpu_util:
-                cpu_usage = CpuUsage(metric_repository)
-                process_filter = ProcessFilter(self.opts)
-                stdout = StdoutPrinter()
-                printdecorator = NoneHandlingPrinterDecorator(stdout)
-                report = CpuUsageReporter(cpu_usage, process_filter, interval_in_seconds,
-                                          printdecorator.Print, self.opts)
-                report.print_report(timestamp, ncpu, header_indentation, value_indentation)
 
 
 if __name__ == "__main__":
