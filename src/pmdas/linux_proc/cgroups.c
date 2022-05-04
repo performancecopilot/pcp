@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2019 Red Hat.
+ * Copyright (c) 2012-2019,2022 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -863,6 +863,7 @@ read_cpu_time(const char *file, cgroup_cputime_t *ccp)
 	{ "usage_usec",			&cputime.usage },
 	{ "user_usec",			&cputime.user },
 	{ "system_usec",		&cputime.system },
+	{ NULL, NULL }
     };
     char buffer[4096], name[64];
     unsigned long long value;
@@ -903,6 +904,7 @@ read_cpu_stats(const char *file, cgroup_cpustat_t *ccp)
 	{ "nr_periods",			&cpustat.nr_periods },
 	{ "nr_throttled",		&cpustat.nr_throttled },
 	{ "throttled_time",		&cpustat.throttled_time },
+	{ NULL, NULL }
     };
     char buffer[4096], name[64];
     unsigned long long value;
