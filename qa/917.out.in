@@ -156,7 +156,7 @@ Checking policies.
   allow [pcp_pmcd_t] [drbd_exec_t] : [file] { execute execute_no_trans };
 ! allow [pcp_pmcd_t] self : [netlink_generic_socket] { bind create getattr setopt write read };
 ! allow [pcp_pmcd_t] [sbd_exec_t] : [file] { execute execute_no_trans };
-! allow [pcp_pmcd_t] self : [netlink_tcpdiag_socket] { append bind connect create getattr getopt ioctl lock read setattr setopt shutdown write };
+! allow [pcp_pmcd_t] self : [netlink_tcpdiag_socket] { append bind connect create getattr getopt ioctl lock nlmsg_read nlmsg_write read setattr setopt shutdown write };
   allow [syslogd_t] [pcp_log_t] : [fifo_file] { open read write };
   allow [pcp_pmcd_t] [etc_t] : [dir] { open read search getattr lock ioctl };
   allow [pcp_pmcd_t] [shadow_t] : [file] { getattr ioctl lock open read };
