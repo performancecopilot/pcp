@@ -1,7 +1,7 @@
 /*
  * Sockets PMDA
  *
- * Copyright (c) 2021 Red Hat.
+ * Copyright (c) 2021-2022 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +14,7 @@
  * for more details.
  */
 
+#include <ctype.h>
 #include "pmapi.h"
 #include "pmda.h"
 
@@ -147,6 +148,31 @@ sockets_fetchCallBack(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
     return PMDA_FETCH_STATIC;
 }
 
+/*
+ * Restrict the allowed filter strings to only limited special
+ * characters (open and close brackets - everthing else can be
+ * done with alphanumerics) to limit any attack surface here.
+ * The ss filtering language is more complex than we ever want
+ * to be attempting to parse ourself, so we leave that side of
+ * things to the ss command itself.
+ */
+int
+sockets_check_filter(const char *string)
+{
+    const char *p;
+
+    for (p = string; *p; p++) {
+	if (isspace(*p))
+	    continue;
+	if (isalnum(*p))
+	    continue;
+	if (*p == '(' || *p == ')')
+	    continue;
+	return 0; /* disallow */
+    }
+    return 1;
+}
+
 static int
 sockets_store(pmResult *result, pmdaExt *pmda)
 {
@@ -165,9 +191,14 @@ sockets_store(pmResult *result, pmdaExt *pmda)
 	    	case 0: /* network.persocket.filter */
 		    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 			PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
+			if (sockets_check_filter(av.cp)) {
+			    sts = PM_ERR_BADSTORE;
+			    free(av.cp);
+			    break;
+			}
 			if (ss_filter)
 			    free(ss_filter);
-			ss_filter = av.cp; /* TODO filter syntax check */
+			ss_filter = av.cp;
 		    }
 		    break;
 		default:
