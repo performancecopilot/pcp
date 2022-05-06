@@ -446,7 +446,7 @@ extern int __pmRecvLabel(int, __pmContext *, int, int *, int *,
 extern char *__pmLabelFlagString(int, char *, int) _PCP_HIDDEN;
 
 /* logmeta.c hooks */
-extern int addindom(__pmLogCtl *, int, const __pmLogInDom_io *, __int32_t *, int) _PCP_HIDDEN;
+extern int addindom(__pmLogCtl *, int, const __pmLogInDom *, __int32_t *) _PCP_HIDDEN;
 extern int addlabel(__pmArchCtl *, unsigned int, unsigned int, int, pmLabelSet *, const __pmTimestamp *) _PCP_HIDDEN;
 
 /* getopt.c ABI-version-specific details */

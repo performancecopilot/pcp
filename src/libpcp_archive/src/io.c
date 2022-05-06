@@ -261,7 +261,7 @@ pmaRewriteMeta(__pmLogCtl *inlcp, __pmLogCtl *outlcp, __int32_t **rbuf)
     int			type;
     int			sts;
     pmInDom		indom;
-    __pmLogInDom_io	lid;
+    __pmLogInDom	lid;
     __int32_t		*ibuf = *rbuf;
     __int32_t		*tmp;
     __int32_t		*new;
@@ -313,7 +313,7 @@ pmaRewriteMeta(__pmLogCtl *inlcp, __pmLogCtl *outlcp, __int32_t **rbuf)
 		    pmInDomStr(indom), pmErrStr(sts));
 		exit(1);
 	    }
-	    __pmFreeLogInDom_io(&lid);
+	    __pmFreeLogInDom(&lid);
 	    free(*rbuf);
 	    *rbuf = new;
 	    sts = 1;

@@ -549,7 +549,7 @@ dumpDiskInDom(void)
 	}
 	rlen = (size_t)hdr.len - sizeof(__pmLogHdr) - sizeof(__int32_t);
 	if (hdr.type == TYPE_INDOM || hdr.type == TYPE_INDOM_DELTA || hdr.type == TYPE_INDOM_V2) {
-	    __pmLogInDom_io	lid;
+	    __pmLogInDom	lid;
 	    __int32_t		*buf;
 	    int			sts;;
 	    int			i;
@@ -581,7 +581,7 @@ dumpDiskInDom(void)
 		fflush(stdout);
 	    }
 	    free(buf);
-	    __pmFreeLogInDom_io(&lid);
+	    __pmFreeLogInDom(&lid);
 	}
 	else {
 	    /*

@@ -74,7 +74,7 @@ do_logue(int type)
     char	path[MAXPATHLEN];
     char	host[MAXHOSTNAMELEN];
     pmHighResResult	*res_pmcd = NULL; /* values from pmcd */
-    __pmLogInDom_io	lid;
+    __pmLogInDom	lid;
 
     /* start to build the internal __pmResult */
     if ((res = __pmAllocResult(n_metric)) == NULL)

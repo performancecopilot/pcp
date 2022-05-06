@@ -44,7 +44,7 @@ main(int argc, char **argv)
      * nsec 0x04030201 = 67305985
      */
     __pmTimestamp	stamp = { 0x0a0b0c, 0x04030201 };
-    __pmLogInDom_io	lid;
+    __pmLogInDom	lid;
 
     /* trim cmd name of leading directory components */
     pmSetProgname(argv[0]);
@@ -160,6 +160,10 @@ Options:\n\
     __pmFflush(logctl.mdfp);
     __pmLogPutIndex(&archctl, &stamp);
 
+    lid.next = lid.prior = NULL;
+    lid.buf = NULL;
+    lid.isdelta = 0;
+
     pmids = (pmID *)malloc(nmetric*sizeof(pmID));
     assert(pmids != NULL);
     for (i = 0; i < nmetric; i++) {
@@ -188,7 +192,7 @@ Options:\n\
 		fprintf(stderr, "%s: __pmLogPutInDom(...,indom=%s,numinst=%d,...) failed: %s\n", pmGetProgname(), pmInDomStr(desc.indom), lid.numinst, pmErrStr(sts));
 		exit(1);
 	    }
-	    __pmFreeLogInDom_io(&lid);
+	    __pmFreeLogInDom(&lid);
 	}
     }
     for (i = 0; i < nmetric; i++) {

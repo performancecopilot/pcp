@@ -688,36 +688,33 @@ typedef struct __pmLogHdr {
  *	nameindex[0] .... nameindex[numinst-1]
  *	string (name) table, all null-byte terminated
  *
- * NOTE: 3 types of allocation
- * (1) buf is NULL, 
- *     namelist and instlist have been allocated separately and so must
- *     each be freed.
- * (2) buf is NOT NULL, allinbuf == 1,
- *     all allocations were in the buffer and so only the buffer should
- *     be freed,
- * (3) buf is NOT NULL, allinbuf == 0,
- *     as well as buffer allocation, the namelist has been allocated
- *     separately and so both the buf and namelist should be freed.
- *
  * NOTE: timestamp is pmTimeVal for V2 archives and pmTimespec for
  *       V3 archives
  *
  * NOTE: the same structure is used for TYPE_INDOM_DELTA records, except
  *       the semantics of nameindex[] is changed so that a value of -1
  *       means the corresponding instance has been deleted from the
- *       instance domain, else the corresponding instance has been added
+ *       instance domain (similarly namelist[] becomes NULL once the
+ *       record is loaded), else the corresponding instance has been added
  *       to the instance domain
  */
+
+#define PMLID_SELF	1		/* __pmLogInDom is malloc'd */
+#define PMLID_INSTLIST	2		/* instlist[] is malloc'd */
+#define PMLID_NAMELIST	4		/* namelist[] is malloc'd */
+#define PMLID_NAMES	8		/* namelist[i] strings are malloc'd */
+
 typedef struct __pmLogInDom {
     struct __pmLogInDom	*next;			/* backwards in time */
     struct __pmLogInDom	*prior;			/* forwards in time */
+    pmInDom		indom;
     __pmTimestamp	stamp;
     int			isdelta;		/* 1 => delta indom semantics */
     int			numinst;
-    int			*instlist;		/* points into buf[] */
-    char		**namelist;		/* may pint into buf[] */
+    int			alloc;			/* PMLID_... allocation flag bits */
+    int			*instlist;		/* may point into buf[] */
+    char		**namelist;		/* may point into buf[] */
     __int32_t		*buf;			/* on-disk buffer */
-    int			allinbuf; 
 } __pmLogInDom;
 
 /*
@@ -881,26 +878,8 @@ typedef struct {
     __pmHashCtl	hashinst;		/* nested hash on inst for this indom */
 } __pmLogTrimInDom;
 
-/*
- * Instance domain for internal use ... especially when packing/unpacking
- * external indom records from an archive
- */
-typedef struct {
-    __pmTimestamp	stamp;		/* when */
-    pmInDom		indom;		/* instance domain */
-    int			numinst;	/* number of instances */
-    int			*instlist;	/* instance ids */
-    char		**namelist;	/* instance names */
-    int			alloc;		/* PMLID_... allocation flag bits */
-} __pmLogInDom_io;
-
-#define PMLID_SELF	1		/* __pmLogInDom_io is malloc'd */
-#define PMLID_INSTLIST	2		/* instlist[] is malloc'd */
-#define PMLID_NAMELIST	4		/* namelist[] is malloc'd */
-#define PMLID_NAMES	8		/* namelist[i] strings are malloc'd */
-
-PCP_CALL extern void __pmFreeLogInDom_io(__pmLogInDom_io *);
-PCP_CALL extern __pmLogInDom_io *__pmDupLogInDom_io(__pmLogInDom_io *);
+PCP_CALL extern void __pmFreeLogInDom(__pmLogInDom *);
+PCP_CALL extern __pmLogInDom *__pmDupLogInDom(__pmLogInDom *);
 
 /*
  * Nested per-instance trimming control (potentially one of these for
@@ -950,7 +929,7 @@ PCP_CALL extern int __pmLogCreate(const char *, const char *, int, __pmArchCtl *
 PCP_CALL extern __pmFILE *__pmLogNewFile(const char *, int);
 PCP_CALL extern void __pmLogClose(__pmArchCtl *);
 PCP_CALL extern int __pmLogPutDesc(__pmArchCtl *, const pmDesc *, int, char **);
-PCP_CALL extern int __pmLogPutInDom(__pmArchCtl *, int, const __pmLogInDom_io * const);
+PCP_CALL extern int __pmLogPutInDom(__pmArchCtl *, int, const __pmLogInDom * const);
 PCP_CALL extern int __pmLogPutResult(__pmArchCtl *, __pmPDU *);
 PCP_CALL extern int __pmLogPutResult2(__pmArchCtl *, __pmPDU *);
 PCP_CALL extern int __pmLogPutResult3(__pmArchCtl *, __pmPDU *);
@@ -963,8 +942,8 @@ PCP_CALL extern int __pmLogWriteLabel(__pmFILE *, const __pmLogLabel *);
 PCP_CALL extern int __pmLogWriteMark(__pmArchCtl *, const __pmTimestamp *, const __pmTimestamp *);
 PCP_CALL extern int __pmLogLoadMeta(__pmArchCtl *);
 PCP_CALL extern int __pmLogAddDesc(__pmArchCtl *, const pmDesc *);
-PCP_CALL extern int __pmLogAddInDom(__pmArchCtl *, int, const __pmLogInDom_io *, __int32_t *, int);
-PCP_CALL extern int __pmLogEncodeInDom(__pmLogCtl *, int, const __pmLogInDom_io * const, __int32_t **);
+PCP_CALL extern int __pmLogAddInDom(__pmArchCtl *, int, const __pmLogInDom *, __int32_t *);
+PCP_CALL extern int __pmLogEncodeInDom(__pmLogCtl *, int, const __pmLogInDom * const, __int32_t **);
 PCP_CALL extern __pmLogInDom *__pmLogSearchInDom(__pmLogCtl *, pmInDom, __pmTimestamp *);
 PCP_CALL extern void __pmLogUndeltaInDom(pmInDom, __pmLogInDom *);
 PCP_CALL extern int __pmLogAddPMNSNode(__pmArchCtl *, pmID, const char *);
@@ -1531,7 +1510,7 @@ PCP_CALL extern void __pmFreeHighResResult(pmHighResResult *);
 /*
  * Loading archive records from disk ...
  */
-PCP_CALL extern int __pmLogLoadInDom(__pmArchCtl *, int, int, __pmLogInDom_io *, __int32_t **);
+PCP_CALL extern int __pmLogLoadInDom(__pmArchCtl *, int, int, __pmLogInDom *, __int32_t **);
 PCP_CALL extern int __pmLogLoadLabel(__pmFILE *, __pmLogLabel *);
 PCP_CALL extern void __pmLogFreeLabel(__pmLogLabel *);
 PCP_CALL extern int __pmLogLoadLabelSet(char *, int, int, __pmTimestamp *,

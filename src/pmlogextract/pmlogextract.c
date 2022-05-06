@@ -1277,7 +1277,7 @@ write_rec(reclist_t *rec)
 	    else if (type == TYPE_INDOM || type == TYPE_INDOM_DELTA || type == TYPE_INDOM_V2) {
 		__int32_t		*buf;
 		__int32_t		*ibuf;
-		__pmLogInDom_io	lid;
+		__pmLogInDom	lid;
 		/*
 		 * __pmLogLoadInDom() below may re-write (ntohl()) some of
 		 * the PDU buffer, so we need to operate on a copy for this
@@ -1306,7 +1306,7 @@ write_rec(reclist_t *rec)
 			}
 			fputc('\n', stderr);
 		    }
-		    __pmFreeLogInDom_io(&lid);
+		    __pmFreeLogInDom(&lid);
 		    free(buf);
 		}
 	    }
@@ -1843,7 +1843,7 @@ againmeta:
 		 */
 		if (type == TYPE_INDOM_DELTA) {
 		    __pmLogInDom	*idp;
-		    __pmLogInDom_io	lid;
+		    __pmLogInDom	lid;
 		    __int32_t		*new;
 		    int			lsts;
 		    lid.indom = ntoh_pmInDom(iap->pb[META][5]);

@@ -83,7 +83,7 @@ check_indom(pmi_context *current, pmInDom indom, int *needti)
     int		sts = 0;
     __pmArchCtl	*acp = &current->archctl;
     int		type = current->version == PM_LOG_VERS03 ? TYPE_INDOM : TYPE_INDOM_V2;
-    __pmLogInDom_io	lid;
+    __pmLogInDom	lid;
 
     for (i = 0; i < current->nindom; i++) {
 	if (indom == current->indom[i].indom) {

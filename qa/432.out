@@ -37,6 +37,7 @@ pmlogreduce: sample.aggregate.write_me: Warning: skipping AGGREGATE metric
 pmlogreduce: sample.event.param_aggregate: Warning: skipping AGGREGATE metric
 pmlogreduce: sample.event.records: Warning: skipping EVENT metric
 pmlogreduce: sample.event.no_indom_records: Warning: skipping EVENT metric
+pmlogreduce: sample.event.highres_records: Warning: skipping HIGHRES_EVENT metric
 event.flags
 event.missed
 pmcd.pid
@@ -49,7 +50,6 @@ sample.dupnames.five.bin
 sample.dupnames.four.bin
 sample.dupnames.three.bin
 sample.dupnames.two.bin
-sample.event.highres_records
 sample.event.param_32
 sample.event.param_64
 sample.event.param_double

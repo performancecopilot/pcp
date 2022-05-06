@@ -89,7 +89,7 @@ typedef struct elt {
 } elt_t;
 
 void
-unpack_indom(elt_t *ep, __pmLogInDom_io *lidp)
+unpack_indom(elt_t *ep, __pmLogInDom *lidp)
 {
     int		j;
 
@@ -150,7 +150,7 @@ do_indom(__int32_t *buf, int type)
     static elt_t		*head = NULL;
     static elt_t		dup = { NULL, 0, 0, NULL, NULL };
     static int			ndup = 0;
-    __pmLogInDom_io		lid;
+    __pmLogInDom		lid;
     int				warn;
     elt_t			*ep = NULL;	/* pander to gcc */
     elt_t			*tp;
@@ -297,7 +297,7 @@ do_indom(__int32_t *buf, int type)
     }
     prior_stamp = lid.stamp;
 
-    __pmFreeLogInDom_io(&lid);
+    __pmFreeLogInDom(&lid);
 }
 
 void

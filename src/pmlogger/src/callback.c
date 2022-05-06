@@ -220,7 +220,7 @@ setavail(__pmResult *resp)
  * It is a merger of __pmLogGetInDom and searchindom.
  */
 static int
-__localLogGetInDom(__pmLogCtl *lcp, __pmLogInDom_io *lidp)
+__localLogGetInDom(__pmLogCtl *lcp, __pmLogInDom *lidp)
 {
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
@@ -612,7 +612,7 @@ do_work(task_t *tp)
     int			pdu_bytes = 0;
     int			pdu_metrics = 0;
     size_t		pdu_payload;
-    __pmLogInDom_io	old;
+    __pmLogInDom	old;
     __uint64_t		max_offset;
     unsigned long	peek_offset;
 
@@ -900,8 +900,8 @@ do_work(task_t *tp)
 		     *	  here unless this indom is a duplicate (look for magic below
 		     *	  log{Put,Get}InDom) or the indom really has not changed.
 		     */
-		    __pmLogInDom_io	new;
-		    __pmLogInDom_io	new_delta;
+		    __pmLogInDom	new;
+		    __pmLogInDom	new_delta;
 		    new.stamp = resp->timestamp;	/* struct assignment */
 		    new.indom = desc.indom;
 		    new.alloc = 0;
@@ -974,7 +974,7 @@ do_work(task_t *tp)
 			 * not new_delta into the hashed structures here
 			 */
 			new.stamp = new_delta.stamp;	/* struct assignment */
-			if ((sts = __pmLogAddInDom(&archctl, TYPE_INDOM, &new, NULL, 0)) < 0) {
+			if ((sts = __pmLogAddInDom(&archctl, TYPE_INDOM, &new, NULL)) < 0) {
 			    fprintf(stderr, "__pmLogAddInDom(%s): %s\n", pmInDomStr(desc.indom), pmErrStr(sts));
 			    exit(1);
 			}

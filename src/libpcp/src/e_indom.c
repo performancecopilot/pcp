@@ -58,7 +58,7 @@ typedef struct {
  * - caller must free allocated buf[]
  */
 int
-__pmLogEncodeInDom(__pmLogCtl *lcp, int type, const __pmLogInDom_io * const lidp, __int32_t **buf)
+__pmLogEncodeInDom(__pmLogCtl *lcp, int type, const __pmLogInDom * const lidp, __int32_t **buf)
 {
     char		*str;
     int			i;
@@ -171,7 +171,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
  * output the metadata record for an indom
  */
 int
-__pmLogPutInDom(__pmArchCtl *acp, int type, const __pmLogInDom_io * const lidp)
+__pmLogPutInDom(__pmArchCtl *acp, int type, const __pmLogInDom * const lidp)
 {
     __pmLogCtl		*lcp = acp->ac_log;
     int			sts;
@@ -204,7 +204,7 @@ __pmLogPutInDom(__pmArchCtl *acp, int type, const __pmLogInDom_io * const lidp)
      * indom we've just written to the external metadata file above.
      */
     if (type != TYPE_INDOM_DELTA)
-	sts = addindom(lcp, type, lidp, NULL, 0);
+	sts = addindom(lcp, type, lidp, NULL);
 
     return sts;
 
@@ -221,11 +221,11 @@ __pmLogPutInDom(__pmArchCtl *acp, int type, const __pmLogInDom_io * const lidp)
  *	*buf already contains the on-disk record (after the header)
  *
  * The InDom is unpacked into *lidp, and the caller should later call
- * __pmFreeLogInDom_io() to release the storage associated with *lidp.
+ * __pmFreeLogInDom() to release the storage associated with *lidp.
  */
 
 int
-__pmLogLoadInDom(__pmArchCtl *acp, int rlen, int type, __pmLogInDom_io *lidp, __int32_t **buf)
+__pmLogLoadInDom(__pmArchCtl *acp, int rlen, int type, __pmLogInDom *lidp, __int32_t **buf)
 {
     int			i;
     int			k;
@@ -291,6 +291,9 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	    fprintf(stderr, "__pmLogLoadInDom: botch type=%d\n", type);
 	goto bad;
     }
+    lidp->next = lidp->prior = NULL;
+    lidp->buf = NULL;
+    lidp->isdelta = 0;
     lidp->alloc = 0;
     if (lidp->numinst > 0) {
 	k += lidp->numinst;
@@ -374,6 +377,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 bad:
     if (acp != NULL)
 	free(lbuf);
-    __pmFreeLogInDom_io(lidp);
+    __pmFreeLogInDom(lidp);
     return PM_ERR_LOGREC;
 }

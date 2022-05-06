@@ -196,7 +196,7 @@ change_inst_by_inst(pmInDom indom, int old, int new)
  * reverse the logic of __pmLogPutInDom()
  */
 static void
-_pmUnpackInDom(__int32_t *recbuf, __pmLogInDom_io *lidp)
+_pmUnpackInDom(__int32_t *recbuf, __pmLogInDom *lidp)
 {
     __pmLogHdr		*hdr;
     int			type;
@@ -262,8 +262,8 @@ do_indom(int type)
     int		i;
     int		j;
     int		pdu_type;
-    __pmLogInDom_io	lid;
-    __pmLogInDom_io	*dup_lid;
+    __pmLogInDom	lid;
+    __pmLogInDom	*dup_lid;
 
     lid.numinst = 0;
     lid.alloc = 0;
@@ -276,13 +276,13 @@ do_indom(int type)
      * so that all elements, particularly namelist and each
      * namelist[] are malloc'd
      */
-    if ((dup_lid = __pmDupLogInDom_io(&lid)) == NULL) {
-	fprintf(stderr, "%s: Error: __pmDupLogInDom_io: %s: NULL\n",
+    if ((dup_lid = __pmDupLogInDom(&lid)) == NULL) {
+	fprintf(stderr, "%s: Error: __pmDupLogInDom: %s: NULL\n",
 			pmGetProgname(), pmInDomStr(lid.indom));
 	abandon();
 	/*NOTREACHED*/
     }
-    __pmFreeLogInDom_io(&lid);
+    __pmFreeLogInDom(&lid);
     lid = *dup_lid;		/* struct assignment */
     lid.alloc &= ~PMLID_SELF;      /* don't free lid */
     free(dup_lid);
@@ -331,13 +331,13 @@ do_indom(int type)
 	     */
 	    if (sts != PMLOGPUTINDOM_DUP) {
 		lid.alloc &= ~(PMLID_INSTLIST|PMLID_NAMELIST|PMLID_NAMES);
-		if ((dup_lid = __pmDupLogInDom_io(&lid)) == NULL) {
-		    fprintf(stderr, "%s: Error: __pmDupLogInDom_io: duplicate %s: NULL\n",
+		if ((dup_lid = __pmDupLogInDom(&lid)) == NULL) {
+		    fprintf(stderr, "%s: Error: __pmDupLogInDom: duplicate %s: NULL\n",
 				    pmGetProgname(), pmInDomStr(lid.indom));
 		    abandon();
 		    /*NOTREACHED*/
 		}
-		__pmFreeLogInDom_io(&lid);
+		__pmFreeLogInDom(&lid);
 		lid = *dup_lid;			/* struct assignment */
 		lid.alloc &= ~PMLID_SELF;      /* don't free lid */
 		free(dup_lid);
@@ -448,5 +448,5 @@ do_indom(int type)
 	}
     }
 
-    __pmFreeLogInDom_io(&lid);
+    __pmFreeLogInDom(&lid);
 }
