@@ -1,6 +1,7 @@
 #include "pmlogreduce.h"
+#include "pcp/archive.h"
 
-void
+int
 doindom(__pmResult *rp)
 {
     pmValueSet		*vsp;
@@ -35,7 +36,7 @@ doindom(__pmResult *rp)
 		"%s: doindom: Arrgh, unexpected PMID %s @ vset[%d]\n",
 		    pmGetProgname(), pmIDStr(vsp->pmid), i);
 	    __pmPrintResult(stderr, rp);
-	    exit(1);
+	    return PM_ERR_GENERIC;
 	}
 	if (mp->idp == NULL)
 	    continue;
@@ -44,7 +45,7 @@ doindom(__pmResult *rp)
 	    fprintf(stderr,
 		"%s: doindom: pmGetInDom (%s) failed: %s\n",
 		    pmGetProgname(), pmInDomStr(mp->idp->indom), pmErrStr(sts));
-	    exit(1);
+	    return sts;
 	}
 
 	need = 1;
@@ -71,7 +72,8 @@ doindom(__pmResult *rp)
 	}
 
 	if (need) {
-	    __pmLogInDom_io	lid;
+	    __pmLogInDom	lid;
+	    int			pdu_type;
 	    if (pmDebugOptions.appl0) {
 		fprintf(stderr, "Add metadata: indom %s for metric %s\n", pmInDomStr(mp->idp->indom), pmIDStr(vsp->pmid));
 	    }
@@ -82,11 +84,26 @@ doindom(__pmResult *rp)
 	    lid.numinst = mp->idp->numinst = sts;
 	    lid.instlist = mp->idp->inst = instlist;
 	    lid.namelist = mp->idp->name = names;
-	    if ((sts = __pmLogPutInDom(&archctl, TYPE_INDOM_V2, &lid))< 0) {
+	    lid.alloc = 0;
+	    if (__pmLogVersion(archctl.ac_log) >= PM_LOG_VERS03) {
+		/* try delta indom */
+		pdu_type = TYPE_INDOM;
+		sts = pmaTryDeltaInDom(archctl.ac_log, NULL, &lid);
+		if (sts < 0) {
+		    fprintf(stderr, "Botch: pmaTryDeltaInDom failed: %d\n", sts);
+		    return PM_ERR_GENERIC;
+
+		}
+		if (sts == 1)
+		    pdu_type = TYPE_INDOM_DELTA;
+	    }
+	    else
+		pdu_type = TYPE_INDOM_V2;
+	    if ((sts = __pmLogPutInDom(&archctl, pdu_type, &lid))< 0) {
 		fprintf(stderr,
 		    "%s: Error: failed to add pmInDom: indom %s (for pmid %s): %s\n",
 			pmGetProgname(), pmInDomStr(mp->idp->indom), pmIDStr(vsp->pmid), pmErrStr(sts));
-		exit(1);
+		return sts;
 	    }
 	    needti = 1;		/* requires a temporal index update */
 	}
@@ -102,4 +119,6 @@ doindom(__pmResult *rp)
 	stamp = current;	/* struct assignment */
 	__pmLogPutIndex(&archctl, &stamp);
     }
+
+    return 0;
 }

@@ -444,7 +444,8 @@ main(int argc, char **argv)
 
 	current = orp->timestamp;
 
-	doindom(orp);
+	if (doindom(orp) < 0)
+	    goto cleanup;
 
 	/* write out log record */
 	sts = (vers == PM_LOG_VERS02) ?

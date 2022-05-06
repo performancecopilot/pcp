@@ -51,7 +51,7 @@ dometric(const char *name)
      */
     if (mp->idesc.type == PM_TYPE_AGGREGATE ||
         mp->idesc.type == PM_TYPE_AGGREGATE_STATIC ||
-        mp->idesc.type == PM_TYPE_EVENT) {
+        mp->idesc.type == PM_TYPE_EVENT || mp->idesc.type == PM_TYPE_HIGHRES_EVENT) {
 	fprintf(stderr,
 	    "%s: %s: Warning: skipping %s metric\n",
 		pmGetProgname(), name, pmTypeStr(mp->idesc.type));

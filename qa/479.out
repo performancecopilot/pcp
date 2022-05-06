@@ -16,13 +16,13 @@ __pmLogLoadMeta: PMID: 1.82.9 name: disk.all.total
 __pmLogLoadMeta: record len=62, type=DESC (1) @ offset=235
 __pmLogLoadMeta: PMID: 1.28.11 name: kernel.percpu.cpu.user
 __pmLogLoadMeta: record len=41, type=INDOM_V2 (2) @ offset=297
-addindom( ..., 1.1, TIMESTAMP, type=INDOM_V2, numinst=1, ...)
+addindom( ..., 1.1, TIMESTAMP, type=INDOM_V2, numinst=1, alloc=0x4)
 __pmLogLoadMeta: record len=61, type=DESC (1) @ offset=338
 __pmLogLoadMeta: PMID: 1.28.9 name: kernel.percpu.cpu.sys
 __pmLogLoadMeta: record len=55, type=DESC (1) @ offset=399
 __pmLogLoadMeta: PMID: 1.18.3 name: kernel.all.load
 __pmLogLoadMeta: record len=80, type=INDOM_V2 (2) @ offset=454
-addindom( ..., 1.5, TIMESTAMP, type=INDOM_V2, numinst=3, ...)
+addindom( ..., 1.5, TIMESTAMP, type=INDOM_V2, numinst=3, alloc=0x4)
 __pmLogLoadMeta: trailer read -> 4 or len=-1: expected 80 @ offset=530
 pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive log
 
@@ -54,7 +54,7 @@ __pmLogLoadMeta: PMID: 1.82.9 name: disk.all.total
 __pmLogLoadMeta: record len=62, type=DESC (1) @ offset=235
 __pmLogLoadMeta: PMID: 1.28.11 name: kernel.percpu.cpu.user
 __pmLogLoadMeta: record len=41, type=INDOM_V2 (2) @ offset=297
-addindom( ..., 1.1, TIMESTAMP, type=INDOM_V2, numinst=1, ...)
+addindom( ..., 1.1, TIMESTAMP, type=INDOM_V2, numinst=1, alloc=0x4)
 __pmLogLoadMeta: record len=61, type=DESC (1) @ offset=338
 __pmLogLoadMeta: PMID: 1.28.9 name: kernel.percpu.cpu.sys
 __pmLogLoadMeta: record len=55, type=DESC (1) @ offset=399
@@ -69,7 +69,7 @@ __pmLogLoadMeta: PMID: 1.82.9 name: disk.all.total
 __pmLogLoadMeta: record len=62, type=DESC (1) @ offset=235
 __pmLogLoadMeta: PMID: 1.28.11 name: kernel.percpu.cpu.user
 __pmLogLoadMeta: record len=41, type=INDOM_V2 (2) @ offset=297
-addindom( ..., 1.1, TIMESTAMP, type=INDOM_V2, numinst=1, ...)
+addindom( ..., 1.1, TIMESTAMP, type=INDOM_V2, numinst=1, alloc=0x4)
 __pmLogLoadMeta: record len=61, type=DESC (1) @ offset=338
 __pmLogLoadMeta: PMID: 1.28.9 name: kernel.percpu.cpu.sys
 __pmLogLoadMeta: record len=55, type=DESC (1) @ offset=399
@@ -84,7 +84,7 @@ __pmLogLoadMeta: PMID: 1.82.9 name: disk.all.total
 __pmLogLoadMeta: record len=62, type=DESC (1) @ offset=235
 __pmLogLoadMeta: PMID: 1.28.11 name: kernel.percpu.cpu.user
 __pmLogLoadMeta: record len=41, type=INDOM_V2 (2) @ offset=297
-addindom( ..., 1.1, TIMESTAMP, type=INDOM_V2, numinst=1, ...)
+addindom( ..., 1.1, TIMESTAMP, type=INDOM_V2, numinst=1, alloc=0x4)
 __pmLogLoadMeta: record len=61, type=DESC (1) @ offset=338
 __pmLogLoadMeta: PMID: 1.28.9 name: kernel.percpu.cpu.sys
 __pmLogLoadMeta: record len=55, type=DESC (1) @ offset=399
@@ -122,7 +122,7 @@ __pmLogLoadMeta: PMID: 40.0.0 name: 40.0.0
 __pmLogLoadMeta: record len=54, type=DESC (1) @ offset=500
 __pmLogLoadMeta: PMID: 1.80.7 name: disk.dev.total
 __pmLogLoadMeta: record len=163, type=INDOM_V2 (2) @ offset=554
-addindom( ..., 1.2, TIMESTAMP, type=INDOM_V2, numinst=9, ...)
+addindom( ..., 1.2, TIMESTAMP, type=INDOM_V2, numinst=9, alloc=0x4)
 __pmLogLoadMeta: record len=54, type=DESC (1) @ offset=717
 __pmLogLoadMeta: PMID: 1.80.2 name: disk.dev.write
 __pmLogLoadMeta: record len=53, type=DESC (1) @ offset=771
@@ -130,13 +130,13 @@ __pmLogLoadMeta: PMID: 1.80.1 name: disk.dev.read
 __pmLogLoadMeta: record len=67, type=DESC (1) @ offset=824
 __pmLogLoadMeta: PMID: 1.25.12 name: network.interface.out.bytes
 __pmLogLoadMeta: record len=64, type=INDOM_V2 (2) @ offset=891
-addindom( ..., 1.6, TIMESTAMP, type=INDOM_V2, numinst=3, ...)
+addindom( ..., 1.6, TIMESTAMP, type=INDOM_V2, numinst=3, alloc=0x4)
 __pmLogLoadMeta: record len=66, type=DESC (1) @ offset=955
 __pmLogLoadMeta: PMID: 1.25.7 name: network.interface.in.bytes
 __pmLogLoadMeta: record len=55, type=DESC (1) @ offset=1021
 __pmLogLoadMeta: PMID: 1.18.3 name: kernel.all.load
 __pmLogLoadMeta: record len=80, type=INDOM_V2 (2) @ offset=1076
-addindom( ..., 1.5, TIMESTAMP, type=INDOM_V2, numinst=3, ...)
+addindom( ..., 1.5, TIMESTAMP, type=INDOM_V2, numinst=3, alloc=0x4)
 __pmLogLoadMeta: record len=59, type=DESC (1) @ offset=1156
 __pmLogLoadMeta: PMID: 1.10.54 name: kernel.all.ipc.sema
 __pmLogLoadMeta: record len=58, type=DESC (1) @ offset=1215
@@ -184,7 +184,7 @@ __pmLogLoadMeta: PMID: 40.0.0 name: 40.0.0
 __pmLogLoadMeta: record len=54, type=DESC (1) @ offset=500
 __pmLogLoadMeta: PMID: 1.80.7 name: disk.dev.total
 __pmLogLoadMeta: record len=163, type=INDOM_V2 (2) @ offset=554
-addindom( ..., 1.2, TIMESTAMP, type=INDOM_V2, numinst=9, ...)
+addindom( ..., 1.2, TIMESTAMP, type=INDOM_V2, numinst=9, alloc=0x4)
 __pmLogLoadMeta: record len=54, type=DESC (1) @ offset=717
 __pmLogLoadMeta: PMID: 1.80.2 name: disk.dev.write
 __pmLogLoadMeta: record len=53, type=DESC (1) @ offset=771
@@ -192,13 +192,13 @@ __pmLogLoadMeta: PMID: 1.80.1 name: disk.dev.read
 __pmLogLoadMeta: record len=67, type=DESC (1) @ offset=824
 __pmLogLoadMeta: PMID: 1.25.12 name: network.interface.out.bytes
 __pmLogLoadMeta: record len=64, type=INDOM_V2 (2) @ offset=891
-addindom( ..., 1.6, TIMESTAMP, type=INDOM_V2, numinst=3, ...)
+addindom( ..., 1.6, TIMESTAMP, type=INDOM_V2, numinst=3, alloc=0x4)
 __pmLogLoadMeta: record len=66, type=DESC (1) @ offset=955
 __pmLogLoadMeta: PMID: 1.25.7 name: network.interface.in.bytes
 __pmLogLoadMeta: record len=55, type=DESC (1) @ offset=1021
 __pmLogLoadMeta: PMID: 1.18.3 name: kernel.all.load
 __pmLogLoadMeta: record len=80, type=INDOM_V2 (2) @ offset=1076
-addindom( ..., 1.5, TIMESTAMP, type=INDOM_V2, numinst=3, ...)
+addindom( ..., 1.5, TIMESTAMP, type=INDOM_V2, numinst=3, alloc=0x4)
 __pmLogLoadMeta: record len=59, type=DESC (1) @ offset=1156
 __pmLogLoadMeta: PMID: 1.10.54 name: kernel.all.ipc.sema
 __pmLogLoadMeta: record len=58, type=DESC (1) @ offset=1215
@@ -247,7 +247,7 @@ __pmLogLoadMeta: PMID: 40.0.0 name: 40.0.0
 __pmLogLoadMeta: record len=54, type=DESC (1) @ offset=500
 __pmLogLoadMeta: PMID: 1.80.7 name: disk.dev.total
 __pmLogLoadMeta: record len=163, type=INDOM_V2 (2) @ offset=554
-addindom( ..., 1.2, TIMESTAMP, type=INDOM_V2, numinst=9, ...)
+addindom( ..., 1.2, TIMESTAMP, type=INDOM_V2, numinst=9, alloc=0x4)
 __pmLogLoadMeta: record len=54, type=DESC (1) @ offset=717
 __pmLogLoadMeta: PMID: 1.80.2 name: disk.dev.write
 __pmLogLoadMeta: record len=53, type=DESC (1) @ offset=771
@@ -255,13 +255,13 @@ __pmLogLoadMeta: PMID: 1.80.1 name: disk.dev.read
 __pmLogLoadMeta: record len=67, type=DESC (1) @ offset=824
 __pmLogLoadMeta: PMID: 1.25.12 name: network.interface.out.bytes
 __pmLogLoadMeta: record len=64, type=INDOM_V2 (2) @ offset=891
-addindom( ..., 1.6, TIMESTAMP, type=INDOM_V2, numinst=3, ...)
+addindom( ..., 1.6, TIMESTAMP, type=INDOM_V2, numinst=3, alloc=0x4)
 __pmLogLoadMeta: record len=66, type=DESC (1) @ offset=955
 __pmLogLoadMeta: PMID: 1.25.7 name: network.interface.in.bytes
 __pmLogLoadMeta: record len=55, type=DESC (1) @ offset=1021
 __pmLogLoadMeta: PMID: 1.18.3 name: kernel.all.load
 __pmLogLoadMeta: record len=80, type=INDOM_V2 (2) @ offset=1076
-addindom( ..., 1.5, TIMESTAMP, type=INDOM_V2, numinst=3, ...)
+addindom( ..., 1.5, TIMESTAMP, type=INDOM_V2, numinst=3, alloc=0x4)
 __pmLogLoadMeta: record len=59, type=DESC (1) @ offset=1156
 __pmLogLoadMeta: PMID: 1.10.54 name: kernel.all.ipc.sema
 __pmLogLoadMeta: record len=58, type=DESC (1) @ offset=1215
@@ -296,7 +296,7 @@ pmval archive meta data exercises ...
 __pmLogLoadMeta: record len=58, type=DESC (1) @ offset=132
 __pmLogLoadMeta: PMID: 2.3.3 name: pmcd.pmlogger.host
 __pmLogLoadMeta: record len=41, type=INDOM_V2 (2) @ offset=190
-addindom( ..., 2.1, TIMESTAMP, type=INDOM_V2, numinst=1, ...)
+addindom( ..., 2.1, TIMESTAMP, type=INDOM_V2, numinst=1, alloc=0x4)
 __pmLogLoadMeta: record len=58, type=DESC (1) @ offset=231
 __pmLogLoadMeta: PMID: 2.3.0 name: pmcd.pmlogger.port
 __pmLogLoadMeta: record len=61, type=DESC (1) @ offset=289
@@ -304,7 +304,7 @@ __pmLogLoadMeta: PMID: 2.3.2 name: pmcd.pmlogger.archive
 __pmLogLoadMeta: record len=55, type=DESC (1) @ offset=350
 __pmLogLoadMeta: PMID: 60.2.0 name: kernel.all.load
 __pmLogLoadMeta: record len=80, type=INDOM_V2 (2) @ offset=405
-addindom( ..., 60.2, TIMESTAMP, type=INDOM_V2, numinst=3, ...)
+addindom( ..., 60.2, TIMESTAMP, type=INDOM_V2, numinst=3, alloc=0x4)
 __pmLogLoadMeta: record len=49, type=DESC (1) @ offset=485
 __pmLogLoadMeta: PMID: 60.1.7 name: swap.used
 __pmLogLoadMeta: record len=55, type=DESC (1) @ offset=534
@@ -355,7 +355,7 @@ interval:  5.00 sec
 __pmLogLoadMeta: record len=58, type=DESC (1) @ offset=132
 __pmLogLoadMeta: PMID: 2.3.3 name: pmcd.pmlogger.host
 __pmLogLoadMeta: record len=41, type=INDOM_V2 (2) @ offset=190
-addindom( ..., 2.1, TIMESTAMP, type=INDOM_V2, numinst=1, ...)
+addindom( ..., 2.1, TIMESTAMP, type=INDOM_V2, numinst=1, alloc=0x4)
 __pmLogLoadMeta: record len=58, type=DESC (1) @ offset=231
 __pmLogLoadMeta: PMID: 2.3.0 name: pmcd.pmlogger.port
 __pmLogLoadMeta: record len=61, type=DESC (1) @ offset=289
@@ -363,7 +363,7 @@ __pmLogLoadMeta: PMID: 2.3.2 name: pmcd.pmlogger.archive
 __pmLogLoadMeta: record len=55, type=DESC (1) @ offset=350
 __pmLogLoadMeta: PMID: 60.2.0 name: kernel.all.load
 __pmLogLoadMeta: record len=80, type=INDOM_V2 (2) @ offset=405
-addindom( ..., 60.2, TIMESTAMP, type=INDOM_V2, numinst=3, ...)
+addindom( ..., 60.2, TIMESTAMP, type=INDOM_V2, numinst=3, alloc=0x4)
 __pmLogLoadMeta: record len=49, type=DESC (1) @ offset=485
 __pmLogLoadMeta: PMID: 60.1.7 name: swap.used
 __pmLogLoadMeta: record len=55, type=DESC (1) @ offset=534
@@ -437,7 +437,7 @@ pmNameInDomArchive(60.123, 1234567) -> Operation requires context with archive s
 __pmLogLoadMeta: record len=58, type=DESC (1) @ offset=132
 __pmLogLoadMeta: PMID: 2.3.3 name: pmcd.pmlogger.host
 __pmLogLoadMeta: record len=41, type=INDOM_V2 (2) @ offset=190
-addindom( ..., 2.1, TIMESTAMP, type=INDOM_V2, numinst=1, ...)
+addindom( ..., 2.1, TIMESTAMP, type=INDOM_V2, numinst=1, alloc=0x4)
 __pmLogLoadMeta: record len=58, type=DESC (1) @ offset=231
 __pmLogLoadMeta: PMID: 2.3.0 name: pmcd.pmlogger.port
 __pmLogLoadMeta: record len=61, type=DESC (1) @ offset=289
@@ -445,7 +445,7 @@ __pmLogLoadMeta: PMID: 2.3.2 name: pmcd.pmlogger.archive
 __pmLogLoadMeta: record len=55, type=DESC (1) @ offset=350
 __pmLogLoadMeta: PMID: 60.2.0 name: kernel.all.load
 __pmLogLoadMeta: record len=80, type=INDOM_V2 (2) @ offset=405
-addindom( ..., 60.2, TIMESTAMP, type=INDOM_V2, numinst=3, ...)
+addindom( ..., 60.2, TIMESTAMP, type=INDOM_V2, numinst=3, alloc=0x4)
 __pmLogLoadMeta: record len=49, type=DESC (1) @ offset=485
 __pmLogLoadMeta: PMID: 60.1.7 name: swap.used
 __pmLogLoadMeta: record len=55, type=DESC (1) @ offset=534

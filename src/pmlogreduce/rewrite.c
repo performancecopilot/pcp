@@ -36,6 +36,13 @@ rewrite(__pmResult *rp)
 		    pmGetProgname(), pmIDStr(pmidlist[i]), pmIDStr(vsp->pmid));
 	    exit(1);
 	}
+	mp = &metriclist[i];
+
+	/*
+	 * event records and others do not get to play ...
+	 */
+	if (mp->mode == MODE_SKIP)
+	    continue;
 
 	if (vsp->numval > 0)
 	    need = (vsp->numval - 1) * sizeof(pmValue);
@@ -59,56 +66,53 @@ rewrite(__pmResult *rp)
 	}
 	else {
 	    ovsp->numval = 0;
-	    mp = &metriclist[i];
-	    if (mp->mode != MODE_SKIP) {
-		for (j = 0; j < vsp->numval; j++) {
-		    for (vp = mp->first; vp != NULL; vp = vp->next) {
-			if (vp->inst == vsp->vlist[j].inst)
-			    break;
-		    }
-		    if (vp == NULL) {
+	    for (j = 0; j < vsp->numval; j++) {
+		for (vp = mp->first; vp != NULL; vp = vp->next) {
+		    if (vp->inst == vsp->vlist[j].inst)
+			break;
+		}
+		if (vp == NULL) {
+		    fprintf(stderr,
+			"%s: rewrite: Arrgh: cannot find inst %d in value_t list for %s (%s)\n",
+			    pmGetProgname(), vsp->vlist[j].inst, namelist[i], pmIDStr(vsp->pmid));
+		    exit(1);
+		}
+		if ((vp->control & (V_SEEN|V_INIT)) == 0)
+		    continue;
+		/*
+		 * we've seen this metric-instance pair in the last
+		 * interval, or it is the first time for this one
+		 */
+		if (mp->mode == MODE_REWRITE) {
+		    pmAtomValue	av;
+		    int		k;
+		    sts = pmExtractValue(vsp->valfmt, &vsp->vlist[j], mp->idesc.type, &av, mp->odesc.type);
+		    if (sts < 0) {
 			fprintf(stderr,
-			    "%s: rewrite: Arrgh: cannot find inst %d in value_t list for %s (%s)\n",
-				pmGetProgname(), vsp->vlist[j].inst, namelist[i], pmIDStr(vsp->pmid));
+			    "%s: rewrite: pmExtractValue failed for pmid %s value %d: %s\n",
+				pmGetProgname(), pmIDStr(vsp->pmid), j, pmErrStr(sts));
 			exit(1);
 		    }
-		    if ((vp->control & (V_SEEN|V_INIT)) == 0)
-			continue;
-		    /*
-		     * we've seen this metric-instance pair in the last
-		     * interval, or it is the first time for this one
-		     */
-		    if (mp->mode == MODE_REWRITE) {
-			pmAtomValue	av;
-			int		k;
-			sts = pmExtractValue(vsp->valfmt, &vsp->vlist[j], mp->idesc.type, &av, mp->odesc.type);
-			if (sts < 0) {
-			    fprintf(stderr,
-				"%s: rewrite: pmExtractValue failed for pmid %s value %d: %s\n",
-				    pmGetProgname(), pmIDStr(vsp->pmid), j, pmErrStr(sts));
-			    exit(1);
-			}
-			ovsp->pmid = vsp->pmid;
-			ovsp->vlist[ovsp->numval].inst = vsp->vlist[j].inst;
-			k = __pmStuffValue(&av, &ovsp->vlist[ovsp->numval], mp->odesc.type);
-			if (k < 0) {
-			    fprintf(stderr,
-				"%s: rewrite: __pmStuffValue failed for pmid %s value %d: %s\n",
-				    pmGetProgname(), pmIDStr(vsp->pmid), j, pmErrStr(sts));
-			    exit(1);
-			}
-			if (ovsp->numval == 0)
-			    ovsp->valfmt = k;
-			ovsp->numval++;
-			vp->timestamp = rp->timestamp;
-			vp->value = av;
+		    ovsp->pmid = vsp->pmid;
+		    ovsp->vlist[ovsp->numval].inst = vsp->vlist[j].inst;
+		    k = __pmStuffValue(&av, &ovsp->vlist[ovsp->numval], mp->odesc.type);
+		    if (k < 0) {
+			fprintf(stderr,
+			    "%s: rewrite: __pmStuffValue failed for pmid %s value %d: %s\n",
+				pmGetProgname(), pmIDStr(vsp->pmid), j, pmErrStr(sts));
+			exit(1);
 		    }
-		    else {
-			ovsp->vlist[ovsp->numval] = vsp->vlist[j];
-			ovsp->numval++;
-		    }
-		    vp->control &= ~V_INIT;
+		    if (ovsp->numval == 0)
+			ovsp->valfmt = k;
+		    ovsp->numval++;
+		    vp->timestamp = rp->timestamp;
+		    vp->value = av;
 		}
+		else {
+		    ovsp->vlist[ovsp->numval] = vsp->vlist[j];
+		    ovsp->numval++;
+		}
+		vp->control &= ~V_INIT;
 	    }
 	    if (ovsp->numval > 0) {
 		orp->vset[orp->numpmid] = ovsp;

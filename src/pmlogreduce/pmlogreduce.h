@@ -78,5 +78,5 @@ extern __pmResult *rewrite(__pmResult *);
 extern void	rewrite_free(void);
 
 extern void	dometric(const char *);
-extern void	doindom(__pmResult *);
+extern int	doindom(__pmResult *);
 extern void	doscan(__pmTimestamp *);

@@ -19,7 +19,7 @@ CFILES	= pmlogreduce.c logio.c dometric.c rewrite.c indom.c scan.c
 HFILES	= pmlogreduce.h
 
 CMDTARGET = pmlogreduce$(EXECSUFFIX)
-LLDLIBS	= $(PCPLIB)
+LLDLIBS	= $(PCPLIB) $(PCP_ARCHIVELIB)
 
 default: $(CMDTARGET)
 
