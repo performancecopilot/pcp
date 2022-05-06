@@ -744,6 +744,7 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, int type, __pmTimestamp *tsp, pmIn
     pmDiscoverEvent	event;
     char		buf[32], inbuf[32];
     int			i, sts = 0;
+    pmInResult		full;			/* undelta'd indom */
 
     if (pmDebugOptions.discovery) {
 	fprintf(stderr, "%s[%s]: %s numinst %d indom %s\n",
@@ -764,7 +765,8 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, int type, __pmTimestamp *tsp, pmIn
 	__pmContext	*ctxp = __pmHandleToPtr(p->ctx);
 	__pmArchCtl	*acp = ctxp->c_archctl;
 	char		errmsg[PM_MAXERRMSGLEN];
-	__pmLogInDom_io	lid;
+	__pmLogInDom	lid;
+	__pmLogInDom	*duplid;
 
 	lid.stamp = *tsp;	/* struct assignment */
 	lid.indom = in->indom;
@@ -773,19 +775,214 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, int type, __pmTimestamp *tsp, pmIn
 	lid.namelist = in->namelist;
 	lid.alloc = 0;
 
-	sts = __pmLogAddInDom(acp, type, &lid, NULL, 0);
+	/*
+	 * The indom at this point has been loaded via __pmLogLoadInDom()
+	 * in pmDiscoverDecodeMetaInDom() and points into the I/O buffer
+	 * that is transient
+	 * ... duplicate the indom to make all the storage safe.
+	 */
+	duplid = __pmDupLogInDom(&lid);
+
+	sts = __pmLogAddInDom(acp, type, duplid, NULL);
+	if (sts == PMLOGPUTINDOM_DUP) {
+	    if (pmDebugOptions.dev0) {
+		fprintf(stderr, "pmDiscoverInvokeInDomCallBacks: indom %s numinst %d type %s stamp ",
+			pmInDomStr_r(in->indom, inbuf, sizeof(inbuf)),
+			in->numinst, __pmLogMetaTypeStr(type));
+		__pmPrintTimestamp(stderr, tsp);
+		fprintf(stderr, ": duplicate!\n");
+	    }
+	    __pmFreeLogInDom(duplid);
+	    duplid = NULL;
+	}
 	if (sts < 0)
 	    fprintf(stderr, "%s: failed to add indom for %s: %s\n",
-			"pmDiscoverInvokeInDomCallBacks", pmIDStr(in->indom),
+			"pmDiscoverInvokeInDomCallBacks",
+			pmInDomStr_r(in->indom, inbuf, sizeof(inbuf)),
 			pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+
+	if (type == TYPE_INDOM_DELTA) {
+	    __pmHashNode	*hp;
+	    __pmLogInDom	*idp;
+	    int			bad = 0;
+	    char		**dupnamelist;		/* DEBUG */
+	    int			*dupinstlist;		/* DEBUG */
+
+	    if ((hp = __pmHashSearch((unsigned int)in->indom, &acp->ac_log->hashindom)) == NULL) {
+		fprintf(stderr, "pmDiscoverInvokeInDomCallBacks: Botch:  indom %s search failed\n",
+			pmInDomStr_r(in->indom, inbuf, sizeof(inbuf)));
+		bad = 1;
+	    }
+	    else {
+		int	j;
+
+		idp = (__pmLogInDom *)hp->data;
+		/*
+		 * idp => would be the delta indom added above via
+		 * __pmLogAddInDom(), unless that function returns
+		 * PMLOGPUTINDOM_DUP ... so we need to walk the linked
+		 * list until we find the one for this delta indom
+		 */
+		if (pmDebugOptions.dev0) {
+		    fprintf(stderr, "walk %s chain: want idp @",
+				pmInDomStr_r(in->indom, inbuf, sizeof(inbuf)));
+		    __pmPrintTimestamp(stderr, tsp);
+		    fprintf(stderr, " ...");
+		}
+		for ( ; idp != NULL; idp = idp->next) {
+		    if (pmDebugOptions.dev0) {
+			fputc(' ', stderr);
+			__pmPrintTimestamp(stderr, &idp->stamp);
+			fputc('?', stderr);
+		    }
+		    if (__pmTimestampCmp(&idp->stamp, tsp) == 0) {
+			if (pmDebugOptions.dev0)
+			    fprintf(stderr, " bingo isdelta=%d\n", idp->isdelta);
+			break;
+		    }
+		}
+		if (idp == NULL) {
+		    if (pmDebugOptions.dev0)
+			fprintf(stderr, " fail!\n");
+		    fprintf(stderr, "pmDiscoverInvokeInDomCallBacks: Botch: indom %s @ ",
+				pmInDomStr_r(in->indom, inbuf, sizeof(inbuf)));
+		    fprintf(stderr, " failed to find __pmLogInDom @");
+		    __pmPrintTimestamp(stderr, tsp);
+		    fputc('\n', stderr);
+		    /*
+		     * No choice ... if we can't undelta the indom there
+		     * is nothing we can do ... choose to skip this one
+		     * rather than exit(1)!
+		     */
+		    if (duplid != NULL) {
+			__pmFreeLogInDom(duplid);
+			duplid = NULL;
+		    }
+		    PM_UNLOCK(ctxp->c_lock);
+		    goto out;
+		}
+		if (pmDebugOptions.dev0) {
+		    __pmLogInDom	*ldp;		/* previous indom */
+		    /*
+		     * ldp is the one _before_ this (in time) ... must exist
+		     * if this one is a delta indom
+		     */
+		    ldp = idp->next;
+		    dupnamelist = (char **)malloc(in->numinst*sizeof(char *));
+		    dupinstlist = (int *)malloc(in->numinst*sizeof(int));
+		    for (j = 0; j < ldp->numinst; j++) {
+			fprintf(stderr, "%d ", ldp->instlist[j]);
+		    }
+		    fputc('\n', stderr);
+/* DEBUG */
+		    for (i = 0; i < in->numinst; i++) {
+			if (in->namelist[i] == NULL)
+			    fprintf(stderr, "-%d ", in->instlist[i]);
+			else
+			    fprintf(stderr, "+%d \"%s\" ", in->instlist[i], in->namelist[i]);
+			dupnamelist[i] = in->namelist[i];
+			dupinstlist[i] = in->instlist[i];
+		    }
+		    fputc('\n', stderr);
+		    fprintf(stderr, "pmDiscoverInvokeInDomCallBacks: delta indom %s before numinst %d isdelta %d",
+			    pmInDomStr_r(in->indom, inbuf, sizeof(inbuf)),
+			    idp->numinst, idp->isdelta);
+		    fflush(stderr);
+		}
+		if (pmDebugOptions.dev1) {
+		    pmDebugOptions.logmeta = pmDebugOptions.desperate = 1;
+		}
+		__pmLogUndeltaInDom(in->indom, idp);
+		if (pmDebugOptions.dev1) {
+		    pmDebugOptions.logmeta = pmDebugOptions.desperate = 0;
+		}
+		if (pmDebugOptions.dev0) {
+		    fprintf(stderr, " after numinst %d isdelta %d\n", idp->numinst, idp->isdelta);
+		    for (j = 0; j < idp->numinst; j++)
+			fprintf(stderr, "%d ", idp->instlist[j]);
+		    fputc('\n', stderr);
+		    for (i = 0; i < in->numinst; i++) {
+			if (dupnamelist[i] == NULL) {
+			    /* delete */
+			    for (j = 0; j < idp->numinst; j++) {
+				if (dupinstlist[i] == idp->instlist[j]) {
+				    /* botch, instance still in indom */
+				    fprintf(stderr, "pmDiscoverInvokeInDomCallBacks: Botch: indom %s delete inst %d but \"%s\" still present\n",
+						pmInDomStr_r(in->indom, inbuf, sizeof(inbuf)),
+						dupinstlist[i], idp->namelist[j]);
+				    break;
+				    bad = 1;
+				}
+			    }
+			}
+			else {
+			    /* add */
+			    for (j = 0; j < idp->numinst; j++) {
+				if (dupinstlist[i] == idp->instlist[j])
+				    break;
+			    }
+			    if (j == idp->numinst) {
+				/* botch, instance not in indom */
+				fprintf(stderr, "pmDiscoverInvokeInDomCallBacks: Botch: indom %s add inst %d \"%s\" not present\n",
+					    pmInDomStr_r(in->indom, inbuf, sizeof(inbuf)),
+					    dupinstlist[i], dupnamelist[i]);
+				bad = 1;
+			    }
+			}
+		    }
+		    free(dupnamelist);
+		    free(dupinstlist);
+		}
+	    }
+	    if (bad) {
+		/*
+		 * real snarfoo ... better to add nothing that to add bogus indom info
+		 */
+		full.indom = in->indom;
+		full.numinst = 0;
+	    }
+	    else {
+		full.indom = in->indom;
+		full.numinst = idp->numinst;
+		full.instlist = idp->instlist;
+		full.namelist = idp->namelist;
+/* DEBUG */
+		for (i = 0; i < idp->numinst; i++) {
+		    if (idp->namelist[i] == NULL) {
+			fprintf(stderr, "pmDiscoverInvokeInDomCallBacks: Botch: indom %s inst %d namelist[%d] NULL\n",
+				pmInDomStr_r(in->indom, inbuf, sizeof(inbuf)),
+				idp->instlist[i], i);
+		    }
+		    else if (idp->namelist[i][0] == '\0') {
+			fprintf(stderr, "pmDiscoverInvokeInDomCallBacks: Botch: indom %s inst %d namelist[%d] empty\n",
+				pmInDomStr_r(in->indom, inbuf, sizeof(inbuf)),
+				idp->instlist[i], i);
+		    }
+		}
+	    }
+	}
+	/*
+	 * components of duplid are stashed away in hashed indom
+	 * structures, so just duplid and duplid->instlist to be
+	 * free'd here
+	 */
+	if (duplid != NULL) {
+	    free(duplid->instlist);
+	    free(duplid);
+	    duplid = NULL;
+	}
 	PM_UNLOCK(ctxp->c_lock);
     }
 
     discover_event_init(p, tsp, &event);
     for (i = 0; i < discoverCallBackTableSize; i++) {
 	if ((callbacks = discoverCallBackTable[i]) &&
-	    callbacks->on_indom != NULL)
-	    callbacks->on_indom(&event, in, p->data);
+	    callbacks->on_indom != NULL) {
+	    if (type == TYPE_INDOM_DELTA)
+		callbacks->on_indom(&event, &full, p->data);
+	    else
+		callbacks->on_indom(&event, in, p->data);
+	}
     }
 
 out:
@@ -1054,7 +1251,7 @@ process_metadata(pmDiscover *p)
 	}
 
 	if (pmDebugOptions.discovery)
-	    fprintf(stderr, "Log metadata read len %4d type %d: ", len, hdr.type);
+	    fprintf(stderr, "Log metadata read len %4d type %s: ", len, __pmLogMetaTypeStr(hdr.type));
 
 	switch (hdr.type) {
 	case TYPE_DESC:
@@ -1096,6 +1293,11 @@ process_metadata(pmDiscover *p)
 		break;
 	    }
 	    pmDiscoverInvokeInDomCallBacks(p, hdr.type, &stamp, &inresult);
+#if defined(HAVE_32BIT_PTR)
+	    ;
+#else
+	    free(inresult.namelist);
+#endif
 	    break;
 
 	case TYPE_LABEL:
@@ -1681,7 +1883,7 @@ static int
 pmDiscoverDecodeMetaInDom(__int32_t *buf, int len, int type, __pmTimestamp *tsp, pmInResult *inresult)
 {
     int			sts = 0;
-    __pmLogInDom_io	lid;
+    __pmLogInDom	lid;
 
     if ((sts = __pmLogLoadInDom(NULL, len, type, &lid, &buf)) >= 0) {
 	inresult->indom = lid.indom;

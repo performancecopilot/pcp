@@ -1084,8 +1084,19 @@ pmwebapi_add_indom_instances(struct context *context, struct indom *indom)
 
     if ((sts = pmGetInDom(indom->indom, &instlist, &namelist)) >= 0) {
 	for (i = 0; i < sts; i++) {
-	    if (namelist[i] == NULL || namelist[i][0] == '\0')
+	    if (namelist[i] == NULL || namelist[i][0] == '\0') {
+		if (pmDebugOptions.dev0) {
+		    if (namelist[i] == NULL)
+			fprintf(stderr, "pmwebapi_add_indom_instances: Botch: indom %s numinst %d inst %d namelist[%d] NULL\n", 
+				    pmInDomStr_r(indom->indom, buffer, sizeof(buffer)),
+				    sts, instlist[i], i);
+		    else
+			fprintf(stderr, "pmwebapi_add_indom_instances: Botch: indom %s numinst %d inst %d namelist[%d] empty\n", 
+				    pmInDomStr_r(indom->indom, buffer, sizeof(buffer)),
+				    sts, instlist[i], i);
+		}
 		continue;
+	    }
 	    instance = pmwebapi_add_instance(indom, instlist[i], namelist[i]);
 	    instance->updated = 1;
 	    count++;
