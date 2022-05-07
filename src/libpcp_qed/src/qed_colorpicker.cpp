@@ -91,10 +91,10 @@ void QedColorLuminancePicker::paintEvent(QPaintEvent *)
 	for (y = 0; y < hi; y++) {
 	    QColor c;
 	    c.setHsv(hue, sat, y2val(y+coff));
-	    QRgb r = c.rgb();
+	    QRgb rgb = c.rgb();
 	    int x;
 	    for (x = 0; x < wi; x++)
-		img.setPixel(x, y, r);
+		img.setPixel(x, y, rgb);
 	}
 	pix = new QPixmap(QPixmap::fromImage(img));
     }
