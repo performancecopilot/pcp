@@ -1699,7 +1699,7 @@ x11
 1243 valgrind pmfind libpcp local helgrind
 1244 pmlogextract local pmdumplog
 1245 libpcp local
-1246:reserved pmlogreduce local pmdumplog
+1246 pmlogreduce local pmdumplog
 1247 pmlogrewrite labels pmdumplog local pmlogextract
 1248 pmlogctl local
 1249 pmiectl local
