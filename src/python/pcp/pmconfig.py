@@ -587,6 +587,7 @@ class pmConfig(object):
                 found = [[], []]
                 for r in instances:
                     hit = False
+                    msg = ""
                     try:
                         if r.isdigit():
                             msg = "Invalid instance"
@@ -685,9 +686,9 @@ class pmConfig(object):
 
     def validate_common_options(self):
         """ Validate common utility options """
+        err = "Integer expected"
+        attr = "unknown"
         try:
-            err = "Integer expected"
-            attr = "unknown"
             if hasattr(self.util, 'rank') and self.util.rank:
                 attr = 'rank'
                 self.util.rank = int(self.util.rank)
@@ -751,6 +752,7 @@ class pmConfig(object):
                         sys.exit(1)
                 else:
                     err = ""
+                    expr = ""
                     try:
                         name, expr = derived.split("=", 1)
                         self.util.context.pmLookupName(name.strip())
@@ -761,8 +763,8 @@ class pmConfig(object):
                             try:
                                 self.util.context.pmRegisterDerived(name.strip(), expr.strip())
                                 continue
-                            except pmapi.pmErr as error:
-                                err = error.message()
+                            except pmapi.pmErr as error2:
+                                err = error2.message()
                     except ValueError as error:
                         err = "Invalid syntax (expected metric=expression)"
                     except Exception as error:
@@ -797,8 +799,8 @@ class pmConfig(object):
                     ignore = False
                     try:
                         self.util.context.pmLookupName(metric)
-                    except pmapi.pmErr as error:
-                        if error.args[0] != pmapi.c_api.PM_ERR_NAME:
+                    except pmapi.pmErr as error2:
+                        if error2.args[0] != pmapi.c_api.PM_ERR_NAME:
                             raise
                         if self.ignore_unknown_metrics() and metric in self._conf_metrics:
                             ignore = True

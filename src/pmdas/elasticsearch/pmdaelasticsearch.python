@@ -96,13 +96,12 @@ class ElasticsearchPMDA(PMDA):
 
         if not _is_pmda_setup():
             try:
-                connection = self.baseurl
                 self.request = _setup_urllib(self.baseurl, self.auth, self.password)
                 request = self.request.urlopen(self.baseurl)
                 request.read()
                 request.close()
             except (BaseException, Exception):
-                self.log(f"Failed Elasticsearch connection attempt at {connection}")
+                self.log(f"Failed Elasticsearch connection attempt at {self.baseurl}")
 
         # metrics setup
         self.cluster_indom = PM_INDOM_NULL
