@@ -1,0 +1,58 @@
+#!/bin/sh
+#
+# Copyright (c) 2021-2022 Ken McDonell.  All Rights Reserved.
+#
+# Make the omnibus-nomark_v2 and omnibus-nomark_v3 archives
+#
+# This archive has pretty much one of everything, w/out <mark>
+# records.
+#
+
+. $PCP_DIR/etc/pcp.env
+
+tmp=/var/tmp/make-sample.$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3
+
+cat <<End-of-File >$tmp.config
+log mandatory on 250 msec {
+    sample.proc.ordinal
+    sample.proc.exec
+    sample.proc.time
+    sample.long.million sample.long.bin_ctr
+    sample.ulong.million sample.ulong.bin_ctr
+    sample.longlong.million sample.longlong.bin_ctr
+    sample.ulonglong.million sample.ulonglong.bin_ctr
+    sample.float.million sample.float.bin_ctr
+    sample.double.million sample.double.bin_ctr
+    sample.string.hullo sample.string.bin
+    sample.long.write_me sample.dupnames.two.write_me sample.dupnames.three.write_me
+    sample.colour
+    sampledso.event.records
+    sampledso.event.highres_records
+}
+End-of-File
+
+rm -f omnibus-nomark_v2.index omnibus-nomark_v2.meta omnibus-nomark_v2.0
+rm -f omnibus-nomark_v3.index omnibus-nomark_v3.meta omnibus-nomark_v3.0
+
+for vers in 2 3
+do
+    rm -f $tmp.a.* $tmp.b.* $tmp.c.*
+
+    # reset sample.proc.* instance domain
+    #
+    pmstore sample.proc.reset 1
+
+    # reset sample.colour values
+    #
+    pmstore sample.colour 0
+
+    # reset event records
+    #
+    pmstore sampledso.event.reset 0
+    pmstore sampledso.event.reset_highres 0
+
+    # now make the archive in 3 parts, with a <mark> records
+    #
+    pmlogger -c $tmp.config -V $vers -s 30 omnibus-nomark_v$vers
+done
