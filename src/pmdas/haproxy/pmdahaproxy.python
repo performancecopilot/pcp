@@ -68,6 +68,7 @@ class HAProxyPMDA(PMDA):
         self.set_user(self.user)
 
         self.connect_pmcd()
+        conn = ""
         try:
             if not self.url:
                 conn = self.skt
@@ -307,6 +308,7 @@ class HAProxyPMDA(PMDA):
 
     def haproxy_refresh(self, cluster):
         """ Refresh """
+        conn = ""
         try:
             if not self.url:
                 conn = self.skt

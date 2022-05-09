@@ -535,11 +535,11 @@ class DstatTool(object):
 
         ### Empty ansi and theme databases when colors not in use
         if not self.color:
-            for key in COLOR:
+            for key in list(COLOR.keys()):
                 COLOR[key] = ''
-            for key in THEME:
+            for key in list(THEME.keys()):
                 THEME[key] = ''
-            for key in ANSI:
+            for key in list(ANSI.keys()):
                 ANSI[key] = ''
             THEME['colors_hi'] = (ANSI['default'],)
             THEME['colors_lo'] = (ANSI['default'],)
