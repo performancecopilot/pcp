@@ -16,8 +16,6 @@ tasks:
   setup: |
     sudo dnf install -y which hostname
     sudo dnf -y -b install $(qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
-    # https://bugzilla.redhat.com/show_bug.cgi?id=2069189
-    sudo sed -i 's/wrapt<1.14,>=1.11/wrapt/' /usr/lib/python3.10/site-packages/astroid-2.9.3-py3.10.egg-info/requires.txt
   build: |
     ./Makepkgs --verbose --check
     rpm -qp --requires $(echo pcp-*/build/rpm/pcp-*.src.rpm | sed 's/src/x86_64/') | grep -q libuv.so

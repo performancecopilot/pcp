@@ -2,9 +2,10 @@
 name: CI
 on:
   push:
-    # run on main branch, no tags
+    # run on all branches (also on feature branches of forks, before creating a PR)
     branches:
-      - main
+      - '**'
+    # don't run workflow on tags
     tags-ignore:
       - '**'
   workflow_dispatch:
