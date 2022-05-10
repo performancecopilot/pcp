@@ -1,0 +1,84 @@
+QA output created by 1420
+Mostly silence is golden ...
+
+=== Version 2 ===
+
+--- metadata differences ---
+6,7d5
+< indom 29.12 numinst 12
+< indom 29.12 numinst 13
+9,11d6
+< indom 29.12 numinst 4
+< indom 29.12 numinst 7
+< indom 29.12 numinst 8
+--- sample.proc.exec ---
+31,34c31,33
+< full label for instance[18]: 0019 /usr/bin/jojo
+< full label for instance[19]: 0020 /usr/local/koko
+< full label for instance[20]: 0021 /usr/opt/bin/lala
+< full label for instance[21]: 0022 /etc/bozo
+---
+> full label for instance[18]: 0020 /usr/local/koko
+> full label for instance[19]: 0021 /usr/opt/bin/lala
+> full label for instance[20]: 0022 /etc/bozo
+36,43c35,42
+<                0001 init 0002 /etc/bo 0003 /usr/bi 0004 /usr/lo 0005 /usr/op 0006 /etc/pi 0007 /usr/bi 0008 /usr/lo 0009 /usr/op 0010 /etc/ko 0011 /usr/bi 0012 /usr/lo 0013 /usr/op 0014 /etc/je 0015 /usr/bi 0016 /usr/lo 0017 /usr/op 0018 /etc/yo 0019 /usr/bi 0020 /usr/lo 0021 /usr/op 0022 /etc/bo 
+< 14:53:26.937 "0001 init"       "bozo"       "bobo"     "jester"            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ? 
+< 14:53:27.937 "0001 init"       "bozo"       "bobo"     "jester"       "loko"    "pierrot"      "waldo"       "yobo"       "jojo"            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ? 
+< 14:53:28.937 "0001 init"       "bozo"       "bobo"     "jester"       "loko"    "pierrot"      "waldo"       "yobo"       "jojo"       "koko"            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ? 
+< 14:53:29.937 "0001 init"       "bozo"       "bobo"     "jester"       "loko"    "pierrot"            ?       "yobo"       "jojo"       "koko"       "lala"            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ? 
+< 14:53:30.937 "0001 init"       "bozo"       "bobo"     "jester"       "loko"            ?            ?       "yobo"       "jojo"       "koko"            ?            ?            ?     "jester"       "loko"    "pierrot"            ?       "yobo"            ?            ?            ?            ? 
+< 14:53:31.937 "0001 init"       "bozo"       "bobo"     "jester"       "loko"            ?            ?            ?       "jojo"            ?            ?            ?            ?     "jester"       "loko"            ?            ?            ?            ?       "koko"       "lala"            ? 
+< 14:53:32.937 "0001 init"       "bozo"       "bobo"     "jester"            ?            ?            ?            ?       "jojo"            ?            ?            ?            ?            ?       "loko"            ?            ?            ?            ?       "koko"       "lala"       "bozo" 
+---
+>                0001 init 0002 /etc/bo 0003 /usr/bi 0004 /usr/lo 0005 /usr/op 0006 /etc/pi 0007 /usr/bi 0008 /usr/lo 0009 /usr/op 0010 /etc/ko 0011 /usr/bi 0012 /usr/lo 0013 /usr/op 0014 /etc/je 0015 /usr/bi 0016 /usr/lo 0017 /usr/op 0018 /etc/yo 0020 /usr/lo 0021 /usr/op 0022 /etc/bo 
+> 14:53:26.937 "0001 init"       "bozo"       "bobo"     "jester"            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ? 
+> 14:53:27.937 "0001 init"       "bozo"       "bobo"     "jester"       "loko"    "pierrot"      "waldo"       "yobo"       "jojo"            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ? 
+> 14:53:28.937 "0001 init"       "bozo"       "bobo"     "jester"       "loko"    "pierrot"      "waldo"       "yobo"       "jojo"       "koko"            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ? 
+> 14:53:29.937 "0001 init"       "bozo"       "bobo"     "jester"       "loko"    "pierrot"            ?       "yobo"       "jojo"       "koko"       "lala"            ?            ?            ?            ?            ?            ?            ?            ?            ?            ? 
+> 14:53:30.937 "0001 init"       "bozo"       "bobo"     "jester"       "loko"            ?            ?       "yobo"       "jojo"       "koko"            ?            ?            ?     "jester"       "loko"    "pierrot"            ?       "yobo"            ?            ?            ? 
+> 14:53:31.937 "0001 init"       "bozo"       "bobo"     "jester"       "loko"            ?            ?            ?       "jojo"            ?            ?            ?            ?     "jester"       "loko"            ?            ?            ?       "koko"       "lala"            ? 
+> 14:53:32.937 "0001 init"       "bozo"       "bobo"     "jester"            ?            ?            ?            ?       "jojo"            ?            ?            ?            ?            ?       "loko"            ?            ?            ?       "koko"       "lala"       "bozo" 
+
+=== Version 3 ===
+
+--- metadata differences ---
+3d2
+< delta indom 29.12 numinst 2
+5c4,5
+< delta indom 29.12 numinst 4
+---
+> delta indom 29.12 numinst 7
+> delta indom 29.12 numinst 9
+8c8
+< indom 29.12 numinst 4
+---
+> indom 29.12 numinst 9
+--- sample.proc.exec ---
+31,34c31,33
+< full label for instance[18]: 0019 /usr/bin/jojo
+< full label for instance[19]: 0020 /usr/local/koko
+< full label for instance[20]: 0021 /usr/opt/bin/lala
+< full label for instance[21]: 0022 /etc/bozo
+---
+> full label for instance[18]: 0020 /usr/local/koko
+> full label for instance[19]: 0021 /usr/opt/bin/lala
+> full label for instance[20]: 0022 /etc/bozo
+36,43c35,42
+<                0001 init 0002 /etc/bo 0003 /usr/bi 0004 /usr/lo 0005 /usr/op 0006 /etc/pi 0007 /usr/bi 0008 /usr/lo 0009 /usr/op 0010 /etc/ko 0011 /usr/bi 0012 /usr/lo 0013 /usr/op 0014 /etc/je 0015 /usr/bi 0016 /usr/lo 0017 /usr/op 0018 /etc/yo 0019 /usr/bi 0020 /usr/lo 0021 /usr/op 0022 /etc/bo 
+< 14:53:34.493 "0001 init"       "bozo"       "bobo"     "jester"            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ? 
+< 14:53:35.493 "0001 init"       "bozo"       "bobo"     "jester"       "loko"    "pierrot"      "waldo"       "yobo"       "jojo"            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ? 
+< 14:53:36.493 "0001 init"       "bozo"       "bobo"     "jester"       "loko"    "pierrot"      "waldo"       "yobo"       "jojo"       "koko"            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ? 
+< 14:53:37.493 "0001 init"       "bozo"       "bobo"     "jester"       "loko"    "pierrot"            ?       "yobo"       "jojo"       "koko"       "lala"            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ? 
+< 14:53:38.493 "0001 init"       "bozo"       "bobo"     "jester"       "loko"            ?            ?       "yobo"       "jojo"       "koko"            ?            ?            ?     "jester"       "loko"    "pierrot"            ?       "yobo"            ?            ?            ?            ? 
+< 14:53:39.493 "0001 init"       "bozo"       "bobo"     "jester"       "loko"            ?            ?            ?       "jojo"            ?            ?            ?            ?     "jester"       "loko"            ?            ?            ?            ?       "koko"       "lala"            ? 
+< 14:53:40.493 "0001 init"       "bozo"       "bobo"     "jester"            ?            ?            ?            ?       "jojo"            ?            ?            ?            ?            ?       "loko"            ?            ?            ?            ?       "koko"       "lala"       "bozo" 
+---
+>                0001 init 0002 /etc/bo 0003 /usr/bi 0004 /usr/lo 0005 /usr/op 0006 /etc/pi 0007 /usr/bi 0008 /usr/lo 0009 /usr/op 0010 /etc/ko 0011 /usr/bi 0012 /usr/lo 0013 /usr/op 0014 /etc/je 0015 /usr/bi 0016 /usr/lo 0017 /usr/op 0018 /etc/yo 0020 /usr/lo 0021 /usr/op 0022 /etc/bo 
+> 14:53:34.493 "0001 init"       "bozo"       "bobo"     "jester"            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ? 
+> 14:53:35.493 "0001 init"       "bozo"       "bobo"     "jester"       "loko"    "pierrot"      "waldo"       "yobo"       "jojo"            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ? 
+> 14:53:36.493 "0001 init"       "bozo"       "bobo"     "jester"       "loko"    "pierrot"      "waldo"       "yobo"       "jojo"       "koko"            ?            ?            ?            ?            ?            ?            ?            ?            ?            ?            ? 
+> 14:53:37.493 "0001 init"       "bozo"       "bobo"     "jester"       "loko"    "pierrot"            ?       "yobo"       "jojo"       "koko"       "lala"            ?            ?            ?            ?            ?            ?            ?            ?            ?            ? 
+> 14:53:38.493 "0001 init"       "bozo"       "bobo"     "jester"       "loko"            ?            ?       "yobo"       "jojo"       "koko"            ?            ?            ?     "jester"       "loko"    "pierrot"            ?       "yobo"            ?            ?            ? 
+> 14:53:39.493 "0001 init"       "bozo"       "bobo"     "jester"       "loko"            ?            ?            ?       "jojo"            ?            ?            ?            ?     "jester"       "loko"            ?            ?            ?       "koko"       "lala"            ? 
+> 14:53:40.493 "0001 init"       "bozo"       "bobo"     "jester"            ?            ?            ?            ?       "jojo"            ?            ?            ?            ?            ?       "loko"            ?            ?            ?       "koko"       "lala"       "bozo" 

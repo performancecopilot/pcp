@@ -1,0 +1,162 @@
+#!/bin/sh
+# PCP QA Test No. 1420
+# [what am I here for?]
+#
+# non-valgrind variant, see qa/1421 for the valgrind variant
+#
+# Copyright (c) 2022 [who are you?].  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.config
+sample.colour
+sample.write_me
+sample.dupnames.four.colour
+sample.dupnames.two.write_me
+sample.dupnames.three.write_me
+sample.long.million
+sample.long.write_me
+sample.long.bin_ctr
+sample.ulong.million
+sample.ulong.bin_ctr
+sample.float.million
+sample.float.bin_ctr
+sample.longlong.million
+sample.longlong.bin_ctr
+sample.ulonglong.million
+sample.ulonglong.bin_ctr
+sample.double.million
+sample.double.bin_ctr
+sample.string.hullo
+sample.string.bin
+# sample.proc.ordinal
+sample.proc.exec
+# sample.proc.time
+# sampledso.event.records
+# sampledso.event.highres_records
+pmcd.seqnum
+pmcd.pid
+pmcd.pmlogger.archive
+pmcd.pmlogger.port
+pmcd.pmlogger.host
+# event.flags
+# event.missed
+End-of-File
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e '/^end:/s/ .*/ DATE/' \
+	-e '/^archive:/s/ .*/ PATH/' \
+    # end
+}
+
+# filter out and sort unique metadata records
+# also pmlogreduce does not emit help text records nor
+# label records, so cull these
+#
+_scanmeta()
+{
+    src/scanmeta -a "$1.meta" \
+    | sed -n -e '/^\[/s/[^ ]*] //p' \
+    | sed \
+	-e 's/$/ /' \
+	-e 's/@ [^ ]* //' \
+	-e '/oneline text/d' \
+	-e '/help text/d' \
+	-e '/metric label/d' \
+	-e 's/ $//' \
+    | LC_COLLATE=POSIX sort \
+    | uniq
+}
+
+# real QA test starts here
+
+echo "Mostly silence is golden ..."
+
+
+for vers in 2 3
+do
+    echo
+    echo "=== Version $vers ==="
+    echo
+
+    # remove problematic metrics, like event records
+    #
+    rm -f $tmp.x.0 $tmp.x.meta $tmp.x.index
+    pmlogextract -c $tmp.config archives/omnibus-nomark_v$vers $tmp.x
+
+    _scanmeta $tmp.x >$tmp.in.meta
+
+    rm -f $tmp.0 $tmp.meta $tmp.index
+    if $do_valgrind
+    then
+	_run_valgrind pmlogreduce -t 1sec $tmp.x $tmp
+    else
+	pmlogreduce -t 1sec $tmp.x $tmp 2>&1
+    fi \
+    | sed -e "s@$tmp@TMP@g"
+
+    _scanmeta $tmp >$tmp.out.meta
+    if diff $tmp.in.meta $tmp.out.meta >$tmp.diff
+    then
+	:
+    else
+	echo "--- metadata differences ---"
+	cat $tmp.diff
+    fi
+
+    sed -e '/^#/d' <$tmp.config \
+    | while read metric
+    do
+	pmval -a $tmp.x -z -w 12 -t 1sec $metric | _filter >$tmp.in
+	pmval -a $tmp   -z -w 12 -t 1sec $metric | _filter >$tmp.out
+	if diff $tmp.in $tmp.out >$tmp.diff
+	then
+	    :
+	else
+	    echo "--- $metric ---"
+	    cat $tmp.diff
+	fi
+	# mv $tmp.in tmp.in
+	# mv $tmp.out tmp.out
+	# pmdumplog -a $tmp.x >>$seq.full
+	# pmdumplog -a $tmp >>$seq.full
+    done
+
+done
+
+# success, all done
+exit
