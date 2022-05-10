@@ -13,7 +13,6 @@ doindom(__pmResult *rp)
     int			*instlist;
     char		**names;
     int			sts;
-    __pmTimestamp	stamp;
 
     for (i = 0; i < rp->numpmid; i++) {
 	vsp = rp->vset[i];
@@ -99,7 +98,10 @@ doindom(__pmResult *rp)
 	    }
 	    else
 		pdu_type = TYPE_INDOM_V2;
-	    if ((sts = __pmLogPutInDom(&archctl, pdu_type, &lid))< 0) {
+	    sts = __pmLogPutInDom(&archctl, pdu_type, &lid);
+	    if (pdu_type == TYPE_INDOM_DELTA)
+		__pmFreeLogInDom(&lid);
+	    if (sts < 0) {
 		fprintf(stderr,
 		    "%s: Error: failed to add pmInDom: indom %s (for pmid %s): %s\n",
 			pmGetProgname(), pmInDomStr(mp->idp->indom), pmIDStr(vsp->pmid), pmErrStr(sts));
@@ -114,11 +116,5 @@ doindom(__pmResult *rp)
 
     }
 
-    if (needti) {
-	__pmFflush(logctl.mdfp);
-	stamp = current;	/* struct assignment */
-	__pmLogPutIndex(&archctl, &stamp);
-    }
-
-    return 0;
+    return needti;
 }

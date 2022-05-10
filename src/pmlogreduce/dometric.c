@@ -68,6 +68,7 @@ dometric(const char *name)
      */
     for (j = 0; j < numpmid; j++) {
 	if (pmidlist[j] == pmidlist[numpmid]) {
+	    free(namelist[numpmid]);
 	    numpmid--;
 	    goto done;
 	}

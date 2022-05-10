@@ -205,6 +205,7 @@ main(int argc, char **argv)
 {
     int		sts;
     int		vers;
+    int		needti;
     char	*msg;
     __pmResult	*irp;		/* input pmResult */
     __pmResult	*orp;		/* output pmResult */
@@ -213,6 +214,9 @@ main(int argc, char **argv)
     struct timespec	start;
     __uint64_t		max_offset;
     unsigned long	peek_offset;
+    off_t		flushsize = 100000;
+    off_t		old_log_offset;
+    off_t		old_meta_offset;
 
     /* no derived or anon metrics, please */
     __pmSetInternalState(PM_STATE_PMCS);
@@ -347,12 +351,6 @@ main(int argc, char **argv)
 	goto cleanup;
     }
 
-    /*
-     * All the initial metadata has been generated, add timestamp
-     */
-    __pmFflush(logctl.mdfp);
-    __pmLogPutIndex(&archctl, &current);
-
     max_offset = (vers == PM_LOG_VERS02) ? 0x7fffffff : LONGLONG_MAX;
     written = 0;
 
@@ -385,6 +383,8 @@ main(int argc, char **argv)
 	    fprintf(stderr, "input record ...\n");
 	    __pmPrintResult(stderr, irp);
 	}
+
+	old_meta_offset = __pmFtell(logctl.mdfp);;
 
 	/*
 	 * traverse the interval, looking at every archive record ...
@@ -429,6 +429,8 @@ main(int argc, char **argv)
 	if (varg > 0) {
 	    if (written > 0 && (written % varg) == 0) {
 		newvolume(oname, &irp->timestamp);
+		needti = 1;
+		flushsize = 100000;
 	    }
 	}
 	/*
@@ -440,14 +442,17 @@ main(int argc, char **argv)
 	peek_offset += ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
 	if (peek_offset > max_offset) {
 	    newvolume(oname, &irp->timestamp);
+	    needti = 1;
+	    flushsize = 100000;
 	}
 
 	current = orp->timestamp;
 
-	if (doindom(orp) < 0)
+	if ((needti = doindom(orp)) < 0)
 	    goto cleanup;
 
 	/* write out log record */
+	old_log_offset = __pmFtell(archctl.ac_mfp);;
 	sts = (vers == PM_LOG_VERS02) ?
 		__pmLogPutResult2(&archctl, pb) :
 		__pmLogPutResult3(&archctl, pb);
@@ -458,6 +463,32 @@ main(int argc, char **argv)
 	    goto cleanup;
 	}
 	written++;
+
+	if (__pmFtell(archctl.ac_mfp) > flushsize)
+	    needti = 1;
+
+	if (needti) {
+	    /*
+	     * data volume size triggers new temporal index entry
+	     * ... seek pointers need to be _before_ last pmResult
+	     * and associated metadata (if any)
+	     */
+	    off_t	new_log_offset;
+	    off_t	new_meta_offset;
+	    __pmFflush(archctl.ac_mfp);
+	    new_log_offset = __pmFtell(archctl.ac_mfp);;
+	    __pmFseek(archctl.ac_mfp, old_log_offset, SEEK_SET);
+	    __pmFflush(logctl.mdfp);
+	    new_meta_offset = __pmFtell(logctl.mdfp);;
+	    __pmFseek(logctl.mdfp, old_meta_offset, SEEK_SET);
+	    __pmLogPutIndex(&archctl, &current);
+	    /* and restore 'em */
+	    __pmFseek(archctl.ac_mfp, new_log_offset, SEEK_SET);
+	    __pmFseek(logctl.mdfp, new_meta_offset, SEEK_SET);
+	}
+
+	if (__pmFtell(archctl.ac_mfp) > flushsize)
+	    flushsize = __pmFtell(archctl.ac_mfp) + 100000;
 
 	rewrite_free();
 
