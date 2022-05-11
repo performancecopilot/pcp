@@ -10,7 +10,7 @@ QA output created by 606
 === test various pcp tools fail gracefully when all metrics are NOT present
 == pidstat ===
 Error: not all required metrics are available
-Missing ['proc.psinfo.pid', 'proc.psinfo.utime', 'proc.psinfo.stime', 'proc.psinfo.guest_time', 'proc.psinfo.processor', 'proc.id.uid', 'proc.psinfo.cmd', 'proc.id.uid_nm', 'proc.psinfo.rt_priority', 'proc.psinfo.policy', 'proc.psinfo.minflt', 'proc.psinfo.maj_flt', 'proc.psinfo.vsize', 'proc.psinfo.rss', 'proc.memory.vmstack']
+Missing ['proc.id.uid', 'proc.id.uid_nm', 'proc.memory.vmstack', 'proc.psinfo.cmd', 'proc.psinfo.guest_time', 'proc.psinfo.maj_flt', 'proc.psinfo.minflt', 'proc.psinfo.pid', 'proc.psinfo.policy', 'proc.psinfo.processor', 'proc.psinfo.rss', 'proc.psinfo.rt_priority', 'proc.psinfo.stime', 'proc.psinfo.utime', 'proc.psinfo.vsize']
 === iostat ===
 Error: not all required metrics are available
 Missing ['disk.dev.read', 'disk.dev.read_bytes', 'disk.dev.write', 'disk.dev.write_bytes', 'disk.dev.read_merge', 'disk.dev.write_merge', 'disk.dev.blkread', 'disk.dev.blkwrite', 'disk.dev.read_rawactive', 'disk.dev.write_rawactive', 'disk.dev.avactive']
