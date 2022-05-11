@@ -198,8 +198,11 @@ pmaDeltaInDom(__pmLogInDom *old, __pmLogInDom *new, __pmLogInDom *new_delta)
     /*
      * Pass 2 - committed to delta indom now, need to build new_delta ...
      */
-    new_delta->stamp = new->stamp;
+    new_delta->next = new_delta->prior = NULL;
+    new_delta->buf = NULL;
     new_delta->indom = new->indom;
+    new_delta->stamp = new->stamp;
+    new_delta->isdelta = 1;
     new_delta->numinst = add + del;
     new_delta->alloc = (PMLID_INSTLIST | PMLID_NAMELIST);
     /*
