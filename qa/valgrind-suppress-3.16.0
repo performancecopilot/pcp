@@ -47,35 +47,6 @@
    ...
 }
 
-# qa/1293 seen on CI centos8-container and fedora31-container
-# Syscall param socketcall.sendto(msg) points to uninitialised byte(s)
-# at 0x51EA321: send (in /usr/lib64/libc-2.28.so)
-# by 0x4EAF1CD: __pmSend (secureconnect.c:1571)
-# by 0x4E688C8: __pmXmitPDU (pdu.c:406)
-# by 0x4E93EB4: __pmSendLogControl (p_lcontrol.c:98)
-# by 0x4E9521E: __pmControlLog (logcontrol.c:36)
-# by 0x10CFC9: LogCtl (actions.c:399)
-# by 0x10A9E4: main (pmlc.c:374)
-# Address 0xa39ed58 is 56 bytes inside a block of size 76 alloc'd
-# at 0x4C30F0B: malloc (vg_replace_malloc.c:307)
-# by 0x4E6912F: __pmFindPDUBuf (pdubuf.c:115)
-# by 0x4E93DFC: __pmSendLogControl (p_lcontrol.c:69)
-# by 0x4E9521E: __pmControlLog (logcontrol.c:36)
-# by 0x10CFC9: LogCtl (actions.c:399)
-# by 0x10A9E4: main (pmlc.c:374)
-{
-   __pmXmitPDU buffer for p_lcontrol.c
-   Memcheck:Param
-   socketcall.sendto(msg)
-   fun:send
-   fun:__pmSend
-   fun:__pmXmitPDU
-   fun:__pmSendLogControl
-   fun:__pmControlLog
-   fun:LogCtl
-   ...
-}
-
 # qa/1695 and qa/1696 on vm39 (RHEL 8.3)
 # this appears to be an issue for libuv, not PCP
 # Syscall param epoll_ctl(event) points to uninitialised byte(s)
