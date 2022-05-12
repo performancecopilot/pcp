@@ -250,9 +250,11 @@ inresult_to_lists(pmInResult *result, int **instlist, char ***namelist)
     int *ilist;
     char **nlist;
     
-    if (result->numinst == 0) {
+    if (result->numinst <= 0) {
+	/* no instances or error */
+	sts = result->numinst;
 	__pmFreeInResult(result);
-	return 0;
+	return sts;
     }
     need = 0;
     for (i = 0; i < result->numinst; i++) {
