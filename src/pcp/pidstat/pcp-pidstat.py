@@ -26,33 +26,46 @@ from pcp import pmapi
 
 process_state_info = {}
 # Metric list to be fetched
-PIDSTAT_METRICS = ['kernel.uname.nodename', 'kernel.uname.release', 'kernel.uname.sysname',
-                   'kernel.uname.machine','hinv.ncpu','proc.psinfo.pid','proc.nprocs','proc.psinfo.utime',
-                   'proc.psinfo.stime','proc.psinfo.guest_time','proc.psinfo.processor',
-                   'proc.id.uid','proc.psinfo.cmd','kernel.all.cpu.user','kernel.all.cpu.vuser',
-                   'kernel.all.cpu.sys','kernel.all.cpu.guest','kernel.all.cpu.nice','kernel.all.cpu.idle',
-                   'proc.id.uid_nm', 'proc.psinfo.rt_priority', 'proc.psinfo.policy', 'proc.psinfo.minflt',
-                   'proc.psinfo.maj_flt', 'proc.psinfo.vsize', 'proc.psinfo.rss', 'mem.physmem',
-                   'proc.memory.vmstack']
+PIDSTAT_METRICS = [
+    'hinv.ncpu',
+    'kernel.all.cpu.guest',
+    'kernel.all.cpu.idle',
+    'kernel.all.cpu.nice',
+    'kernel.all.cpu.sys',
+    'kernel.all.cpu.user',
+    'kernel.all.cpu.vuser',
+    'kernel.uname.machine',
+    'kernel.uname.nodename',
+    'kernel.uname.release',
+    'kernel.uname.sysname',
+    'mem.physmem',
+    'proc.id.uid',
+    'proc.id.uid_nm',
+    'proc.memory.vmstack',
+    'proc.nprocs',
+    'proc.psinfo.cmd',
+    'proc.psinfo.guest_time',
+    'proc.psinfo.maj_flt',
+    'proc.psinfo.minflt',
+    'proc.psinfo.pid',
+    'proc.psinfo.policy',
+    'proc.psinfo.processor',
+    'proc.psinfo.rss',
+    'proc.psinfo.rt_priority',
+    'proc.psinfo.stime',
+    'proc.psinfo.utime',
+    'proc.psinfo.vsize',
+]
 
-PIDSTAT_METRICS_B = ['kernel.uname.nodename', 'kernel.uname.release', 'kernel.uname.sysname',
-                     'kernel.uname.machine','hinv.ncpu','proc.psinfo.pid','proc.nprocs','proc.psinfo.utime',
-                     'proc.psinfo.stime','proc.psinfo.guest_time','proc.psinfo.processor',
-                     'proc.id.uid','proc.psinfo.cmd','kernel.all.cpu.user','kernel.all.cpu.vuser',
-                     'kernel.all.cpu.sys','kernel.all.cpu.guest','kernel.all.cpu.nice','kernel.all.cpu.idle',
-                     'proc.id.uid_nm', 'proc.psinfo.rt_priority', 'proc.psinfo.policy', 'proc.psinfo.minflt',
-                     'proc.psinfo.maj_flt', 'proc.psinfo.vsize', 'proc.psinfo.rss', 'mem.physmem',
-                     'proc.memory.vmstack','proc.psinfo.sname','proc.psinfo.start_time','proc.psinfo.wchan_s']
+PIDSTAT_METRICS_B = PIDSTAT_METRICS + [
+    'proc.psinfo.sname',
+    'proc.psinfo.start_time',
+    'proc.psinfo.wchan_s',
+]
 
-PIDSTAT_METRICS_L = ['kernel.uname.nodename', 'kernel.uname.release', 'kernel.uname.sysname',
-                     'kernel.uname.machine','hinv.ncpu','proc.psinfo.pid','proc.nprocs','proc.psinfo.utime',
-                     'proc.psinfo.stime','proc.psinfo.guest_time','proc.psinfo.processor',
-                     'proc.id.uid','proc.psinfo.cmd','kernel.all.cpu.user','kernel.all.cpu.vuser',
-                     'kernel.all.cpu.sys','kernel.all.cpu.guest','kernel.all.cpu.nice','kernel.all.cpu.idle',
-                     'proc.id.uid_nm', 'proc.psinfo.rt_priority', 'proc.psinfo.policy', 'proc.psinfo.minflt',
-                     'proc.psinfo.maj_flt', 'proc.psinfo.vsize', 'proc.psinfo.rss', 'mem.physmem',
-                     'proc.memory.vmstack','proc.psinfo.sname','proc.psinfo.start_time','proc.psinfo.wchan_s',
-                     'proc.psinfo.psargs']
+PIDSTAT_METRICS_L = PIDSTAT_METRICS_B + [
+    'proc.psinfo.psargs'
+]
 
 #We define a new metric array so that some missing metrics aren't flagged in existing archives using PIDSTAT_METRICS
 

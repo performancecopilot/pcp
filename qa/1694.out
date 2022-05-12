@@ -1,7 +1,7 @@
 QA output created by 1694
 === Checking pcp-pidstat without kernel metrics ===
 Error: not all required metrics are available
-Missing ['kernel.uname.nodename', 'kernel.uname.release', 'kernel.uname.sysname', 'kernel.uname.machine', 'kernel.all.cpu.user', 'kernel.all.cpu.vuser', 'kernel.all.cpu.sys', 'kernel.all.cpu.guest', 'kernel.all.cpu.nice', 'kernel.all.cpu.idle']
+Missing ['kernel.all.cpu.guest', 'kernel.all.cpu.idle', 'kernel.all.cpu.nice', 'kernel.all.cpu.sys', 'kernel.all.cpu.user', 'kernel.all.cpu.vuser', 'kernel.uname.machine', 'kernel.uname.nodename', 'kernel.uname.release', 'kernel.uname.sysname']
 
 === Checking pcp-pidstat without hinv metrics ===
 Error: not all required metrics are available
@@ -9,7 +9,7 @@ Missing ['hinv.ncpu']
 
 === Checking pcp-pidstat without proc metrics ===
 Error: not all required metrics are available
-Missing ['proc.psinfo.pid', 'proc.nprocs', 'proc.psinfo.utime', 'proc.psinfo.stime', 'proc.psinfo.guest_time', 'proc.psinfo.processor', 'proc.id.uid', 'proc.psinfo.cmd', 'proc.id.uid_nm', 'proc.psinfo.rt_priority', 'proc.psinfo.policy', 'proc.psinfo.minflt', 'proc.psinfo.maj_flt', 'proc.psinfo.vsize', 'proc.psinfo.rss', 'proc.memory.vmstack']
+Missing ['proc.id.uid', 'proc.id.uid_nm', 'proc.memory.vmstack', 'proc.nprocs', 'proc.psinfo.cmd', 'proc.psinfo.guest_time', 'proc.psinfo.maj_flt', 'proc.psinfo.minflt', 'proc.psinfo.pid', 'proc.psinfo.policy', 'proc.psinfo.processor', 'proc.psinfo.rss', 'proc.psinfo.rt_priority', 'proc.psinfo.stime', 'proc.psinfo.utime', 'proc.psinfo.vsize']
 
 === Checking pcp-pidstat without mem metrics ===
 Error: not all required metrics are available

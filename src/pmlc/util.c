@@ -238,11 +238,15 @@ endmetrics(void)
 	else
 	    vsp->numval = mp->status.has_insts ? mp->n_insts : 0;
 	vsp->valfmt = PM_VAL_INSITU;
-	if (mp->status.has_insts)
-	    for (j = 0; j < vsp->numval; j++)
+	if (mp->status.has_insts) {
+	    for (j = 0; j < vsp->numval; j++) {
 		vsp->vlist[j].inst = mp->inst[j];
-	else
+		vsp->vlist[j].value.pval = NULL;
+	    }
+	} else {
 	    vsp->vlist[0].inst = PM_IN_NULL;
+	    vsp->vlist[0].value.pval = NULL;
+	}
     }
     logreq->numpmid = n_metrics;
     n_logreq = n_metrics;

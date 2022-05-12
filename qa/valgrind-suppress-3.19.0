@@ -1,5 +1,5 @@
 # qa/386, qa/391, qa/393, qa/391, qa/393, qa/394, qa/459,
-# qa/770, qa/1080, qa/1302 and qa/1816 on Fedora 34 and
+# qa/770, qa/1080, qa/1302 and qa/1816 on Fedora 36 and
 # Fedora Rawhide
 #
 # at 0x483880B: malloc (vg_replace_malloc.c:299)
@@ -16,7 +16,7 @@
    ...
 }
 
-# qa/1080 and qa/490 and qa/386 and qa/459 on Fedora 32
+# qa/1080 and qa/490 and qa/386 and qa/459 on Fedora 36
 # also on bozo-vm (Debian bullseye/sid) + qa/393 and qa/394
 # at 0x483880B: malloc (vg_replace_malloc.c:299)
 # by 0x4871E5F: __pmFindPDUBuf (pdubuf.c:115)
@@ -30,7 +30,7 @@
    ...
 }
 
-# qa/720 on fedora_rawhide-container in CI
+# qa/720 on fedora 36
 # at 0x483A809: malloc (vg_replace_malloc.c:307)
 # by 0x4CB7592: sasl_client_new (in /usr/lib64/libsasl2.so.3.0.0)
 # by 0x48C30D4: __pmSecureClientHandshake (secureconnect.c:955)
