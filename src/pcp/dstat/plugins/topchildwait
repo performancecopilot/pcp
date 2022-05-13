@@ -1,0 +1,16 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
+#
+
+[top-childwait]
+label = most waiting for
+top = ((rate(proc.psinfo.cutime) + rate(proc.psinfo.cstime)) / hinv.ncpu)
+top.label = child process
+width = 21
+grouptype = 4
+cmd = proc.psinfo.cmd
+cmd.width = 12
+max = ((rate(proc.psinfo.cutime) + rate(proc.psinfo.cstime)) / hinv.ncpu)
+max.width = 8
+max.printtype = d
+max.colorstep = 34
