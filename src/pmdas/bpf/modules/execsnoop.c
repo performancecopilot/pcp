@@ -84,7 +84,7 @@ static void push(struct tailq_entry *elm)
     queuelength++;
 }
 
-static bool get_item(unsigned int offset, struct tailq_entry* val)
+static bool get_item(unsigned int offset, struct tailq_entry** val)
 {
     struct tailq_entry *i;
     unsigned int iter = 0;
@@ -92,7 +92,7 @@ static bool get_item(unsigned int offset, struct tailq_entry* val)
 
     TAILQ_FOREACH_REVERSE(i, &head, tailhead, entries) {
         if (offset == iter) {
-            *val = *i;
+            *val = i;
             exist = 1;
             break;
         } else {
@@ -392,7 +392,7 @@ void execsnoop_refresh(unsigned int item)
 
 int execsnoop_fetch_to_atom(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {
-    struct tailq_entry value;
+    struct tailq_entry *value;
     bool exist;
 
     if (inst == PM_IN_NULL) {
@@ -405,27 +405,27 @@ int execsnoop_fetch_to_atom(unsigned int item, unsigned int inst, pmAtomValue *a
 
     /* bpf.execsnoop.comm */
     if (item == COMM) {
-        atom->cp = value.event.comm;
+        atom->cp = value->event.comm;
     }
     /* bpf.execsnoop.pid */
     if (item == PID) {
-        atom->ul = value.event.pid;
+        atom->ul = value->event.pid;
     }
     /* bpf.execsnoop.ppid */
     if (item == PPID) {
-        atom->ul = value.event.ppid;
+        atom->ul = value->event.ppid;
     }
     /* bpf.execsnoop.ret */
     if (item == RET) {
-        atom->l = value.event.retval;
+        atom->l = value->event.retval;
     }
     /* bpf.execsnoop.args */
     if (item == ARGS) {
-        atom->cp = value.event.args;
+        atom->cp = value->event.args;
     }
     /* bpf.execsnoop.uid */
     if (item == UID) {
-        atom->ul = value.event.uid;
+        atom->ul = value->event.uid;
     }
     /* bpf.execsnoop.lost */
     if (item == LOST) {
