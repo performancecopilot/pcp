@@ -26,7 +26,10 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 
 _filter_sockets()
 {
-    grep -v 'No value(s) available'
+    sed \
+	-e '/No value(s) available/d' \
+	-e '/No such file or directory/d' \
+    #end
 }
 
 pmdasockets_remove()
