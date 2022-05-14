@@ -29,6 +29,7 @@
 
 . "$PCP_DIR/etc/pcp.env"
 . "$PCP_SHARE_DIR/lib/rc-proc.sh"
+. "$PCP_SHARE_DIR/lib/utilproc.sh"
 
 prog=`basename "$0"`
 case "$prog"
@@ -250,34 +251,56 @@ _get_matching_hosts()
 	#
 	set -- '[^#$]'
     fi
-    for host
+    for _host
     do
-	$VERY_VERBOSE && echo "Looking for host $host in class $CLASS ..."
+	$VERY_VERBOSE && echo "Looking for host $_host in class $CLASS ..."
 	rm -f $tmp/primary_seen
-	if [ "$host" = "$LOCALHOST" ]
+	if [ "$_host" = "$LOCALHOST" ]
 	then
-	    pat="($host|LOCALHOSTNAME)"
+	    pat="($_host|LOCALHOSTNAME)"
 	else
-	    pat="$host"
+	    pat="$_host"
 	fi
 	_egrep -r "^($pat|#!#$pat)" $CONTROLFILE $CONTROLDIR \
 	| sed -e 's/|/ /' \
-	| while read ctl_file ctl_line
+	| while read ctl_file host primary socks dir args
 	do
+	    # do shell expansion of $dir if needed ... may juggle
+	    # $dir and $args to ensure correct white space separation
+	    # after shell expansion
+	    #
+	    # small problem exposed by qa/1216 ... if $pat starts .*
+	    # we may pick up comments and _do_dir_and_args tries to
+	    # parse something that is not a real control line
+	    #
+	    case "$host"
+	    in
+		\#!#*)
+			_do_dir_and_args
+			;;
+
+		\#*)	# other non-control comment line
+			;;
+		*)
+			_do_dir_and_args
+			;;
+	    esac
+	    ctl_line="$host $primary $socks $dir $args"
+
 	    # the pattern above returns all possible control lines, but
 	    # may need some further culling
 	    #
 	    ctl_host="`echo "$ctl_line" | sed -e 's/[ 	].*//'`"
-	    if echo "$host" | grep '^[a-zA-Z0-9][a-zA-Z0-9.-]*$' >/dev/null
+	    if echo "$_host" | grep '^[a-zA-Z0-9][a-zA-Z0-9.-]*$' >/dev/null
 	    then
-		# $host is a syntactically correct hostname so we need
+		# $_host is a syntactically correct hostname so we need
 		# an exact match on the first field (up to the first white
 		# space)
 		#
 		if [ "$ctl_host" = "$pat" -o "$ctl_host" = "#!#$pat" ]
 		then
 		    :
-		elif [ "$host" = "$LOCALHOST" ]
+		elif [ "$_host" = "$LOCALHOST" ]
 		then
 		    if [ "$ctl_host" = "LOCALHOSTNAME" -o "$ctl_host" = "#!#LOCALHOSTNAME" ]
 		    then
@@ -291,7 +314,7 @@ _get_matching_hosts()
 		    continue
 		fi
 	    else
-		# otherwise assume $host is a regexp and this could match
+		# otherwise assume $_host is a regexp and this could match
 		# all manner of lines, including comments (consider .*pat)
 		#
 		if echo "$ctl_host" | egrep "^($pat|#!#$pat)" >/dev/null
@@ -418,14 +441,14 @@ _get_matching_hosts()
 	    else
 		if $EXPLICIT_CLASS
 		then
-		    _warning "host $host not defined in class $CLASS for any ${IAM} control file"
+		    _warning "host $_host not defined in class $CLASS for any ${IAM} control file"
 		elif [ -f $tmp/primary_seen ]
 		then
 		    # Warning reported above, don't add chatter here
 		    #
 		    :
 		else
-		    _warning "host $host not defined in any ${IAM} control file"
+		    _warning "host $_host not defined in any ${IAM} control file"
 		fi
 	    fi
 	    continue
@@ -746,6 +769,12 @@ $2 ~ /eval_actual=/	{ evals = $2
 	| _expand_control \
 	| while read host primary socks dir args
 	do
+	    # do shell expansion of $dir if needed ... may juggle
+	    # $dir and $args to ensure correct white space separation
+	    # after shell expansion
+	    #
+	    _do_dir_and_args
+
 	    state=running
 	    case "$host"
 	    in
