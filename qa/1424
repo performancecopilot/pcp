@@ -1,0 +1,96 @@
+#!/bin/sh
+# PCP QA Test No. 1424
+# Check out the pmlogger configuration style being used by Joe White
+# at Center for Computational Research - University at Buffalo.
+#
+# Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    _service pmlogger stop >>$seq.full 2>&1
+    $sudo rm -f $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq
+    $sudo rm -rf $PCP_ARCHIVE_DIR/$seq
+    sleep 1
+    _service pmlogger start >>$seq.full 2>&1
+    _wait_for_pmlogger
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+$sudo rm -rf $PCP_ARCHIVE_DIR/$seq
+
+cat <<End-of-File >$tmp.control
+# Installed by PCP QA test $seq on `date`
+#
+
+# DO NOT REMOVE OR EDIT THE FOLLOWING LINE
+\$version=1.1
+
+# for remote loggers running over a WAN with potentially long delays
+\$PMCD_CONNECT_TIMEOUT=150
+\$PMCD_REQUEST_TIMEOUT=120
+
+LOCALHOSTNAME            n   n        "PCP_ARCHIVE_DIR/$seq/\$(date +%Y)/\$(date +%m)/LOCALHOSTNAME/\$(date +%Y)-\$(date +%m)-\$(date +%d)"	-r -c config.default
+End-of-File
+
+# deal with assorted date and times and hostnames and PIDs ...
+#
+# bozo.localdomain     20220514.13.47    default  1989429 running 
+# ...
+# /var/log/pcp/pmlogger/1424/2022/05/bozo.localdomain/2022-05-14
+# /var/log/pcp/pmlogger/1424/2022/05/bozo.localdomain/2022-05-14/20220514.13.47.index
+#
+_filter()
+{
+    sed \
+	-e "s/`date +%Y`-`date +%m`-`date +%d`/YYYY-MM-DD/" \
+	-e "s/\([^0-9]\)`date +%Y`/\1YYYY/g" \
+	-e "s/YYYY`date +%m`/YYYYMM/g" \
+	-e "s@YYYY/`date +%m`@YYYY/MM@g" \
+	-e "s/MM`date +%d`/MMDD/g" \
+	-e "s@$PCP_ARCHIVE_DIR@PCP_ARCHIVE_DIR@g" \
+	-e 's/\.[0-2][0-9]\.[0-5][0-9]/.TIME/g' \
+	-e 's/TIME-[0-9][0-9]*/TIME/' \
+	-e "s/`hostname`/LOCALHOST/" \
+	-e '/running/s/[0-9][0-9]*/PID/' \
+	-e 's/  */ /g' \
+    # end
+}
+
+# real QA test starts here
+$sudo cp $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq
+cat $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq >>$seq.full
+
+_service pmlogger restart \
+| _filter_pcp_start
+_wait_for_pmlogger
+
+pmlogctl status \
+| _filter
+
+find $PCP_ARCHIVE_DIR/$seq \
+| tee -a $seq.full \
+| _filter \
+| LC_COLLATE=POSIX sort
+
+# success, all done
+exit
