@@ -1878,6 +1878,7 @@ x11
 1422 pmda.mmv local valgrind
 1423 pcp2spark python pcp2xxx local
 1424 logutil pmlogctl local
+1425 logutil local
 1433 pmproxy local pmconfig
 1434 pmda.nfsclient local
 1435 pmda.elasticsearch local

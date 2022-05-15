@@ -11,11 +11,16 @@
 _do_dir_and_args()
 {
     close_quote=''
+    strip_quote=false
     do_shell=false
     case "$dir"
     in
+	\"*\")
+	    # "..."
+	    strip_quote=true
+	    ;;
 	\"*)
-	    # "...."
+	    # "... ..."
 	    close_quote='*"'
 	    ;;
 	\`*)
@@ -23,21 +28,26 @@ _do_dir_and_args()
 	    close_quote='*`'
 	    ;;
 	*\`*)
-	    _error "embedded \` without enclosing \": $dir"
+	    _error "embedded \` without initial \": $dir"
 	    ;;
 	\$\(*)
 	    # $(....)
 	    close_quote='*)'
 	    ;;
 	*\$\(*)
-	    _error "embedded \$( without enclosing \": $dir"
+	    _error "embedded \$( without initial \": $dir"
 	    ;;
 	*\$*)
 	    # ...$...
 	    do_shell=true
 	    ;;
     esac
-    if [ -n "$close_quote" ]
+    if $strip_quote
+    then
+	# just remove the leading and trailing "
+	#
+	dir=`echo "$dir" | sed -e 's/^"//' -e 's/"$//'`
+    elif [ -n "$close_quote" ]
     then
 	# we have a "dir" argument that begins with one of the recognized
 	# quoting mechanisms ... append additional words to $dir (from

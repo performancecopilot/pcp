@@ -1,0 +1,75 @@
+#!/bin/sh
+# PCP QA Test No. 1425
+# exercise _do_dir_and_args() from utilproc.sh
+#
+# Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_SHARE_DIR/lib/utilproc.sh ] || _notrun "utilproc.sh not installed"
+. $PCP_SHARE_DIR/lib/utilproc.sh 
+
+_error()
+{
+    echo "Error: $*"
+}
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_doit()
+{
+    echo
+    echo "+$dir $args+"
+    echo "before dir=\"$dir\" args=\"$args\""
+    _do_dir_and_args
+    echo "after dir=\"$dir\" args=\"$args\""
+}
+
+# real QA test starts here
+dir=foo
+args=bar\ --end\ fumble
+_doit
+
+# Joe White Buffalo-like syntax`
+#
+dir='"/foo/$(echo'
+args="host name | sed -e 's/ //')/bar/\$(date +%Y | sed -e 's/[0-9]/N/g')/\" --end fumble"
+_doit
+
+# Joe White Buffalo-like syntax`with `...` instead of $(...)
+#
+dir='"/foo/`echo'
+args="host name | sed -e 's/ //'\`/bar/\`date +%Y | sed -e 's/[0-9]/N/g'\`/\" --end fumble"
+_doit
+
+# Jeff Avila failng case
+#
+dir='"/some/path/"'
+args='--end fumble'
+_doit
+
+
+# success, all done
+exit

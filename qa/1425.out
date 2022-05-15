@@ -1,0 +1,17 @@
+QA output created by 1425
+
++foo bar --end fumble+
+before dir="foo" args="bar --end fumble"
+after dir="foo" args="bar --end fumble"
+
++"/foo/$(echo host name | sed -e 's/ //')/bar/$(date +%Y | sed -e 's/[0-9]/N/g')/" --end fumble+
+before dir=""/foo/$(echo" args="host name | sed -e 's/ //')/bar/$(date +%Y | sed -e 's/[0-9]/N/g')/" --end fumble"
+after dir="/foo/hostname/bar/NNNN/" args="--end fumble"
+
++"/foo/`echo host name | sed -e 's/ //'`/bar/`date +%Y | sed -e 's/[0-9]/N/g'`/" --end fumble+
+before dir=""/foo/`echo" args="host name | sed -e 's/ //'`/bar/`date +%Y | sed -e 's/[0-9]/N/g'`/" --end fumble"
+after dir="/foo/hostname/bar/NNNN/" args="--end fumble"
+
++"/some/path/" --end fumble+
+before dir=""/some/path/"" args="--end fumble"
+after dir="/some/path/" args="--end fumble"
