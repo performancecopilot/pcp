@@ -825,8 +825,8 @@ x11
 369 pmimport local sanity pmdumplog perl
 370 pmimport local derive pmdumplog perl pmval
 371 sheet2pcp pmimport local pmdumplog perl
-372 sheet2pcp pmimport local pmdumplog perl
-373 iostat2pcp pmimport local perl pmdumplog
+372 sheet2pcp pmimport local pmdumplog perl libpcp_import
+373 iostat2pcp pmimport local perl pmdumplog libpcp_import
 374 pmlc pmlogger remote pmdumplog
 375 pmlc pmlogger remote pmdumplog
 376 trace local pmda.install pmda.trace
@@ -981,7 +981,7 @@ x11
 525 pmda.summary pmie local
 526 pmimport local valgrind
 527 libpcp_import perl local timezone
-528 pmimport pmdumplog perl local
+528 pmimport pmdumplog perl local libpcp_import
 529 pmie local pmdumplog pmda.sample
 530 logutil pmlogextract local
 531 dbpmda local pmda.sample pmda.sample
@@ -1163,7 +1163,7 @@ x11
 707 python libpcp local sanity
 708 python pmimport local
 709:retired pmcollect
-710 python pmimport local pmdumplog
+710 python pmimport local pmdumplog libpcp_import
 711 pmimport pmlogsummary perl local
 712 context libpcp pmcd secure local kernel
 713 context libpcp pmproxy secure local
@@ -1299,7 +1299,7 @@ x11
 843 pmda local python
 844 pmda.linux local
 845 pmda.mounts local python
-846 sheet2pcp pmimport pmdumplog perl local
+846 sheet2pcp pmimport pmdumplog perl local libpcp_import
 847 containers local
 848 pmcd secure local kernel
 849 pmie local
@@ -1379,7 +1379,7 @@ x11
 923 derive libpcp valgrind local
 924 pmda.docker local valgrind helgrind
 925 logutil local
-926 ganglia2pcp local pmdumplog
+926 ganglia2pcp local pmdumplog libpcp_import
 927 derive local kernel
 928 archive local pmdumplog
 929 logutil local
@@ -1438,8 +1438,8 @@ x11
 982 pmda.proc pmda.hotproc local pmstore
 983 pmie local
 984 cgroups local pmlogrewrite
-985 sheet2pcp pmimport pmdumplog perl local
-986 sheet2pcp pmimport pmdumplog perl local
+985 sheet2pcp pmimport pmdumplog perl local libpcp_import
+986 sheet2pcp pmimport pmdumplog perl local libpcp_import
 987 pmda.xfs local
 988 pmda.xfs local valgrind
 989 archive local
@@ -1858,19 +1858,19 @@ x11
 1402 pmlogrewrite pmlogextract archive pmdumplog archive_v3 local
 1403 pmda.linux local valgrind
 1404:reserved
-1405 sheet2pcp pmimport pmdumplog perl local archive_v3
-1406 sheet2pcp pmimport local pmdumplog perl archive_v3
+1405 sheet2pcp pmimport pmdumplog perl local archive_v3 libpcp_import
+1406 sheet2pcp pmimport local pmdumplog perl archive_v3 libpcp_import
 1407 pmchart derive local x11
 1408 pmchart libpcp_qmc local x11
-1409 sheet2pcp pmimport pmdumplog perl local archive_v3
-1410 sheet2pcp pmimport pmdumplog perl local archive_v3
-1411 ganglia2pcp local pmdumplog archive_v3
-1412 pmimport pmdumplog perl local archive_v3
+1409 sheet2pcp pmimport pmdumplog perl local archive_v3 libpcp_import
+1410 sheet2pcp pmimport pmdumplog perl local archive_v3 libpcp_import
+1411 ganglia2pcp local pmdumplog archive_v3 libpcp_import
+1412 pmimport pmdumplog perl local archive_v3 libpcp_import
 1413 pmlogger archive_v3 local
 1414 pmlc pmlogger pmdumplog archive_v3 local
 1415 pmda.mmv labels local
 1416 pmlogrewrite local
-1417 iostat2pcp pmimport perl pmdumplog archive_v3 local
+1417 iostat2pcp pmimport perl pmdumplog archive_v3 local libpcp_import
 1418 pmimport sanity pmdumplog perl archive_v3 local
 1419 pmlogger pmdumplog pmloglabel pmlc v3_archive local
 1420 pmlogreduce pmval pmlogextract v3_archive local

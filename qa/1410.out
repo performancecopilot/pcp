@@ -29,7 +29,6 @@ Instance Domains in the Log ...
 Temporal Index
 			Log Vol    end(meta)     end(log)
 01:02:00.000000000	      0          808          808
-01:02:00.000000000	      0         1048          808
 13:02:00.000000000	      0         1048         1480
 
 [168 bytes]
