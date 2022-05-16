@@ -1,0 +1,61 @@
+QA output created by 1623
+checking one volume created without PCP_LOGIMPORT_MAXLOGSZ
+checking temporal index
+
+Temporal Index
+		Log Vol    end(meta)     end(log)
+TIMESTAMP      0          132          132
+TIMESTAMP      0        19458       154392
+TIMESTAMP      0        19458       231112
+TIMESTAMP      0        19458       307832
+TIMESTAMP      0        19458       346192
+TIMESTAMP      0        26426       500048
+TIMESTAMP      0        26426       576768
+TIMESTAMP      0        26426       653488
+TIMESTAMP      0        27379       732128
+[0] len=132 magic=0x50052602 (version=2) @ offset=0
+[1] len=154260 @ offset=132
+[2] len=38360 @ offset=154392
+[3] len=38360 @ offset=192752
+[4] len=38360 @ offset=231112
+[5] len=38360 @ offset=269472
+[6] len=38360 @ offset=307832
+[7] len=153856 @ offset=346192
+[8] len=38360 @ offset=500048
+[9] len=38360 @ offset=538408
+[10] len=38360 @ offset=576768
+[11] len=38360 @ offset=615128
+[12] len=39320 @ offset=653488
+[13] len=39320 @ offset=692808
+checking 4 volumes created with PCP_LOGIMPORT_MAXLOGSZ=250000
+checking temporal index
+
+Temporal Index
+		Log Vol    end(meta)     end(log)
+TIMESTAMP      0          132          132
+TIMESTAMP      0        19458       154392
+TIMESTAMP      1        19458          132
+TIMESTAMP      1        19458        76852
+TIMESTAMP      2        19458          132
+TIMESTAMP      2        26426       153988
+TIMESTAMP      3        26426          132
+TIMESTAMP      3        26426        76852
+TIMESTAMP      3        27379       155492
+[0] len=132 magic=0x50052602 (version=2) @ offset=0
+[1] len=154260 @ offset=132
+[2] len=38360 @ offset=154392
+[3] len=38360 @ offset=192752
+[0] len=132 magic=0x50052602 (version=2) @ offset=0
+[1] len=38360 @ offset=132
+[2] len=38360 @ offset=38492
+[3] len=38360 @ offset=76852
+[0] len=132 magic=0x50052602 (version=2) @ offset=0
+[1] len=153856 @ offset=132
+[2] len=38360 @ offset=153988
+[3] len=38360 @ offset=192348
+[0] len=132 magic=0x50052602 (version=2) @ offset=0
+[1] len=38360 @ offset=132
+[2] len=38360 @ offset=38492
+[3] len=39320 @ offset=76852
+[4] len=39320 @ offset=116172
+check they replay the same, expect no diff
