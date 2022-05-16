@@ -53,7 +53,7 @@ processed $dir |embedded_backquote2015.postfix| $args |-c someconfig|
 
 input $dir |bad_embedded_backquote`date| $args |+2015`.postfix -c someconfig|
 [<stdin>:16]
-Error: embedded ` without enclosing ": bad_embedded_backquote`date
+Error: embedded ` without initial ": bad_embedded_backquote`date
 processed $dir |bad_embedded_backquote`date| $args |+2015`.postfix -c someconfig|
 
 input $dir |"embedded_cmd$(date| $args |+2015).postfix" -c someconfig|
@@ -61,5 +61,5 @@ processed $dir |embedded_cmd2015.postfix| $args |-c someconfig|
 
 input $dir |bad_embedded_cmd$(date| $args |+2015).postfix -c someconfig|
 [<stdin>:18]
-Error: embedded $( without enclosing ": bad_embedded_cmd$(date
+Error: embedded $( without initial ": bad_embedded_cmd$(date
 processed $dir |bad_embedded_cmd$(date| $args |+2015).postfix -c someconfig|
