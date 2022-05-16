@@ -2002,6 +2002,7 @@ x11
 1850 pmseries libpcp_web local
 1854 pmlogger pmimport pmconfig local
 1855 pmda.rabbitmq local
+1856 dstat python local
 1871 pmsearch local
 1872 pmproxy local
 1874 pmseries pmproxy local

@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2018-2021 Red Hat.
+# Copyright (C) 2018-2022 Red Hat.
 # Copyright (C) 2004-2016 Dag Wieers <dag@wieers.com>
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -298,21 +298,19 @@ class DstatPlugin(object):
 
     def statwidth(self):
         """Return complete width for this plugin"""
-        return len(self.names) * self.colwidth() + len(self.names) - 1
-
-    def colwidth(self):
-        """Return column width"""
-        return self.width
+        if self.grouptype == 4:
+            return self.width
+        return len(self.names) * self.width + len(self.names) - 1
 
     def instlist(self):
-        if self.grouptype > 2:
+        if self.grouptype == 3:
             return self.igroup + ['total']
-        elif self.grouptype > 1:
+        elif self.grouptype == 2:
             return ['total']
         return self.igroup
 
     def title(self):
-        if self.grouptype is None:
+        if self.grouptype is None or self.grouptype == 4:
             width = self.statwidth()
             label = self.label[0:width].center(width).replace(' ', '-')
             return THEME['title'] + label + THEME['default']
@@ -332,10 +330,12 @@ class DstatPlugin(object):
 
     def subtitle(self):
         ret = ''
-        if self.grouptype is None:
+        if self.grouptype is None or self.grouptype == 4:
             for i, nick in enumerate(self.names):
                 label = nick[0:self.width].center(self.width)
                 ret = ret + THEME['subtitle'] + label + THEME['default']
+                if self.grouptype == 4:
+                    break
                 if i + 1 != len(self.names):
                     ret = ret + CHAR['space']
             return ret
@@ -344,6 +344,8 @@ class DstatPlugin(object):
             for j, nick in enumerate(self.names):
                 label = nick[0:self.width].center(self.width)
                 ret = ret + THEME['subtitle'] + label + THEME['default']
+                if self.grouptype == 4:  # top
+                    return ret
                 if j + 1 != len(self.names):
                     ret = ret + CHAR['space']
             if i + 1 != len(ilist):
@@ -351,9 +353,11 @@ class DstatPlugin(object):
         return ret
 
     def csvtitle(self):
-        if self.grouptype is None:
-            label = '"' + self.label + '"' + CHAR['sep'] * (len(self.names) - 1)
-            return label
+        if self.grouptype is None or self.grouptype == 4:
+            ret = '"' + self.label
+            if self.grouptype is None:
+                return ret + '"' + CHAR['sep'] * (len(self.names) - 1)
+            return ret + ' ' + self.names[0] + '"' + CHAR['sep'] * (len(self.names) - 2)
         ret = ''
         ilist = self.instlist()
         for i, name in enumerate(ilist):
@@ -374,6 +378,14 @@ class DstatPlugin(object):
                     ret = ret + CHAR['sep']
                 ret = ret + '"' + nick + '"'
             return ret
+        if self.grouptype == 4:
+            for i, nick in enumerate(self.names):
+                if i == 0:  # sort key
+                    continue
+                if i > 1:
+                    ret = ret + CHAR['sep']
+                ret = ret + '"' + nick + '"'
+            return ret
         ilist = self.instlist()
         for i, name in enumerate(ilist):
             name = self.label.replace('%I', name)
@@ -381,6 +393,8 @@ class DstatPlugin(object):
                 if j > 0 or i > 0:
                     ret = ret + CHAR['sep']
                 ret = ret + '"' + name + CHAR['colon'] + nick + '"'
+                if self.grouptype == 4:  # top
+                    return ret
         return ret
 
 
@@ -642,10 +656,10 @@ class DstatTool(object):
                             print("Default %s %s -> %s" % (section, key, value))
                         if key in ['width', 'precision', 'limit', 'grouptype']:
                             value = int(value)
-                        elif key in ['colorstep']:
-                            value = float(value)
                         elif key in ['printtype']:
                             value = value[0]    # first character suffices
+                        elif key in ['colorstep']:
+                            value = float(value)
                         elif key in ['instances']:
                             value = lib.parse_instances(value)
                         elif key in ['cullinsts']:
@@ -1132,6 +1146,15 @@ class DstatTool(object):
         return ret, c
 
     @staticmethod
+    def schg(string, width):
+        "Ensure given string fits into and fills the given width"
+        if len(string) < width:
+            return string + '%-*s' % (width - len(string), ' ')
+        if len(string) > width:
+            return string[0:width]
+        return string
+
+    @staticmethod
     def showtime(plugin, stamp):
         "Format a sample time stamp"
         value = ''
@@ -1183,11 +1206,16 @@ class DstatTool(object):
         valueset.append(value)
         return valueset
 
-    def maverage(self, valueset, key):
+    def maverage(self, valueset, key, pmtype):
         "Perform valueset averaging calculation, return current average"
+        if valueset is None or len(valueset) == 0:
+            return None
+        if pmtype not in [PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64,
+                          PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE]:
+            return valueset[0]
         value = sum(valueset) / len(valueset)
         #sys.stderr.write("average[%s] %s = %s / %s%s\n" %
-        #(key, value, sum(valueset), len(valueset), THEME['default']))
+        #    (key, value, sum(valueset), len(valueset), THEME['default']))
         return value
 
     def mupdate(self, valuesets, valueset, key):
@@ -1223,7 +1251,7 @@ class DstatTool(object):
                 line = line + sep
             key = self.mgetkey(label, instid)
             valueset = self.mappend(valuesets, key, pmtype, value)
-            value = self.maverage(valueset, key)
+            value = self.maverage(valueset, key, pmtype)
             self.mcleanup(valuesets, key)
             self.mupdate(valuesets, valueset, key)
             #sys.stderr.write("mshow result value:\n%s%s\n" % (value, THEME['default']))
@@ -1239,6 +1267,8 @@ class DstatTool(object):
         "Value rounding for comma-separated-value output"
         if var is None:
             return ''
+        if isinstance(var, str):
+            return '"' + var + '"'
         if var != round(var):
             return '%.3f' % var
         return '%d' % round(var)
@@ -1266,18 +1296,16 @@ class DstatTool(object):
     def instance_match(inst, plugin):
         if plugin.instances and inst in plugin.instances:
             return True
-        return plugin.grouptype == 1
+        return plugin.grouptype in [1, 4]
+
+    @staticmethod
+    def top_sort_key(name, plugin):
+        if plugin.grouptype == 4:
+            return name[len(name)-4:len(name)] == '.top'
+        return False
 
     def gshow(self, plugin, results):
         "Display stat group results"
-        metric = op.metrics[plugin.mgroup[0]]
-        #sys.stderr.write("Result metric: %s\n" % metric)
-        units = metric[2][1]
-        width = metric[4]
-        pmtype = metric[5].pmtype
-        printtype = metric[8]
-        colorstep = metric[9]
-
         line = ''
         count = 0
         col = THEME['frame'] + CHAR['colon']
@@ -1287,11 +1315,33 @@ class DstatTool(object):
             metric = op.metrics[plugin.mgroup[i]]
             result = results[name]
             valuesets = metric[13]
+            pmtype = metric[5].pmtype
             label = metric[0]
+            top_instance = None
+            top_value = 0
+            top_key = self.top_sort_key(name, plugin)  # boolean: top sort key?
+
+            if top_key:
+                plugin.igroup = []  # empty out for subsequent re-evaluation
+
             for instid, _, value in result:
                 key = self.mgetkey(label, instid)
                 valueset = self.mappend(valuesets, key, pmtype, value)
                 self.mupdate(valuesets, valueset, key)
+
+            # assess top-most instance and update instances list
+            if top_key and pmtype in [PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64,
+                                    PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE]:
+                for instid, instname, value in result:
+                    key = self.mgetkey(label, instid)
+                    valueset = self.mlookup(valuesets, key)
+                    value = self.maverage(valueset, key, pmtype)
+                    if value > top_value:
+                        top_instance = instname
+                        top_value = value
+                if top_value == 0:  # short-circuit if no top-most instance found
+                    return line + '%-*s' % (plugin.width, ' ')
+                plugin.igroup = [top_instance]  # otherwise we restrict instances
 
         # next, iterate over specific instances requested and report values
         for inst in plugin.igroup:      # e.g. [cpu0, cpu1, total]
@@ -1300,13 +1350,24 @@ class DstatTool(object):
                 result = results[name]
                 valuesets = metric[13]
                 label = metric[0]
+                units = metric[2][1]
+                width = metric[4]
+                pmtype = metric[5].pmtype
+                printtype = metric[8]
+                colorstep = metric[9]
                 value = None
+
+                if plugin.grouptype == 4:
+                    if self.top_sort_key(name, plugin):  # skip it if so
+                        continue
+                    if metric[10] is not None:
+                        colorstep = int(metric[10])
 
                 for instid, instname, _ in result:
                     if instname == inst:
                         key = self.mgetkey(label, instid)
                         valueset = self.mlookup(valuesets, key)
-                        value = self.maverage(valueset, key)
+                        value = self.maverage(valueset, key, pmtype)
                 #sys.stderr.write("[%s] inst=%s value=%s\n" % (name, inst, str(value)))
                 if not self.instance_match(inst, plugin):
                     continue
@@ -1319,8 +1380,7 @@ class DstatTool(object):
                 line = line + self.cprint(value, units, printtype, pmtype, width, colorstep)
                 count += 1
 
-        # next, handle the total column (if requested) and report a value
-        if plugin.grouptype > 1:   # report 'total' (sum) calculation
+        if plugin.grouptype in [2, 3]:         # report 'total' (sum) calculation
             totals = [0] * len(plugin.mgroup)
             for i, name in enumerate(plugin.mgroup):        # e.g. [usr, sys, idl]
                 metric = op.metrics[name]
@@ -1328,13 +1388,18 @@ class DstatTool(object):
                 result = results[name]
                 valuesets = metric[13]
                 label = metric[0]
+                units = metric[2][1]
+                width = metric[4]
+                pmtype = metric[5].pmtype
+                printtype = metric[8]
+                colorstep = metric[9]
 
                 for instid, instname, _ in result:
                     if plugin.cullinsts is not None and re.match(plugin.cullinsts, instname):
                         continue
                     key = self.mgetkey(label, instid)
                     valueset = self.mlookup(valuesets, key)
-                    totals[i] += self.maverage(valueset, key)
+                    totals[i] += self.maverage(valueset, key, pmtype)
                     values += 1
 
             if values == 0:
@@ -1365,14 +1430,41 @@ class DstatTool(object):
         count = 0
         totals = [0] * len(plugin.mgroup)
 
+        # first iterate over the result and update all metric instance valuesets
+        for i, name in enumerate(plugin.mgroup):        # e.g. [usr, sys, idl]
+            metric = op.metrics[plugin.mgroup[i]]
+            result = results[name]
+            pmtype = metric[5].pmtype
+            top_instance = None
+            top_value = 0
+            top_key = self.top_sort_key(name, plugin)  # boolean: top sort key?
+
+            if top_key:
+                plugin.igroup = []  # empty out for subsequent re-evaluation
+
+            # assess top-most instance and update instances list
+            if top_key and pmtype in [PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64,
+                                    PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE]:
+                for _, instname, value in result:
+                    if value > top_value:
+                        top_instance = instname
+                        top_value = value
+                if top_value == 0:  # short-circuit if no top-most instance found
+                    return ''
+                plugin.igroup = [top_instance]  # otherwise we restrict instances
+
         for inst in plugin.igroup:      # e.g. [cpu0, cpu1, total]
             for i, name in enumerate(plugin.mgroup):        # e.g. [usr, sys, idl]
                 result = results[name]
                 value = None
+                if self.top_sort_key(name, plugin):
+                    continue
+
                 for _, instname, val in result:
                     if instname == inst:
                         value = val
-                #sys.stderr.write("[%s] inst=%s name=%s value=%s\n" % (name, instid, instname, str(value)))
+                #sys.stderr.write("[%s] inst=%s name=%s value=%s\n" %
+                #                (name, instid, instname, str(value)))
                 if not self.instance_match(inst, plugin):
                     continue
                 if plugin.grouptype == 2:   # total only
@@ -1382,7 +1474,7 @@ class DstatTool(object):
                 line = line + self.roundcsv(value)
                 count += 1
 
-        if plugin.grouptype > 1:   # report 'total' (sum) calculation
+        if plugin.grouptype in [2, 3]:   # report 'total' (sum) calculation
             for i, name in enumerate(plugin.mgroup):        # e.g. [usr, sys, idl]
                 values = 0
                 result = results[name]
@@ -1498,8 +1590,8 @@ class DstatTool(object):
             cunit = THEME['unit_hi']
             cdone = THEME['done_hi']
 
-        #sys.stderr.write("printtype: %s\n" % str(printtype))
-        #sys.stderr.write("colorstep: %s\n" % str(colorstep))
+        #sys.stderr.write("printtype: %s width=%d\n" % (str(printtype), width))
+        #sys.stderr.write("colorstep: %s value=%s\n" % (colorstep, str(value)))
 
         ### Convert value to string given base and field-length
         if op.integer and printtype in ('b', 'd', 'p', 'f'):
@@ -1511,7 +1603,7 @@ class DstatTool(object):
         elif printtype in ('f',):
             ret, c = self.fchg(value, width, base)
         elif printtype in ('s',):
-            ret, c = str(value), ctext
+            ret, c = self.schg(value, width), ctext
         elif printtype in ('t',):
             ret, c = self.tchg(value, width), ctext
         else:
@@ -1522,7 +1614,7 @@ class DstatTool(object):
             color = cunit
         elif printtype in ('p') and py3round(value) >= 100.0:
             color = cdone
-        elif colorstep is not None:
+        elif printtype not in ('s') and colorstep is not None and colorstep != 0:
             color = colors[int(value/colorstep) % len(colors)]
         elif printtype in ('b', 'd', 'f'):
             color = colors[c % len(colors)]

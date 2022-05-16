@@ -39,6 +39,7 @@ require {
 	type pcp_pmlogger_t;
 	type pcp_pmproxy_t;
 	type pcp_tmp_t;
+	type pcp_tmpfs_t;
 	type pcp_var_lib_t;
 	type ping_exec_t; # pmda.netcheck
 	type postgresql_var_run_t;
@@ -198,6 +199,12 @@ allow pcp_pmcd_t pcp_tmp_t:file { execute execute_no_trans @PCP_TMP_MAP@ };
 #type=AVC msg=audit(YYY.26): avc:  denied  { open } for  pid=8657 comm="sh" path="/usr/bin/hostname" dev="dm-1" ino=1051243 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
 #type=AVC msg=audit(YYY.27): avc:  denied  { execute_no_trans } for  pid=8657 comm="sh" path="/usr/bin/hostname" dev="dm-1" ino=1051243 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
 allow pcp_pmcd_t hostname_exec_t:file { getattr execute read open execute_no_trans };
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=2050094
+#type=AVC msg=audit(YYY.787): avc:  denied  { execute } for  pid=216047 comm="python3" path=2F6D656D66643A6C6962666669202864656C6574656429 dev="tmpfs" ino=919210 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_tmpfs_t:s0 tclass=file permissive=0
+# libffi (used by Python/ctypes) wants to execute from memfd:libffi (a memory mapped file)
+# similar to selinux-policy PR: https://github.com/fedora-selinux/selinux-policy/pull/1019
+can_exec(pcp_pmcd_t, pcp_tmpfs_t)
 
 # pmda.perfevent
 #type=AVC msg=audit(YYY.28): avc:  denied  { mount } for  pid=22090 comm="pmdaperfevent" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=filesystem permissive=0

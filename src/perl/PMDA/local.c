@@ -214,18 +214,6 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
     return me;
 }
 
-static char *
-local_filetype(int type)
-{
-    if (type == FILE_SOCK)
-	return "socket connection";
-    if (type == FILE_PIPE)
-	return "command pipe";
-    if (type == FILE_TAIL)
-	return "tailed file";
-    return NULL;
-}
-
 int
 local_files_get_descriptor(int id)
 {

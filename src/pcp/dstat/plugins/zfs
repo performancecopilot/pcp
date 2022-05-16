@@ -1,0 +1,65 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
+#
+
+[zfs-arc]
+label = ZFS ARC
+width = 5
+size = zfs.arc.size
+size.label = mem
+size.printtype = b
+size.colorstep = 1024
+hits = zfs.arc.hits
+hits.label = hits
+hits.printtype = d
+hits.colorstep = 1000
+misses = zfs.arc.misses
+misses.label = miss
+misses.printtype = d
+misses.colorstep = 1000
+total = zfs.arc.hits + zfs.arc.misses
+total.label = reads
+total.printtype = d
+total.colorstep = 1000
+hit_rate = (rate(zfs.arc.hits) / (rate(zfs.arc.hits) + rate(zfs.arc.misses)) * 100.0)
+hit_rate.label = hit%
+hit_rate.colorstep = 34
+hit_rate.printtype = p
+
+[zfs-l2arc]
+label = ZFS L2ARC
+width = 5
+size = zfs.arc.l2.size
+size.label = size
+size.printtype = b
+size.colorstep = 1024
+hits = zfs.arc.l2.hits
+hits.label = hit
+hits.printtype = d
+hits.colorstep = 1000
+misses = zfs.arc.l2.misses
+misses.label = miss
+misses.printtype = d
+misses.colorstep = 1000
+hit_rate = (rate(zfs.arc.l2.hits) / (rate(zfs.arc.l2.hits) + rate(zfs.arc.l2.misses)) * 100.0)
+hit_rate.label = hit%
+hit_rate.colorstep = 34
+hit_rate.printtype = p
+read_bytes = zfs.arc.l2.read_bytes
+read_bytes.label = read
+read_bytes.printtype = b
+read_bytes.colorstep = 1024
+write_bytes = zfs.arc.l2.write_bytes
+write_bytes.label = write
+write_bytes.printtype = b
+write_bytes.colorstep = 1024
+
+[zfs-zil]
+label = ZFS ZIL
+width = 5
+count = zfs.zil.itx.metaslab.slog_count
+count.printtype = d
+count.colorstep = 1000
+bytes = zfs.zil.itx.metaslab.slog_bytes
+bytes.printtype = b
+bytes.colorstep = 1024

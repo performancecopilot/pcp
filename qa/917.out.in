@@ -40,6 +40,7 @@ Checking policies.
   allow [pcp_pmcd_t] [websm_port_t] : [tcp_socket] { name_connect };
 ! allow [pcp_pmcd_t] [pcp_tmp_t] : [file] { execute execute_no_trans map };
   allow [pcp_pmcd_t] [hostname_exec_t] : [file] { execute execute_no_trans getattr open read };
+  allow [pcp_pmcd_t] [pcp_tmpfs_t] : [file] { execute execute_no_trans getattr ioctl lock map open read };
 ! allow [pcp_pmcd_t] [tracefs_t] : [filesystem] { mount };
 ! allow [pcp_pmcd_t] [tracefs_t] : [file] { append getattr open read write };
 ! allow [pcp_pmcd_t] [tracefs_t] : [dir] { open read search };

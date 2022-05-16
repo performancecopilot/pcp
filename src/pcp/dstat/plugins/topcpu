@@ -1,0 +1,84 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
+#
+
+[top-cpu]
+label = most expensive
+top = ((rate(proc.psinfo.utime) + rate(proc.psinfo.stime)) / hinv.ncpu)
+top.label = cpu process
+width = 16
+grouptype = 4
+cmd = proc.psinfo.cmd
+cmd.width = 12
+cpu = 100 * ((rate(proc.psinfo.utime) + rate(proc.psinfo.stime)) / hinv.ncpu)
+cpu.width = 3
+cpu.printtype = d
+cpu.colorstep = 34
+
+[top-cpu-adv]
+label = most expensive cpu process
+top = ((rate(proc.psinfo.utime) + rate(proc.psinfo.stime)) / hinv.ncpu)
+top.label = process              pid  cpu
+width = 29
+grouptype = 4
+cmd = proc.psinfo.cmd
+cmd.width = 16
+pid = proc.psinfo.pid
+pid.width = 8
+pid.printtype = d
+cpu = 100 * ((rate(proc.psinfo.utime) + rate(proc.psinfo.stime)) / hinv.ncpu)
+cpu.width = 3
+cpu.printtype = d
+cpu.colorstep = 34
+
+[top-cputime]
+label = highest total
+top = rate(proc.schedstat.cpu_time)
+top.label = cputime process
+width = 17
+grouptype = 4
+cmd = proc.psinfo.cmd
+cmd.width = 12
+avg = rate(proc.schedstat.cpu_time)
+avg.width = 4
+avg.printtype = f
+avg.colorstep = 100
+
+[top-cputime-avg]
+label = highest average
+top = rate(proc.schedstat.cpu_time) / rate(proc.schedstat.pcount)
+top.label = cputime process
+width = 17
+grouptype = 4
+cmd = proc.psinfo.cmd
+cmd.width = 12
+avg = rate(proc.schedstat.cpu_time) / rate(proc.schedstat.pcount)
+avg.width = 4
+avg.printtype = f
+avg.colorstep = 100
+
+[top-latency]
+label = highest total
+top = rate(proc.schedstat.run_delay)
+top.label = latency process
+width = 17
+grouptype = 4
+cmd = proc.psinfo.cmd
+cmd.width = 12
+avg = rate(proc.schedstat.run_delay)
+avg.width = 4
+avg.printtype = f
+avg.colorstep = 100
+
+[top-latency-avg]
+label = highest average
+top = rate(proc.schedstat.run_delay) / rate(proc.schedstat.pcount)
+top.label = latency process
+width = 17
+grouptype = 4
+cmd = proc.psinfo.cmd
+cmd.width = 12
+avg = rate(proc.schedstat.run_delay) / rate(proc.schedstat.pcount)
+avg.width = 4
+avg.printtype = f
+avg.colorstep = 100

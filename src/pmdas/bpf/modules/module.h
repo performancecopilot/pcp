@@ -5,6 +5,7 @@
 #include <pcp/pmda.h>
 #include <math.h>
 #include "dict.h"
+#include "sds.h"
 
 typedef int (*init_fn_t)(dict *cfg, char *module_name);
 typedef void (*register_fn_t)(unsigned int cluster_id, pmdaMetric *metrics, pmdaIndom *indoms);
@@ -38,7 +39,7 @@ typedef struct module {
 
     /**
      * Set indom serial to support dynamic indom setup
-     * 
+     *
      * Will be called "indom_count" times, start ing from 0 to "indom_count - 1", to inform
      * this module what the global indom id is for the given local id.
      */
@@ -107,7 +108,8 @@ typedef struct module {
  */
 char *all_modules[] = {
     "runqlat",
-    "biolatency"
+    "biolatency",
+    "execsnoop",
 };
 
 /**
@@ -135,6 +137,22 @@ void fill_instids_log2(unsigned int slot_count, pmdaInstid slots[]) {
         if (ret > 0) {
             slots[i].i_inst = i;
             slots[i].i_name = string;
+        }
+    }
+}
+
+void fill_instids(unsigned int slot_count, pmdaInstid **slots) {
+    if ((*slots = malloc(slot_count * sizeof(pmdaInstid))) == NULL) {
+        pmNotifyErr(LOG_ERR, "pmdaInstid: realloc err: %d", PM_FATAL_ERR);
+        exit(1);
+    }
+    for (int i = 0; i < slot_count; i++) {
+        char *string;
+
+        int ret = asprintf(&string, "%d", i);
+        if (ret > 0) {
+            (*slots)[i].i_name = string;
+            (*slots)[i].i_inst = i;
         }
     }
 }

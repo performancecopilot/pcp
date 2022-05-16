@@ -1,0 +1,41 @@
+QA output created by 1856
+Top CPU
+=== std out
+----system---- ----total-usage---- -most-expensive-
+     time     |usr sys idl wai stl|  cpu process   
+25-09 11:03:20|                   |                
+25-09 11:03:21|  2   1  96   2   0|pmdaproc     0.8
+25-09 11:03:22|  1   1  98   0   0|pmdaproc     0.5
+=== std err
+=== done
+
+CSV contents
+"pcp-dstat VERSION CSV Output"
+"Author:","PCP team <pcp@groups.io> and Dag Wieers <dag@wieers.com>",,,,"URL:","https://pcp.io/ and http://dag.wieers.com/home-made/dstat/"
+"Host:","slick",,,,"User:","USER"
+"Cmdline:","pcp-dstat --time --cpu --top-cpu --output TMP.csv 1 2",,,,"Date:","DATE"
+"system","total usage",,,,,"most expensive cpu process",
+"time","total usage:usr","total usage:sys","total usage:idl","total usage:wai","total usage:stl","cmd","cpu"
+25-09 11:03:20,,
+25-09 11:03:21,1.550,1.300,95.775,1.950,0,"pmdaproc",0.775
+25-09 11:03:22,0.750,0.725,98.225,0.125,0,"pmdaproc",0.525
+Top I/O
+=== std out
+----system---- ----most-expensive-block-I/O-process---- ------most-expensive-----
+     time     |process              pid  read write cpu|    block I/O process    
+25-09 11:03:20|                                        |                         
+25-09 11:03:21|pmlogger             662     0 148.8 0.0|pmlogger          0 148.8
+25-09 11:03:22|pmlogger             662     0 130.7   0|pmlogger          0 130.7
+=== std err
+=== done
+
+CSV contents
+"pcp-dstat VERSION CSV Output"
+"Author:","PCP team <pcp@groups.io> and Dag Wieers <dag@wieers.com>",,,,"URL:","https://pcp.io/ and http://dag.wieers.com/home-made/dstat/"
+"Host:","slick",,,,"User:","USER"
+"Cmdline:","pcp-dstat --time --top-bio-adv --top-bio --output TMP.csv2 1 2",,,,"Date:","DATE"
+"system","most expensive block I/O process process              pid  read write cpu",,,,,"most expensive block I/O process",,
+"time","cmd","pid","read","write","cpu","cmd","read","write"
+25-09 11:03:20,,
+25-09 11:03:21,"pmlogger",662,0,152400,0.003,"pmlogger",0,152400
+25-09 11:03:22,"pmlogger",662,0,133879,0,"pmlogger",0,133879

@@ -26,7 +26,10 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 
 _filter_sockets()
 {
-    grep -v 'No value(s) available'
+    sed \
+	-e '/No value(s) available/d' \
+	-e '/No such file or directory/d' \
+    #end
 }
 
 pmdasockets_remove()
@@ -69,17 +72,18 @@ _stop_auto_restart pmcd
 pmdasockets_install
 
 # pmcd should have been started by the Install process - check
-if pminfo -v network.persocket > $tmp.info 2> $tmp.err
+if pminfo -v network.persocket > $tmp.out 2> $tmp.err
 then
     :
 else
     echo "... failed! ... here is the Install log ..."
     cat $tmp.out
 fi
-cat $tmp.info $tmp.err | _filter_sockets
+cat $tmp.out $tmp.err | _filter_sockets
 
 echo "Check the values for v6only metric are 0 or 1 ..."
-pminfo -f network.persocket.v6only | egrep -v 'value [01]$' | sed -e '/^$/d'
+pminfo -f network.persocket.v6only > $tmp.out 2> $tmp.err
+cat $tmp.out $tmp.err | _filter_sockets | egrep -v 'value [01]$' | sed -e '/^$/d'
 
 pmdasockets_remove
 status=0

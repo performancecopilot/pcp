@@ -97,7 +97,7 @@ int bpf_printfn(enum libbpf_print_level level, const char *out, va_list ap)
     char logline[1024];
     vsprintf(logline, out, ap);
     size_t ln = strlen(logline) - 1;
-    if (*logline && logline[ln] == '\n') 
+    if (*logline && logline[ln] == '\n')
         logline[ln] = '\0';
 
     int pmLevel;
@@ -214,11 +214,11 @@ bpf_load_modules(dict *cfg)
         entry_key = dictGetKey(entry);
         entry_val = dictGetVal(entry);
 
-        // to find sections, we look for 'module.so:enabled' = 'true'
+        // to find sections, we look for 'module.so.enabled' = 'true'
         // we don't know what module.so is, so we have to do a little string setup
-        entry_key_split = sdssplitlen(entry_key, sdslen(entry_key), ":", 1, &split_count);
-        if (split_count != 2
-            || (sdscmp(entry_key_split[1], sds_enabled) != 0)
+        entry_key_split = sdssplitlen(entry_key, sdslen(entry_key), ".", 1, &split_count);
+        if (split_count != 3
+            || (sdscmp(entry_key_split[2], sds_enabled) != 0)
             || (sdscmp(entry_val, sds_true) != 0))
         {
             sdsfreesplitres(entry_key_split, split_count);
@@ -227,7 +227,12 @@ bpf_load_modules(dict *cfg)
 
         // if we have a module, we can load and initialise it
 
-        module_name = strdup(entry_key_split[0]);
+        ret = asprintf(&module_name, "%s%s", entry_key_split[0], ".so");
+        if (ret < 0) {
+            pmNotifyErr(LOG_ERR, "could not parse module_name");
+            continue;
+        }
+
         sdsfreesplitres(entry_key_split, split_count);
         pmNotifyErr(LOG_INFO, "loading %s", module_name);
 
@@ -455,7 +460,7 @@ dict_handler(void *arg, const char *section, const char *key, const char *value)
     sds		name;
     int		sts;
 
-    name = sdscatfmt(sdsempty(), "%s:%s", section ? section : pmGetProgname(), key);
+    name = sdscatfmt(sdsempty(), "%s.%s", section ? section : pmGetProgname(), key);
     sts = dictReplace(config, name, sdsnew(value)) != DICT_OK;
     sdsfree(name);
     return sts;
@@ -498,7 +503,7 @@ bpf_config_load()
 /*
  * Initialise the agent (both daemon and DSO).
  */
-void 
+void
 bpf_init(pmdaInterface *dp)
 {
     if (isDSO) {

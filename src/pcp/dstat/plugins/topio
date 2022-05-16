@@ -1,0 +1,44 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
+#
+
+[top-io]
+label = most expensive
+top = rate(proc.io.rchar) + rate(proc.io.rchar)
+top.label = I/O process
+width = 24
+grouptype = 4
+cmd = proc.psinfo.cmd
+cmd.width = 12
+read = proc.io.rchar
+read.width = 5
+read.printtype = d
+read.colorstep = 1024
+write = proc.io.wchar
+write.width = 5
+write.printtype = d
+write.colorstep = 1024
+
+[top-io-adv]
+label = most expensive I/O process
+top = rate(proc.io.rchar) + rate(proc.io.wchar)
+top.label = process              pid  read write cpu
+width = 40
+grouptype = 4
+cmd = proc.psinfo.cmd
+cmd.width = 15
+pid = proc.psinfo.pid
+pid.width = 8
+pid.printtype = d
+read = proc.io.rchar
+read.width = 5
+read.printtype = d
+read.colorstep = 1024
+write = proc.io.wchar
+write.width = 5
+write.printtype = d
+write.colorstep = 1024
+cpu = ((rate(proc.psinfo.utime) + rate(proc.psinfo.stime)) / hinv.ncpu)
+cpu.width = 3
+cpu.printtype = f
+cpu.colorstep = 34
