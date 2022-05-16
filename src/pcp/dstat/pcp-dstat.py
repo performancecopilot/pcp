@@ -1353,14 +1353,15 @@ class DstatTool(object):
                 units = metric[2][1]
                 width = metric[4]
                 pmtype = metric[5].pmtype
-                printtype = metric[9]
-                colorstep = None
+                printtype = metric[8]
+                colorstep = metric[9]
                 value = None
 
-                if self.top_sort_key(name, plugin):  # skip it if so
-                    continue
-                if metric[10] is not None:
-                    colorstep = int(metric[10])
+                if plugin.grouptype == 4:
+                    if self.top_sort_key(name, plugin):  # skip it if so
+                        continue
+                    if metric[10] is not None:
+                        colorstep = int(metric[10])
 
                 for instid, instname, _ in result:
                     if instname == inst:

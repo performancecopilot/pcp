@@ -1,11 +1,11 @@
 QA output created by 1856
 Top CPU
 === std out
-----system---- ----total-usage---- -----most-expensive-----
-     time     |usr sys idl wai stl|      cpu process       
-25-09 11:03:20|                   |                        
-25-09 11:03:21|  2   1  96   2   0|pmdaproc           1
-25-09 11:03:22|  1   1  98   0   0|pmdaproc           1
+----system---- ----total-usage---- -most-expensive-
+     time     |usr sys idl wai stl|  cpu process   
+25-09 11:03:20|                   |                
+25-09 11:03:21|  2   1  96   2   0|pmdaproc     0.8
+25-09 11:03:22|  1   1  98   0   0|pmdaproc     0.5
 === std err
 === done
 
@@ -21,11 +21,11 @@ CSV contents
 25-09 11:03:22,0.750,0.725,98.225,0.125,0,"pmdaproc",0.525
 Top I/O
 === std out
-----system---- ----most-expensive-block-I/O-process---- -----most-expensive----
-     time     |process              pid  read write cpu|   block I/O process   
-25-09 11:03:20|                                        |                       
-25-09 11:03:21|pmlogger              662     0   149 0.0|pmlogger         0   149
-25-09 11:03:22|pmlogger              662     0   131   0|pmlogger         0   131
+----system---- ----most-expensive-block-I/O-process---- ------most-expensive-----
+     time     |process              pid  read write cpu|    block I/O process    
+25-09 11:03:20|                                        |                         
+25-09 11:03:21|pmlogger             662     0 148.8 0.0|pmlogger          0 148.8
+25-09 11:03:22|pmlogger             662     0 130.7   0|pmlogger          0 130.7
 === std err
 === done
 

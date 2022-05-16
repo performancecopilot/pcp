@@ -6,10 +6,10 @@
 label = most expensive
 top = ((rate(proc.psinfo.utime) + rate(proc.psinfo.stime)) / hinv.ncpu)
 top.label = cpu process
-width = 24
+width = 16
 grouptype = 4
 cmd = proc.psinfo.cmd
-cmd.width = 16
+cmd.width = 12
 cpu = 100 * ((rate(proc.psinfo.utime) + rate(proc.psinfo.stime)) / hinv.ncpu)
 cpu.width = 3
 cpu.printtype = d

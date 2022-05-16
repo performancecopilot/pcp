@@ -6,7 +6,7 @@
 label = most expensive
 top = rate(proc.io.rchar) + rate(proc.io.rchar)
 top.label = I/O process
-width = 23
+width = 24
 grouptype = 4
 cmd = proc.psinfo.cmd
 cmd.width = 12
@@ -26,7 +26,7 @@ top.label = process              pid  read write cpu
 width = 40
 grouptype = 4
 cmd = proc.psinfo.cmd
-cmd.width = 16
+cmd.width = 15
 pid = proc.psinfo.pid
 pid.width = 8
 pid.printtype = d
