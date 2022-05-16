@@ -8,7 +8,7 @@ QA output created by 1653
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
-Check denki metrics have appeared ... 5 metrics and 8 values
+Check denki metrics have appeared ... 6 metrics and 8 values
 
 denki.rapl.rate
     Data Type: 32-bit unsigned int  InDom: 156.0 0x27000000
@@ -54,12 +54,18 @@ denki.bat.power_now
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
 No value(s) available!
 
+denki.bat.capacity
+    Data Type: 32-bit int  InDom: 156.5 0x27000005
+    Semantics: instant  Units: none
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"percent","userid":USERID}
+No value(s) available!
+
 ### Installing test dataset apple_silicon_macbook ...
 
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
-Check denki metrics have appeared ... 5 metrics and 3 values
+Check denki metrics have appeared ... 6 metrics and 4 values
 
 denki.rapl.rate
     Data Type: 32-bit unsigned int  InDom: 156.0 0x27000000
@@ -94,12 +100,19 @@ denki.bat.power_now
     inst [N or BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
     inst [N or BATTERY-N"] value 4.077
 
+denki.bat.capacity
+    Data Type: 32-bit int  InDom: 156.5 0x27000005
+    Semantics: instant  Units: none
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"percent","userid":USERID}
+    inst [N or BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"percent","userid":USERID}
+    inst [N or BATTERY-N"] value 0
+
 ### Installing test dataset Thinkpad_T460s_2_batteries ...
 
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
-Check denki metrics have appeared ... 5 metrics and 14 values
+Check denki metrics have appeared ... 6 metrics and 16 values
 
 denki.rapl.rate
     Data Type: 32-bit unsigned int  InDom: 156.0 0x27000000
@@ -154,12 +167,21 @@ denki.bat.power_now
     inst [N or BATTERY-N"] value 0
     inst [N or BATTERY-N"] value 1.576
 
+denki.bat.capacity
+    Data Type: 32-bit int  InDom: 156.5 0x27000005
+    Semantics: instant  Units: none
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"percent","userid":USERID}
+    inst [N or BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"percent","userid":USERID}
+    inst [N or BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"percent","userid":USERID}
+    inst [N or BATTERY-N"] value 23
+    inst [N or BATTERY-N"] value 96
+
 ### Installing test dataset Thinkpad_L480_bat_busy ...
 
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
-Check denki metrics have appeared ... 5 metrics and 11 values
+Check denki metrics have appeared ... 6 metrics and 12 values
 
 denki.rapl.rate
     Data Type: 32-bit unsigned int  InDom: 156.0 0x27000000
@@ -207,6 +229,13 @@ denki.bat.power_now
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
     inst [N or BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"watt","userid":USERID}
     inst [N or BATTERY-N"] value 26.439
+
+denki.bat.capacity
+    Data Type: 32-bit int  InDom: 156.5 0x27000005
+    Semantics: instant  Units: none
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"percent","userid":USERID}
+    inst [N or BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"percent","userid":USERID}
+    inst [N or BATTERY-N"] value 96
 
 ### Removing test datasets...
 

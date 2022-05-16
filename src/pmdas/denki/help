@@ -50,3 +50,6 @@ Computed every 60 seconds.
 @ 156.4 denki.bat.power_now system calculated energy consumption
 Systems current energy consumption, calculated by the system.
 Only available while discharging, or charging the battery.
+
+@ 156.5 denki.bat.capacity system calculated capacity
+Battery capacity, calculated by the driver.
