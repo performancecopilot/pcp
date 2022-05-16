@@ -71,7 +71,6 @@ check_context_start(pmi_context *current)
     lcp->label.vol = 0;
     __pmLogWriteLabel(acp->ac_mfp, &lcp->label);
     lcp->state = PM_LOG_STATE_INIT;
-    __pmLogPutIndex(&current->archctl, &stamp);
 
     return 0; /* ok */
 }
@@ -158,17 +157,21 @@ newvolume(pmi_context *current)
     __pmFflush(acp->ac_mfp);
 }
 
+static off_t	flushsize = 100000;
+
 int
 _pmi_put_result(pmi_context *current, __pmResult *result)
 {
     int		sts;
     __pmPDU	*pb;
     __pmArchCtl	*acp = &current->archctl;
+    __pmLogCtl	*lcp = &current->logctl;
     int		k;
     int		needti;
     char	*p;
-    __uint64_t	max_logsz;
+    static __uint64_t	max_logsz = 0;
     unsigned long off;
+    off_t	old_meta_offset;
 
     /*
      * some front-end tools use lazy discovery of instances and/or process
@@ -184,6 +187,8 @@ _pmi_put_result(pmi_context *current, __pmResult *result)
     if (sts < 0)
 	return sts;
 
+    old_meta_offset = __pmFtell(lcp->mdfp);;
+
     __pmOverrideLastFd(__pmFileno(acp->ac_mfp));
     sts = __pmEncodeResult(acp->ac_log, result, &pb);
     if (sts < 0)
@@ -197,19 +202,37 @@ _pmi_put_result(pmi_context *current, __pmResult *result)
 	    return sts;
 	}
     }
-    if (needti)
-	__pmLogPutIndex(acp, &stamp);
 
-    if ((p = getenv("PCP_LOGIMPORT_MAXLOGSZ")) != NULL)
-	max_logsz = strtoull(p, NULL, 10);
-    else if (current->version >= PM_LOG_VERS03)
-	max_logsz = LONGLONG_MAX;
-    else  /* PM_LOG_VERS02 */
-	max_logsz = 0x7fffffff;
+    if (max_logsz == 0) {
+	if ((p = getenv("PCP_LOGIMPORT_MAXLOGSZ")) != NULL)
+	    max_logsz = strtoull(p, NULL, 10);
+	else if (current->version >= PM_LOG_VERS03)
+	    max_logsz = LONGLONG_MAX;
+	else  /* PM_LOG_VERS02 */
+	    max_logsz = 0x7fffffff;
+    }
 
     off = __pmFtell(acp->ac_mfp) + ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
-    if (off >= max_logsz)
+    if (off >= max_logsz) {
     	newvolume(current);
+	flushsize = 100000;
+	needti = 1;
+    }
+
+    if (needti || __pmFtell(acp->ac_mfp) + ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int) > flushsize) {
+	/*
+	 * need new temporal index entry ... seek pointers need to be
+	 * _before_ this pmResult and associated metadata (if any)
+	 */
+	off_t	new_meta_offset;
+	__pmFflush(lcp->mdfp);
+	new_meta_offset = __pmFtell(lcp->mdfp);;
+	__pmFseek(lcp->mdfp, old_meta_offset, SEEK_SET);
+	 __pmLogPutIndex(acp, &stamp);
+	/* and restore metadata seek pointer */
+	__pmFseek(lcp->mdfp, new_meta_offset, SEEK_SET);
+	flushsize = __pmFtell(acp->ac_mfp) + 100000;
+    }
 
     sts = current->version >= PM_LOG_VERS03 ?
 	    __pmLogPutResult3(acp, pb) : __pmLogPutResult2(acp, pb);
