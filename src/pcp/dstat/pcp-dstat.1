@@ -466,6 +466,15 @@ show Redis stats (needs the Redis PMDA)
 .TP
 \fB\-\-sendmail\fR
 show sendmail queue size (needs the Sendmail PMDA)
+.TP
+\fB\-\-zfs\-arc\fR
+show ZFS arc stats (needs the ZFS PMDA)
+.TP
+\fB\-\-zfs\-l2arc\fR
+show ZFS l2arc stats (needs the ZFS PMDA)
+.TP
+\fB\-\-zfs\-zil\fR
+show ZFS zil stats (needs the ZFS PMDA)
 .SH HISTORICAL METRICS PLUGINS
 Anyone can create additional, custom
 .B pcp-dstat
@@ -543,15 +552,6 @@ show OpenVZ user beancounters (needs an OpenVZ PMDA)
 .TP
 \fB\-\-wifi\fR
 wireless link quality and signal to noise ratio (needs Linux PMDA metrics)
-.TP
-\fB\-\-zfs\-arc\fR
-show ZFS arc stats (needs a Linux ZFS PMDA)
-.TP
-\fB\-\-zfs\-l2arc\fR
-show ZFS l2arc stats (needs a Linux ZFS PMDA)
-.TP
-\fB\-\-zfs\-zil\fR
-show ZFS zil stats (needs a Linux ZFS PMDA)
 .SH INTERMEDIATE UPDATES
 When invoking
 .B pcp-dstat
