@@ -11,9 +11,11 @@ bash
 bc
 bind-utils
 bison
+bpftool
 bpftrace
 # in CI centos8-container already has coreutils-single installed and this
 # conflicts with coreutils
+clang
 coreutils not4ci
 cronie
 curl-minimal
@@ -34,7 +36,7 @@ grep
 iproute
 httpd
 initscripts
-libbpf
+libbpf-devel
 libicu-devel
 libpfm-devel
 libuv-devel

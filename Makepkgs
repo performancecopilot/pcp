@@ -414,7 +414,7 @@ src_tar_build()
 	cd ..
 	echo "debian/control" >> .gitcensus
 
-	$TAR -cz --transform="s,^,$source/," --files-from=.gitcensus \
+	$TAR -cz --transform="s,^,$source/,S" --files-from=.gitcensus \
 		--file="$SRCTAR"
 	rm .gitcensus
     fi

@@ -164,12 +164,13 @@ int batteries = 0;					/* How many batteries has this system?					*/
 static int battery_comp_rate = 60;			/* timespan in sec, after which we recompute energy_rate_d      	*/
 
 							/* Careful with battery counting!
-							   If we have one battery (batteries==1), that batteries data
+							   If we have one battery (batteries==1), that battery data
 							   is in energy_now[0], power_now[0] and so on.				*/
 
 long long energy_now[MAX_BATTERIES];			/* <battery>/energy_now or <battery>/charge_now readings		*/
 long long energy_now_old[MAX_BATTERIES];
 long long power_now[MAX_BATTERIES];			/* <battery>/power_now readings, driver computed power consumption	*/
+int capacity[MAX_BATTERIES];				/* <battery>/capacity readings, percentage of original capacity		*/
 
 time_t secondsnow, secondsold;						/* time stamps, to understand if we need to recompute	*/
 double energy_diff_d[MAX_BATTERIES], energy_rate_d[MAX_BATTERIES];	/* amount of used energy / computed energy consumption	*/
@@ -293,6 +294,7 @@ static int read_batteries(void) {
 
 	for (bat=0; bat<batteries; bat++) {
 
+		// energy_now
 		pmsprintf(filename,sizeof(filename),"%s/%s",battery_basepath[bat],energy_now_file[bat]);
 		fff=fopen(filename,"r");
 		if (fff==NULL) {
@@ -304,7 +306,8 @@ static int read_batteries(void) {
 			if (pmDebugOptions.appl0)
 				pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
 		fclose(fff);
-	
+
+		// power_now
 		pmsprintf(filename,sizeof(filename),"%s/power_now",battery_basepath[bat]);
 		fff=fopen(filename,"r");
 		if (fff==NULL) {
@@ -320,6 +323,19 @@ static int read_batteries(void) {
 		// correct power_now, if we got a negative value
 		if ( power_now[bat]<0 )
 			power_now[bat]*=-1.0;
+
+		// capacity
+		pmsprintf(filename,sizeof(filename),"%s/capacity",battery_basepath[bat]);
+		fff=fopen(filename,"r");
+		if (fff==NULL) {
+			if (pmDebugOptions.appl0)
+				pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
+			continue;
+		}
+		if ( fscanf(fff,"%u",&capacity[bat]) != 1)
+			if (pmDebugOptions.appl0)
+				pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
+		fclose(fff);
 	}
 
 	return 0;
@@ -368,6 +384,7 @@ static int compute_energy_rate(void) {
  * denki.bat.energy_now_rate	- <battery>, current rate of discharging if postive value,
  *				  or current charging rate if negative value
  * denki.bat.power_now		- <battery>/power_now raw reading
+ * denki.bat.capacity		- <battery>/capacity raw reading
  */
 
 /*
@@ -387,7 +404,9 @@ static pmdaIndom indomtab[] = {
 #define ENERGYNOWRATE_INDOM	3	/* serial number for "energy_now_rate" instance domain */
     { ENERGYNOWRATE_INDOM, 0, NULL },
 #define POWERNOW_INDOM		4	/* serial number for "power_now" instance domain */
-    { POWERNOW_INDOM, 0, NULL }
+    { POWERNOW_INDOM, 0, NULL },
+#define CAPACITY_INDOM		5	/* serial number for "capacity" instance domain */
+    { CAPACITY_INDOM, 0, NULL }
 };
 
 /* this is merely a convenience */
@@ -396,6 +415,7 @@ static pmInDom	*raplraw_indom = &indomtab[RAPLRAW_INDOM].it_indom;
 static pmInDom	*energynowraw_indom = &indomtab[ENERGYNOWRAW_INDOM].it_indom;
 static pmInDom	*energynowrate_indom = &indomtab[ENERGYNOWRATE_INDOM].it_indom;
 static pmInDom	*powernow_indom = &indomtab[POWERNOW_INDOM].it_indom;
+static pmInDom	*capacity_indom = &indomtab[CAPACITY_INDOM].it_indom;
 
 /*
  * All metrics supported in this PMDA - one table entry for each.
@@ -421,6 +441,10 @@ static pmdaMetric metrictab[] = {
 /* bat.power_now */
 	{ NULL,
 	{ PMDA_PMID(1,2), PM_TYPE_DOUBLE, POWERNOW_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* bat.capacity */
+	{ NULL,
+	{ PMDA_PMID(1,3), PM_TYPE_32, CAPACITY_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, }
 };
 
@@ -489,50 +513,62 @@ denki_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return PM_ERR_INST;
 
 	if (cluster == 0) {
-		if (item == 0) {			/* rapl.rate */
-			if ((sts = pmdaCacheLookup(*raplrate_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
-				if (sts < 0)
-					pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
-				return PM_ERR_INST;
-			}
-			atom->ul = lookup_rapl_dom(inst)/1000000;
-		}
-		else if (item == 1) {			/* rapl.raw */
-			if ((sts = pmdaCacheLookup(*raplraw_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
-				if (sts < 0)
-					pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
-				return PM_ERR_INST;
-			}
-			atom->ul = lookup_rapl_dom(inst)/1000000;
+		switch (item) {
+			case 0:				/* rapl.rate */
+				if ((sts = pmdaCacheLookup(*raplrate_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
+					if (sts < 0)
+						pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
+					return PM_ERR_INST;
+				}
+				atom->ul = lookup_rapl_dom(inst)/1000000;
+				break;
+			case 1:				/* rapl.raw */
+				if ((sts = pmdaCacheLookup(*raplraw_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
+					if (sts < 0)
+						pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
+					return PM_ERR_INST;
+				}
+				atom->ul = lookup_rapl_dom(inst)/1000000;
+				break;
 		}
 	}
 	else if (cluster == 1) {
-		if (item == 0) {			/* denki.energy_now_raw */
-			if ((sts = pmdaCacheLookup(*energynowraw_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
-				if (sts < 0)
-					pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
-				return PM_ERR_INST;
-			}
-			atom->d = energy_now[inst]/energy_convert_factor[inst];
+		switch (item) {
+			case 0:				/* denki.energy_now_raw */
+				if ((sts = pmdaCacheLookup(*energynowraw_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
+					if (sts < 0)
+						pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
+					return PM_ERR_INST;
+				}
+				atom->d = energy_now[inst]/energy_convert_factor[inst];
+				break;
+			case 1:				/* denki.energy_now_rate */
+				if ((sts = pmdaCacheLookup(*energynowrate_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
+					if (sts < 0)
+						pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
+					return PM_ERR_INST;
+				}
+				atom->d = energy_rate_d[inst];
+				break;
+			case 2:				/* denki.power_now */
+				if ((sts = pmdaCacheLookup(*powernow_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
+					if (sts < 0)
+						pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
+					return PM_ERR_INST;
+				}
+				atom->d = power_now[inst]/1000000.0;
+				break;
+			case 3:				/* denki.capacity */
+				if ((sts = pmdaCacheLookup(*capacity_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
+					if (sts < 0)
+						pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
+					return PM_ERR_INST;
+				}
+				atom->ul = capacity[inst];
+				break;
+			default:
+				return PM_ERR_PMID;
 		}
-		else if (item == 1) {			/* denki.energy_now_rate */
-			if ((sts = pmdaCacheLookup(*energynowrate_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
-				if (sts < 0)
-					pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
-				return PM_ERR_INST;
-			}
-			atom->d = energy_rate_d[inst];
-		}
-		else if (item == 2) {			/* denki.power_now */
-			if ((sts = pmdaCacheLookup(*powernow_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
-				if (sts < 0)
-					pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
-				return PM_ERR_INST;
-			}
-			atom->d = power_now[inst]/1000000.0;
-		}
-		else
-			return PM_ERR_PMID;
 	}
 	else
 		return PM_ERR_PMID;
@@ -677,6 +713,13 @@ denki_bat_init(void)
 			pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s", pmErrStr(sts));
 			return;
 		}
+
+		/* bat.capacity */
+		sts = pmdaCacheStore(*capacity_indom, PMDA_CACHE_ADD, tmp, NULL);
+		if (sts < 0) {
+			pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s", pmErrStr(sts));
+			return;
+		}
 	}
 }
 
@@ -704,6 +747,9 @@ denki_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 					break;
 				case POWERNOW_INDOM:
 					pmdaAddLabels(lpp, "{\"units\":\"watt\"}");
+					break;
+				case CAPACITY_INDOM:
+					pmdaAddLabels(lpp, "{\"units\":\"percent\"}");
 					break;
 			}
 			break;
