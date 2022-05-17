@@ -416,6 +416,9 @@ configuration files require the installation of optional
 Performance Metric Domain Agents, above and beyond the
 default installed set.
 .TP 5
+\fB\-\-battery\fR
+remaining battery charge in percentage (needs the Denki PMDA)
+.TP 5
 \fB\-\-gpfs\fR
 GPFS read/write I/O (needs the GPFS PMDA)
 .TP
@@ -435,7 +438,7 @@ show innodb operations counters (needs the MySQL PMDA)
 show lustre I/O throughput (needs the Lustre PMDA)
 .TP
 \fB\-\-memcache\-hits\fR
-show the number of hits and misses from memcache
+show the number of hits and misses from memcache (needs the Memcached PMDA)
 .TP
 \fB\-\-mysql5\-cmds\fR
 show the MySQL5 command stats (needs the MySQL PMDA)
@@ -491,9 +494,6 @@ Please contact
 .I <pcp@groups\&.io>
 if you need or implement any of these, and we'll work with
 you to get them included.
-.TP 5
-\fB\-\-battery\fR
-battery in percentage (needs an ACPI PMDA)
 .TP
 \fB\-\-battery\-remain\fR
 battery remaining in hours, minutes (needs an ACPI PMDA)

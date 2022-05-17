@@ -1,0 +1,12 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
+#
+
+[battery]
+width = 6
+label = charge
+printtype = p
+precision = 0
+colorstep = 34
+perbat = min(denki.bat.capacity)
+perbat.label = left
