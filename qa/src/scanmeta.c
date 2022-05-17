@@ -415,6 +415,8 @@ do_metric_label(__int32_t *buf, int type)
     printf("[%d] ", nrec);
     if (tflag)
 	printf("<%s> ", __pmLogMetaTypeStr(type));
+    if (oflag)
+	printf("+%ld ", (long)offset);
     printf("metric label @ ");
     if (type == TYPE_LABEL) {
 	__pmLoadTimestamp(&buf[0], &stamp);
@@ -612,8 +614,12 @@ main(int argc, char *argv[])
 		    fprintf(stderr, "error: %s is empty file\n", argv[optind]);
 		break;
 	    }
-	    if (nb < 0)
-		fprintf(stderr, "[%d] hdr read error: %s\n", nrec, strerror(errno));
+	    if (nb < 0) {
+		fprintf(stderr, "[%d] ", nrec);
+		if (oflag)
+		    fprintf(stderr, "+%ld ", (long)offset);
+		fprintf(stderr, "hdr read error: %s\n", strerror(errno));
+	    }
 	    else {
 		/* Strange eof logic here ... from __pmLogLoadMeta(), a short
 		 * read is treated as end-of-file
@@ -642,13 +648,16 @@ main(int argc, char *argv[])
 	    }
 	}
 	if ((nb = read(in, buf, len)) != len) {
+	    fprintf(stderr, "[%d] " , nrec);
+	    if (oflag)
+		fprintf(stderr, "+%ld ", (long)offset);
 	    if (nb == 0)
-		fprintf(stderr, "[%d] body read error: end of file\n", nrec);
+		fprintf(stderr, "body read error: end of file\n");
 	    else if (nb < 0)
-		fprintf(stderr, "[%d] body read error: %s\n", nrec, strerror(errno));
+		fprintf(stderr, "body read error: %s\n", strerror(errno));
 	    else
-		fprintf(stderr, "[%d] body read error: expected %d bytes, got %d\n",
-			nrec, len, nb);
+		fprintf(stderr, "body read error: expected %d bytes, got %d\n",
+			len, nb);
 	    exit(1);
 	}
 	
@@ -703,7 +712,10 @@ main(int argc, char *argv[])
 		break;
 
 	    default:
-		fprintf(stderr, "[%d] error bad type %d\n", nrec, hdr.type);
+		fprintf(stderr, "[%d] ", nrec);
+		if (oflag)
+		    fprintf(stderr, "+%ld ", (long)offset);
+		fprintf(stderr, "error bad type %d\n", hdr.type);
 		exit(1);
 	}
     }
