@@ -58,6 +58,8 @@ End-of-File
 # ...
 # /var/log/pcp/pmlogger/1424/2022/05/bozo.localdomain/2022-05-14
 # /var/log/pcp/pmlogger/1424/2022/05/bozo.localdomain/2022-05-14/20220514.13.47.index
+# and this one may, or may not, be there
+# /var/log/pcp/pmlogger/1424/2022/05/bozo.localdomain/2022-05-14/lock
 #
 _filter()
 {
@@ -72,6 +74,7 @@ _filter()
 	-e 's/TIME-[0-9][0-9]*/TIME/' \
 	-e "s/`hostname`/LOCALHOST/" \
 	-e '/running/s/[0-9][0-9]*/PID/' \
+	-e '/\/lock$/d' \
 	-e 's/  */ /g' \
     # end
 }
