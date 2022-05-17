@@ -51,7 +51,6 @@ man-db
 mandoc
 mariadb
 memcached
-mesa-dri-drivers
 ncurses-devel
 net-tools
 nmap
