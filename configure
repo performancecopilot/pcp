@@ -862,6 +862,7 @@ enable_perl
 pcp_perl_prog
 PERL
 PMDA_BPFTRACE
+pmdabpf_modules
 PMDA_BPF
 pmdabpf_vmlinuxh
 pmdabpf_arch
@@ -8458,7 +8459,7 @@ if test -n "$PMDABPF_BTF"; then
 $as_echo "$as_me: generating $pmdabpf_vmlinuxh from $PMDABPF_BTF" >&6;}
     $PMDABPF_BPFTOOL btf dump file "$PMDABPF_BTF" format c > $pmdabpf_vmlinuxh
 else
-    pmdabpf_arch_vmlinux="`pwd`/src/pmdas/bpf/vendor/vmlinux/$pmdabpf_arch/vmlinux.h"
+    pmdabpf_arch_vmlinux="`pwd`/vendor/github.com/iovisor/bcc/libbpf-tools/$pmdabpf_arch/vmlinux.h"
     if test -f "$pmdabpf_arch_vmlinux"; then
 	pmdabpf_vmlinuxh="$pmdabpf_arch_vmlinux"
     else
@@ -8493,6 +8494,29 @@ PMDA_BPF=$pmda_bpf
 if $pmda_bpf; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }; fi
+
+if $pmda_bpf; then
+    libbpf_version_major=`echo $libbpf_version | cut -d. -f1`
+    libbpf_version_minor=`echo $libbpf_version | cut -d. -f2`
+    pmdabpf_modules="biolatency.so runqlat.so"
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking if the bpf PMDA execsnoop module should be included" >&5
+$as_echo_n "checking if the bpf PMDA execsnoop module should be included... " >&6; }
+    if test "$libbpf_version_major" -eq 0 -a "$libbpf_version_minor" -lt 7; then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no (libbpf version required: 0.7.0, installed: $libbpf_version)" >&5
+$as_echo "no (libbpf version required: 0.7.0, installed: $libbpf_version)" >&6; }
+    else
+	pmdabpf_modules="${pmdabpf_modules} execsnoop.so"
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+    fi
+
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking which bpf PMDA modules should be included" >&5
+$as_echo_n "checking which bpf PMDA modules should be included... " >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pmdabpf_modules" >&5
+$as_echo "$pmdabpf_modules" >&6; }
+fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if the bpftrace PMDA should be included" >&5
 $as_echo_n "checking if the bpftrace PMDA should be included... " >&6; }

@@ -6,7 +6,7 @@
 #define __KERNEL__
 
 /* represents all of the kernel structs; generated via bpftool */
-#include "vmlinux.h"
+#include <vmlinux.h>
 
 /* bpf kernel-side functions */
 #include <bpf/bpf_core_read.h>

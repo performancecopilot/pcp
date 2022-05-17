@@ -1228,7 +1228,7 @@ if test -n "$PMDABPF_BTF"; then
     AC_MSG_NOTICE([generating $pmdabpf_vmlinuxh from $PMDABPF_BTF])
     $PMDABPF_BPFTOOL btf dump file "$PMDABPF_BTF" format c > $pmdabpf_vmlinuxh
 else
-    pmdabpf_arch_vmlinux="`pwd`/src/pmdas/bpf/vendor/vmlinux/$pmdabpf_arch/vmlinux.h"
+    pmdabpf_arch_vmlinux="`pwd`/vendor/github.com/iovisor/bcc/libbpf-tools/$pmdabpf_arch/vmlinux.h"
     if test -f "$pmdabpf_arch_vmlinux"; then
 	pmdabpf_vmlinuxh="$pmdabpf_arch_vmlinux"
     else
@@ -1252,6 +1252,24 @@ AS_IF([test "x$do_pmdabpf" = "xcheck"], [
 ])
 AC_SUBST(PMDA_BPF, $pmda_bpf)
 if $pmda_bpf; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+if $pmda_bpf; then
+    libbpf_version_major=`echo $libbpf_version | cut -d. -f1`
+    libbpf_version_minor=`echo $libbpf_version | cut -d. -f2`
+    pmdabpf_modules="biolatency.so runqlat.so"
+
+    AC_MSG_CHECKING([if the bpf PMDA execsnoop module should be included])
+    if test "$libbpf_version_major" -eq 0 -a "$libbpf_version_minor" -lt 7; then
+	AC_MSG_RESULT([no (libbpf version required: 0.7.0, installed: $libbpf_version)])
+    else
+	pmdabpf_modules="${pmdabpf_modules} execsnoop.so"
+	AC_MSG_RESULT(yes)
+    fi
+
+    AC_SUBST(pmdabpf_modules)
+    AC_MSG_CHECKING([which bpf PMDA modules should be included])
+    AC_MSG_RESULT($pmdabpf_modules)
+fi
 
 AC_MSG_CHECKING([if the bpftrace PMDA should be included])
 pmda_bpftrace=false
