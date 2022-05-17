@@ -134,27 +134,16 @@ class ArtifactoryApi:
         print()
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--endpoint", default="https://performancecopilot.jfrog.io/artifactory")
-    parser.add_argument("--user", default=os.environ.get("ARTIFACTORY_USER"))
-    parser.add_argument("--token", default=os.environ.get("ARTIFACTORY_TOKEN"))
-    parser.add_argument("--gpg_passphrase", default=os.environ.get("ARTIFACTORY_GPG_PASSPHRASE"))
+def recalculate_metadata(artifactory: ArtifactoryApi, repositories: List):
+    """schedule recalculation and GPG signing of repository metadata"""
+    for repository in repositories:
+        if "-rpm-" in repository:
+            artifactory.calculate_yum_metadata(repository)
+        elif "-deb-" in repository:
+            artifactory.calculate_deb_metadata(repository)
 
-    parser.add_argument("--maturity", default="snapshot")
-    parser.add_argument("--version", required=True)
-    parser.add_argument("--build_name", required=True)
-    parser.add_argument("--build_number", required=True)
-    parser.add_argument("--source")
 
-    parser.add_argument("--exclude", action="append")
-    parser.add_argument("artifact_dir", nargs="*")
-
-    args = parser.parse_args()
-    if not args.user or not args.token or not args.gpg_passphrase:
-        parser.print_help()
-        sys.exit(1)
-
+def task_deploy(args: argparse.Namespace):
     artifactory = ArtifactoryApi(args.endpoint, args.user, args.token, args.gpg_passphrase)
 
     if args.source:
@@ -206,13 +195,51 @@ def main():
 
     print("Waiting 5 minutes before recalculating repository metadata...")
     time.sleep(60 * 5)
+    recalculate_metadata(artifactory, updated_repositories)
 
-    # schedule recalculation and GPG signing of repository metadata
-    for repository in updated_repositories:
-        if "-rpm-" in repository:
-            artifactory.calculate_yum_metadata(repository)
-        elif "-deb-" in repository:
-            artifactory.calculate_deb_metadata(repository)
+
+def task_recalculate_metadata(args: argparse.Namespace):
+    artifactory = ArtifactoryApi(args.endpoint, args.user, args.token, args.gpg_passphrase)
+    recalculate_metadata(artifactory, args.repositories)
+
+
+def env_default(name: str):
+    """if the env var is defined, use this one; otherwise mark as required=True"""
+    val = os.environ.get(name)
+    if val:
+        return {"default": val}
+    else:
+        return {"required": True}
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--endpoint", default="https://performancecopilot.jfrog.io/artifactory")
+    parser.add_argument("--user", **env_default("ARTIFACTORY_USER"))
+    parser.add_argument("--token", **env_default("ARTIFACTORY_TOKEN"))
+    parser.add_argument("--gpg_passphrase", **env_default("ARTIFACTORY_GPG_PASSPHRASE"))
+    subparsers = parser.add_subparsers()
+
+    deploy_parser = subparsers.add_parser("deploy")
+    deploy_parser.set_defaults(func=task_deploy)
+    deploy_parser.add_argument("--maturity", default="snapshot")
+    deploy_parser.add_argument("--version", required=True)
+    deploy_parser.add_argument("--build_name", required=True)
+    deploy_parser.add_argument("--build_number", required=True)
+    deploy_parser.add_argument("--source")
+    deploy_parser.add_argument("--exclude", action="append", default=[])
+    deploy_parser.add_argument("artifact_dir", nargs="*")
+
+    recalculate_metadata_parser = subparsers.add_parser("recalculate_metadata")
+    recalculate_metadata_parser.set_defaults(func=task_recalculate_metadata)
+    recalculate_metadata_parser.add_argument("repositories", nargs="*")
+
+    args = parser.parse_args()
+    if "func" not in args:
+        parser.print_help()
+        sys.exit(1)
+
+    args.func(args)
 
 
 if __name__ == "__main__":

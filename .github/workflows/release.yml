@@ -98,7 +98,7 @@ jobs:
         run: |
           export PYTHONUNBUFFERED=1
           . VERSION.pcp
-          build/ci/deploy-artifactory.py \
+          build/ci/artifactory.py deploy \
             --maturity release \
             --version "$PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION" \
             --build_name "${GITHUB_WORKFLOW}" \
