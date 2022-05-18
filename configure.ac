@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2021 Red Hat.
+dnl Copyright (c) 2012-2022 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl
@@ -978,6 +978,12 @@ AS_IF([test "x$do_python" != "xno"], [
 		;;
 	    fedora)
 		if test -z "$VERSION_ID" -o "$VERSION_ID" -ge 35; then
+		    touch config.python2_eol
+		fi
+		;;
+	    rhel)
+		VERSION_NO=`echo "$VERSION_ID" | sed 's/[[^0-9]]//'`
+		if test "$VERSION_NO" -ge 90; then
 		    touch config.python2_eol
 		fi
 		;;

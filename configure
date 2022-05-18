@@ -7733,6 +7733,12 @@ if test "x$do_python" != "xno"; then :
 		    touch config.python2_eol
 		fi
 		;;
+	    rhel)
+		VERSION_NO=`echo "$VERSION_ID" | sed 's/[^0-9]//'`
+		if test "$VERSION_NO" -ge 90; then
+		    touch config.python2_eol
+		fi
+		;;
 	esac
     )
     fi
