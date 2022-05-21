@@ -42,6 +42,7 @@ pmstore bcc.proc.profile start
 for i in `seq 1 10`; do pminfo -f bcc.proc.profile | grep started > /dev/null && break; sleep 1; done
 if [ $i -ge 10 ]; then
     echo Could not start profiling, test failed
+    pminfo -f bcc
     exit
 fi
 
@@ -55,6 +56,7 @@ pmstore bcc.proc.profile stop
 for i in `seq 1 10`; do pminfo -f bcc.proc.profile | grep stopped > /dev/null && break; sleep 1; done
 if [ $i -ge 10 ]; then
     echo Could not stop profiling, test failed
+    pminfo -f bcc
     exit
 fi
 
