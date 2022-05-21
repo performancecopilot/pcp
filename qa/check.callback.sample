@@ -220,16 +220,43 @@ fi
 # - may need to add metrics (in the sed part) that are OK to return
 #   'Unknown or illegal metric', but this is most unlikely
 #
+# NOTE:
+# pmproxy metrics are a bit odd because they come from an aliased
+# mmv PMDA that might take a while to get itself organized after
+# a pmcd restart
+#
 pminfo -v -b 2000 2>&1 \
 | egrep '(Unknown or illegal metric)|(Unknown metric name)' \
 | sed >$tmp.out \
     -e '/^sample.*\.bad\.unknown:/d' \
-    -e '/^pmproxy\.pid:/d' \
+    -e '/^pmproxy\./d' \
     # end
 if [ -s $tmp.out ]
 then
     echo "check.callback: fail: PMNS not well!"
     cat $tmp.out
+    pminfo -f pmcd.agent.status \
+    | sed \
+	-e '/^pmcd\.agent\.status/d' \
+	-e 's/.* or "//' \
+	-e 's/"] value / /' \
+	-e '/^$/d' \
+    | while read pmda status
+    do
+	if [ "$status" -ne 0 ]
+	then
+	    echo "Warning: $pmda PMDA exited? pmcd.agent.status=$status"
+	    echo "Relevant pmcd.log lines ..."
+	    grep "$pmda" "$PCP_LOG_DIR/pmcd/pmcd.log" ]
+	    if [ -f "$PCP_LOG_DIR/pmcd/$pmda.log" ]
+	    then
+		echo "=== $pmda.log ==="
+		cat "$PCP_LOG_DIR/pmcd/$pmda.log"
+	    else
+		echo "Warning: $PCP_LOG_DIR/pmcd/pmcd.log: not found"
+	    fi
+	fi
+    done
     $abort && status=1
 fi
 
