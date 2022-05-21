@@ -30,7 +30,7 @@ trap "$sudo rm -f $tmp.* $tmp-?.*; exit \$status" 0 1 2 3 15
 # we need to run part of the make to get headers and libraries setup
 # in $SRC
 #
-for dir in include libpcp/src
+for dir in include libpcp/src libpcp_archive/src
 do
     echo "$SRC/$dir ..." >>$seq.full
     cd $SRC/$dir
