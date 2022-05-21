@@ -13,6 +13,7 @@ bison
 cppcheck
 curl
 cyrus-sasl
+g++
 gawk
 gdb
 gdiff
@@ -52,8 +53,6 @@ py3-requests
 py3-setuptools
 py3-six
 python
-qtbase
-qtsvg
 readline
 rrdtool
 smartmontools
