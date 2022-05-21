@@ -410,6 +410,8 @@ OpenBSD
     $ sudo pkg_add <package>
     # update all packages recipe
     $ sudo pkg_add -u
+    # remove a package
+    $ sudo pkg_delete <package>
     # unattended release upgrade recipe ... only supported from
     # one version to the next version
     $ sudo sysupgrade
