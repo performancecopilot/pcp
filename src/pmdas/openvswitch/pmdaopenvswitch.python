@@ -1,5 +1,6 @@
 #!/usr/bin/env pmpython
 
+# Copyright (C) 2022 Red Hat.
 # Copyright (C) 2020 Ashwin Nayak <ashwinnayak111@gmail.com>
 
 # This program is free software; you can redistribute it and/or modify it
@@ -570,7 +571,7 @@ class OpenvswitchPMDA(PMDA):
                     return [PMDA_FETCH_NOVALUES, 0]
                 return [PM_ERR_PMID, 0]
 
-            except Exception as e:
+            except Exception:
                 return [PM_ERR_APPVERSION, 0]
 
         return [PM_ERR_PMID, 0]
