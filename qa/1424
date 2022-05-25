@@ -85,7 +85,36 @@ cat $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq >>$seq.full
 
 _service pmlogger restart \
 | _filter_pcp_start
-_wait_for_pmlogger
+
+# _wait_for_pmlogger does not quite cut the mustard here ... we
+# need two pmloggers to be running ...
+#
+i=0
+maxdelay=20
+while [ $i -lt $maxdelay ]
+do
+    ( cd $PCP_TMP_DIR/pmlogger; find . -type f ) >$tmp.pids
+    nlogger=`wc -l <$tmp.pids | sed -e 's/  *//g'`
+    if [ "$nlogger" = 2 ]
+    then
+	break
+    fi
+    i=`expr $i + 1`
+    sleep 1
+done
+if [ $i -eq $maxdelay ]
+then
+    echo "Error: failed to start pmloggers ..."
+    cat $tmp.pids
+    pminfo -f pmcd.pmlogger
+fi
+cat $tmp.pids | sed -e "s@^./@@" | while read pid
+do
+    # don't care about log file, and can't tell which pmlogger
+    # is which at this stage
+    #
+    _wait_for_pmlogger $pid /dev/null
+done
 
 pmlogctl status \
 | _filter
