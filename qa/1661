@@ -20,7 +20,7 @@ _check_redis_server
 _cleanup()
 {
     echo;echo === cleaning up
-    $sudo rm -rf $dir
+    $sudo rm -rf "$dir"
 
     echo;echo === see $seq.full for logs 
     echo "+++ pmproxy.log +++" >>$seq.full
@@ -76,6 +76,7 @@ p
 }
 
 status=1	# failure is the default!
+dir="$PCP_ARCHIVE_DIR/qa$seq"
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 src/time_stamp $tmp.stamp begin >>$seq.full
@@ -120,7 +121,6 @@ echo "pmproxy_pid=$pmproxy_pid" >>$seq.full
 src/time_stamp $tmp.stamp 'restart pmproxy' >>$seq.full
 
 _full_log === creating archive in new archive directory 
-dir=$PCP_ARCHIVE_DIR/qa1661
 $sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; mkdir_and_chown $dir 775 $PCP_USER:$PCP_GROUP"
 # make sure no archive files left here from a previous run of this test
 $sudo rm -f $dir/testarchive.*
