@@ -88,7 +88,7 @@ Fedora
     # package search recipe (name and info or description)
     $ dnf search <pattern>
     # which package installs a file/directory
-    $ rpm -qF <path>
+    $ rpm -qf <path>
     # which files are in an installed package
     $ rpm -ql <package>
     # update all packages recipe
