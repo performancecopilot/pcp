@@ -132,6 +132,8 @@ pmDiscoverFree(pmDiscover *p)
 	close(p->fd);
     if (p->context.name)
 	sdsfree(p->context.name);
+    if (p->context.hostname)
+	sdsfree(p->context.hostname);
     if (p->context.source)
 	sdsfree(p->context.source);
     if (p->context.labelset)
@@ -139,7 +141,6 @@ pmDiscoverFree(pmDiscover *p)
     if (p->event_handle) {
 	uv_fs_event_stop(p->event_handle);
 	free(p->event_handle);
-	p->event_handle = NULL;
     }
 
     memset(p, 0, sizeof(*p));
@@ -579,8 +580,11 @@ static void changed_callback(pmDiscover *); /* fwd decl */
 static void
 created_callback(pmDiscover *p)
 {
-    if (p->flags & (PM_DISCOVER_FLAGS_COMPRESSED|PM_DISCOVER_FLAGS_INDEX))
-    	return; /* compressed archives don't grow and we ignore archive index files */
+    if (p->flags &
+	(PM_DISCOVER_FLAGS_DELETED| /* fsevents race: creating and deleting */
+	 PM_DISCOVER_FLAGS_COMPRESSED| /* compressed archives do not grow */
+	 PM_DISCOVER_FLAGS_INDEX))        /* ignore archive index files */
+	return;
 
     if (pmDebugOptions.discovery)
 	fprintf(stderr, "CREATED %s, %s\n", p->context.name, pmDiscoverFlagsStr(p));
