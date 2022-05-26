@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021 Red Hat.
+ * Copyright (c) 2017-2022 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -1973,6 +1973,10 @@ pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
 	if (strcmp(option, "false") == 0)
 	    return 0;
     }
+
+    /* see if an alternate archive directory is sought */
+    if ((option = pmIniFileLookup(config, "discover", "path")))
+	logdir = option;
 
     /* prepare for optional metric and indom exclusion */
     if ((option = pmIniFileLookup(config, "discover", "exclude.metrics"))) {

@@ -594,12 +594,14 @@ FdToString(ServerInfo *sp, int fd)
 
 /* Loop, synchronously processing requests from clients. */
 static void
-MainLoop(void *arg)
+MainLoop(void *arg, struct timeval *runtime)
 {
     int		i, sts;
     int		maxFd;
     __pmFdSet	readableFds;
     ServerInfo	*sp = (ServerInfo *)arg;
+
+    (void)runtime;
 
     for (;;) {
 	/* Figure out which file descriptors to wait for input on.  Keep

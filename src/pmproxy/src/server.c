@@ -709,6 +709,34 @@ fail:
 }
 
 static void
+dump_request_ports(FILE *output, void *arg)
+{
+    struct proxy	*proxy = (struct proxy *)arg;
+    struct stream	*stream;
+    uv_os_fd_t		uv_fd;
+    unsigned int	i;
+    int			fd;
+
+    fprintf(output, "%s request port(s):\n"
+		"  sts fd   port  family address\n"
+		"  === ==== ===== ====== =======\n", pmGetProgname());
+
+    for (i = 0; i < proxy->nservers; i++) {
+	stream = &proxy->servers[i].stream;
+	fd = (uv_fileno((uv_handle_t *)stream, &uv_fd) < 0) ? -1 : (int)uv_fd;
+	if (stream->family == STREAM_LOCAL)
+	    fprintf(output, "  %-3s %4d %5s %-6s %s\n",
+		    stream->active ? "ok" : "err", fd, "",
+		    "unix", stream->address);
+	else
+	    fprintf(output, "  %-3s %4d %5d %-6s %s\n",
+		    stream->active ? "ok" : "err", fd, stream->port,
+		    stream->family == STREAM_TCP4 ? "inet" : "ipv6",
+		    stream->address ? stream->address : "INADDR_ANY");
+    }
+}
+
+static void
 close_proxy(struct proxy *proxy)
 {
     close_pcp_module(proxy);
@@ -755,31 +783,13 @@ shutdown_ports(void *arg)
 }
 
 static void
-dump_request_ports(FILE *output, void *arg)
+shutdown_proxy(uv_timer_t *arg)
 {
-    struct proxy	*proxy = (struct proxy *)arg;
-    struct stream	*stream;
-    uv_os_fd_t		uv_fd;
-    unsigned int	i;
-    int			fd;
+    uv_handle_t		*handle = (uv_handle_t *)arg;
+    struct proxy	*proxy = (struct proxy *)handle->data;
 
-    fprintf(output, "%s request port(s):\n"
-		"  sts fd   port  family address\n"
-		"  === ==== ===== ====== =======\n", pmGetProgname());
-
-    for (i = 0; i < proxy->nservers; i++) {
-	stream = &proxy->servers[i].stream;
-	fd = (uv_fileno((uv_handle_t *)stream, &uv_fd) < 0) ? -1 : (int)uv_fd;
-	if (stream->family == STREAM_LOCAL)
-	    fprintf(output, "  %-3s %4d %5s %-6s %s\n",
-		    stream->active ? "ok" : "err", fd, "",
-		    "unix", stream->address);
-	else
-	    fprintf(output, "  %-3s %4d %5d %-6s %s\n",
-		    stream->active ? "ok" : "err", fd, stream->port,
-		    stream->family == STREAM_TCP4 ? "inet" : "ipv6",
-		    stream->address ? stream->address : "INADDR_ANY");
-    }
+    shutdown_ports(proxy);
+    exit(0);
 }
 
 /*
@@ -819,13 +829,23 @@ check_proxy(uv_check_t *arg)
 }
 
 static void
-main_loop(void *arg)
+main_loop(void *arg, struct timeval *runtime)
 {
     struct proxy	*proxy = (struct proxy *)arg;
+    uv_timer_t		shutdown_io;
     uv_timer_t		initial_io;
     uv_prepare_t	before_io;
     uv_check_t		after_io;
     uv_handle_t		*handle;
+
+    if (runtime) {
+	uint64_t millisec = runtime->tv_sec * 1000;
+	millisec += runtime->tv_usec / 1000;
+	uv_timer_init(proxy->events, &shutdown_io);
+	handle = (uv_handle_t *)&shutdown_io;
+	handle->data = (void *)proxy;
+	uv_timer_start(&shutdown_io, shutdown_proxy, millisec, 0);
+    }
 
     uv_timer_init(proxy->events, &initial_io);
     handle = (uv_handle_t *)&initial_io;

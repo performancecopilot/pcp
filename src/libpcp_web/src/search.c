@@ -1050,6 +1050,7 @@ pmSearchSetup(pmSearchModule *module, void *arg)
 {
     seriesModuleData	*data = getSeriesModuleData(module);
     sds			option;
+    redisSlotsFlags	flags;
 
     if (data == NULL)
 	return -ENOMEM;
@@ -1064,6 +1065,15 @@ pmSearchSetup(pmSearchModule *module, void *arg)
     } else {
 	option = pmIniFileLookup(data->config, "redis", "enabled");
 	if (option && strcmp(option, "false") == 0)
+	    return -ENOTSUP;
+
+	/* establish an initial connection to Redis instance(s) */
+	flags = SLOTS_VERSION;
+
+	option = pmIniFileLookup(data->config, "pmsearch", "enabled");
+	if (option && strcmp(option, "true") == 0)
+	    flags |= SLOTS_SEARCH;
+	else
 	    return -ENOTSUP;
 
 	/* establish an initial connection to Redis instance(s) */

@@ -90,13 +90,14 @@ static pmLongOptions longopts[] = {
     { "redisport", 1, 'r', "PORT", "Connect to Redis instance on this TCP/IP port (implies --timeseries)" },
     { "redishost", 1, 'h', "HOST", "Connect to Redis instance on this host name (implies --timeseries)" },
     PMAPI_OPTIONS_HEADER("Diagnostic options"),
+    { "", 1, 'T', "TIME", "terminate after an elapsed time interval" },
     { "log", 1, 'l', "PATH", "redirect diagnostics and trace output" },
     { "", 1, 'x', "PATH", "fatal messages at startup sent to file [default /dev/tty]" },
     PMAPI_OPTIONS_END
 };
 
 static pmOptions opts = {
-    .short_options = "Ac:C:dD:Ffh:i:l:L:M:p:P:r:s:tU:x:?",
+    .short_options = "Ac:C:dD:Ffh:i:l:L:M:p:P:r:s:tT:U:x:?",
     .long_options = longopts,
 };
 
@@ -109,6 +110,7 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
     int		timeseries = 1;
     int		redis_port = 6379;
     char	*redis_host = NULL;
+    char	*endnum;
     const char	*inifile = NULL;
     sds		option;
 
@@ -227,6 +229,17 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 
 	case 't':	/* run in timeseries mode (libuv, REST APIs) */
 	    timeseries = 1;
+	    break;
+
+	case 'T':	/* terminate after given time has elapsed */
+	    sts = pmParseInterval(opts.optarg, &opts.finish, &endnum);
+	    if (sts < 0) {
+		pmprintf("%s: bad -T interval format:\n", pmGetProgname());
+		opts.errors++;
+		free(endnum);
+	    } else {
+	        opts.finish_optarg = opts.optarg;
+	    }
 	    break;
 
 	case 'U':	/* run as user username */
@@ -472,7 +485,7 @@ main(int argc, char *argv[])
     fflush(stderr);
 
     /* Loop processing client connections and server responses */
-    server->loop(info);
+    server->loop(info, opts.finish_optarg? &opts.finish : NULL);
 
     /* inform service manager and shutdown cleanly */
     __pmServerNotifyServiceManagerStopping(mainpid);

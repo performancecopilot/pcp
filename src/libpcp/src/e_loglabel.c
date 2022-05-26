@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017,2020-2021 Red Hat.
+ * Copyright (c) 2012-2017,2020-2022 Red Hat.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2021, Ken McDonell.  All Rights Reserved.
  *
@@ -297,6 +297,7 @@ __pmLogLoadLabel(__pmFILE *f, __pmLogLabel *lp)
 	if (pmDebugOptions.log)
 	    fprintf(stderr, "__pmLogLoadLabel: trailer read -> %zu (expect %zu) or bad trailer len=%d (expected %zu)\n",
 			    bytes, sizeof(__int32_t), peek[0], length);
+	__pmLogFreeLabel(lp);
 	if (__pmFerror(f)) {
 	    __pmClearerr(f);
 	    return -oserror();
