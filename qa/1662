@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 # PCP QA Test No. 1662
 # Test pmproxy libpcp_web discovery file descriptor and
 # memory leaks (valgrind variant, originally 1661-based
