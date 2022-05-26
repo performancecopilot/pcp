@@ -966,12 +966,10 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, int type, __pmTimestamp *tsp, pmIn
 	    }
 	}
 	/*
-	 * components of duplid are stashed away in hashed indom
-	 * structures, so just duplid and duplid->instlist to be
-	 * free'd here
+	 * components of duplid are stashed away in libpcp archive hashed
+	 * indom structures, so just duplid to be free'd here
 	 */
 	if (duplid != NULL) {
-	    free(duplid->instlist);
 	    free(duplid);
 	    duplid = NULL;
 	}
