@@ -123,4 +123,9 @@ extern void pmwebapi_release_value(int, pmAtomValue *);
 #define moduleinfo(module, level, msg, data)	\
 	((module)->on_info((level), (msg), (data)), sdsfree(msg))
 
+
+/* general purpose libuv utility functions */
+typedef void (*libuv_set_timeout_callback_t)(void *arg);
+extern void libuv_set_timeout(uv_loop_t *, libuv_set_timeout_callback_t, void *, uint64_t);
+
 #endif	/* SERIES_UTIL_H */

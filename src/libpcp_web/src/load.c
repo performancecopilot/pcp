@@ -553,8 +553,10 @@ server_cache_update_done(void *arg)
     context->count++;
     context->done = NULL;
 
-    /* begin processing of the next record if any */
-    server_cache_window(baton);
+    /* schedule processing of the next record (if any) after 5ms,
+     * to break the recursion and let libuv process pending Redis I/O callbacks
+     */
+    libuv_set_timeout(uv_default_loop(), server_cache_window, baton, 5);
 }
 
 void

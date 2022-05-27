@@ -13,6 +13,7 @@
  */
 #include <assert.h>
 #include <ctype.h>
+#include <uv.h>
 #include "pmapi.h"
 #include "libpcp.h"
 #include "pmwebapi.h"
@@ -1389,4 +1390,48 @@ pmwebapi_nsectimestamp(sds s, struct timespec *timestamp)
     pmLocaltime(&now, &tmp);
     return sdscatfmt(s, "%02d:%02d:%02d.%09d",
 		tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)timestamp->tv_nsec);
+}
+
+
+typedef struct libuv_set_timeout_data {
+    libuv_set_timeout_callback_t callback;
+    void *arg;
+} libuv_set_timeout_data;
+
+static void
+libuv_on_timer_close_complete(uv_handle_t *handle)
+{
+    free(handle);
+}
+
+static void
+libuv_set_timeout_invoke_callback(uv_timer_t *timer)
+{
+    libuv_set_timeout_data *timer_data = (libuv_set_timeout_data*)timer->data;
+
+    timer_data->callback(timer_data->arg);
+    free(timer_data);
+    uv_close((uv_handle_t*)timer, libuv_on_timer_close_complete);
+}
+
+/*
+ * Execute the given callback with an argument after X milliseconds
+ *
+ * This function is especially useful to defer some function invocation
+ * to the next libuv loop iteration (by setting timeout to 0).
+ */
+void
+libuv_set_timeout(uv_loop_t *loop, libuv_set_timeout_callback_t callback, void *arg, uint64_t timeout)
+{
+    uv_timer_t		*timer;
+    libuv_set_timeout_data *timer_data;
+
+    timer = calloc(1, sizeof(uv_timer_t));
+    timer_data = calloc(1, sizeof(libuv_set_timeout_data));
+    timer_data->callback = callback;
+    timer_data->arg = arg;
+    timer->data = timer_data;
+
+    uv_timer_init(loop, timer);
+    uv_timer_start(timer, libuv_set_timeout_invoke_callback, timeout, 0);
 }
