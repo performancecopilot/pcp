@@ -29,7 +29,6 @@
 
 #define PERF_BUFFER_PAGES   64
 #define PERF_POLL_TIMEOUT_MS	50
-#define NSEC_PRECISION (NSEC_PER_SEC / 1000)
 #define MAX_ARGS_KEY 259
 
 #define INDOM_COUNT 2
@@ -47,11 +46,11 @@ static struct env {
     .process_count = 20,
 };
 
-pmdaInstid *execsnoop_instances, *execsnoop_lost;
-struct execsnoop_bpf *obj;
-struct perf_buffer *pb = NULL;
-struct event *event;
-int lost_events;
+static pmdaInstid *execsnoop_instances, *execsnoop_lost;
+static struct execsnoop_bpf *obj;
+static struct perf_buffer *pb = NULL;
+static struct event *event;
+static int lost_events;
 
 /* cache array */
 struct tailq_entry {
@@ -60,13 +59,11 @@ struct tailq_entry {
 };
 
 TAILQ_HEAD(tailhead, tailq_entry) head;
-int queuelength;
+static int queuelength;
 
-static struct tailq_entry* allocElm()
+static struct tailq_entry* allocElm(void)
 {
-    struct tailq_entry *item;
-    item = malloc(sizeof(*item));
-    return item;
+    return malloc(sizeof(struct tailq_entry));
 }
 
 static void push(struct tailq_entry *elm)
@@ -87,79 +84,75 @@ static bool get_item(unsigned int offset, struct tailq_entry** val)
 {
     struct tailq_entry *i;
     unsigned int iter = 0;
-    bool exist = 0;
 
     TAILQ_FOREACH_REVERSE(i, &head, tailhead, entries) {
         if (offset == iter) {
             *val = i;
-            exist = 1;
-            break;
-        } else {
-            exist = 0;
+            return true;
         }
         iter++;
     }
-    return exist;
+    return false;
 }
 
-char arg_val[FULL_MAX_ARGS_ARR];
-unsigned int indom_id_mapping[INDOM_COUNT];
+static char arg_val[FULL_MAX_ARGS_ARR];
+static unsigned int indom_id_mapping[INDOM_COUNT];
 
 #define METRIC_COUNT 7
 enum metric_name { COMM, PID, PPID, RET, ARGS, UID, LOST };
 enum metric_indom { EXECSNOOP_INDOM, LOST_EVENTS };
 
 char* metric_names[METRIC_COUNT] = {
-    "execsnoop.comm",
-    "execsnoop.pid",
-    "execsnoop.ppid",
-    "execsnoop.ret",
-    "execsnoop.args",
-    "execsnoop.uid",
-    "execsnoop.lost",
+    [COMM] = "execsnoop.comm",
+    [PID]  = "execsnoop.pid",
+    [PPID] = "execsnoop.ppid",
+    [RET]  = "execsnoop.ret",
+    [ARGS] = "execsnoop.args",
+    [UID]  = "execsnoop.uid",
+    [LOST] = "execsnoop.lost",
 };
 
 char* metric_text_oneline[METRIC_COUNT] = {
-    "Command name",
-    "Process identifier",
-    "Process ID of the parent process",
-    "Return value of exec()",
-    "Details of the arguments",
-    "User identifier",
-    "Number of the lost events",
+    [COMM] = "Command name",
+    [PID]  = "Process identifier",
+    [PPID] = "Process ID of the parent process",
+    [RET]  = "Return value of exec()",
+    [ARGS] = "Details of the arguments",
+    [UID]  = "User identifier",
+    [LOST] = "Number of the lost events",
 };
 
 char* metric_text_long[METRIC_COUNT] = {
-    "Command name",
-    "Process identifier",
-    "Process ID of the parent process",
-    "Return value of exec()",
-    "Details of the arguments",
-    "User identifier",
-    "Number of the lost events",
+    [COMM] = "Command name",
+    [PID]  = "Process identifier",
+    [PPID] = "Process ID of the parent process",
+    [RET]  = "Return value of exec()",
+    [ARGS] = "Details of the arguments",
+    [UID]  = "User identifier",
+    [LOST] = "Number of the lost events",
 };
 
-unsigned int execsnoop_metric_count()
+static unsigned int execsnoop_metric_count()
 {
     return METRIC_COUNT;
 }
 
-char* execsnoop_metric_name(unsigned int metric)
+static char* execsnoop_metric_name(unsigned int metric)
 {
     return metric_names[metric];
 }
 
-unsigned int execsnoop_indom_count()
+static unsigned int execsnoop_indom_count(void)
 {
     return INDOM_COUNT;
 }
 
-void execsnoop_set_indom_serial(unsigned int local_indom_id, unsigned int global_id)
+static void execsnoop_set_indom_serial(unsigned int local_indom_id, unsigned int global_id)
 {
     indom_id_mapping[local_indom_id] = global_id;
 }
 
-int execsnoop_metric_text(int item, int type, char **buffer)
+static int execsnoop_metric_text(int item, int type, char **buffer)
 {
     if (type & PM_TEXT_ONELINE) {
         *buffer = metric_text_oneline[item];
@@ -170,62 +163,83 @@ int execsnoop_metric_text(int item, int type, char **buffer)
     return 0;
 }
 
-void execsnoop_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaIndom *indoms)
+static void execsnoop_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaIndom *indoms)
 {
     /* bpf.execsnoop.comm */
     metrics[COMM] = (struct pmdaMetric)
-    { /* m_user */ NULL,
-        { /* m_desc */
-            PMDA_PMID(cluster_id, 0), PM_TYPE_STRING, indom_id_mapping[EXECSNOOP_INDOM],
-            PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+    {
+        .m_desc = {
+            .pmid  = PMDA_PMID(cluster_id, 0),
+            .type  = PM_TYPE_STRING,
+            .indom = indom_id_mapping[EXECSNOOP_INDOM],
+            .sem   = PM_SEM_INSTANT,
+            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };
     /* bpf.execsnoop.pid */
     metrics[PID] = (struct pmdaMetric)
-    { /* m_user */ NULL,
-        { /* m_desc */
-            PMDA_PMID(cluster_id, 1), PM_TYPE_U32, indom_id_mapping[EXECSNOOP_INDOM],
-            PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+    {
+        .m_desc = {
+            .pmid  = PMDA_PMID(cluster_id, 1),
+            .type  = PM_TYPE_U32,
+            .indom = indom_id_mapping[EXECSNOOP_INDOM],
+            .sem   = PM_SEM_INSTANT,
+            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };
     /* bpf.execsnoop.ppid */
     metrics[PPID] = (struct pmdaMetric)
-    { /* m_user */ NULL,
-        { /* m_desc */
-            PMDA_PMID(cluster_id, 2), PM_TYPE_U32, indom_id_mapping[EXECSNOOP_INDOM],
-            PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+    {
+        .m_desc = {
+            .pmid  = PMDA_PMID(cluster_id, 2),
+            .type  = PM_TYPE_U32,
+            .indom = indom_id_mapping[EXECSNOOP_INDOM],
+            .sem   = PM_SEM_INSTANT,
+            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };
     /* bpf.execsnoop.ret */
     metrics[RET] = (struct pmdaMetric)
-    { /* m_user */ NULL,
-        { /* m_desc */
-            PMDA_PMID(cluster_id, 3), PM_TYPE_32, indom_id_mapping[EXECSNOOP_INDOM],
-            PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+    {
+        .m_desc = {
+            .pmid  = PMDA_PMID(cluster_id, 3),
+            .type  = PM_TYPE_U32,
+            .indom = indom_id_mapping[EXECSNOOP_INDOM],
+            .sem   = PM_SEM_INSTANT,
+            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };
     /* bpf.execsnoop.args */
     metrics[ARGS] = (struct pmdaMetric)
-    { /* m_user */ NULL,
-        { /* m_desc */
-            PMDA_PMID(cluster_id, 4), PM_TYPE_STRING, indom_id_mapping[EXECSNOOP_INDOM],
-            PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+    {
+        .m_desc = {
+            .pmid  = PMDA_PMID(cluster_id, 4),
+            .type  = PM_TYPE_STRING,
+            .indom = indom_id_mapping[EXECSNOOP_INDOM],
+            .sem   = PM_SEM_INSTANT,
+            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };
     /* bpf.execsnoop.uid */
     metrics[UID] = (struct pmdaMetric)
-    { /* m_user */ NULL,
-        { /* m_desc */
-            PMDA_PMID(cluster_id, 5), PM_TYPE_U32, indom_id_mapping[EXECSNOOP_INDOM],
-            PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+    {
+        .m_desc = {
+            .pmid  = PMDA_PMID(cluster_id, 5),
+            .type  = PM_TYPE_U32,
+            .indom = indom_id_mapping[EXECSNOOP_INDOM],
+            .sem   = PM_SEM_INSTANT,
+            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };
     /* bpf.execsnoop.uid */
     metrics[LOST] = (struct pmdaMetric)
-    { /* m_user */ NULL,
-        { /* m_desc */
-            PMDA_PMID(cluster_id, 6), PM_TYPE_U32, indom_id_mapping[LOST_EVENTS],
-            PM_SEM_INSTANT, PMDA_PMUNITS(0, 0, 0, 0, 0, 0)
+    {
+        .m_desc = {
+            .pmid  = PMDA_PMID(cluster_id, 6),
+            .type  = PM_TYPE_U32,
+            .indom = indom_id_mapping[EXECSNOOP_INDOM],
+            .sem   = PM_SEM_INSTANT,
+            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };
 
@@ -303,7 +317,7 @@ static void handle_lost_events(void *ctx, int cpu, __u64 lost_cnt)
     lost_events = lost_cnt;
 }
 
-int execsnoop_init(dict *cfg, char *module_name)
+static int execsnoop_init(dict *cfg, char *module_name)
 {
     int err;
     char *val;
@@ -369,7 +383,7 @@ int execsnoop_init(dict *cfg, char *module_name)
     return err != 0;
 }
 
-void execsnoop_shutdown()
+static void execsnoop_shutdown()
 {
     struct tailq_entry *itemp;
 
@@ -384,12 +398,12 @@ void execsnoop_shutdown()
     }
 }
 
-void execsnoop_refresh(unsigned int item)
+static void execsnoop_refresh(unsigned int item)
 {
     perf_buffer__poll(pb, PERF_POLL_TIMEOUT_MS);
 }
 
-int execsnoop_fetch_to_atom(unsigned int item, unsigned int inst, pmAtomValue *atom)
+static int execsnoop_fetch_to_atom(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {
     struct tailq_entry *value;
     bool exist;
