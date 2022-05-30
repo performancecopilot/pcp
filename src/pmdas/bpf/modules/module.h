@@ -107,9 +107,10 @@ typedef struct module {
  * List of all modules defined
  */
 char *all_modules[] = {
-    "runqlat",
+    "bashreadline",
     "biolatency",
     "execsnoop",
+    "runqlat",
 };
 
 /**

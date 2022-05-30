@@ -7,19 +7,30 @@ MODULETMP = $(PCP_PMDAS_DIR)/$(IAM)/modules
 MODULEDIR = $(PCP_PMDASADM_DIR)/$(IAM)/modules
 
 COMMON_OBJ = \
+	trace_helpers.o \
+	btf_helpers.o \
+	uprobe_helpers.o \
 
 # ported helper files.
 HELPERS_H = \
+	trace_helpers.h \
+	btf_helpers.h \
+	uprobe_helpers.h \
 
 HELPERS_C = \
+	trace_helpers.c \
+	btf_helpers.c \
+	uprobe_helpers.c \
 
 # ported header file.
 APPS_H = \
-	execsnoop.h      \
+	bashreadline.h \
+	execsnoop.h \
 
 # ported *.bpf.c files.
 APPS_BPF = \
-	execsnoop.bpf.c      \
+	bashreadline.bpf.c \
+	execsnoop.bpf.c \
 
 
 default_pcp default:	$(HELPERS_H) $(HELPERS_C) $(APPS_H) $(APPS_BPF) \
