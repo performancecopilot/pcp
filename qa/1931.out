@@ -1,0 +1,33 @@
+QA output created by 1931
+
+=== bpf agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bpf metrics have appeared ... X metrics and X values
+
+hello world
+hello PCP
+hello test
+/tmp/qa_execsnoop
+=== report metric values for comm ===
+OK
+=== report metric values for pid ===
+OK
+=== report metric values for ppid ===
+OK
+=== report metric values for ret ===
+OK
+=== report metric values for args ===
+OK
+=== catch background task ===
+OK
+=== report non-filter value ===
+
+=== remove bpf agent ===
+Culling the Performance Metrics Name Space ...
+bpf ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bpf metrics have gone away ... OK
