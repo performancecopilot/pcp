@@ -293,7 +293,7 @@ extern uint8_t Process_fieldWidths[LAST_PROCESSFIELD];
 #define PROCESS_MIN_PID_DIGITS 5
 #define PROCESS_MAX_PID_DIGITS 19
 #define PROCESS_MIN_UID_DIGITS 5
-#define PROCESS_MAX_UID_DIGITS 19
+#define PROCESS_MAX_UID_DIGITS 20
 extern int Process_pidDigits;
 extern int Process_uidDigits;
 
@@ -394,7 +394,11 @@ bool Process_changePriorityBy(Process* this, Arg delta);
 
 bool Process_sendSignal(Process* this, Arg sgn);
 
-int Process_pidCompare(const void* v1, const void* v2);
+static inline int Process_pidEqualCompare(const void* v1, const void* v2) {
+   const pid_t p1 = ((const Process*)v1)->pid;
+   const pid_t p2 = ((const Process*)v2)->pid;
+   return p1 != p2; /* return zero when equal */
+}
 
 int Process_compareByKey_Base(const Process* p1, const Process* p2, ProcessField key);
 

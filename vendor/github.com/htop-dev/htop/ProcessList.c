@@ -82,41 +82,45 @@ void ProcessList_setPanel(ProcessList* this, Panel* panel) {
    this->panel = panel;
 }
 
-static const char* alignedDynamicColumnTitle(const ProcessList* this, int key) {
+static const char* alignedDynamicColumnTitle(const ProcessList* this, int key, char* titleBuffer, size_t titleBufferSize) {
    const DynamicColumn* column = Hashtable_get(this->dynamicColumns, key);
    if (column == NULL)
       return "- ";
-   static char titleBuffer[DYNAMIC_MAX_COLUMN_WIDTH + /* space */ 1 + /* null terminator */ + 1];
    int width = column->width;
    if (!width || abs(width) > DYNAMIC_MAX_COLUMN_WIDTH)
       width = DYNAMIC_DEFAULT_COLUMN_WIDTH;
-   xSnprintf(titleBuffer, sizeof(titleBuffer), "%*s", width, column->heading);
+   xSnprintf(titleBuffer, titleBufferSize, "%*s", width, column->heading);
    return titleBuffer;
 }
 
 static const char* alignedProcessFieldTitle(const ProcessList* this, ProcessField field) {
+   static char titleBuffer[UINT8_MAX + sizeof(" ")];
+   assert(sizeof(titleBuffer) >= DYNAMIC_MAX_COLUMN_WIDTH + sizeof(" "));
+   assert(sizeof(titleBuffer) >= PROCESS_MAX_PID_DIGITS + sizeof(" "));
+   assert(sizeof(titleBuffer) >= PROCESS_MAX_UID_DIGITS + sizeof(" "));
+
    if (field >= LAST_PROCESSFIELD)
-      return alignedDynamicColumnTitle(this, field);
+      return alignedDynamicColumnTitle(this, field, titleBuffer, sizeof(titleBuffer));
 
    const char* title = Process_fields[field].title;
    if (!title)
       return "- ";
 
    if (Process_fields[field].pidColumn) {
-      static char titleBuffer[PROCESS_MAX_PID_DIGITS + sizeof(" ")];
       xSnprintf(titleBuffer, sizeof(titleBuffer), "%*s ", Process_pidDigits, title);
       return titleBuffer;
    }
 
    if (field == ST_UID) {
-      static char titleBuffer[PROCESS_MAX_UID_DIGITS + sizeof(" ")];
       xSnprintf(titleBuffer, sizeof(titleBuffer), "%*s ", Process_uidDigits, title);
       return titleBuffer;
    }
 
    if (Process_fields[field].autoWidth) {
-      static char titleBuffer[UINT8_MAX + 1];
-      xSnprintf(titleBuffer, sizeof(titleBuffer), "%-*.*s ", Process_fieldWidths[field], Process_fieldWidths[field], title);
+      if (field == PERCENT_CPU)
+         xSnprintf(titleBuffer, sizeof(titleBuffer), "%*s ", Process_fieldWidths[field], title);
+      else
+         xSnprintf(titleBuffer, sizeof(titleBuffer), "%-*.*s ", Process_fieldWidths[field], Process_fieldWidths[field], title);
       return titleBuffer;
    }
 
@@ -158,7 +162,7 @@ void ProcessList_printHeader(const ProcessList* this, RichString* header) {
 }
 
 void ProcessList_add(ProcessList* this, Process* p) {
-   assert(Vector_indexOf(this->processes, p, Process_pidCompare) == -1);
+   assert(Vector_indexOf(this->processes, p, Process_pidEqualCompare) == -1);
    assert(Hashtable_get(this->processTable, p->pid) == NULL);
    p->processList = this;
 
@@ -168,25 +172,23 @@ void ProcessList_add(ProcessList* this, Process* p) {
    Vector_add(this->processes, p);
    Hashtable_put(this->processTable, p->pid, p);
 
-   assert(Vector_indexOf(this->processes, p, Process_pidCompare) != -1);
+   assert(Vector_indexOf(this->processes, p, Process_pidEqualCompare) != -1);
    assert(Hashtable_get(this->processTable, p->pid) != NULL);
-   assert(Hashtable_count(this->processTable) == Vector_count(this->processes));
+   assert(Vector_countEquals(this->processes, Hashtable_count(this->processTable)));
 }
 
-void ProcessList_remove(ProcessList* this, const Process* p) {
-   assert(Vector_indexOf(this->processes, p, Process_pidCompare) != -1);
-   assert(Hashtable_get(this->processTable, p->pid) != NULL);
-
-   const Process* pp = Hashtable_remove(this->processTable, p->pid);
-   assert(pp == p); (void)pp;
-
+// ProcessList_removeIndex removes Process p from the list's map and soft deletes
+// it from its vector. Vector_compact *must* be called once the caller is done
+// removing items.
+// Should only be called from ProcessList_scan to avoid breaking dying process highlighting.
+static void ProcessList_removeIndex(ProcessList* this, const Process* p, int idx) {
    pid_t pid = p->pid;
-   int idx = Vector_indexOf(this->processes, p, Process_pidCompare);
-   assert(idx != -1);
 
-   if (idx >= 0) {
-      Vector_remove(this->processes, idx);
-   }
+   assert(p == (Process*)Vector_get(this->processes, idx));
+   assert(Hashtable_get(this->processTable, pid) != NULL);
+
+   Hashtable_remove(this->processTable, pid);
+   Vector_softRemove(this->processes, idx);
 
    if (this->following != -1 && this->following == pid) {
       this->following = -1;
@@ -194,7 +196,7 @@ void ProcessList_remove(ProcessList* this, const Process* p) {
    }
 
    assert(Hashtable_get(this->processTable, pid) == NULL);
-   assert(Hashtable_count(this->processTable) == Vector_count(this->processes));
+   assert(Vector_countEquals(this->processes, Hashtable_count(this->processTable)));
 }
 
 static void ProcessList_buildTreeBranch(ProcessList* this, pid_t pid, int level, int indent, bool show) {
@@ -355,7 +357,10 @@ void ProcessList_expandTree(ProcessList* this) {
    }
 }
 
+// Called on collapse-all toggle and on startup, possibly in non-tree mode
 void ProcessList_collapseAllBranches(ProcessList* this) {
+   ProcessList_buildTree(this); // Update `tree_depth` fields of the processes
+   this->needsSort = true; // ProcessList is sorted by parent now, force new sort
    int size = Vector_size(this->processes);
    for (int i = 0; i < size; i++) {
       Process* process = (Process*) Vector_get(this->processes, i);
@@ -429,7 +434,7 @@ Process* ProcessList_getProcess(ProcessList* this, pid_t pid, bool* preExisting,
    Process* proc = (Process*) Hashtable_get(this->processTable, pid);
    *preExisting = proc != NULL;
    if (proc) {
-      assert(Vector_indexOf(this->processes, proc, Process_pidCompare) != -1);
+      assert(Vector_indexOf(this->processes, proc, Process_pidEqualCompare) != -1);
       assert(proc->pid == pid);
    } else {
       proc = constructor(this->settings);
@@ -484,7 +489,7 @@ void ProcessList_scan(ProcessList* this, bool pauseProcessUpdate) {
       if (p->tombStampMs > 0) {
          // remove tombed process
          if (this->monotonicMs >= p->tombStampMs) {
-            ProcessList_remove(this, p);
+            ProcessList_removeIndex(this, p, i);
          }
       } else if (p->updated == false) {
          // process no longer exists
@@ -493,10 +498,13 @@ void ProcessList_scan(ProcessList* this, bool pauseProcessUpdate) {
             p->tombStampMs = this->monotonicMs + 1000 * this->settings->highlightDelaySecs;
          } else {
             // immediately remove
-            ProcessList_remove(this, p);
+            ProcessList_removeIndex(this, p, i);
          }
       }
    }
+
+   // Compact the processes vector in case of any deletions
+   Vector_compact(this->processes);
 
    // Set UID column width based on max UID.
    Process_setUidColumnWidth(maxUid);

@@ -166,6 +166,28 @@ static void LinuxProcessList_initNetlinkSocket(LinuxProcessList* this) {
 
 #endif
 
+static unsigned int scanAvailableCPUsFromCPUinfo(LinuxProcessList* this) {
+   FILE* file = fopen(PROCCPUINFOFILE, "r");
+   if (file == NULL)
+      return this->super.existingCPUs;
+
+   unsigned int availableCPUs = 0;
+
+   while (!feof(file)) {
+      char buffer[PROC_LINE_LENGTH];
+
+      if (fgets(buffer, PROC_LINE_LENGTH, file) == NULL)
+         break;
+
+      if (String_startsWith(buffer, "processor"))
+         availableCPUs++;
+      }
+
+   fclose(file);
+
+   return availableCPUs ? availableCPUs : 1;
+}
+
 static void LinuxProcessList_updateCPUcount(ProcessList* super) {
    /* Similar to get_nprocs_conf(3) / _SC_NPROCESSORS_CONF
     * https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/unix/sysv/linux/getsysstats.c;hb=HEAD
@@ -240,6 +262,12 @@ static void LinuxProcessList_updateCPUcount(ProcessList* super) {
    if (existing < 1)
       return;
 
+   if (Running_containerized) {
+	   /* LXC munges /proc/cpuinfo but not the /sys/devices/system/cpu/ files,
+	    * so limit the visible CPUs to what the guest has been configured to see: */
+	   currExisting = active = scanAvailableCPUsFromCPUinfo(this);
+   }
+
 #ifdef HAVE_SENSORS_SENSORS_H
    /* When started with offline CPUs, libsensors does not monitor those,
     * even when they become online. */
@@ -248,7 +276,7 @@ static void LinuxProcessList_updateCPUcount(ProcessList* super) {
 #endif
 
    super->activeCPUs = active;
-   assert(existing == currExisting);
+   assert(Running_containerized || (existing == currExisting));
    super->existingCPUs = currExisting;
 }
 
@@ -1389,6 +1417,21 @@ static char* LinuxProcessList_updateTtyDevice(TtyDriver* ttyDrivers, unsigned lo
    return out;
 }
 
+static bool isOlderThan(const ProcessList* pl, const Process* proc, unsigned int seconds) {
+   assert(pl->realtimeMs > 0);
+
+   /* Starttime might not yet be parsed */
+   if (proc->starttime_ctime <= 0)
+	   return false;
+
+   uint64_t realtime = pl->realtimeMs / 1000;
+
+   if (realtime < (uint64_t)proc->starttime_ctime)
+      return false;
+
+   return realtime - proc->starttime_ctime > seconds;
+}
+
 static bool LinuxProcessList_recurseProcTree(LinuxProcessList* this, openat_arg_t parentFd, const char* dirname, const Process* parent, double period) {
    ProcessList* pl = (ProcessList*) this;
    const struct dirent* entry;
@@ -1446,21 +1489,21 @@ static bool LinuxProcessList_recurseProcTree(LinuxProcessList* this, openat_arg_
       if (parent && pid == parent->pid)
          continue;
 
+#ifdef HAVE_OPENAT
+      int procFd = openat(dirFd, entry->d_name, O_RDONLY | O_DIRECTORY | O_NOFOLLOW);
+      if (procFd < 0)
+         continue;
+#else
+      char procFd[4096];
+      xSnprintf(procFd, sizeof(procFd), "%s/%s", dirFd, entry->d_name);
+#endif
+
       bool preExisting;
       Process* proc = ProcessList_getProcess(pl, pid, &preExisting, LinuxProcess_new);
       LinuxProcess* lp = (LinuxProcess*) proc;
 
       proc->tgid = parent ? parent->pid : pid;
       proc->isUserlandThread = proc->pid != proc->tgid;
-
-#ifdef HAVE_OPENAT
-      int procFd = openat(dirFd, entry->d_name, O_RDONLY | O_DIRECTORY | O_NOFOLLOW);
-      if (procFd < 0)
-         goto errorReadingProcess;
-#else
-      char procFd[4096];
-      xSnprintf(procFd, sizeof(procFd), "%s/%s", dirFd, entry->d_name);
-#endif
 
       LinuxProcessList_recurseProcTree(this, procFd, "task", proc, period);
 
@@ -1497,7 +1540,7 @@ static bool LinuxProcessList_recurseProcTree(LinuxProcessList* this, openat_arg_
          bool prev = proc->usesDeletedLib;
 
          if (!proc->isKernelThread && !proc->isUserlandThread &&
-            ((ss->flags & PROCESS_FLAG_LINUX_LRS_FIX) || (settings->highlightDeletedExe && !proc->procExeDeleted))) {
+            ((ss->flags & PROCESS_FLAG_LINUX_LRS_FIX) || (settings->highlightDeletedExe && !proc->procExeDeleted && isOlderThan(pl, proc, 10)))) {
 
             // Check if we really should recalculate the M_LRS value for this process
             uint64_t passedTimeInMs = pl->realtimeMs - lp->last_mlrs_calctime;
@@ -1653,8 +1696,13 @@ errorReadingProcess:
 #endif
 
          if (preExisting) {
-            ProcessList_remove(pl, proc);
+            /*
+             * The only real reason for coming here (apart from Linux violating the /proc API)
+             * would be the process going away with its /proc files disappearing (!HAVE_OPENAT).
+             * However, we want to keep in the process list for now for the "highlight dying" mode.
+             */
          } else {
+            /* A really short-lived process that we don't have full info about */
             Process_delete((Object*)proc);
          }
       }
@@ -1874,6 +1922,7 @@ static inline void LinuxProcessList_scanZfsArcstats(LinuxProcessList* lpl) {
 
       switch (buffer[0]) {
       case 'c':
+         tryRead("c_min", &lpl->zfs.min);
          tryRead("c_max", &lpl->zfs.max);
          tryReadFlag("compressed_size", &lpl->zfs.compressed, lpl->zfs.isCompressed);
          break;
@@ -1908,6 +1957,7 @@ static inline void LinuxProcessList_scanZfsArcstats(LinuxProcessList* lpl) {
 
    lpl->zfs.enabled = (lpl->zfs.size > 0 ? 1 : 0);
    lpl->zfs.size    /= 1024;
+   lpl->zfs.min    /= 1024;
    lpl->zfs.max    /= 1024;
    lpl->zfs.MFU    /= 1024;
    lpl->zfs.MRU    /= 1024;
@@ -2101,16 +2151,11 @@ static void scanCPUFrequencyFromCPUinfo(LinuxProcessList* this) {
       if (fgets(buffer, PROC_LINE_LENGTH, file) == NULL)
          break;
 
-      if (
-         (sscanf(buffer, "processor : %d", &cpuid) == 1) ||
-         (sscanf(buffer, "processor: %d", &cpuid) == 1)
-      ) {
+      if (sscanf(buffer, "processor : %d", &cpuid) == 1) {
          continue;
       } else if (
          (sscanf(buffer, "cpu MHz : %lf", &frequency) == 1) ||
-         (sscanf(buffer, "cpu MHz: %lf", &frequency) == 1) ||
-         (sscanf(buffer, "clock : %lfMHz", &frequency) == 1) ||
-         (sscanf(buffer, "clock: %lfMHz", &frequency) == 1)
+         (sscanf(buffer, "clock : %lfMHz", &frequency) == 1)
       ) {
          if (cpuid < 0 || (unsigned int)cpuid > (existingCPUs - 1)) {
             continue;

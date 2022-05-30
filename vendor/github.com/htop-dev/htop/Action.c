@@ -88,6 +88,7 @@ static void Action_runSetup(State* st) {
    ScreenManager_run(scr, NULL, NULL, "Setup");
    ScreenManager_delete(scr);
    if (st->settings->changed) {
+      CRT_setMouse(st->settings->enableMouse);
       Header_writeBackToSettings(st->header);
    }
 }
@@ -241,6 +242,9 @@ static Htop_Reaction actionToggleTreeView(State* st) {
 
 static Htop_Reaction actionExpandOrCollapseAllBranches(State* st) {
    ScreenSettings* ss = st->settings->ss;
+   if (!ss->treeView) {
+      return HTOP_OK;
+   }
    ss->allBranchesCollapsed = !ss->allBranchesCollapsed;
    if (ss->allBranchesCollapsed)
       ProcessList_collapseAllBranches(st->pl);
@@ -533,7 +537,7 @@ static const struct {
    { .key = "      U: ", .roInactive = false, .info = "untag all processes" },
    { .key = "   F9 k: ", .roInactive = true,  .info = "kill process/tagged processes" },
    { .key = "   F7 ]: ", .roInactive = true,  .info = "higher priority (root only)" },
-   { .key = "   F8 [: ", .roInactive = false, .info = "lower priority (+ nice)" },
+   { .key = "   F8 [: ", .roInactive = true,  .info = "lower priority (+ nice)" },
 #if (defined(HAVE_LIBHWLOC) || defined(HAVE_AFFINITY))
    { .key = "      a: ", .roInactive = true, .info = "set CPU affinity" },
 #endif
@@ -570,46 +574,57 @@ static Htop_Reaction actionHelp(State* st) {
    line++;
    mvaddstr(line++, 0, "CPU usage bar: ");
 
+#define addbartext(attr, prefix, text)               \
+   do {                                              \
+      addattrstr(CRT_colors[DEFAULT_COLOR], prefix); \
+      addattrstr(attr, text);                        \
+   } while(0)
+
    addattrstr(CRT_colors[BAR_BORDER], "[");
+   addbartext(CRT_colors[CPU_NICE_TEXT], "", "low");
+   addbartext(CRT_colors[CPU_NORMAL], "/", "normal");
+   addbartext(CRT_colors[CPU_SYSTEM], "/", "kernel");
    if (st->settings->detailedCPUTime) {
-      addattrstr(CRT_colors[CPU_NICE_TEXT], "low"); addstr("/");
-      addattrstr(CRT_colors[CPU_NORMAL], "normal"); addstr("/");
-      addattrstr(CRT_colors[CPU_SYSTEM], "kernel"); addstr("/");
-      addattrstr(CRT_colors[CPU_IRQ], "irq"); addstr("/");
-      addattrstr(CRT_colors[CPU_SOFTIRQ], "soft-irq"); addstr("/");
-      addattrstr(CRT_colors[CPU_STEAL], "steal"); addstr("/");
-      addattrstr(CRT_colors[CPU_GUEST], "guest"); addstr("/");
-      addattrstr(CRT_colors[CPU_IOWAIT], "io-wait");
-      addattrstr(CRT_colors[BAR_SHADOW], " used%");
+      addbartext(CRT_colors[CPU_IRQ], "/", "irq");
+      addbartext(CRT_colors[CPU_SOFTIRQ], "/", "soft-irq");
+      addbartext(CRT_colors[CPU_STEAL], "/", "steal");
+      addbartext(CRT_colors[CPU_GUEST], "/", "guest");
+      addbartext(CRT_colors[CPU_IOWAIT], "/", "io-wait");
+      addbartext(CRT_colors[BAR_SHADOW], " ", "used%");
    } else {
-      addattrstr(CRT_colors[CPU_NICE_TEXT], "low-priority"); addstr("/");
-      addattrstr(CRT_colors[CPU_NORMAL], "normal"); addstr("/");
-      addattrstr(CRT_colors[CPU_SYSTEM], "kernel"); addstr("/");
-      addattrstr(CRT_colors[CPU_GUEST], "virtualized");
-      addattrstr(CRT_colors[BAR_SHADOW], "             used%");
+      addbartext(CRT_colors[CPU_GUEST], "/", "guest");
+      addbartext(CRT_colors[BAR_SHADOW], "                  ", "used%");
    }
    addattrstr(CRT_colors[BAR_BORDER], "]");
+
    attrset(CRT_colors[DEFAULT_COLOR]);
    mvaddstr(line++, 0, "Memory bar:    ");
    addattrstr(CRT_colors[BAR_BORDER], "[");
-   addattrstr(CRT_colors[MEMORY_USED], "used"); addstr("/");
-   addattrstr(CRT_colors[MEMORY_BUFFERS_TEXT], "buffers"); addstr("/");
-   addattrstr(CRT_colors[MEMORY_SHARED], "shared"); addstr("/");
-   addattrstr(CRT_colors[MEMORY_CACHE], "cache");
-   addattrstr(CRT_colors[BAR_SHADOW], "                     used/total");
+   addbartext(CRT_colors[MEMORY_USED], "", "used");
+   addbartext(CRT_colors[MEMORY_BUFFERS_TEXT], "/", "buffers");
+   addbartext(CRT_colors[MEMORY_SHARED], "/", "shared");
+   addbartext(CRT_colors[MEMORY_CACHE], "/", "cache");
+   addbartext(CRT_colors[BAR_SHADOW], "                     ", "used");
+   addbartext(CRT_colors[BAR_SHADOW], "/", "total");
    addattrstr(CRT_colors[BAR_BORDER], "]");
+
    attrset(CRT_colors[DEFAULT_COLOR]);
    mvaddstr(line++, 0, "Swap bar:      ");
    addattrstr(CRT_colors[BAR_BORDER], "[");
-   addattrstr(CRT_colors[SWAP], "used");
+   addbartext(CRT_colors[SWAP], "", "used");
 #ifdef HTOP_LINUX
-   addstr("/");
-   addattrstr(CRT_colors[SWAP_CACHE], "cache");
-   addattrstr(CRT_colors[BAR_SHADOW], "                                    used/total");
+   addbartext(CRT_colors[SWAP_CACHE], "/", "cache");
 #else
-   addattrstr(CRT_colors[BAR_SHADOW], "                                          used/total");
+   addbartext(CRT_colors[SWAP_CACHE], "      ", "");
 #endif
+   addbartext(CRT_colors[BAR_SHADOW], "                                    ", "used");
+   addbartext(CRT_colors[BAR_SHADOW], "/", "total");
    addattrstr(CRT_colors[BAR_BORDER], "]");
+
+   line++;
+
+#undef addbartext
+
    attrset(CRT_colors[DEFAULT_COLOR]);
    mvaddstr(line++, 0, "Type and layout of header meters are configurable in the setup screen.");
    if (CRT_colorScheme == COLORSCHEME_MONOCHROME) {
@@ -617,9 +632,23 @@ static Htop_Reaction actionHelp(State* st) {
    }
    line++;
 
-   mvaddstr(line++, 0, "Process state: R: running; S: sleeping; T: traced/stopped; Z: zombie; D: disk sleep");
+#define addattrstatestr(attr, state, desc)              \
+   do {                                                 \
+      addattrstr(attr, state);                          \
+      addattrstr(CRT_colors[DEFAULT_COLOR], ": " desc); \
+   } while(0)
 
-   line++;
+   mvaddstr(line, 0, "Process state: ");
+   addattrstatestr(CRT_colors[PROCESS_RUN_STATE], "R", "running; ");
+   addattrstatestr(CRT_colors[PROCESS_SHADOW], "S", "sleeping; ");
+   addattrstatestr(CRT_colors[PROCESS_RUN_STATE], "t", "traced/stopped; ");
+   addattrstatestr(CRT_colors[PROCESS_D_STATE], "Z", "zombie; ");
+   addattrstatestr(CRT_colors[PROCESS_D_STATE], "D", "disk sleep");
+   attrset(CRT_colors[DEFAULT_COLOR]);
+
+#undef addattrstatestr
+
+   line += 2;
 
    const bool readonly = Settings_isReadonly();
 
