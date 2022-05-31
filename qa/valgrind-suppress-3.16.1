@@ -46,3 +46,82 @@
    fun:pmNewContext
    ...
 }
+
+# qa/1662 on vm21 (i686 Debian 11.3 (bullseye))
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x48C731D: __umoddi3 (in /usr/lib/libpcp_web.so.1)
+# by 0x48A8183: sdsll2str (sds.c:441)
+# by 0x48A860A: sdscatfmt (sds.c:625)
+# by 0x488A7C1: redis_series_label (schema.c:602)
+# by 0x488ABD0: redis_series_labelset (schema.c:672)
+# by 0x488B943: redis_series_metadata (schema.c:933)
+# by 0x488B067: redis_series_metric (schema.c:779)
+# by 0x488E72B: server_cache_metric (load.c:44)
+# by 0x488F940: series_cache_update (load.c:501)
+# by 0x4891D40: pmSeriesDiscoverValues (load.c:1337)
+# by 0x48B84C2: pmDiscoverInvokeValuesCallBack (discover.c:659)
+# by 0x48BA999: process_logvol (discover.c:1483)
+{
+   sdscatfmt with sdsempty() and %I
+   Memcheck:Cond
+   fun:__umoddi3
+   fun:sdsll2str
+   fun:sdscatfmt
+   fun:redis_series_label
+   fun:redis_series_labelset
+   fun:redis_series_metadata
+   fun:redis_series_metric
+   fun:server_cache_metric
+   fun:series_cache_update
+   fun:pmSeriesDiscoverValues
+   fun:pmDiscoverInvokeValuesCallBack
+   ...
+}
+
+# ditto but for / rather than %
+{
+   sdscatfmt with sdsempty() and %I
+   Memcheck:Cond
+   fun:__udivdi3
+   fun:sdsll2str
+   fun:sdscatfmt
+   fun:redis_series_label
+   fun:redis_series_labelset
+   fun:redis_series_metadata
+   fun:redis_series_metric
+   fun:server_cache_metric
+   fun:series_cache_update
+   fun:pmSeriesDiscoverValues
+   fun:pmDiscoverInvokeValuesCallBack
+   ...
+}
+
+# qa/1662 on vm21 (i686 Debian 11.3 (bullseye))
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x48A81CB: sdsll2str (sds.c:443)
+# by 0x48A860A: sdscatfmt (sds.c:625)
+# by 0x488A7C1: redis_series_label (schema.c:602)
+# by 0x488ABD0: redis_series_labelset (schema.c:672)
+# by 0x488B943: redis_series_metadata (schema.c:933)
+# by 0x488B067: redis_series_metric (schema.c:779)
+# by 0x488E72B: server_cache_metric (load.c:44)
+# by 0x488F940: series_cache_update (load.c:501)
+# by 0x4891D40: pmSeriesDiscoverValues (load.c:1337)
+# by 0x48B84C2: pmDiscoverInvokeValuesCallBack (discover.c:659)
+# by 0x48BA999: process_logvol (discover.c:1483)
+# by 0x48BADF1: pmDiscoverInvokeCallBacks (discover.c:1616)
+{
+   sdscatfmt with sdsempty() and %s
+   Memcheck:Cond
+   fun:sdsll2str
+   fun:sdscatfmt
+   fun:redis_series_label
+   fun:redis_series_labelset
+   fun:redis_series_metadata
+   fun:redis_series_metric
+   fun:server_cache_metric
+   fun:series_cache_update
+   fun:pmSeriesDiscoverValues
+   fun:pmDiscoverInvokeValuesCallBack
+   ...
+}
