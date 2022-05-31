@@ -809,8 +809,8 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, int type, __pmTimestamp *tsp, pmIn
 	    __pmHashNode	*hp;
 	    __pmLogInDom	*idp;
 	    int			bad = 0;
-	    char		**dupnamelist;		/* DEBUG */
-	    int			*dupinstlist;		/* DEBUG */
+	    char		**dupnamelist = NULL;	/* DEBUG */
+	    int			*dupinstlist = NULL;	/* DEBUG */
 
 	    if ((hp = __pmHashSearch((unsigned int)in->indom, &acp->ac_log->hashindom)) == NULL) {
 		fprintf(stderr, "pmDiscoverInvokeInDomCallBacks: Botch:  indom %s search failed\n",
