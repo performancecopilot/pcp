@@ -26,11 +26,13 @@ HELPERS_C = \
 APPS_H = \
 	bashreadline.h \
 	execsnoop.h \
+	oomkill.h \
 
 # ported *.bpf.c files.
 APPS_BPF = \
 	bashreadline.bpf.c \
 	execsnoop.bpf.c \
+	oomkill.bpf.c \
 
 
 default_pcp default:	$(HELPERS_H) $(HELPERS_C) $(APPS_H) $(APPS_BPF) \

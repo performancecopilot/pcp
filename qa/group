@@ -1994,6 +1994,7 @@ x11
 1793 pmrep pcp2xxx python local pmdumplog
 1801 dstat python pcp local
 1805 pmda.linux kernel local
+1810 pmda.bpf local
 1813 python labels local
 1814 pmda.linux local
 1815 pmieconf pmie local
