@@ -32,7 +32,9 @@ _cleanup()
 
 _filter()
 {
-    sed \
+    echo "=== valgrind output" >>$seq.full
+    tee -a $seq.full \
+    | sed \
 	-e "s,$PCP_BINADM_DIR,PCP_BINADM_DIR,g" \
 	-e "s,-c $tmp.conf ,-c CONFFILE ,g" \
 	-e "s,-U $username ,-U USERNAME ,g" \
@@ -40,12 +42,7 @@ _filter()
 	-e "s,-r $REDISPORT,-r REDISPORT,g" \
 	-e "s,-p $PROXYPORT,-p PROXYPORT,g" \
 	-e "s,-s $PROXYSOCK,-s PROXYSOCK,g" \
-    # end
-}
-
-_full_log()
-{
-    echo; echo $@ | tee -a $seq.full
+    | _filter_valgrind_possibly
 }
 
 status=1	# failure is the default!
