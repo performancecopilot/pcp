@@ -52,8 +52,6 @@ static int LogCheckForNextArchive(__pmContext *, int, __pmResult **);
 static int LogChangeToNextArchive(__pmContext *);
 static int LogChangeToPreviousArchive(__pmContext *);
 
-static void logFreeLabel(__pmLogLabel *);
-
 #ifdef PM_MULTI_THREAD
 static pthread_mutex_t	logutil_lock = PTHREAD_MUTEX_INITIALIZER;
 #else
@@ -170,12 +168,13 @@ _logpeek(__pmArchCtl *acp, int vol)
     }
     PM_UNLOCK(logutil_lock);
 
-    if ((sts = __pmLogChkLabel(acp, f, &label, vol)) < 0) {
+    sts = __pmLogChkLabel(acp, f, &label, vol);
+    __pmLogFreeLabel(&label);
+    if (sts < 0) {
 	__pmFclose(f);
 	setoserror(sts);
 	return NULL;
     }
-    logFreeLabel(&label);
 
     return f;
 }
@@ -542,28 +541,9 @@ logFreeHashText(__pmHashCtl *type_ctl)
 }
 
 static void
-logFreeLabel(__pmLogLabel *label)
-{
-    if (label->hostname != NULL) {
-	free(label->hostname);
-	label->hostname = NULL;
-    }
-
-    if (label->timezone != NULL) {
-	free(label->timezone);
-	label->timezone = NULL;
-    }
-
-    if (label->zoneinfo != NULL) {
-	free(label->zoneinfo);
-	label->zoneinfo = NULL;
-    }
-}
-
-static void
 logFreeMeta(__pmLogCtl *lcp)
 {
-    logFreeLabel(&lcp->label);
+    __pmLogFreeLabel(&lcp->label);
 
     if (lcp->pmns != NULL) {
 	__pmFreePMNS(lcp->pmns);
@@ -854,7 +834,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 	    sts = PM_ERR_LABEL;
 	    goto cleanup;
 	}
-	logFreeLabel(&label);
+	__pmLogFreeLabel(&label);
     }
 
     if ((sts = __pmLogChkLabel(acp, lcp->mdfp, &label, PM_LOG_VOL_META)) < 0) {
@@ -906,7 +886,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 	    sts = PM_ERR_LABEL;
 	    goto cleanup;
     }
-    logFreeLabel(&label);
+    __pmLogFreeLabel(&label);
 
     PM_LOCK(lcp->lc_lock);
     lcp->refcnt = 0;
@@ -919,7 +899,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 
 cleanup:
     __pmLogClose(acp);
-    logFreeLabel(&label);
+    __pmLogFreeLabel(&label);
     logFreeMeta(lcp);
     return sts;
 }
