@@ -1295,11 +1295,13 @@ process_metadata(pmDiscover *p)
 		break;
 	    }
 	    pmDiscoverInvokeInDomCallBacks(p, hdr.type, &stamp, &inresult);
-#if defined(HAVE_32BIT_PTR)
-	    ;
-#else
+	    /* Note:
+	     *   inresult.namelist is always malloc'd in
+	     *   pmDiscoverDecodeMetaInDom(), either indirectly via
+	     *   __pmLogLoadInDom() (for non-32-bit pointer systems) or
+	     *   directly (for 32-bit-pointer systems).
+	     */
 	    free(inresult.namelist);
-#endif
 	    break;
 
 	case TYPE_LABEL:
