@@ -110,6 +110,7 @@ char *all_modules[] = {
     "bashreadline",
     "biolatency",
     "execsnoop",
+    "exitsnoop"
     "oomkill",
     "runqlat",
 };
