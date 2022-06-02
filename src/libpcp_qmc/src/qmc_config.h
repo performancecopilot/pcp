@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Red Hat.
+ * Copyright (c) 2020,2022 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -19,10 +19,12 @@
 #include <qstring.h>
 #include <qtextstream.h>
 
-#if QT_VERSION >= 0x051400
-# define QT_ENDL Qt::endl
-#else
-# define QT_ENDL endl
+#include <QtGlobal>
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+namespace Qt
+{
+    static auto endl = ::endl;
+}
 #endif
 
 #endif	// QMC_CONFIG_H
