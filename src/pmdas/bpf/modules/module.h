@@ -111,6 +111,7 @@ char *all_modules[] = {
     "biolatency",
     "execsnoop",
     "exitsnoop"
+    "mountsnoop",
     "oomkill",
     "runqlat",
 };

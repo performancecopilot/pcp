@@ -27,6 +27,7 @@ APPS_H = \
 	bashreadline.h \
 	execsnoop.h \
 	exitsnoop.h \
+	mountsnoop.h \
 	oomkill.h \
 
 # ported *.bpf.c files.
@@ -34,6 +35,7 @@ APPS_BPF = \
 	bashreadline.bpf.c \
 	execsnoop.bpf.c \
 	exitsnoop.bpf.c \
+	mountsnoop.bpf.c \
 	oomkill.bpf.c \
 
 
