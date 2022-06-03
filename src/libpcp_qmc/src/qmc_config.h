@@ -24,6 +24,7 @@
 namespace Qt
 {
     static auto endl = ::endl;
+    static auto fixed = ::fixed;
 }
 #endif
 
