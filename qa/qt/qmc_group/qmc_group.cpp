@@ -109,18 +109,18 @@ Client::context(int type, char const* source)
 		 << sep << context->numMetrics() << sep;
 	    if (context->source().type() == PM_CONTEXT_HOST)
 		cout << keywords[keyHost] << sep << context->source().host() 
-		     << sep << context->source().timezone() << endl;
+		     << sep << context->source().timezone() << Qt::endl;
 	    else
 		cout << keywords[keyArch] << sep << context->source().host() 
 		     << sep << context->source().source() << sep
 		     << context->source().start() << sep
 		     << context->source().end() << sep
-		     << context->source().timezone() << endl;
+		     << context->source().timezone() << Qt::endl;
 	}
 	cout << terminator;
     }
     else {
-	cout << "ERROR " << sts << endl << terminator;
+	cout << "ERROR " << sts << Qt::endl << terminator;
     }
     return sts;
 }
@@ -141,11 +141,11 @@ Client::name(int context, char const* metric)
 	sts = _group->context()->traverse(metric, list);
 
     if (sts < 0)
-	cout << keywords[keyError] << sep << sts << endl << terminator;
+	cout << keywords[keyError] << sep << sts << Qt::endl << terminator;
     else {
-	cout << keywords[keyName] << sep << list.size() << endl;
+	cout << keywords[keyName] << sep << list.size() << Qt::endl;
 	for (int i = 0; i < list.size(); i++)
-	    cout << cont << sep << list[i] << endl;
+	    cout << cont << sep << list[i] << Qt::endl;
 	cout << terminator;
     }
 
@@ -172,13 +172,13 @@ Client::text(int context, char const* metric)
 	sts = pmLookupText(id, PM_TEXT_HELP, &buf);
 
     if (sts >= 0) {
-	cout << keywords[keyText] << sep << strlen(buf) << endl;
-	cout << buf << endl;
+	cout << keywords[keyText] << sep << strlen(buf) << Qt::endl;
+	cout << buf << Qt::endl;
 	cout << terminator;
 	free(buf);
     }
     else
-	cout << keywords[keyError] << sep << sts << endl << terminator;
+	cout << keywords[keyError] << sep << sts << Qt::endl << terminator;
 
     _group->useDefault();
 
@@ -200,7 +200,7 @@ Client::list(QStringList const& list)
     for (l = 0; l < list.size(); l++)
 	_metrics.append(_group->addMetric(list[l].toLatin1().constData(), 0.0, false));
 
-    cout << keywords[keyList] << sep << _group->numContexts() << endl;
+    cout << keywords[keyList] << sep << _group->numContexts() << Qt::endl;
 
     for (i = 0; i < _group->numContexts(); i++) {
 
@@ -215,17 +215,17 @@ Client::list(QStringList const& list)
 	    if (context->source().type() == PM_CONTEXT_HOST)
 		cout << sep << keywords[keyHost] << sep 
 		     << context->source().host() << sep
-		     << context->source().timezone() << endl;
+		     << context->source().timezone() << Qt::endl;
 	    else
 		cout << sep << keywords[keyArch] << sep 
 		     << context->source().host() << sep
 		     << context->source().source() << sep
 		     << context->source().start() << sep
 		     << context->source().end() << sep
-		     << context->source().timezone() << endl;
+		     << context->source().timezone() << Qt::endl;
 	}
 	else
-	    cout << endl;
+	    cout << Qt::endl;
 
 	// Dump all indoms in context, but only list instances in use
 	for (j = 0; j < context->numIndoms(); j++) {
@@ -233,10 +233,10 @@ Client::list(QStringList const& list)
 	    QmcIndom const& indom = context->indom(j);
 
 	    cout << keywords[keyIndom] << sep << j << sep << indom.refCount() 
-		 << endl;
+		 << Qt::endl;
 	    for (k = 0; k < (uint32_t)indom.listLen(); k++) {
 		if (!indom.nullInst(k) && indom.refInst(k))
-		    cout << cont << sep << k << sep << indom.name(k) << endl;
+		    cout << cont << sep << k << sep << indom.name(k) << Qt::endl;
 	    }
 	}
 
@@ -253,7 +253,7 @@ Client::list(QStringList const& list)
 		cout << keywords[keyEvent];
 	    else
 		cout << keywords[keyReal];
-	    cout << sep << desc.units() << endl;
+	    cout << sep << desc.units() << Qt::endl;
 	}
     }
 
@@ -265,18 +265,18 @@ Client::list(QStringList const& list)
 	cout << keywords[keyMetric] << sep << i << sep;
 
 	if (metric.status() < 0) {
-	    cout << metric.status() << endl;
+	    cout << metric.status() << Qt::endl;
 	}
 	else {
 	    cout << metric.numValues() << sep << metric.name() << sep 
 		 << metric.contextIndex()
 		 << sep << metric.idIndex() << sep;
 	    if (metric.indomIndex() == UINT_MAX)
-		cout << "-1" << endl;
+		cout << "-1" << Qt::endl;
 	    else
-		cout << metric.indomIndex() << endl;
+		cout << metric.indomIndex() << Qt::endl;
 	    for (j = 0; j < (uint32_t)metric.numInst(); j++)
-		cout << cont << sep << metric.instIndex(j) << endl;
+		cout << cont << sep << metric.instIndex(j) << Qt::endl;
 	}
 
     }
@@ -298,9 +298,9 @@ Client::jump(int interval, int startSec, int startMSec)
     sts = _group->setArchiveMode(PM_MODE_INTERP, &start, interval);
 
     if (sts < 0)
-	cout << keywords[keyError] << sts << endl << terminator;
+	cout << keywords[keyError] << sts << Qt::endl << terminator;
     else
-	cout << keywords[keyJump] << endl << terminator;
+	cout << keywords[keyJump] << Qt::endl << terminator;
 
     return sts;
 }
@@ -313,7 +313,7 @@ Client::fetch()
     sts = _group->fetch();
 
     cout << keywords[keyFetch] << sep << _group->numContexts() << sep 
-	 << _metrics.size() << endl;
+	 << _metrics.size() << Qt::endl;
 
     for (i = 0; i < (int)_group->numContexts(); i++) {
 
@@ -321,7 +321,7 @@ Client::fetch()
 
 	cout << keywords[keyContext] << sep << i << sep 
 	     << (long long)(context->timeDelta() * 1000.0) << sep
-	     << context->timeStamp() << endl;
+	     << context->timeStamp() << Qt::endl;
     }
 
     for (i = 0; i < _metrics.size(); i++) {
@@ -331,17 +331,17 @@ Client::fetch()
 	cout << keywords[keyMetric] << sep << i << sep;
 
 	if (metric.status() < 0) {
-	    cout << metric.status() << endl;
+	    cout << metric.status() << Qt::endl;
 	}
 	else {
 	    cout << metric.numValues();
 	    if (metric.hasInstances() && metric.indom()->changed())
 		cout << sep << keywords[keyUpdate];
-	    cout << endl;
+	    cout << Qt::endl;
 	    for (j = 0; j < metric.numValues(); j++) {
 		cout << cont << sep;
 		if (metric.error(j) < 0)
-		    cout << '?' << endl;
+		    cout << '?' << Qt::endl;
 		else {
 		    int type = metric.desc().desc().type;
 		    if (QmcMetric::real(type))
@@ -350,7 +350,7 @@ Client::fetch()
 			metric.dump(cout, j);
 		    else
 			cout << metric.stringValue(j);
-		    cout << endl;
+		    cout << Qt::endl;
 		}
 	    }
 	}
@@ -369,7 +369,7 @@ Client::wipe()
     delete _group;
     _group = new QmcGroup;
 
-    cout << keywords[keyWipe] << endl << terminator;
+    cout << keywords[keyWipe] << Qt::endl << terminator;
 
     return 0;
 }
@@ -402,7 +402,7 @@ Client::update(QList<int> const& list)
     }
 
     if (sts >= 0) {
-	cout << keywords[keyUpdate] << sep << contexts.size() << endl;
+	cout << keywords[keyUpdate] << sep << contexts.size() << Qt::endl;
 
 	for (i = 0; i < contexts.size(); i++) {
 	    uint32_t cntx = contexts[i];
@@ -433,16 +433,16 @@ Client::update(QList<int> const& list)
 	    }
 
 	    cout << keywords[keyContext] << sep << cntx << sep
-		<< indoms.size() << sep << list.size() << endl;
+		<< indoms.size() << sep << list.size() << Qt::endl;
 
 	    for (j = 0; j < indoms.size(); j++) {
 		QmcIndom const& indom = context->indom(indoms[j]);
 
 		cout << keywords[keyIndom] << sep << indoms[j] << sep 
-		    << indom.refCount() << endl;
+		    << indom.refCount() << Qt::endl;
 		for (k = 0; k < indom.listLen(); k++) {
 		    if (!indom.nullInst(k) && indom.refInst(k))
-			cout << cont << sep << k << sep << indom.name(k) << endl;
+			cout << cont << sep << k << sep << indom.name(k) << Qt::endl;
 		}
 	    }
 	}
@@ -453,17 +453,17 @@ Client::update(QList<int> const& list)
 	    cout << keywords[keyMetric] << sep << list[i] << sep;
 
 	    if (metric.status() < 0) {
-		cout << metric.status() << endl;
+		cout << metric.status() << Qt::endl;
 	    }
 	    else {
-		cout << metric.numValues() << endl;
+		cout << metric.numValues() << Qt::endl;
 		for (j = 0; j < metric.numInst(); j++)
-		    cout << cont << sep << metric.instIndex(j) << endl;
+		    cout << cont << sep << metric.instIndex(j) << Qt::endl;
 	    }
 	}
     }
     else
-	cout << keywords[keyError] << sep << sts << endl;
+	cout << keywords[keyError] << sep << sts << Qt::endl;
 
     cout << terminator;
 
@@ -476,7 +476,7 @@ store(char const* name, char const* inst)
     char buf[128];
 
     sprintf(buf, "pmstore %s %s > /dev/null\n", name, inst);
-    cout << name << ' ' << inst << endl;
+    cout << name << ' ' << inst << Qt::endl;
     if (system(buf) < 0) {
 	pmprintf("%s: system(%s) failed\n", pmGetProgname(), buf);
 	pmflush();
@@ -494,20 +494,20 @@ static int msgCount = 1;
 void
 msg(int line, char const* str)
 {
-    cout << endl << "*** " << msgCount << ": Line " << line << " - " << str 
-	 << " ***" << endl;
-    cerr << endl << "*** " << msgCount << ": Line " << line << " - " << str 
-	 << " ***" << endl;
+    cout << Qt::endl << "*** " << msgCount << ": Line " << line << " - " << str 
+	 << " ***" << Qt::endl;
+    cerr << Qt::endl << "*** " << msgCount << ": Line " << line << " - " << str 
+	 << " ***" << Qt::endl;
     msgCount++;
 }
 
 void
 fail(int line, int err)
 {
-    cout << endl << "*** " << msgCount << ": Testing failed at line " << line
-	 << " - " << pmErrStr(err) << " ***" << endl;
-    cerr << endl << "*** " << msgCount << ": Testing failed at line " << line
-	 << " - " << pmErrStr(err) << " ***" << endl;
+    cout << Qt::endl << "*** " << msgCount << ": Testing failed at line " << line
+	 << " - " << pmErrStr(err) << " ***" << Qt::endl;
+    cerr << Qt::endl << "*** " << msgCount << ": Testing failed at line " << line
+	 << " - " << pmErrStr(err) << " ***" << Qt::endl;
 
     pmflush();
 
