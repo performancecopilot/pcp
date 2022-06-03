@@ -21,6 +21,7 @@
 
 #include <QtGlobal>
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+#include <ostream>
 namespace Qt
 {
     static auto endl = ::endl;
