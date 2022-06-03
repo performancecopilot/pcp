@@ -46,6 +46,7 @@ _nm()
 	| awk '
 $4 != "OBJECT"			{ next }
 $8 ~ /__PRETTY_FUNCTION__.*/	{ next }
+$8 ~ /__func__\.[0-9].*/	{ next }
 $8 ~ /CSWTCH\.[0-9].*/		{ next }
 $5 == "LOCAL"			{ print $2,"b",$8 }
 $5 == "GLOBAL"			{ print $2,"B",$8 }'
@@ -113,7 +114,7 @@ in
 	    fi
 	    ;;
 
-    freebsd|netbsd|solaris)
+    openbsd|freebsd|netbsd|solaris)
 	    ;;
     *)
 	    echo "Warning: check-statics skipped for PCP_PLATFORM=$PCP_PLATFORM"
