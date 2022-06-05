@@ -23,6 +23,16 @@ _pmdabpf_require_kernel_version()
     _notrun "this test requires kernel $1.$2+"
 }
 
+_pmdabpf_require_libbpf_version()
+{
+    LIBBPF_VERSION=false
+    eval `sed -n <$PCP_INC_DIR/builddefs -e '/LIBBPF_VERSION/s/ //gp'`
+
+    echo $LIBBPF_VERSION \
+    | awk -F. -v major=$1 -v minor=$2 '$1 < major || ($1 == major && $2 < minor) {exit 1}' || \
+    _notrun "this test requires libbpf $1.$2+"
+}
+
 _pmdabpf_install_filter()
 {
     # ignore warnings because PMDA might not be ready yet
