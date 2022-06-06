@@ -1,0 +1,60 @@
+#!/bin/sh
+#
+# Check for variable ($1) being set or used in scripts ($2 ...)
+#
+# Note that the script uses shallow parsing of the shell script files,
+# so does not understand comments, strings, backquotes or fragments of
+# perl/awk/sed/<<documents/... embedded in the scripts; this can lead
+# to some false matches.
+#
+# Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -lt 2 ]
+then
+    echo "Usage: $0 variable file ..."
+    exit 1
+fi
+
+name=$1
+shift
+
+tmp=/var/tmp/var-use-$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+for script
+do
+    sed <$script >$tmp.out \
+	-e 's/^/ /' \
+	-e 's/$/ /' \
+	-e "/\\\$$name[^a-zA-Z0-9_]/s/^/U/" \
+	-e "/\\\${$name[^a-zA-Z0-9_]/s/^/U/" \
+	-e "/[ 	;(]$name=/s/^/S/" \
+	-e "/[ 	;]read $name /s/^/S/" \
+	-e "/[ 	;]read [^;|()]* $name /s/^/S/" \
+	-e "/[ 	;]for[ 	][ 	]*$name[ 	;]/s/^/S/" \
+    # end
+
+    #debug# grep '^[SU]' $tmp.out
+
+    if grep '^[^ ]*S' $tmp.out >/dev/null
+    then
+	state='set'
+    else
+	state=''
+    fi
+
+    if grep '^[^ ]*U' $tmp.out >/dev/null
+    then
+	if [ -n "$state" ]
+	then
+	    state='set and used'
+	else
+	    state='used'
+	fi
+    fi
+
+    echo "$script: $state"
+
+done
+
