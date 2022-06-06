@@ -34,7 +34,6 @@ status=1	# failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 
 userid=`id -u`
-groupid=`id -g`
 username=`id -u -n`
 hostname=`hostname`
 machineid=`_machine_id`
@@ -65,6 +64,9 @@ need_restore=true
 
 # start Redis cluster
 _redis_cluster_3nodes_start
+echo "redis_node1_port=$redis_node1_port" >>$seq.full
+echo "redis_node2_port=$redis_node2_port" >>$seq.full
+echo "redis_node3_port=$redis_node3_port" >>$seq.full
 echo
 
 echo "== start pmproxy"
@@ -83,7 +85,7 @@ pmproxy_pid=$!
 echo "proxyport=$proxyport" >>$seq.full
 echo "pmproxy_pid=$pmproxy_pid" >>$seq.full
 _wait_for_pmproxy $proxyport $tmp.pmproxy.log
-which netstat >/dev/null && netstat -a | egrep "$redisport1|$proxyport" >>$seq.full
+which netstat >/dev/null && netstat -a | egrep "$redis_node1_port|$redis_node2_port|$redis_node3_port|$proxyport" >>$seq.full
 _check_redis_ping $proxyport
 echo
 

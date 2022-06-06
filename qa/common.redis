@@ -7,15 +7,15 @@
 # wait for local redis on given port
 _wait_for_redis()
 {
-    port=6379 # default
-    [ $# -eq 1 ] && port=$1
-    _n=1
-    while [ $_n -lt 10 ]; do
-	redis-cli -p $port ping >/dev/null 2>&1 && return 0
+    __port=6379 # default
+    [ $# -eq 1 ] && __port=$1
+    __n=1
+    while [ $__n -lt 10 ]; do
+	redis-cli -p $__port ping >/dev/null 2>&1 && return 0
 	pmsleep 0.25
-	_n=`expr $_n + 1`
+	__n=`expr $__n + 1`
     done
-    echo _wait_for_redis on port $port FAILED
+    echo _wait_for_redis on port $__port FAILED
     return 1
 }
 
@@ -25,9 +25,9 @@ _redis_cluster_3nodes_start()
 	echo "== Start node 1"
 	redis_node1_port=`_find_free_port`
 	redis-server --port $redis_node1_port --save "" --cluster-enabled yes --cluster-config-file $tmp.redis1.cluster.conf > $tmp.redis1.out 2>&1 &
-	redis_node1_pid=$!
+	__redis_node1_pid=$!
 	echo "redis_node1_port=$redis_node1_port" >>$seq.full
-	echo "redis_node1_pid=$redis_node1_pid" >>$seq.full
+	echo "__redis_node1_pid=$__redis_node1_pid" >>$seq.full
 	_wait_for_redis $redis_node1_port
 	redis-cli -p $redis_node1_port ping
 	redis-cli -p $redis_node1_port flushall
@@ -35,9 +35,9 @@ _redis_cluster_3nodes_start()
 	echo "== Start node 2"
 	redis_node2_port=`_find_free_port`
 	redis-server --port $redis_node2_port --save "" --cluster-enabled yes --cluster-config-file $tmp.redis2.cluster.conf > $tmp.redis2.out 2>&1 &
-	redis_node2_pid=$!
+	__redis_node2_pid=$!
 	echo "redis_node2_port=$redis_node2_port" >>$seq.full
-	echo "redis_node2_pid=$redis_node2_pid" >>$seq.full
+	echo "__redis_node2_pid=$__redis_node2_pid" >>$seq.full
 	_wait_for_redis $redis_node2_port
 	redis-cli -p $redis_node2_port ping
 	redis-cli -p $redis_node2_port flushall
@@ -45,9 +45,9 @@ _redis_cluster_3nodes_start()
 	echo "== Start node 3"
 	redis_node3_port=`_find_free_port`
 	redis-server --port $redis_node3_port --save "" --cluster-enabled yes --cluster-config-file $tmp.redis3.cluster.conf > $tmp.redis3.out 2>&1 &
-	redis_node3_pid=$!
+	__redis_node3_pid=$!
 	echo "redis_node3_port=$redis_node3_port" >>$seq.full
-	echo "redis_node3_pid=$redis_node3_pid" >>$seq.full
+	echo "__redis_node3_pid=$__redis_node3_pid" >>$seq.full
 	_wait_for_redis $redis_node3_port
 	redis-cli -p $redis_node3_port ping
 	redis-cli -p $redis_node3_port flushall
@@ -62,15 +62,15 @@ _redis_cluster_3nodes_start()
 
 	echo
 	echo "== Wait for cluster to get ready"
-	for i in `seq 1 30`
+	for __i in `seq 1 30`
 	do
 	if redis-cli -p $redis_node1_port cluster info | grep -q "cluster_state:ok" && echo "OK"; then
-		cluster_ready=yes
+		__cluster_ready=yes
 		break
 	fi
 	pmsleep 2
 	done
-	if [ -z "$cluster_ready" ]; then
+	if [ -z "$__cluster_ready" ]; then
 	echo "Redis cluster didn't get ready in 60 seconds:"
 	echo redis-cli -p $redis_node1_port cluster info
 	redis-cli -p $redis_node1_port cluster info

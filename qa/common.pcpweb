@@ -58,15 +58,15 @@ _restore_state()
     then
 
         # reset pmda installation state   
-        for pmda in weblog webping
+        for __pmda in weblog webping
         do
-            if _pmda_installed $pmda $PCP_PMCDCONF_PATH.$seq
+            if _pmda_installed $__pmda $PCP_PMCDCONF_PATH.$seq
             then
-                _pmda_installed $pmda $PCP_PMCDCONF_PATH \
-                    || _install_pmda $pmda > /dev/null
+                _pmda_installed $__pmda $PCP_PMCDCONF_PATH \
+                    || _install_pmda $__pmda > /dev/null
             else
-                _pmda_installed $pmda $PCP_PMCDCONF_PATH \
-                    && _remove_pmda $pmda > /dev/null
+                _pmda_installed $__pmda $PCP_PMCDCONF_PATH \
+                    && _remove_pmda $__pmda > /dev/null
             fi
         done
 

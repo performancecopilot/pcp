@@ -46,24 +46,24 @@ _filter_discovery_unresolvable()
     # For each unresolved address in the response, see if we can resolve
     # it using dig(1). If not, filter it out as an unresolvable result.
     # Oherwise, leave it in as an erroneous result.
-    while read line
+    while read __line
     do
 	# If the line is an unresolved service, then see if we can resolve it
 	# using dig(1).
-	if echo $line | grep -q -e '^pcp://' -e '^proxy://' -e '^http://';
+	if echo $__line | grep -q -e '^pcp://' -e '^proxy://' -e '^http://';
 	then
-	    addr=`echo $line |
+	    __addr=`echo $__line |
                   sed -e 's|pcp://\(.*\):[0-9]\+|\1|'`
 
 	    # If dig(1) can not resolve this address, then it is a correctly
 	    # unresolved address. Filter it out. Otherwise keep it as an
 	    # erroneously unresolved address.
-	    dug=`dig -x $addr +short`
-	    [ -z "$dug" ] && continue
+	    __dug=`dig -x $__addr +short`
+	    [ -z "$__dug" ] && continue
 	fi
 
 	# Keep this line
-	echo $line
+	echo $__line
     done
 }
 
@@ -83,7 +83,6 @@ _check_service_discovery()
     $service_discovery || _notrun "No support for service discovery"
 
     avahi-daemon --check 2>/dev/null || _notrun "avahi-daemon is unavailable"
-    $discovery_available || _notrun "No discovery mechanisms are available"
 }
 
 _check_avahi_service()
@@ -96,15 +95,15 @@ _cleanup_avahi_service()
 {
     cd $here
     echo "avahi_cleanup: before pmsignal" >>$seq.full
-    grep_service=`echo "$service" | sed -e 's/./[&]/'`
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|$grep_service |$grep_service$' >>$seq.full
+    __grep_service=`echo "$service" | sed -e 's/./[&]/'`
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|$__grep_service |$__grep_service$' >>$seq.full
     $sudo $PCP_BINADM_DIR/pmsignal -a "$service" >>$here/$seq.full 2>&1
     pmsleep 0.5
     echo "avahi_cleanup: after pmsignal" >>$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|$grep_service |$grep_service$' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|$__grep_service |$__grep_service$' >>$seq.full
     _restore_config $PCP_PMCDOPTIONS_PATH
     _restore_config $PCP_PMPROXYOPTIONS_PATH
-    if $service_was_running
+    if $__service_was_running
     then
 	echo "Restart $service ..." >>$here/$seq.full
 	_service $service restart >>$here/$seq.full 2>&1
@@ -140,9 +139,9 @@ _control_avahi_service()
 	-e '/^-A/s/.*/# for PCP QA -A/'
     $sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
 
-    service_was_running=false
-    [ -f $PCP_RUN_DIR/$service.pid ] && service_was_running=true
-    echo "service_was_running=$service_was_running" >>$here/$seq.full
+    __service_was_running=false
+    [ -f $PCP_RUN_DIR/$service.pid ] && __service_was_running=true
+    echo "__service_was_running=$__service_was_running" >>$here/$seq.full
     _stop_auto_restart $service
     $sudo "$PCP_RC_DIR/$service" restart >>$here/$seq.full 2>&1
     case "$service"
@@ -161,10 +160,10 @@ _control_avahi_service()
 
 _verify_avahi_service()
 {
-    msg="$@"
+    __msg="$@"
 
-    [ "X$msg" = "X" ] && msg="Verify $service avahi service advertising"
-    echo $msg | tee -a $here/$seq.full
+    [ "X$__msg" = "X" ] && __msg="Verify $service avahi service advertising"
+    echo $__msg | tee -a $here/$seq.full
 
     # strip any domain part ... e.g. if hostname is vm08.localdomain,
     # avahi reports this as vm08.local
@@ -172,24 +171,24 @@ _verify_avahi_service()
     # = eth0 IPv4 PCP pmproxy on vm04.localdomain _pmproxy._tcp local
     # + eth0 IPv6 PCP pmproxy on vm30 _pmroxy._tcp local
     #
-    hostname=`hostname | sed -e 's/\..*//'`
-    echo "hostname=$hostname" >>$here/$seq.full
+    __hostname=`hostname | sed -e 's/\..*//'`
+    echo "__hostname=$__hostname" >>$here/$seq.full
     echo "avahi-browse -rt -d local _$service._tcp" >> $here/$seq.full
     avahi-browse -rt -d local "_$service._tcp" > $tmp.out 2> $tmp.err
     # sometimes we need a fair bit of time for avahi to register
-    for i in 0.1 0.3 1 2 3
+    for __i in 0.1 0.3 1 2 3
     do
 	[ -s $tmp.out ] && break
-	pmsleep $i
+	pmsleep $__i
 	avahi-browse -rt -d local "_$service._tcp" > $tmp.out 2> $tmp.err
     done
     cat $tmp.err >>$here/$seq.full
     cat $tmp.out | \
 	tee -a $here/$seq.full | \
 	sed -n \
-	    -e '/ '"$hostname"'[ .]/{
+	    -e '/ '"$__hostname"'[ .]/{
 s/  */ /g
-s/'"$hostname"'[^ ]*/HOSTNAME/
+s/'"$__hostname"'[^ ]*/HOSTNAME/
 s/[=+] [^ ]* /. <interface> /
 s/ IPv[46] / <protocol> /
 s/ \#[0-9] / /

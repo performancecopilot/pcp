@@ -11,27 +11,27 @@ trap "rm -f NO-PREVIOUS-OUTPUT $tmp.*; exit" 0 1 2 3 15
 set -- $* -q
 
 # generic initialization
-iam=remake
+__scriptname=remake
 . ./common
 
 _do_diff()
 {
-    case $diff
+    case $__diff
     in
 	xxdiff)
 	    # hide the 0|1 output ... this is sick!
 	    #
-	    $diff $1 $2 >/dev/null
+	    $__diff $1 $2 >/dev/null
 	    ;;
 	*)
-	    $diff $1 $2
+	    $__diff $1 $2
 	    ;;
     esac
 }
 
 [ -f check.time ] || touch check.time
 
-for seq in $list
+for seq in $__list
 do
     if [ -f expunged ] && $expunge && egrep "^$seq([ 	]|\$)" expunged >/dev/null
     then

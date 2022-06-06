@@ -15,18 +15,18 @@ eval $python -c exit 2>/dev/null || _notrun "Python interpreter \"$python\" fail
 # verify output from unittest indicates successful testing
 _check_unittest()
 {
-    mode=$1
-    file=$2
+    __mode=$1
+    __file=$2
 
-    $PCP_ECHO_PROG $PCP_ECHO_N "$mode - ""$PCP_ECHO_C"
-    if grep OK $file
+    $PCP_ECHO_PROG $PCP_ECHO_N "$__mode - ""$PCP_ECHO_C"
+    if grep OK $__file
     then
         return 0
     fi
 
     # Give some hint as to what went wrong ...
     #
-    $PCP_AWK_PROG <$file '
+    $PCP_AWK_PROG <$__file '
 $1 == "FAIL:"			{ want = 1 }
 $1 == "File"			{ want = 1 }
 want == 1 && $1 == "Ran" 	{ exit }
@@ -41,11 +41,11 @@ _check_requests()
 
 _check_requests_json()
 {
-    version=`$python --version 2>&1 | sed -e 's/Python //'`
-    case "$version"
+    __version=`$python --version 2>&1 | sed -e 's/Python //'`
+    case "$__version"
     in
 	2.7.3|2.7.4)
-	    _notrun "requests.json() broken in Python $version"
+	    _notrun "requests.json() broken in Python $__version"
 	    ;;
     esac
 }

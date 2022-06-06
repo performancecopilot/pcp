@@ -55,7 +55,7 @@ broken.bad.type: Not Supported
 broken.bogus.one: pmLookupDesc: Unknown or illegal metric identifier
 broken.no.fetch: Unknown or illegal metric identifier
 broken.no.instances: No value(s) available
-broken is alive and as well as can be expected
+broken_pmda_2_0 is alive and as well as can be expected
 === Removing broken ===
 === Restarting PMCD with minimal PMDAs ===
 14 warnings, 14 metrics and 0 values

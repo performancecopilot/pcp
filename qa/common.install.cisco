@@ -29,7 +29,7 @@ fi
 
 #DEBUG# echo PCP_VER=$PCP_VER
 
-_here=`pwd`
+__here=`pwd`
 cd $2
 
 # melbourne-l0 (was wanptg) should have no password ... complain to
@@ -47,14 +47,14 @@ cd $2
 
 #  This is done to quickly get a fully qualified hostname, either from
 #  hostname(1), or pmhostname(1)
-hostnma=`$PCP_BINADM_DIR/pmhostname`
-hostnmb=`hostname`
-suprhostname=`echo "" | awk -v hostnma="$hostnma" -v hostnmb="$hostnmb" '
+__hostnma=`$PCP_BINADM_DIR/pmhostname`
+__hostnmb=`hostname`
+__suprhostname=`echo "" | awk -v __hostnma="$__hostnma" -v __hostnmb="$__hostnmb" '
 END {
-    if (length(hostnma) > length(hostnmb)) print hostnma
-    else print hostnmb
+    if (length(__hostnma) > length(__hostnmb)) print __hostnma
+    else print __hostnmb
 }'`
-case "$suprhostname"
+case "$__suprhostname"
 in
     #  TEMPORARY: include engr and americas until a replacement for
     #  b43-11-cisco6-168.corp can be found.
@@ -77,11 +77,11 @@ quit
 
 End-of-File
 	#DEBUG# cat $tmp
-	$sudo ./Install <$tmp >>$_here/$1.out
+	$sudo ./Install <$tmp >>$__here/$1.out
     ;;
 
 #    *.engr.*)
-#	cat <<End-of-File | $sudo ./Install >>$_here/$1.out
+#	cat <<End-of-File | $sudo ./Install >>$__here/$1.out
 #b43-11-cisco6-168.corp
 #
 #

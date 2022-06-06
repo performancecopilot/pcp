@@ -7,6 +7,8 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 . ./common.qt
+host=`hostname`
+
 trap "_cleanup_qt; exit \$status" 0 1 2 3 15
 
 [ -x qt/qmc_metric/qmc_metric ] || _notrun "qmc_metric not built or installed"

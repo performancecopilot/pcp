@@ -157,7 +157,7 @@ _filter_pmproxy_log()
         -e '/^\(Log for pmproxy on\) [^ ][^ ]*/s//\1 HOST/' \
 	-e '/^pmproxy: PID/s/=.*/= PID/' \
 	-e 's/pmproxy([1-9][0-9]*) Error:/pmproxy(PID) Error:/' \
-	-e '/^pmproxy: Signalled (signal=[1-9][0-9]*).*/d' \
+	-e '/^pmproxy: Signalled (signal[=][1-9][0-9]*).*/d' \
 	-e '/^pmproxy: disabled time series,.*(missing)/d' \
 	-e '/Error: unsupported redis server (got v/d' \
 	-e '/Failed to create avahi client:/d' \
@@ -182,7 +182,7 @@ _filter_pmlogger_log()
 	-e '/^Archive basename: /s/:.*/: ARCHIVE/' \
 	-e '/^pmlc request/s/ from .*:/ from HOST:/' \
 	-e '/^__pmLogCreate(/s/([^,]*,/(HOST,/' \
-	-e '/^pmlogger: Signalled (signal=[1-9][0-9]*).*/d' \
+	-e '/^pmlogger: Signalled (signal[=][1-9][0-9]*).*/d' \
     | $PCP_AWK_PROG '
 BEGIN						{ skip = 0 }
 /^-- Added by .* when SaveLogs dir found/	{ skip = 1 }
@@ -803,7 +803,7 @@ _quote_filter()
 		    line[line_num++] = $0
 		    if (inquote) {      
 			inquote = 0
-			for(i=0;i<=line_num;i++){
+			for (i = 0; i <= line_num; i++){
 			    printf("%s\\n", line[i])
 			}       
 			printf("\n")
@@ -842,7 +842,7 @@ _inst_value_filter()
    $PCP_AWK_PROG '
 	function print_line() {
 	    if (line_num > 0) {
-		for(i=0;i<line_num-1;i++){
+		for(i = 0; i < line_num-1; i++){
 		    printf("%s\\n", line[i])
 		}       
 		printf("%s", line[line_num-1]);

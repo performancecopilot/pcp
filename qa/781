@@ -24,6 +24,7 @@ _cleanup()
 status=1	# failure is the default!
 host=`hostname`
 $sudo rm -rf $tmp.* $seq.full
+signal=$PCP_BINADM_DIR/pmsignal
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()

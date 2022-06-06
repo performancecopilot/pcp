@@ -21,8 +21,8 @@ _pmdaopenmetrics_check()
 
 _have_python266()
 {
-    v=`python -V 2>&1 | awk '{print $NF}'`
-    [ "$v" = "2.6.6" ] && return 0
+    __v=`python -V 2>&1 | awk '{print $NF}'`
+    [ "$__v" = "2.6.6" ] && return 0
     return 1
 }
 
@@ -63,8 +63,8 @@ _pmdaopenmetrics_save_config()
     $sudo mv $CONFIG_DIR $CONFIG_DIR.$seq
     $sudo mkdir -p $CONFIG_DIR
     $sudo chmod 777 $CONFIG_DIR
-    for f in $PCP_VAR_DIR/config/pmda/144.*.py; do
-	[ -f "$f" ] && $sudo mv -f $f $f.$seq
+    for __f in $PCP_VAR_DIR/config/pmda/144.*.py; do
+	[ -f "$__f" ] && $sudo mv -f $__f $__f.$seq
     done
     # turn off all pmloggers when running open metrics tests
     _stop_auto_restart pmlogger
@@ -79,8 +79,8 @@ _pmdaopenmetrics_restore_config()
 	$sudo chmod 755 $CONFIG_DIR
     fi
     $sudo rm -f $PCP_VAR_DIR/config/pmda/144.*.py
-    for f in $PCP_VAR_DIR/config/pmda/144.*.py.$seq; do
-	[ -f "$f" ] && $sudo mv -f $f `echo $f | sed -e "s/\.$seq//"`
+    for __f in $PCP_VAR_DIR/config/pmda/144.*.py.$seq; do
+	[ -f "$__f" ] && $sudo mv -f $__f `echo $__f | sed -e "s/\.$seq//"`
     done
 }
 
@@ -106,25 +106,23 @@ _pmdaopenmetrics_cleanup()
 # wait for the PMDA to dynamically create a named metric (or subtree)
 _pmdaopenmetrics_wait_for_metric()
 {
-    metric="$1"
-    configdir="$2"
-    [ -z "$metric" ] && metric=openmetrics.control.calls
-    [ -z "$configdir" ] && configdir=$CONFIG_DIR
+    __metric="$1"
+    [ -z "$__metric" ] && __metric=openmetrics.control.calls
 
     # wait for the requested metric to appear in the pmns
-    _i=0
-    while [ $_i -lt 30 ]
+    __i=0
+    while [ $__i -lt 30 ]
     do
-    	if pminfo $metric >/dev/null 2>&1
+    	if pminfo $__metric >/dev/null 2>&1
 	then
 	    # all good
 	    return 0
 	fi
 	sleep 1
-	_i=`expr $_i + 1`
+	__i=`expr $__i + 1`
     done
 
     # timeout, fail
-    echo _pmdaopenmetrics_wait_for_metric FAILED for metric $metric
+    echo _pmdaopenmetrics_wait_for_metric FAILED for metric $__metric
     return 1
 }

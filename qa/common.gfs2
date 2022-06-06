@@ -55,15 +55,15 @@ _gfs2_tracepoints_support_tests()
 
 _gfs2_sysfs_support_tests()
 {
-    for fs in 1 0
+    for __fs in 1 0
     do
-        [ -f /sys/kernel/debug/gfs2/loop$fs/glocks ] || \
+        [ -f /sys/kernel/debug/gfs2/loop$__fs/glocks ] || \
             _notrun "No GFS2 glocks sysfs support"
 
-        [ -f /sys/kernel/debug/gfs2/loop$fs/glstats ] || \
+        [ -f /sys/kernel/debug/gfs2/loop$__fs/glstats ] || \
             _notrun "No GFS2 glstats sysfs support"
 
-        [ -f /sys/kernel/debug/gfs2/loop$fs/sbstats ]|| \
+        [ -f /sys/kernel/debug/gfs2/loop$__fs/sbstats ]|| \
             _notrun "No GFS2 sbstats sysfs support"
     done
 }
@@ -91,38 +91,38 @@ _filter_gfs2()
 _setup_gfs2_mounts()
 {
     # create a couple of filesystems on sparse files, mount.
-    for fs in 1 0
+    for __fs in 1 0
     do
-	echo "creating pseudo device $fs"
-	dd of=$tmp.loop$fs if=/dev/zero bs=1048576 seek=1024 count=1 2>/dev/null
-	echo "creating a mount point $fs"
-	mkfs.gfs2 -O -p lock_nolock -j 1 $tmp.loop$fs >/dev/null
-	echo "creating device file $fs"
-	$sudo losetup /dev/loop$fs $tmp.loop$fs
-	echo "creating a mount point $fs"
-	mkdir -p $tmp.mount$fs.dir
-	echo "mounting pseudo device $fs"
-	$sudo mount -t gfs2 /dev/loop$fs $tmp.mount$fs.dir
+	echo "creating pseudo device $__fs"
+	dd of=$tmp.loop$__fs if=/dev/zero bs=1048576 seek=1024 count=1 2>/dev/null
+	echo "creating a mount point $__fs"
+	mkfs.gfs2 -O -p lock_nolock -j 1 $tmp.loop$__fs >/dev/null
+	echo "creating device file $__fs"
+	$sudo losetup /dev/loop$__fs $tmp.loop$__fs
+	echo "creating a mount point $__fs"
+	mkdir -p $tmp.mount$__fs.dir
+	echo "mounting pseudo device $__fs"
+	$sudo mount -t gfs2 /dev/loop$__fs $tmp.mount$__fs.dir
     done
 }
 
 _setup_gfs2_tracepoints()
 {
-    enable_tracing=$1
-    [ "X$enable_tracing" == X ] && enable_tracing=false
+    __enable_tracing=$1
+    [ "X$__enable_tracing" == X ] && __enable_tracing=false
 
-    file=/sys/kernel/debug/tracing/events/gfs2/enable
-    [ -f $file ] || _notrun "Cannot enable gfs2 tracepoints"
+    __file=/sys/kernel/debug/tracing/events/gfs2/enable
+    [ -f $__file ] || _notrun "Cannot enable gfs2 tracepoints"
 
-    $enable_tracing || continue
+    $__enable_tracing || continue
     echo "enabling gfs2 tracepoints"
-    $sudo sh -c "echo 1 > $file"
+    $sudo sh -c "echo 1 > $__file"
 }
 
 _install_pmda()
 {
     # install the PMDA
-    cd $PCP_PMDAS_DIR/$iam
+    cd $PCP_PMDAS_DIR/gfs2
     $sudo ./Remove < /dev/null >/dev/null 2>&1
     $sudo ./Install < /dev/null >$tmp.out 2>&1
     cat $tmp.out | _filter_pmda_install | sed \
@@ -134,19 +134,19 @@ _install_pmda()
 
 _remove_pmda()
 {
-    cd $PCP_PMDAS_DIR/$iam
+    cd $PCP_PMDAS_DIR/gfs2
     $sudo ./Remove < /dev/null > /dev/null 2>&1
 }
 
 _cleanup()
 {
-    for fs in 0 1
+    for __fs in 0 1
     do
-	$sudo umount $tmp.mount$fs.dir
-	$sudo losetup -d /dev/loop$fs
+	$sudo umount $tmp.mount$__fs.dir
+	$sudo losetup -d /dev/loop$__fs
     done
 
-    _restore_pmda_install $iam
+    _restore_pmda_install gfs2
     $sudo rm -fr $tmp.*.dir
     $sudo rm -f $tmp.*
     exit $status
