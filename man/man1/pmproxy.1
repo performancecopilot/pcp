@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013-2015,2018-2019,2021 Red Hat.
+.\" Copyright (c) 2013-2015,2018-2019,2021-2022 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -21,14 +21,11 @@
 \f3pmproxy\f1
 [\f3\-AdfFt?\f1]
 [\f3\-c\f1 \f2conffile\f1]
-[\f3\-C\f1 \f2certdb\f1]
 [\f3\-h\f1 \f2host\f1[,\f2host\f1 ...]
 [\f3\-i\f1 \f2ipaddress\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-L\f1 \f2bytes\f1]
-[\f3\-M\f1 \f2certname\f1]
 [\f3\-p\f1 \f2port\f1[,\f2port\f1 ...]
-[\f3\-P\f1 \f2passfile\f1]
 [\f3\-r\f1 \f2port\f1[,\f2port\f1 ...]
 [\f3\-s\f1 \f2sockname\f1]
 [\f3\-U\f1 \f2username\f1]
@@ -114,21 +111,6 @@ Specify the path to an optional configuration
 with format as described in the ``CONFIGURATION'' section.
 This option implies \f3pmproxy\f1 is running in \f3timeseries\f1 mode.
 .TP
-\f3\-C\f1 \f2certdb\f1, \f3\-\-certdb\f1=\f2certdb\f1
-Specify the path to the Network Security Services certificate database,
-for (optional) secure connections.
-This option implies \f3pmproxy\f1 is running in \f3deprecated\f1 mode.
-The default is
-.BR /etc/pki/nssdb .
-Refer also to the \f3\-P\f1 option.
-If it does not already exist, this database can be created using the
-.BR certutil (1)
-utility.
-This process and other certificate database maintenance information
-is provided in the
-.BR PCPIntro (1)
-manual page and the online PCP tutorials.
-.TP
 \f3\-d\f1, \f3\-\-deprecated\f1
 By default
 .B pmproxy
@@ -137,8 +119,8 @@ asynchronous network I/O, scalable time series, and secure connections
 using OpenSSL.
 However, legacy deployments may wish to use the original synchronous
 .B pmproxy
-implementation using NSS and libpcp networking; this can be achieved
-using this option.
+implementation using libpcp networking; this can be achieved using
+this option.
 Note that the \f3\-d\f1 and \f3\-t\f1 options are mutually exclusive.
 .TP
 \f3\-f\f1, \f3\-\-foreground\f1
@@ -238,38 +220,11 @@ option may be used to change the maximum incoming
 .I PDU
 size.
 .TP
-\f3\-M\f1 \f2certname\f1, \f3\-\-certname\f1=\f2certname\f1
-By default
-.B pmproxy
-will try to use a certificate called
-.B "PCP Collector certificate"
-in its server role.
-The
-.B \-M
-option allows this certificate
-.I certname
-to be changed.
-This option implies \f3pmproxy\f1 is running in \f3deprecated\f1 mode.
-.TP
 \f3\-p\f1 \f2port\f1, \f3\-\-port\f1=\f2port\f1
 Specify an alternate
 .I port
 number to listen on for client connections.
 The default value is 44322.
-.TP
-\f3\-P\f1 \f2passfile\f1, \f3\-\-passfile\f1=\f2passfile\f1
-Specify the path to a
-.I passfile
-containing the Network Security Services certificate
-database password for (optional) secure connections, and for databases that are
-password protected.
-This option implies \f3pmproxy\f1 is running in \f3deprecated\f1 mode.
-Refer also to the \f3\-C\f1 option.
-When using this option, great care should be exercised to ensure appropriate
-ownership ("pcp" user, typically) and permissions on this file (0400, so as to
-be unreadable by any user other than the user running the
-.B pmproxy
-process).
 .TP
 \f3\-r\f1 \f2port\f1, \f3\-\-redisport\f1=\f2port\f1
 Specify an alternate Redis
@@ -491,14 +446,6 @@ Secure Socket Layer connections in \f3timeseries\f1 mode of operation.
 These certificates can be created and queried using the
 .B openssl
 tool, amongst others.
-.TP
-.I /etc/pki/nssdb
-default Network Sercity Services (NSS) database directory, used for optional
-Secure Socket Layer connections in \f3deprecated\f1 mode of operation.
-This database can be created and queried using the NSS
-.B certutil
-tool, amongst others.
-This is only used when \f3pmproxy\f1 is running in \f3deprecated\f1 mode.
 .SH ENVIRONMENT
 In addition to the PCP environment variables described in the
 .B "PCP ENVIRONMENT"

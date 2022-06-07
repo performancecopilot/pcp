@@ -30,10 +30,12 @@ _filter()
 	-e 's/node 0x[0-9a-f]*/node <addr>/' \
 	-e 's/left=0x[0-9a-f]*/left=<addr>/' \
 	-e 's/right=0x[0-9a-f]*/right=<addr>/' \
+	-e '/^__dmclosecontext.*metrics/d' \
 	-e "s;$tmp;TMP;g" \
 	-e "s/host:      $host/host:      HOST/g" \
 	-e "s/   value \"$host\"/   value \"HOST\"/g" \
-	-e 's/ val=[0-9][0-9]*/ val=<number>/g'
+	-e 's/ val=[0-9][0-9]*/ val=<number>/g' \
+    #end
 }
 
 # real QA test starts here

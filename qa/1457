@@ -2,38 +2,17 @@
 # PCP QA Test No. 1457
 # Exercise HTTPS access to the PMWEBAPI(3).
 #
-# Copyright (c) 2019,2021 Red Hat.
+# Copyright (c) 2019,2021-2022 Red Hat.
 #
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.secure
 
 _check_redis_server
 _check_valgrind
-openssl help 2>/dev/null || _notrun "No openssl binary found"
-
-if [ -f /etc/lsb-release ]
-then
-    . /etc/lsb-release
-    if [ "$DISTRIB_ID" = Ubuntu ]
-    then
-	# This test fails for Ubuntu 19.10 with a myriad of errors involving
-	# the use of uninitialized values.  The code paths very but typically
-	# involve libuv -> libssl ->  libcrypto
-	#
-	case "$DISTRIB_RELEASE"
-	in
-	    19.10)
-		_notrun "problems with libuv, libssl, libcrypto and valgrind on Ubuntu $DISTRIB_RELEASE"
-		;;
-	esac
-    fi
-fi
+_check_tls
 
 _cleanup()
 {
@@ -94,19 +73,15 @@ need_restore=true
 $sudo rm -rf $PCP_SYSCONF_DIR/labels/*
 _sighup_pmcd
 
-openssl req \
-	-new -newkey rsa:4096 -days 365 -nodes -x509 \
-	-subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.pcpqa.com" \
-	-keyout $tmp.key -out $tmp.cert >$seq.full 2>&1
 # creates a self-signed (insecure) certificate, so for testing only
-
+_setup_tls
 echo "[pmproxy]" >> $tmp.conf
 echo "pcp.enabled = true" >> $tmp.conf
 echo "http.enabled = true" >> $tmp.conf
 echo "redis.enabled = true" >> $tmp.conf
 echo "secure.enabled = true" >> $tmp.conf
-echo "private_key = $tmp.key" >> $tmp.conf
-echo "certificates = $tmp.cert" >> $tmp.conf
+echo "private_key = $here/tls.conf/pcp.key" >> $tmp.conf
+echo "certificates = $here/tls.conf/pcp.crt" >> $tmp.conf
 
 port=`_find_free_port`
 mkdir -p $tmp.pmproxy/pmproxy
@@ -208,9 +183,6 @@ cat $tmp.valout | _filter_valgrind
 
 echo "=== valgrind stderr ===" | tee -a $seq.full
 cat $tmp.valerr | _filter_pmproxy_log | _filter_port
-
-# final kill if it's spinning
-$sudo kill -9 $pid >/dev/null 2>&1
 
 # success, all done
 status=0

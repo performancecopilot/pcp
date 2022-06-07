@@ -1281,5 +1281,8 @@ main(int argc, char **argv)
     if (pmDebugOptions.appl5)
 	__pmDumpPDUCnt(stderr);
 
+//    if (need_context)
+//	pmDestroyContext(contextid);
+
     exit(exitsts);
 }

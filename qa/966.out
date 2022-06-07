@@ -1,22 +1,19 @@
 QA output created by 966
-== Creating empty certificate DB
-== Creating local certificates
-== Certificate DB and local certificates created
-Start pmcd, modified $PCP_PMCDOPTIONS_PATH (pmcd.options):
-Checking pmcd.log for unexpected messages
-checking client, user certificate only.  should pass...
+
+checking client, secure connection.  should pass...
 
 hinv.ncpu
     value NUMBER
-== Creating empty certificate DB
-Start pmcd, modified $PCP_PMCDOPTIONS_PATH (pmcd.options):
-Checking pmcd.log for unexpected messages
-checking client, secure connection.  should fail...
-pminfo: Cannot connect to PMCD on host "HOST": Operation not supported
+
+checking client, bad secure config.  should fail...
+[DATE] pminfo(PID) Error: Cannot load certificate chain from /dev/null
+pminfo: Cannot connect to PMCD on host LOCALHOST: Not Connected
+
 checking client, insecure connection.  should pass...
 
 hinv.ncpu
     value NUMBER
+
 checking client, connecting via 'local:'.  should pass...
 
 hinv.ncpu

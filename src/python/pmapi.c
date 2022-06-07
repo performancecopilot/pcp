@@ -1780,6 +1780,7 @@ MOD_INIT(cpmapi)
     edict_add(dict, edict, "PM_ERR_PMDAFENCED", PM_ERR_PMDAFENCED);
     edict_add(dict, edict, "PM_ERR_RECTYPE", PM_ERR_RECTYPE);
     edict_add(dict, edict, "PM_ERR_FEATURE", PM_ERR_FEATURE);
+    edict_add(dict, edict, "PM_ERR_TLS", PM_ERR_TLS);
     edict_add(dict, edict, "PM_ERR_NYI", PM_ERR_NYI);
 
     return MOD_SUCCESS_VAL(module);

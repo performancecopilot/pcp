@@ -573,7 +573,7 @@ PM_FAULT_RETURN(PM_ERR_TIMEOUT);
 	     */
 	    goto check_read_len;	/* continue, do not return */
 	}
-	else if (len == PM_ERR_TIMEOUT || len == -EINTR) {
+	else if (len == PM_ERR_TIMEOUT || len == PM_ERR_TLS || len == -EINTR) {
 	    __pmUnpinPDUBuf(pdubuf);
 	    return len;
 	}

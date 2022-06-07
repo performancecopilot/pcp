@@ -1456,21 +1456,6 @@ __pmNextIpv6SubnetAddr(unsigned char *addr, int maskBits)
     return addr;
 }
 
-#if !defined(HAVE_SECURE_SOCKETS)
-
-void
-__pmCloseSocket(int fd)
-{
-    if (fd >= 0) {
-	__pmResetIPC(fd);
-#if defined(IS_MINGW)
-	closesocket(fd);
-#else
-	close(fd);
-#endif
-    }
-}
-
 int
 __pmSetSockOpt(int socket, int level, int option_name, const void *option_value,
 	       __pmSockLen option_len)
@@ -1485,22 +1470,19 @@ __pmGetSockOpt(int socket, int level, int option_name, void *option_value,
     return getsockopt(socket, level, option_name, option_value, option_len);
 }
 
-int
-__pmInitCertificates(void)
-{
-    return 0;
-}
+#if !defined(HAVE_SECURE_SOCKETS)
 
-int
-__pmShutdownCertificates(void)
+void
+__pmCloseSocket(int fd)
 {
-    return 0;
-}
-
-int
-__pmInitSecureSockets(void)
-{
-    return 0;
+    if (fd >= 0) {
+	__pmResetIPC(fd);
+#if defined(IS_MINGW)
+	closesocket(fd);
+#else
+	close(fd);
+#endif
+    }
 }
 
 int
@@ -1529,10 +1511,9 @@ __pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *
 
     /*
      * We cannot handle many flags here (no support), in particular:
-     * PDU_FLAG_SECURE (NSS)
-     * PDU_FLAG_SECURE_ACK (NSS)
-     * PDU_FLAG_NO_NSS_INIT (NSS)
-     * PDU_FLAG_COMPRESS (NSS)
+     * PDU_FLAG_SECURE (OpenSSL)
+     * PDU_FLAG_SECURE_ACK (OpenSSL)
+     * PDU_FLAG_NO_NSS_INIT (OpenSSL)
      * PDU_FLAG_AUTH (SASL2)
      *
      * But we can still talk to a pmcd that requires credentials, provided
@@ -1552,6 +1533,7 @@ int
 __pmSocketClosed(void)
 {
     int		sts;
+
     switch ((sts = oserror())) {
 	/*
 	 * Treat this like end of file on input.

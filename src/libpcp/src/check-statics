@@ -429,8 +429,10 @@ secureserver.o
     secureserver_lock		# local mutex
     secure_server		# guarded by secureserver_lock mutex
 secureconnect.o
+    secureclient_lock		# local mutex
     common_callbacks		# const
-    initialized			# single-threaded
+    setup			# single-threaded
+    tls				# guarded by secureclient_lock mutex
 optfetch.o
     optfetch_lock		# local mutex
     optcost			# guarded by optfetch_lock mutex

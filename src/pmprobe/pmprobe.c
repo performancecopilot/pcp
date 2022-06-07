@@ -443,5 +443,7 @@ main(int argc, char **argv)
 	printf("\nTotal: %d\n", j);
     }
 
+    pmDestroyContext(c);
+
     exit(0);
 }

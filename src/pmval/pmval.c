@@ -1373,6 +1373,8 @@ main(int argc, char *argv[])
     if (msp != NULL)
 	pmFreeMetricSpec(msp);
 
+    pmDestroyContext(ctx);
+
     /*
      * All serious error conditions have explicit exit() calls, so
      * if we get this far, all has gone well.
