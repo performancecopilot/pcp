@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015 Red Hat.
+# Copyright (c) 2013-2015,2022 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -22,10 +22,6 @@ CFILES = data.c trace.c client.c
 
 LCFLAGS = -I$(TOPDIR)/src/pmcd/src -I$(TOPDIR)/src/libpcp/src -DPMCD_INTERNAL
 LLDLIBS = -lpcp
-
-ifeq "$(ENABLE_SECURE)" "true"
-LCFLAGS += $(NSSCFLAGS) $(NSPRCFLAGS)
-endif
 
 ifeq "$(ENABLE_PROBES)" "true"
 ifeq "$(TARGET_OS)" "linux"

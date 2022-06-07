@@ -36,9 +36,6 @@ static char	*logfile = "pmproxy.log";	/* log file name */
 static int	run_mode = RUN_DAEMON;	/* style of execution, see -f and -F */
 static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
 static char	*username;
-static char	*certdb;		/* certificate DB path (NSS) */
-static char	*dbpassfile;		/* certificate DB password file */
-static char     *cert_nickname;         /* alternate nickname for server certificate */
 static char	sockpath[MAXPATHLEN];	/* local unix domain socket path */
 
 static void
@@ -79,9 +76,6 @@ static pmLongOptions longopts[] = {
     { "username", 1, 'U', "USER", "in daemon mode, run as named user [default pcp]" },
     PMAPI_OPTIONS_HEADER("Configuration options"),
     { "config", 1, 'c', "PATH", "path to configuration file (implies --timeseries)"},
-    { "certdb", 1, 'C', "PATH", "path to NSS certificate database (implies --deprecated)" },
-    { "passfile", 1, 'P', "PATH", "password file for certificate database access (implies --deprecated)" },
-    { "certname", 1, 'M', "NAME", "certificate name to use (implies --deprecated)" },
     { "", 0, 'L', 0, "maximum size for PDUs from clients [default 65536]" },
     PMAPI_OPTIONS_HEADER("Connection options"),
     { "interface", 1, 'i', "ADDR", "accept connections on this IP address" },
@@ -97,7 +91,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "Ac:C:dD:Ffh:i:l:L:M:p:P:r:s:tT:U:x:?",
+    .short_options = "Ac:dD:Ffh:i:l:L:p:r:s:tT:U:x:?",
     .long_options = longopts,
 };
 
@@ -124,10 +118,6 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 	case 'c':	/* path to .ini configuration file */
 	    inifile = opts.optarg;
 	    timeseries = 1;
-	    break;
-
-	case 'C':	/* path to NSS certificate database */
-	    certdb = opts.optarg;
 	    break;
 
 	case 'd':	/* run in deprecated (libpcp, select) mode */
@@ -176,11 +166,6 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 	    logfile = opts.optarg;
 	    break;
 
-        case 'M':	/* nickname for server cert, use to query the nssdb */
-            cert_nickname = opts.optarg;
-	    timeseries = 0;
-            break;
-
 	case 'L':	/* maximum size for PDUs from clients */
 	    sts = (int)strtol(opts.optarg, NULL, 0);
 	    if (sts <= 0) {
@@ -199,11 +184,6 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 	    } else {
 		*nports += 1;
 	    }
-	    break;
-
-	case 'P':	/* password file for certificate database access */
-	    dbpassfile = opts.optarg;
-	    timeseries = 0;
 	    break;
 
 	case 'Q':	/* require clients to provide a trusted cert */
@@ -327,7 +307,7 @@ void
 Shutdown(void)
 {
     server->shutdown(info);
-    __pmSecureServerShutdown();
+    __pmSecureServerShutdown(NULL, NULL);
     pmNotifyErr(LOG_INFO, "pmproxy Shutdown\n");
     fflush(stderr);
 }
@@ -471,10 +451,6 @@ main(int argc, char *argv[])
 	if (pmSetProcessIdentity(username) < 0)
 	    DontStart();
     }
-
-    if (!timeseries &&
-        __pmSecureServerCertificateSetup(certdb, dbpassfile, cert_nickname) < 0)
-	DontStart();
 
     fprintf(stderr, "pmproxy: PID = %" FMT_PID, mainpid);
     fprintf(stderr, ", PDU version = %u", PDU_VERSION);

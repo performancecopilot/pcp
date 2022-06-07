@@ -33,6 +33,8 @@ _filter_pmcd_log()
 	-e '/get_scsi_sn:/d' \
 	-e '/refresh_proc_scsi/d' \
 	-e '/Info: CleanupAgent/d' \
+	-e '/Info: OpenSSL /d' \
+	-e '/Using cipher /d' \
 	-e '/using .* kmem interface/d' \
 	-e '/pmcd_wait failed: exit status:/d' \
 	-e '/Failed to create avahi client:/d' \
@@ -160,10 +162,12 @@ _filter_pmproxy_log()
 	-e '/^pmproxy: Signalled (signal[=][1-9][0-9]*).*/d' \
 	-e '/^pmproxy: disabled time series,.*(missing)/d' \
 	-e '/Error: unsupported redis server (got v/d' \
+	-e '/Info: TLS configured in pmproxy.conf/d' \
 	-e '/Failed to create avahi client:/d' \
 	-e '/Info: connected to .*redis.*/d' \
-	-e '/Info: OpenSSL .*/d' \
 	-e '/Info: .* setup$/d' \
+	-e '/Info: OpenSSL /d' \
+	-e '/Using cipher /d' \
     #end
 }
 

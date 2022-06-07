@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019,2021 Red Hat.
+ * Copyright (c) 2018-2019,2021-2022 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -111,7 +111,7 @@ typedef struct secure_client {
     SSL			*ssl;
     BIO			*read;
     BIO			*write;
-    struct {
+    struct secure_client_pending {
 	struct client	*next;
 	struct client	*prev;
 	unsigned int	queued;
@@ -152,6 +152,7 @@ typedef struct proxy {
     struct client	*pending_writes;
 #ifdef HAVE_OPENSSL
     SSL_CTX		*ssl;
+    __pmSecureConfig	tls;
 #endif
     redisSlots		*slots;		/* mapping of Redis keys to servers */
     struct servlet	*servlets;	/* linked list of http URL handlers */

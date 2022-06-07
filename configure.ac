@@ -1998,19 +1998,29 @@ fi
 AC_SUBST(lib_for_regex)
 
 PKG_CHECK_MODULES([openssl], [openssl >= 1.1.1], [have_openssl=true], [have_openssl=false])
-if $have_openssl
-then
-    AC_MSG_CHECKING([for SSL_read_ex])
-    savedLIBS=$LIBS
-    LIBS="$openssl_LIBS"
-    AC_TRY_LINK_FUNC(SSL_read_ex,
-	have_openssl=true
-	AC_MSG_RESULT(yes),
-	have_openssl=false
-	AC_MSG_RESULT(no))
-    LIBS=$savedLIBS
-fi
 AC_SUBST(HAVE_OPENSSL, [$have_openssl])
+
+PKG_CHECK_MODULES([libsasl2], [libsasl2 >= 2], [have_sasl=true], [have_sasl=false])
+AC_SUBST(HAVE_SASL, [$have_sasl])
+
+dnl Secure sockets: combination of OpenSSL and SASL
+enable_secure=false
+if test "$do_secure" = "check" -o "$do_secure" = "yes"
+then
+    if test "$have_sasl" = "true" -a "$have_openssl" = "true"
+    then
+	AC_DEFINE(HAVE_SECURE_SOCKETS, [1], [Encrypted sockets])
+	enable_secure=true
+    else
+	if test "$do_secure" = "yes" -a "$have_sasl" = "true"
+	then
+	    AC_MSG_RESULT([cannot enable secure sockets, missing OpenSSL])
+	else
+	    AC_MSG_RESULT([cannot enable secure sockets, missing SASL])
+	fi
+    fi
+fi
+AC_SUBST(enable_secure)
 
 PKG_CHECK_MODULES([libuv], [libuv >= 1.0], [have_libuv=true], [have_libuv=false])
 AC_SUBST(HAVE_LIBUV, [$have_libuv])
@@ -3996,102 +4006,6 @@ then
 	],
 	AC_DEFINE(HAVE_ZFS_ITER_SNAPSHOTS_3ARG, [1], [3-arg zfs_iter_snapshots])
 	AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
-fi
-
-dnl Check for Network Security Services (NSS) and
-dnl Simple Authentication and Security Layer (SASL)
-if test "$do_secure" = "check" -o "$do_secure" = "yes"
-then
-    enable_secure=true
-
-    saved_CFLAGS="$CFLAGS"
-    saved_CPPFLAGS="$CPPFLAGS"
-    NSS_INC_DIRS="-I/usr/include/nss -I/usr/include/nss3"
-    NSPR_INC_DIRS="-I/usr/include/nspr -I/usr/include/nspr4"
-    CFLAGS="$CFLAGS $NSS_INC_DIRS $NSPR_INC_DIRS"
-    CPPFLAGS="$CPPFLAGS $NSS_INC_DIRS $NSPR_INC_DIRS"
-
-    AC_CHECK_HEADERS([nss/nss.h], [NSSCFLAGS=-I/usr/include/nss], [
-	AC_CHECK_HEADERS([nss3/nss.h], [NSSCFLAGS=-I/usr/include/nss3], [
-	    enable_secure=false
-	    if test "$do_secure" = "yes"
-	    then
-		AC_MSG_ERROR([cannot enable secure sockets mode - no NSS header])
-	    fi
-	])
-    ])
-    AC_SUBST(NSSCFLAGS)
-
-    AC_CHECK_HEADERS([nspr/nspr.h], [NSPRCFLAGS=-I/usr/include/nspr], [
-	AC_CHECK_HEADERS([nspr4/nspr.h], [NSPRCFLAGS=-I/usr/include/nspr4], [
-	    enable_secure=false
-	    if test "$do_secure" = "yes"
-	    then
-		AC_MSG_ERROR([cannot enable secure sockets mode - no NSPR header])
-	    fi
-	])
-    ])
-    AC_SUBST(NSPRCFLAGS)
-
-    AC_CHECK_HEADERS([sasl/sasl.h], [SASLCFLAGS=-I/usr/include/sasl], [
-	enable_secure=false
-	if test "$do_secure" = "yes"
-	then
-	    AC_MSG_ERROR([cannot enable secure sockets mode - no SASL header])
-	fi
-    ])
-    AC_SUBST(SASLCFLAGS)
-
-    AC_CHECK_LIB(sasl2, sasl_server_init, [lib_for_sasl="-lsasl2"], [
-	enable_secure=false
-	if test "$do_secure" = "yes"
-	then
-	    AC_MSG_ERROR([cannot enable secure sockets mode - no SASL library])
-	fi
-    ])
-    AC_SUBST(lib_for_sasl)
-
-    AC_CHECK_LIB(ssl, SSL_ImportFD, [lib_for_ssl="-lssl"], [
-	AC_CHECK_LIB(ssl3, SSL_ImportFD, [lib_for_ssl="-lssl3"], [
-	    enable_secure=false
-	    if test "$do_secure" = "yes"
-	    then
-		AC_MSG_ERROR([cannot enable secure sockets mode - no SSL library])
-	    fi
-	])
-    ])
-    AC_SUBST(lib_for_ssl)
-
-    AC_CHECK_LIB(nss, NSS_Init, [lib_for_nss="-lnss"], [
-	AC_CHECK_LIB(nss3, NSS_Init, [lib_for_nss="-lnss3"], [
-	    enable_secure=false
-	    if test "$do_secure" = "yes"
-	    then
-		AC_MSG_ERROR([cannot enable secure sockets mode - no NSS library])
-	    fi
-	])
-    ])
-    AC_SUBST(lib_for_nss)
-
-    AC_CHECK_LIB(nspr, PR_Init, [lib_for_nspr="-lnspr"], [
-	AC_CHECK_LIB(nspr4, PR_Init, [lib_for_nspr="-lnspr4"], [
-	    enable_secure=false
-	    if test "$do_secure" = "yes"
-	    then
-		AC_MSG_ERROR([cannot enable secure sockets mode - no NSPR library])
-	    fi
-	])
-    ])
-    AC_SUBST(lib_for_nspr)
-
-    if test "$enable_secure" = "true"
-    then
-	AC_DEFINE(HAVE_SECURE_SOCKETS, [1], [Encrypted sockets])
-    fi
-    AC_SUBST(enable_secure)
-
-    CPPFLAGS="$saved_CPPFLAGS"
-    CFLAGS="$saved_CFLAGS"
 fi
 
 dnl check for -latomic, needed for some -march=i386 builds with i686 c++ distro headers

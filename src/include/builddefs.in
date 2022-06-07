@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2021 Red Hat.
+# Copyright (c) 2012-2022 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -128,13 +128,11 @@ PIECFLAGS = @PIECFLAGS@
 PIELDFLAGS = @PIELDFLAGS@
 INVISIBILITY = @INVISIBILITY@	# hide shared library symbols
 
-NSSCFLAGS = @NSSCFLAGS@
-NSPRCFLAGS = @NSPRCFLAGS@
-SASLCFLAGS = @SASLCFLAGS@
 AVAHICFLAGS = @avahi_CFLAGS@
 LZMACFLAGS = @lzma_CFLAGS@
 LIBUVCFLAGS = @libuv_CFLAGS@
 OPENSSLCFLAGS = @openssl_CFLAGS@
+SASLCFLAGS = @libsasl2_CFLAGS@
 
 LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 
@@ -258,6 +256,7 @@ NEED_OLD_TBL_HEADER = @need_old_tbl_header@
 RDYNAMIC_FLAG = @rdynamic_flag@
 QT_RELEASE = @qt_release@
 QT_VERSION = @qt_version@
+CLANG_MAJOR_VERSION = @CLANG_MAJOR_VERSION@
 
 # configuration state affecting the entire build
 ENABLE_SHARED = @enable_shared@
@@ -352,14 +351,10 @@ LIB_FOR_DLOPEN = @lib_for_dlopen@
 LIB_FOR_HDR_HISTOGRAM = @lib_for_hdr_histogram@
 LIB_FOR_LZMA = @lib_for_lzma@
 LIB_FOR_MATH = @lib_for_math@
-LIB_FOR_NSS = @lib_for_nss@
-LIB_FOR_NSPR = @lib_for_nspr@
 LIB_FOR_PTHREADS = @lib_for_pthreads@
 LIB_FOR_READLINE = @lib_for_readline@
 LIB_FOR_REGEX = @lib_for_regex@
 LIB_FOR_RT = @lib_for_rt@
-LIB_FOR_SASL = @lib_for_sasl@
-LIB_FOR_SSL = @lib_for_ssl@
 LIB_FOR_BACKTRACE = @lib_for_backtrace@
 
 HAVE_LIBUV = @HAVE_LIBUV@
@@ -369,17 +364,18 @@ LIBBPF_VERSION = @libbpf_version@
 LIB_FOR_LIBBPF = @libbpf_LIBS@
 HAVE_LIBELF = @HAVE_LIBELF@
 LIB_FOR_LIBELF = @libelf_LIBS@
-HAVE_OPENSSL = @HAVE_OPENSSL@
-LIB_FOR_OPENSSL = @openssl_LIBS@
 HAVE_NCURSES = @HAVE_NCURSES@
 LIB_FOR_NCURSES = @ncurses_LIBS@
 HAVE_NCURSESW = @HAVE_NCURSESW@
 LIB_FOR_NCURSESW = @ncursesw_LIBS@
 HAVE_DEVMAPPER = @HAVE_DEVMAPPER@
 LIB_FOR_DEVMAPPER = @DEVMAPPER_LIBS@
-CLANG_MAJOR_VERSION = @CLANG_MAJOR_VERSION@
 HAVE_CMOCKA = @HAVE_CMOCKA@
 LIB_FOR_CMOCKA = @cmocka_LIBS@
+HAVE_SASL = @HAVE_SASL@
+LIB_FOR_LIBSASL2 = @libsasl2_LIBS@
+HAVE_OPENSSL = @HAVE_OPENSSL@
+LIB_FOR_OPENSSL = @openssl_LIBS@
 
 # configuration state for optional performance domains
 SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
@@ -640,7 +636,6 @@ endif
 
 PERL_MAKE_MAKEFILE = \
 	export PCP_TOPDIR="`cd $(TOPDIR) && pwd`"; \
-	NSS_CFLAGS="$(NSS_CFLAGS)" NSPR_CFLAGS="$(NSPR_CFLAGS)" \
         TARGET_OS="$(TARGET_OS)" CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_EXTRA_OPTIONS) $(MAKEMAKER_OPTIONS)
 
 # Collect files from a Perl "make -f Makefile install" below
@@ -964,7 +959,7 @@ PCP_GUILIB = -lpcp_gui $(PCPLIB)
 PCP_PMDALIB = -lpcp_pmda $(PCPLIB)
 PCP_TRACELIB = -lpcp_trace $(PCPLIB)
 PCP_MMVLIB = -lpcp_mmv $(PCPLIB)
-PCPWEBLIB_EXTRAS = $(LIB_FOR_OPENSSL) $(LIB_FOR_LIBUV) $(PCP_PMDALIB) $(PCP_MMVLIB)
+PCPWEBLIB_EXTRAS = $(LIB_FOR_LIBSASL2) $(LIB_FOR_OPENSSL) $(LIB_FOR_LIBUV) $(PCP_PMDALIB) $(PCP_MMVLIB)
 PCP_WEBLIB = -lpcp_web $(PCPWEBLIB_EXTRAS)
 PCP_ARCHIVELIB = -lpcp_archive
 

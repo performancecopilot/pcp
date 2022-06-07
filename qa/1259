@@ -45,7 +45,7 @@ _filter()
 s/bind metric... //
 s/$/ .../
 }' \
-	-e '/__dmclosecontext/s/ called dm->0x[0-9a-f][0-9a-f]*//' \
+	-e '/^__dmclosecontext/s/ called dm->0x[0-9a-f][0-9a-f]*//' \
 	-e '/^pmAddDerived/d' \
 	-e "s;$tmp;TMP;" \
     #end

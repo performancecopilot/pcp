@@ -107,6 +107,7 @@ extern void __pmDestroyMutex(pthread_mutex_t *) _PCP_HIDDEN;	/* mutex destroyer 
 extern void init_pmns_lock(void) _PCP_HIDDEN;
 extern void init_AF_lock(void) _PCP_HIDDEN;
 extern void init_result_lock(void) _PCP_HIDDEN;
+extern void init_secureclient_lock(void) _PCP_HIDDEN;
 extern void init_secureserver_lock(void) _PCP_HIDDEN;
 extern void init_connect_lock(void) _PCP_HIDDEN;
 extern void init_exec_lock(void) _PCP_HIDDEN;
@@ -163,6 +164,7 @@ extern int __pmIsLogutilLock(void *) _PCP_HIDDEN;
 extern int __pmIsPmnsLock(void *) _PCP_HIDDEN;
 extern int __pmIsAFLock(void *) _PCP_HIDDEN;
 extern int __pmIsresultLock(void *) _PCP_HIDDEN;
+extern int __pmIsSecureclientLock(void *) _PCP_HIDDEN;
 extern int __pmIsSecureserverLock(void *) _PCP_HIDDEN;
 extern int __pmIsConnectLock(void *) _PCP_HIDDEN;
 extern int __pmIsExecLock(void *) _PCP_HIDDEN;
@@ -190,17 +192,10 @@ extern void __pmCheckAcceptedAddress(__pmSockAddr *) _PCP_HIDDEN;
 
 #ifdef SOCKET_INTERNAL
 #ifdef HAVE_SECURE_SOCKETS
-#include <nss.h>
-#include <ssl.h>
-#include <nspr.h>
-#include <prerror.h>
-#include <private/pprio.h>
-#include <sasl.h>
+#include <openssl/ssl.h>
+#include <sasl/sasl.h>
 
-#define SECURE_SERVER_CERTIFICATE "PCP Collector certificate"
-#define SECURE_USERDB_DEFAULT_KEY "\n"
-
-/* internal NSS/NSPR/SSL/SASL implementation details */
+/* internal OpenSSL/SASL implementation details */
 extern int __pmSecureSocketsError(int) _PCP_HIDDEN;
 #endif
 
@@ -238,19 +233,17 @@ extern unsigned char *__pmFirstIpv6SubnetAddr(unsigned char *, int maskBits) _PC
 extern unsigned char *__pmNextIpv6SubnetAddr(unsigned char *, int maskBits) _PCP_HIDDEN;
 
 extern int __pmInitSecureSockets(void) _PCP_HIDDEN;
-extern int __pmInitCertificates(void) _PCP_HIDDEN;
 extern int __pmInitSocket(int, int) _PCP_HIDDEN;
 extern int __pmSocketReady(int, struct timeval *) _PCP_HIDDEN;
 extern void *__pmGetSecureSocket(int) _PCP_HIDDEN;
 extern void *__pmGetUserAuthData(int) _PCP_HIDDEN;
-extern int __pmSecureServerInit(void) _PCP_HIDDEN;
-extern int __pmSecureServerIPCFlags(int, int) _PCP_HIDDEN;
+extern int __pmSecureServerNegotiation(int, int *) _PCP_HIDDEN;
+extern int __pmSecureServerIPCFlags(int, int, void *) _PCP_HIDDEN;
 extern int __pmSecureServerHasFeature(__pmServerFeature) _PCP_HIDDEN;
 extern int __pmSecureServerSetFeature(__pmServerFeature) _PCP_HIDDEN;
 extern int __pmSecureServerClearFeature(__pmServerFeature) _PCP_HIDDEN;
 
 extern int __pmShutdownLocal(void) _PCP_HIDDEN;
-extern int __pmShutdownCertificates(void) _PCP_HIDDEN;
 extern int __pmShutdownSecureSockets(void) _PCP_HIDDEN;
 
 #define SECURE_SERVER_SASL_SERVICE "PCP Collector"
@@ -430,7 +423,7 @@ extern void __pmClearDSOProfile(int) _PCP_HIDDEN;
 
 extern int __pmTimevalCmp(const pmTimeval *, const pmTimeval *) _PCP_HIDDEN;
 
-extern int __pmSecureServerSetup(const char *, const char *) _PCP_HIDDEN;
+extern int __pmSecureServerSetup(void) _PCP_HIDDEN;
 
 extern pmInDomProfile *__pmFindProfile(pmInDom, const pmProfile *) _PCP_HIDDEN;
 

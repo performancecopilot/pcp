@@ -150,6 +150,19 @@ defines(void)
     printf("PM_ERR_THREAD=%d\n", PM_ERR_THREAD);
     printf("PM_ERR_NOCONTAINER=%d\n", PM_ERR_NOCONTAINER);
     printf("PM_ERR_BADSTORE=%d\n", PM_ERR_BADSTORE);
+    printf("PM_ERR_LOGOVERLAP=%d\n", PM_ERR_LOGOVERLAP);
+    printf("PM_ERR_LOGHOST=%d\n", PM_ERR_LOGHOST);
+    printf("PM_ERR_LOGCHANGETYPE=%d\n", PM_ERR_LOGCHANGETYPE);
+    printf("PM_ERR_LOGCHANGESEM=%d\n", PM_ERR_LOGCHANGESEM);
+    printf("PM_ERR_LOGCHANGEINDOM=%d\n", PM_ERR_LOGCHANGEINDOM);
+    printf("PM_ERR_LOGCHANGEUNITS=%d\n", PM_ERR_LOGCHANGEUNITS);
+    printf("PM_ERR_NEEDCLIENTCERT=%d\n", PM_ERR_NEEDCLIENTCERT);
+    printf("PM_ERR_BADDERIVE=%d\n", PM_ERR_BADDERIVE);
+    printf("PM_ERR_NOLABELS=%d\n", PM_ERR_NOLABELS);
+    printf("PM_ERR_PMDAFENCED=%d\n", PM_ERR_PMDAFENCED);
+    printf("PM_ERR_RECTYPE=%d\n", PM_ERR_RECTYPE);
+    printf("PM_ERR_FEATURE=%d\n", PM_ERR_FEATURE);
+    printf("PM_ERR_TLS=%d\n", PM_ERR_TLS);
     printf("PM_ERR_NYI=%d\n", PM_ERR_NYI);
 }
 

@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2012-2018 Red Hat.
+.\" Copyright (c) 2012-2018,2022 Red Hat.
 .\" Copyright (c) 2008 Aconex, Inc.  All Rights Reserved.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
@@ -866,10 +866,9 @@ The security features offered by
 .B pmcd
 and
 .B pmproxy
-are implemented using the Network Security Services (NSS) APIs and
-utilities.
-The NSS
-.BR certutil
+are implemented using the OpenSSL APIs and utilities.
+The
+.BR openssl (1)
 tool can be used to create certificates suitable for establishing
 trust between PCP monitor and collector hosts.
 .PP
@@ -1001,24 +1000,15 @@ Configuration file for the PCP runtime environment,
 see
 .BR pcp.conf (5).
 .TP
-.I /etc/pki/nssdb
-Optionally contains a Network Security Services database with a
-"PCP Collector" certificate providing trusted identification for
-the collector host.
+.I /etc/pcp/tls.conf
+Optionally contains OpenSSL configuration information, including
+locations of certificates providing trusted identification for
+collector and monitor hosts.
 .TP
 .I $HOME/.pcp
 User-specific directories containing configuration files for
 customisation of the various monitor tools, such as
 .BR pmchart (1).
-.TP
-.I $HOME/.pki/nssdb
-A shared Network Security Services (NSS) database directory
-containing per-user certificates identifying known valid remote
-.B pmcd
-collector hosts.
-The NSS
-.B certutil
-tool is one of several that can be used to maintain this database.
 .TP
 .I $PCP_RC_DIR/pcp
 Script for starting and stopping
@@ -1252,33 +1242,14 @@ When set, this variable forces any monitor tool connections to be
 established using the certificate-based secure sockets feature.
 If the connections cannot be established securely, they will fail.
 .TP
-.B PCP_SECURE_DB_METHOD
-With secure socket connections, the certificate and key database is
-stored using the
-.B sql:
-method by default.
-Use
-.B PCP_SECURE_DB_METHOD
-to override the default, most usually setting the value to the empty
-string (for the older database methods).
-.TP
-.B PCP_SECURE_DB_PATH
-When set, this variable specifies an alternate certificate database
-path for client tools.
-Similar to the action of the -C option for
-.BR pmcd (1)
+.B PCP_TLSCONF_PATH
+Specifies the location from which TLS (Transport Layer Security)
+configuration settings will be read.
+These settings are used by PCP client tools,
+.B pmcd
 and
-.BR pmproxy (1).
-.TP
-.B PCP_NSS_INIT_MODE
-Mode to use to initialize the NSS certificate database when using
-secure connections.
-This variable may be set to either
-.B readonly
-or
-.BR readwrite .
-If unset, the default is
-.BR readwrite .
+.B pmproxy
+whenever secure (encrypted) communication is requested.
 .TP
 .B PCP_STDERR
 Many PCP tools support the environment variable

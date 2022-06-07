@@ -1,66 +1,96 @@
 #!/bin/sh
 # PCP QA Test No. 712
-#
 # Exercise encrypted communications between pmcd/clients
-# Copyright (c) 2012-2013 Red Hat.
+# Copyright (c) 2012-2013,2022 Red Hat.
 #
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
 . ./common.secure
-nss_notrun_checks
+
+_check_tls
 
 _cleanup()
 {
-    nss_cleanup
+    _restore_config $PCP_TLSCONF_PATH
+    unset PCP_SECURE_SOCKETS
 
     _service pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
     _wait_for_pmcd
     _restore_auto_restart pmcd
     _wait_for_pmlogger
+    _restore_auto_restart pmlogger
 
-    $sudo rm -f $tmp.*
-    $sudo rm -fr $tmp
+    $sudo rm -rf $tmp.*
 }
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_save_config $PCP_TLSCONF_PATH
 _stop_auto_restart pmcd
+_stop_auto_restart pmlogger
 _service pcp stop | _filter_pcp_stop
 
+_filter_tls()
+{
+    sed \
+	-e 's/value [0-9][0-9]*/value NUMBER/' \
+	-e '/pminfo([0-9][0-9]*)/s//pminfo(PID)/' \
+	-e "s/host \"$hostname\"/host LOCALHOST/g" \
+	-e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATE]/' \
+    #end
+}
+
 # real QA test starts here
-nss_backup
-nss_setup_randomness
+_setup_tls
+original=$PCP_TLSCONF_PATH
+cp $original $tmp.tls.orig
 
-# verify that local clients cannot establish a connection
-# without having a valid certificate database setup.
-nss_setup_collector false
+_service pmcd start | _filter_pcp_start
+_wait_for_pmcd
 
-nss_setup_empty_userdb
-echo "checking client, no certificate at all.  should fail..." | tee -a $seq.full
+echo
+echo "checking client, generic certificate.  should pass..."
 export PCP_SECURE_SOCKETS=1
-yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
-unset PCP_SECURE_SOCKETS
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_tls
 
-# verify that local clients are prompted to establish a connection
-# when a valid collectoer certificate exists but no client config.
-nss_setup_collector true $qahost $hostname
-
-nss_setup_empty_userdb
-echo "checking client, server certificate only.  should prompt and fail..." | tee -a $seq.full
+echo
+echo "checking client, no certificate setup.  should fail..." | tee -a $seq.full
 export PCP_SECURE_SOCKETS=1
-yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
-unset PCP_SECURE_SOCKETS
+export PCP_TLSCONF_PATH=/dev/null
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_tls
+export PCP_TLSCONF_PATH=$original
 
-# make the new certificate visible to just this user
-echo "checking client, user certificate only.  should pass..."
-nss_setup_empty_userdb
-nss_import_cert_userdb
+echo
+echo "checking client, server certificate only.  should fail..." | tee -a $seq.full
 export PCP_SECURE_SOCKETS=1
-yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+cp $tmp.tls.orig $tmp.tls.conf
+sed -i -e 's/pcp.key/server.key/g' $tmp.tls.conf
+sed -i -e 's/pcp.crt/server.crt/g' $tmp.tls.conf
+$sudo cp $tmp.tls.conf $PCP_TLSCONF_PATH
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_tls
+
+# check mode where separate client/server certificates are used
+#
+cp $tmp.tls.orig $tmp.tls.conf
+sed -i -e 's/pcp.key/server.key/g' $tmp.tls.conf
+sed -i -e 's/pcp.crt/server.crt/g' $tmp.tls.conf
+echo "tls-ca-key-file = $here/tls.conf/client.key" >> $tmp.tls.conf
+echo "tls-ca-cert-file = $here/tls.conf/client.crt" >> $tmp.tls.conf
+echo "tls-verify-clients = true" >> $tmp.tls.conf
+$sudo cp $tmp.tls.conf $PCP_TLSCONF_PATH
+
 unset PCP_SECURE_SOCKETS
+_service pmcd start | _filter_pcp_start
+_wait_for_pmcd
+
+echo
+echo "checking both client and server certificates.  should pass..." | tee -a $seq.full
+export PCP_SECURE_SOCKETS=1
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_tls
 
 # success, all done
 status=0

@@ -17,6 +17,10 @@
 #include "libpcp.h"
 #include <sys/stat.h>
 #include <assert.h>
+#ifdef HAVE_OPENSSL
+#include <openssl/opensslv.h>
+#include <openssl/ssl.h>
+#endif
 
 #define PMDAROOT	1	/* domain identifier for pmdaroot(1) */
 #define SHUTDOWNWAIT	15	/* PMDAs wait time, in 10msec increments */
@@ -41,11 +45,10 @@ int		_creds_timeout = 3;	/* Timeout for agents credential PDU */
 static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
 static char	*pmnsfile = PM_NS_DEFAULT;
 static char	*username;
-static char	*certdb;		/* certificate database path (NSS) */
-static char	*dbpassfile;		/* certificate database password file */
-static char	*cert_nickname;		/* Alternate nickname to use for server certificate */
 static int	dupok = 1;		/* set to 0 for -N pmnsfile */
 static char	sockpath[MAXPATHLEN];	/* local unix domain socket path */
+static void	*ssl;
+static __pmSecureConfig	tls;
 
 #ifdef HAVE_SA_SIGINFO
 static pid_t	killer_pid;
@@ -99,9 +102,6 @@ static pmLongOptions longopts[] = {
     { "username", 1, 'U', "USER", "in daemon mode, run as named user [default pcp]" },
     PMAPI_OPTIONS_HEADER("Configuration options"),
     { "config", 1, 'c', "PATH", "path to configuration file" },
-    { "certdb", 1, 'C', "PATH", "path to NSS certificate database" },
-    { "passfile", 1, 'P', "PATH", "password file for certificate database access" },
-    { "certname", 1, 'M', "NAME", "certificate name to use" },
     { "", 1, 'L', "BYTES", "maximum size for PDUs from clients [default 65536]" },
     { "", 1, 'q', "TIME", "PMDA initial negotiation timeout (seconds) [default 3]" },
     { "", 1, 't', "TIME", "PMDA response timeout (seconds) [default 5]" },
@@ -121,7 +121,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_POSIX,
-    .short_options = "Ac:C:D:fH:i:l:L:M:N:n:p:P:q:Qs:St:T:U:vx:?",
+    .short_options = "Ac:D:fH:i:l:L:N:n:p:q:Qs:St:T:U:vx:?",
     .long_options = longopts,
 };
 
@@ -147,10 +147,6 @@ ParseOptions(int argc, char *argv[], int *nports)
 
 	    case 'c':	/* configuration file */
 		strncpy(configFileName, opts.optarg, sizeof(configFileName)-1);
-		break;
-
-	    case 'C':	/* path to NSS certificate database */
-		certdb = opts.optarg;
 		break;
 
 	    case 'D':	/* debug options */
@@ -192,10 +188,6 @@ ParseOptions(int argc, char *argv[], int *nports)
 		}
 		break;
 
-	    case 'M':	/* nickname for the server cert. Use to query the nssdb */
-		cert_nickname = opts.optarg;
-		break;
-
 	    case 'N':
 		dupok = 0;
 		/*FALLTHROUGH*/
@@ -214,10 +206,6 @@ ParseOptions(int argc, char *argv[], int *nports)
 		}
 		break;
 		    
-	    case 'P':	/* password file for certificate database access */
-		dbpassfile = opts.optarg;
-		break;
-
 	    case 'q':
 		val = (int)strtol(opts.optarg, &endptr, 10);
 		if (*endptr != '\0' || val <= 0.0) {
@@ -533,7 +521,8 @@ Shutdown(void)
 	    __pmCloseSocket(client[i].fd);
     }
     __pmServerCloseRequestPorts();
-    __pmSecureServerShutdown();
+    __pmSecureServerShutdown(ssl, &tls);
+    __pmSecureServerShutdown(NULL, NULL);
     pmNotifyErr(LOG_INFO, "pmcd Shutdown\n");
     fflush(stderr);
 }
@@ -1075,8 +1064,30 @@ main(int argc, char *argv[])
 	    DontStart();
     }
 
-    if (__pmSecureServerCertificateSetup(certdb, dbpassfile, cert_nickname) < 0)
-	DontStart();
+    /* parse /etc/pcp/tls.conf (optional security settings) */
+    __pmSecureConfigInit();
+    __pmGetSecureConfig(&tls);
+    if (tls.certfile) {
+#ifdef HAVE_OPENSSL
+	if ((ssl = __pmSecureServerInit(&tls)) == NULL) {
+	    __pmFreeSecureConfig(&tls);
+	} else {
+	/* OpenSSL setup; log library version, ciphers in use */
+#ifdef OPENSSL_VERSION_STR
+	    pmNotifyErr(LOG_INFO, "OpenSSL %s setup", OPENSSL_VERSION_STR);
+#else /* back-compat and not ideal, includes date */
+	    pmNotifyErr(LOG_INFO, "%s setup", OPENSSL_VERSION_TEXT);
+#endif
+	    if (tls.ciphersuites)
+		fprintf(stderr, "Using cipher suites: %s\n", tls.ciphersuites);
+	    else if (tls.ciphers)
+		fprintf(stderr, "Using cipher list: %s\n", tls.ciphers);
+	}
+#else
+	pmNotifyErr(LOG_ERR, "%s setup but %s not built with OpenSSL enabled",
+			pmGetConfig("PCP_TLSCONF_PATH"), pmGetProgname());
+#endif
+    }
 
     PrintAgentInfo(stderr);
     __pmAccDumpLists(stderr);
