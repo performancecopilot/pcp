@@ -22,22 +22,22 @@ PMID: 23.1.16
     Semantics: instant  Units: none
 dbpmda> fetch slurm.numnodes
 PMID(s): 23.0.0
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   23.0.0 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
 dbpmda> fetch slurm.node.job.id
 PMID(s): 23.1.1
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   23.1.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
     inst [4452824 or ???] value NUMBER
 dbpmda> fetch slurm.node.job.name
 PMID(s): 23.1.2
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   23.1.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [4452824 or ???] value STRING
 dbpmda> fetch slurm.node.job.job_alloc_cores
 PMID(s): 23.1.16
-pmResult ... numpmid: 1
+__pmResult ... numpmid: 1
   23.1.16 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [4452824 or ???] value STRING
 dbpmda> 
