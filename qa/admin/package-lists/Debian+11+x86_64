@@ -67,7 +67,6 @@ libreadline-dev
 librrds-perl
 libsasl2-dev
 libsasl2-modules
-libslurm-perl
 libsoqt520-dev
 libspreadsheet-read-perl
 libspreadsheet-readsxc-perl
