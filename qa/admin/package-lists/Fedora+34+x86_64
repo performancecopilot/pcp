@@ -133,6 +133,7 @@ selinux-policy
 selinux-policy-devel
 selinux-policy-targeted
 setools-console
+slurm-perlapi
 smartmontools
 socat
 sqlite
