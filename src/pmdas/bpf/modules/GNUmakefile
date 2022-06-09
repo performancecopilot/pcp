@@ -29,6 +29,7 @@ APPS_H = \
 	exitsnoop.h \
 	mountsnoop.h \
 	oomkill.h \
+	vfsstat.h \
 
 # ported *.bpf.c files.
 APPS_BPF = \
@@ -37,6 +38,7 @@ APPS_BPF = \
 	exitsnoop.bpf.c \
 	mountsnoop.bpf.c \
 	oomkill.bpf.c \
+	vfsstat.bpf.c \
 
 
 default_pcp default:	$(HELPERS_H) $(HELPERS_C) $(APPS_H) $(APPS_BPF) \

@@ -1993,6 +1993,7 @@ x11
 1775 pmdumptext archive local
 1784 pmlogconf local
 1793 pmrep pcp2xxx python local pmdumplog
+1795 pmda.bpf local
 1801 dstat python pcp local
 1805 pmda.linux kernel local
 1810 pmda.bpf local

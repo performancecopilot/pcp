@@ -114,6 +114,7 @@ char *all_modules[] = {
     "mountsnoop",
     "oomkill",
     "runqlat",
+    "vfsstat",
 };
 
 /**
