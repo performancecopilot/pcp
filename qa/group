@@ -1926,6 +1926,7 @@ x11
 1602 pmproxy local
 1603 pmproxy local
 1608 pmproxy local
+1612 pmda.bpf local
 1613 pmda.linux kernel local
 1622 selinux local
 1623 libpcp_import collectl local
