@@ -1226,9 +1226,6 @@ main(int argc, char **argv)
      */
     pmNotifyErr(LOG_INFO, "Start");
 
-    /* set up signal handlers */
-    init_signals();
-
     if (pmDebugOptions.appl4)
 	pmNotifyErr(LOG_INFO, "Signal handlers installed");
 
@@ -1329,6 +1326,13 @@ main(int argc, char **argv)
      */
     yyin = pass0(fp);
     __pmProcessPipeClose(fp);
+
+    /*
+     * set up signal handlers ... can't do it earlier because on some
+     * platforms the fork-n-exec to run pmcpp(1) behaves badly if we
+     * install our signal handlers before this
+     */
+    init_signals();
 
     __pmOptFetchGetParams(&ocp);
     ocp.c_scope = 1;
