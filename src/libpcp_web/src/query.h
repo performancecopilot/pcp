@@ -38,6 +38,7 @@ typedef enum nodetype {
     N_COUNT,
     N_DELTA,
     N_MAX,
+    N_MAX2,
     N_MIN,
     N_SUM,
     N_ANON,

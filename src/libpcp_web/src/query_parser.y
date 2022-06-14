@@ -119,6 +119,7 @@ static const char initial_str[]  = "Unexpected initial";
 %token      L_COUNT
 %token      L_DELTA
 %token      L_MAX
+%token      L_MAX2
 %token      L_MIN
 %token      L_SUM
 %token      L_ANON
@@ -377,6 +378,16 @@ func_sid
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
+	| L_MAX2 L_LPAREN sid_vec L_RPAREN
+		{ lp->yy_np = newnode(N_MAX2);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MAX2 L_LPAREN func_sid L_RPAREN
+		{ lp->yy_np = newnode(N_MAX2);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
 	| L_MIN L_LPAREN sid_vec L_RPAREN
 		{ lp->yy_np = newnode(N_MIN);
 		  lp->yy_np->left = $3;
@@ -628,6 +639,16 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		}
 	| L_MAX L_LPAREN func L_RPAREN
 		{ lp->yy_np = newnode(N_MAX);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MAX2 L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_MAX2);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MAX2 L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_MAX2);
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
@@ -961,6 +982,7 @@ static const struct {
     { L_AVG,		sizeof("avg")-1,	"avg" },
     { L_COUNT,		sizeof("count")-1,	"count" },
     { L_MAX,		sizeof("max")-1,	"max" },
+	{ L_MAX2,		sizeof("max2")-1,	"max2" },
     { L_MIN,		sizeof("min")-1,	"min" },
     { L_SUM,		sizeof("sum")-1,	"sum" },
     { L_RATE,		sizeof("rate")-1,	"rate" },
@@ -1010,6 +1032,7 @@ static struct {
     { L_COUNT,		N_COUNT,	"COUNT",	NULL },
     { L_DELTA,		N_DELTA,	"DELTA",	NULL },
     { L_MAX,		N_MAX,		"MAX",		NULL },
+	{ L_MAX2,		N_MAX2,		"MAX2",		NULL },
     { L_MIN,		N_MIN,		"MIN",		NULL },
     { L_SUM,		N_SUM,		"SUM",		NULL },
     { L_ANON,		N_ANON,		"ANON",		NULL },
@@ -1841,6 +1864,7 @@ series_dumpexpr(node_t *np, int level)
 	break;
     case N_AVG: case N_COUNT:   case N_DELTA:   case N_MAX:     case N_MIN:
     case N_SUM: case N_ANON:    case N_RATE:    case N_INSTANT: case N_RESCALE:
+	case N_MAX2: 
 	fprintf(stderr, "%*s%s()", level*4, "", n_type_str(np->type));
 	break;
     case N_SCALE: {
