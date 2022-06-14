@@ -9015,14 +9015,14 @@ $as_echo "$QT_MAJOR.$QT_MINOR.$QT_POINT" >&6; }
 	    echo Cannot include the Qt components in the build.
 	    enable_qt=false
 	    qt_version=0
-	elif test "$QT_MAJOR" -lt 4; then
-	    echo WARNING: Qt version 4.4 or later does not seem to be installed.
+	elif test "$QT_MAJOR" -lt 5; then
+	    echo WARNING: Qt version 5.6 or later does not seem to be installed.
 	    echo Cannot proceed with the Qt $QT_MAJOR installation found.
 	    enable_qt=false
 	    qt_version=0
-	elif test "$QT_MAJOR" -eq 4 -a "$QT_MINOR" -lt 4 ; then
-	    echo WARNING: Qt version 4.$QT_MINOR is too old.
-	    echo Qt version 4.4 or later is required for Qt builds.
+	elif test "$QT_MAJOR" -eq 5 -a "$QT_MINOR" -lt 6 ; then
+	    echo WARNING: Qt version 5.$QT_MINOR is too old.
+	    echo Qt version 5.6 or later is required for Qt builds.
 	    enable_qt=false
 	    qt_version=0
 	else

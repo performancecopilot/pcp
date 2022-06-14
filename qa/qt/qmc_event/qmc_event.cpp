@@ -46,11 +46,11 @@ main(int argc, char* argv[])
         /*NOTREACHED*/
     }
 
-    cerr << "*** Create a single fetch group ***" << endl;
+    cerr << "*** Create a single fetch group ***" << Qt::endl;
     QmcGroup group;
     pmflush();
 
-    cerr << endl << "*** Event metric ***" << endl;
+    cerr << Qt::endl << "*** Event metric ***" << Qt::endl;
     QmcMetric* sample_records = group.addMetric("sample.event.records");
     if (sample_records->status() < 0)
 	sts = 1;
@@ -70,12 +70,12 @@ main(int argc, char* argv[])
     //
     for (int i = 0; i < 4; i++) {
 	sleep(1);
-	cerr << endl << "*** Group Fetch " << i << " ***" << endl;
+	cerr << Qt::endl << "*** Group Fetch " << i << " ***" << Qt::endl;
 	group.fetch();
 	sample_records->dump(cerr);
 	sample_seconds->dump(cerr);
     }
 
-    cerr << endl << "*** Exiting ***" << endl;
+    cerr << Qt::endl << "*** Exiting ***" << Qt::endl;
     return sts;
 }

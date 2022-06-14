@@ -22,7 +22,7 @@ store(char const* name, char const* inst)
     char buf[128];
 
     sprintf(buf, "pmstore %s %s > /dev/null\n", name, inst);
-    cout << name << ' ' << inst << endl;
+    cout << name << ' ' << inst << Qt::endl;
     if (system(buf) < 0) {
 	pmprintf("%s: cannot run system(%s)\n", pmGetProgname(), buf);
 	pmflush();
@@ -34,22 +34,22 @@ void
 dump(QmcMetric const* num, QmcMetric const* discrete, 
      QmcMetric const* instant, QmcMetric const* counter)
 {
-    cout << "dynamic.numinsts = " << num->value(0) << endl << endl;
+    cout << "dynamic.numinsts = " << num->value(0) << Qt::endl << Qt::endl;
     for (int i = 0; i < discrete->numInst(); i++) {
 	cout << '[' << discrete->instName(i) << "] = ";
 	if (discrete->error(i) < 0) {
-	    cout << pmErrStr(discrete->error(i)) << endl;
+	    cout << pmErrStr(discrete->error(i)) << Qt::endl;
 	}
 	else {
 	    cout << '\"' << discrete->stringValue(i) << "\" = " 
 		 << instant->value(i) << " (";
 	    if (counter->error(i) < 0)
-		cout << pmErrStr(counter->error(i)) << ")" << endl;
+		cout << pmErrStr(counter->error(i)) << ")" << Qt::endl;
 	    else
-		cout << counter->currentValue(i) << ")" << endl;
+		cout << counter->currentValue(i) << ")" << Qt::endl;
 	}
     }
-    cout << endl;
+    cout << Qt::endl;
     discrete->indom()->dump(cout);
 }
 
@@ -70,10 +70,10 @@ msg(int line, char const* str)
 {
     static int count = 1;
 
-    cout << endl << "*** " << count << ": Line " << line << " - " << str 
-	 << " ***" << endl;
-    cerr << endl << "*** " << count << ": Line " << line << " - " << str 
-	 << " ***" << endl;
+    cout << Qt::endl << "*** " << count << ": Line " << line << " - " << str 
+	 << " ***" << Qt::endl;
+    cerr << Qt::endl << "*** " << count << ": Line " << line << " - " << str 
+	 << " ***" << Qt::endl;
     count++;
 }
 

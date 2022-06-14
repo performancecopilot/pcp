@@ -18,7 +18,7 @@ main(int argc, char *argv[])
 
     pmSetProgname(argv[0]);
     if (argc != 2) {
-	cerr << "Usage: " << pmGetProgname() << " double" << endl;
+	cerr << "Usage: " << pmGetProgname() << " double" << Qt::endl;
 	exit(1);
 	/*NOTREACHED*/
     }
@@ -26,12 +26,12 @@ main(int argc, char *argv[])
     d = strtod(argv[1], &endptr);
     if (endptr != NULL && endptr[0] != '\0') {
 	cerr << pmGetProgname() << ": argument \"" << argv[1] 
-	     << "\" must be a double (\"" << endptr << "\")" << endl;
+	     << "\" must be a double (\"" << endptr << "\")" << Qt::endl;
 	exit(1);
 	/*NOTREACHED*/
     }
 
-    cout << QmcMetric::formatNumber(d) << endl;
+    cout << QmcMetric::formatNumber(d) << Qt::endl;
 
     return 0;
 }

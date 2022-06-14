@@ -138,7 +138,7 @@ checkUnits(QmcMetric *metric)
 
 	if (pmDebugOptions.appl0) {
 	    cerr << "checkUnits: Changing " << metric->name()
-		<< " to use bytes" << endl;
+		<< " to use bytes" << Qt::endl;
 	}
     }
     // Change to canonical count
@@ -154,7 +154,7 @@ checkUnits(QmcMetric *metric)
 
 	if (pmDebugOptions.appl0) {
 	    cerr << "checkUnits: Changing " << metric->name()
-		<< " to use counts" << endl;
+		<< " to use counts" << Qt::endl;
 	}
     }
     else if (metric->desc().desc().sem == PM_SEM_COUNTER) {
@@ -171,7 +171,7 @@ checkUnits(QmcMetric *metric)
 
 	    if (pmDebugOptions.appl0) {
 		cerr << "checkUnits: Changing " << metric->name()
-		     << " to use time utilization" << endl;
+		     << " to use time utilization" << Qt::endl;
 	    }
 	}
     }
@@ -322,7 +322,7 @@ parseConfig(QString const& configName, FILE *configFile)
 
 	if (pmDebugOptions.appl0)
 	    cerr << "parseConfig: Adding metric '" << buf << "' with scale = "
-		 << scale << " from line " << line << endl;
+		 << scale << " from line " << line << Qt::endl;
 
 	if (traverse(buf, scale) < 0)
 	    err++;
@@ -402,10 +402,10 @@ dumpHeader()
 	    for (i = 0; i < metric->numValues(); i++, v++) {
 		cout << '[' << qSetFieldWidth(2) << v
 		     << qSetFieldWidth(0) << "] "
-		     << metric->spec(sourceFlag, true, i) << endl;
+		     << metric->spec(sourceFlag, true, i) << Qt::endl;
 	    }
 	}
-	cout << endl;
+	cout << Qt::endl;
     }
 
     if (fullOnce) {
@@ -427,7 +427,7 @@ dumpHeader()
 		}
 	    }
 	}
-	cout << endl;
+	cout << Qt::endl;
     }
 
     if (niceFlag && sourceFlag) {
@@ -452,7 +452,7 @@ dumpHeader()
 		}
 	    }
 	}
-	cout << endl;
+	cout << Qt::endl;
     }
 
     if (metricFlag || (sourceFlag && !niceFlag)) {
@@ -506,7 +506,7 @@ dumpHeader()
 		}
 	    }
 	}
-	cout << endl;
+	cout << Qt::endl;
     }
 
     if (instFlag) {
@@ -544,7 +544,7 @@ dumpHeader()
 		}
 	    }
 	}
-	cout << endl;
+	cout << Qt::endl;
     }
 
     if (normFlag) {
@@ -573,7 +573,7 @@ dumpHeader()
 			 << QmcMetric::formatNumber(metric->scale())
 			 << qSetFieldWidth(0);
 		else
-		    cout << fixed
+		    cout << Qt::fixed
 			 << qSetRealNumberPrecision(precision)
 			 << qSetFieldWidth(width)
 			 << metric->scale()
@@ -584,7 +584,7 @@ dumpHeader()
 		}
 	    }
 	}
-	cout << endl;
+	cout << Qt::endl;
     }
 
     if (unitFlag) {
@@ -621,7 +621,7 @@ dumpHeader()
 		}
 	    }
 	}
-	cout << endl;
+	cout << Qt::endl;
     }
 }
 
@@ -989,7 +989,7 @@ main(int argc, char *argv[])
     if (pmDebugOptions.appl0)
 	cerr << "main: optind = " << opts.optind << ", argc = " << argc
 	     << ", width = " << width << ", precision = " << precision
-	     << endl;
+	     << Qt::endl;
 
     if (opts.optind == argc) {
 	if (configName.length() == 0) {
@@ -1035,7 +1035,7 @@ main(int argc, char *argv[])
 
     if (pmDebugOptions.appl0)
 	cerr << "main: parsed " << metrics.size() << " metrics"
-	     << endl;
+	     << Qt::endl;
 
     group->useDefault();
 
@@ -1043,7 +1043,7 @@ main(int argc, char *argv[])
 	isLive = true;
 
     if (pmDebugOptions.appl0)
-	cerr << "main: default source is " << *(group->context()) << endl;
+	cerr << "main: default source is " << *(group->context()) << Qt::endl;
 
     if (opts.tzflag)
 	group->useTZ();
@@ -1061,7 +1061,7 @@ main(int argc, char *argv[])
 
     if (pmDebugOptions.appl0) {
 	cerr << "main: Using timezone \"" << tzString << "\" from " << tzLabel
-	     << endl;
+	     << Qt::endl;
     }
 
     // putenv timezone into TZ as we may use strftime or ctime later
@@ -1076,7 +1076,7 @@ main(int argc, char *argv[])
 	}
 	else if (pmDebugOptions.appl0)
 	    cerr << "main: Changed environment with \""
-		 << tzEnv << '"' << endl;
+		 << tzEnv << '"' << Qt::endl;
     }
 
     if (isLive) {
@@ -1099,7 +1099,7 @@ main(int argc, char *argv[])
         cerr << "main: start = "
              << pmtimevalToReal(&logStartTime) << ", end = "
              << pmtimevalToReal(&logEndTime)
-             << endl;
+             << Qt::endl;
     }
 
     sts = pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
@@ -1122,7 +1122,7 @@ main(int argc, char *argv[])
     if (pmDebugOptions.appl0) {
 	cerr << "main: realStartTime = " << pmtimevalToReal(&opts.start)
 	     << ", endTime = " << endTime << ", pos = " << pos 
-	     << ", delay = " << delay << endl;
+	     << ", delay = " << delay << Qt::endl;
     }
 
     pmflush();
@@ -1249,7 +1249,7 @@ main(int argc, char *argv[])
 		}
 	    }
 	}
-	cout << endl;
+	cout << Qt::endl;
 
 //	if (opts.samples > 0 && sampleCount == opts.samples)
 //	    continue;	/* do not sleep needlessly */
@@ -1262,7 +1262,7 @@ main(int argc, char *argv[])
 	pos = pmtimevalToReal(&opts.origin);
 	lines++;
 	if (repeatLines > 0 && repeatLines == lines) {
-	    cout << endl;
+	    cout << Qt::endl;
 	    dumpHeader();
 	    lines = 0;
 	}

@@ -22,7 +22,7 @@ changeConf(const char* str)
     fp = fopen(name, "w");
     if (fp == NULL) {
 	cerr << pmGetProgname() << ": /var/pcp/pmdas/simple/simple.conf: "
-	     << strerror(errno) << endl;
+	     << strerror(errno) << Qt::endl;
 	exit(1);
 	/*NOTREACHED*/
     }
@@ -63,11 +63,11 @@ main(int argc, char* argv[])
         /*NOTREACHED*/
     }
 
-    cerr << "*** Create a single fetch group ***" << endl;
+    cerr << "*** Create a single fetch group ***" << Qt::endl;
     QmcGroup group1;
     pmflush();
 
-    cerr << endl << "*** Simple metric ***" << endl;
+    cerr << Qt::endl << "*** Simple metric ***" << Qt::endl;
     QmcMetric* hinv_ncpu = group1.addMetric("hinv.ncpu");
     pmflush();
     
@@ -76,7 +76,7 @@ main(int argc, char* argv[])
     else
 	hinv_ncpu->dump(cerr);
 
-    cerr << endl << "*** Metric with an Indom ***" << endl;
+    cerr << Qt::endl << "*** Metric with an Indom ***" << Qt::endl;
     QmcMetric* percpu_user = group1.addMetric("sample.bin");
     pmflush();
 
@@ -85,7 +85,7 @@ main(int argc, char* argv[])
     else
 	percpu_user->dump(cerr);
 
-    cerr << endl << "*** proc style specific instance ***" << endl;
+    cerr << Qt::endl << "*** proc style specific instance ***" << Qt::endl;
     QmcMetric* load_avg = group1.addMetric("kernel.all.load[1,5]");
     pmflush();
     
@@ -94,7 +94,7 @@ main(int argc, char* argv[])
     else
 	load_avg->dump(cerr);
 
-    cerr << endl << "*** String metric ***" << endl;
+    cerr << Qt::endl << "*** String metric ***" << Qt::endl;
     QmcMetric* sample_hullo = group1.addMetric("sample.string.hullo");
 
     if (sample_hullo->status() < 0)
@@ -102,7 +102,7 @@ main(int argc, char* argv[])
     else
 	sample_hullo->dump(cerr);
 
-    cerr << endl << "*** Rate converted metric ***" << endl;
+    cerr << Qt::endl << "*** Rate converted metric ***" << Qt::endl;
     QmcMetric* sample_seconds = group1.addMetric("sample.seconds");
 
     if (sample_seconds->status() < 0)
@@ -110,7 +110,7 @@ main(int argc, char* argv[])
     else
 	sample_seconds->dump(cerr);
 
-    cerr << endl << "*** Bogus metric ***" << endl;
+    cerr << Qt::endl << "*** Bogus metric ***" << Qt::endl;
     QmcMetric* bogus_metric = group1.addMetric("bogus.metric");
     pmflush();
 
@@ -121,7 +121,7 @@ main(int argc, char* argv[])
 	sts = 1;
     }
 	
-    cerr << endl << "*** Bogus instance ***" << endl;
+    cerr << Qt::endl << "*** Bogus instance ***" << Qt::endl;
     QmcMetric* bogus_inst = group1.addMetric("kernel.all.load[2]");
     pmflush();
     
@@ -136,7 +136,7 @@ main(int argc, char* argv[])
 
     sleep(1);
 
-    cerr << endl << "*** Group 1 Fetch 1 ***" << endl;
+    cerr << Qt::endl << "*** Group 1 Fetch 1 ***" << Qt::endl;
     group1.fetch();
     hinv_ncpu->dump(cerr);
     percpu_user->dump(cerr);
@@ -146,7 +146,7 @@ main(int argc, char* argv[])
 
     sleep(1);
 
-    cerr << endl << "*** Group 1 Fetch 2 ***" << endl;
+    cerr << Qt::endl << "*** Group 1 Fetch 2 ***" << Qt::endl;
     group1.fetch();
     hinv_ncpu->dump(cerr);
     percpu_user->dump(cerr);
@@ -154,13 +154,13 @@ main(int argc, char* argv[])
     sample_hullo->dump(cerr);
     sample_seconds->dump(cerr);
 
-    cerr << endl << "*** Remove an instance ***" << endl;
+    cerr << Qt::endl << "*** Remove an instance ***" << Qt::endl;
     load_avg->removeInst(0);
     load_avg->dump(cerr);
 
     sleep(1);
     
-    cerr << endl << "*** Group 1 Fetch 3 ***" << endl;
+    cerr << Qt::endl << "*** Group 1 Fetch 3 ***" << Qt::endl;
     group1.fetch();
     hinv_ncpu->dump(cerr);
     percpu_user->dump(cerr);
@@ -168,13 +168,13 @@ main(int argc, char* argv[])
     sample_hullo->dump(cerr);
     sample_seconds->dump(cerr);
 
-    cerr << endl << "*** Add an instance ***" << endl;
+    cerr << Qt::endl << "*** Add an instance ***" << Qt::endl;
     load_avg->addInst("15");
     load_avg->dump(cerr);
 
     sleep(1);
     
-    cerr << endl << "*** Group 1 Fetch 4 ***" << endl;
+    cerr << Qt::endl << "*** Group 1 Fetch 4 ***" << Qt::endl;
     group1.fetch();
     hinv_ncpu->dump(cerr);
     percpu_user->dump(cerr);
@@ -182,95 +182,95 @@ main(int argc, char* argv[])
     sample_hullo->dump(cerr);
     sample_seconds->dump(cerr);
 
-    cerr << endl << "*** Creating a new group ***" << endl;
+    cerr << Qt::endl << "*** Creating a new group ***" << Qt::endl;
     QmcGroup group2;
 
-    cerr << endl << "*** Adding a metric with a dynamic indom ***" << endl;
+    cerr << Qt::endl << "*** Adding a metric with a dynamic indom ***" << Qt::endl;
     QmcMetric* simple_now = group2.addMetric("simple.now");
     pmflush();
     simple_now->dump(cerr);
 
-    cerr << endl << "*** Group 2 Fetch 1 ***" << endl;
+    cerr << Qt::endl << "*** Group 2 Fetch 1 ***" << Qt::endl;
     group2.fetch();
     simple_now->dump(cerr);
 
-    cerr << endl << "*** Change the indom ***" << endl;
+    cerr << Qt::endl << "*** Change the indom ***" << Qt::endl;
     changeConf("sec,min,hour");
 
-    cerr << endl << "*** Group 2 Fetch 2 ***" << endl;
+    cerr << Qt::endl << "*** Group 2 Fetch 2 ***" << Qt::endl;
     group2.fetch();
     simple_now->dump(cerr);
 
-    cerr << endl << "*** Updating indom ***" << endl;
+    cerr << Qt::endl << "*** Updating indom ***" << Qt::endl;
     if (simple_now->indom()->changed())
 	simple_now->updateIndom();
     else
-	cerr << "Nothing to update!" << endl;
+	cerr << "Nothing to update!" << Qt::endl;
 
     simple_now->dump(cerr);
     simple_now->indom()->dump(cerr);
 
-    cerr << endl << "*** Group 2 Fetch 3 ***" << endl;
+    cerr << Qt::endl << "*** Group 2 Fetch 3 ***" << Qt::endl;
     group2.fetch();
     simple_now->dump(cerr);
 
-    cerr << endl << "*** Remove instance from PMDA ***" << endl;
+    cerr << Qt::endl << "*** Remove instance from PMDA ***" << Qt::endl;
     changeConf("sec,hour");
 
-    cerr << endl << "*** Group 2 Fetch 4 ***" << endl;
+    cerr << Qt::endl << "*** Group 2 Fetch 4 ***" << Qt::endl;
     group2.fetch();
     simple_now->dump(cerr);
 
-    cerr << endl << "*** Remove an instance ***" << endl;
+    cerr << Qt::endl << "*** Remove an instance ***" << Qt::endl;
     simple_now->removeInst(1);
     simple_now->dump(cerr);
     simple_now->indom()->dump(cerr);
 
-    cerr << endl << "*** Updating indom ***" << endl;
+    cerr << Qt::endl << "*** Updating indom ***" << Qt::endl;
     if (simple_now->indom()->changed())
 	simple_now->updateIndom();
     else
-	cerr << "Nothing to update!" << endl;
+	cerr << "Nothing to update!" << Qt::endl;
 
     simple_now->dump(cerr);
     simple_now->indom()->dump(cerr);
 
-    cerr << endl << "*** Group 2 Fetch 5 ***" << endl;
+    cerr << Qt::endl << "*** Group 2 Fetch 5 ***" << Qt::endl;
     group2.fetch();
     simple_now->dump(cerr);
     
-    cerr << endl << "*** Add another metric with the same indom ***" << endl;
+    cerr << Qt::endl << "*** Add another metric with the same indom ***" << Qt::endl;
     QmcMetric* simple_now2 = group2.addMetric("simple.now");
     simple_now2->dump(cerr);
     simple_now2->indom()->dump(cerr);
 
-    cerr << endl << "*** Group 2 Fetch 6 ***" << endl;
+    cerr << Qt::endl << "*** Group 2 Fetch 6 ***" << Qt::endl;
     group2.fetch();
     simple_now->dump(cerr);
     simple_now2->dump(cerr);
        
-    cerr << endl << "*** Add an instance to the PMDA ***" << endl;
+    cerr << Qt::endl << "*** Add an instance to the PMDA ***" << Qt::endl;
     changeConf("sec,min,hour");
 
-    cerr << endl << "*** Group 2 Fetch 7 ***" << endl;
+    cerr << Qt::endl << "*** Group 2 Fetch 7 ***" << Qt::endl;
     group2.fetch();
     simple_now->dump(cerr);
     simple_now2->dump(cerr);
 
-    cerr << endl << "*** Updating indom ***" << endl;
+    cerr << Qt::endl << "*** Updating indom ***" << Qt::endl;
     if (simple_now2->indom()->changed())
 	simple_now2->updateIndom();
     else
-	cerr << "Nothing to update!" << endl;
+	cerr << "Nothing to update!" << Qt::endl;
 
     simple_now2->dump(cerr);
     simple_now2->indom()->dump(cerr);
 
-    cerr << endl << "*** Group 2 Fetch 8 ***" << endl;
+    cerr << Qt::endl << "*** Group 2 Fetch 8 ***" << Qt::endl;
     group2.fetch();
     simple_now->dump(cerr);
     simple_now2->dump(cerr);
 
-    cerr << endl << "*** Exiting ***" << endl;
+    cerr << Qt::endl << "*** Exiting ***" << Qt::endl;
     return sts;
 }
