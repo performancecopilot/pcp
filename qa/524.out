@@ -2,6 +2,7 @@ QA output created by 524
 default case ... should work
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
@@ -26,6 +27,7 @@ pmlogger: cannot open log "./pmlogger.log" for writing : Permission denied
 Log for pmlogger on HOST started DATE
 
 pmlogger: Warning: log file (./pmlogger.log) creation failed
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 __pmLogNewFile: failed to create "./TEST.index": Permission denied
@@ -36,6 +38,7 @@ Log finished DATE
 now try with log somewhere writeable
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 __pmLogNewFile: failed to create "./TEST.index": Permission denied
@@ -60,6 +63,7 @@ pmlogger: cannot open log "./pmlogger.log" for writing : Permission denied
 Log for pmlogger on HOST started DATE
 
 pmlogger: Warning: log file (./pmlogger.log) creation failed
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE

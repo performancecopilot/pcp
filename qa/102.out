@@ -88,6 +88,7 @@ pmlc> log advisory on -1 msec sample.bin [100]
 pmlc> 
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
@@ -124,6 +125,7 @@ pmlc> log advisory on 75 hours sample.bin [100]
 pmlc> 
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
@@ -160,6 +162,7 @@ pmlc> log advisory on 599 hours sample.bin [100]
 pmlc> 
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
@@ -195,6 +198,7 @@ pmlc> log advisory on 1200 hours sample.bin [100]
 pmlc> 
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE

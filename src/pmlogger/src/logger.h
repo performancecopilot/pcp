@@ -173,6 +173,9 @@ extern struct timeval	delta;			/* default logging interval */
 extern int		ctlport;		/* pmlogger control port number */
 extern char		*note;			/* note for port map file */
 
+/* signal handlers */
+extern void init_signals(void);
+
 /* pmlc support */
 extern void init_ports(void);
 extern int control_req(int ctlfd);
@@ -210,5 +213,12 @@ extern void cleanup(void);
 extern int	qa_case;
 #define QA_OFF		100
 #define QA_SLEEPY	101
+
+/* To expose selected function symbols for mybacktrace() */
+#ifdef BACKTRACE_SYMBOLS
+#define STATIC_FUNC
+#else
+#define STATIC_FUNC static
+#endif
 
 #endif /* _LOGGER_H */

@@ -51,7 +51,7 @@ int		ctlport;	/* pmlogger control port number */
  * expect linkfile to be a symlink -> ..../<pid> (pid starts after last /)
  * or -> ...<pid> (pid starts at first digit)
  */
-static int
+STATIC_FUNC int
 get_pid_from_symlink(const char *link, pid_t *pidp)
 {
     ssize_t	plen;
@@ -131,22 +131,31 @@ cleanup(void)
 }
 
 /* borrowed from libpcp/lock.c */
-static void
+STATIC_FUNC void
 mybacktrace(void)
 {
 #ifdef HAVE_BACKTRACE
 #define MAX_TRACE_DEPTH 32
     void	*backaddr[MAX_TRACE_DEPTH];
     int		sts;
+    extern char	__executable_start;
+    extern char	__etext;
+
+
     sts = backtrace(backaddr, MAX_TRACE_DEPTH);
     if (sts > 0) {
 	char	**symbols;
 	symbols = backtrace_symbols(backaddr, MAX_TRACE_DEPTH);
 	if (symbols != NULL) {
 	    int		i;
-	    fprintf(stderr, "backtrace:\n");
-	    for (i = 0; i < sts; i++)
-		fprintf(stderr, "  %s\n", symbols[i]);
+	    fprintf(stderr, "mybacktrace() [" PRINTF_P_PFX "%p]:\n", mybacktrace);
+	    fprintf(stderr, "my text: " PRINTF_P_PFX "%p ... " PRINTF_P_PFX "%p\n", &__executable_start, &__etext);
+	    for (i = 0; i < sts; i++) {
+		fprintf(stderr, "  %s", symbols[i]);
+		if (&__executable_start  <= (char *)backaddr[i] && (char *)backaddr[i] <= &__etext)
+		    fprintf(stderr, " (0x%llx)", (long long)((char *)backaddr[i]-&__executable_start));
+		fputc('\n', stderr);
+	    }
 	    free(symbols);
 	}
     }
@@ -154,7 +163,7 @@ mybacktrace(void)
     return;
 }
 
-static void
+STATIC_FUNC void
 sigexit_handler(int sig)
 {
     if (pmDebugOptions.appl3)
@@ -163,7 +172,7 @@ sigexit_handler(int sig)
     _exit(sig);
 }
 
-static void
+STATIC_FUNC void
 sigmisc_handler(int sig)
 {
     if (pmDebugOptions.appl3)
@@ -172,7 +181,7 @@ sigmisc_handler(int sig)
     __pmSetSignalHandler(sig, sigmisc_handler);
 }
 
-static void
+STATIC_FUNC void
 sigterm_handler(int sig)
 {
     if (pmDebugOptions.appl3)
@@ -181,7 +190,7 @@ sigterm_handler(int sig)
     sig_code = sig;
 }
 
-static void
+STATIC_FUNC void
 sighup_handler(int sig)
 {
     if (pmDebugOptions.appl3)
@@ -191,17 +200,18 @@ sighup_handler(int sig)
 }
 
 #ifndef IS_MINGW
-static void
+STATIC_FUNC void
 sigcore_handler(int sig)
 {
     if (pmDebugOptions.appl3)
 	fprintf(stderr, "sigcore_handler: Signalled (signal=%d), exiting (core dumped)\n", sig);
+    mybacktrace();
     __pmSetSignalHandler(sig, SIG_DFL);	/* Don't come back here */
     cleanup();
     _exit(sig);
 }
 
-static void
+STATIC_FUNC void
 sigpipe_handler(int sig)
 {
     if (pmDebugOptions.appl3)
@@ -213,7 +223,7 @@ sigpipe_handler(int sig)
     __pmSetSignalHandler(SIGPIPE, sigpipe_handler);
 }
 
-static void
+STATIC_FUNC void
 sigusr2_handler(int sig)
 {
     if (pmDebugOptions.appl3)
@@ -255,7 +265,7 @@ static sig_map_t	sig_handler[] = {
 #ifndef IS_MINGW
     { SIGUSR1,	sigterm_handler },	/* Exit User Signal 1 */
     { SIGUSR2,	sigusr2_handler },	/* reexec User Signal 2 */
-    { SIGCHLD,	sigmisc_handler },	/* NOP    Child stopped or terminated */
+    { SIGCHLD,	sigmisc_handler },	/* Ignore Child stopped or terminated */
 #ifdef SIGPWR
     { SIGPWR,	sigmisc_handler },	/* Ignore Power Fail/Restart */
 #endif
@@ -283,7 +293,7 @@ static sig_map_t	sig_handler[] = {
  * Only returns if it succeeds (exits on failure).
  */
 
-static void
+STATIC_FUNC void
 GetPorts(char *file)
 {
     int			fd;
@@ -547,27 +557,14 @@ GetPorts(char *file)
 	exit(1);
 }
 
-/* Create the control port for this pmlogger and the file containing the port
- * number so that other programs know which port to connect to.
- * If this is the primary pmlogger, create the special link to the
- * control file.
+/*
+ * Set up signal handlers
  */
 void
-init_ports(void)
+init_signals(void)
 {
-    int		i, j, n, sts;
-    int		sep = pmPathSeparator();
-    int		extlen, baselen;
-    char	path[MAXPATHLEN];
-    char	pidfile[MAXPATHLEN];
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
-    int		pidlen;
-#endif
-#ifndef IS_MINGW
-    struct stat	sbuf;
-#endif
-    pid_t	mypid = getpid();
-    pid_t	pid;
+    int		i;
+    int		j;
 
     /*
      * make sure control port files are removed when pmlogger terminates
@@ -606,6 +603,30 @@ init_ports(void)
 	}
     }
 #endif
+}
+
+/* Create the control port for this pmlogger and the file containing the port
+ * number so that other programs know which port to connect to.
+ * If this is the primary pmlogger, create the special link to the
+ * control file.
+ */
+void
+init_ports(void)
+{
+    int		i;
+    int		n, sts;
+    int		sep = pmPathSeparator();
+    int		extlen, baselen;
+    char	path[MAXPATHLEN];
+    char	pidfile[MAXPATHLEN];
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+    int		pidlen;
+#endif
+#ifndef IS_MINGW
+    struct stat	sbuf;
+#endif
+    pid_t	mypid = getpid();
+    pid_t	pid;
 
     /* create the control port file (make the directory if necessary). */
 
@@ -823,7 +844,7 @@ char		pmlc_host[MAXHOSTNAMELEN];
 int		connect_state = 0;
 
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
-static int
+STATIC_FUNC int
 check_local_creds(__pmHashCtl *attrs)
 {
     __pmHashNode	*node;

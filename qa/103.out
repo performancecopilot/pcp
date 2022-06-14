@@ -749,6 +749,7 @@ pmlc> log mandatory on 25 msec sample.long.one
 pmlc> 
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE

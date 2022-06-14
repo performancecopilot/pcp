@@ -3,6 +3,7 @@ QA output created by 389
 expect no pmlogger process ...
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Nothing to log, and not the primary logger instance ... good-bye
@@ -14,6 +15,7 @@ expect pmlogger process ...
 OK
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
@@ -24,6 +26,7 @@ expect pmlogger process ...
 OK
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE

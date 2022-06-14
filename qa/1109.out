@@ -3,7 +3,7 @@ QA output created by 1109
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmlogger -r -c TMP.conf -T 5sec -l TMP.log -m qa/1109 TMP
+Command: pmlogger -r -c TMP.conf -T 10sec -l TMP.log -m qa/1109 TMP
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

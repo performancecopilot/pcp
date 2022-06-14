@@ -2,6 +2,7 @@ QA output created by 072
 
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
@@ -17,6 +18,7 @@ expect 2 sets of values for disks and 2 sets of values for networks ...
 
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE

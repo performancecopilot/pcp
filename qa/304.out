@@ -3,6 +3,7 @@ QA output created by 304
 === end-of-file, launcher exited ==
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
@@ -27,6 +28,7 @@ Log finished DATE
 === Quit ==
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
@@ -46,6 +48,7 @@ Log finished DATE
 === Quit + can replay ==
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
@@ -70,6 +73,7 @@ Log finished DATE
 As expected, pmlogger is still running ... kill it off
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
@@ -92,6 +96,7 @@ Log finished DATE
 === Status ==
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
@@ -124,6 +129,7 @@ Log finished DATE
 === Bad control ==
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
