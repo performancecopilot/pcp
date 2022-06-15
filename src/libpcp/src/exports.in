@@ -832,6 +832,7 @@ PCP_3.37 {
     __pmGetTimestamp;
     __pmLogWriteMark;
     __pmLogFeaturesStr;
+    __pmLogLoadIndex;
     __pmLogLoadLabelSet;
     __pmLogPutResult3;
     __pmLogSearchInDom;

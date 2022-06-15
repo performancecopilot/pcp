@@ -23,7 +23,7 @@
 .br
 #include <pcp/import.h>
 .sp
-int pmiStart(const char *\fIarchive\fP, int \fIinherit\fP);
+int pmiStart(const char *\fIarchive\fP, int \fIflags\fP);
 .sp
 cc ... \-lpcp_import \-lpcp
 .ft 1
@@ -31,7 +31,7 @@ cc ... \-lpcp_import \-lpcp
 .ft 3
 use PCP::LogImport;
 .sp
-pmiStart($\fIarchive\fP, $\fIinherit\fP);
+pmiStart($\fIarchive\fP, $\fIflags\fP);
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see
@@ -81,8 +81,19 @@ or
 .BR pmPutValuehandle (3).
 .PP
 If
-.I inherit
-is true, then the new context will inherit any and all
+.I flags
+contains PMI_FLAG_APPEND, then the new context will be created so as to
+append metadata (metrics, instance domains, instances, labels), temporal
+index entries and values to the specified
+.IR archive ,
+if it exists.
+If the
+.I archive
+does not exist then the behaviour is the same as without this flag.
+.PP
+If
+.I flags
+contains PMI_FLAG_INHERIT, then the new context will inherit any and all
 metadata (metrics, instance domains, instances and handles) from the current
 context, otherwise the new context is created with no metadata.
 The basename for the output PCP archive, the source hostname, the
@@ -93,7 +104,7 @@ If this is the first call to
 .B pmiStart
 the metadata will be empty
 independent of the value of
-.IR inherit .
+.IR flags .
 .PP
 Since no physical files for the output PCP archive
 will be created until the first call to

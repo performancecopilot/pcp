@@ -162,7 +162,7 @@ _logpeek(__pmArchCtl *acp, int vol)
     pmsprintf(fname, sizeof(fname), "%s.%d", lcp->name, vol);
     /* need mutual exclusion here to avoid race with a concurrent uncompress */
     PM_LOCK(logutil_lock);
-    if ((f = __pmFopen(fname, "r")) == NULL) {
+    if ((f = __pmFopen(fname, "r+")) == NULL) {
 	PM_UNLOCK(logutil_lock);
 	return f;
     }
@@ -196,7 +196,7 @@ __pmLogChangeVol(__pmArchCtl *acp, int vol)
     pmsprintf(fname, sizeof(fname), "%s.%d", lcp->name, vol);
     /* need mutual exclusion here to avoid race with a concurrent uncompress */
     PM_LOCK(logutil_lock);
-    if ((acp->ac_mfp = __pmFopen(fname, "r")) == NULL) {
+    if ((acp->ac_mfp = __pmFopen(fname, "r+")) == NULL) {
 	PM_UNLOCK(logutil_lock);
 	return -oserror();
     }
@@ -717,14 +717,14 @@ __pmLogFindOpen(__pmArchCtl *acp, const char *name)
 	    tp = &direntp->d_name[blen+1];
 	    if (strcmp(tp, "index") == 0) {
 		exists = 1;
-		if ((lcp->tifp = __pmFopen(filename, "r")) == NULL) {
+		if ((lcp->tifp = __pmFopen(filename, "r+")) == NULL) {
 		    sts = -oserror();
 		    goto cleanup;
 		}
 	    }
 	    else if (strcmp(tp, "meta") == 0) {
 		exists = 1;
-		if ((lcp->mdfp = __pmFopen(filename, "r")) == NULL) {
+		if ((lcp->mdfp = __pmFopen(filename, "r+")) == NULL) {
 		    sts = -oserror();
 		    goto cleanup;
 		}

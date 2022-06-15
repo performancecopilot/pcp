@@ -29,6 +29,9 @@ extern "C" {
 # endif
 #endif
 
+#define PMI_FLAG_INHERIT	0x1	/* pmiStart inherits an existing context */
+#define PMI_FLAG_APPEND		0x2	/* pmiStart appends to existing archive */
+
 /* core libpcp_import API routines */
 PMI_CALL extern int pmiStart(const char *, int);
 PMI_CALL extern int pmiUseContext(int);

@@ -19,52 +19,12 @@ check(int sts, char *name)
     }
 }
 
-int
-main(int argc, char **argv)
+void
+test_basics(int Vflag, int version)
 {
     int		sts;
     int		ctx1;
-    int		ctx2;
     int		hdl1;
-    int		hdl2;
-    int		errflag = 0;
-    int		c;
-    int		Vflag = 0;
-    int		version;
-    static char	*usage = "[-D debugspec] [-V version]";
-
-    pmSetProgname(argv[0]);
-
-    while ((c = getopt(argc, argv, "D:V:")) != EOF) {
-	switch (c) {
-
-	case 'D':	/* debug options */
-	    sts = pmSetDebug(optarg);
-	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
-		    pmGetProgname(), optarg);
-		errflag++;
-	    }
-	    break;
-
-	case 'V':	/* output archive version */
-	    version = atoi(optarg);
-	    Vflag++;
-	    break;
-
-	case '?':
-	default:
-	    errflag++;
-	    break;
-	}
-    }
-
-    if (errflag) {
-	printf("Usage: %s %s\n", pmGetProgname(), usage);
-	exit(1);
-    }
-
-    pmiDump();
 
     ctx1 = pmiStart("myarchive", 0);
     check(ctx1, "pmiStart");
@@ -335,8 +295,16 @@ main(int argc, char **argv)
 
     sts = pmiEnd();
     check(sts, "pmiEnd");
+}
 
-    ctx2 = pmiStart("myotherarchive", 1);
+void
+test_inherit(void)
+{
+    int		sts;
+    int		ctx2;
+    int		hdl2;
+
+    ctx2 = pmiStart("myotherarchive", PMI_FLAG_INHERIT);
     check(ctx2, "pmiStart");
     sts = pmiAddInstance(pmInDom_build(245,1), "other", 2);
     check(sts, "pmiAddInstance");
@@ -349,5 +317,87 @@ main(int argc, char **argv)
 
     pmiDump();
 
+    sts = pmiEnd();
+    check(sts, "pmiEnd");
+}
+
+void
+test_append(void)
+{
+    int		sts;
+    int		ctx3;
+    int		hdl3;
+
+    ctx3 = pmiStart("myarchive", PMI_FLAG_APPEND);
+    check(ctx3, "pmiStart");
+    sts = pmiAddMetric("my.metric.bar", pmID_build(245, 0, 2), PM_TYPE_U64, pmInDom_build(245,1), PM_SEM_INSTANT, pmiUnits(1,-1,0,PM_SPACE_MBYTE,PM_TIME_SEC,0));
+    check(sts, "pmiAddMetric");
+    sts = pmiAddInstance(pmInDom_build(245,1), "eek really", 1);
+    check(sts, "pmiAddInstance");
+    sts = pmiAddInstance(pmInDom_build(245,1), "eek", 2);
+    check(sts, "pmiAddInstance");
+    sts = pmiAddInstance(pmInDom_build(245,1), "blah", 3);
+    check(sts, "pmiAddInstance");
+    sts = pmiAddInstance(pmInDom_build(245,1), "append", 4);
+    check(sts, "pmiAddInstance");
+    hdl3 = pmiGetHandle("my.metric.bar", "append");
+    check(hdl3, "pmiGetHandle");
+    sts = pmiPutValueHandle(hdl3, "654321098765432");
+    check(sts, "pmiPutValueHandle");
+
+    sts = pmiWrite(-1, -1);
+    check(sts, "pmiWrite");
+
+    pmiDump();
+
+    sts = pmiEnd();
+    check(sts, "pmiEnd");
+}
+
+int
+main(int argc, char **argv)
+{
+    int		sts;
+    int		errflag = 0;
+    int		c;
+    int		Vflag = 0;
+    int		version = 0;
+    static char	*usage = "[-D debugspec] [-V version]";
+
+    pmSetProgname(argv[0]);
+
+    while ((c = getopt(argc, argv, "D:V:")) != EOF) {
+	switch (c) {
+
+	case 'D':	/* debug options */
+	    sts = pmSetDebug(optarg);
+	    if (sts < 0) {
+		fprintf(stderr, "%s: unrecognized debug options specification (%s)\n",
+		    pmGetProgname(), optarg);
+		errflag++;
+	    }
+	    break;
+
+	case 'V':	/* output archive version */
+	    version = atoi(optarg);
+	    Vflag++;
+	    break;
+
+	case '?':
+	default:
+	    errflag++;
+	    break;
+	}
+    }
+
+    if (errflag) {
+	printf("Usage: %s %s\n", pmGetProgname(), usage);
+	exit(1);
+    }
+
+    pmiDump();
+    test_basics(Vflag, version);
+    test_inherit();
+    test_append();
     exit(0);
 }

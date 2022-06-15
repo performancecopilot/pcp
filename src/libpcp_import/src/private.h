@@ -71,6 +71,7 @@ typedef struct {
     pmi_label		*label;
     int			last_sts;
     __pmTimestamp	last_stamp;
+    unsigned int	flags;
 } pmi_context;
 
 #define CONTEXT_START	1
@@ -85,6 +86,7 @@ typedef struct {
 
 extern int _pmi_stuff_value(pmi_context *, pmi_handle *, const char *) _PMI_HIDDEN;
 extern int _pmi_put_result(pmi_context *, __pmResult *) _PMI_HIDDEN;
+extern int _pmi_put_mark(pmi_context *, __pmTimestamp *) _PMI_HIDDEN;
 extern int _pmi_put_text(pmi_context *) _PMI_HIDDEN;
 extern int _pmi_put_label(pmi_context *) _PMI_HIDDEN;
 extern int _pmi_end(pmi_context *) _PMI_HIDDEN;

@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2013-2022 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -299,7 +299,7 @@ pmiErrStr_r(int code, char *buf, int buflen)
 }
 
 int
-pmiStart(const char *archive, int inherit)
+pmiStart(const char *archive, int flags)
 {
     pmi_context	*old_current;
     char	*np;
@@ -319,19 +319,15 @@ pmiStart(const char *archive, int inherit)
     old_current = &context_tab[c];
     current = &context_tab[ncontext-1];
 
+    memset(current, 0, sizeof(pmi_context));
     current->state = CONTEXT_START;
     current->version = archive_version;
     current->archive = strdup(archive);
     if (current->archive == NULL) {
 	pmNoMem("pmiStart", strlen(archive)+1, PM_FATAL_ERR);
     }
-    current->hostname = NULL;
-    current->timezone = NULL;
-    current->result = NULL;
-    memset((void *)&current->logctl, 0, sizeof(current->logctl));
-    memset((void *)&current->archctl, 0, sizeof(current->archctl));
     current->archctl.ac_log = &current->logctl;
-    if (inherit && old_current != NULL) {
+    if ((flags & PMI_FLAG_INHERIT) != 0 && old_current != NULL) {
 	current->nmetric = old_current->nmetric;
 	if (old_current->metric != NULL) {
 	    int		m;
@@ -346,8 +342,6 @@ pmiStart(const char *archive, int inherit)
 		current->metric[m].meta_done = 0;
 	    }
 	}
-	else
-	    current->metric = NULL;
 	current->nindom = old_current->nindom;
 	if (old_current->indom != NULL) {
 	    int		i;
@@ -390,8 +384,6 @@ pmiStart(const char *archive, int inherit)
 		}
 	    }
 	}
-	else
-	    current->indom = NULL;
 	current->nhandle = old_current->nhandle;
 	if (old_current->handle != NULL) {
 	    int		h;
@@ -404,8 +396,6 @@ pmiStart(const char *archive, int inherit)
 		current->handle[h].inst = old_current->handle[h].inst;
 	    }
 	}
-	else
-	    current->handle = NULL;
 	current->ntext = old_current->ntext;
 	if (old_current->text != NULL) {
 	    int		t;
@@ -423,8 +413,6 @@ pmiStart(const char *archive, int inherit)
 		current->text[t].meta_done = 0;
 	    }
 	}
-	else
-	    current->text = NULL;
 	current->nlabel = old_current->nlabel;
 	if (old_current->label != NULL) {
 	    int		t;
@@ -446,23 +434,11 @@ pmiStart(const char *archive, int inherit)
 		    current->label[t].labelset = NULL;
 	    }
 	}
-	else
-	    current->label = NULL;
 	current->last_stamp = old_current->last_stamp;
+	current->flags |= PMI_FLAG_INHERIT;
     }
-    else {
-	current->nmetric = 0;
-	current->metric = NULL;
-	current->nindom = 0;
-	current->indom = NULL;
-	current->nhandle = 0;
-	current->handle = NULL;
-	current->ntext = 0;
-	current->text = NULL;
-	current->nlabel = 0;
-	current->label = NULL;
-	current->last_stamp.sec = 0;
-	current->last_stamp.nsec = 0;
+    else if ((flags & PMI_FLAG_APPEND) != 0) {
+	current->flags |= PMI_FLAG_APPEND;
     }
     return ncontext;
 }
@@ -1209,17 +1185,14 @@ int
 pmiPutMark(void)
 {
     __pmTimestamp	*last_stamp;
-    __pmArchCtl		*acp;
-    __pmTimestamp	msec = { 0, 1000000 };		/* 1msec */
 
     if (current == NULL)
 	return PM_ERR_NOCONTEXT;
 
-    acp = &current->archctl;
     last_stamp = &current->last_stamp;
-
     if (last_stamp->sec == 0 && last_stamp->nsec == 0)
 	/* no earlier result, no point adding a mark record */
 	return 0;
-    return __pmLogWriteMark(acp, last_stamp, &msec);
+
+    return _pmi_put_mark(current, last_stamp);
 }
