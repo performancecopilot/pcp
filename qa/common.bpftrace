@@ -141,6 +141,7 @@ _pmdabpftrace_check_probes()
 
     if [ -s $tmp.missing ]
     then
+	trap "rm -f $tmp.*" 0
 	_notrun "Missing bpftrace probe(s): `tr '\012' ' ' <$tmp.missing`"
 	# NOTREACHED
     fi

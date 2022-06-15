@@ -25,7 +25,7 @@ fi
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "$sudo rm -f $tmp.* $tmp-?.*; exit \$status" 0 1 2 3 15
+trap "$sudo rm -f $tmp.* $tmp-*; exit \$status" 0 1 2 3 15
 
 # we need to run part of the make to get headers and libraries setup
 # in $SRC

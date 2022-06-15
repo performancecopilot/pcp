@@ -13,6 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+trap "rm -f $tmp.*" 0
 _get_libpcp_config
 $unix_domain_sockets || _notrun "No unix domain socket support available"
 

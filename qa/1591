@@ -32,7 +32,7 @@ fi
 _cleanup()
 {
     cd $here
-    $sudo rm -rf $tmp $tmp.*
+    $sudo rm -rf $tmp.* ${tmp}_v* $tmp
 }
 
 status=0	# success is the default!

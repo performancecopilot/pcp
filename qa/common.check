@@ -729,6 +729,7 @@ _wait_for_pmcd()
 	esac
 	_systemctl_status pmcd
 	status=0
+	rm -f $tmp._wait_for_pmcd.err $tmp._wait_for_pmcd.out
 	exit $status
     fi
 }
@@ -779,6 +780,7 @@ _wait_for_pmcd_stop()
 	cat $PCP_LOG_DIR/pmcd/pmcd.log
 	_systemctl_status pmcd
 	status=0
+	rm -f $tmp._wait_for_pmcd_stop.err $tmp._wait_for_pmcd_stop.out
 	exit $status
     fi
 }
@@ -927,6 +929,7 @@ _wait_for_pmlogger()
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([p]m)|([P]ID)'
 	_systemctl_status pmlogger
 	status=0
+	rm -f $tmp._wait_for_pmlogger.*
 	exit $status
     fi
     rm -f $tmp._wait_for_pmlogger.*

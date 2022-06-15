@@ -181,6 +181,8 @@ _pmdabcc_cleanup()
     fi
     # note: _restore_auto_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda bcc
+
+    rm -f $tmp.*
 }
 
 _java_check()
@@ -329,17 +331,23 @@ _pmdabcc_try_compile()
 	if grep 'Failed to compile BPF module' bcc.log >/dev/null
 	then
 	    cat bcc.log >>$here/$seq.full
+	    trap "rm -f $tmp.*" 0
 	    _notrun "Failed to compile bcc module, see $seq.full for details"
+	    # NOTREACHED
 	fi
 	if grep 'Failed to load BPF program' bcc.log >/dev/null
 	then
 	    cat bcc.log >>$here/$seq.full
+	    trap "rm -f $tmp.*" 0
 	    _notrun "Failed to load bcc program, see $seq.full for details"
+	    # NOTREACHED
 	fi
 	if grep 'Failed to attach BPF program' bcc.log >/dev/null
 	then
 	    cat bcc.log >>$here/$seq.full
+	    trap "rm -f $tmp.*" 0
 	    _notrun "Failed to attach bcc program, see $seq.full for details"
+	    # NOTREACHED
 	fi
 	$sudo rm -f bcc.log
     fi
