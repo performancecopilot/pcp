@@ -32,6 +32,26 @@ check_context_start(pmi_context *current)
     if (current->state != CONTEXT_START)
 	return 0; /* ok */
 
+    acp = &current->archctl;
+    acp->ac_log = &current->logctl;
+    lcp = &current->logctl;
+
+    /* open a possibly-existing-possibly-not archive, create it if not */
+    if ((current->flags & PMI_FLAG_APPEND)) {
+	if (__pmLogAppend(current->archive, acp) == 0) {
+	    /* file exists so we're going to use it */
+	    current->state = CONTEXT_ACTIVE;
+	    if (lcp->label.zoneinfo)
+		pmNewZone(lcp->label.zoneinfo);
+	    else
+		pmNewZone(lcp->label.timezone);
+	    return 1; /* ok */
+	}
+    }
+
+    /* clear append flag as archive must now be created */
+    current->flags &= ~PMI_FLAG_APPEND;
+
     if (current->hostname == NULL) {
 	(void)gethostname(myname, MAXHOSTNAMELEN);
 	myname[MAXHOSTNAMELEN-1] = '\0';
@@ -39,40 +59,6 @@ check_context_start(pmi_context *current)
     }
     else
 	host = current->hostname;
-
-    acp = &current->archctl;
-    acp->ac_log = &current->logctl;
-    lcp = &current->logctl;
-
-    /* open a possibly-existing-possibly-not archive, create it if not */
-    if ((current->flags & PMI_FLAG_APPEND)) {
-	if (__pmLogFindOpen(acp, current->archive) == 0) {
-	    /* file exists so we're going to use it */
-	    acp->ac_curvol = -1;
-	    if ((sts = __pmLogChangeVol(acp, lcp->maxvol)) < 0)
-		return PM_ERR_LOGFILE;
-	    if ((sts = __pmLogLoadMeta(acp)) < 0)
-		return PM_ERR_LOGFILE;
-	    if ((sts = __pmLogLoadIndex(lcp)) < 0)
-		return PM_ERR_LOGFILE;
-	    if (acp->ac_mfp)
-		__pmFseek(acp->ac_mfp, 0, SEEK_END);
-	    if (lcp->mdfp)
-		__pmFseek(lcp->mdfp, 0, SEEK_END);
-	    if (lcp->tifp)
-		__pmFseek(lcp->tifp, 0, SEEK_END);
-	    if (lcp->label.zoneinfo)
-		pmNewZone(lcp->label.zoneinfo);
-	    else
-		pmNewZone(lcp->label.timezone);
-	    current->state = CONTEXT_ACTIVE;
-	    lcp->state = PM_LOG_STATE_INIT;
-	    return 1; /* ok */
-	}
-    }
-
-    /* clear append flag as archive must be created */
-    current->flags &= ~PMI_FLAG_APPEND;
 
     sts = __pmLogCreate(host, current->archive, current->version, acp);
     if (sts < 0)

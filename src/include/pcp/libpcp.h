@@ -820,6 +820,7 @@ typedef struct {
 /* state values */
 #define PM_LOG_STATE_NEW	0
 #define PM_LOG_STATE_INIT	1
+#define PM_LOG_STATE_APPEND	2
 
 PCP_CALL extern int __pmEncodeResult(const __pmLogCtl *, const __pmResult *, __pmPDU **);
 
@@ -925,6 +926,7 @@ typedef struct {
 PCP_CALL extern int __pmLogVersion(const __pmLogCtl *);
 PCP_CALL extern size_t __pmLogLabelSize(const __pmLogCtl *);
 PCP_CALL extern int __pmLogChkLabel(__pmArchCtl *, __pmFILE *, __pmLogLabel *, int);
+PCP_CALL extern int __pmLogAppend(const char *, __pmArchCtl *);
 PCP_CALL extern int __pmLogCreate(const char *, const char *, int, __pmArchCtl *);
 PCP_CALL extern __pmFILE *__pmLogNewFile(const char *, int);
 PCP_CALL extern void __pmLogClose(__pmArchCtl *);

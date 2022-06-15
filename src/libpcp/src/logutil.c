@@ -157,12 +157,13 @@ _logpeek(__pmArchCtl *acp, int vol)
     int			sts;
     __pmFILE		*f;
     __pmLogLabel	label = {0};
+    const char		*mode = (lcp->state == PM_LOG_STATE_APPEND)? "r+" : "r";
     char		fname[MAXPATHLEN];
 
     pmsprintf(fname, sizeof(fname), "%s.%d", lcp->name, vol);
     /* need mutual exclusion here to avoid race with a concurrent uncompress */
     PM_LOCK(logutil_lock);
-    if ((f = __pmFopen(fname, "r+")) == NULL) {
+    if ((f = __pmFopen(fname, mode)) == NULL) {
 	PM_UNLOCK(logutil_lock);
 	return f;
     }
@@ -183,6 +184,7 @@ int
 __pmLogChangeVol(__pmArchCtl *acp, int vol)
 {
     __pmLogCtl	*lcp = acp->ac_log;
+    const char	*mode = (lcp->state == PM_LOG_STATE_APPEND)? "r+" : "r";
     char	fname[MAXPATHLEN];
     int		sts;
 
@@ -196,7 +198,7 @@ __pmLogChangeVol(__pmArchCtl *acp, int vol)
     pmsprintf(fname, sizeof(fname), "%s.%d", lcp->name, vol);
     /* need mutual exclusion here to avoid race with a concurrent uncompress */
     PM_LOCK(logutil_lock);
-    if ((acp->ac_mfp = __pmFopen(fname, "r+")) == NULL) {
+    if ((acp->ac_mfp = __pmFopen(fname, mode)) == NULL) {
 	PM_UNLOCK(logutil_lock);
 	return -oserror();
     }
@@ -284,6 +286,32 @@ __pmLogNewFile(const char *base, int vol)
     }
 
     return f;
+}
+
+int
+__pmLogAppend(const char *base, __pmArchCtl *acp)
+{
+    __pmLogCtl	*lcp = acp->ac_log;
+    int		sts;
+
+    if (__pmLogFindOpen(acp, base) == 0) {
+	lcp->state = PM_LOG_STATE_APPEND;
+	acp->ac_curvol = -1;
+	if ((sts = __pmLogChangeVol(acp, lcp->maxvol)) < 0)
+	    return sts;
+	if ((sts = __pmLogLoadMeta(acp)) < 0)
+	    return sts;
+	if ((sts = __pmLogLoadIndex(lcp)) < 0)
+	    return sts;
+	if (acp->ac_mfp)
+	    __pmFseek(acp->ac_mfp, 0, SEEK_END);
+	if (lcp->mdfp)
+	    __pmFseek(lcp->mdfp, 0, SEEK_END);
+	if (lcp->tifp)
+	    __pmFseek(lcp->tifp, 0, SEEK_END);
+	return 0;
+    }
+    return -ENOENT;
 }
 
 int
@@ -629,6 +657,7 @@ int
 __pmLogFindOpen(__pmArchCtl *acp, const char *name)
 {
     __pmLogCtl	*lcp = acp->ac_log;
+    const char	*mode = (lcp->state == PM_LOG_STATE_APPEND)? "r+" : "r";
     int		sts;
     int		blen;
     int		exists = 0;
@@ -717,14 +746,14 @@ __pmLogFindOpen(__pmArchCtl *acp, const char *name)
 	    tp = &direntp->d_name[blen+1];
 	    if (strcmp(tp, "index") == 0) {
 		exists = 1;
-		if ((lcp->tifp = __pmFopen(filename, "r+")) == NULL) {
+		if ((lcp->tifp = __pmFopen(filename, mode)) == NULL) {
 		    sts = -oserror();
 		    goto cleanup;
 		}
 	    }
 	    else if (strcmp(tp, "meta") == 0) {
 		exists = 1;
-		if ((lcp->mdfp = __pmFopen(filename, "r+")) == NULL) {
+		if ((lcp->mdfp = __pmFopen(filename, mode)) == NULL) {
 		    sts = -oserror();
 		    goto cleanup;
 		}

@@ -843,4 +843,5 @@ PCP_3.37 {
     __pmDupLogInDom;
     __pmFreeLogInDom;
     __pmLogEncodeLabels;
+    __pmLogAppend;
 } PCP_3.36;
