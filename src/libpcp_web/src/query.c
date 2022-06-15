@@ -2349,8 +2349,8 @@ series_expr_canonical(node_t *np, int idx)
 
     case N_AVG:
     case N_SUM:
-    case N_MAX:
-	case N_MAX2:
+    case N_MAX_INST:
+	case N_MAX_SAMPLE:
     case N_MIN:
     case N_RATE:
     case N_ABS:
@@ -2392,11 +2392,11 @@ series_expr_canonical(node_t *np, int idx)
 	break;
     case N_DELTA:
 	break;
-    case N_MAX:
-	statement = sdscatfmt(sdsempty(), "max(%S)", left);
+    case N_MAX_INST:
+	statement = sdscatfmt(sdsempty(), "max_inst(%S)", left);
 	break;
-    case N_MAX2:
-	statement = sdscatfmt(sdsempty(), "max2(%S)", left);
+    case N_MAX_SAMPLE:
+	statement = sdscatfmt(sdsempty(), "max_sample(%S)", left);
 	break;
     case N_MIN:
 	statement = sdscatfmt(sdsempty(), "min(%S)", left);
@@ -2631,7 +2631,7 @@ series_calculate_rate(node_t *np)
  * Compare and pick the max instance value(s) among samples.
  */
 static void
-series_calculate_cross_instance_domain_max(node_t *np)
+series_calculate_time_domain_max(node_t *np)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     unsigned int	n_series, n_samples, n_instances, i, j, k;
@@ -2644,48 +2644,46 @@ series_calculate_cross_instance_domain_max(node_t *np)
     np->value_set.series_values = (series_sample_set_t *)calloc(n_series, sizeof(series_sample_set_t));
     for (i = 0; i < n_series; i++) {
 		n_samples = np->left->value_set.series_values[i].num_samples;
-        np->value_set.series_values[i].num_samples = n_samples;
-        np->value_set.series_values[i].series_sample = (series_instance_set_t *)calloc(n_samples, sizeof(series_instance_set_t));
-        n_instances = np->left->value_set.series_values[i].series_sample[0].num_instances;
+		if (n_samples > 0){
+			np->value_set.series_values[i].num_samples = n_samples;
+			np->value_set.series_values[i].series_sample = (series_instance_set_t *)calloc(n_samples, sizeof(series_instance_set_t));
+			n_instances = np->left->value_set.series_values[i].series_sample[0].num_instances;
 
-        for (j = 0; j < n_samples; j++){
-            np->value_set.series_values[i].series_sample[j].num_instances = n_instances;
-            np->value_set.series_values[i].series_sample[j].series_instance = (pmSeriesValue *)calloc(n_instances, sizeof(pmSeriesValue));
+			for (j = 0; j < n_samples; j++){
+				np->value_set.series_values[i].series_sample[j].num_instances = 1;
+				np->value_set.series_values[i].series_sample[j].series_instance = (pmSeriesValue *)calloc(1, sizeof(pmSeriesValue));
 
-            max_pointer = 0;
-            max_data = atof(np->left->value_set.series_values[i].series_sample[j].series_instance[0].data);
-            for (k = 1; k < n_instances; k++){
-				if (np->left->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
-                   if (pmDebugOptions.query && pmDebugOptions.desperate) {
-                        infofmt(msg, "number of instances in each sample are not equal\n");
-                        batoninfo(baton, PMLOG_ERROR, msg);
-                    }
-                continue;
-				}                
-				data = atof(np->left->value_set.series_values[i].series_sample[j].series_instance[k].data);
-                if (max_data < data) {
-                    max_data = data;
-                    max_pointer = k;
-                }
-            }
-            
-            np->value_set.series_values[i].series_sample[j].series_instance[0].timestamp = 
-                sdsnew(np->left->value_set.series_values[i].series_sample[j].series_instance[max_pointer].timestamp);
-            np->value_set.series_values[i].series_sample[j].series_instance[0].series = 
-                sdsnew(np->left->value_set.series_values[i].series_sample[j].series_instance[max_pointer].series);
-            np->value_set.series_values[i].series_sample[j].series_instance[0].data = 
-                sdsnew(np->left->value_set.series_values[i].series_sample[j].series_instance[max_pointer].data);
-            np->value_set.series_values[i].series_sample[j].series_instance[0].ts = 
-                np->left->value_set.series_values[i].series_sample[j].series_instance[max_pointer].ts;
-            // free memory
-            for (k=1; k < n_instances; k++) {
-                sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].timestamp);
-                sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].series);
-                sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
-            }
-            np->value_set.series_values[i].series_sample[j].num_instances = 1;
-        
+				max_pointer = 0;
+				max_data = atof(np->left->value_set.series_values[i].series_sample[j].series_instance[0].data);
+				for (k = 1; k < n_instances; k++){
+					if (np->left->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
+					if (pmDebugOptions.query && pmDebugOptions.desperate) {
+							infofmt(msg, "number of instances in each sample are not equal\n");
+							batoninfo(baton, PMLOG_ERROR, msg);
+						}
+					continue;
+					}                
+					data = atof(np->left->value_set.series_values[i].series_sample[j].series_instance[k].data);
+					if (max_data < data) {
+						max_data = data;
+						max_pointer = k;
+					}
+				}
+				
+				np->value_set.series_values[i].series_sample[j].series_instance[0].timestamp = 
+					sdsnew(np->left->value_set.series_values[i].series_sample[j].series_instance[max_pointer].timestamp);
+				np->value_set.series_values[i].series_sample[j].series_instance[0].series = 
+					sdsnew(np->left->value_set.series_values[i].series_sample[j].series_instance[max_pointer].series);
+				np->value_set.series_values[i].series_sample[j].series_instance[0].data = 
+					sdsnew(np->left->value_set.series_values[i].series_sample[j].series_instance[max_pointer].data);
+				np->value_set.series_values[i].series_sample[j].series_instance[0].ts = 
+					np->left->value_set.series_values[i].series_sample[j].series_instance[max_pointer].ts;
+				
+			}
         }
+		else{
+	    	np->value_set.series_values[i].num_samples = 0;
+		}
 	np->value_set.series_values[i].sid = (seriesGetSID *)calloc(1, sizeof(seriesGetSID));
 	np->value_set.series_values[i].sid->name = sdsnew(np->left->value_set.series_values[i].sid->name);
 	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
@@ -4012,13 +4010,13 @@ series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 	    series_calculate_rate(np);
 	    sts = N_RATE;
 	    break;
-	case N_MAX:
+	case N_MAX_INST:
 	    series_calculate_max(np);
-	    sts = N_MAX;
+	    sts = N_MAX_INST;
 	    break;
-	case N_MAX2:
-	    series_calculate_cross_instance_domain_max(np);
-	    sts = N_MAX2;
+	case N_MAX_SAMPLE:
+	    series_calculate_time_domain_max(np);
+	    sts = N_MAX_SAMPLE;
 	    break;
 	case N_MIN:
 	    series_calculate_min(np);

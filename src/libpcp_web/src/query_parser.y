@@ -118,8 +118,8 @@ static const char initial_str[]  = "Unexpected initial";
 %token      L_AVG
 %token      L_COUNT
 %token      L_DELTA
-%token      L_MAX
-%token      L_MAX2
+%token      L_MAX_INST
+%token      L_MAX_SAMPLE
 %token      L_MIN
 %token      L_SUM
 %token      L_ANON
@@ -368,23 +368,23 @@ func_sid
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_MAX L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_MAX);
+	| L_MAX_INST L_LPAREN sid_vec L_RPAREN
+		{ lp->yy_np = newnode(N_MAX_INST);
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_MAX L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_MAX);
+	| L_MAX_INST L_LPAREN func_sid L_RPAREN
+		{ lp->yy_np = newnode(N_MAX_INST);
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_MAX2 L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_MAX2);
+	| L_MAX_SAMPLE L_LPAREN sid_vec L_RPAREN
+		{ lp->yy_np = newnode(N_MAX_SAMPLE);
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_MAX2 L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_MAX2);
+	| L_MAX_SAMPLE L_LPAREN func_sid L_RPAREN
+		{ lp->yy_np = newnode(N_MAX_SAMPLE);
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
@@ -632,23 +632,23 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_MAX L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_MAX);
+	| L_MAX_INST L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_MAX_INST);
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_MAX L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_MAX);
+	| L_MAX_INST L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_MAX_INST);
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_MAX2 L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_MAX2);
+	| L_MAX_SAMPLE L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_MAX_SAMPLE);
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_MAX2 L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_MAX2);
+	| L_MAX_SAMPLE L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_MAX_SAMPLE);
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
@@ -981,8 +981,8 @@ static const struct {
 } func[] = {
     { L_AVG,		sizeof("avg")-1,	"avg" },
     { L_COUNT,		sizeof("count")-1,	"count" },
-    { L_MAX,		sizeof("max")-1,	"max" },
-	{ L_MAX2,		sizeof("max2")-1,	"max2" },
+    { L_MAX_INST,	sizeof("max_inst")-1,	"max_inst" },
+	{ L_MAX_SAMPLE,	sizeof("max_sample")-1,	"max_sample" },
     { L_MIN,		sizeof("min")-1,	"min" },
     { L_SUM,		sizeof("sum")-1,	"sum" },
     { L_RATE,		sizeof("rate")-1,	"rate" },
@@ -1031,8 +1031,8 @@ static struct {
     { L_AVG,		N_AVG,		"AVG",		NULL },
     { L_COUNT,		N_COUNT,	"COUNT",	NULL },
     { L_DELTA,		N_DELTA,	"DELTA",	NULL },
-    { L_MAX,		N_MAX,		"MAX",		NULL },
-	{ L_MAX2,		N_MAX2,		"MAX2",		NULL },
+    { L_MAX_INST,	N_MAX_INST,	"MAX_INST",	NULL },
+	{ L_MAX_SAMPLE,	N_MAX_SAMPLE,	"MAX_SAMPLE",	NULL },
     { L_MIN,		N_MIN,		"MIN",		NULL },
     { L_SUM,		N_SUM,		"SUM",		NULL },
     { L_ANON,		N_ANON,		"ANON",		NULL },
@@ -1862,9 +1862,9 @@ series_dumpexpr(node_t *np, int level)
     case N_PLUS: case N_MINUS: case N_STAR: case N_SLASH:
 	fprintf(stderr, "%*s%s", level*4, "", n_type_c(np->type));
 	break;
-    case N_AVG: case N_COUNT:   case N_DELTA:   case N_MAX:     case N_MIN:
+    case N_AVG: case N_COUNT:   case N_DELTA:   case N_MAX_INST:     case N_MIN:
     case N_SUM: case N_ANON:    case N_RATE:    case N_INSTANT: case N_RESCALE:
-	case N_MAX2: 
+	case N_MAX_SAMPLE: 
 	fprintf(stderr, "%*s%s()", level*4, "", n_type_str(np->type));
 	break;
     case N_SCALE: {
