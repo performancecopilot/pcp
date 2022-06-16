@@ -3344,8 +3344,15 @@ PCP_LOG_DIR=%{_logsdir}
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Fri Jul 01 2022 Nathan Scott <nathans@redhat.com> - 6.0.0-1
+* Sun Jul 31 2022 Nathan Scott <nathans@redhat.com> - 6.0.0-1
 - https://github.com/performancecopilot/pcp/projects/1
+
+* Tue Apr 05 2022 Nathan Scott <nathans@redhat.com> - 5.3.7-1
+- Add disk.wwid aggregated multipath metrics (BZ 1293444)
+- Update to latest PCP sources.
+
+* Wed Feb 02 2022 Nathan Scott <nathans@redhat.com> - 5.3.6-1
+- Update to latest PCP sources.
 
 * Wed Nov 10 2021 Nathan Scott <nathans@redhat.com> - 5.3.5-1
 - Fix pmlogger services systemd killmode warning (BZ 1897945)

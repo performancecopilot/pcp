@@ -1,5 +1,67 @@
-pcp-6.0.0 (1 July 2022)
+pcp-6.0.0 (31 July 2022)
     - https://github.com/performancecopilot/pcp/projects/1
+
+pcp-5.3.7 (5 April 2022)
+    - Client tools and utilities:
+	pcp2elasticsearch: implement authentication support
+	pcp-ss: fixed incorrect client-side filtering
+	pcp-ss: fixed reporting of IPv6 sockets in LISTEN state
+	pmrep: 'iostat-multipath-wwid' for multipath disk monitoring
+    - PMDA additions, enhancements and bug fixes:
+	pmdalinux: add disk.wwid.* aggregated multipath metrics
+	pmdalinux: add new MPTCP metrics from latest Linux kernel versions
+	pmdalinux: fix up TTY metrics on s390x platform
+	pmdalinux: add network.tcp.tcploss metric
+	pmdamssql: fix config file logic, python string handling
+	pmdadenki: fix crash in labels callback with multiple instances
+	pmdasockets: changed default filter in sockets PMDA to "state all"
+    - Server-side utilities and log management scripts:
+	pmlogconf: correctly handle metric state transitions on (re-)probe
+	pmie systemd: add missing systemd configuration and shell code
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	libpcp_web: resolve a number of small memory leaks
+    - Security Enhanced Linux:
+	selinux: use interface calls instead of a simple rule
+	selinux: add several more obscure missing selinux rules
+	selinux: additional debugfs policy requirement for pmdakvm
+	selinux: resolve an AVC observed on el8 with pmdashping
+    - Misc build, infrastructure and packaging updates:
+	rpms: switch to conditional selinux dependency for containers
+	debs: reproducible build updates
+    - Documentation and QA infrastructure:
+	docs: add section to pcpcompat(1) about python2
+	docs: update notes about sar2pcp, iostat2pcp in pcpcompat(1)
+	docs: improve pmproxy --timeseries and pmseries --load documentation
+	CI: disable cppcheck for pcp-atop temporarily due to a cppcheck bug
+
+pcp-5.3.6 (2 February 2022)
+    - Client tools and utilities:
+	pmlogconf: switch to the bulk pmLookupDescs(3) interface
+	pmlogconf: fix reprobing with interactive changes
+    - Server-side utilities and log management scripts:
+	pmlogger: prioritize user configuration over pcp-zeroconf
+	pmlogger, pmie farms: stabilization and back-compat fixups
+	pmproxy: fix race on teardown of pcp protocol proxy clients
+	pmproxy: when secure.enabled is false, do not attempt to init libssl
+	pmproxy: correctly fallback to [pmseries] redis settings
+    - PMDA additions, enhancements and bug fixes:
+	pmdabcc: sync bcc PMDA modules with upstream bcc tools
+	pmdaelasticsearch: add elasticsearch `indices` metrics
+	pmdaelasticsearch: add missing metrics for existing groups
+	pmdaelasticsearch: add updated nodes.jvm.* metrics
+	pmdaelasticsearch: use _nodes API to determine master node
+	pmdaelasticsearch: correct when _cluster/state API is invoked
+	pmdaelasticsearch: fix origins.unmatched and origins.unrecog metrics
+	pmdanvidia: fix mishandling of zero-byte size passed to realloc
+	pmdarsyslog: add a pmlogconf file for rsyslog metrics
+	pmdarsyslog: fix to work with more modern rsyslog versions
+	pmdarsyslog: add support for rsyslog resource statistic
+	pmdarsyslog: add support for rsyslog action metrics
+	pmdarsyslog: add omfw, imudp, and imptcp metrics
+    - libpcp, libpcp_pmda, libpcp_web and language bindings:
+	libpcp_pmda: add indom cache fast-paths for inst lookup
+	libpcp_web: stop Redis init tasks if Redis version is unsupported
+	libpcp_web: honour config settings that disable redis completely
 
 pcp-5.3.5 (10 November 2021)
     - Client tools and utilities:
