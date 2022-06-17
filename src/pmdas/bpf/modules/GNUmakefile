@@ -31,6 +31,7 @@ APPS_H = \
 	mountsnoop.h \
 	oomkill.h \
 	opensnoop.h \
+	statsnoop.h \
 	vfsstat.h \
 
 # ported *.bpf.c files.
@@ -42,6 +43,7 @@ APPS_BPF = \
 	mountsnoop.bpf.c \
 	oomkill.bpf.c \
 	opensnoop.bpf.c \
+	statsnoop.bpf.c \
 	vfsstat.bpf.c \
 
 

@@ -116,6 +116,7 @@ char *all_modules[] = {
     "oomkill",
     "opensnoop",
     "runqlat",
+    "statsnoop",
     "vfsstat",
 };
 
