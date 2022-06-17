@@ -2349,6 +2349,7 @@ series_expr_canonical(node_t *np, int idx)
 
     case N_AVG:
     case N_SUM:
+	case N_MAX:
     case N_MAX_INST:
 	case N_MAX_SAMPLE:
     case N_MIN:
@@ -2391,6 +2392,9 @@ series_expr_canonical(node_t *np, int idx)
 	statement = sdscatfmt(sdsempty(), "count(%S)", left);
 	break;
     case N_DELTA:
+	break;
+    case N_MAX:
+	statement = sdscatfmt(sdsempty(), "max(%S)", left);
 	break;
     case N_MAX_INST:
 	statement = sdscatfmt(sdsempty(), "max_inst(%S)", left);
@@ -2638,6 +2642,8 @@ series_calculate_time_domain_max(node_t *np)
     double		max_data, data;
     int			max_pointer;
     sds			msg;
+	pmSeriesValue inst;
+	// series_instance_set_t sample_j;
 
     n_series = np->left->value_set.num_series;
     np->value_set.num_series = n_series;
@@ -2650,6 +2656,7 @@ series_calculate_time_domain_max(node_t *np)
 			n_instances = np->left->value_set.series_values[i].series_sample[0].num_instances;
 
 			for (j = 0; j < n_samples; j++){
+				// sample_j = np->value_set.series_values[i].series_sample[j];
 				np->value_set.series_values[i].series_sample[j].num_instances = 1;
 				np->value_set.series_values[i].series_sample[j].series_instance = (pmSeriesValue *)calloc(1, sizeof(pmSeriesValue));
 
@@ -2669,15 +2676,12 @@ series_calculate_time_domain_max(node_t *np)
 						max_pointer = k;
 					}
 				}
-				
-				np->value_set.series_values[i].series_sample[j].series_instance[0].timestamp = 
-					sdsnew(np->left->value_set.series_values[i].series_sample[j].series_instance[max_pointer].timestamp);
-				np->value_set.series_values[i].series_sample[j].series_instance[0].series = 
-					sdsnew(np->left->value_set.series_values[i].series_sample[j].series_instance[max_pointer].series);
-				np->value_set.series_values[i].series_sample[j].series_instance[0].data = 
-					sdsnew(np->left->value_set.series_values[i].series_sample[j].series_instance[max_pointer].data);
-				np->value_set.series_values[i].series_sample[j].series_instance[0].ts = 
-					np->left->value_set.series_values[i].series_sample[j].series_instance[max_pointer].ts;
+				inst = np->left->value_set.series_values[i].series_sample[j].series_instance[max_pointer];
+
+				np->value_set.series_values[i].series_sample[j].series_instance[0].timestamp = sdsnew(inst.timestamp);
+				np->value_set.series_values[i].series_sample[j].series_instance[0].series = sdsnew(inst.series);
+				np->value_set.series_values[i].series_sample[j].series_instance[0].data = sdsnew(inst.data);
+				np->value_set.series_values[i].series_sample[j].series_instance[0].ts = inst.ts;
 				
 			}
         }
@@ -4009,6 +4013,10 @@ series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 	case N_RATE:
 	    series_calculate_rate(np);
 	    sts = N_RATE;
+	    break;
+	case N_MAX:
+	    series_calculate_max(np);
+	    sts = N_MAX;
 	    break;
 	case N_MAX_INST:
 	    series_calculate_max(np);

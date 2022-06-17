@@ -37,6 +37,7 @@ typedef enum nodetype {
     N_AVG,
     N_COUNT,
     N_DELTA,
+    N_MAX,
     N_MAX_INST,
     N_MAX_SAMPLE,
     N_MIN,
