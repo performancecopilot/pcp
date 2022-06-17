@@ -32,6 +32,7 @@ APPS_H = \
 	oomkill.h \
 	opensnoop.h \
 	statsnoop.h \
+	tcpconnlat.h \
 	vfsstat.h \
 
 # ported *.bpf.c files.
@@ -44,6 +45,7 @@ APPS_BPF = \
 	oomkill.bpf.c \
 	opensnoop.bpf.c \
 	statsnoop.bpf.c \
+	tcpconnlat.bpf.c \
 	vfsstat.bpf.c \
 
 

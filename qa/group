@@ -1937,6 +1937,7 @@ x11
 1628 libpcp_import valgrind local
 1633 python pmda.sockets local
 1634 pmda.sockets local
+1639 pmda.bpf local
 1644 pmda.perfevent local
 1653 pmda.denki local
 1660 libpcp labels local
