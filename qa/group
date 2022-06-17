@@ -2015,6 +2015,7 @@ x11
 1837 pmproxy local
 1844 pmdumptext libpcp_qmc remote
 1850 pmseries libpcp_web local
+1853 pmda.bpf local
 1854 pmlogger pmimport pmconfig local
 1855 pmda.rabbitmq local
 1856 dstat python local

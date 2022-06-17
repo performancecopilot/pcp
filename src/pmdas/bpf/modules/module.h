@@ -117,6 +117,7 @@ char *all_modules[] = {
     "opensnoop",
     "runqlat",
     "statsnoop",
+    "tcpconnect",
     "tcpconnlat",
     "vfsstat",
 };

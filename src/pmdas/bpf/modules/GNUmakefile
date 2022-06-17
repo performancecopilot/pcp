@@ -10,16 +10,19 @@ COMMON_OBJ = \
 	trace_helpers.o \
 	btf_helpers.o \
 	uprobe_helpers.o \
+	map_helpers.o \
 
 # ported helper files.
 HELPERS_H = \
-	trace_helpers.h \
 	btf_helpers.h \
+	map_helpers.h \
+	trace_helpers.h \
 	uprobe_helpers.h \
 
 HELPERS_C = \
-	trace_helpers.c \
 	btf_helpers.c \
+	map_helpers.c \
+	trace_helpers.c \
 	uprobe_helpers.c \
 
 # ported header file.
@@ -32,6 +35,7 @@ APPS_H = \
 	oomkill.h \
 	opensnoop.h \
 	statsnoop.h \
+	tcpconnect.h \
 	tcpconnlat.h \
 	vfsstat.h \
 
@@ -45,6 +49,7 @@ APPS_BPF = \
 	oomkill.bpf.c \
 	opensnoop.bpf.c \
 	statsnoop.bpf.c \
+	tcpconnect.bpf.c \
 	tcpconnlat.bpf.c \
 	vfsstat.bpf.c \
 
