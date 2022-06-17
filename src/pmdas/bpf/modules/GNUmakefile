@@ -27,6 +27,7 @@ APPS_H = \
 	bashreadline.h \
 	execsnoop.h \
 	exitsnoop.h \
+	fsslower.h \
 	mountsnoop.h \
 	oomkill.h \
 	opensnoop.h \
@@ -37,6 +38,7 @@ APPS_BPF = \
 	bashreadline.bpf.c \
 	execsnoop.bpf.c \
 	exitsnoop.bpf.c \
+	fsslower.bpf.c \
 	mountsnoop.bpf.c \
 	oomkill.bpf.c \
 	opensnoop.bpf.c \
