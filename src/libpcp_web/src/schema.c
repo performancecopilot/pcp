@@ -1713,10 +1713,11 @@ pmSeriesClose(pmSeriesModule *module)
     seriesModuleData	*data = (seriesModuleData *)module->privdata;
 
     if (data) {
-	if (!data->shareslots)
+	if (data->slots && !data->shareslots)
 	    redisSlotsFree(data->slots);
 	memset(data, 0, sizeof(seriesModuleData));
 	free(data);
+	module->privdata = NULL;
     }
 }
 
@@ -2036,7 +2037,7 @@ pmDiscoverClose(pmDiscoverModule *module)
 
     if (discover) {
 	pmDiscoverUnregister(discover->handle);
-	if (!discover->shareslots)
+	if (discover->slots && !discover->shareslots)
 	    redisSlotsFree(discover->slots);
 	for (i = 0; i < discover->exclude_names; i++)
 	    sdsfree(discover->patterns[i]);

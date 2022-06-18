@@ -1101,9 +1101,10 @@ pmSearchClose(pmSearchModule *module)
     seriesModuleData	*search = (seriesModuleData *)module->privdata;
 
     if (search) {
-	if (!search->shareslots)
+	if (search->slots && !search->shareslots)
 	    redisSlotsFree(search->slots);
 	memset(search, 0, sizeof(*search));
 	free(search);
+	module->privdata = NULL;
     }
 }
