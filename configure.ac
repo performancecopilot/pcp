@@ -2511,7 +2511,64 @@ AC_CHECK_FUNCS(regex regcmp regexec regcomp)
 AC_CHECK_FUNCS(strtod strtol strtoll strtoull strndup strchrnul)
 AC_CHECK_FUNCS(getgrent getgrent_r getgrnam getgrnam_r getgrgid getgrgid_r)
 AC_CHECK_FUNCS(getpwent getpwent_r getpwnam getpwnam_r getpwuid getpwuid_r)
-AC_CHECK_FUNCS(sysinfo trace_back_stack backtrace)
+AC_CHECK_FUNCS(sysinfo trace_back_stack)
+
+dnl checking for backtrace() needs a little more care ..
+dnl check if backtrace functions come from libexeinfo (OpenBSD 7.0)
+AC_CHECK_LIB(execinfo, backtrace)
+lib_for_backtrace=""
+if test $ac_cv_lib_execinfo_backtrace = yes
+then
+    lib_for_backtrace="-lexecinfo"
+fi
+AC_SUBST(lib_for_backtrace)
+dnl now we can check for backtrace()
+savedLIBS=$LIBS
+LIBS="$LIBS $lib_for_backtrace"
+AC_CHECK_FUNCS(backtrace)
+LIBS=$savedLIBS
+
+dnl symbols needed for backtracing
+AC_MSG_CHECKING([if __executable_start defined by ld])
+AC_TRY_RUN([
+extern char __executable_start;
+int main()
+{
+    if (&__executable_start == 0)
+	return 1;
+    return 0;
+}
+], AC_DEFINE(HAVE___EXECUTABLE_START, [1], [__executable_start defined]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+AC_MSG_CHECKING([if __etext defined by ld])
+AC_TRY_RUN([
+extern char __etext;
+int main()
+{
+    if (&__etext == 0)
+	return 1;
+    return 0;
+}
+], AC_DEFINE(HAVE___ETEXT, [1], [__etext defined]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+AC_MSG_CHECKING([if _etext defined by ld])
+AC_TRY_RUN([
+extern char _etext;
+int main()
+{
+    if (&_etext == 0)
+	return 1;
+    return 0;
+}
+], AC_DEFINE(HAVE__ETEXT, [1], [_etext defined]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+AC_MSG_CHECKING([if etext defined by ld])
+AC_TRY_RUN([
+extern char etext;
+int main()
+{
+    if (&etext == 0)
+	return 1;
+    return 0;
+}
+], AC_DEFINE(HAVE_ETEXT, [1], [etext defined]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 dnl typedefs missing from sys/types.h, stdlib.h or stddef.h
 if test $target_os = solaris

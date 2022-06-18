@@ -360,6 +360,7 @@ LIB_FOR_REGEX = @lib_for_regex@
 LIB_FOR_RT = @lib_for_rt@
 LIB_FOR_SASL = @lib_for_sasl@
 LIB_FOR_SSL = @lib_for_ssl@
+LIB_FOR_BACKTRACE = @lib_for_backtrace@
 
 HAVE_LIBUV = @HAVE_LIBUV@
 LIB_FOR_LIBUV = @libuv_LIBS@
