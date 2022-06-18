@@ -25,14 +25,16 @@ LFILES  = lex.l
 YFILES	= gram.y
 
 LCFLAGS += $(PIECFLAGS)
-LLDFLAGS += $(PIELDFLAGS)
+LLDFLAGS += $(PIELDFLAGS) $(LIB_FOR_BACKTRACE)
 
-# Set $BACTRACE_SYMBOLS=something in the environment to build a binary
-# with key function symbols defined and accessible from mybacktrace()
+# Set $BACTRACE_SYMBOLS=something to build a binary with key function
+# symbols defined and accessible from mybacktrace()
 #
+BACKTRACE_SYMBOLS=y
 ifneq "$(BACKTRACE_SYMBOLS)" ""
 LLDFLAGS += -rdynamic
 LCFLAGS += -DBACKTRACE_SYMBOLS=1
+LLDFLAGS += $(LIB_FOR_BACKTRACE)
 endif
 
 LLDLIBS	= $(PCP_ARCHIVELIB) $(PCPLIB) $(LIB_FOR_PTHREADS)
