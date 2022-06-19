@@ -930,8 +930,8 @@ SigBad(int sig)
 	/* -D desperate on the command line to enable traceback,
 	 * if we have platform support for it
 	 */
-	fprintf(stderr, "\nProcedure call traceback ...\n");
-	__pmDumpStack(stderr);
+	fprintf(stderr, "\n");
+	__pmDumpStack();
 	fflush(stderr);
     }
     _exit(sig);

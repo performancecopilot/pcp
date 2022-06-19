@@ -633,7 +633,7 @@ pmseries_log(pmLogLevel level, sds message, void *arg)
     /* locally log low priority diagnostics or when already responding */
     if (baton == NULL) {
 	fprintf(stderr, "pmseries_log: Botch: baton is NULL msg=\"%s\"\n", message);
-	__pmDumpStack(stderr);
+	__pmDumpStack();
 	return;
     }
     if (level <= PMLOG_INFO || baton->suffix) {

@@ -452,8 +452,8 @@ sigbadproc(int sig)
 {
     if (pmDebugOptions.desperate) {
 	pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
-	fprintf(stderr, "\nProcedure call traceback ...\n");
-	__pmDumpStack(stderr);
+	fprintf(stderr, "\n");
+	__pmDumpStack();
 	fflush(stderr);
     }
     stopmonitor();

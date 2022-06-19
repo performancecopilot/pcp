@@ -130,117 +130,6 @@ cleanup(void)
 	unlink(socketPath);
 }
 
-/* borrowed from libpcp/lock.c and enhanced */
-STATIC_FUNC void
-mybacktrace(void)
-{
-#ifdef HAVE_BACKTRACE
-#define MAX_TRACE_DEPTH 32
-#define MAX_SYMBOL_LENGTH 128
-    void	*backaddr[MAX_TRACE_DEPTH] = { 0 };
-    int		nsymbols;
-#ifdef HAVE___EXECUTABLE_START
-    extern char	__executable_start;
-#endif
-#ifdef HAVE___ETEXT
-    extern char	__etext;
-    char *__executable_end = &__etext;
-#else
-#ifdef HAVE__ETEXT
-    extern char	_etext;
-    char *__executable_end = &_etext;
-#else
-#ifdef HAVE_ETEXT
-    extern char	etext;
-    char *__executable_end = &etext;
-#else
-    char *__executable_end = NULL;
-#endif
-#endif
-#endif
-
-    fprintf(stderr, "mybacktrace() ...\n");
-#ifdef HAVE___EXECUTABLE_START
-    fprintf(stderr, "my text: " PRINTF_P_PFX "%p ... " PRINTF_P_PFX "%p\n", &__executable_start, __executable_end);
-#endif
-
-    nsymbols = backtrace(backaddr, MAX_TRACE_DEPTH);
-    if (nsymbols > 0) {
-	int	fd;
-	char	line[MAX_SYMBOL_LENGTH+1];
-	char	**symbols = NULL;
-	int	i;
-
-	/*
-	 * Possible name collision here to simplify the code ... we unlink()
-	 * as soon as it is created so the risk is small.
-	 */
-	fd = open("/tmp/mybacktrace", O_CREAT|O_RDWR, 0644);
-	if (fd < 0) {
-	    fprintf(stderr, "Failed to create \"/tmp/mybacktrace\", falling back to backtrace_symbols()\n");
-	    symbols = backtrace_symbols(backaddr, nsymbols);
-	}
-	else {
-	    /*
-	     * Preferred path to avoid calling malloc() in backtrace_symbols()
-	     * in case that's the real cause of a problem that got us here.
-	     */
-	    unlink("/tmp/mybacktrace");
-	    backtrace_symbols_fd(backaddr, nsymbols, fd);
-	    lseek(fd, (off_t)0, SEEK_SET);
-	}
-
-	for (i = 0; i < nsymbols; i++) {
-	    if (fd >= 0) {
-		int	j;
-		for (j = 0; j < MAX_SYMBOL_LENGTH; j++) {
-		    int		sts;
-		    sts = read(fd, &line[j], 1);
-		    if (sts < 0) {
-			fprintf(stderr, "Botch: read() returns %d\n", sts);
-			line[j++] = '?';
-			line[j] = '\0';
-			break;
-		    }
-		    else if (sts == 0) {
-			line[j] = '\0';
-			break;
-		    }
-		    if (line[j] == '\n') {
-			line[j] = '\0';
-			break;
-		    }
-		}
-		fprintf(stderr, "  %s", line);
-	    }
-	    else if (symbols != NULL)
-		fprintf(stderr, "  %s", symbols[i]);
-	    else
-		fprintf(stderr, "  %p ??unknown??", backaddr[i]);
-#ifdef HAVE___EXECUTABLE_START
-	    /*
-	     * report address offset from the base of the text segment
-	     * ... this matches addresses from nm(1), but more importantly
-	     * is the address that is needed for addr2line(1)
-	     */
-	    if (&__executable_start  <= (char *)backaddr[i] && 
-		(__executable_end == NULL || (char *)backaddr[i] <= __executable_end))
-		fprintf(stderr, " (0x%llx)", (long long)((char *)backaddr[i]-&__executable_start));
-#endif
-	    fputc('\n', stderr);
-	}
-	if (fd >= 0)
-	    close(fd);
-	else if (symbols != NULL)
-	    free(symbols);
-    }
-    else {
-	fprintf(stderr, "backtrace() returns %d, nothing to report\n", nsymbols);
-    }
-#endif /* HAVE_BACKTRACE */
-    return;
-}
-
 STATIC_FUNC void
 sigexit_handler(int sig)
 {
@@ -283,7 +172,7 @@ sigcore_handler(int sig)
 {
     if (pmDebugOptions.appl3)
 	fprintf(stderr, "sigcore_handler: Signalled (signal=%d), exiting (core dumped)\n", sig);
-    mybacktrace();
+    __pmDumpStack();
     __pmSetSignalHandler(sig, SIG_DFL);	/* Don't come back here */
     cleanup();
     _exit(sig);
@@ -675,8 +564,8 @@ init_signals(void)
 	exit(1);
     }
     if (pmDebugOptions.appl3) {
-	if (atexit(mybacktrace) != 0) {
-	    fprintf(stderr, "%s: Warning: unable to register atexit mybacktrace function\n",
+	if (atexit(__pmDumpStack) != 0) {
+	    fprintf(stderr, "%s: Warning: unable to register atexit __pmDumpStack function\n",
 		pmGetProgname());
 	}
     }
