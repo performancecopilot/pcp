@@ -2529,46 +2529,75 @@ AC_CHECK_FUNCS(backtrace)
 LIBS=$savedLIBS
 
 dnl symbols needed for backtracing
+if test "x$cc_is_gcc" = xyes 
+then
+    dnl if using gcc, some platforms make __executable_start go away when
+    dnl compiled -fPIE -pie, e.g. CentOS 6, RHEL/CentOS 7 ... so need to
+    dnl check for that here before declaring __executable_start is available
+    savedCFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS -fPIE -pie"
+fi
 AC_MSG_CHECKING([if __executable_start defined by ld])
-AC_TRY_RUN([
+AC_LINK_IFELSE([AC_LANG_SOURCE([
+#include <stdio.h>
 extern char __executable_start;
 int main()
 {
-    if (&__executable_start == 0)
-	return 1;
+    printf("%p\n", &__executable_start);
     return 0;
 }
-], AC_DEFINE(HAVE___EXECUTABLE_START, [1], [__executable_start defined]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+])],
+[
+AC_DEFINE(HAVE___EXECUTABLE_START, [1], [__executable_start defined])
+AC_MSG_RESULT(yes)
+], AC_MSG_RESULT(no))
 AC_MSG_CHECKING([if __etext defined by ld])
-AC_TRY_RUN([
+AC_LINK_IFELSE([AC_LANG_SOURCE([
+#include <stdio.h>
 extern char __etext;
 int main()
 {
-    if (&__etext == 0)
-	return 1;
+    printf("%p\n", &__etext);
     return 0;
 }
-], AC_DEFINE(HAVE___ETEXT, [1], [__etext defined]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+])],
+[
+AC_DEFINE(HAVE___ETEXT, [1], [__etext defined])
+AC_MSG_RESULT(yes)
+], AC_MSG_RESULT(no))
 AC_MSG_CHECKING([if _etext defined by ld])
-AC_TRY_RUN([
+AC_LINK_IFELSE([AC_LANG_SOURCE([
+#include <stdio.h>
 extern char _etext;
 int main()
 {
-    if (&_etext == 0)
-	return 1;
+    printf("%p\n", &_etext);
     return 0;
 }
-], AC_DEFINE(HAVE__ETEXT, [1], [_etext defined]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+])],
+[
+AC_DEFINE(HAVE__ETEXT, [1], [_etext defined])
+AC_MSG_RESULT(yes)
+], AC_MSG_RESULT(no))
 AC_MSG_CHECKING([if etext defined by ld])
-AC_TRY_RUN([
+AC_LINK_IFELSE([AC_LANG_SOURCE([
+#include <stdio.h>
 extern char etext;
 int main()
 {
-    if (&etext == 0)
-	return 1;
+    printf("%p\n", &etext);
     return 0;
 }
-], AC_DEFINE(HAVE_ETEXT, [1], [etext defined]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+])],
+[
+AC_DEFINE(HAVE_ETEXT, [1], [etext defined])
+AC_MSG_RESULT(yes)
+], AC_MSG_RESULT(no))
+if test "x$cc_is_gcc" = xyes 
+then
+    dnl see above
+    CFLAGS="$savedCFLAGS"
+fi
 
 dnl typedefs missing from sys/types.h, stdlib.h or stddef.h
 if test $target_os = solaris

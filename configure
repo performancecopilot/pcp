@@ -13047,138 +13047,127 @@ done
 
 LIBS=$savedLIBS
 
+if test "x$cc_is_gcc" = xyes
+then
+                savedCFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS -fPIE -pie"
+fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if __executable_start defined by ld" >&5
 $as_echo_n "checking if __executable_start defined by ld... " >&6; }
-if test "$cross_compiling" = yes; then :
-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "cannot run test program while cross compiling
-See \`config.log' for more details" "$LINENO" 5; }
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
+#include <stdio.h>
 extern char __executable_start;
 int main()
 {
-    if (&__executable_start == 0)
-	return 1;
+    printf("%p\n", &__executable_start);
     return 0;
 }
 
 _ACEOF
-if ac_fn_c_try_run "$LINENO"; then :
+if ac_fn_c_try_link "$LINENO"; then :
+
 
 $as_echo "#define HAVE___EXECUTABLE_START 1" >>confdefs.h
- { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
+
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
 fi
-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
-  conftest.$ac_objext conftest.beam conftest.$ac_ext
-fi
-
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if __etext defined by ld" >&5
 $as_echo_n "checking if __etext defined by ld... " >&6; }
-if test "$cross_compiling" = yes; then :
-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "cannot run test program while cross compiling
-See \`config.log' for more details" "$LINENO" 5; }
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
+#include <stdio.h>
 extern char __etext;
 int main()
 {
-    if (&__etext == 0)
-	return 1;
+    printf("%p\n", &__etext);
     return 0;
 }
 
 _ACEOF
-if ac_fn_c_try_run "$LINENO"; then :
+if ac_fn_c_try_link "$LINENO"; then :
+
 
 $as_echo "#define HAVE___ETEXT 1" >>confdefs.h
- { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
+
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
 fi
-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
-  conftest.$ac_objext conftest.beam conftest.$ac_ext
-fi
-
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if _etext defined by ld" >&5
 $as_echo_n "checking if _etext defined by ld... " >&6; }
-if test "$cross_compiling" = yes; then :
-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "cannot run test program while cross compiling
-See \`config.log' for more details" "$LINENO" 5; }
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
+#include <stdio.h>
 extern char _etext;
 int main()
 {
-    if (&_etext == 0)
-	return 1;
+    printf("%p\n", &_etext);
     return 0;
 }
 
 _ACEOF
-if ac_fn_c_try_run "$LINENO"; then :
+if ac_fn_c_try_link "$LINENO"; then :
+
 
 $as_echo "#define HAVE__ETEXT 1" >>confdefs.h
- { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
+
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
 fi
-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
-  conftest.$ac_objext conftest.beam conftest.$ac_ext
-fi
-
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if etext defined by ld" >&5
 $as_echo_n "checking if etext defined by ld... " >&6; }
-if test "$cross_compiling" = yes; then :
-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "cannot run test program while cross compiling
-See \`config.log' for more details" "$LINENO" 5; }
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
+#include <stdio.h>
 extern char etext;
 int main()
 {
-    if (&etext == 0)
-	return 1;
+    printf("%p\n", &etext);
     return 0;
 }
 
 _ACEOF
-if ac_fn_c_try_run "$LINENO"; then :
+if ac_fn_c_try_link "$LINENO"; then :
+
 
 $as_echo "#define HAVE_ETEXT 1" >>confdefs.h
- { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
+
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
 fi
-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
-  conftest.$ac_objext conftest.beam conftest.$ac_ext
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+if test "x$cc_is_gcc" = xyes
+then
+        CFLAGS="$savedCFLAGS"
 fi
-
 
 if test $target_os = solaris
 then
