@@ -826,7 +826,6 @@ PCP_3.37 {
     __pmSendFetchPDU;
     __pmFetch;
     __pmFetchHighResLocal;
-    __pmFetchLocal;
     __pmFetchArchive;
     __pmFreeResult;
     __pmGetTimestamp;
