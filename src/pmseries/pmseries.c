@@ -1178,6 +1178,15 @@ main(int argc, char *argv[])
     struct dict		*config;
     series_flags	flags = 0;
     series_data		*dp;
+#ifdef HAVE___EXECUTABLE_START
+    extern char		__executable_start;
+
+    /*
+     * optionally set address for start of my text segment, to be used
+     * in __pmDumpStack() if it is called later
+     */
+    __pmDumpStackInit((void *)&__executable_start);
+#endif
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {

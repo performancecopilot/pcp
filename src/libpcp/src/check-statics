@@ -574,6 +574,7 @@ util.o
     ?get			# sbrk(0) hack for Mac OS X, safe
     ?highwater			# sbrk(0) hack for Mac OS X, safe
     ?pick			# sbrk(0) hack for Mac OS X, safe
+    text_start			# no unsage side-effects, see notes in util.c
 deprecated.o
 strings.o
 ?win32.o

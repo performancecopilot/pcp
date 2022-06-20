@@ -935,8 +935,19 @@ main(int argc, char **argv)
     struct timespec	myepoch;
     struct timeval	nowait = {0, 0};
     FILE		*fp;		/* pipe from pmcpp */
+#ifdef HAVE___EXECUTABLE_START
+    extern char		__executable_start;
+#endif
 
     pmtimespecNow(&myepoch);
+
+#ifdef HAVE___EXECUTABLE_START
+    /*
+     * optionally set address for start of my text segment, to be used
+     * in __pmDumpStack() if it is called later
+     */
+    __pmDumpStackInit((void *)&__executable_start);
+#endif
 
     save_args(argc, argv);
     pmGetUsername(&username);

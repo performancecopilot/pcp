@@ -953,6 +953,15 @@ main(int argc, char *argv[])
 #ifdef HAVE_SA_SIGINFO
     static struct sigaction act;
 #endif
+#ifdef HAVE___EXECUTABLE_START
+    extern char		__executable_start;
+
+    /*
+     * optionally set address for start of my text segment, to be used
+     * in __pmDumpStack() if it is called later
+     */
+    __pmDumpStackInit((void *)&__executable_start);
+#endif
 
     pmcd_pid = getpid();
 

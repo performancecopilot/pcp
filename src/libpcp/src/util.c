@@ -2893,6 +2893,18 @@ __pmMemoryUnmap(void *addr, size_t sz)
 }
 #endif /* !IS_MINGW */
 
+static char	*text_start = NULL;
+
+void
+__pmDumpStackInit(void *addr)
+{
+    /*
+     * Inititialization call ... caller knows where their text
+     * segment starts
+     */
+    text_start = (char *)addr;
+}
+
 #if HAVE_TRACE_BACK_STACK
 #include <libexc.h>
 #define MAX_DEPTH 30	/* max callback procedure depth */
@@ -2929,30 +2941,26 @@ __pmDumpStack(void)
 #define MAX_SYMBOL_LENGTH 128	/* max length of a function name */
     void	*backaddr[MAX_TRACE_DEPTH] = { 0 };
     int		nsymbols;
-#ifdef HAVE___EXECUTABLE_START
-    extern char	__executable_start;
-#endif
 #ifdef HAVE___ETEXT
     extern char	__etext;
-    char *__executable_end = &__etext;
+    char	*text_end = &__etext;
 #else
 #ifdef HAVE__ETEXT
     extern char	_etext;
-    char *__executable_end = &_etext;
+    char	*text_end = &_etext;
 #else
 #ifdef HAVE_ETEXT
     extern char	etext;
-    char *__executable_end = &etext;
+    char	*text_end = &etext;
 #else
-    char *__executable_end = NULL;
+    char	*text_end = NULL;
 #endif
 #endif
 #endif
 
     fprintf(stderr, "Procedure call traceback ...\n");
-#ifdef HAVE___EXECUTABLE_START
-    fprintf(stderr, "executable text segment: " PRINTF_P_PFX "%p ... " PRINTF_P_PFX "%p\n", &__executable_start, __executable_end);
-#endif
+    if (text_start != NULL)
+	fprintf(stderr, "executable text segment: " PRINTF_P_PFX "%p ... " PRINTF_P_PFX "%p\n", text_start, text_end);
 
     nsymbols = backtrace(backaddr, MAX_TRACE_DEPTH);
     if (nsymbols > 0) {
@@ -3007,16 +3015,16 @@ __pmDumpStack(void)
 		fprintf(stderr, "  %s", symbols[i]);
 	    else
 		fprintf(stderr, "  %p ??unknown??", backaddr[i]);
-#ifdef HAVE___EXECUTABLE_START
-	    /*
-	     * report address offset from the base of the text segment
-	     * ... this matches addresses from nm(1), but more importantly
-	     * is the address that is needed for addr2line(1)
-	     */
-	    if (&__executable_start  <= (char *)backaddr[i] && 
-		(__executable_end == NULL || (char *)backaddr[i] <= __executable_end))
-		fprintf(stderr, " (0x%llx)", (long long)((char *)backaddr[i]-&__executable_start));
-#endif
+	    if (text_start != NULL) {
+		/*
+		 * report address offset from the base of the text segment
+		 * ... this matches addresses from nm(1), but more importantly
+		 * is the address that is needed for addr2line(1)
+		 */
+		if (text_start  <= (char *)backaddr[i] && 
+		    (text_end == NULL || (char *)backaddr[i] <= text_end))
+		    fprintf(stderr, " (0x%llx)", (long long)((char *)backaddr[i]-text_start));
+	    }
 	    fputc('\n', stderr);
 	}
 	if (fd >= 0)
