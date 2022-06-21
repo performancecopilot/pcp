@@ -292,6 +292,7 @@ webgroup_garbage_collect(struct webgroups *groups)
     dictIterator        *iterator;
     dictEntry           *entry;
     context_t		*cp;
+    unsigned int	count = 0, drops = 0;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
 	fprintf(stderr, "%s: started\n", "webgroup_garbage_collect");
@@ -308,14 +309,17 @@ webgroup_garbage_collect(struct webgroups *groups)
 		uv_mutex_unlock(&groups->mutex);
 		webgroup_drop_context(cp, groups);
 		uv_mutex_lock(&groups->mutex);
+		drops++;
 	    }
+	    count++;
 	}
 	dictReleaseIterator(iterator);
 	uv_mutex_unlock(&groups->mutex);
     }
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
-	fprintf(stderr, "%s: finished\n", "webgroup_garbage_collect");
+	fprintf(stderr, "%s: finished [%u drops from %u entries]\n",
+			"webgroup_garbage_collect", drops, count);
 }
 
 static void
