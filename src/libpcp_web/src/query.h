@@ -41,6 +41,8 @@ typedef enum nodetype {
     N_MAX_INST,
     N_MAX_SAMPLE,
     N_MIN,
+    N_MIN_INST,
+    N_MIN_SAMPLE,
     N_SUM,
     N_ANON,
     N_RATE,
