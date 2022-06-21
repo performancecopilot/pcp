@@ -9,6 +9,6 @@ probe	zfs.arc.size values ? include : exclude
 	zfs.arc.dbuf_size
 	zfs.arc.dnode_size
 	zfs.arc.hdr_size
-	zfs.arc.mfu_size
-	zfs.arc.mru_size
+	zfs.arc.mfu.size
+	zfs.arc.mru.size
 	zfs.arc.size
