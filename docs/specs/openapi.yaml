@@ -37,7 +37,7 @@ tags:
 
     Context identifiers are used as a persistent way to refer to PMAPI contexts across related web requests. These contexts expire after a configurable period of disuse, and are either explicitly allocated using the */pmapi/context* interface, or implicitly allocated using other interfaces.
 
-    The timeout interval is configurable at context creation time, and as such the *polltime* parameter can be used anywhere the *hostspec* is specified. It sets the context timeout in terms of length of inactive time. The unit for the timeout value is seconds and the default is 5.
+    The timeout interval is configurable at context creation time, and as such the *polltimeout* parameter can be used anywhere the *hostspec* is specified. It sets the context timeout in terms of length of inactive time. The unit for the timeout value is seconds and the default is 5.
 
     To specify a specific existing context in any PMAPI web request, the endpoints can be accessed with either the *context* parameter or embedded in the endpoint URL itself, such as **/pmapi/[number]/fetch**.
 - name: NOTES
@@ -745,7 +745,7 @@ paths:
         
         However, */pmapi/context* is provided as a dedicated URL for applications wishing to explicitly create the contexts they use.
         ```
-        $ curl -s http://localhost:44322/pmapi/context?hostspec=www.acme.com&polltime=500 | pmjson
+        $ curl -s http://localhost:44322/pmapi/context?hostspec=www.acme.com&polltimeout=0.5 | pmjson
         ```
         The context (a 32-bit unsigned decimal number) can then be used with all later requests.
 
