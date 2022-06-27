@@ -12,8 +12,10 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS);
 @EXPORT = qw(
     pmiStart pmiUseContext pmiEnd pmiSetHostname pmiSetTimezone pmiSetVersion
     pmiAddMetric pmiAddInstance pmiPutValue pmiGetHandle pmiPutValueHandle
-    pmiWrite pmiPutText pmiPutLabel pmiPutMark pmiDump pmiErrStr pmiUnits pmiID pmiInDom
+    pmiWrite pmiPutText pmiPutLabel pmiPutMark pmiDump pmiErrStr pmiUnits
+    pmiID pmiInDom
     pmID_build pmid_build pmInDom_build
+    pmSetDebug
     pmiBatchPutValue pmiBatchPutValueHandle pmiBatchWrite pmiBatchEnd
     PM_ID_NULL PM_INDOM_NULL PM_IN_NULL
     PM_SPACE_BYTE PM_SPACE_KBYTE PM_SPACE_MBYTE PM_SPACE_GBYTE PM_SPACE_TBYTE
@@ -192,15 +194,16 @@ source and create a Performance Co-Pilot (PCP) archive suitable for use
 with the PCP tools.
 
 The routines in this module provide wrappers around the libpcp_import
-library.
+library and some of the routines from the libpcp library.
 
 =head1 SEE ALSO
 
 pmiAddInstance(3), pmiAddMetric(3), pmiEnd(3), pmiErrStr(3),
-pmiGetHandle(3), pmiPutResult(3), pmiPutValue(3), pmiPutValueHandle(3),
-pmiPutMark(3), pmiPutText(3), pmiPutLabel(3), pmiStart(3),
-pmiSetHostname(3), pmiSetTimezone(3), pmiSetVersion(3),
-pmiUnits(3), pmiUseContext(3) and pmiWrite(3).
+pmiGetHandle(3), pmiID(3), pmID_build(3), pmid_build(3),
+pmiInDom(3), pmInDom_build(3), pmiPutResult(3), pmiPutValue(3),
+pmiPutValueHandle(3), pmiPutMark(3), pmiPutText(3), pmiPutLabel(3),
+pmiStart(3), pmiSetHostname(3), pmiSetTimezone(3), pmiSetVersion(3),
+pmiUnits(3), pmiUseContext(3), pmiWrite(3) and pmSetDebug(3).
 
 The PCP mailing list pcp@groups.io can be used for questions about
 this module.

@@ -374,6 +374,7 @@ Perl wrapper version ...
 *PCP::LogImport::import
 *PCP::LogImport::pmID_build
 *PCP::LogImport::pmInDom_build
+*PCP::LogImport::pmSetDebug
 *PCP::LogImport::pmiAddInstance
 *PCP::LogImport::pmiAddMetric
 *PCP::LogImport::pmiBatchEnd
@@ -476,6 +477,7 @@ dl_load_flags
 import
 pmID_build
 pmInDom_build
+pmSetDebug
 pmiAddInstance
 pmiAddMetric
 pmiBatchEnd

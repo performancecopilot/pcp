@@ -357,7 +357,7 @@ sub domap($)
 				}
 				my $h = pmiGetHandle($name, $instance);
 				if ($h < 0) {
-				    die "pmiGetHandle: failed to create handle for metricspec $name" . "[" . $instance . "]: " . pmiErrStr($sts) . "\n";
+				    die "pmiGetHandle: failed to create handle for metricspec $name" . "[" . $instance . "]: " . pmiErrStr($h) . "\n";
 				    $sts++;
 				}
 				else {
@@ -367,7 +367,7 @@ sub domap($)
 			    else {
 				my $h = pmiGetHandle($name, "");
 				if ($h < 0) {
-				    die "pmiGetHandle: failed to create handle for metricspec $name: " . pmiErrStr($sts) . "\n";
+				    die "pmiGetHandle: failed to create handle for metricspec $name: " . pmiErrStr($h) . "\n";
 				}
 				else {
 				    push(@handle, $h);
@@ -443,7 +443,7 @@ sub domap($)
     }
 }
 
-my $sts = getopts('h:V:Z:', \%options);
+my $sts = getopts('D:h:V:Z:', \%options);
 
 if (!defined($sts) || $#ARGV != 2) {
     print "Usage: sheet2pcp [-h host] [-V version] [-Z timezone] infile mapfile outfile\n";
@@ -454,6 +454,13 @@ if (exists($options{Z})) {
     $zone = $options{Z};
     if ($zone !~ /^[-+][0-9][0-9][0-9][0-9]$/) {
 	print "sheet2pcp: Illegal -Z value, must be +NNNN or -NNNN\n";
+	exit(1);
+    }
+}
+
+if (exists($options{D})) {
+    if (pmSetDebug($options{D}) < 0) {
+	print "sheet2pcp: Illegal -D value: " . $options{D} . "\n";
 	exit(1);
     }
 }
