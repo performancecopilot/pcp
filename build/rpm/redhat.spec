@@ -2295,7 +2295,7 @@ updated policy package.
 %setup -q
 
 %build
-# the buildsubdir macro gets defined in %setup and is apparently only available in the next step (i.e. the %build step)
+# the buildsubdir macro gets defined in %%setup and is apparently only available in the next step (i.e. the %%build step)
 %global __strip %{_builddir}/%{?buildsubdir}/build/rpm/custom-strip
 
 # fix up build version
