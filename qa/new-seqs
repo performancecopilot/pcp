@@ -27,8 +27,10 @@ eval `grep '^min=' new`
 eval `grep '^max=' new`
 
 sed -n <group >$tmp.taken \
-    -e 's/:\(retired\|reserved\) / /' \
-    -e '/^[0-9]/s/[        ].*//p' \
+    -e '/^[0-9]/{
+s/[ :].*//
+p
+}' \
 # end
 
 try=000
