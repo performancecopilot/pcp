@@ -72,21 +72,33 @@ echo
 echo;echo "== Verify min/max() functions for a non-sigular metric"
 pmseries $args 'kernel.all.load[count:5]'
 pmseries $args 'max(kernel.all.load[count:5])'
+pmseries $args 'max_inst(kernel.all.load[count:5])'
+pmseries $args 'max_sample(kernel.all.load[count:5])'
 pmseries $args 'min(kernel.all.load[count:5])'
+pmseries $args 'min_inst(kernel.all.load[count:5])'
+pmseries $args 'min_sample(kernel.all.load[count:5])'
 
 echo;echo "== Verify min/max() functions for a non-sigular metric, only one instance"
 pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5]'
 echo Compared to max:
 pmseries $args 'max(kernel.all.load{instance.name == "5 minute"}[count:5])'
+pmseries $args 'max_inst(kernel.all.load{instance.name == "5 minute"}[count:5])'
+pmseries $args 'max_sample(kernel.all.load{instance.name == "5 minute"}[count:5])'
 echo Compared to min:
 pmseries $args 'min(kernel.all.load{instance.name == "5 minute"}[count:5])'
+pmseries $args 'min_inst(kernel.all.load{instance.name == "5 minute"}[count:5])'
+pmseries $args 'min_sample(kernel.all.load{instance.name == "5 minute"}[count:5])'
 
 echo;echo "== Verify min/max() functions for a singular metric"
 pmseries $args 'kernel.all.uptime[count:10]'
 echo Compared to max:
 pmseries $args 'max(kernel.all.uptime[count:10])'
+pmseries $args 'max_inst(kernel.all.uptime[count:10])'
+pmseries $args 'max_sample(kernel.all.uptime[count:10])'
 echo Compared to min:
 pmseries $args 'min(kernel.all.uptime[count:10])'
+pmseries $args 'min_inst(kernel.all.uptime[count:10])'
+pmseries $args 'min_sample(kernel.all.uptime[count:10])'
 
 echo;echo "== Verify rescale() functions for a singular metric"
 pmseries $args 'kernel.all.uptime[count:2]'
