@@ -45,6 +45,7 @@ install:: $(SUBDIRS)
 
 install:: default
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_VAR_DIR)/config/pmlogger
+	$(INSTALL) -m 644 pmlogger_farm.defaults $(PCP_SYSCONFIG_DIR)/pmlogger_farm
 	$(INSTALL) -m 644 pmlogger.defaults $(PCP_SYSCONFIG_DIR)/pmlogger
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/zeroconf
 	$(INSTALL) -m 644 pmlogger.zeroconf $(PCP_SHARE_DIR)/zeroconf/pmlogger
