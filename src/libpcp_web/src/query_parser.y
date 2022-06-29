@@ -4,6 +4,7 @@
  *
  * Copyright (c) 2017-2022 Red Hat.
  * Copyright (c) 2020 Yushan ZHANG.
+ * Copyright (c) 2022 Shiyao CHEN.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -119,7 +120,11 @@ static const char initial_str[]  = "Unexpected initial";
 %token      L_COUNT
 %token      L_DELTA
 %token      L_MAX
+%token      L_MAX_INST
+%token      L_MAX_SAMPLE
 %token      L_MIN
+%token      L_MIN_INST
+%token      L_MIN_SAMPLE
 %token      L_SUM
 %token      L_ANON
 %token      L_RATE
@@ -377,6 +382,26 @@ func_sid
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
+	| L_MAX_INST L_LPAREN sid_vec L_RPAREN
+		{ lp->yy_np = newnode(N_MAX_INST);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MAX_INST L_LPAREN func_sid L_RPAREN
+		{ lp->yy_np = newnode(N_MAX_INST);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MAX_SAMPLE L_LPAREN sid_vec L_RPAREN
+		{ lp->yy_np = newnode(N_MAX_SAMPLE);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MAX_SAMPLE L_LPAREN func_sid L_RPAREN
+		{ lp->yy_np = newnode(N_MAX_SAMPLE);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
 	| L_MIN L_LPAREN sid_vec L_RPAREN
 		{ lp->yy_np = newnode(N_MIN);
 		  lp->yy_np->left = $3;
@@ -384,6 +409,26 @@ func_sid
 		}
 	| L_MIN L_LPAREN func_sid L_RPAREN
 		{ lp->yy_np = newnode(N_MIN);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MIN_INST L_LPAREN sid_vec L_RPAREN
+		{ lp->yy_np = newnode(N_MIN_INST);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MIN_INST L_LPAREN func_sid L_RPAREN
+		{ lp->yy_np = newnode(N_MIN_INST);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MIN_SAMPLE L_LPAREN sid_vec L_RPAREN
+		{ lp->yy_np = newnode(N_MIN_SAMPLE);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MIN_SAMPLE L_LPAREN func_sid L_RPAREN
+		{ lp->yy_np = newnode(N_MIN_SAMPLE);
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
@@ -631,6 +676,26 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
+	| L_MAX_INST L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_MAX_INST);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MAX_INST L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_MAX_INST);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MAX_SAMPLE L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_MAX_SAMPLE);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MAX_SAMPLE L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_MAX_SAMPLE);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
 	| L_MIN L_LPAREN val_vec L_RPAREN
 		{ lp->yy_np = newnode(N_MIN);
 		  lp->yy_np->left = $3;
@@ -638,6 +703,26 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		}
 	| L_MIN L_LPAREN func L_RPAREN
 		{ lp->yy_np = newnode(N_MIN);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MIN_INST L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_MIN_INST);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MIN_INST L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_MIN_INST);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MIN_SAMPLE L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_MIN_SAMPLE);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_MIN_SAMPLE L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_MIN_SAMPLE);
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
@@ -961,7 +1046,11 @@ static const struct {
     { L_AVG,		sizeof("avg")-1,	"avg" },
     { L_COUNT,		sizeof("count")-1,	"count" },
     { L_MAX,		sizeof("max")-1,	"max" },
+    { L_MAX_INST,	sizeof("max_inst")-1,	"max_inst" },
+    { L_MAX_SAMPLE,	sizeof("max_sample")-1,	"max_sample" },
     { L_MIN,		sizeof("min")-1,	"min" },
+    { L_MIN_INST,	sizeof("min_inst")-1,	"min_inst" },
+    { L_MIN_SAMPLE,	sizeof("min_sample")-1,	"min_sample" },
     { L_SUM,		sizeof("sum")-1,	"sum" },
     { L_RATE,		sizeof("rate")-1,	"rate" },
     { L_ABS,		sizeof("abs")-1,	"abs" },
@@ -1010,7 +1099,11 @@ static struct {
     { L_COUNT,		N_COUNT,	"COUNT",	NULL },
     { L_DELTA,		N_DELTA,	"DELTA",	NULL },
     { L_MAX,		N_MAX,		"MAX",		NULL },
+    { L_MAX_INST,	N_MAX_INST,	"MAX_INST",	NULL },
+    { L_MAX_SAMPLE,	N_MAX_SAMPLE,	"MAX_SAMPLE",	NULL },
     { L_MIN,		N_MIN,		"MIN",		NULL },
+    { L_MIN_INST,	N_MIN_INST,	"MIN_INST",	NULL },
+    { L_MIN_SAMPLE,	N_MIN_SAMPLE,	"MIN_SAMPLE",	NULL },
     { L_SUM,		N_SUM,		"SUM",		NULL },
     { L_ANON,		N_ANON,		"ANON",		NULL },
     { L_RATE,		N_RATE,		"RATE",		NULL },
@@ -1841,6 +1934,7 @@ series_dumpexpr(node_t *np, int level)
 	break;
     case N_AVG: case N_COUNT:   case N_DELTA:   case N_MAX:     case N_MIN:
     case N_SUM: case N_ANON:    case N_RATE:    case N_INSTANT: case N_RESCALE:
+    case N_MAX_INST: case N_MAX_SAMPLE: case N_MIN_INST: case N_MIN_SAMPLE: 
 	fprintf(stderr, "%*s%s()", level*4, "", n_type_str(np->type));
 	break;
     case N_SCALE: {

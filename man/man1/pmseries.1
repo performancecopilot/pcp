@@ -388,7 +388,7 @@ for each series of instances.
 For example, the result for
 .P
 .SAMPLE
-$ pmseries 'min(kernel.all.load[count:100])'
+$ pmseries 'min_sample(kernel.all.load[count:100])'
 .ESAMPLE
 .P
 will be the smallest value of the 100 most recent samples,
@@ -407,10 +407,10 @@ $ pmseries 'kernel.all.load[count:2]'
     [Tue Nov 10 11:52:20.827134000 2020] 1.070000e+00 d5e1c360d13064c461169091997e1e8be7488133
 .ESAMPLE
 .P
-Using the \fBmin\fP function :
+Using the \fBmin_sample\fP function :
 .P
 .SAMPLE
-$ pmseries 'min(kernel.all.load[count:2])'
+$ pmseries 'min_sample(kernel.all.load[count:2])'
 11b965bc5f9598034ed9139fb3a78c6c0b7065ba
     [Tue Nov 10 11:52:30.833379000 2020] 1.100000e+00 a7c96e5e2e0431a12279756d11590fa9fed8f306
     [Tue Nov 10 11:52:30.833379000 2020] 9.900000e-01 ee9b506935fd0976a893dc27242926f49326b9a1
@@ -429,22 +429,44 @@ d7832c4fba33bcc980b1a1b614e0508043288480
     [Tue Nov 10 12:44:29.379029000 2020] 460697388
     [Tue Nov 10 12:44:19.379096000 2020] 460657412
 
-$ pmseries 'min(kernel.all.pswitch[count:5])'
+$ pmseries 'min_sample(kernel.all.pswitch[count:5])'
 1b6e92fb5bc012372f54452734dd03f0f131fa06
     [Tue Nov 10 12:44:19.379096000 2020] 460657412 d7832c4fba33bcc980b1a1b614e0508043288480
 
 .ESAMPLE
 .P
+Some
+.B pmseries
+functions provide operations across both time and instances domain. For example,
+.BR max_inst (\f2expr\fP)
+finds the maximum value across instances while
+.BR max_sample (\f2expr\fP)
+finds the maximum value across time.
+.P
 Future versions of
 .B pmseries
 may provide functions that perform aggregation, interpolation, filtering
-or transforms in other ways, e.g. across instances instead of time.
+or transforms in other ways.
 .SS Function Reference
-.BR max(\f2expr\fP)
-the maximum value in the time series for each instance of \fIexpr\fP
+.BR max_inst (\f2expr\fP)
+the maximum value in the time series for each instance of \fIexpr\fP.
+For backwards compatibility, the synonym
+.B max
+is equivalent to
+.BR max_inst .
 .P
-.BR min(\f2expr\fP)
-the minimum value in the time series for each instance of \fIexpr\fP
+.BR max_sample(\f2expr\fP)
+the maximum value in the time series for each sample of \fIexpr\fP across time
+.P
+.BR min_inst(\f2expr\fP)
+the minimum value in the time series for each instance of \fIexpr\fP.
+For backwards compatibility, the synonym
+.B min
+is equivalent to
+.BR min_inst .
+.P
+.BR min_sample(\f2expr\fP)
+the minimum value in the time series for each sample of \fIexpr\fP across time
 .P
 .BR rate(\f2expr\fP)
 the rate with respect to time of each sample.
