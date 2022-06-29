@@ -22,6 +22,9 @@ signal=$PCP_BINADM_DIR/pmsignal
 # Note2 - the first (posn=132) logputresult is the prologue
 # and size of this result is influenced by hostname length.
 #
+# Note3 - check_local_creds lines are timing sensitive and have
+# nothing much to do with logging state changes, so nuke 'em
+#
 _filter_pmlogger()
 {
     _filter_pmlogger_log \
@@ -44,10 +47,7 @@ s/stamp=[0-9][0-9]*\.[0-9][0-9]*/stamp=NNN.NNNNNN/
 s/posn=[0-9]*/posn=NNN/g
 }' \
 	-e 's/msec numpmid/usec numpmid/' \
-	-e '/^check_local_creds:/{
-s/[0-9][0-9]*/N/
-s/[0-9][0-9]*/M/g
-}' \
+	-e '/^check_local_creds:/d' \
 	-e 's/fd=[0-9][0-9]*/fd=N/' \
 	-e 's/localhost\.[a-zA-Z0-9]*/localhost/'
     # the check_local_creds: line's position in the output
