@@ -435,16 +435,30 @@ $ pmseries 'min(kernel.all.pswitch[count:5])'
 
 .ESAMPLE
 .P
+Some 
+.B pmseries
+functions provide operations across both time and instances domain. For example, 
+.BR max(\f2expr\fP) / max_inst(\f2expr\fP) 
+finds the maximum value across instances while 
+.BR max_sample(\f2expr\fP)
+finds the maximum value across time.
+.P
 Future versions of
 .B pmseries
 may provide functions that perform aggregation, interpolation, filtering
-or transforms in other ways, e.g. across instances instead of time.
+or transforms in other ways.
 .SS Function Reference
-.BR max(\f2expr\fP)
+.BR max(\f2expr\fP) / max_inst(\f2expr\fP)
 the maximum value in the time series for each instance of \fIexpr\fP
 .P
-.BR min(\f2expr\fP)
+.BR max_sample(\f2expr\fP)
+the maximum value in the time series for each sample of \fIexpr\fP across time
+.P
+.BR min(\f2expr\fP) / min_inst(\f2expr\fP)
 the minimum value in the time series for each instance of \fIexpr\fP
+.P
+.BR min_sample(\f2expr\fP)
+the minimum value in the time series for each sample of \fIexpr\fP across time
 .P
 .BR rate(\f2expr\fP)
 the rate with respect to time of each sample.
