@@ -2350,6 +2350,8 @@ series_expr_canonical(node_t *np, int idx)
 	break;
 
     case N_AVG:
+	case N_AVG_INST:
+	case N_AVG_SAMPLE:
     case N_SUM:
 	case N_SUM_INST:
 	case N_SUM_SAMPLE:
@@ -3353,7 +3355,7 @@ series_calculate_statistical(node_t *np, nodetype_t func)
     char		sum_data_str[64];
     sds			msg;
 
-    assert(func == N_SUM || func == N_AVG);
+    assert(func == N_SUM || func == N_AVG || func == N_SUM_INST || func == N_AVG_INST);
 
     n_series = np->left->value_set.num_series;
     np->value_set.num_series = n_series;
@@ -3385,9 +3387,11 @@ series_calculate_statistical(node_t *np, nodetype_t func)
 			sdsnew(np->left->value_set.series_values[i].series_sample[0].series_instance[k].series);
 		switch (func) {
 		case N_SUM:
+		case N_SUM_INST:
 		    pmsprintf(sum_data_str, sizeof(sum_data_str), "%le", sum_data);
 		    break;
 		case N_AVG:
+		case N_AVG_INST:
 		    pmsprintf(sum_data_str, sizeof(sum_data_str), "%le", sum_data / n_samples);
 		    break;
 		default:
@@ -4378,6 +4382,14 @@ series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 	case N_AVG:
 	    series_calculate_statistical(np, N_AVG);
 	    sts = N_AVG;
+	    break;
+	case N_AVG_INST:
+	    series_calculate_statistical(np, N_AVG_INST);
+		sts = N_AVG_INST;
+	    break;
+	case N_AVG_SAMPLE:
+	    series_calculate_statistical_time(np, N_AVG_SAMPLE);
+	    sts = N_AVG_SAMPLE;
 	    break;
 	case N_SUM:
 	    series_calculate_statistical(np, N_SUM);

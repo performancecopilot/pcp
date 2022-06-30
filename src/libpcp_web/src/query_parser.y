@@ -116,6 +116,8 @@ static const char initial_str[]  = "Unexpected initial";
 %token      L_SQRT
 %token      L_ROUND
 %token      L_AVG
+%token      L_AVG_INST
+%token      L_AVG_SAMPLE
 %token      L_COUNT
 %token      L_DELTA
 %token      L_MAX
@@ -531,6 +533,26 @@ func_sid
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
+	| L_AVG_INST L_LPAREN sid_vec L_RPAREN
+		{ lp->yy_np = newnode(N_AVG_INST);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_AVG_INST L_LPAREN func_sid L_RPAREN
+		{ lp->yy_np = newnode(N_AVG_INST);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_AVG_SAMPLE L_LPAREN sid_vec L_RPAREN
+		{ lp->yy_np = newnode(N_AVG_SAMPLE);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_AVG_SAMPLE L_LPAREN func_sid L_RPAREN
+		{ lp->yy_np = newnode(N_AVG_SAMPLE);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
 	| L_ABS L_LPAREN sid_vec L_RPAREN
 		{ lp->yy_np = newnode(N_ABS);
 		  lp->yy_np->left = $3;
@@ -927,6 +949,26 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
+	| L_AVG_INST L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_AVG_INST);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_AVG_INST L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_AVG_INST);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_AVG_SAMPLE L_LPAREN val_vec L_RPAREN
+		{ lp->yy_np = newnode(N_AVG_SAMPLE);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_AVG_SAMPLE L_LPAREN func L_RPAREN
+		{ lp->yy_np = newnode(N_AVG_SAMPLE);
+		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
 	| arithmetic_expression
 		{ lp->yy_np = $1;
 		  $$ = lp->yy_series.expr = lp->yy_np;
@@ -1127,6 +1169,8 @@ static const struct {
     char	*f_name;
 } func[] = {
     { L_AVG,		sizeof("avg")-1,	"avg" },
+	{ L_AVG_INST,		sizeof("avg_inst")-1,	"avg_inst" },
+	{ L_AVG_SAMPLE,		sizeof("avg_sample")-1,	"avg_sample" },
     { L_COUNT,		sizeof("count")-1,	"count" },
 	{ L_MAX,		sizeof("max")-1,	"max" },
     { L_MAX_INST,	sizeof("max_inst")-1,	"max_inst" },
@@ -1183,6 +1227,8 @@ static struct {
     { N_SQRT,		N_SQRT,		"SQRT",		NULL },
     { N_ROUND,		N_ROUND,	"ROUND",	NULL },
     { L_AVG,		N_AVG,		"AVG",		NULL },
+	{ L_AVG_INST,	N_AVG_INST,	"AVG_INST",	NULL },
+	{ L_AVG_SAMPLE,	N_AVG_SAMPLE,	"AVG_SAMPLE",	NULL },
     { L_COUNT,		N_COUNT,	"COUNT",	NULL },
     { L_DELTA,		N_DELTA,	"DELTA",	NULL },
     { L_MAX,		N_MAX,		"MAX",		NULL },

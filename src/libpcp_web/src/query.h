@@ -35,6 +35,8 @@ typedef enum nodetype {
     N_STAR,
     N_SLASH,
     N_AVG,
+    N_AVG_INST,
+    N_AVG_SAMPLE,
     N_COUNT,
     N_DELTA,
     N_MAX,
