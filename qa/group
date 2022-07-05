@@ -1880,7 +1880,7 @@ x11
 1424 logutil pmlogctl local
 1425 logutil local
 1427 pmlogmv local
-1429:reserved logutil pmlogextract pmdumplog pmlogrewrite local
+1429 logutil pmlogextract pmdumplog pmlogrewrite local
 1433 pmproxy local pmconfig
 1434 pmda.nfsclient local
 1435 pmda.elasticsearch local

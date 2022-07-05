@@ -1,0 +1,392 @@
+#!/bin/sh
+# PCP QA Test No. 1426
+# pmlogger_daily for new callbacks and autosave features
+# (loosely based on 530 and 338 and especially 532)
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
+#
+# check-group-include: pmlogrewrite pmlogextract
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+    $sudo mv $PCP_LOG_DIR/NOTICES.$seq $PCP_LOG_DIR/NOTICES
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    tee -a $seq.full \
+    | sed -f $tmp.sed \
+    | sed \
+	-e '/^Roll .*\/NOTICES/d' \
+	-e '/^Start .*\/NOTICES/d' \
+	-e "s;$tmp;TMP;g" \
+	-e "s/local:/HOST/g" \
+	-e "s/`hostname`/HOST/g" \
+	-e "s/`hostname | sed -e 's/\..*//'`/HOST/g" \
+	-e '/\/var\/adm\/pcplog\/NOTICES/d' \
+	-e 's/-rw-r--r--\./-rw-r--r--/' \
+	-e "s/`pmdate -1d %Y`/YYYY/g" \
+	-e "s/`pmdate -2d %Y`/YYYY/g" \
+	-e "s/-`pmdate -1d %m`-/-MM-/" \
+	-e "s/-`pmdate -2d %m`-/-MM-/" \
+	-e "s/-`pmdate %d`/-TODAY/" \
+	-e "s/-`pmdate -1d %d`/-YESTERDAY/" \
+	-e "s/-`pmdate -2d %d`/-DAYBEFOREYESTERDAY/" \
+    | $PCP_AWK_PROG '
+/-rw-r--r--/	{ print $1,"...",$5,"...",$9; next }
+		{ print }' \
+    | _filter_cron_scripts
+}
+
+# take explicit control of the umask
+#
+umask 022
+
+$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.$seq
+
+# create files for pmlogger_daily to munch on ...
+#
+_setup()
+{
+    if [ -d $tmp ]
+    then
+	$sudo rm -f $tmp/*
+	$sudo rmdir $tmp
+    fi
+    $sudo rm -f $tmp.log
+    mkdir $tmp
+    echo >$tmp.sed
+    for day in 0 1 2 3
+    do
+	fmt=%Y%m%d
+
+	for hour in 1 4 16
+	do
+	    [ $day -gt 0 -a $hour -gt 1 ] && continue
+	    # aiming for the time to be hour:10, hour:20 and hour:30 on
+	    # each day, even if that is ahead of NOW for today
+	    #
+	    now_hr=`pmdate %H`
+	    hr_set=`expr $hour - $now_hr`
+	    [ "$hr_set" -ge 0 ] && hr_set="+$hr_set"
+	    now_min=`pmdate %M`
+	    min_set10=`expr 10 - $now_min`
+	    [ "$min_set10" -ge 0 ] && min_set10="+$min_set10"
+	    min_set20=`expr 20 - $now_min`
+	    [ "$min_set20" -ge 0 ] && min_set20="+$min_set20"
+	    min_set30=`expr 30 - $now_min`
+	    [ "$min_set30" -ge 0 ] && min_set30="+$min_set30"
+	    namea=`pmdate -${day}d ${hr_set}H ${min_set10}M $fmt.%H.%M`
+	    nameb=`pmdate -${day}d ${hr_set}H ${min_set20}M $fmt.%H.%M`
+	    namec=`pmdate -${day}d ${hr_set}H ${min_set30}M $fmt.%H.%M`
+	    yesterday=`pmdate -1d ${hr_set}H ${min_set10}M $fmt`
+	    stampa=`echo $namea | sed -e 's/\.//g'`
+	    stampb=`echo $nameb | sed -e 's/\.//g'`
+	    stampc=`echo $namec | sed -e 's/\.//g'`
+	    nameb=${namea}-00
+	    namec=${namea}-01
+	    echo "s/$namea/NOW-$day.${hour}H.MM/g" >>$tmp.sed
+	    echo "s/$nameb/NOW-$day.${hour}H.MM-00/g" >>$tmp.sed
+	    echo "s/$namec/NOW-$day.${hour}H.MM-01/g" >>$tmp.sed
+
+	    for ext in 0 index meta
+	    do
+		if [ $hour -ne 4 ]
+		then
+		    cp archives/arch_a.$ext $tmp/$namea.$ext
+		    touch -t $stampa $tmp/$namea.$ext
+		fi
+		cp archives/arch_b.$ext $tmp/$nameb.$ext
+		touch -t $stampb $tmp/$nameb.$ext
+		cp archives/arch_b.$ext $tmp/$namec.$ext
+		touch -t $stampc $tmp/$namec.$ext
+	    done
+	done
+    done
+
+    echo "s/NOW-0/TODAY/g" >>$tmp.sed
+    echo "s/NOW-1/YESTERDAY/g" >>$tmp.sed
+    echo "s/`pmdate %Y%m%d`/TODAY/g" >>$tmp.sed
+    yesterday=`pmdate -1d $fmt`
+    echo "s/$yesterday/YESTERDAY/g" >>$tmp.sed
+    daybeforeyesterday=`pmdate -2d $fmt`
+    echo "s/$daybeforeyesterday/DAYBEFOREYESTERDAY/g" >>$tmp.sed
+
+    echo "log mandatory on default { pmcd.pmlogger }" >$tmp/config
+
+    # pmlogger_daily runs as the user "pcp" ... fix ownership
+    #
+    touch $tmp.log
+    find $tmp $tmp.log -type f | xargs $sudo chown $PCP_USER:$PCP_GROUP
+    $sudo chown $PCP_USER:$PCP_GROUP $tmp
+}
+
+# real QA test starts here
+
+echo | tee -a $here/$seq.full
+echo "=== autosave tests ===" | tee -a $here/$seq.full
+echo "--- destdir dir does not exist ---" | tee -a $here/$seq.full
+
+cat <<End-of-File >$tmp.control
+\$version=1.1
+LOCALHOSTNAME	n   n	$tmp	-c ./config
+End-of-File
+
+_setup
+
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_AUTOSAVE_DIR=/no/such/dir $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 3 -x never -l $tmp.log"
+if [ -f $tmp.log ]
+then
+    $sudo cat $tmp.log \
+    | tee -a $seq.full \
+    | _filter
+else
+    echo "No log file?"
+fi
+echo "daily dir ..."
+ls $tmp | _filter | egrep '.(index|meta|0)$' | grep -v TODAY
+
+echo "--- cannot write in dest dir ---" | tee -a $here/$seq.full
+
+cat <<End-of-File >$tmp.control
+\$version=1.1
+\$PCP_AUTOSAVE_DIR=$tmp.nowrite
+LOCALHOSTNAME	n   n	$tmp	-c ./config
+End-of-File
+
+mkdir $tmp.nowrite
+chmod 555 $tmp.nowrite
+
+_setup
+
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_AUTOSAVE_DIR=/no/such/file $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 3 -x never -l $tmp.log"
+if [ -f $tmp.log ]
+then
+    $sudo cat $tmp.log \
+    | tee -a $seq.full \
+    | _filter
+else
+    echo "No log file?"
+fi
+echo "daily dir ..."
+ls $tmp | _filter | egrep '.(index|meta|0)$' | grep -v TODAY
+echo "autosave dir ..."
+ls $tmp.nowrite | _filter | egrep '.(index|meta|0)$'
+
+echo "--- dest dir ok ---" | tee -a $here/$seq.full
+
+cat <<End-of-File >$tmp.control
+\$version=1.1
+\$PCP_AUTOSAVE_DIR=$tmp.ok
+LOCALHOSTNAME	n   n	$tmp	-c ./config
+End-of-File
+
+mkdir $tmp.ok
+$sudo chown $PCP_USER:$PCP_GROUP $tmp.ok
+$sudo chmod 775 $tmp.ok
+
+_setup
+
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 3 -x never -l $tmp.log"
+if [ -f $tmp.log ]
+then
+    $sudo cat $tmp.log \
+    | tee -a $seq.full \
+    | _filter
+else
+    echo "No log file?"
+fi
+echo "daily dir ..."
+ls $tmp | _filter | egrep '.(index|meta|0)$' | grep -v TODAY
+echo "autosave dir ..."
+ls $tmp.ok | _filter | egrep '.(index|meta|0)$'
+
+echo "--- dest dir with DATEXX components does not exist ---" | tee -a $here/$seq.full
+
+cat <<End-of-File >$tmp.control
+\$version=1.1
+\$PCP_AUTOSAVE_DIR=$tmp.ok/DATEYYYY/DATEYYYY-DATEMM-DATEDD/
+LOCALHOSTNAME	n   n	$tmp	-c ./config
+End-of-File
+
+$sudo rm -rf $tmp.ok
+for dir in $tmp.ok $tmp.ok/`pmdate -${day}d %Y`
+do
+    if [ ! -d $dir ]
+    then
+	$sudo mkdir $dir
+	$sudo chown $PCP_USER:$PCP_GROUP $dir
+	$sudo chmod 775 $dir
+    fi
+done
+# make YYYY dir unwriteable
+#
+$sudo chmod 555 $tmp.ok/`pmdate -${day}d %Y`
+
+
+_setup
+
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 3 -x never -l $tmp.log"
+if [ -f $tmp.log ]
+then
+    $sudo cat $tmp.log \
+    | tee -a $seq.full \
+    | _filter
+else
+    echo "No log file?"
+fi
+echo "daily dir ..."
+ls $tmp | _filter | egrep '.(index|meta|0)$' | grep -v TODAY
+echo "autosave dir ..."
+ls -R $tmp.ok | _filter | egrep '.(index|meta|0)$' \
+| sed \
+    -e "s/`date +%Y`/YYYY/g" \
+    -e "s/-`date +%m`-/-MM-/" \
+    -e "s/-`date +%d`/-DD/" \
+# end
+
+echo "--- dest dir ok and with DATEXX components ---" | tee -a $here/$seq.full
+
+cat <<End-of-File >$tmp.control
+\$version=1.1
+\$PCP_AUTOSAVE_DIR=$tmp.ok/DATEYYYY/DATEYYYY-DATEMM-DATEDD/
+LOCALHOSTNAME	n   n	$tmp	-c ./config
+End-of-File
+
+$sudo rm -rf $tmp.ok
+for day in 1 2
+do
+    for dir in $tmp.ok
+    do
+	if [ ! -d $dir ]
+	then
+	    $sudo mkdir $dir
+	    $sudo chown $PCP_USER:$PCP_GROUP $dir
+	    $sudo chmod 775 $dir
+	fi
+    done
+done
+
+_setup
+
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 3 -x never -l $tmp.log"
+if [ -f $tmp.log ]
+then
+    $sudo cat $tmp.log \
+    | tee -a $seq.full \
+    | _filter
+else
+    echo "No log file?"
+fi
+echo "daily dir ..."
+ls $tmp | _filter | egrep '.(index|meta|0)$' | grep -v TODAY
+echo "autosave dir ..."
+ls -R $tmp.ok | _filter
+
+echo | tee -a $here/$seq.full
+echo "=== merge callback tests ===" | tee -a $here/$seq.full
+cat <<'End-of-File' >$tmp.merge
+#!/bin/sh
+echo
+echo "merge arg[0] \"$0\""
+i=1
+while [ $# -gt 0 ]
+do
+    echo "merge arg[$i] \"$1\""
+    i=`expr $i + 1`
+    shift
+done
+exit 0
+End-of-File
+chmod 755 $tmp.merge
+
+cat <<End-of-File >$tmp.control
+\$version=1.1
+\$PCP_MERGE_CALLBACK='$tmp.merge -m'
+\$PCP_MERGE_CALLBACK="$tmp.merge merge fumble"
+\$PCP_MERGE_CALLBACK='$tmp.merge -q "blah fluff" merge fumble'
+LOCALHOSTNAME	n   n	$tmp	-c ./config
+End-of-File
+
+_setup
+
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_MERGE_CALLBACK=$tmp.merge $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -x never -k 3 -l $tmp.log"
+if [ -f $tmp.log ]
+then
+    $sudo cat $tmp.log \
+    | tee -a $seq.full \
+    | _filter
+else
+    echo "No log file?"
+fi
+
+echo | tee -a $here/$seq.full
+echo "=== compress callback tests ===" | tee -a $here/$seq.full
+
+cat <<'End-of-File' >$tmp.compress
+#!/bin/sh
+echo
+echo "compress arg[0] \"$0\""
+i=1
+while [ $# -gt 0 ]
+do
+    echo "compress arg[$i] \"$1\""
+    i=`expr $i + 1`
+    shift
+done
+exit 0
+End-of-File
+chmod 755 $tmp.compress
+
+cat <<End-of-File >$tmp.control
+\$version=1.1
+\$PCP_COMPRESS_CALLBACK='$tmp.compress -p "blah fluff" -q compress -r fumble'
+\$PCP_COMPRESS_CALLBACK="$tmp.compress compress fumble"
+\$PCP_COMPRESS_CALLBACK='$tmp.compress -c'
+LOCALHOSTNAME	n   n	$tmp	-c ./config
+End-of-File
+
+_setup
+
+# need current pmlogger instance for this one ...
+#
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -c $tmp.control -l $tmp.log"
+[ -f $tmp.log ] && $sudo cat $tmp.log >>$seq.full
+pmlogctl status >>$seq.full
+
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_COMPRESS_CALLBACK=$tmp.compress $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 3 -x 0 -l $tmp.log"
+if [ -f $tmp.log ]
+then
+    $sudo cat $tmp.log \
+    | tee -a $seq.full \
+    | _filter
+else
+    echo "No log file?"
+fi
+
+# all done
+status=0
+exit
