@@ -234,7 +234,7 @@ cache_bind(void)
 	goto cleanup;
     }
     if ((sts = pmLookupDescs(num_to_bind, pmidlist, desclist)) < 0) {
-	fprintf(stderr, "cache_bind(): pmLookupDecs(%d, ...): %s\n", num_to_bind, pmErrStr(sts));
+	fprintf(stderr, "cache_bind(): pmLookupDescs(%d, ...): %s\n", num_to_bind, pmErrStr(sts));
 	if (sts == PM_ERR_IPC) {
 	    fprintf(stderr, "cache_bind(): Arrgh: lost connection to pmcd, giving up!\n");
 	    exit(1);
