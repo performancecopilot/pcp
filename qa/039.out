@@ -112,6 +112,7 @@ TIMESTAMP 5 metrics
 pmlogger log
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE

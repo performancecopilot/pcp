@@ -35,7 +35,6 @@ status=1	# failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 
 userid=`id -u`
-groupid=`id -g`
 username=`id -u -n`
 hostname=`hostname`
 machineid=`_machine_id`

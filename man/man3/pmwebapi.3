@@ -1,7 +1,7 @@
 '\"! tbl | nroff \-man
 '\" t macro stdmacro
 .\"
-.\" Copyright (c) 2013-2020 Red Hat.
+.\" Copyright (c) 2013-2022 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -725,7 +725,7 @@ interface, or implicitly allocated using other interfaces.
 .PP
 The timeout interval is configurable at context creation time,
 and as such the
-.I polltime
+.I polltimeout
 parameter can be used anywhere the
 .I hostspec
 is specified.
@@ -767,7 +767,7 @@ explicitly create the contexts they use.
 If successful, the server responds with a HTTP 200 (OK) code
 and JSON message body of the form:
 .SAMPLE
-$ curl -s http://localhost:44322/pmapi/context?hostspec=www.acme.com&polltime=500 | pmjson
+$ curl -s http://localhost:44322/pmapi/context?hostspec=www.acme.com&polltimeout=0.5 | pmjson
 {
   "context": 348734,
   "source": "05af7f3eb840277fd3cfa91f90ef0067199743c",

@@ -65,8 +65,12 @@ echo "Verify basic load from proc archive"
 pmseries $options --load "{source.path: \"$here/archives/proc\"}" | _filter_source
 echo
 
-echo "Error handling - load from bad path"
+echo "Error handling - load from bad absolute path"
 pmseries $options --load "{source.path: \"/no/such/archive\"}"
+echo
+
+echo "Error handling - load from bad relative path"
+pmseries $options --load "{source.path: \"no/such/archive\"}"
 echo
 
 echo "Verify pminfo and pmseries source and series match"

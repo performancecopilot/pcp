@@ -2893,13 +2893,25 @@ __pmMemoryUnmap(void *addr, size_t sz)
 }
 #endif /* !IS_MINGW */
 
+static char	*text_start = NULL;
+
+void
+__pmDumpStackInit(void *addr)
+{
+    /*
+     * Inititialization call ... caller knows where their text
+     * segment starts
+     */
+    text_start = (char *)addr;
+}
+
 #if HAVE_TRACE_BACK_STACK
 #include <libexc.h>
 #define MAX_DEPTH 30	/* max callback procedure depth */
 #define MAX_SIZE 48	/* max function name length */
 
 void
-__pmDumpStack(FILE *f)
+__pmDumpStack(void)
 {
     __uint64_t	call_addr[MAX_DEPTH];
     char	*call_fn[MAX_DEPTH];
@@ -2907,47 +2919,129 @@ __pmDumpStack(FILE *f)
     int		res;
     int		i;
 
+    fprintf(stderr, "Procedure call traceback ...\n");
     for (i = 0; i < MAX_DEPTH; i++)
 	call_fn[i] = names[i];
     res = trace_back_stack(MAX_DEPTH, call_addr, call_fn, MAX_DEPTH, MAX_SIZE);
     for (i = 1; i < res; i++) {
 	if (sizeof(void *) == sizeof(long long))
-	    fprintf(f, "  0x%016llx [%s]\n", call_addr[i], call_fn[i]);
+	    fprintf(stderr, "  0x%016llx [%s]\n", call_addr[i], call_fn[i]);
 	else
-	    fprintf(f, "  0x%08lx [%s]\n", (__uint32_t)call_addr[i], call_fn[i]);
+	    fprintf(stderr, "  0x%08lx [%s]\n", (__uint32_t)call_addr[i], call_fn[i]);
     }
 }
 
 #elif HAVE_BACKTRACE
 #include <execinfo.h>
-#define MAX_DEPTH 30	/* max callback procedure depth */
 
 void
-__pmDumpStack(FILE *f)
+__pmDumpStack(void)
 {
-    int		nframe;
-    void	*buf[MAX_DEPTH];
-    char	**symbols;
-    int		i;
+#define MAX_TRACE_DEPTH 32	/* max callback procedure depth */
+#define MAX_SYMBOL_LENGTH 128	/* max length of a function name */
+    void	*backaddr[MAX_TRACE_DEPTH] = { 0 };
+    int		nsymbols;
+#ifdef HAVE___ETEXT
+    extern char	__etext;
+    char	*text_end = &__etext;
+#else
+#ifdef HAVE__ETEXT
+    extern char	_etext;
+    char	*text_end = &_etext;
+#else
+#ifdef HAVE_ETEXT
+    extern char	etext;
+    char	*text_end = &etext;
+#else
+    char	*text_end = NULL;
+#endif
+#endif
+#endif
 
-    nframe = backtrace(buf, MAX_DEPTH);
-    if (nframe < 1) {
-	fprintf(f, "backtrace -> %d frames?\n", nframe);
-	return;
+    fprintf(stderr, "Procedure call traceback ...\n");
+    if (text_start != NULL)
+	fprintf(stderr, "executable text segment: " PRINTF_P_PFX "%p ... " PRINTF_P_PFX "%p\n", text_start, text_end);
+
+    nsymbols = backtrace(backaddr, MAX_TRACE_DEPTH);
+    if (nsymbols > 0) {
+	int	fd;
+	char	line[MAX_SYMBOL_LENGTH+1];
+	char	**symbols = NULL;
+	int	i;
+
+	/*
+	 * Possible name collision here to simplify the code ... we unlink()
+	 * as soon as it is created so the risk is small.
+	 */
+	fd = open("/tmp/dumpstack", O_CREAT|O_RDWR, 0644);
+	if (fd < 0) {
+	    fprintf(stderr, "Failed to create \"/tmp/dumpstack\", falling back to backtrace_symbols()\n");
+	    symbols = backtrace_symbols(backaddr, nsymbols);
+	}
+	else {
+	    /*
+	     * Preferred path to avoid calling malloc() in backtrace_symbols()
+	     * in case that's the real cause of a problem that got us here.
+	     */
+	    unlink("/tmp/dumpstack");
+	    backtrace_symbols_fd(backaddr, nsymbols, fd);
+	    lseek(fd, (off_t)0, SEEK_SET);
+	}
+
+	for (i = 0; i < nsymbols; i++) {
+	    if (fd >= 0) {
+		int	j;
+		for (j = 0; j < MAX_SYMBOL_LENGTH; j++) {
+		    int		sts;
+		    sts = read(fd, &line[j], 1);
+		    if (sts < 0) {
+			fprintf(stderr, "Botch: read() returns %d\n", sts);
+			line[j++] = '?';
+			line[j] = '\0';
+			break;
+		    }
+		    else if (sts == 0) {
+			line[j] = '\0';
+			break;
+		    }
+		    if (line[j] == '\n') {
+			line[j] = '\0';
+			break;
+		    }
+		}
+		fprintf(stderr, "  %s", line);
+	    }
+	    else if (symbols != NULL)
+		fprintf(stderr, "  %s", symbols[i]);
+	    else
+		fprintf(stderr, "  %p ??unknown??", backaddr[i]);
+	    if (text_start != NULL) {
+		/*
+		 * report address offset from the base of the text segment
+		 * ... this matches addresses from nm(1), but more importantly
+		 * is the address that is needed for addr2line(1)
+		 */
+		if (text_start  <= (char *)backaddr[i] && 
+		    (text_end == NULL || (char *)backaddr[i] <= text_end))
+		    fprintf(stderr, " (0x%llx)", (long long)((char *)backaddr[i]-text_start));
+	    }
+	    fputc('\n', stderr);
+	}
+	if (fd >= 0)
+	    close(fd);
+	else if (symbols != NULL)
+	    free(symbols);
     }
-    symbols = backtrace_symbols(buf, nframe);
-    if (symbols == NULL) {
-	fprintf(f, "backtrace_symbols failed!\n");
-	return;
+    else {
+	fprintf(stderr, "backtrace() returns %d, nothing to report\n", nsymbols);
     }
-    for (i = 1; i < nframe; i++)
-	fprintf(f, "  " PRINTF_P_PFX "%p [%s]\n", buf[i], symbols[i]);
+    return;
 }
 #else	/* no known mechanism, provide a stub (called unconditionally) */
 void
-__pmDumpStack(FILE *f)
+__pmDumpStack(void)
 {
-    fprintf(f, "[No backtrace support available]\n");
+    fprintf(stderr, "[No backtrace support available]\n");
 }
 #endif /* HAVE_BACKTRACE */
 

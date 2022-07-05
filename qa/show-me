@@ -6,7 +6,7 @@
 #
 
 # generic initialization
-iam=show-me
+__scriptname=show-me
 . ./common.rc
 
 HOST=`hostname`
@@ -133,8 +133,8 @@ then
 fi
 
 unset ROOT TOOLROOT MAKEFLAGS
-quick=true
-check=false
+__quick=true
+__check=false
 . ./common
 
 for id

@@ -42,14 +42,14 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 cat <<End-of-File >$tmp.conf
-log mandatory on 100 msec {
+log mandatory on 200 msec {
     containers
     disk
     event
     filesys
     hinv
     ipc
-    kernel
+    # kernel
     mmv
     pmcd
     pmda
@@ -63,7 +63,7 @@ log mandatory on 100 msec {
 }
 End-of-File
 
-_run_valgrind pmlogger -r -c $tmp.conf -T 5sec -l $tmp.log -m qa/$seq $tmp \
+_run_valgrind pmlogger -r -c $tmp.conf -T 10sec -l $tmp.log -m qa/$seq $tmp \
 | _filter
 echo
 
@@ -71,7 +71,7 @@ echo
 # the config file into multiple pmFetch's, so just count the number of
 # pmda.version records in the archive.
 #
-# Expected number of records is 5sec / 100msec = 50, but given valgrind
+# Expected number of records is 10sec / 200msec = 50, but given valgrind
 # overhead and proc PMDA slowness and possibly lame VM, if we see 10
 # pmResults containing pmda.version, that would be good and allow +5
 # overshoot.

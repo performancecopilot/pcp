@@ -9,6 +9,7 @@ QA output created by 182
 === pmlogger log ===
 Log for pmlogger on HOST started MONTH-DAY TIME YEAR
 
+[MONTH-DAY TIME] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE

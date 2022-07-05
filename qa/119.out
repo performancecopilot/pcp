@@ -10,6 +10,7 @@ Current pmlogger processes:
 Contents of pmlogger output file "pmlogger.log" ...
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 pmlogger: Cannot connect to PMCD on host "no.such.host.pcp.io": No route to host
 
 Log finished DATE
@@ -19,6 +20,7 @@ Restarting pmlogger for host "no.such.host.pcp.io" ... process exited!
 Contents of pmlogger output file "pmlogger.log" ...
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 pmlogger: Cannot connect to PMCD on host "no.such.host.pcp.io": No route to host
 
 Log finished DATE

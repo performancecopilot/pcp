@@ -13,9 +13,9 @@ n_bad=0
 bad=""
 notrun=""
 seq=''
-aborted=true
+__aborted=true
 myname=`basename $0`
-iam=$myname  #  a synonym
+__scriptname=$myname  #  a synonym
 
 # Suggested by Andreas Gerstmayr on 11 Mar 2022
 #
@@ -64,7 +64,7 @@ _wrapup()
 	_release_lock
 	[ -d $tmp ] && ( rm -rf $tmp/checksums ; rmdir $tmp )
 
-	if $showme
+	if $__showme
 	then
 	    :
 	elif $needwrap
@@ -82,8 +82,8 @@ END	{ if (NR > 0) {
 		mv $tmp.out check.time
 	    fi
 
-	    echo $list | fmt | sed -e 's/^/    /' >>check.log
-	    if $aborted
+	    echo $__list | fmt | sed -e 's/^/    /' >>check.log
+	    if $__aborted
 	    then
 		if [ -z "$seq" ]
 		then
@@ -96,25 +96,25 @@ END	{ if (NR > 0) {
 
 	    if [ ! -z "$notrun" ]
 	    then
-		[ $color = true ] && tput bold && tput setaf 4 # blue
+		[ $__color = true ] && tput bold && tput setaf 4 # blue
 		echo "Not run:$notrun"
-		[ $color = true ] && tput sgr0 # reset
+		[ $__color = true ] && tput sgr0 # reset
 		echo "Not run:$notrun" | fmt >>check.log
 	    fi
 	    if [ ! -z "$n_bad" -a "$n_bad" != 0 ]
 	    then
-		[ $color = true ] && tput bold && tput setaf 1 # red
+		[ $__color = true ] && tput bold && tput setaf 1 # red
 		echo "Failures:$bad"
 		echo "Failed $n_bad of $try tests"
-		[ $color = true ] && tput sgr0 # reset
+		[ $__color = true ] && tput sgr0 # reset
 		echo "Failures:$bad" | fmt >>check.log
 		echo "Failed $n_bad of $try tests" >>check.log
 	    else
 		if [ $try != 0 ]
 		then
-		    [ $color = true ] && tput bold && tput setaf 2 # green
+		    [ $__color = true ] && tput bold && tput setaf 2 # green
 		    echo "Passed all $try tests"
-		    [ $color = true ] && tput sgr0 # reset
+		    [ $__color = true ] && tput sgr0 # reset
 		    echo "Passed all $try tests" >>check.log
 		fi
 	    fi
@@ -306,16 +306,12 @@ _checksums()
 
 trap "_wrapup; exit \$status" 0 1 2 3 15
 
-# by default don't output timestamps
-timestamp=false
-timings_file=false
-
 # generic initialization... this may take a while to run, because (unless
-# $quick is true) make is run.
+# $__quick is true) make is run.
 . ./common
 
 [ -f check.time ] || touch check.time
-$timings_file && $PCP_ECHO_PROG $PCP_ECHO_N > check.timings
+$__timings_file && $PCP_ECHO_PROG $PCP_ECHO_N > check.timings
 
 # Remove automated PMDA install/remove that will interfere with tests
 $sudo rm -f $PCP_PMDAS_DIR/*/.NeedInstall $PCP_PMDAS_DIR/*/.NeedRemove
@@ -325,10 +321,10 @@ $sudo rm -f $PCP_PMLOGGER_DIR/.NeedRewrite
 
 [ "`_get_config pmcd`" != on ] && _change_config pmcd on
 
-torun=`echo $list | wc -w | sed -e 's/ //g'`
+torun=`echo $__list | wc -w | sed -e 's/ //g'`
 haverun=0
 
-if $showme
+if $__showme
 then
     :
 else
@@ -344,10 +340,10 @@ else
     fi
 fi
 
-for seq in $list
+for seq in $__list
 do
     err=false
-    if $showme
+    if $__showme
     then
 	echo $seq
 	continue
@@ -381,15 +377,15 @@ do
 	    exit
     	fi
 
-	if $check_config
+	if $__check_config
 	then
 	    # save checksums for critical conf and control files
 	    [ ! -f $tmp.checksums ] && _checksums get >$tmp.checksums
 	fi
 
 	start=`_wallclock`
-	$timestamp && _timestamp
-	$timings_file && $PCP_ECHO_PROG $PCP_ECHO_N "$seq `date '+%s'` " >> check.timings
+	$__timestamp && _timestamp
+	$__timings_file && $PCP_ECHO_PROG $PCP_ECHO_N "$seq `date '+%s'` " >> check.timings
 
 	# optional --precheck callback
 	#
@@ -410,7 +406,7 @@ do
 	    sts=$?
 	fi
 
-	if $check_config
+	if $__check_config
 	then
 	    # check the saved checksums
 	    _checksums check $tmp.checksums >$tmp.check
@@ -436,9 +432,9 @@ do
 	rm -f $tmp.callback.abort
 	if [ -f $seq.notrun ]
 	then
-	    [ $color = true ] && tput bold && tput setaf 4 # blue
+	    [ $__color = true ] && tput bold && tput setaf 4 # blue
 	    echo " [not run] `cat $seq.notrun`"
-	    [ $color = true ] && tput sgr0 # reset
+	    [ $__color = true ] && tput sgr0 # reset
 	    notrun="$notrun $seq"
 	else
 	    if [ $sts -ne 0 ]
@@ -459,11 +455,11 @@ do
 		then
 		    done_nl=false
 		else
-		    [ $color = true ] && tput bold && tput setaf 1 # red
+		    [ $__color = true ] && tput bold && tput setaf 1 # red
 		    echo " - output mismatch (see $seq.out.bad)"
-		    [ $color = true ] && tput sgr0 # reset
+		    [ $__color = true ] && tput sgr0 # reset
 		    done_nl=true
-		    $diff $seq.out $tmp.out
+		    $__diff $seq.out $tmp.out
 		    err=true
 		fi
 
@@ -478,14 +474,14 @@ do
 		sh ./994 --fix >$tmp.tmp
 		if [ -s $tmp.tmp ]
 		then
-		    [ $color = true ] && tput bold && tput setaf 1 # red
+		    [ $__color = true ] && tput bold && tput setaf 1 # red
 		    if $done_nl
 		    then
 			echo "$seq ... - also failed permissions check"
 		    else
 			$PCP_ECHO_PROG $PCP_ECHO_N " - failed permissions check""$PCP_ECHO_C"
 		    fi
-		    [ $color = true ] && tput sgr0 # reset
+		    [ $__color = true ] && tput sgr0 # reset
 		    reported=true
 		    echo >>$tmp.out
 		    echo "*** Failed permissions/ownership checks ***" >>$tmp.out
@@ -507,14 +503,14 @@ do
 			    # output from check.callback, this means something
 			    # bad has been detected ...
 			    #
-			    [ $color = true ] && tput bold && tput setaf 1 # red
+			    [ $__color = true ] && tput bold && tput setaf 1 # red
 			    if $done_nl
 			    then
 				echo "$seq ... - also badness detected by check.callback"
 			    else
 				$PCP_ECHO_PROG $PCP_ECHO_N " - badness detected by check.callback""$PCP_ECHO_C"
 			    fi
-			    [ $color = true ] && tput sgr0 # reset
+			    [ $__color = true ] && tput sgr0 # reset
 			    echo >>$tmp.out
 			    echo "+++ check.callback output +++" >>$tmp.out
 			    [ -f $tmp.callback.pre ] && cat $tmp.callback.pre >>$tmp.out
@@ -524,14 +520,14 @@ do
 		    else
 			# check.callback suggests we should abandon the QA run ...
 			#
-			[ $color = true ] && tput bold && tput setaf 1 # red
+			[ $__color = true ] && tput bold && tput setaf 1 # red
 			if $done_nl
 			then
 			    echo "$seq ... - also run aborted by check.callback"
 			else
 			    $PCP_ECHO_PROG $PCP_ECHO_N " - run aborted by check.callback""$PCP_ECHO_C"
 			fi
-			[ $color = true ] && tput sgr0 # reset
+			[ $__color = true ] && tput sgr0 # reset
 			echo >>$tmp.out
 			echo "+++ check.callback output +++" >>$tmp.out
 			[ -f $tmp.callback.pre ] && cat $tmp.callback.pre >>$tmp.out
@@ -542,7 +538,7 @@ do
 		    fi
 		fi
 
-		$timestamp && _timestamp
+		$__timestamp && _timestamp
 		stop=`_wallclock`
 
 		if $err
@@ -555,17 +551,17 @@ do
 		$done_nl || echo
 	    fi
 	fi
-	$timings_file && date '+%s' >> check.timings
+	$__timings_file && date '+%s' >> check.timings
     fi
 
-    # come here for each test, except when $showme is true
+    # come here for each test, except when $__showme is true
     #
     if $err
     then
 	bad="$bad $seq"
 	n_bad=`expr $n_bad + 1`
-	quick=false
-	[ $diff = true ] || echo "Check local PMCD is still alive ..."
+	__quick=false
+	[ $__diff = true ] || echo "Check local PMCD is still alive ..."
 	$OPTION_AGENTS && _haveagents
 	$OPTION_LOGGER && _havelogger
     fi
@@ -578,9 +574,9 @@ done
 
 if [ -f $tmp.callback.abort ]
 then
-    aborted=true
+    __aborted=true
 else
-    aborted=false
+    __aborted=false
 fi
 
 status=$n_bad

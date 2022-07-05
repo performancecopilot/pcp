@@ -1,0 +1,177 @@
+#!/bin/sh
+#
+# Check shell variables across the common* "include" files and the
+# scripts used to run and manage QA.
+#
+# For the most part, the common* files should use a "__" prefix for
+# shell variables to insulate them from the use of arbitrarily named
+# shell variables in the QA tests themselves (all of which "source"
+# multiple of the common* files).
+#
+# See $tmp.reserved below for a list of exceptions.
+#
+# Note that the script uses shallow parsing of the shell script files,
+# so does not understand comments, strings, backquotes or fragments of
+# perl/awk/sed/<<documents/... embedded in the scripts; this can lead
+# to some false matches.
+#
+# Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
+#
+
+tmp=/var/tmp/eek-$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+# for all sort(1) and comm(1) executions
+#
+export LC_COLLATE=POSIX
+
+scripts="common* check chk.setup daily-cleanup getpmcdhosts mk.localconfig mk.qa_hosts mk.variant new new-grind remake setup.051 show-me"
+
+# These ones are the exceptions where a limited number of shell
+# variables are defined to be used or set in the common* files and
+# the SAME shell variables are used or set in the QA tests.
+#
+sed <<'End-of-File' -e 's/[ 	]*#.*//' -e '/^$/d' >$tmp.reserved
+# variables set/used in common* and used/set in tests
+# $variable	where set
+# -- generic variables
+seq		# each test, test sequence number
+status		# common, common.check and every test, exit status
+tmp		# common.rc, temp filename prefix
+sudo		# common.rc, sudo with args
+sudo_local_ctx	# common.rc, sudo with args for PM_CONTEXT_LOCAL use
+here		# common, cwd when script or test sources common
+iam		# common.check, PMDA name from prepare/install/remove
+# -- function return side-values
+num_warn	# no. of warnings returned from _check_agent()
+pid		# pmlogger PID returned from _start_up_pmlogger()
+# -- common.secure
+usersdb		# $HOME/.pki/nssdb
+collectordb	# $tmp/pki/nssdb
+collectorpw	# $tmp/pki/nssdb/pass
+pluginviewer	# pluginviewer or saslpluginviewer depending on availability
+hostname	# hostname(1) stripped of any domain name components
+qahost		# fully qualified domain name for current host
+userid		# result from $(id -u)
+username	# result from $(id -u -n)
+groupid		# result from $(id -g)
+groupname	# result from $(id -g -n)
+# -- common.discovery
+service		# set to "pmcd" or "pmproxy" in tests, used on common.discovery
+# -- common.containers
+docker		# $PCP_DOCKER_PROG unless $docker set earlier
+podman		# $PCP_PODMAN_PROG unless $podman set earlier
+# -- common.python
+python		# alias for $PCP_PYTHOON_PROG (this week's Python interpreter)
+# -- common.redis
+redis_node1_port	# returned from _redis_cluster_3nodes_start()
+redis_node2_port	# returned from _redis_cluster_3nodes_start()
+redis_node3_port	# returned from _redis_cluster_3nodes_start()
+End-of-File
+
+# these ones are exempted for various reasons
+#
+sed <<'End-of-File' -e 's/[ 	]*#.*//' -e '/^$/d' >$tmp.exempt
+p		# false match in common.bcc and common.bpf from sed(1) script
+secure_sockets	# false match in common.secure from pmconfig -L
+service_discovery	# false match in common.discovery from pmconfig -L
+version		# false match in common.check from pmlogger control file
+count		# false match in common.gfs2 and common.secure from dd(1) args
+entry		# false match in common.filter from pmcd.conf control line
+scale		# false match in common.check from bc(1) input
+End-of-File
+
+# reserved variables and exemptions all sorted together
+#
+sort $tmp.reserved $tmp.exempt >$tmp.ok
+
+# start with the $var (variable used) cases from the common* scripts,
+# but only those variables that begin with a lower case alphabetic
+# (these are potentially the problem ones) ...
+#
+egrep '(\$[a-z])|(\${[a-z])|(\$_[a-z])|(\${_[a-z])' common* \
+| sed \
+    -e 's/\${/$/' \
+    -e 's/\$/ $/g' \
+| tr '[ ./]' '\012' \
+| egrep '(\$[a-z])|(\$_[a-z])' \
+| sed >$tmp.used \
+    -e 's/^>>*//' \
+    -e 's/[^$]*\$/$/' \
+    -e 's/[^$a-zA-Z0-9_].*//' \
+    -e 's/^\$//' \
+# end
+
+# now the var= cases and "for var" and "read ... var" (variable set)
+# cases from the common* scripts, again for variables that begin with
+# a lower case alphabetic ...
+#
+cat common* \
+| sed -n \
+    -e '/^[ 	]*#/d' \
+    -e 's/^/ /' \
+    -e 's/$/ /' \
+    -e '/[ 	;(][a-z][a-z0-9_]*=/{                                 
+s/.*[ 	;(]\([a-z][a-z0-9_]*\)=.*/\1/
+p
+}' \
+    -e '/[ 	]for[ 	][ 	]*\([a-z]\)/{
+s//\1/
+s/[^a-z0-9_].*//
+p
+}' \
+    -e '/[ 	]read[ 	]/{
+T try
+:try
+s/\(.*[ 	]read[ 	][ 	]*\)\([a-z][a-z0-9_]*\)/\2;\1/
+T
+s/;/\
+/
+P
+D
+}' \
+| sed >$tmp.set \
+    -e '/^ *$/d' \
+# end
+
+# combine the used and assigned lists and remove duplicates
+#
+sort $tmp.used $tmp.set \
+| uniq >$tmp.full
+
+#debug# echo $tmp
+#debug# read x </dev/tty
+
+# pick all the found variable names (beginning with a lowercase alphabetic)
+# that are not in the reserved+exceptions list
+#
+comm -13 $tmp.ok $tmp.full >$tmp.togo
+
+# report only the first one ... the remediation here is iterative by
+# design
+#
+sed <$tmp.togo \
+    -e 1q \
+| while read var
+do
+    echo $var:
+    # report set or used or both in all QA tests
+    #
+    egrep -l "(\\\$$var[^a-zA-Z0-9_])|(\\\$$var\$)|(\\\${$var})|(for $var in)|(for $var\$)|([ 	;(]$var=)|(^$var=)|(read $var )|(read .* var )|(read .* $var\$)" [0-9]*[0-9] 2>/dev/null \
+    | while read seq
+    do
+	./var-use $var $seq
+    done
+    # show lines where used in common* scripts
+    #
+    egrep "(\\\$$var[^a-zA-Z0-9_])|(\\\$$var\$)|(\\\${$var})|(for $var in)|(for $var\$)|([ 	;(]$var=)|(^$var=)|(read $var )|(read .* var )|(read .* $var\$)" $scripts 2>/dev/null
+done
+
+togo=`wc -l <$tmp.togo | sed -e 's/  *//g'`
+if [ "$togo" = 0 ]
+then
+    echo "All done."
+else
+    togo=`expr $togo - 1`
+    echo "$togo vars still to go ..."
+fi

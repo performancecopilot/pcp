@@ -110,7 +110,7 @@ QmcIndom::QmcIndom(int type, QmcDesc &desc)
 	cerr << "QmcIndom::QmcIndom: unable to lookup "
 	     << pmInDomStr(my.id) << " from "
 	     << (my.type == PM_CONTEXT_ARCHIVE ? "archive" : "host/local")
-	     << " source: " << pmErrStr(my.status) << QT_ENDL;
+	     << " source: " << pmErrStr(my.status) << Qt::endl;
     }
 }
 
@@ -150,7 +150,7 @@ QmcIndom::lookup(QString const &name)
 		QTextStream cerr(stderr);
 		cerr << "QmcIndom::lookup: inst \"" << name << "\"(" << i
 		     << ") matched to \"" << my.instances[i].name() << "\"("
-		     << i << ')' << QT_ENDL;
+		     << i << ')' << Qt::endl;
 	    }
 	    if (my.instances[i].refCount() == 0) {
 		my.profile = true;
@@ -184,7 +184,7 @@ QmcIndom::lookup(QString const &name)
 		    QTextStream cerr(stderr);
 		    cerr << "QmcIndom::lookup: numerical inst \""
 			 << name << " matched to \"" << my.instances[i].name()
-			 << "\"(" << i << ')' << QT_ENDL;
+			 << "\"(" << i << ')' << Qt::endl;
 		}
 		if (my.instances[i].refCount() == 0) {
 		    my.profile = true;
@@ -288,7 +288,7 @@ QmcIndom::genProfile()
 	     << ": " << action << " ptr = " << ptr;
 	if (sts < 0)
 	    cerr << ", sts = " << sts << ": " << pmErrStr(sts);
-	cerr << QT_ENDL;
+	cerr << Qt::endl;
     }
 
     if (sts >= 0)
@@ -300,16 +300,16 @@ void
 QmcIndom::dump(QTextStream &os) const
 {
     os << pmInDomStr(my.id) << ": " << numInsts() << " instances ("
-       << my.nullCount << " NULL)" << QT_ENDL;
+       << my.nullCount << " NULL)" << Qt::endl;
     for (int i = 0; i < my.instances.size(); i++)
 	if (!my.instances[i].null())
 	    os << "  [" << my.instances[i].inst() << "] = \""
 	       << my.instances[i].name() << "\" ("
 	       << my.instances[i].refCount() << " refs) "
 	       << (my.instances[i].active() ? "active" : "inactive")
-	       << QT_ENDL;
+	       << Qt::endl;
 	else
-	    os << "  NULL -> " << my.instances[i].index() << QT_ENDL;
+	    os << "  NULL -> " << my.instances[i].index() << Qt::endl;
 }
 
 int
@@ -338,7 +338,7 @@ QmcIndom::update()
 	    QTextStream cerr(stderr);
 	    cerr << "QmcIndom::update: Cleaning indom " << pmInDomStr(my.id)
 		 << ": Removed " << my.nullCount - oldNullCount 
-		 << " instances" << QT_ENDL;
+		 << " instances" << Qt::endl;
 	}
 	return 0;
     }
@@ -360,7 +360,7 @@ QmcIndom::update()
 	    QTextStream cerr(stderr);
 	    cerr << "QmcIndom::update: Updating indom " << pmInDomStr(my.id)
 		 << ": Got " << count << " instances (vs " << numInsts()
-		 << ")" << QT_ENDL;
+		 << ")" << Qt::endl;
 	}
 
 	// Any instances which are not in the new indom AND are not
@@ -404,7 +404,7 @@ QmcIndom::update()
 		if (pmDebugOptions.indom) {
 		    QTextStream cerr(stderr);
 		    cerr << "QmcIndom::update: Unchanged \"" << nameList[i]
-			 << "\"(" << instList[i] << ')' << QT_ENDL;
+			 << "\"(" << instList[i] << ')' << Qt::endl;
 		}
 		my.instances[i].setActive(true);
 		my.numActive++;
@@ -432,7 +432,7 @@ QmcIndom::update()
 			cerr << "QmcIndom::update: Ignoring \""
 			     << nameList[i] 
 			     << "\" with identical internal identifier ("
-			     << instList[i] << ")" << QT_ENDL;
+			     << instList[i] << ")" << Qt::endl;
 		    }
 		    break;
 		}
@@ -442,7 +442,7 @@ QmcIndom::update()
 		if (pmDebugOptions.indom) {
 		    QTextStream cerr(stderr);
 		    cerr << "QmcIndom::update: Adding \"" << nameList[i] 
-			 << "\"(" << instList[i] << ")" << QT_ENDL;
+			 << "\"(" << instList[i] << ")" << Qt::endl;
 		}
 		if (my.nullCount) {
 		    uint newindex = my.instances[my.nullIndex].index();
@@ -461,11 +461,11 @@ QmcIndom::update()
 	if (pmDebugOptions.indom) {
 	    QTextStream cerr(stderr);
 	    if (my.instances.size() == oldLen && my.nullCount == oldNullCount)
-		cerr << "QmcIndom::update: indom size unchanged" << QT_ENDL;
+		cerr << "QmcIndom::update: indom size unchanged" << Qt::endl;
 	    else {
 		cerr << "QmcIndom::update: indom changed from "
 		     << oldLen - oldNullCount << " to " << numInsts()
-		     << QT_ENDL;
+		     << Qt::endl;
 		dump(cerr);
 	    }
 	}
@@ -477,11 +477,11 @@ QmcIndom::update()
 	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    if (sts == 0)
-		cerr << "QmcIndom::update: indom empty!" << QT_ENDL;
+		cerr << "QmcIndom::update: indom empty!" << Qt::endl;
 	    else
 		cerr << "QmcIndom::update: unable to lookup "
 		     << pmInDomStr(my.id) << " from host/local source: "
-		     << pmErrStr(sts) << QT_ENDL;
+		     << pmErrStr(sts) << Qt::endl;
 	}
     }
 

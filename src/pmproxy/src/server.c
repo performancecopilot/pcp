@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019,2021 Red Hat.
+ * Copyright (c) 2018-2019,2021-2022 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -317,17 +317,21 @@ on_write_callback(uv_callback_t *handle, void *data)
     struct client		*client = (struct client *)request->writer.data;
     int				sts;
 
+    (void)handle;
     if (pmDebugOptions.af)
 	fprintf(stderr, "%s: client=%p\n", "on_write_callback", client);
 
     if (client->stream.secure == 0) {
 	sts = uv_write(&request->writer, (uv_stream_t *)&client->stream,
 		 &request->buffer[0], request->nbuffers, request->callback);
-	if (sts != 0)
-	    fprintf(stderr, "%s: ERROR uv_write failed\n", "on_write_callback");
+	if (sts != 0) {
+	    pmNotifyErr(LOG_ERR, "%s: %s - uv_write failed [%s]: %s\n",
+			pmGetProgname(), "on_write_callback",
+			uv_err_name(sts), uv_strerror(sts));
+	    client_close(client);
+	}
     } else
 	secure_client_write(client, request);
-    (void)handle;
     return 0;
 }
 
@@ -462,14 +466,16 @@ on_client_connection(uv_stream_t *stream, int status)
     uv_handle_t		*handle;
 
     if (status != 0) {
-	fprintf(stderr, "%s: client connection failed: %s\n",
-			pmGetProgname(), uv_strerror(status));
+	pmNotifyErr(LOG_ERR, "%s: %s - %s failed [%s]: %s\n",
+		    pmGetProgname(), "on_client_connection", "connection",
+		    uv_err_name(status), uv_strerror(status));
 	return;
     }
 
     if ((client = calloc(1, sizeof(*client))) == NULL) {
-	fprintf(stderr, "%s: out-of-memory for new client\n",
-			pmGetProgname());
+	pmNotifyErr(LOG_ERR, "%s: %s - %s failed [%s]: %s\n",
+			pmGetProgname(), "on_client_connection", "calloc",
+			"ENOMEM", strerror(ENOMEM));
 	return;
     }
     if (pmDebugOptions.context | pmDebugOptions.af)
@@ -483,16 +489,18 @@ on_client_connection(uv_stream_t *stream, int status)
 
     status = uv_tcp_init(proxy->events, &client->stream.u.tcp);
     if (status != 0) {
-	fprintf(stderr, "%s: client tcp init failed: %s\n",
-			pmGetProgname(), uv_strerror(status));
+	pmNotifyErr(LOG_ERR, "%s: %s - %s failed [%s]: %s\n",
+		    pmGetProgname(), "on_client_connection", "uv_tcp_init",
+		    uv_err_name(status), uv_strerror(status));
 	client_put(client);
 	return;
     }
 
     status = uv_accept(stream, (uv_stream_t *)&client->stream.u.tcp);
     if (status != 0) {
-	fprintf(stderr, "%s: client tcp init failed: %s\n",
-			pmGetProgname(), uv_strerror(status));
+	pmNotifyErr(LOG_ERR, "%s: %s - %s failed [%s]: %s\n",
+		    pmGetProgname(), "on_client_connection", "uv_accept",
+		    uv_err_name(status), uv_strerror(status));
 	client_put(client);
 	return;
     }
@@ -503,8 +511,9 @@ on_client_connection(uv_stream_t *stream, int status)
     status = uv_read_start((uv_stream_t *)&client->stream.u.tcp,
 			    on_buffer_alloc, on_client_read);
     if (status != 0) {
-	fprintf(stderr, "%s: client read start failed: %s\n",
-			pmGetProgname(), uv_strerror(status));
+	pmNotifyErr(LOG_ERR, "%s: %s - %s failed [%s]: %s\n",
+		    pmGetProgname(), "on_client_connection", "uv_read_start",
+		    uv_err_name(status), uv_strerror(status));
 	client_close(client);
     }
 }
@@ -537,8 +546,9 @@ open_request_port(struct proxy *proxy, struct server *server,
 
     sts = uv_listen((uv_stream_t *)&stream->u.tcp, maxpending, on_client_connection);
     if (sts != 0) {
-	fprintf(stderr, "%s: socket listen error %s\n",
-			pmGetProgname(), uv_strerror(sts));
+	pmNotifyErr(LOG_ERR, "%s: %s - uv_listen failed [%s]: %s\n",
+			pmGetProgname(), "open_request_port",
+			uv_err_name(sts), uv_strerror(sts));
 	uv_close(handle, NULL);
 	return -ENOTCONN;
     }
@@ -563,8 +573,9 @@ open_request_local(struct proxy *proxy, struct server *server,
     handle->data = (void *)proxy;
     sts = uv_pipe_bind(&stream->u.local, name);
     if (sts != 0) {
-	fprintf(stderr, "%s: local bind (%s) error %s\n",
-			pmGetProgname(), name, uv_strerror(sts));
+	pmNotifyErr(LOG_ERR, "%s: %s - uv_pipe_bind %s failed [%s]: %s\n",
+			pmGetProgname(), "open_request_local", name,
+			uv_err_name(sts), uv_strerror(sts));
 	uv_close(handle, NULL);
         return -ENOTCONN;
     }
@@ -574,8 +585,9 @@ open_request_local(struct proxy *proxy, struct server *server,
 
     sts = uv_listen((uv_stream_t *)&stream->u.local, maxpending, on_client_connection);
     if (sts != 0) {
-	fprintf(stderr, "%s: local listen error %s\n",
-			pmGetProgname(), uv_strerror(sts));
+	pmNotifyErr(LOG_ERR, "%s: %s - %s failed [%s]: %s\n",
+		    pmGetProgname(), "open_request_local", "uv_listen",
+		    uv_err_name(sts), uv_strerror(sts));
 	uv_close(handle, NULL);
         return -ENOTCONN;
     }

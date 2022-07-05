@@ -26,7 +26,7 @@ _filter()
 	-e "s@$PCP_BINADM_DIR@PCP_BINADM_DIR@" \
 	-e "s@$PCP_VAR_DIR@PCP_VAR_DIR@" \
 	-e "s@$tmp@TMP@" \
-    # end
+    | _filter_pmlogger_log
 }
 
 status=1	# failure is the default!

@@ -30,7 +30,7 @@ _filter()
 	-e "s@$PCP_VAR_DIR@PCP_VAR_DIR@" \
 	-e "s@$tmp@TMP@" \
 	-e 's/ key=[1-9][0-9]*/ key=NNN/' \
-    # end
+    | _filter_pmlogger_log
 }
 
 # real QA test starts here

@@ -452,8 +452,8 @@ sigbadproc(int sig)
 {
     if (pmDebugOptions.desperate) {
 	pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
-	fprintf(stderr, "\nProcedure call traceback ...\n");
-	__pmDumpStack(stderr);
+	fprintf(stderr, "\n");
+	__pmDumpStack();
 	fflush(stderr);
     }
     stopmonitor();
@@ -960,6 +960,16 @@ interact(void)
 int
 main(int argc, char **argv)
 {
+#ifdef HAVE___EXECUTABLE_START
+    extern char		__executable_start;
+
+    /*
+     * optionally set address for start of my text segment, to be used
+     * in __pmDumpStack() if it is called later
+     */
+    __pmDumpStackInit((void *)&__executable_start);
+#endif
+
     pmGetUsername(&username);
     setlinebuf(stdout);
 

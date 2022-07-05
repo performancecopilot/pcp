@@ -25,7 +25,17 @@ LFILES  = lex.l
 YFILES	= gram.y
 
 LCFLAGS += $(PIECFLAGS)
-LLDFLAGS += $(PIELDFLAGS)
+LLDFLAGS += $(PIELDFLAGS) $(LIB_FOR_BACKTRACE)
+
+# Set $BACTRACE_SYMBOLS=something to build a binary with key function
+# symbols defined and accessible from mybacktrace()
+#
+BACKTRACE_SYMBOLS=y
+ifneq "$(BACKTRACE_SYMBOLS)" ""
+LLDFLAGS += -rdynamic
+LCFLAGS += -DBACKTRACE_SYMBOLS=1
+LLDFLAGS += $(LIB_FOR_BACKTRACE)
+endif
 
 LLDLIBS	= $(PCP_ARCHIVELIB) $(PCPLIB) $(LIB_FOR_PTHREADS)
 LDIRT	= *.log foo.* gram.h lex.c y.tab.? $(YFILES:%.y=%.tab.?) $(CMDTARGET)
@@ -50,3 +60,6 @@ default_pcp:	default
 install_pcp:	install
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h
+
+foo:
+	@echo $(BACKTRACE_SYMBOLS)

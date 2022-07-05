@@ -149,7 +149,7 @@ QmcSource::retryConnect(int type, QString &source)
 	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcSource::QmcSource: Created context "
-		 << my.handles.last() << " to " << my.desc << QT_ENDL;
+		 << my.handles.last() << " to " << my.desc << Qt::endl;
 	}
 
 	oldTZ = pmWhichZone(&tzs);
@@ -181,7 +181,7 @@ QmcSource::retryConnect(int type, QString &source)
     else if (pmDebugOptions.pmc) {
 	QTextStream cerr(stderr);
 	cerr << "QmcSource::QmcSource: Context to " << source
-	     << " failed: " << pmErrStr(my.status) << QT_ENDL;
+	     << " failed: " << pmErrStr(my.status) << Qt::endl;
     }
 
  done:
@@ -283,7 +283,7 @@ QmcSource::getSource(int type, QString &source, int flags, bool matchHosts)
 		    QTextStream cerr(stderr);
 		    cerr << "QmcSource::getSource: Matched host "
 			 << source << " to archive " << src->source()
-			 << " (source " << i << ")" << QT_ENDL;
+			 << " (source " << i << ")" << Qt::endl;
 		}
 		break;
 	    }
@@ -292,7 +292,7 @@ QmcSource::getSource(int type, QString &source, int flags, bool matchHosts)
 	    if (pmDebugOptions.pmc) {
 		QTextStream cerr(stderr);
 		cerr << "QmcSource::getSource: Matched " << source
-		     << " to source " << i << QT_ENDL;
+		     << " to source " << i << Qt::endl;
 	    }
 	    if (src->status() < 0)
 		src->retryConnect(type, source);
@@ -306,10 +306,10 @@ QmcSource::getSource(int type, QString &source, int flags, bool matchHosts)
 	    QTextStream cerr(stderr);
 	    if (type != PM_CONTEXT_LOCAL)
 		cerr << "QmcSource::getSource: Creating new source for "
-		     << source << QT_ENDL;
+		     << source << Qt::endl;
 	    else
 		cerr << "QmcSource::getSource: Creating new local context"
-		     << QT_ENDL;
+		     << Qt::endl;
 	}
 	src = new QmcSource(type, source, flags);
     }
@@ -317,7 +317,7 @@ QmcSource::getSource(int type, QString &source, int flags, bool matchHosts)
     if (src == NULL && pmDebugOptions.pmc) {
 	QTextStream cerr(stderr);
 	cerr << "QmcSource::getSource: Unable to map host "
-	     << source << " to an arch context" << QT_ENDL;
+	     << source << " to an arch context" << Qt::endl;
     }
 
     return src;
@@ -339,7 +339,7 @@ QmcSource::dupContext()
 	    if (pmDebugOptions.pmc) {
 		QTextStream cerr(stderr);
 		cerr << "QmcSource::dupContext: Using original context for "
-		     << my.desc << QT_ENDL;
+		     << my.desc << Qt::endl;
 	    }
 	}
 	else
@@ -357,7 +357,7 @@ QmcSource::dupContext()
 		    QTextStream cerr(stderr);
 		    cerr << "QmcSource::dupContext: " << my.desc
 			 << " duplicated, handle[" << my.handles.size() - 1
-			 << "] = " << sts << QT_ENDL;
+			 << "] = " << sts << Qt::endl;
 		}
 	    }
 	    else
@@ -379,7 +379,7 @@ QmcSource::dupContext()
 	    if (pmDebugOptions.pmc) {
 		QTextStream cerr(stderr);
 		cerr << "QmcSource::dupContext: new context to " << my.desc
-		     << " created, handle = " << sts << QT_ENDL;
+		     << " created, handle = " << sts << Qt::endl;
 	    }
 	}
     }
@@ -387,7 +387,7 @@ QmcSource::dupContext()
     if (sts < 0 && pmDebugOptions.pmc) {
 	QTextStream cerr(stderr);
 	cerr << "QmcSource::dupContext: context to " << my.desc
-	     << " failed: " << pmErrStr(my.status) << QT_ENDL;
+	     << " failed: " << pmErrStr(my.status) << Qt::endl;
     }
 
     return sts;
@@ -408,7 +408,7 @@ QmcSource::delContext(int handle)
 	    QTextStream cerr(stderr);
 	    cerr << "QmcSource::delContext: Attempt to delete " << handle
 		 << " from list for " << my.desc << ", but it is not listed"
-		 << QT_ENDL;
+		 << Qt::endl;
 	}
 	return PM_ERR_NOCONTEXT;
     }
@@ -422,7 +422,7 @@ QmcSource::delContext(int handle)
 	if (pmDebugOptions.pmc) {
 	    QTextStream cerr(stderr);
 	    cerr << "QmcSource::delContext: No contexts remain, removing "
-		 << my.desc << QT_ENDL;
+		 << my.desc << Qt::endl;
 	}
 	delete this;
     }
@@ -441,25 +441,25 @@ void
 QmcSource::dump(QTextStream &stream)
 {
     stream << "  sts = " << my.status << ", type = " << my.type
-	   << ", source = " << my.source << QT_ENDL
+	   << ", source = " << my.source << Qt::endl
 	   << "  host = " << my.host << ", timezone = " << my.timezone
-	   << ", tz hndl = " << my.tz << QT_ENDL;
+	   << ", tz hndl = " << my.tz << Qt::endl;
     if (my.status >= 0)
 	stream << "  start = " << timeString(&my.start) << ", end = "
 	       << timeString(&my.end) << ", dupFlag = "
-	       << (my.dupFlag == true ? "true" : "false") << QT_ENDL << "  " 
+	       << (my.dupFlag == true ? "true" : "false") << Qt::endl << "  " 
 	       << my.handles.size() << " contexts: ";
     for (int i = 0; i < my.handles.size(); i++)
 	stream << my.handles[i] << ' ';
-    stream << QT_ENDL;
+    stream << Qt::endl;
 }
 
 void
 QmcSource::dumpList(QTextStream &stream)
 {
-    stream << sourceList.size() << " sources:" << QT_ENDL;
+    stream << sourceList.size() << " sources:" << Qt::endl;
     for (int i = 0; i < sourceList.size(); i++) {
-	stream << '[' << i << "] " << *(sourceList[i]) << QT_ENDL;
+	stream << '[' << i << "] " << *(sourceList[i]) << Qt::endl;
 	sourceList[i]->dump(stream);
     }
 }

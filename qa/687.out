@@ -1,10 +1,10 @@
 QA output created by 687
 === syntax errors ===
-preprocessor cmd: PCP_BINADM_DIR/pmcpp -rs -I PCP_VAR_DIR/config/pmlogger TMP.config
+[DATE] pmlogger(PID) Info: Start
 Specification error in configuration file (TMP.config)
 [line 1] syntax error
 === no errors ===
-preprocessor cmd: PCP_BINADM_DIR/pmcpp -rs -I PCP_VAR_DIR/config/pmlogger TMP.config
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 
 === should be in usage message ===

@@ -13,7 +13,12 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+# we're using our own Slurm Perl module for testing
+#
+export PERL5LIB=$here/slurm
+
 [ -d $PCP_PMDAS_DIR/slurm ] || _notrun "slurm PMDA directory is not installed"
+[ -f $PCP_PMDAS_DIR/slurm/pmdaslurm.pl ] || _notrun "slurm PMDA is not installed"
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 perl -e "use threads" >/dev/null 2>&1
@@ -44,7 +49,6 @@ script=pmdaslurm.pl
 cd "$PCP_PMDAS_DIR/slurm"
 
 # create a root namespace file for dbpmda to use
-export PERL5LIB=$here/slurm
 PCP_PERL_PMNS=root /usr/bin/env perl $script > $tmp.root
 
 # create a set of commands for dbpmda

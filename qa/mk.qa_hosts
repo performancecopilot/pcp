@@ -5,7 +5,7 @@
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-iam=mk.qa_hosts
+__scriptname=mk.qa_hosts
 
 # Need to clear some environment variables so that behaviour is the same
 # when we're called via make from common.check, where the environment has

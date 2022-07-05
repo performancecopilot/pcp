@@ -44,6 +44,16 @@ pmInDom_build(domain, serial)
     OUTPUT:
 	RETVAL
 
+# name here is a little odd ... follows libpcp.h definition rather
+# than pmi* naming so calls from C and Perl are the same
+int
+pmSetDebug(options)
+	char *options;
+    CODE:
+	RETVAL = pmSetDebug(options);
+    OUTPUT:
+	RETVAL
+
 # libpcp_import wrappers
 #
 

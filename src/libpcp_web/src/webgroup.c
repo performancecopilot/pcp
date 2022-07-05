@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 Red Hat.
+ * Copyright (c) 2019-2022 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -292,6 +292,7 @@ webgroup_garbage_collect(struct webgroups *groups)
     dictIterator        *iterator;
     dictEntry           *entry;
     context_t		*cp;
+    unsigned int	count = 0, drops = 0;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
 	fprintf(stderr, "%s: started\n", "webgroup_garbage_collect");
@@ -308,33 +309,33 @@ webgroup_garbage_collect(struct webgroups *groups)
 		uv_mutex_unlock(&groups->mutex);
 		webgroup_drop_context(cp, groups);
 		uv_mutex_lock(&groups->mutex);
+		drops++;
 	    }
+	    count++;
 	}
 	dictReleaseIterator(iterator);
 	uv_mutex_unlock(&groups->mutex);
     }
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
-	fprintf(stderr, "%s: finished\n", "webgroup_garbage_collect");
+	fprintf(stderr, "%s: finished [%u drops from %u entries]\n",
+			"webgroup_garbage_collect", drops, count);
 }
 
 static void
 refresh_maps_metrics(void *data)
 {
     struct webgroups	*groups = (struct webgroups *)data;
+    unsigned int	value;
 
-    if (groups->metrics) {
-	unsigned int	value;
-
-	value = dictSize(contextmap);
-	mmv_set(groups->map, groups->metrics[CONTEXT_MAP_SIZE], &value);
-	value = dictSize(namesmap);
-	mmv_set(groups->map, groups->metrics[NAMES_MAP_SIZE], &value);
-	value = dictSize(labelsmap);
-	mmv_set(groups->map, groups->metrics[LABELS_MAP_SIZE], &value);
-	value = dictSize(instmap);
-	mmv_set(groups->map, groups->metrics[INST_MAP_SIZE], &value);
-    }
+    value = dictSize(contextmap);
+    mmv_set(groups->map, groups->metrics[CONTEXT_MAP_SIZE], &value);
+    value = dictSize(namesmap);
+    mmv_set(groups->map, groups->metrics[NAMES_MAP_SIZE], &value);
+    value = dictSize(labelsmap);
+    mmv_set(groups->map, groups->metrics[LABELS_MAP_SIZE], &value);
+    value = dictSize(instmap);
+    mmv_set(groups->map, groups->metrics[INST_MAP_SIZE], &value);
 }
 
 static void
@@ -2407,6 +2408,7 @@ pmWebGroupClose(pmWebGroupModule *module)
 	dictRelease(groups->contexts);
 	memset(groups, 0, sizeof(struct webgroups));
 	free(groups);
+	module->privdata = NULL;
     }
 
     sdsfree(PARAM_HOSTNAME);

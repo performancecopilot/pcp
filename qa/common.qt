@@ -7,8 +7,6 @@
 
 export PCP_STDERR=""
 
-host=`hostname`
-
 _check_display
 
 #

@@ -25,18 +25,18 @@ _filter_compression()
 }
 
 status=0	# success is the default!
-deflate=none	# default compression mode (e.g. bzip2)
-inflate=none	# default compression mode (e.g. unbzip2)
-suffix=.huh	# default compression file suffix (e.g. bz2)
+__deflate=none	# default compression mode (e.g. bzip2)
+__inflate=none	# default compression mode (e.g. unbzip2)
+__suffix=.huh	# default compression file suffix (e.g. bz2)
 
 $sudo rm -rf $tmp $tmp.*
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 _prepare_compress()
 {
-    deflate="$1"
-    inflate="$2"
-    suffix="$3"
+    __deflate="$1"
+    __inflate="$2"
+    __suffix="$3"
 
     mkdir $tmp
     cp tmparch/mv-bigbin* $tmp
@@ -44,9 +44,9 @@ _prepare_compress()
 
 _run_tools()
 {
-    base=`echo $1 | sed -e 's/\..*//'`
+    __base=`echo $1 | sed -e 's/\..*//'`
     [ $# -eq 1 ] && echo "pmdumplog ..."
-    pmdumplog -a $base
+    pmdumplog -a $__base
     [ $# -eq 1 ] && echo "pminfo ..."
     pminfo -f -a $1 sample.colour
     [ $# -eq 1 ] && echo "pmprobe in the middle ..."
@@ -62,75 +62,75 @@ _run_tools()
 
 _exercise_compression()
 {
-    _run_tools tmparch/mv-bigbin n | tee $full >$tmp.orig
+    _run_tools tmparch/mv-bigbin n | tee -a $here/$seq.full >$tmp.orig
 
     cd $tmp
     echo "expect only a few lines of diff output ..."
     echo
-    echo "--- $deflate first volume ---" | tee -a $here/$seq.full
-    eval $deflate mv-bigbin.0 | _filter_compression
+    echo "--- $__deflate first volume ---" | tee -a $here/$seq.full
+    eval $__deflate mv-bigbin.0 | _filter_compression
     ls -l >>$here/$seq.full
     _run_tools mv-bigbin | tee -a $here/$seq.full >$tmp.new
     diff $tmp.orig $tmp.new | sed -e '/^[0-9]/d'
-    eval $inflate mv-bigbin.0.$suffix | _filter_compression
+    eval $__inflate mv-bigbin.0.$__suffix | _filter_compression
 
     echo
-    echo "--- $deflate last volume and use existing .9.$suffix in -a arg ---" \
+    echo "--- $__deflate last volume and use existing .9.$__suffix in -a arg ---" \
 	| tee -a $here/$seq.full
-    eval $deflate mv-bigbin.9 | _filter_compression
+    eval $__deflate mv-bigbin.9 | _filter_compression
     ls -l >>$here/$seq.full
-    _run_tools mv-bigbin.9.$suffix | tee -a $here/$seq.full >$tmp.new
+    _run_tools mv-bigbin.9.$__suffix | tee -a $here/$seq.full >$tmp.new
     diff $tmp.orig $tmp.new | sed -e '/^[0-9]/d'
-    eval $inflate mv-bigbin.9.$suffix | _filter_compression
+    eval $__inflate mv-bigbin.9.$__suffix | _filter_compression
 
     echo
-    echo "--- $deflate middle volume and used existing .1 in -a arg ---" \
+    echo "--- $__deflate middle volume and used existing .1 in -a arg ---" \
 	| tee -a $here/$seq.full
-    eval $deflate mv-bigbin.5 | _filter_compression
+    eval $__deflate mv-bigbin.5 | _filter_compression
     ls -l >>$here/$seq.full
     _run_tools mv-bigbin.1 | tee -a $here/$seq.full >$tmp.new
     diff $tmp.orig $tmp.new | sed -e '/^[0-9]/d'
 
     echo
-    echo "--- $deflate first, middle and last volume and use .meta in -a arg ---" \
+    echo "--- $__deflate first, middle and last volume and use .meta in -a arg ---" \
 	| tee -a $here/$seq.full
-    eval $deflate mv-bigbin.0 | _filter_compression
-    eval $deflate mv-bigbin.9 | _filter_compression
+    eval $__deflate mv-bigbin.0 | _filter_compression
+    eval $__deflate mv-bigbin.9 | _filter_compression
     ls -l >>$here/$seq.full
     _run_tools mv-bigbin.meta | tee -a $here/$seq.full >$tmp.new
     diff $tmp.orig $tmp.new | sed -e '/^[0-9]/d'
 
     echo
-    echo "--- $deflate first few, middle and last few volumes and use existing .7.$suffix in -a arg ---" \
+    echo "--- $__deflate first few, middle and last few volumes and use existing .7.$__suffix in -a arg ---" \
 	| tee -a $here/$seq.full
-    eval $deflate mv-bigbin.1 | _filter_compression
-    eval $deflate mv-bigbin.7 | _filter_compression
-    eval $deflate mv-bigbin.8 | _filter_compression
+    eval $__deflate mv-bigbin.1 | _filter_compression
+    eval $__deflate mv-bigbin.7 | _filter_compression
+    eval $__deflate mv-bigbin.8 | _filter_compression
     ls -l >>$here/$seq.full
-    _run_tools mv-bigbin.7.$suffix | tee -a $here/$seq.full >$tmp.new
+    _run_tools mv-bigbin.7.$__suffix | tee -a $here/$seq.full >$tmp.new
     diff $tmp.orig $tmp.new | sed -e '/^[0-9]/d'
 
     echo
     echo "--- some error cases ---"
-    for arch in mv-bigbin.10 mv-bigbin.10.$suffix
+    for __arch in mv-bigbin.10 mv-bigbin.10.$__suffix
     do
-	pminfo -a $arch
-	pmprobe -a $arch sample.bin
-	pmval -a $arch sample.milliseconds
-	pmie -a $arch </dev/null
+	pminfo -a $__arch
+	pmprobe -a $__arch sample.bin
+	pmval -a $__arch sample.milliseconds
+	pmie -a $__arch </dev/null
     done
     echo "--- compressed empty data volume ---" | tee -a $here/$seq.full
     touch null.0 null.meta null.index
     ls -l null.* >>$here/$seq.full
-    $deflate null.0
+    $__deflate null.0
     ls -l null.* >>$here/$seq.full
     pminfo -a null 2>&1 | _filter_compression
     echo "--- empty data volume pretending to be compressed ---" | tee -a $here/$seq.full
-    # need null.0 here, because $deflate may do nothing above on an
+    # need null.0 here, because $__deflate may do nothing above on an
     # empty input file
     #
-    rm -f null.0 null.0.$suffix
-    touch null.0.$suffix
+    rm -f null.0 null.0.$__suffix
+    touch null.0.$__suffix
     ls -l null.* >>$here/$seq.full
     pminfo -a null 2>&1 | _filter_compression
 }

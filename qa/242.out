@@ -2,6 +2,7 @@ QA output created by 242
 sample.long.hundred ...
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
@@ -20,6 +21,7 @@ sample.long.hundred
 kernel.all.load [1 minute] ...
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
@@ -38,6 +40,7 @@ pmcd.seqnum
 kernel.all.load ...
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE

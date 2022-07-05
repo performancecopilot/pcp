@@ -149,7 +149,7 @@ else
 	else
 	    diff=true
 	fi
-	if $diff
+	if $diff_prog
 	then
 	    echo "... and different output from 3 seconds later"
 	    cat $tmp.err.2 $tmp.out.2

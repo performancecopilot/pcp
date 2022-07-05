@@ -12,8 +12,48 @@ trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 debug=false
 #debug=true
 
-NM=nm
-which gcc-nm >/dev/null 2>&1 && NM=gcc-nm
+if which readelf >/dev/null 2>&1
+then
+    # prefer readelf(1) over nm(1) as the former reports local symbols
+    # even when LTO (via -flto=... to gcc(1)) is in play, while the latter
+    # refuses to report local (==static in this context) symbols whrn LTO
+    # is in play
+    #
+    NM=''
+    readelf=true
+else
+    readelf=false
+    NM=nm
+    which gcc-nm >/dev/null 2>&1 && NM=gcc-nm
+fi
+
+# run readelf and mangle output to look like it came from nm, or run nm
+# if readelf not available
+#
+_nm()
+{
+    if $readelf
+    then
+	# use readelf(1) but turn lines like
+	#  38: 00000000000000a0     8 OBJECT  LOCAL  DEFAULT    4 xconfirm 
+	# 246: 0000000000000000     8 OBJECT  GLOBAL DEFAULT  137 pmProgname
+	#
+	# into classical nm(1) format like
+	# 00000000000000a0 b xconfirm
+	# 0000000000000000 B pmProgname
+	#
+	readelf --wide --symbols "$1" 2>/dev/null \
+	| awk '
+$4 != "OBJECT"			{ next }
+$8 ~ /__PRETTY_FUNCTION__.*/	{ next }
+$8 ~ /__func__\.[0-9].*/	{ next }
+$8 ~ /CSWTCH\.[0-9].*/		{ next }
+$5 == "LOCAL"			{ print $2,"b",$8 }
+$5 == "GLOBAL"			{ print $2,"B",$8 }'
+    else
+	$NM "$1"
+    fi
+}
 
 # Note
 #    Really want to make this run on as many platforms as possible ...
@@ -45,31 +85,36 @@ in
 		echo "Error: no access.o to check"
 		exit
 	    fi
-	    rm -f $tmp/tmp
-	    dirs=/usr/bin
-	    [ -d /usr/gnu ] && dirs="$dirs /usr/gnu"
-	    [ -d /usr/opt ] && dirs="$dirs /usr/opt"
-	    find $dirs -name nm \
-	    | while read nm
-	    do
-		echo $nm >>$tmp/try
-		if $nm access.o | grep ' T __pmAccAddAccount' >/dev/null 2>&1
-		then
-		    echo $nm >$tmp/tmp
-		    break
-		fi
-	    done
-	    if [ -f $tmp/tmp ]
+	    if $readelf
 	    then
-		NM=`cat $tmp/tmp`
+		:
 	    else
-		echo "Error: cannot find a version of nm(1) below that produces classic format output ..."
-		cat $tmp/try
-		exit
+		rm -f $tmp/tmp
+		dirs=/usr/bin
+		[ -d /usr/gnu ] && dirs="$dirs /usr/gnu"
+		[ -d /usr/opt ] && dirs="$dirs /usr/opt"
+		find $dirs -name nm \
+		| while read nm
+		do
+		    echo $nm >>$tmp/try
+		    if $nm access.o | grep ' T __pmAccAddAccount' >/dev/null 2>&1
+		    then
+			echo $nm >$tmp/tmp
+			break
+		    fi
+		done
+		if [ -f $tmp/tmp ]
+		then
+		    NM=`cat $tmp/tmp`
+		else
+		    echo "Error: cannot find a version of nm(1) below that produces classic format output ..."
+		    cat $tmp/try
+		    exit
+		fi
 	    fi
 	    ;;
 
-    freebsd|netbsd|solaris)
+    openbsd|freebsd|netbsd|solaris)
 	    ;;
     *)
 	    echo "Warning: check-statics skipped for PCP_PLATFORM=$PCP_PLATFORM"
@@ -78,6 +123,7 @@ in
 	    ;;
 esac
 
+$debug && echo readelf=$readelf
 $debug && echo NM=$NM
 
 obj=''
@@ -528,6 +574,7 @@ util.o
     ?get			# sbrk(0) hack for Mac OS X, safe
     ?highwater			# sbrk(0) hack for Mac OS X, safe
     ?pick			# sbrk(0) hack for Mac OS X, safe
+    text_start			# no unsage side-effects, see notes in util.c
 deprecated.o
 strings.o
 ?win32.o
@@ -611,7 +658,7 @@ do
 		# + strip .bss, .data, .picdata and .rodata lines
 		#
 		skip_file=false
-		$NM $line \
+		_nm $line \
 		| sed -n >$tmp/out \
 		    -e '/ S ___i686.get_pc_thunk.[bc]x/d' \
 		    -e '/ [sS] .*\.eh$/d' \

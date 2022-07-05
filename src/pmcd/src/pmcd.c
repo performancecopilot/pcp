@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017,2021 Red Hat.
+ * Copyright (c) 2012-2017,2021-2022 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -480,13 +480,13 @@ TerminateAgent(AgentInfo *ap)
 	return;
     pid = (ap->ipcType == AGENT_SOCKET) ?
 	   ap->ipc.socket.agentPid : ap->ipc.pipe.agentPid;
-    if (ap->status.isRootChild && pmdarootfd > 0) {
+    if (ap->status.isRootChild && pmdarootfd > 0 && pid > 0) {
 	/* killed via PDU exchange with root PMDA */
 	sts = pmdaRootProcessTerminate(pmdarootfd, pid);
 	    pmNotifyErr(LOG_INFO, "pmdaRootProcessTerminate(..., %" FMT_PID ") failed: %s\n",
 		pid, pmErrStr(sts));
     }
-    else {
+    else if (pid > 0) {
 	/* wrapper for kill(pid, SIGKILL) */
 	if (__pmProcessTerminate(pid, 1) < 0)
 	    pmNotifyErr(LOG_INFO, "__pmProcessTerminate(%" FMT_PID ") failed: %s\n",
@@ -930,8 +930,8 @@ SigBad(int sig)
 	/* -D desperate on the command line to enable traceback,
 	 * if we have platform support for it
 	 */
-	fprintf(stderr, "\nProcedure call traceback ...\n");
-	__pmDumpStack(stderr);
+	fprintf(stderr, "\n");
+	__pmDumpStack();
 	fflush(stderr);
     }
     _exit(sig);
@@ -952,6 +952,15 @@ main(int argc, char *argv[])
     char	*envstr;
 #ifdef HAVE_SA_SIGINFO
     static struct sigaction act;
+#endif
+#ifdef HAVE___EXECUTABLE_START
+    extern char		__executable_start;
+
+    /*
+     * optionally set address for start of my text segment, to be used
+     * in __pmDumpStack() if it is called later
+     */
+    __pmDumpStackInit((void *)&__executable_start);
 #endif
 
     pmcd_pid = getpid();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021 Red Hat.
+ * Copyright (c) 2017-2022 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,7 +28,8 @@ typedef enum series_flags {
     PMSERIES_NEED_DESCS	= (1<<9),	/* output requires descs lookup */
     PMSERIES_NEED_INSTS	= (1<<10),	/* output requires insts lookup */
     PMSERIES_NEED_RESET	= (1<<11),	/* need to reset for next series */
-    PMSERIES_TIMES	= (1<<12),	/* report numeric time stamps */
+    PMSERIES_NEED_CLOSE	= (1<<12),	/* currently closing connections */
+    PMSERIES_TIMES	= (1<<13),	/* report numeric time stamps */
 
     PMSERIES_OPT_ALL	= (1<<16),	/* -a, --all option */
     PMSERIES_OPT_SOURCE = (1<<17),	/* -S, --source option */
@@ -228,6 +229,8 @@ series_data_free(series_data *dp)
     sdsfree(dp->series);
     sdsfree(dp->source);
     sdsfree(dp->query);
+
+    memset(dp, 0, sizeof(series_data));
 }
 
 static int
@@ -756,8 +759,11 @@ pmseries_close(uv_timer_t *timer)
 {
     series_data		*dp = (series_data *)timer->data;
 
-    pmSeriesClose(&dp->settings.module);
-    series_data_free(dp);
+    if (dp) {
+	pmSeriesClose(&dp->settings.module);
+	series_data_free(dp);
+	timer->data = NULL;
+    }
     uv_close((uv_handle_t*)timer, on_timer_close_complete);
 }
 
@@ -807,7 +813,10 @@ on_series_done(int sts, void *arg)
     } else {
 	/* we're in the middle of an Redis async callback,
 	   schedule freeing the Redis context for later */
-	pmseries_schedule_close(dp);
+	if (!(dp->flags & PMSERIES_NEED_CLOSE)) {
+	    dp->flags |= PMSERIES_NEED_CLOSE;
+	    pmseries_schedule_close(dp);
+	}
     }
 }
 
@@ -1169,6 +1178,15 @@ main(int argc, char *argv[])
     struct dict		*config;
     series_flags	flags = 0;
     series_data		*dp;
+#ifdef HAVE___EXECUTABLE_START
+    extern char		__executable_start;
+
+    /*
+     * optionally set address for start of my text segment, to be used
+     * in __pmDumpStack() if it is called later
+     */
+    __pmDumpStackInit((void *)&__executable_start);
+#endif
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {

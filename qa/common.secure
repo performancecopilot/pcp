@@ -12,7 +12,7 @@ usersdb=${HOME}/.pki/nssdb
 collectordb=$tmp/pki/nssdb
 collectorpw=$tmp/pki/nssdb/pass
 PCP_SECURE_DB_METHOD=${PCP_SECURE_DB_METHOD-'sql:'}
-certopts="-d $PCP_SECURE_DB_METHOD$collectordb -f $collectorpw -z $tmp.rand"
+__certopts="-d $PCP_SECURE_DB_METHOD$collectordb -f $collectorpw -z $tmp.rand"
 
 userid=`id -u`
 groupid=`id -g`
@@ -24,20 +24,20 @@ hostname=`hostname | sed -e 's/\..*//'`
 
 sasl_notrun_checks()
 {
-    gotplugins=false
-    which pluginviewer >/dev/null 2>&1 && gotplugins=true
-    if $gotplugins
+    __gotplugins=false
+    which pluginviewer >/dev/null 2>&1 && __gotplugins=true
+    if $__gotplugins
     then
 	pluginviewer=pluginviewer
     else
-	which saslpluginviewer >/dev/null 2>&1 && gotplugins=true
+	which saslpluginviewer >/dev/null 2>&1 && __gotplugins=true
 	pluginviewer=saslpluginviewer
     fi
-    $gotplugins || _notrun "SASL pluginviewer utility unavailable"
+    $__gotplugins || _notrun "SASL pluginviewer utility unavailable"
 
-    for helper in $@
+    for __helper in $@
     do
-	which $helper >/dev/null 2>&1 || _notrun "SASL $helper tool unavailable"
+	which $__helper >/dev/null 2>&1 || _notrun "SASL $__helper tool unavailable"
     done
 }
 
@@ -48,13 +48,13 @@ nss_notrun_checks()
     which certutil >/dev/null 2>&1 || _notrun "certutil not installed (NSS tools)"
     [ -c /dev/urandom ] || _notrun "No random number generator special file found"
 
-    fips=false	# testing for exposure to Red Hat bug 1035509
-    fipsfile=/proc/sys/crypto/fips_enabled
-    if [ -f $fipsfile ]
+    __fips=false	# testing for exposure to Red Hat bug 1035509
+    __fipsfile=/proc/sys/crypto/fips_enabled
+    if [ -f "$__fipsfile" ]
     then
-	test `cat $fipsfile` -ne 0 && fips=true
+	test `cat "$__fipsfile"` -ne 0 && __fips=true
     fi
-    $fips && _notrun "FIPS mode interacts badly with system NSS databases"
+    $__fips && _notrun "FIPS mode interacts badly with system NSS databases"
 }
 
 nss_cleanup()
@@ -78,9 +78,9 @@ nss_cleanup()
 # backup pmcd configuration and certificate DBs from existing installation
 nss_backup()
 {
-    for f in $PCP_PMCDOPTIONS_PATH $usersdb
+    for __f in $PCP_PMCDOPTIONS_PATH $usersdb
     do
-	[ -e $f ] && _save_config $f
+	[ -e "$__f" ] && _save_config "$__f"
     done
 }
 
@@ -102,43 +102,43 @@ nss_setup_randomness()
 
 nss_subject_name()
 {
-    fqdn=$1
-    host=$2
-    echo $fqdn | sed -e "s/^$host\./dc=/g" -e 's/\./,dc=/g'
+    __fqdn=$1
+    __host=$2
+    echo $__fqdn | sed -e "s/^$__host\./dc=/g" -e 's/\./,dc=/g'
 }
 
 nss_setup_certificates()
 {
-    certdomain=`nss_subject_name $qahost $hostname`
+    __certdomain=`nss_subject_name $qahost $hostname`
 
     echo "setup_certificates host details:" >> $here/$seq.full
     echo "HOST=$hostname" >> $here/$seq.full
     echo "QAHOST=$qahost" >> $here/$seq.full
-    echo "DOMAIN=$certdomain" >> $here/$seq.full
+    echo "DOMAIN=$__certdomain" >> $here/$seq.full
 
     # create self-signed (-x) server certificate locally
     echo "== Creating local certificates" | tee -a $here/$seq.full
-    $sudo certutil $certopts -S -x \
-	-n "Local CA certificate" -s "CN=\"Local PCP Installation, $certdomain\""  \
+    $sudo certutil $__certopts -S -x \
+	-n "Local CA certificate" -s "CN=\"Local PCP Installation, $__certdomain\""  \
 	-t "CT,,"  >> $here/$seq.full 2>&1
     sleep 1 # so that the next cert does not get the same serial number
-    $sudo certutil $certopts -S \
+    $sudo certutil $__certopts -S \
 	-n "PCP Collector certificate" -s "CN=\"PCP Collector\"" \
 	-c "Local CA certificate" -8 "$qahost,$hostname" \
 	-t "P,," >> $here/$seq.full 2>&1
     echo "== Certificate DB and local certificates created" | tee -a $here/$seq.full
 
     # export ascii copy of the certificate for later use
-    $sudo certutil $certopts -L -n "Local CA certificate" -a > $tmp.cacert.asc
+    $sudo certutil $__certopts -L -n "Local CA certificate" -a > $tmp.cacert.asc
     cat $tmp.cacert.asc >> $here/$seq.full
 }
 
 nss_setup_collector()
 {
-    withcerts=$1
-    fqdn=$2
-    host=$3
-    force_client_cert=$4
+    __withcerts=$1
+    __fqdn=$2
+    __host=$3
+    __force_client_cert=$4
 
     # prepare new locations for certificates
     $sudo rm -fr $collectordb
@@ -149,9 +149,9 @@ nss_setup_collector()
     $sudo mv $tmp.password $collectorpw
 
     echo "== Creating empty certificate DB" | tee -a $here/$seq.full
-    $sudo certutil $certopts -N
+    $sudo certutil $__certopts -N
 
-    $withcerts && nss_setup_certificates $fqdn $host
+    $__withcerts && nss_setup_certificates $__fqdn $__host
 
     if [ -d $collectordb ]
     then
@@ -159,9 +159,9 @@ nss_setup_collector()
 	$sudo chown -R pcp:pcp $collectordb
     fi
 
-    if [ -n "$force_client_cert" ]
+    if [ -n "$__force_client_cert" ]
     then
-	cert_option="-Q"
+	__cert_option="-Q"
     fi
 
     cat <<End-Of-File >$tmp.options
@@ -170,17 +170,17 @@ nss_setup_collector()
 -l $tmp.pmcd.log
 -C $PCP_SECURE_DB_METHOD$collectordb
 -P $collectorpw
-$cert_option
+$__cert_option
 End-Of-File
     $sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
-    grp=root
+    __grp=root
     case $PCP_PLATFORM
     in
 	freebsd|netbsd|openbsd)
-		grp=wheel
+		__grp=wheel
 		;;
     esac
-    $sudo chown root:$grp $PCP_PMCDOPTIONS_PATH
+    $sudo chown root:$__grp $PCP_PMCDOPTIONS_PATH
     echo "Start pmcd, modified \$PCP_PMCDOPTIONS_PATH (pmcd.options):" | tee -a $here/$seq.full
     _service pcp restart | tee -a $here/$seq.full >$tmp.out
     _wait_for_pmcd
@@ -209,14 +209,14 @@ nss_import_cert_userdb()
 
 find_users()
 {
-    limit=$1
-    tail -n $limit /etc/passwd | $PCP_AWK_PROG -F: '{ print  $1 }'
+    __limit=$1
+    tail -n $__limit /etc/passwd | $PCP_AWK_PROG -F: '{ print  $1 }'
 }
 
 find_groups()
 {
-    limit=$1
-    tail -n $limit /etc/group | $PCP_AWK_PROG -F: '{ print  $1 }'
+    __limit=$1
+    tail -n $__limit /etc/group | $PCP_AWK_PROG -F: '{ print  $1 }'
 }
 
 # lines like ...
@@ -228,8 +228,8 @@ find_groups()
 #
 filter_sample_log_credentials()
 {
-    pcp_user=`grep '^pcp:' /etc/passwd | $PCP_AWK_PROG -F: '{print $3}'`
-    pcp_group=`grep '^pcp:' /etc/group | $PCP_AWK_PROG -F: '{print $3}'`
+    __pcp_user=`grep '^pcp:' /etc/passwd | $PCP_AWK_PROG -F: '{print $3}'`
+    __pcp_group=`grep '^pcp:' /etc/group | $PCP_AWK_PROG -F: '{print $3}'`
     grep Info $PCP_LOG_DIR/pmcd/sample.log \
     | sed \
 	-e '/processid=/d' \
@@ -239,7 +239,7 @@ filter_sample_log_credentials()
         -e "s/username=$username/username=USER/g" \
         -e '/pmdasample([0-9][0-9]*)/s//pmdasample(PID)/' \
         -e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATETIME]/' \
-	-e "/userid=$pcp_user\$/d" \
-	-e "/groupid=$pcp_group\$/d" \
+	-e "/userid=$__pcp_user\$/d" \
+	-e "/groupid=$__pcp_group\$/d" \
     # end
 }

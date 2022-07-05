@@ -2,6 +2,7 @@ QA output created by 352
 Expect this to fail as derived metrics not defined ...
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Warning [TMP.config, line 5]
 Problem with lookup for metric "sample.long.nine" ... logging not activated
 Reason: Unknown metric name
@@ -60,6 +61,7 @@ sample.long.lots
     value 999900
 Log for pmlogger on HOST started DATE
 
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE

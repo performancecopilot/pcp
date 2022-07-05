@@ -11,8 +11,8 @@
 _check_containers()
 {
     [ $PCP_PLATFORM = linux ] || _notrun "Linux-specific containers testing"
-    _contain=`pmprobe -v pmcd.feature.containers | awk '{ print $3 }'`
-    [ $_contain = 1 ] || _notrun "Running kernel does not support containers"
+    __contain=`pmprobe -v pmcd.feature.containers | awk '{ print $3 }'`
+    [ $__contain = 1 ] || _notrun "Running kernel does not support containers"
     pminfo -f pmcd.agent.type 2>/dev/null | grep linux | grep -q 'value 4'
     [ $? = 0 ] || _notrun "pmdalinux has insufficient privileges as a DSO"
 }
@@ -59,7 +59,7 @@ _check_podman_images()
 	# podman does not seem to terminate the line the same way (so, -c)
 	__count=`eval $podman images --quiet $__image 2>/dev/null | wc -c`
 	[ "$__count" -gt 0 ] || \
-	    _notrun "Cannot find $image podman image.  Use: $__command $__image"
+	    _notrun "Cannot find $__image podman image.  Use: $__command $__image"
     done
 }
 
@@ -71,7 +71,7 @@ _check_docker_images()
     do
 	__count=`eval $docker images --quiet $__image 2>/dev/null | wc -l`
 	[ "$__count" -gt 0 ] || \
-	    _notrun "Cannot find $image docker image.  Use: $__command $__image"
+	    _notrun "Cannot find $__image docker image.  Use: $__command $__image"
     done
 }
 

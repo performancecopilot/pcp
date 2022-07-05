@@ -1584,14 +1584,14 @@ AS_IF([test "x$do_qt" != "xno"], [
 	    echo Cannot include the Qt components in the build.
 	    enable_qt=false
 	    qt_version=0
-	elif test "$QT_MAJOR" -lt 4; then
-	    echo WARNING: Qt version 4.4 or later does not seem to be installed.
+	elif test "$QT_MAJOR" -lt 5; then
+	    echo WARNING: Qt version 5.6 or later does not seem to be installed.
 	    echo Cannot proceed with the Qt $QT_MAJOR installation found.
 	    enable_qt=false
 	    qt_version=0
-	elif test "$QT_MAJOR" -eq 4 -a "$QT_MINOR" -lt 4 ; then
-	    echo WARNING: Qt version 4.$QT_MINOR is too old.
-	    echo Qt version 4.4 or later is required for Qt builds.
+	elif test "$QT_MAJOR" -eq 5 -a "$QT_MINOR" -lt 6 ; then
+	    echo WARNING: Qt version 5.$QT_MINOR is too old.
+	    echo Qt version 5.6 or later is required for Qt builds.
 	    enable_qt=false
 	    qt_version=0
 	else
@@ -2511,7 +2511,93 @@ AC_CHECK_FUNCS(regex regcmp regexec regcomp)
 AC_CHECK_FUNCS(strtod strtol strtoll strtoull strndup strchrnul)
 AC_CHECK_FUNCS(getgrent getgrent_r getgrnam getgrnam_r getgrgid getgrgid_r)
 AC_CHECK_FUNCS(getpwent getpwent_r getpwnam getpwnam_r getpwuid getpwuid_r)
-AC_CHECK_FUNCS(sysinfo trace_back_stack backtrace)
+AC_CHECK_FUNCS(sysinfo trace_back_stack)
+
+dnl checking for backtrace() needs a little more care ..
+dnl check if backtrace functions come from libexeinfo (OpenBSD 7.0)
+AC_CHECK_LIB(execinfo, backtrace)
+lib_for_backtrace=""
+if test $ac_cv_lib_execinfo_backtrace = yes
+then
+    lib_for_backtrace="-lexecinfo"
+fi
+AC_SUBST(lib_for_backtrace)
+dnl now we can check for backtrace()
+savedLIBS=$LIBS
+LIBS="$LIBS $lib_for_backtrace"
+AC_CHECK_FUNCS(backtrace)
+LIBS=$savedLIBS
+
+dnl symbols needed for backtracing
+if test "x$cc_is_gcc" = xyes 
+then
+    dnl if using gcc, some platforms make __executable_start go away when
+    dnl compiled -fPIE -pie, e.g. CentOS 6, RHEL/CentOS 7 ... so need to
+    dnl check for that here before declaring __executable_start is available
+    savedCFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS -fPIE -pie"
+fi
+AC_MSG_CHECKING([if __executable_start defined by ld])
+AC_LINK_IFELSE([AC_LANG_SOURCE([
+#include <stdio.h>
+extern char __executable_start;
+int main()
+{
+    printf("%p\n", &__executable_start);
+    return 0;
+}
+])],
+[
+AC_DEFINE(HAVE___EXECUTABLE_START, [1], [__executable_start defined])
+AC_MSG_RESULT(yes)
+], AC_MSG_RESULT(no))
+AC_MSG_CHECKING([if __etext defined by ld])
+AC_LINK_IFELSE([AC_LANG_SOURCE([
+#include <stdio.h>
+extern char __etext;
+int main()
+{
+    printf("%p\n", &__etext);
+    return 0;
+}
+])],
+[
+AC_DEFINE(HAVE___ETEXT, [1], [__etext defined])
+AC_MSG_RESULT(yes)
+], AC_MSG_RESULT(no))
+AC_MSG_CHECKING([if _etext defined by ld])
+AC_LINK_IFELSE([AC_LANG_SOURCE([
+#include <stdio.h>
+extern char _etext;
+int main()
+{
+    printf("%p\n", &_etext);
+    return 0;
+}
+])],
+[
+AC_DEFINE(HAVE__ETEXT, [1], [_etext defined])
+AC_MSG_RESULT(yes)
+], AC_MSG_RESULT(no))
+AC_MSG_CHECKING([if etext defined by ld])
+AC_LINK_IFELSE([AC_LANG_SOURCE([
+#include <stdio.h>
+extern char etext;
+int main()
+{
+    printf("%p\n", &etext);
+    return 0;
+}
+])],
+[
+AC_DEFINE(HAVE_ETEXT, [1], [etext defined])
+AC_MSG_RESULT(yes)
+], AC_MSG_RESULT(no))
+if test "x$cc_is_gcc" = xyes 
+then
+    dnl see above
+    CFLAGS="$savedCFLAGS"
+fi
 
 dnl typedefs missing from sys/types.h, stdlib.h or stddef.h
 if test $target_os = solaris

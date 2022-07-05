@@ -19,8 +19,8 @@ msg(int line, char const* str)
 {
     static int count = 1;
 
-    cerr << endl << "*** " << count << ": Line " << line << " - " << str 
-	 << " ***" << endl;
+    cerr << Qt::endl << "*** " << count << ": Line " << line << " - " << str 
+	 << " ***" << Qt::endl;
     count++;
 }
 
@@ -28,7 +28,7 @@ void
 quit(int err)
 {
     pmflush();
-    cerr << "Error: " << pmErrStr(err) << endl;
+    cerr << "Error: " << pmErrStr(err) << Qt::endl;
     exit(1);
 }
 

@@ -71,19 +71,20 @@ _pmdabpftrace_cleanup()
 #
 _pmdabpftrace_wait_for_value()
 {
-    value_regex=${2:-".*"}
-    wait_sec=${3:-"10"}
-    wait_iter=`expr $wait_sec \* 2`
-    for i in `seq 1 $wait_iter`
+    __value_regex=${2:-".*"}
+    __wait_sec=${3:-"10"}
+    __wait_iter=`expr $__wait_sec \* 2`
+    for __i in `seq 1 $__wait_iter`
     do
-        if pminfo -f $1 2>/dev/null | tee -a $here/$seq.full | grep -q "value $value_regex"; then
-            echo "found metric $1 with matching value $value_regex"
+	echo "_pmdabpftrace_wait_for_value: iteration $__i" >>$here/$seq.full
+        if pminfo -f $1 | tee -a $here/$seq.full | grep -q "value $__value_regex"; then
+            echo "found metric $1 with matching value $__value_regex"
             return
         fi
         sleep 0.5
     done
 
-    echo "Timeout (${wait_sec}s) while waiting for metric $1 to match value $value_regex, script data:"
+    echo "Timeout (${__wait_sec}s) while waiting for metric $1 to match value $__value_regex, script data:"
     pminfo -f $(echo "$1" | sed -r 's/bpftrace\.scripts\.([^.]+)\..*/bpftrace.scripts.\1/')
     # error text above is sufficient to mark the test status as Failed
     # rather than Broken in CI => exit status of 0 is fine
@@ -94,7 +95,7 @@ _pmdabpftrace_wait_for_value()
 
 _pmdabpftrace_generate_openat_syscall_activity()
 {
-    for i in `seq 1 10`
+    for __i in `seq 1 10`
     do
         head -c 1 /dev/urandom > /dev/null
         sleep 0.5
@@ -128,18 +129,19 @@ _pmdabpftrace_check_probes()
 	-e '/^kprobe:/p' \
 	-e '/^software:/p' \
 	-e '/^tracepoint:/p' \
-    | while read probe
+    | while read __probe
     do
-	if grep "^$probe\$" <$tmp.probes >/dev/null
+	if grep "^$__probe\$" <$tmp.probes >/dev/null
 	then
 	    :
 	else
-	    echo "$probe" >>$tmp.missing
+	    echo "$__probe" >>$tmp.missing
 	fi
     done
 
     if [ -s $tmp.missing ]
     then
+	trap "rm -f $tmp.*" 0
 	_notrun "Missing bpftrace probe(s): `tr '\012' ' ' <$tmp.missing`"
 	# NOTREACHED
     fi

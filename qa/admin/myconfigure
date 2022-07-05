@@ -190,6 +190,7 @@ cd src/pmns; $PCP_MAKE_PROG; cd $here
 
 if $quick
 then
+    cd src/include; $PCP_MAKE_PROG; cd $here
     echo "== Configured pcp ($configopts)"
 else
     # build some useful libs and bits ...
@@ -197,8 +198,10 @@ else
     cd src/include; $PCP_MAKE_PROG; cd $here
     cd src/libpcp; $PCP_MAKE_PROG; cd $here
     cd src/libpcp_static; $PCP_MAKE_PROG; cd $here
+    cd src/libpcp_archive; $PCP_MAKE_PROG; cd $here
     cd src/libpcp_pmda; $PCP_MAKE_PROG; cd $here
     cd src/libpcp_qmc; $PCP_MAKE_PROG; cd $here
+    cd src/libpcp_web; $PCP_MAKE_PROG; cd $here
     cd src/pmcpp; $PCP_MAKE_PROG; cd $here
     cd src/newhelp; $PCP_MAKE_PROG; cd $here
     cd src/pmns; $PCP_MAKE_PROG; cd $here

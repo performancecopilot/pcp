@@ -159,7 +159,7 @@ run_done(int sts, char *msg)
 /*
  * Warning: called in signal handler context ... be careful
  */
-static void
+STATIC_FUNC void
 run_done_callback(int i, void *j)
 {
     run_done_alarm = 1;
@@ -168,7 +168,7 @@ run_done_callback(int i, void *j)
 /*
  * Warning: called in signal handler context ... be careful
  */
-static void
+STATIC_FUNC void
 vol_switch_callback(int i, void *j)
 {
     vol_switch_alarm = 1;
@@ -935,8 +935,19 @@ main(int argc, char **argv)
     struct timespec	myepoch;
     struct timeval	nowait = {0, 0};
     FILE		*fp;		/* pipe from pmcpp */
+#ifdef HAVE___EXECUTABLE_START
+    extern char		__executable_start;
+#endif
 
     pmtimespecNow(&myepoch);
+
+#ifdef HAVE___EXECUTABLE_START
+    /*
+     * optionally set address for start of my text segment, to be used
+     * in __pmDumpStack() if it is called later
+     */
+    __pmDumpStackInit((void *)&__executable_start);
+#endif
 
     save_args(argc, argv);
     pmGetUsername(&username);
@@ -1221,8 +1232,13 @@ main(int argc, char **argv)
 	}
     }
 
+    /*
+     * Report start, includes date and PID
+     */
+    pmNotifyErr(LOG_INFO, "Start");
+
     if (pmDebugOptions.appl4)
-	pmNotifyErr(LOG_INFO, "Start");
+	pmNotifyErr(LOG_INFO, "Signal handlers installed");
 
     if (Cflag == 0) {
 	/* base name for archive is here ... */
@@ -1322,6 +1338,13 @@ main(int argc, char **argv)
     yyin = pass0(fp);
     __pmProcessPipeClose(fp);
 
+    /*
+     * set up signal handlers ... can't do it earlier because on some
+     * platforms the fork-n-exec to run pmcpp(1) behaves badly if we
+     * install our signal handlers before this
+     */
+    init_signals();
+
     __pmOptFetchGetParams(&ocp);
     ocp.c_scope = 1;
     __pmOptFetchPutParams(&ocp);
@@ -1391,6 +1414,10 @@ main(int argc, char **argv)
 
     if (Cflag)
 	exit(0);
+
+    if (pmDebugOptions.appl4) {
+	pmNotifyErr(LOG_INFO, "Cflag test done, continuing");
+    }
 
     fprintf(stderr, "Starting %slogger for host \"%s\" via \"%s\"\n",
             primary ? "primary " : "", pmcd_host, pmcd_host_conn);
@@ -1518,11 +1545,11 @@ main(int argc, char **argv)
 	__pmServerCreatePIDFile(pmGetProgname(), 0);
     }
 
-    /* set up control port socket, external map files and signal handlers */
+    /* set up control port socket and external map files */
     init_ports();
 
     if (pmDebugOptions.appl4)
-	pmNotifyErr(LOG_INFO, "pmlc socket and map files done");
+	pmNotifyErr(LOG_INFO, "Setup pmlc socket and map files done");
 
     /* initialize select mask */
     __pmFD_ZERO(&fds);

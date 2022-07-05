@@ -787,3 +787,9 @@
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
 #undef uint_t
+
+/* backtrace support */
+#undef HAVE___EXECUTABLE_START
+#undef HAVE___ETEXT
+#undef HAVE__ETEXT
+#undef HAVE_ETEXT

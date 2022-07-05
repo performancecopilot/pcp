@@ -26,9 +26,9 @@ fi
 
 # augment $PATH for QA specific dirs
 #
-for dir in /sbin /usr/sbin
+for __dir in /sbin /usr/sbin
 do
-    [ -d "$dir" ] && PATH="$PATH:$dir"
+    [ -d "$__dir" ] && PATH="$PATH:$__dir"
 done
 export PATH
 
@@ -97,16 +97,15 @@ in
 	;;
 esac
 
-real_sudo="$sudo"
 # running with PCP_DIR set, probably don't want to do most things as
-# root ... leave $real_sudo alone just in case
+# root ... leave $sudo alone just in case
 # However, if $PCP_DIR exists and is owned by someone other than ourselves,
 # real sudo is guessed necessary.
 if [ -n "$PCP_DIR" ]
 then
-    pcp_dir_owner=`ls -ld $PCP_DIR | awk '{print $3}'`
-    whoami=`whoami`
-    if [ "$pcp_dir_owner" = "$whoami" ]; then
+    __pcp_dir_owner=`ls -ld $PCP_DIR | awk '{print $3}'`
+    __whoami=`whoami`
+    if [ "$__pcp_dir_owner" = "$__whoami" ]; then
         sudo=''
     fi
 fi

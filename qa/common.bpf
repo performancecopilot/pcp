@@ -19,8 +19,18 @@ _pmdabpf_check()
 
 _pmdabpf_require_kernel_version()
 {
-    uname -r | awk -F. -v major=$1 -v minor=$2 '$1 < major || ($1 == major && $2 < minor) {exit 1}' || \
+    uname -r | awk -F. -v __major=$1 -v __minor=$2 '$1 < __major || ($1 == __major && $2 < __minor) {exit 1}' || \
     _notrun "this test requires kernel $1.$2+"
+}
+
+_pmdabpf_require_libbpf_version()
+{
+    LIBBPF_VERSION=false
+    eval `sed -n <$PCP_INC_DIR/builddefs -e '/LIBBPF_VERSION/s/ //gp'`
+
+    echo $LIBBPF_VERSION \
+    | awk -F. -v __major=$1 -v __minor=$2 '$1 < __major || ($1 == __major && $2 < __minor) {exit 1}' || \
+    _notrun "this test requires libbpf $1.$2+"
 }
 
 _pmdabpf_install_filter()
@@ -60,44 +70,44 @@ _pmdabpf_install()
 _pmdabpf_wait_for_metric()
 {
     # Wait for the PMDA to load the bpf modules and become ready, 10s max
-    _canwait=10
-    i=0
-    while [ $i -lt $_canwait ]
+    __canwait=10
+    __i=0
+    while [ $__i -lt $__canwait ]
     do
 	grep -q 'Info: bpf pmda init complete' $PCP_LOG_DIR/pmcd/bpf.log && break
 	sleep 1
-	i=`expr $i + 1`
+	__i=`expr $__i + 1`
     done
     sed -n '/Error:/,$p' $PCP_LOG_DIR/pmcd/bpf.log
-    if [ $i -eq $_canwait ]; then
-        echo PMDA was not ready in $_canwait seconds, test failed
+    if [ $__i -eq $__canwait ]; then
+        echo PMDA was not ready in $__canwait seconds, test failed
         exit
     fi
-    echo "=== _pmdabpf_wait_for_metric: after $i secs, metrics should be available ===" >>$here/$seq.full
+    echo "=== _pmdabpf_wait_for_metric: after $__i secs, metrics should be available ===" >>$here/$seq.full
     # "should" be available, but now wait up to 5 seconds for values
     # to be seen ...
     #
-    _canwait=5
-    i=1
-    while [ $i -le $_canwait ]
+    __canwait=5
+    __i=1
+    while [ $__i -le $__canwait ]
     do
 	touch $tmp.ok
 	pmprobe bpf \
-	| while read metric numval foo
+	| while read __metric __numval __foo
 	do
-	    if [ "$numval" -eq -12389 ]
+	    if [ "$__numval" -eq -12389 ]
 	    then
 		# PM_ERR_AGAIN ... this is expected (apparently)
 		#
 		:
-	    elif [ "$numval" -lt 0 ]
+	    elif [ "$__numval" -lt 0 ]
 	    then
 		rm -f $tmp.ok
-		if [ $i -eq $_canwait ]
+		if [ $__i -eq $__canwait ]
 		then
 		    # still bad on last iteration ... report
 		    #
-		    echo "_pmdabpf_wait_for_metric: Botch: bbpf PMDA ready but metric $metric returns numval $numval (`pmerr $numval`)"
+		    echo "_pmdabpf_wait_for_metric: Botch: bbpf PMDA ready but metric $__metric returns numval $__numval (`pmerr $__numval`)"
 		fi
 	    fi
 	done
@@ -105,12 +115,12 @@ _pmdabpf_wait_for_metric()
 	then
 	    # goodness
 	    #
-	    echo "=== _pmdabbpf_wait_for_metric: after another $i secs, values are available ===" >>$here/$seq.full
+	    echo "=== _pmdabbpf_wait_for_metric: after another $__i secs, values are available ===" >>$here/$seq.full
 	    pminfo -f bpf >>$here/$seq.full
 	    return 0
 	fi
 	sleep 1
-	i=`expr $i + 1`
+	__i=`expr $__i + 1`
     done
 
     # badness ...
@@ -124,11 +134,11 @@ _pmdabpf_wait_for_metric()
 
 _pmdabpf_wait_for_value()
 {
-    value_regex=${2:-'.*'}
+    __value_regex=${2:-'.*'}
 
     sed -n '/Error:/,$p' $PCP_LOG_DIR/pmcd/bpf.log
-    for i in `seq 1 30`; do pminfo -f $1 | grep -q 'inst .* value '$value_regex && break; sleep 1; done
-    if [ $i -ge 30 ]; then
+    for __i in `seq 1 30`; do pminfo -f $1 | grep -q 'inst .* value '$__value_regex && break; sleep 1; done
+    if [ $__i -ge 30 ]; then
         echo Could not get a single value, test failed
         exit
     fi

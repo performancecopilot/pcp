@@ -716,6 +716,7 @@ fmt_uint64
 fmt_int64
 fmt_pid
 rdynamic_flag
+lib_for_backtrace
 pcp_selinux_logging_watch_all_log_dirs_path
 pcp_selinux_files_mmap_all_files
 pcp_selinux_netlink_tcpdiag_socket_class
@@ -3316,22 +3317,18 @@ $as_echo "#define IS_DARWIN 1" >>confdefs.h
 
     target_distro=macosx
     version=`sw_vers -productVersion`
-    CFLAGS="-fPIC -fno-strict-aliasing"
+    CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing"
     case "$version"
     in
 	10.0-5.*)
-	    CFLAGS="$CFLAGS -no-cpp-precomp"
-	    ;;
+	    	    ;;
 	10.6-9.*|10.10-3.*)
 	    target_distro=cocoa
-	    CFLAGS="$CFLAGS -no-cpp-precomp -arch i386 -arch x86_64"
-	    ;;
-	11.*|12.*)
-	    target_distro=cocoa
+	    CFLAGS="$CFLAGS -arch i386 -arch x86_64"
 	    ;;
 	*)
-	    target_distro=cocoa
-	    CFLAGS="$CFLAGS -no-cpp-precomp -arch x86_64"
+	    	    target_distro=cocoa
+	    CFLAGS="$CFLAGS -arch x86_64"
 	    ;;
     esac
     export CFLAGS
@@ -9015,14 +9012,14 @@ $as_echo "$QT_MAJOR.$QT_MINOR.$QT_POINT" >&6; }
 	    echo Cannot include the Qt components in the build.
 	    enable_qt=false
 	    qt_version=0
-	elif test "$QT_MAJOR" -lt 4; then
-	    echo WARNING: Qt version 4.4 or later does not seem to be installed.
+	elif test "$QT_MAJOR" -lt 5; then
+	    echo WARNING: Qt version 5.6 or later does not seem to be installed.
 	    echo Cannot proceed with the Qt $QT_MAJOR installation found.
 	    enable_qt=false
 	    qt_version=0
-	elif test "$QT_MAJOR" -eq 4 -a "$QT_MINOR" -lt 4 ; then
-	    echo WARNING: Qt version 4.$QT_MINOR is too old.
-	    echo Qt version 4.4 or later is required for Qt builds.
+	elif test "$QT_MAJOR" -eq 5 -a "$QT_MINOR" -lt 6 ; then
+	    echo WARNING: Qt version 5.$QT_MINOR is too old.
+	    echo Qt version 5.6 or later is required for Qt builds.
 	    enable_qt=false
 	    qt_version=0
 	else
@@ -12971,7 +12968,7 @@ _ACEOF
 fi
 done
 
-for ac_func in sysinfo trace_back_stack backtrace
+for ac_func in sysinfo trace_back_stack
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -12983,6 +12980,194 @@ _ACEOF
 fi
 done
 
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for backtrace in -lexecinfo" >&5
+$as_echo_n "checking for backtrace in -lexecinfo... " >&6; }
+if ${ac_cv_lib_execinfo_backtrace+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lexecinfo  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char backtrace ();
+int
+main ()
+{
+return backtrace ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_execinfo_backtrace=yes
+else
+  ac_cv_lib_execinfo_backtrace=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_execinfo_backtrace" >&5
+$as_echo "$ac_cv_lib_execinfo_backtrace" >&6; }
+if test "x$ac_cv_lib_execinfo_backtrace" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBEXECINFO 1
+_ACEOF
+
+  LIBS="-lexecinfo $LIBS"
+
+fi
+
+lib_for_backtrace=""
+if test $ac_cv_lib_execinfo_backtrace = yes
+then
+    lib_for_backtrace="-lexecinfo"
+fi
+
+savedLIBS=$LIBS
+LIBS="$LIBS $lib_for_backtrace"
+for ac_func in backtrace
+do :
+  ac_fn_c_check_func "$LINENO" "backtrace" "ac_cv_func_backtrace"
+if test "x$ac_cv_func_backtrace" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_BACKTRACE 1
+_ACEOF
+
+fi
+done
+
+LIBS=$savedLIBS
+
+if test "x$cc_is_gcc" = xyes
+then
+                savedCFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS -fPIE -pie"
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if __executable_start defined by ld" >&5
+$as_echo_n "checking if __executable_start defined by ld... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <stdio.h>
+extern char __executable_start;
+int main()
+{
+    printf("%p\n", &__executable_start);
+    return 0;
+}
+
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+
+
+$as_echo "#define HAVE___EXECUTABLE_START 1" >>confdefs.h
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if __etext defined by ld" >&5
+$as_echo_n "checking if __etext defined by ld... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <stdio.h>
+extern char __etext;
+int main()
+{
+    printf("%p\n", &__etext);
+    return 0;
+}
+
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+
+
+$as_echo "#define HAVE___ETEXT 1" >>confdefs.h
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if _etext defined by ld" >&5
+$as_echo_n "checking if _etext defined by ld... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <stdio.h>
+extern char _etext;
+int main()
+{
+    printf("%p\n", &_etext);
+    return 0;
+}
+
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+
+
+$as_echo "#define HAVE__ETEXT 1" >>confdefs.h
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if etext defined by ld" >&5
+$as_echo_n "checking if etext defined by ld... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <stdio.h>
+extern char etext;
+int main()
+{
+    printf("%p\n", &etext);
+    return 0;
+}
+
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+
+
+$as_echo "#define HAVE_ETEXT 1" >>confdefs.h
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+if test "x$cc_is_gcc" = xyes
+then
+        CFLAGS="$savedCFLAGS"
+fi
 
 if test $target_os = solaris
 then

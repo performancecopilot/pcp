@@ -30,8 +30,8 @@ _silent_kill()
 _filter_date()
 {
     sed <$1 \
-	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z] .. /MONTH-DAY /' \
-	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9] /TIME /' \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z] ../MONTH-DAY/' \
+	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/TIME/' \
 	-e 's/[12][0-9][0-9][0-9]$/YEAR/'
 }
 

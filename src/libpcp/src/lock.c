@@ -88,31 +88,6 @@ SetupDebug(void)
 }
 
 #ifdef PM_MULTI_THREAD
-static void
-mybacktrace(void)
-{
-#ifdef HAVE_BACKTRACE
-#define MAX_TRACE_DEPTH 32
-    void	*backaddr[MAX_TRACE_DEPTH];
-    int		sts;
-    sts = backtrace(backaddr, MAX_TRACE_DEPTH);
-    if (sts > 0) {
-	char	**symbols;
-	symbols = backtrace_symbols(backaddr, MAX_TRACE_DEPTH);
-	if (symbols != NULL) {
-	    int		i;
-	    fprintf(stderr, "backtrace:\n");
-	    for (i = 0; i < sts; i++)
-		fprintf(stderr, "  %s\n", symbols[i]);
-	    free(symbols);
-	}
-    }
-#endif /* HAVE_BACKTRACE */
-    return;
-}
-#endif /* PM_MULTI_THREAD */
-
-#ifdef PM_MULTI_THREAD
 #ifdef PM_MULTI_THREAD_DEBUG
 static char
 *lockname(void *lock)
@@ -275,7 +250,7 @@ again:
 	}
 	fputc('\n', stderr);
 	if (pmDebugOptions.desperate)
-	    mybacktrace();
+	    __pmDumpStack();
     }
 }
 #else
@@ -479,7 +454,7 @@ __pmLock(void *lock, const char *file, int line)
 	fprintf(stderr, "%s:%d: __pmLock(%p) failed: %s\n", file, line, lock, pmErrStr(sts));
 #endif
 #ifdef BUILD_WITH_LOCK_ASSERTS
-	mybacktrace();
+	__pmDumpStack();
 	abort();
 #endif
     }
@@ -572,7 +547,7 @@ __pmUnlock(void *lock, const char *file, int line)
 	fprintf(stderr, "%s:%d: __pmUnlock(%p) failed: %s\n", file, line, lock, pmErrStr(sts));
 #endif
 #ifdef BUILD_WITH_LOCK_ASSERTS
-	mybacktrace();
+	__pmDumpStack();
 	abort();
 #endif
     }

@@ -31,7 +31,7 @@ _pmdabcc_check()
 
 _pmdabcc_require_kernel_version()
 {
-    uname -r | awk -F. -v major=$1 -v minor=$2 '$1 < major || ($1 == major && $2 < minor) {exit 1}' || \
+    uname -r | awk -F. -v __major=$1 -v __minor=$2 '$1 < __major || ($1 == __major && $2 < __minor) {exit 1}' || \
     _notrun "this test requires kernel $1.$2+"
 }
 
@@ -74,9 +74,9 @@ _pmdabcc_install()
 _pmdabcc_wait_for_metric()
 {
     # Wait for the PMDA to compile the bcc modules and become ready, 60s max
-    _canwait=60
-    i=0
-    while [ $i -lt $_canwait ]
+    __canwait=60
+    __i=0
+    while [ $__i -lt $__canwait ]
     do
 	grep -q 'Failed to compile BPF text' $PCP_LOG_DIR/pmcd/bcc.log
 	if [ $? -eq 0 ]; then
@@ -86,38 +86,38 @@ _pmdabcc_wait_for_metric()
 
 	grep -q 'Ready to process requests' $PCP_LOG_DIR/pmcd/bcc.log && break
 	sleep 1
-	i=`expr $i + 1`
+	__i=`expr $__i + 1`
     done
     sed -n '/Error:/,$p' $PCP_LOG_DIR/pmcd/bcc.log
-    if [ $i -eq $_canwait ]; then
-        echo PMDA was not ready in $_canwait seconds, test failed
+    if [ $__i -eq $__canwait ]; then
+        echo PMDA was not ready in $__canwait seconds, test failed
         exit
     fi
-    echo "=== _pmdabcc_wait_for_metric: after $i secs, metrics should be available ===" >>$here/$seq.full
+    echo "=== _pmdabcc_wait_for_metric: after $__i secs, metrics should be available ===" >>$here/$seq.full
     # "should" be available, but now wait up to 20 seconds for values
     # to be seen ...
     #
-    _canwait=20
-    i=1
-    while [ $i -le $_canwait ]
+    __canwait=20
+    __i=1
+    while [ $__i -le $__canwait ]
     do
 	touch $tmp.ok
 	pmprobe bcc \
-	| while read metric numval foo
+	| while read __metric __numval __foo
 	do
-	    if [ "$numval" -eq -12389 ]
+	    if [ "$__numval" -eq -12389 ]
 	    then
 		# PM_ERR_AGAIN ... this is expected (apparently)
 		#
 		:
-	    elif [ "$numval" -lt 0 ]
+	    elif [ "$__numval" -lt 0 ]
 	    then
 		rm -f $tmp.ok
-		if [ $i -eq $_canwait ]
+		if [ $__i -eq $__canwait ]
 		then
 		    # still bad on last iteration ... report
 		    #
-		    echo "_pmdabcc_wait_for_metric: Botch: bcc PMDA ready but metric $metric returns numval $numval (`pmerr $numval`)"
+		    echo "_pmdabcc_wait_for_metric: Botch: bcc PMDA ready but metric $__metric returns numval $__numval (`pmerr $__numval`)"
 		fi
 	    fi
 	done
@@ -125,12 +125,12 @@ _pmdabcc_wait_for_metric()
 	then
 	    # goodness
 	    #
-	    echo "=== _pmdabcc_wait_for_metric: after another $i secs, values are available ===" >>$here/$seq.full
+	    echo "=== _pmdabcc_wait_for_metric: after another $__i secs, values are available ===" >>$here/$seq.full
 	    pminfo -f bcc >>$here/$seq.full
 	    return 0
 	fi
 	sleep 1
-	i=`expr $i + 1`
+	__i=`expr $__i + 1`
     done
 
     # badness ...
@@ -144,12 +144,12 @@ _pmdabcc_wait_for_metric()
 
 _pmdabcc_wait_for_value()
 {
-    value_regex=${2:-'.*'}
+    __value_regex=${2:-'.*'}
 
     sed -n '/Error:/,$p' $PCP_LOG_DIR/pmcd/bcc.log
-    for i in `seq 1 30`; do pminfo -f $1 | grep -q -P 'inst .* value '$value_regex && break; sleep 1; done
-    if [ $i -ge 30 ]; then
-        echo Could not get a single value matching $value_regex
+    for __i in `seq 1 30`; do pminfo -f $1 | grep -q -P 'inst .* value '$__value_regex && break; sleep 1; done
+    if [ $__i -ge 30 ]; then
+        echo Could not get a single value matching $__value_regex
         echo Current values:
         pminfo -f $1
         exit
@@ -181,43 +181,48 @@ _pmdabcc_cleanup()
     fi
     # note: _restore_auto_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda bcc
+
+    rm -f $tmp.*
 }
 
 _java_check()
 {
-    machine=`uname -m`
-    case "$machine"
+    __machine=`uname -m`
+    case "$__machine"
     in
         x86_64)
-            java_machine=amd64
+            __java_machine=amd64
             ;;
         *)
-            java_machine="$machine"
+            __java_machine="$__machine"
             ;;
     esac
 
-    java_version=`java -version 2>&1 | awk '/version/ { print $3 }'`
-    java_version=`echo $java_version | tr -d '"' | sed -e 's,_.*,,'`
-    java_major=`echo $java_version   | sed -e 's,\..*,,g'`
+    __java_version=`java -version 2>&1 | awk '/version/ { print $3 }'`
+    __java_version=`echo $__java_version | tr -d '"' | sed -e 's,_.*,,'`
+    __java_major=`echo $__java_version   | sed -e 's,\..*,,g'`
+    echo "\$__java_machine=$__java_machine" >>$here/$seq.full
+    echo "\$__java_version=$__java_version" >>$here/$seq.full
+    echo "\$__java_major=$__java_major" >>$here/$seq.full
 
-    jvm_path=""
-    for path in \
+    __jvm_path=""
+    for __path in \
 	/etc/alternatives/jre/lib/server \
-	/etc/alternatives/jre/lib/$java_machine/server \
-	/usr/lib/jvm/java-${java_major}-openjdk-${java_machine}/lib/server \
-	/usr/lib/jvm/java-${java_version}-openjdk/jre/lib/${java_machine}/server \
-	/usr/lib/jvm/java-${java_major}-openjdk-${java_machine}/jre/lib/${java_machine}/server
+	/etc/alternatives/jre/lib/$__java_machine/server \
+	/usr/lib/jvm/java-${__java_major}-openjdk-$__java_machine/lib/server \
+	/usr/lib/jvm/java-${__java_version}-openjdk/jre/lib/$__java_machine/server \
+	/usr/lib/jvm/java-${__java_major}-openjdk-$__java_machine/jre/lib/$__java_machine/server
     do
-        [ -f "$path/libjvm.$DSO_SUFFIX" ] && jvm_path="$path/libjvm.$DSO_SUFFIX"
+        [ -f "$__path/libjvm.$DSO_SUFFIX" ] && __jvm_path="$__path/libjvm.$DSO_SUFFIX"
     done
 
-    [ -z "$jvm_path" ] && _notrun "libjvm.$DSO_SUFFIX not found"
+    [ -z "$__jvm_path" ] && _notrun "libjvm.$DSO_SUFFIX not found"
 
-    for tplistcmd in /usr/share/bcc/tools/tplist tplist-bpfcc tplist
+    for __tplistcmd in /usr/share/bcc/tools/tplist tplist-bpfcc tplist
     do
-        which $tplistcmd >/dev/null 2>&1 && \
-            probes=$($tplistcmd -l $jvm_path 2>/dev/null | grep thread__start)
-        [ -n "$probes" ] && return 0
+        which $__tplistcmd >/dev/null 2>&1 && \
+            __probes=$($__tplistcmd -l $__jvm_path 2>/dev/null | grep thread__start)
+        [ -n "$__probes" ] && return 0
     done
     _notrun "No Java USDT probes available"
 }
@@ -225,37 +230,37 @@ _java_check()
 _python_probe_check()
 {
     $python -c 'import time;time.sleep(5)' > /dev/null 2>&1 &
-    pypid=$!
-    probes=
-    for tplistcmd in /usr/share/bcc/tools/tplist tplist-bpfcc tplist
+    __pypid=$!
+    __probes=
+    for __tplistcmd in /usr/share/bcc/tools/tplist tplist-bpfcc tplist
     do
-        which $tplistcmd >/dev/null 2>&1 && \
-            probes=$($tplistcmd -p $pypid 2>/dev/null | grep function__entry)
-        [ -n "$probes" ] && return 0
+        which $__tplistcmd >/dev/null 2>&1 && \
+            __probes=$($__tplistcmd -p $__pypid 2>/dev/null | grep function__entry)
+        [ -n "$__probes" ] && return 0
     done
     _notrun "No Python USDT probes available"
 }
 
 _mount_filesystem()
 {
-    fs=$1
-    image=$tmp.loop.$fs.img
-    mountpoint=$tmp.mount.$fs
+    __fs=$1
+    __image=$tmp.loop.$__fs.img
+    __mountpoint=$tmp.mount.$__fs
 
-    truncate -s 30M $image
-    echo y | mkfs.$fs $image > /dev/null 2>&1
-    mkdir -p $mountpoint
-    $sudo mount -t $fs $image $mountpoint
-    $sudo chown $(id -u):$(id -g) $mountpoint
+    truncate -s 30M $__image
+    echo y | mkfs.$__fs $__image > /dev/null 2>&1
+    mkdir -p $__mountpoint
+    $sudo mount -t $__fs $__image $__mountpoint
+    $sudo chown $(id -u):$(id -g) $__mountpoint
 }
 
 _unmount_filesystem()
 {
-    fs=$1
-    mountpoint=$tmp.mount.$fs
+    __fs=$1
+    __mountpoint=$tmp.mount.$__fs
 
-    $sudo umount $mountpoint
-    rm -r $mountpoint
+    $sudo umount $__mountpoint
+    rm -r $__mountpoint
 }
 
 _value_filter_any()
@@ -326,17 +331,23 @@ _pmdabcc_try_compile()
 	if grep 'Failed to compile BPF module' bcc.log >/dev/null
 	then
 	    cat bcc.log >>$here/$seq.full
+	    trap "rm -f $tmp.*" 0
 	    _notrun "Failed to compile bcc module, see $seq.full for details"
+	    # NOTREACHED
 	fi
 	if grep 'Failed to load BPF program' bcc.log >/dev/null
 	then
 	    cat bcc.log >>$here/$seq.full
+	    trap "rm -f $tmp.*" 0
 	    _notrun "Failed to load bcc program, see $seq.full for details"
+	    # NOTREACHED
 	fi
 	if grep 'Failed to attach BPF program' bcc.log >/dev/null
 	then
 	    cat bcc.log >>$here/$seq.full
+	    trap "rm -f $tmp.*" 0
 	    _notrun "Failed to attach bcc program, see $seq.full for details"
+	    # NOTREACHED
 	fi
 	$sudo rm -f bcc.log
     fi

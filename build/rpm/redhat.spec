@@ -480,6 +480,9 @@ Summary: Performance Co-Pilot run-time libraries
 URL: https://pcp.io
 Requires: pcp-conf = %{version}-%{release}
 
+# prevent conflicting library (libpcp.so.N) installation
+Conflicts: postgresql-pgpool-II
+
 %description libs
 Performance Co-Pilot (PCP) run-time libraries
 
@@ -491,6 +494,9 @@ License: GPLv2+ and LGPLv2+
 Summary: Performance Co-Pilot (PCP) development headers
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+
+# prevent conflicting library (libpcp.so) installation
+Conflicts: postgresql-pgpool-II-devel
 
 %description libs-devel
 Performance Co-Pilot (PCP) headers for development.
@@ -2289,7 +2295,7 @@ updated policy package.
 %setup -q
 
 %build
-# the buildsubdir macro gets defined in %setup and is apparently only available in the next step (i.e. the %build step)
+# the buildsubdir macro gets defined in %%setup and is apparently only available in the next step (i.e. the %%build step)
 %global __strip %{_builddir}/%{?buildsubdir}/build/rpm/custom-strip
 
 # fix up build version
@@ -3344,8 +3350,15 @@ PCP_LOG_DIR=%{_logsdir}
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Fri Jul 01 2022 Nathan Scott <nathans@redhat.com> - 6.0.0-1
+* Sun Jul 31 2022 Nathan Scott <nathans@redhat.com> - 6.0.0-1
 - https://github.com/performancecopilot/pcp/projects/1
+
+* Tue Apr 05 2022 Nathan Scott <nathans@redhat.com> - 5.3.7-1
+- Add disk.wwid aggregated multipath metrics (BZ 1293444)
+- Update to latest PCP sources.
+
+* Wed Feb 02 2022 Nathan Scott <nathans@redhat.com> - 5.3.6-1
+- Update to latest PCP sources.
 
 * Wed Nov 10 2021 Nathan Scott <nathans@redhat.com> - 5.3.5-1
 - Fix pmlogger services systemd killmode warning (BZ 1897945)

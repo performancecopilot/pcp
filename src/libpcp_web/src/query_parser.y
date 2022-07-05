@@ -4,6 +4,7 @@
  *
  * Copyright (c) 2017-2022 Red Hat.
  * Copyright (c) 2020 Yushan ZHANG.
+ * Copyright (c) 2022 Shiyao CHEN.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -1172,12 +1173,12 @@ static const struct {
 	{ L_AVG_INST,		sizeof("avg_inst")-1,	"avg_inst" },
 	{ L_AVG_SAMPLE,		sizeof("avg_sample")-1,	"avg_sample" },
     { L_COUNT,		sizeof("count")-1,	"count" },
-	{ L_MAX,		sizeof("max")-1,	"max" },
+    { L_MAX,		sizeof("max")-1,	"max" },
     { L_MAX_INST,	sizeof("max_inst")-1,	"max_inst" },
-	{ L_MAX_SAMPLE,	sizeof("max_sample")-1,	"max_sample" },
+    { L_MAX_SAMPLE,	sizeof("max_sample")-1,	"max_sample" },
     { L_MIN,		sizeof("min")-1,	"min" },
-	{ L_MIN_INST,	sizeof("min_inst")-1,	"min_inst" },
-	{ L_MIN_SAMPLE,	sizeof("min_sample")-1,	"min_sample" },
+    { L_MIN_INST,	sizeof("min_inst")-1,	"min_inst" },
+    { L_MIN_SAMPLE,	sizeof("min_sample")-1,	"min_sample" },
     { L_SUM,		sizeof("sum")-1,	"sum" },
 	{ L_SUM_INST,	sizeof("sum_inst")-1,	"sum_inst" },
 	{ L_SUM_SAMPLE,	sizeof("sum_sample")-1,	"sum_sample" },
@@ -1233,10 +1234,10 @@ static struct {
     { L_DELTA,		N_DELTA,	"DELTA",	NULL },
     { L_MAX,		N_MAX,		"MAX",		NULL },
     { L_MAX_INST,	N_MAX_INST,	"MAX_INST",	NULL },
-	{ L_MAX_SAMPLE,	N_MAX_SAMPLE,	"MAX_SAMPLE",	NULL },
+    { L_MAX_SAMPLE,	N_MAX_SAMPLE,	"MAX_SAMPLE",	NULL },
     { L_MIN,		N_MIN,		"MIN",		NULL },
-	{ L_MIN_INST,	N_MIN_INST,	"MIN_INST",	NULL },
-	{ L_MIN_SAMPLE,	N_MIN_SAMPLE,	"MIN_SAMPLE",	NULL },
+    { L_MIN_INST,	N_MIN_INST,	"MIN_INST",	NULL },
+    { L_MIN_SAMPLE,	N_MIN_SAMPLE,	"MIN_SAMPLE",	NULL },
     { L_SUM,		N_SUM,		"SUM",		NULL },
 	{ L_SUM_INST,	N_SUM_INST,	"SUM_INST",	NULL },
 	{ L_SUM_SAMPLE,	N_SUM_SAMPLE,	"SUM_SAMPLE",	NULL },

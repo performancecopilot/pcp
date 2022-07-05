@@ -112,9 +112,9 @@ SigBad(int sig)
 {
     if (pmDebugOptions.desperate) {
 	pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
-	fprintf(stderr, "\nDumping to core ...\n");
-	__pmDumpStack(stderr);
+	__pmDumpStack();
 	fflush(stderr);
+	fprintf(stderr, "\nDumping to core ...\n");
     }
     _exit(sig);
 }

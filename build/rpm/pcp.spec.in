@@ -271,6 +271,9 @@ URL: https://pcp.io
 Requires: pcp-conf = @package_version@
 Obsoletes: pcp < 3.0
 
+# prevent conflicting library (libpcp.so.N) installation
+Conflicts: postgresql-pgpool-II
+
 %description libs
 Performance Co-Pilot (PCP) run-time libraries
 
@@ -281,6 +284,9 @@ Performance Co-Pilot (PCP) run-time libraries
 License: GPLv2+ and LGPLv2+
 Summary: Performance Co-Pilot (PCP) development headers
 URL: https://pcp.io
+
+# prevent conflicting library (libpcp.so) installation
+Conflicts: postgresql-pgpool-II-devel
 
 %description libs-devel
 Performance Co-Pilot (PCP) headers for development.

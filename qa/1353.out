@@ -1,5 +1,5 @@
 QA output created by 1353
-preprocessor cmd: PCP_BINADM_DIR/pmcpp -rs -I PCP_VAR_DIR/config/pmlogger TMP.config
+[DATE] pmlogger(PID) Info: Start
 pass0:4 name="sample.bin"
 pass0:11 name="is_a_name_0"
 pass0:12 name="is_a_name_1"

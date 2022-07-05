@@ -88,6 +88,7 @@ foo
 
 === MKTEMP.HOST.log ===
 Log for pmlogger on HOST started DATE
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
@@ -101,6 +102,7 @@ The application that launched pmlogger has terminated this PCP recording session
 
 === MKTEMP.localhost.log ===
 Log for pmlogger on HOST started DATE
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
@@ -116,6 +118,7 @@ At any time this pmlogger process may be terminated with the following command:
 
 === MKTEMPa.HOST.log ===
 Log for pmlogger on HOST started DATE
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
@@ -136,6 +139,7 @@ The application that launched pmlogger has terminated this PCP recording session
 
 === MKTEMPa.localhost.log ===
 Log for pmlogger on HOST started DATE
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
@@ -237,6 +241,7 @@ foo
 
 === MKTEMP.HOST.log ===
 Log for pmlogger on HOST started DATE
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
@@ -248,6 +253,7 @@ The application that launched pmlogger has terminated this PCP recording session
 
 === MKTEMP.localhost.log ===
 Log for pmlogger on HOST started DATE
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
@@ -261,6 +267,7 @@ At any time this pmlogger process may be terminated with the following command:
 
 === MKTEMPa.HOST.log ===
 Log for pmlogger on HOST started DATE
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
@@ -277,6 +284,7 @@ The application that launched pmlogger has terminated this PCP recording session
 
 === MKTEMPa.localhost.log ===
 Log for pmlogger on HOST started DATE
+[DATE] pmlogger(PID) Info: Start
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
