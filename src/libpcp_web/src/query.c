@@ -3271,7 +3271,7 @@ series_calculate_standard_deviation(node_t *np)
  * calculate sum or avg in the time series for each sample across time
  */
 static void
-series_calculate_statistical_time(node_t *np, nodetype_t func)
+series_calculate_time_domain_statistical(node_t *np, nodetype_t func)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
     unsigned int	n_series, n_samples, n_instances, i, j, k;
@@ -4372,7 +4372,7 @@ series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 		sts = N_AVG_INST;
 	    break;
 	case N_AVG_SAMPLE:
-	    series_calculate_statistical_time(np, N_AVG_SAMPLE);
+	    series_calculate_time_domain_statistical(np, N_AVG_SAMPLE);
 	    sts = N_AVG_SAMPLE;
 	    break;
 	case N_SUM:
@@ -4382,7 +4382,7 @@ series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 	    series_calculate_statistical(np, N_SUM_INST);
 	    break;
 	case N_SUM_SAMPLE:
-	    series_calculate_statistical_time(np, N_SUM_SAMPLE);
+	    series_calculate_time_domain_statistical(np, N_SUM_SAMPLE);
 	    break;
 	case N_STDEV_INST:
 	    series_calculate_standard_deviation(np);
