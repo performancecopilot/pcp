@@ -2351,14 +2351,14 @@ series_expr_canonical(node_t *np, int idx)
 	break;
 
     case N_AVG:
-	case N_AVG_INST:
-	case N_AVG_SAMPLE:
+    case N_AVG_INST:
+    case N_AVG_SAMPLE:
     case N_SUM:
-	case N_SUM_INST:
-	case N_SUM_SAMPLE:
-	case N_STDEV_INST:
-	case N_STDEV_SAMPLE:
-	case N_MAX:
+    case N_SUM_INST:
+    case N_SUM_SAMPLE:
+    case N_STDEV_INST:
+    case N_STDEV_SAMPLE:
+    case N_MAX:
     case N_MAX_INST:
     case N_MAX_SAMPLE:
     case N_MIN:
