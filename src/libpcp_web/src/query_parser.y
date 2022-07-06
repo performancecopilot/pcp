@@ -132,6 +132,8 @@ static const char initial_str[]  = "Unexpected initial";
 %token      L_SUM_SAMPLE
 %token      L_STDEV_INST
 %token      L_STDEV_SAMPLE
+%token      L_TOPK_INST
+%token      L_TOPK_SAMPLE
 %token      L_ANON
 %token      L_RATE
 %token      L_INSTANT
@@ -180,6 +182,7 @@ static const char initial_str[]  = "Unexpected initial";
 %type  <n>  exprlist
 %type  <n>  exprval
 %type  <n>  number
+%type  <n>  integer
 %type  <n>  string
 %type  <s>  timespec
 %type  <n>  vector
@@ -275,7 +278,16 @@ number	: L_INTEGER
 		  $$ = lp->yy_np;
 		}
 	| L_DOUBLE
-		{ lp->yy_np = newnode(N_DOUBLE);
+		{ fprintf(stderr, "print double\n");
+		  lp->yy_np = newnode(N_DOUBLE);
+		  lp->yy_np->value = sdsnew($1);
+		  $$ = lp->yy_np;
+		}
+	;
+
+integer	: L_INTEGER
+		{ fprintf(stderr, "print integer\n");
+		  lp->yy_np = newnode(N_INTEGER);
 		  lp->yy_np->value = sdsnew($1);
 		  $$ = lp->yy_np;
 		}
@@ -522,6 +534,30 @@ func_sid
 	| L_STDEV_SAMPLE L_LPAREN func_sid L_RPAREN
 		{ lp->yy_np = newnode(N_STDEV_SAMPLE);
 		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_TOPK_INST L_LPAREN sid_vec L_COMMA integer L_RPAREN
+		{ lp->yy_np = newnode(N_TOPK_INST);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_TOPK_INST L_LPAREN func_sid L_COMMA integer L_RPAREN
+		{ lp->yy_np = newnode(N_TOPK_INST);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_TOPK_SAMPLE L_LPAREN sid_vec L_COMMA integer L_RPAREN
+		{ lp->yy_np = newnode(N_TOPK_SAMPLE);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_TOPK_SAMPLE L_LPAREN func_sid L_COMMA integer L_RPAREN
+		{ lp->yy_np = newnode(N_TOPK_SAMPLE);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_AVG L_LPAREN sid_vec L_RPAREN
@@ -940,6 +976,31 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
+	| L_TOPK_INST L_LPAREN val_vec L_COMMA integer L_RPAREN
+		{ fprintf(stderr, "topk_inst test test\n");
+		  lp->yy_np = newnode(N_TOPK_INST);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_TOPK_INST L_LPAREN func L_COMMA integer L_RPAREN
+		{ lp->yy_np = newnode(N_TOPK_INST);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_TOPK_SAMPLE L_LPAREN val_vec L_COMMA integer L_RPAREN
+		{ lp->yy_np = newnode(N_TOPK_SAMPLE);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_TOPK_SAMPLE L_LPAREN func L_COMMA integer L_RPAREN
+		{ lp->yy_np = newnode(N_TOPK_SAMPLE);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
 	| L_AVG L_LPAREN val_vec L_RPAREN
 		{ lp->yy_np = newnode(N_AVG);
 		  lp->yy_np->left = $3;
@@ -1184,6 +1245,8 @@ static const struct {
 	{ L_SUM_SAMPLE,	sizeof("sum_sample")-1,	"sum_sample" },
 	{ L_STDEV_INST,	sizeof("stdev_inst")-1,	"stdev_inst" },
 	{ L_STDEV_SAMPLE,	sizeof("stdev_sample")-1,	"stdev_sample" },
+	{ L_TOPK_INST,	sizeof("topk_inst")-1,	"topk_inst" },
+	{ L_TOPK_SAMPLE,	sizeof("topk_sample")-1,	"topk_sample" },
     { L_RATE,		sizeof("rate")-1,	"rate" },
     { L_ABS,		sizeof("abs")-1,	"abs" },
     { L_FLOOR,		sizeof("floor")-1,	"floor" },
@@ -1243,6 +1306,8 @@ static struct {
 	{ L_SUM_SAMPLE,	N_SUM_SAMPLE,	"SUM_SAMPLE",	NULL },
 	{ L_STDEV_INST,	N_STDEV_INST,	"STDEV_INST",	NULL },
 	{ L_STDEV_SAMPLE,	N_STDEV_SAMPLE,	"STDEV_SAMPLE",	NULL },
+	{ L_TOPK_INST,	N_TOPK_INST,	"TOPK_INST",	NULL },
+	{ L_TOPK_SAMPLE,	N_TOPK_SAMPLE,	"TOPK_SAMPLE",	NULL },
     { L_ANON,		N_ANON,		"ANON",		NULL },
     { L_RATE,		N_RATE,		"RATE",		NULL },
     { L_INSTANT,	N_INSTANT,	"INSTANT",	NULL },
@@ -2074,7 +2139,7 @@ series_dumpexpr(node_t *np, int level)
     case N_SUM: case N_ANON:    case N_RATE:    case N_INSTANT: case N_RESCALE:
 	case N_MAX_INST:	case N_MAX_SAMPLE: 	case N_MIN_INST:	case N_MIN_SAMPLE: 
 	case N_AVG_INST:	case N_AVG_SAMPLE: 	case N_SUM_INST:	case N_SUM_SAMPLE: 
-	case N_STDEV_INST:	case N_STDEV_SAMPLE: 
+	case N_STDEV_INST:	case N_STDEV_SAMPLE:	case N_TOPK_INST:	case N_TOPK_SAMPLE: 
 	fprintf(stderr, "%*s%s()", level*4, "", n_type_str(np->type));
 	break;
     case N_SCALE: {

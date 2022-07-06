@@ -103,7 +103,8 @@ skip_free_value_set(node_t *np)
 	|| np->type == N_STAR || np->type == N_SLASH || np->type == N_AVG
 	|| np->type == N_AVG_INST || np->type == N_AVG_SAMPLE || np->type == N_SUM 
 	|| np->type == N_SUM_INST || np->type == N_SUM_SAMPLE 
-	|| np->type == N_STDEV_INST || np->type == N_STDEV_SAMPLE) 
+	|| np->type == N_STDEV_INST || np->type == N_STDEV_SAMPLE
+	|| np->type == N_TOPK_INST || np->type == N_TOPK_SAMPLE) 
 	return 0;
     return 1;
 }
@@ -2351,14 +2352,22 @@ series_expr_canonical(node_t *np, int idx)
 	break;
 
     case N_AVG:
-	case N_AVG_INST:
-	case N_AVG_SAMPLE:
+    case N_AVG_INST:
+    case N_AVG_SAMPLE:
     case N_SUM:
-	case N_SUM_INST:
-	case N_SUM_SAMPLE:
-	case N_STDEV_INST:
-	case N_STDEV_SAMPLE:
-	case N_MAX:
+    case N_SUM_INST:
+    case N_SUM_SAMPLE:
+    case N_STDEV_INST:
+    case N_STDEV_SAMPLE:
+    case N_TOPK_INST:
+    	left = series_expr_canonical(np->left, idx);
+	right = series_expr_canonical(np->right, idx);
+	break;
+    case N_TOPK_SAMPLE:
+    	left = series_expr_canonical(np->left, idx);
+	right = series_expr_canonical(np->right, idx);
+	break;
+    case N_MAX:
     case N_MAX_INST:
     case N_MAX_SAMPLE:
     case N_MIN:
@@ -2442,6 +2451,12 @@ series_expr_canonical(node_t *np, int idx)
 	break;
     case N_STDEV_SAMPLE:
 	statement = sdscatfmt(sdsempty(), "stdev_sample(%S)", left);
+	break;
+    case N_TOPK_INST:
+	statement = sdscatfmt(sdsempty(), "topk_inst(%S, %S)", left, right);
+	break;
+    case N_TOPK_SAMPLE:
+	statement = sdscatfmt(sdsempty(), "topk_sample(%S, %S)", left, right);
 	break;
     case N_ANON:
 	break;
@@ -3135,6 +3150,91 @@ series_calculate_abs(node_t *np)
     }
 }
 /*
+ * calculate topk series per-instance over time samples
+ */
+static void
+series_calculate_time_domain_topk(node_t *np)
+{
+//     seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
+//     unsigned int	n_series, n_samples, n_instances, i, j, k;
+//     sds			msg;
+//     pmSeriesValue	inst;
+//     int                 n, data, d, ind;
+// //     double 		*topk_data;
+//     sscanf(np->right->value, "%d", &n);
+// //     fprintf(stderr, "n = %d\n", n);
+//     double              topk_data[n];
+//     int                 topk_pointer[n];
+
+//     n_series = np->left->value_set.num_series;
+// //     fprintf(stderr, "n_series = %d\n", n_series);
+//     np->value_set.num_series = n_series;
+// //     np->value_set.series_values = np->left->value_set.series_values;
+//     np->value_set.series_values = (series_sample_set_t *)calloc(n_series, sizeof(series_sample_set_t));
+//     for (i = 0; i < n_series; i++) {
+//         n_samples = np->left->value_set.series_values[i].num_samples;
+//         if (n_samples > 0){
+//             np->value_set.series_values[i].num_samples = n_samples;
+//             np->value_set.series_values[i].series_sample = (series_instance_set_t *)calloc(n_samples, sizeof(series_instance_set_t));
+//             n_instances = np->left->value_set.series_values[i].series_sample[0].num_instances;
+
+//             for (j = 0; j < n_samples; j++){
+//                 np->value_set.series_values[i].series_sample[j].num_instances = 1;
+//                 np->value_set.series_values[i].series_sample[j].series_instance = (pmSeriesValue *)calloc(n, sizeof(pmSeriesValue));
+//                 for (k = 0; k < n_instances; k++){
+//                     if (np->left->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
+//                         if (pmDebugOptions.query && pmDebugOptions.desperate) {
+//                                 infofmt(msg, "number of instances in each sample are not equal\n");
+//                                 batoninfo(baton, PMLOG_ERROR, msg);
+//                         }
+//                     continue;
+//                     }                
+//                     data = strtod(np->left->value_set.series_values[i].series_sample[j].series_instance[k].data, NULL);
+//                     if (data > topk_data[n-1]){
+//                         for (d = 0; d < n; ++d){
+//                             if (data > topk_data[d]){
+//                                 // insert in to position d
+//                                 for (ind = n - 1; ind > d; --ind){
+//                                     topk_data[ind] = topk_data[ind-1];
+//                                     topk_pointer[ind] = topk_pointer[ind-1];
+//                                 }
+//                                 topk_data[d] = data;
+//                                 topk_pointer[d] = k;
+//                             }
+//                         }
+//                     }
+//                 }
+
+//                 for (d = 0; d < n; ++d){
+//                 //     fprintf(stderr, "d = %d, topk_pointer[d] = %d", d, topk_pointer[d]);
+//                     inst = np->left->value_set.series_values[i].series_sample[j].series_instance[topk_pointer[d]];
+//                     np->value_set.series_values[i].series_sample[j].series_instance[d].timestamp = sdsnew(inst.timestamp);
+//                     np->value_set.series_values[i].series_sample[j].series_instance[d].series = sdsnew(0);
+//                     np->value_set.series_values[i].series_sample[j].series_instance[d].data = sdsnew(inst.data);
+//                     np->value_set.series_values[i].series_sample[j].series_instance[d].ts = inst.ts;                
+//                 }
+//             }
+//         }
+//         else{
+//             np->value_set.series_values[i].num_samples = 0;
+//         }
+// 	np->value_set.series_values[i].sid = (seriesGetSID *)calloc(1, sizeof(seriesGetSID));
+// 	np->value_set.series_values[i].sid->name = sdsnew(np->left->value_set.series_values[i].sid->name);
+// 	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
+// 	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
+
+//     }
+}
+/*
+ * calculate standard deviation series per-instance over time samples
+ */
+static void
+series_calculate_topk(node_t *np)
+{
+}
+
+
+/*
  * calculate standard deviation series per-instance over time samples
  */
 static void
@@ -3247,7 +3347,7 @@ series_calculate_standard_deviation(node_t *np)
 		    sd += pow(data - mean, 2);
 		}
 		pmsprintf(stdev, sizeof(stdev), "%le", sqrt(sd / n_samples));
-                inst = np->left->value_set.series_values[i].series_sample[0].series_instance[k];
+		inst = np->left->value_set.series_values[i].series_sample[0].series_instance[k];
 		np->value_set.series_values[i].series_sample[0].series_instance[k].timestamp = sdsnew(inst.timestamp);
 		np->value_set.series_values[i].series_sample[0].series_instance[k].series = sdsnew(inst.series);
 		np->value_set.series_values[i].series_sample[0].series_instance[k].data = sdsnew(stdev);
@@ -3292,7 +3392,7 @@ series_calculate_time_domain_statistical(node_t *np, nodetype_t func)
 	    n_instances = np->left->value_set.series_values[i].series_sample[0].num_instances;
 	    for (j = 0; j < n_samples; j++) {
 		np->value_set.series_values[i].series_sample[j].num_instances = 1;
-	    np->value_set.series_values[i].series_sample[j].series_instance = (pmSeriesValue *)calloc(1, sizeof(pmSeriesValue));
+		np->value_set.series_values[i].series_sample[j].series_instance = (pmSeriesValue *)calloc(1, sizeof(pmSeriesValue));
 		
 		sum_data = 0.0;
 		for (k = 0; k < n_instances; k++) {
@@ -4389,6 +4489,12 @@ series_calculate(seriesQueryBaton *baton, node_t *np, int level)
 	    break;
 	case N_STDEV_SAMPLE:
 	    series_calculate_time_domain_standard_deviation(np);
+	    break;
+	case N_TOPK_INST:
+	    series_calculate_topk(np);
+	    break;
+	case N_TOPK_SAMPLE:
+	    series_calculate_time_domain_topk(np);
 	    break;
 	default:
 	    sts = 0;	/* no function */
