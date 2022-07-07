@@ -25,7 +25,11 @@ trap "_pmdabpf_cleanup; exit \$status" 0 1 2 3 15
 _filter_logs()
 {
     tee -a $seq.full \
-    | grep -Ev "Debug|Info"
+    | sed \
+	-e '/ Debug: /d' \
+	-e '/ Info: /d' \
+	-e '/WARNING: unhandled eBPF command 28/d' \
+    # end
 }
 
 
