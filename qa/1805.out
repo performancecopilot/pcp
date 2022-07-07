@@ -126,3 +126,15 @@ network.mptcp.addaddrdrop
 
 network.mptcp.rmaddrdrop
     value 34
+
+network.mptcp.mpfastclosetx
+    value 43
+
+network.mptcp.mpfastcloserx
+    value 44
+
+network.mptcp.mprsttx
+    value 45
+
+network.mptcp.mprstrx
+    value 46
