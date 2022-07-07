@@ -4602,6 +4602,26 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_NETSTAT,195), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
+/* network.mptcp.mpfastclosetx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPFASTCLOSETX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,196), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpfastcloserx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPFASTCLOSERX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,197), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mprsttx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPRSTTX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,198), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mprstrx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPRSTRX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,199), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 /* hinv.map.scsi */
     { NULL, 
       { PMDA_PMID(CLUSTER_SCSI,0), PM_TYPE_STRING, SCSI_INDOM, PM_SEM_DISCRETE, 
