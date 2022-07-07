@@ -12,6 +12,7 @@ audit
 autoconf
 bash
 bc
+bcc-tools
 bind-utils
 bison
 coreutils
