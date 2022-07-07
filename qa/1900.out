@@ -1,16 +1,24 @@
 QA output created by 1900
 
+=== bpf agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bpf metrics have appeared ... X metrics and X values
+
+
 == Running pmdabpf with valgrind
 === std out ===
 
-bpf.disk.all.latency PMID: 157.1.0 [Disk latency]
-    Data Type: 64-bit unsigned int  InDom: 157.1 0x27400001
+bpf.disk.all.latency PMID: 157.0.0 [Disk latency]
+    Data Type: 64-bit unsigned int  InDom: 157.0 0x27400000
     Semantics: counter  Units: microsec
 Help:
 Disk latency histogram across all disks, for both reads and writes.
 
-bpf.runq.latency PMID: 157.0.0 [Run queue latency (ns)]
-    Data Type: 64-bit unsigned int  InDom: 157.0 0x27400000
+bpf.runq.latency PMID: 157.1.0 [Run queue latency (ns)]
+    Data Type: 64-bit unsigned int  InDom: 157.1 0x27400001
     Semantics: counter  Units: nanosec
 Help:
 Run queue latency from task switches,
@@ -18,7 +26,7 @@ ie: how long each task sat in queue from entry to queue until executing.
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -K clear -K add,157,/var/lib/pcp/pmdas/bpf/pmda_bpf,bpf_init -dmtT bpf
+Command: pminfo -L -K clear -K add,157,/var/lib/pcp/pmdas/bpf/pmda_bpf,bpf_init -dmtT bpf.disk bpf.runq
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
