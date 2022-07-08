@@ -4,6 +4,8 @@
  */
 
 #include <pcp/pmapi.h>
+#include "libpcp.h"
+#include <pcp/archive.h>
 
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("General options"),
