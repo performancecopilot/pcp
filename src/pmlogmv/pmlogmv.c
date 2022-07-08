@@ -193,8 +193,9 @@ do_checksum(const char *file, char *sum)
     }
     else {
 	char	*p = sum;
-	while ((*p = fgetc(fp)) != EOF) {
-	    if (*p == ' ') {
+	int	c;
+	while ((c = fgetc(fp)) != EOF) {
+	    if (c == ' ') {
 		*p = '\0';
 		break;
 	    }
@@ -207,7 +208,7 @@ do_checksum(const char *file, char *sum)
 		*p = '\0';
 		break;
 	    }
-	    p++;
+	    *p++ = c;
 	}
 	pclose(fp);
     }
