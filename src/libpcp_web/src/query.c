@@ -100,10 +100,10 @@ skip_free_value_set(node_t *np)
     if (np->type == N_RATE || np->type == N_RESCALE || np->type == N_ABS 
 	|| np->type == N_SQRT || np->type == N_FLOOR || np->type == N_ROUND
 	|| np->type == N_LOG || np->type == N_PLUS || np->type == N_MINUS
-	|| np->type == N_STAR || np->type == N_SLASH || np->type == N_AVG
-	|| np->type == N_AVG_INST || np->type == N_AVG_SAMPLE || np->type == N_SUM 
-	|| np->type == N_SUM_INST || np->type == N_SUM_SAMPLE 
-	|| np->type == N_STDEV_INST || np->type == N_STDEV_SAMPLE) 
+	|| np->type == N_STAR || np->type == N_SLASH)
+	// || np->type == N_AVG
+	// || np->type == N_AVG_INST || np->type == N_AVG_SAMPLE || np->type == N_SUM 
+	// || np->type == N_SUM_INST || np->type == N_SUM_SAMPLE) 
 	return 0;
     return 1;
 }
@@ -3196,7 +3196,8 @@ series_calculate_time_domain_standard_deviation(node_t *np)
 	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
 	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
 
-	sdsfree(np->value_set.series_values[i].series_desc.type);
+	// sdsfree(np->value_set.series_values[i].series_desc.type);
+	// sdsfree(np->value_set.series_values[i].series_desc.semantics);
 	np->value_set.series_values[i].series_desc.type = sdsnew("double");
 	np->value_set.series_values[i].series_desc.semantics = sdsnew("instance");
     }
@@ -3259,7 +3260,8 @@ series_calculate_standard_deviation(node_t *np)
 	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
 	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
 
-	sdsfree(np->value_set.series_values[i].series_desc.type);
+	// sdsfree(np->value_set.series_values[i].series_desc.type);
+	// sdsfree(np->value_set.series_values[i].series_desc.semantics);
 	np->value_set.series_values[i].series_desc.type = sdsnew("double");
 	np->value_set.series_values[i].series_desc.semantics = sdsnew("instance");
     }
@@ -3335,7 +3337,6 @@ series_calculate_time_domain_statistical(node_t *np, nodetype_t func)
 	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
 
 	/* statistical result values are type double, but maybe this depends on the function and args */
-	sdsfree(np->value_set.series_values[i].series_desc.type);
 	np->value_set.series_values[i].series_desc.type = sdsnew("double");
 	if (func == N_AVG_SAMPLE){
 	    np->value_set.series_values[i].series_desc.semantics = sdsnew("instance");
@@ -3414,7 +3415,6 @@ series_calculate_statistical(node_t *np, nodetype_t func)
 	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
 
 	/* statistical result values are type double, but maybe this depends on the function and args */
-	sdsfree(np->value_set.series_values[i].series_desc.type);
 	np->value_set.series_values[i].series_desc.type = sdsnew("double");
 	if (func == N_AVG_SAMPLE){
 	    np->value_set.series_values[i].series_desc.semantics = sdsnew("instance");
