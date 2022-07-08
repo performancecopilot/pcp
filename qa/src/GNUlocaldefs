@@ -51,7 +51,8 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	timeshift.c checkstructs.c bcc_profile.c sha1int2ext.c \
 	getdomainname.c profilecrash.c store_and_fetch.c test_service_notify.c \
 	ctx_derive.c pmstrn.c pmfstring.c pmfg-derived.c mmv_help.c sizeof.c \
-	stampconv.c time_stamp.c archend.c scandata.c wait_for_values.c
+	stampconv.c time_stamp.c archend.c scandata.c wait_for_values.c \
+	dumpstack.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -717,6 +718,11 @@ test_hostspec:	test_hostspec.c
 endif
 
 # --- need libpcp_archive
+
+# --- need -rdynamic
+dumpstack:	dumpstack.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ -rdynamic $^ $(LDLIBS)
 
 ifneq ($(NVIDIAQALIB),)
 $(NVIDIAQALIB):	nvidia-ml.o
