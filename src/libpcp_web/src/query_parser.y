@@ -278,16 +278,14 @@ number	: L_INTEGER
 		  $$ = lp->yy_np;
 		}
 	| L_DOUBLE
-		{ fprintf(stderr, "print double\n");
-		  lp->yy_np = newnode(N_DOUBLE);
+		{ lp->yy_np = newnode(N_DOUBLE);
 		  lp->yy_np->value = sdsnew($1);
 		  $$ = lp->yy_np;
 		}
 	;
 
 integer	: L_INTEGER
-		{ fprintf(stderr, "print integer\n");
-		  lp->yy_np = newnode(N_INTEGER);
+		{ lp->yy_np = newnode(N_INTEGER);
 		  lp->yy_np->value = sdsnew($1);
 		  $$ = lp->yy_np;
 		}
@@ -977,8 +975,7 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_TOPK_INST L_LPAREN val_vec L_COMMA integer L_RPAREN
-		{ fprintf(stderr, "topk_inst test test\n");
-		  lp->yy_np = newnode(N_TOPK_INST);
+		{ lp->yy_np = newnode(N_TOPK_INST);
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
