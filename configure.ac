@@ -845,6 +845,10 @@ AS_IF([test "x$do_systemd" != "xno"], [
 	[pcp_systemdtmpfiles_dir=$SYSTEMD_TMPFILESDIR],
 	[pcp_systemdtmpfiles_dir=$pcp_lib32_dir/tmpfiles.d])
     AC_SUBST(pcp_systemdtmpfiles_dir)
+    PKG_CHECK_VAR([SYSTEMD_SYSUSERSDIR], [systemd], [sysusersdir],
+	[pcp_systemdsysusers_dir=$SYSTEMD_SYSUSERSDIR],
+	[pcp_systemdsysusers_dir=$pcp_lib32_dir/sysusers.d])
+    AC_SUBST(pcp_systemdsysusers_dir)
     PKG_CHECK_VAR([SYSTEMD_SYSTEMUNITDIR], [systemd], [systemdsystemunitdir],
 	[pcp_systemdunit_dir=$SYSTEMD_SYSTEMUNITDIR], [enable_systemd=false])
     AC_SUBST(pcp_systemdunit_dir)

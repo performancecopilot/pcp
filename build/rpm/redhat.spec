@@ -2445,7 +2445,7 @@ basic_manifest() {
 # Likewise, for the pcp-pmda and pcp-testsuite subpackages.
 #
 total_manifest | keep 'tutorials|/html/|pcp-doc|man.*\.[1-9].*' | cull 'out' >pcp-doc-files
-total_manifest | keep 'testsuite|etc/systemd/system|libpcp_fault|pcp/fault.h' >pcp-testsuite-files
+total_manifest | keep 'testsuite|pcpqa|etc/systemd/system|libpcp_fault|pcp/fault.h' >pcp-testsuite-files
 
 basic_manifest | keep "$PCP_GUI|pcp-gui|applications|pixmaps|hicolor" | cull 'pmtime.h' >pcp-gui-files
 basic_manifest | keep 'selinux' | cull 'tmp|GNUselinuxdefs' >pcp-selinux-files
@@ -2693,9 +2693,7 @@ done
 
 %pre testsuite
 test -d %{_testsdir} || mkdir -p -m 755 %{_testsdir}
-getent group pcpqa >/dev/null || groupadd -r pcpqa
-getent passwd pcpqa >/dev/null || \
-  useradd -c "PCP Quality Assurance" -g pcpqa -d %{_testsdir} -M -r -s /bin/bash pcpqa 2>/dev/null
+%sysusers_create_compat $RPM_BUILD_ROOT/%{_sysusersdir}/pcpqa.conf
 chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
 exit 0
 
