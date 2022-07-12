@@ -39,9 +39,9 @@ typedef struct {
     QIcon 		*back;
     QIcon 		*stop;
     QIcon 		*play;
-} IconStateMap;
+} ArchIconStateMap;
 
-static void setup(IconStateMap *map, PmTime::State state, PmTime::Mode mode,
+static void setup(ArchIconStateMap *map, PmTime::State state, PmTime::Mode mode,
 		  QIcon *back, QIcon *stop, QIcon *play)
 {
     map->state = state;
@@ -53,7 +53,7 @@ static void setup(IconStateMap *map, PmTime::State state, PmTime::Mode mode,
 
 void PmTimeArch::setControl(PmTime::State state, PmTime::Mode mode)
 {
-    static IconStateMap maps[3 * 3];
+    static ArchIconStateMap maps[3 * 3];
     static int nmaps;
 
     if (!nmaps) {
