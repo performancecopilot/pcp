@@ -69,7 +69,7 @@ echo Compared to:
 pmseries $args 'rate(kernel.all.pswitch[count:5])'
 echo
 
-echo;echo "== Verify min/max() functions for a non-sigular metric"
+echo;echo "== Verify min/max() functions for a non-singular metric"
 pmseries $args 'kernel.all.load[count:5]'
 pmseries $args 'max(kernel.all.load[count:5])'
 pmseries $args 'max_inst(kernel.all.load[count:5])'
@@ -78,7 +78,7 @@ pmseries $args 'min(kernel.all.load[count:5])'
 pmseries $args 'min_inst(kernel.all.load[count:5])'
 pmseries $args 'min_sample(kernel.all.load[count:5])'
 
-echo;echo "== Verify min/max() functions for a non-sigular metric, only one instance"
+echo;echo "== Verify min/max() functions for a non-singular metric, only one instance"
 pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5]'
 echo Compared to max:
 pmseries $args 'max(kernel.all.load{instance.name == "5 minute"}[count:5])'
@@ -186,7 +186,7 @@ pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5]'
 echo 'Compared to series / series:'
 pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5] / kernel.all.load{instance.name == "5 minute"}[count:5]'
 
-echo;echo "== Verify sum/avg() functions for a non-sigular metric"
+echo;echo "== Verify sum/avg() functions for a non-singular metric"
 echo Original with no function:
 pmseries $args 'kernel.all.load[count:5]'
 echo Compared to sum:
@@ -198,7 +198,7 @@ pmseries $args 'avg(kernel.all.load[count:5])'
 pmseries $args 'avg_inst(kernel.all.load[count:5])'
 pmseries $args 'avg_sample(kernel.all.load[count:5])'
 
-echo;echo "== Verify sum/avg() functions for a non-sigular metric, only one instance"
+echo;echo "== Verify sum/avg() functions for a non-singular metric, only one instance"
 echo Original with no function:
 pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5]'
 echo Compared to sum:
@@ -222,14 +222,14 @@ pmseries $args 'avg(rate(kernel.all.pswitch[count:10]))'
 pmseries $args 'avg_inst(rate(kernel.all.pswitch[count:10]))'
 pmseries $args 'avg_sample(rate(kernel.all.pswitch[count:10]))'
 
-echo;echo "== Verify stdev() functions for a non-sigular metric"
+echo;echo "== Verify stdev() functions for a non-singular metric"
 echo Original with no function:
 pmseries $args 'kernel.all.load[count:5]'
 echo Compared to stdev:
 pmseries $args 'stdev_inst(kernel.all.load[count:5])'
 pmseries $args 'stdev_sample(kernel.all.load[count:5])'
 
-echo;echo "== Verify stdev() functions for a non-sigular metric, only one instance"
+echo;echo "== Verify stdev() functions for a non-singular metric, only one instance"
 echo Original with no function:
 pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5]'
 echo Compared to stdev:

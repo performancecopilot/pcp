@@ -1170,8 +1170,8 @@ static const struct {
     char	*f_name;
 } func[] = {
     { L_AVG,		sizeof("avg")-1,	"avg" },
-	{ L_AVG_INST,		sizeof("avg_inst")-1,	"avg_inst" },
-	{ L_AVG_SAMPLE,		sizeof("avg_sample")-1,	"avg_sample" },
+    { L_AVG_INST,	sizeof("avg_inst")-1,	"avg_inst" },
+    { L_AVG_SAMPLE,	sizeof("avg_sample")-1,	"avg_sample" },
     { L_COUNT,		sizeof("count")-1,	"count" },
     { L_MAX,		sizeof("max")-1,	"max" },
     { L_MAX_INST,	sizeof("max_inst")-1,	"max_inst" },
@@ -1180,10 +1180,10 @@ static const struct {
     { L_MIN_INST,	sizeof("min_inst")-1,	"min_inst" },
     { L_MIN_SAMPLE,	sizeof("min_sample")-1,	"min_sample" },
     { L_SUM,		sizeof("sum")-1,	"sum" },
-	{ L_SUM_INST,	sizeof("sum_inst")-1,	"sum_inst" },
-	{ L_SUM_SAMPLE,	sizeof("sum_sample")-1,	"sum_sample" },
-	{ L_STDEV_INST,	sizeof("stdev_inst")-1,	"stdev_inst" },
-	{ L_STDEV_SAMPLE,	sizeof("stdev_sample")-1,	"stdev_sample" },
+    { L_SUM_INST,	sizeof("sum_inst")-1,	"sum_inst" },
+    { L_SUM_SAMPLE,	sizeof("sum_sample")-1,	"sum_sample" },
+    { L_STDEV_INST,	sizeof("stdev_inst")-1,	"stdev_inst" },
+    { L_STDEV_SAMPLE,	sizeof("stdev_sample")-1,	"stdev_sample" },
     { L_RATE,		sizeof("rate")-1,	"rate" },
     { L_ABS,		sizeof("abs")-1,	"abs" },
     { L_FLOOR,		sizeof("floor")-1,	"floor" },
@@ -1228,8 +1228,8 @@ static struct {
     { N_SQRT,		N_SQRT,		"SQRT",		NULL },
     { N_ROUND,		N_ROUND,	"ROUND",	NULL },
     { L_AVG,		N_AVG,		"AVG",		NULL },
-	{ L_AVG_INST,	N_AVG_INST,	"AVG_INST",	NULL },
-	{ L_AVG_SAMPLE,	N_AVG_SAMPLE,	"AVG_SAMPLE",	NULL },
+    { L_AVG_INST,	N_AVG_INST,	"AVG_INST",	NULL },
+    { L_AVG_SAMPLE,	N_AVG_SAMPLE,	"AVG_SAMPLE",	NULL },
     { L_COUNT,		N_COUNT,	"COUNT",	NULL },
     { L_DELTA,		N_DELTA,	"DELTA",	NULL },
     { L_MAX,		N_MAX,		"MAX",		NULL },
@@ -1239,10 +1239,10 @@ static struct {
     { L_MIN_INST,	N_MIN_INST,	"MIN_INST",	NULL },
     { L_MIN_SAMPLE,	N_MIN_SAMPLE,	"MIN_SAMPLE",	NULL },
     { L_SUM,		N_SUM,		"SUM",		NULL },
-	{ L_SUM_INST,	N_SUM_INST,	"SUM_INST",	NULL },
-	{ L_SUM_SAMPLE,	N_SUM_SAMPLE,	"SUM_SAMPLE",	NULL },
-	{ L_STDEV_INST,	N_STDEV_INST,	"STDEV_INST",	NULL },
-	{ L_STDEV_SAMPLE,	N_STDEV_SAMPLE,	"STDEV_SAMPLE",	NULL },
+    { L_SUM_INST,	N_SUM_INST,	"SUM_INST",	NULL },
+    { L_SUM_SAMPLE,	N_SUM_SAMPLE,	"SUM_SAMPLE",	NULL },
+    { L_STDEV_INST,	N_STDEV_INST,	"STDEV_INST",	NULL },
+    { L_STDEV_SAMPLE,	N_STDEV_SAMPLE,	"STDEV_SAMPLE",	NULL },
     { L_ANON,		N_ANON,		"ANON",		NULL },
     { L_RATE,		N_RATE,		"RATE",		NULL },
     { L_INSTANT,	N_INSTANT,	"INSTANT",	NULL },
@@ -2072,9 +2072,9 @@ series_dumpexpr(node_t *np, int level)
 	break;
     case N_AVG: case N_COUNT:   case N_DELTA:   case N_MAX:     case N_MIN:
     case N_SUM: case N_ANON:    case N_RATE:    case N_INSTANT: case N_RESCALE:
-	case N_MAX_INST:	case N_MAX_SAMPLE: 	case N_MIN_INST:	case N_MIN_SAMPLE: 
-	case N_AVG_INST:	case N_AVG_SAMPLE: 	case N_SUM_INST:	case N_SUM_SAMPLE: 
-	case N_STDEV_INST:	case N_STDEV_SAMPLE: 
+    case N_MAX_INST: case N_MAX_SAMPLE: case N_MIN_INST: case N_MIN_SAMPLE: 
+    case N_AVG_INST: case N_AVG_SAMPLE: case N_SUM_INST: case N_SUM_SAMPLE: 
+    case N_STDEV_INST: case N_STDEV_SAMPLE: 
 	fprintf(stderr, "%*s%s()", level*4, "", n_type_str(np->type));
 	break;
     case N_SCALE: {

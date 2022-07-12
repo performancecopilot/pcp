@@ -21,7 +21,7 @@ Compared to:
     [Mon Oct  3 09:10:22.959242000 2011] 351.681330 d51624d12da45900bfee2fd73f1e23f3ccabb784
 
 
-== Verify min/max() functions for a non-sigular metric
+== Verify min/max() functions for a non-singular metric
 
 fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
     [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
@@ -69,7 +69,7 @@ dc4d3bd8c07fb952e89e9765392447b26eea6f8f
     [Mon Oct  3 09:10:23.300460000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
     [Mon Oct  3 09:10:22.959242000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
 
-== Verify min/max() functions for a non-sigular metric, only one instance
+== Verify min/max() functions for a non-singular metric, only one instance
 
 fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
     [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
@@ -560,7 +560,7 @@ ff4b1ef4b3cb2297d067c70d1ebeda8a49060091
     [Mon Oct  3 09:10:22.959242000 2011] 1.000000e+00 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
     [Mon Oct  3 09:10:22.959242000 2011] 1.000000e+00 9d418095c9f971ff4fd44d6828ead27f9d021dc3
 
-== Verify sum/avg() functions for a non-sigular metric
+== Verify sum/avg() functions for a non-singular metric
 Original with no function:
 
 fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
@@ -611,7 +611,7 @@ d5f1f053bb6b11dcc8245a7a792d0537c9f7de6a
     [Mon Oct  3 09:10:23.300460000 2011] 2.333333e-02 
     [Mon Oct  3 09:10:22.959242000 2011] 2.333333e-02 
 
-== Verify sum/avg() functions for a non-sigular metric, only one instance
+== Verify sum/avg() functions for a non-singular metric, only one instance
 Original with no function:
 
 fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
@@ -694,7 +694,7 @@ c739b08d6f1c295f1beb50b65bbd31a1bb4de912
     [Mon Oct  3 09:10:23.300460000 2011] 2.328497e+02 
     [Mon Oct  3 09:10:22.959242000 2011] 3.516813e+02 
 
-== Verify stdev() functions for a non-sigular metric
+== Verify stdev() functions for a non-singular metric
 Original with no function:
 
 fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
@@ -723,7 +723,7 @@ ef9785c6b5cae109a5ed4fd8a0cbe868a1c576e1
     [Mon Oct  3 09:10:23.300460000 2011] 2.054805e-02 
     [Mon Oct  3 09:10:22.959242000 2011] 2.054805e-02 
 
-== Verify stdev() functions for a non-sigular metric, only one instance
+== Verify stdev() functions for a non-singular metric, only one instance
 Original with no function:
 
 fecd5a4b4c6e1273eaa001287a6dd57b7bbd19f7
