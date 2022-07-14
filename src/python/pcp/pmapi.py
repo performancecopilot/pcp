@@ -641,7 +641,7 @@ class pmMetricSpec(Structure):
                 ("inst", POINTER(c_char_p))]
     def __str__(self):
         insts = list(map(lambda x: str(self.inst[x]), range(self.ninst)))
-        fields = (addressof(self), self.isarch, self.source, insts)
+        fields = (addressof(self), self.source, self.metric, insts)
         return "pmMetricSpec@%#lx src=%s metric=%s insts=%s" % fields
 
     @classmethod

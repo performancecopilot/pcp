@@ -71,11 +71,14 @@ def test_pcp(self):
 
     # pmParseMetricSpec
     source = 'localhost'
+    metric = 'kernel.all.load'
     try:
-        (rsltp, errmsg) = ctx.pmParseMetricSpec("kernel.all.load", 0, source)
-        result = rsltp.contents.source.decode()
-        print("pmParseMetricSpec:", result)
-        self.assertTrue(result == source)
+        (rsltp, errmsg) = ctx.pmParseMetricSpec(metric, 0, source)
+        resultm = rsltp.contents.metric.decode()
+        #results = rsltp.contents.source.decode()
+        print("pmParseMetricSpec:", resultm)
+        self.assertTrue(resultm == metric)
+        #self.assertTrue(results == source) # BZ 2106979
     except pmapi.pmErr as error:
         print("pmParseMetricSpec error: ", error)
 
