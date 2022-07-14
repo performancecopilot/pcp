@@ -43,7 +43,7 @@ host: localhost
 pmRecordControl(... OFF ...): Invalid argument
 host: HOST
 host: localhost
-pmRecordControl(... OFF ...): IPC protocol failure
+pmRecordControl(... OFF ...): Invalid argument
 and again to get any exit status ...
 pmRecordControl( ... OFF ...): Invalid argument
 discover what's happened ...
@@ -196,7 +196,7 @@ host: localhost
 pmRecordControl(... OFF ...): Invalid argument
 host: HOST
 host: localhost
-pmRecordControl(... OFF ...): IPC protocol failure
+pmRecordControl(... OFF ...): Invalid argument
 and again to get any exit status ...
 pmRecordControl( ... OFF ...): Invalid argument
 discover what's happened ...
