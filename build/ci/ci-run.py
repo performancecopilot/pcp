@@ -122,7 +122,7 @@ class ContainerRunner:
                 k, v = line.rstrip().split("=")
                 if k == "NAME":
                     if v == '"Ubuntu"':
-                        self.sudo = ["sudo", "-E"]
+                        self.sudo = ["sudo", "-E", "XDG_RUNTIME_DIR="]
                         self.security_opts = ["--security-opt", "label=disable"]
                     break
 
