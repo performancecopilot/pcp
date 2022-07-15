@@ -2965,7 +2965,6 @@ __pmDumpStack(void)
     nsymbols = backtrace(backaddr, MAX_TRACE_DEPTH);
     if (nsymbols > 0) {
 	int	fd;
-	char	line[MAX_SYMBOL_LENGTH+1];
 	char	**symbols = NULL;
 	int	i;
 
@@ -2990,26 +2989,21 @@ __pmDumpStack(void)
 
 	for (i = 0; i < nsymbols; i++) {
 	    if (fd >= 0) {
-		int	j;
-		for (j = 0; j < MAX_SYMBOL_LENGTH; j++) {
+		char	c;
+		fprintf(stderr, "  ");
+		for ( ; ; ) {
 		    int		sts;
-		    sts = read(fd, &line[j], 1);
+		    sts = read(fd, &c, 1);
 		    if (sts < 0) {
 			fprintf(stderr, "Botch: read() returns %d\n", sts);
-			line[j++] = '?';
-			line[j] = '\0';
 			break;
 		    }
-		    else if (sts == 0) {
-			line[j] = '\0';
+		    else if (sts == 0)
 			break;
-		    }
-		    if (line[j] == '\n') {
-			line[j] = '\0';
+		    else if (c == '\n')
 			break;
-		    }
+		    fputc(c, stderr);
 		}
-		fprintf(stderr, "  %s", line);
 	    }
 	    else if (symbols != NULL)
 		fprintf(stderr, "  %s", symbols[i]);

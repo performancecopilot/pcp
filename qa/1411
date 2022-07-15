@@ -71,7 +71,7 @@ echo "=== $indir ==="
 rm -f $tmp.0 $tmp.index $tmp.meta
 outfile=`basename $tmp`
 outdir=`dirname $tmp`
-ganglia2pcp  -V3 -s "Feb 1 12:00:00 UTC 2015" -f $outfile -d $outdir -Z UTC $indir
+ganglia2pcp  -V3 -s "Feb 1 12:00:00 UTC 2015" -e "Feb 12 12:00:00 UTC 2015" -f $outfile -d $outdir -Z UTC $indir
 
 if [ -f $tmp.0 ]
 then

@@ -352,3 +352,33 @@ _pmdabcc_try_compile()
 	$sudo rm -f bcc.log
     fi
 }
+
+# if we can find a tplist executable, run that to ensure the tracepoint
+# "$1" is defined
+#
+_pmdabcc_check_tracepoint()
+{
+    # /usr/share/bcc/tools/tplist for RH-based distros
+    # /usr/sbin/tplist-bpfcc for Debian-based distros
+    #
+    PATH=/usr/share/bcc/tools:/usr/sbin:$PATH
+    for _exec in tplist tplist-bpfcc tplist 
+    do
+	exec=`which $_exec 2>/dev/null`
+	if [ -x "$exec" ]
+	then
+	    # Bingo, we have a tplist command
+	    #
+	    if "$exec" | grep "^$1\$"
+	    then
+		return
+	    else
+		_notrun "tracepoint \"$1\" not known to $exec"
+		# NOTREACHED
+	    fi
+	fi
+    done
+
+    # if no tplist, charge on and hope for the best ...
+    #
+}

@@ -433,6 +433,14 @@ netstat_fields_t netstat_mptcp_fields[] = {
       .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_SUBFLOWSTALE] },
     { .field = "SubflowRecover",
       .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_SUBFLOWRECOVER] },
+    { .field = "MPFastcloseTx",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPFASTCLOSETX] },
+    { .field = "MPFastcloseRx",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPFASTCLOSERX] },
+    { .field = "MPRstTx",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPRSTTX] },
+    { .field = "MPRstRx",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPRSTRX] },
 
     { .field = NULL, .offset = NULL }
 };

@@ -195,6 +195,34 @@ else
 fi
 
 opts=''
+
+# (Linux) kernel version
+#
+#
+if which pmprobe >/dev/null 2>&1
+then
+    if pmprobe -v kernel.uname.release >$tmp.out 2>/dev/null
+    then
+	# variants here include ...
+	# kernel.uname.release 1 "..."
+	# Linux
+	#	5.4.0-121-generic
+	#	5.17.11-100.fc34.x86_64
+	#	4.18.0-394.el8.x86_64
+	#	5.14.14-arch1-1
+	# OpenBSD
+	#	7.0
+	#
+	kernel=`sed <$tmp.out -e 's/"$//' -e 's/.*"//' -e 's/-.*//'`
+    fi
+    [ -z "$kernel" ] && kernel=unknown
+else
+    kernel=unknown
+fi
+opts="$opts kernel=$kernel"
+
+# Python version
+#
 if which pmpython >/dev/null 2>&1
 then
     if pmpython --version >$tmp.out 2>&1
@@ -206,6 +234,9 @@ then
 else
     opts="$opts py=none"
 fi
+
+# SELinux?
+#
 if which getenforce >/dev/null 2>&1
 then
     opts="$opts se=`getenforce | tr '[A-Z]' '[a-z]'`"

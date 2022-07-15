@@ -20,25 +20,46 @@ valgrind --version | sed -e 's/valgrind-//' | awk -F. '$1 < 3 || ($1 == 3 && $2 
 
 status=1
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "_pmdabpf_cleanup; exit \$status" 0 1 2 3 15
 
 _filter_logs()
 {
-    grep -Ev "Debug|Info"
+    tee -a $seq.full \
+    | sed \
+	-e '/ Debug: /d' \
+	-e '/ Info: /d' \
+	-e '/WARNING: unhandled eBPF command 28/d' \
+    # end
 }
 
 
-root=$tmp.root
+# preliminaries ...
+# - install bpf PMDA so we get bpf in the default PMNS
+# - setup up a minimalist "works everywhere" bpf.conf
+#
+_prepare_pmda bpf
+cat <<EOF | _pmdabpf_install
+# Installed by PCP QA test $seq on `date`
+[biolatency.so]
+enabled=true
+
+[runqlat.so]
+enabled=true
+
+# no execsnoop.so for this test, thank you
+EOF
+_pmdabpf_wait_for_metric
+
 pmda=$PCP_PMDAS_DIR/bpf/pmda_bpf,bpf_init
 
 echo && echo "== Running pmdabpf with valgrind"
-_run_valgrind pminfo -L -K clear -K add,157,$pmda -dmtT bpf 2>&1 \
+_run_valgrind --sudo pminfo -L -K clear -K add,157,$pmda -dmtT bpf.disk bpf.runq 2>&1 \
 | _filter_logs
 
 for metric in bpf.disk.all.latency bpf.runq.latency
 do
     echo && echo "== Checking if metric $metric has any values"
-    _run_valgrind src/wait_for_values -L -K clear -K add,157,$pmda -w 10000 $metric 2>&1 \
+    _run_valgrind --sudo src/wait_for_values -L -K clear -K add,157,$pmda -w 10000 $metric 2>&1 \
     | _filter_logs
 done
 

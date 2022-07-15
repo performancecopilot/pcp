@@ -11,6 +11,7 @@ bash
 bc
 bind9-host
 bison
+bpfcc-tools
 bsd-mailx
 build-essential
 chrpath

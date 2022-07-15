@@ -50,16 +50,6 @@ _unsymlink_path()
     fi
 }
 
-# constant setup
-#
-tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmie_check.XXXXXXXXX"` || exit 1
-status=0
-echo >$tmp/lock
-prog=`basename $0`
-PROGLOG=$PCP_LOG_DIR/pmie/$prog.log
-MYPROGLOG=$PROGLOG.$$
-USE_SYSLOG=true
-
 _cleanup()
 {
     if [ -s "$MYPROGLOG" ]
@@ -71,12 +61,27 @@ _cleanup()
     fi
     $USE_SYSLOG && [ $status -ne 0 ] && \
     $PCP_SYSLOG_PROG -p daemon.error "$prog failed - see $PROGLOG"
-    lockfile=`cat $tmp/lock 2>/dev/null`
-    [ -n "$lockfile" ] && rm -f "$lockfile"
-    rm -rf $tmp
+    if [ -n "$tmp" ]
+    then
+	lockfile=`cat $tmp/lock 2>/dev/null`
+	[ -n "$lockfile" ] && rm -f "$lockfile"
+	[ -d "$tmp" ] && rm -rf $tmp
+    fi
     $VERY_VERBOSE && echo "End: `date '+%F %T.%N'`"
 }
+
+# constant setup
+#
+tmp=''
+status=0
+prog=`basename $0`
+PROGLOG=$PCP_LOG_DIR/pmie/$prog.log
+MYPROGLOG=$PROGLOG.$$
+USE_SYSLOG=true
+
 trap "_cleanup; exit \$status" 0 1 2 3 15
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmie_check.XXXXXXXXX"` || exit 1
+echo >$tmp/lock
 
 # control files for pmie administration ... edit the entries in this
 # file (and optional directory) to reflect your local configuration;

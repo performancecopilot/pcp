@@ -174,7 +174,7 @@ do
     echo "s/$yesterday/YESTERDAY/g" >>$tmp.sed
 
     echo >$tmp.control '$version=1.1
-LOCALHOSTNAME	n   n	'"$tmp"'	./config'
+LOCALHOSTNAME	n   n	'"$tmp"'	-c ./config'
 
     cat $tmp.sed >>$seq.full
     echo >>$seq.full

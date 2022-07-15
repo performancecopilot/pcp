@@ -1,0 +1,344 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2013-2019 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMLOGGER.CONTROL 5 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmlogger.control\f1 \- control files for Performance Co-Pilot archive logging
+.SH DESCRIPTION
+Historical archive logging of performance data for
+Performance Co-Pilot (see
+.BR PCPIntro (1))
+uses
+.BR pmlogger (1)
+and one or more instances of
+.B pmlogger
+may be managed by
+.BR pmlogger_check (1)
+and
+.BR pmlogger_daily (1).
+.PP
+.BR pmlogger_check (1)
+may be run at any time of the day and is intended to check that
+the desired set of
+.B pmlogger
+processes are running.
+If not, it (re-)starts any missing logger processes.
+By default,
+.BR pmlogger_check (1)
+also calls
+.BR pmlogger_daily (1)
+with a
+.B \-K
+option to execute any required archive compression tasks.
+.PP
+.BR pmlogger_daily (1)
+is intended to be run once per day, preferably in the early morning, as
+soon after midnight as practicable.
+Its task is to aggregate, rotate and perform general housekeeping for one or
+more sets of PCP archives.
+.PP
+Both
+.BR pmlogger_check (1)
+and
+.BR pmlogger_daily (1)
+operate on a family of shared control files, namely the
+.I $PCP_PMLOGGERCONTROL_PATH
+file and files within the
+.I $PCP_PMLOGGERCONTROL_PATH.d
+directory.
+These files must not be writable by any user other than root.
+.PP
+The control file(s) should be customized according to the following rules
+that define for the current version (1.1)
+of the control file format.
+.IP 1. 4n
+Lines beginning with a ``#'' are comments.
+A special case is lines beginning ``#!#''; these are control lines
+for a
+.B pmlogger
+that has been stopped using
+.BR pmlogctl (1).
+.PD 0
+.IP 2. 4n
+Lines beginning with a ``$'' are assumed to be
+assignments to environment variables in the style of
+.BR sh (1),
+and all text following the ``$'' will be
+.BR eval 'ed
+by the script reading the control file,
+and the corresponding variable exported into the environment.
+This is particularly
+useful to set and export variables into the environment of
+the administrative scripts, e.g.
+.br
+.in +4n
+.ft CW
+.nf
+$ PMCD_CONNECT_TIMEOUT=20
+.fi
+.ft R
+.in -4n
+If the value to the right of the ``='' contains any white space,
+then the value should be enclosed in double (\[dq]) or single (\[aq]) quotes.
+.IP 3. 4n
+There
+.B must
+be a version line in the control file of the form:
+.br
+.in +4n
+.ft CW
+.nf
+$version=1.1
+.fi
+.ft R
+.in -4n
+.IP 4. 4n
+Fields within a line of the control file(s)
+are usually separated by one or more spaces or tabs (although refer to
+the description of the
+.I directory
+field below for some important exceptions).
+.IP 5. 4n
+There should be one line in the control file(s)
+for each
+.B pmlogger
+instance with at least 4 fields of the form:
+.br
+.in +4n
+.ft CW
+.nf
+\f2host\f1 \f2primary\f1 \f2socks\f1 \f2directory\f1 \f2args\f1 ...
+.fi
+.ft R
+.in -4n
+.IP 6. 4n
+The
+.I host
+field is the name of the host that is the source of the
+performance metrics for this
+.B pmlogger
+instance.
+The reserved word
+.B LOCALHOSTNAME
+will be replaced by the name of the local host.
+.IP 7. 4n
+The
+.I primary
+field indicates if this is a
+primary
+.B pmlogger
+instance (\c
+.BR y )
+or not (\c
+.BR n ).
+Since the primary logger must run on the local host, and there may be
+at most one primary logger for a particular host, this field can be
+.B y
+for at most one
+.B pmlogger
+instance, in which case the host name must be the name of the local host
+(or
+.BR LOCALHOSTNAME ).
+.IP 8. 4n
+The
+.I socks
+field indicates if this
+.B pmlogger
+instance needs to be started under the control of
+.BR pmsocks (1)
+to connect to a
+.BR pmcd (1)
+through a firewall (\c
+.B y
+or
+.BR n ).
+.IP 9. 4n
+The
+.I directory
+field is a directory name.  All archive files
+associated with this
+.B pmlogger
+instance will be created in this directory,
+and this will be the current directory for the execution of
+any programs required to maintain those archives.
+A useful convention is that primary logger archives for the local host
+with hostname
+.I myhost
+are maintained in the directory
+.I $PCP_ARCHIVE_DIR/myhost
+(this is where the default
+.B pmlogger
+start-up script in
+.I $PCP_RC_DIR/pcp
+will create the archives), while archives for the remote host
+.I mumble
+are maintained in
+.IR $PCP_ARCHIVE_DIR/mumble .
+.IP 10. 4n
+The
+.I directory
+field may contain embedded shell syntax that will be
+evaluated by
+.BR sh (1)
+to produce the real directory name to be used.  The allowed constructs
+are:
+.RS
+.nr PD 0
+.IP \(bu 2n
+Any text (including white space) enclosed with
+.B $(
+and
+.BR )
+will be interpreted as a shell command.
+.IP \(bu 2n
+Any text (including white space) enclosed with
+.B \[ga]
+and
+.B \[ga]
+(back quotes)
+will be interpreted as a shell command.
+.IP \(bu 2n
+An initial double quote (\[dq]) followed by arbitrary text
+(including white space, but excluding an embedded double quote)
+and a final double quote.
+.IP \(bu 2n
+An initial single quote (\[aq]) followed by arbitrary text
+(including white space, but excluding an embedded single quote)
+and a final single quote.
+.IP \(bu 2n
+Any word containing a
+.B $
+(assumed to introduce an environment variable name).
+.nr PD
+.RE
+.IP 11. 4n
+In the
+.I directory
+field, the reserved word
+.B LOCALHOSTNAME
+will be replaced by the name of the local host.
+.IP 12. 4n
+The optional
+.I args
+field and any remaining fields are interpreted as arguments to be passed to
+.BR pmlogger (1).
+Most typically this would be at least the
+.B \-c
+option to specify the metrics to be logged and the logging frequencies.
+.PD
+.PP
+The following sample control lines specify a primary logger
+on the local host (\c
+.IR bozo ),
+and non-primary loggers to collect and log
+performance metrics from the hosts
+.IR wobbly ,
+.I boing
+and the local host (i.e. \c
+.IR bozo ).
+.PP
+.nf
+.ft CW
+$version=1.1
+bozo          y  n  $PCP_ARCHIVE_DIR/bozo   \-c config.default
+wobbly        n  n  "/store/wobbly/$(date +%Y)"  \-c ./wobbly.config
+boing         n  n  $PCP_ARCHIVE_DIR/boing   \-c ./pmlogger.config
+LOCALHOSTNAME n  n /cluster/LOCALHOSTNAME   \-c ./precious.config
+.ft 1
+.fi
+.SH SCHEDULED EXECUTION
+The periodic execution of
+.BR pmlogger_check (1)
+and
+.BR pmlogger_daily (1)
+is controlled by either
+.BR systemd (1)
+or
+.BR cron (8).
+.PP
+Typical
+.BR crontab (5)
+entries are provided in
+.I $PCP_SYSCONF_DIR/pmlogger/crontab
+(unless installed by default in
+.I /etc/cron.d
+already)
+and shown below.
+.PP
+.nf
+.ft CW
+# daily processing of archive logs
+14      0       *       *       *       $PCP_BINADM_DIR/pmlogger_daily
+# every 30 minutes, check pmlogger instances are running
+25,55   *       *       *       *       $PCP_BINADM_DIR/pmlogger_check
+.ft 1
+.fi
+.PP
+When using
+.BR systemd (1)
+on Linux,
+no
+.B crontab
+entries are needed as the timer mechanism provided by
+.B systemd
+is used instead to achieve the same period execution as the
+crontab example above.
+.SH FILES
+.TP 5
+.I $PCP_PMLOGGERCONTROL_PATH
+the PCP logger control file.
+For a new installation
+this file contains no
+.BR pmlogger (1)
+control lines (the real control files are all
+in the
+.I $PCP_PMLOGGERCONTROL_PATH.d
+directory), but this file is still processed to support any
+legacy configurations therein from earlier PCP releases.
+.br
+.BR Warning :
+this file must not be writable by any user other than root.
+.TP
+.I $PCP_PMLOGGERCONTROL_PATH.d
+optional directory containing additional PCP logger control files,
+with one or more per
+.B pmlogger
+specification per file.
+.br
+.BR Warning :
+the files herein must not be writable by any user other than root.
+.TP
+.I $PCP_SYSCONF_DIR/pmlogger/crontab
+sample crontab for automated script execution by $PCP_USER (or root).
+Exists only if the platform does not support the /etc/cron.d mechanism.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmlogctl (1),
+.BR pmlogger (1),
+.BR pmlogger_check (1),
+.BR pmlogger_daily (1),
+.BR pmlogger_daily_report (1),
+.BR pmsocks (1),
+.BR systemd (1)
+and
+.BR cron (8).

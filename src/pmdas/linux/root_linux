@@ -1261,6 +1261,10 @@ network.mptcp {
     subflowrecover	60:53:193
     addaddrdrop		60:53:194
     rmaddrdrop		60:53:195
+    mpfastclosetx	60:53:196
+    mpfastcloserx	60:53:197
+    mprsttx		60:53:198
+    mprstrx		60:53:199
 }
 
 network.udp {

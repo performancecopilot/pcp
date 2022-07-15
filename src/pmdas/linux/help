@@ -2557,6 +2557,10 @@ Multipath TCP subflows returned to active status after being stale.
 Multipath TCP incoming ADD_ADDR drops.
 @ network.mptcp.rmaddrdrop the RmAddrDrop field of the MPTcp line from /proc/net/netstat
 Multipath TCP incoming RM_ADDR drops.
+@ network.mptcp.mpfastclosetx the MPFastcloseTx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpfastcloserx the MPFastcloseRx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mprsttx the MPRstTx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mprstrx the MPRstRx field of the MPTcp line from /proc/net/netstat
 
 @ disk.wwid.scsi_paths per-device/wwid scsi paths to same physical device
 The value of this string typed metric is the sd paths to the same physical

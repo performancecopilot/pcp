@@ -12,6 +12,9 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
+# Debug flags:
+# -Dappl0	setup and metrics discovery
+# -Dappl1	metric-value generation
 
 use strict;
 use warnings;
@@ -403,7 +406,7 @@ my %rrd_found;
 
 my %args;
 
-my $sts = getopt('f:s:e:V:Z:h:d:', \%args);
+my $sts = getopt('D:f:s:e:V:Z:h:d:', \%args);
 
 if (!defined($sts) || $#ARGV != 0) {
     print "Usage: ganglia2pcp [-s start] [-e end] [-f output file name] [-d output file dir ] [-V version] [-Z timezone] [-h hostname] input_dir \n";
@@ -419,6 +422,25 @@ my $startsec = $localtime - 24*60*60;
 
 my $starttimearg = "-s $startsec";
 my $endtimearg = "-e $localtime";
+
+my $debug_appl0 = 0;
+my $debug_appl1 = 0;
+my $debug_appl2 = 0;
+if (exists($args{D})) {
+    if (pmSetDebug($args{D}) < 0) {
+	print "ganglia2pcp Illegal -D value: " . $args{D} . "\n";
+	exit(1);
+    }
+    if ($args{D} =~ /appl0/) {
+	$debug_appl0 = 1;
+    }
+    if ($args{D} =~ /appl1/) {
+	$debug_appl1 = 1;
+    }
+    if ($args{D} =~ /appl2/) {
+	$debug_appl2 = 1;
+    }
+}
 
 if (exists($args{s}) ){
 	my $starttime = $args{s};
@@ -447,7 +469,8 @@ while(my $rrd_file = readdir(RRD_DIR)){
 		my $rrd_file_hash = RRDs::info("$rrd_dir/$rrd_file");
 		my $ERR=RRDs::error;
 		die "ERROR in RRDs::info($rrd_dir/$rrd_file) : $ERR\n" if $ERR;
-		#print "\nOpening: $rrd_dir/$rrd_file\n";
+		if ($debug_appl0) {
+		    print "\nOpening: $rrd_dir/$rrd_file\n";
 		#foreach my $key (keys %$rrd_file_hash){
 		#	my $vall = "undef";
 		#	print "$key = ";
@@ -456,6 +479,7 @@ while(my $rrd_file = readdir(RRD_DIR)){
 		#	}
 		#	print "$vall\n";
 		#}
+		}
 
 		$rrd_found{"$rrd_file"} = 1;
 
@@ -463,11 +487,12 @@ while(my $rrd_file = readdir(RRD_DIR)){
 		# As returned by RRDs::fetch, step is already : step * pdp_per_row
 		my ($start,$step,$names,$data) = RRDs::fetch("$rrd_dir/$rrd_file", $starttimearg, $endtimearg, "AVERAGE");
 		
-		# Debug
-		#print "Start:       ", scalar localtime($start), " ($start)\n";
-		#print "Step size:   $step seconds\n";
-		#print "DS names:    ", join (", ", @$names)."\n";
-		#print "Data points: ", $#$data + 1, "\n";
+		if ($debug_appl0 == 1) {
+		    print "Start:       ", scalar localtime($start), " ($start)\n";
+		    print "Step size:   $step seconds\n";
+		    print "DS names:    ", join (", ", @$names)."\n";
+		    print "Data points: ", $#$data + 1, "\n";
+		}
 
 		# Regardless of when the samples are recorded (some timestamps might be missing),
 		#   we need to know the step size to back convert counters
@@ -545,7 +570,9 @@ if (exists($args{V})) {
 
 
 if($label_zone){
-	#print "Setting TZ to $zone : $label_zone\n";
+	if ($debug_appl0) {
+	    print "Setting TZ to $zone : $label_zone\n";
+	}
 	pmiSetTimezone($label_zone) >= 0
 		or die "pmiSetTimezone($label_zone): " . pmiErrStr(-1) . "\n";
 }
@@ -560,7 +587,9 @@ else{
 }	
 
 if ($host){
-	#print "Setting hostname: $host\n";
+	if ($debug_appl0) {
+	    print "Setting hostname: $host\n";
+	}
 	pmiSetHostname($host) == 0
 		or die "pmiSetHostname($host): ". pmiErrStr(-1) . "\n";
 }
@@ -635,7 +664,9 @@ foreach my $rrd_metric ( sort {lc $a cmp lc $b} keys %rrd_found ){
 						my $indomID;
 						$indomID = "$rrd_pcp_mapping{$rrd_metric}{'indom'}" . $inst;
 
-						#print "Adding constructed inst: $inst $iname for $rrd_pcp_mapping{$rrd_metric}{'name'}\n";
+						if ($debug_appl0) {
+						    print "Adding constructed inst: $inst $iname for $rrd_pcp_mapping{$rrd_metric}{'name'}\n";
+						}
 
 						if( ! $instances_added{$indomID} ){
 							pmiAddInstance($rrd_pcp_mapping{$rrd_metric}{"indom"},
@@ -676,7 +707,9 @@ foreach my $rrd_metric ( sort {lc $a cmp lc $b} keys %rrd_found ){
 foreach my $timestep ( sort {$a<=>$b} keys %rrd_stats ){
 	foreach my $metric ( sort {lc $a cmp lc $b} keys %{$rrd_stats{$timestep}} ){
 		
-		#print "pmiPutValue : " . $rrd_pcp_mapping{$metric}{"name"} . " : " . $metric . " : " . "$rrd_stats{$timestep}{$metric}" . "\n";
+		if ($debug_appl1 == 1) {
+		    print "pmiPutValue : " . $rrd_pcp_mapping{$metric}{"name"} . " : " . $metric . " : " . "$rrd_stats{$timestep}{$metric}" . "\n";
+		}
 
 		my $metric_value = 0;
 		if( exists $rrd_pcp_mapping{$metric}{"conv_fcn"} ){

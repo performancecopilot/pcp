@@ -3,6 +3,7 @@ QA output created by 738
 Usage: pmlogmv [options] oldname newname
 
 Options:
+  -c, --checksum        checksum all source and destintion files when copying
   -f, --force           force changes, even if they look unsafe
   -N, --showme          perform a dry run, showing what would be done
   -V, --verbose         increase diagnostic verbosity
@@ -11,6 +12,7 @@ exit status 1
 Usage: pmlogmv [options] oldname newname
 
 Options:
+  -c, --checksum        checksum all source and destintion files when copying
   -f, --force           force changes, even if they look unsafe
   -N, --showme          perform a dry run, showing what would be done
   -V, --verbose         increase diagnostic verbosity
