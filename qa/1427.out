@@ -1,0 +1,53 @@
+QA output created by 1427
+=== no errors case ===
+src ...
+ls: cannot access 'foo+.*': No such file or directory
+dest ...
+foo+.0
+foo+.index
+foo+.meta
+
+=== no errors with -v case ===
+checksum cmd: ...
+source checksum: ...
+destination checksum: ...
+copy ./foo+.0 -> /tmp/foo+.0
+source checksum: ...
+destination checksum: ...
+copy ./foo+.index -> /tmp/foo+.index
+source checksum: ...
+destination checksum: ...
+copy ./foo+.meta -> /tmp/foo+.meta
+remove ./foo+.0
+remove ./foo+.index
+remove ./foo+.meta
+src ...
+ls: cannot access 'foo+.*': No such file or directory
+dest ...
+foo+.0
+foo+.index
+foo+.meta
+
+=== fake out a checksum failure ===
+pmlogmv: checksums deadbeef01234567890 ? deadbeef01234567891 differ
+src ...
+foo+.0
+foo+.index
+foo+.meta
+dest ...
+ls: cannot access 'foo+.*': No such file or directory
+
+=== fake out no checksum command ===
+pmlogmv: warning: no checksum command found, checksums skipped
+copy ./foo+.0 -> /tmp/foo+.0
+copy ./foo+.index -> /tmp/foo+.index
+copy ./foo+.meta -> /tmp/foo+.meta
+remove ./foo+.0
+remove ./foo+.index
+remove ./foo+.meta
+src ...
+ls: cannot access 'foo+.*': No such file or directory
+dest ...
+foo+.0
+foo+.index
+foo+.meta

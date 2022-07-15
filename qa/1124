@@ -12,6 +12,7 @@ echo "QA output created by $seq"
 
 _pmdabcc_check
 _pmdabcc_require_kernel_version 4 7
+_pmdabcc_check_tracepoint random:urandom_read
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal

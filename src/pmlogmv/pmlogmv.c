@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2020,2022 Ken McDonell.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,7 @@
  */
 
 #include <unistd.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include <errno.h>
 #include <string.h>
@@ -28,6 +29,7 @@ static int myoverrides(int, pmOptions *);
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
     PMOPT_DEBUG,
+    { "checksum", 0, 'c', 0, "checksum all source and destintion files when copying" },
     { "force", 0, 'f', 0, "force changes, even if they look unsafe" },
     { "showme", 0, 'N', 0, "perform a dry run, showing what would be done" },
     { "verbose", 0, 'V', 0, "increase diagnostic verbosity" },
@@ -36,7 +38,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "D:fNV?",
+    .short_options = "cD:fNV?",
     .long_options = longopts,
     .short_usage = "[options] oldname newname",
     .override = myoverrides
@@ -45,6 +47,7 @@ static pmOptions opts = {
 static int	showme = 0;
 static int	verbose = 0;
 static int	force = 0;
+static int	checksum = 0;
 static char	*oldname;		
 static char	*newname;
 /* need a sentinel that is < 0 and ! PM_LOG_VOL_TI amd ! PM_LOG_VOL_META */
@@ -52,6 +55,11 @@ static char	*newname;
 static int	lastvol = PM_LOG_VOL_NONE;
 static __pmContext	*ctxp = NULL;
 static char	**sufftab;
+
+/*
+ * sha256sum returns 64 hex digits
+ */
+#define MAX_CHECKSUM	64
 
 static int
 myoverrides(int opt, pmOptions *optsp)
@@ -128,6 +136,85 @@ setup_sufftab(void)
 }
 
 /*
+ * Return checksum for one file in sum[] ... "" (empty string) if
+ * no working checksum command available.
+ *
+ * Expect sum[] to be at least MAX_CHECKSUM+1 chars long
+ */
+void
+do_checksum(const char *file, char *sum)
+{
+    char	cmd[MAXPATHLEN+40];
+    static char	*executable = NULL;
+    FILE	*fp;
+    static int	trunc_warn = 0;
+
+    if (executable == NULL) {
+	/*
+	 * one-trip to initialize the "checksum" command ...
+	 * prefer md5sum, then sha256sum, then sha1sum, then sum,
+	 * else do nothing
+	 */
+	snprintf(cmd, sizeof(cmd), "if which md5sum >/dev/null 2>&1; then exit 0; fi; exit 1");
+	if (system(cmd) == 0)
+	    executable = "md5sum";
+	else {
+	    snprintf(cmd, sizeof(cmd), "if which sha256sum >/dev/null 2>&1; then exit 0; fi; exit 1");
+	    if (system(cmd) == 0)
+		executable = "sha256sum";
+	    else {
+		snprintf(cmd, sizeof(cmd), "if which sha1sum >/dev/null 2>&1; then exit 0; fi; exit 1");
+		if (system(cmd) == 0)
+		    executable = "sha1sum";
+		else {
+		    snprintf(cmd, sizeof(cmd), "if which sum >/dev/null 2>&1; then exit 0; fi; exit 1");
+		    if (system(cmd) == 0)
+			executable = "sum";
+		    else {
+			executable = "none";
+			fprintf(stderr, "pmlogmv: warning: no checksum command found, checksums skipped\n");
+		    }
+		}
+	    }
+	}
+	if (verbose && strcmp(executable, "none") != 0)
+	    printf("checksum cmd: %s\n", executable);
+    }
+    sum[0] = '\0';
+    if (strcmp(executable, "none") == 0)
+	return;
+    snprintf(cmd, sizeof(cmd), "%s <%s", executable, file);
+    if ((fp = popen(cmd, "r")) == NULL) {
+	/*
+	 * abandon checksuming ...
+	 */
+	fprintf(stderr, "pmlogmv: pipe(\"%s\") failed: %s\n", cmd, strerror(errno));
+	executable = "none";
+    }
+    else {
+	char	*p = sum;
+	int	c;
+	while ((c = fgetc(fp)) != EOF) {
+	    if (c == ' ') {
+		*p = '\0';
+		break;
+	    }
+	    if (p >= &sum[MAX_CHECKSUM]) {
+		/*
+		 * avoid buffer overrun, report only once unless -V
+		 */
+		if (trunc_warn++ == 0 || verbose)
+		    fprintf(stderr, "pmlogmv: warning: checksum truncated after %d characters\n", MAX_CHECKSUM);
+		*p = '\0';
+		break;
+	    }
+	    *p++ = c;
+	}
+	pclose(fp);
+    }
+}
+
+/*
  * make link for one physical file
  * return codes:
  * 1: ok
@@ -177,14 +264,40 @@ do_link(int vol)
 		if (link(src, dst) < 0) {
 		    if (errno == EXDEV) {
 			/* link() failed cross-device, need to copy ... */
-			int	sts;
-			char	cmd[2*MAXPATHLEN+4];
+			int		sts;
+			char		cmd[2*MAXPATHLEN+4];
+			char		sum_src[MAX_CHECKSUM+1];
+			char		sum_dst[MAX_CHECKSUM+1];
+			if (checksum) {
+			    /*
+			     * checksum src before cp ... kinder on the file
+			     * system buffer cache
+			     */
+			    do_checksum(src, sum_src);
+			    if (verbose && sum_src[0] != '\0')
+				printf("source checksum: %s\n", sum_src);
+			}
+
 			snprintf(cmd, sizeof(cmd), "cp %s %s", src, dst);
 			if ((sts = system(cmd)) != 0) {
 			    fprintf(stderr, "pmlogmv: copy %s -> %s failed: %s\n", src, dst, strerror(errno));
 			    return -1;
 			}
-			else if (verbose)
+			if (checksum) {
+			    do_checksum(dst, sum_dst);
+			    if (verbose && sum_dst[0] != '\0')
+				printf("destination checksum: %s\n", sum_dst);
+			    if (strcmp(sum_src, sum_dst) != 0) {
+				/* different checksums! */
+				fprintf(stderr, "pmlogmv: checksums %s ? %s differ\n", sum_src, sum_dst);
+				if (unlink(dst) < 0)
+				    fprintf(stderr, "pmlogmv: unlink %s failed: %s\n", dst, strerror(errno));
+				else if (verbose)
+				    printf("remove %s\n", dst);
+				return -1;
+			    }
+			}
+			if (verbose)
 			    printf("copy %s -> %s\n", src, dst);
 		    }
 		    else {
@@ -312,6 +425,10 @@ main(int argc, char **argv)
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
+
+	case 'c':	/* checksum if copying */
+	    checksum = 1;
+	    break;
 
 	case 'f':	/* force, even if it looks unsafe */
 	    force = 1;

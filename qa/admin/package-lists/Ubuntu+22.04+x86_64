@@ -12,6 +12,7 @@ bash
 bc
 bind9-host
 bison
+bpfcc-tools
 bpftrace
 bsd-mailx
 build-essential

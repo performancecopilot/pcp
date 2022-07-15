@@ -1228,8 +1228,8 @@ static const struct {
     char	*f_name;
 } func[] = {
     { L_AVG,		sizeof("avg")-1,	"avg" },
-	{ L_AVG_INST,		sizeof("avg_inst")-1,	"avg_inst" },
-	{ L_AVG_SAMPLE,		sizeof("avg_sample")-1,	"avg_sample" },
+    { L_AVG_INST,	sizeof("avg_inst")-1,	"avg_inst" },
+    { L_AVG_SAMPLE,	sizeof("avg_sample")-1,	"avg_sample" },
     { L_COUNT,		sizeof("count")-1,	"count" },
     { L_MAX,		sizeof("max")-1,	"max" },
     { L_MAX_INST,	sizeof("max_inst")-1,	"max_inst" },
@@ -1288,8 +1288,8 @@ static struct {
     { N_SQRT,		N_SQRT,		"SQRT",		NULL },
     { N_ROUND,		N_ROUND,	"ROUND",	NULL },
     { L_AVG,		N_AVG,		"AVG",		NULL },
-	{ L_AVG_INST,	N_AVG_INST,	"AVG_INST",	NULL },
-	{ L_AVG_SAMPLE,	N_AVG_SAMPLE,	"AVG_SAMPLE",	NULL },
+    { L_AVG_INST,	N_AVG_INST,	"AVG_INST",	NULL },
+    { L_AVG_SAMPLE,	N_AVG_SAMPLE,	"AVG_SAMPLE",	NULL },
     { L_COUNT,		N_COUNT,	"COUNT",	NULL },
     { L_DELTA,		N_DELTA,	"DELTA",	NULL },
     { L_MAX,		N_MAX,		"MAX",		NULL },

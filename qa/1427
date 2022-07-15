@@ -1,0 +1,108 @@
+#!/bin/sh
+# PCP QA Test No. 1427
+# checkout new -c (checksum) option to pmlogmv
+#
+# Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# need cross-mount-point temp dir so pmlogmv uses cp rather than ln
+#
+myfs=`df -P . | sed -n -e '$s/ .*//p'`
+tmpdir=''
+for d in /tmp /var/tmp
+do
+    if [ "$myfs" != `df -P "$d" | sed -n -e '$s/ .*//p'` ]
+    then
+	tmpdir="$d"
+	break
+    fi
+done
+[ -z "$tmpdir" ] && _notrun "need /tmp or /var/tmp on a different filesystem to $myfs"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $seq.tmp $tmp $tmp.* $tmpdir/foo+.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    tee -a $here/$seq.full \
+    | sed \
+	-e '/ cmd: /s/cmd: .*/cmd: .../' \
+	-e '/ checksum: /s/sum: .*/sum: .../' \
+    # end
+}
+
+rm -rf $seq.tmp
+mkdir $seq.tmp
+cd $seq.tmp
+
+# real QA test starts here
+
+echo "=== no errors case ==="
+cp ../archives/foo+.* .
+rm -f $tmpdir/foo+.*
+pmlogmv -c foo+ $tmpdir/foo+
+echo "src ..."; ls foo+.*
+echo "dest ..."; (cd $tmpdir; ls foo+.*)
+
+echo
+echo "=== no errors with -v case ==="
+cp ../archives/foo+.* .
+rm -f $tmpdir/foo+.*
+pmlogmv -cV foo+ $tmpdir/foo+ 2>&1 | _filter
+echo "src ..."; ls foo+.*
+echo "dest ..."; (cd $tmpdir; ls foo+.*)
+
+echo
+echo "=== fake out a checksum failure ==="
+cat <<'End-of-File' >md5sum
+#!/bin/sh
+[ -f ctr ] || echo 0 >ctr
+echo "deadbeef0123456789`cat ctr` fake"
+echo `expr $ctr + 1` >ctr
+End-of-File
+chmod 755 md5sum
+cp ../archives/foo+.* .
+rm -f $tmpdir/foo+.*
+pmlogmv -c foo+ $tmpdir/foo+ 2>&1 | _filter
+echo "src ..."; ls foo+.*
+echo "dest ..."; (cd $tmpdir; ls foo+.*)
+rm md5sum
+
+echo
+echo "=== fake out no checksum command ==="
+cat <<'End-of-File' >cp
+#!/bin/sh
+PATH=/bin:/usr/bin cp $*
+End-of-File
+chmod 755 cp
+cp ../archives/foo+.* .
+rm -f $tmpdir/foo+.*
+pmlogmv=`which pmlogmv`
+( PATH=. $pmlogmv -cV foo+ $tmpdir/foo+ ) 2>&1 | _filter
+echo "src ..."; ls foo+.*
+echo "dest ..."; (cd $tmpdir; ls foo+.*)
+
+# success, all done
+exit

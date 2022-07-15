@@ -54,10 +54,12 @@ if [ -s $tmp.out ]
 then
     if grep 'system has been minimized by removing packages' $tmp.out >/dev/null
     then
+	rm -f $tmp.*
 	_notrun "man pages have been \"minimized\" away! container in CI?"
     fi
     # may be OK
 else
+    rm -f $tmp.*
     _notrun "man -k ls won't even work ... apropos/whatis index needs rebuilding?"
 fi
 

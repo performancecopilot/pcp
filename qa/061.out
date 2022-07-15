@@ -55,7 +55,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -131,7 +130,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -204,7 +202,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -283,7 +280,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -365,7 +361,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -443,7 +438,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -517,7 +511,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -590,7 +583,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -665,7 +657,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -741,7 +732,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -816,7 +806,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -892,7 +881,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -963,7 +951,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -1040,7 +1027,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -1117,7 +1103,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -1192,7 +1177,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -1268,7 +1252,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -1341,7 +1324,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -1414,7 +1396,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -1490,7 +1471,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -1565,7 +1545,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -1641,7 +1620,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -1714,7 +1692,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -1789,7 +1766,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 
@@ -1863,7 +1839,6 @@ __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 
 Log finished DATE
 ...
-check_local_creds: uid connecting N != M or M => connection refused
 control_req: connection accepted on fd=N from localhost
 control_req: connection accepted on fd=N from localhost
 

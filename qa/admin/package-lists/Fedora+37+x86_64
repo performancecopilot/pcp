@@ -13,6 +13,7 @@ avahi-devel
 avahi-tools
 bash
 bc
+bcc-tools
 bind-utils
 bison
 bpftool

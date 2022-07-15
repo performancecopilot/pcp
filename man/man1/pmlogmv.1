@@ -18,7 +18,7 @@
 \f3pmlogmv\f1 \- move (rename) Performance Co-Pilot archive files
 .SH SYNOPSIS
 \f3pmlogmv\f1
-[\f3\-fNV?\f1]
+[\f3\-cfNV?\f1]
 \f2oldname\f1
 \f2newname\f1
 .SH DESCRIPTION
@@ -75,6 +75,22 @@ to
 .SH OPTIONS
 The available command line options are:
 .TP 5
+\fB\-c\fR, \fB\-\-checksum\fR
+Paranoid checking mode when
+.BR cp (1)
+is needed and each file's checksum is computed for the
+original file and the copied file, and the checksums must match before
+the copy is considered acceptable.
+The checksum command is chosen by trying the following in turn until
+one is found to be executable:
+.BR md5sum (1),
+.BR sha256sum (1),
+.BR sha1sum(1)
+and
+.BR sum (1).
+If no executable checksum command is found, a warning is issued and the
+checksum check is skipped.
+.TP 5
 \fB\-f\fR, \fB\-\-force\fR
 Normally
 .B pmlogmv
@@ -112,6 +128,12 @@ Display usage message and exit.
 All error and warning messages are intended to be easily understood and
 errors produce a non-zero exit status.
 .SH SEE ALSO
-.BR ln (1)
+.BR cp (1),
+.BR ln (1),
+.BR md5sum (1),
+.BR PCPIntro (1),
+.BR pmlogger (1),
+.BR sha1sum (1),
+.BR sha256sum (1)
 and
-.BR pmlogger (1).
+.BR LOGARCHIVE (5).

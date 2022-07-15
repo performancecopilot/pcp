@@ -142,7 +142,7 @@ while true; do
 	pminfo -f pmcd.agent.status >>$seq.full
 	exit
     fi
-    pmstore pmproxy.control.reload 1
+    pmstore pmproxy.control.reload 1 >>$seq.full 2>&1
     sleep 1
 done
 echo "discovery metrics found after $count iterations" >>$seq.full

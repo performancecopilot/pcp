@@ -37,9 +37,9 @@ typedef struct {
     PmTime::State	state;
     QIcon 		*stop;
     QIcon 		*play;
-} IconStateMap;
+} LiveIconStateMap;
 
-static void setup(IconStateMap *map, PmTime::State state,
+static void setup(LiveIconStateMap *map, PmTime::State state,
 		  QIcon *stop, QIcon *play)
 {
     map->state = state;
@@ -49,7 +49,7 @@ static void setup(IconStateMap *map, PmTime::State state,
 
 void PmTimeLive::setControl(PmTime::State state)
 {
-    static IconStateMap maps[2];
+    static LiveIconStateMap maps[2];
     static int nmaps;
 
     if (!nmaps) {

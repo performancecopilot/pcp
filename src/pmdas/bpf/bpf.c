@@ -120,22 +120,33 @@ int bpf_printfn(enum libbpf_print_level level, const char *out, va_list ap)
     return 0;
 }
 
+#define WANT_MEM	(100LL*1024*1024)
 /**
- * setrlimit required for BPF loading
+ * setrlimit required for BPF loading ... try for WANT_MEM, but will
+ * accept whatever we can get
  */
 void bpf_setrlimit()
 {
-    struct rlimit rnew = {
-        .rlim_cur = 100*1024*1024,
-        .rlim_max = 100*1024*1024,
-    };
-    int ret = setrlimit(RLIMIT_MEMLOCK, &rnew);
-    int err = errno;
-    if (ret == 0) {
-        pmNotifyErr(LOG_INFO, "setrlimit ok");
-    } else {
-        pmNotifyErr(LOG_ERR, "setrlimit failed: %d", err);
+    struct rlimit	rnew;
+    int			ret;
+    ret = getrlimit(RLIMIT_MEMLOCK, &rnew);
+    if (ret < 0) {
+        pmNotifyErr(LOG_ERR, "bpf_setrlimit: getrlimit RMLIMIT_MEMLOCK failed: %s", pmErrStr(-errno));
+	return;
     }
+    if (rnew.rlim_max == RLIM_INFINITY)
+	rnew.rlim_cur = rnew.rlim_max = WANT_MEM;
+    else if (rnew.rlim_max > WANT_MEM)
+	rnew.rlim_cur = rnew.rlim_max = WANT_MEM;
+    else {
+	rnew.rlim_cur = rnew.rlim_max;
+        pmNotifyErr(LOG_INFO, "bpf_setrlimit: setrlimit RMLIMIT_MEMLOCK %lld not %lld", (long long)rnew.rlim_cur, WANT_MEM);
+    }
+    ret = setrlimit(RLIMIT_MEMLOCK, &rnew);
+    if (ret == 0)
+        pmNotifyErr(LOG_INFO, "setrlimit RMLIMIT_MEMLOCK ok");
+    else
+        pmNotifyErr(LOG_ERR, "setrlimit RMLIMIT_MEMLOCK (%lld,%lld) failed: %s", (long long)rnew.rlim_cur, (long long)rnew.rlim_max, pmErrStr(-errno));
 }
 
 /**

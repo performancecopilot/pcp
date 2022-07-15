@@ -15,31 +15,25 @@
 .\"
 .TH PMLOGGER_CHECK 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmlogger_check\f1,
-\f3pmlogger_daily\f1 \- administration of Performance Co-Pilot archive log files
+\f3pmlogger_check\f1 \- administration of Performance Co-Pilot archive log files
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_check
 [\f3\-CNPpqsTV?\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-l\f1 \f2logfile\f1]
-.br
-.B $PCP_BINADM_DIR/pmlogger_daily
-[\f3\-EfKMNoprRVzZ?\f1]
-[\f3\-c\f1 \f2control\f1]
-[\f3\-k\f1 \f2time\f1]
-[\f3\-l\f1 \f2logfile\f1]
-[\f3\-m\f1 \f2addresses\f1]
-[\f3\-s\f1 \f2size\f1]
-[\f3\-t\f1 \f2want\f1]
-[\f3\-x\f1 \f2time\f1]
-[\f3\-X\f1 \f2program\f1]
-[\f3\-Y\f1 \f2regex\f1]
 .SH DESCRIPTION
-These shell scripts and associated control files may be used to
+.B pmlogger_check
+and the related
+.BR pmlogger_daily (1)
+tools along with
+associated control files (see
+.BR pmlogger.control (5))
+may be used to
 create a customized regime of administration and management for
+historical archives of performance data within the
 Performance Co-Pilot (see
 .BR PCPIntro (1))
-archive log files.
+infrastructure.
 .PP
 .B pmlogger_check
 may be run at any time of the day and is intended to check that a desired set
@@ -47,59 +41,27 @@ of
 .BR pmlogger (1)
 processes are running.
 If not, it (re-)starts any missing logger processes.
-.PP
-.B pmlogger_daily
-is intended to be run once per day, preferably in the early morning, as
-soon after midnight as practicable.
-Its task is to aggregate, rotate and perform general housekeeping one or
-more sets of PCP archives.
-.PP
-To accommodate the evolution of PMDAs and changes in production
-logging environments,
-.B pmlogger_daily
-is integrated with
-.BR pmlogrewrite (1)
-to allow optional and automatic rewriting of archives before merging.
-If there are global rewriting rules to be applied across all archives
-mentioned in the control file(s), then create the directory
-.B $PCP_SYSCONF_DIR/pmlogrewrite
-and place any
-.BR pmlogrewrite (1)
-rewriting rules in this directory.
-For rewriting rules that are specific to only one family of archives,
-use the directory name from the control file(s) \- i.e. the
-.I fourth
-field \- and create a file, or a directory, or a symbolic link named
-.B pmlogrewrite
-within this directory
-and place the required rewriting rule(s) in the
-.B pmlogrewrite
-file or in files
-within the
-.B pmlogrewrite
-subdirectory.
-.B pmlogger_daily
-will choose rewriting rules from the archive directory if they
-exist, else rewriting rules from
-.B $PCP_SYSCONF_DIR/pmlogrewrite
-if that directory exists, else no rewriting is attempted.
-.PP
-As an alternate mechanism, if the file
-.B $PCP_LOG_DIR/pmlogger/.NeedRewrite
-exists when
-.B pmlogger_daily
-starts then this is treated the same as specifying
-.B \-R
-on the command line and
-.B $PCP_LOG_DIR/pmlogger/.NeedRewrite
-will be removed once all the rewriting has been done.
+By default,
+.B pmlogger_check
+also calls
+.BR pmlogger_daily (1)
+with a
+.B \-K
+option to execute any required archive compression tasks.
 .SH OPTIONS
+.TP 5
+\fB\-C\fR
+This option causes
+.B pmlogger_check
+to query the system service runlevel information for
+.BR pmlogger ,
+and use that to determine whether to start processes or not.
 .TP 5
 \fB\-c\fR \fIcontrol\fR, \fB\-\-control\fR=\fIcontrol\fR
 Both
 .B pmlogger_check
 and
-.B pmlogger_daily
+.BR pmlogger_daily (1)
 are controlled by PCP logger control file(s)
 that specifies the
 .B pmlogger
@@ -107,12 +69,12 @@ instances to be managed.
 The default
 .I control
 file is
-.BR $PCP_PMLOGGERCONTROL_PATH ,
+.I $PCP_PMLOGGERCONTROL_PATH
 but an alternate may be specified using the
 .B \-c
 option.
 If the directory
-.BR $PCP_PMLOGGERCONTROL_PATH .d
+.IR $PCP_PMLOGGERCONTROL_PATH .d
 (or
 .IR control .d
 from the
@@ -120,171 +82,16 @@ from the
 option) exists, then the contents of any additional
 .I control
 files therein will be appended to the main control file (which must exist).
-.TP
-\fB\-C\fR
-This option causes
-.B pmlogger_check
-to query the system service runlevel information for
-.BR pmlogger ,
-and use that to determine whether to start processes or not.
-.TP
-\fB\-E\fR, \fB\-\-expunge\fR
-This option causes
-.B pmlogger_daily
-to pass the
-.B \-E
-flag to
-.B pmlogger_merge
-in order to expunge metrics with metadata inconsistencies and continue
-rather than fail.
-This is intended for automated daily log rotation where it is highly desirable
-for unattended daily archive merging, rewriting and compression to succeed.
-For further details, see
-.BR pmlogger_merge (1)
-and description for the
-.B \-x
-flag in
-.BR pmlogextract (1).
-.TP
-\fB\-f\fR, \fB\-\-force\fR
-This option causes
-.B pmlogger_daily
-to forces action.
-Using this option in production is not recommended.
-.TP
-\fB\-k\fR \fItime\fR, \fB\-\-discard\fR=\fItime\fR
-After some period, old PCP archives are discarded.
-.I time
-is a time specification in the syntax of
-.BR find-filter (1),
-so
-\fIDD\fR[\fB:\fIHH\fR[\fB:\fIMM\fR]].
-The optional
-.I HH
-(hours) and
-.I MM
-(minutes) parts are 0 if not specified.
-By default the
-.I time
-is
-.B 14:0:0
-or 14 days, but may be changed using
-this option.
-.RS
-.PP
-Some special values are recognized for the
-.IR time ,
-namely
-.B 0
-to keep no archives beyond the the ones being currently written by
-.BR pmlogger (1),
-and
-.B forever
-or
-.B never
-to prevent any archives being discarded.
-.PP
-The
-.I time
-can also be set using the
-.B $PCP_CULLAFTER
-variable, set in either the environment or in a control file.
-If both
-.B $PCP_CULLAFTER
-and
-.B \-k
-specify different values for
-.I time
-then the environment variable value is used and a warning is issued.
-I.e., if
-.B $PCP_CULLAFTER
-is set in the
-.I control
-file, it overrides
-.B \-k
-given on the command line.
-.PP
-Note that the semantics of
-.I time
-are that it is measured from the time of last modification of each
-archive, and not from the original archive creation date.
-This has subtle implications for compression (see below) \- the
-compression process results in the creation of new archive files
-which have new modification times.
-In this case, the
-.I time
-period (re)starts from the time of compression.
-.RE
-.TP
-\fB\-K\fR
-When this option is specified for
-.B pmlogger_daily
-then only the compression tasks are attempted, so no
-.BR pmlogger
-rotation, no culling, no rewriting, etc.
-When
-.B \-K
-is used and a
-.I period
-of
-.B 0
-is in effect
-(from
-.B \-x
-on the command line or
-.B $PCP_COMPRESSAFTER
-in the environment or via the
-.I control
-file)
-this is intended for environments where compression
-of archives is desired before the scheduled daily processing
-happens.
-To achieve this, once
-.B pmlogger_check
-has completed regular processing, it calls
-.B pmlogger_daily
-with just the
-.B \-K
-option.
-Provided
-.B $PCP_COMPRESSAFTER
-is set to
-.B 0
-along with any other required compression options to match the
-scheduled invocation of
-.BR pmlogger_daily ,
-then this will compress all volumes except the ones being currently
-written by
-.BR pmlogger (1).
-If
-.B $PCP_COMPRESSAFTER
-is set to a value greater than zero, then manually running
-.B pmlogger_daily with the
-.B \-x
-option may be used to compress volumes that are younger than the
-.B $PCP_COMPRESSAFTER
-time.
-This may be used to reclaim filesystem space by compressing volumes
-earlier than they would have otherwise been compressed.
-Note that since the default value of
-.B $PCP_COMPRESSAFTER
-is 0 days, the
-.B \-x
-option has no effect unless the
-.B control
-file has been edited and
-.B $PCP_COMPRESSAFTER
-has been set to a value greater than 0.
-.TP
+.TP 5
 \fB\-l\fR \fIfile\fR, \fB\-\-logfile\fR=\fIfile\fR
 In order to ensure that mail is not unintentionally sent when these
 scripts are run from
 .BR cron (8)
+or
+.BR systemd (1)
 diagnostics are always sent to log files.
 By default, this file is
-.B $PCP_LOG_DIR/pmlogger/pmlogger_check.log
-or
-.B $PCP_LOG_DIR/pmlogger/pmlogger_daily.log
+.I $PCP_LOG_DIR/pmlogger/pmlogger_check.log
 but this can be changed using the
 .B \-l
 option.
@@ -300,56 +107,27 @@ The
 and
 .B \-t
 options cannot be used together.
-.TP
-\fB\-m\fR \fIaddresses\fR, \fB\-\-mail\fR=\fIaddresses\fR
-Use of this option causes
-.B pmlogger_daily
-to construct a summary of the ``notices'' file entries which were
-generated in the last 24 hours, and e-mail that summary to the set of
-space-separated
-.IR addresses .
-This daily summary is stored in the file
-.BR $PCP_LOG_DIR/NOTICES.daily ,
-which will be empty when no new ``notices'' entries were made in the
-previous 24 hour period.
-.TP
-\fB\-M\fR
-This option may be used to disable archive merging (or renaming) and rewriting
-(\c
-.B \-M
-implies
-.BR \-r ).
-This is most useful in cases where the archives are being incrementally
-copied to a remote repository, e.g. using
-.BR rsync (1).
-Merging, renaming and rewriting all risk an increase in the synchronization
-load, especially immediately after
-.B pmlogger_daily
-has run, so
-.B \-M
-may be useful in these cases.
-.TP
+.TP 5
 \fB\-N\fR, \fB\-\-showme\fR
-This option enables a ``show me'' mode, where the programs actions are
+This option enables a ``show me'' mode, where the actions are
 echoed, but not executed, in the style of ``make \-n''.
 Using
 .B \-N
 in conjunction with
 .B \-V
 maximizes the diagnostic capabilities for debugging.
-.TP
-\fB\-o\fR
-By default all possible archives will be merged.
-This option reinstates the old behaviour in which only yesterday's archives
-will be considered as merge candidates.
-In the special case where only a single input archive
-needs to be merged,
-.BR pmlogmv (1)
-is used to rename the archive, otherwise
-.BR pmlogger_merge (1)
-is used to merge all of the archives for a single host and a single day into a new
-PCP archive and the individual archives are removed.
-.TP
+.TP 5
+\fB\-P\fR, \fB\-\-only\-primary\fR
+If this option is specified for
+.B pmlogger_check
+then only the primary logger entry in the control files will be processed.
+This is the logical opposite of the \fB\-p\fP option described above
+and is intended for use by RC scripts that start only the primary logger,
+such as the
+.B pmlogger.service
+unit.
+The \fB\-p\fP and \fB\-P\fP options are mutually exclusive.
+.TP 5
 \fB\-p\fR, \fB\-\-skip\-primary\fR
 If this option is specified for
 .B pmlogger_check
@@ -363,564 +141,103 @@ like
 is responsible for controlling (starting, stopping, restarting, etc.) the
 .I primary
 .BR pmlogger .
-.TP
-\fB\-P\fR, \fB\-\-only\-primary\fR
-If this option is specified for
-.B pmlogger_check
-then only the primary logger entry in the control files will be processed.
-This is the logical opposite of the \fB\-p\fP option described above
-and is intended for use by RC scripts that start only the primary logger,
-such as the
-.B pmlogger.service
-unit.
-The \fB\-p\fP and \fB\-P\fP options to \fBpmlogger_check\fP are mutually exclusive.
-.TP
-\fB\-p\fR
-If this option is specified for
-.B pmlogger_daily
-then the status of the daily processing is polled and if the daily
-.BR pmlogger (1)
-rotation, culling, rewriting, compressing, etc.
-has not been done in the last 24 hours then it is done now.
-The intent is to have
-.B pmlogger_daily
-called regularly with the
-.B \-p
-option (at 30 mins past the hour, every hour in the default
-.BR cron (8)
-set up) to ensure daily processing happens as soon as possible if
-it was missed at the regularly scheduled time (which is 00:10
-by default), e.g. if the system was down or suspended at that
-time.
-With this option
-.B pmlogger_daily
-simply exits if the previous day's processing has already been
-done.
-Note that this option is not used on platforms supporting
-.BR systemd (1)
-because the
-.B pmlogger_daily.timer
-service unit specifies a timer setting with
-.BR Persistent=true .
-The
-.B \-K
-and
-.B \-p
-options to
-.B pmlogger_daily
-are mutually exclusive.
-.TP
+.TP 5
 \fB\-q\fR, \fB\-\-quick\fR
 If this option is specified for
 .B pmlogger_check
 then the script will ``quickstart'' avoiding any optional processing
-like file compression.
-.TP
-\fB\-r\fR, \fB\-\-norewrite\fR
-This command line option acts as an override and prevents all archive
-rewriting with
-.BR pmlogrewrite (1)
-independent of the presence of any rewriting rule files or directories.
-.TP
-\fB\-R\fR, \fB\-\-rewriteall\fR
-Sometimes PMDA changes require
-.I all
-archives to be rewritten,
-not just the ones involved
-in any current merging.
-This is required for example after a PCP upgrade where a new version of an
-existing PMDA has revised metadata.
-The
-.B \-R
-command line forces this universal-style of rewriting.
-The
-.B \-R
-option to
-.B pmlogger_daily
-is mutually exclusive with both the
-.B \-r
-and
-.B \-M
-options.
-.TP
-\fB\-s\fR \fIsize\fR, \fB\-\-rotate\fR=\fIsize\fR
-If the PCP ``notices'' file (\c
-.BR $PCP_LOG_DIR/NOTICES )
-is larger than 20480 bytes,
-.B pmlogger_daily
-will rename the file with a ``.old'' suffix, and start
-a new ``notices'' file.
-The rotate threshold may be changed from 20480 to
-.I size
-bytes using the
-.B \-s
-option.
-.TP
+like calling
+.BR pmlogger_daily (1)
+to perform archive compression tasks.
+.TP 5
 \fB\-s\fR, \fB\-\-stop\fR
 Use of this option provides the reverse
 .B pmlogger_check
 functionality, allowing the set of
 .B pmlogger
 processes to be cleanly shutdown.
-.TP
-\fB\-t\fR \fIperiod\fR
-To assist with debugging or diagnosing intermittent failures the
-.B \-t
-option may be used.
-This will turn on very verbose tracing (\c
-.BR \-VV )
-and capture the trace output in a file named
-.BI $PCP_LOG_DIR/pmlogger/daily. datestamp .trace,
-where
-.I datestamp
-is the time
-.B pmlogger_daily
-was run in the format YYYYMMDD.HH.MM.
-In addition, the
-.I period
-argument will ensure that trace files created with
-.B \-t
-will be kept for
-.I period
-days and then discarded.
-.TP
+.TP 5
 \fB\-T\fR, \fB\-\-terse\fR
 This option to
 .B pmlogger_check
 produces less verbose output than the default.
 This is most suitable for a
-.I pmlogger
+.B pmlogger
 \&``farm'' where many instances of
-.I pmlogger
+.B pmlogger
 are expected to be running.
-.TP
+.TP 5
 \fB\-V\fR, \fB\-\-verbose\fR
-The output from the
-.BR cron
-execution of the scripts may be extended using the
+The
 .B \-V
-option to the scripts which will enable verbose tracing of their activity.
-By default the scripts generate no output unless some error or warning
+option enables verbose tracing.
+By default
+.B pmlogger_check
+generates no output unless some error or warning
 condition is encountered.
+A second
+.B \-V
+increases the verbosity.
 Using
 .B \-N
 in conjunction with
 .B \-V
 maximizes the diagnostic capabilities for debugging.
-.TP
-\fB\-x\fR \fItime\fR, \fB\-\-compress\-after\fR=\fItime\fR
-Archive data files can optionally be compressed after some period
-to conserve disk space.
-This is particularly useful for large numbers of
-.B pmlogger
-processes under the control of
-.BR pmlogger_check .
-.RS
-.PP
-.I time
-is a time specification in the syntax of
-.BR find-filter (1),
-so
-\fIDD\fR[\fB:\fIHH\fR[\fB:\fIMM\fR]].
-The optional
-.I HH
-(hours) and
-.I MM
-(minutes) parts are 0 if not specified.
-.PP
-Some special values are recognized for the
-.IR time ,
-namely
-.B 0
-to apply compression as soon as possible, and
-.B forever
-or
-.B never
-to prevent any compression being done.
-.PP
-If
-.B transparent_decompress
-is enabled when
-.I libpcp
-was built
-(can be checked with the
-.BR pmconfig (1)
-.B \-L
-option),
-then the default behaviour is compression ``as soon as possible''.
-Otherwise the default behaviour is to
-.B not
-compress files (which matches the historical default behaviour in
-earlier PCP releases).
-.PP
-The
-.I time
-can also be set using the
-.B $PCP_COMPRESSAFTER
-variable, set in either the environment or in a
-.I control
-file.
-If both
-.B $PCP_COMPRESSAFTER
-and
-.B \-x
-specify different values for
-.I time
-then the environment variable value is used and a warning is issued.
-For important other detailed notes concerning volume compression, see the
-.B \-K
-and
-.B \-k
-options (above).
-.RE
-.TP
-\fB\-X\fR \fIprogram\fR, \fB\-\-compressor\fR=\fIprogram\fR
-This option specifies the program to use for compression \- by default
-this is
-.BR xz (1).
-The environment variable
-.B $PCP_COMPRESS
-may be used as an alternative mechanism to define
-.IR program .
-If both
-.B $PCP_COMPRESS
-and
-.B \-X
-specify different compression programs
-then the environment variable value is used and a warning is issued.
-.TP
-\fB\-Y\fR \fIregex\fR, \fB\-\-regex\fR=\fIregex\fR
-This option allows a regular expression to be specified causing files in
-the set of files matched for compression to be omitted \- this allows
-only the data file to be compressed, and also prevents the program from
-attempting to compress it more than once.
-The default
-.I regex
-is "\.(index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$" \- such files are
-filtered using the
-.B \-v
-option to
-.BR egrep (1).
-The environment variable
-.B $PCP_COMPRESSREGEX
-may be used as an alternative mechanism to define
-.IR regex .
-If both
-.B $PCP_COMPRESSREGEX
-and
-.B \-Y
-specify different values for
-.I regex
-then the environment variable value is used and a warning is issued.
-.TP
-\fB\-z\fR
-This option causes
-.B pmlogger_daily
-to
-.B not
-\&``re-exec'', see
-.BR pmlogger (1),
-when it would otherwise choose to do so
-and is intended only for QA testing.
-.TP
-\fB\-Z\fR
-This option causes
-.B pmlogger_daily
-to ``re-exec'', see
-.BR pmlogger (1),
-whenever that is possible
-and is intended only for QA testing.
-.TP
+.TP 5
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
 .SH CONFIGURATION
-.BR Warning :
-The
-.B $PCP_PMLOGGERCONTROL_PATH
-file and files within the
-.BR $PCP_PMLOGGERCONTROL_PATH .d
-directory must not be writable by any user other than root.
-.PP
-The control file(s) should be customized according to the following rules
-that define for the current version (1.1)
-of the control file format.
-.IP 1. 4m
-Lines beginning with a ``#'' are comments.
-A special case is lines beginning ``#!#''; these are control lines
-for a
-.BR pmlogger (1)
-that has been stopped using
-.BR pmlogctl (1).
-.PD 0
-.IP 2.
-Lines beginning with a ``$'' are assumed to be
-assignments to environment variables in the style of
-.BR sh (1),
-and all text following the ``$'' will be
-.BR eval 'ed
-by the script reading the control file,
-and the corresponding variable exported into the environment.
-This is particularly
-useful to set and export variables into the environment of
-the administrative scripts, e.g.
-.br
-.in +4n
-.ft CW
-.nf
-$ PMCD_CONNECT_TIMEOUT=20
-.fi
-.ft R
-.in -4n
-.IP 3.
-There
-.B must
-be a version line in the initial control file of the form:
-.br
-.in +4n
-.ft CW
-.nf
-$ version=1.1
-.fi
-.ft R
-.in -4n
-.IP 4.
-There should be one line in the control file(s)
-for each
+Refer to
+.BR pmlogger.control (5)
+for a description of the control file(s) that are used to
+control which
 .B pmlogger
-instance of the form:
-
-.in +4n
-.ft CW
-.nf
-\f2host\f1 \f3y\f1|\f3n\f1 \f3y\f1|\f3n\f1 \f2directory\f1 \f2args\f1
-.fi
-.ft R
-.in -4n
-
-.IP 5.
-Fields within a line of the control file(s)
-are usually separated by one or more spaces or tabs (although refer to
-the description of the
-.I directory
-field for some important exceptions).
-.IP 6.
-The
-.I first
-field is the name of the host that is the source of the
-performance metrics for this
-.B pmlogger
-instance.
-.IP 7.
-The
-.I second
-field indicates if this is a
-.I primary
-.B pmlogger
-instance (\c
-.BR y )
-or not (\c
-.BR n ).
-Since the primary logger must run on the local host, and there may be
-at most one primary logger for a particular host, this field can be
-.B y
-for at most one
-.B pmlogger
-instance, in which case the host name must be the name of the local host.
-.IP 8.
-The
-.I third
-field indicates if this
-.B pmlogger
-instance needs to be started under the control of
-.BR pmsocks (1)
-to connect to a
-.B pmcd
-through a firewall (\c
-.B y
-or
-.BR n ).
-.IP 9.
-The
-.I fourth
-field is a directory name.  All files
-associated with this
-.B pmlogger
-instance will be created in this directory,
-and this will be the current directory for the execution of
-any programs required in the maintenance of those archives.
-A useful convention is that primary logger archives for the local host
-with hostname
-.I myhost
-are maintained in the directory
-.BI $PCP_ARCHIVE_DIR/ myhost
-(this is where the default
-.B pmlogger
-start-up script in
-.B $PCP_RC_DIR/pcp
-will create the archives), while archives for the remote host
-.I mumble
-are maintained in
-.BI $PCP_ARCHIVE_DIR/ mumble\fR.
-.IP 10.
-The directory field may contain embedded shell syntax that will be
-evaluated by
-.BR sh (1)
-to produce the real directory name to be used.  The allowed constructs
-are:
-.RS
-.nr PD 0
-.IP \(bu 2m
-Any text (including white space) enclosed with
-.B $(
-and
-.BR ).
-.IP \(bu
-Any text (including white space) enclosed with
-.B \[ga]
-and
-.B \[ga]
-(back quotes).
-.IP \(bu
-Any text (including white space) enclosed with
-.B \[dq]
-and
-.B \[dq]
-(double quotes).
-.IP \(bu
-Any word containing a
-.B $
-(assumed to introduce an environment variable name).
-.nr PD
-.RE
-.IP 11.
-All other fields are interpreted as arguments to be passed to
-.BR pmlogger (1).
-Most typically this would be the
-.B \-c
-option.
-.PD
-.PP
-The following sample control lines specify a primary logger
-on the local host (\c
-.IR bozo ),
-and non-primary loggers to collect and log
-performance metrics from the hosts
-.I wobbly
-and
-.IR boing .
-.PP
-.nf
-.ft CW
-$version=1.1
-bozo   y  n  $PCP_ARCHIVE_DIR/bozo   \-c config.default
-wobbly n  n  "/store/wobbly/$(date +%Y)"  \-c ./wobbly.config
-boing  n  n  $PCP_ARCHIVE_DIR/boing  \-c ./pmlogger.config
-.ft 1
-.fi
-.PP
-Typical
-.BR crontab (5)
-entries for periodic execution of
-.B pmlogger_daily
-and
+instances and which archives are managed by
 .B pmlogger_check
-are given in
-.BR $PCP_SYSCONF_DIR/pmlogger/crontab
-(unless installed by default in
-.I /etc/cron.d
-already)
-and shown below.
-.PP
-.nf
-.ft CW
-# daily processing of archive logs
-14      0       *       *       *       $PCP_BINADM_DIR/pmlogger_daily
-# every 30 minutes, check pmlogger instances are running
-25,55   *       *       *       *       $PCP_BINADM_DIR/pmlogger_check
-.ft 1
-.fi
-.PP
-When using
-.BR systemd (1)
-on Linux,
-no
-.B crontab
-entries are needed as the timer mechanism provided by
-.B systemd
-is used instead.
+and
+.BR pmlogger_daily (1).
 .SH FILES
 .TP 5
-.I $PCP_PMLOGGERCONTROL_PATH
-the PCP logger control file.
-For a new installation
-this file contains no
-.BR pmlogger (1)
-control lines (the real control files are all
-in the
-.I $PCP_PMLOGGERCONTROL_PATH.d
-directory), but this file is still processed to support any
-legacy configurations therein from earlier PCP releases.
-.br
-.BR Warning :
-this file must not be writable by any user other than root.
-.TP
-.I $PCP_PMLOGGERCONTROL_PATH.d
-optional directory containing additional PCP logger control files,
-typically one per host
-.br
-.BR Warning :
-the files herein must not be writable by any user other than root.
-.TP
-.I $PCP_SYSCONF_DIR/pmlogger/crontab
-sample crontab for automated script execution by $PCP_USER (or root).
-Exists only if the platform does not support the /etc/cron.d mechanism.
-.TP
 .I $PCP_VAR_DIR/config/pmlogger/config.default
 default
 .B pmlogger
 configuration file location for the local primary logger, typically
 generated automatically by
 .BR pmlogconf (1).
-.TP
+.TP 5
 .I $PCP_ARCHIVE_DIR/<hostname>
 default location for archives of performance information collected from the host
 .I hostname
-.TP
+.TP 5
 .I $PCP_ARCHIVE_DIR/<hostname>/lock
 transient lock file to guarantee mutual exclusion during
 .B pmlogger
 administration for the host
 .I hostname
 \- if present, can be safely removed if neither
-.B pmlogger_daily
+.BR pmlogger_daily (1)
 nor
 .B pmlogger_check
 are running
-.TP
+.TP 5
 .I $PCP_ARCHIVE_DIR/<hostname>/Latest
 PCP archive folio created by
 .BR mkaf (1)
 for the most recently launched archive containing performance metrics from
 the host
 .I hostname
-.TP
+.TP 5
 .I $PCP_LOG_DIR/NOTICES
 PCP ``notices'' file used by
 .BR pmie (1)
 and friends
-.TP
+.TP 5
 .I $PCP_LOG_DIR/pmlogger/pmlogger_check.log
 if the previous execution of
 .B pmlogger_check
 produced any output it is saved here.
 The normal case is no output in which case the file does not exist.
-.TP
-.I $PCP_LOG_DIR/pmlogger/pmlogger_daily.log
-if the previous execution of
-.B pmlogger_daily
-produced any output it is saved here.
-The normal case is no output in which case the file does not exist.
-.TP
+.TP 5
 .I $PCP_ARCHIVE_DIR/<hostname>/SaveLogs
 if this directory exists,
 then the log file from the
@@ -943,16 +260,10 @@ several
 instances for
 .I hostname
 have been launched in the interim.
-Because the cron-driven PCP archive management scripts run under
-the uid of the user ``pcp'',
-.BI $PCP_ARCHIVE_DIR/ hostname /SaveLogs
+Because the PCP archive management tools run under
+as the user ``pcp'',
+.I $PCP_ARCHIVE_DIR/<hostname>/SaveLogs
 typically needs to be owned by the user ``pcp''.
-.TP
-.I $PCP_LOG_DIR/pmlogger/.NeedRewrite
-if this file exists, then this is treated as equivalent to using
-.B \-R
-on the command line and the file will be removed once all rewriting
-has been done.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
@@ -976,43 +287,17 @@ and setting
 to
 .B yes
 disables the regeneration and checking.
-.SH "COMPATIBILITY ISSUES"
-Earlier versions of
-.B pmlogger_daily
-used
-.BR find (1)
-to locate files for compressing or culling and the
-.B \-k
-and
-.B \-x
-options took only integer values to mean ``days''.
-The semantics of this was quite loose given that
-.BR find (1)
-offers different precision and semantics across platforms.
-.PP
-The current implementation of
-.B pmlogger_daily
-uses
-.BR find-filter (1)
-which provides high precision intervals and semantics that are
-relative to the time of execution and are consistent across
-platforms.
 .SH SEE ALSO
-.BR egrep (1),
-.BR find-filter (1),
+.BR mkaf (1),
 .BR PCPIntro (1),
-.BR pmconfig (1),
+.BR pmie (1),
 .BR pmlc (1),
 .BR pmlogconf (1),
 .BR pmlogctl (1),
 .BR pmlogger (1),
+.BR pmlogger_daily (1),
 .BR pmlogger_daily_report (1),
-.BR pmlogger_merge (1),
-.BR pmlogextract (1),
-.BR pmlogmv (1),
-.BR pmlogrewrite (1),
-.BR pmsocks (1),
 .BR systemd (1),
-.BR xz (1)
+.BR pmlogger.control (5)
 and
 .BR cron (8).
