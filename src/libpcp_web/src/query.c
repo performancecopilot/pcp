@@ -101,9 +101,6 @@ skip_free_value_set(node_t *np)
 	|| np->type == N_SQRT || np->type == N_FLOOR || np->type == N_ROUND
 	|| np->type == N_LOG || np->type == N_PLUS || np->type == N_MINUS
 	|| np->type == N_STAR || np->type == N_SLASH)
-	// || np->type == N_AVG
-	// || np->type == N_AVG_INST || np->type == N_AVG_SAMPLE || np->type == N_SUM 
-	// || np->type == N_SUM_INST || np->type == N_SUM_SAMPLE) 
 	return 0;
     return 1;
 }
@@ -130,6 +127,12 @@ freeSeriesQueryNode(node_t *np, int level)
 	    sdsfree(np->value_set.series_values[i].sid->name);
 	    free(np->value_set.series_values[i].sid);
 	    free(np->value_set.series_values[i].series_sample);
+	    sdsfree(np->value_set.series_values[i].series_desc.indom);
+	    sdsfree(np->value_set.series_values[i].series_desc.pmid);
+	    sdsfree(np->value_set.series_values[i].series_desc.semantics);
+	    sdsfree(np->value_set.series_values[i].series_desc.source);
+	    sdsfree(np->value_set.series_values[i].series_desc.type);
+	    sdsfree(np->value_set.series_values[i].series_desc.units);
 	}
 	free(np->value_set.series_values);
     }
@@ -2722,7 +2725,12 @@ series_calculate_time_domain_max(node_t *np)
 	np->value_set.series_values[i].sid = (seriesGetSID *)calloc(1, sizeof(seriesGetSID));
 	np->value_set.series_values[i].sid->name = sdsnew(np->left->value_set.series_values[i].sid->name);
 	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
-	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
+	np->value_set.series_values[i].series_desc.indom = sdsnew(np->left->value_set.series_values[i].series_desc.indom);
+	np->value_set.series_values[i].series_desc.pmid = sdsnew(np->left->value_set.series_values[i].series_desc.pmid);
+	np->value_set.series_values[i].series_desc.semantics = sdsnew(np->left->value_set.series_values[i].series_desc.semantics);
+	np->value_set.series_values[i].series_desc.source = sdsnew(np->left->value_set.series_values[i].series_desc.source);
+	np->value_set.series_values[i].series_desc.type = sdsnew(np->left->value_set.series_values[i].series_desc.type);
+	np->value_set.series_values[i].series_desc.units = sdsnew(np->left->value_set.series_values[i].series_desc.units);
     }
 }
 
@@ -2781,7 +2789,12 @@ series_calculate_max(node_t *np)
 	np->value_set.series_values[i].sid = (seriesGetSID *)calloc(1, sizeof(seriesGetSID));
 	np->value_set.series_values[i].sid->name = sdsnew(np->left->value_set.series_values[i].sid->name);
 	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
-	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
+	np->value_set.series_values[i].series_desc.indom = sdsnew(np->left->value_set.series_values[i].series_desc.indom);
+	np->value_set.series_values[i].series_desc.pmid = sdsnew(np->left->value_set.series_values[i].series_desc.pmid);
+	np->value_set.series_values[i].series_desc.semantics = sdsnew(np->left->value_set.series_values[i].series_desc.semantics);
+	np->value_set.series_values[i].series_desc.source = sdsnew(np->left->value_set.series_values[i].series_desc.source);
+	np->value_set.series_values[i].series_desc.type = sdsnew(np->left->value_set.series_values[i].series_desc.type);
+	np->value_set.series_values[i].series_desc.units = sdsnew(np->left->value_set.series_values[i].series_desc.units);
     }
 }
 
@@ -2841,7 +2854,12 @@ series_calculate_time_domain_min(node_t *np)
 	np->value_set.series_values[i].sid = (seriesGetSID *)calloc(1, sizeof(seriesGetSID));
 	np->value_set.series_values[i].sid->name = sdsnew(np->left->value_set.series_values[i].sid->name);
 	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
-	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
+	np->value_set.series_values[i].series_desc.indom = sdsnew(np->left->value_set.series_values[i].series_desc.indom);
+	np->value_set.series_values[i].series_desc.pmid = sdsnew(np->left->value_set.series_values[i].series_desc.pmid);
+	np->value_set.series_values[i].series_desc.semantics = sdsnew(np->left->value_set.series_values[i].series_desc.semantics);
+	np->value_set.series_values[i].series_desc.source = sdsnew(np->left->value_set.series_values[i].series_desc.source);
+	np->value_set.series_values[i].series_desc.type = sdsnew(np->left->value_set.series_values[i].series_desc.type);
+	np->value_set.series_values[i].series_desc.units = sdsnew(np->left->value_set.series_values[i].series_desc.units);
     }
 }
 
@@ -2900,7 +2918,12 @@ series_calculate_min(node_t *np)
 	np->value_set.series_values[i].sid = (seriesGetSID *)calloc(1, sizeof(seriesGetSID));
 	np->value_set.series_values[i].sid->name = sdsnew(np->left->value_set.series_values[i].sid->name);
 	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
-	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
+	np->value_set.series_values[i].series_desc.indom = sdsnew(np->left->value_set.series_values[i].series_desc.indom);
+	np->value_set.series_values[i].series_desc.pmid = sdsnew(np->left->value_set.series_values[i].series_desc.pmid);
+	np->value_set.series_values[i].series_desc.semantics = sdsnew(np->left->value_set.series_values[i].series_desc.semantics);
+	np->value_set.series_values[i].series_desc.source = sdsnew(np->left->value_set.series_values[i].series_desc.source);
+	np->value_set.series_values[i].series_desc.type = sdsnew(np->left->value_set.series_values[i].series_desc.type);
+	np->value_set.series_values[i].series_desc.units = sdsnew(np->left->value_set.series_values[i].series_desc.units);
     }
 }
 
@@ -3194,12 +3217,12 @@ series_calculate_time_domain_standard_deviation(node_t *np)
 	np->value_set.series_values[i].sid = (seriesGetSID *)calloc(1, sizeof(seriesGetSID));
 	np->value_set.series_values[i].sid->name = sdsnew(np->left->value_set.series_values[i].sid->name);
 	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
-	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
-
-	// sdsfree(np->value_set.series_values[i].series_desc.type);
-	// sdsfree(np->value_set.series_values[i].series_desc.semantics);
-	np->value_set.series_values[i].series_desc.type = sdsnew("double");
+	np->value_set.series_values[i].series_desc.indom = sdsnew(np->left->value_set.series_values[i].series_desc.indom);
+	np->value_set.series_values[i].series_desc.pmid = sdsnew(np->left->value_set.series_values[i].series_desc.pmid);
 	np->value_set.series_values[i].series_desc.semantics = sdsnew("instance");
+	np->value_set.series_values[i].series_desc.source = sdsnew(np->left->value_set.series_values[i].series_desc.source);
+	np->value_set.series_values[i].series_desc.type = sdsnew("double");
+	np->value_set.series_values[i].series_desc.units = sdsnew(np->left->value_set.series_values[i].series_desc.units);
     }
 }
 /*
@@ -3258,12 +3281,12 @@ series_calculate_standard_deviation(node_t *np)
 	np->value_set.series_values[i].sid = (seriesGetSID *)calloc(1, sizeof(seriesGetSID));
 	np->value_set.series_values[i].sid->name = sdsnew(np->left->value_set.series_values[i].sid->name);
 	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
-	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
-
-	// sdsfree(np->value_set.series_values[i].series_desc.type);
-	// sdsfree(np->value_set.series_values[i].series_desc.semantics);
-	np->value_set.series_values[i].series_desc.type = sdsnew("double");
+	np->value_set.series_values[i].series_desc.indom = sdsnew(np->left->value_set.series_values[i].series_desc.indom);
+	np->value_set.series_values[i].series_desc.pmid = sdsnew(np->left->value_set.series_values[i].series_desc.pmid);
 	np->value_set.series_values[i].series_desc.semantics = sdsnew("instance");
+	np->value_set.series_values[i].series_desc.source = sdsnew(np->left->value_set.series_values[i].series_desc.source);
+	np->value_set.series_values[i].series_desc.type = sdsnew("double");
+	np->value_set.series_values[i].series_desc.units = sdsnew(np->left->value_set.series_values[i].series_desc.units);
     }
 }
 
@@ -3334,12 +3357,18 @@ series_calculate_time_domain_statistical(node_t *np, nodetype_t func)
 	np->value_set.series_values[i].sid = (seriesGetSID *)calloc(1, sizeof(seriesGetSID));
 	np->value_set.series_values[i].sid->name = sdsnew(np->left->value_set.series_values[i].sid->name);
 	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
-	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
-
-	/* statistical result values are type double, but maybe this depends on the function and args */
+	np->value_set.series_values[i].series_desc.indom = sdsnew(np->left->value_set.series_values[i].series_desc.indom);
+	np->value_set.series_values[i].series_desc.pmid = sdsnew(np->left->value_set.series_values[i].series_desc.pmid);
+	np->value_set.series_values[i].series_desc.source = sdsnew(np->left->value_set.series_values[i].series_desc.source);
 	np->value_set.series_values[i].series_desc.type = sdsnew("double");
+	np->value_set.series_values[i].series_desc.units = sdsnew(np->left->value_set.series_values[i].series_desc.units);
+
 	if (func == N_AVG_SAMPLE){
 	    np->value_set.series_values[i].series_desc.semantics = sdsnew("instance");
+	}
+	else{
+	    np->value_set.series_values[i].series_desc.semantics = sdsnew(np->left->value_set.series_values[i].series_desc.semantics);
+
 	}
     }
 }
@@ -3412,12 +3441,18 @@ series_calculate_statistical(node_t *np, nodetype_t func)
 	np->value_set.series_values[i].sid = (seriesGetSID *)calloc(1, sizeof(seriesGetSID));
 	np->value_set.series_values[i].sid->name = sdsnew(np->left->value_set.series_values[i].sid->name);
 	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
-	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
 
-	/* statistical result values are type double, but maybe this depends on the function and args */
+	np->value_set.series_values[i].series_desc.indom = sdsnew(np->left->value_set.series_values[i].series_desc.indom);
+	np->value_set.series_values[i].series_desc.pmid = sdsnew(np->left->value_set.series_values[i].series_desc.pmid);
+	np->value_set.series_values[i].series_desc.source = sdsnew(np->left->value_set.series_values[i].series_desc.source);
 	np->value_set.series_values[i].series_desc.type = sdsnew("double");
-	if (func == N_AVG_SAMPLE){
+	np->value_set.series_values[i].series_desc.units = sdsnew(np->left->value_set.series_values[i].series_desc.units);
+	
+	if (func == N_AVG || func == N_AVG_INST){
 	    np->value_set.series_values[i].series_desc.semantics = sdsnew("instance");
+	}
+	else{
+	    np->value_set.series_values[i].series_desc.semantics = sdsnew(np->left->value_set.series_values[i].series_desc.semantics);
 	}
     }
 }
