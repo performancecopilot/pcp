@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017-2021 Red Hat.
  * Copyright (c) 2020 Yushan ZHANG.
+ * Copyright (c) 2022 Shiyao CHEN.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -35,6 +36,8 @@ typedef enum nodetype {
     N_STAR,
     N_SLASH,
     N_AVG,
+    N_AVG_INST,
+    N_AVG_SAMPLE,
     N_COUNT,
     N_DELTA,
     N_MAX,
@@ -44,6 +47,10 @@ typedef enum nodetype {
     N_MIN_INST,
     N_MIN_SAMPLE,
     N_SUM,
+    N_SUM_INST,
+    N_SUM_SAMPLE,
+    N_STDEV_INST,
+    N_STDEV_SAMPLE,
     N_ANON,
     N_RATE,
     N_INSTANT,

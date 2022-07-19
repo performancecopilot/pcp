@@ -456,7 +456,7 @@ is equivalent to
 .BR max_inst .
 .P
 .BR max_sample(\f2expr\fP)
-the maximum value in the time series for each sample of \fIexpr\fP across time
+the maximum value in the time series for each sample of \fIexpr\fP across time.
 .P
 .BR min_inst(\f2expr\fP)
 the minimum value in the time series for each instance of \fIexpr\fP.
@@ -466,7 +466,27 @@ is equivalent to
 .BR min_inst .
 .P
 .BR min_sample(\f2expr\fP)
-the minimum value in the time series for each sample of \fIexpr\fP across time
+the minimum value in the time series for each sample of \fIexpr\fP across time.
+.P
+.BR sum_inst(\f2expr\fP)
+sum of the values in the time series for each instance of \fIexpr\fP.
+For backwards compatibility, the synonym
+.B sum
+is equivalent to
+.BR sum_inst .
+.P
+.BR sum_sample(\f2expr\fP)
+sum of the values in the time series for each sample of \fIexpr\fP across time.
+.P
+.BR avg_inst(\f2expr\fP)
+average of the values in the time series for each instance of \fIexpr\fP.
+For backwards compatibility, the synonym
+.B avg
+is equivalent to
+.BR avg_inst .
+.P
+.BR avg_sample(\f2expr\fP)
+average of the values in the time series for each sample of \fIexpr\fP across time.
 .P
 .BR rate(\f2expr\fP)
 the rate with respect to time of each sample.
@@ -530,6 +550,13 @@ logarithm of the values in the time series for each instance of \fIexpr\fP
 .P
 .BR sqrt(\f2expr\fP)
 square root of the values in the time series for each instance of \fIexpr\fP
+.P
+.BR stdev_inst(\f2expr\fP)
+standard deviation of the values in the time series for each instance of \fIexpr\fP.
+.P
+.BR stdev_sample(\f2expr\fP)
+standard deviation of the values in the time series for each sample of \fIexpr\fP across time.
+
 .SS Compatibility
 All operands in an expression must have the same number of samples,
 but not necessarily the same time window. e.g. you could subtract some
