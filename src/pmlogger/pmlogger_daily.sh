@@ -498,10 +498,45 @@ done
 
 [ $# -ne 0 ] && _usage
 
-# callback initialization ...
-# values (script names) set in the environment will be executed first
+# merge callback initialization ...
+# pmlogger_daily_report goes first, then
+# values (script names) set in the environment, then
+# (later) any values (script names) set in the control files
 #
 touch $tmp/merge_callback
+if [ -x "$PCP_BINADM_DIR/pmlogger_daily_report" ]
+then
+    # pmlogger_daily_report script is present, need to see if it
+    # is enabled ... in systemd-land that's easy, otherwise we
+    # defer to the existence of the $PCP_SA_DIR directory
+    #
+    rm -f $tmp/want_daily_report
+    if which systemctl >/dev/null 2>&1
+    then
+	# if pmlogger_daily_report.timer is enabled, assume we're good
+	# to go ...
+	#
+	if [ "`systemctl is-enabled pmlogger_daily_report.timer 2>/dev/null`" = enabled ]
+	then
+	    touch $tmp/want_daily_report
+	fi
+    else
+	if [ -d "$PCP_SA_DIR" ]
+	then
+	    touch $tmp/want_daily_report
+	fi
+    fi
+    if [ -f $tmp/want_daily_report ]
+    then
+	# Note: actual achive name will follow -a when callback
+	# happens
+	#
+	if _add_callback "$PCP_BINADM_DIR/pmlogger_daily_report -o $PCP_SA_DIR -a" $tmp/merge_callback
+	then
+	    $VERBOSE && echo "Add merge callback for: pmlogger_daily_report"
+	fi
+    fi
+fi
 if [ -n "$PCP_MERGE_CALLBACK" ]
 then
     if _add_callback "$PCP_MERGE_CALLBACK" $tmp/merge_callback
@@ -509,6 +544,11 @@ then
 	$VERBOSE && echo "Add merge callback from environment: $PCP_MERGE_CALLBACK"
     fi
 fi
+
+# compress callback initialization ...
+# values (script names) set in the environment first, then
+# (later) any values (script names) set in the control files
+#
 touch $tmp/compress_callback
 if [ -n "$PCP_COMPRESS_CALLBACK" ]
 then
