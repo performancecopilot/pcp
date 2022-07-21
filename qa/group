@@ -1881,6 +1881,7 @@ x11
 1425 logutil local
 1426 libpcp local
 1427 pmlogmv local
+1428 logutil pmrep python local
 1429 logutil pmlogextract pmdumplog pmlogrewrite local
 1433 pmproxy local pmconfig
 1434 pmda.nfsclient local
