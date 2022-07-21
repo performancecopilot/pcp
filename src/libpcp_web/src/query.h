@@ -51,6 +51,8 @@ typedef enum nodetype {
     N_SUM_SAMPLE,
     N_STDEV_INST,
     N_STDEV_SAMPLE,
+    N_NTH_PERCENTILE_INST,
+    N_NTH_PERCENTILE_SAMPLE,
     N_ANON,
     N_RATE,
     N_INSTANT,

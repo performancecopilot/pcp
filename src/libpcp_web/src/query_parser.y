@@ -132,6 +132,8 @@ static const char initial_str[]  = "Unexpected initial";
 %token      L_SUM_SAMPLE
 %token      L_STDEV_INST
 %token      L_STDEV_SAMPLE
+%token      L_NTH_PERCENTILE_INST
+%token      L_NTH_PERCENTILE_SAMPLE
 %token      L_ANON
 %token      L_RATE
 %token      L_INSTANT
@@ -522,6 +524,34 @@ func_sid
 	| L_STDEV_SAMPLE L_LPAREN func_sid L_RPAREN
 		{ lp->yy_np = newnode(N_STDEV_SAMPLE);
 		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_NTH_PERCENTILE_INST L_LPAREN sid_vec L_COMMA L_INTEGER L_RPAREN
+		{ lp->yy_np = newnode(N_NTH_PERCENTILE_INST);
+		  lp->yy_np->right = newnode(N_INTEGER);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right->value = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_NTH_PERCENTILE_INST L_LPAREN func_sid L_COMMA L_INTEGER L_RPAREN
+		{ lp->yy_np = newnode(N_NTH_PERCENTILE_INST);
+		  lp->yy_np->right = newnode(N_INTEGER);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right->value = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_NTH_PERCENTILE_SAMPLE L_LPAREN sid_vec L_COMMA L_INTEGER L_RPAREN
+		{ lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE);
+		  lp->yy_np->right = newnode(N_INTEGER);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right->value = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_NTH_PERCENTILE_SAMPLE L_LPAREN func_sid L_COMMA L_INTEGER L_RPAREN
+		{ lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE);
+		  lp->yy_np->right = newnode(N_INTEGER);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right->value = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_AVG L_LPAREN sid_vec L_RPAREN
@@ -940,6 +970,34 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
+	| L_NTH_PERCENTILE_INST L_LPAREN val_vec L_COMMA L_INTEGER L_RPAREN
+		{ lp->yy_np = newnode(N_NTH_PERCENTILE_INST);
+		  lp->yy_np->right = newnode(N_INTEGER);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right->value = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_NTH_PERCENTILE_INST L_LPAREN func L_COMMA L_INTEGER L_RPAREN
+		{ lp->yy_np = newnode(N_NTH_PERCENTILE_INST);
+		  lp->yy_np->right = newnode(N_INTEGER);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right->value = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_NTH_PERCENTILE_SAMPLE L_LPAREN val_vec L_COMMA L_INTEGER L_RPAREN
+		{ lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE);
+		  lp->yy_np->right = newnode(N_INTEGER);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right->value = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_NTH_PERCENTILE_SAMPLE L_LPAREN func L_COMMA L_INTEGER L_RPAREN
+		{ lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE);
+		  lp->yy_np->right = newnode(N_INTEGER);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right->value = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
 	| L_AVG L_LPAREN val_vec L_RPAREN
 		{ lp->yy_np = newnode(N_AVG);
 		  lp->yy_np->left = $3;
@@ -1184,6 +1242,8 @@ static const struct {
     { L_SUM_SAMPLE,	sizeof("sum_sample")-1,	"sum_sample" },
     { L_STDEV_INST,	sizeof("stdev_inst")-1,	"stdev_inst" },
     { L_STDEV_SAMPLE,	sizeof("stdev_sample")-1,	"stdev_sample" },
+    { L_NTH_PERCENTILE_INST,	sizeof("nth_percentile_inst")-1,	"nth_percentile_inst" },
+    { L_NTH_PERCENTILE_SAMPLE,	sizeof("nth_percentile_sample")-1,	"nth_percentile_sample" },
     { L_RATE,		sizeof("rate")-1,	"rate" },
     { L_ABS,		sizeof("abs")-1,	"abs" },
     { L_FLOOR,		sizeof("floor")-1,	"floor" },
@@ -1243,6 +1303,8 @@ static struct {
     { L_SUM_SAMPLE,	N_SUM_SAMPLE,	"SUM_SAMPLE",	NULL },
     { L_STDEV_INST,	N_STDEV_INST,	"STDEV_INST",	NULL },
     { L_STDEV_SAMPLE,	N_STDEV_SAMPLE,	"STDEV_SAMPLE",	NULL },
+    { L_NTH_PERCENTILE_INST,	N_NTH_PERCENTILE_INST,	"NTH_PERCENTILE_INST",	NULL },
+    { L_NTH_PERCENTILE_SAMPLE,	N_NTH_PERCENTILE_SAMPLE,	"NTH_PERCENTILE_SAMPLE",	NULL },
     { L_ANON,		N_ANON,		"ANON",		NULL },
     { L_RATE,		N_RATE,		"RATE",		NULL },
     { L_INSTANT,	N_INSTANT,	"INSTANT",	NULL },
@@ -2074,7 +2136,8 @@ series_dumpexpr(node_t *np, int level)
     case N_SUM: case N_ANON:    case N_RATE:    case N_INSTANT: case N_RESCALE:
     case N_MAX_INST: case N_MAX_SAMPLE: case N_MIN_INST: case N_MIN_SAMPLE: 
     case N_AVG_INST: case N_AVG_SAMPLE: case N_SUM_INST: case N_SUM_SAMPLE: 
-    case N_STDEV_INST: case N_STDEV_SAMPLE: 
+    case N_STDEV_INST: case N_STDEV_SAMPLE: case N_NTH_PERCENTILE_INST: 
+	case N_NTH_PERCENTILE_SAMPLE: 
 	fprintf(stderr, "%*s%s()", level*4, "", n_type_str(np->type));
 	break;
     case N_SCALE: {
