@@ -498,6 +498,25 @@ done
 
 [ $# -ne 0 ] && _usage
 
+if $SHOWME
+then
+    :
+else
+    # Salt away previous log, if any ...
+    #
+    _save_prev_file "$PROGLOG"
+    # After argument checking, everything must be logged to ensure no mail is
+    # accidentally sent from cron.  Close stdout and stderr, then open stdout
+    # as our logfile and redirect stderr there too.  Create the log file with
+    # correct ownership first.
+    #
+    # Exception ($SHOWME, above) is for -N where we want to see the output.
+    #
+    touch "$MYPROGLOG"
+    chown $PCP_USER:$PCP_GROUP "$MYPROGLOG" >/dev/null 2>&1
+    exec 1>"$MYPROGLOG" 2>&1
+fi
+
 # merge callback initialization ...
 # pmlogger_daily_report goes first, then
 # values (script names) set in the environment, then
@@ -568,7 +587,6 @@ then
     $VERBOSE && echo "Using \$PCP_AUTOSAVE_DIR from environment: $PCP_AUTOSAVE_DIR"
 fi
 
-
 if $PFLAG
 then
     rm -f $tmp/ok
@@ -636,25 +654,6 @@ else
     else
 	echo "Warning: cannot install new date-and-timestamp"
     fi
-fi
-
-if $SHOWME
-then
-    :
-else
-    # Salt away previous log, if any ...
-    #
-    _save_prev_file "$PROGLOG"
-    # After argument checking, everything must be logged to ensure no mail is
-    # accidentally sent from cron.  Close stdout and stderr, then open stdout
-    # as our logfile and redirect stderr there too.  Create the log file with
-    # correct ownership first.
-    #
-    # Exception ($SHOWME, above) is for -N where we want to see the output.
-    #
-    touch "$MYPROGLOG"
-    chown $PCP_USER:$PCP_GROUP "$MYPROGLOG" >/dev/null 2>&1
-    exec 1>"$MYPROGLOG" 2>&1
 fi
 
 if $VERY_VERBOSE
