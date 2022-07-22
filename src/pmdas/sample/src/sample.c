@@ -1715,7 +1715,9 @@ sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
     int		type;
     int		done_proc_indom = 0;
     char	strbuf[4];	/* string.bin value X00\0 */
+#ifndef HAVE_SYSINFO
     char	*dummy;
+#endif
 
     sample_inc_recv(ep->e_context);
     sample_inc_xmit(ep->e_context);
