@@ -18,7 +18,7 @@
 \f3pmlogger_daily\f1 \- administration of Performance Co-Pilot archive log files
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_daily
-[\f3\-EfKMNoprRVzZ?\f1]
+[\f3\-DEfKMNoprRVzZ?\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-k\f1 \f2time\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -114,6 +114,11 @@ from the
 option) exists, then the contents of any additional
 .I control
 files therein will be appended to the main control file (which must exist).
+.TP 5
+\fB\-D\fR, \fB\-\-noreport\fR
+Do not perform the conditional
+.BR pmlogger_daily_report (1)
+processing as described below.
 .TP 5
 \fB\-E\fR, \fB\-\-expunge\fR
 This option causes

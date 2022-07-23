@@ -289,6 +289,7 @@ echo > $tmp/usage
 cat >> $tmp/usage <<EOF
 Options:
   -c=FILE,--control=FILE  pmlogger control file
+  -D,--noreport           do not run pmlogger_daily_report
   -E,--expunge            expunge metrics with metadata inconsistencies when merging archives
   -f,--force              force actions (intended for QA, not production)
   -k=TIME,--discard=TIME  remove archives after TIME (format DD[:HH[:MM]])
@@ -336,6 +337,7 @@ MFLAG=false
 EXPUNGE=""
 FORCE=false
 KILL=pmsignal
+DO_DAILY_REPORT=true
 
 ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
 [ $? != 0 ] && exit 1
@@ -348,6 +350,8 @@ do
 	-c)	CONTROL="$2"
 		CONTROLDIR="$2.d"
 		shift
+		;;
+	-D)	DO_DAILY_REPORT=false
 		;;
 	-E)	EXPUNGE="-E"
 		;;
@@ -523,7 +527,7 @@ fi
 # (later) any values (script names) set in the control files
 #
 touch $tmp/merge_callback
-if [ -x "$PCP_BINADM_DIR/pmlogger_daily_report" ]
+if $DO_DAILY_REPORT && [ -x "$PCP_BINADM_DIR/pmlogger_daily_report" ]
 then
     # pmlogger_daily_report script is present, need to see if it
     # is enabled ... in systemd-land that's easy, otherwise we
