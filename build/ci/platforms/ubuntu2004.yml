@@ -1,0 +1,33 @@
+# runs in a GitHub Actions VM, without container
+type: direct
+
+tasks:
+  setup: |
+    sudo apt-get -y update
+    pkgs=$(qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y $pkgs
+  build: |
+    ./Makepkgs --nonrpm --verbose
+    dpkg -I build/deb/pcp_*.deb | grep Depends | grep -q libuv1
+  copy_build_artifacts: |
+    cp build/deb/*.deb ../artifacts/build
+  install: |
+    sudo dpkg -i build/deb/*.deb
+    echo 'pcpqa ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/pcpqa
+  init_qa: |
+    sudo systemctl start redis
+    sudo -i -u pcpqa ./check 002
+  qa_sanity: |
+    set -o pipefail
+    sudo -i -u pcpqa ./check -TT -g sanity -x not_in_ci |& tee ../artifacts/test/test.log
+  qa: |
+    set -o pipefail
+    DEFAULT_PCP_QA_ARGS="-x x11 -x remote -x not_in_ci"
+    sudo -i -u pcpqa ./check -TT ${PCP_QA_ARGS:-${DEFAULT_PCP_QA_ARGS}} |& tee ../artifacts/test/test.log
+  copy_test_artifacts: |
+    cp /var/lib/pcp/testsuite/check.timings ../artifacts/test
+    # add current timestamp if the last QA test got stuck
+    [ $(awk 'END{print NF}' ../artifacts/test/check.timings) = 2 ] && date '+%s' >> ../artifacts/test/check.timings
+    shopt -s nullglob
+    for test in /var/lib/pcp/testsuite/*.out.bad; do cp $test ../artifacts/test; [ -f ${test/.out.bad/.full} ] && cp ${test/.out.bad/.full} ../artifacts/test; done
+    [ -x /var/lib/pcp/testsuite/admin/whatami ] && /var/lib/pcp/testsuite/admin/whatami >../artifacts/test/whatami
