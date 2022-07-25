@@ -162,6 +162,34 @@ _timespec()
     done
 }
 
+# replacement for fmt(1) that is the same on every platform ... mimics
+# the FSF version with a maximum line length of 75 columns
+#
+_fmt()
+{
+    $PCP_AWK_PROG '
+BEGIN		{ len = 0 }
+		{ for (i = 1; i <= NF; i++) {
+		    wlen = length($i)
+		    if (len + 1 + wlen > 75) {
+			printf "\n"
+			len = 0
+		    }
+		    if (len + 1 + wlen <= 75) {
+			if (len == 0) {
+			    printf "%s",$i
+			    len = wlen;
+			}
+			else {
+			    printf " %s",$i
+			    len += 1 + wlen
+			}
+		    }
+		  }
+		}
+END		{ if (len > 0) printf "\n" }'
+}
+
 # check callback
 # shell command is $1 possibly surrounded by quotes, so unpick
 # "executable program" (first word) and if it exists and is executable
@@ -1483,7 +1511,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		    if $VERBOSE
 		    then
 			echo "Archive files older than `_timespec $CULLAFTER` being removed ..."
-			fmt <$tmp/list | sed -e 's/^/    /'
+			_fmt <$tmp/list | sed -e 's/^/    /'
 		    fi
 		    if $SHOWME
 		    then
@@ -1838,7 +1866,7 @@ p
 			    else
 				echo "Archive files older than $COMPRESSAFTER days being compressed ..."
 			    fi
-			    fmt <$tmp/list | sed -e 's/^/    /'
+			    _fmt <$tmp/list | sed -e 's/^/    /'
 			fi
 			if $SHOWME
 			then
@@ -1906,7 +1934,7 @@ p
 	then
 	    if $VERBOSE
 	    then
-		( echo "Autosave ... "; fmt <$tmp/savefiles ) \
+		( echo "Autosave ... "; _fmt <$tmp/savefiles ) \
 		| sed -e 's/^/    /'
 	    fi
 	    last_mkdir=''
@@ -1963,7 +1991,7 @@ p
 		if $VERBOSE
 		then
 		    echo "Trace files older than $TRACE days being removed ..."
-		    fmt <$tmp/list | sed -e 's/^/    /'
+		    _fmt <$tmp/list | sed -e 's/^/    /'
 		fi
 		if $SHOWME
 		then
