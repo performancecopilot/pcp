@@ -549,50 +549,66 @@ else
     exec 1>"$MYPROGLOG" 2>&1
 fi
 
-# merge callback initialization ...
-# pmlogger_daily_report goes first, then
-# values (script names) set in the environment, then
-# (later) any values (script names) set in the control files
-#
-touch $tmp/merge_callback
-if $DO_DAILY_REPORT && [ -x "$PCP_BINADM_DIR/pmlogger_daily_report" ]
+if $COMPRESSONLY
 then
-    # pmlogger_daily_report script is present, need to see if it
-    # is enabled ... in systemd-land that's easy, otherwise we
-    # defer to the existence of the $PCP_SA_DIR directory
+    # no merge callbacks or autosave with -K
+    :
+else
+    # merge callback initialization ...
+    # pmlogger_daily_report goes first, then
+    # values (script names) set in the environment, then
+    # (later) any values (script names) set in the control files
     #
-    rm -f $tmp/want_daily_report
-    if which systemctl >/dev/null 2>&1
+    touch $tmp/merge_callback
+    if $DO_DAILY_REPORT && [ -x "$PCP_BINADM_DIR/pmlogger_daily_report" ]
     then
-	# if pmlogger_daily_report.timer is enabled, assume we're good
-	# to go ...
+	# pmlogger_daily_report script is present, need to see if it
+	# is enabled ... in systemd-land that's easy, otherwise we
+	# defer to the existence of the $PCP_SA_DIR directory
 	#
-	if [ "`systemctl is-enabled pmlogger_daily_report.timer 2>/dev/null`" = enabled ]
+	rm -f $tmp/want_daily_report
+	if which systemctl >/dev/null 2>&1
 	then
-	    touch $tmp/want_daily_report
+	    # if pmlogger_daily_report.timer is enabled, assume we're good
+	    # to go ...
+	    #
+	    if [ "`systemctl is-enabled pmlogger_daily_report.timer 2>/dev/null`" = enabled ]
+	    then
+		touch $tmp/want_daily_report
+	    fi
+	else
+	    if [ -d "$PCP_SA_DIR" ]
+	    then
+		touch $tmp/want_daily_report
+	    fi
 	fi
-    else
-	if [ -d "$PCP_SA_DIR" ]
+	if [ -f $tmp/want_daily_report ]
 	then
-	    touch $tmp/want_daily_report
+	    # Note: actual achive name will follow -a when callback
+	    # happens
+	    #
+	    if _add_callback "$PCP_BINADM_DIR/pmlogger_daily_report -o $PCP_SA_DIR -a" $tmp/merge_callback
+	    then
+		$VERBOSE && echo "Add merge callback for: pmlogger_daily_report"
+	    fi
 	fi
     fi
-    if [ -f $tmp/want_daily_report ]
+    if [ -n "$PCP_MERGE_CALLBACK" ]
     then
-	# Note: actual achive name will follow -a when callback
-	# happens
-	#
-	if _add_callback "$PCP_BINADM_DIR/pmlogger_daily_report -o $PCP_SA_DIR -a" $tmp/merge_callback
+	if _add_callback "$PCP_MERGE_CALLBACK" $tmp/merge_callback
 	then
-	    $VERBOSE && echo "Add merge callback for: pmlogger_daily_report"
+	    $VERBOSE && echo "Add merge callback from environment: $PCP_MERGE_CALLBACK"
 	fi
     fi
-fi
-if [ -n "$PCP_MERGE_CALLBACK" ]
-then
-    if _add_callback "$PCP_MERGE_CALLBACK" $tmp/merge_callback
+
+    # autosave initialization ...
+    #
+    touch $tmp/autosave
+    touch $tmp/savefiles
+    if [ -n "$PCP_AUTOSAVE_DIR" ]
     then
-	$VERBOSE && echo "Add merge callback from environment: $PCP_MERGE_CALLBACK"
+	echo "$PCP_AUTOSAVE_DIR" >$tmp/autosave
+	$VERBOSE && echo "Using \$PCP_AUTOSAVE_DIR from environment: $PCP_AUTOSAVE_DIR"
     fi
 fi
 
@@ -607,16 +623,6 @@ then
     then
 	$VERBOSE && echo "Add compress callback from environment: $PCP_COMPRESS_CALLBACK"
     fi
-fi
-
-# autosave initialization ...
-#
-touch $tmp/autosave
-touch $tmp/savefiles
-if [ -n "$PCP_AUTOSAVE_DIR" ]
-then
-    echo "$PCP_AUTOSAVE_DIR" >$tmp/autosave
-    $VERBOSE && echo "Using \$PCP_AUTOSAVE_DIR from environment: $PCP_AUTOSAVE_DIR"
 fi
 
 if $PFLAG
@@ -1170,11 +1176,14 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 			    ;;
 
 			'export PCP_MERGE_CALLBACK;'*)
-			    $SHOWME && echo "+ $cmd"
-			    script="`echo "$cmd" | sed -e 's/.*BACK; PCP_MERGE_CALLBACK=//'`"
-			    if _add_callback "$script" $tmp/merge_callback
+			    if ! $COMPRESSONLY
 			    then
-				$VERBOSE && echo "Add merge callback: $script"
+				$SHOWME && echo "+ $cmd"
+				script="`echo "$cmd" | sed -e 's/.*BACK; PCP_MERGE_CALLBACK=//'`"
+				if _add_callback "$script" $tmp/merge_callback
+				then
+				    $VERBOSE && echo "Add merge callback: $script"
+				fi
 			    fi
 			    ;;
 
@@ -1188,15 +1197,18 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 			    ;;
 
 			'export PCP_AUTOSAVE_DIR;'*)
-			    $SHOWME && echo "+ $cmd"
-			    eval $cmd
-			    if [ -s $tmp/autosave ]
+			    if ! $COMPRESSONLY
 			    then
-				_warning "\$PCP_AUTOSAVE_DIR ($PCP_AUTOSAVE_DIR) reset from control file, previous value (`cat $tmp/autosave`) ignored"
+				$SHOWME && echo "+ $cmd"
+				eval $cmd
+				if [ -s $tmp/autosave ]
+				then
+				    _warning "\$PCP_AUTOSAVE_DIR ($PCP_AUTOSAVE_DIR) reset from control file, previous value (`cat $tmp/autosave`) ignored"
+				fi
+				echo "$PCP_AUTOSAVE_DIR" >$tmp/autosave
+				$VERBOSE && echo "Using \$PCP_AUTOSAVE_DIR: $PCP_AUTOSAVE_DIR"
 			    fi
-			    echo "$PCP_AUTOSAVE_DIR" >$tmp/autosave
-			    $VERBOSE && echo "Using \$PCP_AUTOSAVE_DIR: $PCP_AUTOSAVE_DIR"
-			;;
+			    ;;
 
 			*)
 			    $SHOWME && echo "+ $cmd"
@@ -1692,6 +1704,15 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 				cat $tmp/merge_callback \
 				| while read exec
 				do
+				    case "$exec"
+				    in
+					$PCP_BINADM_DIR/pmlogger_daily_report)
+					    # only do this one for the primary
+					    # pmlogger instance
+					    #
+					    [ "$primary" != y ] && continue
+					    ;;
+				    esac
 				    if $SHOWME
 				    then
 					echo "+ $exec $mergefile"

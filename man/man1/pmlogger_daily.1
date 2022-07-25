@@ -591,6 +591,12 @@ in the environment or via the
 .I control
 file.
 .PP
+Note that merge callbacks and autosaving described below are
+.B not
+enabled when only compression tasks are being attempted, i.e. when
+.B \-K
+command line option is used.
+.PP
 All of the callback script execution and the autosave file moving
 will be executed as the non-privileged user ``pcp'' and group ``pcp'',
 so appropriate permissions may need to have been set up in advance.
