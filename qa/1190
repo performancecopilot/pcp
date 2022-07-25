@@ -197,12 +197,17 @@ else
     status=1
 fi
 
+# sample PMDA has some test metrics that produce a warning
+# pmproxy PMDA has some dynamic metrics that may not have been
+# enumerated in the PMDA's PMNS if it has just restarted
+#
 pminfo -v -b 2000 | grep 'illegal metric identifier' \
-| grep -v 'sample.*\.bad\.unknown' >$tmp.out
+| grep -v 'sample.*\.bad\.unknown' \
+| grep -v 'pmproxy\.' >$tmp.out
 n=`wc -l <$tmp.out | sed -e 's/ //g'`
 if [ "$n" -eq 0 ]
 then
-    $check || echo "Bad PMIDs in PMDA (other than sample) ... OK"
+    $check || echo "Bad PMIDs in PMDA (other than sample or pmproxy) ... OK"
 else
     echo "Bad PMIDs in PMDA (other than sample) ... BAD ($n not 0)"
     cat $tmp.out | sed -e 's/^/  /'
