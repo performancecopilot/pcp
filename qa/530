@@ -69,6 +69,9 @@ END				{ if ( eatlines ) {
     | sed \
 	-e '/^Roll .*\/NOTICES/d' \
 	-e '/^Start .*\/NOTICES/d' \
+	-e '/^Add merge callback for: pmlogger_daily_report/d' \
+	-e '/^Merge callbacks .../d' \
+	-e '/^callback: .*pmlogger_daily_report/d' \
 	-e "s;$tmp;TMP;g" \
 	-e "s/`hostname`/HOST/g" \
 	-e "s/localhost/HOST/g" \

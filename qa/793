@@ -285,7 +285,7 @@ fi
 
 echo
 echo "pmlogger_daily"
-$sudo sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_daily -Z -VV -x never -c $tmp/control -l $tmp/log"
+$sudo sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_daily -D -Z -VV -x never -c $tmp/control -l $tmp/log"
 if [ -s $tmp/log ]
 then
     echo "$tmp.log from pmlogger_daily ..." >>$here/$seq.full
