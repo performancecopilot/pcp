@@ -181,6 +181,8 @@ Options:\n\
 	}
     }
     else {
+	fflush(stdout);
+	fflush(stderr);
 	sts = __pmProcessExec(&h, PM_EXEC_TOSS_NONE, PM_EXEC_WAIT);
 	printf("__pmProcessExec -> %d", sts);
 	report_status(sts);
