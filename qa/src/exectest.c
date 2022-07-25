@@ -105,6 +105,9 @@ Options:\n\
     }
     nargv[nargc] = NULL;
 
+    fflush(stdout);
+    fflush(stderr);
+
     if (pipein && !pipeout) {
 	sts = __pmProcessPipe(&h, "r", PM_EXEC_TOSS_NONE, &pin);
 	printf("__pmProcessPipe(..., \"r\", ...) -> %d", sts);
@@ -181,8 +184,6 @@ Options:\n\
 	}
     }
     else {
-	fflush(stdout);
-	fflush(stderr);
 	sts = __pmProcessExec(&h, PM_EXEC_TOSS_NONE, PM_EXEC_WAIT);
 	printf("__pmProcessExec -> %d", sts);
 	report_status(sts);
