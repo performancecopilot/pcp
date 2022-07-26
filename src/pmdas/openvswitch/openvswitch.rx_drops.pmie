@@ -11,7 +11,7 @@ rule	openvswitch.rx_drops
 	instant ( openvswitch.interface.stats.rx_dropped @1 ) > 0
     )
 )"
-	enabled = yes
+	enabled = no
 	version = 1
 	help	=
 "Detect dropped packets during recv on OpenVSwitch interfaces.

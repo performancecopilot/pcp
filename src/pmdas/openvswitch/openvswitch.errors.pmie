@@ -11,7 +11,7 @@ rule	openvswitch.errors
 	instant ( openvswitch.interface.error @1 ) > 0
     )
 )"
-	enabled = yes
+	enabled = no
 	version = 1
 	help	=
 "Detect errors on each individual OpenVSwitch interface.

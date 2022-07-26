@@ -11,7 +11,7 @@ rule	openvswitch.tx_drops
 	instant ( openvswitch.interface.stats.tx_dropped @1 ) > 0
     )
 )"
-	enabled = yes
+	enabled = no
 	version = 1
 	help	=
 "Detect dropped packet transmissions on OpenVSwitch interfaces.
