@@ -11,6 +11,19 @@ echo "QA output created by $seq"
 
 $python -c "from pcp import pmapi" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+
+# From Andreas 27 Jul 2022 ...
+# [pcp2elasticsearch] now uses a method='PUT' argument, but this is
+# not available in Python versions before 3.3
+#
+__version=`$python --version 2>&1 | sed -e 's/Python //'`
+case "$__version"
+in
+    2.*|3.1.*|3.2.*)
+	_notrun "pcp2elasticsearch does not work with Python $__version"
+	;;
+esac
+
 which socat >/dev/null 2>&1 || _notrun "socat binary not installed"
 which pcp2elasticsearch >$seq.full 2>&1 || _notrun "pcp2elasticsearch not installed"
 
@@ -67,7 +80,7 @@ socat -lf $tmp.socat.log -v -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"
 pid=$!
 sleep 2
 $pcp2elasticsearch -t 1 -s 1 hinv.ncpu >$tmp.p2e.out 2>$tmp.p2e.err
-sleep 1
+sleep 2
 $signal $pid 2>/dev/null
 wait
 egrep -q '^PUT /+pcp HTTP/' $tmp.socat.err
@@ -81,7 +94,7 @@ socat -lf $tmp.socat.log -s -v -t 0.000001 tcp-listen:$port,reuseaddr,fork syste
 pid=$!
 sleep 2
 $pcp2elasticsearch -t 1 -s 1 -X QAHOST -x INDEX hinv.ncpu >$tmp.p2e.out 2>$tmp.p2e.err
-sleep 1
+sleep 2
 $signal $pid 2>/dev/null
 wait
 egrep -q '^PUT /+INDEX HTTP/' $tmp.socat.err
@@ -95,7 +108,7 @@ socat -lf $tmp.socat.log -s -v -t 0.000001 tcp-listen:$port,reuseaddr,fork syste
 pid=$!
 sleep 2
 $pcp2elasticsearch -a $here/archives/rep -I "" >$tmp.p2e.out 2>$tmp.p2e.err
-sleep 1
+sleep 2
 $signal $pid 2>/dev/null
 wait
 echo "--- Start of received data ---"
@@ -112,7 +125,7 @@ socat -lf $tmp.socat.log -s -v -t 0.000001 tcp-listen:$port,reuseaddr,fork syste
 pid=$!
 sleep 2
 $pcp2elasticsearch -t 1 -s 1 -X QAHOST -x INDEX hinv.ncpu --es-search-type=test_search_type >$tmp.p2e.out 2>$tmp.p2e.err
-sleep 1
+sleep 2
 $signal $pid 2>/dev/null
 wait
 echo "--- Start of received data ---"
