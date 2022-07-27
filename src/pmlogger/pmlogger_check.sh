@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2013-2016,2018,2020-2021 Red Hat.
+# Copyright (c) 2013-2016,2018,2020-2022 Red Hat.
 # Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -24,6 +24,7 @@
 PMLOGGER="$PCP_BINADM_DIR/pmlogger"
 PMLOGCONF="$PCP_BINADM_DIR/pmlogconf"
 PMLOGGERENVS="$PCP_SYSCONFIG_DIR/pmlogger"
+PMLOGGERFARMENVS="$PCP_SYSCONFIG_DIR/pmlogger_farm"
 PMLOGGERZEROCONFENVS="$PCP_SHARE_DIR/zeroconf/pmlogger"
 
 # error messages should go to stderr, not the GUI notifiers
@@ -1003,8 +1004,8 @@ END				{ print m }'`
 		    continue
 		fi
 	    else
+		envs=`grep -h ^PMLOGGER "$PMLOGGERFARMENVS" 2>/dev/null`
 		args="-h $host $args"
-		envs=""
 		iam=""
 	    fi
 

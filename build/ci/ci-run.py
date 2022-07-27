@@ -12,7 +12,7 @@ class DirectRunner:
     def __init__(self, platform_name: str, platform):
         self.platform_name = platform_name
         self.platform = platform
-        # example: /tmp/pcp-ci-ubuntu2004-btf
+        # example: /tmp/pcp-ci-ubuntu2004
         self.build_dir = os.path.join(tempfile.gettempdir(), f"pcp-ci-{self.platform_name}")
         self.command_preamble = "set -eux\nexport runner=direct\n"
 
