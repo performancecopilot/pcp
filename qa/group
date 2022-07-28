@@ -1912,6 +1912,7 @@ x11
 1549 pmrep python local
 1566 logutil libpcp local
 1573 pmproxy libpcp_web pmlogger local
+1574 pmseries local
 1584 pmda.mongodb local
 1588 python iostat local
 1591 archive archive_v3 local
