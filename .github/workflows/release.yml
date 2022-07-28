@@ -24,6 +24,7 @@ jobs:
           - ubuntu1604-container
           - ubuntu1804-container
           - ubuntu2004-container
+          - ubuntu2204-container
           - fedora33-container
           - fedora34-container
           - fedora35-container
