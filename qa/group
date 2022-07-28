@@ -1881,6 +1881,7 @@ x11
 1425 logutil local
 1426 libpcp local
 1427 pmlogmv local
+1428 logutil pmrep python local
 1429 logutil pmlogextract pmdumplog pmlogrewrite local
 1433 pmproxy local pmconfig
 1434 pmda.nfsclient local
@@ -1945,6 +1946,7 @@ x11
 1688 pmieconf local
 1689 pmproxy libpcp_web local
 1690 pmseries local
+1691 pmseries local
 1692 pmda.pmcd local
 1694 pidstat local python pcp pmlogextract
 1695 pmproxy valgrind local

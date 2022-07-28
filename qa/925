@@ -90,7 +90,7 @@ cat <<End-of-File >$tmp.control
 LOCALHOSTNAME n n $tmp/pmlogger/myhost/2017/02/12 -c /dev/null -L
 End-of-File
 
-$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -x never -c $tmp.control -V -l $tmp.log"
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -x never -c $tmp.control -V -l $tmp.log"
 _filter <$tmp.log
 
 _report | _filter

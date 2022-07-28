@@ -18,7 +18,7 @@
 \f3pmlogger_daily\f1 \- administration of Performance Co-Pilot archive log files
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_daily
-[\f3\-EfKMNoprRVzZ?\f1]
+[\f3\-DEfKMNoprRVzZ?\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-k\f1 \f2time\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -114,6 +114,11 @@ from the
 option) exists, then the contents of any additional
 .I control
 files therein will be appended to the main control file (which must exist).
+.TP 5
+\fB\-D\fR, \fB\-\-noreport\fR
+Do not perform the conditional
+.BR pmlogger_daily_report (1)
+processing as described below.
 .TP 5
 \fB\-E\fR, \fB\-\-expunge\fR
 This option causes
@@ -586,6 +591,12 @@ in the environment or via the
 .I control
 file.
 .PP
+Note that merge callbacks and autosaving described below are
+.B not
+enabled when only compression tasks are being attempted, i.e. when
+.B \-K
+command line option is used.
+.PP
 All of the callback script execution and the autosave file moving
 will be executed as the non-privileged user ``pcp'' and group ``pcp'',
 so appropriate permissions may need to have been set up in advance.
@@ -616,7 +627,23 @@ If
 is defined in the environment when
 .B pmlogger_daily
 is run, this is treated as though this option was the first in the control
-file, i.e. it will be run first.
+file, i.e. it will be run before any merge callbacks mentioned in the control
+file.
+.PP
+For systems using
+.BR systemd (1),
+if the
+.B pmlogger_daily_report.timer
+service is enabled then a special merge callback is added to call
+.BR pmlogger_daily (1)
+first, before any other merge callback options.
+For systems not using
+.BR systemd (1)
+the merge callback for
+.BR pmlogger_daily (1)
+is added if the directory
+.I $PCP_SA_DIR
+exists.
 .PP
 If
 .B pmlogger_daily

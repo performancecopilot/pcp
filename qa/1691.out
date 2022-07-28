@@ -1,0 +1,44 @@
+QA output created by 1691
+Start test Redis server ...
+PING
+PONG
+
+Load archive using default config
+pmseries: [Info] processed 151 archive records from PATH/archives/viewqa1
+
+Query series kernel.*
+
+8b013dfdb7214e020848d0a4a9952ff2a3f777cc
+    Metric: kernel.all.cpu.idle
+
+95135e6cb517cb50fd0c9e28985b944d88850332
+    Metric: kernel.all.cpu.intr
+
+a046e8429bb493a2b40fc23857157a262649d02d
+    Metric: kernel.all.cpu.wait.total
+
+d38aff137f65367ce1aec169be675021a3ebb25c
+    Metric: kernel.all.cpu.nice
+
+f0983eec7e7c01361317266c4259467d35e0ec3e
+    Metric: kernel.all.cpu.sys
+
+e7aa0bd3dc7afc149badec1808fa4fa5c63a7fa3
+    Metric: kernel.all.cpu.user
+
+Clear Redis DB
+OK
+
+Load archive using: exclude.metrics = kernel.all.cpu.i*, kernel.all.cpu.user
+pmseries: [Info] processed 151 archive records from PATH/archives/viewqa1
+
+Query series kernel.*
+
+a046e8429bb493a2b40fc23857157a262649d02d
+    Metric: kernel.all.cpu.wait.total
+
+f0983eec7e7c01361317266c4259467d35e0ec3e
+    Metric: kernel.all.cpu.sys
+
+d38aff137f65367ce1aec169be675021a3ebb25c
+    Metric: kernel.all.cpu.nice

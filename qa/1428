@@ -1,0 +1,87 @@
+#!/bin/sh
+# PCP QA Test No. 1428
+# compression one-trip change for pmlogger_daily_report
+#
+# Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+
+[ -x $PCP_BINADM_DIR/pmlogger_daily_report ] || \
+	_notrun pmlogger_daily_report not installed
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9]* [0-9][0-9][0-9][0-9]$/DATE/' \
+	-e '/^[0-2][0-9]:[0-5][0-9]:[0-5][0-9]/s//STAMP   /' \
+	-e "s@$tmp@TMP@g" \
+	-e "s@=/.*/pmlogger_daily_report\..*/@=.../pmlogger_daily_report.TMP/@" \
+    # end
+}
+
+_doit()
+{
+    $sudo chown pcp:pcp $tmp $tmp/*
+    if $sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily_report -V -A -a $tmp/daily_report -l $tmp/LOG -f $tmp/OUT -t 2sec
+    then
+	:
+    else
+	echo "Arrgh: pmlogger_daily_report exited badly"
+    fi
+    $sudo cat $tmp/LOG >> $seq.full
+    grep 'Uncompressing' $tmp/LOG | _filter
+    grep 'ARCHIVEPATH=' $tmp/LOG | _filter
+    $sudo cat $tmp/OUT | tee -a $seq.full | _filter
+}
+
+# IMPORTANT - pmrep needs the default set of derived metrics
+#
+unset PCP_DERIVED_CONFIG
+
+# real QA test starts here
+mkdir -p $tmp
+cp archives/daily_report.* $tmp
+_doit
+
+echo
+echo "xz compression for .meta"
+$sudo -u pcp xz $tmp/daily_report.meta
+_doit
+
+echo
+echo "gzip compression for .0"
+$sudo -u pcp unxz $tmp/daily_report.meta.xz
+$sudo -u pcp gzip $tmp/daily_report.0
+_doit
+
+# success, all done
+status=0
+exit

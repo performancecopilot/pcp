@@ -79,6 +79,7 @@ sed \
 	-e '/date-and-timestamp/d' \
 	-e '/^Roll .*\/NOTICES/d' \
 	-e '/^Start .*\/NOTICES/d' \
+	-e '/^Add merge callback for: pmlogger_daily_report/d' \
 	-e '/^+ mv .*\/NOTICES/d' \
 	-e '/^+ touch .*\/NOTICES/d' \
 	-e "s/$TODAY/TODAY/g" \

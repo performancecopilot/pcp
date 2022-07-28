@@ -22,12 +22,19 @@ _cleanup()
     [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
 }
 
+# Note:
+#       second @TMP@ translation comes from vm33 (OpenBSD 7.) where
+#	/var/tmp is a symlink to /tmp, and pmlogger_daily uses
+#       /bin/pwd to get the current dir, and this returns /tmp not
+#	/var/tmp as the prefix.
+#
 _filter()
 {
     sed \
 	-e '/^Roll .*\/NOTICES/d' \
 	-e '/^Start .*\/NOTICES/d' \
 	-e "s@$tmp@TMP@g" \
+	-e "s@`echo $tmp | sed -e 's/^\/var//'`@TMP@g" \
 	-e "s@$PCP_BINADM_DIR@PCP_BINADM_DIR@g" \
 	-e '/^+ date-and-timestamp/s/stamp .*/stamp .../' \
 	-e '/^pmlogger_daily:.*\.control:[0-9]]$/d' \
@@ -151,7 +158,7 @@ export PCP_DERIVED_CONFIG=
 
 echo "+++ -N, do nothing +++" | tee -a $here/$seq.full
 _setup
-$PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k forever -x never -NV -R >$tmp.log 2>$tmp.err
+$PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k forever -x never -NV -R >$tmp.log 2>$tmp.err
 _filter <$tmp.err
 _filter <$tmp.log
 $sudo rm -f $tmp.err $tmp.log
@@ -165,7 +172,7 @@ done
 echo | tee -a $here/$seq.full
 echo "+++ -V -R +++" | tee -a $here/$seq.full
 _setup
-$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k forever -x never -V -R -l $tmp.log 2>$tmp.err
+$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k forever -x never -V -R -l $tmp.log 2>$tmp.err
 _filter <$tmp.err
 _filter <$tmp.log
 cat $tmp.err $tmp.log >>$here/$seq.full
@@ -181,7 +188,7 @@ echo | tee -a $here/$seq.full
 echo "+++ .NeedRewrite +++" | tee -a $here/$seq.full
 _setup
 $sudo -u pcp touch $PCP_LOG_DIR/pmlogger/.NeedRewrite
-$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k forever -x never -l $tmp.log 2>$tmp.err
+$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k forever -x never -l $tmp.log 2>$tmp.err
 _filter <$tmp.err
 _filter <$tmp.log
 cat $tmp.err $tmp.log >>$here/$seq.full

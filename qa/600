@@ -60,7 +60,7 @@ then
 	eval `rpm -q glibc | sed -e 's/glibc-/a=/' -e 's/\./ b=/' -e 's/\./ c=/' -e 's/-.*//'`
     elif which dpkg >/dev/null 2>&1
     then
-	lib=`find /lib -name libc.so.\* | sed -e 1q`
+	lib=`find /lib /usr/lib -name libc.so 2>/dev/null | sed -e 1q`
 	if [ -n "$lib" ]
 	then
 	    pkg=`dpkg -S $lib | sed -e 's/: .*//' -e 1q`

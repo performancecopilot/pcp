@@ -1,0 +1,183 @@
+#!/bin/sh
+#
+# Extract PCP metric names from a [section] of a pmrep conf file
+#
+# Useful for checking pmlogger configurations (e.g. when the archive
+# will be used by pmlogger_daily_report) or for QA
+#
+
+. $PCP_DIR/etc/pcp.env
+
+tmp=`mktemp -d "$PCP_TMPFILE_DIR/xtract-names.XXXXXXXXX"` || exit 1
+
+status=1	# failure is the default
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.usage
+# getopts: a:d?
+# Usage: [options] config section
+
+Options:
+  -a=ARCHIVE              archive to check, only report missing ones
+  -d                      debug
+  -?
+End-of-File
+
+prog=xtract-names
+_usage()
+{
+    pmgetopt >&2 --progname=$prog --config=$tmp.usage --usage
+    exit
+}
+
+ARGS=`pmgetopt --progname=$prog --config=$tmp.usage -- "$@"`
+[ $? != 0 ] && exit
+eval set -- "$ARGS"
+
+ARCHIVE=''
+DEBUG=false
+while [ $# -gt 0 ]
+do
+    case "$1"
+    in
+	-a)	ARCHIVE="$2"
+		shift
+		;;
+	-d)	DEBUG=true
+		;;
+	-\?)	_usage
+		;;
+	--)	shift
+		break
+		;;
+    esac
+    shift
+done
+
+[ $# -ne 2 ] && _usage
+
+if [ -z "$ARCHIVE" -o -f "$ARCHIVE" -o -f "`echo $ARCHIVE.meta*`" ]
+then
+    :
+else
+    echo >&2 "Error: cannot find archive \"$ARCHIVE\""
+    exit
+fi
+
+if [ ! -f "$1" ]
+then
+    echo >&2 "Error: cannot find pmrep configfile \"$1\""
+    exit
+fi
+
+awk <"$1" >$tmp.section '
+$1 == "['"$2"']"	{ want = 1; next }
+want == 1 && $1 ~ /^\[/	{ exit }
+want == 1		{ print }'
+
+if [ -s $tmp.section ]
+then
+    # tricky scanning here ...
+    # - strip comments
+    # - lines with 4 commas after the = have a metric name to the left
+    #   of the = (unless this is a meta name and there is a following
+    #   .formula line)
+    # - lines with what looks like a metric name after the = are in two
+    #   cases:
+    #   1) foo         = metricname
+    #      foo.formula = <metric names are in here>
+    #   2) foo         = <metric name is here>
+    #      and no foo.formula line
+    # - lines without a "<sp>=<sp>" are probably part of a formula expression
+    # - translate every character that cannot be part of a metric name to a
+    #   newline
+    # - lines that remain with a "." between the possible end of a metric
+    #   name part and the start of a metric name part are assumed to be
+    #   metric names
+    # - and remove dups
+    #
+    export LC_COLLATE=POSIX
+    sed -n <$tmp.section \
+	-e '/^[ 	]*#/d' \
+	-e '/^[a-zA-Z][a-zA-Z0-9_]*\.formula[ 	]*=/d' \
+	-e '/^[a-zA-Z][a-zA-Z0-9_]*\.[a-zA-Z][a-zA-Z0-9_.]*[ 	]*=[ 	]*[^ ]*,[^ ]*,[^ ]*,[^ ]*,/{
+s/[ 	]*=.*//
+p
+d
+}' \
+	-e '/[ 	]=[ 	]/!p' >$tmp.tmp.1
+    $DEBUG && echo "== first group of candidate names ..." && cat $tmp.tmp.1
+    ( cat $tmp.section; echo "END" ) \
+    | awk >>$tmp.tmp.2 '
+BEGIN		{ tagpat = "" }
+"'$DEBUG'" == "true"	{ print NR ":" tag ":" tagpat ":" $0 >"'"$tmp.err"'" }
+tagpat != "" && $1 == tag ".formula" {
+		# ignore initial line, want this formula line
+		gsub(/.*[ 	]*=[ 	]*/, "")
+		print
+		if ("'$DEBUG'" == "true") print "formula:" $0 >"'"$tmp.err"'"
+		tagpat = ""
+		next
+	    }
+tagpat != "" && $1 !~ tagpat {
+		# no foo.formula line, name maybe of interest
+		if (name ~ /^[a-zA-Z][a-zA-Z0-9_]*\.[a-zA-Z]/) {
+		    print name
+		    if ("'$DEBUG'" == "true") print "name:" $name >"'"$tmp.err"'"
+		}
+		tagpat = ""
+	    }
+tagpat == "" && NF == 3 && $2 == "=" {
+		name = $3
+		gsub(/,.*/, "", name)
+		tag = $1
+		tagpat = "^" $1 "\\."
+	    }'
+    if $DEBUG
+    then
+	[ -s $tmp.err ] && cat $tmp.err
+	echo "== second group of candidate names ..."
+	cat $tmp.tmp.2
+    fi
+    cat $tmp.tmp.1 $tmp.tmp.2 \
+    | tr -c '[a-zA-Z0-9_.]' '\012' \
+    | sed -n \
+	-e '/[a-zA-Z0-9_]\.[a-zA-Z]/p' \
+    | sort \
+    | uniq >$tmp.names
+else
+    echo >&2 "Error: cannot find section [$2] in pmrep configfile \"$1\""
+    exit
+fi
+
+$DEBUG && echo "== unique names ..." && cat $tmp.names && echo "== END"
+if [ -n "$ARCHIVE" ]
+then
+    # only report metric names that are NOT already in $ARCHIVE
+    #
+    if PCP_DERIVED_CONFIG= pminfo -a "$ARCHIVE" >$tmp.archive
+    then
+	:
+    else
+	echo >&2 "Error: pminfo -a $ARCHIVE failed"
+	exit
+    fi
+    cat $tmp.names \
+    | while read name
+    do
+	if grep "^$name\$" $tmp.archive >/dev/null
+	then
+	    # already included in $ARCHIVE
+	    #
+	    $DEBUG && echo "== $name: already in archive"
+	else
+	    echo "$name"
+	fi
+    done
+else
+    cat $tmp.names
+fi
+
+
+status=0
+exit

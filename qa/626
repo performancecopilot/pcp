@@ -77,6 +77,7 @@ _filter()
 	-e '/logging for host .* unchanged/d' \
 	-e '/^rm: cannot remove .*pmlogger_daily.stamp/d' \
 	-e '/^cp: cannot create regular file .*pmlogger_daily.stamp/d' \
+	-e '/^cp: .*\/pmlogger_daily.stamp: Permission denied/d' \
 	-e '/^.[r-][w-][x-].*pmlogger_daily.stamp/d' \
 	-e '/^_save_prev_filename: unable to remove/d' \
 	-e '/^Warning: cannot save previous date-and-timestamp/d' \
@@ -253,7 +254,7 @@ _showfiles >$tmp.before
 
 # real QA test starts here
 _setup_control PCP_COMPRESSAFTER=0
-pmlogger_daily -f -c $tmp.control -l $tmp.log >$tmp.out 2>$tmp.err
+pmlogger_daily -D -f -c $tmp.control -l $tmp.log >$tmp.out 2>$tmp.err
 _filter $tmp.err; _filter $tmp.out; _filter $tmp.log
 _showfiles >$tmp.after
 

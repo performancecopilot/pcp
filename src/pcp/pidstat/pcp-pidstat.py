@@ -18,6 +18,7 @@
 # pylint: disable=redefined-outer-name,unnecessary-lambda
 #
 
+import os
 import sys
 import re
 import time
@@ -860,10 +861,13 @@ class PidstatOptions(pmapi.pmOptions):
             PidstatOptions.show_process_user = True
             PidstatOptions.filtered_process_user = optarg
         elif opt == 'p':
-            if optarg in ["ALL", "SELF"]:
-                PidstatOptions.pid_filter = optarg
+            if optarg == "ALL":
+                PidstatOptions.pid_filter = None
+            elif optarg == "SELF":
+                PidstatOptions.pid_filter = "SELF"
+                PidstatOptions.pid_list = os.getpid()
             else:
-                PidstatOptions.pid_filter = "ALL"
+                PidstatOptions.pid_filter = "LIST"
                 try:
                     PidstatOptions.pid_list = list(map(lambda x:int(x),optarg.split(',')))
                 except ValueError:

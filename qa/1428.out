@@ -1,0 +1,1246 @@
+QA output created by 1428
+ARCHIVEPATH=TMP/daily_report
+
+
+#  DATE
+# CPU Utilization statistics, all CPUS
+                CPU      %usr     %nice      %sys   %iowait    %steal      %irq     %soft    %guest    %gnice     %idle
+STAMP             =       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             =       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             =     59.30      0.00     27.25      2.45      0.00      1.00      0.50      0.00      0.00      9.20
+STAMP             =     78.80      0.00     19.10      1.05      0.00      1.00      0.50      0.00      0.00      0.60
+STAMP             =     76.05      0.00     21.45      0.50      0.00      0.50      0.50      0.00      0.00      0.50
+STAMP             =     74.50      0.00     23.00      0.50      0.00      1.00      0.50      0.00      0.00      0.50
+STAMP             =     42.85      0.00     54.60      1.00      0.00      0.50      0.50      0.00      0.00      0.00
+STAMP             =     38.05      0.00     60.95      0.00      0.00      1.00      0.50      0.00      0.00      0.00
+STAMP             =      5.85      0.00     12.55      0.00      0.00      0.50      0.00      0.00      0.00     80.35
+STAMP             =      0.60      0.00      1.15      0.00      0.00      0.00      0.50      0.00      0.00     98.30
+
+
+#  DATE
+# CPU Utilization statistics, per-CPU
+                CPU      %usr     %nice      %sys   %iowait    %steal      %irq     %soft    %guest    %gnice     %idle
+STAMP             =       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          cpu0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             =       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          cpu0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             =     59.30      0.00     27.25      2.45      0.00      1.00      0.50      0.00      0.00      9.20
+STAMP          cpu0     59.30      0.00     27.25      2.45      0.00      1.00      0.50      0.00      0.00      9.20
+STAMP             =     78.80      0.00     19.10      1.05      0.00      1.00      0.50      0.00      0.00      0.60
+STAMP          cpu0     78.80      0.00     19.10      1.05      0.00      1.00      0.50      0.00      0.00      0.60
+STAMP             =     76.05      0.00     21.45      0.50      0.00      0.50      0.50      0.00      0.00      0.50
+STAMP          cpu0     76.05      0.00     21.45      0.50      0.00      0.50      0.50      0.00      0.00      0.50
+STAMP             =     74.50      0.00     23.00      0.50      0.00      1.00      0.50      0.00      0.00      0.50
+STAMP          cpu0     74.50      0.00     23.00      0.50      0.00      1.00      0.50      0.00      0.00      0.50
+STAMP             =     42.85      0.00     54.60      1.00      0.00      0.50      0.50      0.00      0.00      0.00
+STAMP          cpu0     42.85      0.00     54.60      1.00      0.00      0.50      0.50      0.00      0.00      0.00
+STAMP             =     38.05      0.00     60.95      0.00      0.00      1.00      0.50      0.00      0.00      0.00
+STAMP          cpu0     38.05      0.00     60.95      0.00      0.00      1.00      0.50      0.00      0.00      0.00
+STAMP             =      5.85      0.00     12.55      0.00      0.00      0.50      0.00      0.00      0.00     80.35
+STAMP          cpu0      5.85      0.00     12.55      0.00      0.00      0.50      0.00      0.00      0.00     80.35
+STAMP             =      0.60      0.00      1.15      0.00      0.00      0.00      0.50      0.00      0.00     98.30
+STAMP          cpu0      0.60      0.00      1.15      0.00      0.00      0.00      0.50      0.00      0.00     98.30
+
+
+#  DATE
+# virtual memory (vmstat) statistics
+           r   b    swpd     free    buff   cache    si    so     bi     bo    in     cs  us  sy  id  wa  st
+STAMP    N/A N/A     N/A      N/A     N/A     N/A   N/A   N/A    N/A    N/A   N/A    N/A N/A N/A N/A N/A N/A
+STAMP      2   0  832000    68408      64  439540   N/A   N/A    N/A    N/A   N/A    N/A N/A N/A N/A N/A N/A
+STAMP      3   0  832000    68408      64  439804     0     2  13595      8  1284   3157  59  27   9   2   0
+STAMP      3   0  832000    75016      64  420972     0     0   1348     44  1100   1888  78  19   1   1   0
+STAMP      3   0  832000    70496      64  423312     0     1    926   1173  1149   2362  76  21   0   0   0
+STAMP      3   0  832000    78564      64  413104     0     0    604     14  1111   2230  74  23   0   0   0
+STAMP      3   0  832000    78064      64  415148     0     0   2876   1926  1123   5619  42  54   0   1   0
+STAMP      4   0  832000    73784      64  426748     0     0     33    220  1044   6381  38  60   0   0   0
+STAMP      3   0  832000    73320      64  427000     0     0      6      2   312   1503   6  12  80   0   0
+STAMP      2   0  832000    73320      64  427008     0     0      0     28   132    245   1   1  98   0   0
+
+
+#  DATE
+# virtual memory active/inactive memory statistics
+           r   b    swpd     free   inact  active    si    so     bi     bo    in     cs  us  sy  id  wa  st
+STAMP    N/A N/A     N/A      N/A     N/A     N/A   N/A   N/A    N/A    N/A   N/A    N/A N/A N/A N/A N/A N/A
+STAMP      2   0  832000    68408  802384  494464   N/A   N/A    N/A    N/A   N/A    N/A N/A N/A N/A N/A N/A
+STAMP      3   0  832000    68408  802680  494468     0     2  13595      8  1284   3157  59  27   9   2   0
+STAMP      3   0  832000    75016  773880  507624     0     0   1348     44  1100   1888  78  19   1   1   0
+STAMP      3   0  832000    70496  771316  508816     0     1    926   1173  1149   2362  76  21   0   0   0
+STAMP      3   0  832000    78564  763748  507632     0     0    604     14  1111   2230  74  23   0   0   0
+STAMP      3   0  832000    78064  768300  508552     0     0   2876   1926  1123   5619  42  54   0   1   0
+STAMP      4   0  832000    73784  762068  516432     0     0     33    220  1044   6381  38  60   0   0   0
+STAMP      3   0  832000    73320  762284  516500     0     0      6      2   312   1503   6  12  80   0   0
+STAMP      2   0  832000    73320  759792  517220     0     0      0     28   132    245   1   1  98   0   0
+
+
+#  DATE
+# paging statistics
+             pgpgin/s pgpgout/s   fault/s  majflt/s  pgfree/s pgscank/s pgscand/s pgsteal/s    %vmeff
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP        13595.00      8.00  58285.50     97.50  55081.50   6491.00      0.00   6323.00     97.41
+STAMP         1348.50     43.50  52690.00      7.00  50274.00    210.00      0.00    206.50     98.33
+STAMP          925.50   1173.00  57476.00      1.00  54506.50   1988.00      0.00   1899.50     95.55
+STAMP          603.50     13.50  59673.50      0.00  54784.50     23.00      0.00     22.00     95.65
+STAMP         2876.00   1925.50 123662.00     20.00  85713.50      0.00      0.00      0.00      0.00
+STAMP           33.00    219.50 143626.00      0.00  93646.50      0.00      0.00      0.00      0.00
+STAMP            6.00      2.50  27754.50      0.50  18219.50      0.00      0.00      0.00      0.00
+STAMP            0.00     27.50    372.50      0.00    260.50      0.00      0.00      0.00      0.00
+
+
+#  DATE
+# I/O and transfer rate statistics
+                  tps      rtps      wtps      dtps   bread/s   bwrtn/s   bdscd/s
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          295.50    293.50      2.00      0.00  27189.50     16.00      0.00
+STAMP           45.50     43.50      2.00      0.00   2698.00     87.00      0.00
+STAMP           88.00     60.00     28.00      0.00   1850.50   2346.00      0.00
+STAMP           48.00     47.50      0.50      0.00   1207.50     27.00      0.00
+STAMP           91.50     83.50      8.00      0.00   5751.00   3851.50      0.00
+STAMP           13.50      1.00     12.50      0.00     66.50    439.50      0.00
+STAMP            0.50      0.50      0.00      0.00     12.00      4.50      0.00
+STAMP            1.50      0.00      1.50      0.00      0.00     55.00      0.00
+
+
+#  DATE
+# block device statistics
+                  DEV       tps     rkB/s     wkB/s     dkB/s   areq-sz    aqu-sz     await     %util
+STAMP             vda       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             vdb       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             vda       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             vdb       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             vda    295.00  13587.00      8.00      0.00     46.08      0.05      0.16     11.70
+STAMP             vdb      0.50      8.00      0.00      0.00     16.00      0.00      1.00      0.10
+STAMP             vda     45.50   1348.50     43.50      0.00     30.59      0.01      0.25      3.30
+STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP             vda     88.00    925.50   1173.00      0.00     23.85      0.02      0.27      4.70
+STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP             vda     48.00    603.50     13.50      0.00     12.85      0.01      0.27      3.55
+STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP             vda     90.50   2866.00   1925.50      0.00     52.94      0.02      0.19      3.05
+STAMP             vdb      1.00     10.00      0.00      0.00     10.00      0.00      0.00      0.05
+STAMP             vda     12.50     33.00    220.00      0.00     20.24      0.23     18.24     22.60
+STAMP             vdb      1.00      0.00      0.00      0.00      0.00      0.02     16.00      1.65
+STAMP             vda      0.50      6.00      2.50      0.00     17.00      0.00      5.00      0.30
+STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP             vda      1.50      0.00     27.50      0.00     18.33      0.00      0.33      0.05
+STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+
+
+#  DATE
+# device-mapper device statistics
+-- no report for config ":sar-d-dm"
+
+
+#  DATE
+# mounted filesystem statistics
+                     FILESYSTEM  MBfsfree  MBfsused   %fsused  %ufsused       Ifree       Iused    %Iused
+STAMP    /dev/mapper/fedora-roo       N/A       N/A       N/A       N/A         N/A         N/A       N/A
+STAMP                 /dev/vda1       N/A       N/A       N/A       N/A         N/A         N/A       N/A
+STAMP    /dev/mapper/fedora-roo      8519     17063     66.70     66.70    12691139      411965      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8519     17063     66.70     66.70    12691139      411965      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8518     17064     66.70     66.70    12691116      411988      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8517     17065     66.71     66.71    12691094      412010      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8516     17066     66.71     66.71    12691070      412034      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8515     17067     66.72     66.72    12691047      412057      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8509     17073     66.74     66.74    12691039      412065      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8509     17073     66.74     66.74    12691039      412065      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8509     17073     66.74     66.74    12691038      412066      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+
+
+#  DATE
+# hugepages utilization statistics
+            kbhugfree kbhugused  %hugused kbhugrsvd kbhugsurp
+STAMP             N/A       N/A       N/A       N/A       N/A
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+
+
+#  DATE
+# interrupt statistics, summed
+                INTR    intr/s
+STAMP              =       N/A
+STAMP              =       N/A
+STAMP              =   1284.50
+STAMP              =   1100.50
+STAMP              =   1149.00
+STAMP              =   1111.50
+STAMP              =   1123.00
+STAMP              =   1044.00
+STAMP              =    312.50
+STAMP              =    132.00
+
+
+#  DATE
+# network statistics, per device
+                IFACE   rxpck/s   txpck/s    rxkB/s    txkB/s   rxcmp/s   txcmp/s  rxmcst/s   %ifutil
+STAMP              lo       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          enp1s0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP              lo       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          enp1s0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP              lo     15.50     15.50    114.32    114.32      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1015940.5     26.00 241516.64  27565.61      0.00      0.00      0.50     45.16
+STAMP              lo      0.00      0.00      1.32      1.32      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1013678.0     20.50 240970.74  27702.72      0.00      0.00      0.50     45.39
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1013746.5     22.50 240978.88  27713.98      0.00      0.00      0.50     45.41
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1013855.0     23.00 240996.49  27727.24      0.00      0.00      0.50     45.43
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1013759.0      8.50 240967.43  27732.12      0.00      0.00      0.50     45.44
+STAMP              lo     15.50     15.50    114.33    114.33      0.00      0.00      0.00       N/A
+STAMP          enp1s0 512773.00      2.00 121883.41  14027.35      0.00      0.00      0.50     22.98
+STAMP              lo      0.00      0.00      1.31      1.31      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1005371.0      5.50 238968.80  27503.49      0.00      0.00      0.50     45.06
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1013974.5      2.50 241011.83  27739.00      0.00      0.00      0.50     45.45
+
+
+#  DATE
+# network error statistics, per device
+                IFACE   rxerr/s   txerr/s    coll/s  rxdrop/s  txdrop/s  txcarr/s  rxfram/s  rxfifo/s  txfifo/s
+STAMP              lo       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          enp1s0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP              lo       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          enp1s0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+
+
+#  DATE
+# NFSv4 client and RPC statistics
+-- no report for config ":sar-n-NFSv4"
+
+
+#  DATE
+# NFSv4 server and RPC statistics
+              scall/s badcall/s  packet/s     udp/s     tcp/s     hit/s    miss/s     ops/s     ops/s     ops/s     ops/s
+                                                                                     access   getattr      read     write
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+
+
+#  DATE
+# socket statistics
+               totsck    tcpsck    udpsck    rawsck   ip-frag    tcp-tw
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+
+
+#  DATE
+# TCP statistics
+             active/s passive/s    iseg/s    oseg/s  atmptf/s  estres/s retrans/s isegerr/s   orsts/s
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP            0.00      0.00     42.00     41.50      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00     20.50     20.50      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00     22.50     22.50      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00     23.00     23.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      9.00      8.50      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00     19.50     17.50      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      8.00      5.50      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      5.00      2.50      0.00      0.00      0.00      0.00      0.00
+
+
+#  DATE
+# queue length and load averages
+              runq-sz  plist-sz     ldavg     ldavg     ldavg   blocked
+                                 1 minute  5 minute 15 minute          
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A
+STAMP               2       212      0.19      0.32      0.26         0
+STAMP               2       212      0.19      0.32      0.26         0
+STAMP               2       215      0.25      0.33      0.26         0
+STAMP               2       215      0.25      0.33      0.26         0
+STAMP               2       215      0.31      0.34      0.27         0
+STAMP               2       215      0.31      0.34      0.27         0
+STAMP               3       217      0.31      0.34      0.27         0
+STAMP               2       217      0.37      0.35      0.27         0
+STAMP               1       212      0.37      0.35      0.27         0
+
+
+#  DATE
+# memory utilization statistics
+            kbmemfree kbmemavai kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP           68408    297284   1511072     74.84        64    338040    608912      9.93    494464    802384       364
+STAMP           68408    297544   1510808     74.83        64    338304    608912      9.93    494468    802680       412
+STAMP           75016    285312   1523032     75.43        64    319452    622704     10.15    507624    773880      1308
+STAMP           70496    283104   1525212     75.54        64    321760    617980     10.07    508816    771316      2400
+STAMP           78564    280884   1527352     75.65        64    311448    622896     10.15    507632    763748      1164
+STAMP           78064    282404   1525808     75.57        64    313384    626240     10.21    508552    768300      2140
+STAMP           73784    289672   1518488     75.21        64    324884    614900     10.02    516432    762068      4128
+STAMP           73320    289464   1518700     75.22        64    325132    614904     10.02    516500    762284      4304
+STAMP           73320    289480   1518692     75.22        64    325136    609036      9.93    517220    759792      4276
+
+
+#  DATE
+# swap usage statistics
+            kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
+STAMP             N/A       N/A       N/A       N/A       N/A
+STAMP         3283448    832000     20.22    758780     91.20
+STAMP         3283448    832000     20.22    758780     91.20
+STAMP         3283448    832000     20.22    754128     90.64
+STAMP         3283448    832000     20.22    754104     90.64
+STAMP         3283448    832000     20.22    751772     90.36
+STAMP         3283448    832000     20.22    751768     90.36
+STAMP         3283448    832000     20.22    751768     90.36
+STAMP         3283448    832000     20.22    751768     90.36
+STAMP         3283448    832000     20.22    751768     90.36
+
+
+#  DATE
+# swapping statistics
+             pswpin/s pswpout/s
+STAMP             N/A       N/A
+STAMP             N/A       N/A
+STAMP            0.00      2.00
+STAMP            0.00      0.00
+STAMP            0.00      1.00
+STAMP            0.00      0.00
+STAMP            0.00      0.00
+STAMP            0.00      0.00
+STAMP            0.00      0.00
+STAMP            0.00      0.00
+
+
+#  DATE
+# task creation and system switching statistics
+               proc/s   cswch/s
+STAMP             N/A       N/A
+STAMP             N/A       N/A
+STAMP          135.50   3157.00
+STAMP           32.00   1888.00
+STAMP           37.50   2362.00
+STAMP           34.50   2230.00
+STAMP          773.50   5619.00
+STAMP          908.00   6381.00
+STAMP          197.00   1503.00
+STAMP            2.50    245.00
+
+
+#  DATE
+# TTY devices activity
+-- no report for config ":sar-y"
+
+
+#  DATE
+# NUMA hint fault statistics
+                faults/s  faults_local/s  %local faults_remote/s %remote
+STAMP                N/A             N/A     N/A             N/A     N/A
+STAMP                N/A             N/A     N/A             N/A     N/A
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+
+
+#  DATE
+# NUMA per-node CPU statistics
+            NUMA n      %usr     %nice      %sys   %iowait    %steal      %irq     %soft    %guest    %gnice     %idle
+STAMP        node0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP        node0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP        node0     59.30      0.00     27.25      2.45      0.00      1.00      0.50      0.00      0.00      9.20
+STAMP        node0     78.80      0.00     19.10      1.05      0.00      1.00      0.50      0.00      0.00      0.60
+STAMP        node0     76.05      0.00     21.45      0.50      0.00      0.50      0.50      0.00      0.00      0.50
+STAMP        node0     74.50      0.00     23.00      0.50      0.00      1.00      0.50      0.00      0.00      0.50
+STAMP        node0     42.85      0.00     54.60      1.00      0.00      0.50      0.50      0.00      0.00      0.00
+STAMP        node0     38.05      0.00     60.95      0.00      0.00      1.00      0.50      0.00      0.00      0.00
+STAMP        node0      5.85      0.00     12.55      0.00      0.00      0.50      0.00      0.00      0.00     80.35
+STAMP        node0      0.60      0.00      1.15      0.00      0.00      0.00      0.50      0.00      0.00     98.30
+
+
+#  DATE
+# NUMA per-node page migration statistics
+               MB/s/node  auto pg/s/node  success/s/node     fail/s/node
+STAMP                N/A             N/A             N/A             N/A
+STAMP                N/A             N/A             N/A             N/A
+STAMP              0.000           0.000           0.000           0.000
+STAMP              0.000           0.000         759.000           0.000
+STAMP              0.000           0.000           9.000           0.000
+STAMP              0.000           0.000           0.000           0.000
+STAMP              0.000           0.000           0.000           0.000
+STAMP              0.000           0.000           0.000           0.000
+STAMP              0.000           0.000           0.000           0.000
+STAMP              0.000           0.000           0.000           0.000
+
+xz compression for .meta
+Uncompressing TMP/daily_report
+ARCHIVEPATH=.../pmlogger_daily_report.TMP/daily_report
+
+
+#  DATE
+# CPU Utilization statistics, all CPUS
+                CPU      %usr     %nice      %sys   %iowait    %steal      %irq     %soft    %guest    %gnice     %idle
+STAMP             =       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             =       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             =     59.30      0.00     27.25      2.45      0.00      1.00      0.50      0.00      0.00      9.20
+STAMP             =     78.80      0.00     19.10      1.05      0.00      1.00      0.50      0.00      0.00      0.60
+STAMP             =     76.05      0.00     21.45      0.50      0.00      0.50      0.50      0.00      0.00      0.50
+STAMP             =     74.50      0.00     23.00      0.50      0.00      1.00      0.50      0.00      0.00      0.50
+STAMP             =     42.85      0.00     54.60      1.00      0.00      0.50      0.50      0.00      0.00      0.00
+STAMP             =     38.05      0.00     60.95      0.00      0.00      1.00      0.50      0.00      0.00      0.00
+STAMP             =      5.85      0.00     12.55      0.00      0.00      0.50      0.00      0.00      0.00     80.35
+STAMP             =      0.60      0.00      1.15      0.00      0.00      0.00      0.50      0.00      0.00     98.30
+
+
+#  DATE
+# CPU Utilization statistics, per-CPU
+                CPU      %usr     %nice      %sys   %iowait    %steal      %irq     %soft    %guest    %gnice     %idle
+STAMP             =       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          cpu0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             =       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          cpu0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             =     59.30      0.00     27.25      2.45      0.00      1.00      0.50      0.00      0.00      9.20
+STAMP          cpu0     59.30      0.00     27.25      2.45      0.00      1.00      0.50      0.00      0.00      9.20
+STAMP             =     78.80      0.00     19.10      1.05      0.00      1.00      0.50      0.00      0.00      0.60
+STAMP          cpu0     78.80      0.00     19.10      1.05      0.00      1.00      0.50      0.00      0.00      0.60
+STAMP             =     76.05      0.00     21.45      0.50      0.00      0.50      0.50      0.00      0.00      0.50
+STAMP          cpu0     76.05      0.00     21.45      0.50      0.00      0.50      0.50      0.00      0.00      0.50
+STAMP             =     74.50      0.00     23.00      0.50      0.00      1.00      0.50      0.00      0.00      0.50
+STAMP          cpu0     74.50      0.00     23.00      0.50      0.00      1.00      0.50      0.00      0.00      0.50
+STAMP             =     42.85      0.00     54.60      1.00      0.00      0.50      0.50      0.00      0.00      0.00
+STAMP          cpu0     42.85      0.00     54.60      1.00      0.00      0.50      0.50      0.00      0.00      0.00
+STAMP             =     38.05      0.00     60.95      0.00      0.00      1.00      0.50      0.00      0.00      0.00
+STAMP          cpu0     38.05      0.00     60.95      0.00      0.00      1.00      0.50      0.00      0.00      0.00
+STAMP             =      5.85      0.00     12.55      0.00      0.00      0.50      0.00      0.00      0.00     80.35
+STAMP          cpu0      5.85      0.00     12.55      0.00      0.00      0.50      0.00      0.00      0.00     80.35
+STAMP             =      0.60      0.00      1.15      0.00      0.00      0.00      0.50      0.00      0.00     98.30
+STAMP          cpu0      0.60      0.00      1.15      0.00      0.00      0.00      0.50      0.00      0.00     98.30
+
+
+#  DATE
+# virtual memory (vmstat) statistics
+           r   b    swpd     free    buff   cache    si    so     bi     bo    in     cs  us  sy  id  wa  st
+STAMP    N/A N/A     N/A      N/A     N/A     N/A   N/A   N/A    N/A    N/A   N/A    N/A N/A N/A N/A N/A N/A
+STAMP      2   0  832000    68408      64  439540   N/A   N/A    N/A    N/A   N/A    N/A N/A N/A N/A N/A N/A
+STAMP      3   0  832000    68408      64  439804     0     2  13595      8  1284   3157  59  27   9   2   0
+STAMP      3   0  832000    75016      64  420972     0     0   1348     44  1100   1888  78  19   1   1   0
+STAMP      3   0  832000    70496      64  423312     0     1    926   1173  1149   2362  76  21   0   0   0
+STAMP      3   0  832000    78564      64  413104     0     0    604     14  1111   2230  74  23   0   0   0
+STAMP      3   0  832000    78064      64  415148     0     0   2876   1926  1123   5619  42  54   0   1   0
+STAMP      4   0  832000    73784      64  426748     0     0     33    220  1044   6381  38  60   0   0   0
+STAMP      3   0  832000    73320      64  427000     0     0      6      2   312   1503   6  12  80   0   0
+STAMP      2   0  832000    73320      64  427008     0     0      0     28   132    245   1   1  98   0   0
+
+
+#  DATE
+# virtual memory active/inactive memory statistics
+           r   b    swpd     free   inact  active    si    so     bi     bo    in     cs  us  sy  id  wa  st
+STAMP    N/A N/A     N/A      N/A     N/A     N/A   N/A   N/A    N/A    N/A   N/A    N/A N/A N/A N/A N/A N/A
+STAMP      2   0  832000    68408  802384  494464   N/A   N/A    N/A    N/A   N/A    N/A N/A N/A N/A N/A N/A
+STAMP      3   0  832000    68408  802680  494468     0     2  13595      8  1284   3157  59  27   9   2   0
+STAMP      3   0  832000    75016  773880  507624     0     0   1348     44  1100   1888  78  19   1   1   0
+STAMP      3   0  832000    70496  771316  508816     0     1    926   1173  1149   2362  76  21   0   0   0
+STAMP      3   0  832000    78564  763748  507632     0     0    604     14  1111   2230  74  23   0   0   0
+STAMP      3   0  832000    78064  768300  508552     0     0   2876   1926  1123   5619  42  54   0   1   0
+STAMP      4   0  832000    73784  762068  516432     0     0     33    220  1044   6381  38  60   0   0   0
+STAMP      3   0  832000    73320  762284  516500     0     0      6      2   312   1503   6  12  80   0   0
+STAMP      2   0  832000    73320  759792  517220     0     0      0     28   132    245   1   1  98   0   0
+
+
+#  DATE
+# paging statistics
+             pgpgin/s pgpgout/s   fault/s  majflt/s  pgfree/s pgscank/s pgscand/s pgsteal/s    %vmeff
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP        13595.00      8.00  58285.50     97.50  55081.50   6491.00      0.00   6323.00     97.41
+STAMP         1348.50     43.50  52690.00      7.00  50274.00    210.00      0.00    206.50     98.33
+STAMP          925.50   1173.00  57476.00      1.00  54506.50   1988.00      0.00   1899.50     95.55
+STAMP          603.50     13.50  59673.50      0.00  54784.50     23.00      0.00     22.00     95.65
+STAMP         2876.00   1925.50 123662.00     20.00  85713.50      0.00      0.00      0.00      0.00
+STAMP           33.00    219.50 143626.00      0.00  93646.50      0.00      0.00      0.00      0.00
+STAMP            6.00      2.50  27754.50      0.50  18219.50      0.00      0.00      0.00      0.00
+STAMP            0.00     27.50    372.50      0.00    260.50      0.00      0.00      0.00      0.00
+
+
+#  DATE
+# I/O and transfer rate statistics
+                  tps      rtps      wtps      dtps   bread/s   bwrtn/s   bdscd/s
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          295.50    293.50      2.00      0.00  27189.50     16.00      0.00
+STAMP           45.50     43.50      2.00      0.00   2698.00     87.00      0.00
+STAMP           88.00     60.00     28.00      0.00   1850.50   2346.00      0.00
+STAMP           48.00     47.50      0.50      0.00   1207.50     27.00      0.00
+STAMP           91.50     83.50      8.00      0.00   5751.00   3851.50      0.00
+STAMP           13.50      1.00     12.50      0.00     66.50    439.50      0.00
+STAMP            0.50      0.50      0.00      0.00     12.00      4.50      0.00
+STAMP            1.50      0.00      1.50      0.00      0.00     55.00      0.00
+
+
+#  DATE
+# block device statistics
+                  DEV       tps     rkB/s     wkB/s     dkB/s   areq-sz    aqu-sz     await     %util
+STAMP             vda       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             vdb       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             vda       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             vdb       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             vda    295.00  13587.00      8.00      0.00     46.08      0.05      0.16     11.70
+STAMP             vdb      0.50      8.00      0.00      0.00     16.00      0.00      1.00      0.10
+STAMP             vda     45.50   1348.50     43.50      0.00     30.59      0.01      0.25      3.30
+STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP             vda     88.00    925.50   1173.00      0.00     23.85      0.02      0.27      4.70
+STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP             vda     48.00    603.50     13.50      0.00     12.85      0.01      0.27      3.55
+STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP             vda     90.50   2866.00   1925.50      0.00     52.94      0.02      0.19      3.05
+STAMP             vdb      1.00     10.00      0.00      0.00     10.00      0.00      0.00      0.05
+STAMP             vda     12.50     33.00    220.00      0.00     20.24      0.23     18.24     22.60
+STAMP             vdb      1.00      0.00      0.00      0.00      0.00      0.02     16.00      1.65
+STAMP             vda      0.50      6.00      2.50      0.00     17.00      0.00      5.00      0.30
+STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP             vda      1.50      0.00     27.50      0.00     18.33      0.00      0.33      0.05
+STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+
+
+#  DATE
+# device-mapper device statistics
+-- no report for config ":sar-d-dm"
+
+
+#  DATE
+# mounted filesystem statistics
+                     FILESYSTEM  MBfsfree  MBfsused   %fsused  %ufsused       Ifree       Iused    %Iused
+STAMP    /dev/mapper/fedora-roo       N/A       N/A       N/A       N/A         N/A         N/A       N/A
+STAMP                 /dev/vda1       N/A       N/A       N/A       N/A         N/A         N/A       N/A
+STAMP    /dev/mapper/fedora-roo      8519     17063     66.70     66.70    12691139      411965      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8519     17063     66.70     66.70    12691139      411965      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8518     17064     66.70     66.70    12691116      411988      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8517     17065     66.71     66.71    12691094      412010      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8516     17066     66.71     66.71    12691070      412034      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8515     17067     66.72     66.72    12691047      412057      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8509     17073     66.74     66.74    12691039      412065      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8509     17073     66.74     66.74    12691039      412065      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8509     17073     66.74     66.74    12691038      412066      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+
+
+#  DATE
+# hugepages utilization statistics
+            kbhugfree kbhugused  %hugused kbhugrsvd kbhugsurp
+STAMP             N/A       N/A       N/A       N/A       N/A
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+
+
+#  DATE
+# interrupt statistics, summed
+                INTR    intr/s
+STAMP              =       N/A
+STAMP              =       N/A
+STAMP              =   1284.50
+STAMP              =   1100.50
+STAMP              =   1149.00
+STAMP              =   1111.50
+STAMP              =   1123.00
+STAMP              =   1044.00
+STAMP              =    312.50
+STAMP              =    132.00
+
+
+#  DATE
+# network statistics, per device
+                IFACE   rxpck/s   txpck/s    rxkB/s    txkB/s   rxcmp/s   txcmp/s  rxmcst/s   %ifutil
+STAMP              lo       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          enp1s0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP              lo       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          enp1s0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP              lo     15.50     15.50    114.32    114.32      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1015940.5     26.00 241516.64  27565.61      0.00      0.00      0.50     45.16
+STAMP              lo      0.00      0.00      1.32      1.32      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1013678.0     20.50 240970.74  27702.72      0.00      0.00      0.50     45.39
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1013746.5     22.50 240978.88  27713.98      0.00      0.00      0.50     45.41
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1013855.0     23.00 240996.49  27727.24      0.00      0.00      0.50     45.43
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1013759.0      8.50 240967.43  27732.12      0.00      0.00      0.50     45.44
+STAMP              lo     15.50     15.50    114.33    114.33      0.00      0.00      0.00       N/A
+STAMP          enp1s0 512773.00      2.00 121883.41  14027.35      0.00      0.00      0.50     22.98
+STAMP              lo      0.00      0.00      1.31      1.31      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1005371.0      5.50 238968.80  27503.49      0.00      0.00      0.50     45.06
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1013974.5      2.50 241011.83  27739.00      0.00      0.00      0.50     45.45
+
+
+#  DATE
+# network error statistics, per device
+                IFACE   rxerr/s   txerr/s    coll/s  rxdrop/s  txdrop/s  txcarr/s  rxfram/s  rxfifo/s  txfifo/s
+STAMP              lo       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          enp1s0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP              lo       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          enp1s0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+
+
+#  DATE
+# NFSv4 client and RPC statistics
+-- no report for config ":sar-n-NFSv4"
+
+
+#  DATE
+# NFSv4 server and RPC statistics
+              scall/s badcall/s  packet/s     udp/s     tcp/s     hit/s    miss/s     ops/s     ops/s     ops/s     ops/s
+                                                                                     access   getattr      read     write
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+
+
+#  DATE
+# socket statistics
+               totsck    tcpsck    udpsck    rawsck   ip-frag    tcp-tw
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+
+
+#  DATE
+# TCP statistics
+             active/s passive/s    iseg/s    oseg/s  atmptf/s  estres/s retrans/s isegerr/s   orsts/s
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP            0.00      0.00     42.00     41.50      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00     20.50     20.50      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00     22.50     22.50      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00     23.00     23.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      9.00      8.50      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00     19.50     17.50      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      8.00      5.50      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      5.00      2.50      0.00      0.00      0.00      0.00      0.00
+
+
+#  DATE
+# queue length and load averages
+              runq-sz  plist-sz     ldavg     ldavg     ldavg   blocked
+                                 1 minute  5 minute 15 minute          
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A
+STAMP               2       212      0.19      0.32      0.26         0
+STAMP               2       212      0.19      0.32      0.26         0
+STAMP               2       215      0.25      0.33      0.26         0
+STAMP               2       215      0.25      0.33      0.26         0
+STAMP               2       215      0.31      0.34      0.27         0
+STAMP               2       215      0.31      0.34      0.27         0
+STAMP               3       217      0.31      0.34      0.27         0
+STAMP               2       217      0.37      0.35      0.27         0
+STAMP               1       212      0.37      0.35      0.27         0
+
+
+#  DATE
+# memory utilization statistics
+            kbmemfree kbmemavai kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP           68408    297284   1511072     74.84        64    338040    608912      9.93    494464    802384       364
+STAMP           68408    297544   1510808     74.83        64    338304    608912      9.93    494468    802680       412
+STAMP           75016    285312   1523032     75.43        64    319452    622704     10.15    507624    773880      1308
+STAMP           70496    283104   1525212     75.54        64    321760    617980     10.07    508816    771316      2400
+STAMP           78564    280884   1527352     75.65        64    311448    622896     10.15    507632    763748      1164
+STAMP           78064    282404   1525808     75.57        64    313384    626240     10.21    508552    768300      2140
+STAMP           73784    289672   1518488     75.21        64    324884    614900     10.02    516432    762068      4128
+STAMP           73320    289464   1518700     75.22        64    325132    614904     10.02    516500    762284      4304
+STAMP           73320    289480   1518692     75.22        64    325136    609036      9.93    517220    759792      4276
+
+
+#  DATE
+# swap usage statistics
+            kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
+STAMP             N/A       N/A       N/A       N/A       N/A
+STAMP         3283448    832000     20.22    758780     91.20
+STAMP         3283448    832000     20.22    758780     91.20
+STAMP         3283448    832000     20.22    754128     90.64
+STAMP         3283448    832000     20.22    754104     90.64
+STAMP         3283448    832000     20.22    751772     90.36
+STAMP         3283448    832000     20.22    751768     90.36
+STAMP         3283448    832000     20.22    751768     90.36
+STAMP         3283448    832000     20.22    751768     90.36
+STAMP         3283448    832000     20.22    751768     90.36
+
+
+#  DATE
+# swapping statistics
+             pswpin/s pswpout/s
+STAMP             N/A       N/A
+STAMP             N/A       N/A
+STAMP            0.00      2.00
+STAMP            0.00      0.00
+STAMP            0.00      1.00
+STAMP            0.00      0.00
+STAMP            0.00      0.00
+STAMP            0.00      0.00
+STAMP            0.00      0.00
+STAMP            0.00      0.00
+
+
+#  DATE
+# task creation and system switching statistics
+               proc/s   cswch/s
+STAMP             N/A       N/A
+STAMP             N/A       N/A
+STAMP          135.50   3157.00
+STAMP           32.00   1888.00
+STAMP           37.50   2362.00
+STAMP           34.50   2230.00
+STAMP          773.50   5619.00
+STAMP          908.00   6381.00
+STAMP          197.00   1503.00
+STAMP            2.50    245.00
+
+
+#  DATE
+# TTY devices activity
+-- no report for config ":sar-y"
+
+
+#  DATE
+# NUMA hint fault statistics
+                faults/s  faults_local/s  %local faults_remote/s %remote
+STAMP                N/A             N/A     N/A             N/A     N/A
+STAMP                N/A             N/A     N/A             N/A     N/A
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+
+
+#  DATE
+# NUMA per-node CPU statistics
+            NUMA n      %usr     %nice      %sys   %iowait    %steal      %irq     %soft    %guest    %gnice     %idle
+STAMP        node0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP        node0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP        node0     59.30      0.00     27.25      2.45      0.00      1.00      0.50      0.00      0.00      9.20
+STAMP        node0     78.80      0.00     19.10      1.05      0.00      1.00      0.50      0.00      0.00      0.60
+STAMP        node0     76.05      0.00     21.45      0.50      0.00      0.50      0.50      0.00      0.00      0.50
+STAMP        node0     74.50      0.00     23.00      0.50      0.00      1.00      0.50      0.00      0.00      0.50
+STAMP        node0     42.85      0.00     54.60      1.00      0.00      0.50      0.50      0.00      0.00      0.00
+STAMP        node0     38.05      0.00     60.95      0.00      0.00      1.00      0.50      0.00      0.00      0.00
+STAMP        node0      5.85      0.00     12.55      0.00      0.00      0.50      0.00      0.00      0.00     80.35
+STAMP        node0      0.60      0.00      1.15      0.00      0.00      0.00      0.50      0.00      0.00     98.30
+
+
+#  DATE
+# NUMA per-node page migration statistics
+               MB/s/node  auto pg/s/node  success/s/node     fail/s/node
+STAMP                N/A             N/A             N/A             N/A
+STAMP                N/A             N/A             N/A             N/A
+STAMP              0.000           0.000           0.000           0.000
+STAMP              0.000           0.000         759.000           0.000
+STAMP              0.000           0.000           9.000           0.000
+STAMP              0.000           0.000           0.000           0.000
+STAMP              0.000           0.000           0.000           0.000
+STAMP              0.000           0.000           0.000           0.000
+STAMP              0.000           0.000           0.000           0.000
+STAMP              0.000           0.000           0.000           0.000
+
+gzip compression for .0
+Uncompressing TMP/daily_report
+ARCHIVEPATH=.../pmlogger_daily_report.TMP/daily_report
+
+
+#  DATE
+# CPU Utilization statistics, all CPUS
+                CPU      %usr     %nice      %sys   %iowait    %steal      %irq     %soft    %guest    %gnice     %idle
+STAMP             =       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             =       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             =     59.30      0.00     27.25      2.45      0.00      1.00      0.50      0.00      0.00      9.20
+STAMP             =     78.80      0.00     19.10      1.05      0.00      1.00      0.50      0.00      0.00      0.60
+STAMP             =     76.05      0.00     21.45      0.50      0.00      0.50      0.50      0.00      0.00      0.50
+STAMP             =     74.50      0.00     23.00      0.50      0.00      1.00      0.50      0.00      0.00      0.50
+STAMP             =     42.85      0.00     54.60      1.00      0.00      0.50      0.50      0.00      0.00      0.00
+STAMP             =     38.05      0.00     60.95      0.00      0.00      1.00      0.50      0.00      0.00      0.00
+STAMP             =      5.85      0.00     12.55      0.00      0.00      0.50      0.00      0.00      0.00     80.35
+STAMP             =      0.60      0.00      1.15      0.00      0.00      0.00      0.50      0.00      0.00     98.30
+
+
+#  DATE
+# CPU Utilization statistics, per-CPU
+                CPU      %usr     %nice      %sys   %iowait    %steal      %irq     %soft    %guest    %gnice     %idle
+STAMP             =       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          cpu0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             =       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          cpu0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             =     59.30      0.00     27.25      2.45      0.00      1.00      0.50      0.00      0.00      9.20
+STAMP          cpu0     59.30      0.00     27.25      2.45      0.00      1.00      0.50      0.00      0.00      9.20
+STAMP             =     78.80      0.00     19.10      1.05      0.00      1.00      0.50      0.00      0.00      0.60
+STAMP          cpu0     78.80      0.00     19.10      1.05      0.00      1.00      0.50      0.00      0.00      0.60
+STAMP             =     76.05      0.00     21.45      0.50      0.00      0.50      0.50      0.00      0.00      0.50
+STAMP          cpu0     76.05      0.00     21.45      0.50      0.00      0.50      0.50      0.00      0.00      0.50
+STAMP             =     74.50      0.00     23.00      0.50      0.00      1.00      0.50      0.00      0.00      0.50
+STAMP          cpu0     74.50      0.00     23.00      0.50      0.00      1.00      0.50      0.00      0.00      0.50
+STAMP             =     42.85      0.00     54.60      1.00      0.00      0.50      0.50      0.00      0.00      0.00
+STAMP          cpu0     42.85      0.00     54.60      1.00      0.00      0.50      0.50      0.00      0.00      0.00
+STAMP             =     38.05      0.00     60.95      0.00      0.00      1.00      0.50      0.00      0.00      0.00
+STAMP          cpu0     38.05      0.00     60.95      0.00      0.00      1.00      0.50      0.00      0.00      0.00
+STAMP             =      5.85      0.00     12.55      0.00      0.00      0.50      0.00      0.00      0.00     80.35
+STAMP          cpu0      5.85      0.00     12.55      0.00      0.00      0.50      0.00      0.00      0.00     80.35
+STAMP             =      0.60      0.00      1.15      0.00      0.00      0.00      0.50      0.00      0.00     98.30
+STAMP          cpu0      0.60      0.00      1.15      0.00      0.00      0.00      0.50      0.00      0.00     98.30
+
+
+#  DATE
+# virtual memory (vmstat) statistics
+           r   b    swpd     free    buff   cache    si    so     bi     bo    in     cs  us  sy  id  wa  st
+STAMP    N/A N/A     N/A      N/A     N/A     N/A   N/A   N/A    N/A    N/A   N/A    N/A N/A N/A N/A N/A N/A
+STAMP      2   0  832000    68408      64  439540   N/A   N/A    N/A    N/A   N/A    N/A N/A N/A N/A N/A N/A
+STAMP      3   0  832000    68408      64  439804     0     2  13595      8  1284   3157  59  27   9   2   0
+STAMP      3   0  832000    75016      64  420972     0     0   1348     44  1100   1888  78  19   1   1   0
+STAMP      3   0  832000    70496      64  423312     0     1    926   1173  1149   2362  76  21   0   0   0
+STAMP      3   0  832000    78564      64  413104     0     0    604     14  1111   2230  74  23   0   0   0
+STAMP      3   0  832000    78064      64  415148     0     0   2876   1926  1123   5619  42  54   0   1   0
+STAMP      4   0  832000    73784      64  426748     0     0     33    220  1044   6381  38  60   0   0   0
+STAMP      3   0  832000    73320      64  427000     0     0      6      2   312   1503   6  12  80   0   0
+STAMP      2   0  832000    73320      64  427008     0     0      0     28   132    245   1   1  98   0   0
+
+
+#  DATE
+# virtual memory active/inactive memory statistics
+           r   b    swpd     free   inact  active    si    so     bi     bo    in     cs  us  sy  id  wa  st
+STAMP    N/A N/A     N/A      N/A     N/A     N/A   N/A   N/A    N/A    N/A   N/A    N/A N/A N/A N/A N/A N/A
+STAMP      2   0  832000    68408  802384  494464   N/A   N/A    N/A    N/A   N/A    N/A N/A N/A N/A N/A N/A
+STAMP      3   0  832000    68408  802680  494468     0     2  13595      8  1284   3157  59  27   9   2   0
+STAMP      3   0  832000    75016  773880  507624     0     0   1348     44  1100   1888  78  19   1   1   0
+STAMP      3   0  832000    70496  771316  508816     0     1    926   1173  1149   2362  76  21   0   0   0
+STAMP      3   0  832000    78564  763748  507632     0     0    604     14  1111   2230  74  23   0   0   0
+STAMP      3   0  832000    78064  768300  508552     0     0   2876   1926  1123   5619  42  54   0   1   0
+STAMP      4   0  832000    73784  762068  516432     0     0     33    220  1044   6381  38  60   0   0   0
+STAMP      3   0  832000    73320  762284  516500     0     0      6      2   312   1503   6  12  80   0   0
+STAMP      2   0  832000    73320  759792  517220     0     0      0     28   132    245   1   1  98   0   0
+
+
+#  DATE
+# paging statistics
+             pgpgin/s pgpgout/s   fault/s  majflt/s  pgfree/s pgscank/s pgscand/s pgsteal/s    %vmeff
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP        13595.00      8.00  58285.50     97.50  55081.50   6491.00      0.00   6323.00     97.41
+STAMP         1348.50     43.50  52690.00      7.00  50274.00    210.00      0.00    206.50     98.33
+STAMP          925.50   1173.00  57476.00      1.00  54506.50   1988.00      0.00   1899.50     95.55
+STAMP          603.50     13.50  59673.50      0.00  54784.50     23.00      0.00     22.00     95.65
+STAMP         2876.00   1925.50 123662.00     20.00  85713.50      0.00      0.00      0.00      0.00
+STAMP           33.00    219.50 143626.00      0.00  93646.50      0.00      0.00      0.00      0.00
+STAMP            6.00      2.50  27754.50      0.50  18219.50      0.00      0.00      0.00      0.00
+STAMP            0.00     27.50    372.50      0.00    260.50      0.00      0.00      0.00      0.00
+
+
+#  DATE
+# I/O and transfer rate statistics
+                  tps      rtps      wtps      dtps   bread/s   bwrtn/s   bdscd/s
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          295.50    293.50      2.00      0.00  27189.50     16.00      0.00
+STAMP           45.50     43.50      2.00      0.00   2698.00     87.00      0.00
+STAMP           88.00     60.00     28.00      0.00   1850.50   2346.00      0.00
+STAMP           48.00     47.50      0.50      0.00   1207.50     27.00      0.00
+STAMP           91.50     83.50      8.00      0.00   5751.00   3851.50      0.00
+STAMP           13.50      1.00     12.50      0.00     66.50    439.50      0.00
+STAMP            0.50      0.50      0.00      0.00     12.00      4.50      0.00
+STAMP            1.50      0.00      1.50      0.00      0.00     55.00      0.00
+
+
+#  DATE
+# block device statistics
+                  DEV       tps     rkB/s     wkB/s     dkB/s   areq-sz    aqu-sz     await     %util
+STAMP             vda       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             vdb       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             vda       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             vdb       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             vda    295.00  13587.00      8.00      0.00     46.08      0.05      0.16     11.70
+STAMP             vdb      0.50      8.00      0.00      0.00     16.00      0.00      1.00      0.10
+STAMP             vda     45.50   1348.50     43.50      0.00     30.59      0.01      0.25      3.30
+STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP             vda     88.00    925.50   1173.00      0.00     23.85      0.02      0.27      4.70
+STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP             vda     48.00    603.50     13.50      0.00     12.85      0.01      0.27      3.55
+STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP             vda     90.50   2866.00   1925.50      0.00     52.94      0.02      0.19      3.05
+STAMP             vdb      1.00     10.00      0.00      0.00     10.00      0.00      0.00      0.05
+STAMP             vda     12.50     33.00    220.00      0.00     20.24      0.23     18.24     22.60
+STAMP             vdb      1.00      0.00      0.00      0.00      0.00      0.02     16.00      1.65
+STAMP             vda      0.50      6.00      2.50      0.00     17.00      0.00      5.00      0.30
+STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP             vda      1.50      0.00     27.50      0.00     18.33      0.00      0.33      0.05
+STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+
+
+#  DATE
+# device-mapper device statistics
+-- no report for config ":sar-d-dm"
+
+
+#  DATE
+# mounted filesystem statistics
+                     FILESYSTEM  MBfsfree  MBfsused   %fsused  %ufsused       Ifree       Iused    %Iused
+STAMP    /dev/mapper/fedora-roo       N/A       N/A       N/A       N/A         N/A         N/A       N/A
+STAMP                 /dev/vda1       N/A       N/A       N/A       N/A         N/A         N/A       N/A
+STAMP    /dev/mapper/fedora-roo      8519     17063     66.70     66.70    12691139      411965      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8519     17063     66.70     66.70    12691139      411965      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8518     17064     66.70     66.70    12691116      411988      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8517     17065     66.71     66.71    12691094      412010      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8516     17066     66.71     66.71    12691070      412034      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8515     17067     66.72     66.72    12691047      412057      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8509     17073     66.74     66.74    12691039      412065      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8509     17073     66.74     66.74    12691039      412065      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+STAMP    /dev/mapper/fedora-roo      8509     17073     66.74     66.74    12691038      412066      3.14
+STAMP                 /dev/vda1       580       393     40.39     47.29       65188         348      0.53
+
+
+#  DATE
+# hugepages utilization statistics
+            kbhugfree kbhugused  %hugused kbhugrsvd kbhugsurp
+STAMP             N/A       N/A       N/A       N/A       N/A
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+STAMP               0         0      0.00         0         0
+
+
+#  DATE
+# interrupt statistics, summed
+                INTR    intr/s
+STAMP              =       N/A
+STAMP              =       N/A
+STAMP              =   1284.50
+STAMP              =   1100.50
+STAMP              =   1149.00
+STAMP              =   1111.50
+STAMP              =   1123.00
+STAMP              =   1044.00
+STAMP              =    312.50
+STAMP              =    132.00
+
+
+#  DATE
+# network statistics, per device
+                IFACE   rxpck/s   txpck/s    rxkB/s    txkB/s   rxcmp/s   txcmp/s  rxmcst/s   %ifutil
+STAMP              lo       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          enp1s0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP              lo       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          enp1s0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP              lo     15.50     15.50    114.32    114.32      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1015940.5     26.00 241516.64  27565.61      0.00      0.00      0.50     45.16
+STAMP              lo      0.00      0.00      1.32      1.32      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1013678.0     20.50 240970.74  27702.72      0.00      0.00      0.50     45.39
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1013746.5     22.50 240978.88  27713.98      0.00      0.00      0.50     45.41
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1013855.0     23.00 240996.49  27727.24      0.00      0.00      0.50     45.43
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1013759.0      8.50 240967.43  27732.12      0.00      0.00      0.50     45.44
+STAMP              lo     15.50     15.50    114.33    114.33      0.00      0.00      0.00       N/A
+STAMP          enp1s0 512773.00      2.00 121883.41  14027.35      0.00      0.00      0.50     22.98
+STAMP              lo      0.00      0.00      1.31      1.31      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1005371.0      5.50 238968.80  27503.49      0.00      0.00      0.50     45.06
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00       N/A
+STAMP          enp1s0 1013974.5      2.50 241011.83  27739.00      0.00      0.00      0.50     45.45
+
+
+#  DATE
+# network error statistics, per device
+                IFACE   rxerr/s   txerr/s    coll/s  rxdrop/s  txdrop/s  txcarr/s  rxfram/s  rxfifo/s  txfifo/s
+STAMP              lo       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          enp1s0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP              lo       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP          enp1s0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+STAMP              lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.00      0.50      0.00      0.00
+
+
+#  DATE
+# NFSv4 client and RPC statistics
+-- no report for config ":sar-n-NFSv4"
+
+
+#  DATE
+# NFSv4 server and RPC statistics
+              scall/s badcall/s  packet/s     udp/s     tcp/s     hit/s    miss/s     ops/s     ops/s     ops/s     ops/s
+                                                                                     access   getattr      read     write
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+
+
+#  DATE
+# socket statistics
+               totsck    tcpsck    udpsck    rawsck   ip-frag    tcp-tw
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+STAMP             323        20        12         0         0         1
+
+
+#  DATE
+# TCP statistics
+             active/s passive/s    iseg/s    oseg/s  atmptf/s  estres/s retrans/s isegerr/s   orsts/s
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP            0.00      0.00     42.00     41.50      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00     20.50     20.50      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00     22.50     22.50      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00     23.00     23.00      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      9.00      8.50      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00     19.50     17.50      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      8.00      5.50      0.00      0.00      0.00      0.00      0.00
+STAMP            0.00      0.00      5.00      2.50      0.00      0.00      0.00      0.00      0.00
+
+
+#  DATE
+# queue length and load averages
+              runq-sz  plist-sz     ldavg     ldavg     ldavg   blocked
+                                 1 minute  5 minute 15 minute          
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A
+STAMP               2       212      0.19      0.32      0.26         0
+STAMP               2       212      0.19      0.32      0.26         0
+STAMP               2       215      0.25      0.33      0.26         0
+STAMP               2       215      0.25      0.33      0.26         0
+STAMP               2       215      0.31      0.34      0.27         0
+STAMP               2       215      0.31      0.34      0.27         0
+STAMP               3       217      0.31      0.34      0.27         0
+STAMP               2       217      0.37      0.35      0.27         0
+STAMP               1       212      0.37      0.35      0.27         0
+
+
+#  DATE
+# memory utilization statistics
+            kbmemfree kbmemavai kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
+STAMP             N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP           68408    297284   1511072     74.84        64    338040    608912      9.93    494464    802384       364
+STAMP           68408    297544   1510808     74.83        64    338304    608912      9.93    494468    802680       412
+STAMP           75016    285312   1523032     75.43        64    319452    622704     10.15    507624    773880      1308
+STAMP           70496    283104   1525212     75.54        64    321760    617980     10.07    508816    771316      2400
+STAMP           78564    280884   1527352     75.65        64    311448    622896     10.15    507632    763748      1164
+STAMP           78064    282404   1525808     75.57        64    313384    626240     10.21    508552    768300      2140
+STAMP           73784    289672   1518488     75.21        64    324884    614900     10.02    516432    762068      4128
+STAMP           73320    289464   1518700     75.22        64    325132    614904     10.02    516500    762284      4304
+STAMP           73320    289480   1518692     75.22        64    325136    609036      9.93    517220    759792      4276
+
+
+#  DATE
+# swap usage statistics
+            kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
+STAMP             N/A       N/A       N/A       N/A       N/A
+STAMP         3283448    832000     20.22    758780     91.20
+STAMP         3283448    832000     20.22    758780     91.20
+STAMP         3283448    832000     20.22    754128     90.64
+STAMP         3283448    832000     20.22    754104     90.64
+STAMP         3283448    832000     20.22    751772     90.36
+STAMP         3283448    832000     20.22    751768     90.36
+STAMP         3283448    832000     20.22    751768     90.36
+STAMP         3283448    832000     20.22    751768     90.36
+STAMP         3283448    832000     20.22    751768     90.36
+
+
+#  DATE
+# swapping statistics
+             pswpin/s pswpout/s
+STAMP             N/A       N/A
+STAMP             N/A       N/A
+STAMP            0.00      2.00
+STAMP            0.00      0.00
+STAMP            0.00      1.00
+STAMP            0.00      0.00
+STAMP            0.00      0.00
+STAMP            0.00      0.00
+STAMP            0.00      0.00
+STAMP            0.00      0.00
+
+
+#  DATE
+# task creation and system switching statistics
+               proc/s   cswch/s
+STAMP             N/A       N/A
+STAMP             N/A       N/A
+STAMP          135.50   3157.00
+STAMP           32.00   1888.00
+STAMP           37.50   2362.00
+STAMP           34.50   2230.00
+STAMP          773.50   5619.00
+STAMP          908.00   6381.00
+STAMP          197.00   1503.00
+STAMP            2.50    245.00
+
+
+#  DATE
+# TTY devices activity
+-- no report for config ":sar-y"
+
+
+#  DATE
+# NUMA hint fault statistics
+                faults/s  faults_local/s  %local faults_remote/s %remote
+STAMP                N/A             N/A     N/A             N/A     N/A
+STAMP                N/A             N/A     N/A             N/A     N/A
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+STAMP               0.00            0.00  100.00            0.00    0.00
+
+
+#  DATE
+# NUMA per-node CPU statistics
+            NUMA n      %usr     %nice      %sys   %iowait    %steal      %irq     %soft    %guest    %gnice     %idle
+STAMP        node0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP        node0       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A       N/A
+STAMP        node0     59.30      0.00     27.25      2.45      0.00      1.00      0.50      0.00      0.00      9.20
+STAMP        node0     78.80      0.00     19.10      1.05      0.00      1.00      0.50      0.00      0.00      0.60
+STAMP        node0     76.05      0.00     21.45      0.50      0.00      0.50      0.50      0.00      0.00      0.50
+STAMP        node0     74.50      0.00     23.00      0.50      0.00      1.00      0.50      0.00      0.00      0.50
+STAMP        node0     42.85      0.00     54.60      1.00      0.00      0.50      0.50      0.00      0.00      0.00
+STAMP        node0     38.05      0.00     60.95      0.00      0.00      1.00      0.50      0.00      0.00      0.00
+STAMP        node0      5.85      0.00     12.55      0.00      0.00      0.50      0.00      0.00      0.00     80.35
+STAMP        node0      0.60      0.00      1.15      0.00      0.00      0.00      0.50      0.00      0.00     98.30
+
+
+#  DATE
+# NUMA per-node page migration statistics
+               MB/s/node  auto pg/s/node  success/s/node     fail/s/node
+STAMP                N/A             N/A             N/A             N/A
+STAMP                N/A             N/A             N/A             N/A
+STAMP              0.000           0.000           0.000           0.000
+STAMP              0.000           0.000         759.000           0.000
+STAMP              0.000           0.000           9.000           0.000
+STAMP              0.000           0.000           0.000           0.000
+STAMP              0.000           0.000           0.000           0.000
+STAMP              0.000           0.000           0.000           0.000
+STAMP              0.000           0.000           0.000           0.000
+STAMP              0.000           0.000           0.000           0.000
