@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021 Red Hat.
+ * Copyright (c) 2017-2022 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -152,6 +152,9 @@ typedef struct seriesLoadBaton {
     const char		**metrics;	/* metric specification strings */
     dict		*errors;	/* PMIDs where errors observed */
     dict		*wanted;	/* allowed metrics list PMIDs */
+    sds			*exclude_patterns;	/* list of exclude metric patterns (e.g. proc.*) */
+    unsigned int	exclude_npatterns;	/* number of exclude metric patterns */
+    dict		*exclude_pmids;		/* dict of excluded pmIDs (pmID: NULL) */
 
     int			error;
     void		*arg;

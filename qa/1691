@@ -1,0 +1,74 @@
+#!/bin/sh
+# Exercise pmseries handling of loading archives and ignoring metrics thereof.
+#
+# Copyright (c) 2022 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_series
+
+_cleanup()
+{
+    [ -n "$options" ] && redis-cli $options shutdown
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+hostname=`pmhostname`
+redisport=`_find_free_port`
+options="-p $redisport"
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_source()
+{
+    sed \
+	-e "s,$here,PATH,g" \
+	-e "s,$hostname,QAHOST,g" \
+    #end
+}
+
+# real QA test starts here
+cat > $tmp.default.conf <<EOF
+EOF
+
+cat > $tmp.ignore.conf <<EOF
+[discover]
+exclude.metrics = kernel.all.cpu.i*, kernel.all.cpu.user
+EOF
+
+echo "Start test Redis server ..."
+redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
+_check_redis_ping $redisport
+_check_redis_server $redisport
+
+_check_redis_server_version $redisport
+
+echo && echo "Load archive using default config"
+pmseries $options -c $tmp.default.conf --load "{source.path: \"$here/archives/viewqa1\"}" | _filter_source
+
+echo && echo "Query series kernel.*"
+pmseries $options -m `pmseries $options 'kernel.*'`
+
+
+echo && echo "Clear Redis DB"
+redis-cli $options flushall
+
+echo && echo "Load archive using: exclude.metrics = kernel.all.cpu.i*, kernel.all.cpu.user"
+pmseries $options -c $tmp.ignore.conf --load "{source.path: \"$here/archives/viewqa1\"}" | _filter_source
+
+echo && echo "Query series kernel.*"
+pmseries $options -m `pmseries $options 'kernel.*'`
+
+# success, all done
+status=0
+exit
