@@ -700,6 +700,11 @@ load_prepare_excluded_metrics(seriesLoadBaton *baton)
     sds			*patterns = NULL;
     int			npatterns = 0;
 
+    if (data == NULL) {
+	baton->error = -ENOMEM;
+	return;
+    }
+
     if (!(exclude_metrics_option = pmIniFileLookup(data->config, "discover", "exclude.metrics"))) {
 	/* option not set, using default value of no excluded metrics */
 	return;
