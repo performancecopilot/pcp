@@ -842,4 +842,5 @@ PCP_3.37 {
     __pmFreeLogInDom;
     __pmLogEncodeLabels;
     __pmDumpStackInit;
+    pmFetchArchiveCtx;
 } PCP_3.36;
