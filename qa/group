@@ -2031,6 +2031,7 @@ x11
 1914 atop local
 1927 pmda.sockets local
 1931 pmda.bpf local
+1936 other local pmclient
 1937 pmlogrewrite pmda.xfs local pmdumplog
 1955 libpcp pmda pmda.pmcd local
 1956 pmda.linux pmcd local
