@@ -16,6 +16,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <fnmatch.h>
+#include <uv.h>
 #include "encoding.h"
 #include "discover.h"
 #include "schema.h"
@@ -558,14 +559,60 @@ server_cache_update_done(void *arg)
     server_cache_window(baton);
 }
 
+/* this function runs in a worker thread */
+static void
+fetch_archive(uv_work_t *req)
+{
+    seriesLoadBaton	*baton = (seriesLoadBaton *)req->data;
+    seriesGetContext	*context = &baton->pmapi;
+    context_t		*cp = &context->context;
+    pmResult		*result;
+
+    int sts = pmFetchArchiveCtx(cp->context, &result);
+    context->error = sts;
+
+    if (sts >= 0)
+        context->result = result;
+}
+
+/* this function runs in the main thread */
+static void
+fetch_archive_done(uv_work_t *req, int status)
+{
+    seriesLoadBaton	*baton = (seriesLoadBaton *)req->data;
+    seriesGetContext	*context = &baton->pmapi;
+    struct timeval	*finish = &baton->timing.end;
+    int 		sts = context->error;
+
+    free(req);
+    if (sts >= 0) {
+	if (finish->tv_sec > context->result->timestamp.tv_sec ||
+	    (finish->tv_sec == context->result->timestamp.tv_sec &&
+	     finish->tv_usec >= context->result->timestamp.tv_usec)) {
+	    context->done = server_cache_update_done;
+	    series_cache_update(baton, baton->exclude_pmids);
+	}
+	else {
+	    if (pmDebugOptions.series)
+		fprintf(stderr, "server_cache_window: end of time window\n");
+	    sts = PM_ERR_EOL;
+	    pmFreeResult(context->result);
+	    context->result = NULL;
+	}
+    }
+
+    if (sts < 0) {
+	if (sts != PM_ERR_EOL)
+	    baton->error = sts;
+	doneSeriesGetContext(context, "server_cache_window");
+    }
+}
+
 void
 server_cache_window(void *arg)
 {
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
     seriesGetContext	*context = &baton->pmapi;
-    struct timeval	*finish = &baton->timing.end;
-    pmResult		*result;
-    int			sts;
 
     seriesBatonCheckMagic(baton, MAGIC_LOAD, "server_cache_window");
     seriesBatonCheckCount(context, "server_cache_window");
@@ -577,29 +624,13 @@ server_cache_window(void *arg)
     seriesBatonReference(context, "server_cache_window");
     context->done = server_cache_series_finished;
 
-    if ((sts = pmFetchArchive(&result)) >= 0) {
-	context->result = result;
-	if (finish->tv_sec > result->timestamp.tv_sec ||
-	    (finish->tv_sec == result->timestamp.tv_sec &&
-	     finish->tv_usec >= result->timestamp.tv_usec)) {
-	    context->done = server_cache_update_done;
-	    series_cache_update(baton, baton->exclude_pmids);
-	}
-	else {
-	    if (pmDebugOptions.series)
-		fprintf(stderr, "server_cache_window: end of time window\n");
-	    sts = PM_ERR_EOL;
-	    pmFreeResult(result);
-	    context->result = NULL;
-	}
-    }
-
-    if (sts < 0) {
-	context->error = sts;
-	if (sts != PM_ERR_EOL)
-	    baton->error = sts;
-	doneSeriesGetContext(context, "server_cache_window");
-    }
+    /*
+     * perform pmFetchArchiveCtx() in a worker thread
+     * because it contains blocking (synchronous) I/O calls
+     */
+    uv_work_t *req = malloc(sizeof(uv_work_t));
+    req->data = baton;
+    uv_queue_work(uv_default_loop(), req, fetch_archive, fetch_archive_done);
 }
 
 static void

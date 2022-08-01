@@ -307,37 +307,47 @@ __pmFetchArchive(__pmContext *ctxp, __pmResult **result)
 {
     int		sts;
 
-    if ((sts = pmWhichContext()) >= 0) {
-	ctxp = __pmHandleToPtr(sts);
-	if (ctxp == NULL)
-	    sts = PM_ERR_NOCONTEXT;
+    if (ctxp == NULL) {
+        if ((sts = pmWhichContext()) < 0)
+	    return sts;
 	else {
-	    int	ctxp_mode = (ctxp->c_mode & __PM_MODE_MASK);
-	    if (ctxp->c_type != PM_CONTEXT_ARCHIVE)
-		sts = PM_ERR_NOTARCHIVE;
-	    else if (ctxp_mode == PM_MODE_INTERP)
-		/* makes no sense! */
-		sts = PM_ERR_MODE;
-	    else {
-		/* assume PM_CONTEXT_ARCHIVE and BACK or FORW */
-		sts = __pmLogFetch(ctxp, 0, NULL, result);
-		if (sts >= 0)
-		    ctxp->c_origin = (*result)->timestamp;
-	    }
-	    PM_UNLOCK(ctxp->c_lock);
+	    ctxp = __pmHandleToPtr(sts);
+	    if (ctxp == NULL)
+		return PM_ERR_NOCONTEXT;
 	}
     }
+
+    int	ctxp_mode = (ctxp->c_mode & __PM_MODE_MASK);
+    if (ctxp->c_type != PM_CONTEXT_ARCHIVE)
+	sts = PM_ERR_NOTARCHIVE;
+    else if (ctxp_mode == PM_MODE_INTERP)
+	/* makes no sense! */
+	sts = PM_ERR_MODE;
+    else {
+	/* assume PM_CONTEXT_ARCHIVE and BACK or FORW */
+	sts = __pmLogFetch(ctxp, 0, NULL, result);
+	if (sts >= 0)
+	    ctxp->c_origin = (*result)->timestamp;
+    }
+    PM_UNLOCK(ctxp->c_lock);
 
     return sts;
 }
 
 int
-pmFetchArchive(pmResult **result)
+pmFetchArchiveCtx(int ctxhandle, pmResult **result)
 {
+    __pmContext *ctxp = NULL;
     __pmResult	*rp;
     int		sts;
 
-    if ((sts = __pmFetchArchive(NULL, &rp)) >= 0) {
+    if (ctxhandle != PM_CONTEXT_UNDEF) {
+	ctxp = __pmHandleToPtr(ctxhandle);
+	if (ctxp == NULL)
+	    return PM_ERR_NOCONTEXT;
+    }
+
+    if ((sts = __pmFetchArchive(ctxp, &rp)) >= 0) {
 	pmResult	*ans = __pmOffsetResult(rp);
 	__pmTimestamp	tmp = rp->timestamp;	/* struct copy */
 
@@ -346,6 +356,12 @@ pmFetchArchive(pmResult **result)
 	*result = ans;
     }
     return sts;
+}
+
+int
+pmFetchArchive(pmResult **result)
+{
+    return pmFetchArchiveCtx(PM_CONTEXT_UNDEF, result);
 }
 
 int
