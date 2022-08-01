@@ -1,0 +1,34 @@
+#!/bin/sh
+# PCP QA Test No. 1936
+# Verify that no use of libpcp.h exists in installed code.
+#
+# Copyright (c) 2022 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo Silence is golden
+for dir in $PCP_SHARE_DIR $PCP_DEMOS_DIR $PCP_PMDAS_DIR
+do
+    grep -r '^#include .*libpcp.h' $dir 2>/dev/null
+done
+
+# success, all done
+exit
