@@ -1,0 +1,4172 @@
+QA output created by 1574
+Start test Redis server ...
+PING
+PONG
+
+== Load metric data into this redis instance
+pmseries: [Info] processed 5 archive records from PATH/archives/proc
+
+== Running valgrind on stdeve_sample() and stdeve_inst()
+=== std out ===
+
+ef9785c6b5cae109a5ed4fd8a0cbe868a1c576e1
+    [Mon Oct  3 09:10:24.305845000 2011] 2.054805e-02 
+    [Mon Oct  3 09:10:23.802930000 2011] 2.054805e-02 
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p 54326 -Z UTC stdev_sample(kernel.all.load[count:2])
+3 bytes in 1 blocks are definitely lost in loss record 1 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BCB68: yyparse (query_parser.y:1795)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+3 bytes in 1 blocks are definitely lost in loss record 2 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BA706: yyparse (query_parser.y:1504)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+4 bytes in 1 blocks are definitely lost in loss record 4 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x4873E16: series_node_get_desc_reply (query.c:2037)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_node_get_desc_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+4 bytes in 1 blocks are definitely lost in loss record 5 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x4873E28: series_node_get_desc_reply (query.c:2039)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_node_get_desc_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+13 bytes in 1 blocks are definitely lost in loss record 12 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48B915A: newmetric (query_parser.y:1353)
+by 0x48BAD40: yyparse (query_parser.y:353)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:newmetric
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+}
+17 bytes in 1 blocks are definitely lost in loss record 14 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BC96D: yyparse (query_parser.y:1905)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+17 bytes in 1 blocks are definitely lost in loss record 15 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48B9178: newmetric (query_parser.y:1355)
+by 0x48BAD40: yyparse (query_parser.y:353)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:newmetric
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+}
+20 bytes in 1 blocks are definitely lost in loss record 16 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x487ECFB: series_prepare_smembers_reply (query.c:708)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:series_prepare_smembers_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+21 bytes in 1 blocks are definitely lost in loss record 17 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x487EAF0: series_prepare_maps (query.c:1115)
+by 0x487EA46: series_prepare_maps (query.c:1104)
+by 0x487EA46: series_prepare_maps (query.c:1104)
+by 0x487EBE7: series_query_maps (query.c:1756)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x48803AF: series_solve (query.c:4754)
+by 0x48BCF8F: pmSeriesQuery (query_parser.y:2149)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_prepare_maps
+   fun:series_prepare_maps
+   fun:series_prepare_maps
+   fun:series_query_maps
+   fun:series_query_end_phase
+   fun:series_solve
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+}
+60 bytes in 1 blocks are definitely lost in loss record 22 of 36
+at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489F050: sdsMakeRoomFor (alloc.h:66)
+by 0x48A0433: sdscatfmt (sds.c:610)
+by 0x487140B: series_expr_canonical (query.c:2447)
+by 0x487D4BA: series_redis_hash_expression.constprop.0 (query.c:2539)
+by 0x487E674: series_query_funcs_report_values (query.c:4631)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:sdsMakeRoomFor
+   fun:sdscatfmt
+   fun:series_expr_canonical
+   fun:series_redis_hash_expression.constprop.0
+   fun:series_query_funcs_report_values
+   fun:series_query_end_phase
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+}
+129 bytes in 1 blocks are definitely lost in loss record 28 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x48B9B79: yyparse (query_parser.y:1637)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+}
+130 bytes in 1 blocks are definitely lost in loss record 29 of 36
+at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489F050: sdsMakeRoomFor (alloc.h:66)
+by 0x48A0433: sdscatfmt (sds.c:610)
+by 0x487A461: series_prepare_eval (query.c:1306)
+by 0x487A4AD: series_prepare_eval (query.c:1296)
+by 0x487A637: series_query_eval (query.c:1769)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x48803AF: series_solve (query.c:4754)
+by 0x48BCF8F: pmSeriesQuery (query_parser.y:2149)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:sdsMakeRoomFor
+   fun:sdscatfmt
+   fun:series_prepare_eval
+   fun:series_prepare_eval
+   fun:series_query_eval
+   fun:series_query_end_phase
+   fun:series_query_end_phase
+   fun:series_solve
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+}
+204 (96 direct, 108 indirect) bytes in 1 blocks are definitely lost in loss record 30 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x488C01C: zmalloc (util.c:43)
+by 0x4891539: dictCreate (dict.c:108)
+by 0x4898CD0: pmIniFileSetup (config.c:73)
+by 0x10A957: main (pmseries.c:1291)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:zmalloc
+   fun:dictCreate
+   fun:pmIniFileSetup
+   fun:main
+}
+248 bytes in 1 blocks are definitely lost in loss record 31 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10AB11: main (pmseries.c:105)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:main
+}
+328 bytes in 1 blocks are definitely lost in loss record 32 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x48B90B5: newnode (query_parser.y:1321)
+by 0x48BB9F2: yyparse (query_parser.y:934)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:newnode
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+LEAK SUMMARY:
+definitely lost: 1,093 bytes in 15 blocks
+indirectly lost: 108 bytes in 4 blocks
+ERROR SUMMARY: 25 errors from 25 contexts ...
+=== std out ===
+
+bdb503f3d93a8af54adf9e33131152ab61358d5e
+    [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+    [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
+    [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p 54326 -Z UTC stdev_inst(kernel.all.load[count:2])
+3 bytes in 1 blocks are definitely lost in loss record 1 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BCB68: yyparse (query_parser.y:1795)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+3 bytes in 1 blocks are definitely lost in loss record 2 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BA706: yyparse (query_parser.y:1504)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+4 bytes in 1 blocks are definitely lost in loss record 4 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x4873E16: series_node_get_desc_reply (query.c:2037)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_node_get_desc_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+4 bytes in 1 blocks are definitely lost in loss record 5 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x4873E28: series_node_get_desc_reply (query.c:2039)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_node_get_desc_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+13 bytes in 1 blocks are definitely lost in loss record 12 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48B915A: newmetric (query_parser.y:1353)
+by 0x48BAD40: yyparse (query_parser.y:353)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:newmetric
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+}
+17 bytes in 1 blocks are definitely lost in loss record 14 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BC96D: yyparse (query_parser.y:1905)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+17 bytes in 1 blocks are definitely lost in loss record 15 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48B9178: newmetric (query_parser.y:1355)
+by 0x48BAD40: yyparse (query_parser.y:353)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:newmetric
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+}
+20 bytes in 1 blocks are definitely lost in loss record 16 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x487ECFB: series_prepare_smembers_reply (query.c:708)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:series_prepare_smembers_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+21 bytes in 1 blocks are definitely lost in loss record 17 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x487EAF0: series_prepare_maps (query.c:1115)
+by 0x487EA46: series_prepare_maps (query.c:1104)
+by 0x487EA46: series_prepare_maps (query.c:1104)
+by 0x487EBE7: series_query_maps (query.c:1756)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x48803AF: series_solve (query.c:4754)
+by 0x48BCF8F: pmSeriesQuery (query_parser.y:2149)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_prepare_maps
+   fun:series_prepare_maps
+   fun:series_prepare_maps
+   fun:series_query_maps
+   fun:series_query_end_phase
+   fun:series_solve
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+}
+56 bytes in 1 blocks are definitely lost in loss record 22 of 36
+at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489F050: sdsMakeRoomFor (alloc.h:66)
+by 0x48A0433: sdscatfmt (sds.c:610)
+by 0x487143B: series_expr_canonical (query.c:2444)
+by 0x487D4BA: series_redis_hash_expression.constprop.0 (query.c:2539)
+by 0x487E674: series_query_funcs_report_values (query.c:4631)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:sdsMakeRoomFor
+   fun:sdscatfmt
+   fun:series_expr_canonical
+   fun:series_redis_hash_expression.constprop.0
+   fun:series_query_funcs_report_values
+   fun:series_query_end_phase
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+}
+129 bytes in 1 blocks are definitely lost in loss record 28 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x48B9B79: yyparse (query_parser.y:1637)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+}
+130 bytes in 1 blocks are definitely lost in loss record 29 of 36
+at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489F050: sdsMakeRoomFor (alloc.h:66)
+by 0x48A0433: sdscatfmt (sds.c:610)
+by 0x487A461: series_prepare_eval (query.c:1306)
+by 0x487A4AD: series_prepare_eval (query.c:1296)
+by 0x487A637: series_query_eval (query.c:1769)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x48803AF: series_solve (query.c:4754)
+by 0x48BCF8F: pmSeriesQuery (query_parser.y:2149)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:sdsMakeRoomFor
+   fun:sdscatfmt
+   fun:series_prepare_eval
+   fun:series_prepare_eval
+   fun:series_query_eval
+   fun:series_query_end_phase
+   fun:series_query_end_phase
+   fun:series_solve
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+}
+204 (96 direct, 108 indirect) bytes in 1 blocks are definitely lost in loss record 30 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x488C01C: zmalloc (util.c:43)
+by 0x4891539: dictCreate (dict.c:108)
+by 0x4898CD0: pmIniFileSetup (config.c:73)
+by 0x10A957: main (pmseries.c:1291)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:zmalloc
+   fun:dictCreate
+   fun:pmIniFileSetup
+   fun:main
+}
+248 bytes in 1 blocks are definitely lost in loss record 31 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10AB11: main (pmseries.c:105)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:main
+}
+328 bytes in 1 blocks are definitely lost in loss record 32 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x48B90B5: newnode (query_parser.y:1321)
+by 0x48BBA38: yyparse (query_parser.y:924)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:newnode
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+LEAK SUMMARY:
+definitely lost: 1,089 bytes in 15 blocks
+indirectly lost: 108 bytes in 4 blocks
+ERROR SUMMARY: 25 errors from 25 contexts ...
+
+== Running valgrind on max_sample() and max_inst()
+=== std out ===
+
+2384c7851ee5e1625dc109d70b1c39f189b50806
+    [Mon Oct  3 09:10:24.305845000 2011] 5.000000e-02 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+    [Mon Oct  3 09:10:23.802930000 2011] 5.000000e-02 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p 54326 -Z UTC max_sample(kernel.all.load[count:2])
+3 bytes in 1 blocks are definitely lost in loss record 1 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BCB68: yyparse (query_parser.y:1795)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+3 bytes in 1 blocks are definitely lost in loss record 2 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BA706: yyparse (query_parser.y:1504)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+4 bytes in 1 blocks are definitely lost in loss record 4 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x4873E16: series_node_get_desc_reply (query.c:2037)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_node_get_desc_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+4 bytes in 1 blocks are definitely lost in loss record 5 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x4873E28: series_node_get_desc_reply (query.c:2039)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_node_get_desc_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+13 bytes in 1 blocks are definitely lost in loss record 12 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48B915A: newmetric (query_parser.y:1353)
+by 0x48BAD40: yyparse (query_parser.y:353)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:newmetric
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+}
+17 bytes in 1 blocks are definitely lost in loss record 14 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BC96D: yyparse (query_parser.y:1905)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+17 bytes in 1 blocks are definitely lost in loss record 15 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48B9178: newmetric (query_parser.y:1355)
+by 0x48BAD40: yyparse (query_parser.y:353)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:newmetric
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+}
+20 bytes in 1 blocks are definitely lost in loss record 16 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x487ECFB: series_prepare_smembers_reply (query.c:708)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:series_prepare_smembers_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+21 bytes in 1 blocks are definitely lost in loss record 17 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x487EAF0: series_prepare_maps (query.c:1115)
+by 0x487EA46: series_prepare_maps (query.c:1104)
+by 0x487EA46: series_prepare_maps (query.c:1104)
+by 0x487EBE7: series_query_maps (query.c:1756)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x48803AF: series_solve (query.c:4754)
+by 0x48BCF8F: pmSeriesQuery (query_parser.y:2149)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_prepare_maps
+   fun:series_prepare_maps
+   fun:series_prepare_maps
+   fun:series_query_maps
+   fun:series_query_end_phase
+   fun:series_solve
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+}
+56 bytes in 1 blocks are definitely lost in loss record 22 of 36
+at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489F050: sdsMakeRoomFor (alloc.h:66)
+by 0x48A0433: sdscatfmt (sds.c:610)
+by 0x487158B: series_expr_canonical (query.c:2423)
+by 0x487D4BA: series_redis_hash_expression.constprop.0 (query.c:2539)
+by 0x487E674: series_query_funcs_report_values (query.c:4631)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:sdsMakeRoomFor
+   fun:sdscatfmt
+   fun:series_expr_canonical
+   fun:series_redis_hash_expression.constprop.0
+   fun:series_query_funcs_report_values
+   fun:series_query_end_phase
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+}
+129 bytes in 1 blocks are definitely lost in loss record 28 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x48B9B79: yyparse (query_parser.y:1637)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+}
+130 bytes in 1 blocks are definitely lost in loss record 29 of 36
+at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489F050: sdsMakeRoomFor (alloc.h:66)
+by 0x48A0433: sdscatfmt (sds.c:610)
+by 0x487A461: series_prepare_eval (query.c:1306)
+by 0x487A4AD: series_prepare_eval (query.c:1296)
+by 0x487A637: series_query_eval (query.c:1769)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x48803AF: series_solve (query.c:4754)
+by 0x48BCF8F: pmSeriesQuery (query_parser.y:2149)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:sdsMakeRoomFor
+   fun:sdscatfmt
+   fun:series_prepare_eval
+   fun:series_prepare_eval
+   fun:series_query_eval
+   fun:series_query_end_phase
+   fun:series_query_end_phase
+   fun:series_solve
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+}
+204 (96 direct, 108 indirect) bytes in 1 blocks are definitely lost in loss record 30 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x488C01C: zmalloc (util.c:43)
+by 0x4891539: dictCreate (dict.c:108)
+by 0x4898CD0: pmIniFileSetup (config.c:73)
+by 0x10A957: main (pmseries.c:1291)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:zmalloc
+   fun:dictCreate
+   fun:pmIniFileSetup
+   fun:main
+}
+248 bytes in 1 blocks are definitely lost in loss record 31 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10AB11: main (pmseries.c:105)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:main
+}
+328 bytes in 1 blocks are definitely lost in loss record 32 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x48B90B5: newnode (query_parser.y:1321)
+by 0x48BB8DA: yyparse (query_parser.y:756)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:newnode
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+LEAK SUMMARY:
+definitely lost: 1,089 bytes in 15 blocks
+indirectly lost: 108 bytes in 4 blocks
+ERROR SUMMARY: 25 errors from 25 contexts ...
+=== std out ===
+
+a9d70abdd37180508d8f2f56450fa9cbf531847c
+    [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+    [Mon Oct  3 09:10:24.305845000 2011] 2.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
+    [Mon Oct  3 09:10:24.305845000 2011] 5.000000e-02 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p 54326 -Z UTC max_inst(kernel.all.load[count:2])
+3 bytes in 1 blocks are definitely lost in loss record 1 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BCB68: yyparse (query_parser.y:1795)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+3 bytes in 1 blocks are definitely lost in loss record 2 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BA706: yyparse (query_parser.y:1504)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+4 bytes in 1 blocks are definitely lost in loss record 4 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x4873E16: series_node_get_desc_reply (query.c:2037)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_node_get_desc_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+4 bytes in 1 blocks are definitely lost in loss record 5 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x4873E28: series_node_get_desc_reply (query.c:2039)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_node_get_desc_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+13 bytes in 1 blocks are definitely lost in loss record 12 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48B915A: newmetric (query_parser.y:1353)
+by 0x48BAD40: yyparse (query_parser.y:353)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:newmetric
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+}
+17 bytes in 1 blocks are definitely lost in loss record 14 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BC96D: yyparse (query_parser.y:1905)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+17 bytes in 1 blocks are definitely lost in loss record 15 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48B9178: newmetric (query_parser.y:1355)
+by 0x48BAD40: yyparse (query_parser.y:353)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:newmetric
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+}
+20 bytes in 1 blocks are definitely lost in loss record 16 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x487ECFB: series_prepare_smembers_reply (query.c:708)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:series_prepare_smembers_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+21 bytes in 1 blocks are definitely lost in loss record 17 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x487EAF0: series_prepare_maps (query.c:1115)
+by 0x487EA46: series_prepare_maps (query.c:1104)
+by 0x487EA46: series_prepare_maps (query.c:1104)
+by 0x487EBE7: series_query_maps (query.c:1756)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x48803AF: series_solve (query.c:4754)
+by 0x48BCF8F: pmSeriesQuery (query_parser.y:2149)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_prepare_maps
+   fun:series_prepare_maps
+   fun:series_prepare_maps
+   fun:series_query_maps
+   fun:series_query_end_phase
+   fun:series_solve
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+}
+52 bytes in 1 blocks are definitely lost in loss record 22 of 36
+at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489F050: sdsMakeRoomFor (alloc.h:66)
+by 0x48A0433: sdscatfmt (sds.c:610)
+by 0x48715BB: series_expr_canonical (query.c:2420)
+by 0x487D4BA: series_redis_hash_expression.constprop.0 (query.c:2539)
+by 0x487E674: series_query_funcs_report_values (query.c:4631)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:sdsMakeRoomFor
+   fun:sdscatfmt
+   fun:series_expr_canonical
+   fun:series_redis_hash_expression.constprop.0
+   fun:series_query_funcs_report_values
+   fun:series_query_end_phase
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+}
+129 bytes in 1 blocks are definitely lost in loss record 28 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x48B9B79: yyparse (query_parser.y:1637)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+}
+130 bytes in 1 blocks are definitely lost in loss record 29 of 36
+at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489F050: sdsMakeRoomFor (alloc.h:66)
+by 0x48A0433: sdscatfmt (sds.c:610)
+by 0x487A461: series_prepare_eval (query.c:1306)
+by 0x487A4AD: series_prepare_eval (query.c:1296)
+by 0x487A637: series_query_eval (query.c:1769)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x48803AF: series_solve (query.c:4754)
+by 0x48BCF8F: pmSeriesQuery (query_parser.y:2149)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:sdsMakeRoomFor
+   fun:sdscatfmt
+   fun:series_prepare_eval
+   fun:series_prepare_eval
+   fun:series_query_eval
+   fun:series_query_end_phase
+   fun:series_query_end_phase
+   fun:series_solve
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+}
+204 (96 direct, 108 indirect) bytes in 1 blocks are definitely lost in loss record 30 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x488C01C: zmalloc (util.c:43)
+by 0x4891539: dictCreate (dict.c:108)
+by 0x4898CD0: pmIniFileSetup (config.c:73)
+by 0x10A957: main (pmseries.c:1291)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:zmalloc
+   fun:dictCreate
+   fun:pmIniFileSetup
+   fun:main
+}
+248 bytes in 1 blocks are definitely lost in loss record 31 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10AB11: main (pmseries.c:105)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:main
+}
+328 bytes in 1 blocks are definitely lost in loss record 32 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x48B90B5: newnode (query_parser.y:1321)
+by 0x48BC151: yyparse (query_parser.y:746)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:newnode
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+LEAK SUMMARY:
+definitely lost: 1,085 bytes in 15 blocks
+indirectly lost: 108 bytes in 4 blocks
+ERROR SUMMARY: 25 errors from 25 contexts ...
+
+== Running valgrind on min_sample() and min_inst()
+=== std out ===
+
+dc4d3bd8c07fb952e89e9765392447b26eea6f8f
+    [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+    [Mon Oct  3 09:10:23.802930000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p 54326 -Z UTC min_sample(kernel.all.load[count:2])
+3 bytes in 1 blocks are definitely lost in loss record 1 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BCB68: yyparse (query_parser.y:1795)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+3 bytes in 1 blocks are definitely lost in loss record 2 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BA706: yyparse (query_parser.y:1504)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+4 bytes in 1 blocks are definitely lost in loss record 4 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x4873E16: series_node_get_desc_reply (query.c:2037)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_node_get_desc_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+4 bytes in 1 blocks are definitely lost in loss record 5 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x4873E28: series_node_get_desc_reply (query.c:2039)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_node_get_desc_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+13 bytes in 1 blocks are definitely lost in loss record 12 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48B915A: newmetric (query_parser.y:1353)
+by 0x48BAD40: yyparse (query_parser.y:353)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:newmetric
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+}
+17 bytes in 1 blocks are definitely lost in loss record 14 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BC96D: yyparse (query_parser.y:1905)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+17 bytes in 1 blocks are definitely lost in loss record 15 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48B9178: newmetric (query_parser.y:1355)
+by 0x48BAD40: yyparse (query_parser.y:353)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:newmetric
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+}
+20 bytes in 1 blocks are definitely lost in loss record 16 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x487ECFB: series_prepare_smembers_reply (query.c:708)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:series_prepare_smembers_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+21 bytes in 1 blocks are definitely lost in loss record 17 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x487EAF0: series_prepare_maps (query.c:1115)
+by 0x487EA46: series_prepare_maps (query.c:1104)
+by 0x487EA46: series_prepare_maps (query.c:1104)
+by 0x487EBE7: series_query_maps (query.c:1756)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x48803AF: series_solve (query.c:4754)
+by 0x48BCF8F: pmSeriesQuery (query_parser.y:2149)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_prepare_maps
+   fun:series_prepare_maps
+   fun:series_prepare_maps
+   fun:series_query_maps
+   fun:series_query_end_phase
+   fun:series_solve
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+}
+56 bytes in 1 blocks are definitely lost in loss record 22 of 36
+at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489F050: sdsMakeRoomFor (alloc.h:66)
+by 0x48A0433: sdscatfmt (sds.c:610)
+by 0x48714FB: series_expr_canonical (query.c:2432)
+by 0x487D4BA: series_redis_hash_expression.constprop.0 (query.c:2539)
+by 0x487E674: series_query_funcs_report_values (query.c:4631)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:sdsMakeRoomFor
+   fun:sdscatfmt
+   fun:series_expr_canonical
+   fun:series_redis_hash_expression.constprop.0
+   fun:series_query_funcs_report_values
+   fun:series_query_end_phase
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+}
+129 bytes in 1 blocks are definitely lost in loss record 28 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x48B9B79: yyparse (query_parser.y:1637)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+}
+130 bytes in 1 blocks are definitely lost in loss record 29 of 36
+at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489F050: sdsMakeRoomFor (alloc.h:66)
+by 0x48A0433: sdscatfmt (sds.c:610)
+by 0x487A461: series_prepare_eval (query.c:1306)
+by 0x487A4AD: series_prepare_eval (query.c:1296)
+by 0x487A637: series_query_eval (query.c:1769)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x48803AF: series_solve (query.c:4754)
+by 0x48BCF8F: pmSeriesQuery (query_parser.y:2149)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:sdsMakeRoomFor
+   fun:sdscatfmt
+   fun:series_prepare_eval
+   fun:series_prepare_eval
+   fun:series_query_eval
+   fun:series_query_end_phase
+   fun:series_query_end_phase
+   fun:series_solve
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+}
+204 (96 direct, 108 indirect) bytes in 1 blocks are definitely lost in loss record 30 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x488C01C: zmalloc (util.c:43)
+by 0x4891539: dictCreate (dict.c:108)
+by 0x4898CD0: pmIniFileSetup (config.c:73)
+by 0x10A957: main (pmseries.c:1291)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:zmalloc
+   fun:dictCreate
+   fun:pmIniFileSetup
+   fun:main
+}
+248 bytes in 1 blocks are definitely lost in loss record 31 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10AB11: main (pmseries.c:105)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:main
+}
+328 bytes in 1 blocks are definitely lost in loss record 32 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x48B90B5: newnode (query_parser.y:1321)
+by 0x48BB2B8: yyparse (query_parser.y:786)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:newnode
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+LEAK SUMMARY:
+definitely lost: 1,089 bytes in 15 blocks
+indirectly lost: 108 bytes in 4 blocks
+ERROR SUMMARY: 25 errors from 25 contexts ...
+=== std out ===
+
+3b8318cee1112b3494ca6028a41e159f938f070a
+    [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+    [Mon Oct  3 09:10:24.305845000 2011] 2.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
+    [Mon Oct  3 09:10:24.305845000 2011] 5.000000e-02 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p 54326 -Z UTC min_inst(kernel.all.load[count:2])
+3 bytes in 1 blocks are definitely lost in loss record 1 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BCB68: yyparse (query_parser.y:1795)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+3 bytes in 1 blocks are definitely lost in loss record 2 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BA706: yyparse (query_parser.y:1504)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+4 bytes in 1 blocks are definitely lost in loss record 4 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x4873E16: series_node_get_desc_reply (query.c:2037)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_node_get_desc_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+4 bytes in 1 blocks are definitely lost in loss record 5 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x4873E28: series_node_get_desc_reply (query.c:2039)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_node_get_desc_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+13 bytes in 1 blocks are definitely lost in loss record 12 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48B915A: newmetric (query_parser.y:1353)
+by 0x48BAD40: yyparse (query_parser.y:353)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:newmetric
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+}
+17 bytes in 1 blocks are definitely lost in loss record 14 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BC96D: yyparse (query_parser.y:1905)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+17 bytes in 1 blocks are definitely lost in loss record 15 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48B9178: newmetric (query_parser.y:1355)
+by 0x48BAD40: yyparse (query_parser.y:353)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:newmetric
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+}
+20 bytes in 1 blocks are definitely lost in loss record 16 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x487ECFB: series_prepare_smembers_reply (query.c:708)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:series_prepare_smembers_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+21 bytes in 1 blocks are definitely lost in loss record 17 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x487EAF0: series_prepare_maps (query.c:1115)
+by 0x487EA46: series_prepare_maps (query.c:1104)
+by 0x487EA46: series_prepare_maps (query.c:1104)
+by 0x487EBE7: series_query_maps (query.c:1756)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x48803AF: series_solve (query.c:4754)
+by 0x48BCF8F: pmSeriesQuery (query_parser.y:2149)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_prepare_maps
+   fun:series_prepare_maps
+   fun:series_prepare_maps
+   fun:series_query_maps
+   fun:series_query_end_phase
+   fun:series_solve
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+}
+52 bytes in 1 blocks are definitely lost in loss record 22 of 36
+at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489F050: sdsMakeRoomFor (alloc.h:66)
+by 0x48A0433: sdscatfmt (sds.c:610)
+by 0x487152B: series_expr_canonical (query.c:2429)
+by 0x487D4BA: series_redis_hash_expression.constprop.0 (query.c:2539)
+by 0x487E674: series_query_funcs_report_values (query.c:4631)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:sdsMakeRoomFor
+   fun:sdscatfmt
+   fun:series_expr_canonical
+   fun:series_redis_hash_expression.constprop.0
+   fun:series_query_funcs_report_values
+   fun:series_query_end_phase
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+}
+129 bytes in 1 blocks are definitely lost in loss record 28 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x48B9B79: yyparse (query_parser.y:1637)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+}
+130 bytes in 1 blocks are definitely lost in loss record 29 of 36
+at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489F050: sdsMakeRoomFor (alloc.h:66)
+by 0x48A0433: sdscatfmt (sds.c:610)
+by 0x487A461: series_prepare_eval (query.c:1306)
+by 0x487A4AD: series_prepare_eval (query.c:1296)
+by 0x487A637: series_query_eval (query.c:1769)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x48803AF: series_solve (query.c:4754)
+by 0x48BCF8F: pmSeriesQuery (query_parser.y:2149)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:sdsMakeRoomFor
+   fun:sdscatfmt
+   fun:series_prepare_eval
+   fun:series_prepare_eval
+   fun:series_query_eval
+   fun:series_query_end_phase
+   fun:series_query_end_phase
+   fun:series_solve
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+}
+204 (96 direct, 108 indirect) bytes in 1 blocks are definitely lost in loss record 30 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x488C01C: zmalloc (util.c:43)
+by 0x4891539: dictCreate (dict.c:108)
+by 0x4898CD0: pmIniFileSetup (config.c:73)
+by 0x10A957: main (pmseries.c:1291)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:zmalloc
+   fun:dictCreate
+   fun:pmIniFileSetup
+   fun:main
+}
+248 bytes in 1 blocks are definitely lost in loss record 31 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10AB11: main (pmseries.c:105)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:main
+}
+328 bytes in 1 blocks are definitely lost in loss record 32 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x48B90B5: newnode (query_parser.y:1321)
+by 0x48BB2FE: yyparse (query_parser.y:776)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:newnode
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+LEAK SUMMARY:
+definitely lost: 1,085 bytes in 15 blocks
+indirectly lost: 108 bytes in 4 blocks
+ERROR SUMMARY: 25 errors from 25 contexts ...
+
+== Running valgrind on sum_sample() and sum_inst()
+=== std out ===
+
+45710cbbadf0dda9db9bc2b0efdc6d35efcd2485
+    [Mon Oct  3 09:10:24.305845000 2011] 7.000000e-02 
+    [Mon Oct  3 09:10:23.802930000 2011] 7.000000e-02 
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p 54326 -Z UTC sum_sample(kernel.all.load[count:2])
+3 bytes in 1 blocks are definitely lost in loss record 1 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BCB68: yyparse (query_parser.y:1795)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+3 bytes in 1 blocks are definitely lost in loss record 2 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BA706: yyparse (query_parser.y:1504)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+4 bytes in 1 blocks are definitely lost in loss record 4 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x4873E16: series_node_get_desc_reply (query.c:2037)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_node_get_desc_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+4 bytes in 1 blocks are definitely lost in loss record 5 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x4873E28: series_node_get_desc_reply (query.c:2039)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_node_get_desc_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+13 bytes in 1 blocks are definitely lost in loss record 12 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48B915A: newmetric (query_parser.y:1353)
+by 0x48BAD40: yyparse (query_parser.y:353)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:newmetric
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+}
+17 bytes in 1 blocks are definitely lost in loss record 14 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BC96D: yyparse (query_parser.y:1905)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+17 bytes in 1 blocks are definitely lost in loss record 15 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48B9178: newmetric (query_parser.y:1355)
+by 0x48BAD40: yyparse (query_parser.y:353)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:newmetric
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+}
+20 bytes in 1 blocks are definitely lost in loss record 16 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x487ECFB: series_prepare_smembers_reply (query.c:708)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:series_prepare_smembers_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+21 bytes in 1 blocks are definitely lost in loss record 17 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x487EAF0: series_prepare_maps (query.c:1115)
+by 0x487EA46: series_prepare_maps (query.c:1104)
+by 0x487EA46: series_prepare_maps (query.c:1104)
+by 0x487EBE7: series_query_maps (query.c:1756)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x48803AF: series_solve (query.c:4754)
+by 0x48BCF8F: pmSeriesQuery (query_parser.y:2149)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_prepare_maps
+   fun:series_prepare_maps
+   fun:series_prepare_maps
+   fun:series_query_maps
+   fun:series_query_end_phase
+   fun:series_solve
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+}
+56 bytes in 1 blocks are definitely lost in loss record 22 of 36
+at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489F050: sdsMakeRoomFor (alloc.h:66)
+by 0x48A0433: sdscatfmt (sds.c:610)
+by 0x487146B: series_expr_canonical (query.c:2441)
+by 0x487D4BA: series_redis_hash_expression.constprop.0 (query.c:2539)
+by 0x487E674: series_query_funcs_report_values (query.c:4631)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:sdsMakeRoomFor
+   fun:sdscatfmt
+   fun:series_expr_canonical
+   fun:series_redis_hash_expression.constprop.0
+   fun:series_query_funcs_report_values
+   fun:series_query_end_phase
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+}
+129 bytes in 1 blocks are definitely lost in loss record 28 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x48B9B79: yyparse (query_parser.y:1637)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+}
+130 bytes in 1 blocks are definitely lost in loss record 29 of 36
+at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489F050: sdsMakeRoomFor (alloc.h:66)
+by 0x48A0433: sdscatfmt (sds.c:610)
+by 0x487A461: series_prepare_eval (query.c:1306)
+by 0x487A4AD: series_prepare_eval (query.c:1296)
+by 0x487A637: series_query_eval (query.c:1769)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x48803AF: series_solve (query.c:4754)
+by 0x48BCF8F: pmSeriesQuery (query_parser.y:2149)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:sdsMakeRoomFor
+   fun:sdscatfmt
+   fun:series_prepare_eval
+   fun:series_prepare_eval
+   fun:series_query_eval
+   fun:series_query_end_phase
+   fun:series_query_end_phase
+   fun:series_solve
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+}
+204 (96 direct, 108 indirect) bytes in 1 blocks are definitely lost in loss record 30 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x488C01C: zmalloc (util.c:43)
+by 0x4891539: dictCreate (dict.c:108)
+by 0x4898CD0: pmIniFileSetup (config.c:73)
+by 0x10A957: main (pmseries.c:1291)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:zmalloc
+   fun:dictCreate
+   fun:pmIniFileSetup
+   fun:main
+}
+248 bytes in 1 blocks are definitely lost in loss record 31 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10AB11: main (pmseries.c:105)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:main
+}
+328 bytes in 1 blocks are definitely lost in loss record 32 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x48B90B5: newnode (query_parser.y:1321)
+by 0x48BBA7E: yyparse (query_parser.y:914)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:newnode
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+LEAK SUMMARY:
+definitely lost: 1,089 bytes in 15 blocks
+indirectly lost: 108 bytes in 4 blocks
+ERROR SUMMARY: 25 errors from 25 contexts ...
+=== std out ===
+
+8e492bbdf9d4a6a34bed61d9d4a7e56be143063d
+    [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+    [Mon Oct  3 09:10:24.305845000 2011] 4.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
+    [Mon Oct  3 09:10:24.305845000 2011] 1.000000e-01 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p 54326 -Z UTC sum_inst(kernel.all.load[count:2])
+3 bytes in 1 blocks are definitely lost in loss record 1 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BCB68: yyparse (query_parser.y:1795)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+3 bytes in 1 blocks are definitely lost in loss record 2 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BA706: yyparse (query_parser.y:1504)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+4 bytes in 1 blocks are definitely lost in loss record 4 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x4873E16: series_node_get_desc_reply (query.c:2037)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_node_get_desc_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+4 bytes in 1 blocks are definitely lost in loss record 5 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x4873E28: series_node_get_desc_reply (query.c:2039)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_node_get_desc_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+13 bytes in 1 blocks are definitely lost in loss record 12 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48B915A: newmetric (query_parser.y:1353)
+by 0x48BAD40: yyparse (query_parser.y:353)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:newmetric
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+}
+17 bytes in 1 blocks are definitely lost in loss record 14 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BC96D: yyparse (query_parser.y:1905)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+17 bytes in 1 blocks are definitely lost in loss record 15 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48B9178: newmetric (query_parser.y:1355)
+by 0x48BAD40: yyparse (query_parser.y:353)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:newmetric
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+}
+20 bytes in 1 blocks are definitely lost in loss record 16 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x487ECFB: series_prepare_smembers_reply (query.c:708)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:series_prepare_smembers_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+21 bytes in 1 blocks are definitely lost in loss record 17 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x487EAF0: series_prepare_maps (query.c:1115)
+by 0x487EA46: series_prepare_maps (query.c:1104)
+by 0x487EA46: series_prepare_maps (query.c:1104)
+by 0x487EBE7: series_query_maps (query.c:1756)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x48803AF: series_solve (query.c:4754)
+by 0x48BCF8F: pmSeriesQuery (query_parser.y:2149)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_prepare_maps
+   fun:series_prepare_maps
+   fun:series_prepare_maps
+   fun:series_query_maps
+   fun:series_query_end_phase
+   fun:series_solve
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+}
+52 bytes in 1 blocks are definitely lost in loss record 22 of 36
+at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489F050: sdsMakeRoomFor (alloc.h:66)
+by 0x48A0433: sdscatfmt (sds.c:610)
+by 0x487149B: series_expr_canonical (query.c:2438)
+by 0x487D4BA: series_redis_hash_expression.constprop.0 (query.c:2539)
+by 0x487E674: series_query_funcs_report_values (query.c:4631)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:sdsMakeRoomFor
+   fun:sdscatfmt
+   fun:series_expr_canonical
+   fun:series_redis_hash_expression.constprop.0
+   fun:series_query_funcs_report_values
+   fun:series_query_end_phase
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+}
+129 bytes in 1 blocks are definitely lost in loss record 28 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x48B9B79: yyparse (query_parser.y:1637)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+}
+130 bytes in 1 blocks are definitely lost in loss record 29 of 36
+at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489F050: sdsMakeRoomFor (alloc.h:66)
+by 0x48A0433: sdscatfmt (sds.c:610)
+by 0x487A461: series_prepare_eval (query.c:1306)
+by 0x487A4AD: series_prepare_eval (query.c:1296)
+by 0x487A637: series_query_eval (query.c:1769)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x48803AF: series_solve (query.c:4754)
+by 0x48BCF8F: pmSeriesQuery (query_parser.y:2149)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:sdsMakeRoomFor
+   fun:sdscatfmt
+   fun:series_prepare_eval
+   fun:series_prepare_eval
+   fun:series_query_eval
+   fun:series_query_end_phase
+   fun:series_query_end_phase
+   fun:series_solve
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+}
+204 (96 direct, 108 indirect) bytes in 1 blocks are definitely lost in loss record 30 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x488C01C: zmalloc (util.c:43)
+by 0x4891539: dictCreate (dict.c:108)
+by 0x4898CD0: pmIniFileSetup (config.c:73)
+by 0x10A957: main (pmseries.c:1291)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:zmalloc
+   fun:dictCreate
+   fun:pmIniFileSetup
+   fun:main
+}
+248 bytes in 1 blocks are definitely lost in loss record 31 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10AB11: main (pmseries.c:105)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:main
+}
+328 bytes in 1 blocks are definitely lost in loss record 32 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x48B90B5: newnode (query_parser.y:1321)
+by 0x48BBAC4: yyparse (query_parser.y:904)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:newnode
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+LEAK SUMMARY:
+definitely lost: 1,085 bytes in 15 blocks
+indirectly lost: 108 bytes in 4 blocks
+ERROR SUMMARY: 25 errors from 25 contexts ...
+
+== Running valgrind on avg_sample() and avg_inst()
+=== std out ===
+
+63e4592a8415eecfc61955f64615cfa3fb985dfb
+    [Mon Oct  3 09:10:24.305845000 2011] 2.333333e-02 
+    [Mon Oct  3 09:10:23.802930000 2011] 2.333333e-02 
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p 54326 -Z UTC avg_sample(kernel.all.load[count:2])
+3 bytes in 1 blocks are definitely lost in loss record 1 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BCB68: yyparse (query_parser.y:1795)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+3 bytes in 1 blocks are definitely lost in loss record 2 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BA706: yyparse (query_parser.y:1504)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+4 bytes in 1 blocks are definitely lost in loss record 4 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x4873E16: series_node_get_desc_reply (query.c:2037)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_node_get_desc_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+4 bytes in 1 blocks are definitely lost in loss record 5 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x4873E28: series_node_get_desc_reply (query.c:2039)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_node_get_desc_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+13 bytes in 1 blocks are definitely lost in loss record 12 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48B915A: newmetric (query_parser.y:1353)
+by 0x48BAD40: yyparse (query_parser.y:353)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:newmetric
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+}
+17 bytes in 1 blocks are definitely lost in loss record 14 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BC96D: yyparse (query_parser.y:1905)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+17 bytes in 1 blocks are definitely lost in loss record 15 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48B9178: newmetric (query_parser.y:1355)
+by 0x48BAD40: yyparse (query_parser.y:353)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:newmetric
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+}
+20 bytes in 1 blocks are definitely lost in loss record 16 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x487ECFB: series_prepare_smembers_reply (query.c:708)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:series_prepare_smembers_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+21 bytes in 1 blocks are definitely lost in loss record 17 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x487EAF0: series_prepare_maps (query.c:1115)
+by 0x487EA46: series_prepare_maps (query.c:1104)
+by 0x487EA46: series_prepare_maps (query.c:1104)
+by 0x487EBE7: series_query_maps (query.c:1756)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x48803AF: series_solve (query.c:4754)
+by 0x48BCF8F: pmSeriesQuery (query_parser.y:2149)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_prepare_maps
+   fun:series_prepare_maps
+   fun:series_prepare_maps
+   fun:series_query_maps
+   fun:series_query_end_phase
+   fun:series_solve
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+}
+56 bytes in 1 blocks are definitely lost in loss record 22 of 36
+at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489F050: sdsMakeRoomFor (alloc.h:66)
+by 0x48A0433: sdscatfmt (sds.c:610)
+by 0x487164B: series_expr_canonical (query.c:2409)
+by 0x487D4BA: series_redis_hash_expression.constprop.0 (query.c:2539)
+by 0x487E674: series_query_funcs_report_values (query.c:4631)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:sdsMakeRoomFor
+   fun:sdscatfmt
+   fun:series_expr_canonical
+   fun:series_redis_hash_expression.constprop.0
+   fun:series_query_funcs_report_values
+   fun:series_query_end_phase
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+}
+129 bytes in 1 blocks are definitely lost in loss record 28 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x48B9B79: yyparse (query_parser.y:1637)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+}
+130 bytes in 1 blocks are definitely lost in loss record 29 of 36
+at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489F050: sdsMakeRoomFor (alloc.h:66)
+by 0x48A0433: sdscatfmt (sds.c:610)
+by 0x487A461: series_prepare_eval (query.c:1306)
+by 0x487A4AD: series_prepare_eval (query.c:1296)
+by 0x487A637: series_query_eval (query.c:1769)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x48803AF: series_solve (query.c:4754)
+by 0x48BCF8F: pmSeriesQuery (query_parser.y:2149)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:sdsMakeRoomFor
+   fun:sdscatfmt
+   fun:series_prepare_eval
+   fun:series_prepare_eval
+   fun:series_query_eval
+   fun:series_query_end_phase
+   fun:series_query_end_phase
+   fun:series_solve
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+}
+204 (96 direct, 108 indirect) bytes in 1 blocks are definitely lost in loss record 30 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x488C01C: zmalloc (util.c:43)
+by 0x4891539: dictCreate (dict.c:108)
+by 0x4898CD0: pmIniFileSetup (config.c:73)
+by 0x10A957: main (pmseries.c:1291)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:zmalloc
+   fun:dictCreate
+   fun:pmIniFileSetup
+   fun:main
+}
+248 bytes in 1 blocks are definitely lost in loss record 31 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10AB11: main (pmseries.c:105)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:main
+}
+328 bytes in 1 blocks are definitely lost in loss record 32 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x48B90B5: newnode (query_parser.y:1321)
+by 0x48BB920: yyparse (query_parser.y:964)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:newnode
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+LEAK SUMMARY:
+definitely lost: 1,089 bytes in 15 blocks
+indirectly lost: 108 bytes in 4 blocks
+ERROR SUMMARY: 25 errors from 25 contexts ...
+=== std out ===
+
+d5f1f053bb6b11dcc8245a7a792d0537c9f7de6a
+    [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+    [Mon Oct  3 09:10:24.305845000 2011] 2.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
+    [Mon Oct  3 09:10:24.305845000 2011] 5.000000e-02 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p 54326 -Z UTC avg_inst(kernel.all.load[count:2])
+3 bytes in 1 blocks are definitely lost in loss record 1 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BCB68: yyparse (query_parser.y:1795)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+3 bytes in 1 blocks are definitely lost in loss record 2 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BA706: yyparse (query_parser.y:1504)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+4 bytes in 1 blocks are definitely lost in loss record 4 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x4873E16: series_node_get_desc_reply (query.c:2037)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_node_get_desc_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+4 bytes in 1 blocks are definitely lost in loss record 5 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x4873E28: series_node_get_desc_reply (query.c:2039)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_node_get_desc_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+13 bytes in 1 blocks are definitely lost in loss record 12 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48B915A: newmetric (query_parser.y:1353)
+by 0x48BAD40: yyparse (query_parser.y:353)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:newmetric
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+}
+17 bytes in 1 blocks are definitely lost in loss record 14 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48BC96D: yyparse (query_parser.y:1905)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+17 bytes in 1 blocks are definitely lost in loss record 15 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x48B9178: newmetric (query_parser.y:1355)
+by 0x48BAD40: yyparse (query_parser.y:353)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:newmetric
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+}
+20 bytes in 1 blocks are definitely lost in loss record 16 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x487ECFB: series_prepare_smembers_reply (query.c:708)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x48EF84B: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+by 0x10AC39: main (pmseries.c:1091)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:series_prepare_smembers_reply
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+   fun:uv_run
+   fun:main
+}
+21 bytes in 1 blocks are definitely lost in loss record 17 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489EAF1: sdsnewlen (alloc.h:58)
+by 0x487EAF0: series_prepare_maps (query.c:1115)
+by 0x487EA46: series_prepare_maps (query.c:1104)
+by 0x487EA46: series_prepare_maps (query.c:1104)
+by 0x487EBE7: series_query_maps (query.c:1756)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x48803AF: series_solve (query.c:4754)
+by 0x48BCF8F: pmSeriesQuery (query_parser.y:2149)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sdsnewlen
+   fun:series_prepare_maps
+   fun:series_prepare_maps
+   fun:series_prepare_maps
+   fun:series_query_maps
+   fun:series_query_end_phase
+   fun:series_solve
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+}
+52 bytes in 1 blocks are definitely lost in loss record 22 of 36
+at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489F050: sdsMakeRoomFor (alloc.h:66)
+by 0x48A0433: sdscatfmt (sds.c:610)
+by 0x487167B: series_expr_canonical (query.c:2406)
+by 0x487D4BA: series_redis_hash_expression.constprop.0 (query.c:2539)
+by 0x487E674: series_query_funcs_report_values (query.c:4631)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:sdsMakeRoomFor
+   fun:sdscatfmt
+   fun:series_expr_canonical
+   fun:series_redis_hash_expression.constprop.0
+   fun:series_query_funcs_report_values
+   fun:series_query_end_phase
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+}
+129 bytes in 1 blocks are definitely lost in loss record 28 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x48B9B79: yyparse (query_parser.y:1637)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+by 0x48FFB7F: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+   fun:uv__io_poll
+}
+130 bytes in 1 blocks are definitely lost in loss record 29 of 36
+at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x489F050: sdsMakeRoomFor (alloc.h:66)
+by 0x48A0433: sdscatfmt (sds.c:610)
+by 0x487A461: series_prepare_eval (query.c:1306)
+by 0x487A4AD: series_prepare_eval (query.c:1296)
+by 0x487A637: series_query_eval (query.c:1769)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x4873482: series_query_end_phase (query.c:293)
+by 0x48803AF: series_solve (query.c:4754)
+by 0x48BCF8F: pmSeriesQuery (query_parser.y:2149)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:sdsMakeRoomFor
+   fun:sdscatfmt
+   fun:series_prepare_eval
+   fun:series_prepare_eval
+   fun:series_query_eval
+   fun:series_query_end_phase
+   fun:series_query_end_phase
+   fun:series_solve
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+}
+204 (96 direct, 108 indirect) bytes in 1 blocks are definitely lost in loss record 30 of 36
+at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x488C01C: zmalloc (util.c:43)
+by 0x4891539: dictCreate (dict.c:108)
+by 0x4898CD0: pmIniFileSetup (config.c:73)
+by 0x10A957: main (pmseries.c:1291)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:zmalloc
+   fun:dictCreate
+   fun:pmIniFileSetup
+   fun:main
+}
+248 bytes in 1 blocks are definitely lost in loss record 31 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10AB11: main (pmseries.c:105)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:main
+}
+328 bytes in 1 blocks are definitely lost in loss record 32 of 36
+at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x48B90B5: newnode (query_parser.y:1321)
+by 0x48BB966: yyparse (query_parser.y:954)
+by 0x48BCD9A: series_parse (query_parser.y:2108)
+by 0x48BCF6E: pmSeriesQuery (query_parser.y:2138)
+by 0x10D324: on_series_setup (pmseries.c:410)
+by 0x48812DD: redis_slots_finished (schema.c:85)
+by 0x4882F21: redis_load_series_version_callback (schema.c:1259)
+by 0x488F66A: redisSlotsReplyCallback (slots.c:515)
+by 0x48A716F: redisClusterAsyncCallback (hircluster.c:3908)
+by 0x4899CA4: redisProcessCallbacks (async.c:287)
+by 0x488F43C: redisLibuvPoll (libuv.h:21)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:newnode
+   fun:yyparse
+   fun:series_parse
+   fun:pmSeriesQuery
+   fun:on_series_setup
+   fun:redis_slots_finished
+   fun:redis_load_series_version_callback
+   fun:redisSlotsReplyCallback
+   fun:redisClusterAsyncCallback
+   fun:redisProcessCallbacks
+   fun:redisLibuvPoll
+}
+LEAK SUMMARY:
+definitely lost: 1,085 bytes in 15 blocks
+indirectly lost: 108 bytes in 4 blocks
+ERROR SUMMARY: 25 errors from 25 contexts ...
