@@ -720,9 +720,17 @@ endif
 # --- need libpcp_archive
 
 # --- need -rdynamic
+# need minimal gcc and ld flags to prevent smart-arse optimizations that
+# make the callstack go away ... need to make it work both in the build
+# and for ~pcpcqa once packages installed
+#
 dumpstack:	dumpstack.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ -rdynamic $^ $(LDLIBS)
+ifeq "$(TOPDIR)" ""
+	$(CC) -I$(PCP_INC_DIR) -I. $(PCFLAGS) -o $@ -rdynamic $^ -lpcp
+else
+	$(CC) -I$(TOPDIR)/src/include/pcp -I. $(PCFLAGS) -o $@ -rdynamic $^ -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) -lpcp
+endif
 
 ifneq ($(NVIDIAQALIB),)
 $(NVIDIAQALIB):	nvidia-ml.o
