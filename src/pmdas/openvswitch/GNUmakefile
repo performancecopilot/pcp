@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020 Red Hat.
+# Copyright (c) 2020,2022 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -28,6 +28,8 @@ PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
 PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
 LOGCONFDIR = $(PCP_SYSCONF_DIR)/pmlogconf/$(IAM)
 LOGCONFVARDIR = $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
+PMIECONFDIR = $(PCP_SYSCONF_DIR)/pmieconf/$(IAM)
+PMIECONFVARDIR = $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
 
 default_pcp default:	build-me
 
@@ -43,6 +45,11 @@ install_pcp install:	default
 	$(INSTALL) -m 755 -d $(LOGCONFDIR)
 	$(INSTALL) -m 755 -d $(LOGCONFVARDIR)
 	$(INSTALL) -m 644 -t $(LOGCONFVARDIR)/summary pmlogconf.summary $(LOGCONFDIR)/summary
+	$(INSTALL) -m 755 -d $(PMIECONFDIR)
+	$(INSTALL) -m 755 -d $(PMIECONFVARDIR)
+	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/rx_drops openvswitch.rx_drops.pmie $(PMIECONFDIR)/rx_drops
+	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/tx_drops openvswitch.tx_drops.pmie $(PMIECONFDIR)/tx_drops
+	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/errors openvswitch.errors.pmie $(PMIECONFDIR)/errors
 else
 build-me:
 install_pcp install:

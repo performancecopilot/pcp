@@ -1,5 +1,7 @@
 # Environment variables for the primary pmlogger daemon.  See also
 # the pmlogger control file and pmlogconf(1) for additional details.
+# Also see separate pmlogger_farm configuration for the non-primary
+# logger configuration settings, separate to this file.
 # Settings defined in this file will override any settings in the
 # pmlogger zeroconf file (if present).
 

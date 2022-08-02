@@ -3,7 +3,7 @@
  * Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
  */
 
-#include "pmapi.h"
+#include <pcp/pmapi.h>
 #include "libpcp.h"
 
 static pmLongOptions longopts[] = {

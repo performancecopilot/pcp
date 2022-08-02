@@ -1,0 +1,152 @@
+QA output created by 1574
+Start test Redis server ...
+PING
+PONG
+
+== Load metric data into this redis instance
+pmseries: [Info] processed 5 archive records from PATH/archives/proc
+
+== Running valgrind on stdev_sample() and stdev_inst()
+=== std out ===
+
+ef9785c6b5cae109a5ed4fd8a0cbe868a1c576e1
+    [Mon Oct  3 09:10:24.305845000 2011] 2.054805e-02 
+    [Mon Oct  3 09:10:23.802930000 2011] 2.054805e-02 
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p REDISPORT -Z UTC stdev_sample(kernel.all.load[count:2])
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+
+bdb503f3d93a8af54adf9e33131152ab61358d5e
+    [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+    [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
+    [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p REDISPORT -Z UTC stdev_inst(kernel.all.load[count:2])
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== Running valgrind on max_sample() and max_inst()
+=== std out ===
+
+2384c7851ee5e1625dc109d70b1c39f189b50806
+    [Mon Oct  3 09:10:24.305845000 2011] 5.000000e-02 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+    [Mon Oct  3 09:10:23.802930000 2011] 5.000000e-02 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p REDISPORT -Z UTC max_sample(kernel.all.load[count:2])
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+
+a9d70abdd37180508d8f2f56450fa9cbf531847c
+    [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+    [Mon Oct  3 09:10:24.305845000 2011] 2.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
+    [Mon Oct  3 09:10:24.305845000 2011] 5.000000e-02 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p REDISPORT -Z UTC max_inst(kernel.all.load[count:2])
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== Running valgrind on min_sample() and min_inst()
+=== std out ===
+
+dc4d3bd8c07fb952e89e9765392447b26eea6f8f
+    [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+    [Mon Oct  3 09:10:23.802930000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p REDISPORT -Z UTC min_sample(kernel.all.load[count:2])
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+
+3b8318cee1112b3494ca6028a41e159f938f070a
+    [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+    [Mon Oct  3 09:10:24.305845000 2011] 2.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
+    [Mon Oct  3 09:10:24.305845000 2011] 5.000000e-02 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p REDISPORT -Z UTC min_inst(kernel.all.load[count:2])
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== Running valgrind on sum_sample() and sum_inst()
+=== std out ===
+
+45710cbbadf0dda9db9bc2b0efdc6d35efcd2485
+    [Mon Oct  3 09:10:24.305845000 2011] 7.000000e-02 
+    [Mon Oct  3 09:10:23.802930000 2011] 7.000000e-02 
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p REDISPORT -Z UTC sum_sample(kernel.all.load[count:2])
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+
+8e492bbdf9d4a6a34bed61d9d4a7e56be143063d
+    [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+    [Mon Oct  3 09:10:24.305845000 2011] 4.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
+    [Mon Oct  3 09:10:24.305845000 2011] 1.000000e-01 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p REDISPORT -Z UTC sum_inst(kernel.all.load[count:2])
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== Running valgrind on avg_sample() and avg_inst()
+=== std out ===
+
+63e4592a8415eecfc61955f64615cfa3fb985dfb
+    [Mon Oct  3 09:10:24.305845000 2011] 2.333333e-02 
+    [Mon Oct  3 09:10:23.802930000 2011] 2.333333e-02 
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p REDISPORT -Z UTC avg_sample(kernel.all.load[count:2])
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+
+d5f1f053bb6b11dcc8245a7a792d0537c9f7de6a
+    [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+    [Mon Oct  3 09:10:24.305845000 2011] 2.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
+    [Mon Oct  3 09:10:24.305845000 2011] 5.000000e-02 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p REDISPORT -Z UTC avg_inst(kernel.all.load[count:2])
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

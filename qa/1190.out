@@ -3,7 +3,7 @@ Count of pmcd's ... OK
 Count of primary pmlogger's ... OK
 Failed PMDAs ... OK
 PMNS names w/out a PMDA ... OK
-Bad PMIDs in PMDA (other than sample) ... OK
+Bad PMIDs in PMDA (other than sample or pmproxy) ... OK
 /etc/hosts ... OK
 /etc/zabbix/zbxpcp-derived-metrics.conf ... OK
 $HOME/.pki/nssdb ... OK

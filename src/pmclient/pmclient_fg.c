@@ -16,7 +16,7 @@
  */
 
 #include "pmapi.h"
-#include "libpcp.h"
+#include <errno.h>
 #include <assert.h>
 
 pmLongOptions longopts[] = {
@@ -184,6 +184,24 @@ get_sample(void)
     info.cpu_util /= info.ncpu.l;
 }
 
+void
+timeval_sleep(struct timeval delay)
+{
+    struct timespec	interval;
+    struct timespec	remaining;
+
+    interval.tv_sec = delay.tv_sec;
+    interval.tv_nsec = delay.tv_usec * 1000;
+
+    /* loop to catch early wakeup by nanosleep */
+    for (;;) {
+	int sts = nanosleep(&interval, &remaining);
+	if (sts == 0 || (sts < 0 && errno != EINTR))
+	    break;
+	interval = remaining;
+    }
+}
+
 int
 main(int argc, char **argv)
 {
@@ -292,7 +310,7 @@ X.XXX   XXX   X.XXX XXXXX.XXX XXXXXX  XXXX.XX XXXX.XX
 	    printf("  (Mbytes)   IOPS    1 Min  15 Min\n");
 	}
 	if (opts.context != PM_CONTEXT_ARCHIVE || pauseFlag)
-	    __pmtimevalSleep(opts.interval);
+	    timeval_sleep(opts.interval);
 	get_sample();
 	printf("%5.2f", info.cpu_util);
 	if (info.ncpu.l > 1)

@@ -83,12 +83,12 @@ do
 done
 
 # real QA test starts here
-$sudo $PCP_BINADM_DIR/pmlogger_daily -x never -V -N -c $tmp.control \
+$sudo $PCP_BINADM_DIR/pmlogger_daily -D -x never -V -N -c $tmp.control \
 2>&1 | _filter
 
 echo
 echo "--- -M case ---"
-$sudo $PCP_BINADM_DIR/pmlogger_daily -x never -M -VN -c $tmp.control \
+$sudo $PCP_BINADM_DIR/pmlogger_daily -D -x never -M -VN -c $tmp.control \
 2>&1 | _filter
 
 # success, all done

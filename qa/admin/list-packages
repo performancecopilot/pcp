@@ -100,6 +100,10 @@ End-of-File
 	    done
 	done
 
+	# if at least one package from the manifest line is in
+	# the list and available, then we're done
+	#
+	rm -f $tmp.ok
 	for pkg in $pkgs
 	do
 	    [ "$pkg" = "N/A" ] && continue
@@ -115,43 +119,63 @@ END						{ exit sts }'
 		if [ -z "$avail" ]
 		then
 		    echo "manifest:$lineno $pkg: in packing list, but not available?"
+		else
+		    touch $tmp.ok
+		    break
 		fi
-	    else
-		# not in list, unless it is to be skipped, or we have
-		# a required package for this manifest line, is it available?
-		#
-		rm -f $tmp.skipme
-		for skip_pkg in `cat $tmp.skip`
-		do
-		    skip_pkg_re=`echo "$skip_pkg" | sed -e 's;/;\\\\/;g'`
-		    if echo "$pkg" | awk '
+	    fi
+	done
+	if [ ! -f $tmp.ok ]
+	then
+	    # no match from the list, so reprocess the packages in the
+	    # manifest line looking for available packages as candidates
+	    # to be added to the list
+	    #
+	    for pkg in $pkgs
+	    do
+		[ "$pkg" = "N/A" ] && continue
+		pkg_re=`echo "$pkg" | sed -e 's;/;\\\\/;g'`
+		if awk <$tmp.list '
+BEGIN						{ sts=1 }
+$1 == "'"$pkg"'" || $1 ~ /^'"$pkg_re"'$/	{ sts=0; exit }
+END						{ exit sts }'
+		then
+		    # not in list, unless it is to be skipped, or we have
+		    # a required package for this manifest line, is it available?
+		    #
+		    rm -f $tmp.skipme
+		    for skip_pkg in `cat $tmp.skip`
+		    do
+			skip_pkg_re=`echo "$skip_pkg" | sed -e 's;/;\\\\/;g'`
+			if echo "$pkg" | awk '
 BEGIN							{ sts=1 }
 $1 == "'"$skip_pkg"'" || $1 ~ /^'"$skip_pkg_re"'$/	{ sts=0; exit }
 END							{ exit sts }'
-		    then
-			$very_verbose && echo >&2 "$pkg ($skip_pkg): skipped"
-			touch $tmp.skipme
-			break
-		    fi
-		done
-		if [ ! -f $tmp.skipme ]
-		then
-		    if [ ! -f $tmp.havereq ]
-		    then
-			avail="`grep "^$pkg\$" <$tmp.allpkgs`"
-			if [ -n "$avail" ]
 			then
-			    if [ "$pkg" = "$avail" ]
+			    $very_verbose && echo >&2 "$pkg ($skip_pkg): skipped"
+			    touch $tmp.skipme
+			    break
+			fi
+		    done
+		    if [ ! -f $tmp.skipme ]
+		    then
+			if [ ! -f $tmp.havereq ]
+			then
+			    avail="`grep "^$pkg\$" <$tmp.allpkgs`"
+			    if [ -n "$avail" ]
 			    then
-				echo "manifest:$lineno $pkg: not in packing list, but available?"
-			    else
-				echo "manifest:$lineno $pkg: not in packing list, but $avail available?"
+				if [ "$pkg" = "$avail" ]
+				then
+				    echo "manifest:$lineno $pkg: not in packing list, but available?"
+				else
+				    echo "manifest:$lineno $pkg: not in packing list, but $avail available?"
+				fi
 			    fi
 			fi
 		    fi
 		fi
-	    fi
-	done
+	    done
+	fi
     done
 
     # are the required ones all there?

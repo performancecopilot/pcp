@@ -35,6 +35,16 @@ status=0	# success is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# Note:
+#	blame bizarre ` => ' filtering on CentOS 6.10 (vm14) where
+#	the error message from mv is:
+#	  mv: cannot stat `eek': No such file or directory
+#                         ^
+#	not
+#	  mv: cannot stat 'eek': No such file or directory
+#                         ^
+#	as it is elsewhere in the sane world
+#
 _filter()
 {
     tee -a $seq.full \
@@ -55,6 +65,7 @@ _filter()
 	-e "s/-`pmdate %d`/-TODAY/" \
 	-e "s/-`pmdate -1d %d`/-YESTERDAY/" \
 	-e "s/-`pmdate -2d %d`/-DAYBEFOREYESTERDAY/" \
+	-e "s/ [\`]/ '/" \
     | $PCP_AWK_PROG '
 /-rw-r--r--/	{ print $1,"...",$5,"...",$9; next }
 		{ print }' \

@@ -73,7 +73,7 @@ COMMON = common.check common.config common.filter \
 	 common.python common.openmetrics \
 	 common.bcc common.bpf common.bpftrace common.redis
 
-OTHERS = group qa_hosts.primary README sanity.coverage \
+OTHERS = group triaged qa_hosts.primary README sanity.coverage \
 	 $(shell echo valgrind-suppress* helgrind-suppress*)
 
 ifeq "$(ENABLE_SELINUX)" "true"

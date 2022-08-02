@@ -41,6 +41,7 @@ _filter()
 	-e '/Duplicate/d' \
 	-e '/Roll [^ ]*\/NOTICES /d' \
 	-e '/Start new [^ ]*\/NOTICES$/d' \
+	-e '/^Add merge callback for: pmlogger_daily_report/d' \
     | _filter_cron_scripts
 }
 

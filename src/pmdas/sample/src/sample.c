@@ -1176,6 +1176,7 @@ init_tables(int dom)
     int		i, allocsz;
     int		serial;
     pmDesc	*dp;
+    char	*dummy;
 
     /* serial numbering is arbitrary, but must be unique in this PMD */
     serial = 1;
@@ -1287,12 +1288,14 @@ init_tables(int dom)
     _aggr34 = (pmValueBlock *)malloc(allocsz);
     _aggr34->vlen = PM_VAL_HDR_SIZE + strlen("hullo world!");
     _aggr34->vtype = PM_TYPE_AGGREGATE;
-    memcpy(_aggr34->vbuf, "hullo world!", strlen("hullo world!"));
+    dummy = _aggr34->vbuf;		/* pander to clang 10.0.1 */
+    memcpy(dummy, "hullo world!", strlen("hullo world!"));
     allocsz = roundup(PM_VAL_HDR_SIZE + strlen("13"), 8);
     _aggr35 = (pmValueBlock *)malloc(allocsz);
     _aggr35->vlen = PM_VAL_HDR_SIZE + strlen("13");
     _aggr35->vtype = PM_TYPE_AGGREGATE;
-    memcpy(_aggr35->vbuf, "13", strlen("13"));
+    dummy = _aggr35->vbuf;		/* pander to clang 10.0.1 */
+    memcpy(dummy, "13", strlen("13"));
 
     (void)redo_many();
 }
@@ -1712,6 +1715,9 @@ sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
     int		type;
     int		done_proc_indom = 0;
     char	strbuf[4];	/* string.bin value X00\0 */
+#ifndef HAVE_SYSINFO
+    char	*dummy;
+#endif
 
     sample_inc_recv(ep->e_context);
     sample_inc_xmit(ep->e_context);
@@ -2067,7 +2073,8 @@ doit:
 			sysinfo((struct sysinfo *)sivb->vbuf);
 #endif
 #else
-			strncpy((char *)sivb->vbuf, si.dummy, sizeof(struct sysinfo));
+			dummy = (char *)sivb->vbuf;	/* pander to clang 10.0.1 */
+			strncpy(dummy, si.dummy, sizeof(struct sysinfo));
 #endif
 			atom.vbp = sivb;
 
