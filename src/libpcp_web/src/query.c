@@ -2362,9 +2362,6 @@ series_expr_canonical(node_t *np, int idx)
     case N_STDEV_INST:
     case N_STDEV_SAMPLE:
     case N_NTH_PERCENTILE_INST:
-	left = series_expr_canonical(np->left, idx);
-	right = series_expr_canonical(np->right, idx);
-	break;
     case N_NTH_PERCENTILE_SAMPLE:
 	left = series_expr_canonical(np->left, idx);
 	right = series_expr_canonical(np->right, idx);
