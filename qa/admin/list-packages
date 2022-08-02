@@ -133,43 +133,35 @@ END						{ exit sts }'
 	    #
 	    for pkg in $pkgs
 	    do
-		[ "$pkg" = "N/A" ] && continue
-		pkg_re=`echo "$pkg" | sed -e 's;/;\\\\/;g'`
-		if awk <$tmp.list '
-BEGIN						{ sts=1 }
-$1 == "'"$pkg"'" || $1 ~ /^'"$pkg_re"'$/	{ sts=0; exit }
-END						{ exit sts }'
-		then
-		    # not in list, unless it is to be skipped, or we have
-		    # a required package for this manifest line, is it available?
-		    #
-		    rm -f $tmp.skipme
-		    for skip_pkg in `cat $tmp.skip`
-		    do
-			skip_pkg_re=`echo "$skip_pkg" | sed -e 's;/;\\\\/;g'`
-			if echo "$pkg" | awk '
+		# not in list, unless it is to be skipped, or we have
+		# a required package for this manifest line, is it available?
+		#
+		rm -f $tmp.skipme
+		for skip_pkg in `cat $tmp.skip`
+		do
+		    skip_pkg_re=`echo "$skip_pkg" | sed -e 's;/;\\\\/;g'`
+		    if echo "$pkg" | awk '
 BEGIN							{ sts=1 }
 $1 == "'"$skip_pkg"'" || $1 ~ /^'"$skip_pkg_re"'$/	{ sts=0; exit }
 END							{ exit sts }'
-			then
-			    $very_verbose && echo >&2 "$pkg ($skip_pkg): skipped"
-			    touch $tmp.skipme
-			    break
-			fi
-		    done
-		    if [ ! -f $tmp.skipme ]
 		    then
-			if [ ! -f $tmp.havereq ]
+			$very_verbose && echo >&2 "$pkg ($skip_pkg): skipped"
+			touch $tmp.skipme
+			break
+		    fi
+		done
+		if [ ! -f $tmp.skipme ]
+		then
+		    if [ ! -f $tmp.havereq ]
+		    then
+			avail="`grep "^$pkg\$" <$tmp.allpkgs`"
+			if [ -n "$avail" ]
 			then
-			    avail="`grep "^$pkg\$" <$tmp.allpkgs`"
-			    if [ -n "$avail" ]
+			    if [ "$pkg" = "$avail" ]
 			    then
-				if [ "$pkg" = "$avail" ]
-				then
-				    echo "manifest:$lineno $pkg: not in packing list, but available?"
-				else
-				    echo "manifest:$lineno $pkg: not in packing list, but $avail available?"
-				fi
+				echo "manifest:$lineno $pkg: not in packing list, but available?"
+			    else
+				echo "manifest:$lineno $pkg: not in packing list, but $avail available?"
 			    fi
 			fi
 		    fi
@@ -607,8 +599,15 @@ then
 	# strip all packages in both $tmp.list and $tmp.installed and
 	# leave the result in $tmp.list
 	#
-	sort <$tmp.list >$tmp.1
-	sort <$tmp.installed >$tmp.2
+	sort <$tmp.list | uniq >$tmp.1
+	sort <$tmp.installed | uniq >$tmp.2
+	if $very_verbose
+	then
+	    echo >&2 "Required:"
+	    cat $tmp.1 >&2
+	    echo >&2 "Installed:"
+	    cat $tmp.2 >&2
+	fi
 	comm -23 $tmp.1 $tmp.2 >$tmp.list
     fi
 fi
