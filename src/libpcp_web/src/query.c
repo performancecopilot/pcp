@@ -3301,6 +3301,7 @@ series_calculate_standard_deviation(node_t *np)
 	np->value_set.series_values[i].series_desc.units = sdsnew(np->left->value_set.series_values[i].series_desc.units);
     }
 }
+
 /*
  * calculate the nth percentile in the time series for each sample across time
  */
@@ -3338,7 +3339,7 @@ series_calculate_time_domain_nth_percentile(node_t *np)
 			    infofmt(msg, "number of instances in each sample are not equal\n");
 			    batoninfo(baton, PMLOG_ERROR, msg);
 			}
-		    continue;
+			continue;
 		    }
 		    data = strtod(np->left->value_set.series_values[i].series_sample[j].series_instance[k].data, NULL);
 		    for (l = 0; l < n_instances; ++l){
@@ -3347,17 +3348,16 @@ series_calculate_time_domain_nth_percentile(node_t *np)
 				n_data[m] = n_data[m-1];
 				n_pointer[m] = n_pointer[m-1];
 			    }
-			n_data[l] = data;
-			n_pointer[l] = k;
-			break;
+			    n_data[l] = data;
+			    n_pointer[l] = k;
+			    break;
 			}
 		    }
 		}
 
-		if (rank == n_instances){
+		if (rank == n_instances) {
 		    instance_idx = n_pointer[0];
-		}
-		else{
+		} else {
 		    instance_idx = n_pointer[n_instances-1-rank];
 		}
 		inst = np->left->value_set.series_values[i].series_sample[j].series_instance[instance_idx];
@@ -3368,8 +3368,7 @@ series_calculate_time_domain_nth_percentile(node_t *np)
 		free(n_data);
 		free(n_pointer);
 	    }
-	}
-	else{
+	} else {
 	    np->value_set.series_values[i].num_samples = 0;
 	}
 	np->value_set.series_values[i].sid = (seriesGetSID *)calloc(1, sizeof(seriesGetSID));
@@ -3383,6 +3382,7 @@ series_calculate_time_domain_nth_percentile(node_t *np)
 	np->value_set.series_values[i].series_desc.units = sdsnew(np->left->value_set.series_values[i].series_desc.units);
     }
 }
+
 /*
  * calculate the nth percentile series per-instance over time samples
  */
@@ -3425,21 +3425,20 @@ series_calculate_nth_percentile(node_t *np)
 		    }
 		    data = atof(np->left->value_set.series_values[i].series_sample[j].series_instance[k].data);
 		    for (l = 0; l < n_samples; ++l){
-			if (data > n_data[l]){
+			if (data > n_data[l]) {
 			    for (m = n_samples - 1; m > l; --m){
 				n_data[m] = n_data[m-1];
 				n_pointer[m] = n_pointer[m-1];
 			    }
-			n_data[l] = data;
-			n_pointer[l] = j;
-			break;
+			    n_data[l] = data;
+			    n_pointer[l] = j;
+			    break;
 			}
 		    }
 		}
-		if (rank == n_samples){
+		if (rank == n_samples) {
 		    instance_idx = n_pointer[0];
-		}
-		else{
+		} else {
 		    instance_idx = n_pointer[n_samples-1-rank];
 		}
 		inst = np->left->value_set.series_values[i].series_sample[instance_idx].series_instance[k];
@@ -3463,7 +3462,6 @@ series_calculate_nth_percentile(node_t *np)
 	np->value_set.series_values[i].series_desc.type = sdsnew(np->left->value_set.series_values[i].series_desc.type);
 	np->value_set.series_values[i].series_desc.units = sdsnew(np->left->value_set.series_values[i].series_desc.units);
     }
-
 }
 
 /*
