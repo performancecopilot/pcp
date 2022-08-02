@@ -3249,7 +3249,12 @@ series_calculate_time_domain_topk(node_t *np)
 	np->value_set.series_values[i].sid = (seriesGetSID *)calloc(1, sizeof(seriesGetSID));
 	np->value_set.series_values[i].sid->name = sdsnew(np->left->value_set.series_values[i].sid->name);
 	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
-	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
+	np->value_set.series_values[i].series_desc.indom = sdsnew(np->left->value_set.series_values[i].series_desc.indom);
+	np->value_set.series_values[i].series_desc.pmid = sdsnew(np->left->value_set.series_values[i].series_desc.pmid);
+	np->value_set.series_values[i].series_desc.semantics = sdsnew("instance");
+	np->value_set.series_values[i].series_desc.source = sdsnew(np->left->value_set.series_values[i].series_desc.source);
+	np->value_set.series_values[i].series_desc.type = sdsnew("double");
+	np->value_set.series_values[i].series_desc.units = sdsnew(np->left->value_set.series_values[i].series_desc.units);
     }
 
 }
@@ -3330,7 +3335,12 @@ series_calculate_topk(node_t *np)
 	np->value_set.series_values[i].sid = (seriesGetSID *)calloc(1, sizeof(seriesGetSID));
 	np->value_set.series_values[i].sid->name = sdsnew(np->left->value_set.series_values[i].sid->name);
 	np->value_set.series_values[i].baton = np->left->value_set.series_values[i].baton;
-	np->value_set.series_values[i].series_desc = np->left->value_set.series_values[i].series_desc;
+	np->value_set.series_values[i].series_desc.indom = sdsnew(np->left->value_set.series_values[i].series_desc.indom);
+	np->value_set.series_values[i].series_desc.pmid = sdsnew(np->left->value_set.series_values[i].series_desc.pmid);
+	np->value_set.series_values[i].series_desc.semantics = sdsnew("instance");
+	np->value_set.series_values[i].series_desc.source = sdsnew(np->left->value_set.series_values[i].series_desc.source);
+	np->value_set.series_values[i].series_desc.type = sdsnew("double");
+	np->value_set.series_values[i].series_desc.units = sdsnew(np->left->value_set.series_values[i].series_desc.units);
     }
 }
 
