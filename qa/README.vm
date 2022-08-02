@@ -160,6 +160,10 @@ CentOS
       then
     # sudo dnf install epel-release -y
 
+    # special notes for CentOS Stream 9
+    # - need CRB repo enabled (it is not enabled by default)
+    $ sudo dnf config-manager --set-enabled crb
+
 openSUSE
     https://en.opensuse.org/Lifetime
     16 Oct 2019: 15.0 and 15.1
