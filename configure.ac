@@ -987,6 +987,11 @@ AS_IF([test "x$do_python" != "xno"], [
 		    touch config.python2_eol
 		fi
 		;;
+	    centos)
+		if test "$VERSION_ID" -ge 9; then
+		    touch config.python2_eol
+		fi
+		;;
 	esac
     )
     fi
