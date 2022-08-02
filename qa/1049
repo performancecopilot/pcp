@@ -14,9 +14,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ -f $PCP_PMDAS_DIR/shping/pmdashping ] || _notrun "shping pmda not installed"
-[ -f $PCP_PMDAS_DIR/cisco/pmdacisco ] || _notrun "cisco pmda not installed"
-[ -f $PCP_PMDAS_DIR/dm/pmdadm ] || _notrun "dm pmda not installed"
 which pmieconf >/dev/null 2>&1 || _notrun "No pmieconf binary installed"
 
 status=1	# failure is the default!
@@ -26,7 +23,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 # Some metrics unavailable by default, so skip the associated rules
 #
 echo "modify all enabled yes" >$tmp.cmd
-for group in shping cisco dmthin mssql
+for group in shping cisco dmthin mssql openvswitch
 do
     # most have group == dir, but some do not
     #
