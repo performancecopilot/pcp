@@ -182,6 +182,7 @@ static const char initial_str[]  = "Unexpected initial";
 %type  <n>  exprlist
 %type  <n>  exprval
 %type  <n>  number
+%type  <n>  integer
 %type  <n>  string
 %type  <s>  timespec
 %type  <n>  vector
@@ -283,6 +284,12 @@ number	: L_INTEGER
 		}
 	;
 
+integer	: L_INTEGER
+		{ lp->yy_np = newnode(N_INTEGER);
+		  lp->yy_np->value = sdsnew($1);
+		  $$ = lp->yy_np;
+		}
+	;	
 timelist : timelist L_COMMA timeexpr
 	| timeexpr
 	;
@@ -526,48 +533,56 @@ func_sid
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_NTH_PERCENTILE_INST L_LPAREN sid_vec L_COMMA L_INTEGER L_RPAREN
-		{ lp->yy_np = newnode(N_NTH_PERCENTILE_INST);
-		  lp->yy_np->left = $3;
-		  if (atoi($5) < 0 || atoi($5) > 100){
+	| L_NTH_PERCENTILE_INST L_LPAREN sid_vec L_COMMA integer L_RPAREN
+		{ char *ptr;
+		  long ret;
+		  ret = strtoul($5->value, &ptr, 10);
+		  if (*ptr != '\0' || ret < 0 || ret > 100){
 			series_error(lp, NULL);
 			return -1;
 		  }
-		  lp->yy_np->right = newnode(N_INTEGER);
-		  lp->yy_np->right->value = $5;
+		  lp->yy_np = newnode(N_NTH_PERCENTILE_INST);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_NTH_PERCENTILE_INST L_LPAREN func_sid L_COMMA L_INTEGER L_RPAREN
-		{ lp->yy_np = newnode(N_NTH_PERCENTILE_INST);
-		  lp->yy_np->left = $3;
-		  if (atoi($5) < 0 || atoi($5) > 100){
+	| L_NTH_PERCENTILE_INST L_LPAREN func_sid L_COMMA integer L_RPAREN
+		{ char *ptr;
+		  long ret;
+		  ret = strtoul($5->value, &ptr, 10);
+		  if (*ptr != '\0' || ret < 0 || ret > 100){
 			series_error(lp, NULL);
 			return -1;
 		  }
-		  lp->yy_np->right = newnode(N_INTEGER);
-		  lp->yy_np->right->value = $5;
+		  lp->yy_np = newnode(N_NTH_PERCENTILE_INST);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_NTH_PERCENTILE_SAMPLE L_LPAREN sid_vec L_COMMA L_INTEGER L_RPAREN
-		{ lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE);
-		  lp->yy_np->left = $3;
-		  if (atoi($5) < 0 || atoi($5) > 100){
+	| L_NTH_PERCENTILE_SAMPLE L_LPAREN sid_vec L_COMMA integer L_RPAREN
+		{ char *ptr;
+		  long ret;
+		  ret = strtoul($5->value, &ptr, 10);
+		  if (*ptr != '\0' || ret < 0 || ret > 100){
 			series_error(lp, NULL);
 			return -1;
 		  }
-		  lp->yy_np->right = newnode(N_INTEGER);
-		  lp->yy_np->right->value = $5;
+		  lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_NTH_PERCENTILE_SAMPLE L_LPAREN func_sid L_COMMA L_INTEGER L_RPAREN
-		{ lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE);
-		  lp->yy_np->left = $3;
-		  if (atoi($5) < 0 || atoi($5) > 100){
+	| L_NTH_PERCENTILE_SAMPLE L_LPAREN func_sid L_COMMA integer L_RPAREN
+		{ char *ptr;
+		  long ret;
+		  ret = strtoul($5->value, &ptr, 10);
+		  if (*ptr != '\0' || ret < 0 || ret > 100){
 			series_error(lp, NULL);
 			return -1;
 		  }
-		  lp->yy_np->right = newnode(N_INTEGER);
-		  lp->yy_np->right->value = $5;
+		  lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_AVG L_LPAREN sid_vec L_RPAREN
@@ -986,49 +1001,56 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_NTH_PERCENTILE_INST L_LPAREN val_vec L_COMMA L_INTEGER L_RPAREN
-		{ lp->yy_np = newnode(N_NTH_PERCENTILE_INST);
-		  lp->yy_np->left = $3;
-		  if (atoi($5) < 0 || atoi($5) > 100){
+	| L_NTH_PERCENTILE_INST L_LPAREN val_vec L_COMMA integer L_RPAREN
+		{ char *ptr;
+		  long ret;
+		  ret = strtoul($5->value, &ptr, 10);
+		  if (*ptr != '\0' || ret < 0 || ret > 100){
 			series_error(lp, NULL);
 			return -1;
 		  }
-		  lp->yy_np->right = newnode(N_INTEGER);
-		  lp->yy_np->right->value = $5;
+		  lp->yy_np = newnode(N_NTH_PERCENTILE_INST);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_NTH_PERCENTILE_INST L_LPAREN func L_COMMA L_INTEGER L_RPAREN
-		{ lp->yy_np = newnode(N_NTH_PERCENTILE_INST);
-		  lp->yy_np->left = $3;
-		  if (atoi($5) < 0 || atoi($5) > 100){
+	| L_NTH_PERCENTILE_INST L_LPAREN func L_COMMA integer L_RPAREN
+		{ char *ptr;
+		  long ret;
+		  ret = strtoul($5->value, &ptr, 10);
+		  if (*ptr != '\0' || ret < 0 || ret > 100){
 			series_error(lp, NULL);
 			return -1;
 		  }
-		  lp->yy_np->right = newnode(N_INTEGER);
-		  lp->yy_np->right->value = $5;
+		  lp->yy_np = newnode(N_NTH_PERCENTILE_INST);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_NTH_PERCENTILE_SAMPLE L_LPAREN val_vec L_COMMA L_INTEGER L_RPAREN
-		{ lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE);
-		  lp->yy_np->left = $3;
-		  if (atoi($5) < 0 || atoi($5) > 100){
+	| L_NTH_PERCENTILE_SAMPLE L_LPAREN val_vec L_COMMA integer L_RPAREN
+		{ char *ptr;
+		  long ret;
+		  ret = strtoul($5->value, &ptr, 10);
+		  if (*ptr != '\0' || ret < 0 || ret > 100){
 			series_error(lp, NULL);
 			return -1;
 		  }
-		  lp->yy_np->right = newnode(N_INTEGER);
-		  lp->yy_np->right->value = $5;
+		  lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
-	| L_NTH_PERCENTILE_SAMPLE L_LPAREN func L_COMMA L_INTEGER L_RPAREN
-		{ lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE);
-		  lp->yy_np->left = $3;
-		  if (atoi($5) < 0 || atoi($5) > 100){
+	| L_NTH_PERCENTILE_SAMPLE L_LPAREN func L_COMMA integer L_RPAREN
+		{ char *ptr;
+		  long ret;
+		  ret = strtoul($5->value, &ptr, 10);
+		  if (*ptr != '\0' || ret < 0 || ret > 100){
 			series_error(lp, NULL);
 			return -1;
 		  }
-		  lp->yy_np->right = newnode(N_INTEGER);
-		  lp->yy_np->right->value = $5;
-
+		  lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_AVG L_LPAREN val_vec L_RPAREN

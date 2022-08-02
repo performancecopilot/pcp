@@ -2362,11 +2362,11 @@ series_expr_canonical(node_t *np, int idx)
     case N_STDEV_INST:
     case N_STDEV_SAMPLE:
     case N_NTH_PERCENTILE_INST:
-    	left = series_expr_canonical(np->left, idx);
+	left = series_expr_canonical(np->left, idx);
 	right = series_expr_canonical(np->right, idx);
 	break;
     case N_NTH_PERCENTILE_SAMPLE:
-    	left = series_expr_canonical(np->left, idx);
+	left = series_expr_canonical(np->left, idx);
 	right = series_expr_canonical(np->right, idx);
 	break;
     case N_MAX:
@@ -3332,8 +3332,8 @@ series_calculate_time_domain_nth_percentile(node_t *np)
 	    for (j = 0; j < n_samples; j++) {
 		np->value_set.series_values[i].series_sample[j].num_instances = 1;
 		np->value_set.series_values[i].series_sample[j].series_instance = (pmSeriesValue *)calloc(1, sizeof(pmSeriesValue));
-                n_data = (double*) calloc(n_instances, sizeof(double));
-                n_pointer = (int*) calloc(n_instances, sizeof(int)); 
+		n_data = (double*) calloc(n_instances, sizeof(double));
+		n_pointer = (int*) calloc(n_instances, sizeof(int)); 
 
 		for (k = 0; k < n_instances; k++) {
 		    if (np->left->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
@@ -3360,10 +3360,10 @@ series_calculate_time_domain_nth_percentile(node_t *np)
 		if (rank == n_instances){
 		    instance_idx = n_pointer[0];
 		}
-                else{
+		else{
 		    instance_idx = n_pointer[n_instances-1-rank];
 		}
-                inst = np->left->value_set.series_values[i].series_sample[j].series_instance[instance_idx];
+		inst = np->left->value_set.series_values[i].series_sample[j].series_instance[instance_idx];
 		np->value_set.series_values[i].series_sample[j].series_instance[0].timestamp = sdsnew(inst.timestamp);
 		np->value_set.series_values[i].series_sample[j].series_instance[0].series = sdsnew(inst.series);
 		np->value_set.series_values[i].series_sample[j].series_instance[0].data = sdsnew(inst.data);
@@ -3415,8 +3415,8 @@ series_calculate_nth_percentile(node_t *np)
 	    rank_d = ((double)n/100 * n_samples);
 	    rank = (int) rank_d;
 	    for (k = 0; k < n_instances; k++) {
-                n_data = (double*) calloc(n_samples, sizeof(double));
-                n_pointer = (int*) calloc(n_samples, sizeof(int)); 
+		n_data = (double*) calloc(n_samples, sizeof(double));
+		n_pointer = (int*) calloc(n_samples, sizeof(int)); 
 
 		for (j = 1; j < n_samples; j++) {
 		    if (np->left->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
@@ -3442,7 +3442,7 @@ series_calculate_nth_percentile(node_t *np)
 		if (rank == n_samples){
 		    instance_idx = n_pointer[0];
 		}
-                else{
+		else{
 		    instance_idx = n_pointer[n_samples-1-rank];
 		}
 		inst = np->left->value_set.series_values[i].series_sample[instance_idx].series_instance[k];
