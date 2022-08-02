@@ -11,6 +11,8 @@ needwrap=true
 try=0
 n_bad=0
 bad=""
+n_triaged=0
+triaged=""
 notrun=""
 seq=''
 __aborted=true
@@ -101,7 +103,14 @@ END	{ if (NR > 0) {
 		[ $__color = true ] && tput sgr0 # reset
 		echo "Not run:$notrun" | fmt >>check.log
 	    fi
-	    if [ ! -z "$n_bad" -a "$n_bad" != 0 ]
+	    if [ "$n_triaged" != 0 ]
+	    then
+		[ $__color = true ] && tput bold && tput setaf 2 # green
+		echo "Triaged $n_triaged tests:$triaged"
+		[ $__color = true ] && tput sgr0 # reset
+		echo "Triaged $n_triaged tests:$triaged" | fmt >>check.log
+	    fi
+	    if [ "$n_bad" != 0 ]
 	    then
 		[ $__color = true ] && tput bold && tput setaf 1 # red
 		echo "Failures:$bad"
@@ -113,9 +122,14 @@ END	{ if (NR > 0) {
 		if [ $try != 0 ]
 		then
 		    [ $__color = true ] && tput bold && tput setaf 2 # green
-		    echo "Passed all $try tests"
+		    echo "Passed $try tests"
 		    [ $__color = true ] && tput sgr0 # reset
-		    echo "Passed all $try tests" >>check.log
+		    echo "Passed $try tests" >>check.log
+		else
+		    [ $__color = true ] && tput bold && tput setaf 1 # red
+		    echo "No tests passed"
+		    [ $__color = true ] && tput sgr0 # reset
+		    echo "No tests passed" >>check.log
 		fi
 	    fi
 	    needwrap=false
@@ -304,6 +318,42 @@ _checksums()
     return 0
 }
 
+
+# If the file "triaged" exists, check if the current test ($seq)
+# and this platform are mentioned there ... if so, assume this
+# particular failure has already been triaged.
+#
+_is_triaged()
+{
+    [ -f triaged ] || return 0
+    rm -f $tmp.ok
+    [ ! -f $tmp.whatami ] && admin/whatami >$tmp.whatami
+    sed -n <triaged \
+	-e '/^'$seq'	/{
+s///
+s@\\@\\\\\\\\\\\\\\\\@g
+p
+}' \
+    | while read _line
+    do
+	eval `echo "$_line" | sed -e 's/\//\\\\/g' -e 's/^/_re="/' -e 's/	/"\n_comments="/' -e 's/$/"/'`
+	if grep "$_re" $tmp.whatami >/dev/null 2>&1
+	then
+	    # triaged, don't treat as a Failure
+	    #
+	    touch $tmp.ok
+	    break
+	fi
+    done
+
+    if [ -f $tmp.ok ]
+    then
+	return 0
+    else
+	return 1
+    fi
+}
+
 trap "_wrapup; exit \$status" 0 1 2 3 15
 
 # generic initialization... this may take a while to run, because (unless
@@ -342,7 +392,7 @@ fi
 
 for seq in $__list
 do
-    err=false
+    state="Pass"
     if $__showme
     then
 	echo $seq
@@ -425,7 +475,7 @@ do
 	then
 	    $PCP_ECHO_PROG $PCP_ECHO_N " [dumped core]""$PCP_ECHO_C"
 	    mv core $seq.core
-	    err=true
+	    state="Fail"
 	fi
 
 	$sudo rm -f $seq.out.bad
@@ -440,13 +490,13 @@ do
 	    if [ $sts -ne 0 ]
 	    then
 		$PCP_ECHO_PROG $PCP_ECHO_N " [failed, exit status $sts]""$PCP_ECHO_C"
-		err=true
+		state="Fail"
 	    fi
 	    if [ ! -f $seq.out ]
 	    then
 		echo " - no qualified output"
 		mv $tmp.out $seq.out.bad
-		err=true
+		state="Fail"
 	    else
 		# we have $seq.out (expected) and $tmp.out (observed)
 		# output files, first check if they match
@@ -456,11 +506,20 @@ do
 		    done_nl=false
 		else
 		    [ $__color = true ] && tput bold && tput setaf 1 # red
-		    echo " - output mismatch (see $seq.out.bad)"
-		    [ $__color = true ] && tput sgr0 # reset
+		    $PCP_ECHO_PROG $PCP_ECHO_N " - output mismatch (see $seq.out.bad)"
+		    if _is_triaged
+		    then
+			[ $__color = true ] && tput bold && tput setaf 2 # green
+			echo " - triaged"
+			state="Triaged"
+			[ $__color = true ] && tput sgr0 # reset
+		    else
+			echo
+			$__diff $seq.out $tmp.out
+			state="Fail"
+			[ $__color = true ] && tput sgr0 # reset
+		    fi
 		    done_nl=true
-		    $__diff $seq.out $tmp.out
-		    err=true
 		fi
 
 		# now some integrity checks to see if the test has
@@ -486,7 +545,7 @@ do
 		    echo >>$tmp.out
 		    echo "*** Failed permissions/ownership checks ***" >>$tmp.out
 		    cat $tmp.tmp >>$tmp.out
-		    err=true
+		    state="Fail"
 		fi
 
 		# optional callback
@@ -515,7 +574,7 @@ do
 			    echo "+++ check.callback output +++" >>$tmp.out
 			    [ -f $tmp.callback.pre ] && cat $tmp.callback.pre >>$tmp.out
 			    cat $tmp.callback.post >>$tmp.out
-			    err=true
+			    state="Fail"
 			fi
 		    else
 			# check.callback suggests we should abandon the QA run ...
@@ -532,7 +591,7 @@ do
 			echo "+++ check.callback output +++" >>$tmp.out
 			[ -f $tmp.callback.pre ] && cat $tmp.callback.pre >>$tmp.out
 			cat $tmp.callback.post >>$tmp.out
-			err=true
+			state="Fail"
 			echo "Check! [after $seq] Run aborted by check.callback @ `date`" >>check.log
 			touch $tmp.callback.abort
 		    fi
@@ -541,7 +600,7 @@ do
 		$__timestamp && _timestamp
 		stop=`_wallclock`
 
-		if $err
+		if [ "$state" != "Pass" ]
 		then
 		    mv $tmp.out $seq.out.bad
 		else
@@ -556,7 +615,7 @@ do
 
     # come here for each test, except when $__showme is true
     #
-    if $err
+    if [ "$state" = "Fail" ]
     then
 	bad="$bad $seq"
 	n_bad=`expr $n_bad + 1`
@@ -564,8 +623,13 @@ do
 	[ $__diff = true ] || echo "Check local PMCD is still alive ..."
 	$OPTION_AGENTS && _haveagents
 	$OPTION_LOGGER && _havelogger
+    elif [ "$state" = "Triaged" ]
+    then
+	triaged="$triaged $seq"
+	n_triaged=`expr $n_triaged + 1`
+    else
+	[ -f $seq.notrun ] || try=`expr $try + 1`
     fi
-    [ -f $seq.notrun ] || try=`expr $try + 1`
     rm -f $seq.notrun
 
     [ -f $tmp.callback.abort ] && break

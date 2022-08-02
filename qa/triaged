@@ -1,0 +1,24 @@
+# Tests that might fail, but where further investigation is not warranted,
+# e.g. known bug, fix is difficult and pending, or sometimes timing issues
+# on particular platforms.
+#
+# Fields are
+# - <seqno>
+# - <whatami-RE>
+# - <comments>
+#
+# If test <seqno> fails, but there is an entry in this file for that
+# <seqno> and the <whatami-RE> field (a grep(1) regular expression)
+# matches the output from admin/whatami, then the test is considered
+# "Triaged" not "Failed".
+#
+# The fields here are <tab> separated to allow a space in the
+# second field in particular.
+#
+# Because the <whatami-RE> field is used with grep, one needs to
+# (backslash) escape an [ (none of the other special RE characters
+# appear in thw whatami output).
+#
+
+1049	bozo	pending fix for pmieconf openmetrics rules
+1221	vm27	extra labels associated with openmetrics.vmware_exporter.vmware_vm_guest_disk_* metrics for no known reason
