@@ -559,7 +559,6 @@ PCP_CALL extern int pmHighResFetch(int, pmID *, pmHighResResult **);
  * Variant that is used to return a result from an archive.
  */
 PCP_CALL extern int pmFetchArchive(pmResult **);
-PCP_CALL extern int pmFetchArchiveCtx(int, pmResult **);
 PCP_CALL extern int pmFetchHighResArchive(pmHighResResult **);
 
 /*

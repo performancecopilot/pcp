@@ -16,7 +16,6 @@
 #include <assert.h>
 #include <ctype.h>
 #include <fnmatch.h>
-#include <uv.h>
 #include "encoding.h"
 #include "discover.h"
 #include "schema.h"
@@ -559,6 +558,7 @@ server_cache_update_done(void *arg)
     server_cache_window(baton);
 }
 
+#if defined(HAVE_LIBUV)
 /* this function runs in a worker thread */
 static void
 fetch_archive(uv_work_t *req)
@@ -568,11 +568,9 @@ fetch_archive(uv_work_t *req)
     context_t		*cp = &context->context;
     pmResult		*result;
 
-    int sts = pmFetchArchiveCtx(cp->context, &result);
-    context->error = sts;
-
-    if (sts >= 0)
-        context->result = result;
+    if ((context->error = pmUseContext(cp->context)) >= 0)
+	if ((context->error = pmFetchArchive(&result)) >= 0)
+	    context->result = result;
 }
 
 /* this function runs in the main thread */
@@ -594,7 +592,7 @@ fetch_archive_done(uv_work_t *req, int status)
 	}
 	else {
 	    if (pmDebugOptions.series)
-		fprintf(stderr, "server_cache_window: end of time window\n");
+		fprintf(stderr, "%s: time window end\n", "server_cache_window");
 	    sts = PM_ERR_EOL;
 	    pmFreeResult(context->result);
 	    context->result = NULL;
@@ -607,6 +605,7 @@ fetch_archive_done(uv_work_t *req, int status)
 	doneSeriesGetContext(context, "server_cache_window");
     }
 }
+#endif
 
 void
 server_cache_window(void *arg)
@@ -619,18 +618,23 @@ server_cache_window(void *arg)
     assert(context->result == NULL);
 
     if (pmDebugOptions.series)
-	fprintf(stderr, "server_cache_window: fetching next result\n");
+	fprintf(stderr, "%s: fetching next result\n", "server_cache_window");
 
+#if defined(HAVE_LIBUV)
     seriesBatonReference(context, "server_cache_window");
     context->done = server_cache_series_finished;
 
     /*
-     * perform pmFetchArchiveCtx() in a worker thread
+     * We must perform pmFetchArchive(3) in a worker thread
      * because it contains blocking (synchronous) I/O calls
      */
     uv_work_t *req = malloc(sizeof(uv_work_t));
     req->data = baton;
     uv_queue_work(uv_default_loop(), req, fetch_archive, fetch_archive_done);
+#else
+    baton->error = -ENOTSUP;
+    seriesPassBaton(&baton->current, baton, "server_cache_window");
+#endif
 }
 
 static void
