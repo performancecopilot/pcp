@@ -639,6 +639,8 @@ class pmMetricSpec(Structure):
                 ("metric", c_char_p),
                 ("ninst", c_int),
                 ("inst", POINTER(c_char_p))]
+    csbuffer = None     # saved source buffer (ensures correct refcount)
+
     def __str__(self):
         insts = list(map(lambda x: str(self.inst[x]), range(self.ninst)))
         fields = (addressof(self), self.isarch, self.source, insts)
@@ -652,10 +654,14 @@ class pmMetricSpec(Structure):
             source = source.encode('utf-8')
         if not isinstance(string, bytes):
             string = string.encode('utf-8')
-        status = LIBPCP.pmParseMetricSpec(string, isarch, source,
+        cstring = ctypes.create_string_buffer(string)
+        csource = ctypes.create_string_buffer(source)
+        status = LIBPCP.pmParseMetricSpec(cstring, isarch, csource,
                                           byref(result), byref(errmsg))
         if status < 0:
             raise pmErr(status, errmsg)
+        # pmParseMetricSpec may embed a pointer to this buffer in result
+        result.csbuffer = csource   # keep a reference until destruction
         return result
 
 class pmLogLabel(Structure):

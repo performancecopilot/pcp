@@ -41,8 +41,11 @@ _filter()
 	-e '/^Roll .*\/NOTICES/d' \
 	-e '/^Start .*\/NOTICES/d' \
 	-e "s@$tmp@TMP@g" \
-	-e '/^-rw/s/\. 1 .* \([^ ][^ ]*\)/ ... \1/' \
-	-e '/^-rw/s/ 1 .* \([^ ][^ ]*\)/ ... \1/' \
+	-e '/^-rw/{
+s/\. 1 .* \([^ ][^ ]*\)/ ... \1/
+s/ 1 .* \([^ ][^ ]*\)/ ... \1/
+s/  */ /g
+}' \
 	-e 's/$/ /' \
 	-e "s/\.$SUFF /.SUFF /g" \
 	-e 's/ $//' \
@@ -73,7 +76,7 @@ find $tmp/* -type f | xargs -r $sudo chown $PCP_USER:$PCP_GROUP
 find $tmp/* -type d | xargs -r $sudo chown $PCP_USER:$PCP_GROUP
 
 # real QA test starts here
-$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -l $tmp.log -V -k never -x 0 -f -c $tmp.control" \
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -l $tmp.log -V -k never -x 0 -f -c $tmp.control" \
 | _filter
 
 _filter <$tmp.log

@@ -1,0 +1,50 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(1)
+
+rule	openvswitch.rx_drops
+	summary = "$rule$"
+	enumerate = hosts
+	predicate =
+"some_host (
+    some_inst (
+	instant ( openvswitch.interface.stats.rx_dropped @0 ) -
+	instant ( openvswitch.interface.stats.rx_dropped @1 ) > 0
+    )
+)"
+	enabled = no
+	version = 1
+	help	=
+"Detect dropped packets during recv on OpenVSwitch interfaces.
+
+If this rule is enabled, the OpenVSwitch metrics will be used;
+see pmdaopenvswitch(1).";
+
+string	rule
+	default = "openvswitch interface rx drops"
+	modify	= no
+	display = no;
+
+string	action_expand
+	default = "%vdrops [%i]@%h"
+	display	= no
+	modify	= no;
+
+string	email_expand
+	default = "host: %h iface: %i %vdrops"
+	display = no
+	modify  = no;
+
+string	delta
+	default = "10 sec"
+	help =
+"Sample interval between evaluations of this rule.";
+
+string	holdoff
+	default = "1 min"
+	help =
+"Once the predicate is true and the action is executed, this
+variable allows suppression of further action execution until the
+specified interval has elapsed.";
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(1)

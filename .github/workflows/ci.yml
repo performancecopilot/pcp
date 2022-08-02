@@ -32,7 +32,7 @@ jobs:
 #          - {platform: debian10-container,        os: ubuntu-20.04, experimental: false}
 #          - {platform: debian11-container,        os: ubuntu-20.04, experimental: false}
 #          - {platform: ubuntu1804-container,      os: ubuntu-20.04, experimental: false}
-#          - {platform: ubuntu2004-btf,            os: ubuntu-20.04, experimental: false}
+#          - {platform: ubuntu2004,                os: ubuntu-20.04, experimental: false}
 #          - {platform: fedora36-container,        os: ubuntu-20.04, experimental: false}
 #          - {platform: fedora-rawhide-container,  os: ubuntu-20.04, experimental: true }
 #          - {platform: centos7-container,         os: ubuntu-20.04, experimental: false}

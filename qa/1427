@@ -83,6 +83,10 @@ echo "deadbeef0123456789`cat ctr` fake"
 echo `expr $ctr + 1` >ctr
 End-of-File
 chmod 755 md5sum
+# Make sure $PATH includes . ... was causing failures in CI
+# containers
+#
+export PATH=.:$PATH
 cp ../archives/foo+.* .
 rm -f $tmpdir/foo+.*
 pmlogmv -c foo+ $tmpdir/foo+ 2>&1 | _filter

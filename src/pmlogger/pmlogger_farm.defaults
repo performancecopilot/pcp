@@ -1,0 +1,27 @@
+# Environment variables for the pmlogger farm daemons.  See also
+# pmlogger control file(s) and pmlogconf(1) for additional details.
+# Also see separate pmlogger configuration for the primary logger
+# configuration settings, separate to this file.
+
+# Behaviour regarding listening on external-facing interfaces;
+# unset PMLOGGER_LOCAL to allow connections from remote hosts.
+# A value of 0 permits remote connections, 1 permits local only.
+# PMLOGGER_LOCAL=1
+
+# Max length to which the queue of pending connections may grow
+# A value of 5 is the default.
+# PMLOGGER_MAXPENDING=5
+
+# Default sampling interval pmlogger uses when no more specific
+# interval is requested.  A value of 60 seconds is the default.
+# Both pmlogger command line (via control file) and also pmlogger
+# configuration file directives will override this value.
+# PMLOGGER_INTERVAL=60
+
+# The default behaviour, when pmlogger configuration comes from
+# pmlogconf(1), is to regenerate the configuration file and check for
+# changes whenever pmlogger is started from pmlogger_check(1).
+# If the PMDA configuration is stable, this is not necessary, and
+# setting PMLOGGER_CHECK_SKIP_LOGCONF to yes disables the regeneration
+# and checking.
+# PMLOGGER_CHECK_SKIP_LOGCONF=yes

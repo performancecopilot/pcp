@@ -61,6 +61,7 @@ disk_test
 domain.h
 drain-server
 dumb_pmda
+dumpstack
 endian
 eofarch
 eol

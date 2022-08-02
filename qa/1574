@@ -1,0 +1,105 @@
+#!/bin/sh
+# PCP QA Test No. 1574
+# Checking memory leaks for pmseries functions
+#
+# Copyright (c) 2022 Shiyao Chen.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+path=""
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# Temporarily skip while further code changes are under development
+_notrun "Additional libpcp_web valgrind fixes needed for this test"
+
+# This test is not run if we dont have pmseries and redis installed.
+_check_series
+
+_cleanup()
+{
+    [ -n "$redisport" ] && redis-cli -p $redisport shutdown
+    _restore_config $PCP_SYSCONF_DIR/pmseries
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_load()
+{
+    sed \
+	-e "s,$here,PATH,g" \
+    #end
+}
+
+_filter_query()
+{
+    sed \
+	-e "s,$redisport,REDISPORT,g" \
+    #end
+}
+
+_sort_context()
+{
+    sed -e 's/    Context: //g' -e 's/, /\n/g' | \
+    LC_COLLATE=POSIX sort | \
+    $PCP_AWK_PROG 'BEGIN { printf "    Context: " } {
+	if (count == 0) {printf("%s", $0)} else {printf(", %s", $0)};
+	count++
+    } END { print out }'
+}
+
+# real QA test starts here
+redisport=`_find_free_port`
+_save_config $PCP_SYSCONF_DIR/pmseries
+$sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
+
+echo "Start test Redis server ..."
+redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
+_check_redis_ping $redisport
+_check_redis_server $redisport
+echo
+
+_check_redis_server_version $redisport
+
+args="-p $redisport -Z UTC"
+query="kernel.all.load[count:2]"
+
+echo "== Load metric data into this redis instance"
+pmseries $args --load "{source.path: \"$here/archives/proc\"}" | _filter_load
+
+echo
+echo "== Running valgrind on stdev_sample() and stdev_inst()"
+_run_valgrind pmseries $args "stdev_sample($query)" | _filter_query
+_run_valgrind pmseries $args "stdev_inst($query)" | _filter_query
+
+echo
+echo "== Running valgrind on max_sample() and max_inst()"
+_run_valgrind pmseries $args "max_sample($query)" | _filter_query
+_run_valgrind pmseries $args "max_inst($query)" | _filter_query
+
+echo
+echo "== Running valgrind on min_sample() and min_inst()"
+_run_valgrind pmseries $args "min_sample($query)" | _filter_query
+_run_valgrind pmseries $args "min_inst($query)" | _filter_query
+
+echo
+echo "== Running valgrind on sum_sample() and sum_inst()"
+_run_valgrind pmseries $args "sum_sample($query)" | _filter_query
+_run_valgrind pmseries $args "sum_inst($query)" | _filter_query
+
+echo
+echo "== Running valgrind on avg_sample() and avg_inst()"
+_run_valgrind pmseries $args "avg_sample($query)" | _filter_query
+_run_valgrind pmseries $args "avg_inst($query)" | _filter_query
+
+# all done
+status=0
+exit

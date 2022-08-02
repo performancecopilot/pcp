@@ -19,26 +19,9 @@
 #PMLOGGER_CHECK_PARAMS=""
 
 ## Type:        string
-## Default:	"-p"
-#
-# Run the pmlogger_daily binary, via pmlogger_daily_poll.service, with the
-# following parameters.
-#
-#PMLOGGER_DAILY_POLL_PARAMS=""
-
-
-## Type:        string
 ## Default:	"-o /var/log/pcp/sa/"
 #
 # Run the pmlogger_daily_report binary, via pmlogger_daily_report.service, with
 # the following parameters.
 #
 #PMLOGGER_DAILY_REPORT_PARAMS=""
-
-## Type:        string
-## Default:	"-o /var/log/pcp/sa/ -p"
-#
-# Run the pmlogger_daily_report binary, via pmlogger_daily_report_poll.service,
-# with the following parameters.
-#
-#PMLOGGER_DAILY_REPORT_POLL_PARAMS=""

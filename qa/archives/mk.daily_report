@@ -1,0 +1,272 @@
+#!/bin/sh
+#
+# Make a short archive suitable for use with pmlogger_daily_report ...
+# includes _more_ than the ones needed for the daily report, so it is
+# a bit of a work out for the pmrep .conf files: sar.conf, vmstat.conf
+# and numa.conf
+#
+
+tmp=/var/tmp/mk-daily-$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.conf
+log mandatory on default {
+    # common cpu data [sar]
+    kernel.cpu.util
+
+    # [sar-B]
+    mem.vmstat.pgfault
+    mem.vmstat.pgfree
+    mem.vmstat.pgmajfault
+    mem.vmstat.pgpgin
+    mem.vmstat.pgpgout
+    mem.vmstat.pgscan_direct
+    mem.vmstat.pgscan_direct_throttle
+    mem.vmstat.pgscan_kswapd
+    mem.vmstat.pgsteal_direct
+    mem.vmstat.pgsteal_kswapd
+
+    # [sar-b] (unless already included)
+    disk.all.blkdiscard
+    disk.all.blkread
+    disk.all.blkwrite
+    disk.all.discard
+    disk.all.read
+    disk.all.total
+    disk.all.write
+
+    # [sar-d-dev] (unless already included)
+    # disk.dev.avg_qlen - derived metric =>
+	disk.dev.read_rawactive
+	disk.dev.write_rawactive
+    # disk.dev.avg_rqsz - derived metric =>
+	disk.dev.read
+	disk.dev.write
+	disk.dev.read_bytes
+	disk.dev.write_bytes
+    # disk.dev.await - derived metric =>
+	disk.dev.total
+	disk.dev.total_rawactive
+    disk.dev.discard_bytes
+    disk.dev.read_bytes
+    disk.dev.total
+    # disk.dev.util - derived metric =>
+	disk.dev.avactive
+    disk.dev.write_bytes
+
+    # [sar-d-dm] (unless already included)
+    # disk.dm.avg_qlen - derived metric =>
+	disk.dm.read_rawactive
+	disk.dm.write_rawactive
+    # disk.dm.avg_rqsz - derived metric =>
+	disk.dm.read
+	disk.dm.write
+	disk.dm.read_bytes
+	disk.dm.write_bytes
+    # disk.dm.await - derived metric =>
+	disk.md.total
+	disk.md.total_rawactive
+    disk.dm.discard_bytes
+    disk.dm.read_bytes
+    disk.dm.total
+    # disk.dm.util - derived metric =>
+	disk.md.avactive
+    disk.dm.write_bytes
+
+    # [sar-F] (unless already included)
+    filesys.avail
+    filesys.capacity
+    filesys.free
+    filesys.freefiles
+    filesys.maxfiles
+    filesys.used
+    filesys.usedfiles
+
+    # [sar-H] (unless already included)
+    mem.util.hugepagesFreeBytes
+    mem.util.hugepagesRsvdBytes
+    mem.util.hugepagesSurpBytes
+    mem.util.hugepagesTotalBytes
+
+    # [sar-I-SUM] (unless already included)
+    kernel.all.intr
+
+    # [sar-n-DEV] (unless already included)
+    network.interface.baudrate
+    network.interface.duplex
+    network.interface.in.bytes
+    network.interface.in.compressed
+    network.interface.in.mcasts
+    network.interface.in.packets
+    network.interface.out.bytes
+    network.interface.out.compressed
+    network.interface.out.packets
+
+    # [sar-n-EDEV] (unless already included)
+    network.interface.collisions
+    network.interface.in.drops
+    network.interface.in.errors
+    network.interface.in.fifo
+    network.interface.in.frame
+    network.interface.out.carrier
+    network.interface.out.drops
+    network.interface.out.errors
+    network.interface.out.fifo
+
+    # [sar-n-NFSv4] (unless already included)
+    nfs4.client.reqs
+    rpc.client.rpccnt
+    rpc.client.rpcretrans
+
+    # [sar-n-NFSDv4] (unless already included)
+    nfs4.server.reqs
+    rpc.server.netcnt
+    rpc.server.nettcpcnt
+    rpc.server.netudpcnt
+    rpc.server.rchits
+    rpc.server.rcmisses
+    rpc.server.rpccnt
+    rpc.server.rpcerr
+
+    # [sar-n-SOCK] (unless already included)
+    network.sockstat.frag.inuse
+    network.sockstat.raw.inuse
+    network.sockstat.tcp.inuse
+    network.sockstat.tcp.tw
+    network.sockstat.total
+    network.sockstat.udp.inuse
+
+    # [sar-n-TCP-ETCP] (unless already included)
+    network.tcp.activeopens
+    network.tcp.attemptfails
+    network.tcp.estabresets
+    network.tcp.inerrs
+    network.tcp.insegs
+    network.tcp.outrsts
+    network.tcp.outsegs
+    network.tcp.passiveopens
+    network.tcp.retranssegs
+
+    # [sar-q] (unless already included)
+    kernel.all.blocked
+    kernel.all.load
+    kernel.all.nprocs
+    proc.runq.runnable
+
+    # [sar-r] (unless already included)
+    mem.freemem
+    mem.physmem
+    mem.util.active
+    mem.util.available
+    mem.util.bufmem
+    mem.util.cached
+    mem.util.committed_AS
+    mem.util.dirty
+    mem.util.free
+    mem.util.inactive
+    mem.util.slab
+    mem.util.swapTotal
+
+    # [sar-r-ALL] (unless already included)
+    mem.util.anonpages
+    mem.util.kernelStack
+    mem.util.pageTables
+    mem.util.vmallocUsed
+
+    # [sar-S] (unless already included)
+    mem.util.swapCached
+    mem.util.swapFree
+
+    # [sar-u-ALL] (unless already included)
+    hinv.ncpu
+    kernel.all.cpu.guest
+    kernel.all.cpu.guest_nice
+    kernel.all.cpu.idle
+    kernel.all.cpu.irq.hard
+    kernel.all.cpu.irq.soft
+    kernel.all.cpu.nice
+    kernel.all.cpu.steal
+    kernel.all.cpu.sys
+    kernel.all.cpu.vuser
+    kernel.all.cpu.wait.total
+
+    # [sar-u-ALL-P-ALL] (unless already included)
+    kernel.percpu.cpu.guest
+    kernel.percpu.cpu.guest_nice
+    kernel.percpu.cpu.idle
+    kernel.percpu.cpu.irq.hard
+    kernel.percpu.cpu.irq.soft
+    kernel.percpu.cpu.nice
+    kernel.percpu.cpu.steal
+    kernel.percpu.cpu.sys
+    kernel.percpu.cpu.vuser
+    kernel.percpu.cpu.wait.total
+
+    # [sar-v] (unless already included)
+    kernel.all.nptys
+    vfs.dentry.free
+    vfs.files.count
+    vfs.inodes.count
+    vfs.inodes.free
+
+    # [sar-W] (unless already included)
+    mem.vmstat.pswpin
+    mem.vmstat.pswpout
+
+    # [sar-w] (unless already included)
+    kernel.all.pswitch
+    kernel.all.sysfork
+
+    # [sar-y] (unless already included)
+    tty.serial.brk
+    tty.serial.frame
+    tty.serial.overrun
+    tty.serial.parity
+    tty.serial.rx
+    tty.serial.tx
+
+    # [vmstat] (unless already included)
+    kernel.all.cpu.user
+    kernel.all.running
+    swap.pagesin
+    swap.pagesout
+    swap.used
+
+    # [vmstat-d] (unless already included)
+    # disk.dev.avg_qlen - derived metric
+    disk.dev.blkread
+    disk.dev.blkwrite
+    disk.dev.read_merge
+    disk.dev.write_merge
+
+    # [numa-hint-faults] (unless already included)
+    mem.vmstat.numa_hint_faults
+    mem.vmstat.numa_hint_faults_local
+
+    # [numa-per-node-cpu] (unless already included)
+    hinv.nnode
+    kernel.pernode.cpu.guest
+    kernel.pernode.cpu.guest_nice
+    kernel.pernode.cpu.idle
+    kernel.pernode.cpu.irq.hard
+    kernel.pernode.cpu.irq.soft
+    kernel.pernode.cpu.nice
+    kernel.pernode.cpu.steal
+    kernel.pernode.cpu.sys
+    kernel.pernode.cpu.vuser
+    kernel.pernode.cpu.wait.total
+
+    # [numa-pgmigrate-per-node] (unless already included)
+    hinv.pagesize
+    mem.vmstat.numa_pages_migrated
+    mem.vmstat.pgmigrate_fail
+    mem.vmstat.pgmigrate_success
+
+    # [x] (unless already included)
+
+}
+End-of-File
+
+rm -f daily_report.0 daily_report.index daily_report.meta
+
+pmlogger -c $tmp.conf -t 2sec -s 10 daily_report

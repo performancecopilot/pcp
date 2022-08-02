@@ -40,29 +40,33 @@ _filter()
     # end
 }
 
-if fmt --help 2>&1 | grep '.-w, ' >/dev/null
-then
-    # GNU-style fmt(1)
-    # -w, --width=WIDTH         maximum line width (default of 75 columns)
-    cmd="fmt -w 72"
-elif fmt --help 2>&1 | grep '.-w .* width' >/dev/null
-then
-    # FreeBSD-style fmt
-    # -w <n> set maximum width to <n>
-    cmd="fmt -w 72"
-elif fmt --help 2>&1 | grep '.-w width' >/dev/null
-then
-    # OpenBSD-style fmt
-    # -w width
-    cmd="fmt -w 72"
-elif fmt --help 2>&1 | grep '.-[mg] ' >/dev/null
-then
-    # NetBSD's version of fmt is different (may apply to other variants) ...
-    cmd="fmt -g 70 -m 71"
-else
-    echo "Warning: no clue how to set max line length for fmt(1)"
-    cmd="fmt"
-fi
+# replacement for fmt(1) that is the same on every platform ... mimics
+# the FSF version with a maximum line length of 72 columns
+#
+_fmt()
+{
+    $PCP_AWK_PROG '
+BEGIN		{ len = 0 }
+		{ for (i = 1; i <= NF; i++) {
+		    wlen = length($i)
+		    if (len + 1 + wlen > 72) {
+			printf "\n"
+			len = 0
+		    }
+		    if (len + 1 + wlen <= 72) {
+			if (len == 0) {
+			    printf "%s",$i
+			    len = wlen;
+			}
+			else {
+			    printf " %s",$i
+			    len += 1 + wlen
+			}
+		    }
+		  }
+		}
+END		{ if (len > 0) printf "\n" }'
+}
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
@@ -132,15 +136,15 @@ echo "=== merge fails because output archive already exists ==="
 _setup
 $sudo -u pcp touch -t 201805260100.00 $tmp/myhost/20180526.meta
 echo "Before ..."
-ls $tmp/myhost | _filter | $cmd
+ls $tmp/myhost | _filter | _fmt
 echo
 $sudo rm -f $tmp.log
-$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 7 -x never -V -l $tmp.log >$tmp.err 2>&1
+$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k 7 -x never -V -l $tmp.log >$tmp.err 2>&1
 _filter <$tmp.err
 _filter <$tmp.log
 echo
 echo "After ..."
-ls $tmp/myhost | _filter | $cmd
+ls $tmp/myhost | _filter | _fmt
 
 echo
 echo "=== merge fails because input archives are bad ==="
@@ -152,15 +156,15 @@ do
     $sudo touch -t 201805261020.00 $tmp/myhost/20180526.10.20.$suff
 done
 echo "Before ..."
-ls $tmp/myhost | _filter | $cmd
+ls $tmp/myhost | _filter | _fmt
 echo
 $sudo rm -f $tmp.log
-$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 7 -x never -V -l $tmp.log >$tmp.err 2>&1
+$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k 7 -x never -V -l $tmp.log >$tmp.err 2>&1
 _filter <$tmp.err
 _filter <$tmp.log
 echo
 echo "After ..."
-ls $tmp/myhost | _filter | $cmd
+ls $tmp/myhost | _filter | _fmt
 
 echo
 echo "=== logrewrite fails ==="
@@ -168,15 +172,15 @@ _setup
 echo "metric 1.2.3 {" >$tmp.badrewrite
 $sudo -u pcp cp $tmp.badrewrite $tmp/myhost/pmlogrewrite
 echo "Before ..."
-ls $tmp/myhost | _filter | $cmd
+ls $tmp/myhost | _filter | _fmt
 echo
 $sudo rm -f $tmp.log
-$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 7 -x never -V -l $tmp.log >$tmp.err 2>&1
+$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k 7 -x never -V -l $tmp.log >$tmp.err 2>&1
 _filter <$tmp.err
 _filter <$tmp.log
 echo
 echo "After ..."
-ls $tmp/myhost | _filter | $cmd
+ls $tmp/myhost | _filter | _fmt
 
 # success, all done
 status=0

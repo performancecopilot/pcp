@@ -45,6 +45,7 @@ _nm()
 	readelf --wide --symbols "$1" 2>/dev/null \
 	| awk '
 $4 != "OBJECT"			{ next }
+$8 ~ /__FUNCTION__.*/		{ next }
 $8 ~ /__PRETTY_FUNCTION__.*/	{ next }
 $8 ~ /__func__\.[0-9].*/	{ next }
 $8 ~ /CSWTCH\.[0-9].*/		{ next }
