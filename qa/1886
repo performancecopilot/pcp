@@ -248,24 +248,36 @@ echo Original with no function:
 pmseries $args 'kernel.all.load[count:5]'
 echo Compared to nth_percentile_inst:
 pmseries $args 'nth_percentile_inst(kernel.all.load[count:5], 50)'
+pmseries $args 'nth_percentile_inst(kernel.all.load[count:5])'
+pmseries $args 'nth_percentile_inst(kernel.all.load[count:5], 500)'
 echo Compared to nth_percentile_sample:
 pmseries $args 'nth_percentile_sample(kernel.all.load[count:5], 50)'
+pmseries $args 'nth_percentile_sample(kernel.all.load[count:5])'
+pmseries $args 'nth_percentile_sample(kernel.all.load[count:5], 500)'
 
 echo;echo "== Verify nth_percentile() functions for a non-singular metric, only one instance"
 echo Original with no function:
 pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5]'
 echo Compared to nth_percentile_inst:
 pmseries $args 'nth_percentile_inst(kernel.all.load{instance.name == "5 minute"}[count:5], 50)'
+pmseries $args 'nth_percentile_inst(kernel.all.load{instance.name == "5 minute"}[count:5])'
+pmseries $args 'nth_percentile_inst(kernel.all.load{instance.name == "5 minute"}[count:5], 500)'
 echo Compared to nth_percentile_sample:
 pmseries $args 'nth_percentile_sample(kernel.all.load{instance.name == "5 minute"}[count:5], 50)'
+pmseries $args 'nth_percentile_sample(kernel.all.load{instance.name == "5 minute"}[count:5])'
+pmseries $args 'nth_percentile_sample(kernel.all.load{instance.name == "5 minute"}[count:5], 500)'
 
 echo;echo "== Verify nth_percentile() functions for a singular metric"
 echo Original with no function:
 pmseries $args 'kernel.all.uptime[count:10]'
 echo Compared to nth_percentile_inst:
 pmseries $args 'nth_percentile_inst(kernel.all.uptime[count:10], 50)'
+pmseries $args 'nth_percentile_inst(kernel.all.uptime[count:10])'
+pmseries $args 'nth_percentile_inst(kernel.all.uptime[count:10], 500)'
 echo Compared to nth_percentile_sample:
 pmseries $args 'nth_percentile_sample(kernel.all.uptime[count:10], 50)'
+pmseries $args 'nth_percentile_sample(kernel.all.uptime[count:10])'
+pmseries $args 'nth_percentile_sample(kernel.all.uptime[count:10], 500)'
 
 # success, all done
 status=0

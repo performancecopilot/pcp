@@ -793,6 +793,16 @@ Compared to nth_percentile_inst:
     [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
     [Mon Oct  3 09:10:23.300460000 2011] 2.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
     [Mon Oct  3 09:10:23.300460000 2011] 5.000000e-02 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+pmseries: [Error] cannot parse given string
+
+nth_percentile_inst(kernel.all.load[count:5])
+                                            ^ -- syntax error
+
+pmseries: [Error] cannot parse given string
+
+nth_percentile_inst(kernel.all.load[count:5], 500)
+                                                 ^ -- syntax error
+
 Compared to nth_percentile_sample:
 
 57232c981e86045137a6e460cf8358d7bfa9c910
@@ -800,6 +810,16 @@ Compared to nth_percentile_sample:
     [Mon Oct  3 09:10:23.802930000 2011] 2.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
     [Mon Oct  3 09:10:23.300460000 2011] 2.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
     [Mon Oct  3 09:10:22.959242000 2011] 2.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
+pmseries: [Error] cannot parse given string
+
+nth_percentile_sample(kernel.all.load[count:5])
+                                              ^ -- syntax error
+
+pmseries: [Error] cannot parse given string
+
+nth_percentile_sample(kernel.all.load[count:5], 500)
+                                                   ^ -- syntax error
+
 
 == Verify nth_percentile() functions for a non-singular metric, only one instance
 Original with no function:
@@ -823,6 +843,16 @@ f8b75c6ebbfd3b3bb88455868b57304a7be67719
     [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
     [Mon Oct  3 09:10:23.300460000 2011] 2.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
     [Mon Oct  3 09:10:23.300460000 2011] 5.000000e-02 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+pmseries: [Error] cannot parse given string
+
+nth_percentile_inst(kernel.all.load{instance.name == "5 minute"}[count:5])
+                                                                         ^ -- syntax error
+
+pmseries: [Error] cannot parse given string
+
+nth_percentile_inst(kernel.all.load{instance.name == "5 minute"}[count:5], 500)
+                                                                              ^ -- syntax error
+
 Compared to nth_percentile_sample:
 
 f8b75c6ebbfd3b3bb88455868b57304a7be67719
@@ -830,6 +860,16 @@ f8b75c6ebbfd3b3bb88455868b57304a7be67719
     [Mon Oct  3 09:10:23.802930000 2011] 2.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
     [Mon Oct  3 09:10:23.300460000 2011] 2.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
     [Mon Oct  3 09:10:22.959242000 2011] 2.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
+pmseries: [Error] cannot parse given string
+
+nth_percentile_sample(kernel.all.load{instance.name == "5 minute"}[count:5])
+                                                                           ^ -- syntax error
+
+pmseries: [Error] cannot parse given string
+
+nth_percentile_sample(kernel.all.load{instance.name == "5 minute"}[count:5], 500)
+                                                                                ^ -- syntax error
+
 
 == Verify nth_percentile() functions for a singular metric
 Original with no function:
@@ -843,6 +883,16 @@ Compared to nth_percentile_inst:
 
 dff33c23492fcda57eb7aa2d884ef9382167cee3
     [Mon Oct  3 09:10:23.300460000 2011] 516660 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183
+pmseries: [Error] cannot parse given string
+
+nth_percentile_inst(kernel.all.uptime[count:10])
+                                               ^ -- syntax error
+
+pmseries: [Error] cannot parse given string
+
+nth_percentile_inst(kernel.all.uptime[count:10], 500)
+                                                    ^ -- syntax error
+
 Compared to nth_percentile_sample:
 
 dff33c23492fcda57eb7aa2d884ef9382167cee3
@@ -850,3 +900,13 @@ dff33c23492fcda57eb7aa2d884ef9382167cee3
     [Mon Oct  3 09:10:23.802930000 2011] 516661 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183
     [Mon Oct  3 09:10:23.300460000 2011] 516660 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183
     [Mon Oct  3 09:10:22.959242000 2011] 516660 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183
+pmseries: [Error] cannot parse given string
+
+nth_percentile_sample(kernel.all.uptime[count:10])
+                                                 ^ -- syntax error
+
+pmseries: [Error] cannot parse given string
+
+nth_percentile_sample(kernel.all.uptime[count:10], 500)
+                                                      ^ -- syntax error
+
