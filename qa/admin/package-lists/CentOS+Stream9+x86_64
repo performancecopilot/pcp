@@ -1,10 +1,9 @@
 # PCP required package list for CentOS 8.2.2004 x86_64
 # created by kenj on vm04.localdomain Mon Oct 12 23:16:58 EDT 2020
 #
-List::MoreUtils cpan
-Net::SNMP cpan
 Spreadsheet::Read cpan
-Spreadsheet::XLSX cpan
+389-ds-base
+avahi-devel
 audit
 autoconf
 bash
@@ -14,17 +13,19 @@ bind-utils
 bison
 bpftool
 bpftrace
+clang
 # in CI centos8-container already has coreutils-single installed and this
 # conflicts with coreutils
-clang
 coreutils not4ci
+cppcheck
 cronie
-curl-minimal
+curl
 cyrus-sasl
 cyrus-sasl-devel
 cyrus-sasl-lib
 cyrus-sasl-md5
 cyrus-sasl-plain
+device-mapper-devel
 ed
 flex
 gawk
@@ -68,24 +69,26 @@ perl-ExtUtils-MakeMaker
 perl-File-Slurp
 perl-JSON
 perl-LDAP
-#perl-Net-SNMP			! dnf will not install this one
-#perl-Spreadsheet-WriteExcel	! dnf will not install this one
-#perl-Spreadsheet-XLSX		! dnf will not install this one
+perl-List-MoreUtils
+perl-Net-SNMP
+perl-Spreadsheet-WriteExcel
+perl-Spreadsheet-XLSX
 perl-Text-CSV_XS
 perl-Time-HiRes
 perl-TimeDate
 perl-XML-LibXML
 perl-XML-TokeParser
+perl-YAML-LibYAML
 perl-autodie
 perl-interpreter
 perl-libwww-perl
 pkgconf-pkg-config
-platform-python-devel
-platform-python-setuptools
 podman-docker
 postfix-perl-scripts
 postgresql
 psmisc
+python3-devel
+python3-setuptools
 python3-bcc
 python3-elasticsearch
 python3-jsonpointer
@@ -95,6 +98,7 @@ python3-lxml
 python3-prometheus_client
 python3-psycopg2
 python3-pyodbc
+python3-pillow
 python3-requests
 python3-rtslib
 python3-setuptools
@@ -125,3 +129,4 @@ valgrind
 xfsprogs
 xkeyboard-config
 xz-devel
+zabbix-agent
