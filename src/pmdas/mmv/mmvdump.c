@@ -17,7 +17,6 @@
 #include <pcp/pmapi.h>
 #include <pcp/mmv_stats.h>
 #include <pcp/mmv_dev.h>
-#include <pcp/libpcp.h>
 #include <inttypes.h>
 #include <sys/stat.h>
 #include <strings.h>
@@ -696,7 +695,10 @@ dump(const char *file, void *addr, size_t size)
     return sts;
 }
 
-int 
+/* directly access libpcp internal mmap wrapper for portability */
+extern void *__pmMemoryMap(int, size_t, int);
+
+int
 main(int argc, char **argv)
 {
     int fd;

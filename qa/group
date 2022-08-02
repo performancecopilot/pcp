@@ -1913,6 +1913,7 @@ x11
 1549 pmrep python local
 1566 logutil libpcp local
 1573 pmproxy libpcp_web pmlogger local
+1574 pmseries local
 1584 pmda.mongodb local
 1588 python iostat local
 1591 archive archive_v3 local
@@ -1945,6 +1946,7 @@ x11
 1688 pmieconf local
 1689 pmproxy libpcp_web local
 1690 pmseries local
+1691 pmseries local
 1692 pmda.pmcd local
 1694 pidstat local python pcp pmlogextract
 1695 pmproxy valgrind local
@@ -2029,6 +2031,7 @@ x11
 1914 atop local
 1927 pmda.sockets local
 1931 pmda.bpf local
+1936 other local pmclient
 1937 pmlogrewrite pmda.xfs local pmdumplog
 1955 libpcp pmda pmda.pmcd local
 1956 pmda.linux pmcd local
