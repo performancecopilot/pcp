@@ -132,6 +132,10 @@ static const char initial_str[]  = "Unexpected initial";
 %token      L_SUM_SAMPLE
 %token      L_STDEV_INST
 %token      L_STDEV_SAMPLE
+%token      L_TOPK_INST
+%token      L_TOPK_SAMPLE
+%token      L_NTH_PERCENTILE_INST
+%token      L_NTH_PERCENTILE_SAMPLE
 %token      L_ANON
 %token      L_RATE
 %token      L_INSTANT
@@ -180,6 +184,7 @@ static const char initial_str[]  = "Unexpected initial";
 %type  <n>  exprlist
 %type  <n>  exprval
 %type  <n>  number
+%type  <n>  integer
 %type  <n>  string
 %type  <s>  timespec
 %type  <n>  vector
@@ -203,7 +208,6 @@ query	: vector
 		  $$ = lp->yy_series.expr;
 		  YYACCEPT;
 		}
-	/* TODO: vector expressions (many) */
 	;
 
 vector:	L_NAME L_LBRACE exprlist L_RBRACE L_EOS
@@ -269,13 +273,16 @@ string	: L_STRING
 		}
 	;
 
-number	: L_INTEGER
-		{ lp->yy_np = newnode(N_INTEGER);
+number	: integer
+	| L_DOUBLE
+		{ lp->yy_np = newnode(N_DOUBLE);
 		  lp->yy_np->value = sdsnew($1);
 		  $$ = lp->yy_np;
 		}
-	| L_DOUBLE
-		{ lp->yy_np = newnode(N_DOUBLE);
+	;
+
+integer	: L_INTEGER
+		{ lp->yy_np = newnode(N_INTEGER);
 		  lp->yy_np->value = sdsnew($1);
 		  $$ = lp->yy_np;
 		}
@@ -339,8 +346,6 @@ expr	: /* relational expressions */
 		{ $$ = lp->yy_np = newtree(N_AND, $1, $3); }
 	| expr L_OR expr
 		{ $$ = lp->yy_np = newtree(N_OR, $1, $3); }
-
-	/* TODO: error reporting */
 	;
 
 val_vec
@@ -362,7 +367,7 @@ sid_vec
                   $$ = lp->yy_series.expr = lp->yy_np;
                 }
 	| L_NAME
-                { lp->yy_np = newmetric($1); /* TODO: perhaps newsidexpr()? */
+                { lp->yy_np = newmetric($1);
                   $$ = lp->yy_series.expr = lp->yy_np;
                 }
 	;
@@ -522,6 +527,82 @@ func_sid
 	| L_STDEV_SAMPLE L_LPAREN func_sid L_RPAREN
 		{ lp->yy_np = newnode(N_STDEV_SAMPLE);
 		  lp->yy_np->left = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_TOPK_INST L_LPAREN sid_vec L_COMMA integer L_RPAREN
+		{ lp->yy_np = newnode(N_TOPK_INST);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_TOPK_INST L_LPAREN func_sid L_COMMA integer L_RPAREN
+		{ lp->yy_np = newnode(N_TOPK_INST);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_TOPK_SAMPLE L_LPAREN sid_vec L_COMMA integer L_RPAREN
+		{ lp->yy_np = newnode(N_TOPK_SAMPLE);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_TOPK_SAMPLE L_LPAREN func_sid L_COMMA integer L_RPAREN
+		{ lp->yy_np = newnode(N_TOPK_SAMPLE);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_NTH_PERCENTILE_INST L_LPAREN sid_vec L_COMMA integer L_RPAREN
+		{ char *ptr;
+		  long ret;
+		  ret = strtoul($5->value, &ptr, 10);
+		  if (*ptr != '\0' || ret < 0 || ret > 100){
+			series_error(lp, NULL);
+			return -1;
+		  }
+		  lp->yy_np = newnode(N_NTH_PERCENTILE_INST);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_NTH_PERCENTILE_INST L_LPAREN func_sid L_COMMA integer L_RPAREN
+		{ char *ptr;
+		  long ret;
+		  ret = strtoul($5->value, &ptr, 10);
+		  if (*ptr != '\0' || ret < 0 || ret > 100){
+			series_error(lp, NULL);
+			return -1;
+		  }
+		  lp->yy_np = newnode(N_NTH_PERCENTILE_INST);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_NTH_PERCENTILE_SAMPLE L_LPAREN sid_vec L_COMMA integer L_RPAREN
+		{ char *ptr;
+		  long ret;
+		  ret = strtoul($5->value, &ptr, 10);
+		  if (*ptr != '\0' || ret < 0 || ret > 100){
+			series_error(lp, NULL);
+			return -1;
+		  }
+		  lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_NTH_PERCENTILE_SAMPLE L_LPAREN func_sid L_COMMA integer L_RPAREN
+		{ char *ptr;
+		  long ret;
+		  ret = strtoul($5->value, &ptr, 10);
+		  if (*ptr != '\0' || ret < 0 || ret > 100){
+			series_error(lp, NULL);
+			return -1;
+		  }
+		  lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_AVG L_LPAREN sid_vec L_RPAREN
@@ -721,7 +802,6 @@ arithmetic_expr_sid
 		}
 	;
 
-	/* TODO: functions */
 func	: L_RATE L_LPAREN val_vec L_RPAREN
 		{ lp->yy_np = newnode(N_RATE);
 		  lp->yy_np->left = $3;
@@ -940,6 +1020,82 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
+	| L_TOPK_INST L_LPAREN val_vec L_COMMA integer L_RPAREN
+		{ lp->yy_np = newnode(N_TOPK_INST);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_TOPK_INST L_LPAREN func L_COMMA integer L_RPAREN
+		{ lp->yy_np = newnode(N_TOPK_INST);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_TOPK_SAMPLE L_LPAREN val_vec L_COMMA integer L_RPAREN
+		{ lp->yy_np = newnode(N_TOPK_SAMPLE);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_TOPK_SAMPLE L_LPAREN func L_COMMA integer L_RPAREN
+		{ lp->yy_np = newnode(N_TOPK_SAMPLE);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_NTH_PERCENTILE_INST L_LPAREN val_vec L_COMMA integer L_RPAREN
+		{ char *ptr;
+		  long ret;
+		  ret = strtoul($5->value, &ptr, 10);
+		  if (*ptr != '\0' || ret < 0 || ret > 100){
+			series_error(lp, NULL);
+			return -1;
+		  }
+		  lp->yy_np = newnode(N_NTH_PERCENTILE_INST);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_NTH_PERCENTILE_INST L_LPAREN func L_COMMA integer L_RPAREN
+		{ char *ptr;
+		  long ret;
+		  ret = strtoul($5->value, &ptr, 10);
+		  if (*ptr != '\0' || ret < 0 || ret > 100){
+			series_error(lp, NULL);
+			return -1;
+		  }
+		  lp->yy_np = newnode(N_NTH_PERCENTILE_INST);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_NTH_PERCENTILE_SAMPLE L_LPAREN val_vec L_COMMA integer L_RPAREN
+		{ char *ptr;
+		  long ret;
+		  ret = strtoul($5->value, &ptr, 10);
+		  if (*ptr != '\0' || ret < 0 || ret > 100){
+			series_error(lp, NULL);
+			return -1;
+		  }
+		  lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| L_NTH_PERCENTILE_SAMPLE L_LPAREN func L_COMMA integer L_RPAREN
+		{ char *ptr;
+		  long ret;
+		  ret = strtoul($5->value, &ptr, 10);
+		  if (*ptr != '\0' || ret < 0 || ret > 100){
+			series_error(lp, NULL);
+			return -1;
+		  }
+		  lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
 	| L_AVG L_LPAREN val_vec L_RPAREN
 		{ lp->yy_np = newnode(N_AVG);
 		  lp->yy_np->left = $3;
@@ -975,6 +1131,7 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	;
+
 arithmetic_expression
 	: val_vec L_PLUS val_vec
 		{ lp->yy_np = newnode(N_PLUS);
@@ -1073,93 +1230,6 @@ arithmetic_expression
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	;
-//	| L_AVG L_LPAREN L_NAME L_RPAREN
-//		{ lp->yy_np = newnode(N_AVG);
-//		  lp->yy_np->left = newnode(N_NAME);
-//		  lp->yy_np->left->value = sdsnew($3);
-//		  $$ = lp->yy_np;
-//		}
-//	| L_COUNT L_LPAREN L_NAME L_RPAREN
-//		{ lp->yy_np = newnode(N_COUNT);
-//		  lp->yy_np->left = newnode(N_NAME);
-//		  lp->yy_np->left->value = sdsnew($3);
-//		  $$ = lp->yy_np;
-//		}
-//	| L_DELTA L_LPAREN L_NAME L_RPAREN
-//		{ lp->yy_np = newnode(N_DELTA);
-//		  lp->yy_np->left = newnode(N_NAME);
-//		  lp->yy_np->left->value = sdsnew($3);
-//		  $$ = lp->yy_np;
-//		}
-//	| L_MAX L_LPAREN L_NAME L_RPAREN
-//		{ lp->yy_np = newnode(N_MAX);
-//		  lp->yy_np->left = newnode(N_NAME);
-//		  lp->yy_np->left->value = sdsnew($3);
-//		  $$ = lp->yy_np;
-//		}
-//	| L_MIN L_LPAREN L_NAME L_RPAREN
-//		{ lp->yy_np = newnode(N_MIN);
-//		  lp->yy_np->left = newnode(N_NAME);
-//		  lp->yy_np->left->value = sdsnew($3);
-//		  $$ = lp->yy_np;
-//		}
-//	| L_SUM L_LPAREN L_NAME L_RPAREN
-//		{ lp->yy_np = newnode(N_SUM);
-//		  lp->yy_np->left = newnode(N_NAME);
-//		  lp->yy_np->left->value = sdsnew($3);
-//		  $$ = lp->yy_np;
-//		}
-//	| L_INSTANT L_LPAREN L_NAME L_RPAREN
-//		{ lp->yy_np = newnode(N_INSTANT);
-//		  lp->yy_np->left = newnode(N_NAME);
-//		  lp->yy_np->left->value = sdsnew($3);
-//		  $$ = lp->yy_np;
-//		}
-//	| L_DEFINED L_LPAREN L_NAME L_RPAREN
-//		{ lp->yy_np = newnode(N_DEFINED);
-//		  lp->yy_np->left = newnode(N_NAME);
-//		  lp->yy_np->left->value = sdsnew($3);
-//		  $$ = lp->yy_np;
-//		}
-//	| L_RESCALE L_LPAREN expr L_COMMA L_STRING L_RPAREN
-//		{ double		mult;
-//		  struct pmUnits	units;
-//		  char			*errmsg;
-//
-//		  lp->yy_np = newnode(N_RESCALE);
-//		  lp->yy_np->left = $3;
-//		  if (pmParseUnitsStr($5, &units, &mult, &errmsg) < 0) {
-//		      gramerr(lp, "Illegal units:", NULL, errmsg);
-//		      free(errmsg);
-//		      series_error(lp, NULL);
-//		      return -1;
-//		  }
-//		  lp->yy_np->right = newnode(N_SCALE);
-//		  lp->yy_np->right->meta.units = units;	/* struct assign */
-//		  free($5);
-//		  $$ = lp->yy_np;
-//		}
-//	| L_AVG L_LPAREN error
-//		{ gramerr(lp, name_str, follow, "avg("); YYERROR; }
-//	| L_COUNT L_LPAREN error
-//		{ gramerr(lp, name_str, follow, "count("); YYERROR; }
-//	| L_DELTA L_LPAREN error
-//		{ gramerr(lp, name_str, follow, "delta("); YYERROR; }
-//	| L_MAX L_LPAREN error
-//		{ gramerr(lp, name_str, follow, "max("); YYERROR; }
-//	| L_MIN L_LPAREN error
-//		{ gramerr(lp, name_str, follow, "min("); YYERROR; }
-//	| L_SUM L_LPAREN error
-//		{ gramerr(lp, name_str, follow, "sum("); YYERROR; }
-//	| L_RATE L_LPAREN error
-//		{ gramerr(lp, name_str, follow, "rate("); YYERROR; }
-//	| L_INSTANT L_LPAREN error
-//		{ gramerr(lp, name_str, follow, "instant("); YYERROR; }
-//	| L_RESCALE L_LPAREN error
-//		{ gramerr(lp, op_str, follow, "rescale("); YYERROR; }
-//	| L_RESCALE L_LPAREN expr L_COMMA error
-//		{ gramerr(lp, "Units string", follow, "rescale(<expr>,"); YYERROR; }
-//	;
 
 %%
 
@@ -1184,6 +1254,10 @@ static const struct {
     { L_SUM_SAMPLE,	sizeof("sum_sample")-1,	"sum_sample" },
     { L_STDEV_INST,	sizeof("stdev_inst")-1,	"stdev_inst" },
     { L_STDEV_SAMPLE,	sizeof("stdev_sample")-1,	"stdev_sample" },
+    { L_TOPK_INST,	sizeof("topk_inst")-1,	"topk_inst" },
+    { L_TOPK_SAMPLE,	sizeof("topk_sample")-1,	"topk_sample" },
+    { L_NTH_PERCENTILE_INST,	sizeof("nth_percentile_inst")-1,	"nth_percentile_inst" },
+    { L_NTH_PERCENTILE_SAMPLE,	sizeof("nth_percentile_sample")-1,	"nth_percentile_sample" },
     { L_RATE,		sizeof("rate")-1,	"rate" },
     { L_ABS,		sizeof("abs")-1,	"abs" },
     { L_FLOOR,		sizeof("floor")-1,	"floor" },
@@ -1243,6 +1317,10 @@ static struct {
     { L_SUM_SAMPLE,	N_SUM_SAMPLE,	"SUM_SAMPLE",	NULL },
     { L_STDEV_INST,	N_STDEV_INST,	"STDEV_INST",	NULL },
     { L_STDEV_SAMPLE,	N_STDEV_SAMPLE,	"STDEV_SAMPLE",	NULL },
+    { L_TOPK_INST,	N_TOPK_INST,	"TOPK_INST",	NULL },
+    { L_TOPK_SAMPLE,	N_TOPK_SAMPLE,	"TOPK_SAMPLE",	NULL },
+    { L_NTH_PERCENTILE_INST,	N_NTH_PERCENTILE_INST,	"NTH_PERCENTILE_INST",	NULL },
+    { L_NTH_PERCENTILE_SAMPLE, N_NTH_PERCENTILE_SAMPLE, "NTH_PERCENTILE_SAMPLE", NULL },
     { L_ANON,		N_ANON,		"ANON",		NULL },
     { L_RATE,		N_RATE,		"RATE",		NULL },
     { L_INSTANT,	N_INSTANT,	"INSTANT",	NULL },
@@ -1408,12 +1486,6 @@ newstarttime(PARSER *lp, const char *string)
     parsetime(lp, &tp->start, string);
     if (!lp->yy_error)
 	tp->window.start = sdsnew(string);
-#if 0
-    if (!lp->yy_error)
-fprintf(stderr, "START: %.64g\n", pmtimevalToReal(result));
-    else
-fprintf(stderr, "ERROR (start: %s): %s\n", string, lp->yy_errstr);
-#endif
 }
 
 static void
@@ -1424,12 +1496,6 @@ newendtime(PARSER *lp, const char *string)
     parsetime(lp, &tp->end, string);
     if (!lp->yy_error)
 	tp->window.end = sdsnew(string);
-#if 0
-    if (!lp->yy_error)
-fprintf(stderr, "END: %.64g\n", pmtimevalToReal(result));
-    else
-fprintf(stderr, "ERROR (end: %s): %s\n", string, lp->yy_errstr);
-#endif
 }
 
 static void
@@ -1463,12 +1529,6 @@ newaligntime(PARSER *lp, const char *string)
     parsetime(lp, &tp->align, string);
     if (!lp->yy_error)
 	tp->window.align = sdsnew(string);
-#if 0
-    if (!lp->yy_error)
-fprintf(stderr, "ALIGN: %.64g\n", pmtimevalToReal(result));
-    else
-fprintf(stderr, "ERROR (align: %s): %s\n", string, lp->yy_errstr);
-#endif
 }
 
 static void
@@ -2072,9 +2132,10 @@ series_dumpexpr(node_t *np, int level)
 	break;
     case N_AVG: case N_COUNT:   case N_DELTA:   case N_MAX:     case N_MIN:
     case N_SUM: case N_ANON:    case N_RATE:    case N_INSTANT: case N_RESCALE:
-    case N_MAX_INST: case N_MAX_SAMPLE: case N_MIN_INST: case N_MIN_SAMPLE: 
-    case N_AVG_INST: case N_AVG_SAMPLE: case N_SUM_INST: case N_SUM_SAMPLE: 
-    case N_STDEV_INST: case N_STDEV_SAMPLE: 
+    case N_MAX_INST: case N_MAX_SAMPLE: case N_MIN_INST: case N_MIN_SAMPLE:
+    case N_AVG_INST: case N_AVG_SAMPLE: case N_SUM_INST: case N_SUM_SAMPLE:
+    case N_STDEV_INST: case N_STDEV_SAMPLE: case N_NTH_PERCENTILE_INST:
+    case N_NTH_PERCENTILE_SAMPLE: case N_TOPK_INST: case N_TOPK_SAMPLE: 
 	fprintf(stderr, "%*s%s()", level*4, "", n_type_str(np->type));
 	break;
     case N_SCALE: {

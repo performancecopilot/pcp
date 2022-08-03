@@ -2,7 +2,7 @@
 # PCP QA Test No. 1211
 # Exercise basic pmseries loading and querying.
 #
-# Copyright (c) 2018-2019 Red Hat.
+# Copyright (c) 2018-2019,2022 Red Hat.
 #
 
 seq=`basename $0`
@@ -127,6 +127,10 @@ echo
 
 echo "Perform simple label-based query ..."
 pmseries $options 'kernel.all.load{hostname:"bozo-laptop"}' | LC_COLLATE=POSIX sort
+echo
+
+echo "Perform 40-character non-SeriesID query ..."
+pmseries $options 'kernel.all.load{hostname: "bozo-laptop"}' | LC_COLLATE=POSIX sort
 echo
 
 echo "Perform simple instance-based query ..."
