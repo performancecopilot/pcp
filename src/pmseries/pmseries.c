@@ -13,6 +13,7 @@
  */
 
 #include "pmwebapi.h"
+#include <ctype.h>
 #include <uv.h>
 
 typedef enum series_flags {
@@ -1126,6 +1127,22 @@ pmseries_overrides(int opt, pmOptions *opts)
     return 0;
 }
 
+static int
+issid(const char *string)
+{
+    const char *s;
+
+    if (strlen(string) != 40)
+	return 0;
+
+    for (s = string; *s != '\0'; s++) {
+	if (isdigit(*s) || (*s >= 'a' && *s <= 'f'))
+	    continue;
+	return 0;
+    }
+    return 1;
+}
+
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Connection Options"),
     { "config", 1, 'c', "FILE", "configuration file path"},
@@ -1344,7 +1361,7 @@ main(int argc, char *argv[])
         !(flags & (PMSERIES_OPT_SOURCE | PMSERIES_OPT_VALUES)) &&
 	!(flags & (PMSERIES_NEED_DESCS | PMSERIES_NEED_INSTS))) {
 	for (c = opts.optind; c < argc; c++) {
-	    if (strlen(argv[c]) != 40)
+	    if (!issid(argv[c]))
 		break;
 	}
 	if (c != argc || opts.optind == argc)
