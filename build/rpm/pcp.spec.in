@@ -227,7 +227,8 @@ fi
 
 # rpm boolean dependencies are supported since RHEL 8, but not reliable
 # across all platforms, so be conservative here
-%if 0%{?fedora} >= 36 || 0%{?rhel} >= 9
+# OK for RHEL 9 and later provided it is not CentOS Stream 9 (or earlier)
+%if 0%{?fedora} >= 36 || (0%{?rhel} >= 9 && (0%{?centos} == 0 || 0%{?centos} > 9))
 # This ensures that the pcp-selinux package and all it's dependencies are
 # not pulled into containers and other systems that do not use SELinux
 Requires: (pcp-selinux = @package_version@ if selinux-policy-targeted)
