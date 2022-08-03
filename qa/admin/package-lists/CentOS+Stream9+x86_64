@@ -19,7 +19,7 @@ clang
 coreutils not4ci
 cppcheck
 cronie
-curl
+curl-minimal
 cyrus-sasl
 cyrus-sasl-devel
 cyrus-sasl-lib
