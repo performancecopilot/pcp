@@ -3192,7 +3192,6 @@ series_calculate_time_domain_topk(node_t *np)
     double		*topk_data;
     int			*topk_pointer;
 
-    sscanf(np->right->value, "%d", &n);
     n_series = np->left->value_set.num_series;
     np->value_set.num_series = n_series;
     np->value_set.series_values = (series_sample_set_t *)calloc(n_series, sizeof(series_sample_set_t));
@@ -3204,6 +3203,7 @@ series_calculate_time_domain_topk(node_t *np)
 	    n_instances = np->left->value_set.series_values[i].series_sample[0].num_instances;
 
 	    for (j = 0; j < n_samples; j++){
+		sscanf(np->right->value, "%d", &n);
 		if (n > n_instances){
 		    n = n_instances;
 		}
@@ -3278,16 +3278,15 @@ series_calculate_topk(node_t *np)
     sds			msg;
     pmSeriesValue	inst;
 
-    sscanf(np->right->value, "%d", &n);
     n_series = np->left->value_set.num_series;
     np->value_set.num_series = n_series;
     np->value_set.series_values = (series_sample_set_t *)calloc(n_series, sizeof(series_sample_set_t));
     for (i = 0; i < n_series; i++) {
 	n_samples = np->left->value_set.series_values[i].num_samples;
+	sscanf(np->right->value, "%d", &n);
 	if (n > n_samples){
 	    n = n_samples;
 	}
-	
 	if (n_samples > 0) {
 	    n_instances = np->left->value_set.series_values[i].series_sample[0].num_instances;
 	    np->value_set.series_values[i].num_samples = n_instances;
@@ -3323,7 +3322,7 @@ series_calculate_topk(node_t *np)
 			    }
 			}
 		    }
-		}
+		}		
 		for (l = 0; l < n; ++l){
 		    inst = np->left->value_set.series_values[i].series_sample[topk_pointer[l]].series_instance[k];
 		    np->value_set.series_values[i].series_sample[k].series_instance[l].timestamp = sdsnew(inst.timestamp);

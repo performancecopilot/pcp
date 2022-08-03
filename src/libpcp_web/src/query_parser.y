@@ -1036,6 +1036,12 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
+	| L_TOPK_SAMPLE L_LPAREN val_vec L_COMMA integer L_RPAREN
+		{ lp->yy_np = newnode(N_TOPK_SAMPLE);
+		  lp->yy_np->left = $3;
+		  lp->yy_np->right = $5;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
 	| L_TOPK_SAMPLE L_LPAREN func L_COMMA integer L_RPAREN
 		{ lp->yy_np = newnode(N_TOPK_SAMPLE);
 		  lp->yy_np->left = $3;
