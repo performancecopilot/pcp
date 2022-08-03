@@ -729,7 +729,7 @@ dumpstack:	dumpstack.c
 ifeq "$(TOPDIR)" ""
 	$(CC) -I$(PCP_INC_DIR) -I. $(PCFLAGS) -o $@ -rdynamic $^ -lpcp
 else
-	$(CC) -I$(TOPDIR)/src/include/pcp -I. $(PCFLAGS) -o $@ -rdynamic $^ -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) -lpcp
+	$(CC) -I$(TOPDIR)/src/include -I. $(PCFLAGS) -o $@ -rdynamic $^ -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) -lpcp
 endif
 
 ifneq ($(NVIDIAQALIB),)
