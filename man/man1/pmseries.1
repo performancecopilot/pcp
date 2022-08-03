@@ -556,6 +556,17 @@ standard deviation of the values in the time series for each instance of \fIexpr
 .P
 .BR stdev_sample(\f2expr\fP)
 standard deviation of the values in the time series for each sample of \fIexpr\fP across time.
+.P
+.BR nth_percentile_inst(\f2expr\fP, \f2percentile_value\fP)
+the nth percentile of the values in the time series for each instance of \fIexpr\fP. Note that
+.I percentile_value
+has value in the range 0 to 100.
+.P
+.BR nth_percentile_sample(\f2expr\fP)
+the nth percentile of the values in the time series for each sample of \fIexpr\fP across time.
+Note that
+.I percentile_value
+has value in the range 0 to 100.
 
 .SS Compatibility
 All operands in an expression must have the same number of samples,
