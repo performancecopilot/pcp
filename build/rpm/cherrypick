@@ -52,7 +52,7 @@ do
 	    -e '/lib.*\.so[.(]/d' \
 	# end
     else
-	echo >&2 "rpm -qR -p $rpm failed!"
+	echo >&2 "cherrypick: rpm -qR -p $rpm failed!"
 	exit 1
     fi \
     | while read req
@@ -73,7 +73,7 @@ do
 	    else
 		# Nah.
 		#
-		echo >&2 "Warning: $me not installed: missing prereq $req"
+		echo >&2 "cherrypick: Warning: $me not installed: missing prereq $req"
 		rm -f $tmp.ok
 	    fi
 	fi
