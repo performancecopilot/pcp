@@ -592,7 +592,7 @@ fetch_archive_done(uv_work_t *req, int status)
 	}
 	else {
 	    if (pmDebugOptions.series)
-		fprintf(stderr, "%s: time window end\n", "server_cache_window");
+		fprintf(stderr, "%s: time window end\n", "fetch_archive_done");
 	    sts = PM_ERR_EOL;
 	    pmFreeResult(context->result);
 	    context->result = NULL;
@@ -602,8 +602,10 @@ fetch_archive_done(uv_work_t *req, int status)
     if (sts < 0) {
 	if (sts != PM_ERR_EOL)
 	    baton->error = sts;
-	doneSeriesGetContext(context, "server_cache_window");
+	doneSeriesGetContext(context, "fetch_archive_done");
     }
+
+    doneSeriesLoadBaton(baton, "fetch_archive_done");
 }
 #endif
 
@@ -621,6 +623,7 @@ server_cache_window(void *arg)
 	fprintf(stderr, "%s: fetching next result\n", "server_cache_window");
 
 #if defined(HAVE_LIBUV)
+    seriesBatonReference(baton, "server_cache_window");
     seriesBatonReference(context, "server_cache_window");
     context->done = server_cache_series_finished;
 
@@ -633,7 +636,7 @@ server_cache_window(void *arg)
     uv_queue_work(uv_default_loop(), req, fetch_archive, fetch_archive_done);
 #else
     baton->error = -ENOTSUP;
-    seriesPassBaton(&baton->current, baton, "server_cache_window");
+    server_cache_series_finished(arg);
 #endif
 }
 
