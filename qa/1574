@@ -14,9 +14,6 @@ path=""
 . ./common.filter
 . ./common.check
 
-# Temporarily skip while further code changes are under development
-_notrun "Additional libpcp_web valgrind fixes needed for this test"
-
 # This test is not run if we dont have pmseries and redis installed.
 _check_series
 
