@@ -29,6 +29,13 @@ do
     me=`echo $rpm | sed -e 's/-[0-9].*//'`
     if rpm -qR -p $rpm >$tmp.req
     then
+	# Note:
+	# 	/(.* if .*)/d is for Boolean Operators introduces in rpm 4.13
+	# 	of the form
+	# 	    Requires: (pkgA if pkgB)
+	#	and cherrypick should ignore this in terms of prerequisite
+	#	info
+	#
 	sed <$tmp.req \
 	    -e '/^\//d' \
 	    -e '/^pcp-/d' \
@@ -36,6 +43,7 @@ do
 	    -e '/^rpmlib(/d' \
 	    -e '/^config(/d' \
 	    -e '/^rtld(/d' \
+	    -e '/(.* if .*)/d' \
 	    -e 's/ .*//' \
 	    -e '/^pcp$/d' \
 	    -e '/-pcp$/d' \
