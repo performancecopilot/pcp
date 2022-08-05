@@ -337,7 +337,7 @@ p
     | while read _line
     do
 	eval `echo "$_line" | sed -e 's/\//\\\\/g' -e 's/^/_re="/' -e 's/	/"\n_comments="/' -e 's/$/"/'`
-	if grep "$_re" $tmp.whatami >/dev/null 2>&1
+	if egrep "$_re" $tmp.whatami >/dev/null 2>&1
 	then
 	    # triaged, don't treat as a Failure
 	    #

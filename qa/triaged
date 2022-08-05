@@ -15,12 +15,12 @@
 # The fields here are <tab> separated to allow a space in the
 # second field in particular.
 #
-# Because the <whatami-RE> field is used with grep, one needs to
-# (backslash) escape an [ (none of the other special RE characters
-# appear in the whatami output).
+# Because the <whatami-RE> field is used with egrep, one needs to
+# (backslash) escape both [ and ( ... (none of the other special egrep
+# RE characters appear in thw whatami output).
 #
 
-1049	bozo	pending fix for pmieconf openmetrics rules
-1221	vm27	extra labels associated with openmetrics.vmware_exporter.vmware_vm_guest_disk_* metrics for no known reason
+1210	vm[0-9][0-9]	may collide with pmlogger_check and (correctly) detects presence of /etc/pcp/pmlogger/lock
+1221	vm27		extra labels associated with openmetrics.vmware_exporter.vmware_vm_guest_disk_* metrics for no known reason
 1575	.*	valgrind-reported issue in pmseries language, needs some additional small leaks plugged
 1662	.*	valgrind-reported issue in libpcp_web archive discovery handling of sources
