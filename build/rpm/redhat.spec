@@ -2697,6 +2697,7 @@ chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
 %if !%{disable_systemd}
     systemctl restart pmcd pmlogger >/dev/null 2>&1
     systemctl enable pmcd pmlogger >/dev/null 2>&1
+    systemctl enable pmlogger_daily_report.timer >/dev/null 2>&1
 %else
     /sbin/chkconfig --add pmcd >/dev/null 2>&1
     /sbin/chkconfig --add pmlogger >/dev/null 2>&1
