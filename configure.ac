@@ -1269,11 +1269,11 @@ if $pmda_bpf; then
     libbpf_version_minor=`echo $libbpf_version | cut -d. -f2`
     pmdabpf_modules="biolatency.so runqlat.so"
 
-    AC_MSG_CHECKING([if the bpf PMDA execsnoop module should be included])
+    AC_MSG_CHECKING([if bpf PMDA modules using perf_buffer__poll should be included])
     if test "$libbpf_version_major" -eq 0 -a "$libbpf_version_minor" -lt 7; then
 	AC_MSG_RESULT([no (libbpf version required: 0.7.0, installed: $libbpf_version)])
     else
-	pmdabpf_modules="${pmdabpf_modules} execsnoop.so"
+	pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so mountsnoop.so oomkill.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so"
 	AC_MSG_RESULT(yes)
     fi
 
@@ -1564,7 +1564,7 @@ AS_IF([test "x$do_qt" != "xno"], [
 	    fi
 	else
 	    dnl QT_SELECT not set, if we have qtchooser use that to see
-	    dnl if Qt5 is available, otherwise we fallthrough to the 
+	    dnl if Qt5 is available, otherwise we fallthrough to the
 	    dnl qmake default version
 	    if test -n "$QTCHOOSER"
 	    then
@@ -2534,7 +2534,7 @@ AC_CHECK_FUNCS(backtrace)
 LIBS=$savedLIBS
 
 dnl symbols needed for backtracing
-if test "x$cc_is_gcc" = xyes 
+if test "x$cc_is_gcc" = xyes
 then
     dnl if using gcc, some platforms make __executable_start go away when
     dnl compiled -fPIE -pie, e.g. CentOS 6, RHEL/CentOS 7 ... so need to
@@ -2598,7 +2598,7 @@ int main()
 AC_DEFINE(HAVE_ETEXT, [1], [etext defined])
 AC_MSG_RESULT(yes)
 ], AC_MSG_RESULT(no))
-if test "x$cc_is_gcc" = xyes 
+if test "x$cc_is_gcc" = xyes
 then
     dnl see above
     CFLAGS="$savedCFLAGS"
@@ -3786,7 +3786,7 @@ then
 else
     dnl We can get here ($have_manpages == false) for container-based
     dnl builds.
-    dnl For Debian packaging, we _must_ include the man pages, so 
+    dnl For Debian packaging, we _must_ include the man pages, so
     dnl take the known and good settings ...
     dnl
     if test $target_distro = debian

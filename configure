@@ -8508,13 +8508,13 @@ if $pmda_bpf; then
     libbpf_version_minor=`echo $libbpf_version | cut -d. -f2`
     pmdabpf_modules="biolatency.so runqlat.so"
 
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking if the bpf PMDA execsnoop module should be included" >&5
-$as_echo_n "checking if the bpf PMDA execsnoop module should be included... " >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking if bpf PMDA modules using perf_buffer__poll should be included" >&5
+$as_echo_n "checking if bpf PMDA modules using perf_buffer__poll should be included... " >&6; }
     if test "$libbpf_version_major" -eq 0 -a "$libbpf_version_minor" -lt 7; then
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no (libbpf version required: 0.7.0, installed: $libbpf_version)" >&5
 $as_echo "no (libbpf version required: 0.7.0, installed: $libbpf_version)" >&6; }
     else
-	pmdabpf_modules="${pmdabpf_modules} execsnoop.so"
+   pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so mountsnoop.so oomkill.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so"
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
     fi
