@@ -619,6 +619,7 @@ do
     then
 	bad="$bad $seq"
 	n_bad=`expr $n_bad + 1`
+	try=`expr $try + 1`
 	__quick=false
 	[ $__diff = true ] || echo "Check local PMCD is still alive ..."
 	$OPTION_AGENTS && _haveagents
@@ -627,6 +628,7 @@ do
     then
 	triaged="$triaged $seq"
 	n_triaged=`expr $n_triaged + 1`
+	try=`expr $try + 1`
     else
 	[ -f $seq.notrun ] || try=`expr $try + 1`
     fi
