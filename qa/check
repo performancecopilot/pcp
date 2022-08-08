@@ -119,6 +119,7 @@ END	{ if (NR > 0) {
 		echo "Failures:$bad" | fmt >>check.log
 		echo "Failed $n_bad of $try tests" >>check.log
 	    else
+		try=`expr $try - $n_triaged`
 		if [ $try != 0 ]
 		then
 		    [ $__color = true ] && tput bold && tput setaf 2 # green
