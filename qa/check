@@ -106,9 +106,9 @@ END	{ if (NR > 0) {
 	    if [ "$n_triaged" != 0 ]
 	    then
 		[ $__color = true ] && tput bold && tput setaf 2 # green
-		echo "Triaged $n_triaged tests:$triaged"
+		echo "Triaged:$triaged"
 		[ $__color = true ] && tput sgr0 # reset
-		echo "Triaged $n_triaged tests:$triaged" | fmt >>check.log
+		echo "Triaged:$triaged" | fmt >>check.log
 	    fi
 	    if [ "$n_bad" != 0 ]
 	    then
