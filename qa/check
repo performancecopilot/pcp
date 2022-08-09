@@ -106,9 +106,9 @@ END	{ if (NR > 0) {
 	    if [ "$n_triaged" != 0 ]
 	    then
 		[ $__color = true ] && tput bold && tput setaf 2 # green
-		echo "Triaged $n_triaged tests:$triaged"
+		echo "Triaged:$triaged"
 		[ $__color = true ] && tput sgr0 # reset
-		echo "Triaged $n_triaged tests:$triaged" | fmt >>check.log
+		echo "Triaged:$triaged" | fmt >>check.log
 	    fi
 	    if [ "$n_bad" != 0 ]
 	    then
@@ -119,6 +119,7 @@ END	{ if (NR > 0) {
 		echo "Failures:$bad" | fmt >>check.log
 		echo "Failed $n_bad of $try tests" >>check.log
 	    else
+		try=`expr $try - $n_triaged`
 		if [ $try != 0 ]
 		then
 		    [ $__color = true ] && tput bold && tput setaf 2 # green
@@ -619,6 +620,7 @@ do
     then
 	bad="$bad $seq"
 	n_bad=`expr $n_bad + 1`
+	try=`expr $try + 1`
 	__quick=false
 	[ $__diff = true ] || echo "Check local PMCD is still alive ..."
 	$OPTION_AGENTS && _haveagents
@@ -627,6 +629,7 @@ do
     then
 	triaged="$triaged $seq"
 	n_triaged=`expr $n_triaged + 1`
+	try=`expr $try + 1`
     else
 	[ -f $seq.notrun ] || try=`expr $try + 1`
     fi

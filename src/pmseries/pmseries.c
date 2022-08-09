@@ -13,6 +13,7 @@
  */
 
 #include "pmwebapi.h"
+#include "libpcp.h"
 #include <ctype.h>
 #include <uv.h>
 
