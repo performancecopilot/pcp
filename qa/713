@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 # PCP QA Test No. 713
 #
 # Exercise encrypted communications between pmproxy/clients
@@ -9,30 +9,13 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 . ./common.secure
-nss_notrun_checks
 
-hostname=`hostname`
-if echo "$hostname" | grep '\.' >/dev/null
-then
-    :
-else
-    _notrun "hostname -> $hostname, no domain name part"
-fi
-
-# Despite intense triage, on some QA hosts this test simple fails to
-# generate and install SSL certificates that the relevant libraries
-# will accept as valid
-#
-case "$hostname"
-in
-    vm01.localdomain|vm29.localdomain)
-	    _notrun "cannot make SSL certificates work on this platform"
-	    ;;
-esac
+_check_tls
 
 _cleanup()
 {
-    nss_cleanup
+    _restore_config $PCP_TLSCONF_PATH
+    unset PCP_SECURE_SOCKETS
 
     _service pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
     _restore_auto_restart pmcd
@@ -63,56 +46,56 @@ pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
 echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
 
+_save_config $PCP_TLSCONF_PATH
 _stop_auto_restart pmcd
 _service pcp stop | _filter_pcp_stop
-
-# real QA test starts here
-nss_backup
-nss_setup_randomness
-nss_setup_collector true $qahost $hostname
 
 # pmcd is now secure.  next, pmproxy...
 _stop_auto_restart pmproxy
 _service pmproxy stop >/dev/null 2>&1
 $sudo $signal -a pmproxy >/dev/null 2>&1
 
-mkdir -p $tmp.rundir
-export PCP_RUN_DIR=$tmp.rundir
-proxyargs="-C $PCP_SECURE_DB_METHOD$collectordb -P $collectorpw -U $username"
-$PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1
-echo "Checking pmproxy.log for unexpected messages" | tee -a $seq.full
-sleep 1	# allow log file creation to complete
-egrep 'Error:|Info:' $tmp.log
-cat $tmp.log >> $seq.full
-unset PCP_RUN_DIR
-eval `$PCP_BINADM_DIR/pmconfig -s PCP_RUN_DIR`
+_filter_tls()
+{
+    sed \
+	-e 's/value [0-9][0-9]*/value NUMBER/' \
+	-e '/pminfo([0-9][0-9]*)/s//pminfo(PID)/' \
+	-e "s/host \"$hostname\"/host LOCALHOST/g" \
+	-e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATE]/' \
+    #end
+}
 
-# verify that local clients are prompted to establish a connection
-# when a valid collectoer certificate exists but no client config.
-nss_setup_empty_userdb
-echo "checking client, server certificate only.  should prompt and fail..." | tee -a $seq.full
+# real QA test starts here
+_setup_tls
+
+_service pmcd start | _filter_pcp_start
+_service pmproxy start | _filter_pmproxy_start
+_wait_for_pmcd
+_wait_for_pmproxy
+
+# verify that local clients are unable to establish a connection
+# when valid server certificate exists but no client certificate
+# and no requirement to verify client certificate.
+echo
+echo "checking client, server certificate only.  should pass..." | tee -a $seq.full
 export PMPROXY_HOST=$hostname
 export PCP_SECURE_SOCKETS=enforce
-yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_tls
 unset PMPROXY_HOST PCP_SECURE_SOCKETS
 
 # make the new certificate visible to just this user
+echo
 echo "checking client, user certificate only.  should pass..."
-nss_setup_empty_userdb
-nss_import_cert_userdb
 export PMPROXY_HOST=$hostname
 export PCP_SECURE_SOCKETS=enforce
-yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_tls
 
 # Try a second connection
+echo
 echo "checking client, user certificate only, second time.  should pass..."
-yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_tls
 
 unset PMPROXY_HOST PCP_SECURE_SOCKETS
-
-echo >>$here/$seq.full
-echo "--- pmproxy log after all done ---" >>$here/$seq.full
-cat $tmp.log >>$here/$seq.full
 
 # success, all done
 status=0
