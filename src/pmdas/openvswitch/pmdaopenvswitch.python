@@ -43,14 +43,19 @@ class OpenvswitchPMDA(PMDA):
         self.port_info_json = {}
         self.flow_json = {}
         self.interface_info_json = {}
+        self.coverage_json = {}
         self.switch_names = []
         self.port_info_names = []
         self.flow_names = []
         self.interface_names = []
+        self.coverage_names = []
         self.get_switch_info_json()
         self.get_port_info_json()
         self.get_flow_json()
         self.get_interface_info_json()
+
+        self.coverage_metrics = []
+        self.get_coverage_json()
 
         self.connect_pmcd()
 
@@ -84,6 +89,7 @@ class OpenvswitchPMDA(PMDA):
         ]
 
         for item, metric in enumerate(self.switch_metrics):
+
             self.add_metric(name + '.' + metric[0],
                             pmdaMetric(self.pmid(self.switch_cluster, item),
                                        metric[1], self.switch_indom,
@@ -208,6 +214,17 @@ class OpenvswitchPMDA(PMDA):
             self.add_metric(name + '.' + metric[0],
                             pmdaMetric(self.pmid(self.interface_cluster, item),
                                        metric[1], self.interface_indom,
+                                       metric[2], metric[3]),
+                            metric[4], metric[4])
+
+        self.coverage_indom = self.indom(4)
+        self.coverage_instances()
+        self.coverage_cluster = 4
+
+        for item, metric in enumerate(self.coverage_metrics):
+            self.add_metric(name + '.' + metric[0],
+                            pmdaMetric(self.pmid(self.coverage_cluster, item),
+                                       metric[1], self.coverage_indom,
                                        metric[2], metric[3]),
                             metric[4], metric[4])
 
@@ -368,6 +385,224 @@ class OpenvswitchPMDA(PMDA):
             insts.append(pmdaInstid(idx, val))
         self.add_indom(pmdaIndom(self.flow_indom, insts))
 
+    def fetch_coverage_info(self):
+        """ fetches result from command line """
+        query = ['ovs-appctl','coverage/show']
+        out = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        stdout, stderr = out.communicate()
+        stdout = stdout.decode("utf-8")
+        return stdout, stderr
+
+    def get_coverage_json(self):
+        """ Convert the commandline output to json """
+        self.coverage_json = {}
+        self.coverage_names = []
+
+        stdout, _ = self.fetch_coverage_info()
+        output = stdout.split('\n')
+        # Remove the excess line
+        output = output[1:]
+        # Remove the empty line
+        if output[-1] == '':
+            output = output[:-1]
+
+        #Get the number of coverage counters
+        num_counters = len(output)
+
+        temp_coverage = {}
+
+        # git grep -l '^COVERAGE_DEFINE(' | \
+        #     xargs sed -n 's/^COVERAGE_DEFINE(\(.*\))\;/"\1",/p' | sort -u
+        #The above command in OVS repo gives the list of coverage counters defined
+        coverage_allow_list = [
+           "afxdp_cq_empty",
+           "afxdp_cq_skip",
+           "afxdp_fq_full",
+           "afxdp_tx_full",
+           "bridge_reconfigure",
+           "ccmap_expand",
+           "ccmap_shrink",
+           "cmap_expand",
+           "cmap_shrink",
+           "conntrack_full",
+           "conntrack_invalid_tcp_flags",
+           "conntrack_l3csum_err",
+           "conntrack_l4csum_err",
+           "conntrack_long_cleanup",
+           "conntrack_lookup_natted_miss",
+           "conntrack_tcp_seq_chk_bypass",
+           "conntrack_tcp_seq_chk_failed",
+           "datapath_drop_hw_miss_recover",
+           "datapath_drop_invalid_bond",
+           "datapath_drop_invalid_port",
+           "datapath_drop_invalid_tnl_port",
+           "datapath_drop_lock_error",
+           "datapath_drop_meter",
+           "datapath_drop_nsh_decap_error",
+           "datapath_drop_recirc_error",
+           "datapath_drop_rx_invalid_packet",
+           "datapath_drop_sample_error",
+           "datapath_drop_tunnel_pop_error",
+           "datapath_drop_tunnel_push_error",
+           "datapath_drop_upcall_error",
+           "datapath_drop_userspace_action_error",
+           "dpif_destroy",
+           "dpif_execute",
+           "dpif_execute_with_help",
+           "dpif_flow_del",
+           "dpif_flow_flush",
+           "dpif_flow_get",
+           "dpif_flow_put",
+           "dpif_meter_del",
+           "dpif_meter_get",
+           "dpif_meter_set",
+           "dpif_port_add",
+           "dpif_port_del",
+           "dpif_purge",
+           "drop_action_bridge_not_found",
+           "drop_action_congestion",
+           "drop_action_forwarding_disabled",
+           "drop_action_invalid_tunnel_metadata",
+           "drop_action_no_recirculation_context",
+           "drop_action_of_pipeline",
+           "drop_action_recirculation_conflict",
+           "drop_action_recursion_too_deep",
+           "drop_action_stack_too_deep",
+           "drop_action_too_many_mpls_labels",
+           "drop_action_too_many_resubmit",
+           "drop_action_unsupported_packet_type",
+           "dumped_duplicate_flow",
+           "dumped_new_flow",
+           "flow_extract",
+           "handler_duplicate_upcall",
+           "hindex_expand",
+           "hindex_pathological",
+           "hindex_reserve",
+           "hindex_shrink",
+           "hmap_expand",
+           "hmap_pathological",
+           "hmap_reserve",
+           "hmap_shrink",
+           "ipf_l3csum_err",
+           "ipf_stuck_frag_list_purged",
+           "lockfile_error",
+           "lockfile_lock",
+           "lockfile_unlock",
+           "mac_learning_evicted",
+           "mac_learning_expired",
+           "mac_learning_learned",
+           "mac_learning_moved",
+           "mac_learning_static_none_move",
+           "mcast_snooping_expired",
+           "mcast_snooping_learned",
+           "miniflow_extract_ipv4_pkt_len_error",
+           "miniflow_extract_ipv4_pkt_too_short",
+           "miniflow_extract_ipv6_pkt_len_error",
+           "miniflow_extract_ipv6_pkt_too_short",
+           "miniflow_malloc",
+           "netdev_add_router",
+           "netdev_arp_lookup",
+           "netdev_get_ethtool",
+           "netdev_get_hwaddr",
+           "netdev_get_ifindex",
+           "netdev_get_stats",
+           "netdev_push_header_drops",
+           "netdev_received",
+           "netdev_send_prepare_drops",
+           "netdev_sent",
+           "netdev_set_ethtool",
+           "netdev_set_hwaddr",
+           "netdev_set_policing",
+           "netlink_overflow",
+           "netlink_received",
+           "netlink_recv_jumbo",
+           "netlink_sent",
+           "nln_changed",
+           "ofmonitor_pause",
+           "ofmonitor_resume",
+           "ofproto_dpif_expired",
+           "ofproto_flush",
+           "ofproto_packet_out",
+           "ofproto_queue_req",
+           "ofproto_recv_openflow",
+           "ofproto_reinit_ports",
+           "ofproto_update_port",
+           "packet_in_overflow",
+           "poll_create_node",
+           "poll_zero_timeout",
+           "process_start",
+           "pstream_open",
+           "raft_entry_serialize",
+           "rconn_discarded",
+           "rconn_overflow",
+           "rconn_queued",
+           "rconn_sent",
+           "revalidate_missed_dp_flow",
+           "rev_bond",
+           "rev_flow_table",
+           "rev_mac_learning",
+           "rev_mcast_snooping",
+           "rev_port_toggled",
+           "rev_reconfigure",
+           "rev_rstp",
+           "rev_stp",
+           "rtbsd_changed",
+           "seq_change",
+           "stream_open",
+           "txn_aborted",
+           "txn_error",
+           "txn_forward_cancel",
+           "txn_forward_complete",
+           "txn_forward_create",
+           "txn_forward_sent",
+           "txn_incomplete",
+           "txn_not_locked",
+           "txn_success",
+           "txn_try_again",
+           "txn_unchanged",
+           "txn_uncommitted",
+           "unixctl_received",
+           "unixctl_replied",
+           "upcall_flow_limit_hit",
+           "upcall_flow_limit_kill",
+           "upcall_ukey_contention",
+           "upcall_ukey_replace",
+           "util_xalloc",
+           "vconn_open",
+           "vconn_received",
+           "vconn_sent",
+           "vhost_notification",
+           "vhost_tx_contention",
+           "xlate_actions",
+           "xlate_actions_oversize",
+           "xlate_actions_too_many_output",
+        ]
+
+        for _, metric in enumerate(coverage_allow_list):
+            self.coverage_metrics.append([
+                'coverage.' + str(metric),
+                PM_TYPE_U64,
+                PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE),
+                str(metric),
+            ])
+
+        for i in range(num_counters-1):
+            temp = output[i].strip()
+            temp = temp.split()
+            temp_coverage[temp[0]] = int(temp[-1])
+
+        self.coverage_json['coverage'] = temp_coverage
+        self.coverage_names.append('coverage')
+
+
+    def coverage_instances(self):
+        """ set up ovs switch's port instances"""
+        insts = []
+        for idx, val in enumerate(self.coverage_names):
+            insts.append(pmdaInstid(idx, val))
+        self.add_indom(pmdaIndom(self.coverage_indom, insts))
+
     def openvswitch_refresh(self, cluster):
         """refresh function"""
         if cluster == self.switch_cluster:
@@ -402,6 +637,14 @@ class OpenvswitchPMDA(PMDA):
 
             self.replace_indom(self.interface_indom, insts)
 
+        if cluster == self.coverage_cluster:
+            self.get_coverage_json()
+            insts = []
+            for idx, val in enumerate(self.coverage_names):
+                insts.append(pmdaInstid(idx, val))
+
+            self.replace_indom(self.coverage_indom, insts)
+
     def openvswitch_label(self, ident, target):
         '''
         Return JSONB format labelset for identifier of given type, as a string
@@ -416,6 +659,8 @@ class OpenvswitchPMDA(PMDA):
                 ret = '"indom_name":"flow_info"'
             elif indom == self.interface_indom:
                 ret = '"indom_name":"interface_info"'
+            elif indom == self.coverage_indom:
+                ret = '"indom_name":"coverage_info"'
         else: # no labels added for PM_LABEL_{DOMAIN,CLUSTER,ITEM}
             ret = '' # default is an empty labelset string
 
@@ -431,6 +676,8 @@ class OpenvswitchPMDA(PMDA):
             ret = '"port":"%s"' % (self.inst_name_lookup(self.switch_indom, inst).split['::'][1])
         elif indom == self.interface_indom:
             ret = '"interface":"%s"' % (self.inst_name_lookup(self.interface_indom, inst))
+        elif indom == self.coverage_indom:
+            ret = '"coverage":"%s"' % (self.inst_name_lookup(self.coverage_indom, inst))
         else:
             ret = ''
 
@@ -570,6 +817,23 @@ class OpenvswitchPMDA(PMDA):
                         return [self.interface_info_json[interface][35], 1]
                     return [PMDA_FETCH_NOVALUES, 0]
                 return [PM_ERR_PMID, 0]
+
+            except Exception:
+                return [PM_ERR_APPVERSION, 0]
+
+        if cluster == self.coverage_cluster:
+            if self.coverage_json is None:
+                return [PMDA_FETCH_NOVALUES,0]
+            try:
+
+                counter = self.inst_name_lookup(self.coverage_indom,inst)
+
+                value = self.coverage_json[counter]
+                key = self.coverage_metrics[item][4]
+
+                if key not in value.keys():
+                    return [0,1]
+                return [self.coverage_json[counter][key],1]
 
             except Exception:
                 return [PM_ERR_APPVERSION, 0]
