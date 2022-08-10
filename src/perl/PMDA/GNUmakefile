@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.

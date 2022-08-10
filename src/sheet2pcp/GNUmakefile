@@ -23,7 +23,9 @@ default:
 include $(BUILDRULES)
 
 install: default
+ifeq "$(HAVE_PERL)" "true"
 	$(INSTALL) -m 755 sheet2pcp $(PCP_BIN_DIR)/sheet2pcp
+endif
 
 default_pcp : default
 

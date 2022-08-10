@@ -30,10 +30,12 @@ MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-default: check_domain
+default: build-me check_domain
 
 include $(BUILDRULES)
 
+ifeq "$(HAVE_PERL)" "true"
+build-me: $(MAN_PAGES)
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
@@ -42,6 +44,10 @@ install: default
 	$(INSTALL) -m 755 -d $(PMDACONFIG)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/redis.conf redis.conf $(PMDACONFIG)/redis.conf
 	@$(INSTALL_MAN)
+else
+build-me:
+install:
+endif
 
 default_pcp : default
 

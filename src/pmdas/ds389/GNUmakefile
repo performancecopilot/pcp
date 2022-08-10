@@ -29,12 +29,18 @@ default: check_domain
 
 include $(BUILDRULES)
 
+ifeq "$(HAVE_PERL)" "true"
+build-me: $(MAN_PAGES)
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) pmda$(IAM).pl $(IAM).conf.example $(PMDAADMDIR)
 	@$(INSTALL_MAN)
+else
+build-me:
+install:
+endif
 
 default_pcp : default
 

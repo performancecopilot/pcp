@@ -892,7 +892,6 @@ PMDA_MONGODB
 PMDA_MYSQL
 PMDA_SNMP
 have_perl
-enable_perl
 pcp_perl_prog
 PERL
 PMDA_BPFTRACE
@@ -9415,11 +9414,9 @@ done
 
 
 
-enable_perl=false
 if test "x$do_perl" != "xno"
 then :
 
-    enable_perl=true
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for any perl version" >&5
 printf %s "checking for any perl version... " >&6; }
     if test "$cross_compiling" = "yes"; then
@@ -9436,10 +9433,25 @@ printf %s "checking for any perl version... " >&6; }
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $pcp_perl_prog" >&5
 printf "%s\n" "$pcp_perl_prog" >&6; }
 
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if ExtUtils::MakeMaker is installed" >&5
+printf %s "checking if ExtUtils::MakeMaker is installed... " >&6; }
+    if test "$have_perl" = true
+    then
+        $pcp_perl_prog -e "use ExtUtils::MakeMaker" 2>/dev/null
+        if test $? -eq 0
+        then
+	    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result:  yes" >&5
+printf "%s\n" " yes" >&6; }
+        else
+	    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result:  no" >&5
+printf "%s\n" " no" >&6; }
+	    have_perl=false
+        fi
+    fi
+
 else $as_nop
   have_perl=false
 fi
-
 
 
 
@@ -10834,29 +10846,6 @@ fi
 fi
 pod2man=$POD2MAN
 
-
-if test "$enable_perl" != "false"
-then :
-
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if ExtUtils::MakeMaker is installed" >&5
-printf %s "checking if ExtUtils::MakeMaker is installed... " >&6; }
-    perl -e "use ExtUtils::MakeMaker" 2>/dev/null
-    if test $? -eq 0
-    then
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result:  yes" >&5
-printf "%s\n" " yes" >&6; }
-    else
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result:  no" >&5
-printf "%s\n" " no" >&6; }
-	echo
-	echo "FATAL ERROR: Perl ExtUtils::MakeMaker module missing."
-	echo "You can either install this from your distribution, or"
-	echo "download from CPAN (Comprehensive Perl Archive Network)."
-	rm -rf conftest conftest.*
-	exit 1
-    fi
-
-fi
 
 # Extract the first word of "true", so it can be a program name with args.
 set dummy true; ac_word=$2
