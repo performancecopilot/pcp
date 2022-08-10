@@ -54,6 +54,7 @@ install_pcp install:	default
 	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/rx_qos_drops openvswitch.rx_qos_drops.pmie $(PMIECONFDIR)/rx_qos_drops
 	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/tx_failure_drops openvswitch.tx_failure_drops.pmie $(PMIECONFDIR)/tx_failure_drops
 	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/tx_qos_drops openvswitch.tx_qos_drops.pmie $(PMIECONFDIR)/tx_qos_drops
+	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/tx_retries openvswitch.tx_retries.pmie $(PMIECONFDIR)/tx_retries
 else
 build-me:
 install_pcp install:
