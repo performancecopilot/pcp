@@ -52,8 +52,8 @@ static int series_lex(YYSTYPE *, PARSER *);
 static int series_error(PARSER *, const char *);
 static void gramerr(PARSER *, const char *, const char *, char *);
 static node_t *newnode(int);
-static node_t *newmetric(char *);
-static node_t *newmetricquery(char *, node_t *);
+static node_t *newmetric(sds);
+static node_t *newmetricquery(sds, node_t *);
 static node_t *newtree(int, node_t *, node_t *);
 static void newaligntime(PARSER *, const char *);
 static void newstarttime(PARSER *, const char *);
@@ -1415,7 +1415,7 @@ newtree(int type, node_t *left, node_t *right)
 }
 
 static node_t *
-newmetric(char *name)
+newmetric(sds name)
 {
     node_t	*node;
     char	*re;
@@ -1430,12 +1430,12 @@ newmetric(char *name)
     node->left = newnode(N_NAME);
     node->left->value = sdsnew("metric.name");
     node->right = newnode(N_STRING);
-    node->right->value = sdsnew(name);
+    node->right->value = name;
     return node;
 }
 
 static node_t *
-newmetricquery(char *name, node_t *query)
+newmetricquery(sds name, node_t *query)
 {
     node_t	*root = newnode(N_AND);
     node_t	*metric = newmetric(name);
