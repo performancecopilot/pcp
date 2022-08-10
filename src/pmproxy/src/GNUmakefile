@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2020 Red Hat.
+# Copyright (c) 2018-2020,2022 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -37,7 +37,6 @@ CFILES += openmetrics.c server.c http.c pcp.c uv_callback.c redis.c $(SERVLETS)
 HFILES += openmetrics.h server.h http.h pcp.h uv_callback.h
 ifeq "$(HAVE_OPENSSL)" "true"
 LCFLAGS += $(OPENSSLCFLAGS) -DHAVE_OPENSSL=1
-LDFLAGS += $(LIB_FOR_OPENSSL)
 CFILES += secure.c
 endif
 endif

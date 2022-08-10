@@ -128,6 +128,8 @@ static char
 	return "pmns";
     else if (__pmIsAFLock(lock))
 	return "AF";
+    else if (__pmIsSecureclientLock(lock))
+	return "secureclient";
     else if (__pmIsSecureserverLock(lock))
 	return "secureserver";
     else if (__pmIsConnectLock(lock))
@@ -379,6 +381,7 @@ __pmInitLocks(void)
 	init_pmns_lock();
 	init_AF_lock();
 	init_result_lock();
+	init_secureclient_lock();
 	init_secureserver_lock();
 	init_connect_lock();
 	init_exec_lock();

@@ -1,6 +1,6 @@
 #
 # Common shell routines for testing security extensions
-# Copyright (c) 2012-2014,2017 Red Hat.
+# Copyright (c) 2012-2014,2017,2022 Red Hat.
 #
 
 # get standard environment, filters and checks
@@ -44,6 +44,7 @@ sasl_notrun_checks()
 nss_notrun_checks()
 {
     _get_libpcp_config
+    [ -d "$PCP_SECURE_DB_PATH" ] || _notrun "NSS secure DB not installed"
     [ "$secure_sockets" = "true" ] || _notrun "Secure sockets not supported"
     which certutil >/dev/null 2>&1 || _notrun "certutil not installed (NSS tools)"
     [ -c /dev/urandom ] || _notrun "No random number generator special file found"
@@ -242,4 +243,104 @@ filter_sample_log_credentials()
 	-e "/userid=$__pcp_user\$/d" \
 	-e "/groupid=$__pcp_group\$/d" \
     # end
+}
+
+# check openssl is available and an acceptable version is installed.
+#
+_check_tls()
+{
+    openssl help 2>/dev/null || _notrun "No openssl binary found"
+
+    if [ -f /etc/lsb-release ]
+    then
+	. /etc/lsb-release
+        # TLS tests fail under Ubuntu 19.10 with a myriad of errors involving
+        # the use of uninitialized values.  The code paths vary but typically
+        # involve libuv -> libssl -> libcrypto.
+	if [ "$DISTRIB_ID" = Ubuntu ]
+	then
+	    case "$DISTRIB_RELEASE"
+	    in
+		19.10)
+		    _notrun "problems with libuv, libssl, libcrypto and valgrind on $DISTRIB_ID $DISTRIB_RELEASE"
+		;;
+	    esac
+        fi
+    fi
+}
+
+# creates self-signed (insecure) certificates for QA testing only.
+#
+_setup_cert()
+{
+    local __name=$1
+    local __cn="$2"
+    local __opts="$3"
+
+    local __keyfile=$here/tls.conf/${__name}.key
+    local __certfile=$here/tls.conf/${__name}.crt
+
+    [ -d $here/tls.conf ] || mkdir $here/tls.conf
+
+    [ -f $__keyfile ] || \
+	openssl genrsa -out $__keyfile 2048 >> $here/tls.conf/openssl.log 2>&1
+
+    [ -f $__certfile ] || \
+	openssl req \
+		-new -sha256 \
+		-subj "/O=PCP QA/CN=$__cn" \
+		-key $__keyfile \
+	| openssl x509 -req -sha256 -days 365 $__opts \
+		-CA $here/tls.conf/ca.crt \
+		-CAkey $here/tls.conf/ca.key \
+		-CAserial $here/tls.conf/ca.txt \
+		-CAcreateserial \
+		-out $__certfile >> $here/tls.conf/openssl.log 2>&1
+}
+
+# configure an /etc/pcp/tls.conf file for secure socket communication
+# - used by PMAPI clients, pmcd and pmproxy - caller must ensure that
+# a backup of tls.conf has been made, and restore it at end of test.
+#
+_setup_tls()
+{
+    [ -d $here/tls.conf ] || mkdir $here/tls.conf
+
+    [ -f $here/tls.conf/ca.key ] || \
+	openssl genrsa -out $here/tls.conf/ca.key 4096 >> $here/tls.conf/openssl.log 2>&1
+
+    [ -f $here/tls.conf/ca.crt ] || \
+	openssl req \
+		-x509 -new -nodes -sha256 -days 3650 \
+		-subj "/O=PCP QA/CN=Certificate Authority" \
+		-key $here/tls.conf/ca.key \
+		-out $here/tls.conf/ca.crt >> $here/tls.conf/openssl.log 2>&1
+
+    [ -f $here/tls.conf/openssl.cnf ] || \
+	cat > $here/tls.conf/openssl.cnf <<__END__
+[ server_cert ]
+keyUsage = digitalSignature, keyEncipherment
+nsCertType = server
+
+[ client_cert ]
+keyUsage = digitalSignature, keyEncipherment
+nsCertType = client
+__END__
+
+    _setup_cert server "Server-only" "-extfile $here/tls.conf/openssl.cnf -extensions server_cert"
+    _setup_cert client "Client-only" "-extfile $here/tls.conf/openssl.cnf -extensions client_cert"
+    _setup_cert pcp "Generic-cert"
+
+    $sudo chown -R pcp:pcp $here/tls.conf
+    $sudo chmod ugo+r $here/tls.conf/*
+
+    echo > $tmp.tls
+    echo "# settings related to TLS certificates and keys" >> $tmp.tls
+    echo "# created by QA test $seq" >> $tmp.tls
+    echo >> $tmp.tls
+    echo "tls-key-file = $here/tls.conf/pcp.key" >> $tmp.tls
+    echo "tls-cert-file = $here/tls.conf/pcp.crt" >> $tmp.tls
+    echo "tls-ca-cert-file = $here/tls.conf/ca.crt" >> $tmp.tls
+
+    $sudo cp $tmp.tls $PCP_TLSCONF_PATH
 }

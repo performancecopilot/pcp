@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2019 Red Hat.
+ * Copyright (c) 2012-2019,2022 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -420,7 +420,6 @@ VerifyClient(ClientInfo *cp, __pmPDU *pb)
      * We still need to check local connections and allow those through
      * in all cases.
      */
-
     if (CheckCertRequired(cp)) {
 	if (flags & PDU_FLAG_SECURE)
 	    flags |= PDU_FLAG_CERT_REQD;
@@ -429,7 +428,6 @@ VerifyClient(ClientInfo *cp, __pmPDU *pb)
     }
 
     /* need to ensure both the pmcd and client channel use flags */
-
     if (sts >= 0 && flags)
 	sts = __pmSecureServerHandshake(cp->fd, flags, &attrs);
 
@@ -439,13 +437,11 @@ VerifyClient(ClientInfo *cp, __pmPDU *pb)
 
     /*
      * finally perform any additional handshaking needed with pmcd.
-     * Do not initialize NSS again.
      */
     if (sts >= 0 && flags)
-	sts = __pmSecureClientHandshake(cp->pmcd_fd,
-					flags | PDU_FLAG_NO_NSS_INIT,
+	sts = __pmSecureClientHandshake(cp->pmcd_fd, flags,
 					cp->pmcd_hostname, &attrs);
-   
+
     return sts;
 }
 
@@ -499,7 +495,6 @@ HandleInput(ServerInfo *sp, __pmFdSet *fdsPtr)
 	    continue;
 
 	cp = &sp->client[i];
-
 	sts = __pmGetPDU(cp->pmcd_fd, ANY_SIZE, 0, &pb);
 
 	/*
@@ -509,7 +504,6 @@ HandleInput(ServerInfo *sp, __pmFdSet *fdsPtr)
 	 * discussion in connect.c. This code happens before VerifyClient
 	 * above.
 	 */
-
 	if ((!cp->status.allowed) && (sts == PDU_ERROR)) {
 	    unsigned int server_features;
 

@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2013-2019 Red Hat.
+ * Copyright (c) 2013-2019,2022 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -19,10 +19,7 @@
 #include "internal.h"
 #include <ctype.h>
 #ifdef HAVE_SECURE_SOCKETS
-#include <prerror.h>
-#include <secerr.h>
-#include <sslerr.h>
-#include <sasl.h>
+#include <sasl/sasl.h>
 #endif
 
 #ifdef PM_MULTI_THREAD
@@ -113,6 +110,8 @@ static const struct {
 	"Explicit instance identifier(s) required" },
     { PM_ERR_IPC,		"PM_ERR_IPC",
 	"IPC protocol failure" },
+    { PM_ERR_TLS,		"PM_ERR_TLS",
+	"TLS protocol failure" },
     { PM_ERR_EOF,		"PM_ERR_EOF",
 	"IPC channel closed" },
     { PM_ERR_NOTHOST,		"PM_ERR_NOTHOST",
@@ -250,9 +249,8 @@ pmErrStr_r(int code, char *buf, int buflen)
     }
 
     /*
-     * Is the code from a library wrapped by libpcp?  (e.g. NSS/SSL/SASL)
-     * By good fortune, these libraries are using error codes that do not
-     * overlap - by design for NSS/SSL/NSPR, and by sheer luck with SASL.
+     * Is the code from a library wrapped by libpcp?  (e.g. SASL)
+     * By good fortune, these libraries use error codes with no overlap.
      */
     if (code < PM_ERR_NYI) {
 #ifdef HAVE_SECURE_SOCKETS
@@ -264,9 +262,9 @@ pmErrStr_r(int code, char *buf, int buflen)
 	    PM_LOCK(__pmLock_extcall);
 	    pmsprintf(buf, buflen, "Authentication - %s", sasl_errstring(error, NULL, NULL));	/* THREADSAFE */
 	    PM_UNLOCK(__pmLock_extcall);
+	} else {
+	    pmsprintf(buf, buflen, "Unknown secure sockets error %d (%d)", code, error);
 	}
-	else
-	    strncpy(buf, PR_ErrorToString(error, PR_LANGUAGE_EN), buflen);
 	buf[buflen-1] = '\0';
 	return buf;
 #endif

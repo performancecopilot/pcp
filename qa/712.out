@@ -1,19 +1,19 @@
 QA output created by 712
-== Creating empty certificate DB
-Start pmcd, modified $PCP_PMCDOPTIONS_PATH (pmcd.options):
-Checking pmcd.log for unexpected messages
-checking client, no certificate at all.  should fail...
-pminfo: Cannot connect to PMCD on host "HOST": Operation not supported
-== Creating empty certificate DB
-== Creating local certificates
-== Certificate DB and local certificates created
-Start pmcd, modified $PCP_PMCDOPTIONS_PATH (pmcd.options):
-Checking pmcd.log for unexpected messages
-checking client, server certificate only.  should prompt and fail...
-WARNING: issuer of certificate received from host HOST is not trusted.
-Do you want to accept and save this certificate locally anyway? (no)
-pminfo: Cannot connect to PMCD on host "HOST": Peer's Certificate issuer is not recognized.
-checking client, user certificate only.  should pass...
+
+checking client, generic certificate.  should pass...
 
 hinv.ncpu
     value NUMBER
+
+checking client, no certificate verify.  should pass...
+
+hinv.ncpu
+    value NUMBER
+
+checking client, verify certificate setup.  should pass...
+
+hinv.ncpu
+    value NUMBER
+
+checking client, server certificate only.  should fail...
+Error: hinv.ncpu: IPC protocol failure

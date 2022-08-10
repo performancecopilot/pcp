@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019,2021 Red Hat.
+ * Copyright (c) 2019,2021-2022 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -32,8 +32,9 @@ remove_connection_from_queue(struct client *client)
     }
     else {
 	/* link next and prev */
-	client->secure.pending.prev->secure.pending.next = client->secure.pending.next;
-	client->secure.pending.next->secure.pending.prev = client->secure.pending.prev;
+	struct secure_client_pending *pending = &client->secure.pending;
+	pending->prev->secure.pending.next = pending->next;
+	pending->next->secure.pending.prev = pending->prev;
     }
     memset(&client->secure.pending, 0, sizeof(client->secure.pending));
 }
@@ -270,116 +271,91 @@ secure_client_write(struct client *client, struct stream_write_baton *request)
 	maybe_flush_ssl(proxy, client);
 }
 
-static void
-abort_secure_module_setup(void)
-{
-    ERR_print_errors_fp(stderr);
-    exit(1);
-}
-
 void
 setup_secure_module(struct proxy *proxy)
 {
-    const char		*certificates = NULL, *private_key = NULL;
-    const char		*cipher_list = NULL, *cipher_suites = NULL;
-    const char		*authority = NULL;
-    SSL_CTX		*context;
-    char		version[] = OPENSSL_VERSION_TEXT;
-    sds			option;
-    int			verify_mode = SSL_VERIFY_PEER, length;
-    int			flags = SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 |
-				SSL_OP_NO_TLSv1 |SSL_OP_NO_TLSv1_1;
+    sds		option = pmIniFileLookup(config, "pmproxy", "secure.enabled");
+    int		compat = 0;
 
-    if ((option = pmIniFileLookup(config, "pmproxy", "secure.enabled"))) {
-	if (strncmp(option, "true", sdslen(option)) != 0)
-	    return;
+    /* if explicitly disabled, we can leave here immediately */
+    if (option && strncmp(option, "false", sdslen(option)) == 0)
+	return;
+
+    /* parse /etc/pcp/tls.conf (optional, preferred) */
+    __pmSecureConfigInit();
+    if (__pmGetSecureConfig(&proxy->tls) == -ENOENT)
+	compat = 1;
+
+    if (compat && option && strncmp(option, "true", sdslen(option)) != 0)
+	return;
+
+    /* backwards compatibility with original pmproxy.conf configuration */
+    if ((option = pmIniFileLookup(config, "pmproxy", "certificates"))) {
+	free(proxy->tls.certfile);
+	proxy->tls.certfile = strdup(option);
+	compat = 1;
+    }
+    if ((option = pmIniFileLookup(config, "pmproxy", "private_key"))) {
+	free(proxy->tls.keyfile);
+	proxy->tls.keyfile = strdup(option);
+	compat = 1;
+    }
+    if ((option = pmIniFileLookup(config, "pmproxy", "authority"))) {
+	free(proxy->tls.cacertfile);
+	proxy->tls.cacertfile = strdup(option);
+	compat = 1;
+    }
+    if ((option = pmIniFileLookup(config, "pmproxy", "cipher_list"))) {
+	free(proxy->tls.ciphers);
+	proxy->tls.ciphers = strdup(option);
+	compat = 1;
+    }
+    if ((option = pmIniFileLookup(config, "pmproxy", "cipher_suites"))) {
+	free(proxy->tls.ciphersuites);
+	proxy->tls.ciphersuites = strdup(option);
+	compat = 1;
     }
 
-    if ((option = pmIniFileLookup(config, "pmproxy", "certificates")))
-	certificates = option;
-    if ((option = pmIniFileLookup(config, "pmproxy", "private_key")))
-	private_key = option;
-    if ((option = pmIniFileLookup(config, "pmproxy", "authority")))
-	authority = option;
-    if ((option = pmIniFileLookup(config, "pmproxy", "cipher_list")))
-	cipher_list = option;
-    if ((option = pmIniFileLookup(config, "pmproxy", "cipher_suites")))
-	cipher_suites = option;
-
-    if (!certificates || !private_key) {
-	pmNotifyErr(LOG_INFO, "%s - no %s found\n", OPENSSL_VERSION_TEXT,
-			certificates ? "private_key" : "certificates");
+    /* default to enabling OpenSSL anytime a valid tls.conf exists */
+    if (!compat && !proxy->tls.certfile) {
+	__pmFreeSecureConfig(&proxy->tls);
 	return;
     }
 
-    SSL_library_init();
-    SSL_load_error_strings();
-
-    if ((context = SSL_CTX_new(TLS_server_method())) == NULL) {
-	pmNotifyErr(LOG_ERR, "Error creating initial secure server context\n");
-	abort_secure_module_setup();
-    }
-    /* all secure client connections must use at least TLSv1.2 */
-    SSL_CTX_set_options(context, flags);
-    /* verification mode of client certificate, default is SSL_VERIFY_PEER */
-    SSL_CTX_set_verify(context, verify_mode, NULL);
-
-    if (authority) {
-	SSL_CTX_set_client_CA_list(context, SSL_load_client_CA_file(authority));
-	if (!SSL_CTX_load_verify_locations(context, authority, NULL)) {
-	    pmNotifyErr(LOG_ERR, "Error loading the client CA list (%s)\n",
-			authority);
-	    abort_secure_module_setup();
-	}
+    /* OpenSSL initialization based on the configuration read */
+    proxy->ssl = (SSL_CTX *)__pmSecureServerInit(&proxy->tls);
+    if (proxy->ssl == NULL) {
+	__pmFreeSecureConfig(&proxy->tls);
+	return;
     }
 
-    if (!SSL_CTX_use_certificate_chain_file(context, certificates)) {
-	pmNotifyErr(LOG_ERR, "Error loading certificate chain: %s\n",
-			certificates);
-	abort_secure_module_setup();
-    }
-    if (!SSL_CTX_use_PrivateKey_file(context, private_key, SSL_FILETYPE_PEM)) {
-	pmNotifyErr(LOG_ERR, "Error loading private key: %s\n", private_key);
-	abort_secure_module_setup();
-    }
-    if (!SSL_CTX_check_private_key(context)) {
-	pmNotifyErr(LOG_ERR, "Error validating the certificate\n");
-	abort_secure_module_setup();
-    }
+    /* OpenSSL setup; log library version, ciphers in use */
+#ifdef OPENSSL_VERSION_STR
+    pmNotifyErr(LOG_INFO, "OpenSSL %s setup", OPENSSL_VERSION_STR);
+#else /* back-compat and not ideal, includes date */
+    pmNotifyErr(LOG_INFO, "%s setup", OPENSSL_VERSION_TEXT);
+#endif
+    if (proxy->tls.ciphersuites)
+	pmNotifyErr(LOG_INFO, "Using cipher suites: %s\n",
+				proxy->tls.ciphersuites);
+    else if (proxy->tls.ciphers)
+	pmNotifyErr(LOG_INFO, "Using cipher list: %s\n",
+				proxy->tls.ciphers);
 
-    /* optional list of ciphers (TLSv1.2 and earlier) */
-    if (cipher_list && !SSL_CTX_set_cipher_list(context, cipher_list)) {
-	pmNotifyErr(LOG_ERR, "Error setting the cipher_list: %s\n",
-			cipher_list);
-	abort_secure_module_setup();
-    }
+    if (compat) {
+	char	*path = pmGetOptionalConfig("PCP_TLSCONF_PATH");
 
-    /* optional suites of ciphers (TLSv1.3 and later) */
-    if (cipher_suites && !SSL_CTX_set_ciphersuites(context, cipher_suites)) {
-	pmNotifyErr(LOG_ERR, "Error setting the cipher_suites: %s\n",
-			cipher_suites);
-	abort_secure_module_setup();
+	pmNotifyErr(LOG_INFO,
+		"TLS configured in pmproxy.conf, please switch to %s",
+		path ? path : "/etc/pcp/tls.conf");
     }
-
-    /*
-     * OpenSSL setup complete - log openssl version and ciphers in use
-     * Version format expected: "OpenSSL 1.1.1b FIPS  26 Feb 2019".
-     */
-    if ((length = strlen(version)) > 20)
-	version[length - 13] = '\0';
-    pmNotifyErr(LOG_INFO, "%s setup\n", version);
-    if (cipher_suites)
-	pmNotifyErr(LOG_INFO, "Using cipher suites: %s\n", cipher_suites);
-    if (cipher_list)
-	pmNotifyErr(LOG_INFO, "Using cipher list: %s\n", cipher_list);
-    proxy->ssl = context;
 }
 
 void
 close_secure_module(struct proxy *proxy)
 {
     if (proxy->ssl) {
-	SSL_CTX_free(proxy->ssl);
+	__pmSecureServerShutdown(proxy->ssl, &proxy->tls);
 	proxy->ssl = NULL;
     }
 }

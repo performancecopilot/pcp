@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2012-2014,2017-2021 Red Hat.
+ * Copyright (c) 2012-2014,2017-2022 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -1363,10 +1363,10 @@ ConnectionAttributes(ClientInfo *cp, int flags)
 static int
 CheckCertRequired(ClientInfo *cp)
 {
-    if(__pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD))
-	if ( !__pmSockAddrIsLoopBack(cp->addr) && !__pmSockAddrIsUnix(cp->addr) )
-	    return 1;
-
+    if (__pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD) &&
+	!__pmSockAddrIsLoopBack(cp->addr) &&
+	!__pmSockAddrIsUnix(cp->addr))
+	return 1;
     return 0;
 }
 

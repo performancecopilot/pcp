@@ -14,6 +14,7 @@
 
 #include "pmwebapi.h"
 #include "libpcp.h"
+#include "dict.h"
 #include <ctype.h>
 #include <uv.h>
 
@@ -79,6 +80,7 @@ typedef struct series_inst {
 
 typedef struct series_data {
     sds			query;
+    dict		*config;
     uv_loop_t		*loop;
     pmSeriesSettings	settings;
     series_command	args;		/* detailed command line arguments */
@@ -1092,6 +1094,10 @@ pmseries_execute(series_data *dp)
     uv_timer_start(&request, pmseries_request, 0, 0);
     uv_run(loop, UV_RUN_DEFAULT);
     uv_loop_close(loop);
+
+    if (dp->config)
+	pmIniFileFree(dp->config);
+
     return dp->status;
 }
 
@@ -1411,6 +1417,7 @@ main(int argc, char *argv[])
     dp = series_data_init(flags, query);
     dp->loop = uv_default_loop();
     dp->args.pattern = match;
+    dp->config = config;
 
     dp->settings.callbacks.on_match = on_series_match;
     dp->settings.callbacks.on_desc = on_series_desc;
@@ -1427,7 +1434,7 @@ main(int argc, char *argv[])
     dp->settings.module.on_setup = on_series_setup;
 
     pmSeriesSetEventLoop(&dp->settings.module, dp->loop);
-    pmSeriesSetConfiguration(&dp->settings.module, config);
+    pmSeriesSetConfiguration(&dp->settings.module, dp->config);
 
     return pmseries_execute(dp);
 }

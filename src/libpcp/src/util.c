@@ -2869,8 +2869,6 @@ __pmShutdown(void)
 
     if ((sts = __pmShutdownLocal()) < 0 && !code)
 	code = sts;
-    if ((sts = __pmShutdownCertificates()) < 0 && !code)
-	code = sts;
     if ((sts = __pmShutdownSecureSockets()) < 0 && !code)
 	code = sts;
     return code;

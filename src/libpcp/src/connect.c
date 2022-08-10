@@ -157,12 +157,8 @@ check_feature_flags(int ctxflags, int features, int local_conn)
 		return -EOPNOTSUPP;
 	    }
 	}
-	if (ctxflags & PM_CTXFLAG_COMPRESS) {
-	    if (features & PDU_FLAG_COMPRESS)
-		pduflags |= PDU_FLAG_COMPRESS;
-	    else
-		return -EOPNOTSUPP;
-	}
+	if (ctxflags & PM_CTXFLAG_COMPRESS)
+	    return -EOPNOTSUPP;
 	if (ctxflags & PM_CTXFLAG_AUTH) {
 	    if (features & PDU_FLAG_AUTH)
 		pduflags |= PDU_FLAG_AUTH;
@@ -300,9 +296,8 @@ __pmConnectHandshake(int fd, const char *hostname, int ctxflags, __pmHashCtl *at
 	    /*
 	     * At this point we know the caller wants to set channel options
 	     * and pmcd supports them so go ahead and update the socket (this
-	     * completes the SSL handshake in encrypting mode, authentication
-	     * via SASL, enabling compression in NSS, and any other requested
-	     * connection attributes).
+	     * completes the TLS handshake in encrypting mode, authentication
+	     * via SASL, and any other requested connection attributes).
 	     */
 	    if (sts >= 0 && pduflags)
 		sts = attributes_handshake(fd, pduflags, hostname, attrs);

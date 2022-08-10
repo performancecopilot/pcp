@@ -1469,9 +1469,9 @@ _check_64bit_platform()
     esac
 }
 
-#
 # check we have pmseries, redis-cli and redis-server installed.
 # Note: use _check_redis_server to test if redis is running locally.
+#
 _check_series()
 {
     which pmseries >/dev/null 2>&1 || \
@@ -1500,9 +1500,9 @@ _check_redis_server_version_offline()
     [ $__redis_version -ge 5 ] || _notrun "Redis version $__redis_version too old"
 }
 
-#
 # Check redis server is installed and running locally and the version
 # is not too old. Optional port parameter defaults to 6379
+#
 _check_redis_server()
 {
     _check_series

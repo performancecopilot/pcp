@@ -32,12 +32,14 @@
 /* pmdaCacheOp cache IDs */
 #define CACHE_CLUSTER_IDS 0
 #define CACHE_INDOM_IDS 1
+static pmInDom clusters;
+static pmInDom indoms;
 
-static int	isDSO = 1;		/* =0 I am a daemon */
+static int isDSO = 1;		/* =0 I am a daemon */
 
 /* metric and indom configuration will be dynamically filled in by modules */
-static pmdaMetric * metrictab;
-static pmdaIndom * indomtab;
+static pmdaMetric *metrictab;
+static pmdaIndom *indomtab;
 static int metric_count;
 static int indom_count;
 static pmdaNameSpace *pmns;
@@ -69,15 +71,14 @@ dict *pmda_config;
 static int
 bpf_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    unsigned int	cluster = pmID_cluster(mdesc->m_desc.pmid);
-    unsigned int	item = pmID_item(mdesc->m_desc.pmid);
-
+    unsigned int cluster = pmID_cluster(mdesc->m_desc.pmid);
+    unsigned int item = pmID_item(mdesc->m_desc.pmid);
     int cache_result;
-    module* mod;
+    module *mod;
 
     // only modules that have completed their init() successfully will be
     // available in modules_by_cluster
-    cache_result = pmdaCacheLookup(CACHE_CLUSTER_IDS, cluster, NULL, (void**)&mod);
+    cache_result = pmdaCacheLookup(clusters, cluster, NULL, (void**)&mod);
     if (cache_result == PMDA_CACHE_ACTIVE) {
         return mod->fetch_to_atom(item, inst, atom);
     }
@@ -207,15 +208,8 @@ bpf_load_modules(dict *cfg)
     sds sds_true;
     unsigned int cluster_id;
 
-    sds_enabled = (sdsnew("enabled"));
-    sds_true = (sdsnew("true"));
-
-    pmdaCacheResize(CACHE_CLUSTER_IDS, MAX_CLUSTER_ID);
-    pmdaCacheOp(CACHE_CLUSTER_IDS, PMDA_CACHE_STRINGS);
-    pmdaCacheOp(CACHE_CLUSTER_IDS, PMDA_CACHE_LOAD);
-    pmdaCacheResize(CACHE_INDOM_IDS, MAX_INDOM_ID);
-    pmdaCacheOp(CACHE_CLUSTER_IDS, PMDA_CACHE_STRINGS);
-    pmdaCacheOp(CACHE_CLUSTER_IDS, PMDA_CACHE_LOAD);
+    sds_enabled = sdsnew("enabled");
+    sds_true = sdsnew("true");
 
     pmNotifyErr(LOG_INFO, "loading modules");
 
@@ -254,10 +248,10 @@ bpf_load_modules(dict *cfg)
             continue;
         }
 
-        cluster_id = pmdaCacheStore(CACHE_CLUSTER_IDS, PMDA_CACHE_ADD, module_name, bpf_module);
+        cluster_id = pmdaCacheStore(clusters, PMDA_CACHE_ADD, module_name, bpf_module);
         free(module_name);
         // replace module_name with a pointer to memory allocated by pmdaCacheStore
-        ret = pmdaCacheLookup(CACHE_CLUSTER_IDS, cluster_id, &module_name, NULL);
+        ret = pmdaCacheLookup(clusters, cluster_id, &module_name, NULL);
         if (ret < 0) {
             pmNotifyErr(LOG_ERR, "failed to load module name from cache: %s\n", pmErrStr(ret));
             continue;
@@ -271,7 +265,7 @@ bpf_load_modules(dict *cfg)
         if (ret != 0) {
             libbpf_strerror(ret, errorstring, 1023);
             pmNotifyErr(LOG_ERR, "module initialisation failed: %s, %d, %s", module_name, ret, errorstring);
-            ret = pmdaCacheStore(CACHE_CLUSTER_IDS, PMDA_CACHE_HIDE, module_name, bpf_module);
+            ret = pmdaCacheStore(clusters, PMDA_CACHE_HIDE, module_name, bpf_module);
             if (ret < 0) {
                 pmNotifyErr(LOG_ERR, "failed to set state of pmda cache entry to hidden: %s\n", pmErrStr(ret));
             }
@@ -283,7 +277,7 @@ bpf_load_modules(dict *cfg)
     }
 
     dictReleaseIterator(iterator);
-    pmdaCacheOp(CACHE_CLUSTER_IDS, PMDA_CACHE_SAVE);
+    pmdaCacheOp(clusters, PMDA_CACHE_SAVE);
     pmNotifyErr(LOG_INFO, "loaded modules (%d)", module_count);
     sdsfree(sds_enabled);
     sdsfree(sds_true);
@@ -298,14 +292,14 @@ bpf_shutdown()
 
     pmNotifyErr(LOG_INFO, "shutting down");
 
-    pmdaCacheOp(CACHE_CLUSTER_IDS, PMDA_CACHE_WALK_REWIND);
-    cache_op_status = pmdaCacheOp(CACHE_CLUSTER_IDS, PMDA_CACHE_WALK_NEXT);
+    pmdaCacheOp(clusters, PMDA_CACHE_WALK_REWIND);
+    cache_op_status = pmdaCacheOp(clusters, PMDA_CACHE_WALK_NEXT);
     while(cache_op_status != -1) {
         int cluster_id = cache_op_status;
-        cache_op_status = pmdaCacheLookup(CACHE_CLUSTER_IDS, cluster_id, &name, (void**)&bpf_module);
+        cache_op_status = pmdaCacheLookup(clusters, cluster_id, &name, (void**)&bpf_module);
         pmNotifyErr(LOG_INFO, "module (%s) shutting down", name);
         bpf_module->shutdown();
-        cache_op_status = pmdaCacheOp(CACHE_CLUSTER_IDS, PMDA_CACHE_WALK_NEXT);
+        cache_op_status = pmdaCacheOp(clusters, PMDA_CACHE_WALK_NEXT);
     }
 
     if (pmda_config) {
@@ -325,39 +319,43 @@ bpf_register_module_metrics()
 {
     // identify how much space we need and set up metric table area
     size_t total_metrics = 0;
-    size_t total_indoms = 0;
+    size_t total_indoms = 2; // start with clusters, indoms (above)
     int cache_op_status;
     module* bpf_module;
     char indom[64];
     char *name;
 
-    pmdaCacheOp(CACHE_CLUSTER_IDS, PMDA_CACHE_WALK_REWIND);
-    cache_op_status = pmdaCacheOp(CACHE_CLUSTER_IDS, PMDA_CACHE_WALK_NEXT);
+    pmdaCacheOp(clusters, PMDA_CACHE_WALK_REWIND);
+    cache_op_status = pmdaCacheOp(clusters, PMDA_CACHE_WALK_NEXT);
     while(cache_op_status != -1) {
         int cluster_id = cache_op_status;
-        cache_op_status = pmdaCacheLookup(CACHE_CLUSTER_IDS, cluster_id, NULL, (void**)&bpf_module);
+        cache_op_status = pmdaCacheLookup(clusters, cluster_id, NULL, (void**)&bpf_module);
         total_metrics += bpf_module->metric_count();
         total_indoms += bpf_module->indom_count();
-        cache_op_status = pmdaCacheOp(CACHE_CLUSTER_IDS, PMDA_CACHE_WALK_NEXT);
+        cache_op_status = pmdaCacheOp(clusters, PMDA_CACHE_WALK_NEXT);
     }
 
     // set up indom mapping
     metrictab = total_metrics ? (pmdaMetric*) calloc(total_metrics, sizeof(pmdaMetric)) : NULL;
-    indomtab = total_indoms ? (pmdaIndom*) calloc(total_indoms, sizeof(pmdaIndom)) : NULL;
+    indomtab = (pmdaIndom*) calloc(total_indoms, sizeof(pmdaIndom));
+
+    int current_indom = 0;
+    // first two entries of the indom table are the cluster and indom ID caches
+    indomtab[current_indom++].it_indom = clusters;
+    indomtab[current_indom++].it_indom = indoms;
 
     // each module needs to set up its tables, starting at the next available slot
     int current_metric = 0;
-    int current_indom = 0;
-    pmdaCacheOp(CACHE_CLUSTER_IDS, PMDA_CACHE_WALK_REWIND);
-    cache_op_status = pmdaCacheOp(CACHE_CLUSTER_IDS, PMDA_CACHE_WALK_NEXT);
+    pmdaCacheOp(clusters, PMDA_CACHE_WALK_REWIND);
+    cache_op_status = pmdaCacheOp(clusters, PMDA_CACHE_WALK_NEXT);
     while(cache_op_status != -1) {
         int cluster_id = cache_op_status;
-        cache_op_status = pmdaCacheLookup(CACHE_CLUSTER_IDS, cluster_id, &name, (void**)&bpf_module);
+        cache_op_status = pmdaCacheLookup(clusters, cluster_id, &name, (void**)&bpf_module);
 
         // set up indom mapping for the module
         for(int i = 0; i < bpf_module->indom_count(); i++) {
             pmsprintf(indom, sizeof(indom), "%s/%d", name, i);
-            int serial = pmdaCacheStore(CACHE_INDOM_IDS, PMDA_CACHE_ADD, indom, NULL);
+            int serial = pmdaCacheStore(indoms, PMDA_CACHE_ADD, indom, NULL);
             bpf_module->set_indom_serial(i, serial);
         }
 
@@ -367,9 +365,10 @@ bpf_register_module_metrics()
         // progress
         current_metric += bpf_module->metric_count();
         current_indom += bpf_module->indom_count();
-        cache_op_status = pmdaCacheOp(CACHE_CLUSTER_IDS, PMDA_CACHE_WALK_NEXT);
+        cache_op_status = pmdaCacheOp(clusters, PMDA_CACHE_WALK_NEXT);
     }
 
+    pmdaCacheOp(indoms, PMDA_CACHE_SAVE);
     metric_count = current_metric;
     indom_count = current_indom;
 }
@@ -386,7 +385,7 @@ bpf_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     for(int i = 0; i < numpmid; i++) {
         unsigned int cluster_id = pmID_cluster(pmidlist[i]);
         unsigned int item = pmID_item(pmidlist[i]);
-        cache_result = pmdaCacheLookup(CACHE_CLUSTER_IDS, cluster_id, NULL, (void**)&target);
+        cache_result = pmdaCacheLookup(clusters, cluster_id, NULL, (void**)&target);
         if (cache_result == PMDA_CACHE_ACTIVE) {
             target->refresh(item);
         }
@@ -414,7 +413,7 @@ bpf_setup_pmns()
         unsigned int cluster_id = pmID_cluster(metrictab[i].m_desc.pmid);
         unsigned int item = pmID_item(metrictab[i].m_desc.pmid);
 
-        ret = pmdaCacheLookup(CACHE_CLUSTER_IDS, cluster_id, NULL, (void**)&target);
+        ret = pmdaCacheLookup(clusters, cluster_id, NULL, (void**)&target);
         if (ret == PMDA_CACHE_ACTIVE) {
             pmsprintf(name, sizeof(name), "bpf.%s", target->metric_name(item));
             pmdaTreeInsert(pmns, metrictab[i].m_desc.pmid, name);
@@ -455,7 +454,7 @@ bpf_text(int ident, int type, char **buffer, pmdaExt *pmda)
     if (type & PM_TEXT_PMID) {
         unsigned int cluster_id = pmID_cluster(ident);
         unsigned int item = pmID_item(ident);
-        cache_result = pmdaCacheLookup(CACHE_CLUSTER_IDS, cluster_id, NULL, (void**)&target);
+        cache_result = pmdaCacheLookup(clusters, cluster_id, NULL, (void**)&target);
         if (cache_result == PMDA_CACHE_ACTIVE) {
             return target->metric_text(item, type, buffer);
         }
@@ -511,6 +510,24 @@ bpf_config_load()
 
     return config;
 }
+
+static void
+bpf_load_caches(int domain)
+{
+    clusters = pmInDom_build(domain, CACHE_CLUSTER_IDS);
+    pmdaCacheResize(clusters, MAX_CLUSTER_ID);
+    pmdaCacheOp(clusters, PMDA_CACHE_STRINGS);
+    pmdaCacheOp(clusters, PMDA_CACHE_LOAD);
+
+    indoms = pmInDom_build(domain, CACHE_INDOM_IDS);
+    pmdaCacheResize(indoms, MAX_INDOM_ID);
+    pmdaCacheOp(indoms, PMDA_CACHE_STRINGS);
+    // reserve 2 persistent cluster and indom cache identifiers
+    pmdaCacheStore(indoms, PMDA_CACHE_ADD, "clusters", NULL);
+    pmdaCacheStore(indoms, PMDA_CACHE_ADD, "indoms", NULL);
+    pmdaCacheOp(indoms, PMDA_CACHE_LOAD);
+}
+
 /*
  * Initialise the agent (both daemon and DSO).
  */
@@ -524,6 +541,9 @@ bpf_init(pmdaInterface *dp)
 
     if (dp->status != 0)
         return;
+
+    pmNotifyErr(LOG_INFO, "loading caches");
+    bpf_load_caches(dp->domain);
 
     pmda_config = bpf_config_load();
 

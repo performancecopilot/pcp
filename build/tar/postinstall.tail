@@ -347,8 +347,7 @@ for dir in "$PCP_LOG_DIR" \
 	   "$PCP_TMP_DIR" "$PCP_TMP_DIR"/pmie "$PCP_TMP_DIR"/pmlogger \
 	   "$PCP_TMP_DIR"/mmv "$PCP_TMP_DIR"/pmproxy \
 	   "$PCP_VAR_DIR"/config/pmda \
-	   "$PCP_VAR_DIR"/config/pmie "$PCP_VAR_DIR"/config/pmlogger \
-	   "$PCP_SECURE_DB_PATH"
+	   "$PCP_VAR_DIR"/config/pmie "$PCP_VAR_DIR"/config/pmlogger
 do
     _do_dir "pcp:pcp" 775 "$dir"
 done

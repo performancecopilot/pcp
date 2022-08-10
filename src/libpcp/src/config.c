@@ -454,11 +454,16 @@ static const char *disabled(void) { return "false"; }
 static const char *pmapi_version(void) { return TO_STRING(PMAPI_VERSION_3); }
 static const char *pcp_version(void) { return PCP_VERSION; }
 #if defined(HAVE_SECURE_SOCKETS)
-#include "nss.h"
-#include "nspr.h"
-#include "sasl.h"
-static const char *nspr_version(void) { return PR_VERSION; }
-static const char *nss_version(void) { return NSS_VERSION; }
+#include <openssl/opensslv.h>
+#include <sasl/sasl.h>
+static const char *openssl_version(void)
+{
+#ifdef OPENSSL_VERSION_STR
+    return OPENSSL_VERSION_STR;
+#else /* back-compat and not ideal, includes date */
+    return OPENSSL_VERSION_TEXT;
+#endif
+}
 static const char *sasl_version_string(void)
 {
     return TO_STRING(SASL_VERSION_MAJOR.SASL_VERSION_MINOR.SASL_VERSION_STEP);
@@ -566,8 +571,7 @@ static struct {
 	{ "pcp_version",	pcp_version },
 	{ "pmapi_version",	pmapi_version },
 #if defined(HAVE_SECURE_SOCKETS)
-	{ "nss_version",	nss_version },
-	{ "nspr_version",	nspr_version },
+	{ "openssl_version",	openssl_version },
 	{ "sasl_version",	sasl_version_string },
 #endif
 	{ "multi_threaded",	MULTI_THREAD_ENABLED },

@@ -168,9 +168,9 @@ PCP_HTML_DIR=@pcp_html_dir@
 # Standard path: /usr/share/pcp/demos
 PCP_DEMOS_DIR=@pcp_demos_dir@
 
-# directory for PCP specific nssdb
-# Standard path: /etc/pcp/nssdb
-PCP_SECURE_DB_PATH=@pcp_sysconf_dir@/nssdb
+# path to PCP TLS configuration file
+# Standard path: /etc/pcp/tls.conf
+PCP_TLSCONF_PATH=@pcp_sysconf_dir@/tls.conf
 
 # awk
 PCP_AWK_PROG="@awk@"
