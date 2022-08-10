@@ -1,0 +1,34 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+
+rule    openvswitch.vhost_notification
+        summary = "$rule$"
+        enumerate = hosts
+        predicate =
+"some_inst (
+    instant( openvswitch.coverage.vhost_notification @0 ) - instant( openvswitch.coverage.vhost_notification @1 ) > 0
+)"
+        enabled = yes
+        help = "Number of vhost_notification over the past sample interval. Waking up guest results in increase of this counter.";
+
+
+
+string  rule
+        default = "Openvswitch vhost_notification counter"
+        modify  = no
+        display = no;
+
+string  action_expand
+        default = [%i:%v@%h]
+        display = yes
+        modify  = no;
+
+string  delta
+        default = "10 sec"
+        help =
+"Sample interval between evaluations of this rule.";
+
+string  holdoff
+        default = "1 min"
+        help =
+"logging interval";
