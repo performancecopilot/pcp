@@ -138,3 +138,18 @@ network.mptcp.mprsttx
 
 network.mptcp.mprstrx
     value 46
+
+network.mptcp.infinitemaptx
+    value 43
+
+network.mptcp.sndwndshared
+    value 44
+
+network.mptcp.rcvwndshared
+    value 45
+
+network.mptcp.rcvwndconflictupdate
+    value 46
+
+network.mptcp.rcvwndconflict
+    value 47
