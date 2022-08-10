@@ -441,6 +441,16 @@ netstat_fields_t netstat_mptcp_fields[] = {
       .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPRSTTX] },
     { .field = "MPRstRx",
       .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPRSTRX] },
+    { .field = "InfiniteMapTx",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_INFINITEMAPTX] },
+    { .field = "SndWndShared",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_SNDWNDSHARED] },
+    { .field = "RcvWndShared",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_RCVWNDSHARED] },
+    { .field = "RcvWndConflictUpdate",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_RCVWNDCONFLICTUPDATE] },
+    { .field = "RcvWndConflict",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_RCVWNDCONFLICT] },
 
     { .field = NULL, .offset = NULL }
 };
