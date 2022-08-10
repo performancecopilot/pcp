@@ -2166,7 +2166,11 @@ series_parse(sds query, series_t *sp, char **err, void *arg)
     series_t	*ypsp = &yp.yy_series;
     int		sts;
 
-    if ((sts = yyparse(&yp)) != 0) {
+    sts = yyparse(&yp);
+    if (yp.yy_tokbuf)
+	free(yp.yy_tokbuf);
+
+    if (sts != 0) {
 	*err = yp.yy_errstr;
 	return yp.yy_error;
     }
