@@ -50,6 +50,7 @@ install_pcp install:	default
 	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/rx_drops openvswitch.rx_drops.pmie $(PMIECONFDIR)/rx_drops
 	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/tx_drops openvswitch.tx_drops.pmie $(PMIECONFDIR)/tx_drops
 	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/errors openvswitch.errors.pmie $(PMIECONFDIR)/errors
+	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/mtu_exceeded_drops openvswitch.mtu_exceeded_drops.pmie $(PMIECONFDIR)/mtu_exceeded_drops
 else
 build-me:
 install_pcp install:
