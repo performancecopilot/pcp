@@ -2183,12 +2183,6 @@ series_parse(sds query, series_t *sp, sds *err, void *arg)
 	return yp.yy_error;
     }
 
-    if (ypsp->expr == NULL) {
-	if (pmDebugOptions.series || pmDebugOptions.query)
-	    fprintf(stderr, "Error: parsing query '%s'\n", query);
-	return PM_ERR_NYI;
-    }
-
     if (pmDebugOptions.query) {
 	fprintf(stderr, "parsed query: %s\n", query);
 	series_dumpexpr(ypsp->expr, 0);
@@ -2210,13 +2204,7 @@ pmSeriesQuery(pmSeriesSettings *settings, sds query, pmSeriesFlags flags, void *
 
     if ((sts = series_parse(query, &sp, &errstr, arg)) != 0) {
 	moduleinfo(&settings->module, PMLOG_ERROR, errstr, arg);
-    	return sts;
-    }
-
-    if (sp.expr == NULL) {
-	if (pmDebugOptions.series || pmDebugOptions.query)
-	    fprintf(stderr, "Error: parsing query '%s'\n", query);
-	return PM_ERR_NYI;
+	return sts;
     }
 
     return series_solve(settings, sp.expr, &sp.time, flags, arg);
@@ -2234,18 +2222,6 @@ pmSeriesLoad(pmSeriesSettings *settings, sds source, pmSeriesFlags flags, void *
     if ((sts = series_parse(source, &sp, &errstr, arg)) != 0) {
 	moduleinfo(&settings->module, PMLOG_ERROR, errstr, arg);
     	return sts;
-    }
-
-    if (sp.expr == NULL) {
-	if (pmDebugOptions.series || pmDebugOptions.query)
-	    fprintf(stderr, "Error: parsing query '%s'\n", source);
-	return PM_ERR_NYI;
-    }
-
-    if (pmDebugOptions.query) {
-	fprintf(stderr, "pmSeriesLoad: %s\n", source);
-	series_dumpexpr(sp.expr, 0);
-	fputc('\n', stderr);
     }
 
     return series_load(settings, sp.expr, &sp.time, flags, arg);
