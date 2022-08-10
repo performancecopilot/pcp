@@ -56,6 +56,7 @@ install_pcp install:	default
 	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/tx_qos_drops openvswitch.tx_qos_drops.pmie $(PMIECONFDIR)/tx_qos_drops
 	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/tx_retries openvswitch.tx_retries.pmie $(PMIECONFDIR)/tx_retries
 	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/vhost_notification openvswitch.vhost_notification.pmie $(PMIECONFDIR)/vhost_notification
+	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/vhost_tx_contention openvswitch.vhost_tx_contention.pmie $(PMIECONFDIR)/vhost_tx_contention
 else
 build-me:
 install_pcp install:
