@@ -217,8 +217,8 @@ static void oomkill_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
             .pmid  = PMDA_PMID(cluster_id, 5),
             .type  = PM_TYPE_U32,
             .indom = PM_INDOM_NULL,
-            .sem   = PM_SEM_INSTANT,
-            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
+            .sem   = PM_SEM_COUNTER,
+            .units = PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
         }
     };
 

@@ -252,8 +252,8 @@ static void tcpconnect_register(unsigned int cluster_id, pmdaMetric *metrics, pm
             .pmid  = PMDA_PMID(cluster_id, 7),
             .type  = PM_TYPE_U32,
             .indom = PM_INDOM_NULL,
-            .sem   = PM_SEM_INSTANT,
-            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
+            .sem   = PM_SEM_COUNTER,
+            .units = PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
         }
     };
 
