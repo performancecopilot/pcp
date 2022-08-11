@@ -206,7 +206,7 @@ jobs:
   publish_report:
     name: Publish Test Report
     # always() is required here to run this job even if any of the QA jobs fails
-    if: always() && (github.event_name == 'schedule' && github.repository == 'performancecopilot/pcp')
+    if: always() && (github.repository == 'performancecopilot/pcp' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'))
     needs: create_report
     runs-on: ubuntu-latest
     steps:
