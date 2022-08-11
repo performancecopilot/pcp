@@ -9,6 +9,7 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 . ./common.bpf
+. ./common.bcc
 
 _pmdabpf_check
 which mkfs.ext4 >/dev/null 2>&1 || _notrun "mkfs.ext4 not installed"
@@ -45,7 +46,7 @@ _pmdabpf_wait_for_metric
 # ext4 may trigger loading the ext4 kernel module
 _mount_filesystem ext4
 
-# Generate system activity for the CO-RE statsnoop module
+# Generate system activity for the CO-RE fsslower module
 dd if=/dev/zero of=${out_file} bs=${write_size} count=1 conv=fsync 2>/dev/null
 dd if=${out_file} of=/dev/null bs=${write_size} count=1 2>/dev/null
 
@@ -73,8 +74,8 @@ echo "=== report metric values for pid ==="
 pminfo -dfmtT bpf.fsslower.pid 2>&1 | tee -a $here/$seq.full \
 | _value_filter_nonzero
 
-echo "=== report metric values for offset_kb ==="
-pminfo -dfmtT bpf.fsslower.offset_kb 2>&1 | tee -a $here/$seq.full \
+echo "=== report metric values for offset ==="
+pminfo -dfmtT bpf.fsslower.offset 2>&1 | tee -a $here/$seq.full \
 | _value_filter_any
 
 

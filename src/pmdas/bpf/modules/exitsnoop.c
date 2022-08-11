@@ -186,7 +186,7 @@ static void exitsnoop_register(unsigned int cluster_id, pmdaMetric *metrics, pmd
             .pmid  = PMDA_PMID(cluster_id, 1),
             .type  = PM_TYPE_U32,
             .indom = indom_id_mapping[EXITSNOOP_INDOM],
-            .sem   = PM_SEM_INSTANT,
+            .sem   = PM_SEM_DISCRETE,
             .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };
@@ -197,7 +197,7 @@ static void exitsnoop_register(unsigned int cluster_id, pmdaMetric *metrics, pmd
             .pmid  = PMDA_PMID(cluster_id, 2),
             .type  = PM_TYPE_U32,
             .indom = indom_id_mapping[EXITSNOOP_INDOM],
-            .sem   = PM_SEM_INSTANT,
+            .sem   = PM_SEM_DISCRETE,
             .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };
@@ -208,7 +208,7 @@ static void exitsnoop_register(unsigned int cluster_id, pmdaMetric *metrics, pmd
             .pmid  = PMDA_PMID(cluster_id, 3),
             .type  = PM_TYPE_U32,
             .indom = indom_id_mapping[EXITSNOOP_INDOM],
-            .sem   = PM_SEM_INSTANT,
+            .sem   = PM_SEM_DISCRETE,
             .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };
@@ -263,8 +263,8 @@ static void exitsnoop_register(unsigned int cluster_id, pmdaMetric *metrics, pmd
             .pmid  = PMDA_PMID(cluster_id, 8),
             .type  = PM_TYPE_U32,
             .indom = PM_INDOM_NULL,
-            .sem   = PM_SEM_INSTANT,
-            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
+            .sem   = PM_SEM_COUNTER,
+            .units = PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
         }
     };
 

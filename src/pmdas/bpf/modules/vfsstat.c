@@ -109,19 +109,19 @@ char* metric_names[METRIC_COUNT] = {
 };
 
 char* metric_text_oneline[METRIC_COUNT] = {
-    [READ]    =  "Count of read() per second",
-    [WRITE]   =  "Count of write() per second",
-    [FSYNC]   =  "Count of fsync() per second",
-    [OPEN]    =  "Count of open() per second",
-    [CREATE]  =  "Count of create() per second",
+    [READ]    =  "Count of read() calls",
+    [WRITE]   =  "Count of write() calls",
+    [FSYNC]   =  "Count of fsync() calls",
+    [OPEN]    =  "Count of open() calls",
+    [CREATE]  =  "Count of create() calls",
 };
 
 char* metric_text_long[METRIC_COUNT] = {
-    [READ]    =  "Count of read() per second",
-    [WRITE]   =  "Count of write() per second",
-    [FSYNC]   =  "Count of fsync() per second",
-    [OPEN]    =  "Count of open() per second",
-    [CREATE]  =  "Count of create() per second",
+    [READ]    =  "Count of read() calls",
+    [WRITE]   =  "Count of write() calls",
+    [FSYNC]   =  "Count of fsync() calls",
+    [OPEN]    =  "Count of open() calls",
+    [CREATE]  =  "Count of create() calls",
 };
 
 static unsigned int vfsstat_metric_count(void)
@@ -164,8 +164,8 @@ static void vfsstat_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
             .pmid  = PMDA_PMID(cluster_id, 0),
             .type  = PM_TYPE_U64,
             .indom = indom_id_mapping[VFSSTAT_INDOM],
-            .sem   = PM_SEM_INSTANT,
-            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
+            .sem   = PM_SEM_COUNTER,
+            .units = PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
         }
     };
     /* bpf.vfsstat.write */
@@ -175,8 +175,8 @@ static void vfsstat_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
             .pmid  = PMDA_PMID(cluster_id, 1),
             .type  = PM_TYPE_U64,
             .indom = indom_id_mapping[VFSSTAT_INDOM],
-            .sem   = PM_SEM_INSTANT,
-            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
+            .sem   = PM_SEM_COUNTER,
+            .units = PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
         }
     };
     /* bpf.vfsstat.fsync */
@@ -186,8 +186,8 @@ static void vfsstat_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
             .pmid  = PMDA_PMID(cluster_id, 2),
             .type  = PM_TYPE_U64,
             .indom = indom_id_mapping[VFSSTAT_INDOM],
-            .sem   = PM_SEM_INSTANT,
-            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
+            .sem   = PM_SEM_COUNTER,
+            .units = PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
         }
     };
     /* bpf.vfsstat.open */
@@ -197,8 +197,8 @@ static void vfsstat_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
             .pmid  = PMDA_PMID(cluster_id, 3),
             .type  = PM_TYPE_U64,
             .indom = indom_id_mapping[VFSSTAT_INDOM],
-            .sem   = PM_SEM_INSTANT,
-            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
+            .sem   = PM_SEM_COUNTER,
+            .units = PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
         }
     };
     /* bpf.vfsstat.create */
@@ -208,8 +208,8 @@ static void vfsstat_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
             .pmid  = PMDA_PMID(cluster_id, 4),
             .type  = PM_TYPE_U64,
             .indom = indom_id_mapping[VFSSTAT_INDOM],
-            .sem   = PM_SEM_INSTANT,
-            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
+            .sem   = PM_SEM_COUNTER,
+            .units = PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
         }
     };
 

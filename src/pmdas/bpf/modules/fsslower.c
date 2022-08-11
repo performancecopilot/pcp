@@ -142,7 +142,7 @@ static bool get_item(unsigned int offset, struct tailq_entry** val)
 static unsigned int indom_id_mapping[INDOM_COUNT];
 
 #define METRIC_COUNT 8
-enum metric_name { COMM, PID, FILE_OP, BYTES, OFF_KB, LAT, FILENAME, LOST };
+enum metric_name { COMM, PID, FILE_OP, BYTES, OFFSET, LAT, FILENAME, LOST };
 enum metric_indom { FSSLOWER_INDOM };
 
 char* metric_names[METRIC_COUNT] = {
@@ -150,7 +150,7 @@ char* metric_names[METRIC_COUNT] = {
     [PID]       =  "fsslower.pid",
     [FILE_OP]   =  "fsslower.file_op",
     [BYTES]     =  "fsslower.bytes",
-    [OFF_KB]    =  "fsslower.offset_kb",
+    [OFFSET]    =  "fsslower.offset",
     [LAT]       =  "fsslower.lat",
     [FILENAME]  =  "fsslower.filename",
     [LOST]      =  "fsslower.lost",
@@ -159,9 +159,9 @@ char* metric_names[METRIC_COUNT] = {
 char* metric_text_oneline[METRIC_COUNT] = {
     [COMM]      =  "Command name",
     [PID]       =  "Process identifier",
-    [FILE_OP]   =  "File operations",
+    [FILE_OP]   =  "File operation",
     [BYTES]     =  "Bytes",
-    [OFF_KB]    =  "Offset",
+    [OFFSET]    =  "Offset",
     [LAT]       =  "Latency",
     [FILENAME]  =  "File Name",
     [LOST]      =  "Number of the lost events",
@@ -170,9 +170,9 @@ char* metric_text_oneline[METRIC_COUNT] = {
 char* metric_text_long[METRIC_COUNT] = {
     [COMM]      =  "Command name",
     [PID]       =  "Process identifier",
-    [FILE_OP]   =  "File operations",
+    [FILE_OP]   =  "File operation",
     [BYTES]     =  "Bytes",
-    [OFF_KB]    =  "Offset",
+    [OFFSET]    =  "Offset",
     [LAT]       =  "Latency",
     [FILENAME]  =  "File Name",
     [LOST]      =  "Number of the lost events",
@@ -229,7 +229,7 @@ static void fsslower_register(unsigned int cluster_id, pmdaMetric *metrics, pmda
             .pmid  = PMDA_PMID(cluster_id, 1),
             .type  = PM_TYPE_U32,
             .indom = indom_id_mapping[FSSLOWER_INDOM],
-            .sem   = PM_SEM_INSTANT,
+            .sem   = PM_SEM_DISCRETE,
             .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };
@@ -252,18 +252,18 @@ static void fsslower_register(unsigned int cluster_id, pmdaMetric *metrics, pmda
             .type  = PM_TYPE_U32,
             .indom = indom_id_mapping[FSSLOWER_INDOM],
             .sem   = PM_SEM_INSTANT,
-            .units = PMDA_PMUNITS(1, 0, 0, 0, PM_SPACE_BYTE, 0),
+            .units = PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0),
         }
     };
-    /* bpf.fsslower.offset_kb */
-    metrics[OFF_KB] = (struct pmdaMetric)
+    /* bpf.fsslower.offset */
+    metrics[OFFSET] = (struct pmdaMetric)
     {
         .m_desc = {
             .pmid  = PMDA_PMID(cluster_id, 4),
             .type  = PM_TYPE_64,
             .indom = indom_id_mapping[FSSLOWER_INDOM],
             .sem   = PM_SEM_INSTANT,
-            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
+            .units = PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0),
         }
     };
     /* bpf.fsslower.lat */
@@ -274,7 +274,7 @@ static void fsslower_register(unsigned int cluster_id, pmdaMetric *metrics, pmda
             .type  = PM_TYPE_DOUBLE,
             .indom = indom_id_mapping[FSSLOWER_INDOM],
             .sem   = PM_SEM_INSTANT,
-            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
+            .units = PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0),
         }
     };
     /* bpf.fsslower.filename */
@@ -295,8 +295,8 @@ static void fsslower_register(unsigned int cluster_id, pmdaMetric *metrics, pmda
             .pmid  = PMDA_PMID(cluster_id, 7),
             .type  = PM_TYPE_U32,
             .indom = PM_INDOM_NULL,
-            .sem   = PM_SEM_INSTANT,
-            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
+            .sem   = PM_SEM_COUNTER,
+            .units = PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
         }
     };
 
@@ -571,8 +571,8 @@ static int fsslower_fetch_to_atom(unsigned int item, unsigned int inst, pmAtomVa
     if (item == BYTES) {
         atom->ul = value->event.size;
     }
-    /* bpf.fsslower.offset_kb */
-    if (item == OFF_KB) {
+    /* bpf.fsslower.offset */
+    if (item == OFFSET) {
         atom->ll = value->event.offset;
     }
     /* bpf.fsslower.lat */

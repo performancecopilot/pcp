@@ -19,7 +19,7 @@ OK
 OK
 === report metric values for pid ===
 OK
-=== report metric values for offset_kb ===
+=== report metric values for offset ===
 OK
 
 === remove bpf agent ===
