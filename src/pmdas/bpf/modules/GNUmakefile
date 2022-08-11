@@ -3,6 +3,7 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM	= bpf
 LDLIBS = $(PCP_WEBLIB) -lbpf -lelf -lz -lm -ldl
+LDIRT = $(HELPERS_H) $(HELPERS_C) $(APPS_H) $(APPS_BPF) vmlinux.h
 MODULETMP = $(PCP_PMDAS_DIR)/$(IAM)/modules
 MODULEDIR = $(PCP_PMDASADM_DIR)/$(IAM)/modules
 
@@ -14,6 +15,9 @@ COMMON_OBJ = \
 
 # ported helper files.
 HELPERS_H = \
+	bits.bpf.h \
+	maps.bpf.h \
+	core_fixes.bpf.h \
 	btf_helpers.h \
 	map_helpers.h \
 	trace_helpers.h \
@@ -54,8 +58,7 @@ APPS_BPF = \
 	vfsstat.bpf.c \
 
 
-default_pcp default:	$(HELPERS_H) $(HELPERS_C) $(APPS_H) $(APPS_BPF) \
-	$(COMMON_OBJ) $(PMDABPF_MODULES)
+default_pcp default:	$(PMDABPF_MODULES)
 
 include $(BUILDRULES)
 
@@ -89,9 +92,7 @@ $(APPS_BPF):
 vmlinux.h: $(PMDABPF_VMLINUXH)
 	$(LN_S) -f $< $@
 
-LDIRT = $(HELPERS_H) $(HELPERS_C) $(APPS_H) $(APPS_BPF) vmlinux.h
-
-%.bpf.o: %.bpf.c vmlinux.h
+%.bpf.o: %.bpf.c vmlinux.h $(APPS_H) $(APPS_BPF)
 	$(PMDABPF_CLANG) -Wall -g -O2 -target bpf -D__TARGET_ARCH_$(PMDABPF_ARCH) \
 		-I. -c $< -o $@
 	$(PMDABPF_LLVM_STRIP) -g $@
@@ -100,7 +101,10 @@ LDIRT = $(HELPERS_H) $(HELPERS_C) $(APPS_H) $(APPS_BPF) vmlinux.h
 	$(PMDABPF_BPFTOOL) gen skeleton $< > $@
 
 %.o: %.c
-%.o: %.c %.skel.h
+%.o: %.c %.skel.h $(HELPERS_H) $(APPS_H)
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
+
+%_helpers.o: %_helpers.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 
 # ifeq "$(CLANG_MAJOR_VERSION)" "12"
@@ -117,8 +121,12 @@ LDIRT = $(HELPERS_H) $(HELPERS_C) $(APPS_H) $(APPS_BPF) vmlinux.h
 %.so: %.o $(COMMON_OBJ)
 	$(LINK.c) -shared $^ -o $@ $(LDLIBS)
 
-%_helpers.o: %_helpers.c
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
+# most tools require $(COMMON_OBJ), which requires libbpf 0.7+
+# explicitly list tools which don't need them and also work with libbpf 0.4
+biolatency.so: biolatency.o
+	$(LINK.c) -shared $^ -o $@ $(LDLIBS)
+runqlat.so: runqlat.o
+	$(LINK.c) -shared $^ -o $@ $(LDLIBS)
 
 clean::
 	rm -f $(PMDABPF_MODULES) *.o *.skel.h

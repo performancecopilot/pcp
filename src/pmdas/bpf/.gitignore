@@ -16,10 +16,10 @@ siphash.c
 siphash.o
 
 
+modules/bits.bpf.h
+modules/core_fixes.bpf.h
+modules/maps.bpf.h
 modules/*_helpers.*
-modules/x86
-modules/arm64
-modules/powerpc
 
 modules/bashreadline.h
 modules/bindsnoop.h

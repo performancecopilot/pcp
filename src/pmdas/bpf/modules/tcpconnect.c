@@ -28,9 +28,6 @@
 #include "tcpconnect.h"
 #include "tcpconnect.skel.h"
 #include "btf_helpers.h"
-#include "trace_helpers.h"
-#include "map_helpers.h"
-
 
 #define PERF_BUFFER_PAGES 128
 #define PERF_POLL_TIMEOUT_MS 100

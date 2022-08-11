@@ -27,7 +27,6 @@
 #include "bashreadline.h"
 #include "bashreadline.skel.h"
 #include "btf_helpers.h"
-#include "trace_helpers.h"
 #include "uprobe_helpers.h"
 
 #define PERF_BUFFER_PAGES 16

@@ -30,7 +30,6 @@
 #include "oomkill.h"
 #include "oomkill.skel.h"
 #include "btf_helpers.h"
-#include "trace_helpers.h"
 
 #define PERF_POLL_TIMEOUT_MS 100
 

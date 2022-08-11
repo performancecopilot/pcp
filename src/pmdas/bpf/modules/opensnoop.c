@@ -28,7 +28,6 @@
 #include "opensnoop.h"
 #include "opensnoop.skel.h"
 #include "btf_helpers.h"
-#include "trace_helpers.h"
 
 /* Tune the buffer size and wakeup rate. These settings cope with roughly
  * 50k opens/sec.
