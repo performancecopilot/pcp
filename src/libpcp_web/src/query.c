@@ -64,10 +64,8 @@ typedef struct seriesQueryBaton {
     void		*userdata;
     redisSlots          *slots;
     int			error;
-    union {
-	seriesGetLookup	lookup;
-	seriesGetQuery	query;
-    } u;
+    seriesGetLookup	lookup;
+    seriesGetQuery	query;
 } seriesQueryBaton;
 
 static void series_pattern_match(seriesQueryBaton *, node_t *);
@@ -89,8 +87,8 @@ static void
 initSeriesGetQuery(seriesQueryBaton *baton, node_t *root, timing_t *timing)
 {
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "initSeriesGetQuery");
-    baton->u.query.root = root;
-    baton->u.query.timing = *timing;
+    baton->query.root = root;
+    baton->query.timing = *timing;
 }
 
 static int
@@ -151,7 +149,7 @@ freeSeriesGetQuery(seriesQueryBaton *baton)
 {
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "freeSeriesGetQuery");
     seriesBatonCheckCount(baton, "freeSeriesGetQuery");
-    freeSeriesQueryNode(baton->u.query.root);
+    freeSeriesQueryNode(baton->query.root);
     memset(baton, 0, sizeof(seriesQueryBaton));
     free(baton);
 }
@@ -234,15 +232,15 @@ initSeriesGetLookup(seriesQueryBaton *baton, int nseries, sds *series,
 
     /* pattern matching parameter, optional */
     if (nseries == 0 && series != NULL)
-	baton->u.lookup.pattern = *series;
+	baton->lookup.pattern = *series;
     /* else lookup array of individual sids */
     for (i = 0; i < nseries; i++) {
-	sid = &baton->u.lookup.series[i];
+	sid = &baton->lookup.series[i];
 	initSeriesGetSID(sid, series[i], 0, baton);
     }
-    baton->u.lookup.nseries = nseries;
-    baton->u.lookup.func = func;
-    baton->u.lookup.map = map;
+    baton->lookup.nseries = nseries;
+    baton->lookup.func = func;
+    baton->lookup.map = map;
 }
 
 static void
@@ -255,9 +253,9 @@ freeSeriesGetLookup(seriesQueryBaton *baton)
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "freeSeriesGetLookup");
     seriesBatonCheckCount(baton, "freeSeriesGetLookup");
 
-    nseries = baton->u.lookup.nseries;
+    nseries = baton->lookup.nseries;
     for (i = 0; i < nseries; i++) {
-	sid = &baton->u.lookup.series[i];
+	sid = &baton->lookup.series[i];
 	sdsfree(sid->name);
     }
     bytes = sizeof(seriesQueryBaton) + (nseries * sizeof(seriesGetSID));
@@ -408,7 +406,7 @@ extract_mapping(seriesQueryBaton *baton, pmSID series,
 
     if (reply->type == REDIS_REPLY_STRING) {
 	key = sdsnewlen(reply->str, reply->len);
-	entry = redisMapLookup(baton->u.lookup.map, key);
+	entry = redisMapLookup(baton->lookup.map, key);
 	sdsfree(key);
 	if (entry != NULL) {
 	    key = redisMapValue(entry);
@@ -575,7 +573,7 @@ series_values_reply(seriesQueryBaton *baton, sds series,
 {
     seriesSampling	sampling = {0};
     redisReply		*reply, *sample, **elements;
-    timing_t		*tp = &baton->u.query.timing;
+    timing_t		*tp = &baton->query.timing;
     int			n, sts, next, nelements;
     sds			msg, save_timestamp;
 
@@ -1500,7 +1498,7 @@ series_solve_sid_expr(pmSeriesSettings *settings, pmSeriesExpr *expr, void *arg)
 	pmSeriesSetSlots(&settings->module, baton->slots);
 	settings->module = *baton->module; /* struct cpy */
 
-	sts = series_solve(settings, sp.expr, &baton->u.query.timing,
+	sts = series_solve(settings, sp.expr, &baton->query.timing,
 	    PM_SERIES_FLAG_NONE, baton);
     }
 
@@ -1596,7 +1594,7 @@ series_value_count_only(timing_t *tp)
 static void
 series_prepare_time(seriesQueryBaton *baton, series_set_t *result)
 {
-    timing_t		*tp = &baton->u.query.timing;
+    timing_t		*tp = &baton->query.timing;
     unsigned char	*series = result->series;
     seriesGetSID	*sid;
     char		buffer[64], revbuf[64];
@@ -1739,11 +1737,11 @@ series_query_report_matches(void *arg)
 
     seriesBatonReference(baton, "series_query_report_matches");
 
-    has_function = series_calculate(baton, baton->u.query.root, 0);
+    has_function = series_calculate(baton, baton->query.root, 0);
     
     if (has_function != 0)
 	series_redis_hash_expression(baton, hashbuf, sizeof(hashbuf));
-    series_report_set(baton, baton->u.query.root);
+    series_report_set(baton, baton->query.root);
     series_query_end_phase(baton);
 }
 
@@ -1756,7 +1754,7 @@ series_query_maps(void *arg)
     seriesBatonCheckCount(baton, "series_query_maps");
 
     seriesBatonReference(baton, "series_query_maps");
-    series_prepare_maps(baton, baton->u.query.root, 0);
+    series_prepare_maps(baton, baton->query.root, 0);
     series_query_end_phase(baton);
 }
 
@@ -1769,7 +1767,7 @@ series_query_eval(void *arg)
     seriesBatonCheckCount(baton, "series_query_eval");
 
     seriesBatonReference(baton, "series_query_eval");
-    series_prepare_eval(baton, baton->u.query.root, 0);
+    series_prepare_eval(baton, baton->query.root, 0);
     series_query_end_phase(baton);
 }
 
@@ -1782,7 +1780,7 @@ series_query_expr(void *arg)
     seriesBatonCheckCount(baton, "series_query_expr");
 
     seriesBatonReference(baton, "series_query_expr");
-    series_prepare_expr(baton, baton->u.query.root, 0);
+    series_prepare_expr(baton, baton->query.root, 0);
     series_query_end_phase(baton);
 }
 
@@ -1836,7 +1834,7 @@ series_values_store_to_node(seriesQueryBaton *baton, sds series,
 {
     seriesSampling	sampling = {0};
     redisReply		*reply, *sample, **elements;
-    timing_t		*tp = &baton->u.query.timing;
+    timing_t		*tp = &baton->query.timing;
     int			i, sts, next, nelements;
     int			idx_series = np->value_set.num_series;
     int			idx_sample = 0;
@@ -4864,7 +4862,7 @@ series_redis_hash_expression(seriesQueryBaton *baton, char *hashbuf, int len_has
     unsigned char	hash[20];
     sds			key, msg;
     char		*errmsg;
-    node_t		*np = baton->u.query.root;
+    node_t		*np = baton->query.root;
     int			i, j, num_series = np->value_set.num_series;
     pmUnits		units0, units1, large_units;
     double		mult;
@@ -4967,7 +4965,7 @@ series_query_report_values(void *arg)
     seriesBatonCheckCount(baton, "series_query_report_values");
 
     seriesBatonReference(baton, "series_query_report_values");
-    series_prepare_time(baton, &baton->u.query.root->result);
+    series_prepare_time(baton, &baton->query.root->result);
     series_query_end_phase(baton);
 }
 
@@ -4984,7 +4982,7 @@ series_query_funcs_report_values(void *arg)
     seriesBatonReference(baton, "series_query_funcs_report_values");
 
     /* For function-type nodes, calculate actual values */
-    has_function = series_calculate(baton, baton->u.query.root, 0);
+    has_function = series_calculate(baton, baton->query.root, 0);
 
     /*
      * Store the canonical query to Redis if this query statement has
@@ -4994,7 +4992,7 @@ series_query_funcs_report_values(void *arg)
 	series_redis_hash_expression(baton, hashbuf, sizeof(hashbuf));
 
     /* time series values saved in root node so report them directly. */
-    series_node_values_report(baton, baton->u.query.root);
+    series_node_values_report(baton, baton->query.root);
     
     series_query_end_phase(baton);
 }
@@ -5009,7 +5007,7 @@ series_query_funcs(void *arg)
 
     seriesBatonReference(baton, "series_query_funcs");
     /* Process function-type node */
-    series_process_func(baton, baton->u.query.root, 0);
+    series_process_func(baton, baton->query.root, 0);
     series_query_end_phase(baton);
 }
 
@@ -5022,7 +5020,7 @@ series_query_desc(void *arg)
     seriesBatonCheckCount(baton, "series_query_desc");
 
     seriesBatonReference(baton, "series_query_desc");
-    series_expr_node_desc(baton, baton->u.query.root);
+    series_expr_node_desc(baton, baton->query.root);
     series_query_end_phase(baton);
 }
 
@@ -5172,7 +5170,7 @@ series_map_lookup_expr_reply(redisClusterAsyncContext *c, void *r, void *arg)
 	    baton->error = sts;
 	} else {
 	    /* call the on_metric callback, whatever it's set to by the caller */
-	    baton->u.lookup.func(sid->name, query, baton->userdata);
+	    baton->lookup.func(sid->name, query, baton->userdata);
 	}
     }
     series_query_end_phase(baton);
@@ -5226,8 +5224,8 @@ series_map_reply(seriesQueryBaton *baton, sds series,
 	    if (reply->type == REDIS_REPLY_STRING) {
 		sdsclear(key);
 		key = sdscatlen(key, reply->str, reply->len);
-		if ((entry = redisMapLookup(baton->u.lookup.map, key)) != NULL)
-		    baton->u.lookup.func(series, redisMapValue(entry), baton->userdata);
+		if ((entry = redisMapLookup(baton->lookup.map, key)) != NULL)
+		    baton->lookup.func(series, redisMapValue(entry), baton->userdata);
 		else {
 		    infofmt(msg, "%s - timeseries string map", series);
 		    batoninfo(baton, PMLOG_CORRUPT, msg);
@@ -5262,11 +5260,11 @@ series_map_keys_callback(
 	for (i = 0; i < reply->elements; i++) {
 	    child = reply->element[i];
 	    if (child->type == REDIS_REPLY_STRING) {
-		if (baton->u.lookup.pattern != NULL &&
-		    fnmatch(baton->u.lookup.pattern, child->str, 0) != 0)
+		if (baton->lookup.pattern != NULL &&
+		    fnmatch(baton->lookup.pattern, child->str, 0) != 0)
 		    continue;
 		val = sdscpylen(val, child->str, child->len);
-		baton->u.lookup.func(NULL, val, baton->userdata);
+		baton->lookup.func(NULL, val, baton->userdata);
 	    } else {
 		infofmt(msg, "bad response for string map %s (%s)",
 			HVALS, redis_reply_type(child));
@@ -5391,7 +5389,7 @@ series_label_reply(seriesQueryBaton *baton, sds series,
 	sdsclear(vmapID);
 	vmapID = sdscatlen(vmapID, elements[index+1]->str, elements[index+1]->len);
 
-	if ((entry = redisMapLookup(baton->u.lookup.map, nmapID)) != NULL) {
+	if ((entry = redisMapLookup(baton->lookup.map, nmapID)) != NULL) {
 	    pmwebapi_hash_str((unsigned char *)nmapID, hashbuf, sizeof(hashbuf));
 	    vkey = sdscatfmt(sdsempty(), "label.%s.value", hashbuf);
 	    vmap = redisMapCreate(vkey);
@@ -5472,9 +5470,9 @@ series_lookup_labels(void *arg)
     seriesBatonCheckCount(baton, "series_lookup_labels");
 
     /* unpack - iterate over series and extract labels names and values */
-    for (i = 0; i < baton->u.lookup.nseries; i++) {
+    for (i = 0; i < baton->lookup.nseries; i++) {
 	seriesBatonReference(baton, "series_lookup_labels");
-	sid = &baton->u.lookup.series[i];
+	sid = &baton->lookup.series[i];
 	key = sdscatfmt(sdsempty(), "pcp:labelvalue:series:%S", sid->name);
 	cmd = redis_command(2);
 	cmd = redis_param_str(cmd, HGETALL, HGETALL_LEN);
@@ -5504,7 +5502,7 @@ pmSeriesLabels(pmSeriesSettings *settings, int nseries, pmSID *series, void *arg
     initSeriesGetLookup(baton, nseries, series, settings->callbacks.on_label, labelsmap);
 
     if (nseries == 0)
-	return series_map_keys(baton, redisMapName(baton->u.lookup.map));
+	return series_map_keys(baton, redisMapName(baton->lookup.map));
 
     baton->current = &baton->phases[0];
     baton->phases[i++].func = series_lookup_services;
@@ -5572,8 +5570,8 @@ series_lookup_labelvalues(void *arg)
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_labelvalues");
     seriesBatonCheckCount(baton, "series_lookup_labelvalues");
 
-    for (i = 0; i < baton->u.lookup.nseries; i++) {
-	sid = &baton->u.lookup.series[i];
+    for (i = 0; i < baton->lookup.nseries; i++) {
+	sid = &baton->lookup.series[i];
 	seriesBatonReference(baton, "series_lookup_labelvalues");
 
 	pmwebapi_string_hash(hash, sid->name, sdslen(sid->name));
@@ -5666,8 +5664,8 @@ series_lookup_desc(void *arg)
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_desc");
     seriesBatonCheckCount(baton, "series_lookup_desc");
 
-    for (i = 0; i < baton->u.lookup.nseries; i++) {
-	sid = &baton->u.lookup.series[i];
+    for (i = 0; i < baton->lookup.nseries; i++) {
+	sid = &baton->lookup.series[i];
 	seriesBatonReference(baton, "series_lookup_desc");
 
 	key = sdscatfmt(sdsempty(), "pcp:desc:series:%S", sid->name);
@@ -5846,7 +5844,7 @@ series_inst_expr_reply(redisClusterAsyncContext *c, void *r, void *arg)
 	    baton->error = sts;
 	} else {
 	    /* Parse the expr (with timing) and series solve the resulting expr tree */
-	    baton->u.query.timing.count = 1;
+	    baton->query.timing.count = 1;
 	    baton->error = series_solve_sid_expr(&series_solve_inst_settings, &expr, arg);
 	}
     }
@@ -5913,9 +5911,9 @@ series_lookup_instances(void *arg)
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_instances_callback");
     seriesBatonCheckCount(baton, "series_lookup_instances_callback");
 
-    for (i = 0; i < baton->u.lookup.nseries; i++) {
+    for (i = 0; i < baton->lookup.nseries; i++) {
 	seriesBatonReference(baton, "series_lookup_instances_callback");
-	sid = &baton->u.lookup.series[i];
+	sid = &baton->lookup.series[i];
 	key = sdscatfmt(sdsempty(), "pcp:instances:series:%S", sid->name);
 	cmd = redis_command(2);
 	cmd = redis_param_str(cmd, SMEMBERS, SMEMBERS_LEN);
@@ -5945,7 +5943,7 @@ pmSeriesInstances(pmSeriesSettings *settings, int nseries, pmSID *series, void *
     initSeriesGetLookup(baton, nseries, series, settings->callbacks.on_instance, instmap);
 
     if (nseries == 0)
-	return series_map_keys(baton, redisMapName(baton->u.lookup.map));
+	return series_map_keys(baton, redisMapName(baton->lookup.map));
 
     baton->current = &baton->phases[0];
     baton->phases[i++].func = series_lookup_services;
@@ -5969,7 +5967,7 @@ redis_lookup_mapping_callback(
 
     /* unpack - produce reverse map of ids-to-names for each context */
     if (LIKELY(reply && reply->type == REDIS_REPLY_ARRAY)) {
-	reverse_map(baton, baton->u.lookup.map, reply->elements, reply->element);
+	reverse_map(baton, baton->lookup.map, reply->elements, reply->element);
     } else {
 	infofmt(msg, "expected array from %s %s (type=%s)",
 	    HGETALL, "pcp:map:context.name", redis_reply_type(reply));
@@ -5990,7 +5988,7 @@ series_lookup_mapping(void *arg)
     seriesBatonCheckCount(baton, "series_lookup_mapping");
     seriesBatonReference(baton, "series_lookup_mapping");
 
-    key = sdscatfmt(sdsempty(), "pcp:map:%s", redisMapName(baton->u.lookup.map));
+    key = sdscatfmt(sdsempty(), "pcp:map:%s", redisMapName(baton->lookup.map));
     cmd = redis_command(2);
     cmd = redis_param_str(cmd, HGETALL, HGETALL_LEN);
     cmd = redis_param_sds(cmd, key);
@@ -6121,9 +6119,9 @@ series_lookup_sources(void *arg)
     seriesBatonCheckCount(baton, "series_lookup_sources");
     seriesBatonReference(baton, "series_lookup_sources");
 
-    for (i = 0; i < baton->u.lookup.nseries; i++) {
+    for (i = 0; i < baton->lookup.nseries; i++) {
 	seriesBatonReference(baton, "series_lookup_sources");
-	sid = &baton->u.lookup.series[i];
+	sid = &baton->lookup.series[i];
 	key = sdscatfmt(sdsempty(), "pcp:context.name:source:%S", sid->name);
 	cmd = redis_command(2);
 	cmd = redis_param_str(cmd, SMEMBERS, SMEMBERS_LEN);
@@ -6154,7 +6152,7 @@ pmSeriesSources(pmSeriesSettings *settings, int nsources, pmSID *sources, void *
     initSeriesGetLookup(baton, nsources, sources, settings->callbacks.on_context, contextmap);
 
     if (nsources == 0)
-	return series_map_keys(baton, redisMapName(baton->u.lookup.map));
+	return series_map_keys(baton, redisMapName(baton->lookup.map));
 
     baton->current = &baton->phases[0];
     baton->phases[i++].func = series_lookup_services;
@@ -6177,9 +6175,9 @@ series_lookup_metrics(void *arg)
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_metrics");
     seriesBatonCheckCount(baton, "series_lookup_metrics");
 
-    for (i = 0; i < baton->u.lookup.nseries; i++) {
+    for (i = 0; i < baton->lookup.nseries; i++) {
 	seriesBatonReference(baton, "series_lookup_metrics");
-	sid = &baton->u.lookup.series[i];
+	sid = &baton->lookup.series[i];
 	key = sdscatfmt(sdsempty(), "pcp:metric.name:series:%S", sid->name);
 	cmd = redis_command(2);
 	cmd = redis_param_str(cmd, SMEMBERS, SMEMBERS_LEN);
@@ -6209,7 +6207,7 @@ pmSeriesMetrics(pmSeriesSettings *settings, int nseries, sds *series, void *arg)
     initSeriesGetLookup(baton, nseries, series, settings->callbacks.on_metric, namesmap);
 
     if (nseries == 0)
-	return series_map_keys(baton, redisMapName(baton->u.lookup.map));
+	return series_map_keys(baton, redisMapName(baton->lookup.map));
 
     baton->current = &baton->phases[0];
     baton->phases[i++].func = series_lookup_services;
@@ -6338,7 +6336,7 @@ initSeriesGetValues(seriesQueryBaton *baton, int nseries, sds *inseries,
     result = &node->result;
     result->series = series;
     result->nseries = nseries;
-    baton->u.query.root = node;
+    baton->query.root = node;
 
     /* validate and convert 40-byte (ASCII) SIDs to internal 20-byte form */
     for (i = 0; i < nseries; i++)
@@ -6372,7 +6370,7 @@ initSeriesGetValues(seriesQueryBaton *baton, int nseries, sds *inseries,
     if (!series_time_window(timing))
 	timing->count = 1;
 
-    baton->u.query.timing = *timing;	// TODO
+    baton->query.timing = *timing;	// TODO
 }
 
 int
