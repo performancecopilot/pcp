@@ -1275,6 +1275,7 @@ series_hmset_function_expr(seriesQueryBaton *baton, sds key, sds expr)
     cmd = redis_param_sds(cmd, key);
     cmd = redis_param_str(cmd, "query", sizeof("query")-1);
     cmd = redis_param_sds(cmd, expr);
+    sdsfree(expr);
     sdsfree(key);
 
     redisSlotsRequest(baton->slots, cmd, series_hmset_function_expr_callback, baton);
