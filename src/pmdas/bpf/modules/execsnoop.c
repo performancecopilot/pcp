@@ -182,7 +182,7 @@ static void execsnoop_register(unsigned int cluster_id, pmdaMetric *metrics, pmd
             .pmid  = PMDA_PMID(cluster_id, 1),
             .type  = PM_TYPE_U32,
             .indom = indom_id_mapping[EXECSNOOP_INDOM],
-            .sem   = PM_SEM_INSTANT,
+            .sem   = PM_SEM_DISCRETE,
             .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };
@@ -193,7 +193,7 @@ static void execsnoop_register(unsigned int cluster_id, pmdaMetric *metrics, pmd
             .pmid  = PMDA_PMID(cluster_id, 2),
             .type  = PM_TYPE_U32,
             .indom = indom_id_mapping[EXECSNOOP_INDOM],
-            .sem   = PM_SEM_INSTANT,
+            .sem   = PM_SEM_DISCRETE,
             .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };

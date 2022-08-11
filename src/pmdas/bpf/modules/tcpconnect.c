@@ -28,13 +28,10 @@
 #include "tcpconnect.h"
 #include "tcpconnect.skel.h"
 #include "btf_helpers.h"
-#include "trace_helpers.h"
-#include "map_helpers.h"
-
 
 #define PERF_BUFFER_PAGES 128
 #define PERF_POLL_TIMEOUT_MS 100
-#define INDOM_COUNT 2
+#define INDOM_COUNT 1
 
 static struct env {
     bool print_uid;
@@ -175,7 +172,7 @@ static void tcpconnect_register(unsigned int cluster_id, pmdaMetric *metrics, pm
             .pmid  = PMDA_PMID(cluster_id, 0),
             .type  = PM_TYPE_U32,
             .indom = indom_id_mapping[TCPCONNECT_INDOM],
-            .sem   = PM_SEM_INSTANT,
+            .sem   = PM_SEM_DISCRETE,
             .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };

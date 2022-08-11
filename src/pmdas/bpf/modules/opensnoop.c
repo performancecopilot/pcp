@@ -28,7 +28,6 @@
 #include "opensnoop.h"
 #include "opensnoop.skel.h"
 #include "btf_helpers.h"
-#include "trace_helpers.h"
 
 /* Tune the buffer size and wakeup rate. These settings cope with roughly
  * 50k opens/sec.
@@ -179,7 +178,7 @@ static void opensnoop_register(unsigned int cluster_id, pmdaMetric *metrics, pmd
             .pmid  = PMDA_PMID(cluster_id, 0),
             .type  = PM_TYPE_U32,
             .indom = indom_id_mapping[OPENSNOOP_INDOM],
-            .sem   = PM_SEM_INSTANT,
+            .sem   = PM_SEM_DISCRETE,
             .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };

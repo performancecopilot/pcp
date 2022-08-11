@@ -27,7 +27,6 @@
 
 #include "tcpconnlat.h"
 #include "tcpconnlat.skel.h"
-#include "trace_helpers.h"
 
 #define PERF_BUFFER_PAGES 16
 #define PERF_POLL_TIMEOUT_MS 100
@@ -172,7 +171,7 @@ static void tcpconnlat_register(unsigned int cluster_id, pmdaMetric *metrics, pm
             .pmid  = PMDA_PMID(cluster_id, 0),
             .type  = PM_TYPE_U32,
             .indom = indom_id_mapping[TCPCONNLAT_INDOM],
-            .sem   = PM_SEM_INSTANT,
+            .sem   = PM_SEM_DISCRETE,
             .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };
@@ -250,7 +249,7 @@ static void tcpconnlat_register(unsigned int cluster_id, pmdaMetric *metrics, pm
             .type  = PM_TYPE_DOUBLE,
             .indom = indom_id_mapping[TCPCONNLAT_INDOM],
             .sem   = PM_SEM_INSTANT,
-            .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
+            .units = PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_USEC, 0),
         }
     };
     /* bpf.tcpconnlat.lost */
@@ -431,7 +430,7 @@ static int tcpconnlat_fetch_to_atom(unsigned int item, unsigned int inst, pmAtom
     }
     /* bpf.tcpconnlat.lat */
     if (item == LAT) {
-        atom->d = value->event.delta_us / 1000.0;
+        atom->d = value->event.delta_us;
     }
 
     return PMDA_FETCH_STATIC;

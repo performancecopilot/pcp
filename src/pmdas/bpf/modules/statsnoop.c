@@ -27,7 +27,6 @@
 #include "statsnoop.h"
 #include "statsnoop.skel.h"
 #include "btf_helpers.h"
-#include "trace_helpers.h"
 
 #define PERF_BUFFER_PAGES 16
 #define PERF_POLL_TIMEOUT_MS 100
@@ -162,7 +161,7 @@ static void statsnoop_register(unsigned int cluster_id, pmdaMetric *metrics, pmd
             .pmid  = PMDA_PMID(cluster_id, 0),
             .type  = PM_TYPE_U32,
             .indom = indom_id_mapping[STATSNOOP_INDOM],
-            .sem   = PM_SEM_INSTANT,
+            .sem   = PM_SEM_DISCRETE,
             .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };

@@ -52,10 +52,10 @@ pminfo -dfmtT bpf.tcpconnect.pid 2>&1 | tee -a $here/$seq.full \
 
 echo "=== report metric values for uid ==="
 pminfo -dfmtT bpf.tcpconnect.uid 2>&1 | tee -a $here/$seq.full \
-| _value_filter_nonzero
+| _value_filter_any
 
-echo "=== report metric values for ip ==="
-pminfo -dfmtT bpf.tcpconnect.ip 2>&1 | tee -a $here/$seq.full \
+echo "=== report metric values for ipversion ==="
+pminfo -dfmtT bpf.tcpconnect.ipversion 2>&1 | tee -a $here/$seq.full \
 | _value_filter_nonzero
 
 echo "=== report metric values for dport ==="

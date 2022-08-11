@@ -27,7 +27,6 @@
 #include "bashreadline.h"
 #include "bashreadline.skel.h"
 #include "btf_helpers.h"
-#include "trace_helpers.h"
 #include "uprobe_helpers.h"
 
 #define PERF_BUFFER_PAGES 16
@@ -166,7 +165,7 @@ static void bashreadline_register(unsigned int cluster_id, pmdaMetric *metrics, 
             .pmid  = PMDA_PMID(cluster_id, 1),
             .type  = PM_TYPE_U32,
             .indom = indom_id_mapping[BASHREADLINE_INDOM],
-            .sem   = PM_SEM_INSTANT,
+            .sem   = PM_SEM_DISCRETE,
             .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };

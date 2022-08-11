@@ -30,7 +30,6 @@
 #include "oomkill.h"
 #include "oomkill.skel.h"
 #include "btf_helpers.h"
-#include "trace_helpers.h"
 
 #define PERF_POLL_TIMEOUT_MS 100
 
@@ -88,7 +87,7 @@ static bool get_item(unsigned int offset, struct tailq_entry** val)
     return false;
 }
 
-#define INDOM_COUNT 2
+#define INDOM_COUNT 1
 static unsigned int indom_id_mapping[INDOM_COUNT];
 
 #define METRIC_COUNT 6
@@ -105,7 +104,7 @@ char* metric_names[METRIC_COUNT] = {
 };
 
 char* metric_text_oneline[METRIC_COUNT] = {
-    [FPID]   =  "Triggered by ID",
+    [FPID]   =  "Triggered by PID",
     [FCOMM]  =  "Triggered by COMM",
     [TPID]   =  "OOM kill of PID",
     [TCOMM]  =  "OOM kill of COMM",
@@ -162,7 +161,7 @@ static void oomkill_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
             .pmid  = PMDA_PMID(cluster_id, 0),
             .type  = PM_TYPE_U32,
             .indom = indom_id_mapping[OOMKILL_INDOM],
-            .sem   = PM_SEM_INSTANT,
+            .sem   = PM_SEM_DISCRETE,
             .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };
@@ -184,7 +183,7 @@ static void oomkill_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
             .pmid  = PMDA_PMID(cluster_id, 2),
             .type  = PM_TYPE_U32,
             .indom = indom_id_mapping[OOMKILL_INDOM],
-            .sem   = PM_SEM_INSTANT,
+            .sem   = PM_SEM_DISCRETE,
             .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };

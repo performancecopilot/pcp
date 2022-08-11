@@ -27,7 +27,6 @@
 #include "exitsnoop.h"
 #include "exitsnoop.skel.h"
 #include "btf_helpers.h"
-#include "trace_helpers.h"
 
 #define PERF_BUFFER_PAGES 16
 #define PERF_POLL_TIMEOUT_MS 100
@@ -186,7 +185,7 @@ static void exitsnoop_register(unsigned int cluster_id, pmdaMetric *metrics, pmd
             .pmid  = PMDA_PMID(cluster_id, 1),
             .type  = PM_TYPE_U32,
             .indom = indom_id_mapping[EXITSNOOP_INDOM],
-            .sem   = PM_SEM_INSTANT,
+            .sem   = PM_SEM_DISCRETE,
             .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };
@@ -197,7 +196,7 @@ static void exitsnoop_register(unsigned int cluster_id, pmdaMetric *metrics, pmd
             .pmid  = PMDA_PMID(cluster_id, 2),
             .type  = PM_TYPE_U32,
             .indom = indom_id_mapping[EXITSNOOP_INDOM],
-            .sem   = PM_SEM_INSTANT,
+            .sem   = PM_SEM_DISCRETE,
             .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };
@@ -208,7 +207,7 @@ static void exitsnoop_register(unsigned int cluster_id, pmdaMetric *metrics, pmd
             .pmid  = PMDA_PMID(cluster_id, 3),
             .type  = PM_TYPE_U32,
             .indom = indom_id_mapping[EXITSNOOP_INDOM],
-            .sem   = PM_SEM_INSTANT,
+            .sem   = PM_SEM_DISCRETE,
             .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };

@@ -9,6 +9,7 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 . ./common.bpf
+. ./common.bcc
 
 _pmdabpf_check
 which mkfs.ext4 >/dev/null 2>&1 || _notrun "mkfs.ext4 not installed"
@@ -16,20 +17,14 @@ _pmdabpf_require_kernel_version 5 0
 _pmdabpf_require_libbpf_version 0 7
 
 write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
-out_file=$tmp
+out_file=$tmp.mount.ext4/tmpfile
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full
 
-_cleanup()
-{
-    _pmdabpf_cleanup
-    $sudo rm -rf ${out_file}
-}
-
 _prepare_pmda bpf
-trap "_cleanup; exit \$status" 0 1 2 3 15
+trap "_unmount_filesystem ext4; _pmdabcc_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 # real QA test starts here
@@ -45,7 +40,7 @@ _pmdabpf_wait_for_metric
 # ext4 may trigger loading the ext4 kernel module
 _mount_filesystem ext4
 
-# Generate system activity for the CO-RE statsnoop module
+# Generate system activity for the CO-RE fsslower module
 dd if=/dev/zero of=${out_file} bs=${write_size} count=1 conv=fsync 2>/dev/null
 dd if=${out_file} of=/dev/null bs=${write_size} count=1 2>/dev/null
 
@@ -73,8 +68,8 @@ echo "=== report metric values for pid ==="
 pminfo -dfmtT bpf.fsslower.pid 2>&1 | tee -a $here/$seq.full \
 | _value_filter_nonzero
 
-echo "=== report metric values for offset_kb ==="
-pminfo -dfmtT bpf.fsslower.offset_kb 2>&1 | tee -a $here/$seq.full \
+echo "=== report metric values for offset ==="
+pminfo -dfmtT bpf.fsslower.offset 2>&1 | tee -a $here/$seq.full \
 | _value_filter_any
 
 
