@@ -1088,6 +1088,7 @@ pmseries_execute(series_data *dp)
     uv_loop_t		*loop = dp->loop;
     uv_timer_t		request;
     uv_handle_t		*handle = (uv_handle_t *)&request;
+    int			status;	/* exit code */
 
     handle->data = (void *)dp;
     uv_timer_init(loop, &request);
@@ -1095,10 +1096,12 @@ pmseries_execute(series_data *dp)
     uv_run(loop, UV_RUN_DEFAULT);
     uv_loop_close(loop);
 
+    status = dp->status;
     if (dp->config)
 	pmIniFileFree(dp->config);
+    free(dp);
 
-    return dp->status;
+    return status;
 }
 
 /*
