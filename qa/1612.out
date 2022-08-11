@@ -1,0 +1,28 @@
+QA output created by 1612
+
+=== bpf agent installation ===
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bpf metrics have appeared ... X metrics and X values
+
+=== report metric values for comm ===
+OK
+=== report metric values for err ===
+OK
+=== report metric values for fd ===
+OK
+=== report metric values for fname ===
+OK
+=== report metric values for pid ===
+OK
+=== report metric values for uid ===
+OK
+
+=== remove bpf agent ===
+Culling the Performance Metrics Name Space ...
+bpf ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bpf metrics have gone away ... OK

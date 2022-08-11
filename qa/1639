@@ -1,0 +1,86 @@
+#!/bin/sh
+# PCP QA Test No. 1639
+# Exercise the BPF PMDA CO-RE tcpconnlat module - install, remove and values.
+#
+# Copyright (c) 2022 Sohaib Mohamed.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bpf
+
+_pmdabpf_check
+_pmdabpf_require_kernel_version 5 0
+_pmdabpf_require_libbpf_version 0 7
+which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
+
+target_ip=1.1.1.1
+
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp.* $seq.full
+
+_cleanup()
+{
+    _pmdabpf_cleanup
+}
+
+_prepare_pmda bpf
+trap "_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+# real QA test starts here
+cat <<EOF | _pmdabpf_install
+# Installed by PCP QA test $seq on `date`
+[tcpconnlat.so]
+enabled=true
+EOF
+_pmdabpf_wait_for_metric
+
+# Generate system activity for the CO-RE tcpconnlat module
+echo Started curl at $(date) >> $here/$seq.full
+curl -s http://${target_ip} > /dev/null
+
+echo "=== report metric values for comm ==="
+pminfo -dfmtT bpf.tcpconnlat.comm 2>&1 | tee -a $here/$seq.full \
+| _value_filter_exact '"curl"'
+
+echo "=== report metric values for pid ==="
+pminfo -dfmtT bpf.tcpconnlat.pid 2>&1 | tee -a $here/$seq.full \
+| _value_filter_nonzero
+
+echo "=== report metric values for lat ==="
+pminfo -dfmtT bpf.tcpconnlat.lat 2>&1 | tee -a $here/$seq.full \
+| _value_filter_nonzero
+
+echo "=== report metric values for ip ==="
+pminfo -dfmtT bpf.tcpconnlat.ip 2>&1 | tee -a $here/$seq.full \
+| _value_filter_nonzero
+
+echo "=== report metric values for lport ==="
+pminfo -dfmtT bpf.tcpconnlat.lport 2>&1 | tee -a $here/$seq.full \
+| _value_filter_nonzero
+
+echo "=== report metric values for dport ==="
+pminfo -dfmtT bpf.tcpconnlat.dport 2>&1 | tee -a $here/$seq.full \
+| _value_filter_exact 80
+
+echo "=== report metric values for daddr ==="
+pminfo -dfmtT bpf.tcpconnlat.daddr 2>&1 | tee -a $here/$seq.full \
+| _value_filter_exact '"1.1.1.1"'
+
+echo "=== report metric values for saddr ==="
+pminfo -dfmtT bpf.tcpconnlat.saddr 2>&1 | tee -a $here/$seq.full \
+| _value_filter_any
+
+echo "=== report metric values for lost ==="
+pminfo -dfmtT bpf.tcpconnlat.lost 2>&1 | tee -a $here/$seq.full \
+| _value_filter_any
+
+
+_pmdabpf_remove
+
+status=0
+exit
+

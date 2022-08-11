@@ -1889,10 +1889,12 @@ x11
 1436 pmda.postgresql local
 1437 pmda.kvm local
 1442 pmlogrewrite local
+1444 pmda.bpf local
 1455 pmlogrewrite labels pmdumplog local
 1457 pmproxy libpcp_web threads secure local
 1458 pmproxy libpcp_web threads local
 1466 pmlogctl pmcd pmiectl logutil local
+1475 pmda.bpf local
 1480 pmda.lmsensors local
 1489 python pmrep pmimport local
 1490 python local labels
@@ -1914,6 +1916,7 @@ x11
 1566 logutil libpcp local
 1573 pmproxy libpcp_web pmlogger local
 1574 pmseries local
+1577 pmda.bpf local
 1584 pmda.mongodb local
 1588 python iostat local
 1591 archive archive_v3 local
@@ -1925,6 +1928,7 @@ x11
 1602 pmproxy local
 1603 pmproxy local
 1608 pmproxy local
+1612 pmda.bpf local
 1613 pmda.linux kernel local
 1622 selinux local
 1623 libpcp_import collectl local
@@ -1933,6 +1937,7 @@ x11
 1628 libpcp_import valgrind local
 1633 python pmda.sockets local
 1634 pmda.sockets local
+1639 pmda.bpf local
 1644 pmda.perfevent local
 1653 pmda.denki local
 1660 libpcp labels local
@@ -1940,6 +1945,7 @@ x11
 1662 pmproxy libpcp_web pmlogger valgrind local
 1671 multi-archive archive libpcp pmrep local python
 1672 secure pmcd local
+1673 pmda.bpf local
 1680 openvswitch local
 1681 pmrep pcp2xxx pmlogconf local
 1682 pmrep pcp2xxx pmlogconf valgrind local
@@ -1991,8 +1997,10 @@ x11
 1775 pmdumptext archive local
 1784 pmlogconf local
 1793 pmrep pcp2xxx python local pmdumplog
+1795 pmda.bpf local
 1801 dstat python pcp local
 1805 pmda.linux kernel local
+1810 pmda.bpf local
 1813 python labels local
 1814 pmda.linux local
 1815 pmieconf pmie local
@@ -2007,6 +2015,7 @@ x11
 1837 pmproxy local
 1844 pmdumptext libpcp_qmc remote
 1850 pmseries libpcp_web local
+1853 pmda.bpf local
 1854 pmlogger pmimport pmconfig local
 1855 pmda.rabbitmq local
 1856 dstat python local
@@ -2036,6 +2045,7 @@ x11
 1955 libpcp pmda pmda.pmcd local
 1956 pmda.linux pmcd local
 1957 libpcp local valgrind
+1970 pmda.bpf local
 1978 atop local
 1984 pmlogconf pmda.redis local
 4751 libpcp threads valgrind local pcp helgrind

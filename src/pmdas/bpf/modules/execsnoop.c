@@ -27,11 +27,11 @@
 #include "execsnoop.h"
 #include "execsnoop.skel.h"
 
-#define PERF_BUFFER_PAGES   64
-#define PERF_POLL_TIMEOUT_MS	50
+#define PERF_BUFFER_PAGES 64
+#define PERF_POLL_TIMEOUT_MS 50
 #define MAX_ARGS_KEY 259
 
-#define INDOM_COUNT 2
+#define INDOM_COUNT 1
 
 static struct env {
     bool fails;
@@ -46,11 +46,11 @@ static struct env {
     .process_count = 20,
 };
 
-static pmdaInstid *execsnoop_instances, *execsnoop_lost;
+static pmdaInstid *execsnoop_instances;
 static struct execsnoop_bpf *obj;
 static struct perf_buffer *pb = NULL;
-static struct event *event;
 static int lost_events;
+static int queuelength;
 
 /* cache array */
 struct tailq_entry {
@@ -59,7 +59,6 @@ struct tailq_entry {
 };
 
 TAILQ_HEAD(tailhead, tailq_entry) head;
-static int queuelength;
 
 static struct tailq_entry* allocElm(void)
 {
@@ -68,6 +67,7 @@ static struct tailq_entry* allocElm(void)
 
 static void push(struct tailq_entry *elm)
 {
+    TAILQ_INSERT_TAIL(&head, elm, entries);
     if (queuelength > env.process_count)
     {
         struct tailq_entry *l;
@@ -76,7 +76,6 @@ static void push(struct tailq_entry *elm)
         free(l);
         queuelength--;
     }
-    TAILQ_INSERT_TAIL(&head, elm, entries);
     queuelength++;
 }
 
@@ -100,7 +99,7 @@ static unsigned int indom_id_mapping[INDOM_COUNT];
 
 #define METRIC_COUNT 7
 enum metric_name { COMM, PID, PPID, RET, ARGS, UID, LOST };
-enum metric_indom { EXECSNOOP_INDOM, LOST_EVENTS };
+enum metric_indom { EXECSNOOP_INDOM };
 
 char* metric_names[METRIC_COUNT] = {
     [COMM] = "execsnoop.comm",
@@ -132,7 +131,7 @@ char* metric_text_long[METRIC_COUNT] = {
     [LOST] = "Number of the lost events",
 };
 
-static unsigned int execsnoop_metric_count()
+static unsigned int execsnoop_metric_count(void)
 {
     return METRIC_COUNT;
 }
@@ -231,32 +230,24 @@ static void execsnoop_register(unsigned int cluster_id, pmdaMetric *metrics, pmd
             .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };
-    /* bpf.execsnoop.uid */
+    /* bpf.execsnoop.lost */
     metrics[LOST] = (struct pmdaMetric)
     {
         .m_desc = {
             .pmid  = PMDA_PMID(cluster_id, 6),
             .type  = PM_TYPE_U32,
-            .indom = indom_id_mapping[EXECSNOOP_INDOM],
+            .indom = PM_INDOM_NULL,
             .sem   = PM_SEM_INSTANT,
             .units = PMDA_PMUNITS(0, 0, 0, 0, 0, 0),
         }
     };
 
     /* EXECSNOOP_INDOM */
-    indoms[0] = (struct pmdaIndom)
+    indoms[EXECSNOOP_INDOM] = (struct pmdaIndom)
     {
         indom_id_mapping[EXECSNOOP_INDOM],
         env.process_count,
         execsnoop_instances,
-    };
-
-    /* LOST_EVENTS InDom */
-    indoms[1] = (struct pmdaIndom)
-    {
-        indom_id_mapping[LOST_EVENTS],
-        1,
-        execsnoop_lost,
     };
 }
 
@@ -283,7 +274,7 @@ static void handle_args(const struct event *e)
 
 static void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
 {
-    event = data;
+    struct event *event = data;
     handle_args(event);
 
     struct tailq_entry *elm = allocElm();
@@ -314,7 +305,7 @@ static void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
 
 static void handle_lost_events(void *ctx, int cpu, __u64 lost_cnt)
 {
-    lost_events = lost_cnt;
+    lost_events += lost_cnt;
 }
 
 static int execsnoop_init(dict *cfg, char *module_name)
@@ -323,7 +314,7 @@ static int execsnoop_init(dict *cfg, char *module_name)
     char *val;
 
     if ((val = pmIniFileLookup(cfg, module_name, "uid")))
-        env.uid = strtol(val, NULL, 10);
+        env.uid = atoi(val);
     if ((val = pmIniFileLookup(cfg, module_name, "max_args")))
         env.max_args = atoi(val);
     if ((val = pmIniFileLookup(cfg, module_name, "process_count")))
@@ -364,6 +355,12 @@ static int execsnoop_init(dict *cfg, char *module_name)
         return err != 0;
     }
 
+    /* internal/external instance ids */
+    fill_instids(env.process_count, &execsnoop_instances);
+
+    /* Initialize the tail queue. */
+    TAILQ_INIT(&head);
+
     /* setup event callbacks */
     pb = perf_buffer__new(bpf_map__fd(obj->maps.events), PERF_BUFFER_PAGES,
             handle_event, handle_lost_events, NULL, NULL);
@@ -373,13 +370,6 @@ static int execsnoop_init(dict *cfg, char *module_name)
         return err != 0;
     }
 
-    /* internal/external instance ids */
-    fill_instids(env.process_count, &execsnoop_instances);
-    fill_instids(env.process_count, &execsnoop_lost);
-
-    /* Initialize the tail queue. */
-    TAILQ_INIT(&head);
-
     return err != 0;
 }
 
@@ -388,7 +378,6 @@ static void execsnoop_shutdown()
     struct tailq_entry *itemp;
 
     free(execsnoop_instances);
-    free(execsnoop_lost);
     perf_buffer__free(pb);
     execsnoop_bpf__destroy(obj);
     /* Free the entire cache queue. */
@@ -406,15 +395,19 @@ static void execsnoop_refresh(unsigned int item)
 static int execsnoop_fetch_to_atom(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {
     struct tailq_entry *value;
-    bool exist;
+
+    /* bpf.execsnoop.lost */
+    if (item == LOST) {
+        atom->ul = lost_events;
+        return PMDA_FETCH_STATIC;
+    }
 
     if (inst == PM_IN_NULL) {
         return PM_ERR_INST;
     }
 
-    exist = get_item(inst, &value);
-    if (!exist)
-       return PMDA_FETCH_NOVALUES;
+    if(!get_item(inst, &value))
+        return PMDA_FETCH_NOVALUES;
 
     /* bpf.execsnoop.comm */
     if (item == COMM) {
@@ -439,10 +432,6 @@ static int execsnoop_fetch_to_atom(unsigned int item, unsigned int inst, pmAtomV
     /* bpf.execsnoop.uid */
     if (item == UID) {
         atom->ul = value->event.uid;
-    }
-    /* bpf.execsnoop.lost */
-    if (item == LOST) {
-        atom->ul = lost_events;
     }
 
     return PMDA_FETCH_STATIC;

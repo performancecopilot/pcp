@@ -1,0 +1,73 @@
+#!/bin/sh
+# PCP QA Test No. 1970
+# Exercise the BPF PMDA CO-RE exitsnoop module - install, remove and values.
+#
+# Copyright (c) 2022 Sohaib Mohamed.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.bpf
+
+_pmdabpf_check
+_pmdabpf_require_kernel_version 5 0
+_pmdabpf_require_libbpf_version 0 7
+
+status=1       # failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp.* $seq.full
+
+_cleanup()
+{
+    _pmdabpf_cleanup
+}
+
+_prepare_pmda bpf
+trap "_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+# real QA test starts here
+cat <<EOF | _pmdabpf_install
+# Installed by PCP QA test $seq on `date`
+[exitsnoop.so]
+enabled=true
+EOF
+_pmdabpf_wait_for_metric
+
+# Generate system activity for the CO-RE exitsnoop module
+/bin/pwd > /dev/null
+
+echo "=== report metric values for age ==="
+pminfo -dfmtT bpf.exitsnoop.age 2>&1 | tee -a $here/$seq.full \
+| _value_filter_any
+
+echo "=== report metric values for comm ==="
+pminfo -dfmtT bpf.exitsnoop.comm 2>&1 | tee -a $here/$seq.full \
+| _value_filter_any
+
+echo "=== report metric values for coredump ==="
+pminfo -dfmtT bpf.exitsnoop.coredump 2>&1 | tee -a $here/$seq.full \
+| _value_filter_any
+
+echo "=== report metric values for exit_code ==="
+pminfo -dfmtT bpf.exitsnoop.exit_code 2>&1 | tee -a $here/$seq.full \
+| _value_filter_any
+
+echo "=== report metric values for pid ==="
+pminfo -dfmtT bpf.exitsnoop.pid 2>&1 | tee -a $here/$seq.full \
+| _value_filter_nonzero
+
+echo "=== report metric values for ppid ==="
+pminfo -dfmtT bpf.exitsnoop.ppid 2>&1 | tee -a $here/$seq.full \
+| _value_filter_nonzero
+
+echo "=== report metric values for tid ==="
+pminfo -dfmtT bpf.exitsnoop.tid 2>&1 | tee -a $here/$seq.full \
+| _value_filter_nonzero
+
+
+_pmdabpf_remove
+
+status=0
+exit

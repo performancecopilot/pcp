@@ -7,19 +7,51 @@ MODULETMP = $(PCP_PMDAS_DIR)/$(IAM)/modules
 MODULEDIR = $(PCP_PMDASADM_DIR)/$(IAM)/modules
 
 COMMON_OBJ = \
+	trace_helpers.o \
+	btf_helpers.o \
+	uprobe_helpers.o \
+	map_helpers.o \
 
 # ported helper files.
 HELPERS_H = \
+	btf_helpers.h \
+	map_helpers.h \
+	trace_helpers.h \
+	uprobe_helpers.h \
 
 HELPERS_C = \
+	btf_helpers.c \
+	map_helpers.c \
+	trace_helpers.c \
+	uprobe_helpers.c \
 
 # ported header file.
 APPS_H = \
-	execsnoop.h      \
+	bashreadline.h \
+	execsnoop.h \
+	exitsnoop.h \
+	fsslower.h \
+	mountsnoop.h \
+	oomkill.h \
+	opensnoop.h \
+	statsnoop.h \
+	tcpconnect.h \
+	tcpconnlat.h \
+	vfsstat.h \
 
 # ported *.bpf.c files.
 APPS_BPF = \
-	execsnoop.bpf.c      \
+	bashreadline.bpf.c \
+	execsnoop.bpf.c \
+	exitsnoop.bpf.c \
+	fsslower.bpf.c \
+	mountsnoop.bpf.c \
+	oomkill.bpf.c \
+	opensnoop.bpf.c \
+	statsnoop.bpf.c \
+	tcpconnect.bpf.c \
+	tcpconnlat.bpf.c \
+	vfsstat.bpf.c \
 
 
 default_pcp default:	$(HELPERS_H) $(HELPERS_C) $(APPS_H) $(APPS_BPF) \

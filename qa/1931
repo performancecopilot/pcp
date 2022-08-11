@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1931
-# Exercise the BPF PMDA execsnoop module - install, remove and values.
+# Exercise the BPF PMDA CO-RE execsnoop module - install, remove and values.
 #
 # Copyright (c) 2022 Sohaib Mohamed.
 #
@@ -42,7 +42,7 @@ command = echo
 EOF
 _pmdabpf_wait_for_metric
 
-# Generate system activity for the BCC execsnoop module
+# Generate system activity for the CO-RE execsnoop module
 /bin/echo hello world
 /bin/echo hello PCP
 /bin/echo hello test
