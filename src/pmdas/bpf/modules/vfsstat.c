@@ -23,82 +23,18 @@
 #include <pcp/pmda.h>
 #include <pcp/pmwebapi.h>
 #include <string.h>
-#include <sys/queue.h>
 
 #include "vfsstat.h"
 #include "vfsstat.skel.h"
 #include "btf_helpers.h"
 #include "trace_helpers.h"
 
-static struct env {
-    int count;
-    int interval_sec;
-    int process_count;
-} env = {
-    .interval_sec = 1,	/* once a second */
-    .process_count = 20,
-};
-
 static pmdaInstid *vfsstat_instances;
 static struct vfsstat_bpf *skel;
-static int queuelength;
 
-struct event {
-    __u64 read;
-    __u64 write;
-    __u64 fsync;
-    __u64 open;
-    __u64 create;
-};
-
-/* cache array */
-struct tailq_entry {
-    struct event event;
-    TAILQ_ENTRY(tailq_entry) entries;
-};
-
-TAILQ_HEAD(tailhead, tailq_entry) head;
-
-static struct tailq_entry* allocElm(void)
-{
-    return malloc(sizeof(struct tailq_entry));
-}
-
-static void push(struct tailq_entry *elm)
-{
-    TAILQ_INSERT_TAIL(&head, elm, entries);
-    if (queuelength > env.process_count)
-    {
-        struct tailq_entry *l;
-        l = head.tqh_first;
-        TAILQ_REMOVE(&head, l, entries);
-        free(l);
-        queuelength--;
-    }
-    queuelength++;
-}
-
-static bool get_item(unsigned int offset, struct tailq_entry** val)
-{
-    struct tailq_entry *i;
-    unsigned int iter = 0;
-
-    TAILQ_FOREACH_REVERSE(i, &head, tailhead, entries) {
-        if (offset == iter) {
-            *val = i;
-            return true;
-        }
-        iter++;
-    }
-    return false;
-}
-
-#define INDOM_COUNT 1
-static unsigned int indom_id_mapping[INDOM_COUNT];
-
+#define INDOM_COUNT 0
 #define METRIC_COUNT 5
 enum metric_name { READ, WRITE, FSYNC, OPEN, CREATE };
-enum metric_indom { VFSSTAT_INDOM };
 
 char* metric_names[METRIC_COUNT] = {
     [READ]    =  "vfsstat.read",
@@ -141,7 +77,6 @@ static unsigned int vfsstat_indom_count(void)
 
 static void vfsstat_set_indom_serial(unsigned int local_indom_id, unsigned int global_id)
 {
-    indom_id_mapping[local_indom_id] = global_id;
 }
 
 static int vfsstat_metric_text(int item, int type, char **buffer)
@@ -163,7 +98,7 @@ static void vfsstat_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
         .m_desc = {
             .pmid  = PMDA_PMID(cluster_id, 0),
             .type  = PM_TYPE_U64,
-            .indom = indom_id_mapping[VFSSTAT_INDOM],
+            .indom = PM_INDOM_NULL,
             .sem   = PM_SEM_COUNTER,
             .units = PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
         }
@@ -174,7 +109,7 @@ static void vfsstat_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
         .m_desc = {
             .pmid  = PMDA_PMID(cluster_id, 1),
             .type  = PM_TYPE_U64,
-            .indom = indom_id_mapping[VFSSTAT_INDOM],
+            .indom = PM_INDOM_NULL,
             .sem   = PM_SEM_COUNTER,
             .units = PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
         }
@@ -185,7 +120,7 @@ static void vfsstat_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
         .m_desc = {
             .pmid  = PMDA_PMID(cluster_id, 2),
             .type  = PM_TYPE_U64,
-            .indom = indom_id_mapping[VFSSTAT_INDOM],
+            .indom = PM_INDOM_NULL,
             .sem   = PM_SEM_COUNTER,
             .units = PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
         }
@@ -196,7 +131,7 @@ static void vfsstat_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
         .m_desc = {
             .pmid  = PMDA_PMID(cluster_id, 3),
             .type  = PM_TYPE_U64,
-            .indom = indom_id_mapping[VFSSTAT_INDOM],
+            .indom = PM_INDOM_NULL,
             .sem   = PM_SEM_COUNTER,
             .units = PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
         }
@@ -207,55 +142,17 @@ static void vfsstat_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
         .m_desc = {
             .pmid  = PMDA_PMID(cluster_id, 4),
             .type  = PM_TYPE_U64,
-            .indom = indom_id_mapping[VFSSTAT_INDOM],
+            .indom = PM_INDOM_NULL,
             .sem   = PM_SEM_COUNTER,
             .units = PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE),
         }
     };
-
-    /* VFSSTAT_INDOM */
-    indoms[0] = (struct pmdaIndom)
-    {
-        indom_id_mapping[VFSSTAT_INDOM],
-        env.process_count,
-        vfsstat_instances,
-    };
-
-}
-
-static void fill_and_reset_stats(__u64 stats[S_MAXSTAT])
-{
-    struct tailq_entry *elm = allocElm();
-    __u64 val;
-
-    for (int i = 0; i < S_MAXSTAT; i++) {
-        val = __atomic_exchange_n(&stats[i], 0, __ATOMIC_RELAXED);
-
-        val = val / env.interval_sec;
-        if (i == READ)
-            elm->event.read = val;
-        if (i == WRITE)
-            elm->event.write = val;
-        if (i == FSYNC)
-            elm->event.fsync = val;
-        if (i == OPEN)
-            elm->event.open = val;
-        if (i == CREATE)
-            elm->event.create = val;
-    }
-
-    push(elm);
 }
 
 static int vfsstat_init(dict *cfg, char *module_name)
 {
     LIBBPF_OPTS(bpf_object_open_opts, open_opts);
     int err;
-    char *val;
-
-    if ((val = pmIniFileLookup(cfg, module_name, "process_count")))
-        env.process_count = atoi(val);
-
 
     err = ensure_core_btf(&open_opts);
     if (err) {
@@ -302,63 +199,43 @@ static int vfsstat_init(dict *cfg, char *module_name)
         return err != 0;
     }
 
-    /* internal/external instance ids */
-    fill_instids(env.process_count, &vfsstat_instances);
-
-    /* Initialize the tail queue. */
-    TAILQ_INIT(&head);
-
     return err != 0;
 }
 
 static void vfsstat_shutdown()
 {
-    struct tailq_entry *itemp;
 
     free(vfsstat_instances);
     vfsstat_bpf__destroy(skel);
-    /* Free the entire cache queue. */
-    while ((itemp = TAILQ_FIRST(&head))) {
-        TAILQ_REMOVE(&head, itemp, entries);
-        free(itemp);
-    }
 }
 
 static void vfsstat_refresh(unsigned int item)
 {
-    fill_and_reset_stats(skel->bss->stats);
 }
 
 static int vfsstat_fetch_to_atom(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {
-    struct tailq_entry *value;
-
-    if (inst == PM_IN_NULL) {
-        return PM_ERR_INST;
-    }
-
-    if(!get_item(inst, &value))
-        return PMDA_FETCH_NOVALUES;
+    __u64 *stats = skel->bss->stats;
 
     /* bpf.vfsstat.read */
     if (item == READ) {
-        atom->ull = value->event.read;
+        atom->ull = stats[S_READ];
     }
     /* bpf.vfsstat.write */
     if (item == WRITE) {
-        atom->ull = value->event.write;
+        atom->ull = stats[S_WRITE];
     }
     /* bpf.vfsstat.fsync */
     if (item == FSYNC) {
-        atom->ull = value->event.fsync;
+        atom->ull = stats[S_FSYNC];
     }
     /* bpf.vfsstat.open */
     if (item == OPEN) {
-        atom->ull = value->event.open;
+        atom->ull = stats[S_OPEN];
     }
     /* bpf.vfsstat.create */
     if (item == CREATE) {
-        atom->ull = value->event.create;
+        atom->ull = stats[S_CREATE];
     }
 
     return PMDA_FETCH_STATIC;
