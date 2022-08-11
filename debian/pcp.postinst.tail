@@ -20,8 +20,6 @@ chown pcp:pcp /var/lib/pcp/tmp
 chmod 775 /var/lib/pcp/tmp
 chown pcp:pcp /var/log/pcp
 chmod 775 /var/log/pcp
-chown pcp:pcp /etc/pcp/nssdb
-chmod 775 /etc/pcp/nssdb
 
 # must match src/pmcd/GNUmakefile
 chown pcp:pcp /var/log/pcp/pmcd
@@ -94,6 +92,7 @@ then
     deb-systemd-helper enable pmlogger.service >/dev/null
     deb-systemd-helper enable pmie.service >/dev/null
     deb-systemd-helper enable pmproxy.service >/dev/null
+    deb-systemd-helper enable pmlogger_daily_report.timer >/dev/null
 elif which update-rc.d >/dev/null 2>&1
 then
     update-rc.d -f pmcd remove >/dev/null

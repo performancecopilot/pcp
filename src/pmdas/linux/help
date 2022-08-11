@@ -2561,6 +2561,11 @@ Multipath TCP incoming RM_ADDR drops.
 @ network.mptcp.mpfastcloserx the MPFastcloseRx field of the MPTcp line from /proc/net/netstat
 @ network.mptcp.mprsttx the MPRstTx field of the MPTcp line from /proc/net/netstat
 @ network.mptcp.mprstrx the MPRstRx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.infinitemaptx the InfiniteMapTx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.sndwndshared the SndWndShared field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.rcvwndshared the RcvWndShared field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.rcvwndconflictupdate the RcvWndConflictUpdate field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.rcvwndconflict the RcvWndConflict field of the MPTcp line from /proc/net/netstat
 
 @ disk.wwid.scsi_paths per-device/wwid scsi paths to same physical device
 The value of this string typed metric is the sd paths to the same physical

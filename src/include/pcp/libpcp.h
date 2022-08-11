@@ -1396,9 +1396,24 @@ PCP_CALL extern int __pmUnparseHostAttrsSpec(
 PCP_CALL extern int __pmUrlEncode(const char *inp, const size_t len, char **outp);
 PCP_CALL extern int __pmUrlDecode(const char *inp, const size_t len, char **outp);
 
-/* SSL/TLS/IPv6 support via NSS/NSPR */
-PCP_CALL extern int __pmSecureServerCertificateSetup(const char *, const char *, const char *);
-PCP_CALL extern void __pmSecureServerShutdown(void);
+/* TLS support via OpenSSL */
+typedef struct __pmSecureConfig {
+    char	*cacertfile;	/* authority file */
+    char	*cacertdir;	/* authority directory */
+    char	*certfile;	/* certificate chain */
+    char	*keyfile;	/* certificate key */
+    char	*ciphers;
+    char	*ciphersuites;	
+    char	*clientcertfile;/* certificate chain (client only) */
+    char	*clientkeyfile;	/* certificate key (client only) */
+    char	*clientverify;	/* client certificates (t/f) */
+} __pmSecureConfig;
+
+PCP_CALL extern void __pmSecureConfigInit(void);
+PCP_CALL extern int __pmGetSecureConfig(__pmSecureConfig *);
+PCP_CALL extern void __pmFreeSecureConfig(__pmSecureConfig *);
+PCP_CALL extern void *__pmSecureServerInit(__pmSecureConfig *);
+PCP_CALL extern void __pmSecureServerShutdown(void *, __pmSecureConfig *);
 PCP_CALL extern int __pmSecureServerHandshake(int, int, __pmHashCtl *);
 PCP_CALL extern int __pmSecureClientHandshake(int, int, const char *, __pmHashCtl *);
 

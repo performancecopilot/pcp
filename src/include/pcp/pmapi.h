@@ -226,6 +226,7 @@ typedef struct pmDesc {
 #define PM_ERR_PMDAFENCED	(-PM_ERR_BASE-66)   /* PMDA is currently fenced and unable to respond to requests */
 #define PM_ERR_RECTYPE		(-PM_ERR_BASE-67)   /* Incorrect record type in an archive */
 #define PM_ERR_FEATURE		(-PM_ERR_BASE-68)   /* Archive feature not supported */
+#define PM_ERR_TLS		(-PM_ERR_BASE-69)   /* TLS protocol failure */
 
 /* retired PM_ERR_CTXBUSY (-PM_ERR_BASE-97) Context is busy */
 #define PM_ERR_BOTCH		(-PM_ERR_BASE-97)   /* Internal inconsistency detected or assertion failed */
@@ -1251,7 +1252,7 @@ typedef struct {
     int access;		/* Access controls */
     int qa;		/* QA (transient, developers only) */
     int search;		/* Text search tracing */
-    int query;		/* libpcp_web query parsing and evaulation */
+    int query;		/* libpcp_web query parsing and evaluation */
     int	compress;	/* Archive compress/decompress operations */
     int dev0;		/* Developer flag 0 */
     int dev1;		/* Developer flag 1 */
@@ -1261,6 +1262,7 @@ typedef struct {
     int	appl7;		/* Application-specific flag 7 */
     int	appl8;		/* Application-specific flag 8 */
     int	appl9;		/* Application-specific flag 9 */
+    int tls;		/* Transport Layer Security operations */
 } pmdebugoptions_t;
 
 PCP_DATA extern pmdebugoptions_t	pmDebugOptions;

@@ -1,42 +1,41 @@
 type: container
 
 artifactory:
-  package_type: rpm
-  deploy_path: /centos/8/x86_64/pcp
+  package_type: deb
+  deploy_path: /ubuntu/22.04/amd64/pcp
+  params:
+    deb.distribution: jammy
+    deb.component: main
+    deb.architecture: amd64
 
 container:
   containerfile: |
-    FROM quay.io/centos/centos:stream9
-    RUN dnf install -y systemd sudo glibc-langpack-en
-    RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+    FROM docker.io/library/ubuntu:22.04
+    RUN apt-get update && apt-get install -y systemd sudo
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
-    RUN systemctl mask dnf-makecache.service # https://bugzilla.redhat.com/show_bug.cgi?id=1814337
-    RUN systemctl mask kdump.service
-    # restore /usr/share/zoneinfo, see https://bugzilla.redhat.com/show_bug.cgi?id=1668185
-    RUN ls /usr/share/zoneinfo || dnf reinstall -y tzdata
-    CMD ["/usr/sbin/init"]
+
+    # allow services to be started during installation
+    # pmcd will create the file /var/lib/pcp/pmns/stdpmid, which is required by QA tests
+    RUN printf '#!/bin/sh\nexit 0\n' > /usr/sbin/policy-rc.d
+
+    CMD ["/usr/bin/systemd"]
 
 tasks:
   setup: |
-    sudo dnf -y install dnf-plugins-core
-    sudo dnf config-manager --set-enabled crb
-    sudo dnf install -y which hostname
-    sudo dnf -y -b install $(qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
+    sudo apt-get -y update
+    pkgs=$(qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y $pkgs
   build: |
-    ./Makepkgs --verbose
-    rpm -qp --requires $(echo pcp-*/build/rpm/pcp-*.src.rpm | sed 's/src/x86_64/') | grep -q libuv.so
+    ./Makepkgs --nonrpm --verbose
+    dpkg -I build/deb/pcp_*.deb | grep Depends | grep -q libuv1
   copy_build_artifacts: |
-    cp pcp-*/build/rpm/*.rpm ../artifacts/build
+    cp build/deb/*.deb ../artifacts/build
   install: |
-    sudo rpm -Uv pcp-*/build/rpm/*.rpm
+    sudo dpkg -i build/deb/*.deb
     echo 'pcpqa ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/pcpqa
   init_qa: |
     sudo systemctl start redis
-    sudo systemctl start pmcd
-    systemctl status pmcd
-    sudo journalctl -u pmcd
-    cat /var/log/pcp/pmcd/pmcd.log
     sudo -i -u pcpqa ./check 002
   qa_sanity: |
     set -o pipefail

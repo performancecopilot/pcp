@@ -1197,13 +1197,11 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
 	}
 	didp->numinst = numinst;
 	didp->instlist = instlist;
-#if defined(HAVE_32BIT_PTR)
-#else
-	/* don't need old namelist[] any more */
-	free(didp->namelist);
-#endif
+	if (didp->alloc & PMLID_NAMELIST)
+	    free(didp->namelist);
 	didp->namelist = namelist;
 	didp->isdelta = 0;
+	didp->alloc |= PMLID_INSTLIST|PMLID_NAMELIST;
 
 	if (didp == idp) {
 	    /* done when we're back to the starting point */

@@ -135,3 +135,11 @@ xkb-data
 zabbix-agent
 zfsutils-linux
 zlib1g-dev
+libbpf0
+libbpf-dev
+clang-14
+clang
+llvm-14
+llvm
+fakeroot
+

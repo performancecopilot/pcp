@@ -10,13 +10,13 @@
 /*.raw
 /*.log
 big1.*
+tls.conf/*
 134.full.*
 051.work/*
 121.full.cull
 121.full.in
 121.full.out
 151.work/*
-661.png
 bpftrace/__pycache__/*
 check.out
 check.log

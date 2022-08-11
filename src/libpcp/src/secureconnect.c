@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
- * Security and Authentication (NSS and SASL) support.  Client side.
- * 
+ * Copyright (c) 2012-2015,2022 Red Hat.
+ * Security and Authentication (OpenSSL and SASL) support.  Client side.
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -17,20 +17,63 @@
 #include "libpcp.h"
 #define SOCKET_INTERNAL
 #include "internal.h"
+#include <ctype.h>
 #include <assert.h>
-#include <hasht.h>
-#include <certdb.h>
-#include <secerr.h>
-#include <sslerr.h>
-#include <pk11pub.h>
+#include <openssl/opensslv.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 #include <sys/stat.h>
 #ifdef HAVE_SYS_TERMIOS_H
 #include <sys/termios.h>
 #endif
 
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t	secureclient_lock;
+#else
+void			*secureclient_lock;
+#endif
+
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
 /*
- * We shift NSS/NSPR/SSL/SASL errors below the valid range for other
- * PCP error codes, in order to avoid conflicts.  pmErrStr can then
+ * return true if lock == secureclient_lock
+ */
+int
+__pmIsSecureclientLock(void *lock)
+{
+    return lock == (void *)&secureclient_lock;
+}
+#endif
+
+void
+init_secureclient_lock(void)
+{
+#ifdef PM_MULTI_THREAD
+    __pmInitMutex(&secureclient_lock);
+#endif
+}
+
+/*
+ * For every connection when operating under secure socket mode, we need
+ * the following auxillary structure associated with the socket.  It has
+ * critical information that each piece of the security pie can make use
+ * of (OpenSSL + SASL).  This is allocated once a connection is upgraded
+ * from insecure to secure.
+ */
+typedef struct { 
+    SSL			*ssl;
+    sasl_conn_t		*saslConn;
+    sasl_callback_t	*saslCB;
+} __pmSecureSocket;
+
+int
+__pmDataIPCSize(void)
+{
+    return sizeof(__pmSecureSocket);
+}
+
+/*
+ * We shift SASL errors below the valid range for all other PCP
+ * error codes, in order to avoid conflicts.  pmErrStr can then
  * detect and decode.  PM_ERR_NYI is the PCP error code sentinel.
  */
 int
@@ -57,17 +100,6 @@ __pmSocketClosed(void)
 	 * being reset, or as a result of the kernel ripping
 	 * down the connection (most likely because the host at
 	 * the other end just took a dive)
-	 *
-	 * from IRIX BDS kernel sources, seems like all of the
-	 * following are peers here:
-	 *  ECONNRESET (pmcd terminated?)
-	 *  ETIMEDOUT ENETDOWN ENETUNREACH EHOSTDOWN EHOSTUNREACH
-	 *  ECONNREFUSED
-	 * peers for BDS but not here:
-	 *  ENETRESET ENONET ESHUTDOWN (cache_fs only?)
-	 *  ECONNABORTED (accept, user req only?)
-	 *  ENOTCONN (udp?)
-	 *  EPIPE EAGAIN (nfs, bds & ..., but not ip or tcp?)
 	 */
 	case ECONNRESET:
 	case EPIPE:
@@ -77,95 +109,34 @@ __pmSocketClosed(void)
 	case EHOSTDOWN:
 	case EHOSTUNREACH:
 	case ECONNREFUSED:
-	case PR_IO_TIMEOUT_ERROR:
-	case PR_NETWORK_UNREACHABLE_ERROR:
-	case PR_CONNECT_TIMEOUT_ERROR:
-	case PR_NOT_CONNECTED_ERROR:
-	case PR_CONNECT_RESET_ERROR:
-	case PR_PIPE_ERROR:
-	case PR_NETWORK_DOWN_ERROR:
-	case PR_SOCKET_SHUTDOWN_ERROR:
-	case PR_HOST_UNREACHABLE_ERROR:
 	    return 1;
     }
-    return 0;
-}
-
-/*
- * For every connection when operating under secure socket mode, we need
- * the following auxillary structure associated with the socket.  It holds
- * critical information that each piece of the security pie can make use
- * of (NSS/SSL/NSPR/SASL).  This is allocated once a connection is upgraded
- * from insecure to secure.
- */
-typedef struct { 
-    PRFileDesc	*nsprFd;
-    PRFileDesc	*sslFd;
-    sasl_conn_t *saslConn;
-    sasl_callback_t *saslCB;
-} __pmSecureSocket;
-
-int
-__pmDataIPCSize(void)
-{
-    return sizeof(__pmSecureSocket);
-}
-
-int
-__pmInitSecureSockets(void)
-{
-    /* Make sure that NSPR has been initialized */
-    if (PR_Initialized() != PR_TRUE)
-        PR_Init(PR_USER_THREAD, PR_PRIORITY_NORMAL, 0);
-    return 0;
-}
-
-int
-__pmShutdownSecureSockets(void)
-{
-    if (PR_Initialized() == PR_TRUE)
-	PR_Cleanup();
-    return 0;
-}
-
-static int
-__pmSetupSecureSocket(int fd, __pmSecureSocket *socket_arg)
-{
-    /* Is this socket already set up? */
-    if (socket_arg->nsprFd)
-	return 0;
-
-    /* Import the fd into NSPR. */
-    socket_arg->nsprFd = PR_ImportTCPSocket(fd);
-    if (! socket_arg->nsprFd)
-	return -1;
-
     return 0;
 }
 
 void
 __pmCloseSocket(int fd)
 {
-    __pmSecureSocket lsocket;
-    int sts;
+    __pmSecureSocket	ss;
+    int			sts;
 
-    sts = __pmDataIPC(fd, (void *)&lsocket);
+    sts = __pmDataIPC(fd, (void *)&ss);
+
     __pmResetIPC(fd);
 
     if (sts == 0) {
-	if (lsocket.saslConn) {
-	    sasl_dispose(&lsocket.saslConn);
-	    lsocket.saslConn = NULL;
+	if (ss.saslConn) {
+	    sasl_dispose(&ss.saslConn);
+	    ss.saslConn = NULL;
 	}
-	if (lsocket.saslCB) {
-	    free(lsocket.saslCB);
-	    lsocket.saslCB = NULL;
+	if (ss.saslCB) {
+	    free(ss.saslCB);
+	    ss.saslCB = NULL;
 	}
-	if (lsocket.nsprFd) {
-	    PR_Close(lsocket.nsprFd);
-	    lsocket.nsprFd = NULL;
-	    lsocket.sslFd = NULL;
-	    fd = -1;
+	if (ss.ssl) {
+	    SSL_shutdown(ss.ssl);
+	    SSL_free(ss.ssl);
+	    ss.ssl = NULL;
 	}
     }
 
@@ -178,339 +149,12 @@ __pmCloseSocket(int fd)
     }
 }
 
-static char *
-dbpath(char *path, size_t size, char *db_method)
-{
-    int sep = pmPathSeparator();
-    const char *empty_homedir = "";
-    char *homedir = getenv("HOME");
-    char *nss_method = getenv("PCP_SECURE_DB_METHOD");
-    char *nss_dir = getenv("PCP_SECURE_DB_PATH");
-
-    if (homedir == NULL)
-	homedir = (char *)empty_homedir;
-    if (nss_method == NULL)
-	nss_method = db_method;
-
-    /*
-     * Fill in a buffer with the users NSS database specification.
-     * Return a pointer to the filesystem path component - without
-     * the <method>:-prefix - for other routines to work with.
-     */
-    if (nss_dir == NULL){
-    	pmsprintf(path, size, "%s%s" "%c" ".pki" "%c" "nssdb",
-		nss_method, homedir, sep, sep);
-    }
-    else{
-    	pmsprintf(path, size, "%s%s", nss_method, nss_dir);
-
-    }
-    return path + strlen(nss_method);
-}
-
-static char *
-dbphrase(PK11SlotInfo *slot, PRBool retry, void *arg)
-{
-    (void)arg;
-    if (retry)
-	return NULL;
-    assert(PK11_IsInternal(slot));
-    return strdup(SECURE_USERDB_DEFAULT_KEY);
-}
-
-int
-__pmInitCertificates(void)
-{
-    char nssdb[MAXPATHLEN];
-    char *nssdb_path;
-    const PRUint16 *cipher;
-    PK11SlotInfo *slot;
-    SECStatus secsts;
-    static int initialized;
-
-    /* Only attempt this once. */
-    if (initialized)
-	return 0;
-    initialized = 1;
-
-    PK11_SetPasswordFunc(dbphrase);
-
-    /*
-     * Check for client certificate databases.  We enforce use
-     * of the per-user shared NSS database at $HOME/.pki/nssdb
-     * For simplicity, we create this directory if we need to.
-     * If we cannot, we silently bail out so that users who're
-     * not using secure connections (initially everyone) don't
-     * have to diagnose / put up with spurious errors.
-     *
-     * for system services like pmlogger nssdb will be sql:/etc/pcp/nssdb
-     * the pmlogger process does *not* have write permissions for this directory
-     * let's check for rx access first before trying to create this directory
-     */
-    nssdb_path = dbpath(nssdb, sizeof(nssdb), "sql:");
-    if (access(nssdb_path, R_OK|X_OK) != 0 && __pmMakePath(nssdb_path, 0700) < 0)
-	return 0;
-    secsts = NSS_Init(nssdb);
-
-    if (secsts != SECSuccess) {
-	/* fallback, older versions of NSS do not support sql: */
-	dbpath(nssdb, sizeof(nssdb), "");
-	secsts = NSS_Init(nssdb);
-    }
-
-    if (secsts != SECSuccess)
-	return __pmSecureSocketsError(PR_GetError());
-
-    if ((slot = PK11_GetInternalKeySlot()) != NULL) {
-	if (PK11_NeedUserInit(slot))
-	    PK11_InitPin(slot, NULL, SECURE_USERDB_DEFAULT_KEY);
-	else if (PK11_NeedLogin(slot))
-	    PK11_Authenticate(slot, PR_FALSE, NULL);
-	PK11_FreeSlot(slot);
-    }
-
-    /* Some NSS versions don't do this correctly in NSS_SetDomesticPolicy. */
-    for (cipher = SSL_GetImplementedCiphers(); *cipher != 0; ++cipher)
-	SSL_CipherPolicySet(*cipher, SSL_ALLOWED);
-    SSL_ClearSessionCache();
-
-    return 0;
-}
-
-int
-__pmShutdownCertificates(void)
-{
-    if (NSS_Shutdown() != SECSuccess)
-	return __pmSecureSocketsError(PR_GetError());
-    return 0;
-}
-
-static void
-saveUserCertificate(CERTCertificate *cert)
-{
-    SECStatus secsts;
-    PK11SlotInfo *slot = PK11_GetInternalKeySlot();
-    CERTCertTrust *trust = NULL;
-
-    secsts = PK11_ImportCert(slot, cert, CK_INVALID_HANDLE,
-				cert->subjectName, PR_FALSE);
-    if (secsts != SECSuccess)
-	goto done;
-
-    secsts = SECFailure;
-    trust = (CERTCertTrust *)PORT_ZAlloc(sizeof(CERTCertTrust));
-    if (!trust)
-	goto done;
-
-    secsts = CERT_DecodeTrustString(trust, "P,P,P");
-    if (secsts != SECSuccess)
-	goto done;
-
-    secsts = CERT_ChangeCertTrust(CERT_GetDefaultCertDB(), cert, trust);
-
-done:
-    if (slot)
-	PK11_FreeSlot(slot);
-    if (trust)
-	PORT_Free(trust);
-
-    /*
-     * Issue a warning only, but continue, if we fail to save certificate
-     * (this is not a fatal condition on setting up the secure socket).
-     */
-    if (secsts != SECSuccess) {
-	char	errmsg[PM_MAXERRMSGLEN];
-	pmprintf("WARNING: Failed to save certificate locally: %s\n",
-		pmErrStr_r(__pmSecureSocketsError(PR_GetError()),
-			errmsg, sizeof(errmsg)));
-	pmflush();
-    }
-}
-
-static int
-rejectUserCertificate(const char *message)
-{
-    pmprintf("%s? (no)\n", message);
-    pmflush();
-    return 0;
-}
-
-#ifdef HAVE_SYS_TERMIOS_H
-static int
-queryCertificateOK(const char *message)
-{
-    int c, fd, sts = 0, count = 0;
-
-    fd = fileno(stdin);
-    /* if we cannot interact, simply assume the answer to be "no". */
-    if (!isatty(fd))
-	return rejectUserCertificate(message);
-
-    do {
-	struct termios saved, raw;
-
-	pmprintf("%s (y/n)? ", message);
-	pmflush();
-
-	/* save terminal state and temporarily enter raw terminal mode */
-	if (tcgetattr(fd, &saved) < 0)
-	    return 0;
-	cfmakeraw(&raw);
-	if (tcsetattr(fd, TCSAFLUSH, &raw) < 0)
-	    return 0;
-
-	c = getchar();
-	if (c == 'y' || c == 'Y')
-	    sts = 1;	/* yes */
-	else if (c == 'n' || c == 'N')
-	    sts = 0;	/* no */
-	else
-	    sts = -1;	/* dunno, try again (3x) */
-	tcsetattr(fd, TCSAFLUSH, &saved);
-	pmprintf("\n");
-    } while (sts == -1 && ++count < 3);
-    pmflush();
-
-    return sts;
-}
-#else
-static int
-queryCertificateOK(const char *message)
-{
-    /* no way implemented to interact to query the user, so decline */
-    return rejectUserCertificate(message);
-}
-#endif
-
-static void
-reportFingerprint(SECItem *item)
-{
-    unsigned char fingerprint[SHA1_LENGTH] = { 0 };
-    SECItem fitem;
-    char *fstring;
-
-    PK11_HashBuf(SEC_OID_SHA1, fingerprint, item->data, item->len);
-    fitem.data = fingerprint;
-    fitem.len = SHA1_LENGTH;
-    fstring = CERT_Hexify(&fitem, 1);
-    pmprintf("SHA1 fingerprint is %s\n", fstring);
-    PORT_Free(fstring);
-}
-
-static SECStatus
-queryCertificateAuthority(PRFileDesc *sslsocket)
-{
-    int sts;
-    int secsts = SECFailure;
-    char *result;
-    CERTCertificate *servercert;
-    int AllowSelfSignedCerts;
-
-    AllowSelfSignedCerts = (getenv("PCP_ALLOW_SERVER_SELF_CERT") != NULL );
-
-    result = SSL_RevealURL(sslsocket);
-    pmprintf("WARNING: "
-	     "issuer of certificate received from host %s is not trusted.\n",
-	     result);
-    PORT_Free(result);
-
-    servercert = SSL_PeerCertificate(sslsocket);
-    if (servercert) {
-	reportFingerprint(&servercert->derCert);
-	sts = AllowSelfSignedCerts || queryCertificateOK("Do you want to accept and save this certificate locally anyway");
-	if (sts == 1) {
-	    saveUserCertificate(servercert);
-	    secsts = SECSuccess;
-	}
-	CERT_DestroyCertificate(servercert);
-    } else {
-	pmflush();
-    }
-    return secsts;
-}
-
-static SECStatus
-queryCertificateDomain(PRFileDesc *sslsocket)
-{
-    int sts;
-    char *result;
-    SECItem secitem = { 0 };
-    SECStatus secstatus = SECFailure;
-    PRArenaPool *arena = NULL;
-    CERTCertificate *servercert = NULL;
-    int AllowBadCertDomain;
-
-    AllowBadCertDomain = (getenv("PCP_ALLOW_BAD_CERT_DOMAIN") != NULL );
-
-    /*
-     * Propagate a warning through to the client.  Show the expected
-     * host, then list the DNS names from the server certificate.
-     */
-    result = SSL_RevealURL(sslsocket);
-    pmprintf("WARNING: "
-"The domain name %s does not match the DNS name(s) on the server certificate:\n",
-		result);
-    PORT_Free(result);
-
-    servercert = SSL_PeerCertificate(sslsocket);
-    secstatus = CERT_FindCertExtension(servercert,
-				SEC_OID_X509_SUBJECT_ALT_NAME, &secitem);
-    if (secstatus != SECSuccess || !secitem.data) {
-	pmprintf("Unable to find alt name extension on the server certificate\n");
-    } else if ((arena = PORT_NewArena(DER_DEFAULT_CHUNKSIZE)) == NULL) {
-	pmprintf("Out of memory while generating name list\n");
-	SECITEM_FreeItem(&secitem, PR_FALSE);
-    } else {
-	CERTGeneralName *namelist, *n;
-
-	namelist = n = CERT_DecodeAltNameExtension(arena, &secitem);
-	SECITEM_FreeItem(&secitem, PR_FALSE);
-	if (!namelist) {
-	    pmprintf("Unable to decode alt name extension on server certificate\n");
-	} else {
-	    do {
-		if (n->type == certDNSName)
-		    pmprintf("  %.*s\n", (int)n->name.other.len, n->name.other.data);
-		n = CERT_GetNextGeneralName(n);
-	    } while (n != namelist);
-	}
-    }
-    if (arena)
-	PORT_FreeArena(arena, PR_FALSE);
-    if (servercert)
-	CERT_DestroyCertificate(servercert);
-
-    sts = AllowBadCertDomain || queryCertificateOK("Do you want to accept this certificate anyway");
-    return (sts == 1) ? SECSuccess : SECFailure;
-}
-
-static SECStatus
-getClientCert(void *arg, PRFileDesc *ssl_fd, CERTDistNames *ca_names, CERTCertificate **out_return_cert, SECKEYPrivateKey **out_return_key)
-{
-    SECStatus ret = NSS_GetClientAuthData(0, ssl_fd, ca_names, out_return_cert, out_return_key);
-    return ret;
-}
-
-static SECStatus
-badCertificate(void *arg, PRFileDesc *sslsocket)
-{
-    (void)arg;
-    switch (PR_GetError()) {
-    case SSL_ERROR_BAD_CERT_DOMAIN:
-	return queryCertificateDomain(sslsocket);
-    case SEC_ERROR_UNKNOWN_ISSUER:
-	return queryCertificateAuthority(sslsocket);
-    default:
-	break;
-    }
-    return SECFailure;
-}
-
 static int
 __pmAuthLogCB(void *context, int priority, const char *message)
 {
     if (pmDebugOptions.auth)
-	fprintf(stderr, "%s:__pmAuthLogCB enter ctx=%p pri=%d\n", __FILE__, context, priority);
+	fprintf(stderr, "%s:%s enter ctx=%p pri=%d\n",
+			__FILE__, "__pmAuthLogCB", context, priority);
 
     if (!message)
 	return SASL_BADPARAM;
@@ -698,7 +342,8 @@ __pmAuthRealmCB(void *context, int id, const char **realms, const char **result)
     const char *value = NULL;
 
     if (pmDebugOptions.auth)
-	fprintf(stderr, "%s:__pmAuthRealmCB enter ctx=%p id=%#x\n", __FILE__, context, id);
+	fprintf(stderr, "%s:%s enter ctx=%p id=%#x\n",
+			__FILE__, "__pmAuthRealmCB", context, id);
 
     if (id != SASL_CB_GETREALM)
 	return SASL_FAIL;
@@ -707,7 +352,8 @@ __pmAuthRealmCB(void *context, int id, const char **realms, const char **result)
     *result = value;
 
     if (pmDebugOptions.auth) {
-	fprintf(stderr, "%s:__pmAuthRealmCB ctx=%p, id=%#x, realms=(", __FILE__, context, id);
+	fprintf(stderr, "%s:%s ctx=%p, id=%#x, realms=(",
+			__FILE__, "__pmAuthRealmCB" ,context, id);
 	if (realms) {
 	    if (*realms)
 		fprintf(stderr, "%s", *realms);
@@ -727,7 +373,8 @@ __pmAuthSimpleCB(void *context, int id, const char **result, unsigned *len)
     int sts;
 
     if (pmDebugOptions.auth)
-	fprintf(stderr, "%s:__pmAuthSimpleCB enter ctx=%p id=%#x\n", __FILE__, context, id);
+	fprintf(stderr, "%s:%s enter ctx=%p id=%#x\n",
+			__FILE__, "__pmAuthSimpleCB", context, id);
 
     if (!result)
 	return SASL_BADPARAM;
@@ -750,8 +397,9 @@ __pmAuthSimpleCB(void *context, int id, const char **result, unsigned *len)
     *result = value;
 
     if (pmDebugOptions.auth)
-	fprintf(stderr, "%s:__pmAuthSimpleCB ctx=%p id=%#x -> sts=%d rslt=%p len=%d\n",
-		__FILE__, context, id, sts, *result, len ? *len : -1);
+	fprintf(stderr, "%s:%s ctx=%p id=%#x -> sts=%d rslt=%p len=%d\n",
+		__FILE__, "__pmAuthSimpleCB",
+		context, id, sts, *result, len ? *len : -1);
     return sts;
 }
 
@@ -763,7 +411,8 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
     const char *password;
 
     if (pmDebugOptions.auth)
-	fprintf(stderr, "%s:__pmAuthSecretCB enter ctx=%p id=%#x\n", __FILE__, context, id);
+	fprintf(stderr, "%s:%s enter ctx=%p id=%#x\n",
+			__FILE__, "__pmAuthSecretCB", context, id);
 
     if (saslconn == NULL || secret == NULL || id != SASL_CB_PASS)
 	return SASL_BADPARAM;
@@ -782,7 +431,8 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
     }
 
     if (pmDebugOptions.auth)
-	fprintf(stderr, "%s:__pmAuthSecretCB done ctx=%p id=%#x\n", __FILE__, context, id);
+	fprintf(stderr, "%s:%s done ctx=%p id=%#x\n",
+			__FILE__, "__pmAuthSecretCB", context, id);
 
     return SASL_OK;
 }
@@ -794,7 +444,8 @@ __pmAuthPromptCB(void *context, int id, const char *challenge, const char *promp
     char *value, message[512];
 
     if (pmDebugOptions.auth)
-	fprintf(stderr, "%s:__pmAuthPromptCB enter ctx=%p id=%#x\n", __FILE__, context, id);
+	fprintf(stderr, "%s:%s enter ctx=%p id=%#x\n",
+			__FILE__, "__pmAuthPromptCB", context, id);
 
     if (id != SASL_CB_ECHOPROMPT && id != SASL_CB_NOECHOPROMPT)
 	return SASL_BADPARAM;
@@ -831,96 +482,323 @@ __pmAuthPromptCB(void *context, int id, const char *challenge, const char *promp
     return SASL_OK;
 }
 
-static int
-__pmSecureClientInit(int flags)
+typedef struct __pmSecureContext {
+    SSL_CTX		*ctx;
+    __pmSecureConfig	cfg;
+} __pmSecureContext;
+static __pmSecureContext tls;	/* protected by secureclient_lock */
+
+typedef struct {
+    const char	*token;
+    char	**value;
+} config_parser;
+
+int
+__pmGetSecureConfig(__pmSecureConfig *config)
 {
-    int sts;
+    const char	*path = pmGetOptionalConfig("PCP_TLSCONF_PATH");
+    config_parser keywords[] = {
+	{ "tls-cert-file",	&config->certfile },
+	{ "tls-key-file",	&config->keyfile },
+	{ "tls-ciphers",	&config->ciphers },
+	{ "tls-ciphersuites",	&config->ciphersuites },
+	{ "tls-ca-cert-file",	&config->cacertfile },
+	{ "tls-ca-cert-dir",	&config->cacertdir },
+	{ "tls-client-cert-file", &config->clientcertfile },
+	{ "tls-client-key-file", &config->clientkeyfile },
+	{ "tls-verify-clients",	&config->clientverify },
+    };
+    size_t	i, n;
+    char	*p, *s, *end;
+    char	line[BUFSIZ];
+    FILE	*file;
 
-    /* Ensure correct security lib initialisation order */
-    __pmInitSecureSockets();
+    if ((path == NULL) || (file = fopen(path, "r")) == NULL)
+	return -ENOENT;
 
-    /*
-     * If secure sockets functionality available, iterate over the set of
-     * known locations for certificate databases and attempt to initialise
-     * one of them for our use.
-     */
-    sts = 0;
-    if ((flags & PDU_FLAG_NO_NSS_INIT) == 0) {
-	sts = __pmInitCertificates();
-	if (sts < 0)
-	    pmNotifyErr(LOG_WARNING, "__pmConnectPMCD: "
-			  "certificate database exists, but failed initialization");
+    while ((p = fgets(line, sizeof(line), file)) != NULL) {
+	end = NULL;
+	for (s = p; *p; p++) {
+	    if (isalpha(*p))
+		continue;
+	    if (s == p && isspace(*p)) {
+		s++;		/* skip any preceding whitespace */
+		continue;
+	    }
+	    if (*p == '#')	/* skip full comment lines */
+		break;
+	    if (*p == '\n')	/* skip empty lines */
+		break;
+	    if (*p == ':' || *p == '=') {
+		*p = '\0';
+		if (end == NULL)
+		    end = p;	/* end of keyword */
+		p++;
+		break;
+	    }
+	    if (isspace(*p)) {
+		if (end == NULL)
+		    end = p;	/* end of keyword */
+		*p = '\0';	/* trim trailing token whitespace */
+	    }
+	}
+	if (end) {
+	    /* token is from s -> end and already null terminated */
+	    n = end - s;
+	    for (i = 0; i < sizeof(keywords)/sizeof(keywords[0]); i++) {
+		if (strncmp(s, keywords[i].token, n) != 0)
+		    continue;
+		/* cleanup value: remove leading & trailing space */
+		while (*p) {
+		    if (!isspace(*p))
+			break;
+		    p++;
+		}
+		s = p;	/* start value */
+		if (*p == '#')
+		    *p++ = '\0';
+		else if (*p != '\0')
+		    p++;
+		n = strlen(p);
+		end = s + n;
+		for (; p <= end; p++) {
+		    if (*p == '#' || isspace(*p)) {
+			*p = '\0';
+			break;
+		    }
+		}
+		if (p <= end && *s != '\0') {	/* non-empty */
+		    *(keywords[i].value) = strdup(s);
+		    if (pmDebugOptions.tls)
+			fprintf(stderr, "%s: %s = %s\n", "__pmGetSecureConfig",
+					keywords[i].token, s);
+		}
+		break;
+	    }
+	}
     }
-    return sts;
+    fclose(file);
+    return 0;
+}
+
+void
+__pmSecureConfigInit(void)
+{
+    static int setup;
+
+    PM_INIT_LOCKS();
+    PM_LOCK(secureclient_lock);
+    if (setup == 1) {
+	PM_UNLOCK(secureclient_lock);
+	return;
+    }
+
+    setup = 1;
+    SSL_library_init();
+    SSL_load_error_strings();
+    PM_UNLOCK(secureclient_lock);
+}
+
+void
+__pmInitSecureClients(void)
+{
+    /* all secure socket connections must use at least TLSv1.2 */
+    int	flags = SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 |
+		SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1;
+    int verify = SSL_VERIFY_NONE;
+
+    if (pmDebugOptions.tls)
+	fprintf(stderr, "%s: entered\n", "__pmInitSecureClients");
+
+    __pmSecureConfigInit();
+
+    PM_LOCK(secureclient_lock);
+    if (tls.ctx != NULL) {
+	PM_UNLOCK(secureclient_lock);
+	return;
+    }
+
+    /* load optional /etc/pcp/tls.conf configuration file contents */
+    __pmGetSecureConfig(&tls.cfg);
+
+    tls.ctx = SSL_CTX_new(TLS_client_method());
+    if (tls.ctx == NULL) {
+	pmNotifyErr(LOG_ERR, "Cannot create initial secure client context");
+	if (pmDebugOptions.tls)
+	    ERR_print_errors_fp(stderr);
+	goto fail;
+    }
+
+    SSL_CTX_set_options(tls.ctx, flags);
+    if (tls.cfg.clientverify && (
+	strcmp(tls.cfg.clientverify, "yes") == 0 ||
+	strcmp(tls.cfg.clientverify, "true") == 0))
+	verify |= SSL_VERIFY_PEER;
+    SSL_CTX_set_verify(tls.ctx, verify, NULL);
+
+    if (tls.cfg.cacertfile || tls.cfg.cacertdir) {
+	if (!SSL_CTX_load_verify_locations(tls.ctx,
+			tls.cfg.cacertfile, tls.cfg.cacertdir)) {
+	    pmNotifyErr(LOG_ERR, "Cannot load the CA Certificate list from %s",
+			tls.cfg.cacertfile ? tls.cfg.cacertfile :
+			tls.cfg.cacertdir);
+	    if (pmDebugOptions.tls)
+		ERR_print_errors_fp(stderr);
+	    goto fail;
+	}
+    } else {
+	if (!SSL_CTX_set_default_verify_paths(tls.ctx)) {
+	    pmNotifyErr(LOG_ERR, "Cannot set default CA paths");
+	    if (pmDebugOptions.tls)
+		ERR_print_errors_fp(stderr);
+	    goto fail;
+	}
+    }
+
+    if (tls.cfg.clientcertfile &&
+	!SSL_CTX_use_certificate_chain_file(tls.ctx, tls.cfg.clientcertfile)) {
+	pmNotifyErr(LOG_ERR, "Cannot load client certificate chain from %s",
+		    tls.cfg.clientcertfile);
+	if (pmDebugOptions.tls)
+	    ERR_print_errors_fp(stderr);
+	goto fail;
+    }
+    else if (tls.cfg.certfile &&
+	!SSL_CTX_use_certificate_chain_file(tls.ctx, tls.cfg.certfile)) {
+	pmNotifyErr(LOG_ERR, "Cannot load certificate chain from %s",
+		    tls.cfg.certfile);
+	if (pmDebugOptions.tls)
+	    ERR_print_errors_fp(stderr);
+	goto fail;
+    }
+
+    if (tls.cfg.clientcertfile && tls.cfg.clientkeyfile &&
+	!SSL_CTX_use_PrivateKey_file(tls.ctx,
+			    tls.cfg.clientkeyfile, SSL_FILETYPE_PEM)) {
+	pmNotifyErr(LOG_ERR, "Cannot load client private key from %s",
+		    tls.cfg.clientkeyfile);
+	if (pmDebugOptions.tls)
+	    ERR_print_errors_fp(stderr);
+	goto fail;
+    }
+    else if (tls.cfg.certfile && tls.cfg.keyfile &&
+	!SSL_CTX_use_PrivateKey_file(tls.ctx,
+			    tls.cfg.keyfile, SSL_FILETYPE_PEM)) {
+	pmNotifyErr(LOG_ERR, "Cannot load private key from %s",
+		    tls.cfg.keyfile);
+	if (pmDebugOptions.tls)
+	    ERR_print_errors_fp(stderr);
+	goto fail;
+    }
+
+    /* optional list of ciphers (TLSv1.2 and earlier) */
+    if (tls.cfg.ciphers &&
+	!SSL_CTX_set_cipher_list(tls.ctx, tls.cfg.ciphers)) {
+	pmNotifyErr(LOG_ERR, "Cannot set the cipher list from %s",
+		    tls.cfg.ciphers);
+	if (pmDebugOptions.tls)
+	    ERR_print_errors_fp(stderr);
+        goto fail;
+    }
+
+    /* optional suites of ciphers (TLSv1.3 and later) */
+    if (tls.cfg.ciphersuites &&
+	!SSL_CTX_set_ciphersuites(tls.ctx, tls.cfg.ciphersuites)) {
+	pmNotifyErr(LOG_ERR, "Cannot set the cipher suites from %s",
+		    tls.cfg.ciphersuites);
+	if (pmDebugOptions.tls)
+	    ERR_print_errors_fp(stderr);
+	goto fail;
+    }
+
+    if (pmDebugOptions.tls)
+	fprintf(stderr, "%s: complete\n", "__pmInitSecureClients");
+
+    /* success */
+    PM_UNLOCK(secureclient_lock);
+    return;
+
+fail:
+    SSL_CTX_free(tls.ctx);
+    tls.ctx = NULL;
+    PM_UNLOCK(secureclient_lock);
+}
+
+void
+__pmFreeSecureConfig(__pmSecureConfig *config)
+{
+    free(config->certfile);
+    free(config->keyfile);
+    free(config->ciphers);
+    free(config->ciphersuites);
+    free(config->cacertfile);
+    free(config->cacertdir);
+    free(config->clientcertfile);
+    free(config->clientkeyfile);
+    free(config->clientverify);
+    memset(config, 0, sizeof(*config));
+}
+
+int
+__pmShutdownSecureSockets(void)
+{
+    PM_LOCK(secureclient_lock);
+    if (tls.ctx)
+	SSL_CTX_free(tls.ctx);
+    __pmFreeSecureConfig(&tls.cfg);
+    PM_UNLOCK(secureclient_lock);
+    return 0;
 }
 
 static int
-__pmSecureClientIPCFlags(int fd, int flags, const char *hostname, __pmHashCtl *attrs)
+__pmSecureClientIPCFlags(int fd, int flags, const char *host, __pmHashCtl *attrs)
 {
-    __pmSecureSocket lsocket;
-    sasl_callback_t *cb;
-    SECStatus secsts;
-    int sts;
+    __pmSecureSocket	ss;
+    sasl_callback_t	*cb;
+    char		hostname[MAXHOSTNAMELEN];
+    int			sts;
 
-    if (__pmDataIPC(fd, &lsocket) < 0)
+    if (pmDebugOptions.tls)
+	fprintf(stderr, "%s: entered\n", "__pmSecureClientIPCFlags");
+
+    if (__pmDataIPC(fd, &ss) < 0)
 	return -EOPNOTSUPP;
 
-    if ((flags & PDU_FLAG_SECURE) != 0) {
-	sts = __pmSecureClientInit(flags);
-	if (sts < 0)
-	    return sts;
-	sts = __pmSetupSecureSocket(fd, &lsocket);
-	if (sts < 0)
-	    return __pmSecureSocketsError(PR_GetError());
-	if ((lsocket.sslFd = SSL_ImportFD(NULL, lsocket.nsprFd)) == NULL) {
-	    pmNotifyErr(LOG_ERR, "SecureClientIPCFlags: importing socket into SSL");
-	    return PM_ERR_IPC;
-	}
-	lsocket.nsprFd = lsocket.sslFd;
-
-	secsts = SSL_OptionSet(lsocket.sslFd, SSL_SECURITY, PR_TRUE);
-	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError(PR_GetError());
-	secsts = SSL_OptionSet(lsocket.sslFd, SSL_HANDSHAKE_AS_CLIENT, PR_TRUE);
-	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError(PR_GetError());
-	secsts = SSL_SetURL(lsocket.sslFd, hostname);
-	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError(PR_GetError());
-	secsts = SSL_BadCertHook(lsocket.sslFd,
-				(SSLBadCertHandler)badCertificate, NULL);
-	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError(PR_GetError());
-	secsts = SSL_GetClientAuthDataHook(lsocket.sslFd,
-				(SSLGetClientAuthData)getClientCert, NULL);
-	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError(PR_GetError());
+    if ((flags & (PDU_FLAG_SECURE|PDU_FLAG_AUTH)) != 0) {
+	if (!host || host[0] == '/' || strncmp(host, "local", 5) == 0)
+	    gethostname(hostname, sizeof(hostname)-1);
+	else
+	    strncpy(hostname, host, sizeof(hostname)-1);
+	hostname[MAXHOSTNAMELEN-1] = '\0';
     }
 
-    if ((flags & PDU_FLAG_COMPRESS) != 0) {
-	/*
-	 * The current implementation of compression requires an SSL/TLS
-	 * connection.
-	 */
-	if (lsocket.sslFd == NULL)
-	    return -EOPNOTSUPP;
-#ifdef SSL_ENABLE_DEFLATE
-	secsts = SSL_OptionSet(lsocket.sslFd, SSL_ENABLE_DEFLATE, PR_TRUE);
-	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError(PR_GetError());
-#else
-	/*
-	 * On some older platforms (e.g. CentOS 5.5) SSL_ENABLE_DEFLATE
-	 * is not defined ...
-	 */
-	return -EOPNOTSUPP;
-#endif /*SSL_ENABLE_DEFLATE*/
+    if ((flags & PDU_FLAG_SECURE) != 0) {
+	__pmInitSecureClients();
+	if (tls.ctx == NULL)
+	    return PM_ERR_NOTCONN;
+	if ((ss.ssl = SSL_new(tls.ctx)) == NULL)
+	    return PM_ERR_NOTCONN;
+	if (!SSL_set_tlsext_host_name(ss.ssl, hostname)) {
+	    pmNotifyErr(LOG_ERR, "%s: setting TLS hostname: %s\n",
+			"__pmSecureClientIPCFlags", hostname);
+	    SSL_free(ss.ssl);
+	}
+	SSL_set_mode(ss.ssl, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
+	SSL_set_fd(ss.ssl, fd);
+	SSL_set_connect_state(ss.ssl);	/* client */
+
+	if (pmDebugOptions.tls)
+	    fprintf(stderr, "%s: switching fd=%d to TLS mode\n",
+			    "__pmSecureClientIPCFlags", fd);
+
+	/* save changes back into the IPC table (updates ssl) */
+	__pmSetDataIPC(fd, (void *)&ss);
     }
 
     if ((flags & PDU_FLAG_AUTH) != 0) {
 	__pmInitAuthClients();
-	lsocket.saslCB = calloc(LIMIT_CLIENT_CALLBACKS, sizeof(sasl_callback_t));
-	if ((cb = lsocket.saslCB) == NULL)
+	ss.saslCB = calloc(LIMIT_CLIENT_CALLBACKS, sizeof(sasl_callback_t));
+	if ((cb = ss.saslCB) == NULL)
 	    return -ENOMEM;
 	cb->id = SASL_CB_USER;
 	cb->proc = (sasl_callback_func)&__pmAuthSimpleCB;
@@ -949,49 +827,88 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *hostname, __pmHashCtl *a
 	cb++;
 	cb->id = SASL_CB_LIST_END;
 	cb++;
-	assert(cb - lsocket.saslCB <= LIMIT_CLIENT_CALLBACKS);
+	assert(cb - ss.saslCB <= LIMIT_CLIENT_CALLBACKS);
 
 	sts = sasl_client_new(SECURE_SERVER_SASL_SERVICE,
 				hostname,
 				NULL, NULL, /*iplocal,ipremote*/
-				lsocket.saslCB,
-				0, &lsocket.saslConn);
+				ss.saslCB,
+				0, &ss.saslConn);
 	if (sts != SASL_OK && sts != SASL_CONTINUE)
 	    return __pmSecureSocketsError(sts);
+
+	/* save changes back into the IPC table (updates saslConn) */
+	__pmSetDataIPC(fd, (void *)&ss);
     }
 
-    /* save changes back into the IPC table (updates client sslFd) */
-    return __pmSetDataIPC(fd, (void *)&lsocket);
+    return 0;
 }
 
-static int
+int
+__pmSecureServerNegotiation(int fd, int *strength)
+{
+    __pmSecureSocket ss;
+    int found = 0;
+    int sts, err;
+
+    if (pmDebugOptions.tls)
+	fprintf(stderr, "%s: entered\n", "__pmSecureServerNegotiation");
+
+    if (__pmDataIPC(fd, &ss) < 0)
+	return -EOPNOTSUPP;
+
+    ERR_clear_error();	/* clear/reset for a new handshake */
+
+    if ((sts = SSL_accept(ss.ssl)) <= 0) {
+	/* handshake failed, return an appropriate error */
+	switch ((err = SSL_get_error(ss.ssl, sts))) {
+	case SSL_ERROR_ZERO_RETURN:
+	    return -ENOTCONN;
+	case SSL_ERROR_NONE:
+	default:
+	    break;
+	}
+	return PM_ERR_TLS;
+    }
+
+    found = SSL_get_cipher_bits(ss.ssl, strength);
+    if (found == 0)
+	*strength = DEFAULT_SECURITY_STRENGTH;
+
+    return 0;
+}
+
+int
 __pmSecureClientNegotiation(int fd, int *strength)
 {
-    PRIntervalTime timer;
-    PRFileDesc *sslsocket;
-    SECStatus secsts;
-    int enabled, keysize;
-    int msec;
+    __pmSecureSocket ss;
+    int found = 0;
+    int sts, err;
 
-    sslsocket = (PRFileDesc *)__pmGetSecureSocket(fd);
-    if (!sslsocket)
-	return -EINVAL;
+    if (pmDebugOptions.tls)
+	fprintf(stderr, "%s: entered\n", "__pmSecureClientNegotiation");
 
-    secsts = SSL_ResetHandshake(sslsocket, PR_FALSE /*client*/);
-    if (secsts != SECSuccess)
-	return __pmSecureSocketsError(PR_GetError());
+    if (__pmDataIPC(fd, &ss) < 0)
+	return -EOPNOTSUPP;
 
-    msec = __pmConvertTimeout(TIMEOUT_DEFAULT);
-    timer = PR_MillisecondsToInterval(msec);
-    secsts = SSL_ForceHandshakeWithTimeout(sslsocket, timer);
-    if (secsts != SECSuccess)
-	return __pmSecureSocketsError(PR_GetError());
+    ERR_clear_error();	/* clear/reset for a new handshake */
 
-    secsts = SSL_SecurityStatus(sslsocket, &enabled, NULL, &keysize, NULL, NULL, NULL);
-    if (secsts != SECSuccess)
-	return __pmSecureSocketsError(PR_GetError());
+    if ((sts = SSL_connect(ss.ssl)) <= 0) {
+	/* handshake failed, return an appropriate error */
+	switch ((err = SSL_get_error(ss.ssl, sts))) {
+	case SSL_ERROR_ZERO_RETURN:
+	    return -ENOTCONN;
+	case SSL_ERROR_NONE:
+	default:
+	    break;
+	}
+	return PM_ERR_TLS;
+    }
 
-    *strength = (enabled > 0) ? keysize : DEFAULT_SECURITY_STRENGTH;
+    found = SSL_get_cipher_bits(ss.ssl, strength);
+    if (found == 0)
+	*strength = DEFAULT_SECURITY_STRENGTH;
+
     return 0;
 }
 
@@ -1011,15 +928,6 @@ static sasl_callback_t common_callbacks[] = { \
 	{ .id = SASL_CB_LIST_END }};
 
 int
-__pmInitAuthClients(void)
-{
-    __pmInitAuthPaths();
-    if (sasl_client_init(common_callbacks) != SASL_OK)
-	return -EINVAL;
-    return 0;
-}
-
-int
 __pmInitAuthServer(void)
 {
     __pmInitAuthPaths();
@@ -1027,6 +935,15 @@ __pmInitAuthServer(void)
 	pmNotifyErr(LOG_ERR, "Failed to start authenticating server");
 	return -EINVAL;
     }
+    return 0;
+}
+
+int
+__pmInitAuthClients(void)
+{
+    __pmInitAuthPaths();
+    if (sasl_client_init(common_callbacks) != SASL_OK)
+	return -EINVAL;
     return 0;
 }
 
@@ -1057,19 +974,19 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
     int pinned, length, method_length;
     char *payload, buffer[LIMIT_AUTH_PDU];
     const char *method = NULL;
-    sasl_conn_t *saslconn;
+    __pmSecureSocket ss;
     __pmHashNode *node;
     __pmPDU *pb;
 
     if (pmDebugOptions.auth)
-	fprintf(stderr, "%s:__pmAuthClientNegotiation(fd=%d, ssf=%d, host=%s)\n",
-		__FILE__, fd, ssf, hostname);
+	fprintf(stderr, "%s:%s(fd=%d, ssf=%d, host=%s)\n",
+		__FILE__, "__pmAuthClientNegotiation", fd, ssf, hostname);
 
-    if ((saslconn = (sasl_conn_t *)__pmGetUserAuthData(fd)) == NULL)
-	return -EINVAL;
+    if (__pmDataIPC(fd, &ss) < 0)
+	return -EOPNOTSUPP;
 
     /* setup all the security properties for this connection */
-    if ((sts = __pmAuthClientSetProperties(saslconn, ssf)) < 0)
+    if ((sts = __pmAuthClientSetProperties(ss.saslConn, ssf)) < 0)
 	return sts;
 
     /* lookup users preferred connection method, if specified */
@@ -1077,8 +994,9 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	method = (const char *)node->data;
 
     if (pmDebugOptions.auth)
-	fprintf(stderr, "%s:__pmAuthClientNegotiation requesting \"%s\" method\n",
-		__FILE__, method ? method : "default");
+	fprintf(stderr, "%s:%s requesting \"%s\" method\n",
+		__FILE__, "__pmAuthClientNegotiation",
+		method ? method : "default");
 
     /* get security mechanism list */ 
     sts = pinned = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
@@ -1089,8 +1007,8 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	    buffer[length] = '\0';
 
 	    if (pmDebugOptions.auth)
-		fprintf(stderr, "%s:__pmAuthClientNegotiation got methods: "
-				"\"%s\" (%d)\n", __FILE__, buffer, length);
+		fprintf(stderr, "%s:%s got methods: \"%s\" (%d)\n",
+			__FILE__, "__pmAuthClientNegotiation", buffer, length);
 	    /*
 	     * buffer now contains the list of server mechanisms -
 	     * override using users preference (if any) and proceed.
@@ -1102,7 +1020,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	    }
 
 	    payload = NULL;
-	    saslsts = sasl_client_start(saslconn, buffer, NULL,
+	    saslsts = sasl_client_start(ss.saslConn, buffer, NULL,
 					     (const char **)&payload,
 					     (unsigned int *)&length, &method);
 	    if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {
@@ -1151,15 +1069,15 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	const char *data = NULL;
 
 	if (pmDebugOptions.auth)
-	    fprintf(stderr, "%s:__pmAuthClientNegotiation awaiting server reply\n", __FILE__);
+	    fprintf(stderr, "%s:%s awaiting server reply\n",
+			    __FILE__, "__pmAuthClientNegotiation");
 
 	sts = pinned = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
 	if (sts == PDU_AUTH) {
 	    sts = __pmDecodeAuth(pb, &zero, &payload, &length);
 	    if (sts >= 0) {
-		saslsts = sasl_client_step(saslconn, payload, length, NULL,
-						&data,
-						(unsigned int *)&length);
+		saslsts = sasl_client_step(ss.saslConn, payload, length, NULL,
+					    &data, (unsigned int *)&length);
 		if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {
 		    sts = __pmSecureSocketsError(saslsts);
 		    if (pmDebugOptions.auth)
@@ -1168,8 +1086,8 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 		    break;
 		}
 		if (pmDebugOptions.auth) {
-		    fprintf(stderr, "%s:__pmAuthClientNegotiation"
-				    " step send (%d bytes)\n", __FILE__, length);
+		    fprintf(stderr, "%s:%s step send (%d bytes)\n",
+			    __FILE__, "__pmAuthClientNegotiation", length);
 		}
 	    }
 	}
@@ -1188,11 +1106,14 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 
     if (pmDebugOptions.auth) {
 	if (sts < 0)
-	    fprintf(stderr, "%s:__pmAuthClientNegotiation loop failed\n", __FILE__);
+	    fprintf(stderr, "%s:%s loop failed\n",
+			    __FILE__, "__pmAuthClientNegotiation");
 	else {
-	    saslsts = sasl_getprop(saslconn, SASL_USERNAME, (const void **)&payload);
-	    fprintf(stderr, "%s:__pmAuthClientNegotiation success, username=%s\n",
-			    __FILE__, saslsts != SASL_OK ? "?" : payload);
+	    saslsts = sasl_getprop(ss.saslConn, SASL_USERNAME,
+				    (const void **)&payload);
+	    fprintf(stderr, "%s:%s success, username=%s\n",
+			    __FILE__, "__pmAuthClientNegotiation",
+			    saslsts != SASL_OK ? "?" : payload);
 	}
     }
 
@@ -1203,6 +1124,13 @@ int
 __pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *attrs)
 {
     int sts, ssf = DEFAULT_SECURITY_STRENGTH;
+
+    if (pmDebugOptions.tls)
+	fprintf(stderr, "%s: entered\n", "__pmSecureClientHandshake");
+
+    /* deprecated, insecure */
+    if ((flags & PDU_FLAG_COMPRESS))
+	return -EOPNOTSUPP;
 
     /*
      * If the server uses the secure-ack protocol, then expect an error
@@ -1246,27 +1174,18 @@ __pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *
 }
 
 void *
-__pmGetSecureSocket(int fd)
-{
-    __pmSecureSocket lsocket;
-
-    if (__pmDataIPC(fd, &lsocket) < 0)
-	return NULL;
-    return (void *)lsocket.sslFd;
-}
-
-void *
 __pmGetUserAuthData(int fd)
 {
-    __pmSecureSocket lsocket;
+    __pmSecureSocket socket;
 
-    if (__pmDataIPC(fd, &lsocket) < 0)
+    if (__pmDataIPC(fd, &socket) < 0)
 	return NULL;
-    return (void *)lsocket.saslConn;
+    return (void *)socket.saslConn;
 }
 
 static void
-sendSecureAck(int fd, int flags, int sts) {
+sendSecureAck(int fd, int flags, int sts)
+{
     /*
      * At this point we've attempted some required initialization for secure
      * sockets. If the client wants a secure-ack then send an error pdu
@@ -1274,102 +1193,64 @@ sendSecureAck(int fd, int flags, int sts) {
      * proceed with the secure handshake.
      */
     if (flags & PDU_FLAG_SECURE_ACK)
-	__pmSendError (fd, FROM_ANON, sts);
+	__pmSendError(fd, FROM_ANON, sts);
 }
 
 int
-__pmSecureServerIPCFlags(int fd, int flags)
+__pmSecureServerIPCFlags(int fd, int flags, void *ctx)
 {
-    __pmSecureSocket lsocket;
-    SECStatus secsts;
-    PRBool RequestClientCert;
+    __pmSecureSocket ss;
+    SSL_CTX *context = (SSL_CTX *)ctx;
     char hostname[MAXHOSTNAMELEN];
     int saslsts;
+    int verify;
     int sts;
 
-    if (__pmDataIPC(fd, &lsocket) < 0)
+    if (pmDebugOptions.tls)
+	fprintf(stderr, "%s: entered\n", "__pmSecureServerIPCFlags");
+
+    if ((flags & PDU_FLAG_COMPRESS) != 0)
+	return -EOPNOTSUPP;
+
+    if ((flags & (PDU_FLAG_SECURE|PDU_FLAG_AUTH)) != 0) {
+	gethostname(hostname, sizeof(hostname)-1);
+	hostname[MAXHOSTNAMELEN-1] = '\0';
+    }
+
+    if (__pmDataIPC(fd, &ss) < 0)
 	return -EOPNOTSUPP;
 
     if ((flags & PDU_FLAG_SECURE) != 0) {
-	sts = __pmSecureServerInit();
-	if (sts < 0) {
+	if ((ss.ssl = SSL_new(context)) == NULL) {
+	    sts = PM_ERR_NOTCONN;
 	    sendSecureAck(fd, flags, sts);
 	    return sts;
 	}
-	sts = __pmSetupSecureSocket(fd, &lsocket);
-	if (sts < 0) {
-	    sts = __pmSecureSocketsError(PR_GetError());
-	    sendSecureAck(fd, flags, sts);
-	    return sts;
-	}
-	if ((lsocket.sslFd = SSL_ImportFD(NULL, lsocket.nsprFd)) == NULL) {
-	    sts = __pmSecureSocketsError(PR_GetError());
-	    sendSecureAck(fd, flags, sts);
-	    return sts;
-	}
-	lsocket.nsprFd = lsocket.sslFd;
-
-	secsts = SSL_OptionSet(lsocket.sslFd, SSL_NO_LOCKS, PR_TRUE);
-	if (secsts != SECSuccess) {
-	    sts = __pmSecureSocketsError(PR_GetError());
-	    sendSecureAck(fd, flags, sts);
-	    return sts;
-	}
-	secsts = SSL_OptionSet(lsocket.sslFd, SSL_SECURITY, PR_TRUE);
-	if (secsts != SECSuccess) {
-	    sts = __pmSecureSocketsError(PR_GetError());
-	    sendSecureAck(fd, flags, sts);
-	    return sts;
-	}
-	secsts = SSL_OptionSet(lsocket.sslFd, SSL_HANDSHAKE_AS_SERVER, PR_TRUE);
-	if (secsts != SECSuccess) {
-	    sts = __pmSecureSocketsError(PR_GetError());
-	    sendSecureAck(fd, flags, sts);
-	    return sts;
-	}
+	SSL_set_mode(ss.ssl, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
+	SSL_set_tlsext_host_name(ss.ssl, hostname);
+	SSL_set_fd(ss.ssl, fd);
+	SSL_set_accept_state(ss.ssl);	/* server */
 
 	/*
- 	 * If called from pmcd, the server may have the feature set by a command line option.
- 	 *
- 	 * If called from pmproxy, "flags" is set if required by an upstream pmcd. Need 
- 	 * to forward this through to the client.
+ 	 * If called from pmcd, the server may have the feature set by
+	 * a command line option.  If called from pmproxy, "flags" is
+	 * set if required by an upstream pmcd.  Needs to be forwarded
+	 * through to the client.
  	 */
+	verify = SSL_VERIFY_PEER;
+	if ((__pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD)) ||
+	    (flags & PDU_FLAG_CERT_REQD))
+	    verify |= SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
+	SSL_set_verify(ss.ssl, verify, NULL);
 
-	RequestClientCert = ( __pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD) || (flags & PDU_FLAG_CERT_REQD) );
+	sendSecureAck(fd, flags, 0);
 
-	secsts = SSL_OptionSet(lsocket.sslFd, SSL_REQUEST_CERTIFICATE, RequestClientCert);
-	if (secsts != SECSuccess) {
-	    sts = __pmSecureSocketsError(PR_GetError());
-	    sendSecureAck(fd, flags, sts);
-	    return sts;
-	}
-	secsts = SSL_OptionSet(lsocket.sslFd, SSL_REQUIRE_CERTIFICATE, RequestClientCert);
-	if (secsts != SECSuccess) {
-	    sts = __pmSecureSocketsError(PR_GetError());
-	    sendSecureAck(fd, flags, sts);
-	    return sts;
-	}
-	sendSecureAck(fd, flags, sts);
-    }
+	if (pmDebugOptions.tls)
+	    fprintf(stderr, "%s: switching server fd=%d to TLS mode\n",
+			    "__pmSecureServerIPCFlags", fd);
 
-    if ((flags & PDU_FLAG_COMPRESS) != 0) {
-	/*
-	 * The current implementation of compression requires an SSL/TLS
-	 * connection.
-	 */
-	if (lsocket.sslFd == NULL)
-	    return -EOPNOTSUPP;
-#ifdef SSL_ENABLE_DEFLATE
-	secsts = SSL_OptionSet(lsocket.sslFd, SSL_ENABLE_DEFLATE, PR_TRUE);
-	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError(PR_GetError());
-#else
-	/*
-	 * On some older platforms (e.g. CentOS 5.5) SSL_ENABLE_DEFLATE
-	 * is not defined ...
-	 */
-	return -EOPNOTSUPP;
-#endif /*SSL_ENABLE_DEFLATE*/
+	/* save ssl changes back into the IPC table */
+	__pmSetDataIPC(fd, (void *)&ss);
     }
 
     if ((flags & PDU_FLAG_AUTH) != 0) {
@@ -1377,182 +1258,51 @@ __pmSecureServerIPCFlags(int fd, int flags)
 	if (sts < 0)
 	    return sts;
 
-	sts = gethostname(hostname, sizeof(hostname)-1);
-	if (sts != 0)
-	    return -oserror();
-	hostname[MAXHOSTNAMELEN-1] = '\0';
-
 	/**
-	 * SASL stores username@hostname in the SASL DB (see sasldblistusers2(8))
+	 * SASL stores username@hostname in a SASL DB (see sasldblistusers2(8))
 	 * saslpasswd2(8) uses gethostname() to determine the hostname
-	 * sasl_server_new() uses get_fqhostname() to determine a FQDN if the hostname parameter is NULL
+	 * sasl_server_new() uses get_fqhostname() to determine a FQDN
+	 * if the hostname parameter is NULL
 	 *
-	 * therefore, if the hostname doesn't match the FQDN of the system running pmcd, the authentication is broken
-	 * as a workaround, let's use gethostname() as parameter to sasl_server_new
+	 * Therefore, if the hostname doesn't match the FQDN of the system
+	 * running pmcd, the authentication is broken.  As a workaround,
+	 * use gethostname() as parameter to sasl_server_new
 	 */
 	saslsts = sasl_server_new(SECURE_SERVER_SASL_SERVICE,
 				hostname, NULL, /*serverFQDN,user_realm*/
 				NULL, NULL, NULL, /*iplocal,ipremote,callbacks*/
-				0, &lsocket.saslConn);
+				0, &ss.saslConn);
 	if (pmDebugOptions.auth)
-	    fprintf(stderr, "%s:__pmSecureServerIPCFlags SASL server: %d\n", __FILE__, saslsts);
+	    fprintf(stderr, "%s:%s SASL server: %d\n",
+			    __FILE__, "__pmSecureServerIPCFlags", saslsts);
 	if (saslsts != SASL_OK && saslsts != SASL_CONTINUE)
 	    return __pmSecureSocketsError(saslsts);
+
+	/* save saslConn changes back into the IPC table */
+	return __pmSetDataIPC(fd, (void *)&ss);
     }
 
-    /* save changes back into the IPC table */
-    return __pmSetDataIPC(fd, (void *)&lsocket);
-}
-
-static int
-sockOptValue(const void *option_value, __pmSockLen option_len)
-{
-    switch(option_len) {
-    case sizeof(int):
-        return *(int *)option_value;
-    default:
-        pmNotifyErr(LOG_ERR, "sockOptValue: invalid option length: %d\n", option_len);
-	break;
-    }
     return 0;
-}
-
-int
-__pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
-	       __pmSockLen option_len)
-{
-    /* Map the request to the NSPR equivalent, if possible. */
-    PRSocketOptionData option_data;
-    __pmSecureSocket lsocket;
-
-    if (__pmDataIPC(fd, &lsocket) == 0 && lsocket.nsprFd) {
-	switch(level) {
-	case SOL_SOCKET:
-	    switch(option_name) {
-		/*
-		 * These options are not related. They are just both options for which
-		 * NSPR has no direct mapping.
-		 */
-#ifdef IS_MINGW
-	    case SO_EXCLUSIVEADDRUSE: /* Only exists on MINGW */
-	    {
-		/*
-		 * There is no direct mapping of this option in NSPR.
-		 * The best we can do is to use the native handle and
-		 * call setsockopt on that handle.
-		 */
-	        fd = PR_FileDesc2NativeHandle(lsocket.nsprFd);
-		return setsockopt(fd, level, option_name, option_value, option_len);
-	    }
-#endif /* IS_MINGW */
-	    case SO_KEEPALIVE:
-	        option_data.option = PR_SockOpt_Keepalive;
-		option_data.value.keep_alive = sockOptValue(option_value, option_len);
-		break;
-	    case SO_LINGER: {
-	        struct linger *linger = (struct linger *)option_value;
-		option_data.option = PR_SockOpt_Linger;
-		option_data.value.linger.polarity = linger->l_onoff;
-		option_data.value.linger.linger = linger->l_linger;
-		break;
-	    }
-	    case SO_REUSEADDR:
-	        option_data.option = PR_SockOpt_Reuseaddr;
-		option_data.value.reuse_addr = sockOptValue(option_value, option_len);
-		break;
-	    default:
-	        pmNotifyErr(LOG_ERR, "%s:__pmSetSockOpt: unimplemented option_name for SOL_SOCKET: %d\n",
-			      __FILE__, option_name);
-		return -1;
-	    }
-	    break;
-	case IPPROTO_TCP:
-	    if (option_name == TCP_NODELAY) {
-	        option_data.option = PR_SockOpt_NoDelay;
-		option_data.value.no_delay = sockOptValue(option_value, option_len);
-		break;
-	    }
-	    pmNotifyErr(LOG_ERR, "%s:__pmSetSockOpt: unimplemented option_name for IPPROTO_TCP: %d\n",
-			  __FILE__, option_name);
-	    return -1;
-	case IPPROTO_IPV6:
-	    if (option_name == IPV6_V6ONLY) {
-		/*
-		 * There is no direct mapping of this option in NSPR.
-		 * The best we can do is to use the native handle and
-		 * call setsockopt on that handle.
-		 */
-	        fd = PR_FileDesc2NativeHandle(lsocket.nsprFd);
-		return setsockopt(fd, level, option_name, option_value, option_len);
-	    }
-	    pmNotifyErr(LOG_ERR, "%s:__pmSetSockOpt: unimplemented option_name for IPPROTO_IPV6: %d\n",
-			  __FILE__, option_name);
-	    return -1;
-	default:
-	    pmNotifyErr(LOG_ERR, "%s:__pmSetSockOpt: unimplemented level: %d\n", __FILE__, level);
-	    return -1;
-	}
-
-	return (PR_SetSocketOption(lsocket.nsprFd, &option_data)
-		== PR_SUCCESS) ? 0 : -1;
-    }
-
-    /* We have a native socket. */
-    return setsockopt(fd, level, option_name, option_value, option_len);
-}
-
-int
-__pmGetSockOpt(int fd, int level, int option_name, void *option_value,
-	       __pmSockLen *option_len)
-{
-    __pmSecureSocket lsocket;
-
-    /* Map the request to the NSPR equivalent, if possible. */
-    if (__pmDataIPC(fd, &lsocket) == 0 && lsocket.nsprFd) {
-	switch (level) {
-	case SOL_SOCKET:
-	    switch(option_name) {
-
-#if defined(HAVE_STRUCT_UCRED)
-	    case SO_PEERCRED:
-#endif
-	    case SO_ERROR: {
-		/*
-		 * There is no direct mapping of this option in NSPR.
-		 * Best we can do is call getsockopt on the native fd.
-		 */
-	      fd = PR_FileDesc2NativeHandle(lsocket.nsprFd);
-	      return getsockopt(fd, level, option_name, option_value, option_len);
-	  }
-	  default:
-	      pmNotifyErr(LOG_ERR,
-			"%s:__pmGetSockOpt: unimplemented option_name for SOL_SOCKET: %d\n",
-			__FILE__, option_name);
-	      return -1;
-	  }
-	  break;
-
-	default:
-	    pmNotifyErr(LOG_ERR, "%s:__pmGetSockOpt: unimplemented level: %d\n", __FILE__, level);
-	    break;
-	}
-	return -1;
-    }
-
-    /* We have a native socket. */
-    return getsockopt(fd, level, option_name, option_value, option_len);
 }
 
 ssize_t
 __pmWrite(int fd, const void *buffer, size_t length)
 {
-    __pmSecureSocket lsocket;
+    __pmSecureSocket ss;
+    int sts, bytes;
 
-    if (__pmDataIPC(fd, &lsocket) == 0 && lsocket.nsprFd) {
-	ssize_t	size = PR_Write(lsocket.nsprFd, buffer, length);
-	if (size < 0)
-	    __pmSecureSocketsError(PR_GetError());
-	return size;
+    if (__pmDataIPC(fd, &ss) == 0 && ss.ssl) {
+	do {
+	    bytes = SSL_write(ss.ssl, buffer, length);
+	    sts = SSL_get_error(ss.ssl, bytes);
+	    if (sts == SSL_ERROR_WANT_READ || sts == SSL_ERROR_WANT_WRITE)
+		continue;
+	    if (sts == SSL_ERROR_ZERO_RETURN)
+		return 0;
+	    if (sts == SSL_ERROR_NONE)
+		return bytes;
+	    return PM_ERR_TLS;
+	} while (1);
     }
     return write(fd, buffer, length);
 }
@@ -1560,16 +1310,24 @@ __pmWrite(int fd, const void *buffer, size_t length)
 ssize_t
 __pmRead(int fd, void *buffer, size_t length)
 {
-    __pmSecureSocket lsocket;
+    __pmSecureSocket ss;
+    int sts, bytes;
 
     if (fd < 0)
 	return -EBADF;
 
-    if (__pmDataIPC(fd, &lsocket) == 0 && lsocket.nsprFd) {
-	ssize_t size = PR_Read(lsocket.nsprFd, buffer, length);
-	if (size < 0)
-	    __pmSecureSocketsError(PR_GetError());
-	return size;
+    if (__pmDataIPC(fd, &ss) == 0 && ss.ssl) {
+	do {
+	    bytes = SSL_read(ss.ssl, buffer, length);
+	    sts = SSL_get_error(ss.ssl, bytes);
+	    if (sts == SSL_ERROR_WANT_READ || sts == SSL_ERROR_WANT_WRITE)
+		continue;
+	    if (sts == SSL_ERROR_ZERO_RETURN)
+		return 0;
+	    if (sts == SSL_ERROR_NONE)
+		return bytes;
+	    return PM_ERR_TLS;
+	} while (1);
     }
     return read(fd, buffer, length);
 }
@@ -1577,16 +1335,24 @@ __pmRead(int fd, void *buffer, size_t length)
 ssize_t
 __pmSend(int fd, const void *buffer, size_t length, int flags)
 {
-    __pmSecureSocket lsocket;
+    __pmSecureSocket ss;
+    int	sts, bytes;
 
     if (fd < 0)
 	return -EBADF;
 
-    if (__pmDataIPC(fd, &lsocket) == 0 && lsocket.nsprFd) {
-	ssize_t size = PR_Write(lsocket.nsprFd, buffer, length);
-	if (size < 0)
-	    __pmSecureSocketsError(PR_GetError());
-	return size;
+    if (__pmDataIPC(fd, &ss) == 0 && ss.ssl) {
+	do {
+	    bytes = SSL_write(ss.ssl, buffer, length);
+	    sts = SSL_get_error(ss.ssl, bytes);
+	    if (sts == SSL_ERROR_WANT_READ || sts == SSL_ERROR_WANT_WRITE)
+		continue;
+	    if (sts == SSL_ERROR_ZERO_RETURN)
+		return 0;
+	    if (sts == SSL_ERROR_NONE)
+		return bytes;
+	    return PM_ERR_TLS;
+	} while (1);
     }
     return send(fd, buffer, length, flags);
 }
@@ -1594,31 +1360,43 @@ __pmSend(int fd, const void *buffer, size_t length, int flags)
 ssize_t
 __pmRecv(int fd, void *buffer, size_t length, int flags)
 {
-    __pmSecureSocket	lsocket;
-    ssize_t		size;
+    __pmSecureSocket	ss;
+    ssize_t		bytes;
+    int			debug;
+    int			sts;
 
     if (fd < 0)
 	return -EBADF;
 
-    if (__pmDataIPC(fd, &lsocket) == 0 && lsocket.nsprFd) {
-	if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
+    debug = pmDebugOptions.tls ||
+	    (pmDebugOptions.pdu && pmDebugOptions.desperate);
+
+    if (__pmDataIPC(fd, &ss) == 0 && ss.ssl) {
+	if (debug)
 	    fprintf(stderr, "%s:__pmRecv[secure](", __FILE__);
-	}
-	size = PR_Read(lsocket.nsprFd, buffer, length);
-	if (size < 0)
-	    __pmSecureSocketsError(PR_GetError());
+	do {
+	    bytes = SSL_read(ss.ssl, buffer, length);
+	    sts = SSL_get_error(ss.ssl, bytes);
+	    if (sts == SSL_ERROR_WANT_READ || sts == SSL_ERROR_WANT_WRITE)
+		continue;
+	    if (debug)
+		fprintf(stderr, "%d, ..., %d, 0x%x) -> %d\n",
+			fd, (int)length, flags, (int)bytes);
+	    if (sts == SSL_ERROR_ZERO_RETURN)
+		return 0;
+	    if (sts == SSL_ERROR_NONE)
+		return bytes;
+	    return PM_ERR_TLS;
+	} while (1);
     }
-    else {
-	if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
-	    fprintf(stderr, "%s:__pmRecv(", __FILE__);
-	}
-	size = recv(fd, buffer, length, flags);
-    }
-    if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
+
+    if (debug)
+	fprintf(stderr, "%s:__pmRecv(", __FILE__);
+    bytes = recv(fd, buffer, length, flags);
+    if (debug)
 	fprintf(stderr, "%d, ..., %d, 0x%x) -> %d\n",
-	    fd, (int)length, flags, (int)size);
-    }
-    return size;
+		fd, (int)length, flags, (int)bytes);
+    return bytes;
 }
 
 /*
@@ -1627,22 +1405,18 @@ __pmRecv(int fd, void *buffer, size_t length, int flags)
  * buffering may have already consumed data that we are now expecting
  * (in this case, its buffered internally and a socket read will give
  * up that data).
- *
- * PR_Poll does not seem to play well here and so we need to use the
- * native select-based mechanism to block and/or query the state of
- * pending data.
  */
 int
 __pmSocketReady(int fd, struct timeval *timeout)
 {
-    __pmSecureSocket lsocket;
+    __pmSecureSocket ss;
     __pmFdSet onefd;
 
     if (fd < 0)
 	return -EBADF;
 
-    if (__pmDataIPC(fd, &lsocket) == 0 && lsocket.sslFd)
-        if (SSL_DataPending(lsocket.sslFd))
+    if (__pmDataIPC(fd, &ss) == 0 && ss.ssl)
+	if (SSL_pending(ss.ssl) > 0)
 	    return 1;	/* proceed without blocking */
 
     FD_ZERO(&onefd);

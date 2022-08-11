@@ -1265,6 +1265,11 @@ network.mptcp {
     mpfastcloserx	60:53:197
     mprsttx		60:53:198
     mprstrx		60:53:199
+    infinitemaptx	60:53:200
+    sndwndshared	60:53:201
+    rcvwndshared	60:53:202
+    rcvwndconflictupdate 60:53:203
+    rcvwndconflict	60:53:204
 }
 
 network.udp {

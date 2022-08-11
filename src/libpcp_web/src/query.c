@@ -50,7 +50,7 @@ typedef struct seriesGetLookup {
 } seriesGetLookup;
 
 typedef struct seriesGetQuery {
-    node_t		root;
+    node_t		*root;
     timing_t		timing;
 } seriesGetQuery;
 
@@ -89,7 +89,7 @@ static void
 initSeriesGetQuery(seriesQueryBaton *baton, node_t *root, timing_t *timing)
 {
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "initSeriesGetQuery");
-    baton->u.query.root = *root;
+    baton->u.query.root = root;
     baton->u.query.timing = *timing;
 }
 
@@ -106,18 +106,21 @@ skip_free_value_set(node_t *np)
 }
 
 static void
-freeSeriesQueryNode(node_t *np, int level)
+freeSeriesQueryNode(node_t *np)
 {
     int		n_samples;
+
     if (np == NULL)
 	return;
+
     if (skip_free_value_set(np) != 0) {
 	int i, j, k;
+
 	for (i = 0; i < np->value_set.num_series; i++) {
 	    n_samples = np->value_set.series_values[i].num_samples;
 	    if (n_samples < 0) n_samples = -n_samples;
 	    for (j = 0; j < n_samples; j++) {
-		for (k=0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
+		for (k = 0; k < np->value_set.series_values[i].series_sample[j].num_instances; k++) {
 		    sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].timestamp);
 		    sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].series);
 		    sdsfree(np->value_set.series_values[i].series_sample[j].series_instance[k].data);
@@ -136,10 +139,11 @@ freeSeriesQueryNode(node_t *np, int level)
 	}
 	free(np->value_set.series_values);
     }
-    freeSeriesQueryNode(np->left, level+1);
-    freeSeriesQueryNode(np->right, level+1);
-    if (level != 0)
-        free(np);
+    freeSeriesQueryNode(np->right);
+    freeSeriesQueryNode(np->left);
+    sdsfree(np->value);
+    sdsfree(np->key);
+    free(np);
 }
 
 static void
@@ -147,9 +151,7 @@ freeSeriesGetQuery(seriesQueryBaton *baton)
 {
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "freeSeriesGetQuery");
     seriesBatonCheckCount(baton, "freeSeriesGetQuery");
-    if (baton->error == 0) {
-    	freeSeriesQueryNode(&baton->u.query.root, 0);
-    }
+    freeSeriesQueryNode(baton->u.query.root);
     memset(baton, 0, sizeof(seriesQueryBaton));
     free(baton);
 }
@@ -1273,6 +1275,7 @@ series_hmset_function_expr(seriesQueryBaton *baton, sds key, sds expr)
     cmd = redis_param_sds(cmd, key);
     cmd = redis_param_str(cmd, "query", sizeof("query")-1);
     cmd = redis_param_sds(cmd, expr);
+    sdsfree(expr);
     sdsfree(key);
 
     redisSlotsRequest(baton->slots, cmd, series_hmset_function_expr_callback, baton);
@@ -1736,11 +1739,11 @@ series_query_report_matches(void *arg)
 
     seriesBatonReference(baton, "series_query_report_matches");
 
-    has_function = series_calculate(baton, &baton->u.query.root, 0);
+    has_function = series_calculate(baton, baton->u.query.root, 0);
     
     if (has_function != 0)
 	series_redis_hash_expression(baton, hashbuf, sizeof(hashbuf));
-    series_report_set(baton, &baton->u.query.root);
+    series_report_set(baton, baton->u.query.root);
     series_query_end_phase(baton);
 }
 
@@ -1753,7 +1756,7 @@ series_query_maps(void *arg)
     seriesBatonCheckCount(baton, "series_query_maps");
 
     seriesBatonReference(baton, "series_query_maps");
-    series_prepare_maps(baton, &baton->u.query.root, 0);
+    series_prepare_maps(baton, baton->u.query.root, 0);
     series_query_end_phase(baton);
 }
 
@@ -1766,7 +1769,7 @@ series_query_eval(void *arg)
     seriesBatonCheckCount(baton, "series_query_eval");
 
     seriesBatonReference(baton, "series_query_eval");
-    series_prepare_eval(baton, &baton->u.query.root, 0);
+    series_prepare_eval(baton, baton->u.query.root, 0);
     series_query_end_phase(baton);
 }
 
@@ -1779,7 +1782,7 @@ series_query_expr(void *arg)
     seriesBatonCheckCount(baton, "series_query_expr");
 
     seriesBatonReference(baton, "series_query_expr");
-    series_prepare_expr(baton, &baton->u.query.root, 0);
+    series_prepare_expr(baton, baton->u.query.root, 0);
     series_query_end_phase(baton);
 }
 
@@ -4861,7 +4864,7 @@ series_redis_hash_expression(seriesQueryBaton *baton, char *hashbuf, int len_has
     unsigned char	hash[20];
     sds			key, msg;
     char		*errmsg;
-    node_t		*np = &baton->u.query.root;
+    node_t		*np = baton->u.query.root;
     int			i, j, num_series = np->value_set.num_series;
     pmUnits		units0, units1, large_units;
     double		mult;
@@ -4964,7 +4967,7 @@ series_query_report_values(void *arg)
     seriesBatonCheckCount(baton, "series_query_report_values");
 
     seriesBatonReference(baton, "series_query_report_values");
-    series_prepare_time(baton, &baton->u.query.root.result);
+    series_prepare_time(baton, &baton->u.query.root->result);
     series_query_end_phase(baton);
 }
 
@@ -4981,7 +4984,7 @@ series_query_funcs_report_values(void *arg)
     seriesBatonReference(baton, "series_query_funcs_report_values");
 
     /* For function-type nodes, calculate actual values */
-    has_function = series_calculate(baton, &baton->u.query.root, 0);
+    has_function = series_calculate(baton, baton->u.query.root, 0);
 
     /*
      * Store the canonical query to Redis if this query statement has
@@ -4991,7 +4994,7 @@ series_query_funcs_report_values(void *arg)
 	series_redis_hash_expression(baton, hashbuf, sizeof(hashbuf));
 
     /* time series values saved in root node so report them directly. */
-    series_node_values_report(baton, &baton->u.query.root);
+    series_node_values_report(baton, baton->u.query.root);
     
     series_query_end_phase(baton);
 }
@@ -5006,7 +5009,7 @@ series_query_funcs(void *arg)
 
     seriesBatonReference(baton, "series_query_funcs");
     /* Process function-type node */
-    series_process_func(baton, &baton->u.query.root, 0);
+    series_process_func(baton, baton->u.query.root, 0);
     series_query_end_phase(baton);
 }
 
@@ -5019,7 +5022,7 @@ series_query_desc(void *arg)
     seriesBatonCheckCount(baton, "series_query_desc");
 
     seriesBatonReference(baton, "series_query_desc");
-    series_expr_node_desc(baton, &baton->u.query.root);
+    series_expr_node_desc(baton, baton->u.query.root);
     series_query_end_phase(baton);
 }
 
@@ -6307,27 +6310,39 @@ parseseries(seriesQueryBaton *baton, sds series, unsigned char *result)
 }
 
 static void
-initSeriesGetValues(seriesQueryBaton *baton, int nseries, sds *series,
+initSeriesGetValues(seriesQueryBaton *baton, int nseries, sds *inseries,
 		pmSeriesTimeWindow *window)
 {
-    struct series_set	*result = &baton->u.query.root.result;
-    struct timing	*timing = &baton->u.query.timing;
+    struct node		*node = NULL;
+    struct timing	*timing = NULL;
+    unsigned char	*series = NULL;
+    struct series_set	*result;
     struct timeval	offset;
     int			i;
 
-    /* validate and convert 40-byte (ASCII) SIDs to internal 20-byte form */
-    result->nseries = nseries;
-    if ((result->series = calloc(nseries, 20)) == NULL) {
+    /* allocate a local parse node, timing and result SIDs */
+    if (!(node = (node_t *)calloc(1, sizeof(node_t))))
 	baton->error = -ENOMEM;
-    } else {
-	for (i = 0; i < nseries; i++)
-	    parseseries(baton, series[i], result->series + (i * 20));
-    }
+    else if (!(timing = (timing_t *)calloc(1, sizeof(timing_t))))
+	baton->error = -ENOMEM;
+    else if (!(series = calloc(nseries, 20)))	/* 20 byte SIDs */
+	baton->error = -ENOMEM;
     if (baton->error) {
-	if (result->series)
-	    free(result->series);
+	if (series) free(series);
+	if (timing) free(timing);
+	if (node) free(node);
 	return;
     }
+
+    /* track this memory in the baton for async free later */
+    result = &node->result;
+    result->series = series;
+    result->nseries = nseries;
+    baton->u.query.root = node;
+
+    /* validate and convert 40-byte (ASCII) SIDs to internal 20-byte form */
+    for (i = 0; i < nseries; i++)
+	parseseries(baton, inseries[i], result->series + (i * 20));
 
     /* validate and convert time window specification to internal struct */
     timing->window = *window;
@@ -6356,6 +6371,8 @@ initSeriesGetValues(seriesQueryBaton *baton, int nseries, sds *series,
     /* if no time window parameters passed, default to latest value */
     if (!series_time_window(timing))
 	timing->count = 1;
+
+    baton->u.query.timing = *timing;	// TODO
 }
 
 int

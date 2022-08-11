@@ -4622,6 +4622,31 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_NETSTAT,199), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
+/* network.mptcp.infinitemaptx */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_INFINITEMAPTX],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,200), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.sndwndshared */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_SNDWNDSHARED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,201), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.rcvwndshared */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_RCVWNDSHARED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,202), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.rcvwndconflictupdate */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_RCVWNDCONFLICTUPDATE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,203), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.rcvwndconflict */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_RCVWNDCONFLICT],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,204), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 /* hinv.map.scsi */
     { NULL, 
       { PMDA_PMID(CLUSTER_SCSI,0), PM_TYPE_STRING, SCSI_INDOM, PM_SEM_DISCRETE, 

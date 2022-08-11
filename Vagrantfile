@@ -46,6 +46,14 @@ pcp_hosts = {
                 :qa => "-g sanity -g pmda.linux -x flakey",
                 :distro_name => "f30"
         },
+        :ubuntu2204 => {
+                :hostname => "ubuntu2204",
+                :ipaddress => "10.100.10.26",
+                :box => "performancecopilot/ubuntu2204",
+                :script => "ubuntu.sh",
+                :qa => "-g sanity -g pmda.linux -x flakey",
+                :distro_name => "jammy"
+        },
         :ubuntu1804 => {
                 :hostname => "ubuntu1804",
                 :ipaddress => "10.100.10.24",

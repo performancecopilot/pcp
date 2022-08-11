@@ -41,6 +41,7 @@ ifneq ($(PACKAGE_DISTRIBUTION),debian)
 endif
 	$(INSTALL) -m 644 pmcd.defaults $(PCP_SYSCONFIG_DIR)/pmcd
 	$(INSTALL) -m 644 sasl2.conf $(PCP_SASLCONF_DIR)/pmcd.conf
+	$(INSTALL) -m 644 tls.conf $(PCP_SYSCONF_DIR)/tls.conf
 
 include $(BUILDRULES)
 

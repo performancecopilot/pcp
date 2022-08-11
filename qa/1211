@@ -221,7 +221,7 @@ pmseries $options -Z UTC 'kernel.all.pswitch[delta: "1sec"]'
 echo
 
 echo "Values fetch with a two-second interval ..."
-pmseries $options -Z UTC 'kernel.all.pswitch[delta: "1sec"]'
+pmseries $options -Z UTC 'kernel.all.pswitch[delta: "2sec"]'
 echo
 
 echo "Values fetch for a multi-valued query ..."

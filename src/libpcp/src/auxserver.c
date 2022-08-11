@@ -938,51 +938,53 @@ static unsigned int server_features;
 
 #if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
 /*
- * return true if lock == secureserver_lock ... false because we're
- * not building secureserver.c
+ * return true if lock == secureserver_lock || secureclient_lock
+ * ... false because we're not building secure sockets
  */
-int
-__pmIsSecureserverLock(void *lock)
-{
-    return 0;
-}
+int __pmIsSecureclientLock(void *lock) { return 0; }
+int __pmIsSecureserverLock(void *lock) { return 0; }
 #endif
 
-/* nothing to initialize because we're not building secureserver.c */
+/* nothing to initialize because we're not building secure sockets */
+void init_secureclient_lock(void) { }
+void init_secureserver_lock(void) { }
+
+void __pmSecureConfigInit(void) { }
+
+int
+__pmGetSecureConfig(__pmSecureConfig *config)
+{
+    (void)config;
+    return -EOPNOTSUPP;
+}
+
+void *
+__pmSecureServerInit(__pmSecureConfig *tls)
+{
+    (void)tls;
+    return NULL;
+}
+
 void
-init_secureserver_lock(void)
+__pmFreeSecureConfig(__pmSecureConfig *config)
 {
+    (void)config;
 }
 
 int
-__pmSecureServerSetup(const char *db, const char *passwd)
-{
-    (void)db;
-    (void)passwd;
-    return 0;
-}
-
-int
-__pmSecureServerCertificateSetup(const char *db, const char *passwd, const char *cert_nickname)
-{
-    (void)db;
-    (void)passwd;
-    (void)cert_nickname;
-    return 0;
-}
-
-int
-__pmSecureServerIPCFlags(int fd, int flags)
+__pmSecureServerIPCFlags(int fd, int flags, void *context)
 {
     (void)fd;
     (void)flags;
+    (void)context;
     return -EOPNOTSUPP;
 }
 
 void
-__pmSecureServerShutdown(void)
+__pmSecureServerShutdown(void *context, __pmSecureConfig *config)
 {
-    /* nothing to do here */
+    (void)context;
+    (void)config;
 }
 
 int

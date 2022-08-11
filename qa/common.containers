@@ -82,7 +82,7 @@ _remove_podman_containers()
 {
     for __container in "$@"
     do
-	eval $podman stop --time=2 $__container >/dev/null
+	eval $podman stop --time=2 $__container >/dev/null 2>&1
 	eval $podman rm --force $__container >/dev/null
     done
 }

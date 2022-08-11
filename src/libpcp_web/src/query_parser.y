@@ -51,18 +51,19 @@ static int yyerror(PARSER *, const char *);
 static int series_lex(YYSTYPE *, PARSER *);
 static int series_error(PARSER *, const char *);
 static void gramerr(PARSER *, const char *, const char *, char *);
+
 static node_t *newnode(int);
-static node_t *newmetric(char *);
-static node_t *newmetricquery(char *, node_t *);
+static node_t *newmetric(sds);
+static node_t *newmetricquery(sds, node_t *);
 static node_t *newtree(int, node_t *, node_t *);
-static void newaligntime(PARSER *, const char *);
-static void newstarttime(PARSER *, const char *);
-static void newinterval(PARSER *, const char *);
-static void newendtime(PARSER *, const char *);
-static void newrange(PARSER *, const char *);
-static void newtimezone(PARSER *, const char *);
-static void newsamples(PARSER *, const char *);
-static void newoffset(PARSER *, const char *);
+static void newaligntime(PARSER *, sds);
+static void newstarttime(PARSER *, sds);
+static void newinterval(PARSER *, sds);
+static void newendtime(PARSER *, sds);
+static void newrange(PARSER *, sds);
+static void newtimezone(PARSER *, sds);
+static void newsamples(PARSER *, sds);
+static void newoffset(PARSER *, sds);
 static char *n_type_str(int);
 static char *n_type_c(int);
 static char *l_type_str(int);
@@ -1415,7 +1416,7 @@ newtree(int type, node_t *left, node_t *right)
 }
 
 static node_t *
-newmetric(char *name)
+newmetric(sds name)
 {
     node_t	*node;
     char	*re;
@@ -1430,12 +1431,12 @@ newmetric(char *name)
     node->left = newnode(N_NAME);
     node->left->value = sdsnew("metric.name");
     node->right = newnode(N_STRING);
-    node->right->value = sdsnew(name);
+    node->right->value = name;
     return node;
 }
 
 static node_t *
-newmetricquery(char *name, node_t *query)
+newmetricquery(sds name, node_t *query)
 {
     node_t	*root = newnode(N_AND);
     node_t	*metric = newmetric(name);
@@ -1446,7 +1447,7 @@ newmetricquery(char *name, node_t *query)
 }
 
 static void
-newinterval(PARSER *lp, const char *string)
+newinterval(PARSER *lp, sds string)
 {
     timing_t	*tp = &lp->yy_series.time;
     char	*error;
@@ -1456,14 +1457,15 @@ newinterval(PARSER *lp, const char *string)
 	lp->yy_error = sts;
 	lp->yy_errstr = sdscatfmt(sdsempty(),
 		"Cannot parse time delta with pmParseInterval:\n%s", error);
+	sdsfree(string);
 	free(error);
     } else {
-	tp->window.delta = sdsnew(string);
+	tp->window.delta = string;
     }
 }
 
-static void
-parsetime(PARSER *lp, struct timeval *result, const char *string)
+static int
+parsetime(PARSER *lp, struct timeval *result, sds string)
 {
     struct timeval start = { 0, 0 };
     struct timeval end = { PM_MAX_TIME_T, 0 };
@@ -1474,32 +1476,33 @@ parsetime(PARSER *lp, struct timeval *result, const char *string)
 	lp->yy_error = sts;
 	lp->yy_errstr = sdscatfmt(sdsempty(),
 		"Cannot parse time with __pmParseTime:\n%s", error);
+	sdsfree(string);
 	free(error);
+	return sts;
     }
+    return 0;
 }
 
 static void
-newstarttime(PARSER *lp, const char *string)
+newstarttime(PARSER *lp, sds string)
 {
     timing_t	*tp = &lp->yy_series.time;
 
-    parsetime(lp, &tp->start, string);
-    if (!lp->yy_error)
-	tp->window.start = sdsnew(string);
+    if (parsetime(lp, &tp->start, string) == 0)
+	tp->window.start = string;
 }
 
 static void
-newendtime(PARSER *lp, const char *string)
+newendtime(PARSER *lp, sds string)
 {
     timing_t	*tp = &lp->yy_series.time;
 
-    parsetime(lp, &tp->end, string);
-    if (!lp->yy_error)
-	tp->window.end = sdsnew(string);
+    if (parsetime(lp, &tp->end, string) == 0)
+	tp->window.end = string;
 }
 
 static void
-newrange(PARSER *lp, const char *string)
+newrange(PARSER *lp, sds string)
 {
     timing_t	*tp = &lp->yy_series.time;
     char	*error;
@@ -1510,6 +1513,7 @@ newrange(PARSER *lp, const char *string)
 	lp->yy_errstr = sdscatfmt(sdsempty(),
 		"Cannot parse range with pmParseInterval:\n%s", error);
 	lp->yy_error = sts;
+	sdsfree(string);
 	free(error);
     } else {
 	struct timeval offset;
@@ -1517,22 +1521,21 @@ newrange(PARSER *lp, const char *string)
 	tsub(&offset, &tp->start);
 	tp->start = offset;
 	tp->end.tv_sec = PM_MAX_TIME_T;
-	tp->window.range = sdsnew(string);
+	tp->window.range = string;
     }
 }
 
 static void
-newaligntime(PARSER *lp, const char *string)
+newaligntime(PARSER *lp, sds string)
 {
     timing_t	*tp = &lp->yy_series.time;
 
-    parsetime(lp, &tp->align, string);
-    if (!lp->yy_error)
-	tp->window.align = sdsnew(string);
+    if (parsetime(lp, &tp->align, string) == 0)
+	tp->window.align = string;
 }
 
 static void
-newtimezone(PARSER *lp, const char *string)
+newtimezone(PARSER *lp, sds string)
 {
     timing_t	*tp = &lp->yy_series.time;
     char	e[PM_MAXERRMSGLEN];
@@ -1541,16 +1544,17 @@ newtimezone(PARSER *lp, const char *string)
     if ((sts = pmNewZone(string)) < 0) {
 	lp->yy_error = sts;
 	lp->yy_errstr = sdscatfmt(sdsempty(),
-		"Cannot parse timezone with pmNewZone:\n\"%s\" - %s",
+		"Cannot parse timezone with pmNewZone:\n\"%S\" - %s",
 		string, pmErrStr_r(sts, e, sizeof(e)));
+	sdsfree(string);
     } else {
 	tp->zone = sts;
-	tp->window.zone = sdsnew(string);
+	tp->window.zone = string;
     }
 }
 
 static void
-newsamples(PARSER *lp, const char *string)
+newsamples(PARSER *lp, sds string)
 {
     timing_t	*tp = &lp->yy_series.time;
     int		sts;
@@ -1558,15 +1562,16 @@ newsamples(PARSER *lp, const char *string)
     if ((sts = atoi(string)) < 0) {
 	lp->yy_error = -EINVAL;
 	lp->yy_errstr = sdscatfmt(sdsempty(),
-		"Invalid sample count requested - \"%s\"", string);
+		"Invalid sample count requested - \"%S\"", string);
+	sdsfree(string);
     } else {
 	tp->count = sts;
-	tp->window.count = sdsnew(string);
+	tp->window.count = string;
     }
 }
 
 static void
-newoffset(PARSER *lp, const char *string)
+newoffset(PARSER *lp, sds string)
 {
     timing_t	*tp = &lp->yy_series.time;
     int		sts;
@@ -1574,10 +1579,11 @@ newoffset(PARSER *lp, const char *string)
     if ((sts = atoi(string)) < 0) {
 	lp->yy_error = -EINVAL;
 	lp->yy_errstr = sdscatfmt(sdsempty(),
-		"Invalid sample offset requested - \"%s\"", string);
+		"Invalid sample offset requested - \"%S\"", string);
+	sdsfree(string);
     } else {
 	tp->offset = sts;
-	tp->window.offset = sdsnew(string);
+	tp->window.offset = string;
     }
 }
 
@@ -1593,6 +1599,8 @@ gramerr(PARSER *lp, const char *phrase, const char *pos, char *arg)
 	else
 	    pmsprintf(errmsg, sizeof(errmsg), "%s expected to %s %s", phrase, pos, arg);
 	lp->yy_errstr = sdsnew(errmsg);
+	if (lp->yy_error == 0)
+	    lp->yy_error = -EINVAL;
    }
 }
 
@@ -2160,21 +2168,19 @@ series_dumpexpr(node_t *np, int level)
 }
 
 int
-series_parse(sds query, series_t *sp, char **err, void *arg)
+series_parse(sds query, series_t *sp, sds *err, void *arg)
 {
     PARSER	yp = { .yy_base = query, .yy_input = (char *)query };
     series_t	*ypsp = &yp.yy_series;
     int		sts;
 
-    if ((sts = yyparse(&yp)) != 0) {
+    sts = yyparse(&yp);
+    if (yp.yy_tokbuf)
+	free(yp.yy_tokbuf);
+
+    if (sts != 0) {
 	*err = yp.yy_errstr;
 	return yp.yy_error;
-    }
-
-    if (ypsp->expr == NULL) {
-	if (pmDebugOptions.series || pmDebugOptions.query)
-	    fprintf(stderr, "Error: parsing query '%s'\n", query);
-	return PM_ERR_NYI;
     }
 
     if (pmDebugOptions.query) {
@@ -2191,20 +2197,14 @@ int
 pmSeriesQuery(pmSeriesSettings *settings, sds query, pmSeriesFlags flags, void *arg)
 {
     series_t	sp = {0};
-    char	*errstr;
+    sds		errstr;
     int		sts;
 
     series_stats_inc(settings, SERIES_QUERY_CALLS);
 
     if ((sts = series_parse(query, &sp, &errstr, arg)) != 0) {
 	moduleinfo(&settings->module, PMLOG_ERROR, errstr, arg);
-    	return sts;
-    }
-
-    if (sp.expr == NULL) {
-	if (pmDebugOptions.series || pmDebugOptions.query)
-	    fprintf(stderr, "Error: parsing query '%s'\n", query);
-	return PM_ERR_NYI;
+	return sts;
     }
 
     return series_solve(settings, sp.expr, &sp.time, flags, arg);
@@ -2214,7 +2214,7 @@ int
 pmSeriesLoad(pmSeriesSettings *settings, sds source, pmSeriesFlags flags, void *arg)
 {
     series_t	sp = {0};
-    char	*errstr;
+    sds		errstr;
     int		sts;
 
     series_stats_inc(settings, SERIES_LOAD_CALLS);
@@ -2222,18 +2222,6 @@ pmSeriesLoad(pmSeriesSettings *settings, sds source, pmSeriesFlags flags, void *
     if ((sts = series_parse(source, &sp, &errstr, arg)) != 0) {
 	moduleinfo(&settings->module, PMLOG_ERROR, errstr, arg);
     	return sts;
-    }
-
-    if (sp.expr == NULL) {
-	if (pmDebugOptions.series || pmDebugOptions.query)
-	    fprintf(stderr, "Error: parsing query '%s'\n", source);
-	return PM_ERR_NYI;
-    }
-
-    if (pmDebugOptions.query) {
-	fprintf(stderr, "pmSeriesLoad: %s\n", source);
-	series_dumpexpr(sp.expr, 0);
-	fputc('\n', stderr);
     }
 
     return series_load(settings, sp.expr, &sp.time, flags, arg);

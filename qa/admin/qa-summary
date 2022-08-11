@@ -160,6 +160,8 @@ BEGIN	{ OFS ="|" }
 	    $2 = "u318" "|" $2
 	  else if ($2 ~ /^ci-ubuntu2004$/)
 	    $2 = "ub20" "|" $2
+	  else if ($2 ~ /^ci-ubuntu2204$/)
+	    $2 = "ub22" "|" $2
 	  else if ($2 ~ /^ci-ubuntu[1-9][0-9]..$/)
 	    $2 = "u" substr($2,10,2) "|" $2
 	  else
@@ -215,10 +217,11 @@ do
 	# Not run: 008 009 022 096 114 117 130 148 164 212 223 233 284 290 307 311 329 330 331 332 333 348 361 370 377 390 420 441 442 476 477 478 480 506 512 545 570 584 640 652 654 712 713 714
 	# Failures: 062 169 244
 	# Failed 3 of 516 tests
-	# Passed all 67 tests
+	# Passed all 67 tests (old format)
+	# Passed 67 tests (newer format)
 	#
 	rm -f $tmp.dbg
-	if egrep '^((Not run:)|Failures:|(Failed [0-9][0-9]* of [0-9][0-9]* tests)|(Passed all [0-9][0-9]* tests)|Info:|===)' <$date >/dev/null
+	if egrep '^((Not run:)|Failures:|(Failed [0-9][0-9]* of [0-9][0-9]* tests)|(Passed [0-9][0-9]* tests)|(Passed all [0-9][0-9]* tests)|Info:|===)' <$date >/dev/null
 	then
 	    awk <$date >$tmp.out '
 /^Not run:/	{ notrun = NF - 2
@@ -240,6 +243,13 @@ do
 		  run = $4
 		  state = 3
 		}
+/^Passed [0-9][0-9]* tests/	{
+		  failed = 0
+		  run = $2
+		  print NR,": Passed: " run >"'$tmp.dbg'"
+		  state = 3
+		}
+
 /^Passed all [0-9][0-9]* tests/	{
 		  failed = 0
 		  run = $3
