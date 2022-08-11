@@ -11,14 +11,14 @@ Check bpf metrics have appeared ... X metrics and X values
 == Running pmdabpf with valgrind
 === std out ===
 
-bpf.disk.all.latency PMID: 157.1.0 [Disk latency]
-    Data Type: 64-bit unsigned int  InDom: 157.3 0x27400003
+bpf.disk.all.latency PMID: 157.0.0 [Disk latency]
+    Data Type: 64-bit unsigned int  InDom: 157.2 0x27400002
     Semantics: counter  Units: microsec
 Help:
 Disk latency histogram across all disks, for both reads and writes.
 
-bpf.runq.latency PMID: 157.0.0 [Run queue latency (ns)]
-    Data Type: 64-bit unsigned int  InDom: 157.2 0x27400002
+bpf.runq.latency PMID: 157.1.0 [Run queue latency (ns)]
+    Data Type: 64-bit unsigned int  InDom: 157.3 0x27400003
     Semantics: counter  Units: nanosec
 Help:
 Run queue latency from task switches,

@@ -17,20 +17,14 @@ _pmdabpf_require_kernel_version 5 0
 _pmdabpf_require_libbpf_version 0 7
 
 write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
-out_file=$tmp
+out_file=$tmp.mount.ext4/tmpfile
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full
 
-_cleanup()
-{
-    _pmdabpf_cleanup
-    $sudo rm -rf ${out_file}
-}
-
 _prepare_pmda bpf
-trap "_cleanup; exit \$status" 0 1 2 3 15
+trap "_unmount_filesystem ext4; _pmdabcc_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 # real QA test starts here

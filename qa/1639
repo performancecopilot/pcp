@@ -54,8 +54,8 @@ echo "=== report metric values for lat ==="
 pminfo -dfmtT bpf.tcpconnlat.lat 2>&1 | tee -a $here/$seq.full \
 | _value_filter_nonzero
 
-echo "=== report metric values for ip ==="
-pminfo -dfmtT bpf.tcpconnlat.ip 2>&1 | tee -a $here/$seq.full \
+echo "=== report metric values for ipversion ==="
+pminfo -dfmtT bpf.tcpconnlat.ipversion 2>&1 | tee -a $here/$seq.full \
 | _value_filter_nonzero
 
 echo "=== report metric values for lport ==="
