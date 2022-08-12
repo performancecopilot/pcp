@@ -264,12 +264,12 @@ exprval	: string
 
 string	: L_STRING
 		{ lp->yy_np = newnode(N_STRING);
-		  lp->yy_np->value = sdsnew($1);
+		  lp->yy_np->value = $1;
 		  $$ = lp->yy_np;
 		}
 	| L_NAME
 		{ lp->yy_np = newnode(N_NAME);
-		  lp->yy_np->value = sdsnew($1);
+		  lp->yy_np->value = $1;
 		  $$ = lp->yy_np;
 		}
 	;
@@ -277,14 +277,14 @@ string	: L_STRING
 number	: integer
 	| L_DOUBLE
 		{ lp->yy_np = newnode(N_DOUBLE);
-		  lp->yy_np->value = sdsnew($1);
+		  lp->yy_np->value = $1;
 		  $$ = lp->yy_np;
 		}
 	;
 
 integer	: L_INTEGER
 		{ lp->yy_np = newnode(N_INTEGER);
-		  lp->yy_np->value = sdsnew($1);
+		  lp->yy_np->value = $1;
 		  $$ = lp->yy_np;
 		}
 	;
@@ -2119,6 +2119,19 @@ yylex(YYSTYPE *lvalp, PARSER *lp)
 }
 
 static void
+series_freetime(timing_t *tp)
+{
+    sdsfree(tp->window.delta);
+    sdsfree(tp->window.align);
+    sdsfree(tp->window.start);
+    sdsfree(tp->window.end);
+    sdsfree(tp->window.range);
+    sdsfree(tp->window.count);
+    sdsfree(tp->window.offset);
+    sdsfree(tp->window.zone);
+}
+
+static void
 series_dumpexpr(node_t *np, int level)
 {
     if (np == NULL)
@@ -2207,7 +2220,9 @@ pmSeriesQuery(pmSeriesSettings *settings, sds query, pmSeriesFlags flags, void *
 	return sts;
     }
 
-    return series_solve(settings, sp.expr, &sp.time, flags, arg);
+    sts = series_solve(settings, sp.expr, &sp.time, flags, arg);
+    series_freetime(&sp.time);
+    return sts;
 }
 
 int
@@ -2221,8 +2236,10 @@ pmSeriesLoad(pmSeriesSettings *settings, sds source, pmSeriesFlags flags, void *
 
     if ((sts = series_parse(source, &sp, &errstr, arg)) != 0) {
 	moduleinfo(&settings->module, PMLOG_ERROR, errstr, arg);
-    	return sts;
+	return sts;
     }
 
-    return series_load(settings, sp.expr, &sp.time, flags, arg);
+    sts = series_load(settings, sp.expr, &sp.time, flags, arg);
+    series_freetime(&sp.time);
+    return sts;
 }

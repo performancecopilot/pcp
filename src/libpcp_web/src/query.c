@@ -139,6 +139,8 @@ freeSeriesQueryNode(node_t *np)
     }
     freeSeriesQueryNode(np->right);
     freeSeriesQueryNode(np->left);
+    if (np->result.nseries)
+	free(np->result.series);
     sdsfree(np->value);
     sdsfree(np->key);
     free(np);
@@ -2008,12 +2010,12 @@ extract_series_node_desc(seriesQueryBaton *baton, pmSID series,
 	return -EPROTO;
     }
 
-    desc->pmid = sdsnew("511.0.0");
+    desc->pmid = sdscpy(desc->pmid, "511.0.0");
     if (extract_string(baton, series, elements[0], &desc->indom, "indom") < 0)
 	return -EPROTO;
     if (extract_string(baton, series, elements[1], &desc->semantics, "semantics") < 0)
 	return -EPROTO;
-    desc->source = sdsnew(elements[2]->str);
+    desc->source = sdscpy(desc->source, elements[2]->str);
     if (extract_string(baton, series, elements[3], &desc->type, "type") < 0)
 	return -EPROTO;
     if (extract_string(baton, series, elements[4], &desc->units, "units") < 0)
