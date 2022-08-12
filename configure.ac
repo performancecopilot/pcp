@@ -1305,9 +1305,7 @@ dnl check if perl available for the build and runtime
 AC_CHECK_PROGS(PERL, perl)
 AC_SUBST(PERL)
 
-enable_perl=false
 AS_IF([test "x$do_perl" != "xno"], [
-    enable_perl=true
     AC_MSG_CHECKING([for any perl version])
     if test "$cross_compiling" = "yes"; then
         ans=$have_perl
@@ -1321,9 +1319,22 @@ AS_IF([test "x$do_perl" != "xno"], [
         have_perl=false
     fi
     AC_MSG_RESULT($pcp_perl_prog)
+
+    dnl extra check for the Perl MakeMaker package for building modules
+    AC_MSG_CHECKING([if ExtUtils::MakeMaker is installed])
+    if test "$have_perl" = true
+    then
+        $pcp_perl_prog -e "use ExtUtils::MakeMaker" 2>/dev/null
+        if test $? -eq 0
+        then
+	    AC_MSG_RESULT([ yes])
+        else
+	    AC_MSG_RESULT([ no])
+	    have_perl=false
+        fi
+    fi
 ], [have_perl=false])
 AC_SUBST(pcp_perl_prog)
-AC_SUBST(enable_perl)
 AC_SUBST(have_perl)
 
 AC_MSG_CHECKING([if the SNMP PMDA should be included])
@@ -1829,24 +1840,6 @@ if test -z "$POD2MAN"; then
 fi
 pod2man=$POD2MAN
 AC_SUBST(pod2man)
-
-dnl extra check for the Perl MakeMaker package
-AS_IF([test "$enable_perl" != "false"], [
-    AC_MSG_CHECKING([if ExtUtils::MakeMaker is installed])
-    perl -e "use ExtUtils::MakeMaker" 2>/dev/null
-    if test $? -eq 0
-    then
-	AC_MSG_RESULT([ yes])
-    else
-	AC_MSG_RESULT([ no])
-	echo
-	echo "FATAL ERROR: Perl ExtUtils::MakeMaker module missing."
-	echo "You can either install this from your distribution, or"
-	echo "download from CPAN (Comprehensive Perl Archive Network)."
-	rm -rf conftest conftest.*
-	exit 1
-    fi
-])
 
 AC_PATH_PROG(TRUEPROG, true)
 

@@ -21,7 +21,9 @@ default:
 include $(BUILDRULES)
 
 install: default
+ifeq "$(HAVE_PERL)" "true"
 	$(INSTALL) -m 755 sar2pcp $(PCP_BIN_DIR)/sar2pcp
+endif
 
 default_pcp : default
 

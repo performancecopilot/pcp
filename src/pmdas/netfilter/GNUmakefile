@@ -28,12 +28,14 @@ MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-default: check_domain
+default: build-me check_domain
 
 include $(BUILDRULES)
 
-ifeq "$(TARGET_OS)" "linux"
+ifeq "$(HAVE_PERL)" "true"
+build-me:
 install: default
+ifeq "$(TARGET_OS)" "linux"
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
@@ -43,7 +45,9 @@ install: default
 	$(INSTALL) -m 755 -d $(LOGCONFVARDIR)
 	$(INSTALL) -m 644 -t $(LOGCONFVARDIR)/summary pmlogconf.summary $(LOGCONFDIR)/summary
 	$(INSTALL) -m 644 -t $(LOGCONFVARDIR)/config pmlogconf.config $(LOGCONFDIR)/config
+endif
 else
+build-me:
 install:
 endif
 

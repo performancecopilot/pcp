@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 # 

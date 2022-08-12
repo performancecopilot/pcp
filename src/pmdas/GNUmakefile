@@ -31,14 +31,14 @@ CPMDAS = root pmcd \
 PLPMDAS = bonding netfilter zimbra postgresql \
 	dbping memcache mysql oracle kvm \
 	named news pdns samba dtsrun postfix gpsd \
-	rsyslog snmp nginx nfsclient \
+	rsyslog snmp nginx \
 	ds389 ds389log activemq lustre gpfs slurm \
 	bind2 redis nutcracker
 
 PYPMDAS = bcc gluster zswap unbound mic haproxy \
 	json libvirt lio openmetrics elasticsearch \
 	bpftrace mssql netcheck rabbitmq openvswitch \
-	mongodb
+	nfsclient mongodb
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
 LDIRT = pmcd.conf
