@@ -22,5 +22,4 @@
 
 1210	vm[0-9][0-9]	may collide with pmlogger_check and (correctly) detects presence of /etc/pcp/pmlogger/lock
 1221	vm27	extra labels associated with openmetrics.vmware_exporter.vmware_vm_guest_disk_* metrics for no known reason
-1574	.*	valgrind-reported issue in pmseries language, needs some additional small leaks plugged
 1662	.*	valgrind-reported issue in libpcp_web archive discovery handling of sources
