@@ -6312,7 +6312,7 @@ initSeriesGetValues(seriesQueryBaton *baton, int nseries, sds *inseries,
 		pmSeriesTimeWindow *window)
 {
     struct node		*node = NULL;
-    struct timing	*timing = NULL;
+    struct timing	timing = {0};
     unsigned char	*series = NULL;
     struct series_set	*result;
     struct timeval	offset;
@@ -6321,13 +6321,10 @@ initSeriesGetValues(seriesQueryBaton *baton, int nseries, sds *inseries,
     /* allocate a local parse node, timing and result SIDs */
     if (!(node = (node_t *)calloc(1, sizeof(node_t))))
 	baton->error = -ENOMEM;
-    else if (!(timing = (timing_t *)calloc(1, sizeof(timing_t))))
-	baton->error = -ENOMEM;
     else if (!(series = calloc(nseries, 20)))	/* 20 byte SIDs */
 	baton->error = -ENOMEM;
     if (baton->error) {
 	if (series) free(series);
-	if (timing) free(timing);
 	if (node) free(node);
 	return;
     }
@@ -6336,41 +6333,41 @@ initSeriesGetValues(seriesQueryBaton *baton, int nseries, sds *inseries,
     result = &node->result;
     result->series = series;
     result->nseries = nseries;
-    baton->query.root = node;
 
     /* validate and convert 40-byte (ASCII) SIDs to internal 20-byte form */
     for (i = 0; i < nseries; i++)
 	parseseries(baton, inseries[i], result->series + (i * 20));
 
     /* validate and convert time window specification to internal struct */
-    timing->window = *window;
+    timing.window = *window;
     if (window->delta)
-	parsedelta(baton, window->delta, &timing->delta, "delta");
+	parsedelta(baton, window->delta, &timing.delta, "delta");
     if (window->align)
-	parsetime(baton, window->align, &timing->align, "align");
+	parsetime(baton, window->align, &timing.align, "align");
     if (window->start)
-	parsetime(baton, window->start, &timing->start, "start");
+	parsetime(baton, window->start, &timing.start, "start");
     if (window->end)
-	parsetime(baton, window->end, &timing->end, "end");
+	parsetime(baton, window->end, &timing.end, "end");
     if (window->range) {
-	parsedelta(baton, window->range, &timing->start, "range");
+	parsedelta(baton, window->range, &timing.start, "range");
 	gettimeofday(&offset, NULL);
-	tsub(&offset, &timing->start);
-	timing->start = offset;
-	timing->end.tv_sec = PM_MAX_TIME_T;
+	tsub(&offset, &timing.start);
+	timing.start = offset;
+	timing.end.tv_sec = PM_MAX_TIME_T;
     }
     if (window->count)
-	parseuint(baton, window->count, &timing->count, "count");
+	parseuint(baton, window->count, &timing.count, "count");
     if (window->offset)
-	parseuint(baton, window->offset, &timing->offset, "offset");
+	parseuint(baton, window->offset, &timing.offset, "offset");
     if (window->zone)
-	parsezone(baton, window->zone, &timing->zone, "timezone");
+	parsezone(baton, window->zone, &timing.zone, "timezone");
 
     /* if no time window parameters passed, default to latest value */
-    if (!series_time_window(timing))
-	timing->count = 1;
+    if (!series_time_window(&timing))
+	timing.count = 1;
 
-    baton->query.timing = *timing;	// TODO
+    baton->query.timing = timing; /* struct copy */
+    baton->query.root = node;
 }
 
 int
