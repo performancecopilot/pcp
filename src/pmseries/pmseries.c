@@ -221,12 +221,16 @@ series_data_reset(series_data *dp)
 static void
 series_data_free(series_data *dp)
 {
+    int		exit_status = dp->status;
+
     if (dp->args.nsource)
 	series_free(dp->args.nsource, dp->args.source);
     if (dp->args.nseries)
 	series_free(dp->args.nseries, dp->args.series);
     if (dp->args.pattern)
 	sdsfree(dp->args.pattern);
+    if (dp->config)
+	pmIniFileFree(dp->config);
 
     series_data_reset(dp);
 
@@ -235,6 +239,7 @@ series_data_free(series_data *dp)
     sdsfree(dp->query);
 
     memset(dp, 0, sizeof(series_data));
+    dp->status = exit_status;
 }
 
 static int
@@ -1095,10 +1100,7 @@ pmseries_execute(series_data *dp)
     uv_timer_start(&request, pmseries_request, 0, 0);
     uv_run(loop, UV_RUN_DEFAULT);
     uv_loop_close(loop);
-
     status = dp->status;
-    if (dp->config)
-	pmIniFileFree(dp->config);
     free(dp);
 
     return status;
