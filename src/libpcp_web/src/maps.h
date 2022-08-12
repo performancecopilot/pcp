@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Red Hat.
+ * Copyright (c) 2017-2018,2022 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -39,6 +39,7 @@ extern void redisMapInsert(redisMap *, sds, sds);
  * Helper utilities and data structures
  */
 extern void redisMapsInit(void);
+extern void redisMapsClose(void);
 extern sds redisMapName(redisMap *);
 extern void redisMapRelease(redisMap *);
 

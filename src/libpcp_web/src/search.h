@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Red Hat.
+ * Copyright (c) 2020,2022 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -84,6 +84,7 @@
 #define FT_WITHSCORES_LEN  (sizeof(FT_WITHSCORES)-1)
 
 extern void redisSearchInit(struct dict *);
+extern void redisSearchClose(void);
 extern void redis_load_search_schema(void *);
 extern void redis_search_text_add(redisSlots *, pmSearchTextType,
 		const char *, const char *, const char *, const char *, void *);

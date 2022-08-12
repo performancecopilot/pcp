@@ -20,6 +20,7 @@
 #include "sha1.h"
 
 static sds		resultcount_str;
+static sds		DEFAULT_RESULTCOUNT;
 static unsigned int	resultcount;	/* converted resultcount_str */
 
 static void
@@ -1040,8 +1041,17 @@ redisSearchInit(struct dict *config)
 	if ((option = pmIniFileLookup(config, "pmsearch", "result.count")))
 	    resultcount_str = option;
 	else
-	    resultcount_str = sdsnew("10");
+	    resultcount_str = DEFAULT_RESULTCOUNT = sdsnew("10");
 	resultcount = atoi(resultcount_str);
+    }
+}
+
+void
+redisSearchClose(void)
+{
+    if (DEFAULT_RESULTCOUNT) {
+	sdsfree(DEFAULT_RESULTCOUNT);
+	DEFAULT_RESULTCOUNT = NULL;
     }
 }
 
@@ -1055,7 +1065,7 @@ pmSearchSetup(pmSearchModule *module, void *arg)
     if (data == NULL)
 	return -ENOMEM;
 
-    /* create global EVAL hashes and string map caches */
+    /* create string map caches */
     redisGlobalsInit(data->config);
 
     /* fast path for when Redis has been setup already */
@@ -1107,4 +1117,6 @@ pmSearchClose(pmSearchModule *module)
 	free(search);
 	module->privdata = NULL;
     }
+
+    redisGlobalsClose();
 }

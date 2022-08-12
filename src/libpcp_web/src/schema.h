@@ -110,6 +110,7 @@ redis_param_raw(sds cmd, sds param)
 }
 
 extern void redisGlobalsInit(struct dict *);
+extern void redisGlobalsClose(void);
 
 extern void redis_series_source(redisSlots *, void *);
 extern void redis_series_mark(redisSlots *, sds, int, void *);

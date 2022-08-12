@@ -28,37 +28,9 @@
 extern sds		cursorcount;
 static sds		maxstreamlen;
 static sds		streamexpire;
-
-typedef struct redisScript {
-    sds			hash;
-    const char		*text;
-} redisScript;
-
-static redisScript	*scripts;
-static int		nscripts;
-
-static void
-redisScriptsInit(void)
-{
-    const unsigned char	*text;
-    unsigned char	hash[20];
-    char		hashbuf[42];
-    redisScript		*script;
-    SHA1_CTX		shactx;
-    int			i;
-
-    for (i = 0; i < nscripts; i++) {
-	script = &scripts[i];
-	text = (const unsigned char *)script->text;
-
-	/* Calculate unique script identifier from its contents */
-	SHA1Init(&shactx);
-	SHA1Update(&shactx, text, strlen((char *)text));
-	SHA1Final(hash, &shactx);
-	pmwebapi_hash_str(hash, hashbuf, sizeof(hashbuf));
-	scripts->hash = sdsnew(hashbuf);
-    }
-}
+static sds		DEFAULT_CURSORCOUNT;
+static sds		DEFAULT_MAXSTREAMLEN;
+static sds		DEFAULT_STREAMEXPIRE;
 
 static void
 initRedisSlotsBaton(redisSlotsBaton *baton,
@@ -1558,21 +1530,38 @@ redisSeriesInit(struct dict *config)
 	if ((option = pmIniFileLookup(config, "pmseries", "cursor.count")))
 	    cursorcount = option;
 	else
-	    cursorcount = sdsnew("256");
+	    cursorcount = DEFAULT_CURSORCOUNT = sdsnew("256");
     }
 
     if (!maxstreamlen) {
 	if ((option = pmIniFileLookup(config, "pmseries", "stream.maxlen")))
 	    maxstreamlen = option;
-	else
-	    maxstreamlen = sdsnew("8640");	/* 1 day, ~10 second delta */
+	else	/* default value:  1 day, ~10 second delta */
+	    maxstreamlen = DEFAULT_MAXSTREAMLEN = sdsnew("8640");
     }
 
     if (!streamexpire) {
 	if ((option = pmIniFileLookup(config, "pmseries", "stream.expire")))
 	    streamexpire = option;
-	else
-	    streamexpire = sdsnew("86400");	/* 1 day (without changes) */
+	else	/* default value: 1 day (without changes) */
+	    streamexpire = DEFAULT_STREAMEXPIRE = sdsnew("86400");
+    }
+}
+
+static void
+redisSeriesClose(void)
+{
+    if (DEFAULT_CURSORCOUNT) {
+	sdsfree(DEFAULT_CURSORCOUNT);
+	DEFAULT_CURSORCOUNT = NULL;
+    }
+    if (DEFAULT_MAXSTREAMLEN) {
+	sdsfree(DEFAULT_MAXSTREAMLEN);
+	DEFAULT_MAXSTREAMLEN = NULL;
+    }
+    if (DEFAULT_STREAMEXPIRE) {
+	sdsfree(DEFAULT_STREAMEXPIRE);
+	DEFAULT_STREAMEXPIRE = NULL;
     }
 }
 
@@ -1581,8 +1570,15 @@ redisGlobalsInit(struct dict *config)
 {
     redisSeriesInit(config);
     redisSearchInit(config);
-    redisScriptsInit();
     redisMapsInit();
+}
+
+void
+redisGlobalsClose(void)
+{
+    redisSeriesClose();
+    redisSearchClose();
+    redisMapsClose();
 }
 
 static void
@@ -1677,7 +1673,7 @@ pmSeriesSetup(pmSeriesModule *module, void *arg)
     if (data == NULL)
 	return -ENOMEM;
 
-    /* create global EVAL hashes and string map caches */
+    /* create string map caches */
     redisGlobalsInit(data->config);
 
     /* fast path for when Redis has been setup already */
@@ -1719,6 +1715,8 @@ pmSeriesClose(pmSeriesModule *module)
 	free(data);
 	module->privdata = NULL;
     }
+
+    redisGlobalsClose();
 }
 
 discoverModuleData *
@@ -2008,11 +2006,8 @@ pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
 	}
     }
 
-    /* create global EVAL hashes and string map caches */
-    redisSearchInit(data->config);
-    redisSeriesInit(data->config);
-    redisScriptsInit();
-    redisMapsInit();
+    /* create global string map caches */
+    redisGlobalsInit(data->config);
 
     if (!logdir)
 	logdir = fallback;
@@ -2050,4 +2045,6 @@ pmDiscoverClose(pmDiscoverModule *module)
 	memset(discover, 0, sizeof(*discover));
 	free(discover);
     }
+
+    redisGlobalsClose();
 }
