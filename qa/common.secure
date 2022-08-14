@@ -8,6 +8,11 @@
 . ./common.filter
 . ./common.check
 
+# if no secure_sockets in local libpcp, don't bother
+#
+_get_libpcp_config
+[ "$secure_sockets" = "true" ] || _notrun "Secure sockets not supported"
+
 usersdb=${HOME}/.pki/nssdb
 collectordb=$tmp/pki/nssdb
 collectorpw=$tmp/pki/nssdb/pass
@@ -43,9 +48,7 @@ sasl_notrun_checks()
 
 nss_notrun_checks()
 {
-    _get_libpcp_config
     [ -d "$PCP_SECURE_DB_PATH" ] || _notrun "NSS secure DB not installed"
-    [ "$secure_sockets" = "true" ] || _notrun "Secure sockets not supported"
     which certutil >/dev/null 2>&1 || _notrun "certutil not installed (NSS tools)"
     [ -c /dev/urandom ] || _notrun "No random number generator special file found"
 
