@@ -29,16 +29,17 @@ main()
     for (i = 0; xx[i] != -1; i++) {
 	tmp = localtime(&xx[i]);
 	ans = mktime(tmp);
-	printf("initial %d -> %d %s", (int)xx[i], (int)ans, ctime(&ans));
+	printf("initial %lld -> %lld %s", (long long)xx[i], (long long)ans,
+			ctime(&ans));
 	for (m = -3; m < 4; m++) {
 	    if (m == 0) continue;
 	    tmp = localtime(&xx[i]);
 	    tmp->tm_mon += m;
 	    ans = mktime(tmp);
 	    if (m < 0)
-		printf("%d months -> %d %s", m, (int)ans, ctime(&ans));
+		printf("%d months -> %lld %s", m, (long long)ans, ctime(&ans));
 	    else
-		printf("+%d months -> %d %s", m, (int)ans, ctime(&ans));
+		printf("+%d months -> %lld %s", m, (long long)ans, ctime(&ans));
 	}
 	printf("\n");
     }
@@ -49,16 +50,19 @@ main()
 	for (i = 0; xx[i] != -1; i++) {
 	    tmp = pmLocaltime(&xx[i], &mytm);
 	    ans = __pmMktime(tmp);
-	    printf("initial %d -> %d %s", (int)xx[i], (int)ans, pmCtime(&ans, buf));
+	    printf("initial %lld -> %lld %s", (long long)xx[i], (long long)ans,
+			    pmCtime(&ans, buf));
 	    for (m = -3; m < 4; m++) {
 		if (m == 0) continue;
 		tmp = pmLocaltime(&xx[i], &mytm);
 		tmp->tm_mon += m;
 		ans = __pmMktime(tmp);
 		if (m < 0)
-		    printf("%d months -> %d %s", m, (int)ans, pmCtime(&ans, buf));
+		    printf("%d months -> %lld %s", m, (long long)ans,
+				    pmCtime(&ans, buf));
 		else
-		    printf("+%d months -> %d %s", m, (int)ans, pmCtime(&ans, buf));
+		    printf("+%d months -> %lld %s", m, (long long)ans,
+				    pmCtime(&ans, buf));
 	    }
 	    printf("\n");
 	}
