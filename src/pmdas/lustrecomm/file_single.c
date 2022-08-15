@@ -61,18 +61,18 @@ int file_single (char *filename, int type, int *base, void **vpp)
     case PM_TYPE_U64:
     case PM_TYPE_FLOAT:
     case PM_TYPE_DOUBLE:
-	if ((n = read (fd, b, sizeof(b))) < 0 ){
+	if ((n = read (fd, b, sizeof(b)-1)) < 0 ){
 	    perror("file_single: read");
 	    close(fd);
 	    return -1;
 	}
+	b[n] = '\0';
 	close(fd);
 	break;
     default:
 	fprintf(stderr,"file_single: type %s not supported\n", pmTypeStr(type));
 	close(fd);
 	return -1;
-	
     }
     /* One would eventually write a configure script to make
      * sure that the right routines are used below.. defining 

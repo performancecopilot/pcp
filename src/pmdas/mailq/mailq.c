@@ -1,14 +1,14 @@
 /*
  * Mailq PMDA
  *
- * Copyright (c) 2012,2014 Red Hat.
+ * Copyright (c) 2012,2014,2022 Red Hat.
  * Copyright (c) 1997-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -25,10 +25,11 @@
 
 /*
  * histogram for binning messages based on queue time
+ * (note that the 'delay' is also used as instance ID)
  */
 typedef struct {
     long	count;		/* number in this bin */
-    time_t	delay;		/* in queue for at least this long (seconds) */
+    unsigned int delay;		/* in queue for at least this long (seconds) */
 } histo_t;
 
 static histo_t	*histo;
@@ -75,20 +76,26 @@ mailq_histogram(char *option)
     struct timeval	tv;
     char		*errmsg;
     char		*q;
+    unsigned int	instid;
     int			sts;
 
     q = strtok(option, ",");
     while (q != NULL) {
 	if ((sts = pmParseInterval((const char *)q, &tv, &errmsg)) < 0) {
-	    pmprintf("%s: bad historgram bins argument:\n%s\n", pmGetProgname(), errmsg);
+	    pmprintf("%s: bad histogram bins argument:\n%s\n", pmGetProgname(), errmsg);
 	    free(errmsg);
 	    return -EINVAL;
 	}
+	if (tv.tv_sec >= UINT_MAX) {
+	    pmprintf("%s: bin size is too large (%lld):\n", pmGetProgname(), (long long)tv.tv_sec);
+	    return -EINVAL;
+	}
+	instid = (unsigned int)tv.tv_sec; /* Y2038-safe, size checked */
 	numhisto++;
 	histo = (histo_t *)realloc(histo, numhisto * sizeof(histo[0]));
 	if (histo == NULL)
 	    pmNoMem("histo", numhisto * sizeof(histo[0]), PM_FATAL_ERR);
-	histo[numhisto-1].delay = tv.tv_sec;
+	histo[numhisto-1].delay = instid;
 	q = strtok(NULL, ",");
     }
     return 0;
@@ -272,6 +279,7 @@ main(int argc, char **argv)
     int			sep = pmPathSeparator();
     int			c;
     int			i;
+    unsigned int	tmp;
     char		namebuf[30];
     char		mypath[MAXPATHLEN];
 
@@ -353,33 +361,32 @@ main(int argc, char **argv)
 	pmNoMem("_delay", numhisto * sizeof(_delay[0]), PM_FATAL_ERR);
 
     for (i = 0; i < numhisto; i++) {
-	time_t	tmp;
 	_delay[i].i_inst = histo[i].delay;
 	histo[i].count = 0;
 	if (histo[i].delay == 0)
 	    pmsprintf(namebuf, sizeof(namebuf), "recent");
 	else if (histo[i].delay < 60)
-	    pmsprintf(namebuf, sizeof(namebuf), "%d-secs", (int)histo[i].delay);
+	    pmsprintf(namebuf, sizeof(namebuf), "%u-secs", histo[i].delay);
 	else if (histo[i].delay < 60 * 60) {
 	    tmp = histo[i].delay / 60;
 	    if (tmp <= 1)
 		pmsprintf(namebuf, sizeof(namebuf), "1-min");
 	    else
-		pmsprintf(namebuf, sizeof(namebuf), "%d-mins", (int)tmp);
+		pmsprintf(namebuf, sizeof(namebuf), "%u-mins", tmp);
 	}
 	else if (histo[i].delay < 24 * 60 * 60) {
 	    tmp = histo[i].delay / (60 * 60);
 	    if (tmp <= 1)
 		pmsprintf(namebuf, sizeof(namebuf), "1-hour");
 	    else
-		pmsprintf(namebuf, sizeof(namebuf), "%d-hours", (int)tmp);
+		pmsprintf(namebuf, sizeof(namebuf), "%u-hours", tmp);
 	}
 	else {
 	    tmp = histo[i].delay / (24 * 60 * 60);
 	    if (tmp <= 1)
 		pmsprintf(namebuf, sizeof(namebuf), "1-day");
 	    else
-		pmsprintf(namebuf, sizeof(namebuf), "%d-days", (int)tmp);
+		pmsprintf(namebuf, sizeof(namebuf), "%u-days", tmp);
 	}
 	_delay[i].i_name = strdup(namebuf);
 	if (_delay[i].i_name == NULL) {

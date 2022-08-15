@@ -37,7 +37,7 @@ override(int opt, pmOptions *opts)
 static pmOptions opts = {
     .short_options = "D:h:cd:g:qrs:vV?",
     .long_options = longopts,
-    .short_usage = "[options] ...",
+    .short_usage = "[options] configfile",
     .override = override,
 };
 

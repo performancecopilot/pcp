@@ -952,7 +952,7 @@ save_cache(hdr_t *h, int hstate)
 	    continue;
 	if (e->stamp == 0)
 	    e->stamp = now;
-	fprintf(fp, "%d %d", e->inst, (int)e->stamp);
+	fprintf(fp, "%d %lld", e->inst, (long long)e->stamp);
 	if (e->keylen > 0) {
 	    char	*p = (char *)e->key;
 	    int		i;
