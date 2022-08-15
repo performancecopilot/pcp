@@ -1,7 +1,7 @@
 /*
  * Apache PMDA
  *
- * Copyright (C) 2012-2014,2016 Red Hat.
+ * Copyright (C) 2012-2014,2016,2022 Red Hat.
  * Copyright (C) 2008-2010 Aconex.  All Rights Reserved.
  * Copyright (C) 2000 Michal Kara.  All Rights Reserved.
  *
@@ -9,7 +9,7 @@
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -156,9 +156,9 @@ enum {
     SCOREBOARD		= (1<<8),
 };
 
-static void uptime_string(time_t now, char *s, size_t sz)
+static void uptime_string(long long now, char *s, size_t sz)
 {
-    int days, hours, minutes, seconds;
+    int days, hours, minutes;
 
     days = now / (60 * 60 * 24);
     now %= (60 * 60 * 24);
@@ -166,14 +166,13 @@ static void uptime_string(time_t now, char *s, size_t sz)
     now %= (60 * 60);
     minutes = now / 60;
     now %= 60;
-    seconds = now;
 
     if (days > 1)
-	pmsprintf(s, sz, "%ddays %02d:%02d:%02d", days, hours, minutes, seconds);
+	pmsprintf(s, sz, "%ddays %02d:%02d:%02lld", days, hours, minutes, now);
     else if (days == 1)
-	pmsprintf(s, sz, "%dday %02d:%02d:%02d", days, hours, minutes, seconds);
+	pmsprintf(s, sz, "%dday %02d:%02d:%02lld", days, hours, minutes, now);
     else
-	pmsprintf(s, sz, "%02d:%02d:%02d", hours, minutes, seconds);
+	pmsprintf(s, sz, "%02d:%02d:%02lld", hours, minutes, now);
 }
 
 static void dumpData(void)
