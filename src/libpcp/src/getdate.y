@@ -51,24 +51,24 @@ typedef enum _MERIDIAN {
 typedef struct _PARSER {
     char	*yyInput;
     DSTMODE	yyDSTmode;
-    time_t	yyDayOrdinal;
-    time_t	yyDayNumber;
+    long long	yyDayOrdinal;
+    long long	yyDayNumber;
     int		yyHaveDate;
     int		yyHaveDay;
     int		yyHaveRel;
     int		yyHaveTime;
     int		yyHaveZone;
     int		yyHaveDateAlign;
-    time_t	yyTimezone;
-    time_t	yyDay;
-    time_t	yyHour;
-    time_t	yyMinutes;
-    time_t	yyMonth;
-    time_t	yySeconds;
-    time_t	yyYear;
+    long long	yyTimezone;
+    long long	yyDay;
+    long long	yyHour;
+    long long	yyMinutes;
+    long long	yyMonth;
+    long long	yySeconds;
+    long long	yyYear;
     MERIDIAN	yyMeridian;
-    time_t	yyRelMonth;
-    time_t	yyRelSeconds;
+    long long	yyRelMonth;
+    long long	yyRelSeconds;
 } PARSER;
 
 union YYSTYPE;
@@ -94,7 +94,7 @@ static int yyerror(PARSER *, const char *);
 %expect 11
 
 %union {
-    time_t		Number;
+    long long		Number;
     enum _MERIDIAN	Meridian;
 }
 
@@ -395,7 +395,7 @@ static TABLE const OtherTable[] = {
 };
 
 /* The timezone table. */
-/* Some of these are commented out because a time_t can't store a float. */
+/* Some of these are commented out because long long can't store a float. */
 static TABLE const TimezoneTable[] = {
     { "gmt",	tZONE,     HOUR( 0) },	/* Greenwich Mean */
     { "ut",	tZONE,     HOUR( 0) },	/* Universal (Coordinated) */
@@ -517,8 +517,8 @@ yyerror(PARSER *lp, const char *s)
     return 0;
 }
 
-static time_t
-ToSeconds(time_t Hours, time_t Minutes, time_t Seconds, MERIDIAN Meridian)
+static long long
+ToSeconds(long long Hours, long long Minutes, long long Seconds, MERIDIAN Meridian)
 {
     if (Minutes < 0 || Minutes > 59 || Seconds < 0 || Seconds > 59)
 	return -1;
@@ -540,7 +540,7 @@ ToSeconds(time_t Hours, time_t Minutes, time_t Seconds, MERIDIAN Meridian)
 	    Hours = 0;
 	return ((Hours + 12) * 60L + Minutes) * 60L + Seconds;
     default:
-	abort ();
+	abort();
     }
     /* NOTREACHED */
 }
@@ -551,16 +551,17 @@ ToSeconds(time_t Hours, time_t Minutes, time_t Seconds, MERIDIAN Meridian)
  * - A number from 0 to 99, which means a year from 1900 to 1999, or
  * - The actual year (>=100).
  */
-static time_t
-Convert(PARSER *lp, time_t Month, time_t Day, time_t Year,
-	time_t Hours, time_t Minutes, time_t Seconds,
+static long long
+Convert(PARSER *lp, long long Month, long long Day, long long Year,
+	long long Hours, long long Minutes, long long Seconds,
 	MERIDIAN Meridian, DSTMODE DSTmode)
 {
     int DaysInMonth[12] = {
 	31, 0, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
     };
-    time_t	tod, Julian;
+    long long	tod, Julian;
     struct tm	tm;
+    time_t	tmp;
     int		i;
 
     if (Year < 0)
@@ -571,12 +572,8 @@ Convert(PARSER *lp, time_t Month, time_t Day, time_t Year,
 	Year += 1900;
     DaysInMonth[1] = Year % 4 == 0 && (Year % 100 != 0 || Year % 400 == 0)
 		    ? 29 : 28;
-    /* Checking for 2038 bogusly assumes that time_t is 32 bits.  But
-       I'm too lazy to try to check for time_t overflow in another way.  */
-    if (Year < EPOCH || Year > 2038
-     || Month < 1 || Month > 12
-     /* Lint fluff:  "conversion from long may lose accuracy" */
-     || Day < 1 || Day > DaysInMonth[(int)--Month])
+    if (Year < EPOCH || Month < 1 || Month > 12 ||
+        Day < 1 || Day > DaysInMonth[(int)--Month])
 	return -1;
 
     for (Julian = Day - 1, i = 0; i < Month; i++)
@@ -588,52 +585,56 @@ Convert(PARSER *lp, time_t Month, time_t Day, time_t Year,
     if ((tod = ToSeconds(Hours, Minutes, Seconds, Meridian)) < 0)
 	return -1;
     Julian += tod;
+    tmp = Julian;
     if (DSTmode == DSTon
-     || (DSTmode == DSTmaybe && pmLocaltime(&Julian, &tm)->tm_isdst))
+     || (DSTmode == DSTmaybe && pmLocaltime(&tmp, &tm)->tm_isdst))
 	Julian -= 60 * 60;
     return Julian;
 }
 
-static time_t
-DSTcorrect(time_t Start, time_t Future)
+static long long
+DSTcorrect(long long Start, long long Future)
 {
     struct tm	tm;
-    time_t	StartDay, FutureDay;
+    long long	StartDay, FutureDay;
+    time_t	start = Start, future = Future;
 
-    StartDay = (pmLocaltime(&Start, &tm)->tm_hour + 1) % 24;
-    FutureDay = (pmLocaltime(&Future, &tm)->tm_hour + 1) % 24;
+    StartDay = (pmLocaltime(&start, &tm)->tm_hour + 1) % 24;
+    FutureDay = (pmLocaltime(&future, &tm)->tm_hour + 1) % 24;
     return (Future - Start) + (StartDay - FutureDay) * 60L * 60L;
 }
 
-static time_t
-RelativeDate(time_t Start, time_t DayOrdinal, time_t DayNumber)
+static long long
+RelativeDate(long long Start, long long DayOrdinal, long long DayNumber)
 {
     struct tm	*tmp, tm;
-    time_t	now;
+    long long	offset;
+    time_t      now;
 
-    now = Start;
+    now = offset = Start;
     tmp = pmLocaltime(&now, &tm);
-    now += SECSPERDAY * ((DayNumber - tmp->tm_wday + 7) % 7);
-    now += 7 * SECSPERDAY * (DayOrdinal <= 0 ? DayOrdinal : DayOrdinal - 1);
-    return DSTcorrect(Start, now);
+    offset += SECSPERDAY * ((DayNumber - tmp->tm_wday + 7) % 7);
+    offset += 7 * SECSPERDAY * (DayOrdinal <= 0 ? DayOrdinal : DayOrdinal - 1);
+    return DSTcorrect(Start, offset);
 }
 
 static time_t
-RelativeMonth(PARSER *lp, time_t Start, time_t RelMonth)
+RelativeMonth(PARSER *lp, long long Start, long long RelMonth)
 {
     struct tm	*tmp, tm;
-    time_t	Month, Year;
+    long long	Month, Year;
+    time_t	now = Start;
 
     if (RelMonth == 0)
 	return 0;
-    tmp = pmLocaltime(&Start, &tm);
+    tmp = pmLocaltime(&now, &tm);
     Month = 12 * (tmp->tm_year + 1900) + tmp->tm_mon + RelMonth;
     Year = Month / 12;
     Month = Month % 12 + 1;
     return DSTcorrect(Start,
-	    Convert(lp, Month, (time_t)tmp->tm_mday, Year,
-		(time_t)tmp->tm_hour, (time_t)tmp->tm_min, (time_t)tmp->tm_sec,
-		MER24, DSTmaybe));
+	    Convert(lp, Month, (long long)tmp->tm_mday, Year,
+		(long long)tmp->tm_hour, (long long)tmp->tm_min,
+		(long long)tmp->tm_sec, MER24, DSTmaybe));
 }
 
 static int
@@ -820,8 +821,8 @@ __pmGetDate(struct timespec *result, const char *p, struct timespec const *now)
     struct tm		gmtbuf;
     struct timespec	gettime_buffer;
     int			tzoff;
-    time_t		Start;
-    time_t		tod;
+    long long		Start;
+    long long		tod;
 
     if (!now) {
 	__pmGetTimespec(&gettime_buffer);
