@@ -55,9 +55,6 @@ liblzma-dev
 libncurses-dev
 libncurses5-dev
 libnet-snmp-perl
-libnspr4-dev
-libnss3-dev
-libnss3-tools
 libperl5.32
 libpfm4-dev
 libpython3-dev

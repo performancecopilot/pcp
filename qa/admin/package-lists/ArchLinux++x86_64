@@ -43,8 +43,6 @@ extra/mesa
 core/ncurses
 core/net-tools
 extra/nmap
-core/nspr
-core/nss
 core/perl
 community/perl-cpanplus
 extra/perl-dbd-mysql
