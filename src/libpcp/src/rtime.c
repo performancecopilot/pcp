@@ -356,7 +356,7 @@ __pmParseCtime(
 	parseInt(&scan, 0, 59, &tm.tm_min);
 	if (parseChar(&scan, ':')) {
 	    if (parseDouble(&scan, 0.0, 61.0, &d)) {
-		tm.tm_sec = (time_t)d;
+		tm.tm_sec = (int)d;	/* tm_sec is in range 0-60 */
 		tm.tm_yday = (int)((long double)1000000000 * (long double)(d - tm.tm_sec));
 	    }
 	}
