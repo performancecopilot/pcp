@@ -229,7 +229,6 @@ Obsoletes: pcp-pmda-nvidia < 3.10.5
 BuildRequires: make
 BuildRequires: gcc gcc-c++
 BuildRequires: procps autoconf bison flex
-BuildRequires: nss-devel
 BuildRequires: avahi-devel
 BuildRequires: xz-devel
 BuildRequires: zlib-devel
