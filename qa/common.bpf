@@ -56,7 +56,7 @@ _pmdabpf_install()
     cat $tmp.config >> $here/$seq.full
 
     # set aside any pre-existing cluster and indom caches
-    __indomcache="$PCP_VAR_DIR/pmdas/config"
+    __indomcache="$PCP_VAR_DIR/config/pmda"
     [ -f $__indomcache/157.0 ] && \
     $sudo mv $__indomcache/157.0 $__indomcache/157.0.$seq
     [ -f $__indomcache/157.1 ] && \
@@ -175,7 +175,7 @@ _pmdabpf_cleanup()
         $sudo rm -f $PCP_PMDAS_DIR/bpf/bpf.conf
     fi
     # restore any pre-existing cluster and indom caches
-    __indomcache="$PCP_VAR_DIR/pmdas/config"
+    __indomcache="$PCP_VAR_DIR/config/pmda"
     [ -f $__indomcache/157.0.$seq ] && \
     $sudo mv $__indomcache/157.0.$seq $__indomcache/157.0
     [ -f $__indomcache/157.1.$seq ] && \
