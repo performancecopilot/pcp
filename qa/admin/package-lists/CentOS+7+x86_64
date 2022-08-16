@@ -62,8 +62,8 @@ mesa-dri-drivers
 ncurses-devel
 net-tools
 nmap
-openssl
-openssl-devel
+openssl11
+openssl11-devel
 perl
 perl-CPAN
 perl-DBD-MySQL
