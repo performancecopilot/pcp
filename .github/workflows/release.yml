@@ -28,6 +28,7 @@ jobs:
           - fedora33-container
           - fedora34-container
           - fedora35-container
+          - fedora36-container
           - centos7-container
           - centos8-container
     steps:
