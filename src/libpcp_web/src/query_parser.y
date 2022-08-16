@@ -67,15 +67,6 @@ static void newoffset(PARSER *, sds);
 static char *n_type_str(int);
 static char *n_type_c(int);
 static char *l_type_str(int);
-
-/* strings for error reporting */
-static const char follow[]       = "follow";
-//static const char bexpr_str[]    = "Boolean expression";
-//static const char aexpr_str[]    = "Arithmetic expression";
-static const char op_str[]       = "Arithmetic or relational or boolean operator";
-static const char name_str[]     = "Symbol";
-static const char unexpected_str[]       = "Unexpected";
-static const char initial_str[]  = "Unexpected initial";
 %}
 
 /*
