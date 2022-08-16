@@ -567,9 +567,11 @@ fetch_archive(uv_work_t *req)
     seriesGetContext	*context = &baton->pmapi;
     context_t		*cp = &context->context;
     pmResult		*result;
+    int			sts;
 
-    if ((context->error = pmUseContext(cp->context)) >= 0)
-	if ((context->error = pmFetchArchive(&result)) >= 0)
+    assert(context->result == NULL);
+    if ((context->error = sts = pmUseContext(cp->context)) >= 0)
+	if ((context->error = sts = pmFetchArchive(&result)) >= 0)
 	    context->result = result;
 }
 
@@ -583,7 +585,10 @@ fetch_archive_done(uv_work_t *req, int status)
     int 		sts = context->error;
 
     free(req);
-    if (sts >= 0) {
+    if (context->loaded) {
+	assert(context->result == NULL);
+        doneSeriesGetContext(context, "fetch_archive_done");
+    } else if (sts >= 0) {
 	if (finish->tv_sec > context->result->timestamp.tv_sec ||
 	    (finish->tv_sec == context->result->timestamp.tv_sec &&
 	     finish->tv_usec >= context->result->timestamp.tv_usec)) {
@@ -930,11 +935,12 @@ doneSeriesGetContext(seriesGetContext *context, const char *caller)
     if (seriesBatonDereference(context, caller) && context->done != NULL)
 	context->done(baton);
 
-    if (context->error) {
+    if (context->error && !context->loaded) {
 	char		pmmsg[PM_MAXERRMSGLEN];
 	sds		msg;
 
 	if (context->error == PM_ERR_EOL) {
+	    context->loaded = 1;
 	    infofmt(msg, "processed %llu archive records from %s",
 			context->count, context->context.name.sds);
 	    batoninfo(baton, PMLOG_INFO, msg);
