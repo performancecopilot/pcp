@@ -24,8 +24,6 @@ mariadb-client
 memcached
 metaauto
 nmap
-nspr
-nss
 p5-DBD-mysql
 p5-File-Slurp
 p5-JSON
