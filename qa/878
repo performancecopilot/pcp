@@ -16,17 +16,7 @@ echo "QA output created by $seq"
 [ -f $PCP_PMDAS_DIR/pipe/pmdapipe ] || _notrun "pipe PMDA not installed"
 id -u nobody >/dev/null 2>&1 || _notrun "User nobody unavailable"
 
-# Despite intense triage, on some QA hosts this test simple fails
-# when we don't see the first or second event record
-#
 hostname=`hostname`
-case "$hostname"
-in
-    vm01.localdomain|bozo-vm.localdomain)
-	    _notrun "cannot make this test work on this platform"
-	    ;;
-esac
-
 PIPE_CONF_FILE=$PCP_PMDAS_DIR/pipe/pipe.conf
 PIPE_CONF_DIR=$PCP_SYSCONF_DIR/pipe.conf.d
 PIPE_INDOM_CACHE=$PCP_VAR_DIR/config/pmda/128.0

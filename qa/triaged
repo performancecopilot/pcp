@@ -15,14 +15,35 @@
 # The fields here are <tab> separated to allow a space in the
 # second field in particular.
 #
+# Any line that does not begin with a <seqno> followed by a <tab> is
+# treated as a comment.  So lines that begin with a # are comments, as
+# are lines that begin with white space (the latter is useful to wrap long
+# <comments> fields over multiple lines).
+#
 # Because the <whatami-RE> field is used with egrep, one needs to
-# (backslash) escape both [ and ( ... (none of the other special egrep
-# RE characters appear in the whatami output).
+# (backslash) escape both [ and ( when a literal match is needed ... (none
+# of the other special egrep RE characters appear in the whatami output).
+#
+# Typical whatami output looks like:
+# bozo                6.0.0    x86_64  Ubuntu 20.04 (focal) [kernel=5.4.0 py=3.8.10 se=none]
+# <hostname>          <PCP version>
+#                              <hardware>
+#                                      <operating system>
+#                                                           <key software versions>
 #
 
-1210	vm[0-9][0-9]	may collide with pmlogger_check and (correctly) detects presence of /etc/pcp/pmlogger/lock
-1221	vm27	extra labels associated with openmetrics.vmware_exporter.vmware_vm_guest_disk_* metrics for no known reason
-1662	.*	valgrind-reported issue in libpcp_web archive discovery handling of sources
-1701	Ubuntu 22\.04	nm: /usr/bin/bpftrace: no symbols issue fixed: https://github.com/iovisor/bpftrace/pull/2264 but yet arrive upstream
-1722	Ubuntu 22\.04	nm: /usr/bin/bpftrace: no symbols issue fixed: https://github.com/iovisor/bpftrace/pull/2264 but yet arrive upstream
-1723	Ubuntu 22\.04	nm: /usr/bin/bpftrace: no symbols issue fixed: https://github.com/iovisor/bpftrace/pull/2264 but yet arrive upstream
+878	.*	on some QA hosts this fails sometimes when we don't see
+		the first or second event record ... despite extensive
+		triage the problem is not understood
+1210	vm[0-9][0-9]	may collide with pmlogger_check and (correctly)
+			detects presence of /etc/pcp/pmlogger/lock
+1221	vm27	extra labels associated with
+		openmetrics.vmware_exporter.vmware_vm_guest_disk_* metrics
+		for no known reason
+1662	.*	valgrind-reported issue in libpcp_web archive discovery
+		handling of sources
+1701	Ubuntu 22\.04	nm: /usr/bin/bpftrace: no symbols issue
+1722	Ubuntu 22\.04	nm: /usr/bin/bpftrace: no symbols issue
+1723	Ubuntu 22\.04	nm: /usr/bin/bpftrace: no symbols issue
+		fixed: https://github.com/iovisor/bpftrace/pull/2264
+		but yet arrive upstream
