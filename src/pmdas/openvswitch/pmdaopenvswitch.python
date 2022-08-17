@@ -360,7 +360,7 @@ class OpenvswitchPMDA(PMDA):
             if output[-1] == '':
                 output = output[:-1]
 
-            #Get number of flows per switch
+            # Get number of flows per switch
             num_flows = len(output)
 
             # String manipulation to get data
@@ -823,17 +823,14 @@ class OpenvswitchPMDA(PMDA):
 
         if cluster == self.coverage_cluster:
             if self.coverage_json is None:
-                return [PMDA_FETCH_NOVALUES,0]
+                return [PMDA_FETCH_NOVALUES, 0]
             try:
-
                 counter = self.inst_name_lookup(self.coverage_indom,inst)
-
                 value = self.coverage_json[counter]
                 key = self.coverage_metrics[item][4]
-
                 if key not in value.keys():
-                    return [0,1]
-                return [self.coverage_json[counter][key],1]
+                    return [PMDA_FETCH_NOVALUES, 0]
+                return [self.coverage_json[counter][key], 1]
 
             except Exception:
                 return [PM_ERR_APPVERSION, 0]
