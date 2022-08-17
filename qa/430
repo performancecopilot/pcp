@@ -140,9 +140,15 @@ _update_hostsfile()
 	    #
 	    egrep '^[^#].*[ 	]'$realhost'([ 	]|$)' <$hostsfile \
 	    | grep -v '^127\.0\.1\.1' >$tmp.tmp
-	    if [ `wc -l <$tmp.tmp | sed -e 's/  *//g'` -ne 1 ]
+	    # we used to test for exactly one line matching $realhost
+	    # but the introduction of IPv6 means we may legitimately have
+	    # more than one entry for $realhost ... and the update algorithm
+	    # below appears safe as long as there is at least one entry
+	    # for $realhost
+	    #
+	    if [ `wc -l <$tmp.tmp | sed -e 's/  *//g'` -lt 1 ]
 	    then
-		echo "Updating $hostsfile failed: no single $realhost entry: (see $seq.full):"
+		echo "Updating $hostsfile failed: no $realhost entry: (see $seq.full):"
 		echo "=== $hostsfile ===" >>$here/$seq.full
 		cat $hostsfile >>$here/$seq.full
 		echo "grep $realhost ..." >>$here/$seq.full
