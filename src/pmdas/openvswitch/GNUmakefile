@@ -50,6 +50,13 @@ install_pcp install:	default
 	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/rx_drops openvswitch.rx_drops.pmie $(PMIECONFDIR)/rx_drops
 	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/tx_drops openvswitch.tx_drops.pmie $(PMIECONFDIR)/tx_drops
 	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/errors openvswitch.errors.pmie $(PMIECONFDIR)/errors
+	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/mtu_exceeded_drops openvswitch.mtu_exceeded_drops.pmie $(PMIECONFDIR)/mtu_exceeded_drops
+	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/rx_qos_drops openvswitch.rx_qos_drops.pmie $(PMIECONFDIR)/rx_qos_drops
+	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/tx_failure_drops openvswitch.tx_failure_drops.pmie $(PMIECONFDIR)/tx_failure_drops
+	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/tx_qos_drops openvswitch.tx_qos_drops.pmie $(PMIECONFDIR)/tx_qos_drops
+	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/tx_retries openvswitch.tx_retries.pmie $(PMIECONFDIR)/tx_retries
+	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/vhost_notification openvswitch.vhost_notification.pmie $(PMIECONFDIR)/vhost_notification
+	$(INSTALL) -m 644 -t $(PMIECONFVARDIR)/vhost_tx_contention openvswitch.vhost_tx_contention.pmie $(PMIECONFDIR)/vhost_tx_contention
 else
 build-me:
 install_pcp install:

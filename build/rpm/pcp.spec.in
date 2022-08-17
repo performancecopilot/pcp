@@ -207,6 +207,15 @@ else
 fi
 }
 
+%global run_pmieconf() %{expand:
+if [ -w "%1" ]
+then
+    pmieconf -c enable "%2"
+else
+    echo "WARNING: Cannot write to %1, skipping pmieconf enable of %2." >&2
+fi
+}
+
 %global selinux_handle_policy() %{expand:
 SELINUX_DIR=@pcp_var_dir@/selinux
 PCP_BINADM_DIR=@pcp_binadm_dir@
@@ -2547,6 +2556,7 @@ getent passwd pcp >/dev/null || \
 PCP_PMDAS_DIR=@pcp_pmdas_dir@
 PCP_SYSCONFIG_DIR=@pcp_sysconfig_dir@
 PCP_PMCDCONF_PATH=@pcp_pmcdconf_path@
+PCP_PMIECONFIG_DIR=@pcp_var_dir@/config/pmie
 # auto-install important PMDAs for RH Support (if not present already)
 needinstall='dm'
 %if "@have_python@" == "true"
@@ -2562,8 +2572,7 @@ for PMDA in $needinstall ; do
     fi
 done
 # auto-enable these usually optional pmie rules
-pmieconf -c enable dmthin
-
+%{run_pmieconf "$PCP_PMIECONFIG_DIR" dmthin}
 %if "@enable_systemd@" == "true"
     systemctl restart pmcd pmlogger pmie >/dev/null 2>&1
     systemctl enable pmcd pmlogger pmie >/dev/null 2>&1
