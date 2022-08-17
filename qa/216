@@ -6,6 +6,10 @@
 # has been completely re-written to deal with optional output from the
 # Linux version of netstat)
 #
+# Note this test only deals with the Ip:, Icmp:, Tcp: and Udp: groups
+# of metrics from netstat(1) ... so we're isolated from the changing
+# TcpExt: and IpExt: groups in particular.
+#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
 #
@@ -135,8 +139,13 @@ End-of-File
 
 _get_netstat()
 {
-    netstat -s \
+    # "Problem while parsing /proc/net/netstat" filter needed
+    # for some hosts in CI ... this comes from netstat(1)
+    #
+    netstat -s 2>&1 \
     | tee -a $seq.full \
+    | sed \
+	-e '/Problem while parsing \/proc\/net\/netstat/d' \
     | $PCP_AWK_PROG >$tmp.out '
 /ICMP input histogram:/		{ pfx = "ICMP input"; next }
 /ICMP output histogram:/	{ pfx = "ICMP output"; next }
