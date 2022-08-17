@@ -27,6 +27,7 @@ End-of-File
 _filter()
 {
     tee -a $seq.full \
+    | _filter_slow_pmie \
     | sed -e 's/.* Info: evaluator exiting/pmie: note - evaluator exiting/g' \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]/DATE/' \
 	-e 's/ [0-9][0-9]*/ NN/g' \
