@@ -80,8 +80,13 @@ fi
 
 echo "sensors -u output:" >> $here/$seq.full
 SENS=`sensors -u 2>/dev/null | tee -a $here/$seq.full | grep '_input: ' | \
+# sanity checks below are really arbitrary
+# - temp < -1000 (was -127 which failed for Jason Koch on Ubuntu 22.04 where
+#   he observed -273.150 (!) for a temperature sensor)
+# - fan < 0 ... fan's running in reverse are not helpful
+#
 	awk '
-$1 ~ /temp[0-9]/ && $2 < -127	{ next }
+$1 ~ /temp[0-9]/ && $2 < -1000	{ next }
 $1 ~ /fan[0-9]/ && $2 < 0	{ next }
 				{ sum += $2 }
 END				{ print int(sum+0.5) }'`
