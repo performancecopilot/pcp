@@ -1470,10 +1470,12 @@ class OpenMetricsPMDA(PMDA):
         if self.dbg:
             super(OpenMetricsPMDA, self).log("debug: " + s)
 
-    def log(self, message):
+    @staticmethod
+    def log(message):
         PMDA.log(message)
 
-    def err(self, message):
+    @staticmethod
+    def err(message):
         PMDA.err(message)
 
 
