@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2019 Red Hat.
+.\" Copyright (c) 2019,2022 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -15,6 +15,7 @@
 .TH PMSERIESQUERY 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmSeriesQuery\f1,
+\f3pmSeriesWindow\f1,
 \f3pmSeriesValues\f1,
 \f3pmSeriesLoad\f1 \- fast, scalable time series querying
 .SH "C SYNOPSIS"
@@ -26,6 +27,9 @@
 .in +8n
 .ti -8n
 int pmSeriesQuery(pmSeriesSettings *\fIsp\fP, sds *\fIquery\fP, pmSeriesFlags \fIflags\fP, void *\fIarg\fP);
+.br
+.ti -8n
+int pmSeriesWindow(pmSeriesSettings *\fIsp\fP, sds *\fIwindow\fP, pmSeriesTimeWindow *\fIwindow\fP, void *\fIarg\fP);
 .br
 .ti -8n
 int pmSeriesValues(pmSeriesSettings *\fIsp\fP, pmSeriesTimeWindow *\fIwindow\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
@@ -105,6 +109,11 @@ In this case, the results are returned via the
 .I on_value
 callback registered using
 .BR pmSeriesSetup .
+A helper routine to create a time
+.I window
+structure from a square-bracket enclosed time specification
+is provided in the form of
+.BR pmSeriesWindow .
 .PP
 Further metadata (metric names, labels, units, semantics, type, etc)
 about matched time series and their values can be obtained using the
