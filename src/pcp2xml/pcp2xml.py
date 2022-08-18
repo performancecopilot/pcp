@@ -554,11 +554,11 @@ class PCP2XML(object):
                     if not isinstance(value[0], dict):
                         self.writer.write('%s<%s%s>%s</%s>\n' % (indent, key, create_attrs(None, None, value[2], value[4], value[5], value[6]), value[3], key))
                     else:
-                        for j, _ in enumerate(value):
-                            for k in value[j]:
+                        for v in value:
+                            for k in v:
                                 if k == inst_key:
                                     continue
-                                self.writer.write('%s<%s%s>%s</%s>\n' % (indent, k, create_attrs(value[j][k][0], value[j][k][1], value[j][k][2], value[j][k][4], value[j][k][5], value[j][k][6]), value[j][k][3], k))
+                                self.writer.write('%s<%s%s>%s</%s>\n' % (indent, k, create_attrs(v[k][0], v[k][1], v[k][2], v[k][4], v[k][5], v[k][6]), v[k][3], k))
 
         # Add current values
         interval = str(int(ts - self.prev_ts + 0.5))

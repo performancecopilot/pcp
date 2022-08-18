@@ -1667,7 +1667,7 @@ x11
 1211 pmseries local kernel
 1212 pmseries local
 1213 pmlogctl local
-1214 pmproxy pmseries libpcp_web local
+1214 pmproxy pmseries libpcp_web local valgrind
 1215 pmlogctl local
 1216 pmlogctl local
 1217 pmrep python local
@@ -1915,7 +1915,7 @@ x11
 1549 pmrep python local
 1566 logutil libpcp local
 1573 pmproxy libpcp_web pmlogger local
-1574 pmseries local
+1574 pmseries libpcp_web local valgrind
 1577 pmda.bpf local
 1584 pmda.mongodb local
 1588 python iostat local

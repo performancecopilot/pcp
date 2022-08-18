@@ -67,15 +67,6 @@ static void newoffset(PARSER *, sds);
 static char *n_type_str(int);
 static char *n_type_c(int);
 static char *l_type_str(int);
-
-/* strings for error reporting */
-static const char follow[]       = "follow";
-//static const char bexpr_str[]    = "Boolean expression";
-//static const char aexpr_str[]    = "Arithmetic expression";
-static const char op_str[]       = "Arithmetic or relational or boolean operator";
-static const char name_str[]     = "Symbol";
-static const char unexpected_str[]       = "Unexpected";
-static const char initial_str[]  = "Unexpected initial";
 %}
 
 /*
@@ -231,6 +222,9 @@ vector:	L_NAME L_LBRACE exprlist L_RBRACE L_EOS
 		  lp->yy_np->time = lp->yy_series.time;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		  YYACCEPT;
+		}
+	| L_LSQUARE timelist L_RSQUARE L_EOS
+		{ YYACCEPT;
 		}
 	| L_NAME L_EOS
 		{ lp->yy_np = newmetric($1);
@@ -2181,10 +2175,9 @@ series_dumpexpr(node_t *np, int level)
 }
 
 int
-series_parse(sds query, series_t *sp, sds *err, void *arg)
+series_parse(sds query, series_t *sp, sds *err)
 {
     PARSER	yp = { .yy_base = query, .yy_input = (char *)query };
-    series_t	*ypsp = &yp.yy_series;
     int		sts;
 
     sts = yyparse(&yp);
@@ -2195,14 +2188,18 @@ series_parse(sds query, series_t *sp, sds *err, void *arg)
 	*err = yp.yy_errstr;
 	return yp.yy_error;
     }
+    if (yp.yy_series.expr == NULL) {	/* only a window? */
+	*err = sdsnew("Invalid series query specification");
+	return -EINVAL;
+    }
 
     if (pmDebugOptions.query) {
 	fprintf(stderr, "parsed query: %s\n", query);
-	series_dumpexpr(ypsp->expr, 0);
+	series_dumpexpr(yp.yy_series.expr, 0);
 	fputc('\n', stderr);
     }
 
-    *sp = *ypsp;
+    *sp = yp.yy_series; /* struct copy */
     return sts;
 }
 
@@ -2215,7 +2212,7 @@ pmSeriesQuery(pmSeriesSettings *settings, sds query, pmSeriesFlags flags, void *
 
     series_stats_inc(settings, SERIES_QUERY_CALLS);
 
-    if ((sts = series_parse(query, &sp, &errstr, arg)) != 0) {
+    if ((sts = series_parse(query, &sp, &errstr)) != 0) {
 	moduleinfo(&settings->module, PMLOG_ERROR, errstr, arg);
 	return sts;
     }
@@ -2234,12 +2231,40 @@ pmSeriesLoad(pmSeriesSettings *settings, sds source, pmSeriesFlags flags, void *
 
     series_stats_inc(settings, SERIES_LOAD_CALLS);
 
-    if ((sts = series_parse(source, &sp, &errstr, arg)) != 0) {
+    if ((sts = series_parse(source, &sp, &errstr)) != 0) {
 	moduleinfo(&settings->module, PMLOG_ERROR, errstr, arg);
 	return sts;
     }
 
     sts = series_load(settings, sp.expr, &sp.time, flags, arg);
     series_freetime(&sp.time);
+    return sts;
+}
+
+int
+pmSeriesWindow(pmSeriesSettings *settings, sds window, pmSeriesTimeWindow *wp, void *arg)
+{
+    PARSER	yp = { .yy_base = window, .yy_input = (char *)window };
+    timing_t	*tp = &yp.yy_series.time;
+    sds		error;
+    int		sts;
+
+    sts = yyparse(&yp);
+    if (yp.yy_tokbuf)
+	free(yp.yy_tokbuf);
+
+    if (sts != 0) {
+	moduleinfo(&settings->module, PMLOG_ERROR, yp.yy_errstr, arg);
+	series_freetime(tp);
+	return yp.yy_error;
+    }
+    if (yp.yy_series.expr != NULL) {
+	error = sdsnew("Invalid time window specification");
+	moduleinfo(&settings->module, PMLOG_ERROR, error, arg);
+	series_freetime(tp);
+	return -EINVAL;
+    }
+
+    *wp = tp->window; /* struct copy */
     return sts;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021 Red Hat.
+ * Copyright (c) 2017-2022 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -166,6 +166,7 @@ extern int pmSeriesInstances(pmSeriesSettings *, int, sds *, void *);
 extern int pmSeriesMetrics(pmSeriesSettings *, int, sds *, void *);
 extern int pmSeriesSources(pmSeriesSettings *, int, sds *, void *);
 extern int pmSeriesValues(pmSeriesSettings *, pmSeriesTimeWindow *, int, sds *, void *);
+extern int pmSeriesWindow(pmSeriesSettings *, sds, pmSeriesTimeWindow *, void *);
 extern int pmSeriesQuery(pmSeriesSettings *, sds, pmSeriesFlags, void *);
 extern int pmSeriesLoad(pmSeriesSettings *, sds, pmSeriesFlags, void *);
 

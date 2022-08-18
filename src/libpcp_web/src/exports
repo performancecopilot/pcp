@@ -249,3 +249,8 @@ PCP_WEB_1.19 {
     dictGetIterator;
     redisSlotsReconnect;
 } PCP_WEB_1.18;
+
+PCP_WEB_1.20 {
+  global:
+    pmSeriesWindow;
+} PCP_WEB_1.19;
