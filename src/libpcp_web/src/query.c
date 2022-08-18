@@ -2623,9 +2623,8 @@ series_calculate_rate(node_t *np)
     for (i = 0; i < np->value_set.num_series; i++) {
 	n_samples = np->value_set.series_values[i].num_samples;
 	if (series_rate_check(np->value_set.series_values[i].series_desc) == 0) {
-	    if (n_samples > 0) {
-		n_instances = np->value_set.series_values[i].series_sample[0].num_instances;
-	    }
+	    n_instances = (n_samples == 0) ? 0 :
+		np->value_set.series_values[i].series_sample[0].num_instances;
 	    for (j = 1; j < n_samples; j++) {
 		if (np->value_set.series_values[i].series_sample[j].num_instances != n_instances) {
 		    if (pmDebugOptions.query && pmDebugOptions.desperate)
@@ -4164,7 +4163,7 @@ series_calculate_binary_check(int ope_type, seriesQueryBaton *baton,
      * the operands and result are identical.
      */
     if ((ope_type == N_PLUS || ope_type == N_MINUS) &&
-		compare_pmUnits_dim(&left->meta.units, &right->meta.units) != 0) {
+	compare_pmUnits_dim(&left->meta.units, &right->meta.units) != 0) {
 	infofmt(msg, "Dimensions of two operands mismatch\n");
 	batoninfo(baton, PMLOG_ERROR, msg);
 	baton->error = -EPROTO;
