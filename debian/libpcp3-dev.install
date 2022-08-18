@@ -232,6 +232,7 @@ usr/share/man/man3/pmSeriesSetSlots.3.gz
 usr/share/man/man3/pmSeriesSetup.3.gz
 usr/share/man/man3/pmSeriesSources.3.gz
 usr/share/man/man3/pmSeriesValues.3.gz
+usr/share/man/man3/pmSeriesWindow.3.gz
 usr/share/man/man3/pmSetDebug.3.gz
 usr/share/man/man3/pmSetDerivedControl.3.gz
 usr/share/man/man3/pmSetMode.3.gz

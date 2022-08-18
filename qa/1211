@@ -234,6 +234,9 @@ pmseries $options 'disk.partitions.blk*' | \
 	tee -a $tmp.series
 pmseries $options -a `cat $tmp.series`
 
+echo "Time windowed values from a multi-series query ..."
+pmseries $options -ZUTC -v -w 'count: 2' `cat $tmp.series`
+
 echo "Perform simple source-based query ..."
 pmseries $options 'kernel.all.pswitch{source.name:"bozo-laptop"}'
 echo

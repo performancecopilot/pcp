@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2018-2020 Red Hat.
+.\" Copyright (c) 2018-2020,2022 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -23,6 +23,7 @@
 [\fB\-g\fR \fIpattern\fR]
 [\fB\-h\fR \fIhost\fR]
 [\fB\-p\fR \fIport\fR]
+[\fB\-w\fR \fIwindow\fR]
 [\fB\-Z\fR \fItimezone\fR]
 [\fIquery\fR | \fIlabels\fR ... | \fIseries\fR ... | \fIsource\fR ... ]
 .SH DESCRIPTION
@@ -60,11 +61,10 @@ The latter mode is generally only used for loading
 previously collected (inactive) archives,
 since
 .BR pmproxy (1)
-will automatically perform this function for "live" (actively growing)
+automatically performs this function for "live" (actively growing)
 local
 .BR pmlogger (1)
-instances,
-when running in its default time series mode.
+instances, when running in its default time series mode.
 See the
 .B "TIMESERIES LOADING"
 section below and the
@@ -752,7 +752,15 @@ Report time stamps numerically (in milliseconds) instead of
 the default human readable form.
 .TP
 \fB\-v\fR, \fB\-\-values\fR
-Report all of the known values for given \fIlabel\fR name(s).
+Report all of the known values for given \fIlabel\fR name(s),
+or report values for the given \fIseries\fR identifiers.
+.TP
+\fB\-w\fR, \fB\-\-window\fR
+Provide a time specification that will be applied to values
+being returned when returning values via use of \fIseries\fR
+identifiers (i.e. when not using a \fIquery\fR string).
+The time specification uses the same square-bracket enclosed
+form described earlier in the ``TIME SPECIFICATION'' section.
 .TP
 \fB\-V\fR, \fB\-\-version\fR
 Display version number and exit.
