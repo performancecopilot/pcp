@@ -1496,14 +1496,15 @@ series_solve_sid_expr(pmSeriesSettings *settings, pmSeriesExpr *expr, void *arg)
     /* ref baton until on_series_solve_done */
     seriesBatonReference(baton, "series_solve_sid_expr");
 
-    if ((sts = series_parse(expr->query, &sp, &errstr, arg)) == 0) {
+    if ((sts = series_parse(expr->query, &sp, &errstr)) == 0) {
 	pmSeriesSetSlots(&settings->module, baton->slots);
-	settings->module = *baton->module; /* struct cpy */
+	settings->module = *baton->module; /* struct copy */
 
 	sts = series_solve(settings, sp.expr, &baton->query.timing,
-	    PM_SERIES_FLAG_NONE, baton);
+			    PM_SERIES_FLAG_NONE, baton);
     }
 
+    freeSeriesGetSID(sid);
     return sts;
 }
 
@@ -1523,10 +1524,13 @@ series_query_expr_reply(redisClusterAsyncContext *c, void *r, void *arg)
 	infofmt(msg, "expected array of one string element (got %zu) from series %s %s (type=%s)",
 		reply->elements, sid->name, HMGET, redis_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
+	freeSeriesGetSID(sid);
     } else if (reply->element[0]->type == REDIS_REPLY_STRING) {
 	expr.query = sdsempty();
     	if ((sts = extract_string(baton, sid->name, reply->element[0], &expr.query, "query")) < 0) {
 	    baton->error = sts;
+	    sdsfree(expr.query);
+	    freeSeriesGetSID(sid);
 	} else {
 	    /* Parse the expr (with timing) and series solve the resulting expr tree */
 	    baton->error = series_solve_sid_expr(&series_solve_values_settings, &expr, arg);

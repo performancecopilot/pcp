@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021 Red Hat.
+ * Copyright (c) 2017-2022 Red Hat.
  * Copyright (c) 2020 Yushan ZHANG.
  * Copyright (c) 2022 Shiyao CHEN.
  *
@@ -194,7 +194,7 @@ typedef struct series {
     timing_t		time;
 } series_t;
 
-extern int series_parse(sds, series_t *, char **, void *);
+extern int series_parse(sds, series_t *, char **);
 extern int series_solve(pmSeriesSettings *, node_t *, timing_t *, pmSeriesFlags, void *);
 extern int series_load(pmSeriesSettings *, node_t *, timing_t *, pmSeriesFlags, void *);
 extern void series_stats_inc(pmSeriesSettings *, unsigned int);

@@ -199,8 +199,8 @@ static void
 series_free(int nseries, pmSID *series)
 {
     if (nseries) {
-	while (--nseries)
-	    sdsfree(series[nseries]);
+	while (nseries)
+	    sdsfree(series[--nseries]);
 	free(series);
     }
 }
@@ -223,7 +223,8 @@ series_data_reset(series_data *dp)
 static void
 series_data_free(series_data *dp)
 {
-    int		exit_status = dp->status;
+    series_entry	*tail, *entry;
+    int			exit_status = dp->status;
 
     if (dp->args.nsource)
 	series_free(dp->args.nsource, dp->args.source);
@@ -238,7 +239,15 @@ series_data_free(series_data *dp)
 
     sdsfree(dp->series);
     sdsfree(dp->source);
+    sdsfree(dp->window);
     sdsfree(dp->query);
+
+    entry = dp->head;
+    while (entry != NULL) {
+	tail = entry->next;
+	free(entry);
+	entry = tail;
+    }
 
     memset(dp, 0, sizeof(series_data));
     dp->status = exit_status;
@@ -447,6 +456,9 @@ series_values(series_data *dp)
 	fprintf(stderr, "%s: no series identifiers in string '%s': %s\n",
 		pmGetProgname(), dp->query, pmErrStr_r(sts, msg, sizeof(msg)));
     } else {
+	dp->args.nseries = nseries;
+	dp->args.series = series;
+
 	if ((sts = pmSeriesWindow(&dp->settings, dp->window, &timing, dp)) < 0)
 	    fprintf(stderr, "%s: invalid time specification '%s': %s\n",
 		pmGetProgname(), dp->window, pmErrStr_r(sts, msg, sizeof(msg)));

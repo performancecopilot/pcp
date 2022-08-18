@@ -2175,7 +2175,7 @@ series_dumpexpr(node_t *np, int level)
 }
 
 int
-series_parse(sds query, series_t *sp, sds *err, void *arg)
+series_parse(sds query, series_t *sp, sds *err)
 {
     PARSER	yp = { .yy_base = query, .yy_input = (char *)query };
     int		sts;
@@ -2212,7 +2212,7 @@ pmSeriesQuery(pmSeriesSettings *settings, sds query, pmSeriesFlags flags, void *
 
     series_stats_inc(settings, SERIES_QUERY_CALLS);
 
-    if ((sts = series_parse(query, &sp, &errstr, arg)) != 0) {
+    if ((sts = series_parse(query, &sp, &errstr)) != 0) {
 	moduleinfo(&settings->module, PMLOG_ERROR, errstr, arg);
 	return sts;
     }
@@ -2231,7 +2231,7 @@ pmSeriesLoad(pmSeriesSettings *settings, sds source, pmSeriesFlags flags, void *
 
     series_stats_inc(settings, SERIES_LOAD_CALLS);
 
-    if ((sts = series_parse(source, &sp, &errstr, arg)) != 0) {
+    if ((sts = series_parse(source, &sp, &errstr)) != 0) {
 	moduleinfo(&settings->module, PMLOG_ERROR, errstr, arg);
 	return sts;
     }
