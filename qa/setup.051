@@ -605,6 +605,7 @@ sed -e '/No such file/s/^cat:/Cannot open/' \
 | tee kill.001.$$ \
 | grep -v "Cannot open" \
 | sed -e 's/^$//' \
+	-e '/Info: OpenSSL /d' \
 	-e '/^[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/d' \
         -e '/^Log for pmcd on/s/ on .*/ on .../' \
         -e '/^Log finished/s/finished .*/finished .../' \

@@ -22,7 +22,13 @@ host=`hostname`
 _host_to_ipv6addrs $host | tee -a $seq.full >$tmp.tmp
 addr=`head -1 $tmp.tmp`
 [ -z "$addr" ] && _notrun "Cannot translate hostname ($host) to IPv6 address"
-ipv6local=`_ipv6_localhost`
+ipv6local=`_ipv6_localhost 2>$tmp.tmp`
+if [ -z "$ipv6local" ]
+then
+    cat $tmp.tmp >>$seq.full
+    _notrun "Cannot find IPv6 address for localhost"
+    # NOTREACHED
+fi
 
 if [ -f /etc/lsb-release ]
 then

@@ -29,6 +29,12 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+if [ ! -f .rnd ]
+then
+    echo "Creating random bytes in .rnd" >>$seq.full
+    openssl rand -writerand .rnd
+fi
+
 _save_config $PCP_TLSCONF_PATH
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger

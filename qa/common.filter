@@ -1058,3 +1058,25 @@ skip == 1					{ next }
     # end
 }
 
+# strip out this sort of stuff ...
+# run: schedule eval (1660671537.224214) > now (1660671536.724049) + delta (0.500000) ... reset
+# Task dump @ 0x55a8b08e8940
+#   nth=0 delta=0.500 tick=4 next=(nil) prev=(nil)
+#   eval time: Wed Aug 17 03:38:57.224214 2022
+#   retry delta: N/A host: bozo-vm.localdomain
+#   via=local: (up)
+#   rules:
+#     expr_1
+#     expr_2
+#
+_filter_slow_pmie()
+{
+    sed \
+	-e '/^run: schedule eval/d' \
+    | $PCP_AWK_PROG '
+BEGIN				{ skip = 0 }
+$1 == "Task" && $2 == "dump"	{ skip = 1; next }
+skip == 1 && /^[^ ]/		{ skip = 0 }
+skip == 0			{ print }'
+}
+
