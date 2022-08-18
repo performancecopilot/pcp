@@ -133,8 +133,8 @@ _pcp_complete()
         arg_regex="-[04689ABabcEeFfhiJKlNOoPQqSsTtWwXYyZ]"
     ;;
     pmseries)
-        all_args="acdFghIiLlMmnpqSstVvZ"
-        arg_regex="-[cghpZ]"
+        all_args="acdFghIiLlMmnpqSstVvwZ"
+        arg_regex="-[cghpwZ]"
     ;;
     pmstat)
         all_args="AagHhLlnOPpSsTtVxZz"

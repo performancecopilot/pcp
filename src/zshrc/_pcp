@@ -790,7 +790,8 @@ _pcp () {
       "(-S --sources $exargs)"{-S,--sources}'[report context for timeseries sources]' \
       "(-s --series $exargs)"{-s,--series}'[report timeseries identifiers]' \
       "(-t --times $exargs)"{-t,--times}'[report numeric timestamps]' \
-      "(-v --values $exargs)"{-v,--values}'[report known values for labels]' \
+      "(-v --values $exargs)"{-v,--values}'[report known values for series or labels]' \
+      "(-w --window $exargs)"{-w+,--window}'[restrict --values report to a time window]' \
       "(-Z --timezone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       '1:series:->ts_metrics' \
       && return 0
