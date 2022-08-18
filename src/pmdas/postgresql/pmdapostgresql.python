@@ -806,7 +806,7 @@ class POSTGRESQLPMDA(PMDA):
             cur = self.pg_cursor()
             try:
                 cur.execute('SELECT * FROM %s' % (table))
-            except (psycopg2.DatabaseError) as error: # pylint disable: broad-except
+            except (psycopg2.DatabaseError) as error: # pylint: disable=broad-except
                 self.debug("pg_refresh: singular table %s not available: %s" % (table, error))
                 cur.close()
                 return # fail
@@ -1034,7 +1034,7 @@ class POSTGRESQLPMDA(PMDA):
         if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
             parser = configparser.ConfigParser()
         else:
-            parser = configparser.SafeConfigParser()
+            parser = configparser.SafeConfigParser() # pylint: disable=deprecated-class
         parser.read(filename)
 
         # get section, default to postgresql
@@ -1057,7 +1057,7 @@ class POSTGRESQLPMDA(PMDA):
             params = "host=%s port=%s dbname=%s user=%s password='%s'" % (self.host, self.port, self.dbname, self.user, self.password)
         try:
             self.conn = psycopg2.connect(params)
-        except (psycopg2.DatabaseError) as error: # pylint disable: broad-except
+        except (psycopg2.DatabaseError) as error: # pylint: disable=broad-except
             self.log("Error connecting to db %s as user %s: %s" % (self.dbname, self.user, error))
             self.conn = None
             return False

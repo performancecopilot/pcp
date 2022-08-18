@@ -122,7 +122,7 @@ class BCCPMDA(PMDA):
         if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
             config = configparser.ConfigParser()
         else:
-            config = configparser.SafeConfigParser()
+            config = configparser.SafeConfigParser() # pylint: disable=deprecated-class
 
         try:
             config.read(conffile)

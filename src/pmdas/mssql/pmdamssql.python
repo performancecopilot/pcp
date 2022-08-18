@@ -1277,7 +1277,7 @@ class MSSQLPMDA(PMDA):
         if sys.version_info[0] >= 3 and sys.version_info[1] >= 2:
             parser = configparser.ConfigParser()
         else:
-            parser = configparser.SafeConfigParser()
+            parser = configparser.SafeConfigParser() # pylint: disable=deprecated-class
         parser.read(filename)
 
         # get each requested section
