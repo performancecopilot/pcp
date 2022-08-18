@@ -4,15 +4,23 @@
 rule    openvswitch.tx_mtu_exceeded_drops
         summary = "$rule$"
         enumerate = hosts
-        predicate = "some_inst (
-    instant( openvswitch.interface.stats.ovs_tx_mtu_exceeded_drops @0 ) -
-    instant( openvswitch.interface.stats.ovs_tx_mtu_exceeded_drops @1 ) > 0
+        predicate =
+"some_host (
+    some_inst (
+	instant( openvswitch.interface.stats.ovs_tx_mtu_exceeded_drops @0 ) -
+	instant( openvswitch.interface.stats.ovs_tx_mtu_exceeded_drops @1 ) > 0
+    )
 )"
-        enabled = yes
-        help = "Number of tx_mtu_exceeded_drops over the past sample interval.";
+        enabled = no
+        version = 1
+        help =
+"Detect Open vSwitch transmission MTU-exceeded drops during the
+last sample interval.
+If this rule is enabled, the Open vSwitch metrics will be used;
+see pmdaopenvswitch(1).";
 
 string  rule
-        default = "Openvswitch tx_mtu_exceeded packet drops"
+        default = "Open vSwitch tx_mtu_exceeded drops"
         modify  = no
         display = no;
 

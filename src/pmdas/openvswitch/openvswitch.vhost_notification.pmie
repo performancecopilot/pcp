@@ -8,11 +8,15 @@ rule    openvswitch.vhost_notification
     instant( openvswitch.coverage.vhost_notification @0 ) - 
     instant( openvswitch.coverage.vhost_notification @1 ) > 0
 )"
-        enabled = yes
-        help = "Number of vhost_notification over the past sample interval.";
+        enabled = no
+        version = 1
+        help =
+"Open vSwitch vhost notifications over the last sample interval.
+If this rule is enabled, the Open vSwitch metrics will be used;
+see pmdaopenvswitch(1).";
 
 string  rule
-        default = "Openvswitch vhost_notification counter"
+        default = "Open vSwitch vhost notification count"
         modify  = no
         display = no;
 

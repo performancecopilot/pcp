@@ -14,13 +14,12 @@ rule	openvswitch.tx_drops
 	enabled = no
 	version = 1
 	help	=
-"Detect dropped packet transmissions on OpenVSwitch interfaces.
-
-If this rule is enabled, the OpenVSwitch metrics will be used;
+"Detect dropped packet transmissions on Open vSwitch interfaces.
+If this rule is enabled, the Open vSwitch metrics will be used;
 see pmdaopenvswitch(1).";
 
 string	rule
-	default = "openvswitch interface tx drops"
+	default = "Open vSwitch interface tx drops"
 	modify	= no
 	display = no;
 

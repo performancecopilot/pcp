@@ -4,15 +4,22 @@
 rule	openvswitch.tx_failure_drops
         summary = "$rule$"
         enumerate = hosts
-	predicate = "some_inst (
-    instant ( openvswitch.interface.stats.ovs_tx_failure_drops @0 ) - 
-    instant ( openvswitch.interface.stats.ovs_tx_failure_drops @1 ) > 0
+	predicate =
+"some_host (
+    some_inst (
+	instant ( openvswitch.interface.stats.ovs_tx_failure_drops @0 ) - 
+	instant ( openvswitch.interface.stats.ovs_tx_failure_drops @1 ) > 0
+    )
 )"
-	enabled	= yes
-        help = "Number of tx_failure_drops over the past sample interval.";
+	enabled	= no
+	version = 1
+        help =
+"Detect transmission failure drops in the last sample interval.
+If this rule is enabled, the Open vSwitch metrics will be used;
+see pmdaopenvswitch(1).";
 
 string  rule
-        default = "Openvswitch tx_failure packet drops"
+        default = "Open vSwitch tx_failure packet drops"
         modify  = no
         display = no;
 

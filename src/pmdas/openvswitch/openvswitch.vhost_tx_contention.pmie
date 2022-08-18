@@ -4,15 +4,22 @@
 rule    openvswitch.vhost_tx_contention
         summary = "$rule$"
         enumerate = hosts
-        predicate = "some_inst (
-    instant( openvswitch.coverage.vhost_tx_contention @0 ) - 
-    instant( openvswitch.coverage.vhost_tx_contention @1 ) > 0
+        predicate =
+"some_host (
+    some_inst (
+	instant( openvswitch.coverage.vhost_tx_contention @0 ) - 
+	instant( openvswitch.coverage.vhost_tx_contention @1 ) > 0
+    )
 )"
-        enabled = yes
-        help = "Number of vhost_tx_contention over the past sample interval.";
+        enabled = no
+        version = 1
+        help =
+"Detect vhost transmit contentions over the last sample interval.
+If this rule is enabled, the Open vSwitch metrics will be used;
+see pmdaopenvswitch(1).";
 
 string  rule
-        default = "Openvswitch vhost_tx_contention counter"
+        default = "Open vSwitch vhost tx contention"
         modify  = no
         display = no;
 

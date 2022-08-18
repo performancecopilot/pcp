@@ -14,13 +14,12 @@ rule	openvswitch.errors
 	enabled = no
 	version = 1
 	help	=
-"Detect errors on each individual OpenVSwitch interface.
-
-If this rule is enabled, the OpenVSwitch metrics will be used;
+"Detect any errors on each individual Open vSwitch interface.
+If this rule is enabled, the Open vSwitch metrics will be used;
 see pmdaopenvswitch(1).";
 
 string	rule
-	default = "openvswitch interface errors"
+	default = "Open vSwitch interface errors"
 	modify	= no
 	display = no;
 

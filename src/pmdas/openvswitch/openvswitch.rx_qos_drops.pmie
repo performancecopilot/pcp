@@ -4,12 +4,19 @@
 rule    openvswitch.rx_qos_drops
         summary = "$rule$"
         enumerate = hosts
-        predicate = "some_inst (
-    instant( openvswitch.interface.stats.ovs_rx_qos_drops @0 ) - 
-    instant( openvswitch.interface.stats.ovs_rx_qos_drops @1 ) > 0
+        predicate =
+"some_host (
+    some_inst (
+	instant( openvswitch.interface.stats.ovs_rx_qos_drops @0 ) - 
+	instant( openvswitch.interface.stats.ovs_rx_qos_drops @1 ) > 0
+    )
 )"
-        enabled = yes
-        help = "Number of rx_qos_drops over the past sample interval.";
+        enabled = no
+	version = 1
+        help =
+"Open vSwitch receive-side QOS drops in the last sample interval.
+If this rule is enabled, the Open vSwitch metrics will be used;
+see pmdaopenvswitch(1).";
 
 string  rule
         default = "Openvswitch rx_qos packet drops"

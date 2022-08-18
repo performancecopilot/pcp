@@ -14,9 +14,8 @@ rule	openvswitch.rx_drops
 	enabled = no
 	version = 1
 	help	=
-"Detect dropped packets during recv on OpenVSwitch interfaces.
-
-If this rule is enabled, the OpenVSwitch metrics will be used;
+"Detect dropped packets during receive on Open vSwitch interfaces.
+If this rule is enabled, the Open vSwitch metrics will be used;
 see pmdaopenvswitch(1).";
 
 string	rule
