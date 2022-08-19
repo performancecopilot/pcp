@@ -364,12 +364,12 @@ class NetcheckPMDA(PMDA):
                 self.modules[module].insts = pmdaIndom(self.modules[module].indom, caching)
                 self.modules[module].helpers(self.modules[module].insts)
                 self.add_indom(self.modules[module].insts)
-            for item, _ in enumerate(metrics):
-                self.add_metric('netcheck.' + metrics[item][0],
-                                pmdaMetric(self.pmid(cluster, item), metrics[item][2],
+            for item, metric in enumerate(metrics):
+                self.add_metric('netcheck.' + metric[0],
+                                pmdaMetric(self.pmid(cluster, item), metric[2],
                                            self.modules[module].indom,
-                                           metrics[item][3], metrics[item][4]),
-                                metrics[item][5], metrics[item][5])
+                                           metric[3], metric[4]),
+                                metric[5], metric[5])
             self.indoms[self.modules[module].indom] = module
             self.clusters[cluster] = module
         self.log("Metrics registered.")
