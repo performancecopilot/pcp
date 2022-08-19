@@ -32,7 +32,7 @@ _filter()
 
 # real QA test starts here
 echo "=== tmparch/foo ===" | tee -a $here/$seq.full
-src/interp2 -a tmparch/foo | _filter 72 82 4 15
+src/interp2 -a tmparch/foo | _filter 71 82 4 15
 
 echo | tee -a $here/$seq.full
 echo "=== archives/ok-bigbin ===" | tee -a $here/$seq.full
@@ -40,7 +40,7 @@ src/interp2 -a archives/ok-bigbin | _filter 199 210 900 1210
 
 echo | tee -a $here/$seq.full
 echo "=== tmparch/mv-foo ===" | tee -a $here/$seq.full
-src/interp2 -a tmparch/mv-foo | _filter 72 82 10 20
+src/interp2 -a tmparch/mv-foo | _filter 71 82 10 20
 
 echo | tee -a $here/$seq.full
 echo "=== archives/ok-mv-bigbin ===" | tee -a $here/$seq.full
@@ -48,7 +48,7 @@ src/interp2 -a archives/ok-mv-bigbin | _filter 199 210 980 1025
 
 echo | tee -a $here/$seq.full
 echo "=== tmparch/noti-foo ===" | tee -a $here/$seq.full
-src/interp2 -a tmparch/noti-foo | _filter 72 82 10 20
+src/interp2 -a tmparch/noti-foo | _filter 71 82 10 20
 
 echo | tee -a $here/$seq.full
 echo "=== archives/ok-noti-bigbin ===" | tee -a $here/$seq.full
