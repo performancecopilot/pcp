@@ -1,6 +1,7 @@
 # mostly this needs to be matched against the GNUmakefile ... anything
 # cleaned up in "make clobber" should also be mentioned here ...
 #
+.rnd
 /*.full
 /*.notrun
 /*.full.ok
