@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 _filterfoo()
 {
     $PCP_AWK_PROG '
-BEGIN	{ lo[0] = 15; hi[0] = 17
+BEGIN	{ lo[0] = 14; hi[0] = 17
 	  f = 0
 	}
 /^Found/	{ if (lo[f] <= $2 && $2 <= hi[f])
