@@ -22,7 +22,8 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    sed \
+    _filter_slow_pmie \
+    | sed \
 	-e "s;$tmp;TMP;" \
 	-e 's/.* Info: evaluator exiting/pmie: note - evaluator exiting/g' \
 	-e '/^[ 	]*$/d' \
