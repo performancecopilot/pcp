@@ -17,6 +17,7 @@ class Test:
         Skipped = "skipped"
         Failed = "failed"
         Broken = "broken"
+        Triaged = "triaged"
 
     def __init__(self, name: str):
         self.name = name
@@ -28,6 +29,9 @@ class Test:
         self.stop = 0
         self.status = ""
         self.message = ""
+
+
+FAILED_TEST_STATES = [Test.Status.Failed, Test.Status.Broken, Test.Status.Broken]
 
 
 def read_test_durations(timings_path: str) -> Dict[str, List[int]]:
@@ -94,12 +98,17 @@ def read_testlog(
                 if failed_msg.startswith("- "):
                     failed_msg = failed_msg[2:]
 
-                test.status = Test.Status.Broken if "failed" in failed_msg else Test.Status.Failed
+                if "failed" in failed_msg:
+                    test.status = Test.Status.Broken
+                elif "triaged" in failed_msg:
+                    test.status = Test.Status.Triaged
+                else:
+                    test.status = Test.Status.Failed
                 test.message = failed_msg + "\n"
             elif cancelled_m:
                 test.status = Test.Status.Broken
                 test.message = "test cancelled"
-            elif tests and tests[-1].status in [Test.Status.Failed, Test.Status.Broken]:
+            elif tests and tests[-1].status in FAILED_TEST_STATES:
                 # if this line doesn't match any regex, it's probably output from the previous test
                 if len(tests[-1].message) < 10000:  # ignore output for huge diffs
                     tests[-1].message += line
@@ -162,7 +171,7 @@ def test_summary_tests(tests: List[Test]):
     for test in tests:
         tests_grouped[test.name][test.platform] = test
         platform_set.add(test.platform)
-        if not has_failed_tests and test.status in [Test.Status.Failed, Test.Status.Broken]:
+        if not has_failed_tests and test.status in FAILED_TEST_STATES:
             has_failed_tests = True
 
     if not has_failed_tests:
@@ -186,7 +195,7 @@ def test_summary_tests(tests: List[Test]):
             test = tests_grouped[test_name].get(platform)
             if test and test.status == Test.Status.Passed:
                 test_line += " ".center(col_width)
-            elif test and test.status in [Test.Status.Failed, Test.Status.Broken]:
+            elif test and test.status in FAILED_TEST_STATES:
                 test_line += "X".center(col_width)
             else:
                 test_line += "-".center(col_width)
@@ -211,7 +220,7 @@ def test_summary_platforms(platforms: List[str], tests: List[Test]):
             platform_stats[test.platform]["skipped"] += 1
         elif test.status == Test.Status.Broken and test.message == "test cancelled":
             platform_stats[test.platform]["cancelled"] += 1
-        elif test.status in [Test.Status.Failed, Test.Status.Broken]:
+        elif test.status in FAILED_TEST_STATES:
             platform_stats[test.platform]["failed"] += 1
 
     summary = "=== Platform Summary ===\n\n"
@@ -244,7 +253,8 @@ def write_allure_test_result(test: Test, allure_results_path: str, source_url: O
         "fullName": f"QA #{test.name} on {test.platform}",
         "historyId": f"{test.name}@{test.platform}",
         "description": test.description,
-        "status": test.status,
+        # Allure doesn't have a "triaged" test status, therefore we use the "unknown" status
+        "status": "unknown" if test.status == Test.Status.Triaged else test.status,
         "statusDetails": {"message": test.message, "flaky": "flakey" in test.groups},
         "attachments": [],
         "start": test.start * 1000,
@@ -270,7 +280,7 @@ def write_allure_test_result(test: Test, allure_results_path: str, source_url: O
     for group in test.groups:
         allure_result["labels"].append({"name": "epic", "value": group})
 
-    if test.status in [Test.Status.Failed, Test.Status.Broken]:
+    if test.status in FAILED_TEST_STATES:
         allure_result["description"] += (
             f"**To reproduce this test, please run:**\n\n"
             f"    build/ci/ci-run.py {test.platform} reproduce"
@@ -344,7 +354,7 @@ def send_slack_notification(
             platform_stats[test.platform]["skipped"] += 1
         elif test.status == Test.Status.Broken and test.message == "test cancelled":
             platform_stats[test.platform]["cancelled"] += 1
-        elif test.status in [Test.Status.Failed, Test.Status.Broken]:
+        elif test.status in FAILED_TEST_STATES:
             platform_stats[test.platform]["failed"] += 1
 
     platform_texts = []

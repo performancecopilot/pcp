@@ -16,5 +16,11 @@
     "matchedStatuses": [
       "broken"
     ]
+  },
+  {
+    "name": "Triaged tests",
+    "matchedStatuses": [
+      "unknown"
+    ]
   }
 ]

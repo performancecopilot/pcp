@@ -127,7 +127,7 @@ jobs:
 
       - name: Setup Allure2
         run: |
-          wget -q -O allure-commandline.zip https://repo1.maven.org/maven2/io/qameta/allure/allure-commandline/2.17.3/allure-commandline-2.17.3.zip
+          wget -q -O allure-commandline.zip https://repo1.maven.org/maven2/io/qameta/allure/allure-commandline/2.19.0/allure-commandline-2.19.0.zip
           unzip -q -d /opt allure-commandline.zip
 
       - name: Parse test results
