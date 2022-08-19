@@ -30,7 +30,7 @@ default install install_pcp default_pcp :
 # going to make sure it'll be rebuild next time we come here
 # We used to override --target=FOO, but it's better to let the
 # local build distro defaults do their jobs.
-pack_pcp : rpmmacros $(SPEC)
+pack_pcp : rpmmacros systemd-sysuser-configs $(SPEC)
 	DEFS=`grep '^--define' rpmmacros`; \
 	eval $(RPMPROG) -ba $$DEFS --clean $(SPEC)
 	@if [ -n "$$RPM_SIGN_KEYID" ]; then \
@@ -122,6 +122,10 @@ pcp.spec: pcp.spec.in
 	    -e's|@have_manpages@|$(HAVE_MANPAGES)|g' \
 	    -e's|@make@|$(PCP_MAKE_PROG)|g' <$? >$@
 	./do-maybe-requires
+
+systemd-sysuser-configs:
+	$(MAKE) $(MAKEOPTS) -C $(TOPDIR)/src/include pcp.user.install
+	$(MAKE) $(MAKEOPTS) -C $(TOPDIR)/qa pcpqa.user
 
 include $(BUILDRULES)
 

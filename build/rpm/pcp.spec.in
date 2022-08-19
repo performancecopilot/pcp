@@ -2531,7 +2531,7 @@ done
 %pre testsuite
 test -d @pcp_var_dir@/testsuite || mkdir -p -m 755 @pcp_var_dir@/testsuite
 %if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
-%sysusers_create_compat $RPM_BUILD_ROOT/@pcp_systemdsysusers_dir@/pcpqa.conf
+%sysusers_create_compat %{_builddir}/qa/pcpqa.user
 %else
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
@@ -2556,7 +2556,7 @@ chown -R pcpqa:pcpqa @pcp_var_dir@/testsuite 2>/dev/null
 
 %pre
 %if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
-%sysusers_create_compat $RPM_BUILD_ROOT/@pcp_systemdsysusers_dir@/pcp.conf
+%sysusers_create_compat %{_builddir}/src/include/pcp.user.install
 %else
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
