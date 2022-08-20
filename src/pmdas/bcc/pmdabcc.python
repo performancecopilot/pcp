@@ -255,12 +255,12 @@ class BCCPMDA(PMDA):
                 self.modules[module][INDOM] = self.indom(cluster)
                 self.modules[module][INSTS] = pmdaIndom(self.modules[module][INDOM], caching)
                 self.add_indom(self.modules[module][INSTS])
-            for item, _ in enumerate(metrics):
-                self.add_metric(self.modules[module][PREFIX] + metrics[item][0],
-                                pmdaMetric(self.pmid(cluster, item), metrics[item][2],
+            for item, metric in enumerate(metrics):
+                self.add_metric(self.modules[module][PREFIX] + metric[0],
+                                pmdaMetric(self.pmid(cluster, item), metric[2],
                                            self.modules[module][INDOM],
-                                           metrics[item][3], metrics[item][4]),
-                                metrics[item][5], metrics[item][5])
+                                           metric[3], metric[4]),
+                                metric[5], metric[5])
             self.indoms[self.modules[module][INDOM]] = module
             self.clusters[cluster] = module
         self.log("Metrics registered.")

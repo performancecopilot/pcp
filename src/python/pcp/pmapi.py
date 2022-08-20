@@ -1653,7 +1653,7 @@ class pmContext(object):
             names[0] = c_char_p(nameA)
         else:
             for i, name in enumerate(nameA):
-                if isinstance(nameA[i], bytes):
+                if isinstance(name, bytes):
                     names[i] = c_char_p(name)
                 else:
                     names[i] = c_char_p(name.encode('utf-8'))
@@ -2544,7 +2544,7 @@ class pmContext(object):
         """
         result_p = ctypes.create_string_buffer(c_api.PM_MAXLABELJSONLEN)
         if callback is None:
-            callback = lambda x, y, z: 1
+            callback = lambda x, y, z: 1 # pylint: disable=unnecessary-lambda-assignment
         cb_func = mergeLabelSetsCB_type(callback)
 
         if labelSets is None:
@@ -3085,7 +3085,7 @@ class fetchgroup(object):
                 vv.append((self.icodes[i],
                            self.inames[i].decode('utf-8') if self.inames[i] else None,
                            # nested lambda for proper i capture
-                           # pylint: disable=cell-var-from-loop
+                           # pylint: disable=cell-var-from-loop,unnecessary-direct-lambda-call
                            (lambda i: (lambda: decode_one(self, i)))(i)))
             return vv
 
@@ -3130,7 +3130,7 @@ class fetchgroup(object):
                 dt = datetime.datetime(ts.tm_year+1900, ts.tm_mon+1, ts.tm_mday,
                                        ts.tm_hour, ts.tm_min, ts.tm_sec, us, None)
                 # nested lambda for proper i capture
-                # pylint: disable=cell-var-from-loop
+                # pylint: disable=cell-var-from-loop,unnecessary-direct-lambda-call
                 vv.append((dt,
                            (lambda i: (lambda: decode_one(self, i)))(i)))
             return vv
