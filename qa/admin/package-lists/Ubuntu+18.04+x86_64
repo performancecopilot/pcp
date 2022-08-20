@@ -124,6 +124,7 @@ sed
 smartmontools
 socat
 sysstat
+systemtap
 systemtap-sdt-dev
 time
 unbound

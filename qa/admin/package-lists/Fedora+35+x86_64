@@ -135,6 +135,7 @@ sqlite
 sqlite-libs
 sysstat
 systemd-devel
+systemtap
 systemtap-sdt-devel
 time
 valgrind
