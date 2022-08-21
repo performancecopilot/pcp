@@ -98,9 +98,9 @@ cat <<'End-of-File' | sed -e '/^#/d' -e '/^[ 	]*$/d' | while read sect key altna
 # simple section 1 entry
 1	pminfo		-	.-T, *--helptext
 # composite section 1 entry
-1	pmconfirm	-	button-name
-1	pmmessage	pmconfirm	button-name
-1	pmquery		pmconfirm	button-name
+1	pmdatxmon	-	tx_type
+1	txrecord	pmdatxmon	tx_type
+1	genload		pmdatxmon	tx_type
 # aliased (xM) section 1 entry
 1	KERNEL_PMDAS	-	usually running as shared libraries
 # special case section 1 and 3 entry

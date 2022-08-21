@@ -13,15 +13,15 @@ No match for pattern fubar
 --- (1) ---
 OK
 
-=== pmconfirm ===
+=== pmdatxmon ===
 --- (1) ---
 OK
 
-=== pmmessage ===
+=== txrecord ===
 --- (1) ---
 OK
 
-=== pmquery ===
+=== genload ===
 --- (1) ---
 OK
 
