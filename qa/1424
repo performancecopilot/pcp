@@ -117,6 +117,7 @@ do
 done
 
 pmlogctl status \
+| LC_COLLATE=POSIX sort \
 | _filter
 
 find $PCP_ARCHIVE_DIR/$seq \
