@@ -1,7 +1,7 @@
 QA output created by 1427
 === no errors case ===
 src ...
-ls: cannot access 'foo+.*': No such file or directory
+ls: cannot access foo+.*: No such file or directory
 dest ...
 foo+.0
 foo+.index
@@ -22,7 +22,7 @@ remove ./foo+.0
 remove ./foo+.index
 remove ./foo+.meta
 src ...
-ls: cannot access 'foo+.*': No such file or directory
+ls: cannot access foo+.*: No such file or directory
 dest ...
 foo+.0
 foo+.index
@@ -35,7 +35,7 @@ foo+.0
 foo+.index
 foo+.meta
 dest ...
-ls: cannot access 'foo+.*': No such file or directory
+ls: cannot access foo+.*: No such file or directory
 
 === fake out no checksum command ===
 pmlogmv: warning: no checksum command found, checksums skipped
@@ -46,7 +46,7 @@ remove ./foo+.0
 remove ./foo+.index
 remove ./foo+.meta
 src ...
-ls: cannot access 'foo+.*': No such file or directory
+ls: cannot access foo+.*: No such file or directory
 dest ...
 foo+.0
 foo+.index

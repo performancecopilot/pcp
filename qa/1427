@@ -53,6 +53,14 @@ _filter()
     # end
 }
 
+_filter_ls()
+{
+    sed \
+	-e "s/ '/ /" \
+	-e "s/':/:/" \
+    # end
+}
+
 rm -rf $seq.tmp
 mkdir $seq.tmp
 cd $seq.tmp
@@ -63,16 +71,16 @@ echo "=== no errors case ==="
 cp ../archives/foo+.* .
 rm -f $tmpdir/foo+.*
 pmlogmv -c foo+ $tmpdir/foo+
-echo "src ..."; ls foo+.*
-echo "dest ..."; (cd $tmpdir; ls foo+.*)
+echo "src ..."; (ls foo+.* 2>&1 | _filter_ls)
+echo "dest ..."; (cd $tmpdir; ls foo+.* 2>&1 | _filter_ls)
 
 echo
 echo "=== no errors with -v case ==="
 cp ../archives/foo+.* .
 rm -f $tmpdir/foo+.*
 pmlogmv -cV foo+ $tmpdir/foo+ 2>&1 | _filter
-echo "src ..."; ls foo+.*
-echo "dest ..."; (cd $tmpdir; ls foo+.*)
+echo "src ..."; (ls foo+.* 2>&1 | _filter_ls)
+echo "dest ..."; (cd $tmpdir; ls foo+.* 2>&1 | _filter_ls)
 
 echo
 echo "=== fake out a checksum failure ==="
@@ -90,8 +98,8 @@ export PATH=.:$PATH
 cp ../archives/foo+.* .
 rm -f $tmpdir/foo+.*
 pmlogmv -c foo+ $tmpdir/foo+ 2>&1 | _filter
-echo "src ..."; ls foo+.*
-echo "dest ..."; (cd $tmpdir; ls foo+.*)
+echo "src ..."; (ls foo+.* 2>&1 | _filter_ls)
+echo "dest ..."; (cd $tmpdir; ls foo+.* 2>&1 | _filter_ls)
 rm md5sum
 
 echo
@@ -105,8 +113,8 @@ cp ../archives/foo+.* .
 rm -f $tmpdir/foo+.*
 pmlogmv=`which pmlogmv`
 ( PATH=. $pmlogmv -cV foo+ $tmpdir/foo+ ) 2>&1 | _filter
-echo "src ..."; ls foo+.*
-echo "dest ..."; (cd $tmpdir; ls foo+.*)
+echo "src ..."; (ls foo+.* 2>&1 | _filter_ls)
+echo "dest ..."; (cd $tmpdir; ls foo+.* 2>&1 | _filter_ls)
 
 # success, all done
 exit
