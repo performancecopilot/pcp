@@ -1,5 +1,173 @@
-pcp-6.0.0 (31 July 2022)
-    - https://github.com/performancecopilot/pcp/projects/1
+pcp-6.0.0 (31 August 2022)
+    - Major changes:
+	1. Add version 3 PCP archive support: instance domain change-deltas,
+	   Y2038-safe timestamps, nanosecond-precision timestamps, arbitrary
+	   timezones support, 64-bit file offsets used throughout for larger
+	   (beyond 2GB) individual volumes.
+	   ** Opt-in using the /etc/pcp.conf PCP_ARCHIVE_VERSION setting. **
+	   ** Version 2 archives remain the default (for next few years). **
+	2. Switch to using OpenSSL only throughout PCP (dropped NSS/NSPR);
+	   this impacts on libpcp, PMAPI clients and PMCD use of encryption;
+	   these are now configured and used consistently with pmproxy HTTPS
+	   support and redis-server, which were both already using OpenSSL.
+	3. New nanosecond precision timestamp PMAPI calls for PCP library
+	   interfaces that make use of timestamps.  These are all optional,
+	   and full backward compatibility is preserved for existing tools.
+    - Client tools and utilities:
+	pcp2elasticsearch: implement authentication support
+	pcp-dstat: implement support for the top-alike plugins
+	pcp-dstat: add plugin configuration for ZFS metrics
+	pcp-dstat: battery charge remaining config using denki metrics
+	pcp-htop: update to latest stable upstream release
+	pcp-htop: initial support for screen tabs in the user interface
+	pcp-pidstat: correct operation of the -p ALL|SELF options
+	pmlogger: small changes for handling derived metrics better
+	pmlogger, import: support configurable default archive version
+	pcp2xxx: ignore pmrep-specific options
+	pmlogger: extra hardening, backtrace symbol improvements
+	pmlogger: add -V (output archive version) command line option
+	pmseries: add sum(), avg() and stdev() functions
+	pmseries: add nth_percentile() and topk() functions
+	pmseries: add max_inst() and max_sample() functions
+	pmseries: add min_inst() and min_sample() functions
+	pmseries: be more defensive during shutdown error paths
+	pmseries: fix assumption that any 40-character string is a SID
+	pmseries: allow reporting values from SIDs (not just queries)
+	sheet2pcp: add -V (output archive version) command line option
+	ganglia2pcp: add -V (output archive version) command line option
+	iostat2pcp: add -V (output archive version) command line option
+    - PMDA additions, enhancements and bug fixes:
+	pmdaapache: do time_t manipulation with sufficient space
+	pmdabcc: sync bcc PMDA modules with upstream bcc tools
+	pmdabpf: adds CO-RE (Compile Once - Run Everywhere) modules
+		(exitsnoop, oomkill, bashreadline, mountsnoop, vfsstat,
+		opensnoop, fsslower, statsnoop, tcpconnlat, tcpconnect)
+	pmdabpf: support x86, arm and powerpc
+	pmdabpf: fixed persistence of indom and cluster identifiers
+	pmdabpf: rework setrlimit() logic for some small memory hosts
+	pmdabpftrace: move example autostart scripts to /usr/share
+	pmdabpftrace: update biolatency example script for kernel 5.16+
+	pmdadenki: fix battery detection for non-intel systems
+	pmdadenki: add support for multiple active batteries
+	pmdadenki: support the -D option for debugging
+	pmdadenki: improve labels associated with metrics
+	pmdadenki: add battery capacity metric
+	pmdadenki: add separate indom help text
+	pmdalinux: add new MpTcpExt metrics from latest Linux 5.x kernels
+	pmdalinux: updates for latest /proc/net/netstat kernel changes
+	pmdalinux: improve network metrics help text
+	pmdalinux: fix of tty metrics on s390x platform
+	pmdamailq: update to ensure Y2038-safe time_t handling
+	pmdammv: use highest available timestamp resolution
+	pmdaopenvswitch: additional interface and coverage stats
+	pmdapostfix: harden against a not-yet-running postfix
+	pmdaproc: fix psargs string for processes with very large PIDs
+	pmdaproc: fix cgroup cpu metrics refresh structures
+	pmdasockets: prevent string overwrite of ss_stats_t fields
+	pmdasockets: add checking to the pmStore filter strings
+	pmdastatsd: fix detection of failure memory allocation
+    - Server-side utilities and log management scripts:
+	pmproxy: allow request parameters to be sent in the request body
+	pmproxy: fix race on teardown of pcp protocol proxy clients
+	pmproxy: improve error checking, check uv_pipe_bind result
+	pmproxy: harden logging interfaces, racing with startup
+	pmieconf: add several pmie rules for Open vSwitch metrics
+	pmlogrewrite: subtle change in semantics for error checking
+	pmlogreduce: allow sub-second values for -t option
+	pmlogreduce: temporal index, add entries after 100k of data volume
+	pmlogcheck: beef up pass 0 to check metadata record types
+	pmlogconf: fix reprobing with interactive changes
+	pmlogmv: fallback to copy for cross-mount case when link fails
+	pmlogmv: add -c (paranoid checksum) option
+	pmlogger_farm: add default configuration file for farm loggers
+	pmlogger_check: increase PMLOGGER_REQUEST_TIMEOUT from 2 to 10 secs
+	pmlogger_daily: callbacks for extra daily log processing tasks
+	pmlogger_daily, pmlogger_check: additional systemd-driven changes
+	pmlogger_daily: move redirection of stdout+stderr earlier in script
+	pmlogger_daily: abandom use of fmt(1) - not portable - uses awk now
+	pmlogger_daily_report.sh: some major efficiency improvements
+	pmlogger_daily_report: re-enabled for rpm and deb builds
+	pmie_check: avoid leaving lock file and temp dir behind
+	pm{log,ie}ctl: handle embedded shell syntax in control lines
+	pm{log,ie}ctl: add -C args option to pass "args" to pm{logger,ie}_check
+	systemd units: pmlogger and pmie farm conditional use of type=exec
+	rc-pmcd: reorder the systemd paths attempted in migrate_pid_cgroup
+	dbpmda: fix an overlapping copy and add error handling
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	libpcp_archive: new library for apps that write PCP archives
+	libpcp: optimize indom handling in fetchgroup code
+	libpcp: drop time_t abuse in getdate.y, use safe sizes
+	libpcp: add __pmDumpPDUTrace() and circular trace buffer
+	libpcp: add PM_ERR_FEATURE, PM_ERR_TLS error codes
+	libpcp: refactor __pmDumpStack(), improve direct calling tools
+	libpcp_qmc: require Qt5.6 as the minimum version for builds
+	libpcp_qmc: resolve the Qt::endl warning more cleanly
+	libpcp_web: stop Redis initialization if Redis version tool old
+	libpcp_web: honour config settings that disable redis completely
+	libpcp_web: fix memory leaks in discovery, query parsing and APIs
+	libpcp_web: honor exclude.metrics setting in pmseries --load
+	libpcp_web: run pmFetchArchive(3) in a worker thread
+	libpcp_web: fix race condition tearing down load baton
+	libpcp_pmda: ensure indom cache write handles time_t safely
+	libpcp_import: add interface for setting output log version
+	libpcp_import: interfaces for samples with high-resolution timestamps
+	python api: updates to allow building from outside git repo
+	python api: allow tools using pmconfig module to ignore options
+	python api: add python wrappers for highres PMAPI routines
+	python api: correct refcounting on pmParseMetricSpec source buffer
+    - Security Enhanced Linux:
+	selinux: additional policy rules, esp glusterd_log_t
+	selinux: bcc PMDA policy to exec private memfd ctypes/libffi objects
+	selinux: make use of syslogd_var_run_t map rule conditional
+	selinux: policy updates needed for the pmdasockets metrics
+	selinux: fine-tune netlink_tcpdiag_socket policy for all platforms
+    - Misc build, infrastructure and packaging updates:
+	build: latest distros supported (ubuntu 22.04, fedora 37, rhel9, etc)
+	build: reproducible debian build efforts
+	build: use standard dpkg buildflags variables.
+	build: add BuildRequires: python*-pymongo to mongodb PMDA
+	build: detect libbpf version for the BPF PMDA
+	build: do not transform symlink targets when generating the source tarball
+	build: update artifactory deploy script, add recalculate_metadata subtask
+	build: update configure script for python2 retirement in rhel9
+	build: convert libpcp check-statics to using readelf if available
+	build: updates to libpcp check-statics for OpenBSD
+	build: fix configure detection of backtrace() and associated hooks
+	build: fixed source dependencies within libpcp_web makefile
+	build: add rpm conflicts lines on postgresql-pgpool-II
+	build: remove pmclient reliance on libpcp.h for timed sleep
+	build: remove mmvdump reliance on libpcp.h for mmap wrapper
+	build: make perl truly conditional in the PCP build
+	build: drop no-longer-needed NSS/NSPR package deps
+	build: resolve ostree non-writable /var for pmieconf
+	packaging: update rpm specs to solve systemd warnings
+	container: bump base image version
+	Makepkgs: fix for Debian build (and Qt packaging failure in CI)
+	vendor: switch to git-subtree for iovisor/bcc libbpf-tools code
+    - Documentation and QA infrastructure:
+	docs: update notes about sar2pcp, iostat2pcp in pcpcompat(1)
+	docs: add section to pcpcompat(1) about python2
+	docs: add fix for readthedocs compilation error
+	docs: updates to the Quick Guide documents
+	docs: clatifications to pmrep et al: man pages
+	docs: improve pmproxy timeseries and pmseries load documentation
+	docs: further improvements and fixes to the INSTALL doc
+	docs: add pmlogger(1) -V, describe $PCP_ARCHIVE_VERSION in pcp.conf.
+	docs: small fixes to the pcp-pidstat man page
+	docs: fix webapi documentation typo around polltimeout
+	pylint: numerous issues resolved, tracking latest versions
+	qa: regression tests for bpftrace PMDA: check probes
+	qa: pmdabcc pylint fixups
+	qa: rework Redis PING-PONG checks
+	qa/check: run tests under timeout(1) control if possible
+	qa-summary: allow unified reporting from CI and QA Farm
+	qa/admin/show-me-all & qa/show-me: changes for CI integration
+	qa/check: add support for "triaged" tests
+	ci: send report to Slack when QA workflow is triggered manually
+	ci: add required packages to enable bpf PMDA on CentOS Stream 9
+	ci: run CodeQL daily and for each PR
+	ci: run full QA on pull requests, save history
+	ci: unset XDG_RUNTIME_DIR when invoking podman
 
 pcp-5.3.7 (5 April 2022)
     - Client tools and utilities:

@@ -3360,8 +3360,10 @@ PCP_LOG_DIR=%{_logsdir}
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Sun Jul 31 2022 Nathan Scott <nathans@redhat.com> - 6.0.0-1
-- https://github.com/performancecopilot/pcp/projects/1
+* Wed Aug 31 2022 Nathan Scott <nathans@redhat.com> - 6.0.0-1
+- Add libpcp/postgresql-pgpool-II-devel conflict (BZ 2100185)
+- Remove an invalid path from pmie unit file (BZ 2079793)
+- Update to latest PCP sources.
 
 * Tue Apr 05 2022 Nathan Scott <nathans@redhat.com> - 5.3.7-1
 - Add disk.wwid aggregated multipath metrics (BZ 1293444)
