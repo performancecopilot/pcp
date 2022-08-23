@@ -74,7 +74,7 @@ help_text_t  help_text[] = {
 { .name = "psinfo.stime",            .shorthelp = "time (in ms) spent executing system code (calls) since process started",        .longhelp = "" },
 { .name = "psinfo.policy",            .shorthelp = "scheduling policy (/from /proc/<pid>/stat)",        .longhelp = "" },
 { .name = "psinfo.policy_s",            .shorthelp = "scheduling policy in string form",        .longhelp = "" },
-{ .name = "psinfo.cguest_time",            .shorthelp = "Guest time of the process’s children",        .longhelp = "" },
+{ .name = "psinfo.cguest_time",            .shorthelp = "Guest time of the process's children",        .longhelp = "" },
 { .name = "psinfo.environ",           .shorthelp = "process environment (from /proc/<pid>/environ ascii space replaces null).",        .longhelp = "" },
 { .name = "psinfo.labels",            .shorthelp = "list of processes security labels (from /proc/<pid>/attr/current)",        .longhelp = "" },
 { .name = "psinfo.cwd",            .shorthelp = "current working directory (from /proc/<pid>/cwd)",        .longhelp = "" },
