@@ -130,45 +130,15 @@
       </layout>
      </item>
      <item>
-      <layout class="QGridLayout" name="secureGridLayout">
+      <layout class="QGridLayout" name="encrypedGridLayout">
        <item row="0" column="0">
-        <widget class="QCheckBox" name="secureCheckBox">
+        <widget class="QCheckBox" name="encryptedCheckBox">
          <property name="text">
-          <string>Secure</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="0" column="2">
-        <widget class="QPushButton" name="certificatesPushButton">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Certificates</string>
+          <string>Encrypt</string>
          </property>
         </widget>
        </item>
       </layout>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="compressCheckBox">
-       <property name="text">
-        <string>Compress</string>
-       </property>
-      </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="authenticateCheckBox">
@@ -300,9 +270,7 @@
   <tabstop>proxyCheckBox</tabstop>
   <tabstop>proxyLineEdit</tabstop>
   <tabstop>containerCheckBox</tabstop>
-  <tabstop>secureCheckBox</tabstop>
-  <tabstop>certificatesPushButton</tabstop>
-  <tabstop>compressCheckBox</tabstop>
+  <tabstop>encryptedCheckBox</tabstop>
   <tabstop>authenticateCheckBox</tabstop>
   <tabstop>usernameLineEdit</tabstop>
   <tabstop>passwordLineEdit</tabstop>
@@ -359,22 +327,10 @@
    <slot>containerCheckBox_toggled(bool)</slot>
   </connection>
   <connection>
-   <sender>certificatesPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>HostDialog</receiver>
-   <slot>certificatesPushButton_clicked()</slot>
-  </connection>
-  <connection>
    <sender>advancedPushButton</sender>
    <signal>clicked()</signal>
    <receiver>HostDialog</receiver>
    <slot>advancedPushButton_clicked()</slot>
-  </connection>
-  <connection>
-   <sender>secureCheckBox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>HostDialog</receiver>
-   <slot>secureCheckBox_toggled(bool)</slot>
   </connection>
   <connection>
    <sender>authenticateCheckBox</sender>
