@@ -404,7 +404,11 @@ _configure_pmlogger()
             # to keep running pmlogconf here to discover there are
 	    # "No changes".
 	    #
-	    [ "$PMLOGGER_CHECK_SKIP_LOGCONF" = yes ] && skip=1
+	    if [ "$PMLOGGER_CHECK_SKIP_LOGCONF" = yes ]
+	    then
+		$VERBOSE && echo "PMLOGGER_CHECK_SKIP_LOGCONF=$PMLOGGER_CHECK_SKIP_LOGCONF: skip: \"$configfile\" reconfigure"
+		skip=1
+	    fi
 	fi
 	if [ $magic -eq 0 -a $owned -eq 0 -a $skip = 0 ]
 	then
@@ -418,7 +422,7 @@ _configure_pmlogger()
 		then
 		    if grep 'No changes' $tmp/diag >/dev/null 2>&1
 		    then
-			:
+			$VERBOSE && echo "No change: \"$configfile\" (pmlogconf)"
 		    elif [ -w "$configfile" ]
 		    then
 			$VERBOSE && echo "Reconfigured: \"$configfile\" (pmlogconf)"
@@ -437,6 +441,8 @@ _configure_pmlogger()
 		fi
 	    fi
 	    rm -f "$tmpconfig"
+	else
+	    $VERBOSE && echo "No reconfigure: magic=$magic auto-generated=$owned skip=$skip: \"$configfile\" (pmlogconf)"
 	fi
     elif [ ! -e "$configfile" ]
     then
@@ -452,8 +458,11 @@ _configure_pmlogger()
 	    cat "$configfile"
 	    echo "=== end pmlogconf file ==="
 	else
+	    $VERBOSE && echo "Created: \"$configfile\" (pmlogconf)"
 	    chown $PCP_USER:$PCP_GROUP "$configfile" >/dev/null 2>&1
 	fi
+    else
+	$VERBOSE && echo "Botched: \"$configfile\" (pmlogconf)"
     fi
 }
 
@@ -933,7 +942,11 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		    fi
 		elif _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
 		then
-		    $VERY_VERBOSE && echo "primary pmlogger process $pid identified, OK"
+		    if $VERY_VERBOSE
+		    then
+			$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger '
+			echo "primary pmlogger process $pid identified, OK"
+		    fi
 		else
 		    $VERY_VERBOSE && echo "primary pmlogger process $pid not running"
 		    pid=''
@@ -969,7 +982,11 @@ END				{ print m }'`
 		    pid=`echo $log | sed -e 's,.*/,,'`
 		    if _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
 		    then
-			$VERY_VERBOSE && echo "pmlogger process $pid identified, OK"
+			if $VERY_VERBOSE
+			then
+			    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger '
+			    echo "pmlogger process $pid identified, OK"
+			fi
 			break
 		    fi
 		    $VERY_VERBOSE && echo "pmlogger process $pid not running, skip"
