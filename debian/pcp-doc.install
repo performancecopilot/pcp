@@ -1,5 +1,3 @@
-usr/share/doc/pcp-doc/html/contacts.html
-usr/share/doc/pcp-doc/html/credits.html
 usr/share/doc/pcp-doc/html/diskmodel/model.fio
 usr/share/doc/pcp-doc/html/diskmodel/model.folio
 usr/share/doc/pcp-doc/html/diskmodel/model.pl
@@ -7,8 +5,6 @@ usr/share/doc/pcp-doc/html/diskmodel/model.view
 usr/share/doc/pcp-doc/html/diskmodel/model.xls
 usr/share/doc/pcp-doc/html/diskmodel/nasread.out
 usr/share/doc/pcp-doc/html/diskmodel/naswrite.out
-usr/share/doc/pcp-doc/html/glossary.html
-usr/share/doc/pcp-doc/html/gpl.html
 usr/share/doc/pcp-doc/html/guide.html
 usr/share/doc/pcp-doc/html/howto.cpuperf.html
 usr/share/doc/pcp-doc/html/howto.diskmodel.html
@@ -93,10 +89,8 @@ usr/share/doc/pcp-doc/html/lab.pmlogger.html
 usr/share/doc/pcp-doc/html/lab.pmview.html
 usr/share/doc/pcp-doc/html/lab.secureclient.html
 usr/share/doc/pcp-doc/html/lab.secure.html
-usr/share/doc/pcp-doc/html/lab.trace.html
 usr/share/doc/pcp-doc/html/overview.html
 usr/share/doc/pcp-doc/html/pcpdoc.css
-usr/share/doc/pcp-doc/html/pcpintro.html
 usr/share/doc/pcp-doc/html/pmchart.html
 usr/share/doc/pcp-doc/html/pmie/answer.pmie
 usr/share/doc/pcp-doc/html/pmie/disk.pmie
@@ -105,7 +99,6 @@ usr/share/doc/pcp-doc/html/pmie/pswitch.view
 usr/share/doc/pcp-doc/html/pmview/example.view
 usr/share/doc/pcp-doc/html/pmview/godzilla.web.folio
 usr/share/doc/pcp-doc/html/pmview/godzilla.web.view
-usr/share/doc/pcp-doc/html/qwtlicense.html
 usr/share/doc/pcp-doc/html/timecontrol.html
 usr/share/doc/pcp-doc/html/views.html
 usr/share/pcp/demos/tutorials/cpuperf.tar.gz
