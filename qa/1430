@@ -1,0 +1,120 @@
+#!/bin/sh
+# PCP QA Test No. 1430
+# Do the default pmlogger config and pmlogger_daily_report
+# play well together?
+#
+# Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -x $PCP_BINADM_DIR/pmlogger_daily_report ] || \
+	_notrun pmlogger_daily_report not installed
+
+[ -d $PCP_VAR_DIR/config/pmlogconf/zeroconf ] || \
+	_notrun pmlogconf files for zeroconf not installed
+
+# need standard derived metrics for some of the reports
+#
+unset PCP_DERIVED_CONFIG
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# more or less from pmlogger_daily_report
+#
+_report()
+{
+    echo | tee -a $seq.full
+    echo "=== $1 ===" | tee -a $seq.full
+    pmrep -a $tmp -z -E 0 -p -f%H:%M:%S -t1sec "$1" >$tmp.out 2>$tmp.err
+    cat $tmp.out $tmp.err >>$seq.full
+    if [ -s $tmp.out ]
+    then
+	:
+    else
+	if grep 'PM_ERR_INDOM_LOG' $tmp.err >/dev/null 2>&1
+	then
+	    # this one is not an error ... depends on the host setup
+	    #
+	    echo "empty indom" >>$seq.full
+	else
+	    cat $tmp.err
+	fi
+    fi
+}
+
+# real QA test starts here
+
+# start with a fresh shiny pmlogconf-generated pmlogger config
+# ... use same options as pmlogger_check does
+#
+$PCP_BINADM_DIR/pmlogconf -r -c -q $tmp.config 2>&1 \
+| _filter
+cat $tmp.config >>$seq.full
+
+# now log like crazy for 5 secs
+#
+echo "Run pmlogger ..."
+pmlogger -l $tmp.log -t 1sec -T 5sec -c $tmp.config $tmp
+cat $tmp.log >>$seq.full
+
+# copied directly from pmlogger_daily_report ... if things
+# change there, need to track changes here
+#
+_report :sar-u-ALL '# CPU Utilization statistics, all CPUS'
+_report :sar-u-ALL-P-ALL '# CPU Utilization statistics, per-CPU'
+_report :vmstat '# virtual memory (vmstat) statistics'
+_report :vmstat-a '# virtual memory active/inactive memory statistics'
+_report :sar-B '# paging statistics'
+_report :sar-b '# I/O and transfer rate statistics'
+_report :sar-d-dev '# block device statistics'
+_report :sar-d-dm '# device-mapper device statistics'
+_report :sar-F '# mounted filesystem statistics'
+_report :sar-H '# hugepages utilization statistics'
+_report :sar-I-SUM '# interrupt statistics, summed'
+_report :sar-n-DEV '# network statistics, per device'
+_report :sar-n-EDEV '# network error statistics, per device'
+_report :sar-n-NFSv4 '# NFSv4 client and RPC statistics'
+_report :sar-n-NFSDv4 '# NFSv4 server and RPC statistics'
+_report :sar-n-SOCK '# socket statistics'
+_report :sar-n-TCP-ETCP '# TCP statistics'
+_report :sar-q '# queue length and load averages'
+_report :sar-r '# memory utilization statistics'
+_report :sar-S '# swap usage statistics'
+_report :sar-W '# swapping statistics'
+_report :sar-w '# task creation and system switching statistics'
+_report :sar-y '# TTY devices activity'
+_report :numa-hint-faults '# NUMA hint fault statistics'
+_report :numa-per-node-cpu '# NUMA per-node CPU statistics'
+_report :numa-pgmigrate-per-node '# NUMA per-node page migration statistics'
+
+# success, all done
+exit

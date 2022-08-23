@@ -1,0 +1,56 @@
+QA output created by 1430
+Creating config file "TMP.config" using default settings ...
+
+Run pmlogger ...
+
+=== :sar-u-ALL ===
+
+=== :sar-u-ALL-P-ALL ===
+
+=== :vmstat ===
+
+=== :vmstat-a ===
+
+=== :sar-B ===
+
+=== :sar-b ===
+
+=== :sar-d-dev ===
+
+=== :sar-d-dm ===
+
+=== :sar-F ===
+
+=== :sar-H ===
+
+=== :sar-I-SUM ===
+
+=== :sar-n-DEV ===
+
+=== :sar-n-EDEV ===
+
+=== :sar-n-NFSv4 ===
+
+=== :sar-n-NFSDv4 ===
+
+=== :sar-n-SOCK ===
+
+=== :sar-n-TCP-ETCP ===
+
+=== :sar-q ===
+
+=== :sar-r ===
+
+=== :sar-S ===
+
+=== :sar-W ===
+
+=== :sar-w ===
+
+=== :sar-y ===
+
+=== :numa-hint-faults ===
+
+=== :numa-per-node-cpu ===
+
+=== :numa-pgmigrate-per-node ===
