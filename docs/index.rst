@@ -1,4 +1,4 @@
-.. pcp documentation master file, created by
+.. root pcp documentation file, created by
    sphinx-quickstart on Wed Sep 16 15:12:41 2020.
 
 Performance Co-Pilot
