@@ -28,6 +28,7 @@ static int pmDiscoverDecodeMetaLabelSet(uint32_t *, int, int, __pmTimestamp *, i
 static int discoverCallBackTableSize;
 static pmDiscoverCallBacks **discoverCallBackTable;
 static char *pmDiscoverFlagsStr(pmDiscover *);
+static void pmDiscoverInvokeClosedCallBacks(pmDiscover *);
 
 /* internal hash table of discovered paths */
 #define PM_DISCOVER_HASHTAB_SIZE 32
@@ -213,9 +214,7 @@ pmDiscoverPurgeDeleted(void)
 		    prev->next = next;
 		else
 		    discover_hashtable[i] = next;
-		if (pmDebugOptions.discovery)
-		    fprintf(stderr, "pmDiscoverPurgeDeleted: deleted %s %s\n",
-		    	p->context.name, pmDiscoverFlagsStr(p));
+		pmDiscoverInvokeClosedCallBacks(p);
 		pmDiscoverFree(p);
 		count++;
 	    }
@@ -610,6 +609,46 @@ discover_event_init(pmDiscover *p, __pmTimestamp *tsp, pmDiscoverEvent *event)
     event->context = p->context;
     event->module = p->module;
     event->data = p;
+}
+
+static void
+pmDiscoverInvokeClosedCallBacks(pmDiscover *p)
+{
+    pmDiscoverCallBacks	*callbacks;
+    pmDiscoverEvent	event;
+    __pmTimestamp	stamp;
+    char		buf[32];
+    int			i;
+
+    /* use timestamp from last file modification as closed time */
+#if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
+    stamp.sec = p->statbuf.st_mtime.tv_sec;
+    stamp.nsec = p->statbuf.st_mtime.tv_nsec;
+#elif defined(HAVE_ST_MTIME_WITH_SPEC)
+    stamp.sec = p->statbuf.st_mtimespec.tv_sec;
+    stamp.nsec = p->statbuf.st_mtimespec.tv_nsec;
+#elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
+    stamp.sec = p->statbuf.st_mtim.tv_sec;
+    stamp.nsec = p->statbuf.st_mtim.tv_nsec;
+#else
+!bozo!
+#endif
+
+    if (pmDebugOptions.discovery) {
+	fprintf(stderr, "%s[%s]: %s closed name %s %s\n",
+			"pmDiscoverInvokeClosedCallBacks",
+			timestamp_str(&stamp, buf, sizeof(buf)),
+			p->context.source, p->context.name, pmDiscoverFlagsStr(p));
+	if (pmDebugOptions.labels)
+	    fprintf(stderr, "context labels %s\n", p->context.labelset->json);
+    }
+
+    discover_event_init(p, &stamp, &event);
+    for (i = 0; i < discoverCallBackTableSize; i++) {
+	if ((callbacks = discoverCallBackTable[i]) &&
+	    callbacks->on_closed != NULL)
+	    callbacks->on_closed(&event, p->data);
+    }
 }
 
 static void
@@ -1133,8 +1172,8 @@ pmDiscoverNewSource(pmDiscover *p, int context)
     stamp.sec = p->statbuf.st_ctime.tv_sec;
     stamp.nsec = p->statbuf.st_ctime.tv_nsec;
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
-    stamp.sec = p->statbuf.st_mtimespec.tv_sec;
-    stamp.nsec = p->statbuf.st_mtimespec.tv_nsec;
+    stamp.sec = p->statbuf.st_ctimespec.tv_sec;
+    stamp.nsec = p->statbuf.st_ctimespec.tv_nsec;
 #elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
     stamp.sec = p->statbuf.st_ctim.tv_sec;
     stamp.nsec = p->statbuf.st_ctim.tv_nsec;
@@ -1272,8 +1311,8 @@ process_metadata(pmDiscover *p)
 	    stamp.sec = p->statbuf.st_ctime.tv_sec;
 	    stamp.nsec = p->statbuf.st_ctime.tv_nsec;
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
-	    stamp.sec = p->statbuf.st_mtimespec.tv_sec;
-	    stamp.nsec = p->statbuf.st_mtimespec.tv_nsec;
+	    stamp.sec = p->statbuf.st_ctimespec.tv_sec;
+	    stamp.nsec = p->statbuf.st_ctimespec.tv_nsec;
 #elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
 	    stamp.sec = p->statbuf.st_ctim.tv_sec;
 	    stamp.nsec = p->statbuf.st_ctim.tv_nsec;
@@ -1351,14 +1390,14 @@ process_metadata(pmDiscover *p)
 	    }
 	    /* use timestamp from last modification */
 #if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
-	    stamp.sec = p->statbuf.st_ctime.tv_sec;
-	    stamp.nsec = p->statbuf.st_ctime.tv_nsec;
+	    stamp.sec = p->statbuf.st_mtime.tv_sec;
+	    stamp.nsec = p->statbuf.st_mtime.tv_nsec;
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
 	    stamp.sec = p->statbuf.st_mtimespec.tv_sec;
 	    stamp.nsec = p->statbuf.st_mtimespec.tv_nsec;
 #elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
-	    stamp.sec = p->statbuf.st_ctim.tv_sec;
-	    stamp.nsec = p->statbuf.st_ctim.tv_nsec;
+	    stamp.sec = p->statbuf.st_mtim.tv_sec;
+	    stamp.nsec = p->statbuf.st_mtim.tv_nsec;
 #else
 !bozo!
 #endif
