@@ -9,7 +9,7 @@ Record metrics from a remote system
 
    .. code-block:: bash
 
-      # yum -y install pcp
+      # dnf -y install pcp
    
    * Allow incoming connections on TCP/44321:
 
@@ -37,13 +37,13 @@ Record metrics from a remote system
       # systemctl restart pmcd
       # systemctl enable pmcd
 
-2. Setup instructions for master (collector) system
+2. Setup instructions for collector system
 
    * Install required packages:
 
    .. code-block:: bash
 
-      # yum -y install pcp-zeroconf
+      # dnf -y install pcp-zeroconf
 
 
    * Create a default config for the clients:
@@ -51,28 +51,28 @@ Record metrics from a remote system
    .. code-block:: bash
 
       # CLIENT='rhel7u8a'
-      # /usr/libexec/pcp/bin/pmlogconf /var/lib/pcp/config/pmlogger/config.$CLIENT
+      # pmlogconf /var/lib/pcp/config/pmlogger/config.$CLIENT
 
    * Optionally: execute again, to customize:
 
    .. code-block:: bash
 
-      # /usr/libexec/pcp/bin/pmlogconf /var/lib/pcp/config/pmlogger/config.$CLIENT
+      # pmlogconf /var/lib/pcp/config/pmlogger/config.$CLIENT
 
    * Create the controller config for the client:
 
    .. code-block:: bash
 
-      # echo "$CLIENT.local n n PCP_LOG_DIR/pmlogger/$CLIENT.local" " -r -T30d -c config.$CLIENT" \
+      # echo "$CLIENT.local n n PCP_ARCHIVE_DIR/$CLIENT.local" " -r -T30d -c config.$CLIENT" \
       >/etc/pcp/pmlogger/control.d/$CLIENT
 
    * Restart pmlogger:
 
    .. code-block:: bash
 
-      # /usr/libexec/pcp/bin/pmlogger_check
+      # systemctl restart pmlogger
 
-3. Verify data collection on master (collector) system
+3. Verify data collection on collector system
 
    .. code-block:: bash
 

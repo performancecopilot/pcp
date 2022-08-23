@@ -31,7 +31,7 @@ class Test:
         self.message = ""
 
 
-FAILED_TEST_STATES = [Test.Status.Failed, Test.Status.Broken, Test.Status.Broken]
+FAILED_TEST_STATES = [Test.Status.Failed, Test.Status.Broken, Test.Status.Triaged]
 
 
 def read_test_durations(timings_path: str) -> Dict[str, List[int]]:
@@ -195,8 +195,10 @@ def test_summary_tests(tests: List[Test]):
             test = tests_grouped[test_name].get(platform)
             if test and test.status == Test.Status.Passed:
                 test_line += " ".center(col_width)
-            elif test and test.status in FAILED_TEST_STATES:
+            elif test and test.status in [Test.Status.Failed, Test.Status.Broken]:
                 test_line += "X".center(col_width)
+            elif test and test.status == Test.Status.Triaged:
+                test_line += "T".center(col_width)
             else:
                 test_line += "-".center(col_width)
 
@@ -204,10 +206,10 @@ def test_summary_tests(tests: List[Test]):
         test_line += f"  {' '.join(groups)}"
 
         # skip tests without any failures
-        if "X" in test_line:
+        if "X" in test_line or "T" in test_line:
             summary += test_line + "\n"
 
-    summary += "\nLegend: ( ) Passed, (X) Failure, (-) Skipped\n\n\n"
+    summary += "\nLegend: ( ) Passed, (X) Failure, (T) Triaged, (-) Skipped\n\n\n"
     return summary
 
 

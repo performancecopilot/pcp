@@ -22,9 +22,9 @@ _check_valgrind
 _check_series
 
 # need older redis version for this test ...
-#
-redis_version=`redis-server --version | sed -E 's/.*v=([0-9]).*/\1/g'`
-[ $redis_version -ge 5 ] && _notrun "Redis version $redis_version not old enough"
+version=`redis-server --version | sed -E 's/.*v=([0-9]).*/\1/g'`
+[ $version -ge 5 ] && \
+    _notrun "Redis version $version needs no backward compatibility testing"
 
 _cleanup()
 {
