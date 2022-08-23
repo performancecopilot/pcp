@@ -16,11 +16,6 @@ echo "QA output created by $seq"
 _check_valgrind
 _check_series
 
-#
-# pmproxy: redis.c:1868: redisProcessCallBacks: Assertion `(c->flags & REDIS_SUBSCRIBED || c->flags & REDIS_MONITORING)'
-# Request callback, reply is NOT NULL and we are still connected but not subscribed or monitoring.
-_notrun "pmseries querying redis via pmproxy trips assert and pmproxy aborts. query redis directly is OK"
-
 _cleanup()
 {
     echo
