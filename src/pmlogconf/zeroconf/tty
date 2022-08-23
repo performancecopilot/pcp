@@ -1,0 +1,10 @@
+#pmlogconf-setup 2.0
+ident	tty stats (zeroconf)
+force	include
+	# added in PCP 6.0 for pmrep :sar-y
+	tty.serial.brk
+	tty.serial.frame
+	tty.serial.overrun
+	tty.serial.parity
+	tty.serial.rx
+	tty.serial.tx

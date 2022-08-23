@@ -1,0 +1,11 @@
+#pmlogconf-setup 2.0
+ident	generic filesystem size, fullness and mount information (zeroconf)
+force	include
+	# added in PCP 6.0 for pmrep :sar-F
+	filesys.free
+	filesys.used
+	filesys.avail
+	filesys.freefiles
+	filesys.usedfiles
+	filesys.maxfiles
+

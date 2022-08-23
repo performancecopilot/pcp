@@ -1,0 +1,16 @@
+#pmlogconf-setup 2.0
+ident	NUMA stats (zeroconf)
+force	include
+	# added in PCP 6.0 for pmrep :numa-hint-faults
+	mem.vmstat.numa_hint_faults
+	mem.vmstat.numa_hint_faults_local
+	kernel.pernode.cpu.guest
+	kernel.pernode.cpu.guest_nice
+	kernel.pernode.cpu.idle
+	kernel.pernode.cpu.irq.hard
+	kernel.pernode.cpu.irq.soft
+	kernel.pernode.cpu.nice
+	kernel.pernode.cpu.steal
+	kernel.pernode.cpu.sys
+	kernel.pernode.cpu.vuser
+	kernel.pernode.cpu.wait.total

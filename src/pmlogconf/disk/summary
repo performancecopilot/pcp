@@ -8,3 +8,6 @@ force	include
 	disk.all.write_bytes
 	disk.all.total_bytes
 	disk.all.avactive
+	# added in PCP 6.0
+	disk.all.discard
+	disk.all.blkdiscard

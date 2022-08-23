@@ -1,0 +1,6 @@
+#pmlogconf-setup 2.0
+ident	RPC stats (zeroconf)
+force	include
+	# added in PCP 6.0 for pmrep :sar-n-NFSDv4
+	rpc.server.rpcerr
+

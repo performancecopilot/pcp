@@ -1,10 +1,15 @@
 FILES = \
 	atop-proc \
+	disk \
+	filesystem \
 	interrupts \
 	nfsclient \
+	numa \
 	numastat \
 	pidstat \
 	pidstat-summary \
+	rpc \
 	tapestat \
+	tty \
 	xfs-perdev \
 # END
