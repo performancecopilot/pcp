@@ -53,6 +53,10 @@ XFILES = jsmn.c jsmn.h http_parser.c http_parser.h \
 LLDLIBS = $(PCPWEBLIB_EXTRAS) $(LIB_FOR_MATH)
 ifeq "$(TARGET_OS)" "mingw"
 LLDLIBS += -lws2_32
+CFILES += fnmatch.c
+HFILES += fnmatch.h
+XFILES += fnmatch.c fnmatch.h
+LCFLAGS += -I.
 endif
 
 LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?)

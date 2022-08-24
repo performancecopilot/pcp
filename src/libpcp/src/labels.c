@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2016-2020 Red Hat.
- * 
+ * Copyright (c) 2016-2020,2022 Red Hat.
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -1256,6 +1256,7 @@ local_host_labels(char *buffer, int buflen)
     return buffer;
 }
 
+#if defined(HAVE_GETUID) && defined(HAVE_GETGID)
 static char *
 local_user_labels(char *buffer, int buflen)
 {
@@ -1263,13 +1264,17 @@ local_user_labels(char *buffer, int buflen)
 		    (unsigned int)getgid(), (unsigned int)getuid());
     return buffer;
 }
+#endif
 
 static int
 local_context_labels(pmLabelSet **sets)
 {
     pmLabelSet	*lp = NULL;
     char	buf[PM_MAXLABELJSONLEN];
-    char	*hostp, *userp;
+    char	*hostp;
+#if defined(HAVE_GETUID) && defined(HAVE_GETGID)
+    char	*userp;
+#endif
     int		sts, flags = PM_LABEL_CONTEXT;
 
     if ((sts = __pmGetContextLabels(&lp)) < 0)
@@ -1281,12 +1286,14 @@ local_context_labels(pmLabelSet **sets)
 	return sts;
     }
 
+#if defined(HAVE_GETUID) && defined(HAVE_GETGID)
     flags |= PM_LABEL_OPTIONAL;
     userp = local_user_labels(buf, sizeof(buf));
     if ((sts = __pmAddLabels(&lp, userp, flags)) <= 0) {
 	pmFreeLabelSets(lp, 1);
 	return sts;
     }
+#endif
 
     *sets = lp;
     return 1;
