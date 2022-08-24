@@ -32,7 +32,7 @@ static pmLongOptions longopts[] = {
     PMOPT_CONTAINER,		/* --container=... */
     PMAPI_OPTIONS_HEADER("template options"),
     { "config", 1, 'c', "CONFIGFILE", "some configuration file" },
-    { "flag", 0, 'f', "N", "some flag" },
+    { "flag", 0, 'f', NULL, "some flag" },
     { "instance", 1, 'i', "INST", "some instance" },
     { "log", 1, 'l', "LOGFILE", "log file" },
     PMAPI_OPTIONS_END
