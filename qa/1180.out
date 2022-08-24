@@ -1,4 +1,9 @@
 QA output created by 1180
+System Activity Report
+
+Host: ...
+Archive:         TMP/crontab-sar-report
+Report created: ...
 
 
 #  Wed Mar 7 16:36:43.514833 2018
@@ -119,27 +124,27 @@ QA output created by 1180
 
 #  Wed Mar 7 16:36:43.514833 2018
 # paging statistics
--- no report for config ":sar-B"
+-- no report for config ":sar-B" because the metric "mem.vmstat.pgscan_kswapd" is not in the archive
 
 
 #  Wed Mar 7 16:36:43.514833 2018
 # I/O and transfer rate statistics
--- no report for config ":sar-b"
+-- no report for config ":sar-b" because the metric "disk.all.discard" is not in the archive
 
 
 #  Wed Mar 7 16:36:43.514833 2018
 # block device statistics
--- no report for config ":sar-d-dev"
+-- no report for config ":sar-d-dev" because the metric "disk.dev.discard_bytes" is not in the archive
 
 
 #  Wed Mar 7 16:36:43.514833 2018
 # device-mapper device statistics
--- no report for config ":sar-d-dm"
+-- no report for config ":sar-d-dm" because the metric "disk.dm.discard_bytes" is not in the archive
 
 
 #  Wed Mar 7 16:36:43.514833 2018
 # mounted filesystem statistics
--- no report for config ":sar-F"
+-- no report for config ":sar-F" because the metric "filesys.free" is not in the archive
 
 
 #  Wed Mar 7 16:36:43.514833 2018
@@ -260,12 +265,12 @@ QA output created by 1180
 
 #  Wed Mar 7 16:36:43.514833 2018
 # NFSv4 client and RPC statistics
--- no report for config ":sar-n-NFSv4"
+-- no report for config ":sar-n-NFSv4" because there are no values for any instance of the metric "nfs4.client.reqs" in the archive
 
 
 #  Wed Mar 7 16:36:43.514833 2018
 # NFSv4 server and RPC statistics
--- no report for config ":sar-n-NFSDv4"
+-- no report for config ":sar-n-NFSDv4" because the metric "rpc.server.rpcerr" is not in the archive
 
 
 #  Wed Mar 7 16:36:43.514833 2018
@@ -418,17 +423,17 @@ QA output created by 1180
 
 #  Wed Mar 7 16:36:43.514833 2018
 # TTY devices activity
--- no report for config ":sar-y"
+-- no report for config ":sar-y" because the metric "tty.serial.rx" is not in the archive
 
 
 #  Wed Mar 7 16:36:43.514833 2018
 # NUMA hint fault statistics
--- no report for config ":numa-hint-faults"
+-- no report for config ":numa-hint-faults" because the metric "mem.vmstat.numa_hint_faults" is not in the archive
 
 
 #  Wed Mar 7 16:36:43.514833 2018
 # NUMA per-node CPU statistics
--- no report for config ":numa-per-node-cpu"
+-- no report for config ":numa-per-node-cpu" because one or more metrics for the derived metric "nusr" is not in the archive
 
 
 #  Wed Mar 7 16:36:43.514833 2018

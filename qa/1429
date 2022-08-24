@@ -168,7 +168,7 @@ End-of-File
 
 _setup
 
-$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_AUTOSAVE_DIR=/no/such/dir $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 3 -x never -l $tmp.log"
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_AUTOSAVE_DIR=/no/such/dir $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k 3 -x never -l $tmp.log"
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \
@@ -193,7 +193,7 @@ chmod 555 $tmp.nowrite
 
 _setup
 
-$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_AUTOSAVE_DIR=/no/such/file $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 3 -x never -l $tmp.log"
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_AUTOSAVE_DIR=/no/such/file $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k 3 -x never -l $tmp.log"
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \
@@ -221,7 +221,7 @@ $sudo chmod 775 $tmp.ok
 
 _setup
 
-$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 3 -x never -l $tmp.log"
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k 3 -x never -l $tmp.log"
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \
@@ -260,7 +260,7 @@ $sudo chmod 555 $tmp.ok/`pmdate -${day}d %Y`
 
 _setup
 
-$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 3 -x never -l $tmp.log"
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k 3 -x never -l $tmp.log"
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \
@@ -303,7 +303,7 @@ done
 
 _setup
 
-$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 3 -x never -l $tmp.log"
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k 3 -x never -l $tmp.log"
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \
@@ -344,7 +344,7 @@ End-of-File
 
 _setup
 
-$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_MERGE_CALLBACK=$tmp.merge $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -x never -k 3 -l $tmp.log"
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_MERGE_CALLBACK=$tmp.merge $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -x never -k 3 -l $tmp.log"
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \
@@ -388,7 +388,7 @@ $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_chec
 [ -f $tmp.log ] && $sudo cat $tmp.log >>$seq.full
 pmlogctl status >>$seq.full
 
-$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_COMPRESS_CALLBACK=$tmp.compress $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -k 3 -x 0 -l $tmp.log"
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_COMPRESS_CALLBACK=$tmp.compress $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k 3 -x 0 -l $tmp.log"
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \

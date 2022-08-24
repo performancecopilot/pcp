@@ -1,5 +1,10 @@
 QA output created by 1428
 ARCHIVEPATH=TMP/daily_report
+System Activity Report
+
+Host: ...
+Archive:         TMP/daily_report
+Report created: ...
 
 
 #  DATE
@@ -129,7 +134,7 @@ STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.0
 
 #  DATE
 # device-mapper device statistics
--- no report for config ":sar-d-dm"
+-- no report for config ":sar-d-dm" because one or more metrics for the derived metric "disk.dm.await" is not in the archive
 
 
 #  DATE
@@ -239,7 +244,7 @@ STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.0
 
 #  DATE
 # NFSv4 client and RPC statistics
--- no report for config ":sar-n-NFSv4"
+-- no report for config ":sar-n-NFSv4" because there are no values for any instance of the metric "nfs4.client.reqs" in the archive
 
 
 #  DATE
@@ -366,7 +371,7 @@ STAMP            2.50    245.00
 
 #  DATE
 # TTY devices activity
--- no report for config ":sar-y"
+-- no report for config ":sar-y" because there are no values for any instance of the metric "tty.serial.rx" in the archive
 
 
 #  DATE
@@ -416,6 +421,11 @@ STAMP              0.000           0.000           0.000           0.000
 xz compression for .meta
 Uncompressing TMP/daily_report
 ARCHIVEPATH=.../pmlogger_daily_report.TMP/daily_report
+System Activity Report
+
+Host: ...
+Archive:         TMP/daily_report
+Report created: ...
 
 
 #  DATE
@@ -545,7 +555,7 @@ STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.0
 
 #  DATE
 # device-mapper device statistics
--- no report for config ":sar-d-dm"
+-- no report for config ":sar-d-dm" because one or more metrics for the derived metric "disk.dm.await" is not in the archive
 
 
 #  DATE
@@ -655,7 +665,7 @@ STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.0
 
 #  DATE
 # NFSv4 client and RPC statistics
--- no report for config ":sar-n-NFSv4"
+-- no report for config ":sar-n-NFSv4" because there are no values for any instance of the metric "nfs4.client.reqs" in the archive
 
 
 #  DATE
@@ -782,7 +792,7 @@ STAMP            2.50    245.00
 
 #  DATE
 # TTY devices activity
--- no report for config ":sar-y"
+-- no report for config ":sar-y" because there are no values for any instance of the metric "tty.serial.rx" in the archive
 
 
 #  DATE
@@ -832,6 +842,11 @@ STAMP              0.000           0.000           0.000           0.000
 gzip compression for .0
 Uncompressing TMP/daily_report
 ARCHIVEPATH=.../pmlogger_daily_report.TMP/daily_report
+System Activity Report
+
+Host: ...
+Archive:         TMP/daily_report
+Report created: ...
 
 
 #  DATE
@@ -961,7 +976,7 @@ STAMP             vdb      0.00      0.00      0.00      0.00      0.00      0.0
 
 #  DATE
 # device-mapper device statistics
--- no report for config ":sar-d-dm"
+-- no report for config ":sar-d-dm" because one or more metrics for the derived metric "disk.dm.await" is not in the archive
 
 
 #  DATE
@@ -1071,7 +1086,7 @@ STAMP          enp1s0      0.50      0.00      0.00      1.50      0.00      0.0
 
 #  DATE
 # NFSv4 client and RPC statistics
--- no report for config ":sar-n-NFSv4"
+-- no report for config ":sar-n-NFSv4" because there are no values for any instance of the metric "nfs4.client.reqs" in the archive
 
 
 #  DATE
@@ -1198,7 +1213,7 @@ STAMP            2.50    245.00
 
 #  DATE
 # TTY devices activity
--- no report for config ":sar-y"
+-- no report for config ":sar-y" because there are no values for any instance of the metric "tty.serial.rx" in the archive
 
 
 #  DATE
