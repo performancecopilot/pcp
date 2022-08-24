@@ -339,6 +339,7 @@ exec 1>"$PROGLOG" 2>&1
 # into temporary files and use these, to avoid repeated
 # uncompressing for pmrep below.
 #
+ORIG_ARCHIVEPATH="$ARCHIVEPATH"
 ARCHIVEPATH=`_uncompress $ARCHIVEPATH`
 $VERBOSE && echo ARCHIVEPATH=$ARCHIVEPATH
 
@@ -390,7 +391,7 @@ then
 fi
 
 #
-# Common reporting funtion
+# Common reporting function
 #
 _report()
 {
@@ -407,17 +408,30 @@ _report()
     then
     	cat $tmp/out >>$REPORTFILE
     else
-	if grep 'PM_ERR_INDOM_LOG' $tmp/err >/dev/null 2>&1
+	if grep 'PM_ERR_NAME' $tmp/err >/dev/null 2>&1
+	then
+	    metric=`$PCP_AWK_PROG <$tmp/err '{ print $3 }'`
+	    echo "-- no report for config \"$_conf\" because the metric \"$metric\" is not in the archive" >>$REPORTFILE
+	elif grep 'PM_ERR_INDOM_LOG' $tmp/err >/dev/null 2>&1
 	then
 	    metric=`$PCP_AWK_PROG <$tmp/err '{ print $3 }'`
 	    echo "-- no report for config \"$_conf\" because there are no values for any instance of the metric \"$metric\" in the archive" >>$REPORTFILE
-	    rm -f $tmp/err
+	elif grep 'PM_ERR_BADDERIVE' $tmp/err >/dev/null 2>&1
+	then
+	    metric=`$PCP_AWK_PROG <$tmp/err '{ print $3 }'`
+	    echo "-- no report for config \"$_conf\" because one or more metrics for the derived metric \"$metric\" is not in the archive" >>$REPORTFILE
 	else
 	    cat $tmp/err >>$REPORTFILE
 	    echo "-- no report for config \"$_conf\"" >>$REPORTFILE
 	fi
     fi
 }
+
+echo "System Activity Report" >>$REPORTFILE
+echo >>$REPORTFILE
+echo "Host:            $HOSTNAME" >>$REPORTFILE
+echo "Archive:         $ORIG_ARCHIVEPATH" >>$REPORTFILE
+echo "Report created:  `date`" >>$REPORTFILE
 
 _report :sar-u-ALL '# CPU Utilization statistics, all CPUS'
 _report :sar-u-ALL-P-ALL '# CPU Utilization statistics, per-CPU'
