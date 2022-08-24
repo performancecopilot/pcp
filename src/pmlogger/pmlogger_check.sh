@@ -942,13 +942,11 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		    fi
 		elif _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
 		then
-		    if $VERY_VERBOSE
-		    then
-			$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger '
-			echo "primary pmlogger process $pid identified, OK"
-		    fi
+		    $VERY_VERBOSE && echo "primary pmlogger process $pid identified, OK"
+		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger '
 		else
 		    $VERY_VERBOSE && echo "primary pmlogger process $pid not running"
+		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger '
 		    pid=''
 		fi
 	    else
@@ -982,14 +980,12 @@ END				{ print m }'`
 		    pid=`echo $log | sed -e 's,.*/,,'`
 		    if _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
 		    then
-			if $VERY_VERBOSE
-			then
-			    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger '
-			    echo "pmlogger process $pid identified, OK"
-			fi
+			$VERY_VERBOSE && echo "pmlogger process $pid identified, OK"
+			$VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger '
 			break
 		    fi
 		    $VERY_VERBOSE && echo "pmlogger process $pid not running, skip"
+		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger '
 		    pid=''
 		else
 		    $VERY_VERBOSE && echo "different directory, skip"
