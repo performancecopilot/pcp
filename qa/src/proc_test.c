@@ -12,7 +12,7 @@
  * (We could call the agent functions directly but we might as well test
  *  that the whole package is working - i.e. communication via pmcd).
  *
- * 1. proc_desc     - pmGetDesc
+ * 1. proc_desc     - pmLookupDesc
  * 2. proc_text     - pmLookupText, pmLookupInDomText
  * 3. proc_instance - pmGetInDom, pmNameInDom, pmLookupInDom
  * 4. proc_profile  - pmAddProfile, pmDelProfile

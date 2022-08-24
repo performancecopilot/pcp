@@ -107,7 +107,7 @@ do_work()
 	    continue;
 	}
 	if (do_first == 0) {
-	    /* nothing, or more accurately pmGetDesc() below */
+	    /* nothing, or more accurately pmLookupDesc() below */
 	    ;
 	}
 	else if (do_first == 1) {
