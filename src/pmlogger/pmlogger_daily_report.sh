@@ -411,6 +411,7 @@ _report()
 	then
 	    metric=`$PCP_AWK_PROG <$tmp/err '{ print $3 }'`
 	    echo "-- no report for config \"$_conf\" because there are no values for any instance of the metric \"$metric\" in the archive" >>$REPORTFILE
+	    rm -f $tmp/err
 	else
 	    cat $tmp/err >>$REPORTFILE
 	    echo "-- no report for config \"$_conf\"" >>$REPORTFILE
@@ -444,8 +445,6 @@ _report :sar-y '# TTY devices activity'
 _report :numa-hint-faults '# NUMA hint fault statistics'
 _report :numa-per-node-cpu '# NUMA per-node CPU statistics'
 _report :numa-pgmigrate-per-node '# NUMA per-node page migration statistics'
-
-[ -f $tmp/err ] && status=1
 
 # optional end logging to $PCP_LOG_DIR/NOTICES
 #
