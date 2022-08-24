@@ -4,11 +4,9 @@
 Performance Co-Pilot
 ####################
 
-`Performance Co-Pilot (PCP) <https://pcp.io/>`_ provides a framework and services to support system-level performance monitoring and management. It presents a unifying 
-abstraction for all of the performance data in a system, and many tools for interrogating, retrieving and processing that data.
+`Performance Co-Pilot (PCP) <https://pcp.io/>`_ provides a framework and services to support system-level performance monitoring and management. It presents a unifying abstraction for all of the performance data in a system, and many tools for interrogating, retrieving and processing that data.
 
-PCP is a feature-rich, mature, extensible, cross-platform toolkit supporting both live and retrospective analysis. The distributed PCP architecture 
-makes it especially useful for those seeking centralized monitoring of distributed processing.
+PCP is a feature-rich, mature, extensible, cross-platform toolkit supporting both live and retrospective analysis. The distributed PCP architecture makes it especially useful for those seeking centralized monitoring of distributed processing.
 
 **Table of Contents**
 
@@ -49,8 +47,7 @@ makes it especially useful for those seeking centralized monitoring of distribut
    QG/AutomatedReasoningBasics
    QG/ConfigureAutomatedReasoning
    QG/AnalyzeLinuxContainers
-   QG/SecureConnections
-   QG/SecureClientConnections
+   QG/EncryptedConnections
    QG/AuthenticatedConnections
    QG/ImportData
    QG/Use3DViews

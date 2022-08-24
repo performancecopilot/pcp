@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2013-2015, Red Hat.
+ * Copyright (c) 2013-2015,2022 Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -20,7 +20,6 @@
 HostDialog::HostDialog(QWidget *parent) : QDialog(parent)
 {
     setupUi(this);
-    my.nssGuiStarted = false;
     my.advancedState = false;
     my.advancedString = advancedPushButton->text();
     my.originalHeight = geometry().height();
@@ -31,10 +30,6 @@ HostDialog::HostDialog(QWidget *parent) : QDialog(parent)
 void
 HostDialog::quit()
 {
-    if (my.nssGuiStarted) {
-	my.nssGuiProc->terminate();
-	my.nssGuiStarted = false;
-    }
     my.advancedState = false;
 }
 
@@ -48,12 +43,6 @@ void
 HostDialog::containerCheckBox_toggled(bool enableContainers)
 {
     containerLineEdit->setEnabled(enableContainers);
-}
-
-void
-HostDialog::secureCheckBox_toggled(bool enableSecure)
-{
-    certificatesPushButton->setEnabled(enableSecure);
 }
 
 void
@@ -104,6 +93,7 @@ HostDialog::getHostSpecification(void) const
     }
 
     if (containerCheckBox->isChecked() ||
+        encryptedCheckBox->isChecked() ||
 	authenticateCheckBox->isChecked())
 	need_delimiter = true;
 
@@ -113,6 +103,13 @@ HostDialog::getHostSpecification(void) const
     if (containerCheckBox->isChecked()) {
 	QString container = containerLineEdit->text().trimmed();
 	host.append("container=").append(container);
+	need_separator = true;
+    }
+
+    if (encryptedCheckBox->isChecked()) {
+	if (need_separator)
+	    host.append("&");
+	host.append("secure=enforce");
 	need_separator = true;
     }
 
@@ -136,10 +133,8 @@ HostDialog::getContextFlags(void) const
 {
     int flags = 0;
 
-    if (secureCheckBox->isChecked())
+    if (encryptedCheckBox->isChecked())
         flags |= PM_CTXFLAG_SECURE;
-    if (compressCheckBox->isChecked())
-        flags |= PM_CTXFLAG_COMPRESS;
     if (authenticateCheckBox->isChecked())
         flags |= PM_CTXFLAG_AUTH;
     return flags;
@@ -156,10 +151,7 @@ HostDialog::changedAdvancedState(void)
     containerCheckBox->setHidden(hidden);
     containerLineEdit->setHidden(hidden);
 
-    secureCheckBox->setHidden(hidden);
-    compressCheckBox->setHidden(hidden);
-    certificatesPushButton->setHidden(hidden);
-
+    encryptedCheckBox->setHidden(hidden);
     authenticateCheckBox->setHidden(hidden);
     usernameLabel->setHidden(hidden);
     usernameLineEdit->setHidden(hidden);
@@ -176,8 +168,6 @@ HostDialog::changedAdvancedState(void)
 	proxyLineEdit->clear();
 	containerCheckBox->setChecked(false);
 	containerLineEdit->clear();
-	secureCheckBox->setChecked(false);
-	compressCheckBox->setChecked(false);
 	authenticateCheckBox->setChecked(false);
 	usernameLineEdit->clear();
 	passwordLineEdit->clear();
@@ -193,66 +183,4 @@ HostDialog::advancedPushButton_clicked()
 {
     my.advancedState = !my.advancedState;
     changedAdvancedState();
-}
-
-void
-HostDialog::certificatesPushButton_clicked()
-{
-    if (!my.nssGuiStarted) {
-	my.nssGuiStarted = true;
-	nssGuiStart();
-    }
-}
-
-void
-HostDialog::nssGuiStart()
-{
-    QString	dbpath = QDir::toNativeSeparators(QDir::homePath());
-    int		sep = pmPathSeparator();
-
-    dbpath.append(sep).append(".pki").append(sep).append("nssdb");
-    dbpath.prepend("sql:");	// only use sqlite NSS databases
-
-    QStringList	arguments;
-    arguments << "--dbdir";
-    arguments << dbpath;
-
-    my.nssGuiProc = new QProcess(this);
-    connect(my.nssGuiProc, SIGNAL(error(QProcess::ProcessError)),
-                 this, SLOT(nssGuiError(QProcess::ProcessError)));
-    connect(my.nssGuiProc, SIGNAL(finished(int, QProcess::ExitStatus)),
-                 this, SLOT(nssGuiFinished(int, QProcess::ExitStatus)));
-    my.nssGuiProc->start("nss-gui", arguments);
-}
-
-void
-HostDialog::nssGuiError(QProcess::ProcessError error)
-{
-    QString message;
-
-    if (error == QProcess::FailedToStart) {
-	message = tr("Unable to start the nss-gui helper program.\n");
-    } else {
-	message.append(tr("Generic nss-gui program failure, state="));
-	message.append(error).append("\n");
-    }
-    QMessageBox::warning(this, pmGetProgname(), message,
-		QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-		Qt::NoButton, Qt::NoButton);
-    my.nssGuiStarted = false;
-}
-
-void
-HostDialog::nssGuiFinished(int exitCode, QProcess::ExitStatus exitStatus)
-{
-    (void)exitStatus;
-
-    if (exitCode) {
-	QString message(tr("nss-gui helper process failed\nExit status was:"));
-	message.append(exitCode).append("\n");
-	QMessageBox::warning(this, pmGetProgname(), message,
-		QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-		Qt::NoButton, Qt::NoButton);
-    }
-    my.nssGuiStarted = false;
 }
