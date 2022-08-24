@@ -11,6 +11,9 @@ sort_r (portable quicksort with closure)
 hash (portable performant hash function)
     - https://burtleburtle.net/bob/hash/evahash.html
 
+fnmatch implementation for Windows builds only
+    - https://www.gnu.org/software/libc/sources.html
+
 crc16, dict, sha1, sha256 (hash and string helpers)
     - https://github.com/redis/redis/blob/6.0/src
 
