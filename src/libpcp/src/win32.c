@@ -30,6 +30,7 @@
  * Thanks to "Earnie" on the mingw-users@lists.sourceforge.net mailing
  * list for this tip.
  */
+#include <w32api.h>
 #define WINVER Windows7
 #define _WIN32_WINNT _WIN32_WINNT_WIN7
 
@@ -200,14 +201,14 @@ pmSetProgname(const char *program)
 static LPTSTR
 append_option(LPTSTR cmdline, int *size, const char *option)
 {
-    int sz = *size, length = strlen(command);
+    int sz = *size, length = strlen(option);
 
     /* add 1space or 1null */
     if ((cmdline = realloc(cmdline, sz + length + 1)) == NULL) {
 	pmNoMem("__pmServerStart", sz + length + 1, PM_FATAL_ERR);
 	/* NOTREACHED */
     }
-    strcpy(&cmdline[sz], command);
+    strcpy(&cmdline[sz], option);
     cmdline[sz + length] = ' ';
     sz += length + 1;
 
@@ -249,7 +250,7 @@ __pmServerStart(int argc, char **argv, int flags)
     for (command = argv[0], i = 0;
 	 i < argc && command && *command;
 	 command = argv[++i]) {
-	cmdline = append_option(cmdline, &sz, command)
+	cmdline = append_option(cmdline, &sz, command);
     }
     if (flags & 0x1) {
 	/*
@@ -632,6 +633,22 @@ sleep(unsigned int seconds)
 {
     SleepEx(seconds * 1000, TRUE);
     return 0;
+}
+
+struct tm *
+gmtime_r(const time_t *timep, struct tm *result)
+{
+    if (gmtime_s(timep, result) == 0)
+	return result;
+    return NULL;
+}
+
+char *
+ctime_r(const time_t *timep, char *buf)
+{
+    if (ctime_s(buf, 26, timep) == 0)
+	return buf;
+    return NULL;
 }
 
 void

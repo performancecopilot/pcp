@@ -342,6 +342,8 @@ PCP_CALL extern void srandom(unsigned int);
 
 PCP_CALL extern int nanosleep(const struct timespec *, struct timespec *);
 PCP_CALL extern unsigned int sleep(unsigned int);
+PCP_CALL extern char *ctime_r(const time_t *, char *);
+PCP_CALL extern struct tm *gmtime_r(const time_t *, struct tm *);
 
 enum { RTLD_NOW, RTLD_LAZY };
 PCP_CALL extern void *dlopen(const char *, int);

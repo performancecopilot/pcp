@@ -17,8 +17,10 @@
 #define SHA256_BLOCK_SIZE 32            // SHA256 outputs a 32 byte digest
 
 /**************************** DATA TYPES ****************************/
+#if !defined(IS_MINGW)
 typedef uint8_t BYTE;   // 8-bit byte
 typedef uint32_t WORD;  // 32-bit word
+#endif
 
 typedef struct {
 	BYTE data[64];
