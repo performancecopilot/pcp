@@ -42,9 +42,6 @@
 		errors in the sample time calculation (that's a guess)
 1210	vm[0-9][0-9]	may collide with pmlogger_check and (correctly)
 			detects presence of /etc/pcp/pmlogger/lock
-1214	.*	known proxy mishandling of Redis protocol pass-through;
-		hiredis buffering code needs to be more deeply analysed
-		for some cases here, other pass-through cases work well
 1221	vm27	extra labels associated with
 		openmetrics.vmware_exporter.vmware_vm_guest_disk_* metrics
 		for no known reason

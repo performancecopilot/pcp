@@ -633,8 +633,10 @@ redisSlotsProxyConnect(redisSlots *slots, redisInfoCallBack info,
     redisReader		*reader = *readerp;
     redisReply		*reply = NULL;
     dictEntry		*entry;
-    long long		position, offset, length;
-    sds			cmd, key, msg;
+    size_t		replyStartPosition;
+    long long		position;
+    sds			cmd, msg;
+    int			hasKey;
     int			sts;
 
     if (!reader &&
@@ -644,33 +646,45 @@ redisSlotsProxyConnect(redisSlots *slots, redisInfoCallBack info,
 	return -ENOMEM;
     }
 
-    offset = reader->pos;
-    length = sdslen(reader->buf);
-    if (redisReaderFeed(reader, buffer, nread) != REDIS_OK ||
-	redisReaderGetReply(reader, (void **)&reply) != REDIS_OK) {
+    if (redisReaderFeed(reader, buffer, nread) != REDIS_OK) {
 	infofmt(msg, "failed to parse Redis protocol request");
 	info(PMLOG_REQUEST, msg, arg), sdsfree(msg);
 	return -EPROTO;
     }
 
-    if (reply != NULL) {	/* client request is complete */
-	key = cmd = NULL;
+    /* parse all Redis requests contained in buffer (Redis pipelining) */
+    while (1) {
+	replyStartPosition = reader->pos;
+	sts = redisReaderGetReply(reader, (void **)&reply);
+	if (sts != REDIS_OK) {
+	    infofmt(msg, "failed to parse Redis protocol request");
+	    info(PMLOG_REQUEST, msg, arg), sdsfree(msg);
+	    return -EPROTO;
+	}
+	if (reply == NULL) {
+	    break;
+	}
+
+	cmd = NULL;
+	hasKey = 0;
 	if (reply->type == REDIS_REPLY_ARRAY ||
 	    reply->type == REDIS_REPLY_MAP ||
 	    reply->type == REDIS_REPLY_SET)
 	    cmd = sdsnew(reply->element[0]->str);
 	if (cmd && (entry = dictFind(slots->keymap, cmd)) != NULL) {
 	    position = dictGetSignedIntegerVal(entry);
-	    if (position < reply->elements)
-		key = sdsnew(reply->element[position]->str);
+	    if (position > 0 && position < reply->elements)
+		hasKey = 1;
 	}
 	sdsfree(cmd);
-	cmd = sdsnewlen(reader->buf + offset, sdslen(reader->buf) - length);
-	if (key != NULL && position > 0)
+
+	cmd = sdsnewlen(reader->buf + replyStartPosition, reader->pos - replyStartPosition);
+	if (hasKey)
 	    sts = redisSlotsRequest(slots, cmd, callback, arg);
 	else
 	    sts = redisSlotsRequestFirstNode(slots, cmd, callback, arg);
-	sdsfree(key);
+	sdsfree(cmd);
+
 	if (sts != REDIS_OK) {
 	    redisReply *errorReply = calloc(1, sizeof(redisReply));
 	    errorReply->type = REDIS_REPLY_ERROR;
