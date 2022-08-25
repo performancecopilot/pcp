@@ -2529,14 +2529,14 @@ done
 %endif
 
 %pre testsuite
-test -d @pcp_var_dir@/testsuite || mkdir -p -m 755 @pcp_var_dir@/testsuite
 %if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
-%sysusers_create_compat %{_builddir}/qa/pcpqa.user
+%sysusers_create_compat %{_builddir}/%{?buildsubdir}/debian/pcp-testsuite.sysusers
 %else
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
   useradd -c "PCP Quality Assurance" -g pcpqa -d @pcp_var_dir@/testsuite -M -r -s /bin/bash pcpqa 2>/dev/null
 %endif
+test -d @pcp_var_dir@/testsuite || mkdir -p -m 755 @pcp_var_dir@/testsuite
 chown -R pcpqa:pcpqa @pcp_var_dir@/testsuite 2>/dev/null
 exit 0
 
@@ -2556,7 +2556,7 @@ chown -R pcpqa:pcpqa @pcp_var_dir@/testsuite 2>/dev/null
 
 %pre
 %if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
-%sysusers_create_compat %{_builddir}/src/include/pcp.user.install
+%sysusers_create_compat %{_builddir}/%{?buildsubdir}/debian/pcp.sysusers
 %else
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \

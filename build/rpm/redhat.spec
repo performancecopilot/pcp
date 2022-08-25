@@ -6,7 +6,10 @@ License: GPLv2+ and LGPLv2+ and CC-BY
 URL:     https://pcp.io
 
 %global  artifactory https://performancecopilot.jfrog.io/artifactory
+%global  pcp_git_url https://github.com/performancecopilot/pcp/blob
 Source0: %{artifactory}/pcp-source-release/pcp-%{version}.src.tar.gz
+Source1: %{pcp_git_url}/main/debian/pcp-testsuite.sysusers
+Source2: %{pcp_git_url}/main/debian/pcp.sysusers
 
 # The additional linker flags break out-of-tree PMDAs.
 # https://bugzilla.redhat.com/show_bug.cgi?id=2043092
@@ -2692,8 +2695,14 @@ done
 %endif
 
 %pre testsuite
+%if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
+%sysusers_create_compat %{SOURCE1}
+%else
+getent group pcpqa >/dev/null || groupadd -r pcpqa
+getent passwd pcpqa >/dev/null || \
+  useradd -c "PCP Quality Assurance" -g pcpqa -d %{_testsdir} -M -r -s /bin/bash pcpqa 2>/dev/null
+%endif
 test -d %{_testsdir} || mkdir -p -m 755 %{_testsdir}
-%sysusers_create_compat $RPM_BUILD_ROOT/%{_sysusersdir}/pcpqa.conf
 chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
 exit 0
 
@@ -2714,9 +2723,13 @@ chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
 exit 0
 
 %pre
+%if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
+%sysusers_create_compat %{SOURCE2}
+%else
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
   useradd -c "Performance Co-Pilot" -g pcp -d %{_localstatedir}/lib/pcp -M -r -s /sbin/nologin pcp
+%endif
 exit 0
 
 %if !%{disable_systemd}

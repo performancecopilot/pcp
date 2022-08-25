@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 SUBDIRS = pcp
-INSTALLS = pcp.conf.install pcp.user.install builddefs.install
+INSTALLS = pcp.conf.install builddefs.install
 
 default :: default_pcp
 
@@ -39,9 +39,6 @@ else
 	$(INSTALL) -m 644 pcp.conf.install $(PCP_ETC_DIR)/pcp.conf
 	$(INSTALL) -m 644 pcp.env $(PCP_ETC_DIR)/pcp.env
 endif
-ifeq ($(ENABLE_SYSTEMD),true)
-	$(INSTALL) -m 644 pcp.user.install $(PCP_SYSTEMDSYSUSERS_DIR)/pcp.conf
-endif
 	$(INSTALL) -m 644 buildrules $(PCP_INC_DIR)/buildrules
 	$(INSTALL) -m 644 builddefs.install $(PCP_INC_DIR)/builddefs
 	$(SUBDIRS_MAKERULE)
@@ -56,11 +53,6 @@ builddefs.install : builddefs
 	    -e '/^PCPLIB_LDFLAGS/s;-L.*;-L$$(PCP_LIB_DIR);' \
 	    -e '/^[ 	][ 	]*-L\$$(TOPDIR)/d' \
 	        < builddefs > builddefs.install
-
-pcp.user.install : pcp.user.in
-	sed -e 's;@PCP_USER@;'$(PCP_USER)';g' \
-	    -e 's;@PCP_VAR_DIR@;'$(PCP_VAR_DIR)';g' \
-		<pcp.user.in >pcp.user.install
 
 pcp.conf.install : pcp.conf
 ifeq ($(TARGET_OS),darwin)

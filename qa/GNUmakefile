@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2020 Red Hat.
+# Copyright (c) 2015-2022 Red Hat.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # NB: this GNUmakefile is only for use from within the PCP build tree.  It governs
@@ -38,7 +38,7 @@ endif
 #
 .SUFFIXES:
 
-default_pcp default: qa_outfiles localconfig pcpqa.user $(SUBDIRS)
+default_pcp default: qa_outfiles localconfig $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 setup: $(SUBDIRS) localconfig qa_hosts
@@ -101,9 +101,6 @@ install_pcp install: $(SUBDIRS)
 	$(INSTALL) -m 644 -f $(COMMON) $(OTHERS) $(TESTDIR)
 	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
 	$(INSTALL) -m 644 -f qa_outfiles $(DOTOUTFILES) $(TESTDIR)
-ifeq ($(ENABLE_SYSTEMD),true)
-	$(INSTALL) -m 644 pcpqa.user $(PCP_SYSTEMDSYSUSERS_DIR)/pcpqa.conf
-endif
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)
@@ -120,11 +117,6 @@ debug-me:
 	@echo SELINUX_PCPQA=$(SELINUX_PCPQA)
 
 default_pcp default setup:	$(SELINUX_PCPQA)
-
-pcpqa.user:	pcpqa.user.in
-	$(SED) <pcpqa.user.in >pcpqa.user \
-	    -e 's+@PCP_VAR_DIR@+'$(PCP_VAR_DIR)'+' \
-	# end
 
 pcpqa.te:	GNUselinuxdefs pcpqa.te.in
 	$(SED) <pcpqa.te.in >pcpqa.te \

@@ -116,6 +116,10 @@ default: pcp.preinst pcp.postinst pcp.postrm control pcp-gui.install
 include $(BUILDRULES)
 
 install: default
+ifeq ($(ENABLE_SYSTEMD),true)
+	$(INSTALL) -m 644 pcp.sysusers $(PCP_SYSTEMDSYSUSERS_DIR)/pcp.conf
+	$(INSTALL) -m 644 pcp-testsuite.sysusers $(PCP_SYSTEMDSYSUSERS_DIR)/pcp-testsuite.conf
+endif
 ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(LINTDIR)
 	$(INSTALL) -m 644 $(PCP_LINT) $(LINTDIR)/pcp
