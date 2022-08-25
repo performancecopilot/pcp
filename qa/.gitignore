@@ -33,7 +33,6 @@ localconfig.h
 pcpqa.fc
 pcpqa.if
 pcpqa.installed
-pcpqa.user
 pcpqa.pp
 pcpqa.te
 qa_hosts

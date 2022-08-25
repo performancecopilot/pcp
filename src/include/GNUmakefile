@@ -18,11 +18,10 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 SUBDIRS = pcp
-INSTALLS = pcp.conf.install builddefs.install
 
 default :: default_pcp
 
-default_pcp : $(SUBDIRS) pcp.conf $(INSTALLS)
+default_pcp : $(SUBDIRS) pcp.conf pcp.conf.install builddefs.install
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)
