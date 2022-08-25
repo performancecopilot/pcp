@@ -226,9 +226,10 @@ PCP_GROUP=@pcp_group@
 # Standard path: /etc/sasl2
 PCP_SASLCONF_DIR=@pcp_saslconf_dir@
 
-# directory for systemd unit files and tmpfiles specification
-# Standard path: /usr/lib/systemd/systemd, /usr/lib/tmpfiles.d
+# directory for systemd unit files, sysusers and tmpfiles specifications
+# Standard path: /usr/lib/systemd/systemd, /usr/lib/{sysusers,tmpfiles}.d
 PCP_SYSTEMDUNIT_DIR=@pcp_systemdunit_dir@
+PCP_SYSTEMDSYSUSERS_DIR=@pcp_systemdsysusers_dir@
 PCP_SYSTEMDTMPFILES_DIR=@pcp_systemdtmpfiles_dir@
 
 # verbose logging of PCP "rc" scripts launched from init, cron or systemd

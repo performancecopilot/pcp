@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2021 Red Hat.
+# Copyright (c) 2012-2022 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -30,7 +30,7 @@ default install install_pcp default_pcp :
 # going to make sure it'll be rebuild next time we come here
 # We used to override --target=FOO, but it's better to let the
 # local build distro defaults do their jobs.
-pack_pcp : rpmmacros $(SPEC)
+pack_pcp : rpmmacros systemd-sysuser-configs $(SPEC)
 	DEFS=`grep '^--define' rpmmacros`; \
 	eval $(RPMPROG) -ba $$DEFS --clean $(SPEC)
 	@if [ -n "$$RPM_SIGN_KEYID" ]; then \
@@ -106,6 +106,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@have_perl@|$(HAVE_PERL)|g' \
 	    -e"s|@build_root@|$${DIST_ROOT}|g" \
 	    -e's|@pcp_pmcdconf_path@|$(PCP_PMCDCONF_PATH)|g' \
+	    -e's|@pcp_systemdsysusers_dir@|$(PCP_SYSTEMDSYSUSERS_DIR)|g' \
 	    -e's|@pcp_systemdtmpfiles_dir@|$(PCP_SYSTEMDTMPFILES_DIR)|g' \
 	    -e's|@pcp_sysconfig_dir@|$(PCP_SYSCONFIG_DIR)|g' \
 	    -e's|@pcp_sysconf_dir@|$(PCP_SYSCONF_DIR)|g' \
@@ -121,6 +122,10 @@ pcp.spec: pcp.spec.in
 	    -e's|@have_manpages@|$(HAVE_MANPAGES)|g' \
 	    -e's|@make@|$(PCP_MAKE_PROG)|g' <$? >$@
 	./do-maybe-requires
+
+systemd-sysuser-configs:
+	$(MAKE) $(MAKEOPTS) -C $(TOPDIR)/src/include pcp.user.install
+	$(MAKE) $(MAKEOPTS) -C $(TOPDIR)/qa pcpqa.user
 
 include $(BUILDRULES)
 

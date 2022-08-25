@@ -946,6 +946,8 @@ sd_service_type
 enable_systemd
 pcp_systemdunit_dir
 SYSTEMD_SYSTEMUNITDIR
+pcp_systemdsysusers_dir
+SYSTEMD_SYSUSERSDIR
 pcp_systemdtmpfiles_dir
 SYSTEMD_TMPFILESDIR
 enable_avahi
@@ -1141,6 +1143,7 @@ gperftools_LIBS
 avahi_CFLAGS
 avahi_LIBS
 SYSTEMD_TMPFILESDIR
+SYSTEMD_SYSUSERSDIR
 SYSTEMD_SYSTEMUNITDIR
 libbpf_CFLAGS
 libbpf_LIBS
@@ -1901,6 +1904,8 @@ Some influential environment variables:
   avahi_LIBS  linker flags for avahi, overriding pkg-config
   SYSTEMD_TMPFILESDIR
               value of tmpfilesdir for systemd, overriding pkg-config
+  SYSTEMD_SYSUSERSDIR
+              value of sysusersdir for systemd, overriding pkg-config
   SYSTEMD_SYSTEMUNITDIR
               value of systemdsystemunitdir for systemd, overriding pkg-config
   libbpf_CFLAGS
@@ -6920,6 +6925,32 @@ then :
   pcp_systemdtmpfiles_dir=$pcp_lib32_dir/tmpfiles.d
 else $as_nop
   pcp_systemdtmpfiles_dir=$SYSTEMD_TMPFILESDIR
+fi
+
+
+if test -n "$SYSTEMD_SYSUSERSDIR"; then
+    pkg_cv_SYSTEMD_SYSUSERSDIR="$SYSTEMD_SYSUSERSDIR"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"systemd\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "systemd") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_SYSTEMD_SYSUSERSDIR=`$PKG_CONFIG --variable="sysusersdir" "systemd" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+SYSTEMD_SYSUSERSDIR=$pkg_cv_SYSTEMD_SYSUSERSDIR
+
+if test "x$SYSTEMD_SYSUSERSDIR" = x""; then :
+  pcp_systemdsysusers_dir=$pcp_lib32_dir/sysusers.d
+else
+  pcp_systemdsysusers_dir=$SYSTEMD_SYSUSERSDIR
 fi
 
 

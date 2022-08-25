@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2020 Red Hat.
+# Copyright (c) 2015-2022 Red Hat.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # NB: this GNUmakefile is only for use from within the PCP build tree.  It governs
