@@ -2530,7 +2530,7 @@ done
 
 %pre testsuite
 %if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
-%sysusers_create_compat %{_builddir}/%{?buildsubdir}/debian/pcp-testsuite.sysusers
+%sysusers_create_compat %{_builddir}/debian/pcp-testsuite.sysusers
 %else
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
@@ -2553,15 +2553,17 @@ chown -R pcpqa:pcpqa @pcp_var_dir@/testsuite 2>/dev/null
     /sbin/service pmcd condrestart
     /sbin/service pmlogger condrestart
 %endif
+exit 0
 
 %pre
 %if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
-%sysusers_create_compat %{_builddir}/%{?buildsubdir}/debian/pcp.sysusers
+%sysusers_create_compat %{_builddir}/debian/pcp.sysusers
 %else
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
     useradd -c "Performance Co-Pilot" -g pcp -d @pcp_var_dir@ -M -r -s /sbin/nologin pcp
 %endif
+exit 0
 
 %post zeroconf
 PCP_PMDAS_DIR=@pcp_pmdas_dir@
