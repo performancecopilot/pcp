@@ -29,6 +29,8 @@ _filter_solaris()
 	cat
     else
 	sed \
+	    -e '/^disk\.all\.blkdiscard .* Unknown metric name/d' \
+	    -e '/^disk\.all\.discard .* Unknown metric name/d' \
 	    -e '/^disk.dev.avactive .* Unknown metric name/d' \
 	    -e '/^network.icmp.* Unknown metric name/d' \
 	    -e '/^network.igmp.* Unknown metric name/d' \
@@ -50,8 +52,10 @@ _filter_darwin()
 	cat
     else
 	sed \
-	    -e '/^disk\.dev\.avactive .* Unknown metric name/d' \
 	    -e '/^disk\.all\.avactive .* Unknown metric name/d' \
+	    -e '/^disk\.all\.blkdiscard .* Unknown metric name/d' \
+	    -e '/^disk\.all\.discard .* Unknown metric name/d' \
+	    -e '/^disk\.dev\.avactive .* Unknown metric name/d' \
 	    -e '/^disk\.partitions\..* Unknown metric name/d' \
 	    -e '/^hinv\.nnode .* Unknown metric name/d' \
 	    -e '/^network\.icmp .* Unknown metric name/d' \
@@ -80,6 +84,8 @@ _filter_freebsd()
     else
 	sed \
 	    -e '/^disk\.all\.avactive .* Unknown metric name/d' \
+	    -e '/^disk\.all\.blkdiscard .* Unknown metric name/d' \
+	    -e '/^disk\.all\.discard .* Unknown metric name/d' \
 	    -e '/^disk\.dev\.avactive .* Unknown metric name/d' \
 	    -e '/^filesys .* Unknown metric name/d' \
 	    -e '/^filesys\..* Unknown metric name/d' \
@@ -128,6 +134,8 @@ _filter_netbsd()
 	    -e '/^disk\.all\.avactive .* Unknown metric name/d' \
 	    -e '/^disk\.all\.blkread .* Unknown metric name/d' \
 	    -e '/^disk\.all\.blkwrite .* Unknown metric name/d' \
+	    -e '/^disk\.all\.blkdiscard .* Unknown metric name/d' \
+	    -e '/^disk\.all\.discard .* Unknown metric name/d' \
 	    -e '/^disk\.dev\.avactive .* Unknown metric name/d' \
 	    -e '/^hinv\.nnode .* Unknown metric name/d' \
 	    -e '/^kernel\.all\.io\..* Unknown metric name/d' \
@@ -173,6 +181,8 @@ _filter_openbsd()
 	    -e '/^disk\.all\.avactive .* Unknown metric name/d' \
 	    -e '/^disk\.all\.blkread .* Unknown metric name/d' \
 	    -e '/^disk\.all\.blkwrite .* Unknown metric name/d' \
+	    -e '/^disk\.all\.blkdiscard .* Unknown metric name/d' \
+	    -e '/^disk\.all\.discard .* Unknown metric name/d' \
 	    -e '/^disk\.dev\.avactive .* Unknown metric name/d' \
 	    -e '/^disk\.dev\.aveq .* Unknown metric name/d' \
 	    -e '/^disk\.dev\.total_rawactive .* Unknown metric name/d' \
