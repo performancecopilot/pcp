@@ -41,14 +41,22 @@ status=0	# success is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# some metrics are unavailable on some platforms, some may be
+# unavailable depending on configuration, e.g. device mapper,
+# and some may have an empty indom (no values), so deal with
+# that here
+#
 _filter()
 {
-    sed \
-	-e "s@$tmp@TMP@g" \
-    # end
+    echo "s@$tmp@TMP@g" >$tmp.sed
+    echo '/^Invalid metric disk.dm.discard_bytes/d' >>$tmp.sed
+    echo '/PM_ERR_INDOM_LOG/d' >>$tmp.sed
+    sed -f $tmp.sed
 }
 
-# more or less from pmlogger_daily_report
+# more or less from pmlogger_daily_report ... in this test
+# we're only interested in unexepected errors, not the actual
+# pmlogger_daily_report from the running system
 #
 _report()
 {
@@ -60,14 +68,7 @@ _report()
     then
 	:
     else
-	if grep 'PM_ERR_INDOM_LOG' $tmp.err >/dev/null 2>&1
-	then
-	    # this one is not an error ... depends on the host setup
-	    #
-	    echo "empty indom" >>$seq.full
-	else
-	    cat $tmp.err
-	fi
+	_filter <$tmp.err
     fi
 }
 
