@@ -524,7 +524,7 @@ nvme_smart_refresh_data(const char *name, struct nvme_smart_data *nvme_smart_dat
 void
 smart_stats_setup(void)
 {
-	static char smart_command[] = "smartctl";
+	static char smart_command[] = "LC_ALL=C smartctl";
 	char *env_command;
 
 	/* allow override at startup for QA testing */
