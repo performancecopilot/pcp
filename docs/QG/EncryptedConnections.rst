@@ -14,7 +14,7 @@ All connections made to the PCP metrics collector daemon (*pmcd*) are made using
 
 Both the *pmcd* and *pmproxy* daemons are capable of simultaneous TLS and non-TLS communications on a single port (by default, port 44321 for *pmcd* and 44322 for *pmproxy*). This means that you do not have to choose between TLS or non-TLS communications for your PCP Collector systems; both can be used at the same time.
 
-PCP installations using the scalable timeseries querying capabilities use Redis server(s). The process of configuring Redis and PCP is purposefully very similar for convenience, however Redis configuration is not specifically covered here.
+PCP installations using the scalable timeseries querying capabilities use Redis server(s). The process of configuring Redis and PCP is purposefully very similar, for convenience, however Redis configuration is not specifically covered here.
 
 The cryptographic services used to augment the PCP and HTTP protocols are provided by OpenSSL, a library implementing Transport Layer Security (TLS) and base cryptographic functions. Check local PCP collector installation is built with TLS support::
 
@@ -70,9 +70,9 @@ After customising the certificate subject names (-subj option below), enter::
 
 Create a server certificate (adjusting the -subj option)::
 
+    # openssl genrsa -out /etc/pcp/tls/server.key 2048
     # openssl req \
         -new -sha256 -subj '/O=PCP Authority/CN=PCP Collector' \
-        -out /etc/pcp/tls/ca.crt \
         -key /etc/pcp/tls/server.key | \
         openssl x509 \
             -req -sha256 -days 365 \
@@ -83,9 +83,9 @@ Create a server certificate (adjusting the -subj option)::
     
 Create a client certificate (adjusting the -subj option)::
 
+    # openssl genrsa -out /etc/pcp/tls/client.key 2048
     # openssl req \
         -new -sha256 -subj '/O=PCP Authority/CN=PCP Monitor' \
-        -out /etc/pcp/tls/ca.crt \
         -key /etc/pcp/tls/client.key | \
         openssl x509 \
             -req -sha256 -days 365 \
@@ -93,6 +93,10 @@ Create a client certificate (adjusting the -subj option)::
             -CAkey /etc/pcp/tls/ca.key \
             -extfile /etc/pcp/tls/openssl.cnf -extensions client_cert \
             -out /etc/pcp/tls/client.crt
+
+Ensure the unprivileged PCP user account has appropriate access::
+
+    # chown -R pcp:pcp /etc/pcp/tls
 
 Finally, update the PCP configuration file with this information::
 
@@ -115,11 +119,34 @@ PCP Monitoring (client) tools require a trusted certificate to validate the serv
 
 Once certificates are in place, we are ready to attempt to establish secure connections between remote PCP monitor and collector hosts. This can be achieved by specifically requesting a secure connection for individual host connections, in tools that support this explicitly (e.g. pmchart below). Alternatively, an environment variable can be set to request that all client connections within that shell environment be made securely. This environment variable can have the value **enforce** meaning "all connections must be secure, fail if this cannot be achieved", or **relaxed** meaning "establish secure connections only for remote collector systems that are configured, fallback to insecure connections if not".
 
+Create a client certificate as a local user (adjusting and -subj option)::
+
+    $ mkdir -p ~/.pcp/tls
+    $ openssl genrsa -out ~/.pcp/tls/client.key 2048
+    $ openssl req \
+        -new -sha256 -subj '/O=PCP Authority/CN=PCP User Monitor' \
+        -key ~/.pcp/tls/client.key | \
+        sudo openssl x509 \
+            -req -sha256 -days 365 \
+            -CA /etc/pcp/tls/ca.crt \
+            -CAkey /etc/pcp/tls/ca.key \
+            -extfile /etc/pcp/tls/openssl.cnf -extensions client_cert \
+            -out ~/.pcp/tls/client.crt
+
+Create a TLS configuration file with this information::
+
+    home=`echo ~`
+    $ cat > ~/.pcp/tls.conf << _END_
+    tls-ca-cert-file = /etc/pcp/tls/ca.crt
+    tls-key-file = $home/.pcp/tls/client.key
+    tls-cert-file = $home/.pcp/tls/client.crt
+    _END_
+
 To establish a secure connection, in a shell enter::
 
     $ export PCP_SECURE_SOCKETS=enforce
     $ export PCP_TLSCONF_PATH=~/.pcp/tls.conf
-    $ pminfo --host example.com -f kernel.all.load
+    $ pminfo --host localhost -f kernel.all.load
 
     kernel.all.load
         inst [1 or "1 minute"] value 1.26
@@ -145,4 +172,4 @@ In the PCP strip chart utility pmchart encrypted connections can be established 
 
 .. Note::
  
-  It is not necessary to use the ``PCP_SECURE_SOCKETS`` environment variable described above with *pmchart*. However, if it is used, secure connections will become the default mode for all connections established by *pmchart* too.
+  While you must still use ``PCP_TLSCONF_PATH'' it is not necessary to use the ``PCP_SECURE_SOCKETS`` environment variable described above with *pmchart*. However, if the latter is used, secure connections will become the default mode for all connections established by *pmchart* too.

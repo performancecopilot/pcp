@@ -21,6 +21,7 @@ _cleanup()
     then
 	need_restore=false
 	_restore_config $PCP_SYSCONF_DIR/labels
+	_restore_config $PCP_TLSCONF_PATH
 	_sighup_pmcd
     fi
     $sudo rm -rf $tmp $tmp.*
@@ -68,6 +69,7 @@ _filter_port()
 
 # real QA test starts here
 _save_config $PCP_SYSCONF_DIR/labels
+_save_config $PCP_TLSCONF_PATH
 need_restore=true
 
 $sudo rm -rf $PCP_SYSCONF_DIR/labels/*
