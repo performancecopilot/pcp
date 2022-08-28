@@ -27,6 +27,9 @@ fi
 [ -d $PCP_VAR_DIR/config/pmlogconf/zeroconf ] || \
 	_notrun pmlogconf files for zeroconf not installed
 
+which pmrep >/dev/null 2>&1 || \
+	_notrun pmrep not installed
+
 # need standard derived metrics for some of the reports
 #
 unset PCP_DERIVED_CONFIG
