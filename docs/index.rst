@@ -11,6 +11,7 @@ PCP is a feature-rich, mature, extensible, cross-platform toolkit supporting bot
 **Table of Contents**
 
 * :doc:`HowTos/installation/index`
+* :doc:`QG/QuickReferenceGuide`
 * :doc:`QG/QuickGuides`
 * :doc:`UAG/AboutUserAdministratorsGuide`
 * :doc:`PG/AboutProgrammersGuide`
@@ -22,6 +23,7 @@ PCP is a feature-rich, mature, extensible, cross-platform toolkit supporting bot
    :hidden:
    
    HowTos/installation/index
+   QG/QuickReferenceGuide
    QG/QuickGuides
    UAG/AboutUserAdministratorsGuide
    PG/AboutProgrammersGuide
