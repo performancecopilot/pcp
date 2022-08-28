@@ -43,7 +43,7 @@ SUBDIRS = \
 # Otherwise zeroconf will be installed for all platforms as
 # the default, which is not what we want (it's opt-in).
 #
-ifneq "$(RPMPROG)$(DPKG)" ""
+ifeq "$(TARGET_OS)" "linux"
 SUBDIRS += zeroconf
 endif
 
