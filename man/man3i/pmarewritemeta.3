@@ -24,7 +24,7 @@
 .br
 #include <pcp/archive.h>
 .sp
-int pmaRewriteMeta(int \fIinvers\fP, int \fIoutvers\fP, __int32_t *\fIrbuf\fP);
+int pmaRewriteMeta(__pmLogCtl *\fIinlcp\fP, __pmLogCtl *\fIoutlcp\fP, __int32_t *\fIrbuf\fP);
 .sp
 cc ... \-lpcp_archive \-lpcp
 .ft 1
@@ -40,33 +40,36 @@ different semantics at some point in the future.
 .ie t \f(CW\\$1\fR\\$2
 .el \fI\\$1\fR\\$2
 ..
-A physical metadata record from a version
-.I invers
-archive is passed in via
+A physical metadata record from the input archive identified by
+.I inlcp
+is passed in via
 .I rbuf
 and this is reformatted if
-required to produce the equivalent metadata record for a version
-.I outvers
-archive.
+required to produce the equivalent metadata record for the output
+archive identified by
+.IR outlcp .
 .PP
-The type of the metadata record (as extracted from
+Combined with the input and output archive versions,
+the type of the metadata record (as extracted from
 .IR rbuf )
-is used to decide which style of rewriting is required to move
-from version
-.I invers
-to version
-.IR outvers ;
-for some record types no rewriting is required.
+is used to decide if;
+for some record types and version changes no rewriting is required.
 .PP
-The only sane choice of
-.I invers
+.B pmaRewriteMeta
+is intended to be used in cases where the archive version of
+.I inlcp
 and
-.I outvers
+.I outlcp
+are differerent.
+The only sane choice of archive versions
 today is
 .B PM_LOG_VERS02
+for
+.I inlcp
 and
 .B PM_LOG_VERS03
-respectively,
+for
+.IR outlcp ,
 which would be requesting a rewrite from archive version 2 format
 to archive version 3 format
 (as only versions 2 and 3 are currently supported).
@@ -87,10 +90,10 @@ the record if it is precious.
 In several places, fatal errors will trigger an error message and
 force the application to exit.
 .PP
-If there is no defined translation from
-.I invers
-to
-.I outvers
+If there is no defined translation for the versions of
+.I inlcp
+and
+.I outlcp
 then
 .B pmaRewriteMeta
 returns

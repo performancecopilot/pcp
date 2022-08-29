@@ -15,7 +15,7 @@
 .\"
 .TH PMATRYDELTAINDOM 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmaTryDeltaInDom\f1 \- try to translate a physical indom record from a ``full'' indom to a ``delta'' indom
+\f3pmaTryDeltaInDom\f1 \- try to translate a physical indom record from a ``full indom'' to a ``delta indom''
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -24,7 +24,7 @@
 .br
 #include <pcp/archive.h>
 .sp
-void pmaTryDeltaInDom(__pmLogCtl *\fIlcp\fP, __int32_t *\fIrbuf\fP);
+int pmaTryDeltaInDom(__pmLogCtl *\fIlcp\fP, __int32_t **\fIrbuf\fP, __pmLogInDom *\fIlidp\fR);
 .sp
 cc ... \-lpcp_archive \-lpcp
 .ft 1
@@ -40,32 +40,50 @@ different semantics at some point in the future.
 .ie t \f(CW\\$1\fR\\$2
 .el \fI\\$1\fR\\$2
 ..
-A physical metadata record for a ``full'' instance domain is passed in via
+The input instance domain is passed in as either a
+physical metadata record via
 .I rbuf
-and this on the path to being written to the archive identified by
+or in the ``loaded'' format identified by
+.IR lidp .
+As these are alternate formats for the input instance domain,
+.B pmaTryDeltaInDom
+demands that
+.B exactly
+one of
+.I rbuf
+and
+.I lidp
+must be
+.BR NULL ,
+else the return value is -2.
+.PP
+The input instance domain is on
+the path to being written to the archive identified by
 .IR lcp .
 .PP
-If possible, the instance domain will be converted to the ``delta''
-format, and a new record returned via
-.IR rbuf .
-In this case, the old
+If possible, the instance domain will be converted to the ``delta indom''
+format, and the converted instance domain returned via
 .I rbuf
+or
+.I lidp
+(whichever is not
+.BR NULL ).
+If conversion takes place, any storage assocated with the input instance domain
 will have been free'd.
 .PP
-The ``delta indom'' format is only supported for V3 archives and it
+The ``delta indom'' format is only supported for Version 3 archives and it
 is the caller's responsibility to determine if calling
 .B pmaTryDeltaInDom
 is appropriate.
 .PP
-To determine if the ``delta'' instance domain format is appropriate
+To determine if the ``delta indom'' format is the most efficient encoding,
 .B pmaTryDeltaInDom
 maintains a per-instance domain cache of the last seen ``full''
 instance domain.
 To avoid data corruption, this means
 .B pmaTryDeltaInDom
 first copies
-.I rbuf
-and then unpacks the copy.
+the input instance domain.
 The copy and the cache are all managed privately by
 .B pmaTryDeltaInDom
 so the caller is unaware of this activity.
@@ -74,7 +92,7 @@ The cacheing scheme requires that the caller must call
 .B pmaTryDeltaInDom
 for
 .B every
-instance domain record, independent of whether the ``delta'' format
+instance domain record, independent of whether the ``delta indom'' format
 is likely to be appropriate.
 .SH DIAGNOSTICS AND RETURN VALUES
 In several places, fatal errors will trigger an error message and
@@ -83,15 +101,21 @@ force the application to exit.
 A return value of -1 indicates that
 .I rbuf
 was not
+.B NULL
+and the physical record therein
+was not a
 .B TYPE_INDOM
-(V3 ``full'' instance domain) record as expected.
+(Version 3 ``full'' instance domain) record as expected.
 A return value of 1 means
 .I rbuf
+or
+.I lidp
 has been rewritten, and is now a
 .B TYPE_INDOM_DELTA
 record.
 Otherwise the return value is 0.
 .SH SEE ALSO
-.BR pmaDeltaInDom (3)
+.BR pmaDeltaInDom (3),
+.BR PMAPI (3)
 and
-.BR PMAPI (3).
+.BR pmaUndeltaInDom (3).

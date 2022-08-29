@@ -53,11 +53,11 @@ instance identifier sequence; see
 .BR pmaSortInDom (3)
 to see how to make the second condition true.
 .PP
-The ``delta indom'' format is only supported for V3 archives and it
+The ``delta indom'' format is only supported for Version 3 archives and it
 is the caller's responsibility to determine if calling
 .B pmaDeltaInDom
 is appropriate, rather than calling
-.B pmaSameInDom (3)
+.BR pmaSameInDom (3)
 which is the preferred method for V2 archives.
 .PP
 .B pmaDeltaInDom
@@ -132,8 +132,6 @@ and
 should not be freed until the caller has finished with
 .IR new_delta .
 .
-.SH DIAGNOSTICS AND RETURN VALUES
-None.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmaSortInDom (3)
