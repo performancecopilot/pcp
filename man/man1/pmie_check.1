@@ -406,6 +406,42 @@ no
 entries are needed as the timer mechanism provided by
 .B systemd
 is used instead.
+.PP
+The
+.BR pmiectl (1)
+utility may invoke
+.B pmie_check
+using the
+.BR sudo (1)
+command to run it under the $PCP_USER ``pcp'' account.
+If
+.B sudo
+is configured with the non-default
+.I requiretty
+option (see below),
+.B pmie_check
+may fail to run due to not having a tty configured.
+This issue can be resolved by adding a second line
+(expand $PCP_BINADM_DIR according to your platform)
+to the
+.I /etc/sudoers
+configuration file as follows:
+.P
+.ft CW
+.nf
+.in +0.5i
+Defaults requiretty
+Defaults!$PCP_BINADM_DIR/pmie_check !requiretty
+.in
+.fi
+.ft 1
+.P
+Note that the unprivileged PCP account under which these
+commands run uses
+.I /sbin/nologin
+as the shell, so the
+.I requiretty
+option is ineffective here and safe to disable in this way.
 .SH FILES
 .TP 5
 .I $PCP_PMIECONTROL_PATH
