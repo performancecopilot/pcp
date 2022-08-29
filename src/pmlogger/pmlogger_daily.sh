@@ -584,7 +584,7 @@ else
 	fi
 	if [ -f $tmp/want_daily_report ]
 	then
-	    # Note: actual achive name will follow -a when callback
+	    # Note: actual archive name will follow -a when callback
 	    # happens
 	    #
 	    if _add_callback "$PCP_BINADM_DIR/pmlogger_daily_report -o $PCP_SA_DIR -a" $tmp/merge_callback
