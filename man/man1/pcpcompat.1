@@ -52,7 +52,7 @@ API.
 .PP
 With
 .B python
-version 2 end-of-life since 2020 we have deprecated the
+version 2 reaching end-of-life in 2020 we have deprecated the
 .B python
 version 2 interfaces in PCP (shipped, but no longer supported).
 In the next major release of PCP (v7) version 2 support will be
@@ -63,6 +63,47 @@ tools support
 .B python
 version 3 and have for several years \- upgrading is strongly
 recommended.
+.SH QT4
+PCP provides optional graphical user interfaces built on the
+cross-platform Qt library, particularly
+.BR pmchart (1)
+and
+.BR pmtime (1).
+.PP
+With Qt v4 reaching end-of-life in 2015 we have removed support
+for all versions before Qt v5.
+In addition, some features are missing in early versions of Qt
+v5 that are now mandatory when building and using PCP Qt tools.
+As a result the minimum required version of Qt for PCP v6 and
+beyond is now Qt 5.6.
+.SH NSS
+Versions of PCP before v6 used a combination of both Mozilla 
+NSS (Network Security Services) and OpenSSL for the encryption
+component of the secure sockets functionality.
+Starting with PCP v6 this has been simplified into exclusive
+use of OpenSSL for all use of encryption across PCP.
+This change affects configuration of optional functionality in
+.BR pmcd (1)
+and
+.BR PMAPI (3)
+client tools using secure sockets.
+.PP
+The net effect of this change is that encryption is configured
+in the same ways, using the same certificates, across the HTTPS
+functionality in
+.BR pmproxy (1),
+as well as the encrypted PCP protocol functionality between
+.BR pmcd ,
+.B pmproxy
+and
+.B PMAPI
+client tools.
+Additionally, the Redis service used by
+.BR pmseries (1)
+and
+.B pmproxy
+also exclusively uses OpenSSL, and in a manner similar to PCP,
+which makes administering these services significantly simpler.
 .SH SAR2PCP, IOSTAT2PCP
 The
 .BR sar2pcp (1)
