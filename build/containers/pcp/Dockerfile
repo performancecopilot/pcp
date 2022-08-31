@@ -1,41 +1,36 @@
-# rpm build container
-FROM registry.fedoraproject.org/fedora:34
+## Build
+FROM registry.fedoraproject.org/fedora:36 AS build
 COPY . /usr/src/pcp
 
 WORKDIR /usr/src/pcp
-RUN dnf install -y git rpm-build 'dnf-command(builddep)' && \
-    # pmdabind2
-    dnf install -y perl-XML-LibXML perl-File-Slurp && \
-    dnf builddep -y build/rpm/redhat.spec && \
-    mkdir -p /root/rpmbuild/SOURCES && \
-    ./Makepkgs --source && \
-    mv build/tar/pcp-*.src.tar.gz /root/rpmbuild/SOURCES && \
-    rpmbuild -bb build/rpm/redhat.spec
+RUN dnf install -y git which rpm-build 'dnf-command(builddep)'
+RUN dnf builddep -y build/rpm/redhat.spec
+RUN dnf remove -y selinux-policy
 
-WORKDIR /root/rpmbuild/RPMS/x86_64
+RUN ./Makepkgs --verbose
 RUN mkdir /build && \
+    cd pcp-*/build/rpm && \
     release=$(ls pcp-zeroconf-* | sed -E 's/pcp-zeroconf-(.+)\.(.+)\.rpm/\1/') && \
-    cp /root/rpmbuild/RPMS/noarch/pcp-doc-$release.noarch.rpm /build && \
     cp \
       pcp-$release.x86_64.rpm \
-      pcp-zeroconf-$release.x86_64.rpm \
       pcp-conf-$release.x86_64.rpm \
+      pcp-doc-$release.noarch.rpm \
       pcp-libs-$release.x86_64.rpm \
-      pcp-selinux-$release.x86_64.rpm \
       pcp-system-tools-$release.x86_64.rpm \
+      pcp-zeroconf-$release.x86_64.rpm \
       pcp-pmda-dm-$release.x86_64.rpm \
       pcp-pmda-nfsclient-$release.x86_64.rpm \
       pcp-pmda-openmetrics-$release.x86_64.rpm \
       python3-pcp-$release.x86_64.rpm \
       /build
 
-# actual container
-FROM registry.fedoraproject.org/fedora:34
-COPY --from=0 /build/ /build/
+## Deploy
+FROM registry.fedoraproject.org/fedora:36
+COPY --from=build /build /build
 
 ENV SUMMARY="Performance Co-Pilot" \
     DESCRIPTION="Performance Co-Pilot is a system performance analysis toolkit." \
-    VERSION=5
+    VERSION=6
 
 LABEL name="pcp" \
       summary="${SUMMARY}" \
@@ -55,7 +50,9 @@ RUN groupadd -g 1001 -r pcp && \
     dnf install -y --setopt=tsflags=nodocs procps-ng gettext /build/*.rpm && \
     dnf clean all
 
-COPY build/container/root /
+COPY build/containers/pcp/root /
+
+RUN systemctl mask systemd-remount-fs.service dev-hugepages.mount sys-fs-fuse-connections.mount systemd-logind.service getty.target console-getty.service systemd-udev-trigger.service systemd-udevd.service systemd-random-seed.service systemd-machine-id-commit.service
 
 VOLUME ["/var/log/pcp/pmlogger"]
 EXPOSE 44321
@@ -63,3 +60,4 @@ EXPOSE 44322
 
 ENTRYPOINT ["/usr/bin/container-entrypoint"]
 CMD ["/usr/sbin/init"]
+STOPSIGNAL SIGRTMIN+3
