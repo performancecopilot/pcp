@@ -8,7 +8,7 @@ $ podman run \
     --name pcp-archive-analysis \
     -t --rm \
     --security-opt label=disable \
-    -p 3000:3000 \
+    -p 127.0.0.1:3000:3000 \
     -v /location/to/pcp/archives/on/host:/archives \
     quay.io/performancecopilot/archive-analysis
 ```
