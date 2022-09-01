@@ -61,7 +61,7 @@ Installing Collector Hosts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +-----------------------------------------------------------------------+
-| |image1|   To install basic PCP tools and services and enable         |
+| To install basic PCP tools and services and enable                    |
 | collecting performance data on systemd based distributions, run::     |
 |                                                                       |
 | # yum install pcp  # or apt-get or dnf or zypper                      |
@@ -81,7 +81,7 @@ be enabled on the host for convenience with
 `pmlogger(1) <http://man7.org/linux/man-pages/man1/pmlogger.1.html>`__.
 
 +-----------------------------------------------------------------------+
-| |image1|   To enable PMDAs which are not enabled by default, for      |
+| To enable PMDAs which are not enabled by default, for                 |
 | example the PostgreSQL database PMDA, run the corresponding Install   |
 | script::                                                              |
 |                                                                       |
@@ -100,7 +100,7 @@ monitoring host to extend the set of monitoring tools from the base pcp
 package.
 
 +-------------------------------------------------------------------------------+
-| |image1|   Install various system monitoring tools, graphical                 |
+| Install various system monitoring tools, graphical                            |
 | analysis tools, and documentation::                                           |
 |                                                                               |
 | # yum install pcp-doc pcp-gui pcp-system-tools  # or apt-get or dnf or zypper |
@@ -113,7 +113,7 @@ hosts. Add each collector host to the pmlogger configuration file
 monitoring host.
 
 +---------------------------------------------------------------------------------------------------------------+
-| |image1|   Enable recording of metrics from remote host                                                       |
+| Enable recording of metrics from remote host                                                                  |
 | **acme.com**::                                                                                                |
 |                                                                                                               |
 | # echo acme.com n n PCP_LOG_DIR/pmlogger/acme.com -r -T24h10m -c config.acme.com >> /etc/pcp/pmlogger/control |
@@ -142,18 +142,18 @@ be used to auto-discover and auto-configure new collector hosts and
 containers for logging and/or rule inference.
 
 +-----------------------------------------------------------------------+
-| |image1|   To install pmfind to begin monitoring discovered metric    |
+| To install pmfind to begin monitoring discovered metric               |
 | sources, run::                                                        |
 |                                                                       |
 | # systemctl enable pmfind                                             |
 | # systemctl restart pmfind                                            |
 +-----------------------------------------------------------------------+
 
-+---------------------------------------------------------------------------+
-| |image1|    Discover use of the PCP pmcd service on the local network::   |
-|                                                                           |
-| $ pmfind -s pmcd                                                          |
-+---------------------------------------------------------------------------+
++-----------------------------------------------------------------------+
+| Discover use of the PCP pmcd service on the local network::           |
+|                                                                       |
+| $ pmfind -s pmcd                                                      |
++-----------------------------------------------------------------------+
 
 Installation Health Check
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -161,13 +161,13 @@ Installation Health Check
 Basic health check for running services, network connectivity between
 hosts, and enabled PMDAs can be done simply as follows.
 
-+------------------------------------------------------------------------+
-| |image1|   Check PCP services on remote host **munch** and             |
-| historically, from a local archive for host **smash**::                |
-|                                                                        |
-| $ pcp -h munch                                                         |
-| $ pcp -a /var/log/pcp/pmlogger/smash/20190909                          |
-+------------------------------------------------------------------------+
++-----------------------------------------------------------------------+
+| Check PCP services on remote host **munch** and                       |
+| historically, from a local archive for host **smash**::               |
+|                                                                       |
+| $ pcp -h munch                                                        |
+| $ pcp -a /var/log/pcp/pmlogger/smash/20190909                         |
++-----------------------------------------------------------------------+
 
 System Level Performance Monitoring
 ===================================
@@ -187,21 +187,21 @@ Monitoring Live Performance Metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +-----------------------------------------------------------------------+
-| |image1|    Display all the enabled performance metrics on a host     |
+| Display all the enabled performance metrics on a host                 |
 | with a short description::                                            |
 |                                                                       |
 | $ pminfo -t                                                           |
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Display detailed information about a performance metric   |
+| Display detailed information about a performance metric               |
 | and its current values::                                              |
 |                                                                       |
 | $ pminfo -dfmtT disk.partitions.read                                  |
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Monitor live disk write operations per partition with     |
+| Monitor live disk write operations per partition with                 |
 | two second interval using fixed point notation (use *-i* instance to  |
 | list only certain metrics and *-r* for raw values)::                  |
 |                                                                       |
@@ -209,50 +209,49 @@ Monitoring Live Performance Metrics
 +-----------------------------------------------------------------------+
 
 +--------------------------------------------------------------------------------------------------+
-| |image1|    Monitor live CPU load, memory usage, and disk write                                  |
-| operations per partition with two second interval using fixed width                              |
-| columns on the remote host acme::                                                                |
+| Monitor live CPU load, memory usage, and disk write operations per partition with two second     |
+| interval using fixed width columns on the remote host acme::                                     |
 |                                                                                                  |
 | $ pmdumptext -Xlimu -t 2sec 'kernel.all.load[1]' mem.util.used disk.partitions.write -h acme.com |
 +--------------------------------------------------------------------------------------------------+
 
 +--------------------------------------------------------------------------------+
-| |image1|    Monitor live process creation rate and free/used memory            |
-| with two second interval printing timestamps and using GBs for output          |
-| values in CSV format::                                                         |
+| Monitor live process creation rate and free/used memory with two second        |
+| interval printing timestamps and using GBs for output values in CSV format::   |
 |                                                                                |
 | $ pmrep -p -b GB -t 2sec -o csv kernel.all.sysfork mem.util.free mem.util.used |
 +--------------------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Monitor system metrics in a top-like window::             |
+| Monitor system metrics in a top-like window::                         |
 |                                                                       |
 | $ pcp atop                                                            |
+| $ pcp htop                                                            |
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Monitor system metrics in a sar-like (System Activity     |
+| Monitor system metrics in a sar-like (System Activity                 |
 | Report) manner::                                                      |
 |                                                                       |
 | $ pcp atopsar                                                         |
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Monitor system metrics in a sar like fashion with two     |
+| Monitor system metrics in a sar like fashion with two                 |
 | second interval from two different hosts::                            |
 |                                                                       |
 | $ pmstat -t 2sec -h acme1.com -h acme2.com                            |
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Monitor system metrics in an iostat like fashion with     |
+| Monitor system metrics in an iostat like fashion with                 |
 | two second interval::                                                 |
 |                                                                       |
 | $ pmiostat -t 2sec                                                    |
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Monitor performance metrics with a GUI application with   |
+| Monitor performance metrics with a GUI application with               |
 | two second default interval from two different hosts. Use *File->New  |
 | Chart* to select metrics to be included in a new view and use         |
 | *File->Open View* to use a predefined view::                          |
@@ -269,35 +268,34 @@ self-contained, and machine- and version-independent so they can be
 transfered to any machine for offline analysis.
 
 +-----------------------------------------------------------------------+
-| |image1|    Check the host, timezone and the time period an archive   |
+| Check the host, timezone and the time period an archive               |
 | covers::                                                              |
 |                                                                       |
 | $ pmdumplog -L acme.com/20140902                                      |
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Check PCP configuration at the time when an archive was   |
-| created::                                                             |
+| Check PCP configuration at the time when an archive was created::     |
 |                                                                       |
 | $ pcp -a acme.com/20140902                                            |
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Display all enabled performance metrics at the time when  |
+| Display all enabled performance metrics at the time when              |
 | an archive was created::                                              |
 |                                                                       |
 | $ pminfo -a acme.com/20140902                                         |
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Display detailed information about a performance metric   |
+| Display detailed information about a performance metric               |
 | at the time when an archive was created::                             |
 |                                                                       |
 | $ pminfo -df mem.freemem -a acme.com/20140902                         |
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Dump past disk write operations per partition in an       |
+| Dump past disk write operations per partition in an                   |
 | archive using fixed point notation (use *-i* instance to list only    |
 | certain metrics and *-r* for raw values)::                            |
 |                                                                       |
@@ -305,7 +303,7 @@ transfered to any machine for offline analysis.
 +-----------------------------------------------------------------------+
 
 +----------------------------------------------------------------------------------------+
-| |image1|    Replay past disk write operations per partition in an                      |
+| Replay past disk write operations per partition in an                                  |
 | archive with two second interval using fixed point notation between 9                  |
 | AM and 10 AM (use full dates with syntax like *@"2014-08-20 14:00:00"*)::              |
 |                                                                                        |
@@ -313,16 +311,15 @@ transfered to any machine for offline analysis.
 +----------------------------------------------------------------------------------------+
 
 +-------------------------------------------------------------------------------------------------+
-| |image1|    Calculate average values of performance metrics in an                               |
+| Calculate average values of performance metrics in an                                           |
 | archive between 9 AM / 10 AM using table like formatting including                              |
-| the time of minimum/maximum value and the actual minimum/maximum                                |
-| value::                                                                                         |
+| the time of minimum/maximum value and the actual minimum/maximum value::                        |
 |                                                                                                 |
 | $ pmlogsummary -HlfiImM -S @09:00 -T @10:00 acme.com/20140902 disk.partitions.write mem.freemem |
 +-------------------------------------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------------------+
-| |image1|    Dump past CPU load, memory usage, and disk write                      |
+| Dump past CPU load, memory usage, and disk write                                  |
 | operations per partition in an archive averaged over 10 minute                    |
 | interval with fixed columns between 9 AM and 10 AM::                              |
 |                                                                                   |
@@ -330,19 +327,15 @@ transfered to any machine for offline analysis.
 +-----------------------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Replay                                                    |
-| `vmstat <http://man7.org/linux/man-pages/man8/vmstat.8.html>`__ like  |
-| metrics (using a customizable metricset definition from the           |
-| `pmrep.conf                                                           |
-| <http://man7.org/linux/man-pages/man5/pmrep.conf.5.html>`__           |
-| configuration file) from an archive on every full 5 minutes using UTC |
-| as timezone::                                                         |
+| Replay vmstat(1)-like metrics (using a customizable metricset         |
+| definition from the pmrep.conf configuration file) from an archive on |
+| every full 5 minutes using UTC as timezone::                          |
 |                                                                       |
 | $ pmrep -a acme.com/20140902 -A 5min -t 5min -Z UTC :vmstat           |
 +-----------------------------------------------------------------------+
 
 +--------------------------------------------------------------------------------------+
-| |image1|    Summarize differences in past performance metrics                        |
+| Summarize differences in past performance metrics                                    |
 | between two archives, comparing 2 AM / 3 AM in the first archive to 9                |
 | AM / 10 AM in the second archive (grep for *'+'* to quickly see                      |
 | values which were zero during the first period)::                                    |
@@ -351,7 +344,7 @@ transfered to any machine for offline analysis.
 +--------------------------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Replay past system metrics in an archive in a top-like    |
+| Replay past system metrics in an archive in a top(1)-like             |
 | window starting 9 AM::                                                |
 |                                                                       |
 | $ pcp atop -b 09:00 -r acme.com/20140902                              |
@@ -359,30 +352,28 @@ transfered to any machine for offline analysis.
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Dump past system metrics in a sar like fashion averaged   |
+| Dump past system metrics in a sar(1)-like fashion averaged            |
 | over 10 minute interval in an archive between 9 AM and 10 AM::        |
 |                                                                       |
 | $ pmstat -t 10m -S @09:00 -T @10:00 -a acme.com/20140902              |
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Dump past system metrics in an                            |
-| `iostat(1) <http://man7.org/linux/man-pages/man1/iostat.1.html>`__    |
-| like fashion averaged over one hour interval in an archive::          |
+| Dump past system metrics in an iostat(1)-like fashion averaged over   |
+| one hour interval in an archive::                                     |
 |                                                                       |
 | $ pmiostat -t 1h -a acme.com/20140902                                 |
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Dump past system metrics in a                             |
-| `free(1) <http://man7.org/linux/man-pages/man1/free.1.html>`__ like   |
-| fashion at a specific historical time offset::                        |
+| Dump past system metrics in a free(1)-like fashion at a specific      |
+| historical time offset::                                              |
 |                                                                       |
 | $ pcp -a acme.com/20140902 -O @10:02 free                             |
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Replay performance metrics with a GUI application with    |
+| Replay performance metrics with a GUI application with                |
 | two second default interval in an archive between 9 AM and 10 AM. Use |
 | *File->New Chart* to select metrics to be included in a new view and  |
 | use *File->Open View* to use a predefined view::                      |
@@ -391,9 +382,8 @@ transfered to any machine for offline analysis.
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Merge several archives as a new combined archive (see     |
-| the manual page how to write configuration file to collect only       |
-| certain metrics)::                                                    |
+| Merge several archives as a new combined archive (see the manual page |
+| how to write configuration file to collect only certain metrics)::    |
 |                                                                       |
 | $ pmlogextract <archive1> <archive2> <newarchive>                     |
 +-----------------------------------------------------------------------+
@@ -411,7 +401,7 @@ importer is in the *pcp-import-iostat2pcp* package and the
 importer is in the *pcp-import-sar2pcp* package.
 
 +-----------------------------------------------------------------------+
-| |image1|   Import iostat data to a new PCP archive and visualize it:: |
+| Import iostat data to a new PCP archive and visualize it::            |
 |                                                                       |
 | $ iostat -t -x 2 > iostat.out                                         |
 | $ iostat2pcp iostat.out iostat.pcp                                    |
@@ -419,7 +409,7 @@ importer is in the *pcp-import-sar2pcp* package.
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Import sar data from an existing sar archive to a new     |
+| Import sar data from an existing sar archive to a new                 |
 | PCP archive and visualize it (sar logs are under /var/log/sysstat on  |
 | Debian/Ubuntu)::                                                      |
 |                                                                       |
@@ -443,42 +433,38 @@ Live and Retrospective Process Monitoring
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +-----------------------------------------------------------------------+
-| |image1|    Display all the available process related metrics::       |
+| Display all the available process related metrics::                   |
 |                                                                       |
 | $ pminfo proc                                                         |
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Monitor the number of open file descriptors of the        |
-| process 1234::                                                        |
+| Monitor the number of open file descriptors of the process 1234::     |
 |                                                                       |
 | $ pmval -t 2sec 'proc.fd.count[1234]'                                 |
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------------------------------------------+
-| |image1|    Monitor the CPU time, memory usage (RSS), and the number                                      |
+| Monitor the CPU time, memory usage (RSS), and the number                                                  |
 | of threads of the process 1234::                                                                          |
 |                                                                                                           |
 | $ pmdumptext -Xlimu -t 2sec 'proc.psinfo.utime[1234]' 'proc.memory.rss[1234]' 'proc.psinfo.threads[1234]' |
 +-----------------------------------------------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Monitor all outgoing network metrics for the wlan0        |
-| interface::                                                           |
+| Monitor all outgoing network metrics for the wlan0 interface::        |
 |                                                                       |
 | $ pmrep -i wlan0 -v network.interface.out                             |
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Display all the available process related metrics in an   |
-| archive::                                                             |
+| Display all the available process related metrics in an archive::     |
 |                                                                       |
 | $ pminfo proc -a acme.com/20140902                                    |
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Display the number of running processes on 2014-08-20     |
-| 14:00::                                                               |
+| Display the number of running processes on 2014-08-20 14:00::         |
 |                                                                       |
 | $ pmval -s 1 -S @"2014-08-20 14:00" proc.nprocs -a acme.com/20140820  |
 +-----------------------------------------------------------------------+
@@ -500,7 +486,7 @@ manual page for details. This allows monitoring these processes
 regardless of their PIDs and also logging the metrics easily.
 
 +-----------------------------------------------------------------------+
-| |image1|    Enable monitoring of all Java instances on the fly and    |
+| Enable monitoring of all Java instances on the fly and                |
 | display all the collected metrics::                                   |
 |                                                                       |
 | # pmstore hotproc.control.config 'fname == "java"'                    |
@@ -538,7 +524,7 @@ evaluate rules and generate alarms, run scripts, or automate system
 management tasks based on live or past performance metrics.
 
 +-----------------------------------------------------------------------+
-| |image1|   To enable and start PMIE::                                 |
+| To enable and start PMIE::                                            |
 |                                                                       |
 | # systemctl enable --now pmie                                         |
 +-----------------------------------------------------------------------+
@@ -547,8 +533,7 @@ To enable the monitoring host to run PMIE for collector hosts, add each
 host to the /etc/pcp/pmie/control configuration file.
 
 +-----------------------------------------------------------------------------------------+
-| |image1|   Enable monitoring of metrics from remote host                                |
-| **acme.com**:                                                                           |
+| Enable monitoring of metrics from remote host **acme.com**:                             |
 |                                                                                         |
 | # echo acme.com n PCP_LOG_DIR/pmie/acme.com -c config.acme.com >> /etc/pcp/pmie/control |
 | # systemctl restart pmie                                                                |
@@ -567,7 +552,7 @@ Some examples in plain English describing what could be done with PMIE:
    application
 
 +-----------------------------------------------------------------------+
-| |image1|    This example shows a PMIE script, checks its syntax,      |
+| This example shows a PMIE script, checks its syntax,                  |
 | runs it against an archive, and prints a simple message if more than  |
 | 5 GB of memory was in use between 9 AM and 10 AM using one minute     |
 | sampling interval::                                                   |
@@ -589,7 +574,7 @@ works with local pmlogger and `Redis <http://redis.io>`__ servers to
 allow fast, scalable performance queries spanning multiple hosts.
 
 +-----------------------------------------------------------------------+
-| |image1|   To enable and start metrics series collection::            |
+| To enable and start metrics series collection::                       |
 |                                                                       |
 | # systemctl enable --now pmlogger pmproxy redis                       |
 +-----------------------------------------------------------------------+
@@ -623,7 +608,7 @@ access all the available PCP information using this method, including
 custom metrics generated by custom PMDAs.
 
 +-----------------------------------------------------------------------+
-| |image1|   To install the PCP REST APIs service::                     |
+| To install the PCP REST APIs service::                                |
 |                                                                       |
 | # systemctl enable --now pmproxy                                      |
 +-----------------------------------------------------------------------+
@@ -635,7 +620,7 @@ Web Interface for Performance Metrics
 accessing PCP performance metrics over HTTP.
 
 +-----------------------------------------------------------------------+
-| |image1|   To install the PCP REST APIs service::                     |
+| To install the PCP REST APIs service::                                |
 |                                                                       |
 | # systemctl enable --now pmproxy redis                                |
 +-----------------------------------------------------------------------+
@@ -659,7 +644,7 @@ The following example illustrates how to define corresponding metrics
 which are displayed by sar -d but are not provided by default by PCP:
 
 +-----------------------------------------------------------------------+
-| |image1|    Create a file containing definitions of derived metrics   |
+| Create a file containing definitions of derived metrics               |
 | and point PCP_DERIVED_CONFIG to it when running PCP utilities::       |
 |                                                                       |
 | $ cat ./pcp-derive-metrics.conf                                       |
@@ -677,7 +662,7 @@ which are displayed by sar -d but are not provided by default by PCP:
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
-| |image1|    Define a derived metric on the command line and monitor   |
+| Define a derived metric on the command line and monitor               |
 | it with standard metrics:                                             |
 |                                                                       |
 | $ pmrep -t 2sec -p -b MB -e "mem.util.allcache = mem.util.bufmem +    |
@@ -714,11 +699,3 @@ Additional Information
 
 -  https://pcp.io/ - PCP home page
 -  https://pcp.readthedocs.io/en/latest/ - PCP docs landing page
-
-| 
-
---------------
-
-.. |image1| image:: images/stepfwd_on.png
-   :width: 16px
-   :height: 16px
