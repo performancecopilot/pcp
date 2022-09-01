@@ -18,29 +18,27 @@ def import_archive(path: Path, i: int, count: int):
     archive_path = str(path.with_suffix(""))  # strip .index from path
 
     prev_mod_time = imported_archives.get(archive_path)
-    if not prev_mod_time or prev_mod_time != archive_mod_time:
-        logging.info("Importing archive %s... [%d/%d]", archive_path, i, count)
-    else:
+    if prev_mod_time and prev_mod_time == archive_mod_time:
         logging.info("Skipping archive %s (no changes) [%d/%d]", archive_path, i, count)
         return
 
+    start_dt = datetime.now()
     try:
-        start = datetime.now()
+        logging.info("Importing archive %s... [%d/%d]", archive_path, i, count)
         subprocess.run(
-            ["pmseries", "--load", archive_path], capture_output=True, check=True, text=True, timeout=IMPORT_TIMEOUT_SEC
+            ["pmseries", "--load", archive_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=True,
+            text=True,
+            timeout=IMPORT_TIMEOUT_SEC,
         )
     except subprocess.CalledProcessError as e:
-        err_str = e.stdout
-        if e.stderr:
-            if err_str:
-                err_str += "\n"
-            err_str += e.stderr
-
-        logging.error("Error: %s", err_str)
+        logging.error("Error: %s", e.stdout)
     except subprocess.TimeoutExpired:
         logging.error("Timeout")
     else:
-        total_sec = (datetime.now() - start).total_seconds()
+        total_sec = (datetime.now() - start_dt).total_seconds()
         minutes, seconds = divmod(total_sec, 60)
         logging.info("Successfully imported archive in %d:%dm.", minutes, seconds)
         imported_archives[archive_path] = archive_mod_time
