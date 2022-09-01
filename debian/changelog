@@ -1,3 +1,9 @@
+pcp (6.0.1-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 31 Oct 2022 12:16:32 +1000
+
 pcp (6.0.0-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

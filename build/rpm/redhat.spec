@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 6.0.0
+Version: 6.0.1
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -3371,6 +3371,9 @@ PCP_LOG_DIR=%{_logsdir}
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
+* Mon Oct 31 2022 Nathan Scott <nathans@redhat.com> - 6.0.1-1
+- https://github.com/performancecopilot/pcp/projects/1
+
 * Wed Aug 31 2022 Nathan Scott <nathans@redhat.com> - 6.0.0-1
 - Add libpcp/postgresql-pgpool-II-devel conflict (BZ 2100185)
 - Remove an invalid path from pmie unit file (BZ 2079793)
