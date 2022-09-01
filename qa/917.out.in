@@ -89,6 +89,7 @@ Checking policies.
 ! allow [pcp_pmie_t] [hostname_exec_t] : [file] { execute execute_no_trans getattr open read map };
   allow [pcp_pmie_t] self : [capability] { kill dac_override sys_ptrace net_admin chown fowner fsetid };
   allow [pcp_pmie_t] [proc_net_t] : [file] { read };
+  allow [pcp_pmie_t] [proc_net_t] : [lnk_file] { read };
 ! allow [pcp_pmie_t] self : [cap_userns] { sys_ptrace };
   allow [pcp_pmie_t] self : [process] { setrlimit };
   allow [pcp_pmie_t] [unconfined_t] : [process] { signal };

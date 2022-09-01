@@ -259,6 +259,7 @@ type=AVC msg=audit(XXX.97): avc:  denied  { execute_no_trans } for  pid=40596 co
 type=AVC msg=audit(XXX.98): avc: denied { getattr write } for pid=75540 comm="pmdapodman" path="/run/podman/podman.sock" dev="tmpfs" ino=51062 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:var_run_t:s0 tclass=sock_file permissive=0
 type=AVC msg=audit(XXX.99): avc: denied { read write } for pid=10242 comm="pmdanvidia" name="nvidiactl" dev="devtmpfs" ino=723 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:xserver_misc_device_t:s0 tclass=chr_file permissive=0
 type=AVC msg=audit(XXX.100): avc: denied { read } for pid=279604 comm="pmdanvidia" name="nvidia-cap2" dev="devtmpfs" ino=766 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:device_t:s0 tclass=chr_file permissive=0
+type=AVC msg=audit(XXX.101): avc: denied { read } for  pid=YYYY comm="pmie" name="net" dev="proc" ino=4026531845 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:proc_net_t:s0 tclass=lnk_file permissive=0
 EOF
 
 echo "Silence is golden ... all AVC's are allowed by active policy"

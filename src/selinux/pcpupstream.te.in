@@ -361,6 +361,10 @@ allow pcp_pmie_t self:capability { chown fowner dac_override kill net_admin sys_
 #type=AVC msg=audit(XXX.50): avc:  denied  { read } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:proc_net_t:s0 tclass=file permissive=0
 allow pcp_pmie_t proc_net_t:file read;
 
+#RHBZ2122883
+#type=AVC audit(XXX.101): avc:  denied  { read } for  pid=YYYY comm="pmie" name="net" dev="proc" ino=4026531845 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:proc_net_t:s0 tclass=lnk_file permissive=0
+allow pcp_pmie_t proc_net_t:lnk_file read;
+
 #RHBZ1635394
 #type=AVC msg=audit(YYY.66): avc:  denied  { sys_ptrace } for  pid=15683 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=cap_userns permissive=0
 @PCP_CAPUSERNS_PTRACE_RULE_PMIE@
