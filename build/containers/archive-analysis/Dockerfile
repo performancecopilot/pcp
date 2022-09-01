@@ -22,7 +22,8 @@ FROM registry.fedoraproject.org/fedora:36
 COPY --from=build /build /build
 
 RUN dnf install -y --setopt=tsflags=nodocs procps-ng gettext /build/*.rpm redis grafana grafana-pcp && \
-    dnf clean all
+    dnf clean all && \
+    rm -r /build
 
 COPY build/containers/archive-analysis/root /
 

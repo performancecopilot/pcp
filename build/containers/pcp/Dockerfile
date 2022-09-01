@@ -48,7 +48,8 @@ LABEL name="pcp" \
 RUN groupadd -g 1001 -r pcp && \
     useradd  -u 1001 -g pcp -r -d /var/lib/pcp -s /sbin/nologin -c "Performance Co-Pilot" pcp && \
     dnf install -y --setopt=tsflags=nodocs procps-ng gettext /build/*.rpm && \
-    dnf clean all
+    dnf clean all && \
+    rm -r /build
 
 COPY build/containers/pcp/root /
 
