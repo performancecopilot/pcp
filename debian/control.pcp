@@ -15,7 +15,6 @@ Conflicts: pgpool2, dstat, pcp-webapi, pcp-manager
 Suggests: pcp-gui, libpcp-import-perl, ?{bpftrace}, ?{python3-bpfcc}, redis-server
 Provides: dstat, pcp-webapi, pcp-manager
 Replaces: dstat, pcp-webapi, pcp-manager
-Breaks: libpcp-archive1 (<< 6.0.1)
 Architecture: any
 Description: System level performance monitoring and performance management
  Performance Co-Pilot (PCP) is a framework and services to
