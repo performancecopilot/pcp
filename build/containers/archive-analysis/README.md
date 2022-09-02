@@ -13,6 +13,13 @@ $ podman run \
     quay.io/performancecopilot/archive-analysis
 ```
 
-This command starts the container, which runs Redis and Grafana (inside the container) and loads all PCP archives of the selected directory on the host into Redis. You can point your browser to `http://localhost:3000` and can start inspecting the archives using Grafana. 
+This command starts the container, which runs Redis and Grafana (inside the container) and loads all PCP archives of the selected directory on the host into Redis. You can point your browser to `http://localhost:3000/d/pcp-archive-analysis/pcp-archive-analysis` and can start inspecting the archives using Grafana. 
 
 To stop the container, run `podman rm -f pcp-archive-analysis`.
+
+## Additional Dashboards
+Additional dashboards from the host can be provisioned by adding:
+```
+-v /location/to/dashboards/on/host:/dashboards
+```
+to the `podman run` command above.

@@ -66,7 +66,8 @@ def main():
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(message)s")
-    logging.info("Starting Performance Co-Pilot archive import")
+    logging.info("Starting Performance Co-Pilot archive import...")
+    logging.info("Dashboard: http://localhost:3000/d/pcp-archive-analysis/pcp-archive-analysis (when using default instructions)")
 
     while True:
         poll(args.archives)
