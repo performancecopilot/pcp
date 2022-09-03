@@ -2,7 +2,11 @@
 # PCP QA Test No. 1681
 # Exercise pmrepconf generating pmrep.conf(5) format.
 #
+# Note: pmrepconf is a symink to pmlogconf
+#
 # Copyright (c) 2020 Red Hat.  All Rights Reserved.
+#
+# check-group-include: pmlogconf
 #
 
 if [ $# -eq 0 ]

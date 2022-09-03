@@ -1771,7 +1771,7 @@ x11
 1315 sanity local
 1316 libpcp local
 1317 libpcp local valgrind
-1318 pmprobe pmlogconf local kernel
+1318 pmprobe local kernel
 1319 libpcp local valgrind helgrind
 1320 pmval local
 1321 pmlogger pmda.openmetrics local python

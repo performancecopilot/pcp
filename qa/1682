@@ -3,7 +3,11 @@
 # Exercise pmrepconf generating pmrep.conf(5) format,
 # valgrind-enabled variant.
 #
+# Note: pmrepconf is a symink to pmlogconf
+#
 # Copyright (c) 2020 Red Hat.  All Rights Reserved.
+#
+# check-group-include: pmlogconf
 #
 
 seq=`basename $0`

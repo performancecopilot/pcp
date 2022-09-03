@@ -26,6 +26,8 @@
 # Newly added metrics within a group we care about should be culled
 # in _filter().
 #
+# check-group-include: pmlogconf
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"
