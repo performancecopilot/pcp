@@ -261,7 +261,6 @@ Package: libpcp-archive1
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Section: libs
 Breaks: pcp (<< 6.0.1)
-Replaces: pcp (<< 6.0.1)
 Architecture: any
 Description: Performance Co-Pilot archive writing library
  The libpcp-archive package contains the runtime environment required
