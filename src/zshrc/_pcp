@@ -900,7 +900,7 @@ _pcp () {
     local host=${~opt_args[-h]:-${~opt_args[--host]}}
     local h=${host:+-h}
     local -a metrics insts found
-    local word
+    local procset word
     if [[ $arch_req -eq 1 ]]; then
       a=-a
       arch=$words[2]
@@ -911,7 +911,13 @@ _pcp () {
     for word in ${words:1}; do
       # Find metrics arguments, mishits will be filtered out w/ $2>0
       [[ $word == [a-z]* ]] && metrics+=( $word )
+      [[ $word == :proc* || $word == :pidstat* ]] && procset=1
     done
+    # Special case for pmrep process related metricsets in live mode
+    if [[ -z $arch && $procset -eq 1 && $words[CURRENT] == [a-zA-Z]* ]]; then
+      _wanted processes expl 'process name' _process_names -a -t && ret=0
+      return
+    fi
     # TODO: Check if feasible to handle quotes ('") / multiple spaces in insts
     insts=( ${(f)"$(pmprobe $a ${(e)arch} $c ${(e)cont} $h ${(e)host} -I $metrics 2>/dev/null | awk '!/1 PM_IN_NULL$/ && $1~"^[a-z]" && $2>0 {for(i=3;i<=NF;i++)print $i}')"} )
     insts=( ${(q-)${${(ps:" ":)insts}//\"}} )
