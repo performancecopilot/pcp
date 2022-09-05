@@ -1,0 +1,2331 @@
+{
+   "__inputs": [ ],
+   "__requires": [ ],
+   "annotations": {
+      "list": [ ]
+   },
+   "editable": true,
+   "gnetId": null,
+   "graphTooltip": 0,
+   "hideControls": false,
+   "id": null,
+   "links": [ ],
+   "panels": [
+      {
+         "collapse": false,
+         "collapsed": false,
+         "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 0
+         },
+         "id": 2,
+         "panels": [ ],
+         "repeat": null,
+         "repeatIteration": null,
+         "repeatRowId": null,
+         "showTitle": true,
+         "title": "Overview",
+         "titleSize": "h6",
+         "type": "row"
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "decimals": 2,
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 1
+         },
+         "id": 3,
+         "legend": {
+            "alignAsTable": true,
+            "avg": false,
+            "current": true,
+            "max": true,
+            "min": true,
+            "rightSide": false,
+            "show": true,
+            "sideWidth": null,
+            "total": false,
+            "values": true
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "kernel.all.load{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$instance",
+               "refId": "A"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Load average",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "decimals": 2,
+               "format": "short",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": null,
+               "show": true
+            },
+            {
+               "decimals": 2,
+               "format": "short",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": null,
+               "show": true
+            }
+         ]
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 1
+         },
+         "id": 4,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": true,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [
+            {
+               "alias": "/physmem/",
+               "fill": 0,
+               "linewidth": 2,
+               "stack": false
+            }
+         ],
+         "spaceLength": 10,
+         "stack": true,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "mem.util.free{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$metric",
+               "refId": "A"
+            },
+            {
+               "expr": "mem.util.cached{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$metric",
+               "refId": "B"
+            },
+            {
+               "expr": "mem.physmem{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$metric",
+               "refId": "C"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Memory Utilization",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "format": "kbytes",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            },
+            {
+               "format": "kbytes",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            }
+         ]
+      },
+      {
+         "collapse": false,
+         "collapsed": false,
+         "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 8
+         },
+         "id": 5,
+         "panels": [ ],
+         "repeat": null,
+         "repeatIteration": null,
+         "repeatRowId": null,
+         "showTitle": true,
+         "title": "CPU",
+         "titleSize": "h6",
+         "type": "row"
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 9
+         },
+         "id": 6,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": true,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "kernel.percpu.cpu.user{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$instance",
+               "refId": "A"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Per-CPU busy (User)",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "format": "percentunit",
+               "label": null,
+               "logBase": 1,
+               "max": 1,
+               "min": 0,
+               "show": true
+            },
+            {
+               "format": "percentunit",
+               "label": null,
+               "logBase": 1,
+               "max": 1,
+               "min": 0,
+               "show": true
+            }
+         ]
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 9
+         },
+         "id": 7,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": true,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "kernel.percpu.cpu.sys{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$instance",
+               "refId": "A"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Per-CPU busy (Sys)",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "format": "percentunit",
+               "label": null,
+               "logBase": 1,
+               "max": 1,
+               "min": 0,
+               "show": true
+            },
+            {
+               "format": "percentunit",
+               "label": null,
+               "logBase": 1,
+               "max": 1,
+               "min": 0,
+               "show": true
+            }
+         ]
+      },
+      {
+         "collapse": false,
+         "collapsed": false,
+         "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 16
+         },
+         "id": 8,
+         "panels": [ ],
+         "repeat": null,
+         "repeatIteration": null,
+         "repeatRowId": null,
+         "showTitle": true,
+         "title": "Scheduler",
+         "titleSize": "h6",
+         "type": "row"
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 17
+         },
+         "id": 9,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": false,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "kernel.all.pswitch{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$metric",
+               "refId": "A"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Context switches per second",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "format": "ops",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            },
+            {
+               "format": "ops",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            }
+         ]
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "decimals": 0,
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 17
+         },
+         "id": 10,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": false,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": true,
+         "targets": [
+            {
+               "expr": "kernel.all.runnable{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$metric",
+               "refId": "A"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Runnable",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "decimals": 0,
+               "format": "short",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            },
+            {
+               "decimals": 0,
+               "format": "short",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            }
+         ]
+      },
+      {
+         "collapse": false,
+         "collapsed": false,
+         "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 24
+         },
+         "id": 11,
+         "panels": [ ],
+         "repeat": null,
+         "repeatIteration": null,
+         "repeatRowId": null,
+         "showTitle": true,
+         "title": "Memory",
+         "titleSize": "h6",
+         "type": "row"
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 0,
+            "y": 25
+         },
+         "id": 12,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": false,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "mem.util.used{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$metric",
+               "refId": "A"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Used",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "format": "kbytes",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            },
+            {
+               "format": "kbytes",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            }
+         ]
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 8,
+            "y": 25
+         },
+         "id": 13,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": false,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "mem.util.cached{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$metric",
+               "refId": "A"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Cached",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "format": "kbytes",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            },
+            {
+               "format": "kbytes",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            }
+         ]
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 16,
+            "y": 25
+         },
+         "id": 14,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": false,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "mem.util.free{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$metric",
+               "refId": "A"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Free",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "format": "kbytes",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            },
+            {
+               "format": "kbytes",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            }
+         ]
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 32
+         },
+         "id": 15,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": false,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "mem.vmstat.pgfault{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$metric",
+               "refId": "A"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Page fault rate",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "format": "ops",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            },
+            {
+               "format": "ops",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            }
+         ]
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 32
+         },
+         "id": 16,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": false,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "mem.vmstat.pgmajfault{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$metric",
+               "refId": "A"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Hard fault rate",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "format": "ops",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            },
+            {
+               "format": "ops",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            }
+         ]
+      },
+      {
+         "collapse": false,
+         "collapsed": false,
+         "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 39
+         },
+         "id": 17,
+         "panels": [ ],
+         "repeat": null,
+         "repeatIteration": null,
+         "repeatRowId": null,
+         "showTitle": true,
+         "title": "Network",
+         "titleSize": "h6",
+         "type": "row"
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 40
+         },
+         "id": 18,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": true,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "network.interface.in.bytes{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$instance",
+               "refId": "A"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Network Throughput (In)",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "format": "Bps",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": null,
+               "show": true
+            },
+            {
+               "format": "Bps",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": null,
+               "show": true
+            }
+         ]
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 40
+         },
+         "id": 19,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": true,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "network.interface.out.bytes{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$instance",
+               "refId": "A"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Network Throughput (Out)",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "format": "Bps",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": null,
+               "show": true
+            },
+            {
+               "format": "Bps",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": null,
+               "show": true
+            }
+         ]
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "decimals": 0,
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 47
+         },
+         "id": 20,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": true,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "network.interface.in.drops{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$instance",
+               "refId": "A"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Network Drops (In)",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "decimals": 0,
+               "format": "ops",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            },
+            {
+               "decimals": 0,
+               "format": "ops",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            }
+         ]
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "decimals": 0,
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 47
+         },
+         "id": 21,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": true,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "network.interface.out.drops{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$instance",
+               "refId": "A"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Network Drops (Out)",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "decimals": 0,
+               "format": "ops",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            },
+            {
+               "decimals": 0,
+               "format": "ops",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            }
+         ]
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "decimals": 0,
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 54
+         },
+         "id": 22,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": true,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "network.interface.in.packets{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$instance",
+               "refId": "A"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Network Packets (In)",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "decimals": 0,
+               "format": "ops",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            },
+            {
+               "decimals": 0,
+               "format": "ops",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            }
+         ]
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "decimals": 0,
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 54
+         },
+         "id": 23,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": true,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "network.interface.out.packets{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$instance",
+               "refId": "A"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Network Packets (Out)",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "decimals": 0,
+               "format": "ops",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            },
+            {
+               "decimals": 0,
+               "format": "ops",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            }
+         ]
+      },
+      {
+         "collapse": false,
+         "collapsed": false,
+         "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 61
+         },
+         "id": 24,
+         "panels": [ ],
+         "repeat": null,
+         "repeatIteration": null,
+         "repeatRowId": null,
+         "showTitle": true,
+         "title": "TCP",
+         "titleSize": "h6",
+         "type": "row"
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "decimals": 0,
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 62
+         },
+         "id": 25,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": false,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "network.tcp.timeouts{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$metric",
+               "refId": "A"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "TCP Timeouts",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "decimals": 0,
+               "format": "short",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            },
+            {
+               "decimals": 0,
+               "format": "short",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            }
+         ]
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "decimals": 0,
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 62
+         },
+         "id": 26,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": true,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "network.tcp.listendrops{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$metric",
+               "refId": "A"
+            },
+            {
+               "expr": "network.tcp.listenoverflows{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$metric",
+               "refId": "B"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "TCP Listen Errors",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "decimals": 0,
+               "format": "ops",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            },
+            {
+               "decimals": 0,
+               "format": "ops",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            }
+         ]
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "decimals": 0,
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 24,
+            "x": 0,
+            "y": 69
+         },
+         "id": 27,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": true,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "network.tcp.retranssegs{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$metric",
+               "refId": "A"
+            },
+            {
+               "expr": "network.tcp.fastretrans{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$metric",
+               "refId": "B"
+            },
+            {
+               "expr": "network.tcp.slowstartretrans{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$metric",
+               "refId": "C"
+            },
+            {
+               "expr": "network.tcp.synretrans{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$metric",
+               "refId": "D"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "TCP Retransmits",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "decimals": 0,
+               "format": "ops",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            },
+            {
+               "decimals": 0,
+               "format": "ops",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            }
+         ]
+      },
+      {
+         "collapse": false,
+         "collapsed": false,
+         "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 76
+         },
+         "id": 28,
+         "panels": [ ],
+         "repeat": null,
+         "repeatIteration": null,
+         "repeatRowId": null,
+         "showTitle": true,
+         "title": "Disk",
+         "titleSize": "h6",
+         "type": "row"
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 77
+         },
+         "id": 29,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": true,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "disk.dev.read_rawactive{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "read $instance",
+               "refId": "A"
+            },
+            {
+               "expr": "disk.dev.write_rawactive{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "write $instance",
+               "refId": "B"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Disk Latency",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "format": "percentunit",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            },
+            {
+               "format": "percentunit",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": 0,
+               "show": true
+            }
+         ]
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 77
+         },
+         "id": 30,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": true,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "disk.dev.read{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "read $instance",
+               "refId": "A"
+            },
+            {
+               "expr": "disk.dev.write{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "write $instance",
+               "refId": "B"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Disk IOPS",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "format": "iops",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": null,
+               "show": true
+            },
+            {
+               "format": "iops",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": null,
+               "show": true
+            }
+         ]
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 84
+         },
+         "id": 31,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": true,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "disk.dev.read_bytes{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "read $instance",
+               "refId": "A"
+            },
+            {
+               "expr": "disk.dev.write_bytes{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "write $instance",
+               "refId": "B"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Disk Throughput",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "format": "KiBs",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": null,
+               "show": true
+            },
+            {
+               "format": "KiBs",
+               "label": null,
+               "logBase": 1,
+               "max": null,
+               "min": null,
+               "show": true
+            }
+         ]
+      },
+      {
+         "aliasColors": { },
+         "bars": false,
+         "dashLength": 10,
+         "dashes": false,
+         "datasource": "$datasource",
+         "fill": 1,
+         "fillGradient": 0,
+         "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 84
+         },
+         "id": 32,
+         "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": true,
+            "sideWidth": null,
+            "total": false,
+            "values": false
+         },
+         "lines": true,
+         "linewidth": 1,
+         "links": [ ],
+         "nullPointMode": "null",
+         "percentage": false,
+         "pointradius": 5,
+         "points": false,
+         "renderer": "flot",
+         "repeat": null,
+         "seriesOverrides": [ ],
+         "spaceLength": 10,
+         "stack": false,
+         "steppedLine": false,
+         "targets": [
+            {
+               "expr": "disk.dev.avactive{hostname == \"$host\"}",
+               "format": "time_series",
+               "legendFormat": "$instance",
+               "refId": "A"
+            }
+         ],
+         "thresholds": [ ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "Disk Utilization",
+         "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+         },
+         "type": "graph",
+         "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [ ]
+         },
+         "yaxes": [
+            {
+               "format": "percentunit",
+               "label": null,
+               "logBase": 1,
+               "max": 1,
+               "min": 0,
+               "show": true
+            },
+            {
+               "format": "percentunit",
+               "label": null,
+               "logBase": 1,
+               "max": 1,
+               "min": 0,
+               "show": true
+            }
+         ]
+      }
+   ],
+   "refresh": "",
+   "revision": 2,
+   "rows": [ ],
+   "schemaVersion": 14,
+   "style": "dark",
+   "tags": [
+      "pcp-redis"
+   ],
+   "templating": {
+      "list": [
+         {
+            "current": {
+               "text": "PCP Redis",
+               "value": "PCP Redis"
+            },
+            "hide": 0,
+            "label": null,
+            "name": "datasource",
+            "options": [ ],
+            "query": "pcp-redis-datasource",
+            "refresh": 1,
+            "regex": "",
+            "type": "datasource"
+         },
+         {
+            "allValue": null,
+            "current": { },
+            "datasource": "$datasource",
+            "hide": 0,
+            "includeAll": false,
+            "label": null,
+            "multi": false,
+            "name": "host",
+            "options": [ ],
+            "query": "label_values(hostname)",
+            "refresh": 1,
+            "regex": "",
+            "sort": 0,
+            "tagValuesQuery": "",
+            "tags": [ ],
+            "tagsQuery": "",
+            "type": "query",
+            "useTags": false
+         }
+      ]
+   },
+   "time": {
+      "from": "now-1y",
+      "to": "now"
+   },
+   "timepicker": {
+      "refresh_intervals": [
+         "5s",
+         "10s",
+         "30s",
+         "1m",
+         "5m",
+         "15m",
+         "30m",
+         "1h",
+         "2h",
+         "1d"
+      ],
+      "time_options": [
+         "5m",
+         "15m",
+         "1h",
+         "6h",
+         "12h",
+         "24h",
+         "2d",
+         "7d",
+         "30d"
+      ]
+   },
+   "timezone": "browser",
+   "title": "PCP Archive Analysis",
+   "uid": "pcp-archive-analysis",
+   "version": 0
+}

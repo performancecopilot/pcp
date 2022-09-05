@@ -1,7 +1,17 @@
 apiVersion: 1
 
 providers:
-- name: Default
+- name: PCP Redis Dashboards
   type: file
   options:
     path: /var/lib/grafana/plugins/performancecopilot-pcp-app/datasources/redis/dashboards/
+
+- name: Additional dashboards
+  type: file
+  options:
+    path: /usr/local/var/lib/grafana/dashboards
+
+- name: User-supplied dashboards
+  type: file
+  options:
+    path: /dashboards
