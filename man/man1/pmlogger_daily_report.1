@@ -26,10 +26,7 @@
 [\f3\-t\f1 \f2interval\f1]
 .SH DESCRIPTION
 .B pmlogger_daily_report
-and the associated
-.BR systemd (1)
-services
-write daily performance summary reports, much like those produced by
+writes daily performance summary reports, much like those produced by
 .BR sadc (1)
 and the
 .BR sa2 (8)
@@ -37,17 +34,27 @@ utility.
 .PP
 All of the command line arguments are optional and intended to be self
 explanatory.
-The service is not enabled by default.
-If the service is enabled and no arguments are specified,
-.B pmlogger_daily_report
-will be run by
-.BR systemd
-at 2am each morning and write a performance summary report named
+.PP
+By default, the reports are not generated, but
+if the
+.I pcp-zeroconf
+package has been installed (there will be files
+in
+.BR $PCP_VAR_DIR/config/pmlogconf/zeroconf )
+then the necessary metrics will have been included in the default
+.BR pmlogger (1)
+configuration file and the reports will be generated.
+.PP
+The reports are generated (by default) soon after midnight, once
+.BR pmlogger_daily (1)
+has completed the merging of any partal archives to generate one
+archive for yesterday's activity.
+.PP
+Each performance summary report is named
 .BI sar XX
 (where
 .I XX
-is yesterdays day-of-the-month, wrapping to the previous month
-if today is the 1st).
+is yesterdays day-of-the-month).
 The
 .I outputfile
 may be changed with the
@@ -63,13 +70,13 @@ option to a different
 Note that there are suffciently flexible command line options for
 .B pmlogger_daily_report
 to be used to read any
-.B archivefile
+.I archivefile
 and write the report to any output directory.
 .PP
 If the
 .B \-a
 option is not given, the default input
-.IR archivefile
+.I archivefile
 is
 .IR $PCP_ARCHIVE_DIR/HOSTNAME/YYYYMMDD ,
 where
@@ -80,9 +87,8 @@ option) and
 .I YYYYMMDD
 is the base name of yesterdays merged archive, as produced by
 .BR pmlogger (1)
-and the
-.BR pmlogger_daily (1)
-scripts.
+and
+.BR pmlogger_daily (1).
 If
 .I archivefile
 is a directory, then
@@ -142,11 +148,11 @@ to use within the default input archive file path.
 \fB\-l\fR \fIfile\fR, \fB\-\-logfile\fR=\fIfile\fR
 In order to ensure that mail is not unintentionally sent when this
 script is run from
-.BR systemd (1)
+.BR pmlogger_daily (1)
 diagnostics are always sent to a log
 .IR file .
 By default, this file is
-.B $PCP_LOG_DIR/pmlogger/pmlogger_daily_report.log
+.I $PCP_LOG_DIR/pmlogger/pmlogger_daily_report.log
 but this can be changed using the
 .B \-l
 option.
@@ -160,19 +166,17 @@ are generated to the log file.
 If this option is specified
 then the status of the daily processing is polled and if the
 report has not been done in the last 24 hours then it is done now.
-The intent is to have
-.B pmlogger_daily_report
-called regularly with the
-.B \-p
-option (at 30 mins past the hour, every hour in the default
-.BR systemd (1)
-setup) to ensure daily processing happens as soon as possible
-if it was missed at the regularly scheduled time (2am by default),
-for example if the system was down or suspended at that time.
 With this option,
 .B pmlogger_daily_report
 simply exits if the previous day's processing has already been
 done.
+.RS
+.PP
+This option is no longer required as the polling of
+.BR pmlogger_daily (1)
+will ensure the report will be generated, however the option is retained
+for backwards compatibility.
+.RE
 .TP
 \fB\-t\fR \fIinterval\fR
 Specifies the sampling
@@ -201,7 +205,6 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .BR pmlogger_daily (1),
 .BR pmlogger (1),
 .BR pmrep (1),
-.BR sadc (1),
-.BR systemd (1)
+.BR sadc (1)
 and
 .BR sa2 (8).

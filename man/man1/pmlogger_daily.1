@@ -630,20 +630,17 @@ is run, this is treated as though this option was the first in the control
 file, i.e. it will be run before any merge callbacks mentioned in the control
 file.
 .PP
-For systems using
-.BR systemd (1),
-if the
-.B pmlogger_daily_report.timer
-service is enabled then a special merge callback is added to call
-.BR pmlogger_daily (1)
+If the
+.I pcp-zeroconf
+packages is installed,
+then a special merge callback is added to call
+.BR pmlogger_daily_report (1)
 first, before any other merge callback options.
-For systems not using
-.BR systemd (1)
-the merge callback for
-.BR pmlogger_daily (1)
-is added if the directory
-.I $PCP_SA_DIR
-exists.
+Refer to
+.BR pmlogger_daily_report (1)
+for an explanation of the
+.I pcp-zeroconf
+requirements.
 .PP
 If
 .B pmlogger_daily

@@ -1978,8 +1978,7 @@ _remove_job_scheduler()
     if systemctl cat pmie_daily.timer >/dev/null 2>&1; then
 	for __i in pmie.service pmie_daily.timer \
 		pmie_check.timer pmie_farm_check.timer \
-		pmlogger_daily_report.timer pmlogger_daily_report-poll.timer \
-		pmlogger_daily-poll.timer pmlogger_daily.timer \
+		pmlogger_daily.timer \
 		pmlogger_check.timer pmlogger_farm_check.timer ; do
 	    $__rc_sudo systemctl is-active $__i > /dev/null || continue
 	    $__rc_sudo systemctl stop $__i >/dev/null

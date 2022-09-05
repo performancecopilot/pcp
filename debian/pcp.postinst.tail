@@ -92,7 +92,6 @@ then
     deb-systemd-helper enable pmlogger.service >/dev/null
     deb-systemd-helper enable pmie.service >/dev/null
     deb-systemd-helper enable pmproxy.service >/dev/null
-    deb-systemd-helper enable pmlogger_daily_report.timer >/dev/null
 elif which update-rc.d >/dev/null 2>&1
 then
     update-rc.d -f pmcd remove >/dev/null

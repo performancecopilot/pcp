@@ -31,8 +31,7 @@ then
 	#
 	for svc in \
 	    pmlogger_check.timer pmlogger_check.service \
-	    pmlogger_daily.timer pmlogger_daily.service \
-	    pmlogger_daily_report.timer pmlogger_daily_report.service
+	    pmlogger_daily.timer pmlogger_daily.service
 	do
 	    case "$svc" in
 		*.timer)
