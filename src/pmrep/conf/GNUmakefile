@@ -15,7 +15,7 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-CONFIGS = $(shell echo * | sed -e 's/GNUmakefile//g')
+CONFIGS = $(shell echo *.conf)
 
 default build-me:
 
