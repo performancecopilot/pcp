@@ -47,6 +47,7 @@ _cull_special()
 {
     sed \
 	-e '/^\/etc\/pcp\/bpf\/bpf.conf$/d' \
+	-e '/^\/etc\/pcp\/pmrep\/xtract-names$/d' \
     # end
 }
 
