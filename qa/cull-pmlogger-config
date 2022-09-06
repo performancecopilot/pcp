@@ -20,7 +20,7 @@ config=$PCP_VAR_DIR/config/pmlogger/config.default
 #+ zeroconf/atop-proc:y:10 seconds:
 #
 $PCP_AWK_PROG <$config >$tmp.tmp '
-/^# Auto-generated /	{ next }
+/^# Auto-generated /	{ print "# Config culled by qa/cull-pmlogger-config"; next }
 /^#\+ zeroconf\//	{ skip = 1; print; next }
 /^#\+ /		{ skip = 0 }
 /DO NOT UPDATE THE FILE ABOVE THIS LINE/	{ skip = 0 }
