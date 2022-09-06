@@ -7,11 +7,11 @@ jobs:
     name: Run static checkers
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Run clang-format style check (.c and .h)
-      uses: jidicula/clang-format-action@v3.0.0
+      uses: jidicula/clang-format-action@v4.6.2
 
-  build:
+  ubuntu:
     name: ${{ matrix.cmake-build-type }}-build [${{ matrix.compiler }}, cmake-${{ matrix.cmake-version }} sanitizer="${{ matrix.sanitizer }}"]
     runs-on: ubuntu-18.04
     strategy:
@@ -68,7 +68,7 @@ jobs:
         sudo sh /tmp/cmake.sh --prefix=/usr/local/ --exclude-subdir
         # Make sure we use correct version
         cmake --version | grep -c ${{ matrix.cmake-version }}.0
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Create build folder
       run: cmake -E make_directory build
     - name: Generate makefiles
@@ -105,3 +105,33 @@ jobs:
         examples/using_cmake_externalproject/build.sh
         examples/using_cmake_separate/build.sh
         examples/using_make/build.sh
+
+  macos:
+    name: macOS
+    runs-on: macos-latest
+    steps:
+      - name: Prepare
+        run: |
+          brew install cmake ninja openssl
+      - uses: actions/checkout@v3
+      - name: Build
+        run: |
+          mkdir build && cd build
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DENABLE_SSL=ON
+          ninja -v
+
+  windows:
+    name: Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Prepare
+        run: |
+          choco install -y ninja
+          vcpkg install --triplet x64-windows libevent
+      - name: Build
+        run: |
+          mkdir build && cd build
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
+          ninja -v

@@ -2,21 +2,30 @@
 	actx_get_by_node
 	cluster_update_route
 	ctx_get_by_node
+	dictInitIterator
+	dictNext
+	initNodeIterator
+	nodeNext
 	parse_cluster_nodes
 	parse_cluster_slots
 	redisClusterAppendCommand
 	redisClusterAppendCommandArgv
+	redisClusterAppendCommandToNode
 	redisClusterAppendFormattedCommand
+	redisClusterAsyncContextInit
 	redisClusterAsyncCommand
 	redisClusterAsyncCommandArgv
+	redisClusterAsyncCommandToNode
 	redisClusterAsyncConnect
 	redisClusterAsyncDisconnect
 	redisClusterAsyncFormattedCommand
+	redisClusterAsyncFormattedCommandToNode
 	redisClusterAsyncFree
 	redisClusterAsyncSetConnectCallback
 	redisClusterAsyncSetDisconnectCallback
 	redisClusterCommand
 	redisClusterCommandArgv
+	redisClusterCommandToNode
 	redisClusterConnect
 	redisClusterConnect2
 	redisClusterConnectNonBlock
@@ -24,10 +33,12 @@
 	redisClusterContextInit
 	redisClusterFormattedCommand
 	redisClusterFree
+	redisClusterGetNodeByKey
 	redisClusterGetReply
 	redisClusterReset
 	redisClusterSetMaxRedirect
 	redisClusterSetOptionAddNode
+	redisClusterSetOptionAddNodes
 	redisClusterSetOptionConnectBlock
 	redisClusterSetOptionConnectNonBlock
 	redisClusterSetOptionConnectTimeout
@@ -36,7 +47,8 @@
 	redisClusterSetOptionParseSlaves
 	redisClusterSetOptionRouteUseSlots
 	redisClusterSetOptionTimeout
+	redisClusterSetOptionUsername
+	redisClusterSetOptionPassword
 	redisClustervAppendCommand
 	redisClustervAsyncCommand
 	redisClustervCommand
-	test_cluster_update_route

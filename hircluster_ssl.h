@@ -1,7 +1,5 @@
 /*
- * Copyright (c) 2015, Ieshen Zheng <ieshen.zheng at 163 dot com>
- * Copyright (c) 2020, Nick <heronr1 at gmail dot com>
- * Copyright (c) 2020, Bjorn Svensson <bjorn.a.svensson at est dot tech>
+ * Copyright (c) 2022, Bjorn Svensson <bjorn.a.svensson at est dot tech>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,24 +26,24 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _WIN32_HELPER_INCLUDE
-#define _WIN32_HELPER_INCLUDE
-#ifdef _MSC_VER
+#ifndef __HIRCLUSTER_SSL_H
+#define __HIRCLUSTER_SSL_H
 
-#include <winsock2.h> /* for struct timeval */
+#include "hircluster.h"
+#include <hiredis/hiredis_ssl.h>
 
-#ifndef inline
-#define inline __inline
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#ifndef strncasecmp
-#define strncasecmp _strnicmp
+/**
+ * Configuration option to enable SSL/TLS negotiation on a context.
+ */
+int redisClusterSetOptionEnableSSL(redisClusterContext *cc,
+                                   redisSSLContext *ssl);
+
+#ifdef __cplusplus
+}
 #endif
 
-#endif /* _MSC_VER */
-
-#ifdef _WIN32
-#define strerror_r(errno, buf, len) strerror_s(buf, len, errno)
-#endif /* _WIN32 */
-
-#endif /* _WIN32_HELPER_INCLUDE */
+#endif /* __HIRCLUSTER_SSL_H */

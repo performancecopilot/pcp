@@ -60,11 +60,9 @@ add_library(hiredis_cluster
   SHARED
   ${hiredis_cluster_sources})
 
-if(MSVC)
-  # MS Visual: Suppress warnings
-  target_compile_options(hiredis_cluster PRIVATE "/wd 4267" "/wd 4244")
-else()
-  target_compile_options(hiredis_cluster PRIVATE -Wall -Wextra -pedantic -Werror)
+if(NOT MSVC)
+  target_compile_options(hiredis_cluster PRIVATE -Wall -Wextra -pedantic -Werror
+    -Wstrict-prototypes -Wwrite-strings -Wno-missing-field-initializers)
 
   # Add extra defines when CMAKE_BUILD_TYPE is set to Debug
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DHI_ASSERT_PANIC -DHI_HAVE_BACKTRACE")
@@ -108,9 +106,6 @@ if(DOWNLOAD_HIREDIS)
   if(ENABLE_SSL)
     file(WRITE "${stub_dir}/hiredis_ssl-config.cmake" "")
     set(hiredis_ssl_DIR ${stub_dir})
-    # Set variables normally got from hiredis_ssl-config.cmake
-    set(hiredis_ssl_LIBRARIES hiredis::hiredis_ssl)
-    set(hiredis_INCLUDE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/_deps")
   endif()
 
 else()
@@ -119,17 +114,37 @@ endif()
 
 find_package(hiredis REQUIRED)
 
-if(ENABLE_SSL)
-  find_package(hiredis_ssl REQUIRED)
-  add_definitions(-DSSL_SUPPORT)
+if(NOT TARGET hiredis::hiredis)
+  # Add target to support older hiredis releases
+  add_library(hiredis::hiredis ALIAS hiredis)
 endif()
 
 target_include_directories(hiredis_cluster PUBLIC
   $<BUILD_INTERFACE:${hiredis_INCLUDE_DIRS}>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  $<INSTALL_INTERFACE:include>)
 
 if(WIN32 OR MINGW)
-    TARGET_LINK_LIBRARIES(hiredis_cluster PRIVATE ws2_32 hiredis::hiredis)
+  target_link_libraries(hiredis_cluster PUBLIC ws2_32 hiredis::hiredis)
+else()
+  target_link_libraries(hiredis_cluster PUBLIC hiredis::hiredis)
+endif()
+
+if(ENABLE_SSL)
+  find_package(hiredis_ssl REQUIRED)
+
+  if(NOT TARGET hiredis::hiredis_ssl)
+    # Add target to support older hiredis releases
+    add_library(hiredis::hiredis_ssl ALIAS hiredis_ssl)
+  endif()
+
+  add_library(hiredis_cluster_ssl
+    SHARED hircluster_ssl.c)
+  set_target_properties(hiredis_cluster_ssl
+    PROPERTIES VERSION "${HIREDIS_CLUSTER_SONAME}")
+  target_link_libraries(hiredis_cluster_ssl
+    PRIVATE hiredis_cluster
+    PUBLIC hiredis::hiredis_ssl)
 endif()
 
 if(NOT DISABLE_TESTS)
@@ -193,3 +208,31 @@ install(EXPORT hiredis_cluster-targets
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/hiredis_cluster-config.cmake
   DESTINATION ${CMAKE_CONF_INSTALL_DIR})
+
+# Install target for hiredis_cluster_ssl
+if(ENABLE_SSL)
+  configure_file(hiredis_cluster_ssl.pc.in hiredis_cluster_ssl.pc @ONLY)
+
+  install(TARGETS hiredis_cluster_ssl
+    EXPORT hiredis_cluster_ssl-targets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  install(FILES hircluster_ssl.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hiredis_cluster)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/hiredis_cluster_ssl.pc
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+  export(EXPORT hiredis_cluster_ssl-targets
+    FILE ${CMAKE_CURRENT_BINARY_DIR}/hiredis_cluster_ssl-targets.cmake
+    NAMESPACE hiredis_cluster::)
+  set(CMAKE_CONF_INSTALL_DIR share/hiredis_cluster_ssl)
+  configure_package_config_file(hiredis_cluster_ssl-config.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/hiredis_cluster_ssl-config.cmake
+    INSTALL_DESTINATION ${CMAKE_CONF_INSTALL_DIR}
+    PATH_VARS INCLUDE_INSTALL_DIR)
+  install(EXPORT hiredis_cluster_ssl-targets
+    FILE hiredis_cluster_ssl-targets.cmake
+    NAMESPACE hiredis_cluster::
+    DESTINATION ${CMAKE_CONF_INSTALL_DIR})
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/hiredis_cluster_ssl-config.cmake
+    DESTINATION ${CMAKE_CONF_INSTALL_DIR})
+endif()

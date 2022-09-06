@@ -1,6 +1,7 @@
 #include "adapters/libevent.h"
 #include "hircluster.h"
 #include "test_utils.h"
+#include "win32.h"
 #include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -134,13 +135,13 @@ void test_alloc_failure_handling() {
 
     // Connect
     {
-        for (int i = 0; i < 129; ++i) {
+        for (int i = 0; i < 130; ++i) {
             prepare_allocation_test(cc, i);
             result = redisClusterConnect2(cc);
             assert(result == REDIS_ERR);
         }
 
-        prepare_allocation_test(cc, 129);
+        prepare_allocation_test(cc, 130);
         result = redisClusterConnect2(cc);
         assert(result == REDIS_OK);
     }
@@ -210,7 +211,7 @@ void test_alloc_failure_handling() {
         redisReply *reply;
         const char *cmd = "SET foo one";
 
-        for (int i = 0; i < 36; ++i) {
+        for (int i = 0; i < 37; ++i) {
             prepare_allocation_test(cc, i);
             result = redisClusterAppendCommand(cc, cmd);
             assert(result == REDIS_ERR);
@@ -222,7 +223,7 @@ void test_alloc_failure_handling() {
         for (int i = 0; i < 4; ++i) {
             // Appended command lost when receiving error from hiredis
             // during a GetReply, needs a new append for each test loop
-            prepare_allocation_test(cc, 36);
+            prepare_allocation_test(cc, 37);
             result = redisClusterAppendCommand(cc, cmd);
             assert(result == REDIS_OK);
 
@@ -234,7 +235,7 @@ void test_alloc_failure_handling() {
             redisClusterReset(cc);
         }
 
-        prepare_allocation_test(cc, 36);
+        prepare_allocation_test(cc, 37);
         result = redisClusterAppendCommand(cc, cmd);
         assert(result == REDIS_OK);
 
@@ -250,7 +251,7 @@ void test_alloc_failure_handling() {
         redisReply *reply;
         const char *cmd = "MSET key1 val1 key2 val2 key3 val3";
 
-        for (int i = 0; i < 88; ++i) {
+        for (int i = 0; i < 90; ++i) {
             prepare_allocation_test(cc, i);
             result = redisClusterAppendCommand(cc, cmd);
             assert(result == REDIS_ERR);
@@ -260,7 +261,7 @@ void test_alloc_failure_handling() {
         }
 
         for (int i = 0; i < 12; ++i) {
-            prepare_allocation_test(cc, 88);
+            prepare_allocation_test(cc, 90);
             result = redisClusterAppendCommand(cc, cmd);
             assert(result == REDIS_OK);
 
@@ -272,7 +273,7 @@ void test_alloc_failure_handling() {
             redisClusterReset(cc);
         }
 
-        prepare_allocation_test(cc, 88);
+        prepare_allocation_test(cc, 90);
         result = redisClusterAppendCommand(cc, cmd);
         assert(result == REDIS_OK);
 
@@ -292,7 +293,7 @@ void test_alloc_failure_handling() {
         assert(node);
 
         // OOM failing appends
-        for (int i = 0; i < 36; ++i) {
+        for (int i = 0; i < 37; ++i) {
             prepare_allocation_test(cc, i);
             result = redisClusterAppendCommandToNode(cc, node, cmd);
             assert(result == REDIS_ERR);
@@ -304,7 +305,7 @@ void test_alloc_failure_handling() {
         // OOM failing GetResults
         for (int i = 0; i < 4; ++i) {
             // First a successful append
-            prepare_allocation_test(cc, 36);
+            prepare_allocation_test(cc, 37);
             result = redisClusterAppendCommandToNode(cc, node, cmd);
             assert(result == REDIS_OK);
 
@@ -317,7 +318,7 @@ void test_alloc_failure_handling() {
         }
 
         // Successful append and GetReply
-        prepare_allocation_test(cc, 36);
+        prepare_allocation_test(cc, 37);
         result = redisClusterAppendCommandToNode(cc, node, cmd);
         assert(result == REDIS_OK);
 

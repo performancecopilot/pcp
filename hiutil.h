@@ -33,33 +33,14 @@
 #ifndef __HIUTIL_H_
 #define __HIUTIL_H_
 
-#include <stdarg.h>
 #include <stdint.h>
 #include <sys/types.h>
-#if defined(_MSC_VER)
-#include <BaseTsd.h>
-typedef SSIZE_T ssize_t;
-#endif
 
 #define HI_OK 0
 #define HI_ERROR -1
 #define HI_EAGAIN -2
 
 typedef int rstatus_t; /* return type */
-
-#define LF (uint8_t)10
-#define CR (uint8_t)13
-#define CRLF "\x0d\x0a"
-#define CRLF_LEN (sizeof("\x0d\x0a") - 1)
-
-#define NELEMS(a) ((sizeof(a)) / sizeof((a)[0]))
-
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-
-#define SQUARE(d) ((d) * (d))
-#define VAR(s, s2, n) (((n) < 2) ? 0.0 : ((s2)-SQUARE(s) / (n)) / ((n)-1))
-#define STDDEV(s, s2, n) (((n) < 2) ? 0.0 : sqrt(VAR((s), (s2), (n))))
 
 #define HI_INET4_ADDRSTRLEN (sizeof("255.255.255.255") - 1)
 #define HI_INET6_ADDRSTRLEN                                                    \
@@ -193,12 +174,8 @@ void hi_stacktrace(int skip_count);
 void hi_stacktrace_fd(int fd);
 
 int _scnprintf(char *buf, size_t size, const char *fmt, ...);
-int _vscnprintf(char *buf, size_t size, const char *fmt, va_list args);
 int64_t hi_usec_now(void);
 int64_t hi_msec_now(void);
-
-void print_string_with_length(char *s, size_t len);
-void print_string_with_length_fix_CRLF(char *s, size_t len);
 
 uint16_t crc16(const char *buf, int len);
 

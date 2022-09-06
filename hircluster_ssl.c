@@ -1,7 +1,5 @@
 /*
- * Copyright (c) 2015, Ieshen Zheng <ieshen.zheng at 163 dot com>
- * Copyright (c) 2020, Nick <heronr1 at gmail dot com>
- * Copyright (c) 2020, Bjorn Svensson <bjorn.a.svensson at est dot tech>
+ * Copyright (c) 2022, Bjorn Svensson <bjorn.a.svensson at est dot tech>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,24 +26,21 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _WIN32_HELPER_INCLUDE
-#define _WIN32_HELPER_INCLUDE
-#ifdef _MSC_VER
+#include "hircluster_ssl.h"
 
-#include <winsock2.h> /* for struct timeval */
+static int redisClusterInitiateSSLWithContext(redisContext *c,
+                                              void *redis_ssl_ctx) {
+    return redisInitiateSSLWithContext(c, redis_ssl_ctx);
+}
 
-#ifndef inline
-#define inline __inline
-#endif
+int redisClusterSetOptionEnableSSL(redisClusterContext *cc,
+                                   redisSSLContext *ssl) {
+    if (cc == NULL || ssl == NULL) {
+        return REDIS_ERR;
+    }
 
-#ifndef strncasecmp
-#define strncasecmp _strnicmp
-#endif
+    cc->ssl = ssl;
+    cc->ssl_init_fn = &redisClusterInitiateSSLWithContext;
 
-#endif /* _MSC_VER */
-
-#ifdef _WIN32
-#define strerror_r(errno, buf, len) strerror_s(buf, len, errno)
-#endif /* _WIN32 */
-
-#endif /* _WIN32_HELPER_INCLUDE */
+    return REDIS_OK;
+}

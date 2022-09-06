@@ -1,0 +1,54 @@
+name: Redis compatibility testing
+
+on: [push, pull_request]
+
+jobs:
+  redis-comp:
+    name: Redis ${{ matrix.redis-version }}
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - redis-version: 7.0.0
+          - redis-version: 6.2.7
+          - redis-version: 6.0.16
+          - redis-version: 5.0.14
+    steps:
+      - name: Prepare
+        run: sudo apt install libevent-dev
+
+      - uses: actions/checkout@v3
+
+      - name: Create build folder
+        run: cmake -E make_directory build
+
+      - name: Generate makefiles
+        shell: bash
+        working-directory: build
+        run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=Release -DTEST_WITH_REDIS_VERSION=${{ matrix.redis-version }} ..
+
+      - name: Build
+        shell: bash
+        working-directory: build
+        run: VERBOSE=1 make
+
+      - name: Setup clusters
+        shell: bash
+        working-directory: build
+        run: make start
+
+      - name: Wait for clusters to start..
+        uses: kibertoad/wait-action@1.0.1
+        with:
+          time: '40s'
+
+      - name: Run tests
+        shell: bash
+        working-directory: build
+        run: make CTEST_OUTPUT_ON_FAILURE=1 test
+
+      - name: Teardown clusters
+        working-directory: build
+        shell: bash
+        run: make stop
