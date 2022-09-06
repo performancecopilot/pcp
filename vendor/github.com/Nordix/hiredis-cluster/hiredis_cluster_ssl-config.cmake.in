@@ -1,0 +1,12 @@
+@PACKAGE_INIT@
+
+set_and_check(hiredis_cluster_ssl_INCLUDEDIR "@PACKAGE_INCLUDE_INSTALL_DIR@")
+
+if(NOT TARGET hiredis_cluster::hiredis_cluster_ssl)
+  include(${CMAKE_CURRENT_LIST_DIR}/hiredis_cluster_ssl-targets.cmake)
+endif()
+
+set(hiredis_cluster_ssl_LIBRARIES hiredis_cluster::hiredis_cluster_ssl)
+set(hiredis_cluster_ssl_INCLUDE_DIRS ${hiredis_cluster_ssl_INCLUDEDIR})
+
+check_required_components(hiredis_cluster_ssl)

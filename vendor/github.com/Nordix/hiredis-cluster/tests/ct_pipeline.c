@@ -30,6 +30,8 @@ void test_pipeline() {
     ASSERT_MSG(status == REDIS_OK, cc->errstr);
     status = redisClusterAppendCommand(cc, "GET bar");
     ASSERT_MSG(status == REDIS_OK, cc->errstr);
+    status = redisClusterAppendCommand(cc, "SUNION a b");
+    ASSERT_MSG(status == REDIS_OK, cc->errstr);
 
     redisReply *reply;
     redisClusterGetReply(cc, (void *)&reply); // reply for: SET foo one
@@ -46,6 +48,10 @@ void test_pipeline() {
 
     redisClusterGetReply(cc, (void *)&reply); // reply for: GET bar
     CHECK_REPLY_STR(cc, reply, "two");
+    freeReplyObject(reply);
+
+    redisClusterGetReply(cc, (void *)&reply); // reply for: SUNION a b
+    CHECK_REPLY_ERROR(cc, reply, "CROSSSLOT");
     freeReplyObject(reply);
 
     redisClusterFree(cc);
@@ -144,9 +150,15 @@ void test_async_pipeline() {
     status = redisClusterAsyncCommand(acc, commandCallback, &r3, "GET foo");
     ASSERT_MSG(status == REDIS_OK, acc->errstr);
 
-    ExpectedResult r4 = {
-        .type = REDIS_REPLY_STRING, .str = "ten", .disconnect = true};
+    ExpectedResult r4 = {.type = REDIS_REPLY_STRING, .str = "ten"};
     status = redisClusterAsyncCommand(acc, commandCallback, &r4, "GET bar");
+    ASSERT_MSG(status == REDIS_OK, acc->errstr);
+
+    ExpectedResult r5 = {
+        .type = REDIS_REPLY_ERROR,
+        .str = "CROSSSLOT Keys in request don't hash to the same slot",
+        .disconnect = true};
+    status = redisClusterAsyncCommand(acc, commandCallback, &r5, "SUNION a b");
     ASSERT_MSG(status == REDIS_OK, acc->errstr);
 
     event_base_dispatch(base);

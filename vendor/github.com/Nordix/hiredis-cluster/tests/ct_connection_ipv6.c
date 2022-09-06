@@ -1,5 +1,6 @@
 #include "hircluster.h"
 #include "test_utils.h"
+#include "win32.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>

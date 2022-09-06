@@ -1,6 +1,7 @@
-#include "hiredis_cluster/hircluster.h"
-
-#include "hiredis/hiredis_ssl.h"
+#include <hiredis/hiredis.h>
+#include <hiredis/hiredis_ssl.h>
+#include <hiredis_cluster/hircluster.h>
+#include <hiredis_cluster/hircluster_ssl.h>
 #include <stdio.h>
 #include <stdlib.h>
 

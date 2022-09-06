@@ -1,4 +1,5 @@
 #include "hircluster.h"
+#include "hircluster_ssl.h"
 #include <stdio.h>
 #include <stdlib.h>
 

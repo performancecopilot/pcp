@@ -162,7 +162,9 @@ typedef enum cmd_parse_result {
     ACTION(REQ_REDIS_PUBLISH) /* redis requests - pub/sub */                   \
     ACTION(REQ_REDIS_EVAL) /* redis requests - eval */                         \
     ACTION(REQ_REDIS_EVALSHA)                                                  \
-    ACTION(REQ_REDIS_PING) /* redis requests - ping/quit */                    \
+    ACTION(REQ_REDIS_BITFIELD)    /* redis requests - binary */                \
+    ACTION(REQ_REDIS_BITFIELD_RO) /* redis requests - binary */                \
+    ACTION(REQ_REDIS_PING)        /* redis requests - ping/quit */             \
     ACTION(REQ_REDIS_QUIT)                                                     \
     ACTION(REQ_REDIS_AUTH)                                                     \
     ACTION(RSP_REDIS_STATUS) /* redis response */                              \
