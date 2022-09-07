@@ -2,14 +2,14 @@
 #
 # Make whichever packages the system supports
 #
-# Copyright (c) 2012-2017 Red Hat.
+# Copyright (c) 2012-2017,2022 Red Hat.
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -129,6 +129,8 @@ cmdline_configopts=''
 
 for opt in $*
 do
+    [ -z "$*" ] && break
+
     case "$opt" in
     -clean|--clean)
 	# we always clean nowadays, so silently ignore
@@ -163,25 +165,24 @@ do
 	shift
 	;;
     --target)
-	shift
-	target=$1
-	shift
+	target=$2
+	shift 2
 	;;
     --with-docker)
 	docker=true
 	shift
 	;;
     --with-make)
-	MAKE=$1
-	shift
+	MAKE=$2
+	shift 2
 	;;
     --with-tar)
-	TAR=$1
-	shift
+	TAR=$2
+	shift 2
 	;;
     --with-zip)
-	ZIP=$1
-	shift
+	ZIP=$2
+	shift 2
 	;;
     *)
 	# Add remaining options to the ./configure command line
