@@ -1,293 +1,282 @@
-/* Copyright (C) 1991-2022 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
+/*
+ * Copyright (c) 1989, 1993, 1994
+ *	The Regents of the University of California.  All rights reserved.
+ *
+ * This code is derived from software contributed to Berkeley by
+ * Guido van Rossum.
+ *
+ * Copyright (c) 2011 The FreeBSD Foundation
+ * All rights reserved.
+ * Portions of this software were developed by David Chisnall
+ * under sponsorship from the FreeBSD Foundation.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 4. Neither the name of the University nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
 
-   The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.
+/*
+ * Function fnmatch() as specified in POSIX 1003.2-1992, section B.6.
+ * Compares a filename or pathname to a pattern.
+ */
 
-   The GNU C Library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, see
-   <https://www.gnu.org/licenses/>.  */
-
-#ifndef _LIBC
-# include <libc-config.h>
-#endif
-
-/* Enable GNU extensions in fnmatch.h.  */
-#ifndef _GNU_SOURCE
-# define _GNU_SOURCE    1
-#endif
+/*
+ * Some notes on multibyte character support:
+ * 1. Patterns with illegal byte sequences match nothing.
+ * 2. Illegal byte sequences in the "string" argument are handled by treating
+ *    them as single-byte characters with a value of the first byte of the
+ *    sequence cast to wchar_t.
+ * 3. Multibyte conversion state objects (mbstate_t) are passed around and
+ *    used for most, but not all, conversions. Further work will be required
+ *    to support state-dependent encodings.
+ */
 
 #include <fnmatch.h>
-
-#include <assert.h>
-#include <errno.h>
-#include <ctype.h>
+#include <limits.h>
 #include <string.h>
-#include <stdlib.h>
 #include <wchar.h>
 #include <wctype.h>
-#include <stddef.h>
-#include <stdbool.h>
 
-/* We need some of the locale data (the collation sequence information)
-   but there is no interface to get this information in general.  Therefore
-   we support a correct implementation only in glibc.  */
-#ifdef _LIBC
-# include "../locale/localeinfo.h"
-# include "../locale/coll-lookup.h"
-# include <shlib-compat.h>
+#define	EOS	'\0'
 
-# define CONCAT(a,b) __CONCAT(a,b)
-# define btowc __btowc
-# define iswctype __iswctype
-# define mbsrtowcs __mbsrtowcs
-# define mempcpy __mempcpy
-# define strnlen __strnlen
-# define towlower __towlower
-# define wcscat __wcscat
-# define wcslen __wcslen
-# define wctype __wctype
-# define wmemchr __wmemchr
-# define wmempcpy __wmempcpy
-# define fnmatch __fnmatch
-extern int fnmatch (const char *pattern, const char *string, int flags);
-#endif
+#define RANGE_MATCH     1
+#define RANGE_NOMATCH   0
+#define RANGE_ERROR     (-1)
 
-#ifdef _LIBC
-# if __GNUC__ >= 7
-#  define FALLTHROUGH __attribute__ ((__fallthrough__))
-# else
-#  define FALLTHROUGH ((void) 0)
-# endif
-#else
-# include "attribute.h"
-#endif
-
-#include <intprops.h>
-#include <flexmember.h>
-#include <scratch_buffer.h>
-
-#ifdef _LIBC
-typedef ptrdiff_t idx_t;
-#else
-# include "idx.h"
-#endif
-
-/* We often have to test for FNM_FILE_NAME and FNM_PERIOD being both set.  */
-#define NO_LEADING_PERIOD(flags) \
-  ((flags & (FNM_FILE_NAME | FNM_PERIOD)) == (FNM_FILE_NAME | FNM_PERIOD))
-
-/* Provide support for user-defined character classes, based on the functions
-   from ISO C 90 amendment 1.  */
-#ifdef CHARCLASS_NAME_MAX
-# define CHAR_CLASS_MAX_LENGTH CHARCLASS_NAME_MAX
-#else
-/* This shouldn't happen but some implementation might still have this
-   problem.  Use a reasonable default value.  */
-# define CHAR_CLASS_MAX_LENGTH 256
-#endif
-
-#define IS_CHAR_CLASS(string) wctype (string)
-
-/* Avoid depending on library functions or files
-   whose names are inconsistent.  */
-
-/* Global variable.  */
-static int posixly_correct;
-
-/* Note that this evaluates C many times.  */
-#define FOLD(c) ((flags & FNM_CASEFOLD) ? tolower (c) : (c))
-#define CHAR    char
-#define UCHAR   unsigned char
-#define INT     int
-#define FCT     internal_fnmatch
-#define EXT     ext_match
-#define END     end_pattern
-#define STRUCT  fnmatch_struct
-#define L_(CS)  CS
-#define BTOWC(C) btowc (C)
-#define STRLEN(S) strlen (S)
-#define STRCAT(D, S) strcat (D, S)
-#define MEMPCPY(D, S, N) mempcpy (D, S, N)
-#define MEMCHR(S, C, N) memchr (S, C, N)
-#define WIDE_CHAR_VERSION 0
-#ifdef _LIBC
-# include <locale/weight.h>
-# define FINDIDX findidx
-#endif
-#include "fnmatch_loop.c"
-
-
-#define FOLD(c) ((flags & FNM_CASEFOLD) ? towlower (c) : (c))
-#define CHAR    wchar_t
-#define UCHAR   wint_t
-#define INT     wint_t
-#define FCT     internal_fnwmatch
-#define EXT     ext_wmatch
-#define END     end_wpattern
-#define L_(CS)  L##CS
-#define BTOWC(C) (C)
-#define STRLEN(S) wcslen (S)
-#define STRCAT(D, S) wcscat (D, S)
-#define MEMPCPY(D, S, N) wmempcpy (D, S, N)
-#define MEMCHR(S, C, N) wmemchr (S, C, N)
-#define WIDE_CHAR_VERSION 1
-#ifdef _LIBC
-/* Change the name the header defines so it doesn't conflict with
-   the <locale/weight.h> version included above.  */
-# define findidx findidxwc
-# include <locale/weightwc.h>
-# undef findidx
-# define FINDIDX findidxwc
-#endif
-
-#undef IS_CHAR_CLASS
-/* We have to convert the wide character string in a multibyte string.  But
-   we know that the character class names consist of alphanumeric characters
-   from the portable character set, and since the wide character encoding
-   for a member of the portable character set is the same code point as
-   its single-byte encoding, we can use a simplified method to convert the
-   string to a multibyte character string.  */
-static wctype_t
-is_char_class (const wchar_t *wcs)
-{
-  char s[CHAR_CLASS_MAX_LENGTH + 1];
-  char *cp = s;
-
-  do
-    {
-      /* Test for a printable character from the portable character set.  */
-#ifdef _LIBC
-      if (*wcs < 0x20 || *wcs > 0x7e
-          || *wcs == 0x24 || *wcs == 0x40 || *wcs == 0x60)
-        return (wctype_t) 0;
-#else
-      switch (*wcs)
-        {
-        case L' ': case L'!': case L'"': case L'#': case L'%':
-        case L'&': case L'\'': case L'(': case L')': case L'*':
-        case L'+': case L',': case L'-': case L'.': case L'/':
-        case L'0': case L'1': case L'2': case L'3': case L'4':
-        case L'5': case L'6': case L'7': case L'8': case L'9':
-        case L':': case L';': case L'<': case L'=': case L'>':
-        case L'?':
-        case L'A': case L'B': case L'C': case L'D': case L'E':
-        case L'F': case L'G': case L'H': case L'I': case L'J':
-        case L'K': case L'L': case L'M': case L'N': case L'O':
-        case L'P': case L'Q': case L'R': case L'S': case L'T':
-        case L'U': case L'V': case L'W': case L'X': case L'Y':
-        case L'Z':
-        case L'[': case L'\\': case L']': case L'^': case L'_':
-        case L'a': case L'b': case L'c': case L'd': case L'e':
-        case L'f': case L'g': case L'h': case L'i': case L'j':
-        case L'k': case L'l': case L'm': case L'n': case L'o':
-        case L'p': case L'q': case L'r': case L's': case L't':
-        case L'u': case L'v': case L'w': case L'x': case L'y':
-        case L'z': case L'{': case L'|': case L'}': case L'~':
-          break;
-        default:
-          return (wctype_t) 0;
-        }
-#endif
-
-      /* Avoid overrunning the buffer.  */
-      if (cp == s + CHAR_CLASS_MAX_LENGTH)
-        return (wctype_t) 0;
-
-      *cp++ = (char) *wcs++;
-    }
-  while (*wcs != L'\0');
-
-  *cp = '\0';
-
-  return wctype (s);
-}
-#define IS_CHAR_CLASS(string) is_char_class (string)
-
-#include "fnmatch_loop.c"
-
-static int
-fnmatch_convert_to_wide (const char *str, struct scratch_buffer *buf,
-                         size_t *n)
-{
-  mbstate_t ps;
-  memset (&ps, '\0', sizeof (ps));
-
-  size_t nw = buf->length / sizeof (wchar_t);
-  *n = strnlen (str, nw - 1);
-  if (__glibc_likely (*n < nw))
-    {
-      const char *p = str;
-      *n = mbsrtowcs (buf->data, &p, *n + 1, &ps);
-      if (__glibc_unlikely (*n == (size_t) -1))
-        /* Something wrong.
-           XXX Do we have to set 'errno' to something which mbsrtows hasn't
-           already done?  */
-        return -1;
-      if (p == NULL)
-        return 0;
-      memset (&ps, '\0', sizeof (ps));
-    }
-
-  *n = mbsrtowcs (NULL, &str, 0, &ps);
-  if (__glibc_unlikely (*n == (size_t) -1))
-    return -1;
-  if (!scratch_buffer_set_array_size (buf, *n + 1, sizeof (wchar_t)))
-    {
-      __set_errno (ENOMEM);
-      return -2;
-    }
-  assert (mbsinit (&ps));
-  mbsrtowcs (buf->data, &str, *n + 1, &ps);
-  return 0;
-}
+static int rangematch(const char *, wchar_t, int, char **, mbstate_t *);
+static int fnmatch1(const char *, const char *, const char *, int, mbstate_t,
+		mbstate_t);
 
 int
-fnmatch (const char *pattern, const char *string, int flags)
+fnmatch(pattern, string, flags)
+	const char *pattern, *string;
+	int flags;
 {
-  if (__glibc_unlikely (MB_CUR_MAX != 1))
-    {
-      size_t n;
-      struct scratch_buffer wpattern;
-      scratch_buffer_init (&wpattern);
-      struct scratch_buffer wstring;
-      scratch_buffer_init (&wstring);
-      int r;
+	static const mbstate_t initial;
 
-      /* Convert the strings into wide characters.  Any conversion issue
-         fallback to the ascii version.  */
-      r = fnmatch_convert_to_wide (pattern, &wpattern, &n);
-      if (r == 0)
-        {
-          r = fnmatch_convert_to_wide (string, &wstring, &n);
-          if (r == 0)
-            r = internal_fnwmatch (wpattern.data, wstring.data,
-                                   (wchar_t *) wstring.data + n,
-                                   flags & FNM_PERIOD, flags, NULL);
-        }
-
-      scratch_buffer_free (&wstring);
-      scratch_buffer_free (&wpattern);
-
-      if (r == -2 || r == 0)
-        return r;
-    }
-
-  return internal_fnmatch (pattern, string, string + strlen (string),
-                           flags & FNM_PERIOD, flags, NULL);
+	return (fnmatch1(pattern, string, string, flags, initial, initial));
 }
 
-#undef fnmatch
-versioned_symbol (libc, __fnmatch, fnmatch, GLIBC_2_2_3);
-#if SHLIB_COMPAT(libc, GLIBC_2_0, GLIBC_2_2_3)
-strong_alias (__fnmatch, __fnmatch_old)
-compat_symbol (libc, __fnmatch_old, fnmatch, GLIBC_2_0);
-#endif
-libc_hidden_ver (__fnmatch, fnmatch)
+static int
+fnmatch1(pattern, string, stringstart, flags, patmbs, strmbs)
+	const char *pattern, *string, *stringstart;
+	int flags;
+	mbstate_t patmbs, strmbs;
+{
+	char *newp;
+	char c;
+	wchar_t pc, sc;
+	size_t pclen, sclen;
+
+	for (;;) {
+		pclen = mbrtowc(&pc, pattern, MB_LEN_MAX, &patmbs);
+		if (pclen == (size_t)-1 || pclen == (size_t)-2)
+			return (FNM_NOMATCH);
+		pattern += pclen;
+		sclen = mbrtowc(&sc, string, MB_LEN_MAX, &strmbs);
+		if (sclen == (size_t)-1 || sclen == (size_t)-2) {
+			sc = (unsigned char)*string;
+			sclen = 1;
+			memset(&strmbs, 0, sizeof(strmbs));
+		}
+		switch (pc) {
+		case EOS:
+			if ((flags & FNM_LEADING_DIR) && sc == '/')
+				return (0);
+			return (sc == EOS ? 0 : FNM_NOMATCH);
+		case '?':
+			if (sc == EOS)
+				return (FNM_NOMATCH);
+			if (sc == '/' && (flags & FNM_PATHNAME))
+				return (FNM_NOMATCH);
+			if (sc == '.' && (flags & FNM_PERIOD) &&
+			    (string == stringstart ||
+			    ((flags & FNM_PATHNAME) && *(string - 1) == '/')))
+				return (FNM_NOMATCH);
+			string += sclen;
+			break;
+		case '*':
+			c = *pattern;
+			/* Collapse multiple stars. */
+			while (c == '*')
+				c = *++pattern;
+
+			if (sc == '.' && (flags & FNM_PERIOD) &&
+			    (string == stringstart ||
+			    ((flags & FNM_PATHNAME) && *(string - 1) == '/')))
+				return (FNM_NOMATCH);
+
+			/* Optimize for pattern with * at end or before /. */
+			if (c == EOS)
+				if (flags & FNM_PATHNAME)
+					return ((flags & FNM_LEADING_DIR) ||
+					    strchr(string, '/') == NULL ?
+					    0 : FNM_NOMATCH);
+				else
+					return (0);
+			else if (c == '/' && flags & FNM_PATHNAME) {
+				if ((string = strchr(string, '/')) == NULL)
+					return (FNM_NOMATCH);
+				break;
+			}
+
+			/* General case, use recursion. */
+			while (sc != EOS) {
+				if (!fnmatch1(pattern, string, stringstart,
+				    flags, patmbs, strmbs))
+					return (0);
+				sclen = mbrtowc(&sc, string, MB_LEN_MAX,
+				    &strmbs);
+				if (sclen == (size_t)-1 ||
+				    sclen == (size_t)-2) {
+					sc = (unsigned char)*string;
+					sclen = 1;
+					memset(&strmbs, 0, sizeof(strmbs));
+				}
+				if (sc == '/' && flags & FNM_PATHNAME)
+					break;
+				string += sclen;
+			}
+			return (FNM_NOMATCH);
+		case '[':
+			if (sc == EOS)
+				return (FNM_NOMATCH);
+			if (sc == '/' && (flags & FNM_PATHNAME))
+				return (FNM_NOMATCH);
+			if (sc == '.' && (flags & FNM_PERIOD) &&
+			    (string == stringstart ||
+			    ((flags & FNM_PATHNAME) && *(string - 1) == '/')))
+				return (FNM_NOMATCH);
+
+			switch (rangematch(pattern, sc, flags, &newp,
+			    &patmbs)) {
+			case RANGE_ERROR:
+				goto norm;
+			case RANGE_MATCH:
+				pattern = newp;
+				break;
+			case RANGE_NOMATCH:
+				return (FNM_NOMATCH);
+			}
+			string += sclen;
+			break;
+		case '\\':
+			if (!(flags & FNM_NOESCAPE)) {
+				pclen = mbrtowc(&pc, pattern, MB_LEN_MAX,
+				    &patmbs);
+				if (pclen == (size_t)-1 || pclen == (size_t)-2)
+					return (FNM_NOMATCH);
+				pattern += pclen;
+			}
+			/* FALLTHROUGH */
+		default:
+		norm:
+			if (pc == sc)
+				;
+			else if ((flags & FNM_CASEFOLD) &&
+				 (towlower(pc) == towlower(sc)))
+				;
+			else
+				return (FNM_NOMATCH);
+			string += sclen;
+			break;
+		}
+	}
+	/* NOTREACHED */
+}
+
+static int
+rangematch(pattern, test, flags, newp, patmbs)
+	const char *pattern;
+	wchar_t test;
+	int flags;
+	char **newp;
+	mbstate_t *patmbs;
+{
+	int negate, ok;
+	wchar_t c, c2;
+	size_t pclen;
+	const char *origpat;
+
+	/*
+	 * A bracket expression starting with an unquoted circumflex
+	 * character produces unspecified results (IEEE 1003.2-1992,
+	 * 3.13.2).  This implementation treats it like '!', for
+	 * consistency with the regular expression syntax.
+	 * J.T. Conklin (conklin@ngai.kaleida.com)
+	 */
+	if ( (negate = (*pattern == '!' || *pattern == '^')) )
+		++pattern;
+
+	if (flags & FNM_CASEFOLD)
+		test = towlower(test);
+
+	/*
+	 * A right bracket shall lose its special meaning and represent
+	 * itself in a bracket expression if it occurs first in the list.
+	 * -- POSIX.2 2.8.3.2
+	 */
+	ok = 0;
+	origpat = pattern;
+	for (;;) {
+		if (*pattern == ']' && pattern > origpat) {
+			pattern++;
+			break;
+		} else if (*pattern == '\0') {
+			return (RANGE_ERROR);
+		} else if (*pattern == '/' && (flags & FNM_PATHNAME)) {
+			return (RANGE_NOMATCH);
+		} else if (*pattern == '\\' && !(flags & FNM_NOESCAPE))
+			pattern++;
+		pclen = mbrtowc(&c, pattern, MB_LEN_MAX, patmbs);
+		if (pclen == (size_t)-1 || pclen == (size_t)-2)
+			return (RANGE_NOMATCH);
+		pattern += pclen;
+
+		if (flags & FNM_CASEFOLD)
+			c = towlower(c);
+
+		if (*pattern == '-' && *(pattern + 1) != EOS &&
+		    *(pattern + 1) != ']') {
+			if (*++pattern == '\\' && !(flags & FNM_NOESCAPE))
+				if (*pattern != EOS)
+					pattern++;
+			pclen = mbrtowc(&c2, pattern, MB_LEN_MAX, patmbs);
+			if (pclen == (size_t)-1 || pclen == (size_t)-2)
+				return (RANGE_NOMATCH);
+			pattern += pclen;
+			if (c2 == EOS)
+				return (RANGE_ERROR);
+
+			if (flags & FNM_CASEFOLD)
+				c2 = towlower(c2);
+
+			if (c <= test && test <= c2)
+				ok = 1;
+		} else if (c == test)
+			ok = 1;
+	}
+
+	*newp = (char *)pattern;
+	return (ok == negate ? RANGE_NOMATCH : RANGE_MATCH);
+}

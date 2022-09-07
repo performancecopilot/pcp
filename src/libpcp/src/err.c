@@ -22,10 +22,8 @@
 #include <sasl/sasl.h>
 #endif
 
-#ifdef PM_MULTI_THREAD
-#ifndef IS_MINGW
+#if defined(PM_MULTI_THREAD) && !defined(IS_MINGW)
 static pthread_mutex_t	err_lock = PTHREAD_MUTEX_INITIALIZER;
-#endif
 #else
 void			*err_lock;
 #endif

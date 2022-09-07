@@ -638,7 +638,7 @@ sleep(unsigned int seconds)
 struct tm *
 gmtime_r(const time_t *timep, struct tm *result)
 {
-    if (gmtime_s(timep, result) == 0)
+    if (gmtime_s(result, timep) == 0)
 	return result;
     return NULL;
 }
