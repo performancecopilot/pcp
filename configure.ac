@@ -1325,9 +1325,9 @@ AS_IF([test "x$do_perl" != "xno"], [
     AC_MSG_RESULT($pcp_perl_prog)
 
     dnl extra check for the Perl MakeMaker package for building modules
-    AC_MSG_CHECKING([if ExtUtils::MakeMaker is installed])
     if test "$have_perl" = true
     then
+        AC_MSG_CHECKING([if ExtUtils::MakeMaker is installed])
         $pcp_perl_prog -e "use ExtUtils::MakeMaker" 2>/dev/null
         if test $? -eq 0
         then

@@ -6932,10 +6932,10 @@ if test -n "$SYSTEMD_SYSUSERSDIR"; then
     pkg_cv_SYSTEMD_SYSUSERSDIR="$SYSTEMD_SYSUSERSDIR"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"systemd\""; } >&5
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"systemd\""; } >&5
   ($PKG_CONFIG --exists --print-errors "systemd") 2>&5
   ac_status=$?
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
   pkg_cv_SYSTEMD_SYSUSERSDIR=`$PKG_CONFIG --variable="sysusersdir" "systemd" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
@@ -6947,9 +6947,10 @@ fi
 fi
 SYSTEMD_SYSUSERSDIR=$pkg_cv_SYSTEMD_SYSUSERSDIR
 
-if test "x$SYSTEMD_SYSUSERSDIR" = x""; then :
+if test "x$SYSTEMD_SYSUSERSDIR" = x""
+then :
   pcp_systemdsysusers_dir=$pcp_lib32_dir/sysusers.d
-else
+else $as_nop
   pcp_systemdsysusers_dir=$SYSTEMD_SYSUSERSDIR
 fi
 
@@ -9464,10 +9465,10 @@ printf %s "checking for any perl version... " >&6; }
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $pcp_perl_prog" >&5
 printf "%s\n" "$pcp_perl_prog" >&6; }
 
+        if test "$have_perl" = true
+    then
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if ExtUtils::MakeMaker is installed" >&5
 printf %s "checking if ExtUtils::MakeMaker is installed... " >&6; }
-    if test "$have_perl" = true
-    then
         $pcp_perl_prog -e "use ExtUtils::MakeMaker" 2>/dev/null
         if test $? -eq 0
         then
