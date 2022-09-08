@@ -34,6 +34,8 @@ moc_*.cpp
 qrc_*.cpp
 debug
 release
+*.Debug
+*.Release
 Makefile
 VERSION.pcp.daily
 .vagrant

@@ -81,6 +81,7 @@ fun.o grammar.tab.o systemlog.o: systemlog.h
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h
 
 $(DUMPER)$(EXECSUFFIX):	$(DUMPER).c
+	$(CCF) -o $@ $(DUMPER).c $(LDFLAGS) $(LDLIBS)
 
 check::	$(CFILES) $(HFILES)
 	$(CLINT) $^

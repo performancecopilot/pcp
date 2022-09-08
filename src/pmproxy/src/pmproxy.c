@@ -17,7 +17,9 @@
 #include "pmproxy.h"
 #include "pmwebapi.h"
 #include <strings.h>
+#if defined(HAVE_SYS_RESOURCE_H)
 #include <sys/resource.h>
+#endif
 #include <sys/stat.h>
 
 #define MAXPENDING	128	/* maximum number of pending connections */
@@ -321,6 +323,7 @@ GetServerInfo(void)
 static void
 set_rlimit_maxfiles(void)
 {
+#ifndef IS_MINGW
     struct rlimit limit;
 
     if (getrlimit(RLIMIT_NOFILE, &limit) != 0)
@@ -330,6 +333,7 @@ set_rlimit_maxfiles(void)
 	if (setrlimit(RLIMIT_NOFILE, &limit) != 0)
 	    pmNotifyErr(LOG_ERR, "Cannot adjust open file limits\n");
     }
+#endif
 }
 
 #define ENV_WARN_PORT		1

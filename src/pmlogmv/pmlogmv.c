@@ -261,8 +261,10 @@ do_link(int vol)
 	    if (showme)
 		printf("+ ln %s %s\n", src, dst);
 	    else {
+#ifndef IS_MINGW
 		if (link(src, dst) < 0) {
 		    if (errno == EXDEV) {
+#endif
 			/* link() failed cross-device, need to copy ... */
 			int		sts;
 			char		cmd[2*MAXPATHLEN+4];
@@ -299,6 +301,7 @@ do_link(int vol)
 			}
 			if (verbose)
 			    printf("copy %s -> %s\n", src, dst);
+#ifndef IS_MINGW
 		    }
 		    else {
 			fprintf(stderr, "pmlogmv: link %s -> %s failed: %s\n", src, dst, strerror(errno));
@@ -307,6 +310,7 @@ do_link(int vol)
 		}
 		else if (verbose)
 		    printf("link %s -> %s\n", src, dst);
+#endif
 	    }
 	    lastvol = vol;
 	    return 1;

@@ -2270,6 +2270,7 @@ pmDerivedErrStr(void)
     return PM_TPD(derive_errmsg);
 }
 
+#undef NO_ERROR
 #define NO_ERROR 0
 #define SYNTAX_ERROR 1
 #define SEMANTIC_ERROR 2

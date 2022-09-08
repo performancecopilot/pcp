@@ -10,6 +10,8 @@ jsmn.c
 jsmn.h
 jsonsl.c
 jsonsl.h
+fnmatch.c
+fnmatch.h
 sha1.c
 sha1.h
 crc16.c

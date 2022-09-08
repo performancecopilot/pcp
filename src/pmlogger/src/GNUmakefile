@@ -27,12 +27,12 @@ YFILES	= gram.y
 LCFLAGS += $(PIECFLAGS)
 LLDFLAGS += $(PIELDFLAGS) $(LIB_FOR_BACKTRACE)
 
-# Set $BACTRACE_SYMBOLS=something to build a binary with key function
+# Set $BACKTRACE_SYMBOLS=something to build a binary with key function
 # symbols defined and accessible from mybacktrace()
 #
 BACKTRACE_SYMBOLS=y
 ifneq "$(BACKTRACE_SYMBOLS)" ""
-LLDFLAGS += -rdynamic
+LLDFLAGS += $(RDYNAMIC_FLAG)
 LCFLAGS += -DBACKTRACE_SYMBOLS=1
 LLDFLAGS += $(LIB_FOR_BACKTRACE)
 endif

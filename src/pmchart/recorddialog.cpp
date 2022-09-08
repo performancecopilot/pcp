@@ -122,7 +122,7 @@ void RecordDialog::archivePushButton_clicked()
 QString RecordDialog::resolveLocalHostname(QString h)
 {
     if (QString::compare(h, "local:") == 0 || QString::compare(h, "localhost") == 0) {
-    	static char localHostname[HOST_NAME_MAX];
+    	static char localHostname[MAXHOSTNAMELEN];
 	gethostname(localHostname, sizeof(localHostname));
 	return localHostname;
     }

@@ -1003,7 +1003,7 @@ sigintproc(int sig)
 void
 create_tempfile(FILE *file, FILE **tempfile, struct stat *stat)
 {
-    int			fd, mode = S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH;
+    int			fd, sts, mode = S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH;
     FILE		*fp;
     char		bytes[BUFSIZ];
     mode_t		cur_umask;
@@ -1029,12 +1029,24 @@ create_tempfile(FILE *file, FILE **tempfile, struct stat *stat)
     umask(cur_umask);
 
     if (stat) {
-	if (fchown(fd, stat->st_uid, stat->st_gid) < 0) {
-	    fprintf(stderr, "%s: Warning: fchown() failed: %s\n",
+#if defined(HAVE_FCHOWN)
+	sts = fchown(fd, stat->st_uid, stat->st_gid);
+#elif defined(HAVE_CHOWN)
+	sts = chown(tmpconfig, stat->st_uid, stat->st_gid);
+#else
+	sts = 0;
+#endif
+	if (sts < 0) {
+	    fprintf(stderr, "%s: Warning: chown() failed: %s\n",
 			pmGetProgname(), osstrerror());
 	}
-	if (fchmod(fd, stat->st_mode) < 0) {
-	    fprintf(stderr, "%s: Warning: fchmod() failed: %s\n",
+#if defined(HAVE_FCHMOD)
+	sts = fchmod(fd, stat->st_mode);
+#else
+	sts = chmod(tmpconfig, stat->st_mode);
+#endif
+	if (sts < 0) {
+	    fprintf(stderr, "%s: Warning: chmod() failed: %s\n",
 			pmGetProgname(), osstrerror());
 	}
     }

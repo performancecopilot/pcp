@@ -27,8 +27,11 @@
  * Attempt to setup the notices file in a way that the user "pcp"
  * can write to it.
  */
+#ifndef IS_MINGW
 uid_t	uid;
 gid_t	gid;
+#endif
+
 #if defined(HAVE_GETPWENT) && defined(HAVE_GETGRNAM)
 static void
 setup_ids(void)
