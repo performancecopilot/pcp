@@ -97,7 +97,7 @@ else
 fi | _filter
 cat $tmp.option >> $here/$seq.full
 echo Check options saved | tee -a $here/$seq.full
-egrep '^globals|^timestamp' $tmp.option
+grep -E '^globals|^timestamp' $tmp.option
 echo done
 
 # success, all done

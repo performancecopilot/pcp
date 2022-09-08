@@ -20,9 +20,9 @@ _filter()
     cat >$tmp.in
     sed <$tmp.in \
 	-e 's/value [0-9][0-9]*/value NUMBER/' >$tmp.tmp
-    if [ `egrep 'red|green|blue' $tmp.tmp | wc -l | sed -e 's/  *//g'` -ge 1 ]
+    if [ `grep -E 'red|green|blue' $tmp.tmp | wc -l | sed -e 's/  *//g'` -ge 1 ]
     then
-	egrep -v 'red|green|blue' $tmp.tmp
+	grep -E -v 'red|green|blue' $tmp.tmp
 	echo "... at least one value"
     else
 	cat $tmp.in

@@ -319,7 +319,7 @@ if $present
 then
     echo "Arrggh ... pmlogger appears to be running ..."
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-    | egrep "PID|$pid" \
+    | grep -E "PID|$pid" \
     | grep -v egrep
     echo "kill off the primary pmlogger we just started ..."
     $sudo kill -KILL $pid
@@ -334,11 +334,11 @@ then
     then
 	echo "Arrggh ... failed to kill of pmlogger (pid $pid)"
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-	| egrep "PID|$pid" \
+	| grep -E "PID|$pid" \
 	| grep -v egrep
     fi
 fi
-egrep 'ERROR:|info:' <$tmp.log \
+grep -E 'ERROR:|info:' <$tmp.log \
 | sed \
     -e 's/pid [0-9][0-9]*/pid SOMEPID/g' \
     -e "s@$PCP_TMP_DIR/@PCP_TMP_DIR/@g"

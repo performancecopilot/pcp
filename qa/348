@@ -23,8 +23,8 @@ count=`$sudo ls $kvm_stats_path | wc -l`
 lockdown=/sys/kernel/security/lockdown
 if [ -f $lockdown ]
 then
-    $sudo fgrep -q '[integrity]' $lockdown && _notrun "Kernel in lockdown"
-    $sudo fgrep -q '[confidentiality]' $lockdown && _notrun "Kernel in lockdown"
+    $sudo grep -F -q '[integrity]' $lockdown && _notrun "Kernel in lockdown"
+    $sudo grep -F -q '[confidentiality]' $lockdown && _notrun "Kernel in lockdown"
 fi
 
 status=1

@@ -174,7 +174,7 @@ END							{ exit sts }'
     #
     for pkg in `cat $tmp.require`
     do
-	if egrep "(^$pkg )|(^$pkg$)" <$tmp.list >/dev/null
+	if grep -E "(^$pkg )|(^$pkg$)" <$tmp.list >/dev/null
 	then
 	    : OK
 	else

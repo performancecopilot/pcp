@@ -43,19 +43,19 @@ for verify in "" -d
 do
     echo
     echo "full PMNS traversal $verify ..."
-    PCP_DERIVED_CONFIG=$tmp.derive pminfo $verify 2>$tmp.err | egrep 'qa\.(hide|ok)'
+    PCP_DERIVED_CONFIG=$tmp.derive pminfo $verify 2>$tmp.err | grep -E 'qa\.(hide|ok)'
     _filter_err <$tmp.err
 
     echo
     echo "traverse PMNS below qa $verify ..."
-    PCP_DERIVED_CONFIG=$tmp.derive pminfo $verify qa 2>$tmp.err | egrep 'qa\.(hide|ok)'
+    PCP_DERIVED_CONFIG=$tmp.derive pminfo $verify qa 2>$tmp.err | grep -E 'qa\.(hide|ok)'
     _filter_err <$tmp.err
 
     echo
     echo "exact matches in PMNS $verify ..."
     PCP_DERIVED_CONFIG=$tmp.derive pminfo $verify 2>$tmp.err \
 	qa.hide.ok qa.hide.syntax qa.hide.semantic qa.ok \
-    | egrep 'qa\.(hide|ok)'
+    | grep -E 'qa\.(hide|ok)'
     _filter_err <$tmp.err
 
     echo

@@ -89,11 +89,11 @@ echo; echo === URL configuration file contains
 sed -e "s|$here|QA_DIR|g" < $PCP_PMDAS_DIR/openmetrics/config.d/$urlbase.url
 
 echo; echo === pminfo listing. Note some labels in the pminfo listing have been removed, see _filter
-names=`pminfo openmetrics | fgrep -v openmetrics.control | LC_COLLATE=POSIX sort` 2>$tmp.err
+names=`pminfo openmetrics | grep -F -v openmetrics.control | LC_COLLATE=POSIX sort` 2>$tmp.err
 if [ -z "$names" ]; then
     echo "FAILED - no openmetrics metrics to show"
 else
-    if pminfo -fl `pminfo openmetrics | fgrep -v openmetrics.control | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
+    if pminfo -fl `pminfo openmetrics | grep -F -v openmetrics.control | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
     then
 	:
     else

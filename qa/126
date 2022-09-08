@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 rm -f $seq.out
 if [ -f /etc/redhat-release ]
 then
-    if egrep -q '^CentOS [^0-9]*5\.[0-9]|^Red Hat [^0-9]*5\.[0-9]' </etc/redhat-release
+    if grep -E -q '^CentOS [^0-9]*5\.[0-9]|^Red Hat [^0-9]*5\.[0-9]' </etc/redhat-release
     then
 	# not all the snmp metrics are there ...
 	ln $seq.out.2 $seq.out

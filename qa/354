@@ -175,7 +175,7 @@ fi
 
 for i in 1 2 3 4 5
 do
-    if pmlc $pid </dev/null 2>&1 | egrep "Connection refused|Transport endpoint is not connected" >/dev/null
+    if pmlc $pid </dev/null 2>&1 | grep -E "Connection refused|Transport endpoint is not connected" >/dev/null
     then
 	# pmlogger has gone away, continue
 	#
@@ -260,7 +260,7 @@ fi
 
 for i in 1 2 3 4 5
 do
-    if pmlc $pid </dev/null 2>&1 | egrep "Connection refused|Transport endpoint is not connected" >/dev/null
+    if pmlc $pid </dev/null 2>&1 | grep -E "Connection refused|Transport endpoint is not connected" >/dev/null
     then
 	# pmlogger has gone away, continue
 	#

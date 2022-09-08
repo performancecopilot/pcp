@@ -37,7 +37,7 @@ fi
 
 _countinst()
 {
-    fgrep ' value ' | sed -e 's/.* value //g' | $PCP_AWK_PROG '
+    grep -F ' value ' | sed -e 's/.* value //g' | $PCP_AWK_PROG '
 BEGIN   { sum = 0 }
         { if (NF == 1) sum = sum + $1 }
 END     { printf "%d\n",sum }'

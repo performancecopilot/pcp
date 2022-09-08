@@ -209,12 +209,12 @@ _filter_pmie_log()
 }
 _show_pmie_exit()
 {
-    fgrep "evaluator exiting" | \
+    grep -F "evaluator exiting" | \
 	sed -e 's/.* Info: evaluator exiting/pmie: note - evaluator exiting/g'
 }
 _show_pmie_errors()
 {
-    egrep -v '^Log finished |^Log for pmie on ' \
+    grep -E -v '^Log finished |^Log for pmie on ' \
 	| $PCP_AWK_PROG '{ if (NF > 0) print }' \
 	| sed \
 	    -e 's/.*Info: evaluator exiting/pmie: note - evaluator exiting/g' \
@@ -745,7 +745,7 @@ _filter_pmproxy_stop()
 _sort_pmdumplog_d()
 {
     cat >$tmp.tmp
-    egrep '(^Descriptions)|(^$)' $tmp.tmp
+    grep -E '(^Descriptions)|(^$)' $tmp.tmp
     $PCP_AWK_PROG <$tmp.tmp '
 /^Descriptions/		{ next }
 NF == 0			{ next }

@@ -50,7 +50,7 @@ fi
 cat $tmp.out
 echo
 echo "samples: `grep '^[0-9][0-9]:' $tmp.out | wc -l | sed -e 's/  *//g'`"
-egrep '^(user|sys)' $tmp.err | _do_cpu
+grep -E '^(user|sys)' $tmp.err | _do_cpu
 pmval -z -Dlog -n $tmp.pmns -a $arch -t $DELTA foo 2>$tmp.err >/dev/null
 echo "__pmLogReads: `grep __pmLogRead $tmp.err | wc -l | sed -e 's/  *//g'`"
 cat $tmp.err >>$seq.full
@@ -66,6 +66,6 @@ fi
 cat $tmp.out
 echo
 echo "samples: `grep '^[0-9][0-9]:' $tmp.out | wc -l | sed -e 's/  *//g'`"
-egrep '^(user|sys)' $tmp.err | _do_cpu
+grep -E '^(user|sys)' $tmp.err | _do_cpu
 pmval -z -Dlog -i 4653127 -n $tmp.pmns -a $arch -t $DELTA foo 2>$tmp.err >/dev/null
 echo "__pmLogReads: `grep __pmLogRead $tmp.err | wc -l | sed -e 's/  *//g'`"

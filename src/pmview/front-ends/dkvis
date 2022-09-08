@@ -196,7 +196,7 @@ then
 	then
 	    # assume egrep(1) regular expression
 	    #
-	    if egrep "$dk" $tmp.disks >>$tmp.tmp
+	    if grep -E "$dk" $tmp.disks >>$tmp.tmp
 	    then
 	        # found some matches
 		#

@@ -84,11 +84,11 @@ else
 fi
 echo "symroot=$symroot" >>$seq.full
 echo "--- mount | filter ---" >>$seq.full
-mount | egrep "$root|/dev/root|$symroot" >>$seq.full
+mount | grep -E "$root|/dev/root|$symroot" >>$seq.full
 pminfo -f filesys.mountdir >>$seq.full
 pminfo -f filesys \
 | tee -a $seq.full \
-| egrep "(^filesys)|\"$root\"|/dev/root|$symroot\"|\"overlay\"" \
+| grep -E "(^filesys)|\"$root\"|/dev/root|$symroot\"|\"overlay\"" \
 | _filter_dumpresult 2>&1 > $tmp.out
 
 cat $tmp.out

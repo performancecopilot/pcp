@@ -892,7 +892,7 @@ do
 	    _perl=`echo "$target" | sed -e 's/:://'`
 	    _target=`find $_perl_dirs -name "$_perl.*" -print 2>/dev/null \
 		     | tee $tmp.debug \
-	             | egrep "/$_perl.(pm|so|dylib|bs)$" \
+	             | grep -E "/$_perl.(pm|so|dylib|bs)$" \
 		     | ( tr '\012' '|'; echo ) \
 		     | sed -e 's/|$//'`
 	    if [ -z "$_target" ]
@@ -920,7 +920,7 @@ do
 	    _perl=`echo "$target" | sed -e 's/.*:://'`
 	    _target=`find $_perl_dirs -name "$_perl.*" -print 2>/dev/null \
 		     | tee $tmp.debug \
-	             | egrep "/$_module/($_submodule|$_submodule/$_perl)/$_perl.(pm|so|dylib|bs)$" \
+	             | grep -E "/$_module/($_submodule|$_submodule/$_perl)/$_perl.(pm|so|dylib|bs)$" \
 		     | ( tr '\012' '|'; echo ) \
 		     | sed -e 's/|$//'`
 	    if [ -z "$_target" ]
@@ -947,7 +947,7 @@ do
 	    _perl=`echo "$target" | sed -e 's/.*:://'`
 	    _target=`find $_perl_dirs -name "$_perl.*" -print 2>/dev/null \
 		     | tee $tmp.debug \
-	             | egrep "/$_module/$_perl.(pm|so|dylib|bs)$" \
+	             | grep -E "/$_module/$_perl.(pm|so|dylib|bs)$" \
 		     | ( tr '\012' '|'; echo ) \
 		     | sed -e 's/|$//'`
 	    if [ -z "$_target" ]

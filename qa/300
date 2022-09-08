@@ -116,7 +116,7 @@ _check_need $PCP_VAR_DIR/pmdas/bozo .NeedRemove
 echo
 echo "Check pmpost messages ..."
 cat $PCP_LOG_DIR/NOTICES > $seq.full
-egrep '(Install|Remove).*bozo$' $PCP_LOG_DIR/NOTICES \
+grep -E '(Install|Remove).*bozo$' $PCP_LOG_DIR/NOTICES \
 | sed \
     -e 's/^[0-9][0-9]*:[0-9][0-9]*:[0-9]*\.[0-9]* /TIME /' \
     -e 's/\(check for host \).*/\1HOSTNAME/'

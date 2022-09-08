@@ -129,11 +129,11 @@ echo "=== no-error case ===" | tee -a $here/$seq.full
 $sudo ./Install </dev/null 2>&1 | _filter_cull
 ( echo "--- after Install"; cat $PCP_PMCDCONF_PATH ) >>$here/$seq.full
 pminfo -mf whacko | _filter
-pminfo -f pmcd.agent.status | egrep 'whacko|sample'
+pminfo -f pmcd.agent.status | grep -E 'whacko|sample'
 $sudo ./Remove 2>&1 | _filter_cull
 ( echo "--- after Remove"; cat $PCP_PMCDCONF_PATH ) >>$here/$seq.full
 pminfo -mf whacko | _filter
-pminfo -f pmcd.agent.status | egrep 'whacko|sample'
+pminfo -f pmcd.agent.status | grep -E 'whacko|sample'
 
 echo | tee -a $here/$seq.full
 echo "=== domain number clash case ... will clobber and remove sample PMDA ===" | tee -a $here/$seq.full
@@ -142,11 +142,11 @@ echo '#define WHACKO 29' >domain.h
 $sudo ./Install </dev/null 2>&1 | _filter_cull
 ( echo "--- after Install"; cat $PCP_PMCDCONF_PATH ) >>$here/$seq.full
 pminfo -mf whacko | _filter
-pminfo -f pmcd.agent.status | egrep 'whacko|sample'
+pminfo -f pmcd.agent.status | grep -E 'whacko|sample'
 $sudo ./Remove 2>&1 | _filter_cull
 ( echo "--- after Remove"; cat $PCP_PMCDCONF_PATH ) >>$here/$seq.full
 pminfo -mf whacko | _filter
-pminfo -f pmcd.agent.status | egrep 'whacko|sample'
+pminfo -f pmcd.agent.status | grep -E 'whacko|sample'
 
 # Reinstate pmcd.conf and reinstall the sample PMDA ... the PMNS will
 # have been trashed, so putting pmcd.conf is not enough.
@@ -170,11 +170,11 @@ echo '#define WHACKO 241' >domain.h
 $sudo sh -c "iam=sample ./Install" </dev/null 2>&1 | _filter_cull
 ( echo "--- after Install"; cat $PCP_PMCDCONF_PATH ) >>$here/$seq.full
 pminfo -mf whacko | _filter
-pminfo -f pmcd.agent.status | egrep 'whacko|sample'
+pminfo -f pmcd.agent.status | grep -E 'whacko|sample'
 $sudo sh -c "iam=sample ./Remove" 2>&1 | _filter_cull
 ( echo "--- after Remove"; cat $PCP_PMCDCONF_PATH ) >>$here/$seq.full
 pminfo -mf whacko | _filter
-pminfo -f pmcd.agent.status | egrep 'whacko|sample'
+pminfo -f pmcd.agent.status | grep -E 'whacko|sample'
 
 # success, all done
 status=0

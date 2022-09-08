@@ -39,13 +39,13 @@ do
     grep '# check-group-' $seq >$tmp.chk
     if [ -s $tmp.chk ]
     then
-	if egrep "check-group-include:.* $1( |\$)" <$tmp.chk >/dev/null
+	if grep -E "check-group-include:.* $1( |\$)" <$tmp.chk >/dev/null
 	then
 	    $debug && echo "$seq: explicit include"
 	    echo $seq >>$tmp.tmp
 	    continue
 	fi
-	if egrep "check-group-exclude:.* $1( |\$)" <$tmp.chk >/dev/null
+	if grep -E "check-group-exclude:.* $1( |\$)" <$tmp.chk >/dev/null
 	then
 	    $debug && echo "$seq: explicit exclude"
 	    continue
@@ -61,21 +61,21 @@ do
 
 	folio)		# executable might be pmafm or mkaf
 	    ( grep -v '^#' $seq \
-	      | egrep -q "(^[ 	]*(pmafm|mkaf)([ '\"]|$))|([ /'\"\`_=](pmafm|mkaf)([ '\"\`_]|$))" \
+	      | grep -E -q "(^[ 	]*(pmafm|mkaf)([ '\"]|$))|([ /'\"\`_=](pmafm|mkaf)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
 	    report_group="pmafm or mkaf"
 	    ;;
 
 	logutil)	# pmlogger_ scripts
 	    ( grep -v '^#' $seq \
-	      | egrep -q "(^[ 	]*(pmlogger_check|pmlogger_daily|pmlogger_daily_report|pmlogger_merge|pmlogger_rewrite)([ '\"]|$))|([ /'\"\`_=](pmlogger_check|pmlogger_daily|pmlogger_daily_report|pmlogger_merge|pmlogger_rewrite)([ '\"\`_]|$))" \
+	      | grep -E -q "(^[ 	]*(pmlogger_check|pmlogger_daily|pmlogger_daily_report|pmlogger_merge|pmlogger_rewrite)([ '\"]|$))|([ /'\"\`_=](pmlogger_check|pmlogger_daily|pmlogger_daily_report|pmlogger_merge|pmlogger_rewrite)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
 	    report_group="pmlogger_* scripts"
 	    ;;
 
 	pmclient)	# executable might be pmlient_fg
 	    ( grep -v '^#' $seq \
-	      | egrep -q "(^[ 	]*(pmclient|pmclient_fg)([ '\"]|$))|([ /'\"\`_=](pmclient|pmclient_fg)([ '\"\`_]|$))" \
+	      | grep -E -q "(^[ 	]*(pmclient|pmclient_fg)([ '\"]|$))|([ /'\"\`_=](pmclient|pmclient_fg)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
 	    report_group="pmclient et al"
 	    ;;
@@ -83,38 +83,38 @@ do
 	pmdumplog)	# executable might be hidden in _exercise_compression
 			# wrapper from common.compress
 	    ( grep -v '^#' $seq \
-	      | egrep -q "(^[ 	]*(pmdumplog|_exercise_compression)([ '\"]|$))|([ /'\"\`_=](pmdumplog|_exercise_compression)([ '\"\`_]|$))" \
+	      | grep -E -q "(^[ 	]*(pmdumplog|_exercise_compression)([ '\"]|$))|([ /'\"\`_=](pmdumplog|_exercise_compression)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
 	    ;;
 
 	pmie)		# executable might be hidden in src/grind
 	    ( grep -v '^#' $seq \
-	      | egrep -q "(^[ 	]*(pmie|src/grind-tools)([ '\"]|$))|([ /'\"\`_=](pmie|src/grind-tools)([ '\"\`_]|$))" \
+	      | grep -E -q "(^[ 	]*(pmie|src/grind-tools)([ '\"]|$))|([ /'\"\`_=](pmie|src/grind-tools)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
 	    ;;
 
 	pmlogrewrite)	# executable might be hidden in mk.logfarm
 	    ( grep -v '^#' $seq \
-	      | egrep -q "(^[ 	]*(pmlogrewrite|mk.logfarm)([ '\"]|$))|([ /'\"\`_=](pmlogrewrite|mk.logfarm)([ '\"\`_]|$))" \
+	      | grep -E -q "(^[ 	]*(pmlogrewrite|mk.logfarm)([ '\"]|$))|([ /'\"\`_=](pmlogrewrite|mk.logfarm)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
 	    ;;
 
 	pmpost)		# executable might be in $PCP_BINADM_DIR
 	    ( grep -v '^#' $seq \
-	      | egrep "(^[ 	]*pmpost([ '\"]|$))|([ '\"\`/]pmpost([ '\"\`]|$))" >$tmp.debug \
+	      | grep -E "(^[ 	]*pmpost([ '\"]|$))|([ '\"\`/]pmpost([ '\"\`]|$))" >$tmp.debug \
 	    ) && echo $seq >>$tmp.tmp
 	    ;;
 
 	valgrind)	# executable maybe hidden in wrappers, so look for
 			# cmd and guard and wrapper
 	    ( grep -v '^#' $seq \
-	      | egrep -q "(^[ 	]*(valgrind|_check_valgrind)([ '\"]|$))|([ /'\"\`_=](valgrind|_run_valgrind)([ '\"\`_]|$))" \
+	      | grep -E -q "(^[ 	]*(valgrind|_check_valgrind)([ '\"]|$))|([ /'\"\`_=](valgrind|_run_valgrind)([ '\"\`_]|$))" \
 	    ) && echo $seq >>$tmp.tmp
 	    ;;
 
 	pcp-*)		# pcp-xxx is cmd, expected group is pcp AND xxx
 	    ( grep -v '^#' $seq \
-	      | egrep "(^[ 	]*$1([ '\"]|$))|([ '\"\`]$1([ '\"\`]|$))" >$tmp.debug \
+	      | grep -E "(^[ 	]*$1([ '\"]|$))|([ '\"\`]$1([ '\"\`]|$))" >$tmp.debug \
 	    ) && echo $seq >>$tmp.tmp
 	    group_list="`echo $1 | sed -e 's/-/ /'`"
 	    ;;
@@ -125,7 +125,7 @@ do
 	    ;;
 	*)
 	    ( grep -v '^#' $seq \
-	      | egrep "(^[ 	]*$1([ '\"]|$))|([ '\"\`]$1([ '\"\`]|$))" >$tmp.debug \
+	      | grep -E "(^[ 	]*$1([ '\"]|$))|([ '\"\`]$1([ '\"\`]|$))" >$tmp.debug \
 	    ) && echo $seq >>$tmp.tmp
 	    $debug && [ -s $tmp.debug ] && echo $seq: && cat $tmp.debug
 	    ;;

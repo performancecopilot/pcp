@@ -35,7 +35,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 mypid=$$
 mytty=`pminfo -f proc.psinfo.ttyname | \
-	fgrep "[${mypid} or " | \
+	grep -F "[${mypid} or " | \
 	awk '{ print $NF }'`
 
 echo "$mytty" | grep \?

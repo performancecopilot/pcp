@@ -103,7 +103,7 @@ echo "archive contents before pmda simple restart..."
 echo "expect no <mark> record"
 echo "---------------------------------------------------------------"
 pmdumplog $archive >$tmp.out 2>&1
-egrep '(<mark>)|(sample.dynamic.meta.metric)' $tmp.out \
+grep -E '(<mark>)|(sample.dynamic.meta.metric)' $tmp.out \
 | _filter_pmdumplog \
 | uniq
 echo "---------------------------------------------------------------"
@@ -133,7 +133,7 @@ echo "archive contents after pmda simple restart..."
 echo "expect no <mark> record"
 echo "---------------------------------------------------------------"
 pmdumplog $archive >$tmp.out 2>&1
-egrep '(<mark>)|(sample.dynamic.meta.metric)' $tmp.out \
+grep -E '(<mark>)|(sample.dynamic.meta.metric)' $tmp.out \
 | _filter_pmdumplog \
 | uniq
 echo "---------------------------------------------------------------"

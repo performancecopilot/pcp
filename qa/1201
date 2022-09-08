@@ -47,7 +47,7 @@ _my_wait_for_pmlogger()
     do
 	if $sudo -u pcp pmlc -P </dev/null 2>&1 \
 		| tee $tmp.err \
-		| egrep "Connection refused|Transport endpoint is not connected" >/dev/null
+		| grep -E "Connection refused|Transport endpoint is not connected" >/dev/null
 	then
 	    sleep 1
 	    _i=`expr $_i + 1`
@@ -112,13 +112,13 @@ $sudo cp $tmp.control ${PCP_PMLOGGERCONTROL_PATH}.d/$remote
 
 # real QA test starts here
 echo "initially" >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[p](mcd|mlogger)' >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[p](mcd|mlogger)' >>$seq.full
 
 # stop pmcd, and all pmloggers
 #
 _service pcp stop 2>&1 | _filter_pcp_stop
 echo "pcp stop" >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[p](mcd|mlogger)' >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[p](mcd|mlogger)' >>$seq.full
 
 # from here on, don't use any "_service" wrapper ... we need to dodge
 # any linking of the services and starting stuff under the covers
@@ -130,7 +130,7 @@ echo "pmcd not running, expect this to timeout"
 $sudo $PCP_RC_DIR/pmlogger start 2>&1 | _filter_pcp_start
 _my_wait_for_pmlogger | _filter
 echo "pmlogger start fail case" >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[p](mcd|mlogger)' >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[p](mcd|mlogger)' >>$seq.full
 
 $sudo $PCP_RC_DIR/pmcd start 2>&1 | _filter_pcp_start
 _wait_for_pmcd
@@ -140,7 +140,7 @@ echo "pmcd running, expect this to work"
 $sudo $PCP_RC_DIR/pmlogger start 2>&1 | _filter_pcp_start
 _wait_for_pmlogger
 echo "pmlogger start success case" >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[p](mcd|mlogger)' >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[p](mcd|mlogger)' >>$seq.full
 pminfo -f pmcd.pmlogger.pmcd_host | tee -a $seq.full >$tmp.tmp
 if grep '"primary"' $tmp.tmp >/dev/null
 then

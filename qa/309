@@ -50,7 +50,7 @@ _stop_auto_restart pmcd
 #
 echo 'expect "disk.dev.read: pmStore: No permission to perform requested operation"'
 pmstore disk.dev.read 1 2>&1 \
-| fgrep 'pmStore:' \
+| grep -F 'pmStore:' \
 | sed -e 's/Permission denied/No permission to perform requested operation/'
 
 # success, all done

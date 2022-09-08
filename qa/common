@@ -121,7 +121,7 @@ _haveagents()
 	    [ $__diff = true ] || echo "PMDA probe: pminfo -h $QA_HOST -f $__probe"
 	    if pminfo -h $QA_HOST -f $__probe 2>&1 \
 	       | tail -1 \
-	       | egrep "^[ 	]*((value)|(inst))[ 	]" >/dev/null
+	       | grep -E "^[ 	]*((value)|(inst))[ 	]" >/dev/null
 	    then
 		break
 	    else
@@ -575,7 +575,7 @@ p
 		    else
 			sed -e '/[0-9]:\(retired\|reserved\) /d' <group
 		    fi \
-		    | egrep "^[0-9].*[ 	]$__name([ 	]|$)" \
+		    | grep -E "^[0-9].*[ 	]$__name([ 	]|$)" \
 		    | wc -l \
 		    | sed -e 's/ //g'`
 		printf "%-20.20s %3d\n" $__name $__num
@@ -712,11 +712,11 @@ BEGIN	{ for (t = '$__start'; t <= '$__end'; t++) printf "%03d\n",t }' \
 		fi
 		continue
 	    fi
-	    if egrep -s "^$__id([ 	]|$)" $tmp.group >/dev/null
+	    if grep -E -s "^$__id([ 	]|$)" $tmp.group >/dev/null
 	    then
 		# in group file ... OK
 		echo $__id >>$tmp.list
-	    elif egrep -s "^$__id:retired([ 	]|$)" group >/dev/null
+	    elif grep -E -s "^$__id:retired([ 	]|$)" group >/dev/null
 	    then
 		# in group file, but retired
 		if $__rflag
@@ -725,7 +725,7 @@ BEGIN	{ for (t = '$__start'; t <= '$__end'; t++) printf "%03d\n",t }' \
 		else
 		   $__range || echo "$__id - retired test, ignored"
 		fi
-	    elif egrep -s "^$__id:reserved([ 	]|$)" group >/dev/null
+	    elif grep -E -s "^$__id:reserved([ 	]|$)" group >/dev/null
 	    then
 		# in group file, but reserved
 		if $__rflag

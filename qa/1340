@@ -35,7 +35,7 @@ echo "== Attempt operations"
 pminfo -f sample.control
 pmprobe -I sample.ulong.bin
 echo "== Verify PMDA status"
-pminfo -f pmcd.agent.fenced | egrep "pmcd|mmv|sample" | grep -v sampledso
+pminfo -f pmcd.agent.fenced | grep -E "pmcd|mmv|sample" | grep -v sampledso
 
 echo
 echo "== Lower the fence for MMV and sample PMDAs"
@@ -47,7 +47,7 @@ pminfo -f sample.control
 pmprobe -I sample.ulong.bin
 
 echo "== Verify PMDA status"
-pminfo -f pmcd.agent.fenced | egrep "pmcd|mmv|sample" | grep -v sampledso
+pminfo -f pmcd.agent.fenced | grep -E "pmcd|mmv|sample" | grep -v sampledso
 
 # success, all done
 status=0

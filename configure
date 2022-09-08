@@ -6932,10 +6932,10 @@ if test -n "$SYSTEMD_SYSUSERSDIR"; then
     pkg_cv_SYSTEMD_SYSUSERSDIR="$SYSTEMD_SYSUSERSDIR"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"systemd\""; } >&5
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"systemd\""; } >&5
   ($PKG_CONFIG --exists --print-errors "systemd") 2>&5
   ac_status=$?
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
   pkg_cv_SYSTEMD_SYSUSERSDIR=`$PKG_CONFIG --variable="sysusersdir" "systemd" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
@@ -6947,9 +6947,10 @@ fi
 fi
 SYSTEMD_SYSUSERSDIR=$pkg_cv_SYSTEMD_SYSUSERSDIR
 
-if test "x$SYSTEMD_SYSUSERSDIR" = x""; then :
+if test "x$SYSTEMD_SYSUSERSDIR" = x""
+then :
   pcp_systemdsysusers_dir=$pcp_lib32_dir/sysusers.d
-else
+else $as_nop
   pcp_systemdsysusers_dir=$SYSTEMD_SYSUSERSDIR
 fi
 
@@ -13607,7 +13608,7 @@ then :
     && pcp_selinux_hostname_exec_map=true
 
     seinfo -x --class=bpf $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)bpf$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)bpf$' >/dev/null \
     && pcp_selinux_bpf=true
 
     seinfo -a 2>/dev/null \
@@ -13623,44 +13624,44 @@ then :
     && pcp_selinux_capability2_bpf=true
 
     seinfo -x --class=icmp_socket $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)icmp_socket$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)icmp_socket$' >/dev/null \
     && pcp_selinux_icmp_socket_class=true
 
     seinfo -x --class=lockdown $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)lockdown$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)lockdown$' >/dev/null \
     && pcp_selinux_lockdown_class=true
 
 
     seinfo -x --class=netlink_selinux_socket $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)netlink_selinux_socket$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)netlink_selinux_socket$' >/dev/null \
     && pcp_selinux_netlink_selinux_socket_class=true
 
     seinfo -x --class=netlink_audit_socket $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)netlink_audit_socket$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)netlink_audit_socket$' >/dev/null \
     && pcp_selinux_netlink_audit_socket_class=true
 
     seinfo -x --class=sock_file $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)sock_file$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)sock_file$' >/dev/null \
     && pcp_selinux_sock_file_class=true
 
     seinfo -x --class=security $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)security$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)security$' >/dev/null \
     && pcp_selinux_security_class=true
 
             seinfo -x --class=dir $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)dir$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)dir$' >/dev/null \
     && pcp_selinux_dir_class=true
 
     seinfo -x --class=rawip_socket $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)rawip_socket$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)rawip_socket$' >/dev/null \
     && pcp_selinux_rawip_socket_class=true
 
     seinfo -x --class=netlink_generic_socket $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)netlink_generic_socket$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)netlink_generic_socket$' >/dev/null \
     && pcp_selinux_netlink_generic_socket_class=true
 
     seinfo -x --class=netlink_tcpdiag_socket $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)netlink_tcpdiag_socket$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)netlink_tcpdiag_socket$' >/dev/null \
     && pcp_selinux_netlink_tcpdiag_socket_class=true
 
 

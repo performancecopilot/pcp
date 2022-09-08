@@ -69,7 +69,7 @@ then
     exit
 fi
 
-if pminfo -l `pminfo openmetrics | fgrep -v openmetrics.control | LC_COLLATE=POSIX sort` 2> $tmp.err | _filter | tee $tmp.info
+if pminfo -l `pminfo openmetrics | grep -F -v openmetrics.control | LC_COLLATE=POSIX sort` 2> $tmp.err | _filter | tee $tmp.info
 then
     :
 else

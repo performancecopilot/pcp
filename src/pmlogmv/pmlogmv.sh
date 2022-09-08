@@ -110,7 +110,7 @@ then
     # oldname is an existing file, strip any compression suffix,
     # then strip the expected PCP suffix
     #
-    if echo "$1" | egrep -q "\\.$pat\$"
+    if echo "$1" | grep -E -q "\\.$pat\$"
     then
 	base=`echo "$1" | sed -e 's/\.[a-zA-Z][a-zA-Z0-9]*$//'`
     else
@@ -238,7 +238,7 @@ old_noglob=`echo "$old" | sed -e 's/\([?*[]\)/\\\\\1/g'`
 $very_verbose && echo "old_noglob=$old_noglob"
 
 eval ls "$old_noglob".* 2>&1 \
-| egrep "$old_noregex"'\.((index|meta|[0-9][0-9]*)|((index|meta|[0-9][0-9]*)\.'"$pat"'))$' \
+| grep -E "$old_noregex"'\.((index|meta|[0-9][0-9]*)|((index|meta|[0-9][0-9]*)\.'"$pat"'))$' \
 | sed -e 's/\([?*$[]\)/\\\1/g' >$tmp/old
 if [ -s $tmp/old ]
 then
@@ -250,7 +250,7 @@ then
     cat $tmp/old \
     | while read fname
     do
-	if echo "$fname" | egrep -q "\\.$pat\$"
+	if echo "$fname" | grep -E -q "\\.$pat\$"
 	then
 	    echo "$fname" | sed -e 's/\.[a-zA-Z0-9]$//'
 	else
@@ -284,7 +284,7 @@ fi
 if grep -q '\.[0-9][0-9]*$' $tmp/old
 then
     :
-elif egrep -q '\.[0-9][0-9]*\.'"$pat"'$' $tmp/old
+elif grep -E -q '\.[0-9][0-9]*\.'"$pat"'$' $tmp/old
 then
     :
 else
@@ -298,7 +298,7 @@ fi
 if grep -q '\.meta$' $tmp/old
 then
     :
-elif egrep -q '\.meta\.'"$pat"'$' $tmp/old
+elif grep -E -q '\.meta\.'"$pat"'$' $tmp/old
 then
     :
 else

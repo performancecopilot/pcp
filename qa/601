@@ -66,8 +66,8 @@ cd $here
 
 _wait_for_pmcd
 
-period=`pminfo -f trace.control.period | fgrep value | sed -e 's/.*value //g'`
-interval=`pminfo -f trace.control.interval | fgrep value | sed -e 's/.*value //g'`
+period=`pminfo -f trace.control.period | grep -F value | sed -e 's/.*value //g'`
+interval=`pminfo -f trace.control.interval | grep -F value | sed -e 's/.*value //g'`
 
 if [ -z "$interval" -o -z "$period" ]
 then
@@ -97,8 +97,8 @@ pminfo -f trace.transact.min_time trace.transact.max_time \
 	| sed -e 's/\.[0-9][0-9]*//g'
 
 # These fluctuate slightly above theoretical result (system() & trace overhead):
-rate=`pminfo -f trace.transact.rate | fgrep sleep1 | sed -e 's/.*value //g'`
-ave_time=`pminfo -f trace.transact.ave_time | fgrep sleep1 | sed -e 's/.*value //g'`
+rate=`pminfo -f trace.transact.rate | grep -F sleep1 | sed -e 's/.*value //g'`
+ave_time=`pminfo -f trace.transact.ave_time | grep -F sleep1 | sed -e 's/.*value //g'`
 
 # Use bc to get these as integers, and then compare in the shell ...
 rate=`bc << EOF
@@ -140,7 +140,7 @@ echo "Waiting for buffers to rotate (3/3) ..."
 sleep $interval
 
 pminfo -f trace.observe.count trace.observe.value
-rate=`pminfo -f trace.observe.rate | fgrep obs1 | sed -e 's/.*value //g'`
+rate=`pminfo -f trace.observe.rate | grep -F obs1 | sed -e 's/.*value //g'`
 rate=`bc << EOF
 scale=5
 (5 / $period) * 100000
@@ -168,7 +168,7 @@ echo "Waiting for buffers to rotate (3/3) ..."
 sleep $interval
 
 pminfo -f trace.counter.count trace.counter.value
-rate=`pminfo -f trace.counter.rate | fgrep cnt1 | sed -e 's/.*value //g'`
+rate=`pminfo -f trace.counter.rate | grep -F cnt1 | sed -e 's/.*value //g'`
 rate=`bc << EOF
 scale=5
 (5 / $period) * 100000

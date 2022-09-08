@@ -28,7 +28,7 @@ rm -f $seq.full
 realhost=`hostname`
 LOCALHOST=`echo $realhost | sed -e 's/\..*//'`
 hostsfile="/etc/hosts"
-egrep '^[^#].*[ 	]'$realhost'([ 	]|$)' <$hostsfile >/dev/null || \
+grep -E '^[^#].*[ 	]'$realhost'([ 	]|$)' <$hostsfile >/dev/null || \
     _notrun "No entry for hostname of local host in $hostsfile"
 
 signal="$sudo $PCP_BINADM_DIR/pmsignal"
@@ -37,7 +37,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmlogger
 _service pmlogger stop | _filter_pcp_stop
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger' >>$here/$seq.full
 
 _filter()
 {
@@ -140,7 +140,7 @@ _update_hostsfile()
 	    # so dodge this one in the counting test
 	    # - kenj 2 May 2021
 	    #
-	    egrep '^[^#].*[ 	]'$realhost'([ 	]|$)' <$hostsfile \
+	    grep -E '^[^#].*[ 	]'$realhost'([ 	]|$)' <$hostsfile \
 	    | grep -v '^127\.0\.1\.1' >$tmp.tmp
 	    # we used to test for exactly one line matching $realhost
 	    # but the introduction of IPv6 means we may legitimately have
@@ -160,7 +160,7 @@ _update_hostsfile()
 	    cat $tmp.tmp >>$tmp.etc.hosts
 	    echo "127.0.0.$i	$extra_hostname" >>$tmp.etc.hosts
 	    echo "" >>$tmp.etc.hosts
-	    egrep -v '^[^#].*[ 	]'$realhost'([ 	]|$)' <$hostsfile >>$tmp.etc.hosts
+	    grep -E -v '^[^#].*[ 	]'$realhost'([ 	]|$)' <$hostsfile >>$tmp.etc.hosts
 	    break
 	fi
     done
@@ -275,10 +275,10 @@ do
     echo >>$here/$seq.full
     echo "=== test $i ===" >>$here/$seq.full
     echo "--- before _setup() ---" >>$here/$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger' >>$here/$seq.full
     _setup
     echo "--- after _setup() ---" >>$here/$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger' >>$here/$seq.full
     
     # create the control file from primary
     _extract_control $i > $logdir/control
@@ -322,7 +322,7 @@ do
 	echo "Arrgh ... failed to find just one pmlogger to kill ... see $seq.full"
 	echo "" >>$here/$seq.full
 	echo "Arrgh ... failed to find just one pmlogger to kill ..." >>$here/$seq.full
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger' >>$here/$seq.full
 	echo "$log contents ..." >>$here/$seq.full
 	ls -l $log >>$here/$seq.full
 	for ctl in $PCP_TMP_DIR/pmlogger/[0-9]*
@@ -381,7 +381,7 @@ $2 == '"$pid"' { print; exit(0) }'
     if [ ! -f $tmp.found ]
     then
 	echo "Arrgh ... pmlogger_check failed to restart pmloggers" | tee -a $here/$seq.full
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mlogger' >>$here/$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger' >>$here/$seq.full
 	for state in $PCP_TMP_DIR/pmlogger/[0-9]*
 	do
 	    echo "=== $state ==="

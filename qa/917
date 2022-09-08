@@ -219,7 +219,7 @@ else
 fi
 
 if seinfo -x --class=bpf $common_flag 2>&1 \
-   | egrep '^[ 	][ 	]*(class |)bpf$' >/dev/null
+   | grep -E '^[ 	][ 	]*(class |)bpf$' >/dev/null
 then
     :
 else
@@ -252,13 +252,13 @@ fi
 # to cull the rawip_socket line from $seq.out.in
 #
 if seinfo -x --class=icmp_socket $common_flag 2>&1 \
-   | egrep '^[ 	][ 	]*(class |)icmp_socket$' >/dev/null
+   | grep -E '^[ 	][ 	]*(class |)icmp_socket$' >/dev/null
 then
     echo '/allow \[pcp_pmcd_t\] .*\[rawip_socket\]/d' >>$tmp.sed
 else
     echo '/allow \[pcp_pmcd_t\] .*\[icmp_socket\]/d' >>$tmp.sed
     if seinfo -x --class=rawip_socket $common_flag 2>&1 \
-       | egrep '^[ 	][ 	]*(class |)rawip_socket$' >/dev/null
+       | grep -E '^[ 	][ 	]*(class |)rawip_socket$' >/dev/null
     then
 	:
     else
@@ -267,7 +267,7 @@ else
 fi
 
 if seinfo -x --class=netlink_generic_socket $common_flag 2>&1 \
-   | egrep '^[ 	][ 	]*(class |)netlink_generic_socket$' >/dev/null
+   | grep -E '^[ 	][ 	]*(class |)netlink_generic_socket$' >/dev/null
 then
     :
 else
@@ -307,7 +307,7 @@ else
 fi
 
 if seinfo -x --class=lockdown $common_flag 2>&1 \
-   | egrep '^[ 	][ 	]*(class |)lockdown$' >/dev/null
+   | grep -E '^[ 	][ 	]*(class |)lockdown$' >/dev/null
 then
     :
 else
@@ -315,7 +315,7 @@ else
 fi
 
 if seinfo -x --class=netlink_tcpdiag_socket $common_flag 2>&1 \
-   | egrep '^[ 	][ 	]*(class |)netlink_tcpdiag_socket$' >/dev/null
+   | grep -E '^[ 	][ 	]*(class |)netlink_tcpdiag_socket$' >/dev/null
 then
     :
 else

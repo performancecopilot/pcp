@@ -33,7 +33,7 @@ _do_diff()
 
 for seq in $__list
 do
-    if [ -f expunged ] && $expunge && egrep "^$seq([ 	]|\$)" expunged >/dev/null
+    if [ -f expunged ] && $expunge && grep -E "^$seq([ 	]|\$)" expunged >/dev/null
     then
 	echo "Remake: \"$seq\" has been expunged"
     elif [ ! -f $seq ]

@@ -84,7 +84,7 @@ then
 fi
 
 default_configfile=./sample.conf
-if fgrep "CONFIGURE-ME-PLEASE" $default_configfile >/dev/null
+if grep -F "CONFIGURE-ME-PLEASE" $default_configfile >/dev/null
 then
     # nslookup(1) may be hiding, like for OpenIndiana
     #

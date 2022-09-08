@@ -154,10 +154,10 @@ log advisory on default {
 End-of-File
 }
 
-$PCP_PS_PROG $PCP_PS_APP_FLAGS | egrep '[P]ID|[p]mproxy' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_APP_FLAGS | grep -E '[P]ID|[p]mproxy' >>$here/$seq.full
 _service pmproxy stop >/dev/null 2>&1
 $sudo $signal -a pmproxy >/dev/null 2>&1
-$PCP_PS_PROG $PCP_PS_APP_FLAGS | egrep '[P]ID|[p]mproxy' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_APP_FLAGS | grep -E '[P]ID|[p]mproxy' >>$here/$seq.full
 
 mkdir -p $tmp.rundir
 export PCP_RUN_DIR=$tmp.rundir
@@ -381,7 +381,7 @@ valgrind \
 
 _wait_for_pmproxy
 $PCP_BINADM_DIR/pmcd_wait -t 5sec -h localhost@localhost
-$PCP_PS_PROG $PCP_PS_APP_FLAGS | egrep '[P]ID|[p]mproxy' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_APP_FLAGS | grep -E '[P]ID|[p]mproxy' >>$here/$seq.full
 
 # real QA test starts here
 export PMPROXY_HOST=localhost

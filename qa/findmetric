@@ -82,7 +82,7 @@ s/ InDom: /|/
 s/ Semantics: /|/
 s/ Units: /|/
 }' \
-    | egrep "$pat" >$tmp.out
+    | grep -E "$pat" >$tmp.out
 
     if [ -s $tmp.out ]
     then

@@ -109,14 +109,14 @@ cat $PCP_PMCDLOG_PATH >> $seq.full
 echo
 echo "errors for bogus in pmcd related log file(s):"
 [ -f $PCP_PMDAROOT_LOG ] && \
-egrep "^pmdaroot:" $PCP_PMDAROOT_LOG | _filter
-egrep "^pmcd:" $PCP_PMCDLOG_PATH | _filter
+grep -E "^pmdaroot:" $PCP_PMDAROOT_LOG | _filter
+grep -E "^pmcd:" $PCP_PMCDLOG_PATH | _filter
 
 # check that the pmcd.agent.status metric is correct
 echo
 echo "pmcd agent metrics for bogus:"
-pminfo -f pmcd.agent.type | egrep '^pmcd|bogus'
-pminfo -f pmcd.agent.status | egrep '^pmcd|bogus'
+pminfo -f pmcd.agent.type | grep -E '^pmcd|bogus'
+pminfo -f pmcd.agent.status | grep -E '^pmcd|bogus'
 echo
 
 # success, all done

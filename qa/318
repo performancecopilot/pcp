@@ -20,7 +20,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 cat <<'End-of-File' \
 | pmie -A 1min -t 1min -z -v -a archives/20041125.0 2>&1 \
-| fgrep -v "evaluator exiting"
+| grep -F -v "evaluator exiting"
 $minute;
 $hour;
 $minute > 34 -> print "OK1";

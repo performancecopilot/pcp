@@ -20,7 +20,7 @@ then
     # repeatedly to make this test work on this platform and it is not worth
     # investing any more effort on.
     #
-    if egrep -q '^CentOS .* 6\.[0-9]|^Red Hat .* 6\.[0-9]' </etc/redhat-release
+    if grep -E -q '^CentOS .* 6\.[0-9]|^Red Hat .* 6\.[0-9]' </etc/redhat-release
     then
 	_notrun "don't bother on CentOS/RHEL 6"
     fi
@@ -131,7 +131,7 @@ if [ -z "$pmda_pid" ]
 then
     echo "Arrgh ... lost pmdasample process?"
     echo "See $seq.full for details"
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([P]ID)|(/[p]mcd)' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '([P]ID)|(/[p]mcd)' >>$seq.full
     [ -n "$pmlogger_pid" ] && $signal -s TERM $pmlogger_pid
     [ -n "$pmval_pid" ] && $signal -s TERM $pmval_pid
     cat $tmp.pmcd.log >>$seq.full
@@ -150,7 +150,7 @@ if [ -z "$pmda_pid" ]
 then
     echo "Arrgh ... lost pmdasample process?"
     echo "See $seq.full for details"
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([P]ID)|(/[p]m[cd])' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '([P]ID)|(/[p]m[cd])' >>$seq.full
     [ -n "$pmlogger_pid" ] && $signal -s TERM $pmlogger_pid
     [ -n "$pmval_pid" ] && $signal -s TERM $pmval_pid
     cat $tmp.pmcd.log >>$seq.full
@@ -193,7 +193,7 @@ cat $tmp.pmcd.log >>$seq.full
 
 echo
 echo "Trace of observed state changes and PMDA count ..."
-egrep '(state changes)|( value )' $tmp.pmval \
+grep -E '(state changes)|( value )' $tmp.pmval \
 | _filter_pmval_live \
 | uniq
 
@@ -204,7 +204,7 @@ cat $tmp.log >>$seq.full
 echo
 echo "archive contents ..."
 pmdumplog $tmp >$tmp.out 2>&1
-egrep '(<mark>)|(pmcd.numagents)' $tmp.out \
+grep -E '(<mark>)|(pmcd.numagents)' $tmp.out \
 | _filter_pmdumplog \
 | uniq
 

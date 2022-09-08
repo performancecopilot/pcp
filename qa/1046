@@ -41,7 +41,6 @@ head -9 $tmp.pmie
 
 echo
 echo "=== now print out some deltas"
-# note use fgrep in case of bogus double delta
 echo o  global
 pmieconf -r ./pconf -f $tmp.pmie l global | _filter
 echo o  memory
