@@ -141,12 +141,6 @@ AC_ARG_WITH([pmdastatsd],
     [do_pmdastatsd=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdastatsd=$withval"],
     [do_pmdastatsd=check])
 
-AC_ARG_WITH([pmdapodman],
-    [AC_HELP_STRING([--with-pmdapodman],
-		   [enable podman pmda (default is on)])],
-    [do_pmdapodman=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdapodman=$withval"],
-    [do_pmdapodman=check])
-
 AC_ARG_WITH([pmdabcc],
     [AC_HELP_STRING([--with-pmdabcc],
 		   [enable BCC pmda (default is on)])],
@@ -2151,12 +2145,6 @@ AS_IF([test "x$do_pmdastatsd" = "xcheck"], [
        fi])
 AC_SUBST(PMDA_STATSD, $pmda_statsd)
 if $pmda_statsd; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
-
-AC_MSG_CHECKING([if the podman PMDA should be included])
-pmda_podman=true
-AS_IF([test "x$do_pmdapodman" = "xno"], [pmda_podman=false])
-AC_SUBST(PMDA_PODMAN, $pmda_podman)
-if $pmda_podman; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 dnl Do you have the required qshape script for the postfix PMDA
 dnl The logic here is copied from the PMDA's Install script

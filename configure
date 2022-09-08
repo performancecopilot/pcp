@@ -794,7 +794,6 @@ enable_selinux
 SEINFO
 PMDA_POSTFIX
 QSHAPE
-PMDA_PODMAN
 PMDA_STATSD
 lib_for_chan
 lib_for_hdr_histogram
@@ -1090,7 +1089,6 @@ with_python3
 with_dstat_symlink
 with_perfevent
 with_pmdastatsd
-with_pmdapodman
 with_pmdabcc
 with_pmdabpf
 with_pmdabpf_clang
@@ -1835,7 +1833,6 @@ Optional Packages:
                           is on)
   --with-perfevent        enable perfevent pmda (default is on)
   --with-pmdastatsd       enable statds pmda (default is on)
-  --with-pmdapodman       enable podman pmda (default is on)
   --with-pmdabcc          enable BCC pmda (default is on)
   --with-pmdabpf          enable BPF pmda (default is on)
   --with-pmdabpf-clang    path to clang 10+ (default is empty for auto
@@ -3585,16 +3582,6 @@ then :
   withval=$with_pmdastatsd; do_pmdastatsd=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdastatsd=$withval"
 else $as_nop
   do_pmdastatsd=check
-fi
-
-
-
-# Check whether --with-pmdapodman was given.
-if test ${with_pmdapodman+y}
-then :
-  withval=$with_pmdapodman; do_pmdapodman=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdapodman=$withval"
-else $as_nop
-  do_pmdapodman=check
 fi
 
 
@@ -13315,19 +13302,6 @@ fi
 PMDA_STATSD=$pmda_statsd
 
 if $pmda_statsd; then { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }; fi
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the podman PMDA should be included" >&5
-printf %s "checking if the podman PMDA should be included... " >&6; }
-pmda_podman=true
-if test "x$do_pmdapodman" = "xno"
-then :
-  pmda_podman=false
-fi
-PMDA_PODMAN=$pmda_podman
-
-if $pmda_podman; then { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }; fi
 
