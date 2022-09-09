@@ -37,7 +37,7 @@
 #include <string.h>
 #include <sys/types.h>
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <sys/socket.h>
@@ -51,7 +51,7 @@
 #include "hiutil.h"
 #include "win32.h"
 
-#ifndef WIN32
+#ifndef _WIN32
 int hi_set_blocking(int sd) {
     int flags;
 
@@ -345,7 +345,7 @@ int _scnprintf(char *buf, size_t size, const char *fmt, ...) {
     return n;
 }
 
-#ifndef WIN32
+#ifndef _WIN32
 /*
  * Send n bytes on a blocking descriptor
  */
@@ -410,7 +410,7 @@ ssize_t _hi_recvn(int sd, void *vptr, size_t n) {
  */
 int64_t hi_usec_now(void) {
     int64_t usec;
-#ifdef _MSC_VER
+#ifdef _WIN32
     LARGE_INTEGER counter, frequency;
 
     if (!QueryPerformanceCounter(&counter) ||

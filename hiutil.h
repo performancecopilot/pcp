@@ -87,7 +87,7 @@ typedef int rstatus_t; /* return type */
 
 #define uint_len(_n) _uint_len((uint32_t)_n)
 
-#ifndef WIN32
+#ifndef _WIN32
 int hi_set_blocking(int sd);
 int hi_set_nonblocking(int sd);
 int hi_set_reuseaddr(int sd);
@@ -107,7 +107,7 @@ int hi_valid_port(int n);
 
 int _uint_len(uint32_t num);
 
-#ifndef WIN32
+#ifndef _WIN32
 /*
  * Wrappers to send or receive n byte message on a blocking
  * socket descriptor.
@@ -129,7 +129,7 @@ int _uint_len(uint32_t num);
 
 #define hi_writev(_d, _b, _n) writev(_d, _b, (int)(_n))
 
-#ifndef WIN32
+#ifndef _WIN32
 ssize_t _hi_sendn(int sd, const void *vptr, size_t n);
 ssize_t _hi_recvn(int sd, void *vptr, size_t n);
 #endif
