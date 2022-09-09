@@ -25,7 +25,7 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 #
 _filter()
 {
-    egrep '^(load|pmGetPMNSLocation:)' $tmp.err \
+    grep -E '^(load|pmGetPMNSLocation:)' $tmp.err \
     | sed \
 	-e "s@$PCP_VAR_DIR@PCP_VAR_DIR@g" \
 	-e "s@$tmp@TMP@g" \
@@ -43,8 +43,8 @@ End-of-File
 # pick some disk metrics that are always likely to be present
 #
 metrics=`pminfo -Dpmns disk.dev 2>$tmp.err \
-         | egrep 'read|write|total' \
-	 | egrep -v 'rawactive|_merge|_time|blk' \
+         | grep -E 'read|write|total' \
+	 | grep -E -v 'rawactive|_merge|_time|blk' \
 	 | LC_COLLATE=POSIX sort`
 # real QA test starts here
 echo "PM_CONTEXT_LOCAL, default PMNS ..."

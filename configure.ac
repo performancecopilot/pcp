@@ -2338,7 +2338,7 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
     && pcp_selinux_hostname_exec_map=true
 
     seinfo -x --class=bpf $seinfo_common_flag 2>/dev/null \
-    | egrep '^[[ 	]][[ 	]]*(class |)bpf$' >/dev/null \
+    | grep -E '^[[ 	]][[ 	]]*(class |)bpf$' >/dev/null \
     && pcp_selinux_bpf=true
 
     seinfo -a 2>/dev/null \
@@ -2354,47 +2354,47 @@ AS_IF([test "x$enable_selinux" != "xfalse"], [
     && pcp_selinux_capability2_bpf=true
 
     seinfo -x --class=icmp_socket $seinfo_common_flag 2>/dev/null \
-    | egrep '^[[ 	]][[ 	]]*(class |)icmp_socket$' >/dev/null \
+    | grep -E '^[[ 	]][[ 	]]*(class |)icmp_socket$' >/dev/null \
     && pcp_selinux_icmp_socket_class=true
 
     seinfo -x --class=lockdown $seinfo_common_flag 2>/dev/null \
-    | egrep '^[[ 	]][[ 	]]*(class |)lockdown$' >/dev/null \
+    | grep -E '^[[ 	]][[ 	]]*(class |)lockdown$' >/dev/null \
     && pcp_selinux_lockdown_class=true
 
     dnl these ones are for pcpqa.te
 
     seinfo -x --class=netlink_selinux_socket $seinfo_common_flag 2>/dev/null \
-    | egrep '^[[ 	]][[ 	]]*(class |)netlink_selinux_socket$' >/dev/null \
+    | grep -E '^[[ 	]][[ 	]]*(class |)netlink_selinux_socket$' >/dev/null \
     && pcp_selinux_netlink_selinux_socket_class=true
 
     seinfo -x --class=netlink_audit_socket $seinfo_common_flag 2>/dev/null \
-    | egrep '^[[ 	]][[ 	]]*(class |)netlink_audit_socket$' >/dev/null \
+    | grep -E '^[[ 	]][[ 	]]*(class |)netlink_audit_socket$' >/dev/null \
     && pcp_selinux_netlink_audit_socket_class=true
 
     seinfo -x --class=sock_file $seinfo_common_flag 2>/dev/null \
-    | egrep '^[[ 	]][[ 	]]*(class |)sock_file$' >/dev/null \
+    | grep -E '^[[ 	]][[ 	]]*(class |)sock_file$' >/dev/null \
     && pcp_selinux_sock_file_class=true
 
     seinfo -x --class=security $seinfo_common_flag 2>/dev/null \
-    | egrep '^[[ 	]][[ 	]]*(class |)security$' >/dev/null \
+    | grep -E '^[[ 	]][[ 	]]*(class |)security$' >/dev/null \
     && pcp_selinux_security_class=true
 
     dnl pcp_selinux_dir already used for something else, so name to
     dnl set is pcp_selinux_dir_class
     seinfo -x --class=dir $seinfo_common_flag 2>/dev/null \
-    | egrep '^[[ 	]][[ 	]]*(class |)dir$' >/dev/null \
+    | grep -E '^[[ 	]][[ 	]]*(class |)dir$' >/dev/null \
     && pcp_selinux_dir_class=true
 
     seinfo -x --class=rawip_socket $seinfo_common_flag 2>/dev/null \
-    | egrep '^[[ 	]][[ 	]]*(class |)rawip_socket$' >/dev/null \
+    | grep -E '^[[ 	]][[ 	]]*(class |)rawip_socket$' >/dev/null \
     && pcp_selinux_rawip_socket_class=true
 
     seinfo -x --class=netlink_generic_socket $seinfo_common_flag 2>/dev/null \
-    | egrep '^[[ 	]][[ 	]]*(class |)netlink_generic_socket$' >/dev/null \
+    | grep -E '^[[ 	]][[ 	]]*(class |)netlink_generic_socket$' >/dev/null \
     && pcp_selinux_netlink_generic_socket_class=true
 
     seinfo -x --class=netlink_tcpdiag_socket $seinfo_common_flag 2>/dev/null \
-    | egrep '^[[ 	]][[ 	]]*(class |)netlink_tcpdiag_socket$' >/dev/null \
+    | grep -E '^[[ 	]][[ 	]]*(class |)netlink_tcpdiag_socket$' >/dev/null \
     && pcp_selinux_netlink_tcpdiag_socket_class=true
 
 ])

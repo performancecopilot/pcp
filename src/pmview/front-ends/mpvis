@@ -186,7 +186,7 @@ then
 	then
 	    # assume egrep(1) regular expression
 	    #
-	    if egrep "$cpu" $tmp.pmview_result >>$tmp.tmp
+	    if grep -E "$cpu" $tmp.pmview_result >>$tmp.tmp
 	    then
 	        # found some matches
 		#

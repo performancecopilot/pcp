@@ -149,7 +149,7 @@ _addfiles()
 
     for fn in "$@"
     do
-    	fgrep -s "$fn" "$af" >/dev/null
+    	grep -F -s "$fn" "$af" >/dev/null
     	[ $? = 1 ] && echo "$fn" >>"$af"
     done
 
@@ -292,14 +292,14 @@ _checksums()
     	    	buf=$tmp/checksums/$buf
 		if [ ! -f $f ]
 		then
-		    if fgrep "$f" $2 >/dev/null 2>&1
+		    if grep -F "$f" $2 >/dev/null 2>&1
 		    then
 			echo "    Missing: \"$f\""
 		        [ -f $buf ] && $sudo cp -f $buf $f
 		    fi
 		else
 		    _cs=`sum $f`
-		    if fgrep "$_cs" $2 >/dev/null 2>&1
+		    if grep -F "$_cs" $2 >/dev/null 2>&1
 		    then
 			$sudo rm -f $f.$seq.O
 		    else
@@ -339,7 +339,7 @@ p
     do
 	eval `echo "$_line" | sed -e 's/\//\\\\/g' -e 's/^/_re="/' -e 's/	.*/"/'`
 	eval `echo "$_line" | sed -e 's/^[^	]*	/_comments="/' -e 's/$/"/'`
-	if egrep "$_re" $tmp.whatami >/dev/null 2>&1
+	if grep -E "$_re" $tmp.whatami >/dev/null 2>&1
 	then
 	    # triaged, don't treat as a Failure
 	    #

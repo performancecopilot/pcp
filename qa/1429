@@ -178,7 +178,7 @@ else
     echo "No log file?"
 fi
 echo "daily dir ..."
-ls $tmp | _filter | egrep '.(index|meta|0)$' | grep -v TODAY
+ls $tmp | _filter | grep -E '.(index|meta|0)$' | grep -v TODAY
 
 echo "--- cannot write in dest dir ---" | tee -a $here/$seq.full
 
@@ -203,9 +203,9 @@ else
     echo "No log file?"
 fi
 echo "daily dir ..."
-ls $tmp | _filter | egrep '.(index|meta|0)$' | grep -v TODAY
+ls $tmp | _filter | grep -E '.(index|meta|0)$' | grep -v TODAY
 echo "autosave dir ..."
-ls $tmp.nowrite | _filter | egrep '.(index|meta|0)$'
+ls $tmp.nowrite | _filter | grep -E '.(index|meta|0)$'
 
 echo "--- dest dir ok ---" | tee -a $here/$seq.full
 
@@ -231,9 +231,9 @@ else
     echo "No log file?"
 fi
 echo "daily dir ..."
-ls $tmp | _filter | egrep '.(index|meta|0)$' | grep -v TODAY
+ls $tmp | _filter | grep -E '.(index|meta|0)$' | grep -v TODAY
 echo "autosave dir ..."
-ls $tmp.ok | _filter | egrep '.(index|meta|0)$'
+ls $tmp.ok | _filter | grep -E '.(index|meta|0)$'
 
 echo "--- dest dir with DATEXX components does not exist ---" | tee -a $here/$seq.full
 
@@ -270,9 +270,9 @@ else
     echo "No log file?"
 fi
 echo "daily dir ..."
-ls $tmp | _filter | egrep '.(index|meta|0)$' | grep -v TODAY
+ls $tmp | _filter | grep -E '.(index|meta|0)$' | grep -v TODAY
 echo "autosave dir ..."
-ls -R $tmp.ok | _filter | egrep '.(index|meta|0)$' \
+ls -R $tmp.ok | _filter | grep -E '.(index|meta|0)$' \
 | sed \
     -e "s/`date +%Y`/YYYY/g" \
     -e "s/-`date +%m`-/-MM-/" \
@@ -313,7 +313,7 @@ else
     echo "No log file?"
 fi
 echo "daily dir ..."
-ls $tmp | _filter | egrep '.(index|meta|0)$' | grep -v TODAY
+ls $tmp | _filter | grep -E '.(index|meta|0)$' | grep -v TODAY
 echo "autosave dir ..."
 ls -R $tmp.ok | _filter
 

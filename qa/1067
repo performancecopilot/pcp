@@ -162,7 +162,7 @@ echo '2 two' >>$tmp.indom
 $sudo cp $tmp.indom $control
 $zabbix_agentd -p \
 | tee -a $seq.full \
-| fgrep pcp.sample. \
+| grep -F pcp.sample. \
 | _filter_values
 
 # derived metrics

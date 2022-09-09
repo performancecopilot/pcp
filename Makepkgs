@@ -73,7 +73,7 @@ gnu_tool()
 	    if [ -n "$exec" ]
 	    then
 		LC_ALL=C $command --help >$tmp/help 2>&1
-		if egrep "(bug-$oldcmd@gnu.org)|(FreeBSD $command)|(NetBSD $command)|(OpenBSD $command)|(Apple $command)" $tmp/help >/dev/null
+		if grep -E "(bug-$oldcmd@gnu.org)|(FreeBSD $command)|(NetBSD $command)|(OpenBSD $command)|(Apple $command)" $tmp/help >/dev/null
 		then
 		    echo $exec
 		    return 0
@@ -82,7 +82,7 @@ gnu_tool()
 BEGIN				{ want = 0 }
 /This\** tar defaults to:/	{ want=1; next }
 want == 1			{ print; exit }'
-		if egrep '[-][-]format=(gnu)|(posix)' <$tmp/check >/dev/null
+		if grep -E '[-][-]format=(gnu)|(posix)' <$tmp/check >/dev/null
 		then
 		    echo $exec
 		    return 0

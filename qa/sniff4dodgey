@@ -119,7 +119,7 @@ do
 	#
 	cat <<End-of-File | sed -e '/^#/d' | while IFS=: read pat use tags reason
 # control file, 3 fields per feature separated by colons
-# pat - egrep pattern to find this feature being used in QA test scripts
+# pat - grep -E pattern to find this feature being used in QA test scripts
 # use - verbage for -v output
 # tags - tags to search for in group file for -w
 pmrep|pmlogger_daily_report:pmrep:pmrep python
@@ -153,7 +153,7 @@ pcp2zabbix:pcp2zabbix:pcp2zabbix pcp2xxx python
 pmclient_fg:pmclient_fg:pmclient python
 End-of-File
 	do
-	    if egrep "[^a-zA-Z0-9_]$pat[^a-zA-Z0-9]" $tmp.in >/dev/null
+	    if grep -E "[^a-zA-Z0-9_]$pat[^a-zA-Z0-9]" $tmp.in >/dev/null
 	    then
 		if [ -f $tmp.report ]
 		then
@@ -185,7 +185,7 @@ End-of-File
 	# $PCP_PYTHON_PROG or sets PCP_PYTHON_PROG= as the first word in
 	# the command line
 	#
-	if egrep '^[ 	]*(python|python[0-9][0-9].*|$python|$PCP_PYTHON_PROG|PCP_PYTHON_PROG=[^ 	]*) ' $tmp.in >/dev/null
+	if grep -E '^[ 	]*(python|python[0-9][0-9].*|$python|$PCP_PYTHON_PROG|PCP_PYTHON_PROG=[^ 	]*) ' $tmp.in >/dev/null
 	then
 	    if [ -f $tmp.report ]
 	    then
@@ -213,7 +213,7 @@ End-of-File
 	#
 	cat <<End-of-File | sed -e '/^#/d' | while IFS=: read pat use tags reason
 # control file, at least 3 fields per feature separated by colons
-# pat - egrep pattern to find this feature being used in QA test scripts
+# pat - grep -E pattern to find this feature being used in QA test scripts
 # use - verbage for -v output
 # tags - tags to search for in group file for -w
 # reason - (optional and for annotation only) in the form test@host ...
@@ -222,7 +222,7 @@ pcp2elasticsearch:pcp2elasticsearch:pcp2elasticsearch pcp2xxx python:1130@{bozo,
 ([^/]pcp[_ -]pidstat)|(pcp .* pidstat):pcp-pidstat:pidstat pcp python:1396@vm34
 End-of-File
 	do
-	    if egrep "[^a-zA-Z0-9_]$pat[^a-zA-Z0-9]" $tmp.in >/dev/null
+	    if grep -E "[^a-zA-Z0-9_]$pat[^a-zA-Z0-9]" $tmp.in >/dev/null
 	    then
 		if [ -f $tmp.report ]
 		then

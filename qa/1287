@@ -64,11 +64,11 @@ fi
 ## pmstore openmetrics.control.debug 1
 
 echo; echo === pminfo listing.
-names=`pminfo openmetrics | fgrep -v openmetrics.control | LC_COLLATE=POSIX sort` 2>$tmp.err
+names=`pminfo openmetrics | grep -F -v openmetrics.control | LC_COLLATE=POSIX sort` 2>$tmp.err
 if [ -z "$names" ]; then
     echo "FAILED - no openmetrics metrics to show"
 else
-    if pminfo -dtTf `pminfo openmetrics | fgrep -v openmetrics.control | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
+    if pminfo -dtTf `pminfo openmetrics | grep -F -v openmetrics.control | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
     then
 	:
     else
@@ -81,7 +81,7 @@ fi
 echo == Note: check $seq.full for expected log entries
 echo == pmdaopenmetrics LOG == >>$here/$seq.full
 cat $PCP_LOG_DIR/pmcd/openmetrics.log >>$here/$seq.full
-egrep 'Ready to process requests|notready' $PCP_LOG_DIR/pmcd/openmetrics.log | \
+grep -E 'Ready to process requests|notready' $PCP_LOG_DIR/pmcd/openmetrics.log | \
 sed -e 's/\[.*\]/[DATE]/' -e 's/([0-9]*)/(PID)/'
 
 _pmdaopenmetrics_remove

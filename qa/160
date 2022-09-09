@@ -20,7 +20,7 @@ rm -f $seq.full
 
 _filter()
 {
-    egrep 'QA-clientid|Error|__pmSetClientId' \
+    grep -E 'QA-clientid|Error|__pmSetClientId' \
     | sed -e 's/value ".* QA/value "<host> QA/' \
     | sed -e 's/\[/[ /' -e 's/]/ ]/' \
     | awk '

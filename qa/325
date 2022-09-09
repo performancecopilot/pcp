@@ -18,13 +18,13 @@ which pmconfirm >/dev/null 2>&1 || _notrun pmconfirm not installed
 _cleanup()
 {
     echo "at end ..." >>$seq.full
-    pid=`ps $PCP_PS_ALL_FLAGS | egrep '[p]mconfirm' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
+    pid=`ps $PCP_PS_ALL_FLAGS | grep -E '[p]mconfirm' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
     echo "[p]mconfirm pid: $pid" >>$seq.full
     [ -n "$pid" ] && $signal -s KILL $pid >/dev/null 2>&1
-    pid=`ps $PCP_PS_ALL_FLAGS | egrep '[p]mprintf' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
+    pid=`ps $PCP_PS_ALL_FLAGS | grep -E '[p]mprintf' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
     echo "[p]mprintf pid: $pid" >>$seq.full
     [ -n "$pid" ] && $signal -s KILL $pid >/dev/null 2>&1
-    pid=`ps $PCP_PS_ALL_FLAGS | egrep '[p]mquery' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
+    pid=`ps $PCP_PS_ALL_FLAGS | grep -E '[p]mquery' | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'`
     echo "[p]mquery pid: $pid" >>$seq.full >/dev/null 2>&1
     [ -n "$pid" ] && $signal -s KILL $pid
     _clean_display

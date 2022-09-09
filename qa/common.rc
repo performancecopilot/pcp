@@ -75,7 +75,7 @@ in
 	# I cannot make this work on Mac OS X ... kenj
 	;;
     *)
-	if $sudo -h 2>&1 | egrep '(\[-[a-zA-DF-Z]*E[a-zA-Z]*\])|(.-E[, 	])' >/dev/null 2>&1
+	if $sudo -h 2>&1 | grep -E '(\[-[a-zA-DF-Z]*E[a-zA-Z]*\])|(.-E[, 	])' >/dev/null 2>&1
 	then
 	    # sudo has -E to preserve the environment
 	    #

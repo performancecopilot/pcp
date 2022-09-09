@@ -61,7 +61,7 @@ then
     exit 1
 fi
 
-eval `egrep '^(ENABLE_|PMDA_|HAVE_|QT_)' ../src/include/builddefs | sed -e 's/ //g'`
+eval `grep -E '^(ENABLE_|PMDA_|HAVE_|QT_)' ../src/include/builddefs | sed -e 's/ //g'`
 
 if $PMDA_PERFEVENT
 then

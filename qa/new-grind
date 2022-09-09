@@ -66,7 +66,7 @@ else
     exit 1
 fi
 
-if egrep "_run_(valgrind|helgrind) " $oldseq >/dev/null
+if grep -E "_run_(valgrind|helgrind) " $oldseq >/dev/null
 then
     if grep "_run_valgrind \.\.\.your test goes here\.\.\." $oldseq >/dev/null
     then

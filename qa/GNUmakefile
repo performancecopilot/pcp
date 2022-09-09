@@ -83,7 +83,7 @@ else
 SELINUX_PCPQA =
 endif
 
-DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | egrep -v '^[0-9][0-9][0-9]*\.(full|out\.bad|notrun|helper|work)' | tee qa_outfiles)
+DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | grep -E -v '^[0-9][0-9][0-9]*\.(full|out\.bad|notrun|helper|work)' | tee qa_outfiles)
 
 qa_outfiles:
 	@echo $(DOTOUTFILES) > qa_outfiles

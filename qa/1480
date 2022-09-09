@@ -54,7 +54,7 @@ pminfo --verify $iam | _filter
 # How many sensors did PMDA lmsensors register?
 PMDA=`pminfo lmsensors|wc -l`
 # How many sensors did binary lmsensors find?
-SENS=`/usr/bin/sensors -u 2>/dev/null|egrep '_input: '|wc -l`
+SENS=`/usr/bin/sensors -u 2>/dev/null|grep -E '_input: '|wc -l`
 
 if [ $PMDA -eq $SENS ]; then
     echo -n "number of sensors from '/usr/bin/sensors -u' and from 'pminfo "
@@ -64,8 +64,8 @@ else
     echo "lmsensors' does not match."
     echo "pminfo lmsensors|wc -l:" >>$here/$seq.full
     pminfo lmsensors |wc -l >>$here/$seq.full
-    echo "/usr/bin/sensors -u|egrep '_input: '|wc -l" >>$here/$seq.full
-    /usr/bin/sensors -u 2>/dev/null|egrep '_input: '|wc -l >>$here/$seq.full
+    echo "/usr/bin/sensors -u|grep -E '_input: '|wc -l" >>$here/$seq.full
+    /usr/bin/sensors -u 2>/dev/null|grep -E '_input: '|wc -l >>$here/$seq.full
 fi
 
 # Now, I can not check if the actual values for sensors are the same,

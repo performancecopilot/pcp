@@ -198,7 +198,7 @@ _egrep()
 	# possible race here with async execution of ${IAM}_check removing
 	# the file after find saw it ... so check again for existance
 	#
-	[ -f "$__f" ] && egrep "$__pat" "$__f" 2>/dev/null >$tmp/_egrep
+	[ -f "$__f" ] && grep -E "$__pat" "$__f" 2>/dev/null >$tmp/_egrep
 	if [ -s $tmp/_egrep ]
 	then
 	    if $__text
@@ -317,7 +317,7 @@ _get_matching_hosts()
 		# otherwise assume $_host is a regexp and this could match
 		# all manner of lines, including comments (consider .*pat)
 		#
-		if echo "$ctl_host" | egrep "^($pat|#!#$pat)" >/dev/null
+		if echo "$ctl_host" | grep -E "^($pat|#!#$pat)" >/dev/null
 		then
 		    # so far so good (matches first field, not just whole
 		    # line ... still some false matches to weed out
@@ -1197,7 +1197,7 @@ END	{ exit(sts) }'
 			    ;;
 
 			hostname)
-			    if echo "$host" | egrep "$args" >/dev/null
+			    if echo "$host" | grep -E "$args" >/dev/null
 			    then
 				touch $tmp/match
 				$VERBOSE && echo "$policy: host $host hostname($args) true"

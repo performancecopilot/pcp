@@ -61,7 +61,7 @@ $NF == "RAM"	{ x = $(NF-1); x = (int(x/128)+1)*128; $(NF-1) = x }
 	-e "/^ licenses:.*/d" \
 	-e "s/$qahost/HOST/g" \
 	-e "s/$local/HOST/g" \
-    | fgrep -v "archive:"
+    | grep -F -v "archive:"
 }
 
 _config()
@@ -147,14 +147,14 @@ echo === Comparing noargs and args
 if [ -s $tmp.noargslocalnoh ] ; then cat $tmp.noargslocalnoh ; fi
 
 echo === Checking for missing archive metrics
-egrep '(Unknown)|( unknown)' $tmp.arch
+grep -E '(Unknown)|( unknown)' $tmp.arch
 
 echo === Checking bug 640234
 echo 'pminfo(1) output:'
 pminfo -fa archives/pcpcmd pmcd.pmlogger
 echo
 echo 'pcp(1) output:'
-pcp -O +.001sec -n src/root_irix -a archives/pcpcmd | fgrep -v "$PCP_PMDAS_DIR/summary"
+pcp -O +.001sec -n src/root_irix -a archives/pcpcmd | grep -F -v "$PCP_PMDAS_DIR/summary"
 # dont use services/pmie output here cos archive doesn't have all metrics
 
 echo === Checking transient problem

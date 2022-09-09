@@ -207,7 +207,7 @@ else
     touch $tmp.chosen
     for i in $serverList_sp
     do
-	egrep $i $tmp.list >> $tmp.chosen
+	grep -E $i $tmp.list >> $tmp.chosen
     done
 fi
 

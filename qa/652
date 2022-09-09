@@ -43,18 +43,18 @@ _filter_probe()
 
 _filter_events()
 {
-    fgrep 'MESSAGE=yo'
+    grep -F 'MESSAGE=yo'
 }
 
 _filter_events_raw()
 {
-    fgrep '4d4553534147453d796f'
+    grep -F '4d4553534147453d796f'
 }
 
 _filter_pmda_warning()
 {
     # drop the adm-user-doesn't-exist warnings, optional blank line
-    fgrep -v 'Warning:' | grep . | 
+    grep -F -v 'Warning:' | grep . | 
     grep -v "Starting pm.*"  # don't fuss about what pcp daemons are default-on 
 }
 
@@ -87,7 +87,7 @@ if [ "$numval" -lt 0 ]
 then
     echo "Arrgh ... PMDA is not well!"
     pminfo -f systemd
-    ps "$PCP_PS_ALL_FLAGS" | egrep "[p]m[cd]|[P]ID"
+    ps "$PCP_PS_ALL_FLAGS" | grep -E "[p]m[cd]|[P]ID"
     echo "=== PMDA's log ==="
     cat $PCP_LOG_DIR/pmcd/systemd.log
     echo "=== ==="

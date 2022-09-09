@@ -136,7 +136,7 @@ do
 	    ;;
 
 	*.c|*.h|*.cpp|*.cxx|*.in|*.y|*.l|*.xs|*.[1-8]|*.xml|${topdir}qa/[0-9]*|*.install)
-	    if egrep "$from_pat" $file >/dev/null
+	    if grep -E "$from_pat" $file >/dev/null
 	    then
 		echo >&2 "$file:"
 		# TODO
@@ -181,7 +181,7 @@ then
     fi
     if $showme
     then
-	egrep "[^a-zA-Z0-9_]($from|$to)[^a-zA-Z0-9_]" <$tmp.tmp >$tmp.out
+	grep -E "[^a-zA-Z0-9_]($from|$to)[^a-zA-Z0-9_]" <$tmp.tmp >$tmp.out
 	if [ -s $tmp.out ]
 	then
 	    echo >&2 "details from deprecated.h:"
@@ -228,7 +228,7 @@ do
 	fi
 	if $showme
 	then
-	    egrep "[^a-zA-Z0-9_]($from|$to)[^a-zA-Z0-9_]" <$tmp.tmp >$tmp.out
+	    grep -E "[^a-zA-Z0-9_]($from|$to)[^a-zA-Z0-9_]" <$tmp.tmp >$tmp.out
 	    if [ -s $tmp.out ]
 	    then
 		echo >&2 "details from $inc:"

@@ -22,7 +22,7 @@
 #
 # Because the <whatami-RE> field is used with egrep, one needs to
 # (backslash) escape both [ and ( when a literal match is needed ... (none
-# of the other special egrep RE characters appear in the whatami output).
+# of the other special grep -E RE characters appear in the whatami output).
 #
 # Typical whatami output looks like:
 # bozo                6.0.0    x86_64  Ubuntu 20.04 (focal) [kernel=5.4.0 py=3.8.10 se=none]

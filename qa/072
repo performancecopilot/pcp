@@ -80,7 +80,7 @@ do
     echo "pmdumplog:" >>$seq.full
     pmdumplog $tmp 2>&1 \
     | tee -a $seq.full \
-    | egrep 'disk\.|network\.' \
+    | grep -E 'disk\.|network\.' \
     | _filter \
     | LC_COLLATE=POSIX sort
 done

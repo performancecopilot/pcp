@@ -52,8 +52,8 @@ s/\n */ /g
     #    Data Type: 64-bit unsigned int  InDom: 60.5 0xf000005
     # PMID: 11.30.0 (quota.state.project.accounting)
     #    Data Type: 32-bit unsigned int  InDom: 11.5 0x2c00005
-    egrep 'filesys.free|quota.state.project.accounting' $tmp.1 >$tmp.1a
-    egrep 'filesys.free|quota.state.project.accounting' $tmp.2 >$tmp.2a
+    grep -E 'filesys.free|quota.state.project.accounting' $tmp.1 >$tmp.1a
+    grep -E 'filesys.free|quota.state.project.accounting' $tmp.2 >$tmp.2a
     diff $tmp.1a $tmp.2a
     sed -e 's/PMID: 60\./XX./g' -e 's/PMID: 11\./XX./g' \
         -e '/InDom:/{

@@ -18,8 +18,8 @@ trap "exit \$status" 0 1 2 3 15
 
 _filter()
 {
-fgrep "One-line or help text is not available" |\
-   egrep -v "^irix\.|^hw\.|^hinv\.|^mmv\."
+grep -F "One-line or help text is not available" |\
+   grep -E -v "^irix\.|^hw\.|^hinv\.|^mmv\."
 }
 
 # real QA test starts here

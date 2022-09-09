@@ -103,7 +103,7 @@ then
 fi
 
 echo "inst=$inst" >>$seq.full
-ps $PCP_PS_ALL_FLAGS | egrep "PID|$inst" >>$seq.full
+ps $PCP_PS_ALL_FLAGS | grep -E "PID|$inst" >>$seq.full
 
 cat <<end-of-file >$tmp.conf
 log advisory on once { proc.psinfo.ppid[$inst] }
@@ -167,7 +167,7 @@ log advisory on once { proc.psinfo.ppid[$inst] }
 end-of-file
 
 echo "inst=$inst" >>$seq.full
-ssh -q pcpqa@$host1 ps -e | egrep "PID|$inst" >>$seq.full
+ssh -q pcpqa@$host1 ps -e | grep -E "PID|$inst" >>$seq.full
 echo "=== pmlogger config ===" >>$seq.full
 cat $tmp.conf >>$seq.full
 
@@ -238,7 +238,7 @@ log advisory on once { proc.psinfo.ppid[$inst] }
 end-of-file
 
 echo "inst=$inst" >>$seq.full
-ssh -q pcpqa@$host2 ps -e | egrep "PID|$inst" >>$seq.full
+ssh -q pcpqa@$host2 ps -e | grep -E "PID|$inst" >>$seq.full
 echo "=== pmlogger config ===" >>$seq.full
 cat $tmp.conf >>$seq.full
 

@@ -335,7 +335,7 @@ Options:
   -V,--verbose            verbose output (multiple times for very verbose)
   -x=TIME,--compress-after=TIME  compress archive data files after TIME (format DD[:HH[:MM]])
   -X=PROGRAM,--compressor=PROGRAM  use PROGRAM for archive data file compression
-  -Y=REGEX,--regex=REGEX  egrep filter when compressing files ["$COMPRESSREGEX_DEFAULT"]
+  -Y=REGEX,--regex=REGEX  grep -E filter when compressing files ["$COMPRESSREGEX_DEFAULT"]
   -Z                      QA mode, force pmlogger re-exec
   -z                      QA mode, do not re-exec pmlogger
   --help
@@ -1351,7 +1351,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		then
 		    echo >&2 "primary pmlogger process PID not found"
 		    ls >&2 -l "$PCP_TMP_DIR/pmlogger"
-		    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep >&2 '[P]ID|[p]mlogger'
+		    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E >&2 '[P]ID|[p]mlogger'
 		fi
 	    elif _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
 	    then
@@ -1818,7 +1818,7 @@ p
 			find . -type f -mtime +$mtime
 		    fi \
 		    | _filter_filename \
-		    | egrep -v "$COMPRESSREGEX" \
+		    | grep -E -v "$COMPRESSREGEX" \
 		    | sort >$tmp/list
 		    if [ -s $tmp/list -a -n "$current_base" -a -n "$current_vol" ]
 		    then
@@ -1836,7 +1836,7 @@ p
 			# ...DDMM.HH.MM-seq# variants to get the base name
 			# separated from the other part of the file name, but
 			# on the upside compressed file names were stripped out
-			# above by the egrep -v "$COMPRESSREGEX"
+			# above by the grep -E -v "$COMPRESSREGEX"
 			#
 			sed -n <$tmp/list \
 			    -e '/\./s/\.\([^.][^.]*\)$/ \1/p' \

@@ -82,7 +82,7 @@ else
     cat $tmp.out
 fi
 cat $tmp.info $tmp.err
-if pminfo -b 10000000 -fd `pminfo openmetrics | fgrep -v .control | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
+if pminfo -b 10000000 -fd `pminfo openmetrics | grep -F -v .control | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
    then
     echo "Fetch and desc openmetrics metrics: success"
     cat $tmp.info

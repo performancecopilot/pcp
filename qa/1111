@@ -53,11 +53,11 @@ p2ipid=$!
 sleep 3
 $signal $pid $p2ipid 2>/dev/null
 wait
-egrep -q "^POST \/write\?db=roar" $tmp.socat.out
+grep -E -q "^POST \/write\?db=roar" $tmp.socat.out
 [ $? -eq 0 ] && echo "Found POST URL in noauth output"
-egrep -q "hinv_ncpu value=[0-9]+(\.[0-9]+)? [0-9]+$" $tmp.socat.out
+grep -E -q "hinv_ncpu value=[0-9]+(\.[0-9]+)? [0-9]+$" $tmp.socat.out
 [ $? -eq 0 ] && echo "Found proper metric body in noauth output"
-egrep -q "sample_control value=0 [0-9]+$" $tmp.socat.out
+grep -E -q "sample_control value=0 [0-9]+$" $tmp.socat.out
 [ $? -eq 0 ] && echo "Found correct zero value in noauth output"
 _full_stash
 
@@ -71,9 +71,9 @@ p2ipid=$!
 sleep 3
 $signal $pid $p2ipid 2>/dev/null
 wait
-egrep -q "^POST \/write\?db=roar" $tmp.socat.out
+grep -E -q "^POST \/write\?db=roar" $tmp.socat.out
 [ $? -eq 0 ] && echo "Found POST URL in noauth output"
-egrep -q "hinv_ncpu,host=me\.example\.com value=[0-9]+(\.[0-9]+)? [0-9]+$" $tmp.socat.out
+grep -E -q "hinv_ncpu,host=me\.example\.com value=[0-9]+(\.[0-9]+)? [0-9]+$" $tmp.socat.out
 [ $? -eq 0 ] && echo "Found proper metric body in noauth output"
 _full_stash
 
@@ -88,11 +88,11 @@ p2ipid=$!
 sleep 3
 $signal $pid $p2ipid 2>/dev/null
 wait
-egrep -q "^POST \/write\?db=roar" $tmp.socat.out
+grep -E -q "^POST \/write\?db=roar" $tmp.socat.out
 [ $? -eq 0 ] && echo "Found POST URL in output"
-egrep -q "Authorization: Basic cGNwOmhleQ==" $tmp.socat.out
+grep -E -q "Authorization: Basic cGNwOmhleQ==" $tmp.socat.out
 [ $? -eq 0 ] && echo "Found auth data in HTTP request"
-egrep -q "hinv_ncpu,host=me\.example\.com value=[0-9]+(\.[0-9]+)? [0-9]+$" $tmp.socat.out
+grep -E -q "hinv_ncpu,host=me\.example\.com value=[0-9]+(\.[0-9]+)? [0-9]+$" $tmp.socat.out
 [ $? -eq 0 ] && echo "Found proper metric body in output"
 _full_stash
 
