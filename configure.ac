@@ -167,7 +167,7 @@ AC_ARG_WITH([pmdabpf-llvm-strip],
 
 AC_ARG_WITH([pmdabpf-bpftool],
     [AC_HELP_STRING([--with-pmdabpf-bpftool],
-                    [path to bpftool (default is empty for auto discovery)])],
+                    [path to bpftool (default is empty to build)])],
     [PMDABPF_BPFTOOL=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpf-bpftool=$withval"],
     [PMDABPF_BPFTOOL=''])
 
@@ -1216,9 +1216,18 @@ fi
 pmdabpf_llvm_strip=$PMDABPF_LLVM_STRIP
 AC_SUBST(pmdabpf_llvm_strip)
 
-dnl Auto-discover bpftool if not provided by the user
+dnl Build bpftool if not provided by the user
 if test -z "$PMDABPF_BPFTOOL"; then
-    AC_PATH_PROG(PMDABPF_BPFTOOL, bpftool)
+    if $have_libelf; then
+        AC_MSG_NOTICE([generating bpftool])
+        make -C vendor/github.com/libbpf/bpftool/src
+        PMDABPF_BPFTOOL=`realpath vendor/github.com/libbpf/bpftool/src/bpftool`
+        AC_MSG_NOTICE([using bpftool at $PMDABPF_BPFTOOL])
+    else
+        AC_MSG_NOTICE([bpftool not built because libelf not found, please use --with-pmdabpf-bpftool to specify bpftool])
+    fi
+else
+    AC_MSG_NOTICE([using bpftool at $PMDABPF_BPFTOOL])
 fi
 pmdabpf_bpftool=$PMDABPF_BPFTOOL
 AC_SUBST(pmdabpf_bpftool)
