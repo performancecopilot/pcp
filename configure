@@ -14042,6 +14042,12 @@ then :
   printf "%s\n" "#define HAVE_FCHMOD 1" >>confdefs.h
 
 fi
+ac_fn_c_check_func "$LINENO" "fchown" "ac_cv_func_fchown"
+if test "x$ac_cv_func_fchown" = xyes
+then :
+  printf "%s\n" "#define HAVE_FCHOWN 1" >>confdefs.h
+
+fi
 ac_fn_c_check_func "$LINENO" "getcwd" "ac_cv_func_getcwd"
 if test "x$ac_cv_func_getcwd" = xyes
 then :
