@@ -865,7 +865,7 @@ QTFIX = sed -e 's/Makefile.new/Makefile/g' <Makefile.new | $(AWK) '$$1 == "LIBS"
 #
 QTMAKE = rm -f Makefile.new Makefile.fix; CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(QMAKE) -o Makefile.new CONFIG+=$(QT_RELEASE) && $(QTFIX) && ( if [ -f Makefile ]; then if diff Makefile Makefile.fix >/dev/null; then :; else rm -f Makefile; mv Makefile.fix Makefile; fi; else mv Makefile.fix Makefile; fi ); rm -f Makefile.new Makefile.fix; $(MAKE) $(MAKEOPTS) -f Makefile
 else
-# Windows and Max platforms:
+# Windows and Mac platforms:
 QTMAKE = CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(QMAKE) CONFIG+=$(QT_RELEASE) && $(MAKE) $(MAKEOPTS) -f Makefile
 ifeq ($(PCP_PLATFORM),darwin)
 MACBUILD = build/$(QT_RELEASE)/$(COMMAND).app/Contents
