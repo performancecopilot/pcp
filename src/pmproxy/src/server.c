@@ -317,6 +317,18 @@ on_write_callback(uv_callback_t *handle, void *data)
     struct client		*client = (struct client *)request->writer.data;
     int				sts;
 
+    /*
+     * client_write() checks if the client is opened, and calls uv_callback_fire(&proxy->write_callbacks, ...).
+     * In a later loop iteration, on_write_callback() is called and tries to write to the client.
+     * However, the client can be closed between the call to uv_callback_fire() and the actual on_write_callback() callback.
+     * Therefore we need to check this condition again.
+     */
+    if (client_is_closed(client)) {
+	/* release lock of client_write */
+	client_put(client);
+	return 0;
+    }
+
     (void)handle;
     if (pmDebugOptions.af)
 	fprintf(stderr, "%s: client=%p\n", "on_write_callback", client);
@@ -332,6 +344,9 @@ on_write_callback(uv_callback_t *handle, void *data)
 	}
     } else
 	secure_client_write(client, request);
+
+    /* release lock of client_write */
+    client_put(client);
     return 0;
 }
 
@@ -360,6 +375,8 @@ client_write(struct client *client, sds buffer, sds suffix)
 	request->writer.data = client;
 	request->callback = on_client_write;
 
+	/* client must not get freed while waiting for the write callback to fire */
+	client_get(client);
 	uv_callback_fire(&proxy->write_callbacks, request, NULL);
     } else {
 	client_close(client);
