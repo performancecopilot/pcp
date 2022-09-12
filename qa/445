@@ -116,7 +116,7 @@ sleep 15
 
 for log in ${TRACELOG}?
 do
-    fgrep "Address already in use" <$log >/dev/null 2>&1
+    grep -F "Address already in use" <$log >/dev/null 2>&1
     status=$?
     if [ $status -eq 0 ]
     then

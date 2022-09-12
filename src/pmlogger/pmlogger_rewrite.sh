@@ -132,7 +132,7 @@ do
 	# crude filter here ... more precise filtering later on
 	#
 	find "$try" -type f \
-	| egrep '(\.meta|\.index|\.[0-9][0-9]*)($|(\.xz|\.lzma|\.bz2|\.bz|\.gz|\.Z|\.z)$)' >>$tmp/args
+	| grep -E '(\.meta|\.index|\.[0-9][0-9]*)($|(\.xz|\.lzma|\.bz2|\.bz|\.gz|\.Z|\.z)$)' >>$tmp/args
     else
 	echo "$try" >>$tmp/args
     fi

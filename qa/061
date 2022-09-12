@@ -54,9 +54,9 @@ s/posn=[0-9]*/posn=NNN/g
     # is not deterministic, so deal with that ...
     # Ditto for the control_req: line
     #
-    egrep -v '^(check_local_creds|control_req):' <$tmp.tmp
+    grep -E -v '^(check_local_creds|control_req):' <$tmp.tmp
     echo "..."
-    egrep '^(check_local_creds|control_req):' <$tmp.tmp \
+    grep -E '^(check_local_creds|control_req):' <$tmp.tmp \
     | LC_COLLATE=POSIX sort
 }
 

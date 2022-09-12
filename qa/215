@@ -40,7 +40,7 @@ _interrupt()
 
 _filter()
 {
-    egrep '(Rconnect direct)|(debug)|(value)|(^[ 0-9]*$)' \
+    grep -E '(Rconnect direct)|(debug)|(value)|(^[ 0-9]*$)' \
 	| sed -e 's/ret=0,.*/no error/' \
 	| sed -e 's/discrete instantaneous/DISCRETE or INSTANTANEOUS/' \
 	| sed -e 's/instantaneous/DISCRETE or INSTANTANEOUS/'

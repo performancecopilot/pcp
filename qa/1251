@@ -85,7 +85,7 @@ fi
 
 # real QA test starts here
 cat <<'End-of-File' | sed -e '/^#/d' -e '/^[ 	]*$/d' | while read sect key altname pat
-# section	keyword	altname	egrep for text in man page
+# section	keyword	altname	grep -E for text in man page
 # for keyword, avoid case aliasing (different man's have different rules)
 # and use (one of) the .SH NAME names
 #
@@ -147,11 +147,11 @@ do
     if [ -s $tmp.out ]
     then
 	tr '[A-Z]' '[a-z'] <$tmp.out >$tmp.tmp
-	if egrep "^$lc_key *\($sect" $tmp.tmp >/dev/null
+	if grep -E "^$lc_key *\($sect" $tmp.tmp >/dev/null
 	then
 	    # matching simple entry found from man -k
 	    :
-	elif [ X"$altname" != X- ] && egrep "^$lc_altname *\($sect" $tmp.tmp >/dev/null
+	elif [ X"$altname" != X- ] && grep -E "^$lc_altname *\($sect" $tmp.tmp >/dev/null
 	then
 	    # matching altname entry found from man -k ... needed for
 	    # *BSD where man -k is really apropos and *BSD apropos does
@@ -206,7 +206,7 @@ do
     echo "--- ($sect) ---" | tee -a $seq.full
     TERM=dumb LANG=POSIX LC_MESSAGES=POSIX man $sect $key 2>&1 \
     | sed -e 's/_//g' -e 's/.//g' -e 's/[ 	][ 	]*/ /g' >$tmp.out
-    if egrep "$pat" $tmp.out >/dev/null
+    if grep -E "$pat" $tmp.out >/dev/null
     then
 	echo OK
     else

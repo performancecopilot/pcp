@@ -20,7 +20,7 @@ CMDTARGET = pmlogconf$(EXECSUFFIX)
 DISTARGET = $(PCP_BIN_DIR)/$(CMDTARGET)
 CFILES = util.c pmlogconf.c pmrepconf.c
 NFILES = util.h pmlogconf.h
-LLDLIBS = $(PCPLIB)
+LLDLIBS = $(PCPLIB) $(LIB_FOR_REGEX)
 LDIRT = pmrepconf
 
 SUBDIRS = \

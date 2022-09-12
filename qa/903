@@ -36,7 +36,7 @@ do
     do
 	echo "--- $o ---" >>$here/$seq.full
 	cat $o >>$here/$seq.full
-	egrep -v 'include|exclude| numpmid=1 ' <$o \
+	grep -E -v 'include|exclude| numpmid=1 ' <$o \
 	| sed -e 's/^\[[0-4]]/[x]/' \
 	| LC_COLLATE=posix sort
     done

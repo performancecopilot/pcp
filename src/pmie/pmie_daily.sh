@@ -123,7 +123,7 @@ Options:
   -V,--verbose            verbose output (multiple times for very verbose)
   -x=N,--compress-after=N  compress pmie log files after N days
   -X=PROGRAM,--compressor=PROGRAM  use PROGRAM for pmie log file compression
-  -Y=REGEX,--regex=REGEX  egrep filter when compressing files ["$COMPRESSREGEX"]
+  -Y=REGEX,--regex=REGEX  grep -E filter when compressing files ["$COMPRESSREGEX"]
   --help
 EOF
 
@@ -561,7 +561,7 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	#
 	if [ ! -z "$COMPRESSAFTER" ]
 	then
-	    _date_filter $COMPRESSAFTER | egrep -v "$COMPRESSREGEX" >$tmp/list
+	    _date_filter $COMPRESSAFTER | grep -E -v "$COMPRESSREGEX" >$tmp/list
 	    if [ -s $tmp/list ]
 	    then
 		if $VERBOSE
@@ -596,17 +596,17 @@ then
     do
 	[ -f $logfile ] && logs="$logs $logfile"
     done
-    egrep -v '( OK | OK$|^$|^Log |^pmie: PID)' $logs > $tmp/logmail
+    grep -E -v '( OK | OK$|^$|^Log |^pmie: PID)' $logs > $tmp/logmail
     if [ ! -s "$tmp/logmail" ]
     then
 	:
     elif [ ! -z "$MAIL" ]
     then
-	egrep -v '( OK | OK$|^$)' $logs | \
+	grep -E -v '( OK | OK$|^$)' $logs | \
 	    $MAIL -s "PMIE summary for $LOCALHOSTNAME" $MAILME
     else
 	echo "$prog: PMIE summary for $LOCALHOSTNAME ..."
-	egrep -v '( OK | OK$|^$)' $logs
+	grep -E -v '( OK | OK$|^$)' $logs
     fi
     rm -f $tmp/mail $tmp/logmail
 fi

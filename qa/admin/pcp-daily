@@ -188,7 +188,7 @@ then
     cp VERSION.pcp VERSION.pcp.daily
 else
     diff VERSION.pcp VERSION.pcp.daily >$tmp.tmp
-    if egrep 'PACKAGE_MAJOR|PACKAGE_MINOR|PACKAGE_REVISION' <$tmp.tmp >/dev/null
+    if grep -E 'PACKAGE_MAJOR|PACKAGE_MINOR|PACKAGE_REVISION' <$tmp.tmp >/dev/null
     then
 	# different PCP release, do an initial build
 	cp VERSION.pcp VERSION.pcp.daily

@@ -1,5 +1,5 @@
-#include "hiredis_cluster/adapters/libevent.h"
-#include "hiredis_cluster/hircluster.h"
+#include <hiredis_cluster/adapters/libevent.h>
+#include <hiredis_cluster/hircluster.h>
 #include <stdio.h>
 #include <stdlib.h>
 

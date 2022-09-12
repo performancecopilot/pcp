@@ -43,8 +43,8 @@ pmdapodman_install()
 
 _filter()
 {
-    #egrep "^podman|$pod1|$pod2|$container1|$container2" | \
-    egrep "^podman|$container1|$container2" | \
+    #grep -E "^podman|$pod1|$pod2|$container1|$container2" | \
+    grep -E "^podman|$container1|$container2" | \
     sed \
 	-e "s/$container1/CONTAINER/g" \
 	-e "s/$container2/CONTAINER/g" \

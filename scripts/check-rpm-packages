@@ -17,7 +17,7 @@ if [ ! -d pcp-$VER ]; then
 fi
 
 for rpm in pcp-$VER/build/rpm/*.rpm; do
-  echo $rpm | egrep -qs 'debuginfo|debugsource|src\.rpm' && continue
+  echo $rpm | grep -E -qs 'debuginfo|debugsource|src\.rpm' && continue
   pkg=`basename $rpm`
   basepkg=`echo $pkg | sed -e '/src.rpm/d' -e "s/-$VER.*.rpm//"`
   fc_pkg=`echo ~/rpmbuild/RPMS/*/$basepkg-$VER-[0-9]*.fc*.*.rpm`

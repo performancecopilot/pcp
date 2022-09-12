@@ -49,8 +49,6 @@ Source2: %{pcp_git_url}/main/debian/pcp.sysusers
 %endif
 %endif
 
-%global disable_podman 0
-
 # libchan, libhdr_histogram and pmdastatsd
 %if 0%{?fedora} >= 29 || 0%{?rhel} > 7
 %global disable_statsd 0
@@ -363,12 +361,6 @@ Requires: pcp-selinux = %{version}-%{release}
 %global _with_perfevent --with-perfevent=yes
 %endif
 
-%if %{disable_podman}
-%global _with_podman --with-podman=no
-%else
-%global _with_podman --with-podman=yes
-%endif
-
 %if %{disable_statsd}
 %global _with_statsd --with-pmdastatsd=no
 %else
@@ -549,10 +541,7 @@ Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart
 Requires: pcp-pmda-hacluster pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-denki pcp-pmda-docker pcp-pmda-bind2
-Requires: pcp-pmda-sockets
-%if !%{disable_podman}
-Requires: pcp-pmda-podman
-%endif
+Requires: pcp-pmda-sockets pcp-pmda-podman
 %if !%{disable_statsd}
 Requires: pcp-pmda-statsd
 %endif
@@ -913,7 +902,6 @@ Performance Co-Pilot (PCP) front-end tools for exporting metric values
 to the Zabbix (https://www.zabbix.org/) monitoring software.
 %endif
 
-%if !%{disable_podman}
 #
 # pcp-pmda-podman
 #
@@ -926,7 +914,6 @@ Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 %description pmda-podman
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting podman container and pod statistics via the podman REST API.
-%endif
 
 %if !%{disable_statsd}
 #
@@ -2316,7 +2303,7 @@ sed -i "/PACKAGE_BUILD/s/=[0-9]*/=$_build/" VERSION.pcp
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_podman} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpf} %{?_with_bpftrace} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_python2}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpf} %{?_with_bpftrace} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_python2}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -2747,10 +2734,8 @@ exit 0
 %{pmda_remove "$1" "perfevent"}
 %endif
 
-%if !%{disable_podman}
 %preun pmda-podman
 %{pmda_remove "$1" "podman"}
-%endif
 
 %if !%{disable_statsd}
 %preun pmda-statsd
@@ -3123,9 +3108,7 @@ PCP_LOG_DIR=%{_logsdir}
 %files pmda-infiniband -f pcp-pmda-infiniband-files.rpm
 %endif
 
-%if !%{disable_podman}
 %files pmda-podman -f pcp-pmda-podman-files.rpm
-%endif
 
 %if !%{disable_statsd}
 %files pmda-statsd -f pcp-pmda-statsd-files.rpm

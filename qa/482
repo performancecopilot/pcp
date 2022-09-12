@@ -96,10 +96,10 @@ echo
 echo "=== testing instanteous metric value distribution ==="
 nbins=3
 _xtract sample.scale_step.time_up_nanosecs | _noncounter_values > $tmp.noncount
-eval `fgrep COUNT $tmp.noncount`
+eval `grep -F COUNT $tmp.noncount`
 #echo count=$COUNT maximum=$MAX minimum=$MIN
 $PCP_ECHO_PROG $PCP_ECHO_N "QA calculates: ""$PCP_ECHO_C"
-fgrep -v COUNT $tmp.noncount | _dobinning $nbins $MIN $MAX
+grep -F -v COUNT $tmp.noncount | _dobinning $nbins $MIN $MAX
 
 $PCP_ECHO_PROG $PCP_ECHO_N "pmlogsummary calculates: ""$PCP_ECHO_C"
 pmlogsummary -ymMB $nbins archives/binning sample.scale_step.time_up_nanosecs \
@@ -109,13 +109,13 @@ echo
 echo "=== testing counter metric value distribution ==="
 nbins=4
 _xtract sample.milliseconds | _counter_values > $tmp.count
-eval `fgrep COUNT $tmp.count`
+eval `grep -F COUNT $tmp.count`
 #echo count=$COUNT maximum=$MAX minimum=$MIN
 $PCP_ECHO_PROG $PCP_ECHO_N "QA calculates: ""$PCP_ECHO_C"
-fgrep -v COUNT $tmp.count | _dobinning $nbins $MIN $MAX
+grep -F -v COUNT $tmp.count | _dobinning $nbins $MIN $MAX
 
 $PCP_ECHO_PROG $PCP_ECHO_N "pmlogsummary calculates: ""$PCP_ECHO_C"
-pmlogsummary -ymMB $nbins archives/binning | fgrep sample.milliseconds \
+pmlogsummary -ymMB $nbins archives/binning | grep -F sample.milliseconds \
 	| _filterbins $nbins
 
 # misc checks

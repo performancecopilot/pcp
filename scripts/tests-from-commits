@@ -16,13 +16,13 @@ _hunt_qa()
 
     cd $topdir/qa
 
-    # use the file name to produce an egrep pattern ($_pat) to be
+    # use the file name to produce an grep -E pattern ($_pat) to be
     # used to search in the QA tests ... to skip the file name, don't
     # set $_pat
     # - use .meta as the representative for each archive, skip the
     #   .index and .N files
     # for some special cases, e.g. archives, they are used but not
-    # named in QA tests, so egrep won't help ... set $_tests to a
+    # named in QA tests, so grep -E won't help ... set $_tests to a
     # list of QA tests in this case
     #
     _pat=''
@@ -372,7 +372,7 @@ _hunt_qa()
 
     if [ -n "$_pat" ]
     then
-	egrep -l "$_pat" [0-9][0-9][0-9] [0-9][0-9][0-9][0-9] >$tmp.tmp
+	grep -E -l "$_pat" [0-9][0-9][0-9] [0-9][0-9][0-9][0-9] >$tmp.tmp
 	if [ -s $tmp.tmp ]
 	then
 	    cat $tmp.tmp

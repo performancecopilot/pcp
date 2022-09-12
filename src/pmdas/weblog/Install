@@ -135,7 +135,7 @@ regex_posix WU_FTP_err - failed login
 
 _parse_server()
 {
-    egrep "^server" | $PCP_AWK_PROG '
+    grep -E "^server" | $PCP_AWK_PROG '
 	{ i=index($2, ":");
 	  if (i == 0) {
 	    name = $2;
@@ -157,7 +157,7 @@ _default_config ()
     touch $__tmp.conf
     _defaultRegex $__tmp.conf
     ./server.sh -q -l $__tmp.conf
-    egrep "^server" $__tmp.conf > /dev/null 2>&1
+    grep -E "^server" $__tmp.conf > /dev/null 2>&1
     _st=$?
     if [ $_st -eq 0 ] 
     then
@@ -242,7 +242,7 @@ else
 	if [ -f "$configFile" ]
 	then
 	    if [ $PCP_PLATFORM = linux ] && \
-		egrep '^regex ' $configFile > /dev/null
+		grep -E '^regex ' $configFile > /dev/null
 	    then
 		echo "Warning: previous configuration file \"$configFile\""
 		echo "         appears to be an incompatible version."
@@ -351,7 +351,7 @@ else
 	    touch $__tmp.conf
 	    _defaultRegex $__tmp.conf
 	    ./server.sh -l $__tmp.conf
-	    if egrep "^server" $__tmp.conf > /dev/null 2>&1
+	    if grep -E "^server" $__tmp.conf > /dev/null 2>&1
 	    then
 		echo
 		echo "This is a possible configuration file for your system:"
@@ -503,7 +503,7 @@ else
 	    accessRegex=""
 	    while [ "X$accessRegex" = X ]
 	    do
-		if egrep "^regex_posix CERN " $configFile > /dev/null 2>&1
+		if grep -E "^regex_posix CERN " $configFile > /dev/null 2>&1
 		then
 		    $PCP_ECHO_PROG $PCP_ECHO_N "The regex for the access log [CERN]: ""$PCP_ECHO_C"
 		    accessRegex="CERN"
@@ -518,7 +518,7 @@ else
 		fi
 		if [ "X$accessRegex" != X ]
 		then
-		    if egrep "^regex_posix $accessRegex " $configFile > /dev/null 2>&1
+		    if grep -E "^regex_posix $accessRegex " $configFile > /dev/null 2>&1
 		    then
 			:
 		    else
@@ -532,7 +532,7 @@ else
 	    errorRegex=""
 	    while [ "X$errorRegex" = X ]
 	    do
-		if egrep "^regex_posix CERN_err " $configFile > /dev/null 2>&1
+		if grep -E "^regex_posix CERN_err " $configFile > /dev/null 2>&1
 		then
 		    $PCP_ECHO_PROG $PCP_ECHO_N "The regex for the error log [CERN_err]: ""$PCP_ECHO_C"
 		    errorRegex="CERN_err"
@@ -547,7 +547,7 @@ else
 		fi
 		if [ "X$errorRegex" != X ]
 		then
-		    if egrep "^regex_posix $errorRegex " $configFile > /dev/null 2>&1
+		    if grep -E "^regex_posix $errorRegex " $configFile > /dev/null 2>&1
 		    then
 			:
 		    else

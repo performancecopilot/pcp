@@ -69,7 +69,7 @@ _fix()
 	-e '/^\*.* - insufficient archive data.$/'d \
 	-e '/^Note: timezone set to local timezone of host/d' \
 	-e '/^[ 	]*$/d' \
-    | egrep -v -f $tmp/exclude \
+    | grep -E -v -f $tmp/exclude \
     | sort -t'|' -k 1,1
 }
 

@@ -20,7 +20,7 @@ test -x /opt/mssql/bin/sqlservr || _notrun "Microsoft SQL Server not installed"
 test -d "$PCP_PMDAS_DIR/mssql" || _notrun "Microsoft SQL Server PMDA not installed"
 
 # extract username and password, check connection to SQL Server
-eval `$sudo egrep 'server=|username=|password=' "$PCP_PMDAS_DIR/mssql/mssql.conf"`
+eval `$sudo grep -E 'server=|username=|password=' "$PCP_PMDAS_DIR/mssql/mssql.conf"`
 if $sudo test -f /var/opt/mssql/secrets/assessment; then
     username=`$sudo head -1 /var/opt/mssql/secrets/assessment`
     password=`$sudo tail -1 /var/opt/mssql/secrets/assessment`

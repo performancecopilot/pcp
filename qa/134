@@ -129,7 +129,7 @@ $1 ~ /TIMESTAMP/ && NF == 4	{ print $1 "     " $2 "       OFFSET       OFFSET"; 
 _do_metrics()
 {
     echo "Metrics in archive:"
-    egrep 'sample|pmcd' \
+    grep -E 'sample|pmcd' \
     | sed -e 's/.*(//' -e 's/).*//' -e 's/^/    /'
 }
 

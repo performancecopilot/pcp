@@ -1217,7 +1217,7 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
 	    fprintf(f, " legend \"%s\"", (const char *)legend.toLatin1());
 	fprintf(f, " color %s", (const char *)cp->color(m).name().toLatin1());
 	if (hostDynamic == false) {
-	    char localHostname[HOST_NAME_MAX];
+	    char localHostname[MAXHOSTNAMELEN];
 	    QString host = cp->metricContext(m)->source().host();
 	    if (QString::compare(host, "local:") == 0 || QString::compare(host, "localhost") == 0) {
 		gethostname(localHostname, sizeof(localHostname));

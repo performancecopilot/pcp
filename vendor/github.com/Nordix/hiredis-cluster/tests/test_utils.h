@@ -70,3 +70,8 @@
     { assert(strncmp(_s1, _s2, strlen(_s2)) == 0); }
 
 #endif
+
+struct redisClusterContext;
+
+void load_redis_version(redisClusterContext *cc);
+int redis_version_less_than(int major, int minor);

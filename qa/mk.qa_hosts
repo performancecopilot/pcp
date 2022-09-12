@@ -48,7 +48,7 @@ rm -f qa_hosts
 grep "^#order" qa_hosts.primary \
 | while read tag pat recipe
 do
-    if echo $my_fqdn | fgrep "$pat" >/dev/null 2>&1
+    if echo $my_fqdn | grep -F "$pat" >/dev/null 2>&1
     then
 	trap "rm -f /tmp/$$; exit 1" 1 2 3 15
 
@@ -60,7 +60,7 @@ do
 	#
 	for sel in $recipe
 	do
-	    fgrep $sel /tmp/$$ \
+	    grep -F $sel /tmp/$$ \
 	    | $PCP_AWK_PROG '
 BEGIN	{ srand('$$') }
 	{ print 100*rand(),$0 }' \

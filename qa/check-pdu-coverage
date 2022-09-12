@@ -46,7 +46,7 @@ do
     esac
     for src in pdu-server.c pducheck.c pducrash.c
     do
-	if egrep "[ 	]$pat[;:) ]" src/$src >/dev/null
+	if grep -E "[ 	]$pat[;:) ]" src/$src >/dev/null
 	then
 	    :
 	else

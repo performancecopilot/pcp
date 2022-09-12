@@ -38,7 +38,7 @@ do
 
     cd ..
 
-    seqs=`egrep -l "src/$app( |$)" [0-9][0-9]*[0-9] | tr '\012' ' ' | sed -e 's/  *$//'`
+    seqs=`grep -E -l "src/$app( |$)" [0-9][0-9]*[0-9] | tr '\012' ' ' | sed -e 's/  *$//'`
 
     if [ -z "$seqs" ]
     then

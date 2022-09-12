@@ -33,7 +33,7 @@ _pminfo_value()
 {
     inst="$1"
 
-    fgrep " or \"$inst\"" | \
+    grep -F " or \"$inst\"" | \
     sed \
 	-e "s/^ *inst .* or \"$inst\". value //g" \
     #end

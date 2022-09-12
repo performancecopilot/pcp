@@ -794,7 +794,6 @@ enable_selinux
 SEINFO
 PMDA_POSTFIX
 QSHAPE
-PMDA_PODMAN
 PMDA_STATSD
 lib_for_chan
 lib_for_hdr_histogram
@@ -1090,7 +1089,6 @@ with_python3
 with_dstat_symlink
 with_perfevent
 with_pmdastatsd
-with_pmdapodman
 with_pmdabcc
 with_pmdabpf
 with_pmdabpf_clang
@@ -1835,7 +1833,6 @@ Optional Packages:
                           is on)
   --with-perfevent        enable perfevent pmda (default is on)
   --with-pmdastatsd       enable statds pmda (default is on)
-  --with-pmdapodman       enable podman pmda (default is on)
   --with-pmdabcc          enable BCC pmda (default is on)
   --with-pmdabpf          enable BPF pmda (default is on)
   --with-pmdabpf-clang    path to clang 10+ (default is empty for auto
@@ -3585,16 +3582,6 @@ then :
   withval=$with_pmdastatsd; do_pmdastatsd=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdastatsd=$withval"
 else $as_nop
   do_pmdastatsd=check
-fi
-
-
-
-# Check whether --with-pmdapodman was given.
-if test ${with_pmdapodman+y}
-then :
-  withval=$with_pmdapodman; do_pmdapodman=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdapodman=$withval"
-else $as_nop
-  do_pmdapodman=check
 fi
 
 
@@ -6932,10 +6919,10 @@ if test -n "$SYSTEMD_SYSUSERSDIR"; then
     pkg_cv_SYSTEMD_SYSUSERSDIR="$SYSTEMD_SYSUSERSDIR"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"systemd\""; } >&5
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"systemd\""; } >&5
   ($PKG_CONFIG --exists --print-errors "systemd") 2>&5
   ac_status=$?
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
   pkg_cv_SYSTEMD_SYSUSERSDIR=`$PKG_CONFIG --variable="sysusersdir" "systemd" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
@@ -6947,9 +6934,10 @@ fi
 fi
 SYSTEMD_SYSUSERSDIR=$pkg_cv_SYSTEMD_SYSUSERSDIR
 
-if test "x$SYSTEMD_SYSUSERSDIR" = x""; then :
+if test "x$SYSTEMD_SYSUSERSDIR" = x""
+then :
   pcp_systemdsysusers_dir=$pcp_lib32_dir/sysusers.d
-else
+else $as_nop
   pcp_systemdsysusers_dir=$SYSTEMD_SYSUSERSDIR
 fi
 
@@ -9464,10 +9452,10 @@ printf %s "checking for any perl version... " >&6; }
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $pcp_perl_prog" >&5
 printf "%s\n" "$pcp_perl_prog" >&6; }
 
+        if test "$have_perl" = true
+    then
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if ExtUtils::MakeMaker is installed" >&5
 printf %s "checking if ExtUtils::MakeMaker is installed... " >&6; }
-    if test "$have_perl" = true
-    then
         $pcp_perl_prog -e "use ExtUtils::MakeMaker" 2>/dev/null
         if test $? -eq 0
         then
@@ -13317,19 +13305,6 @@ if $pmda_statsd; then { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes"
 printf "%s\n" "yes" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }; fi
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the podman PMDA should be included" >&5
-printf %s "checking if the podman PMDA should be included... " >&6; }
-pmda_podman=true
-if test "x$do_pmdapodman" = "xno"
-then :
-  pmda_podman=false
-fi
-PMDA_PODMAN=$pmda_podman
-
-if $pmda_podman; then { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }; fi
-
 pmda_postfix=false
 for ac_prog in qshape
 do
@@ -13607,7 +13582,7 @@ then :
     && pcp_selinux_hostname_exec_map=true
 
     seinfo -x --class=bpf $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)bpf$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)bpf$' >/dev/null \
     && pcp_selinux_bpf=true
 
     seinfo -a 2>/dev/null \
@@ -13623,44 +13598,44 @@ then :
     && pcp_selinux_capability2_bpf=true
 
     seinfo -x --class=icmp_socket $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)icmp_socket$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)icmp_socket$' >/dev/null \
     && pcp_selinux_icmp_socket_class=true
 
     seinfo -x --class=lockdown $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)lockdown$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)lockdown$' >/dev/null \
     && pcp_selinux_lockdown_class=true
 
 
     seinfo -x --class=netlink_selinux_socket $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)netlink_selinux_socket$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)netlink_selinux_socket$' >/dev/null \
     && pcp_selinux_netlink_selinux_socket_class=true
 
     seinfo -x --class=netlink_audit_socket $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)netlink_audit_socket$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)netlink_audit_socket$' >/dev/null \
     && pcp_selinux_netlink_audit_socket_class=true
 
     seinfo -x --class=sock_file $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)sock_file$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)sock_file$' >/dev/null \
     && pcp_selinux_sock_file_class=true
 
     seinfo -x --class=security $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)security$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)security$' >/dev/null \
     && pcp_selinux_security_class=true
 
             seinfo -x --class=dir $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)dir$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)dir$' >/dev/null \
     && pcp_selinux_dir_class=true
 
     seinfo -x --class=rawip_socket $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)rawip_socket$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)rawip_socket$' >/dev/null \
     && pcp_selinux_rawip_socket_class=true
 
     seinfo -x --class=netlink_generic_socket $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)netlink_generic_socket$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)netlink_generic_socket$' >/dev/null \
     && pcp_selinux_netlink_generic_socket_class=true
 
     seinfo -x --class=netlink_tcpdiag_socket $seinfo_common_flag 2>/dev/null \
-    | egrep '^[ 	][ 	]*(class |)netlink_tcpdiag_socket$' >/dev/null \
+    | grep -E '^[ 	][ 	]*(class |)netlink_tcpdiag_socket$' >/dev/null \
     && pcp_selinux_netlink_tcpdiag_socket_class=true
 
 
@@ -14065,6 +14040,12 @@ ac_fn_c_check_func "$LINENO" "fchmod" "ac_cv_func_fchmod"
 if test "x$ac_cv_func_fchmod" = xyes
 then :
   printf "%s\n" "#define HAVE_FCHMOD 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "fchown" "ac_cv_func_fchown"
+if test "x$ac_cv_func_fchown" = xyes
+then :
+  printf "%s\n" "#define HAVE_FCHOWN 1" >>confdefs.h
 
 fi
 ac_fn_c_check_func "$LINENO" "getcwd" "ac_cv_func_getcwd"

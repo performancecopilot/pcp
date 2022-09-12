@@ -197,7 +197,7 @@ then
     	touch $tmp.chosen
         for i in $argInterfaces
     	do
-	    egrep $i $tmp.list >> $tmp.chosen
+	    grep -E $i $tmp.list >> $tmp.chosen
     	done
     fi
 

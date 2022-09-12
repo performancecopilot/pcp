@@ -158,11 +158,13 @@ void test_streams(redisClusterContext *cc) {
     CHECK_REPLY_OK(cc, reply);
     freeReplyObject(reply);
 
-    /* Create a consumer */
-    reply = redisClusterCommandToNode(
-        cc, node, "XGROUP CREATECONSUMER mystream mygroup1 myconsumer123");
-    CHECK_REPLY_INT(cc, reply, 1);
-    freeReplyObject(reply);
+    if (!redis_version_less_than(6, 2)) {
+        /* Create a consumer */
+        reply = redisClusterCommandToNode(
+            cc, node, "XGROUP CREATECONSUMER mystream mygroup1 myconsumer123");
+        CHECK_REPLY_INT(cc, reply, 1);
+        freeReplyObject(reply);
+    }
 
     /* Blocking read of consumer group */
     reply = redisClusterCommandToNode(cc, node,
@@ -272,6 +274,7 @@ void test_pipeline_transaction(redisClusterContext *cc) {
 typedef struct ExpectedResult {
     int type;
     char *str;
+    size_t elements;
     bool disconnect;
     bool noreply;
     char *errstr;
@@ -293,8 +296,22 @@ void commandCallback(redisClusterAsyncContext *cc, void *r, void *privdata) {
     } else {
         assert(reply != NULL);
         assert(reply->type == expect->type);
-        if (reply->type != REDIS_REPLY_INTEGER)
+        switch (reply->type) {
+        case REDIS_REPLY_ARRAY:
+            assert(reply->elements == expect->elements);
+            assert(reply->str == NULL);
+            break;
+        case REDIS_REPLY_INTEGER:
+            assert(reply->elements == 0);
+            assert(reply->str == NULL);
+            break;
+        case REDIS_REPLY_STATUS:
             assert(strcmp(reply->str, expect->str) == 0);
+            assert(reply->elements == 0);
+            break;
+        default:
+            assert(0);
+        }
     }
     if (expect->disconnect)
         redisClusterAsyncDisconnect(cc);
@@ -414,6 +431,54 @@ void test_async_to_all_nodes() {
     event_base_free(base);
 }
 
+void test_async_transaction() {
+    int status;
+
+    redisClusterAsyncContext *acc = redisClusterAsyncContextInit();
+    assert(acc);
+    redisClusterAsyncSetConnectCallback(acc, callbackExpectOk);
+    redisClusterAsyncSetDisconnectCallback(acc, callbackExpectOk);
+    redisClusterSetOptionAddNodes(acc->cc, CLUSTER_NODE);
+    redisClusterSetOptionMaxRetry(acc->cc, 1);
+    redisClusterSetOptionRouteUseSlots(acc->cc);
+    status = redisClusterConnect2(acc->cc);
+    ASSERT_MSG(status == REDIS_OK, acc->errstr);
+
+    struct event_base *base = event_base_new();
+    status = redisClusterLibeventAttach(acc, base);
+    assert(status == REDIS_OK);
+
+    cluster_node *node = redisClusterGetNodeByKey(acc->cc, "foo");
+    assert(node);
+
+    ExpectedResult r1 = {.type = REDIS_REPLY_STATUS, .str = "OK"};
+    status = redisClusterAsyncCommandToNode(acc, node, commandCallback, &r1,
+                                            "MULTI");
+    ASSERT_MSG(status == REDIS_OK, acc->errstr);
+
+    ExpectedResult r2 = {.type = REDIS_REPLY_STATUS, .str = "QUEUED"};
+    status = redisClusterAsyncCommandToNode(acc, node, commandCallback, &r2,
+                                            "SET foo 99");
+    ASSERT_MSG(status == REDIS_OK, acc->errstr);
+
+    ExpectedResult r3 = {.type = REDIS_REPLY_STATUS, .str = "QUEUED"};
+    status = redisClusterAsyncCommandToNode(acc, node, commandCallback, &r3,
+                                            "INCR foo");
+    ASSERT_MSG(status == REDIS_OK, acc->errstr);
+
+    /* The EXEC command will return an array with result from 2 queued commands. */
+    ExpectedResult r4 = {
+        .type = REDIS_REPLY_ARRAY, .elements = 2, .disconnect = true};
+    status = redisClusterAsyncCommandToNode(acc, node, commandCallback, &r4,
+                                            "EXEC ");
+    ASSERT_MSG(status == REDIS_OK, acc->errstr);
+
+    event_base_dispatch(base);
+
+    redisClusterAsyncFree(acc);
+    event_base_free(base);
+}
+
 int main() {
     int status;
 
@@ -424,6 +489,7 @@ int main() {
     redisClusterSetOptionMaxRetry(cc, 1);
     status = redisClusterConnect2(cc);
     ASSERT_MSG(status == REDIS_OK, cc->errstr);
+    load_redis_version(cc);
 
     // Synchronous API
     test_command_to_single_node(cc);
@@ -442,6 +508,7 @@ int main() {
     test_async_to_single_node();
     test_async_formatted_to_single_node();
     test_async_to_all_nodes();
+    test_async_transaction();
 
     return 0;
 }

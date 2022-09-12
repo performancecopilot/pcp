@@ -4,6 +4,7 @@
 
 #include "adapters/libevent.h"
 #include "hircluster.h"
+#include "hircluster_ssl.h"
 
 #define CLUSTER_NODE_TLS "127.0.0.1:7300"
 

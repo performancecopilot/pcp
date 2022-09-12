@@ -84,7 +84,7 @@ $signal $scpid $p2gpid >/dev/null 2>&1
 wait
 # python pickle-format 1+ is binary, and python version dependent to boot.
 # but pcp2graphite now uses ascii pickle-format 0 for maximum compatibility
-fgrep -q pcp.hinv.ncpu $tmp.socat.out
+grep -F -q pcp.hinv.ncpu $tmp.socat.out
 [ $? -eq 0 ] && echo "Found pcp.hinv.ncpu in pickled output"
 _full_stash
 
@@ -98,7 +98,7 @@ p2gpid=$!
 sleep 10 # 5sec startup + 5sec ... enough for at least 2 messages
 $signal $scpid $p2gpid >/dev/null 2>&1
 wait
-egrep 'foobar\.hinv\.ncpu|foobar\.sample\.datasize' $tmp.socat.out \
+grep -E 'foobar\.hinv\.ncpu|foobar\.sample\.datasize' $tmp.socat.out \
     | head -2 \
     | sed -e "s,\.ncpu $ncpu ,.ncpu NCPUS ," |    # confirm ncpus value
     sed -r -e 's, [0-9]+[02468]$, TIMESTAMP2,'  # confirm time alignment
@@ -185,7 +185,7 @@ $signal $scpid $p2gpid >/dev/null 2>&1
 wait
 # use same case 1 above approach for detecting something relevant
 # in the pickled output, and assume we have a successful transfer
-fgrep -q pcp.hinv.ncpu $tmp.socat.out
+grep -F -q pcp.hinv.ncpu $tmp.socat.out
 [ $? -eq 0 ] && echo "Found pcp.hinv.ncpu in highest versioned pickled output"
 _full_stash
 

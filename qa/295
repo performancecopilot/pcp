@@ -55,8 +55,8 @@ _filter_pmproxy()
 
 _check()
 {
-    connects=`egrep 'AcceptNewClient|accept new client' $tmp.log | wc -l`
-    disconnects=`egrep 'DeleteClient|connection closed' $tmp.log | wc -l`
+    connects=`grep -E 'AcceptNewClient|accept new client' $tmp.log | wc -l`
+    disconnects=`grep -E 'DeleteClient|connection closed' $tmp.log | wc -l`
     difference=`expr $connects - $disconnects`
     echo "N connects"
     echo "N-$difference disconnects"

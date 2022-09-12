@@ -48,7 +48,7 @@ default:	build-me
 
 include $(BUILDRULES)
 
-ifeq "$(PMDA_PODMAN)" "true"
+ifeq "$(TARGET_OS)" "linux"
 build-me: $(JSONSL_XFILES) $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
 
 install: default

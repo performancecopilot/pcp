@@ -221,7 +221,7 @@ do
 	ls -l `dirname $log`
 	cat ${log}.prev >>$seq.full
 	exit
-    elif [ `egrep '^Host access' $log | wc -l` = 2 ]
+    elif [ `grep -E '^Host access' $log | wc -l` = 2 ]
     then
 	break
     fi

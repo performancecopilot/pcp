@@ -99,7 +99,7 @@ _wait_for_pmlogger
 
 # time_sucker transaction sleeps for 10 secs - wait for this
 sleep 11
-vals=`pminfo -f trace.transact.count | fgrep 'No value(s) available!' | wc -l`
+vals=`pminfo -f trace.transact.count | grep -F 'No value(s) available!' | wc -l`
 if [ $vals -eq 1 ]
 then
     echo "Error: No value(s) available!"

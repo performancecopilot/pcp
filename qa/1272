@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1272
-# pmlogmv with egrep and sh meta chars in file names
+# pmlogmv with grep -E and sh meta chars in file names
 #
 # Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
 #

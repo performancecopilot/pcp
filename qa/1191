@@ -51,7 +51,7 @@ then
     exit
 fi
 
-if pminfo -dtTf `pminfo openmetrics | fgrep -v openmetrics.control | LC_COLLATE=POSIX sort` > $tmp.info 2> $tmp.err
+if pminfo -dtTf `pminfo openmetrics | grep -F -v openmetrics.control | LC_COLLATE=POSIX sort` > $tmp.info 2> $tmp.err
 then
     :
 else

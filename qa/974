@@ -47,7 +47,7 @@ do
     base=`basename $tgz`
 
     echo "== Extracting subtrees for later use - $base" | tee -a $seq.full
-    trees=`pminfo proc | awk -F. '{ print $2 }' | sort -u | egrep -v 'nproc'`
+    trees=`pminfo proc | awk -F. '{ print $2 }' | sort -u | grep -E -v 'nproc'`
     echo $trees >> $here/$seq.full
 
     echo "== Checking namespace and metric numbering - $base"

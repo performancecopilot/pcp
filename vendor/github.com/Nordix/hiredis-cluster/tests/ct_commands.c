@@ -1,5 +1,6 @@
 #include "hircluster.h"
 #include "test_utils.h"
+#include "win32.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,6 +28,33 @@ void test_exists(redisClusterContext *cc) {
 
     reply = (redisReply *)redisClusterCommand(cc, "EXISTS key1 key2 nosuchkey");
     CHECK_REPLY_INT(cc, reply, 2);
+    freeReplyObject(reply);
+}
+
+void test_bitfield(redisClusterContext *cc) {
+    redisReply *reply;
+
+    reply = (redisReply *)redisClusterCommand(
+        cc, "BITFIELD bkey1 SET u32 #0 255 GET u32 #0");
+    CHECK_REPLY_ARRAY(cc, reply, 2);
+    CHECK_REPLY_INT(cc, reply->element[1], 255);
+    freeReplyObject(reply);
+}
+
+void test_bitfield_ro(redisClusterContext *cc) {
+    if (redis_version_less_than(6, 0))
+        return; /* Skip test, command not available. */
+
+    redisReply *reply;
+
+    reply = (redisReply *)redisClusterCommand(cc, "SET bkey2 a"); // 97
+    CHECK_REPLY_OK(cc, reply);
+    freeReplyObject(reply);
+
+    reply =
+        (redisReply *)redisClusterCommand(cc, "BITFIELD_RO bkey2 GET u8 #0");
+    CHECK_REPLY_ARRAY(cc, reply, 1);
+    CHECK_REPLY_INT(cc, reply->element[0], 97);
     freeReplyObject(reply);
 }
 
@@ -131,11 +159,11 @@ void test_hset_hget_hdel_hexists(redisClusterContext *cc) {
     CHECK_REPLY_INT(cc, reply, 0); // no field
     freeReplyObject(reply);
 
-    // As of Redis 4.0.0, HSET is variadic i.e. multiple field/value,
-    // but this is currently not supported.
+    // Set multiple fields at once
     reply = (redisReply *)redisClusterCommand(
         cc, "HSET myhash field1 hsetvalue1 field2 hsetvalue2");
-    assert(reply == NULL);
+    CHECK_REPLY_INT(cc, reply, 2);
+    freeReplyObject(reply);
 }
 
 // Command layout:
@@ -190,15 +218,20 @@ void test_eval(redisClusterContext *cc) {
 
     reply = (redisReply *)redisClusterCommand(
         cc, "eval %s 1 %s", "return redis.call('get',KEYS[1])", "foo");
-    CHECK_REPLY_ERROR(cc, reply, "ERR Error running script");
+    if (redis_version_less_than(7, 0)) {
+        CHECK_REPLY_ERROR(cc, reply, "ERR Error running script");
+    } else {
+        CHECK_REPLY_ERROR(cc, reply, "WRONGTYPE");
+    }
     freeReplyObject(reply);
 
     // Two keys handled by different instances,
-    // will be retried multiple times and fail due to CROSSSLOT.
+    // will fail due to CROSSSLOT.
     reply = (redisReply *)redisClusterCommand(
         cc, "eval %s 2 %s %s %s %s", "return {KEYS[1],KEYS[2],ARGV[1],ARGV[2]}",
         "key1", "key2", "first", "second");
-    assert(reply == NULL);
+    CHECK_REPLY_ERROR(cc, reply, "CROSSSLOT");
+    freeReplyObject(reply);
 }
 
 void test_xack(redisClusterContext *cc) {
@@ -238,6 +271,9 @@ void test_xadd(redisClusterContext *cc) {
 }
 
 void test_xautoclaim(redisClusterContext *cc) {
+    if (redis_version_less_than(6, 2))
+        return; /* Skip test, command not available. */
+
     redisReply *r;
 
     r = redisClusterCommand(
@@ -301,10 +337,14 @@ void test_xgroup(redisClusterContext *cc) {
     CHECK_REPLY_ERROR(cc, r, "BUSYGROUP");
     freeReplyObject(r);
 
-    r = redisClusterCommand(
-        cc, "XGROUP CREATECONSUMER mystream consumer-group-name myconsumer123");
-    CHECK_REPLY_INT(cc, r, 1);
-    freeReplyObject(r);
+    if (!redis_version_less_than(6, 2)) {
+        /* Test of subcommand CREATECONSUMER when available. */
+        r = redisClusterCommand(
+            cc,
+            "XGROUP CREATECONSUMER mystream consumer-group-name myconsumer123");
+        CHECK_REPLY_INT(cc, r, 1);
+        freeReplyObject(r);
+    }
 
     r = redisClusterCommand(
         cc, "XGROUP DELCONSUMER mystream consumer-group-name myconsumer123");
@@ -331,10 +371,12 @@ void test_xinfo(redisClusterContext *cc) {
     CHECK_REPLY_TYPE(r, REDIS_REPLY_ARRAY);
     freeReplyObject(r);
 
-    /* Test of subcommand STREAM with arguments*/
-    r = redisClusterCommand(cc, "XINFO STREAM mystream FULL COUNT 1");
-    CHECK_REPLY_TYPE(r, REDIS_REPLY_ARRAY);
-    freeReplyObject(r);
+    if (!redis_version_less_than(6, 0)) {
+        /* Test of subcommand STREAM with arguments when available. */
+        r = redisClusterCommand(cc, "XINFO STREAM mystream FULL COUNT 1");
+        CHECK_REPLY_TYPE(r, REDIS_REPLY_ARRAY);
+        freeReplyObject(r);
+    }
 
     r = redisClusterCommand(cc, "XINFO GROUPS mystream");
     CHECK_REPLY_TYPE(r, REDIS_REPLY_ARRAY);
@@ -401,24 +443,40 @@ void test_xtrim(redisClusterContext *cc) {
     freeReplyObject(r);
 }
 
+void test_multi(redisClusterContext *cc) {
+
+    /* Since the slot lookup is currently not handled for this command
+     * the regular API is expected to fail. This command requires the
+     * ..ToNode() APIs for sending a command to a specific node.
+     * See ct_specific_nodes.c for these tests.
+     */
+
+    redisReply *r = redisClusterCommand(cc, "MULTI");
+    assert(r == NULL);
+}
+
 int main() {
     struct timeval timeout = {0, 500000};
 
     redisClusterContext *cc = redisClusterContextInit();
     assert(cc);
+
     redisClusterSetOptionAddNodes(cc, CLUSTER_NODE);
     redisClusterSetOptionConnectTimeout(cc, timeout);
 
     int status;
     status = redisClusterConnect2(cc);
     ASSERT_MSG(status == REDIS_OK, cc->errstr);
+    load_redis_version(cc);
 
-    test_exists(cc);
-    test_mset(cc);
-    test_mget(cc);
-    test_hset_hget_hdel_hexists(cc);
+    test_bitfield(cc);
+    test_bitfield_ro(cc);
     test_eval(cc);
-
+    test_exists(cc);
+    test_hset_hget_hdel_hexists(cc);
+    test_mget(cc);
+    test_mset(cc);
+    test_multi(cc);
     test_xack(cc);
     test_xadd(cc);
     test_xautoclaim(cc);

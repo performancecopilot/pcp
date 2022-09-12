@@ -337,14 +337,11 @@ Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
 Requires: pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
 Requires: pcp-pmda-lustrecomm pcp-pmda-docker pcp-pmda-smart
-Requires: pcp-pmda-hacluster pcp-pmda-sockets
+Requires: pcp-pmda-hacluster pcp-pmda-sockets pcp-pmda-podman
 %if "@have_python@" == "true"
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-haproxy pcp-pmda-nfsclient pcp-pmda-lmsensors
 Requires: pcp-pmda-netcheck pcp-pmda-rabbitmq pcp-pmda-openvswitch
-%endif
-%if "@pmda_podman@" == "true"
-Requires: pcp-pmda-podman
 %endif
 %if "@pmda_statsd@" == "true"
 Requires: pcp-pmda-statsd
@@ -962,7 +959,6 @@ but can also be configured to monitor remote GUIDs such as IB switches.
 #end pcp-pmda-infiniband
 %endif
 
-%if "@pmda_podman@" == "true"
 #
 # pcp-pmda-podman
 #
@@ -976,7 +972,6 @@ Requires: pcp = @package_version@ pcp-libs = @package_version@
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting podman container and pod statistics via the podman REST API.
 #end pcp-pmda-podman
-%endif
 
 %if "@pmda_statsd@" == "true"
 #
@@ -2624,10 +2619,8 @@ done
 %{pmda_remove "$1" "perfevent"}
 %endif
 
-%if "@pmda_podman@" == "true"
 %preun pmda-podman
 %{pmda_remove "$1" "podman"}
-%endif
 
 %if "@pmda_statsd@" == "true"
 %preun pmda-statsd
@@ -2979,9 +2972,7 @@ PCP_SA_DIR=@pcp_sa_dir@
 %files pmda-infiniband -f pcp-pmda-infiniband-files.rpm
 %endif
 
-%if "@pmda_podman@" == "true"
 %files pmda-podman -f pcp-pmda-podman-files.rpm
-%endif
 
 %if "@pmda_statsd@" == "true"
 %files pmda-statsd -f pcp-pmda-statsd-files.rpm

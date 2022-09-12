@@ -98,7 +98,7 @@ do
     in
 	*.c|*.h|*.cpp|*.cxx|*.in|*.y|*.l|*.xs|*/|*.[1-8])
 	    sed -e 's/$/ /' -e 's/^/ /' $file \
-	    | egrep "[^a-zA-Z_0-9]$1$tail" \
+	    | grep -E "[^a-zA-Z_0-9]$1$tail" \
 	    | sed -e "s@^ @$file:@" -e 's/ $//' >>$tmp.out
 	    ;;
     esac

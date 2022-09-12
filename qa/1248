@@ -258,7 +258,7 @@ pmlogctl -V status | _filter_status
 for metric in sample.lights network.interface.total.bytes disk.dev.total
 do
     echo "check $metric ..."
-    egrep "$metric( |\$)" $PCP_ARCHIVE_DIR/$seq-a/$seq-a.config
+    grep -E "$metric( |\$)" $PCP_ARCHIVE_DIR/$seq-a/$seq-a.config
     PCP_DERIVED_CONFIG= pmafm $PCP_ARCHIVE_DIR/$seq-a/Latest pminfo -v $metric \
     | _filter
 done
@@ -275,7 +275,7 @@ pmlogctl -V status | _filter_status
 for metric in sample.lights network.interface.total.bytes disk.dev.total
 do
     echo "check $metric ..."
-    egrep "$metric( |\$)" $PCP_ARCHIVE_DIR/$seq-b/$seq-b.config
+    grep -E "$metric( |\$)" $PCP_ARCHIVE_DIR/$seq-b/$seq-b.config
     PCP_DERIVED_CONFIG= pmafm $PCP_ARCHIVE_DIR/$seq-b/Latest pminfo -v $metric \
     | _filter
 done
@@ -292,7 +292,7 @@ pmlogctl -V status | _filter_status
 for metric in sample.lights network.interface.total.bytes disk.dev.total
 do
     echo "check $metric ..."
-    egrep "$metric( |\$)" $PCP_ARCHIVE_DIR/$seq-c/$seq-c.config
+    grep -E "$metric( |\$)" $PCP_ARCHIVE_DIR/$seq-c/$seq-c.config
     PCP_DERIVED_CONFIG= pmafm $PCP_ARCHIVE_DIR/$seq-c/Latest pminfo -v $metric \
     | _filter
 done

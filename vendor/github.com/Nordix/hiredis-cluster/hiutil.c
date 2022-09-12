@@ -35,12 +35,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/socket.h>
 #include <sys/types.h>
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#include <sys/socket.h>
 #include <sys/time.h>
 #endif
 
@@ -51,7 +51,7 @@
 #include "hiutil.h"
 #include "win32.h"
 
-#ifndef WIN32
+#ifndef _WIN32
 int hi_set_blocking(int sd) {
     int flags;
 
@@ -308,7 +308,7 @@ void hi_assert(const char *cond, const char *file, int line, int panic) {
     abort();
 }
 
-int _vscnprintf(char *buf, size_t size, const char *fmt, va_list args) {
+static int _vscnprintf(char *buf, size_t size, const char *fmt, va_list args) {
     int n;
 
     n = vsnprintf(buf, size, fmt, args);
@@ -345,7 +345,7 @@ int _scnprintf(char *buf, size_t size, const char *fmt, ...) {
     return n;
 }
 
-#ifndef WIN32
+#ifndef _WIN32
 /*
  * Send n bytes on a blocking descriptor
  */
@@ -410,7 +410,7 @@ ssize_t _hi_recvn(int sd, void *vptr, size_t n) {
  */
 int64_t hi_usec_now(void) {
     int64_t usec;
-#ifdef _MSC_VER
+#ifdef _WIN32
     LARGE_INTEGER counter, frequency;
 
     if (!QueryPerformanceCounter(&counter) ||
@@ -438,25 +438,3 @@ int64_t hi_usec_now(void) {
  * Return the current time in milliseconds since Epoch
  */
 int64_t hi_msec_now(void) { return hi_usec_now() / 1000LL; }
-
-void print_string_with_length(char *s, size_t len) {
-    char *token;
-    for (token = s; token <= s + len; token++) {
-        printf("%c", *token);
-    }
-    printf("\n");
-}
-
-void print_string_with_length_fix_CRLF(char *s, size_t len) {
-    char *token;
-    for (token = s; token < s + len; token++) {
-        if (*token == CR) {
-            printf("\\r");
-        } else if (*token == LF) {
-            printf("\\n");
-        } else {
-            printf("%c", *token);
-        }
-    }
-    printf("\n");
-}

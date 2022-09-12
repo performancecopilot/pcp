@@ -85,7 +85,7 @@ pmproxy_pid=$!
 echo "proxyport=$proxyport" >>$seq.full
 echo "pmproxy_pid=$pmproxy_pid" >>$seq.full
 _wait_for_pmproxy $proxyport $tmp.pmproxy.log
-which netstat >/dev/null && netstat -l | egrep "$redis_node1_port|$redis_node2_port|$redis_node3_port|$proxyport" >>$seq.full
+which netstat >/dev/null && netstat -l | grep -E "$redis_node1_port|$redis_node2_port|$redis_node3_port|$proxyport" >>$seq.full
 _check_redis_ping $proxyport
 echo
 

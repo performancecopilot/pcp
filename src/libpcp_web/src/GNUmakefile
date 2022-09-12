@@ -26,7 +26,7 @@ HIREDIS_HFILES = $(addprefix deps/hiredis/, \
 	alloc.h async.h async_private.h fmacros.h hiredis.h net.h \
 	read.h sds.h sdsalloc.h sockcompat.h win32.h adapters/libuv.h)
 HIREDIS_CFILES = $(addprefix deps/hiredis/, \
-	alloc.c async.c hiredis.c net.c sds.c read.c)
+	alloc.c async.c hiredis.c net.c sds.c sockcompat.c read.c)
 HIREDIS_XFILES = $(HIREDIS_HFILES) $(HIREDIS_CFILES)
 
 HIREDIS_CLUSTER_HFILES = $(addprefix deps/hiredis-cluster/, \
@@ -50,7 +50,7 @@ YFILES = query_parser.y
 XFILES = jsmn.c jsmn.h http_parser.c http_parser.h \
 	 sha1.c sha1.h siphash.c dict.c dict.h
 
-LLDLIBS = $(PCPWEBLIB_EXTRAS) $(LIB_FOR_MATH)
+LLDLIBS = $(PCPWEBLIB_EXTRAS) $(LIB_FOR_MATH) $(LIB_FOR_REGEX)
 ifeq "$(TARGET_OS)" "mingw"
 LLDLIBS += -lws2_32
 CFILES += fnmatch.c
