@@ -619,7 +619,7 @@ do
 		# extras from the last object code file
 		sed <$tmp/out \
 		    -e 's/^[^ ]* //' \
-		    -e "s/^\(.\) \(.*\)/$obj: \1 \2 : Error: additional symbol/"
+		    -e "s!^\(.\) \(.*\)!$obj: \1 \2 : Error: additional symbol!"
 		touch $tmp/fail
 	    fi
 	fi
