@@ -4,13 +4,33 @@ then
     _version_configs "$@"
 fi
 
-if [ "$1" = purge ]
+do_systemd=true
+which deb-systemd-helper >/dev/null 2>&1 || do_systemd=false
+
+if [ "$1" = remove ]
 then
-    if which update-rc.d >/dev/null 2>&1
+    if $do_systemd
+    then
+	deb-systemd-helper remove pmproxy.service >/dev/null
+	deb-systemd-helper remove pmie.service >/dev/null
+	deb-systemd-helper remove pmlogger.service >/dev/null
+	deb-systemd-helper remove pmcd.service >/dev/null
+    elif which update-rc.d >/dev/null 2>&1
     then
 	update-rc.d pmproxy remove >/dev/null
 	update-rc.d pmie remove >/dev/null
 	update-rc.d pmlogger remove >/dev/null
 	update-rc.d pmcd remove >/dev/null
+    fi
+fi
+
+if [ "$1" = purge ]
+then
+    if $do_systemd
+    then
+	deb-systemd-helper purge pmproxy.service >/dev/null
+	deb-systemd-helper purge pmie.service >/dev/null
+	deb-systemd-helper purge pmlogger.service >/dev/null
+	deb-systemd-helper purge pmcd.service >/dev/null
     fi
 fi
