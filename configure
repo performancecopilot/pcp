@@ -13886,6 +13886,12 @@ then :
   printf "%s\n" "#define HAVE_UNSETENV 1" >>confdefs.h
 
 fi
+ac_fn_c_check_func "$LINENO" "getrusage" "ac_cv_func_getrusage"
+if test "x$ac_cv_func_getrusage" = xyes
+then :
+  printf "%s\n" "#define HAVE_GETRUSAGE 1" >>confdefs.h
+
+fi
 
 ac_fn_c_check_func "$LINENO" "select" "ac_cv_func_select"
 if test "x$ac_cv_func_select" = xyes
