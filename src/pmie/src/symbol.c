@@ -66,8 +66,8 @@ addBucket(SymUnion *st)
     st->hdr.next->hdr.prev = bckt;
     st->hdr.next = bckt;
     scoop->entry.refs = 0;
-    scoop->entry.stat.free.ptr = NULL;
-    scoop->entry.stat.free.count = BSIZE - 1;
+    scoop->entry.state.free.ptr = NULL;
+    scoop->entry.state.free.count = BSIZE - 1;
 }
 
 static void
@@ -83,9 +83,9 @@ remBucket(SymUnion *bckt)
     while (i < BSIZE) {
 	scan = bckt + i;
 	if (scan->entry.refs == 0)
-	    i += scan->entry.stat.free.count;
+	    i += scan->entry.state.free.count;
 	else {
-	    free(scan->entry.stat.used.name);
+	    free(scan->entry.state.used.name);
 	    i++;
 	}
     }
@@ -138,14 +138,14 @@ symIntern(SymbolTable *st, const char *name)
 	while (i < BSIZE) {
 	    scoop = bckt + i;
 	    if (scoop->entry.refs) {
-		if (strcmp(name, scoop->entry.stat.used.name) == 0) {
+		if (strcmp(name, scoop->entry.state.used.name) == 0) {
 		    scoop->entry.refs++;
 		    return scoop;
 		}
 		i++;
 	    }
 	    else
-		i += scoop->entry.stat.free.count;
+		i += scoop->entry.state.free.count;
 	}
         bckt = bckt->hdr.next;
     }
@@ -154,10 +154,10 @@ symIntern(SymbolTable *st, const char *name)
     bckt = st->hdr.next;
     while (bckt != st) {
 	if ((scoop = bckt->hdr.free)) {
-	    if (scoop->entry.stat.free.count > 1)
-		scoop += --scoop->entry.stat.free.count;
+	    if (scoop->entry.state.free.count > 1)
+		scoop += --scoop->entry.state.free.count;
 	    else
-		bckt->hdr.free = scoop->entry.stat.free.ptr;
+		bckt->hdr.free = scoop->entry.state.free.ptr;
 	    break;
 	}
 	bckt = bckt->hdr.next;
@@ -167,15 +167,15 @@ symIntern(SymbolTable *st, const char *name)
     if (scoop == NULL) {
 	addBucket(st);
 	scoop = st->hdr.next + 1;
-	scoop += --scoop->entry.stat.free.count;
+	scoop += --scoop->entry.state.free.count;
     }
 
     /* initialize symbol */
     scoop->entry.refs = 1;
     copy = (char *) alloc(strlen(name) + 1);
     strcpy(copy, name);
-    scoop->entry.stat.used.name = copy;
-    scoop->entry.stat.used.value = NULL;
+    scoop->entry.state.used.name = copy;
+    scoop->entry.state.used.value = NULL;
     return scoop;
 }
 
@@ -194,14 +194,14 @@ symLookup(SymbolTable *st, const char *name)
 	while (i < BSIZE) {
 	    scoop = bckt + i;
 	    if (scoop->entry.refs) {
-		if (strcmp(name, scoop->entry.stat.used.name) == 0) {
+		if (strcmp(name, scoop->entry.state.used.name) == 0) {
 		    scoop->entry.refs++;
 		    return scoop;
 		}
 		i++;
 	    }
 	    else
-		i += scoop->entry.stat.free.count;
+		i += scoop->entry.state.free.count;
 	}
         bckt = bckt->hdr.next;
     }
@@ -228,7 +228,7 @@ symFree(Symbol sym)
     if ((sym != SYM_NULL) && (--sym->entry.refs <= 0)) {
 
 	/* free up name string BUT NOT value */
-	free(sym->entry.stat.used.name);
+	free(sym->entry.state.used.name);
 
 	/* find correct place in ordered free list */
 	bckt = (SymUnion *) ((char *) sym - ((__psint_t)sym & MASK));
@@ -236,28 +236,28 @@ symFree(Symbol sym)
 	lag = NULL;
 	while ((lead != NULL) && (lead < sym)) {
 	    lag = lead;
-	    lead = lead->entry.stat.free.ptr;
+	    lead = lead->entry.state.free.ptr;
 	}
 
-	if (lag != NULL && (lag + lag->entry.stat.free.count) == sym) {
+	if (lag != NULL && (lag + lag->entry.state.free.count) == sym) {
 	    /* coalesce with preceding free block */
-	    lag->entry.stat.free.count++;
+	    lag->entry.state.free.count++;
 	    sym = lag;
 	}
 	else {
 	    /* link up as single free entry */
 	    if (lag)
-		lag->entry.stat.free.ptr = sym;
+		lag->entry.state.free.ptr = sym;
 	    else
 		bckt->hdr.free = sym;
-	    sym->entry.stat.free.count = 1;
-	    sym->entry.stat.free.ptr = lead;
+	    sym->entry.state.free.count = 1;
+	    sym->entry.state.free.ptr = lead;
 	}
 
-	if (sym + sym->entry.stat.free.count == lead) {
+	if (sym + sym->entry.state.free.count == lead) {
 	    /* coalesce with following free block */
-	    sym->entry.stat.free.count += lead->entry.stat.free.count;
-	    sym->entry.stat.free.ptr = lead->entry.stat.free.ptr;
+	    sym->entry.state.free.count += lead->entry.state.free.count;
+	    sym->entry.state.free.ptr = lead->entry.state.free.ptr;
 	}
     }
 }
