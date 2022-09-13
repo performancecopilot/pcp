@@ -567,7 +567,7 @@ else
 	# metrics enabled by these files to be logged by the primary
 	# pmlogger) ... pick the "disk" one as a representative
 	#
-	if [ -f $PCP_VAR_DIR/config/pmlogconf/disk ]
+	if [ -f $PCP_VAR_DIR/config/pmlogconf/zeroconf/disk ]
 	then
 
 	    # Note: actual archive name will follow -a when callback
