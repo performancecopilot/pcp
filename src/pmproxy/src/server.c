@@ -187,7 +187,9 @@ signal_init(struct proxy *proxy)
 {
     uv_loop_t		*loop = proxy->events;
 
+#if defined(HAVE_SIGPIPE)
     signal(SIGPIPE, SIG_IGN);
+#endif
 
     uv_signal_init(loop, &sighup);
     uv_signal_init(loop, &sigint);
