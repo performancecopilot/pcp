@@ -49,8 +49,8 @@ typedef struct {
     union {
 	SymFree	    free;	/* free symbol table entry */
 	SymUsed	    used;	/* occupied symbol table entry */
-    } stat;
-    int		    refs;	/* refernce count */
+    } state;
+    int		    refs;	/* reference count */
 } SymEntry;
 
 typedef union symunion {
@@ -68,8 +68,8 @@ typedef SymUnion *Symbol;
 typedef SymUnion SymbolTable;
 
 /* access to name string, value and reference count */
-#define symName(sym)  ((sym)->entry.stat.used.name)
-#define symValue(sym) ((sym)->entry.stat.used.value)
+#define symName(sym)  ((sym)->entry.state.used.name)
+#define symValue(sym) ((sym)->entry.state.used.value)
 #define symRefs(sym)  ((sym)->entry.refs)
 
 /* initialize symbol table */

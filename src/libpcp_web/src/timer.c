@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Red Hat.
+ * Copyright (c) 2021-2022 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -11,10 +11,12 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
-#include <sys/resource.h>
 #include "load.h"
 #include "libpcp.h"
 #include "mmv_stats.h"
+#ifdef HAVE_SYS_RESOURCE_H
+#include <sys/resource.h>
+#endif
 
 typedef enum server_metric {
     SERVER_PID,
@@ -156,20 +158,25 @@ server_metrics_refresh(void *map)
 {
     double		usr, sys;
     unsigned long long	datasz = 0;
+#ifdef HAVE_GETRUSAGE
     struct rusage	usage = {0};
+
+    (void)getrusage(RUSAGE_SELF, &usage);
+#endif
 
     __pmProcessDataSize((unsigned long*) &datasz);
     __pmProcessRunTimes(&usr, &sys);
     usr *= 1000.0; /* milliseconds */
     sys *= 1000.0;
-    (void)getrusage(RUSAGE_SELF, &usage);
 
     /* exported as uint64 but manipulated as double */
     mmv_set_value(map, server.metrics[SERVER_CPU_USR], usr);
     mmv_set_value(map, server.metrics[SERVER_CPU_SYS], sys);
     mmv_set_value(map, server.metrics[SERVER_CPU_TOT], usr + sys);
 
+#ifdef HAVE_GETRUSAGE
     mmv_set(map, server.metrics[SERVER_MEM_MAXRSS], &usage.ru_maxrss);
+#endif
 
     /* exported as uint64 but manipulated as ulong/ulong long */
     mmv_set(map, server.metrics[SERVER_MEM_DATASZ], &datasz);
