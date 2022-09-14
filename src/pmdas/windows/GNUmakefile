@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020 Red Hat.  All Rights Reserved.
+# Copyright (c) 2020,2022 Red Hat.  All Rights Reserved.
 # Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -39,7 +39,8 @@ PMDATMPDIR 	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAADMDIR 	= $(PCP_PMDASADM_DIR)/$(IAM)
 LOGCONFDIR	= $(PCP_SYSCONF_DIR)/pmlogconf
 LOGCONFVARDIR	= $(PCP_VAR_DIR)/config/pmlogconf
-CONF_LINE = "windows	79	dso	windows_init	$(PMDATMPDIR)/windows/pmda_windows.dll"
+
+CONF_LINE	= "$(IAM)	79	dso	$(IAM)_init	$(PMDATMPDIR)/$(LIBTARGET)"
 
 default:	build-me
 
