@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 Red Hat.
+ * Copyright (c) 2019-2020,2022 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -593,6 +593,9 @@ on_pmseries_done(int status, void *arg)
 	flags |= HTTP_FLAG_JSON;
     }
     http_reply(client, msg, code, flags, options);
+
+    /* release lock of pmseries_request_done */
+    client_put(client);
 }
 
 static void
@@ -896,10 +899,16 @@ pmseries_request_load(struct client *client, pmSeriesBaton *baton)
 	message = sdsnewlen(failed, sizeof(failed) - 1);
 	http_reply(client, message, HTTP_STATUS_BAD_REQUEST,
 			HTTP_FLAG_JSON, baton->options);
+
+	/* release lock of pmseries_request_done */
+	client_put(client);
     } else if (baton->working) {
 	message = sdsnewlen(loading, sizeof(loading) - 1);
 	http_reply(client, message, HTTP_STATUS_CONFLICT,
 			HTTP_FLAG_JSON, baton->options);
+
+	/* release lock of pmseries_request_done */
+	client_put(client);
     } else {
         baton->loading.data = baton;         
 	uv_queue_work(client->proxy->events, &baton->loading,
@@ -912,6 +921,9 @@ pmseries_request_done(struct client *client)
 {
     pmSeriesBaton	*baton = (pmSeriesBaton *)client->u.http.data;
     int			sts;
+
+    /* reference to prevent freeing while waiting for a Redis reply callback */
+    client_get(client);
 
     if (client->u.http.parser.status_code) {
 	on_pmseries_done(-EINVAL, baton);
