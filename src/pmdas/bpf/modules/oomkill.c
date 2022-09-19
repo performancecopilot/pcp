@@ -31,7 +31,7 @@
 #include "oomkill.skel.h"
 #include "btf_helpers.h"
 
-#define PERF_POLL_TIMEOUT_MS 100
+#define PERF_POLL_TIMEOUT_MS 0
 
 static struct env {
     int process_count;

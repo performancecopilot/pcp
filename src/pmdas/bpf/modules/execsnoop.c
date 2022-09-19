@@ -28,7 +28,7 @@
 #include "execsnoop.skel.h"
 
 #define PERF_BUFFER_PAGES 64
-#define PERF_POLL_TIMEOUT_MS 50
+#define PERF_POLL_TIMEOUT_MS 0
 #define MAX_ARGS_KEY 259
 
 #define INDOM_COUNT 1

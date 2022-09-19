@@ -29,14 +29,9 @@
 #include "opensnoop.skel.h"
 #include "btf_helpers.h"
 
-/* Tune the buffer size and wakeup rate. These settings cope with roughly
- * 50k opens/sec.
- */
 #define PERF_BUFFER_PAGES 64
-#define PERF_BUFFER_TIME_MS	10
-/* Set the poll timeout when no events occur. This can affect -d accuracy. */
-#define PERF_POLL_TIMEOUT_MS 100
-#define NSEC_PER_SEC		1000000000ULL
+#define PERF_POLL_TIMEOUT_MS 0
+#define NSEC_PER_SEC 1000000000ULL
 #define INDOM_COUNT 1
 
 static struct env {
