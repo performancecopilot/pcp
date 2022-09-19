@@ -33,7 +33,7 @@
 #include "trace_helpers.h"
 
 #define PERF_BUFFER_PAGES 64
-#define PERF_POLL_TIMEOUT_MS 100
+#define PERF_POLL_TIMEOUT_MS 0
 #define INDOM_COUNT 1
 
 static struct env {

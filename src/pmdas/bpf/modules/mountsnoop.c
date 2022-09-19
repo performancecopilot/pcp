@@ -30,7 +30,7 @@
 #include "btf_helpers.h"
 
 #define PERF_BUFFER_PAGES 64
-#define PERF_POLL_TIMEOUT_MS 100
+#define PERF_POLL_TIMEOUT_MS 0
 
 /* https://www.gnu.org/software/gnulib/manual/html_node/strerrorname_005fnp.html */
 #if !defined(__GLIBC__) || __GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 32)
