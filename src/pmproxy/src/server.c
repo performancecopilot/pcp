@@ -318,10 +318,12 @@ on_write_callback(uv_callback_t *handle, void *data)
     int				sts;
 
     /*
-     * client_write() checks if the client is opened, and calls uv_callback_fire(&proxy->write_callbacks, ...).
-     * In a later loop iteration, on_write_callback() is called and tries to write to the client.
-     * However, the client can be closed between the call to uv_callback_fire() and the actual on_write_callback() callback.
-     * Therefore we need to check this condition again.
+     * client_write() checks if the client is opened, and calls
+     * uv_callback_fire(&proxy->write_callbacks, ...).
+     * In a later loop iteration, on_write_callback() is called and tries
+     * to write to the client.  However, the client can be closed between
+     * the call to uv_callback_fire() and the actual on_write_callback()
+     * callback.  Therefore we need to check this condition again.
      */
     if (client_is_closed(client)) {
 	/* release lock of client_write */

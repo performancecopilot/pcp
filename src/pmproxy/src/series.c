@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 Red Hat.
+ * Copyright (c) 2019-2020,2022 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -922,7 +922,7 @@ pmseries_request_done(struct client *client)
     pmSeriesBaton	*baton = (pmSeriesBaton *)client->u.http.data;
     int			sts;
 
-    /* take a reference on the client to prevent freeing while waiting for a Redis reply callback */
+    /* reference to prevent freeing while waiting for a Redis reply callback */
     client_get(client);
 
     if (client->u.http.parser.status_code) {
