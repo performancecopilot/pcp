@@ -28,8 +28,9 @@ RUN dnf install -y --setopt=tsflags=nodocs procps-ng gettext /build/*.rpm redis 
 COPY build/containers/archive-analysis/root /
 
 RUN systemctl mask systemd-remount-fs.service dev-hugepages.mount sys-fs-fuse-connections.mount systemd-logind.service getty.target console-getty.service systemd-udev-trigger.service systemd-udevd.service systemd-random-seed.service systemd-machine-id-commit.service
-RUN systemctl disable pmcd pmlogger pmie
-RUN systemctl enable pmproxy redis grafana-server archive-import
+RUN systemctl disable pmcd pmlogger pmie && \
+    systemctl enable pmproxy redis grafana-server archive-import && \
+    mkdir /dashboards
 
 VOLUME ["/archives"]
 EXPOSE 3000
