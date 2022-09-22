@@ -899,7 +899,6 @@ PMDA_BPF
 pmdabpf_vmlinuxh
 pmdabpf_arch
 pmdabpf_bpftool
-PMDABPF_BPFTOOL
 pmdabpf_llvm_strip
 PMDABPF_LLVM_STRIP
 pmdabpf_clang
@@ -1840,8 +1839,7 @@ Optional Packages:
   --with-pmdabpf-llvm-strip
                           path to llvm-strip 10+ (default is empty for auto
                           discovery)
-  --with-pmdabpf-bpftool  path to bpftool (default is empty for auto
-                          discovery)
+  --with-pmdabpf-bpftool  path to bpftool (default is empty to build)
   --with-pmdabpf-btf      path to kernel BTF sources (default is empty to use
                           vendored kernel type information)
   --with-pmdabpftrace     enable bpftrace pmda (default is on)
@@ -9233,51 +9231,17 @@ pmdabpf_llvm_strip=$PMDABPF_LLVM_STRIP
 
 
 if test -z "$PMDABPF_BPFTOOL"; then
-    # Extract the first word of "bpftool", so it can be a program name with args.
-set dummy bpftool; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_PMDABPF_BPFTOOL+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  case $PMDABPF_BPFTOOL in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PMDABPF_BPFTOOL="$PMDABPF_BPFTOOL" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_PMDABPF_BPFTOOL="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-PMDABPF_BPFTOOL=$ac_cv_path_PMDABPF_BPFTOOL
-if test -n "$PMDABPF_BPFTOOL"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PMDABPF_BPFTOOL" >&5
-printf "%s\n" "$PMDABPF_BPFTOOL" >&6; }
+    if $have_libelf; then
+        PMDABPF_BPFTOOL=`realpath vendor/github.com/libbpf/bpftool/src/bpftool`
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: using bpftool at $PMDABPF_BPFTOOL" >&5
+printf "%s\n" "$as_me: using bpftool at $PMDABPF_BPFTOOL" >&6;}
+    else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: not building bpftool because libelf was not found, please use --with-pmdabpf-bpftool to specify bpftool" >&5
+printf "%s\n" "$as_me: not building bpftool because libelf was not found, please use --with-pmdabpf-bpftool to specify bpftool" >&6;}
+    fi
 else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: using bpftool at $PMDABPF_BPFTOOL" >&5
+printf "%s\n" "$as_me: using bpftool at $PMDABPF_BPFTOOL" >&6;}
 fi
 pmdabpf_bpftool=$PMDABPF_BPFTOOL
 
