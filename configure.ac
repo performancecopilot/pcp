@@ -1217,10 +1217,12 @@ pmdabpf_llvm_strip=$PMDABPF_LLVM_STRIP
 AC_SUBST(pmdabpf_llvm_strip)
 
 dnl Build bpftool if not provided by the user
+build_bpftool=false
 if test -z "$PMDABPF_BPFTOOL"; then
     if $have_libelf; then
         PMDABPF_BPFTOOL=`realpath vendor/github.com/libbpf/bpftool/src/bpftool`
         AC_MSG_NOTICE([using bpftool at $PMDABPF_BPFTOOL])
+        build_bpftool=true
     else
         AC_MSG_NOTICE([not building bpftool because libelf was not found, please use --with-pmdabpf-bpftool to specify bpftool])
     fi
@@ -1262,7 +1264,7 @@ AS_IF([test "x$do_pmdabpf" = "xcheck"], [
     dnl pmdabpf requires libbpf, libelf and bpftool
     $have_libbpf && $have_libelf && \
 	test $clang_major_version -ge 10 && \
-	test -x "$pmdabpf_bpftool" && \
+	(test -x "$pmdabpf_bpftool" || $build_bpftool) && \
 	test -f "$pmdabpf_vmlinuxh" && \
 	pmda_bpf=true
 ])

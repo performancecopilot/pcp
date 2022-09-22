@@ -9230,11 +9230,13 @@ fi
 pmdabpf_llvm_strip=$PMDABPF_LLVM_STRIP
 
 
+build_bpftool=false
 if test -z "$PMDABPF_BPFTOOL"; then
     if $have_libelf; then
         PMDABPF_BPFTOOL=`realpath vendor/github.com/libbpf/bpftool/src/bpftool`
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: using bpftool at $PMDABPF_BPFTOOL" >&5
 printf "%s\n" "$as_me: using bpftool at $PMDABPF_BPFTOOL" >&6;}
+        build_bpftool=true
     else
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: not building bpftool because libelf was not found, please use --with-pmdabpf-bpftool to specify bpftool" >&5
 printf "%s\n" "$as_me: not building bpftool because libelf was not found, please use --with-pmdabpf-bpftool to specify bpftool" >&6;}
@@ -9287,7 +9289,7 @@ then :
 
         $have_libbpf && $have_libelf && \
 	test $clang_major_version -ge 10 && \
-	test -x "$pmdabpf_bpftool" && \
+	(test -x "$pmdabpf_bpftool" || $build_bpftool) && \
 	test -f "$pmdabpf_vmlinuxh" && \
 	pmda_bpf=true
 
