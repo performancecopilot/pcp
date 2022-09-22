@@ -1219,12 +1219,10 @@ AC_SUBST(pmdabpf_llvm_strip)
 dnl Build bpftool if not provided by the user
 if test -z "$PMDABPF_BPFTOOL"; then
     if $have_libelf; then
-        AC_MSG_NOTICE([generating bpftool])
-        make -C vendor/github.com/libbpf/bpftool/src
         PMDABPF_BPFTOOL=`realpath vendor/github.com/libbpf/bpftool/src/bpftool`
         AC_MSG_NOTICE([using bpftool at $PMDABPF_BPFTOOL])
     else
-        AC_MSG_NOTICE([bpftool not built because libelf not found, please use --with-pmdabpf-bpftool to specify bpftool])
+        AC_MSG_NOTICE([not building bpftool because libelf was not found, please use --with-pmdabpf-bpftool to specify bpftool])
     fi
 else
     AC_MSG_NOTICE([using bpftool at $PMDABPF_BPFTOOL])

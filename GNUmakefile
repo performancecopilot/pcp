@@ -35,7 +35,7 @@ LDIRT = config.cache config.status config.log files.rpm \
 	perl-pcp*.list* python-pcp*.list* python3-pcp*.list*
 LDIRDIRT = pcp-[0-9]*.[0-9]*.[0-9]*  pcp-*-[0-9]*.[0-9]*.[0-9]*
 
-SUBDIRS = src vendor
+SUBDIRS = vendor src
 ifneq ($(TARGET_OS),mingw)
 SUBDIRS += qa
 endif
