@@ -2,7 +2,7 @@ type: container
 
 artifactory:
   package_type: rpm
-  deploy_path: /centos/8/x86_64/pcp
+  deploy_path: /centos/9/x86_64/pcp
 
 container:
   containerfile: |
