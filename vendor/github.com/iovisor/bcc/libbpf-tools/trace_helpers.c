@@ -993,14 +993,21 @@ bool is_kernel_module(const char *name)
 
 static bool fentry_try_attach(int id)
 {
-	struct bpf_insn insns[] = { { .code = BPF_JMP | BPF_EXIT } };
-	LIBBPF_OPTS(bpf_prog_load_opts, opts);
 	int prog_fd, attach_fd;
+	char error[4096];
+	struct bpf_insn insns[] = {
+		{ .code = BPF_ALU64 | BPF_MOV | BPF_K, .dst_reg = BPF_REG_0, .imm = 0 },
+		{ .code = BPF_JMP | BPF_EXIT },
+	};
+	LIBBPF_OPTS(bpf_prog_load_opts, opts,
+			.expected_attach_type = BPF_TRACE_FENTRY,
+			.attach_btf_id = id,
+			.log_buf = error,
+			.log_size = sizeof(error),
+	);
 
-	opts.expected_attach_type = BPF_TRACE_FENTRY;
-	opts.attach_btf_id = id,
-
-	prog_fd = bpf_prog_load(BPF_PROG_TYPE_TRACING, "test", NULL, insns, 1, &opts);
+	prog_fd = bpf_prog_load(BPF_PROG_TYPE_TRACING, "test", "GPL", insns,
+			sizeof(insns) / sizeof(struct bpf_insn), &opts);
 	if (prog_fd < 0)
 		return false;
 
@@ -1116,4 +1123,20 @@ bool module_btf_exists(const char *mod)
 			return true;
 	}
 	return false;
+}
+
+bool probe_tp_btf(const char *name)
+{
+	LIBBPF_OPTS(bpf_prog_load_opts, opts, .expected_attach_type = BPF_TRACE_RAW_TP);
+	struct bpf_insn insns[] = {
+		{ .code = BPF_ALU64 | BPF_MOV | BPF_K, .dst_reg = BPF_REG_0, .imm = 0 },
+		{ .code = BPF_JMP | BPF_EXIT },
+	};
+	int fd, insn_cnt = sizeof(insns) / sizeof(struct bpf_insn);
+
+	opts.attach_btf_id = libbpf_find_vmlinux_btf_id(name, BPF_TRACE_RAW_TP);
+	fd = bpf_prog_load(BPF_PROG_TYPE_TRACING, NULL, "GPL", insns, insn_cnt, &opts);
+	if (fd >= 0)
+		close(fd);
+	return fd >= 0;
 }
