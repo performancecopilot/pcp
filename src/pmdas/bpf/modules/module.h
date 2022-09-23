@@ -109,6 +109,7 @@ typedef struct module {
 char *all_modules[] = {
     "bashreadline",
     "biolatency",
+    "biosnoop",
     "execsnoop",
     "exitsnoop"
     "fsslower",
