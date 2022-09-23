@@ -2,7 +2,7 @@ TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 
 default_pcp default:
-ifeq "$(PMDABPF_BPFTOOL)" "$(abspath github.com/libbpf/bpftool/src/bpftool)"
+ifeq "$(PMDA_BPF)" "true"
 	make -C github.com/libbpf/bpftool/src
 endif
 
