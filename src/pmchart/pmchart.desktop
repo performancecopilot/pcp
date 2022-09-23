@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=PCP Charts
-Comment=Strip Chart tool for plotting Performance Co-Pilot metrics
-Exec=pmchart
-Icon=pmchart
-Terminal=false
-Type=Application
-Categories=System;

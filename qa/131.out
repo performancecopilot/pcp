@@ -1,3 +1,0 @@
-QA output created by 131
-Expect: Connection timed out
-pminfo: Cannot connect to PMCD on host "HOST": Connection timed out

@@ -1,2 +1,0 @@
-ALL_RULES = pmda_status
-LOCAL_RULES = $(ALL_RULES)

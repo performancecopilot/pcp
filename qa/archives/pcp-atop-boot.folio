@@ -1,9 +1,0 @@
-PCPFolio
-Version: 1
-# use pmafm(1) to process this PCP archive folio
-#
-Created: on shard at Wed 22 Jul 2020 17:32:54 AEST
-Creator: pmchart
-# 		Host			Basename
-#
-Archive:        shard                   pcp-atop-boot

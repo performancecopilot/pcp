@@ -1,3 +1,0 @@
-default default_pcp setup check install:
-
-clobber clean:

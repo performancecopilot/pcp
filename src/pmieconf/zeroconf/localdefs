@@ -1,2 +1,0 @@
-ALL_RULES = all_threads
-LOCAL_RULES = $(ALL_RULES)

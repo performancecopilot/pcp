@@ -1,6 +1,0 @@
-filesys {
-    full		WINDOWS:0:67
-    capacity		WINDOWS:0:117
-    used		WINDOWS:0:118
-    free		WINDOWS:0:119
-}

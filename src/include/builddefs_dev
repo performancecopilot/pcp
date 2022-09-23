@@ -1,3 +1,0 @@
-# set $(CFLAGS_DEV) for developer-only compilation flags
-#
-CFLAGS_DEV = 

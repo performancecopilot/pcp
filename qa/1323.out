@@ -1,5 +1,0 @@
-QA output created by 1323
-Running pmlogrewrite archives/20180127.08.40 TMP.pmlogrewrite
-Running pmdumplog -iteh archives/20180127.08.40
-Running pmdumplog -iteh TMP.pmlogrewrite
-Running diff TMP.original.txt TMP.extracted.txt

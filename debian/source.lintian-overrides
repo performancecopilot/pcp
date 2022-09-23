@@ -1,2 +1,0 @@
-# pcp build requires a makefile in every directory
-pcp source: unknown-file-in-debian-source GNUmakefile

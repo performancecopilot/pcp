@@ -1,3 +1,0 @@
-QA output created by 1408
-stderr from pmchart -C -a /no/such/file -z
-pmchart: Error: /no/such/file: No such file or directory

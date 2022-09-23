@@ -1,8 +1,0 @@
-// Copyright (C) 2018 Marko Myllynen <myllynen@redhat.com>
-// Licensed under the Apache License, Version 2.0 (the "License")
-
-struct uprobe_t {
-    char uprobe[128];
-};
-
-BPF_HASH(stats, struct uprobe_t, u64, UPROBE_COUNT);

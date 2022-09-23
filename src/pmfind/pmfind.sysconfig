@@ -1,7 +1,0 @@
-## Type:        string
-## Default:	"-C"
-#
-# Run pmfind_check helper script, with the following parameters.
-# (-C,--containers)
-#
-PMFIND_CHECK_PARAMS="-C"

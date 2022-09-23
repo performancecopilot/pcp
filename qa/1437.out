@@ -1,5 +1,0 @@
-QA output created by 1437
-== Upgrade test case 1
-kvm 95 pipe binary PCP_PMDAS_DIR/kvm/pmdakvm -d 95
-== Upgrade test case 2
-kvm 95 pipe binary PCP_PMDAS_DIR/kvm/pmdakvm -d 95

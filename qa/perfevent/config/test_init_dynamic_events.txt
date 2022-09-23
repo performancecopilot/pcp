@@ -1,7 +1,0 @@
-
-[dynamic]
-pmu1.bar
-pmu1.foo
-pmu2.cm_event1
-pmu2.cm_event2
-pmu2.cm_event3

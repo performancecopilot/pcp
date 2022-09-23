@@ -1,3 +1,0 @@
-- finish man page
-- network.persocket.timer.expire_str metrics
-  - parse strings to give sockets.timer.expire in milliseconds.

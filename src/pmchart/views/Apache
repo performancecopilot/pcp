@@ -1,8 +1,0 @@
-#kmchart
-version 1
-
-chart title "Apache Hit Rate [%h]" style plot legend off
-	plot metric apache.total_accesses
-
-chart title "Apache Data Rate [%h]" style plot legend off
-	plot metric apache.total_kbytes

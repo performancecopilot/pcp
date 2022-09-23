@@ -1,8 +1,0 @@
-QA output created by 1042
-== enforcing mode (no unauthenticated proc access)
-Create: http://localhost:WEBPORT/pmapi/context?hostspec=localhost&polltimeout=2
-Received PM_CONTEXT_HOST(LOCALHOST) #CONTEXT
-localhost context fetch names=proc.memory.maps response code 200
-timestamps fields:2 len(values[]):1
-  metric:proc.memory.maps
-  no instances

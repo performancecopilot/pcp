@@ -1,7 +1,0 @@
-/*
- * Metrics for whacko PMDA
- */
-
-whacko {
-    time	WHACKO:0:0
-}

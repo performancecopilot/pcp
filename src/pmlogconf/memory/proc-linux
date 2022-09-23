@@ -1,8 +1,0 @@
-#pmlogconf-setup 2.0
-ident	System process memory-usage information
-probe	proc.memory.size values ? include : exclude
-delta	5 minutes
-
-	proc.memory.size
-        proc.memory.rss
-        proc.psinfo.maj_flt

@@ -1,3 +1,0 @@
-QA output created by 840
-Verify pmcd avahi service advertising
-. <interface> <protocol> PCP pmcd on HOSTNAME _pmcd._tcp local

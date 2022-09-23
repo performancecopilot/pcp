@@ -1,7 +1,0 @@
-[pmuname ]
-INSTRUCTIONS_RETIRED cpu
-UNHALTED_REFERENCE_CYCLES cpu_rr
-
-[dynamic]
-pmu1.bar chip:0
-pmu1.foo

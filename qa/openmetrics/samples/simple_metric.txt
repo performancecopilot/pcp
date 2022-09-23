@@ -1,9 +1,0 @@
-# HELP metric1 Simple gauge metric with three instances
-# Type metric1 gauge
-metric1{abc="0"} 456
-metric1{def="123"} 123
-metric1{hig="246",xyz="something"} 128
-
-# HELP metric2 Simple gauge metric with one instance
-# Type metric2 gauge
-metric2{efg="0"} 121

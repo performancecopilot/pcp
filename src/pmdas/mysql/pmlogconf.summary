@@ -1,4 +1,0 @@
-#pmlogconf-setup 2.0
-ident	mysql summary information
-probe	mysql.status.bytes_sent exists ? include : exclude
-	mysql.status

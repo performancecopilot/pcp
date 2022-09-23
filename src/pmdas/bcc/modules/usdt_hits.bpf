@@ -1,8 +1,0 @@
-// Copyright (C) 2018 Marko Myllynen <myllynen@redhat.com>
-// Licensed under the Apache License, Version 2.0 (the "License")
-
-struct usdt_t {
-    char usdt[128];
-};
-
-BPF_HASH(stats, struct usdt_t, u64, USDT_COUNT);

@@ -1,9 +1,0 @@
-#
-# pcp-dstat(1) configuration file - see pcp-dstat(5)
-#
-
-[fs]
-width = 6
-label = filesystem
-files = vfs.files.count
-inodes = vfs.inodes.count - vfs.inodes.free

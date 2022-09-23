@@ -1,6 +1,0 @@
-QA output created by 918
-expect success ...
-hinv.ncpu 1
-pmcd's PID changed, yippee
-expect success ...
-hinv.ncpu 1

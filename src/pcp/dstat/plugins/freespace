@@ -1,8 +1,0 @@
-#
-# pcp-dstat(1) configuration file - see pcp-dstat(5)
-#
-
-[freespace]
-width = 5
-used = sum(filesys.used)
-free = sum(filesys.free)

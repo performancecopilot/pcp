@@ -1,4 +1,0 @@
-all_sample (
-    kernel.all.pswitch @0..9 > 10 Kcount/sec * hinv.ncpu
-) -> shell 5 min "xterm -e 'top'";
-

@@ -1,9 +1,0 @@
-PCPFolio
-Version: 1
-# use pmafm(1) to process this PCP Archive Folio
-#
-Created: on dieyong at Fri May 23 15:51:10 2014
-Creator: pcp-collectl
-#               Host                    Basename
-#
-Archive:	dieyong			pcp-atop-log

@@ -1,6 +1,0 @@
-QA output created by 1043
-
-Checking non-existent softirqs data
-
-kernel.percpu.softirqs
-No value(s) available!

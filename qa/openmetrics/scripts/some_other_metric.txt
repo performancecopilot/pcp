@@ -1,3 +1,0 @@
-# HELP metric2 Simple gauge metric singular instance domain
-# Type metric2 gauge
-metric2 456

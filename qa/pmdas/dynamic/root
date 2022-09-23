@@ -1,5 +1,0 @@
-root {
-    dynamic
-}
-
-#include "pmns"

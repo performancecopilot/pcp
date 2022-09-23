@@ -1,4 +1,0 @@
-#pmlogconf-setup 2.0
-ident	network softnet statistics
-probe   network.softnet.processed values ? include : exclude
-	network.softnet

@@ -1,3 +1,0 @@
-QA output created by 608
-pmpost: cannot open or create file "PCP_LOG_DIR/NOTICES": Permission denied
-pmpost: unposted message: [DATE] foo bar

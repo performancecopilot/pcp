@@ -1,3 +1,0 @@
-QA output created by 336
-=== Checking pmtrace without a PMDA listening ===
-pmtrace: observation error: Connection refused

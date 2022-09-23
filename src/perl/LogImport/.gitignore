@@ -1,8 +1,0 @@
-blib
-COPYING
-Makefile
-META.yml
-PCP-LogImport-*
-LogImport.bs
-LogImport.c
-pm_to_blib

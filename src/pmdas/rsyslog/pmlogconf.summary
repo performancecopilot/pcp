@@ -1,4 +1,0 @@
-#pmlogconf-setup 2.0
-ident	rsyslog statistics
-probe	rsyslog.interval exists ? include : exclude
-	rsyslog

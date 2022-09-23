@@ -1,9 +1,0 @@
-#!/bin/sh
-
-options="--keyserver keys.openpgp.org"
-gpg --recv-keys $options D87805D281D85A13539CB4BFA51D3ADCDEA2C114 F7ABE8761E6FE68638E6283AFE0842EE36DD8C0C
-gpg --list-keys pcp-maintainers
-
-echo "For builds:"
-echo export RPM_SIGN_KEYID=pcp-maintainers
-echo export DEB_SIGN_KEYID=0xFE0842EE36DD8C0C

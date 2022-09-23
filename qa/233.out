@@ -1,9 +1,0 @@
-QA output created by 233
-without PMCD ...
-FETCHRATE: metric sampledso.sysinfo >=6500 fetches/second
-
-with PMCD ...
-FETCHRATE: metric sampledso.sysinfo >=480 fetches/second
-
-with PMCD, high resolution time ...
-FETCHRATE: metric sampledso.sysinfo >=480 fetches/second

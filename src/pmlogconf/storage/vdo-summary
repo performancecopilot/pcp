@@ -1,9 +1,0 @@
-#pmlogconf-setup 2.0
-ident   metrics for Virtual Data Optimizer analysis
-probe   vdo.dev.blocksize values ? include : exclude
-
-	vdo.dev.blocksize
-	vdo.dev.block_map.cache_size
-	vdo.dev.capacity
-	vdo.dev.logical_blocksize
-	vdo.dev.write_policy

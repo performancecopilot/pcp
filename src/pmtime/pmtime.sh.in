@@ -1,2 +1,0 @@
-#!/bin/sh
-exec PKG_MAC_DIR/MacOS/pmtime "$@"

@@ -1,8 +1,0 @@
-QA output created by 296
-start 11 daemon instances of the sample PMDA
-OK, 11 started
-
-unconfigure them all
-OK, 0 remain
-
-Restoring real pmcd.conf ...

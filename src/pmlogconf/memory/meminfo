@@ -1,6 +1,0 @@
-#pmlogconf-setup 2.0
-ident   metrics used by the pcp-meminfo(1) command
-probe   mem.numa.util.active values ? include : exclude
-     
-	mem.numa.max_bandwidth
-	mem.numa.util

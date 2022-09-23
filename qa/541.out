@@ -1,9 +1,0 @@
-QA output created by 541
-sample.dynamic.counter 1 "zero"
-sample.dynamic.counter 2 "one" "two"
-
-filtered pmie output ...
-some_inst counter: zero:?
-all_inst counter: zero:?
-some_inst counter: one:? two:?
-all_inst counter: one:? two:?

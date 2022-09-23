@@ -1,4 +1,0 @@
-# avoid this on real hardware where hypervisor may be running
-docker.io
-# we're running Bind9 here for the QA Farm's DNS
-unbound

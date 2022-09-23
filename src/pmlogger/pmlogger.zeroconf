@@ -1,9 +1,0 @@
-#
-# PMLOGGER environment variables defined in the standard pmlogger config file
-# take precedence over the same variables defined in this file.
-#
-# The PMLOGGER_INTERVAL setting affects the default primary pmlogger recording
-# frequency. This only affects the *default* interval setting when specified
-# in a pmlogger config file, and can be overridden by the pmlogger -t command
-# line option, if specified.
-PMLOGGER_INTERVAL=10

@@ -1,9 +1,0 @@
-QA output created by 1344
-pmmgr plain startup
-let pmmgr run /monitor a few times
-look for err: messages
-TIMESTAMP pmmgr(PID/TID):ERRORFILE:SH /no/such/program/for/sure: ERROR
-TIMESTAMP pmmgr(PID/TID):ERRORFILE:SH /no/such/program/for/sure: ERROR
-TIMESTAMP pmmgr(PID/TID):ERRORFILE:SH /no/such/program/for/sure: ERROR
-TIMESTAMP pmmgr(PID/TID):ERRORFILE:SH /no/such/program/for/sure: ERROR
-kill pmmgr

@@ -1,5 +1,0 @@
-# avoid this on real hardware where hypervisor may be running
-docker.io
-# just leads to badness on this VM
-zfsutils-linux
-
