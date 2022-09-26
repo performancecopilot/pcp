@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) 2022 Sohaib Mohamed <sohaib.amhmd@gmail.com>
  *
  * Based on the biosnoop(8):
@@ -30,7 +29,7 @@
 #include "biosnoop.skel.h"
 #include "trace_helpers.h"
 
-#define PERF_BUFFER_PAGES	16
+#define PERF_BUFFER_PAGES 16
 #define PERF_POLL_TIMEOUT_MS 0
 
 #define INDOM_COUNT 1
@@ -346,7 +345,7 @@ static int biosnoop_init(dict *cfg, char *module_name)
     if ((val = pmIniFileLookup(cfg, module_name, "disk")))
         env.disk = val;
     if ((val = pmIniFileLookup(cfg, module_name, "cgroup"))) {
-		env.cg = true;
+        env.cg = true;
         env.cgroupspath = val;
     }
 
@@ -375,12 +374,12 @@ static int biosnoop_init(dict *cfg, char *module_name)
     obj->rodata->targ_queued = env.queued;
     obj->rodata->filter_cg = env.cg;
 
-	if (fentry_can_attach("blk_account_io_start", NULL))
-		bpf_program__set_attach_target(obj->progs.blk_account_io_start, 0,
-					       "blk_account_io_start");
-	else
-		bpf_program__set_attach_target(obj->progs.blk_account_io_start, 0,
-					       "__blk_account_io_start");
+    if (fentry_can_attach("blk_account_io_start", NULL))
+        bpf_program__set_attach_target(obj->progs.blk_account_io_start, 0,
+                                       "blk_account_io_start");
+    else
+        bpf_program__set_attach_target(obj->progs.blk_account_io_start, 0,
+                                       "__blk_account_io_start");
 
     err = biosnoop_bpf__load(obj);
     if (err) {
@@ -472,10 +471,10 @@ static void biosnoop_shutdown()
     free(biosnoop_instances);
     perf_buffer__free(pb);
     biosnoop_bpf__destroy(obj);
-	ksyms__free(ksyms);
-	partitions__free(partitions);
-	if (cgfd > 0)
-		close(cgfd);
+    ksyms__free(ksyms);
+    partitions__free(partitions);
+    if (cgfd > 0)
+        close(cgfd);
     /* Free the entire cache queue. */
     while ((itemp = TAILQ_FIRST(&head))) {
         TAILQ_REMOVE(&head, itemp, entries);
