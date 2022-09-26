@@ -469,6 +469,7 @@ class DstatTool(object):
 
         # Internal
         self.missed = 0
+        self.nomissed = False # report missed ticks by default
         self.runtime = -1
         self.plugins = []     # list of requested plugin names
         self.allplugins = []  # list of all known plugin names
@@ -797,7 +798,8 @@ class DstatTool(object):
         opts.pmSetLongOption('color', 0, '', '', 'force colors')
         opts.pmSetLongOption('nocolor', 0, '', '', 'disable colors')
         opts.pmSetLongOption('noheaders', 0, '', '', 'disable repetitive headers')
-        opts.pmSetLongOption('noupdate', 0, '', '', 'disable intermediate headers')
+        opts.pmSetLongOption('noupdate', 0, '', '', 'disable intermediate updates')
+        opts.pmSetLongOption('nomissed', 0, '', '', 'disable missed ticks warnings')
         opts.pmSetLongOption('output', 1, 'o', 'file', 'write CSV output to file')
         opts.pmSetLongOption('version', 0, 'V', '', '')
         opts.pmSetLongOption('debug', 1, None, '', '')
@@ -934,6 +936,8 @@ class DstatTool(object):
             self.header = False
         elif opt in ['noupdate']:
             self.update = False
+        elif opt in ['nomissed']:
+            self.nomissed = True
         elif opt in ['o', 'output']:
             self.output = arg
         elif opt in ['pidfile']:
@@ -1865,12 +1869,12 @@ class DstatTool(object):
             outputfile = open(self.output, omode)
             outputfile.write(oline)
 
-        if self.missed > 0:
+        if self.missed > 0 and self.nomissed is False:
             line = 'missed ' + str(self.missed + 1) + ' ticks'
             sys.stdout.write(' ' + THEME['error'] + line + THEME['input'])
             if self.output and step == self.delay:
                 outputfile.write(',"' + line + '"')
-            self.missed = 0
+        self.missed = 0
         # Finish the line
         if not op.update and self.novalues is False:
             sys.stdout.write('\n')

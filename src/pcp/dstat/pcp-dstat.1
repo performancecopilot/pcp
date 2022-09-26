@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2018-2020 Red Hat.
+.\" Copyright (c) 2018-2022 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -34,6 +34,7 @@
 [\f3\-\-integer\f1]
 [\f3\-\-nocolor\f1]
 [\f3\-\-noheaders\f1]
+[\f3\-\-nomissed\f1]
 [\f3\-\-noupdate\f1]
 [\f3\-\-list\f1]
 [\f3\-\-pidfile\f1 \f2pid-file\f1]
@@ -400,6 +401,9 @@ disable colors
 .TP
 \fB\-\-noheaders\fR
 disable repetitive headers
+.TP
+\fB\-\-nomissed\fR
+disable missed ticks warnings for intermediate samples.
 .TP
 \fB\-\-noupdate\fR
 disable intermediate updates when \fIdelay\fR greater than 1.
