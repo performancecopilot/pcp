@@ -96,12 +96,12 @@ vmlinux.h: $(PMDABPF_VMLINUXH)
 	$(LN_S) -f $< $@
 
 %.bpf.o: %.bpf.c vmlinux.h $(APPS_H) $(APPS_BPF)
-	$(PMDABPF_CLANG) -Wall -g -O2 -target bpf -D__TARGET_ARCH_$(PMDABPF_ARCH) \
+	$(CLANG) -Wall -g -O2 -target bpf -D__TARGET_ARCH_$(PMDABPF_ARCH) \
 		-I. -c $< -o $@
-	$(PMDABPF_LLVM_STRIP) -g $@
+	$(LLVM_STRIP) -g $@
 
 %.skel.h: %.bpf.o
-	$(PMDABPF_BPFTOOL) gen skeleton $< > $@
+	$(BPFTOOL) gen skeleton $< > $@
 
 %.o: %.c
 %.o: %.c %.skel.h $(HELPERS_H) $(APPS_H)

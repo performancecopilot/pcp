@@ -898,11 +898,10 @@ pmdabpf_modules
 PMDA_BPF
 pmdabpf_vmlinuxh
 pmdabpf_arch
-pmdabpf_bpftool
-pmdabpf_llvm_strip
-PMDABPF_LLVM_STRIP
-pmdabpf_clang
-PMDABPF_CLANG
+llvm_strip
+LLVM_STRIP
+clang
+CLANG
 HAVE_LIBELF
 libelf_LIBS
 libelf_CFLAGS
@@ -1090,10 +1089,6 @@ with_perfevent
 with_pmdastatsd
 with_pmdabcc
 with_pmdabpf
-with_pmdabpf_clang
-with_pmdabpf_llvm_strip
-with_pmdabpf_bpftool
-with_pmdabpf_btf
 with_pmdabpftrace
 with_pmdajson
 with_pmdanutcracker
@@ -1834,14 +1829,6 @@ Optional Packages:
   --with-pmdastatsd       enable statds pmda (default is on)
   --with-pmdabcc          enable BCC pmda (default is on)
   --with-pmdabpf          enable BPF pmda (default is on)
-  --with-pmdabpf-clang    path to clang 10+ (default is empty for auto
-                          discovery)
-  --with-pmdabpf-llvm-strip
-                          path to llvm-strip 10+ (default is empty for auto
-                          discovery)
-  --with-pmdabpf-bpftool  path to bpftool (default is empty to build)
-  --with-pmdabpf-btf      path to kernel BTF sources (default is empty to use
-                          vendored kernel type information)
   --with-pmdabpftrace     enable bpftrace pmda (default is on)
   --with-pmdajson         enable JSON pmda (default is on)
   --with-pmdanutcracker   enable nutcracker pmda (default is on)
@@ -3600,46 +3587,6 @@ then :
   withval=$with_pmdabpf; do_pmdabpf=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpf=$withval"
 else $as_nop
   do_pmdabpf=check
-fi
-
-
-
-# Check whether --with-pmdabpf-clang was given.
-if test ${with_pmdabpf_clang+y}
-then :
-  withval=$with_pmdabpf_clang; PMDABPF_CLANG=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpf-clang=$withval"
-else $as_nop
-  PMDABPF_CLANG=''
-fi
-
-
-
-# Check whether --with-pmdabpf-llvm-strip was given.
-if test ${with_pmdabpf_llvm_strip+y}
-then :
-  withval=$with_pmdabpf_llvm_strip; PMDABPF_LLVM_STRIP=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpf-llvm-strip=$withval"
-else $as_nop
-  PMDABPF_LLVM_STRIP=''
-fi
-
-
-
-# Check whether --with-pmdabpf-bpftool was given.
-if test ${with_pmdabpf_bpftool+y}
-then :
-  withval=$with_pmdabpf_bpftool; PMDABPF_BPFTOOL=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpf-bpftool=$withval"
-else $as_nop
-  PMDABPF_BPFTOOL=''
-fi
-
-
-
-# Check whether --with-pmdabpf-btf was given.
-if test ${with_pmdabpf_btf+y}
-then :
-  withval=$with_pmdabpf_btf; PMDABPF_BTF=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpf-btf=$withval"
-else $as_nop
-  PMDABPF_BTF=''
 fi
 
 
@@ -9130,18 +9077,17 @@ fi
 HAVE_LIBELF=$have_libelf
 
 
-if test -z "$PMDABPF_CLANG"; then
-    # Extract the first word of "clang", so it can be a program name with args.
+test -z "$CLANG" && # Extract the first word of "clang", so it can be a program name with args.
 set dummy clang; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_PMDABPF_CLANG+y}
+if test ${ac_cv_path_CLANG+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  case $PMDABPF_CLANG in
+  case $CLANG in
   [\\/]* | ?:[\\/]*)
-  ac_cv_path_PMDABPF_CLANG="$PMDABPF_CLANG" # Let the user override the test with a path.
+  ac_cv_path_CLANG="$CLANG" # Let the user override the test with a path.
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
@@ -9155,7 +9101,7 @@ do
   esac
     for ac_exec_ext in '' $ac_executable_extensions; do
   if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_PMDABPF_CLANG="$as_dir$ac_word$ac_exec_ext"
+    ac_cv_path_CLANG="$as_dir$ac_word$ac_exec_ext"
     printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
     break 2
   fi
@@ -9166,32 +9112,30 @@ IFS=$as_save_IFS
   ;;
 esac
 fi
-PMDABPF_CLANG=$ac_cv_path_PMDABPF_CLANG
-if test -n "$PMDABPF_CLANG"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PMDABPF_CLANG" >&5
-printf "%s\n" "$PMDABPF_CLANG" >&6; }
+CLANG=$ac_cv_path_CLANG
+if test -n "$CLANG"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $CLANG" >&5
+printf "%s\n" "$CLANG" >&6; }
 else
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 fi
 
 
-fi
-pmdabpf_clang=$PMDABPF_CLANG
+clang=$CLANG
 
 
-if test -z "$PMDABPF_LLVM_STRIP"; then
-    # Extract the first word of "llvm-strip", so it can be a program name with args.
+test -z "$LLVM_STRIP" && # Extract the first word of "llvm-strip", so it can be a program name with args.
 set dummy llvm-strip; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_PMDABPF_LLVM_STRIP+y}
+if test ${ac_cv_path_LLVM_STRIP+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  case $PMDABPF_LLVM_STRIP in
+  case $LLVM_STRIP in
   [\\/]* | ?:[\\/]*)
-  ac_cv_path_PMDABPF_LLVM_STRIP="$PMDABPF_LLVM_STRIP" # Let the user override the test with a path.
+  ac_cv_path_LLVM_STRIP="$LLVM_STRIP" # Let the user override the test with a path.
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
@@ -9205,7 +9149,7 @@ do
   esac
     for ac_exec_ext in '' $ac_executable_extensions; do
   if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_PMDABPF_LLVM_STRIP="$as_dir$ac_word$ac_exec_ext"
+    ac_cv_path_LLVM_STRIP="$as_dir$ac_word$ac_exec_ext"
     printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
     break 2
   fi
@@ -9216,36 +9160,17 @@ IFS=$as_save_IFS
   ;;
 esac
 fi
-PMDABPF_LLVM_STRIP=$ac_cv_path_PMDABPF_LLVM_STRIP
-if test -n "$PMDABPF_LLVM_STRIP"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PMDABPF_LLVM_STRIP" >&5
-printf "%s\n" "$PMDABPF_LLVM_STRIP" >&6; }
+LLVM_STRIP=$ac_cv_path_LLVM_STRIP
+if test -n "$LLVM_STRIP"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $LLVM_STRIP" >&5
+printf "%s\n" "$LLVM_STRIP" >&6; }
 else
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 fi
 
 
-fi
-pmdabpf_llvm_strip=$PMDABPF_LLVM_STRIP
-
-
-build_bpftool=false
-if test -z "$PMDABPF_BPFTOOL"; then
-    if $have_libelf; then
-        PMDABPF_BPFTOOL=`realpath vendor/github.com/libbpf/bpftool/src/bpftool`
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: using bpftool at $PMDABPF_BPFTOOL" >&5
-printf "%s\n" "$as_me: using bpftool at $PMDABPF_BPFTOOL" >&6;}
-        build_bpftool=true
-    else
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: not building bpftool because libelf was not found, please use --with-pmdabpf-bpftool to specify bpftool" >&5
-printf "%s\n" "$as_me: not building bpftool because libelf was not found, please use --with-pmdabpf-bpftool to specify bpftool" >&6;}
-    fi
-else
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: using bpftool at $PMDABPF_BPFTOOL" >&5
-printf "%s\n" "$as_me: using bpftool at $PMDABPF_BPFTOOL" >&6;}
-fi
-pmdabpf_bpftool=$PMDABPF_BPFTOOL
+llvm_strip=$LLVM_STRIP
 
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking BPF CO-RE architecture identifier" >&5
@@ -9255,27 +9180,18 @@ pmdabpf_arch=`uname -m | sed 's/x86_64/x86/' | sed 's/aarch64/arm64/' | sed 's/p
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $pmdabpf_arch" >&5
 printf "%s\n" "$pmdabpf_arch" >&6; }
 
-pmdabpf_vmlinuxh=""
-if test -n "$PMDABPF_BTF"; then
-    pmdabpf_vmlinuxh="`pwd`/src/pmdas/bpf/vmlinux.h"
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: generating $pmdabpf_vmlinuxh from $PMDABPF_BTF" >&5
-printf "%s\n" "$as_me: generating $pmdabpf_vmlinuxh from $PMDABPF_BTF" >&6;}
-    $PMDABPF_BPFTOOL btf dump file "$PMDABPF_BTF" format c > $pmdabpf_vmlinuxh
-else
-    pmdabpf_arch_vmlinux="`pwd`/vendor/github.com/iovisor/bcc/libbpf-tools/$pmdabpf_arch/vmlinux.h"
-    if test -f "$pmdabpf_arch_vmlinux"; then
-	pmdabpf_vmlinuxh="$pmdabpf_arch_vmlinux"
-    else
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: vmlinux.h for architecture $pmdabpf_arch is not vendored, please use --with-pmdabpf-btf to generate a vmlinux.h for $pmdabpf_arch" >&5
-printf "%s\n" "$as_me: vmlinux.h for architecture $pmdabpf_arch is not vendored, please use --with-pmdabpf-btf to generate a vmlinux.h for $pmdabpf_arch" >&6;}
-    fi
-fi
-
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for vmlinux.h" >&5
 printf %s "checking for vmlinux.h... " >&6; }
-if test -f "$pmdabpf_vmlinuxh"; then { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $pmdabpf_vmlinuxh" >&5
-printf "%s\n" "$pmdabpf_vmlinuxh" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: not found" >&5
-printf "%s\n" "not found" >&6; }; fi
+pmdabpf_vmlinuxh="`pwd`/vendor/github.com/iovisor/bcc/libbpf-tools/$pmdabpf_arch/vmlinux.h"
+if test -f "$pmdabpf_vmlinuxh"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $pmdabpf_vmlinuxh" >&5
+printf "%s\n" "$pmdabpf_vmlinuxh" >&6; }
+else
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: not found for arch $pmdabpf_arch" >&5
+printf "%s\n" "not found for arch $pmdabpf_arch" >&6; };
+    pmdabpf_vmlinuxh=""
+fi
+
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the bpf PMDA should be included" >&5
 printf %s "checking if the bpf PMDA should be included... " >&6; }
@@ -9289,7 +9205,6 @@ then :
 
         $have_libbpf && $have_libelf && \
 	test $clang_major_version -ge 10 && \
-	(test -x "$pmdabpf_bpftool" || $build_bpftool) && \
 	test -f "$pmdabpf_vmlinuxh" && \
 	pmda_bpf=true
 
