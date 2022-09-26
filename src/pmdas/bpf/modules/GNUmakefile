@@ -16,6 +16,7 @@ COMMON_OBJ = \
 # ported helper files.
 HELPERS_H = \
 	bits.bpf.h \
+	blk_types.h \
 	maps.bpf.h \
 	core_fixes.bpf.h \
 	btf_helpers.h \
@@ -32,6 +33,7 @@ HELPERS_C = \
 # ported header file.
 APPS_H = \
 	bashreadline.h \
+	biosnoop.h \
 	execsnoop.h \
 	exitsnoop.h \
 	fsslower.h \
@@ -46,6 +48,7 @@ APPS_H = \
 # ported *.bpf.c files.
 APPS_BPF = \
 	bashreadline.bpf.c \
+	biosnoop.bpf.c \
 	execsnoop.bpf.c \
 	exitsnoop.bpf.c \
 	fsslower.bpf.c \
