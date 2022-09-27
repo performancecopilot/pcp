@@ -291,25 +291,10 @@ elif test $target_os = darwin
 then
     AC_DEFINE(IS_DARWIN, [1], [Platform is Darwin (Mac OS X)])
     target_distro=macosx
-    version=`sw_vers -productVersion`
-    CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing"
-    case "$version"
-    in
-	10.[0-5].*)
-	    dnl no knowledge before this ...
-	    ;;
-	10.[6-9].*|10.1[0-3].*)
-	    target_distro=cocoa
-	    CFLAGS="$CFLAGS -arch i386 -arch x86_64"
-	    ;;
-	*)
-	    dnl at least 10.14 (Mojave) ...
-	    target_distro=cocoa
-	    CFLAGS="$CFLAGS -arch x86_64"
-	    ;;
-    esac
+    target_machine=`uname -m`
+    CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing -arch $target_machine"
     export CFLAGS
-    pcp_platform_paths='/usr/local/bin'
+    pcp_platform_paths='/usr/local/bin:/opt/homebrew/bin'
     pcp_ps_all_flags="-axw -o user,pid,ppid,cpu,stime,tty,time,command"
 elif test $target_os = mingw
 then
@@ -477,8 +462,9 @@ fi
 dnl and we need to worry about off_t ... we need it to be 64-bits for V3 archives
 AC_MSG_CHECKING([sizeof off_t])
 cat <<End-of-File >conftest.c
+#include <stdio.h>
 #include <sys/types.h>
-main() { printf("%d", (int)sizeof(off_t)); }
+int main() { printf("%d", (int)sizeof(off_t)); return 0; }
 End-of-File
 (eval $ac_compile) 2>&5
 (eval $ac_link) 2>&5
@@ -3011,20 +2997,20 @@ else
     cat <<End-of-File >conftest.c
 #include <stdio.h>
 #include <stdlib.h>
-main()
+int main()
 {
     long long int	value = -1;
     value = strtol("1234567812345678", NULL, 16);
     if (value == 0x1234567812345678LL) {
 	printf("strotol\n");
-	exit(0);
+	return 0;
     }
     value = strtoll("1234567812345678", NULL, 16);
     if (value == 0x1234567812345678LL) {
 	printf("strtoll\n");
-	exit(0);
+	return 0;
     }
-    exit(1);
+    return 1;
 }
 End-of-File
     (eval $ac_compile) 2>&5
@@ -3154,8 +3140,9 @@ if test "$cross_compiling" = "yes"; then
     echo "cross-compile -> \"$ans\"" >&5
 else
     cat <<End-of-File >conftest.c
+#include <stdio.h>
 #include <sys/time.h>
-main() { printf("%d", (int)sizeof(suseconds_t)); }
+int main() { printf("%d", (int)sizeof(suseconds_t)); return 0; }
 End-of-File
     (eval $ac_compile) 2>&5
     (eval $ac_link) 2>&5
@@ -3174,8 +3161,9 @@ if test "$cross_compiling" = "yes"; then
     echo "cross-compile -> \"$ans\"" >&5
 else
     cat <<End-of-File >conftest.c
+#include <stdio.h>
 #include <sys/time.h>
-main() { printf("%d", (int)sizeof(time_t)); }
+int main() { printf("%d", (int)sizeof(time_t)); return 0; }
 End-of-File
     (eval $ac_compile) 2>&5
     (eval $ac_link) 2>&5
@@ -3196,7 +3184,7 @@ if test "$cross_compiling" = "yes"; then
 else
     cat <<End-of-File >conftest.c
 #include <stdio.h>
-main() { printf("%d", (int)sizeof(long)); }
+int main() { printf("%d", (int)sizeof(long)); return 0; }
 End-of-File
     (eval $ac_compile) 2>&5
     (eval $ac_link) 2>&5
@@ -3225,7 +3213,7 @@ if test "$cross_compiling" = "yes"; then
 else
     cat <<End-of-File >conftest.c
 #include <stdio.h>
-main() { printf("%d", (int)sizeof(char *)); }
+int main() { printf("%d", (int)sizeof(char *)); return 0; }
 End-of-File
     (eval $ac_compile) 2>&5
     (eval $ac_link) 2>&5
@@ -3256,7 +3244,7 @@ if test "$cross_compiling" = "yes"; then
 else
     cat <<End-of-File >conftest.c
 #include <stdio.h>
-main() { printf("%d", (int)sizeof(int)); }
+int main() { printf("%d", (int)sizeof(int)); return 0; }
 End-of-File
     (eval $ac_compile) 2>&5
     (eval $ac_link) 2>&5
@@ -3282,8 +3270,9 @@ if test "$cross_compiling" = "yes"; then
     echo "cross-compile -> \"$ans\"" >&5
 else
     cat <<End-of-File >conftest.c
+#include <stdio.h>
 union { struct { unsigned int b:4; unsigned int c:4; } a; int p; } u;
-main() { u.a.b = 1; u.a.c = 2; printf("%0*x", 2*sizeof(int), u.p); }
+int main() { u.a.b = 1; u.a.c = 2; printf("%0*x", 2*sizeof(int), u.p); return 0; }
 End-of-File
     (eval $ac_compile) 2>&5
     (eval $ac_link) 2>&5
