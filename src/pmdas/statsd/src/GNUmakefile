@@ -77,7 +77,7 @@ $(RAGELTARGET).o: $(RFILES)
 
 $(RFILES): $(RAGELTARGET).rl
 ifeq "$(RAGEL)" ""
-	@# for systems without ragel (RHEL/Centos)
+	@# for systems without ragel (RHEL)
 	@rm -f $@
 	$(LN_S) $@.in $@
 else

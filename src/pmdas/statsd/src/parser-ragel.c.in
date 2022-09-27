@@ -23,7 +23,7 @@
 #include "utils.h"
 
 
-#line 27 "parser-ragel.c"
+#line 25 "parser-ragel.c"
 static const signed char _statsd_actions[] = {
 	0, 1, 0, 1, 2, 1, 3, 1,
 	4, 1, 6, 1, 7, 1, 8, 2,
@@ -169,9 +169,8 @@ static const int statsd_en_main = 1;
 */
 int
 ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
-	*datagram = (struct statsd_datagram*) malloc(sizeof(struct statsd_datagram));
-	*(*datagram) = (struct statsd_datagram) {0};
-	ALLOC_CHECK("Not enough memory to save datagram");
+	*datagram = (struct statsd_datagram*) calloc(1, sizeof(struct statsd_datagram));
+	ALLOC_CHECK(*datagram, "Not enough memory to save datagram");
 	size_t length = strlen(str);
 	char *p = str, *pe = (str + length + 1);
 	char *eof = pe;
@@ -185,13 +184,13 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 	int tag_value_allocated = 0;
 	int any_tags = 0;
 	
-	
-#line 190 "parser-ragel.c"
+
+#line 184 "parser-ragel.c"
 	{
 		cs = (int)statsd_start;
 	}
-	
-#line 195 "parser-ragel.c"
+
+#line 187 "parser-ragel.c"
 	{
 		int _klen;
 		unsigned int _trans = 0;
@@ -270,45 +269,45 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 				switch ( (*( _acts)) )
 				{
 					case 0:  {
-						{
-#line 57 "parser-ragel.rl"
+							{
+#line 56 "parser-ragel.rl"
 							
 							goto error_clean_up;
 						}
 						
-#line 280 "parser-ragel.c"
-						
+#line 271 "parser-ragel.c"
+
 						break; 
 					}
 					case 1:  {
-						{
-#line 61 "parser-ragel.rl"
+							{
+#line 60 "parser-ragel.rl"
 							
 							goto error_clean_up;
 						}
 						
-#line 291 "parser-ragel.c"
-						
+#line 281 "parser-ragel.c"
+
 						break; 
 					}
 					case 3:  {
-						{
-#line 69 "parser-ragel.rl"
+							{
+#line 68 "parser-ragel.rl"
 							
 							current_segment_start_index = current_index;
 						}
 						
-#line 302 "parser-ragel.c"
-						
+#line 291 "parser-ragel.c"
+
 						break; 
 					}
 					case 4:  {
-						{
-#line 73 "parser-ragel.rl"
+							{
+#line 72 "parser-ragel.rl"
 							
 							size_t current_segment_length = current_index - current_segment_start_index;
 							(*datagram)->name = (char*) malloc(current_segment_length + 1);
-							ALLOC_CHECK("Not enough memory to save metric name");
+							ALLOC_CHECK((*datagram)->name, "Not enough memory to save metric name");
 							memcpy(
 							(*datagram)->name,
 							&str[current_segment_start_index],
@@ -318,27 +317,27 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 							current_segment_start_index = current_index + 1; 
 						}
 						
-#line 322 "parser-ragel.c"
-						
+#line 310 "parser-ragel.c"
+
 						break; 
 					}
 					case 5:  {
-						{
-#line 86 "parser-ragel.rl"
+							{
+#line 85 "parser-ragel.rl"
 							
 							size_t key_len = strlen(tag_key) + 1;
 							size_t value_len = strlen(tag_value) + 1;
 							struct tag* t = (struct tag*) malloc(sizeof(struct tag));
-							ALLOC_CHECK("Unable to allocate memory for tag.");
+							ALLOC_CHECK(t, "Unable to allocate memory for tag.");
 							t->key = (char*) malloc(key_len);
-							ALLOC_CHECK("Unable to allocate memory for tag key.");
+							ALLOC_CHECK(t->key, "Unable to allocate memory for tag key.");
 							memcpy(t->key, tag_key, key_len);
 							t->value = (char*) malloc(value_len);
-							ALLOC_CHECK("Unable to allocate memory for tag value.");
+							ALLOC_CHECK(t->value, "Unable to allocate memory for tag value.");
 							memcpy(t->value, tag_value, value_len);
 							if (!any_tags) {
 								tags = (struct tag_collection*) malloc(sizeof(struct tag_collection));
-								ALLOC_CHECK("Unable to allocate memory for tag collection.");
+								ALLOC_CHECK(tags, "Unable to allocate memory for tag collection.");
 								tags->values = (struct tag**) malloc(sizeof(struct tag*));
 								tags->values[0] = t;
 								tags->length = 1;
@@ -346,7 +345,7 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 							} else {
 								struct tag** new_tags =
 								(struct tag**) realloc(tags->values, sizeof(struct tag*) * (tags->length + 1));
-								ALLOC_CHECK("Unable to allocate memory for tags");
+								ALLOC_CHECK(new_tags, "Unable to allocate memory for tags");
 								if (tags != NULL) {
 									tags->values = new_tags;
 									tags->values[tags->length] = t;
@@ -361,13 +360,13 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 							tag_value_allocated = 0;
 						}
 						
-#line 365 "parser-ragel.c"
-						
+#line 352 "parser-ragel.c"
+
 						break; 
 					}
 					case 6:  {
-						{
-#line 122 "parser-ragel.rl"
+							{
+#line 121 "parser-ragel.rl"
 							
 							char* startptr;
 							char* endptr;
@@ -389,13 +388,13 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 							current_segment_start_index = current_index + 1;
 						}
 						
-#line 393 "parser-ragel.c"
-						
+#line 379 "parser-ragel.c"
+
 						break; 
 					}
 					case 7:  {
-						{
-#line 143 "parser-ragel.rl"
+							{
+#line 142 "parser-ragel.rl"
 							
 							if (str[current_segment_start_index] == 'c') {
 								(*datagram)->type = METRIC_TYPE_COUNTER;
@@ -407,17 +406,17 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 							current_segment_start_index = current_index + 1;
 						}
 						
-#line 411 "parser-ragel.c"
-						
+#line 396 "parser-ragel.c"
+
 						break; 
 					}
 					case 8:  {
-						{
-#line 154 "parser-ragel.rl"
+							{
+#line 153 "parser-ragel.rl"
 							
 							size_t current_segment_length = current_index - current_segment_start_index;
 							tag_key = (char *) realloc(tag_key, current_segment_length + 1);
-							ALLOC_CHECK("Not enough memory for tag key buffer.");
+							ALLOC_CHECK(tag_key, "Not enough memory for tag key buffer.");
 							tag_key_allocated = 1;
 							memcpy(
 							tag_key,
@@ -428,17 +427,17 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 							current_segment_start_index = current_index + 1;
 						}
 						
-#line 432 "parser-ragel.c"
-						
+#line 416 "parser-ragel.c"
+
 						break; 
 					}
 					case 9:  {
-						{
-#line 168 "parser-ragel.rl"
+							{
+#line 167 "parser-ragel.rl"
 							
 							size_t current_segment_length = current_index - current_segment_start_index;
 							tag_value = (char *) realloc(tag_value, current_segment_length + 1);
-							ALLOC_CHECK("Not enough memory for tag key buffer.");
+							ALLOC_CHECK(tag_value, "Not enough memory for tag key buffer.");
 							tag_value_allocated = 1;
 							memcpy(
 							tag_value,
@@ -449,8 +448,8 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 							current_segment_start_index = current_index + 1;
 						}
 						
-#line 453 "parser-ragel.c"
-						
+#line 436 "parser-ragel.c"
+
 						break; 
 					}
 				}
@@ -471,14 +470,14 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 			while ( _nacts > 0 ) {
 				switch ( (*( _acts)) ) {
 					case 2:  {
-						{
-#line 65 "parser-ragel.rl"
+							{
+#line 64 "parser-ragel.rl"
 							
 							current_index++;
 						}
 						
-#line 481 "parser-ragel.c"
-						
+#line 463 "parser-ragel.c"
+
 						break; 
 					}
 				}
@@ -494,8 +493,8 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 		_out: {}
 	}
 	
-#line 196 "parser-ragel.rl"
-	
+#line 195 "parser-ragel.rl"
+
 	(void)statsd_en_main;
 	(void)statsd_error;
 	(void)statsd_first_final;
