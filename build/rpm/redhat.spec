@@ -128,6 +128,13 @@ Source2: %{pcp_git_url}/main/debian/pcp.sysusers
 %global disable_json 1
 %endif
 
+# support for pmdamongodb
+%if !%{disable_python2} || !%{disable_python3}
+%global disable_mongodb 0
+%else
+%global disable_mongodb 1
+%endif
+
 # No mssql ODBC driver on non-x86 platforms
 %ifarch x86_64
 %if !%{disable_python2} || !%{disable_python3}
@@ -391,6 +398,12 @@ Requires: pcp-selinux = %{version}-%{release}
 %global _with_json --with-pmdajson=yes
 %endif
 
+%if %{disable_mongodb}
+%global _with_mongodb --with-pmdamongodb=no
+%else
+%global _with_mongodb --with-pmdamongodb=yes
+%endif
+
 %if %{disable_nutcracker}
 %global _with_nutcracker --with-pmdanutcracker=no
 %else
@@ -561,7 +574,10 @@ Requires: pcp-pmda-bpftrace
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-pmda-libvirt pcp-pmda-lio pcp-pmda-openmetrics pcp-pmda-haproxy
 Requires: pcp-pmda-lmsensors pcp-pmda-netcheck pcp-pmda-rabbitmq
-Requires: pcp-pmda-openvswitch pcp-pmda-mongodb
+Requires: pcp-pmda-openvswitch
+%endif
+%if !%{disable_mongodb}
+Requires: pcp-pmda-mongodb
 %endif
 %if !%{disable_mssql}
 Requires: pcp-pmda-mssql 
@@ -1802,7 +1818,9 @@ Requires: %{__python2}-pcp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from simple network checks.
 # end pcp-pmda-netcheck
+%endif
 
+%if !%{disable_mongodb}
 #
 # pcp-pmda-mongodb
 #
@@ -2303,7 +2321,7 @@ sed -i "/PACKAGE_BUILD/s/=[0-9]*/=$_build/" VERSION.pcp
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpf} %{?_with_bpftrace} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker} %{?_with_python2}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpf} %{?_with_bpftrace} %{?_with_json} %{?_with_mongodb} %{?_with_snmp} %{?_with_nutcracker} %{?_with_python2}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -2893,8 +2911,10 @@ exit 0
 %preun pmda-lmsensors
 %{pmda_remove "$1" "lmsensors"}
 
+%if !%{disable_mongodb}
 %preun pmda-mongodb
 %{pmda_remove "$1" "mongodb"}
+%endif
 
 %if !%{disable_mssql}
 %preun pmda-mssql
@@ -3225,7 +3245,9 @@ PCP_LOG_DIR=%{_logsdir}
 
 %files pmda-lmsensors -f pcp-pmda-lmsensors-files.rpm
 
+%if !%{disable_mongodb}
 %files pmda-mongodb -f pcp-pmda-mongodb-files.rpm
+%endif
 
 %if !%{disable_mssql}
 %files pmda-mssql -f pcp-pmda-mssql-files.rpm

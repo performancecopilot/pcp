@@ -165,6 +165,12 @@ AC_ARG_WITH([pmdajson],
     [do_pmdajson=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdajson=$withval"],
     [do_pmdajson=check])
 
+AC_ARG_WITH([pmdamongodb],
+    [AC_HELP_STRING([--with-pmdamongodb],
+		   [enable MongoDB pmda (default is on)])],
+    [do_pmdamongodb=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdamongodb=$withval"],
+    [do_pmdamongodb=check])
+
 AC_ARG_WITH([pmdanutcracker],
     [AC_HELP_STRING([--with-pmdanutcracker],
 		   [enable nutcracker pmda (default is on)])],
@@ -1322,14 +1328,17 @@ if $pmda_mysql; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the mongodb PMDA should be included])
 pmda_mongodb=false
-if test "$have_python" = true
-then
-    dnl rpm build for mongodb PMDA needs python pymongo module
-    if $pcp_python_prog -c "import pymongo" >/dev/null 2>&1
+AS_IF([test "x$do_pmdamongodb" = "xyes"], [pmda_mongodb=true])
+AS_IF([test "x$do_pmdamongodb" = "xcheck"], [
+    if test "$have_python" = true
     then
-	pmda_mongodb=true
+        dnl rpm build for mongodb PMDA needs python pymongo module
+        if $pcp_python_prog -c "import pymongo" >/dev/null 2>&1
+        then
+            pmda_mongodb=true
+        fi
     fi
-fi
+])
 AC_SUBST(PMDA_MONGODB, $pmda_mongodb)
 if $pmda_mongodb; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 

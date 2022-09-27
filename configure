@@ -1091,6 +1091,7 @@ with_pmdabcc
 with_pmdabpf
 with_pmdabpftrace
 with_pmdajson
+with_pmdamongodb
 with_pmdanutcracker
 with_pmdasnmp
 with_selinux
@@ -1831,6 +1832,7 @@ Optional Packages:
   --with-pmdabpf          enable BPF pmda (default is on)
   --with-pmdabpftrace     enable bpftrace pmda (default is on)
   --with-pmdajson         enable JSON pmda (default is on)
+  --with-pmdamongodb      enable MongoDB pmda (default is on)
   --with-pmdanutcracker   enable nutcracker pmda (default is on)
   --with-pmdasnmp         enable SNMP pmda (default is on)
   --with-selinux          enable building of selinux package (default is on)
@@ -3607,6 +3609,16 @@ then :
   withval=$with_pmdajson; do_pmdajson=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdajson=$withval"
 else $as_nop
   do_pmdajson=check
+fi
+
+
+
+# Check whether --with-pmdamongodb was given.
+if test ${with_pmdamongodb+y}
+then :
+  withval=$with_pmdamongodb; do_pmdamongodb=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdamongodb=$withval"
+else $as_nop
+  do_pmdamongodb=check
 fi
 
 
@@ -9402,12 +9414,21 @@ printf "%s\n" "no" >&6; }; fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the mongodb PMDA should be included" >&5
 printf %s "checking if the mongodb PMDA should be included... " >&6; }
 pmda_mongodb=false
-if test "$have_python" = true
-then
-        if $pcp_python_prog -c "import pymongo" >/dev/null 2>&1
+if test "x$do_pmdamongodb" = "xyes"
+then :
+  pmda_mongodb=true
+fi
+if test "x$do_pmdamongodb" = "xcheck"
+then :
+
+    if test "$have_python" = true
     then
-	pmda_mongodb=true
+                if $pcp_python_prog -c "import pymongo" >/dev/null 2>&1
+        then
+            pmda_mongodb=true
+        fi
     fi
+
 fi
 PMDA_MONGODB=$pmda_mongodb
 
