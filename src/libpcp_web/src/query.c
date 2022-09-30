@@ -561,7 +561,14 @@ static int
 use_next_sample(seriesSampling *sampling)
 {
     /* if the next timestamp is past our goal, use the current value */
-    if (pmTimespec_cmp(&sampling->next_timespec, &sampling->goal) > 0) {
+    double goal_delta = pmTimespec_delta(&sampling->next_timespec, &sampling->goal);
+    if (goal_delta > 0) {
+	/* if the goal significantly lags behind, reset it */
+	/* this can happen when start < first sample or when there are gaps in the series */
+	if (goal_delta > 2 * sampling->delta.tv_sec) {
+	    sampling->goal = sampling->next_timespec;
+	}
+
 	/* selected a value for this interval so move the goal posts */
 	pmTimespec_add(&sampling->goal, &sampling->delta);
 	return 0;

@@ -1929,6 +1929,7 @@ x11
 1601 pmseries pmproxy local
 1602 pmproxy local
 1603 pmproxy local
+1604 pmseries pmproxy local
 1608 pmproxy local
 1612 pmda.bpf local
 1613 pmda.linux kernel local
