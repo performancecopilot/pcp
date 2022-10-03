@@ -9226,7 +9226,7 @@ printf %s "checking if bpf PMDA modules using perf_buffer__poll should be includ
 	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no (libbpf version required: 0.7.0, installed: $libbpf_version)" >&5
 printf "%s\n" "no (libbpf version required: 0.7.0, installed: $libbpf_version)" >&6; }
     else
-	pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so mountsnoop.so oomkill.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so"
+	pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so biosnoop.so execsnoop.so exitsnoop.so fsslower.so mountsnoop.so oomkill.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so"
 	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
     fi
