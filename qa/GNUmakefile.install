@@ -26,13 +26,13 @@ endif
 
 # Before installing the pcpqa policy module we need a PCP build with
 # ENABLE_SELINUX set and we need the current SELinux mode to be
-# Enforcing or Permissive (not Disabled), and the pcpupstream policy
+# Enforcing or Permissive (not Disabled), and the latest pcp policy
 # module needs to be loaded.
 #
 SELINUX_PCPQA =
 ifeq "$(ENABLE_SELINUX)" "true"
 ifneq "$(shell getenforce)" "Disabled"
-ifeq "$(shell if sudo semodule -l | grep '^pcpupstream[ 	]*$$' >/dev/null; then echo OK; fi)" "OK"
+ifeq "$(shell if sudo semodule -lfull | grep '^200 pcp[ 	]*pp$$' >/dev/null; then echo OK; fi)" "OK"
 SELINUX_PCPQA = pcpqa.installed
 endif
 endif
@@ -64,16 +64,16 @@ install_pcp install:
 include $(BUILDRULES)
 
 ifeq "$(ENABLE_SELINUX)" "true"
-pcpqa.installed: pcpqa.pp
-	if sudo semodule -l | grep '^pcpqa[ 	]*$$' >/dev/null; then sudo semodule -r pcpqa || true; fi
-	sudo semodule -i pcpqa.pp
+pcpqa.installed: pcp-testsuite.pp.bz2
+	if sudo semodule -lfull | grep '^200 pcp-testsuite[ 	]*pp$$' >/dev/null; then sudo semodule -r pcp-testsuite || true; fi
+	sudo semodule -X 200 -i pcp-testsuite.pp
 	touch pcpqa.installed
 
-pcpqa.pp: pcpqa.te
-	make -f /usr/share/selinux/devel/Makefile pcpqa.pp
+pcp-testsuite.pp: pcp-testsuite.te
+	make -f /usr/share/selinux/devel/Makefile pcp-testsuite.pp
 	@# cleanup temp files from selinux Makefile
-	@rm -f ./tmp/all_interfaces.conf ./tmp/iferror.m4 ./tmp/pcpqa.tmp
+	@rm -f ./tmp/all_interfaces.conf ./tmp/iferror.m4 ./tmp/pcp-testsuite.tmp
 
-pcpqa.te: pcpqa.te.in GNUmakefile GNUselinuxdefs
-	make pcpqa.te.in
+pcp-testsuite.pp.bz2: pcp-testsuite.pp
+	$(BZIP2) -9 < $^ > $@
 endif

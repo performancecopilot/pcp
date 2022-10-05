@@ -83,10 +83,7 @@ fi
 
 # real QA test starts here
 
-# Note: skip $PCP_SELINUX_DIR/pcpupstream-container.te cause if you're
-#       not in a container, seinfo does not report some types (it appears)
-#
-for rule in $PCP_SELINUX_DIR/pcpupstream.te pcpqa.te
+for rule in $PCP_SELINUX_DIR/pcp.te pcp-testsuite.te
 do
     echo
     echo "$rule:" | sed -e "s@$PCP_SELINUX_DIR@PCP_SELINUX_DIR@"

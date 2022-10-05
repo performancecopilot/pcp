@@ -1,9 +1,0 @@
-module pcpupstream-docker 1.0;
-
-require {
-	type docker_var_lib_t;
-	type pcp_pmcd_t;
-	class dir { search };
-}
-
-allow pcp_pmcd_t docker_var_lib_t:dir search;

@@ -1,11 +1,11 @@
 QA output created by 1356
 
-PCP_SELINUX_DIR/pcpupstream.te:
+PCP_SELINUX_DIR/pcp.te:
 Attributes OK
 Types OK
 Classes and Permissions OK
 
-pcpqa.te:
+pcp-testsuite.te:
 Attributes OK
 Types OK
 Classes and Permissions OK
