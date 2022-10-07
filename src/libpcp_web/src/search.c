@@ -33,7 +33,7 @@ initRedisSearchBaton(redisSearchBaton *baton, redisSlots *slots,
     baton->slots = slots;
     baton->module = &settings->module;
     baton->userdata = userdata;
-    pmtimevalNow(&baton->started);
+    pmtimespecNow(&baton->started);
 }
 
 static void
@@ -538,7 +538,7 @@ redis_search_text_query_callback(
     redisSearchBaton	*baton = (redisSearchBaton *)arg;
     redisReply		*reply = r;
     redisReply		*value;
-    struct timeval	finished;
+    struct timespec	finished;
     unsigned int	total;
     double		timer;
     sds			msg;
@@ -552,8 +552,8 @@ redis_search_text_query_callback(
 	else if (value->type != REDIS_REPLY_INTEGER)
 	    baton->error = -EPROTO;
 	else {
-	    pmtimevalNow(&finished);
-	    timer = pmtimevalSub(&finished, &baton->started);
+	    pmtimespecNow(&finished);
+	    timer = pmtimespecSub(&finished, &baton->started);
 	    total = (unsigned int)value->integer;
 	    extract_search_results(baton, total, timer, reply);
 	}

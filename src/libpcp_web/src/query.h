@@ -150,10 +150,10 @@ typedef struct timing {
     pmSeriesTimeWindow	window;
 
     /* parsed inputs */
-    struct timeval	delta;	
-    struct timeval	align;
-    struct timeval	start;
-    struct timeval	end;
+    struct timespec	delta;	
+    struct timespec	align;
+    struct timespec	start;
+    struct timespec	end;
     unsigned int	count;		/* sample count */
     unsigned int	offset;		/* sample offset */
     int			zone;		/* pmNewZone handle */

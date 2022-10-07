@@ -95,7 +95,7 @@ timer_worker(uv_timer_t *arg)
 }
 
 /*
- * Register given callback function and it's private data in the
+ * Register given callback function and its private data in the
  * global timer list. Callbacks must be non-blocking and short,
  * e.g. to refresh instrumentation, garbage collection, etc.
  */

@@ -694,15 +694,15 @@ webgroup_fetch(pmWebGroupSettings *settings, context_t *cp,
     pmWebResult		webresult;
     pmWebValueSet	webvalueset;
     pmWebValue		webvalue;
-    pmResult		*result;
+    pmHighResResult	*result;
     char		err[PM_MAXERRMSGLEN];
     sds			v = sdsempty(), series = NULL;
     sds			id = cp->origin;
     int			i, j, k, sts, inst, type, status = 0;
 
-    if ((sts = pmFetch(numpmid, pmidlist, &result)) >= 0) {
+    if ((sts = pmFetchHighRes(numpmid, pmidlist, &result)) >= 0) {
 	webresult.seconds = result->timestamp.tv_sec;
-	webresult.nanoseconds = result->timestamp.tv_usec * 1000;
+	webresult.nanoseconds = result->timestamp.tv_nsec;
 
 	settings->callbacks.on_fetch(id, &webresult, arg);
 
@@ -772,7 +772,7 @@ webgroup_fetch(pmWebGroupSettings *settings, context_t *cp,
 		}
 	    }
 	}
-	pmFreeResult(result);
+	pmFreeHighResResult(result);
     } else if (sts == PM_ERR_IPC) {
 	cp->setup = 0;
     }
@@ -1741,7 +1741,7 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
     struct value	*value;
     pmWebLabelSet	labels;
     pmWebScrape		scrape;
-    pmResult		*result;
+    pmHighResResult	*result;
     sds			sems, types, units;
     sds			v = sdsempty(), series = NULL;
     int			i, j, k, sts, type;
@@ -1753,9 +1753,9 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
     labels.buffer = sdsnewlen(NULL, PM_MAXLABELJSONLEN);
     sdsclear(labels.buffer);
 
-    if ((sts = pmFetch(numpmid, pmidlist, &result)) >= 0) {
+    if ((sts = pmFetchHighRes(numpmid, pmidlist, &result)) >= 0) {
 	scrape.seconds = result->timestamp.tv_sec;
-	scrape.nanoseconds = result->timestamp.tv_usec * 1000;
+	scrape.nanoseconds = result->timestamp.tv_nsec;
 
 	/* extract all values from the result for later stages */
 	for (i = 0; i < numpmid; i++)
@@ -1845,7 +1845,7 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
 		}
 	    }
 	}
-	pmFreeResult(result);
+	pmFreeHighResResult(result);
     } else {
 	char		err[PM_MAXERRMSGLEN];
 
@@ -2096,7 +2096,7 @@ webgroup_store(struct context *context, struct metric *metric,
     struct indom	*indom;
     pmAtomValue		atom = {0};
     pmValueSet		*valueset = NULL;
-    pmResult		*result = NULL;
+    pmHighResResult	*result = NULL;
     size_t		bytes;
     long		cursor = 0;
     int			i, id, sts, count;
@@ -2118,7 +2118,7 @@ webgroup_store(struct context *context, struct metric *metric,
 	count = 1;
 
     bytes = sizeof(pmValueSet) + sizeof(pmValue) * (count - 1);
-    if ((result = (pmResult *)calloc(1, sizeof(pmResult))) == NULL ||
+    if ((result = (pmHighResResult *)calloc(1, sizeof(*result))) == NULL ||
 	(valueset = (pmValueSet *)calloc(1, bytes)) == NULL) {
 	if (atom.cp && metric->desc.type == PM_TYPE_STRING)
 	    free(atom.cp);
@@ -2169,9 +2169,9 @@ webgroup_store(struct context *context, struct metric *metric,
 	valueset->valfmt = sts;
 	valueset->numval = count;
 	valueset->pmid = metric->desc.pmid;
-	sts = pmStore(result);
+	sts = pmStoreHighRes(result);
     }
-    pmFreeResult(result);
+    pmFreeHighResResult(result);
     return sts;
 }
 
@@ -2254,7 +2254,7 @@ int
 pmWebGroupSetup(pmWebGroupModule *module)
 {
     struct webgroups	*groups = webgroups_lookup(module);
-    struct timeval	tv;
+    struct timespec	ts;
     unsigned int	pid;
 
     if (groups == NULL)
@@ -2289,9 +2289,9 @@ pmWebGroupSetup(pmWebGroupModule *module)
     AUTH_PASSWORD = sdsnew("auth.password");
 
     /* setup the random number generator for context IDs */
-    gettimeofday(&tv, NULL);
+    pmtimespecNow(&ts);
     pid = (unsigned int)getpid();
-    srandom(pid ^ (unsigned int)tv.tv_sec ^ (unsigned int)tv.tv_usec);
+    srandom(pid ^ (unsigned int)ts.tv_sec ^ (unsigned int)ts.tv_nsec);
 
     /* setup a dictionary mapping context number to data */
     groups->contexts = dictCreate(&intKeyDictCallBacks, NULL);

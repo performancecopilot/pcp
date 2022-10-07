@@ -616,10 +616,10 @@ series_values_reply(seriesQueryBaton *baton, sds series,
 	}
 
 	/* setup state variables used internally during selection process */
-	if (sampling.setup == 0 && (tp->delta.tv_sec || tp->delta.tv_usec)) {
+	if (sampling.setup == 0 && (tp->delta.tv_sec || tp->delta.tv_nsec)) {
 	    /* 'next' is a nanosecond precision time interval to step with */
 	    sampling.delta.tv_sec = tp->delta.tv_sec;
-	    sampling.delta.tv_nsec = tp->delta.tv_usec * 1000;
+	    sampling.delta.tv_nsec = tp->delta.tv_nsec;
 
 	    /* extract the first timestamp to kickstart the comparison process */
 	    if ((sts = extract_time(baton, series, elements[0],
@@ -629,9 +629,9 @@ series_values_reply(seriesQueryBaton *baton, sds series,
 		break;
 	    }
 	    /* 'goal' is the first target interval as an absolute timestamp */
-	    if (tp->start.tv_sec || tp->start.tv_usec) {
+	    if (tp->start.tv_sec || tp->start.tv_nsec) {
 		sampling.goal.tv_sec = tp->start.tv_sec;
-		sampling.goal.tv_nsec = tp->start.tv_usec * 1000;
+		sampling.goal.tv_nsec = tp->start.tv_nsec;
 	    } else {
 		sampling.goal = sampling.value.ts;
 	    }
@@ -1619,7 +1619,7 @@ series_prepare_time(seriesQueryBaton *baton, series_set_t *result)
 	revlen = pmsprintf(revbuf, sizeof(revbuf), "%u", reverse);
 	start = sdsnew("+");
     } else {
-	start = sdsnew(timeval_stream_str(&tp->start, buffer, sizeof(buffer)));
+	start = sdsnew(timespec_stream_str(&tp->start, buffer, sizeof(buffer)));
     }
 
     if (pmDebugOptions.series)
@@ -1628,7 +1628,7 @@ series_prepare_time(seriesQueryBaton *baton, series_set_t *result)
     if (reverse)
 	end = sdsnew("-");
     else if (tp->end.tv_sec)
-	end = sdsnew(timeval_stream_str(&tp->end, buffer, sizeof(buffer)));
+	end = sdsnew(timespec_stream_str(&tp->end, buffer, sizeof(buffer)));
     else
 	end = sdsnew("+");	/* "+" means "no end" - to the most recent */
 
@@ -1888,10 +1888,10 @@ series_values_store_to_node(seriesQueryBaton *baton, sds series,
 	}
 
 	/* setup state variables used internally during selection process */
-	if (sampling.setup == 0 && (tp->delta.tv_sec || tp->delta.tv_usec)) {
+	if (sampling.setup == 0 && (tp->delta.tv_sec || tp->delta.tv_nsec)) {
 	    /* 'next' is a nanosecond precision time interval to step with */
 	    sampling.delta.tv_sec = tp->delta.tv_sec;
-	    sampling.delta.tv_nsec = tp->delta.tv_usec * 1000;
+	    sampling.delta.tv_nsec = tp->delta.tv_nsec;
 
 	    /* extract the first timestamp to kickstart the comparison process */
 	    if ((sts = extract_time(baton, series, elements[0],
@@ -1901,9 +1901,9 @@ series_values_store_to_node(seriesQueryBaton *baton, sds series,
 		break;
 	    }
 	    /* 'goal' is the first target interval as an absolute timestamp */
-	    if (tp->start.tv_sec || tp->start.tv_usec) {
+	    if (tp->start.tv_sec || tp->start.tv_nsec) {
 		sampling.goal.tv_sec = tp->start.tv_sec;
-		sampling.goal.tv_nsec = tp->start.tv_usec * 1000;
+		sampling.goal.tv_nsec = tp->start.tv_nsec;
 	    } else {
 		sampling.goal = sampling.value.ts;
 	    }
@@ -2232,7 +2232,7 @@ series_node_prepare_time(seriesQueryBaton *baton, series_set_t *query_series_set
 	revlen = pmsprintf(revbuf, sizeof(revbuf), "%u", reverse);
 	start = sdsnew("+");
     } else {
-	start = sdsnew(timeval_stream_str(&tp->start, buffer, sizeof(buffer)));
+	start = sdsnew(timespec_stream_str(&tp->start, buffer, sizeof(buffer)));
     }
 
     if (pmDebugOptions.series)
@@ -2241,7 +2241,7 @@ series_node_prepare_time(seriesQueryBaton *baton, series_set_t *query_series_set
     if (reverse)
 	end = sdsnew("-");
     else if (tp->end.tv_sec)
-	end = sdsnew(timeval_stream_str(&tp->end, buffer, sizeof(buffer)));
+	end = sdsnew(timespec_stream_str(&tp->end, buffer, sizeof(buffer)));
     else
 	end = sdsnew("+");	/* "+" means "no end" - to the most recent */
 
@@ -4495,7 +4495,7 @@ series_binary_meta_update(node_t *left, pmUnits *large_units, int *l_sem, int *r
 	o_sem = PM_SEM_COUNTER;
     }
 
-    /* override type of result value (if it's been set) */
+    /* override type of result value (if it has been set) */
     if (*otype != PM_TYPE_UNKNOWN) {
 	sdsfree(left->value_set.series_values[0].series_desc.type);
 	left->value_set.series_values[0].series_desc.type = sdsnew(pmTypeStr(*otype));
@@ -5228,7 +5228,7 @@ series_map_lookup_expr_reply(redisClusterAsyncContext *c, void *r, void *arg)
     	if ((sts = extract_string(baton, sid->name, reply->element[0], &query, "query")) < 0) {
 	    baton->error = sts;
 	} else {
-	    /* call the on_metric callback, whatever it's set to by the caller */
+	    /* call the on_metric callback, whatever its set to by the caller */
 	    baton->lookup.func(sid->name, query, baton->userdata);
 	}
     }
@@ -6279,15 +6279,15 @@ pmSeriesMetrics(pmSeriesSettings *settings, int nseries, sds *series, void *arg)
 }
 
 static void
-parsedelta(seriesQueryBaton *baton, sds string, struct timeval *result, const char *source)
+parsedelta(seriesQueryBaton *baton, sds string, struct timespec *result, const char *source)
 {
     char		*error;
     sds			msg;
     int			sts;
 
-    if ((sts = pmParseInterval(string, result, &error)) < 0) {
-	infofmt(msg, "Cannot parse time %s with pmParseInterval:\n%s",
-		source, error);
+    if ((sts = pmParseHighResInterval(string, result, &error)) < 0) {
+	infofmt(msg, "Cannot parse time %s with %s:\n%s",
+		source, "pmParseHighResInterval", error);
 	batoninfo(baton, PMLOG_ERROR, msg);
 	baton->error = sts;
 	free(error);
@@ -6295,17 +6295,17 @@ parsedelta(seriesQueryBaton *baton, sds string, struct timeval *result, const ch
 }
 
 static void
-parsetime(seriesQueryBaton *baton, sds string, struct timeval *result, const char *source)
+parsetime(seriesQueryBaton *baton, sds string, struct timespec *result, const char *source)
 {
-    struct timeval	start = { 0, 0 };
-    struct timeval	end = { PM_MAX_TIME_T, 0 };
+    struct timespec	start = { 0, 0 };
+    struct timespec	end = { PM_MAX_TIME_T, 0 };
     char		*error;
     sds			msg;
     int			sts;
 
-    if ((sts = __pmParseTime(string, &start, &end, result, &error)) < 0) {
-	infofmt(msg, "Cannot parse %s time with __pmParseTime:\n%s",
-		source, error);
+    if ((sts = __pmParseHighResTime(string, &start, &end, result, &error)) < 0) {
+	infofmt(msg, "Cannot parse time %s with %s:\n%s",
+		source, "__pmParseHighResTime", error);
 	batoninfo(baton, PMLOG_ERROR, msg);
 	baton->error = sts;
 	free(error);
@@ -6374,7 +6374,7 @@ initSeriesGetValues(seriesQueryBaton *baton, int nseries, sds *inseries,
     struct timing	timing = {0};
     unsigned char	*series = NULL;
     struct series_set	*result;
-    struct timeval	offset;
+    struct timespec	offset;
     int			i;
 
     /* allocate a local parse node, timing and result SIDs */
@@ -6409,8 +6409,8 @@ initSeriesGetValues(seriesQueryBaton *baton, int nseries, sds *inseries,
 	parsetime(baton, window->end, &timing.end, "end");
     if (window->range) {
 	parsedelta(baton, window->range, &timing.start, "range");
-	gettimeofday(&offset, NULL);
-	tsub(&offset, &timing.start);
+	pmtimespecNow(&offset);
+	pmtimespecDec(&offset, &timing.start);
 	timing.start = offset;
 	timing.end.tv_sec = PM_MAX_TIME_T;
     }

@@ -213,7 +213,7 @@ typedef void (*pmDiscoverLabelsCallBack)(pmDiscoverEvent *,
 typedef void (*pmDiscoverMetricCallBack)(pmDiscoverEvent *,
 		pmDesc *, int, char **, void *);
 typedef void (*pmDiscoverValuesCallBack)(pmDiscoverEvent *,
-		pmResult *, void *);
+		pmHighResResult *, void *);
 typedef void (*pmDiscoverInDomCallBack)(pmDiscoverEvent *,
 		pmInResult *, void *);
 typedef void (*pmDiscoverTextCallBack)(pmDiscoverEvent *,

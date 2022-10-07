@@ -64,41 +64,17 @@ zfree(void *ptr)
 	free(ptr);
 }
 
-/* time structure manipulation */
-int
-tsub(struct timeval *a, struct timeval *b)
-{
-    if ((a == NULL) || (b == NULL))
-	return -1;
-    pmtimevalDec(a, b);
-    if (a->tv_sec < 0) {
-	/* clip negative values at zero */
-	a->tv_sec = 0;
-	a->tv_usec = 0;
-    }
-    return 0;
-}
-
-int
-tadd(struct timeval *a, struct timeval *b)
-{
-    if ((a == NULL) || (b == NULL))
-	return -1;
-    pmtimevalInc(a, b);
-    return 0;
-}
-
 /* convert into <milliseconds>-<nanoseconds> format for series streaming */
 const char *
-timeval_stream_str(struct timeval *stamp, char *buffer, int buflen)
+timespec_stream_str(struct timespec *stamp, char *buffer, int buflen)
 {
     __uint64_t	millipart;
     __uint64_t	fractions;
-    __uint64_t	crossover = stamp->tv_usec / 1000;
+    __uint64_t	crossover = stamp->tv_nsec / 1000000;
 
     millipart = ((__uint64_t)stamp->tv_sec) * 1000;
     millipart += crossover;
-    fractions = stamp->tv_usec % 1000;
+    fractions = stamp->tv_nsec % 1000000 / 1000;
     pmsprintf(buffer, buflen, "%" FMT_UINT64 "-%"FMT_UINT64,
 		(__uint64_t)millipart, (__uint64_t)fractions);
     return buffer;
@@ -106,14 +82,14 @@ timeval_stream_str(struct timeval *stamp, char *buffer, int buflen)
 
 /* convert timeval into human readable date/time format for logging */
 const char *
-timeval_str(struct timeval *tvp, char *buffer, int buflen)
+timespec_str(struct timespec *tvp, char *buffer, int buflen)
 {
     struct tm	tmp;
     time_t	now = (time_t)tvp->tv_sec;
 
     pmLocaltime(&now, &tmp);
     pmsprintf(buffer, sizeof(buflen), "%02u:%02u:%02u.%06u",
-	      tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (unsigned int)tvp->tv_usec);
+	      tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (unsigned int)tvp->tv_nsec);
     return buffer;
 }
 
