@@ -920,6 +920,38 @@ AC_DEFUN([PCP_CHECK_PYTHON_HEADER],
     CFLAGS="$saved_CFLAGS"
   ])
 
+dnl check if python3 tools/packages wanted (need python >= 3.3)
+enable_python3=false
+AS_IF([test "x$do_python3" != "xno"], [
+    enable_python3=true
+    if test -z "$PYTHON3"
+    then
+	enable_python3=false
+    else
+	AC_MSG_CHECKING([Python3 version])
+	eval `$PYTHON3 -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
+	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
+	if test "$PY_MAJOR" -lt 3; then
+	    echo WARNING: Python version 3.3 or later does not seem to be installed.
+	    enable_python3=false
+	else
+	    if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 3 ; then
+		echo WARNING: Python version 3.$PY_MINOR is too old.
+		echo Python version 3.3 or later is required for Python builds.
+		enable_python3=false
+	    else
+		PCP_CHECK_PYTHON_HEADER([$PY_MAJOR], [$PY_MINOR])
+	    fi
+	fi
+    fi
+
+    if test "$do_python3" != "check" -a "$enable_python3" != "true"
+    then
+	AC_MSG_ERROR([cannot enable Python3 - no supported version found])
+    fi
+])
+AC_SUBST(enable_python3)
+
 dnl check if python tools/packages wanted (need python >= 2.7)
 enable_python2=false
 AS_IF([test "x$do_python" != "xno"], [
@@ -928,6 +960,8 @@ AS_IF([test "x$do_python" != "xno"], [
     if test "$do_python" = "check" -a -f /etc/os-release
     then
     (
+	dnl just don't bother with Python2 for more recent distros
+
 	. /etc/os-release
 	case "$ID"
 	in
@@ -938,6 +972,7 @@ AS_IF([test "x$do_python" != "xno"], [
 		;;
 	    ubuntu)
 		VERSION_NO=`echo "$VERSION_ID" | sed 's/[[^0-9]]//'`
+		dnl debug echo "VERSION_ID=$VERSION_ID VERSION_NO=$VERSION_NO"
 		if test "$VERSION_NO" -ge 2004; then
 		    touch config.python2_eol
 		fi
@@ -949,7 +984,16 @@ AS_IF([test "x$do_python" != "xno"], [
 		;;
 	    rhel)
 		VERSION_NO=`echo "$VERSION_ID" | sed 's/[[^0-9]]//'`
+		dnl debug echo "VERSION_ID=$VERSION_ID VERSION_NO=$VERSION_NO"
 		if test "$VERSION_NO" -ge 90; then
+		    touch config.python2_eol
+		fi
+		;;
+	    opensuse-leap)
+		dnl map leap version 15.4 => 1504, for example
+		VERSION_NO=`echo "$VERSION_ID" | sed -e '[s/\.\([0-9]\)$]/[\.0\1]/' -e '[s/\.//]'`
+		dnl debug echo "VERSION_ID=$VERSION_ID VERSION_NO=$VERSION_NO"
+		if test "$VERSION_NO" -ge 1504; then
 		    touch config.python2_eol
 		fi
 		;;
@@ -965,7 +1009,10 @@ AS_IF([test "x$do_python" != "xno"], [
     if test -f config.python2_eol
     then
 	rm config.python2_eol
-	echo "WARNING: Python 2 is not supported anymore (EOL since 2020), please use Python 3 instead."
+	if test $enable_python3 = false; then
+	    dnl be silent if python3 is already enabled
+	    echo "WARNING: Python 2 is not supported anymore (EOL since 2020), please use Python 3 instead."
+	fi
 	enable_python2=false
     fi
 
@@ -999,38 +1046,6 @@ AS_IF([test "x$do_python" != "xno"], [
     fi
 ])
 AC_SUBST(enable_python2)
-
-dnl check if python3 tools/packages wanted (need python >= 3.3)
-enable_python3=false
-AS_IF([test "x$do_python3" != "xno"], [
-    enable_python3=true
-    if test -z "$PYTHON3"
-    then
-	enable_python3=false
-    else
-	AC_MSG_CHECKING([Python3 version])
-	eval `$PYTHON3 -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
-	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
-	if test "$PY_MAJOR" -lt 3; then
-	    echo WARNING: Python version 3.3 or later does not seem to be installed.
-	    enable_python3=false
-	else
-	    if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 3 ; then
-		echo WARNING: Python version 3.$PY_MINOR is too old.
-		echo Python version 3.3 or later is required for Python builds.
-		enable_python3=false
-	    else
-		PCP_CHECK_PYTHON_HEADER([$PY_MAJOR], [$PY_MINOR])
-	    fi
-	fi
-    fi
-
-    if test "$do_python3" != "check" -a "$enable_python3" != "true"
-    then
-	AC_MSG_ERROR([cannot enable Python3 - no supported version found])
-    fi
-])
-AC_SUBST(enable_python3)
 
 dnl convenience macro to determine if either python is available
 AC_MSG_CHECKING([for any python version])
@@ -1216,7 +1231,7 @@ if $pmda_bpf; then
     if test "$libbpf_version_major" -eq 0 -a "$libbpf_version_minor" -lt 7; then
 	AC_MSG_RESULT([no (libbpf version required: 0.7.0, installed: $libbpf_version)])
     else
-	pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so biosnoop.so execsnoop.so exitsnoop.so fsslower.so mountsnoop.so oomkill.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so"
+	pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so mountsnoop.so oomkill.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so"
 	AC_MSG_RESULT(yes)
     fi
 
