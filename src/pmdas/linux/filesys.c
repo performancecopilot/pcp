@@ -71,6 +71,7 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 	    strcmp(type, "devfs") == 0 ||
 	    strcmp(type, "devpts") == 0 ||
 	    strcmp(type, "devtmpfs") == 0 ||
+	    strcmp(type, "squashfs") == 0 ||
 	    strcmp(type, "selinuxfs") == 0 ||
 	    strcmp(type, "securityfs") == 0 ||
 	    strcmp(type, "configfs") == 0 ||
