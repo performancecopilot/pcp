@@ -393,7 +393,11 @@ then
 	    rpm -qa --qf '%{NAME}\n' >$tmp.installed
 	    if which zypper >/dev/null 2>&1
 	    then
-		: TODO
+		zypper packages 2>&1 \
+		| awk -F \| ' { print $3 }' \
+		| sed >$tmp.allpkgs \
+		    -e 's/  *//g' \
+		# end
 	    elif which dnf >/dev/null 2>&1
 	    then
 		( dnf list available; dnf list installed ) 2>&1 \
