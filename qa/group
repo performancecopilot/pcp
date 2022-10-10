@@ -482,7 +482,7 @@ x11
 026 other help local ostest sanity libpcp
 027 libpcp local ostest sanity
 028 pmns local ostest
-029 pmns local ostest pmdumplog
+029 pmns local ostest pmdumplog pmda.sample
 030 pdu pmcd pmda context_local local ostest pmstore
 031 pmns local sanity
 032 pmlc local ostest pmlogger
@@ -716,7 +716,7 @@ x11
 260 derive pmie local pmstore pmda.sample
 261 pmdumplog pmval local pmlogextract
 262 context_local pmie pmsocks remote pmstat kernel
-263 derive local sanity
+263 derive local sanity pmda.sample
 264 pmns local
 265 libpcp local
 266 #466346 patch2140 patch2141 local pmlogextract pmdumplog timezone

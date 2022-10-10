@@ -61,7 +61,7 @@ using the new metric.
 
 [ ] These tests include the names or counts of all sample PMDA metrics
     and will need to be remade:
-    139 256 273 509 569 662 762 1067
+    029 139 256 273 509 569 662 762 1067
 
 [ ] 1067 may also need some filter love if the values of the metric
     and/or the state of any underlying instance domain is not

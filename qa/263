@@ -68,6 +68,31 @@ $1 == "expr"		{ want = 0 }'
     sed -f $tmp.sed2
 }
 
+# deal with sample.ulonglong.bin* metrics that all have sample.seconds
+# added to them
+#
+_filter3()
+{
+    $PCP_AWK_PROG '
+$1 == "aggr.seconds"		{ state = 1 }
+state == 1 && $1 == "value"	{ seconds = $2; $2 = "OK"; state = 0 }
+$1 == "aggr.avgu64"		{ state = 2 }
+state == 2 && $1 == "value"	{ if ($2 == 500 + seconds) $2 = "OK"
+				  state = 0 }
+$1 == "aggr.maxu64"		{ state = 3 }
+state == 3 && $1 == "value"	{ if ($2 == 900 + seconds) $2 = "OK"
+				  state = 0 }
+$1 == "aggr.minu64"		{ state = 4 }
+state == 4 && $1 == "value"	{ if ($2 == 100 + seconds) $2 = "OK"
+				  state = 0 }
+$1 == "aggr.sumu64"		{ state = 5 }
+state == 5 && $1 == "value"	{ if ($2 == 4500 + 9*seconds) $2 = "OK"
+				  state = 0 }
+				{ print }
+'
+
+}
+
 # real QA test starts here
 
 echo "=== expression trees and pmDesc propagation ==="
@@ -99,6 +124,7 @@ aggr.count64 = count(sample.longlong.bin_ctr)
 aggr.max64 = max(sample.longlong.bin_ctr)
 aggr.min64 = min(sample.longlong.bin_ctr)
 aggr.sum64 = sum(sample.longlong.bin_ctr)
+aggr.seconds = sample.seconds
 aggr.avgu64 = avg(sample.ulonglong.bin_ctr)
 aggr.countu64 = count(sample.ulonglong.bin_ctr)
 aggr.maxu64 = max(sample.ulonglong.bin_ctr)
@@ -127,7 +153,7 @@ echo "=== fetch values exercises ==="
 echo
 pminfo -f aggr >$tmp.out 2>$tmp.err
 cat $tmp.err >>$tmp.out
-_filter | _filter2 \
+_filter | _filter2 | _filter3 \
 | $PCP_AWK_PROG '
 $1 == "value" && $2 ~ /^[0-9.]+$/	{ if ($2 >= 499.99997 && $2 <= 500.00003) {
 					    $1 = "    value"
