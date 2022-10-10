@@ -133,6 +133,10 @@ sample.wrap.long
 sample.wrap.ulong
 sample.wrap.longlong
 sample.wrap.ulonglong
+sample.slow_wrap.long
+sample.slow_wrap.ulong
+sample.slow_wrap.longlong
+sample.slow_wrap.ulonglong
 sample.dodgey.control
 sample.dodgey.value
 sample.scale_step.bytes_up
@@ -184,4 +188,9 @@ sample.proc.ordinal
 sample.proc.exec
 sample.proc.time
 sample.proc.reset
+sample.updown.obs
+sample.updown.control.repeat
+sample.updown.control.min
+sample.updown.control.max
+sample.updown.control.step
 pmlc> 

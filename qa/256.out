@@ -401,6 +401,10 @@ sampledso.wrap.long
 sampledso.wrap.ulong
 sampledso.wrap.longlong
 sampledso.wrap.ulonglong
+sampledso.slow_wrap.long
+sampledso.slow_wrap.ulong
+sampledso.slow_wrap.longlong
+sampledso.slow_wrap.ulonglong
 sampledso.dodgey.control
 sampledso.dodgey.value
 sampledso.dynamic.counter
@@ -478,6 +482,11 @@ sampledso.proc.ordinal
 sampledso.proc.exec
 sampledso.proc.time
 sampledso.proc.reset
+sampledso.updown.obs
+sampledso.updown.control.repeat
+sampledso.updown.control.min
+sampledso.updown.control.max
+sampledso.updown.control.step
 sampledso.one
 sampledso.suba.two
 sampledso.suba.three
@@ -614,6 +623,10 @@ sampledso.wrap.long
 sampledso.wrap.ulong
 sampledso.wrap.longlong
 sampledso.wrap.ulonglong
+sampledso.slow_wrap.long
+sampledso.slow_wrap.ulong
+sampledso.slow_wrap.longlong
+sampledso.slow_wrap.ulonglong
 sampledso.dodgey.control
 sampledso.dodgey.value
 sampledso.dynamic.counter
@@ -691,6 +704,11 @@ sampledso.proc.ordinal
 sampledso.proc.exec
 sampledso.proc.time
 sampledso.proc.reset
+sampledso.updown.obs
+sampledso.updown.control.repeat
+sampledso.updown.control.min
+sampledso.updown.control.max
+sampledso.updown.control.step
 sampledso.one
 sampledso.suba.two
 sampledso.suba.three

@@ -66,7 +66,7 @@ len(metrics[]):3
   metric:no.such.metric2 metadata:3
   metric:pmcd.client.whoami metadata:10
 context #### metadata prefix=sample response code 200
-len(metrics[]):187
+len(metrics[]):196
   metric:sample.aggregate.hullo metadata:9
   metric:sample.aggregate.null metadata:9
   metric:sample.aggregate.write_me metadata:9
@@ -222,6 +222,10 @@ len(metrics[]):187
   metric:sample.secret.foo.bar.three metadata:9
   metric:sample.secret.foo.one metadata:9
   metric:sample.secret.foo.two metadata:9
+  metric:sample.slow_wrap.long metadata:9
+  metric:sample.slow_wrap.longlong metadata:9
+  metric:sample.slow_wrap.ulong metadata:9
+  metric:sample.slow_wrap.ulonglong metadata:9
   metric:sample.step metadata:9
   metric:sample.step_counter metadata:9
   metric:sample.string.bin metadata:10
@@ -248,6 +252,11 @@ len(metrics[]):187
   metric:sample.ulonglong.one metadata:9
   metric:sample.ulonglong.ten metadata:9
   metric:sample.ulonglong.write_me metadata:9
+  metric:sample.updown.control.max metadata:9
+  metric:sample.updown.control.min metadata:9
+  metric:sample.updown.control.repeat metadata:9
+  metric:sample.updown.control.step metadata:9
+  metric:sample.updown.obs metadata:9
   metric:sample.wrap.long metadata:9
   metric:sample.wrap.longlong metadata:9
   metric:sample.wrap.ulong metadata:9
