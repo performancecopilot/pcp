@@ -3157,7 +3157,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 		proc_reset(&indomtab[PROC_INDOM]);
 		break;
 	    case 165:	/* updown.control.repeat */
-		if (av.ul < 0)
+		if (av.l < 0)
 		    sts = PM_ERR_SIGN;
 		else
 		    updown_repeat = av.ul;
@@ -3169,7 +3169,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 		updown_max = av.l;
 		break;
 	    case 168:	/* updown.control.step */
-		if (av.ul < 0)
+		if (av.l < 0)
 		    sts = PM_ERR_SIGN;
 		else
 		    updown_step = av.ul;
