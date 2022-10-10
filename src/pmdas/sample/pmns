@@ -59,6 +59,7 @@ sample {
     bad
     not_ready	SAMPLE:0:56
     wrap
+    slow_wrap
     dodgey
     dynamic
     rapid	SAMPLE:0:64
@@ -83,6 +84,7 @@ sample {
     ghosts	SAMPLE:*:*
     controller
     proc
+    updown
 }
 
 sample.long {
@@ -188,6 +190,13 @@ sample.wrap {
     ulong	SAMPLE:0:58
     longlong	SAMPLE:0:59
     ulonglong	SAMPLE:0:60
+}
+
+sample.slow_wrap {
+    long	SAMPLE:0:160
+    ulong	SAMPLE:0:161
+    longlong	SAMPLE:0:162
+    ulonglong	SAMPLE:0:163
 }
 
 sample.dodgey {
@@ -351,4 +360,16 @@ sample.proc {
     exec		SAMPLE:0:157
     time		SAMPLE:0:158
     reset		SAMPLE:0:159
+}
+
+sample.updown {
+    obs			SAMPLE:0:164
+    control
+}
+
+sample.updown.control {
+    repeat		SAMPLE:0:165
+    min 		SAMPLE:0:166
+    max 		SAMPLE:0:167
+    step		SAMPLE:0:168
 }
