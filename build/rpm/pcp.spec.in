@@ -92,7 +92,12 @@ BuildRequires: gcc-c++
 %endif
 %if "@enable_qt@" == "true"
 %if "%{_vendor}" == "suse"
+%if @qt_version@ >= 5
+BuildRequires: libqt5-qtbase-common-devel
+BuildRequires: libqt5-qtsvg-devel
+%else
 BuildRequires: qt-devel >= 4.4
+%endif
 %else
 %if @qt_version@ >= 5
 BuildRequires: qt5-qtbase-devel
@@ -1774,11 +1779,11 @@ Summary: Performance Co-Pilot (PCP) metrics from virtual machines
 URL: https://pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
 %if "@enable_python3@" == "true"
-Requires: python3-pcp
+Requires: python3-pcp python3-lxml
 %if "%{_vendor}" == "suse"
-Requires: libvirt-python %{__python2}-lxml
+Requires: python3-libvirt-python
 %else
-Requires: libvirt-python3 python3-lxml
+Requires: libvirt-python3
 %endif
 %else
 Requires: %{__python2}-pcp
@@ -1881,11 +1886,7 @@ URL: https://pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
 %if "@enable_python3@" == "true"
 Requires: python3-pcp
-%if "%{_vendor}" == "suse"
-Requires: %{__python2}-jsonpointer
-%else
 Requires: python3-jsonpointer
-%endif
 Requires: python3-six
 %else
 Requires: %{__python2}-pcp
