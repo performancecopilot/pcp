@@ -115,9 +115,6 @@ BuildRequires: initscripts
 %endif
 %if "@enable_systemd@" == "true"
 BuildRequires: systemd-devel
-%if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
-BuildRequires: systemd-rpm-macros
-%endif
 %endif
 %if "@pmda_statsd@" == "true"
 # ragel unavailable on RHEL8
@@ -2526,7 +2523,7 @@ done
 
 %pre testsuite
 %if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
-%sysusers_create_compat %{_builddir}/debian/pcp-testsuite.sysusers
+systemd-sysusers --replace=@pcp_systemdsysusers_dir@/pcp-testsuite.conf - < %{_builddir}/debian/pcp-testsuite.sysusers
 %else
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
@@ -2553,7 +2550,7 @@ exit 0
 
 %pre
 %if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
-%sysusers_create_compat %{_builddir}/debian/pcp.sysusers
+systemd-sysusers --replace=@pcp_systemdsysusers_dir@/pcp.conf - < %{_builddir}/debian/pcp.sysusers
 %else
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \

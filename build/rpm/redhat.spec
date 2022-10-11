@@ -282,7 +282,7 @@ BuildRequires: perl(Time::HiRes) perl(Digest::MD5)
 BuildRequires: perl(XML::LibXML) perl(File::Slurp)
 BuildRequires: man %{_hostname_executable}
 %if !%{disable_systemd}
-BuildRequires: systemd-devel systemd-rpm-macros
+BuildRequires: systemd-devel
 %endif
 %if !%{disable_qt}
 BuildRequires: desktop-file-utils
@@ -2701,7 +2701,7 @@ done
 
 %pre testsuite
 %if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
-%sysusers_create_compat %{SOURCE1}
+systemd-sysusers --replace=/usr/lib/sysusers.d/pcp-testsuite.conf - < %{SOURCE1}
 %else
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
@@ -2729,7 +2729,7 @@ exit 0
 
 %pre
 %if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
-%sysusers_create_compat %{SOURCE2}
+systemd-sysusers --replace=/usr/lib/sysusers.d/pcp.conf - < %{SOURCE2}
 %else
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
