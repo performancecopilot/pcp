@@ -150,3 +150,59 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== Running valgrind with scalar multiplication
+=== std out ===
+
+63e4592a8415eecfc61955f64615cfa3fb985dfb
+    [Mon Oct  3 09:10:24.305845000 2011] 2.333333e-02 
+    [Mon Oct  3 09:10:23.802930000 2011] 2.333333e-02 
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p REDISPORT -Z UTC avg_sample(kernel.all.load[count:2])
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+
+d5f1f053bb6b11dcc8245a7a792d0537c9f7de6a
+    [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
+    [Mon Oct  3 09:10:24.305845000 2011] 2.000000e-02 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
+    [Mon Oct  3 09:10:24.305845000 2011] 5.000000e-02 9d418095c9f971ff4fd44d6828ead27f9d021dc3
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p REDISPORT -Z UTC avg_inst(kernel.all.load[count:2])
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+== Running valgrind with scalar multiplication
+=== std out ===
+
+9360e5a95a3629121425bc3de5048711b75f47d5
+    [Mon Oct  3 09:10:24.305845000 2011] 1.033322e+06 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183
+    [Mon Oct  3 09:10:23.802930000 2011] 1.033322e+06 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p REDISPORT -Z UTC kernel.all.uptime[count:2]\ *\ 2
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+== Running valgrind with function multiplication
+=== std out ===
+
+feb9ff0f4ca9c6fff384a5ef545afc0781840ff3
+    [Mon Oct  3 09:10:24.305845000 2011] no value 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmseries -p REDISPORT -Z UTC max(kernel.all.uptime[count:2])\ *\ max(kernel.all.uptime[count:2])
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
