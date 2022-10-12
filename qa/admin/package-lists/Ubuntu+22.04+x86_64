@@ -36,6 +36,7 @@ gfs2-utils
 git
 grep
 iproute2
+jq
 libavahi-common-dev
 libclass-dbi-perl
 libcmocka-dev

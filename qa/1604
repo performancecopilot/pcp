@@ -1,0 +1,114 @@
+#!/bin/sh
+# PCP QA Test No. 1604
+# Exercise pmproxy REST API /series/values endpoint using curl(1).
+#
+# Copyright (c) 2022 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_series
+which jq >/dev/null 2>&1 || _notrun "jq not installed"
+
+_cleanup()
+{
+    cd $here
+    [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
+    [ -n "$options" ] && redis-cli $options shutdown
+    if $need_restore
+    then
+	need_restore=false
+        _restore_config $PCP_SYSCONF_DIR/pmproxy
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+
+userid=`id -u`
+username=`id -u -n`
+hostname=`hostname`
+machineid=`_machine_id`
+domainname=`_domain_name`
+
+need_restore=false
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_source()
+{
+    sed \
+        -e "s,$here,PATH,g" \
+        -e "s,$hostname,QAHOST,g" \
+    #end
+}
+
+_format_timestamps()
+{
+    jq '.[].timestamp |= ((. / 1000 | strftime("%Y-%m-%d %H:%M:%S")) + "." + (. * 1000 % 1000000 | tostring))'
+}
+
+# real QA test starts here
+_save_config $PCP_SYSCONF_DIR/pmproxy
+$sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
+need_restore=true
+
+echo "Start test Redis server ..."
+redisport=`_find_free_port`
+options="-p $redisport"
+redis-server --port $redisport --save "" > $tmp.redis 2>&1 &
+_check_redis_ping $redisport
+_check_redis_server $redisport
+echo
+
+_check_redis_server_version $redisport
+
+# import some well-known test data into Redis
+pmseries $options --load "$here/archives/bozo-disk" | _filter_source
+
+# start pmproxy
+proxyport=`_find_free_port`
+proxyopts="-p $proxyport -r $redisport -t"  # -Dseries,http,af
+pmproxy -f -U $username -x $seq.full -l $tmp.pmproxy.log $proxyopts &
+pmproxy_pid=$!
+
+# check pmproxy has started and is available for requests
+pmcd_wait -h localhost@localhost:$proxyport -v -t 5sec
+
+series1=`pmseries $options disk.all.read`
+[ -z "$series1" ] && _fail "Cannot find any timeseries matching disk.all.read"
+echo "Using series $series1 for disk.all.read"
+
+
+echo "== no interval" | tee -a $seq.full
+url="http://localhost:$proxyport/series/values?series=$series1&start=1489620673&finish=1489620793"
+echo "$url" >> $seq.full
+curl --get --silent "$url" | tee -a $seq.full | _format_timestamps
+
+echo "== 10s interval" | tee -a $seq.full
+url="http://localhost:$proxyport/series/values?series=$series1&start=1489620673&finish=1489620793&interval=10"
+echo "$url" >> $seq.full
+curl --get --silent "$url" | tee -a $seq.full | _format_timestamps
+
+echo "== 20s interval" | tee -a $seq.full
+url="http://localhost:$proxyport/series/values?series=$series1&start=1489620673&finish=1489620793&interval=20"
+echo "$url" >> $seq.full
+curl --get --silent "$url" | tee -a $seq.full | _format_timestamps
+cat $tmp.pmproxy.log >> $seq.full
+
+echo "== 20s interval, starting 2m before first sample in archive" | tee -a $seq.full
+url="http://localhost:$proxyport/series/values?series=$series1&start=1489620553&finish=1489620793&interval=20"
+echo "$url" >> $seq.full
+curl --get --silent "$url" | tee -a $seq.full | _format_timestamps
+
+
+cat $tmp.pmproxy.log >> $seq.full
+status=0
+exit
