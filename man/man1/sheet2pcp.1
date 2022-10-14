@@ -98,12 +98,12 @@ The  \fBsheet\fR tag supports the following optional attributes:
 .IX Item "heading"
 Specifies the number of
 heading rows to skip at the start of the spreadsheet before processing data.
-Example: heading=``1''.
+Example: heading="1".
 .IP "\fBhostname\fR" 10
 .IX Item "hostname"
 Set the source hostname in the \s-1PCP\s0 archive (the
 default is to use the hostname of the local host).
-Example: hostname=``some.where.com''.
+Example: hostname="some.where.com".
 .IP "\fBtimezone\fR" 10
 .IX Item "timezone"
 Set the source timezone in the \s-1PCP\s0 archive (the
@@ -112,7 +112,7 @@ format +HHMM (for hours and minutes East of \s-1UTC\s0) or \-HHMM (for hours
 and minutes West of \s-1UTC\s0).  Note in particular that \fBneither\fR the \fBzoneinfo\fR
 (aka Olson) format, e.g. Europe/Paris, nor the Posix \fB\s-1TZ\s0\fR format, e.g.
 \s-1EST+5\s0 is allowed.
-Example: timezone=``+1100''.
+Example: timezone="+1100".
 .IP "\fBdatefmt\fR" 10
 .IX Item "datefmt"
 The format of the date imported from the spreadsheet may be specified
@@ -121,7 +121,7 @@ values that specify the
 order of the year (\fBY\fR), month (\fBM\fR) and day (\fBD\fR) fields in a date.
 The supported variants are \fB\s-1DMY\s0\fR (the default),
 \fB\s-1MDY\s0\fR and \fB\s-1YMD\s0\fR.
-Example: datefmt=``\s-1YMD\s0''.
+Example: datefmt="\s-1YMD\s0".
 .PP
 A \fB<sheet>\fR element contains
 one or more metric specifications of
@@ -136,7 +136,7 @@ for more details of PMIDs.  If omitted, the \s-1PMID\s0 will be automatically
 assigned by \fBpmiAddMetric\fR(3).
 The value \fB\s-1PM_ID_NULL\s0\fR may be used to explicitly nominate
 the default behaviour.
-Examples: pmid=``60.0.2'', pmid=``\s-1PM_ID_NULL\s0''.
+Examples: pmid="60.0.2", pmid="\s-1PM_ID_NULL\s0".
 .IP "\fBindom\fR" 10
 .IX Item "indom"
 Each metric may have one or more values.  If a metric \fBalways\fR
@@ -144,7 +144,7 @@ has one value, it is singular and the Instance Domain should be set to
 \fB\s-1PM_INDOM_NULL\s0\fR.
 Otherwise \fBindom\fR should be specified as 2 numbers separated by a period (.)
 to set the \fBdomain\fR and \fBordinal\fR fields of the Instance Domain.
-Examples: indom=``\s-1PM_INDOM_NULL\s0'', indom=``60.3'', indom=``\s-1PMI_DOMAIN\s0.4''.
+Examples: indom="\s-1PM_INDOM_NULL\s0", indom="60.3", indom="\s-1PMI_DOMAIN\s0.4".
 .sp
 More than
 one metric can share the same Instance Domain when the metrics have defined
@@ -163,22 +163,22 @@ and count (events, messages, packets, etc.) is specified with a 6\-tuple.
 These values are passed to the \fBpmiUnits\fR(3) function to generate a
 \fIpmUnits\fR structure.  Refer to \fBpmLookupDesc\fR(3) for a full description
 of all the fields of this structure.
-The default is to assign no scale or dimension to the metric, i.e. units=``0,0,0,0,0,0''.
-Examples: units=``0,1,0,0,PM_TIME_MSEC,0'' (milliseconds),
-units=``1,\-1,0,PM_SPACE_MBYTE,PM_TIME_SEC,0'' (Mbytes/sec),
-units=``0,1,\-1,0,PM_TIME_USEC,PM_COUNT_ONE'' (microseconds/event).
+The default is to assign no scale or dimension to the metric, i.e. units="0,0,0,0,0,0".
+Examples: units="0,1,0,0,PM_TIME_MSEC,0" (milliseconds),
+units="1,\-1,0,PM_SPACE_MBYTE,PM_TIME_SEC,0" (Mbytes/sec),
+units="0,1,\-1,0,PM_TIME_USEC,PM_COUNT_ONE" (microseconds/event).
 .IP "\fBtype\fR" 10
 .IX Item "type"
 Defines the data type for the metric.
 Refer to \fBpmLookupDesc\fR(3) for a full description
 of the possible type values; the default is \fB\s-1PM_TYPE_FLOAT\s0\fR.
-Examples: type=``\s-1PM_TYPE_32\s0'', type=``\s-1PM_TYPE_U64\s0'', type=``\s-1PM_TYPE_STRING\s0''.
+Examples: type="\s-1PM_TYPE_32\s0", type="\s-1PM_TYPE_U64\s0", type="\s-1PM_TYPE_STRING\s0".
 .IP "\fBsem\fR" 10
 .IX Item "sem"
 Defines the semantics of the metric.
 Refer to \fBpmLookupDesc\fR(3) for a full description
 of the possible values; the default is \fB\s-1PM_SEM_INSTANT\s0\fR.
-Examples: sem=``\s-1PM_SEM_COUNTER\s0'', type=``\s-1PM_SEM_DISCRETE\s0''.
+Examples: sem="\s-1PM_SEM_COUNTER\s0", type="\s-1PM_SEM_DISCRETE\s0".
 .PP
 The remaining specifications define the data columns \fBin order\fR using
 \fBexactly\fR one \fB<datetime>\fR\fB</datetime>\fR element,
