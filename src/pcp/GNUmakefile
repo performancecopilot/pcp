@@ -35,7 +35,7 @@ SUBDIRS = \
 	verify \
 	vmstat \
 	ss	\
-	ps
+#	ps
 
 default :: default_pcp
 
