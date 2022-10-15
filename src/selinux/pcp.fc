@@ -1,0 +1,36 @@
+/etc/rc\.d/init\.d/pmcd		--	gen_context(system_u:object_r:pcp_pmcd_initrc_exec_t,s0)
+/etc/rc\.d/init\.d/pmlogger 	--      gen_context(system_u:object_r:pcp_pmlogger_initrc_exec_t,s0)
+/etc/rc\.d/init\.d/pmproxy 	--	gen_context(system_u:object_r:pcp_pmproxy_initrc_exec_t,s0)
+/etc/rc\.d/init\.d/pmie      --       gen_context(system_u:object_r:pcp_pmie_initrc_exec_t,s0)
+
+/usr/bin/pmie       --      gen_context(system_u:object_r:pcp_pmie_exec_t,s0)
+/usr/bin/pmcd	    --	    gen_context(system_u:object_r:pcp_pmcd_exec_t,s0)
+/usr/bin/pmlogger   --      gen_context(system_u:object_r:pcp_pmlogger_exec_t,s0)
+/usr/bin/pmproxy    --      gen_context(system_u:object_r:pcp_pmproxy_exec_t,s0)
+
+
+/usr/libexec/pcp/bin/pmcd	--	gen_context(system_u:object_r:pcp_pmcd_exec_t,s0)
+/usr/libexec/pcp/bin/pmlogger   --      gen_context(system_u:object_r:pcp_pmlogger_exec_t,s0)
+/usr/libexec/pcp/bin/pmproxy    --      gen_context(system_u:object_r:pcp_pmproxy_exec_t,s0)
+/usr/libexec/pcp/bin/pmie     --      gen_context(system_u:object_r:pcp_pmie_exec_t,s0)
+
+/usr/libexec/pcp/lib/pmcd	--	gen_context(system_u:object_r:pcp_pmcd_initrc_exec_t,s0)
+/usr/libexec/pcp/lib/pmlogger	--	gen_context(system_u:object_r:pcp_pmlogger_initrc_exec_t,s0)
+/usr/libexec/pcp/lib/pmproxy	--	gen_context(system_u:object_r:pcp_pmproxy_initrc_exec_t,s0)
+/usr/libexec/pcp/lib/pmie	--	gen_context(system_u:object_r:pcp_pmie_initrc_exec_t,s0)
+
+/usr/share/pcp/lib/pmie     --      gen_context(system_u:object_r:pcp_pmie_exec_t,s0)
+
+/usr/share/pcp/lib/pmlogger   --      gen_context(system_u:object_r:pcp_pmlogger_exec_t,s0)
+
+/var/lib/pcp(/.*)?		gen_context(system_u:object_r:pcp_var_lib_t,s0)
+
+/var/lib/pcp/pmdas/.*/Install   -- gen_context(system_u:object_r:pcp_plugin_exec_t,s0)
+/var/lib/pcp/pmdas/.*/Remove   -- gen_context(system_u:object_r:pcp_plugin_exec_t,s0)
+/var/lib/pcp/pmdas/.*/Upgrade   -- gen_context(system_u:object_r:pcp_plugin_exec_t,s0)
+
+/var/log/pcp(/.*)?		gen_context(system_u:object_r:pcp_log_t,s0)
+
+/var/run/pcp(/.*)?		gen_context(system_u:object_r:pcp_var_run_t,s0)
+/var/run/pmcd\.socket    --  gen_context(system_u:object_r:pcp_var_run_t,s0)
+/var/run/pmlogger\.primary\.socket    -l  gen_context(system_u:object_r:pcp_var_run_t,s0)

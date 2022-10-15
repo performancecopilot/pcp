@@ -10,6 +10,8 @@
 /*.new
 /*.raw
 /*.log
+/*.bz2
+tmp/*
 big1.*
 tls.conf/*
 134.full.*
@@ -30,11 +32,8 @@ check.time
 check.timings
 localconfig
 localconfig.h
-pcpqa.fc
-pcpqa.if
 pcpqa.installed
-pcpqa.pp
-pcpqa.te
+pcp-testsuite.pp
 qa_hosts
 qa_outfiles
 rc_cron_check.clean

@@ -296,36 +296,27 @@ BuildRequires: qt5-qtsvg-devel
 
 Requires: bash xz gawk sed grep findutils which %{_hostname_executable}
 Requires: pcp-libs = %{version}-%{release}
-%if !%{disable_selinux}
 
+%if !%{disable_selinux}
 # rpm boolean dependencies are supported since RHEL 8
 %if 0%{?fedora} >= 35 || 0%{?rhel} >= 8
-# This ensures that the pcp-selinux package and all it's dependencies are not pulled
-# into containers and other systems that do not use SELinux
+# This ensures that the pcp-selinux package and all its dependencies are
+# not pulled into containers and other systems that do not use SELinux
 Requires: (pcp-selinux = %{version}-%{release} if selinux-policy-targeted)
 %else
 Requires: pcp-selinux = %{version}-%{release}
 %endif
-
 %endif
 
 %global _confdir        %{_sysconfdir}/pcp
 %global _logsdir        %{_localstatedir}/log/pcp
 %global _pmnsdir        %{_localstatedir}/lib/pcp/pmns
-%global _pmnsexecdir    %{_libexecdir}/pcp/pmns
-%global _tempsdir       %{_localstatedir}/lib/pcp/tmp
 %global _pmdasdir       %{_localstatedir}/lib/pcp/pmdas
 %global _pmdasexecdir   %{_libexecdir}/pcp/pmdas
 %global _testsdir       %{_localstatedir}/lib/pcp/testsuite
-%global _selinuxdir     %{_localstatedir}/lib/pcp/selinux
-%global _selinuxexecdir %{_libexecdir}/pcp/selinux
 %global _ieconfigdir    %{_localstatedir}/lib/pcp/config/pmie
 %global _ieconfdir      %{_localstatedir}/lib/pcp/config/pmieconf
-%global _tapsetdir      %{_datadir}/systemtap/tapset
-%global _bashcompdir    %{_datadir}/bash-completion/completions
-%global _pixmapdir      %{_datadir}/pcp-gui/pixmaps
-%global _hicolordir     %{_datadir}/icons/hicolor
-%global _booksdir       %{_datadir}/doc/pcp-doc
+%global _selinuxdir     %{_datadir}/selinux/packages/targeted
 
 %if 0%{?fedora} >= 20 || 0%{?rhel} >= 8
 %global _with_doc --with-docdir=%{_docdir}/%{name}
@@ -452,16 +443,6 @@ then
     pmieconf -c enable "%2"
 else
     echo "WARNING: Cannot write to %1, skipping pmieconf enable of %2." >&2
-fi
-}
-
-%global selinux_handle_policy() %{expand:
-if [ %1 -ge 1 ]
-then
-    %{_libexecdir}/pcp/bin/selinux-setup %{_selinuxdir} install %2
-elif [ %1 -eq 0 ]
-then
-    %{_libexecdir}/pcp/bin/selinux-setup %{_selinuxdir} remove %2
 fi
 }
 
@@ -2456,7 +2437,7 @@ total_manifest | keep 'tutorials|/html/|pcp-doc|man.*\.[1-9].*' | cull 'out' >pc
 total_manifest | keep 'testsuite|pcpqa|etc/systemd/system|libpcp_fault|pcp/fault.h' >pcp-testsuite-files
 
 basic_manifest | keep "$PCP_GUI|pcp-gui|applications|pixmaps|hicolor" | cull 'pmtime.h' >pcp-gui-files
-basic_manifest | keep 'selinux' | cull 'tmp|GNUselinuxdefs' >pcp-selinux-files
+basic_manifest | keep 'selinux' | cull 'tmp|testsuite' >pcp-selinux-files
 basic_manifest | keep 'zeroconf|daily[-_]report|/sa$' >pcp-zeroconf-files
 basic_manifest | grep -E -e 'pmiostat|pmrep|dstat|htop|pcp2csv' \
    -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free|pcp-htop' \
@@ -2700,6 +2681,9 @@ done
 %endif
 
 %pre testsuite
+%if !%{disable_selinux}
+%selinux_relabel_pre -s targeted
+%endif
 %if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
 systemd-sysusers --replace=/usr/lib/sysusers.d/pcp-testsuite.conf - < %{SOURCE1}
 %else
@@ -2712,6 +2696,11 @@ chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
 exit 0
 
 %post testsuite
+%if !%{disable_selinux}PCP_SELINUX_DIR=${_selinuxdir}
+semodule -r pcpqa >/dev/null 2>&1 || true
+%selinux_modules_install -s targeted "$PCP_SELINUX_DIR/pcp-testsuite.pp.bz2"
+%selinux_relabel_post -s targeted
+%endif
 chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
 %if 0%{?rhel}
 %if !%{disable_systemd}
@@ -2726,6 +2715,14 @@ chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
 %endif
 %endif
 exit 0
+
+%if !%{disable_selinux}
+%postun testsuite
+if [ $1 -eq 0 ]; then
+    %selinux_modules_uninstall -s targeted pcp-testsuite
+    %selinux_relabel_post -s targeted
+fi
+%endif
 
 %pre
 %if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
@@ -3041,17 +3038,6 @@ ${run_pmieconf "$PCP_PMIECONFIG_DIR" dmthin}
 %endif
 %endif
 
-%if !%{disable_selinux}
-%post selinux
-%{selinux_handle_policy "$1" "pcpupstream"}
-
-%triggerin selinux -- docker-selinux
-%{selinux_handle_policy "$1" "pcpupstream-docker"}
-
-%triggerin selinux -- container-selinux
-%{selinux_handle_policy "$1" "pcpupstream-container"}
-%endif
-
 %post
 PCP_PMNS_DIR=%{_pmnsdir}
 PCP_LOG_DIR=%{_logsdir}
@@ -3090,14 +3076,22 @@ PCP_LOG_DIR=%{_logsdir}
 %endif
 
 %if !%{disable_selinux}
-%preun selinux
-%{selinux_handle_policy "$1" "pcpupstream"}
+%pre selinux
+%selinux_relabel_pre -s targeted
 
-%triggerun selinux -- docker-selinux
-%{selinux_handle_policy "$1" "pcpupstream-docker"}
+%post selinux
+PCP_SELINUX_DIR=${_selinuxdir}
+semodule -r pcpupstream-container >/dev/null 2>&1 || true
+semodule -r pcpupstream-docker >/dev/null 2>&1 || true
+semodule -r pcpupstream >/dev/null 2>&1 || true
+%selinux_modules_install -s targeted "$PCP_SELINUX_DIR/pcp.pp.bz2"
+%selinux_relabel_post -s targeted
 
-%triggerun selinux -- container-selinux
-%{selinux_handle_policy "$1" "pcpupstream-container"}
+%postun selinux
+if [ $1 -eq 0 ]; then
+    %selinux_modules_uninstall -s targeted pcp
+    %selinux_relabel_post -s targeted
+fi
 %endif
 
 %files -f pcp-files.rpm
@@ -3116,6 +3110,7 @@ PCP_LOG_DIR=%{_logsdir}
 
 %if !%{disable_selinux}
 %files selinux -f pcp-selinux-files.rpm
+%ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/targeted/active/modules/200/pcp
 %endif
 
 %if !%{disable_qt}

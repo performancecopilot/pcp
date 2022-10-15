@@ -1370,7 +1370,7 @@ x11
 914 libpcp threads local context_local context
 915 pmcd pmlogger pmproxy libpcp local pmlc
 916 pmlogextract pmlogcheck local kernel
-917 selinux local
+917:retired selinux local
 918 pmcd local kernel
 919 pmlogger pmstat local pmdumplog
 920 logutil local
@@ -1393,7 +1393,7 @@ x11
 937 derive local
 938 derive local kernel
 939 derive local kernel
-940 selinux local
+940:retired selinux local
 941 pmcd local
 942 threads valgrind local helgrind
 943 pmprobe pmda.proc local
@@ -1594,7 +1594,7 @@ x11
 1138 archive pmval multi-archive decompress-xz local pmlogextract kernel
 1139 pmrep python local kernel
 1140 pidstat local python pcp pmlogrewrite pmrep derive free
-1141 selinux local
+1141:retired selinux local
 1142 pmie local kernel
 1143 pmie local
 1144 pmda.proc local
@@ -1809,7 +1809,7 @@ x11
 1353 pmlogger pmcpp local
 1354 pmval archive local
 1355 pmproxy libpcp_web local
-1356 selinux local
+1356:retired selinux local
 1357 pmda.podman valgrind local
 1358 pmda.podman local
 1359 libpcp local pmdbg
