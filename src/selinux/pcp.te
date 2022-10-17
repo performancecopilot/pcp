@@ -440,13 +440,19 @@ optional_policy(`
 
 optional_policy(`
     require {
+	type cluster_exec_t;
+    }
+    # pmda-hacluster (crm_mon, cibadmin, corosync-quorumtool, corosync-cfgtool)
+    # type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="sh" name="corosync-cfgtool" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:cluster_exec_t:s0 tclass=file permissive=0
+    allow pcp_pmcd_t cluster_exec_t:file { execute execute_no_trans };
+')
+
+optional_policy(`
+    require {
 	type cluster_tmpfs_t;
     }
     # pmda-hacluster (crm_mon, cibadmin, corosync-quorumtool, corosync-cfgtool)
     # type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="crm_mon" name="qb-request-stonith-ng-header" dev="tmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:cluster_tmpfs_t:s0 tclass=file permissive=1
-    # type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="cibadmin" name="qb-request-cib_rw-header" dev="tmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:cluster_tmpfs_t:s0 tclass=file permissive=1
-    # type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="corosync-quorum" name="qb-request-cmap-header" dev="tmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:cluster_tmpfs_t:s0 tclass=file permissive=1
-    # type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="corosync-cfgtoo" name="qb-request-cfg-header" dev="tmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:cluster_tmpfs_t:s0 tclass=file permissive=1
     allow pcp_pmcd_t cluster_tmpfs_t:file { write };
 ')
 
