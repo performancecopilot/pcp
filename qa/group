@@ -430,9 +430,6 @@ iostat2pcp
 # man pages
 man
 
-# selinux stuff
-selinux
-
 # retired tools
 pmmgr			# note this group has been retired
 pmwebd			# note this group has been retired
@@ -1370,7 +1367,7 @@ x11
 914 libpcp threads local context_local context
 915 pmcd pmlogger pmproxy libpcp local pmlc
 916 pmlogextract pmlogcheck local kernel
-917:retired selinux local
+917:retired local
 918 pmcd local kernel
 919 pmlogger pmstat local pmdumplog
 920 logutil local
@@ -1393,7 +1390,7 @@ x11
 937 derive local
 938 derive local kernel
 939 derive local kernel
-940:retired selinux local
+940:retired local
 941 pmcd local
 942 threads valgrind local helgrind
 943 pmprobe pmda.proc local
@@ -1594,7 +1591,7 @@ x11
 1138 archive pmval multi-archive decompress-xz local pmlogextract kernel
 1139 pmrep python local kernel
 1140 pidstat local python pcp pmlogrewrite pmrep derive free
-1141:retired selinux local
+1141:retired local
 1142 pmie local kernel
 1143 pmie local
 1144 pmda.proc local
@@ -1703,7 +1700,7 @@ x11
 1247 pmlogrewrite labels pmdumplog local pmlogextract
 1248 pmlogctl local
 1249 pmiectl local
-1250 selinux local
+1250:retired local
 1251 man local
 1252 derive local
 1253 derive local valgrind
@@ -1809,7 +1806,7 @@ x11
 1353 pmlogger pmcpp local
 1354 pmval archive local
 1355 pmproxy libpcp_web local
-1356:retired selinux local
+1356:retired local
 1357 pmda.podman valgrind local
 1358 pmda.podman local
 1359 libpcp local pmdbg
@@ -1933,7 +1930,7 @@ x11
 1608 pmproxy local
 1612 pmda.bpf local
 1613 pmda.linux kernel local
-1622 selinux local
+1622:retired local
 1623 libpcp_import collectl local
 1626 pmproxy libpcp_web local
 1627 libpcp_import local
