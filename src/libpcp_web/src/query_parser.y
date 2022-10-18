@@ -795,6 +795,30 @@ arithmetic_expr_sid
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
+	| number L_STAR sid_vec
+		{ lp->yy_np = newnode(N_STAR);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| sid_vec L_STAR number
+		{ lp->yy_np = newnode(N_STAR);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| number L_STAR func_sid
+		{ lp->yy_np = newnode(N_STAR);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
+	| func_sid L_STAR number
+		{ lp->yy_np = newnode(N_STAR);
+		  lp->yy_np->left = $1;
+		  lp->yy_np->right = $3;
+		  $$ = lp->yy_series.expr = lp->yy_np;
+		}
 	| sid_vec L_SLASH sid_vec
 		{ lp->yy_np = newnode(N_SLASH);
 		  lp->yy_np->left = $1;
