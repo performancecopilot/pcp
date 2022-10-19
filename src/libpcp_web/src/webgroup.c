@@ -287,6 +287,18 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
 }
 
 static void
+webgroup_timers_stop(struct webgroups *groups)
+{
+    if (groups->active) {
+	uv_timer_stop(&groups->timer);
+	uv_close((uv_handle_t *)&groups->timer, NULL);
+	pmWebTimerRelease(groups->timerid);
+	groups->timerid = -1;
+	groups->active = 0;
+    }
+}
+
+static void
 webgroup_garbage_collect(struct webgroups *groups)
 {
     dictIterator        *iterator;
@@ -314,6 +326,13 @@ webgroup_garbage_collect(struct webgroups *groups)
 	    count++;
 	}
 	dictReleaseIterator(iterator);
+
+	/* if dropping the last remaining context, do cleanup */
+	if (groups->active && drops == count) {
+	    if (pmDebugOptions.http || pmDebugOptions.libweb)
+		fprintf(stderr, "%s: freezing\n", "webgroup_garbage_collect");
+	    webgroup_timers_stop(groups);
+	}
 	uv_mutex_unlock(&groups->mutex);
     }
 
@@ -328,13 +347,13 @@ refresh_maps_metrics(void *data)
     struct webgroups	*groups = (struct webgroups *)data;
     unsigned int	value;
 
-    value = dictSize(contextmap);
+    value = contextmap? dictSize(contextmap) : 0;
     mmv_set(groups->map, groups->metrics[CONTEXT_MAP_SIZE], &value);
-    value = dictSize(namesmap);
+    value = namesmap? dictSize(namesmap) : 0;
     mmv_set(groups->map, groups->metrics[NAMES_MAP_SIZE], &value);
-    value = dictSize(labelsmap);
+    value = labelsmap? dictSize(labelsmap) : 0;
     mmv_set(groups->map, groups->metrics[LABELS_MAP_SIZE], &value);
-    value = dictSize(instmap);
+    value = instmap? dictSize(instmap) : 0;
     mmv_set(groups->map, groups->metrics[INST_MAP_SIZE], &value);
 }
 
@@ -488,6 +507,7 @@ pmWebGroupDestroy(pmWebGroupSettings *settings, sds id, void *arg)
 	if (pmDebugOptions.libweb)
 	    fprintf(stderr, "%s: destroy context %p gp=%p\n", "pmWebGroupDestroy", cp, gp);
 
+	webgroup_deref_context(cp);
 	webgroup_drop_context(cp, gp);
     }
     sdsfree(msg);
@@ -2395,17 +2415,12 @@ pmWebGroupClose(pmWebGroupModule *module)
 
     if (groups) {
 	/* walk the contexts, stop timers and free resources */
-	if (groups->active) {
-	    groups->active = 0;
-	    uv_timer_stop(&groups->timer);
-	    pmWebTimerRelease(groups->timerid);
-	    groups->timerid = -1;
-	}
 	iterator = dictGetIterator(groups->contexts);
 	while ((entry = dictNext(iterator)) != NULL)
 	    webgroup_drop_context((context_t *)dictGetVal(entry), NULL);
 	dictReleaseIterator(iterator);
 	dictRelease(groups->contexts);
+	webgroup_timers_stop(groups);
 	memset(groups, 0, sizeof(struct webgroups));
 	free(groups);
 	module->privdata = NULL;

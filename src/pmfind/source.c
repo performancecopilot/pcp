@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Red Hat.
+ * Copyright (c) 2020,2022 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,6 +25,7 @@ static pmWebGroupSettings settings;
 typedef struct {
     sds			source;
     sds			hostspec;
+    unsigned int	refcount;
 } context_t;
 
 typedef struct {
@@ -38,22 +39,34 @@ typedef struct {
 } sources_t;
 
 static void
+source_release(sources_t *sp, context_t *cp, sds ctx)
+{
+    pmWebGroupDestroy(&settings, ctx, sp);
+    sdsfree(cp->hostspec);
+    sdsfree(cp->source);
+    free(cp);
+}
+
+static void
 sources_release(void *arg, const struct dictEntry *entry)
 {
     sources_t	*sp = (sources_t *)arg;
     context_t	*cp = (context_t *)dictGetVal(entry);
     sds		ctx = (sds)entry->key;
 
-    pmWebGroupDestroy(&settings, ctx, sp);
-    sdsfree(cp->hostspec);
-    sdsfree(cp->source);
+    if (pmDebugOptions.discovery)
+	fprintf(stderr, "releasing context %s\n", ctx);
+
+    source_release(sp, cp, ctx);
 }
 
 static void
-sources_containers(sources_t *sp, sds id, dictEntry *uniq)
+sources_containers(sources_t *sp, context_t *cp, sds id, dictEntry *uniq)
 {
     uv_mutex_lock(&sp->mutex);
-    sp->count++;	/* issuing another PMWEBAPI request */
+    /* issuing another PMWEBAPI request */
+    sp->count++;
+    cp->refcount++;
     uv_mutex_unlock(&sp->mutex);
 
     pmWebGroupScrape(&settings, id, sp->params, sp);
@@ -75,6 +88,7 @@ on_source_context(sds id, pmWebSource *src, void *arg)
 
     cp->source = sdsdup(src->source);
     cp->hostspec = sdsdup(src->hostspec);
+    cp->refcount = 1;
 
     uv_mutex_lock(&sp->mutex);
     dictAdd(sp->contexts, id, cp);
@@ -84,7 +98,7 @@ on_source_context(sds id, pmWebSource *src, void *arg)
     if (entry) {	/* source just discovered */
 	printf("%s %s\n", src->source, src->hostspec);
 	if (containers)
-	    sources_containers(sp, id, entry);
+	    sources_containers(sp, cp, id, entry);
     }
 }
 
@@ -116,7 +130,9 @@ static void
 on_source_done(sds context, int status, sds message, void *arg)
 {
     sources_t	*sp = (sources_t *)arg;
-    int		count = 0, release = 0;
+    context_t	*cp;
+    dictEntry	*he;
+    int		remove = 0, count = 0, release = 0;
 
     if (pmDebugOptions.discovery)
 	fprintf(stderr, "done on context %s (sts=%d)\n", context, status);
@@ -127,19 +143,26 @@ on_source_done(sds context, int status, sds message, void *arg)
     uv_mutex_lock(&sp->mutex);
     if ((count = --sp->count) <= 0)
 	release = 1;
+    if ((he = dictFind(sp->contexts, context)) != NULL &&
+	(cp = (context_t *)dictGetVal(he)) != NULL &&
+	(--cp->refcount <= 0))
+	remove = 1;
     uv_mutex_unlock(&sp->mutex);
+
+    if (remove) {
+	if (pmDebugOptions.discovery)
+	    fprintf(stderr, "remove context %s\n", context);
+	source_release(sp, cp, context);
+	dictDelete(sp->contexts, context);
+    }
 
     if (release) {
 	unsigned long	cursor = 0;
-
-	if (pmDebugOptions.discovery)
-	   fprintf(stderr, "release context %s (sts=%d)\n", context, status);
 	do {
 	    cursor = dictScan(sp->contexts, cursor, sources_release, NULL, sp);
 	} while (cursor);
-    } else {
-	if (pmDebugOptions.discovery)
-	    fprintf(stderr, "not yet releasing (count=%d)\n", count);
+    } else if (pmDebugOptions.discovery) {
+	fprintf(stderr, "not yet releasing (count=%d)\n", count);
     }
 }
 
@@ -190,6 +213,7 @@ sources_discovery_start(uv_timer_t *arg)
     }
 
     dictRelease(dp);
+    pmWebTimerClose();
 }
 
 /*
@@ -214,8 +238,8 @@ source_discovery(int count, char **urls)
     uv_mutex_init(&find.mutex);
     find.urls = urls;
     find.count = count;	/* at least one PMWEBAPI request for each url */
-    find.uniq = dictCreate(&sdsDictCallBacks, NULL);
-    find.params = dictCreate(&sdsDictCallBacks, NULL);
+    find.uniq = dictCreate(&sdsKeyDictCallBacks, NULL);
+    find.params = dictCreate(&sdsOwnDictCallBacks, NULL);
     dictAdd(find.params, sdsnew("name"), sdsnew("containers.state.running"));
     find.contexts = dictCreate(&sdsKeyDictCallBacks, NULL);
 
@@ -230,6 +254,7 @@ source_discovery(int count, char **urls)
 
     pmWebGroupSetup(&settings.module);
     pmWebGroupSetEventLoop(&settings.module, loop);
+    pmWebTimerSetEventLoop(loop);
 
     /*
      * Start a one-shot timer to add a start function into the loop
@@ -244,7 +269,9 @@ source_discovery(int count, char **urls)
     /*
      * Finished, release all resources acquired so far
      */
+    pmWebGroupClose(&settings.module);
     uv_mutex_destroy(&find.mutex);
+    dictRelease(find.uniq);
     dictRelease(find.params);
     dictRelease(find.contexts);
     return find.status;
