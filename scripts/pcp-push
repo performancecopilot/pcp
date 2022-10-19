@@ -55,9 +55,13 @@ in
     kenj)
 	if which hub >/dev/null
 	then
-	    :
+	    hub=hub
+	elif which git-hub >/dev/null
+	then
+	    hub=git-hub
 	else
-	    echo "Arrgh: hub(1) is missing.  Suggest reinstall from https://github.com/github/hub"
+	    echo "Arrgh: hub(1)/git-hub(1) is missing.  Suggest reinstall from https://github.com/github/hub"
+	    echo "Else for Ubuntu: $ sudo apt install git-hub"
 	    exit 1
 	fi
 	;;
@@ -222,7 +226,7 @@ then
     case `id -un`
     in
 	kenj)
-	    # using hub(1) to generate a pull request
+	    # using hub(1)/git-hub(1) to generate a pull request
 	    #
 	    while true
 	    do
@@ -251,11 +255,11 @@ then
 	    then
 		if $dryrun
 		then
-		    echo + hub pull-request -F $tmp.pr
+		    echo "+ $hub pull-request -F $tmp.pr"
 		    echo "---- 8< ----"
 		    cat $tmp.pr
 		else
-		    hub pull-request -F $tmp.pr
+		    $hub pull-request -F $tmp.pr
 		fi
 	    fi
 	    ;;
