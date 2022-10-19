@@ -203,6 +203,28 @@ ifndef(`acct_search_data',`
 
 ########################################
 ## <summary>
+##      Manage container lib files.
+## </summary>
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </param>
+#
+ifndef(`container_manage_lib_files',`
+    interface(`container_manage_lib_files',`
+        gen_require(`
+                type container_var_lib_t;
+        ')
+
+        files_search_var_lib($1)
+        manage_files_pattern($1, container_var_lib_t, container_var_lib_t)
+        manage_lnk_files_pattern($1, container_var_lib_t, container_var_lib_t)
+    ')
+')
+
+########################################
+## <summary>
 ##      Mmap all files.
 ## </summary>
 ## <param name="domain">
