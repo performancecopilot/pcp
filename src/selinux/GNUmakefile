@@ -44,6 +44,7 @@ default_pcp: default
 install_pcp : install
 
 $(IAM).pp: $(IAM).te $(IAM).fc $(IAM).if
+	@test -d tmp || mkdir tmp # workaround an el7 selinux makefile issue
 	# lots of duplicate definition from system container.if - filter out
 	$(MAKE) -f /usr/share/selinux/devel/Makefile $(IAM).pp 2>&1 | grep -v container.if
 
