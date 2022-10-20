@@ -44,7 +44,7 @@ install_pcp install: default
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/pmda$(IAM).pl pmda$(IAM).pl $(PMDAADMDIR)/pmda$(IAM).pl
 	$(INSTALL) -m 755 -d $(PMDACONFIG)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR)/snmp.conf snmp.conf $(PMDACONFIG)/snmp.conf
+	$(INSTALL) -m 644 -t $(PMDATMPDIR)/$(IAM).conf $(IAM).conf $(PMDACONFIG)/$(IAM).conf
 	@$(INSTALL_MAN)
 else
 build-me:
