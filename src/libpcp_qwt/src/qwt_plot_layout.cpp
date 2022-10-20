@@ -1128,7 +1128,7 @@ void QwtPlotLayout::setFixedAxisOffset( int offset, int axisPos )
         for ( axisPos = 0; axisPos < QwtAxis::AxisPositions; axisPos++)
             engine.setFixedAxisOffset( axisPos, offset );
     }
-    else if ( axisPos >= 0 || axisPos < QwtPlot::axisCnt )
+    else if ( QwtAxis::isValid( axisPos ) )
     {
         engine.setFixedAxisOffset( axisPos, offset );
     }
