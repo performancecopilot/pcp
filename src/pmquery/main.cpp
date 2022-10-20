@@ -244,7 +244,6 @@ int main(int argc, char ** argv)
     if (filename) {
 	QTextStream *stream;
 	QFile *file = NULL;
-	QString line;
 
 	if (strcmp(filename, "-") == 0)
 	    stream = new QTextStream(stdin, QIODevice::ReadOnly);
