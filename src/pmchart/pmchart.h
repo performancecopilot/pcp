@@ -53,7 +53,7 @@ public:
     static double defaultLoggerDelta() { return 1.0; }
     static int defaultVisibleHistory() { return 60; }	// points
     static int defaultSampleHistory() { return 180; }
-    static int defaultTimeout() { return 8000; }		// milliseconds
+    static int defaultTimeout() { return 8000; }	// milliseconds
     static int minimumPoints() { return 2; }
     static int maximumPoints() { return 720; }
     static int maximumLegendLength() { return 120; }	// chars

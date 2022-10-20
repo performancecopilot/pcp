@@ -549,7 +549,7 @@ SamplingEngine::updateValues(bool forward,
     Chart::Style style = my.chart->my.style;
 
     // Drive new values into each chart item
-    for (int i = 0; i < itemCount; i++) {
+    for (i = 0; i < itemCount; i++) {
 	samplingItem(i)->updateValues(forward, my.rateConvert, &my.units,
 					size, points, left, right, delta);
     }

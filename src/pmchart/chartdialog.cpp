@@ -497,17 +497,17 @@ void ChartDialog::setScheme(QString scheme, int sequence)
     my.sequence = sequence;
 }
 
-void ChartDialog::scale(bool *autoScale, double *yMin, double *yMax)
+void ChartDialog::scale(bool *autoScaled, double *yMin, double *yMax)
 {
-    *autoScale = autoScaleOn->isChecked();
+    *autoScaled = autoScaleOn->isChecked();
     *yMin = my.yMin;
     *yMax = my.yMax;
 }
 
-void ChartDialog::setScale(bool autoScale, double yMin, double yMax)
+void ChartDialog::setScale(bool autoScaled, double yMin, double yMax)
 {
-    autoScaleOn->setChecked(autoScale);
-    autoScaleOff->setChecked(!autoScale);
+    autoScaleOn->setChecked(autoScaled);
+    autoScaleOff->setChecked(!autoScaled);
     yAxisMaximum->setValue(yMax);
     yAxisMinimum->setValue(yMin);
 }

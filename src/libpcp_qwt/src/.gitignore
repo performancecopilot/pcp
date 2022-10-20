@@ -1,0 +1,4 @@
+qwt*.cpp
+qwt*.h
+!qwt_plot_layout.h
+!qwt_plot_layout.cpp
