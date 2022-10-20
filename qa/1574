@@ -97,6 +97,17 @@ echo "== Running valgrind on avg_sample() and avg_inst()"
 _run_valgrind pmseries $args "avg_sample($query)" | _filter_query
 _run_valgrind pmseries $args "avg_inst($query)" | _filter_query
 
+echo
+echo "== Running valgrind with scalar multiplication"
+_run_valgrind pmseries $args "avg_sample($query)" | _filter_query
+_run_valgrind pmseries $args "avg_inst($query)" | _filter_query
+
+echo "== Running valgrind with scalar multiplication"
+_run_valgrind pmseries $args "kernel.all.uptime[count:2] * 2" | _filter_query
+
+echo "== Running valgrind with function multiplication"
+_run_valgrind pmseries $args "max(kernel.all.uptime[count:2]) * max(kernel.all.uptime[count:2])" | _filter_query
+
 # all done
 status=0
 exit

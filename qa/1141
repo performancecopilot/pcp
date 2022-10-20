@@ -1,6 +1,5 @@
 #!/bin/sh
 # PCP QA Test No. 1141
-# selinux install/remove testcase
 #
 # Copyright (c) 2017 Red Hat Inc.  All Rights Reserved.
 #
@@ -8,133 +7,8 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
 . ./common.product
-. ./common.filter
 . ./common.check
 
-policy_name="pcpqaqaqaqa"
-policy_file="$PCP_VAR_DIR/selinux/pcpupstream.pp"
-which sedismod >/dev/null 2>&1 || _notrun "sedismod tool not installed (module disassembly)"
-which semodule >/dev/null 2>&1 || _notrun "semodule tool not installed"
-$sudo semodule -l >$tmp.out 2>&1
-[ $? -eq 0 ] || _notrun "semodule -l fails"
-grep -E '^pcpupstream([ 	]|$)' $tmp.out >/dev/null
-[ $? -eq 0 ] || _notrun "pcpupstream module not loaded"
-which seinfo >/dev/null 2>&1 || _notrun "seinfo tool not installed"
-[ -f "$policy_file" ] || _notrun "upstream policy package not installed"
-#if a matching module is already installed
-#then selinux will detect the similarity and not actually install the package
-$sudo semodule -l 2>&1 | grep -q "$policy_name" && exit 0
-semodule_x_option=`semodule -h | grep "\-X"`
-
-# Test is failing on vm39 (RHEL 8.5) where the "type" glusterd_log_t
-# is used in the policy file and is known to selinux -t, but semodule
-# fails.
-# We cannot figure out why, so _notrun it!
-# Ditto for vm04 (CentOS Linux8.5.2111)
-#
-case `admin/whatami`
-in
-    *RHEL\ 8.5\ *|*CentOS\ Linux8.5.*)
-	_notrun "dodge semodule and glusterd_log_t issue"
-	;;
-esac
-
-_cleanup()
-{
-    cd $here
-    $sudo rm -rf $tmp $tmp.*
-}
-
-_semodule_remove()
-{
-    if [ "x$semodule_x_option" = "x" ]
-    then
-	echo "Removing semodule without priority option" >> $here/$seq.full
-	$sudo semodule -r $policy_name 2>&1
-    else
-	echo "Removing semodule with priority 1" >> $here/$seq.full
-	$sudo semodule -X 1 -r $policy_name 2>&1
-    fi \
-    | tee -a $here/$seq.full \
-    | sed \
-	-e '/Removing last pcpqaqaqaqa module/'d \
-    # end
-}
-status=1
-$sudo rm -rf $tmp $tmp.* $seq.full
-trap "_cleanup; exit \$status" 0 1 2 3 15
-
-mkdir -p $tmp/selinux
-# use pcpupstream.pp and rename the module to $policy_name
-# ... warning this is a gross hack
-#
-OF=$tmp/selinux/$policy_name.pp
-
-# we need to replace the module name pcpupstream in the binary file
-# with something different ... pcpqaqaqaqa
-#
-( $PCP_ECHO_PROG $PCP_ECHO_N "orig module name: \"""$PCP_ECHO_C"; dd bs=1 skip=67 count=11 if=$policy_file 2>/dev/null; echo "\"" ) >>$here/$seq.full
-dd bs=1 count=67 if=$policy_file of=$OF 2>>$here/$seq.full
-$PCP_ECHO_PROG $PCP_ECHO_N -n "pcpqaqaqaqa""$PCP_ECHO_C" >>$OF
-dd bs=1 skip=78 if=$policy_file >>$OF 2>>$here/$seq.full
-file $OF >>$here/$seq.full
-( $PCP_ECHO_PROG $PCP_ECHO_N "new module name: \"""$PCP_ECHO_C"; dd bs=1 skip=67 count=11 if=$OF 2>/dev/null; echo "\"" ) >>$here/$seq.full
-
-#install the module but catch any errors
-if [ "x$semodule_x_option" = "x" ]
-then
-    echo "Installing semodule without priority option" >> $here/$seq.full
-    error_line=`$sudo semodule -i $tmp/selinux/$policy_name.pp 2>&1 | tee -a $here/$seq.full | grep ^libsepol\. | cut -f3 -d":" |cut -f3 -d" "`
-    echo $error_line >> $here/$seq.full
-else
-    echo "Installing semodule with priority 1" >> $here/$seq.full
-    # install module with priority 1
-    error_line=`$sudo semodule -X 1 -i $tmp/selinux/$policy_name.pp 2>&1 | tee -a $here/$seq.full | grep ^Fail | cut -f2 -d":"`
-    echo $error_line >> $here/$seq.full
-fi
-
-if [ "x$error_line" = "x" ]
-then
-    _semodule_remove
-    status=0
-else
-    if [ "x$semodule_x_option" = "x" ]
-    then
-	echo "Error from type: $error_line"
-    else
-	echo "Error on line: $error_line from $policy_name.cil"
-	# places where hll/pp is hiding
-	#
-	SEARCH="/usr/libexec/selinux /usr/lib/selinux"
-	pp_path=''
-	for dir in $SEARCH
-	do
-	    if [ -f $dir/hll/pp ]
-	    then
-		pp_path=$dir/hll/pp
-		break
-	    fi
-	done
-	if [ -z "$pp_path" ]
-	then
-	    # no pretty printing for us ...
-	    #
-	    echo "Arrgh: cannot find hll/pp in SEARCH paths \"$SEARCH\""
-	else
-	    $pp_path >$tmp.out 2>&1 $tmp/selinux/$policy_name.pp $tmp/selinux/$policy_name.cil
-	    if [ ! -f $tmp/selinux/$policy_name.cil ]
-	    then
-		cat $tmp.out
-		echo "Arrgh: failed to create $tmp/selinux/$policy_name.cil"
-	    else
-		awk -v error_line="$error_line" \
-			'FNR==error_line' $tmp/selinux/$policy_name.cil
-	    fi
-	fi
-    fi
-fi
-
-exit
-
+_notrun "Retired - transitioned to independent PCP selinux policy"
+exit 0

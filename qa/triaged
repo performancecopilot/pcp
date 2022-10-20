@@ -48,6 +48,7 @@
 1221	vm27	extra labels associated with
 		openmetrics.vmware_exporter.vmware_vm_guest_disk_* metrics
 		for no known reason
+1574	.*	valgrind-reported issue in libpcp_web pmseries functions
 1662	.*	valgrind-reported issue in libpcp_web archive discovery
 		handling of sources
 1701	Ubuntu 22\.04	nm: /usr/bin/bpftrace: no symbols issue

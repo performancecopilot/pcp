@@ -1,0 +1,199 @@
+#
+# Additional SELinux policy module for PCP QA ... this is for the
+# apps in the QA suite and/or additional apps or libraries (outside
+# PCP) that we use in exercising the PMDAs.
+#
+# This file is using the same form and same optional rule mechanisms
+# as pcp.te - all of the hints in src/selinux/README apply here too.
+#
+
+policy_module(pcp-testsuite, 2.0.0)
+
+require {
+	type user_home_t;
+	type hostname_exec_t;
+	type pcp_pmcd_t;
+	type usr_t;
+	type user_tmp_t;
+
+	class file { write };
+	class process { execstack signull };
+	class capability audit_write;
+	class file { create execute execute_no_trans unlink write };
+}
+
+#============= pcp_pmcd_t ==============
+#
+
+# type=AVC msg=audit(qa/457): avc: denied { write } for pid=PID comm="457.pipe" name="457.pipe.pid" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:user_home_t:s0 tclass=file permissive=0
+allow pcp_pmcd_t user_home_t:file { write };
+
+# type=AVC msg=audit(qa/805): avc: denied { execute execute_no_trans } for  pid=73096 comm="perl" name="805-72044.qshape" dev=DEV ino=INO scontext=unconfined_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:user_tmp_t:s0 tclass=file permissive=0
+allow pcp_pmcd_t user_tmp_t:file { execute execute_no_trans };
+
+# type=AVC msg=audit(qa/789) avc:  denied  { audit_write } for  pid=1 comm="su" capability=29  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
+# type=AVC msg=audit(qa/789) avc:  denied  { audit_write } for  pid=1 comm="sudo" capability=29  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
+allow pcp_pmcd_t self:capability audit_write;
+
+# type=AVC msg=audit(qa/789) avc:  denied  { execstack } for  pid=1 comm="mysqladmin" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=process permissive=1
+# type=AVC msg=audit(qa/789) avc:  denied  { execstack } for  pid=1 comm="zmcontrol" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=process permissive=1
+allow pcp_pmcd_t self:process execstack;
+
+# type=AVC msg=audit(qa/789) avc:  denied  { create } for  pid=1 comm="sh" name="???" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:usr_t:s0 tclass=file permissive=1
+# type=AVC msg=audit(qa/789) avc:  denied  { unlink } for  pid=1 comm="zmcontrol" name="???" dev="dm-0" ino=84011089 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:usr_t:s0 tclass=file permissive=1
+# type=AVC msg=audit(qa/789) avc:  denied  { unlink } for  pid=1 comm="zmcontrol" name="???" dev="dm-0" ino=84011091 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:usr_t:s0 tclass=file permissive=1
+# type=AVC msg=audit(qa/789) avc:  denied  { write } for  pid=1 comm="sh" name="???" dev="dm-0" ino=84011093 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:usr_t:s0 tclass=file permissive=1
+# type=AVC msg=audit(qa/789) avc:  denied  { write } for  pid=1 comm="sh" path="/opt/zimbra/data/tmp/zmcontrol.status.61LsA" dev="dm-0" ino=84011089 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:usr_t:s0 tclass=file permissive=1
+# type=AVC msg=audit(qa/789) avc:  denied  { write } for  pid=1 comm="sh" path="/opt/zimbra/data/tmp/zmcontrol.status.tS7mV" dev="dm-0" ino=84011089 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:usr_t:s0 tclass=file permissive=1
+allow pcp_pmcd_t usr_t:file { create unlink write };
+
+optional_policy(`
+    require {
+        class file { map };
+    }
+    # type=AVC msg=audit(qa/255): avc: denied { map } for pid=PID comm="broken_pmda_2_0" path=".../broken_pmda_2_0" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:user_home_t:s0 tclass=file permissive=0
+    allow pcp_pmcd_t user_home_t:file { map };
+    # type=AVC msg=audit(qa/597): avc: denied { map } for pid=PID comm="hostname" path="/usr/bin/hostname" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
+    allow pcp_pmcd_t hostname_exec_t:file { map };
+')
+
+optional_policy(`
+    require {
+	type initrc_tmp_t;
+    }
+    # type=AVC msg=audit(qa/789) avc: denied { add_name } for pid=PID comm="java" name="???" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=dir permissive=1
+    # type=AVC msg=audit(qa/789) avc: denied { remove_name } for pid=PID comm="java" name="???" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=dir permissive=1
+    # type=AVC msg=audit(qa/789) avc: denied { remove_name } for pid=PID comm="java" name="???" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=dir permissive=1
+    # type=AVC msg=audit(qa/789) avc: denied { write } for pid=PID comm="java" name="???" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=dir permissive=1
+    allow pcp_pmcd_t initrc_tmp_t:dir { add_name remove_name write };
+    # type=AVC msg=audit(qa/789) avc: denied { create } for pid=PID comm="java" name="???" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=file permissive=1
+    # type=AVC msg=audit(qa/789) avc: denied { unlink } for pid=PID comm="java" name="???" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=file permissive=1
+    # type=AVC msg=audit(qa/789) avc: denied { unlink } for pid=PID comm="java" name="???" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=file permissive=1
+    allow pcp_pmcd_t initrc_tmp_t:file { create unlink };
+')
+
+optional_policy(`
+    require {
+	type sudo_exec_t;
+    }
+    # type=AVC msg=audit(qa/789) avc: denied { execute } for pid=PID comm="zmmailboxdctl" name="???" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:sudo_exec_t:s0 tclass=file permissive=1
+    # type=AVC msg=audit(qa/789) avc: denied { execute_no_trans } for  pid=PID comm="zmmailboxdctl" path="/usr/bin/sudo" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:sudo_exec_t:s0 tclass=file permissive=1
+    allow pcp_pmcd_t sudo_exec_t:file { execute execute_no_trans };
+')
+
+optional_policy(`
+    require {
+	class security { compute_av };
+	type security_t;
+    }
+    # type=AVC msg=audit(qa/789) avc: denied { compute_av } for pid=PID comm="su" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:security_t:s0 tclass=security permissive=1
+    allow pcp_pmcd_t security_t:security { compute_av };
+')
+
+optional_policy(`
+    require {
+	type chkpwd_exec_t;
+    }
+    # type=AVC msg=audit(qa/789) avc: denied { execute } for pid=PID comm="sudo" name="???" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:chkpwd_exec_t:s0 tclass=file permissive=1
+    # type=AVC msg=audit(qa/789) avc: denied { execute_no_trans } for pid=PID comm="sudo" path="/usr/sbin/unix_chkpwd" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:chkpwd_exec_t:s0 tclass=file permissive=1
+    allow pcp_pmcd_t chkpwd_exec_t:file { execute execute_no_trans };
+')
+
+optional_policy(`
+    require {
+	type initrc_t;
+    }
+    # type=AVC msg=audit(qa/789) avc: denied { signull } for pid=PID comm="java" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:initrc_t:s0 tclass=process permissive=1
+    # type=AVC msg=audit(qa/789) avc: denied { signull } for pid=PID comm="ldap" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:initrc_t:s0 tclass=process permissive=1
+    # type=AVC msg=audit(qa/789) avc: denied { signull } for pid=PID comm="zmmailboxdmgr" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:initrc_t:s0 tclass=process permissive=1
+    allow pcp_pmcd_t initrc_t:process { signull };
+')
+
+optional_policy(`
+    require {
+	type var_log_t;
+    }
+    # type=AVC msg=audit(qa/789) avc: denied { write } for pid=PID comm="zmcontrol" name="???" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:var_log_t:s0 tclass=file permissive=1
+    allow pcp_pmcd_t var_log_t:file { write };
+')
+
+optional_policy(`
+    require {
+	type lastlog_t;
+    }
+    # type=AVC msg=audit(qa/789) avc: denied { write } for pid=PID comm="su" name="???" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:lastlog_t:s0 tclass=file permissive=1
+    allow pcp_pmcd_t lastlog_t:file { write };
+')
+
+optional_policy(`
+    require {
+	type xauth_exec_t;
+    }
+    # type=AVC msg=audit(qa/789) avc: denied { execute } for pid=PID comm="su" name="???" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:xauth_exec_t:s0 tclass=file permissive=1
+    allow pcp_pmcd_t xauth_exec_t:file { execute };
+')
+
+optional_policy(`
+    require {
+	type logrotate_t;
+    }
+    # type=AVC msg=audit(qa/789) avc: denied { signull } for pid=PID comm="java" scontext=system_u:system_r:logrotate_t:s0-s0:c0.c1023 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=process permissive=1
+    allow logrotate_t pcp_pmcd_t:process { signull };
+    # type=AVC msg=audit(qa/789) avc: denied { signull } for pid=PID comm="java" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:logrotate_t:s0-s0:c0.c1023 tclass=process permissive=1
+    allow pcp_pmcd_t logrotate_t:process { signull };
+')
+
+optional_policy(`
+    require {
+	class netlink_audit_socket { create nlmsg_relay };
+    }
+    # type=AVC msg=audit(qa/789) avc: denied { create } for pid=PID comm="sudo" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_audit_socket permissive=1
+    # type=AVC msg=audit(qa/789) avc: denied { nlmsg_relay } for pid=PID comm="su" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_audit_socket permissive=1
+    allow pcp_pmcd_t self:netlink_audit_socket { create nlmsg_relay };
+')
+
+optional_policy(`
+    require {
+	class netlink_selinux_socket { bind create };
+    }
+    # type=AVC msg=audit(qa/789) avc: denied { bind } for pid=PID comm="su" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_selinux_socket permissive=1
+    # type=AVC msg=audit(qa/789) avc: denied { create } for pid=PID comm="su" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_selinux_socket permissive=1
+    allow pcp_pmcd_t self:netlink_selinux_socket { bind create };
+')
+
+optional_policy(`
+    require {
+	class sock_file { write };
+    }
+    # type=AVC msg=audit(qa/789) avc: denied { write } for pid=PID comm="mysqladmin" name="???" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:usr_t:s0 tclass=sock_file permissive=1
+    allow pcp_pmcd_t usr_t:sock_file { write };
+')
+
+optional_policy(`
+    require {
+	class dir { add_name remove_name write };
+    }
+    # type=AVC msg=audit(qa/789) avc: denied { add_name } for pid=PID comm="sh" name="???" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:usr_t:s0 tclass=dir permissive=1
+    # type=AVC msg=audit(qa/789) avc: denied { remove_name } for pid=PID comm="zmcontrol" name="???" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:usr_t:s0 tclass=dir permissive=1
+    # type=AVC msg=audit(qa/789) avc: denied { write } for pid=PID comm="sh" name="???" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:usr_t:s0 tclass=dir permissive=1
+    allow pcp_pmcd_t usr_t:dir { add_name remove_name write };
+')
+
+optional_policy(`
+    require {
+        # pmda.netcheck
+	class rawip_socket { create getopt setopt read write };
+    }
+    # type=AVC msg=audit(qa/1160) avc: denied { create } for pid=PID comm="ping" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=rawip_socket permissive=1
+    # type=AVC msg=audit(qa/1160) avc: denied { getopt } for pid=PID comm="ping" lport=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=rawip_socket permissive=1
+    # type=AVC msg=audit(qa/1160) avc: denied { setopt } for pid=PID comm="ping" lport=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=rawip_socket permissive=1
+    allow pcp_pmcd_t self:rawip_socket { create getopt setopt read write };
+')
+
+# type=AVC msg=audit(qa/789): avc: denied { write } for pid=PID comm="su" name="btmp" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:faillog_t:s0 tclass=file permissive=0
+optional_policy(`
+    require {
+	type faillog_t;
+    }
+    allow pcp_pmcd_t faillog_t:file { write };
+')

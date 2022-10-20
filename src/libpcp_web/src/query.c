@@ -561,7 +561,14 @@ static int
 use_next_sample(seriesSampling *sampling)
 {
     /* if the next timestamp is past our goal, use the current value */
-    if (pmTimespec_cmp(&sampling->next_timespec, &sampling->goal) > 0) {
+    double goal_delta = pmTimespec_delta(&sampling->next_timespec, &sampling->goal);
+    if (goal_delta > 0) {
+	/* if the goal significantly lags behind, reset it */
+	/* this can happen when start < first sample or when there are gaps in the series */
+	if (goal_delta > 2 * sampling->delta.tv_sec) {
+	    sampling->goal = sampling->next_timespec;
+	}
+
 	/* selected a value for this interval so move the goal posts */
 	pmTimespec_add(&sampling->goal, &sampling->delta);
 	return 0;
@@ -4354,15 +4361,27 @@ calculate_star(int *type, pmAtomValue *l_val, pmAtomValue *r_val, pmAtomValue *r
 {
     switch (*type) {
     case PM_TYPE_32:
+	if (l_val->l != 0 && res->l / l_val->l != r_val->l) {
+	    return -1;
+	}
 	res->l = l_val->l * r_val->l;
 	break;
     case PM_TYPE_U32:
+	if (r_val->ul != 0 && l_val->ul > UINT32_MAX / r_val->ul) {
+	    return -1;
+	}	
 	res->ul = l_val->ul * r_val->ul;
 	break;
     case PM_TYPE_64:
+	if (l_val->ll != 0 && res->ll / l_val->ll != r_val->ll) {
+	    return -1;
+	}
 	res->ll = l_val->ll * r_val->ll;
 	break;
     case PM_TYPE_U64:
+	if (r_val->ull != 0 && l_val->ull > UINT64_MAX / r_val->ull) {
+	    return -1;
+	}
 	res->ull = l_val->ull * r_val->ull;
 	break;
     case PM_TYPE_FLOAT:
@@ -4594,53 +4613,82 @@ series_calculate_minus(node_t *np, void *arg)
 static void
 series_calculate_star(node_t *np, void *arg)
 {
-    seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
-    node_t		*left = np->left, *right = np->right;
-    unsigned int	num_samples, num_instances, j, k;
+    seriesQueryBaton	*baton = (seriesQueryBaton *)np->baton;
+    node_t		*left = np->left, *right = np->right, *node;
+    unsigned int	n_series, num_samples, num_instances, i, j, k;
     pmAtomValue		l_val, r_val;
     pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
     int			l_type, r_type, otype=PM_TYPE_UNKNOWN;
-    int			l_sem, r_sem;
+    int			l_sem, r_sem, scalar_operand;
     sds			msg;
+    double		data, new_d;
+    char		new_data[64];
 
-    if (left->value_set.num_series == 0 || right->value_set.num_series == 0)
-	return;
-
-    if (series_calculate_binary_check(N_STAR, baton, left, right,
+    if (left->value_set.num_series == 0 || right->value_set.num_series == 0){
+	if (right->value_set.num_series == 0){
+	    sscanf(right->value, "%d", &scalar_operand);
+	    node = left;
+	}
+	else{
+	    sscanf(left->value, "%d", &scalar_operand);
+	    node = right;
+	}
+	n_series = node->value_set.num_series;
+	for (i = 0; i < n_series; i++) {
+	    num_samples = node->value_set.series_values[i].num_samples;
+	    for (j = 0; j < num_samples; j++) {
+	    	num_instances = node->value_set.series_values[i].series_sample[j].num_instances;
+	    	for (k = 0; k < num_instances; k++) {
+		    data = atof(node->value_set.series_values[i].series_sample[j].series_instance[k].data);
+		    new_d = data * scalar_operand;
+		    pmsprintf(new_data, sizeof(new_data), "%le", new_d);
+		    node->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnew(new_data);
+	    	}
+	    }
+	}
+	np->value_set = node->value_set;
+    }
+    else{
+	n_series = left->value_set.num_series;
+	for (i = 0; i < n_series; i++) {
+	    if (series_calculate_binary_check(N_STAR, baton, left, right,
 		&l_type, &r_type, &l_sem, &r_sem,
 		&l_units, &r_units, &large_units,
-		left->value_set.series_values[0].series_desc.indom,
-		right->value_set.series_values[0].series_desc.indom) != 0)
-	return;
+		left->value_set.series_values[i].series_desc.indom,
+		right->value_set.series_values[i].series_desc.indom) != 0)
+	        return;
 
-    num_samples = left->value_set.series_values[0].num_samples;
+	    num_samples = left->value_set.series_values[i].num_samples;
 
-    for (j = 0; j < num_samples; j++) {
-	num_instances = left->value_set.series_values[0].series_sample[j].num_instances;
-	if (num_instances != right->value_set.series_values[0].series_sample[j].num_instances) {
-	    infofmt(msg, "Number of instances of two metrics are inconsistent.\n");
-	    batoninfo(baton, PMLOG_ERROR, msg);
-	    baton->error = -EPROTO;
-	    return;
+	    for (j = 0; j < num_samples; j++) {
+		num_instances = left->value_set.series_values[i].series_sample[j].num_instances;
+		if (num_instances != right->value_set.series_values[i].series_sample[j].num_instances) {
+		    infofmt(msg, "Number of instances of two metrics are inconsistent.\n");
+		    batoninfo(baton, PMLOG_ERROR, msg);
+		    baton->error = -EPROTO;
+		    return;
+		}
+		for (k = 0; k < num_instances; k++) {
+		    series_calculate_order_binary(N_STAR, l_type, r_type, &otype, 
+			&l_val, &r_val, 
+			left->value_set.series_values[i].series_sample[j].series_instance + k,
+			right->value_set.series_values[i].series_sample[j].series_instance + k,
+			&l_units, &r_units, &large_units, calculate_star);
+		}
+	    }
+	    /*
+	    * For multiplication, the dimensions of the result are the
+	    * sum of the dimensions of the operands.
+	    */
+	    large_units.dimCount = l_units.dimCount + r_units.dimCount;
+	    large_units.dimSpace = l_units.dimSpace + r_units.dimSpace;
+	    large_units.dimTime = l_units.dimTime + r_units.dimTime;
+
+	    series_binary_meta_update(left, &large_units, &l_sem, &r_sem, &otype);
+	    np->value_set = left->value_set;
 	}
-	for (k = 0; k < num_instances; k++) {
-	    series_calculate_order_binary(N_STAR, l_type, r_type, &otype, 
-		&l_val, &r_val, 
-		left->value_set.series_values[0].series_sample[j].series_instance + k,
-		right->value_set.series_values[0].series_sample[j].series_instance + k,
-		&l_units, &r_units, &large_units, calculate_star);
-	}
+
     }
-    /*
-     * For multiplication, the dimensions of the result are the
-     * sum of the dimensions of the operands.
-     */
-    large_units.dimCount = l_units.dimCount + r_units.dimCount;
-    large_units.dimSpace = l_units.dimSpace + r_units.dimSpace;
-    large_units.dimTime = l_units.dimTime + r_units.dimTime;
-
-    series_binary_meta_update(left, &large_units, &l_sem, &r_sem, &otype);
-    np->value_set = left->value_set;
 }
 
 static void

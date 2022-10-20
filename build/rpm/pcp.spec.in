@@ -115,9 +115,6 @@ BuildRequires: initscripts
 %endif
 %if "@enable_systemd@" == "true"
 BuildRequires: systemd-devel
-%if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
-BuildRequires: systemd-rpm-macros
-%endif
 %endif
 %if "@pmda_statsd@" == "true"
 # ragel unavailable on RHEL8
@@ -224,30 +221,16 @@ else
 fi
 }
 
-%global selinux_handle_policy() %{expand:
-SELINUX_DIR=@pcp_var_dir@/selinux
-PCP_BINADM_DIR=@pcp_binadm_dir@
-if [ %1 -ge 1 ]
-then
-    $PCP_BINADM_DIR/selinux-setup $SELINUX_DIR install %2
-elif [ %1 -eq 0 ]
-then
-    $PCP_BINADM_DIR/selinux-setup $SELINUX_DIR remove %2
-fi
-}
-
 %if "@enable_selinux@" == "true"
-
-# rpm boolean dependencies are supported since RHEL 8, but not reliable
+# rpm boolean dependencies are supported since RHEL 8, but not reliably
 # across all platforms, so be conservative here
 %if 0%{?fedora} >= 36 || 0%{?rhel} >= 9
-# This ensures that the pcp-selinux package and all it's dependencies are
+# This ensures that the pcp-selinux package and all its dependencies are
 # not pulled into containers and other systems that do not use SELinux
 Requires: (pcp-selinux = @package_version@ if selinux-policy-targeted)
 %else
 Requires: pcp-selinux = @package_version@
 %endif
-
 %endif
 
 Requires: pcp-libs = @package_version@
@@ -2289,13 +2272,13 @@ basic_manifest() {
 total_manifest | keep 'testsuite|pcpqa|etc/systemd/system|libpcp_fault|pcp/fault.h' >pcp-testsuite-files
 total_manifest | keep 'tutorials|/html/|pcp-doc|man.*\.[1-9].*' | cull 'out' >pcp-doc-files
 basic_manifest | keep "$PCP_GUI|pcp-gui|applications|pixmaps|hicolor" | cull 'pmtime.h' >pcp-gui-files
-basic_manifest | keep 'selinux' | cull 'tmp|GNUselinuxdefs' >pcp-selinux-files
+basic_manifest | keep 'selinux' | cull 'tmp|testsuite' >pcp-selinux-files
 basic_manifest | keep 'zeroconf|daily[-_]report|/sa$' >pcp-zeroconf-files
 basic_manifest | grep -E -e 'pmiostat|pmrep|dstat|htop|pcp2csv' \
    -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free|pcp-htop' \
    -e 'pcp-ipcs|pcp-iostat|pcp-lvmcache|pcp-mpstat' \
    -e 'pcp-numastat|pcp-pidstat|pcp-shping|pcp-tapestat' \
-   -e 'pcp-uptime|pcp-verify|pcp-ss' | \
+   -e 'pcp-uptime|pcp-verify|pcp-ss|pcp-ps' | \
    cull 'selinux|pmlogconf|pmieconf|pmrepconf' >pcp-system-tools-files
 basic_manifest | keep 'sar2pcp' >pcp-import-sar2pcp-files
 basic_manifest | keep 'iostat2pcp' >pcp-import-iostat2pcp-files
@@ -2525,8 +2508,11 @@ done
 %endif
 
 %pre testsuite
+%if "@enable_selinux@" == "true"
+%selinux_relabel_pre -s targeted
+%endif
 %if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
-%sysusers_create_compat %{_builddir}/debian/pcp-testsuite.sysusers
+systemd-sysusers --replace=@pcp_systemdsysusers_dir@/pcp-testsuite.conf - < %{_builddir}/debian/pcp-testsuite.sysusers
 %else
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
@@ -2537,6 +2523,12 @@ chown -R pcpqa:pcpqa @pcp_var_dir@/testsuite 2>/dev/null
 exit 0
 
 %post testsuite
+%if "@enable_selinux@" == "true"
+PCP_SELINUX_DIR=@pcp_selinux_dir@/packages/targeted
+semodule -r pcpqa >/dev/null 2>&1 || true
+%selinux_modules_install -s targeted "$PCP_SELINUX_DIR/pcp-testsuite.pp.bz2"
+%selinux_relabel_post -s targeted
+%endif
 chown -R pcpqa:pcpqa @pcp_var_dir@/testsuite 2>/dev/null
 # inherited from %post for pcp-collector
 %if "@enable_systemd@" == "true"
@@ -2551,9 +2543,17 @@ chown -R pcpqa:pcpqa @pcp_var_dir@/testsuite 2>/dev/null
 %endif
 exit 0
 
+%if "@enable_selinux@" == "true"
+%postun testsuite
+if [ $1 -eq 0 ]; then
+    %selinux_modules_uninstall -s targeted pcp-testsuite
+    %selinux_relabel_post -s targeted
+fi
+%endif
+
 %pre
 %if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
-%sysusers_create_compat %{_builddir}/debian/pcp.sysusers
+systemd-sysusers --replace=@pcp_systemdsysusers_dir@/pcp.conf - < %{_builddir}/debian/pcp.sysusers
 %else
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
@@ -2592,17 +2592,6 @@ done
     /sbin/service pmcd condrestart
     /sbin/service pmlogger condrestart
     /sbin/service pmie condrestart
-%endif
-
-%if "@enable_selinux@" == "true"
-%preun selinux
-%{selinux_handle_policy "$1" "pcpupstream"}
-
-%triggerin selinux -- docker-selinux
-%{selinux_handle_policy "$1" "pcpupstream-docker"}
-
-%triggerin selinux -- container-selinux
-%{selinux_handle_policy "$1" "pcpupstream-container"}
 %endif
 
 %if "@pmda_systemd@" == "true"
@@ -2931,18 +2920,30 @@ PCP_SA_DIR=@pcp_sa_dir@
 %endif
 %{rebuild_pmns "$PCP_PMNS_DIR" .NeedRebuild}
 
+%if 0%{?fedora} >= 26 || 0%{?rhel} > 7
+%ldconfig_scriptlets libs
+%else
 %post libs -p /sbin/ldconfig
 %postun libs -p /sbin/ldconfig
+%endif
 
 %if "@enable_selinux@" == "true"
+%pre selinux
+%selinux_relabel_pre -s targeted
+
 %post selinux
-%{selinux_handle_policy "$1" "pcpupstream"}
+PCP_SELINUX_DIR=@pcp_selinux_dir@/packages/targeted
+semodule -r pcpupstream-container >/dev/null 2>&1 || true
+semodule -r pcpupstream-docker >/dev/null 2>&1 || true
+semodule -r pcpupstream >/dev/null 2>&1 || true
+%selinux_modules_install -s targeted "$PCP_SELINUX_DIR/pcp.pp.bz2"
+%selinux_relabel_post -s targeted
 
-%triggerun selinux -- docker-selinux
-%{selinux_handle_policy "$1" "pcpupstream-docker"}
-
-%triggerun selinux -- container-selinux
-%{selinux_handle_policy "$1" "pcpupstream-container"}
+%postun selinux
+if [ $1 -eq 0 ]; then
+    %selinux_modules_uninstall -s targeted pcp
+    %selinux_relabel_post -s targeted
+fi
 %endif
 
 %files -f pcp-files.rpm
@@ -2961,6 +2962,7 @@ PCP_SA_DIR=@pcp_sa_dir@
 
 %if "@enable_selinux@" == "true"
 %files selinux -f pcp-selinux-files.rpm
+%ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/targeted/active/modules/200/pcp
 %endif
 
 %if "@enable_qt@" == "true"

@@ -114,6 +114,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@pcp_sa_dir@|$(PCP_SA_DIR)|g' \
 	    -e's|@pcp_var_dir@|$(PCP_VAR_DIR)|g' \
 	    -e's|@pcp_etc_dir@|$(PCP_ETC_DIR)|g' \
+	    -e's|@pcp_selinux_dir@|$(PCP_SELINUX_DIR)|g' \
 	    -e's|@pcp_binadm_dir@|$(PCP_BINADM_DIR)|g' \
 	    -e's|@pcp_pmdas_dir@|$(PCP_PMDAS_DIR)|g' \
 	    -e's|@qt_version@|$(QT_VERSION)|g' \
