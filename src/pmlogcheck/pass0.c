@@ -127,6 +127,7 @@ pass0(char *fname)
     __pmFILE	*f = NULL;
     int		label_ok = STS_OK;
     char	logBase[MAXPATHLEN];
+    long	offset = 0;
 
     if ((f = __pmFopen(fname, "r")) == NULL) {
 	fprintf(stderr, "%s: cannot open file: %s\n", fname, osstrerror());
@@ -164,6 +165,18 @@ pass0(char *fname)
     type = 0;
     while ((sts = __pmFread(&len, 1, sizeof(len), f)) == sizeof(len)) {
 	len = ntohl(len);
+	if (len < 2 * sizeof(len)) {
+	    if (vflag && !eol) {
+		fputc('\n', stderr);
+		eol = 1;
+	    }
+	    if (nrec == 0)
+		fprintf(stderr, "%s: illegal header record length (%d) in label record\n", fname, len);
+	    else
+		fprintf(stderr, "%s[record %d]: illegal header record length (%d)\n", fname, nrec, len);
+	    sts = STS_FATAL;
+	    goto done;
+	}
 	len -= 2 * sizeof(len);
 	/*
 	 * gobble stuff between header and trailer without looking at it
@@ -203,6 +216,18 @@ pass0(char *fname)
 	    goto done;
 	}
 	check = ntohl(check);
+	if (check < 2 * sizeof(len)) {
+	    if (vflag && !eol) {
+		fputc('\n', stderr);
+		eol = 1;
+	    }
+	    if (nrec == 0)
+		fprintf(stderr, "%s: illegal trailer record length (%d) in label record\n", fname, check);
+	    else
+		fprintf(stderr, "%s[record %d]: illegal trailer record length (%d)\n", fname, nrec, check);
+	    sts = STS_FATAL;
+	    goto done;
+	}
 	len += 2 * sizeof(len);
 	if (check != len) {
 	    if (vflag && !eol) {
@@ -292,6 +317,7 @@ pass0(char *fname)
 	    }
 	}
 	nrec++;
+	offset = __pmFtell(f);
     }
     if (sts != 0) {
 	if (vflag && !eol) {
@@ -314,6 +340,9 @@ empty_check:
      * sts == 0 (from __pmFread) => STS_OK
      */
 done:
+    if (sts == STS_FATAL && offset > 0) {
+	fprintf(stderr, "%s: last valid record ends at offset %ld\n", fname, offset);
+    }
     if (is == IS_INDEX) {
 	if (sts == STS_OK)
 	    index_state = STATE_OK;
