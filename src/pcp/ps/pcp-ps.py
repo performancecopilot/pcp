@@ -18,7 +18,8 @@
 #
 
 
-import sys, signal, time
+import sys
+import time
 from pcp import pmcc
 from pcp import pmapi
 import datetime
@@ -383,6 +384,14 @@ class DynamicProcessReporter:
         self.processStatOptions = processStatOptions
 
     def print_report(self, timestamp, header_indentation, value_indentation):
+
+        # when the print count is exhausted exit the program gracefully
+        # we can't use break here because it's being called by the run manager
+        if self.processStatOptions.print_count == 0:
+            sys.exit(0)
+        else:
+            self.processStatOptions.print_count -= 1
+
         if self.processStatOptions.filterstate is not None:
             self.printer("Timestamp" + header_indentation +
                          "USER\t\tPID\t\tPPID\t\tPRI\t%CPU\t%MEM\tVSZ\tRSS\tS\tSTARTED\t\tTIME\t\tWCHAN\t\t\t\tCommand")
@@ -420,7 +429,7 @@ class DynamicProcessReporter:
                                   process.rss(), current_process_sname, process.age(), process.total_time(), wchan,
                                   process_name))
         elif self.processStatOptions.colum_list is not None:
-            print('Timestamp', end="\t"),
+            print('Timestamp', end="\t")
             for key in self.processStatOptions.colum_list:
                 if key in PIDINFO_PAIR:
                     self.printer(PIDINFO_PAIR[key][0], '\t\t')
@@ -443,6 +452,15 @@ class ProcessStatusReporter:
         self.processStatOptions = processStatOptions
 
     def print_report(self, timestamp, header_indentation, value_indentation):
+
+        # when the print count is exhausted exit the program gracefully
+        # we can't use break here because it's being called by the run manager
+
+        if self.processStatOptions.print_count == 0:
+            sys.exit(0)
+        else:
+            self.processStatOptions.print_count -= 1
+
         if self.processStatOptions.show_all_process:
             self.printer("Timestamp" + header_indentation + "PID\t\t\tTTY\tTIME\t\tCMD")
             processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
@@ -489,14 +507,14 @@ class ProcessStatusReporter:
                     process.process_name()))
 
         elif self.processStatOptions.user_oriented_format:
-            self.printer("Timestamp" + header_indentation + "USERNAME\t\tPID\t\t%CPU\t%MEM\tVSZ\tRSS\t" +
-                         "TTY\tSTAT\t\tTIME\t\tSTART\t\tCOMMAND")
+            self.printer("Timestamp" + header_indentation + "USERNAME\tPID\t\t%CPU\t%MEM\tVSZ\tRSS\t" +
+                         "TTY\tSTAT\tTIME\t\tSTART\t\tCOMMAND")
             processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
             for process in processes:
-                self.printer("%s%s%s\t\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
+                self.printer("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
                     timestamp, value_indentation, process.user_name(), process.pid(),
                     process.system_percent(), process.total_percent(), process.vsize(), process.rss(),
-                    process.tty_name(), process.ppid(), process.total_time(), process.age(),
+                    process.tty_name(), process.s_name(), process.total_time(), process.age(),
                     process.process_name()))
 
         elif self.processStatOptions.command_filter_flag:
@@ -561,6 +579,10 @@ class ProcessstatReport(pmcc.MetricGroupPrinter):
 
         metric_repository = ReportingMetricRepository(group)
 
+        # Doing this for one single print instance in case there is no count specified
+        if ProcessStatOptions.print_count is None:
+            ProcessStatOptions.print_count = 1
+
         # =============================================================================================================
         if ProcessStatOptions.show_all_process:
             process_report = ProcessStatus(metric_repository)
@@ -624,7 +646,7 @@ class ProcessstatReport(pmcc.MetricGroupPrinter):
                                            ProcessStatOptions)
             report.print_report(timestamp, header_indentation, value_indentation)
 
-        # ================================================================================================================
+        # ================================================================
         if ProcessStatOptions.selective_colum_flag:
             process_report = ProcessStatus(metric_repository)
             process_filter = ProcessFilter(ProcessStatOptions)
@@ -647,7 +669,7 @@ class ProcessStatOptions(pmapi.pmOptions):
     empty_arg_flag = False
     filterstate = None
     timefmt = "%H:%M:%S"
-
+    print_count = None
     colum_list = []
     command_list = []
     pid_list = []
@@ -696,22 +718,18 @@ class ProcessStatOptions(pmapi.pmOptions):
         self.pmSetLongOptionText("\tvsize\tVSZ \tsee vsz")
         self.pmSetLongOptionText("\tuname\tUSER \tsee euser")
         self.pmSetLongOptionText("\twchan\tWCHAN \tname of the kernel function in which the process is sleeping")
-        self.pmSetLongOption("", 0, "u", "",
-                             "Display user-oriented format")
+        self.pmSetLongOption("", 0, 'u', "", "Display user-oriented format")
         self.pmSetLongOptionVersion()
         self.pmSetLongOptionTimeZone()
         self.pmSetLongOptionHostZone()
         self.pmSetLongOptionHelp()
 
     def override(self, opts):
-        """Override standard Pcp-ps option to show all process """
-        return bool(opts == 'p'
-                    or opts == 'c'
-                    or opts == 'P'
-                    or opts == 'U'
-                    or opts == 'o')
+        ProcessStatOptions.print_count = self.pmGetOptionSamples()
+        # """Override standard Pcp-ps option to show all process """
+        return bool(opts in ['p', 'c', 'o', 'P', 'U'])
 
-    def extraOptions(self, opts, optarg, index):
+    def extraOptions(self, opts, optarg):
         if opts == 'e':
             ProcessStatOptions.show_all_process = True
         elif opts == 'c':
@@ -748,18 +766,18 @@ class ProcessStatOptions(pmapi.pmOptions):
         elif opts == 'o':
             ProcessStatOptions.selective_colum_flag = True
             try:
-                if optarg is not None:
-                    if optarg not in ["All", "all", "ALL"]:
-                        dummy_list = optarg.replace(',', ' ').split(' ')
-                        for key in dummy_list:
-                            if key.lower() in PIDINFO_PAIR:
-                                ProcessStatOptions.colum_list.append(key.lower())
-                            # else:
-                            #     print(" Invalid colum name ", key)
-                    else:
-                        ProcessStatOptions.filterstate = "ALL"
+                if optarg.upper() == "ALL":
+                    ProcessStatOptions.filterstate = optarg.upper()
+                else:
+                    dummy_list = optarg.replace(',', ' ').split(' ')
+                    for key in dummy_list:
+                        if key.lower() in PIDINFO_PAIR:
+                            ProcessStatOptions.colum_list.append(key.lower())
+                        else:
+                            raise ValueError
             except ValueError:
-                print("Invalid ppid Id List: use comma separated pids without whitespaces")
+                print("Invalid ppid Id List: Either colum name is not correct "
+                      "or use comma separated colum names without whitespaces")
                 sys.exit(1)
         elif opts == 'U':
             ProcessStatOptions.username_filter_flag = True
@@ -768,22 +786,11 @@ class ProcessStatOptions(pmapi.pmOptions):
         elif opts is None:
             ProcessStatOptions.show_all_process = True
 
-    # @staticmethod
-    def checkOptions(self):
-
-        if ProcessStatOptions.colum_list and ProcessStatOptions.filter_flag:
-            return True
-        elif ProcessStatOptions.colum_list:
-            return True
-        elif ProcessStatOptions.filter_flag:
-            return True
-        elif ProcessStatOptions.show_all_process:
-            return True
-        elif ProcessStatOptions.user_oriented_format:
-            return True
-        elif ProcessStatOptions.username_filter_flag:
-            return True
-        elif ProcessStatOptions.filterstate:
+    @staticmethod
+    def checkOptions():
+        if ProcessStatOptions.selective_colum_flag or \
+                ProcessStatOptions.filter_flag or \
+                ProcessStatOptions.user_oriented_format:
             return True
         else:
             ProcessStatOptions.empty_arg_flag = True
@@ -794,6 +801,7 @@ if __name__ == "__main__":
     try:
         opts = ProcessStatOptions()
         manager = pmcc.MetricGroupManager.builder(opts, sys.argv)
+
         if not opts.checkOptions():
             raise pmapi.pmUsageErr
         missing = manager.checkMissingMetrics(PSSTAT_METRICS)
@@ -812,4 +820,3 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("Interrupted")
         sys.exit(0)
-        signal.signal(signal.SIGINT, lambda x, y: exit(KeyboardInterrupt))

@@ -30,7 +30,6 @@
 [\f3\-p\f1 \f2pid1,pid2..\f1]
 [\f3\-p\f1 \f2pid1,pid2..\f1]
 [\f3\-o\f1 \f2col1,col2... or ALL\f1]
-[\f3\-t\f1 \fIinterval\f1]
 [\f3\-Z\f1 \f2timezone\f1]
 [\f3\-z\f1]
 [\f3\-?\f1]
@@ -101,10 +100,6 @@ Display only processes with the listed PIDs.
 .BR \-P \ \fIppid1,ppid2..\fR ", " \fB\-\-ppid-list=\fIppid1,ppid2..\fR
 Display only processes with the listed PPIDs.
 .TP
-.BR \-t \ \fIinterval\fR ", " \fB\-\-interval=\fIinterval\fR
-Set the interval between two samples.
-The default is one second.
-.TP
 .BR \-O \fR
 User-defined format.
 
@@ -161,7 +156,7 @@ format (e.g. with option
 or to sort the selected processes
 
 For example:
-.B ps \-eo pid,\:user,\:args
+.B ps \-o pid,\:user,\:args
 
 .TS
 expand;
