@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2022 Oracle and/or its affiliates. 
+.\" Copyright (c) 2022 Oracle and/or its affiliates.
 .\" DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -13,9 +13,6 @@
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
 .\"
-.\"
-.\"
-
 .TH PCP-PS 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pcp-ps\f1 \- Report statistics for Linux Process.
@@ -78,15 +75,15 @@ TTY
 TIME
        The  cumulated CPU time in [DD-]hh:mm:ss format (time=TIME).
 
-CMD 
+CMD
        The command name of the task.
 .TP
-.BR \-c \ [\fIcommand \fIname\fR] "\fR
+.B \-c [\fIcommand name\fR]
 Display the real Command name of the tasks being monitored instead of the UID.
 If \fIcommand name\fR is specified, then only tasks belonging to the specified
 command are displayed.
 .TP
-.BR \-U \ [\fIusername\fR] ", " \fB\-\-user\-name\fI[=username]\fR
+.BR \-U \ [\fIusername\fR] ", " \fB\-\-user\-name\fR[=\fIusername\fR]
 Display the real user name of the tasks being monitored instead of the UID.
 If \fIusername\fR is specified, then only tasks belonging to the specified
 user are displayed.
@@ -94,13 +91,13 @@ user are displayed.
 .BR \-V \fR ", " \fB\-\-version\fR
 Print version number then exit.
 .TP
-.BR \-p \ \fIpid1,pid2..\fR ", " \fB\-\-pid-list=\fIpid1,pid2..\fR
+.BR \-p \ \fIpid1,pid2..\fR ", " \fB\-\-pid-list\fR=\fIpid1,pid2..\fR
 Display only processes with the listed PIDs.
 .TP
-.BR \-P \ \fIppid1,ppid2..\fR ", " \fB\-\-ppid-list=\fIppid1,ppid2..\fR
+.BR \-P \ \fIppid1,ppid2..\fR ", " \fB\-\-ppid-list\fR=\fIppid1,ppid2..\fR
 Display only processes with the listed PPIDs.
 .TP
-.BR \-O \fR
+.B \-O
 User-defined format.
 
 It is a single argument in the form of a blank-separated or comma-separated list, which offers a way to specify individual output columns.
@@ -167,7 +164,7 @@ lB1 l1  l.
 \fBpid        PID           a number representing the process ID\fR
 .br
 \fB%cpu       %CPU          cpu utilization of the process in "##.#" format.
-                         Currently, it is the CPU time used divided by the time the 
+                         Currently, it is the CPU time used divided by the time the
                          process has been running (cputime/realtime ratio), expressed as a percentage.\fR
 .br
 \fB%mem       %MEM          ratio of the process's resident set size  to the physical memory on the
