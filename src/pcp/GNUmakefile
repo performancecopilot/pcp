@@ -27,15 +27,15 @@ SUBDIRS = \
 	mpstat \
 	numastat \
 	pidstat \
+	ps \
 	python \
 	shping \
+	ss \
 	summary \
 	tapestat \
 	uptime \
 	verify \
-	vmstat \
-	ss	\
-	ps
+	vmstat
 
 default :: default_pcp
 
