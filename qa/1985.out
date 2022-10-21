@@ -1,0 +1,11 @@
+QA output created by 1985
+QA output created by 1986 --valgrind
+=== std out ===
+SOURCE HOSTNAME
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmfind -S -m probe=127.0.0.1/32
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
