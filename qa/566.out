@@ -91,6 +91,7 @@ archive-20150415.044829: start pass3
 badarchives/badlen-1.meta:
 Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-1.meta"
+badarchives/badlen-1.0: last valid record ends at offset 132
 badarchives/badlen-1.0: start pass0 ... 
 badarchives/badlen-1.0[record 1]: length mismatch: header 132 != trailer 128
 badarchives/badlen-1.index: start pass0 ... found 4 records
@@ -107,6 +108,7 @@ badarchives/badlen-10.meta: start pass0 ... found 12 records
 badarchives/badlen-11.meta:
 Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-11.meta"
+badarchives/badlen-11.0: last valid record ends at offset 132
 badarchives/badlen-11.0: start pass0 ... 
 badarchives/badlen-11.0[record 1]: unexpected EOF in record header, wanted 4, got 1 bytes
 badarchives/badlen-11.index: start pass0 ... found 4 records
@@ -115,6 +117,7 @@ badarchives/badlen-11.meta: start pass0 ... found 12 records
 badarchives/badlen-2.meta:
 Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-2.meta"
+badarchives/badlen-2.0: last valid record ends at offset 132
 badarchives/badlen-2.0: start pass0 ... 
 badarchives/badlen-2.0[record 1]: unexpected EOF in record trailer, wanted 4, got 0 bytes
 badarchives/badlen-2.index: start pass0 ... found 4 records
@@ -123,6 +126,7 @@ badarchives/badlen-2.meta: start pass0 ... found 12 records
 badarchives/badlen-3.meta:
 Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-3.meta"
+badarchives/badlen-3.0: last valid record ends at offset 132
 badarchives/badlen-3.0: start pass0 ... 
 badarchives/badlen-3.0[record 1]: unexpected EOF in record body, wanted 124, got 116 bytes
 badarchives/badlen-3.index: start pass0 ... found 4 records
@@ -147,7 +151,7 @@ badarchives/badlen-5.meta: start pass0 ... found 12 records
 badarchives/badlen-6.meta:
 Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-6.meta"
-badarchives/badlen-6.0: label record length mismatch: header 64 != trailer 0
+badarchives/badlen-6.0: illegal trailer record length (0) in label record
 badarchives/badlen-6.0: start pass0 ... 
 badarchives/badlen-6.index: start pass0 ... found 4 records
 badarchives/badlen-6.meta: start pass0 ... found 12 records
@@ -165,6 +169,7 @@ Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlen-9.meta"
 badarchives/badlen-9.0: start pass0 ... found 10 records
 badarchives/badlen-9.index: start pass0 ... found 4 records
+badarchives/badlen-9.meta: last valid record ends at offset 798
 badarchives/badlen-9.meta: start pass0 ... 
 badarchives/badlen-9.meta[record 11]: unexpected EOF in record body, wanted 46, got 38 bytes
 
@@ -249,6 +254,7 @@ badarchives/badti-4: start pass3
 badarchives/badlog-1.0:
 Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlog-1.0"
+badarchives/badlog-1.0: last valid record ends at offset 496
 badarchives/badlog-1.0: start pass0 ... 
 badarchives/badlog-1.0[record 3]: unexpected EOF in record body, wanted 204, got 200 bytes
 badarchives/badlog-1.index: start pass0 ... found 4 records
