@@ -93,6 +93,12 @@ AC_ARG_WITH([systemd],
     [do_systemd=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-systemd=$withval"],
     [do_systemd=check])
 
+AC_ARG_WITH([selinux],
+    [AC_HELP_STRING([--with-selinux],
+                    [enable support for selinux (default is check)])],
+    [do_selinux=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-selinux=$withval"],
+    [do_selinux=check])
+
 AC_ARG_WITH([qt],
     [AC_HELP_STRING([--with-qt],
                     [enable support for tools requiring Qt (default is on)])],

@@ -94,6 +94,15 @@ then
     # rpm build configure
     #
     configopts="$configopts --with-make=$MAKE --with-tar=$TAR --with-zip=$ZIP"
+    # for CentOS 6, building with selinux no longer works
+    #
+    if [ -f /etc/system-release ]
+    then
+	if grep 'CentOS release 6\.' /etc/system-release >/dev/null
+	then
+	    configopts="$configopts --with-selinux=no"
+	fi
+    fi
 elif [ $target = darwin ]
 then
     # On Mac OS X platforms, we're using brew ...
