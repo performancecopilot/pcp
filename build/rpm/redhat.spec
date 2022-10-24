@@ -2696,7 +2696,8 @@ chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
 exit 0
 
 %post testsuite
-%if !%{disable_selinux}PCP_SELINUX_DIR=${_selinuxdir}
+%if !%{disable_selinux}
+PCP_SELINUX_DIR=%{_selinuxdir}
 semodule -r pcpqa >/dev/null 2>&1 || true
 %selinux_modules_install -s targeted "$PCP_SELINUX_DIR/pcp-testsuite.pp.bz2"
 %selinux_relabel_post -s targeted
@@ -3023,7 +3024,7 @@ for PMDA in dm nfsclient openmetrics ; do
     fi
 done
 # auto-enable these usually optional pmie rules
-${run_pmieconf "$PCP_PMIECONFIG_DIR" dmthin}
+%{run_pmieconf "$PCP_PMIECONFIG_DIR" dmthin}
 %if 0%{?rhel}
 %if !%{disable_systemd}
     systemctl restart pmcd pmlogger pmie >/dev/null 2>&1
@@ -3080,7 +3081,7 @@ PCP_LOG_DIR=%{_logsdir}
 %selinux_relabel_pre -s targeted
 
 %post selinux
-PCP_SELINUX_DIR=${_selinuxdir}
+PCP_SELINUX_DIR=%{_selinuxdir}
 semodule -r pcpupstream-container >/dev/null 2>&1 || true
 semodule -r pcpupstream-docker >/dev/null 2>&1 || true
 semodule -r pcpupstream >/dev/null 2>&1 || true
