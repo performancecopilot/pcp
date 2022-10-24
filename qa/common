@@ -336,12 +336,8 @@ then
 	if [ -f GNUmakefile.install ]
 	then
 	    # running QA in the tree
-	    # pcpqa.te is installed in testsuite, but not here so
-	    # make sure it is up to date ...
-	    ${MAKE:-make} -f GNUmakefile pcpqa.te >/tmp/$$.make 2>&1
-	    __sts=$?
 	    ${MAKE:-make} -f GNUmakefile.install >>/tmp/$$.make 2>&1
-	    __sts=`expr $? + $__sts`
+	    __sts=$?
 	    ( cd qt; ./setup-executables )
 	else
 	    ${MAKE:-make} >/tmp/$$.make 2>&1
