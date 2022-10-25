@@ -2,7 +2,7 @@
 # PCP QA Test No. 1626
 # pmproxy metrics
 #
-# Copyright (c) 2021 Red Hat.
+# Copyright (c) 2021-2022 Red Hat.
 #
 
 seq=`basename $0`
@@ -83,10 +83,10 @@ val=`_probe_val pmproxy.pid`
 pid=`_pmproxy_mainpid`
 if [ "$pid" -eq "$val" ]; then :; else echo FAIL pid=$pid val=$val && exit; fi
 
-echo === check initial pmproxy.webgroup metrics
-for m in instmap labelsmap namesmap contextmap; do
-    [ `_probe_val pmproxy.webgroup.$m.size` -eq 0 ] && continue
-    echo FAILED pmproxy.webgroup.$m.size expected to be zero && exit
+echo === check initial pmproxy.map metrics
+for m in instance label metric context; do
+    [ `_probe_val pmproxy.map.$m.size` -eq 0 ] && continue
+    echo FAILED pmproxy.map.$m.size expected to be zero && exit
 done
 
 echo "=== start the metrics timer with a /metrics RESTAPI call"
@@ -97,7 +97,7 @@ val=`curl -Gs 'http://localhost:44322/metrics?names=pmproxy.pid' |\
 echo "=== wait for the maps to be updated"
 count=0
 while true; do
-    sz=`_probe_val pmproxy.webgroup.namesmap.size`
+    sz=`_probe_val pmproxy.map.metric.size`
     [ "$sz" -gt 0 ] && break
     count=`expr $count + 1`
     if [ $count -gt 20 ]
@@ -112,11 +112,11 @@ while true; do
 done
 echo "namespace metrics found after $count iterations" >>$seq.full
 
-echo === pmproxy.webgroup map size metrics should now be nonzero
-for m in instmap labelsmap namesmap contextmap; do
-    sz=`_probe_val pmproxy.webgroup.$m.size`
+echo === pmproxy.map size metrics should now be nonzero
+for m in instance label metric context; do
+    sz=`_probe_val pmproxy.map.$m.size`
     [ "$sz" -gt 0 ] && continue
-    echo FAILED pmproxy.webgroup.$m.size is \"$sz\" but expected to be non-zero
+    echo FAILED pmproxy.map.$m.size is \"$sz\" but expected to be non-zero
     exit
 done
 
