@@ -82,6 +82,7 @@ pmseries $args 'abs(kernel.all.load[count:5]) * 2'
 pmseries $args '2 * abs(kernel.all.load[count:5])'
 pmseries $args '0 * kernel.all.load[count:5]'
 pmseries $args '1.1 * kernel.all.load[count:5]'
+pmseries $args 'kernel.all.load[count:5] * 1.5'
 
 
 echo;echo "== Verify multiplication operator for a non-singular metric, only one instance"
@@ -101,6 +102,7 @@ pmseries $args 'abs(kernel.all.load{instance.name == "5 minute"}[count:5]) * 2'
 pmseries $args '2 * abs(kernel.all.load{instance.name == "5 minute"}[count:5])'
 pmseries $args '0 * kernel.all.load{instance.name == "5 minute"}[count:5]'
 pmseries $args '1.1 * kernel.all.load{instance.name == "5 minute"}[count:5]'
+pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5] * 1.5'
 
 echo;echo "== Verify multiplication operator for a singular metric"
 pmseries $args 'kernel.all.uptime[count:10]'
@@ -119,6 +121,7 @@ pmseries $args 'abs(kernel.all.uptime[count:10]) * 2'
 pmseries $args '2 * abs(kernel.all.uptime[count:10])'
 pmseries $args '0 * kernel.all.uptime[count:10]'
 pmseries $args '1.1 * kernel.all.uptime[count:10]'
+pmseries $args 'kernel.all.uptime[count:10] * 1.5'
 
 
 # success, all done

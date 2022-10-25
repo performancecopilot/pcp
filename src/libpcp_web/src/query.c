@@ -4619,18 +4619,30 @@ series_calculate_star(node_t *np, void *arg)
     pmAtomValue		l_val, r_val;
     pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
     int			l_type, r_type, otype=PM_TYPE_UNKNOWN;
-    int			l_sem, r_sem, scalar_operand;
+    int			l_sem, r_sem, int_operand, is_int;
     sds			msg;
-    double		data, new_d;
+    double		data, double_operand;
     char		new_data[64];
 
     if (left->value_set.num_series == 0 || right->value_set.num_series == 0){
 	if (right->value_set.num_series == 0){
-	    sscanf(right->value, "%d", &scalar_operand);
+	    if (right->type == N_DOUBLE) {
+		sscanf(right->value, "%lf", &double_operand);
+                is_int = 0;
+	    } else {
+		sscanf(right->value, "%d", &int_operand);
+                is_int = 1;
+	    }
 	    node = left;
 	}
-	else{
-	    sscanf(left->value, "%d", &scalar_operand);
+	else {
+	    if (left->type == N_DOUBLE) {
+		sscanf(left->value, "%lf", &double_operand);
+                is_int = 0;
+	    } else {
+		sscanf(left->value, "%d", &int_operand);
+                is_int = 1;
+	    }
 	    node = right;
 	}
 	n_series = node->value_set.num_series;
@@ -4640,10 +4652,22 @@ series_calculate_star(node_t *np, void *arg)
 	    	num_instances = node->value_set.series_values[i].series_sample[j].num_instances;
 	    	for (k = 0; k < num_instances; k++) {
 		    data = atof(node->value_set.series_values[i].series_sample[j].series_instance[k].data);
-		    new_d = data * scalar_operand;
-		    pmsprintf(new_data, sizeof(new_data), "%le", new_d);
+		    if (node->type == N_INTEGER && is_int) {
+			pmsprintf(new_data, sizeof(new_data), "%d", atoi(node->value_set.series_values[i].series_sample[j].series_instance[k].data) * int_operand);
+		    } else if (is_int) {
+			pmsprintf(new_data, sizeof(new_data), "%le", data * int_operand);
+		    } else {
+			pmsprintf(new_data, sizeof(new_data), "%le", data * double_operand);
+		    }
+		    sdsfree(node->value_set.series_values[i].series_sample[j].series_instance[k].data);
 		    node->value_set.series_values[i].series_sample[j].series_instance[k].data = sdsnew(new_data);
 	    	}
+	    }
+	    if (!is_int) {
+		sdsfree(node->value_set.series_values[i].series_desc.type);
+		sdsfree(node->value_set.series_values[i].series_desc.semantics);
+		node->value_set.series_values[i].series_desc.type = sdsnew("double");
+		node->value_set.series_values[i].series_desc.semantics = sdsnew("instance");
 	    }
 	}
 	np->value_set = node->value_set;
