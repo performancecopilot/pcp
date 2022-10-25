@@ -4675,6 +4675,7 @@ series_calculate_star(node_t *np, void *arg)
             }
 	}
 	np->value_set = node->value_set;
+       
     }
     else{
 	n_series = left->value_set.num_series;
