@@ -44,6 +44,7 @@ iproute
 httpd
 initscripts
 java-latest-openjdk-headless
+jq
 kubernetes-client
 libbpf
 libbpf-devel

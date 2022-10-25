@@ -61,11 +61,12 @@ using the new metric.
 
 [ ] These tests include the names or counts of all sample PMDA metrics
     and will need to be remade:
-    139 256 272 509 662 762 1067
+    029 139 256 273 509 569 662 762 1067
 
 [ ] 1067 may also need some filter love if the values of the metric
     and/or the state of any underlying instance domain is not
-    deterministic
+    deterministic ... and be careful there is 1067.out.0 and 1067.out.1
+    so some diff cut-n-past maybe needed to fix both .out files
 
 [ ] 569 may need some filter love if the values of the metric and/or
     the state of any underlying instance domain is not deterministic

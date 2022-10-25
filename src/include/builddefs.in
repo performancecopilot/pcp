@@ -249,7 +249,6 @@ PCP_DESKTOP_DIR = @pcp_desktop_dir@
 PCP_PMNS_DIR = @pcp_pmns_dir@
 PCP_PMNSADM_DIR = @pcp_pmnsadm_dir@
 PCP_SELINUX_DIR = @pcp_selinux_dir@
-PCP_SELINUXADM_DIR = @pcp_selinuxadm_dir@
 PCP_BASHSHARE_DIR = @pcp_bashshare_dir@
 
 NEED_OLD_TBL_HEADER = @need_old_tbl_header@
@@ -272,54 +271,6 @@ ENABLE_SYSTEMD = @enable_systemd@
 ENABLE_SELINUX = @enable_selinux@
 ENABLE_DECOMPRESSION = @enable_decompression@
 ENABLE_LZMA = @enable_lzma@
-
-# selinux configuration bits
-# pcpupstream.te
-PCP_SELINUX_FILES_LIST_NON_AUTH_DIRS = @pcp_selinux_files_list_non_auth_dirs@
-PCP_SELINUX_CAP_USERNS_PTRACE = @pcp_selinux_cap_userns_ptrace@
-PCP_SELINUX_CONTAINER_RUNTIME = @pcp_selinux_container_runtime@
-PCP_SELINUX_NSFS = @pcp_selinux_nsfs@
-PCP_SELINUX_DOCKER_VAR_LIB = @pcp_selinux_docker_var_lib@
-PCP_SELINUX_UNRESERVED_PORT = @pcp_selinux_unreserved_port@
-PCP_SELINUX_TRACEFS = @pcp_selinux_tracefs@
-PCP_SELINUX_HOSTNAME_EXEC_MAP = @pcp_selinux_hostname_exec_map@
-PCP_SELINUX_UNCONFINED = @pcp_selinux_unconfined@
-PCP_SELINUX_NUMAD = @pcp_selinux_numad@
-PCP_SELINUX_BPF = @pcp_selinux_bpf@
-PCP_SELINUX_DMA_DEVICE = @pcp_selinux_dma_device@
-PCP_SELINUX_CONTAINER_VAR_RUN = @pcp_selinux_container_var_run@
-PCP_SELINUX_RPCBIND_VAR_RUN = @pcp_selinux_rpcbind_var_run@
-PCP_SELINUX_VIRT_VAR_RUN = @pcp_selinux_virt_var_run@
-PCP_SELINUX_PROC_SECURITY = @pcp_selinux_proc_security@
-PCP_SELINUX_SBD_EXEC = @pcp_selinux_sbd_exec@
-PCP_SELINUX_FILES_MMAP_ALL_FILES = @pcp_selinux_files_mmap_all_files@
-PCP_SELINUX_LOGGING_WATCH_ALL_LOG_DIRS_PATH = @pcp_selinux_logging_watch_all_log_dirs_path@
-PCP_SELINUX_CAPABILITY2_SYSLOG = @pcp_selinux_capability2_syslog@
-PCP_SELINUX_CAPABILITY2_BPF = @pcp_selinux_capability2_bpf@
-PCP_SELINUX_ICMP_SOCKET_CLASS = @pcp_selinux_icmp_socket_class@
-PCP_SELINUX_LOCKDOWN_CLASS = @pcp_selinux_lockdown_class@
-PCP_SELINUX_GLUSTERD_LOG = @pcp_selinux_glusterd_log@
-# pcpqa.te
-PCP_SELINUX_INITRC_TMP = @pcp_selinux_initrc_tmp@
-PCP_SELINUX_SUDO_EXEC = @pcp_selinux_sudo_exec@
-PCP_SELINUX_SECURITY = @pcp_selinux_security@
-PCP_SELINUX_CHKPWD_EXEC = @pcp_selinux_chkpwd_exec@
-PCP_SELINUX_INITRC = @pcp_selinux_initrc@
-PCP_SELINUX_VAR_LOG = @pcp_selinux_var_log@
-PCP_SELINUX_LASTLOG = @pcp_selinux_lastlog@
-PCP_SELINUX_XAUTH_EXEC = @pcp_selinux_xauth_exec@
-PCP_SELINUX_LOGROTATE = @pcp_selinux_logrotate@
-PCP_SELINUX_FAILLOG = @pcp_selinux_faillog@
-PCP_SELINUX_KMOD_EXEC = @pcp_selinux_kmod_exec@
-PCP_SELINUX_NETLINK_SELINUX_SOCKET_CLASS = @pcp_selinux_netlink_selinux_socket_class@
-PCP_SELINUX_NETLINK_AUDIT_SOCKET_CLASS = @pcp_selinux_netlink_audit_socket_class@
-PCP_SELINUX_SOCK_FILE_CLASS = @pcp_selinux_sock_file_class@
-PCP_SELINUX_SECURITY_CLASS = @pcp_selinux_security_class@
-PCP_SELINUX_DIR_CLASS = @pcp_selinux_dir_class@
-PCP_SELINUX_RAWIP_SOCKET_CLASS = @pcp_selinux_rawip_socket_class@
-PCP_SELINUX_NETLINK_GENERIC_SOCKET_CLASS = @pcp_selinux_netlink_generic_socket_class@
-PCP_SELINUX_NETLINK_TCPDIAG_SOCKET_CLASS = @pcp_selinux_netlink_tcpdiag_socket_class@
-PCP_SELINUX_MDADM_CONF = @pcp_selinux_mdadm_conf@
 
 # for code supporting any modern version of perl
 HAVE_PERL = @have_perl@

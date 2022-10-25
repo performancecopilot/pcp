@@ -77,8 +77,8 @@ sampledso.ulonglong.ten [10 as a 64-bit unsigned integer]
 sampledso.ulonglong.hundred [100 as a 64-bit unsigned integer]
 sampledso.ulonglong.million [1000000 as a 64-bit unsigned integer]
 sampledso.ulonglong.write_me [a 64-bit unsigned integer that can be modified]
-sampledso.ulonglong.bin [like sample.bin but type U64]
-sampledso.ulonglong.bin_ctr [like sample.bin but type U64, SEM_COUNTER and SPACE_KBYTE]
+sampledso.ulonglong.bin [similar to sample.bin but type U64 and values increment]
+sampledso.ulonglong.bin_ctr [similar sample.bin but type U64, SEM_COUNTER and SPACE_KBYTE and values increment]
 sampledso.float.one [1 as a 32-bit floating point value]
 sampledso.float.ten [10 as a 32-bit floating point value]
 sampledso.float.hundred [100 as a 32-bit floating point value]
@@ -110,6 +110,10 @@ sampledso.wrap.long [long counter that wraps]
 sampledso.wrap.ulong [unsigned long counter that wraps]
 sampledso.wrap.longlong [long long counter that wraps]
 sampledso.wrap.ulonglong [unsigned long long counter that wraps]
+sampledso.slow_wrap.long [long counter that wraps more slowly]
+sampledso.slow_wrap.ulong [unsigned long counter that wraps more slowly]
+sampledso.slow_wrap.longlong [long long counter that wraps more slowly]
+sampledso.slow_wrap.ulonglong [unsigned long long counter that wraps more slowly]
 sampledso.dodgey.control [control values retured for sample.dodgey.value]
 sampledso.dodgey.value [5 unreliable instances]
 sampledso.dynamic.counter [counter metric with dynamic indom]
@@ -187,6 +191,11 @@ sampledso.proc.ordinal [sequence number for each "process"]
 sampledso.proc.exec ["executable" name]
 sampledso.proc.time [time since the fake "process" was created]
 sampledso.proc.reset [reset the "procs" instance domain to a known state]
+sampledso.updown.obs [metric with a values that form a step function]
+sampledso.updown.control.repeat [repetition count for values of sample.updown.obs]
+sampledso.updown.control.min [minumum value for sample.updown.obs]
+sampledso.updown.control.max [maximum value for sample.updown.obs]
+sampledso.updown.control.step [increment or decrement value for sample.updown.obs]
 --- help.c case 2 ---
 
 sampledso.control
@@ -650,11 +659,13 @@ a 64-bit unsigned integer that can be modified
 
 sampledso.ulonglong.bin
 Help:
-like sample.bin but type U64
+Values are the base value of the associated sampledso.bin instances plus
+sampledso.seconds.
 
 sampledso.ulonglong.bin_ctr
 Help:
-like sample.bin but type U64, SEM_COUNTER and SPACE_KBYTE
+Values are the base value of the associated sampledso.bin instances plus
+sampledso.seconds.
 
 sampledso.float.one
 Help:
@@ -791,6 +802,26 @@ sampledso.wrap.ulonglong
 Help:
 The metric value increments by ULONGLONG_MAX / 2 - 1 (from <limits.h>)
 every time it is fetched.
+
+sampledso.slow_wrap.long
+Help:
+The metric value increments by INT_MAX / 10 - 1 (from <limits.h>) every
+time it is fetched, so wraps once every 20th fetch.
+
+sampledso.slow_wrap.ulong
+Help:
+The metric value increments by INT_MAX / 10 - 1 (from <limits.h>) every
+time it is fetched, so wraps once every 20th fetch.
+
+sampledso.slow_wrap.longlong
+Help:
+The metric value increments by LONGLONG_MAX / 10 - 1 (from <limits.h>)
+every time it is fetched, so wraps once every 20th fetch.
+
+sampledso.slow_wrap.ulonglong
+Help:
+The metric value increments by LONGLONG_MAX / 10 - 1 (from <limits.h>)
+every time it is fetched, so wraps once every 20th fetch.
 
 sampledso.dodgey.control
 Help:
@@ -1356,6 +1387,43 @@ time since the fake "process" was created
 sampledso.proc.reset
 Help:
 pmstore(1) may be used to trigger the reset.
+
+sampledso.updown.obs
+Help:
+Values range between sampledso.updown.control.min and 
+sampledso.updown.control.max and the value stays the same for
+sampledso.updown.control.repeat fetches, then increases or decreases
+by sampledso.updown.control.step to produce a step function that goes
+up and down.
+
+sampledso.updown.control.repeat
+Help:
+Consecutive fetches of sampledso.updown.obs produce the same value until
+sampledso.updown.control.repeat values have been returned, then the value
+is incremented or decremented.
+
+Defaults to 5, but maybe changed with pmstore(1).
+
+sampledso.updown.control.min
+Help:
+When sampledso.updown.obs is being decremented, this is the smallest
+value that us returned before the metric starts to be incremented.
+
+Defaults to 0, but maybe changed with pmstore(1).
+
+sampledso.updown.control.max
+Help:
+When sampledso.updown.obs is being incremented, this is the largest
+value that us returned before the metric starts to be decremented.
+
+Defaults to 200, but maybe changed with pmstore(1).
+
+sampledso.updown.control.step
+Help:
+When sampledso.updown.obs is being incremented or decremented, this is
+the amount that is added or subtracted.
+
+Defaults to 10, but maybe changed with pmstore(1).
 --- help.c case 3 ---
 
 sample.seconds

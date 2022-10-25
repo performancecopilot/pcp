@@ -2,37 +2,41 @@ PCP SELinux Module
 
 == TL;DR ==
 
-Dammit Jim, I'm a developer, not an SELinux expert!
+PCP is now using an "independent" selinux policy:
+https://fedoraproject.org/wiki/SELinux/IndependentPolicy
 
-Ok ok, AVC denials are logged in /var/log/audit/audit.log.  Pull out
-the relevant errors, and either, forward that along with the bug/pull
-request for us to add/fix, or run:
+PCP also makes extensive use of "optional" policy macros:
+https://selinuxproject.org/page/NB_RefPolicy#optional_policy_Macro
 
-sudo grep '^type=AVC.*pcp' /var/log/audit/audit.log \
-| audit2allow -w
 
-which will verify that the AVC is not already covered in the pcp
-policy file.
+== Overview ==
+
+AVC denials are logged in /var/log/audit/audit.log.  Run:
+
+sudo grep '^type=AVC.*pcp' /var/log/audit/audit.log | audit2allow -w
+
+(to verify that the AVC is not already covered in the pcp policy).
 
 Before going any further, consider the current SELinux mode.  If it
-is Enforcing, then you'll not be seeing any subsequent errors after
+is Enforcing then you will not be seeing any subsequent errors after
 the first one for a particular test or application.  Consider changing
 to Permissive mode, as in:
     $ sudo setenforce Permissive
 and repeating the failing operation (which should now pass!).
 
-Just remember to turn Enforcing back on, if required, with:
+Remember to turn Enforcing mode back on with:
     $ sudo setenforce Enforcing
 
-Now there are two options ... create and load your own module policy
-(good for testing)
+Next, we want to merge the new rules into pcp.te.  The best outcome
+is to find the right pre-defined policy "interface" to add into the
+PCP policy:
 
     $ sudo grep '^type=AVC.*pcp' /var/log/audit/audit.log \
-    | audit2allow -M mypolicy
-    $ sudo semodule -i mypolicy.pp
+    | audit2allow -R myrules
 
-Else merge the new rules into the PCP package rules, probably in
-src/selinux/pcpupstream.te.in.
+Review myrules and consider adding identified interface to pcp.te -
+however, this is not always accurate and may not find an interface.
+In that case, fallback to using:
 
     $ sudo grep '^type=AVC.*pcp' /var/log/audit/audit.log \
     | audit2allow -m myrules
@@ -54,8 +58,8 @@ This will produce output something like
 At which point you need to make sure all the "types" (pcp_pmcd_t
 above), "classes" (capability chown above) and other elements in the
 require { ... } clause are already mentioned in the require { ... }
-clause in src/selinux/pcpupstream.te.in.  If they are missing, add
-them here.  Note that classes may be sets, hence the form
+clause in src/selinux/pcp.te.  If they are missing, add them here.
+Note that classes may be sets, hence the form
 
     class capability { kill ... chown ... };
 
@@ -65,41 +69,12 @@ rather than the singular form
 
 as reported by audit2allow -m.
 
-Also, some of the "require" elements may be optional (not supported on
-all versions of SELinux), so watch out for things like
-
-    @PCP_TRACEFS@
-
-which becomes
-
-    type tracefs_t;
-
-or
-
-    <nothing>
-
-and the corresponding conditional rules, like @PCP_TRACEFS_FS_RULE@,
-@PCP_TRACEFS_DIR_RULE@ and @PCP_TRACEFS_FILE_RULE@
-
-Now go further down src/selinux/pcpupstream.te.in and add the "allow"
-clause from audit2allow -m, prefixed by the full text of the matching
-AVC line from audit.log as a comment, so something like:
-
-    # type=AVC msg=audit(1554197433.052:5607): avc: denied { chown } for pid=8999 comm="pmdasimple" capability=0 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
-    allow pcp_pmcd_t self:capability chown;
-
-For documentation, it will help to replace the msg=audit(...) part
-with msg=audit(XXX.<N>) (or YYY.<N>) provided the <N> (number) part is
-chosen to make the line unique across all type=AVC comments ... the
-src/selinux/next-xxx-yyy script will report the next available unique
-IDs for both XXX.<N> and YYY.<N>.
+At this stage, all new policy additions need to be conditional
+(i.e. annotated as "optional").
 
 Be careful you understand what context accesses you're allowing with
 this policy, and that they *should* be allowed.
 
-If you choose the latter, please be a good samaritan and forward the
-relevant AVC denials upstream for the community to apply and ship the
-updated policy package.
 
 There's also a possibility that the AVC is covered by some dontaudit
 rule. You can temporary disable dontaudit rules using:
@@ -110,73 +85,7 @@ There's also other than AVC audit events related to SELinux - USER_AVC
 and SELINUX_ERR that could be checked in case of unexplained issues:
 
     # ausearch -m avc,user_avc,selinux_err -i -ts recent
-    
-== Full Recipe for Conditional Classes and/or Permissions ==
 
-or how to add PCP_SELINUX_FOO_SOMETHING
-
-where _SOMETHING (and _something) is empty (if "foo" is simply a
-type)  or _T (and _t) or _CLASS (and _class) or something else
-(like as in "FOO_SOMETHING" is <class_name>_<permission_name>).
-
-configure.ac
-
-    additional logic in the types or class interrogation blocks
-    to initially set pcp_selinux_foo_something to false, then
-    conditionally set pcp_selinux_foo_something, and finally an extra
-    AC_SUBST(pcp_selinux_foo_something) further down
-
-src/include/builddefs.in
-    add
-    PCP_SELINUX_FOO_SOMETHING = @pcp_selinux_foo_something@
-
-src/selinux/GNUlocaldefs
-    add
-    ifeq "$(PCP_SELINUX_FOO_SOMETHING)" "true"
-    PCP_FOO_T="... type ..."
-    PCP_FOO_CLASS="... class ..."
-    PCP_FOO_RULE="... rule ..."
-    endif
-
-    Note usually need one or two of these variable assignments (so
-    type and rule, or class and rule, or rule alone), and these these
-    could be complete type definitions, complete class definitions
-    or a permission in a list for a class.
-
-src/selinux/pcpupstream.te.in
-    in the require { ... } block add
-    @PCP_FOO_T@
-    and/or
-    @PCP_FOO_CLASS@
-
-
-qa/GNUselinuxdefs
-    ifeq "$(PCP_SELINUX_FOO_SOMETHING)" "true"
-    ... gmake macro definitions for (PCP_FOO_T (types) or
-	PCP_FOO_CLASS (classes)) and PCP_FOO_RULE for allowed
-	accesses
-
-qa/GNUmakefile
-    additional sed rules for one or more of the following:
-	-e 's+@PCP_FOO_T@+'$(PCP_FOO_T)'+' \
-	-e 's+@PCP_FOO_CLASS@+'$(PCP_FOO_CLASS)'+' \
-	-e 's+@PCP_FOO_RULE@+'$(PCP_FOO_RULE)'+' \
-
-    To test this ...
-
-    $ cd ..
-    $ autoconf
-    $ qa/admin/myconfigure -q
-	importantly this runs configure and updates src/builddefs
-	and you should see a PCP_SELINUX_FOO_SOMETHING = true
-	(or possibly false) line added
-    $ cd qa
-    $ rm -f pcpqa.te
-    $ make pcpqa.te
-    $ sed -e 's/#.*//' pcpqa.te | grep @
-	should be no lines with an @, else there is a name
-	mismatch somewhere between ../configure.ac ->
-	../src/builddefs.in -> ./GNUselinux -> ./GNUmakefile
 
 == Building ==
 
@@ -185,80 +94,28 @@ In the src/selinux directory
     $ make clean
     $ make
 
-Ignore any errors off in other people's rules, like
-
-    /usr/share/selinux/devel/include/contrib/container.if:242: Error: duplicate definition of container_systemctl(). Original definition on 324.
-
-there's not much we can do about those.
 
 == Installing ==
 
-    $ sudo semodule -r pcpupstream.pp
-    $ sudo semodule -X 400 -i pcpupstream.pp
+    $ sudo semodule -r pcp.pp
+    $ sudo semodule -X 200 -i pcp.pp
 
-or if semodule is too old to understand -X 400
+or if semodule is too old to understand -X 200
 
-    $ sudo semodule -i pcpupstream.pp
+    $ sudo semodule -i pcp.pp
 
 verify installation with:
 
-   $ sudo semodule --list=full | grep pcpupstream
+   $ sudo semodule --list=full | grep pcp
 
 or if semodule is too old to understand --list=full
 
-   $ sudo semodule --list-modules | grep pcpupstream
+   $ sudo semodule --list-modules | grep pcp
 
 and to make sure QA is a happy camper
 
    $ sudo make install
 
-== QA ==
-
-Next go over to qa and possibly modify tests 1141, 1622 and 917.
-
-Add/delete/modify the matching AVC line changes from
-src/selinux/pcpupstream.te.in (without the comment # prefix) to the
-end of the here-is document in qa/1622.
-
-If you add, edit or remove "allow" lines in
-src/selinux/pcpupstream.te.in then you need to review the
-corresponding type=AVC line in qa/1622 and make sure they are
-consistent.
-
-And test 917.out.in may need some adjustment if you've added or
-deleted or amended the allow rules.
-
-== Bugs ==
-
-https://bugzilla.redhat.com/show_bug.cgi?id=1337968
-https://bugzilla.redhat.com/show_bug.cgi?id=1381127
-https://bugzilla.redhat.com/show_bug.cgi?id=1398147
-https://bugzilla.redhat.com/show_bug.cgi?id=1214090
-https://bugzilla.redhat.com/show_bug.cgi?id=1336211
-
-== PCP Context Types ==
-
-# semanage fcontext -l | grep pcp
-
-/etc/rc\.d/init\.d/pmcd                regular file       system_u:object_r:pcp_pmcd_initrc_exec_t:s0 
-/etc/rc\.d/init\.d/pmie                regular file       system_u:object_r:pcp_pmie_initrc_exec_t:s0 
-/etc/rc\.d/init\.d/pmlogger            regular file       system_u:object_r:pcp_pmlogger_initrc_exec_t:s0 
-/etc/rc\.d/init\.d/pmproxy             regular file       system_u:object_r:pcp_pmproxy_initrc_exec_t:s0 
-/usr/bin/pmcd                          regular file       system_u:object_r:pcp_pmcd_exec_t:s0 
-/usr/bin/pmie                          regular file       system_u:object_r:pcp_pmie_exec_t:s0 
-/usr/bin/pmlogger                      regular file       system_u:object_r:pcp_pmlogger_exec_t:s0 
-/usr/bin/pmproxy                       regular file       system_u:object_r:pcp_pmproxy_exec_t:s0 
-/usr/libexec/pcp/bin/pmcd              regular file       system_u:object_r:pcp_pmcd_exec_t:s0 
-/usr/libexec/pcp/bin/pmie              regular file       system_u:object_r:pcp_pmie_exec_t:s0 
-/usr/libexec/pcp/bin/pmlogger          regular file       system_u:object_r:pcp_pmlogger_exec_t:s0 
-/usr/libexec/pcp/bin/pmproxy           regular file       system_u:object_r:pcp_pmproxy_exec_t:s0 
-/usr/share/pcp/lib/pmie                regular file       system_u:object_r:pcp_pmie_exec_t:s0 
-/usr/share/pcp/lib/pmlogger            regular file       system_u:object_r:pcp_pmlogger_exec_t:s0
-/var/lib/pcp(/.*)?                     all files          system_u:object_r:pcp_var_lib_t:s0 
-/var/log/pcp(/.*)?                     all files          system_u:object_r:pcp_log_t:s0 
-/var/run/pcp(/.*)?                     all files          system_u:object_r:pcp_var_run_t:s0 
-/var/run/pmcd\.socket                  regular file       system_u:object_r:pcp_var_run_t:s0 
-/var/run/pmlogger\.primary\.socket     symbolic link      system_u:object_r:pcp_var_run_t:s0 
 
 == Background ==
 
@@ -335,13 +192,6 @@ decl 1:
   allow [pcp_pmie_t] [hostname_exec_t] : [file] { execute execute_no_trans getattr open read };
   allow [pcp_pmie_t] self : [capability] { kill net_admin chown };
 
-== Additional Resources ==
-
-http://equivocation.org/node/24
-http://equivocation.org/node/27
-http://equivocation.org/node/42
-http://equivocation.org/node/51
-http://equivocation.org/node/52
 
 == Debugging Policy Package Notes ==
 
@@ -349,7 +199,7 @@ In instances where a policy package fails to load and produces an
 error related to the cil file, you can use the following command to
 extract the policy package to an equivalent state to debug:
 
-# /usr/libexec/selinux/hll/pp /path/to/pcpupstream.pp /tmp/pcpupstream.cil
+# /usr/libexec/selinux/hll/pp /path/to/pcp.pp /tmp/pcp.cil
 
 It is then possible to inspect the offending cil file to determine the
 missing context/class/type.

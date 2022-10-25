@@ -182,6 +182,14 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,59), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* wrap.ulonglong */
     { PMDA_PMID(0,60), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* slow_wrap.long */
+    { PMDA_PMID(0,160), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* slow_wrap.ulong */
+    { PMDA_PMID(0,161), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* slow_wrap.longlong */
+    { PMDA_PMID(0,162), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* slow_wrap.ulonglong */
+    { PMDA_PMID(0,163), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* dodgey.control */
     { PMDA_PMID(0,61), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* dodgey.value */
@@ -380,6 +388,16 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,158), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) },
 /* proc.reset */
     { PMDA_PMID(0,159), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* updown.obs */
+    { PMDA_PMID(0,164), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* updown.control.repeat */
+    { PMDA_PMID(0,165), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* updown.control.min */
+    { PMDA_PMID(0,166), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* updown.control.max */
+    { PMDA_PMID(0,167), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* updown.control.step */
+    { PMDA_PMID(0,168), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /*
  * dynamic PMNS ones
@@ -642,6 +660,11 @@ static __uint32_t	_u_wrap = 0;	/* wrap.ulong */
 static __int64_t	_ll_wrap = 0;	/* wrap.longlong */
 static __uint64_t	_ull_wrap = 0;	/* wrap.ulonglong */
 
+static __int32_t	_slow_wrap = 0;		/* slow_wrap.long */
+static __uint32_t	_u_slow_wrap = 0;	/* slow_wrap.ulong */
+static __int64_t	_ll_slow_wrap = 0;	/* slow_wrap.longlong */
+static __uint64_t	_ull_slow_wrap = 0;	/* slow_wrap.ulonglong */
+
 static int		_error_code = 0;/* return this! */
 
 static int		dodgey = 5;	/* dodgey.control */
@@ -660,6 +683,14 @@ static int		scale_step_number[7] = {0,0,0,0,0,0,0};
 static __uint32_t	const_rate_gradient = 0;
 static __uint32_t	const_rate_value = 10485760;
 static struct timeval	const_rate_timestamp = {0,0};
+
+static int		updown = 0;		/* updown.obs */
+static int		updown_dir = 1;		/* 1 for up, -1 for down */
+static int		updown_click = 5;	/* fetches before value changes */
+static unsigned int	updown_repeat = 5;	/* updown.control.repeat */
+static int		updown_min = 0;		/* updown.control.min */
+static int		updown_max = 200;	/* updown.control.max */
+static unsigned int	updown_step = 10;	/* updown.control.step */
 
 /* this needs to be visible in pmda.c */
 int			not_ready = 0;	/* sleep interval in seconds */
@@ -1745,6 +1776,9 @@ sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
     if (new_dodgey < 0)
 	redo_dodgey();
 
+    /* sample clock once per fetch and use the same value as required */
+    pmtimevalNow(&now);
+
     for (i = 0; i < numpmid; i++) {
 	unsigned int	cluster = pmID_cluster(pmidlist[i]);
 	unsigned int	item = pmID_item(pmidlist[i]);
@@ -1924,10 +1958,9 @@ doit:
 			atom.ul = _mypid;
 			break;
 		    case 2:		/* seconds or dupnames.seconds */
-			atom.ul = time(NULL) - _start;
+			atom.ul = now.tv_sec - _start;
 			break;
 		    case 3:		/* milliseconds */
-			pmtimevalNow(&now);
 			atom.d = 1000 * pmtimevalSub(&now, &_then);
 			break;
 		    case 4:		/* load */
@@ -1986,7 +2019,7 @@ doit:
 			break;
 		    case 111:		/* ulonglong.bin & ulonglong.bin_ctr */
 		    case 112:
-			atom.ull = _bin_val[(inst/100) - 1];
+			atom.ull = _bin_val[(inst/100) - 1] + now.tv_sec - _start;
 			break;
 		    case 113:		/* double.bin & double.bin_ctr */
 		    case 114:
@@ -2239,21 +2272,37 @@ doit:
 		    case 56:
 			atom.l = not_ready;
 			break;
-		    case 57:
+		    case 57:	/* wrap.long */
 			_wrap += INT_MAX / 2 - 1;
 			atom.l = _wrap;
 			break;
-		    case 58:
+		    case 58:	/* wrap.ulong */
 			_u_wrap += UINT_MAX / 2 - 1;
 			atom.ul = _u_wrap;
 			break;
-		    case 59:
+		    case 59:	/* wrap.longlong */
 			_ll_wrap += LONGLONG_MAX / 2 - 1;
 			atom.ll = _ll_wrap;
 			break;
-		    case 60:
+		    case 60:	/* wrap.ulonglong */
 			_ull_wrap += ULONGLONG_MAX / 2 - 1;
 			atom.ull = _ull_wrap;
+			break;
+		    case 160:	/* slow_wrap.long */
+			_slow_wrap += INT_MAX / 10 - 1;
+			atom.l = _slow_wrap;
+			break;
+		    case 161:	/* slow_wrap.ulong */
+			_u_slow_wrap += INT_MAX / 10 - 1;
+			atom.ul = _u_slow_wrap;
+			break;
+		    case 162:	/* slow_wrap.longlong */
+			_ll_slow_wrap += LONGLONG_MAX / 10 - 1;
+			atom.ll = _ll_slow_wrap;
+			break;
+		    case 163:	/* slow_wrap.ulonglong */
+			_ull_slow_wrap += LONGLONG_MAX / 10 - 1;
+			atom.ull = _ull_slow_wrap;
 			break;
 		    case 61:
 			atom.l = dodgey;
@@ -2340,7 +2389,6 @@ doit:
 			}
 			break;
 		    case 72: /* const_rate.value */
-			pmtimevalNow(&now);
 			atom.ul = const_rate_value + const_rate_gradient * pmtimevalSub(&now, &const_rate_timestamp);
 			const_rate_timestamp = now;
 			const_rate_value = atom.ul;
@@ -2558,6 +2606,39 @@ doit:
 
 		    case 159:	/* proc.reset */
 			atom.ul = 0;
+			break;
+
+		    case 164:	/* updown.obs */
+			if (--updown_click <= 0) {
+			    /* change value */
+			    updown_click = updown_repeat;
+			    updown += updown_dir * updown_step;
+			    if (updown < updown_min) {
+				updown = updown_min + updown_step;
+				updown_dir = -updown_dir;
+			    }
+			    if (updown > updown_max) {
+				updown = updown_max - updown_step;
+				updown_dir = -updown_dir;
+			    }
+			}
+			atom.l = updown;
+			break;
+
+		    case 165:	/* updown.control.repeat */
+			atom.ul = updown_repeat;
+			break;
+
+		    case 166:	/* updown.control.min */
+			atom.l = updown_min;
+			break;
+
+		    case 167:	/* updown.control.max */
+			atom.l = updown_max;
+			break;
+
+		    case 168:	/* updown.control.step */
+			atom.ul = updown_step;
 			break;
 
 		    case 1000:	/* secret.bar */
@@ -2829,6 +2910,10 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 149:	/* negative.discrete.m_32 */
 	    case 155:	/* controller.mirage */
 	    case 159:	/* proc.reset */
+	    case 165:	/* updown.control.repeat */
+	    case 166:	/* updown.control.min */
+	    case 167:	/* updown.control.max */
+	    case 168:	/* updown.control.step */
 	    case 1008:	/* ghosts.visible */
 		if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
 		    sts = PM_ERR_BADSTORE;
@@ -3070,6 +3155,24 @@ sample_store(pmResult *result, pmdaExt *ep)
 		break;
 	    case 159:	/* proc.reset */
 		proc_reset(&indomtab[PROC_INDOM]);
+		break;
+	    case 165:	/* updown.control.repeat */
+		if (av.l < 0)
+		    sts = PM_ERR_SIGN;
+		else
+		    updown_repeat = av.ul;
+		break;
+	    case 166:	/* updown.control.min */
+		updown_min = av.l;
+		break;
+	    case 167:	/* updown.control.max */
+		updown_max = av.l;
+		break;
+	    case 168:	/* updown.control.step */
+		if (av.l < 0)
+		    sts = PM_ERR_SIGN;
+		else
+		    updown_step = av.ul;
 		break;
 	    case 1008:	/* ghosts.visible */
 		visible_ghosts = av.l;

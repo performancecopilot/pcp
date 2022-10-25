@@ -62,5 +62,5 @@ check:: $(MAN_PAGES)
 	$(MANLINT) $^
 
 clean::
-	make -C modules/ clean
+	$(MAKE) -C modules/ clean
 	rm -f $(LDIRT)

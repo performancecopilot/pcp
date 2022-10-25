@@ -101,7 +101,7 @@ typedef struct redisSearchBaton {
     void		*module;
     pmSearchCallBacks	*callbacks;
     pmLogInfoCallBack	info;
-    struct timeval	started;
+    struct timespec	started;
     void		*userdata;
     void		*arg;
 } redisSearchBaton;

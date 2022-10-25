@@ -12,6 +12,7 @@
  * License for more details.
  */
 #include "load.h"
+#include "maps.h"
 #include "libpcp.h"
 #include "mmv_stats.h"
 #ifdef HAVE_SYS_RESOURCE_H
@@ -25,6 +26,10 @@ typedef enum server_metric {
     SERVER_CPU_TOT,
     SERVER_MEM_MAXRSS,
     SERVER_MEM_DATASZ,
+    SERVER_MAP_CONTEXT_SIZE,
+    SERVER_MAP_METRIC_SIZE,
+    SERVER_MAP_LABEL_SIZE,
+    SERVER_MAP_INST_SIZE,
     NUM_SERVER_METRIC
 } server_metric_t;
 
@@ -95,7 +100,7 @@ timer_worker(uv_timer_t *arg)
 }
 
 /*
- * Register given callback function and it's private data in the
+ * Register given callback function and its private data in the
  * global timer list. Callbacks must be non-blocking and short,
  * e.g. to refresh instrumentation, garbage collection, etc.
  */
@@ -158,6 +163,7 @@ server_metrics_refresh(void *map)
 {
     double		usr, sys;
     unsigned long long	datasz = 0;
+    unsigned int	value;
 #ifdef HAVE_GETRUSAGE
     struct rusage	usage = {0};
 
@@ -180,6 +186,16 @@ server_metrics_refresh(void *map)
 
     /* exported as uint64 but manipulated as ulong/ulong long */
     mmv_set(map, server.metrics[SERVER_MEM_DATASZ], &datasz);
+
+    /* update global maps size metrics */
+    value = contextmap? dictSize(contextmap) : 0;
+    mmv_set(map, server.metrics[SERVER_MAP_CONTEXT_SIZE], &value);
+    value = namesmap? dictSize(namesmap) : 0;
+    mmv_set(map, server.metrics[SERVER_MAP_METRIC_SIZE], &value);
+    value = labelsmap? dictSize(labelsmap) : 0;
+    mmv_set(map, server.metrics[SERVER_MAP_LABEL_SIZE], &value);
+    value = instmap? dictSize(instmap) : 0;
+    mmv_set(map, server.metrics[SERVER_MAP_INST_SIZE], &value);
 }
 
 /*
@@ -188,6 +204,7 @@ server_metrics_refresh(void *map)
 int
 pmWebTimerSetMetricRegistry(struct mmv_registry *registry)
 {
+    pmAtomValue		**ap;
     pmUnits		nounits = MMV_UNITS(0,0,0,0,0,0);
     pmUnits		units_kbytes = MMV_UNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0);
     pmUnits		units_msec = MMV_UNITS(0, 1, 0, 0, PM_TIME_MSEC, 0);
@@ -235,18 +252,46 @@ pmWebTimerSetMetricRegistry(struct mmv_registry *registry)
 	"virtual data size",
 	"Process memory virtual data size from sbrk(2)");
 
+    /*
+     * Reverse mapping dict metrics
+     */
+    mmv_stats_add_metric(registry, "map.context.size", SERVER_MAP_CONTEXT_SIZE,
+        MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,
+        "context map dictionary size",
+        "Number of entries in the context map dictionary");
+
+    mmv_stats_add_metric(registry, "map.metric.size", SERVER_MAP_METRIC_SIZE,
+        MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,
+        "metric names map dictionary size",
+        "Number of entries in the metric names map dictionary");
+
+    mmv_stats_add_metric(registry, "map.label.size", SERVER_MAP_LABEL_SIZE,
+        MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,
+        "label names map dictionary size",
+        "Number of entries in the labels map dictionary");
+
+    mmv_stats_add_metric(registry, "map.instance.size", SERVER_MAP_INST_SIZE,
+        MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,
+        "instance names map dictionary size",
+        "Number of entries in the instance name map dictionary");
+
     if ((map = mmv_stats_start(registry)) == NULL) {
 	pmNotifyErr(LOG_ERR, "%s: server instrumentation disabled",
 		"pmWebTimerSetMetricRegistry");
 	return -EINVAL;
     }
 
-    server.metrics[SERVER_PID] = mmv_lookup_value_desc(map, "pid", NULL);
-    server.metrics[SERVER_CPU_USR] = mmv_lookup_value_desc(map, "cpu.user", NULL);
-    server.metrics[SERVER_CPU_SYS] = mmv_lookup_value_desc(map, "cpu.sys", NULL);
-    server.metrics[SERVER_CPU_TOT] = mmv_lookup_value_desc(map, "cpu.total", NULL);
-    server.metrics[SERVER_MEM_MAXRSS] = mmv_lookup_value_desc(map, "mem.maxrss", NULL);
-    server.metrics[SERVER_MEM_DATASZ] = mmv_lookup_value_desc(map, "mem.datasz", NULL);
+    ap = server.metrics;
+    ap[SERVER_PID] = mmv_lookup_value_desc(map, "pid", NULL);
+    ap[SERVER_CPU_USR] = mmv_lookup_value_desc(map, "cpu.user", NULL);
+    ap[SERVER_CPU_SYS] = mmv_lookup_value_desc(map, "cpu.sys", NULL);
+    ap[SERVER_CPU_TOT] = mmv_lookup_value_desc(map, "cpu.total", NULL);
+    ap[SERVER_MEM_MAXRSS] = mmv_lookup_value_desc(map, "mem.maxrss", NULL);
+    ap[SERVER_MEM_DATASZ] = mmv_lookup_value_desc(map, "mem.datasz", NULL);
+    ap[SERVER_MAP_CONTEXT_SIZE] = mmv_lookup_value_desc(map, "map.context.size", NULL);
+    ap[SERVER_MAP_METRIC_SIZE] = mmv_lookup_value_desc(map, "map.metric.size", NULL);
+    ap[SERVER_MAP_LABEL_SIZE] = mmv_lookup_value_desc(map, "map.label.size", NULL);
+    ap[SERVER_MAP_INST_SIZE] = mmv_lookup_value_desc(map, "map.instance.size", NULL);
 
     /* PID doesn't change, set it once */
     mmv_set(map, server.metrics[SERVER_PID], &pid);

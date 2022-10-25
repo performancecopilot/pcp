@@ -213,10 +213,10 @@ bool ExportDialog::exportFile(QString &file, const char *format, int quality,
     return sts;
 }
 
-int ExportDialog::exportFile(char *outfile, char *geometry, bool transparent)
+int ExportDialog::exportFile(char *path, char *geometry, bool transparent)
 {
     QRegExp regex;
-    QString file(outfile), format;
+    QString file(path), format;
     bool noFormat = false;
     char suffix[32];
     int i;

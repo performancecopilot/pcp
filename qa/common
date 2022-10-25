@@ -336,12 +336,8 @@ then
 	if [ -f GNUmakefile.install ]
 	then
 	    # running QA in the tree
-	    # pcpqa.te is installed in testsuite, but not here so
-	    # make sure it is up to date ...
-	    ${MAKE:-make} -f GNUmakefile pcpqa.te >/tmp/$$.make 2>&1
-	    __sts=$?
 	    ${MAKE:-make} -f GNUmakefile.install >>/tmp/$$.make 2>&1
-	    __sts=`expr $? + $__sts`
+	    __sts=$?
 	    ( cd qt; ./setup-executables )
 	else
 	    ${MAKE:-make} >/tmp/$$.make 2>&1
@@ -922,7 +918,7 @@ else
 	__x=`dirname $__x`
     done
 
-    # if we have selinux, and it is enforcing then make sure the pcpqa
+    # if we have selinux, and it is enforcing then make sure the PCP QA
     # policy module is installed
     #
     if which getenforce >/dev/null 2>&1
@@ -930,17 +926,17 @@ else
 	case `getenforce`
 	in
 	    Enforcing)
-		if $sudo semodule -l | grep pcpqa >/dev/null
+		if $sudo semodule -l | grep pcp-testsuite >/dev/null
 		then
 		    # nothing to do, module already installed
 		    # ... to force a re-install, e.g. after the module
 		    # has been updated, do
-		    # $ sudo semodule -r pcpqa
+		    # $ sudo semodule -r pcp-testsuite
 		    # first
 		    #
 		    :
 		else
-		    $sudo semodule -i pcpqa.pp
+		    $sudo semodule -i pcp-testsuite.pp
 		fi
 		# and now any selinux booleans that help
 		#

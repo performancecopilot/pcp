@@ -328,8 +328,13 @@ This one has the constant value 1.
 @ sample.ulonglong.hundred 100 as a 64-bit unsigned integer
 @ sample.ulonglong.million 1000000 as a 64-bit unsigned integer
 @ sample.ulonglong.write_me a 64-bit unsigned integer that can be modified
-@ sample.ulonglong.bin like sample.bin but type U64
-@ sample.ulonglong.bin_ctr like sample.bin but type U64, SEM_COUNTER and SPACE_KBYTE
+@ sample.ulonglong.bin similar to sample.bin but type U64 and values increment
+Values are the base value of the associated sample.bin instances plus
+sample.seconds.
+
+@ sample.ulonglong.bin_ctr similar sample.bin but type U64, SEM_COUNTER and SPACE_KBYTE and values increment
+Values are the base value of the associated sample.bin instances plus
+sample.seconds.
 
 @ sample.float.one 1 as a 32-bit floating point value
 The sample.float.* metrics provide a group of floating point metrics
@@ -404,6 +409,22 @@ every time it is fetched.
 @ sample.wrap.ulonglong unsigned long long counter that wraps
 The metric value increments by ULONGLONG_MAX / 2 - 1 (from <limits.h>)
 every time it is fetched.
+
+@ sample.slow_wrap.long long counter that wraps more slowly
+The metric value increments by INT_MAX / 10 - 1 (from <limits.h>) every
+time it is fetched, so wraps once every 20th fetch.
+
+@ sample.slow_wrap.ulong unsigned long counter that wraps more slowly
+The metric value increments by INT_MAX / 10 - 1 (from <limits.h>) every
+time it is fetched, so wraps once every 20th fetch.
+
+@ sample.slow_wrap.longlong long long counter that wraps more slowly
+The metric value increments by LONGLONG_MAX / 10 - 1 (from <limits.h>)
+every time it is fetched, so wraps once every 20th fetch.
+
+@ sample.slow_wrap.ulonglong unsigned long long counter that wraps more slowly
+The metric value increments by LONGLONG_MAX / 10 - 1 (from <limits.h>)
+every time it is fetched, so wraps once every 20th fetch.
 
 @ sample.dodgey.value 5 unreliable instances
 The metric is a set of 5 instantaneous values, drawn at random from the
@@ -853,3 +874,35 @@ constructed from 3 sets of make believe directory names.
 
 @ sample.proc.reset reset the "procs" instance domain to a known state
 pmstore(1) may be used to trigger the reset.
+
+@ sample.updown.obs metric with a values that form a step function
+Values range between sample.updown.control.min and 
+sample.updown.control.max and the value stays the same for
+sample.updown.control.repeat fetches, then increases or decreases
+by sample.updown.control.step to produce a step function that goes
+up and down.
+
+@ sample.updown.control.repeat repetition count for values of sample.updown.obs
+Consecutive fetches of sample.updown.obs produce the same value until
+sample.updown.control.repeat values have been returned, then the value
+is incremented or decremented.
+
+Defaults to 5, but maybe changed with pmstore(1).
+
+@ sample.updown.control.min minumum value for sample.updown.obs
+When sample.updown.obs is being decremented, this is the smallest
+value that us returned before the metric starts to be incremented.
+
+Defaults to 0, but maybe changed with pmstore(1).
+
+@ sample.updown.control.max maximum value for sample.updown.obs
+When sample.updown.obs is being incremented, this is the largest
+value that us returned before the metric starts to be decremented.
+
+Defaults to 200, but maybe changed with pmstore(1).
+
+@ sample.updown.control.step increment or decrement value for sample.updown.obs
+When sample.updown.obs is being incremented or decremented, this is
+the amount that is added or subtracted.
+
+Defaults to 10, but maybe changed with pmstore(1).

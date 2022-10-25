@@ -1,0 +1,204 @@
+QA output created by 1604
+Start test Redis server ...
+PING
+PONG
+
+pmseries: [Info] processed 21 archive records from PATH/archives/bozo-disk
+Using series c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9 for disk.all.read
+== no interval
+[
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:31:13.890965",
+    "value": "1537640"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:31:23.891401",
+    "value": "1538109"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:31:33.891167",
+    "value": "1538453"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:31:43.891451",
+    "value": "1538888"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:31:53.891930",
+    "value": "1546137"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:32:03.891452",
+    "value": "1552940"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:32:13.891363",
+    "value": "1563099"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:32:23.891335",
+    "value": "1572878"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:32:33.891427",
+    "value": "1581847"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:32:43.891381",
+    "value": "1592546"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:32:53.891394",
+    "value": "1598167"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:33:03.891344",
+    "value": "1598172"
+  }
+]
+== 10s interval
+[
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:31:13.890965",
+    "value": "1537640"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:31:23.891401",
+    "value": "1538109"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:31:33.891167",
+    "value": "1538453"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:31:43.891451",
+    "value": "1538888"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:31:53.891930",
+    "value": "1546137"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:32:03.891452",
+    "value": "1552940"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:32:13.891363",
+    "value": "1563099"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:32:23.891335",
+    "value": "1572878"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:32:33.891427",
+    "value": "1581847"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:32:43.891381",
+    "value": "1592546"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:32:53.891394",
+    "value": "1598167"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:33:03.891344",
+    "value": "1598172"
+  }
+]
+== 20s interval
+[
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:31:13.890965",
+    "value": "1537640"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:31:23.891401",
+    "value": "1538109"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:31:43.891451",
+    "value": "1538888"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:32:03.891452",
+    "value": "1552940"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:32:23.891335",
+    "value": "1572878"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:32:43.891381",
+    "value": "1592546"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:33:03.891344",
+    "value": "1598172"
+  }
+]
+== 20s interval, starting 2m before first sample in archive
+[
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:31:13.890965",
+    "value": "1537640"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:31:33.891167",
+    "value": "1538453"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:31:53.891930",
+    "value": "1546137"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:32:23.891335",
+    "value": "1572878"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:32:43.891381",
+    "value": "1592546"
+  },
+  {
+    "series": "c61812b8ed3def24fa1df3fbf8d19a96cea3e0f9",
+    "timestamp": "2017-03-15 23:33:03.891344",
+    "value": "1598172"
+  }
+]

@@ -1,11 +1,1 @@
 QA output created by 940
-full policy modules list on the system
-Checking that pcpupstream policy module has been properly installed
-pcpupstream-container
-Checking policies.
---- begin avrule block ---
-decl 1:
-  allow [pcp_pmcd_t] [container_runtime_t] : [unix_stream_socket] { connectto };
-  allow [pcp_pmcd_t] [container_runtime_tmpfs_t] : [dir] { getattr };
-  allow [pcp_pmcd_t] [container_var_run_t] : [file] { getattr read open };
-

@@ -446,13 +446,11 @@ void SettingsDialog::defaultBackgroundButton_clicked()
 void SettingsDialog::colorButtonClicked(int n)
 {
     ColorButton **buttons;
+    int colorCount;
 
-    colorArray(&buttons);
+    colorCount = colorArray(&buttons);
     buttons[n-1]->clicked();
     if (buttons[n-1]->isSet()) {
-	ColorButton **buttons;
-
-	int colorCount = colorArray(&buttons);
 	for (int i = 0; i < colorCount; i++) {
 	    QColor c = buttons[i]->color();
 	    if (c == Qt::white)

@@ -1,0 +1,412 @@
+## <summary>The  pcp  command summarizes the status of a Performance Co-Pilot (PCP) installation</summary>
+
+######################################
+## <summary>
+##  Creates types and rules for a basic
+##  pcp daemon domain.
+## </summary>
+## <param name="prefix">
+##  <summary>
+##  Prefix for the domain.
+##  </summary>
+## </param>
+#
+ifndef(`pcp_domain_template',`
+    template(`pcp_domain_template',`
+        gen_require(`
+            attribute pcp_domain;
+        ')
+
+        type pcp_$1_t, pcp_domain;
+        type pcp_$1_exec_t;
+        init_daemon_domain(pcp_$1_t, pcp_$1_exec_t)
+    
+        type pcp_$1_initrc_exec_t;
+        init_script_file(pcp_$1_initrc_exec_t)
+
+        auth_use_nsswitch(pcp_$1_t)
+
+        optional_policy(`
+            cron_system_entry(pcp_$1_t, pcp_$1_exec_t)
+        ')
+    ')
+')
+
+######################################
+## <summary>
+##  Allow domain to read pcp lib files
+## </summary>
+## <param name="domain">
+##  <summary>
+##  Prefix for the domain.
+##  </summary>
+## </param>
+#
+ifndef(`pcp_read_lib_files',`
+    interface(`pcp_read_lib_files',`
+        gen_require(`
+            type pcp_var_lib_t;
+        ')
+        files_search_var_lib($1)
+        read_files_pattern($1,pcp_var_lib_t,pcp_var_lib_t)
+    ')
+')
+
+########################################
+## <summary>
+##  All of the rules required to administrate
+##  an pcp environment
+## </summary>
+## <param name="domain">
+##  <summary>
+##  Domain allowed access.
+##  </summary>
+## </param>
+## <rolecap/>
+#
+ifndef(`pcp_admin',`
+    interface(`pcp_admin',`
+        gen_require(`
+            type pcp_pmcd_t;
+            type pcp_pmlogger_t;
+            type pcp_pmproxy_t;
+            type pcp_pmie_t;
+            type pcp_var_run_t;
+        ')
+
+        allow $1 pcp_pmcd_t:process signal_perms;
+        ps_process_pattern($1, pcp_pmcd_t)
+
+        allow $1 pcp_pmlogger_t:process signal_perms;
+        ps_process_pattern($1, pcp_pmlogger_t)
+
+        allow $1 pcp_pmproxy_t:process signal_perms;
+        ps_process_pattern($1, pcp_pmproxy_t)
+
+        allow $1 pcp_pmie_t:process signal_perms;
+        ps_process_pattern($1, pcp_pmie_t)
+
+        tunable_policy(`deny_ptrace',`',`
+            allow $1 pcp_pmcd_t:process ptrace;
+            allow $1 pcp_pmlogger_t:process ptrace;
+            allow $1 pcp_pmproxy_t:process ptrace;
+            allow $1 pcp_pmie_t:process ptrace;
+        ')
+
+        files_search_pids($1)
+        admin_pattern($1, pcp_var_run_t)
+    ')
+')
+
+########################################
+## <summary>
+##  Allow the specified domain to execute pcp_pmie
+##  in the caller domain.
+## </summary>
+## <param name="domain">
+## <summary>
+##  Domain allowed to transition.
+## </summary>
+## </param>
+#
+ifndef(`pcp_pmie_exec',`
+    interface(`pcp_pmie_exec',`
+        gen_require(`
+            type pcp_pmie_exec_t;
+        ')
+
+        corecmd_search_bin($1)
+        can_exec($1, pcp_pmie_exec_t)
+    ')
+')
+
+########################################
+## <summary>
+##  Allow the specified domain to execute pcp_pmlogger
+##  in the caller domain.
+## </summary>
+## <param name="domain">
+## <summary>
+##  Domain allowed to transition.
+## </summary>
+## </param>
+#
+ifndef(`pcp_pmlogger_exec',`
+    interface(`pcp_pmlogger_exec',`
+        gen_require(`
+            type pcp_pmlogger_exec_t;
+        ')
+
+        corecmd_search_bin($1)
+        can_exec($1, pcp_pmlogger_exec_t)
+    ')
+')
+
+#######################################
+## <summary>
+##      Transition to pcp named content
+## </summary>
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </param>
+#
+ifndef(`pcp_filetrans_named_content',`
+    interface(`pcp_filetrans_named_content',`
+        gen_require(`
+            type pcp_var_run_t;
+        ')
+        files_pid_filetrans($1, pcp_var_run_t, dir, "pcp")
+    ')
+')
+
+#######################################
+## <summary>
+##	Allow the specified domain to write to pcp sock file
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+ifndef(`pcp_write_pid_sock_file',`
+    interface(`pcp_write_pid_sock_file',`
+        gen_require(`
+            type pcp_var_run_t;
+        ')
+        files_search_pids($1)
+        write_sock_files_pattern($1, pcp_var_run_t, pcp_var_run_t)
+    ')
+')
+
+########################################
+## <summary>
+##      Search process accounting data.
+## </summary>
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </param>
+#
+ifndef(`acct_search_data',`
+    interface(`acct_search_data',`
+        gen_require(`
+            type acct_data_t;
+        ')
+
+        search_dirs_pattern($1, acct_data_t, acct_data_t)
+    ')
+')
+
+########################################
+## <summary>
+##      Manage container lib files.
+## </summary>
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </param>
+#
+ifndef(`container_manage_lib_files',`
+    interface(`container_manage_lib_files',`
+        gen_require(`
+                type container_var_lib_t;
+        ')
+
+        files_search_var_lib($1)
+        manage_files_pattern($1, container_var_lib_t, container_var_lib_t)
+        manage_lnk_files_pattern($1, container_var_lib_t, container_var_lib_t)
+    ')
+')
+
+########################################
+## <summary>
+##      Mmap all files.
+## </summary>
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </param>
+#
+ifndef(`files_mmap_all_files',`
+    interface(`files_mmap_all_files',`
+        gen_require(`
+                attribute file_type;
+        ')
+
+        allow $1 file_type:file map;
+    ')
+')
+
+###########################################
+## <summary>
+##      Watch the root directory.
+## </summary>
+## <param name="domain">
+##      <summary>
+##      Domain allowed access
+##      </summary>
+## </param>
+#
+ifndef(`files_watch_root_dirs',`
+    interface(`files_watch_root_dirs',`
+        gen_require(`
+            type root_t;
+        ')
+
+        allow $1 root_t:dir { getattr open read };
+    ')
+')
+
+########################################
+## <summary>
+##      Watch generic directories in /var.
+## </summary>
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </param>
+#
+ifndef(`files_watch_var_dirs',`
+    interface(`files_watch_var_dirs',`
+        gen_require(`
+            type var_t;
+        ')
+
+        allow var_t var_t:dir search_dir_perms;
+        allow var_t var_t:dir { getattr open read };
+    ')
+')
+
+########################################
+## <summary>
+##      Search tracefs_t directories
+## </summary>
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </param>
+#
+ifndef(`fs_search_tracefs_dirs',`
+    interface(`fs_search_tracefs_dirs',`
+        gen_require(`
+            type tracefs_t;
+        ')
+
+        search_dirs_pattern($1, tracefs_t, tracefs_t)
+    ')
+')
+
+########################################
+## <summary>
+##	Manage glusterd log files
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+# Definition ensuring compatibility with systems that do not have this interface
+# type=AVC msg=audit(N): avc:  denied  { open read write } for  pid=YYYY comm="pmdaX" name="/" dev="tracefs" ino=1 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:glusterd_log_t:s0 tclass=file permissive=0
+ifndef(`glusterd_manage_log',`
+    interface(`glusterd_manage_log',`
+        gen_require(`
+            type glusterd_log_t;
+        ')
+
+        logging_search_logs($1)
+        manage_dirs_pattern($1, glusterd_log_t, glusterd_log_t)
+        manage_files_pattern($1, glusterd_log_t, glusterd_log_t)
+        manage_lnk_files_pattern($1, glusterd_log_t, glusterd_log_t)
+    ')
+')
+
+########################################
+## <summary>
+##      Allow the caller manage perf_event
+## </summary>
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </param>
+#
+ifndef(`kernel_manage_perf_event',`
+    interface(`kernel_manage_perf_event',`
+#        # perfmon, lockdown, manage_perf_event_perms unavailable on el8/el7
+#        allow $1 self:capability2 perfmon;
+#        # The confidentiality permission may not be needed, refer to kernel_write_perf_event()
+#        allow $1 self:lockdown confidentiality;
+#        allow $1 self:perf_event manage_perf_event_perms;
+    ')
+')
+
+#######################################
+## <summary>
+##      Watch all directories in the path for log directories.
+## </summary>
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </param>
+#
+ifndef(`logging_watch_all_log_dirs_path',`
+    interface(`logging_watch_all_log_dirs_path',`
+        gen_require(`
+            attribute logfile;
+        ')
+
+        files_watch_root_dirs($1)
+        files_search_var($1)
+        files_watch_var_dirs($1)
+        allow $1 logfile:dir { search_dir_perms getattr open read };
+    ')
+')
+
+#######################################
+## <summary>
+##      Watch the /run/log/journal directory.
+## </summary>
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </param>
+#
+ifndef(`logging_watch_journal_dir',`
+    interface(`logging_watch_journal_dir',`
+        gen_require(`
+            type syslogd_var_run_t;
+        ')
+
+        allow $1 syslogd_var_run_t:dir { getattr open read };
+    ')
+')
+
+########################################
+## <summary>
+##      Send a signals to rpm.
+## </summary> 
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </param>
+#
+ifndef(`rpm_script_signal',`
+    interface(`rpm_script_signal',`
+        gen_require(`
+            type rpm_script_t;
+        ')
+
+        allow $1 rpm_script_t:process signal;
+    ')
+')

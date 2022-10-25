@@ -1495,10 +1495,10 @@ newinterval(PARSER *lp, sds string)
     char	*error;
     int		sts;
 
-    if ((sts = pmParseInterval(string, &tp->delta, &error)) < 0) {
+    if ((sts = pmParseHighResInterval(string, &tp->delta, &error)) < 0) {
 	lp->yy_error = sts;
 	lp->yy_errstr = sdscatfmt(sdsempty(),
-		"Cannot parse time delta with pmParseInterval:\n%s", error);
+		"Cannot parse time delta with %s:\n%s", "pmParseHighResInterval", error);
 	sdsfree(string);
 	free(error);
     } else {
@@ -1507,17 +1507,17 @@ newinterval(PARSER *lp, sds string)
 }
 
 static int
-parsetime(PARSER *lp, struct timeval *result, sds string)
+parsetime(PARSER *lp, struct timespec *result, sds string)
 {
-    struct timeval start = { 0, 0 };
-    struct timeval end = { PM_MAX_TIME_T, 0 };
+    struct timespec start = { 0, 0 };
+    struct timespec end = { PM_MAX_TIME_T, 0 };
     char	*error;
     int		sts;
 
-    if ((sts = __pmParseTime(string, &start, &end, result, &error)) < 0) {
+    if ((sts = __pmParseHighResTime(string, &start, &end, result, &error)) < 0) {
 	lp->yy_error = sts;
 	lp->yy_errstr = sdscatfmt(sdsempty(),
-		"Cannot parse time with __pmParseTime:\n%s", error);
+		"Cannot parse time with %s:\n%s", "__pmParseHighResTime", error);
 	sdsfree(string);
 	free(error);
 	return sts;
@@ -1550,17 +1550,17 @@ newrange(PARSER *lp, sds string)
     char	*error;
     int		sts;
 
-    if ((sts = pmParseInterval(string, &tp->start, &error)) < 0) {
+    if ((sts = pmParseHighResInterval(string, &tp->start, &error)) < 0) {
 	lp->yy_error = sts;
 	lp->yy_errstr = sdscatfmt(sdsempty(),
-		"Cannot parse range with pmParseInterval:\n%s", error);
+		"Cannot parse range with %s:\n%s", "pmParseHighResInterval", error);
 	lp->yy_error = sts;
 	sdsfree(string);
 	free(error);
     } else {
-	struct timeval offset;
-	gettimeofday(&offset, NULL);
-	tsub(&offset, &tp->start);
+	struct timespec offset;
+	pmtimespecNow(&offset);
+	pmtimespecDec(&offset, &tp->start);
 	tp->start = offset;
 	tp->end.tv_sec = PM_MAX_TIME_T;
 	tp->window.range = string;

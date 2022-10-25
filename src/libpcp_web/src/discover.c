@@ -425,8 +425,8 @@ fs_change_callBack(uv_fs_event_t *handle, const char *filename, int events, int 
 
     	
     /*
-     * Strip ".meta" suffix (if any) and lookup the path. stat and update it's
-     * flags accordingly. If the path has been deleted, stop it's event monitor
+     * Strip ".meta" suffix (if any) and lookup the path. stat and update its
+     * flags accordingly. If the path has been deleted, stop its event monitor
      * and free the req buffer, else call the pmDiscovery callback.
      */
     if ((s = strsuffix(path, ".meta")) != NULL)
@@ -676,7 +676,7 @@ pmDiscoverInvokeSourceCallBacks(pmDiscover *p, __pmTimestamp *tsp)
 }
 
 static void
-pmDiscoverInvokeValuesCallBack(pmDiscover *p, __pmTimestamp *tsp, pmResult *r)
+pmDiscoverInvokeValuesCallBack(pmDiscover *p, __pmTimestamp *tsp, pmHighResResult *r)
 {
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
@@ -684,7 +684,8 @@ pmDiscoverInvokeValuesCallBack(pmDiscover *p, __pmTimestamp *tsp, pmResult *r)
     int			i;
 
     if (pmDebugOptions.discovery) {
-	fprintf(stderr, "%s[%s]: %s numpmid %d\n", "pmDiscoverInvokeValuesCallBack",
+	fprintf(stderr, "%s[%s]: %s numpmid %d\n",
+			"pmDiscoverInvokeValuesCallBack",
 			timestamp_str(tsp, buf, sizeof(buf)),
 			p->context.source, r->numpmid);
 	if (pmDebugOptions.labels)
@@ -1427,7 +1428,7 @@ process_metadata(pmDiscover *p)
 }
 
 static void
-bump_logvol_decode_stats(discoverModuleData *data, pmResult *r)
+bump_logvol_decode_stats(discoverModuleData *data, pmHighResResult *r)
 {
     if (r->numpmid == 0)
 	mmv_inc(data->map, data->metrics[DISCOVER_DECODE_MARK_RECORD]);
@@ -1448,7 +1449,7 @@ static void
 process_logvol(pmDiscover *p)
 {
     discoverModuleData	*data = getDiscoverModuleData(p->module);
-    pmResult		*r = NULL;
+    pmHighResResult	*r = NULL;
     __pmTimestamp	stamp;
     __pmContext		*ctxp;
     __pmArchCtl		*acp;
@@ -1469,7 +1470,7 @@ process_logvol(pmDiscover *p)
 	PM_UNLOCK(ctxp->c_lock);
 
 	r = NULL; /* so we know if pmFetchArchive() assigned it */
-	if ((sts = pmFetchArchive(&r)) < 0) {
+	if ((sts = pmFetchHighResArchive(&r)) < 0) {
 	    /* err handling to skip to the next vol */
 	    ctxp = __pmHandleToPtr(p->ctx);
 	    acp = ctxp->c_archctl;
@@ -1482,8 +1483,8 @@ process_logvol(pmDiscover *p)
 
 	    if (sts == PM_ERR_EOL) {
 		if (pmDebugOptions.discovery)
-		    fprintf(stderr, "process_logvol: %s end of archive reached\n",
-		    	p->context.name);
+		    fprintf(stderr, "%s: %s end of archive reached\n",
+			    "process_logvol", p->context.name);
 
 		/* succesfully processed to current end of log */
 		break;
@@ -1510,29 +1511,30 @@ process_logvol(pmDiscover *p)
 	    char		tbuf[64], bufs[64];
 
 	    fprintf(stderr, "process_logvol: %s FETCHED @%s [%s] %d metrics\n",
-		    p->context.name, timeval_str(&r->timestamp, tbuf, sizeof(tbuf)),
-		    timeval_stream_str(&r->timestamp, bufs, sizeof(bufs)),
+		    p->context.name,
+		    timespec_str(&r->timestamp, tbuf, sizeof(tbuf)),
+		    timespec_stream_str(&r->timestamp, bufs, sizeof(bufs)),
 		    r->numpmid);
 	}
 
 	/*
-	 * TODO (perhaps): persistently save current timestamp, so after being
-	 * restarted, pmproxy can resume where it left off for each archive.
+	 * Consider persistently saving current timestamp so that after a
+	 * restart pmproxy can resume where it left off for each archive.
 	 */
 	stamp.sec = r->timestamp.tv_sec;
-	stamp.nsec = r->timestamp.tv_usec * 1000;
+	stamp.nsec = r->timestamp.tv_nsec;
 	bump_logvol_decode_stats(data, r);
 	pmDiscoverInvokeValuesCallBack(p, &stamp, r);
-	pmFreeResult(r);
+	pmFreeHighResResult(r);
 	r = NULL;
     }
 
     if (r) {
 	stamp.sec = r->timestamp.tv_sec;
-	stamp.nsec = r->timestamp.tv_usec * 1000;
+	stamp.nsec = r->timestamp.tv_nsec;
 	bump_logvol_decode_stats(data, r);
 	pmDiscoverInvokeValuesCallBack(p, &stamp, r);
-	pmFreeResult(r);
+	pmFreeHighResResult(r);
     }
 
     /* datavol is now up-to-date and at EOF */
@@ -1559,7 +1561,8 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 	 * once off initialization on the first event
 	 */
 	if (p->flags & (PM_DISCOVER_FLAGS_DATAVOL | PM_DISCOVER_FLAGS_META)) {
-	    struct timeval	tvp;
+	    struct timespec	after = {0, 1};
+	    struct timespec	tp;
 
 	    /* create the PMAPI context (once off) */
 	    if ((sts = pmNewContext(p->context.type, p->context.name)) < 0) {
@@ -1585,10 +1588,10 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 	    mmv_inc(data->map, data->metrics[DISCOVER_LOGVOL_NEW_CONTEXTS]);
 	    p->ctx = sts;
 
-	    if ((sts = pmGetArchiveEnd(&tvp)) < 0) {
+	    if ((sts = pmGetHighResArchiveEnd(&tp)) < 0) {
 		mmv_inc(data->map, data->metrics[DISCOVER_ARCHIVE_END_FAILED]);
 		/* Less likely, but could still be too early (as above) */
-		infofmt(msg, "pmGetArchiveEnd failed for %s: %s\n",
+		infofmt(msg, "pmGetHighResArchiveEnd failed for %s: %s\n",
 				p->context.name, pmErrStr(sts));
 		moduleinfo(p->module, PMLOG_ERROR, msg, p->data);
 		pmDestroyContext(p->ctx);
@@ -1603,13 +1606,16 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 	     */
 	    pmDiscoverNewSource(p, p->ctx);
 
-	    /* seek to end of archive for logvol data - see also TODO in process_logvol() */
-	    pmSetMode(PM_MODE_FORW, &tvp, 1);
+	    /*
+	     * Seek to end of archive for logvol data (see notes in
+	     * process_logvol routine also).
+	     */
+	    pmSetModeHighRes(PM_MODE_FORW, &tp, &after);
 
 	    /*
 	     * For archive meta files, p->fd is the direct file descriptor
 	     * and we pre-scan all existing metadata. Note: we do NOT scan
-	     * pre-existing logvol data (see pmSetMode above)
+	     * pre-existing logvol data (see pmSetModeHighRes above)
 	     */
 	    metaname = sdsnew(p->context.name);
 	    metaname = sdscat(metaname, ".meta");
@@ -1640,7 +1646,7 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 
 	if (p->flags & PM_DISCOVER_FLAGS_META_IN_PROGRESS) {
 	    /*
-	     * metadata read is in progress - delay reading logvol until it's finished.
+	     * metadata read in progress - delay reading logvol until finished.
 	     */
 	    if (pmDebugOptions.discovery) {
 		fprintf(stderr, "pmDiscoverInvokeCallBacks: datavol ready, but metadata read in progress\n");
@@ -1686,7 +1692,7 @@ print_callback(pmDiscover *p)
 
 /*
  * p is a tracked archive and arg is a directory path.
- * If p is in the directory, call it's callbacks to
+ * If p is in the directory, call its callbacks to
  * process metadata and logvol data. This allows better
  * scalability because we only process archives in the
  * directories that have changed.
@@ -1698,7 +1704,7 @@ directory_changed_cb(pmDiscover *p, void *arg)
     int dlen = strlen(dirpath);
 
     if (strncmp(p->context.name, dirpath, dlen) == 0) {
-    	/* this archive is in this directory - process it's metadata and logvols */
+    	/* archive is in this directory - process its metadata and logvols */
 	if (pmDebugOptions.discovery)
 	    fprintf(stderr, "directory_changed_cb: archive %s is in dir %s\n",
 		p->context.name, dirpath);

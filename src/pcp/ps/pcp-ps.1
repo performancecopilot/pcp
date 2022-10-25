@@ -1,0 +1,260 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2022 Oracle and/or its affiliates.
+.\" DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PCP-PS 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-ps\f1 \- Report statistics for Linux Process.
+.SH SYNOPSIS
+\f3pcp\f1
+[\f2pcp\ options\f1]
+\f3ps\f1
+[\f3\-e\f1]
+[\f3\-U\f1 [\f2username\f1]]
+[\f3\-V\f1 \f2--version\f1]
+[\f3\-c\f1 \f2Command name\f1]
+[\f3\-p\f1 \f2pid1,pid2..\f1]
+[\f3\-p\f1 \f2pid1,pid2..\f1]
+[\f3\-o\f1 \f2col1,col2... or ALL\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+[\f3\-z\f1]
+[\f3\-?\f1]
+.SH DESCRIPTION
+The
+.B pcp-ps
+command is used for monitoring individual process running on the system.
+Using various options it helps a user to see useful information related to
+the processes.
+This information includes CPU percentage, memory and stack usage,
+scheduling and priority.
+By default
+.B pcp-ps
+reports live data for the local host.
+.SH OPTIONS
+When invoked via the
+.BR pcp (1)
+command, the
+.BR \-h /\c
+.BR \-\-host ,
+.BR \-O /\c
+.BR \-\-origin ,
+.BR \-t /\c
+.BR \-\-interval ,
+.BR \-Z /\c
+.BR \-\-timezone
+and several other
+.I pcp options
+become indirectly available; refer to
+.BR PCPIntro (1)
+for a complete description of these options.
+.PP
+The additional command line options available for
+.B pcp-ps
+are:
+.TP 5
+.BR \-e \fR
+Display all the process.
+
+PID
+       Process idenfier.
+
+TTY
+       The termianl assoicated with the prcoess.
+
+TIME
+       The  cumulated CPU time in [DD-]hh:mm:ss format (time=TIME).
+
+CMD
+       The command name of the task.
+.TP
+.B \-c [\fIcommand name\fR]
+Display the real Command name of the tasks being monitored instead of the UID.
+If \fIcommand name\fR is specified, then only tasks belonging to the specified
+command are displayed.
+.TP
+.BR \-U \ [\fIusername\fR] ", " \fB\-\-user\-name\fR[=\fIusername\fR]
+Display the real user name of the tasks being monitored instead of the UID.
+If \fIusername\fR is specified, then only tasks belonging to the specified
+user are displayed.
+.TP
+.BR \-V \fR ", " \fB\-\-version\fR
+Print version number then exit.
+.TP
+.BR \-p \ \fIpid1,pid2..\fR ", " \fB\-\-pid-list\fR=\fIpid1,pid2..\fR
+Display only processes with the listed PIDs.
+.TP
+.BR \-P \ \fIppid1,ppid2..\fR ", " \fB\-\-ppid-list\fR=\fIppid1,ppid2..\fR
+Display only processes with the listed PPIDs.
+.TP
+.B \-O
+User-defined format.
+
+It is a single argument in the form of a blank-separated or comma-separated list, which offers a way to specify individual output columns.
+
+The argument to -o are following:
+
+.TS
+expand;
+lB1 l1  l.
+\fBCOL      HEADER           DESCRIPTION\fR
+
+\fB%cpu\fP    %CPU            cpu utilization of the process
+
+\fB%mem\fP    %MEM            physical memory on the machine expressed as a percentage
+
+\fBstart\fP   START           time the command started
+
+\fBtime\fP    TIME            accumulated cpu time, user + system
+
+\fBcls\fP     CLS             scheduling class of the process
+
+\fBcmd\fP     CMD             see args.  (alias args, command).
+
+\fBpid\fP     PID             The process ID
+
+\fBppid\fP    PPID            Parent process ID
+
+\fBpri\fP     PRI             Priority of the process
+
+\fBstate\fP   S               see s
+
+\fBrss\fP     RSS             the non-swapped physical memory that a task has used
+
+\fBrtprio\fP  RTPRIO          realtime priority
+
+\fBpname\fP   Pname           Process name
+
+\fBtty\fP     TT              controlling tty (terminal)
+
+\fBuid\fP     UID             see euid
+
+\fBvsize\fP   VSZ             see vsz
+
+\fBuname\fP   USER            see euser
+
+\fBwchan\fP   WCHAN           name of the kernel function in which the process is sleeping
+
+.TE
+.SH "STANDARD FORMAT SPECIFIERS"
+Here are the different keywords that may be used to control the output
+format (e.g. with option
+.BR \-o )
+or to sort the selected processes
+
+For example:
+.B ps \-o pid,\:user,\:args
+
+.TS
+expand;
+lB1 lB1 lBw(\n[ColSize]n)
+lB1 l1  l.
+\fBCODE       HEADER        DESCRIPTION\fR
+.br
+\fBpid        PID           a number representing the process ID\fR
+.br
+\fB%cpu       %CPU          cpu utilization of the process in "##.#" format.
+                         Currently, it is the CPU time used divided by the time the
+                         process has been running (cputime/realtime ratio), expressed as a percentage.\fR
+.br
+\fB%mem       %MEM          ratio of the process's resident set size  to the physical memory on the
+                         machine, expressed as a percentage.\fR
+.br
+\fBargs       COMMAND       Command with all its arguments as a string. Modifications to the arguments
+                         may be shown.  The output in this column may contain spaces.  A process
+                         marked <defunct> is partly dead, waiting to be fully destroyed by its parent.
+                         Sometimes the process args will be unavailable; when this happens,will instead print the executable name in brackets.\fR
+.br
+\fBclass      CLS           scheduling class of the process.
+
+                           Field's possible values are:
+                            \-      not reported
+.br
+                            TS     SCHED_OTHER
+.br
+                            FF     SCHED_FIFO
+.br
+                            RR     SCHED_RR
+.br
+                            B      SCHED_BATCH
+.br
+                            ISO    SCHED_ISO
+.br
+                            IDL    SCHED_IDLE
+.br
+                            DLN    SCHED_DEADLINE
+.br
+                            ?      unknown value
+
+
+\fBs          S             minimal state display.See also stat if you want additional information displayed.
+.br
+\fBeuid       EUID          effective user ID.
+.br
+\fBvsz        VSZ           virtual memory size of the process in KiB (1024\-byte units).Device mappings are currently excluded; this is subject to change.
+.br
+\fBeuser      EUSER         effective user name.  This will be the textual user ID, if it can be obtained and the field width permits, or a decimal representation otherwise.
+.br
+.TE
+
+.BR All \fR
+       ALL option shows USER,PID,PPID,PRI,%CPU,%MEM,VSZ,RSS,S,STARTED,TIME,WCHAN and Command by default
+.TP
+.BR \-Z \ \fItimezone\fR ", "\fB\-\-timezone=\fItimezone\fR
+By default,
+.B pcp-ps
+reports the time of day according to the local timezone on the system where
+.B pcp-ps
+is run.
+The
+.B \-Z
+option changes the timezone to
+.I timezone
+in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+.TP
+.BR \-z " , " \fB\-\-hostzone\fR
+Change the reporting timezone to the local timezone at the host that is
+the source of the performance metrics.
+When replaying a PCP archive that was captured in a foreign timezone, the
+.B \-z
+option would almost always be used (the default reporting timezone is the
+local timezone, which may not be the same as the timezone of the PCP archive).
+.TP
+.BR \-? " , " \fB\-\-help\fR
+Display usage message and exit.
+.SH NOTES
+.B pcp-ps
+is inspired by the
+.BR ps (1)
+command and aims to be command line and output compatible with it.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pcp (1),
+.BR pcp-ps (1),
+.BR python (1),
+.BR pmParseInterval (3),
+.BR strftime (3)
+and
+.BR environ (7).

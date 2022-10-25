@@ -33,6 +33,10 @@ _filter()
 s/ -*[0-9][0-9]*/ NUMBER/g
 s/ NUMBER/ 1/
 }' \
+	-e '/sample\.slow_wrap\./{
+s/ -*[0-9][0-9]*/ NUMBER/g
+s/ NUMBER/ 1/
+}' \
 	-e '/sample\.daemon_pid /{
 s/ [0-9][0-9]*/ NUMBER/g
 s/ NUMBER/ 1/
@@ -95,6 +99,14 @@ s/ [0-9][0-9.]*/ NUMBER/g
 s/ NUMBER/ 1/
 }' \
 	-e '/sample\.scale_step\./{
+s/ [0-9][0-9.]*/ NUMBER/g
+s/ NUMBER/ 1/
+}' \
+	-e '/sample\.ulonglong\.bin/{
+s/ [0-9][0-9.]*/ NUMBER/g
+s/ NUMBER/ 9/
+}' \
+	-e '/sample\.updown\./{
 s/ [0-9][0-9.]*/ NUMBER/g
 s/ NUMBER/ 1/
 }' \

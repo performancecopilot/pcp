@@ -172,4 +172,4 @@ In the PCP strip chart utility pmchart encrypted connections can be established 
 
 .. Note::
  
-  While you must still use ``PCP_TLSCONF_PATH'' it is not necessary to use the ``PCP_SECURE_SOCKETS`` environment variable described above with *pmchart*. However, if the latter is used, secure connections will become the default mode for all connections established by *pmchart* too.
+  While you must still use ``PCP_TLSCONF_PATH`` it is not necessary to use the ``PCP_SECURE_SOCKETS`` environment variable described above with *pmchart*. However, if the latter is used, secure connections will become the default mode for all connections established by *pmchart* too.

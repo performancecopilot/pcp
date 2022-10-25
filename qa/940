@@ -1,6 +1,5 @@
 #!/bin/sh
 # PCP QA Test No. 940
-# selinux container context checks
 #
 # Copyright (c) 2017 Red Hat Inc.  All Rights Reserved.
 #
@@ -8,61 +7,8 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
 . ./common.product
-. ./common.filter
 . ./common.check
 
-policy_name="pcpupstream-container"
-policy_file="$PCP_VAR_DIR/selinux/$policy_name.pp"
-which sedismod >/dev/null 2>&1 || _notrun "sedismod tool not installed (module disassembly)"
-which semodule >/dev/null 2>&1 || _notrun "semodule tool not installed"
-which seinfo >/dev/null 2>&1 || _notrun "seinfo tool not installed"
-[ -f "$policy_file" ] || _notrun "upstream container policy package not installed"
-$sudo semodule -l 2>&1 | grep -E -q "^$policy_name([ 	]|$)" || _notrun "upstream container policy package not loaded"
-
-_cleanup()
-{
-    cd $here
-    $sudo rm -rf $tmp $tmp.*
-}
-
-_filter_semodule()
-{
-    awk '{ print $1 }'
-}
-
-_filter_sedismod()
-{
-    sed -n '/--- begin avrule block ---/,$p'
-}
-_filter_sedismod1()
-{
-    sed -e '/^Command/d'
-}
-_filter_outfile()
-{
-    awk -v container_t="$container_runtime_t" \
-    '{
-    	if (container_t == "" && /container_runtime_t/)
-	   !/container_runtime_t/ ;
-	else
-	   print;
-    }'
-}
-
-
-status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
-trap "_cleanup; exit \$status" 0 1 2 3 15
-
-echo "full policy modules list on the system"
-$sudo semodule -l >> $seq.full
-echo "Checking that pcpupstream policy module has been properly installed"
-grep "pcpupstream-container" $seq.full | _filter_semodule
-echo "Checking policies."
-printf '1\nq\n' | sedismod $policy_file | _filter_sedismod | _filter_sedismod1
-
-# success, all done
-status=0
-exit
+_notrun "Retired - transitioned to independent PCP selinux policy"
+exit 0

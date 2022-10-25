@@ -1,0 +1,986 @@
+policy_module(pcp, 2.0.0)
+
+########################################
+#
+# Declarations
+#
+
+
+## <desc>
+## <p>
+## Allow pcp to bind to all unreserved_ports
+## </p>
+## </desc>
+gen_tunable(pcp_bind_all_unreserved_ports, false)
+
+## <desc>
+## <p>
+## Allow pcp to read generic logs
+## </p>
+## </desc>
+gen_tunable(pcp_read_generic_logs, false)
+
+attribute pcp_domain;
+
+pcp_domain_template(pmcd)
+pcp_domain_template(pmlogger)
+pcp_domain_template(pmproxy)
+pcp_domain_template(pmie)
+pcp_domain_template(plugin)
+
+type pcp_log_t;
+logging_log_file(pcp_log_t)
+
+type pcp_var_lib_t;
+files_type(pcp_var_lib_t)
+
+type pcp_var_run_t;
+files_pid_file(pcp_var_run_t)
+
+type pcp_tmp_t;
+files_tmp_file(pcp_tmp_t)
+
+type pcp_tmpfs_t;
+files_tmpfs_file(pcp_tmpfs_t)
+
+########################################
+#
+# pcp domain local  policy
+#
+
+allow pcp_domain self:capability { setuid setgid dac_read_search  };
+allow pcp_domain self:process signal_perms;
+allow pcp_domain self:tcp_socket create_stream_socket_perms;
+allow pcp_domain self:udp_socket create_socket_perms;
+allow pcp_domain self:netlink_route_socket create_socket_perms;
+allow pcp_domain self:unix_stream_socket connectto;
+
+corenet_tcp_connect_all_ephemeral_ports(pcp_domain)
+
+manage_dirs_pattern(pcp_domain, pcp_log_t, pcp_log_t)
+manage_files_pattern(pcp_domain, pcp_log_t, pcp_log_t)
+logging_log_filetrans(pcp_domain, pcp_log_t, { dir })
+
+manage_dirs_pattern(pcp_domain, pcp_var_lib_t, pcp_var_lib_t)
+manage_files_pattern(pcp_domain, pcp_var_lib_t, pcp_var_lib_t)
+manage_sock_files_pattern(pcp_domain, pcp_var_lib_t, pcp_var_lib_t)
+manage_lnk_files_pattern(pcp_domain, pcp_var_lib_t, pcp_var_lib_t)
+exec_files_pattern(pcp_domain, pcp_var_lib_t, pcp_var_lib_t)
+files_var_lib_filetrans(pcp_domain, pcp_var_lib_t, { dir})
+
+manage_dirs_pattern(pcp_domain, pcp_var_run_t, pcp_var_run_t)
+manage_files_pattern(pcp_domain, pcp_var_run_t, pcp_var_run_t)
+manage_sock_files_pattern(pcp_domain, pcp_var_run_t, pcp_var_run_t)
+manage_lnk_files_pattern(pcp_domain, pcp_var_run_t, pcp_var_run_t)
+files_pid_filetrans(pcp_domain, pcp_var_run_t, { dir file sock_file lnk_file })
+
+manage_dirs_pattern(pcp_domain, pcp_tmp_t, pcp_tmp_t)
+manage_files_pattern(pcp_domain, pcp_tmp_t, pcp_tmp_t)
+manage_sock_files_pattern(pcp_domain, pcp_tmp_t, pcp_tmp_t)
+files_tmp_filetrans(pcp_domain, pcp_tmp_t, { dir file sock_file })
+
+manage_dirs_pattern(pcp_domain, pcp_tmpfs_t, pcp_tmpfs_t)
+manage_files_pattern(pcp_domain, pcp_tmpfs_t, pcp_tmpfs_t)
+fs_tmpfs_filetrans(pcp_domain, pcp_tmpfs_t, { dir file })
+can_exec(pcp_domain, pcp_tmpfs_t)
+
+dev_read_urand(pcp_domain)
+
+files_read_etc_files(pcp_domain)
+
+fs_getattr_all_fs(pcp_domain)
+
+miscfiles_read_generic_certs(pcp_domain)
+
+sysnet_read_config(pcp_domain)
+
+tunable_policy(`pcp_bind_all_unreserved_ports',`
+    corenet_sendrecv_all_server_packets(pcp_pmcd_t)
+    corenet_sendrecv_all_server_packets(pcp_pmlogger_t)
+    corenet_tcp_bind_all_unreserved_ports(pcp_pmcd_t)
+    corenet_tcp_bind_all_unreserved_ports(pcp_pmlogger_t)
+')
+
+
+########################################
+#
+# pcp_pmcd local  policy
+#
+
+allow pcp_pmcd_t self:capability { dac_read_search dac_override ipc_owner net_admin sys_admin sys_ptrace };
+allow pcp_pmcd_t self:process { setsched };
+allow pcp_pmcd_t self:unix_dgram_socket create_socket_perms;
+allow pcp_pmcd_t self:cap_userns sys_ptrace;
+
+kernel_get_sysvipc_info(pcp_pmcd_t)
+kernel_manage_perf_event(pcp_pmcd_t)
+kernel_read_debugfs(pcp_pmcd_t)
+kernel_read_network_state(pcp_pmcd_t)
+kernel_read_system_state(pcp_pmcd_t)
+kernel_read_state(pcp_pmcd_t)
+kernel_read_fs_sysctls(pcp_pmcd_t)
+kernel_read_rpc_sysctls(pcp_pmcd_t)
+kernel_search_network_sysctl(pcp_pmcd_t)
+kernel_read_net_sysctls(pcp_pmcd_t)
+
+corecmd_exec_bin(pcp_pmcd_t)
+corecmd_exec_shell(pcp_pmcd_t)
+
+corenet_all_recvfrom_netlabel(pcp_pmcd_t)
+corenet_tcp_sendrecv_generic_if(pcp_pmcd_t)
+corenet_tcp_sendrecv_generic_node(pcp_pmcd_t)
+
+corenet_sendrecv_all_client_packets(pcp_pmcd_t)
+corenet_tcp_connect_all_ports(pcp_pmcd_t)
+corenet_tcp_sendrecv_all_ports(pcp_pmcd_t)
+
+corenet_dontaudit_tcp_bind_all_reserved_ports(pcp_pmcd_t)
+corenet_dontaudit_udp_bind_all_reserved_ports(pcp_pmcd_t)
+
+dev_read_sysfs(pcp_pmcd_t)
+dev_read_urand(pcp_pmcd_t)
+dev_rw_lvm_control(pcp_pmcd_t)
+
+domain_read_all_domains_state(pcp_pmcd_t)
+domain_getattr_all_domains(pcp_pmcd_t)
+
+dev_getattr_all_blk_files(pcp_pmcd_t)
+dev_getattr_all_chr_files(pcp_pmcd_t)
+
+fs_getattr_all_fs(pcp_pmcd_t)
+fs_getattr_all_dirs(pcp_pmcd_t)
+fs_list_cgroup_dirs(pcp_pmcd_t)
+fs_read_cgroup_files(pcp_pmcd_t)
+fs_read_nfsd_files(pcp_pmcd_t)
+fs_search_tracefs_dirs(pcp_pmcd_t)
+
+init_read_utmp(pcp_pmcd_t)
+
+logging_send_syslog_msg(pcp_pmcd_t)
+
+lvm_domtrans(pcp_pmcd_t)
+
+storage_getattr_fixed_disk_dev(pcp_pmcd_t)
+storage_raw_read_fixed_disk(pcp_pmcd_t)
+
+userdom_read_user_tmp_files(pcp_pmcd_t)
+userdom_manage_unpriv_user_semaphores(pcp_pmcd_t)
+
+optional_policy(`
+    acct_search_data(pcp_pmcd_t)
+')
+
+optional_policy(`
+    cron_read_pid_files(pcp_pmcd_t)
+')
+
+optional_policy(`
+    container_manage_lib_files(pcp_pmcd_t)
+')
+
+optional_policy(`
+    mock_read_lib_files(pcp_pmcd_t)
+')
+
+optional_policy(`
+    mysql_stream_connect(pcp_pmcd_t)
+')
+
+optional_policy(`
+    dbus_system_bus_client(pcp_pmcd_t)
+
+    optional_policy(`
+        avahi_dbus_chat(pcp_pmcd_t)
+    ')
+')
+
+optional_policy(`
+    postfix_read_config(pcp_pmcd_t)
+    postfix_search_spool(pcp_pmcd_t)
+')
+
+optional_policy(`
+    raid_domtrans_mdadm(pcp_pmcd_t)
+    raid_access_check_mdadm(pcp_pmcd_t)
+')
+
+tunable_policy(`pcp_read_generic_logs',`
+    logging_read_generic_logs(pcp_pmcd_t)
+
+')
+
+########################################
+#
+# pcp_pmproxy local  policy
+#
+
+allow pcp_pmproxy_t self:process setsched;
+allow pcp_pmproxy_t self:unix_dgram_socket create_socket_perms;
+
+kernel_search_network_sysctl(pcp_pmproxy_t)
+
+logging_send_syslog_msg(pcp_pmproxy_t)
+
+optional_policy(`
+    dbus_system_bus_client(pcp_pmproxy_t)
+
+    optional_policy(`
+        avahi_dbus_chat(pcp_pmproxy_t)
+    ')
+')
+
+########################################
+#
+# pcp_pmie local  policy
+#
+allow pcp_pmie_t self:capability { chown fsetid sys_ptrace };
+allow pcp_pmie_t self:cap_userns sys_ptrace;
+allow pcp_pmie_t self:netlink_route_socket { create_socket_perms nlmsg_read };
+allow pcp_pmie_t self:unix_dgram_socket { create_socket_perms sendto };
+
+allow pcp_pmie_t pcp_pmcd_t:unix_stream_socket connectto;
+
+allow pcp_pmie_t pcp_pmcd_t:process signal;
+
+kernel_read_net_sysctls(pcp_pmie_t)
+kernel_read_network_state(pcp_pmie_t)
+kernel_read_system_state(pcp_pmie_t)
+kernel_dontaudit_request_load_module(pcp_pmie_t)
+
+can_exec(pcp_pmie_t, pcp_pmie_exec_t)
+
+corecmd_exec_bin(pcp_pmie_t)
+corecmd_getattr_all_executables(pcp_pmie_t)
+
+domain_read_all_domains_state(pcp_pmie_t)
+
+fs_search_cgroup_dirs(pcp_pmie_t)
+
+init_status(pcp_pmie_t)
+
+logging_send_syslog_msg(pcp_pmie_t)
+
+systemd_exec_systemctl(pcp_pmie_t)
+systemd_read_unit_files(pcp_pmie_t)
+systemd_search_unit_dirs(pcp_pmie_t)
+
+userdom_read_user_tmp_files(pcp_pmie_t)
+
+########################################
+#
+# pcp_pmlogger local  policy
+#
+
+allow pcp_pmlogger_t self:capability { dac_read_search dac_override chown fowner sys_ptrace };
+allow pcp_pmlogger_t self:process setpgid;
+allow pcp_pmlogger_t self:netlink_route_socket {create_socket_perms nlmsg_read };
+
+allow pcp_pmlogger_t pcp_pmcd_t:unix_stream_socket connectto;
+allow pcp_pmlogger_t self:unix_dgram_socket create_socket_perms;
+
+allow pcp_pmlogger_t pcp_pmlogger_exec_t:file execute_no_trans;
+
+dontaudit pcp_pmlogger_t self:cap_userns { sys_ptrace };
+
+kernel_read_system_state(pcp_pmlogger_t)
+kernel_read_network_state(pcp_pmlogger_t)
+kernel_read_all_sysctls(pcp_pmlogger_t)
+
+corecmd_exec_bin(pcp_pmlogger_t)
+
+corenet_tcp_bind_dey_sapi_port(pcp_pmlogger_t)
+corenet_tcp_bind_commplex_link_port(pcp_pmlogger_t)
+corenet_tcp_bind_generic_node(pcp_pmlogger_t)
+
+domain_read_all_domains_state(pcp_pmlogger_t)
+
+fs_mount_tracefs(pcp_pmlogger_t)
+fs_getattr_all_fs(pcp_pmlogger_t)
+
+init_read_utmp(pcp_pmlogger_t)
+init_status(pcp_pmlogger_t)
+
+logging_send_syslog_msg(pcp_pmlogger_t)
+
+systemd_exec_systemctl(pcp_pmlogger_t)
+systemd_getattr_unit_files(pcp_pmlogger_t)
+
+optional_policy(`
+    hostname_exec(pcp_pmlogger_t)
+')
+
+optional_policy(`
+    rpm_script_signal(pcp_pmlogger_t)
+')
+
+########################################
+#
+# pcp_plugin local  policy
+#
+
+domtrans_pattern(pcp_domain, pcp_plugin_exec_t, pcp_plugin_t)
+
+optional_policy(`
+    unconfined_domain(pcp_plugin_t)
+')
+
+
+########################################
+#
+# pcp_plugin local  policy (previously pcpupstream)
+#
+
+require {
+	attribute domain;
+	attribute file_type;
+	attribute pcp_domain;
+	attribute userdomain;
+
+	type configfs_t; #pcp.lio
+	type debugfs_t;
+	type default_t;
+	type device_t;
+	type fixed_disk_device_t;
+	type fs_t;
+	type fsadm_exec_t;
+	type gpmctl_t;
+	type haproxy_t;
+	type haproxy_var_lib_t;
+	type hostname_exec_t;
+	type init_t;
+	type initrc_tmp_t;
+	type kernel_t;
+	type kmsg_device_t;
+	type ldconfig_exec_t;
+	type mdadm_exec_t;
+	type modules_object_t; # pcp.lio, pcp.bcc
+	type named_exec_t;
+	type ndc_exec_t;
+	type ntop_port_t;
+	type pcp_log_t;
+	type pcp_pmcd_t;
+	type pcp_pmie_exec_t; # pmda.summary
+	type pcp_pmie_t;
+	type pcp_pmlogger_exec_t;
+	type pcp_pmlogger_t;
+	type pcp_pmproxy_t;
+	type pcp_tmp_t;
+	type pcp_tmpfs_t;
+	type pcp_var_lib_t;
+	type ping_exec_t; # pmda.netcheck
+	type postgresql_var_run_t;
+	type proc_kcore_t;
+	type proc_mdstat_t;
+	type proc_net_t; #RHBZ1517656
+	type samba_var_t; # pmda.samba
+	type setfiles_exec_t;
+	type su_exec_t;
+	type sysctl_fs_t; #RHBZ1505888
+	type sysctl_irq_t; #pmda.bcc
+	type sysctl_net_t;
+	type sysfs_t; #RHBZ1545245
+	type syslogd_t;
+	type syslogd_var_run_t;
+	type system_cronjob_t;
+	type tmp_t;
+	type unconfined_t; #RHBZ1443632
+	type user_home_t;
+	type user_tmp_t;
+	type var_run_t;
+	type virt_image_t;
+	type websm_port_t; # pmda.openmetrics
+	type xserver_misc_device_t;
+
+	class blk_file { ioctl open read };
+	class capability { net_raw }; # pmda.netcheck
+	class capability { kill dac_override sys_ptrace sys_pacct net_admin chown sys_chroot ipc_lock ipc_owner sys_resource fowner sys_rawio fsetid };
+	class chr_file { open read write };
+	class dbus { send_msg };
+	class dir { add_name open read search write getattr lock ioctl };
+	class fifo_file { getattr read open unlink lock ioctl write }; # qa/455
+	class file { append create execute execute_no_trans getattr setattr ioctl lock open read write unlink };
+	class filesystem { mount quotaget };
+	class lnk_file { create read getattr setattr };
+	class msgq { unix_read };
+	class process { signull signal execmem setrlimit ptrace setcap }; #RHBZ1443632, pmda.netcheck (setcap)
+	class sem { unix_read associate getattr read };
+	class shm { unix_read associate getattr read };
+	class sock_file { getattr write }; #RHBZ1633211, RHBZ1449671
+	class system { module_request };
+	class tcp_socket { name_bind name_connect };
+	class udp_socket { name_bind };
+	class unix_dgram_socket { sendto };
+	class unix_stream_socket connectto;
+}
+
+optional_policy(`
+    require {
+	class bpf { map_create map_read map_write prog_load prog_run };
+    }
+    #RHBZ1633211, RHBZ1693332
+    allow pcp_pmcd_t self:bpf { map_create map_read map_write prog_load prog_run };
+')
+
+optional_policy(`
+    require {
+	class capability2 { bpf };
+    }
+    #RHBZ1952374
+    # pmda-bcc and pmda-bpftrace need the ability to run eBPF code
+    allow pcp_pmcd_t self:capability2 bpf;
+')
+
+optional_policy(`
+    require {
+	class capability2 { syslog };
+    }
+    # pmda-bcc needs the ability to read addresses in /proc/kallsyms
+    allow pcp_pmcd_t self:capability2 syslog;
+')
+
+optional_policy(`
+    require {
+	type cluster_exec_t;
+    }
+    # pmda-hacluster (crm_mon, cibadmin, corosync-quorumtool, corosync-cfgtool)
+    # type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="sh" name="corosync-cfgtool" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:cluster_exec_t:s0 tclass=file permissive=0
+    allow pcp_pmcd_t cluster_exec_t:file { execute execute_no_trans };
+')
+
+optional_policy(`
+    require {
+	type cluster_tmpfs_t;
+    }
+    # pmda-hacluster (crm_mon, cibadmin, corosync-quorumtool, corosync-cfgtool)
+    # type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="crm_mon" name="qb-request-stonith-ng-header" dev="tmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:cluster_tmpfs_t:s0 tclass=file permissive=1
+    allow pcp_pmcd_t cluster_tmpfs_t:file { write };
+')
+
+optional_policy(`
+    require {
+	type drbd_exec_t;
+    }
+    # pmda-hacluster (drbdsetup)
+    # type=AVC msg=audit(N): avc: denied { execute_no_trans } for pid=PID comm="sh" path="/usr/sbin/drbdsetup" dev="vda1" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:drbd_exec_t:s0 tclass=file permissive=1
+    allow pcp_pmcd_t drbd_exec_t:file { execute execute_no_trans };
+')
+
+optional_policy(`
+    require {
+	class file { map };
+    }
+    # type=AVC msg=audit(N): avc: denied { map } for pid=PID comm="pmie" path="/usr/bin/pmie" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_pmie_exec_t:s0 tclass=file permissive=0
+    # type=AVC msg=audit(N): avc: denied { map } for pid=PID comm="ldconfig" path="/usr/sbin/ldconfig" dev="dm-1" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:ldconfig_exec_t:s0 tclass=file permissive=1
+    # type=AVC msg=audit(N): avc: denied { map } for pid=PID comm="smartctl" path="/usr/sbin/smartctl" dev="dm-1" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
+    # type=AVC msg=audit(N): avc: denied { map } for pid=PID comm="pmdanvidia" path="/usr/lib64/libnvidia-ml.so" dev="dm-2" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:default_t:s0 tclass=file permissive=0
+    allow pcp_pmcd_t default_t:file { map };
+    allow pcp_pmcd_t fsadm_exec_t:file { map };
+    allow pcp_pmcd_t hostname_exec_t:file { map };
+    allow pcp_pmie_t hostname_exec_t:file { map };
+    allow pcp_pmcd_t ldconfig_exec_t:file { map };
+    allow pcp_pmcd_t pcp_pmie_exec_t:file { map };
+    allow pcp_pmcd_t pcp_tmp_t:file { map };
+    allow pcp_pmcd_t ping_exec_t:file { map };
+    allow pcp_pmcd_t syslogd_var_run_t:file { map };
+')
+
+optional_policy(`
+    require {
+	class lockdown { integrity };
+    }
+    # pmda.kvm
+    # type=AVC msg=audit(YYY.101): avc: denied { integrity } for pid=PID comm="pmdakvm" lockdown_reason="debugfs access" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=lockdown permissive=0
+    allow pcp_pmcd_t self:lockdown integrity;
+')
+
+optional_policy(`
+    require {
+	class rawip_socket { create getopt setopt read write };
+    }
+    # pmda.netcheck
+    allow pcp_pmcd_t self:rawip_socket { create getopt setopt read write };
+')
+
+optional_policy(`
+    require {
+	class netlink_generic_socket { bind create getattr setopt write read };
+    }
+    # pmda-hacluster requirements for checking drbdsetup
+    # type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="drbdsetup" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_generic_socket permissive=1
+    allow pcp_pmcd_t self:netlink_generic_socket { bind create getattr setopt write read };
+')
+
+optional_policy(`
+    require {
+	class netlink_kobject_uevent_socket { getattr };
+    }
+    # type=AVC msg=audit(N): avc: denied { getattr } for pid=PID comm="python3" path="socket:[36479]" dev="sockfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=netlink_kobject_uevent_socket permissive=0
+    allow pcp_pmcd_t self:netlink_kobject_uevent_socket { getattr read };
+')
+
+optional_policy(`
+    require {
+	class netlink_tcpdiag_socket { append bind connect create getattr getopt ioctl lock nlmsg_read nlmsg_write read setattr setopt shutdown write };
+    }
+    # pmda-sockets
+    # type=AVC msg=audit(N): avc: denied { create } for pid=PID comm="ss" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_tcpdiag_socket permissive=1
+    # type=AVC msg=audit(N): avc: denied { setopt } for pid=PID comm="ss" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_tcpdiag_socket permissive=1
+    # type=AVC msg=audit(N): avc: denied { bind } for pid=PID comm="ss" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_tcpdiag_socket permissive=1
+    # type=AVC msg=audit(N): avc: denied { getattr } for pid=PID comm="ss" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_tcpdiag_socket permissive=1
+    # type=AVC msg=audit(N): avc: denied { nlmsg_read } for pid=PID comm="ss" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=netlink_tcpdiag_socket permissive=1
+    allow pcp_pmcd_t self:netlink_tcpdiag_socket { append bind connect create getattr getopt ioctl lock nlmsg_read nlmsg_write read setattr setopt shutdown write };
+')
+
+optional_policy(`
+    require {
+	type mdadm_conf_t;
+    }
+    allow pcp_pmcd_t mdadm_conf_t:file { getattr open read };
+')
+
+optional_policy(`
+    require {
+	type container_runtime_t;
+	type container_runtime_tmpfs_t;
+        type container_var_run_t;
+    }
+    # pmda.podman
+    # type=AVC msg=audit(N): avc: denied { getattr write } for pid=PID comm="pmdapodman" path="/run/podman/podman.sock" dev="tmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:container_var_run_t:s0 tclass=sock_file permissive=0
+    allow pcp_pmcd_t container_var_run_t:file { getattr read open };
+    allow pcp_pmcd_t container_var_run_t:sock_file { getattr write };
+    allow pcp_pmcd_t container_runtime_t:unix_stream_socket connectto;
+    allow pcp_pmcd_t container_runtime_tmpfs_t:dir getattr;
+')
+
+optional_policy(`
+    require {
+        type docker_var_lib_t;
+    }
+    # pmda.docker
+    allow pcp_pmcd_t docker_var_lib_t:dir search;
+')
+
+optional_policy(`
+    require {
+        type dma_device_t;
+    }
+    # type=AVC msg=audit(N): avc: denied { getattr } for pid=PID comm="pmdaproc" path="/dev/dma_heap" dev="devtmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:dma_device_t:s0 tclass=dir permissive=0
+    allow pcp_pmcd_t dma_device_t:dir getattr;
+')
+
+optional_policy(`
+    require {
+        type kmod_exec_t;
+    }
+    # pmda-bcc
+    # type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="sh" name="kmod" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:kmod_exec_t:s0 tclass=file permissive=0
+    # type=AVC msg=audit(N): avc: denied { execute_no_trans } for pid=PID comm="sh" path="/usr/bin/kmod" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:kmod_exec_t:s0 tclass=file permissive=0
+    allow pcp_pmcd_t kmod_exec_t:file { execute execute_no_trans };
+')
+
+optional_policy(`
+    require {
+        type nsfs_t;
+    }
+    # pmdalinux filesys.used metric
+    # type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="pmdalinux" dev="nsfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:nsfs_t:s0 tclass=file permissive=1
+    allow pcp_pmcd_t nsfs_t:file { read open getattr };
+')
+optional_policy(`
+    require {
+        type numad_t;
+    }
+    # type=AVC msg=audit(N): avc: denied { unix_read } for pid=PID comm="pmdalinux" key=KEY scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:numad_t:s0 tclass=msgq permissive=0
+    # type=AVC msg=audit(N): avc: denied { unix_read } for pid=PID comm="pmdalinux" key=KEY scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:numad_t:s0 tclass=msgq permissive=0
+    allow pcp_pmcd_t numad_t:msgq unix_read;
+')
+
+optional_policy(`
+    require {
+        type proc_security_t;
+    }
+    # type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="bpftrace" name="randomize_va_space" dev="proc" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:proc_security_t:s0 tclass=file permissive=0
+    allow pcp_pmcd_t proc_security_t:file { getattr open read };
+')
+
+optional_policy(`
+    require {
+        type rpcbind_var_run_t;
+    }
+    # pmda.shping
+    allow pcp_pmcd_t rpcbind_var_run_t:sock_file write;
+')
+
+optional_policy(`
+    require {
+        type sbd_exec_t;
+    }
+    # pmda-hacluster
+    # type=AVC msg=audit(N): avc: denied { execute_no_trans } for pid=PID comm="sh" path="/usr/sbin/sbd" dev="vda1" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:sbd_exec_t:s0 tclass=file permissive=1
+    allow pcp_pmcd_t sbd_exec_t:file { execute execute_no_trans };
+')
+
+optional_policy(`
+    require {
+        type tracefs_t;
+    }
+    # pmda.perfevent, pmda.kvm
+    # type=AVC msg=audit(N): avc: denied { mount } for pid=PID comm="pmdaperfevent" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=filesystem permissive=0
+    # type=AVC msg=audit(N): avc: denied { search } for pid=PID comm="pmdaperfevent" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
+    # type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="pmdaperfevent" name="events" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
+    # type=AVC msg=audit(N): avc: denied { open } for pid=PID comm="pmdaperfevent" path="/sys/kernel/debug/tracing/events" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
+    # type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="pmdaperfevent" name="id" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=file permissive=0
+    # type=AVC msg=audit(N): avc: denied { open } for pid=PID comm="pmdaperfevent" path="/sys/kernel/debug/tracing/events/gfs2/gfs2_glock_state_change/id" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=file permissive=0
+    # type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="pmdakvm" name="kvm" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:tracefs_t:s0 tclass=dir permissive=0
+    allow pcp_pmcd_t tracefs_t:filesystem { mount };
+    allow pcp_pmcd_t tracefs_t:file { getattr read open append write };
+    allow pcp_pmcd_t tracefs_t:dir { search read open };
+')
+
+optional_policy(`
+    require {
+        type unconfined_service_t;
+    }
+    #RHBZ1709237
+    # type=AVC msg=audit(N): avc: denied { signull } for pid=PID comm="pmdaX" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=process permissive=0
+    # type=AVC msg=audit(N): avc: denied { signal } for pid=PID comm="pmsignal" scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=process permissive=0
+    # type=AVC msg=audit(N): avc: denied { signal } for pid=PID comm="pmsignal" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:unconfined_service_t:s0 tclass=process permissive=0
+    allow pcp_pmcd_t unconfined_service_t:process signull;
+    allow pcp_pmlogger_t unconfined_service_t:process signal;
+    allow pcp_pmie_t unconfined_service_t:process signal;
+')
+
+optional_policy(`
+    require {
+        type unreserved_port_t;
+    }
+    # type=AVC msg=audit(N): avc: denied { name_bind } for pid=PID comm="pmdasimple" src=5650 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
+    # type=AVC msg=audit(N): avc: denied { name_connect } for pid=PID comm="pmcd" dest=5650 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
+    # type=AVC msg=audit(N): avc: denied { name_bind } for pid=PID comm="pmdastatsd" src=8126 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=udp_socket permissive=0
+    # type=AVC msg=audit(N): avc: denied { name_bind } for pid=PID comm=pmlogger src=4332 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
+    allow pcp_pmcd_t unreserved_port_t:tcp_socket { name_bind name_connect };
+    allow pcp_pmcd_t unreserved_port_t:udp_socket { name_bind };
+    allow pcp_pmlogger_t unreserved_port_t:tcp_socket { name_bind };
+')
+
+optional_policy(`
+    require {
+        type virt_var_run_t;
+    }
+    # pmda.libvirt
+    # type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="python3" name="libvirt-sock-ro" dev="tmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:virt_var_run_t:s0 tclass=sock_file permissive=0
+    allow pcp_pmcd_t virt_var_run_t:sock_file write;
+')
+
+#============= init_t ==============
+# type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="pmcd" name="pmcd" dev="dm-1" ino=INO scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:pcp_log_t:s0 tclass=dir permissive=0
+allow init_t pcp_log_t:dir read;
+
+allow init_t pcp_log_t:file getattr;
+
+# type=AVC msg=audit(N): avc: denied { getattr } for pid=PID comm="pmcd" path="/var/lib/pcp/pmns/root" dev="dm-1" ino=INO scontext=system_u:system_r:init_t:s0 tcontext=unconfined_u:object_r:pcp_var_lib_t:s0 tclass=file permissive=0
+allow init_t pcp_var_lib_t:dir { add_name read write };
+
+# type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="pmcd" name="Rebuild" dev="dm-1" ino=INO scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:pcp_var_lib_t:s0 tclass=file permissive=0
+# execute
+
+allow init_t pcp_var_lib_t:file { append create execute execute_no_trans getattr ioctl open read write };
+
+allow init_t pcp_var_lib_t:lnk_file read;
+
+# type=AVC msg=audit(N): avc: denied { open } for pid=PID comm="pmcd" path="/var/tmp/pcp.xxx/pcp.env.path" dev="dm-1" ino=INO scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:tmp_t:s0 tclass=file permissive=0
+#
+allow init_t tmp_t:file open;
+
+# type=USER_AVC msg=audit(N): pid=PID uid=INO auid=4294967295 ses=4294967295 subj=system_u:system_r:system_dbusd_t:s0-s0:c0.c1023 msg='avc: denied { send_msg } for msgtype=method_return dest=:1.14778 spid=1 tpid=19555 scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:system_cronjob_t:s0-s0:c0.c1023 tclass=dbus permissive=0  exe="/usr/bin/dbus-daemon" sauid=81 hostname=? addr=? terminal=?'
+allow init_t system_cronjob_t:dbus send_msg;
+
+
+#============= pcp_pmcd_t ==============
+
+#SYN AVC for testing
+# type=AVC msg=audit(N): avc: denied { execute execute_no_trans open read } for  pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:user_home_t:s0 tclass=file permissive=0
+allow pcp_pmcd_t user_home_t:file { execute execute_no_trans open read };
+
+# type=AVC msg=audit(N): avc: denied { getattr write } for pid=PID comm="pmdapodman" path="/run/user/N/podman/podman.sock" dev="tmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:user_tmp_t:s0 tclass=sock_file permissive=0
+allow pcp_pmcd_t user_tmp_t:sock_file { getattr write };
+
+# type=AVC msg=audit(N): avc: denied { getattr write } for pid=PID comm="pmdapodman" path="/run/podman/podman.sock" dev="tmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:var_run_t:s0 tclass=sock_file permissive=0
+allow pcp_pmcd_t var_run_t:sock_file { getattr write };
+
+# type=AVC msg=audit(N): avc: denied { append getattr ioctl open read write } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:debugfs_t:s0 tclass=file permissive=0
+allow pcp_pmcd_t debugfs_t:file { append getattr ioctl open read write };
+allow pcp_pmcd_t debugfs_t:dir read;
+
+# type=AVC msg=audit(N): avc: denied { execute execute_no_trans open read } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_pmie_exec_t:s0 tclass=file permissive=0
+allow pcp_pmcd_t pcp_pmie_exec_t:file { execute execute_no_trans open read };
+
+# type=AVC msg=audit(N): avc: denied { getattr open read unlink } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_var_lib_t:s0 tclass=fifo_file permissive=0
+allow pcp_pmcd_t pcp_var_lib_t:fifo_file { getattr open read unlink }; #RHBZ1460131
+
+# type=AVC msg=audit(N): avc: denied { getattr } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:proc_kcore_t:s0 tclass=file permissive=0
+allow pcp_pmcd_t proc_kcore_t:file getattr;
+
+# type=AVC msg=audit(N): avc: denied { sys_chroot kill sys_resource } for pid=PID comm="pmdalinux" capability=18 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
+# type=AVC msg=audit(N): avc: denied { chown } for pid=PID comm="pmdasimple" capability=0  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
+# type=AVC msg=audit(N): avc: denied { sys_pacct } for pid=PID comm="pmdaproc" capability=20 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=0
+allow pcp_pmcd_t self:capability { kill sys_pacct chown sys_chroot ipc_owner ipc_lock sys_resource };
+
+# type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="smbstatus" name="msg.lock" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:samba_var_t:s0 tclass=dir permissive=0
+allow pcp_pmcd_t samba_var_t:dir { add_name write }; # pmda.samba
+allow pcp_pmcd_t samba_var_t:file { create }; # pmda.samba
+
+# type=AVC msg=audit(N): avc: denied { name_connect } for pid=PID comm="python3" dest=9090 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:websm_port_t:s0 tclass=tcp_socket permissive=0
+allow pcp_pmcd_t websm_port_t:tcp_socket name_connect; # pmda.openmetrics
+
+# type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="sh" name="8641" dev="tmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_tmp_t:s0 tclass=file permissive=0
+# type=AVC msg=audit(N): avc: denied { execute_no_trans } for pid=PID comm="sh" path="/tmp/8641" dev="tmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_tmp_t:s0 tclass=file permissive=0
+allow pcp_pmcd_t pcp_tmp_t:file { execute execute_no_trans };
+
+# type=AVC msg=audit(N): avc: denied { getattr } for pid=PID comm="sh" path="/usr/bin/hostname" dev="dm-1" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
+# type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="sh" name="hostname" dev="dm-1" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
+# type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="sh" name="hostname" dev="dm-1" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
+# type=AVC msg=audit(N): avc: denied { open } for pid=PID comm="sh" path="/usr/bin/hostname" dev="dm-1" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
+# type=AVC msg=audit(N): avc: denied { execute_no_trans } for pid=PID comm="sh" path="/usr/bin/hostname" dev="dm-1" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
+allow pcp_pmcd_t hostname_exec_t:file { getattr execute read open execute_no_trans };
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=2050094
+# type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="python3" path=2F6D656D66643A6C6962666669202864656C6574656429 dev="tmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_tmpfs_t:s0 tclass=file permissive=0
+# libffi (used by Python/ctypes) wants to execute from memfd:libffi (a memory mapped file)
+# similar to selinux-policy PR: https://github.com/fedora-selinux/selinux-policy/pull/1019
+can_exec(pcp_pmcd_t, pcp_tmpfs_t)
+
+# type=AVC msg=audit(N): avc: denied { getattr } for pid=PID comm="pmdaproc" path="/dev/gpmctl" dev="devtmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:gpmctl_t:s0 tclass=sock_file permissive=1
+allow pcp_pmcd_t gpmctl_t:sock_file getattr;
+
+# type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:haproxy_var_lib_t:s0 tclass=sock_file permissive=0
+allow pcp_pmcd_t haproxy_var_lib_t:sock_file write;
+
+# type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="pmdaxfs" name="stats_clear" dev="proc" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:sysctl_fs_t:s0 tclass=file
+#RHBZ1505888
+allow pcp_pmcd_t sysctl_fs_t:file write;
+
+#RHBZ1545245
+# type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:sysfs_t:s0 tclass=dir permissive=0
+allow pcp_pmcd_t sysfs_t:dir write;
+
+# pmda.bcc
+# type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:modules_object_t:s0 tclass=lnk_file permissive=0
+allow pcp_pmcd_t modules_object_t:lnk_file read;
+
+# type=AVC msg=audit(N): avc: denied { execute execute_no_trans open read } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:mdadm_exec_t:s0 tclass=file permissive=0
+allow pcp_pmcd_t mdadm_exec_t:file { execute execute_no_trans open read };
+
+# type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="pmdaX" name="unbound-control" dev="vda1" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:named_exec_t:s0 tclass=file permissive=0
+allow pcp_pmcd_t named_exec_t:file execute;
+allow pcp_pmcd_t ndc_exec_t:file { execute execute_no_trans };
+
+# type=AVC msg=audit(N): avc: denied { getattr open read } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:proc_mdstat_t:s0 tclass=file permissive=0
+allow pcp_pmcd_t proc_mdstat_t:file { getattr open read };
+
+#pmda.bcc
+# type=AVC msg=audit(N): avc: denied { execmem setrlimit ptrace } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_pmcd_t:s0 tclass=process permissive=0
+allow pcp_pmcd_t self:process { execmem setrlimit ptrace };
+
+# type=AVC msg=audit(N): avc: denied { search } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:sysctl_irq_t:s0 tclass=dir permissive=0
+allow pcp_pmcd_t sysctl_irq_t:dir { search };
+
+# type=AVC msg=audit(N): avc: denied { signull } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:kernel_t:s0 tclass=process permissive=0
+allow pcp_pmcd_t kernel_t:process signull;
+
+# pmda-bcc -- failing to compile bpf files on Fedora 33
+# type=AVC msg=audit(N): avc: denied { fsetid } for pid=PID comm="tar" capability=4  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
+# type=AVC msg=audit(N): avc: denied { create } for pid=PID comm="tar" name="linux-event-codes.h" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_tmp_t:s0 tclass=lnk_file permissive=1
+# type=AVC msg=audit(N): avc: denied { setattr } for pid=PID comm="tar" name="linux-event-codes.h" dev="tmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_tmp_t:s0 tclass=lnk_file permissive=1
+# type=AVC msg=audit(N): avc: denied { getattr } for pid=PID comm="tar" path="/tmp/kheaders-.../include/dt-bindings/input/linux-event-codes.h" dev="tmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_tmp_t:s0 tclass=lnk_file permissive=1
+allow pcp_pmcd_t pcp_tmp_t:lnk_file { create getattr setattr };
+allow pcp_pmcd_t self:capability { fsetid };
+
+#RHBZ1690542
+# type=AVC msg=audit(N): avc: denied { module_request } for pid=PID comm="pmdalinux" kmod="netdev-tun0" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=system permissive=0
+allow pcp_pmcd_t kernel_t:system module_request;
+
+# type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="zimbraprobe" name="su" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:su_exec_t:s0 tclass=file permissive=0
+#pmdazimbra
+allow pcp_pmcd_t su_exec_t:file { execute execute_no_trans };
+
+# type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="python3" name=".s.PGSQL.5432" dev="tmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:postgresql_var_run_t:s0 tclass=sock_file permissive=0
+allow pcp_pmcd_t postgresql_var_run_t:sock_file { write };
+
+allow pcp_pmcd_t ntop_port_t:tcp_socket name_connect;
+
+allow pcp_pmcd_t pcp_log_t:fifo_file { getattr open read };
+
+allow pcp_pmcd_t virt_image_t:dir search;
+
+allow pcp_pmcd_t syslogd_var_run_t:dir read;
+
+allow pcp_pmcd_t syslogd_var_run_t:file { getattr open read };
+
+#============= pcp_pmlogger_t ==============
+# type=AVC msg=audit(N): avc: denied { open write } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:kmsg_device_t:s0 tclass=chr_file permissive=0
+allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
+
+# type=AVC msg=audit(N): avc: denied { sys_ptrace } for pid=PID comm="ps" capability=19 scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:system_r:pcp_pmlogger_t:s0 tclass=capability
+# type=AVC msg=audit(N): avc: denied { kill } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:pcp_pmlogger_t:s0 tclass=capability permissive=0
+allow pcp_pmlogger_t self:capability { sys_ptrace fowner fsetid kill };
+
+# type=AVC msg=audit(N) : avc: denied { signal } for pid=PID comm=pmsignal scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=process
+allow pcp_pmlogger_t unconfined_t:process signal;
+
+# type=AVC msg=audit(N): avc: denied { setattr unlink } for pid=PID comm="mv" name="pmlogger_check.log" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=unconfined_u:object_r:user_tmp_t:s0 tclass=file permissive=0
+allow pcp_pmlogger_t user_tmp_t:file { setattr unlink };
+
+# type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="pmlogger_daily" name="setfiles" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:setfiles_exec_t:s0 tclass=file permissive=0
+allow pcp_pmlogger_t setfiles_exec_t:file execute;
+
+# type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="pmlogger" name="12" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=dir permissive=0
+allow pcp_pmlogger_t initrc_tmp_t:dir { add_name read write };
+allow pcp_pmlogger_t initrc_tmp_t:file create;
+
+#============= pcp_pmie_t ==============
+# type=AVC msg=audit(N): avc: denied { execute execute_no_trans getattr open read } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:hostname_exec_t:s0 tclass=file permissive=0
+allow pcp_pmie_t hostname_exec_t:file { execute execute_no_trans getattr open read };
+
+# type=AVC msg=audit(N): avc: denied { sys_ptrace } for pid=PID comm="ps" capability=19 scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=capability permissive=0
+allow pcp_pmie_t self:capability { chown fowner dac_override kill net_admin sys_ptrace fsetid };
+
+#RHBZ1517656
+# type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:proc_net_t:s0 tclass=file permissive=0
+allow pcp_pmie_t proc_net_t:file read;
+
+#RHBZ2122883
+# type=AVC audit(N): avc: denied { read } for pid=PID comm="pmie" name="net" dev="proc" ino=INO scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:proc_net_t:s0 tclass=lnk_file permissive=0
+allow pcp_pmie_t proc_net_t:lnk_file read;
+
+#RHBZ1743040
+# type=AVC msg=audit(N): avc: denied { setrlimit } for pid=PID comm="systemctl" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:system_r:pcp_pmie_t:s0 tclass=process permissive=0
+allow pcp_pmie_t self:process setrlimit;
+
+#RHBZ1623988
+# type=AVC msg=audit(N): avc: denied { signal } for pid=PID comm="pmsignal" scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=process permissive=1
+allow pcp_pmie_t unconfined_t:process signal;
+
+# type=AVC msg=audit(N): avc: denied { write } for pid=PID comm="pmie" name="02" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmie_t:s0 tcontext=system_u:object_r:initrc_tmp_t:s0 tclass=dir permissive=0
+allow pcp_pmie_t initrc_tmp_t:dir { add_name read write };
+allow pcp_pmie_t initrc_tmp_t:file create;
+
+#============= pmda-lio ==============
+# type=AVC msg=audit(N): avc: denied { open read search write } for  pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=dir permissive=0
+allow pcp_pmcd_t configfs_t:dir { open read search write };
+
+# type=AVC msg=audit(N): avc: denied { getattr ioctl open read } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=file permissive=0
+allow pcp_pmcd_t configfs_t:file { getattr ioctl open read };
+
+# type=AVC msg=audit(N): avc: denied { getattr read } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:configfs_t:s0 tclass=lnk_file permissive=0
+allow pcp_pmcd_t configfs_t:lnk_file { getattr read };
+
+# type=AVC msg=audit(N): avc: denied { execute execute_no_trans getattr open read } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:ldconfig_exec_t:s0 tclass=file permissive=0
+allow pcp_pmcd_t ldconfig_exec_t:file { execute execute_no_trans getattr open read };
+
+# type=AVC msg=audit(N): avc: denied { quotaget } for pid=PID comm="pmdaxfs" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fs_t:s0 tclass=filesystem permissive=0
+allow pcp_pmcd_t fs_t:filesystem quotaget;
+
+#============= pcp_pmproxy_t ==============
+# type=AVC msg=audit(N) : avc: denied { net_admin } for pid=PID comm=pmproxy capability=net_admin scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:system_r:pcp_pmproxy_t:s0 tclass=capability
+allow pcp_pmproxy_t self:capability { net_admin dac_override };
+
+# type=AVC msg=audit(N) : avc: denied { read } for pid=PID comm=pmproxy name=disable_ipv6 dev="proc" ino=INO scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:sysctl_net_t:s0 tclass=file
+# type=AVC msg=audit(N) : avc: denied { open } for pid=PID comm=pmproxy path=/proc/sys/net/ipv6/conf/all/disable_ipv6 dev="proc" ino=INO scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:sysctl_net_t:s0 tclass=file
+# type=AVC msg=audit(N) : avc: denied { getattr } for pid=PID comm=pmproxy path=/proc/sys/net/ipv6/conf/all/disable_ipv6 dev="proc" ino=INO scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:sysctl_net_t:s0 tclass=file
+allow pcp_pmproxy_t sysctl_net_t:file { getattr open read };
+
+# type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="pmproxy" name="unix" dev="proc" ino=INO scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:proc_net_t:s0 tclass=file
+#RHBZ1517656
+allow pcp_pmproxy_t proc_net_t:file read;
+
+# type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="pmproxy" name="pmlogger" dev="dm-92" ino=INO scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:pcp_log_t:s0 tclass=lnk_file
+allow pcp_pmproxy_t pcp_log_t:lnk_file read;
+
+#============= pmda-smart ==============
+
+# type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="sh" name="smartctl" dev="dm-1" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
+# type=AVC msg=audit(N): avc: denied { open } for pid=PID comm="sh" path="/usr/sbin/smartctl" dev="dm-1" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
+# type=AVC msg=audit(N): avc: denied { execute_no_trans } for pid=PID comm="sh" path="/usr/sbin/smartctl" dev="dm-1" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
+# type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="sh" name="smartctl" dev="dm-1" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
+# type=AVC msg=audit(N): avc: denied { getattr } for pid=PID comm="sh" path="/usr/sbin/smartctl" dev="dm-1" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
+# type=AVC msg=audit(N): avc: denied { sys_rawio } for pid=PID comm="smartctl" capability=17 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
+# type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="smartctl" name="sda" dev="devtmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fixed_disk_device_t:s0 tclass=blk_file permissive=0
+
+allow pcp_pmcd_t fsadm_exec_t:file { execute execute_no_trans getattr open read };
+allow pcp_pmcd_t fixed_disk_device_t:blk_file { open read ioctl };
+
+#============= pmda-nvidia ==============
+# type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="pmdanvidia" path="/usr/lib64/libnvidia-ml.so" dev="dm-2" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:default_t:s0 tclass=file permissive=0
+allow pcp_pmcd_t default_t:file { execute };
+
+# type=AVC msg=audit(N): avc: denied { read write } for pid=PID comm="pmdanvidia" name="nvidiactl" dev="devtmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:xserver_misc_device_t:s0 tclass=chr_file permissive=0
+allow pcp_pmcd_t xserver_misc_device_t:chr_file { open read write ioctl };
+
+# type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="pmdanvidia" name="nvidia-cap2" dev="devtmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:device_t:s0 tclass=chr_file permissive=0
+allow pcp_pmcd_t device_t:chr_file { open read };
+
+# type=AVC msg=audit(N): avc: denied { sys_rawio } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_pmcd_t:s0 tclass=capability permissive=0
+allow pcp_pmcd_t self:capability sys_rawio;
+
+optional_policy(`
+    require {
+        type openvswitch_exec_t;
+    }
+    # pmda.openvswitch
+    # type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="sh" name="ovs-vsctl" dev="dm-0" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:openvswitch_exec_t:s0 tclass=file permissive=0
+    allow pcp_pmcd_t openvswitch_exec_t:file { execute execute_no_trans };
+')
+
+#============= pmda-netcheck ==============
+allow pcp_pmcd_t ping_exec_t:file { execute execute_no_trans };
+allow pcp_pmcd_t self:capability net_raw;
+allow pcp_pmcd_t self:process setcap;
+
+optional_policy(`
+    require {
+        class icmp_socket { create getopt setopt read write };
+    }
+    # pmda.netcheck
+    allow pcp_pmcd_t self:icmp_socket { create getopt setopt read write };
+')
+
+# permit pcp_domain to read all dirs,files and fifo_file in attribute file_type
+optional_policy(`
+    files_list_non_auth_dirs(pcp_domain)
+')
+optional_policy(`
+    files_list_non_security(pcp_domain)
+')
+files_read_all_files(pcp_pmcd_t)
+files_read_all_files(pcp_pmie_t)
+files_read_all_files(pcp_pmlogger_t)
+files_read_all_files(pcp_pmproxy_t)
+
+allow pcp_domain file_type:fifo_file read_fifo_file_perms;
+
+# permit pcp_pmcd_t domain to read shared memory and semaphores of all domain on system
+allow pcp_domain domain:shm r_sem_perms;
+allow pcp_domain domain:sem r_shm_perms;
+allow pcp_domain userdomain:shm r_sem_perms;
+allow pcp_domain userdomain:sem r_shm_perms;
+
+# permit pcp_domain stream connect to all domains
+allow pcp_domain domain:unix_stream_socket connectto;
+
+# permit pcp_domain to connect to all ports.
+corenet_tcp_connect_all_ports(pcp_domain)
+
+# all pcp_domain read access to all maps
+optional_policy(`
+    files_mmap_all_files(pcp_domain);
+')
+
+# all pcp_domain watch access to all log files
+optional_policy(`
+    logging_watch_all_log_dirs_path(pcp_domain);
+')
+optional_policy(`
+    logging_watch_journal_dir(pcp_domain);
+')
+allow syslogd_t pcp_log_t:fifo_file { open read write };

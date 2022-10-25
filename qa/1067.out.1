@@ -123,6 +123,10 @@ pcp.sample.wrap.long                          VALUE
 pcp.sample.wrap.ulong                         VALUE
 pcp.sample.wrap.longlong                      VALUE
 pcp.sample.wrap.ulonglong                     VALUE
+pcp.sample.slow_wrap.long                     VALUE
+pcp.sample.slow_wrap.ulong                    VALUE
+pcp.sample.slow_wrap.longlong                 VALUE
+pcp.sample.slow_wrap.ulonglong                VALUE
 pcp.sample.dodgey.control                     VALUE
 pcp.sample.dodgey.value[d1]                   VALUE
 pcp.sample.dynamic.counter[one]               VALUE
@@ -198,6 +202,11 @@ pcp.sample.proc.ordinal                       [m|ZBX_NOTSUPPORTED] [Missing inst
 pcp.sample.proc.exec                          [m|ZBX_NOTSUPPORTED] [Missing instance specification.]
 pcp.sample.proc.time                          [m|ZBX_NOTSUPPORTED] [Missing instance specification.]
 pcp.sample.proc.reset                         VALUE
+pcp.sample.updown.obs                         VALUE
+pcp.sample.updown.control.repeat              VALUE
+pcp.sample.updown.control.min                 VALUE
+pcp.sample.updown.control.max                 VALUE
+pcp.sample.updown.control.step                VALUE
 == check derived metric configuration
 mem.util.allcache = mem.util.cached + mem.util.slab
 sample.derived.hundredten = sample.float.hundred + sample.double.ten

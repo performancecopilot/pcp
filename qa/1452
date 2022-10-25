@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 1767
+# PCP QA Test No. 1452
 # Exercise the BPF PMDA CO-RE biosnoop module - install, remove and values.
 #
 # Copyright (c) 2022 Sohaib Mohamed.

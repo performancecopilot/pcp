@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2021 Red Hat.
+ * Copyright (c) 2018-2022 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -98,7 +98,7 @@ extern void pmSeriesDiscoverLabels(pmDiscoverEvent *,
 extern void pmSeriesDiscoverMetric(pmDiscoverEvent *,
 				pmDesc *, int, char **, void *);
 extern void pmSeriesDiscoverValues(pmDiscoverEvent *,
-				pmResult *, void *);
+				pmHighResResult *, void *);
 extern void pmSeriesDiscoverInDom(pmDiscoverEvent *,
 				pmInResult *, void *);
 extern void pmSeriesDiscoverText(pmDiscoverEvent *,

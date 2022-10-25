@@ -204,6 +204,7 @@ int
 main(int argc, char **argv)
 {
     int		sts;
+    int		lsts;
     int		vers;
     int		needti;
     char	*msg;
@@ -387,6 +388,16 @@ main(int argc, char **argv)
 	old_meta_offset = __pmFtell(logctl.mdfp);;
 
 	/*
+	 * force temporal index for first pmResult, then use metadata
+	 * and indom and volume changes to drive need for temporal index
+	 * entries
+	 */
+	if (written == 0)
+	    needti = 1;
+	else
+	    needti = 0;
+
+	/*
 	 * traverse the interval, looking at every archive record ...
 	 * we are particularly interested in:
 	 * 	- metric-values that are interpolated but not present in
@@ -448,8 +459,10 @@ main(int argc, char **argv)
 
 	current = orp->timestamp;
 
-	if ((needti = doindom(orp)) < 0)
+	if ((lsts = doindom(orp)) < 0)
 	    goto cleanup;
+	if (lsts != 0)
+	    needti = 1;
 
 	/* write out log record */
 	old_log_offset = __pmFtell(archctl.ac_mfp);;

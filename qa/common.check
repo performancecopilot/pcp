@@ -1233,7 +1233,7 @@ _wait_for_pmproxy_metrics()
 {
     __n=0
     while true; do
-	pminfo -f pmproxy.pid pmproxy.cpu pmproxy.webgroup.instmap.size >/dev/null 2>&1 && return 0
+	pminfo -f pmproxy.pid pmproxy.cpu pmproxy.map.instance.size >/dev/null 2>&1 && return 0
 	sleep 0.25
 	__n=`expr $__n + 1`
 	[ $__n -lt 20 ] && continue

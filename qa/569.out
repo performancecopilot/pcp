@@ -116,6 +116,10 @@ sample.wrap.long 1
 sample.wrap.ulong 1
 sample.wrap.longlong 1
 sample.wrap.ulonglong 1
+sample.slow_wrap.long 1
+sample.slow_wrap.ulong 1
+sample.slow_wrap.longlong 1
+sample.slow_wrap.ulonglong 1
 sample.dodgey.control 1
 sample.dodgey.value 5
 sample.dynamic.counter NUMVAL VAL or INST ...
@@ -184,6 +188,11 @@ sample.proc.ordinal 4
 sample.proc.exec 4
 sample.proc.time NN
 sample.proc.reset 1
+sample.updown.obs 1
+sample.updown.control.repeat 1
+sample.updown.control.min 1
+sample.updown.control.max 1
+sample.updown.control.step 1
 
 === -i ===
 sample.control 1 PM_IN_NULL
@@ -317,6 +326,10 @@ sample.wrap.long 1 PM_IN_NULL
 sample.wrap.ulong 1 PM_IN_NULL
 sample.wrap.longlong 1 PM_IN_NULL
 sample.wrap.ulonglong 1 PM_IN_NULL
+sample.slow_wrap.long 1 PM_IN_NULL
+sample.slow_wrap.ulong 1 PM_IN_NULL
+sample.slow_wrap.longlong 1 PM_IN_NULL
+sample.slow_wrap.ulonglong 1 PM_IN_NULL
 sample.dodgey.control 1 PM_IN_NULL
 sample.dodgey.value 5 ?1 ?2 ?3 ?4 ?5
 sample.dynamic.counter NUMVAL VAL or INST ...
@@ -385,6 +398,11 @@ sample.proc.ordinal 4 ?1 ?2 ?3 ?4
 sample.proc.exec 4 ?1 ?2 ?3 ?4
 sample.proc.time NN ?1 ?2 ?3 ?4
 sample.proc.reset 1 PM_IN_NULL
+sample.updown.obs 1 PM_IN_NULL
+sample.updown.control.repeat 1 PM_IN_NULL
+sample.updown.control.min 1 PM_IN_NULL
+sample.updown.control.max 1 PM_IN_NULL
+sample.updown.control.step 1 PM_IN_NULL
 
 === -I ===
 sample.control 1 PM_IN_NULL
@@ -524,6 +542,10 @@ sample.wrap.long 1 PM_IN_NULL
 sample.wrap.ulong 1 PM_IN_NULL
 sample.wrap.longlong 1 PM_IN_NULL
 sample.wrap.ulonglong 1 PM_IN_NULL
+sample.slow_wrap.long 1 PM_IN_NULL
+sample.slow_wrap.ulong 1 PM_IN_NULL
+sample.slow_wrap.longlong 1 PM_IN_NULL
+sample.slow_wrap.ulonglong 1 PM_IN_NULL
 sample.dodgey.control 1 PM_IN_NULL
 sample.dodgey.value 5 "d1" "d2" "d3" "d4" "d5"
 sample.dynamic.counter NUMVAL VAL or INST ...
@@ -592,6 +614,11 @@ sample.proc.ordinal 4 "0001 init" "0002 /etc/bozo" "0003 /usr/bin/bobo" "0004 /u
 sample.proc.exec 4 "0001 init" "0002 /etc/bozo" "0003 /usr/bin/bobo" "0004 /usr/local/jester"
 sample.proc.time NN "0001 init" "0002 /etc/bozo" "0003 /usr/bin/bobo" "0004 /usr/local/jester"
 sample.proc.reset 1 PM_IN_NULL
+sample.updown.obs 1 PM_IN_NULL
+sample.updown.control.repeat 1 PM_IN_NULL
+sample.updown.control.min 1 PM_IN_NULL
+sample.updown.control.max 1 PM_IN_NULL
+sample.updown.control.step 1 PM_IN_NULL
 
 === -v ===
 sample.control 1 0
@@ -662,8 +689,8 @@ sample.ulonglong.ten 1 10
 sample.ulonglong.hundred 1 100
 sample.ulonglong.million 1 1000000
 sample.ulonglong.write_me 1 NUMBER
-sample.ulonglong.bin 9 100 200 300 400 500 600 700 800 900
-sample.ulonglong.bin_ctr 9 100 200 300 400 500 600 700 800 900
+sample.ulonglong.bin 9 NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER
+sample.ulonglong.bin_ctr 9 NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER
 sample.float.one 1 1
 sample.float.ten 1 10
 sample.float.hundred 1 100
@@ -717,6 +744,10 @@ sample.wrap.long 1 NUMBER
 sample.wrap.ulong 1 NUMBER
 sample.wrap.longlong 1 NUMBER
 sample.wrap.ulonglong 1 NUMBER
+sample.slow_wrap.long 1 NUMBER
+sample.slow_wrap.ulong 1 NUMBER
+sample.slow_wrap.longlong 1 NUMBER
+sample.slow_wrap.ulonglong 1 NUMBER
 sample.dodgey.control 1 NUMBER
 sample.dodgey.value 5 NUMBER NUMBER NUMBER NUMBER NUMBER
 sample.dynamic.counter NUMVAL VAL or INST ...
@@ -785,6 +816,11 @@ sample.proc.ordinal 4 1 2 3 4
 sample.proc.exec 4 "0001 init" "bozo" "bobo" "jester"
 sample.proc.time NN NN NN NN NN
 sample.proc.reset 1 0
+sample.updown.obs 1 NUMBER
+sample.updown.control.repeat 1 NUMBER
+sample.updown.control.min 1 NUMBER
+sample.updown.control.max 1 NUMBER
+sample.updown.control.step 1 NUMBER
 
 === -iI ===
 sample.control 1 PM_IN_NULL PM_IN_NULL
@@ -955,6 +991,10 @@ sample.wrap.long 1 PM_IN_NULL PM_IN_NULL
 sample.wrap.ulong 1 PM_IN_NULL PM_IN_NULL
 sample.wrap.longlong 1 PM_IN_NULL PM_IN_NULL
 sample.wrap.ulonglong 1 PM_IN_NULL PM_IN_NULL
+sample.slow_wrap.long 1 PM_IN_NULL PM_IN_NULL
+sample.slow_wrap.ulong 1 PM_IN_NULL PM_IN_NULL
+sample.slow_wrap.longlong 1 PM_IN_NULL PM_IN_NULL
+sample.slow_wrap.ulonglong 1 PM_IN_NULL PM_IN_NULL
 sample.dodgey.control 1 PM_IN_NULL PM_IN_NULL
 sample.dodgey.value 5 ?1 "d1" ?2 "d2" ?3 "d3" ?4 "d4" ?5 "d5"
 sample.dynamic.counter NUMVAL VAL or INST ...
@@ -1031,6 +1071,11 @@ sample.proc.exec 7 ?1 "0001 init" ?2 "0002 /etc/bozo" ?3 "0003 /usr/bin/bobo" ?4
 sample.proc.time NN ?1 "0001 init" ?2 "0002 /etc/bozo" ?3 "0003 /usr/bin/bobo" ?4 "0004 /usr/local/jester" ?5 "0005 /usr/opt/bin/loko" ?6 "0006 /etc/pierrot" ?7
  "0007 /usr/bin/waldo"
 sample.proc.reset 1 PM_IN_NULL PM_IN_NULL
+sample.updown.obs 1 PM_IN_NULL PM_IN_NULL
+sample.updown.control.repeat 1 PM_IN_NULL PM_IN_NULL
+sample.updown.control.min 1 PM_IN_NULL PM_IN_NULL
+sample.updown.control.max 1 PM_IN_NULL PM_IN_NULL
+sample.updown.control.step 1 PM_IN_NULL PM_IN_NULL
 
 === -iv ===
 pmprobe: at most one of -v and (-i or -I) allowed

@@ -22,6 +22,7 @@
 #include <QColor>
 #include <QTreeWidget>
 #include <QTableWidgetItem>
+#include <qwt_graphic.h>
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_picker.h>

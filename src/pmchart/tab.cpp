@@ -184,7 +184,7 @@ void Tab::stopRecording(void)
     int i, sts, error = 0;
 
     console->post("Tab::stopRecording stopping %d logger(s)", count);
-    for (int i = 0; i < count; i++) {
+    for (i = 0; i < count; i++) {
 	if (my.loggerList.at(i)->state() == QProcess::NotRunning) {
 	    errmsg.append(tr("Record process (pmlogger) failed for host: "));
 	    errmsg.append(my.loggerList.at(i)->host());

@@ -114,7 +114,11 @@ for cmd in $(cat $tmp.cmds.txt); do
   echo "=== $cmd ===" >>$seq.full
   cat $tmp.test >>$seq.full
   # run man(1) once, then grep away
-  man $bn >$tmp.man
+  man $bn >$tmp.man 2>$tmp.manerr
+  if test -s $tmp.manerr; then
+    echo "man warnings:" >>$seq.full
+    cat $tmp.manerr >>$seq.full
+  fi
   for opt in $(cat $tmp.test); do
     # some --help text is misleading, not really options following
     # -- ... skip 'em

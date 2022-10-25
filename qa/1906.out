@@ -42,7 +42,7 @@ Verify multiplication of expressions
     [Mon Oct  3 09:10:22.959242000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
     [Mon Oct  3 09:10:22.959242000 2011] 4.000000e-04 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
     [Mon Oct  3 09:10:22.959242000 2011] 2.500000e-03 9d418095c9f971ff4fd44d6828ead27f9d021dc3
-Verify multiplication between expressiona and functions
+Verify multiplication between expressions and functions
 
 ad6556fcb69459b33baf03f46bc280c4a9cdc50a
     [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
@@ -221,7 +221,7 @@ f088a84ddb788f64347c69981d6e7b24ad302425
     [Mon Oct  3 09:10:22.959242000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
     [Mon Oct  3 09:10:22.959242000 2011] 4.000000e-04 ab010c7d45145aa33c8f8fa681a68c9d4102ae19
     [Mon Oct  3 09:10:22.959242000 2011] 2.500000e-03 9d418095c9f971ff4fd44d6828ead27f9d021dc3
-Verify multiplication between expressiona and functions
+Verify multiplication between expressions and functions
 
 c5a5428858ac3b117ebdebd9d3087cadb95efaf5
     [Mon Oct  3 09:10:24.305845000 2011] 0.000000e+00 59181b1de54ff2b383cfd1cdd8636f86c880b69b
@@ -382,7 +382,7 @@ Verify multiplication of expressions
     [Mon Oct  3 09:10:23.802930000 2011] no value 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183
     [Mon Oct  3 09:10:23.300460000 2011] no value 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183
     [Mon Oct  3 09:10:22.959242000 2011] no value 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183
-Verify multiplication between expressiona and functions
+Verify multiplication between expressions and functions
 
 26285c54554b8d2a77155529adace1939d9c3152
     [Mon Oct  3 09:10:24.305845000 2011] no value 01d8bc7fa75aaff98a08aa0b1c0f2394368d5183

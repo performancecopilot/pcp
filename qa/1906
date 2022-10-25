@@ -71,7 +71,7 @@ echo "Verify multiplication of functions"
 pmseries $args 'max(kernel.all.load[count:5]) * max(kernel.all.load[count:5])'
 echo "Verify multiplication of expressions"
 pmseries $args 'kernel.all.load[count:5] * kernel.all.load[count:5]'
-echo "Verify multiplication between expressiona and functions"
+echo "Verify multiplication between expressions and functions"
 pmseries $args 'abs(kernel.all.load[count:5]) * kernel.all.load[count:5]'
 pmseries $args 'kernel.all.load[count:5] * abs(kernel.all.load[count:5])'
 pmseries $args 'kernel.all.load[count:5] * log(kernel.all.load[count:5])'
@@ -91,7 +91,7 @@ echo "Verify multiplication of functions"
 pmseries $args 'max(kernel.all.load{instance.name == "5 minute"}[count:5]) * max(kernel.all.load{instance.name == "5 minute"}[count:5])'
 echo "Verify multiplication of expressions"
 pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5] * kernel.all.load{instance.name == "5 minute"}[count:5]'
-echo "Verify multiplication between expressiona and functions"
+echo "Verify multiplication between expressions and functions"
 pmseries $args 'abs(kernel.all.load{instance.name == "5 minute"}[count:5]) * kernel.all.load{instance.name == "5 minute"}[count:5]'
 pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5] * abs(kernel.all.load{instance.name == "5 minute"}[count:5])'
 pmseries $args 'kernel.all.load{instance.name == "5 minute"}[count:5] * log(kernel.all.load{instance.name == "5 minute"}[count:5])'
@@ -110,7 +110,7 @@ echo "Verify multiplication of functions"
 pmseries $args 'max(kernel.all.uptime[count:10]) * max(kernel.all.uptime[count:10])'
 echo "Verify multiplication of expressions"
 pmseries $args 'kernel.all.uptime[count:10] * kernel.all.uptime[count:10]'
-echo "Verify multiplication between expressiona and functions"
+echo "Verify multiplication between expressions and functions"
 pmseries $args 'abs(kernel.all.uptime[count:10]) * kernel.all.uptime[count:10]'
 pmseries $args 'kernel.all.uptime[count:10] * abs(kernel.all.uptime[count:10])'
 pmseries $args 'kernel.all.uptime[count:10] * log(kernel.all.uptime[count:10])'

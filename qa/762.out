@@ -222,9 +222,9 @@ PMID 29.0.109 sample.longlong.bin: like sample.bin but type 64
 
 PMID 29.0.110 sample.longlong.bin_ctr: like sample.bin but type 64, SEM_COUNTER and SPACE_KBYTE
 
-PMID 29.0.111 sample.ulonglong.bin: like sample.bin but type U64
+PMID 29.0.111 sample.ulonglong.bin: similar to sample.bin but type U64 and values increment
 
-PMID 29.0.112 sample.ulonglong.bin_ctr: like sample.bin but type U64, SEM_COUNTER and SPACE_KBYTE
+PMID 29.0.112 sample.ulonglong.bin_ctr: similar sample.bin but type U64, SEM_COUNTER and SPACE_KBYTE and values increment
 
 PMID 29.0.113 sample.double.bin: like sample.bin but type DOUBLE
 
@@ -319,6 +319,24 @@ PMID 29.0.157 sample.proc.exec: "executable" name
 PMID 29.0.158 sample.proc.time: time since the fake "process" was created
 
 PMID 29.0.159 sample.proc.reset: reset the "procs" instance domain to a known state
+
+PMID 29.0.160 sample.slow_wrap.long: long counter that wraps more slowly
+
+PMID 29.0.161 sample.slow_wrap.ulong: unsigned long counter that wraps more slowly
+
+PMID 29.0.162 sample.slow_wrap.longlong: long long counter that wraps more slowly
+
+PMID 29.0.163 sample.slow_wrap.ulonglong: unsigned long long counter that wraps more slowly
+
+PMID 29.0.164 sample.updown.obs: metric with a values that form a step function
+
+PMID 29.0.165 sample.updown.control.repeat: repetition count for values of sample.updown.obs
+
+PMID 29.0.166 sample.updown.control.min: minumum value for sample.updown.obs
+
+PMID 29.0.167 sample.updown.control.max: maximum value for sample.updown.obs
+
+PMID 29.0.168 sample.updown.control.step: increment or decrement value for sample.updown.obs
 
 PMID 29.0.1000: dynamic *.secret.bar metric
 

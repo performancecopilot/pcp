@@ -1877,8 +1877,8 @@ char *
 __pmIsLogCtlLock(void *lock)
 {
     int		i;
-    char	*result = NULL;
     int		reslen = 0;
+    char	*result = NULL;
     __pmContext	*ctxp;
 
     for (i = 0; i < contexts_len+1; i++) {
@@ -1894,26 +1894,28 @@ __pmIsLogCtlLock(void *lock)
 	    /* this should not happen, just being careful */
 	    continue;
 	if ((void *)&ctxp->c_archctl->ac_log->lc_lock == lock) {
-	    char	number[10];
-	    pmsprintf(number, sizeof(number), "%d", ctxp->c_handle);
+	    char	*result_new;
+	    char	number[16];
+	    int		numlen;
+
+	    numlen = pmsprintf(number, sizeof(number), "%d", ctxp->c_handle);
 	    if (reslen == 0) {
-		reslen = strlen(number)+1;
+		reslen = numlen + 1;
 		if ((result = malloc(reslen)) == NULL) {
 		    pmNoMem("__pmIsLogCtlLock: malloc", reslen, PM_FATAL_ERR);
 		    /* NOTREACHED */
 		}
-		strncpy(result, number, strlen(number)+1);
+		strncpy(result, number, numlen + 1);
 	    }
 	    else {
-		char	*result_new;
-		reslen += 1 + strlen(number) + 1;
+		reslen += 1 + numlen + 1;
 		if ((result_new = (char *)realloc(result, reslen)) == NULL) {
 		    pmNoMem("__pmIsLogCtlLock: realloc", reslen, PM_FATAL_ERR);
 		    /* NOTREACHED */
 		}
 		result = result_new;
 		strncat(result, ",", 2);
-		strncat(result, number, strlen(number)+1);
+		strncat(result, number, numlen + 1);
 	    }
 	}
     }

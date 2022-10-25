@@ -110,6 +110,8 @@ int bpf_printfn(enum libbpf_print_level level, const char *out, va_list ap)
             pmLevel = LOG_INFO;
             break;
         case LIBBPF_DEBUG:
+            if (!(pmDebugOptions.dev0 || pmDebugOptions.desperate))
+                return 0;
             pmLevel = LOG_DEBUG;
             break;
         default:

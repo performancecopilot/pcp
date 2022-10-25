@@ -440,14 +440,14 @@ series_cache_update(seriesLoadBaton *baton, struct dict *exclude)
 {
     seriesGetContext	*context = &baton->pmapi;
     context_t		*cp = &context->context;
-    pmResult		*result = context->result;
+    pmHighResResult	*result = context->result;
     pmValueSet		*vsp;
     metric_t		*metric = NULL;
     char		ts[64];
     sds			timestamp;
     int			i, write_meta, write_inst, write_data;
 
-    timestamp = sdsnew(timeval_stream_str(&result->timestamp, ts, sizeof(ts)));
+    timestamp = sdsnew(timespec_stream_str(&result->timestamp, ts, sizeof(ts)));
     write_data = (!(baton->flags & PM_SERIES_FLAG_METADATA));
 
     if (result->numpmid == 0) {
@@ -456,7 +456,7 @@ series_cache_update(seriesLoadBaton *baton, struct dict *exclude)
 	goto out;
     }
 
-    pmSortInstances(result);
+    pmSortHighResInstances(result);
 
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
@@ -518,8 +518,8 @@ server_cache_series(seriesLoadBaton *baton)
     if (baton->pmapi.context.type != PM_CONTEXT_ARCHIVE)
 	return -ENOTSUP;
 
-    if ((sts = pmSetMode(PM_MODE_FORW, &baton->timing.start, 0)) < 0) {
-	infofmt(msg, "pmSetMode failed: %s",
+    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &baton->timing.start, NULL)) < 0) {
+	infofmt(msg, "pmSetModeHighRes failed: %s",
 		pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
 	batoninfo(baton, PMLOG_ERROR, msg);
 	return sts;
@@ -549,7 +549,7 @@ server_cache_update_done(void *arg)
     seriesGetContext	*context = &baton->pmapi;
 
     /* finish book-keeping for the current record */
-    pmFreeResult(context->result);
+    pmFreeHighResResult(context->result);
     context->result = NULL;
     context->count++;
     context->done = NULL;
@@ -566,12 +566,12 @@ fetch_archive(uv_work_t *req)
     seriesLoadBaton	*baton = (seriesLoadBaton *)req->data;
     seriesGetContext	*context = &baton->pmapi;
     context_t		*cp = &context->context;
-    pmResult		*result;
+    pmHighResResult	*result;
     int			sts;
 
     assert(context->result == NULL);
     if ((context->error = sts = pmUseContext(cp->context)) >= 0)
-	if ((context->error = sts = pmFetchArchive(&result)) >= 0)
+	if ((context->error = sts = pmFetchHighResArchive(&result)) >= 0)
 	    context->result = result;
 }
 
@@ -581,7 +581,7 @@ fetch_archive_done(uv_work_t *req, int status)
 {
     seriesLoadBaton	*baton = (seriesLoadBaton *)req->data;
     seriesGetContext	*context = &baton->pmapi;
-    struct timeval	*finish = &baton->timing.end;
+    struct timespec	*finish = &baton->timing.end;
     int 		sts = context->error;
 
     free(req);
@@ -591,7 +591,7 @@ fetch_archive_done(uv_work_t *req, int status)
     } else if (sts >= 0) {
 	if (finish->tv_sec > context->result->timestamp.tv_sec ||
 	    (finish->tv_sec == context->result->timestamp.tv_sec &&
-	     finish->tv_usec >= context->result->timestamp.tv_usec)) {
+	     finish->tv_nsec >= context->result->timestamp.tv_nsec)) {
 	    context->done = server_cache_update_done;
 	    series_cache_update(baton, baton->exclude_pmids);
 	}
@@ -599,7 +599,7 @@ fetch_archive_done(uv_work_t *req, int status)
 	    if (pmDebugOptions.series)
 		fprintf(stderr, "%s: time window end\n", "fetch_archive_done");
 	    sts = PM_ERR_EOL;
-	    pmFreeResult(context->result);
+	    pmFreeHighResResult(context->result);
 	    context->result = NULL;
 	}
     }
@@ -785,8 +785,8 @@ load_prepare_excluded_metrics(seriesLoadBaton *baton)
 static int
 load_prepare_timing(seriesLoadBaton *baton)
 {
-    struct timeval	*finish = &baton->timing.end;
-    struct timeval	*start = &baton->timing.start;
+    struct timespec	*finish = &baton->timing.end;
+    struct timespec	*start = &baton->timing.start;
 
     /*
      * If no time window given,
@@ -1437,7 +1437,7 @@ pmSeriesDiscoverMetric(pmDiscoverEvent *event,
 }
 
 void
-pmSeriesDiscoverValues(pmDiscoverEvent *event, pmResult *result, void *arg)
+pmSeriesDiscoverValues(pmDiscoverEvent *event, pmHighResResult *result, void *arg)
 {
     pmDiscoverModule	*module = event->module;
     pmDiscover		*p = (pmDiscover *)event->data;

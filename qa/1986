@@ -1,0 +1,62 @@
+#!/bin/sh
+# PCP QA Test No. 1986
+# Exercise libpcp_web timers pmfind regression fix.
+#
+# Copyright (c) 2022 Red Hat.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+test -x $PCP_BIN_DIR/pmfind || _notrun No support for pmfind
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+hostname=`hostname || echo localhost`
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s/ $hostname/ HOSTNAME/" \
+	-e 's/^[a-f0-9][a-f0-9]* /SOURCE /' \
+    # end
+}
+
+# real QA test starts here
+if $do_valgrind
+then
+    _run_valgrind pmfind -S -m probe=127.0.0.1/32
+else
+    pmfind -S -m probe=127.0.0.1/32
+fi \
+| _filter
+
+# success, all done
+exit
