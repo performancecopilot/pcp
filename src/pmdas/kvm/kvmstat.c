@@ -2,7 +2,7 @@
  * Configurable Kernel Virtual Machine (KVM) PMDA
  *
  * Copyright (c) 2018 Fujitsu.
- * Copyright (c) 2018,2020 Red Hat.
+ * Copyright (c) 2018,2020,2022 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,6 +36,8 @@ static int _isDSO;
 static pmdaNameSpace *pmns;
 static char *username;
 static char helppath[MAXPATHLEN];
+
+static int perf_event_setup(void);
 
 static int ntrace;
 static char **trace_nametab;
@@ -271,6 +273,8 @@ kvm_trace_refresh(void)
     size_t		bufsize = ksize + sizeof(unsigned long long);
     int			i, sts, changed = 0;
 
+    perf_event_setup();
+
     if (ntrace == 0 || group_fd == NULL || kernel_lockdown)
 	return;
 
@@ -380,9 +384,33 @@ perf_event(void)
     closedir(dir);
     return sts;
 }
+
+static int
+perf_event_setup(void)
+{
+    static int		setup;
+
+    if (setup)
+	return setup;
+    setup = 1;
+
+    if (tmetrictab != metrictab) {
+	int		sts;
+
+	group_fd = calloc(ncpus, sizeof(int));
+	if ((sts = perf_event()) < 0) {
+	    pmNotifyErr(LOG_INFO, "disabling perf_event support: %s",
+			pmErrStr(sts));
+	    free(group_fd);
+	    group_fd = NULL;
+	}
+    }
+    return 0;
+}
+
 #else
 static int
-perf_event(void)
+perf_event_setup(void)
 { 
     return -EOPNOTSUPP;
 }
@@ -696,16 +724,6 @@ kvm_init(pmdaInterface *dp)
     if (tmetrictab == NULL) {
 	tmetrictab = metrictab;
 	tmetrics = nmetrics;
-    }
-
-    if (tmetrictab != metrictab) {
-	group_fd = calloc(ncpus, sizeof(int));
-	if ((sts = perf_event()) < 0) {
-	    pmNotifyErr(LOG_INFO, "disabling perf_event support: %s",
-			pmErrStr(sts));
-	    free(group_fd);
-	    group_fd = NULL;
-	}
     }
 
     dp->version.seven.fetch = kvm_fetch;
