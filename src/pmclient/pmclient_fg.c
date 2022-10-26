@@ -1,14 +1,14 @@
 /*
  * pmclient_fg - sample, simpler PMAPI/fetchgroup client
  *
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2015,2022 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -17,7 +17,6 @@
 
 #include "pmapi.h"
 #include <errno.h>
-#include <assert.h>
 
 pmLongOptions longopts[] = {
     PMAPI_GENERAL_OPTIONS,
@@ -42,7 +41,6 @@ typedef struct {
     pmAtomValue		load1;		/* 1 minute load average */
     pmAtomValue		load15;		/* 15 minute load average */
     pmAtomValue		ncpu;		/* number of cpus */
-    unsigned int	last_ncpu;	/* last seen number of cpus */
 } info_t;
 
 static info_t		info;
@@ -71,7 +69,7 @@ get_sample(void)
 		    pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
-	
+
 	/*
 	 * Because of pmfg_item's willingness to scan to the end of an
 	 * archive to do metric/instance resolution, we don't have to
@@ -158,16 +156,12 @@ get_sample(void)
     info.peak_cpu_util = -1;	/* force re-assignment at first CPU */
 
     /*
-     * Safely assume that the cpu_user and cpu_sys indoms are identical
-     * and that each has a corresponding set of values, so we zip them
-     * up pairwise with one iteration and no auxiliary data structures.
+     * Since cpu_user and cpu_sys share an indom we can safely assume
+     * each has a corresponding set of values, so zip them up pairwise
+     * with one iteration and no auxiliary data structures.
      */
-    assert(num_cpu_user == num_cpu_sys);
     for (i = 0; i < num_cpu_user; i++) {
 	double util;
-
-	/* corresponding instances */
-	assert(cpu_user_inst[i] == cpu_sys_inst[i]);
 
 	util = cpu_user[i].d + cpu_sys[i].d; /* already rate-converted */
 	if (util > 1.0)
@@ -180,7 +174,8 @@ get_sample(void)
 	    info.peak_cpu = cpu_user_inst[i];
 	}
     }
-    assert(info.ncpu.l != 0);
+    if (info.ncpu.l <= 0)
+	info.ncpu.l = 1;
     info.cpu_util /= info.ncpu.l;
 }
 

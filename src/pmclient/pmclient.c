@@ -1,14 +1,14 @@
 /*
  * pmclient - sample, simple PMAPI client
  *
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2014,2022 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -90,7 +90,7 @@ get_ncpu(void)
 		   &atom, PM_TYPE_U32);
     pmFreeResult(rp);
 
-    return atom.ul;
+    return atom.ul ? atom.ul : 1;
 }
 
 static void
