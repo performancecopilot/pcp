@@ -1,5 +1,5 @@
 #pmlogconf-setup 2.0
-ident   metrics used by the pcp-kvm(1) command
+ident   metrics provided by pmdakvm(1)
 probe   kvm.exits values ? include : exclude
 
 	kvm.efer_reload
