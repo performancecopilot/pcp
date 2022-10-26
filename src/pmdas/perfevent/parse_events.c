@@ -413,7 +413,7 @@ static int parse_event_string(char *buf, struct pmu_event *event,
                               struct pmu *pmu, struct pmcsetting *dynamicpmc,
 			       char *pmu_name, int *new_events)
 {
-    struct property_info *pi, *head, *tmp;
+    struct property_info *pi, *head, *tmp = NULL;
     char *start, *ptr, *nptr, **endptr, *str, eventname[BUF_SIZE], ev_str[BUF_SIZE], pmc_str[BUF_SIZE], *tmp_buf_str;
     struct pmcsetting *pmctmp;
     int i, ret, sub_ev_cnt = 0;
