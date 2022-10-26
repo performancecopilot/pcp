@@ -340,11 +340,16 @@ ifndef(`glusterd_manage_log',`
 #
 ifndef(`kernel_manage_perf_event',`
     interface(`kernel_manage_perf_event',`
-#        # perfmon, lockdown, manage_perf_event_perms unavailable on el8/el7
-#        allow $1 self:capability2 perfmon;
-#        # The confidentiality permission may not be needed, refer to kernel_write_perf_event()
-#        allow $1 self:lockdown confidentiality;
-#        allow $1 self:perf_event manage_perf_event_perms;
+        # manage_perf_event_perms unavailable on el7
+        ifdef(`manage_perf_event_perms',`
+            gen_require(`
+                type $1;
+            ')
+            # perfmon, lockdown unavailable on el8
+            # allow $1 self:capability2 perfmon;
+            # allow $1 self:lockdown confidentiality;
+	    allow $1 self:perf_event manage_perf_event_perms;
+        ')
     ')
 ')
 
