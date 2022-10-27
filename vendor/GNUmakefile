@@ -3,7 +3,7 @@ include $(TOPDIR)/src/include/builddefs
 
 default_pcp default:
 ifeq "$(PMDA_BPF)" "true"
-	$(MAKE) -C github.com/libbpf/bpftool/src
+	$(MAKE) -C github.com/libbpf/bpftool/src VMLINUX_H=$(PMDABPF_VMLINUXH)
 endif
 
 install_pcp install:
