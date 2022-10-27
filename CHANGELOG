@@ -1,3 +1,6 @@
+pcp-6.0.2 (31 January 2023)
+    - https://github.com/performancecopilot/pcp/projects/1
+
 pcp-6.0.1 (27 October 2022)
     - Security Enhanced Linux:
 	selinux: rework policy to use optional_policy
