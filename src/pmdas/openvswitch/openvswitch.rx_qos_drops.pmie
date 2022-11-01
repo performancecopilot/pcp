@@ -19,7 +19,7 @@ If this rule is enabled, the Open vSwitch metrics will be used;
 see pmdaopenvswitch(1).";
 
 string  rule
-        default = "Openvswitch rx_qos packet drops"
+        default = "Open vSwitch rx_qos packet drops"
         modify  = no
         display = no;
 
