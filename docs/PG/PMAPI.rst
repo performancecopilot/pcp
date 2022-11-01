@@ -1701,7 +1701,7 @@ pmFreeResult Function
 
 Release the storage previously allocated for a result by **pmFetch**.
 
-THe python bindings free a *pmresult* previously allocated by **pmFetch**.
+The python bindings free a *pmresult* previously allocated by **pmFetch**.
 
 pmStore Function
 -------------------
@@ -2920,11 +2920,11 @@ The equivalent python code would be:
                                   result.contents.get_vlist(0, 0),
                                   desc[0].contents.type,
                                   PM_TYPE_U32)
-     print "freemem is " + str(int(freemem.ul))
+     print("freemem is " + str(int(freemem.ul)))
  
- except pmapi.pmErr, error:
-     print "%s: %s" % (sys.argv[0], error.message())
- except Exception, error:
+ except(pmapi.pmErr, error):
+     print("%s: %s" % (sys.argv[0], error.message()))
+ except(Exception, error):
      sys.stderr.write(str(error) + "\n")
      sys.stderr.write(traceback.format_exc() + "\n")
      
