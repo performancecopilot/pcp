@@ -94,13 +94,14 @@ then
     # rpm build configure
     #
     configopts="$configopts --with-make=$MAKE --with-tar=$TAR --with-zip=$ZIP"
-    # for CentOS 6, building with selinux no longer works
+    # for RHEL 6 and CentOS 6, building with selinux no longer works, and
+    # our libqwt won't build
     #
     if [ -f /etc/system-release ]
     then
-	if grep 'CentOS release 6\.' /etc/system-release >/dev/null
+	if grep -E '((Red Hat)|CentOS).* release 6\.' /etc/system-release >/dev/null
 	then
-	    configopts="$configopts --with-selinux=no"
+	    configopts="$configopts --with-selinux=no --with-qt=no"
 	fi
     fi
 elif [ $target = darwin ]
