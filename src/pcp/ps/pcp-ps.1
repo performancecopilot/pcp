@@ -1,3 +1,4 @@
+'\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2022 Oracle and/or its affiliates.
@@ -105,46 +106,40 @@ It is a single argument in the form of a blank-separated or comma-separated list
 The argument to -o are following:
 
 .TS
-expand;
-lB1 l1  l.
-\fBCOL      HEADER           DESCRIPTION\fR
-
-\fB%cpu\fP    %CPU            cpu utilization of the process
-
-\fB%mem\fP    %MEM            physical memory on the machine expressed as a percentage
-
-\fBstart\fP   START           time the command started
-
-\fBtime\fP    TIME            accumulated cpu time, user + system
-
-\fBcls\fP     CLS             scheduling class of the process
-
-\fBcmd\fP     CMD             see args.  (alias args, command).
-
-\fBpid\fP     PID             The process ID
-
-\fBppid\fP    PPID            Parent process ID
-
-\fBpri\fP     PRI             Priority of the process
-
-\fBstate\fP   S               see s
-
-\fBrss\fP     RSS             the non-swapped physical memory that a task has used
-
-\fBrtprio\fP  RTPRIO          realtime priority
-
-\fBpname\fP   Pname           Process name
-
-\fBtty\fP     TT              controlling tty (terminal)
-
-\fBuid\fP     UID             see euid
-
-\fBvsize\fP   VSZ             see vsz
-
-\fBuname\fP   USER            see euser
-
-\fBwchan\fP   WCHAN           name of the kernel function in which the process is sleeping
-
+lfB lfB  lfB
+lfB l    lx.
+COL	HEADER	DESCRIPTION
+_	_	_
+%cpu	%CPU	cpu utilization of the process
+%mem	%MEM	T{
+.ad l
+.hy 0
+physical memory on the machine expressed as a percentage
+T}
+start	START	time the command started
+time	TIME	accumulated cpu time, user + system
+cls	CLS	scheduling class of the process
+cmd	CMD	see args.  (alias args, command).
+pid	PID	The process ID
+ppid	PPID	Parent process ID
+pri	PRI	Priority of the process
+state	S	see s
+rss	RSS	T{
+.ad l
+.hy 0
+the non-swapped physical memory that a task has used
+T}
+rtprio	RTPRIO	realtime priority
+pname	Pname	Process name
+tty	TT	controlling tty (terminal)
+uid	UID	see euid
+uname	USER	see euser
+vsize	VSZ	see vsz
+wchan	WCHAN	T{
+.ad l
+.hy 0
+name of the kernel function in which the process is sleeping
+T}
 .TE
 .SH "STANDARD FORMAT SPECIFIERS"
 Here are the different keywords that may be used to control the output
@@ -156,55 +151,73 @@ For example:
 .B ps \-o pid,\:user,\:args
 
 .TS
-expand;
-lB1 lB1 lBw(\n[ColSize]n)
-lB1 l1  l.
-\fBCODE       HEADER        DESCRIPTION\fR
+lfB lfB  lfB
+lfB l    lx.
+CODE	HEADER	DESCRIPTION
+_	_	_
+pid	PID	a number representing the process ID
+%cpu	%CPU	T{
+.ad l
+.hy 0
+%cpu utilization of the process in "##.#" format.
 .br
-\fBpid        PID           a number representing the process ID\fR
+Currently, it is the CPU time used divided by the time the
+process has been running (cputime/realtime ratio), expressed as a percentage.
+T}
+%mem	%MEM	T{
+.ad l
+.hy 0
+%ratio of the process's resident set size  to the physical memory on the
+machine, expressed as a percentage.
+T}
+args	COMMAND	T{
+.ad l
+.hy 0
+Command with all its arguments as a string. Modifications to the arguments
+may be shown.  The output in this column may contain spaces.  A process
+marked <defunct> is partly dead, waiting to be fully destroyed by its parent.
+Sometimes the process args will be unavailable; when this happens,will instead print the executable name in brackets.
+T}
+class	CLS	T{
+.ad l
+.hy 0
+scheduling class of the process.
 .br
-\fB%cpu       %CPU          cpu utilization of the process in "##.#" format.
-                         Currently, it is the CPU time used divided by the time the
-                         process has been running (cputime/realtime ratio), expressed as a percentage.\fR
+Field's possible values are:
+\-      not reported
 .br
-\fB%mem       %MEM          ratio of the process's resident set size  to the physical memory on the
-                         machine, expressed as a percentage.\fR
+TS     SCHED_OTHER
 .br
-\fBargs       COMMAND       Command with all its arguments as a string. Modifications to the arguments
-                         may be shown.  The output in this column may contain spaces.  A process
-                         marked <defunct> is partly dead, waiting to be fully destroyed by its parent.
-                         Sometimes the process args will be unavailable; when this happens,will instead print the executable name in brackets.\fR
+FF     SCHED_FIFO
 .br
-\fBclass      CLS           scheduling class of the process.
-
-                           Field's possible values are:
-                            \-      not reported
+RR     SCHED_RR
 .br
-                            TS     SCHED_OTHER
+B      SCHED_BATCH
 .br
-                            FF     SCHED_FIFO
+ISO    SCHED_ISO
 .br
-                            RR     SCHED_RR
+IDL    SCHED_IDLE
 .br
-                            B      SCHED_BATCH
+DLN    SCHED_DEADLINE
 .br
-                            ISO    SCHED_ISO
-.br
-                            IDL    SCHED_IDLE
-.br
-                            DLN    SCHED_DEADLINE
-.br
-                            ?      unknown value
-
-
-\fBs          S             minimal state display.See also stat if you want additional information displayed.
-.br
-\fBeuid       EUID          effective user ID.
-.br
-\fBvsz        VSZ           virtual memory size of the process in KiB (1024\-byte units).Device mappings are currently excluded; this is subject to change.
-.br
-\fBeuser      EUSER         effective user name.  This will be the textual user ID, if it can be obtained and the field width permits, or a decimal representation otherwise.
-.br
+?      unknown value
+T}
+s	S	T{
+.ad l
+.hy 0
+minimal state display.See also stat if you want additional information displayed.
+T}
+euid	EUID	effective user ID.
+vsz	VSZ	T{
+.ad l
+.hy 0
+virtual memory size of the process in KiB (1024\-byte units).Device mappings are currently excluded; this is subject to change.
+T}
+euser	EUSER	T{
+.ad l
+.hy 0
+effective user name.  This will be the textual user ID, if it can be obtained and the field width permits, or a decimal representation otherwise.
+T}
 .TE
 
 .BR All \fR
