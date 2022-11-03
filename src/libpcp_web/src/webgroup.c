@@ -44,10 +44,8 @@ enum matches { MATCH_EXACT, MATCH_GLOB, MATCH_REGEX };
 enum profile { PROFILE_ADD, PROFILE_DEL };
 
 enum webgroup_metric {
-    CONTEXT_MAP_SIZE,
-    NAMES_MAP_SIZE,
-    LABELS_MAP_SIZE,
-    INST_MAP_SIZE,
+    WEBGROUP_GC_COUNT,
+    WEBGROUP_GC_DROPS,
     NUM_WEBGROUP_METRIC
 };
 
@@ -64,7 +62,6 @@ typedef struct webgroups {
     uv_mutex_t		mutex;
 
     unsigned int	active;
-    int			timerid;
 } webgroups;
 
 static struct webgroups *
@@ -76,7 +73,6 @@ webgroups_lookup(pmWebGroupModule *module)
 	module->privdata = calloc(1, sizeof(struct webgroups));
 	groups = (struct webgroups *)module->privdata;
 	uv_mutex_init(&groups->mutex);
-	groups->timerid = -1;
     }
     return groups;
 }
@@ -292,8 +288,6 @@ webgroup_timers_stop(struct webgroups *groups)
     if (groups->active) {
 	uv_timer_stop(&groups->timer);
 	uv_close((uv_handle_t *)&groups->timer, NULL);
-	pmWebTimerRelease(groups->timerid);
-	groups->timerid = -1;
 	groups->active = 0;
     }
 }
@@ -336,25 +330,12 @@ webgroup_garbage_collect(struct webgroups *groups)
 	uv_mutex_unlock(&groups->mutex);
     }
 
+    mmv_set(groups->map, groups->metrics[WEBGROUP_GC_DROPS], &drops);
+    mmv_set(groups->map, groups->metrics[WEBGROUP_GC_COUNT], &count);
+
     if (pmDebugOptions.http || pmDebugOptions.libweb)
 	fprintf(stderr, "%s: finished [%u drops from %u entries]\n",
 			"webgroup_garbage_collect", drops, count);
-}
-
-static void
-refresh_maps_metrics(void *data)
-{
-    struct webgroups	*groups = (struct webgroups *)data;
-    unsigned int	value;
-
-    value = contextmap? dictSize(contextmap) : 0;
-    mmv_set(groups->map, groups->metrics[CONTEXT_MAP_SIZE], &value);
-    value = namesmap? dictSize(namesmap) : 0;
-    mmv_set(groups->map, groups->metrics[NAMES_MAP_SIZE], &value);
-    value = labelsmap? dictSize(labelsmap) : 0;
-    mmv_set(groups->map, groups->metrics[LABELS_MAP_SIZE], &value);
-    value = instmap? dictSize(instmap) : 0;
-    mmv_set(groups->map, groups->metrics[INST_MAP_SIZE], &value);
 }
 
 static void
@@ -425,8 +406,6 @@ webgroup_lookup_context(pmWebGroupSettings *sp, sds *id, dict *params,
 	groups->timer.data = (void *)groups;
 	uv_timer_start(&groups->timer, webgroup_worker,
 			default_worker, default_worker);
-	/* timer for map stats refresh */
-	groups->timerid = pmWebTimerRegister(refresh_maps_metrics, groups);
     }
 
     if (*id == NULL) {
@@ -2360,36 +2339,21 @@ pmWebGroupSetupMetrics(pmWebGroupModule *module)
     if (groups == NULL || groups->registry == NULL)
 	return; /* no metric registry has been set up */
 
-    /*
-     * Reverse mapping dict metrics
-     */
-    mmv_stats_add_metric(groups->registry, "contextmap.size", 1,
+    mmv_stats_add_metric(groups->registry, "gc.context.scans", 1,
 	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,
-	"context map dictionary size",
-	"Number of entries in the context map dictionary");
+	"contexts scanned in last garbage collection",
+	"Contexts scanned during most recent webgroup garbage collection");
 
-    mmv_stats_add_metric(groups->registry, "namesmap.size", 2,
+    mmv_stats_add_metric(groups->registry, "gc.context.drops", 2,
 	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,
-	"metric names map dictionary size",
-	"Number of entries in the metric names map dictionary");
-
-    mmv_stats_add_metric(groups->registry, "labelsmap.size", 3,
-	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,
-	"labels map dictionary size",
-	"Number of entries in the labels map dictionary");
-
-    mmv_stats_add_metric(groups->registry, "instmap.size", 4,
-	MMV_TYPE_U32, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,
-	"instance name map dictionary size",
-	"Number of entries in the instance name map dictionary");
+	"contexts dropped in last garbage collection",
+	"Contexts dropped during most recent webgroup garbage collection");
 
     groups->map = map = mmv_stats_start(groups->registry);
 
     ap = groups->metrics;
-    ap[CONTEXT_MAP_SIZE] = mmv_lookup_value_desc(map, "contextmap.size", NULL);
-    ap[NAMES_MAP_SIZE] = mmv_lookup_value_desc(map, "namesmap.size", NULL);
-    ap[LABELS_MAP_SIZE] = mmv_lookup_value_desc(map, "labelsmap.size", NULL);
-    ap[INST_MAP_SIZE] = mmv_lookup_value_desc(map, "instmap.size", NULL);
+    ap[WEBGROUP_GC_DROPS] = mmv_lookup_value_desc(map, "gc.context.scans", NULL);
+    ap[WEBGROUP_GC_COUNT] = mmv_lookup_value_desc(map, "gc.context.drops", NULL);
 }
 
 

@@ -190,7 +190,7 @@ $(LIBCONFIG): $(LIBCONFIG).in
 	     -e's|@VERSION@|$(PCP_VERSION)|g' <$? >$@
 endif
 
-$(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h
+$(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h $(JSONSL_XFILES)
 
 check::	$(CFILES) $(HFILES)
 	$(CLINT) $^

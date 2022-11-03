@@ -1,5 +1,5 @@
 #pmlogconf-setup 2.0
-ident   metrics used by the pcp-libvirt(1) command
+ident   metrics provided by pmdalibvirt(1)
 probe   libvirt.dominfo.name values ? include : exclude
 
         libvirt.dominfo.memory.current

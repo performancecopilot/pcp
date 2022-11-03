@@ -83,6 +83,7 @@ pmns :
 	$(LN_S) -f root_root pmns
 
 lxc.o root.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+podman.o:	$(JSONSL_HFILES)
 
 check:: $(CFILES) $(HFILES)
 	$(CLINT) $^

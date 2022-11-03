@@ -48,6 +48,8 @@
 1221	vm27	extra labels associated with
 		openmetrics.vmware_exporter.vmware_vm_guest_disk_* metrics
 		for no known reason
+1452	Fedora (36|37|38)	Missing iostart kernel symbols
+		https://github.com/iovisor/bcc/issues/4261
 1574	.*	valgrind-reported issue in libpcp_web pmseries functions
 1662	.*	valgrind-reported issue in libpcp_web archive discovery
 		handling of sources

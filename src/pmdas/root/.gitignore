@@ -1,8 +1,6 @@
 deps/
 domain.h
 pmdaroot
-jsonsl.c
-jsonsl.h
 help.dir
 help.pag
 pmns

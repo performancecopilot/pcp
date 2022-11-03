@@ -83,6 +83,7 @@ domain.h: ../../pmns/stdpmid
 $(OBJECTS): domain.h
 pmda.o: $(VERSION_SCRIPT)
 pmda.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+podman.o: $(JSONSL_HFILES)
 
 check:: $(CFILES) $(HFILES)
 	$(CLINT) $^

@@ -2,8 +2,6 @@ deps/
 domain.h
 pmdapodman
 pmda_podman.so
-jsonsl.c
-jsonsl.h
 help.dir
 help.pag
 exports

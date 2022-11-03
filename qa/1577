@@ -9,7 +9,7 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 . ./common.bpf
-. ./common.bcc
+. ./common.bcc	# for _unmount_filesystem
 
 _pmdabpf_check
 which mkfs.ext4 >/dev/null 2>&1 || _notrun "mkfs.ext4 not installed"
@@ -23,8 +23,14 @@ status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full
 
+_cleanup()
+{
+    _unmount_filesystem ext4
+    _pmdabpf_cleanup
+}
+
 _prepare_pmda bpf
-trap "_unmount_filesystem ext4; _pmdabcc_cleanup; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 # real QA test starts here

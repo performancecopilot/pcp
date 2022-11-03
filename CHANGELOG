@@ -1,5 +1,59 @@
-pcp-6.0.1 (25 October 2022)
+pcp-6.0.2 (31 January 2023)
     - https://github.com/performancecopilot/pcp/projects/1
+
+pcp-6.0.1 (27 October 2022)
+    - Security Enhanced Linux:
+	selinux: rework policy to use optional_policy
+	selinux: rework policy to use an independent policy
+	selinux: new cluster_exec_t policy handling for pmdahacluster(1)
+	selinux: retire those parts of the build affecting CentOS 6
+    - PMDA additions, enhancements and bug fixes:
+	pmdabpf: set perf_buffer__poll timeout to 0 for optimal sampling
+	pmdabpf: add CO-RE biosnoop
+	pmdabpf: no BPF debug messages unless debugging (-Ddev0)
+	pmdalinux: add "squashfs" to the list of ignored filesystem types
+	pmdasnmp: install agent specific configuration file to PMDATMPDIR
+	pmdakvm: initialise perf_event interface only if/when needed
+    - Client tools and utilities:
+	pcp-ps: initial version of a PCP implementation of ps(1)
+	pcp-dstat: add --nomissed command line option for large systems
+	pmfind, libpcp_web: MMV and shutdown memory management fixes
+	pmlogreduce: fix corner-case in temporal index generation
+	pmlogcheck: tighten some pmlogcheck pass0 checks
+	pmseries: fix sampling when start < first sample or series has gaps
+	shell completion: improve pmrep/zsh instance completion in live mode
+	shell tools: convert fgrep and egrep over to grep -F and -E
+    - Server-side utilities and log management scripts:
+	pmlogger_daily_report: no longer needs any systemd support now
+	pmlogger_daily.sh: fix pmlogger_daily_report test for zeroconf
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	libpcp_web: fix race conditions affecting pmproxy
+	libpcp_web: allow scalar operands in pmseries expressions
+	libpcp_web: add pmseries float multiplication
+    - Misc build, infrastructure and packaging updates:
+	build: add PCP archive analysis container
+	build: updates to fix Windows platform builds
+	build: update configure.ac to allow builds on Mac M1 (arm64)
+	build: make openSUSE spec file builds work again
+	containers: remove /build directory
+	debian: use deb-systemd-helper if available
+	build: fix libpcp check-statics regexp error with objects in subdirs
+	build: podman PMDA no longer has deps, make it unconditional
+	build: don't package and install pmrep xtract-names helper
+	build: updates to hiredis code for pmseries and pmproxy
+	build: updates to hiredis-cluster code for pmseries and pmproxy
+	build: fix Makepkgs handling of argument parameters
+	build: use vendored github.com/libbpf/bpftool/libbpf and update
+	build: use vendored github.com/iovisor/bcc/libbpf-tools
+	build: use vendored git.code.sf.net/p/qwt and update
+	build: fix bpf PMDA inclusion check
+	build: fix windows default pmcd.conf entry, dup path component
+	build: rework Python3 and Python2 configure.ac logic
+	packaging: fix rpm systemd-sysusers on f37 and rawhide
+    - Documentation and QA infrastructure:
+	docs: small typo fixes relating to secure connections
+	docs: fix sheet2pcp(1) man page quoting in examples
+	pmdasample: additional metrics for testing cases
 
 pcp-6.0.0 (31 August 2022)
     - Major changes:

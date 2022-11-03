@@ -18,7 +18,7 @@ sudo grep '^type=AVC.*pcp' /var/log/audit/audit.log | audit2allow -w
 (to verify that the AVC is not already covered in the pcp policy).
 
 Before going any further, consider the current SELinux mode.  If it
-is Enforcing, then you'll not be seeing any subsequent errors after
+is Enforcing then you will not be seeing any subsequent errors after
 the first one for a particular test or application.  Consider changing
 to Permissive mode, as in:
     $ sudo setenforce Permissive
@@ -27,14 +27,16 @@ and repeating the failing operation (which should now pass!).
 Remember to turn Enforcing mode back on with:
     $ sudo setenforce Enforcing
 
-Now there are two options ... create and load your own module policy
-(good for testing)
+Next, we want to merge the new rules into pcp.te.  The best outcome
+is to find the right pre-defined policy "interface" to add into the
+PCP policy:
 
     $ sudo grep '^type=AVC.*pcp' /var/log/audit/audit.log \
-    | audit2allow -M mypolicy
-    $ sudo semodule -i mypolicy.pp
+    | audit2allow -R myrules
 
-Else merge the new rules into pcp.te.
+Review myrules and consider adding identified interface to pcp.te -
+however, this is not always accurate and may not find an interface.
+In that case, fallback to using:
 
     $ sudo grep '^type=AVC.*pcp' /var/log/audit/audit.log \
     | audit2allow -m myrules
