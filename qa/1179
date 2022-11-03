@@ -9,17 +9,27 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 . ./common.bcc
+
+$sudo rm -rf $tmp.* $seq.full
+
 _pmdabcc_check
 _pmdabcc_require_kernel_version 4 7
 _java_check
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-$sudo rm -rf $tmp.* $seq.full
 
 # Launch a Java test program
 cd $here/java
-java -XX:+DTraceAllocProbes -XX:+ExtendedDTraceProbes USDTJVMTest &
+if [ "$__java_version" -ge 19 ]
+then
+    # -XX:+ExtendedDTraceProbes deprecated here
+    #
+    __java_flags="-XX:+DTraceAllocProbes -XX:+DTraceMethodProbes -XX:+DTraceMonitorProbes"
+else
+    __java_flags="-XX:+DTraceAllocProbes -XX:+ExtendedDTraceProbes"
+fi
+java $__java_flags USDTJVMTest &
 javapid=$!
 disown > /dev/null 2>&1 || :
 cd $here
