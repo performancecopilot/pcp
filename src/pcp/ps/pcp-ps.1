@@ -25,7 +25,7 @@
 [\f3\-U\f1 [\f2username\f1]]
 [\f3\-V\f1 \f2--version\f1]
 [\f3\-c\f1 \f2Command name\f1]
-[\f3\-p\f1 \f2pid1,pid2..\f1]
+[\f3\-P\f1 \f2pid1,pid2..\f1]
 [\f3\-p\f1 \f2pid1,pid2..\f1]
 [\f3\-o\f1 \f2col1,col2... or ALL\f1]
 [\f3\-Z\f1 \f2timezone\f1]
@@ -66,18 +66,14 @@ are:
 .TP 5
 .BR \-e \fR
 Display all the process.
-
-PID
-       Process idenfier.
-
-TTY
-       The termianl assoicated with the prcoess.
-
-TIME
-       The  cumulated CPU time in [DD-]hh:mm:ss format (time=TIME).
-
-CMD
-       The command name of the task.
+.br
+.TS
+l l.
+PID	Process idenfier.
+TTY	The termianl assoicated with the prcoess.
+TIME	The  cumulated CPU time in [DD-]hh:mm:ss format (time=TIME).
+CMD	The command name of the task.
+.TE
 .TP
 .B \-c [\fIcommand name\fR]
 Display the real Command name of the tasks being monitored instead of the UID.
@@ -98,7 +94,7 @@ Display only processes with the listed PIDs.
 .BR \-P \ \fIppid1,ppid2..\fR ", " \fB\-\-ppid-list\fR=\fIppid1,ppid2..\fR
 Display only processes with the listed PPIDs.
 .TP
-.B \-O
+.B \-o
 User-defined format.
 
 It is a single argument in the form of a blank-separated or comma-separated list, which offers a way to specify individual output columns.
@@ -106,8 +102,8 @@ It is a single argument in the form of a blank-separated or comma-separated list
 The argument to -o are following:
 
 .TS
-lfB lfB  lfB
-lfB l    lx.
+lfB  lfB  lfB 
+lfB  l    lx.
 COL	HEADER	DESCRIPTION
 _	_	_
 %cpu	%CPU	cpu utilization of the process
@@ -119,11 +115,11 @@ T}
 start	START	time the command started
 time	TIME	accumulated cpu time, user + system
 cls	CLS	scheduling class of the process
-cmd	CMD	see args.  (alias args, command).
+cmd	CMD	see \fBargs\fR.  (alias args, command).
 pid	PID	The process ID
 ppid	PPID	Parent process ID
 pri	PRI	Priority of the process
-state	S	see s
+state	S	see \fBs\fR
 rss	RSS	T{
 .ad l
 .hy 0
@@ -132,9 +128,9 @@ T}
 rtprio	RTPRIO	realtime priority
 pname	Pname	Process name
 tty	TT	controlling tty (terminal)
-uid	UID	see euid
-uname	USER	see euser
-vsize	VSZ	see vsz
+uid	UID	see \fBeuid\fR
+uname	USER	see \fBeuser\fR
+vsize	VSZ	see \fBvsz\fR
 wchan	WCHAN	T{
 .ad l
 .hy 0
@@ -148,11 +144,11 @@ format (e.g. with option
 or to sort the selected processes
 
 For example:
-.B ps \-o pid,\:user,\:args
+.B pcp-ps \-o pid,\:user,\:args
 
 .TS
-lfB lfB  lfB
-lfB l    lx.
+lfB  lfB  lfB 
+lfB  l    lx.
 CODE	HEADER	DESCRIPTION
 _	_	_
 pid	PID	a number representing the process ID
@@ -205,23 +201,38 @@ T}
 s	S	T{
 .ad l
 .hy 0
-minimal state display.See also stat if you want additional information displayed.
+minimal state display.
+See also \fBstate\fR if you want additional information displayed.
 T}
 euid	EUID	effective user ID.
 vsz	VSZ	T{
 .ad l
 .hy 0
-virtual memory size of the process in KiB (1024\-byte units).Device mappings are currently excluded; this is subject to change.
+virtual memory size of the process in KiB (1024\-byte units).
+Device mappings are currently excluded; this is subject to change.
 T}
 euser	EUSER	T{
 .ad l
 .hy 0
 effective user name.  This will be the textual user ID, if it can be obtained and the field width permits, or a decimal representation otherwise.
 T}
+All	N/A	T{
+.ad l
+.hy 0
+This option shows USER,
+PID,
+PPID,
+PRI,
+%CPU,
+%MEM,
+VSZ,
+RSS,
+S,
+START,
+TIME,
+WCHAN and COMMAND.
+T}
 .TE
-
-.BR All \fR
-       ALL option shows USER,PID,PPID,PRI,%CPU,%MEM,VSZ,RSS,S,STARTED,TIME,WCHAN and Command by default
 .TP
 .BR \-Z \ \fItimezone\fR ", "\fB\-\-timezone=\fItimezone\fR
 By default,
