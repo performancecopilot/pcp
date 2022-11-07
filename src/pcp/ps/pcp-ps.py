@@ -729,7 +729,7 @@ class ProcessStatOptions(pmapi.pmOptions):
         # """Override standard Pcp-ps option to show all process """
         return bool(opts in ['p', 'c', 'o', 'P', 'U'])
 
-    def extraOptions(self, opts, optarg):
+    def extraOptions(self, opts, optarg,index):
         if opts == 'e':
             ProcessStatOptions.show_all_process = True
         elif opts == 'c':
