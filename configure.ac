@@ -1953,6 +1953,12 @@ fi
 AC_SUBST(lib_for_regex)
 
 PKG_CHECK_MODULES([openssl], [openssl >= 1.1.1], [have_openssl=true], [have_openssl=false])
+if test $have_openssl = true
+then
+    dnl for OpenBSD, libcrypto does not include a BIO_write_ex(),
+    dnl so we can't use libssl with pmproxy in particular
+    AC_CHECK_LIB(crypto, BIO_write_ex, , have_openssl=false)
+fi
 AC_SUBST(HAVE_OPENSSL, [$have_openssl])
 
 PKG_CHECK_MODULES([libsasl2], [libsasl2 >= 2], [have_sasl=true], [have_sasl=false])
