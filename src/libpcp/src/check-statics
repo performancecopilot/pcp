@@ -9,8 +9,13 @@ sts=1  # presume failure, in case of an unexpected early exit
 tmp=`mktemp -d /tmp/pcp-build-check-statics.XXXXXXXXX` || exit 1
 trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
-debug=false
-#debug=true
+if [ $# -gt 0 -a "X$1" = X-d ]
+then
+    debug=true
+    shift
+else
+    debug=false
+fi
 
 if which readelf >/dev/null 2>&1
 then
@@ -649,6 +654,11 @@ do
 		# + strip  r __func__.NNN lines
 		# for NetBSD
 		# + strip  r CSWTCH.NNN lines
+		# for OpenBSD (with clang C compiler)
+		# + strip  b .L.str.NNN lines
+		# + strip  b .LSSH.NNN lines
+		# + strip  b .L__func__.<funcname> lines
+		# + strip  b .Lswitch.table.<funcname> lines
 		# for Solaris (OpenIndiana with suncc)
 		# + remove symbol mangling so
 		#   0000000000000058 B .XA$BAABAJVtXUrj.userlist
@@ -661,21 +671,32 @@ do
 		# + strip .bss, .data, .picdata and .rodata lines
 		#
 		skip_file=false
-		_nm $line \
-		| sed -n >$tmp/out \
+		_nm $line >$tmp/tmp
+		if $debug
+		then
+		    echo "=== _nm output for $line"
+		    cat $tmp/tmp
+		fi
+		sed -n <$tmp/tmp >$tmp/out \
 		    -e '/ S ___i686.get_pc_thunk.[bc]x/d' \
 		    -e '/ [sS] .*\.eh$/d' \
 		    -e '/ [sS] .*\.stv$/d' \
 		    -e '/ s .*_\.[0-9][0-9]*$/d' \
 		    -e '/ s LC[0-9][0-9]*$/d' \
-		    -e '/ s L_\.str[0-9][0-9]*$/d' \
 		    -e '/ s L_\.str$/d' \
+		    -e '/ s L_\.str[0-9][0-9]*$/d' \
 		    -e '/ r \.L\.str[0-9][0-9]*$/d' \
 		    -e '/ r \.L\.str$/d' \
 		    -e '/ s L___func__\./d' \
 		    -e '/ r \.LCPI./d' \
 		    -e '/ s l_switch\./d' \
 		    -e '/ s .*\$tlv\$init$/d' \
+		    -e '/ b \.L\.str$/d' \
+		    -e '/ b \.L\.str\.[0-9][0-9]*$/d' \
+		    -e '/ b \.LSSH$/d' \
+		    -e '/ b \.LSSH\.[0-9][0-9]*$/d' \
+		    -e '/ b \.L__func__/d' \
+		    -e '/ b \.Lswitch\.table\./d' \
 		    -e 's/b \([_a-zA-Z][_a-zA-Z0-9]*\)\.b$/b \1/' \
 		    -e 's/b \([_a-zA-Z][_a-zA-Z0-9]*\)\.[0-9]*.[0b]$/b \1/' \
 		    -e 's/\([bds] \).*\.\([_a-zA-Z]\)/\1\2/' \
@@ -706,6 +727,11 @@ do
 		    -e '/ [dDbBCsSrR] /p' \
 		# end
 		obj=$line
+		if $debug
+		then
+		    echo "=== post-sed filtering for $line"
+		    cat $tmp/out
+		fi
 	    else
 		case "$line"
 		in
