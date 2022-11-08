@@ -658,6 +658,7 @@ do
 		# + strip  b .L.str.NNN lines
 		# + strip  b .LSSH.NNN lines
 		# + strip  b .L__func__.<funcname> lines
+		# + strip  b .L__const.<structname>.<member> lines
 		# + strip  b .Lswitch.table.<funcname> lines
 		# for Solaris (OpenIndiana with suncc)
 		# + remove symbol mangling so
@@ -695,7 +696,8 @@ do
 		    -e '/ b \.L\.str\.[0-9][0-9]*$/d' \
 		    -e '/ b \.LSSH$/d' \
 		    -e '/ b \.LSSH\.[0-9][0-9]*$/d' \
-		    -e '/ b \.L__func__/d' \
+		    -e '/ b \.L__func__\./d' \
+		    -e '/ b \.L__const\./d' \
 		    -e '/ b \.Lswitch\.table\./d' \
 		    -e 's/b \([_a-zA-Z][_a-zA-Z0-9]*\)\.b$/b \1/' \
 		    -e 's/b \([_a-zA-Z][_a-zA-Z0-9]*\)\.[0-9]*.[0b]$/b \1/' \
