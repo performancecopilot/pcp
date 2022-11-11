@@ -6,10 +6,7 @@ License: GPLv2+ and LGPLv2+ and CC-BY
 URL:     https://pcp.io
 
 %global  artifactory https://performancecopilot.jfrog.io/artifactory
-%global  pcp_git_url https://github.com/performancecopilot/pcp/blob
 Source0: %{artifactory}/pcp-source-release/pcp-%{version}.src.tar.gz
-Source1: %{pcp_git_url}/main/debian/pcp-testsuite.sysusers
-Source2: %{pcp_git_url}/main/debian/pcp.sysusers
 
 # The additional linker flags break out-of-tree PMDAs.
 # https://bugzilla.redhat.com/show_bug.cgi?id=2043092
@@ -2685,7 +2682,8 @@ done
 %selinux_relabel_pre -s targeted
 %endif
 %if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
-systemd-sysusers --replace=/usr/lib/sysusers.d/pcp-testsuite.conf - < %{SOURCE1}
+echo u pcpqa - \"PCP Quality Assurance\" %{_testsdir} /bin/bash | \
+  systemd-sysusers --replace=/usr/lib/sysusers.d/pcp-testsuite.conf -
 %else
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
@@ -2727,7 +2725,8 @@ fi
 
 %pre
 %if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
-systemd-sysusers --replace=/usr/lib/sysusers.d/pcp.conf - < %{SOURCE2}
+echo u pcp - \"Performance Co-Pilot\" %{_localstatedir}/lib/pcp | \
+  systemd-sysusers --replace=/usr/lib/sysusers.d/pcp.conf -
 %else
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
