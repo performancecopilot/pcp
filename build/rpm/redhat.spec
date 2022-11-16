@@ -2707,7 +2707,6 @@ chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
 %if !%{disable_systemd}
     systemctl restart pmcd pmlogger >/dev/null 2>&1
     systemctl enable pmcd pmlogger >/dev/null 2>&1
-    systemctl enable pmlogger_daily_report.timer >/dev/null 2>&1
 %else
     /sbin/chkconfig --add pmcd >/dev/null 2>&1
     /sbin/chkconfig --add pmlogger >/dev/null 2>&1
@@ -2977,14 +2976,6 @@ exit 0
 
 %preun pmda-weblog
 %{pmda_remove "$1" "weblog"}
-
-%if !%{disable_systemd}
-%preun zeroconf
-if [ "$1" -eq 0 ]
-then
-    %systemd_preun pmlogger_daily_report.timer pmlogger_daily_report.service
-fi
-%endif
 
 %preun
 if [ "$1" -eq 0 ]
