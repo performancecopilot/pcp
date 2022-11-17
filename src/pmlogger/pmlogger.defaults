@@ -15,7 +15,8 @@
 # PMLOGGER_MAXPENDING=5
 
 # Default sampling interval pmlogger uses when no more specific
-# interval is requested.  A value of 60 seconds is the default.
+# interval is requested.  A value of 60 seconds is the default,
+# unless pcp-zeroconf is installed then the default is 10 seconds.
 # Both pmlogger command line (via control file) and also pmlogger
 # configuration file directives will override this value.
 # PMLOGGER_INTERVAL=60
