@@ -42,7 +42,7 @@ $sudo systemd-run \
     --no-ask-password \
     --uid=pcpqa --gid=pcpqa \
     -p MemoryLimit=10M \
-    perl -e 'while (1) { $a .= "A" x 1024 }' >> $here/$seq.full 2>&1
+    perl -e 'while (1) { $a .= "A" x 1024 }' > $here/$seq.full 2>&1
 
 echo "=== report metric values for fcomm ==="
 pminfo -dfmtT bpf.oomkill.fcomm 2>&1 | tee -a $here/$seq.full \
