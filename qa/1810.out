@@ -7,7 +7,6 @@ Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
 Check bpf metrics have appeared ... X metrics and X values
 
-Killed
 === report metric values for fcomm ===
 OK
 === report metric values for fpid ===

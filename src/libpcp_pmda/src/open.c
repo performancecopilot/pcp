@@ -728,7 +728,7 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
 		if (i == pmda->e_nindoms) {
 		    char	strbuf[20];
 		    pmNotifyErr(LOG_CRIT, 
-				 "pmdaInit: PMDA %s: Undefined instance domain serial (%d) specified in metric %s(%d)\n",
+				 "pmdaInit: PMDA %s: Undefined instance domain serial (%d) specified for metric %s (e_metrics[%d])\n",
 				 pmda->e_name, mindomp->serial, 
 				 pmIDStr_r(pmda->e_metrics[m].m_desc.pmid, strbuf, sizeof(strbuf)), m);
 		    dispatch->status = PM_ERR_GENERIC;

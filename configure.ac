@@ -1232,7 +1232,7 @@ if $pmda_bpf; then
     if test "$libbpf_version_major" -eq 0 -a "$libbpf_version_minor" -lt 7; then
 	AC_MSG_RESULT([no (libbpf version required: 0.7.0, installed: $libbpf_version)])
     else
-	pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so mountsnoop.so oomkill.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so"
+	pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so mountsnoop.so oomkill.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so"
 	AC_MSG_RESULT(yes)
     fi
 
@@ -1953,6 +1953,12 @@ fi
 AC_SUBST(lib_for_regex)
 
 PKG_CHECK_MODULES([openssl], [openssl >= 1.1.1], [have_openssl=true], [have_openssl=false])
+if test $have_openssl = true
+then
+    dnl for OpenBSD, libcrypto does not include a BIO_write_ex(),
+    dnl so we can't use libssl with pmproxy in particular
+    AC_CHECK_LIB(crypto, BIO_write_ex, , have_openssl=false)
+fi
 AC_SUBST(HAVE_OPENSSL, [$have_openssl])
 
 PKG_CHECK_MODULES([libsasl2], [libsasl2 >= 2], [have_sasl=true], [have_sasl=false])

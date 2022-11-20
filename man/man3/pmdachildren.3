@@ -88,7 +88,7 @@ of
 The resulting list of pointers
 .I offspring
 .B and
-the values
+the string values
 (the names) that the pointers reference will have been
 allocated by
 .B pmdaChildren
@@ -104,7 +104,14 @@ to release the space
 when it is no longer required.
 The same holds true for the
 .I status
-array.
+array, namely the
+caller of
+.B pmdaChildren
+will call
+.BR free (\c
+.IR status )
+to release the space
+when it is no longer required.
 .SH CAVEAT
 The PMDA must be using
 .B PMDA_PROTOCOL_4

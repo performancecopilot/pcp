@@ -32,7 +32,11 @@ version specific I'm afraid ... good luck with that!
 
 Ubuntu
     https://wiki.ubuntu.com/Releases
-    13 Sep 2021: 20.04 LTS (Focal), 18.04 (Bionic) 16.04 LTS (Xenial), 14.04 LTS (Trusty)
+    20 Nov 2022: 22.10 (Kinetic) 22.04.1 LTS (Jammy), 20.04.5 LTS (Focal),
+    		 18.04.6 LTS (Bionic), 16.04.7 LTS (Xenial), 14.04.6
+		 (Trusty)
+    13 Sep 2021: 20.04 LTS (Focal), 18.04 (Bionic) 16.04 LTS (Xenial),
+    		 14.04 LTS (Trusty)
     04 Jun 2018: 18.04 (Bionic) 17.10 (Artful), 16.04 LTS (Xenial),
 		 14.04.3 LTS (Trusty),
     # which packages are installed
@@ -407,6 +411,8 @@ OpenBSD
     # package search recipe (name only, not info or description)
     $ pkg_info -Q <pattern>
     # which package installs a file/directory
+    # -- pkg_add pkglocatedb first to get the "all" packages DB,
+    #    rather than searching just the installed packages
     $ pkglocate <filename> or <pathname>
     # which files are in an installed package
     $ pkg_info -L <package>
