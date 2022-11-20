@@ -38,25 +38,16 @@ SCHED_POLICY = ['NORMAL', 'FIFO', 'RR', 'BATCH', '', 'IDLE', 'DEADLINE']
 
 
 class StdoutPrinter:
-    def Print(self, args, continuation=None):
-        if continuation is not None:
-            print(args, end=continuation)
-        else:
-            print(args)
-
+    def Print(self, args):
+        print(args)
 
 class NoneHandlingPrinterDecorator:
     def __init__(self, printer):
         self.printer = printer
 
-    def Print(self, args, continuation=None):
-        if continuation is None:
-            new_args = args.replace('None', '?')
-        elif type(args) not in [float, int] or args is not None:
-            new_args = str(args).replace('None', '?')
-        else:
-            new_args = args
-        self.printer.Print(new_args, continuation)
+    def Print(self, args):
+        new_args = args.replace('None', '?')
+        self.printer.Print(new_args)
 
 
 # After fetching non singular metric values, create a mapping of instance id
@@ -429,18 +420,18 @@ class DynamicProcessReporter:
                                   process.rss(), current_process_sname, process.age(), process.total_time(), wchan,
                                   process_name))
         elif self.processStatOptions.colum_list is not None:
-            print('Timestamp', end="\t")
+            header = "Timestamp" + '\t'
             for key in self.processStatOptions.colum_list:
                 if key in PIDINFO_PAIR:
-                    self.printer(PIDINFO_PAIR[key][0], '\t\t')
-            print('')
+                    header += PIDINFO_PAIR[key][0] + '\t\t'
+            print(header)
             processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
             for process in processes:
-                print(timestamp, end="\t")
+                data_to_print = timestamp + '\t'
                 for key in self.processStatOptions.colum_list:
                     if key in PIDINFO_PAIR:
-                        self.printer(PIDINFO_PAIR[key][1](process), '\t\t')
-                print('')
+                        data_to_print += str(PIDINFO_PAIR[key][1](process)) + '\t\t'
+                print(data_to_print)
 
 
 class ProcessStatusReporter:
@@ -729,7 +720,7 @@ class ProcessStatOptions(pmapi.pmOptions):
         # """Override standard Pcp-ps option to show all process """
         return bool(opts in ['p', 'c', 'o', 'P', 'U'])
 
-    def extraOptions(self, opts, optarg):
+    def extraOptions(self, opts, optarg,index):
         if opts == 'e':
             ProcessStatOptions.show_all_process = True
         elif opts == 'c':

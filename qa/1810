@@ -10,8 +10,6 @@ echo "QA output created by $seq"
 
 . ./common.bpf
 
-_notrun "see https://github.com/performancecopilot/pcp/issues/1644 for discussions about triggering oom-killer in a QA test"
-
 _pmdabpf_check
 _pmdabpf_require_kernel_version 5 0
 _pmdabpf_require_libbpf_version 0 7
@@ -38,7 +36,13 @@ EOF
 _pmdabpf_wait_for_metric
 
 # Generate system activity for the CO-RE oomkill module
-perl -e 'while (1) { $a .= "A" x 1024; }'
+$sudo systemd-run \
+    --wait \
+    --pipe \
+    --no-ask-password \
+    --uid=pcpqa --gid=pcpqa \
+    -p MemoryLimit=10M \
+    perl -e 'while (1) { $a .= "A" x 1024 }' > $here/$seq.full 2>&1
 
 echo "=== report metric values for fcomm ==="
 pminfo -dfmtT bpf.oomkill.fcomm 2>&1 | tee -a $here/$seq.full \

@@ -19,8 +19,7 @@ tasks:
   setup: |
     sudo dnf -y install dnf-plugins-core
     sudo dnf config-manager --set-enabled powertools
-    sudo dnf install -y which hostname libuv # need to install libuv, see BZ 1809314
-    sudo dnf module install -y libuv/devel
+    sudo dnf install -y which hostname
     sudo dnf -y -b install $(qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
   build: |
     ./Makepkgs --verbose

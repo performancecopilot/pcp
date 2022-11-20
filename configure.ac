@@ -1232,7 +1232,7 @@ if $pmda_bpf; then
     if test "$libbpf_version_major" -eq 0 -a "$libbpf_version_minor" -lt 7; then
 	AC_MSG_RESULT([no (libbpf version required: 0.7.0, installed: $libbpf_version)])
     else
-	pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so mountsnoop.so oomkill.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so"
+	pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so mountsnoop.so oomkill.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so"
 	AC_MSG_RESULT(yes)
     fi
 
