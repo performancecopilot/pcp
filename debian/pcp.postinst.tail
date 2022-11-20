@@ -104,7 +104,11 @@ then
     update-rc.d pmproxy defaults >/dev/null
 fi
 
-if which invoke-rc.d >/dev/null 2>&1
+if $do_systemd
+then
+    deb-systemd-helper start pmcd.service >/dev/null
+    deb-systemd-helper start pmlogger.service >/dev/null
+elif which invoke-rc.d >/dev/null 2>&1
 then
     invoke-rc.d pmcd start
     invoke-rc.d pmlogger start
@@ -112,3 +116,5 @@ else
     /etc/init.d/pmcd start
     /etc/init.d/pmlogger start
 fi
+
+exit 0
