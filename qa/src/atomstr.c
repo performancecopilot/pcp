@@ -70,9 +70,9 @@ main(int argc, char **argv)
     printf("%.9f -> %s\n", atom.d, pmAtomStr(&atom, PM_TYPE_DOUBLE));
 
     atom.cp = "mary had a little lamb";
-    printf("%s-> %s\n", atom.cp, pmAtomStr(&atom, PM_TYPE_STRING));
+    printf("%s -> %s\n", atom.cp, pmAtomStr(&atom, PM_TYPE_STRING));
     atom.cp = NULL;
-    printf("%s-> %s\n", atom.cp, pmAtomStr(&atom, PM_TYPE_STRING));
+    printf("(null) -> %s\n", pmAtomStr(&atom, PM_TYPE_STRING));
     /* length = 37 */
     atom.cp = "abcdefghijklmnopqrstuvwxyz0123456789X";
     printf("%s -> %s\n", atom.cp, pmAtomStr(&atom, PM_TYPE_STRING));
