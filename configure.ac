@@ -1163,17 +1163,6 @@ AS_IF([test "x$do_pmdabcc" = "xcheck"], [
 AC_SUBST(PMDA_BCC, $pmda_bcc)
 if $pmda_bcc; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
-AC_MSG_CHECKING([clang major version installed])
-if which llvm-config >/dev/null 2>&1
-then
-    clang_major_version=`llvm-config --version | cut -f1 -d.`
-else
-    dnl version=0 => not installed
-    clang_major_version=0
-fi
-AC_MSG_RESULT($clang_major_version)
-AC_SUBST(CLANG_MAJOR_VERSION, [$clang_major_version])
-
 PKG_CHECK_MODULES([libbpf], [libbpf >= 0.4.0], [have_libbpf=true], [have_libbpf=false])
 AC_SUBST(HAVE_LIBBPF, [$have_libbpf])
 AS_IF([$have_libbpf], [
@@ -1189,6 +1178,17 @@ AC_SUBST(HAVE_LIBELF, [$have_libelf])
 test -z "$CLANG" && AC_PATH_PROG(CLANG, clang)
 clang=$CLANG
 AC_SUBST(clang)
+
+AC_MSG_CHECKING([clang major version installed])
+if which $CLANG >/dev/null 2>&1
+then
+    clang_major_version=`$CLANG --version | awk '/clang version/ {print $3}' | cut -f1 -d.`
+else
+    dnl version=0 => not installed
+    clang_major_version=0
+fi
+AC_MSG_RESULT($clang_major_version)
+AC_SUBST(CLANG_MAJOR_VERSION, [$clang_major_version])
 
 test -z "$LLVM_STRIP" && AC_PATH_PROG(LLVM_STRIP, llvm-strip)
 llvm_strip=$LLVM_STRIP
