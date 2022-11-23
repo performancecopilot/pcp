@@ -502,6 +502,7 @@ class DstatTool(object):
         self.partlist = None
         self.intlist = None
         self.netlist = None
+        self.netpacketlist = None
         self.swaplist = None
 
         ### Implicit if no terminal is used
@@ -693,6 +694,8 @@ class DstatTool(object):
                     plugin.prepare_grouptype(self.intlist, self.full)
                 elif section == 'net':
                     plugin.prepare_grouptype(self.netlist, self.full)
+                elif section == 'net-packets':
+                    plugin.prepare_grouptype(self.netpacketlist, self.full)
                 elif section == 'swap':
                     plugin.prepare_grouptype(self.swaplist, self.full)
 
@@ -890,8 +893,10 @@ class DstatTool(object):
         elif opt in ['N']:
             insts = arg.split(',')
             self.netlist = sorted([x for x in insts if x != 'total'])
+            self.netpacketlist = sorted([x for x in insts if x != 'total'])
             if 'total' in insts:
                 self.netlist.append('total')
+                self.netpacketlist.append('total')
         elif opt in ['p']:
             self.append_plugin('proc')
         elif opt in ['r']:
