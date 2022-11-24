@@ -1,0 +1,37 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+
+rule  filesys.vfs_files
+	  summary = "$rule$"
+	  enumerate = hosts
+	  predicate =
+"some_host (
+    vfs.files.count $hosts$ > 0 && vfs.files.max $hosts$ > 0 &&
+    100 * ( vfs.files.count $hosts$ / vfs.files.max $hosts$ ) > $threshold$
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"Number of allocated file handles (the number of open file descriptions)
+to the maximum number of file handles which results allocated file descriptor
+percentage.";
+
+percent	threshold
+	    default	= 90
+	    help	=
+"Threshold percent of maximum file handles that can be allocated
+to the maximum number of file handles, in the range 0 (none) to 100.";
+
+string	rule
+	    default	= "System allocated file descriptor percentage"
+	    modify	= no
+	    display	= no;
+
+string  action_expand
+	    default	= [%v@%h]
+        display = yes
+	    modify	= no;
+
+#
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+
