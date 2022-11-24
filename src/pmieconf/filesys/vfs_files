@@ -2,9 +2,9 @@
 # --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
 
 rule  filesys.vfs_files
-	  summary = "$rule$"
-	  enumerate = hosts
-	  predicate =
+	summary = "$rule$"
+	enumerate = hosts
+	predicate =
 "some_host (
     vfs.files.count $hosts$ > 0 && vfs.files.max $hosts$ > 0 &&
     100 * ( vfs.files.count $hosts$ / vfs.files.max $hosts$ ) > $threshold$
@@ -12,25 +12,30 @@ rule  filesys.vfs_files
 	enabled	= yes
 	version	= 1
 	help	=
-"Number of allocated file handles (the number of open file descriptions)
-to the maximum number of file handles which results allocated file descriptor
-percentage.";
+"Number of allocated file handles (open file descriptors) is at or
+above a threshold percentage of the total available (maximum kernel
+enforced limit).";
 
 percent	threshold
-	    default	= 90
-	    help	=
-"Threshold percent of maximum file handles that can be allocated
-to the maximum number of file handles, in the range 0 (none) to 100.";
+	default	= 90
+	help	=
+"The threshold of open file handles that has been allocated compared
+to the maximum number available, expressed as a percentage.";
 
 string	rule
-	    default	= "System allocated file descriptor percentage"
-	    modify	= no
-	    display	= no;
+	default	= "Approaching open file descriptor limit"
+	modify	= no
+	display	= no;
 
 string  action_expand
-	    default	= [%v@%h]
-        display = yes
-	    modify	= no;
+	default	= %vopen@%h
+	display = yes
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h open files: %v"
+	display	= no
+	modify	= no;
 
 #
 # --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
