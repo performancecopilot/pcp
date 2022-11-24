@@ -185,7 +185,7 @@ Log started
 broken pmda Debug: pmdaInit: PMDA broken_pmda_2_1: Metric 249.0.1(1) matched to indom 249.0(0)
 broken pmda Debug: pmdaInit: PMDA broken_pmda_2_1: Metric 249.0.7(3) matched to indom 249.7(1)
 broken pmda Debug: pmdaInit: PMDA broken_pmda_2_1: Metric 249.0.13(8) matched to indom 249.7(1)
-broken pmda Critical: pmdaInit: PMDA broken_pmda_2_1: Undefined instance domain serial (17) specified in metric 249.1.4(12)
+broken pmda Critical: pmdaInit: PMDA broken_pmda_2_1: Undefined instance domain serial (17) specified for metric 249.1.4 (e_metrics[12])
 broken pmda Debug: pmdaConnect: PMDA broken_pmda_2_1: opened pipe to pmcd, infd = 0, outfd = 1
 broken pmda Error: PMDA Initialisation Failed
 
@@ -209,7 +209,7 @@ dbpmda> close
 dbpmda> quit
 Log started
 
-broken pmda Critical: pmdaInit: PMDA broken_pmda_2_2: Undefined instance domain serial (0) specified in metric 249.0.1(1)
+broken pmda Critical: pmdaInit: PMDA broken_pmda_2_2: Undefined instance domain serial (0) specified for metric 249.0.1 (e_metrics[1])
 broken pmda Debug: pmdaConnect: PMDA broken_pmda_2_2: opened pipe to pmcd, infd = 0, outfd = 1
 broken pmda Error: PMDA Initialisation Failed
 
