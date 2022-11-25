@@ -35,6 +35,7 @@ default:	build-me
 
 include $(TOPDIR)/src/include/buildrules
 
+ifeq "$(TARGET_OS)" "linux"
 build-me:	$(CMDTARGET)
 
 install: build-me
@@ -48,6 +49,10 @@ install: build-me
 	$(INSTALL) -m 755 -d $(PMDACONFIG)/examples
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/sample.conf sample.conf $(PMDACONFIG)/examples/sample.conf
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/default.conf default.conf $(PMDACONFIG)/conf.d/default.conf
+else
+build-me:
+install:
+endif
 
 $(CMDTARGET):	$(OBJECTS)
 

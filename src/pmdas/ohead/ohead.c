@@ -298,11 +298,15 @@ fprintf(stderr, "fetch refreshtime=%d\n", refreshtime);
 				found = 1;
 				switch (pmID_item(pmidlist[i])) {
 
-				    case 0:	/* ohead.<group>.stime */
+				    case 0:	/* ohead.<group>.cpu */
+					atom.d = pp->burn.stime + pp->burn.utime;
+					break;
+
+				    case 10:	/* ohead.<group>.stime */
 					atom.d = pp->burn.stime;
 					break;
 
-				    case 1:	/* ohead.<group>.utime */
+				    case 11:	/* ohead.<group>.utime */
 					atom.d = pp->burn.utime;
 					break;
 
@@ -385,8 +389,11 @@ ohead_store(pmResult *result, pmdaExt *ext)
 			sts = PM_ERR_SIGN;
 			break;
 		    }
+		    /*
+		     * this won't take effect until the current rereshtime
+		     * alarm goes off ...
+		     */
 		    refreshtime = ival;
-		    // TODO ... handle transition
 		    break;
 
 		default:
@@ -416,21 +423,6 @@ ohead_name(pmID pmid, char ***namelist, pmdaExt *ext)
     return -1;
 }
 
-/*
- * PMDA metadata
- *
- * Metric			PMID			INDOM
- * ohead.nproc			<domain>.<id>.0		<domain>.4095
- * ohead.nproc_active		<domain>.<id>.1		<domain>.4095
- * ohead.cpu			<domain>.<id>.10	<domain>.4095
- * ohead.<name>.stime		<domain>.<id>.100	<domain>.<id>
- * ohead.<name>.utime		<domain>.<id>.101	<domain>.<id>
- * ohead.control.refresh	<domain>.4095.0		PM_INDOM_NULL
- *
- * where <name> is a group name, and matches [a-zA-Z][a-zA-Z0-9_]* and
- * <id> is a group id (number), 0 <= <id> < 4095
- */
-
 static int
 ohead_children(const char *name, int traverse, char ***offspring, int **status, pmdaExt *ext)
 {
@@ -454,7 +446,7 @@ ohead_init(pmdaInterface *dp)
 	exit(1);
     }
 
-    nmetric = ngroup * 2 + 4;
+    nmetric = ngroup * 3 + 4;
     metrics = (pmdaMetric *)malloc(nmetric * sizeof(pmdaMetric));
     if (metrics == NULL) {
 	pmNoMem("ohead_init: metrics", nmetric * sizeof(pmdaMetric), PM_FATAL_ERR);
@@ -554,10 +546,29 @@ ohead_init(pmdaInterface *dp)
     for (gp = grouptab; gp < &grouptab[ngroup]; gp++) {
 	char	namebuf[1024];
 
-	/* ohead.<grp>.stime */
+	/* ohead.<grp>.cpu */
 	i++;
 	metrics[i].m_user = NULL;
 	metrics[i].m_desc.pmid = pmID_build(domain,gp->id,0);
+	metrics[i].m_desc.type = PM_TYPE_DOUBLE;
+	metrics[i].m_desc.indom = pmInDom_build(domain,gp->id);
+	metrics[i].m_desc.sem = PM_SEM_INSTANT;
+	memset((void *)&metrics[i].m_desc.units, 0, sizeof(pmUnits));;
+	if ((sts = pmsprintf(namebuf, sizeof(namebuf), "ohead.%s.cpu", gp->name)) < 0) {
+	    pmNotifyErr(LOG_ERR, "%s: failed to build \"ohead.%s.cpu\" name for pmns tree: %s\n",
+			    pmGetProgname(), gp->name, pmErrStr(sts));
+	    exit(1);
+	}
+	if ((sts = pmdaTreeInsert(pmns, metrics[i].m_desc.pmid, namebuf)) < 0) {
+	    pmNotifyErr(LOG_ERR, "%s: failed to insert \"%s\" into pmns tree: %s\n",
+			    pmGetProgname(), namebuf, pmErrStr(sts));
+	    exit(1);
+	}
+
+	/* ohead.<grp>.stime */
+	i++;
+	metrics[i].m_user = NULL;
+	metrics[i].m_desc.pmid = pmID_build(domain,gp->id,10);
 	metrics[i].m_desc.type = PM_TYPE_DOUBLE;
 	metrics[i].m_desc.indom = pmInDom_build(domain,gp->id);
 	metrics[i].m_desc.sem = PM_SEM_INSTANT;
@@ -572,11 +583,11 @@ ohead_init(pmdaInterface *dp)
 			    pmGetProgname(), namebuf, pmErrStr(sts));
 	    exit(1);
 	}
-	
+
 	/* ohead.<grp>.utime */
 	i++;
 	metrics[i].m_user = NULL;
-	metrics[i].m_desc.pmid = pmID_build(domain,gp->id,1);
+	metrics[i].m_desc.pmid = pmID_build(domain,gp->id,11);
 	metrics[i].m_desc.type = PM_TYPE_DOUBLE;
 	metrics[i].m_desc.indom = pmInDom_build(domain,gp->id);
 	metrics[i].m_desc.sem = PM_SEM_INSTANT;

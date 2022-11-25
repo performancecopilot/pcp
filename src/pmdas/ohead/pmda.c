@@ -16,7 +16,8 @@
  *
  * Debug flags
  *  appl0	config file parsing
- *  appl1	refresh()
+ *  appl1	refresh() start-end timestamps
+ *  appl3	/proc selection in refresh()
  */
 
 #include <ctype.h>

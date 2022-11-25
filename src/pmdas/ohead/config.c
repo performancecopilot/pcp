@@ -28,7 +28,7 @@
 #define S_LBR	4		/* seen <name> looking for "{" */
 #define S_PARAM	5		/* looking for parameter clause */
 #define S_ID	6		/* seen "id" at start of parameter clause */
-#define S_REGEX	7		/* seen "pattern" at start of parameter clause */
+#define S_PATTERN	7	/* seen "pattern" at start of parameter clause */
 
 // typical example config ...
 //
@@ -54,7 +54,7 @@ statestr(int state)
     if (state == S_LBR) return "LBR";
     if (state == S_PARAM) return "PARAM";
     if (state == S_ID) return "ID";
-    if (state == S_REGEX) return "REGEX";
+    if (state == S_PATTERN) return "PATTERN";
     snprintf(buf, sizeof(buf), "%d - UNKNOWN", state);
     return buf;
 }
@@ -105,13 +105,14 @@ done:
 static int
 parse(char *configfile)
 {
-    int			c;
-    char		*p;
-    int			state;
-    char		*name;
-    int			id;
-    char		*pattern;
-    int			version = 1;
+    int		c;
+    char	*p;
+    int		state;
+    char	*name;
+    int		id;
+    char	*pattern;
+    int		version = 1;
+    grouptab_t	*gp;
 
     if (pmDebugOptions.appl0)
 	fprintf(stderr, "parse(%s) ...\n", configfile);
@@ -203,13 +204,28 @@ parse(char *configfile)
 		    goto fail;
 		}
 	    }
+	    /*
+	     * semantic check - name must be unique
+	     */
+	    for (gp = grouptab; gp < &grouptab[ngroup]; gp++) {
+		if (strcmp(gp->name, token) == 0) {
+		    fprintf(stderr, "parse: %s[%d]: Error: group name: \"%s\" already assigned to group id %d\n", fname, lineno, token, gp->id);
+		    goto fail;
+		}
+	    }
 	    name = strdup(token);
-	    // TODO - check failure
+	    if (name == NULL) {
+		pmNoMem("parse: name", strlen(token), PM_FATAL_ERR);
+		/* NOTREACHED */
+	    }
 	    state = S_LBR;
 	}
 	else if (state == S_LBR) {
-	    if (c == '{')
+	    if (c == '{') {
 		state = S_PARAM;
+		id = -1;
+		pattern = NULL;
+	    }
 	    else {
 		fprintf(stderr, "parse: %s[%d]: Error: expected \"{\" after group name\n", fname, lineno);
 		goto fail;
@@ -217,7 +233,6 @@ parse(char *configfile)
 	}
 	else if (state == S_PARAM) {
 	    if (c == '}') {
-		grouptab_t	*gp;
 		int		lsts;
 		/*
 		 * _really_ add this one into grouptab[]
@@ -250,10 +265,20 @@ parse(char *configfile)
 	    else {
 		if (gettok(c) < 0)
 		    goto fail;
-		if (strcmp(token, "id:") == 0)
+		if (strcmp(token, "id:") == 0) {
+		    if (id != -1) {
+			fprintf(stderr, "parse: %s[%d]: Error: duplicate id: parameter\n", fname, lineno);
+			goto fail;
+		    }
 		    state = S_ID;
-		else if (strcmp(token, "pattern:") == 0)
-		    state = S_REGEX;
+		}
+		else if (strcmp(token, "pattern:") == 0) {
+		    if (pattern != NULL) {
+			fprintf(stderr, "parse: %s[%d]: Error: duplicate pattern: parameter\n", fname, lineno);
+			goto fail;
+		    }
+		    state = S_PATTERN;
+		}
 		else {
 		    fprintf(stderr, "parse: %s[%d]: Error: \"%s\" is not a valid parameter name\n", fname, lineno, token);
 		    goto fail;
@@ -268,9 +293,18 @@ parse(char *configfile)
 		fprintf(stderr, "parse: %s[%d]: Error: id: \"%s\" (%d) is not legal\n", fname, lineno, token, id);
 		goto fail;
 	    }
+	    /*
+	     * semantic check - id must be unique
+	     */
+	    for (gp = grouptab; gp < &grouptab[ngroup]; gp++) {
+		if (gp->id == id) {
+		    fprintf(stderr, "parse: %s[%d]: Error: id: %d already assigned to group \"%s\"\n", fname, lineno, id, gp->name);
+		    goto fail;
+		}
+	    }
 	    state = S_PARAM;
 	}
-	else if (state == S_REGEX) {
+	else if (state == S_PATTERN) {
 	    /*
 	     * pattern is from c to \n ... can't use gettok() because
 	     * pattern may contain whitespace (although unlikely)
@@ -284,7 +318,10 @@ parse(char *configfile)
 		lineno++;
 	    *p = '\0';
 	    pattern = strdup(token);
-	    // TODO - check failure
+	    if (pattern == NULL) {
+		pmNoMem("parse: pattern", strlen(token), PM_FATAL_ERR);
+		/* NOTREACHED */
+	    }
 	    state = S_PARAM;
 	}
 	else {

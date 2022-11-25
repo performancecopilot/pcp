@@ -348,9 +348,8 @@ refresh(void *dummy)
 		    sts = regexec(&gp->regex, cmd, 0, NULL, 0);
 		    if (sts == 0) {
 			pidtab[npid].want = (int)(gp - grouptab);
-			if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
-			    fprintf(stderr, "refresh: pidtab[%d] => pid %" FMT_PID " cmd \"%s\" for group [%d] %s\n", npid, pid, cmd, (int)(gp - grouptab), gp->name);
-			break;
+			if (pmDebugOptions.appl3)
+			    fprintf(stderr, "refresh: match pidtab[%d] pid=%" FMT_PID " cmd=\"%s\" for group [%d] %s\n", npid, pid, cmd, (int)(gp - grouptab), gp->name);
 		    }
 		}
 		npid++;
@@ -370,8 +369,11 @@ refresh(void *dummy)
 		    found++;
 		    pidtab[i].done = 1;
 		    for (j = 0; j < npid; j++) {
-			if (pidtab[j].want != -1 && pidtab[j].ppid == pidtab[i].pid)
-			    pidtab[i].want = pidtab[j].want;
+			if (pidtab[j].want == -1 && pidtab[j].ppid == pidtab[i].pid) {
+			    pidtab[j].want = pidtab[i].want;
+			    if (pmDebugOptions.appl3)
+				fprintf(stderr, "refresh: offspring pidtab[%d] pid=%" FMT_PID " ppid=%" FMT_PID " (group [%d])\n", j, pidtab[j].pid, pidtab[j].ppid, pidtab[j].want);
+			}
 		    }
 		}
 	    }
