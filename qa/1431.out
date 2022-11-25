@@ -9,10 +9,10 @@ QA output created by 1431
      7	#
      8	group pcp {
      9	    id: 0
-    10	    pattern: (^pm(cd|proxy|logger|chart|time|rep|ie|val|info|pause)$)|pmda
+    10	    pattern: ^(pm(cd|proxy|logger|chart|time|rep|ie|val|info|pause)|dbpmda)$
     11	}
 parse(PCP_PMDAS_DIR/ohead/default.conf) ...
-add group "pcp" id=0 pattern="(^pm(cd|proxy|logger|chart|time|rep|ie|val|info|pause)$)|pmda"
+add group "pcp" id=0 pattern="^(pm(cd|proxy|logger|chart|time|rep|ie|val|info|pause)|dbpmda)$"
      1	# whitespace in regex, comments at end of all lines
      2	# except pattern:
      3	version 1	#	comment
@@ -25,7 +25,7 @@ add group "FoO" id=0 pattern="[ ]fOo[ 	]bAr[ ]"
 parse(TMP.symlink) ...
 add group "FoO" id=0 pattern="[ ]fOo[ 	]bAr[ ]"
 parse(PCP_SYSCONF_DIR/ohead/conf.d/default.conf) ...
-add group "pcp" id=0 pattern="(^pm(cd|proxy|logger|chart|time|rep|ie|val|info|pause)$)|pmda"
+add group "pcp" id=0 pattern="^(pm(cd|proxy|logger|chart|time|rep|ie|val|info|pause)|dbpmda)$"
 
 === syntax errors ===
      1	# bogus keyword at start of a clause
