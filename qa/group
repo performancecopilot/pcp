@@ -242,6 +242,7 @@ pmda.nfsclient
 pmda.nginx
 pmda.nutcracker
 pmda.nvidia
+pmda.ohead
 pmda.openmetrics
 pmda.oracle
 pmda.perfevent
@@ -1881,6 +1882,7 @@ x11
 1428 logutil pmrep python local
 1429 logutil pmlogextract pmdumplog pmlogrewrite local
 1430 logutil pmlogconf pmlogger pmrep local
+1431 pmda.ohead local
 1433 pmproxy local pmconfig
 1434 pmda.nfsclient local
 1435 pmda.elasticsearch local
