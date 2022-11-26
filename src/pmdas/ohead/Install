@@ -41,6 +41,7 @@ umask 022
 
 # PMDA variables
 #
+config="$PCP_SYSCONF_DIR/ohead/conf.d"
 refresh=60
 
 _quit()
@@ -54,12 +55,13 @@ do_debug=false
 _parsedefaults()
 {
     echo "Extracting options from current installation ..."
-    while getopts R:d:l: c
+    while getopts R:d:l:c: c
     do
     	case $c in
 	    \?)		echo "Warning: Unrecognized option in $PCP_PMCDCONF_PATH"
 			echo "         Remove line for the $iam PMDA in $PCP_PMCDCONF_PATH and re-run ./Install"
 	    		_quit 2;;
+	    c )		config=$OPTARG;;
 	    R )		refresh=$OPTARG;;
 	    * )		;;
 	esac
@@ -78,16 +80,38 @@ then
     _parsedefaults $ans
 fi
 
-echo
-echo "All commands are run one after another as a group and the group is run"
-$PCP_ECHO_PROG $PCP_ECHO_N "once per \"refresh\" time.   Enter the cycle time in seconds [$refresh] ""$PCP_ECHO_C"
+echo "Resource consumption is evaluated once once per \"refresh\" time."
+$PCP_ECHO_PROG $PCP_ECHO_N "Enter the refresh time in seconds [$refresh] ""$PCP_ECHO_C"
 read ans
 if  [ ! -z "$ans" ]
 then
     refresh=$ans
 fi
-
 args="-R $refresh"
+
+# go figure out which configuration file to use ...
+# we can't use pmdaChooseConfigFile here because the user can
+# specify an existing file or an existing directory ...
+#
+echo
+while true
+do
+    $PCP_ECHO_PROG $PCP_ECHO_N "Configuration file or directory? [$config] ""$PCP_ECHO_C"
+    read ans
+    if  [ ! -z "$ans" ]
+    then
+	if [ -f "$ans" -o -d "$ans" ]
+	then
+	    config="$ans"
+	    break
+	else
+	    echo "Error: $ans must be an existing file or directory"
+	fi
+    else
+	break
+    fi
+done
+args="$args -c $config"
 
 pmdaInstall
 
