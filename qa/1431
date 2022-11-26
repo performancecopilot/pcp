@@ -274,5 +274,21 @@ nl -b a $tmp.conf
 $PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
 | _filter
 
+cat <<'End-of-File' >$tmp.conf
+# duplicate group name
+version 1
+group foo {
+    pattern: bar
+    id: 123
+}
+group foo {
+    pattern: mumble
+    id: 456
+}
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
 # success, all done
 exit

@@ -1,0 +1,147 @@
+#!/bin/sh
+# PCP QA Test No. 1432
+# check cpu time calculation for ohead PMDA
+#
+# Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    [ -n "$pid1" ] && kill -TERM $pid1
+    [ -n "$pid2" ] && kill -TERM $pid2
+    rm -f src/hanoi-$seq
+    _cleanup_pmda ohead
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_prepare_pmda ohead
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# 32-disk Tower of Hanoi problem takes about 30 seconds on my laptop
+# 26 Nov 2022
+#
+[ -f src/hanoi-$seq ] || ln src/hanoi src/hanoi-$seq
+src/hanoi-$seq 32 &
+pid1=$!
+src/hanoi-$seq 32 &
+pid2=$!
+
+_filter()
+{
+    sed \
+	-e "s@$PCP_SYSCONF_DIR@PCP_SYSCONF_DIR@g" \
+    # end
+}
+
+_filter_pminfo()
+{
+    tee -a $here/$seq.full \
+    | sed \
+	-e "s/\([[\"]\)$pid1 /\1MYPID /g" \
+	-e "s/\([[\"]\)$pid2 /\1MYPID /g" \
+    | $PCP_AWK_PROG '
+/\.utime$/			{ i = 0; state = 1 }
+/\.stime$/			{ i = 0; state = 2 }
+/\.qa\.cpu$/			{ i = 0; state = 3 }
+$1 == "ohead.cpu"		{ state = 4 }
+NF == 0				{ state = 0 }
+# usr time should be around 1.0 for MP systems, but could be as low
+# as 0.50 for a single CPU system, then allow 5% slop at either end
+# $7 is ...
+#     inst [1474761 or "1474761 hanoi-1432"] value 0.009988213907589045
+#                                                  ^^^^^^^^^^^^^^^^^^^^
+#
+state == 1 && $1 == "inst"	{ u[i++] = $7
+				  if (0.475 <= $7 && $7 <= 1.05)
+				    $7 = "OK"
+				  else
+				    print $7 " (below) is outside the 0.475 ... 1.05 range"
+				}
+# sys time should be really small, but there is an element of non-determinism
+# here, so allow it to creep up to 0.1
+#
+state == 2 && $1 == "inst"	{ s[i++] = $7
+				  if ($7 <= 0.1)
+				    $7 = "OK"
+				  else
+				    print $7 " (below) is outside the 0 ... 0.1 range"
+				}
+# since sys is close to 0, the total should be similar to usr
+# and total should be _exactly_ the same as sys+usr ... but allow 0.1% slop
+#
+state == 3 && $1 == "inst"	{ c[i] = $7
+				  if (c[i] < 0.999*(s[i]+u[i])) 
+				    printf "(below) cpu: %.6f too small cf utime+stime: %.6f\n", c[i], s[i]+u[i]
+				  else if (c[i] > 1.001*(s[i]+u[i])) 
+				    printf "(below) cpu: %.6f too large cf utime+stime: %.6f\n", c[i], s[i]+u[i]
+				  else if (0.475 <= $7 && $7 <= 1.05)
+				    $7 = "OK"
+				  else
+				    print $7 " (below) is outside the 0.475 ... 1.05 range"
+				  i++
+				}
+# ohead.cpu is just the sum of the components, so should be equal, but
+# allow 0.01% slop for arithmetic error
+# $6 is ...
+# inst [1 or "qa"] value 1.997642781517809
+#                        ^^^^^^^^^^^^^^^^^
+state == 4 && $1 == "inst"	{ t = 0
+				  for (i = 0; i < 2; i++)
+				    t += c[i]
+				  if ($6 < 0.9999*t)
+				    printf "(below) cpu: %.6f too small cf sum of cpu times: %.6f\n", $6, t
+				  else if ($6 > 1.0001*t)
+				    printf "(below) cpu: %.6f too large cf sum of cpu times: %.6f\n", $6, t
+				  else
+				    $6 = "OK"
+				}
+				{ print }
+'
+}
+
+cat <<End-of-File >$tmp.conf
+# Installed by PCP QA test $seq on `date`
+version 1
+group qa {
+    id: 1
+    pattern: ^hanoi-$seq\$
+}
+End-of-File
+
+# real QA test starts here
+cd $PCP_PMDAS_DIR/ohead
+# get to a known starting place ...
+#
+$sudo ./Remove >/dev/null 2>&1
+cat <<End-of-File | $sudo ./Install | _filter
+5
+$tmp.conf
+End-of-File
+
+# wait for 2nd refresh() so we have values
+#
+sleep 6
+pminfo -f ohead >$tmp.out
+_filter_pminfo <$tmp.out
+
+# success, all done
+exit
