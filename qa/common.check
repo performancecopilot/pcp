@@ -411,7 +411,7 @@ _prepare_pmda()
     __done_clean=false
     __install_on_cleanup=false
     pminfo $__names >/dev/null 2>&1 && __install_on_cleanup=true
-    echo "_prepare_pmda($__agent,$__names) __install_on_cleanup=$__install_on_cleanup" >>$here/$seq.full
+    echo "_prepare_pmda(agent=$__agent, names=$__names) __install_on_cleanup=$__install_on_cleanup" >>$here/$seq.full
     # copy the pmcd config file to restore state later.
     _save_config $PCP_PMCDCONF_PATH
     unset ROOT MAKEFLAGS
@@ -444,7 +444,7 @@ _cleanup_pmda()
 	_wait_for_pmlogger
 	__done_clean=true
     fi
-    $sudo rm -f $tmp.*
+    $sudo rm -rf $tmp $tmp.*
 }
 
 #
