@@ -39,11 +39,11 @@ usage(void)
     fprintf(stderr, 
 "Usage: %s [options]\n\n\
 Options:\n\
-  -c configfile  explicit configuration file\n\
   -C             parse configuration file(s) and exit\n\
+  -c configfile  explicit configuration file\n\
   -d domain      use domain (numeric) for metrics domain of PMDA\n\
-  -R interval    refresh time in seconds [default 60]\n\
-  -l logfile     write log into logfile rather than using the default log\n",
+  -l logfile     write log into logfile rather than using the default log\n\
+  -R interval    refresh time in seconds [default 60]\n",
 	pmGetProgname());
     exit(1);
 }

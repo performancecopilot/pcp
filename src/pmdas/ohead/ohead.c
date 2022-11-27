@@ -365,9 +365,128 @@ ohead_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt
 static int
 ohead_text(int ident, int type, char **buffer, pmdaExt *ext)
 {
-    // TODO
-    *buffer = "a lot of use you are!";
+    static char help[2048];
+    int		oneline = (type & PM_TEXT_ONELINE) == PM_TEXT_ONELINE;
 
+    if ((type & PM_TEXT_PMID) == PM_TEXT_PMID) {
+	pmID	pmid = (pmID)ident;
+	if (pmID_cluster(pmid) == 4095) {
+	    switch (pmID_item(pmid)) {
+		case 0:		/* ohead.control.refresh */
+			if (oneline)
+			    pmsprintf(help, sizeof(help), "refresh interval (seconds)");
+			else
+			    pmsprintf(help, sizeof(help),
+"Interval between reprobing processes to determine which are assigned\n\
+to each of the configured groups, and extracting resource usage over\n\
+the last interval for individual processes and groups.\n\
+\n\
+Defaults to 60 (seconds) or the -R command line option to pmdaohead\n\
+when it is launched, but can be changed using pmstore(1).");
+			break;
+
+		case 10:	/* ohead.nproc */
+			pmsprintf(help, sizeof(help), "number of processes in each ohead group");
+			break;
+
+		case 11:	/* ohead.nproc_active */
+			if (oneline)
+			    pmsprintf(help, sizeof(help), "number of active processes in each ohead group");
+			else
+			    pmsprintf(help, sizeof(help),
+"Within each ohead group there may be many processes.  This metric reports\n\
+the number of those processes that used some CPU time (user and/or system)\n\
+in the last interval.");
+			break;
+
+		case 12:	/* ohead.cpu */
+			if (oneline)
+			    pmsprintf(help, sizeof(help), "total CPU utlization for each ohead group");
+			else
+			    pmsprintf(help, sizeof(help),
+"Sum of the user and system CPU time in the last interval for all\n\
+processes in each ohead group.\n\
+\n\
+A value of 1.0 means the equivalent of 100%% of one CPU is being used.");
+			break;
+
+		default:
+			return PM_ERR_PMID;
+	    }
+	}
+	else {
+	    grouptab_t	*gp;
+
+	    for (gp = grouptab; gp < &grouptab[ngroup]; gp++) {
+		if (gp->id == pmID_cluster(pmid))
+		    break;
+	    }
+	    if (gp == &grouptab[ngroup])
+		return PM_ERR_PMID;
+
+	    switch (pmID_item(pmid)) {
+		case 0:		/* ohead.<group>.cpu */
+			if (oneline)
+			    pmsprintf(help, sizeof(help), "CPU utlization for each process in the \"%s\" group", gp->name);
+			else
+			    pmsprintf(help, sizeof(help),
+"Sum of the user and system CPU time in the last interval for each\n\
+process in the \"%s\" group.\n\
+\n\
+A value of 1.0 means the equivalent of 100%% of one CPU is being used.", gp->name);
+			break;
+
+		case 10:	/* ohead.<group>.stime */
+			if (oneline)
+			    pmsprintf(help, sizeof(help), "System CPU utlization for each process in the \"%s\" group", gp->name);
+			else
+			    pmsprintf(help, sizeof(help),
+"System CPU time in the last interval for each process in the\n\
+\"%s\" group.\n\
+\n\
+A value of 1.0 means the equivalent of 100%% of one CPU is being used.", gp->name);
+			break;
+
+		case 11:	/* ohead.<group>.utime */
+			if (oneline)
+			    pmsprintf(help, sizeof(help), "User CPU utlization for each process in the \"%s\" group", gp->name);
+			else
+			    pmsprintf(help, sizeof(help),
+"User CPU time in the last interval for each process in the\n\
+\"%s\" group.\n\
+\n\
+A value of 1.0 means the equivalent of 100%% of one CPU is being used.", gp->name);
+			break;
+
+		default:
+			return PM_ERR_PMID;
+	    }
+	}
+    }
+    else {
+	pmInDom	indom = (pmInDom)ident;
+	grouptab_t	*gp;
+
+	if (pmInDom_serial(indom) == 4095) {
+	    pmsprintf(help, sizeof(help), "Group instance domain, one instance per defined group");
+	}
+	else {
+	    for (gp = grouptab; gp < &grouptab[ngroup]; gp++) {
+		if (gp->id == pmInDom_serial(indom))
+		    break;
+	    }
+	    if (gp == &grouptab[ngroup])
+		return PM_ERR_INDOM;
+	    if (oneline)
+		pmsprintf(help, sizeof(help), "Instance domain of processes for the  \"%s\" group", gp->name);
+	    else
+		pmsprintf(help, sizeof(help),
+"One instance for each process that is considered to be a member of the\n\
+\"%s\" group.", gp->name);
+	}
+    }
+
+    *buffer = help;
     return 0;
 }
 
