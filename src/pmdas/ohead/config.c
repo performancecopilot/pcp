@@ -82,7 +82,7 @@ gettok(int start)
 	    }
 	}
 	if (p - token >= sizeof(token)) {
-	    *p = '\0';
+	    *--p = '\0';
 	    fprintf(stderr, "parse: %s[%d]: Error: token \"%s\" too long\n", fname, lineno, token);
 	    return -1;
 	}
