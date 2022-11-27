@@ -44,7 +44,7 @@ pmdaohead: Aborting due to configuration file errors
      3	group longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again-longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again-llanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-one-last-time-llanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch
      4	{}
 parse(TMP.conf) ...
-parse: TMP.conf[3]: Error: token "longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again-longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again-llanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-one-last-ti" too long
+parse: TMP.conf[3]: Error: token "longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again-longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again-llanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-one-last-t" too long
 pmdaohead: Aborting due to configuration file errors
      1	# non-numeric version
      2	version foobar
