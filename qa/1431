@@ -222,8 +222,16 @@ group foo {
 }
 End-of-File
 nl -b a $tmp.conf
+# for this one, the error message from regerror(3) is not always the same,
+# so we need the extra sed filtering
+# parse: TMP.conf[6]: Error: bad pattern="bar[a-": Unmatched [, [^, [:, [., or [=
+#                                                            ^^^^^ here ^^^^^^^^^
+#
 $PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
-| _filter
+| _filter \
+| sed \
+    -e '/bad pattern=/s/Unmatched.*/Unmatched .../' \
+# end
 
 # not a file or dir
 $PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c /dev/tty 2>&1 \

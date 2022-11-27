@@ -138,7 +138,7 @@ pmdaohead: Aborting due to configuration file errors
      5	    pattern: bar[a-
      6	}
 parse(TMP.conf) ...
-parse: TMP.conf[6]: Error: bad pattern="bar[a-": Unmatched [, [^, [:, [., or [=
+parse: TMP.conf[6]: Error: bad pattern="bar[a-": Unmatched ...
 pmdaohead: Aborting due to configuration file errors
 do_config: "/dev/tty" is neither a directory nor a file
 pmdaohead: Aborting due to configuration file errors
