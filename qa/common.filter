@@ -943,6 +943,7 @@ _filter_torture_api()
 	-e '/^    numa /d' \
 	-e '/^    nvidia /d' \
 	-e '/^    origin /d' \
+	-e '/^    ohead /d' \
 	-e '/^    pdns /d' \
 	-e '/^    p76 /d' \
 	-e '/^    process /d' \
