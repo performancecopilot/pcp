@@ -17,11 +17,11 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-IAM	= ohead
-DOMAIN	= OHEAD
+IAM	= overhead
+DOMAIN	= OVERHEAD
 CMDTARGET	= pmda$(IAM)$(EXECSUFFIX)
-HFILES	= ohead.h
-CFILES	= ohead.c pmda.c refresh.c config.c
+HFILES	= overhead.h
+CFILES	= overhead.c pmda.c refresh.c config.c
 CONFIG	= sample.conf default.conf
 OTHERS	= README root pmns
 LDIRT	= *.log *.dir *.pag so_locations a.out domain.h $(CMDTARGET)
@@ -56,7 +56,7 @@ endif
 
 $(CMDTARGET):	$(OBJECTS)
 
-$(OBJECTS): domain.h ohead.h
+$(OBJECTS): domain.h overhead.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

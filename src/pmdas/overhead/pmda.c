@@ -1,5 +1,5 @@
 /*
- * ohead(1) PMDA 
+ * overhead(1) PMDA 
  *
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
@@ -21,7 +21,7 @@
  */
 
 #include <ctype.h>
-#include "ohead.h"
+#include "overhead.h"
 #include "domain.h"
 
 __uint32_t	refreshtime = 60;	/* default refresh time, 1 minute */
@@ -30,7 +30,7 @@ long		hertz;			/* kernel clock rate for "ticks" */
 grouptab_t	*grouptab;		/* group of interest */
 int		ngroup;			/* number of grouptab[] entries */
 
-extern void	ohead_init(pmdaInterface *);
+extern void	overhead_init(pmdaInterface *);
 extern int	do_config(char *);
 
 void
@@ -75,8 +75,8 @@ main(int argc, char **argv)
     if ((env= getenv("PROC_PREFIX")) != NULL)
 	proc_prefix = env;
 
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmGetProgname(), OHEAD, 
-		"ohead.log", NULL);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmGetProgname(), OVERHEAD, 
+		"overhead.log", NULL);
 
     while ((n = pmdaGetOpt(argc, argv,"c:CD:d:l:R:?",
 			&dispatch, &sts)) != EOF) {
@@ -119,7 +119,7 @@ main(int argc, char **argv)
 
     pmdaOpenLog(&dispatch);
 
-    ohead_init(&dispatch);
+    overhead_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
 

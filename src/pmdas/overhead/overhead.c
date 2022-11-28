@@ -15,7 +15,7 @@
  */
 
 #include <ctype.h>
-#include "ohead.h"
+#include "overhead.h"
 #include "domain.h"
 #include "libpcp.h"
 #include <assert.h>
@@ -36,19 +36,19 @@ pthread_mutex_t		proctab_mutex;	/* control access to proctab[] */
 
 /*
  * all metrics supported in this PMDA - one table entry for each,
- * built dynamically in ohead_init()
+ * built dynamically in overhead_init()
  */
 static pmdaMetric	*metrics;
 static int      	nmetric;
 
 /* 
  * one instance domain per group of interest, built dynamically
- * in ohead_init()
+ * in overhead_init()
  */
 static pmdaIndom	*indomtab;
 
 /*
- * PMNS for (all) dynamic metrics, built in ohead_init()
+ * PMNS for (all) dynamic metrics, built in overhead_init()
  */
 static pmdaNameSpace *pmns;
 
@@ -118,7 +118,7 @@ refresh_indom(int gid)
 }
 
 static int
-ohead_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
+overhead_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 {
     int			i;		/* over pmidlist[] */
     int			j;		/* over vset->vlist[] */
@@ -247,7 +247,7 @@ ohead_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 	    if (pmID_cluster(pmidlist[i]) == 4095) {
 		int		k;
 		if (pmID_item(pmidlist[i]) == 0) {
-		    /* ohead.control.refresh */
+		    /* overhead.control.refresh */
 		    found = 1;
 fprintf(stderr, "fetch refreshtime=%d\n", refreshtime);
 		    atom.ul = refreshtime;
@@ -258,15 +258,15 @@ fprintf(stderr, "fetch refreshtime=%d\n", refreshtime);
 			    found = 1;
 			    switch (pmID_item(pmidlist[i])) {
 
-			    case 10:	/* ohead.nproc */
+			    case 10:	/* overhead.nproc */
 				atom.ul = gp->nproc;
 				break;
 
-			    case 11:	/* ohead.nproc_active */
+			    case 11:	/* overhead.nproc_active */
 				atom.ul = gp->nproc_active;
 				break;
 
-			    case 12:	/* ohead.cpu */
+			    case 12:	/* overhead.cpu */
 				atom.d = 0;
 				for (k  = 0; k < gp->nproctab; k++) {
 				    proctab_t	*pp = &gp->proctab[k];
@@ -298,15 +298,15 @@ fprintf(stderr, "fetch refreshtime=%d\n", refreshtime);
 				found = 1;
 				switch (pmID_item(pmidlist[i])) {
 
-				    case 0:	/* ohead.<group>.cpu */
+				    case 0:	/* overhead.<group>.cpu */
 					atom.d = pp->burn.stime + pp->burn.utime;
 					break;
 
-				    case 10:	/* ohead.<group>.stime */
+				    case 10:	/* overhead.<group>.stime */
 					atom.d = pp->burn.stime;
 					break;
 
-				    case 11:	/* ohead.<group>.utime */
+				    case 11:	/* overhead.<group>.utime */
 					atom.d = pp->burn.utime;
 					break;
 
@@ -349,7 +349,7 @@ fprintf(stderr, "fetch refreshtime=%d\n", refreshtime);
 }
 
 static int
-ohead_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
+overhead_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
     int		gid;
 
@@ -363,7 +363,7 @@ ohead_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt
 }
 
 static int
-ohead_text(int ident, int type, char **buffer, pmdaExt *ext)
+overhead_text(int ident, int type, char **buffer, pmdaExt *ext)
 {
     static char help[2048];
     int		oneline = (type & PM_TEXT_ONELINE) == PM_TEXT_ONELINE;
@@ -372,7 +372,7 @@ ohead_text(int ident, int type, char **buffer, pmdaExt *ext)
 	pmID	pmid = (pmID)ident;
 	if (pmID_cluster(pmid) == 4095) {
 	    switch (pmID_item(pmid)) {
-		case 0:		/* ohead.control.refresh */
+		case 0:		/* overhead.control.refresh */
 			if (oneline)
 			    pmsprintf(help, sizeof(help), "refresh interval (seconds)");
 			else
@@ -381,31 +381,31 @@ ohead_text(int ident, int type, char **buffer, pmdaExt *ext)
 to each of the configured groups, and extracting resource usage over\n\
 the last interval for individual processes and groups.\n\
 \n\
-Defaults to 60 (seconds) or the -R command line option to pmdaohead\n\
+Defaults to 60 (seconds) or the -R command line option to pmdaoverhead\n\
 when it is launched, but can be changed using pmstore(1).");
 			break;
 
-		case 10:	/* ohead.nproc */
-			pmsprintf(help, sizeof(help), "number of processes in each ohead group");
+		case 10:	/* overhead.nproc */
+			pmsprintf(help, sizeof(help), "number of processes in each overhead group");
 			break;
 
-		case 11:	/* ohead.nproc_active */
+		case 11:	/* overhead.nproc_active */
 			if (oneline)
-			    pmsprintf(help, sizeof(help), "number of active processes in each ohead group");
+			    pmsprintf(help, sizeof(help), "number of active processes in each overhead group");
 			else
 			    pmsprintf(help, sizeof(help),
-"Within each ohead group there may be many processes.  This metric reports\n\
+"Within each overhead group there may be many processes.  This metric reports\n\
 the number of those processes that used some CPU time (user and/or system)\n\
 in the last interval.");
 			break;
 
-		case 12:	/* ohead.cpu */
+		case 12:	/* overhead.cpu */
 			if (oneline)
-			    pmsprintf(help, sizeof(help), "total CPU utlization for each ohead group");
+			    pmsprintf(help, sizeof(help), "total CPU utlization for each overhead group");
 			else
 			    pmsprintf(help, sizeof(help),
 "Sum of the user and system CPU time in the last interval for all\n\
-processes in each ohead group.\n\
+processes in each overhead group.\n\
 \n\
 A value of 1.0 means the equivalent of 100%% of one CPU is being used.");
 			break;
@@ -425,7 +425,7 @@ A value of 1.0 means the equivalent of 100%% of one CPU is being used.");
 		return PM_ERR_PMID;
 
 	    switch (pmID_item(pmid)) {
-		case 0:		/* ohead.<group>.cpu */
+		case 0:		/* overhead.<group>.cpu */
 			if (oneline)
 			    pmsprintf(help, sizeof(help), "CPU utlization for each process in the \"%s\" group", gp->name);
 			else
@@ -436,7 +436,7 @@ process in the \"%s\" group.\n\
 A value of 1.0 means the equivalent of 100%% of one CPU is being used.", gp->name);
 			break;
 
-		case 10:	/* ohead.<group>.stime */
+		case 10:	/* overhead.<group>.stime */
 			if (oneline)
 			    pmsprintf(help, sizeof(help), "System CPU utlization for each process in the \"%s\" group", gp->name);
 			else
@@ -447,7 +447,7 @@ A value of 1.0 means the equivalent of 100%% of one CPU is being used.", gp->nam
 A value of 1.0 means the equivalent of 100%% of one CPU is being used.", gp->name);
 			break;
 
-		case 11:	/* ohead.<group>.utime */
+		case 11:	/* overhead.<group>.utime */
 			if (oneline)
 			    pmsprintf(help, sizeof(help), "User CPU utlization for each process in the \"%s\" group", gp->name);
 			else
@@ -491,7 +491,7 @@ A value of 1.0 means the equivalent of 100%% of one CPU is being used.", gp->nam
 }
 
 static int
-ohead_store(pmResult *result, pmdaExt *ext)
+overhead_store(pmResult *result, pmdaExt *ext)
 {
     int		i;
     pmValueSet	*vsp;
@@ -502,7 +502,7 @@ ohead_store(pmResult *result, pmdaExt *ext)
 	vsp = result->vset[i];
 	if (pmID_cluster(vsp->pmid) == 4095) {
 	    switch (pmID_item(vsp->pmid)) {
-		case 0:	/* ohead.control.refreshtime PMID: ...4095.0 */
+		case 0:	/* overhead.control.refreshtime PMID: ...4095.0 */
 		    ival = vsp->vlist[0].value.lval;
 		    if (ival < 0) {
 			sts = PM_ERR_SIGN;
@@ -530,26 +530,26 @@ ohead_store(pmResult *result, pmdaExt *ext)
 }
 
 static int
-ohead_pmid(const char *name, pmID *pmid, pmdaExt *ext)
+overhead_pmid(const char *name, pmID *pmid, pmdaExt *ext)
 {
     return pmdaTreePMID(pmns, name, pmid);
 }
 
 static int
-ohead_name(pmID pmid, char ***namelist, pmdaExt *ext)
+overhead_name(pmID pmid, char ***namelist, pmdaExt *ext)
 {
     return pmdaTreeName(pmns, pmid, namelist);
     return -1;
 }
 
 static int
-ohead_children(const char *name, int traverse, char ***offspring, int **status, pmdaExt *ext)
+overhead_children(const char *name, int traverse, char ***offspring, int **status, pmdaExt *ext)
 {
     return pmdaTreeChildren(pmns, name, traverse, offspring, status);
 }
 
 void
-ohead_init(pmdaInterface *dp)
+overhead_init(pmdaInterface *dp)
 {
     grouptab_t	*gp;
     int		i;
@@ -568,7 +568,7 @@ ohead_init(pmdaInterface *dp)
     nmetric = ngroup * 3 + 4;
     metrics = (pmdaMetric *)malloc(nmetric * sizeof(pmdaMetric));
     if (metrics == NULL) {
-	pmNoMem("ohead_init: metrics", nmetric * sizeof(pmdaMetric), PM_FATAL_ERR);
+	pmNoMem("overhead_init: metrics", nmetric * sizeof(pmdaMetric), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
 
@@ -582,7 +582,7 @@ ohead_init(pmdaInterface *dp)
 	    indomtab[i].it_numinst = ngroup;
 	    indomtab[i].it_set = (pmdaInstid *)malloc(ngroup * sizeof(pmdaInstid));
 	    if (indomtab[i].it_set == NULL) {
-		pmNoMem("ohead_init: indomtab", ngroup * sizeof(pmdaInstid), PM_FATAL_ERR);
+		pmNoMem("overhead_init: indomtab", ngroup * sizeof(pmdaInstid), PM_FATAL_ERR);
 		/* NOTREACHED */
 	    }
 	    for (g = 0; g < ngroup; g++) {
@@ -600,7 +600,7 @@ ohead_init(pmdaInterface *dp)
 	i++;
     }
 
-    /* ohead.control.refresh */
+    /* overhead.control.refresh */
     i = 0;
     metrics[i].m_user = NULL;
     metrics[i].m_desc.pmid = pmID_build(domain,4095,0);
@@ -610,13 +610,13 @@ ohead_init(pmdaInterface *dp)
     memset((void *)&metrics[i].m_desc.units, 0, sizeof(pmUnits));;
     metrics[i].m_desc.units.dimTime = 1;
     metrics[i].m_desc.units.scaleTime = PM_TIME_SEC;
-    if ((sts = pmdaTreeInsert(pmns, metrics[i].m_desc.pmid, "ohead.control.refresh")) < 0) {
-        pmNotifyErr(LOG_ERR, "%s: failed to insert \"ohead.control.refresh\" into pmns tree: %s\n",
+    if ((sts = pmdaTreeInsert(pmns, metrics[i].m_desc.pmid, "overhead.control.refresh")) < 0) {
+        pmNotifyErr(LOG_ERR, "%s: failed to insert \"overhead.control.refresh\" into pmns tree: %s\n",
                         pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
-    /* ohead.nproc */
+    /* overhead.nproc */
     i++;
     metrics[i].m_user = NULL;
     metrics[i].m_desc.pmid = pmID_build(domain,4095,10);
@@ -626,13 +626,13 @@ ohead_init(pmdaInterface *dp)
     memset((void *)&metrics[i].m_desc.units, 0, sizeof(pmUnits));;
     metrics[i].m_desc.units.dimCount = 1;
     metrics[i].m_desc.units.scaleCount = PM_COUNT_ONE;
-    if ((sts = pmdaTreeInsert(pmns, metrics[i].m_desc.pmid, "ohead.nproc")) < 0) {
-	pmNotifyErr(LOG_ERR, "%s: failed to insert \"ohead.nproc\" into pmns tree: %s\n",
+    if ((sts = pmdaTreeInsert(pmns, metrics[i].m_desc.pmid, "overhead.nproc")) < 0) {
+	pmNotifyErr(LOG_ERR, "%s: failed to insert \"overhead.nproc\" into pmns tree: %s\n",
 			pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
-    /* ohead.nproc_active */
+    /* overhead.nproc_active */
     i++;
     metrics[i].m_user = NULL;
     metrics[i].m_desc.pmid = pmID_build(domain,4095,11);
@@ -642,13 +642,13 @@ ohead_init(pmdaInterface *dp)
     memset((void *)&metrics[i].m_desc.units, 0, sizeof(pmUnits));;
     metrics[i].m_desc.units.dimCount = 1;
     metrics[i].m_desc.units.scaleCount = PM_COUNT_ONE;
-    if ((sts = pmdaTreeInsert(pmns, metrics[i].m_desc.pmid, "ohead.nproc_active")) < 0) {
-	pmNotifyErr(LOG_ERR, "%s: failed to insert \"ohead.nproc_active\" into pmns tree: %s\n",
+    if ((sts = pmdaTreeInsert(pmns, metrics[i].m_desc.pmid, "overhead.nproc_active")) < 0) {
+	pmNotifyErr(LOG_ERR, "%s: failed to insert \"overhead.nproc_active\" into pmns tree: %s\n",
 			pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
-    /* ohead.cpu */
+    /* overhead.cpu */
     i++;
     metrics[i].m_user = NULL;
     metrics[i].m_desc.pmid = pmID_build(domain,4095,12);
@@ -656,8 +656,8 @@ ohead_init(pmdaInterface *dp)
     metrics[i].m_desc.indom = pmInDom_build(domain,4095);
     metrics[i].m_desc.sem = PM_SEM_INSTANT;
     memset((void *)&metrics[i].m_desc.units, 0, sizeof(pmUnits));;
-    if ((sts = pmdaTreeInsert(pmns, metrics[i].m_desc.pmid, "ohead.cpu")) < 0) {
-	pmNotifyErr(LOG_ERR, "%s: failed to insert \"ohead.cpu\" into pmns tree: %s\n",
+    if ((sts = pmdaTreeInsert(pmns, metrics[i].m_desc.pmid, "overhead.cpu")) < 0) {
+	pmNotifyErr(LOG_ERR, "%s: failed to insert \"overhead.cpu\" into pmns tree: %s\n",
 			pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -665,7 +665,7 @@ ohead_init(pmdaInterface *dp)
     for (gp = grouptab; gp < &grouptab[ngroup]; gp++) {
 	char	namebuf[1024];
 
-	/* ohead.<grp>.cpu */
+	/* overhead.<grp>.cpu */
 	i++;
 	metrics[i].m_user = NULL;
 	metrics[i].m_desc.pmid = pmID_build(domain,gp->id,0);
@@ -673,8 +673,8 @@ ohead_init(pmdaInterface *dp)
 	metrics[i].m_desc.indom = pmInDom_build(domain,gp->id);
 	metrics[i].m_desc.sem = PM_SEM_INSTANT;
 	memset((void *)&metrics[i].m_desc.units, 0, sizeof(pmUnits));;
-	if ((sts = pmsprintf(namebuf, sizeof(namebuf), "ohead.%s.cpu", gp->name)) < 0) {
-	    pmNotifyErr(LOG_ERR, "%s: failed to build \"ohead.%s.cpu\" name for pmns tree: %s\n",
+	if ((sts = pmsprintf(namebuf, sizeof(namebuf), "overhead.%s.cpu", gp->name)) < 0) {
+	    pmNotifyErr(LOG_ERR, "%s: failed to build \"overhead.%s.cpu\" name for pmns tree: %s\n",
 			    pmGetProgname(), gp->name, pmErrStr(sts));
 	    exit(1);
 	}
@@ -684,7 +684,7 @@ ohead_init(pmdaInterface *dp)
 	    exit(1);
 	}
 
-	/* ohead.<grp>.stime */
+	/* overhead.<grp>.stime */
 	i++;
 	metrics[i].m_user = NULL;
 	metrics[i].m_desc.pmid = pmID_build(domain,gp->id,10);
@@ -692,8 +692,8 @@ ohead_init(pmdaInterface *dp)
 	metrics[i].m_desc.indom = pmInDom_build(domain,gp->id);
 	metrics[i].m_desc.sem = PM_SEM_INSTANT;
 	memset((void *)&metrics[i].m_desc.units, 0, sizeof(pmUnits));;
-	if ((sts = pmsprintf(namebuf, sizeof(namebuf), "ohead.%s.stime", gp->name)) < 0) {
-	    pmNotifyErr(LOG_ERR, "%s: failed to build \"ohead.%s.stime\" name for pmns tree: %s\n",
+	if ((sts = pmsprintf(namebuf, sizeof(namebuf), "overhead.%s.stime", gp->name)) < 0) {
+	    pmNotifyErr(LOG_ERR, "%s: failed to build \"overhead.%s.stime\" name for pmns tree: %s\n",
 			    pmGetProgname(), gp->name, pmErrStr(sts));
 	    exit(1);
 	}
@@ -703,7 +703,7 @@ ohead_init(pmdaInterface *dp)
 	    exit(1);
 	}
 
-	/* ohead.<grp>.utime */
+	/* overhead.<grp>.utime */
 	i++;
 	metrics[i].m_user = NULL;
 	metrics[i].m_desc.pmid = pmID_build(domain,gp->id,11);
@@ -711,8 +711,8 @@ ohead_init(pmdaInterface *dp)
 	metrics[i].m_desc.indom = pmInDom_build(domain,gp->id);
 	metrics[i].m_desc.sem = PM_SEM_INSTANT;
 	memset((void *)&metrics[i].m_desc.units, 0, sizeof(pmUnits));;
-	if ((sts = pmsprintf(namebuf, sizeof(namebuf), "ohead.%s.utime", gp->name)) < 0) {
-	    pmNotifyErr(LOG_ERR, "%s: failed to build \"ohead.%s.utime\" name for pmns tree: %s\n",
+	if ((sts = pmsprintf(namebuf, sizeof(namebuf), "overhead.%s.utime", gp->name)) < 0) {
+	    pmNotifyErr(LOG_ERR, "%s: failed to build \"overhead.%s.utime\" name for pmns tree: %s\n",
 			    pmGetProgname(), gp->name, pmErrStr(sts));
 	    exit(1);
 	}
@@ -724,13 +724,13 @@ ohead_init(pmdaInterface *dp)
     }
     assert(i == nmetric-1);
 
-    dp->version.four.fetch = ohead_fetch;
-    dp->version.four.instance = ohead_instance;
-    dp->version.four.store = ohead_store;
-    dp->version.four.text = ohead_text;
-    dp->version.four.pmid = ohead_pmid;
-    dp->version.four.name = ohead_name;
-    dp->version.four.children = ohead_children;
+    dp->version.four.fetch = overhead_fetch;
+    dp->version.four.instance = overhead_instance;
+    dp->version.four.store = overhead_store;
+    dp->version.four.text = overhead_text;
+    dp->version.four.pmid = overhead_pmid;
+    dp->version.four.name = overhead_name;
+    dp->version.four.children = overhead_children;
 
     pthread_mutex_init(&proctab_mutex, NULL);
 

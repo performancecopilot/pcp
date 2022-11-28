@@ -12,24 +12,24 @@
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
 .\"
-.TH PMDAOHEAD 1 "PCP" "Performance Co-Pilot"
+.TH PMDAOVERHEAD 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmdaohead\f1 \- performance metrics domain agent (PMDA) exporting resource consumption ``overhead'' for groups of processes
+\f3pmdaoverhead\f1 \- performance metrics domain agent (PMDA) exporting resource consumption metrics for groups of processes
 .SH SYNOPSIS
-\f3$PCP_PMDAS_DIR/ohead/pmdaohead\f1
+\f3$PCP_PMDAS_DIR/overhead/pmdaoverhead\f1
 [\f3\-C\f1]
 [\f3\-c\f1 \f2config\f1]
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-R\f1 \f2interval\f1]
 .SH DESCRIPTION
-.B pmdaohead
+.B pmdaoverhead
 is a configurable Performance Metrics Domain
 Agent (PMDA) for exporting resource consupmtion for groups of related
 processes.
 .PP
 The
-.B pmdaohead
+.B pmdaoverhead
 command line options are:
 .TP 4
 .B \-C
@@ -42,7 +42,7 @@ may be either a file or a directory; in the latter case all
 the files within
 .I config
 are assumed to be configuration files for
-.B pmdaohead
+.B pmdaoverhead
 and they will all be processed.
 .RS 4
 .PP
@@ -51,7 +51,7 @@ of interest, using the syntax described
 in the ``CONFIGURATION'' section below.
 .PP
 By default all configuration files below the
-.I $PCP_SYSCONF_DIR/ohead/conf.d/
+.I $PCP_SYSCONF_DIR/overhead/conf.d/
 directory are used.
 .RE
 .TP
@@ -67,11 +67,11 @@ number should be used for the same PMDA on all hosts.
 .TP
 .B \-l
 Location of the log file.  By default, a log file named
-.I ohead.log
+.I overhead.log
 is written in the current directory of
 .BR pmcd (1)
 when
-.B pmdaohead
+.B pmdaoverhead
 is started, i.e.
 .BR $PCP_LOG_DIR/pmcd .
 If the log file cannot
@@ -116,7 +116,7 @@ clause that has the form
 where
 .I name
 is a unique name for the group across all groups in the
-.B pmdaohead
+.B pmdaoverhead
 configuration files.
 As
 .I name
@@ -148,7 +148,7 @@ clause has the form
 where
 .I ident
 is a unique identifier number for the group accross all groups in the
-.B pmdaohead
+.B pmdaoverhead
 configuration files.
 Valid values for
 .I ident
@@ -195,13 +195,13 @@ and all the PMDA processes launched by
 and any of their children, etc.
 .RE
 .SH INSTALLATION
-If you want access to the names, help text and values for the ohead
+If you want access to the names, help text and values for the overhead
 performance metrics, do the following as root:
 .PP
 .ft CW
 .nf
 .in +0.5i
-# cd $PCP_PMDAS_DIR/ohead
+# cd $PCP_PMDAS_DIR/overhead
 # ./Install
 .in
 .fi
@@ -212,13 +212,13 @@ If you want to undo the installation, do the following as root:
 .ft CW
 .nf
 .in +0.5i
-# cd $PCP_PMDAS_DIR/ohead
+# cd $PCP_PMDAS_DIR/overhead
 # ./Remove
 .in
 .fi
 .ft 1
 .PP
-.B pmdaohead
+.B pmdaoverhead
 is launched by
 .B pmcd
 and should never be executed directly.
@@ -230,24 +230,24 @@ when the agent is installed or removed.
 .TP 10
 .B $PCP_PMCDCONF_PATH
 command line options used to launch
-.B pmdaohead
+.B pmdaoverhead
 .TP 10
-.B $PCP_PMDAS_DIR/ohead/Install
+.B $PCP_PMDAS_DIR/overhead/Install
 installation script for the
-.B pmdaohead
+.B pmdaoverhead
 agent
 .TP 10
-.B $PCP_PMDAS_DIR/ohead/Remove
+.B $PCP_PMDAS_DIR/overhead/Remove
 undo installation script for the
-.B pmdaohead
+.B pmdaoverhead
 agent
 .TP 10
-.B $PCP_LOG_DIR/pmcd/ohead.log
+.B $PCP_LOG_DIR/pmcd/overhead.log
 default log file for error messages and other information from
-.B pmdaohead
+.B pmdaoverhead
 .TP 10
-.B $PCP_SYSCONF_DIR/ohead/conf.d
-directory containing configuration files for the ohead metrics
+.B $PCP_SYSCONF_DIR/overhead/conf.d
+directory containing configuration files for the overhead metrics
 .PD
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix

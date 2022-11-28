@@ -13,13 +13,13 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# Install the ohead PMDA and/or PMNS
+# Install the overhead PMDA and/or PMNS
 #
 
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-iam=ohead
+iam=overhead
 
 # Do it
 #
@@ -41,7 +41,7 @@ umask 022
 
 # PMDA variables
 #
-config="$PCP_SYSCONF_DIR/ohead/conf.d"
+config="$PCP_SYSCONF_DIR/overhead/conf.d"
 refresh=60
 
 _quit()

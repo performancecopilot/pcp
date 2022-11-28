@@ -11,10 +11,10 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  *
- * Parse configuration files for the ohead PMDA.
+ * Parse configuration files for the overhead PMDA.
  */
 
-#include "ohead.h"
+#include "overhead.h"
 #include <sys/stat.h>
 #include <ctype.h>
 
@@ -381,7 +381,7 @@ do_config(char *configfile)
 	    exit(1);
 	}
 	strcpy(path, p);
-	strcat(path, "/ohead/conf.d");
+	strcat(path, "/overhead/conf.d");
 	pathname = path;
     }
     else

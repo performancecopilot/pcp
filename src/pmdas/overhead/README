@@ -1,5 +1,5 @@
-Performance Co-Pilot ohead PMDA for Monitoring Groups of Processes
-===================================================================
+Performance Co-Pilot overhead PMDA for Monitoring Groups of Processes
+=====================================================================
 
 This PMDA is designed to be configurable to monitor ...
 TODO
@@ -14,12 +14,12 @@ Metrics
 Once the PMDA has been installed, the following command will list all
 the available metrics and their explanatory "help" text:
 
-	$ pminfo -fT ohead
+	$ pminfo -fT overhead
 
-Installation of the ohead PMDA
-==============================
+Installation of the overhead PMDA
+=================================
 
- +  # cd $PCP_PMDAS_DIR/ohead
+ +  # cd $PCP_PMDAS_DIR/overhead
 
  +  Check that there is no clash with the Performance Metrics Domain
     number defined in ./domain.h and the other PMDAs currently in use
@@ -31,7 +31,7 @@ Installation of the ohead PMDA
 	# ./Install
 
     Answer the questions, TODO
-    See $PCP_PMDAS_DIR/ohead/sample.conf
+    See $PCP_PMDAS_DIR/overhead/sample.conf
     for examples of group specifications.
 
 De-installation
@@ -39,14 +39,14 @@ De-installation
 
  +  Simply use
 
-	# cd $PCP_PMDAS_DIR/ohead
+	# cd $PCP_PMDAS_DIR/overhead
 	# ./Remove
 
 Changing the settings
 =====================
 
 The refresh cycle time can be dynamically modified using pmstore(1)
-for the metric ohead.control.refresh.
+for the metric overhead.control.refresh.
 
 To make permanent changes, re-run the Install script.
 
@@ -55,7 +55,7 @@ Troubleshooting
 
  +  After installing or restarting the agent, the PMCD log file
     ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
-    ($PCP_LOG_DIR/pmcd/ohead.log) should be checked for any warnings
+    ($PCP_LOG_DIR/pmcd/overhead.log) should be checked for any warnings
     or errors.
 
  +  If the Install script reports some warnings when checking the
@@ -63,6 +63,6 @@ Troubleshooting
 
  +  Additional information can be logged if there appears to be
     problems.  The PCP application debug flags will cause the PMDA to
-    report additional information in $PCP_LOG_DIR/pmcd/ohead.log.
+    report additional information in $PCP_LOG_DIR/pmcd/overhead.log.
     Set debug flags by editing /etc/pcp/pmcd/pmcd.conf and adding
     -Dflag[,...] (see pmdbg -l for the available flags)
