@@ -108,9 +108,9 @@ parse(char *configfile)
     int		c;
     char	*p;
     int		state;
-    char	*name;
+    char	*name = NULL;
     int		id;
-    char	*pattern;
+    char	*pattern = NULL;
     int		version = 1;
     grouptab_t	*gp;
 
@@ -123,8 +123,6 @@ parse(char *configfile)
     }
 
     fname = configfile;
-    name = NULL;
-    pattern = NULL;
 
     state = S_INIT;
 
@@ -224,7 +222,6 @@ parse(char *configfile)
 	    if (c == '{') {
 		state = S_PARAM;
 		id = -1;
-		pattern = NULL;
 	    }
 	    else {
 		fprintf(stderr, "parse: %s[%d]: Error: expected \"{\" after group name\n", fname, lineno);
@@ -247,10 +244,12 @@ parse(char *configfile)
 		gp = &grouptab[ngroup-1];
 		gp->id = id;
 		gp->name = name;
+		name = NULL;
 		gp->nproctab = gp->nproc = gp->nproc_active = 0;
 		gp->indom_cycle = -1;
 		gp->proctab = NULL;
 		gp->pattern = pattern;
+		pattern = NULL;
 		if ((lsts = regcomp(&gp->regex, gp->pattern, REG_EXTENDED|REG_NOSUB)) != 0) {
 		    char errbuf[1024];
 		    regerror(lsts, &gp->regex, errbuf, sizeof(errbuf));
@@ -258,7 +257,7 @@ parse(char *configfile)
 		    goto fail;
 		}
 		if (pmDebugOptions.appl0)
-		    fprintf(stderr, "add group \"%s\" id=%d pattern=\"%s\"\n", name, id, pattern);
+		    fprintf(stderr, "add group [%d] \"%s\" id=%d pattern=\"%s\"\n", (int)(gp - grouptab), gp->name, gp->id, gp->pattern);
 		/* ready for next "group", if any */
 		state = S_GROUP;
 	    }
@@ -351,7 +350,16 @@ parse(char *configfile)
 	}
     }
 
+    if (state != S_GROUP && state != S_INIT) {
+	fprintf(stderr, "parse: %s[%d]: Error: incomplete specification (parser state=%s)\n", fname, lineno, statestr(state));
+	goto fail;
+    }
+
+    if (ngroup == 0)
+	fprintf(stderr, "parse: %s: Warning: no specifications found\n", fname);
+
     fclose(fp);
+
     return 0;
 
 fail:

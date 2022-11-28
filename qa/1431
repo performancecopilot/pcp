@@ -238,6 +238,45 @@ $PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c /dev/tty 2>&1 \
 | _filter
 
 echo
+echo "=== incomplete specifications ==="
+
+cat <<'End-of-File' >$tmp.conf
+# nothing at all
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# truncated after group
+version 1
+group
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# truncated after {
+version 1
+group foo {
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# truncated after <regex>
+version 1
+group foo {
+    id: 0
+    pattern: bar
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+echo
 echo "=== semantic errors ==="
 
 cat <<'End-of-File' >$tmp.conf
