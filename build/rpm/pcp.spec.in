@@ -324,7 +324,7 @@ Requires: pcp-pmda-redis pcp-pmda-samba pcp-pmda-slurm pcp-pmda-zimbra
 Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
 Requires: pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
-Requires: pcp-pmda-lustrecomm pcp-pmda-docker pcp-pmda-smart pcp-pmda-ohead
+Requires: pcp-pmda-lustrecomm pcp-pmda-docker pcp-pmda-smart
 Requires: pcp-pmda-hacluster pcp-pmda-sockets pcp-pmda-podman
 %if "@have_python@" == "true"
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
@@ -960,22 +960,6 @@ Requires: pcp = @package_version@ pcp-libs = @package_version@
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting podman container and pod statistics via the podman REST API.
 #end pcp-pmda-podman
-
-#
-# pcp-pmda-ohead
-#
-%package pmda-ohead
-License: GPLv2+
-Summary: Performance Co-Pilot (PCP) metrics for overhead measurement
-URL: https://pcp.io
-Requires: pcp = @package_version@ pcp-libs = @package_version@
-
-%description pmda-ohead
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting resource consumption statistics for groups of "interesting"
-processes.  The groups are determined by matching process command names
-against regular expressions and groups are configurable.
-#end pcp-pmda-ohead
 
 %if "@pmda_statsd@" == "true"
 #
@@ -2363,7 +2347,6 @@ basic_manifest | keep '(etc/pcp|pmdas)/oracle(/|$)' >pcp-pmda-oracle-files
 basic_manifest | keep '(etc/pcp|pmdas)/pdns(/|$)' >pcp-pmda-pdns-files
 basic_manifest | keep '(etc/pcp|pmdas)/perfevent(/|$)' >pcp-pmda-perfevent-files
 basic_manifest | keep '(etc/pcp|pmdas)/podman(/|$)' >pcp-pmda-podman-files
-basic_manifest | keep '(etc/pcp|pmdas)/ohead(/|$)' >pcp-pmda-ohead-files
 basic_manifest | keep '(etc/pcp|pmdas)/postfix(/|$)' >pcp-pmda-postfix-files
 basic_manifest | keep '(etc/pcp|pmdas)/postgresql(/|$)' >pcp-pmda-postgresql-files
 basic_manifest | keep '(etc/pcp|pmdas)/rabbitmq(/|$)' >pcp-pmda-rabbitmq-files
@@ -2401,7 +2384,7 @@ for pmda_package in \
     mailq memcache mic mounts mongodb mssql mysql \
     named netcheck netfilter news nfsclient nginx \
     nutcracker nvidia \
-    ohead openmetrics openvswitch oracle \
+    openmetrics openvswitch oracle \
     pdns perfevent podman postfix postgresql \
     rabbitmq redis roomtemp rsyslog \
     samba sendmail shping slurm smart snmp \
@@ -2627,9 +2610,6 @@ done
 
 %preun pmda-podman
 %{pmda_remove "$1" "podman"}
-
-%preun pmda-ohead
-%{pmda_remove "$1" "ohead"}
 
 %if "@pmda_statsd@" == "true"
 %preun pmda-statsd
@@ -2987,8 +2967,6 @@ fi
 %endif
 
 %files pmda-podman -f pcp-pmda-podman-files.rpm
-
-%files pmda-ohead -f pcp-pmda-ohead-files.rpm
 
 %if "@pmda_statsd@" == "true"
 %files pmda-statsd -f pcp-pmda-statsd-files.rpm

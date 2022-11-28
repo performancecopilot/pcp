@@ -535,7 +535,7 @@ Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart
 Requires: pcp-pmda-hacluster pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-denki pcp-pmda-docker pcp-pmda-bind2
-Requires: pcp-pmda-sockets pcp-pmda-podman pcp-pmda-ohead
+Requires: pcp-pmda-sockets pcp-pmda-podman
 %if !%{disable_statsd}
 Requires: pcp-pmda-statsd
 %endif
@@ -911,21 +911,6 @@ Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 %description pmda-podman
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting podman container and pod statistics via the podman REST API.
-
-#
-# pcp-pmda-ohead
-#
-%package pmda-ohead
-License: GPLv2+
-Summary: Performance Co-Pilot (PCP) metrics for overhead measurement
-URL: https://pcp.io
-Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-
-%description pmda-ohead
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting resource consumption statistics for groups of "interesting"
-processes.  The groups are determined by matching process command names
-against regular expressions and groups are configurable.
 
 %if !%{disable_statsd}
 #
@@ -2522,7 +2507,6 @@ basic_manifest | keep '(etc/pcp|pmdas)/nfsclient(/|$)' >pcp-pmda-nfsclient-files
 basic_manifest | keep '(etc/pcp|pmdas)/nginx(/|$)' >pcp-pmda-nginx-files
 basic_manifest | keep '(etc/pcp|pmdas)/nutcracker(/|$)' >pcp-pmda-nutcracker-files
 basic_manifest | keep '(etc/pcp|pmdas)/nvidia(/|$)' >pcp-pmda-nvidia-files
-basic_manifest | keep '(etc/pcp|pmdas)/ohead(/|$)' >pcp-pmda-ohead-files
 basic_manifest | keep '(etc/pcp|pmdas)/openmetrics(/|$)' >pcp-pmda-openmetrics-files
 basic_manifest | keep '(etc/pcp|pmdas|pmieconf)/openvswitch(/|$)' >pcp-pmda-openvswitch-files
 basic_manifest | keep '(etc/pcp|pmdas)/oracle(/|$)' >pcp-pmda-oracle-files
@@ -2567,7 +2551,7 @@ for pmda_package in \
     mailq memcache mic mounts mongodb mssql mysql \
     named netcheck netfilter news nfsclient nginx \
     nutcracker nvidia \
-    ohead openmetrics openvswitch oracle \
+    openmetrics openvswitch oracle \
     pdns perfevent podman postfix postgresql \
     rabbitmq redis roomtemp rpm rsyslog \
     samba sendmail shping slurm smart snmp \
@@ -2767,9 +2751,6 @@ exit 0
 
 %preun pmda-podman
 %{pmda_remove "$1" "podman"}
-
-%preun pmda-ohead
-%{pmda_remove "$1" "ohead"}
 
 %if !%{disable_statsd}
 %preun pmda-statsd
@@ -3135,8 +3116,6 @@ fi
 %endif
 
 %files pmda-podman -f pcp-pmda-podman-files.rpm
-
-%files pmda-ohead -f pcp-pmda-ohead-files.rpm
 
 %if !%{disable_statsd}
 %files pmda-statsd -f pcp-pmda-statsd-files.rpm
