@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1431
-# ohead PMDA config file parser checkout
+# overhead PMDA config file parser checkout
 #
 # Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
 #
@@ -20,7 +20,7 @@ fi
 . ./common.filter
 . ./common.check
 
-[ -x $PCP_PMDAS_DIR/ohead/pmdaohead ] || _notrun "ohead PMDA not installed"
+[ -x $PCP_PMDAS_DIR/overhead/pmdaoverhead ] || _notrun "overhead PMDA not installed"
 
 _cleanup()
 {
@@ -43,9 +43,9 @@ _filter()
 
 # real QA test starts here
 echo "=== OK cases ==="
-conf=$PCP_PMDAS_DIR/ohead/default.conf
+conf=$PCP_PMDAS_DIR/overhead/default.conf
 nl -b a $conf
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $conf 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $conf 2>&1 \
 | _filter
 
 cat <<'End-of-File' >$tmp.conf
@@ -58,16 +58,16 @@ group FoO {	# comment
 } # comment
 End-of-File
 nl -b a $tmp.conf
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
 | _filter
 
 # same via symlink
 ln -s $tmp.conf $tmp.symlink
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.symlink 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.symlink 2>&1 \
 | _filter
 
 # default dir search
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C 2>&1 \
 | _filter
 
 echo
@@ -78,7 +78,7 @@ cat <<'End-of-File' >$tmp.conf
 foo
 End-of-File
 nl -b a $tmp.conf
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
 | _filter
 
 cat <<'End-of-File' >$tmp.conf
@@ -86,7 +86,7 @@ cat <<'End-of-File' >$tmp.conf
 venison 1
 End-of-File
 nl -b a $tmp.conf
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
 | _filter
 
 cat <<'End-of-File' >$tmp.conf
@@ -96,7 +96,7 @@ group longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliog
 {}
 End-of-File
 nl -b a $tmp.conf
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
 | _filter
 
 cat <<'End-of-File' >$tmp.conf
@@ -104,7 +104,7 @@ cat <<'End-of-File' >$tmp.conf
 version foobar
 End-of-File
 nl -b a $tmp.conf
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
 | _filter
 
 cat <<'End-of-File' >$tmp.conf
@@ -112,7 +112,7 @@ cat <<'End-of-File' >$tmp.conf
 version 2
 End-of-File
 nl -b a $tmp.conf
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
 | _filter
 
 cat <<'End-of-File' >$tmp.conf
@@ -124,7 +124,7 @@ grope foo {
 }
 End-of-File
 nl -b a $tmp.conf
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
 | _filter
 
 cat <<'End-of-File' >$tmp.conf
@@ -137,7 +137,7 @@ group foo {
 mumble
 End-of-File
 nl -b a $tmp.conf
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
 | _filter
 
 cat <<'End-of-File' >$tmp.conf
@@ -149,7 +149,7 @@ group 1foo {
 }
 End-of-File
 nl -b a $tmp.conf
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
 | _filter
 
 cat <<'End-of-File' >$tmp.conf
@@ -161,7 +161,7 @@ group foo!bar {
 }
 End-of-File
 nl -b a $tmp.conf
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
 | _filter
 
 cat <<'End-of-File' >$tmp.conf
@@ -174,7 +174,7 @@ group foo {
 }
 End-of-File
 nl -b a $tmp.conf
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
 | _filter
 
 cat <<'End-of-File' >$tmp.conf
@@ -186,7 +186,7 @@ group foo {
 }
 End-of-File
 nl -b a $tmp.conf
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
 | _filter
 
 cat <<'End-of-File' >$tmp.conf
@@ -198,7 +198,7 @@ group foo {
 }
 End-of-File
 nl -b a $tmp.conf
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
 | _filter
 
 cat <<'End-of-File' >$tmp.conf
@@ -210,7 +210,7 @@ group foo {
 }
 End-of-File
 nl -b a $tmp.conf
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
 | _filter
 
 cat <<'End-of-File' >$tmp.conf
@@ -227,14 +227,14 @@ nl -b a $tmp.conf
 # parse: TMP.conf[6]: Error: bad pattern="bar[a-": Unmatched [, [^, [:, [., or [=
 #                                                            ^^^^^ here ^^^^^^^^^
 #
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
 | _filter \
 | sed \
     -e '/bad pattern=/s/Unmatched.*/Unmatched .../' \
 # end
 
 # not a file or dir
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c /dev/tty 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c /dev/tty 2>&1 \
 | _filter
 
 echo
@@ -253,7 +253,7 @@ group bar {
 }
 End-of-File
 nl -b a $tmp.conf
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
 | _filter
 
 cat <<'End-of-File' >$tmp.conf
@@ -266,7 +266,7 @@ group foo {
 }
 End-of-File
 nl -b a $tmp.conf
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
 | _filter
 
 cat <<'End-of-File' >$tmp.conf
@@ -279,7 +279,7 @@ group foo {
 }
 End-of-File
 nl -b a $tmp.conf
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
 | _filter
 
 cat <<'End-of-File' >$tmp.conf
@@ -295,7 +295,7 @@ group foo {
 }
 End-of-File
 nl -b a $tmp.conf
-$PCP_PMDAS_DIR/ohead/pmdaohead -Dappl0 -C -c $tmp.conf 2>&1 \
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
 | _filter
 
 # success, all done

@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1432
-# check cpu time calculation for ohead PMDA
+# check cpu time calculation for overhead PMDA
 #
 # Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
 #
@@ -26,14 +26,14 @@ _cleanup()
     [ -n "$pid1" ] && kill -TERM $pid1
     [ -n "$pid2" ] && kill -TERM $pid2
     rm -f src/hanoi-$seq
-    _cleanup_pmda ohead
+    _cleanup_pmda overhead
     $sudo rm -rf $tmp $tmp.*
 }
 
 status=0	# success is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 
-_prepare_pmda ohead
+_prepare_pmda overhead
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # 32-disk Tower of Hanoi problem takes about 30 seconds on my laptop
@@ -62,7 +62,7 @@ _filter_pminfo()
 /\.utime$/			{ i = 0; state = 1 }
 /\.stime$/			{ i = 0; state = 2 }
 /\.qa\.cpu$/			{ i = 0; state = 3 }
-$1 == "ohead.cpu"		{ state = 4 }
+$1 == "overhead.cpu"		{ state = 4 }
 NF == 0				{ state = 0 }
 # usr time should be around 1.0 for MP systems, but could be as low
 # as 0.50 for a single CPU system, then allow 5% slop at either end
@@ -99,7 +99,7 @@ state == 3 && $1 == "inst"	{ c[i] = $7
 				    print $7 " (below) is outside the 0.475 ... 1.05 range"
 				  i++
 				}
-# ohead.cpu is just the sum of the components, so should be equal, but
+# overhead.cpu is just the sum of the components, so should be equal, but
 # allow 0.01% slop for arithmetic error
 # $6 is ...
 # inst [1 or "qa"] value 1.997642781517809
@@ -128,7 +128,7 @@ group qa {
 End-of-File
 
 # real QA test starts here
-cd $PCP_PMDAS_DIR/ohead
+cd $PCP_PMDAS_DIR/overhead
 # get to a known starting place ...
 #
 $sudo ./Remove >/dev/null 2>&1
@@ -140,7 +140,7 @@ End-of-File
 # wait for 2nd refresh() so we have values
 #
 sleep 6
-pminfo -f ohead >$tmp.out
+pminfo -f overhead >$tmp.out
 _filter_pminfo <$tmp.out
 
 # success, all done
