@@ -25,7 +25,7 @@
 .SH DESCRIPTION
 .B pmdaoverhead
 is a configurable Performance Metrics Domain
-Agent (PMDA) for exporting resource consupmtion for groups of related
+Agent (PMDA) for exporting resource consumption for groups of related
 processes.
 .PP
 The
@@ -80,7 +80,7 @@ be created or is not writable, output is written to the standard error instead.
 .B \-R
 The PMDA uses a separate thread to periodically scan all processes to
 determine which processes are deemed ``interesting'' in each group,
-and extracting resorce consumption for those processes.
+and extracting resource consumption for those processes.
 The
 .I interval
 (in seconds) determines how often this scanning and resource calculation
@@ -120,7 +120,7 @@ is a unique name for the group across all groups in the
 configuration files.
 As
 .I name
-becomes embedded in the Perfomrance Metrics Name Space (PMNS)
+becomes embedded in the Performance Metrics Name Space (PMNS)
 if must follow the rules for metric name components as
 described in
 .BR PMNS (5),
@@ -147,7 +147,7 @@ clause has the form
 .br
 where
 .I ident
-is a unique identifier number for the group accross all groups in the
+is a unique identifier number for the group across all groups in the
 .B pmdaoverhead
 configuration files.
 Valid values for
@@ -168,7 +168,7 @@ is an extended regular expression notation in the style of
 .BR egrep (1).
 The
 .I regex
-starts at the first non-whitespace chacter after
+starts at the first non-whitespace character after
 .B pattern:
 and extends to the next newline.
 .RS 4
