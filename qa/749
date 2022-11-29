@@ -67,10 +67,25 @@ fi
 # start systemtap and count pmcd probe hits
 echo "Fire stap probes:" >> $seq.full
 $sudo stap $tmp.stap >$tmp.out 2>&1
-cat $tmp.out | tee -a $seq.full
 
+# This seems safe to dodge if we PASS ...
+# warning: the compiler differs from the one used to build the kernel
+#  The kernel was built by: gcc (Ubuntu 11.2.0-19ubuntu1) 11.2.0
+#  You are using:           gcc (Ubuntu 11.3.0-1ubuntu1~22.04) 11.3.0
+#
 echo "Output from stap:" >> $seq.full
-cat $tmp.out >> $seq.full
+cat $tmp.out \
+| tee -a $seq.full \
+| if grep '^PASS$' $tmp.out >/dev/null
+then
+    sed \
+	-e '/the compiler differs from the one used/d' \
+	-e '/The kernel was built by:/d' \
+	-e '/You are using:/d' \
+    # end
+else
+    cat
+fi
 
 # success, all done
 status=0
