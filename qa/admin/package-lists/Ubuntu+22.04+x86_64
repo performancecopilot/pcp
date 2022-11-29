@@ -16,7 +16,7 @@ bpfcc-tools
 bpftrace
 # see https://wiki.ubuntu.com/Debug%20Symbol%20Packages to set up repo
 # for this one ...
-bpftrace-dbgsym
+bpftrace-dbgsym not4ci
 bsd-mailx
 build-essential
 chrpath
