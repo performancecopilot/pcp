@@ -14,6 +14,9 @@ bind9-host
 bison
 bpfcc-tools
 bpftrace
+# see https://wiki.ubuntu.com/Debug%20Symbol%20Packages to set up repo
+# for this one ...
+bpftrace-dbgsym
 bsd-mailx
 build-essential
 chrpath
