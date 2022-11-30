@@ -22,6 +22,7 @@ import os
 import sys
 import re
 import time
+import signal
 from pcp import pmcc
 from pcp import pmapi
 
@@ -1050,5 +1051,7 @@ if __name__ == "__main__":
     except pmapi.pmUsageErr as usage:
         usage.message()
         sys.exit(1)
+    except IOError:
+        signal.signal(signal.SIGPIPE, signal.SIG_DFL)
     except KeyboardInterrupt:
         pass
