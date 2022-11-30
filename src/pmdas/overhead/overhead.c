@@ -401,7 +401,7 @@ in the last interval.");
 
 		case 12:	/* overhead.cpu */
 			if (oneline)
-			    pmsprintf(help, sizeof(help), "total CPU utlization for each overhead group");
+			    pmsprintf(help, sizeof(help), "total CPU utilization for each overhead group");
 			else
 			    pmsprintf(help, sizeof(help),
 "Sum of the user and system CPU time in the last interval for all\n\
@@ -427,7 +427,7 @@ A value of 1.0 means the equivalent of 100%% of one CPU is being used.");
 	    switch (pmID_item(pmid)) {
 		case 0:		/* overhead.<group>.cpu */
 			if (oneline)
-			    pmsprintf(help, sizeof(help), "CPU utlization for each process in the \"%s\" group", gp->name);
+			    pmsprintf(help, sizeof(help), "CPU utilization for each process in the \"%s\" group", gp->name);
 			else
 			    pmsprintf(help, sizeof(help),
 "Sum of the user and system CPU time in the last interval for each\n\
@@ -438,7 +438,7 @@ A value of 1.0 means the equivalent of 100%% of one CPU is being used.", gp->nam
 
 		case 10:	/* overhead.<group>.stime */
 			if (oneline)
-			    pmsprintf(help, sizeof(help), "System CPU utlization for each process in the \"%s\" group", gp->name);
+			    pmsprintf(help, sizeof(help), "System CPU utilization for each process in the \"%s\" group", gp->name);
 			else
 			    pmsprintf(help, sizeof(help),
 "System CPU time in the last interval for each process in the\n\
@@ -449,7 +449,7 @@ A value of 1.0 means the equivalent of 100%% of one CPU is being used.", gp->nam
 
 		case 11:	/* overhead.<group>.utime */
 			if (oneline)
-			    pmsprintf(help, sizeof(help), "User CPU utlization for each process in the \"%s\" group", gp->name);
+			    pmsprintf(help, sizeof(help), "User CPU utilization for each process in the \"%s\" group", gp->name);
 			else
 			    pmsprintf(help, sizeof(help),
 "User CPU time in the last interval for each process in the\n\
