@@ -20,6 +20,7 @@
 
 import sys
 import time
+import signal
 from pcp import pmcc
 from pcp import pmapi
 import datetime
@@ -40,6 +41,7 @@ SCHED_POLICY = ['NORMAL', 'FIFO', 'RR', 'BATCH', '', 'IDLE', 'DEADLINE']
 class StdoutPrinter:
     def Print(self, args):
         print(args)
+
 
 class NoneHandlingPrinterDecorator:
     def __init__(self, printer):
@@ -720,7 +722,7 @@ class ProcessStatOptions(pmapi.pmOptions):
         # """Override standard Pcp-ps option to show all process """
         return bool(opts in ['p', 'c', 'o', 'P', 'U'])
 
-    def extraOptions(self, opts, optarg,index):
+    def extraOptions(self, opts, optarg, index):
         if opts == 'e':
             ProcessStatOptions.show_all_process = True
         elif opts == 'c':
@@ -808,6 +810,8 @@ if __name__ == "__main__":
     except pmapi.pmUsageErr as usage:
         usage.message()
         sys.exit(1)
+    except IOError:
+        signal.signal(signal.SIGPIPE, signal.SIG_DFL)
     except KeyboardInterrupt:
         print("Interrupted")
         sys.exit(0)
