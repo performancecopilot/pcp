@@ -109,7 +109,7 @@ parse(char *configfile)
     char	*p;
     int		state;
     char	*name = NULL;
-    int		id;
+    int		id = -1;
     char	*pattern = NULL;
     int		version = 1;
     grouptab_t	*gp;
