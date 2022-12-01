@@ -371,6 +371,7 @@ iostat
 tapestat
 ipcs
 mpstat
+ps
 
 # full test search
 pmsearch
@@ -1901,6 +1902,7 @@ x11
 1489 python pmrep pmimport local
 1490 python local labels
 1495 pmlogrewrite labels pmdumplog local
+1503 pcp pidstat ps ython local
 1511 pmcd local pmda.sample
 1515 pmda.denki local
 1530 pmda.zfs local valgrind

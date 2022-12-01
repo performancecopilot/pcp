@@ -1,0 +1,44 @@
+#!/bin/sh
+# PCP QA Test No. 1503
+# Exercise Broken Pipe handling in some python tools.
+#
+# Copyright (c) 2022 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+test -f $PCP_BINADM_DIR/pcp-ps  || _notrun "No support for python tools"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+for tool in ps pidstat
+do
+    echo "== Checking pcp $tool" | tee -a $seq.full
+    ( pcp $tool | head ) > $tmp.$tool 2>&1
+    if grep -q ^Traceback $tmp.$tool
+    then
+        echo "Failed!"
+        cat $tmp.$tool | tee -a $seq.full
+        status=1
+    else
+        cat $tmp.$tool >> $seq.full
+    fi
+done
+
+# success, all done
+exit
