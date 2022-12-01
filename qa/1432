@@ -65,16 +65,17 @@ _filter_pminfo()
 $1 == "overhead.cpu"		{ state = 4 }
 NF == 0				{ state = 0 }
 # usr time should be around 1.0 for MP systems, but could be as low
-# as 0.50 for a single CPU system, then allow 5% slop at either end
+# as 0.50 for a single CPU system, but on a slow VM (like vm03) it
+# could be as low as 0.2
 # $7 is ...
 #     inst [1474761 or "1474761 hanoi-1432"] value 0.009988213907589045
 #                                                  ^^^^^^^^^^^^^^^^^^^^
 #
 state == 1 && $1 == "inst"	{ u[i++] = $7
-				  if (0.475 <= $7 && $7 <= 1.05)
+				  if (0.2 <= $7 && $7 <= 1.05)
 				    $7 = "OK"
 				  else
-				    print $7 " (below) is outside the 0.475 ... 1.05 range"
+				    print $7 " (below) is outside the 0.2 ... 1.05 range"
 				}
 # sys time should be really small, but there is an element of non-determinism
 # here, so allow it to creep up to 0.1
@@ -93,10 +94,10 @@ state == 3 && $1 == "inst"	{ c[i] = $7
 				    printf "(below) cpu: %.6f too small cf utime+stime: %.6f\n", c[i], s[i]+u[i]
 				  else if (c[i] > 1.001*(s[i]+u[i])) 
 				    printf "(below) cpu: %.6f too large cf utime+stime: %.6f\n", c[i], s[i]+u[i]
-				  else if (0.475 <= $7 && $7 <= 1.05)
+				  else if (0.2 <= $7 && $7 <= 1.05)
 				    $7 = "OK"
 				  else
-				    print $7 " (below) is outside the 0.475 ... 1.05 range"
+				    print $7 " (below) is outside the 0.2 ... 1.05 range"
 				  i++
 				}
 # overhead.cpu is just the sum of the components, so should be equal, but
