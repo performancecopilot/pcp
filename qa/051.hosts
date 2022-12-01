@@ -8,7 +8,7 @@
 #
 # Used in setup.051 and 051.
 #
-remote_1=www.netbsd.org
+remote_1=pcp.io
 remote_2=aconex.com
 remote_3=www.ietf.org
 remote_4=www.otaus.org
