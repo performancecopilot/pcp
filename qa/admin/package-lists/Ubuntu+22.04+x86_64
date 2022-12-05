@@ -99,7 +99,6 @@ pkg-config
 postgresql-client-common
 psmisc
 pylint
-python2-dev
 python3-all
 python3-all-dev
 python3-bpfcc
