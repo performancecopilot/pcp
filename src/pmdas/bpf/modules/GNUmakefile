@@ -8,6 +8,7 @@ MODULETMP = $(PCP_PMDAS_DIR)/$(IAM)/modules
 MODULEDIR = $(PCP_PMDASADM_DIR)/$(IAM)/modules
 
 COMMON_OBJ = \
+	compat.o \
 	trace_helpers.o \
 	btf_helpers.o \
 	uprobe_helpers.o \
@@ -15,6 +16,8 @@ COMMON_OBJ = \
 
 # ported helper files.
 HELPERS_H = \
+	compat.h \
+	compat.bpf.h \
 	bits.bpf.h \
 	blk_types.h \
 	maps.bpf.h \
@@ -25,6 +28,7 @@ HELPERS_H = \
 	uprobe_helpers.h \
 
 HELPERS_C = \
+	compat.c \
 	btf_helpers.c \
 	map_helpers.c \
 	trace_helpers.c \
@@ -108,6 +112,9 @@ vmlinux.h: $(PMDABPF_VMLINUXH)
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 
 %_helpers.o: %_helpers.c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
+
+compat.o: compat.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 
 # ifeq "$(CLANG_MAJOR_VERSION)" "12"
