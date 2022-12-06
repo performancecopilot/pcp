@@ -672,6 +672,12 @@ optional_policy(`
     allow pcp_pmcd_t virt_var_run_t:sock_file write;
 ')
 
+optional_policy(`
+    # pmda.statsd
+    # type=AVC msg=audit(N): avc:  denied  { name_bind } for  pid=46938 comm=4E65742E204C697374656E6572 src=8125 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:statsd_port_t:s0 tclass=udp_socket permissive=1
+    corenet_udp_bind_statsd_port(pcp_pmcd_t);
+')
+
 #============= init_t ==============
 # type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="pmcd" name="pmcd" dev="dm-1" ino=INO scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:pcp_log_t:s0 tclass=dir permissive=0
 allow init_t pcp_log_t:dir read;
