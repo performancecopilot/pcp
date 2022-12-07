@@ -8,6 +8,8 @@ QA output created by 1727
 # TYPE openmetrics_duplicate_instname_label_somemetric gauge
 openmetrics_duplicate_instname_label_somemetric{hostname=HOSTNAME,instid="0",instname="0 hostname:HOSTNAME",domainname=DOMAINNAME,machineid=MACHINEID,source="duplicate_instname_label"} 1234
 
+=== verify metric name validity using pminfo
+
 === remove openmetrics agent ===
 Culling the Performance Metrics Name Space ...
 openmetrics ... done

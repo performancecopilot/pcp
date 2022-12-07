@@ -1035,25 +1035,6 @@ vmware_host_net_errorsTx_summation{cluster_name="",dc_name="ha-datacenter",host_
 # HELP vmware_host_net_usage_average vmware_host_net_usage_average
 # TYPE vmware_host_net_usage_average gauge
 vmware_host_net_usage_average{cluster_name="",dc_name="ha-datacenter",host_name="SOMEHOSTNAME"} 3.0
-[root@ci-vm-10-0-138-196 ~]# curl -Gs http://localhost:9272/metrics > curl.txt
-[root@ci-vm-10-0-138-196 ~]# 
-[root@ci-vm-10-0-138-196 ~]# 
-[root@ci-vm-10-0-138-196 ~]# 
-[root@ci-vm-10-0-138-196 ~]# 
-[root@ci-vm-10-0-138-196 ~]# 
-[root@ci-vm-10-0-138-196 ~]# 
-[root@ci-vm-10-0-138-196 ~]# 
-[root@ci-vm-10-0-138-196 ~]# 
-[root@ci-vm-10-0-138-196 ~]# 
-[root@ci-vm-10-0-138-196 ~]# 
-[root@ci-vm-10-0-138-196 ~]# 
-[root@ci-vm-10-0-138-196 ~]# 
-[root@ci-vm-10-0-138-196 ~]# 
-[root@ci-vm-10-0-138-196 ~]# 
-[root@ci-vm-10-0-138-196 ~]# 
-[root@ci-vm-10-0-138-196 ~]# 
-[root@ci-vm-10-0-138-196 ~]# 
-[root@ci-vm-10-0-138-196 ~]# cat curl.txt
 # HELP vmware_vm_power_state VMWare VM Power state (On / Off)
 # TYPE vmware_vm_power_state gauge
 vmware_vm_power_state{cluster_name="",dc_name="ha-datacenter",ds_name="name026",host_name="SOMEHOSTNAME",vm_name="name023-sat61-client"} 0.0

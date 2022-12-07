@@ -122,7 +122,7 @@ class Metric(object):
         #   c_units = c_api.pmUnits_int(self.munits.dimSpace, self.munits.dimTime, self.munits.dimCount,
         #       self.munits.scaleSpace, self.munits.scaleTime, self.munits.scaleCount)
 
-        self.source.pmda.log("Metric: adding new metric %s pmid=%s type=%d sem=%d singular=%s mindom=0x%x labels=%s" %
+        self.source.pmda.debug("Metric: adding metric %s pmid=%s type=%d sem=%d singular=%s mindom=0x%x labels=%s" %
             (name, pmContext.pmIDStr(self.pmid), self.mtype, self.msem, self.singular, self.mindom, self.labels))
 
         self.obj = pmdaMetric(self.pmid, self.mtype, self.mindom, self.msem, self.munits)
@@ -565,6 +565,7 @@ class Source(object):
         self.cluster = cluster # unique/persistent id# for nickname
         self.path = path # pathname to .url or executable file
         self.url = None
+        self.parse_error = False
         self.parse_url_time = 0 # timestamp of config file when it was last parsed
         self.is_scripted = is_scripted
         self.pmda = thispmda # the shared pmda
@@ -659,6 +660,19 @@ class Source(object):
         self.pmda.log("instname_labels returning %s" % naming_labels) if self.pmda.dbg else None
         return naming_labels
 
+    def valid_metric_name(self, name):
+        '''
+        Check validity of given metric name component:
+        - only contains alphanumerics and/or underscores
+          (colon removed later, allowed through here);
+        - only starts with an alphabetic character.
+        '''
+        if not name[0].isalpha():
+            return False
+        if not re.sub('[_.:]', '', name).isalnum():
+            return False
+        return True
+
     def parse_metric_line(self, line, pcpline, helpline, typeline):
         '''
         Parse the sample line, identify/create corresponding metric & instance.
@@ -687,8 +701,10 @@ class Source(object):
                 # Nb: filter pattern is applied only to the leaf component of the full metric name
                 if self.check_filter(sp.name, "METRIC") != "INCLUDE":
                     self.pmda.log("Metric %s excluded by config filters" % fullname)
-                    return
+                    return True
                 else:
+                    if not self.valid_metric_name(sp.name):
+                        raise ValueError('invalid metric name: ' + sp.name)
                     # new metric
                     metricnum = self.pmids_table.intern_lookup_value(sp.name)
                     # check if the config specifies metadata for this metric
@@ -708,24 +724,32 @@ class Source(object):
                     else:
                         m.store_inst(naming_labels, sp.value)
                     self.pmda.set_notify_change()
+        except ValueError as e:
+            if not self.parse_error:
+                self.pmda.err("cannot parse name in %s: %s" % (line, e))
+                self.parse_error = True # one-time-only error diagnostic
+            return False
         except Exception as e:
+            if self.pmda.dbg:
+                traceback.print_exc() # traceback can be handy here
             self.pmda.err("cannot parse/store %s: %s" % (line, e))
-            traceback.print_exc() # traceback can be handy here
-
+            return False
+        return True
 
     def parse_lines(self, text):
-        '''Refresh all the metric metadata as it is found, including creating
-        new metrics.  Store away metric values for subsequent
-        fetch()es.  Parse errors may result in exceptions.
-        That's OK, we don't try heroics to parse non-compliant
-        data.  Return number of metrics extracted.
         '''
-
+        Refresh all the metric metadata as it is found, including creating
+        new metrics.  Store away metric values for subsequent fetch()es.
+        Input parse errors result in exceptions and early termination.
+        That's OK, we don't try heroics to parse non-compliant data.
+        Return number of metrics extracted.
+        '''
         num_metrics = 0
         lines = text.splitlines()
         pcpline = None
         helpline = None
         typeline = None
+        badness = False
         state = "metadata"
         for line in lines:
             self.pmda.debug("line: %s state: %s" % (line, state)) if self.pmda.dbg else None
@@ -762,8 +786,14 @@ class Source(object):
                 # NB: could verify helpline/typeline lp[2] matches,
                 # but we don't have to go out of our way to support
                 # non-compliant exporters.
-                self.parse_metric_line(l, pcpline, helpline, typeline)
+                if not self.parse_metric_line(l, pcpline, helpline, typeline):
+                    badness = True
+                    break  # bad metric line, skip the remainder of this file
                 num_metrics += 1
+
+        # clear one-time-only error diagnostic if the situation is now resolved
+        if not badness:
+            self.parse_error = False
 
         # NB: this logic only ever -adds- Metrics to a Source.  If a source
         # stops supplying some metrics, then a PCP app will see a PM_ERR_INST
@@ -842,7 +872,7 @@ class Source(object):
                 metadata = line.split(' ')[1:]
                 self.metadatalist.append(metadata)
             else:
-                self.pmda.log('Warning: %s ignored unrecognised config entry "%s"' % (self.url, line))
+                self.pmda.err('%s ignored unrecognised config entry "%s"' % (self.url, line))
 
         self.pmda.debug("DEBUG url: %s HEADERS: %s" % (self.url, self.headers)) if self.pmda.dbg else None
         self.pmda.debug("DEBUG url: %s FILTERS: %s" % (self.url, self.filterlist)) if self.pmda.dbg else None
@@ -911,8 +941,7 @@ class Source(object):
         except Exception as e:
             self.pmda.stats_status[self.cluster] = 'failed to fetch URL or execute script %s: %s' % (self.path, e)
             self.pmda.stats_status_code[self.cluster] = status_code
-            self.pmda.debug('Warning: cannot fetch URL or execute script %s: %s' % (self.path, e)) if self.pmda.dbg else None
-            return
+            self.pmda.debug('cannot fetch URL or execute script %s: %s' % (self.path, e))
 
     def refresh2(self, timeout):
         '''
@@ -950,7 +979,7 @@ class Source(object):
             self.pmda.log("fetch: item=%d inst=%d m.mname=%s" % (item, inst, m.mname)) if self.pmda.dbg else None
             return m.fetch_inst(inst)
         except Exception as e:
-            self.pmda.log("Warning: cannot fetch item %d inst %d: %s" % (item, inst, e))
+            self.pmda.debug("cannot fetch item %d inst %d: %s" % (item, inst, e))
             return [c_api.PM_ERR_AGAIN, 0]
 
 class OpenMetricsPMDA(PMDA):
@@ -1468,7 +1497,7 @@ class OpenMetricsPMDA(PMDA):
 
     def debug(self, s):
         if self.dbg:
-            super(OpenMetricsPMDA, self).log("debug: " + s)
+            super(OpenMetricsPMDA, self).dbg(s)
 
     @staticmethod
     def log(message):
@@ -1528,8 +1557,9 @@ if __name__ == '__main__':
     if args.nosort:
         sort_conf_list = False
 
-    pmdadir = os.path.join(os.getenv('PCP_PMDAS_DIR'), args.root)
     if not args.config.startswith("/"):
+        pmdadir = os.getenv('PCP_PMDAS_DIR') or '/'
+        pmdadir = os.path.join(pmdadir, args.root)
         args.config = os.path.join(pmdadir, args.config)
 
     # This PMDA starts up in the "notready" state, see the Install script where
