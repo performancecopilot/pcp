@@ -30,6 +30,7 @@
 #include "oomkill.h"
 #include "oomkill.skel.h"
 #include "btf_helpers.h"
+#include "compat.h"
 
 #define PERF_POLL_TIMEOUT_MS 0
 
@@ -41,7 +42,7 @@ static struct env {
 
 static pmdaInstid *oomkill_instances;
 static struct oomkill_bpf *obj;
-static struct perf_buffer *pb = NULL;
+static struct bpf_buffer *buf;
 static int lost_events;
 static int queuelength;
 
@@ -230,7 +231,7 @@ static void oomkill_register(unsigned int cluster_id, pmdaMetric *metrics, pmdaI
     };
 }
 
-static void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
+static int handle_event(void *ctx, void *data, size_t len)
 {
     struct data_t *data_t = data;
     struct tailq_entry *elm = allocElm();
@@ -242,6 +243,7 @@ static void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
     strncpy(elm->data_t.tcomm, data_t->tcomm, sizeof(data_t->tcomm));
 
     push(elm);
+    return 0;
 }
 
 static void handle_lost_events(void *ctx, int cpu, __u64 lost_cnt)
@@ -270,6 +272,13 @@ static int oomkill_init(dict *cfg, char *module_name)
         return 1;
     }
 
+    buf = bpf_buffer__new(obj->maps.events, obj->maps.heap);
+    if (!buf) {
+        err = -errno;
+        pmNotifyErr(LOG_ERR, "failed to create ring/perf buffer: %d", err);
+        return err;
+    }
+
     err = oomkill_bpf__load(obj);
     if (err) {
         pmNotifyErr(LOG_ERR, "failed to load BPF object: %d", err);
@@ -288,11 +297,9 @@ static int oomkill_init(dict *cfg, char *module_name)
     /* Initialize the tail queue. */
     TAILQ_INIT(&head);
 
-    pb = perf_buffer__new(bpf_map__fd(obj->maps.events), 64,
-            handle_event, handle_lost_events, NULL, NULL);
-    if (!pb) {
-        err = -errno;
-        pmNotifyErr(LOG_ERR, "failed to open perf buffer: %d", err);
+    err = bpf_buffer__open(buf, handle_event, handle_lost_events, NULL);
+    if (err) {
+        pmNotifyErr(LOG_ERR, "failed to open ring/perf buffer: %d", err);
         return err;
     }
 
@@ -304,7 +311,7 @@ static void oomkill_shutdown()
     struct tailq_entry *itemp;
 
     free(oomkill_instances);
-    perf_buffer__free(pb);
+    bpf_buffer__free(buf);
     oomkill_bpf__destroy(obj);
     /* Free the entire cache queue. */
     while ((itemp = TAILQ_FIRST(&head))) {
@@ -315,7 +322,7 @@ static void oomkill_shutdown()
 
 static void oomkill_refresh(unsigned int item)
 {
-    perf_buffer__poll(pb, PERF_POLL_TIMEOUT_MS);
+    bpf_buffer__poll(buf, PERF_POLL_TIMEOUT_MS);
 }
 
 static int oomkill_fetch_to_atom(unsigned int item, unsigned int inst, pmAtomValue *atom)

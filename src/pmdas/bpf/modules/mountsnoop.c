@@ -28,6 +28,7 @@
 #include "mountsnoop.h"
 #include "mountsnoop.skel.h"
 #include "btf_helpers.h"
+#include "compat.h"
 
 #define PERF_BUFFER_PAGES 64
 #define PERF_POLL_TIMEOUT_MS 0
@@ -85,7 +86,7 @@ static const int flag_count = sizeof(flag_names) / sizeof(flag_names[0]);
 
 static pmdaInstid *mountsnoop_instances;
 static struct mountsnoop_bpf *obj;
-static struct perf_buffer *pb = NULL;
+static struct bpf_buffer *buf;
 static int lost_events;
 static int queuelength;
 
@@ -440,7 +441,7 @@ static const char *gen_call(const struct event *e)
     return call;
 }
 
-static void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
+static int handle_event(void *ctx, void *data, size_t len)
 {
     struct event *event = data;
     struct tailq_entry *elm = allocElm();
@@ -459,6 +460,7 @@ static void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
     strncpy(elm->event.data, event->data, sizeof(event->data));
 
     push(elm);
+    return 0;
 }
 
 static void handle_lost_events(void *ctx, int cpu, __u64 lost_cnt)
@@ -491,6 +493,13 @@ static int mountsnoop_init(dict *cfg, char *module_name)
 
     obj->rodata->target_pid = target_pid;
 
+    buf = bpf_buffer__new(obj->maps.events, obj->maps.heap);
+    if (!buf) {
+        err = -errno;
+        pmNotifyErr(LOG_ERR, "failed to create ring/perf buffer: %d", err);
+        return err != 0;
+    }
+
     err = mountsnoop_bpf__load(obj);
     if (err) {
         pmNotifyErr(LOG_ERR, "failed to load BPF object: %d", err);
@@ -509,11 +518,9 @@ static int mountsnoop_init(dict *cfg, char *module_name)
     /* Initialize the tail queue. */
     TAILQ_INIT(&head);
 
-    pb = perf_buffer__new(bpf_map__fd(obj->maps.events), PERF_BUFFER_PAGES,
-            handle_event, handle_lost_events, NULL, NULL);
-    if (!pb) {
-        err = -errno;
-        pmNotifyErr(LOG_ERR, "failed to open perf buffer: %d", err);
+    err = bpf_buffer__open(buf, handle_event, handle_lost_events, NULL);
+    if (err) {
+        pmNotifyErr(LOG_ERR, "failed to open ring/perf buffer: %d", err);
         return err != 0;
     }
 
@@ -526,7 +533,7 @@ static void mountsnoop_shutdown()
 
     free(mountsnoop_instances);
 
-    perf_buffer__free(pb);
+    bpf_buffer__free(buf);
     mountsnoop_bpf__destroy(obj);
     /* Free the entire cache queue. */
     while ((itemp = TAILQ_FIRST(&head))) {
@@ -537,7 +544,7 @@ static void mountsnoop_shutdown()
 
 static void mountsnoop_refresh(unsigned int item)
 {
-    perf_buffer__poll(pb, PERF_POLL_TIMEOUT_MS);
+    bpf_buffer__poll(buf, PERF_POLL_TIMEOUT_MS);
 }
 
 static int mountsnoop_fetch_to_atom(unsigned int item, unsigned int inst, pmAtomValue *atom)
