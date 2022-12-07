@@ -1,0 +1,437 @@
+device proc mounted on /proc with fstype proc
+device devtmpfs mounted on /dev with fstype devtmpfs
+device securityfs mounted on /sys/kernel/security with fstype securityfs
+device tmpfs mounted on /dev/shm with fstype tmpfs
+device devpts mounted on /dev/pts with fstype devpts
+device tmpfs mounted on /run with fstype tmpfs
+device tmpfs mounted on /sys/fs/cgroup with fstype tmpfs
+device cgroup mounted on /sys/fs/cgroup/systemd with fstype cgroup
+device pstore mounted on /sys/fs/pstore with fstype pstore
+device efivarfs mounted on /sys/firmware/efi/efivars with fstype efivarfs
+device bpf mounted on /sys/fs/bpf with fstype bpf
+device cgroup mounted on /sys/fs/cgroup/hugetlb with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/cpu,cpuacct with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/memory with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/freezer with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/devices with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/net_cls,net_prio with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/perf_event with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/rdma with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/cpuset with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/pids with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/blkio with fstype cgroup
+device configfs mounted on /sys/kernel/config with fstype configfs
+device rootfs mounted on / with fstype tmpfs
+device rw mounted on /.sllocal/log with fstype tmpfs
+device rpc_pipefs mounted on /var/lib/nfs/rpc_pipefs with fstype rpc_pipefs
+device hugetlbfs mounted on /dev/hugepages with fstype hugetlbfs
+device debugfs mounted on /sys/kernel/debug with fstype debugfs
+device mqueue mounted on /dev/mqueue with fstype mqueue
+device systemd-1 mounted on /proc/sys/fs/binfmt_misc with fstype autofs
+device binfmt_misc mounted on /proc/sys/fs/binfmt_misc with fstype binfmt_misc
+device fusectl mounted on /sys/fs/fuse/connections with fstype fusectl
+device /dev/sda3 mounted on /tmp with fstype xfs
+device /dev/sda1 mounted on /var/log with fstype xfs
+device /dev/sda2 mounted on /var/tmp with fstype xfs
+device tracefs mounted on /sys/kernel/debug/tracing with fstype tracefs
+device example.com:/icds-prod mounted on /storage/prod with fstype nfs statvers=1.1
+	opts:	rw,vers=3,rsize=65536,wsize=65536,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=rdma,nconnect=8,port=20049,timeo=600,retrans=2,sec=sys,mountaddr=10.6.159.30,mountvers=3,mountport=0,mountproto=tcp,local_lock=all
+	age:	1166720
+	caps:	caps=0x10003fcf,wtmult=4096,dtsize=65536,bsize=0,namlen=255
+	sec:	flavor=1,pseudoflavor=1
+	events:	3 36 0 0 3 8 44 0 0 3 0 0 0 0 3 0 0 3 0 0 0 0 0 0 0 0 0 
+	bytes:	5086 0 0 0 5086 0 4 0 
+	RPC iostats version: 1.1  p/v: 100003/3 (nfs)
+	xprt:	rdma 0 0 1 0 0 5 5 0 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 11 0 0 0
+	xprt:	rdma 0 0 1 0 0 3 3 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 11 0 0 0
+	xprt:	rdma 0 0 1 0 0 3 3 0 3 0 0 0 0 0 0 0 268 0 0 0 0 0 0 11 0 0 0
+	xprt:	rdma 0 0 1 0 0 3 3 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 11 0 0 0
+	xprt:	rdma 0 0 1 0 0 3 3 0 3 0 0 0 1 4220 0 0 28 0 0 0 0 0 0 11 1 0 0
+	xprt:	rdma 0 0 1 0 0 3 3 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 11 0 0 0
+	xprt:	rdma 0 0 1 0 0 3 3 0 3 0 0 1 0 4746 4746 0 72 0 0 0 0 0 0 11 1 0 0
+	xprt:	rdma 0 0 1 0 0 3 3 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 11 0 0 0
+	per-op statistics
+	        NULL: 1 1 0 40 24 18 0 19 0
+	     GETATTR: 3 3 0 276 336 0 0 0 0
+	     SETATTR: 0 0 0 0 0 0 0 0 0
+	      LOOKUP: 8 8 0 852 1600 16 1 17 1
+	      ACCESS: 7 7 0 672 840 10 1 11 0
+	    READLINK: 1 1 0 92 148 5 0 5 0
+	        READ: 3 3 0 312 5472 0 1 1 0
+	       WRITE: 0 0 0 0 0 0 0 0 0
+	      CREATE: 0 0 0 0 0 0 0 0 0
+	       MKDIR: 0 0 0 0 0 0 0 0 0
+	     SYMLINK: 0 0 0 0 0 0 0 0 0
+	       MKNOD: 0 0 0 0 0 0 0 0 0
+	      REMOVE: 0 0 0 0 0 0 0 0 0
+	       RMDIR: 0 0 0 0 0 0 0 0 0
+	      RENAME: 0 0 0 0 0 0 0 0 0
+	        LINK: 0 0 0 0 0 0 0 0 0
+	     READDIR: 0 0 0 0 0 0 0 0 0
+	 READDIRPLUS: 0 0 0 0 0 0 0 0 0
+	      FSSTAT: 0 0 0 0 0 0 0 0 0
+	      FSINFO: 2 2 0 184 328 6 0 6 0
+	    PATHCONF: 0 0 0 0 0 0 0 0 0
+	      COMMIT: 0 0 0 0 0 0 0 0 0
+
+device example.com:/icds-test mounted on /storage/test with fstype nfs statvers=1.1
+	opts:	rw,vers=3,rsize=65536,wsize=65536,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=rdma,nconnect=8,port=20049,timeo=600,retrans=2,sec=sys,mountaddr=10.6.159.24,mountvers=3,mountport=0,mountproto=tcp,local_lock=all
+	age:	1166720
+	caps:	caps=0x10003fcf,wtmult=4096,dtsize=65536,bsize=0,namlen=255
+	sec:	flavor=1,pseudoflavor=1
+	events:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+	bytes:	0 0 0 0 0 0 0 0 
+	RPC iostats version: 1.1  p/v: 100003/3 (nfs)
+	xprt:	rdma 0 0 1 0 0 3 3 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 11 0 0 0
+	xprt:	rdma 0 0 1 0 0 1 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 11 0 0 0
+	xprt:	rdma 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	xprt:	rdma 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	xprt:	rdma 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	xprt:	rdma 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	xprt:	rdma 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	xprt:	rdma 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	per-op statistics
+	        NULL: 1 1 0 40 24 6 0 6 0
+	     GETATTR: 0 0 0 0 0 0 0 0 0
+	     SETATTR: 0 0 0 0 0 0 0 0 0
+	      LOOKUP: 0 0 0 0 0 0 0 0 0
+	      ACCESS: 0 0 0 0 0 0 0 0 0
+	    READLINK: 0 0 0 0 0 0 0 0 0
+	        READ: 0 0 0 0 0 0 0 0 0
+	       WRITE: 0 0 0 0 0 0 0 0 0
+	      CREATE: 0 0 0 0 0 0 0 0 0
+	       MKDIR: 0 0 0 0 0 0 0 0 0
+	     SYMLINK: 0 0 0 0 0 0 0 0 0
+	       MKNOD: 0 0 0 0 0 0 0 0 0
+	      REMOVE: 0 0 0 0 0 0 0 0 0
+	       RMDIR: 0 0 0 0 0 0 0 0 0
+	      RENAME: 0 0 0 0 0 0 0 0 0
+	        LINK: 0 0 0 0 0 0 0 0 0
+	     READDIR: 0 0 0 0 0 0 0 0 0
+	 READDIRPLUS: 0 0 0 0 0 0 0 0 0
+	      FSSTAT: 0 0 0 0 0 0 0 0 0
+	      FSINFO: 2 2 0 184 328 6 0 6 0
+	    PATHCONF: 0 0 0 0 0 0 0 0 0
+	      COMMIT: 0 0 0 0 0 0 0 0 0
+
+device example.com:/icds mounted on /storage/icds with fstype nfs statvers=1.1
+	opts:	rw,vers=3,rsize=65536,wsize=65536,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=rdma,nconnect=8,port=20049,timeo=600,retrans=2,sec=sys,mountaddr=10.6.159.25,mountvers=3,mountport=0,mountproto=tcp,local_lock=all
+	age:	1166720
+	caps:	caps=0x10003fcf,wtmult=4096,dtsize=65536,bsize=0,namlen=255
+	sec:	flavor=1,pseudoflavor=1
+	events:	2 191 0 0 3 13 207 0 0 30 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 
+	bytes:	2452 0 0 0 2555904 0 624 0 
+	RPC iostats version: 1.1  p/v: 100003/3 (nfs)
+	xprt:	rdma 0 0 1 0 0 12 12 0 12 0 0 6 0 352256 352256 0 0 0 0 0 0 0 0 11 6 0 0
+	xprt:	rdma 0 0 1 0 0 10 10 0 10 0 0 5 0 184320 184320 0 0 0 0 0 0 0 0 11 5 0 0
+	xprt:	rdma 0 0 2 0 0 10 10 0 10 0 0 4 0 225280 225280 0 0 0 0 0 0 0 0 22 4 0 0
+	xprt:	rdma 0 0 1 0 0 9 9 0 9 0 0 6 0 294912 294912 0 0 0 0 0 0 0 0 11 6 0 0
+	xprt:	rdma 0 0 1 0 0 9 9 0 9 0 0 7 0 339968 339968 0 0 0 0 0 0 0 0 11 7 0 0
+	xprt:	rdma 0 0 1 0 0 9 9 0 9 0 0 7 0 352256 352256 0 0 0 0 0 0 0 0 11 7 0 0
+	xprt:	rdma 0 0 1 0 0 9 9 0 9 0 0 7 0 405504 405504 0 0 0 0 0 0 0 0 11 7 0 0
+	xprt:	rdma 0 0 1 0 0 9 9 0 9 0 0 7 0 401408 401408 0 0 0 0 0 0 0 0 11 7 0 0
+	per-op statistics
+	        NULL: 1 1 0 40 24 5 0 5 0
+	     GETATTR: 2 2 0 188 224 11 0 11 0
+	     SETATTR: 0 0 0 0 0 0 0 0 0
+	      LOOKUP: 13 13 0 1364 1952 15 3 19 5
+	      ACCESS: 9 9 0 864 1080 16 1 18 0
+	    READLINK: 0 0 0 0 0 0 0 0 0
+	        READ: 49 49 0 5096 2562176 0 15 17 0
+	       WRITE: 0 0 0 0 0 0 0 0 0
+	      CREATE: 0 0 0 0 0 0 0 0 0
+	       MKDIR: 0 0 0 0 0 0 0 0 0
+	     SYMLINK: 0 0 0 0 0 0 0 0 0
+	       MKNOD: 0 0 0 0 0 0 0 0 0
+	      REMOVE: 0 0 0 0 0 0 0 0 0
+	       RMDIR: 0 0 0 0 0 0 0 0 0
+	      RENAME: 0 0 0 0 0 0 0 0 0
+	        LINK: 0 0 0 0 0 0 0 0 0
+	     READDIR: 0 0 0 0 0 0 0 0 0
+	 READDIRPLUS: 0 0 0 0 0 0 0 0 0
+	      FSSTAT: 0 0 0 0 0 0 0 0 0
+	      FSINFO: 2 2 0 184 328 5 0 5 0
+	    PATHCONF: 0 0 0 0 0 0 0 0 0
+	      COMMIT: 0 0 0 0 0 0 0 0 0
+
+device example.com:/group mounted on /storage/group with fstype nfs statvers=1.1
+	opts:	rw,vers=3,rsize=65536,wsize=65536,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=rdma,nconnect=8,port=20049,timeo=600,retrans=2,sec=sys,mountaddr=10.6.159.1,mountvers=3,mountport=0,mountproto=tcp,local_lock=all
+	age:	1166720
+	caps:	caps=0x10003fcf,wtmult=4096,dtsize=65536,bsize=0,namlen=255
+	sec:	flavor=1,pseudoflavor=1
+	events:	359470 11669975 26864 99083 237241 104622 12074173 76552450 12372 24061401 0 184482 64402 15675 250513 4475 60207 205420 0 13655 41997395 0 0 0 0 0 0 
+	bytes:	5990252963873 271047280191 0 0 1730835995062 212213971093 422603768 51862807 
+	RPC iostats version: 1.1  p/v: 100003/3 (nfs)
+	xprt:	rdma 0 0 111 1 28 5001450 5001450 0 16468960 244630485 411153 4499604 2419 216488884485 216363618297 705084 2119278 0 610 0 0 0 0 4422 4913176 0 0
+	xprt:	rdma 0 0 110 1 28 5000369 5000369 0 16473884 244723520 411409 4497949 2419 216448785625 216324215309 744372 2220863 0 584 0 0 0 0 4466 4911777 0 0
+	xprt:	rdma 0 0 110 1 12 5001230 5001230 0 16466569 244632808 411122 4499109 2294 216463811427 216346453699 725596 2162884 0 656 0 0 0 0 4642 4912525 0 0
+	xprt:	rdma 0 0 114 1 12 5000643 5000643 0 16476687 244518169 411370 4498397 2400 216437529332 216314007816 754588 2166359 0 638 0 0 0 0 4675 4912167 0 0
+	xprt:	rdma 0 0 113 0 12 5001675 5001675 0 16476119 244839819 411304 4499163 2420 216552802382 216427322070 674092 2054877 0 666 0 0 0 0 4796 4912887 0 0
+	xprt:	rdma 0 0 112 1 62 5001928 5001928 0 16478906 244718584 411345 4499807 2449 216598144747 216470930799 709516 2049733 0 629 0 0 0 0 4664 4913601 0 0
+	xprt:	rdma 0 0 108 0 62 5000620 5000620 0 16457063 244260204 411118 4498680 2347 216410122025 216289485037 742848 2157015 0 618 0 0 0 0 4488 4912145 0 0
+	xprt:	rdma 0 0 105 0 62 5001170 5001170 0 16465684 244462170 411102 4499474 2363 216499718003 216377867059 774804 2218299 0 664 0 0 0 0 4532 4912939 0 0
+	per-op statistics
+	        NULL: 1 1 0 40 24 6 0 6 0
+	     GETATTR: 359470 359470 0 37679148 40260640 6615 68172 77464 0
+	     SETATTR: 21554 21554 0 3038404 775944 123 18549 18914 0
+	      LOOKUP: 116511 116511 0 14261900 8782176 956 41688 44033 90189
+	      ACCESS: 64375 64375 0 7046576 7725000 886 14014 15459 0
+	    READLINK: 736 736 0 79416 104332 2 249 269 0
+	        READ: 36019499 36019499 0 4279070464 1735446589952 406570 26116356 27160896 0
+	       WRITE: 3304938 3304938 0 212624926960 528790080 1195907908 50317800 1246575394 0
+	      CREATE: 77879 77879 0 11891764 19937024 494 299155 303286 0
+	       MKDIR: 2201 2201 0 325500 545856 26 7601 7669 80
+	     SYMLINK: 4 4 0 768 1024 0 13 13 0
+	       MKNOD: 0 0 0 0 0 0 0 0 0
+	      REMOVE: 15039 15039 0 1895992 541404 46 25825 26057 0
+	       RMDIR: 1859 1859 0 223452 66924 4 3096 3127 3
+	      RENAME: 6525 6525 0 1219928 287100 79 13674 13918 0
+	        LINK: 0 0 0 0 0 0 0 0 0
+	     READDIR: 5842 5842 0 747112 19898184 14 7271 7470 0
+	 READDIRPLUS: 9028 9028 0 1164116 74659892 169 17053 17575 0
+	      FSSTAT: 113 113 0 11856 18984 34 126 162 0
+	      FSINFO: 2 2 0 184 328 6 0 6 0
+	    PATHCONF: 0 0 0 0 0 0 0 0 0
+	      COMMIT: 0 0 0 0 0 0 0 0 0
+
+device example.com:/home mounted on /storage/home with fstype nfs statvers=1.1
+	opts:	rw,vers=3,rsize=65536,wsize=65536,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=rdma,nconnect=8,port=20049,timeo=600,retrans=2,sec=sys,mountaddr=10.6.159.7,mountvers=3,mountport=0,mountproto=tcp,local_lock=all
+	age:	1166720
+	caps:	caps=0x10003fcf,wtmult=4096,dtsize=65536,bsize=0,namlen=255
+	sec:	flavor=1,pseudoflavor=1
+	events:	1431711 44943044 116357 137881 1036341 97602 45725153 741968 1060 314347 7 82823 747343 132339 751136 4247 9781 660494 0 1621 659329 139 0 0 0 0 0 
+	bytes:	31191656856 2345480650 0 0 13941630626 2386575218 3519989 615297 
+	RPC iostats version: 1.1  p/v: 100003/3 (nfs)
+	xprt:	rdma 0 0 299 2 19 314383 314383 0 360317 2824 6031 38731 7094 2143783391 1741491091 2076748 3911658 0 48 0 0 0 0 3652 51856 0 0
+	xprt:	rdma 0 0 306 2 19 314284 314284 0 359761 3339 6178 38680 7086 2138653820 1737586668 2122588 3993750 0 53 0 0 0 0 3729 51944 0 0
+	xprt:	rdma 0 0 305 2 19 314534 314534 0 360342 3020 6127 39049 7491 2177604450 1749298514 2178016 4057012 0 51 0 0 0 0 3718 52667 0 0
+	xprt:	rdma 0 0 304 2 19 314570 314568 2 687294 2628 6152 38977 6977 2151798321 1756744897 2311096 3945741 0 45 0 0 0 0 3707 52106 0 0
+	xprt:	rdma 0 0 301 3 19 314546 314545 1 495960 2588 6045 38911 7196 2164869636 1756151804 1995156 3909706 0 48 0 0 0 0 3674 52152 0 0
+	xprt:	rdma 0 0 300 2 19 314597 314597 0 361338 2792 6190 39020 6968 2150734096 1755759176 2129072 3997461 0 47 0 0 0 0 3663 52178 0 0
+	xprt:	rdma 0 0 300 2 19 314532 314532 0 360982 2603 6177 38991 7215 2162670305 1752241557 2106240 4097289 0 45 0 0 0 0 3663 52383 0 0
+	xprt:	rdma 0 0 299 2 19 314696 314696 0 360978 2938 6117 38938 7297 2164527924 1748297356 2332620 3915498 0 51 0 0 0 0 3652 52352 0 0
+	per-op statistics
+	        NULL: 1 1 0 40 24 5 0 5 0
+	     GETATTR: 1431711 1431711 0 152340376 160351352 23887 262978 318138 5
+	     SETATTR: 134526 134526 0 20992092 4842936 592 62889 65101 0
+	      LOOKUP: 105669 105669 0 13828636 11957600 1842 36086 41336 61002
+	      ACCESS: 228039 228039 0 26382944 27364652 2814 47214 53250 7
+	    READLINK: 1627 1627 0 170916 228932 15 337 391 0
+	        READ: 420683 420683 0 50800636 13995575392 7785 255480 270435 0
+	       WRITE: 87100 87100 0 2397805952 13936000 172750 365004 540345 0
+	      CREATE: 29307 29307 0 4889564 7501712 111 49570 50330 4
+	       MKDIR: 7156 7156 0 1067212 1800036 15 11511 11613 145
+	     SYMLINK: 446 446 0 82020 113516 1 682 688 3
+	       MKNOD: 0 0 0 0 0 0 0 0 0
+	      REMOVE: 5852 5852 0 836620 210672 17 13008 13133 0
+	       RMDIR: 2417 2417 0 277660 87012 5 3319 3357 54
+	      RENAME: 2882 2882 0 542372 126808 62 26287 26407 0
+	        LINK: 212 212 0 32072 26288 0 420 425 0
+	     READDIR: 26 26 0 3348 156548 0 81 82 0
+	 READDIRPLUS: 46977 46977 0 6063288 86387612 202 55663 58039 0
+	      FSSTAT: 2784 2784 0 291028 467712 28 3651 4047 0
+	      FSINFO: 2 2 0 184 328 5 0 5 0
+	    PATHCONF: 0 0 0 0 0 0 0 0 0
+	      COMMIT: 0 0 0 0 0 0 0 0 0
+
+device example.com:/icds mounted on /storage/icds with fstype nfs statvers=1.1
+	opts:	rw,vers=3,rsize=65536,wsize=65536,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=rdma,nconnect=8,port=20049,timeo=600,retrans=2,sec=sys,mountaddr=10.6.159.23,mountvers=3,mountport=0,mountproto=tcp,local_lock=all
+	age:	1166720
+	caps:	caps=0x10003fcf,wtmult=4096,dtsize=65536,bsize=0,namlen=255
+	sec:	flavor=1,pseudoflavor=1
+	events:	1504197 4360204878 3573 11827 998351 46870 4361262723 0 13 86345 0 0 412964 0 810302 0 0 787954 0 0 0 0 0 0 0 0 0 
+	bytes:	2473882007460 0 0 0 3117996888 0 781324 0 
+	RPC iostats version: 1.1  p/v: 100003/3 (nfs)
+	xprt:	rdma 0 0 9 0 15 218040 218040 0 220710 0 0 10661 757 426647800 380864004 0 2882858 0 0 0 0 0 0 99 11418 0 0
+	xprt:	rdma 0 0 11 0 20 217911 217911 0 220214 0 0 10742 764 434579499 388755611 0 2968495 0 0 0 0 0 0 121 11506 0 0
+	xprt:	rdma 0 0 11 0 20 218423 218423 0 220758 0 0 10858 830 439053205 388939529 0 2997186 0 0 0 0 0 0 121 11688 0 0
+	xprt:	rdma 0 0 10 0 20 217656 217656 0 220142 0 0 10798 776 439744412 392148264 0 2965342 0 0 0 0 0 0 110 11574 0 0
+	xprt:	rdma 0 0 10 0 20 218280 218280 0 220648 0 0 10783 764 433088272 387536212 0 2916853 0 0 0 0 0 0 110 11547 0 0
+	xprt:	rdma 0 0 10 0 15 217897 217897 0 220528 0 0 10800 744 432500217 387918105 0 3035589 0 0 0 0 0 0 110 11544 0 0
+	xprt:	rdma 0 0 9 0 15 218233 218233 0 220901 0 0 10876 786 437891918 390297186 0 2843850 0 0 0 0 0 0 99 11662 0 0
+	xprt:	rdma 0 0 9 0 15 218287 218287 0 221066 0 0 10817 799 438124667 390593603 0 2900001 0 0 0 0 0 0 99 11616 0 0
+	per-op statistics
+	        NULL: 1 1 0 40 24 5 0 5 0
+	     GETATTR: 1504197 1504197 0 159348668 168470064 5823 250532 346757 0
+	     SETATTR: 0 0 0 0 0 0 0 0 0
+	      LOOKUP: 47852 47852 0 6159548 5950144 134 18038 23896 24837
+	      ACCESS: 79076 79076 0 8750456 9487564 188 14705 18515 389
+	    READLINK: 331 331 0 36048 45912 1 109 121 0
+	        READ: 106156 106156 0 12595328 3131627640 2442 102180 106716 0
+	       WRITE: 0 0 0 0 0 0 0 0 0
+	      CREATE: 972 972 0 159400 34992 4 1815 1875 972
+	       MKDIR: 130 130 0 18948 4680 0 259 260 130
+	     SYMLINK: 0 0 0 0 0 0 0 0 0
+	       MKNOD: 0 0 0 0 0 0 0 0 0
+	      REMOVE: 0 0 0 0 0 0 0 0 0
+	       RMDIR: 0 0 0 0 0 0 0 0 0
+	      RENAME: 0 0 0 0 0 0 0 0 0
+	        LINK: 0 0 0 0 0 0 0 0 0
+	     READDIR: 0 0 0 0 0 0 0 0 0
+	 READDIRPLUS: 5863 5863 0 765784 12555964 21 6882 7339 0
+	      FSSTAT: 120 120 0 13172 20160 0 86 88 0
+	      FSINFO: 2 2 0 184 328 5 0 5 0
+	    PATHCONF: 0 0 0 0 0 0 0 0 0
+	      COMMIT: 0 0 0 0 0 0 0 0 0
+
+device example.com:/work mounted on /storage/work with fstype nfs statvers=1.1
+	opts:	rw,vers=3,rsize=65536,wsize=65536,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=rdma,nconnect=8,port=20049,timeo=600,retrans=2,sec=sys,mountaddr=10.6.159.18,mountvers=3,mountport=0,mountproto=tcp,local_lock=all
+	age:	1166720
+	caps:	caps=0x10003fcf,wtmult=4096,dtsize=65536,bsize=0,namlen=255
+	sec:	flavor=1,pseudoflavor=1
+	events:	963419 23064824 4957 23437 498893 36863 23579290 20398227 3127 191254 348 187305 207697 6261 405125 1210 0 394647 0 3923 18843784 3 0 0 0 0 0 
+	bytes:	41568180225 14269941286 0 0 23191576124 14729236454 5668359 3684526 
+	RPC iostats version: 1.1  p/v: 100003/3 (nfs)
+	xprt:	rdma 0 0 111 1 1 231044 231042 2 873131 366580 33899 45806 1273 2967035298 2901558270 7296576 1169614 0 47 0 0 0 0 1529 80978 0 0
+	xprt:	rdma 0 0 106 0 1 231329 231328 1 717682 361947 33828 45455 1262 2952240311 2887232063 7392372 1221754 0 52 0 0 0 0 1474 80545 0 0
+	xprt:	rdma 0 0 106 1 6 231078 231078 0 485645 363676 33786 45721 1320 2967925402 2899619554 7176800 1189264 0 48 0 0 0 0 1474 80827 0 0
+	xprt:	rdma 0 0 109 0 6 231226 231226 0 486538 362707 33929 45482 1274 2956234946 2890484558 7294244 1190630 0 44 0 0 0 0 1507 80685 0 0
+	xprt:	rdma 0 0 109 0 1 231464 231464 0 486184 367681 33875 45789 1233 2968915191 2906173167 7325356 1151195 0 42 0 0 0 0 1507 80897 0 0
+	xprt:	rdma 0 0 110 0 1 231566 231566 0 485613 362833 33801 45688 1245 2967609016 2903914028 7186764 1166808 0 43 0 0 0 0 1518 80734 0 0
+	xprt:	rdma 0 0 107 0 1 231285 231285 0 485205 365643 33905 45719 1299 2968468178 2901567814 7074060 1190420 0 47 0 0 0 0 1485 80923 0 0
+	xprt:	rdma 0 0 109 1 1 231926 231926 0 487042 369268 33760 45696 1286 2970922269 2904447457 7343684 1204180 0 45 0 0 0 0 1507 80742 0 0
+	per-op statistics
+	        NULL: 1 1 0 40 24 6 0 6 0
+	     GETATTR: 963419 963419 0 101370948 107902704 15461 186184 213618 3
+	     SETATTR: 8104 8104 0 1151604 291744 47 11806 11970 0
+	      LOOKUP: 42796 42796 0 5399836 4859232 622 14626 15832 24620
+	      ACCESS: 45471 45471 0 4949688 5456520 1051 8791 10504 1
+	    READLINK: 14 14 0 1500 1908 0 3 3 0
+	        READ: 371033 371033 0 43379708 23239084264 2450 276265 283119 0
+	       WRITE: 390214 390214 0 14779478604 62433744 3531147 2810230 6351526 4
+	      CREATE: 14579 14579 0 2254256 3731564 70 47115 47475 3
+	       MKDIR: 2317 2317 0 378616 591172 17 9179 9302 9
+	     SYMLINK: 0 0 0 0 0 0 0 0 0
+	       MKNOD: 0 0 0 0 0 0 0 0 0
+	      REMOVE: 903 903 0 121280 32508 7 1340 1364 0
+	       RMDIR: 1 1 0 116 36 0 2 2 1
+	      RENAME: 1691 1691 0 336668 74404 14 2998 3057 0
+	        LINK: 71 71 0 12064 8804 0 91 92 0
+	     READDIR: 4 4 0 512 15012 0 27 28 0
+	 READDIRPLUS: 6573 6573 0 845980 12381640 70 7615 8194 0
+	      FSSTAT: 49 49 0 5256 8232 56 41 99 0
+	      FSINFO: 2 2 0 184 328 5 0 6 0
+	    PATHCONF: 0 0 0 0 0 0 0 0 0
+	      COMMIT: 0 0 0 0 0 0 0 0 0
+
+device example.com:/icds-prod mounted on /storage/prod with fstype nfs statvers=1.1
+	opts:	rw,vers=3,rsize=65536,wsize=65536,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=rdma,nconnect=8,port=20049,timeo=600,retrans=2,sec=sys,mountaddr=10.6.159.27,mountvers=3,mountport=0,mountproto=tcp,local_lock=all
+	age:	1166720
+	caps:	caps=0x10003fcf,wtmult=4096,dtsize=65536,bsize=0,namlen=255
+	sec:	flavor=1,pseudoflavor=1
+	events:	216327 953839 0 2 94628 41 977594 0 0 32 0 0 7792 0 176250 0 0 90732 0 0 0 0 0 0 0 0 0 
+	bytes:	900620338 0 0 0 317803 0 96 0 
+	RPC iostats version: 1.1  p/v: 100003/3 (nfs)
+	xprt:	rdma 0 0 1 0 120 27117 27117 0 27120 0 0 3 0 44329 44329 0 0 0 0 0 0 0 0 11 3 0 0
+	xprt:	rdma 0 0 1 0 120 27117 27117 0 27121 0 0 5 1 110959 82199 0 0 0 0 0 0 0 0 11 6 0 0
+	xprt:	rdma 0 0 1 0 28 27114 27114 0 27115 0 0 1 0 13215 13215 0 4239 0 0 0 0 0 0 11 1 0 0
+	xprt:	rdma 0 0 1 0 28 27113 27113 0 27113 0 0 2 0 61752 61752 0 395 0 0 0 0 0 0 11 2 0 0
+	xprt:	rdma 0 0 1 0 120 27115 27115 0 27118 0 0 2 1 24412 20192 0 3380 0 0 0 0 0 0 11 3 0 0
+	xprt:	rdma 0 0 1 0 120 27113 27113 0 27114 0 0 4 0 24016 24016 0 1518 0 0 0 0 0 0 11 4 0 0
+	xprt:	rdma 0 0 1 0 120 27115 27115 0 27119 0 0 3 1 118321 55597 0 518 0 0 0 0 0 0 11 4 0 0
+	xprt:	rdma 0 0 1 0 120 27113 27113 0 27114 0 0 2 1 75257 10593 0 0 0 0 0 0 0 0 11 3 0 0
+	per-op statistics
+	        NULL: 1 1 0 40 24 5 0 5 0
+	     GETATTR: 216327 216327 0 19911140 24228624 790 44005 48809 0
+	     SETATTR: 0 0 0 0 0 0 0 0 0
+	      LOOKUP: 45 45 0 5016 7200 16 15 32 15
+	      ACCESS: 494 494 0 49128 59280 17 148 169 0
+	    READLINK: 1 1 0 92 148 0 0 0 0
+	        READ: 32 32 0 3392 321932 1 28 30 0
+	       WRITE: 0 0 0 0 0 0 0 0 0
+	      CREATE: 0 0 0 0 0 0 0 0 0
+	       MKDIR: 0 0 0 0 0 0 0 0 0
+	     SYMLINK: 0 0 0 0 0 0 0 0 0
+	       MKNOD: 0 0 0 0 0 0 0 0 0
+	      REMOVE: 0 0 0 0 0 0 0 0 0
+	       RMDIR: 0 0 0 0 0 0 0 0 0
+	      RENAME: 0 0 0 0 0 0 0 0 0
+	        LINK: 0 0 0 0 0 0 0 0 0
+	     READDIR: 0 0 0 0 0 0 0 0 0
+	 READDIRPLUS: 2 2 0 236 3940 0 3 3 0
+	      FSSTAT: 11 11 0 1136 1848 0 8 8 0
+	      FSINFO: 2 2 0 184 328 5 0 6 0
+	    PATHCONF: 0 0 0 0 0 0 0 0 0
+	      COMMIT: 0 0 0 0 0 0 0 0 0
+
+device example.com:/icds-test mounted on /storage/test with fstype nfs statvers=1.1
+	opts:	rw,vers=3,rsize=65536,wsize=65536,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=rdma,nconnect=8,port=20049,timeo=600,retrans=2,sec=sys,mountaddr=10.6.159.29,mountvers=3,mountport=0,mountproto=tcp,local_lock=all
+	age:	1166720
+	caps:	caps=0x10003fcf,wtmult=4096,dtsize=65536,bsize=0,namlen=255
+	sec:	flavor=1,pseudoflavor=1
+	events:	11 226 0 0 0 6 260 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+	bytes:	0 0 0 0 0 0 0 0 
+	RPC iostats version: 1.1  p/v: 100003/3 (nfs)
+	xprt:	rdma 0 0 5 0 0 7 7 0 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 55 0 0 0
+	xprt:	rdma 0 0 6 0 0 6 6 0 6 0 0 0 1 28932 172 0 0 0 0 0 0 0 0 66 1 0 0
+	xprt:	rdma 0 0 5 0 0 5 5 0 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 55 0 0 0
+	xprt:	rdma 0 0 5 0 0 5 5 0 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 55 0 0 0
+	xprt:	rdma 0 0 5 0 0 5 5 0 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 55 0 0 0
+	xprt:	rdma 0 0 4 0 0 4 4 0 4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 44 0 0 0
+	xprt:	rdma 0 0 4 0 0 4 4 0 4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 44 0 0 0
+	xprt:	rdma 0 0 4 0 0 4 4 0 4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 44 0 0 0
+	per-op statistics
+	        NULL: 1 1 0 40 24 6 0 6 0
+	     GETATTR: 11 11 0 1156 1232 174 4 178 0
+	     SETATTR: 0 0 0 0 0 0 0 0 0
+	      LOOKUP: 6 6 0 740 192 35 2 37 6
+	      ACCESS: 6 6 0 652 720 99 2 102 0
+	    READLINK: 0 0 0 0 0 0 0 0 0
+	        READ: 0 0 0 0 0 0 0 0 0
+	       WRITE: 0 0 0 0 0 0 0 0 0
+	      CREATE: 0 0 0 0 0 0 0 0 0
+	       MKDIR: 0 0 0 0 0 0 0 0 0
+	     SYMLINK: 0 0 0 0 0 0 0 0 0
+	       MKNOD: 0 0 0 0 0 0 0 0 0
+	      REMOVE: 0 0 0 0 0 0 0 0 0
+	       RMDIR: 0 0 0 0 0 0 0 0 0
+	      RENAME: 0 0 0 0 0 0 0 0 0
+	        LINK: 0 0 0 0 0 0 0 0 0
+	     READDIR: 0 0 0 0 0 0 0 0 0
+	 READDIRPLUS: 0 0 0 0 0 0 0 0 0
+	      FSSTAT: 12 12 0 1240 2016 109 6 116 0
+	      FSINFO: 2 2 0 184 328 5 0 6 0
+	    PATHCONF: 0 0 0 0 0 0 0 0 0
+	      COMMIT: 0 0 0 0 0 0 0 0 0
+
+device example.com:/icds-pcp-data mounted on /storage/pcp-data with fstype nfs statvers=1.1
+	opts:	rw,vers=3,rsize=65536,wsize=65536,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=rdma,nconnect=8,port=20049,timeo=600,retrans=2,sec=sys,mountaddr=10.6.159.6,mountvers=3,mountport=0,mountproto=tcp,local_lock=all
+	age:	1166720
+	caps:	caps=0x10003fcf,wtmult=4096,dtsize=65536,bsize=0,namlen=255
+	sec:	flavor=1,pseudoflavor=1
+	events:	6699 70747 708 20599 2762 2253 102622 720956 1 5508 0 37492 1710 163 1296 0 0 1194 0 0 720956 0 0 0 0 0 0 
+	bytes:	1920695637 2068044591 0 0 1319950703 2143394964 322276 542160 
+	RPC iostats version: 1.1  p/v: 100003/3 (nfs)
+	xprt:	rdma 0 0 1 0 163 11491 11491 0 11791 0 5235 2523 200 173699455 165053291 995572 0 0 0 0 0 0 0 11 7958 0 0
+	xprt:	rdma 0 0 1 0 163 11490 11490 0 11783 0 5227 2523 206 174106340 165126008 1038128 0 0 0 0 0 0 0 11 7956 0 0
+	xprt:	rdma 0 0 1 0 102 11490 11490 0 11795 0 5201 2531 215 174949903 165380715 1042544 0 0 0 0 0 0 0 11 7947 0 0
+	xprt:	rdma 0 0 1 0 102 11490 11490 0 11803 0 5249 2530 198 173876087 165402039 1006656 2100 0 0 0 0 0 0 11 7977 0 0
+	xprt:	rdma 0 0 1 0 102 11490 11490 0 11809 0 5227 2522 200 173699084 165094476 1049444 1968 0 0 0 0 0 0 11 7949 0 0
+	xprt:	rdma 0 0 1 0 43 11490 11490 0 11796 0 5213 2527 208 174387760 165255764 1003696 1736 0 0 0 0 0 0 11 7948 0 0
+	xprt:	rdma 0 0 1 0 43 11490 11490 0 11812 0 5229 2520 208 174061854 164930038 1022056 0 0 0 0 0 0 0 11 7957 0 0
+	xprt:	rdma 0 0 1 0 43 11490 11490 0 11797 0 5218 2519 216 174643548 164999120 1041756 0 0 0 0 0 0 0 11 7953 0 0
+	per-op statistics
+	        NULL: 1 1 0 40 24 5 0 5 0
+	     GETATTR: 6699 6699 0 658876 750288 34 1459 1700 0
+	     SETATTR: 878 878 0 112776 31608 3 378 409 0
+	      LOOKUP: 1631 1631 0 188400 64096 16 372 413 1569
+	      ACCESS: 952 952 0 95396 114240 20 197 241 0
+	    READLINK: 0 0 0 0 0 0 0 0 0
+	        READ: 20198 20198 0 2204072 1322536072 1049 7547 9069 0
+	       WRITE: 57666 57666 0 2149857320 9226560 1838 115379 120554 0
+	      CREATE: 826 826 0 99672 211456 3 1352 1378 0
+	       MKDIR: 15 15 0 2048 3840 0 32 32 0
+	     SYMLINK: 0 0 0 0 0 0 0 0 0
+	       MKNOD: 0 0 0 0 0 0 0 0 0
+	      REMOVE: 715 715 0 74796 25740 5 967 995 0
+	       RMDIR: 0 0 0 0 0 0 0 0 0
+	      RENAME: 2 2 0 304 88 0 3 3 0
+	        LINK: 0 0 0 0 0 0 0 0 0
+	     READDIR: 0 0 0 0 0 0 0 0 0
+	 READDIRPLUS: 700 700 0 84356 1157640 5 532 602 0
+	      FSSTAT: 684 684 0 65712 114912 8 750 794 0
+	      FSINFO: 2 2 0 184 328 5 0 5 0
+	    PATHCONF: 0 0 0 0 0 0 0 0 0
+	      COMMIT: 0 0 0 0 0 0 0 0 0
+
+device scratch mounted on /scratch with fstype gpfs
