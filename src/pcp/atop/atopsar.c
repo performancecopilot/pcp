@@ -578,8 +578,9 @@ reportraw(double timenow, double numsecs,
 	double			timed;
 	unsigned int		rv;
 	static unsigned int	curline, headline, sampsum,
-				totalsec, totalexit, lastnpres,
+				totalexit, lastnpres,
 				lastntrun, lastntslpi, lastntslpu, lastnzomb;
+	static time_t		totalsec;
 	static double		lasttime;
 	static struct sstat	totsyst;
 
