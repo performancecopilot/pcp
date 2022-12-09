@@ -99,6 +99,8 @@ echo == Note: check $seq.full for log entries for the expected headers
 echo == pmdaopenmetrics LOG == >>$here/$seq.full
 cat $PCP_LOG_DIR/pmcd/openmetrics.log >>$here/$seq.full
 
+# cleanup preparing for remove (else error messages here)
+$sudo rm $PCP_PMDAS_DIR/openmetrics/config.d/simple_metric.*
 _pmdaopenmetrics_remove
 
 # success, all done

@@ -10884,13 +10884,6 @@ GC Wall Time for b5be5b9f_b0f1_47de_b436_27f167daf396
     inst [0 or "0 collector_name:Copy"] value 24462465
     inst [1 or "1 collector_name:MSC"] value 49519
 
-openmetrics.vmware_exporter.[root@ci-vm-10-0-138-196 [vmware_host_net_usage_average]
-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-Help:
-vmware_host_net_usage_average
-Error: Try again. Information not currently available
-
 openmetrics.vmware_exporter.vmware_datastore_accessible [VMWare datastore accessible (true / false)]
     Data Type: double  InDom: 144.35859 0x24008c13
     Semantics: instant  Units: none
