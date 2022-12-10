@@ -2223,7 +2223,7 @@ int
 getmachineid(char *buffer, size_t length)
 {
     FILE *fp = fopen("/etc/machine-id", "r");
-    char machine[MAXMACHINEIDLEN];
+    char machine[MAXMACHINEIDLEN+1];
 
     if (fp) {
 	int i = fscanf(fp, "%" STR(MAXMACHINEIDLEN) "s", machine);

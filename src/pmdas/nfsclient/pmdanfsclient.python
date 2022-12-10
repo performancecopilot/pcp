@@ -585,7 +585,7 @@ class NFSCLIENTPMDA(PMDA):
                         client.xprt.sending_u = self.longs(values[12])
                         client.xprt.pending_u = self.longs(values[13])
                     elif xprt_prot == 'udp':
-                        client.xprt.srcport = values[1]
+                        client.xprt.srcport = self.chars(values[1])
                         client.xprt.bind_count = self.longs(values[2])
                         client.xprt.sends = self.longs(values[3])
                         client.xprt.recvs = self.longs(values[4])
@@ -596,7 +596,7 @@ class NFSCLIENTPMDA(PMDA):
                         client.xprt.sending_u = self.longs(values[9])
                         client.xprt.pending_u = self.longs(values[10])
                     elif xprt_prot == 'rdma':
-                        client.xprt.srcport = values[1]
+                        client.xprt.srcport = self.chars(values[1])
                         client.xprt.bind_count = self.longs(values[2])
                         client.xprt.connect_count = self.longs(values[3])
                         client.xprt.connect_time = self.longs(values[4])

@@ -2,6 +2,7 @@
 # PCP QA Test No. 1727
 # Test duplicate instname labels in /metrics webapi when a context
 # level label such as "hostname" is explicitly specified.
+# Test invalid OpenMetrics metric names also.
 #
 # Copyright (c) 2021 Red Hat.  All Rights Reserved.
 #
@@ -54,8 +55,17 @@ echo '# TYPE somemetric gauge'
 echo 'somemetric{hostname="$MYHOST"} 1234'
 EOF
 
-chmod 755 $tmp.script
+cat <<EOF >$tmp.badxml
+#! /bin/bash
+
+cat $here/sadist/891688-dash-time.xml
+echo '# TYPE somemetric gauge'
+echo 'somemetric{hostname="$MYHOST"} 1234'
+EOF
+
+chmod 755 $tmp.script $tmp.badxml
 $sudo mv $tmp.script $PCP_PMDAS_DIR/openmetrics/config.d/duplicate_instname_label.sh
+$sudo mv $tmp.badxml $PCP_PMDAS_DIR/openmetrics/config.d/invalid_metrics_badinput.sh
 
 _pmdaopenmetrics_install
 if ! _pmdaopenmetrics_wait_for_metric openmetrics.control.calls
@@ -67,6 +77,14 @@ fi
 echo; echo === /metrics webapi listing. The instname label should appear only once.
 curl -Gs 'http://localhost:44322/metrics?names=openmetrics.duplicate_instname_label.somemetric' \
 | _filter_openmetrics_labels
+
+echo; echo === verify metric name validity using pminfo
+pminfo -v openmetrics
+
+# squash errors for a clean uninstall
+$sudo rm $PCP_PMDAS_DIR/openmetrics/config.d/invalid_metrics_badinput.sh
+# capture openmetrics log for posterity
+cat $PCP_LOG_DIR/pmcd/openmetrics.log >> $here/$seq.full
 
 _pmdaopenmetrics_remove
 

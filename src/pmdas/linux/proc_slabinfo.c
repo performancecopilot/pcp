@@ -116,7 +116,8 @@ refresh_proc_slabinfo(pmInDom slab_indom, proc_slabinfo_t *slabinfo)
 		break;
 	    }
 
-	    sbuf.total_size = sbuf.pages_per_slab * sbuf.num_active_slabs;
+	    sbuf.total_size = sbuf.pages_per_slab;	/* a 32 to 64 bit copy */
+	    sbuf.total_size *= sbuf.num_active_slabs;	/* safe multiplication */
 	    sbuf.total_size <<= _pm_pageshift;
 	}
 	else if (major_version == 2 && minor_version >= 0 && minor_version <= 1) {

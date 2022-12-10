@@ -832,7 +832,7 @@ main(int argc, char **argv)
 	    exit(0);
     }
     else if (*warn)		/* some other warning */
-	error(warn);
+	error("%s", warn);
 
     if (interactive) {
 	if (!isatty(0))		/* reading commands from a file */

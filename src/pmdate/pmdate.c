@@ -35,8 +35,8 @@ main(int argc, char *argv[])
     char	*p;
     char	*pend;
     struct tm	*tmp;
-    int		sgn;
-    int		val;
+    time_t	sgn;
+    time_t	val;
     int		mo_delta = 0;
     int		yr_delta = 0;
 

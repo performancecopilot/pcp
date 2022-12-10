@@ -165,6 +165,110 @@ pmInDom: 62.0
 dbpmda> 
 Log for pmdanfsclient on HOST ...
 Log finished ...
+=== Test case: mountstats-el8.7-rdma.qa
+dbpmda> open pipe $PYTHON pmdanfsclient.python
+Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
+dbpmda> # on some platforms this may take a while ...
+dbpmda> wait 2
+dbpmda> getdesc on
+dbpmda> desc nfsclient.export
+PMID: 62.0.1
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> desc nfsclient.mountpoint
+PMID: 62.0.2
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> desc nfsclient.options.string
+PMID: 62.1.1
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> desc nfsclient.options.proto
+PMID: 62.1.24
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> desc nfsclient.options.vers
+PMID: 62.1.6
+    Data Type: string  InDom: 62.0 0xf800000
+    Semantics: instant  Units: none
+dbpmda> fetch nfsclient.export
+PMID(s): 62.0.1
+__pmResult ... numpmid: 1
+  62.0.1 (<noname>): numval: 7 valfmt: 1 vlist[]:
+    inst [N or ???] value "example.com:/group"
+    inst [N or ???] value "example.com:/home"
+    inst [N or ???] value "example.com:/icds"
+    inst [N or ???] value "example.com:/icds-pcp-data"
+    inst [N or ???] value "example.com:/icds-prod"
+    inst [N or ???] value "example.com:/icds-test"
+    inst [N or ???] value "example.com:/work"
+dbpmda> fetch nfsclient.mountpoint
+PMID(s): 62.0.2
+__pmResult ... numpmid: 1
+  62.0.2 (<noname>): numval: 7 valfmt: 1 vlist[]:
+    inst [N or ???] value "/storage/group"
+    inst [N or ???] value "/storage/home"
+    inst [N or ???] value "/storage/icds"
+    inst [N or ???] value "/storage/pcp-data"
+    inst [N or ???] value "/storage/prod"
+    inst [N or ???] value "/storage/test"
+    inst [N or ???] value "/storage/work"
+dbpmda> fetch nfsclient.options.string
+PMID(s): 62.1.1
+__pmResult ... numpmid: 1
+  62.1.1 (<noname>): numval: 7 valfmt: 1 vlist[]:
+    inst [N or ???] value "rw,vers=3,rsize=65536,wsize=65536,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=rdma,nconnect=8,port=20049,timeo=600,retrans=2,sec=sys,mountaddr=10.6.159.1,mountvers=3,mountport=0,mountproto=tcp,local_lock=all"
+    inst [N or ???] value "rw,vers=3,rsize=65536,wsize=65536,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=rdma,nconnect=8,port=20049,timeo=600,retrans=2,sec=sys,mountaddr=10.6.159.18,mountvers=3,mountport=0,mountproto=tcp,local_lock=all"
+    inst [N or ???] value "rw,vers=3,rsize=65536,wsize=65536,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=rdma,nconnect=8,port=20049,timeo=600,retrans=2,sec=sys,mountaddr=10.6.159.23,mountvers=3,mountport=0,mountproto=tcp,local_lock=all"
+    inst [N or ???] value "rw,vers=3,rsize=65536,wsize=65536,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=rdma,nconnect=8,port=20049,timeo=600,retrans=2,sec=sys,mountaddr=10.6.159.27,mountvers=3,mountport=0,mountproto=tcp,local_lock=all"
+    inst [N or ???] value "rw,vers=3,rsize=65536,wsize=65536,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=rdma,nconnect=8,port=20049,timeo=600,retrans=2,sec=sys,mountaddr=10.6.159.29,mountvers=3,mountport=0,mountproto=tcp,local_lock=all"
+    inst [N or ???] value "rw,vers=3,rsize=65536,wsize=65536,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=rdma,nconnect=8,port=20049,timeo=600,retrans=2,sec=sys,mountaddr=10.6.159.6,mountvers=3,mountport=0,mountproto=tcp,local_lock=all"
+    inst [N or ???] value "rw,vers=3,rsize=65536,wsize=65536,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=rdma,nconnect=8,port=20049,timeo=600,retrans=2,sec=sys,mountaddr=10.6.159.7,mountvers=3,mountport=0,mountproto=tcp,local_lock=all"
+dbpmda> fetch nfsclient.options.proto
+PMID(s): 62.1.24
+__pmResult ... numpmid: 1
+  62.1.24 (<noname>): numval: 7 valfmt: 1 vlist[]:
+    inst [N or ???] value "rdma"
+    inst [N or ???] value "rdma"
+    inst [N or ???] value "rdma"
+    inst [N or ???] value "rdma"
+    inst [N or ???] value "rdma"
+    inst [N or ???] value "rdma"
+    inst [N or ???] value "rdma"
+dbpmda> fetch nfsclient.options.vers
+PMID(s): 62.1.6
+__pmResult ... numpmid: 1
+  62.1.6 (<noname>): numval: 7 valfmt: 1 vlist[]:
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+dbpmda> fetch nfsclient.options.vers
+PMID(s): 62.1.6
+__pmResult ... numpmid: 1
+  62.1.6 (<noname>): numval: 7 valfmt: 1 vlist[]:
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+    inst [N or ???] value "3"
+dbpmda> instance 62.0
+pmInDom: 62.0
+[  X] inst: X name: "/storage/group"
+[X+1] inst: X+1 name: "/storage/home"
+[X+2] inst: X+2 name: "/storage/icds"
+[X+3] inst: X+3 name: "/storage/pcp-data"
+[X+4] inst: X+4 name: "/storage/prod"
+[X+5] inst: X+5 name: "/storage/test"
+[X+6] inst: X+6 name: "/storage/work"
+dbpmda> 
+Log for pmdanfsclient on HOST ...
+Log finished ...
 === Test case: mountstats.qa
 dbpmda> open pipe $PYTHON pmdanfsclient.python
 Start $PYTHON PMDA: $PYTHON pmdanfsclient.python
