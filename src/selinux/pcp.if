@@ -415,3 +415,23 @@ ifndef(`rpm_script_signal',`
         allow $1 rpm_script_t:process signal;
     ')
 ')
+
+########################################
+## <summary>
+##      Dummy corenet_udp_bind_statsd_port().
+##      Needed for statsd PMDA on some platforms, but if you
+##      don't have corenet_udp_bind_statsd_port() definition
+##      nothing needs to be done.
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </summary> 
+#
+ifndef(`corenet_udp_bind_statsd_port',`
+    interface(`corenet_udp_bind_statsd_port',`
+        gen_require(`
+            type $1;
+        ')
+    ')
+')

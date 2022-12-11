@@ -97,7 +97,9 @@ In the src/selinux directory
 
 == Installing ==
 
-    $ sudo semodule -r pcp.pp
+    $ sudo semodule -X 200 -r pcp
+(expect this to fail if a revised pcp.pp module has not previously
+been installed)
     $ sudo semodule -X 200 -i pcp.pp
 
 or if semodule is too old to understand -X 200
@@ -110,7 +112,7 @@ verify installation with:
 
 or if semodule is too old to understand --list=full
 
-   $ sudo semodule --list-modules | grep pcp
+   $ sudo semodule --list-modules=full | grep pcp
 
 and to make sure QA is a happy camper
 
