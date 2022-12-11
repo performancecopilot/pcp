@@ -84,9 +84,9 @@ Debian
 
 Fedora
     https://fedoraproject.org/wiki/Releases
-    23 Sep 2018: 27 & 28
-    23 Aug 2020: 31 & 32
+    12 Dec 2022: 35, 36 & 37
     07 Sep 2021: 33 & 34
+    23 Aug 2020: 31 & 32
     # which packages are installed
     $ rpm -qa --qf '%{NAME}\n'
     # package search recipe (name and info or description)
