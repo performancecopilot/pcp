@@ -43,6 +43,7 @@ libvirt-daemon-driver-qemu
 lm_sensors
 mailx
 make
+mandoc
 mariadb
 memcached
 mesa-dri-drivers
