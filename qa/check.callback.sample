@@ -247,7 +247,7 @@ then
 	then
 	    echo "Warning: $pmda PMDA exited? pmcd.agent.status=$status"
 	    echo "Relevant pmcd.log lines ..."
-	    grep "$pmda" "$PCP_LOG_DIR/pmcd/pmcd.log" ]
+	    grep "$pmda" "$PCP_LOG_DIR/pmcd/pmcd.log"
 	    if [ -f "$PCP_LOG_DIR/pmcd/$pmda.log" ]
 	    then
 		echo "=== $pmda.log ==="
