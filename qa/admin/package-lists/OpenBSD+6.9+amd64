@@ -52,6 +52,5 @@ rrdtool
 smartmontools
 socat
 sqlite3
-valgrind
 xz
 zabbix-agent
