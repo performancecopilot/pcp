@@ -243,6 +243,7 @@ _filter_openbsd()
 	    -e '/^network\.udp .* Unknown metric name/d' \
 	    -e '/^network\.udplite .* Unknown metric name/d' \
 	    -e '/^proc\..* Unknown metric name/d' \
+	    -e '/^vfs\..* Unknown metric name/d' \
 	    -e '/^zram\..* Unknown metric name/d' \
 	# openbsd
     fi
