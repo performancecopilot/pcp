@@ -1,0 +1,341 @@
+#!/bin/sh
+# PCP QA Test No. 1431
+# overhead PMDA config file parser checkout
+#
+# Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -x $PCP_PMDAS_DIR/overhead/pmdaoverhead ] || _notrun "overhead PMDA not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@$PCP_PMDAS_DIR@PCP_PMDAS_DIR@g" \
+	-e "s@$PCP_SYSCONF_DIR@PCP_SYSCONF_DIR@g" \
+    # end
+}
+
+# real QA test starts here
+echo "=== OK cases ==="
+conf=$PCP_PMDAS_DIR/overhead/default.conf
+nl -b a $conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# whitespace in regex, comments at end of all lines
+# except pattern:
+version 1	#	comment
+group FoO {	# comment
+    id: 0	# comment
+    pattern: [ ]fOo[ 	]bAr[ ]
+} # comment
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+# same via symlink
+ln -s $tmp.conf $tmp.symlink
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.symlink 2>&1 \
+| _filter
+
+# default dir search
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C 2>&1 \
+| _filter
+
+echo
+echo "=== syntax errors ==="
+
+cat <<'End-of-File' >$tmp.conf
+# bogus keyword at start of a clause
+foo
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# misspelt version
+venison 1
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# token too long
+version 1
+group longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again-longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again-llanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-one-last-time-llanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch
+{}
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# non-numeric version
+version foobar
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# bad version
+version 2
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# begins with g, but not a group clause
+version 1
+grope foo {
+    id: 0
+    pattern: bar
+}
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# not a group clause
+version 1
+group foo {
+    id: 0
+    pattern: bar
+}
+mumble
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# bad starting letter for group name
+version 1
+group 1foo {
+    id: 0
+    pattern: bar
+}
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# illegal letter in group name
+version 1
+group foo!bar {
+    id: 0
+    pattern: bar
+}
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# bad parameter name
+version 1
+group foo {
+    id: 0
+    pattern: bar
+    blah: 42
+}
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# id: non-numeric
+version 1
+group foo {
+    id: 123abc
+    pattern: bar
+}
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# id: negative
+version 1
+group foo {
+    id: -123
+    pattern: bar
+}
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# id: out of range
+version 1
+group foo {
+    id: 4095
+    pattern: bar
+}
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# bad re
+version 1
+group foo {
+    id: 123
+    pattern: bar[a-
+}
+End-of-File
+nl -b a $tmp.conf
+# for this one, the error message from regerror(3) is not always the same,
+# so we need the extra sed filtering
+# parse: TMP.conf[6]: Error: bad pattern="bar[a-": Unmatched [, [^, [:, [., or [=
+#                                                            ^^^^^ here ^^^^^^^^^
+#
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter \
+| sed \
+    -e '/bad pattern=/s/Unmatched.*/Unmatched .../' \
+# end
+
+# not a file or dir
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c /dev/tty 2>&1 \
+| _filter
+
+echo
+echo "=== incomplete specifications ==="
+
+cat <<'End-of-File' >$tmp.conf
+# nothing at all
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# truncated after group
+version 1
+group
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# truncated after {
+version 1
+group foo {
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# truncated after <regex>
+version 1
+group foo {
+    id: 0
+    pattern: bar
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+echo
+echo "=== semantic errors ==="
+
+cat <<'End-of-File' >$tmp.conf
+# duplicate id: across groups
+version 1
+group foo {
+    id: 123
+    pattern: bar
+}
+group bar {
+    id: 123
+    pattern: foo
+}
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# duplicate id: within group
+version 1
+group foo {
+    id: 123
+    pattern: foo
+    id: 456
+}
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# duplicate pattern: within group
+version 1
+group foo {
+    pattern: foo
+    id: 123
+    pattern: bar
+}
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.conf
+# duplicate group name
+version 1
+group foo {
+    pattern: bar
+    id: 123
+}
+group foo {
+    pattern: mumble
+    id: 456
+}
+End-of-File
+nl -b a $tmp.conf
+$PCP_PMDAS_DIR/overhead/pmdaoverhead -Dappl0 -C -c $tmp.conf 2>&1 \
+| _filter
+
+# success, all done
+exit

@@ -242,6 +242,7 @@ pmda.nfsclient
 pmda.nginx
 pmda.nutcracker
 pmda.nvidia
+pmda.ohead
 pmda.openmetrics
 pmda.oracle
 pmda.perfevent
@@ -370,6 +371,7 @@ iostat
 tapestat
 ipcs
 mpstat
+ps
 
 # full test search
 pmsearch
@@ -1881,6 +1883,8 @@ x11
 1428 logutil pmrep python local
 1429 logutil pmlogextract pmdumplog pmlogrewrite local
 1430 logutil pmlogconf pmlogger pmrep local
+1431 pmda.ohead local
+1432 pmda.ohead local
 1433 pmproxy local pmconfig
 1434 pmda.nfsclient local
 1435 pmda.elasticsearch local
@@ -1898,6 +1902,7 @@ x11
 1489 python pmrep pmimport local
 1490 python local labels
 1495 pmlogrewrite labels pmdumplog local
+1503 pcp pidstat ps ython local
 1511 pmcd local pmda.sample
 1515 pmda.denki local
 1530 pmda.zfs local valgrind

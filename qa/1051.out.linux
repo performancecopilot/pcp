@@ -11,6 +11,8 @@ Warning - failed to expand action for rule entropy.available
   string: "$syslog_prefix$$rule$^ $action_expand$"
 Warning - failed to expand action for rule filesys.filling
   string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule filesys.vfs_files
+  string: "$syslog_prefix$$rule$^ $action_expand$"
 Warning - failed to expand action for rule memory.exhausted
   string: "$syslog_prefix$$rule$^ $action_expand$"
 Warning - failed to expand action for rule memory.oom_kill

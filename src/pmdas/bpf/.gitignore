@@ -18,6 +18,9 @@ siphash.o
 
 modules/bits.bpf.h
 modules/blk_types.h
+modules/compat.bpf.h
+modules/compat.c
+modules/compat.h
 modules/core_fixes.bpf.h
 modules/maps.bpf.h
 modules/*_helpers.*

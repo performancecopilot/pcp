@@ -1,4 +1,4 @@
-ALL_RULES = buffer_cache dnlc_miss filling
+ALL_RULES = buffer_cache dnlc_miss filling vfs_files
 
 LOCAL_RULES = $(ALL_RULES)
 
@@ -15,7 +15,7 @@ LOCAL_RULES = $(ALL_RULES)
 #   name_cache.searches -12357 Unknown metric name
 #
 ifeq ($(TARGET_OS), linux)
-LOCAL_RULES = filling
+LOCAL_RULES = filling vfs_files
 endif
 
 # Metrics missing from Mac OS X

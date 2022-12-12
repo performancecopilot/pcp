@@ -1,0 +1,118 @@
+#! /bin/sh
+#
+# Copyright (c) 1997,2003 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# Install the overhead PMDA and/or PMNS
+#
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=overhead
+
+# Do it
+#
+pmdaSetup
+
+# controls for installation procedures
+#
+daemon_opt=true		# must install as daemon
+dso_opt=false
+pipe_opt=true		# force pipe IPC
+socket_opt=false
+check_delay=2		# give the PMDA a chance to set itself up
+
+# be careful that mortals cannot write any configuration files, as
+# these would present a security problem
+#
+umask 022
+
+
+# PMDA variables
+#
+config="$PCP_SYSCONF_DIR/overhead/conf.d"
+refresh=60
+
+_quit()
+{
+    status=$1
+    exit
+}
+
+do_debug=false
+
+_parsedefaults()
+{
+    echo "Extracting options from current installation ..."
+    while getopts R:d:l:c: c
+    do
+    	case $c in
+	    \?)		echo "Warning: Unrecognized option in $PCP_PMCDCONF_PATH"
+			echo "         Remove line for the $iam PMDA in $PCP_PMCDCONF_PATH and re-run ./Install"
+	    		_quit 2;;
+	    c )		config=$OPTARG;;
+	    R )		refresh=$OPTARG;;
+	    * )		;;
+	esac
+    done
+}
+
+# set options from $PCP_PMCDCONF_PATH, if possible
+#
+ans=`$PCP_AWK_PROG <$PCP_PMCDCONF_PATH '
+$1 == "'$iam'"	{ printf "%s",$6
+	      for (i=7;i<=NF;i++) printf " %s",$i
+	      print ""
+	    }'`
+if [ ! -z "$ans" ]
+then
+    _parsedefaults $ans
+fi
+
+echo "Resource consumption is evaluated once once per \"refresh\" time."
+$PCP_ECHO_PROG $PCP_ECHO_N "Enter the refresh time in seconds [$refresh] ""$PCP_ECHO_C"
+read ans
+if  [ ! -z "$ans" ]
+then
+    refresh=$ans
+fi
+args="-R $refresh"
+
+# go figure out which configuration file to use ...
+# we can't use pmdaChooseConfigFile here because the user can
+# specify an existing file or an existing directory ...
+#
+echo
+while true
+do
+    $PCP_ECHO_PROG $PCP_ECHO_N "Configuration file or directory? [$config] ""$PCP_ECHO_C"
+    read ans
+    if  [ ! -z "$ans" ]
+    then
+	if [ -f "$ans" -o -d "$ans" ]
+	then
+	    config="$ans"
+	    break
+	else
+	    echo "Error: $ans must be an existing file or directory"
+	fi
+    else
+	break
+    fi
+done
+args="$args -c $config"
+
+pmdaInstall
+
+_quit 0

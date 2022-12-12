@@ -1,0 +1,273 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2022 Ken McDonell.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMDAOVERHEAD 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaoverhead\f1 \- performance metrics domain agent (PMDA) exporting resource consumption metrics for groups of processes
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/overhead/pmdaoverhead\f1
+[\f3\-C\f1]
+[\f3\-c\f1 \f2config\f1]
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-R\f1 \f2interval\f1]
+.SH DESCRIPTION
+.B pmdaoverhead
+is a configurable Performance Metrics Domain
+Agent (PMDA) for exporting resource consumption for groups of related
+processes.
+.PP
+The
+.B pmdaoverhead
+command line options are:
+.TP 4
+.B \-C
+parse the configuration file(s) and exit after reporting any errors.
+.TP
+.B \-c
+configuration file(s),
+.I config
+may be either a file or a directory; in the latter case all
+the files within
+.I config
+are assumed to be configuration files for
+.B pmdaoverhead
+and they will all be processed.
+.RS 4
+.PP
+Each configuration file defines one or more ``groups'' of processes
+of interest, using the syntax described
+in the ``CONFIGURATION'' section below.
+.PP
+By default all configuration files below the
+.I $PCP_SYSCONF_DIR/overhead/conf.d/
+directory are used.
+.RE
+.TP
+.B \-d
+It is absolutely crucial that the performance metrics
+.I domain
+number specified here is unique and consistent.
+That is,
+.I domain
+should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for the same PMDA on all hosts.
+.TP
+.B \-l
+Location of the log file.  By default, a log file named
+.I overhead.log
+is written in the current directory of
+.BR pmcd (1)
+when
+.B pmdaoverhead
+is started, i.e.
+.BR $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+.TP
+.B \-R
+The PMDA uses a separate thread to periodically scan all processes to
+determine which processes are deemed ``interesting'' in each group,
+and extracting resource consumption for those processes.
+The
+.I interval
+(in seconds) determines how often this scanning and resource calculation
+is done, the default is 60 (seconds).
+.SH CONFIGURATION
+Each configuration file defines one or more ``groups'' of processes.
+The file format is simple and follows the following rules.
+.TP 4
+1.
+Lines beginning with a hash ``#'' are treated as comments.
+More generally, except for the
+.B pattern:
+clause described below, all text between a hash and the end of line
+is treated as a comment.
+.TP
+2.
+White space (spaces or tabs or newlines) are required to separate lexical
+components.  Spaces and tabs are otherwise ignored.
+Other than terminating comments and the
+.I regex
+in a
+.B pattern:
+clause, newlines are also ignored.
+.TP
+3.
+Each group is introduced by a
+.B group
+clause that has the form
+.br
+.ti +8n
+\fBgroup\fR \fIname\fR \fB{\fR \fIparameters\fR \fB}\fR
+.br
+where
+.I name
+is a unique name for the group across all groups in the
+.B pmdaoverhead
+configuration files.
+As
+.I name
+becomes embedded in the Performance Metrics Name Space (PMNS)
+if must follow the rules for metric name components as
+described in
+.BR PMNS (5),
+namely beginning with an alphabetic character, followed by zero or
+more characters drawn from the alphabetics, numerics and the
+underscore ``_'' character.
+.TP
+4.
+The
+.I parameters
+must include one
+.B id:
+clause and one
+.B pattern:
+clause.
+.TP
+5.
+An
+.B id:
+clause has the form
+.br
+.ti +8n
+\fBid:\fR \fIident\fR
+.br
+where
+.I ident
+is a unique identifier number for the group across all groups in the
+.B pmdaoverhead
+configuration files.
+Valid values for
+.I ident
+are in the range 0 to 4094 (inclusive).
+.TP
+6.
+A
+.B pattern:
+clause has the form
+.br
+.ti +8n
+\fBpattern:\fR \fIregex\fR
+.br
+where
+.I regex
+is an extended regular expression notation in the style of
+.BR egrep (1).
+The
+.I regex
+starts at the first non-whitespace character after
+.B pattern:
+and extends to the next newline.
+.RS 4
+.PP
+The processes that are considered to be members of the group
+are those for which the command name, as reported by
+.br
+.ti +8n
+.ft CW
+$ pminfo -f proc.psinfo.cmd
+.br
+.ft
+is matched by
+.I regex
+.B plus
+all the descendents of those processes.
+So for example the
+.I regex
+.B ^pmcd$
+will match
+.BR pmcd (1)
+and all the PMDA processes launched by
+.BR pmcd (1)
+and any of their children, etc.
+.RE
+.SH INSTALLATION
+If you want access to the names, help text and values for the overhead
+performance metrics, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/overhead
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+If you want to undo the installation, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/overhead
+# ./Remove
+.in
+.fi
+.ft 1
+.PP
+.B pmdaoverhead
+is launched by
+.B pmcd
+and should never be executed directly.
+The Install and Remove scripts notify
+.B pmcd
+when the agent is installed or removed.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMCDCONF_PATH
+command line options used to launch
+.B pmdaoverhead
+.TP 10
+.B $PCP_PMDAS_DIR/overhead/Install
+installation script for the
+.B pmdaoverhead
+agent
+.TP 10
+.B $PCP_PMDAS_DIR/overhead/Remove
+undo installation script for the
+.B pmdaoverhead
+agent
+.TP 10
+.B $PCP_LOG_DIR/pmcd/overhead.log
+default log file for error messages and other information from
+.B pmdaoverhead
+.TP 10
+.B $PCP_SYSCONF_DIR/overhead/conf.d
+directory containing configuration files for the overhead metrics
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmdaproc (1),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR PMNS (5).

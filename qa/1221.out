@@ -7105,9 +7105,6 @@ openmetrics.thermostat.tms_jvm_gc_b5be5b9f_b0f1_47de_b436_27f167daf396_wallTime
     inst [0 or "0 collector_name:Copy"] labels {"agent":"openmetrics","collector_name":"Copy","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"0 collector_name:Copy","machineid":MACHINEID,"source":"thermostat","url":FILEURL,"userid":NUM}
     inst [1 or "1 collector_name:MSC"] labels {"agent":"openmetrics","collector_name":"MSC","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"1 collector_name:MSC","machineid":MACHINEID,"source":"thermostat","url":FILEURL,"userid":NUM}
 
-openmetrics.vmware_exporter.[root@ci-vm-10-0-138-196
-    labels {"agent":"openmetrics","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"vmware_exporter","url":FILEURL,"userid":NUM}
-
 openmetrics.vmware_exporter.vmware_datastore_accessible
     labels {"agent":"openmetrics","dc_name":"ha-datacenter","domainname":DOMAINNAME,"ds_cluster":"","ds_name":"name008","groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"vmware_exporter","url":FILEURL,"userid":NUM}
     inst [0 or "0 dc_name:ha-datacenter ds_cluster: ds_name:name026"] labels {"agent":"openmetrics","dc_name":"ha-datacenter","domainname":DOMAINNAME,"ds_cluster":"","ds_name":"name026","groupid":NUM,"hostname":HOSTNAME,"instname":"0 dc_name:ha-datacenter ds_cluster: ds_name:name026","machineid":MACHINEID,"source":"vmware_exporter","url":FILEURL,"userid":NUM}
@@ -15330,9 +15327,6 @@ openmetrics.thermostat.tms_jvm_gc_b5be5b9f_b0f1_47de_b436_27f167daf396_wallTime
     labels {"agent":"openmetrics","collector_name":"MSC","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"thermostat","url":FILEURL,"userid":NUM}
     inst [0 or "0 collector_name:Copy"] labels {"agent":"openmetrics","collector_name":"Copy","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"0 collector_name:Copy","machineid":MACHINEID,"source":"thermostat","url":FILEURL,"userid":NUM}
     inst [1 or "1 collector_name:MSC"] labels {"agent":"openmetrics","collector_name":"MSC","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"instname":"1 collector_name:MSC","machineid":MACHINEID,"source":"thermostat","url":FILEURL,"userid":NUM}
-
-openmetrics.vmware_exporter.[root@ci-vm-10-0-138-196
-    labels {"agent":"openmetrics","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"vmware_exporter","url":FILEURL,"userid":NUM}
 
 openmetrics.vmware_exporter.vmware_datastore_accessible
     labels {"agent":"openmetrics","dc_name":"ha-datacenter","domainname":DOMAINNAME,"ds_cluster":"","ds_name":"name008","groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"vmware_exporter","url":FILEURL,"userid":NUM}

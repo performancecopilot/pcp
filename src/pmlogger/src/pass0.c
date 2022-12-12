@@ -448,7 +448,7 @@ pass0(FILE *fpipe)
     mode_t	mode;
 #endif
     char	*tmpfname;
-    char	*p;
+    char	*p = NULL;
     int		fd;
     FILE	*fp;			/* temp file, ready for next pass */
 

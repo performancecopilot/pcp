@@ -1,0 +1,42 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+
+rule  filesys.vfs_files
+	summary = "$rule$"
+	enumerate = hosts
+	predicate =
+"some_host (
+    vfs.files.count $hosts$ > 0 && vfs.files.max $hosts$ > 0 &&
+    100 * ( vfs.files.count $hosts$ / vfs.files.max $hosts$ ) > $threshold$
+)"
+	enabled	= yes
+	version	= 1
+	help	=
+"Number of allocated file handles (open file descriptors) is at or
+above a threshold percentage of the total available (maximum kernel
+enforced limit).";
+
+percent	threshold
+	default	= 90
+	help	=
+"The threshold of open file handles that has been allocated compared
+to the maximum number available, expressed as a percentage.";
+
+string	rule
+	default	= "Approaching open file descriptor limit"
+	modify	= no
+	display	= no;
+
+string  action_expand
+	default	= %vopen@%h
+	display = yes
+	modify	= no;
+
+string	email_expand
+	default	= "host: %h open files: %v"
+	display	= no
+	modify	= no;
+
+#
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+

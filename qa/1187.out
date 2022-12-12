@@ -110,6 +110,16 @@ Per Interface in bits
 === std err
 === done
 
+Per Interface packets
+=== std out
+----system---- pkt/enp0s25 --pkt/tun0- -pkt/wlp3s0
+     time     |#recv #send:#recv #send:#recv #send
+25-07 16:08:19|           :           :           
+25-07 16:08:20|   3     5 :   0     2 :   0     0 
+25-07 16:08:21|  14    13 :   2     0 :   0     0 
+=== std err
+=== done
+
 All Interfaces
 === std out
 ----system---- -net/virbr0 --net/tun0- net/virbr0- ---net/lo-- net/enp0s25 -net/wlp3s0 net/docker0 -net/virbr1 net/virbr1-

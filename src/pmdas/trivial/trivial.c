@@ -39,7 +39,7 @@
 static pmdaMetric metrictab[] = {
 /* time */
     { NULL, 
-      { PMDA_PMID(0,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      { PMDA_PMID(0,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
         PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0) } }
 };
 
@@ -72,7 +72,7 @@ trivial_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     else if (inst != PM_IN_NULL)
 	return PM_ERR_INST;
 
-    atom->ul = time(NULL);
+    atom->ull = time(NULL);
     return 0;
 }
 

@@ -5,8 +5,8 @@ QA output created by 423
 9223372036854775808 -> 9223372036854775808
 123.456 -> 1.234560e+02
 0.123456789 -> 1.234568e-01
-mary had a little lamb-> "mary had a little lamb"
-(null)-> <null>
+mary had a little lamb -> "mary had a little lamb"
+(null) -> <null>
 abcdefghijklmnopqrstuvwxyz0123456789X -> "abcdefghijklmnopqrstuvwxyz0123456789X"
 abcdefghijklmnopqrstuvwxyz0123456789XYZ -> "abcdefghijklmnopqrstuvwxyz01234567..."
 ??? -> [0 event records]

@@ -1,0 +1,31 @@
+QA output created by 1432
+Resource consumption is evaluated once once per "refresh" time.
+Enter the refresh time in seconds [60] 
+Configuration file or directory? [PCP_SYSCONF_DIR/overhead/conf.d] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+Updating the PMCD control file, and notifying PMCD ...
+Check overhead metrics have appeared ... 7 metrics and 4 values
+
+overhead.qa.utime
+inst [MYPID or "MYPID hanoi-1432"] value OK
+inst [MYPID or "MYPID hanoi-1432"] value OK
+
+overhead.qa.stime
+inst [MYPID or "MYPID hanoi-1432"] value OK
+inst [MYPID or "MYPID hanoi-1432"] value OK
+
+overhead.qa.cpu
+inst [MYPID or "MYPID hanoi-1432"] value OK
+inst [MYPID or "MYPID hanoi-1432"] value OK
+
+overhead.cpu
+inst [1 or "qa"] value OK
+
+overhead.nproc_active
+    inst [1 or "qa"] value 2
+
+overhead.nproc
+    inst [1 or "qa"] value 2
+
+overhead.control.refresh
+    value 5

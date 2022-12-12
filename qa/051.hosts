@@ -8,8 +8,8 @@
 #
 # Used in setup.051 and 051.
 #
-remote_1=netbsd.org
+remote_1=pcp.io
 remote_2=aconex.com
-remote_3=ietf.org
-remote_4=otaus.org
+remote_3=www.ietf.org
+remote_4=www.otaus.org
 remote_5=internode.on.net

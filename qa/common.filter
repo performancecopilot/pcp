@@ -332,6 +332,7 @@ _filter_optional_pmdas()
 	-e '/pmdaopenmetrics/d' \
 	-e '/pmdaoracle/d' \
 	-e '/pmdaoraping/d' \
+	-e '/pmdaoverhead/d' \
 	-e '/pmdapdns/d' \
 	-e '/pmdapmcd/d' \
 	-e '/pmdaproc/d' \
@@ -413,6 +414,7 @@ _filter_optional_pmda_instances()
         -e '/inst \[151 or "bpftrace"]/d' \
         -e '/inst \[153 or "zfs"]/d' \
         -e '/inst \[156 or "denki"]/d' \
+        -e '/inst \[158 or "overhead"]/d' \
 	-e '/inst \[142 or "lio"]/d' \
 	-e '/inst \[144 or "openmetrics"]/d' \
 	-e '/inst \[149 or "bcc"]/d' \
@@ -943,6 +945,7 @@ _filter_torture_api()
 	-e '/^    numa /d' \
 	-e '/^    nvidia /d' \
 	-e '/^    origin /d' \
+	-e '/^    overhead /d' \
 	-e '/^    pdns /d' \
 	-e '/^    p76 /d' \
 	-e '/^    process /d' \

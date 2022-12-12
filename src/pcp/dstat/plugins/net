@@ -13,6 +13,7 @@ bits_out.label = send
 bits_out = network.interface.out.bytes
 
 [net-packets]
+label = pkt/%I
 width = 5
 printtype = d
 pkts_in.label = #recv
