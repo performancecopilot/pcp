@@ -280,7 +280,7 @@ BuildRequires: perl-devel perl(strict)
 BuildRequires: perl(ExtUtils::MakeMaker) perl(LWP::UserAgent) perl(JSON)
 BuildRequires: perl(Time::HiRes) perl(Digest::MD5)
 BuildRequires: perl(XML::LibXML) perl(File::Slurp)
-BuildRequires: man %{_hostname_executable}
+BuildRequires: mandoc %{_hostname_executable}
 %if !%{disable_systemd}
 BuildRequires: systemd-devel
 %endif

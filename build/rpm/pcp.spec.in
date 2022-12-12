@@ -108,7 +108,7 @@ BuildRequires: qt4-devel >= 4.4
 %endif
 %endif
 %if "%{_vendor}" == "redhat"
-BuildRequires: man %{_hostname_executable}
+BuildRequires: mandoc %{_hostname_executable}
 %if "@enable_systemd@" == "false"
 BuildRequires: initscripts
 %endif
