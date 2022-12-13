@@ -79,6 +79,7 @@ libxml-tokeparser-perl
 libyaml-libyaml-perl
 lm-sensors
 make
+man-db
 mandoc
 mariadb-client-core-10.1
 memcached

@@ -50,6 +50,7 @@ libvirt-python
 lm_sensors
 mailx
 make
+man-db
 mandoc
 mariadb
 memcached
