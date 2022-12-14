@@ -3103,7 +3103,7 @@ AC_TRY_LINK(
 ],
 [
     double x = 123.456;
-    if (fpclassify(x) == FP_NAN) exit(1);
+    if (fpclassify(x) == FP_NAN) return 1;
 ], ac_cv_func_fpclassify=yes)
 AC_MSG_RESULT($ac_cv_func_fpclassify)
 if test $ac_cv_func_fpclassify = no
@@ -3118,7 +3118,7 @@ then
 ],
 [
     double x = 123.456;
-    if (fpclassify(x) == FP_NAN) exit(1);
+    if (fpclassify(x) == FP_NAN) return 1;
 ], ac_cv_func_fpclassify=yes)
     AC_MSG_RESULT($ac_cv_func_fpclassify)
     if test $ac_cv_func_fpclassify = yes
@@ -3743,6 +3743,7 @@ AC_MSG_CHECKING([if strftime knows about %z])
 AC_TRY_RUN(
 [
 #include <time.h>
+#include <string.h>
 int main () {
     char b[32]="";
     time_t t = time(NULL);
