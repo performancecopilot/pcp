@@ -1200,7 +1200,7 @@ pmdabpf_arch=`uname -m | sed 's/x86_64/x86/' | sed 's/aarch64/arm64/' | sed 's/p
 AC_SUBST(pmdabpf_arch)
 AC_MSG_RESULT($pmdabpf_arch)
 
-AC_MSG_CHECKING([for vmlinux.h])
+AC_MSG_CHECKING([for libbpf-tools vmlinux.h])
 pmdabpf_vmlinuxh="`pwd`/vendor/github.com/iovisor/bcc/libbpf-tools/$pmdabpf_arch/vmlinux.h"
 if test -f "$pmdabpf_vmlinuxh"; then
     AC_MSG_RESULT($pmdabpf_vmlinuxh)
@@ -1214,32 +1214,11 @@ AC_MSG_CHECKING([if the bpf PMDA should be included])
 pmda_bpf=false
 AS_IF([test "x$do_pmdabpf" = "xyes"], [pmda_bpf=true])
 AS_IF([test "x$do_pmdabpf" = "xcheck"], [
-    dnl pmdabpf requires libbpf, libelf and bpftool
-    $have_libbpf && $have_libelf && \
-	test $clang_major_version -ge 10 && \
-	test -f "$pmdabpf_vmlinuxh" && \
-	pmda_bpf=true
+    dnl pmdabpf requires libelf, clang 10+ and a bpftool-generated arch-specific vmlinux.h
+    $have_libelf && test $clang_major_version -ge 10 -a -f "$pmdabpf_vmlinuxh" && pmda_bpf=true
 ])
 AC_SUBST(PMDA_BPF, $pmda_bpf)
 if $pmda_bpf; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
-
-if $pmda_bpf; then
-    libbpf_version_major=`echo $libbpf_version | cut -d. -f1`
-    libbpf_version_minor=`echo $libbpf_version | cut -d. -f2`
-    pmdabpf_modules="biolatency.so runqlat.so"
-
-    AC_MSG_CHECKING([if bpf PMDA modules using perf_buffer__poll should be included])
-    if test "$libbpf_version_major" -eq 0 -a "$libbpf_version_minor" -lt 7; then
-	AC_MSG_RESULT([no (libbpf version required: 0.7.0, installed: $libbpf_version)])
-    else
-	pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so mountsnoop.so oomkill.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so"
-	AC_MSG_RESULT(yes)
-    fi
-
-    AC_SUBST(pmdabpf_modules)
-    AC_MSG_CHECKING([which bpf PMDA modules should be included])
-    AC_MSG_RESULT($pmdabpf_modules)
-fi
 
 AC_MSG_CHECKING([if the bpftrace PMDA should be included])
 pmda_bpftrace=false

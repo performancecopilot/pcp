@@ -7,6 +7,10 @@ LDIRT = $(HELPERS_H) $(HELPERS_C) $(APPS_H) $(APPS_BPF) vmlinux.h
 MODULETMP = $(PCP_PMDAS_DIR)/$(IAM)/modules
 MODULEDIR = $(PCP_PMDASADM_DIR)/$(IAM)/modules
 
+BPF_MODULES = biolatency.so runqlat.so bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so mountsnoop.so oomkill.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so
+BPF_LIBRARY = $(TOPDIR)/vendor/github.com/libbpf/bpftool/src/libbpf/libbpf.a
+LCFLAGS += -I$(TOPDIR)/vendor/github.com/libbpf/bpftool/src/libbpf/include
+
 COMMON_OBJ = \
 	compat.o \
 	trace_helpers.o \
@@ -65,14 +69,14 @@ APPS_BPF = \
 	vfsstat.bpf.c \
 
 
-default_pcp default:	$(PMDABPF_MODULES)
+default_pcp default:	$(BPF_MODULES)
 
 include $(BUILDRULES)
 
 install_pcp install:	default
 	$(INSTALL) -m 755 -d $(MODULEDIR)
 	$(INSTALL) -m 755 -d $(MODULETMP)
-	$(INSTALL) -m 644 -t $(MODULETMP) $(PMDABPF_MODULES) $(MODULEDIR)
+	$(INSTALL) -m 644 -t $(MODULETMP) $(BPF_MODULES) $(MODULEDIR)
 
 
 # Use the clang pipeline to emit LLVM to LLD and emit BPF straight to an ELF .o.
@@ -96,8 +100,8 @@ $(APPS_H):
 $(APPS_BPF):
 	$(LN_S) -f $(TOPDIR)/vendor/github.com/iovisor/bcc/libbpf-tools/$@ $@
 
-vmlinux.h: $(PMDABPF_VMLINUXH)
-	$(LN_S) -f $< $@
+vmlinux.h:
+	$(LN_S) -f $(TOPDIR)/vendor/github.com/iovisor/bcc/libbpf-tools/$(PMDABPF_ARCH)/$@ $@
 
 %.bpf.o: %.bpf.c vmlinux.h $(APPS_H) $(APPS_BPF)
 	$(CLANG) -Wall -g -O2 -target bpf -D__TARGET_ARCH_$(PMDABPF_ARCH) \
@@ -139,4 +143,4 @@ runqlat.so: runqlat.o
 	$(LINK.c) -shared $^ -o $@ $(LDLIBS)
 
 clean::
-	rm -f $(PMDABPF_MODULES) *.o *.skel.h
+	rm -f $(BPF_MODULES) *.o *.skel.h

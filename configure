@@ -848,7 +848,6 @@ have_perl
 pcp_perl_prog
 PERL
 PMDA_BPFTRACE
-pmdabpf_modules
 PMDA_BPF
 pmdabpf_vmlinuxh
 pmdabpf_arch
@@ -9144,8 +9143,8 @@ pmdabpf_arch=`uname -m | sed 's/x86_64/x86/' | sed 's/aarch64/arm64/' | sed 's/p
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $pmdabpf_arch" >&5
 printf "%s\n" "$pmdabpf_arch" >&6; }
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for vmlinux.h" >&5
-printf %s "checking for vmlinux.h... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libbpf-tools vmlinux.h" >&5
+printf %s "checking for libbpf-tools vmlinux.h... " >&6; }
 pmdabpf_vmlinuxh="`pwd`/vendor/github.com/iovisor/bcc/libbpf-tools/$pmdabpf_arch/vmlinux.h"
 if test -f "$pmdabpf_vmlinuxh"; then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $pmdabpf_vmlinuxh" >&5
@@ -9167,10 +9166,7 @@ fi
 if test "x$do_pmdabpf" = "xcheck"
 then :
 
-        $have_libbpf && $have_libelf && \
-	test $clang_major_version -ge 10 && \
-	test -f "$pmdabpf_vmlinuxh" && \
-	pmda_bpf=true
+        $have_libelf && test $clang_major_version -ge 10 -a -f "$pmdabpf_vmlinuxh" && pmda_bpf=true
 
 fi
 PMDA_BPF=$pmda_bpf
@@ -9178,29 +9174,6 @@ PMDA_BPF=$pmda_bpf
 if $pmda_bpf; then { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }; fi
-
-if $pmda_bpf; then
-    libbpf_version_major=`echo $libbpf_version | cut -d. -f1`
-    libbpf_version_minor=`echo $libbpf_version | cut -d. -f2`
-    pmdabpf_modules="biolatency.so runqlat.so"
-
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if bpf PMDA modules using perf_buffer__poll should be included" >&5
-printf %s "checking if bpf PMDA modules using perf_buffer__poll should be included... " >&6; }
-    if test "$libbpf_version_major" -eq 0 -a "$libbpf_version_minor" -lt 7; then
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no (libbpf version required: 0.7.0, installed: $libbpf_version)" >&5
-printf "%s\n" "no (libbpf version required: 0.7.0, installed: $libbpf_version)" >&6; }
-    else
-	pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so mountsnoop.so oomkill.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so"
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-    fi
-
-
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking which bpf PMDA modules should be included" >&5
-printf %s "checking which bpf PMDA modules should be included... " >&6; }
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $pmdabpf_modules" >&5
-printf "%s\n" "$pmdabpf_modules" >&6; }
-fi
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the bpftrace PMDA should be included" >&5
 printf %s "checking if the bpftrace PMDA should be included... " >&6; }
@@ -12133,11 +12106,12 @@ printf "%s\n" "yes" >&6; }
 fi
 if test $have_openssl = true
 then
-            { $as_echo "$as_me:${as_lineno-$LINENO}: checking for BIO_write_ex in -lcrypto" >&5
-$as_echo_n "checking for BIO_write_ex in -lcrypto... " >&6; }
-if ${ac_cv_lib_crypto_BIO_write_ex+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
+            { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for BIO_write_ex in -lcrypto" >&5
+printf %s "checking for BIO_write_ex in -lcrypto... " >&6; }
+if test ${ac_cv_lib_crypto_BIO_write_ex+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
   ac_check_lib_save_LIBS=$LIBS
 LIBS="-lcrypto  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -12146,37 +12120,34 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* Override any GCC internal prototype to avoid an error.
    Use char because int might match the return type of a GCC
    builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
 char BIO_write_ex ();
 int
-main ()
+main (void)
 {
 return BIO_write_ex ();
   ;
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
+if ac_fn_c_try_link "$LINENO"
+then :
   ac_cv_lib_crypto_BIO_write_ex=yes
-else
+else $as_nop
   ac_cv_lib_crypto_BIO_write_ex=no
 fi
-rm -f core conftest.err conftest.$ac_objext \
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_crypto_BIO_write_ex" >&5
-$as_echo "$ac_cv_lib_crypto_BIO_write_ex" >&6; }
-if test "x$ac_cv_lib_crypto_BIO_write_ex" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBCRYPTO 1
-_ACEOF
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_crypto_BIO_write_ex" >&5
+printf "%s\n" "$ac_cv_lib_crypto_BIO_write_ex" >&6; }
+if test "x$ac_cv_lib_crypto_BIO_write_ex" = xyes
+then :
+  printf "%s\n" "#define HAVE_LIBCRYPTO 1" >>confdefs.h
 
   LIBS="-lcrypto $LIBS"
 
-else
+else $as_nop
   have_openssl=false
 fi
 

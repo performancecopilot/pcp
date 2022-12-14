@@ -1,10 +1,11 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
+BPF_LIBRARY = $(TOPDIR)/vendor/github.com/libbpf/bpftool/src/libbpf/libbpf.a
 
 CFILES	= bpf.c
 CMDTARGET = pmdabpf$(EXECSUFFIX)
 LIBTARGET = pmda_bpf.$(DSOSUFFIX)
-LLDLIBS = $(PCP_WEBLIB) -lbpf -lelf -lz -lm -ldl
+LLDLIBS = $(BPF_LIBRARY) $(PCP_WEBLIB) -lelf -lz -lm -ldl
 LCFLAGS = -I.
 CONFIG	= bpf.conf
 DFILES	= README

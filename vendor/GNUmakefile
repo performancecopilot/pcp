@@ -1,11 +1,12 @@
 TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 
-VERBOSE=V=1
+VERBOSE = V=1
+ECFLAGS = EXTRA_CFLAGS=-fPIC
 
 default_pcp default:
 ifeq "$(PMDA_BPF)" "true"
-	$(MAKE) -C github.com/libbpf/bpftool/src VMLINUX_H=$(PMDABPF_VMLINUXH) $(VERBOSE)
+	$(MAKE) -C github.com/libbpf/bpftool/src VMLINUX_H=$(PMDABPF_VMLINUXH) $(VERBOSE) $(ECFLAGS)
 endif
 
 install_pcp install:
