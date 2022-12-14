@@ -12133,11 +12133,12 @@ printf "%s\n" "yes" >&6; }
 fi
 if test $have_openssl = true
 then
-            { $as_echo "$as_me:${as_lineno-$LINENO}: checking for BIO_write_ex in -lcrypto" >&5
-$as_echo_n "checking for BIO_write_ex in -lcrypto... " >&6; }
-if ${ac_cv_lib_crypto_BIO_write_ex+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
+            { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for BIO_write_ex in -lcrypto" >&5
+printf %s "checking for BIO_write_ex in -lcrypto... " >&6; }
+if test ${ac_cv_lib_crypto_BIO_write_ex+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
   ac_check_lib_save_LIBS=$LIBS
 LIBS="-lcrypto  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -12146,37 +12147,34 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* Override any GCC internal prototype to avoid an error.
    Use char because int might match the return type of a GCC
    builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
 char BIO_write_ex ();
 int
-main ()
+main (void)
 {
 return BIO_write_ex ();
   ;
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
+if ac_fn_c_try_link "$LINENO"
+then :
   ac_cv_lib_crypto_BIO_write_ex=yes
-else
+else $as_nop
   ac_cv_lib_crypto_BIO_write_ex=no
 fi
-rm -f core conftest.err conftest.$ac_objext \
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_crypto_BIO_write_ex" >&5
-$as_echo "$ac_cv_lib_crypto_BIO_write_ex" >&6; }
-if test "x$ac_cv_lib_crypto_BIO_write_ex" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBCRYPTO 1
-_ACEOF
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_crypto_BIO_write_ex" >&5
+printf "%s\n" "$ac_cv_lib_crypto_BIO_write_ex" >&6; }
+if test "x$ac_cv_lib_crypto_BIO_write_ex" = xyes
+then :
+  printf "%s\n" "#define HAVE_LIBCRYPTO 1" >>confdefs.h
 
   LIBS="-lcrypto $LIBS"
 
-else
+else $as_nop
   have_openssl=false
 fi
 
@@ -15656,7 +15654,7 @@ main (void)
 {
 
     double x = 123.456;
-    if (fpclassify(x) == FP_NAN) exit(1);
+    if (fpclassify(x) == FP_NAN) return 1;
 
   ;
   return 0;
@@ -15686,7 +15684,7 @@ main (void)
 {
 
     double x = 123.456;
-    if (fpclassify(x) == FP_NAN) exit(1);
+    if (fpclassify(x) == FP_NAN) return 1;
 
   ;
   return 0;
@@ -17751,6 +17749,7 @@ else $as_nop
 /* end confdefs.h.  */
 
 #include <time.h>
+#include <string.h>
 int main () {
     char b[32]="";
     time_t t = time(NULL);
