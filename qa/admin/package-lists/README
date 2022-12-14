@@ -1,7 +1,7 @@
 There is one file in this directory for each known distro:version:arch
-combination e.g. Ubuntu:20.04:x86_64, and the contents of the
-file nominate the non-PCP packages that need to be installed for a
-successful PCP build and QA (at least as far as CI is concerned).
+combination e.g. Ubuntu:20.04:x86_64, and the contents of the file nominate
+the non-PCP packages that need to be installed for a successful PCP build
+and QA (at least as far as CI is concerned).
 
 If the list is the same for all architectures for a given distro:version
 combination, then "any" may be used in lieu of a specific architecture.
@@ -10,14 +10,20 @@ The format of each file is as follows:
 
 - anything following a hash (#) is assumed to be a comment
 - fields are separated by white space 
-- one line per package starting with the package-name as the first
-  field, optionally followed by one or more "tags" (arbitrary test words)
+- one line per package starting with the primary package-name as the
+  first field, optionally followed by "|" and an alternate package-name
+  (may be more than one of these), optionally followed by one or more "tags"
+  (arbitrary words)
+- whitespace around a "|" is optional
+- whitespace before any "tag" is required
 
 Some examples:
 
     autoconf
     # mumble
     Some_Random::Package cpan	# don't need to install this
+    minimal-curl | curl not4ci
+    larry|curly|moe		# any of the 3 stooges will do
 
 Some standard "tags" and their meaning:
 
@@ -26,8 +32,12 @@ pip3	package needs to be installed with pip3(1)
 not4ci	do not install this package in CI (usually a container or
 	VM conflict)
 
+When using "list-packages -m" (like in CI or for a new VM), the only packages
+listed will be the primary packages, and these will only be listed if NONE
+of the primary and alternate packages are already installed.
+
 The ./new script may be used to generate/regenerate a file for the
-distro:version:architecture combination on which ./new is run.  This
-uses the check-vm infrastructure and is intended to provide a way
-to "seed" the file, then any subsequent fine tuning is done by editing
-the file in this directory.
+distro:version:architecture combination on which ./new is run.  This uses
+the check-vm infrastructure and is intended to provide a way to "seed"
+the file, then any subsequent fine tuning is done by editing the file in
+this directory.
