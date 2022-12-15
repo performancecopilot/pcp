@@ -953,3 +953,7 @@ else
 	esac
     fi
 fi
+
+# Hook for check.callback to allow once-per-check-run tests
+#
+touch check.onetrip
