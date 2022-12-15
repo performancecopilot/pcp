@@ -882,11 +882,10 @@ statsd_resolve_static_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pmA
         /* settings.debug_output_filename */
         case 10:
         {
-            size_t length = strlen(config->debug_output_filename) + 1;
-            char* result = (char*) malloc(sizeof(char) * length);
+            char* result = strdup(config->debug_output_filename);
             ALLOC_CHECK(result, "Unable to allocate memory for port value.");
-            memcpy(result, config->debug_output_filename, length);
             (*atom)->cp = result;
+            status = PMDA_FETCH_DYNAMIC;
             break;
         }
         /* settings.port */
@@ -896,35 +895,25 @@ statsd_resolve_static_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pmA
         /* settings.parser_type */
         case 12:
         {   
-            size_t length = 6;
-            char* result = (char*) malloc(sizeof(char) * length);
-            ALLOC_CHECK(result, "Unable to allocate memory for parser type value.");
-            char* basic = "Basic";
-            char* ragel = "Ragel";
+            const char* basic = "Basic";
+            const char* ragel = "Ragel";
             if (config->parser_type == PARSER_TYPE_BASIC) {
-                memcpy(result, basic, length);
+                (*atom)->cp = (char*)basic;
             } else {
-                memcpy(result, ragel, length);
+                (*atom)->cp = (char*)ragel;
             }
-            (*atom)->cp = result;
             break;
         }
         /* settings.duration_aggregation_type */
         case 13:
         {
-            char* result;
-            char* basic = "Basic";
-            char* ragel = "HDR histogram";
+            const char* basic = "Basic";
+            const char* hdr = "HDR histogram";
             if (config->duration_aggregation_type == DURATION_AGGREGATION_TYPE_BASIC) {
-                result = (char*) malloc(sizeof(char) * 6);
-                ALLOC_CHECK(result, "Unable to allocate memory for duration aggregation type value.");
-                memcpy(result, basic, 6);
+                (*atom)->cp = (char*)basic;
             } else {
-                result = (char*) malloc(sizeof(char) * 14);
-                ALLOC_CHECK(result, "Unable to allocate memory for duration aggregation type value.");
-                memcpy(result, ragel, 14);
+                (*atom)->cp = (char*)hdr;
             }
-            (*atom)->cp = result;
             break;
         }
         default:

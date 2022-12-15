@@ -119,6 +119,20 @@ payloads = [
 ]
 
 command_to_execute = [
+    'echo "fetch statsd.pmda.settings.duration_aggregation_type"',
+    'echo "fetch statsd.pmda.settings.parser_type"',
+    'echo "fetch statsd.pmda.settings.port"',
+    'echo "fetch statsd.pmda.settings.debug_output_filename"',
+    'echo "fetch statsd.pmda.settings.verbose"',
+    'echo "fetch statsd.pmda.settings.max_unprocessed_packets"',
+    'echo "fetch statsd.pmda.settings.max_udp_packet_size"',
+    'echo "fetch statsd.pmda.time_spent_aggregating"',
+    'echo "fetch statsd.pmda.time_spent_parsing"',
+    'echo "fetch statsd.pmda.metrics_tracked"',
+    'echo "fetch statsd.pmda.aggregated"',
+    'echo "fetch statsd.pmda.dropped"',
+    'echo "fetch statsd.pmda.parsed"',
+    'echo "fetch statsd.pmda.received"',
     'echo "fetch statsd.pmda.received"',
     'echo "fetch statsd.stat_login"',
     'echo "fetch statsd.stat_logout"',
