@@ -180,7 +180,7 @@ BEGIN	{ OFS ="|" }
 
 echo "==== QA Summary ===="
 echo
-echo "Date        Run Pass Fail Nrun Host"
+echo "Date        Run Pass Fail Nrun Trgd Host"
 numqahosts=0
 for vm
 do
@@ -371,7 +371,7 @@ END		{ print NR,": END state=" state >"'$tmp.dbg'"
 		    fi
 		fi
 
-		if $aflag || [ $nfail -gt 0 -o $nnotrun -gt 0 ]
+		if $aflag || [ $nfail -gt 0 -o $nnotrun -gt 0 -o $ntriag -gt 0 ]
 		then
 		    # pass lines look like:
 		    # [97%] 1055 16s ...
