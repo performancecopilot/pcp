@@ -1182,7 +1182,7 @@ AC_SUBST(clang)
 AC_MSG_CHECKING([clang major version installed])
 if which $CLANG >/dev/null 2>&1
 then
-    clang_major_version=`$CLANG --version | awk '/clang version/ {print $3}' | cut -f1 -d.`
+    clang_major_version=`$CLANG --version | sed -n -e 's/.*clang version \([0-9][0-9]*\).*/\1/p'`
 else
     dnl version=0 => not installed
     clang_major_version=0
