@@ -2056,4 +2056,5 @@ x11
 1984 pmlogconf pmda.redis local
 1985 pmfind local valgrind
 1986 pmfind local
+1987 pcp ps local
 4751 libpcp threads valgrind local pcp helgrind

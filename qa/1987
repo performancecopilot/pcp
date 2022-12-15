@@ -1,0 +1,47 @@
+#!/bin/sh
+# PCP QA Test No. 1987
+# Exercise various pcp-ps(1) command options.
+#
+# Copyright (c) 2022 Oracle and/or its affiliates.
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+status=1        # failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+pcp_ps="$PCP_BINADM_DIR/pcp-ps"
+test -x $pcp_ps || _notrun "No pcp-ps(1) installed"
+pcp_ps="$python $pcp_ps"
+
+# real QA test starts here
+echo && echo pcp-ps output : Display default output
+PCP_ARCHIVE="archives/pcp-ps" PCP_HOSTZONE=1 PCP_ORIGIN=1 $pcp_ps
+
+archive_first="-a archives/pcp-ps -z -O +1"
+
+echo && echo pcp-ps output : Display all process and all archive data
+pcp $archive_first ps -e
+
+echo && echo pcp-ps output : Display the user oriented format
+pcp $archive_first -s2 ps -u
+
+echo && echo pcp-ps output : Display the colum pid,ppid,tty,uname,wchan
+pcp $archive_first -s2 ps -o pid,ppid,tty,uname,wchan
+
+echo && echo pcp-ps output : Display the selected process pid 1 and 2
+pcp $archive_first -s2 ps -p 1,2
+
+echo && echo pcp-ps output : Display the selected process ppid 1,2,3,4 and 5
+pcp $archive_first -s2 ps -P 1,2,3,4,5
+
+echo && echo pcp-ps output : Display the begining 10 process to test broken pipe
+pcp $archive_first ps -u | head -10
+
+status=0
+exit

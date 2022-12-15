@@ -56,11 +56,12 @@ DEFLATE = small.0.xz small.meta small.index \
 	  20190628.04.03.0.xz 20190628.04.03.1.xz 20190628.04.03.meta.xz \
 	  20190628.04.03.index 20201109.0.xz 20201109.index 20201109.meta.xz \
 	  20190628.06.31.0.xz 20190628.06.31.meta.xz 20190628.06.31.index \
-	  pcp-ss.0.xz pcp-ss.meta.xz pcp-ss.index
+	  pcp-ss.0.xz pcp-ss.meta.xz pcp-ss.index \
+	  pcp-ps.0.xz pcp-ps.meta.xz pcp-ps.index
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant mk.dyninsts \
-	  mk.mirage mk.mirage-3 mk.proc mk.free \
+	  mk.mirage mk.mirage-3 mk.proc mk.free mk.ps\
 	  mk.numa mk.rewrite mk.eventrec mk.interpmark mk.multihost \
 	  mk.sample_expr mk.tzchange mk.arch-all \
 	  mk.atop mk.hotatop mk.atop-boot mk.atop-nvidia mk.atop-threads \

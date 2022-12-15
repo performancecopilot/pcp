@@ -23,6 +23,8 @@ import time
 import signal
 from pcp import pmcc
 from pcp import pmapi
+from cpmapi import PM_CONTEXT_ARCHIVE
+
 import datetime
 
 process_state_info = {}
@@ -380,10 +382,11 @@ class DynamicProcessReporter:
 
         # when the print count is exhausted exit the program gracefully
         # we can't use break here because it's being called by the run manager
-        if self.processStatOptions.print_count == 0:
-            sys.exit(0)
-        else:
-            self.processStatOptions.print_count -= 1
+        if self.processStatOptions.context is not PM_CONTEXT_ARCHIVE:
+            if self.processStatOptions.print_count == 0:
+                sys.exit(0)
+            else:
+                self.processStatOptions.print_count -= 1
 
         if self.processStatOptions.filterstate is not None:
             self.printer("Timestamp" + header_indentation +
@@ -448,11 +451,11 @@ class ProcessStatusReporter:
 
         # when the print count is exhausted exit the program gracefully
         # we can't use break here because it's being called by the run manager
-
-        if self.processStatOptions.print_count == 0:
-            sys.exit(0)
-        else:
-            self.processStatOptions.print_count -= 1
+        if self.processStatOptions.context is not PM_CONTEXT_ARCHIVE:
+            if self.processStatOptions.print_count == 0:
+                sys.exit(0)
+            else:
+                self.processStatOptions.print_count -= 1
 
         if self.processStatOptions.show_all_process:
             self.printer("Timestamp" + header_indentation + "PID\t\t\tTTY\tTIME\t\tCMD")
@@ -668,6 +671,7 @@ class ProcessStatOptions(pmapi.pmOptions):
     pid_list = []
     ppid_list = []
     filtered_process_user = None
+    context = None
 
     def __init__(self):
         pmapi.pmOptions.__init__(self, "t:c:e::p:ukVZ:z?:o:P:l:U:k")
@@ -794,7 +798,7 @@ if __name__ == "__main__":
     try:
         opts = ProcessStatOptions()
         manager = pmcc.MetricGroupManager.builder(opts, sys.argv)
-
+        ProcessStatOptions.context = manager.type
         if not opts.checkOptions():
             raise pmapi.pmUsageErr
         missing = manager.checkMissingMetrics(PSSTAT_METRICS)
