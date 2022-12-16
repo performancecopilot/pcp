@@ -219,7 +219,7 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 		tag_value = tag_string;
 		name = str_value;
 		tag = (tag_key >tag_key_start %tag_key_end . '=' . tag_value >tag_value_start %tag_value_end);
-		tag_end = (tag_key >tag_key_end %tag_key_end . ':' . tag_value >tag_value_start %tag_value_end);
+		tag_end = (tag_key >tag_key_start %tag_key_end . ':' . tag_value >tag_value_start %tag_value_end);
 		main :=
 			((name >name_start %name_end) .
 			(',' . tag %tag_end)* .
