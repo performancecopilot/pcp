@@ -1,21 +1,23 @@
+
 #line 1 "parser-ragel.rl"
 /*
-* Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
-* 
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-* 
-* This program is distributed in the hope that it will be useful, but
-* WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-* or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-* for more details.
-*/
+ * Copyright (c) 2019 Miroslav Foltýn.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #include "parsers.h"
 #include "parser-ragel.h"
@@ -23,482 +25,499 @@
 #include "utils.h"
 
 
-#line 25 "parser-ragel.c"
-static const signed char _statsd_actions[] = {
-	0, 1, 0, 1, 2, 1, 3, 1,
-	4, 1, 6, 1, 7, 1, 8, 2,
-	0, 1, 2, 9, 5, 0
+#line 29 "parser-ragel.c"
+static const char _statsd_actions[] = {
+	0, 1, 0, 1, 1, 1, 2, 1, 
+	4, 1, 5, 1, 6, 1, 7, 1, 
+	8, 1, 9, 1, 10, 2, 11, 3
+	
 };
 
-static const short _statsd_key_offsets[] = {
-	0, 0, 2, 12, 22, 24, 30, 32,
-	37, 41, 43, 46, 49, 53, 62, 70,
-	81, 82, 83, 84, 85, 94, 102, 112,
-	124, 133, 145, 156, 166, 0
+static const char _statsd_key_offsets[] = {
+	0, 0, 2, 12, 20, 29, 37, 47, 
+	51, 53, 59, 61, 66, 70, 72, 75, 
+	78, 79, 88, 96, 104, 105, 106, 114
 };
 
 static const char _statsd_trans_keys[] = {
-	97, 122, 44, 46, 58, 95, 48, 57,
-	65, 90, 97, 122, 43, 45, 46, 95,
-	48, 57, 65, 90, 97, 122, 48, 57,
-	46, 69, 101, 124, 48, 57, 48, 57,
-	69, 101, 124, 48, 57, 43, 45, 48,
-	57, 48, 57, 124, 48, 57, 99, 103,
-	109, 0, 10, 64, 124, 46, 58, 95,
-	48, 57, 65, 90, 97, 122, 46, 95,
-	48, 57, 65, 90, 97, 122, 0, 10,
-	44, 46, 95, 48, 57, 65, 90, 97,
-	122, 0, 0, 35, 115, 46, 61, 95,
-	48, 57, 65, 90, 97, 122, 46, 95,
-	48, 57, 65, 90, 97, 122, 44, 46,
-	58, 95, 48, 57, 65, 90, 97, 122,
-	46, 61, 69, 95, 101, 124, 48, 57,
-	65, 90, 97, 122, 46, 61, 95, 48,
-	57, 65, 90, 97, 122, 46, 61, 69,
-	95, 101, 124, 48, 57, 65, 90, 97,
-	122, 43, 45, 46, 61, 95, 48, 57,
-	65, 90, 97, 122, 46, 61, 95, 124,
-	48, 57, 65, 90, 97, 122, 46, 95,
-	48, 57, 65, 90, 97, 122, 0
+	97, 122, 44, 46, 58, 95, 48, 57, 
+	65, 90, 97, 122, 46, 95, 48, 57, 
+	65, 90, 97, 122, 46, 61, 95, 48, 
+	57, 65, 90, 97, 122, 46, 95, 48, 
+	57, 65, 90, 97, 122, 44, 46, 58, 
+	95, 48, 57, 65, 90, 97, 122, 43, 
+	45, 48, 57, 48, 57, 46, 69, 101, 
+	124, 48, 57, 48, 57, 69, 101, 124, 
+	48, 57, 43, 45, 48, 57, 48, 57, 
+	124, 48, 57, 99, 103, 109, 35, 46, 
+	58, 95, 48, 57, 65, 90, 97, 122, 
+	46, 95, 48, 57, 65, 90, 97, 122, 
+	46, 95, 48, 57, 65, 90, 97, 122, 
+	115, 124, 46, 95, 48, 57, 65, 90, 
+	97, 122, 44, 46, 95, 48, 57, 65, 
+	90, 97, 122, 0
 };
 
-static const signed char _statsd_single_lengths[] = {
-	0, 0, 4, 4, 0, 4, 0, 3,
-	2, 0, 1, 3, 4, 3, 2, 5,
-	1, 1, 1, 1, 3, 2, 4, 6,
-	3, 6, 5, 4, 2, 0
+static const char _statsd_single_lengths[] = {
+	0, 0, 4, 2, 3, 2, 4, 2, 
+	0, 4, 0, 3, 2, 0, 1, 3, 
+	1, 3, 2, 2, 1, 1, 2, 3
 };
 
-static const signed char _statsd_range_lengths[] = {
-	0, 1, 3, 3, 1, 1, 1, 1,
-	1, 1, 1, 0, 0, 3, 3, 3,
-	0, 0, 0, 0, 3, 3, 3, 3,
-	3, 3, 3, 3, 3, 0
+static const char _statsd_range_lengths[] = {
+	0, 1, 3, 3, 3, 3, 3, 1, 
+	1, 1, 1, 1, 1, 1, 1, 0, 
+	0, 3, 3, 3, 0, 0, 3, 3
 };
 
-static const short _statsd_index_offsets[] = {
-	0, 0, 2, 10, 18, 20, 26, 28,
-	33, 37, 39, 42, 46, 51, 58, 64,
-	73, 75, 77, 79, 81, 88, 94, 102,
-	112, 119, 129, 138, 146, 0
+static const char _statsd_index_offsets[] = {
+	0, 0, 2, 10, 16, 23, 29, 37, 
+	41, 43, 49, 51, 56, 60, 62, 65, 
+	69, 71, 78, 84, 90, 92, 94, 100
 };
 
-static const signed char _statsd_cond_targs[] = {
-	2, 0, 3, 2, 3, 2, 2, 2,
-	2, 0, 4, 4, 20, 20, 23, 20,
-	20, 0, 5, 0, 6, 8, 8, 11,
-	5, 0, 7, 0, 8, 8, 11, 7,
-	0, 9, 9, 10, 0, 10, 0, 11,
-	10, 0, 12, 12, 19, 0, 28, 17,
-	28, 18, 0, 13, 14, 13, 13, 13,
-	13, 0, 15, 15, 15, 15, 15, 0,
-	28, 16, 28, 15, 15, 15, 15, 15,
-	0, 28, 0, 28, 0, 28, 0, 12,
-	0, 20, 21, 20, 20, 20, 20, 0,
-	22, 22, 22, 22, 22, 0, 3, 22,
-	3, 22, 22, 22, 22, 0, 24, 21,
-	26, 20, 26, 11, 23, 20, 20, 0,
-	20, 21, 20, 25, 20, 20, 0, 20,
-	21, 26, 20, 26, 11, 25, 20, 20,
-	0, 9, 9, 20, 21, 20, 27, 20,
-	20, 0, 20, 21, 20, 11, 27, 20,
-	20, 0, 13, 13, 13, 13, 13, 0,
-	0, 1, 2, 3, 4, 5, 6, 7,
-	8, 9, 10, 11, 12, 13, 14, 15,
-	16, 17, 18, 19, 20, 21, 22, 23,
-	24, 25, 26, 27, 28, 0
+static const char _statsd_indicies[] = {
+	1, 0, 2, 3, 4, 3, 3, 3, 
+	3, 0, 5, 5, 5, 5, 5, 0, 
+	6, 7, 6, 6, 6, 6, 0, 8, 
+	8, 8, 8, 8, 0, 9, 10, 11, 
+	10, 10, 10, 10, 0, 12, 12, 13, 
+	0, 14, 0, 15, 16, 16, 17, 14, 
+	0, 18, 0, 16, 16, 17, 18, 0, 
+	19, 19, 20, 0, 20, 0, 17, 20, 
+	0, 21, 21, 22, 0, 23, 0, 24, 
+	25, 24, 24, 24, 24, 0, 26, 26, 
+	26, 26, 26, 0, 27, 27, 27, 27, 
+	27, 0, 28, 0, 29, 0, 27, 27, 
+	27, 27, 27, 0, 30, 31, 31, 31, 
+	31, 31, 0, 0
 };
 
-static const signed char _statsd_cond_actions[] = {
-	5, 1, 7, 0, 7, 0, 0, 0,
-	0, 1, 0, 0, 0, 0, 0, 0,
-	0, 1, 0, 1, 0, 0, 0, 9,
-	0, 1, 0, 1, 0, 0, 9, 0,
-	1, 0, 0, 0, 1, 0, 1, 9,
-	0, 1, 0, 0, 0, 1, 11, 0,
-	11, 0, 1, 0, 13, 0, 0, 0,
-	0, 1, 0, 0, 0, 0, 0, 1,
-	18, 0, 18, 0, 0, 0, 0, 0,
-	1, 18, 1, 11, 1, 11, 1, 0,
-	1, 0, 13, 0, 0, 0, 0, 1,
-	0, 0, 0, 0, 0, 1, 18, 0,
-	18, 0, 0, 0, 0, 1, 0, 13,
-	0, 0, 0, 9, 0, 0, 0, 1,
-	0, 13, 0, 0, 0, 0, 1, 0,
-	13, 0, 0, 0, 9, 0, 0, 0,
-	1, 0, 0, 0, 13, 0, 0, 0,
-	0, 1, 0, 13, 0, 9, 0, 0,
-	0, 1, 0, 0, 0, 0, 0, 0,
-	0, 15, 15, 15, 15, 15, 15, 15,
-	15, 15, 15, 15, 15, 15, 15, 15,
-	15, 15, 15, 15, 15, 15, 15, 15,
-	15, 15, 15, 15, 0, 0
+static const char _statsd_trans_targs[] = {
+	0, 2, 3, 2, 7, 4, 4, 5, 
+	6, 3, 6, 7, 8, 9, 9, 10, 
+	12, 15, 11, 13, 14, 21, 20, 22, 
+	17, 18, 23, 17, 21, 16, 19, 23
 };
 
-static const signed char _statsd_to_state_actions[] = {
-	0, 3, 3, 3, 3, 3, 3, 3,
-	3, 3, 3, 3, 3, 3, 3, 3,
-	3, 3, 3, 3, 3, 3, 3, 3,
-	3, 3, 3, 3, 3, 0
+static const char _statsd_trans_actions[] = {
+	1, 3, 5, 0, 5, 15, 0, 17, 
+	19, 21, 0, 21, 7, 7, 0, 0, 
+	0, 9, 0, 0, 0, 11, 11, 0, 
+	0, 17, 19, 17, 0, 13, 21, 0
 };
 
-static const short _statsd_eof_trans[] = {
-	153, 154, 155, 156, 157, 158, 159, 160,
-	161, 162, 163, 164, 165, 166, 167, 168,
-	169, 170, 171, 172, 173, 174, 175, 176,
-	177, 178, 179, 180, 181, 0
+static const char _statsd_eof_actions[] = {
+	0, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 13, 0, 21
 };
 
 static const int statsd_start = 1;
-static const int statsd_first_final = 28;
+static const int statsd_first_final = 21;
 static const int statsd_error = 0;
 
 static const int statsd_en_main = 1;
 
 
-#line 27 "parser-ragel.rl"
+#line 28 "parser-ragel.rl"
 
 
 
 /**
-* Ragel parser entry point
-* Parsers given buffer and populates datagram with parsed data if they are valid
-* @arg str - Buffer to be parsed
-* @arg datagram - Placeholder for parsed data
-* @return 1 on success, 0 on fail 
-*/
+ * Ragel parser entry point
+ * Parsers given buffer and populates datagram with parsed data if they are valid
+ * @arg str - Buffer to be parsed
+ * @arg datagram - Placeholder for parsed data
+ * @return 1 on success, 0 on fail 
+ */
 int
 ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 	*datagram = (struct statsd_datagram*) calloc(1, sizeof(struct statsd_datagram));
 	ALLOC_CHECK(*datagram, "Not enough memory to save datagram");
+
 	size_t length = strlen(str);
-	char *p = str, *pe = (str + length + 1);
-	char *eof = pe;
+	/* vars required for Ragel machine */
 	int cs;
-	size_t current_index = 0;
-	size_t current_segment_start_index = 0;
+	char *p = str;
+	char *pe = str + length;
+	char *eof = pe;
+
+	/* vars for managing metadata in between states */
+	char *name_start_ptr = NULL;
+	char *name_end_ptr = NULL;
+	char *tag_key_start_ptr = NULL;
+	char *tag_key_end_ptr = NULL;
+	char *tag_key = NULL;
+	char *tag_value_start_ptr = NULL;
+	char *tag_value_end_ptr = NULL;
+	char *tag_value = NULL;
+	char *value_start_ptr = NULL;
+	char *value_end_ptr = NULL;
+	char *type_start_ptr = NULL;
 	struct tag_collection* tags = NULL;
-	char* tag_key = NULL;
-	char* tag_value = NULL;
 	int tag_key_allocated = 0;
 	int tag_value_allocated = 0;
 	int any_tags = 0;
 	
-
-#line 184 "parser-ragel.c"
+#line 164 "parser-ragel.c"
 	{
-		cs = (int)statsd_start;
+	cs = statsd_start;
 	}
 
-#line 187 "parser-ragel.c"
+#line 169 "parser-ragel.c"
 	{
-		int _klen;
-		unsigned int _trans = 0;
-		const char * _keys;
-		const signed char * _acts;
-		unsigned int _nacts;
-		_resume: {}
-		if ( p == pe && p != eof )
-			goto _out;
-		if ( p == eof ) {
-			if ( _statsd_eof_trans[cs] > 0 ) {
-				_trans = (unsigned int)_statsd_eof_trans[cs] - 1;
+	int _klen;
+	unsigned int _trans;
+	const char *_acts;
+	unsigned int _nacts;
+	const char *_keys;
+
+	if ( p == pe )
+		goto _test_eof;
+	if ( cs == 0 )
+		goto _out;
+_resume:
+	_keys = _statsd_trans_keys + _statsd_key_offsets[cs];
+	_trans = _statsd_index_offsets[cs];
+
+	_klen = _statsd_single_lengths[cs];
+	if ( _klen > 0 ) {
+		const char *_lower = _keys;
+		const char *_mid;
+		const char *_upper = _keys + _klen - 1;
+		while (1) {
+			if ( _upper < _lower )
+				break;
+
+			_mid = _lower + ((_upper-_lower) >> 1);
+			if ( (*p) < *_mid )
+				_upper = _mid - 1;
+			else if ( (*p) > *_mid )
+				_lower = _mid + 1;
+			else {
+				_trans += (unsigned int)(_mid - _keys);
+				goto _match;
 			}
 		}
-		else {
-			_keys = ( _statsd_trans_keys + (_statsd_key_offsets[cs]));
-			_trans = (unsigned int)_statsd_index_offsets[cs];
-			
-			_klen = (int)_statsd_single_lengths[cs];
-			if ( _klen > 0 ) {
-				const char *_lower = _keys;
-				const char *_upper = _keys + _klen - 1;
-				const char *_mid;
-				while ( 1 ) {
-					if ( _upper < _lower ) {
-						_keys += _klen;
-						_trans += (unsigned int)_klen;
-						break;
-					}
-					
-					_mid = _lower + ((_upper-_lower) >> 1);
-					if ( ( (*( p))) < (*( _mid)) )
-						_upper = _mid - 1;
-					else if ( ( (*( p))) > (*( _mid)) )
-						_lower = _mid + 1;
-					else {
-						_trans += (unsigned int)(_mid - _keys);
-						goto _match;
-					}
-				}
+		_keys += _klen;
+		_trans += _klen;
+	}
+
+	_klen = _statsd_range_lengths[cs];
+	if ( _klen > 0 ) {
+		const char *_lower = _keys;
+		const char *_mid;
+		const char *_upper = _keys + (_klen<<1) - 2;
+		while (1) {
+			if ( _upper < _lower )
+				break;
+
+			_mid = _lower + (((_upper-_lower) >> 1) & ~1);
+			if ( (*p) < _mid[0] )
+				_upper = _mid - 2;
+			else if ( (*p) > _mid[1] )
+				_lower = _mid + 2;
+			else {
+				_trans += (unsigned int)((_mid - _keys)>>1);
+				goto _match;
 			}
-			
-			_klen = (int)_statsd_range_lengths[cs];
-			if ( _klen > 0 ) {
-				const char *_lower = _keys;
-				const char *_upper = _keys + (_klen<<1) - 2;
-				const char *_mid;
-				while ( 1 ) {
-					if ( _upper < _lower ) {
-						_trans += (unsigned int)_klen;
-						break;
-					}
-					
-					_mid = _lower + (((_upper-_lower) >> 1) & ~1);
-					if ( ( (*( p))) < (*( _mid)) )
-						_upper = _mid - 2;
-					else if ( ( (*( p))) > (*( _mid + 1)) )
-						_lower = _mid + 2;
-					else {
-						_trans += (unsigned int)((_mid - _keys)>>1);
-						break;
-					}
-				}
-			}
-			
-			_match: {}
 		}
-		cs = (int)_statsd_cond_targs[_trans];
-		
-		if ( _statsd_cond_actions[_trans] != 0 ) {
-			
-			_acts = ( _statsd_actions + (_statsd_cond_actions[_trans]));
-			_nacts = (unsigned int)(*( _acts));
-			_acts += 1;
-			while ( _nacts > 0 ) {
-				switch ( (*( _acts)) )
-				{
-					case 0:  {
-							{
-#line 56 "parser-ragel.rl"
-							
-							goto error_clean_up;
-						}
-						
-#line 271 "parser-ragel.c"
+		_trans += _klen;
+	}
 
-						break; 
-					}
-					case 1:  {
-							{
-#line 60 "parser-ragel.rl"
-							
-							goto error_clean_up;
-						}
-						
-#line 281 "parser-ragel.c"
+_match:
+	_trans = _statsd_indicies[_trans];
+	cs = _statsd_trans_targs[_trans];
 
-						break; 
-					}
-					case 3:  {
-							{
+	if ( _statsd_trans_actions[_trans] == 0 )
+		goto _again;
+
+	_acts = _statsd_actions + _statsd_trans_actions[_trans];
+	_nacts = (unsigned int) *_acts++;
+	while ( _nacts-- > 0 )
+	{
+		switch ( *_acts++ )
+		{
+	case 0:
 #line 68 "parser-ragel.rl"
-							
-							current_segment_start_index = current_index;
-						}
-						
-#line 291 "parser-ragel.c"
-
-						break; 
-					}
-					case 4:  {
-							{
-#line 72 "parser-ragel.rl"
-							
-							size_t current_segment_length = current_index - current_segment_start_index;
-							(*datagram)->name = (char*) malloc(current_segment_length + 1);
-							ALLOC_CHECK((*datagram)->name, "Not enough memory to save metric name");
-							memcpy(
-							(*datagram)->name,
-							&str[current_segment_start_index],
-							current_segment_length
-							);
-							(*datagram)->name[current_segment_length] = '\0';
-							current_segment_start_index = current_index + 1; 
-						}
-						
-#line 310 "parser-ragel.c"
-
-						break; 
-					}
-					case 5:  {
-							{
-#line 85 "parser-ragel.rl"
-							
-							size_t key_len = strlen(tag_key) + 1;
-							size_t value_len = strlen(tag_value) + 1;
-							struct tag* t = (struct tag*) malloc(sizeof(struct tag));
-							ALLOC_CHECK(t, "Unable to allocate memory for tag.");
-							t->key = (char*) malloc(key_len);
-							ALLOC_CHECK(t->key, "Unable to allocate memory for tag key.");
-							memcpy(t->key, tag_key, key_len);
-							t->value = (char*) malloc(value_len);
-							ALLOC_CHECK(t->value, "Unable to allocate memory for tag value.");
-							memcpy(t->value, tag_value, value_len);
-							if (!any_tags) {
-								tags = (struct tag_collection*) malloc(sizeof(struct tag_collection));
-								ALLOC_CHECK(tags, "Unable to allocate memory for tag collection.");
-								tags->values = (struct tag**) malloc(sizeof(struct tag*));
-								tags->values[0] = t;
-								tags->length = 1;
-								any_tags = 1;
-							} else {
-								struct tag** new_tags =
-								(struct tag**) realloc(tags->values, sizeof(struct tag*) * (tags->length + 1));
-								ALLOC_CHECK(new_tags, "Unable to allocate memory for tags");
-								if (tags != NULL) {
-									tags->values = new_tags;
-									tags->values[tags->length] = t;
-									tags->length++;
-								}
-							}
-							free(tag_key);
-							free(tag_value);
-							tag_key = NULL;
-							tag_value = NULL;
-							tag_key_allocated = 0;
-							tag_value_allocated = 0;
-						}
-						
-#line 352 "parser-ragel.c"
-
-						break; 
-					}
-					case 6:  {
-							{
-#line 121 "parser-ragel.rl"
-							
-							char* startptr;
-							char* endptr;
-							if (str[current_segment_start_index] == '+') {
-								(*datagram)->explicit_sign = SIGN_PLUS;
-								startptr = &str[current_segment_start_index + 1];
-							} else if (str[current_segment_start_index] == '-') {
-								(*datagram)->explicit_sign = SIGN_MINUS;
-								startptr = &str[current_segment_start_index + 1];
-							} else {
-								(*datagram)->explicit_sign = SIGN_NONE;
-								startptr = &str[current_segment_start_index];
-							}
-							double value = strtod(startptr, &endptr);
-							if (startptr == endptr || errno == ERANGE) {
-								goto error_clean_up;
-							}
-							(*datagram)->value = value;
-							current_segment_start_index = current_index + 1;
-						}
-						
-#line 379 "parser-ragel.c"
-
-						break; 
-					}
-					case 7:  {
-							{
-#line 142 "parser-ragel.rl"
-							
-							if (str[current_segment_start_index] == 'c') {
-								(*datagram)->type = METRIC_TYPE_COUNTER;
-							} else if (str[current_segment_start_index] == 'g') {
-								(*datagram)->type = METRIC_TYPE_GAUGE;
-							} else {
-								(*datagram)->type = METRIC_TYPE_DURATION;
-							}
-							current_segment_start_index = current_index + 1;
-						}
-						
-#line 396 "parser-ragel.c"
-
-						break; 
-					}
-					case 8:  {
-							{
-#line 153 "parser-ragel.rl"
-							
-							size_t current_segment_length = current_index - current_segment_start_index;
-							tag_key = (char *) realloc(tag_key, current_segment_length + 1);
-							ALLOC_CHECK(tag_key, "Not enough memory for tag key buffer.");
-							tag_key_allocated = 1;
-							memcpy(
-							tag_key,
-							&str[current_segment_start_index], 
-							current_segment_length
-							);
-							tag_key[current_segment_length] = '\0';
-							current_segment_start_index = current_index + 1;
-						}
-						
-#line 416 "parser-ragel.c"
-
-						break; 
-					}
-					case 9:  {
-							{
-#line 167 "parser-ragel.rl"
-							
-							size_t current_segment_length = current_index - current_segment_start_index;
-							tag_value = (char *) realloc(tag_value, current_segment_length + 1);
-							ALLOC_CHECK(tag_value, "Not enough memory for tag key buffer.");
-							tag_value_allocated = 1;
-							memcpy(
-							tag_value,
-							&str[current_segment_start_index], 
-							current_segment_length
-							);
-							tag_value[current_segment_length] = '\0';
-							current_segment_start_index = current_index + 1;
-						}
-						
-#line 436 "parser-ragel.c"
-
-						break; 
-					}
+	{
+			METRIC_PROCESSING_ERR_LOG("Stopped parsing \"%s\" at \"%s\"", str, p);
+			goto error_clean_up;
+		}
+	break;
+	case 1:
+#line 73 "parser-ragel.rl"
+	{
+			VERBOSE_LOG(2, "Parsing: <name start> for: %s", str);
+			name_start_ptr = p;
+		}
+	break;
+	case 2:
+#line 78 "parser-ragel.rl"
+	{
+			VERBOSE_LOG(2, "Parsing: <name end> for: %s", str);
+			name_end_ptr = p;
+			ptrdiff_t name_length = name_end_ptr - name_start_ptr;
+			(*datagram)->name = (char*) malloc(name_length + 1);
+			ALLOC_CHECK((*datagram)->name, "Not enough memory to save metric name");
+			memcpy(
+				(*datagram)->name,
+				name_start_ptr,
+				name_length
+			);
+			(*datagram)->name[name_length] = '\0';
+		}
+	break;
+	case 3:
+#line 92 "parser-ragel.rl"
+	{
+			VERBOSE_LOG(2, "Parsing: <tag end> for: %s", str);
+			size_t key_len = strlen(tag_key) + 1;
+			size_t value_len = strlen(tag_value) + 1;
+			struct tag* t = (struct tag*) malloc(sizeof(struct tag));
+			ALLOC_CHECK(t, "Unable to allocate memory for tag.");
+			t->key = (char*) malloc(key_len);
+			ALLOC_CHECK(t->key, "Unable to allocate memory for tag key.");
+			memcpy(t->key, tag_key, key_len);
+			t->value = (char*) malloc(value_len);
+			ALLOC_CHECK(t->value, "Unable to allocate memory for tag value.");
+			memcpy(t->value, tag_value, value_len);
+			if (!any_tags) {
+				tags = (struct tag_collection*) malloc(sizeof(struct tag_collection));
+				ALLOC_CHECK(tags, "Unable to allocate memory for tag collection.");
+				tags->values = (struct tag**) malloc(sizeof(struct tag*));
+				tags->values[0] = t;
+				tags->length = 1;
+				any_tags = 1;
+			} else {
+				struct tag** new_tags =
+					(struct tag**) realloc(tags->values, sizeof(struct tag*) * (tags->length + 1));
+				ALLOC_CHECK(new_tags, "Unable to allocate memory for tags");
+				if (tags != NULL) {
+					tags->values = new_tags;
+					tags->values[tags->length] = t;
+					tags->length++;
 				}
-				_nacts -= 1;
-				_acts += 1;
 			}
-			
+			free(tag_key);
+			free(tag_value);
+			tag_key = NULL;
+			tag_value = NULL;
+			tag_key_allocated = 0;
+			tag_value_allocated = 0;
 		}
-		
-		if ( p == eof ) {
-			if ( cs >= 28 )
-				goto _out;
+	break;
+	case 4:
+#line 129 "parser-ragel.rl"
+	{
+			VERBOSE_LOG(2, "Parsing: <value start> for: %s", str);
+			value_start_ptr = p;
 		}
-		else {
-			_acts = ( _statsd_actions + (_statsd_to_state_actions[cs]));
-			_nacts = (unsigned int)(*( _acts));
-			_acts += 1;
-			while ( _nacts > 0 ) {
-				switch ( (*( _acts)) ) {
-					case 2:  {
-							{
-#line 64 "parser-ragel.rl"
-							
-							current_index++;
-						}
-						
-#line 463 "parser-ragel.c"
-
-						break; 
-					}
-				}
-				_nacts -= 1;
-				_acts += 1;
+	break;
+	case 5:
+#line 134 "parser-ragel.rl"
+	{
+			VERBOSE_LOG(2, "Parsing: <value end> for: %s", str);
+			value_end_ptr = p;
+			char* number_start_ptr;
+			if (value_start_ptr[0] == '+') {
+				(*datagram)->explicit_sign = SIGN_PLUS;
+				number_start_ptr = value_start_ptr + 1;
+			} else if (value_start_ptr[0] == '-') {
+				(*datagram)->explicit_sign = SIGN_MINUS;
+				number_start_ptr = value_start_ptr + 1;
+			} else {
+				(*datagram)->explicit_sign = SIGN_NONE;
+				number_start_ptr = value_start_ptr;
 			}
-			
-			if ( cs != 0 ) {
-				p += 1;
-				goto _resume;
+			char* conversion_end_ptr;
+			double value = strtod((const char*)number_start_ptr, &conversion_end_ptr);
+			if (value_end_ptr == NULL) {
+				goto error_clean_up;
+			}
+			(*datagram)->value = value;
+		}
+	break;
+	case 6:
+#line 156 "parser-ragel.rl"
+	{
+			VERBOSE_LOG(2, "Parsing: <type start> for: %s", str);
+			type_start_ptr = p;
+		}
+	break;
+	case 7:
+#line 161 "parser-ragel.rl"
+	{
+			VERBOSE_LOG(2, "Parsing: <type end> for: %s", str);
+			if (type_start_ptr[0] == 'c') {
+				(*datagram)->type = METRIC_TYPE_COUNTER;
+			} else if (type_start_ptr[0] == 'g') {
+				(*datagram)->type = METRIC_TYPE_GAUGE;
+			} else if (type_start_ptr[0] == 'm' && type_start_ptr[1] == 's') {
+				(*datagram)->type = METRIC_TYPE_DURATION;
+			} else {
+				goto error_clean_up;
 			}
 		}
-		_out: {}
+	break;
+	case 8:
+#line 174 "parser-ragel.rl"
+	{
+			VERBOSE_LOG(2, "Parsing: <tag key start> for: %s", str);
+			tag_key_start_ptr = p;
+		}
+	break;
+	case 9:
+#line 179 "parser-ragel.rl"
+	{
+			VERBOSE_LOG(2, "Parsing: <tag key end> for: %s", str);
+			tag_key_end_ptr = p;
+			ptrdiff_t tag_key_length = tag_key_end_ptr - tag_key_start_ptr;
+			tag_key = (char *) realloc(tag_key, tag_key_length + 1);
+			ALLOC_CHECK(tag_key, "Not enough memory for tag key buffer.");
+			tag_key_allocated = 1;
+			memcpy(
+				tag_key,
+				tag_key_start_ptr,
+				tag_key_length
+			);
+			tag_key[tag_key_length] = '\0';
+		}
+	break;
+	case 10:
+#line 194 "parser-ragel.rl"
+	{
+			VERBOSE_LOG(2, "Parsing: <tag value start> for: %s", str);
+			tag_value_start_ptr = p;
+		}
+	break;
+	case 11:
+#line 199 "parser-ragel.rl"
+	{
+			VERBOSE_LOG(2, "Parsing: <tag value end> for: %s", str);
+			tag_value_end_ptr = p;
+			ptrdiff_t tag_value_length = tag_value_end_ptr - tag_value_start_ptr;
+			tag_value = (char *) realloc(tag_value, tag_value_length + 1);
+			ALLOC_CHECK(tag_value, "Not enough memory for tag key buffer.");
+			tag_value_allocated = 1;
+			memcpy(
+				tag_value,
+				tag_value_start_ptr,
+				tag_value_length
+			);
+			tag_value[tag_value_length] = '\0';
+		}
+	break;
+#line 413 "parser-ragel.c"
+		}
 	}
-	
-#line 195 "parser-ragel.rl"
+
+_again:
+	if ( cs == 0 )
+		goto _out;
+	if ( ++p != pe )
+		goto _resume;
+	_test_eof: {}
+	if ( p == eof )
+	{
+	const char *__acts = _statsd_actions + _statsd_eof_actions[cs];
+	unsigned int __nacts = (unsigned int) *__acts++;
+	while ( __nacts-- > 0 ) {
+		switch ( *__acts++ ) {
+	case 0:
+#line 68 "parser-ragel.rl"
+	{
+			METRIC_PROCESSING_ERR_LOG("Stopped parsing \"%s\" at \"%s\"", str, p);
+			goto error_clean_up;
+		}
+	break;
+	case 3:
+#line 92 "parser-ragel.rl"
+	{
+			VERBOSE_LOG(2, "Parsing: <tag end> for: %s", str);
+			size_t key_len = strlen(tag_key) + 1;
+			size_t value_len = strlen(tag_value) + 1;
+			struct tag* t = (struct tag*) malloc(sizeof(struct tag));
+			ALLOC_CHECK(t, "Unable to allocate memory for tag.");
+			t->key = (char*) malloc(key_len);
+			ALLOC_CHECK(t->key, "Unable to allocate memory for tag key.");
+			memcpy(t->key, tag_key, key_len);
+			t->value = (char*) malloc(value_len);
+			ALLOC_CHECK(t->value, "Unable to allocate memory for tag value.");
+			memcpy(t->value, tag_value, value_len);
+			if (!any_tags) {
+				tags = (struct tag_collection*) malloc(sizeof(struct tag_collection));
+				ALLOC_CHECK(tags, "Unable to allocate memory for tag collection.");
+				tags->values = (struct tag**) malloc(sizeof(struct tag*));
+				tags->values[0] = t;
+				tags->length = 1;
+				any_tags = 1;
+			} else {
+				struct tag** new_tags =
+					(struct tag**) realloc(tags->values, sizeof(struct tag*) * (tags->length + 1));
+				ALLOC_CHECK(new_tags, "Unable to allocate memory for tags");
+				if (tags != NULL) {
+					tags->values = new_tags;
+					tags->values[tags->length] = t;
+					tags->length++;
+				}
+			}
+			free(tag_key);
+			free(tag_value);
+			tag_key = NULL;
+			tag_value = NULL;
+			tag_key_allocated = 0;
+			tag_value_allocated = 0;
+		}
+	break;
+	case 7:
+#line 161 "parser-ragel.rl"
+	{
+			VERBOSE_LOG(2, "Parsing: <type end> for: %s", str);
+			if (type_start_ptr[0] == 'c') {
+				(*datagram)->type = METRIC_TYPE_COUNTER;
+			} else if (type_start_ptr[0] == 'g') {
+				(*datagram)->type = METRIC_TYPE_GAUGE;
+			} else if (type_start_ptr[0] == 'm' && type_start_ptr[1] == 's') {
+				(*datagram)->type = METRIC_TYPE_DURATION;
+			} else {
+				goto error_clean_up;
+			}
+		}
+	break;
+	case 11:
+#line 199 "parser-ragel.rl"
+	{
+			VERBOSE_LOG(2, "Parsing: <tag value end> for: %s", str);
+			tag_value_end_ptr = p;
+			ptrdiff_t tag_value_length = tag_value_end_ptr - tag_value_start_ptr;
+			tag_value = (char *) realloc(tag_value, tag_value_length + 1);
+			ALLOC_CHECK(tag_value, "Not enough memory for tag key buffer.");
+			tag_value_allocated = 1;
+			memcpy(
+				tag_value,
+				tag_value_start_ptr,
+				tag_value_length
+			);
+			tag_value[tag_value_length] = '\0';
+		}
+	break;
+#line 507 "parser-ragel.c"
+		}
+	}
+	}
+
+	_out: {}
+	}
+
+#line 233 "parser-ragel.rl"
+
 
 	(void)statsd_en_main;
 	(void)statsd_error;
 	(void)statsd_first_final;
-	
+
 	if (any_tags) {
 		char* json = tag_collection_to_json(tags);
 		if (json != NULL) {
@@ -507,66 +526,66 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 		}
 		free_tag_collection(tags);
 		if (tag_key_allocated) free(tag_key);
-			if (tag_value_allocated) free(tag_value);
-		}
+		if (tag_value_allocated) free(tag_value);
+	}
 	if (str[length - 1] == '\n')
-		str[length - 1] = 0;
+        str[length - 1] = 0;
 	VERBOSE_LOG(2, "Parsed: %s", str);
 	return 1;
-	
+
 	error_clean_up:
 	if (any_tags) {
 		free_tag_collection(tags);
 	}
 	if (tag_key_allocated) free(tag_key);
-		if (tag_value_allocated) free(tag_value);
-		if (str[length - 1] == '\n')
-		str[length - 1] = 0;
+	if (tag_value_allocated) free(tag_value);
+	if (str[length - 1] == '\n')
+        str[length - 1] = 0;
 	free_datagram(*datagram);
-	METRIC_PROCESSING_ERR_LOG("Throwing away datagram. REASON: unable to parse: %s", str);
+	METRIC_PROCESSING_ERR_LOG("Throwing away metric %s, REASON: unable to parse", str);
 	return 0;
 };
 
 
 /**
-* --------------------------------------
-* |                                    |
-* |     UNIT TEST FOR THIS FILE        |
-* |                                    |
-* --------------------------------------
-*/
+ * --------------------------------------
+ * |                                    |
+ * |     UNIT TEST FOR THIS FILE        |
+ * |                                    |
+ * --------------------------------------
+ */
 #if _TEST_TARGET == 2
 
 int
 main() {
-	INIT_TEST("Running tests for ragel parser:", ragel_parser_parse);
-	SUITE_HEADER("Unparsable values")
-	CHECK_ERROR("", NULL, NULL, 0, METRIC_TYPE_NONE, SIGN_NONE);
-	CHECK_ERROR("wow", NULL, NULL, 0, METRIC_TYPE_NONE, SIGN_NONE);
-	CHECK_ERROR("wow:2", NULL, NULL, 0, METRIC_TYPE_NONE, SIGN_NONE);
-	CHECK_ERROR("wow|g", NULL, NULL, 0, METRIC_TYPE_NONE, SIGN_NONE);
-	CHECK_ERROR("2|g", NULL, NULL, 0, METRIC_TYPE_NONE, SIGN_NONE);
-	CHECK_ERROR("1:1|c", NULL, NULL, 0, METRIC_TYPE_NONE, SIGN_NONE);
-	CHECK_ERROR("e x-2 ple:20|c", NULL, NULL, 0, METRIC_TYPE_NONE, SIGN_NONE);
-	CHECK_ERROR("example,tags=dwq=qwddqwd=qwd:10|c", NULL, NULL, 0, METRIC_TYPE_NONE, SIGN_NONE);
-	SUITE_HEADER("Basic values");
-	CHECK_ERROR("example:-1|c", "example", NULL, 1, METRIC_TYPE_COUNTER, SIGN_MINUS);
-	CHECK_ERROR("example:+1|g", "example", NULL, 1, METRIC_TYPE_GAUGE, SIGN_PLUS);
-	CHECK_ERROR("example:1|ms", "example", NULL, 1, METRIC_TYPE_DURATION, SIGN_NONE);
-	SUITE_HEADER("Sanitizable metric name");
-	SUITE_HEADER("Non integer values")
-	CHECK_ERROR("example:1.2|c", "example", NULL, 1.2, METRIC_TYPE_COUNTER, SIGN_NONE);
-	CHECK_ERROR("example:1.000000004|c", "example", NULL, 1.000000004, METRIC_TYPE_COUNTER, SIGN_NONE);
-	CHECK_ERROR("example:1.00000000000000000000000000000004|c", "example", NULL, 1.00000000000000000000000000000004, METRIC_TYPE_COUNTER, SIGN_NONE);
-	SUITE_HEADER("Instance descriptors")
-	CHECK_ERROR("example,instance=20:20|c", "example", "{\"instance\":\"20\"}", 20, METRIC_TYPE_COUNTER, SIGN_NONE);
-	SUITE_HEADER("Tag descriptors")
-	CHECK_ERROR("example,tagY=20,tagX=10:10|c", "example", "{\"tagX\":\"10\",\"tagY\":\"20\"}", 10, METRIC_TYPE_COUNTER, SIGN_NONE);
+    INIT_TEST("Running tests for ragel parser:", ragel_parser_parse);
+    SUITE_HEADER("Unparsable values")
+    CHECK_ERROR("", NULL, NULL, 0, METRIC_TYPE_NONE, SIGN_NONE);
+    CHECK_ERROR("wow", NULL, NULL, 0, METRIC_TYPE_NONE, SIGN_NONE);
+    CHECK_ERROR("wow:2", NULL, NULL, 0, METRIC_TYPE_NONE, SIGN_NONE);
+    CHECK_ERROR("wow|g", NULL, NULL, 0, METRIC_TYPE_NONE, SIGN_NONE);
+    CHECK_ERROR("2|g", NULL, NULL, 0, METRIC_TYPE_NONE, SIGN_NONE);
+    CHECK_ERROR("1:1|c", NULL, NULL, 0, METRIC_TYPE_NONE, SIGN_NONE);
+    CHECK_ERROR("e x-2 ple:20|c", NULL, NULL, 0, METRIC_TYPE_NONE, SIGN_NONE);
+    CHECK_ERROR("example,tags=dwq=qwddqwd=qwd:10|c", NULL, NULL, 0, METRIC_TYPE_NONE, SIGN_NONE);
+    SUITE_HEADER("Basic values");
+    CHECK_ERROR("example:-1|c", "example", NULL, 1, METRIC_TYPE_COUNTER, SIGN_MINUS);
+    CHECK_ERROR("example:+1|g", "example", NULL, 1, METRIC_TYPE_GAUGE, SIGN_PLUS);
+    CHECK_ERROR("example:1|ms", "example", NULL, 1, METRIC_TYPE_DURATION, SIGN_NONE);
+    SUITE_HEADER("Sanitizable metric name");
+    SUITE_HEADER("Non integer values")
+    CHECK_ERROR("example:1.2|c", "example", NULL, 1.2, METRIC_TYPE_COUNTER, SIGN_NONE);
+    CHECK_ERROR("example:1.000000004|c", "example", NULL, 1.000000004, METRIC_TYPE_COUNTER, SIGN_NONE);
+    CHECK_ERROR("example:1.00000000000000000000000000000004|c", "example", NULL, 1.00000000000000000000000000000004, METRIC_TYPE_COUNTER, SIGN_NONE);
+    SUITE_HEADER("Instance descriptors")
+    CHECK_ERROR("example,instance=20:20|c", "example", "{\"instance\":\"20\"}", 20, METRIC_TYPE_COUNTER, SIGN_NONE);
+    SUITE_HEADER("Tag descriptors")
+    CHECK_ERROR("example,tagY=20,tagX=10:10|c", "example", "{\"tagX\":\"10\",\"tagY\":\"20\"}", 10, METRIC_TYPE_COUNTER, SIGN_NONE);
 	CHECK_ERROR("example,tagY=20:10|c|#tagY:20,tagW:W", "example", "{\"tagW\":\"W\",\"tagY\":\"20\"}", 10, METRIC_TYPE_COUNTER, SIGN_NONE);
-	SUITE_HEADER("Malformed tags")
-	SUITE_HEADER("Too long tag descriptor (gets thrown away)")
-	CHECK_ERROR("example,tags=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:10|c", "example", NULL, 10, METRIC_TYPE_COUNTER, SIGN_NONE);
-	END_TEST();
+    SUITE_HEADER("Malformed tags")
+    SUITE_HEADER("Too long tag descriptor (gets thrown away)")
+    CHECK_ERROR("example,tags=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:10|c", "example", NULL, 10, METRIC_TYPE_COUNTER, SIGN_NONE);
+    END_TEST();
 }
 
 #endif
