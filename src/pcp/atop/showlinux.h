@@ -42,23 +42,33 @@ typedef struct {
         count_t		iotot;
         struct perdsk	*perdsk;
         count_t		cputot;
+        count_t		pernumacputot;
         count_t		percputot;
 } extraparam;
 
-/***************************************************************/
-/*
+/***************************************************************
+ *
  * structure for system print-list
+ *
+ * configname	name as used to identify this field when configuring
+ * 		the print line
+ * doformat	pointer to function that formats this field into a
+ * 		string of 12 positions, to be returned as char pointer
+ * dovalidate	pointer to function that determines if this is a 
+ * 		valid (i.e. relevant) field on this system, returning
+ * 		0 (false) or non-zero (true)
+ * 		when this function pointer is NULL, true is considered
 */
 typedef struct {
-        char *configname;                          // name as used to 
-                                                   // config print line
-        char* (*doconvert)(void *, void *, int, int *); // ptr to convert func
+        char *configname;
+        char* (*doformat)(struct sstat *, extraparam *, int, int *);
+        int   (*dovalidate)(struct sstat *);
 } sys_printdef;
 
 
 /*
  * structure for system print-list with priority
- * in case of leck of screen space, lowest priority items will be
+ * in case of lack of screen space, lowest priority items will be
  * removed first 
 */
 typedef struct
@@ -107,9 +117,12 @@ extern sys_printdef *prcsyspdefs[];
 extern sys_printdef *cpusyspdefs[];
 extern sys_printdef *cpisyspdefs[];
 extern sys_printdef *cplsyspdefs[];
-extern sys_printdef *memsyspdefs[];
+extern sys_printdef *memsyspdefs1[];
+extern sys_printdef *memsyspdefs2[];
 extern sys_printdef *swpsyspdefs[];
 extern sys_printdef *pagsyspdefs[];
+extern sys_printdef *numasyspdefs[];
+extern sys_printdef *numacpusyspdefs[];
 extern sys_printdef *dsksyspdefs[];
 extern sys_printdef *nettranssyspdefs[];
 extern sys_printdef *netnetsyspdefs[];
@@ -175,6 +188,7 @@ extern sys_printdef syspdef_SHMRSS;
 extern sys_printdef syspdef_SHMSWP;
 extern sys_printdef syspdef_VMWBAL;
 extern sys_printdef syspdef_ZFSARC;
+extern sys_printdef syspdef_PAGETABS;
 extern sys_printdef syspdef_HUPTOT;
 extern sys_printdef syspdef_HUPUSE;
 extern sys_printdef syspdef_SWPTOT;
@@ -186,9 +200,42 @@ extern sys_printdef syspdef_KSMSHARING;
 extern sys_printdef syspdef_KSMSHARED;
 extern sys_printdef syspdef_SWPCOMMITTED;
 extern sys_printdef syspdef_SWPCOMMITLIM;
+extern sys_printdef syspdef_NUMNUMA;
+extern sys_printdef syspdef_NUMANR;
+extern sys_printdef syspdef_NUMATOT;
+extern sys_printdef syspdef_NUMAFREE;
+extern sys_printdef syspdef_NUMAFILEPAGE;
+extern sys_printdef syspdef_NUMASLAB;
+extern sys_printdef syspdef_NUMADIRTY;
+extern sys_printdef syspdef_NUMAACTIVE;
+extern sys_printdef syspdef_NUMAINACTIVE;
+extern sys_printdef syspdef_NUMASHMEM;
+extern sys_printdef syspdef_NUMASLABRECLAIM;
+extern sys_printdef syspdef_NUMAFRAG;
+extern sys_printdef syspdef_NUMAHUPTOT;
+extern sys_printdef syspdef_NUMANUMCPU;
+extern sys_printdef syspdef_NUMACPUSYS;
+extern sys_printdef syspdef_NUMACPUUSER;
+extern sys_printdef syspdef_NUMACPUNICE;
+extern sys_printdef syspdef_NUMACPUIRQ;
+extern sys_printdef syspdef_NUMACPUSOFTIRQ;
+extern sys_printdef syspdef_NUMACPUIDLE;
+extern sys_printdef syspdef_NUMACPUWAIT;
+extern sys_printdef syspdef_NUMACPUSTEAL;
+extern sys_printdef syspdef_NUMACPUGUEST;
+extern sys_printdef syspdef_LLCMBMTOTAL;
+extern sys_printdef syspdef_LLCMBMLOCAL;
+extern sys_printdef syspdef_NUMLLC;
 extern sys_printdef syspdef_PAGSCAN;
 extern sys_printdef syspdef_PAGSTEAL;
 extern sys_printdef syspdef_PAGSTALL;
+extern sys_printdef syspdef_PAGCOMPACT;
+extern sys_printdef syspdef_NUMAMIGRATE;
+extern sys_printdef syspdef_PGMIGRATE;
+extern sys_printdef syspdef_PAGPGIN;
+extern sys_printdef syspdef_PAGPGOUT;
+extern sys_printdef syspdef_TCPSOCK;
+extern sys_printdef syspdef_UDPSOCK;
 extern sys_printdef syspdef_PAGSWIN;
 extern sys_printdef syspdef_PAGSWOUT;
 extern sys_printdef syspdef_OOMKILLS;
@@ -210,10 +257,12 @@ extern sys_printdef syspdef_DSKNAME;
 extern sys_printdef syspdef_DSKBUSY;
 extern sys_printdef syspdef_DSKNREAD;
 extern sys_printdef syspdef_DSKNWRITE;
-extern sys_printdef syspdef_DSKMBPERSECWR;
+extern sys_printdef syspdef_DSKNDISC;
 extern sys_printdef syspdef_DSKMBPERSECRD;
-extern sys_printdef syspdef_DSKKBPERWR;
+extern sys_printdef syspdef_DSKMBPERSECWR;
 extern sys_printdef syspdef_DSKKBPERRD;
+extern sys_printdef syspdef_DSKKBPERWR;
+extern sys_printdef syspdef_DSKKBPERDS;
 extern sys_printdef syspdef_DSKAVQUEUE;
 extern sys_printdef syspdef_DSKAVIO;
 extern sys_printdef syspdef_NETTRANSPORT;
@@ -365,8 +414,16 @@ extern proc_printdef procprt_GPUGPUBUSY;
 extern proc_printdef procprt_GPUMEMBUSY;
 extern proc_printdef procprt_SORTITEM;
 extern proc_printdef procprt_RUNDELAY;
+extern proc_printdef procprt_BLKDELAY;
 extern proc_printdef procprt_WCHAN;
-
+extern proc_printdef procprt_CGROUP_PATH;
+extern proc_printdef procprt_CGRCPUWGT;
+extern proc_printdef procprt_CGRCPUMAX;
+extern proc_printdef procprt_CGRCPUMAXR;
+extern proc_printdef procprt_CGRMEMMAX;
+extern proc_printdef procprt_CGRMEMMAXR;
+extern proc_printdef procprt_CGRSWPMAX;
+extern proc_printdef procprt_CGRSWPMAXR;
 
 
 //extern char *procprt_NRDDSK_ae(struct tstat *, int, double);

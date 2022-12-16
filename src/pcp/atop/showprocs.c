@@ -176,6 +176,12 @@ getspacings(proc_printpair* elemptr)
                 return spacings;
         }
 
+        // avoid division by 0
+        if (nitems==1)
+        {
+                spacings[0]=0;
+                return spacings;
+        }
 
         /* fixed columns, spread whitespace over columns */
         double over=(0.0+maxw-col)/(nitems-1);
@@ -227,10 +233,13 @@ showhdrline(proc_printpair* elemptr, int curlist, int totlist,
 
         while ((curelem=*elemptr).f!=0) 
         {
+		int widen = 0;
+
                 if (curelem.f->head==0)     // empty header==special: SORTITEM
                 {
-                        chead=columnhead[order];
-                        autoindic= autosort ? "A" : " ";
+                        chead     = columnhead[order];
+                        autoindic = autosort ? "A" : " ";
+			widen     = procprt_SORTITEM.width-3;
                 } 
                 else 
                 {
@@ -241,8 +250,8 @@ showhdrline(proc_printpair* elemptr, int curlist, int totlist,
 		buflen = sizeof buf - col - 1;
                 if (screen)
                 {
-                        col += pmsprintf(buf+col, buflen, "%s%s%*s", autoindic, chead,
-                              colspacings[n], "");
+                        col += pmsprintf(buf+col, buflen, "%*s%s%*s",
+				widen, autoindic, chead, colspacings[n], "");
                 }
                 else
                 {
@@ -263,7 +272,7 @@ showhdrline(proc_printpair* elemptr, int curlist, int totlist,
 			buflen = sizeof buf - col - 1;
                         pmsprintf(buf+col, buflen, "%*s", allign+pagindiclen, pagindic);
                 }
-                else
+                else if (col+allign >= 0)
                 {    // allign by removing from the right
 			buflen = sizeof buf - col - allign - 1;
                         pmsprintf(buf+col+allign, buflen, "%s", pagindic);
@@ -320,7 +329,7 @@ showprocline(proc_printpair* elemptr, struct tstat *curstat,
 
                 if (curelem.f->head==0)                // empty string=sortitem
                 {
-                        printg("%3.0lf%%", perc);    // cannot pass perc
+                        printg("%*.0lf%%", procprt_SORTITEM.width-1, perc);
                 }
                 else if (curstat->gen.state != 'E')  // active process
                 {
@@ -553,7 +562,7 @@ procprt_VGROW_a(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[10];
 
-        val2memstr(curstat->mem.vgrow*1024, buf, sizeof buf, KBFORMAT, 0, 0);
+        val2memstr(curstat->mem.vgrow*1024, buf, sizeof buf, BFORMAT, 0, 0);
         return buf;
 }
 
@@ -571,7 +580,7 @@ procprt_RGROW_a(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[10];
 
-        val2memstr(curstat->mem.rgrow*1024, buf, sizeof buf, KBFORMAT, 0, 0);
+        val2memstr(curstat->mem.rgrow*1024, buf, sizeof buf, BFORMAT, 0, 0);
         return buf;
 }
 
@@ -613,7 +622,7 @@ procprt_VSTEXT_a(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[10];
 
-        val2memstr(curstat->mem.vexec*1024, buf, sizeof buf, KBFORMAT, 0, 0);
+        val2memstr(curstat->mem.vexec*1024, buf, sizeof buf, BFORMAT, 0, 0);
         return buf;
 }
 
@@ -631,7 +640,7 @@ procprt_VSIZE_a(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[10];
 
-        val2memstr(curstat->mem.vmem*1024, buf, sizeof buf, KBFORMAT, 0, 0);
+        val2memstr(curstat->mem.vmem*1024, buf, sizeof buf, BFORMAT, 0, 0);
         return buf;
 }
 
@@ -649,7 +658,7 @@ procprt_RSIZE_a(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[10];
 
-        val2memstr(curstat->mem.rmem*1024, buf, sizeof buf, KBFORMAT, 0, 0);
+        val2memstr(curstat->mem.rmem*1024, buf, sizeof buf, BFORMAT, 0, 0);
         return buf;
 }
 
@@ -670,7 +679,7 @@ procprt_PSIZE_a(struct tstat *curstat, int avgval, double nsecs)
 	if (curstat->mem.pmem == (unsigned long long)-1LL)	
         	return "    ?K";
 
-       	val2memstr(curstat->mem.pmem*1024, buf, sizeof buf, KBFORMAT, 0, 0);
+       	val2memstr(curstat->mem.pmem*1024, buf, sizeof buf, BFORMAT, 0, 0);
         return buf;
 }
 
@@ -688,7 +697,7 @@ procprt_VSLIBS_a(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[10];
 
-        val2memstr(curstat->mem.vlibs*1024, buf, sizeof buf, KBFORMAT, 0, 0);
+        val2memstr(curstat->mem.vlibs*1024, buf, sizeof buf, BFORMAT, 0, 0);
         return buf;
 }
 
@@ -706,7 +715,7 @@ procprt_VDATA_a(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[10];
 
-        val2memstr(curstat->mem.vdata*1024, buf, sizeof buf, KBFORMAT, 0, 0);
+        val2memstr(curstat->mem.vdata*1024, buf, sizeof buf, BFORMAT, 0, 0);
         return buf;
 }
 
@@ -724,7 +733,7 @@ procprt_VSTACK_a(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[10];
 
-        val2memstr(curstat->mem.vstack*1024, buf, sizeof buf, KBFORMAT, 0, 0);
+        val2memstr(curstat->mem.vstack*1024, buf, sizeof buf, BFORMAT, 0, 0);
         return buf;
 }
 
@@ -742,7 +751,7 @@ procprt_SWAPSZ_a(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[10];
 
-        val2memstr(curstat->mem.vswap*1024, buf, sizeof buf, KBFORMAT, 0, 0);
+        val2memstr(curstat->mem.vswap*1024, buf, sizeof buf, BFORMAT, 0, 0);
         return buf;
 }
 
@@ -1394,7 +1403,7 @@ char *
 procprt_RDDSK_a(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[10];
-        val2memstr(curstat->dsk.rsz*512, buf, sizeof buf, KBFORMAT, avgval, nsecs);
+        val2memstr(curstat->dsk.rsz*512, buf, sizeof buf, BFORMAT, avgval, nsecs);
 
         return buf;
 }
@@ -1413,7 +1422,7 @@ procprt_WRDSK_a(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[10];
 
-        val2memstr(curstat->dsk.wsz*512, buf, sizeof buf, KBFORMAT, avgval, nsecs);
+        val2memstr(curstat->dsk.wsz*512, buf, sizeof buf, BFORMAT, avgval, nsecs);
 
         return buf;
 }
@@ -1438,7 +1447,7 @@ procprt_CWRDSK_a(struct tstat *curstat, int avgval, double nsecs)
 	else
 		nett_wsz = 0;
 
-        val2memstr(nett_wsz*512, buf, sizeof buf, KBFORMAT, avgval, nsecs);
+        val2memstr(nett_wsz*512, buf, sizeof buf, BFORMAT, avgval, nsecs);
 
         return buf;
 }
@@ -1899,7 +1908,7 @@ procprt_GPUMEMNOW_ae(struct tstat *curstat, int avgval, double nsecs)
 	if (!curstat->gpu.state)
 		return "     -";
 
-        val2memstr(curstat->gpu.memnow*1024, buf, sizeof buf, KBFORMAT, 0, 0);
+        val2memstr(curstat->gpu.memnow*1024, buf, sizeof buf, BFORMAT, 0, 0);
         return buf;
 }
 
@@ -1918,7 +1927,7 @@ procprt_GPUMEMAVG_ae(struct tstat *curstat, int avgval, double nsecs)
 		return("    0K");
 
        	val2memstr(curstat->gpu.nrgpus * curstat->gpu.memcum /
-	           curstat->gpu.sample*1024, buf, sizeof buf, KBFORMAT, 0, 0);
+	           curstat->gpu.sample*1024, buf, sizeof buf, BFORMAT, 0, 0);
        	return buf;
 }
 
@@ -1984,7 +1993,7 @@ procprt_WCHAN_e(struct tstat *curstat, int avgval, double nsecs)
 }
 
 proc_printdef procprt_WCHAN =
-   { "WCHAN          ", "WCHAN", procprt_WCHAN_a, procprt_WCHAN_e, 15 };
+   { "WCHAN          ", "WCHAN", procprt_WCHAN_a, procprt_WCHAN_e, 15};
 /***************************************************************/
 char *
 procprt_RUNDELAY_a(struct tstat *curstat, int avgval, double nsecs)
@@ -2000,12 +2009,306 @@ procprt_RUNDELAY_e(struct tstat *curstat, int avgval, double nsecs)
 {
         static char buf[10];
 
-        snprintf(buf, sizeof buf, "     -");
+        pmsprintf(buf, sizeof buf, "     -");
         return buf;
 }
 
 proc_printdef procprt_RUNDELAY =
-   { "RDELAY", "RDELAY", procprt_RUNDELAY_a, procprt_RUNDELAY_e, 6 };
+   { "RDELAY", "RDELAY", procprt_RUNDELAY_a, procprt_RUNDELAY_e, 6};
+/***************************************************************/
+char *
+procprt_BLKDELAY_a(struct tstat *curstat, int avgval, double nsecs)
+{
+        static char buf[10];
+
+        val2cpustr(curstat->cpu.blkdelay*1000, buf, sizeof buf);
+        return buf;
+}
+
+char *
+procprt_BLKDELAY_e(struct tstat *curstat, int avgval, double nsecs)
+{
+        static char buf[10];
+
+        pmsprintf(buf, sizeof buf, "     -");
+        return buf;
+}
+
+proc_printdef procprt_BLKDELAY =
+   { "BDELAY", "BDELAY", procprt_BLKDELAY_a, procprt_BLKDELAY_e, 6};
+/***************************************************************/
+char *
+procprt_CGROUP_PATH_a(struct tstat *curstat, int avgval, double nsecs)
+{
+        extern proc_printdef procprt_CGROUP_PATH;
+        extern int	startoffset;	// influenced by -> and <- keys
+        static char	buf[CMDLEN+1];
+
+	char	*pline     = curstat->gen.cgpath[0] ? curstat->gen.cgpath:"?";
+
+        int 	curwidth   = procprt_CGROUP_PATH.width <= CGRLEN ?
+				procprt_CGROUP_PATH.width : CGRLEN;
+
+        int 	pathlen    = strlen(pline);
+        int 	curoffset  = startoffset <= pathlen ? startoffset : pathlen;
+
+	if (! curstat->gen.isproc)
+		return "";
+
+        if (screen) 
+                sprintf(buf, "%-*.*s", curwidth, curwidth, pline+curoffset);
+        else
+                sprintf(buf, "%.*s", CGRLEN, pline+curoffset);
+
+        return buf;
+}
+
+char *
+procprt_CGROUP_PATH_e(struct tstat *curstat, int avgval, double nsecs)
+{
+	return "-";
+}
+
+proc_printdef procprt_CGROUP_PATH = 
+       {"CGROUP (horizontal scroll: <- and ->)",
+	"CGROUP-PATH", 
+        procprt_CGROUP_PATH_a, procprt_CGROUP_PATH_e, 42, 0 };
+/***************************************************************/
+char *
+procprt_CGRCPUWGT_a(struct tstat *curstat, int avgval, double nsecs)
+{
+        static char buf[16];
+
+	if (! curstat->gen.isproc)
+		return "      ";
+
+	if (curstat->gen.cgpath[0])
+	{
+		switch (curstat->cpu.cgcpuweight)
+		{
+		   case -2:
+        		return "     -";
+		   default:
+			pmsprintf(buf, sizeof buf, "%6d", curstat->cpu.cgcpuweight);
+        		return buf;
+		}
+	}
+	else
+        	return "     -";
+}
+
+char *
+procprt_CGRCPUWGT_e(struct tstat *curstat, int avgval, double nsecs)
+{
+        return "     -";
+}
+
+proc_printdef procprt_CGRCPUWGT =
+   { "CPUWGT", "CPUWGT", procprt_CGRCPUWGT_a, procprt_CGRCPUWGT_e, 6};
+/***************************************************************/
+char *
+procprt_CGRCPUMAX_a(struct tstat *curstat, int avgval, double nsecs)
+{
+        static char buf[16];
+
+	if (! curstat->gen.isproc)
+		return "      ";
+
+	if (curstat->gen.cgpath[0])
+	{
+		switch (curstat->cpu.cgcpumax)
+		{
+		   case -1:
+        		return "   max";
+		   case -2:
+        		return "     -";
+		   default:
+			pmsprintf(buf, sizeof buf, "%5d%%", curstat->cpu.cgcpumax);
+        		return buf;
+		}
+	}
+	else
+        	return "     -";
+}
+
+char *
+procprt_CGRCPUMAX_e(struct tstat *curstat, int avgval, double nsecs)
+{
+        return "     -";
+}
+
+proc_printdef procprt_CGRCPUMAX =
+   { "CPUMAX", "CPUMAX", procprt_CGRCPUMAX_a, procprt_CGRCPUMAX_e, 6};
+/***************************************************************/
+char *
+procprt_CGRCPUMAXR_a(struct tstat *curstat, int avgval, double nsecs)
+{
+        static char buf[16];
+
+	if (! curstat->gen.isproc)
+		return "       ";
+
+	if (curstat->gen.cgpath[0])
+	{
+		switch (curstat->cpu.cgcpumaxr)
+		{
+		   case -1:
+        		return "    max";
+		   case -2:
+        		return "      -";
+		   default:
+			pmsprintf(buf, sizeof buf, "%6d%%", curstat->cpu.cgcpumaxr);
+        		return buf;
+		}
+	}
+	else
+        	return "      -";
+}
+
+char *
+procprt_CGRCPUMAXR_e(struct tstat *curstat, int avgval, double nsecs)
+{
+        return "      -";
+}
+
+proc_printdef procprt_CGRCPUMAXR =
+   { "CPUMAXR", "CPUMAXR", procprt_CGRCPUMAXR_a, procprt_CGRCPUMAXR_e, 7};
+/***************************************************************/
+char *
+procprt_CGRMEMMAX_a(struct tstat *curstat, int avgval, double nsecs)
+{
+        static char buf[16];
+
+	if (! curstat->gen.isproc)
+		return "      ";
+
+	if (curstat->gen.cgpath[0])
+	{
+		switch (curstat->mem.cgmemmax)
+		{
+		   case -1:
+        		return "   max";
+		   case -2:
+        		return "     -";
+		   default:
+        		val2memstr(curstat->mem.cgmemmax*1024, buf, sizeof buf, BFORMAT, 0, 0);
+       		 	return buf;
+		}
+	}
+	else
+        	return "     -";
+}
+
+char *
+procprt_CGRMEMMAX_e(struct tstat *curstat, int avgval, double nsecs)
+{
+        return "     -";
+}
+
+proc_printdef procprt_CGRMEMMAX =
+   { "MEMMAX", "MEMMAX", procprt_CGRMEMMAX_a, procprt_CGRMEMMAX_e, 6};
+/***************************************************************/
+char *
+procprt_CGRMEMMAXR_a(struct tstat *curstat, int avgval, double nsecs)
+{
+        static char buf[16];
+
+	if (! curstat->gen.isproc)
+		return "      ";
+
+	if (curstat->gen.cgpath[0])
+	{
+		switch (curstat->mem.cgmemmaxr)
+		{
+		   case -1:
+        		return "   max";
+		   case -2:
+        		return "     -";
+		   default:
+        		val2memstr(curstat->mem.cgmemmaxr*1024, buf, sizeof buf, BFORMAT, 0, 0);
+       		 	return buf;
+		}
+	}
+	else
+        	return "     -";
+}
+
+char *
+procprt_CGRMEMMAXR_e(struct tstat *curstat, int avgval, double nsecs)
+{
+        return "     -";
+}
+
+proc_printdef procprt_CGRMEMMAXR =
+   { "MMMAXR", "MMMAXR", procprt_CGRMEMMAXR_a, procprt_CGRMEMMAXR_e, 6};
+/***************************************************************/
+char *
+procprt_CGRSWPMAX_a(struct tstat *curstat, int avgval, double nsecs)
+{
+        static char buf[16];
+
+	if (! curstat->gen.isproc)
+		return "      ";
+
+	if (curstat->gen.cgpath[0])
+	{
+		switch (curstat->mem.cgswpmax)
+		{
+		   case -1:
+        		return "   max";
+		   case -2:
+        		return "     -";
+		   default:
+        		val2memstr(curstat->mem.cgswpmax*1024, buf, sizeof buf, BFORMAT, 0, 0);
+        		return buf;
+		}
+	}
+	else
+        	return "     -";
+}
+
+char *
+procprt_CGRSWPMAX_e(struct tstat *curstat, int avgval, double nsecs)
+{
+        return "     -";
+}
+
+proc_printdef procprt_CGRSWPMAX =
+   { "SWPMAX", "SWPMAX", procprt_CGRSWPMAX_a, procprt_CGRSWPMAX_e, 6};
+/***************************************************************/
+char *
+procprt_CGRSWPMAXR_a(struct tstat *curstat, int avgval, double nsecs)
+{
+        static char buf[16];
+
+	if (! curstat->gen.isproc)
+		return "      ";
+
+	if (curstat->gen.cgpath[0])
+	{
+		switch (curstat->mem.cgswpmaxr)
+		{
+		   case -1:
+        		return "   max";
+		   case -2:
+        		return "     -";
+		   default:
+        		val2memstr(curstat->mem.cgswpmaxr*1024, buf, sizeof buf, BFORMAT, 0, 0);
+        		return buf;
+		}
+	}
+	else
+        	return "     -";
+}
+
+char *
+procprt_CGRSWPMAXR_e(struct tstat *curstat, int avgval, double nsecs)
+{
+        return "     -";
+}
+
+proc_printdef procprt_CGRSWPMAXR =
+   { "SWMAXR", "SWMAXR", procprt_CGRSWPMAXR_a, procprt_CGRSWPMAXR_e, 6};
 /***************************************************************/
 char *
 procprt_SORTITEM_ae(struct tstat *curstat, int avgval, double nsecs)
@@ -2013,5 +2316,5 @@ procprt_SORTITEM_ae(struct tstat *curstat, int avgval, double nsecs)
         return "";   // dummy function
 }
 
-proc_printdef procprt_SORTITEM = 
-   { 0, "SORTITEM", procprt_SORTITEM_ae, procprt_SORTITEM_ae, 4 };
+proc_printdef procprt_SORTITEM =   // width is dynamically defined!
+   { 0, "SORTITEM", procprt_SORTITEM_ae, procprt_SORTITEM_ae, 4};

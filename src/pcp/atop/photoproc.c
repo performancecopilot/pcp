@@ -30,6 +30,7 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, i
 {
 	int key;
 	char buf[32];
+	char cgname[CGRLEN+2];
 	char *nametail = name;
 
 	memset(task, 0, sizeof(struct tstat));
@@ -46,9 +47,7 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, i
 	    task->mem.pmem = extract_ucount_t_inst(rp, dp, TASK_MEM_PMEM, pid, offset);
 
 	/* determine wchan if wanted (optional, relatively expensive) */
-	if (!getwchan)
-	    task->cpu.wchan[0] = '\0';
-	else
+	if (getwchan)
 	    extract_string_inst(rp, dp, TASK_GEN_WCHAN, &task->cpu.wchan[0],
 				sizeof task->cpu.wchan, pid, offset);
 
@@ -57,6 +56,16 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, i
 			    sizeof task->gen.container, pid, offset);
         if (task->gen.container[0] != '\0')
 		supportflags |= DOCKSTAT;
+
+	cgname[0] = '\0';
+	extract_string_inst(rp, dp, TASK_GEN_CGROUP, &cgname[0],
+			    sizeof cgname, pid, offset);
+	if (cgname[0] == ':')
+	{
+		strncpy(task->gen.cgpath, &cgname[1], sizeof task->gen.cgpath);
+		task->gen.cgpath[sizeof task->gen.cgpath - 1] = '\0';
+		supportflags |= CGROUPV2;
+	}
 
 	/* /proc/pid/stat */
 	extract_string_inst(rp, dp, TASK_GEN_NAME, &task->gen.name[0],
@@ -81,6 +90,10 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, i
 	task->cpu.rtprio = extract_integer_inst(rp, dp, TASK_CPU_RTPRIO, pid, offset);
 	task->cpu.policy = extract_integer_inst(rp, dp, TASK_CPU_POLICY, pid, offset);
 	task->cpu.rundelay = extract_integer_inst(rp, dp, TASK_CPU_RUNDELAY, pid, offset);
+	task->cpu.blkdelay = extract_integer_inst(rp, dp, TASK_CPU_BLKDELAY, pid, offset);
+
+	task->cpu.cgcpuweight = -2;			/* not available */
+	task->cpu.cgcpumax = task->cpu.cgcpumaxr = -2;	/* not available */
 
 	/* /proc/pid/status */
 	task->gen.nthr = extract_integer_inst(rp, dp, TASK_GEN_NTHR, pid, offset);
@@ -105,6 +118,9 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, i
 	task->mem.vlibs = extract_count_t_inst(rp, dp, TASK_MEM_VLIBS, pid, offset);
 	task->mem.vswap = extract_count_t_inst(rp, dp, TASK_MEM_VSWAP, pid, offset);
 	task->mem.vlock = extract_count_t_inst(rp, dp, TASK_MEM_VLOCK, pid, offset);
+
+	task->mem.cgmemmax = task->mem.cgmemmaxr = -2;	/* not available */
+	task->mem.cgswpmax = task->mem.cgswpmaxr = -2;	/* not available */
 
 	/* /proc/pid/io */
 	task->dsk.rsz = extract_count_t_inst(rp, dp, TASK_DSK_RSZ, pid, offset);
@@ -154,6 +170,7 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, i
   	   case 'S':
 		task->gen.nthrslpi = 1;
 		break;
+  	   case 'I':
   	   case 'D':
 		task->gen.nthrslpu = 1;
 		break;
@@ -212,7 +229,7 @@ setup_photoproc(void)
 }
 
 unsigned long
-photoproc(struct tstat **tasks, unsigned int *taskslen)
+photoproc(struct tstat **tasks, unsigned long *taskslen)
 {
 	static int	setup;
 	static pmID	pssid;

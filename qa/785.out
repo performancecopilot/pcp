@@ -68,10 +68,10 @@ HOST-SUMMARY-LINE
 
 -------------------------- analysis date: 2015/09/25 --------------------------
 
-11:03:21      pid command  cpu% |     pid command  cpu% |     pid command  cpu%_top3_
-11:03:21     7014 firefox    3% |     877 Xorg       1% |     556 java       0%
-11:03:22    30579 pmdaproc   2% |    7014 firefox    1% |   30594 perl       1%
-11:03:23    30579 pmdaproc   5% |    7014 firefox    2% |                    
+11:03:21    pid command  cpu% |   pid command  cpu% |   pid command  cpu%_top3_
+11:03:21   7014 firefox    3% |   877 Xorg       1% |   556 java       0%
+11:03:22  30579 pmdaproc   2% |  7014 firefox    1% | 30594 perl       1%
+11:03:23  30579 pmdaproc   5% |  7014 firefox    2% |                    
 
 == Top3 processes by memory
 
@@ -79,10 +79,10 @@ HOST-SUMMARY-LINE
 
 -------------------------- analysis date: 2015/09/25 --------------------------
 
-11:03:21      pid command  mem% |     pid command  mem% |     pid command  mem%_top3_
-11:03:21     7014 firefox   14% |    6354 gnome-sh  10% |     556 java       5%
-11:03:22     7014 firefox   14% |    6354 gnome-sh  10% |     556 java       5%
-11:03:23     7014 firefox   14% |    6354 gnome-sh  10% |     556 java       5%
+11:03:21    pid command  mem% |   pid command  mem% |   pid command  mem%_top3_
+11:03:21   7014 firefox   14% |  6354 gnome-sh  10% |   556 java       5%
+11:03:22   7014 firefox   14% |  6354 gnome-sh  10% |   556 java       5%
+11:03:23   7014 firefox   14% |  6354 gnome-sh  10% |   556 java       5%
 
 == Checking sample count and interval
 OK

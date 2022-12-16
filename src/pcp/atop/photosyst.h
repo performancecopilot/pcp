@@ -45,6 +45,8 @@ struct	memstat {
 	count_t	allocstall;	// try to free pages forced
 	count_t	swouts;		// number of pages swapped out
 	count_t	swins;		// number of pages swapped in
+	count_t	tcpsock;	// number of pages allocated by TCP sockets
+	count_t	udpsock;	// number of pages allocated by UDP sockets
 
 	count_t	commitlim;	// commit limit in pages
 	count_t	committed;	// number of reserved pages
@@ -67,6 +69,53 @@ struct	memstat {
 	count_t	zswstored;	// zswap stored pages (pages)
 	count_t	zswtotpool;	// total pool size (pages)
 	count_t	oomkills;	// number of oom killings
+	count_t	compactstall;	// counter for process stalls
+	count_t	pgmigrate;	// counter for migrated successfully (pages)
+	count_t	numamigrate;	// counter for numa migrated (pages)
+	count_t	pgouts;		// total number of pages written to block device
+	count_t	pgins;		// total number of pages read from block device
+	count_t	pagetables;	// page tables of processes (pages)
+};
+
+/************************************************************************/
+
+struct	mempernuma {
+	float	frag;		// fragmentation level for this numa
+	count_t	totmem;		// number of physical pages for this numa
+	count_t	freemem;	// number of free     pages for this numa
+	count_t	filepage;	// number of file     pages for this numa
+	count_t	dirtymem;	// number of cache    pages (dirty) for this numa
+	count_t	slabmem;	// number of slab     pages for this numa
+	count_t	slabreclaim;	// reclaimable slab (pages) for this numa
+
+	count_t	active;		// number of pages used more recently for this numa
+	count_t	inactive;	// number of pages less recently used for this numa
+
+	count_t	shmem;		// tot shmem incl. tmpfs (pages) for this numa
+	count_t	tothp;		// total huge pages (huge pages) for this numa
+};
+
+struct	memnuma {
+	count_t           nrnuma;		/* the counts of numa		*/
+	struct mempernuma *numa;
+};
+
+struct	cpupernuma {
+	count_t	nrcpu;		// number of cpu's
+	count_t	stime;		// accumulate system  time in clock ticks for per numa
+	count_t	utime;		// accumulate user    time in clock ticks for per numa
+	count_t	ntime;		// accumulate nice    time in clock ticks for per numa
+	count_t	itime;		// accumulate idle    time in clock ticks for per numa
+	count_t	wtime;		// accumulate iowait  time in clock ticks for per numa
+	count_t	Itime;		// accumulate irq     time in clock ticks for per numa
+	count_t	Stime;		// accumulate softirq time in clock ticks for per numa
+	count_t	steal;		// accumulate steal   time in clock ticks for per numa
+	count_t	guest;		// accumulate guest   time in clock ticks for per numa
+};
+
+struct	cpunuma {
+	count_t           nrnuma;		/* the counts of numa		*/
+	struct cpupernuma *numa;
 };
 
 /************************************************************************/
@@ -131,6 +180,8 @@ struct	perdsk {
         count_t	nwsect;	/* number of sectors written            */
         count_t	io_ms;	/* number of millisecs spent for I/O    */
         count_t	avque;	/* average queue length                 */
+        count_t	ndisc;	/* number of discards (-1 = unavailable)*/
+        count_t	ndsect;	/* number of sectors discarded          */
 };
 
 struct dskstat {
@@ -168,7 +219,7 @@ struct	perintf {
 	count_t	speed;	/* interface speed in megabits/second	*/
 	count_t	speedp;	/* previous interface speed 		*/
 	char	duplex;	/* full duplex (boolean) 		*/
-	char 	type;	/* interface type ('e'/'w'/'?')  	*/
+	char 	type;	/* interface type ('e'/'w'/'v'/'?')  	*/
 };
 
 struct intfstat {
@@ -323,6 +374,20 @@ struct ifbstat {
 	int		nrports;	// total number of IB ports
 	struct perifb   *ifb;
 };
+
+/************************************************************************/
+struct perllc {
+	unsigned char	id;
+	float		occupancy;
+	count_t		mbm_local;
+	count_t		mbm_total;
+};
+
+struct llcstat {
+	unsigned char	nrllcs;	        // total number of LLC
+	struct perllc   *perllc;
+};
+
 /************************************************************************/
 
 struct	sstat {
@@ -332,12 +397,15 @@ struct	sstat {
 	struct memstat	mem;
 	struct netstat	net;
 	struct intfstat	intf;
+	struct memnuma	memnuma;
+	struct cpunuma	cpunuma;
 	struct dskstat  dsk;
 	struct nfsstat  nfs;
 	struct contstat cfs;
 	struct pressure	psi;
 	struct gpustat 	gpu;
 	struct ifbstat 	ifb;
+	struct llcstat  llc;
 
 	struct wwwstat	www;
 };

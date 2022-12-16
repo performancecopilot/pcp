@@ -12,7 +12,7 @@
 ** visualized for the user.
 ** 
 ** Copyright (C) 2000-2018 Gerlof Langeveld
-** Copyright (C) 2015-2021 Red Hat.
+** Copyright (C) 2015-2022 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -121,7 +121,7 @@
 #include "gpucom.h"
 
 #define	allflags  "ab:cde:fghijklmnopqr:stuvw:xyz1ABCDEFGHIJKL:MNOP:QRSTUVWXYZ?"
-#define	MAXFL	64      /* maximum number of command-line flags  */
+#define	MAXFL		64      /* maximum number of command-line flags  */
 
 /*
 ** declaration of global variables
@@ -150,14 +150,18 @@ char      	usecolors  = 1;  /* boolean: colors for high occupation  */
 char		threadview = 0;	 /* boolean: show individual threads     */
 char      	calcpss    = 0;  /* boolean: read/calculate process PSS  */
 char      	getwchan   = 0;  /* boolean: obtain wchan string         */
+char      	rmspaces   = 0;  /* boolean: remove spaces from command  */
+		                 /* name in case of parseable output     */
 
 unsigned short	hertz;
 unsigned int	pidmax;
+unsigned int	pidwidth;
 unsigned int	pagesize;
 unsigned int	hinv_nrcpus;
 unsigned int	hinv_nrdisk;
 unsigned int	hinv_nrgpus;
 unsigned int	hinv_nrintf;
+unsigned int	hinv_nrnuma;
 long long	system_boottime;
 int 		os_rel;
 int 		os_vers;
@@ -195,10 +199,12 @@ void do_maxgpu(char *, char *);
 void do_maxdisk(char *, char *);
 void do_maxmdd(char *, char *);
 void do_maxlvm(char *, char *);
-void do_maxifb(char *, char *);
 void do_maxintf(char *, char *);
+void do_maxifb(char *, char *);
 void do_maxnfsm(char *, char *);
 void do_maxcont(char *, char *);
+void do_maxnuma(char *, char *);
+void do_maxllc(char *, char *);
 void do_colinfo(char *, char *);
 void do_colalmost(char *, char *);
 void do_colcrit(char *, char *);
@@ -210,6 +216,9 @@ void do_owncplline(char *, char *);
 void do_ownmemline(char *, char *);
 void do_ownswpline(char *, char *);
 void do_ownpagline(char *, char *);
+void do_ownmemnumaline(char *, char *);
+void do_owncpunumaline(char *, char *);
+void do_ownllcline(char *, char *);
 void do_owndskline(char *, char *);
 void do_ownnettransportline(char *, char *);
 void do_ownnetnetline(char *, char *);
@@ -246,6 +255,8 @@ static struct {
 	{	"maxlineifb",		do_maxifb,		0, },
 	{	"maxlinenfsm",		do_maxnfsm,		0, },
 	{	"maxlinecont",		do_maxcont,		0, },
+	{	"maxlinenuma",		do_maxnuma,		0, },
+	{	"maxlinellc",		do_maxllc,		0, },
 	{	"colorinfo",		do_colinfo,		0, },
 	{	"coloralmost",		do_colalmost,		0, },
 	{	"colorcritical",	do_colcrit,		0, },
@@ -256,6 +267,9 @@ static struct {
 	{	"ownmemline",		do_ownmemline,		0, },
 	{	"ownswpline",		do_ownswpline,		0, },
 	{	"ownpagline",		do_ownpagline,		0, },
+	{	"ownmemnumaline",	do_ownmemnumaline,	0, },
+	{	"ownnumacpuline",	do_owncpunumaline,	0, },
+	{	"ownllcline",		do_ownllcline,		0, },
 	{	"owndskline",		do_owndskline,		0, },
 	{	"ownnettrline",		do_ownnettransportline,	0, },
 	{	"ownnetnetline",	do_ownnetnetline,	0, },
@@ -395,6 +409,10 @@ main(int argc, char *argv[])
 				getwchan = 1;
 				break;
 
+                           case MRMSPACES:	/* remove spaces from command */
+				rmspaces = 1;
+				break;
+
 			   default:		/* gather other flags */
 				flaglist[i++] = c;
 			}
@@ -505,7 +523,7 @@ engine(void)
 	** reserve space for task-level statistics
 	*/
 	static struct tstat	*curtpres;	/* current present list      */
-	static unsigned int	curtlen;	/* size of present list      */
+	static unsigned long	curtlen;	/* size of present list      */
 	static struct tstat	*curpexit;	/* exited process list	     */
 	static unsigned int	curtexitlen;	/* size of exited proc list  */
 
@@ -720,10 +738,12 @@ prusage(char *myname, pmOptions *opts)
 	printf("\t  -%c  show version information\n", MVERSION);
 	printf("\t  -%c  show or log all processes (i.s.o. active processes "
 	                "only)\n", MALLPROC);
-	printf("\t  -%c  calculate proportional set size (PSS) per process\n",
+	printf("\t  -%c  calculate proportional set size (PSS) per process\n", 
 	                MCALCPSS);
 	printf("\t  -%c  determine WCHAN (string) per thread\n", MGETWCHAN);
 	printf("\t  -P  generate parseable output for specified label(s)\n");
+	printf("\t  -%c  no spaces in parseable output for command (line)\n",
+			MRMSPACES);
 	printf("\t  -L  alternate line length (default 80) in case of "
 			"non-screen output\n");
 
@@ -743,8 +763,8 @@ prusage(char *myname, pmOptions *opts)
 	printf("\t  -r  read  raw data from PCP archive folio\n");
 	printf("\t  -S  finish %s automatically before midnight "
 	                "(i.s.o. #samples)\n", pmGetProgname());
-	printf("\t  -b  begin showing data from specified time\n");
-	printf("\t  -e  finish showing data after specified time\n");
+	printf("\t  -b  begin showing data from specified date/time\n");
+	printf("\t  -e  finish showing data after specified date/time\n");
 	printf("\n");
 	printf("\tinterval: number of seconds   (minimum 0)\n");
 	printf("\tsamples:  number of intervals (minimum 1)\n");

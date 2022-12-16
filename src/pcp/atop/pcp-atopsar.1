@@ -280,12 +280,12 @@ This report is only available when using a log file (not when specifying
 an interval).
 .TP 5
 .B \-D
-Report about top-3 processes issueing most disk transfers.
+Report about top-3 processes issuing most disk transfers.
 This report is only available when using a log file (not when specifying
 an interval).
 .TP 5
 .B \-N
-Report about top-3 processes issueing most IPv4/IPv6 socket transfers.
+Report about top-3 processes issuing most IPv4/IPv6 socket transfers.
 This report is only available when using a log file (not when specifying
 an interval).
 .SH PCP ATOPSAR OPTIONS
@@ -550,6 +550,11 @@ The number of memory-pages the system read from the swap-device per second.
 .B  swapout/s
 The number of memory-pages the system wrote to the swap-device per second.
 .TP 12
+.B  oomkill
+The number of processes being killed during the last interval due to lack
+of memory/swap. The value -1 means that this counter is not supported by
+the current kernel version.
+.TP 12
 .B  commitspc
 The committed virtual memory space i.e.
 the reserved virtual space for all allocations of
@@ -607,7 +612,7 @@ Number of read-requests issued per second on this unit.
 Average number of Kbytes transferred per read-request for this unit.
 .TP 12
 .B writ/s
-Number of write-requests issued per second on this unit.
+Number of write-requests (including discard requests) issued per second on this unit.
 .TP 12
 .B KB/writ
 Average number of Kbytes transferred per write-request for this unit.

@@ -303,7 +303,7 @@ val2valstr(count_t value, char *strvalue, size_t buflen, int width, int avg, int
 				value /= 10;
 			}
 
-			if (remain >= 5)
+			if (remain >= 5 && value < maxval)
 				value++;
 
 			pmsprintf(strvalue, buflen, "%*llde%d%s",
@@ -470,11 +470,17 @@ val2Hzstr(count_t value, char *strvalue, size_t buflen)
 #define	ONETBYTE	1099511627776LL
 #define	ONEPBYTE	1125899906842624LL
 
-#define	MAXBYTE		1024
-#define	MAXKBYTE	ONEKBYTE*99999L
+#define	MAXBYTE		999
+#define	MAXKBYTE	ONEKBYTE*999L
+#define	MAXKBYTE9	ONEKBYTE*9L
 #define	MAXMBYTE	ONEMBYTE*999L
+#define	MAXMBYTE9	ONEMBYTE*9L
 #define	MAXGBYTE	ONEGBYTE*999LL
+#define	MAXGBYTE9	ONEGBYTE*9LL
 #define	MAXTBYTE	ONETBYTE*999LL
+#define	MAXTBYTE9	ONETBYTE*9LL
+#define	MAXPBYTE9	ONEPBYTE*9LL
+
 
 char *
 val2memstr(count_t value, char *strvalue, size_t buflen, int pformat, int avgval, int nsecs)
@@ -500,31 +506,71 @@ val2memstr(count_t value, char *strvalue, size_t buflen, int pformat, int avgval
 	*/
 	if (avgval && nsecs)
 	{
-		value     /= nsecs;
-		verifyval  = verifyval * 100 /nsecs;
-		basewidth -= 2;
-		suffix     = "/s";
-	}
-	
-	/*
-	** determine which format will be used on bases of the value itself
-	*/
-	if (verifyval <= MAXBYTE)	/* bytes ? */
-		aformat = ANYFORMAT;
-	else
-		if (verifyval <= MAXKBYTE)	/* kbytes ? */
-			aformat = KBFORMAT;
+		value         = llround((double)((double)value/(double)nsecs));
+		verifyval     = llround((double)((double)verifyval/(double)nsecs));
+		basewidth    -= 2;
+		suffix        = "/s";
+
+		if (verifyval <= MAXBYTE)	/* bytes ? */
+			aformat = BFORMAT;
 		else
-			if (verifyval <= MAXMBYTE)	/* mbytes ? */
-				aformat = MBFORMAT;
+			if (verifyval <= MAXKBYTE9)	/* kbytes 1-9 ? */
+				aformat = KBFORMAT;
 			else
-				if (verifyval <= MAXGBYTE)	/* gbytes ? */
-					aformat = GBFORMAT;
+				if (verifyval <= MAXKBYTE)	/* kbytes ? */
+					aformat = KBFORMAT_INT;
 				else
-					if (verifyval <= MAXTBYTE)/* tbytes? */
-						aformat = TBFORMAT;/* tbytes! */
+					if (verifyval <= MAXMBYTE9)	/* mbytes 1-9 ? */
+						aformat = MBFORMAT;
 					else
-						aformat = PBFORMAT;/* pbytes! */
+						if (verifyval <= MAXMBYTE)	/* mbytes 10-999 ? */
+							aformat = MBFORMAT_INT;
+						else
+							if (verifyval <= MAXGBYTE9)	/* gbytes 1-9 ? */
+								aformat = GBFORMAT;
+							else
+								if (verifyval <= MAXGBYTE)	/* gbytes 10-999 ? */
+									aformat = GBFORMAT_INT;
+								else
+									if (verifyval <= MAXTBYTE9)/* tbytes 1-9 ? */
+										aformat = TBFORMAT;/* tbytes! */
+									else
+										if (verifyval <= MAXTBYTE)/* tbytes 10-999? */
+											aformat = TBFORMAT_INT;/* tbytes! */
+										else
+											if (verifyval <= MAXPBYTE9)/* pbytes 1-9 ? */
+												aformat = PBFORMAT;/* pbytes! */
+											else
+												aformat = PBFORMAT_INT;/* pbytes! */
+
+	} else 
+	/*
+	** printed value per interval (normal mode) 
+	*/
+	{
+		/*
+		** determine which format will be used on bases of the value itself
+		*/
+		if (verifyval <= MAXBYTE)	/* bytes ? */
+			aformat = BFORMAT;
+		else
+			if (verifyval <= MAXKBYTE)	/* kbytes ? */
+				aformat = KBFORMAT;
+			else
+				if (verifyval <= MAXMBYTE)	/* mbytes ? */
+					aformat = MBFORMAT;
+				else
+					if (verifyval <= MAXGBYTE)	/* gbytes ? */
+						aformat = GBFORMAT;
+					else
+						if (verifyval <= MAXTBYTE)/* tbytes? */
+							aformat = TBFORMAT;/* tbytes! */
+						else
+							aformat = PBFORMAT;/* pbytes! */
+
+
+	}
+
 
 	/*
 	** check if this is also the preferred format
@@ -534,14 +580,19 @@ val2memstr(count_t value, char *strvalue, size_t buflen, int pformat, int avgval
 
 	switch (aformat)
 	{
-	   case	ANYFORMAT:
-		pmsprintf(strvalue, buflen, "%*lld%s",
-				basewidth, value, suffix);
+	   case	BFORMAT:
+		pmsprintf(strvalue, buflen, "%*lldB%s",
+				basewidth-1, value, suffix);
 		break;
 
 	   case	KBFORMAT:
+		pmsprintf(strvalue, buflen, "%*.1lfK%s",
+			basewidth-1, (double)((double)value/ONEKBYTE), suffix); 
+		break;
+
+	   case	KBFORMAT_INT:
 		pmsprintf(strvalue, buflen, "%*lldK%s",
-				basewidth-1, value/ONEKBYTE, suffix);
+				basewidth-1, llround((double)((double)value/ONEKBYTE)), suffix);
 		break;
 
 	   case	MBFORMAT:
@@ -549,9 +600,19 @@ val2memstr(count_t value, char *strvalue, size_t buflen, int pformat, int avgval
 			basewidth-1, (double)((double)value/ONEMBYTE), suffix); 
 		break;
 
+	   case	MBFORMAT_INT:
+		pmsprintf(strvalue, buflen, "%*lldM%s",
+			basewidth-1, llround((double)((double)value/ONEMBYTE)), suffix); 
+		break;
+
 	   case	GBFORMAT:
 		pmsprintf(strvalue, buflen, "%*.1lfG%s",
 			basewidth-1, (double)((double)value/ONEGBYTE), suffix);
+		break;
+
+	   case	GBFORMAT_INT:
+		pmsprintf(strvalue, buflen, "%*lldG%s",
+			basewidth-1, llround((double)((double)value/ONEGBYTE)), suffix);
 		break;
 
 	   case	TBFORMAT:
@@ -559,9 +620,19 @@ val2memstr(count_t value, char *strvalue, size_t buflen, int pformat, int avgval
 			basewidth-1, (double)((double)value/ONETBYTE), suffix);
 		break;
 
+	   case	TBFORMAT_INT:
+		pmsprintf(strvalue, buflen, "%*lldT%s",
+			basewidth-1, llround((double)((double)value/ONETBYTE)), suffix);
+		break;
+
 	   case	PBFORMAT:
 		pmsprintf(strvalue, buflen, "%*.1lfP%s",
 			basewidth-1, (double)((double)value/ONEPBYTE), suffix);
+		break;
+
+	   case	PBFORMAT_INT:
+		pmsprintf(strvalue, buflen, "%*lldP%s",
+			basewidth-1, llround((double)((double)value/ONEPBYTE)), suffix);
 		break;
 
 	   default:
@@ -853,6 +924,7 @@ setup_globals(pmOptions *opts)
 		hertz = sysconf(_SC_CLK_TCK);
 	if ((pidmax = extract_integer(result, descs, HOST_PID_MAX)) <= 0)
 		pidmax = getmaxpid();
+	pidwidth = getpidwidth();
 	if ((pagesize = extract_integer(result, descs, HOST_PAGESIZE)) <= 0)
 		pagesize = getpagesize();
 	if ((system_boottime = extract_count_t(result, descs, HOST_BTIME)) <= 0)
@@ -874,6 +946,8 @@ setup_globals(pmOptions *opts)
 		hinv_nrgpus = 1;
 	if ((hinv_nrdisk = extract_integer(result, descs, NRDISK)) <= 0)
 		hinv_nrdisk = 1;
+	if ((hinv_nrnuma = extract_integer(result, descs, NRNUMA)) <= 0)
+		hinv_nrnuma = 1;
 	if ((hinv_nrintf = extract_integer(result, descs, NRINTF)) <= 0)
 		hinv_nrintf = 1;
 
@@ -916,6 +990,26 @@ int
 extract_integer(pmResult *result, pmDesc *descs, int value)
 {
 	return extract_integer_index(result, descs, value, 0);
+}
+
+int
+extract_integer_instmap_count(pmResult *result, pmDesc *descs, int value, int inst)
+{
+	pmAtomValue atom = { 0 };
+	pmValueSet *values = result->vset[value];
+	int i, count = 0;
+
+	if (values->numval <= 0)
+		return 0;
+
+	for (i = 0; i < values->numval; i++)
+	{
+		pmExtractValue(values->valfmt, &values->vlist[i],
+			descs[value].type, &atom, PM_TYPE_32);
+		if (atom.l == inst)
+			count++;
+	}
+	return count;
 }
 
 int
@@ -1653,4 +1747,21 @@ char *
 get_groupname(int gid)
 {
 	return get_name(&groups, gid);
+}
+/*
+** return maximum number of digits for PID/TID
+*/
+int
+getpidwidth(void)
+{
+	char	linebuf[64];
+	int	numdigits = 5;
+
+	/*
+	** determine maximum number of digits for PID/TID
+	*/
+	if (pmsprintf(linebuf, sizeof linebuf, "%d", pidmax))
+		numdigits = strlen(linebuf);
+
+	return numdigits;
 }

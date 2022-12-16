@@ -104,11 +104,11 @@ sys_printdef *cpisyspdefs[] = {
         0
 };
 sys_printdef *cplsyspdefs[] = {
+	&syspdef_CPLNUMCPU,
 	&syspdef_CPLAVG1,
 	&syspdef_CPLAVG5,
 	&syspdef_CPLAVG15,
 	&syspdef_CPLCSW,
-	&syspdef_CPLNUMCPU,
 	&syspdef_CPLINTR,
 	&syspdef_BLANKBOX,
         0
@@ -126,14 +126,28 @@ sys_printdef *gpusyspdefs[] = {
 	&syspdef_BLANKBOX,
         0
 };
-sys_printdef *memsyspdefs[] = {
+sys_printdef *memsyspdefs1[] = {
 	&syspdef_MEMTOT,
 	&syspdef_MEMFREE,
+	&syspdef_BLANKBOX,
 	&syspdef_MEMCACHE,
 	&syspdef_MEMDIRTY,
 	&syspdef_MEMBUFFER,
+	&syspdef_BLANKBOX,
 	&syspdef_MEMSLAB,
 	&syspdef_RECSLAB,
+	&syspdef_BLANKBOX,
+	&syspdef_PAGETABS,
+	&syspdef_BLANKBOX,
+	&syspdef_HUPTOT,
+	&syspdef_HUPUSE,
+        0
+};
+sys_printdef *memsyspdefs2[] = {
+	&syspdef_NUMNUMA,
+	&syspdef_BLANKBOX,
+	&syspdef_TCPSOCK,
+	&syspdef_UDPSOCK,
 	&syspdef_BLANKBOX,
 	&syspdef_SHMEM,
 	&syspdef_SHMRSS,
@@ -142,9 +156,6 @@ sys_printdef *memsyspdefs[] = {
 	&syspdef_VMWBAL,
 	&syspdef_BLANKBOX,
 	&syspdef_ZFSARC,
-	&syspdef_BLANKBOX,
-	&syspdef_HUPTOT,
-	&syspdef_HUPUSE,
         0
 };
 sys_printdef *swpsyspdefs[] = {
@@ -166,9 +177,49 @@ sys_printdef *pagsyspdefs[] = {
 	&syspdef_PAGSCAN,
 	&syspdef_PAGSTEAL,
 	&syspdef_PAGSTALL,
+	&syspdef_PAGCOMPACT,
+	&syspdef_PGMIGRATE,
+	&syspdef_NUMAMIGRATE,
 	&syspdef_PAGSWIN,
 	&syspdef_PAGSWOUT,
 	&syspdef_OOMKILLS,
+	&syspdef_PAGPGIN,
+	&syspdef_PAGPGOUT,
+	&syspdef_BLANKBOX,
+        0
+};
+sys_printdef *memnumasyspdefs[] = {
+	&syspdef_NUMATOT,
+	&syspdef_NUMAFREE,
+	&syspdef_NUMAFILEPAGE,
+	&syspdef_NUMANR,
+	&syspdef_NUMADIRTY,
+	&syspdef_NUMAACTIVE,
+	&syspdef_NUMAINACTIVE,
+	&syspdef_NUMASLAB,
+	&syspdef_NUMASLABRECLAIM,
+	&syspdef_NUMASHMEM,
+	&syspdef_NUMAFRAG,
+	&syspdef_NUMAHUPTOT,
+        0
+};
+sys_printdef *cpunumasyspdefs[] = {
+	&syspdef_NUMACPUSYS,
+	&syspdef_NUMACPUUSER,
+	&syspdef_NUMACPUNICE,
+	&syspdef_NUMACPUIRQ,
+	&syspdef_NUMACPUSOFTIRQ,
+	&syspdef_NUMACPUIDLE,
+	&syspdef_NUMACPUWAIT,
+	&syspdef_NUMACPUSTEAL,
+	&syspdef_NUMACPUGUEST,
+	&syspdef_NUMANUMCPU,
+        0
+};
+sys_printdef *llcsyspdefs[] = {
+	&syspdef_LLCMBMTOTAL,
+	&syspdef_LLCMBMLOCAL,
+	&syspdef_NUMLLC,
 	&syspdef_BLANKBOX,
         0
 };
@@ -199,10 +250,12 @@ sys_printdef *dsksyspdefs[] = {
 	&syspdef_DSKBUSY,
 	&syspdef_DSKNREAD,
 	&syspdef_DSKNWRITE,
+	&syspdef_DSKNDISC,
 	&syspdef_DSKMBPERSECWR,
 	&syspdef_DSKMBPERSECRD,
-	&syspdef_DSKKBPERWR,
 	&syspdef_DSKKBPERRD,
+	&syspdef_DSKKBPERWR,
+	&syspdef_DSKKBPERDS,
 	&syspdef_DSKAVQUEUE,
 	&syspdef_DSKAVIO,
 	&syspdef_BLANKBOX,
@@ -315,6 +368,7 @@ proc_printdef *allprocpdefs[]=
 	&procprt_SYSCPU,
 	&procprt_USRCPU,
 	&procprt_RUNDELAY,
+	&procprt_BLKDELAY,
 	&procprt_WCHAN,
 	&procprt_VGROW,
 	&procprt_RGROW,
@@ -380,6 +434,14 @@ proc_printdef *allprocpdefs[]=
 	&procprt_GPUMEMAVG,
 	&procprt_GPUGPUBUSY,
 	&procprt_GPUMEMBUSY,
+	&procprt_CGROUP_PATH,
+	&procprt_CGRCPUWGT,
+	&procprt_CGRCPUMAX,
+	&procprt_CGRCPUMAXR,
+	&procprt_CGRMEMMAX,
+	&procprt_CGRMEMMAXR,
+	&procprt_CGRSWPMAX,
+	&procprt_CGRSWPMAXR,
 	&procprt_SORTITEM,
         0
 };
@@ -411,6 +473,7 @@ proc_printpair netprocs[MAXITEMS];
 proc_printpair gpuprocs[MAXITEMS];
 proc_printpair varprocs[MAXITEMS];
 proc_printpair cmdprocs[MAXITEMS];
+proc_printpair cgrprocs[MAXITEMS];
 proc_printpair ownprocs[MAXITEMS];
 proc_printpair totusers[MAXITEMS];
 proc_printpair totprocs[MAXITEMS];
@@ -427,8 +490,12 @@ sys_printpair allcpuline[MAXITEMS];
 sys_printpair indivcpuline[MAXITEMS];
 sys_printpair cplline[MAXITEMS];
 sys_printpair gpuline[MAXITEMS];
-sys_printpair memline[MAXITEMS];
+sys_printpair memline1[MAXITEMS];
+sys_printpair memline2[MAXITEMS];
 sys_printpair swpline[MAXITEMS];
+sys_printpair memnumaline[MAXITEMS];
+sys_printpair cpunumaline[MAXITEMS];
+sys_printpair llcline[MAXITEMS];
 sys_printpair pagline[MAXITEMS];
 sys_printpair psiline[MAXITEMS];
 sys_printpair contline[MAXITEMS];
@@ -518,39 +585,53 @@ makeargv(char *line, const char *linename, name_prio *vec)
  * make_sys_prints: make array of sys_printpairs
  * input: string, sys_printpair array, maxentries
  */
-void
+static void
 make_sys_prints(sys_printpair *ar, int maxn, const char *pairs, 
-                sys_printdef *permissables[], const char *linename)
+                sys_printdef *permissables[], const char *linename,
+		struct sstat *sstat, extraparam *extra)
 {
-        name_prio items[MAXITEMS];
-        int n=strlen(pairs);
+        name_prio	items[MAXITEMS];
+        int		i, a, n=strlen(pairs);
+        char		str[n+1];
 
-        char str[n+1];
         strcpy(str, pairs);
 
         makeargv(str, linename, items);
 
-        int i;
-        for(i=0; items[i].name && i<maxn-1; ++i) 
+        for(i=a=0; items[i].name && i<maxn-1; i++) 
         {
                 const char *name=items[i].name;
                 int j;
+
                 for (j=0; permissables[j] != 0; ++j)
                 {
-                        if (strcmp(permissables[j]->configname, name)==0)
+                        if (strcmp(permissables[j]->configname, name) == 0)
                         {
-                                ar[i].f=permissables[j];
-                                ar[i].prio=items[i].prio;
+				// call validate function to see if this 
+				// counter is relevant
+				//
+				if (sstat != NULL && 
+				    permissables[j]->dovalidate != NULL &&
+				    permissables[j]->dovalidate(sstat) == 0)
+					break;
+
+                               	ar[a].f    = permissables[j];
+                               	ar[a].prio = items[i].prio;
+				a++;
                                 break;
                         }
                 }
+
                 if (permissables[j]==0)
+		{
 			mcleanstop(1,
 			"atoprc - own system line: item %s invalid in %s line\n",
 			name, linename);
+		}
         }
-        ar[i].f=0;
-        ar[i].prio=0;
+
+        ar[a].f=0;
+        ar[a].prio=0;
 }
 
 
@@ -559,17 +640,11 @@ make_sys_prints(sys_printpair *ar, int maxn, const char *pairs,
  * init_proc_prints: determine width of columns that are
  *                   dependent of dynamic values 
  */
-void 
-init_proc_prints()
+static void 
+init_proc_prints(count_t numcpu)
 {
-	int 	i, numdigits = 5;
 	char	linebuf[64];
-
-	/*
-	** determine maximum number of digits for PID/TID
-	*/
-	if (pmsprintf(linebuf, sizeof linebuf, "%d", pidmax))
-		numdigits = strlen(linebuf);
+	int	i;
 
 	/*
 	** fill number of digits for various PID/TID columns
@@ -577,18 +652,27 @@ init_proc_prints()
 	*/
 	for (i=0; idprocpdefs[i] != 0; i++)
 	{
-		idprocpdefs[i]->width = numdigits;
+		idprocpdefs[i]->width = pidwidth;
 
-		if ( strlen(idprocpdefs[i]->head) < numdigits)
+		if ( strlen(idprocpdefs[i]->head) < pidwidth)
 		{
-			char *p = malloc(numdigits+1);
+			char *p = malloc(pidwidth+1);
 
 			ptrverify(p, "Malloc failed for formatted header\n");
 
-			pmsprintf(p, numdigits+1, "%*s", numdigits, idprocpdefs[i]->head);
+			pmsprintf(p, pidwidth+1, "%*s", pidwidth, idprocpdefs[i]->head);
 			idprocpdefs[i]->head = p;
 		}
 	}
+
+	/*
+	** fill number of positions for the SORTITEM (percentage),
+	** depending on the number of CPUs (e.g. with 10+ CPUs a process
+	** can reach a CPU percentage of 1000% and with 100+ CPUs a
+	** CPU percentage of 10000%).
+	*/
+	procprt_SORTITEM.width =
+		pmsprintf(linebuf, sizeof linebuf, "%lld", numcpu*100) + 1;
 }
 
 /*
@@ -686,17 +770,41 @@ totalcap(struct syscap *psc, struct sstat *sstat,
 		psc->availgpumem += sstat->gpu.gpu[i].memtotnow;
 
 	psc->nrgpu = sstat->gpu.nrgpus;
+
+	psc->nrmemnuma = sstat->memnuma.nrnuma;
+	psc->nrcpunuma = sstat->cpunuma.nrnuma;
 }
 
 /*
 ** calculate cumulative system- and user-time for all active processes
+** besides, initialize all counter lines on system level
 */
 void
 pricumproc(struct sstat *sstat, struct devtstat *devtstat,
            int nexit, unsigned int noverflow, int avgval, double delta)
 {
+        static int 	firsttime=1;
+        int     	i;
+        extraparam 	extra;
 
-        static int firsttime=1;
+        for (i=0, extra.totut=extra.totst=0; i < devtstat->nprocactive; i++)
+        {
+		struct tstat *curstat = *(devtstat->procactive+i);
+
+                extra.totut	+= curstat->cpu.utime;
+                extra.totst 	+= curstat->cpu.stime;
+        }
+
+        extra.nproc	= devtstat->nprocall;
+	extra.ntrun	= devtstat->totrun;
+	extra.ntslpi	= devtstat->totslpi;
+	extra.ntslpu	= devtstat->totslpu;
+        extra.nzomb	= devtstat->totzombie;
+        extra.nexit	= nexit;
+        extra.noverflow	= noverflow;
+        extra.avgval	= avgval;
+        extra.nsecs	= delta;
+        extra.index	= 0;
 
         if (firsttime)
         {
@@ -715,8 +823,11 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
                         "PRCNZOMBIE:5 "
                         "PRCCLONES:4 "
 	                "BLANKBOX:0 "
-                        "PRCNNEXIT:6", prcsyspdefs, "builtin sysprcline");
+                        "PRCNNEXIT:6",
+			prcsyspdefs, "builtin sysprcline",
+			sstat, &extra);
                 }
+
                 if (allcpuline[0].f == 0)
                 {
                     make_sys_prints(allcpuline, MAXITEMS,
@@ -732,7 +843,9 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
                         "CPUIPC:5 "
                         "CPUCYCLE:4 "
                         "CPUFREQ:4 "
-                        "CPUSCALE:4 ", cpusyspdefs, "builtin allcpuline");
+                        "CPUSCALE:4 ",
+			cpusyspdefs, "builtin allcpuline",
+			sstat, &extra);
                 }
 
                 if (indivcpuline[0].f == 0)
@@ -750,20 +863,24 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
                         "CPUIIPC:5 "
                         "CPUICYCLE:4 "
                         "CPUIFREQ:4 "
-                        "CPUISCALE:4 ", cpisyspdefs, "builtin indivcpuline");
+                        "CPUISCALE:4 ",
+			cpisyspdefs, "builtin indivcpuline",
+			sstat, &extra);
                 }
 
                 if (cplline[0].f == 0)
                 {
                     make_sys_prints(cplline, MAXITEMS,
+	                "CPLNUMCPU:7"
+	                "BLANKBOX:0 "
 	                "CPLAVG1:4 "
 	                "CPLAVG5:3 "
 	                "CPLAVG15:2 "
 	                "BLANKBOX:0 "
 	                "CPLCSW:6 "
-	                "CPLINTR:5 "
-	                "BLANKBOX:0 "
-	                "CPLNUMCPU:1", cplsyspdefs, "builtin cplline");
+	                "CPLINTR:5 ",
+			cplsyspdefs, "builtin cplline",
+			sstat, &extra);
                 }
 
                 if (gpuline[0].f == 0)
@@ -778,31 +895,51 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
 	                "GPUMEMAVG:2 "
 	                "GPUNRPROC:2 "
 	                "BLANKBOX:0 "
-	                "GPUTYPE:1 ", gpusyspdefs, "builtin gpuline");
+	                "GPUTYPE:1 ",
+			gpusyspdefs, "builtin gpuline",
+			NULL, NULL);
                 }
 
-                if (memline[0].f == 0)
+                if (memline1[0].f == 0)
                 {
-                    make_sys_prints(memline, MAXITEMS,
+                    make_sys_prints(memline1, MAXITEMS,
 	                "MEMTOT:8 "
 	                "MEMFREE:9 "
-	                "MEMCACHE:7 "
-	                "MEMDIRTY:5 "
+	                "BLANKBOX:0 "
+	                "MEMCACHE:8 "
+	                "MEMDIRTY:6 "
 	                "MEMBUFFER:7 "
+	                "BLANKBOX:0 "
 	                "MEMSLAB:7 "
-	                "RECSLAB:4 "
+	                "RECSLAB:3 "
 	                "BLANKBOX:0 "
-	                "SHMEM:4 "
-	                "SHMRSS:4 "
-	                "SHMSWP:3 "
+	                "PAGETABS:4 "
 	                "BLANKBOX:0 "
-	                "VMWBAL:5 "
-	                "BLANKBOX:0 "
-	                "ZFSARC:6 "
-	                "BLANKBOX:0 "
-	                "HUPTOT:6 "
-	                "HUPUSE:3 ", memsyspdefs, "builtin memline");
+	                "HUPTOT:5 "
+	                "HUPUSE:2 ",
+			memsyspdefs1, "builtin memline1",
+			sstat, &extra);
                 }
+
+                if (memline2[0].f == 0)
+                {
+                    make_sys_prints(memline2, MAXITEMS,
+	                "NUMNUMA:6 "
+	                "BLANKBOX:1 "
+	                "SHMEM:3 "
+	                "SHMRSS:3 "
+	                "SHMSWP:2 "
+	                "BLANKBOX:0 "
+	                "TCPSOCK:5 "
+	                "UDPSOCK:2 "
+	                "BLANKBOX:0 "
+	                "VMWBAL:4 "
+	                "BLANKBOX:0 "
+	                "ZFSARC:5 ",
+			memsyspdefs2, "builtin memline2",
+			sstat, &extra);
+                }
+
                 if (swpline[0].f == 0)
                 {
                     make_sys_prints(swpline, MAXITEMS,
@@ -817,22 +954,76 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
 	                "KSMSHARING:2 "
 	                "BLANKBOX:0 "
 	                "SWPCOMMITTED:7 "
-	                "SWPCOMMITLIM:8", swpsyspdefs, "builtin swpline");
+	                "SWPCOMMITLIM:8",
+ 			swpsyspdefs, "builtin swpline",
+			sstat, &extra);
                 }
+
+                if (memnumaline[0].f == 0)
+                {
+                    make_sys_prints(memnumaline, MAXITEMS,
+	                "NUMATOT:8 "
+	                "NUMAFREE:9 "
+	                "NUMAFILEPAGE:9 "
+	                "NUMANR:7 "
+	                "NUMADIRTY:5 "
+	                "NUMAACTIVE:5 "
+	                "NUMAINACTIVE:5 "
+	                "NUMASLAB:7 "
+	                "NUMASLABRECLAIM:4 "
+	                "NUMASHMEM:4 "
+	                "NUMAFRAG:6 "
+	                "NUMAHUPTOT:3 ",
+			memnumasyspdefs, "builtin memnumaline",
+			sstat, &extra);
+                }
+
+                if (cpunumaline[0].f == 0)
+                {
+                    make_sys_prints(cpunumaline, MAXITEMS,
+	                "NUMACPUSYS:9 "
+	                "NUMACPUUSER:8 "
+	                "NUMACPUNICE:8 "
+	                "NUMACPUIRQ:6 "
+	                "NUMACPUSOFTIRQ:6 "
+	                "NUMACPUIDLE:7 "
+	                "NUMACPUWAIT:7 "
+	                "NUMACPUSTEAL:2 "
+	                "NUMACPUGUEST:3 "
+	                "NUMANUMCPU:5",
+			cpunumasyspdefs, "builtin cpunumaline",
+			NULL, NULL);
+                }
+
+                if (llcline[0].f == 0)
+                {
+                    make_sys_prints(llcline, MAXITEMS,
+	                "LLCMBMTOTAL:9 "
+	                "LLCMBMLOCAL:8 "
+	                "NUMLLC:7 "
+	                "BLANKBOX:0 ",
+			llcsyspdefs, "builtin llcline",
+			sstat, &extra);
+                }
+
                 if (pagline[0].f == 0)
                 {
                     make_sys_prints(pagline, MAXITEMS,
 	                "PAGSCAN:3 "
 	                "PAGSTEAL:2 "
 	                "PAGSTALL:1 "
-	                "BLANKBOX:0 "
-	                "BLANKBOX:0 "
-	                "BLANKBOX:0 "
-	                "BLANKBOX:0 "
-	                "PAGSWIN:4 "
-	                "PAGSWOUT:5"
-			"OOMKILLS:6", pagsyspdefs, "builtin pagline");
+	                "PAGCOMPACT:5 "
+			"NUMAMIGRATE:5"
+			"PGMIGRATE:6"
+	                "PAGPGIN:7 "
+	                "PAGPGOUT:7 "
+	                "PAGSWIN:5 "
+	                "PAGSWOUT:8 "
+			"OOMKILLS:9 ",
+			pagsyspdefs, "builtin pagline",
+			sstat, &extra);
                 }
+
                 if (psiline[0].f == 0)
                 {
                     make_sys_prints(psiline, MAXITEMS,
@@ -846,8 +1037,11 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
 	                "PSIMEMF:3 "
 	                "PSIIOS:4 "
 	                "PSIIOF:2 "
-	                "BLANKBOX:0 ", psisyspdefs, "builtin psiline");
+	                "BLANKBOX:0 ",
+			psisyspdefs, "builtin psiline",
+			sstat, &extra);
                 }
+
                 if (contline[0].f == 0)
                 {
                     make_sys_prints(contline, MAXITEMS,
@@ -856,22 +1050,30 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
 	                "CONTCPU:6 "
 	                "CONTMEM:6 "
 	                "BLANKBOX:0 "
-	                "BLANKBOX:0 ", contsyspdefs, "builtin contline");
+	                "BLANKBOX:0 ",
+			contsyspdefs, "builtin contline",
+			NULL, NULL);
                 }
+
                 if (dskline[0].f == 0)
                 {
                     make_sys_prints(dskline, MAXITEMS,
-	                "DSKNAME:8 "
-	                "DSKBUSY:7 "
-	                "DSKNREAD:6 "
-	                "DSKNWRITE:6 "
-	                "DSKKBPERRD:4 "
-	                "DSKKBPERWR:4 "
-                        "DSKMBPERSECRD:5 "
-                        "DSKMBPERSECWR:5 "
+	                "DSKNAME:9 "
+	                "DSKBUSY:8 "
+	                "DSKNREAD:7 "
+	                "DSKNWRITE:7 "
+	                "DSKNDISC:6 "
+	                "DSKKBPERRD:5 "
+	                "DSKKBPERWR:5 "
+	                "DSKKBPERDS:4 "
+                        "DSKMBPERSECRD:6 "
+                        "DSKMBPERSECWR:6 "
 	                "DSKAVQUEUE:1 "
-	                "DSKAVIO:5", dsksyspdefs, "builtin dskline");
+	                "DSKAVIO:6",
+			dsksyspdefs, "builtin dskline",
+			sstat, &extra);
                 }
+
                 if (nfsmountline[0].f == 0)
                 {
                     make_sys_prints(nfsmountline, MAXITEMS,
@@ -889,8 +1091,11 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
 			"NFMMREAD:3 "
 			"NFMMWRITE:2 "
 	                "BLANKBOX:0 "
-                        "BLANKBOX:0", nfsmntsyspdefs, "builtin nfsmountline");
+                        "BLANKBOX:0",
+			nfsmntsyspdefs, "builtin nfsmountline",
+			NULL, NULL);
                 }
+
                 if (nfcline[0].f == 0)
                 {
                     make_sys_prints(nfcline, MAXITEMS,
@@ -903,8 +1108,11 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
 	                "BLANKBOX:0 "
 	                "BLANKBOX:0 "
 	                "BLANKBOX:0 "
-	                "BLANKBOX:0 ", nfcsyspdefs, "builtin nfcline");
+	                "BLANKBOX:0 ",
+			nfcsyspdefs, "builtin nfcline",
+			sstat, &extra);
 		}
+
                 if (nfsline[0].f == 0)
                 {
                     make_sys_prints(nfsline, MAXITEMS,
@@ -924,8 +1132,11 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
 	                "BLANKBOX:0 "
 	                "NFSBADFMT:4 "
 	                "NFSBADAUT:4 "
-	                "NFSBADCLN:4 ", nfssyspdefs, "builtin nfsline");
+	                "NFSBADCLN:4 ",
+			nfssyspdefs, "builtin nfsline",
+			sstat, &extra);
 		}
+
                 if (nettransportline[0].f == 0)
                 {
                     make_sys_prints(nettransportline, MAXITEMS,
@@ -940,8 +1151,11 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
                         "NETTCPINERR:3 "
                         "NETTCPORESET:2 "
                         "NETUDPNOPORT:1 "
-                        "NETUDPINERR:3", nettranssyspdefs, "builtin nettransportline");
+                        "NETUDPINERR:3",
+			nettranssyspdefs, "builtin nettransportline",
+			sstat, &extra);
                 }
+
                 if (netnetline[0].f == 0)
                 {
                     make_sys_prints(netnetline, MAXITEMS,
@@ -954,8 +1168,11 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
 	                "BLANKBOX:0 "
 	                "BLANKBOX:0 "
                         "NETICMPIN:1 "
-                        "NETICMPOUT:1 ", netnetsyspdefs, "builtin netnetline");
+                        "NETICMPOUT:1 ",
+			netnetsyspdefs, "builtin netnetline",
+			sstat, &extra);
                 }
+
                 if (netinterfaceline[0].f == 0)
                 {
                     make_sys_prints(netinterfaceline, MAXITEMS,
@@ -973,8 +1190,11 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
                         "NETRCVERR:4 "
                         "NETSNDERR:4 "
                         "NETRCVDROP:3 "
-                        "NETSNDDROP:3", netintfsyspdefs, "builtin netinterfaceline");
+                        "NETSNDDROP:3",
+			netintfsyspdefs, "builtin netinterfaceline",
+			NULL, NULL);
                 }
+
                 if (infinibandline[0].f == 0)
                 {
                     make_sys_prints(infinibandline, MAXITEMS,
@@ -992,35 +1212,11 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
 	                "BLANKBOX:0 "
 	                "BLANKBOX:0 "
 	                "BLANKBOX:0 "
-	                "BLANKBOX:0 ", infinisyspdefs, "builtin infinibandline");
+	                "BLANKBOX:0 ",
+			infinisyspdefs, "builtin infinibandline",
+			sstat, &extra);
                 }
         }  // firsttime
-
-
-        int     i;
-        extraparam extra;
-
-
-        for (i=0, extra.totut=extra.totst=0; i < devtstat->nprocactive; i++)
-        {
-		struct tstat *curstat = *(devtstat->procactive+i);
-
-		if (curstat)
-		{
-			extra.totut	+= curstat->cpu.utime;
-			extra.totst 	+= curstat->cpu.stime;
-		}
-        }
-
-        extra.nproc	= devtstat->nprocall;
-	extra.ntrun	= devtstat->totrun;
-	extra.ntslpi	= devtstat->totslpi;
-	extra.ntslpu	= devtstat->totslpu;
-        extra.nzomb	= devtstat->totzombie;
-        extra.nexit	= nexit;
-        extra.noverflow	= noverflow;
-        extra.avgval	= avgval;
-        extra.nsecs	= delta;
 
         move(1, 0);
         showsysline(sysprcline, sstat, &extra, "PRC", 0);
@@ -1031,7 +1227,7 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
 */
 void
 priphead(int curlist, int totlist, char *showtype, char *showorder,
-							char autosort)
+					char autosort, count_t numcpu)
 {
         static int      firsttime=1;
         static int      prev_supportflags = -1, prev_threadview = -1;
@@ -1042,7 +1238,7 @@ priphead(int curlist, int totlist, char *showtype, char *showorder,
 	*/
         if (firsttime) 
         {
-		init_proc_prints();
+		init_proc_prints(numcpu);
 
                 make_proc_prints(memprocs, MAXITEMS, 
                         "PID:10 TID:3 MINFLT:2 MAJFLT:2 VSTEXT:4 VSLIBS:4 "
@@ -1054,7 +1250,7 @@ priphead(int curlist, int totlist, char *showtype, char *showorder,
                 make_proc_prints(schedprocs, MAXITEMS, 
                         "PID:10 TID:6 CID:4 VPID:3 CTID:3 TRUN:7 TSLPI:7 "
 			"TSLPU:7 POLI:8 NICE:9 PRI:5 RTPR:9 CPUNR:8 ST:8 "
-			"EXC:8 S:8 RDELAY:8 WCHAN:5 SORTITEM:10 CMD:10",
+			"EXC:8 S:8 RDELAY:8 BDELAY:7 WCHAN:5 SORTITEM:10 CMD:10",
                         "built-in schedprocs");
 
                 make_proc_prints(dskprocs, MAXITEMS, 
@@ -1087,6 +1283,11 @@ priphead(int curlist, int totlist, char *showtype, char *showorder,
                 make_proc_prints(cmdprocs, MAXITEMS,
                         "PID:10 TID:4 S:8 SORTITEM:10 COMMAND-LINE:10", 
                         "built-in cmdprocs");
+
+                make_proc_prints(cgrprocs, MAXITEMS, 
+                        "PID:10 CPUWGT:9 CPUMAX:9 CPUMAXR:9 MEMMAX:8 MMMAXR:8 "
+			"SWPMAX:7 SWMAXR:7 SORTITEM:6 CMD:9 CGROUP-PATH:10", 
+                        "built-in cgrprocs");
 
                 make_proc_prints(totusers, MAXITEMS, 
                         "NPROCS:10 SYSCPU:9 USRCPU:9 VSIZE:6 "
@@ -1157,6 +1358,10 @@ priphead(int curlist, int totlist, char *showtype, char *showorder,
                 showhdrline(cmdprocs, curlist, totlist, *showorder, autosort);
                 break;
 
+           case MPROCCGR:
+                showhdrline(cgrprocs, curlist, totlist, *showorder, autosort);
+                break;
+
            case MPROCOWN:
                 showhdrline(ownprocs, curlist, totlist, *showorder, autosort);
                 break;
@@ -1189,6 +1394,7 @@ priphead(int curlist, int totlist, char *showtype, char *showorder,
 #define	FORMCID	"CID:5 "
 #define	FORMCPU	"SYSCPU:9 USRCPU:9 "
 #define	FORMDEL	"RDELAY:4 "
+#define	FORMBDL	"BDELAY:4 "
 #define FORMMEM	"VGROW:8 RGROW:8 "
 #define FORMDSK	"RDDSK:7 CWRDSK:7 "
 #define FORMNET	"RNET:6 SNET:6 "
@@ -1220,6 +1426,9 @@ make_proc_dynamicgen()
 
 	memcpy(p, FORMDEL, sizeof FORMDEL -1);
 	p += sizeof FORMDEL -1;
+
+	memcpy(p, FORMBDL, sizeof FORMBDL -1);
+	p += sizeof FORMBDL -1;
 
 	memcpy(p, FORMMEM, sizeof FORMMEM -1);
 	p += sizeof FORMMEM -1;
@@ -1402,6 +1611,10 @@ priproc(struct tstat **proclist, int firstproc, int lastproc, int curline,
                         showprocline(cmdprocs, curstat, perc, nsecs, avgval);
                         break;
 
+                   case MPROCCGR:
+                        showprocline(cgrprocs, curstat, perc, nsecs, avgval);
+                        break;
+
                    case MPROCOWN:
                         showprocline(ownprocs, curstat, perc, nsecs, avgval);
                         break;
@@ -1441,7 +1654,7 @@ prisyst(struct sstat *sstat, int curline, double nsecs, int avgval,
         int fixedhead, struct sselection *selp, char *highorderp,
         int maxcpulines, int maxgpulines, int maxdsklines, int maxmddlines,
 	int maxlvmlines, int maxintlines, int maxifblines,
-	int maxnfslines, int maxcontlines)
+	int maxnfslines, int maxcontlines, int maxnumalines, int maxllclines)
 {
         extraparam      extra;
         int             lin;
@@ -1630,7 +1843,10 @@ prisyst(struct sstat *sstat, int curline, double nsecs, int avgval,
 	if (screen)
 	        move(curline, 0);
 
-        showsysline(memline, sstat, &extra, "MEM", badness);
+        showsysline(memline1, sstat, &extra, "MEM", badness);
+        curline++;
+
+        showsysline(memline2, sstat, &extra, "MEM", badness);
         curline++;
 
         /*
@@ -1660,15 +1876,137 @@ prisyst(struct sstat *sstat, int curline, double nsecs, int avgval,
         showsysline(swpline, sstat, &extra, "SWP", badness);
         curline++;
 
+	/*
+	** memory info related for per NUMA
+	*/
+	if (sstat->memnuma.nrnuma > 1)
+	{
+		for (extra.index=lin=0;
+		     extra.index < sstat->memnuma.nrnuma && lin < maxnumalines;
+		     extra.index++)
+		{
+			busy = (sstat->memnuma.numa[extra.index].totmem
+				- sstat->memnuma.numa[extra.index].freemem
+				- sstat->memnuma.numa[extra.index].filepage
+				- sstat->memnuma.numa[extra.index].slabreclaim
+				+ sstat->memnuma.numa[extra.index].shmem)
+					* 100.0 / sstat->memnuma.numa[extra.index].totmem;
+
+			if (membadness)
+				badness = busy * 100 / membadness;
+			else
+				badness = 0;
+
+			if (highbadness < badness)
+			{
+				highbadness = badness;
+				*highorderp = MSORTMEM;
+			}
+
+			if (screen)
+				move(curline, 0);
+
+			showsysline(memnumaline, sstat, &extra, "NUM", badness);
+			curline++;
+			lin++;
+		}
+	}
+
+	/*
+	** Accumulate each cpu statistic for per NUMA
+	*/
+	if (sstat->cpunuma.nrnuma > 1)
+	{
+		for (extra.index=lin=0;
+		     extra.index < sstat->cpunuma.nrnuma && lin < maxnumalines;
+		     extra.index++)
+		{
+			extra.pernumacputot = sstat->cpunuma.numa[extra.index].stime +
+					      sstat->cpunuma.numa[extra.index].utime +
+					      sstat->cpunuma.numa[extra.index].ntime +
+					      sstat->cpunuma.numa[extra.index].itime +
+					      sstat->cpunuma.numa[extra.index].wtime +
+					      sstat->cpunuma.numa[extra.index].Itime +
+					      sstat->cpunuma.numa[extra.index].Stime +
+					      sstat->cpunuma.numa[extra.index].steal;
+
+			if (extra.pernumacputot ==
+				(sstat->cpunuma.numa[extra.index].itime +
+				 sstat->cpunuma.numa[extra.index].wtime  ) &&
+				 !fixedhead                             )
+				continue;       /* inactive cpu */
+
+			if (extra.pernumacputot == 0)
+				extra.pernumacputot = 1; /* avoid divide-by-zero */
+
+			busy = (extra.pernumacputot -
+					sstat->cpunuma.numa[extra.index].itime -
+					sstat->cpunuma.numa[extra.index].wtime)
+					* 100.0 / extra.pernumacputot;
+
+			if (cpubadness)
+				badness = busy * 100 / cpubadness;
+			else
+				badness = 0;
+
+			if (highbadness < badness)
+			{
+				highbadness = badness;
+				*highorderp = MSORTCPU;
+			}
+
+			extra.percputot = extra.pernumacputot /
+						(sstat->cpu.nrcpu/sstat->cpunuma.nrnuma);
+			if (extra.percputot == 0)
+				extra.percputot = 1; /* avoid divide-by-zero */
+
+			if (screen)
+				move(curline, 0);
+
+			showsysline(cpunumaline, sstat, &extra, "NUC", badness);
+			curline++;
+			lin++;
+		}
+	}
+
+	/*
+ 	** LLC statistics (if supported by kernel and
+	** pseudo filesystem mounted)
+	*/
+	for (extra.index=0, lin=0;
+			extra.index < sstat->llc.nrllcs && lin < maxllclines;
+			extra.index++)
+	{
+		if (fixedhead     	        	  	||
+		    sstat->llc.perllc[extra.index].mbm_local	||
+		    sstat->llc.perllc[extra.index].mbm_total	  )
+		{
+			if (screen)
+				move(curline, 0);
+
+			showsysline(llcline, sstat, &extra, "LLC", 0);
+			curline++;
+			lin++;
+		}
+	}
+
         /*
         ** PAGING statistics
         */
-        if (fixedhead             ||
-            sstat->mem.pgscans    ||
-            sstat->mem.pgsteal    ||
-            sstat->mem.allocstall ||
-            sstat->mem.swins      ||
-            sstat->mem.swouts       )
+        if (fixedhead             	||
+            sstat->mem.pgscans    	||
+            sstat->mem.pgsteal    	||
+            sstat->mem.allocstall 	||
+            sstat->mem.compactstall 	||
+            sstat->mem.pgins      	||
+            sstat->mem.pgouts     	||
+            sstat->mem.tcpsock     	||
+            sstat->mem.udpsock     	||
+            sstat->mem.swins      	||
+            sstat->mem.swouts     	||
+            sstat->mem.oomkills > 0   	||
+            sstat->mem.pgmigrate     	||
+            sstat->mem.numamigrate     	  )
         {
                 busy = sstat->mem.swouts / nsecs * pagbadness;
 
@@ -1697,7 +2035,7 @@ prisyst(struct sstat *sstat, int curline, double nsecs, int avgval,
 		if (screen)
                 	move(curline, 0);
 
-                showsysline(pagline, sstat, &extra,"PAG", badness);
+                showsysline(pagline, sstat, &extra, "PAG", badness);
                 curline++;
         }
 
@@ -2464,6 +2802,58 @@ contcompar(const void *a, const void *b)
         return  0;
 }
 
+int
+memnumacompar(const void *a, const void *b)
+{
+        register count_t aused = ((struct mempernuma *)a)->totmem -
+                                 ((struct mempernuma *)a)->freemem;
+        register count_t bused = ((struct mempernuma *)b)->totmem -
+                                 ((struct mempernuma *)b)->freemem;
+
+        if (aused < bused)
+                return  1;
+
+        if (aused > bused)
+                return -1;
+
+        return  0;
+}
+
+int
+cpunumacompar(const void *a, const void *b)
+{
+        register count_t aidle = ((struct cpupernuma *)a)->itime +
+                                 ((struct cpupernuma *)a)->wtime;
+        register count_t bidle = ((struct cpupernuma *)b)->itime +
+                                 ((struct cpupernuma *)b)->wtime;
+
+        if (aidle < bidle)
+                return -1;
+
+        if (aidle > bidle)
+                return  1;
+
+	return  0;
+}
+
+int
+llccompar(const void *a, const void *b)
+{
+        const struct perllc *ca = a;
+        const struct perllc *cb = b;
+
+        register count_t aused = ca->mbm_local + ca->mbm_total;
+        register count_t bused = cb->mbm_local + cb->mbm_total;
+
+        if (aused < bused)
+                return  1;
+
+        if (aused > bused)
+                return -1;
+
+        return  0;
+}
+
 /*
 ** handle modifications from the /etc/atoprc and ~/.atoprc file
 */
@@ -2556,79 +2946,113 @@ do_almostcrit(char *name, char *val)
 void
 do_ownsysprcline(char *name, char *val)
 {
-        make_sys_prints(sysprcline, MAXITEMS, val, prcsyspdefs, name);
+        make_sys_prints(sysprcline, MAXITEMS, val, prcsyspdefs, name,
+					NULL, NULL);
 }
 
 void
 do_ownallcpuline(char *name, char *val)
 {
-        make_sys_prints(allcpuline, MAXITEMS, val, cpusyspdefs, name);
+        make_sys_prints(allcpuline, MAXITEMS, val, cpusyspdefs, name,
+					NULL, NULL);
 }
 
 void
 do_ownindivcpuline(char *name, char *val)
 {
-        make_sys_prints(indivcpuline, MAXITEMS, val, cpisyspdefs, name);
+        make_sys_prints(indivcpuline, MAXITEMS, val, cpisyspdefs, name,
+					NULL, NULL);
 }
 
 void
 do_owncplline(char *name, char *val)
 {
-        make_sys_prints(cplline, MAXITEMS, val, cplsyspdefs, name);
+        make_sys_prints(cplline, MAXITEMS, val, cplsyspdefs, name,
+					NULL, NULL);
 }
 
 void
 do_owngpuline(char *name, char *val)
 {
-        make_sys_prints(gpuline, MAXITEMS, val, gpusyspdefs, name);
+        make_sys_prints(gpuline, MAXITEMS, val, gpusyspdefs, name,
+					NULL, NULL);
 }
 
 void
 do_ownmemline(char *name, char *val)
 {
-        make_sys_prints(memline, MAXITEMS, val, memsyspdefs, name);
+        make_sys_prints(memline1, MAXITEMS, val, memsyspdefs1, name,
+					NULL, NULL);
 }
 
 void
 do_ownswpline(char *name, char *val)
 {
-        make_sys_prints(swpline, MAXITEMS, val, swpsyspdefs, name);
+        make_sys_prints(swpline, MAXITEMS, val, swpsyspdefs, name,
+					NULL, NULL);
 }
 
 void
 do_ownpagline(char *name, char *val)
 {
-        make_sys_prints(pagline, MAXITEMS, val, pagsyspdefs, name);
+        make_sys_prints(pagline, MAXITEMS, val, pagsyspdefs, name,
+					NULL, NULL);
+}
+
+void
+do_ownmemnumaline(char *name, char *val)
+{
+        make_sys_prints(memnumaline, MAXITEMS, val, memnumasyspdefs, name,
+					NULL, NULL);
+}
+
+void
+do_owncpunumaline(char *name, char *val)
+{
+        make_sys_prints(cpunumaline, MAXITEMS, val, cpunumasyspdefs, name,
+					NULL, NULL);
+}
+
+void
+do_ownllcline(char *name, char *val)
+{
+        make_sys_prints(llcline, MAXITEMS, val, llcsyspdefs, name,
+					NULL, NULL);
 }
 
 void
 do_owndskline(char *name, char *val)
 {
-        make_sys_prints(dskline, MAXITEMS, val, dsksyspdefs, name);
+        make_sys_prints(dskline, MAXITEMS, val, dsksyspdefs, name,
+					NULL, NULL);
 }
 
 void
 do_ownnettransportline(char *name, char *val)
 {
-        make_sys_prints(nettransportline, MAXITEMS, val, nettranssyspdefs, name);
+        make_sys_prints(nettransportline, MAXITEMS, val, nettranssyspdefs, name,
+					NULL, NULL);
 }
 
 void
 do_ownnetnetline(char *name, char *val)
 {
-        make_sys_prints(netnetline, MAXITEMS, val, netnetsyspdefs, name);
+        make_sys_prints(netnetline, MAXITEMS, val, netnetsyspdefs, name,
+					NULL, NULL);
 }
 
 void
 do_ownnetinterfaceline(char *name, char *val)
 {
-        make_sys_prints(netinterfaceline, MAXITEMS, val, netintfsyspdefs, name);
+        make_sys_prints(netinterfaceline, MAXITEMS, val, netintfsyspdefs, name,
+					NULL, NULL);
 }
 
 void
 do_owninfinibandline(char *name, char *val)
 {
-        make_sys_prints(infinibandline, MAXITEMS, val, infinisyspdefs, name);
+        make_sys_prints(infinibandline, MAXITEMS, val, infinisyspdefs, name,
+					NULL, NULL);
 }
 
 void

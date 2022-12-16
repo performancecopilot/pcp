@@ -1,6 +1,7 @@
 hostmetrics {
 	hinv.ncpu		NRCPUS
 	hinv.ndisk		NRDISK
+	hinv.nnode		NRNUMA
 	hinv.ninterface		NRINTF
 	nvidia.numcards		NRGPUS
 	hinv.map.dmname		MAP_DMNAME
