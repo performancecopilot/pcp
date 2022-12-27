@@ -54,7 +54,7 @@ static pmLongOptions longopts[] = {
     PMOPT_FINISH,
     { "", 0, 't', 0, "dump the temporal index" },
     { "", 1, 'v', "FILE", "verbose hex dump of a physical file in raw format" },
-    { "", 0, 'x', 0, "include date in reported timestamps" },
+    { "", 0, 'x', 0, "include date, usec (-xx) and Epoch (-xxx) in reported timestamps" },
     PMOPT_TIMEZONE,
     PMOPT_HOSTZONE,
     PMOPT_VERSION,
@@ -147,6 +147,10 @@ dump_pmTimestamp(const __pmTimestamp *tsp)
 	    printf(" (%.9f)", __pmTimestampSub(tsp, &label.start));
 	else
 	    printf(" (%.6f)", __pmTimestampSub(tsp, &label.start));
+    }
+    if (xflag >= 3) {
+	/* seconds since the Epoch */
+	printf(" %" FMT_UINT64, (uint64_t)tsp->sec);
     }
 }
 
@@ -976,7 +980,10 @@ dumpLabel(int verbose)
     yr = &ddmm[20];
     printf("    commencing %s ", ddmm);
     myPrintTimestamp(stdout, &label.start);
-    printf(" %4.4s\n", yr);
+    printf(" %4.4s", yr);
+    if (xflag >= 3)
+	printf(" %" FMT_UINT64, (uint64_t)label.start.sec);
+    putchar('\n');
 
     if (__pmGetArchiveEnd(ctxp->c_archctl, &end) < 0) {
 	/* __pmGetArchiveEnd() failed! */
@@ -989,7 +996,10 @@ dumpLabel(int verbose)
 	yr = &ddmm[20];
 	printf("    ending     %s ", ddmm);
 	myPrintTimestamp(stdout, &end);
-	printf(" %4.4s\n", yr);
+	printf(" %4.4s", yr);
+	if (xflag >= 3)
+	    printf(" %" FMT_UINT64, (uint64_t)end.sec);
+	putchar('\n');
     }
 
     if (verbose) {
@@ -1199,6 +1209,7 @@ main(int argc, char *argv[])
 
 	case 'x':	/* report Ddd Mmm DD <timestamp> YYYY */
 			/* -xx reports time offset from start of archive also */
+			/* -xxx reports Epoch time also */
 	    xflag++;
 	    break;
 	}
