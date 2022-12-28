@@ -178,7 +178,7 @@ then
     qa/admin/list-packages -m >$tmp.tmp
     if [ -s $tmp.tmp ]
     then
-	( echo "Info: list-packages reports missing: `cat $tmp.tmp`"; echo ) | tee -a $HOME/daily.log
+	echo "Info: list-packages reports missing: `cat $tmp.tmp`" | tee -a $HOME/daily.log
     fi
 fi
 ok=false
@@ -540,6 +540,7 @@ NF == 0	{ txt = ""; next }
 	}
 END	{ print txt }' \
 | awk '
+\$1 == "Triaged:"	{ want = 1 }
 \$1 == "Failures:"	{ want = 1 }
 \$1 == "Passed"		{ want = 1 }
 want == 1		{ print }'
