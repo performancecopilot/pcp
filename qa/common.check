@@ -973,13 +973,30 @@ _wait_pmlogger_end()
     fi
     __pid=$1
 
+    if sudo kill -s 0 $__pid 2>/dev/null
+    then
+	# pmlogger process exists, so wait for PID file to go away
+	#
+	echo "pmlogger process $__pid present ..." >>$here/$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]ID|[p]mlogger|$__pid" >>$here/$seq.full
+    else
+	# pmlogger process is not here, warn if PID file is here,
+	# and we're done
+        if [ -f "$PCP_TMP_DIR/pmlogger/$__pid" ]
+	then
+	    echo "_wait_pmlogger_end: warning process $__pid gone buit $PCP_TMP_DIR/pmlogger/$__pid still present"
+	fi
+	return
+    fi
+
     __i=0
     while true
     do
         if [ -f "$PCP_TMP_DIR/pmlogger/$__pid" ]
 	then
+	    [ $__i -eq 0 ] && ls -l "$PCP_TMP_DIR/pmlogger/$__pid" >>$here/$seq.full
 	    __i=`expr $__i + 1`
-	    if [ "$__i" -ge 100 ]
+	    if [ $__i -ge 100 ]
 	    then
 		echo "_wait_pmlogger_end: failed to see $PCP_TMP_DIR/pmlogger/$__pid removed after 100 iterations"
 		cat "$PCP_TMP_DIR/pmlogger/$__pid"
