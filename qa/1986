@@ -28,6 +28,13 @@ then
 fi
 
 test -x $PCP_BIN_DIR/pmfind || _notrun No support for pmfind
+HAVE_LIBUV=false
+if [ -f $PCP_INC_DIR/builddefs ]
+then
+    eval `grep HAVE_LIBUV $PCP_INC_DIR/builddefs | sed -e 's/ //g'`
+fi
+[ "$HAVE_LIBUV" = true ] || _notrun "need libuv for pmfind -S"
+
 
 _cleanup()
 {
