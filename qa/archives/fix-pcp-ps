@@ -1,0 +1,124 @@
+#!/bin/sh
+#
+# Brain surgery to insert a value for kernel.all.boottime near the
+# start of the pcp-ps archive
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+
+tmp=/var/tmp/fix-pcp-ps-$$
+sts=1
+trap "rm -f $tmp; exit \$sts" 0 1 2 3 15
+
+debug=false
+
+# get the target archive's hostname
+#
+hostname=`pmdumplog -l pcp-ps |  sed -n -e '/ metrics from host /s/.* //p'`
+$debug && echo hostname=$hostname
+
+# get the target archive's timezone
+#
+export TZ=`pmdumplog pcp-ps -L | sed -n -e '/Archive timezone: /s///p'`
+
+# get the target archive's starting timestamp
+#
+starttime=`pmdumplog -l -xxx pcp-ps |  sed -n -e '/commencing /s/.*\.\([0-9][0-9]*\) .* \([0-9][0-9]*\)/\2.\1/p'`
+$debug && echo starttime=$starttime
+
+# get the system's boot time from the target archive ... this is the
+# timestamp in the pmResult for kernel.all.uptime, minus the value
+# of kernel.all.uptime plus 17:13 "slop" from analysis of qa/1987
+# failures
+#
+boottime=`pmdumplog -xxx pcp-ps kernel.all.uptime \
+| awk '
+$NF == "metric"			{ stamp = $(NF-2); next }
+NF > 2 && $(NF-1) == "value"	{ print stamp - int($NF) + 17*60 + 13; exit }'`
+$debug && echo boottime=$boottime
+
+# get the pmcd pid and seqnum from the target archive
+#
+pid=`pmprobe -v -a pcp-ps pmcd.pid | sed -e 's/.* //'`
+seqnum=`pmprobe -v -a pcp-ps pmcd.seqnum | sed -e 's/.* //'`
+
+# create a dummy archive with one pmResult that looks like
+# kernel.all.boottime, pmcd.pid and pmcd.seqnum with the desired values
+#
+cat <<End-of-File >$tmp.derived
+boottime = kernel.all.boottime + mkconst($boottime, type=64, semantics=discrete, units=sec) - kernel.all.boottime
+pid = pmcd.pid + mkconst($pid, type=64, semantics=discrete) - pmcd.pid
+seqnum = pmcd.seqnum + mkconst($seqnum, type=u32, semantics=discrete) - pmcd.seqnum
+End-of-File
+# need the one pmResult to end up with kernel.all.boottime,
+# pmcd.pid, pmcd.seqnum, and 2 others (!) ... need 5 metrics in the
+# pmResult to trick pmlogextract into thinking this is prologue
+#
+echo "log mandatory on once { boottime pid seqnum hinv.ncpu hinv.ndisk }" >$tmp.config
+$debug && echo tmp=$tmp
+PCP_DERIVED_CONFIG=$tmp.derived pmlogger -c $tmp.config -s 1 $tmp
+
+# get starttime of dummy archive so we now how far back in time we
+# need to rewrite it
+my_starttime=`pmdumplog -l -xxx $tmp |  sed -n -e '/commencing /s/.*\.\([0-9][0-9]*\) .* \([0-9][0-9]*\)/\2.\1/p'`
+$debug && echo my_starttime=$my_starttime
+
+# rewrite the dummy archive ...
+# First cull the prologue and epilogue metrics, then
+# - boottime -> kernel.all.boottime (name and PMID)
+# - pid -> pmcd.pid (name and PMID)
+# - seqnum -> pmcd.seqnum (name and PMID)
+# - hostname
+# - timezone
+# - set time back to 1 nsec after start of target archive
+#
+cat <<End-of-File >$tmp.rewrite
+metric pmcd.pmlogger.host { delete }
+metric pmcd.pmlogger.port { delete }
+metric pmcd.pmlogger.archive { delete }
+metric pmcd.pid { delete }
+metric pmcd.seqnum { delete }
+End-of-File
+cat $tmp.rewrite
+pmlogrewrite -c $tmp.rewrite $tmp $tmp.rew1
+
+echo "$my_starttime $starttime" \
+| awk >$tmp.rewrite '
+BEGIN	{ print "global {" }
+	{
+	    delta = $1 - $2
+	    hr = int(delta / 3600)
+	    min = int((delta - hr*3600)/60)
+	    sec = (delta % 60) - 0.000001
+	    printf "    time -> -%d:%d:%.6f\n",hr,min,sec
+	}'
+cat <<End-of-File >>$tmp.rewrite
+    hostname -> $hostname
+    timezone -> "$TZ"
+}
+metric boottime {
+    name -> kernel.all.boottime
+    pmid -> 60.0.17
+}
+metric pid {
+    name -> pmcd.pid
+    pmid -> 2.0.23
+}
+metric seqnum {
+    name -> pmcd.seqnum
+    pmid -> 2.0.24
+}
+End-of-File
+cat $tmp.rewrite
+pmlogrewrite -c $tmp.rewrite $tmp.rew1 $tmp.rew2
+
+# merge target archive with dummy archive
+#
+rm -f pcp-ps-new.*
+pmlogextract pcp-ps $tmp.rew2 pcp-ps-new
+# gdb ../../src/pmlogextract/pmlogextract 
+
+pmdumplog pcp-ps-new
+
+sts=0
+exit

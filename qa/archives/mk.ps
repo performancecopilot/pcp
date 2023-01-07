@@ -26,6 +26,7 @@ log mandatory on once {
     kernel.uname.release
     kernel.uname.sysname
     kernel.uname.machine
+    kernel.all.boottime
     hinv.ncpu
 }
 
@@ -53,6 +54,16 @@ log mandatory on 10 sec {
 }
 End-of-File
 
-rm -f pcp-ps.0 pcp-ps.meta pcp-ps.index
+rm -f pcp-ps.0 pcp-ps.0.* pcp-ps.meta pcp-ps.meta.* pcp-ps.index
 
-pmlogger -s 10 -c $tmp.config pcp-ps
+if pmlogger -s 10 -c $tmp.config pcp-ps
+then
+    xz pcp-ps.0
+    xz pcp-ps.meta
+else
+    echo "Argh: pmlogger failed ..."
+    cat pmlogger.log
+fi
+
+
+
