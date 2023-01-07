@@ -25,14 +25,14 @@ from pcp import pmcc
 from pcp import pmapi
 from cpmapi import PM_CONTEXT_ARCHIVE
 
-import datetime
+from datetime import datetime
 
 process_state_info = {}
 
 PSSTAT_METRICS = ['kernel.uname.nodename', 'kernel.uname.release', 'kernel.uname.sysname',
                   'kernel.uname.machine', 'hinv.ncpu', 'proc.psinfo.pid', 'proc.psinfo.guest_time',
                   'proc.psinfo.utime', 'proc.psinfo.ppid', 'proc.psinfo.rt_priority', 'proc.psinfo.rss',
-                  'proc.id.uid_nm', 'proc.psinfo.stime', 'kernel.all.uptime', 'proc.psinfo.sname',
+                  'proc.id.uid_nm', 'proc.psinfo.stime', 'kernel.all.boottime', 'proc.psinfo.sname',
                   'proc.psinfo.start_time', 'proc.psinfo.vsize', 'proc.psinfo.priority',
                   'proc.psinfo.nice', 'proc.psinfo.wchan_s', 'proc.psinfo.psargs', 'proc.psinfo.cmd',
                   'proc.psinfo.ttyname', 'mem.physmem', 'proc.psinfo.policy']
@@ -290,17 +290,18 @@ class ProcessStatusUtil:
         else:
             return c_systime - p_systime
 
-    def age(self):
+    def start(self):
         s_time = self.__metric_repository.current_value('proc.psinfo.start_time', self.instance)
         group = manager['psstat']
-        kernel_uptime = group['kernel.all.uptime'].netValues[0][2]
-        timefmt = "%H:%M:%S"
-        age = kernel_uptime - (s_time / 1000)
-        res = datetime.datetime.now() - datetime.timedelta(seconds=age)
-        if res.date() - datetime.datetime.now().date():
-            return res.date()
+        kernel_boottime = group['kernel.all.boottime'].netValues[0][2]
+        ts = group.contextCache.pmLocaltime(int(kernel_boottime + (s_time / 1000)))
+        if group.timestamp.tv_sec - (kernel_boottime + s_time / 1000) >= 24*60*60:
+            # started one day or more ago, use MmmDD HH:MM
+            return time.strftime("%b%d %H:%M", ts.struct_time())
         else:
-            return res.strftime(timefmt)
+            # started less than one day ago, use HH:MM:SS
+            return time.strftime("%H:%M:%S", ts.struct_time())
+
 
     def total_time(self):
         c_usertime = self.__metric_repository.current_value('proc.psinfo.stime', self.instance)
@@ -340,7 +341,7 @@ class ProcessStatusUtil:
 
 PIDINFO_PAIR = {"%cpu": ('%CPU', ProcessStatusUtil.system_percent),
                 "%mem": ('%MEM', ProcessStatusUtil.mem),
-                "start": ("START\t", ProcessStatusUtil.age),
+                "start": ("START\t", ProcessStatusUtil.start),
                 "time": ("TIME\t", ProcessStatusUtil.total_time),
                 "cls": ("CLS", ProcessStatusUtil.policy),
                 "cmd": ("Command\t\t\t", ProcessStatusUtil.process_name_with_args),
@@ -410,19 +411,19 @@ class DynamicProcessReporter:
                     self.printer("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t\t%s" %
                                  (timestamp, value_indentation, process.user_name(), process.pid(), process.ppid(),
                                   process.priority(), total_percent, process.system_percent(), process.vsize(),
-                                  process.rss(), current_process_sname, process.age(), process.total_time(), wchan,
+                                  process.rss(), current_process_sname, process.start(), process.total_time(), wchan,
                                   process_name))
                 elif len(wchan) >= 15:
                     self.printer("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" %
                                  (timestamp, value_indentation, process.user_name(), process.pid(), process.ppid(),
                                   process.priority(), total_percent, process.system_percent(), process.vsize(),
-                                  process.rss(), current_process_sname, process.age(), process.total_time(), wchan,
+                                  process.rss(), current_process_sname, process.start(), process.total_time(), wchan,
                                   process_name))
                 else:
                     self.printer("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t\t\t%s" %
                                  (timestamp, value_indentation, process.user_name(), process.pid(), process.ppid(),
                                   process.priority(), total_percent, process.system_percent(), process.vsize(),
-                                  process.rss(), current_process_sname, process.age(), process.total_time(), wchan,
+                                  process.rss(), current_process_sname, process.start(), process.total_time(), wchan,
                                   process_name))
         elif self.processStatOptions.colum_list is not None:
             header = "Timestamp" + '\t'
@@ -499,7 +500,7 @@ class ProcessStatusReporter:
                 self.printer("%s%s%s\t\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
                     timestamp, value_indentation, process.user_name(), process.pid(),
                     process.system_percent(), process.total_percent(), process.vsize(), process.rss(),
-                    process.tty_name(), process.ppid(), process.total_time(), process.age(),
+                    process.tty_name(), process.ppid(), process.total_time(), process.start(),
                     process.process_name()))
 
         elif self.processStatOptions.user_oriented_format:
@@ -510,7 +511,7 @@ class ProcessStatusReporter:
                 self.printer("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
                     timestamp, value_indentation, process.user_name(), process.pid(),
                     process.system_percent(), process.total_percent(), process.vsize(), process.rss(),
-                    process.tty_name(), process.s_name(), process.total_time(), process.age(),
+                    process.tty_name(), process.s_name(), process.total_time(), process.start(),
                     process.process_name()))
 
         elif self.processStatOptions.command_filter_flag:
