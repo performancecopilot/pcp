@@ -1902,7 +1902,7 @@ x11
 1489 python pmrep pmimport local
 1490 python local labels
 1495 pmlogrewrite labels pmdumplog local
-1503 pcp pidstat ps ython local
+1503 pcp pidstat ps python local
 1511 pmcd local pmda.sample
 1515 pmda.denki local
 1530 pmda.zfs local valgrind
@@ -2056,5 +2056,5 @@ x11
 1984 pmlogconf pmda.redis local
 1985 pmfind local valgrind
 1986 pmfind local
-1987 pcp ps local
+1987 pcp ps python local
 4751 libpcp threads valgrind local pcp helgrind

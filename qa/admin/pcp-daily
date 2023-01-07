@@ -40,10 +40,16 @@ _usage()
 #
 _script_header()
 {
+    if [ "$1" = daily ]
+    then
+	action="Build"
+    else
+	action="QA"
+    fi
     cat <<End-of-File
 #!/bin/sh
 #
-# PCP Build Script from pcp-daily on `date`
+# PCP $action Script from pcp-daily on `date`
 #
 
 [ -f \$HOME/.dailyrc ] && . \$HOME/.dailyrc
@@ -829,7 +835,10 @@ do
 
 	vm01)
 	    # 739 segv's sometimes deep inside Python
-	    [ X"$what" = Xall ] && check_what='-X 739'
+	    # and 749 recently (Dec 2023) has been locking the whole VM
+	    # up
+	    #
+	    [ X"$what" = Xall ] && check_what='-X 739 -X 749'
 	    ;;
 
 	vm05)
