@@ -25,8 +25,6 @@ from pcp import pmcc
 from pcp import pmapi
 from cpmapi import PM_CONTEXT_ARCHIVE
 
-from datetime import datetime
-
 process_state_info = {}
 
 PSSTAT_METRICS = ['kernel.uname.nodename', 'kernel.uname.release', 'kernel.uname.sysname',
