@@ -292,8 +292,8 @@ class ProcessStatusUtil:
         s_time = self.__metric_repository.current_value('proc.psinfo.start_time', self.instance)
         group = manager['psstat']
         kernel_boottime = group['kernel.all.boottime'].netValues[0][2]
-        ts = group.contextCache.pmLocaltime(int(kernel_boottime + (s_time / 1000)))
-        if group.timestamp.tv_sec - (kernel_boottime + s_time / 1000) >= 24*60*60:
+        ts = group.contextCache.pmLocaltime(int(0.5 + kernel_boottime + (s_time / 1000)))
+        if group.timestamp.tv_sec - int(0.5 + kernel_boottime + s_time / 1000) >= 24*60*60:
             # started one day or more ago, use MmmDD HH:MM
             return time.strftime("%b%d %H:%M", ts.struct_time())
         else:
