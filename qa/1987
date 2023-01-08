@@ -11,6 +11,13 @@ echo "QA output created by $seq"
 
 . ./common.python
 
+__version=`$python --version 2>&1 | sed -e 's/Python //'`
+case "$__version"
+in
+    2.7.5)	_notrun "Python $__version reports start seconds off-by one for some processes"
+    		;;
+esac
+
 status=1        # failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
