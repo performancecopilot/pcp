@@ -27,7 +27,7 @@ daemon_opt=false
 # quickly ... this is probably a generic issue, so add a little
 # delay here
 #
-check_delay=3
+check_delay=5
 
 for module in libvirt lxml; do
     $PCP_PYTHON_PROG -c "import $module" 2>/dev/null
