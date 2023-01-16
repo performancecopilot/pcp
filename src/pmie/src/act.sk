@@ -75,17 +75,17 @@ actShell(Expr *x)
 	char	*all_platform_paths = pmGetConfig("PCP_PLATFORM_PATHS");
 	char	*pcp_binadm_path = pmGetConfig("PCP_BINADM_DIR");
 	char	*pcp_bin_path = pmGetConfig("PCP_BIN_DIR");
-	char	paths[] = "PATH=/usr/sbin:/sbin:/usr/bin:/bin";
-	int	i, size = sizeof(paths) + 1;
+#define DEFAULT_PATH "PATH=/usr/sbin:/sbin:/usr/bin:/bin"
+	int	i, size = sizeof(DEFAULT_PATH) + 1;
 
 	size += strlen(all_platform_paths) + 1;
 	size += strlen(pcp_binadm_path) + 1;
 	size += strlen(pcp_bin_path) + 1;
 	if ((path = malloc(size)) != NULL) {
-	    if ((i = pmsprintf(path, size-1, "%s:%s:%s:%s\n", paths,
+	    if ((i = pmsprintf(path, size-1, "%s:%s:%s:%s\n", DEFAULT_PATH,
 			pcp_bin_path, pcp_binadm_path, all_platform_paths)) <= 0) {
 		free(path);
-		path = paths;	/* fallback to basic defaults */
+		path = DEFAULT_PATH;	/* fallback to basic defaults */
 	    }
 	    else if (path[i-2] == ':')
 		path[i-2] = '\0';	/* PCP_PLATFORM_PATHS may be null */
@@ -94,7 +94,7 @@ actShell(Expr *x)
 	}
 	else {
 	    pmNoMem("actShell:path", size, PM_RECOV_ERR);
-	    path = paths;	/* set a basic default anyway */
+	    path = DEFAULT_PATH;	/* set a basic default anyway */
 	}
     }
 
