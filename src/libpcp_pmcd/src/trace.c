@@ -199,7 +199,7 @@ pmcd_dump_trace(FILE *f)
 			fprintf(f, "Wrong PDU type: expecting %s PDU, fd=%d, got %s PDU\n",
 			    trace[p].t_p1 == -1 ? "NO" : __pmPDUTypeStr_r(trace[p].t_p1, strbuf, sizeof(strbuf)),
 			    trace[p].t_who,
-			    trace[p].t_p2 == -1 ? "NO" : __pmPDUTypeStr_r(trace[p].t_p2, strbuf, sizeof(strbuf)));
+			    __pmPDUTypeStr_r(trace[p].t_p2, strbuf, sizeof(strbuf)));
 			__pmDumpPDUTrace(f);
 		    }
 		    else if (trace[p].t_p2 == 0) {
