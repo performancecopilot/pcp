@@ -579,14 +579,14 @@ class ProcessstatReport(pmcc.MetricGroupPrinter):
             if ProcessStatOptions.print_count is None:
                 ProcessStatOptions.print_count = 1
 
-            # =============================================================================================================
+            # ================================================================
             if ProcessStatOptions.show_all_process:
                 process_report = ProcessStatus(metric_repository)
                 process_filter = ProcessFilter(ProcessStatOptions)
                 stdout = StdoutPrinter()
                 printdecorator = NoneHandlingPrinterDecorator(stdout)
-                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds, printdecorator.Print,
-                                               ProcessStatOptions)
+                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds,
+                                               printdecorator.Print, ProcessStatOptions)
                 report.print_report(timestamp, header_indentation, value_indentation)
 
             if ProcessStatOptions.empty_arg_flag:
@@ -594,8 +594,8 @@ class ProcessstatReport(pmcc.MetricGroupPrinter):
                 process_filter = ProcessFilter(ProcessStatOptions)
                 stdout = StdoutPrinter()
                 printdecorator = NoneHandlingPrinterDecorator(stdout)
-                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds, printdecorator.Print,
-                                               ProcessStatOptions)
+                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds,
+                                               printdecorator.Print, ProcessStatOptions)
                 report.print_report(timestamp, header_indentation, value_indentation)
 
             if ProcessStatOptions.pid_filter_flag:
@@ -603,16 +603,16 @@ class ProcessstatReport(pmcc.MetricGroupPrinter):
                 process_filter = ProcessFilter(ProcessStatOptions)
                 stdout = StdoutPrinter()
                 printdecorator = NoneHandlingPrinterDecorator(stdout)
-                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds, printdecorator.Print,
-                                               ProcessStatOptions)
+                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds,
+                                               printdecorator.Print, ProcessStatOptions)
                 report.print_report(timestamp, header_indentation, value_indentation)
             if ProcessStatOptions.ppid_filter_flag:
                 process_report = ProcessStatus(metric_repository)
                 process_filter = ProcessFilter(ProcessStatOptions)
                 stdout = StdoutPrinter()
                 printdecorator = NoneHandlingPrinterDecorator(stdout)
-                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds, printdecorator.Print,
-                                               ProcessStatOptions)
+                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds,
+                                               printdecorator.Print, ProcessStatOptions)
                 report.print_report(timestamp, header_indentation, value_indentation)
 
             if ProcessStatOptions.command_filter_flag:
@@ -620,8 +620,8 @@ class ProcessstatReport(pmcc.MetricGroupPrinter):
                 process_filter = ProcessFilter(ProcessStatOptions)
                 stdout = StdoutPrinter()
                 printdecorator = NoneHandlingPrinterDecorator(stdout)
-                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds, printdecorator.Print,
-                                               ProcessStatOptions)
+                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds,
+                                               printdecorator.Print, ProcessStatOptions)
                 report.print_report(timestamp, header_indentation, value_indentation)
 
             if ProcessStatOptions.user_oriented_format:
@@ -629,8 +629,8 @@ class ProcessstatReport(pmcc.MetricGroupPrinter):
                 process_filter = ProcessFilter(ProcessStatOptions)
                 stdout = StdoutPrinter()
                 printdecorator = NoneHandlingPrinterDecorator(stdout)
-                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds, printdecorator.Print,
-                                               ProcessStatOptions)
+                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds,
+                                               printdecorator.Print, ProcessStatOptions)
                 report.print_report(timestamp, header_indentation, value_indentation)
 
             if ProcessStatOptions.username_filter_flag:
@@ -638,8 +638,8 @@ class ProcessstatReport(pmcc.MetricGroupPrinter):
                 process_filter = ProcessFilter(ProcessStatOptions)
                 stdout = StdoutPrinter()
                 printdecorator = NoneHandlingPrinterDecorator(stdout)
-                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds, printdecorator.Print,
-                                               ProcessStatOptions)
+                report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds,
+                                               printdecorator.Print, ProcessStatOptions)
                 report.print_report(timestamp, header_indentation, value_indentation)
 
             # ================================================================
@@ -648,8 +648,8 @@ class ProcessstatReport(pmcc.MetricGroupPrinter):
                 process_filter = ProcessFilter(ProcessStatOptions)
                 stdout = StdoutPrinter()
                 printdecorator = NoneHandlingPrinterDecorator(stdout)
-                report = DynamicProcessReporter(process_report, process_filter, interval_in_seconds, printdecorator.Print,
-                                                ProcessStatOptions)
+                report = DynamicProcessReporter(process_report, process_filter, interval_in_seconds,
+                                                printdecorator.Print, ProcessStatOptions)
                 report.print_report(timestamp, header_indentation, value_indentation)
         finally:
             sys.stdout.flush()
