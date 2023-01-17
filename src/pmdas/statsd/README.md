@@ -71,7 +71,7 @@ It accepts following parameters:
 All levels include those belows.
 - **debug_output_filename** - You can send USR1 signal that 'asks' agent to output basic information about all aggregated metric into a $PCP\_LOG\_DIR/pmcd/statsd\_{name} file. <br>default: _debug_
 - **version** - Flag controlling whether or not to log current agent version on start <br>default: _0_
-- **parser_type** - Flag specifying which algorithm to use for parsing incoming datagrams, 0 = basic, 1 = Ragel <br>default: _0_
+- **parser_type** - Flag specifying which algorithm to use for parsing incoming datagrams, 0 = basic, 1 = Ragel. Ragel parser includes better logging when verbose = 2. <br>default: _0_
 - **duration_aggregation_type** - Flag specifying which aggregation scheme to use for duration metrics, 0 = basic, 1 = hdr histogram <br>default: _1_
 - **max_unprocessed_packets** - Maximum size of packet queue that the agent will save in memory. There are 2 queues: one for packets that are waiting to be parsed and one for parsed packets before they are aggregated <br>default: _2048_
 

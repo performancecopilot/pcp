@@ -77,7 +77,7 @@ basic_parser_parse(char* buffer, struct statsd_datagram** datagram) {
         return 1;
     }
     free_datagram(*datagram);
-    METRIC_PROCESSING_ERR_LOG("Throwing away datagram. REASON: unable to parse: %s", buffer);
+    METRIC_PROCESSING_ERR_LOG("Throwing away metric %s, REASON: unable to parse", buffer);
     return 0;
 };
 
