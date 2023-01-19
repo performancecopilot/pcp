@@ -98,3 +98,21 @@ $1 ~ /TIMESTAMP/ && NF == 4	{ print $1 "            " $2 "       OFFSET       OF
 echo
 echo "=== samples, expect 50 + 1 for prologue + 1 for epilogue ==="
 pmdumplog -m $tmp | sed -n '/^[0-9]/p' | wc -l | sed -e 's/  *//g'
+
+# diagnostic output only (-> .full)
+#
+echo "Label ..." >>$here/$seq.full
+pmdumplog -L $tmp >>$here/$seq.full
+echo >>$here/$seq.full
+echo "Selected pmResults ..." >>$here/$seq.full
+pmdumplog -m $tmp \
+| $PCP_AWK_PROG >>$here/$seq.full '
+BEGIN		{ nrec = 0; want = 0 }
+/^[0-9]/	{ nrec++ }
+want == 0	{ if (nrec <= 2	|| nrec > 50) {
+		    want = 1
+		    print "Record",nrec
+		  }
+		}
+want == 1	{ print }
+NF == 0		{ want = 0 }'
