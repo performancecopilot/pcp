@@ -249,7 +249,7 @@ normalize_epoch(time_t epoch, long secondsinday)
 ** Function val2valstr() converts a positive value to an ascii-string of a 
 ** fixed number of positions; if the value does not fit, it will be formatted
 ** to exponent-notation (as short as possible, so not via the standard printf-
-** formatters %f or %e). The offered string should have a length of width+1.
+** formatters %f or %e). The offered buffer should have a length of width+1.
 ** The value might even be printed as an average for the interval-time.
 */
 char *

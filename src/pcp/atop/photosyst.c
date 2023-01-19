@@ -220,8 +220,9 @@ update_ibport(struct perifb *ib, int id, char *name, pmResult *rp, pmDesc *dp, i
 static void
 update_memnuma(struct mempernuma *nmp, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
-	/* TODO - nmp->frag; - new Linux kernel metric needed */
+	nmp->numanr = id;
 
+// TODO nmp->frag = extract_count_t_inst(rp, dp, PERNODE_MEM_EXTFRAG, id, offset);
 	nmp->totmem = extract_count_t_inst(rp, dp, PERNODE_MEM_TOTAL, id, offset);
 	nmp->freemem = extract_count_t_inst(rp, dp, PERNODE_MEM_FREE, id, offset);
 	nmp->filepage = extract_count_t_inst(rp, dp, PERNODE_MEM_FILE, id, offset);
@@ -238,6 +239,7 @@ static void
 update_cpunuma(struct cpupernuma *ncp, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
 	/* iterate over cpu_node map and count CPUs in this NUMA node */
+	ncp->numanr = id;
 	ncp->nrcpu = extract_integer_instmap_count(rp, dp, MAP_CPU_NODE, id);
 	if (ncp->nrcpu < 1)
 	    ncp->nrcpu = 1;
@@ -267,6 +269,7 @@ update_disk(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp, in
 	dsk->avque = extract_count_t_inst(rp, dp, PERDISK_AVEQ, id, offset);
 	dsk->ndisc = extract_count_t_inst(rp, dp, PERDISK_NDISC, id, offset);
 	dsk->ndsect = extract_count_t_inst(rp, dp, PERDISK_NDSECT, id, offset);
+// TODO	dsk->inflight = extract_count_t_inst(rp, dp, PERDISK_INFLIGHT, id, offset);
 }
 
 static void
@@ -283,6 +286,7 @@ update_lvm(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp, int
 	dsk->avque = 0;
 	dsk->ndisc = extract_count_t_inst(rp, dp, PERDM_NDISC, id, offset);
 	dsk->ndsect = extract_count_t_inst(rp, dp, PERDM_NDSECT, id, offset);
+// TODO	dsk->inflight = extract_count_t_inst(rp, dp, PERDM_INFLIGHT, id, offset);
 }
 
 static void
@@ -299,6 +303,7 @@ update_mdd(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp, int
 	dsk->avque = 0;
 	dsk->ndisc = extract_count_t_inst(rp, dp, PERMD_NDISC, id, offset);
 	dsk->ndsect = extract_count_t_inst(rp, dp, PERMD_NDSECT, id, offset);
+// TODO	dsk->inflight = extract_count_t_inst(rp, dp, PERMD_INFLIGHT, id, offset);
 }
 
 static void

@@ -256,6 +256,7 @@ sys_printdef *dsksyspdefs[] = {
 	&syspdef_DSKKBPERRD,
 	&syspdef_DSKKBPERWR,
 	&syspdef_DSKKBPERDS,
+	&syspdef_DSKINFLIGHT,
 	&syspdef_DSKAVQUEUE,
 	&syspdef_DSKAVIO,
 	&syspdef_BLANKBOX,
@@ -1068,6 +1069,7 @@ pricumproc(struct sstat *sstat, struct devtstat *devtstat,
 	                "DSKKBPERDS:4 "
                         "DSKMBPERSECRD:6 "
                         "DSKMBPERSECWR:6 "
+	                "DSKINFLIGHT:2 "
 	                "DSKAVQUEUE:1 "
 	                "DSKAVIO:6",
 			dsksyspdefs, "builtin dskline",

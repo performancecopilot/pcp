@@ -1,7 +1,7 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2000-2021 Gerlof Langeveld.
-.\" Copyright (c) 2017-2021 Red Hat.
+.\" Copyright (c) 2000-2022 Gerlof Langeveld.
+.\" Copyright (c) 2017-2022 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -312,13 +312,13 @@ Show cgroup v2 information.
 
 Per process the following fields are shown:
 process-id,
-`cpu.weight' of the cgroup the process belongs to,
-`cpu.max' value (recalculated as percentage) of the cgroup the process belongs to,
-most restrictive `cpu.max' value found in the upper directories,
-`memory.max' value of the cgroup the process belongs to,
-most restrictive `memory.max' value found in the upper directories,
-`memory.swap.max' value of the cgroup the process belongs to,
-most restrictive `memory.swap.max' value found in the upper directories,
+'\"`cpu.weight' of the cgroup the process belongs to,
+'\"`cpu.max' value (recalculated as percentage) of the cgroup the process belongs to,
+'\"most restrictive `cpu.max' value found in the upper directories,
+'\"`memory.max' value of the cgroup the process belongs to,
+'\"most restrictive `memory.max' value found in the upper directories,
+'\"`memory.swap.max' value of the cgroup the process belongs to,
+'\"most restrictive `memory.swap.max' value found in the upper directories,
 the command name, and
 the cgroup path name (horizontally scrollable).
 .TP 5
@@ -997,23 +997,23 @@ private memory space for processes.
 The kernel only verifies whether the
 committed space exceeds the limit if strict overcommit handling is
 configured (vm.overcommit_memory is 2).
-.TP 5
-.B LLC
-Last-Level Cache of CPU info.
-.br
-This line contains the total memory bandwidth of LLC (`tot'),
-the bandwidth of the local NUMA node (`loc'), and
-the percentage of LLC in use (`LLCXX YY%').
-
-Note that this feature depends on the `resctrl` pseudo filesystem.
-Be sure that the kernel is built with the relevant config and
-take care that the pseudo-filesystem is mounted:
-
-.B \  mount -t resctrl resctrl -o mba_MBps /sys/fs/resctrl
-(on Intel)
-.br
-.B \  mount -t resctrl resctrl -o cdp \ \ \ \ \ /sys/fs/resctrl
-(on AMD)
+.\".TP 5
+.\".B LLC
+.\"Last-Level Cache of CPU info.
+.\".br
+.\"This line contains the total memory bandwidth of LLC (`tot'),
+.\"the bandwidth of the local NUMA node (`loc'), and
+.\"the percentage of LLC in use (`LLCXX YY%').
+.\"
+.\"Note that this feature depends on the `resctrl` pseudo filesystem.
+.\"Be sure that the kernel is built with the relevant config and
+.\"take care that the pseudo-filesystem is mounted:
+.\"
+.\".B \  mount -t resctrl resctrl -o mba_MBps /sys/fs/resctrl
+.\"(on Intel)
+.\".br
+.\".B \  mount -t resctrl resctrl -o cdp \ \ \ \ \ /sys/fs/resctrl
+.\"(on AMD)
 .TP 5
 .B NUM
 Memory utilization per NUMA node (not shown for single NUMA node).
@@ -1086,6 +1086,7 @@ the number of KiBytes per write (`KiB/w'),
 the number of KiBytes per discard (`KiB/d') if supported by kernel version,
 the number of MiBytes per second throughput for reads (`MBr/s'),
 the number of MiBytes per second throughput for writes (`MBw/s'),
+requests issued to the device driver but not completed (`inflt'),
 the average queue depth (`avq')
 and the average number of milliseconds needed by a request (`avio')
 for seek, latency and data transfer.
@@ -1306,22 +1307,22 @@ and the total number of pages of the process/thread list are shown.
 .B CPU
 The occupation percentage of this process related to the available capacity
 for this resource on system level.
-.TP 9
-.B CPUMAX
-The `cpu.max' value of the cgroup (version 2) to which this process belongs,
-calculated as percentage of one CPU.
-.TP 9
-.B CPUMAXR
-The most restrictive (i.e. effective) `cpu.max' value defined by the
-upper directories of the cgroup (version 2) to which this process belongs,
-calculated as percentage of one CPU.
+.\".TP 9
+.\".B CPUMAX
+.\"The `cpu.max' value of the cgroup (version 2) to which this process belongs,
+.\"calculated as percentage of one CPU.
+.\".TP 9
+.\".B CPUMAXR
+.\"The most restrictive (i.e. effective) `cpu.max' value defined by the
+.\"upper directories of the cgroup (version 2) to which this process belongs,
+.\"calculated as percentage of one CPU.
 .TP 9
 .B CPUNR
 The identification of the CPU the (main) thread is running on
 or has recently been running on.
-.TP 9
-.B CPUWGT
-The `cpu.weight' value of the cgroup (version 2) to which this process belongs.
+.\".TP 9
+.\".B CPUWGT
+.\"The `cpu.weight' value of the cgroup (version 2) to which this process belongs.
 .TP 9
 .B CTID
 Container ID (OpenVZ).
@@ -1410,16 +1411,16 @@ the time needed for read and write accesses on memory.
 When the
 .B pmdanvidia
 daemon does not run with root privileges, this value is not available.
-.TP 9
-.B MEMMAX
-The `memory.max' value of the cgroup (version 2) to which this process belongs.
+.\".TP 9
+.\".B MEMMAX
+.\"The `memory.max' value of the cgroup (version 2) to which this process belongs.
 .TP 9
 .B MEMNOW
 Memory occupation at the moment of the sample on all used GPUs.
-.TP 9
-.B MMMAXR
-The most restrictive (i.e. effective) `memory.max' value defined by the
-upper directories of the cgroup (version 2) to which this process belongs.
+.\".TP 9
+.\".B MMMAXR
+.\"The most restrictive (i.e. effective) `memory.max' value defined by the
+.\"upper directories of the cgroup (version 2) to which this process belongs.
 .TP 9
 .B MINFLT
 The number of page faults issued by this process that have been solved
@@ -1576,17 +1577,17 @@ The start time of the process.
 .TP 9
 .B SUID
 The saved user-id of the process.
-.TP 9
-.B SWPMAX
-The `memory.swap.max' value of the cgroup (version 2) to which this
-process belongs.
+.\".TP 9
+.\".B SWPMAX
+.\"The `memory.swap.max' value of the cgroup (version 2) to which this
+.\"process belongs.
 .TP 9
 .B SWAPSZ
 The swap space consumed by this process (or user).
 .TP 9
-.B SWMAXR
-The most restrictive (i.e. effective) `memory.swap.max' value defined by the
-upper directories of the cgroup (version 2) to which this process belongs.
+.\".B SWMAXR
+.\"The most restrictive (i.e. effective) `memory.swap.max' value defined by the
+.\"upper directories of the cgroup (version 2) to which this process belongs.
 .TP 9
 .B SYSCPU
 CPU time consumption of this process in system mode (kernel mode), usually
@@ -1866,12 +1867,12 @@ limit for committed space (pages),
 size of the swap cache (pages),
 size of compressed pages stored in zswap (pages), and
 total size of compressed pool in zswap (pages).
-.TP 9
-.B LLC
-Subsequent fields:
-LLC id, percentage of LLC in use,
-total memory bandwidth of this LLC (in bytes), and
-memory bandwidth on local NUMA node of this LLC (in bytes).
+.\".TP 9
+.\".B LLC
+.\"Subsequent fields:
+.\"LLC id, percentage of LLC in use,
+.\"total memory bandwidth of this LLC (in bytes), and
+.\"memory bandwidth on local NUMA node of this LLC (in bytes).
 .TP 9
 .B PAG
 Subsequent fields:
@@ -1913,7 +1914,9 @@ number of sectors transferred for reads,
 number of writes issued,
 number of sectors transferred for write,
 number of discards issued (-1 if not supported),
-and number of sectors transferred for discards.
+number of sectors transferred for discards,
+number of requests currently in flight (not yet completed), and
+the average queue depth while the disk was busy.
 .TP 9
 .B NFM
 Subsequent fields:
@@ -2058,9 +2061,9 @@ scheduling policy, current CPU, sleep average,
 TGID (group number of related tasks/threads), is_process (y/n),
 runqueue delay in nanoseconds for this thread or for all threads (in case of process),
 wait channel of this thread (between parenthesis or underscores for spaces),
-block I/O delay (clockticks),
-cgroup v2 `cpu.max' calculated as percentage (-3 means no cgroup v2 support, -2 means undefined and -1 means maximum), and
-cgroup v2 most restrictive `cpu.max' in upper directories calculated as percentage (-3 means no cgroup v2 support, -2 means undefined and -1 means maximum).
+block I/O delay (clockticks).
+.\"cgroup v2 `cpu.max' calculated as percentage (-3 means no cgroup v2 support, -2 means undefined and -1 means maximum), and
+.\"cgroup v2 most restrictive `cpu.max' in upper directories calculated as percentage (-3 means no cgroup v2 support, -2 means undefined and -1 means maximum).
 .TP 9
 .B PRE
 For every process one line is shown.

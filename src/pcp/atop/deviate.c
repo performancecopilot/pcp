@@ -741,6 +741,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double delta
 	dev->memnuma.nrnuma     = cur->memnuma.nrnuma;
 	for (i=0; i < dev->memnuma.nrnuma; i++)
 	{
+		dev->memnuma.numa[i].numanr      = cur->memnuma.numa[i].numanr;
 		dev->memnuma.numa[i].totmem      = cur->memnuma.numa[i].totmem;
 		dev->memnuma.numa[i].freemem     = cur->memnuma.numa[i].freemem;
 		dev->memnuma.numa[i].filepage    = cur->memnuma.numa[i].filepage;
@@ -766,6 +767,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double delta
 		for (i=0; i < dev->cpunuma.nrnuma; i++)
 		{
 			dev->cpunuma.numa[i].nrcpu  = cur->cpunuma.numa[i].nrcpu;
+			dev->cpunuma.numa[i].numanr = cur->cpunuma.numa[i].numanr;
 
 			if (pre->cpunuma.numa[i].nrcpu == 0)
 				continue;
@@ -1057,6 +1059,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double delta
 		                                  pre->dsk.dsk[j].nwrite);
 		dev->dsk.dsk[i].nwsect = subcount(cur->dsk.dsk[i].nwsect,
 		                                  pre->dsk.dsk[j].nwsect);
+		dev->dsk.dsk[i].inflight  = cur->dsk.dsk[i].inflight;
 		dev->dsk.dsk[i].io_ms  = subcount(cur->dsk.dsk[i].io_ms,
 		                                  pre->dsk.dsk[j].io_ms);
 		dev->dsk.dsk[i].avque  = subcount(cur->dsk.dsk[i].avque,

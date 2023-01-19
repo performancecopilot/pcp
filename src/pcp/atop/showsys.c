@@ -2463,6 +2463,18 @@ sysprt_DSKMBPERSECRD(struct sstat *sstat, extraparam *as, int badness, int *colo
 sys_printdef syspdef_DSKMBPERSECRD = {"DSKMBPERSECRD", sysprt_DSKMBPERSECRD, NULL};
 /*******************************************************************/
 static char *
+sysprt_DSKINFLIGHT(struct sstat *sstat, extraparam *as, int badness, int *color)
+{
+	static char    buf[16]="inflt  ";
+	struct perdsk  *dp = &(as->perdsk[as->index]);
+
+	val2valstr(dp->inflight, buf+6, sizeof buf-6, 6, 0, 0);
+	return buf;
+}
+
+sys_printdef syspdef_DSKINFLIGHT = {"DSKINFLIGHT", sysprt_DSKINFLIGHT, NULL};
+/*******************************************************************/
+static char *
 sysprt_DSKAVQUEUE(struct sstat *sstat, extraparam *as, int badness, int *color) 
 {
         static char	buf[16]="avq  ";

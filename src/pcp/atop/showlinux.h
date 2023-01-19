@@ -263,6 +263,7 @@ extern sys_printdef syspdef_DSKMBPERSECWR;
 extern sys_printdef syspdef_DSKKBPERRD;
 extern sys_printdef syspdef_DSKKBPERWR;
 extern sys_printdef syspdef_DSKKBPERDS;
+extern sys_printdef syspdef_DSKINFLIGHT;
 extern sys_printdef syspdef_DSKAVQUEUE;
 extern sys_printdef syspdef_DSKAVIO;
 extern sys_printdef syspdef_NETTRANSPORT;

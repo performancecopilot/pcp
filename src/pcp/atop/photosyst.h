@@ -80,6 +80,7 @@ struct	memstat {
 /************************************************************************/
 
 struct	mempernuma {
+	int	numanr;
 	float	frag;		// fragmentation level for this numa
 	count_t	totmem;		// number of physical pages for this numa
 	count_t	freemem;	// number of free     pages for this numa
@@ -101,6 +102,7 @@ struct	memnuma {
 };
 
 struct	cpupernuma {
+	int	numanr;
 	count_t	nrcpu;		// number of cpu's
 	count_t	stime;		// accumulate system  time in clock ticks for per numa
 	count_t	utime;		// accumulate user    time in clock ticks for per numa
@@ -138,7 +140,7 @@ struct freqcnt {
         count_t maxfreq;/* frequency in MHz                    */
         count_t cnt;    /* number of clock ticks times state   */
         count_t ticks;  /* number of total clock ticks         */
-                        /* if zero, cnt is actul freq          */
+                        /* if zero, cnt is actual freq         */
 };
 
 struct percpu {
@@ -174,14 +176,15 @@ struct	cpustat {
 
 struct	perdsk {
         char	name[MAXDKNAM];	/* empty string for last        */
-        count_t	nread;	/* number of read  transfers            */
-        count_t	nrsect;	/* number of sectors read               */
-        count_t	nwrite;	/* number of write transfers            */
-        count_t	nwsect;	/* number of sectors written            */
-        count_t	io_ms;	/* number of millisecs spent for I/O    */
-        count_t	avque;	/* average queue length                 */
-        count_t	ndisc;	/* number of discards (-1 = unavailable)*/
-        count_t	ndsect;	/* number of sectors discarded          */
+        count_t	nread;		/* number of read  transfers            */
+        count_t	nrsect;		/* number of sectors read               */
+        count_t	nwrite;		/* number of write transfers            */
+        count_t	nwsect;		/* number of sectors written            */
+        count_t	io_ms;		/* number of millisecs spent for I/O    */
+        count_t	avque;		/* average queue length                 */
+        count_t	ndisc;		/* number of discards (-1 = unavailable)*/
+        count_t	ndsect;		/* number of sectors discarded          */
+        count_t	inflight;	/* number of inflight I/O               */
 };
 
 struct dskstat {
