@@ -23,10 +23,22 @@ _do_ls()
     # hostname length affects the pmcd.pmlogger metrics in volume 0
     # such that we need to cater for an extra large range of possible
     # volume sizes in the first volume for long-hostname-hosts, ditto
-    # for the epilogue and the last volume
+    # for the epilogue and the last volume (4)
+    #
     $PCP_AWK_PROG '
 /Cannot/	{ print; next }
-		{ print $9,int($5/200)*200 "-" 200+int($5/200)*200,"bytes" }' \
+$9 ~ /\.[04]$/	{ if (1550 <= $5 && $5 <= 1660)
+		    print $9," OK in range 1550-1660 bytes"
+		  else
+		    print $9,$5," not in range 1550-1660 bytes"
+		  next
+		}
+		{ if (1360 <= $5 && $5 <= 1370)
+		    print $9," OK in range 1360-1370 bytes"
+		  else
+		    print $9,$5," not in range 1360-1370 bytes"
+		  next
+		}' \
     | sed -e "s;$tmp;MYLOG;"
 }
 
