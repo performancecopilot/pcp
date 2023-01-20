@@ -669,7 +669,7 @@ pmval diffs ...
 --- TMP.in
 +++ TMP.out
 @@ -1,7 +1,7 @@
- Note: timezone set to "TZ=PST8PDT9"
+ Note: timezone set to "TZ=PST8"
  
  metric:    disk.dev.read
 -archive:   archives/babylon.pmview_v2
@@ -691,7 +691,7 @@ pmval diffs ...
 --- TMP.in
 +++ TMP.out
 @@ -1,7 +1,7 @@
- Note: timezone set to "TZ=PST8PDT9"
+ Note: timezone set to "TZ=PST8"
  
  metric:    disk.dev.write
 -archive:   archives/babylon.pmview_v2
@@ -713,7 +713,7 @@ pmval diffs ...
 --- TMP.in
 +++ TMP.out
 @@ -1,7 +1,7 @@
- Note: timezone set to "TZ=PST8PDT9"
+ Note: timezone set to "TZ=PST8"
  
  metric:    disk.dev.total
 -archive:   archives/babylon.pmview_v2
