@@ -1896,6 +1896,11 @@ sysfs {
 
 sysfs.kernel {
     uevent_seqnum	60:35:0
+    debug
+}
+
+sysfs.kernel.debug {
+    extfrag_unusable	60:35:1
 }
 
 tape {
