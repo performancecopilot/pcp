@@ -427,7 +427,7 @@ disk.all {
     discard_rawactive	60:0:100
     flush		60:0:101
     flush_rawactive	60:0:102
-    inflight		60:0:103
+    inflight		60:0:104
 }
 
 disk.dm {

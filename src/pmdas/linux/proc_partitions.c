@@ -826,7 +826,8 @@ static pmID disk_metric_table[] = {
     /* disk.all.discard_rawactive */ PMDA_PMID(CLUSTER_STAT,100),
     /* disk.all.flush */	     PMDA_PMID(CLUSTER_STAT,101),
     /* disk.all.flush_rawactive */   PMDA_PMID(CLUSTER_STAT,102),
-    /* disk.all.inflight */	     PMDA_PMID(CLUSTER_STAT,103),
+    /* hinv.map.scsi_id */	     PMDA_PMID(CLUSTER_STAT,103),
+    /* disk.all.inflight */	     PMDA_PMID(CLUSTER_STAT,104),
 
     /* disk.partitions.read */	     PMDA_PMID(CLUSTER_PARTITIONS,0),
     /* disk.partitions.write */	     PMDA_PMID(CLUSTER_PARTITIONS,1),
@@ -1157,11 +1158,6 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return PM_ERR_INST;
 	    atom->cp = _pm_ioscheduler(p->namebuf);
 	    break;
-	case 103: /* hinv.map.scsi_id */
-	    if (p == NULL)
-		return PM_ERR_INST;
-	    atom->cp = _pm_scsi_id(p->namebuf);
-	    break;
 	case 72: /* disk.dev.read_rawactive already ms from /proc/diskstats */
 	    if (p == NULL)
 		return PM_ERR_INST;
@@ -1223,6 +1219,11 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (p == NULL)
 		return PM_ERR_INST;
 	    atom->ul = p->ios_in_flight;
+	    break;
+	case 103: /* hinv.map.scsi_id */
+	    if (p == NULL)
+		return PM_ERR_INST;
+	    atom->cp = _pm_scsi_id(p->namebuf);
 	    break;
 	default:
 	    /* disk.all.* is a singular instance domain */
@@ -1302,7 +1303,7 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		case 102: /* disk.all.flush_rawactive ... already msec from /proc/diskstats */
 		    atom->ul += p->fl_ticks;
 		    break;
-		case 103: /* disk.all.inflight */
+		case 104: /* disk.all.inflight */
 		    atom->ull += p->ios_in_flight;
 		    break;
 		default:
