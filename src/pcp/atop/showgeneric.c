@@ -459,15 +459,15 @@ generic_samp(double sampletime, double nsecs,
 						attroff(COLOR_PAIR(COLORINFO));
 					attroff(A_BLINK);
 
-					printg("%*s", COLS - strlen(initmsg)
-					                   - strlen(viewmsg),
-					                     " ");
+					printg("%*s", (int)(
+						COLS - strlen(initmsg) - strlen(viewmsg)),
+						" ");
 				}
 				else
 				{
-					printg("%*s", 80 - strlen(initmsg)
-					                 - strlen(viewmsg),
-					                   " ");
+					printg("%*s", (int)(
+						80 - strlen(initmsg) - strlen(viewmsg)),
+						" ");
 				}
 
 				if (screen)
