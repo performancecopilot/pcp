@@ -565,7 +565,6 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_STAT,103), PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-
 /* disk.dev.read_rawactive */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,72), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
@@ -620,6 +619,11 @@ static pmdaMetric metrictab[] = {
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,94), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.dev.inflight */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,95), PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /* disk.all.avactive */
     { NULL, 
@@ -2322,6 +2326,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_PARTITIONS,23), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
+/* disk.partitions.inflight */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,24), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /* zram.read */
     { NULL, 
       { PMDA_PMID(CLUSTER_ZRAM_DEVICES,0), KERNEL_ULONG, ZRAM_INDOM, PM_SEM_COUNTER, 
@@ -2442,6 +2451,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_ZRAM_DEVICES,23), PM_TYPE_U32, ZRAM_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
+/* zram.inflight */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_ZRAM_DEVICES,24), PM_TYPE_U32, ZRAM_INDOM, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /* disk.dev.read_bytes */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,38), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
@@ -2506,6 +2520,11 @@ static pmdaMetric metrictab[] = {
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,102), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.all.inflight */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,103), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*
  * zram IO cluster
@@ -6620,6 +6639,10 @@ static pmdaMetric metrictab[] = {
     { NULL, { PMDA_PMID(CLUSTER_DM,24), PM_TYPE_U32, DM_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
+    /* disk.dm.inflight */
+    { NULL, { PMDA_PMID(CLUSTER_DM,25), PM_TYPE_U32, DM_INDOM,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /*
  * disk.md cluster
  */
@@ -6726,6 +6749,10 @@ static pmdaMetric metrictab[] = {
     /* disk.md.flush_rawactive */
     { NULL, { PMDA_PMID(CLUSTER_MD,24), PM_TYPE_U32, MD_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+    /* disk.md.inflight */
+    { NULL, { PMDA_PMID(CLUSTER_MD,25), PM_TYPE_U32, MD_INDOM,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*
  * network.softnet cluster
@@ -7053,6 +7080,10 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_WWID,94), PM_TYPE_U32, WWID_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
+/* disk.wwid.inflight */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,95), PM_TYPE_U64, WWID_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
 
 typedef struct {

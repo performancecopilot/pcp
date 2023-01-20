@@ -400,6 +400,7 @@ disk.dev {
     discard_rawactive	60:0:92
     flush		60:0:93
     flush_rawactive	60:0:94
+    inflight		60:0:95
 }
 
 disk.all {
@@ -426,6 +427,7 @@ disk.all {
     discard_rawactive	60:0:100
     flush		60:0:101
     flush_rawactive	60:0:102
+    inflight		60:0:103
 }
 
 disk.dm {
@@ -453,6 +455,7 @@ disk.dm {
     discard_rawactive	60:54:22
     flush		60:54:23
     flush_rawactive	60:54:24
+    inflight		60:54:25
 }
 
 disk.md {
@@ -481,6 +484,7 @@ disk.md {
     discard_rawactive	60:59:22
     flush		60:59:23
     flush_rawactive	60:59:24
+    inflight		60:59:25
 }
 
 disk.partitions {
@@ -508,6 +512,7 @@ disk.partitions {
     discard_rawactive	60:10:21
     flush		60:10:22
     flush_rawactive	60:10:23
+    inflight		60:10:24
 }
 
 disk.wwid {
@@ -537,6 +542,7 @@ disk.wwid {
     discard_rawactive	60:92:92
     flush		60:92:93
     flush_rawactive	60:92:94
+    inflight		60:92:95
 }
 
 zram {
@@ -564,6 +570,7 @@ zram {
     discard_rawactive	60:86:21
     flush		60:86:22
     flush_rawactive	60:86:23
+    inflight		60:86:24
     io_stat
     mm_stat
     bd_stat
