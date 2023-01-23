@@ -1,17 +1,17 @@
 /*
  * Linux PMDA
  *
- * Copyright (c) 2012-2021 Red Hat.
+ * Copyright (c) 2012-2023 Red Hat.
  * Copyright (c) 2016-2017 Fujitsu.
  * Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2002 International Business Machines Corp.
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -6498,8 +6498,8 @@ static pmdaMetric metrictab[] = {
 	PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* sysfs.kernel.debug.extfrag_unusable */
-    { &sysfs_kernel.extfrag_unusable,
-      { PMDA_PMID(CLUSTER_SYSFS_KERNEL,1), PM_TYPE_FLOAT, PM_INDOM_NULL,
+    { NULL,
+      { PMDA_PMID(CLUSTER_SYSFS_KERNEL,1), PM_TYPE_FLOAT, NODE_INDOM,
 	PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*
@@ -7585,7 +7585,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     char		*name;
 
     if (mdesc->m_user != NULL) {
-	/* 
+	/*
 	 * The metric value is extracted directly via the address specified
 	 * in metrictab.  Note: not all metrics support this - those that
 	 * don't have NULL for the m_user field in their respective
@@ -8811,6 +8811,22 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	break;
 
+    case CLUSTER_SYSFS_KERNEL:
+	switch (item) {
+	case 1:	/* sysfs.kernel.debug.extfrag_unusable */
+	    sts = pmdaCacheLookup(INDOM(NODE_INDOM), inst, &name, (void **)&np);
+	    if (sts < 0)
+		return PM_ERR_INST;
+	    if (np->num_extfrag_index == 0)
+		return 0;
+	    atom->f = np->extfrag_unusable;
+	    break;
+
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
     case CLUSTER_SYSFS_DEVICES:
 	if (item == 1)	/* hinv.node.online */
 	    sts = pmdaCacheLookup(INDOM(NODE_INDOM), inst, &name, (void **)&np);
@@ -9787,6 +9803,8 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		break;
 	    case 1:	/* sysfs.kernel.debug.extfrag_unusable */
 		need_refresh[REFRESH_SYSFS_KERNEL_EXTFRAG]++;
+		need_refresh[CLUSTER_NUMA_MEMINFO]++;
+		need_refresh[CLUSTER_MEMINFO]++;
 		break;
 	    }
 	    break;

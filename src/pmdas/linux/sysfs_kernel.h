@@ -18,9 +18,7 @@
 
 typedef struct {
 	int		valid_uevent_seqnum;
-	int		num_extfrag_index;
 	uint64_t	uevent_seqnum; /* /sys/kernel/uevent_seqnum */
-	float		extfrag_unusable; /* .../debug/extfrag/unusable_index */
 } sysfs_kernel_t;
 
 /* refresh sysfs_kernel */

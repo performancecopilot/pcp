@@ -93,6 +93,9 @@ systmetrics {
 	mem.numa.util.shmem			PERNODE_MEM_SHMEM
 	mem.numa.util.hugepagesTotalBytes	PERNODE_MEM_HUGEPAGES
 
+	# /sys/kernel/debug/ksm
+	sysfs.kernel.debug.extfrag_unusable	PERNODE_MEM_EXTFRAG
+
 	# NUMA CPU metrics
 	kernel.pernode.cpu.sys			PERNODE_CPU_SYS
 	kernel.pernode.cpu.user			PERNODE_CPU_USER
@@ -264,18 +267,21 @@ systmetrics {
 	disk.dev.aveq				PERDISK_AVEQ
 	disk.dev.discard			PERDISK_NDISC
 	disk.dev.blkdiscard			PERDISK_NDSECT
+	disk.dev.inflight			PERDISK_INFLIGHT
 	disk.dm.read				PERDM_NREAD
 	disk.dm.blkread				PERDM_NRSECT
 	disk.dm.write				PERDM_NWRITE
 	disk.dm.blkwrite			PERDM_NWSECT
 	disk.dm.discard				PERDM_NDISC
 	disk.dm.blkdiscard			PERDM_NDSECT
+	disk.dm.inflight			PERDM_INFLIGHT
 	disk.md.read				PERMD_NREAD
 	disk.md.blkread				PERMD_NRSECT
 	disk.md.write				PERMD_NWRITE
 	disk.md.blkwrite			PERMD_NWSECT
 	disk.md.discard				PERMD_NDISC
 	disk.md.blkdiscard			PERMD_NDSECT
+	disk.md.inflight			PERMD_INFLIGHT
 
 	# /proc/net/rpc/nfsd
 	rpc.server.rchits			NFS_RCHITS

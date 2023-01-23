@@ -42,8 +42,10 @@ refresh_sysfs_kernel(sysfs_kernel_t *sk, int *need_refresh)
 
     if (need_refresh[REFRESH_SYSFS_KERNEL_EXTFRAG]) {
 	unsigned long node;
+	pernode_t *np;
+	pmInDom nodes = INDOM(NODE_INDOM);
 	float frag[16];
-	char nam[64], tmp[64];
+	char name[64], tmp[64];
 	FILE *fp;
 
 	pmsprintf(buf, sizeof(buf), "%s/%s/debug/extfrag/unusable_index",
@@ -55,17 +57,26 @@ refresh_sysfs_kernel(sysfs_kernel_t *sk, int *need_refresh)
 		    continue;
 		n = sscanf(&buf[5], "%lu, %s %s "
 			"%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
-			&node, tmp, nam,
+			&node, tmp, name,
 			&frag[0], &frag[1], &frag[2], &frag[3], &frag[4],
 			&frag[5], &frag[6], &frag[7], &frag[8], &frag[9],
 			&frag[10], &frag[11], &frag[12], &frag[13],
 			&frag[14], &frag[15]);
-		if (n < 4 || strncmp(nam, "Normal", 7) != 0)
+		if (n < 4 || strncmp(name, "Normal", 7) != 0)
 		    continue;
-		n -= 3;
-		for (i = 0; i < n; i++)
-		    sk->extfrag_unusable += frag[i];
-		sk->num_extfrag_index = n;
+
+		np = NULL;
+		pmsprintf(name, sizeof(name), "node%lu", node);
+		if (!pmdaCacheLookupName(nodes, name, NULL, (void **)&np) || !np) {
+		    fprintf(stderr, "Unknown node '%s' in sysfs file", name);
+		} else {
+		    np->extfrag_unusable = 0;
+		    np->num_extfrag_index = 0;
+		    n -= 3;
+		    for (i = 0; i < n; i++)
+			np->extfrag_unusable += frag[i];
+		    np->num_extfrag_index = n;
+		}
 	    }
 	    fclose(fp);
 	}
