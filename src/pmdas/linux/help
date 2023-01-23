@@ -1496,6 +1496,7 @@ See also network.interface.speed for the Megabytes/second value.
 @ network.interface.running boolean for whether interface has resources allocated
 @ network.interface.wireless boolean for whether interface is wireless
 @ network.interface.type sysfs interface name assignment type value
+@ network.interface.virtual boolean for whether interface is virtual or physical
 @ network.interface.inet_addr string INET interface address (ifconfig style)
 @ network.interface.ipv6_addr string IPv6 interface address (ifconfig style)
 @ network.interface.ipv6_scope string IPv6 interface scope (ifconfig style)
@@ -2106,6 +2107,11 @@ segment marked for destruction on last detach) and "locked" or the empty string.
 @ vfs.locks.lease.count number of file lease structures
 
 @ sysfs.kernel.uevent_seqnum counter of the number of uevents processed by the udev subsystem
+@ sysfs.kernel.debug.extfrag_unusable debug info from which NUMA memory fragmentation deduced
+When kernel CONFIG_COMPACTION compile option is active in the running kernel
+this metric exports the fraction of Normal zone memory that is unusuable for
+all NUMA nodes. Note that it is extracted using the sysfs debug namespace so
+it may not persist in future kernel versions.
 
 @ hinv.ntape number of Linux scsi tape devices
 @ tape.dev.in_flight number of I/Os currently outstanding to this tape device

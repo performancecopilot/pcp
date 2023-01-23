@@ -560,12 +560,6 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_STAT,59), PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* hinv.map.scsi_id */
-    { NULL,
-      { PMDA_PMID(CLUSTER_STAT,103), PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE,
-	PMDA_PMUNITS(0,0,0,0,0,0) }, },
-
-
 /* disk.dev.read_rawactive */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,72), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
@@ -620,6 +614,11 @@ static pmdaMetric metrictab[] = {
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,94), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.dev.inflight */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,95), PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /* disk.all.avactive */
     { NULL, 
@@ -1614,6 +1613,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_NET_DEV,29), PM_TYPE_U32, NET_DEV_INDOM, PM_SEM_DISCRETE,
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+/* network.interface.virtual */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_NET_DEV,30), PM_TYPE_U32, NET_DEV_INDOM, PM_SEM_DISCRETE,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /* network.interface.inet_addr */
     { NULL, 
       { PMDA_PMID(CLUSTER_NET_ADDR,0), PM_TYPE_STRING, NET_ADDR_INDOM, PM_SEM_DISCRETE, 
@@ -2317,6 +2321,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_PARTITIONS,23), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
+/* disk.partitions.inflight */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,24), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /* zram.read */
     { NULL, 
       { PMDA_PMID(CLUSTER_ZRAM_DEVICES,0), KERNEL_ULONG, ZRAM_INDOM, PM_SEM_COUNTER, 
@@ -2437,6 +2446,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_ZRAM_DEVICES,23), PM_TYPE_U32, ZRAM_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
+/* zram.inflight */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_ZRAM_DEVICES,24), PM_TYPE_U32, ZRAM_INDOM, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /* disk.dev.read_bytes */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,38), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
@@ -2501,6 +2515,16 @@ static pmdaMetric metrictab[] = {
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,102), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* hinv.map.scsi_id */
+    { NULL,
+      { PMDA_PMID(CLUSTER_STAT,103), PM_TYPE_STRING, DISK_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* disk.all.inflight */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,104), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*
  * zram IO cluster
@@ -6473,6 +6497,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_SYSFS_KERNEL,0), PM_TYPE_U64, PM_INDOM_NULL,
 	PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+    /* sysfs.kernel.debug.extfrag_unusable */
+    { &sysfs_kernel.extfrag_unusable,
+      { PMDA_PMID(CLUSTER_SYSFS_KERNEL,1), PM_TYPE_FLOAT, PM_INDOM_NULL,
+	PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /*
  * /proc/interrupts clusters
  */
@@ -6615,6 +6644,10 @@ static pmdaMetric metrictab[] = {
     { NULL, { PMDA_PMID(CLUSTER_DM,24), PM_TYPE_U32, DM_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
+    /* disk.dm.inflight */
+    { NULL, { PMDA_PMID(CLUSTER_DM,25), PM_TYPE_U32, DM_INDOM,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /*
  * disk.md cluster
  */
@@ -6721,6 +6754,10 @@ static pmdaMetric metrictab[] = {
     /* disk.md.flush_rawactive */
     { NULL, { PMDA_PMID(CLUSTER_MD,24), PM_TYPE_U32, MD_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+    /* disk.md.inflight */
+    { NULL, { PMDA_PMID(CLUSTER_MD,25), PM_TYPE_U32, MD_INDOM,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*
  * network.softnet cluster
@@ -7048,6 +7085,10 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_WWID,94), PM_TYPE_U32, WWID_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
+/* disk.wwid.inflight */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_WWID,95), PM_TYPE_U64, WWID_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
 
 typedef struct {
@@ -7168,6 +7209,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	need_refresh[REFRESH_NET_DUPLEX] ||
 	need_refresh[REFRESH_NET_LINKUP] ||
 	need_refresh[REFRESH_NET_RUNNING] ||
+	need_refresh[REFRESH_NET_VIRTUAL] ||
 	need_refresh[REFRESH_NET_WIRELESS] ||
 	need_refresh[REFRESH_NETADDR_INET] ||
 	need_refresh[REFRESH_NETADDR_IPV6] ||
@@ -7259,6 +7301,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	    need_refresh[REFRESH_NET_DUPLEX] ||
 	    need_refresh[REFRESH_NET_LINKUP] ||
 	    need_refresh[REFRESH_NET_RUNNING] ||
+	    need_refresh[REFRESH_NET_VIRTUAL] ||
 	    need_refresh[REFRESH_NET_WIRELESS] ||
 	    need_refresh[REFRESH_NETADDR_INET] ||
 	    need_refresh[REFRESH_NETADDR_IPV6] ||
@@ -7363,7 +7406,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     	refresh_proc_vmstat(&_pm_proc_vmstat);
 
     if (need_refresh[CLUSTER_SYSFS_KERNEL])
-    	refresh_sysfs_kernel(&sysfs_kernel);
+	refresh_sysfs_kernel(&sysfs_kernel, need_refresh);
 
     if (need_refresh[CLUSTER_NET_SOFTNET])
 	refresh_proc_net_softnet(&proc_net_softnet);
@@ -8351,6 +8394,9 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 29: /* network.interface.type */
 	    atom->ul = netip->ioc.type;
+	    break;
+	case 30: /* network.interface.virtual */
+	    atom->ul = netip->ioc.virtuali;
 	    break;
 	default:
 	    return PM_ERR_PMID;
@@ -9711,6 +9757,9 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    case 29:	/* network.interface.type */
 		need_refresh[REFRESH_NET_TYPE]++;
 		break;
+	    case 30:	/* network.interface.virtual */
+		need_refresh[REFRESH_NET_VIRTUAL]++;
+		break;
 	    }
 	    break;
 
@@ -9726,6 +9775,18 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		break;
 	    case 3:	/* network.interface.hw_addr */
 		need_refresh[REFRESH_NETADDR_HW]++;
+		break;
+	    }
+	    break;
+
+	case CLUSTER_SYSFS_KERNEL:
+	    need_refresh[cluster]++;
+	    switch (item) {
+	    case 0:	/* sysfs.kernel.uevent_seq */
+		need_refresh[REFRESH_SYSFS_KERNEL_UEVENTSEQ]++;
+		break;
+	    case 1:	/* sysfs.kernel.debug.extfrag_unusable */
+		need_refresh[REFRESH_SYSFS_KERNEL_EXTFRAG]++;
 		break;
 	    }
 	    break;

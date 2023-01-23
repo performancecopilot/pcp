@@ -213,9 +213,8 @@ refresh_net_dev_sysfs(char *name, net_interface_t *netip, int *need_refresh)
 		linux_statspath, name);
 	if (access(path, F_OK) == 0)
 	    netip->ioc.wireless = 1;
-	else if (access(dirname(path), F_OK) != 0)
-	    return PM_ERR_AGAIN;	/* no sysfs, try ioctl */
-	netip->ioc.wireless = 0;
+	else
+	    netip->ioc.wireless = 0;
     }
     if (need_refresh[REFRESH_NET_TYPE]) {
 	pmsprintf(path, sizeof(path), "%s/sys/class/net/%s/type",
@@ -224,6 +223,14 @@ refresh_net_dev_sysfs(char *name, net_interface_t *netip, int *need_refresh)
 	if (value == NULL)
 	    return PM_ERR_AGAIN;	/* no sysfs, try ioctl */
 	netip->ioc.type = atoi(value);
+    }
+    if (need_refresh[REFRESH_NET_VIRTUAL]) {
+	pmsprintf(path, sizeof(path), "%s/sys/devices/virtual/net/%s",
+		linux_statspath, name);
+	if (access(path, R_OK|X_OK) == 0)
+	    netip->ioc.virtuali = 1;
+	else
+	    netip->ioc.virtuali = 0;
     }
     return 0;
 }

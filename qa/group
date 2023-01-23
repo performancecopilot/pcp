@@ -2018,6 +2018,7 @@ x11
 1828 pmda.linux local
 1829 archive pmlogrewrite local archive_v3 pmdumplog local pmconfig
 1837 pmproxy local
+1838 pmda.linux kernel local
 1844 pmdumptext libpcp_qmc remote
 1850 pmseries libpcp_web local
 1853 pmda.bpf local
