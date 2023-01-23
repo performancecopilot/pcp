@@ -29,6 +29,8 @@
 struct syscap {
 	int	nrcpu;
 	int	nrgpu;
+	int	nrmemnuma;
+	int	nrcpunuma;
 	count_t	availcpu;
 	count_t	availmem;
 	count_t	availdsk;
@@ -88,6 +90,7 @@ struct sselection {
 #define	MPROCSCH	's'
 #define	MPROCVAR	'v'
 #define	MPROCARG	'c'
+#define	MPROCCGR	'X'
 #define MPROCOWN	'o'
 
 #define	MCUMUSER	'u'
@@ -110,6 +113,7 @@ struct sselection {
 #define	MSYSFIXED	'f'
 #define	MSYSNOSORT	'F'
 #define	MSYSLIMIT	'l'
+#define	MRMSPACES	'Z'
 
 #define	MSELUSER	'U'
 #define	MSELPROC	'P'
@@ -154,7 +158,7 @@ void	showcmdproc(struct tstat *, double, int, int);
 
 void	printg     (const char *, ...);
 int	prisyst(struct sstat  *, int, double, int, int, struct sselection *,
-			char *, int, int, int, int, int, int, int, int, int);
+			char *, int, int, int, int, int, int, int, int, int, int, int);
 int	priproc(struct tstat  **, int, int, int, int, int, char, char,
 	        struct syscap *, double, int);
-void	priphead(int, int, char *, char *, char);
+void	priphead(int, int, char *, char *, char, count_t);

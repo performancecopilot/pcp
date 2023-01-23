@@ -3545,7 +3545,12 @@ AC_SUBST(pcp_archive_dir)
 pcp_sa_dir=$pcp_log_dir/sa
 AC_SUBST(pcp_sa_dir)
 
-pcp_pacct_system_path="$localstatedir/account/pacct"
+if test -d /var/log/account
+then
+    pcp_pacct_system_path="$localstatedir/log/account/pacct"
+else
+    pcp_pacct_system_path="$localstatedir/account/pacct"
+fi
 AC_SUBST(pcp_pacct_system_path)
 
 AC_ARG_WITH(rundir,[AC_HELP_STRING([--with-rundir],[run directory [LOCALSTATEDIR/run/pcp]])],

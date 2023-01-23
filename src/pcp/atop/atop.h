@@ -25,13 +25,18 @@
 /*
 ** memory-size formatting possibilities
 */
-#define	ANYFORMAT	0
+#define	BFORMAT		0
 #define	KBFORMAT	1
-#define	MBFORMAT	2
-#define	GBFORMAT	3
-#define	TBFORMAT	4
-#define	PBFORMAT	5
-#define	OVFORMAT	9
+#define	KBFORMAT_INT	2
+#define	MBFORMAT	3
+#define	MBFORMAT_INT	4
+#define	GBFORMAT	5
+#define	GBFORMAT_INT	6
+#define	TBFORMAT	7
+#define	TBFORMAT_INT	8
+#define	PBFORMAT	9
+#define	PBFORMAT_INT	10
+#define	OVFORMAT	11
 
 typedef	long long	count_t;
 typedef	unsigned long long	ucount_t;
@@ -95,6 +100,7 @@ extern char		calcpss;
 extern char		getwchan;
 extern char		hotprocflag;
 extern char		rawreadflag;
+extern char		rmspaces;
 extern unsigned int	begintime, endtime;
 extern char		flaglist[];
 extern struct visualize vis;
@@ -105,11 +111,13 @@ extern int      	os_sub;
 
 extern unsigned short	hertz;
 extern unsigned int	pidmax;
+extern unsigned int	pidwidth;
 extern unsigned int	pagesize;
 extern unsigned int	hinv_nrcpus;
 extern unsigned int	hinv_nrdisk;
 extern unsigned int	hinv_nrgpus;
 extern unsigned int	hinv_nrintf;
+extern unsigned int	hinv_nrnuma;
 
 extern int		supportflags;
 
@@ -135,6 +143,7 @@ extern long long	system_boottime;
 #define	NETATOPD	0x00000020
 #define	DOCKSTAT	0x00000040
 #define	GPUSTAT		0x00000080
+#define	CGROUPV2	0x00000100
 
 /*
 ** structure containing the start-addresses of functions for visualization
@@ -182,8 +191,9 @@ int		intfcompar(const void *, const void *);
 int		ifbcompar(const void *, const void *);
 int		nfsmcompar(const void *, const void *);
 int		contcompar(const void *, const void *);
-
-count_t		subcount(count_t, count_t);
+int		memnumacompar(const void *, const void *);
+int		cpunumacompar(const void *, const void *);
+int		llccompar(const void *, const void *);
 
 void		setup_options(struct pmOptions *, char **, char *);
 void		close_options(struct pmOptions *);
@@ -202,7 +212,9 @@ unsigned short 	getnumvers(void);
 void		ptrverify(const void *, const char *, ...);
 void		mcleanstop(int, const char *, ...);
 void		cleanstop(int);
+int		getpidwidth(void);
 void		prusage(char *, struct pmOptions *);
+int		run_in_guest(void);
 void		show_pcp_usage(struct pmOptions *);
 void		engine(void);
 
@@ -228,6 +240,7 @@ float		extract_float_inst(struct pmResult *, struct pmDesc *, int, int, int);
 int		extract_integer(struct pmResult *, struct pmDesc *, int);
 int		extract_integer_inst(struct pmResult *, struct pmDesc *, int, int, int);
 int		extract_integer_index(struct pmResult *, struct pmDesc *, int, int);
+int             extract_integer_instmap_count(struct pmResult *, struct pmDesc *, int, int);
 count_t		extract_count_t(struct pmResult *, struct pmDesc *, int);
 count_t		extract_count_t_inst(struct pmResult *, struct pmDesc *, int, int, int);
 count_t		extract_count_t_index(struct pmResult *, struct pmDesc *, int, int);

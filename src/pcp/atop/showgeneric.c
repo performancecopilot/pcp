@@ -63,6 +63,8 @@ static int	maxintlines = 999;  /* maximum interface lines          */
 static int	maxifblines = 999;  /* maximum infinibnd lines          */
 static int	maxnfslines = 999;  /* maximum nfs mount lines          */
 static int	maxcontlines = 999; /* maximum container lines          */
+static int	maxnumalines = 999; /* maximum numa      lines          */
+static int	maxllclines = 999;  /* maximum llc       lines          */
 
 static short	colorinfo   = COLOR_GREEN;
 static short	coloralmost = COLOR_CYAN;
@@ -114,8 +116,8 @@ generic_samp(double sampletime, double nsecs,
 	char		*lastsortp, curorder, autoorder;
 	char		buf[34];
 	struct timeval	timeval;
-	struct syscap	syscap;
 	struct passwd 	*pwd;
+	struct syscap	syscap;
 
 	/*
 	** curlist points to the active list of tstat-pointers that
@@ -236,6 +238,18 @@ generic_samp(double sampletime, double nsecs,
 		if (sstat->cfs.nrcontainer > 1 && maxcontlines > 0)
 			qsort(sstat->cfs.cont, sstat->cfs.nrcontainer,
 		  	       sizeof sstat->cfs.cont[0], contcompar);
+
+		if (sstat->memnuma.nrnuma > 1 && maxnumalines > 0)
+			qsort(sstat->memnuma.numa, sstat->memnuma.nrnuma,
+			       sizeof sstat->memnuma.numa[0], memnumacompar);
+
+		if (sstat->cpunuma.nrnuma > 1 && maxnumalines > 0)
+			qsort(sstat->cpunuma.numa, sstat->cpunuma.nrnuma,
+			       sizeof sstat->cpunuma.numa[0], cpunumacompar);
+
+		if (sstat->llc.nrllcs > 1 && maxllclines > 0)
+			qsort(sstat->llc.perllc, sstat->llc.nrllcs,
+				sizeof sstat->llc.perllc[0], llccompar);
 	}
 
 	/*
@@ -246,6 +260,7 @@ generic_samp(double sampletime, double nsecs,
 	while (1)
 	{
 		curline = 1;
+		genline[0] = '\0';
 
 	        /*
        	 	** prepare screen or file output for new sample
@@ -289,7 +304,7 @@ generic_samp(double sampletime, double nsecs,
 			procsel.container[0]	      ? MSELCONT   : '-',
 			procsel.pid[0] != 0	      ? MSELPID    : '-',
 			procsel.argnamesz	      ? MSELARG    : '-',
-			procsel.states[0]             ? MSELSTATE  : '-',
+			procsel.states[0]	      ? MSELSTATE  : '-',
 			syssel.lvmnamesz +
 			syssel.dsknamesz +
 			syssel.itfnamesz	      ? MSELSYS    : '-',
@@ -329,7 +344,7 @@ generic_samp(double sampletime, double nsecs,
 		                  maxcpulines, maxgpulines, maxdsklines,
 				  maxmddlines, maxlvmlines,
 		                  maxintlines, maxifblines, maxnfslines,
-		                  maxcontlines);
+		                  maxcontlines, maxnumalines, maxllclines);
 
 		/*
  		** if system-wide statistics do not fit,
@@ -352,7 +367,8 @@ generic_samp(double sampletime, double nsecs,
 					maxdsklines, maxmddlines,
 		                        maxlvmlines, maxintlines,
 					maxifblines, maxnfslines,
-		                        maxcontlines);
+		                        maxcontlines, maxnumalines,
+					maxllclines);
 
 			/*
  			** if system-wide statistics still do not fit,
@@ -404,29 +420,73 @@ generic_samp(double sampletime, double nsecs,
 		{
 			if (flag&RRBOOT)
 			{
+				char *initmsg = "*** System and Process Activity since Boot ***";
+				char *viewmsg;
+
+				if (rawreadflag)
+				{
+					viewmsg   = "Rawfile view";
+				}
+				else
+				{
+ 					uid_t ruid, euid, suid;
+
+					getresuid(&ruid, &euid, &suid);
+
+					if (suid == 0)
+					{
+						viewmsg   = "Unrestricted view (privileged)";
+					}
+					else
+					{
+						viewmsg   = "Restricted view (unprivileged)";
+					}
+				}
+
 				if (screen)
 				{
 					if (usecolors)
 						attron(COLOR_PAIR(COLORINFO));
 
 					attron(A_BLINK);
-
-					printg("%*s", (COLS-45)/2, " ");
-				}
-				else
-				{
-					printg("                   ");
 				}
 
-       				printg("*** system and process activity "
-				       "since boot ***");
+       				printg(initmsg);
 
 				if (screen)
 				{
 					if (usecolors)
 						attroff(COLOR_PAIR(COLORINFO));
 					attroff(A_BLINK);
+
+					printg("%*s", (int)(
+						COLS - strlen(initmsg) - strlen(viewmsg)),
+						" ");
 				}
+				else
+				{
+					printg("%*s", (int)(
+						80 - strlen(initmsg) - strlen(viewmsg)),
+						" ");
+				}
+
+				if (screen)
+				{
+					if (usecolors)
+						attron(COLOR_PAIR(COLORALMOST));
+
+					attron(A_BLINK);
+				}
+
+       				printg(viewmsg);
+
+				if (screen)
+				{
+					if (usecolors)
+						attroff(COLOR_PAIR(COLORALMOST));
+					attroff(A_BLINK);
+				}
+
 			}
 		}
 
@@ -764,7 +824,8 @@ generic_samp(double sampletime, double nsecs,
 
 			priphead(firstproc/plistsz+1, (ncurlist-1)/plistsz+1,
 			       		&showtype, &curorder,
-					showorder == MSORTAUTO ? 1 : 0);
+					showorder == MSORTAUTO ? 1 : 0,
+					sstat->cpu.nrcpu);
 
 			if (screen)
 			{
@@ -1107,6 +1168,21 @@ generic_samp(double sampletime, double nsecs,
 			   */
 			   case MPROCARG:
 				showtype  = MPROCARG;
+				firstproc = 0;
+				break;
+
+			   /*
+			   ** cgroup v2 info per process
+			   */
+			   case MPROCCGR:
+				if ( !(supportflags & CGROUPV2) )
+				{
+					statmsg = "No cgroup v2 figures "
+					          "available; request ignored!";
+					break;
+				}
+
+				showtype  = MPROCCGR;
 				firstproc = 0;
 				break;
 
@@ -1526,7 +1602,7 @@ generic_samp(double sampletime, double nsecs,
 				break;
 
 			    /*
-			    ** focus on specific process-state
+			    ** focus on specific process/thread state
 			    */
 			   case MSELSTATE:
 				alarm(0);       /* stop the clock */
@@ -1534,9 +1610,10 @@ generic_samp(double sampletime, double nsecs,
 
 				move(statline, 0);
 				clrtoeol();
+
 				/* Linux fs/proc/array.c - task_state_array */
-				printw("Comma-separated process states "
-				       "(R|S|D|T|t|X|Z|P): ");
+				printw("Comma-separated process/thread states "
+				       "(R|S|D|I|T|t|X|Z|P): ");
 
 				memset(procsel.states, 0, sizeof procsel.states);
 
@@ -1552,12 +1629,22 @@ generic_samp(double sampletime, double nsecs,
 						continue;
 					}
 
+					if (strlen(sp) > 1)
+					{
+						statmsg = "Invalid state!";
+						memset(procsel.states, 0,
+							sizeof procsel.states);
+						break;
+					}
+
 					int needed = 0;
+
 					switch (*sp)
 					{
 						case 'R': /* running */
 						case 'S': /* sleeping */
 						case 'D': /* disk sleep */
+						case 'I': /* idle */
 						case 'T': /* stopped */
 						case 't': /* tracing stop */
 						case 'X': /* dead */
@@ -1568,11 +1655,14 @@ generic_samp(double sampletime, double nsecs,
 							break;
 						default:
 							statmsg = "Invalid state!";
+							memset(procsel.states,
+								0, sizeof procsel.states);
 							beep();
 							break;
 					}
+
 					if (needed)
-						procsel.states[strlen(procsel.states)] = *sp;
+					    procsel.states[strlen(procsel.states)] = *sp;
 
 					sp = strtok(NULL, ",");
 				}
@@ -1990,6 +2080,16 @@ generic_samp(double sampletime, double nsecs,
 				  getnumval("Maximum lines for container "
 				            "statistics (now %d): ",
 					    maxcontlines, statline);
+
+				maxnumalines =
+				  getnumval("Maximum lines for numa "
+				            "statistics (now %d): ",
+					    maxnumalines, statline);
+
+				maxllclines =
+				  getnumval("Maximum lines for LLC "
+				            "statistics (now %d): ",
+					    maxllclines, statline);
 
 				if ((interval.tv_sec || interval.tv_usec) && !paused && !rawreadflag)
 					setalarm2(3, 0);  /* set short timer */
@@ -2441,7 +2541,7 @@ procsuppress(struct tstat *curstat, struct pselection *sel)
 	}
 
 	/*
-	** check if only processes in specific states should be shown
+	** check if only processes in specific states should be shown 
 	*/
 	if (sel->states[0])
 	{
@@ -2482,6 +2582,12 @@ limitedlines(void)
 
 	if (maxcontlines == 999)	// default?
 		maxcontlines = 1;
+
+	if (maxnumalines == 999)	// default?
+		maxnumalines = 0;
+
+	if (maxllclines  == 999)	// default?
+		maxllclines = 0;
 }
 
 /*
@@ -2626,7 +2732,7 @@ generic_init(void)
 			{
 				fprintf(stderr, "BCC PMDA not active or "
 					        "'netproc' module not enabled; "
-					        "request ignored!");
+					        "request ignored!\n");
 				sleep(3);
 				break;
 			}
@@ -2641,6 +2747,18 @@ generic_init(void)
 
 		   case MPROCARG:
 			showtype  = MPROCARG;
+			break;
+
+		   case MPROCCGR:
+			if ( !(supportflags & CGROUPV2) )
+			{
+				fprintf(stderr, "No cgroup v2 details "
+				          "available; request ignored!\n");
+				sleep(3);
+				break;
+			}
+
+			showtype  = MPROCCGR;
 			break;
 
 		   case MPROCOWN:
@@ -2740,7 +2858,7 @@ generic_init(void)
        	** check if STDOUT is related to a tty or
        	** something else (file, pipe)
        	*/
-       	if ( isatty(1) )
+       	if ( isatty(fileno(stdout)) )
                	screen = 1;
        	else
              	screen = 0;
@@ -2751,6 +2869,16 @@ generic_init(void)
        	*/
        	if (screen)
 	{
+		/*
+		** if stdin is not connected to a tty (might be redirected
+		** to pipe or file), close it and duplicate stdout (tty)
+		** to stdin
+		*/
+       		if ( !isatty(fileno(stdin)) )
+		{
+			(void) dup2(fileno(stdout), fileno(stdin));
+		}
+
 		/*
 		** initialize screen-handling via curses
 		*/
@@ -2805,11 +2933,13 @@ static struct helptext {
 	{"\t'%c'  - memory details\n",				MPROCMEM},
 	{"\t'%c'  - disk details\n",				MPROCDSK},
 	{"\t'%c'  - network details\n",				MPROCNET},
-	{"\t'%c'  - GPU details\n",				MPROCGPU},
+	{"\t'%c'  - cgroups v2 details\n",			MPROCCGR},
 	{"\t'%c'  - scheduling and thread-group info\n",	MPROCSCH},
+	{"\t'%c'  - GPU details\n",				MPROCGPU},
 	{"\t'%c'  - various info (ppid, user/group, date/time, status, "
 	 "exitcode)\n",	MPROCVAR},
 	{"\t'%c'  - full command line per process\n",		MPROCARG},
+	{"\t'%c'  - cgroup v2 info per process\n",		MPROCCGR},
 	{"\t'%c'  - use own output line definition\n",		MPROCOWN},
 	{"\n",							' '},
 	{"Sort list of processes in order of:\n",		' '},
@@ -2835,7 +2965,7 @@ static struct helptext {
 	{"\t'%c'  - focus on specific command line string "
 	                              "(regular expression)\n", MSELARG},
 	{"\t'%c'  - focus on specific process id (PID)\n",      MSELPID},
-	{"\t'%c'  - focus on specific process state(s)\n",      MSELSTATE},
+	{"\t'%c'  - focus on specific process/thread state(s)\n", MSELSTATE},
 	{"\n",							' '},
 	{"System resource selections (keys shown in header line):\n",' '},
 	{"\t'%c'  - focus on specific system resources    "
@@ -3023,6 +3153,8 @@ generic_usage(void)
 	                 "date/time)\n", MPROCVAR);
 	printf("\t  -%c  show command line per process\n",
 			MPROCARG);
+	printf("\t  -%c  show cgroup v2 info per process\n",
+			MPROCCGR);
 	printf("\t  -%c  show own defined process-info\n",
 			MPROCOWN);
 	printf("\t  -%c  show cumulated process-info per user\n",
@@ -3187,6 +3319,17 @@ do_maxcont(char *name, char *val)
 	maxcontlines = get_posval(name, val);
 }
 
+void
+do_maxnuma(char *name, char *val)
+{
+	maxnumalines = get_posval(name, val);
+}
+
+void
+do_maxllc(char *name, char *val)
+{
+	maxllclines = get_posval(name, val);
+}
 
 struct colmap {
 	char 	*colname;
@@ -3319,6 +3462,10 @@ do_flags(char *name, char *val)
 
 		   case MPROCARG:
 			showtype  = MPROCARG;
+			break;
+
+		   case MPROCCGR:
+			showtype  = MPROCCGR;
 			break;
 
 		   case MPROCOWN:
