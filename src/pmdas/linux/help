@@ -306,6 +306,11 @@ e.g. mirroring the results from existing performance tools:
 
  iostat.dev.f_await = delta(disk.dev.flush_rawactive) / delta(disk.dev.flush)
 
+@ disk.dev.inflight number of I/Os currently in flight
+This value counts the number of I/O requests that have been issued to
+the device driver but have not yet completed.  It does not include I/O
+requests that are in the queue but not yet issued to the device driver.
+
 @ disk.dm.read per-device-mapper device read operations
 @ disk.dm.write per-device-mapper device write operations
 @ disk.dm.total per-device-mapper device total (read+write) operations
@@ -414,6 +419,11 @@ It is suitable mainly for use in calculations with other metrics,
 e.g. mirroring the results from existing performance tools:
 
  iostat.dm.f_await = delta(disk.dm.flush_rawactive) / delta(disk.dm.flush)
+
+@ disk.dm.inflight number of device-mapper I/Os currently in flight
+This value counts the number of I/O requests that have been issued to
+the device driver but have not yet completed.  It does not include I/O
+requests that are in the queue but not yet issued to the device driver.
 
 @ hinv.map.dmname per-device-mapper device persistent name mapping to dm-[0-9]*
 
@@ -526,6 +536,11 @@ It is suitable mainly for use in calculations with other metrics,
 e.g. mirroring the results from existing performance tools:
 
  iostat.md.f_await = delta(disk.md.flush_rawactive) / delta(disk.md.flush)
+
+@ disk.md.inflight number of multi-device I/Os currently in flight
+This value counts the number of I/O requests that have been issued to
+the device driver but have not yet completed.  It does not include I/O
+requests that are in the queue but not yet issued to the device driver.
 
 @ hinv.map.mdname per-multi-device device persistent name mapping to md[0-9]*
 
@@ -650,6 +665,11 @@ It is suitable mainly for use in calculations with other metrics,
 e.g. mirroring the results from existing performance tools:
 
  iostat.all.f_await = delta(disk.all.flush_rawactive) / delta(disk.all.flush)
+
+@ disk.all.inflight aggregate number of I/Os currently in flight
+This value counts the number of I/O requests that have been issued to
+all device drivers but have not yet completed.  It does not include I/O
+requests that are in the queue but not yet issued to device drivers.
 
 @ disk.partitions.read read operations metric for storage partitions
 Cumulative number of disk read operations since system boot time
@@ -794,6 +814,11 @@ e.g. mirroring the results from existing performance tools:
 
  iostat.partitions.f_await = delta(disk.partitions.flush_rawactive) /
                              delta(disk.partitions.flush)
+
+@ disk.partitions.inflight number of I/Os currently in flight
+This value counts the number of I/O requests that have been issued to
+the device driver but have not yet completed.  It does not include I/O
+requests that are in the queue but not yet issued to the device driver.
 
 @ swap.pagesin pages read from swap devices due to demand for physical memory
 @ swap.pagesout pages written to swap devices due to demand for physical memory
@@ -2316,6 +2341,11 @@ e.g. mirroring the results from existing performance tools:
 
  iostat.zram.f_await = delta(zram.flush_rawactive) / delta(zram.flush)
 
+@ zram.inflight number of compressed memory I/Os currently in flight
+This value counts the number of I/O requests that have been issued to
+the device driver but have not yet completed.  It does not include I/O
+requests that are in the queue but not yet issued to the device driver.
+
 @ zram.io_stat.failed.reads number of failed reads
 @ zram.io_stat.failed.writes number of failed writes
 @ zram.io_stat.invalid number of non-page-size-aligned I/O requests
@@ -2603,3 +2633,4 @@ via multiple HBAs to the same physical LUN via an FC switch.
 @ disk.wwid.discard_rawactive per-device raw count of discard response time aggregated for all scsi paths
 @ disk.wwid.flush per-device flush operations aggregated for all scsi paths
 @ disk.wwid.flush_rawactive per-device raw count of flush response time aggregated for all scsi paths
+@ disk.wwid.inflight per-device number of I/Os currently in flight aggregated for all scsi paths
