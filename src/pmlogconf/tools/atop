@@ -8,6 +8,8 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	disk.dev.blkwrite
 	disk.dev.aveq
 	disk.dev.avactive
+	disk.dev.discard
+	disk.dev.blkdiscard
 	disk.dm.read
 	disk.dm.write
 	disk.dm.blkread
@@ -44,6 +46,21 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 
 	hinv.cpu.clock
 
+	kernel.pernode.cpu.sys
+	kernel.pernode.cpu.user
+	kernel.pernode.cpu.nice
+	kernel.pernode.cpu.idle
+	kernel.pernode.cpu.wait.total
+	kernel.pernode.cpu.irq.hard
+	kernel.pernode.cpu.irq.soft
+	kernel.pernode.cpu.steal
+	kernel.pernode.cpu.guest
+
+	mem.vmstat.pgpgin
+	mem.vmstat.pgpgout
+	mem.vmstat.nr_page_table_pages
+	mem.vmstat.numa_pages_migrated
+	mem.vmstat.pgmigrate_success
 	mem.vmstat.pgscan_direct_dma
 	mem.vmstat.pgscan_direct_dma32
 	mem.vmstat.pgscan_direct_high
@@ -65,6 +82,7 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	mem.vmstat.pgsteal_kswapd
 	mem.vmstat.pgsteal_direct
 	mem.vmstat.allocstall
+	mem.vmstat.compact_stall
 	mem.vmstat.oom_kill
 	mem.util.swapCached
 	mem.util.cached
@@ -86,6 +104,17 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	swap.pagesout
 	swap.length
 	swap.free
+
+	mem.numa.util.total
+	mem.numa.util.free
+	mem.numa.util.filePages
+	mem.numa.util.dirty
+	mem.numa.util.slab
+	mem.numa.util.slabReclaimable
+	mem.numa.util.active
+	mem.numa.util.inactive
+	mem.numa.util.shmem
+	mem.numa.util.hugepagesTotalBytes
 
 	network.interface.baudrate
 	network.interface.wireless
@@ -186,6 +215,8 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	network.udp.noports
 	network.udp.inerrors
 	network.udp.outdatagrams
+	network.sockstat.tcp.mem
+	network.sockstat.udp.mem
 
 	rpc.server.rchits
 	rpc.server.rcmisses

@@ -17140,7 +17140,12 @@ pcp_archive_dir=$pcp_log_dir/pmlogger
 pcp_sa_dir=$pcp_log_dir/sa
 
 
-pcp_pacct_system_path="$localstatedir/account/pacct"
+if test -d /var/log/account
+then
+    pcp_pacct_system_path="$localstatedir/log/account/pacct"
+else
+    pcp_pacct_system_path="$localstatedir/account/pacct"
+fi
 
 
 

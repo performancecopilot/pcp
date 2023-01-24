@@ -14,9 +14,10 @@ cpu | sys       1% | user      3% | irq       3% | idle     93% | cpu005 w  0% |
 cpu | sys       1% | user      0% | irq       2% | idle     97% | cpu001 w  0% |
 cpu | sys       0% | user      0% | irq       4% | idle     96% | cpu003 w  0% |
 cpu | sys       0% | user      0% | irq       3% | idle     97% | cpu007 w  0% |
-CPL | avg1    0.12 | avg5    0.12 | avg15   0.32 | csw    12448 | intr   17047 |
+CPL | numcpu     8 | avg1    0.12 | avg5    0.12 | csw    12448 | intr   17047 |
 GPU |            0 | gpubusy   6% | membusy   4% | memocc   26% | used  527.9M |
 MEM | tot    15.3G | free    2.3G | cache   3.6G | buff    2.3G | slab  725.1M |
+MEM | numnode    0 | shmem  83.4M | shrss   0.0M | tcpsk   0.0M | zfarc   0.0M |
 SWP | tot    15.7G | free   15.7G | swcac   0.9M | vmcom  13.3G | vmlim  23.1G |
 LVM | a_shard-root | busy      0% | read       0 | write      1 | avio  0.0 ns |
 LVM | a_shard-home | busy      0% | read       0 | write      3 | avio  0.0 ns |
@@ -39,9 +40,10 @@ cpu | sys       1% | user      0% | irq       3% | idle     96% | cpu000 w  0% |
 cpu | sys       0% | user      0% | irq       3% | idle     97% | cpu001 w  0% |
 cpu | sys       0% | user      1% | irq       3% | idle     96% | cpu006 w  0% |
 cpu | sys       0% | user      0% | irq       3% | idle     97% | cpu007 w  0% |
-CPL | avg1    0.12 | avg5    0.12 | avg15   0.32 | csw     3768 | intr   16870 |
+CPL | numcpu     8 | avg1    0.12 | avg5    0.12 | csw     3768 | intr   16870 |
 GPU |            0 | gpubusy  11% | membusy   6% | memocc   26% | used  527.9M |
 MEM | tot    15.3G | free    2.3G | cache   3.6G | buff    2.3G | slab  725.1M |
+MEM | numnode    0 | shmem  83.4M | shrss   0.0M | tcpsk   0.0M | zfarc   0.0M |
 SWP | tot    15.7G | free   15.7G | swcac   0.9M | vmcom  13.3G | vmlim  23.1G |
 LVM | a_shard-home | busy      0% | read       0 | write     25 | avio  0.0 ns |
 NET | transport    | tcpi      19 | tcpo      19 | udpi       0 | udpo       0 |
@@ -66,9 +68,10 @@ cpu | sys       1% | user      3% | irq       3% | idle     93% | cpu005 w  0% |
 cpu | sys       1% | user      0% | irq       2% | idle     97% | cpu001 w  0% |
 cpu | sys       0% | user      0% | irq       4% | idle     96% | cpu003 w  0% |
 cpu | sys       0% | user      0% | irq       3% | idle     97% | cpu007 w  0% |
-CPL | avg1    0.12 | avg5    0.12 | avg15   0.32 | csw    12448 | intr   17047 |
+CPL | numcpu     8 | avg1    0.12 | avg5    0.12 | csw    12448 | intr   17047 |
 GPU |            0 | gpubusy   6% | membusy   4% | memocc   26% | used  527.9M |
 MEM | tot    15.3G | free    2.3G | cache   3.6G | buff    2.3G | slab  725.1M |
+MEM | numnode    0 | shmem  83.4M | shrss   0.0M | tcpsk   0.0M | zfarc   0.0M |
 SWP | tot    15.7G | free   15.7G | swcac   0.9M | vmcom  13.3G | vmlim  23.1G |
 LVM | a_shard-root | busy      0% | read       0 | write      1 | avio  0.0 ns |
 LVM | a_shard-home | busy      0% | read       0 | write      3 | avio  0.0 ns |
@@ -91,9 +94,10 @@ cpu | sys       1% | user      0% | irq       3% | idle     96% | cpu000 w  0% |
 cpu | sys       0% | user      0% | irq       3% | idle     97% | cpu001 w  0% |
 cpu | sys       0% | user      1% | irq       3% | idle     96% | cpu006 w  0% |
 cpu | sys       0% | user      0% | irq       3% | idle     97% | cpu007 w  0% |
-CPL | avg1    0.12 | avg5    0.12 | avg15   0.32 | csw     3768 | intr   16870 |
+CPL | numcpu     8 | avg1    0.12 | avg5    0.12 | csw     3768 | intr   16870 |
 GPU |            0 | gpubusy  11% | membusy   6% | memocc   26% | used  527.9M |
 MEM | tot    15.3G | free    2.3G | cache   3.6G | buff    2.3G | slab  725.1M |
+MEM | numnode    0 | shmem  83.4M | shrss   0.0M | tcpsk   0.0M | zfarc   0.0M |
 SWP | tot    15.7G | free   15.7G | swcac   0.9M | vmcom  13.3G | vmlim  23.1G |
 LVM | a_shard-home | busy      0% | read       0 | write     25 | avio  0.0 ns |
 NET | transport    | tcpi      19 | tcpo      19 | udpi       0 | udpo       0 |
@@ -118,9 +122,10 @@ cpu | sys       1% | user      3% | irq       3% | idle     93% | cpu005 w  0% |
 cpu | sys       1% | user      0% | irq       2% | idle     97% | cpu001 w  0% |
 cpu | sys       0% | user      0% | irq       4% | idle     96% | cpu003 w  0% |
 cpu | sys       0% | user      0% | irq       3% | idle     97% | cpu007 w  0% |
-CPL | avg1    0.12 | avg5    0.12 | avg15   0.32 | csw    12448 | intr   17047 |
+CPL | numcpu     8 | avg1    0.12 | avg5    0.12 | csw    12448 | intr   17047 |
 GPU |            0 | gpubusy   6% | membusy   4% | memocc   26% | used  527.9M |
 MEM | tot    15.3G | free    2.3G | cache   3.6G | buff    2.3G | slab  725.1M |
+MEM | numnode    0 | shmem  83.4M | shrss   0.0M | tcpsk   0.0M | zfarc   0.0M |
 SWP | tot    15.7G | free   15.7G | swcac   0.9M | vmcom  13.3G | vmlim  23.1G |
 LVM | a_shard-root | busy      0% | read       0 | write      1 | avio  0.0 ns |
 LVM | a_shard-home | busy      0% | read       0 | write      3 | avio  0.0 ns |
@@ -143,9 +148,10 @@ cpu | sys       1% | user      0% | irq       3% | idle     96% | cpu000 w  0% |
 cpu | sys       0% | user      0% | irq       3% | idle     97% | cpu001 w  0% |
 cpu | sys       0% | user      1% | irq       3% | idle     96% | cpu006 w  0% |
 cpu | sys       0% | user      0% | irq       3% | idle     97% | cpu007 w  0% |
-CPL | avg1    0.12 | avg5    0.12 | avg15   0.32 | csw     3768 | intr   16870 |
+CPL | numcpu     8 | avg1    0.12 | avg5    0.12 | csw     3768 | intr   16870 |
 GPU |            0 | gpubusy  11% | membusy   6% | memocc   26% | used  527.9M |
 MEM | tot    15.3G | free    2.3G | cache   3.6G | buff    2.3G | slab  725.1M |
+MEM | numnode    0 | shmem  83.4M | shrss   0.0M | tcpsk   0.0M | zfarc   0.0M |
 SWP | tot    15.7G | free   15.7G | swcac   0.9M | vmcom  13.3G | vmlim  23.1G |
 LVM | a_shard-home | busy      0% | read       0 | write     25 | avio  0.0 ns |
 NET | transport    | tcpi      19 | tcpo      19 | udpi       0 | udpo       0 |

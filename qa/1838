@@ -1,0 +1,58 @@
+#!/bin/sh
+# PCP QA Test No. 1838
+# Exercise Linux kernel external fragmentation memory metric.
+#
+# Copyright (c) 2023 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo test -f /sys/kernel/debug/extfrag/unusable_index || \
+	_notrun "No kernel support for extfrag sysfs files"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_extfrag_sysfs()
+{
+#$ sudo cat /sys/kernel/debug/extfrag/unusable_index 
+#Node 0, zone      DMA 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.002 0.002 
+#Node 0, zone   Normal 0.000 0.001 0.009 0.019 0.023 0.027 0.029 0.038 0.044 0.048 0.052 0.063 0.095 
+
+    echo /sys/kernel/debug/extfrag/unusable_index >> $seq.full
+    $sudo cat /sys/kernel/debug/extfrag/unusable_index | tee -a $seq.full \
+	     | grep '^Node ' | grep -E 'zone .*Normal' \
+	     | awk '{ for (i = 5; i < NF+1; i++) sum += $i } END { print sum }'
+}
+
+_extfrag_pmprobe()
+{
+    echo pmprobe -v sysfs.kernel.debug.extfrag_unusable >> $seq.full
+    pmprobe -v sysfs.kernel.debug.extfrag_unusable | tee -a $seq.full \
+	    | awk '{ for (i = 3; i < NF+1; i++) sum += $i } END { print sum }'
+}
+
+# real QA test starts here
+pcp_value=`_extfrag_pmprobe`
+sys_value=`_extfrag_sysfs`
+
+echo pcp_value=$pcp_value >> $seq.full
+
+echo sys_value=$sys_value >> $seq.full
+
+_within_tolerance "sysfs extfrag value" $pcp_value $sys_value 0.05 -v
+status=$?
+exit

@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2016-2021 Red Hat.
+ * Copyright (c) 2016-2023 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -129,6 +129,7 @@ enum {
 	REFRESH_NET_LINKUP,
 	REFRESH_NET_RUNNING,
 	REFRESH_NET_WIRELESS,
+	REFRESH_NET_VIRTUAL,
 
 	REFRESH_NETADDR_INET,
 	REFRESH_NETADDR_IPV6,
@@ -136,6 +137,9 @@ enum {
 
 	REFRESH_PROC_DISKSTATS,
 	REFRESH_PROC_PARTITIONS,
+
+	REFRESH_SYSFS_KERNEL_UEVENTSEQ,
+	REFRESH_SYSFS_KERNEL_EXTFRAG,
 
 	NUM_REFRESHES		/* one more than highest refresh index */
 };
@@ -306,6 +310,8 @@ typedef struct {
     struct linux_table	*meminfo;
     struct linux_table	*memstat;
     double		bandwidth;
+    float		extfrag_unusable;  /* external fragmentation */
+    unsigned int	num_extfrag_index; /* memory allocator order */
 } pernode_t;
 
 typedef struct {
