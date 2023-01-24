@@ -36,15 +36,6 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 _prepare_pmda overhead
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-# 32-disk Tower of Hanoi problem takes about 30 seconds on my laptop
-# 26 Nov 2022
-#
-[ -f src/hanoi-$seq ] || ln src/hanoi src/hanoi-$seq
-src/hanoi-$seq 32 &
-pid1=$!
-src/hanoi-$seq 32 &
-pid2=$!
-
 _filter()
 {
     sed \
@@ -127,6 +118,17 @@ group qa {
     pattern: ^hanoi-$seq\$
 }
 End-of-File
+
+# 32-disk Tower of Hanoi problem takes about 30 seconds on my laptop
+# 26 Nov 2022
+# 33-disk Tower of Hanoi problem takes about 55 seconds on bozo
+# 22 Jan 2023
+#
+[ -f src/hanoi-$seq ] || ln src/hanoi src/hanoi-$seq
+src/hanoi-$seq 33 &
+pid1=$!
+src/hanoi-$seq 33 &
+pid2=$!
 
 # real QA test starts here
 cd $PCP_PMDAS_DIR/overhead
