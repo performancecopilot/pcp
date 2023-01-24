@@ -1460,6 +1460,14 @@ main(int argc, char **argv)
     }
 
     /*
+     * Get FQDN of host where pmlogger is running ... do this before
+     * any pmFetch scheduling calculations so we don't get AF events
+     * whacked by possible DNS delays in the prologue/epilogue
+     * processing.
+     */
+    prep_fqdn();
+
+    /*
      * try and establish $TZ from the remote PMCD ...
      * Note the label record has been set up, but not written yet
      */
