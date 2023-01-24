@@ -1087,9 +1087,6 @@ main(int argc, char **argv)
 			pmGetProgname(), opts.optarg);
 		opts.errors++;
 	    }
-	    else if (exit_time.tv_sec > 0) {
-		__pmAFregister(&exit_time, NULL, run_done_callback);
-	    }
 	    break;
 
 	case 'T':		/* end time */
@@ -1124,10 +1121,6 @@ main(int argc, char **argv)
 			pmGetProgname(), opts.optarg);
 		opts.errors++;
 	    }
-	    else if (vol_switch_time.tv_sec > 0) {
-		vol_switch_afid = __pmAFregister(&vol_switch_time, NULL, 
-						 vol_switch_callback);
-            }
 	    break;
 
         case 'V': 
@@ -1583,9 +1576,14 @@ main(int argc, char **argv)
     __pmAFunblock();
 
     /* create the Latest folio */
-    if (isdaemon) {
+    if (isdaemon)
 	updateLatestFolio(pmcd_host, archName);
-    }
+
+    if (vol_switch_time.tv_sec > 0)
+	vol_switch_afid = __pmAFregister(&vol_switch_time, NULL, 
+					 vol_switch_callback);
+    if (exit_time.tv_sec > 0)
+	__pmAFregister(&exit_time, NULL, run_done_callback);
 
     for ( ; ; ) {
 	int		nready;
