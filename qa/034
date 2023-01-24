@@ -45,37 +45,54 @@ s/\n/ /
 	-e '/(pmcd\./d' \
     | $PCP_AWK_PROG '
 /^[0-9]/	{ print $3,$NF }' \
-    | tee -a $here/$seq.full \
     | $PCP_AWK_PROG '
 	    { if (l[$2] != "") {
 		delta = $1 - l[$2];
 		if (delta < 0)
 		    delta += 60;
-		# print $2,delta
+		range = ""
+		# debugging sanity check ... values more than 10% different to expected
+		if (delta*1000 < 0.9*$2)
+		    range = " >10% SMALLER than expected lower bound (" 0.9*$2 "msec)"
+		else if (delta*1000 > 1.1*$2)
+		    range = " >10% LARGER than expected upper bound (" 1.1*$2 "msec)"
+		print $2 ": @" $1 " delta=" delta*1000 "msec" range >>"'"$here/$seq.full"'"
 		t[$2] += delta
 		n[$2]++
 	      }
 	      l[$2] = $1
 	    }
     END	{ for (i in n) {
-		#debug# print i,t[i],n[i]
 		printf "%d msec requested: ",i
 		if (n[i] != 0)
-		    ave = 1000*t[i]/n[i]
+		    av = 1000*t[i]/n[i]
 		else
-		    ave = 0
-		if (i == 100 && 51 <= n[i] && n[i] <= 54)
-		    printf "no. of samples within range, "
-		else if (i == 500 && 9 <= n[i] && n[i] <= 11)
-		    printf "no. of samples within range, "
-		else if (i == 900 && 4 <= n[i] && n[i] <= 6)
-		    printf "no. of samples within range, "
+		    av = 0
+		print i ": sum delta=" t[i] " nobs=" n[i] " av=" av >>"'"$here/$seq.full"'"
+		if (i == 100) {
+		    if (51 <= n[i] && n[i] <= 54)
+			printf "no. of samples within range, "
+		    else
+			printf "no. of samples (%d) unexpected, ",n[i]," not in range 51 ... 54, "
+		}
+		else if (i == 500) {
+		    if (9 <= n[i] && n[i] <= 11)
+			printf "no. of samples within range, "
+		    else
+			printf "no. of samples (%d) unexpected, ",n[i]," not in range 9 ... 11, "
+		}
+		else if (i == 900) {
+		    if (4 <= n[i] && n[i] <= 6)
+			printf "no. of samples within range, "
+		    else
+			printf "no. of samples (%d) unexpected, ",n[i]," not in range 4 ... 6, "
+		}
 		else
-		    printf "no. of samples (%d) unexpected, ",n[i]," not in range 4 ... 6"
-		if (0.9 * i <= ave && ave <= 1.1 * i)
+		    printf "Botch: i=%d unexpected, ",i
+		if (0.9 * i <= av && av <= 1.1 * i)
 		    printf "avg within 10%% of requested delay\n"
 		else
-		    printf "avg (%.2f msec) outside 10%% of requested delay range %.2f ... %.2f msec\n",1000*t[i]/n[i],0.9*i,1.1*i
+		    printf "avg (%.2f msec) outside 10%% of requested delay range %.2f ... %.2f msec\n",av,0.9*i,1.1*i
 	      }
 	    }' \
     | LC_COLLATE=POSIX sort
