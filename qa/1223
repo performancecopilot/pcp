@@ -133,6 +133,7 @@ End-of-File
 _setup()
 {
     $sudo cp $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq
+    echo "=== setup" >>$seq.full
     $sudo pmlogctl -V -c $seq restart >>$seq.full 2>&1
     pmlogctl -V status >>$seq.full 2>&1
 }
