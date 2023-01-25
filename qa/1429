@@ -52,7 +52,6 @@ _filter()
     | sed \
 	-e '/^Roll .*\/NOTICES/d' \
 	-e '/^Start .*\/NOTICES/d' \
-	-e "s;$tmp;TMP;g" \
 	-e "s/local:/HOST/g" \
 	-e "s/`hostname`/HOST/g" \
 	-e "s/`hostname | sed -e 's/\..*//'`/HOST/g" \
@@ -82,7 +81,7 @@ _setup()
     fi
     $sudo rm -f $tmp.log
     mkdir $tmp
-    echo >$tmp.sed
+    echo "s@$tmp@TMP@g" >$tmp.sed
     for day in 0 1 2 3
     do
 	fmt=%Y%m%d
