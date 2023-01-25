@@ -61,11 +61,11 @@ echo;echo === pmlogger config ===
 cat $tmp.pmlogger.config
 
 rm -f $tmp.dynamic.*
-pmlogger -t 1s -l $tmp.pmlogger.log -c $tmp.pmlogger.config $tmp.dynamic &
+pmlogger -t 500msec -l $tmp.pmlogger.log -c $tmp.pmlogger.config $tmp.dynamic &
 pmlogger_pid=$!
 
 for n in `seq 1 4`; do
-	# while pmlogger is fetching every 1s, we create a new URL every 2s.
+	# while pmlogger is fetching every 500msec, we create a new URL every 2s.
 	sleep 2
 	_createURL $n $n
 	echo;echo === openmetrics live PMNS is now ===
