@@ -58,7 +58,7 @@ static char*	names[] = {
 
 static int	n_metric = sizeof(desc) / sizeof(desc[0]);
 
-static char	*fqdn = NULL;
+static char	*fqdn;
 
 /*
  * Get FQDN for local hostname ... logic cloned from the pmcd PMDA
@@ -75,12 +75,12 @@ prep_fqdn(void)
     }
     host[MAXHOSTNAMELEN-1] = '\0';
     if ((servInfo = __pmGetAddrInfo(host)) == NULL)
-	fqdn = host;
+	fqdn = strdup(host);
     else {
 	fqdn = __pmHostEntGetName(servInfo);
 	__pmHostEntFree(servInfo);
 	if (fqdn == NULL)
-	    fqdn = host;
+	    fqdn = strdup(host);
     }
     return;
 }

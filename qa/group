@@ -1227,7 +1227,7 @@ x11
 772 pmns local
 773 derive local
 774 pmdumplog local
-775 pmfind local
+775 pmfind local not_in_container
 776 pmfind local
 777 derive pmprobe pmie local pmval
 778 pmda.postgresql pmie local
