@@ -45,15 +45,16 @@ _filter()
     | sed \
 	-e '/executable text segment/d' \
 	-e 's/  *0x[0-9a-f]* </(/' \
+	-e 's/ *\[0x[0-9a-f]*]//' \
+	-e 's/ *(0x[0-9a-f]*)//' \
 	-e 's/> at/) at/' \
-	-e 's@src/dumpstack(@dumpstack(@' \
 	-e 's@\(.*\) at src/dumpstack@dumpstack\1@' \
-	-e 's@/usr/lib/libpcp@libpcp@' \
-	-e 's@/lib/libpcp@libpcp@' \
-	-e 's/libpcp\.so\.[0-9]*/libpcp/' \
 	-e 's@\(.*\) at libpcp@libpcp\1@' \
-	-e 's/+0x.*)/...)/' \
+	-e 's@src/dumpstack(@dumpstack(@' \
 	-e 's/^[ 	]*//' \
+	-e 's@^[/a-z0-9]*libpcp@libpcp@' \
+	-e 's/libpcp\.so\.[0-9]*/libpcp/' \
+	-e 's/+0x.*)/...)/' \
     | $PCP_AWK_PROG '
 $1 == "Procedure"	{ skip = 0 }
 skip == 1		{ next }
