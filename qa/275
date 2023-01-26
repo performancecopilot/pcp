@@ -111,8 +111,11 @@ gcov.b = ( 1 / sample.mirage ) / (1 / sample.mirage_longlong )
 gcov.c = sample.seconds + disk.all.total
 gcov.d = sample.ulong.count.base - sample.ulong.count.kilo
 gcov.e = sample.ulong.count.mega - sample.ulong.count.kilo
-gcov.f = (1/sample.ulong.count.base) - (1/sample.ulong.count.kilo)
-gcov.g = (1/sample.ulong.count.mega) - (1/sample.ulong.count.kilo)
+# avoid floating point rounding differences across platforms
+# by making the result NOT close to zero (initial 2 multiplier
+# added Jan 2023)
+gcov.f = 2*(1/sample.ulong.count.base) - (1/sample.ulong.count.kilo)
+gcov.g = 2*(1/sample.ulong.count.mega) - (1/sample.ulong.count.kilo)
 End-of-File
 echo
 cat $tmp.config
