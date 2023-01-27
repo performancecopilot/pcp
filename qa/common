@@ -386,9 +386,15 @@ do
 	__group_list=`
 	if $__rflag
 	then
-	    sed -e 's/\([0-9]\):\(retired\|reserved\) /\1 /' <group
+	    sed <group \
+		-e 's/\([0-9]\):retired /\1 /' \
+		-e 's/\([0-9]\):reserved /\1 /' \
+	    # end
 	else
-	    sed -e '/[0-9]:\(retired\|reserved\) /d' <group
+	    sed <group \
+		-e '/[0-9]:retired /d' \
+		-e '/[0-9]:reserved /d' \
+	    # end
 	fi \
 	| sed -n -e 's/$/ /' -e "/^[0-9][0-9]*.* $__r /"'{
 s/ .*//p
