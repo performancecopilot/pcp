@@ -40,10 +40,16 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #	the error message from mv is:
 #	  mv: cannot stat `eek': No such file or directory
 #                         ^
-#	not
+#	not:
 #	  mv: cannot stat 'eek': No such file or directory
 #                         ^
 #	as it is elsewhere in the sane world
+#
+#	and similarly for mkdir which on OpenBSD reports:
+#	  mkdir: /eek: Permission denied
+#	not:
+#	  mkdir: cannot create directory '/eek/': Permission denied
+#                                        ^    ^^
 #
 _filter()
 {
@@ -53,11 +59,15 @@ _filter()
 	-e '/^Roll .*\/NOTICES/d' \
 	-e '/^Start .*\/NOTICES/d' \
 	-e "s/local:/HOST/g" \
+	-e '/mkdir:/s/: cannot create directory /: /' \
 	-e "s/`hostname`/HOST/g" \
 	-e "s/`hostname | sed -e 's/\..*//'`/HOST/g" \
 	-e '/\/var\/adm\/pcplog\/NOTICES/d' \
 	-e 's/-rw-r--r--\./-rw-r--r--/' \
 	-e "s/ [\`]/ '/" \
+	-e "/mkdir/s/: '//g" \
+	-e "/mkdir/s/\/': /: /g" \
+	-e "/mkdir/s/': /: /g" \
     | $PCP_AWK_PROG '
 /-rw-r--r--/	{ print $1,"...",$5,"...",$9; next }
 		{ print }' \
@@ -82,6 +92,11 @@ _setup()
     $sudo rm -f $tmp.log
     mkdir $tmp
     echo "s@$tmp@TMP@g" >$tmp.sed
+    # in case /tmp and /var/tmp are the same thing, in which case
+    # pmlogmv diagnostics sometimes use /tmp and sometimes use
+    # /var/tmp
+    #
+    echo "s@/tmp/$seq-$$@TMP@g" >>$tmp.sed
     for day in 0 1 2 3
     do
 	fmt=%Y%m%d
