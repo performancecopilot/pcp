@@ -52,6 +52,11 @@ _filter()
     # end
 }
 
+# usual stuff, but then need to deal with different implementations
+# of fmt(1) that wrap the unfiltered list of processed archives in
+# different places ... the final sed stanze undoes the fmt line
+# breaks
+#
 _filter_log()
 {
     cat \
@@ -80,8 +85,13 @@ s/\.bz//g
 s/\.gz//g
 s/\.Z//g
 s/\.z//g
+}' \
+    | sed -e '/^    DATE/{
+:loop
+$!N
+s/\n    DATE/ DATE/
+t loop
 }'
-    # done
 }
 
 # get our pmlogger running

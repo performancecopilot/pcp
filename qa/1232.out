@@ -39,5 +39,4 @@ No non-primary pmlogger process(es) found
 pmlogger_daily: [control.d/localhost:5]
 pmlogger_daily: [control.d/localhost:5]
 Archive files older than 0 days being removed ...
-    DATE.0 DATE.index DATE.meta
-    DATE.0 DATE.index DATE.meta
+    DATE.0 DATE.index DATE.meta DATE.0 DATE.index DATE.meta
