@@ -38,11 +38,6 @@
 878	.*	on some QA hosts this fails sometimes when we don't see
 		the first or second event record ... despite extensive
 		triage the problem is not understood
-1136	OpenBSD|(Ubuntu 16\.04)	for one sample, one metric is reported as
-		N/A on these platforms rather than an integer ... pmrep
-		has an unusual option (for PCP tools) for handling of N/A
-		that avoids interpolation and may be subject to arithmetic
-		errors in the sample time calculation (that's a guess)
 1210	vm[0-9][0-9]	may collide with pmlogger_check and (correctly)
 			detects presence of /etc/pcp/pmlogger/lock
 1221	vm27	extra labels associated with
