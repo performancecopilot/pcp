@@ -9594,7 +9594,9 @@ then :
 
     if test -z "$QMAKE"
     then
-					for ac_prog in qtchooser
+					if test -n "$QTDIR"
+	then
+	    for ac_prog in qtchooser
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -9645,7 +9647,7 @@ fi
   test -n "$QTCHOOSER" && break
 done
 
-	for ac_prog in qmake qmake-qt5 qmake-qt4
+	    for ac_prog in qmake qmake-qt5 qmake-qt4
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -9696,6 +9698,110 @@ fi
   test -n "$QMAKE" && break
 done
 
+	else
+	    for ac_prog in qtchooser
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_path_QTCHOOSER+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  case $QTCHOOSER in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_QTCHOOSER="$QTCHOOSER" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="/usr/lib/qtchooser:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_path_QTCHOOSER="$as_dir$ac_word$ac_exec_ext"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+QTCHOOSER=$ac_cv_path_QTCHOOSER
+if test -n "$QTCHOOSER"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $QTCHOOSER" >&5
+printf "%s\n" "$QTCHOOSER" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+  test -n "$QTCHOOSER" && break
+done
+
+	    for ac_prog in qmake qmake-qt5 qmake-qt4
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_path_QMAKE+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  case $QMAKE in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_QMAKE="$QMAKE" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="/usr/lib/qtchooser:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_path_QMAKE="$as_dir$ac_word$ac_exec_ext"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+QMAKE=$ac_cv_path_QMAKE
+if test -n "$QMAKE"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $QMAKE" >&5
+printf "%s\n" "$QMAKE" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+  test -n "$QMAKE" && break
+done
+
+	fi
 	test "x$cc_is_gcc" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
