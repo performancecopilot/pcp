@@ -444,6 +444,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 {
     int			fd = -1;
     int			one, sts;
+    int			net_sts;
     __pmSockAddr	*myAddr;
     int			isUnix = 0;
     int			try;
@@ -561,6 +562,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 	sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
 	if (sts >= 0)
 	    break;
+	net_sts = neterror();
 	if (pmDebugOptions.desperate)
 	    fprintf(stderr, "OpenRequestSocket(%d, %s, %s) __pmBind try %d: %s\n",
 		port, address, AddressFamily(*family), try+1, netstrerror_r(errmsg, sizeof(errmsg)));
@@ -572,7 +574,7 @@ OpenRequestSocket(int port, const char *address, int *family,
     if (sts < 0) {
 	pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmBind: %s\n",
 		port, address, AddressFamily(*family), netstrerror_r(errmsg, sizeof(errmsg)));
-	if (neterror() == EADDRINUSE)
+	if (net_sts == EADDRINUSE)
 	    pmNotifyErr(LOG_ERR, "%s may already be running\n", pmGetProgname());
 	goto fail;
     }
