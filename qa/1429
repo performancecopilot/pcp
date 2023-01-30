@@ -65,7 +65,7 @@ _filter()
 	-e '/\/var\/adm\/pcplog\/NOTICES/d' \
 	-e 's/-rw-r--r--\./-rw-r--r--/' \
 	-e "s/ [\`]/ '/" \
-	-e "/mkdir/s/: '//g" \
+	-e "/mkdir/s/: '/: /g" \
 	-e "/mkdir/s/\/': /: /g" \
 	-e "/mkdir/s/': /: /g" \
     | $PCP_AWK_PROG '
