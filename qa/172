@@ -135,6 +135,8 @@ sed -e 1q $PCP_TMP_DIR/pmlogger/primary
 # For Mac OS X need to massage lines like ..
 # tcp4       0      0  *.42000                *.*                    LISTEN
 # tcp6       0      0  *.42000                *.*                    LISTEN
+# For OpenBSD ...
+# tcp          0      0  *.42000                *.*                    LISTEN
 #
 echo "... and netstat"
 netstat -an \
@@ -144,6 +146,7 @@ s/0\.0\.0\.0/inet/g
 s/:::/inet6:/g
 s/tcp4[ 0]*\*./inet./
 s/tcp6[ 0]*\*./inet6./
+s/tcp[ 0]*\*./inet./
 s/:/./g
 s/.*\(inet6*.4[23]000\).*\(LISTEN\).*/... \1 ... \2/
 p

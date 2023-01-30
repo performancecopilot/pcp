@@ -50,7 +50,7 @@ d
 signal=$PCP_BINADM_DIR/pmsignal
 _needclean=true
 
-rm -rf $tmp
+rm -rf $tmp $seq.full
 mkdir $tmp
 chmod ugo+rwx $tmp
 cd $tmp
@@ -125,8 +125,17 @@ $PCP_PMCD_PROG -f -x err2 -l $tmp.log 2>&1 | _filter_err &
 # wait a little longer ...
 pmsleep 3.5
 
+ls -l err2 >>$here/$seq.full 2>&1
 echo "Checking for startup errors ..."
-[ -f err2 ] && _filter_err <err2
+if [ -f err2 ]
+then
+    echo "+++ err for second pmcd +++" >>$here/$seq.full
+    cat err2 >>$here/$seq.full 2>&1
+    _filter_err <err2
+fi
+ls -l $tmp.log >>$here/$seq.full 2>&1
+echo "+++ log file for second pmcd +++" >>$here/$seq.full
+cat $tmp.log >>$here/$seq.full 2>&1
 
 # Make sure that there are no changes to the pmcd log file
 #
@@ -140,6 +149,4 @@ else
     cat pmcd.log2.$$ >>$here/$seq.full
     echo "+++ log file for first pmcd (2) +++" >>$here/$seq.full
     cat pmcd.log1.$$ >>$here/$seq.full
-    echo "+++ log file for second pmcd +++" >>$here/$seq.full
-    cat $tmp.log >>$here/$seq.full
 fi

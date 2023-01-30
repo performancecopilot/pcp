@@ -119,6 +119,13 @@ then
 freebsd	85	dso	freebsd_init	$PCP_PMDAS_DIR/freebsd/pmda_freebsd.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 End-of-File
+elif [ $PCP_PLATFORM = openbsd ]
+then
+    cat <<End-of-File >$tmp.conf
+# Installed by PCP QA test $seq on `date`
+openbsd	139	dso	openbsd_init	$PCP_PMDAS_DIR/openbsd/pmda_openbsd.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+End-of-File
 else
     echo "Arrgh ... need pmcd.conf for PCP_PLATFORM $PCP_PLATFORM"
     exit 1

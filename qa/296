@@ -47,7 +47,7 @@ trap "_interrupt; _cleanup" 1 2 3 15
 # real QA test starts here
 
 case $PCP_PLATFORM in
-linux|solaris|freebsd)
+linux|solaris|freebsd|openbsd)
     cat <<End-of-File >$tmp.minconf
 # Installed by PCP QA test $seq on `date`
 #

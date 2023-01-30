@@ -109,6 +109,12 @@ state == 0 && /Host name lookup/	{ print "[DATE] pmcd(PID) Error: Permission cla
 	    ;;
     esac
     rm -f $tmp.tmp
+    # Note
+    #  on OpenBSD signaller pid is apparently not filled in, so we see
+    #    [DATE] pmcd(PID) Info: pmcd caught SIGTERM from unknown process
+    #  instead of
+    #    [DATE] pmcd(PID) Info: pmcd caught SIGTERM from pid=N uid=N
+    #
     _filter_pmcd_log <$log \
     | _filter_hostnames \
     | sed \
@@ -118,6 +124,7 @@ state == 0 && /Host name lookup/	{ print "[DATE] pmcd(PID) Error: Permission cla
 	-e '/gethostbyname(/s/gethostbyname([0-9.]*)/gethostbyname(IPADDR)/' \
 	-e "/host '.*':/s/host '.*'/host 'HOST'/" \
 	-e '/UNIX_DOMAIN_SOCKET/d' \
+	-e '/SIGTERM from unknown process/s//SIGTERM from pid=N uid=N/' \
     | $PCP_AWK_PROG '
 BEGIN						{ state = '"$state"' }
     			{ print state,$0 >"'$tmp.tmp'" }
@@ -140,6 +147,7 @@ _filter_kill_log()
 	-e 's/^$//' \
 	-e '/^00[08]:/d' \
 	-e '/UNIX_DOMAIN_SOCKET/d' \
+	-e '/SIGTERM from unknown process/s//SIGTERM from pid=N uid=N/' \
     | $PCP_AWK_PROG '
 $3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID" }
 			{ print }'

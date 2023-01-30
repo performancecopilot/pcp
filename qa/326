@@ -112,13 +112,13 @@ echo "pmcd_pid=$pmcd_pid" >>$seq.full
 _wait_for_pmcd
 
 cat <<End-of-File >$tmp.config
-log mandatory on 500 msec { pmcd.numagents sample.milliseconds }
+log mandatory on default { pmcd.numagents sample.milliseconds }
 End-of-File
 
 # run pmlogger and pmval for 20 seconds
-pmlogger -h localhost -s 40 -l $tmp.log -c $tmp.config $tmp &
+pmlogger -h localhost -s 80 -t 0.25 -l $tmp.log -c $tmp.config $tmp &
 pmlogger_pid=$!
-pmval -h localhost -s 40 -t 0.5 -Z "$timezone" -D fetch pmcd.numagents >$tmp.pmval 2>&1 &
+pmval -h localhost -s 80 -t 0.25 -Z "$timezone" -D fetch pmcd.numagents >$tmp.pmval 2>&1 &
 pmval_pid=$!
 
 sleep 2
