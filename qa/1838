@@ -15,6 +15,8 @@ echo "QA output created by $seq"
 
 $sudo test -f /sys/kernel/debug/extfrag/unusable_index || \
 	_notrun "No kernel support for extfrag sysfs files"
+$sudo grep -q Normal /sys/kernel/debug/extfrag/unusable_index || \
+	_notrun "No Normal memory zone in extfrag sysfs file"
 
 _cleanup()
 {
