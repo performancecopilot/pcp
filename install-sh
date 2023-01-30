@@ -324,7 +324,6 @@ else
 		$TMPFILES "$tmpfile" "$t_dir/$destfile"
 	    fi
 	fi
-	[ $status -ne 0 ] && break
 
     else
 	#
