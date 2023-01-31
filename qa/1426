@@ -49,7 +49,7 @@ _filter()
 	-e 's/ *(0x[0-9a-f]*)//' \
 	-e 's/> at/) at/' \
 	-e 's@\(.*\) at src/dumpstack@dumpstack\1@' \
-	-e 's@\(.*\) at libpcp@libpcp\1@' \
+	-e 's@\(.*\) at .*libpcp\.so.*@libpcp\1@' \
 	-e 's@src/dumpstack(@dumpstack(@' \
 	-e 's/^[ 	]*//' \
 	-e 's@^[/a-z0-9]*libpcp@libpcp@' \

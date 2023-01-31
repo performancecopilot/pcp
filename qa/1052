@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # PCP QA Test No. 1052
 # Exercise the JSON PMDA.
 #
