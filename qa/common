@@ -924,39 +924,49 @@ else
 	__x=`dirname $__x`
     done
 
-    # if we have selinux, and it is enforcing then make sure the PCP QA
-    # policy module is installed
+    # if we have selinux and it is enforcing, and PCP was build with
+    # selinux enabled, then make sure the PCP QA policy module
+    # (pcp-testsuite) is installed
     #
-    if which getenforce >/dev/null 2>&1
+    ENABLE_SELINUX=false
+    if [ -f $PCP_INC_DIR/builddefs ]
     then
-	case `getenforce`
-	in
-	    Enforcing)
-		if $sudo semodule -l | grep pcp-testsuite >/dev/null
-		then
-		    # nothing to do, module already installed
-		    # ... to force a re-install, e.g. after the module
-		    # has been updated, do
-		    # $ sudo semodule -r pcp-testsuite
-		    # first
-		    #
-		    :
-		else
-		    $sudo semodule -i pcp-testsuite.pp
-		fi
-		# and now any selinux booleans that help
-		#
-		for __bool in pcp_read_generic_logs pcp_bind_all_unreserved_ports
-		do
-		    if $sudo getsebool $__bool 2>/dev/null | grep ' --> off' >/dev/null
+	eval `sed -n -e '/ENABLE_SELINUX =/s/ //gp' <$PCP_INC_DIR/builddefs`
+    fi
+    #debug# echo "ENABLE_SELINUX=$ENABLE_SELINUX"
+    if $ENABLE_SELINUX
+    then
+	if which getenforce >/dev/null 2>&1
+	then
+	    case `getenforce`
+	    in
+		Enforcing)
+		    if $sudo semodule -l | grep pcp-testsuite >/dev/null
 		    then
-			$sudo setsebool $__bool true
+			# nothing to do, module already installed
+			# ... to force a re-install, e.g. after the module
+			# has been updated, do
+			# $ sudo semodule -r pcp-testsuite
+			# first
+			#
+			:
+		    else
+			$sudo semodule -i pcp-testsuite.pp
 		    fi
-		done
-		;;
-	    *)
-		;;
-	esac
+		    # and now any selinux booleans that help
+		    #
+		    for __bool in pcp_read_generic_logs pcp_bind_all_unreserved_ports
+		    do
+			if $sudo getsebool $__bool 2>/dev/null | grep ' --> off' >/dev/null
+			then
+			    $sudo setsebool $__bool true
+			fi
+		    done
+		    ;;
+		*)
+		    ;;
+	    esac
+	fi
     fi
 fi
 
