@@ -23,6 +23,9 @@ in
     darwin)
 	ln $seq.out.darwin $seq.out || exit 1
 	;;
+    openbsd)
+	ln $seq.out.openbsd $seq.out || exit 1
+	;;
     *)
 	ln $seq.out.default $seq.out || exit 1
 	;;

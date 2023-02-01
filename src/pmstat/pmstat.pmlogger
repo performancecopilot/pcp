@@ -1,6 +1,8 @@
 # pmlogger(1) configuration file suitable for pmstat(1)
 #
 
+%include "options.pmstat"
+
 log mandatory on default {
     kernel.all.load   
     swap.used            
@@ -9,8 +11,13 @@ log mandatory on default {
     mem.util.cached      
     swap.pagesin              
     swap.pagesout             
+%ifdef have_disk_block_stats
     disk.all.blkread     
     disk.all.blkwrite    
+%else
+    disk.all.read     
+    disk.all.write    
+%endif
     kernel.all.intr      
     kernel.all.pswitch   
     kernel.all.cpu.nice  
