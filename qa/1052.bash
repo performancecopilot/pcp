@@ -1,11 +1,13 @@
-#!/bin/sh
+# Note:
+# 	This ONLY works if it is run using bash, not sh
+#
 # PCP QA Test No. 1052
 # Exercise the JSON PMDA.
 #
 # Copyright (c) 2015 Red Hat.
 #
 
-seq=`basename $0`
+seq=`basename $0 .bash`
 echo "QA output created by $seq"
 
 . ./common.python
