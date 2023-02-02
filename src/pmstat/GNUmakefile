@@ -47,7 +47,8 @@ pmstat.pmlogger.options:
 	echo '# pmlogger config options for pmstat.config' >pmstat.pmlogger.options
 	echo >>pmstat.pmlogger.options
 ifeq ($(PCP_PLATFORM),openbsd)
-	# no disk block stats for OpenBSD
+	echo '# no disk block stats for OpenBSD' >>pmstat.pmlogger.options
+	echo '%undef have_disk_block_stats' >>pmstat.pmlogger.options
 else
 	echo '%define have_disk_block_stats' >>pmstat.pmlogger.options
 endif
