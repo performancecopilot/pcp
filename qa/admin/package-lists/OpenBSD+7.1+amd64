@@ -58,5 +58,6 @@ rrdtool
 smartmontools
 socat
 sqlite3
+unzip
 xz
 zabbix-agent
