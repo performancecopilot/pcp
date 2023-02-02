@@ -478,11 +478,30 @@ s/ .*//p
 	fi \
 	| sed -n -e '/^[0-9]/s/[ 	].*//p' >$tmp.list
 
-	for __t in `echo "$__r" | sed -e 's/,/ /g'`
-	do
-	    echo "/^0*$__t\$/d" >>$tmp.exclude
-	    echo "/^0*$__t:/d" >>$tmp.exclude
-	done
+	if echo "$__r" | grep '[0-9]-[0-9]' >/dev/null
+	then
+	    eval `echo $__r | sed -e 's/^/__start=/' -e 's/-/ __end=/'`
+	    $PCP_AWK_PROG </dev/null '
+BEGIN	{ for (t = '$__start'; t <= '$__end'; t++) printf "%03d\n",t }' \
+	    | while read __id
+	    do
+		# if test not present, silently forget about it
+		if [ ! -f $__id ]
+		then
+		    continue
+		fi
+		if grep -E -s "^$__id([: 	]|\$)" group >/dev/null
+		then
+		    # in group file ... OK
+		    echo "/^$__id\$/d" >>$tmp.exclude
+		fi
+	    done
+	else
+	    for __t in `echo "$__r" | sed -e 's/,/ /g'`
+	    do
+		echo "/^0*$__t\$/d" >>$tmp.exclude
+	    done
+	fi
 	__exclude=false
 	continue
 
@@ -577,7 +596,7 @@ p
 		    else
 			sed -e '/[0-9]:\(retired\|reserved\) /d' <group
 		    fi \
-		    | grep -E "^[0-9].*[ 	]$__name([ 	]|$)" \
+		    | grep -E "^[0-9].*[ 	]$__name([ 	]|\$)" \
 		    | wc -l \
 		    | sed -e 's/ //g'`
 		printf "%-20.20s %3d\n" $__name $__num
@@ -643,7 +662,7 @@ p
 	    __xpand=false
 	    ;;
 
-	-X)	# -X seq[,seq...] ... exclude explicit tests
+	-X)	# -X seq[,seq...] or -X seq-seq ... exclude explicit tests
 	    __exclude=true
 	    __xpand=false
 	    ;;
