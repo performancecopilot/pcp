@@ -784,15 +784,27 @@ Updating the Performance Metrics Name Space (PMNS) ...
     | _filter_pcp_start
 }
 
+# and of course sed(1) on OpenBSD has to be different ...
+#
 _filter_pmda_remove()
 {
     _filter_pmda_install |
     sed \
 	-e '/Removing files/d' \
 	-e '/Job for pmcd.service canceled/d' \
-	-e '/Updating the PMCD control file/c\
+    | case "$PCP_PLATFORM"
+      in
+        openbsd)
+	    sed -e '/Updating the PMCD control file/c\
+Updating the PMCD control file, and notifying PMCD ...\
+[...removing files...]\
+'
+	    ;;
+	*)
+	    sed -e '/Updating the PMCD control file/c\
 Updating the PMCD control file, and notifying PMCD ...\
 [...removing files...]'
+      esac
 }
 
 # Make sure that quotes which span multiple lines get appended onto
