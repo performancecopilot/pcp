@@ -1,0 +1,31 @@
+#!/bin/sh
+# PCP QA Test No. 1052
+# Exercise the JSON PMDA.
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0 .bash`
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "exit \$status" 0 1 2 3 15
+
+if which bash >/dev/null 2>&1
+then
+    :
+else
+    _notrun "bash needed for this test, but not installed"
+fi
+
+if bash $seq.bash
+then
+    status=0
+fi
+
+exit
+
