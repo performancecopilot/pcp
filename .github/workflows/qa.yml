@@ -134,7 +134,7 @@ jobs:
         id: parse_test_results
         run: |
           REPORT_ID=$(date +'%Y%m%d_%H%M%S')-${GITHUB_SHA::8}
-          echo "::set-output name=report_id::${REPORT_ID}"
+          echo "report_id=${REPORT_ID}" >> $GITHUB_OUTPUT
 
           # generate Allure inputs
           build/ci/test-report.py \
