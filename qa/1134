@@ -21,13 +21,28 @@ which pcp2xml >/dev/null 2>&1 || _notrun "pcp2xml not installed"
 
 if which locale >/dev/null 2>&1
 then
-    if locale -m 2>&1 | grep '^UTF-8$' >/dev/null
-    then
-	# we have UTF-8 support
-	:
-    else
-	_notrun "No UTF-8 support in LOCALE"
-    fi
+    case "$PCP_PLATFORM"
+    in
+	openbsd)
+		if locale -m 2>&1 | grep '^UTF-8$' >/dev/null
+		then
+		    # we have UTF-8 support
+		    :
+		else
+		    _notrun "No UTF-8 support in LOCALE"
+		fi
+		;;
+
+	*)
+		if locale charmap 2>&1 | grep '^UTF-8$' >/dev/null
+		then
+		    # we have UTF-8 support
+		    :
+		else
+		    _notrun "No UTF-8 support in LOCALE"
+		fi
+		;;
+    esac
 fi
 
 status=1       # failure is the default!
