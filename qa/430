@@ -161,17 +161,22 @@ _update_hostsfile()
 	    echo "127.0.0.$i	$extra_hostname" >>$tmp.etc.hosts
 	    echo "" >>$tmp.etc.hosts
 	    grep -E -v '^[^#].*[ 	]'$realhost'([ 	]|$)' <$hostsfile >>$tmp.etc.hosts
-	    # For OpenBSD, we need to make sure this loopback address is enabled ...
-	    #
-	    if ping -w 1 -c 1 127.0.0.$i >>$here/$seq.full 2>&1
-	    then
-		# already OK
-		:
-	    else
-		# enable it
-		$sudo ifconfig lo0 alias 127.0.0.$i
-		ifconfig lo >>$here/$seq.full 2>&1
-	    fi
+	    case "$PCP_PLATFORM"
+	    in
+		openbsd)
+		    # For OpenBSD, we need to make sure this loopback address is enabled ...
+		    #
+		    if ping -w 1 -c 1 127.0.0.$i >>$here/$seq.full 2>&1
+		    then
+			# already OK
+			:
+		    else
+			# enable it
+			$sudo ifconfig lo0 alias 127.0.0.$i
+			ifconfig lo >>$here/$seq.full 2>&1
+		    fi
+		    ;;
+	    esac
 	    break
 	fi
     done
