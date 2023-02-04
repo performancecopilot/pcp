@@ -4,7 +4,7 @@ include $(TOPDIR)/src/include/builddefs
 CFILES	= bpf.c
 CMDTARGET = pmdabpf$(EXECSUFFIX)
 LIBTARGET = pmda_bpf.$(DSOSUFFIX)
-LLDLIBS = $(PCP_WEBLIB) -lbpf -lelf -lz -lm -ldl
+LLDLIBS = $(PCP_WEBLIB) $(LIB_FOR_LIBBPF) $(LIB_FOR_LIBELF) -lz -lm -ldl
 LCFLAGS = -I.
 CONFIG	= bpf.conf
 DFILES	= README
