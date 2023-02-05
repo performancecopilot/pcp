@@ -83,6 +83,10 @@ do
     echo === Test case: `basename $file`
     $sudo rm -f named.log
     dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
+    # give PMDA a chance to notice dbpmda has closed the pipe
+    # and write the "finished" message to the log
+    #
+    sleep 1
     _filter_pmda_log < named.log
 done
 
