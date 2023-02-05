@@ -12,7 +12,7 @@ echo "QA output created by $seq"
 
 _pmdabpf_check
 _pmdabpf_require_kernel_version 5 0
-_pmdabpf_require_libbpf_version 0 7
+_pmdabpf_require_libbpf_version 1 0
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal

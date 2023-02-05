@@ -2,7 +2,7 @@ TOPDIR = ../../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM	= bpf
-LDLIBS = $(PCP_WEBLIB) -lbpf -lelf -lz -lm -ldl
+LDLIBS = $(PCP_WEBLIB) $(LIB_FOR_LIBBPF) $(LIB_FOR_LIBELF) -lz -lm -ldl
 LDIRT = $(HELPERS_H) $(HELPERS_C) $(APPS_H) $(APPS_BPF) vmlinux.h
 MODULETMP = $(PCP_PMDAS_DIR)/$(IAM)/modules
 MODULEDIR = $(PCP_PMDASADM_DIR)/$(IAM)/modules
