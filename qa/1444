@@ -35,27 +35,27 @@ enabled=true
 EOF
 _pmdabpf_wait_for_metric
 
-# Generate system activity for the CO-RE statsnoop module
+# Generate system activity for the CO-RE statsnoop module;
+# Note: pminfo itself also issues plenty of stat syscalls.
 touch /tmp/test-file && stat /tmp/test-file 1> /dev/null
 
-
-echo "=== report metric values for comm ==="
+echo "=== report metric values for comm ===" | tee -a $seq.full
 pminfo -dfmtT bpf.statsnoop.comm 2>&1 | tee -a $here/$seq.full \
-| _value_filter_exact '"stat"'
+| sed -e 's/pminfo/stat/g' | _value_filter_exact '"stat"'
 
-echo "=== report metric values for err ==="
+echo "=== report metric values for err ===" | tee -a $seq.full
 pminfo -dfmtT bpf.statsnoop.err 2>&1 | tee -a $here/$seq.full \
 | _value_filter_any
 
-echo "=== report metric values for path ==="
+echo "=== report metric values for path ===" | tee -a $seq.full
 pminfo -dfmtT bpf.statsnoop.path 2>&1 | tee -a $here/$seq.full \
 | _value_filter_any
 
-echo "=== report metric values for pid ==="
+echo "=== report metric values for pid ===" | tee -a $seq.full
 pminfo -dfmtT bpf.statsnoop.pid 2>&1 | tee -a $here/$seq.full \
 | _value_filter_nonzero
 
-echo "=== report metric values for ret ==="
+echo "=== report metric values for ret ===" | tee -a $seq.full
 pminfo -dfmtT bpf.statsnoop.ret 2>&1 | tee -a $here/$seq.full \
 | _value_filter_any
 
