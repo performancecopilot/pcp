@@ -10,6 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Thread-safe notes
+ *
+ * namebuf and namebuflen - no serious side-effects, one-trip code and worse
+ * outcome would be a small memory leak, so don't bother to make thread-safe
  */
 
 #include <limits.h>
@@ -22,6 +27,40 @@
 #if defined(HAVE_GRP_H)
 #include <grp.h>
 #endif
+
+static char	*namebuf;
+static int	namebuflen;
+
+static void
+init_namebuf(void)
+{
+    if (namebuflen == 0) {
+	/*
+	 * one trip initialization to setup namebuf to be big
+	 * enough for all of:
+	 *    getgrgid_r() and getgrnam_r() - _SC_GETGR_R_SIZE_MAX
+	 *    getpwnam_r() and getpwuid_r() - _SC_GETPW_R_SIZE_MAX
+	 */
+	int	len;
+
+	len = sysconf(_SC_GETGR_R_SIZE_MAX);
+	if (len > namebuflen)
+	    namebuflen = len;
+	len = sysconf(_SC_GETPW_R_SIZE_MAX);
+	if (len > namebuflen)
+	    namebuflen = len;
+	if (namebuflen <= 0) {
+	    /* punt! */
+	    namebuflen = 4096;
+	}
+	if ((namebuf = (char *)malloc(namebuflen)) == NULL) {
+	    pmNoMem("init_namebuf malloc", namebuflen, PM_RECOV_ERR);
+	    namebuflen = -1;		/* block one trip code in future */
+	}
+	if (pmDebugOptions.access)
+	    fprintf(stderr, "init_namebuf: namebuflen=%d namebuf=%p\n", namebuflen, namebuf);
+    }
+}
 
 int
 __pmEqualUserIDs(__pmUserID uid1, __pmUserID uid2)
@@ -80,11 +119,14 @@ __pmGroupIDToString(__pmGroupID gid, char *buf, size_t size)
 char *
 __pmGroupnameFromID(gid_t gid, char *buf, size_t size)
 {
-    char namebuf[1024];
     struct group grp, *result;
     int	sts;
 
-    sts = getgrgid_r(gid, &grp, namebuf, sizeof(namebuf), &result);
+    init_namebuf();
+    if (namebuf == NULL)
+	return "??? no buffer";
+
+    sts = getgrgid_r(gid, &grp, namebuf, namebuflen, &result);
     if (sts < 0 || result == NULL)
 	return "unknown";
     else {
@@ -114,11 +156,14 @@ __pmGroupnameFromID(gid_t gid, char *buf, size_t size)
 char *
 __pmUsernameFromID(uid_t uid, char *buf, size_t size)
 {
-    char namebuf[1024];
     struct passwd pwd, *result;
     int sts;
 
-    sts = getpwuid_r(uid, &pwd, namebuf, sizeof(namebuf), &result);
+    init_namebuf();
+    if (namebuf == NULL)
+	return "??? no buffer";
+
+    sts = getpwuid_r(uid, &pwd, namebuf, namebuflen, &result);
     if (sts < 0 || result == NULL)
 	return "unknown";
     else {
@@ -148,11 +193,14 @@ __pmUsernameFromID(uid_t uid, char *buf, size_t size)
 int
 __pmUsernameToID(const char *name, uid_t *uid)
 {
-    char namebuf[1024];
     struct passwd pwd, *result = NULL;
     int sts;
 
-    sts = getpwnam_r(name, &pwd, namebuf, sizeof(namebuf), &result);
+    init_namebuf();
+    if (namebuf == NULL)
+	return -ENOMEM;
+
+    sts = getpwnam_r(name, &pwd, namebuf, namebuflen, &result);
     if (sts < 0 || result == NULL)
 	return -ENOENT;
     *uid = result->pw_uid;
@@ -182,11 +230,14 @@ __pmUsernameToID(const char *name, uid_t *uid)
 int
 __pmGroupnameToID(const char *name, gid_t *gid)
 {
-    char namebuf[512];
     struct group grp, *result = NULL;
     int sts;
 
-    sts = getgrnam_r(name, &grp, namebuf, sizeof(namebuf), &result);
+    init_namebuf();
+    if (namebuf == NULL)
+	return -ENOMEM;
+
+    sts = getgrnam_r(name, &grp, namebuf, namebuflen, &result);
     if (sts < 0 || result == NULL)
 	return -ENOENT;
     *gid = result->gr_gid;
@@ -216,9 +267,12 @@ __pmGroupnameToID(const char *name, gid_t *gid)
 char *
 __pmHomedirFromID(uid_t uid, char *buf, size_t size)
 {
-    char namebuf[1024];
     struct passwd pwd, *result;
     char *env;
+
+    init_namebuf();
+    if (namebuf == NULL)
+	return "??? no buffer";
 
     /*
      * Use $HOME, if it is set, otherwise get the information from
@@ -233,7 +287,7 @@ __pmHomedirFromID(uid_t uid, char *buf, size_t size)
     else {
 	int sts;
 	PM_UNLOCK(__pmLock_extcall);
-	sts = getpwuid_r(uid, &pwd, namebuf, sizeof(namebuf), &result);
+	sts = getpwuid_r(uid, &pwd, namebuf, namebuflen, &result);
 	if (sts < 0 || result == NULL)
 	    return NULL;
 	pmsprintf(buf, size, "%s", result->pw_dir);
