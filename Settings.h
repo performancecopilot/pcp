@@ -73,9 +73,11 @@ typedef struct Settings_ {
    bool shadowOtherUsers;
    bool showThreadNames;
    bool hideKernelThreads;
+   bool hideRunningInContainer;
    bool hideUserlandThreads;
    bool highlightBaseName;
    bool highlightDeletedExe;
+   bool shadowDistPathPrefix;
    bool highlightMegabytes;
    bool highlightThreads;
    bool highlightChanges;
@@ -96,6 +98,7 @@ typedef struct Settings_ {
    #endif
 
    bool changed;
+   uint64_t lastUpdate;
 } Settings;
 
 #define Settings_cpuId(settings, cpu) ((settings)->countCPUsFromOne ? (cpu)+1 : (cpu))

@@ -33,7 +33,7 @@ static const char* const MetersMovingKeys[] = {"Space", "Enter", "Up", "Dn", "<-
 static const int MetersMovingEvents[] = {' ', 13, KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, ERR, KEY_DC, KEY_F(10)};
 static FunctionBar* Meters_movingBar = NULL;
 
-void MetersPanel_cleanup() {
+void MetersPanel_cleanup(void) {
    if (Meters_movingBar) {
       FunctionBar_delete(Meters_movingBar);
       Meters_movingBar = NULL;
@@ -91,7 +91,7 @@ static HandlerResult MetersPanel_eventHandler(Panel* super, int ch) {
    HandlerResult result = IGNORED;
    bool sideMove = false;
 
-   switch(ch) {
+   switch (ch) {
       case 0x0a:
       case 0x0d:
       case KEY_ENTER:
@@ -110,7 +110,8 @@ static HandlerResult MetersPanel_eventHandler(Panel* super, int ch) {
             break;
          Meter* meter = (Meter*) Vector_get(this->meters, selected);
          int mode = meter->mode + 1;
-         if (mode == LAST_METERMODE) mode = 1;
+         if (mode == LAST_METERMODE)
+            mode = 1;
          Meter_setMode(meter, mode);
          Panel_set(super, selected, (Object*) Meter_toListItem(meter, this->moving));
          result = HANDLED;
@@ -184,6 +185,7 @@ static HandlerResult MetersPanel_eventHandler(Panel* super, int ch) {
    if (result == HANDLED || sideMove) {
       Header* header = this->scr->header;
       this->settings->changed = true;
+      this->settings->lastUpdate++;
       Header_calculateHeight(header);
       ScreenManager_resize(this->scr);
    }
