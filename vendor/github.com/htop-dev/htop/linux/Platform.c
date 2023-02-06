@@ -12,6 +12,7 @@ in the source distribution for its full text.
 #include <assert.h>
 #include <ctype.h>
 #include <dirent.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
 #include <math.h>
@@ -21,6 +22,7 @@ in the source distribution for its full text.
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <sys/sysmacros.h>
 
 #include "BatteryMeter.h"
 #include "ClockMeter.h"
@@ -250,7 +252,7 @@ const MeterClass* const Platform_meterTypes[] = {
    NULL
 };
 
-int Platform_getUptime() {
+int Platform_getUptime(void) {
    double uptime = 0;
    FILE* fd = fopen(PROCDIR "/uptime", "r");
    if (fd) {
@@ -285,7 +287,7 @@ err:
    *fifteen = NAN;
 }
 
-int Platform_getMaxPid() {
+int Platform_getMaxPid(void) {
    FILE* file = fopen(PROCDIR "/sys/kernel/pid_max", "r");
    if (!file)
       return -1;
@@ -351,20 +353,20 @@ void Platform_setMemoryValues(Meter* this) {
    const LinuxProcessList* lpl = (const LinuxProcessList*) pl;
 
    this->total     = pl->totalMem;
-   this->values[0] = pl->usedMem;
-   this->values[1] = pl->buffersMem;
-   this->values[2] = pl->sharedMem;
-   this->values[3] = pl->cachedMem;
-   this->values[4] = pl->availableMem;
+   this->values[MEMORY_METER_USED] = pl->usedMem;
+   this->values[MEMORY_METER_BUFFERS] = pl->buffersMem;
+   this->values[MEMORY_METER_SHARED] = pl->sharedMem;
+   this->values[MEMORY_METER_CACHE] = pl->cachedMem;
+   this->values[MEMORY_METER_AVAILABLE] = pl->availableMem;
 
    if (lpl->zfs.enabled != 0 && !Running_containerized) {
       // ZFS does not shrink below the value of zfs_arc_min.
       unsigned long long int shrinkableSize = 0;
       if (lpl->zfs.size > lpl->zfs.min)
          shrinkableSize = lpl->zfs.size - lpl->zfs.min;
-      this->values[0] -= shrinkableSize;
-      this->values[3] += shrinkableSize;
-      this->values[4] += shrinkableSize;
+      this->values[MEMORY_METER_USED] -= shrinkableSize;
+      this->values[MEMORY_METER_CACHE] += shrinkableSize;
+      this->values[MEMORY_METER_AVAILABLE] += shrinkableSize;
    }
 }
 
@@ -430,117 +432,90 @@ char* Platform_getProcessEnv(pid_t pid) {
    return env;
 }
 
-/*
- * Return the absolute path of a file given its pid&inode number
- *
- * Based on implementation of lslocks from util-linux:
- * https://sources.debian.org/src/util-linux/2.36-3/misc-utils/lslocks.c/#L162
- */
-char* Platform_getInodeFilename(pid_t pid, ino_t inode) {
-   struct stat sb;
-   const struct dirent* de;
+FileLocks_ProcessData* Platform_getProcessLocks(pid_t pid) {
+   FileLocks_ProcessData* pdata = xCalloc(1, sizeof(FileLocks_ProcessData));
    DIR* dirp;
-   ssize_t len;
-   int fd;
+   int dfd;
 
    char path[PATH_MAX];
-   char sym[PATH_MAX];
-   char* ret = NULL;
-
-   memset(path, 0, sizeof(path));
-   memset(sym, 0, sizeof(sym));
-
-   xSnprintf(path, sizeof(path), "%s/%d/fd/", PROCDIR, pid);
+   xSnprintf(path, sizeof(path), PROCDIR "/%d/fdinfo/", pid);
    if (strlen(path) >= (sizeof(path) - 2))
-      return NULL;
+      goto err;
 
    if (!(dirp = opendir(path)))
-      return NULL;
+      goto err;
 
-   if ((fd = dirfd(dirp)) < 0 )
-      goto out;
+   if ((dfd = dirfd(dirp)) == -1) {
+      closedir(dirp);
+      goto err;
+   }
 
-   while ((de = readdir(dirp))) {
+   FileLocks_LockData** data_ref = &pdata->locks;
+   for (struct dirent* de; (de = readdir(dirp)); ) {
       if (String_eq(de->d_name, ".") || String_eq(de->d_name, ".."))
          continue;
 
-      /* care only for numerical descriptors */
-      if (!strtoull(de->d_name, (char **) NULL, 10))
+      errno = 0;
+      char *end = de->d_name;
+      int file = strtoull(de->d_name, &end, 10);
+      if (errno || *end)
          continue;
 
-      if (!Compat_fstatat(fd, path, de->d_name, &sb, 0) && inode != sb.st_ino)
+      int fd = openat(dfd, de->d_name, O_RDONLY | O_CLOEXEC);
+      if(fd == -1)
          continue;
-
-      if ((len = Compat_readlinkat(fd, path, de->d_name, sym, sizeof(sym) - 1)) < 1)
-         goto out;
-
-      sym[len] = '\0';
-
-      ret = xStrdup(sym);
-      break;
-   }
-
-out:
-   closedir(dirp);
-   return ret;
-}
-
-FileLocks_ProcessData* Platform_getProcessLocks(pid_t pid) {
-   FileLocks_ProcessData* pdata = xCalloc(1, sizeof(FileLocks_ProcessData));
-
-   FILE* f = fopen(PROCDIR "/locks", "r");
-   if (!f) {
-      pdata->error = true;
-      return pdata;
-   }
-
-   char buffer[1024];
-   FileLocks_LockData** data_ref = &pdata->locks;
-   while(fgets(buffer, sizeof(buffer), f)) {
-      if (!strchr(buffer, '\n'))
+      FILE *f = fdopen(fd, "r");
+      if(!f) {
+         close(fd);
          continue;
-
-      int lock_id;
-      char lock_type[16];
-      char lock_excl[16];
-      char lock_rw[16];
-      pid_t lock_pid;
-      unsigned int lock_dev[2];
-      uint64_t lock_inode;
-      char lock_start[25];
-      char lock_end[25];
-
-      if (10 != sscanf(buffer, "%d:  %15s  %15s %15s %d %x:%x:%"PRIu64" %24s %24s",
-         &lock_id, lock_type, lock_excl, lock_rw, &lock_pid,
-         &lock_dev[0], &lock_dev[1], &lock_inode,
-         lock_start, lock_end))
-         continue;
-
-      if (pid != lock_pid)
-         continue;
-
-      FileLocks_LockData* ldata = xCalloc(1, sizeof(FileLocks_LockData));
-      FileLocks_Data* data = &ldata->data;
-      data->id = lock_id;
-      data->locktype = xStrdup(lock_type);
-      data->exclusive = xStrdup(lock_excl);
-      data->readwrite = xStrdup(lock_rw);
-      data->filename = Platform_getInodeFilename(lock_pid, lock_inode);
-      data->dev[0] = lock_dev[0];
-      data->dev[1] = lock_dev[1];
-      data->inode = lock_inode;
-      data->start = strtoull(lock_start, NULL, 10);
-      if (!String_eq(lock_end, "EOF")) {
-         data->end = strtoull(lock_end, NULL, 10);
-      } else {
-         data->end = ULLONG_MAX;
       }
 
-      *data_ref = ldata;
-      data_ref = &ldata->next;
+      for (char buffer[1024]; fgets(buffer, sizeof(buffer), f); ) {
+         if (!strchr(buffer, '\n'))
+            continue;
+
+         if (strncmp(buffer, "lock:\t", strlen("lock:\t")))
+            continue;
+
+         FileLocks_Data data = {.fd = file};
+         int _;
+         unsigned int maj, min;
+         char lock_end[25], locktype[32], exclusive[32], readwrite[32];
+         if (10 != sscanf(buffer + strlen("lock:\t"), "%d: %31s %31s %31s %d %x:%x:%"PRIu64" %"PRIu64" %24s",
+            &_, locktype, exclusive, readwrite, &_,
+            &maj, &min, &data.inode,
+            &data.start, lock_end))
+            continue;
+
+         data.locktype = xStrdup(locktype);
+         data.exclusive = xStrdup(exclusive);
+         data.readwrite = xStrdup(readwrite);
+         data.dev = makedev(maj, min);
+
+         if (String_eq(lock_end, "EOF"))
+            data.end = ULLONG_MAX;
+         else
+            data.end = strtoull(lock_end, NULL, 10);
+
+         xSnprintf(path, sizeof(path), PROCDIR "/%d/fd/%s", pid, de->d_name);
+         char link[PATH_MAX];
+         ssize_t link_len;
+         if (strlen(path) < (sizeof(path) - 2) && (link_len = readlink(path, link, sizeof(link))) != -1)
+            data.filename = xStrndup(link, link_len);
+
+         *data_ref = xCalloc(1, sizeof(FileLocks_LockData));
+         (*data_ref)->data = data;
+         data_ref = &(*data_ref)->next;
+      }
+
+      fclose(f);
    }
 
-   fclose(f);
+   closedir(dirp);
+   return pdata;
+
+err:
+   pdata->error = true;
    return pdata;
 }
 

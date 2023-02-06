@@ -509,7 +509,7 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
       proc->m_virt = kproc->kp_vm_map_size / ONE_K;
       proc->m_resident = kproc->kp_vm_rssize * pageSizeKb;
       proc->nlwp = kproc->kp_nthreads;		// number of lwp thread
-      proc->time = (kproc->kp_swtime + 5000) / 10000;
+      proc->time = (kproc->kp_lwp.kl_uticks + kproc->kp_lwp.kl_sticks + kproc->kp_lwp.kl_iticks) / 10000;
 
       proc->percent_cpu = 100.0 * ((double)kproc->kp_lwp.kl_pctcpu / (double)kernelFScale);
       proc->percent_mem = 100.0 * proc->m_resident / (double)(super->totalMem);
@@ -527,7 +527,7 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
       else
          proc->priority = -kproc->kp_lwp.kl_tdprio;
 
-      switch(kproc->kp_lwp.kl_rtprio.type) {
+      switch (kproc->kp_lwp.kl_rtprio.type) {
          case RTP_PRIO_REALTIME:
             proc->nice = PRIO_MIN - 1 - RTP_PRIO_MAX + kproc->kp_lwp.kl_rtprio.prio;
             break;
