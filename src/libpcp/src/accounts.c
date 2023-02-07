@@ -41,16 +41,26 @@ init_namebuf(void)
 	 *    getgrgid_r() and getgrnam_r() - _SC_GETGR_R_SIZE_MAX
 	 *    getpwnam_r() and getpwuid_r() - _SC_GETPW_R_SIZE_MAX
 	 */
-	int	len;
+	long	len;
 
+	namebuflen = -1;
+
+#if defined(HAVE_GETGRGID_R) || defined(HAVE_GETGRNAM_R)
 	len = sysconf(_SC_GETGR_R_SIZE_MAX);
 	if (len > namebuflen)
 	    namebuflen = len;
+#endif
+#if defined(HAVE_GETPWUID_R) || defined(HAVE_GETPWNAM_R)
 	len = sysconf(_SC_GETPW_R_SIZE_MAX);
 	if (len > namebuflen)
 	    namebuflen = len;
+#endif
 	if (namebuflen <= 0) {
-	    /* punt! */
+	    /*
+	     * sysconf() is not helping
+	     * empirically 1024 is enough for Linux, but 2048
+	     * is not enough for OpenBSD, so ... punt!
+	     */
 	    namebuflen = 4096;
 	}
 	if ((namebuf = (char *)malloc(namebuflen)) == NULL) {
