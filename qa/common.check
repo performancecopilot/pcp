@@ -722,7 +722,7 @@ _wait_for_pmcd()
 		cat $PCP_LOG_DIR/pmcd/pmcd.log
 
 		echo "likely looking processes ..."
-		$PCP_PS_PROG "$PCP_PS_ALL_FLAGS" | grep -E "[p]m|[P]ID"
+		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[p]m|[P]ID"
 		;;
 	    *)
 		# assume a remote PMCD
