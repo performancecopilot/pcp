@@ -148,7 +148,7 @@ void Platform_setBindings(Htop_Action* keys) {
    (void) keys;
 }
 
-int Platform_getUptime() {
+int Platform_getUptime(void) {
    struct timeval bootTime, currTime;
    const int mib[2] = { CTL_KERN, KERN_BOOTTIME };
    size_t size = sizeof(bootTime);
@@ -179,7 +179,7 @@ void Platform_getLoadAverage(double* one, double* five, double* fifteen) {
    *fifteen = (double) loadAverage.ldavg[2] / loadAverage.fscale;
 }
 
-int Platform_getMaxPid() {
+int Platform_getMaxPid(void) {
    int maxPid;
    size_t size = sizeof(maxPid);
    int err = sysctlbyname("kern.pid_max", &maxPid, &size, NULL, 0);
@@ -230,28 +230,28 @@ void Platform_setMemoryValues(Meter* this) {
    const FreeBSDProcessList* fpl = (const FreeBSDProcessList*) pl;
 
    this->total = pl->totalMem;
-   this->values[0] = pl->usedMem;
-   this->values[1] = pl->buffersMem;
-   // this->values[2] = "shared memory, like tmpfs and shm"
-   this->values[3] = pl->cachedMem;
-   // this->values[4] = "available memory"
+   this->values[MEMORY_METER_USED] = pl->usedMem;
+   this->values[MEMORY_METER_BUFFERS] = pl->buffersMem;
+   this->values[MEMORY_METER_SHARED] = pl->sharedMem;
+   this->values[MEMORY_METER_CACHE] = pl->cachedMem;
+   // this->values[MEMORY_METER_AVAILABLE] = "available memory"
 
    if (fpl->zfs.enabled) {
       // ZFS does not shrink below the value of zfs_arc_min.
       unsigned long long int shrinkableSize = 0;
       if (fpl->zfs.size > fpl->zfs.min)
          shrinkableSize = fpl->zfs.size - fpl->zfs.min;
-      this->values[0] -= shrinkableSize;
-      this->values[3] += shrinkableSize;
-      // this->values[4] += shrinkableSize;
+      this->values[MEMORY_METER_USED] -= shrinkableSize;
+      this->values[MEMORY_METER_CACHE] += shrinkableSize;
+      // this->values[MEMORY_METER_AVAILABLE] += shrinkableSize;
    }
 }
 
 void Platform_setSwapValues(Meter* this) {
    const ProcessList* pl = this->pl;
    this->total = pl->totalSwap;
-   this->values[0] = pl->usedSwap;
-   this->values[1] = NAN;
+   this->values[SWAP_METER_USED] = pl->usedSwap;
+   this->values[SWAP_METER_CACHE] = NAN;
 }
 
 void Platform_setZfsArcValues(Meter* this) {
@@ -285,12 +285,6 @@ char* Platform_getProcessEnv(pid_t pid) {
    }
 
    return env;
-}
-
-char* Platform_getInodeFilename(pid_t pid, ino_t inode) {
-   (void)pid;
-   (void)inode;
-   return NULL;
 }
 
 FileLocks_ProcessData* Platform_getProcessLocks(pid_t pid) {

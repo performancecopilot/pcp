@@ -156,8 +156,9 @@ _pmdabpf_remove()
     cd $PCP_PMDAS_DIR/bpf
 
     echo
-    echo "=== remove bpf agent ==="
+    echo "=== remove bpf agent ===" | tee -a $here/$seq.full
     $sudo ./Remove >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
     _filter_pmda_remove <$tmp.out \
     | sed \
 	-e '/ Info: /d' \

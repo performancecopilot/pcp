@@ -77,6 +77,8 @@ echo "=== 1. pcp2graphite one-shot pickle  ===" | tee -a $seq.full
 socat -u tcp-listen:$port_pickled,reuseaddr - >$tmp.socat.out 2>$tmp.socat.err &
 scpid=$!
 sleep 2
+grep -q 'Address already in use' $tmp.socat.err && \
+    _notrun "Cannot run local Graphite emulator, port $port_pickled in use"
 $pcp2graphite -p $port_pickled -t 1 hinv.ncpu >$tmp.p2g.out 2>$tmp.p2g.err &
 p2gpid=$!
 sleep 3
