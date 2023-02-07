@@ -1,0 +1,100 @@
+#!/bin/sh
+# PCP QA Test No. 1438
+# exercise __pmAcc*() methods
+#
+# non-valgrind variant, see qa/1439 for the valgrind variant
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+ids="root bin daemon pcp"
+for name in $ids
+do
+    grep "^$name:" /etc/passwd >/dev/null || _notrun "no user $name in passwd file"
+done
+
+for name in $ids
+do
+    grep "^$name:" /etc/group >/dev/null || _notrun "no group $name in group file"
+done
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed -f $tmp.sed
+}
+
+# real QA test starts here
+
+echo "=== users ==="
+for name in $ids
+do
+    $PCP_AWK_PROG </etc/passwd >>$tmp.sed -F ':' '
+$1 == "'$name'" { printf "s/  *%d %s/ %7s %s/\n",$3,$1,toupper($1),$1 }
+'
+    $PCP_AWK_PROG </etc/group >>$tmp.sed -F ':' '
+$1 == "'$name'" { printf "s/%d(%s)/%s(%s)/\n",$3,$1,toupper($1),$1 }
+'
+done
+if $do_valgrind
+then
+    _run_valgrind src/usergroup -u $ids
+else
+    src/usergroup -u $ids 2>&1
+fi \
+| sed -e "s@$tmp@TMP@g" \
+| _filter
+
+echo "=== groups ==="
+rm -f $tmp.sed
+for name in $ids
+do
+    $PCP_AWK_PROG </etc/group >>$tmp.sed -F ':' '
+$1 == "'$name'" { printf "s/  *%d %s/ %7s %s/\n",$3,$1,toupper($1),$1 }
+'
+    $PCP_AWK_PROG </etc/passwd >>$tmp.sed -F ':' '
+$1 == "'$name'" { printf "s/%d(%s)/%s(%s)/\n",$3,$1,toupper($1),$1 }
+'
+done
+if $do_valgrind
+then
+    _run_valgrind src/usergroup -g $ids
+else
+    src/usergroup -g $ids 2>&1
+fi \
+| sed -e "s@$tmp@TMP@g" \
+| _filter
+
+# success, all done
+exit

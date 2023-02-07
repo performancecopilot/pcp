@@ -1890,6 +1890,8 @@ x11
 1435 pmda.elasticsearch local
 1436 pmda.postgresql local
 1437 pmda.kvm local
+1438 libpcp local
+1439 libpcp local valgrind
 1442 pmlogrewrite local
 1444 pmda.bpf local
 1452 pmda.bpf local
