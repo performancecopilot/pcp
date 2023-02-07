@@ -14,6 +14,11 @@ _pmdabpf_check
 _pmdabpf_require_kernel_version 5 0
 _pmdabpf_require_libbpf_version 0 7
 
+# https://github.com/iovisor/bcc/issues/4261
+ksyms=/proc/kallsyms
+test -f $ksyms || _notrun "No $ksyms kernel file available"
+grep -q blk_account_io_start $ksyms || _notrun "No blk_account_io_start symbol"
+
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full

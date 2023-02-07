@@ -28,4 +28,3 @@ bpf ... done
 Updating the PMCD control file, and notifying PMCD ...
 [...removing files...]
 Check bpf metrics have gone away ... OK
-
