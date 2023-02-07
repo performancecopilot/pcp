@@ -57,7 +57,7 @@ _filter()
 
 # real QA test starts here
 
-echo "=== users ==="
+echo "=== users ===" | tee -a $seq.full
 for name in $ids
 do
     $PCP_AWK_PROG </etc/passwd >>$tmp.sed -F ':' '
@@ -67,6 +67,11 @@ $1 == "'$name'" { printf "s/  *%d %s/ %7s %s/\n",$3,$1,toupper($1),$1 }
 $1 == "'$name'" { printf "s/%d(%s)/%s(%s)/\n",$3,$1,toupper($1),$1 }
 '
 done
+# some of our target users may be in other groups, esp user "root",
+# so cull the extra ones
+#
+echo 's/,[0-9][0-9]*([^)]*)//g' >>$tmp.sed
+cat $tmp.sed >>$seq.full
 if $do_valgrind
 then
     _run_valgrind src/usergroup -u $ids
@@ -76,7 +81,7 @@ fi \
 | sed -e "s@$tmp@TMP@g" \
 | _filter
 
-echo "=== groups ==="
+echo "=== groups ===" | tee -a $seq.full
 rm -f $tmp.sed
 for name in $ids
 do
@@ -87,6 +92,11 @@ $1 == "'$name'" { printf "s/  *%d %s/ %7s %s/\n",$3,$1,toupper($1),$1 }
 $1 == "'$name'" { printf "s/%d(%s)/%s(%s)/\n",$3,$1,toupper($1),$1 }
 '
 done
+# some of our target groups may be have other users, esp user "root",
+# so cull the extra ones
+#
+echo 's/,[0-9][0-9]*([^)]*)//g' >>$tmp.sed
+cat $tmp.sed >>$seq.full
 if $do_valgrind
 then
     _run_valgrind src/usergroup -g $ids
