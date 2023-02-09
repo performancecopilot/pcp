@@ -1856,7 +1856,6 @@ x11
 1401 pmproxy local
 1402 pmlogrewrite pmlogextract archive pmdumplog archive_v3 local
 1403 pmda.linux local valgrind
-1404:reserved
 1405 sheet2pcp pmimport pmdumplog perl local archive_v3 libpcp_import
 1406 sheet2pcp pmimport local pmdumplog perl archive_v3 libpcp_import
 1407 pmchart derive local x11
