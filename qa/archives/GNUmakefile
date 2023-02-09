@@ -151,3 +151,23 @@ pcp-mpstat2.0:
 	pmlogextract -c tmp/config pcp-mpstat pcp-mpstat2
 	rm -rf tmp
 
+# variant of the mpstat2 archive with log-once summary metrics
+# 
+pcp-mpstat3.0: pcp-mpstat2.0
+	rm -rf tmp
+	mkdir tmp
+	pminfo -a pcp-mpstat2 \
+		| sed \
+			-e '/^kernel.uname./d' \
+			-e '/^hinv.ncpu/d' \
+		> tmp/config-body
+	pminfo -a pcp-mpstat2 \
+		| grep -E '^kernel.uname.|^hinv.ncpu' \
+		> tmp/config-head
+	pmlogextract -c tmp/config-head -s 1 pcp-mpstat2 pcp-mpstat3-head
+	pmlogextract -c tmp/config-body pcp-mpstat2 pcp-mpstat3-body
+	pmlogextract pcp-mpstat3-head pcp-mpstat3-body pcp-mpstat3
+	mv pcp-mpstat3.0 tmp
+	../src/stripmark tmp/pcp-mpstat3.0 pcp-mpstat3.0
+	rm -rf tmp pcp-mpstat3-head.* pcp-mpstat3-body.*
+
