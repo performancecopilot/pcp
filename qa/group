@@ -1742,7 +1742,7 @@ x11
 1287 pmda.install pmda.openmetrics local python
 1288 archive pmval local
 1289 pmval archive multi-archive decompress-xz local pmlogextract
-1290:reserved pmproxy local pmval pmie pmstat valgrind pmdumptext
+1290 pmproxy local pmval pmie pmstat pmdumptext valgrind
 1291 atop archive local
 1292 pmlc local
 1293 pmlc local valgrind
