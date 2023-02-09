@@ -1,0 +1,38 @@
+QA output created by 1439
+QA output created by 1438 --valgrind
+=== users ===
+=== std out ===
+=== std err ===
+User access list:
+00 01 02 Cur/MaxCons     uid user-name                       group-list
+== == == =========== ======= =============================== ==========================================================
+ y     n     0     1     PCP pcp                             PCP(pcp)
+ y     n     0     1  DAEMON daemon                          DAEMON(daemon)
+ y     n     0     1     BIN bin                             BIN(bin)
+ y     n     0     1    ROOT root                            ROOT(root)
+ n  n  n     0     0       * *                              
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/usergroup -u root bin daemon pcp
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== groups ===
+=== std out ===
+=== std err ===
+Group access list:
+00 01 02 Cur/MaxCons     gid group-name                      user-list
+== == == =========== ======= =============================== ==========================================================
+ y  y  n     0     1     PCP pcp                             PCP(pcp)
+ y  y  n     0     1  DAEMON daemon                          DAEMON(daemon)
+ y  y  n     0     1     BIN bin                             BIN(bin)
+ y  y  n     0     1    ROOT root                            ROOT(root)
+ n  n  n     0     0       * *                              
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/usergroup -g root bin daemon pcp
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
