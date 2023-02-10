@@ -59,6 +59,8 @@ status=0	# success is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+echo "root_group_is_wheel=$root_group_is_wheel" >>$seq.full
+
 _filter()
 {
     tee -a $seq.full \
@@ -89,7 +91,7 @@ $1 == "'$name'" {
 	    printf "/ %s /s/ %d(%s)/ %s(%s)/\n",toupper($1),$3,$1,toupper($1),$1
 	}'
 done
-$root_group_is_wheel && echo 's/WHEEL(wheel)/ROOT(root)/' >>$tmp.sed
+$root_group_is_wheel && echo 's/[0-9][0-9]*(wheel)/ROOT(root)/' >>$tmp.sed
 # some of our target users may be in other groups, esp user "root",
 # and some of the target users may be in some of the other target
 # groups, so cull the extra ones
@@ -123,6 +125,7 @@ $1 == "'$name'" {
 	}'
 done
 $root_group_is_wheel && echo 's/ WHEEL wheel /  ROOT root  /' >>$tmp.sed
+$root_group_is_wheel && echo 's/[0-9][0-9]*(root)/ROOT(root)/' >>$tmp.sed
 # some of our target groups may be have other users, esp user "root",
 # and some of the target users may be in some of the other target
 # groups, so cull the extra ones
