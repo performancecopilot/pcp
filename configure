@@ -5289,11 +5289,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++11 features" >&5
 printf %s "checking for $CXX option to enable C++11 features... " >&6; }
-if test ${ac_cv_prog_cxx_11+y}
+if test ${ac_cv_prog_cxx_cxx11+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_11=no
+  ac_cv_prog_cxx_cxx11=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -5335,11 +5335,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++98 features" >&5
 printf %s "checking for $CXX option to enable C++98 features... " >&6; }
-if test ${ac_cv_prog_cxx_98+y}
+if test ${ac_cv_prog_cxx_cxx98+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_98=no
+  ac_cv_prog_cxx_cxx98=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -8878,12 +8878,12 @@ if test -n "$libbpf_CFLAGS"; then
     pkg_cv_libbpf_CFLAGS="$libbpf_CFLAGS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libbpf >= 0.4.0\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libbpf >= 0.4.0") 2>&5
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libbpf >= 0.8.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libbpf >= 0.8.0") 2>&5
   ac_status=$?
   printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_libbpf_CFLAGS=`$PKG_CONFIG --cflags "libbpf >= 0.4.0" 2>/dev/null`
+  pkg_cv_libbpf_CFLAGS=`$PKG_CONFIG --cflags "libbpf >= 0.8.0" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -8895,12 +8895,12 @@ if test -n "$libbpf_LIBS"; then
     pkg_cv_libbpf_LIBS="$libbpf_LIBS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libbpf >= 0.4.0\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libbpf >= 0.4.0") 2>&5
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libbpf >= 0.8.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libbpf >= 0.8.0") 2>&5
   ac_status=$?
   printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_libbpf_LIBS=`$PKG_CONFIG --libs "libbpf >= 0.4.0" 2>/dev/null`
+  pkg_cv_libbpf_LIBS=`$PKG_CONFIG --libs "libbpf >= 0.8.0" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -8921,9 +8921,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        libbpf_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libbpf >= 0.4.0" 2>&1`
+	        libbpf_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libbpf >= 0.8.0" 2>&1`
         else
-	        libbpf_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libbpf >= 0.4.0" 2>&1`
+	        libbpf_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libbpf >= 0.8.0" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$libbpf_PKG_ERRORS" >&5
@@ -9192,18 +9192,7 @@ printf "%s\n" "no (libbpf version required: 1.0.0, installed: $libbpf_version)" 
        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
     fi
-
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if bpf PMDA modules using perf_buffer__poll should be included" >&5
-printf %s "checking if bpf PMDA modules using perf_buffer__poll should be included... " >&6; }
-    if test "$libbpf_version_major" -eq 0 -a "$libbpf_version_minor" -lt 7; then
-       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no (libbpf version required: 0.7.0, installed: $libbpf_version)" >&5
-printf "%s\n" "no (libbpf version required: 0.7.0, installed: $libbpf_version)" >&6; }
-    else
-       pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so"
-       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-    fi
-
+    pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so"
 
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking which bpf PMDA modules should be included" >&5
 printf %s "checking which bpf PMDA modules should be included... " >&6; }

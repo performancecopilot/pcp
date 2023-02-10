@@ -96,7 +96,7 @@ Source2: %{pcp_git_url}/main/debian/pcp.sysusers
 %endif
 
 # support for pmdabpf, check bcc.spec for supported architectures of libbpf-tools
-%if 0%{?fedora} >= 33 || 0%{?rhel} > 8
+%if 0%{?fedora} >= 37 || 0%{?rhel} > 8
 %ifarch x86_64 ppc64 ppc64le aarch64
 %global disable_bpf 0
 %else
