@@ -317,8 +317,10 @@ class DstatPlugin(object):
         ret = ''
         ilist = self.instlist()
         for i, name in enumerate(ilist):
-            width = self.statwidth()
+            if name is None:
+                continue
             name = self.label.replace('%I', name)
+            width = self.statwidth()
             label = name[0:width].center(width).replace(' ', '-')
             ret = ret + THEME['title'] + label
             if i + 1 != len(ilist):
@@ -361,9 +363,11 @@ class DstatPlugin(object):
         ret = ''
         ilist = self.instlist()
         for i, name in enumerate(ilist):
+            if name is None:
+                continue
+            name = self.label.replace('%I', name)
             if i > 0:
                 ret = ret + CHAR['sep']
-            name = self.label.replace('%I', name)
             ret = ret + '"' + name  + '"'
             for j, _ in enumerate(self.names):
                 if j > 0:
@@ -388,6 +392,8 @@ class DstatPlugin(object):
             return ret
         ilist = self.instlist()
         for i, name in enumerate(ilist):
+            if name is None:
+                continue
             name = self.label.replace('%I', name)
             for j, nick in enumerate(self.names):
                 if j > 0 or i > 0:
