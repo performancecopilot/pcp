@@ -161,6 +161,7 @@ jobs:
         continue-on-error: true
         with:
           script: |
+            const core = require('@actions/core');
             const fs = require('fs');
             const head_sha = context.payload.pull_request ? context.payload.pull_request.head.sha : context.sha;
             const response = await github.rest.checks.create({
@@ -174,7 +175,7 @@ jobs:
                 summary: '```\n' + fs.readFileSync('summary.txt', 'utf8') + '\n```',
               }
             });
-            console.log(`::set-output name=summary_url::${response.data.html_url}`);
+            core.setOutput('summary_url', response.data.html_url);
             console.log(`::notice::Test summary is available at ${response.data.html_url}`);
 
       - name: Create interactive test report
