@@ -118,8 +118,8 @@ probe	kernel.uname.sysname ~ Linux ? available : exclude
 	rpc.server.rpcerr
 	swap.pagesin
 	swap.pagesout
-	swap.free
-	swap.used
+	swapdev.length
+	swapdev.free
 	vfs.aio.count
 	vfs.files.count
 	vfs.inodes.count
