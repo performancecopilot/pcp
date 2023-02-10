@@ -588,6 +588,11 @@ class DisplayOptions:
 
 class MpstatReport(pmcc.MetricGroupPrinter):
     Machine_info_count = 0
+    ncpu = 1
+    machine = ''
+    release = ''
+    sysname = ''
+    nodename = ''
 
     def __init__(self, cpu_util_reporter, total_interrupt_usage_reporter, soft_interrupt_usage_reporter, hard_interrupt_usage_reporter):
         self.cpu_util_reporter = cpu_util_reporter
@@ -601,6 +606,7 @@ class MpstatReport(pmcc.MetricGroupPrinter):
         return s + u / 1000000.0
 
     def print_machine_info(self,group, context):
+        self.get_summary_metrics(group)
         timestamp = context.pmLocaltime(group.timestamp.tv_sec)
         # Please check strftime(3) for different formatting options.
         # Also check TZ and LC_TIME environment variables for more information
@@ -608,21 +614,45 @@ class MpstatReport(pmcc.MetricGroupPrinter):
         time_string = time.strftime("%x", timestamp.struct_time())
 
         header_string = ''
-        header_string += group['kernel.uname.sysname'].netValues[0][2] + '  '
-        header_string += group['kernel.uname.release'].netValues[0][2] + '  '
-        header_string += '(' + group['kernel.uname.nodename'].netValues[0][2] + ')  '
+        header_string += self.sysname + '  '
+        header_string += self.release + '  '
+        header_string += '(' + self.nodename + ')  '
         header_string += time_string + '  '
-        header_string += group['kernel.uname.machine'].netValues[0][2] + '  '
-        no_cpu = self.get_ncpu(group)
-        print("%s  (%s CPU)" % (header_string,no_cpu))
+        header_string += self.machine + '    '
+        header_string += '(' + str(self.ncpu) + ' CPU)'
+        print(header_string)
 
-    def get_ncpu(self,group):
-        return group['hinv.ncpu'].netValues[0][2]
+    def get_summary_metrics(self,group):
+        # extract metrics safely which may have 'logged-once' semantics;
+        # we checked earlier so know the metrics exist once at least, so
+        # fallback to previous observed value if not in latest sample -
+        # always try though in case a later sample finds updated values.
+        try:
+            self.ncpu = group['hinv.ncpu'].netValues[0][2]
+        except IndexError:
+            pass
+        try:
+            self.sysname = group['kernel.uname.sysname'].netValues[0][2]
+        except IndexError:
+            pass
+        try:
+            self.machine = group['kernel.uname.machine'].netValues[0][2]
+        except IndexError:
+            pass
+        try:
+            self.release = group['kernel.uname.release'].netValues[0][2]
+        except IndexError:
+            pass
+        try:
+            self.nodename = group['kernel.uname.nodename'].netValues[0][2]
+        except IndexError:
+            pass
 
     def report(self,manager):
         group = manager['mpstat']
         if group['kernel.all.cpu.user'].netPrevValues is None:
             # need two fetches to report rate converted counter metrics
+            self.get_summary_metrics(group)
             return
 
         if self.Machine_info_count == 0:

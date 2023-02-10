@@ -1677,10 +1677,21 @@ newmetric(sds name)
 	node = newnode(N_EQ);
 
     if (node) {
-	node->left = newnode(N_NAME);
+	if ((node->left = newnode(N_NAME)) == NULL) {
+	    sdsfree(name);
+	    free(node);
+	    return NULL;
+	}
+	if ((node->right = newnode(N_STRING)) == NULL) {
+	    sdsfree(name);
+	    free(node->left);
+	    free(node);
+	    return NULL;
+	}
 	node->left->value = sdsnew("metric.name");
-	node->right = newnode(N_STRING);
 	node->right->value = name;
+    } else {
+	sdsfree(name);
     }
     return node;
 }

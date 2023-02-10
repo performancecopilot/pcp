@@ -30,17 +30,6 @@ pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
 echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
 
-rm -f $seq.out
-case $PCP_PLATFORM
-in
-    darwin)
-	ln $seq.out.darwin $seq.out || exit 1
-	;;
-    *)
-	ln $seq.out.default $seq.out || exit 1
-	;;
-esac
-
 _cleanup()
 {
     echo "=== valgrind report ===" >>$here/$seq.full
@@ -96,9 +85,18 @@ _filter_me()
 	-e "s/localhost\.localdomain/MY_HOSTNAME/" \
 	-e "s/localhost/MY_HOSTNAME/" \
 	-e "s#$PCP_VAR_DIR#PCP_VAR_DIR#g" \
+	-e "s#$PCP_BINADM_DIR#PCP_BINADM_DIR#g" \
 	-e "s#$PCP_SYSCONF_DIR/pmlogger/config.pmstat#TMP.logger.config#g" \
 	-e "s,$tmp.config,TMP.logger.config,g" \
+	-e "s/$username/USERNAME/g" \
 	-e "s#$tmp#TMP#g"
+}
+
+_filter_report()
+{
+   _filter_valgrind | \
+   sed -e '/^ERROR/d' \
+   | _filter_me
 }
 
 _filter_pmproxy()
@@ -110,7 +108,6 @@ _filter_pmproxy()
 	-e '/^IPC table fd/d' \
 	-e '/^pmproxy: disabled time series, requires libuv support (missing)/d' \
     # end
-
 }
 
 _do()
@@ -164,206 +161,25 @@ export PCP_RUN_DIR=$tmp.rundir
 proxyargs="-Dcontext -U $username"
 
 __extra=''
-if [ `id -un` = kenj ]
-then
-    # suppress the errors I've seen before so failure => new error(s)
-    # this will be removed when the associated pmproxy issues have
-    # been fixed
-    #
-    __extra="$__extra --suppressions=$tmp.suppress"
-    cat <<'End-of-File' >$tmp.suppress
-{
-   110 bytes in 14 blocks are possibly lost in loss record 5 of 8
-   Memcheck:Leak
-   match-leak-kinds: possible
-   fun:malloc
-   fun:s_malloc
-   fun:sdsnewlen
-   fun:sdsnew
-   fun:dict_handler
-   fun:ini_parse_stream
-   fun:ini_parse_file
-   fun:ini_parse
-   fun:pmIniFileParse
-   fun:pmIniFileSetup
-   fun:ParseOptions
-   fun:main
-}
-{
-   524 bytes in 14 blocks are possibly lost in loss record 8 of 8
-   Memcheck:Leak
-   match-leak-kinds: possible
-   fun:realloc
-   fun:s_realloc
-   fun:sdsMakeRoomFor
-   fun:sdscatfmt
-   fun:dict_handler
-   fun:ini_parse_stream
-   fun:ini_parse_file
-   fun:ini_parse
-   fun:pmIniFileParse
-   fun:pmIniFileSetup
-   fun:ParseOptions
-   fun:main
-}
-
-# at 0x4C6B36F: uv__stream_init (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x4C6C801: uv_tcp_init_ex (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x113B88: on_client_connection (server.c:497)
-# by 0x4C6BAEE: uv__server_io (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x4C70ADF: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x4C607AB: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x114C14: main_loop (server.c:860)
-# by 0x1121FE: main (pmproxy.c:451)
-# Address 0x5686e28 is 552 bytes inside a block of size 800 free'd
-# at 0x483CA3F: free (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
-# by 0x1132F4: client_put (server.c:276)
-# by 0x11310B: on_client_close (server.c:238)
-# by 0x4C60868: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x114C14: main_loop (server.c:860)
-# by 0x1121FE: main (pmproxy.c:451)
-# Block was alloc'd at
-# at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
-# by 0x113AD2: on_client_connection (server.c:483)
-# by 0x4C6BAEE: uv__server_io (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x4C70ADF: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x4C607AB: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x114C14: main_loop (server.c:860)
-# by 0x1121FE: main (pmproxy.c:451)
-{
-   Invalid write of size 8 - added to GH #1203
-   Memcheck:Addr8
-   fun:uv__stream_init
-   fun:uv_tcp_init_ex
-   fun:on_client_connection
-   fun:uv__server_io
-   fun:uv__io_poll
-   fun:uv_run
-   fun:main_loop
-   fun:main
-}
-
-# at 0x4C60848: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x114C14: main_loop (server.c:860)
-# by 0x1121FE: main (pmproxy.c:451)
-# Address 0x5686e28 is 552 bytes inside a block of size 800 free'd
-# at 0x483CA3F: free (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
-# by 0x1132F4: client_put (server.c:276)
-# by 0x11310B: on_client_close (server.c:238)
-# by 0x4C60868: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x114C14: main_loop (server.c:860)
-# by 0x1121FE: main (pmproxy.c:451)
-# Block was alloc'd at
-# at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
-# by 0x113AD2: on_client_connection (server.c:483)
-# by 0x4C6BAEE: uv__server_io (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x4C70ADF: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x4C607AB: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x114C14: main_loop (server.c:860)
-# by 0x1121FE: main (pmproxy.c:451)
-{
-   Invalid write of size 8 - added to GH #1203
-   Memcheck:Addr8
-   fun:uv_run
-   fun:main_loop
-   fun:main
-}
-
-# at 0x4C71F7A: uv_fs_event_init (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x48BC1E4: pmDiscoverMonitor (discover.c:529)
-# by 0x48BC4BA: created_callback (discover.c:638)
-# by 0x48BB37B: pmDiscoverTraverse (discover.c:160)
-# by 0x48BF00C: changed_callback (discover.c:1444)
-# by 0x48BC0E5: fs_change_callBack (discover.c:495)
-# by 0x4C71E4A: ??? (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x4C70ADF: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x4C607AB: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x114C14: main_loop (server.c:860)
-# by 0x1121FE: main (pmproxy.c:451)
-# Address 0x5559ac8 is 552 bytes inside a block of size 800 free'd
-# at 0x483CA3F: free (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
-# by 0x1132F4: client_put (server.c:276)
-# by 0x11310B: on_client_close (server.c:238)
-# by 0x4C60868: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x114C14: main_loop (server.c:860)
-# by 0x1121FE: main (pmproxy.c:451)
-# Block was alloc'd at
-# at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
-# by 0x113AD2: on_client_connection (server.c:483)
-# by 0x4C6BAEE: uv__server_io (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x4C70ADF: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x4C607AB: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x114C14: main_loop (server.c:860)
-# by 0x1121FE: main (pmproxy.c:451)
-{
-   Invalid write of size 8 - added to GH #1203
-   Memcheck:Addr8
-   fun:uv_fs_event_init
-   fun:pmDiscoverMonitor
-   fun:created_callback
-   fun:pmDiscoverTraverse
-   fun:changed_callback
-   fun:fs_change_callBack
-   obj:/usr/lib/x86_64-linux-gnu/libuv.so.1.0.0
-   fun:uv__io_poll
-   fun:uv_run
-   fun:main_loop
-   fun:main
-}
-
-# at 0x4C71F7A: uv_fs_event_init (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x48BC1E4: pmDiscoverMonitor (discover.c:529)
-# by 0x48BF0CB: dir_callback (discover.c:1467)
-# by 0x48BB37B: pmDiscoverTraverse (discover.c:160)
-# by 0x48BF327: pmDiscoverRegister (discover.c:1527)
-# by 0x489DFDB: pmDiscoverSetup (schema.c:1943)
-# by 0x119905: on_redis_connected (redis.c:164)
-# by 0x4897A95: redis_slots_finished (schema.c:84)
-# by 0x48B3F51: seriesPassBaton (batons.c:143)
-# by 0x4897B16: redis_slots_end_phase (schema.c:97)
-# by 0x48B7DDA: redis_search_schema_callback (search.c:954)
-# by 0x48ADA72: __redisRunCallBack (redis.c:1577)
-# Address 0x559c3b8 is 552 bytes inside a block of size 800 free'd
-# at 0x483CA3F: free (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
-# by 0x1132F4: client_put (server.c:276)
-# by 0x11310B: on_client_close (server.c:238)
-# by 0x4C60868: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x114C14: main_loop (server.c:860)
-# by 0x1121FE: main (pmproxy.c:451)
-# Block was alloc'd at
-# at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
-# by 0x113AD2: on_client_connection (server.c:483)
-# by 0x4C6BAEE: uv__server_io (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x4C70ADF: uv__io_poll (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x4C607AB: uv_run (in /usr/lib/x86_64-linux-gnu/libuv.so.1.0.0)
-# by 0x114C14: main_loop (server.c:860)
-# by 0x1121FE: main (pmproxy.c:451)
-{
-   Invalid write of size 8 - added to GH #1203
-   Memcheck:Addr8
-   fun:uv_fs_event_init
-   fun:pmDiscoverMonitor
-   fun:dir_callback
-   fun:pmDiscoverTraverse
-   fun:pmDiscoverRegister
-   fun:pmDiscoverSetup
-   fun:on_redis_connected
-   fun:redis_slots_finished
-   fun:seriesPassBaton
-   fun:redis_slots_end_phase
-   fun:redis_search_schema_callback
-   fun:__redisRunCallBack
-}
-
-End-of-File
-fi
-
 # copied from _run_valgrind (which we cannot use here) ...
 #
 # extract version number I.J.K ... ignore anything after that,
 # e.g. .SVN or .SVN-Debian for Debian-based distros
 #
 __version=`valgrind --version | sed -e 's/valgrind-//' -e 's/\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/'`
+valgrind --help >$tmp.valgrind.help 2>&1
+grep -q .--vgdb= <$tmp.valgrind.help && __extra="$__extra --vgdb=no"
+if grep -q .--show-leak-kinds= <$tmp.valgrind.help
+then
+    __extra="$__extra --show-leak-kinds=definite"
+else
+    if grep -q .--show-possibly-lost= <$tmp.valgrind.help
+    then
+        __extra="$__extra --show-reachable=no --show-possibly-lost=no"
+    else
+        __extra="$__extra --show-reachable=no"
+    fi
+fi
 if [ -f $here/valgrind-suppress-$__version ]
 then
     __extra="$__extra --suppressions=$here/valgrind-suppress-$__version"
@@ -371,17 +187,20 @@ then
 else
     echo "Warning: no extra suppressions found for valgrind version $__version" >>$here/$seq.full
 fi
-valgrind \
+valgrind -s \
     --trace-children=yes \
     --leak-check=full --read-var-info=yes --gen-suppressions=all \
+    --show-leak-kinds=all \
     --suppressions=$here/valgrind-suppress $__extra \
     --log-file=$tmp._valgrind \
 	$PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log \
 	    2>$tmp._valgrind.err >$tmp._valgrind.out &
 
-_wait_for_pmproxy
+_wait_for_pmproxy 44322 $tmp.log
+_wait_for_pmproxy_logfile $tmp.log
 $PCP_BINADM_DIR/pmcd_wait -t 5sec -h localhost@localhost
 $PCP_PS_PROG $PCP_PS_APP_FLAGS | grep -E '[P]ID|[p]mproxy' >>$here/$seq.full
+cat $tmp.log >> $here/$seq.full
 
 # real QA test starts here
 export PMPROXY_HOST=localhost
@@ -424,7 +243,7 @@ cat $tmp._valgrind.out
 echo "=== pmproxy std err ==="
 cat $tmp._valgrind.err
 echo "=== filtered valgrind report ==="
-cat $tmp._valgrind | _filter_valgrind | sed -e "s@$tmp@TMP@g"
+cat $tmp._valgrind | _filter_report
 
 # success, all done
 status=0

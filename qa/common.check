@@ -722,7 +722,7 @@ _wait_for_pmcd()
 		cat $PCP_LOG_DIR/pmcd/pmcd.log
 
 		echo "likely looking processes ..."
-		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[p]m|[P]ID"
+		$PCP_PS_PROG "$PCP_PS_ALL_FLAGS" | grep -E "[p]m|[P]ID"
 		;;
 	    *)
 		# assume a remote PMCD
@@ -1259,6 +1259,23 @@ _wait_for_pmproxy_metrics()
 	[ $__n -lt 20 ] && continue
     done
     echo _wait_for_pmproxy_metrics failed after 20 iterations
+    return 1
+}
+
+# Wait for pmproxy logfile creation. This should always be called after
+# _wait_for_pmproxy.
+#
+_wait_for_pmproxy_logfile()
+{
+    __n=0
+    __log="$1"
+    while true; do
+	test -f "$__log" && return 0
+	sleep 0.25
+	__n=`expr $__n + 1`
+	[ $__n -lt 20 ] && continue
+    done
+    echo _wait_for_pmproxy_logfile failed after 20 iterations
     return 1
 }
 

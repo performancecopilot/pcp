@@ -1121,8 +1121,7 @@ N-0 disconnects
 === pmproxy std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: /usr/lib/pcp/bin/pmproxy -Dcontext -U kenj -l TMP.log
+Command: PCP_BINADM_DIR/pmproxy -Dcontext -U USERNAME -l TMP.log
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...
