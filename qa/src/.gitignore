@@ -252,6 +252,7 @@ tztest
 unpack
 unpickargs
 units-parse
+usergroup
 username
 wait_for_values
 whichtimezone
