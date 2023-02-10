@@ -97,7 +97,7 @@ if $PMDA_BPF
 then
     echo "s/?{clang}, /clang, /" >>$tmp.sed
     echo "s/?{llvm}, /llvm, /" >>$tmp.sed
-    echo "s/?{libbpf-dev}, /libbpf-dev (>= 0.4.0), /" >>$tmp.sed
+    echo "s/?{libbpf-dev}, /libbpf-dev (>= 0.8.0), /" >>$tmp.sed
 else
     echo "s/?{clang}, //" >>$tmp.sed
     echo "s/?{llvm}, //" >>$tmp.sed

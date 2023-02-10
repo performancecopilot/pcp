@@ -1163,7 +1163,7 @@ AS_IF([test "x$do_pmdabcc" = "xcheck"], [
 AC_SUBST(PMDA_BCC, $pmda_bcc)
 if $pmda_bcc; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
-PKG_CHECK_MODULES([libbpf], [libbpf >= 0.4.0], [have_libbpf=true], [have_libbpf=false])
+PKG_CHECK_MODULES([libbpf], [libbpf >= 0.8.0], [have_libbpf=true], [have_libbpf=false])
 AC_SUBST(HAVE_LIBBPF, [$have_libbpf])
 AS_IF([$have_libbpf], [
     AC_MSG_CHECKING([libbpf version])
@@ -1233,15 +1233,7 @@ if $pmda_bpf; then
        pmdabpf_modules="${pmdabpf_modules} mountsnoop.so oomkill.so"
        AC_MSG_RESULT(yes)
     fi
-
-    AC_MSG_CHECKING([if bpf PMDA modules using perf_buffer__poll should be included])
-    if test "$libbpf_version_major" -eq 0 -a "$libbpf_version_minor" -lt 7; then
-       AC_MSG_RESULT([no (libbpf version required: 0.7.0, installed: $libbpf_version)])
-    else
-       pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so"
-       AC_MSG_RESULT(yes)
-    fi
-
+    pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so"
     AC_SUBST(pmdabpf_modules)
     AC_MSG_CHECKING([which bpf PMDA modules should be included])
     AC_MSG_RESULT($pmdabpf_modules)
