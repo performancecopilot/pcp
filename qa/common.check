@@ -1770,7 +1770,7 @@ _run_valgrind()
 	# *Note* - for more detailed diagnostics, at the expense of runtime,
 	# use
 	# __extra="$__extra --track-origins=yes --read-var-info=yes --read-inline-info=yes"
-	__extra="$__extra --read-inline-info=no --read-var-info=no"
+	__extra="$__extra --read-var-info=no --read-inline-info=yes"
     fi
     $sudo rm -f $tmp.valgrind.help
     if [ -n "$__extra" ]
