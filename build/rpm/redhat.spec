@@ -3362,8 +3362,9 @@ fi
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Tue Jan 31 2023 Nathan Scott <nathans@redhat.com> - 6.0.2-1
-- https://github.com/performancecopilot/pcp/projects/1
+* Sun Feb 12 2023 Nathan Scott <nathans@redhat.com> - 6.0.2-1
+- Fix pcp-dstat swap device handling with -f (BZ 2168774)
+- Update to latest PCP sources.
 
 * Thu Oct 27 2022 Nathan Scott <nathans@redhat.com> - 6.0.1-1
 - Resolve a BPF module related build failure (BZ 2132998)

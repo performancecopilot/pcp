@@ -1,5 +1,53 @@
-pcp-6.0.2 (31 January 2023)
-    - https://github.com/performancecopilot/pcp/projects/1
+pcp-6.0.2 (12 February 2023)
+    - Client tools and utilities:
+	pcp-atop: update to latest upstream atoptool.nl sources
+	pcp-atop: cgroup, NUMA memory and NUMA CPU support
+	pcp-htop: update to latest upstream htop.dev sources
+	pcp-dstat: fix handling of --swap with -f (full) option
+	pcp-dstat: fix columns for --net-packets
+	pcp-mpstat: fix handling of log-once summary metric values
+	pcp-mpstat: improve error handling for the current values
+	pcp-ps: added capabilities to show N samples with archives
+	pcp-ps: fix handling of the -o option
+	pcp-ps: fix broken pipe errors when piping to head(1)
+	pcp-ps: fix process "START" column calculation and rounding
+	pcp-pidstat: fix broken pipe errors when piping to head(1)
+	pmdumplog: extend -x so -xxx reports timestamps in Epoch format
+	pmlogger: refactor getting FQDN for local host
+    - PMDA additions, enhancements and bug fixes:
+	pmdabpf: set config default for biosnoop module to disabled
+	pmdabpf: port forward to latest vendored libbpf-tools code
+	pmdalinux: boolean metric network.interface.virtual from sysfs
+	pmdalinux: more careful slabinfo 32/64 bit type multiplication
+	pmdalinux: add NUMA external fragmentation metric via sysfs
+	pmdalinux: fix pmid numbering issue with hinv.map.scsi_id
+	pmdanfsclient: fix srcport handling for RDMA and UDP mounts
+	pmdaopenmetrics: validate all names before using them for metrics
+	pmdaoverhead: new PMDA to measure overhead for groups of processes
+	pmdastatsd: static metric memory leak fix
+	pmdastatsd: ragel parser refactor and fix
+    - Server-side utilities and log management scripts:
+	pmieconf: new pmie rule checking file descriptor limits
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	libpcp: fix buffer issue for user/group name lookups
+	libpcp_web: improve error handling in pmseries AST parser
+    - Misc build, infrastructure and packaging updates:
+	configure.ac: fixes for improved C99 compatibility
+	configure.ac: use QTDIR search path only when given
+	MacOS: build: fix shared library builds on modern Macs
+	OpenBSD: build updates for clang, Qt and openssl
+	libbpf: updated minimium version to 0.8.0, ARM and PPC support
+	Qt: update minimum required versions for libqwt
+	Drop no-longer-used pmlogger_daily_report systemd rpm spec code
+	Determine clang version without optional llvm-config utility
+	Another attempt to get the man/man-db/mandoc stuff sorted
+    - Security Enhanced Linux:
+	Policy updates for pmdastatsd
+    - Documentation and QA infrastructure:
+	Add help text for some OpenBSD kernel instance domains
+	Provide more detailed explanation for default PMLOGGER_INTERVAL
+	pmdaChildren(3): clarify the memory allocation scheme
+	pcp-ps(1) man page fixes.
 
 pcp-6.0.1 (27 October 2022)
     - Security Enhanced Linux:
