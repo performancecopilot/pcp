@@ -151,6 +151,7 @@ extern int do_control_req(__pmResult *, int, int, int, int);
 
 extern void disconnect(int);
 extern int reconnect(void);
+extern void prep_fqdn(void);
 extern int do_prologue(void);
 extern int do_epilogue(void);
 extern void run_done(int,char *);

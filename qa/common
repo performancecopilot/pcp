@@ -386,9 +386,15 @@ do
 	__group_list=`
 	if $__rflag
 	then
-	    sed -e 's/\([0-9]\):\(retired\|reserved\) /\1 /' <group
+	    sed <group \
+		-e 's/\([0-9]\):retired /\1 /' \
+		-e 's/\([0-9]\):reserved /\1 /' \
+	    # end
 	else
-	    sed -e '/[0-9]:\(retired\|reserved\) /d' <group
+	    sed <group \
+		-e '/[0-9]:retired /d' \
+		-e '/[0-9]:reserved /d' \
+	    # end
 	fi \
 	| sed -n -e 's/$/ /' -e "/^[0-9][0-9]*.* $__r /"'{
 s/ .*//p
@@ -472,11 +478,30 @@ s/ .*//p
 	fi \
 	| sed -n -e '/^[0-9]/s/[ 	].*//p' >$tmp.list
 
-	for __t in `echo "$__r" | sed -e 's/,/ /g'`
-	do
-	    echo "/^0*$__t\$/d" >>$tmp.exclude
-	    echo "/^0*$__t:/d" >>$tmp.exclude
-	done
+	if echo "$__r" | grep '[0-9]-[0-9]' >/dev/null
+	then
+	    eval `echo $__r | sed -e 's/^/__start=/' -e 's/-/ __end=/'`
+	    $PCP_AWK_PROG </dev/null '
+BEGIN	{ for (t = '$__start'; t <= '$__end'; t++) printf "%03d\n",t }' \
+	    | while read __id
+	    do
+		# if test not present, silently forget about it
+		if [ ! -f $__id ]
+		then
+		    continue
+		fi
+		if grep -E -s "^$__id([: 	]|\$)" group >/dev/null
+		then
+		    # in group file ... OK
+		    echo "/^$__id\$/d" >>$tmp.exclude
+		fi
+	    done
+	else
+	    for __t in `echo "$__r" | sed -e 's/,/ /g'`
+	    do
+		echo "/^0*$__t\$/d" >>$tmp.exclude
+	    done
+	fi
 	__exclude=false
 	continue
 
@@ -571,7 +596,7 @@ p
 		    else
 			sed -e '/[0-9]:\(retired\|reserved\) /d' <group
 		    fi \
-		    | grep -E "^[0-9].*[ 	]$__name([ 	]|$)" \
+		    | grep -E "^[0-9].*[ 	]$__name([ 	]|\$)" \
 		    | wc -l \
 		    | sed -e 's/ //g'`
 		printf "%-20.20s %3d\n" $__name $__num
@@ -637,7 +662,7 @@ p
 	    __xpand=false
 	    ;;
 
-	-X)	# -X seq[,seq...] ... exclude explicit tests
+	-X)	# -X seq[,seq...] or -X seq-seq ... exclude explicit tests
 	    __exclude=true
 	    __xpand=false
 	    ;;
@@ -918,38 +943,52 @@ else
 	__x=`dirname $__x`
     done
 
-    # if we have selinux, and it is enforcing then make sure the PCP QA
-    # policy module is installed
+    # if we have selinux and it is enforcing, and PCP was build with
+    # selinux enabled, then make sure the PCP QA policy module
+    # (pcp-testsuite) is installed
     #
-    if which getenforce >/dev/null 2>&1
+    ENABLE_SELINUX=false
+    if [ -f $PCP_INC_DIR/builddefs ]
     then
-	case `getenforce`
-	in
-	    Enforcing)
-		if $sudo semodule -l | grep pcp-testsuite >/dev/null
-		then
-		    # nothing to do, module already installed
-		    # ... to force a re-install, e.g. after the module
-		    # has been updated, do
-		    # $ sudo semodule -r pcp-testsuite
-		    # first
-		    #
-		    :
-		else
-		    $sudo semodule -i pcp-testsuite.pp
-		fi
-		# and now any selinux booleans that help
-		#
-		for __bool in pcp_read_generic_logs pcp_bind_all_unreserved_ports
-		do
-		    if $sudo getsebool $__bool 2>/dev/null | grep ' --> off' >/dev/null
+	eval `sed -n -e '/ENABLE_SELINUX =/s/ //gp' <$PCP_INC_DIR/builddefs`
+    fi
+    #debug# echo "ENABLE_SELINUX=$ENABLE_SELINUX"
+    if $ENABLE_SELINUX
+    then
+	if which getenforce >/dev/null 2>&1
+	then
+	    case `getenforce`
+	    in
+		Enforcing)
+		    if $sudo semodule -l | grep pcp-testsuite >/dev/null
 		    then
-			$sudo setsebool $__bool true
+			# nothing to do, module already installed
+			# ... to force a re-install, e.g. after the module
+			# has been updated, do
+			# $ sudo semodule -r pcp-testsuite
+			# first
+			#
+			:
+		    else
+			$sudo semodule -i pcp-testsuite.pp
 		    fi
-		done
-		;;
-	    *)
-		;;
-	esac
+		    # and now any selinux booleans that help
+		    #
+		    for __bool in pcp_read_generic_logs pcp_bind_all_unreserved_ports
+		    do
+			if $sudo getsebool $__bool 2>/dev/null | grep ' --> off' >/dev/null
+			then
+			    $sudo setsebool $__bool true
+			fi
+		    done
+		    ;;
+		*)
+		    ;;
+	    esac
+	fi
     fi
 fi
+
+# Hook for check.callback to allow once-per-check-run tests
+#
+touch check.onetrip

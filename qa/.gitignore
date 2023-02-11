@@ -21,6 +21,7 @@ tls.conf/*
 121.full.out
 151.work/*
 bpftrace/__pycache__/*
+check.onetrip
 check.out
 check.log
 check.callback

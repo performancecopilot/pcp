@@ -647,8 +647,11 @@ gcov.b = ( 1 / sample.mirage ) / (1 / sample.mirage_longlong )
 gcov.c = sample.seconds + disk.all.total
 gcov.d = sample.ulong.count.base - sample.ulong.count.kilo
 gcov.e = sample.ulong.count.mega - sample.ulong.count.kilo
-gcov.f = (1/sample.ulong.count.base) - (1/sample.ulong.count.kilo)
-gcov.g = (1/sample.ulong.count.mega) - (1/sample.ulong.count.kilo)
+# avoid floating point rounding differences across platforms
+# by making the result NOT close to zero (initial 2 multiplier
+# added Jan 2023)
+gcov.f = 2*(1/sample.ulong.count.base) - (1/sample.ulong.count.kilo)
+gcov.g = 2*(1/sample.ulong.count.mega) - (1/sample.ulong.count.kilo)
 pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
 pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric initialization from $PCP_DERIVED_CONFIG
@@ -658,8 +661,8 @@ pmRegisterDerived: global metric[3] gcov.b = ( 1 / sample.mirage ) / (1 / sample
 pmRegisterDerived: global metric[4] gcov.c = sample.seconds + disk.all.total
 pmRegisterDerived: global metric[5] gcov.d = sample.ulong.count.base - sample.ulong.count.kilo
 pmRegisterDerived: global metric[6] gcov.e = sample.ulong.count.mega - sample.ulong.count.kilo
-pmRegisterDerived: global metric[7] gcov.f = (1/sample.ulong.count.base) - (1/sample.ulong.count.kilo)
-pmRegisterDerived: global metric[8] gcov.g = (1/sample.ulong.count.mega) - (1/sample.ulong.count.kilo)
+pmRegisterDerived: global metric[7] gcov.f = 2*(1/sample.ulong.count.base) - (1/sample.ulong.count.kilo)
+pmRegisterDerived: global metric[8] gcov.g = 2*(1/sample.ulong.count.mega) - (1/sample.ulong.count.kilo)
 __dmopencontext(->ctx 0) called, 9 derived metrics
 __dmgetpmid: metric "gcov.a" -> PMID 511.0.3
 __dmbind: bind metric[2] gcov.a
@@ -763,63 +766,79 @@ __dmtraverse: name="gcov" added "gcov.e"
 __dmgetpmid: metric "gcov.f" -> PMID 511.0.8
 __dmbind: bind metric[7] gcov.f
 Derived metric expr dump from <addr-20>...
-expr node <addr-20> type=MINUS left=<addr-21> right=<addr-24> save_last=0
+expr node <addr-20> type=MINUS left=<addr-21> right=<addr-26> save_last=0
     PMID: PM_ID_NULL (511.0.8 from pmDesc) numval: 0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Mbyte / count x 10^3
-expr node <addr-21> type=SLASH left=<addr-22> right=<addr-23> save_last=0
+expr node <addr-21> type=STAR left=<addr-22> right=<addr-23> save_last=0
     PMID: PM_ID_NULL (29.0.115 from pmDesc) numval: 0 mul_scale: 1000
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Mbyte / count
-expr node <addr-22> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
+expr node <addr-22> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr-23> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.base] primary=0
+expr node <addr-23> type=SLASH left=<addr-24> right=<addr-25> save_last=0
+    PMID: PM_ID_NULL (29.0.115 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / count
+expr node <addr-24> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-25> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.base] primary=0
     PMID: 29.0.115 (29.0.115 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count / Mbyte
-expr node <addr-24> type=SLASH left=<addr-25> right=<addr-26> save_last=0
+expr node <addr-26> type=SLASH left=<addr-27> right=<addr-28> save_last=0
     PMID: PM_ID_NULL (29.0.118 from pmDesc) numval: 0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Mbyte / count x 10^3
-expr node <addr-25> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
+expr node <addr-27> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr-26> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.kilo] primary=0
+expr node <addr-28> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.kilo] primary=0
     PMID: 29.0.118 (29.0.118 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count x 10^3 / Mbyte
 __dmtraverse: name="gcov" added "gcov.f"
 __dmgetpmid: metric "gcov.g" -> PMID 511.0.9
 __dmbind: bind metric[8] gcov.g
-Derived metric expr dump from <addr-27>...
-expr node <addr-27> type=MINUS left=<addr-28> right=<addr-31> save_last=0
+Derived metric expr dump from <addr-29>...
+expr node <addr-29> type=MINUS left=<addr-30> right=<addr-35> save_last=0
     PMID: PM_ID_NULL (511.0.9 from pmDesc) numval: 0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Mbyte / count x 10^6
-expr node <addr-28> type=SLASH left=<addr-29> right=<addr-30> save_last=0
+expr node <addr-30> type=STAR left=<addr-31> right=<addr-32> save_last=0
     PMID: PM_ID_NULL (29.0.119 from pmDesc) numval: 0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Mbyte / count x 10^6
-expr node <addr-29> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
+expr node <addr-31> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr-30> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.mega] primary=0
+expr node <addr-32> type=SLASH left=<addr-33> right=<addr-34> save_last=0
+    PMID: PM_ID_NULL (29.0.119 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / count x 10^6
+expr node <addr-33> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-34> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.mega] primary=0
     PMID: 29.0.119 (29.0.119 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count x 10^6 / Mbyte
-expr node <addr-31> type=SLASH left=<addr-32> right=<addr-33> save_last=0
+expr node <addr-35> type=SLASH left=<addr-36> right=<addr-37> save_last=0
     PMID: PM_ID_NULL (29.0.118 from pmDesc) numval: 0 mul_scale: 1000
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Mbyte / count x 10^3
-expr node <addr-32> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
+expr node <addr-36> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr-33> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.kilo] primary=0
+expr node <addr-37> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.count.kilo] primary=0
     PMID: 29.0.118 (29.0.118 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count x 10^3 / Mbyte
@@ -862,7 +881,7 @@ gcov.e
     value 0
 
 gcov.f
-    value 0
+    value 2.380952380952381e-05
 
 gcov.g
-    value -3.469446951953614e-18
+    value 0.0238095238095238

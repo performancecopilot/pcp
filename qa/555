@@ -26,9 +26,11 @@ case $PCP_PLATFORM
 in
     linux)
 	ln $seq.$PCP_PLATFORM $seq.out || exit 1
+	hostname=`hostname -f | sed -e 's/\..*//'`
 	;;
-    darwin|solaris)
+    darwin|solaris|openbsd)
 	ln $seq.linux $seq.out || exit 1
+	hostname=`hostname | sed -e 's/\..*//'`
 	;;
     *)
 	_notrun "No qualified output exists for $PCP_PLATFORM"
@@ -265,7 +267,7 @@ $sudo grep '[[]'$!']:' /tmp/syslog.out \
     -e 's/^[A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
     -e 's/^[0-9][0-9][0-9][0-9]-[0-9][0-9]*-[0-9][0-9]*T[0-9][0-9]:[0-9][0-9]:[0-9][0-9][^ ]* /DATE /' \
     -e "s/\\[$!]/[PID]/" \
-    -e "s/`hostname -f | sed -e 's/\..*//'` /HOST /" \
+    -e "s/$hostname /HOST /" \
     -e 's/[0-9][A-Z]:HOST/HOST/' \
     -e '/ sudo: .*syslog.out$/d' \
     -e '/bogus\[[^]]*]: /p' \

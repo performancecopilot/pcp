@@ -131,11 +131,13 @@ echo quit | pmlc -h localhost -P 2>&1 | _filter
 echo; echo "== checking bad pmlogger access, expect no control"
 echo quit | pmlc -h $interface -P 2>&1 | _filter
 
-echo; echo "== checking bad pmproxy access, expect no values"
+echo; echo "== checking bad pmproxy access, expect no values" | tee -a $here/$seq.full
 pminfo -f -h localhost@$interface pmcd.feature.local 2>&1 | _filter
+cat $PCP_LOG_DIR/pmproxy/pmproxy.log >> $here/$seq.full
 
-echo; echo "== checking loop pmproxy access, expecting success"
+echo; echo "== checking loop pmproxy access, expecting success" | tee -a $here/$seq.full
 pminfo -f -h localhost@localhost pmcd.feature.local 2>&1 | _filter
+cat $PCP_LOG_DIR/pmproxy/pmproxy.log >> $here/$seq.full
 
 # success, all done
 status=0

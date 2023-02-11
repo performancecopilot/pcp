@@ -178,6 +178,8 @@ access.o
     szuserlist			# single-threaded PM_SCOPE_ACL
     userlist			# single-threaded PM_SCOPE_ACL
 accounts.o
+    namebuf			# no unsafe side-effects, see notes in accounts.c
+    namebuflen			# no unsafe side-effects, see notes in accounts.c
 AF.o
     AF_lock			# local mutex
     afid			# single-threaded PM_SCOPE_AF

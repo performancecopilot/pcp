@@ -1,6 +1,8 @@
-# PCP required package list for CentOS 8.2.2004 x86_64
-# created by kenj on vm04.localdomain Mon Oct 12 23:16:58 EDT 2020
+# PCP required package list for CentOS Stream9 x86_64
+# from the CentOS8 version created by kenj on
+# vm04.localdomain Mon Oct 12 23:16:58 EDT 2020
 #
+Coin4-devel
 Spreadsheet::Read cpan
 389-ds-base
 avahi-devel
@@ -14,12 +16,12 @@ bison
 bpftool
 bpftrace
 clang
-# in CI centos8-container already has coreutils-single installed and this
+# in CI CentOS container already has coreutils-single installed and this
 # conflicts with coreutils
 coreutils not4ci
 cppcheck
 cronie
-curl-minimal
+curl-minimal | curl
 cyrus-sasl
 cyrus-sasl-devel
 cyrus-sasl-lib
@@ -38,6 +40,7 @@ grep
 iproute
 httpd
 initscripts
+java-latest-openjdk-headless
 libbpf-devel
 libicu-devel
 libpfm-devel
@@ -92,10 +95,14 @@ python3-jsonpointer
 python3-libs
 python3-libvirt
 python3-lxml
+# python3-openpyxl is broken here ...
+# nothing provides python3.9dist(et-xmlfile) needed by python3-openpyxl-3.0.10-2.el9.noarch
+# python3-openpyxl
 python3-prometheus_client
 python3-psycopg2
 python3-pyodbc
 python3-pillow
+python3-pylint
 python3-requests
 python3-rtslib
 python3-setuptools

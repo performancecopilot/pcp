@@ -26,6 +26,7 @@ struct ipv4_stats {
 struct icmpv4_stats {
 	count_t InMsgs;
 	count_t InErrors;
+	count_t InCsumErrors;
 	count_t InDestUnreachs;
 	count_t InTimeExcds;
 	count_t InParmProbs;

@@ -21,13 +21,28 @@ which pcp2xml >/dev/null 2>&1 || _notrun "pcp2xml not installed"
 
 if which locale >/dev/null 2>&1
 then
-    if locale charmap 2>&1 | grep '^UTF-8$' >/dev/null
-    then
-	# we have UTF-8 support
-	:
-    else
-	_notrun "No UTF-8 support in LOCALE"
-    fi
+    case "$PCP_PLATFORM"
+    in
+	openbsd)
+		if locale -m 2>&1 | grep '^UTF-8$' >/dev/null
+		then
+		    # we have UTF-8 support
+		    :
+		else
+		    _notrun "No UTF-8 support in LOCALE"
+		fi
+		;;
+
+	*)
+		if locale charmap 2>&1 | grep '^UTF-8$' >/dev/null
+		then
+		    # we have UTF-8 support
+		    :
+		else
+		    _notrun "No UTF-8 support in LOCALE"
+		fi
+		;;
+    esac
 fi
 
 status=1       # failure is the default!
@@ -51,40 +66,40 @@ _sort()
 }
 
 # real QA test starts here
-echo "---"
+echo "--- 00"
 pmrep -z -p -u -a $A -w 40 kernel.all.uptime
-echo "---"
+echo "--- 01"
 pmrep -z -p -u -a $A -w 40 sample.float.one
-echo "---"
+echo "--- 02"
 pmrep -z -p -u -a $A -w 40 --ignore-unknown no.such.metric sample.float.one
-echo "---"
+echo "--- 03"
 cat > $tmp.config <<EOF
 [test]
 no.such.metric = ,,
 sample.float.one = ,,
 EOF
 pmrep -z -p -u -a $A -w 40 -c $tmp.config -5 :test
-echo "---"
+echo "--- 04"
 # diminutive case - fail cleanly if no known metrics at all
 pmrep -z -p -u -a $A -w 40 --ignore-unknown no.such.metric
-echo "---"
+echo "--- 05"
 # -s 10 can be removed when Python 2 support is dropped
 pmrep -z -p -u -a $A -w 40 -s 10 kernel.uname.release
-echo "---"
+echo "--- 06"
 # -s 10 can be removed when Python 2 support is dropped
 pmrep -z -p -u -a $A -w 40 -s 10 -l \; kernel.uname.release
-echo "---"
+echo "--- 07"
 pmrep -z -p -u -a $A kernel.uname.release -o csv -r | sed -e 's,XXX.*XXX,XXX,g'
-echo "---"
-pmrep -z -p -u -a $A kernel.uname.release -o csv -r | wc
-echo "---"
+echo "--- 08"
+pmrep -z -p -u -a $A kernel.uname.release -o csv -r | wc | sed -e 's/  */ /g'
+echo "--- 09"
 # For completeness sake, no -nan in archives/value-test
 pmrep -z -p -u -a archives/all-sles9-sp1.meta -w 10 filesys.full
-echo "---"
+echo "--- 10"
 pcp2json -z -a $A -H -I "" | pmjson -p | _value_filter
-echo "---"
+echo "--- 11"
 pcp2xml -z -a $A -H -I "" | _value_filter | _sort
-echo "---"
+echo "--- 12"
 
 # success, all done
 status=0

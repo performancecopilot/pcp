@@ -1163,7 +1163,7 @@ AS_IF([test "x$do_pmdabcc" = "xcheck"], [
 AC_SUBST(PMDA_BCC, $pmda_bcc)
 if $pmda_bcc; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
-PKG_CHECK_MODULES([libbpf], [libbpf >= 0.4.0], [have_libbpf=true], [have_libbpf=false])
+PKG_CHECK_MODULES([libbpf], [libbpf >= 0.8.0], [have_libbpf=true], [have_libbpf=false])
 AC_SUBST(HAVE_LIBBPF, [$have_libbpf])
 AS_IF([$have_libbpf], [
     AC_MSG_CHECKING([libbpf version])
@@ -1182,7 +1182,7 @@ AC_SUBST(clang)
 AC_MSG_CHECKING([clang major version installed])
 if which $CLANG >/dev/null 2>&1
 then
-    clang_major_version=`$CLANG --version | awk '/clang version/ {print $3}' | cut -f1 -d.`
+    clang_major_version=`$CLANG --version | sed -n -e 's/.*clang version \([[0-9]][[0-9]]*\).*/\1/p'`
 else
     dnl version=0 => not installed
     clang_major_version=0
@@ -1200,7 +1200,7 @@ pmdabpf_arch=`uname -m | sed 's/x86_64/x86/' | sed 's/aarch64/arm64/' | sed 's/p
 AC_SUBST(pmdabpf_arch)
 AC_MSG_RESULT($pmdabpf_arch)
 
-AC_MSG_CHECKING([for vmlinux.h])
+AC_MSG_CHECKING([for libbpf-tools vmlinux.h])
 pmdabpf_vmlinuxh="`pwd`/vendor/github.com/iovisor/bcc/libbpf-tools/$pmdabpf_arch/vmlinux.h"
 if test -f "$pmdabpf_vmlinuxh"; then
     AC_MSG_RESULT($pmdabpf_vmlinuxh)
@@ -1214,11 +1214,9 @@ AC_MSG_CHECKING([if the bpf PMDA should be included])
 pmda_bpf=false
 AS_IF([test "x$do_pmdabpf" = "xyes"], [pmda_bpf=true])
 AS_IF([test "x$do_pmdabpf" = "xcheck"], [
-    dnl pmdabpf requires libbpf, libelf and bpftool
+    dnl pmdabpf requires libbpf, libelf, clang 10+ and a bpftool-generated arch-specific vmlinux.h
     $have_libbpf && $have_libelf && \
-	test $clang_major_version -ge 10 && \
-	test -f "$pmdabpf_vmlinuxh" && \
-	pmda_bpf=true
+	test $clang_major_version -ge 10 -a -f "$pmdabpf_vmlinuxh" && pmda_bpf=true
 ])
 AC_SUBST(PMDA_BPF, $pmda_bpf)
 if $pmda_bpf; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
@@ -1228,14 +1226,14 @@ if $pmda_bpf; then
     libbpf_version_minor=`echo $libbpf_version | cut -d. -f2`
     pmdabpf_modules="biolatency.so runqlat.so"
 
-    AC_MSG_CHECKING([if bpf PMDA modules using perf_buffer__poll should be included])
-    if test "$libbpf_version_major" -eq 0 -a "$libbpf_version_minor" -lt 7; then
-	AC_MSG_RESULT([no (libbpf version required: 0.7.0, installed: $libbpf_version)])
+    AC_MSG_CHECKING([if bpf PMDA modules using bpf_buffer__new should be included])
+    if test "$libbpf_version_major" -eq 0; then
+       AC_MSG_RESULT([no (libbpf version required: 1.0.0, installed: $libbpf_version)])
     else
-	pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so mountsnoop.so oomkill.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so"
-	AC_MSG_RESULT(yes)
+       pmdabpf_modules="${pmdabpf_modules} mountsnoop.so oomkill.so"
+       AC_MSG_RESULT(yes)
     fi
-
+    pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so"
     AC_SUBST(pmdabpf_modules)
     AC_MSG_CHECKING([which bpf PMDA modules should be included])
     AC_MSG_RESULT($pmdabpf_modules)
@@ -1516,8 +1514,14 @@ AS_IF([test "x$do_qt" != "xno"], [
 	dnl ... unfortunately this is not always correct, as when more
 	dnl than one Qt version is installed, the default may not be our
 	dnl preferred version, which is Qt5
-	AC_PATH_PROGS(QTCHOOSER, [qtchooser],, [$QTDIR/bin:/usr/lib/qtchooser:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin])
-	AC_PATH_PROGS(QMAKE, [qmake qmake-qt5 qmake-qt4],, [$QTDIR/bin:/usr/lib/qtchooser:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin])
+	if test -n "$QTDIR"
+	then
+	    AC_PATH_PROGS(QTCHOOSER, [qtchooser],,             [$QTDIR/bin:/usr/lib/qtchooser:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin])
+	    AC_PATH_PROGS(QMAKE, [qmake qmake-qt5 qmake-qt4],, [$QTDIR/bin:/usr/lib/qtchooser:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin])
+	else
+	    AC_PATH_PROGS(QTCHOOSER, [qtchooser],, [/usr/lib/qtchooser:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin])
+	    AC_PATH_PROGS(QMAKE, [qmake qmake-qt5 qmake-qt4],, [/usr/lib/qtchooser:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin])
+	fi
 	test "x$cc_is_gcc" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
@@ -3103,7 +3107,7 @@ AC_TRY_LINK(
 ],
 [
     double x = 123.456;
-    if (fpclassify(x) == FP_NAN) exit(1);
+    if (fpclassify(x) == FP_NAN) return 1;
 ], ac_cv_func_fpclassify=yes)
 AC_MSG_RESULT($ac_cv_func_fpclassify)
 if test $ac_cv_func_fpclassify = no
@@ -3118,7 +3122,7 @@ then
 ],
 [
     double x = 123.456;
-    if (fpclassify(x) == FP_NAN) exit(1);
+    if (fpclassify(x) == FP_NAN) return 1;
 ], ac_cv_func_fpclassify=yes)
     AC_MSG_RESULT($ac_cv_func_fpclassify)
     if test $ac_cv_func_fpclassify = yes
@@ -3545,7 +3549,12 @@ AC_SUBST(pcp_archive_dir)
 pcp_sa_dir=$pcp_log_dir/sa
 AC_SUBST(pcp_sa_dir)
 
-pcp_pacct_system_path="$localstatedir/account/pacct"
+if test -d /var/log/account
+then
+    pcp_pacct_system_path="$localstatedir/log/account/pacct"
+else
+    pcp_pacct_system_path="$localstatedir/account/pacct"
+fi
 AC_SUBST(pcp_pacct_system_path)
 
 AC_ARG_WITH(rundir,[AC_HELP_STRING([--with-rundir],[run directory [LOCALSTATEDIR/run/pcp]])],
@@ -3743,6 +3752,7 @@ AC_MSG_CHECKING([if strftime knows about %z])
 AC_TRY_RUN(
 [
 #include <time.h>
+#include <string.h>
 int main () {
     char b[32]="";
     time_t t = time(NULL);

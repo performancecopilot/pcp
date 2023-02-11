@@ -46,7 +46,7 @@ cd $here
 
 echo "Running pmval in the background"
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so
-pmval -f2 -w5 -t0.2sec -T5sec -L -Kclear -Kadd,60,$pmda,linux_init \
+pmval -f2 -w5 -t0.2sec -T5.5sec -L -Kclear -Kadd,60,$pmda,linux_init \
 	kernel.percpu.cpu.user > $tmp.out 2> $tmp.err &
 echo pmval started: `date` >> $seq.full
 

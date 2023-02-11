@@ -32,7 +32,7 @@ DBUGLVL=${DBUGLVL:-1}	#  normally set to 1
 #  Requires common.product:
 case $PCP_PLATFORM
 in
-    linux|darwin|solaris|freebsd)
+    linux|darwin|solaris|freebsd|openbsd)
 	AMTIME1970PROG="date +%s"
 	;;
     *)

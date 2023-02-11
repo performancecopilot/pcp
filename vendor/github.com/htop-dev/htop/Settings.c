@@ -10,6 +10,7 @@ in the source distribution for its full text.
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
+#include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -261,10 +262,9 @@ static void ScreenSettings_readFields(ScreenSettings* ss, Hashtable* columns, co
       }
       int id = toFieldIndex(columns, ids[i]);
       if (id >= 0)
-         ss->fields[j] = id;
+         ss->fields[j++] = id;
       if (id > 0 && id < LAST_PROCESSFIELD)
          ss->flags |= Process_fields[id].flags;
-      j++;
    }
    String_freeArray(ids);
 }
@@ -381,6 +381,8 @@ static bool Settings_read(Settings* this, const char* fileName, unsigned int ini
          this->hideKernelThreads = atoi(option[1]);
       } else if (String_eq(option[0], "hide_userland_threads")) {
          this->hideUserlandThreads = atoi(option[1]);
+      } else if (String_eq(option[0], "hide_running_in_container")) {
+         this->hideRunningInContainer = atoi(option[1]);
       } else if (String_eq(option[0], "shadow_other_users")) {
          this->shadowOtherUsers = atoi(option[1]);
       } else if (String_eq(option[0], "show_thread_names")) {
@@ -391,6 +393,8 @@ static bool Settings_read(Settings* this, const char* fileName, unsigned int ini
          this->highlightBaseName = atoi(option[1]);
       } else if (String_eq(option[0], "highlight_deleted_exe")) {
          this->highlightDeletedExe = atoi(option[1]);
+      } else if (String_eq(option[0], "shadow_distribution_path_prefix")) {
+         this->shadowDistPathPrefix = atoi(option[1]);
       } else if (String_eq(option[0], "highlight_megabytes")) {
          this->highlightMegabytes = atoi(option[1]);
       } else if (String_eq(option[0], "highlight_threads")) {
@@ -475,13 +479,17 @@ static bool Settings_read(Settings* this, const char* fileName, unsigned int ini
          this->topologyAffinity = !!atoi(option[1]);
       #endif
       } else if (strncmp(option[0], "screen:", 7) == 0) {
-         screen = Settings_newScreen(this, &(const ScreenDefaults){ .name = option[0] + 7, .columns = option[1] });
+         screen = Settings_newScreen(this, &(const ScreenDefaults) { .name = option[0] + 7, .columns = option[1] });
       } else if (String_eq(option[0], ".sort_key")) {
-         if (screen)
-            screen->sortKey = toFieldIndex(this->dynamicColumns, option[1]);
+         if (screen) {
+            int key = toFieldIndex(this->dynamicColumns, option[1]);
+            screen->sortKey = key > 0 ? key : PID;
+         }
       } else if (String_eq(option[0], ".tree_sort_key")) {
-         if (screen)
-            screen->treeSortKey = toFieldIndex(this->dynamicColumns, option[1]);
+         if (screen) {
+            int key = toFieldIndex(this->dynamicColumns, option[1]);
+            screen->treeSortKey = key > 0 ? key : PID;
+         }
       } else if (String_eq(option[0], ".sort_direction")) {
          if (screen)
             screen->direction = atoi(option[1]);
@@ -575,11 +583,13 @@ int Settings_write(const Settings* this, bool onCrash) {
    fprintf(fd, "fields="); writeFields(fd, this->screens[0]->fields, this->dynamicColumns, false, separator);
    printSettingInteger("hide_kernel_threads", this->hideKernelThreads);
    printSettingInteger("hide_userland_threads", this->hideUserlandThreads);
+   printSettingInteger("hide_running_in_container", this->hideRunningInContainer);
    printSettingInteger("shadow_other_users", this->shadowOtherUsers);
    printSettingInteger("show_thread_names", this->showThreadNames);
    printSettingInteger("show_program_path", this->showProgramPath);
    printSettingInteger("highlight_base_name", this->highlightBaseName);
    printSettingInteger("highlight_deleted_exe", this->highlightDeletedExe);
+   printSettingInteger("shadow_distribution_path_prefix", this->shadowDistPathPrefix);
    printSettingInteger("highlight_megabytes", this->highlightMegabytes);
    printSettingInteger("highlight_threads", this->highlightThreads);
    printSettingInteger("highlight_changes", this->highlightChanges);
@@ -668,8 +678,10 @@ Settings* Settings_new(unsigned int initialCpuCount, Hashtable* dynamicColumns) 
    this->showThreadNames = false;
    this->hideKernelThreads = true;
    this->hideUserlandThreads = false;
+   this->hideRunningInContainer = false;
    this->highlightBaseName = false;
    this->highlightDeletedExe = true;
+   this->shadowDistPathPrefix = false;
    this->highlightMegabytes = true;
    this->detailedCPUTime = false;
    this->countCPUsFromOne = false;
@@ -702,9 +714,10 @@ Settings* Settings_new(unsigned int initialCpuCount, Hashtable* dynamicColumns) 
       this->filename = xStrdup(rcfile);
    } else {
       const char* home = getenv("HOME");
-      if (!home)
-         home = "";
-
+      if (!home) {
+         const struct passwd* pw = getpwuid(getuid());
+         home = pw ? pw->pw_dir : "";
+      }
       const char* xdgConfigHome = getenv("XDG_CONFIG_HOME");
       char* configDir = NULL;
       char* htopDir = NULL;
@@ -761,6 +774,8 @@ Settings* Settings_new(unsigned int initialCpuCount, Hashtable* dynamicColumns) 
 
    this->ssIndex = 0;
    this->ss = this->screens[this->ssIndex];
+
+   this->lastUpdate = 1;
 
    return this;
 }

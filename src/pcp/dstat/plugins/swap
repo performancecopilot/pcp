@@ -3,5 +3,6 @@
 #
 
 [swap]
-used = swap.used
-free = swap.free
+label = %I
+used = swapdev.length - swapdev.free
+free = swapdev.free

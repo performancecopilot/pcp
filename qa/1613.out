@@ -62,6 +62,10 @@ zram.flush_rawactive
     inst [0 or "zram0"] value 0
     inst [1 or "zram1"] value 0
 
+zram.inflight
+    inst [0 or "zram0"] value 0
+    inst [1 or "zram1"] value 0
+
 zram.io_stat.failed.reads
     inst [0 or "zram0"] value 0
     inst [1 or "zram1"] value 0

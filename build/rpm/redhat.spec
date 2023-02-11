@@ -93,7 +93,7 @@ Source0: %{artifactory}/pcp-source-release/pcp-%{version}.src.tar.gz
 %endif
 
 # support for pmdabpf, check bcc.spec for supported architectures of libbpf-tools
-%if 0%{?fedora} >= 33 || 0%{?rhel} > 8
+%if 0%{?fedora} >= 37 || 0%{?rhel} > 8
 %ifarch x86_64 ppc64 ppc64le aarch64
 %global disable_bpf 0
 %else
@@ -277,7 +277,7 @@ BuildRequires: perl-devel perl(strict)
 BuildRequires: perl(ExtUtils::MakeMaker) perl(LWP::UserAgent) perl(JSON)
 BuildRequires: perl(Time::HiRes) perl(Digest::MD5)
 BuildRequires: perl(XML::LibXML) perl(File::Slurp)
-BuildRequires: man %{_hostname_executable}
+BuildRequires: %{_hostname_executable}
 %if !%{disable_systemd}
 BuildRequires: systemd-devel
 %endif

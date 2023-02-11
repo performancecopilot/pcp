@@ -8878,12 +8878,12 @@ if test -n "$libbpf_CFLAGS"; then
     pkg_cv_libbpf_CFLAGS="$libbpf_CFLAGS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libbpf >= 0.4.0\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libbpf >= 0.4.0") 2>&5
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libbpf >= 0.8.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libbpf >= 0.8.0") 2>&5
   ac_status=$?
   printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_libbpf_CFLAGS=`$PKG_CONFIG --cflags "libbpf >= 0.4.0" 2>/dev/null`
+  pkg_cv_libbpf_CFLAGS=`$PKG_CONFIG --cflags "libbpf >= 0.8.0" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -8895,12 +8895,12 @@ if test -n "$libbpf_LIBS"; then
     pkg_cv_libbpf_LIBS="$libbpf_LIBS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libbpf >= 0.4.0\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libbpf >= 0.4.0") 2>&5
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libbpf >= 0.8.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libbpf >= 0.8.0") 2>&5
   ac_status=$?
   printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_libbpf_LIBS=`$PKG_CONFIG --libs "libbpf >= 0.4.0" 2>/dev/null`
+  pkg_cv_libbpf_LIBS=`$PKG_CONFIG --libs "libbpf >= 0.8.0" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -8921,9 +8921,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        libbpf_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libbpf >= 0.4.0" 2>&1`
+	        libbpf_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libbpf >= 0.8.0" 2>&1`
         else
-	        libbpf_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libbpf >= 0.4.0" 2>&1`
+	        libbpf_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libbpf >= 0.8.0" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$libbpf_PKG_ERRORS" >&5
@@ -9080,7 +9080,7 @@ clang=$CLANG
 printf %s "checking clang major version installed... " >&6; }
 if which $CLANG >/dev/null 2>&1
 then
-    clang_major_version=`$CLANG --version | awk '/clang version/ {print $3}' | cut -f1 -d.`
+    clang_major_version=`$CLANG --version | sed -n -e 's/.*clang version \([0-9][0-9]*\).*/\1/p'`
 else
         clang_major_version=0
 fi
@@ -9144,8 +9144,8 @@ pmdabpf_arch=`uname -m | sed 's/x86_64/x86/' | sed 's/aarch64/arm64/' | sed 's/p
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $pmdabpf_arch" >&5
 printf "%s\n" "$pmdabpf_arch" >&6; }
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for vmlinux.h" >&5
-printf %s "checking for vmlinux.h... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libbpf-tools vmlinux.h" >&5
+printf %s "checking for libbpf-tools vmlinux.h... " >&6; }
 pmdabpf_vmlinuxh="`pwd`/vendor/github.com/iovisor/bcc/libbpf-tools/$pmdabpf_arch/vmlinux.h"
 if test -f "$pmdabpf_vmlinuxh"; then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $pmdabpf_vmlinuxh" >&5
@@ -9168,9 +9168,7 @@ if test "x$do_pmdabpf" = "xcheck"
 then :
 
         $have_libbpf && $have_libelf && \
-	test $clang_major_version -ge 10 && \
-	test -f "$pmdabpf_vmlinuxh" && \
-	pmda_bpf=true
+	test $clang_major_version -ge 10 -a -f "$pmdabpf_vmlinuxh" && pmda_bpf=true
 
 fi
 PMDA_BPF=$pmda_bpf
@@ -9184,17 +9182,17 @@ if $pmda_bpf; then
     libbpf_version_minor=`echo $libbpf_version | cut -d. -f2`
     pmdabpf_modules="biolatency.so runqlat.so"
 
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if bpf PMDA modules using perf_buffer__poll should be included" >&5
-printf %s "checking if bpf PMDA modules using perf_buffer__poll should be included... " >&6; }
-    if test "$libbpf_version_major" -eq 0 -a "$libbpf_version_minor" -lt 7; then
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no (libbpf version required: 0.7.0, installed: $libbpf_version)" >&5
-printf "%s\n" "no (libbpf version required: 0.7.0, installed: $libbpf_version)" >&6; }
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if bpf PMDA modules using bpf_buffer__new should be included" >&5
+printf %s "checking if bpf PMDA modules using bpf_buffer__new should be included... " >&6; }
+    if test "$libbpf_version_major" -eq 0; then
+       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no (libbpf version required: 1.0.0, installed: $libbpf_version)" >&5
+printf "%s\n" "no (libbpf version required: 1.0.0, installed: $libbpf_version)" >&6; }
     else
-	pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so mountsnoop.so oomkill.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so"
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+       pmdabpf_modules="${pmdabpf_modules} mountsnoop.so oomkill.so"
+       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
     fi
-
+    pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so"
 
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking which bpf PMDA modules should be included" >&5
 printf %s "checking which bpf PMDA modules should be included... " >&6; }
@@ -9594,7 +9592,9 @@ then :
 
     if test -z "$QMAKE"
     then
-					for ac_prog in qtchooser
+					if test -n "$QTDIR"
+	then
+	    for ac_prog in qtchooser
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -9645,7 +9645,7 @@ fi
   test -n "$QTCHOOSER" && break
 done
 
-	for ac_prog in qmake qmake-qt5 qmake-qt4
+	    for ac_prog in qmake qmake-qt5 qmake-qt4
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -9696,6 +9696,110 @@ fi
   test -n "$QMAKE" && break
 done
 
+	else
+	    for ac_prog in qtchooser
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_path_QTCHOOSER+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  case $QTCHOOSER in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_QTCHOOSER="$QTCHOOSER" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="/usr/lib/qtchooser:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_path_QTCHOOSER="$as_dir$ac_word$ac_exec_ext"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+QTCHOOSER=$ac_cv_path_QTCHOOSER
+if test -n "$QTCHOOSER"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $QTCHOOSER" >&5
+printf "%s\n" "$QTCHOOSER" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+  test -n "$QTCHOOSER" && break
+done
+
+	    for ac_prog in qmake qmake-qt5 qmake-qt4
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_path_QMAKE+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  case $QMAKE in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_QMAKE="$QMAKE" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="/usr/lib/qtchooser:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_path_QMAKE="$as_dir$ac_word$ac_exec_ext"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+QMAKE=$ac_cv_path_QMAKE
+if test -n "$QMAKE"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $QMAKE" >&5
+printf "%s\n" "$QMAKE" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+  test -n "$QMAKE" && break
+done
+
+	fi
 	test "x$cc_is_gcc" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
@@ -12133,11 +12237,12 @@ printf "%s\n" "yes" >&6; }
 fi
 if test $have_openssl = true
 then
-            { $as_echo "$as_me:${as_lineno-$LINENO}: checking for BIO_write_ex in -lcrypto" >&5
-$as_echo_n "checking for BIO_write_ex in -lcrypto... " >&6; }
-if ${ac_cv_lib_crypto_BIO_write_ex+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
+            { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for BIO_write_ex in -lcrypto" >&5
+printf %s "checking for BIO_write_ex in -lcrypto... " >&6; }
+if test ${ac_cv_lib_crypto_BIO_write_ex+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
   ac_check_lib_save_LIBS=$LIBS
 LIBS="-lcrypto  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -12146,37 +12251,34 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* Override any GCC internal prototype to avoid an error.
    Use char because int might match the return type of a GCC
    builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
 char BIO_write_ex ();
 int
-main ()
+main (void)
 {
 return BIO_write_ex ();
   ;
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
+if ac_fn_c_try_link "$LINENO"
+then :
   ac_cv_lib_crypto_BIO_write_ex=yes
-else
+else $as_nop
   ac_cv_lib_crypto_BIO_write_ex=no
 fi
-rm -f core conftest.err conftest.$ac_objext \
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_crypto_BIO_write_ex" >&5
-$as_echo "$ac_cv_lib_crypto_BIO_write_ex" >&6; }
-if test "x$ac_cv_lib_crypto_BIO_write_ex" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBCRYPTO 1
-_ACEOF
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_crypto_BIO_write_ex" >&5
+printf "%s\n" "$ac_cv_lib_crypto_BIO_write_ex" >&6; }
+if test "x$ac_cv_lib_crypto_BIO_write_ex" = xyes
+then :
+  printf "%s\n" "#define HAVE_LIBCRYPTO 1" >>confdefs.h
 
   LIBS="-lcrypto $LIBS"
 
-else
+else $as_nop
   have_openssl=false
 fi
 
@@ -15656,7 +15758,7 @@ main (void)
 {
 
     double x = 123.456;
-    if (fpclassify(x) == FP_NAN) exit(1);
+    if (fpclassify(x) == FP_NAN) return 1;
 
   ;
   return 0;
@@ -15686,7 +15788,7 @@ main (void)
 {
 
     double x = 123.456;
-    if (fpclassify(x) == FP_NAN) exit(1);
+    if (fpclassify(x) == FP_NAN) return 1;
 
   ;
   return 0;
@@ -17142,7 +17244,12 @@ pcp_archive_dir=$pcp_log_dir/pmlogger
 pcp_sa_dir=$pcp_log_dir/sa
 
 
-pcp_pacct_system_path="$localstatedir/account/pacct"
+if test -d /var/log/account
+then
+    pcp_pacct_system_path="$localstatedir/log/account/pacct"
+else
+    pcp_pacct_system_path="$localstatedir/account/pacct"
+fi
 
 
 
@@ -17751,6 +17858,7 @@ else $as_nop
 /* end confdefs.h.  */
 
 #include <time.h>
+#include <string.h>
 int main () {
     char b[32]="";
     time_t t = time(NULL);

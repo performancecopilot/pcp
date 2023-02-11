@@ -29,6 +29,27 @@ status=0	# success is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# Map PMID for disk.dev.read to the Linux equivalent, so that
+# the .out file matches
+#
+_filter_disk_dev_read()
+{
+    case "$PCP_PLATFORM"
+    in
+	linux)
+		# nothing to do
+		cat
+		;;
+	openbsd)
+		sed -e 's/PMID 139.2.0$/PMID 60.0.4/'
+		;;
+	*)
+		echo "Arrgh, need disk.dev.read PMID mapping for $PCP_PLATFORM"
+		exit
+		;;
+	esac
+}
+
 _do_it()
 {
     rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
@@ -53,7 +74,8 @@ _do_it()
 BEGIN			{ i = 0 }
 NR < '$line'		{ next }
 /^Fetch Control /	{ print "Fetch Control [" i "]"; i++; next }
-$1 == "PMID"		{ print "  " $1,$2; next }'
+$1 == "PMID"		{ print "  " $1,$2; next }' \
+	| _filter_disk_dev_read
     fi
 
     pmdumplog $tmp "$1" \

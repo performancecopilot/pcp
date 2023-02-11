@@ -56,14 +56,14 @@ static node_t *newnode(int);
 static node_t *newmetric(sds);
 static node_t *newmetricquery(sds, node_t *);
 static node_t *newtree(int, node_t *, node_t *);
-static void newaligntime(PARSER *, sds);
-static void newstarttime(PARSER *, sds);
-static void newinterval(PARSER *, sds);
-static void newendtime(PARSER *, sds);
-static void newrange(PARSER *, sds);
-static void newtimezone(PARSER *, sds);
-static void newsamples(PARSER *, sds);
-static void newoffset(PARSER *, sds);
+static int newaligntime(PARSER *, sds);
+static int newstarttime(PARSER *, sds);
+static int newinterval(PARSER *, sds);
+static int newendtime(PARSER *, sds);
+static int newrange(PARSER *, sds);
+static int newtimezone(PARSER *, sds);
+static int newsamples(PARSER *, sds);
+static int newoffset(PARSER *, sds);
 static char *n_type_str(int);
 static char *n_type_c(int);
 static char *l_type_str(int);
@@ -203,12 +203,14 @@ query	: vector
 	;
 
 vector:	L_NAME L_LBRACE exprlist L_RBRACE L_EOS
-		{ lp->yy_np = newmetricquery($1, $3);
+		{ if ((lp->yy_np = newmetricquery($1, $3)) == NULL)
+		      return -1;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		  YYACCEPT;
 		}
 	| L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE L_EOS
-		{ lp->yy_np = newmetricquery($1, $3);
+		{ if ((lp->yy_np = newmetricquery($1, $3)) == NULL)
+		      return -1;
 		  lp->yy_np->time = lp->yy_series.time;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		  YYACCEPT;
@@ -218,7 +220,8 @@ vector:	L_NAME L_LBRACE exprlist L_RBRACE L_EOS
 	| L_LBRACE exprlist L_RBRACE L_EOS
 		{ lp->yy_np = lp->yy_series.expr = $2; YYACCEPT; }
 	| L_NAME L_LSQUARE timelist L_RSQUARE L_EOS
-		{ lp->yy_np = newmetric($1);
+		{ if ((lp->yy_np = newmetric($1)) == NULL)
+		      return -1;
 		  lp->yy_np->time = lp->yy_series.time;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		  YYACCEPT;
@@ -227,7 +230,8 @@ vector:	L_NAME L_LBRACE exprlist L_RBRACE L_EOS
 		{ YYACCEPT;
 		}
 	| L_NAME L_EOS
-		{ lp->yy_np = newmetric($1);
+		{ if ((lp->yy_np = newmetric($1)) == NULL)
+		      return -1;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		  YYACCEPT;
 		}
@@ -244,7 +248,8 @@ vector:	L_NAME L_LBRACE exprlist L_RBRACE L_EOS
 	;
 
 exprlist : exprlist L_COMMA expr
-		{ lp->yy_np = newnode(N_AND);
+		{ if ((lp->yy_np = newnode(N_AND)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_np;
@@ -257,12 +262,14 @@ exprval	: string
 	;
 
 string	: L_STRING
-		{ lp->yy_np = newnode(N_STRING);
+		{ if ((lp->yy_np = newnode(N_STRING)) == NULL)
+		      return -1;
 		  lp->yy_np->value = $1;
 		  $$ = lp->yy_np;
 		}
 	| L_NAME
-		{ lp->yy_np = newnode(N_NAME);
+		{ if ((lp->yy_np = newnode(N_NAME)) == NULL)
+		      return -1;
 		  lp->yy_np->value = $1;
 		  $$ = lp->yy_np;
 		}
@@ -270,14 +277,16 @@ string	: L_STRING
 
 number	: integer
 	| L_DOUBLE
-		{ lp->yy_np = newnode(N_DOUBLE);
+		{ if ((lp->yy_np = newnode(N_DOUBLE)) == NULL)
+		      return -1;
 		  lp->yy_np->value = $1;
 		  $$ = lp->yy_np;
 		}
 	;
 
 integer	: L_INTEGER
-		{ lp->yy_np = newnode(N_INTEGER);
+		{ if ((lp->yy_np = newnode(N_INTEGER)) == NULL)
+		      return -1;
 		  lp->yy_np->value = $1;
 		  $$ = lp->yy_np;
 		}
@@ -295,62 +304,104 @@ timespec :
 
 timeexpr : /* time window specification */
 	  L_INTERVAL L_COLON timespec
-		{ newinterval(lp, $3); }
+		{ if (newinterval(lp, $3) < 0)
+		      return -1;
+		}
 	| L_TIMEZONE L_COLON L_STRING
-		{ newtimezone(lp, $3); }
+		{ if (newtimezone(lp, $3) < 0)
+		      return -1;
+		}
 	| L_SAMPLES L_COLON L_INTEGER
-		{ newsamples(lp, $3); }
+		{ if (newsamples(lp, $3) < 0)
+		      return -1;
+		}
 	| L_OFFSET L_COLON L_INTEGER
-		{ newoffset(lp, $3); }
+		{ if (newoffset(lp, $3) < 0)
+		      return -1;
+		}
 	| L_ALIGN L_COLON timespec
-		{ newaligntime(lp, $3); }
+		{ if (newaligntime(lp, $3) < 0)
+		      return -1;
+		}
 	| L_START L_COLON timespec
-		{ newstarttime(lp, $3); }
+		{ if (newstarttime(lp, $3) < 0)
+		      return -1;
+		}
 	| L_FINISH L_COLON timespec
-		{ newendtime(lp, $3); }
+		{ if (newendtime(lp, $3) < 0)
+		      return -1;
+		}
 	| L_RANGE
-		{ newrange(lp, $1); }
+		{ if (newrange(lp, $1) < 0)
+		      return -1;
+		}
 	;
 
 expr	: /* relational expressions */
 	  string L_LT number
-		{ $$ = lp->yy_np = newtree(N_LT, $1, $3); }
+		{ if (($$ = lp->yy_np = newtree(N_LT, $1, $3)) == NULL)
+		    return -1;
+		}
 	| string L_LEQ number
-		{ $$ = lp->yy_np = newtree(N_LEQ, $1, $3); }
+		{ if (($$ = lp->yy_np = newtree(N_LEQ, $1, $3)) == NULL)
+		    return -1;
+		}
 	| string L_EQ exprval
-		{ $$ = lp->yy_np = newtree(N_EQ, $1, $3); }
+		{ if (($$ = lp->yy_np = newtree(N_EQ, $1, $3)) == NULL)
+		    return -1;
+		}
 	| string L_GEQ number
-		{ $$ = lp->yy_np = newtree(N_GEQ, $1, $3); }
+		{ if (($$ = lp->yy_np = newtree(N_GEQ, $1, $3)) == NULL)
+		    return -1;
+		}
 	| string L_GT number
-		{ $$ = lp->yy_np = newtree(N_GT, $1, $3); }
+		{ if (($$ = lp->yy_np = newtree(N_GT, $1, $3)) == NULL)
+		    return -1;
+		}
 	| string L_NEQ exprval
-		{ $$ = lp->yy_np = newtree(N_NEQ, $1, $3); }
+		{ if (($$ = lp->yy_np = newtree(N_NEQ, $1, $3)) == NULL)
+		    return -1;
+		}
 
 	/* regular expressions and globbing */
 	| string L_REQ string
-		{ $$ = lp->yy_np = newtree(N_REQ, $1, $3); }
+		{ if (($$ = lp->yy_np = newtree(N_REQ, $1, $3)) == NULL)
+		     return -1;
+		}
 	| string L_RNE string
-		{ $$ = lp->yy_np = newtree(N_RNE, $1, $3); }
+		{ if (($$ = lp->yy_np = newtree(N_RNE, $1, $3)) == NULL)
+		     return -1;
+		}
 	| string L_COLON exprval	/* L_GLOB synonym */
-		{ $$ = lp->yy_np = newtree(N_GLOB, $1, $3); }
+		{ if (($$ = lp->yy_np = newtree(N_GLOB, $1, $3)) == NULL)
+		     return -1;
+		}
 	| string L_GLOB exprval
-		{ $$ = lp->yy_np = newtree(N_GLOB, $1, $3); }
+		{ if (($$ = lp->yy_np = newtree(N_GLOB, $1, $3)) == NULL)
+		     return -1;
+		}
 
 	/* boolean expressions */
 	| expr L_AND expr
-		{ $$ = lp->yy_np = newtree(N_AND, $1, $3); }
+		{ if (($$ = lp->yy_np = newtree(N_AND, $1, $3)) == NULL)
+		      return -1;
+		}
 	| expr L_OR expr
-		{ $$ = lp->yy_np = newtree(N_OR, $1, $3); }
+		{ if (($$ = lp->yy_np = newtree(N_OR, $1, $3)) == NULL)
+		      return -1;
+		}
 	;
 
 val_vec
 	: L_NAME L_LBRACE exprlist L_RBRACE L_LSQUARE timelist L_RSQUARE
-		{ lp->yy_np = newmetricquery($1, $3);
+		{ if ((lp->yy_np = newmetricquery($1, $3)) == NULL)
+		      return -1;
 		  lp->yy_np->time = lp->yy_series.time;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_NAME L_LSQUARE timelist L_RSQUARE
-		{ lp->yy_np = newmetric($1);
+		{ if ((lp->yy_np = newmetric($1)) == NULL)
+		      return -1;
 		  lp->yy_np->time = lp->yy_series.time;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
@@ -358,83 +409,101 @@ val_vec
 
 sid_vec 
 	: L_NAME L_LBRACE exprlist L_RBRACE
-                { lp->yy_np = newmetricquery($1, $3);
+                { if ((lp->yy_np = newmetricquery($1, $3)) == NULL)
+		      return -1;
                   $$ = lp->yy_series.expr = lp->yy_np;
                 }
 	| L_NAME
-                { lp->yy_np = newmetric($1);
+                { if ((lp->yy_np = newmetric($1)) == NULL)
+		      return -1;
                   $$ = lp->yy_series.expr = lp->yy_np;
                 }
 	;
 
 func_sid
 	: L_RATE L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_RATE);
+		{ if ((lp->yy_np = newnode(N_RATE)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_RATE L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_RATE);
+		{ if ((lp->yy_np = newnode(N_RATE)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MAX L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_MAX);
+		{ if ((lp->yy_np = newnode(N_MAX)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MAX L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_MAX);
+		{ if ((lp->yy_np = newnode(N_MAX)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MAX_INST L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_MAX_INST);
+		{ if ((lp->yy_np = newnode(N_MAX_INST)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MAX_INST L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_MAX_INST);
+		{ if ((lp->yy_np = newnode(N_MAX_INST)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MAX_SAMPLE L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_MAX_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_MAX_SAMPLE)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MAX_SAMPLE L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_MAX_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_MAX_SAMPLE)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MIN L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_MIN);
+		{ if ((lp->yy_np = newnode(N_MIN)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MIN L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_MIN);
+		{ if ((lp->yy_np = newnode(N_MIN)) == NULL)
+		      return -1;
+		  lp->yy_np->left = $3;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MIN_INST L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_MIN_INST);
+		{ if ((lp->yy_np = newnode(N_MIN_INST)) == NULL)
+		      return -1;
+		  lp->yy_np->left = $3;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MIN_INST L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_MIN_INST);
+		{ if ((lp->yy_np = newnode(N_MIN_INST)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MIN_SAMPLE L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_MIN_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_MIN_SAMPLE)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MIN_SAMPLE L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_MIN_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_MIN_SAMPLE)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
@@ -443,7 +512,8 @@ func_sid
 		  struct pmUnits	units;
 		  char			*errmsg;
 		
-		  lp->yy_np = newnode(N_RESCALE);
+		  if ((lp->yy_np = newnode(N_RESCALE)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  if (pmParseUnitsStr($5, &units, &mult, &errmsg) < 0) {
 		      gramerr(lp, "Illegal units:", NULL, errmsg);
@@ -451,7 +521,8 @@ func_sid
 		      series_error(lp, NULL);
 		      return -1;
 		  }
-		  lp->yy_np->right = newnode(N_SCALE);
+		  if ((lp->yy_np->right = newnode(N_SCALE)) == NULL)
+		      return -1;
 		  lp->yy_np->right->meta.units = units;	/* struct assign */
 		  lp->yy_np->right->value = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
@@ -461,7 +532,8 @@ func_sid
 		  struct pmUnits	units;
 		  char			*errmsg;
 		
-		  lp->yy_np = newnode(N_RESCALE);
+		  if ((lp->yy_np = newnode(N_RESCALE)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  if (pmParseUnitsStr($5, &units, &mult, &errmsg) < 0) {
 		      gramerr(lp, "Illegal units:", NULL, errmsg);
@@ -469,81 +541,96 @@ func_sid
 		      series_error(lp, NULL);
 		      return -1;
 		  }
-		  lp->yy_np->right = newnode(N_SCALE);
+		  if ((lp->yy_np->right = newnode(N_SCALE)) == NULL)
+		      return -1;
 		  lp->yy_np->right->meta.units = units;	/* struct assign */
 		  lp->yy_np->right->value = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_SUM L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_SUM);
+		{ if ((lp->yy_np = newnode(N_SUM)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_SUM L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_SUM);
+		{ if ((lp->yy_np = newnode(N_SUM)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_SUM_INST L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_SUM_INST);
+		{ if ((lp->yy_np = newnode(N_SUM_INST)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_SUM_INST L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_SUM_INST);
+		{ if ((lp->yy_np = newnode(N_SUM_INST)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_SUM_SAMPLE L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_SUM_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_SUM_SAMPLE)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_SUM_SAMPLE L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_SUM_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_SUM_SAMPLE)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_STDEV_INST L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_STDEV_INST);
+		{ if ((lp->yy_np = newnode(N_STDEV_INST)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_STDEV_INST L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_STDEV_INST);
+		{ if ((lp->yy_np = newnode(N_STDEV_INST)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_STDEV_SAMPLE L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_STDEV_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_STDEV_SAMPLE)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_STDEV_SAMPLE L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_STDEV_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_STDEV_SAMPLE)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_TOPK_INST L_LPAREN sid_vec L_COMMA integer L_RPAREN
-		{ lp->yy_np = newnode(N_TOPK_INST);
+		{ if ((lp->yy_np = newnode(N_TOPK_INST)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_TOPK_INST L_LPAREN func_sid L_COMMA integer L_RPAREN
-		{ lp->yy_np = newnode(N_TOPK_INST);
+		{ if ((lp->yy_np = newnode(N_TOPK_INST)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_TOPK_SAMPLE L_LPAREN sid_vec L_COMMA integer L_RPAREN
-		{ lp->yy_np = newnode(N_TOPK_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_TOPK_SAMPLE)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_TOPK_SAMPLE L_LPAREN func_sid L_COMMA integer L_RPAREN
-		{ lp->yy_np = newnode(N_TOPK_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_TOPK_SAMPLE)) == NULL)
+		      return -1;
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
@@ -556,7 +643,8 @@ func_sid
 			series_error(lp, NULL);
 			return -1;
 		  }
-		  lp->yy_np = newnode(N_NTH_PERCENTILE_INST);
+		  if ((lp->yy_np = newnode(N_NTH_PERCENTILE_INST)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
@@ -569,7 +657,8 @@ func_sid
 			series_error(lp, NULL);
 			return -1;
 		  }
-		  lp->yy_np = newnode(N_NTH_PERCENTILE_INST);
+		  if ((lp->yy_np = newnode(N_NTH_PERCENTILE_INST)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
@@ -582,7 +671,8 @@ func_sid
 			series_error(lp, NULL);
 			return -1;
 		  }
-		  lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE);
+		  if ((lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
@@ -595,100 +685,119 @@ func_sid
 			series_error(lp, NULL);
 			return -1;
 		  }
-		  lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE);
+		  if ((lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_AVG L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_AVG);
+		{ if ((lp->yy_np = newnode(N_AVG)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_AVG L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_AVG);
+		{ if ((lp->yy_np = newnode(N_AVG)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_AVG_INST L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_AVG_INST);
+		{ if ((lp->yy_np = newnode(N_AVG_INST)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_AVG_INST L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_AVG_INST);
+		{ if ((lp->yy_np = newnode(N_AVG_INST)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_AVG_SAMPLE L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_AVG_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_AVG_SAMPLE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_AVG_SAMPLE L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_AVG_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_AVG_SAMPLE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_ABS L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_ABS);
+		{ if ((lp->yy_np = newnode(N_ABS)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_ABS L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_ABS);
+		{ if ((lp->yy_np = newnode(N_ABS)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_FLOOR L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_FLOOR);
+		{ if ((lp->yy_np = newnode(N_FLOOR)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_FLOOR L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_FLOOR);
+		{ if ((lp->yy_np = newnode(N_FLOOR)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_LOG L_LPAREN sid_vec L_COMMA number L_RPAREN
-		{ lp->yy_np = newnode(N_LOG);
+		{ if ((lp->yy_np = newnode(N_LOG)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_LOG L_LPAREN func_sid L_COMMA number L_RPAREN
-		{ lp->yy_np = newnode(N_LOG);
+		{ if ((lp->yy_np = newnode(N_LOG)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_LOG L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_LOG);
+		{ if ((lp->yy_np = newnode(N_LOG)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_LOG L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_LOG);
+		{ if ((lp->yy_np = newnode(N_LOG)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_SQRT L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_SQRT);
+		{ if ((lp->yy_np = newnode(N_SQRT)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_SQRT L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_SQRT);
+		{ if ((lp->yy_np = newnode(N_SQRT)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_ROUND L_LPAREN sid_vec L_RPAREN
-		{ lp->yy_np = newnode(N_ROUND);
+		{ if ((lp->yy_np = newnode(N_ROUND)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_ROUND L_LPAREN func_sid L_RPAREN
-		{ lp->yy_np = newnode(N_ROUND);
+		{ if ((lp->yy_np = newnode(N_ROUND)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
@@ -700,121 +809,141 @@ func_sid
 
 arithmetic_expr_sid
 	: sid_vec L_PLUS sid_vec
-		{ lp->yy_np = newnode(N_PLUS);
+		{ if ((lp->yy_np = newnode(N_PLUS)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| sid_vec L_PLUS func_sid
-		{ lp->yy_np = newnode(N_PLUS);
+		{ if ((lp->yy_np = newnode(N_PLUS)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func_sid L_PLUS sid_vec
-		{ lp->yy_np = newnode(N_PLUS);
+		{ if ((lp->yy_np = newnode(N_PLUS)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func_sid L_PLUS func_sid
-		{ lp->yy_np = newnode(N_PLUS);
+		{ if ((lp->yy_np = newnode(N_PLUS)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| sid_vec L_MINUS sid_vec
-		{ lp->yy_np = newnode(N_MINUS);
+		{ if ((lp->yy_np = newnode(N_MINUS)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| sid_vec L_MINUS func_sid
-		{ lp->yy_np = newnode(N_MINUS);
+		{ if ((lp->yy_np = newnode(N_MINUS)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func_sid L_MINUS sid_vec
-		{ lp->yy_np = newnode(N_MINUS);
+		{ if ((lp->yy_np = newnode(N_MINUS)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func_sid L_MINUS func_sid
-		{ lp->yy_np = newnode(N_MINUS);
+		{ if ((lp->yy_np = newnode(N_MINUS)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| sid_vec L_STAR sid_vec
-		{ lp->yy_np = newnode(N_STAR);
+		{ if ((lp->yy_np = newnode(N_STAR)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| sid_vec L_STAR func_sid
-		{ lp->yy_np = newnode(N_STAR);
+		{ if ((lp->yy_np = newnode(N_STAR)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func_sid L_STAR sid_vec
-		{ lp->yy_np = newnode(N_STAR);
+		{ if ((lp->yy_np = newnode(N_STAR)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func_sid L_STAR func_sid
-		{ lp->yy_np = newnode(N_STAR);
+		{ if ((lp->yy_np = newnode(N_STAR)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| number L_STAR sid_vec
-		{ lp->yy_np = newnode(N_STAR);
+		{ if ((lp->yy_np = newnode(N_STAR)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| sid_vec L_STAR number
-		{ lp->yy_np = newnode(N_STAR);
+		{ if ((lp->yy_np = newnode(N_STAR)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| number L_STAR func_sid
-		{ lp->yy_np = newnode(N_STAR);
+		{ if ((lp->yy_np = newnode(N_STAR)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func_sid L_STAR number
-		{ lp->yy_np = newnode(N_STAR);
+		{ if ((lp->yy_np = newnode(N_STAR)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| sid_vec L_SLASH sid_vec
-		{ lp->yy_np = newnode(N_SLASH);
+		{ if ((lp->yy_np = newnode(N_SLASH)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| sid_vec L_SLASH func_sid
-		{ lp->yy_np = newnode(N_SLASH);
+		{ if ((lp->yy_np = newnode(N_SLASH)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func_sid L_SLASH sid_vec
-		{ lp->yy_np = newnode(N_SLASH);
+		{ if ((lp->yy_np = newnode(N_SLASH)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func_sid L_SLASH func_sid
-		{ lp->yy_np = newnode(N_SLASH);
+		{ if ((lp->yy_np = newnode(N_SLASH)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
@@ -822,72 +951,87 @@ arithmetic_expr_sid
 	;
 
 func	: L_RATE L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_RATE);
+		{ if ((lp->yy_np = newnode(N_RATE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_RATE L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_RATE);
+		{ if ((lp->yy_np = newnode(N_RATE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MAX L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_MAX);
+		{ if ((lp->yy_np = newnode(N_MAX)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MAX L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_MAX);
+		{ if ((lp->yy_np = newnode(N_MAX)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MAX_INST L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_MAX_INST);
+		{ if ((lp->yy_np = newnode(N_MAX_INST)) == NULL)
+			return -1;
+		  lp->yy_np->left = $3;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MAX_INST L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_MAX_INST);
+		{ if ((lp->yy_np = newnode(N_MAX_INST)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MAX_SAMPLE L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_MAX_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_MAX_SAMPLE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MAX_SAMPLE L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_MAX_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_MAX_SAMPLE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MIN L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_MIN);
+		{ if ((lp->yy_np = newnode(N_MIN)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MIN L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_MIN);
+		{ if ((lp->yy_np = newnode(N_MIN)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MIN_INST L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_MIN_INST);
+		{ if ((lp->yy_np = newnode(N_MIN_INST)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MIN_INST L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_MIN_INST);
+		{ if ((lp->yy_np = newnode(N_MIN_INST)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MIN_SAMPLE L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_MIN_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_MIN_SAMPLE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_MIN_SAMPLE L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_MIN_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_MIN_SAMPLE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
@@ -896,7 +1040,8 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		  struct pmUnits	units;
 		  char			*errmsg;
 		
-		  lp->yy_np = newnode(N_RESCALE);
+		  if ((lp->yy_np = newnode(N_RESCALE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  if (pmParseUnitsStr($5, &units, &mult, &errmsg) < 0) {
 		      gramerr(lp, "Illegal units:", NULL, errmsg);
@@ -904,7 +1049,8 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		      series_error(lp, NULL);
 		      return -1;
 		  }
-		  lp->yy_np->right = newnode(N_SCALE);
+		  if ((lp->yy_np->right = newnode(N_SCALE)) == NULL)
+			return -1;
 		  lp->yy_np->right->meta.units = units;	/* struct assign */
 		  lp->yy_np->right->value = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
@@ -914,7 +1060,8 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		  struct pmUnits	units;
 		  char			*errmsg;
 		
-		  lp->yy_np = newnode(N_RESCALE);
+		  if ((lp->yy_np = newnode(N_RESCALE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  if (pmParseUnitsStr($5, &units, &mult, &errmsg) < 0) {
 		      gramerr(lp, "Illegal units:", NULL, errmsg);
@@ -922,143 +1069,170 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 		      series_error(lp, NULL);
 		      return -1;
 		  }
-		  lp->yy_np->right = newnode(N_SCALE);
+		  if ((lp->yy_np->right = newnode(N_SCALE)) == NULL)
+			return -1;
 		  lp->yy_np->right->meta.units = units;	/* struct assign */
 		  lp->yy_np->right->value = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_ABS L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_ABS);
+		{ if ((lp->yy_np = newnode(N_ABS)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_ABS L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_ABS);
+		{ if ((lp->yy_np = newnode(N_ABS)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_FLOOR L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_FLOOR);
+		{ if ((lp->yy_np = newnode(N_FLOOR)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_FLOOR L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_FLOOR);
+		{ if ((lp->yy_np = newnode(N_FLOOR)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_LOG L_LPAREN val_vec L_COMMA number L_RPAREN
-		{ lp->yy_np = newnode(N_LOG);
+		{ if ((lp->yy_np = newnode(N_LOG)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_LOG L_LPAREN func L_COMMA number L_RPAREN
-		{ lp->yy_np = newnode(N_LOG);
+		{ if ((lp->yy_np = newnode(N_LOG)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_LOG L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_LOG);
+		{ if ((lp->yy_np = newnode(N_LOG)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_LOG L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_LOG);
+		{ if ((lp->yy_np = newnode(N_LOG)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_SQRT L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_SQRT);
+		{ if ((lp->yy_np = newnode(N_SQRT)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_SQRT L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_SQRT);
+		{ if ((lp->yy_np = newnode(N_SQRT)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_ROUND L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_ROUND);
+		{ if ((lp->yy_np = newnode(N_ROUND)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_ROUND L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_ROUND);
+		{ if ((lp->yy_np = newnode(N_ROUND)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_SUM L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_SUM);
+		{ if ((lp->yy_np = newnode(N_SUM)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_SUM L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_SUM);
+		{ if ((lp->yy_np = newnode(N_SUM)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_SUM_INST L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_SUM_INST);
+		{ if ((lp->yy_np = newnode(N_SUM_INST)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_SUM_INST L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_SUM_INST);
+		{ if ((lp->yy_np = newnode(N_SUM_INST)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_SUM_SAMPLE L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_SUM_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_SUM_SAMPLE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_SUM_SAMPLE L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_SUM_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_SUM_SAMPLE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_STDEV_INST L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_STDEV_INST);
+		{ if ((lp->yy_np = newnode(N_STDEV_INST)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_STDEV_INST L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_STDEV_INST);
+		{ if ((lp->yy_np = newnode(N_STDEV_INST)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_STDEV_SAMPLE L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_STDEV_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_STDEV_SAMPLE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_STDEV_SAMPLE L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_STDEV_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_STDEV_SAMPLE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_TOPK_INST L_LPAREN val_vec L_COMMA integer L_RPAREN
-		{ lp->yy_np = newnode(N_TOPK_INST);
+		{ if ((lp->yy_np = newnode(N_TOPK_INST)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_TOPK_INST L_LPAREN func L_COMMA integer L_RPAREN
-		{ lp->yy_np = newnode(N_TOPK_INST);
+		{ if ((lp->yy_np = newnode(N_TOPK_INST)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_TOPK_SAMPLE L_LPAREN val_vec L_COMMA integer L_RPAREN
-		{ lp->yy_np = newnode(N_TOPK_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_TOPK_SAMPLE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_TOPK_SAMPLE L_LPAREN func L_COMMA integer L_RPAREN
-		{ lp->yy_np = newnode(N_TOPK_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_TOPK_SAMPLE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
@@ -1071,7 +1245,8 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 			series_error(lp, NULL);
 			return -1;
 		  }
-		  lp->yy_np = newnode(N_NTH_PERCENTILE_INST);
+		  if ((lp->yy_np = newnode(N_NTH_PERCENTILE_INST)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
@@ -1084,7 +1259,8 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 			series_error(lp, NULL);
 			return -1;
 		  }
-		  lp->yy_np = newnode(N_NTH_PERCENTILE_INST);
+		  if ((lp->yy_np = newnode(N_NTH_PERCENTILE_INST)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
@@ -1097,7 +1273,8 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 			series_error(lp, NULL);
 			return -1;
 		  }
-		  lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE);
+		  if ((lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
@@ -1110,38 +1287,45 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 			series_error(lp, NULL);
 			return -1;
 		  }
-		  lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE);
+		  if ((lp->yy_np = newnode(N_NTH_PERCENTILE_SAMPLE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  lp->yy_np->right = $5;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_AVG L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_AVG);
+		{ if ((lp->yy_np = newnode(N_AVG)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_AVG L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_AVG);
+		{ if ((lp->yy_np = newnode(N_AVG)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_AVG_INST L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_AVG_INST);
+		{ if ((lp->yy_np = newnode(N_AVG_INST)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_AVG_INST L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_AVG_INST);
+		{ if ((lp->yy_np = newnode(N_AVG_INST)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_AVG_SAMPLE L_LPAREN val_vec L_RPAREN
-		{ lp->yy_np = newnode(N_AVG_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_AVG_SAMPLE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| L_AVG_SAMPLE L_LPAREN func L_RPAREN
-		{ lp->yy_np = newnode(N_AVG_SAMPLE);
+		{ if ((lp->yy_np = newnode(N_AVG_SAMPLE)) == NULL)
+			return -1;
 		  lp->yy_np->left = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
@@ -1153,121 +1337,141 @@ func	: L_RATE L_LPAREN val_vec L_RPAREN
 
 arithmetic_expression
 	: val_vec L_PLUS val_vec
-		{ lp->yy_np = newnode(N_PLUS);
+		{ if ((lp->yy_np = newnode(N_PLUS)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| val_vec L_PLUS func
-		{ lp->yy_np = newnode(N_PLUS);
+		{ if ((lp->yy_np = newnode(N_PLUS)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func L_PLUS val_vec
-		{ lp->yy_np = newnode(N_PLUS);
+		{ if ((lp->yy_np = newnode(N_PLUS)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func L_PLUS func
-		{ lp->yy_np = newnode(N_PLUS);
+		{ if ((lp->yy_np = newnode(N_PLUS)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| val_vec L_MINUS val_vec
-		{ lp->yy_np = newnode(N_MINUS);
+		{ if ((lp->yy_np = newnode(N_MINUS)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| val_vec L_MINUS func
-		{ lp->yy_np = newnode(N_MINUS);
+		{ if ((lp->yy_np = newnode(N_MINUS)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func L_MINUS val_vec
-		{ lp->yy_np = newnode(N_MINUS);
+		{ if ((lp->yy_np = newnode(N_MINUS)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func L_MINUS func
-		{ lp->yy_np = newnode(N_MINUS);
+		{ if ((lp->yy_np = newnode(N_MINUS)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| val_vec L_STAR val_vec
-		{ lp->yy_np = newnode(N_STAR);
+		{ if ((lp->yy_np = newnode(N_STAR)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| val_vec L_STAR func
-		{ lp->yy_np = newnode(N_STAR);
+		{ if ((lp->yy_np = newnode(N_STAR)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func L_STAR val_vec
-		{ lp->yy_np = newnode(N_STAR);
+		{ if ((lp->yy_np = newnode(N_STAR)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func L_STAR func
-		{ lp->yy_np = newnode(N_STAR);
+		{ if ((lp->yy_np = newnode(N_STAR)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| number L_STAR val_vec
-		{ lp->yy_np = newnode(N_STAR);
+		{ if ((lp->yy_np = newnode(N_STAR)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| val_vec L_STAR number
-		{ lp->yy_np = newnode(N_STAR);
+		{ if ((lp->yy_np = newnode(N_STAR)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| number L_STAR func
-		{ lp->yy_np = newnode(N_STAR);
+		{ if ((lp->yy_np = newnode(N_STAR)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func L_STAR number
-		{ lp->yy_np = newnode(N_STAR);
+		{ if ((lp->yy_np = newnode(N_STAR)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| val_vec L_SLASH val_vec
-		{ lp->yy_np = newnode(N_SLASH);
+		{ if ((lp->yy_np = newnode(N_SLASH)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| val_vec L_SLASH func
-		{ lp->yy_np = newnode(N_SLASH);
+		{ if ((lp->yy_np = newnode(N_SLASH)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func L_SLASH val_vec
-		{ lp->yy_np = newnode(N_SLASH);
+		{ if ((lp->yy_np = newnode(N_SLASH)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
 		}
 	| func L_SLASH func
-		{ lp->yy_np = newnode(N_SLASH);
+		{ if ((lp->yy_np = newnode(N_SLASH)) == NULL)
+			return -1;
 		  lp->yy_np->left = $1;
 		  lp->yy_np->right = $3;
 		  $$ = lp->yy_series.expr = lp->yy_np;
@@ -1440,8 +1644,8 @@ newnode(int type)
     node_t	*np;
 
     if ((np = (node_t *)calloc(1, sizeof(node_t))) == NULL) {
-	pmNoMem("pmSeries: newnode", sizeof(node_t), PM_FATAL_ERR);
-	/*NOTREACHED*/
+	pmNoMem("pmSeries: newnode", sizeof(node_t), PM_RECOV_ERR);
+	return NULL;
     }
     np->type = type;
     return np;
@@ -1452,8 +1656,10 @@ newtree(int type, node_t *left, node_t *right)
 {
     node_t	*tree = newnode(type);
 
-    tree->left = left;
-    tree->right = right;
+    if (tree) {
+	tree->left = left;
+	tree->right = right;
+    }
     return tree;
 }
 
@@ -1470,25 +1676,43 @@ newmetric(sds name)
     else
 	node = newnode(N_EQ);
 
-    node->left = newnode(N_NAME);
-    node->left->value = sdsnew("metric.name");
-    node->right = newnode(N_STRING);
-    node->right->value = name;
+    if (node) {
+	if ((node->left = newnode(N_NAME)) == NULL) {
+	    sdsfree(name);
+	    free(node);
+	    return NULL;
+	}
+	if ((node->right = newnode(N_STRING)) == NULL) {
+	    sdsfree(name);
+	    free(node->left);
+	    free(node);
+	    return NULL;
+	}
+	node->left->value = sdsnew("metric.name");
+	node->right->value = name;
+    } else {
+	sdsfree(name);
+    }
     return node;
 }
 
 static node_t *
 newmetricquery(sds name, node_t *query)
 {
-    node_t	*root = newnode(N_AND);
-    node_t	*metric = newmetric(name);
+    node_t	*root, *metric;
 
+    if ((root = newnode(N_AND)) == NULL)
+	return NULL;
+    if ((metric = newmetric(name)) == NULL) {
+	free(root);
+	return NULL;
+    }
     root->left = metric;
     root->right = query;
     return root;
 }
 
-static void
+static int
 newinterval(PARSER *lp, sds string)
 {
     timing_t	*tp = &lp->yy_series.time;
@@ -1501,9 +1725,20 @@ newinterval(PARSER *lp, sds string)
 		"Cannot parse time delta with %s:\n%s", "pmParseHighResInterval", error);
 	sdsfree(string);
 	free(error);
-    } else {
-	tp->window.delta = string;
+	return -1;
+    } else if (tp->window.delta) {
+	if (sdscmp(string, tp->window.delta) != 0) {
+	    lp->yy_error = -EINVAL;
+	    lp->yy_errstr = sdscatfmt(sdsempty(),
+		    "Invalid second time delta requested - \"%S\" vs \"%S\"",
+		    tp->window.delta, string);
+	    sdsfree(string);
+	    return -1;
+	}
+	sdsfree(tp->window.delta);
     }
+    tp->window.delta = string;
+    return 0;
 }
 
 static int
@@ -1517,35 +1752,65 @@ parsetime(PARSER *lp, struct timespec *result, sds string)
     if ((sts = __pmParseHighResTime(string, &start, &end, result, &error)) < 0) {
 	lp->yy_error = sts;
 	lp->yy_errstr = sdscatfmt(sdsempty(),
-		"Cannot parse time with %s:\n%s", "__pmParseHighResTime", error);
+		"Cannot parse time with %s:\n%s",
+		"__pmParseHighResTime", error);
 	sdsfree(string);
 	free(error);
-	return sts;
+	return -1;
     }
     return 0;
 }
 
-static void
+static int
 newstarttime(PARSER *lp, sds string)
 {
     timing_t	*tp = &lp->yy_series.time;
 
-    if (parsetime(lp, &tp->start, string) == 0)
-	tp->window.start = string;
+    if (parsetime(lp, &tp->start, string) != 0)
+	return -1;
+
+    if (tp->window.start) {
+	if (sdscmp(tp->window.start, string) != 0) {
+	    lp->yy_error = -EINVAL;
+	    lp->yy_errstr = sdscatfmt(sdsempty(),
+		    "Invalid second start time requested - \"%S\" vs \"%S\"",
+		    tp->window.start, string);
+	    sdsfree(string);
+	    return -1;
+	}
+	sdsfree(tp->window.start);
+    }
+    tp->window.start = string;
+    return 0;
 }
 
-static void
+static int
 newendtime(PARSER *lp, sds string)
 {
     timing_t	*tp = &lp->yy_series.time;
 
-    if (parsetime(lp, &tp->end, string) == 0)
-	tp->window.end = string;
+    if (parsetime(lp, &tp->end, string) != 0)
+	return -1;
+
+    if (tp->window.end) {
+	if (sdscmp(tp->window.end, string) != 0) {
+	    lp->yy_error = -EINVAL;
+	    lp->yy_errstr = sdscatfmt(sdsempty(),
+		    "Invalid second end time requested - \"%S\" vs \"%S\"",
+		    tp->window.end, string);
+	    sdsfree(string);
+	    return -1;
+	}
+	sdsfree(tp->window.end);
+    }
+    tp->window.end = string;
+    return 0;
 }
 
-static void
+static int
 newrange(PARSER *lp, sds string)
 {
+    struct timespec offset;
     timing_t	*tp = &lp->yy_series.time;
     char	*error;
     int		sts;
@@ -1557,26 +1822,51 @@ newrange(PARSER *lp, sds string)
 	lp->yy_error = sts;
 	sdsfree(string);
 	free(error);
-    } else {
-	struct timespec offset;
-	pmtimespecNow(&offset);
-	pmtimespecDec(&offset, &tp->start);
-	tp->start = offset;
-	tp->end.tv_sec = PM_MAX_TIME_T;
-	tp->window.range = string;
+	return -1;
     }
+    if (tp->window.range) {
+	if (sdscmp(tp->window.range, string) != 0) {
+	    lp->yy_error = -EINVAL;
+	    lp->yy_errstr = sdscatfmt(sdsempty(),
+		    "Invalid second time range requested - \"%S\" vs \"%S\"",
+		    tp->window.range, string);
+	    sdsfree(string);
+	    return -1;
+	}
+	sdsfree(tp->window.range);
+    }
+    pmtimespecNow(&offset);
+    pmtimespecDec(&offset, &tp->start);
+    tp->start = offset;
+    tp->end.tv_sec = PM_MAX_TIME_T;
+    tp->window.range = string;
+    return 0;
 }
 
-static void
+static int
 newaligntime(PARSER *lp, sds string)
 {
     timing_t	*tp = &lp->yy_series.time;
 
-    if (parsetime(lp, &tp->align, string) == 0)
-	tp->window.align = string;
+    if (parsetime(lp, &tp->align, string) != 0)
+	return -1;
+
+    if (tp->window.align) {
+	if (sdscmp(tp->window.align, string) != 0) {
+	    lp->yy_error = -EINVAL;
+	    lp->yy_errstr = sdscatfmt(sdsempty(),
+		    "Invalid second alignment requested - \"%S\" vs \"%S\"",
+		    tp->window.align, string);
+	    sdsfree(string);
+	    return -1;
+	}
+	sdsfree(tp->window.align);
+    }
+    tp->window.align = string;
+    return 0;
 }
 
-static void
+static int
 newtimezone(PARSER *lp, sds string)
 {
     timing_t	*tp = &lp->yy_series.time;
@@ -1589,13 +1879,24 @@ newtimezone(PARSER *lp, sds string)
 		"Cannot parse timezone with pmNewZone:\n\"%S\" - %s",
 		string, pmErrStr_r(sts, e, sizeof(e)));
 	sdsfree(string);
-    } else {
-	tp->zone = sts;
-	tp->window.zone = string;
+	return -1;
+    } else if (tp->window.zone) {
+	if (sdscmp(tp->window.zone, string) != 0) {
+	    lp->yy_error = -EINVAL;
+	    lp->yy_errstr = sdscatfmt(sdsempty(),
+		    "Invalid second timezone requested - \"%S\" vs \"%S\"",
+		    tp->window.zone, string);
+	    sdsfree(string);
+	    return -1;
+	}
+	sdsfree(tp->window.zone);
     }
+    tp->zone = sts;
+    tp->window.zone = string;
+    return 0;
 }
 
-static void
+static int
 newsamples(PARSER *lp, sds string)
 {
     timing_t	*tp = &lp->yy_series.time;
@@ -1606,13 +1907,24 @@ newsamples(PARSER *lp, sds string)
 	lp->yy_errstr = sdscatfmt(sdsempty(),
 		"Invalid sample count requested - \"%S\"", string);
 	sdsfree(string);
-    } else {
-	tp->count = sts;
-	tp->window.count = string;
+	return -1;
+    } else if (tp->window.count) {
+	if (sdscmp(string, tp->window.count) != 0) {
+	    lp->yy_error = -EINVAL;
+	    lp->yy_errstr = sdscatfmt(sdsempty(),
+		"Invalid second sample count requested - \"%S\" vs \"%S\"",
+		string, tp->window.count);
+	    sdsfree(string);
+	    return -1;
+	}
+	sdsfree(tp->window.count);
     }
+    tp->window.count = string;
+    tp->count = sts;
+    return 0;
 }
 
-static void
+static int
 newoffset(PARSER *lp, sds string)
 {
     timing_t	*tp = &lp->yy_series.time;
@@ -1623,10 +1935,20 @@ newoffset(PARSER *lp, sds string)
 	lp->yy_errstr = sdscatfmt(sdsempty(),
 		"Invalid sample offset requested - \"%S\"", string);
 	sdsfree(string);
-    } else {
-	tp->offset = sts;
-	tp->window.offset = string;
+    } else if (tp->window.offset) {
+	if (sdscmp(string, tp->window.offset) != 0) {
+	    lp->yy_error = -EINVAL;
+	    lp->yy_errstr = sdscatfmt(sdsempty(),
+		"Invalid second time offset requested - \"%S\" vs \"%S\"",
+		string, tp->window.offset);
+	    sdsfree(string);
+	    return -1;
+	}
+	sdsfree(tp->window.offset);
     }
+    tp->offset = sts;
+    tp->window.offset = string;
+    return 0;
 }
 
 static void

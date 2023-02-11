@@ -47,8 +47,8 @@ _check()
     echo "_get_pids_by_name pmlogger ..." >>$here/$seq.full
     cat $tmp.pmids >>$here/$seq.full
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.ps.out
-    echo "$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmlogger ..." >>$here/$seq.full
-    grep pmlogger <$tmp.ps.out >>$here/$seq.full
+    echo "$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep /pmlogger ..." >>$here/$seq.full
+    grep /pmlogger <$tmp.ps.out >>$here/$seq.full
     if [ -s $tmp.pmids ]
     then
 	# at least one is running

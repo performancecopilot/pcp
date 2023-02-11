@@ -86,6 +86,7 @@ libxml-tokeparser-perl
 libyaml-libyaml-perl
 lm-sensors
 make
+man-db
 mandoc
 mariadb-client-core-10.6
 memcached
@@ -99,7 +100,6 @@ pkg-config
 postgresql-client-common
 psmisc
 pylint
-python2-dev
 python3-all
 python3-all-dev
 python3-bpfcc

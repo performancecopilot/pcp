@@ -31,20 +31,30 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # awk fluff is because the callstack from exec begin down to
-# main() is non-deterministic
+# main() is non-deterministic ... also the OpenBSD reporting
+# style is:
+#	0x16a15bc9 <bar+0x19> at src/dumpstack
+#	0x88d6c13 <__pmDumpStack+0x83> at /usr/lib/libpcp.so.3
+# compared to the Linux style:
+#	src/dumpstack(bar+0xd)[0x556c0dbbc226] (0x1226)
+#	/lib/libpcp.so.3(__pmDumpStack+0x8e)[0x7fae47dd5fee] (0x2a423a21afee)
 #
 _filter()
 {
     tee -a $seq.full \
     | sed \
 	-e '/executable text segment/d' \
+	-e 's/  *0x[0-9a-f]* </(/' \
+	-e 's/ *\[0x[0-9a-f]*]//' \
+	-e 's/ *(0x[0-9a-f]*)//' \
+	-e 's/> at/) at/' \
+	-e 's@\(.*\) at src/dumpstack@dumpstack\1@' \
+	-e 's@\(.*\) at .*libpcp\.so.*@libpcp\1@' \
 	-e 's@src/dumpstack(@dumpstack(@' \
-	-e 's@/usr/lib/libpcp@libpcp@' \
-	-e 's@/lib/libpcp@libpcp@' \
+	-e 's/^[ 	]*//' \
+	-e 's@^[/a-z0-9]*libpcp@libpcp@' \
 	-e 's/libpcp\.so\.[0-9]*/libpcp/' \
-	-e 's/+0x.*/...)/' \
-	-e '/libpcp/s/\.so\.[0-9][0-9]*//' \
-	-e 's@[^ ]*/@@' \
+	-e 's/+0x.*)/...)/' \
     | $PCP_AWK_PROG '
 $1 == "Procedure"	{ skip = 0 }
 skip == 1		{ next }

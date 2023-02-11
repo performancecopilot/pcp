@@ -28,7 +28,7 @@ fi
 
 case "$PCP_PLATFORM"
 in
-    linux|solaris|freebsd)
+    linux|solaris|freebsd|openbsd)
        PMDADSO=$PCP_PMDAS_DIR/sample/pmda_sample.so
        ;;
     darwin)

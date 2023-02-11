@@ -161,6 +161,22 @@ _update_hostsfile()
 	    echo "127.0.0.$i	$extra_hostname" >>$tmp.etc.hosts
 	    echo "" >>$tmp.etc.hosts
 	    grep -E -v '^[^#].*[ 	]'$realhost'([ 	]|$)' <$hostsfile >>$tmp.etc.hosts
+	    case "$PCP_PLATFORM"
+	    in
+		openbsd)
+		    # For OpenBSD, we need to make sure this loopback address is enabled ...
+		    #
+		    if ping -w 1 -c 1 127.0.0.$i >>$here/$seq.full 2>&1
+		    then
+			# already OK
+			:
+		    else
+			# enable it
+			$sudo ifconfig lo0 alias 127.0.0.$i
+			ifconfig lo >>$here/$seq.full 2>&1
+		    fi
+		    ;;
+	    esac
 	    break
 	fi
     done
@@ -306,14 +322,19 @@ for log in $logdir.1 $logdir.2 $logdir.3 $logdir.4 $logdir.5 $logdir.6
 do
     echo | tee -a $here/$seq.full
     echo "Kill off one pmlogger ..." | tee -a $here/$seq.full
-    pid=`grep -l $log $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
+    # in case /var/tmp is a symlink to /tmp, then the control file sometimes
+    # contains /tmp and sometimes contains /var/tmp ... handle both here
+    #
+    altlog=`echo $log | sed -e 's,^/var/,/,'`
+    pid=`grep -l -E "($log)|($altlog)" $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
+    cat $PCP_TMP_DIR/pmlogger/[0-9]* >>$here/$seq.full
     try=1
     num_pid=`echo "$pid" | wc -w | sed -e 's/ *//g'`
     while [ $try -lt 10 -a $num_pid -ne 1 ]
     do
 	echo "try $try num_pid=$num_pid: `echo $pid`" >>$here/$seq.full
 	sleep 1
-	pid=`grep -l $log $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
+	pid=`grep -l -E "($log)|($altlog)" $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
 	num_pid=`echo "$pid" | wc -w | sed -e 's/ *//g'`
 	try=`expr $try + 1`
     done
@@ -330,8 +351,8 @@ do
 	    echo "+++ $ctl +++" >>$here/$seq.full
 	    cat $ctl >>$here/$seq.full
 	done
-	echo "+ grep -l $log"' $PCP_TMP_DIR/pmlogger/[0-9]*' >>$here/$seq.full
-	grep $log $PCP_TMP_DIR/pmlogger/[0-9]* >>$here/$seq.full
+	echo "+ grep -l -E \"($log)|($altlog)\"" $PCP_TMP_DIR/pmlogger/[0-9]* >>$here/$seq.full
+	grep -E "($log)|($altlog)" $PCP_TMP_DIR/pmlogger/[0-9]* >>$here/$seq.full
 	exit
     fi
     echo "Victim pid=$pid" >>$here/$seq.full
@@ -367,7 +388,7 @@ $2 == '"$pid"' { print; exit(0) }'
     rm -f $tmp.found
     while [ "$x" -lt 30 ]
     do
-	pid=`grep -l $log $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
+	pid=`grep -l -E "($log)|($altlog)" $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
 	if [ -n "$pid" ]
 	then
 	    echo "Found pid $pid after $x iterations" >>$here/$seq.full

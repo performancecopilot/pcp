@@ -27,12 +27,16 @@ $sudo rm -rf $tmp.* $seq.full
 signal=$PCP_BINADM_DIR/pmsignal
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# in case /var/tmp is a symlink to /tmp, then the diagnostics sometimes
+# use /tmp and sometimes use /var/tmp ... handle both in the filter
+#
 _filter()
 {
     # make verbose show-me mode pmlogger_check output deterministic
     sed \
 	-e '/\/NOTICES/d' \
 	-e "s,$tmp,LOGDIR,g" \
+	-e "s,/tmp/$seq-$$,LOGDIR,g" \
 	-e 's,/privateLOGDIR,LOGDIR,g' \
 	-e "s,$host,HOSTNAME,g" \
 	-e "s,%Y%m%d.%H.%M,ARCHIVE,g" \

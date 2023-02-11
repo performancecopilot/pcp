@@ -45,6 +45,9 @@ End-of-File
 #
 case $PCP_PLATFORM
 in
+    linux)
+	;;
+
     darwin)
 	sed <$tmp.config >$tmp.tmp \
 	    -e '/ containers$/d' \
@@ -58,6 +61,7 @@ in
 	# end
 	mv $tmp.tmp $tmp.config
 	;;
+
     freebsd)
 	sed <$tmp.config >$tmp.tmp \
 	    -e '/ containers$/d' \
@@ -71,6 +75,24 @@ in
 	    -e '/ vfs$/d' \
 	# end
 	mv $tmp.tmp $tmp.config
+	;;
+
+    openbsd)
+	sed <$tmp.config >$tmp.tmp \
+	    -e '/ ipc$/d' \
+	    -e '/ quota$/d' \
+	    -e '/ rpc$/d' \
+	    -e '/ swapdev$/d' \
+	    -e '/ sysfs$/d' \
+	    -e '/ tmpfs$/d' \
+	    -e '/ vfs$/d' \
+	# end
+	mv $tmp.tmp $tmp.config
+	;;
+
+    *)
+	echo "Arrgh ... need test customization for $PCP_PLATFORM"
+	exit
 	;;
 esac
 

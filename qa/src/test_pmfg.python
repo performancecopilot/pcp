@@ -35,8 +35,8 @@ def test_pmfg_live(self, typed, target):
     self.assertRaises(Exception, lambda : pmfg.extend_item('sample.float.bin', "chicken salad")) # type error
 
     pmfg.fetch() # to get a cpu count into v1
-    vv1 = pmfg.extend_indom("sample.ulonglong.bin_ctr", c_api.PM_TYPE_64, scale="rate", maxnum=8)
-    vv2 = pmfg.extend_indom("sample.ulonglong.bin_ctr", scale="rate", maxnum=9) # infer type
+    vv1 = pmfg.extend_indom("sample.longlong.bin_ctr", c_api.PM_TYPE_64, scale="rate", maxnum=8)
+    vv2 = pmfg.extend_indom("sample.longlong.bin_ctr", scale="rate", maxnum=9) # infer type
     vv3 = pmfg.extend_indom("sample.bogus_bin", c_api.PM_TYPE_32, scale="instant")
     vv4 = pmfg.extend_event("sample.event.records", instance="fungus", field="sample.event.param_double")
 
@@ -52,7 +52,7 @@ def test_pmfg_live(self, typed, target):
 
         if i > 0: # rate conversion means no value from first sample
             for icode, iname, value in vv2():
-                print("sample.ulonglong.bin_ctr[%s]: %d" % (iname, value()))
+                print("sample.longlong.bin_ctr[%s]: %d" % (iname, value()))
                 self.assertTrue(value() == 0.0)
 
         for icode, iname, value in vv3():

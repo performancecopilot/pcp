@@ -89,7 +89,7 @@ do
     _cmp `echo $arch_args | sed -e 's/|.*//'` $tmp.new
 done
 
-TIMEZONE='-Z PST8PDT9'
+TIMEZONE='-Z PST8'
 sed -e '/^#/d' <<End-of-File | while read arch_args spec
 # archive[|arg1[|arg2[|...]]]	spec|metric...
 # double -> 

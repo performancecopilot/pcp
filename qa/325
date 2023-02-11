@@ -15,6 +15,13 @@ echo "QA output created by $seq"
 _check_display
 which pmconfirm >/dev/null 2>&1 || _notrun pmconfirm not installed
 
+case `uname -rs`
+in
+    OpenBSD\ 7.1)
+	_notrun "va_list juggling in pmprintf() does not work for OpenBSD 7.1"
+	;;
+esac
+
 _cleanup()
 {
     echo "at end ..." >>$seq.full

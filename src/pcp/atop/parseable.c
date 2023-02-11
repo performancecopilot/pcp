@@ -4,7 +4,7 @@
 ** The program 'atop' offers the possibility to view the activity of
 ** the system on system-level as well as process-level.
 **
-** Copyright (C) 2007-2010 Gerlof Langeveld
+** Copyright (C) 2007-2021 Gerlof Langeveld
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -39,6 +39,9 @@ void 	print_NFC();
 void 	print_NFS();
 void 	print_NET();
 void 	print_IFB();
+void 	print_NUM();
+void 	print_NUC();
+void 	print_LLC();
 
 void 	print_PRG();
 void 	print_PRC();
@@ -46,6 +49,9 @@ void 	print_PRM();
 void 	print_PRD();
 void 	print_PRN();
 void 	print_PRE();
+
+static char *spaceformat(char *, char *);
+static int  cgroupv2max(int, int);
 
 /*
 ** table with possible labels and the corresponding
@@ -74,6 +80,9 @@ static struct labeldef	labeldef[] = {
 	{ "NFS",	0,	print_NFS },
 	{ "NET",	0,	print_NET },
 	{ "IFB",	0,	print_IFB },
+	{ "NUM",	0,	print_NUM },
+	{ "NUC",	0,	print_NUC },
+	{ "LLC",	0,	print_LLC },
 
 	{ "PRG",	0,	print_PRG },
 	{ "PRC",	0,	print_PRC },
@@ -164,7 +173,7 @@ parsedef(char *pd)
 char
 parseout(double timed, double delta,
 	 struct devtstat *devtstat, struct sstat *sstat,
-	 int nexit, unsigned int noverflow, int flags)
+	 int nexit, unsigned int noverflow, int flag)
 {
 	register int	i;
 	char		datestr[32], timestr[32], header[256];
@@ -172,7 +181,7 @@ parseout(double timed, double delta,
 	/*
 	** print reset-label for sample-values since boot
 	*/
-	if (flags & RRBOOT)
+	if (flag&RRBOOT)
 		printf("RESET\n");
 
 	/*
@@ -363,7 +372,8 @@ print_GPU(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 void
 print_MEM(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 {
-	printf(	"%s %u %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld\n",
+	printf(	"%s %u %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld "
+   		"%lld %lld %lld %lld %lld %lld %lld %lld %lld\n",
 			hp,
 			pagesize,
 			ss->mem.physmem,
@@ -373,16 +383,19 @@ print_MEM(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			ss->mem.slabmem,
 			ss->mem.cachedrt,
 			ss->mem.slabreclaim,
-        		ss->mem.vmwballoon,
+        		ss->mem.vmwballoon != -1 ? ss->mem.vmwballoon : 0,
         		ss->mem.shmem,
         		ss->mem.shmrss,
         		ss->mem.shmswp,
         		ss->mem.hugepagesz,
         		ss->mem.tothugepage,
         		ss->mem.freehugepage,
-        		ss->mem.zfsarcsize,
-        		ss->mem.ksmsharing,
-        		ss->mem.ksmshared);
+        		ss->mem.zfsarcsize != -1 ? ss->mem.zfsarcsize : 0,
+        		ss->mem.ksmsharing != -1 ? ss->mem.ksmsharing : 0,
+        		ss->mem.ksmshared  != -1 ? ss->mem.ksmshared  : 0,
+			ss->mem.tcpsock,
+			ss->mem.udpsock,
+   			ss->mem.pagetables);
 }
 
 void
@@ -397,14 +410,14 @@ print_SWP(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			ss->mem.committed,
 			ss->mem.commitlim,
         		ss->mem.swapcached,
-        		ss->mem.zswstored,
-        		ss->mem.zswtotpool);
+        		ss->mem.zswstored != -1 ? ss->mem.zswstored : 0,
+        		ss->mem.zswtotpool != -1 ? ss->mem.zswtotpool : 0);
 }
 
 void
 print_PAG(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 {
-	printf("%s %u %lld %lld %lld %lld %lld %lld\n",
+	printf("%s %u %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld\n",
 			hp,
 			pagesize,
 			ss->mem.pgscans,
@@ -412,7 +425,12 @@ print_PAG(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			(long long)0,
 			ss->mem.swins,
 			ss->mem.swouts,
-			ss->mem.oomkills);
+			ss->mem.oomkills,
+			ss->mem.compactstall,
+			ss->mem.pgmigrate,
+			ss->mem.numamigrate,
+			ss->mem.pgins,
+			ss->mem.pgouts);
 }
 
 void
@@ -440,14 +458,20 @@ print_LVM(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 
         for (i=0; ss->dsk.lvm[i].name[0]; i++)
 	{
-		printf(	"%s %s %lld %lld %lld %lld %lld\n",
+		printf(	"%s %s %lld %lld %lld %lld %lld %lld %lld %lld %.2f\n",
 			hp,
 			ss->dsk.lvm[i].name,
 			ss->dsk.lvm[i].io_ms,
 			ss->dsk.lvm[i].nread,
 			ss->dsk.lvm[i].nrsect,
 			ss->dsk.lvm[i].nwrite,
-			ss->dsk.lvm[i].nwsect);
+			ss->dsk.lvm[i].nwsect,
+			ss->dsk.lvm[i].ndisc,
+			ss->dsk.lvm[i].ndsect,
+			ss->dsk.lvm[i].inflight,
+			ss->dsk.lvm[i].io_ms > 0 ?
+			  (double)ss->dsk.lvm[i].avque/ss->dsk.lvm[i].io_ms :
+			  0.0);
 	}
 }
 
@@ -458,14 +482,20 @@ print_MDD(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 
         for (i=0; ss->dsk.mdd[i].name[0]; i++)
 	{
-		printf(	"%s %s %lld %lld %lld %lld %lld\n",
+		printf(	"%s %s %lld %lld %lld %lld %lld %lld %lld %lld %.2f\n",
 			hp,
 			ss->dsk.mdd[i].name,
 			ss->dsk.mdd[i].io_ms,
 			ss->dsk.mdd[i].nread,
 			ss->dsk.mdd[i].nrsect,
 			ss->dsk.mdd[i].nwrite,
-			ss->dsk.mdd[i].nwsect);
+			ss->dsk.mdd[i].nwsect,
+			ss->dsk.mdd[i].ndisc,
+			ss->dsk.mdd[i].ndsect,
+			ss->dsk.mdd[i].inflight,
+			ss->dsk.mdd[i].io_ms > 0 ?
+			  (double)ss->dsk.mdd[i].avque/ss->dsk.mdd[i].io_ms :
+			  0.0);
 	}
 }
 
@@ -476,14 +506,20 @@ print_DSK(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 
         for (i=0; ss->dsk.dsk[i].name[0]; i++)
 	{
-		printf(	"%s %s %lld %lld %lld %lld %lld\n",
+		printf(	"%s %s %lld %lld %lld %lld %lld %lld %lld %lld %.2f\n",
 			hp,
 			ss->dsk.dsk[i].name,
 			ss->dsk.dsk[i].io_ms,
 			ss->dsk.dsk[i].nread,
 			ss->dsk.dsk[i].nrsect,
 			ss->dsk.dsk[i].nwrite,
-			ss->dsk.dsk[i].nwsect);
+			ss->dsk.dsk[i].nwsect,
+			ss->dsk.dsk[i].ndisc,
+			ss->dsk.dsk[i].ndsect,
+			ss->dsk.dsk[i].inflight,
+			ss->dsk.dsk[i].io_ms > 0 ?
+			  (double)ss->dsk.dsk[i].avque/ss->dsk.dsk[i].io_ms :
+			  0.0);
 	}
 }
 
@@ -610,26 +646,90 @@ print_IFB(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 	}
 }
 
+void
+print_NUM(char *hp, struct sstat *ss, struct tstat *ps, int nact)
+{
+	register int 	i;
+
+	for (i=0; i < ss->memnuma.nrnuma; i++)
+	{
+		printf(	"%s %d %u %.0f %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld\n",
+			hp, ss->memnuma.numa[i].numanr,
+			pagesize,
+			ss->memnuma.numa[i].frag * 100.0,
+			ss->memnuma.numa[i].totmem,
+			ss->memnuma.numa[i].freemem,
+			ss->memnuma.numa[i].active,
+			ss->memnuma.numa[i].inactive,
+			ss->memnuma.numa[i].filepage,
+			ss->memnuma.numa[i].dirtymem,
+			ss->memnuma.numa[i].slabmem,
+			ss->memnuma.numa[i].slabreclaim,
+			ss->memnuma.numa[i].shmem,
+			ss->memnuma.numa[i].tothp);
+	}
+}
+
+void
+print_NUC(char *hp, struct sstat *ss, struct tstat *ps, int nact)
+{
+	register int 	i;
+
+	for (i=0; i < ss->cpunuma.nrnuma; i++)
+	{
+		printf(	"%s %d %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld\n",
+			hp, ss->cpunuma.numa[i].numanr,
+	        	ss->cpunuma.numa[i].nrcpu,
+	        	ss->cpunuma.numa[i].stime,
+        		ss->cpunuma.numa[i].utime,
+        		ss->cpunuma.numa[i].ntime,
+        		ss->cpunuma.numa[i].itime,
+        		ss->cpunuma.numa[i].wtime,
+        		ss->cpunuma.numa[i].Itime,
+        		ss->cpunuma.numa[i].Stime,
+        		ss->cpunuma.numa[i].steal,
+        		ss->cpunuma.numa[i].guest);
+	}
+}
+
+void
+print_LLC(char *hp, struct sstat *ss, struct tstat *ps, int nact)
+{
+	register int 	i;
+
+	for (i=0; i < ss->llc.nrllcs; i++)
+	{
+		printf(	"%s LLC%03d %3.1f%% %lld %lld\n",
+			hp,
+			ss->llc.perllc[i].id,
+			ss->llc.perllc[i].occupancy * 100,
+			ss->llc.perllc[i].mbm_total,
+			ss->llc.perllc[i].mbm_local);
+	}
+}
+
 /*
 ** print functions for process-level statistics
 */
 void
 print_PRG(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 {
-	register int i, exitcode;
+	register int	i, exitcode;
+	char		namout[PNAMLEN+1+2], cmdout[CMDLEN+1+2],
+			pathout[CGRLEN+1];
 
 	for (i=0; i < nact; i++, ps++)
 	{
-		if (ps->gen.excode & 0xff)	// killed by signal?
+		if (ps->gen.excode & 0xff) // killed by signal?
 			exitcode = (ps->gen.excode & 0x7f) + 256;
 		else
 			exitcode = (ps->gen.excode >>   8) & 0xff;
 
-		printf("%s %d (%s) %c %d %d %d %d %d %ld (%s) %d %d %d %d "
- 		       "%d %d %d %d %d %d %ld %c %d %d %s %c\n",
+		printf("%s %d %s %c %d %d %d %d %d %ld %s %d %d %d %d "
+ 		       "%d %d %d %d %d %d %ld %c %d %d %s %c %s\n",
 			hp,
 			ps->gen.pid,
-			ps->gen.name,
+			spaceformat(ps->gen.name, namout),
 			ps->gen.state,
 			ps->gen.ruid,
 			ps->gen.rgid,
@@ -637,7 +737,7 @@ print_PRG(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			ps->gen.nthr,
 			exitcode,
 			ps->gen.btime,
-			ps->gen.cmdline,
+			spaceformat(ps->gen.cmdline, cmdout),
 			ps->gen.ppid,
 			ps->gen.nthrrun,
 			ps->gen.nthrslpi,
@@ -653,135 +753,215 @@ print_PRG(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			ps->gen.vpid,
 			ps->gen.ctid,
 			ps->gen.container[0] ? ps->gen.container:"-",
-        		ps->gen.excode & ~(INT_MAX) ? 'N' : '-');
+        		ps->gen.excode & ~(INT_MAX) ? 'N' : '-',
+			spaceformat(ps->gen.cgpath, pathout));
 	}
 }
 
 void
 print_PRC(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 {
-	register int i;
+	register int	i;
+	char		namout[PNAMLEN+1+2], wchanout[20];
 
 	for (i=0; i < nact; i++, ps++)
 	{
-		printf("%s %d (%s) %c %u %lld %lld %d %d %d %d %d %d %d %c "
-		       "%llu (%s)\n",
-				hp,
-				ps->gen.pid,
-				ps->gen.name,
-				ps->gen.state,
-				hertz,
-				ps->cpu.utime,
-				ps->cpu.stime,
-				ps->cpu.nice,
-				ps->cpu.prio,
-				ps->cpu.rtprio,
-				ps->cpu.policy,
-				ps->cpu.curcpu,
-				ps->cpu.sleepavg,
-				ps->gen.tgid,
-				ps->gen.isproc ? 'y':'n',
-				ps->cpu.rundelay,
-				ps->cpu.wchan);
+		printf("%s %d %s %c %u %lld %lld %d %d %d %d %d %d %d %c "
+		       "%llu %s %llu %d %d\n",
+			hp,
+			ps->gen.pid,
+			spaceformat(ps->gen.name, namout),
+			ps->gen.state,
+			hertz,
+			ps->cpu.utime,
+			ps->cpu.stime,
+			ps->cpu.nice,
+			ps->cpu.prio,
+			ps->cpu.rtprio,
+			ps->cpu.policy,
+			ps->cpu.curcpu,
+			ps->cpu.sleepavg,
+			ps->gen.tgid,
+			ps->gen.isproc ? 'y':'n',
+			ps->cpu.rundelay,
+			spaceformat(ps->cpu.wchan, wchanout),
+			ps->cpu.blkdelay,
+			cgroupv2max(ps->gen.isproc, ps->cpu.cgcpumax),
+			cgroupv2max(ps->gen.isproc, ps->cpu.cgcpumaxr));
 	}
 }
 
 void
 print_PRM(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 {
-	register int i;
+	register int 	i;
+	char		namout[PNAMLEN+1+2];
 
 	for (i=0; i < nact; i++, ps++)
 	{
-		printf("%s %d (%s) %c %u %lld %lld %lld %lld %lld %lld "
-		       "%lld %lld %lld %lld %lld %d %c %lld %lld\n",
-				hp,
-				ps->gen.pid,
-				ps->gen.name,
-				ps->gen.state,
-				pagesize,
-				ps->mem.vmem,
-				ps->mem.rmem,
-				ps->mem.vexec,
-				ps->mem.vgrow,
-				ps->mem.rgrow,
-				ps->mem.minflt,
-				ps->mem.majflt,
-				ps->mem.vlibs,
-				ps->mem.vdata,
-				ps->mem.vstack,
-				ps->mem.vswap,
-				ps->gen.tgid,
-				ps->gen.isproc ? 'y':'n',
-				ps->mem.pmem == (unsigned long long)-1LL ?
-								0:ps->mem.pmem,
-				ps->mem.vlock);
+		printf("%s %d %s %c %u %lld %lld %lld %lld %lld %lld "
+		       "%lld %lld %lld %lld %lld %d %c %lld %lld %d %d %d %d\n",
+			hp,
+			ps->gen.pid,
+			spaceformat(ps->gen.name, namout),
+			ps->gen.state,
+			pagesize,
+			ps->mem.vmem,
+			ps->mem.rmem,
+			ps->mem.vexec,
+			ps->mem.vgrow,
+			ps->mem.rgrow,
+			ps->mem.minflt,
+			ps->mem.majflt,
+			ps->mem.vlibs,
+			ps->mem.vdata,
+			ps->mem.vstack,
+			ps->mem.vswap,
+			ps->gen.tgid,
+			ps->gen.isproc ? 'y':'n',
+			ps->mem.pmem == (unsigned long long)-1LL ?
+							0:ps->mem.pmem,
+			ps->mem.vlock,
+			cgroupv2max(ps->gen.isproc, ps->mem.cgmemmax),
+			cgroupv2max(ps->gen.isproc, ps->mem.cgmemmaxr),
+			cgroupv2max(ps->gen.isproc, ps->mem.cgswpmax),
+			cgroupv2max(ps->gen.isproc, ps->mem.cgswpmaxr));
 	}
 }
 
 void
 print_PRD(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 {
-	register int i;
+	register int	i;
+	char		namout[PNAMLEN+1+2];
 
 	for (i=0; i < nact; i++, ps++)
 	{
-		printf("%s %d (%s) %c %c %c %lld %lld %lld %lld %lld %d n %c\n",
-				hp,
-				ps->gen.pid,
-				ps->gen.name,
-				ps->gen.state,
-				'n',
-				supportflags & IOSTAT ? 'y' : 'n',
-				ps->dsk.rio, ps->dsk.rsz,
-				ps->dsk.wio, ps->dsk.wsz, ps->dsk.cwsz,
-				ps->gen.tgid,
-				ps->gen.isproc ? 'y':'n');
+		printf("%s %d %s %c %c %c %lld %lld %lld %lld %lld %d n %c\n",
+			hp,
+			ps->gen.pid,
+			spaceformat(ps->gen.name, namout),
+			ps->gen.state,
+			'n',
+			supportflags & IOSTAT ? 'y' : 'n',
+			ps->dsk.rio, ps->dsk.rsz,
+			ps->dsk.wio, ps->dsk.wsz, ps->dsk.cwsz,
+			ps->gen.tgid,
+			ps->gen.isproc ? 'y':'n');
 	}
 }
 
 void
 print_PRN(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 {
-	register int i;
+	register int	i;
+	char		namout[PNAMLEN+1+2];
 
 	for (i=0; i < nact; i++, ps++)
 	{
-		printf("%s %d (%s) %c %c %lld %lld %lld %lld %lld %lld "
+		printf("%s %d %s %c %c %lld %lld %lld %lld %lld %lld "
 		       "%lld %lld %d %d %d %c\n",
-				hp,
-				ps->gen.pid,
-				ps->gen.name,
-				ps->gen.state,
-				supportflags & NETATOP ? 'y' : 'n',
-				ps->net.tcpsnd, ps->net.tcpssz,
-				ps->net.tcprcv, ps->net.tcprsz,
-				ps->net.udpsnd, ps->net.udpssz,
-				ps->net.udprcv, ps->net.udprsz,
-				0,              0,
-				ps->gen.tgid,   ps->gen.isproc ? 'y':'n');
+			hp,
+			ps->gen.pid,
+			spaceformat(ps->gen.name, namout),
+			ps->gen.state,
+			supportflags & NETATOP ? 'y' : 'n',
+			ps->net.tcpsnd, ps->net.tcpssz,
+			ps->net.tcprcv, ps->net.tcprsz,
+			ps->net.udpsnd, ps->net.udpssz,
+			ps->net.udprcv, ps->net.udprsz,
+			0,              0,
+			ps->gen.tgid,   ps->gen.isproc ? 'y':'n');
 	}
 }
 
 void
 print_PRE(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 {
-	register int i;
+	register int	i;
+	char		namout[PNAMLEN+1+2];
 
 	for (i=0; i < nact; i++, ps++)
 	{
-		printf("%s %d (%s) %c %c %d %x %d %d %lld %lld %lld\n",
-				hp,
-				ps->gen.pid,
-				ps->gen.name,
-				ps->gen.state,
-				ps->gpu.state == '\0' ? 'N':ps->gpu.state,
-				ps->gpu.nrgpus,
-				ps->gpu.gpulist,
-				ps->gpu.gpubusy,
-				ps->gpu.membusy,
-				ps->gpu.memnow,
-				ps->gpu.memcum,
-				ps->gpu.sample);
+		printf("%s %d %s %c %c %d %x %d %d %lld %lld %lld\n",
+			hp,
+			ps->gen.pid,
+			spaceformat(ps->gen.name, namout),
+			ps->gen.state,
+			ps->gpu.state == '\0' ? 'N':ps->gpu.state,
+			ps->gpu.nrgpus,
+			ps->gpu.gpulist,
+			ps->gpu.gpubusy,
+			ps->gpu.membusy,
+			ps->gpu.memnow,
+			ps->gpu.memcum,
+			ps->gpu.sample);
 	}
+}
+
+
+/*
+** Strings, like command name, might contain spaces
+** and will be represented for that reason surrounded
+** by parenthesis. However, this is difficult to parse
+** by other tools, so the option -Z might have been
+** specified to exchange all spaces by underscores while
+** omitting the parenthesis in that case.
+**
+** This function formats the input string (istr) in the
+** required format to the output string (ostr).
+** Take care that the buffer pointed to by ostr is at least
+** two bytes larger than the input string (for the parenthesis).
+** The pointer ostr is also returned.
+*/
+static char *
+spaceformat(char *istr, char *ostr)
+{
+	// formatting with spaces and parenthesis required?
+	if (!rmspaces)
+	{
+		*ostr = '(';
+		strcpy(ostr+1, istr);
+		strcat(ostr, ")");
+	}
+	// formatting with underscores without parenthesis required
+	else
+	{
+		register char *pi = istr, *po = ostr;
+
+		while (*pi)
+		{
+			if (*pi == ' ')
+			{
+				*po++ = '_';
+				pi++;
+			}
+			else
+			{
+				*po++ = *pi++;
+			}
+		}
+
+		if (po == ostr)		// empty string: still return underscore
+			*po++ = '_';
+
+		*po = '\0';		// terminate output string
+	}
+
+	return ostr;
+}
+
+/*
+** return proper integer for cgroup v2 maximum values
+*/
+static int
+cgroupv2max(int isproc, int max)
+{
+	if (! (supportflags&CGROUPV2))
+		return -3;
+
+	if (! isproc)
+		return -2;
+
+	return max;
 }

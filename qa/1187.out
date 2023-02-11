@@ -4,9 +4,10 @@ All defaults to EOL
 You did not select any stats, using -cdngy by default.
 ----system---- ----total-usage---- -dsk/total- -net/total- ---paging-- ---system--
      time     |usr sys idl wai stl| read  writ| recv  send|  in   out | int   csw 
-25-07 16:08:19|                   |           |           |           |           
-25-07 16:08:20|  6   1  93   0   0|   0     0 |1044B  551B|   0     0 |1753  7008 
-25-07 16:08:21| 11   1  88   0   0|   0     0 |  12k 1009B|   0     0 |2264  4872 
+10-02 17:04:49|                   |           |           |           |           
+10-02 17:04:50| 13   0  85   0   0|   0   235k| 455B   98B|   0     0 |3060  5547 
+10-02 17:04:51| 13   0  88   0   0|   0     0 |  15k  909B|   0     0 |1772  2948 
+10-02 17:04:52| 12   0  87   0   0|   0     0 |   0     0 |   0     0 | 323   288 
 === std err
 === done
 
@@ -14,9 +15,10 @@ Per CPU
 === std out
 ----system---- -----cpu1-usage---- -----cpu2-usage---- ----total-usage---- ---------per-cpu-usage---------
      time     |usr sys idl wai stl:usr sys idl wai stl:usr sys idl wai stl| 0   1   2   3   4   5   6   7 
-25-07 16:08:19|                   :                   :                   |   
-25-07 16:08:20|  3   2  96   0   0:  3   1  96   0   0:  6   1  93   0   0|  5   4   4  14  20   1   5   1
-25-07 16:08:21| 17   3  79   0   0:  7   2  92   0   0: 11   1  88   0   0|  7  12   6  10  13   4  21   3
+10-02 17:04:49|                   :                   :                   |   
+10-02 17:04:50|  0   0  99   0   0:  1   1  98   0   0: 13   0  85   0   0|100   1   2   4   5   1   2   3
+10-02 17:04:51|  0   0 100   0   0:  0   1 100   0   0: 13   0  88   0   0|100   1   1   2   2   1   1   1
+10-02 17:04:52|  0   0 100   0   0:  0   0 100   0   0: 12   0  87   0   0|100   0   0   0   1   0   1   0
 === std err
 === done
 
@@ -24,29 +26,32 @@ CPU
 === std out
 ----system---- ------total-cpu-usage------
      time     |usr sys idl wai hiq siq stl
-25-07 16:08:19|                           
-25-07 16:08:20|  5   1  93   0   0   0   0
-25-07 16:08:21|  8   1  90   0   0   0   0
+10-02 17:04:49|                           
+10-02 17:04:50| 12   0  85   0   0   0   0
+10-02 17:04:51| 13   0  87   0   0   0   0
+10-02 17:04:52| 12   0  87   0   0   0   0
 === std err
 === done
 
 Per Disk
 === std out
-----system---- --dsk/sda-- -dsk/total- ---sda---
-     time     | read  writ: read  writ|rawa wawa
-25-07 16:08:19|           :           |         
-25-07 16:08:20|   0     0 :   0     0 |   0    0
-25-07 16:08:21|   0     0 :   0     0 |   0    0
+----system---- dsk/tota ---vda---
+     time     ||rawa wawa
+10-02 17:04:49|         
+10-02 17:04:50|   0 0.00
+10-02 17:04:51|   0    0
+10-02 17:04:52|   0    0
 === std err
 === done
 
 All Disks
 === std out
-----system---- --dsk/sda--
+----system---- --dsk/vda--
      time     | read  writ
-25-07 16:08:19|           
-25-07 16:08:20|   0     0 
-25-07 16:08:21|   0     0 
+10-02 17:04:49|           
+10-02 17:04:50|   0   235k
+10-02 17:04:51|   0     0 
+10-02 17:04:52|   0     0 
 === std err
 === done
 
@@ -54,9 +59,10 @@ Zero Disks
 === std out
 ----system---- ----total-usage----  -net/total- ---paging-- ---system--
      time     |usr sys idl wai stl|| recv  send|  in   out | int   csw 
-25-07 16:08:19|                   |           |           |           
-25-07 16:08:20|  6   1  93   0   0|1044B  551B|   0     0 |1753  7008 
-25-07 16:08:21| 11   1  88   0   0|  12k 1009B|   0     0 |2264  4872 
+10-02 17:04:49|                   |           |           |           
+10-02 17:04:50| 13   0  85   0   0| 455B   98B|   0     0 |3060  5547 
+10-02 17:04:51| 13   0  88   0   0|  15k  909B|   0     0 |1772  2948 
+10-02 17:04:52| 12   0  87   0   0|   0     0 |   0     0 | 323   288 
 === std err
 === done
 
@@ -64,9 +70,10 @@ Disk
 === std out
 ----system---- --io/total-
      time     | read  writ
-25-07 16:08:19|           
-25-07 16:08:20|   0     0 
-25-07 16:08:21|   0     0 
+10-02 17:04:49|           
+10-02 17:04:50|   0  8.00 
+10-02 17:04:51|   0  4.00 
+10-02 17:04:52|   0     0 
 === std err
 === done
 
@@ -74,59 +81,65 @@ Kernel
 === std out
 ----system---- --sysv-ipc- ---system-- ----utmp---
      time     |msg sem shm| int   csw |ses usr adm
-25-07 16:08:19|  0   6  44|           |  3   1   0
-25-07 16:08:20|  0   6  44|1753  7008 |  3   1   0
-25-07 16:08:21|  0   6  44|2264  4872 |  3   1   0
+10-02 17:04:49|  0   0   2|           |  6   2   0
+10-02 17:04:50|  0   0   2|3060  5547 |  6   2   0
+10-02 17:04:51|  0   0   2|1772  2948 |  6   2   0
+10-02 17:04:52|  0   0   2| 323   288 |  6   2   0
 === std err
 === done
 
 Memory
 === std out
-----system---- -------------advanced-memory-usage------------- ----swap---
+----system---- -------------advanced-memory-usage------------- ---total---
      time     |total  used  free  buf   cach dirty shmem  recl| used  free
-25-07 16:08:19|  15G 6463M 5065M  820M 4078M 1664k 1204M  447M| 419M 7485M
-25-07 16:08:20|  15G 6472M 5056M  820M 4086M 1696k 1213M  447M| 419M 7485M
-25-07 16:08:21|  15G 6502M 5026M  820M 4094M 1756k 1221M  447M| 419M 7485M
+10-02 17:04:49|  12G 3589M 2834M 3188k 4933M  868k   34M  600M| 256k 8192M
+10-02 17:04:50|  12G 3589M 2834M 3188k 4933M  760k   34M  600M| 256k 8192M
+10-02 17:04:51|  12G 3590M 2834M 3188k 4933M  656k   34M  600M| 256k 8192M
+10-02 17:04:52|  12G 3590M 2833M 3188k 4933M  664k   34M  600M| 256k 8192M
 === std err
 === done
 
 Per Interface
 === std out
-----system---- net/enp0s25 --net/tun0- -net/wlp3s0
-     time     | recv  send: recv  send: recv  send
-25-07 16:08:19|           :           :           
-25-07 16:08:20|1028B  439B:  16B  112B:   0     0 
-25-07 16:08:21|  12k 1009B: 228B    0 :   0     0 
+----system---- 
+     time     |
+10-02 17:04:49
+10-02 17:04:50
+10-02 17:04:51
+10-02 17:04:52
 === std err
 === done
 
 Per Interface in bits
 === std out
-----system---- net/enp0s25
-     time     | recv  send
-25-07 16:08:19|           
-25-07 16:08:20|8224b 3512b
-25-07 16:08:21|  95k 8072b
+----system---- 
+     time     |
+10-02 17:04:49
+10-02 17:04:50
+10-02 17:04:51
+10-02 17:04:52
 === std err
 === done
 
 Per Interface packets
 === std out
-----system---- pkt/enp0s25 --pkt/tun0- -pkt/wlp3s0
-     time     |#recv #send:#recv #send:#recv #send
-25-07 16:08:19|           :           :           
-25-07 16:08:20|   3     5 :   0     2 :   0     0 
-25-07 16:08:21|  14    13 :   2     0 :   0     0 
+----system---- 
+     time     |
+10-02 17:04:49
+10-02 17:04:50
+10-02 17:04:51
+10-02 17:04:52
 === std err
 === done
 
 All Interfaces
 === std out
-----system---- -net/virbr0 --net/tun0- net/virbr0- ---net/lo-- net/enp0s25 -net/wlp3s0 net/docker0 -net/virbr1 net/virbr1-
-     time     | recv  send: recv  send: recv  send: recv  send: recv  send: recv  send: recv  send: recv  send: recv  send
-25-07 16:08:19|           :           :           :           :           :           :           :           :           
-25-07 16:08:20|   0     0 :  16B  112B:   0     0 :1102B 1102B:1028B  439B:   0     0 :   0     0 :   0     0 :   0     0 
-25-07 16:08:21|   0     0 : 228B    0 :   0     0 :   0     0 :  12k 1009B:   0     0 :   0     0 :   0     0 :   0     0 
+----system---- ---net/lo-- -net/enp0s1
+     time     | recv  send: recv  send
+10-02 17:04:49|           :           
+10-02 17:04:50| 231B  231B: 455B   98B
+10-02 17:04:51|   0     0 :  15k  909B
+10-02 17:04:52|   0     0 :   0     0 
 === std err
 === done
 
@@ -134,9 +147,10 @@ Network
 === std out
 ----system---- --------sockets--------- ------tcp-sockets-------
      time     |tot  tcp  udp  raw  frg |lis  act  syn  tim  clo 
-25-07 16:08:19|  2k  21   14    0    0 |  7   14    0    0    0 
-25-07 16:08:20|  2k  21   14    0    0 |  7   14    0    0    0 
-25-07 16:08:21|  2k  21   14    0    0 |  7   14    0    1    0 
+10-02 17:04:49|696   27    7    0    0 | 10   17    0    0    0 
+10-02 17:04:50|696   28    7    0    0 | 10   17    0    0    0 
+10-02 17:04:51|692   27    7    0    0 | 10   17    0    1    0 
+10-02 17:04:52|692   27    7    0    0 | 10   17    0    1    0 
 === std err
 === done
 
@@ -144,9 +158,10 @@ Processes
 === std out
 ----system---- ---procs---
      time     |run blk new
-25-07 16:08:19|1.0   0    
-25-07 16:08:20|1.0   0 8.0
-25-07 16:08:21|2.0   0  29
+10-02 17:04:49|2.0   0    
+10-02 17:04:50|2.0   0 4.0
+10-02 17:04:51|2.0   0 4.5
+10-02 17:04:52|2.0   0   0
 === std err
 === done
 
@@ -154,9 +169,10 @@ Filesystem
 === std out
 ----system---- async --filesystem- ---file-locks--
      time     | #aio|files  inodes|pos lck rea wri
-25-07 16:08:19|   0 |19424    184k| 48 4.0  18  34
-25-07 16:08:20|   0 |19408    184k| 48 4.0  18  34
-25-07 16:08:21|   0 |19456    184k| 48 4.0  18  34
+10-02 17:04:49|   0 | 6688    482k|2.0 2.0   0 4.0
+10-02 17:04:50|   0 | 6720    482k|2.0 2.0   0 4.0
+10-02 17:04:51|   0 | 6720    482k|2.0 2.0   0 4.0
+10-02 17:04:52|   0 | 6720    482k|2.0 2.0   0 4.0
 === std err
 === done
 
@@ -164,9 +180,10 @@ Filesystem alias
 === std out
 ----system---- async --filesystem- ---file-locks--
      time     | #aio|files  inodes|pos lck rea wri
-25-07 16:08:19|   0 |19424    184k| 48 4.0  18  34
-25-07 16:08:20|   0 |19408    184k| 48 4.0  18  34
-25-07 16:08:21|   0 |19456    184k| 48 4.0  18  34
+10-02 17:04:49|   0 | 6688    482k|2.0 2.0   0 4.0
+10-02 17:04:50|   0 | 6720    482k|2.0 2.0   0 4.0
+10-02 17:04:51|   0 | 6720    482k|2.0 2.0   0 4.0
+10-02 17:04:52|   0 | 6720    482k|2.0 2.0   0 4.0
 === std err
 === done
 
@@ -174,9 +191,10 @@ Duplicate arguments
 === std out
 ----system---- -dsk/total-
      time     | read  writ
-25-07 16:08:19|           
-25-07 16:08:20|   0     0 
-25-07 16:08:21|   0     0 
+10-02 17:04:49|           
+10-02 17:04:50|   0   235k
+10-02 17:04:51|   0     0 
+10-02 17:04:52|   0     0 
 === std err
 === done
 
@@ -184,9 +202,10 @@ Overlapping arguments
 === std out
 ----system---- -dsk/total- ----total-usage---- -net/total- ---paging-- ---system-- ------memory-usage-----
      time     | read  writ|usr sys idl wai stl| recv  send|  in   out | int   csw | used  free  buf   cach
-25-07 16:08:19|           |                   |           |           |           |6463M 5065M  820M 4078M
-25-07 16:08:20|   0     0 |  6   1  93   0   0|1044B  551B|   0     0 |1753  7008 |6472M 5056M  820M 4086M
-25-07 16:08:21|   0     0 | 11   1  88   0   0|  12k 1009B|   0     0 |2264  4872 |6502M 5026M  820M 4094M
+10-02 17:04:49|           |                   |           |           |           |3589M 2834M 3188k 4933M
+10-02 17:04:50|   0   235k| 13   0  85   0   0| 455B   98B|   0     0 |3060  5547 |3589M 2834M 3188k 4933M
+10-02 17:04:51|   0     0 | 13   0  88   0   0|  15k  909B|   0     0 |1772  2948 |3590M 2834M 3188k 4933M
+10-02 17:04:52|   0     0 | 12   0  87   0   0|   0     0 |   0     0 | 323   288 |3590M 2833M 3188k 4933M
 === std err
 === done
 
@@ -197,7 +216,7 @@ Written by the PCP team <pcp@groups.io> and Dag Wieers <dag@wieers.com>
 Homepages at https://pcp.io/ and http://dag.wieers.com/home-made/dstat/
 
 Platform Linux
-Kernel 4.17.7-200.fc28.x86_64
+Kernel 6.1.9-200.fc37.aarch64
 Python VERSION
 
 Terminal type: ansi (no color support)
@@ -233,43 +252,47 @@ CSV stdout
 === std out
 ----system---- --io/total- ------tcp-sockets------- async
      time     | read  writ|lis  act  syn  tim  clo | #aio
-25-07 16:08:19|           |  7   14    0    0    0 |   0 
-25-07 16:08:20|   0     0 |  7   14    0    0    0 |   0 
-25-07 16:08:21|   0     0 |  7   14    0    1    0 |   0 
+10-02 17:04:49|           | 10   17    0    0    0 |   0 
+10-02 17:04:50|   0  8.00 | 10   17    0    0    0 |   0 
+10-02 17:04:51|   0  4.00 | 10   17    0    1    0 |   0 
+10-02 17:04:52|   0     0 | 10   17    0    1    0 |   0 
 === std err
 === done
 
 CSV contents
 "pcp-dstat VERSION CSV Output"
 "Author:","PCP team <pcp@groups.io> and Dag Wieers <dag@wieers.com>",,,,"URL:","https://pcp.io/ and http://dag.wieers.com/home-made/dstat/"
-"Host:","shard",,,,"User:","USER"
+"Host:","fedora",,,,"User:","USER"
 "Cmdline:","pcp-dstat --time --io --tcp --aio -o TMP.csv 1 3",,,,"Date:","DATE"
 "system","io/total",,"tcp sockets",,,,,"async"
 "time","read","writ","lis","act","syn","tim","clo","#aio"
-25-07 16:08:19,,,7,14,0,0,0,0
-25-07 16:08:20,0,0,7,14,0,0,0,0
-25-07 16:08:21,0,0,7,14,0,1,0,0
+10-02 17:04:49,,,10,17,0,0,0,0
+10-02 17:04:50,0,8,10,17,1,0,0,0
+10-02 17:04:51,0,0,10,17,0,1,0,0
+10-02 17:04:52,0,0,10,17,0,1,0,0
 CSV complete
 CSV instances
 === std out
 ----system---- -----cpu1-usage---- -----cpu2-usage---- ----total-usage---- ---------per-cpu-usage---------
      time     |usr sys idl wai stl:usr sys idl wai stl:usr sys idl wai stl| 0   1   2   3   4   5   6   7 
-25-07 16:08:19|                   :                   :                   |   
-25-07 16:08:20|  3   2  96   0   0:  3   1  96   0   0:  6   1  93   0   0|  5   4   4  14  20   1   5   1
-25-07 16:08:21| 17   3  79   0   0:  7   2  92   0   0: 11   1  88   0   0|  7  12   6  10  13   4  21   3
+10-02 17:04:49|                   :                   :                   |   
+10-02 17:04:50|  0   0  99   0   0:  1   1  98   0   0: 13   0  85   0   0|100   1   2   4   5   1   2   3
+10-02 17:04:51|  0   0 100   0   0:  0   1 100   0   0: 13   0  88   0   0|100   1   1   2   2   1   1   1
+10-02 17:04:52|  0   0 100   0   0:  0   0 100   0   0: 12   0  87   0   0|100   0   0   0   1   0   1   0
 === std err
 === done
 
 CSV instances contents
 "pcp-dstat VERSION CSV Output"
 "Author:","PCP team <pcp@groups.io> and Dag Wieers <dag@wieers.com>",,,,"URL:","https://pcp.io/ and http://dag.wieers.com/home-made/dstat/"
-"Host:","shard",,,,"User:","USER"
+"Host:","fedora",,,,"User:","USER"
 "Cmdline:","pcp-dstat --time --cpu -C 1,2,total --cpu-use -o TMP.csv2 1 3",,,,"Date:","DATE"
 "system","cpu1 usage",,,,,"cpu2 usage",,,,,"total usage",,,,,"per cpu usage",,,,,,,
 "time","cpu1 usage:usr","cpu1 usage:sys","cpu1 usage:idl","cpu1 usage:wai","cpu1 usage:stl","cpu2 usage:usr","cpu2 usage:sys","cpu2 usage:idl","cpu2 usage:wai","cpu2 usage:stl","total usage:usr","total usage:sys","total usage:idl","total usage:wai","total usage:stl","0","1","2","3","4","5","6","7"
-25-07 16:08:19,,,,,,,,,,,,,,,,
-25-07 16:08:20,3.100,2.100,95.800,0,0,3.300,1,95.800,0,0,5.525,1.362,93.100,0,0,5.200,4.200,4.200,14.200,19.900,1.100,5.200,1.200
-25-07 16:08:21,17,2.900,79.400,0,0,6.600,1.900,91.500,0,0,10.888,1.387,87.713,0,0,8.500,20.600,8.500,5,5.800,6.400,37.800,5.700
+10-02 17:04:49,,,,,,,,,,,,,,,,
+10-02 17:04:50,0,0,99,0,0,1,1,98,0,0,12.762,0.487,85.325,0,0,100,1,2,3.800,4.800,1,1.900,2.900
+10-02 17:04:51,0,0,99.900,0,0,0,1,99.900,0,0,12.850,0.250,87.862,0,0,100,0.100,0.100,-0.800,-0.800,0.100,-0.800,-0.800
+10-02 17:04:52,0,0,100,0,0,0,0,100,0,0,12.500,0,87.250,0,0,100,0,0,0,1,0,1,0
 CSV instances complete
 CSV timestamp
 === done

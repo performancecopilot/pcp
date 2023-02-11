@@ -15,6 +15,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #include "parsers.h"
 #include "parser-ragel.h"
@@ -38,51 +39,58 @@ int
 ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 	*datagram = (struct statsd_datagram*) calloc(1, sizeof(struct statsd_datagram));
 	ALLOC_CHECK(*datagram, "Not enough memory to save datagram");
+
 	size_t length = strlen(str);
-	char *p = str, *pe = (str + length + 1);
-	char *eof = pe;
+	/* vars required for Ragel machine */
 	int cs;
-	size_t current_index = 0;
-	size_t current_segment_start_index = 0;
+	char *p = str;
+	char *pe = str + length;
+	char *eof = pe;
+
+	/* vars for managing metadata in between states */
+	char *name_start_ptr = NULL;
+	char *name_end_ptr = NULL;
+	char *tag_key_start_ptr = NULL;
+	char *tag_key_end_ptr = NULL;
+	char *tag_key = NULL;
+	char *tag_value_start_ptr = NULL;
+	char *tag_value_end_ptr = NULL;
+	char *tag_value = NULL;
+	char *value_start_ptr = NULL;
+	char *value_end_ptr = NULL;
+	char *type_start_ptr = NULL;
 	struct tag_collection* tags = NULL;
-	char* tag_key = NULL;
-	char* tag_value = NULL;
 	int tag_key_allocated = 0;
 	int tag_value_allocated = 0;
 	int any_tags = 0;
-
 	%%{
 
 		action error_handler {
+			METRIC_PROCESSING_ERR_LOG("Stopped parsing \"%s\" at \"%s\"", str, fpc);
 			goto error_clean_up;
 		}	
 
-		action not_final_state_finish {
-			goto error_clean_up;
-		}	
-
-		action increment_character_counter {
-			current_index++;
+		action name_start {
+			VERBOSE_LOG(2, "Parsing: <name start> for: %s", str);
+			name_start_ptr = fpc;
 		}
 
-		action name_parsing {
-			current_segment_start_index = current_index;
-		}
-
-		action name_parsed {
-			size_t current_segment_length = current_index - current_segment_start_index;
-			(*datagram)->name = (char*) malloc(current_segment_length + 1);
+		action name_end {
+			VERBOSE_LOG(2, "Parsing: <name end> for: %s", str);
+			name_end_ptr = fpc;
+			ptrdiff_t name_length = name_end_ptr - name_start_ptr;
+			(*datagram)->name = (char*) malloc(name_length + 1);
 			ALLOC_CHECK((*datagram)->name, "Not enough memory to save metric name");
 			memcpy(
 				(*datagram)->name,
-				&str[current_segment_start_index],
-				current_segment_length
+				name_start_ptr,
+				name_length
 			);
-			(*datagram)->name[current_segment_length] = '\0';
-			current_segment_start_index = current_index + 1; 
+			(*datagram)->name[name_length] = '\0';
 		}
 
-		action tag_parsed {
+		action tag_end {
+			VERBOSE_LOG(2, "Parsing: <tag end> for: %s", str);
 			size_t key_len = strlen(tag_key) + 1;
 			size_t value_len = strlen(tag_value) + 1;
 			struct tag* t = (struct tag*) malloc(sizeof(struct tag));
@@ -118,81 +126,112 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 			tag_value_allocated = 0;
 		}
 
-		action value_parsed {
-			char* startptr;
-			char* endptr;
-			if (str[current_segment_start_index] == '+') {
+		action value_start {
+			VERBOSE_LOG(2, "Parsing: <value start> for: %s", str);
+			value_start_ptr = fpc;
+		}
+
+		action value_end {
+			VERBOSE_LOG(2, "Parsing: <value end> for: %s", str);
+			value_end_ptr = fpc;
+			char* number_start_ptr;
+			if (value_start_ptr[0] == '+') {
 				(*datagram)->explicit_sign = SIGN_PLUS;
-				startptr = &str[current_segment_start_index + 1];
-			} else if (str[current_segment_start_index] == '-') {
+				number_start_ptr = value_start_ptr + 1;
+			} else if (value_start_ptr[0] == '-') {
 				(*datagram)->explicit_sign = SIGN_MINUS;
-				startptr = &str[current_segment_start_index + 1];
+				number_start_ptr = value_start_ptr + 1;
 			} else {
 				(*datagram)->explicit_sign = SIGN_NONE;
-				startptr = &str[current_segment_start_index];
+				number_start_ptr = value_start_ptr;
 			}
-			double value = strtod(startptr, &endptr);
-			if (startptr == endptr || errno == ERANGE) {
+			char* conversion_end_ptr;
+			double value = strtod((const char*)number_start_ptr, &conversion_end_ptr);
+			if (value_end_ptr == NULL) {
 				goto error_clean_up;
 			}
 			(*datagram)->value = value;
-			current_segment_start_index = current_index + 1;
 		}
 
-		action type_parsed {
-			if (str[current_segment_start_index] == 'c') {
+		action type_start {
+			VERBOSE_LOG(2, "Parsing: <type start> for: %s", str);
+			type_start_ptr = fpc;
+		}
+
+		action type_end {
+			VERBOSE_LOG(2, "Parsing: <type end> for: %s", str);
+			if (type_start_ptr[0] == 'c') {
 				(*datagram)->type = METRIC_TYPE_COUNTER;
-			} else if (str[current_segment_start_index] == 'g') {
+			} else if (type_start_ptr[0] == 'g') {
 				(*datagram)->type = METRIC_TYPE_GAUGE;
-			} else {
+			} else if (type_start_ptr[0] == 'm' && type_start_ptr[1] == 's') {
 				(*datagram)->type = METRIC_TYPE_DURATION;
+			} else {
+				goto error_clean_up;
 			}
-			current_segment_start_index = current_index + 1;
 		}
 
-		action tag_key_parsed {
-			size_t current_segment_length = current_index - current_segment_start_index;
-			tag_key = (char *) realloc(tag_key, current_segment_length + 1);
+		action tag_key_start {
+			VERBOSE_LOG(2, "Parsing: <tag key start> for: %s", str);
+			tag_key_start_ptr = fpc;
+		}
+
+		action tag_key_end {
+			VERBOSE_LOG(2, "Parsing: <tag key end> for: %s", str);
+			tag_key_end_ptr = fpc;
+			ptrdiff_t tag_key_length = tag_key_end_ptr - tag_key_start_ptr;
+			tag_key = (char *) realloc(tag_key, tag_key_length + 1);
 			ALLOC_CHECK(tag_key, "Not enough memory for tag key buffer.");
 			tag_key_allocated = 1;
 			memcpy(
 				tag_key,
-				&str[current_segment_start_index], 
-				current_segment_length
+				tag_key_start_ptr,
+				tag_key_length
 			);
-			tag_key[current_segment_length] = '\0';
-			current_segment_start_index = current_index + 1;
+			tag_key[tag_key_length] = '\0';
 		}
 
-		action tag_value_parsed {
-			size_t current_segment_length = current_index - current_segment_start_index;
-			tag_value = (char *) realloc(tag_value, current_segment_length + 1);
+		action tag_value_start {
+			VERBOSE_LOG(2, "Parsing: <tag value start> for: %s", str);
+			tag_value_start_ptr = fpc;
+		}
+
+		action tag_value_end {
+			VERBOSE_LOG(2, "Parsing: <tag value end> for: %s", str);
+			tag_value_end_ptr = fpc;
+			ptrdiff_t tag_value_length = tag_value_end_ptr - tag_value_start_ptr;
+			tag_value = (char *) realloc(tag_value, tag_value_length + 1);
 			ALLOC_CHECK(tag_value, "Not enough memory for tag key buffer.");
 			tag_value_allocated = 1;
 			memcpy(
 				tag_value,
-				&str[current_segment_start_index], 
-				current_segment_length
+				tag_value_start_ptr,
+				tag_value_length
 			);
-			tag_value[current_segment_length] = '\0';
-			current_segment_start_index = current_index + 1;
+			tag_value[tag_value_length] = '\0';
 		}
 
 		str_value = [a-z][a-zA-Z0-9_.]*;
 		tag_string = [a-zA-Z0-9_.]{1,};
-		name = str_value[:,]{1};
-		value = ('+'|'-')?[0-9]+(('.')[0-9]+)?(('e'|'E')('+'|'-')?[0-9]+)?('|');
-		type = ('c'|'g'|'ms')('@'|'\0'|'\n\0'|("|#"));
-		tags = ((tag_string'=')@tag_key_parsed(tag_string(':'|',')@tag_value_parsed))+;
-		tags_end = ((tag_string':')@tag_key_parsed(tag_string(','|'\0'|'\n\0')@tag_value_parsed))+;
-		main := ((name >name_parsing @name_parsed . (tags @ tag_parsed)? . value @value_parsed . type @type_parsed . (tags_end @ tag_parsed)? ))
-			  $~increment_character_counter @!error_handler @/not_final_state_finish;
-		# */
+		value = ('+'|'-')?[0-9]+((('.')[0-9]+)?([eE][+\-]?[0-9]+)?)?;
+		type = ('c'|'g'|'ms');
+		tag_key = tag_string;
+		tag_value = tag_string;
+		name = str_value;
+		tag = (tag_key >tag_key_start %tag_key_end . '=' . tag_value >tag_value_start %tag_value_end);
+		tag_end = (tag_key >tag_key_start %tag_key_end . ':' . tag_value >tag_value_start %tag_value_end);
+		main :=
+			((name >name_start %name_end) .
+			(',' . tag %tag_end)* .
+			(':' . value >value_start %value_end) . 
+			('|' . type >type_start %type_end) . 
+			(('|#') . ((tag_end %tag_end) . (',' . tag_end %tag_end)*)? )?) $!error_handler;
+
 		# Initialize and execute.
 		write init;
 		write exec;
-
 	}%%
+
 	(void)statsd_en_main;
 	(void)statsd_error;
 	(void)statsd_first_final;
@@ -221,7 +260,7 @@ ragel_parser_parse(char* str, struct statsd_datagram** datagram) {
 	if (str[length - 1] == '\n')
         str[length - 1] = 0;
 	free_datagram(*datagram);
-	METRIC_PROCESSING_ERR_LOG("Throwing away datagram. REASON: unable to parse: %s", str);
+	METRIC_PROCESSING_ERR_LOG("Throwing away metric %s, REASON: unable to parse", str);
 	return 0;
 };
 

@@ -134,7 +134,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [METER_VALUE] = A_BOLD | ColorPair(Cyan, Black),
       [METER_VALUE_ERROR] = A_BOLD | ColorPair(Red, Black),
       [METER_VALUE_IOREAD] = ColorPair(Green, Black),
-      [METER_VALUE_IOWRITE] = ColorPair(Blue, Black),
+      [METER_VALUE_IOWRITE] = A_BOLD | ColorPair(Blue, Black),
       [METER_VALUE_NOTICE] = A_BOLD | ColorPair(White, Black),
       [METER_VALUE_OK] = ColorPair(Green, Black),
       [METER_VALUE_WARN] = A_BOLD | ColorPair(Yellow, Black),
@@ -156,7 +156,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [PROCESS_THREAD] = ColorPair(Green, Black),
       [PROCESS_THREAD_BASENAME] = A_BOLD | ColorPair(Green, Black),
       [PROCESS_COMM] = ColorPair(Magenta, Black),
-      [PROCESS_THREAD_COMM] = ColorPair(Blue, Black),
+      [PROCESS_THREAD_COMM] = A_BOLD | ColorPair(Blue, Black),
       [BAR_BORDER] = A_BOLD,
       [BAR_SHADOW] = A_BOLD | ColorPairGrayBlack,
       [SWAP] = ColorPair(Red, Black),
@@ -164,14 +164,14 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [GRAPH_1] = A_BOLD | ColorPair(Cyan, Black),
       [GRAPH_2] = ColorPair(Cyan, Black),
       [MEMORY_USED] = ColorPair(Green, Black),
-      [MEMORY_BUFFERS] = ColorPair(Blue, Black),
+      [MEMORY_BUFFERS] = A_BOLD | ColorPair(Blue, Black),
       [MEMORY_BUFFERS_TEXT] = A_BOLD | ColorPair(Blue, Black),
       [MEMORY_CACHE] = ColorPair(Yellow, Black),
       [MEMORY_SHARED] = ColorPair(Magenta, Black),
       [HUGEPAGE_1] = ColorPair(Green, Black),
       [HUGEPAGE_2] = ColorPair(Yellow, Black),
       [HUGEPAGE_3] = ColorPair(Red, Black),
-      [HUGEPAGE_4] = ColorPair(Blue, Black),
+      [HUGEPAGE_4] = A_BOLD | ColorPair(Blue, Black),
       [LOAD_AVERAGE_FIFTEEN] = ColorPair(Cyan, Black),
       [LOAD_AVERAGE_FIVE] = A_BOLD | ColorPair(Cyan, Black),
       [LOAD_AVERAGE_ONE] = A_BOLD | ColorPair(White, Black),
@@ -185,7 +185,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [CHECK_MARK] = A_BOLD,
       [CHECK_TEXT] = A_NORMAL,
       [HOSTNAME] = A_BOLD,
-      [CPU_NICE] = ColorPair(Blue, Black),
+      [CPU_NICE] = A_BOLD | ColorPair(Blue, Black),
       [CPU_NICE_TEXT] = A_BOLD | ColorPair(Blue, Black),
       [CPU_NORMAL] = ColorPair(Green, Black),
       [CPU_SYSTEM] = ColorPair(Red, Black),
@@ -202,19 +202,19 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [PRESSURE_STALL_THREEHUNDRED] = ColorPair(Cyan, Black),
       [PRESSURE_STALL_SIXTY] = A_BOLD | ColorPair(Cyan, Black),
       [PRESSURE_STALL_TEN] = A_BOLD | ColorPair(White, Black),
-      [ZFS_MFU] = ColorPair(Blue, Black),
+      [ZFS_MFU] = A_BOLD | ColorPair(Blue, Black),
       [ZFS_MRU] = ColorPair(Yellow, Black),
       [ZFS_ANON] = ColorPair(Magenta, Black),
       [ZFS_HEADER] = ColorPair(Cyan, Black),
       [ZFS_OTHER] = ColorPair(Magenta, Black),
-      [ZFS_COMPRESSED] = ColorPair(Blue, Black),
+      [ZFS_COMPRESSED] = A_BOLD | ColorPair(Blue, Black),
       [ZFS_RATIO] = ColorPair(Magenta, Black),
       [ZRAM] = ColorPair(Yellow, Black),
       [DYNAMIC_GRAY] = ColorPairGrayBlack,
       [DYNAMIC_DARKGRAY] = A_BOLD | ColorPairGrayBlack,
       [DYNAMIC_RED] = ColorPair(Red, Black),
       [DYNAMIC_GREEN] = ColorPair(Green, Black),
-      [DYNAMIC_BLUE] = ColorPair(Blue, Black),
+      [DYNAMIC_BLUE] = A_BOLD | ColorPair(Blue, Black),
       [DYNAMIC_CYAN] = ColorPair(Cyan, Black),
       [DYNAMIC_MAGENTA] = ColorPair(Magenta, Black),
       [DYNAMIC_YELLOW] = ColorPair(Yellow, Black),
@@ -408,11 +408,11 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [CPU_SOFTIRQ] = ColorPair(Blue, White),
       [CPU_STEAL] = ColorPair(Cyan, White),
       [CPU_GUEST] = ColorPair(Cyan, White),
-      [PANEL_EDIT] = ColorPair(White,Blue),
-      [SCREENS_OTH_BORDER] = A_BOLD | ColorPair(Black,White),
-      [SCREENS_OTH_TEXT] = A_BOLD | ColorPair(Black,White),
-      [SCREENS_CUR_BORDER] = ColorPair(Green,Green),
-      [SCREENS_CUR_TEXT] = ColorPair(Black,Green),
+      [PANEL_EDIT] = ColorPair(White, Blue),
+      [SCREENS_OTH_BORDER] = A_BOLD | ColorPair(Black, White),
+      [SCREENS_OTH_TEXT] = A_BOLD | ColorPair(Black, White),
+      [SCREENS_CUR_BORDER] = ColorPair(Green, Green),
+      [SCREENS_CUR_TEXT] = ColorPair(Black, Green),
       [PRESSURE_STALL_THREEHUNDRED] = ColorPair(Black, White),
       [PRESSURE_STALL_SIXTY] = ColorPair(Black, White),
       [PRESSURE_STALL_TEN] = ColorPair(Black, White),
@@ -515,11 +515,11 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [CPU_SOFTIRQ] = ColorPair(Blue, Black),
       [CPU_STEAL] = ColorPair(Black, Black),
       [CPU_GUEST] = ColorPair(Black, Black),
-      [PANEL_EDIT] = ColorPair(White,Blue),
-      [SCREENS_OTH_BORDER] = ColorPair(Blue,Black),
-      [SCREENS_OTH_TEXT] = ColorPair(Blue,Black),
-      [SCREENS_CUR_BORDER] = ColorPair(Green,Green),
-      [SCREENS_CUR_TEXT] = ColorPair(Black,Green),
+      [PANEL_EDIT] = ColorPair(White, Blue),
+      [SCREENS_OTH_BORDER] = ColorPair(Blue, Black),
+      [SCREENS_OTH_TEXT] = ColorPair(Blue, Black),
+      [SCREENS_CUR_BORDER] = ColorPair(Green, Green),
+      [SCREENS_CUR_TEXT] = ColorPair(Black, Green),
       [PRESSURE_STALL_THREEHUNDRED] = ColorPair(Black, Black),
       [PRESSURE_STALL_SIXTY] = ColorPair(Black, Black),
       [PRESSURE_STALL_TEN] = ColorPair(Black, Black),
@@ -622,11 +622,11 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [CPU_SOFTIRQ] = ColorPair(Black, Blue),
       [CPU_STEAL] = ColorPair(White, Blue),
       [CPU_GUEST] = ColorPair(White, Blue),
-      [PANEL_EDIT] = ColorPair(White,Blue),
-      [SCREENS_OTH_BORDER] = A_BOLD | ColorPair(Yellow,Blue),
-      [SCREENS_OTH_TEXT] = ColorPair(Cyan,Blue),
-      [SCREENS_CUR_BORDER] = ColorPair(Cyan,Cyan),
-      [SCREENS_CUR_TEXT] = ColorPair(Black,Cyan),
+      [PANEL_EDIT] = ColorPair(White, Blue),
+      [SCREENS_OTH_BORDER] = A_BOLD | ColorPair(Yellow, Blue),
+      [SCREENS_OTH_TEXT] = ColorPair(Cyan, Blue),
+      [SCREENS_CUR_BORDER] = ColorPair(Cyan, Cyan),
+      [SCREENS_CUR_TEXT] = ColorPair(Black, Cyan),
       [PRESSURE_STALL_THREEHUNDRED] = A_BOLD | ColorPair(Black, Blue),
       [PRESSURE_STALL_SIXTY] = A_NORMAL | ColorPair(White, Blue),
       [PRESSURE_STALL_TEN] = A_BOLD | ColorPair(White, Blue),
@@ -727,11 +727,11 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [CPU_SOFTIRQ] = ColorPair(Blue, Black),
       [CPU_STEAL] = ColorPair(Cyan, Black),
       [CPU_GUEST] = ColorPair(Cyan, Black),
-      [PANEL_EDIT] = ColorPair(White,Cyan),
-      [SCREENS_OTH_BORDER] = ColorPair(White,Black),
-      [SCREENS_OTH_TEXT] = ColorPair(Cyan,Black),
-      [SCREENS_CUR_BORDER] = A_BOLD | ColorPair(White,Black),
-      [SCREENS_CUR_TEXT] = A_BOLD | ColorPair(Green,Black),
+      [PANEL_EDIT] = ColorPair(White, Cyan),
+      [SCREENS_OTH_BORDER] = ColorPair(White, Black),
+      [SCREENS_OTH_TEXT] = ColorPair(Cyan, Black),
+      [SCREENS_CUR_BORDER] = A_BOLD | ColorPair(White, Black),
+      [SCREENS_CUR_TEXT] = A_BOLD | ColorPair(Green, Black),
       [PRESSURE_STALL_THREEHUNDRED] = ColorPair(Green, Black),
       [PRESSURE_STALL_SIXTY] = ColorPair(Green, Black),
       [PRESSURE_STALL_TEN] = A_BOLD | ColorPair(Green, Black),
@@ -834,7 +834,7 @@ static void dumpStderr(void) {
             fprintf(stderr, ">>>>>>>>>> stderr output >>>>>>>>>>\n");
             header = true;
          }
-         (void)! write(STDERR_FILENO, buffer, res);
+         full_write(STDERR_FILENO, buffer, res);
       }
    }
 
@@ -900,8 +900,8 @@ void CRT_resetSignalHandlers(void) {
    signal(SIGQUIT, SIG_DFL);
 }
 
-void CRT_setMouse(bool enabled) {
 #ifdef HAVE_GETMOUSE
+void CRT_setMouse(bool enabled) {
    if (enabled) {
 #if NCURSES_MOUSE_VERSION > 1
       mousemask(BUTTON1_RELEASED | BUTTON4_PRESSED | BUTTON5_PRESSED, NULL);
@@ -911,13 +911,12 @@ void CRT_setMouse(bool enabled) {
    } else {
       mousemask(0, NULL);
    }
-#endif
 }
+#endif
 
 void CRT_init(const Settings* settings, bool allowUnicode) {
-   redirectStderr();
-
    initscr();
+   redirectStderr();
    noecho();
    CRT_crashSettings = settings;
    CRT_delay = &(settings->delay);
@@ -1012,10 +1011,12 @@ IGNORE_WCASTQUAL_END
    CRT_degreeSign = initDegreeSign();
 }
 
-void CRT_done() {
-   attron(CRT_colors[RESET_COLOR]);
+void CRT_done(void) {
+   int resetColor = CRT_colors ? CRT_colors[RESET_COLOR] : CRT_colorSchemes[COLORSCHEME_DEFAULT][RESET_COLOR];
+
+   attron(resetColor);
    mvhline(LINES - 1, 0, ' ', COLS);
-   attroff(CRT_colors[RESET_COLOR]);
+   attroff(resetColor);
    refresh();
 
    curs_set(1);
@@ -1031,7 +1032,7 @@ void CRT_fatalError(const char* note) {
    exit(2);
 }
 
-int CRT_readKey() {
+int CRT_readKey(void) {
    nocbreak();
    cbreak();
    nodelay(stdscr, FALSE);
@@ -1040,13 +1041,13 @@ int CRT_readKey() {
    return ret;
 }
 
-void CRT_disableDelay() {
+void CRT_disableDelay(void) {
    nocbreak();
    cbreak();
    nodelay(stdscr, TRUE);
 }
 
-void CRT_enableDelay() {
+void CRT_enableDelay(void) {
    halfdelay(*CRT_delay);
 }
 
@@ -1095,7 +1096,7 @@ static void print_backtrace(void) {
       unw_get_proc_name(&cursor, symbolName, sizeof(symbolName), &offset);
 
       unw_proc_info_t pip;
-      pip.unwind_info = NULL;
+      pip.unwind_info = 0;
 
       const char* fname = "?";
       const void* ptr = 0;

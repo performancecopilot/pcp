@@ -37,6 +37,11 @@ systmetrics {
 	# /proc/vmstat
 	swap.pagesin				MEM_SWINS
 	swap.pagesout				MEM_SWOUTS
+	mem.vmstat.pgpgin			MEM_PGPGIN
+	mem.vmstat.pgpgout			MEM_PGPGOUT
+	mem.vmstat.nr_page_table_pages		MEM_PAGETABLES
+	mem.vmstat.numa_pages_migrated		MEM_NUMAMIGRATE
+	mem.vmstat.pgmigrate_success		MEM_PGMIGRATE
 	mem.vmstat.pgscan_direct_dma		MEM_SCAN_DDMA
 	mem.vmstat.pgscan_direct_dma32	 	MEM_SCAN_DDMA32
 	mem.vmstat.pgscan_direct_high	 	MEM_SCAN_DHIGH
@@ -53,6 +58,7 @@ systmetrics {
 	mem.vmstat.pgsteal_movable		MEM_STEAL_MOVABLE
 	mem.vmstat.pgsteal_normal		MEM_STEAL_NORMAL
 	mem.vmstat.allocstall			MEM_ALLOCSTALL
+	mem.vmstat.compact_stall		MEM_COMPACTSTALL
 	mem.vmstat.oom_kill			MEM_OOM_KILL
 
 	# /proc/meminfo
@@ -71,7 +77,35 @@ systmetrics {
 	mem.util.commitLimit			MEM_COMMITLIM
 	mem.util.hugepagesTotal			MEM_TOTHUGEPAGE
 	mem.util.hugepagesFree			MEM_FREEHUGEPAGE
-	hinv.hugepagesize			HUGEPAGESZ  
+
+	hinv.hugepagesize			HUGEPAGESZ
+	hinv.map.cpu_node			MAP_CPU_NODE
+
+	# NUMA memory metrics
+	mem.numa.util.total			PERNODE_MEM_TOTAL
+	mem.numa.util.free			PERNODE_MEM_FREE
+	mem.numa.util.filePages			PERNODE_MEM_FILE
+	mem.numa.util.dirty			PERNODE_MEM_DIRTY
+	mem.numa.util.slab			PERNODE_MEM_SLAB
+	mem.numa.util.slabReclaimable		PERNODE_MEM_SRECLAIM
+	mem.numa.util.active			PERNODE_MEM_ACTIVE
+	mem.numa.util.inactive			PERNODE_MEM_INACTIVE
+	mem.numa.util.shmem			PERNODE_MEM_SHMEM
+	mem.numa.util.hugepagesTotalBytes	PERNODE_MEM_HUGEPAGES
+
+	# /sys/kernel/debug/ksm
+	sysfs.kernel.debug.extfrag_unusable	PERNODE_MEM_EXTFRAG
+
+	# NUMA CPU metrics
+	kernel.pernode.cpu.sys			PERNODE_CPU_SYS
+	kernel.pernode.cpu.user			PERNODE_CPU_USER
+	kernel.pernode.cpu.nice			PERNODE_CPU_NICE
+	kernel.pernode.cpu.idle			PERNODE_CPU_IDLE
+	kernel.pernode.cpu.wait.total		PERNODE_CPU_IOWAIT
+	kernel.pernode.cpu.irq.hard		PERNODE_CPU_IRQ_HARD
+	kernel.pernode.cpu.irq.soft		PERNODE_CPU_IRQ_SOFT
+	kernel.pernode.cpu.steal		PERNODE_CPU_STEAL
+	kernel.pernode.cpu.guest		PERNODE_CPU_GUEST
 
 	# /sys/kernel/mm/ksm
 	mem.ksm.pages_shared			MEM_KSMSHARED
@@ -220,6 +254,10 @@ systmetrics {
 	network.udp6.inerrors			UDPV6_InErrors         
 	network.udp6.outdatagrams		UDPV6_OutDatagrams     
 
+	# /proc/net/sockstat
+	network.sockstat.tcp.mem		NET_SOCKSTAT_TCPMEM
+	network.sockstat.udp.mem		NET_SOCKSTAT_UDPMEM
+
 	# /proc/diskstats or /proc/partitions
 	disk.dev.read				PERDISK_NREAD
 	disk.dev.blkread			PERDISK_NRSECT
@@ -227,14 +265,23 @@ systmetrics {
 	disk.dev.blkwrite			PERDISK_NWSECT
 	disk.dev.avactive			PERDISK_IO_MS
 	disk.dev.aveq				PERDISK_AVEQ
+	disk.dev.discard			PERDISK_NDISC
+	disk.dev.blkdiscard			PERDISK_NDSECT
+	disk.dev.inflight			PERDISK_INFLIGHT
 	disk.dm.read				PERDM_NREAD
-        disk.dm.blkread				PERDM_NRSECT
-        disk.dm.write				PERDM_NWRITE
-        disk.dm.blkwrite			PERDM_NWSECT
+	disk.dm.blkread				PERDM_NRSECT
+	disk.dm.write				PERDM_NWRITE
+	disk.dm.blkwrite			PERDM_NWSECT
+	disk.dm.discard				PERDM_NDISC
+	disk.dm.blkdiscard			PERDM_NDSECT
+	disk.dm.inflight			PERDM_INFLIGHT
 	disk.md.read				PERMD_NREAD
 	disk.md.blkread				PERMD_NRSECT
 	disk.md.write				PERMD_NWRITE
 	disk.md.blkwrite			PERMD_NWSECT
+	disk.md.discard				PERMD_NDISC
+	disk.md.blkdiscard			PERMD_NDSECT
+	disk.md.inflight			PERMD_INFLIGHT
 
 	# /proc/net/rpc/nfsd
 	rpc.server.rchits			NFS_RCHITS

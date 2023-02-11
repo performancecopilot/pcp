@@ -38,39 +38,48 @@ audit=/var/log/audit/audit.log
 sudo=`which sudo`
 
 # Did pmlogger_daily get run as expected?
-# But don't bother if it is just after midnight!
 #
-case `pmdate %H:%M`
-in
-    00:[012]*)
-	;;
-    *)
-	yesterday=`pmdate -1d %Y%m%d`
-	host=`hostname`
-	case $host
-	in
-	    # CONFIGURE-ME
-	    # - may need to add extra hosts here to enable this test
-	    #
-	    bozo|bozo-vm|vm01|vm03|vm36)
-		    if [ ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta.xz -a ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta ]
-		    then
-			# after a virgin install, or cleaning out the directory,
-			# or a hostname change, there will be NO $yesterday files
-			# at all, so be quiet if this is the case ...
-			#
-			nfile=`find  $PCP_LOG_DIR/pmlogger/$host -type f | grep "^$PCP_LOG_DIR/pmlogger/$host/$yesterday.*\\.meta" | wc -l | sed -e 's/ //g'`
-			if [ "$nfile" -gt 0 ]
+# Do this at most once each time check is run ... if it fails it will
+# fail for ALL QA tests, which is not helpful.  The file
+# $here/check.onetrip is created in "common", so it will be there at
+# the start of any check (or recheck or check-flakey) run.
+#
+if [ -f $here/check.onetrip ]
+then
+    # But don't bother if it is just after midnight!
+    #
+    case `pmdate %H:%M`
+    in
+	00:[012]*)
+	    ;;
+	*)
+	    yesterday=`pmdate -1d %Y%m%d`
+	    host=`hostname`
+	    case $host
+	    in
+		# CONFIGURE-ME
+		# - may need to add extra hosts here to enable this test
+		#
+		bozo|bozo-vm|vm01|vm03|vm36)
+			if [ ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta.xz -a ! -f $PCP_LOG_DIR/pmlogger/$host/$yesterday.meta ]
 			then
-			    echo "check.callback: fail: pmlogger_daily not well!"
-			    echo "Missing $yesterday archive but $nfile component archives ..."
-			    ls -l $PCP_LOG_DIR/pmlogger/$host/$yesterday.*
+			    # after a virgin install, or cleaning out the directory,
+			    # or a hostname change, there will be NO $yesterday files
+			    # at all, so be quiet if this is the case ...
+			    #
+			    nfile=`find  $PCP_LOG_DIR/pmlogger/$host -type f | grep "^$PCP_LOG_DIR/pmlogger/$host/$yesterday.*\\.meta" | wc -l | sed -e 's/ //g'`
+			    if [ "$nfile" -gt 0 ]
+			    then
+				echo "check.callback: fail: pmlogger_daily not well!"
+				echo "Missing $yesterday archive but $nfile component archives ..."
+				ls -l $PCP_LOG_DIR/pmlogger/$host/$yesterday.*
+			    fi
 			fi
-		    fi
-		    ;;
-	esac
-	;;
-esac
+			;;
+	    esac
+	    ;;
+    esac
+fi
 
 status=0
 tmp=/var/tmp/check.callback-$$
@@ -247,7 +256,7 @@ then
 	then
 	    echo "Warning: $pmda PMDA exited? pmcd.agent.status=$status"
 	    echo "Relevant pmcd.log lines ..."
-	    grep "$pmda" "$PCP_LOG_DIR/pmcd/pmcd.log" ]
+	    grep "$pmda" "$PCP_LOG_DIR/pmcd/pmcd.log"
 	    if [ -f "$PCP_LOG_DIR/pmcd/$pmda.log" ]
 	    then
 		echo "=== $pmda.log ==="
@@ -311,5 +320,7 @@ then
     fi
 fi
 rm -f $1.pre-avc $1.post-avc
+
+rm -f $here/onetrip
 
 exit

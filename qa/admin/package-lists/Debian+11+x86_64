@@ -85,6 +85,7 @@ linux-headers-`uname -r` not4ci
 llvm
 lm-sensors
 make
+man-db
 mandoc
 mariadb-client-core-10.5
 memcached

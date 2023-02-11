@@ -1087,9 +1087,6 @@ main(int argc, char **argv)
 			pmGetProgname(), opts.optarg);
 		opts.errors++;
 	    }
-	    else if (exit_time.tv_sec > 0) {
-		__pmAFregister(&exit_time, NULL, run_done_callback);
-	    }
 	    break;
 
 	case 'T':		/* end time */
@@ -1124,10 +1121,6 @@ main(int argc, char **argv)
 			pmGetProgname(), opts.optarg);
 		opts.errors++;
 	    }
-	    else if (vol_switch_time.tv_sec > 0) {
-		vol_switch_afid = __pmAFregister(&vol_switch_time, NULL, 
-						 vol_switch_callback);
-            }
 	    break;
 
         case 'V': 
@@ -1460,6 +1453,14 @@ main(int argc, char **argv)
     }
 
     /*
+     * Get FQDN of host where pmlogger is running ... do this before
+     * any pmFetch scheduling calculations so we don't get AF events
+     * whacked by possible DNS delays in the prologue/epilogue
+     * processing.
+     */
+    prep_fqdn();
+
+    /*
      * try and establish $TZ from the remote PMCD ...
      * Note the label record has been set up, but not written yet
      */
@@ -1575,9 +1576,14 @@ main(int argc, char **argv)
     __pmAFunblock();
 
     /* create the Latest folio */
-    if (isdaemon) {
+    if (isdaemon)
 	updateLatestFolio(pmcd_host, archName);
-    }
+
+    if (vol_switch_time.tv_sec > 0)
+	vol_switch_afid = __pmAFregister(&vol_switch_time, NULL, 
+					 vol_switch_callback);
+    if (exit_time.tv_sec > 0)
+	__pmAFregister(&exit_time, NULL, run_done_callback);
 
     for ( ; ; ) {
 	int		nready;

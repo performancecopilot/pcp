@@ -122,13 +122,13 @@ do
     diff $tmp.expected $tmp.output
 
     echo "=== dumplog for expected output ===" >>$seq.full
-    pmdumplog -aI tmparch/sample-proc_v3 2>&1 \
+    pmdumplog -diLmsI tmparch/sample-proc_v3 2>&1 \
     | tee -a $seq.full \
     | _filter_dumplog >$tmp.expected
 
     echo >>$seq.full
     echo "=== dumplog for actual output ===" >>$seq.full
-    pmdumplog -aI $tmp 2>&1 \
+    pmdumplog -diLmsI $tmp 2>&1 \
     | tee -a $seq.full \
     | _filter_dumplog >$tmp.output
 

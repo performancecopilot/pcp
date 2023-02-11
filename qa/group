@@ -1227,7 +1227,7 @@ x11
 772 pmns local
 773 derive local
 774 pmdumplog local
-775 pmfind local
+775 pmfind local not_in_container
 776 pmfind local
 777 derive pmprobe pmie local pmval
 778 pmda.postgresql pmie local
@@ -1742,7 +1742,7 @@ x11
 1287 pmda.install pmda.openmetrics local python
 1288 archive pmval local
 1289 pmval archive multi-archive decompress-xz local pmlogextract
-1290:reserved pmproxy local pmval pmie pmstat valgrind pmdumptext
+1290 pmproxy local pmval pmie pmstat pmdumptext valgrind
 1291 atop archive local
 1292 pmlc local
 1293 pmlc local valgrind
@@ -1856,7 +1856,6 @@ x11
 1401 pmproxy local
 1402 pmlogrewrite pmlogextract archive pmdumplog archive_v3 local
 1403 pmda.linux local valgrind
-1404:reserved
 1405 sheet2pcp pmimport pmdumplog perl local archive_v3 libpcp_import
 1406 sheet2pcp pmimport local pmdumplog perl archive_v3 libpcp_import
 1407 pmchart derive local x11
@@ -1890,6 +1889,8 @@ x11
 1435 pmda.elasticsearch local
 1436 pmda.postgresql local
 1437 pmda.kvm local
+1438 libpcp local
+1439 libpcp local valgrind
 1442 pmlogrewrite local
 1444 pmda.bpf local
 1452 pmda.bpf local
@@ -1902,7 +1903,7 @@ x11
 1489 python pmrep pmimport local
 1490 python local labels
 1495 pmlogrewrite labels pmdumplog local
-1503 pcp pidstat ps ython local
+1503 pcp pidstat ps python local
 1511 pmcd local pmda.sample
 1515 pmda.denki local
 1530 pmda.zfs local valgrind
@@ -2018,6 +2019,7 @@ x11
 1828 pmda.linux local
 1829 archive pmlogrewrite local archive_v3 pmdumplog local pmconfig
 1837 pmproxy local
+1838 pmda.linux kernel local
 1844 pmdumptext libpcp_qmc remote
 1850 pmseries libpcp_web local
 1853 pmda.bpf local
@@ -2056,4 +2058,5 @@ x11
 1984 pmlogconf pmda.redis local
 1985 pmfind local valgrind
 1986 pmfind local
+1987 pcp ps python local
 4751 libpcp threads valgrind local pcp helgrind

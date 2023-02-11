@@ -93,10 +93,10 @@ create_metric_dict_key(char* key) {
 int
 process_metric(struct agent_config* config, struct pmda_metrics_container* container, struct statsd_datagram* datagram) {
     struct metric* item;
-    char throwing_away_msg[] = "Throwing away parsed datagram.";
+    char throwing_away_msg[] = "Throwing away metric:";
     char* metric_key = create_metric_dict_key(datagram->name);
     if (metric_key == NULL) {
-        METRIC_PROCESSING_ERR_LOG("%s REASON: unable to create hashtable key for metric record.", throwing_away_msg);
+        METRIC_PROCESSING_ERR_LOG("%s %s, REASON: unable to create hashtable key for metric record.", throwing_away_msg, datagram->name);
         return 0;
     }
     int status = 0;
@@ -106,10 +106,10 @@ process_metric(struct agent_config* config, struct pmda_metrics_container* conta
         if (!datagram_contains_tags) {
             int res = update_metric_value(config, container, item->type, datagram, &item->value);
             if (res == 0) {
-                METRIC_PROCESSING_ERR_LOG("%s REASON: semantically incorrect values.", throwing_away_msg);
+                METRIC_PROCESSING_ERR_LOG("%s %s, REASON: semantically incorrect values.", throwing_away_msg, datagram->name);
                 status = 0;
             } else if (res == -1) {
-                METRIC_PROCESSING_ERR_LOG("%s REASON: metric of same name but different type is already recorded.", throwing_away_msg);
+                METRIC_PROCESSING_ERR_LOG("%s %s, REASON: metric of same name but different type is already recorded.", throwing_away_msg, datagram->name);
                 status = 0;
             } else {
                 status = 1;
@@ -139,11 +139,11 @@ process_metric(struct agent_config* config, struct pmda_metrics_container* conta
                     mark_metric_as_pernament(container, item);
                 }
             } else {
-                METRIC_PROCESSING_ERR_LOG("%s REASON: semantically incorrect values.", throwing_away_msg);
+                METRIC_PROCESSING_ERR_LOG("%s %s, REASON: semantically incorrect values.", throwing_away_msg, datagram->name);
                 status = 0;
             }
         } else {
-            METRIC_PROCESSING_ERR_LOG("%s REASON: name is not available. (blocklisted?)", throwing_away_msg);
+            METRIC_PROCESSING_ERR_LOG("%s %s, REASON: name is not available. (blocklisted?)", throwing_away_msg, datagram->name);
             status = 0;
         }
     }

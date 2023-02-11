@@ -1,9 +1,9 @@
 QA output created by 1419
-MYLOG.0 1400-1600 bytes
-MYLOG.1 1200-1400 bytes
-MYLOG.2 1200-1400 bytes
-MYLOG.3 1200-1400 bytes
-MYLOG.4 1400-1600 bytes
+MYLOG.0  OK in range 1550-1660 bytes
+MYLOG.1  OK in range 1360-1370 bytes
+MYLOG.2  OK in range 1360-1370 bytes
+MYLOG.3  OK in range 1360-1370 bytes
+MYLOG.4  OK in range 1550-1660 bytes
 
 
 Temporal Index

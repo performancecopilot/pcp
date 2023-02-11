@@ -12,10 +12,11 @@ cpu | sys       1% | user      2% | irq       6% | idle     91% | cpu007 w  0% |
 cpu | sys       1% | user      2% | irq       6% | idle     91% | cpu005 w  0% |
 cpu | sys       1% | user      2% | irq       6% | idle     91% | cpu003 w  0% |
 cpu | sys       1% | user      2% | irq       6% | idle     91% | cpu001 w  0% |
-CPL | avg1    0.23 | avg5    0.24 | avg15   0.15 | csw 838830e4 | intr 17700e6 |
+CPL | numcpu     8 | avg1    0.23 | avg5    0.24 | csw 838830e4 | intr 17700e6 |
 MEM | tot    15.3G | free  286.3M | cache 721.6M | buff   48.0M | slab  624.3M |
+MEM | numnode    1 | shmem 237.9M | shrss   4.0G | tcpsk   0.1M | zfarc   0.0M |
 SWP | tot    11.7G | free    3.3G | swcac  34.9M | vmcom  31.6G | vmlim  19.1G |
-PAG | scan       0 | steal      0 | swin  348176 | swout 2662e3 | oomkill    0 |
+PAG | migrate 76e4 | pgin      12 | pgout   1228 | swout 2662e3 | oomkill    0 |
 LVM | a_shard-root | busy      0% | read 2124419 | write 5583e3 | avio  0.0 ns |
 LVM | a_shard-swap | busy      0% | read  198044 | write 1380e3 | avio  0.0 ns |
 LVM | a_shard-home | busy      0% | read 4615230 | write 9619e3 | avio  0.0 ns |
@@ -26,399 +27,399 @@ NET | lo      ---- | pcki 22835e3 | pcko 22835e3 | si 9843 Mbps | so 9843 Mbps |
 NET | enp0s25 ---- | pcki 19925e3 | pcko 15039e3 | si 4517 Mbps | so 2912 Mbps |
 NET | tun0    ---- | pcki  732362 | pcko  763839 | si  148 Mbps | so   95 Mbps |
 
-    PID SYSCPU USRCPU RDELAY  VGROW  RGROW  RDDSK  WRDSK  CPU CMD            
- 110376  2h35m  8h47m  0.00s   4.7G 45080K     0K     0K   4% chrome         
- 110323  1h48m  3h19m  0.00s 695.6M 31496K     0K     0K   2% chrome         
-   8385 16m13s  2h54m  0.00s   4.8G 158.1M     0K     0K   1% slack          
-   3337 30m32s  1h41m  0.00s   5.3G 95224K     0K     0K   1% gnome-shell    
-1345181 15m41s 62m11s  0.00s   4.0G 283.6M     0K     0K   1% firefox        
- 110285 26m27s 48m38s  0.00s   1.3G 157.6M     0K     0K   0% chrome         
- 110365  8m48s 64m46s  0.00s   9.0G 212.7M     0K     0K   0% chrome         
-   3490 16m43s 16m12s  0.00s   1.9G 13788K     0K     0K   0% Xwayland       
- 110325  7m45s 23m40s  0.00s 606.3M 41652K     0K     0K   0% chrome         
-1345391  5m08s 25m50s  0.00s   3.3G 324.1M     0K     0K   0% Web Content    
-   7468  2m44s 28m11s  0.00s 672.7M 18288K     0K     0K   0% gnome-terminal 
-   8279  3m19s 25m14s  0.00s   4.8G 55724K     0K     0K   0% slack          
-   3342 12m02s 10m19s  0.00s   2.4G  5892K     0K     0K   0% pulseaudio     
-   3662 10m25s  8m20s  0.00s 594.6M  1636K     0K     0K   0% gsd-smartcard  
-   8319  5m12s 11m53s  0.00s 567.5M 24320K     0K     0K   0% slack          
-1348927  2m33s 13m03s  0.00s   2.8G 74072K     0K     0K   0% Web Content    
-   8371  4m57s  8m52s  0.00s 507.2M 21552K     0K     0K   0% slack          
-1039494  3m41s  6m53s  0.00s 804.2M 13540K     0K     0K   0% inkscape       
-   6645  3m14s  6m59s  0.00s 510.1M 18324K     0K     0K   0% hexchat        
-   1278  2m02s  8m01s  0.00s   1.7G 33884K     0K     0K   0% grafana-server 
-1037121 35.12s  8m42s  0.00s   4.8G 85772K     0K     0K   0% chrome         
-     11  7m50s  0.41s  0.00s     0K     0K     0K     0K   0% rcu_sched      
-    911  3m40s  3m32s  0.00s 268.7M  3528K     0K     0K   0% dbus-broker    
-1345651  1m51s  5m10s  0.00s   2.8G 68428K     0K     0K   0% Web Content    
-   1133  4m14s  2m37s  0.00s   1.6G  3228K     0K     0K   0% mysqld         
-   2716  2m09s  4m38s  0.00s 538.5M  3312K     0K     0K   0% geoclue        
-1140856 36.25s  6m07s  0.00s  13.5G   8.9G     0K     0K   0% pmproxy        
-1345585 94.83s  4m56s  0.00s   2.7G 118.1M     0K     0K   0% Web Content    
-1259492  2m55s  3m18s  0.00s 843.3M  2880K     0K     0K   0% redis-server   
-1289719  3m24s  2m08s  0.00s 39836K  3772K     0K     0K   0% pmdaproc       
-   3845 62.23s  4m19s  0.00s 595.8M  5324K     0K     0K   0% ibus-daemon    
-    875  2m01s  2m59s  0.00s 34528K  3352K     0K     0K   0% systemd-resolv 
-   2723 36.88s  3m54s  0.00s   1.7G 602.5M     0K     0K   0% packagekitd    
-   3075 50.20s  3m22s  0.00s 478.0M  2912K     0K     0K   0% abrt-dbus      
-   1008 47.66s  3m01s  0.00s   3.1G  4740K     0K     0K   0% polkitd        
-   1269  2m43s 53.21s  0.00s 820.1M  2460K     0K     0K   0% pcscd          
-   3565 49.01s  2m30s  0.00s 517.5M  3100K     0K     0K   0% goa-identity-s 
-1140638  7.68s  3m04s  0.00s 57168K 16388K  5848K   4.0G   0% pmlogger       
-1289734 11.26s  2m49s  0.00s 477.3M 16136K     0K     0K   0% python3        
-      1 54.12s  2m03s  0.00s 176.0M  7724K     0K     0K   0% systemd        
-1289724 56.33s 99.40s  0.00s 26312K  1568K     0K     0K   0% pmdalinux      
-    953 36.09s  1m55s  0.00s 302.3M  1948K     0K     0K   0% thermald       
-1037590 26.40s  1m56s  0.00s   4.7G 54448K     0K     0K   0% chrome         
-    630 63.03s 73.32s  0.00s 98932K  9440K     0K     0K   0% systemd-journa 
-    916 55.88s 77.51s  0.00s  7456K  1912K     0K     0K   0% avahi-daemon   
-1037727  9.66s  1m57s  0.00s   4.7G 42044K     0K     0K   0% chrome         
-    138  2m04s  0.00s  0.00s     0K     0K     0K     0K   0% kswapd0        
-   3551 30.12s 87.67s  0.00s 884.3M  3560K     0K     0K   0% goa-daemon     
-1345453 43.58s 64.89s  0.00s   2.6G 17020K     0K     0K   0% WebExtensions  
-   4006 22.29s 84.62s  0.00s 366.4M  2100K     0K     0K   0% ibus-engine-si 
-   1001 41.36s 60.28s  0.00s 263.1M  5244K     0K     0K   0% sssd_nss       
-   6380 67.70s 26.24s  0.00s 28080K  2452K     0K     0K   0% openvpn        
-1346056 24.65s 51.86s  0.00s   2.7G 41976K     0K     0K   0% Web Content    
- 110592 16.39s 59.81s  0.00s   8.7G 39584K     0K     0K   0% chrome         
-1289731 50.51s 24.50s  0.00s 48620K  1708K     0K     0K   0% pmdaperfevent  
-1037677 20.10s 53.07s  0.00s   4.7G 34740K     0K     0K   0% chrome         
-   3552  2.03s 62.42s  0.00s 396.1M  4452K     0K     0K   0% udisksd        
- 110459 13.90s 49.83s  0.00s   4.6G 22140K     0K     0K   0% chrome         
-   3638 14.13s 46.72s  0.00s 636.0M  7464K     0K     0K   0% gsd-color      
-1350890 18.57s 41.92s  0.00s   2.6G 33208K     0K     0K   0% Web Content    
-    918 42.68s 13.16s  0.00s  2500K  1752K     0K     0K   0% earlyoom       
-   3216 25.10s 25.46s  0.00s  7364K  3676K     0K     0K   0% dbus-broker    
-    876 25.01s 23.09s  0.00s 107.4M  1208K     0K     0K   0% auditd         
-    857 47.89s  0.00s  0.00s     0K     0K     0K     0K   0% jbd2/dm-2-8    
-1289713 20.24s 27.30s  0.00s 110.2M  3216K     0K     0K   0% pmcd           
-   3862  7.93s 38.56s  0.00s 546.8M  5856K     0K     0K   0% ibus-extension 
-2084940 13.41s 31.16s  0.00s 274.7M  1068K     0K     0K   0% rsyslogd       
- 110605  5.18s 36.29s  0.00s  12.8G 26600K     0K     0K   0% chrome         
-   1003 21.70s 13.37s  0.00s 33296K  3420K     0K     0K   0% systemd-logind 
-   1030 12.76s 21.29s  0.00s 686.5M  5288K     0K     0K   0% NetworkManager 
- 897869 11.84s 21.42s  0.00s 515.6M  3300K     0K     0K   0% gvfsd-dnssd    
-   3681  1.92s 29.54s  0.00s   1.3G 186.8M     0K     0K   0% gnome-software 
-   2700  7.04s 21.39s  0.00s 451.7M  3732K     0K     0K   0% upowerd        
-    220 27.38s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/7:1H-k 
-    950 12.47s 14.90s  0.00s 20520K  1024K     0K     0K   0% systemd-machin 
-   2998  4.57s 20.38s  0.00s 526.8M  2936K     0K     0K   0% colord         
-    532 24.94s  0.00s  0.00s     0K     0K     0K     0K   0% jbd2/dm-0-8    
-   3646  5.57s 19.22s  0.00s 512.3M  2292K     0K     0K   0% gsd-housekeepi 
- 110567  4.18s 19.72s  0.00s   4.7G 19376K     0K     0K   0% chrome         
-     46 22.72s  0.00s  0.00s     0K     0K     0K     0K   0% ksoftirqd/7    
-    936  0.58s 20.52s  0.00s 309.3M  1860K     0K     0K   0% rngd           
-    878  6.07s 12.71s  0.00s  8112K  2128K     0K     0K   0% sedispatch     
-1288219  1.47s 14.01s  0.00s   4.8G 64708K     0K     0K   0% chrome         
- 110643  2.66s  7.34s  0.00s   4.6G 18592K     0K     0K   0% chrome         
-    461  9.80s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/4:1H-k 
-1038305  1.83s  7.65s  0.00s   4.8G 33272K     0K     0K   0% chrome         
-    592  9.31s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/2:1H-k 
-    616  8.94s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/0:1H-k 
- 110580  3.30s  5.58s  0.00s 754.2M  1524K     0K     0K   0% chrome         
-    219  8.83s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/6:1H-k 
-3779703  1.61s  6.59s  0.00s   4.7G 34152K     0K     0K   0% chrome         
-     54  8.04s  0.00s  0.00s     0K     0K     0K     0K   0% kauditd        
- 110363  2.73s  5.07s  0.00s   4.6G 13516K     0K     0K   0% chrome         
-1289730  4.56s  3.22s  0.00s 16552K  1476K     0K     0K   0% pmdakvm        
-   3547  1.77s  5.39s  0.00s 528.5M  3448K     0K     0K   0% gvfs-udisks2-v 
-   3604  4.03s  3.04s  0.00s 514.4M  2676K     0K     0K   0% gvfs-afc-volum 
-     21  6.81s  0.11s  0.00s     0K     0K     0K     0K   0% ksoftirqd/2    
-     10  6.84s  0.06s  0.00s     0K     0K     0K     0K   0% ksoftirqd/0    
-     31  6.46s  0.39s  0.00s     0K     0K     0K     0K   0% ksoftirqd/4    
- 110300  6.31s  0.53s  0.00s 479.9M  5320K     0K     0K   0% chrome         
-    594  6.81s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/3:1H-k 
-     41  6.56s  0.00s  0.00s     0K     0K     0K     0K   0% ksoftirqd/6    
- 110464  2.48s  4.04s  0.00s   4.6G 12160K     0K     0K   0% chrome         
-     26  6.01s  0.00s  0.00s     0K     0K     0K     0K   0% ksoftirqd/3    
-1618117  0.86s  5.13s  0.00s   4.7G 77188K     0K     0K   0% chrome         
-   3651  1.06s  4.93s  0.00s 551.2M  6240K     0K     0K   0% gsd-power      
-    942  3.87s  2.12s  0.00s 150.1M  1584K     0K     0K   0% rtkit-daemon   
-   3616  0.92s  4.43s  0.00s   1.4G  5824K     0K     0K   0% evolution-cale 
-   1000  1.75s  3.40s  0.00s 239.8M  2400K     0K     0K   0% sssd_be        
-    519  4.89s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/5:1H-k 
-1037691  1.05s  3.64s  0.00s   4.6G 16132K     0K     0K   0% chrome         
-    591  4.57s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/1:1H-k 
-   1002  2.18s  2.04s  0.00s 530.6M  3436K     0K     0K   0% accounts-daemo 
-   3660  0.44s  3.73s  0.00s 663.1M  3632K     0K     0K   0% gsd-sharing    
-   7473  1.11s  2.98s  0.00s 230.6M  3032K     0K     0K   0% bash           
-     16  3.68s  0.08s  0.00s     0K     0K     0K     0K   0% ksoftirqd/1    
-1289721  1.88s  1.70s  0.00s 16500K  1848K     0K     0K   0% pmdaxfs        
-     36  3.46s  0.11s  0.00s     0K     0K     0K     0K   0% ksoftirqd/5    
-1618104  0.62s  2.62s  0.00s   4.6G 54292K     0K     0K   0% chrome         
-   7528  1.34s  1.89s  0.00s 230.0M  2740K     0K     0K   0% bash           
-1345513  1.16s  1.91s  0.00s   2.6G  8276K     0K     0K   0% Privileged Con 
-1037704  0.86s  2.01s  0.00s   4.6G 13392K     0K     0K   0% chrome         
-1037572  1.02s  1.85s  0.00s   4.6G 11392K     0K     0K   0% chrome         
-1037442  1.14s  1.63s  0.00s   4.6G 11864K     0K     0K   0% chrome         
-1037505  1.04s  1.72s  0.00s   4.6G 13200K     0K     0K   0% chrome         
-1037663  0.81s  1.93s  0.00s   4.6G 12400K     0K     0K   0% chrome         
-1037490  0.98s  1.71s  0.00s   4.6G 10280K     0K     0K   0% chrome         
-1037755  0.95s  1.65s  0.00s   4.6G 12568K     0K     0K   0% chrome         
-1625212  2.52s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/3:2-ev 
- 106250  1.08s  1.43s  0.00s 230.0M  1440K     0K     0K   0% bash           
-1322168  0.65s  1.77s  0.00s   4.6G 12988K     0K     0K   0% chrome         
-   3530  0.46s  1.86s  0.00s   1.3G  3948K     0K     0K   0% evolution-sour 
-   3675  0.42s  1.74s  0.00s 995.7M  4412K     0K     0K   0% evolution-alar 
-1625471  2.11s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/1:0-ev 
-   1202  1.08s  1.00s  0.00s 348.7M  1420K     0K     0K   0% abrt-dump-jour 
-   3648  0.34s  1.72s  0.00s   1.4G  6728K     0K     0K   0% gsd-media-keys 
-   1201  1.17s  0.89s  0.00s 360.3M  2660K     0K     0K   0% abrt-dump-jour 
- 252726  0.60s  1.43s  0.00s 342.0M  2684K     0K     0K   0% kded4          
-1289722  0.42s  1.61s  0.00s 259.2M  1032K     0K     0K   0% pmdaredis      
-    946  0.62s  1.24s  0.00s 237.2M  2468K     0K     0K   0% sssd           
-   1203  1.00s  0.85s  0.00s 351.2M   612K     0K     0K   0% abrt-dump-jour 
-   1705  1.29s  0.49s  0.00s 25340K   764K     0K     0K   0% dnsmasq        
-     57  1.78s  0.00s  0.00s     0K     0K     0K     0K   0% kcompactd0     
-1143015  0.45s  1.31s  0.00s 230.9M  2592K     0K     0K   0% bash           
-    658  1.22s  0.50s  0.00s 54332K  3256K     0K     0K   0% systemd-udevd  
-   1657  1.27s  0.45s  0.00s 25340K   832K     0K     0K   0% dnsmasq        
-   3524  0.31s  1.33s  0.00s 908.7M  2452K     0K     0K   0% gnome-shell-ca 
-1417259  1.61s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/u17:3- 
-1625935  1.57s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/7:0-ev 
-    993  0.55s  0.99s  0.00s 462.1M  3748K     0K     0K   0% abrtd          
-      2  1.47s  0.00s  0.00s     0K     0K     0K     0K   0% kthreadd       
-   3201  0.33s  1.03s  0.00s 729.7M  2876K     0K     0K   0% gnome-keyring- 
-1626406  1.27s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/2:0-ev 
- 854167  0.18s  0.86s  0.00s 301.3M  6212K     0K     0K   0% python3        
-    989  0.73s  0.30s  0.00s 84940K  1384K     0K     0K   0% chronyd        
-    919  0.31s  0.69s  0.00s 347.3M  5168K     0K     0K   0% firewalld      
-1626796  1.00s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/3:1-ev 
-    947  0.49s  0.49s  0.00s 437.8M  2948K     0K     0K   0% switcheroo-con 
-1626683  0.93s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/5:3-ev 
-   3798  0.16s  0.73s  0.00s   1.0G  1908K     0K     0K   0% evolution-addr 
-1626879  0.86s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/7:1-ev 
-   3851  0.17s  0.66s  0.00s 857.8M  7120K     0K     0K   0% gsd-xsettings  
-1626519  0.82s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/6:2-ev 
-1413337  0.30s  0.50s  0.00s   4.6G  7316K     0K     0K   0% chrome         
-   3883  0.19s  0.61s  0.00s 438.2M  2912K     0K     0K   0% ibus-portal    
-   2732  0.56s  0.23s  0.00s 13112K   820K     0K     0K   0% wpa_supplicant 
- 616459  0.65s  0.12s  0.00s 227.9M  1872K     0K     0K   0% crond          
-   3307  0.17s  0.53s  0.00s 889.0M  3040K     0K     0K   0% gnome-session- 
-1626605  0.70s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/4:1-ev 
-1626983  0.68s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/4:2-ev 
-   1351  0.33s  0.33s  0.00s 28336K  2908K     0K     0K   0% systemd        
-1626556  0.64s  0.01s  0.00s     0K     0K     0K     0K   0% kworker/0:0-ev 
-1626962  0.65s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/0:1-ev 
-   3619  0.09s  0.55s  0.00s   3.0G  4088K     0K     0K   0% gjs            
-1627007  0.61s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/6:1-ev 
-1418043  0.59s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/u17:4- 
- 470169  0.23s  0.32s  0.00s 37388K  2468K     0K     0K   0% pmie           
-     20  0.44s  0.00s  0.00s     0K     0K     0K     0K   0% migration/2    
-     25  0.44s  0.00s  0.00s     0K     0K     0K     0K   0% migration/3    
-     40  0.44s  0.00s  0.00s     0K     0K     0K     0K   0% migration/6    
-1627028  0.43s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/1:1-ev 
-     30  0.43s  0.00s  0.00s     0K     0K     0K     0K   0% migration/4    
-     45  0.43s  0.00s  0.00s     0K     0K     0K     0K   0% migration/7    
-     15  0.41s  0.00s  0.00s     0K     0K     0K     0K   0% migration/1    
-     35  0.41s  0.00s  0.00s     0K     0K     0K     0K   0% migration/5    
-  19464  0.12s  0.28s  0.00s 233.9M  2080K     0K     0K   0% gconfd-2       
-   3667  0.07s  0.32s  0.00s 226.5M  2840K     0K     0K   0% gsd-disk-utili 
-   1040  0.27s  0.08s  0.00s 255.6M  2368K     0K     0K   0% cupsd          
-   3655  0.09s  0.25s  0.00s 462.6M  2840K     0K     0K   0% gsd-print-noti 
-    943  0.29s  0.05s  0.00s 11352K  1536K     0K     0K   0% smartd         
-   3659  0.06s  0.25s  0.00s 438.8M  2500K     0K     0K   0% gsd-screensave 
-   3666  0.05s  0.25s  0.00s 541.7M  5832K     0K     0K   0% gsd-wacom      
-   3647  0.04s  0.26s  0.00s 541.3M  5628K     0K     0K   0% gsd-keyboard   
-     12  0.30s  0.00s  0.00s     0K     0K     0K     0K   0% migration/0    
-   3865  0.06s  0.23s  0.00s 395.6M  3996K     0K     0K   0% ibus-x11       
-1627597  0.26s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/2:2-ev 
-   1352  0.09s  0.16s  0.00s 27828K  3724K     0K     0K   0% systemd        
- 252723  0.06s  0.17s  0.00s 306.7M  1184K     0K     0K   0% klauncher      
-1350754  0.10s  0.09s  0.00s 169.3M  5056K     0K     0K   0% RDD Process    
- 731293  0.07s  0.12s  0.00s 229.2M  2668K     0K     0K   0% bash           
-1627820  0.19s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/5:2-ev 
-   3642  0.03s  0.14s  0.00s 542.6M  3016K     0K     0K   0% gsd-datetime   
-   3665  0.04s  0.13s  0.00s 583.6M  2924K     0K     0K   0% gsd-usb-protec 
-1289718  0.09s  0.08s  0.00s 17932K  1696K     0K     0K   0% pmdaroot       
-   3637  0.03s  0.13s  0.00s 511.2M  2664K     0K     0K   0% gsd-a11y-setti 
-   3620  0.03s  0.13s  0.00s 157.3M  2608K     0K     0K   0% at-spi2-regist 
-1274149  0.02s  0.14s  0.00s 237.1M  2116K     0K     0K   0% vim            
-   3540  0.02s  0.13s  0.00s 152.7M  3264K     0K     0K   0% dconf-service  
-   3663  0.03s  0.12s  0.00s 519.5M  2552K     0K     0K   0% gsd-sound      
-   3657  0.03s  0.12s  0.00s 655.1M  2368K     0K     0K   0% gsd-rfkill     
-    909  0.03s  0.12s  0.00s 267.4M  2128K     0K     0K   0% dbus-broker-la 
-   3175  0.05s  0.07s  0.00s 547.8M  4376K     0K     0K   0% gdm-session-wo 
-1616567  0.11s  0.01s  0.00s 157.2M   168K     0K     0K   0% gpg-agent      
-1616554  0.09s  0.02s  0.00s 157.2M  1544K     0K     0K   0% gpg-agent      
-1616494  0.09s  0.02s  0.00s 157.2M   168K     0K     0K   0% gpg-agent      
- 110296  0.02s  0.08s  0.00s 479.9M  6412K     0K     0K   0% chrome         
-    977  0.04s  0.06s  0.00s  5140K  1676K     0K     0K   0% alsactl        
-1616421  0.09s  0.01s  0.00s 157.2M  1384K     0K     0K   0% gpg-agent      
-1616595  0.06s  0.04s  0.00s 157.2M   164K     0K     0K   0% gpg-agent      
- 110295  0.02s  0.07s  0.00s 479.9M  4448K     0K     0K   0% chrome         
-1289725  0.01s  0.08s  0.00s 251.6M  2320K     0K     0K   0% python3        
-1616452  0.07s  0.02s  0.00s 157.2M   164K     0K     0K   0% gpg-agent      
-1616468  0.07s  0.02s  0.00s 157.2M   164K     0K     0K   0% gpg-agent      
-1616612  0.07s  0.02s  0.00s 157.2M   164K     0K     0K   0% gpg-agent      
-   3711  0.00s  0.08s  0.00s 480.7M  2668K     0K     0K   0% abrt-applet    
-1616623  0.06s  0.02s  0.00s 157.2M  1476K     0K     0K   0% gpg-agent      
-1616483  0.07s  0.01s  0.00s 157.2M   168K     0K     0K   0% gpg-agent      
-1616579  0.07s  0.01s  0.00s 157.2M   168K     0K     0K   0% gpg-agent      
-1616637  0.07s  0.01s  0.00s 157.2M   168K     0K     0K   0% gpg-agent      
-1616505  0.07s  0.01s  0.00s 157.2M   164K     0K     0K   0% gpg-agent      
-1616525  0.07s  0.01s  0.00s 157.2M   164K     0K     0K   0% gpg-agent      
-1616540  0.07s  0.01s  0.00s 157.2M   164K     0K     0K   0% gpg-agent      
-1616654  0.06s  0.02s  0.00s 157.2M   164K     0K     0K   0% gpg-agent      
-    915  0.03s  0.04s  0.00s 379.4M  2332K     0K     0K   0% ModemManager   
-   1332  0.03s  0.04s  0.00s 457.2M  2308K     0K     0K   0% gdm            
-   3242  0.01s  0.05s  0.00s 441.3M  2740K     0K     0K   0% gvfsd          
-1625900  0.06s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/u16:3- 
-   7583  0.01s  0.04s  0.00s 228.9M  2076K     0K     0K   0% bash           
-1274093  0.01s  0.04s  0.00s 228.8M  1552K     0K     0K   0% bash           
-   3834  0.01s  0.03s  0.00s 544.5M  3308K     0K     0K   0% gsd-printer    
-1289723  0.02s  0.02s  0.00s 37264K  2200K     0K     0K   0% pmdasample     
-1289733  0.03s  0.01s  0.00s 17032K  1816K     0K     0K   0% pmdadm         
- 621140  0.01s  0.03s  0.00s 262.9M  1664K     0K     0K   0% gssproxy       
-   1329  0.04s  0.00s  0.00s 20944K  1528K     0K     0K   0% atd            
-   8072  0.01s  0.03s  0.00s 228.9M  1480K     0K     0K   0% bash           
-1625930  0.04s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/u16:6- 
- 645982  0.01s  0.02s  0.00s 585.6M  2788K     0K     0K   0% gvfsd-trash    
-   3218  0.01s  0.02s  0.00s 463.5M  2320K     0K     0K   0% gnome-session- 
- 252721  0.02s  0.01s  0.00s 301.6M  1980K     0K     0K   0% kdeinit4       
-1350705  0.00s  0.03s  0.00s 237.2M  1772K     0K     0K   0% vim            
-    917  0.01s  0.02s  0.00s  9164K  1728K     0K     0K   0% bluetoothd     
-1289729  0.02s  0.01s  0.00s 38456K  1712K     0K     0K   0% pmdaapache     
-   8287  0.00s  0.02s  0.00s 408.8M  4052K     0K     0K   0% slack          
- 897847  0.00s  0.02s  0.00s 586.1M  2908K     0K     0K   0% gvfsd-network  
-   8286  0.00s  0.02s  0.00s 408.8M  2868K     0K     0K   0% slack          
-   3586  0.01s  0.01s  0.00s 365.9M  2780K     0K     0K   0% gvfsd-metadata 
-   1068  0.01s  0.01s  0.00s 227.1M  2516K     0K     0K   0% uresourced     
-   3591  0.00s  0.02s  0.00s 439.9M  2156K     0K     0K   0% gvfs-gphoto2-v 
-   3479  0.01s  0.01s  0.00s  5248K  2032K     0K     0K   0% dbus-broker    
-   3596  0.01s  0.01s  0.00s 437.7M  1980K     0K     0K   0% gvfs-mtp-volum 
-  96728  0.00s  0.02s  0.00s  7144K   560K     0K     0K   0% ssh-agent      
-1626651  0.02s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/u16:1- 
-   3471  0.00s  0.01s  0.00s 300.9M  2828K     0K     0K   0% at-spi-bus-lau 
-3643329  0.00s  0.01s  0.00s 385.7M  2616K     0K     0K   0% gdm-session-wo 
-   3600  0.00s  0.01s  0.00s 438.2M  2216K     0K     0K   0% gvfs-goa-volum 
-1510798  0.01s  0.00s  0.00s  5128K  1976K     0K     0K   0% dbus-broker    
-1289738  0.00s  0.01s  0.00s 37168K  1768K     0K     0K   0% pmdasimple     
-1510797  0.01s  0.00s  0.00s 271.7M  1332K     0K     0K   0% dbus-broker-la 
-     49  0.01s  0.00s  0.00s     0K     0K     0K     0K   0% kdevtmpfs      
-1627029  0.01s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/u16:0- 
-   3247  0.00s  0.00s  0.00s 370.8M  2392K     0K     0K   0% gvfsd-fuse     
-   3213  0.00s  0.00s  0.00s 365.2M  2364K     0K     0K   0% gdm-wayland-se 
-   3303  0.00s  0.00s  0.00s 155.1M  2360K     0K     0K   0% uresourced     
-   6365  0.00s  0.00s  0.00s 388.3M  2352K     0K     0K   0% nm-openvpn-ser 
-3648357  0.00s  0.00s  0.00s 452.3M  2328K     0K     0K   0% gvfsd-http     
-   3861  0.00s  0.00s  0.00s 438.5M  2220K     0K     0K   0% ibus-dconf     
-   8289  0.00s  0.00s  0.00s 408.8M  2204K     0K     0K   0% slack          
-1099102  0.00s  0.00s  0.00s 29860K  1808K     0K     0K   0% sshd           
-   3215  0.00s  0.00s  0.00s 271.7M  1568K     0K     0K   0% dbus-broker-la 
-    933  0.00s  0.00s  0.00s  2600K  1500K     0K     0K   0% mcelog         
- 110297  0.00s  0.00s  0.00s 10576K  1492K     0K     0K   0% nacl_helper    
-   3477  0.00s  0.00s  0.00s 262.7M  1472K     0K     0K   0% dbus-broker-la 
-   3302  0.00s  0.00s  0.00s 296.1M  1316K     0K     0K   0% gnome-session- 
-   3518  0.00s  0.00s  0.00s 437.3M  1316K     0K     0K   0% xdg-permission 
-1510785  0.00s  0.00s  0.00s 48176K   288K     0K     0K   0% podman pause   
- 110291  0.00s  0.00s  0.00s 215.6M   196K     0K     0K   0% cat            
- 110292  0.00s  0.00s  0.00s 215.6M   196K     0K     0K   0% cat            
-   1356  0.00s  0.00s  0.00s 58840K   148K     0K     0K   0% (sd-pam        
-   1357  0.00s  0.00s  0.00s 58840K   148K     0K     0K   0% (sd-pam        
-   1706  0.00s  0.00s  0.00s 25236K    64K     0K     0K   0% dnsmasq        
-    955  0.00s  0.00s  0.00s  7136K    56K     0K     0K   0% avahi-daemon   
-   1658  0.00s  0.00s  0.00s 25236K    36K     0K     0K   0% dnsmasq        
-      3  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% rcu_gp         
-      4  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% rcu_par_gp     
-      6  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/0:0H-k 
-      9  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% mm_percpu_wq   
-     13  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% cpuhp/0        
-     14  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% cpuhp/1        
-     18  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/1:0H-k 
-     19  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% cpuhp/2        
-     23  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/2:0H-k 
-     24  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% cpuhp/3        
-     28  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/3:0H-k 
-     29  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% cpuhp/4        
-     33  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/4:0H-e 
-     34  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% cpuhp/5        
-     38  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/5:0H-e 
-     39  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% cpuhp/6        
-     43  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/6:0H-k 
-     44  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% cpuhp/7        
-     48  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/7:0H-k 
-     50  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% netns          
-     51  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% rcu_tasks_kthr 
-     52  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% rcu_tasks_rude 
-     53  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% rcu_tasks_trac 
-     55  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% oom_reaper     
-     56  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% writeback      
-     58  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% ksmd           
-     59  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% khugepaged     
-     78  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% cryptd         
-    126  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kintegrityd    
-    127  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kblockd        
-    128  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% blkcg_punt_bio 
-    129  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% tpm_dev_wq     
-    131  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% ata_sff        
-    132  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% md             
-    133  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% edac-poller    
-    134  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% devfreq_wq     
-    136  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% watchdogd      
-    137  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% pm_wq          
-    140  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kthrotld       
-    143  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% acpi_thermal_p 
-    144  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% scsi_eh_0      
-    145  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% scsi_tmf_0     
-    146  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% scsi_eh_1      
-    147  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% scsi_tmf_1     
-    148  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% scsi_eh_2      
-    149  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% scsi_tmf_2     
-    150  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% scsi_eh_3      
-    151  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% scsi_tmf_3     
-    152  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% scsi_eh_4      
-    153  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% scsi_tmf_4     
-    154  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% scsi_eh_5      
-    155  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% scsi_tmf_5     
-    162  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% dm_bufio_cache 
-    163  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% ipv6_addrconf  
-    169  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kstrp          
-    209  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% zswap-shrink   
-    415  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% sdhci          
-    416  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% irq/34-mmc0    
-    462  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% nvkm-disp      
-    470  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% ttm_swap       
-    507  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kdmflush       
-    514  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kdmflush       
-    533  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% ext4-rsv-conve 
-    716  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% ktpacpid       
-    727  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% irq/37-mei_me  
-    728  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% cfg80211       
-    735  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kdmflush       
-    750  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% irq/38-iwlwifi 
-    854  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% jbd2/sda1-8    
-    855  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% ext4-rsv-conve 
-    858  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% ext4-rsv-conve 
-    867  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% irq/41-rmi4_sm 
-    897  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% rpciod         
-    898  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% xprtiod        
-   3465  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% krfcommd       
-1624663  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/1:2-ev 
-1626071  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/6:0-ev 
-1626185  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/4:0-ev 
-1626682  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/5:0-ev 
-1626844  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/2:1-ev 
-1627632  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/2:3-ev 
-1627819  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/5:1    
-1627821  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/7:2-ev 
-1627853  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/u16:2- 
-1627863  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/u16:4  
-2274695  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% glock_workqueu 
-2274696  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% delete_workque 
-2274697  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% gfs_recovery   
-2509880  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% ib-comp-wq     
-2509881  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% ib-comp-unb-wq 
-2509882  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% ib_mcast       
-2509883  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% ib_nl_sa_wq    
-2509919  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% rdma_cm        
-2509941  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% srp_remove     
-2509946  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% target_complet 
-2509947  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% xcopy_wq       
-2509952  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% iscsi_eh       
-2509953  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% iscsi_destroy  
-2544149  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% xfsalloc       
-2544150  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% xfs_mru_cache  
+    PID SYSCPU USRCPU BDELAY  VGROW  RGROW  RDDSK  WRDSK  CPU CMD            
+ 110376  2h35m  8h47m  0.00s   4.7G  44.0M     0B     0B   4% chrome         
+ 110323  1h48m  3h19m  0.00s 695.6M  30.8M     0B     0B   2% chrome         
+   8385 16m13s  2h54m  0.00s   4.8G 158.1M     0B     0B   1% slack          
+   3337 30m32s  1h41m  0.00s   5.3G  93.0M     0B     0B   1% gnome-shell    
+1345181 15m41s 62m11s  0.00s   4.0G 283.6M     0B     0B   1% firefox        
+ 110285 26m27s 48m38s  0.00s   1.3G 157.6M     0B     0B   0% chrome         
+ 110365  8m48s 64m46s  0.00s   9.0G 212.7M     0B     0B   0% chrome         
+   3490 16m43s 16m12s  0.00s   1.9G  13.5M     0B     0B   0% Xwayland       
+ 110325  7m45s 23m40s  0.00s 606.3M  40.7M     0B     0B   0% chrome         
+1345391  5m08s 25m50s  0.00s   3.3G 324.1M     0B     0B   0% Web Content    
+   7468  2m44s 28m11s  0.00s 672.7M  17.9M     0B     0B   0% gnome-terminal 
+   8279  3m19s 25m14s  0.00s   4.8G  54.4M     0B     0B   0% slack          
+   3342 12m02s 10m19s  0.00s   2.4G   5.8M     0B     0B   0% pulseaudio     
+   3662 10m25s  8m20s  0.00s 594.6M   1.6M     0B     0B   0% gsd-smartcard  
+   8319  5m12s 11m53s  0.00s 567.5M  23.8M     0B     0B   0% slack          
+1348927  2m33s 13m03s  0.00s   2.8G  72.3M     0B     0B   0% Web Content    
+   8371  4m57s  8m52s  0.00s 507.2M  21.0M     0B     0B   0% slack          
+1039494  3m41s  6m53s  0.00s 804.2M  13.2M     0B     0B   0% inkscape       
+   6645  3m14s  6m59s  0.00s 510.1M  17.9M     0B     0B   0% hexchat        
+   1278  2m02s  8m01s  0.00s   1.7G  33.1M     0B     0B   0% grafana-server 
+1037121 35.12s  8m42s  0.00s   4.8G  83.8M     0B     0B   0% chrome         
+     11  7m50s  0.41s  0.00s     0B     0B     0B     0B   0% rcu_sched      
+    911  3m40s  3m32s  0.00s 268.7M   3.4M     0B     0B   0% dbus-broker    
+1345651  1m51s  5m10s  0.00s   2.8G  66.8M     0B     0B   0% Web Content    
+   1133  4m14s  2m37s  0.00s   1.6G   3.2M     0B     0B   0% mysqld         
+   2716  2m09s  4m38s  0.00s 538.5M   3.2M     0B     0B   0% geoclue        
+1140856 36.25s  6m07s  0.00s  13.5G   8.9G     0B     0B   0% pmproxy        
+1345585 94.83s  4m56s  0.00s   2.7G 118.1M     0B     0B   0% Web Content    
+1259492  2m55s  3m18s  0.00s 843.3M   2.8M     0B     0B   0% redis-server   
+1289719  3m24s  2m08s  0.00s  38.9M   3.7M     0B     0B   0% pmdaproc       
+   3845 62.23s  4m19s  0.00s 595.8M   5.2M     0B     0B   0% ibus-daemon    
+    875  2m01s  2m59s  0.00s  33.7M   3.3M     0B     0B   0% systemd-resolv 
+   2723 36.88s  3m54s  0.00s   1.7G 602.5M     0B     0B   0% packagekitd    
+   3075 50.20s  3m22s  0.00s 478.0M   2.8M     0B     0B   0% abrt-dbus      
+   1008 47.66s  3m01s  0.00s   3.1G   4.6M     0B     0B   0% polkitd        
+   1269  2m43s 53.21s  0.00s 820.1M   2.4M     0B     0B   0% pcscd          
+   3565 49.01s  2m30s  0.00s 517.5M   3.0M     0B     0B   0% goa-identity-s 
+1140638  7.68s  3m04s  0.00s  55.8M  16.0M   5.7M   4.0G   0% pmlogger       
+1289734 11.26s  2m49s  0.00s 477.3M  15.8M     0B     0B   0% python3        
+      1 54.12s  2m03s  0.00s 176.0M   7.5M     0B     0B   0% systemd        
+1289724 56.33s 99.40s  0.00s  25.7M   1.5M     0B     0B   0% pmdalinux      
+    953 36.09s  1m55s  0.00s 302.3M   1.9M     0B     0B   0% thermald       
+1037590 26.40s  1m56s  0.00s   4.7G  53.2M     0B     0B   0% chrome         
+    630 63.03s 73.32s  0.00s  96.6M   9.2M     0B     0B   0% systemd-journa 
+    916 55.88s 77.51s  0.00s   7.3M   1.9M     0B     0B   0% avahi-daemon   
+1037727  9.66s  1m57s  0.00s   4.7G  41.1M     0B     0B   0% chrome         
+    138  2m04s  0.00s  0.00s     0B     0B     0B     0B   0% kswapd0        
+   3551 30.12s 87.67s  0.00s 884.3M   3.5M     0B     0B   0% goa-daemon     
+1345453 43.58s 64.89s  0.00s   2.6G  16.6M     0B     0B   0% WebExtensions  
+   4006 22.29s 84.62s  0.00s 366.4M   2.1M     0B     0B   0% ibus-engine-si 
+   1001 41.36s 60.28s  0.00s 263.1M   5.1M     0B     0B   0% sssd_nss       
+   6380 67.70s 26.24s  0.00s  27.4M   2.4M     0B     0B   0% openvpn        
+1346056 24.65s 51.86s  0.00s   2.7G  41.0M     0B     0B   0% Web Content    
+ 110592 16.39s 59.81s  0.00s   8.7G  38.7M     0B     0B   0% chrome         
+1289731 50.51s 24.50s  0.00s  47.5M   1.7M     0B     0B   0% pmdaperfevent  
+1037677 20.10s 53.07s  0.00s   4.7G  33.9M     0B     0B   0% chrome         
+   3552  2.03s 62.42s  0.00s 396.1M   4.3M     0B     0B   0% udisksd        
+ 110459 13.90s 49.83s  0.00s   4.6G  21.6M     0B     0B   0% chrome         
+   3638 14.13s 46.72s  0.00s 636.0M   7.3M     0B     0B   0% gsd-color      
+1350890 18.57s 41.92s  0.00s   2.6G  32.4M     0B     0B   0% Web Content    
+    918 42.68s 13.16s  0.00s   2.4M   1.7M     0B     0B   0% earlyoom       
+   3216 25.10s 25.46s  0.00s   7.2M   3.6M     0B     0B   0% dbus-broker    
+    876 25.01s 23.09s  0.00s 107.4M   1.2M     0B     0B   0% auditd         
+    857 47.89s  0.00s  0.00s     0B     0B     0B     0B   0% jbd2/dm-2-8    
+1289713 20.24s 27.30s  0.00s 110.2M   3.1M     0B     0B   0% pmcd           
+   3862  7.93s 38.56s  0.00s 546.8M   5.7M     0B     0B   0% ibus-extension 
+2084940 13.41s 31.16s  0.00s 274.7M   1.0M     0B     0B   0% rsyslogd       
+ 110605  5.18s 36.29s  0.00s  12.8G  26.0M     0B     0B   0% chrome         
+   1003 21.70s 13.37s  0.00s  32.5M   3.3M     0B     0B   0% systemd-logind 
+   1030 12.76s 21.29s  0.00s 686.5M   5.2M     0B     0B   0% NetworkManager 
+ 897869 11.84s 21.42s  0.00s 515.6M   3.2M     0B     0B   0% gvfsd-dnssd    
+   3681  1.92s 29.54s  0.00s   1.3G 186.8M     0B     0B   0% gnome-software 
+   2700  7.04s 21.39s  0.00s 451.7M   3.6M     0B     0B   0% upowerd        
+    220 27.38s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/7:1H-k 
+    950 12.47s 14.90s  0.00s  20.0M   1.0M     0B     0B   0% systemd-machin 
+   2998  4.57s 20.38s  0.00s 526.8M   2.9M     0B     0B   0% colord         
+    532 24.94s  0.00s  0.00s     0B     0B     0B     0B   0% jbd2/dm-0-8    
+   3646  5.57s 19.22s  0.00s 512.3M   2.2M     0B     0B   0% gsd-housekeepi 
+ 110567  4.18s 19.72s  0.00s   4.7G  18.9M     0B     0B   0% chrome         
+     46 22.72s  0.00s  0.00s     0B     0B     0B     0B   0% ksoftirqd/7    
+    936  0.58s 20.52s  0.00s 309.3M   1.8M     0B     0B   0% rngd           
+    878  6.07s 12.71s  0.00s   7.9M   2.1M     0B     0B   0% sedispatch     
+1288219  1.47s 14.01s  0.00s   4.8G  63.2M     0B     0B   0% chrome         
+ 110643  2.66s  7.34s  0.00s   4.6G  18.2M     0B     0B   0% chrome         
+    461  9.80s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/4:1H-k 
+1038305  1.83s  7.65s  0.00s   4.8G  32.5M     0B     0B   0% chrome         
+    592  9.31s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/2:1H-k 
+    616  8.94s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/0:1H-k 
+ 110580  3.30s  5.58s  0.00s 754.2M   1.5M     0B     0B   0% chrome         
+    219  8.83s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/6:1H-k 
+3779703  1.61s  6.59s  0.00s   4.7G  33.4M     0B     0B   0% chrome         
+     54  8.04s  0.00s  0.00s     0B     0B     0B     0B   0% kauditd        
+ 110363  2.73s  5.07s  0.00s   4.6G  13.2M     0B     0B   0% chrome         
+1289730  4.56s  3.22s  0.00s  16.2M   1.4M     0B     0B   0% pmdakvm        
+   3547  1.77s  5.39s  0.00s 528.5M   3.4M     0B     0B   0% gvfs-udisks2-v 
+   3604  4.03s  3.04s  0.00s 514.4M   2.6M     0B     0B   0% gvfs-afc-volum 
+     21  6.81s  0.11s  0.00s     0B     0B     0B     0B   0% ksoftirqd/2    
+     10  6.84s  0.06s  0.00s     0B     0B     0B     0B   0% ksoftirqd/0    
+     31  6.46s  0.39s  0.00s     0B     0B     0B     0B   0% ksoftirqd/4    
+ 110300  6.31s  0.53s  0.00s 479.9M   5.2M     0B     0B   0% chrome         
+    594  6.81s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/3:1H-k 
+     41  6.56s  0.00s  0.00s     0B     0B     0B     0B   0% ksoftirqd/6    
+ 110464  2.48s  4.04s  0.00s   4.6G  11.9M     0B     0B   0% chrome         
+     26  6.01s  0.00s  0.00s     0B     0B     0B     0B   0% ksoftirqd/3    
+1618117  0.86s  5.13s  0.00s   4.7G  75.4M     0B     0B   0% chrome         
+   3651  1.06s  4.93s  0.00s 551.2M   6.1M     0B     0B   0% gsd-power      
+    942  3.87s  2.12s  0.00s 150.1M   1.5M     0B     0B   0% rtkit-daemon   
+   3616  0.92s  4.43s  0.00s   1.4G   5.7M     0B     0B   0% evolution-cale 
+   1000  1.75s  3.40s  0.00s 239.8M   2.3M     0B     0B   0% sssd_be        
+    519  4.89s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/5:1H-k 
+1037691  1.05s  3.64s  0.00s   4.6G  15.8M     0B     0B   0% chrome         
+    591  4.57s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/1:1H-k 
+   1002  2.18s  2.04s  0.00s 530.6M   3.4M     0B     0B   0% accounts-daemo 
+   3660  0.44s  3.73s  0.00s 663.1M   3.5M     0B     0B   0% gsd-sharing    
+   7473  1.11s  2.98s  0.00s 230.6M   3.0M     0B     0B   0% bash           
+     16  3.68s  0.08s  0.00s     0B     0B     0B     0B   0% ksoftirqd/1    
+1289721  1.88s  1.70s  0.00s  16.1M   1.8M     0B     0B   0% pmdaxfs        
+     36  3.46s  0.11s  0.00s     0B     0B     0B     0B   0% ksoftirqd/5    
+1618104  0.62s  2.62s  0.00s   4.6G  53.0M     0B     0B   0% chrome         
+   7528  1.34s  1.89s  0.00s 230.0M   2.7M     0B     0B   0% bash           
+1345513  1.16s  1.91s  0.00s   2.6G   8.1M     0B     0B   0% Privileged Con 
+1037704  0.86s  2.01s  0.00s   4.6G  13.1M     0B     0B   0% chrome         
+1037572  1.02s  1.85s  0.00s   4.6G  11.1M     0B     0B   0% chrome         
+1037442  1.14s  1.63s  0.00s   4.6G  11.6M     0B     0B   0% chrome         
+1037505  1.04s  1.72s  0.00s   4.6G  12.9M     0B     0B   0% chrome         
+1037663  0.81s  1.93s  0.00s   4.6G  12.1M     0B     0B   0% chrome         
+1037490  0.98s  1.71s  0.00s   4.6G  10.0M     0B     0B   0% chrome         
+1037755  0.95s  1.65s  0.00s   4.6G  12.3M     0B     0B   0% chrome         
+1625212  2.52s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/3:2-ev 
+ 106250  1.08s  1.43s  0.00s 230.0M   1.4M     0B     0B   0% bash           
+1322168  0.65s  1.77s  0.00s   4.6G  12.7M     0B     0B   0% chrome         
+   3530  0.46s  1.86s  0.00s   1.3G   3.9M     0B     0B   0% evolution-sour 
+   3675  0.42s  1.74s  0.00s 995.7M   4.3M     0B     0B   0% evolution-alar 
+1625471  2.11s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/1:0-ev 
+   1202  1.08s  1.00s  0.00s 348.7M   1.4M     0B     0B   0% abrt-dump-jour 
+   3648  0.34s  1.72s  0.00s   1.4G   6.6M     0B     0B   0% gsd-media-keys 
+   1201  1.17s  0.89s  0.00s 360.3M   2.6M     0B     0B   0% abrt-dump-jour 
+ 252726  0.60s  1.43s  0.00s 342.0M   2.6M     0B     0B   0% kded4          
+1289722  0.42s  1.61s  0.00s 259.2M   1.0M     0B     0B   0% pmdaredis      
+    946  0.62s  1.24s  0.00s 237.2M   2.4M     0B     0B   0% sssd           
+   1203  1.00s  0.85s  0.00s 351.2M 612.0K     0B     0B   0% abrt-dump-jour 
+   1705  1.29s  0.49s  0.00s  24.7M 764.0K     0B     0B   0% dnsmasq        
+     57  1.78s  0.00s  0.00s     0B     0B     0B     0B   0% kcompactd0     
+1143015  0.45s  1.31s  0.00s 230.9M   2.5M     0B     0B   0% bash           
+    658  1.22s  0.50s  0.00s  53.1M   3.2M     0B     0B   0% systemd-udevd  
+   1657  1.27s  0.45s  0.00s  24.7M 832.0K     0B     0B   0% dnsmasq        
+   3524  0.31s  1.33s  0.00s 908.7M   2.4M     0B     0B   0% gnome-shell-ca 
+1417259  1.61s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u17:3- 
+1625935  1.57s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/7:0-ev 
+    993  0.55s  0.99s  0.00s 462.1M   3.7M     0B     0B   0% abrtd          
+      2  1.47s  0.00s  0.00s     0B     0B     0B     0B   0% kthreadd       
+   3201  0.33s  1.03s  0.00s 729.7M   2.8M     0B     0B   0% gnome-keyring- 
+1626406  1.27s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/2:0-ev 
+ 854167  0.18s  0.86s  0.00s 301.3M   6.1M     0B     0B   0% python3        
+    989  0.73s  0.30s  0.00s  82.9M   1.4M     0B     0B   0% chronyd        
+    919  0.31s  0.69s  0.00s 347.3M   5.0M     0B     0B   0% firewalld      
+1626796  1.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/3:1-ev 
+    947  0.49s  0.49s  0.00s 437.8M   2.9M     0B     0B   0% switcheroo-con 
+1626683  0.93s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/5:3-ev 
+   3798  0.16s  0.73s  0.00s   1.0G   1.9M     0B     0B   0% evolution-addr 
+1626879  0.86s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/7:1-ev 
+   3851  0.17s  0.66s  0.00s 857.8M   7.0M     0B     0B   0% gsd-xsettings  
+1626519  0.82s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/6:2-ev 
+1413337  0.30s  0.50s  0.00s   4.6G   7.1M     0B     0B   0% chrome         
+   3883  0.19s  0.61s  0.00s 438.2M   2.8M     0B     0B   0% ibus-portal    
+   2732  0.56s  0.23s  0.00s  12.8M 820.0K     0B     0B   0% wpa_supplicant 
+ 616459  0.65s  0.12s  0.00s 227.9M   1.8M     0B     0B   0% crond          
+   3307  0.17s  0.53s  0.00s 889.0M   3.0M     0B     0B   0% gnome-session- 
+1626605  0.70s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/4:1-ev 
+1626983  0.68s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/4:2-ev 
+   1351  0.33s  0.33s  0.00s  27.7M   2.8M     0B     0B   0% systemd        
+1626556  0.64s  0.01s  0.00s     0B     0B     0B     0B   0% kworker/0:0-ev 
+1626962  0.65s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/0:1-ev 
+   3619  0.09s  0.55s  0.00s   3.0G   4.0M     0B     0B   0% gjs            
+1627007  0.61s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/6:1-ev 
+1418043  0.59s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u17:4- 
+ 470169  0.23s  0.32s  0.00s  36.5M   2.4M     0B     0B   0% pmie           
+     20  0.44s  0.00s  0.00s     0B     0B     0B     0B   0% migration/2    
+     25  0.44s  0.00s  0.00s     0B     0B     0B     0B   0% migration/3    
+     40  0.44s  0.00s  0.00s     0B     0B     0B     0B   0% migration/6    
+1627028  0.43s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/1:1-ev 
+     30  0.43s  0.00s  0.00s     0B     0B     0B     0B   0% migration/4    
+     45  0.43s  0.00s  0.00s     0B     0B     0B     0B   0% migration/7    
+     15  0.41s  0.00s  0.00s     0B     0B     0B     0B   0% migration/1    
+     35  0.41s  0.00s  0.00s     0B     0B     0B     0B   0% migration/5    
+  19464  0.12s  0.28s  0.00s 233.9M   2.0M     0B     0B   0% gconfd-2       
+   3667  0.07s  0.32s  0.00s 226.5M   2.8M     0B     0B   0% gsd-disk-utili 
+   1040  0.27s  0.08s  0.00s 255.6M   2.3M     0B     0B   0% cupsd          
+   3655  0.09s  0.25s  0.00s 462.6M   2.8M     0B     0B   0% gsd-print-noti 
+    943  0.29s  0.05s  0.00s  11.1M   1.5M     0B     0B   0% smartd         
+   3659  0.06s  0.25s  0.00s 438.8M   2.4M     0B     0B   0% gsd-screensave 
+   3666  0.05s  0.25s  0.00s 541.7M   5.7M     0B     0B   0% gsd-wacom      
+   3647  0.04s  0.26s  0.00s 541.3M   5.5M     0B     0B   0% gsd-keyboard   
+     12  0.30s  0.00s  0.00s     0B     0B     0B     0B   0% migration/0    
+   3865  0.06s  0.23s  0.00s 395.6M   3.9M     0B     0B   0% ibus-x11       
+1627597  0.26s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/2:2-ev 
+   1352  0.09s  0.16s  0.00s  27.2M   3.6M     0B     0B   0% systemd        
+ 252723  0.06s  0.17s  0.00s 306.7M   1.2M     0B     0B   0% klauncher      
+1350754  0.10s  0.09s  0.00s 169.3M   4.9M     0B     0B   0% RDD Process    
+ 731293  0.07s  0.12s  0.00s 229.2M   2.6M     0B     0B   0% bash           
+1627820  0.19s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/5:2-ev 
+   3642  0.03s  0.14s  0.00s 542.6M   2.9M     0B     0B   0% gsd-datetime   
+   3665  0.04s  0.13s  0.00s 583.6M   2.9M     0B     0B   0% gsd-usb-protec 
+1289718  0.09s  0.08s  0.00s  17.5M   1.7M     0B     0B   0% pmdaroot       
+   3637  0.03s  0.13s  0.00s 511.2M   2.6M     0B     0B   0% gsd-a11y-setti 
+   3620  0.03s  0.13s  0.00s 157.3M   2.5M     0B     0B   0% at-spi2-regist 
+1274149  0.02s  0.14s  0.00s 237.1M   2.1M     0B     0B   0% vim            
+   3540  0.02s  0.13s  0.00s 152.7M   3.2M     0B     0B   0% dconf-service  
+   3663  0.03s  0.12s  0.00s 519.5M   2.5M     0B     0B   0% gsd-sound      
+   3657  0.03s  0.12s  0.00s 655.1M   2.3M     0B     0B   0% gsd-rfkill     
+    909  0.03s  0.12s  0.00s 267.4M   2.1M     0B     0B   0% dbus-broker-la 
+   3175  0.05s  0.07s  0.00s 547.8M   4.3M     0B     0B   0% gdm-session-wo 
+1616567  0.11s  0.01s  0.00s 157.2M 168.0K     0B     0B   0% gpg-agent      
+1616554  0.09s  0.02s  0.00s 157.2M   1.5M     0B     0B   0% gpg-agent      
+1616494  0.09s  0.02s  0.00s 157.2M 168.0K     0B     0B   0% gpg-agent      
+ 110296  0.02s  0.08s  0.00s 479.9M   6.3M     0B     0B   0% chrome         
+    977  0.04s  0.06s  0.00s   5.0M   1.6M     0B     0B   0% alsactl        
+1616421  0.09s  0.01s  0.00s 157.2M   1.4M     0B     0B   0% gpg-agent      
+1616595  0.06s  0.04s  0.00s 157.2M 164.0K     0B     0B   0% gpg-agent      
+ 110295  0.02s  0.07s  0.00s 479.9M   4.3M     0B     0B   0% chrome         
+1289725  0.01s  0.08s  0.00s 251.6M   2.3M     0B     0B   0% python3        
+1616452  0.07s  0.02s  0.00s 157.2M 164.0K     0B     0B   0% gpg-agent      
+1616468  0.07s  0.02s  0.00s 157.2M 164.0K     0B     0B   0% gpg-agent      
+1616612  0.07s  0.02s  0.00s 157.2M 164.0K     0B     0B   0% gpg-agent      
+   3711  0.00s  0.08s  0.00s 480.7M   2.6M     0B     0B   0% abrt-applet    
+1616623  0.06s  0.02s  0.00s 157.2M   1.4M     0B     0B   0% gpg-agent      
+1616483  0.07s  0.01s  0.00s 157.2M 168.0K     0B     0B   0% gpg-agent      
+1616579  0.07s  0.01s  0.00s 157.2M 168.0K     0B     0B   0% gpg-agent      
+1616637  0.07s  0.01s  0.00s 157.2M 168.0K     0B     0B   0% gpg-agent      
+1616505  0.07s  0.01s  0.00s 157.2M 164.0K     0B     0B   0% gpg-agent      
+1616525  0.07s  0.01s  0.00s 157.2M 164.0K     0B     0B   0% gpg-agent      
+1616540  0.07s  0.01s  0.00s 157.2M 164.0K     0B     0B   0% gpg-agent      
+1616654  0.06s  0.02s  0.00s 157.2M 164.0K     0B     0B   0% gpg-agent      
+    915  0.03s  0.04s  0.00s 379.4M   2.3M     0B     0B   0% ModemManager   
+   1332  0.03s  0.04s  0.00s 457.2M   2.3M     0B     0B   0% gdm            
+   3242  0.01s  0.05s  0.00s 441.3M   2.7M     0B     0B   0% gvfsd          
+1625900  0.06s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u16:3- 
+   7583  0.01s  0.04s  0.00s 228.9M   2.0M     0B     0B   0% bash           
+1274093  0.01s  0.04s  0.00s 228.8M   1.5M     0B     0B   0% bash           
+   3834  0.01s  0.03s  0.00s 544.5M   3.2M     0B     0B   0% gsd-printer    
+1289723  0.02s  0.02s  0.00s  36.4M   2.1M     0B     0B   0% pmdasample     
+1289733  0.03s  0.01s  0.00s  16.6M   1.8M     0B     0B   0% pmdadm         
+ 621140  0.01s  0.03s  0.00s 262.9M   1.6M     0B     0B   0% gssproxy       
+   1329  0.04s  0.00s  0.00s  20.5M   1.5M     0B     0B   0% atd            
+   8072  0.01s  0.03s  0.00s 228.9M   1.4M     0B     0B   0% bash           
+1625930  0.04s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u16:6- 
+ 645982  0.01s  0.02s  0.00s 585.6M   2.7M     0B     0B   0% gvfsd-trash    
+   3218  0.01s  0.02s  0.00s 463.5M   2.3M     0B     0B   0% gnome-session- 
+ 252721  0.02s  0.01s  0.00s 301.6M   1.9M     0B     0B   0% kdeinit4       
+1350705  0.00s  0.03s  0.00s 237.2M   1.7M     0B     0B   0% vim            
+    917  0.01s  0.02s  0.00s   8.9M   1.7M     0B     0B   0% bluetoothd     
+1289729  0.02s  0.01s  0.00s  37.6M   1.7M     0B     0B   0% pmdaapache     
+   8287  0.00s  0.02s  0.00s 408.8M   4.0M     0B     0B   0% slack          
+ 897847  0.00s  0.02s  0.00s 586.1M   2.8M     0B     0B   0% gvfsd-network  
+   8286  0.00s  0.02s  0.00s 408.8M   2.8M     0B     0B   0% slack          
+   3586  0.01s  0.01s  0.00s 365.9M   2.7M     0B     0B   0% gvfsd-metadata 
+   1068  0.01s  0.01s  0.00s 227.1M   2.5M     0B     0B   0% uresourced     
+   3591  0.00s  0.02s  0.00s 439.9M   2.1M     0B     0B   0% gvfs-gphoto2-v 
+   3479  0.01s  0.01s  0.00s   5.1M   2.0M     0B     0B   0% dbus-broker    
+   3596  0.01s  0.01s  0.00s 437.7M   1.9M     0B     0B   0% gvfs-mtp-volum 
+  96728  0.00s  0.02s  0.00s   7.0M 560.0K     0B     0B   0% ssh-agent      
+1626651  0.02s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u16:1- 
+   3471  0.00s  0.01s  0.00s 300.9M   2.8M     0B     0B   0% at-spi-bus-lau 
+3643329  0.00s  0.01s  0.00s 385.7M   2.6M     0B     0B   0% gdm-session-wo 
+   3600  0.00s  0.01s  0.00s 438.2M   2.2M     0B     0B   0% gvfs-goa-volum 
+1510798  0.01s  0.00s  0.00s   5.0M   1.9M     0B     0B   0% dbus-broker    
+1289738  0.00s  0.01s  0.00s  36.3M   1.7M     0B     0B   0% pmdasimple     
+1510797  0.01s  0.00s  0.00s 271.7M   1.3M     0B     0B   0% dbus-broker-la 
+     49  0.01s  0.00s  0.00s     0B     0B     0B     0B   0% kdevtmpfs      
+1627029  0.01s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u16:0- 
+   3247  0.00s  0.00s  0.00s 370.8M   2.3M     0B     0B   0% gvfsd-fuse     
+   3213  0.00s  0.00s  0.00s 365.2M   2.3M     0B     0B   0% gdm-wayland-se 
+   3303  0.00s  0.00s  0.00s 155.1M   2.3M     0B     0B   0% uresourced     
+   6365  0.00s  0.00s  0.00s 388.3M   2.3M     0B     0B   0% nm-openvpn-ser 
+3648357  0.00s  0.00s  0.00s 452.3M   2.3M     0B     0B   0% gvfsd-http     
+   3861  0.00s  0.00s  0.00s 438.5M   2.2M     0B     0B   0% ibus-dconf     
+   8289  0.00s  0.00s  0.00s 408.8M   2.2M     0B     0B   0% slack          
+1099102  0.00s  0.00s  0.00s  29.2M   1.8M     0B     0B   0% sshd           
+   3215  0.00s  0.00s  0.00s 271.7M   1.5M     0B     0B   0% dbus-broker-la 
+    933  0.00s  0.00s  0.00s   2.5M   1.5M     0B     0B   0% mcelog         
+ 110297  0.00s  0.00s  0.00s  10.3M   1.5M     0B     0B   0% nacl_helper    
+   3477  0.00s  0.00s  0.00s 262.7M   1.4M     0B     0B   0% dbus-broker-la 
+   3302  0.00s  0.00s  0.00s 296.1M   1.3M     0B     0B   0% gnome-session- 
+   3518  0.00s  0.00s  0.00s 437.3M   1.3M     0B     0B   0% xdg-permission 
+1510785  0.00s  0.00s  0.00s  47.0M 288.0K     0B     0B   0% podman pause   
+ 110291  0.00s  0.00s  0.00s 215.6M 196.0K     0B     0B   0% cat            
+ 110292  0.00s  0.00s  0.00s 215.6M 196.0K     0B     0B   0% cat            
+   1356  0.00s  0.00s  0.00s  57.5M 148.0K     0B     0B   0% (sd-pam        
+   1357  0.00s  0.00s  0.00s  57.5M 148.0K     0B     0B   0% (sd-pam        
+   1706  0.00s  0.00s  0.00s  24.6M  64.0K     0B     0B   0% dnsmasq        
+    955  0.00s  0.00s  0.00s   7.0M  56.0K     0B     0B   0% avahi-daemon   
+   1658  0.00s  0.00s  0.00s  24.6M  36.0K     0B     0B   0% dnsmasq        
+      3  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% rcu_gp         
+      4  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% rcu_par_gp     
+      6  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/0:0H-k 
+      9  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% mm_percpu_wq   
+     13  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% cpuhp/0        
+     14  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% cpuhp/1        
+     18  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/1:0H-k 
+     19  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% cpuhp/2        
+     23  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/2:0H-k 
+     24  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% cpuhp/3        
+     28  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/3:0H-k 
+     29  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% cpuhp/4        
+     33  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/4:0H-e 
+     34  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% cpuhp/5        
+     38  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/5:0H-e 
+     39  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% cpuhp/6        
+     43  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/6:0H-k 
+     44  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% cpuhp/7        
+     48  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/7:0H-k 
+     50  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% netns          
+     51  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% rcu_tasks_kthr 
+     52  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% rcu_tasks_rude 
+     53  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% rcu_tasks_trac 
+     55  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% oom_reaper     
+     56  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% writeback      
+     58  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% ksmd           
+     59  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% khugepaged     
+     78  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% cryptd         
+    126  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kintegrityd    
+    127  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kblockd        
+    128  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% blkcg_punt_bio 
+    129  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% tpm_dev_wq     
+    131  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% ata_sff        
+    132  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% md             
+    133  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% edac-poller    
+    134  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% devfreq_wq     
+    136  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% watchdogd      
+    137  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% pm_wq          
+    140  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kthrotld       
+    143  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% acpi_thermal_p 
+    144  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% scsi_eh_0      
+    145  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% scsi_tmf_0     
+    146  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% scsi_eh_1      
+    147  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% scsi_tmf_1     
+    148  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% scsi_eh_2      
+    149  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% scsi_tmf_2     
+    150  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% scsi_eh_3      
+    151  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% scsi_tmf_3     
+    152  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% scsi_eh_4      
+    153  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% scsi_tmf_4     
+    154  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% scsi_eh_5      
+    155  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% scsi_tmf_5     
+    162  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% dm_bufio_cache 
+    163  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% ipv6_addrconf  
+    169  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kstrp          
+    209  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% zswap-shrink   
+    415  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% sdhci          
+    416  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% irq/34-mmc0    
+    462  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% nvkm-disp      
+    470  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% ttm_swap       
+    507  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kdmflush       
+    514  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kdmflush       
+    533  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% ext4-rsv-conve 
+    716  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% ktpacpid       
+    727  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% irq/37-mei_me  
+    728  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% cfg80211       
+    735  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kdmflush       
+    750  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% irq/38-iwlwifi 
+    854  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% jbd2/sda1-8    
+    855  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% ext4-rsv-conve 
+    858  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% ext4-rsv-conve 
+    867  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% irq/41-rmi4_sm 
+    897  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% rpciod         
+    898  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% xprtiod        
+   3465  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% krfcommd       
+1624663  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/1:2-ev 
+1626071  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/6:0-ev 
+1626185  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/4:0-ev 
+1626682  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/5:0-ev 
+1626844  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/2:1-ev 
+1627632  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/2:3-ev 
+1627819  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/5:1    
+1627821  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/7:2-ev 
+1627853  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u16:2- 
+1627863  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/u16:4  
+2274695  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% glock_workqueu 
+2274696  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% delete_workque 
+2274697  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% gfs_recovery   
+2509880  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% ib-comp-wq     
+2509881  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% ib-comp-unb-wq 
+2509882  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% ib_mcast       
+2509883  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% ib_nl_sa_wq    
+2509919  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% rdma_cm        
+2509941  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% srp_remove     
+2509946  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% target_complet 
+2509947  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% xcopy_wq       
+2509952  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% iscsi_eh       
+2509953  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% iscsi_destroy  
+2544149  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% xfsalloc       
+2544150  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% xfs_mru_cache  
 
 
 ATOP -         2020/11/09  09:00:24        -----------------         10s elapsed
@@ -432,10 +433,11 @@ cpu | sys       0% | user      1% | irq       6% | idle     92% | cpu007 w  0% |
 cpu | sys       0% | user      1% | irq       6% | idle     93% | cpu005 w  0% |
 cpu | sys       0% | user      0% | irq       6% | idle     93% | cpu001 w  0% |
 cpu | sys       0% | user      0% | irq       6% | idle     94% | cpu003 w  0% |
-CPL | avg1    0.19 | avg5    0.23 | avg15   0.15 | csw    60604 | intr  182964 |
+CPL | numcpu     8 | avg1    0.19 | avg5    0.23 | csw    60604 | intr  182964 |
 MEM | tot    15.3G | free  282.3M | cache 721.7M | buff   48.1M | slab  624.4M |
+MEM | numnode    1 | shmem 237.7M | shrss   4.0G | tcpsk   0.1M | zfarc   0.0M |
 SWP | tot    11.7G | free    3.3G | swcac  34.9M | vmcom  31.6G | vmlim  19.1G |
-PAG | scan       0 | steal      0 | swin       7 | swout      0 | oomkill    0 |
+PAG | migrate    0 | pgin    4288 | pgout    350 | swout      0 | oomkill    0 |
 LVM | a_shard-root | busy      0% | read       0 | write     13 | avio  0.0 ns |
 LVM | a_shard-swap | busy      0% | read       5 | write      0 | avio  0.0 ns |
 LVM | a_shard-home | busy      0% | read      91 | write     70 | avio  0.0 ns |
@@ -446,82 +448,82 @@ NET | enp0s25 ---- | pcki      66 | pcko      78 | si   28 Kbps | so    8 Kbps |
 NET | tun0    ---- | pcki      15 | pcko      13 | si   14 Kbps | so    0 Kbps |
 NET | lo      ---- | pcki       3 | pcko       3 | si    2 Kbps | so    2 Kbps |
 
-    PID SYSCPU USRCPU RDELAY  VGROW  RGROW  RDDSK  WRDSK  CPU CMD            
- 110376  0.11s  0.40s  0.00s     0K     0K     0K     0K   5% chrome         
-1345181  0.03s  0.30s  0.00s     0K     0K     0K     0K   3% firefox        
- 110323  0.08s  0.15s  0.00s     0K     0K     0K     0K   2% chrome         
-   8385  0.00s  0.05s  0.00s     0K     0K     0K     0K   1% slack          
- 110365  0.00s  0.04s  0.00s     0K     0K     0K     0K   0% chrome         
- 110285  0.01s  0.02s  0.00s     0K     0K     0K     0K   0% chrome         
-1348927  0.00s  0.03s  0.00s     0K     0K     0K     0K   0% Web Content    
-1345391  0.00s  0.03s  0.00s     0K     0K     0K     0K   0% Web Content    
-1345651  0.00s  0.01s  0.00s     0K     0K     0K     0K   0% Web Content    
- 110325  0.00s  0.01s  0.00s     0K     0K     0K     0K   0% chrome         
-1626796  0.02s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/3:1-ev 
-1626879  0.02s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/7:1-ev 
-1626962  0.02s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/0:1-ev 
-1626983  0.02s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/4:2-ev 
-1627007  0.02s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/6:1-ev 
-1627597  0.02s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/2:2-ev 
-1627820  0.02s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/5:2-ev 
-1289719  0.01s  0.00s  0.00s     0K     0K     0K     0K   0% pmdaproc       
-1259492  0.00s  0.01s  0.00s     0K     0K     0K     0K   0% redis-server   
-1627028  0.01s  0.00s  0.00s     0K     0K     0K     0K   0% kworker/1:1-ev 
-1039494  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% inkscape       
-   3662  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% gsd-smartcard  
-1140856  0.00s  0.01s  0.00s     0K     0K     0K     0K   0% pmproxy        
-1345585  0.00s  0.01s  0.00s     0K     0K     0K     0K   0% Web Content    
-1618117  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% chrome         
-   3490  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% Xwayland       
-1618104  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% chrome         
-   8371  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% slack          
-   1008  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% polkitd        
-   3551  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% goa-daemon     
-   1133  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% mysqld         
-   3337  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% gnome-shell    
-1037121  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% chrome         
-1140638  0.00s  0.00s  0.00s     0K     0K     0K   140K   0% pmlogger       
-1289734  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% python3        
-   3565  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% goa-identity-s 
-1288219  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% chrome         
-   8279  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% slack          
-1037590  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% chrome         
-1037727  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% chrome         
- 110592  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% chrome         
-1037677  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% chrome         
-   1278  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% grafana-server 
- 110605  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% chrome         
-   8319  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% slack          
- 110643  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% chrome         
-   6645  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% hexchat        
-   7468  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% gnome-terminal 
-1345453  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% WebExtensions  
-    911  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% dbus-broker    
-    875  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% systemd-resolv 
-   2716  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% geoclue        
-1289713  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% pmcd           
-   3075  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% abrt-dbus      
-   6380  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% openvpn        
-    918  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% earlyoom       
-1289724  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% pmdalinux      
-2084940  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% rsyslogd       
-     11  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% rcu_sched      
-     36  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% ksoftirqd/5    
-1346056  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% Web Content    
-1038305  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% chrome         
-1350890  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% Web Content    
- 110459  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% chrome         
- 110567  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% chrome         
-    630  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% systemd-journa 
-      1  0.00s  0.00s  0.00s     0K     0K     0K     0K   0% systemd        
+    PID SYSCPU USRCPU BDELAY  VGROW  RGROW  RDDSK  WRDSK  CPU CMD            
+ 110376  0.11s  0.40s  0.00s     0B     0B     0B     0B   5% chrome         
+1345181  0.03s  0.30s  0.00s     0B     0B     0B     0B   3% firefox        
+ 110323  0.08s  0.15s  0.00s     0B     0B     0B     0B   2% chrome         
+   8385  0.00s  0.05s  0.00s     0B     0B     0B     0B   1% slack          
+ 110365  0.00s  0.04s  0.00s     0B     0B     0B     0B   0% chrome         
+ 110285  0.01s  0.02s  0.00s     0B     0B     0B     0B   0% chrome         
+1348927  0.00s  0.03s  0.00s     0B     0B     0B     0B   0% Web Content    
+1345391  0.00s  0.03s  0.00s     0B     0B     0B     0B   0% Web Content    
+1345651  0.00s  0.01s  0.00s     0B     0B     0B     0B   0% Web Content    
+ 110325  0.00s  0.01s  0.00s     0B     0B     0B     0B   0% chrome         
+1626796  0.02s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/3:1-ev 
+1626879  0.02s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/7:1-ev 
+1626962  0.02s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/0:1-ev 
+1626983  0.02s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/4:2-ev 
+1627007  0.02s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/6:1-ev 
+1627597  0.02s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/2:2-ev 
+1627820  0.02s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/5:2-ev 
+1289719  0.01s  0.00s  0.00s     0B     0B     0B     0B   0% pmdaproc       
+1259492  0.00s  0.01s  0.00s     0B     0B     0B     0B   0% redis-server   
+1627028  0.01s  0.00s  0.00s     0B     0B     0B     0B   0% kworker/1:1-ev 
+1039494  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% inkscape       
+   3662  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% gsd-smartcard  
+1140856  0.00s  0.01s  0.00s     0B     0B     0B     0B   0% pmproxy        
+1345585  0.00s  0.01s  0.00s     0B     0B     0B     0B   0% Web Content    
+1618117  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+   3490  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Xwayland       
+1618104  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+   8371  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% slack          
+   1008  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% polkitd        
+   3551  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% goa-daemon     
+   1133  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% mysqld         
+   3337  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% gnome-shell    
+1037121  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+1140638  0.00s  0.00s  0.00s     0B     0B     0B 140.0K   0% pmlogger       
+1289734  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% python3        
+   3565  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% goa-identity-s 
+1288219  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+   8279  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% slack          
+1037590  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+1037727  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+ 110592  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+1037677  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+   1278  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% grafana-server 
+ 110605  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+   8319  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% slack          
+ 110643  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+   6645  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% hexchat        
+   7468  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% gnome-terminal 
+1345453  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% WebExtensions  
+    911  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% dbus-broker    
+    875  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% systemd-resolv 
+   2716  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% geoclue        
+1289713  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% pmcd           
+   3075  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% abrt-dbus      
+   6380  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% openvpn        
+    918  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% earlyoom       
+1289724  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% pmdalinux      
+2084940  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% rsyslogd       
+     11  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% rcu_sched      
+     36  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% ksoftirqd/5    
+1346056  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
+1038305  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+1350890  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% Web Content    
+ 110459  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+ 110567  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% chrome         
+    630  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% systemd-journa 
+      1  0.00s  0.00s  0.00s     0B     0B     0B     0B   0% systemd        
 __pmLogFetchInterp: unbound items scanned: pass2: 24 first: 23 forget: 1 trim: 24 pass3: 24 last: 23 forget: 20568 trim: 24
-__pmLogFetchInterp: unbound items scanned: pass2: 448 first: 429 forget: 1 trim: 430 pass3: 448 last: 429 forget: 368510 trim: 430
+__pmLogFetchInterp: unbound items scanned: pass2: 466 first: 445 forget: 1 trim: 446 pass3: 466 last: 445 forget: 382222 trim: 446
 __pmLogFetchInterp: unbound items scanned: pass2: 20240 first: 15719 forget: 1 trim: 15720 pass3: 20240 last: 15719 forget: 13472040 trim: 15720
 __pmLogFetchInterp: unbound items scanned: pass2: 0 first: 0 forget: 0 trim: 0 pass3: 0 last: 0 forget: 0 trim: 0
-__pmLogFetchInterp: unbound items scanned: pass2: 448 first: 81 forget: 35 trim: 18 pass3: 448 last: 415 forget: 832 trim: 416
+__pmLogFetchInterp: unbound items scanned: pass2: 466 first: 147 forget: 35 trim: 20 pass3: 466 last: 433 forget: 868 trim: 434
 __pmLogFetchInterp: unbound items scanned: pass2: 20240 first: 391 forget: 394 trim: 0 pass3: 20240 last: 15287 forget: 13071240 trim: 15288
 __pmLogFetchInterp: unbound items scanned: pass2: 0 first: 0 forget: 0 trim: 0 pass3: 0 last: 0 forget: 0 trim: 0
-__pmLogFetchInterp: unbound items scanned: pass2: 448 first: 1045 forget: 436 trim: 416 pass3: 448 last: 0 forget: 0 trim: 0
+__pmLogFetchInterp: unbound items scanned: pass2: 466 first: 1765 forget: 452 trim: 434 pass3: 466 last: 0 forget: 0 trim: 0
 __pmLogFetchInterp: unbound items scanned: pass2: 20240 first: 508 forget: 514 trim: 117 pass3: 20240 last: 0 forget: 0 trim: 0
 __pmLogFetchInterp: unbound items scanned: pass2: 0 first: 0 forget: 0 trim: 0 pass3: 0 last: 0 forget: 0 trim: 0
 __pmLogFetchInterp: unbound items scanned: pass2: 0 first: 0 forget: 0 trim: 0 pass3: 0 last: 0 forget: 0 trim: 0

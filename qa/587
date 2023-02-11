@@ -19,7 +19,7 @@ echo "QA output created by $seq"
 rm -f $seq.out
 case $PCP_PLATFORM
 in
-    linux|darwin|solaris|freebsd)
+    linux|darwin|solaris|freebsd|openbsd)
 	ln $seq.$PCP_PLATFORM $seq.out || exit 1
 	;;
     *)
@@ -89,6 +89,14 @@ solaris)
 # Installed by PCP QA test $seq on `date`
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
+EOF
+    ;;
+
+openbsd)
+    cat >> $tmp.conf << EOF
+# Installed by PCP QA test $seq on `date`
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+openbsd	139	dso	openbsd_init	$PCP_PMDAS_DIR/openbsd/pmda_openbsd.so
 EOF
     ;;
 

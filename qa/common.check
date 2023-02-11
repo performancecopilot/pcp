@@ -50,9 +50,9 @@ _filesize()
 {
     __filename=$1
 
-    if [ $PCP_PLATFORM = darwin ]
+    if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = openbsd ]
     then
-	# Mac OS X format
+	# Mac OS X format (same for OpenBSD)
 	# stat(1) format
 	# 234881026 5304024 -rwxr-xr-x 1 kenj kenj 0 2016 "May  4 14:00:42 2011" "Apr 27 20:14:16 2011" "Apr 27 20:14:16 2011" "Apr 27 20:14:16 2011" 4096 8 0 441
 	stat "$__filename" 2>&1 | $PCP_AWK_PROG '{ print $8 }'
@@ -82,6 +82,9 @@ _check_freespace()
     in
 	darwin)
 	    __free=`df -m . | $PCP_AWK_PROG 'NR == 2 { print $4 }'`
+	    ;;
+	openbsd)	# only Kbyte units available
+	    __free=`df -P . | $PCP_AWK_PROG 'NR == 2 { print int($4/1024) }'`
 	    ;;
 	*)
 	    __free=`df -mP . | $PCP_AWK_PROG 'NR == 2 { print $4 }'`
@@ -973,13 +976,30 @@ _wait_pmlogger_end()
     fi
     __pid=$1
 
+    if sudo kill -s 0 $__pid 2>/dev/null
+    then
+	# pmlogger process exists, so wait for PID file to go away
+	#
+	echo "pmlogger process $__pid present ..." >>$here/$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]ID|[p]mlogger|$__pid" >>$here/$seq.full
+    else
+	# pmlogger process is not here, warn if PID file is here,
+	# and we're done
+        if [ -f "$PCP_TMP_DIR/pmlogger/$__pid" ]
+	then
+	    echo "_wait_pmlogger_end: warning process $__pid gone buit $PCP_TMP_DIR/pmlogger/$__pid still present"
+	fi
+	return
+    fi
+
     __i=0
     while true
     do
         if [ -f "$PCP_TMP_DIR/pmlogger/$__pid" ]
 	then
+	    [ $__i -eq 0 ] && ls -l "$PCP_TMP_DIR/pmlogger/$__pid" >>$here/$seq.full
 	    __i=`expr $__i + 1`
-	    if [ "$__i" -ge 100 ]
+	    if [ $__i -ge 100 ]
 	    then
 		echo "_wait_pmlogger_end: failed to see $PCP_TMP_DIR/pmlogger/$__pid removed after 100 iterations"
 		cat "$PCP_TMP_DIR/pmlogger/$__pid"
@@ -1239,6 +1259,23 @@ _wait_for_pmproxy_metrics()
 	[ $__n -lt 20 ] && continue
     done
     echo _wait_for_pmproxy_metrics failed after 20 iterations
+    return 1
+}
+
+# Wait for pmproxy logfile creation. This should always be called after
+# _wait_for_pmproxy.
+#
+_wait_for_pmproxy_logfile()
+{
+    __n=0
+    __log="$1"
+    while true; do
+	test -f "$__log" && return 0
+	sleep 0.25
+	__n=`expr $__n + 1`
+	[ $__n -lt 20 ] && continue
+    done
+    echo _wait_for_pmproxy_logfile failed after 20 iterations
     return 1
 }
 
@@ -1733,7 +1770,7 @@ _run_valgrind()
 	# *Note* - for more detailed diagnostics, at the expense of runtime,
 	# use
 	# __extra="$__extra --track-origins=yes --read-var-info=yes --read-inline-info=yes"
-	__extra="$__extra --read-inline-info=no --read-var-info=no"
+	__extra="$__extra --read-var-info=no --read-inline-info=yes"
     fi
     $sudo rm -f $tmp.valgrind.help
     if [ -n "$__extra" ]

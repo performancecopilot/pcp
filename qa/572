@@ -52,7 +52,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 $sudo rm -f $seq.full
 
 # create a basic pmcd config file
-if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd ]
+if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd  -o $PCP_PLATFORM = openbsd ]
 then
 cat >$tmp.pmcd.conf << EOF
 # from QA $seq

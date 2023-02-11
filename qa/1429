@@ -40,10 +40,16 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #	the error message from mv is:
 #	  mv: cannot stat `eek': No such file or directory
 #                         ^
-#	not
+#	not:
 #	  mv: cannot stat 'eek': No such file or directory
 #                         ^
 #	as it is elsewhere in the sane world
+#
+#	and similarly for mkdir which on OpenBSD reports:
+#	  mkdir: /eek: Permission denied
+#	not:
+#	  mkdir: cannot create directory '/eek/': Permission denied
+#                                        ^    ^^
 #
 _filter()
 {
@@ -52,20 +58,16 @@ _filter()
     | sed \
 	-e '/^Roll .*\/NOTICES/d' \
 	-e '/^Start .*\/NOTICES/d' \
-	-e "s;$tmp;TMP;g" \
 	-e "s/local:/HOST/g" \
+	-e '/mkdir:/s/: cannot create directory /: /' \
 	-e "s/`hostname`/HOST/g" \
 	-e "s/`hostname | sed -e 's/\..*//'`/HOST/g" \
 	-e '/\/var\/adm\/pcplog\/NOTICES/d' \
 	-e 's/-rw-r--r--\./-rw-r--r--/' \
-	-e "s/`pmdate -1d %Y`/YYYY/g" \
-	-e "s/`pmdate -2d %Y`/YYYY/g" \
-	-e "s/-`pmdate -1d %m`-/-MM-/" \
-	-e "s/-`pmdate -2d %m`-/-MM-/" \
-	-e "s/-`pmdate %d`/-TODAY/" \
-	-e "s/-`pmdate -1d %d`/-YESTERDAY/" \
-	-e "s/-`pmdate -2d %d`/-DAYBEFOREYESTERDAY/" \
 	-e "s/ [\`]/ '/" \
+	-e "/mkdir/s/: '/: /g" \
+	-e "/mkdir/s/\/': /: /g" \
+	-e "/mkdir/s/': /: /g" \
     | $PCP_AWK_PROG '
 /-rw-r--r--/	{ print $1,"...",$5,"...",$9; next }
 		{ print }' \
@@ -89,7 +91,12 @@ _setup()
     fi
     $sudo rm -f $tmp.log
     mkdir $tmp
-    echo >$tmp.sed
+    echo "s@$tmp@TMP@g" >$tmp.sed
+    # in case /tmp and /var/tmp are the same thing, in which case
+    # pmlogmv diagnostics sometimes use /tmp and sometimes use
+    # /var/tmp
+    #
+    echo "s@/tmp/$seq-$$@TMP@g" >>$tmp.sed
     for day in 0 1 2 3
     do
 	fmt=%Y%m%d
@@ -146,6 +153,14 @@ _setup()
     daybeforeyesterday=`pmdate -2d $fmt`
     echo "s/$daybeforeyesterday/DAYBEFOREYESTERDAY/g" >>$tmp.sed
 
+    echo "s/`pmdate -1d %Y`/YYYY/g" >>$tmp.sed
+    echo "s/`pmdate -2d %Y`/YYYY/g" >>$tmp.sed
+    echo "s/-`pmdate -1d %m`-/-MM-/" >>$tmp.sed
+    echo "s/-`pmdate -2d %m`-/-MM-/" >>$tmp.sed
+    echo "s/-`pmdate %d`/-TODAY/" >>$tmp.sed
+    echo "s/-`pmdate -1d %d`/-YESTERDAY/" >>$tmp.sed
+    echo "s/-`pmdate -2d %d`/-DAYBEFOREYESTERDAY/" >>$tmp.sed
+
     echo "log mandatory on default { pmcd.pmlogger }" >$tmp/config
 
     # pmlogger_daily runs as the user "pcp" ... fix ownership
@@ -154,6 +169,12 @@ _setup()
     find $tmp $tmp.log -type f | xargs $sudo chown $PCP_USER:$PCP_GROUP
     $sudo chown $PCP_USER:$PCP_GROUP $tmp
 }
+
+_setup
+echo "=== now `date` ===" >>$here/$seq.full
+echo "=== tmp.sed ===" >>$here/$seq.full
+cat $tmp.sed >>$here/$seq.full
+echo >>$here/$seq.full
 
 # real QA test starts here
 
@@ -165,8 +186,6 @@ cat <<End-of-File >$tmp.control
 \$version=1.1
 LOCALHOSTNAME	n   n	$tmp	-c ./config
 End-of-File
-
-_setup
 
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_AUTOSAVE_DIR=/no/such/dir $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k 3 -x never -l $tmp.log"
 if [ -f $tmp.log ]

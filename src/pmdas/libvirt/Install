@@ -23,6 +23,12 @@ domain=140
 python_opt=true
 daemon_opt=false
 
+# qa/1041 is failing on bozo because we probe the metrics too
+# quickly ... this is probably a generic issue, so add a little
+# delay here
+#
+check_delay=5
+
 for module in libvirt lxml; do
     $PCP_PYTHON_PROG -c "import $module" 2>/dev/null
     if test $? -ne 0; then

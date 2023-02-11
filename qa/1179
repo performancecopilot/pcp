@@ -21,7 +21,7 @@ signal=$PCP_BINADM_DIR/pmsignal
 
 # Launch a Java test program
 cd $here/java
-if [ "$__java_version" -ge 19 ]
+if [ "$__java_major" -ge 19 ]
 then
     # -XX:+ExtendedDTraceProbes deprecated here
     #

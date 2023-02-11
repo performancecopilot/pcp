@@ -16,7 +16,7 @@
 
 import mock
 import unittest
-from pcp_ps import ProcessStatus
+from pcp_ps import ProcessStatusUtil
 
 
 class TestProcessStackUtil(unittest.TestCase):
@@ -71,88 +71,90 @@ class TestProcessStackUtil(unittest.TestCase):
     def test_stack_referenced_size(self):
         self.skipTest(reason="Implement when suitable metric is found")
 
+    #These are blank spaces in assert case been addded 
+    #to match the format of function ouput.please don't remove
     def test_username(self):
-        process_status_usage = ProcessStatus(1, 1.34, self.__metric_repository)
+        process_status_usage = ProcessStatusUtil(1, 1.34, self.__metric_repository)
         name = process_status_usage.user_name()
-        self.assertEqual(name, "test")
+        self.assertEqual(name, "test      ")
 
     def test_Processname(self):
-        process_status_usage = ProcessStatus(1, 1.34, self.__metric_repository)
+        process_status_usage = ProcessStatusUtil(1, 1.34, self.__metric_repository)
         name = process_status_usage.process_name()
-        self.assertEqual(name, "test")
+        self.assertEqual(name, "test                ")
 
     def test_process_name_with_args(self):
-        process_status_usage = ProcessStatus(1, 1.34, self.__metric_repository)
+        process_status_usage = ProcessStatusUtil(1, 1.34, self.__metric_repository)
         name = process_status_usage.process_name_with_args()
-        self.assertEqual(name, "test")
+        self.assertEqual(name, "test                          ")
 
     def test_vszie(self):
-        process_status_usage = ProcessStatus(1, 1.34, self.__metric_repository)
+        process_status_usage = ProcessStatusUtil(1, 1.34, self.__metric_repository)
         vsize = process_status_usage.vsize()
         self.assertEqual(vsize, 1)
 
     def test_rss(self):
-        process_status_usage = ProcessStatus(1, 1.34, self.__metric_repository)
+        process_status_usage = ProcessStatusUtil(1, 1.34, self.__metric_repository)
         vsize = process_status_usage.rss()
         self.assertEqual(vsize, 1)
 
     def test_mem(self):
-        process_status_usage = ProcessStatus(1, 1.34, self.__metric_repository)
+        process_status_usage = ProcessStatusUtil(1, 1.34, self.__metric_repository)
         vsize = process_status_usage.mem()
         self.assertEqual(vsize, 100)
 
     def test_pid(self):
-        process_status_usage = ProcessStatus(1, 1.34, self.__metric_repository)
+        process_status_usage = ProcessStatusUtil(1, 1.34, self.__metric_repository)
         pid = process_status_usage.pid()
-        self.assertEqual(pid, 1)
+        self.assertEqual(pid,'1       ')       
 
     def test_process_name(self):
-        process_status_usage = ProcessStatus(1, 1.34, self.__metric_repository)
+        process_status_usage = ProcessStatusUtil(1, 1.34, self.__metric_repository)
         name = process_status_usage.process_name()
-        self.assertEqual(name, 'test')
+        self.assertEqual(name, 'test                ')
 
     def test_user_id(self):
-        process_status_usage = ProcessStatus(1, 1.34, self.__metric_repository)
+        process_status_usage = ProcessStatusUtil(1, 1.34, self.__metric_repository)
         user_id = process_status_usage.user_id()
         self.assertEqual(user_id, 1)
 
     def test_s_name(self):
-        process_status_usage = ProcessStatus(1, 1.34, self.__metric_repository)
+        process_status_usage = ProcessStatusUtil(1, 1.34, self.__metric_repository)
         name = process_status_usage.s_name()
         self.assertEqual(name, 'R')
 
     def test_cpu_number(self):
-        process_status_usage = ProcessStatus(1, 1.34, self.__metric_repository)
+        process_status_usage = ProcessStatusUtil(1, 1.34, self.__metric_repository)
         name = process_status_usage.cpu_number()
         self.assertEqual(name, 1)
 
     def test_wchan_s(self):
-        process_status_usage = ProcessStatus(1, 1.34, self.__metric_repository)
+        process_status_usage = ProcessStatusUtil(1, 1.34, self.__metric_repository)
         name = process_status_usage.wchan_s()
-        self.assertEqual(name, 'test')
+        self.assertEqual(name, 'test                          ')
 
     def test_priority(self):
-        process_status_usage = ProcessStatus(1, 1.34, self.__metric_repository)
+        process_status_usage = ProcessStatusUtil(1, 1.34, self.__metric_repository)
         name = process_status_usage.priority()
         self.assertEqual(name, 1)
 
     def test_tty_name(self):
-        process_status_usage = ProcessStatus(1, 1.34, self.__metric_repository)
+        process_status_usage = ProcessStatusUtil(1, 1.34, self.__metric_repository)
         name = process_status_usage.tty_name()
         self.assertEqual(name, 'tty')
 
     def test_start_time(self):
-        process_status_usage = ProcessStatus(1, 1.34, self.__metric_repository)
+        process_status_usage = ProcessStatusUtil(1, 1.34, self.__metric_repository)
         name = process_status_usage.start_time()
         self.assertEqual(name, 1)
 
     def test_func_state(self):
-        process_status_usage = ProcessStatus(1, 1.34, self.__metric_repository)
+        process_status_usage = ProcessStatusUtil(1, 1.34, self.__metric_repository)
         name = process_status_usage.func_state()
         self.assertEqual(name, 'N/A')
 
     def test_policy(self):
-        process_status_usage = ProcessStatus(1, 1.34, self.__metric_repository)
+        process_status_usage = ProcessStatusUtil(1, 1.34, self.__metric_repository)
         name = process_status_usage.policy()
         self.assertEqual(name, 'FIFO')
 

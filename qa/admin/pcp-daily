@@ -40,10 +40,16 @@ _usage()
 #
 _script_header()
 {
+    if [ "$1" = daily ]
+    then
+	action="Build"
+    else
+	action="QA"
+    fi
     cat <<End-of-File
 #!/bin/sh
 #
-# PCP Build Script from pcp-daily on `date`
+# PCP $action Script from pcp-daily on `date`
 #
 
 [ -f \$HOME/.dailyrc ] && . \$HOME/.dailyrc
@@ -178,7 +184,7 @@ then
     qa/admin/list-packages -m >$tmp.tmp
     if [ -s $tmp.tmp ]
     then
-	echo "Info: list-packages reports missing: `cat $tmp.tmp` " | tee -a $HOME/daily.log
+	echo "Info: list-packages reports missing: `cat $tmp.tmp`" | tee -a $HOME/daily.log
     fi
 fi
 ok=false
@@ -540,6 +546,7 @@ NF == 0	{ txt = ""; next }
 	}
 END	{ print txt }' \
 | awk '
+\$1 == "Triaged:"	{ want = 1 }
 \$1 == "Failures:"	{ want = 1 }
 \$1 == "Passed"		{ want = 1 }
 want == 1		{ print }'
@@ -828,7 +835,10 @@ do
 
 	vm01)
 	    # 739 segv's sometimes deep inside Python
-	    [ X"$what" = Xall ] && check_what='-X 739'
+	    # and 749 recently (Dec 2023) has been locking the whole VM
+	    # up
+	    #
+	    [ X"$what" = Xall ] && check_what='-X 739 -X 749'
 	    ;;
 
 	vm05)
@@ -926,10 +936,9 @@ do
 	    ;;
 
 	vm33)
-	    # Only selected groups at this stage for OpenBSD 6.3
-	    #	sanity trace libpcp kernel pmrep threads
+	    # Only selected groups at this stage for OpenBSD 7.1
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g pmrep -g threads -g logutil -g dbpmda'
 	    ;;
 
 	vm35)
@@ -962,11 +971,9 @@ do
 	    ;;
 
 	vm37)
-	    # Only selected groups this stage for OpenBSD 6.4
-	    #	sanity threads kernel
-	    # and some tests are not working yet
+	    # Only selected groups this stage for OpenBSD 7.2
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g threads -g kernel'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g pmrep -g threads -g logutil -g dbpmda'
 	    ;;
 
 	vm38)

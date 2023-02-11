@@ -40,6 +40,7 @@ _filter()
 	    -e '/^Aborted$/d' \
 	| $PCP_AWK_PROG '
 $1 == "backtrace:"	{ exit }
+$3 == "traceback"	{ exit }
 			{ print }'
     else
 	tee -a $here/$seq.full \

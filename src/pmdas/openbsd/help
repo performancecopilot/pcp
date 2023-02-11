@@ -8,6 +8,12 @@ One instance for each physical CPU.
 @ OPENBSD.2 DISK Instance domain for disk.dev metrics
 One instance for each physical "direct access" device.
 
+@ OPENBSD.3 Instance domain for network metrics
+One instance for each network interface.
+
+@ OPENBSD.4 Instance domain for filesystem metrics
+One instance for each mounted filesystem.
+
 @ kernel.all.hz system hz rate
 Microseconds per "hz" tick.
 @ kernel.all.load 1, 5 and 15 minute load average

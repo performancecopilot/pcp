@@ -15,7 +15,7 @@
 #
 from mock import Mock
 import unittest
-from pcp_ps import ProcessStateReporter
+from pcp_ps import ProcessStatusReporter
 
 
 class TestProcessStateReporter(unittest.TestCase):
@@ -35,11 +35,12 @@ class TestProcessStateReporter(unittest.TestCase):
 
     def test_print_report_with_user_name(self):
         self.options.show_all_process = True
+        self.options.print_count=1
         process_stack_util = Mock()
         process_filter = Mock()
         printer = Mock()
         process_filter.filter_processes = Mock(return_value=self.processes)
-        reporter = ProcessStateReporter(process_stack_util, process_filter, 1.34, printer, self.options)
+        reporter = ProcessStatusReporter(process_stack_util, process_filter, 1.34, printer, self.options)
 
         reporter.print_report(123, "  ", "    ")
 

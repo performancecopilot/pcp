@@ -11,6 +11,7 @@ echo "QA output created by $seq"
 . ./common.python
 
 [ -d $PCP_PMDAS_DIR/nfsclient ] || _notrun "nfsclient PMDA is not installed"
+[ $PCP_PLATFORM = linux ] || _notrun "Linux-specific, needs /proc/self/mountstats"
 
 $python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"

@@ -89,10 +89,19 @@ done
 
 echo "OK"
 
+# pmlogger should run for about 20 seconds, and we've spent about
+# 15 seconds in the loop above, so allow pmlogger to get close to
+# being done before calling _wait_pmlogger_end (otherwise
+# _wait_pmlogger_end can lose patience before pmlogger exits)
+#
+sleep 5
+
 _wait_pmlogger_end $mylogger
 cat $tmp.log >>$seq.full
 echo
 echo "pmlogger log"
 _filter_pmlogger_log <$tmp.log
+
+echo "pmResults in archive ... `pmdumplog $tmp | grep '^[0-2]' | wc -l | sed -e 's/ //g'`" >>$seq.full
 
 exit 0

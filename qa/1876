@@ -28,7 +28,7 @@ then
 fi
 
 # checks /proc files, only works on linux platform
-[ $PCP_PLATFORM = linux ] || _notrun "Test unsupported on $PCP_PLATFORM"
+[ $PCP_PLATFORM = linux ] || _notrun "Linux-only test, unsupported on $PCP_PLATFORM"
 
 _cleanup()
 {

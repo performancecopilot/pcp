@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ -d $PCP_PMDAS_DIR/proc ] || _notrun "Proc PMDA not installed"
+[ -d $PCP_PMDAS_DIR/proc ] || _notrun "proc PMDA not installed"
 
 _cleanup()
 {

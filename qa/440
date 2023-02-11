@@ -160,7 +160,7 @@ _time_me ()
 	    tr ' ' "\n" | $PCP_AWK_PROG '/elapsed$/ { sub("elapsed", "", $1); 
 			                               split ($1,tt,"[:.]");
 			                               print (tt[1]*60)+tt[2];}'
-	elif [ $PCP_PLATFORM = darwin ]
+	elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = openbsd ]
 	then
 	    #         0.00 real         0.00 user         0.00 sys
 	    $PCP_AWK_PROG '{print $1}' | sed -e 's/\..*//'

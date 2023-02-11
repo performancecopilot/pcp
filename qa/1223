@@ -33,12 +33,12 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 localhost=`hostname`
 echo "localhost -> \"$localhost\"" >>$seq.full
-echo "hostname -f -> \"`hostname -f`\"" >>$seq.full
+echo "hostname -f -> \"`hostname -f 2>&1`\"" >>$seq.full
 echo "pmhostname -> `pmhostname -Dappl0 2>&1`" >>$seq.full
-host localhost >>$seq.full
-host $localhost >>$seq.full
-host `hostname -f` >>$seq.full
-host `pmhostname` >>$seq.full
+host localhost >>$seq.full 2>&1
+host $localhost >>$seq.full 2>&1
+host `hostname -f 2>&1` >>$seq.full 2>&1
+host `pmhostname` >>$seq.full 2>&1
 
 _filter()
 {
@@ -133,6 +133,7 @@ End-of-File
 _setup()
 {
     $sudo cp $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq
+    echo "=== setup" >>$seq.full
     $sudo pmlogctl -V -c $seq restart >>$seq.full 2>&1
     pmlogctl -V status >>$seq.full 2>&1
 }

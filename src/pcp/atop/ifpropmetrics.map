@@ -6,6 +6,7 @@ ifpropmetrics {
 	network.interface.baudrate	IF_SPEED
 	network.interface.duplex	IF_DUPLEX
 	network.interface.type		IF_TYPE
+	network.interface.virtual	IF_VIRTUAL
 	network.interface.wireless	IF_WIRELESS
 
 	# end marker - provides count

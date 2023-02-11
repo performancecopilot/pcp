@@ -104,7 +104,7 @@ fi
 #
 if [ ! -x $PCP_VAR_DIR/pmdas/trivial/pmdatrivial ]
 then
-    ( cd $PCP_VAR_DIR/pmdas/trivial; $sudo make pmdatrivial ) >>$here/$seq.full
+    ( cd $PCP_VAR_DIR/pmdas/trivial; $sudo $PCP_MAKE_PROG pmdatrivial ) >>$here/$seq.full
     if [ ! -x $PCP_VAR_DIR/pmdas/trivial/pmdatrivial ]
     then
 	echo "Arrgh: cannot make $PCP_VAR_DIR/pmdas/pmdatrivial"

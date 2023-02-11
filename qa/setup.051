@@ -592,6 +592,12 @@ to_end
 End-of-File
 
 #
+# Note
+#  on OpenBSD signaller pid is apparently not filled in, so we see
+#    [DATE] pmcd(PID) Info: pmcd caught SIGTERM from unknown process
+#  instead of
+#    [DATE] pmcd(PID) Info: pmcd caught SIGTERM from pid=N uid=N
+#
 cat >filter.kill.001 <<'End-of-File'
 #! /bin/sh
 #
@@ -614,6 +620,7 @@ sed -e '/No such file/s/^cat:/Cannot open/' \
 	-e '/pcp\[[0-9][0-9]*]/s//pcp[PID]/' \
         -e '/^pmcd: PID/s/= .*/= PID/' \
 	-e '/pmcd caught SIG.* from pid=/s/=[0-9][0-9]*/=N/g' \
+	-e '/SIGTERM from unknown process/s//SIGTERM from pid=N uid=N/' \
 | $PCP_AWK_PROG '
 /pipe cmd=/		{ $4 = "FD"; $5 = "FD" }
 /ok .* INADDR_ANY/	{ $2 = "FD" }

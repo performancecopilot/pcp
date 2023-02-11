@@ -13,6 +13,8 @@
 # for more details.
 #
 
+. $PCP_DIR/etc/pcp.conf
+
 if echo "`id -un`" | grep '^root' >/dev/null
 then
     :
@@ -21,19 +23,30 @@ else
     exit 1
 fi
 
+# redirect stderr ...
+#
+if [ -f "$PCP_LOG_DIR/pmcd/zimbraprobe.log" ]
+then
+    mv "$PCP_LOG_DIR/pmcd/zimbraprobe.log" "$PCP_LOG_DIR/pmcd/zimbraprobe.log.prev"
+    exec 2>"$PCP_LOG_DIR/pmcd/zimbraprobe.log"
+fi
+
+echo "zimbraprobe starting ... `date`" >&2
+
 delay=${1:-10}
 
-id
-which su
+id >&2
+echo "PPID=$PPID" >&2
 
 # First one produces any errors to PMDA logfile
-su -c 'zmcontrol status' - zimbra
+#
+$PCP_PMDAS_DIR/zimbra/runaszimbra "zmcontrol status"
 
 while true
 do
     date +'%d/%m/%Y %H:%M:%S'
     sleep $delay
-    su -c 'zmcontrol status' - zimbra 2>/dev/null
+    $PCP_PMDAS_DIR/zimbra/runaszimbra "zmcontrol status"
     if kill -s 0 $PPID
     then
 	# parent alive, keep going ...

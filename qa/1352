@@ -46,7 +46,6 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _cull_special()
 {
     sed \
-	-e '/^\/etc\/pcp\/bpf\/bpf.conf$/d' \
 	-e '/^\/etc\/pcp\/pmrep\/xtract-names$/d' \
     # end
 }

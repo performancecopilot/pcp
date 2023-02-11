@@ -10,8 +10,6 @@
 
 _pmdabcc_check()
 {
-    [ -d /lib/modules/$(uname -r) ] || _notrun "kernel headers for kernel $(uname -r) not found"
-
     $python -c "from pcp import pmda" >/dev/null 2>&1
     [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
 
@@ -27,6 +25,8 @@ _pmdabcc_check()
     [ $? -eq 0 ] || _notrun "python bcc module 0.5.0+ with __version__ is required"
 
     [ -f $PCP_PMDAS_DIR/bcc/pmdabcc.python ] || _notrun "bcc PMDA not installed"
+
+    [ -d /lib/modules/$(uname -r) ] || _notrun "kernel headers for kernel $(uname -r) not found"
 }
 
 _pmdabcc_require_kernel_version()

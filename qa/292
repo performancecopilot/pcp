@@ -67,7 +67,7 @@ do
     # back-to-back signals may confuse $signal (killing by name)
     # so delay a little ...
     #
-    pmsleep 0.1
+    pmsleep 0.5
 done
 $signal -a -s TERM pmlogger
 

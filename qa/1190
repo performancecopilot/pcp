@@ -210,7 +210,7 @@ if [ "$n" -eq 0 ]
 then
     $check || echo "Bad PMIDs in PMDA (other than sample or pmproxy) ... OK"
 else
-    echo "Bad PMIDs in PMDA (other than sample) ... BAD ($n not 0)"
+    echo "Bad PMIDs in PMDA (other than sample or pmproxy) ... BAD ($n not 0)"
     cat $tmp.out | sed -e 's/^/  /'
     status=1
 fi

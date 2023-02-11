@@ -104,6 +104,14 @@ disk.dev.flush_rawactive
     inst [N or "sdd"] value 0
     inst [N or "sde"] value 0
 
+disk.dev.inflight
+    inst [N or "nvme0n1"] value 0
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "sdd"] value 0
+    inst [N or "sde"] value 0
+
 disk.dev.read
     inst [N or "nvme0n1"] value 2501871
     inst [N or "sda"] value 38
@@ -273,6 +281,12 @@ disk.dm.flush
     inst [N or "shack-swap"] value 0
 
 disk.dm.flush_rawactive
+    inst [N or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 0
+    inst [N or "mpathb"] value 0
+    inst [N or "shack-root"] value 0
+    inst [N or "shack-swap"] value 0
+
+disk.dm.inflight
     inst [N or "luks-01568490-8910-4c31-84bd-b4ddb53858c0"] value 0
     inst [N or "mpathb"] value 0
     inst [N or "shack-root"] value 0

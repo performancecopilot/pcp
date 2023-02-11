@@ -58,10 +58,37 @@ static char*	names[] = {
 
 static int	n_metric = sizeof(desc) / sizeof(desc[0]);
 
+static char	*fqdn;
+
+/*
+ * Get FQDN for local hostname ... logic cloned from the pmcd PMDA
+ */
+void
+prep_fqdn(void)
+{
+    char	host[MAXHOSTNAMELEN];
+    __pmHostEnt *servInfo;
+
+    if (gethostname(host, MAXHOSTNAMELEN) < 0) {
+	fqdn = "unknown";
+	return;
+    }
+    host[MAXHOSTNAMELEN-1] = '\0';
+    if ((servInfo = __pmGetAddrInfo(host)) == NULL)
+	fqdn = strdup(host);
+    else {
+	fqdn = __pmHostEntGetName(servInfo);
+	__pmHostEntFree(servInfo);
+	if (fqdn == NULL)
+	    fqdn = strdup(host);
+    }
+    return;
+}
+
 #define PROLOGUE 1
 #define EPILOGUE 2
 
-int
+static int
 do_logue(int type)
 {
     int		sts;
@@ -72,7 +99,6 @@ do_logue(int type)
     __pmPDU	*pb;
     pmAtomValue	atom;
     char	path[MAXPATHLEN];
-    char	host[MAXHOSTNAMELEN];
     pmHighResResult	*res_pmcd = NULL; /* values from pmcd */
     __pmLogInDom	lid;
 
@@ -101,8 +127,6 @@ do_logue(int type)
 	res->vset[i] = NULL;
 
     for (i = 0; i < n_metric; i++) {
-	int	free_cp = 0;
-
 	res->vset[i] = (pmValueSet *)malloc(sizeof(pmValueSet));
 	if (res->vset[i] == NULL) {
 	    sts = -oserror();
@@ -112,20 +136,7 @@ do_logue(int type)
 	res->vset[i]->numval = 1;
 	/* special case for each value 0 .. n_metric-1 */
 	if (desc[i].pmid == PMID(2,3,3)) {
-	    __pmHostEnt *servInfo;
-	    /* my fully qualified hostname, cloned from the pmcd PMDA */
-	    (void)gethostname(host, MAXHOSTNAMELEN);
-	    host[MAXHOSTNAMELEN-1] = '\0';
-	    if ((servInfo = __pmGetAddrInfo(host)) == NULL)
-		atom.cp = host;
-	    else {
-		atom.cp = __pmHostEntGetName(servInfo);
-		__pmHostEntFree(servInfo);
-		if (atom.cp == NULL)
-		    atom.cp = host;
-		else
-		    free_cp = 1;
-	    }
+	    atom.cp = fqdn;
 	    res->vset[i]->vlist[0].inst = (int)mypid;
 	 }
 	 else if (desc[i].pmid == PMID(2,3,0)) {
@@ -181,8 +192,6 @@ do_logue(int type)
 	}
 
 	sts = __pmStuffValue(&atom, &res->vset[i]->vlist[0], desc[i].type);
-	if (free_cp)
-	    free(atom.cp);
 	if (sts < 0)
 	    goto done;
 	res->vset[i]->valfmt = sts;

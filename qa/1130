@@ -80,7 +80,7 @@ socat -lf $tmp.socat.log -v -t 0.000001 tcp-listen:$port,reuseaddr,fork system:"
 pid=$!
 sleep 2
 $pcp2elasticsearch -t 1 -s 1 hinv.ncpu >$tmp.p2e.out 2>$tmp.p2e.err
-sleep 2
+sleep 5
 $signal $pid 2>/dev/null
 wait
 grep -E -q '^PUT /+pcp HTTP/' $tmp.socat.err

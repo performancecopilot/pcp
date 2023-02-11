@@ -159,6 +159,9 @@ then
 elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = freebsd ]
 then
     ln $seq.out.darwin $seq.out
+elif [ $PCP_PLATFORM = openbsd ]
+then
+    ln $seq.out.openbsd $seq.out
 elif [ $PCP_PLATFORM = solaris  ]
 then
     ln $seq.out.solaris $seq.out

@@ -381,8 +381,10 @@ _filter_optional_pmdas()
 _filter_optional_pmda_instances()
 {
     sed \
+	-e '/inst \[3 or "proc"]/d' \
 	-e '/inst \[4 or "pmproxy"]/d' \
 	-e '/inst \[10 or "trace"]/d' \
+	-e '/inst \[11 or "xfs"]/d' \
 	-e '/inst \[15 or "sendmail"]/d' \
 	-e '/inst \[19 or "shping"]/d' \
         -e '/inst \[22 or "weblog"]/d' \
@@ -410,6 +412,7 @@ _filter_optional_pmda_instances()
 	-e '/inst \[123 or "rpm"]/d' \
 	-e '/inst \[127 or "perfevent"]/d' \
 	-e '/inst \[129 or "dm"]/d' \
+	-e '/inst \[139 or "openbsd"]/d' \
         -e '/inst \[140 or "libvirt"]/d' \
         -e '/inst \[151 or "bpftrace"]/d' \
         -e '/inst \[153 or "zfs"]/d' \
@@ -781,15 +784,27 @@ Updating the Performance Metrics Name Space (PMNS) ...
     | _filter_pcp_start
 }
 
+# and of course sed(1) on OpenBSD has to be different ...
+#
 _filter_pmda_remove()
 {
     _filter_pmda_install |
     sed \
 	-e '/Removing files/d' \
 	-e '/Job for pmcd.service canceled/d' \
-	-e '/Updating the PMCD control file/c\
+    | case "$PCP_PLATFORM"
+      in
+        openbsd)
+	    sed -e '/Updating the PMCD control file/c\
+Updating the PMCD control file, and notifying PMCD ...\
+[...removing files...]\
+'
+	    ;;
+	*)
+	    sed -e '/Updating the PMCD control file/c\
 Updating the PMCD control file, and notifying PMCD ...\
 [...removing files...]'
+      esac
 }
 
 # Make sure that quotes which span multiple lines get appended onto

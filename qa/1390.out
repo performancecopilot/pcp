@@ -43,12 +43,12 @@ HOST-SUMMARY-LINE
 11:03:22     3849M    195M    275M  1553M    0M    358M    13661M  13652M
 11:03:23     3849M    195M    275M  1553M    0M    358M    13661M  13652M
 
-11:03:21  pagescan/s   swapin/s  swapout/s        commitspc  commitlim   _swap_
-11:03:21   412940.00      96.00    2329.00            4254M     15586M
-11:03:22        0.00       0.00       0.00            4244M     15586M
-11:03:23        0.00       0.00       0.00            4244M     15586M
+11:03:21  pagescan/s  swapin/s swapout/s oomkill  commitspc  commitlim   _swap_
+11:03:21   412940.00     96.00   2329.00       0      4254M     15586M
+11:03:22        0.00      0.00      0.00       0      4244M     15586M
+11:03:23        0.00      0.00      0.00       0      4244M     15586M
 
-11:03:21  cs_10_60_300   ms_10_60_300 mf_10_60_300   is_10_60_300 if_10_60_300
+11:03:21  cpusome    memsome  memfull    iosome  iofull
 11:03:21       0%         0%       0%        0%      0%
 11:03:22       0%         0%       0%        0%      0%
 11:03:23       0%         0%       0%        0%      0%
@@ -175,22 +175,22 @@ HOST-SUMMARY-LINE
 11:03:22        1.00      1.00    1024.00              4           1
 11:03:23        0.00      0.00       0.00              4           1
 
-11:03:21      pid command  cpu% |     pid command  cpu% |     pid command  cpu%_top3_
-11:03:21     7014 firefox    3% |     877 Xorg       1% |     556 java       0%
-11:03:22    30579 pmdaproc   2% |    7014 firefox    1% |   30594 perl       1%
-11:03:23    30579 pmdaproc   5% |    7014 firefox    2% |                    
+11:03:21    pid command  cpu% |   pid command  cpu% |   pid command  cpu%_top3_
+11:03:21   7014 firefox    3% |   877 Xorg       1% |   556 java       0%
+11:03:22  30579 pmdaproc   2% |  7014 firefox    1% | 30594 perl       1%
+11:03:23  30579 pmdaproc   5% |  7014 firefox    2% |                    
 
-11:03:21      pid command  mem% |     pid command  mem% |     pid command  mem%_top3_
-11:03:21     7014 firefox   14% |    6354 gnome-sh  10% |     556 java       5%
-11:03:22     7014 firefox   14% |    6354 gnome-sh  10% |     556 java       5%
-11:03:23     7014 firefox   14% |    6354 gnome-sh  10% |     556 java       5%
+11:03:21    pid command  mem% |   pid command  mem% |   pid command  mem%_top3_
+11:03:21   7014 firefox   14% |  6354 gnome-sh  10% |   556 java       5%
+11:03:22   7014 firefox   14% |  6354 gnome-sh  10% |   556 java       5%
+11:03:23   7014 firefox   14% |  6354 gnome-sh  10% |   556 java       5%
 
-11:03:21      pid command  dsk% |     pid command  dsk% |     pid command  dsk%_top3_
-11:03:21     7014 firefox   77% |    4507 bash      10% |   21741 bash       4%
-11:03:22      662 pmlogger  99% |     309 mk.atop.   1% |                    
-11:03:23      662 pmlogger 100% |                     |                    
+11:03:21    pid command  dsk% |   pid command  dsk% |   pid command  dsk%_top3_
+11:03:21   7014 firefox   77% |  4507 bash      10% | 21741 bash       4%
+11:03:22    662 pmlogger  99% |   309 mk.atop.   1% |                    
+11:03:23    662 pmlogger 100% |                     |                    
 
-11:03:21      pid command  net% |     pid command  net% |     pid command  net%_top3_
+11:03:21    pid command  net% |   pid command  net% |   pid command  net%_top3_
 11:03:21  no per-process network counters available.....
 
 == Done

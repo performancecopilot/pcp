@@ -131,7 +131,7 @@ _cleanup()
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	pmprobe pmcd.control.debug
-	sleepers=`ps $PCP_PS_ALL_FLAGS | grep '[d]umb_pmda' | $PCP_AWK_PROG '$3 == 1 { print $2 }'`
+	sleepers=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[d]umb_pmda' | $PCP_AWK_PROG '$3 == 1 { print $2 }'`
 	[ ! -z "$sleepers" ] && $sudo $signal -s KILL $sleepers
 	if $pmie_was_running
 	then
@@ -269,14 +269,14 @@ sample=`pminfo $NAMESPACE -f sample.daemon_pid | $PCP_AWK_PROG '
 $1 == "value"	{ print $2 }
 '`
 sleep 1
-ps -edf | grep dumb_pmda | grep fake_cisco >/dev/null || echo "Error: phony fake_cisco agent died prematurely"
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep dumb_pmda | grep fake_cisco >/dev/null || echo "Error: phony fake_cisco agent died prematurely"
 
 $sudo cp $CONFIGSAVE $CONFIG
 
 $signal -s HUP $pmcd
 _wait_for_pmcd
 
-ps -edf | grep dumb_pmda | grep fake_cisco >/dev/null && echo "Error: phony fake_cisco agent still lives!"
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep dumb_pmda | grep fake_cisco >/dev/null && echo "Error: phony fake_cisco agent still lives!"
 
 # Generate a PDU into the domain where the fake_sampledso agent used to be (#30 is
 # assumed to be the sampledso PMDA)

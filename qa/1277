@@ -59,7 +59,13 @@ pmdbg -l \
 # turn then off in reverse pmdbg -l order
 pmdbg -l \
 | sed -e 1,2d \
-| tac \
+| if which tac >/dev/null 2>&1
+  then
+    tac
+  else
+    # no tac(1), punt on tail -f (works for OpenBSD)
+    tail -r
+  fi \
 | $PCP_AWK_PROG >>$tmp.in '
 	{ print "debug -" $1
 	  print "status"

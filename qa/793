@@ -65,9 +65,9 @@ _stop_loggers()
 {
     echo "entering _stop_loggers ..." >>$here/$seq.full
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-    | grep -E '[P]ID|[p]mlogger' \
+    | grep -E '[P]ID|/[p]mlogger' \
     | tee -a $here/$seq.full \
-    | grep '[p]mlogger ' \
+    | grep '/[p]mlogger ' \
     | $PCP_AWK_PROG '{print $2}' >$tmp.pids
     $sudo $signal -a -s TERM pmlogger
     for pid in `cat $tmp.pids`
@@ -182,7 +182,7 @@ _check_loggers()
 		fi
 	    done
 	    echo "--- end of logs ---" >>$here/$seq.full
-	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger' >>$here/$seq.full
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger' >>$here/$seq.full
 	    for state in $PCP_TMP_DIR/pmlogger/[0-9]*
 	    do
 		echo "=== $state ===" | tee -a $here/$seq.full
@@ -271,7 +271,7 @@ done
 sleep 1
 
 echo "pmlogger processes ..." >>$here/$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger' >>$here/$seq.full
 
 # this test has a history of failing in the pmlogger_daily step below
 # when one (or more) of the pmlogger processes vanishes, so we're

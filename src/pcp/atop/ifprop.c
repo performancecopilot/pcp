@@ -119,6 +119,14 @@ initifprop(void)
 		ip->speed = speed < 0 ? 0 : BTOMBIT(speed); /* Mbits/second */
 		sts = extract_integer_inst(result, descs, IF_DUPLEX, ids[i], i);
 		ip->fullduplex = sts < 0 ? 0 : sts;
+
+		sts = extract_integer_inst(result, descs, IF_VIRTUAL, ids[i], i);
+		if (sts == 1)
+		{
+			ip->type = 'v';
+			continue;
+		}
+		
 		sts = extract_integer_inst(result, descs, IF_WIRELESS, ids[i], i);
 		if (sts == 1)
 			ip->type = 'w';

@@ -37,6 +37,9 @@ disk.all.flush
 disk.all.flush_rawactive
     value 0
 
+disk.all.inflight
+    value 0
+
 disk.all.read
     value 1132105
 
@@ -107,6 +110,9 @@ disk.dev.flush
     inst [N or "sda"] value 0
 
 disk.dev.flush_rawactive
+    inst [N or "sda"] value 0
+
+disk.dev.inflight
     inst [N or "sda"] value 0
 
 disk.dev.read
@@ -184,6 +190,9 @@ disk.dm.flush
 disk.dm.flush_rawactive
     inst [N or "docker-8:7-1974438-pool"] value 0
 
+disk.dm.inflight
+    inst [N or "docker-8:7-1974438-pool"] value 0
+
 disk.dm.read
     inst [N or "docker-8:7-1974438-pool"] value 5454
 
@@ -254,6 +263,9 @@ disk.md.flush
 No value(s) available!
 
 disk.md.flush_rawactive
+No value(s) available!
+
+disk.md.inflight
 No value(s) available!
 
 disk.md.read
@@ -428,6 +440,18 @@ disk.partitions.flush
     inst [N or "sda9"] value 0
 
 disk.partitions.flush_rawactive
+    inst [N or "sda1"] value 0
+    inst [N or "sda10"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+    inst [N or "sda4"] value 0
+    inst [N or "sda5"] value 0
+    inst [N or "sda6"] value 0
+    inst [N or "sda7"] value 0
+    inst [N or "sda8"] value 0
+    inst [N or "sda9"] value 0
+
+disk.partitions.inflight
     inst [N or "sda1"] value 0
     inst [N or "sda10"] value 0
     inst [N or "sda2"] value 0
@@ -617,6 +641,9 @@ disk.all.flush
 disk.all.flush_rawactive
     value 0
 
+disk.all.inflight
+    value 1
+
 disk.all.read
     value 1132650
 
@@ -699,6 +726,10 @@ disk.dev.flush
 
 disk.dev.flush_rawactive
     inst [N or "cciss/c12d11"] value 0
+    inst [N or "sda"] value 0
+
+disk.dev.inflight
+    inst [N or "cciss/c12d11"] value 1
     inst [N or "sda"] value 0
 
 disk.dev.read
@@ -788,6 +819,9 @@ disk.dm.flush
 disk.dm.flush_rawactive
     inst [N or "docker-8:7-1974438-pool"] value 0
 
+disk.dm.inflight
+    inst [N or "docker-8:7-1974438-pool"] value 0
+
 disk.dm.read
     inst [N or "docker-8:7-1974438-pool"] value 5454
 
@@ -858,6 +892,9 @@ disk.md.flush
 No value(s) available!
 
 disk.md.flush_rawactive
+No value(s) available!
+
+disk.md.inflight
 No value(s) available!
 
 disk.md.read
@@ -933,6 +970,9 @@ disk.partitions.flush
 No value(s) available!
 
 disk.partitions.flush_rawactive
+No value(s) available!
+
+disk.partitions.inflight
 No value(s) available!
 
 disk.partitions.read
@@ -1012,6 +1052,9 @@ disk.all.flush
     value 0
 
 disk.all.flush_rawactive
+    value 0
+
+disk.all.inflight
     value 0
 
 disk.all.read
@@ -1392,6 +1435,37 @@ disk.dev.flush
     inst [N or "sdx"] value 0
 
 disk.dev.flush_rawactive
+    inst [N or "cciss/c0d0"] value 0
+    inst [N or "cciss/c0d1"] value 0
+    inst [N or "cciss/c0d2"] value 0
+    inst [N or "cciss/c0d3"] value 0
+    inst [N or "cciss/c1d0"] value 0
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "sdd"] value 0
+    inst [N or "sde"] value 0
+    inst [N or "sdf"] value 0
+    inst [N or "sdg"] value 0
+    inst [N or "sdh"] value 0
+    inst [N or "sdi"] value 0
+    inst [N or "sdj"] value 0
+    inst [N or "sdk"] value 0
+    inst [N or "sdl"] value 0
+    inst [N or "sdm"] value 0
+    inst [N or "sdn"] value 0
+    inst [N or "sdo"] value 0
+    inst [N or "sdp"] value 0
+    inst [N or "sdq"] value 0
+    inst [N or "sdr"] value 0
+    inst [N or "sds"] value 0
+    inst [N or "sdt"] value 0
+    inst [N or "sdu"] value 0
+    inst [N or "sdv"] value 0
+    inst [N or "sdw"] value 0
+    inst [N or "sdx"] value 0
+
+disk.dev.inflight
     inst [N or "cciss/c0d0"] value 0
     inst [N or "cciss/c0d1"] value 0
     inst [N or "cciss/c0d2"] value 0
@@ -1833,6 +1907,9 @@ No value(s) available!
 disk.dm.flush_rawactive
 No value(s) available!
 
+disk.dm.inflight
+No value(s) available!
+
 disk.dm.read
 No value(s) available!
 
@@ -1903,6 +1980,9 @@ disk.md.flush
     inst [N or "md0"] value 0
 
 disk.md.flush_rawactive
+    inst [N or "md0"] value 0
+
+disk.md.inflight
     inst [N or "md0"] value 0
 
 disk.md.read
@@ -2275,6 +2355,36 @@ disk.partitions.flush
     inst [N or "sdx1"] value 0
 
 disk.partitions.flush_rawactive
+    inst [N or "cciss/c0d0p1"] value 0
+    inst [N or "cciss/c0d0p2"] value 0
+    inst [N or "cciss/c0d0p3"] value 0
+    inst [N or "cciss/c0d0p4"] value 0
+    inst [N or "cciss/c0d1p1"] value 0
+    inst [N or "cciss/c0d3p1"] value 0
+    inst [N or "cciss/c0d3p2"] value 0
+    inst [N or "cciss/c0d3p3"] value 0
+    inst [N or "sda1"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sdb1"] value 0
+    inst [N or "sdb2"] value 0
+    inst [N or "sde1"] value 0
+    inst [N or "sdf1"] value 0
+    inst [N or "sdf5"] value 0
+    inst [N or "sdf6"] value 0
+    inst [N or "sdf7"] value 0
+    inst [N or "sdg1"] value 0
+    inst [N or "sdh1"] value 0
+    inst [N or "sdm1"] value 0
+    inst [N or "sdp1"] value 0
+    inst [N or "sdq1"] value 0
+    inst [N or "sdq5"] value 0
+    inst [N or "sdq6"] value 0
+    inst [N or "sdq7"] value 0
+    inst [N or "sdr1"] value 0
+    inst [N or "sds1"] value 0
+    inst [N or "sdx1"] value 0
+
+disk.partitions.inflight
     inst [N or "cciss/c0d0p1"] value 0
     inst [N or "cciss/c0d0p2"] value 0
     inst [N or "cciss/c0d0p3"] value 0
@@ -2680,6 +2790,9 @@ disk.all.flush
 disk.all.flush_rawactive
     value 0
 
+disk.all.inflight
+    value 1
+
 disk.all.read
     value 3264210
 
@@ -2763,6 +2876,10 @@ disk.dev.flush
 disk.dev.flush_rawactive
     inst [N or "sda"] value 0
     inst [N or "sdb"] value 0
+
+disk.dev.inflight
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 1
 
 disk.dev.read
     inst [N or "sda"] value 1132105
@@ -2851,6 +2968,9 @@ No value(s) available!
 disk.dm.flush_rawactive
 No value(s) available!
 
+disk.dm.inflight
+No value(s) available!
+
 disk.dm.read
 No value(s) available!
 
@@ -2933,6 +3053,10 @@ disk.md.flush
 
 disk.md.flush_rawactive
     inst [N or "home"] value 0
+    inst [N or "md0"] value 0
+
+disk.md.inflight
+    inst [N or "home"] value 1
     inst [N or "md0"] value 0
 
 disk.md.read
@@ -3022,6 +3146,9 @@ No value(s) available!
 disk.partitions.flush_rawactive
 No value(s) available!
 
+disk.partitions.inflight
+No value(s) available!
+
 disk.partitions.read
 No value(s) available!
 
@@ -3100,6 +3227,9 @@ disk.all.flush
     value 0
 
 disk.all.flush_rawactive
+    value 0
+
+disk.all.inflight
     value 0
 
 disk.all.read
@@ -3205,6 +3335,12 @@ disk.dev.flush
     inst [N or "vdb"] value 0
 
 disk.dev.flush_rawactive
+    inst [N or "rbd0"] value 0
+    inst [N or "rbd1"] value 0
+    inst [N or "vda"] value 0
+    inst [N or "vdb"] value 0
+
+disk.dev.inflight
     inst [N or "rbd0"] value 0
     inst [N or "rbd1"] value 0
     inst [N or "vda"] value 0
@@ -3321,6 +3457,9 @@ No value(s) available!
 disk.dm.flush_rawactive
 No value(s) available!
 
+disk.dm.inflight
+No value(s) available!
+
 disk.dm.read
 No value(s) available!
 
@@ -3391,6 +3530,9 @@ disk.md.flush
 No value(s) available!
 
 disk.md.flush_rawactive
+No value(s) available!
+
+disk.md.inflight
 No value(s) available!
 
 disk.md.read
@@ -3510,6 +3652,13 @@ disk.partitions.flush
     inst [N or "vdb2"] value 0
 
 disk.partitions.flush_rawactive
+    inst [N or "rbd0p1"] value 0
+    inst [N or "vda1"] value 0
+    inst [N or "vda2"] value 0
+    inst [N or "vdb1"] value 0
+    inst [N or "vdb2"] value 0
+
+disk.partitions.inflight
     inst [N or "rbd0p1"] value 0
     inst [N or "vda1"] value 0
     inst [N or "vda2"] value 0
@@ -3637,6 +3786,9 @@ disk.all.flush
     value 0
 
 disk.all.flush_rawactive
+    value 0
+
+disk.all.inflight
     value 0
 
 disk.all.read
@@ -3896,6 +4048,26 @@ disk.dev.flush
     inst [N or "sdb"] value 0
 
 disk.dev.flush_rawactive
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 0
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+
+disk.dev.inflight
     inst [N or "nbd0"] value 0
     inst [N or "nbd1"] value 0
     inst [N or "nbd10"] value 0
@@ -4194,6 +4366,9 @@ No value(s) available!
 disk.dm.flush_rawactive
 No value(s) available!
 
+disk.dm.inflight
+No value(s) available!
+
 disk.dm.read
 No value(s) available!
 
@@ -4264,6 +4439,9 @@ disk.md.flush
 No value(s) available!
 
 disk.md.flush_rawactive
+No value(s) available!
+
+disk.md.inflight
 No value(s) available!
 
 disk.md.read
@@ -4383,6 +4561,13 @@ disk.partitions.flush
     inst [N or "sda3"] value 0
 
 disk.partitions.flush_rawactive
+    inst [N or "nbd11p1"] value 0
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+
+disk.partitions.inflight
     inst [N or "nbd11p1"] value 0
     inst [N or "nbd11p2"] value 0
     inst [N or "sda1"] value 0
@@ -4512,6 +4697,9 @@ disk.all.flush
 disk.all.flush_rawactive
     value 10786
 
+disk.all.inflight
+    value 0
+
 disk.all.read
     value 21600
 
@@ -4619,6 +4807,12 @@ disk.dev.flush_rawactive
     inst [N or "sdb"] value 0
     inst [N or "sdc"] value 0
     inst [N or "vda"] value 10786
+
+disk.dev.inflight
+    inst [N or "sda"] value 0
+    inst [N or "sdb"] value 0
+    inst [N or "sdc"] value 0
+    inst [N or "vda"] value 0
 
 disk.dev.read
     inst [N or "sda"] value 101
@@ -4731,6 +4925,9 @@ No value(s) available!
 disk.dm.flush_rawactive
 No value(s) available!
 
+disk.dm.inflight
+No value(s) available!
+
 disk.dm.read
 No value(s) available!
 
@@ -4801,6 +4998,9 @@ disk.md.flush
 No value(s) available!
 
 disk.md.flush_rawactive
+No value(s) available!
+
+disk.md.inflight
 No value(s) available!
 
 disk.md.read
@@ -4887,6 +5087,10 @@ disk.partitions.flush
     inst [N or "vda2"] value 0
 
 disk.partitions.flush_rawactive
+    inst [N or "vda1"] value 0
+    inst [N or "vda2"] value 0
+
+disk.partitions.inflight
     inst [N or "vda1"] value 0
     inst [N or "vda2"] value 0
 

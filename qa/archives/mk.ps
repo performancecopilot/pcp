@@ -1,0 +1,69 @@
+#!/bin/sh
+#
+# Copyright (c) 2022 Oracle and/or its affiliates.
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+# remake the pcp-ps archive ...
+# this archive is intended to be checked in and not remade, this script is
+# simply a record of how it was created
+#
+
+. /etc/pcp.env
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+pmcd_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mcd' | $PCP_AWK_PROG '{ print $2 }'`
+if [ -z "$pmcd_pid" ]
+then
+    echo "Failed to get pmcd PID"
+    exit 1
+fi
+
+cat <<End-of-File >>$tmp.config
+log mandatory on once {
+    kernel.uname.nodename
+    kernel.uname.release
+    kernel.uname.sysname
+    kernel.uname.machine
+    kernel.all.boottime
+    hinv.ncpu
+}
+
+log mandatory on 10 sec {
+    proc.psinfo.pid
+    proc.psinfo.guest_time
+    proc.psinfo.utime
+    proc.psinfo.ppid
+    proc.psinfo.rt_priority
+    proc.psinfo.rss
+    proc.id.uid_nm
+    proc.psinfo.stime
+    kernel.all.uptime
+    proc.psinfo.sname
+    proc.psinfo.start_time
+    proc.psinfo.vsize
+    proc.psinfo.priority
+    proc.psinfo.nice
+    proc.psinfo.wchan_s
+    proc.psinfo.psargs
+    proc.psinfo.cmd
+    proc.psinfo.ttyname
+    mem.physmem
+    proc.psinfo.policy
+}
+End-of-File
+
+rm -f pcp-ps.0 pcp-ps.0.* pcp-ps.meta pcp-ps.meta.* pcp-ps.index
+
+if pmlogger -s 10 -c $tmp.config pcp-ps
+then
+    xz pcp-ps.0
+    xz pcp-ps.meta
+else
+    echo "Argh: pmlogger failed ..."
+    cat pmlogger.log
+fi
+
+
+
