@@ -1,3 +1,6 @@
+pcp-6.0.3 (April 2023)
+    - Currently work-in-progress.
+
 pcp-6.0.2 (12 February 2023)
     - Client tools and utilities:
 	pcp-atop: update to latest upstream atoptool.nl sources

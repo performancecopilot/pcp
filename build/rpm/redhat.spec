@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 6.0.2
+Version: 6.0.3
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2+ and CC-BY
@@ -3362,6 +3362,9 @@ fi
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
+* Mon Apr 17 2023 Nathan Scott <nathans@redhat.com> - 6.0.3-1
+- Currently work-in-progress.
+
 * Sun Feb 12 2023 Nathan Scott <nathans@redhat.com> - 6.0.2-1
 - Fix pcp-dstat swap device handling with -f (BZ 2168774)
 - Update to latest PCP sources.
