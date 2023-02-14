@@ -2,7 +2,7 @@
 # PCP QA Test No. 1258
 # Exercise Linux kernel PMDA /proc/pressure metrics.
 #
-# Copyright (c) 2019 Red Hat.
+# Copyright (c) 2019,2023 Red Hat.
 #
 
 seq=`basename $0`

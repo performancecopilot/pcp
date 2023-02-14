@@ -1,7 +1,7 @@
 /*
  * Linux /proc/pressure/ metrics clusters
  *
- * Copyright (c) 2019 Red Hat.
+ * Copyright (c) 2019,2023 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,6 +29,7 @@ typedef struct {
     pressure_t	some_mem;
     pressure_t	full_io;
     pressure_t	some_io;
+    pressure_t	full_irq;
 } proc_pressure_t;
 
 extern int average_proc_pressure(pressure_t *, unsigned int, pmAtomValue *);
@@ -36,3 +37,4 @@ extern int average_proc_pressure(pressure_t *, unsigned int, pmAtomValue *);
 extern int refresh_proc_pressure_cpu(proc_pressure_t *);
 extern int refresh_proc_pressure_mem(proc_pressure_t *);
 extern int refresh_proc_pressure_io(proc_pressure_t *);
+extern int refresh_proc_pressure_irq(proc_pressure_t *);

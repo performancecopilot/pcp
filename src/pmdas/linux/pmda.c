@@ -6883,7 +6883,7 @@ static pmdaMetric metrictab[] = {
 	     PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0)} },
 
 /*
- * /proc/pressure/{cpu,memory,io} clusters
+ * /proc/pressure/{cpu,memory,io,irq} clusters
  */
     /* kernel.all.pressure.cpu.some.avg */
     { NULL, { PMDA_PMID(CLUSTER_PRESSURE_CPU,0), PM_TYPE_FLOAT,
@@ -6914,6 +6914,12 @@ static pmdaMetric metrictab[] = {
 	      PRESSUREAVG_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
     /* kernel.all.pressure.io.full.total */
     { NULL, { PMDA_PMID(CLUSTER_PRESSURE_IO,3), PM_TYPE_U64, PM_INDOM_NULL,
+	      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0)}},
+    /* kernel.all.pressure.irq.full.avg */
+    { NULL, { PMDA_PMID(CLUSTER_PRESSURE_IRQ,0), PM_TYPE_FLOAT,
+	      PRESSUREAVG_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+    /* kernel.all.pressure.irq.full.total */
+    { NULL, { PMDA_PMID(CLUSTER_PRESSURE_IRQ,1), PM_TYPE_U64, PM_INDOM_NULL,
 	      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0)}},
 
 /*
@@ -7450,6 +7456,8 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	refresh_proc_pressure_mem(&proc_pressure);
     if (need_refresh[CLUSTER_PRESSURE_IO])
 	refresh_proc_pressure_io(&proc_pressure);
+    if (need_refresh[CLUSTER_PRESSURE_IRQ])
+	refresh_proc_pressure_irq(&proc_pressure);
 
     if (need_refresh[CLUSTER_FCHOST])
 	refresh_sysfs_fchosts(INDOM(FCHOST_INDOM));
@@ -9575,7 +9583,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (proc_pressure.some_cpu.updated == 0)
 		return 0;
 	    if (average_proc_pressure(&proc_pressure.some_cpu, inst, atom) < 0)
-	    	return PM_ERR_INST;
+		return PM_ERR_INST;
 	    break;
 	case 1:	/* kernel.all.pressure.cpu.some.total */
 	    if (proc_pressure.some_cpu.updated == 0)
@@ -9593,7 +9601,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (proc_pressure.some_mem.updated == 0)
 		return 0;
 	    if (average_proc_pressure(&proc_pressure.some_mem, inst, atom) < 0)
-	    	return PM_ERR_INST;
+		return PM_ERR_INST;
 	    break;
 	case 1:	/* kernel.all.pressure.memory.some.total */
 	    if (proc_pressure.some_mem.updated == 0)
@@ -9604,7 +9612,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (proc_pressure.full_mem.updated == 0)
 		return 0;
 	    if (average_proc_pressure(&proc_pressure.full_mem, inst, atom) < 0)
-	    	return PM_ERR_INST;
+		return PM_ERR_INST;
 	    break;
 	case 3:  /* kernel.all.pressure.memory.full.total */
 	    if (proc_pressure.full_mem.updated == 0)
@@ -9622,7 +9630,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (proc_pressure.some_io.updated == 0)
 		return 0;
 	    if (average_proc_pressure(&proc_pressure.some_io, inst, atom) < 0)
-	    	return PM_ERR_INST;
+		return PM_ERR_INST;
 	    break;
 	case 1:  /* kernel.all.pressure.io.some.total */
 	    if (proc_pressure.some_io.updated == 0)
@@ -9633,12 +9641,30 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (proc_pressure.full_io.updated == 0)
 		return 0;
 	    if (average_proc_pressure(&proc_pressure.full_io, inst, atom) < 0)
-	    	return PM_ERR_INST;
+		return PM_ERR_INST;
 	    break;
 	case 3:  /* kernel.all.pressure.io.full.total */
 	    if (proc_pressure.full_io.updated == 0)
 		return 0;
 	    atom->ull = proc_pressure.full_io.total;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    case CLUSTER_PRESSURE_IRQ:
+	switch (item) {
+	case 0:	/* kernel.all.pressure.irq.full.avg */
+	    if (proc_pressure.full_irq.updated == 0)
+		return 0;
+	    if (average_proc_pressure(&proc_pressure.full_irq, inst, atom) < 0)
+		return PM_ERR_INST;
+	    break;
+	case 1:	/* kernel.all.pressure.irq.full.total */
+	    if (proc_pressure.full_irq.updated == 0)
+		return 0;
+	    atom->ull = proc_pressure.full_irq.total;
 	    break;
 	default:
 	    return PM_ERR_PMID;

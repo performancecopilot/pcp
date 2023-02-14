@@ -2208,6 +2208,15 @@ Pressure stall information (PSI) from /proc/pressure/io.
 The CPU time in which all tasks stalled on IO resources.
 Pressure stall information (PSI) from /proc/pressure/io.
 
+@ kernel.all.pressure.irq.full.avg Percentage of time all work is delayed from IRQ pressure
+Indicates the time in which all tasks stalled on IRQ resources.
+The ratios are tracked as recent trends over ten second, one minute,
+and five minute windows.
+Pressure stall information (PSI) from /proc/pressure/irq.
+@ kernel.all.pressure.irq.full.total Total time when all tasks stall on IRQ processing
+The CPU time in which all tasks stalled on IRQ resources.
+Pressure stall information (PSI) from /proc/pressure/irq.
+
 @ zram.read read operations metric for compressed memory
 Cumulative number of disk read operations since system boot time
 (subject to counter wrap) for compressed memory devices.

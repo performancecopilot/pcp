@@ -158,6 +158,7 @@ kernel.all.pressure {
     cpu
     memory
     io
+    irq
 }
 
 kernel.all.pressure.cpu {
@@ -197,6 +198,15 @@ kernel.all.pressure.io.some {
 kernel.all.pressure.io.full {
     avg			60:85:2
     total		60:85:3
+}
+
+kernel.all.pressure.irq {
+    full
+}
+
+kernel.all.pressure.irq.full {
+    avg			60:93:0
+    total		60:93:1
 }
 
 kernel.all.cpu {
