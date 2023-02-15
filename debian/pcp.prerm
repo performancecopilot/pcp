@@ -1,6 +1,11 @@
 #!/bin/sh -e
 #DEBHELPER#
-if which invoke-rc.d >/dev/null 2>&1; then
+if which systemctl >/dev/null 2>&1
+then
+    systemctl stop pmlogger.service >/dev/null
+    systemctl stop pmcd.service >/dev/null
+elif which invoke-rc.d >/dev/null 2>&1
+then
     invoke-rc.d pmproxy stop
     invoke-rc.d pmie stop
     if [ -f /etc/init.d/pmcd ]; then
