@@ -364,6 +364,7 @@ cgroup.pressure {
     cpu
     memory
     io
+    irq
 }
 
 cgroup.pressure.cpu {
@@ -413,6 +414,17 @@ cgroup.pressure.io.full {
     avg1min		PROC:65:5
     avg5min		PROC:65:6
     total		PROC:65:7
+}
+
+cgroup.pressure.irq {
+    full
+}
+
+cgroup.pressure.irq.full {
+    avg10sec		PROC:76:0
+    avg1min		PROC:76:1
+    avg5min		PROC:76:2
+    total		PROC:76:3
 }
 
 cgroup.io {

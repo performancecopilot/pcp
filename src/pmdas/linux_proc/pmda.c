@@ -1138,6 +1138,17 @@ static pmdaMetric metrictab[] = {
     CGROUP2_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
 /* cgroup.pressure.io.full.total */
   { NULL, { PMDA_PMID(CLUSTER_CGROUP2_IO_PRESSURE, CG_PRESSURE_IO_FULL_TOTAL), PM_TYPE_U64, CGROUP2_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0) } },
+/* cgroup.pressure.irq.full.avg10sec */
+  { NULL, { PMDA_PMID(CLUSTER_CGROUP2_IRQ_PRESSURE, CG_PRESSURE_IRQ_FULL_AVG10SEC), PM_TYPE_FLOAT,
+    CGROUP2_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+/* cgroup.pressure.irq.full.avg1min */
+  { NULL, { PMDA_PMID(CLUSTER_CGROUP2_IRQ_PRESSURE, CG_PRESSURE_IRQ_FULL_AVG1MIN), PM_TYPE_FLOAT,
+    CGROUP2_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+/* cgroup.pressure.irq.full.avg5min */
+  { NULL, { PMDA_PMID(CLUSTER_CGROUP2_IRQ_PRESSURE, CG_PRESSURE_IRQ_FULL_AVG5MIN), PM_TYPE_FLOAT,
+    CGROUP2_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+/* cgroup.pressure.irq.full.total */
+  { NULL, { PMDA_PMID(CLUSTER_CGROUP2_IRQ_PRESSURE, CG_PRESSURE_IRQ_FULL_TOTAL), PM_TYPE_U64, CGROUP2_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0) } },
 /* cgroup.cpu.stat.user */
   { NULL, { PMDA_PMID(CLUSTER_CGROUP2_CPU_STAT, CG_CPU_STAT_USER), PM_TYPE_U64,
     CGROUP2_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0) } },
@@ -1392,6 +1403,7 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 	need_refresh[CLUSTER_BLKIO_GROUPS] ||
 	need_refresh[CLUSTER_CGROUP2_CPU_PRESSURE] ||
 	need_refresh[CLUSTER_CGROUP2_IO_PRESSURE] ||
+	need_refresh[CLUSTER_CGROUP2_IRQ_PRESSURE] ||
 	need_refresh[CLUSTER_CGROUP2_MEM_PRESSURE] ||
 	need_refresh[CLUSTER_CGROUP2_CPU_STAT] ||
 	need_refresh[CLUSTER_CGROUP2_IO_STAT] ||
@@ -3190,6 +3202,34 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case CG_PRESSURE_IO_FULL_TOTAL:
 	    if (cgroup->io_pressures.full.updated == 0) return 0;
 	    atom->ull = cgroup->io_pressures.full.total;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    case CLUSTER_CGROUP2_IRQ_PRESSURE:
+	indom = INDOM(CGROUP2_INDOM);
+	if ((sts = pmdaCacheLookup(indom, inst, NULL, (void **)&cgroup)) < 0)
+	    return sts;
+	if (sts != PMDA_CACHE_ACTIVE)
+	    return 0;
+	switch (item) {
+	case CG_PRESSURE_IRQ_FULL_AVG10SEC:
+	    if (cgroup->irq_pressures.full.updated == 0) return 0;
+	    atom->ull = cgroup->irq_pressures.full.avg10sec;
+	    break;
+	case CG_PRESSURE_IRQ_FULL_AVG1MIN:
+	    if (cgroup->irq_pressures.full.updated == 0) return 0;
+	    atom->ull = cgroup->irq_pressures.full.avg1min;
+	    break;
+	case CG_PRESSURE_IRQ_FULL_AVG5MIN:
+	    if (cgroup->irq_pressures.full.updated == 0) return 0;
+	    atom->ull = cgroup->irq_pressures.full.avg5min;
+	    break;
+	case CG_PRESSURE_IRQ_FULL_TOTAL:
+	    if (cgroup->irq_pressures.full.updated == 0) return 0;
+	    atom->ull = cgroup->irq_pressures.full.total;
 	    break;
 	default:
 	    return PM_ERR_PMID;

@@ -424,6 +424,26 @@ The CPU time in which all cgroup tasks stalled on IO resources.
 Pressure stall information (PSI) from:
 $ find /sys/fs/cgroup -name io.pressure
 
+@ cgroup.pressure.irq.full.avg10sec Time all cgroup work is delayed from IRQ processing
+Indicates the time in which all cgroup tasks stalled on interrup request
+processing over the last 10 seconds.  Pressure stall information (PSI)
+from: $ find /sys/fs/cgroup -name irq.pressure
+
+@ cgroup.pressure.irq.full.avg1min Time all cgroup work is delayed from IRQ processing
+Indicates the time in which all cgroup tasks stalled on interrupt request
+processing over the last 1 minute.  Pressure stall information (PSI)
+from: $ find /sys/fs/cgroup -name irq.pressure
+
+@ cgroup.pressure.irq.full.avg5min Time all cgroup work is delayed from IRQ processing
+Indicates the time in which all cgroup tasks stalled on interrupt request
+processing over the last 5 minutes.  Pressure stall information (PSI)
+from: $ find /sys/fs/cgroup -name irq.pressure
+
+@ cgroup.pressure.irq.full.total Total time when all cgroup tasks stall on IRQ processing
+The CPU time in which all cgroup tasks stalled on IRQ processing.
+Pressure stall information (PSI) from:
+$ find /sys/fs/cgroup -name irq.pressure
+
 @ cgroup.cpu.stat.user Time spent by tasks of the cgroup in user mode
 @ cgroup.cpu.stat.system Time spent by tasks of the cgroup in kernel mode
 @ cgroup.cpu.stat.usage CPU time consumed by processes in each cgroup
