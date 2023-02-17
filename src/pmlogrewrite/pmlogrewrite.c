@@ -1794,7 +1794,8 @@ main(int argc, char **argv)
     for (mp = metric_root; mp != NULL; mp = mp->m_next) {
 	if (mp->old_desc.indom == PM_INDOM_NULL)
 	    continue;
-	if ((mp->flags & METRIC_DELETE) || (mp->flags & METRIC_CHANGE_INDOM)) {
+	// if ((mp->flags & METRIC_DELETE) || (mp->flags & METRIC_CHANGE_INDOM)) {
+	if ((mp->flags & METRIC_DELETE)) {
 	    __pmHashNode	*ip;
 	    int			*refp;
 	    if ((ip = __pmHashSearch((unsigned int)mp->old_desc.indom, &indom_hash)) == NULL) {
