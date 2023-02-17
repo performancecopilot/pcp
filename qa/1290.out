@@ -1049,7 +1049,7 @@ interval:  0.50 sec
 N connects
 N-0 disconnects
 
-+++ pmie -h MY_HOSTNAME -c TMP.in -v -t 0.5 -T 1.5 +++
++++ pmie -h MY_HOSTNAME -c TMP.in -v -t 0.5 -T 1.75 +++
 expr_1: N N N
 
 expr_1: N N N
@@ -1062,7 +1062,7 @@ expr_1: N N N
 N connects
 N-0 disconnects
 
-+++ pmie -h MY_HOSTNAME -c TMP.in -v -t 0.5 -T 1.5 +++
++++ pmie -h MY_HOSTNAME -c TMP.in -v -t 0.5 -T 1.75 +++
 expr_1: ?
 
 expr_1: N
@@ -1102,11 +1102,11 @@ N-0 disconnects
 N connects
 N-0 disconnects
 
-+++ pmlogger -h MY_HOSTNAME -c TMP.logger.config -t 0.5sec -s 3 -l TMP.logger.log TMP.arch +++
++++ pmlogger -h MY_HOSTNAME -c TMP.logger.config -t 0.5sec -s 8 -l TMP.logger.log TMP.arch +++
 N connects
 N-0 disconnects
 
-+++ pmstat -S +0.25sec -t 0.5sec -a TMP.arch -z +++
++++ pmstat -t 0.5sec -a TMP.arch -z +++
 Note: timezone set to local timezone of host "MY_HOSTNAME" from archive
 
 @ DATE

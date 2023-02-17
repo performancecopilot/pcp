@@ -126,7 +126,6 @@ _filter_pmproxy()
 	-e '/^IPC table fd/d' \
 	-e '/^pmproxy: disabled time series, requires libuv support (missing)/d' \
     # end
-
 }
 
 _do()
@@ -170,17 +169,27 @@ log advisory on default {
 End-of-File
 }
 
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mproxy' >>$here/$seq.full
+$sudo netstat -t -l -4 -p | grep '4432[23]' >>$here/$seq.full
 _service pmproxy stop >/dev/null 2>&1
 $sudo $signal -a pmproxy >/dev/null 2>&1
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mproxy' >>$here/$seq.full
+# give any running pmproxy a chance to shutdown cleanly
+#
+sleep 2
+$sudo netstat -t -l -4 -p | grep '4432[23]' >>$here/$seq.full
 
 mkdir -p $tmp.rundir
 export PCP_RUN_DIR=$tmp.rundir
 proxyargs="-Dcontext -U $username"
 $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1 | _filter_pmproxy
 _wait_for_pmproxy
+$sudo netstat -t -l -4 -p | grep '4432[23]' >>$here/$seq.full
 
 export PMPROXY_HOST=localhost
 $PCP_BINADM_DIR/pmcd_wait -t 5sec -h localhost@localhost
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mproxy' >>$here/$seq.full
+cat $tmp.log >> $here/$seq.full
 
 # real QA test starts here
 _do pminfo -h $PMPROXY_HOST -d pmcd.agent
@@ -202,8 +211,8 @@ _do pmdumptext -t 0.5 -s 2 `hostname`:kernel.all.load
 
 _do pmstat -h $PMPROXY_HOST -t 0.5 -s 2
 _do_config 
-_do pmlogger -h localhost -c $tmp.config -t 0.5sec -s 3 -l $tmp.logger.log $tmp.arch
-_do pmstat -S +0.4sec -t 0.5sec -a $tmp.arch -z
+_do pmlogger -h localhost -c $tmp.config -t 0.5sec -s 6 -l $tmp.logger.log $tmp.arch
+_do pmstat -S +1sec -t 0.5sec -s 1 -a $tmp.arch -z
 
 ( echo ""; echo "=== pmproxy.log ===" ) >>$seq.full
 cat $tmp.log >>$seq.full

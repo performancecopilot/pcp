@@ -29,6 +29,7 @@ trap "_cleanup; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
 echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
+[ -f $PCP_RUN_DIR/pmproxy.pid ] && echo "pmproxy.pid: `cat $PCP_RUN_DIR/pmproxy.pid`" >>$here/$seq.full
 
 _cleanup()
 {
@@ -45,6 +46,11 @@ _cleanup()
     fi
 }
 
+# in addition to the ususal filtering tasks ..
+# on slow VMs (like bozo-vm) we may need to dodge warnings
+# from pmie's rule scheduler around pmcd reconnection ... the awk
+# script at the end iof the pipeline does this.
+#
 _filter()
 {
     sed \
@@ -68,12 +74,23 @@ s//@ DATE/
 # pmstat header3
 s//   1 min   swpd   free   buff  cache   si   so   bi   bo   in   cs  us  sy  id/
 }' \
-	-e '/[0-9?][0-9.Km]*  *[0-9?][0-9.Km]*  *[0-9?][0-9.Km]*  *[0-9?][0-9.Km]*  *[0-9?][0-9.Km]*/{
+	-e '/[0-9?][0-9.Kmg]*  *[0-9?][0-9.Kmg]*  *[0-9?][0-9.Kmg]*  *[0-9?][0-9.Kmg]*  *[0-9?][0-9.Kmg]*/{
 # pmstat data
 s/  *?/ ?/g
-s/  *[0-9][0-9.Km]*/ N/g
+s/  *[0-9][0-9.Kmg]*/ N/g
 }' \
-    | _filter_me
+    | _filter_me \
+    | $PCP_AWK_PROG '
+skip == 1 && /^[^ ]/		{ skip = 0 }
+/^run: schedule eval/		{ skip = 1 }
+/^sleepTight: negative/		{ skip = 1 }
+/^Last sleepTight until:/	{ skip = 1 }
+/^This sleepTight\() entry:/	{ skip = 1 }
+/^Harvest children done:/	{ skip = 1 }
+/^Want sleepTight until:/	{ skip = 1 }
+/Task dump @/			{ skip = 1 }
+skip == 0			{ print }'
+
 }
 
 _filter_me()
@@ -108,6 +125,57 @@ _filter_pmproxy()
 	-e '/^IPC table fd/d' \
 	-e '/^pmproxy: disabled time series, requires libuv support (missing)/d' \
     # end
+}
+
+# see comments below, ahead of where this is used ...
+#
+_filter_pmstat()
+{
+    tee -a $here/$seq.full \
+    | $PCP_AWK_PROG '
+BEGIN	{ skip = 0; h1 = h2 = h3 = 0 }
+skip == 1	{
+	    if ($0 ~ /End of PCP archive/)
+		skip = 0
+	    else
+		next
+	}
+NF == 0	{ print; next }
+$2 == "DATE"	{
+	    # heading line 1 only once
+	    if (h1)
+		next
+	    h1 = 1
+	}
+$1 == "loadavg"	{
+	    # heading line 2 only once
+	    if (h2)
+		next
+	    h2 = 1
+	}
+$3 == "swpd"	{
+	    # heading line 3 only once
+	    if (h3)
+		next
+	    h3 = 1
+	}
+	{ n = q = 0
+	  for (i = 1; i <= NF; i++) {
+	    if ($i == "?") q++
+	    if ($i == "N") n++
+	  }
+	  if (q > NF / 2) {
+	    # more than half no data, skip this one
+	    next
+	  }
+	  if (n == NF) {
+	    if (skip == 0) {
+		# only report first line of N N ... N
+		skip = 1
+	    }
+	  }
+	  print
+	}'
 }
 
 _do()
@@ -151,10 +219,10 @@ log advisory on default {
 End-of-File
 }
 
-$PCP_PS_PROG $PCP_PS_APP_FLAGS | grep -E '[P]ID|[p]mproxy' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mproxy' >>$here/$seq.full
 _service pmproxy stop >/dev/null 2>&1
-$sudo $signal -a pmproxy >/dev/null 2>&1
-$PCP_PS_PROG $PCP_PS_APP_FLAGS | grep -E '[P]ID|[p]mproxy' >>$here/$seq.full
+$sudo $signal -s KILL -a pmproxy >/dev/null 2>&1
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mproxy' >>$here/$seq.full
 
 mkdir -p $tmp.rundir
 export PCP_RUN_DIR=$tmp.rundir
@@ -196,23 +264,23 @@ valgrind -s \
 	$PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log \
 	    2>$tmp._valgrind.err >$tmp._valgrind.out &
 
-_wait_for_pmproxy 44322 $tmp.log
-_wait_for_pmproxy_logfile $tmp.log
+_wait_for_pmproxy
+
+export PMPROXY_HOST=localhost
 $PCP_BINADM_DIR/pmcd_wait -t 5sec -h localhost@localhost
-$PCP_PS_PROG $PCP_PS_APP_FLAGS | grep -E '[P]ID|[p]mproxy' >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mproxy' >>$here/$seq.full
 cat $tmp.log >> $here/$seq.full
 
 # real QA test starts here
-export PMPROXY_HOST=localhost
 _do pminfo -h $PMPROXY_HOST -d pmcd.agent
 _do pminfo -h $PMPROXY_HOST -f sample.hordes
 _do pmprobe -v -h localhost hinv.ncpu
 _do pmval -h `hostname` -t 0.5 -s 3 sample.bin
 
 echo "kernel.all.load;" >$tmp.in
-_do pmie -h $PMPROXY_HOST -c $tmp.in -v -t 0.5 -T 1.5 
+_do pmie -h $PMPROXY_HOST -c $tmp.in -v -t 0.5 -T 1.75 
 echo "kernel.all.cpu.user :localhost;" >$tmp.in
-_do pmie -h $PMPROXY_HOST -c $tmp.in -v -t 0.5 -T 1.5 
+_do pmie -h $PMPROXY_HOST -c $tmp.in -v -t 0.5 -T 1.75 
 _do pmdumptext -h `hostname` -t 0.5 -s 2 sample.string.hullo
 _do pmdumptext -t 0.5 -s 2 localhost:sample.string.hullo
 _do pmdumptext -t 0.5 -s 2 `hostname`:kernel.all.load
@@ -223,17 +291,32 @@ _do pmdumptext -t 0.5 -s 2 `hostname`:kernel.all.load
 
 _do pmstat -h $PMPROXY_HOST -t 0.5 -s 2
 _do_config 
-_do pmlogger -h localhost -c $tmp.config -t 0.5sec -s 3 -l $tmp.logger.log $tmp.arch
-_do pmstat -S +0.25sec -t 0.5sec -a $tmp.arch -z
+# and compared to the non-valgrind version, we have to run pmlogger
+# for more samples to make sure we get at least some good data
+#
+_do pmlogger -h localhost -c $tmp.config -t 0.5sec -s 8 -l $tmp.logger.log $tmp.arch
+# and compared to the non-valgrind version, we need to cull out
+# the no data available rows and deal with non-determinism in
+# the number of reported data available samples, and only
+# output the pmstat headings once
+#
+_do pmstat -t 0.5sec -a $tmp.arch -z 2>&1 \
+| _filter_pmstat
+
+# for debugging this test ...
+#
+pmdumplog -Lm -z $tmp.arch >>$here/$seq.full 2>&1
+#pmstat -Dfetch,interp -S +0.4sec -t 0.5sec -a $tmp.arch -z >>$here/$seq.full 2>&1
 
 ( echo ""; echo "=== pmproxy.log ===" ) >>$seq.full
 cat $tmp.log >>$seq.full
 
 # stop pmproxy and harvest output ...
 #
-$sudo $signal -a pmproxy >>$here/$seq.full 2>&1
+$sudo $signal -s KILL -a pmproxy >>$here/$seq.full 2>&1
 sleep 2
-$sudo $signal -a valgrind.bin >>$here/$seq.full 2>&1
+$sudo $signal -s KILL -a valgrind.bin >>$here/$seq.full 2>&1
+wait
 
 # also copied from _run_valgrind (which we cannot use here) ...
 #
