@@ -1274,7 +1274,7 @@ x11
 819 pmda.elasticsearch local
 820 pmda.linux local
 821 pmda.linux local
-822:reserved pmlogrewrite
+822 pmlogrewrite pmlogdump pmlogcheck
 823 pmda.sample pmstore secure local pmdbg
 824 pmlogsummary local #1132476 pmdumplog kernel
 825 pmda.ds389 local
@@ -1856,6 +1856,7 @@ x11
 1401 pmproxy local
 1402 pmlogrewrite pmlogextract archive pmdumplog archive_v3 local
 1403 pmda.linux local valgrind
+1404 pmlogrewrite pmlogdump pmlogcheck valgrind
 1405 sheet2pcp pmimport pmdumplog perl local archive_v3 libpcp_import
 1406 sheet2pcp pmimport local pmdumplog perl archive_v3 libpcp_import
 1407 pmchart derive local x11

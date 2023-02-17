@@ -2,35 +2,98 @@
 # PCP QA Test No. 822
 # pmlogrewrite culling unused indom
 # see http://oss.sgi.com/bugzilla/show_bug.cgi?id=978
+# unfortunately oss.sgi.com has gone away, but this is the
+# closest we have now
+# https://github.com/performancecopilot/pcp/issues/1743
 #
-# Copyright (c) 2013 Ken McDonell.  All Rights Reserved.
+# non-valgrind variant, see qa/1404 for the valgrind variant
 #
-# check-group-include: pmlogrewrite
+# Copyright (c) 2013,2023 Ken McDonell.  All Rights Reserved.
 #
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-seq=`basename $0`
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
 
-echo "QA output created by $seq"
 
-status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+_doit()
+{
+    rm -f $tmp.meta $tmp.0 $tmp.index
+    if $do_valgrind
+    then
+	_run_valgrind pmlogrewrite -Dappl1 -c $tmp.config $1 $tmp
+    else
+	pmlogrewrite -Dappl1 -c $tmp.config $1 $tmp
+    fi \
+    | _filter
+    pmlogcheck -z $tmp
+    pmdumplog -z -i $tmp
+}
 
 # real QA test starts here
 
-# if error
-exit
+echo "=== case 1, indom 29.2 still used after delete ==="
+cat <<'End-of-File' >$tmp.config
+metric sample.bin { delete }
+End-of-File
+_doit archives/ok-bigbin
 
-# optional stuff if your test has verbose output to help resolve problems
-#echo
-#echo "If failure, check $seq.full"
+echo
+echo "=== case 2, indom 29.2 should be deleted ==="
+cat <<'End-of-File' >$tmp.config
+metric sample.bin { delete }
+metric sample.bucket { delete }
+End-of-File
+_doit archives/ok-bigbin
+
+echo
+echo "=== case 3, indom 29.1 should be deleted ==="
+cat <<'End-of-File' >$tmp.config
+metric sample.colour { pmid -> 30.1.5 indom -> 30.1 }
+End-of-File
+_doit archives/ok-bigbin
+
+echo
+echo "=== case 4, indom 29.1 should stay ==="
+cat <<'End-of-File' >$tmp.config
+metric sample.colour { pmid -> 29.0.5 indom -> 29.1 }
+End-of-File
+_doit archives/ok-bigbin
 
 # success, all done
-status=0
-
 exit

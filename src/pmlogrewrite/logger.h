@@ -69,6 +69,7 @@ typedef struct indomspec {
 #define INST_DELETE		64
 
 extern indomspec_t	*indom_root;
+extern __pmHashCtl	indom_hash;
 
 /*
  * Rewrite specifications for a metric

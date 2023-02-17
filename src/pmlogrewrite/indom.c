@@ -209,7 +209,7 @@ _pmUnpackInDom(__int32_t *recbuf, __pmLogInDom *lidp)
 	lidp->indom = ntoh_pmInDom(recbuf[5]);
 	idp = pmaUndeltaInDom(inarch.ctxp->c_archctl->ac_log, recbuf);
 	if (idp == NULL) {
-	    fprintf(stderr, "_pmUnpackInDom: Botch: undelta indom failed for indom %s\n", pmInDomStr(lidp->indom));
+	    fprintf(stderr, "_pmUnpackInDom: Botch: undelta InDom failed for InDom %s\n", pmInDomStr(lidp->indom));
 	    abandon();
 	    /*NOTREACHED*/
 	}
@@ -264,6 +264,7 @@ do_indom(int type)
     int		pdu_type;
     __pmLogInDom	lid;
     __pmLogInDom	*dup_lid;
+    __pmHashNode	*hp;
 
     lid.numinst = 0;
     lid.alloc = 0;
@@ -286,6 +287,26 @@ do_indom(int type)
     lid = *dup_lid;		/* struct assignment */
     lid.alloc &= ~PMLID_SELF;      /* don't free lid */
     free(dup_lid);
+
+    if (lid.indom != PM_INDOM_NULL) {
+	/*
+	 * if indom's refcount is zero, no need to emit it
+	 */
+	if ((hp = __pmHashSearch((unsigned int)lid.indom, &indom_hash)) == NULL) {
+	    fprintf(stderr, "Botch: InDom: %s: not in indom_hash table\n", pmInDomStr(lid.indom));
+	}
+	else {
+	    int		*refp;
+	    refp = (int *)hp->data;
+	    if (*refp == 0) {
+		if (pmDebugOptions.appl1) {
+		    fprintf(stderr, "Delete: InDom: %s: no output metrics use this\n",
+			pmInDomStr(lid.indom));
+		}
+		goto done;
+	    }
+	}
+    }
 
     /*
      * global time stamp adjustment (if any has already been done in the
@@ -448,5 +469,6 @@ do_indom(int type)
 	}
     }
 
+done:
     __pmFreeLogInDom(&lid);
 }

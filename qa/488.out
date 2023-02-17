@@ -133,14 +133,26 @@ QA output created by 488
  PMID: 2.3.2 (pmcd.pmlogger.archive)
      Data Type: string  InDom: 2.1 0x800001
      Semantics: instant  Units: none
-@@ -39,164 +30,11 @@
+@@ -26,11 +17,6 @@
+     Semantics: instant  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 1.5
+-23:22:42.011766 3 instances
+-   1 or "1 minute"
+-   5 or "5 minute"
+-   15 or "15 minute"
+ InDom: 2.1
+ 22:22:42.025955 1 instances
+    19856 or "19856"
+@@ -39,164 +25,11 @@
  		Log Vol    end(meta)     end(log)
  22:22:42.025955	      0          132          132
  22:22:42.060877	      0          351          284
 -23:22:42.011766	      0          450          344
 -11:22:42.021829	      0          590         1784
 +23:22:42.011766	      0          351          284
-+11:22:42.021829	      0          431          284
++11:22:42.021829	      0          351          284
  
  [152 bytes]
  22:22:42.025955 3 metrics
@@ -444,13 +456,25 @@ QA output created by 488
  
  Instance Domains in the Log ...
  InDom: 1.5
-@@ -116,18 +86,11 @@
+@@ -97,11 +67,6 @@
+    1 or "1 minute"
+    5 or "5 minute"
+    15 or "15 minute"
+-InDom: 1.6
+-14:25:09.043538 3 instances
+-   1 or "et0"
+-   2 or "lo0"
+-   3 or "sl0"
+ InDom: 1.2
+ 14:25:09.043538 9 instances
+    131329 or "dks1d1"
+@@ -116,18 +81,11 @@
  
  Temporal Index
  		Log Vol    end(meta)     end(log)
 -14:25:09.043538	      0         1978          132
 +14:25:09.043538	      0          132          132
-+14:25:20.177207	      0         1477         3660
++14:25:20.177207	      0         1413         3660
  
 -[724 bytes]
 -14:25:09.043538 28 metrics
@@ -467,7 +491,7 @@ QA output created by 488
      1.80.7 (disk.dev.total):
          inst [131329 or "dks1d1"] value 2818705566
          inst [131330 or "dks1d2"] value 2818573273
-@@ -158,14 +121,6 @@
+@@ -158,14 +116,6 @@
          inst [131844 or "dks3d4"] value 2818591226
          inst [132097 or "dks4d1"] value 2818573658
          inst [132098 or "dks4d2"] value 2818577309
@@ -482,7 +506,7 @@ QA output created by 488
      1.18.3 (kernel.all.load):
          inst [1 or "1 minute"] value 0.20703125
          inst [5 or "5 minute"] value 0.13867188
-@@ -185,16 +140,8 @@
+@@ -185,16 +135,8 @@
      1.10.7 (kernel.all.cpu.idle): value 4274422426
      1.10.3 (kernel.all.pswitch): value 4563510
  
@@ -501,7 +525,7 @@ QA output created by 488
      1.80.7 (disk.dev.total):
          inst [131329 or "dks1d1"] value 2818705566
          inst [131330 or "dks1d2"] value 2818573273
-@@ -225,14 +172,6 @@
+@@ -225,14 +167,6 @@
          inst [131844 or "dks3d4"] value 2818591226
          inst [132097 or "dks4d1"] value 2818573658
          inst [132098 or "dks4d2"] value 2818577352
@@ -516,7 +540,7 @@ QA output created by 488
      1.18.3 (kernel.all.load):
          inst [1 or "1 minute"] value 0.32226562
          inst [5 or "5 minute"] value 0.1640625
-@@ -252,16 +191,8 @@
+@@ -252,16 +186,8 @@
      1.10.7 (kernel.all.cpu.idle): value 4274427856
      1.10.3 (kernel.all.pswitch): value 4564200
  
@@ -535,7 +559,7 @@ QA output created by 488
      1.80.7 (disk.dev.total):
          inst [131329 or "dks1d1"] value 2818705570
          inst [131330 or "dks1d2"] value 2818573273
-@@ -292,14 +223,6 @@
+@@ -292,14 +218,6 @@
          inst [131844 or "dks3d4"] value 2818591226
          inst [132097 or "dks4d1"] value 2818573658
          inst [132098 or "dks4d2"] value 2818577376
@@ -550,7 +574,7 @@ QA output created by 488
      1.18.3 (kernel.all.load):
          inst [1 or "1 minute"] value 0.32226562
          inst [5 or "5 minute"] value 0.1640625
-@@ -319,16 +242,8 @@
+@@ -319,16 +237,8 @@
      1.10.7 (kernel.all.cpu.idle): value 4274432136
      1.10.3 (kernel.all.pswitch): value 4564693
  
@@ -569,7 +593,7 @@ QA output created by 488
      1.80.7 (disk.dev.total):
          inst [131329 or "dks1d1"] value 2818705571
          inst [131330 or "dks1d2"] value 2818573273
-@@ -359,14 +274,6 @@
+@@ -359,14 +269,6 @@
          inst [131844 or "dks3d4"] value 2818591226
          inst [132097 or "dks4d1"] value 2818573658
          inst [132098 or "dks4d2"] value 2818577559
@@ -584,7 +608,7 @@ QA output created by 488
      1.18.3 (kernel.all.load):
          inst [1 or "1 minute"] value 0.36523438
          inst [5 or "5 minute"] value 0.17480469
-@@ -386,16 +293,8 @@
+@@ -386,16 +288,8 @@
      1.10.7 (kernel.all.cpu.idle): value 4274433496
      1.10.3 (kernel.all.pswitch): value 4565347
  
@@ -603,7 +627,7 @@ QA output created by 488
      1.80.7 (disk.dev.total):
          inst [131329 or "dks1d1"] value 2818705571
          inst [131330 or "dks1d2"] value 2818573273
-@@ -426,14 +325,6 @@
+@@ -426,14 +320,6 @@
          inst [131844 or "dks3d4"] value 2818591226
          inst [132097 or "dks4d1"] value 2818573658
          inst [132098 or "dks4d2"] value 2818577747
@@ -618,7 +642,7 @@ QA output created by 488
      1.18.3 (kernel.all.load):
          inst [1 or "1 minute"] value 0.36523438
          inst [5 or "5 minute"] value 0.17480469
-@@ -453,16 +344,8 @@
+@@ -453,16 +339,8 @@
      1.10.7 (kernel.all.cpu.idle): value 4274434256
      1.10.3 (kernel.all.pswitch): value 4566026
  
@@ -637,7 +661,7 @@ QA output created by 488
      1.80.7 (disk.dev.total):
          inst [131329 or "dks1d1"] value 2818705571
          inst [131330 or "dks1d2"] value 2818573273
-@@ -493,14 +376,6 @@
+@@ -493,14 +371,6 @@
          inst [131844 or "dks3d4"] value 2818591226
          inst [132097 or "dks4d1"] value 2818573658
          inst [132098 or "dks4d2"] value 2818577813
@@ -652,7 +676,7 @@ QA output created by 488
      1.18.3 (kernel.all.load):
          inst [1 or "1 minute"] value 0.46972656
          inst [5 or "5 minute"] value 0.19921875
-@@ -520,16 +395,8 @@
+@@ -520,16 +390,8 @@
      1.10.7 (kernel.all.cpu.idle): value 4274436636
      1.10.3 (kernel.all.pswitch): value 4566488
  
@@ -671,7 +695,7 @@ QA output created by 488
      1.80.7 (disk.dev.total):
          inst [131329 or "dks1d1"] value 2818705571
          inst [131330 or "dks1d2"] value 2818573273
-@@ -560,14 +427,6 @@
+@@ -560,14 +422,6 @@
          inst [131844 or "dks3d4"] value 2818591226
          inst [132097 or "dks4d1"] value 2818573658
          inst [132098 or "dks4d2"] value 2818577871

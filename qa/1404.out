@@ -1,0 +1,189 @@
+QA output created by 1404
+QA output created by 822 --valgrind
+=== case 1, indom 29.2 still used after delete ===
+=== std out ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -Dappl1 -c TMP.config archives/ok-bigbin TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Note: timezone set to local timezone of host "ha2" from archive
+
+Note: timezone set to local timezone of host "ha2" from archive
+
+
+Instance Domains in the Log ...
+InDom: 29.1
+21:52:32.666976 3 instances
+   0 or "red"
+   1 or "green"
+   2 or "blue"
+InDom: 29.2
+21:52:32.666976 9 instances
+   100 or "bin-100"
+   200 or "bin-200"
+   300 or "bin-300"
+   400 or "bin-400"
+   500 or "bin-500"
+   600 or "bin-600"
+   700 or "bin-700"
+   800 or "bin-800"
+   900 or "bin-900"
+InDom: 30.1
+21:52:32.666976 3 instances
+   0 or "red"
+   1 or "green"
+   2 or "blue"
+InDom: 30.2
+21:52:32.666976 9 instances
+   100 or "bin-100"
+   200 or "bin-200"
+   300 or "bin-300"
+   400 or "bin-400"
+   500 or "bin-500"
+   600 or "bin-600"
+   700 or "bin-700"
+   800 or "bin-800"
+   900 or "bin-900"
+InDom: 2.1
+21:52:32.647317 1 instances
+   25031 or "25031"
+
+=== case 2, indom 29.2 should be deleted ===
+=== std out ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -Dappl1 -c TMP.config archives/ok-bigbin TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Note: timezone set to local timezone of host "ha2" from archive
+
+Note: timezone set to local timezone of host "ha2" from archive
+
+
+Instance Domains in the Log ...
+InDom: 29.1
+21:52:32.666976 3 instances
+   0 or "red"
+   1 or "green"
+   2 or "blue"
+InDom: 30.1
+21:52:32.666976 3 instances
+   0 or "red"
+   1 or "green"
+   2 or "blue"
+InDom: 30.2
+21:52:32.666976 9 instances
+   100 or "bin-100"
+   200 or "bin-200"
+   300 or "bin-300"
+   400 or "bin-400"
+   500 or "bin-500"
+   600 or "bin-600"
+   700 or "bin-700"
+   800 or "bin-800"
+   900 or "bin-900"
+InDom: 2.1
+21:52:32.647317 1 instances
+   25031 or "25031"
+
+=== case 3, indom 29.1 should be deleted ===
+=== std out ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -Dappl1 -c TMP.config archives/ok-bigbin TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Note: timezone set to local timezone of host "ha2" from archive
+
+Note: timezone set to local timezone of host "ha2" from archive
+
+
+Instance Domains in the Log ...
+InDom: 29.2
+21:52:32.666976 9 instances
+   100 or "bin-100"
+   200 or "bin-200"
+   300 or "bin-300"
+   400 or "bin-400"
+   500 or "bin-500"
+   600 or "bin-600"
+   700 or "bin-700"
+   800 or "bin-800"
+   900 or "bin-900"
+InDom: 30.1
+21:52:32.666976 3 instances
+   0 or "red"
+   1 or "green"
+   2 or "blue"
+InDom: 30.2
+21:52:32.666976 9 instances
+   100 or "bin-100"
+   200 or "bin-200"
+   300 or "bin-300"
+   400 or "bin-400"
+   500 or "bin-500"
+   600 or "bin-600"
+   700 or "bin-700"
+   800 or "bin-800"
+   900 or "bin-900"
+InDom: 2.1
+21:52:32.647317 1 instances
+   25031 or "25031"
+
+=== case 4, indom 29.1 should stay ===
+=== std out ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -Dappl1 -c TMP.config archives/ok-bigbin TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Note: timezone set to local timezone of host "ha2" from archive
+
+Note: timezone set to local timezone of host "ha2" from archive
+
+
+Instance Domains in the Log ...
+InDom: 29.1
+21:52:32.666976 3 instances
+   0 or "red"
+   1 or "green"
+   2 or "blue"
+InDom: 29.2
+21:52:32.666976 9 instances
+   100 or "bin-100"
+   200 or "bin-200"
+   300 or "bin-300"
+   400 or "bin-400"
+   500 or "bin-500"
+   600 or "bin-600"
+   700 or "bin-700"
+   800 or "bin-800"
+   900 or "bin-900"
+InDom: 30.1
+21:52:32.666976 3 instances
+   0 or "red"
+   1 or "green"
+   2 or "blue"
+InDom: 30.2
+21:52:32.666976 9 instances
+   100 or "bin-100"
+   200 or "bin-200"
+   300 or "bin-300"
+   400 or "bin-400"
+   500 or "bin-500"
+   600 or "bin-600"
+   700 or "bin-700"
+   800 or "bin-800"
+   900 or "bin-900"
+InDom: 2.1
+21:52:32.647317 1 instances
+   25031 or "25031"

@@ -1,0 +1,44 @@
+#!/bin/sh
+# PCP QA Test No. 1404
+# pmlogrewrite culling unused indom
+# see http://oss.sgi.com/bugzilla/show_bug.cgi?id=978
+# unfortunately oss.sgi.com has gone away, but this is the
+# closest we have now
+# https://github.com/performancecopilot/pcp/issues/1743
+#
+# valgrind variant, see qa/822 for the non-valgrind variant
+#
+#
+# Copyright (c) 2013,2023 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+export seq
+./822 --valgrind | $PCP_AWK_PROG '
+skip == 1 && $1 == "==="       { skip = 0 }
+/^=== std err ===/             { skip = 1 }
+skip == 0              { print }
+skip == 1              { print >>"'$here/$seq.full'" }'
+
+# success, all done
+exit

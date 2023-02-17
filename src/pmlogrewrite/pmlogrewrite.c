@@ -41,6 +41,8 @@ textspec_t	*text_root;
 labelspec_t	*label_root;
 int		lineno;
 
+__pmHashCtl	indom_hash = { 0 };
+
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
     PMOPT_DEBUG,
@@ -1514,6 +1516,7 @@ main(int argc, char **argv)
     off_t	old_log_offset = 0;	/* log offset before last log record */
     off_t	old_meta_offset;
     int		seen_event = 0;
+    metricspec_t	*mp;
 
     /* process cmd line args */
     if (parseargs(argc, argv) < 0) {
@@ -1733,6 +1736,81 @@ main(int argc, char **argv)
     newlabel();
     outarch.logctl.state = PM_LOG_STATE_INIT;
     writelabel(0);
+
+    /*
+     * build per-indom reference counts
+     * ... first all metrics in the archive (note metrics with
+     * duplicate names are only counted once because deleting
+     * a metric by any name deletes the metric _and_ all of the
+     * names)
+     */
+    for (i = 0; i < inarch.ctxp->c_archctl->ac_log->hashpmid.hsize; i++) {
+	__pmHashNode	*hp;
+	for (hp = inarch.ctxp->c_archctl->ac_log->hashpmid.hash[i]; hp != NULL; hp = hp->next) {
+	    pmDesc		*dp;
+	    __pmHashNode	*ip;
+	    int			*refp;
+	    dp = (pmDesc *)hp->data;
+	    if (dp->indom == PM_INDOM_NULL)
+		continue;
+	    if ((ip = __pmHashSearch((unsigned int)dp->indom, &indom_hash)) == NULL) {
+		/* first time we've seen this indom */
+		if ((refp = (int *)malloc(sizeof(int))) == NULL) {
+		    /*
+		     * pretty sure we'll die with malloc() failure
+		     * later, but for the moment just ignore this
+		     * indom ... worst result is we don't cull an
+		     * unreferenced indom
+		     */
+		    continue;
+		}
+		*refp = 1;
+		sts = __pmHashAdd((unsigned int)dp->indom, (void *)refp, &indom_hash);
+		if (sts < 0) {
+		    fprintf(stderr, "__pmHashAdd: failed for indom %s: %s\n", pmInDomStr(dp->indom), pmErrStr(sts));
+		    free(refp);
+		    /*
+		     * see comment above about "worst result ..."
+		     */
+		    continue;
+		}
+	    }
+	    else {
+		/* not the first time, bump the refcount */
+		refp = (int *)ip->data;
+		(*refp)++;
+	    }
+	    if (pmDebugOptions.appl1) {
+		fprintf(stderr, "seen InDom: %s refcnt: %d (for PMID: %s)\n",
+		    pmInDomStr(dp->indom), *refp, pmIDStr(dp->pmid));
+	    }
+	}
+    }
+    /*
+     * ... next walk the metrics from the config, decrementing the
+     * reference count for any metrics to be deleted or metrics
+     * that are moving from one indom to another
+     */
+    for (mp = metric_root; mp != NULL; mp = mp->m_next) {
+	if (mp->old_desc.indom == PM_INDOM_NULL)
+	    continue;
+	if ((mp->flags & METRIC_DELETE) || (mp->flags & METRIC_CHANGE_INDOM)) {
+	    __pmHashNode	*ip;
+	    int			*refp;
+	    if ((ip = __pmHashSearch((unsigned int)mp->old_desc.indom, &indom_hash)) == NULL) {
+		fprintf(stderr, "Botch: InDom: %s (PMID: %s): not in indom_hash table\n",
+		    pmInDomStr(mp->old_desc.indom), pmIDStr(mp->old_desc.pmid));
+	    }
+	    else {
+		refp = (int *)ip->data;
+		(*refp)--;
+		if (pmDebugOptions.appl1) {
+		    fprintf(stderr, "cull InDom: %s refcnt: %d (for PMID: %s)\n",
+			pmInDomStr(mp->old_desc.indom), *refp, pmIDStr(mp->old_desc.pmid));
+		}
+	    }
+	}
+    }
 
     first_datarec = 1;
     ti_idx = 0;
