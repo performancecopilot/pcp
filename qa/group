@@ -486,7 +486,7 @@ x11
 031 pmns local sanity
 032 pmlc local ostest pmlogger
 033 kernel local ostest
-034 archive local ostest sanity pmdumplog
+034 archive local ostest pmdumplog
 035 pmrep local python kernel
 036 libpcp local
 037 archive local ostest

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Red Hat.
+ * Copyright (c) 2013-2019,2013 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -434,6 +434,13 @@ enum {
     CG_PRESSURE_IO_FULL_TOTAL		= 7,
 };
 
+enum {
+    CG_PRESSURE_IRQ_FULL_AVG10SEC	= 0,
+    CG_PRESSURE_IRQ_FULL_AVG1MIN	= 1,
+    CG_PRESSURE_IRQ_FULL_AVG5MIN	= 2,
+    CG_PRESSURE_IRQ_FULL_TOTAL		= 3,
+};
+
 typedef struct {
     __uint64_t		rbytes;
     __uint64_t		rios;
@@ -460,6 +467,7 @@ typedef struct {
     cgroup_pressures_t	cpu_pressures;
     cgroup_pressures_t	io_pressures;
     cgroup_pressures_t	mem_pressures;
+    cgroup_pressures_t	irq_pressures;
     cgroup_cputime_t	cputime;
     /* I/O stats are per-cgroup::per-device */
     int			container;
@@ -469,6 +477,11 @@ enum {
     CG_CPU_STAT_USER			= 0,
     CG_CPU_STAT_SYSTEM			= 1,
     CG_CPU_STAT_USAGE			= 2,
+};
+
+enum {
+    CG_PSI_SOME	= 0x1,
+    CG_PSI_FULL	= 0x2,
 };
 
 /*

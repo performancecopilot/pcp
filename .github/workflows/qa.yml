@@ -161,7 +161,6 @@ jobs:
         continue-on-error: true
         with:
           script: |
-            const core = require('@actions/core');
             const fs = require('fs');
             const head_sha = context.payload.pull_request ? context.payload.pull_request.head.sha : context.sha;
             const response = await github.rest.checks.create({

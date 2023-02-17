@@ -625,19 +625,21 @@ read_pressure(FILE *fp, const char *type, cgroup_pressure_t *pp)
 }
 
 static int
-read_pressures(const char *file, cgroup_pressures_t *pp, int full)
+read_pressures(const char *file, cgroup_pressures_t *pp, int flags)
 {
     FILE	*fp;
 
-    memset(&pp->some, 0, sizeof(cgroup_pressure_t));
-    if (full)
+    if (flags & CG_PSI_SOME)
+	memset(&pp->some, 0, sizeof(cgroup_pressure_t));
+    if (flags & CG_PSI_FULL)
 	memset(&pp->full, 0, sizeof(cgroup_pressure_t));
 
     if ((fp = fopen(file, "r")) == NULL)
 	return -oserror();
 
-    read_pressure(fp, "some", &pp->some);
-    if (full)
+    if (flags & CG_PSI_SOME)
+	read_pressure(fp, "some", &pp->some);
+    if (flags & CG_PSI_FULL)
 	read_pressure(fp, "full", &pp->full);
 
     fclose(fp);
@@ -1537,7 +1539,7 @@ refresh_all(const char *path, const char *name, void *arg)
 
     if (need_refresh[CLUSTER_CGROUP2_CPU_PRESSURE]) {
 	pmsprintf(file, sizeof(file), "%s/%s", path, "cpu.pressure");
-	read_pressures(file, &cgroup->cpu_pressures, 0);
+	read_pressures(file, &cgroup->cpu_pressures, CG_PSI_SOME);
     }
 
     if (need_refresh[CLUSTER_CGROUP2_CPU_STAT]) {
@@ -1547,7 +1549,7 @@ refresh_all(const char *path, const char *name, void *arg)
 
     if (need_refresh[CLUSTER_CGROUP2_IO_PRESSURE]) {
 	pmsprintf(file, sizeof(file), "%s/%s", path, "io.pressure");
-	read_pressures(file, &cgroup->io_pressures, 1);
+	read_pressures(file, &cgroup->io_pressures, CG_PSI_SOME|CG_PSI_FULL);
     }
 
     if (need_refresh[CLUSTER_CGROUP2_IO_STAT]) {
@@ -1557,7 +1559,12 @@ refresh_all(const char *path, const char *name, void *arg)
 
     if (need_refresh[CLUSTER_CGROUP2_MEM_PRESSURE]) {
 	pmsprintf(file, sizeof(file), "%s/%s", path, "memory.pressure");
-	read_pressures(file, &cgroup->mem_pressures, 1);
+	read_pressures(file, &cgroup->mem_pressures, CG_PSI_SOME|CG_PSI_FULL);
+    }
+
+    if (need_refresh[CLUSTER_CGROUP2_IRQ_PRESSURE]) {
+	pmsprintf(file, sizeof(file), "%s/%s", path, "irq.pressure");
+	read_pressures(file, &cgroup->irq_pressures, CG_PSI_FULL);
     }
 
     cgroup_container(name, id, sizeof(id), &cgroup->container);

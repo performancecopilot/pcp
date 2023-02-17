@@ -20,57 +20,58 @@
  * linux -> linux + proc PMDAs split, these need to match the enum
  * assigned values for CLUSTER_* from the linux PMDA.
  */
-#define CLUSTER_PID_STAT	 8 /*  /proc/<pid>/stat */
-#define CLUSTER_PID_STATM	 9 /*  /proc/<pid>/statm + /proc/<pid>/maps */
-#define CLUSTER_CONTROL		10 /* instance + value fetch control metrics */
-#define CLUSTER_PID_CGROUP	11 /* /proc/<pid>/cgroup */
-#define CLUSTER_PID_LABEL	12 /* /proc/<pid>/attr/current (label) */
-#define CLUSTER_PROC_RUNQ	13 /* number of processes in various states */
-#define CLUSTER_PID_STATUS	24 /* /proc/<pid>/status */
-#define CLUSTER_PID_SCHEDSTAT	31 /* /proc/<pid>/schedstat */
-#define CLUSTER_PID_IO		32 /* /proc/<pid>/io */
-#define CLUSTER_PID_SMAPS	33 /* /proc/<pid>/smaps_rollup */
-#define CLUSTER_CGROUP_SUBSYS	37 /* /proc/cgroups control group subsystems */
-#define CLUSTER_CGROUP_MOUNTS	38 /* /proc/mounts active control groups */
-#define CLUSTER_CPUSET_GROUPS	39 /* cpuset control groups */
-#define CLUSTER_CPUACCT_GROUPS	41 /* cpu accounting control groups */
-#define CLUSTER_CPUSCHED_GROUPS	43 /* scheduler control groups */
-#define CLUSTER_MEMORY_GROUPS	45 /* memory control groups */
-#define CLUSTER_NETCLS_GROUPS	47 /* network classification control groups */
-#define CLUSTER_BLKIO_GROUPS	49 /* block layer I/O control groups */
-#define CLUSTER_PID_FD		51 /* /proc/<pid>/fd */
+#define CLUSTER_PID_STAT		 8 /*  /proc/<pid>/stat */
+#define CLUSTER_PID_STATM		 9 /*  /proc/<pid>/statm + /proc/<pid>/maps */
+#define CLUSTER_CONTROL			10 /* instance + value fetch control metrics */
+#define CLUSTER_PID_CGROUP		11 /* /proc/<pid>/cgroup */
+#define CLUSTER_PID_LABEL		12 /* /proc/<pid>/attr/current (label) */
+#define CLUSTER_PROC_RUNQ		13 /* number of processes in various states */
 
-#define CLUSTER_HOTPROC_PID_STAT        52 /*  /proc/<pid>/stat */
-#define CLUSTER_HOTPROC_PID_STATM       53 /*  /proc/<pid>/statm + /proc/<pid>/maps */
+#define CLUSTER_PID_STATUS		24 /* /proc/<pid>/status */
+
+#define CLUSTER_PID_SCHEDSTAT		31 /* /proc/<pid>/schedstat */
+#define CLUSTER_PID_IO			32 /* /proc/<pid>/io */
+#define CLUSTER_PID_SMAPS		33 /* /proc/<pid>/smaps_rollup */
+#define CLUSTER_HOTPROC_PID_SMAPS       34 /* /proc/<pid>/smaps_rollup */
+
+#define CLUSTER_CGROUP_SUBSYS		37 /* /proc/cgroups control group subsystems */
+#define CLUSTER_CGROUP_MOUNTS		38 /* /proc/mounts active control groups */
+#define CLUSTER_CPUSET_GROUPS		39 /* cpuset control groups */
+
+#define CLUSTER_CPUACCT_GROUPS		41 /* cpu accounting control groups */
+#define CLUSTER_CPUSCHED_GROUPS		43 /* scheduler control groups */
+#define CLUSTER_MEMORY_GROUPS		45 /* memory control groups */
+#define CLUSTER_NETCLS_GROUPS		47 /* network classification control groups */
+#define CLUSTER_BLKIO_GROUPS		49 /* block layer I/O control groups */
+
+#define CLUSTER_PID_FD			51 /* /proc/<pid>/fd */
+#define CLUSTER_HOTPROC_PID_STAT        52 /* /proc/<pid>/stat */
+#define CLUSTER_HOTPROC_PID_STATM       53 /* /proc/<pid>/statm + /proc/<pid>/maps */
 #define CLUSTER_HOTPROC_PID_CGROUP      54 /* /proc/<pid>/cgroup */
 #define CLUSTER_HOTPROC_PID_LABEL       55 /* /proc/<pid>/attr/current (label) */
 #define CLUSTER_HOTPROC_PID_STATUS      56 /* /proc/<pid>/status */
 #define CLUSTER_HOTPROC_PID_SCHEDSTAT   57 /* /proc/<pid>/schedstat */
 #define CLUSTER_HOTPROC_PID_IO          58 /* /proc/<pid>/io */
-#define CLUSTER_HOTPROC_PID_SMAPS       34 /* /proc/<pid>/smaps_rollup */
 #define CLUSTER_HOTPROC_PID_FD          59 /* /proc/<pid>/fd */
 #define CLUSTER_HOTPROC_GLOBAL		60 /* overall hotproc stats and controls*/
 #define CLUSTER_HOTPROC_PRED      	61 /* derived hotproc metrics */
-
 #define CLUSTER_PID_OOM_SCORE		62 /* /proc/<pid>/oom_score */
 #define CLUSTER_HOTPROC_PID_OOM_SCORE   63 /* /proc/<pid>/oom_score */
-
 #define CLUSTER_CGROUP2_CPU_PRESSURE	64
 #define CLUSTER_CGROUP2_IO_PRESSURE	65
 #define CLUSTER_CGROUP2_MEM_PRESSURE	66
 #define CLUSTER_CGROUP2_CPU_STAT	67
 #define CLUSTER_CGROUP2_IO_STAT		68
-
-#define CLUSTER_ACCT                    70
-
 #define CLUSTER_PID_EXE			69 /* /proc/<pid>/exe */
+#define CLUSTER_ACCT                    70
 #define CLUSTER_HOTPROC_PID_EXE		71 /* /proc/<pid>/exe */
 #define CLUSTER_PID_CWD			72 /* /proc/<pid>/cwd */
 #define CLUSTER_HOTPROC_PID_CWD		73 /* /proc/<pid>/cwd */
 #define CLUSTER_PID_AUTOGROUP		74 /* /proc/<pid>/autogroup */
 #define CLUSTER_HOTPROC_PID_AUTOGROUP	75 /* /proc/<pid>/autogroup */
+#define CLUSTER_CGROUP2_IRQ_PRESSURE	76
 
 #define MIN_CLUSTER  8		/* first cluster number we use here */
-#define MAX_CLUSTER 76		/* one more than highest cluster number used */
+#define MAX_CLUSTER 77		/* one more than highest cluster number used */
 
 #endif /* _CLUSTERS_H */

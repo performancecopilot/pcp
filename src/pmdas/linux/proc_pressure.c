@@ -1,7 +1,7 @@
 /*
  * Linux /proc/pressure/ metrics clusters
  *
- * Copyright (c) 2019 Red Hat.
+ * Copyright (c) 2019,2023 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -98,7 +98,7 @@ refresh_proc_pressure_io(proc_pressure_t *proc_pressure)
     int		sts;
 
     memset(&proc_pressure->some_io, 0, sizeof(proc_pressure->some_io));
-    memset(&proc_pressure->full_io, 0, sizeof(proc_pressure->some_io));
+    memset(&proc_pressure->full_io, 0, sizeof(proc_pressure->full_io));
 
     if (!(fp = linux_statsfile("/proc/pressure/io", buf, sizeof(buf))))
 	return -oserror();
@@ -107,6 +107,25 @@ refresh_proc_pressure_io(proc_pressure_t *proc_pressure)
     proc_pressure->some_io.updated = sts;
     sts = read_pressure(fp, FULL, &proc_pressure->full_io);
     proc_pressure->full_io.updated = sts;
+
+    fclose(fp);
+    return 0;
+}
+
+int
+refresh_proc_pressure_irq(proc_pressure_t *proc_pressure)
+{
+    char	buf[MAXPATHLEN];
+    FILE	*fp;
+    int		sts;
+
+    memset(&proc_pressure->full_irq, 0, sizeof(proc_pressure->full_irq));
+
+    if (!(fp = linux_statsfile("/proc/pressure/irq", buf, sizeof(buf))))
+	return -oserror();
+
+    sts = read_pressure(fp, FULL, &proc_pressure->full_irq);
+    proc_pressure->full_irq.updated = sts;
 
     fclose(fp);
     return 0;

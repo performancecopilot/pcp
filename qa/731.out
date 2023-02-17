@@ -190,6 +190,10 @@ cgroup.pressure.io.some.avg10sec
 cgroup.pressure.io.some.avg1min
 cgroup.pressure.io.some.avg5min
 cgroup.pressure.io.some.total
+cgroup.pressure.irq.full.avg10sec
+cgroup.pressure.irq.full.avg1min
+cgroup.pressure.irq.full.avg5min
+cgroup.pressure.irq.full.total
 cgroup.pressure.memory.full.avg10sec
 cgroup.pressure.memory.full.avg1min
 cgroup.pressure.memory.full.avg5min
@@ -417,6 +421,10 @@ cgroup.pressure.io.some.avg10sec
 cgroup.pressure.io.some.avg1min
 cgroup.pressure.io.some.avg5min
 cgroup.pressure.io.some.total
+cgroup.pressure.irq.full.avg10sec
+cgroup.pressure.irq.full.avg1min
+cgroup.pressure.irq.full.avg5min
+cgroup.pressure.irq.full.total
 cgroup.pressure.memory.full.avg10sec
 cgroup.pressure.memory.full.avg1min
 cgroup.pressure.memory.full.avg5min
@@ -630,6 +638,10 @@ cgroup.pressure.io.some.avg10sec
 cgroup.pressure.io.some.avg1min
 cgroup.pressure.io.some.avg5min
 cgroup.pressure.io.some.total
+cgroup.pressure.irq.full.avg10sec
+cgroup.pressure.irq.full.avg1min
+cgroup.pressure.irq.full.avg5min
+cgroup.pressure.irq.full.total
 cgroup.pressure.memory.full.avg10sec
 cgroup.pressure.memory.full.avg1min
 cgroup.pressure.memory.full.avg5min
@@ -843,6 +855,10 @@ cgroup.pressure.io.some.avg10sec
 cgroup.pressure.io.some.avg1min
 cgroup.pressure.io.some.avg5min
 cgroup.pressure.io.some.total
+cgroup.pressure.irq.full.avg10sec
+cgroup.pressure.irq.full.avg1min
+cgroup.pressure.irq.full.avg5min
+cgroup.pressure.irq.full.total
 cgroup.pressure.memory.full.avg10sec
 cgroup.pressure.memory.full.avg1min
 cgroup.pressure.memory.full.avg5min

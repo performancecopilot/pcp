@@ -188,6 +188,10 @@ cgroup.pressure.io.some.avg10sec
 cgroup.pressure.io.some.avg1min
 cgroup.pressure.io.some.avg5min
 cgroup.pressure.io.some.total
+cgroup.pressure.irq.full.avg10sec
+cgroup.pressure.irq.full.avg1min
+cgroup.pressure.irq.full.avg5min
+cgroup.pressure.irq.full.total
 cgroup.pressure.memory.full.avg10sec
 cgroup.pressure.memory.full.avg1min
 cgroup.pressure.memory.full.avg5min
@@ -1588,6 +1592,26 @@ cgroup.pressure.io.some.total
     Semantics: instant  Units: microsec
 No value(s) available!
 
+cgroup.pressure.irq.full.avg10sec
+    Data Type: float  InDom: 3.16 0xc00010
+    Semantics: instant  Units: none
+No value(s) available!
+
+cgroup.pressure.irq.full.avg1min
+    Data Type: float  InDom: 3.16 0xc00010
+    Semantics: instant  Units: none
+No value(s) available!
+
+cgroup.pressure.irq.full.avg5min
+    Data Type: float  InDom: 3.16 0xc00010
+    Semantics: instant  Units: none
+No value(s) available!
+
+cgroup.pressure.irq.full.total
+    Data Type: 64-bit unsigned int  InDom: 3.16 0xc00010
+    Semantics: instant  Units: microsec
+No value(s) available!
+
 cgroup.pressure.memory.full.avg10sec
     Data Type: float  InDom: 3.16 0xc00010
     Semantics: instant  Units: none
@@ -1890,6 +1914,10 @@ cgroup.pressure.io.some.avg10sec
 cgroup.pressure.io.some.avg1min
 cgroup.pressure.io.some.avg5min
 cgroup.pressure.io.some.total
+cgroup.pressure.irq.full.avg10sec
+cgroup.pressure.irq.full.avg1min
+cgroup.pressure.irq.full.avg5min
+cgroup.pressure.irq.full.total
 cgroup.pressure.memory.full.avg10sec
 cgroup.pressure.memory.full.avg1min
 cgroup.pressure.memory.full.avg5min
@@ -2940,6 +2968,26 @@ cgroup.pressure.io.some.total
     Semantics: instant  Units: microsec
 No value(s) available!
 
+cgroup.pressure.irq.full.avg10sec
+    Data Type: float  InDom: 3.16 0xc00010
+    Semantics: instant  Units: none
+No value(s) available!
+
+cgroup.pressure.irq.full.avg1min
+    Data Type: float  InDom: 3.16 0xc00010
+    Semantics: instant  Units: none
+No value(s) available!
+
+cgroup.pressure.irq.full.avg5min
+    Data Type: float  InDom: 3.16 0xc00010
+    Semantics: instant  Units: none
+No value(s) available!
+
+cgroup.pressure.irq.full.total
+    Data Type: 64-bit unsigned int  InDom: 3.16 0xc00010
+    Semantics: instant  Units: microsec
+No value(s) available!
+
 cgroup.pressure.memory.full.avg10sec
     Data Type: float  InDom: 3.16 0xc00010
     Semantics: instant  Units: none
@@ -3224,6 +3272,10 @@ cgroup.pressure.io.some.avg10sec
 cgroup.pressure.io.some.avg1min
 cgroup.pressure.io.some.avg5min
 cgroup.pressure.io.some.total
+cgroup.pressure.irq.full.avg10sec
+cgroup.pressure.irq.full.avg1min
+cgroup.pressure.irq.full.avg5min
+cgroup.pressure.irq.full.total
 cgroup.pressure.memory.full.avg10sec
 cgroup.pressure.memory.full.avg1min
 cgroup.pressure.memory.full.avg5min
@@ -9283,6 +9335,26 @@ cgroup.pressure.io.some.total
     Semantics: instant  Units: microsec
 No value(s) available!
 
+cgroup.pressure.irq.full.avg10sec
+    Data Type: float  InDom: 3.16 0xc00010
+    Semantics: instant  Units: none
+No value(s) available!
+
+cgroup.pressure.irq.full.avg1min
+    Data Type: float  InDom: 3.16 0xc00010
+    Semantics: instant  Units: none
+No value(s) available!
+
+cgroup.pressure.irq.full.avg5min
+    Data Type: float  InDom: 3.16 0xc00010
+    Semantics: instant  Units: none
+No value(s) available!
+
+cgroup.pressure.irq.full.total
+    Data Type: 64-bit unsigned int  InDom: 3.16 0xc00010
+    Semantics: instant  Units: microsec
+No value(s) available!
+
 cgroup.pressure.memory.full.avg10sec
     Data Type: float  InDom: 3.16 0xc00010
     Semantics: instant  Units: none
@@ -9580,6 +9652,10 @@ cgroup.pressure.io.some.avg10sec
 cgroup.pressure.io.some.avg1min
 cgroup.pressure.io.some.avg5min
 cgroup.pressure.io.some.total
+cgroup.pressure.irq.full.avg10sec
+cgroup.pressure.irq.full.avg1min
+cgroup.pressure.irq.full.avg5min
+cgroup.pressure.irq.full.total
 cgroup.pressure.memory.full.avg10sec
 cgroup.pressure.memory.full.avg1min
 cgroup.pressure.memory.full.avg5min
@@ -22623,6 +22699,26 @@ cgroup.pressure.io.some.total
     inst [N or "/user.slice/user-385.slice/user@385.service"] value 362489
     inst [N or "/user.slice/user-385.slice/user@385.service/dbus.socket"] value 0
     inst [N or "/user.slice/user-385.slice/user@385.service/init.scope"] value 362578
+
+cgroup.pressure.irq.full.avg10sec
+    Data Type: float  InDom: 3.16 0xc00010
+    Semantics: instant  Units: none
+No value(s) available!
+
+cgroup.pressure.irq.full.avg1min
+    Data Type: float  InDom: 3.16 0xc00010
+    Semantics: instant  Units: none
+No value(s) available!
+
+cgroup.pressure.irq.full.avg5min
+    Data Type: float  InDom: 3.16 0xc00010
+    Semantics: instant  Units: none
+No value(s) available!
+
+cgroup.pressure.irq.full.total
+    Data Type: 64-bit unsigned int  InDom: 3.16 0xc00010
+    Semantics: instant  Units: microsec
+No value(s) available!
 
 cgroup.pressure.memory.full.avg10sec
     Data Type: float  InDom: 3.16 0xc00010

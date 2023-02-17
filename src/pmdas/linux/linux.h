@@ -114,6 +114,7 @@ enum {
 	CLUSTER_NET_ALL,	/* 90 /proc/net/dev aggregate metrics */
 	CLUSTER_FCHOST,		/* 91 /sys/class/fc_host metrics */
 	CLUSTER_WWID,		/* 92 multipath aggregated stats */
+	CLUSTER_PRESSURE_IRQ,	/* 93 /proc/pressure/irq metrics */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };
