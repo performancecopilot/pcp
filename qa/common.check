@@ -976,7 +976,7 @@ _wait_pmlogger_end()
     fi
     __pid=$1
 
-    if sudo kill -s 0 $__pid 2>/dev/null
+    if $sudo kill -s 0 $__pid 2>/dev/null
     then
 	# pmlogger process exists, so wait for PID file to go away
 	#
@@ -1019,7 +1019,7 @@ _wait_pmlogger_end()
 	    __i=0
 	    while true
 	    do
-		if sudo kill -s 0 $__pid 2>/dev/null
+		if $sudo kill -s 0 $__pid 2>/dev/null
 		then
 		    # process still exists
 		    __i=`expr $__i + 1`
@@ -1086,7 +1086,7 @@ p
     __i=0
     while true
     do
-	if sudo kill -s 0 $__pid 2>/dev/null
+	if $sudo kill -s 0 $__pid 2>/dev/null
 	then
 	    # process still exists
 	    __i=`expr $__i + 1`
@@ -1167,7 +1167,7 @@ p
 	rm -f $tmp.some_pmie_running
 	for __pid in $__pidlist
 	do
-	    if sudo kill -s 0 $__pid 2>/dev/null
+	    if $sudo kill -s 0 $__pid 2>/dev/null
 	    then
 		# process still exists
 		touch $tmp.some.pmie
@@ -1307,7 +1307,7 @@ p
     __i=0
     while true
     do
-	if sudo kill -s 0 $__pid 2>/dev/null
+	if $sudo kill -s 0 $__pid 2>/dev/null
 	then
 	    # process still exists
 	    __i=`expr $__i + 1`
@@ -2555,7 +2555,7 @@ p
 	    then
 		sed </etc/hostconfig >$tmp._state \
 		    -e "/^$__pat=/s/-.*/-$__req_state-/"
-		sudo cp $tmp._state /etc/hostconfig
+		$sudo cp $tmp._state /etc/hostconfig
 	    fi
 	fi
     elif [ $PCP_PLATFORM = freebsd ]
