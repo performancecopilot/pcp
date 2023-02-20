@@ -8,8 +8,9 @@
 #
 # valgrind variant, see qa/822 for the non-valgrind variant
 #
-#
 # Copyright (c) 2013,2023 Ken McDonell.  All Rights Reserved.
+#
+# check-group-include: pmlogrewrite
 #
 
 seq=`basename $0`

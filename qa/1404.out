@@ -9,47 +9,32 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
-Note: timezone set to local timezone of host "ha2" from archive
+--- TMP.in
++++ TMP.out
+@@ -9,9 +9,6 @@
+ PMID: 29.0.5 (sample.colour)
+     Data Type: 32-bit int  InDom: 29.1 0x7400001
+     Semantics: instant  Units: none
+-PMID: 29.0.6 (sample.bin)
+-    Data Type: 32-bit int  InDom: 29.2 0x7400002
+-    Semantics: instant  Units: none
+ PMID: 29.0.48 (sample.bucket)
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+Error: sample.bin: Unknown metric name
 
-Note: timezone set to local timezone of host "ha2" from archive
-
-
-Instance Domains in the Log ...
-InDom: 29.1
-21:52:32.666976 3 instances
-   0 or "red"
-   1 or "green"
-   2 or "blue"
-InDom: 29.2
-21:52:32.666976 9 instances
-   100 or "bin-100"
-   200 or "bin-200"
-   300 or "bin-300"
-   400 or "bin-400"
-   500 or "bin-500"
-   600 or "bin-600"
-   700 or "bin-700"
-   800 or "bin-800"
-   900 or "bin-900"
-InDom: 30.1
-21:52:32.666976 3 instances
-   0 or "red"
-   1 or "green"
-   2 or "blue"
-InDom: 30.2
-21:52:32.666976 9 instances
-   100 or "bin-100"
-   200 or "bin-200"
-   300 or "bin-300"
-   400 or "bin-400"
-   500 or "bin-500"
-   600 or "bin-600"
-   700 or "bin-700"
-   800 or "bin-800"
-   900 or "bin-900"
-InDom: 2.1
-21:52:32.647317 1 instances
-   25031 or "25031"
+sample.bucket
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
 
 === case 2, indom 29.2 should be deleted ===
 === std out ===
@@ -60,36 +45,46 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
-Note: timezone set to local timezone of host "ha2" from archive
+--- TMP.in
++++ TMP.out
+@@ -9,12 +9,6 @@
+ PMID: 29.0.5 (sample.colour)
+     Data Type: 32-bit int  InDom: 29.1 0x7400001
+     Semantics: instant  Units: none
+-PMID: 29.0.6 (sample.bin)
+-    Data Type: 32-bit int  InDom: 29.2 0x7400002
+-    Semantics: instant  Units: none
+-PMID: 29.0.48 (sample.bucket)
+-    Data Type: 32-bit int  InDom: 29.2 0x7400002
+-    Semantics: instant  Units: none
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
+@@ -40,17 +34,6 @@
+    0 or "red"
+    1 or "green"
+    2 or "blue"
+-InDom: 29.2
+-21:52:32.666976 9 instances
+-   100 or "bin-100"
+-   200 or "bin-200"
+-   300 or "bin-300"
+-   400 or "bin-400"
+-   500 or "bin-500"
+-   600 or "bin-600"
+-   700 or "bin-700"
+-   800 or "bin-800"
+-   900 or "bin-900"
+ InDom: 30.1
+ 21:52:32.666976 3 instances
+    0 or "red"
 
-Note: timezone set to local timezone of host "ha2" from archive
-
-
-Instance Domains in the Log ...
-InDom: 29.1
-21:52:32.666976 3 instances
-   0 or "red"
-   1 or "green"
-   2 or "blue"
-InDom: 30.1
-21:52:32.666976 3 instances
-   0 or "red"
-   1 or "green"
-   2 or "blue"
-InDom: 30.2
-21:52:32.666976 9 instances
-   100 or "bin-100"
-   200 or "bin-200"
-   300 or "bin-300"
-   400 or "bin-400"
-   500 or "bin-500"
-   600 or "bin-600"
-   700 or "bin-700"
-   800 or "bin-800"
-   900 or "bin-900"
-InDom: 2.1
-21:52:32.647317 1 instances
-   25031 or "25031"
+sample.colour
+    Data Type: 32-bit int  InDom: 29.1 0x7400001
+    Semantics: instant  Units: none
+    inst [0 or "red"] value 101
+    inst [1 or "green"] value 202
+    inst [2 or "blue"] value 303
 
 === case 3, indom 29.1 should be deleted ===
 === std out ===
@@ -100,42 +95,47 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
-Note: timezone set to local timezone of host "ha2" from archive
+--- TMP.in
++++ TMP.out
+@@ -6,9 +6,6 @@
+ PMID: 30.0.6 (sampledso.bin)
+     Data Type: 32-bit int  InDom: 30.2 0x7800002
+     Semantics: instant  Units: none
+-PMID: 29.0.5 (sample.colour)
+-    Data Type: 32-bit int  InDom: 29.1 0x7400001
+-    Semantics: instant  Units: none
+ PMID: 29.0.6 (sample.bin)
+     Data Type: 32-bit int  InDom: 29.2 0x7400002
+     Semantics: instant  Units: none
+@@ -18,6 +15,9 @@
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
++PMID: 30.1.5 (sample.colour)
++    Data Type: 32-bit int  InDom: 30.1 0x7800001
++    Semantics: instant  Units: none
+ PMID: 30.0.3 (sampledso.milliseconds)
+     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: millisec
+@@ -35,11 +35,6 @@
+     Semantics: instant  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 29.1
+-21:52:32.666976 3 instances
+-   0 or "red"
+-   1 or "green"
+-   2 or "blue"
+ InDom: 29.2
+ 21:52:32.666976 9 instances
+    100 or "bin-100"
 
-Note: timezone set to local timezone of host "ha2" from archive
-
-
-Instance Domains in the Log ...
-InDom: 29.2
-21:52:32.666976 9 instances
-   100 or "bin-100"
-   200 or "bin-200"
-   300 or "bin-300"
-   400 or "bin-400"
-   500 or "bin-500"
-   600 or "bin-600"
-   700 or "bin-700"
-   800 or "bin-800"
-   900 or "bin-900"
-InDom: 30.1
-21:52:32.666976 3 instances
-   0 or "red"
-   1 or "green"
-   2 or "blue"
-InDom: 30.2
-21:52:32.666976 9 instances
-   100 or "bin-100"
-   200 or "bin-200"
-   300 or "bin-300"
-   400 or "bin-400"
-   500 or "bin-500"
-   600 or "bin-600"
-   700 or "bin-700"
-   800 or "bin-800"
-   900 or "bin-900"
-InDom: 2.1
-21:52:32.647317 1 instances
-   25031 or "25031"
+sample.colour
+    Data Type: 32-bit int  InDom: 30.1 0x7800001
+    Semantics: instant  Units: none
+    inst [0 or "red"] value 101
+    inst [1 or "green"] value 202
+    inst [2 or "blue"] value 303
 
 === case 4, indom 29.1 should stay ===
 === std out ===
@@ -146,44 +146,404 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
-Note: timezone set to local timezone of host "ha2" from archive
 
-Note: timezone set to local timezone of host "ha2" from archive
+sample.colour
+    Data Type: 32-bit int  InDom: 29.1 0x7400001
+    Semantics: instant  Units: none
+    inst [0 or "red"] value 101
+    inst [1 or "green"] value 202
+    inst [2 or "blue"] value 303
 
+=== case 5, indom 60.11 should be deleted ===
+=== std out ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -Dappl1 -c TMP.config archives/pmiostat_mark TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+--- TMP.in
++++ TMP.out
+@@ -1,7 +1,7 @@
+ 
+ Descriptions for Metrics in the Log ...
+ PMID: 60.15.0 (hinv.map.scsi)
+-    Data Type: string  InDom: 60.11 0xf00000b
++    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: discrete  Units: none
+ PMID: 60.0.0 (kernel.percpu.cpu.user)
+     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
+@@ -461,7 +461,7 @@
+     Semantics: counter  Units: count
+ PMID: 60.18.0 (hinv.cpu.clock)
+     Data Type: float  InDom: 60.0 0xf000000
+-    Semantics: discrete  Units: count
++    Semantics: discrete  Units: / microsec
+ PMID: 60.3.0 (network.interface.in.bytes)
+     Data Type: 64-bit unsigned int  InDom: 60.3 0xf000003
+     Semantics: counter  Units: byte
+@@ -515,7 +515,7 @@
+     Semantics: counter  Units: millisec
+ PMID: 60.18.4 (hinv.cpu.cache)
+     Data Type: 32-bit unsigned int  InDom: 60.0 0xf000000
+-    Semantics: discrete  Units: none
++    Semantics: discrete  Units: Kbyte
+ PMID: 60.14.20 (network.icmp.inmsgs)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+@@ -1506,9 +1506,6 @@
+    60 or "linux"
+    70 or "mmv"
+    122 or "jbd2"
+-InDom: 60.11
+-17:51:41.649037 1 instances
+-   0 or "scsi0:0:0:0 Direct-Access"
+ InDom: 60.17
+ 17:51:41.649037 4 instances
+    0 or "lo"
 
-Instance Domains in the Log ...
-InDom: 29.1
-21:52:32.666976 3 instances
-   0 or "red"
-   1 or "green"
-   2 or "blue"
-InDom: 29.2
-21:52:32.666976 9 instances
-   100 or "bin-100"
-   200 or "bin-200"
-   300 or "bin-300"
-   400 or "bin-400"
-   500 or "bin-500"
-   600 or "bin-600"
-   700 or "bin-700"
-   800 or "bin-800"
-   900 or "bin-900"
-InDom: 30.1
-21:52:32.666976 3 instances
-   0 or "red"
-   1 or "green"
-   2 or "blue"
-InDom: 30.2
-21:52:32.666976 9 instances
-   100 or "bin-100"
-   200 or "bin-200"
-   300 or "bin-300"
-   400 or "bin-400"
-   500 or "bin-500"
-   600 or "bin-600"
-   700 or "bin-700"
-   800 or "bin-800"
-   900 or "bin-900"
-InDom: 2.1
-21:52:32.647317 1 instances
-   25031 or "25031"
+hinv.map.scsi
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+    value "sda"
+
+=== case 6, indom 60.7 should stay ===
+=== std out ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -Dappl1 -c TMP.config archives/pmiostat_mark TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+--- TMP.in
++++ TMP.out
+@@ -461,7 +461,7 @@
+     Semantics: counter  Units: count
+ PMID: 60.18.0 (hinv.cpu.clock)
+     Data Type: float  InDom: 60.0 0xf000000
+-    Semantics: discrete  Units: count
++    Semantics: discrete  Units: / microsec
+ PMID: 60.3.0 (network.interface.in.bytes)
+     Data Type: 64-bit unsigned int  InDom: 60.3 0xf000003
+     Semantics: counter  Units: byte
+@@ -515,7 +515,7 @@
+     Semantics: counter  Units: millisec
+ PMID: 60.18.4 (hinv.cpu.cache)
+     Data Type: 32-bit unsigned int  InDom: 60.0 0xf000000
+-    Semantics: discrete  Units: none
++    Semantics: discrete  Units: Kbyte
+ PMID: 60.14.20 (network.icmp.inmsgs)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+@@ -727,7 +727,7 @@
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.7.4 (nfs.client.reqs)
+-    Data Type: 32-bit unsigned int  InDom: 60.7 0xf000007
++    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.3.20 (network.interface.total.mcasts)
+     Data Type: 64-bit unsigned int  InDom: 60.3 0xf000003
+
+nfs.client.reqs
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+    value 0
+
+nfs.server.reqs
+    Data Type: 32-bit unsigned int  InDom: 60.7 0xf000007
+    Semantics: counter  Units: count
+    inst [0 or "null"] value 0
+    inst [1 or "getattr"] value 0
+    inst [2 or "setattr"] value 0
+    inst [3 or "root"] value 0
+    inst [4 or "lookup"] value 0
+    inst [5 or "readlink"] value 0
+    inst [6 or "read"] value 0
+    inst [7 or "wrcache"] value 0
+    inst [8 or "write"] value 0
+    inst [9 or "create"] value 0
+    inst [10 or "remove"] value 0
+    inst [11 or "rename"] value 0
+    inst [12 or "link"] value 0
+    inst [13 or "symlink"] value 0
+    inst [14 or "mkdir"] value 0
+    inst [15 or "rmdir"] value 0
+    inst [16 or "readdir"] value 0
+    inst [17 or "statfs"] value 0
+
+=== case 7, indom 1.19 should be deleted ===
+=== std out ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -Dappl1 -c TMP.config archives/oview-short TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+--- TMP.in
++++ TMP.out
+@@ -40,7 +40,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: discrete  Units: none
+ PMID: 1.42.2 (hinv.map.xbow)
+-    Data Type: string  InDom: 1.19 0x400013
++    Data Type: string  InDom: 1.17 0x400011
+     Semantics: discrete  Units: none
+ PMID: 1.38.10 (hw.router.cb_errors)
+     Data Type: 64-bit unsigned int  InDom: 1.15 0x40000f
+@@ -180,10 +180,6 @@
+    66304 or "node:1.3"
+    131328 or "node:2.1"
+    131840 or "node:2.3"
+-InDom: 1.19
+-16:57:06.630898 2 instances
+-   65792 or "xbow0"
+-   131328 or "xbow1"
+ InDom: 1.2
+ 16:57:06.630898 2 instances
+    256 or "dks0d1"
+
+hinv.map.node
+    Data Type: string  InDom: 1.17 0x400011
+    Semantics: discrete  Units: none
+    inst [65792 or "node:1.1"] value "/hw/module/1/slot/n1/node"
+    inst [66304 or "node:1.3"] value "/hw/module/1/slot/n3/node"
+    inst [131328 or "node:2.1"] value "/hw/module/2/slot/n1/node"
+    inst [131840 or "node:2.3"] value "/hw/module/2/slot/n3/node"
+
+hinv.map.xbow
+    Data Type: string  InDom: 1.17 0x400011
+    Semantics: discrete  Units: none
+    inst [65792 or "node:1.1"] value "/hw/module/1/slot/n1/node/xtalk/0/mon"
+    inst [131328 or "node:2.1"] value "/hw/module/2/slot/n1/node/xtalk/0/mon"
+
+=== case 8, indom 1.1 should stay ===
+=== std out ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -Dappl1 -c TMP.config archives/oview-short TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+--- TMP.in
++++ TMP.out
+@@ -58,7 +58,7 @@
+     Data Type: string  InDom: 1.16 0x400010
+     Semantics: discrete  Units: none
+ PMID: 1.26.9 (hinv.map.cpu)
+-    Data Type: string  InDom: 1.1 0x400001
++    Data Type: string  InDom: 1.17 0x400011
+     Semantics: discrete  Units: none
+ PMID: 1.80.13 (hinv.map.disk)
+     Data Type: string  InDom: 1.2 0x400002
+
+hinv.map.node
+    Data Type: string  InDom: 1.17 0x400011
+    Semantics: discrete  Units: none
+    inst [65792 or "node:1.1"] value "/hw/module/1/slot/n1/node"
+    inst [66304 or "node:1.3"] value "/hw/module/1/slot/n3/node"
+    inst [131328 or "node:2.1"] value "/hw/module/2/slot/n1/node"
+    inst [131840 or "node:2.3"] value "/hw/module/2/slot/n3/node"
+
+hinv.map.cpu
+    Data Type: string  InDom: 1.17 0x400011
+    Semantics: discrete  Units: none
+    inst [65792 or "node:1.1"] value "/hw/module/1/slot/n1/node/cpu/a"
+pmNameIndom: indom=1.17 inst=65793: Unknown or illegal instance identifier
+    inst [65793] value "/hw/module/1/slot/n1/node/cpu/b"
+    inst [66304 or "node:1.3"] value "/hw/module/1/slot/n3/node/cpu/a"
+pmNameIndom: indom=1.17 inst=66305: Unknown or illegal instance identifier
+    inst [66305] value "/hw/module/1/slot/n3/node/cpu/b"
+    inst [131328 or "node:2.1"] value "/hw/module/2/slot/n1/node/cpu/a"
+pmNameIndom: indom=1.17 inst=131329: Unknown or illegal instance identifier
+    inst [131329] value "/hw/module/2/slot/n1/node/cpu/b"
+    inst [131840 or "node:2.3"] value "/hw/module/2/slot/n3/node/cpu/a"
+pmNameIndom: indom=1.17 inst=131841: Unknown or illegal instance identifier
+    inst [131841] value "/hw/module/2/slot/n3/node/cpu/b"
+
+hinv.cpuclock
+    Data Type: 32-bit unsigned int  InDom: 1.1 0x400001
+    Semantics: discrete  Units: count x 10^6 / sec
+    inst [65792 or "cpu:1.1.a"] value 180
+    inst [65793 or "cpu:1.1.b"] value 180
+    inst [66304 or "cpu:1.3.a"] value 180
+    inst [66305 or "cpu:1.3.b"] value 180
+    inst [131328 or "cpu:2.1.a"] value 180
+    inst [131329 or "cpu:2.1.b"] value 180
+    inst [131840 or "cpu:2.3.a"] value 180
+    inst [131841 or "cpu:2.3.b"] value 180
+
+=== case 9, indom 1.19 should be deleted, indom 1.17 should become 1.42 ===
+=== std out ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -Dappl1 -c TMP.config archives/oview-short TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+--- TMP.in
++++ TMP.out
+@@ -34,13 +34,13 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: discrete  Units: none
+ PMID: 1.39.49 (hinv.map.node)
+-    Data Type: string  InDom: 1.17 0x400011
++    Data Type: string  InDom: 1.42 0x40002a
+     Semantics: discrete  Units: none
+ PMID: 1.26.6 (hinv.pmeminterleave)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: discrete  Units: none
+ PMID: 1.42.2 (hinv.map.xbow)
+-    Data Type: string  InDom: 1.19 0x400013
++    Data Type: string  InDom: 1.42 0x40002a
+     Semantics: discrete  Units: none
+ PMID: 1.38.10 (hw.router.cb_errors)
+     Data Type: 64-bit unsigned int  InDom: 1.15 0x40000f
+@@ -174,16 +174,12 @@
+    131586 or "rport:2.2.2"
+    131589 or "rport:2.2.5"
+    131590 or "rport:2.2.6"
+-InDom: 1.17
++InDom: 1.42
+ 16:57:06.630898 4 instances
+    65792 or "node:1.1"
+    66304 or "node:1.3"
+    131328 or "node:2.1"
+    131840 or "node:2.3"
+-InDom: 1.19
+-16:57:06.630898 2 instances
+-   65792 or "xbow0"
+-   131328 or "xbow1"
+ InDom: 1.2
+ 16:57:06.630898 2 instances
+    256 or "dks0d1"
+
+hinv.map.node
+    Data Type: string  InDom: 1.42 0x40002a
+    Semantics: discrete  Units: none
+    inst [65792 or "node:1.1"] value "/hw/module/1/slot/n1/node"
+    inst [66304 or "node:1.3"] value "/hw/module/1/slot/n3/node"
+    inst [131328 or "node:2.1"] value "/hw/module/2/slot/n1/node"
+    inst [131840 or "node:2.3"] value "/hw/module/2/slot/n3/node"
+
+hinv.map.xbow
+    Data Type: string  InDom: 1.42 0x40002a
+    Semantics: discrete  Units: none
+    inst [65792 or "node:1.1"] value "/hw/module/1/slot/n1/node/xtalk/0/mon"
+    inst [131328 or "node:2.1"] value "/hw/module/2/slot/n1/node/xtalk/0/mon"
+
+=== case 10, indom 1.1 should stay ===
+=== std out ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -Dappl1 -c TMP.config archives/oview-short TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+--- TMP.in
++++ TMP.out
+@@ -40,7 +40,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: discrete  Units: none
+ PMID: 1.42.2 (hinv.map.xbow)
+-    Data Type: string  InDom: 1.19 0x400013
++    Data Type: string  InDom: 1.42 0x40002a
+     Semantics: discrete  Units: none
+ PMID: 1.38.10 (hw.router.cb_errors)
+     Data Type: 64-bit unsigned int  InDom: 1.15 0x40000f
+@@ -58,7 +58,7 @@
+     Data Type: string  InDom: 1.16 0x400010
+     Semantics: discrete  Units: none
+ PMID: 1.26.9 (hinv.map.cpu)
+-    Data Type: string  InDom: 1.1 0x400001
++    Data Type: string  InDom: 1.42 0x40002a
+     Semantics: discrete  Units: none
+ PMID: 1.80.13 (hinv.map.disk)
+     Data Type: string  InDom: 1.2 0x400002
+@@ -180,7 +180,7 @@
+    66304 or "node:1.3"
+    131328 or "node:2.1"
+    131840 or "node:2.3"
+-InDom: 1.19
++InDom: 1.42
+ 16:57:06.630898 2 instances
+    65792 or "xbow0"
+    131328 or "xbow1"
+
+hinv.map.node
+    Data Type: string  InDom: 1.17 0x400011
+    Semantics: discrete  Units: none
+    inst [65792 or "node:1.1"] value "/hw/module/1/slot/n1/node"
+    inst [66304 or "node:1.3"] value "/hw/module/1/slot/n3/node"
+    inst [131328 or "node:2.1"] value "/hw/module/2/slot/n1/node"
+    inst [131840 or "node:2.3"] value "/hw/module/2/slot/n3/node"
+
+hinv.map.cpu
+    Data Type: string  InDom: 1.42 0x40002a
+    Semantics: discrete  Units: none
+    inst [65792 or "xbow0"] value "/hw/module/1/slot/n1/node/cpu/a"
+pmNameIndom: indom=1.42 inst=65793: Unknown or illegal instance identifier
+    inst [65793] value "/hw/module/1/slot/n1/node/cpu/b"
+pmNameIndom: indom=1.42 inst=66304: Unknown or illegal instance identifier
+    inst [66304] value "/hw/module/1/slot/n3/node/cpu/a"
+pmNameIndom: indom=1.42 inst=66305: Unknown or illegal instance identifier
+    inst [66305] value "/hw/module/1/slot/n3/node/cpu/b"
+    inst [131328 or "xbow1"] value "/hw/module/2/slot/n1/node/cpu/a"
+pmNameIndom: indom=1.42 inst=131329: Unknown or illegal instance identifier
+    inst [131329] value "/hw/module/2/slot/n1/node/cpu/b"
+pmNameIndom: indom=1.42 inst=131840: Unknown or illegal instance identifier
+    inst [131840] value "/hw/module/2/slot/n3/node/cpu/a"
+pmNameIndom: indom=1.42 inst=131841: Unknown or illegal instance identifier
+    inst [131841] value "/hw/module/2/slot/n3/node/cpu/b"
+
+hinv.cpuclock
+    Data Type: 32-bit unsigned int  InDom: 1.1 0x400001
+    Semantics: discrete  Units: count x 10^6 / sec
+    inst [65792 or "cpu:1.1.a"] value 180
+    inst [65793 or "cpu:1.1.b"] value 180
+    inst [66304 or "cpu:1.3.a"] value 180
+    inst [66305 or "cpu:1.3.b"] value 180
+    inst [131328 or "cpu:2.1.a"] value 180
+    inst [131329 or "cpu:2.1.b"] value 180
+    inst [131840 or "cpu:2.3.a"] value 180
+    inst [131841 or "cpu:2.3.b"] value 180
+
+=== case 11, indom 1.17 should stay ===
+=== std out ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -Dappl1 -c TMP.config archives/oview-short TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+--- TMP.in
++++ TMP.out
+@@ -88,7 +88,7 @@
+     Data Type: 32-bit unsigned int  InDom: 1.16 0x400010
+     Semantics: instant  Units: none
+ PMID: 1.26.12 (hinv.machine)
+-    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: string  InDom: 1.17 0x400011
+     Semantics: discrete  Units: none
+ PMID: 1.38.2 (hw.router.portmask)
+     Data Type: 32-bit unsigned int  InDom: 1.15 0x40000f
+
+hinv.map.node
+    Data Type: string  InDom: 1.17 0x400011
+    Semantics: discrete  Units: none
+    inst [65792 or "node:1.1"] value "/hw/module/1/slot/n1/node"
+    inst [66304 or "node:1.3"] value "/hw/module/1/slot/n3/node"
+    inst [131328 or "node:2.1"] value "/hw/module/2/slot/n1/node"
+    inst [131840 or "node:2.3"] value "/hw/module/2/slot/n3/node"
+
+hinv.machine
+    Data Type: string  InDom: 1.17 0x400011
+    Semantics: discrete  Units: none
+    inst [131840 or "node:2.3"] value "IP27"

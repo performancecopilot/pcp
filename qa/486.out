@@ -1,6 +1,6 @@
 QA output created by 486
 
-=== metric sample.bin { pmid->42.42.42 } ===
+=== archives/mirage: metric sample.bin { pmid->42.42.42 } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -194,7 +194,7 @@ pmdumplog diffs ...
          inst [200 or "bin-200"] value 200
          inst [300 or "bin-300"] value 300
 
-=== metric sample.bin { name -> sam.bin } ===
+=== archives/mirage: metric sample.bin { name -> sam.bin } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -431,7 +431,7 @@ pmdumplog diffs ...
          inst [200 or "bin-200"] value 200
          inst [300 or "bin-300"] value 300
 
-=== metric sample.bin { name -> x23456789.sample.bin } ===
+=== archives/mirage: metric sample.bin { name -> x23456789.sample.bin } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -668,7 +668,7 @@ pmdumplog diffs ...
          inst [200 or "bin-200"] value 200
          inst [300 or "bin-300"] value 300
 
-=== indom 29.2 { inst 300 -> 42 } ===
+=== archives/mirage: indom 29.2 { inst 300 -> 42 } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -864,37 +864,37 @@ pmdumplog diffs ...
          inst [500 or "bin-500"] value 500
          inst [600 or "bin-600"] value 600
 
-=== indom 29.2 { inst 300 -> 400 } ===
+=== archives/mirage: indom 29.2 { inst 300 -> 400 } ===
 Semantic error in configuration file (TMP.config)
 Duplicate instance id 400 ("bin-300" and "bin-400") for indom 29.2
 Arrgh ... TMP.new.0 missing
 
-=== indom 29.2 { iname "bin-700" -> "bin-900" } ===
+=== archives/mirage: indom 29.2 { iname "bin-700" -> "bin-900" } ===
 Semantic error in configuration file (TMP.config)
 Duplicate instance name "bin-900" (700) and "bin-900" (900) for indom 29.2
 Arrgh ... TMP.new.0 missing
 
-=== indom 29.2 { iname "bin-700" -> "bin-900 and some" } ===
+=== archives/mirage: indom 29.2 { iname "bin-700" -> "bin-900 and some" } ===
 Semantic error in configuration file (TMP.config)
 Duplicate instance name "bin-900 and some" (700) and "bin-900" (900) for indom 29.2
 Arrgh ... TMP.new.0 missing
 
-=== indom 29.2 { iname "bin-300" -> "bin-100" inst 300 -> 100 } ===
+=== archives/mirage: indom 29.2 { iname "bin-300" -> "bin-100" inst 300 -> 100 } ===
 Semantic error in configuration file (TMP.config)
 Duplicate instance id 100 ("bin-100" and "bin-100") for indom 29.2
 Arrgh ... TMP.new.0 missing
 
-=== indom 1.5 { iname "1 minute" -> "5" } ===
+=== archives/src-rattle: indom 1.5 { iname "1 minute" -> "5" } ===
 Semantic error in configuration file (TMP.config)
 Duplicate instance name "5" (1) and "5 minute" (5) for indom 1.5
 Arrgh ... TMP.new.0 missing
 
-=== indom 1.5 { iname "5 minute" -> "15 doo dah" } ===
+=== archives/src-rattle: indom 1.5 { iname "5 minute" -> "15 doo dah" } ===
 Semantic error in configuration file (TMP.config)
 Duplicate instance name "15 doo dah" (5) and "15 minute" (15) for indom 1.5
 Arrgh ... TMP.new.0 missing
 
-=== indom 1.5 { iname "5" -> "5 hours" } ===
+=== archives/src-rattle: indom 1.5 { iname "5" -> "5 hours" } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -917,7 +917,7 @@ pmdumplog diffs ...
  [152 bytes]
  22:22:42.025955 3 metrics
 
-=== metric 29.*.* { sem->DISCRETE } metric pmcd.pmlogger.port { sem->COUNTER } ===
+=== archives/mirage: metric 29.*.* { sem->DISCRETE } metric pmcd.pmlogger.port { sem->COUNTER } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -946,7 +946,7 @@ pmdumplog diffs ...
      Data Type: string  InDom: 2.1 0x800001
      Semantics: instant  Units: none
 
-=== metric disk.dev.bytes { units->1,0,0,MBYTE,0,0 } ===
+=== archives/src-snort-disks: metric disk.dev.bytes { units->1,0,0,MBYTE,0,0 } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -960,7 +960,7 @@ pmdumplog diffs ...
      Data Type: string  InDom: 2.1 0x800001
      Semantics: discrete  Units: none
 
-=== metric disk.dev.bytes { units->1,0,0,MBYTE,0,0 } ===
+=== archives/src-snort-disks|-s: metric disk.dev.bytes { units->1,0,0,MBYTE,0,0 } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -1347,7 +1347,7 @@ FILTERED pmdumplog diffs ...
      Data Type: string  InDom: 2.1 0x800001
      Semantics: discrete  Units: none
 
-=== metric disk.dev.bytes { units->1,-1,0,Kbyte,Sec,0 } ===
+=== archives/src-snort-disks: metric disk.dev.bytes { units->1,-1,0,Kbyte,Sec,0 } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -1361,7 +1361,7 @@ pmdumplog diffs ...
      Data Type: string  InDom: 2.1 0x800001
      Semantics: discrete  Units: none
 
-=== metric disk.dev.bytes { units->1,-1,0,kbyte,sec,0 } ===
+=== archives/src-snort-disks|-ws: metric disk.dev.bytes { units->1,-1,0,kbyte,sec,0 } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -1375,7 +1375,7 @@ pmdumplog diffs ...
      Data Type: string  InDom: 2.1 0x800001
      Semantics: discrete  Units: none
 
-=== metric sample.scale_step.time_up_secs { units->0,1,0,0,MSEC,0 } ===
+=== archives/sample_expr: metric sample.scale_step.time_up_secs { units->0,1,0,0,MSEC,0 } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -1389,7 +1389,7 @@ pmdumplog diffs ...
      Data Type: string  InDom: 2.1 0x800001
      Semantics: discrete  Units: none
 
-=== metric sample.drift { type -> U32 } ===
+=== archives/mirage: metric sample.drift { type -> U32 } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -1403,7 +1403,7 @@ pmdumplog diffs ...
  PMID: 29.0.37 (sample.mirage)
      Data Type: 32-bit int  InDom: 29.3 0x7400003
 
-=== metric sample.drift { type -> 64 } ===
+=== archives/mirage: metric sample.drift { type -> 64 } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -1640,7 +1640,7 @@ pmdumplog diffs ...
      29.0.37 (sample.mirage):
          inst [0 or "m-00"] value 14
 
-=== metric sample.scale_step.time_up_secs { type -> FLOAT } ===
+=== archives/sample_expr: metric sample.scale_step.time_up_secs { type -> FLOAT } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -1753,7 +1753,7 @@ pmdumplog diffs ...
      29.0.85 (sample.byte_rate_perhour): value 447
      29.0.83 (sample.kbyte_ctr): value 30198
 
-=== metric sample.scale_step.time_up_secs { type -> U32 } ===
+=== archives/sample_expr: metric sample.scale_step.time_up_secs { type -> U32 } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -1866,7 +1866,7 @@ pmdumplog diffs ...
      29.0.85 (sample.byte_rate_perhour): value 447
      29.0.83 (sample.kbyte_ctr): value 30198
 
-=== metric pmcd.pmlogger.archive { indom -> 2.99 } indom 2.1 { indom -> 2.99 } ===
+=== archives/src-rattle: metric pmcd.pmlogger.archive { indom -> 2.99 } indom 2.1 { indom -> 2.99 } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -1897,7 +1897,7 @@ pmdumplog diffs ...
     19856 or "19856"
  
 
-=== metric hinv.ndisk { indom -> 1.5 } ===
+=== archives/src-rattle: metric hinv.ndisk { indom -> 1.5 } ===
 Warning [TMP.config, line 2]
 Instance 0 from OUTPUT clause not found in new indom 1.5
 pmdumplog diffs ...
@@ -1922,7 +1922,7 @@ pmdumplog diffs ...
  
  [40 bytes]
 
-=== metric hinv.ndisk { indom -> 1.5 output inst 5 } ===
+=== archives/src-rattle: metric hinv.ndisk { indom -> 1.5 output inst 5 } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -1945,7 +1945,7 @@ pmdumplog diffs ...
  
  [40 bytes]
 
-=== metric sample.colour { indom -> NULL } ===
+=== archives/ok-foo: metric sample.colour { indom -> NULL } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -1958,16 +1958,28 @@ pmdumplog diffs ...
      Semantics: instant  Units: none
  PMID: 2.3.0 (pmcd.pmlogger.port)
      Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -56,7 +56,7 @@
+@@ -32,11 +32,6 @@
+     Semantics: discrete  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 29.1
+-04:34:33.248687 3 instances
+-   0 or "red"
+-   1 or "green"
+-   2 or "blue"
+ InDom: 29.2
+ 04:34:33.248687 9 instances
+    100 or "bin-100"
+@@ -56,7 +51,7 @@
  		Log Vol    end(meta)     end(log)
  04:34:32.257504	      0          132          132
  04:34:33.248687	      0          350          284
 -04:34:40.258477	      0          851         1768
-+04:34:40.258477	      0          851         1656
++04:34:40.258477	      0          784         1656
  
  [152 bytes]
  04:34:32.257504 3 metrics
-@@ -64,7 +64,7 @@
+@@ -64,7 +59,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
@@ -1976,7 +1988,7 @@ pmdumplog diffs ...
  04:34:33.248687 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
-@@ -78,13 +78,10 @@
+@@ -78,13 +73,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -1992,7 +2004,7 @@ pmdumplog diffs ...
  04:34:34.248493 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
-@@ -98,13 +95,10 @@
+@@ -98,13 +90,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2008,7 +2020,7 @@ pmdumplog diffs ...
  04:34:35.258377 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 108
-@@ -118,13 +112,10 @@
+@@ -118,13 +107,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2024,7 +2036,7 @@ pmdumplog diffs ...
  04:34:36.258416 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 90
-@@ -138,13 +129,10 @@
+@@ -138,13 +124,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2040,7 +2052,7 @@ pmdumplog diffs ...
  04:34:37.258585 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 101
-@@ -158,13 +146,10 @@
+@@ -158,13 +141,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2056,7 +2068,7 @@ pmdumplog diffs ...
  04:34:38.258389 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 127
-@@ -178,13 +163,10 @@
+@@ -178,13 +158,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2072,7 +2084,7 @@ pmdumplog diffs ...
  04:34:39.258408 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 135
-@@ -198,13 +180,10 @@
+@@ -198,13 +175,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2088,7 +2100,7 @@ pmdumplog diffs ...
  04:34:40.258477 5 metrics
      29.0.46 (sample.lights): value "red"
      29.0.7 (sample.drift): value 156
-@@ -218,8 +197,5 @@
+@@ -218,8 +192,5 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2099,7 +2111,7 @@ pmdumplog diffs ...
 +    29.0.5 (sample.colour): value 140
      29.0.2 (sample.seconds): value 897
 
-=== metric sample.colour { indom -> NULL output first } ===
+=== archives/ok-foo: metric sample.colour { indom -> NULL output first } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -2112,16 +2124,28 @@ pmdumplog diffs ...
      Semantics: instant  Units: none
  PMID: 2.3.0 (pmcd.pmlogger.port)
      Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -56,7 +56,7 @@
+@@ -32,11 +32,6 @@
+     Semantics: discrete  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 29.1
+-04:34:33.248687 3 instances
+-   0 or "red"
+-   1 or "green"
+-   2 or "blue"
+ InDom: 29.2
+ 04:34:33.248687 9 instances
+    100 or "bin-100"
+@@ -56,7 +51,7 @@
  		Log Vol    end(meta)     end(log)
  04:34:32.257504	      0          132          132
  04:34:33.248687	      0          350          284
 -04:34:40.258477	      0          851         1768
-+04:34:40.258477	      0          851         1656
++04:34:40.258477	      0          784         1656
  
  [152 bytes]
  04:34:32.257504 3 metrics
-@@ -64,7 +64,7 @@
+@@ -64,7 +59,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
@@ -2130,7 +2154,7 @@ pmdumplog diffs ...
  04:34:33.248687 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
-@@ -78,13 +78,10 @@
+@@ -78,13 +73,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2146,7 +2170,7 @@ pmdumplog diffs ...
  04:34:34.248493 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
-@@ -98,13 +95,10 @@
+@@ -98,13 +90,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2162,7 +2186,7 @@ pmdumplog diffs ...
  04:34:35.258377 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 108
-@@ -118,13 +112,10 @@
+@@ -118,13 +107,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2178,7 +2202,7 @@ pmdumplog diffs ...
  04:34:36.258416 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 90
-@@ -138,13 +129,10 @@
+@@ -138,13 +124,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2194,7 +2218,7 @@ pmdumplog diffs ...
  04:34:37.258585 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 101
-@@ -158,13 +146,10 @@
+@@ -158,13 +141,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2210,7 +2234,7 @@ pmdumplog diffs ...
  04:34:38.258389 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 127
-@@ -178,13 +163,10 @@
+@@ -178,13 +158,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2226,7 +2250,7 @@ pmdumplog diffs ...
  04:34:39.258408 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 135
-@@ -198,13 +180,10 @@
+@@ -198,13 +175,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2242,7 +2266,7 @@ pmdumplog diffs ...
  04:34:40.258477 5 metrics
      29.0.46 (sample.lights): value "red"
      29.0.7 (sample.drift): value 156
-@@ -218,8 +197,5 @@
+@@ -218,8 +192,5 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2253,7 +2277,7 @@ pmdumplog diffs ...
 +    29.0.5 (sample.colour): value 140
      29.0.2 (sample.seconds): value 897
 
-=== metric sample.colour { indom -> NULL output inst 1 } ===
+=== archives/ok-foo: metric sample.colour { indom -> NULL output inst 1 } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -2266,16 +2290,28 @@ pmdumplog diffs ...
      Semantics: instant  Units: none
  PMID: 2.3.0 (pmcd.pmlogger.port)
      Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -56,7 +56,7 @@
+@@ -32,11 +32,6 @@
+     Semantics: discrete  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 29.1
+-04:34:33.248687 3 instances
+-   0 or "red"
+-   1 or "green"
+-   2 or "blue"
+ InDom: 29.2
+ 04:34:33.248687 9 instances
+    100 or "bin-100"
+@@ -56,7 +51,7 @@
  		Log Vol    end(meta)     end(log)
  04:34:32.257504	      0          132          132
  04:34:33.248687	      0          350          284
 -04:34:40.258477	      0          851         1768
-+04:34:40.258477	      0          851         1656
++04:34:40.258477	      0          784         1656
  
  [152 bytes]
  04:34:32.257504 3 metrics
-@@ -64,7 +64,7 @@
+@@ -64,7 +59,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
@@ -2284,7 +2320,7 @@ pmdumplog diffs ...
  04:34:33.248687 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
-@@ -78,13 +78,10 @@
+@@ -78,13 +73,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2300,7 +2336,7 @@ pmdumplog diffs ...
  04:34:34.248493 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
-@@ -98,13 +95,10 @@
+@@ -98,13 +90,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2316,7 +2352,7 @@ pmdumplog diffs ...
  04:34:35.258377 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 108
-@@ -118,13 +112,10 @@
+@@ -118,13 +107,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2332,7 +2368,7 @@ pmdumplog diffs ...
  04:34:36.258416 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 90
-@@ -138,13 +129,10 @@
+@@ -138,13 +124,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2348,7 +2384,7 @@ pmdumplog diffs ...
  04:34:37.258585 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 101
-@@ -158,13 +146,10 @@
+@@ -158,13 +141,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2364,7 +2400,7 @@ pmdumplog diffs ...
  04:34:38.258389 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 127
-@@ -178,13 +163,10 @@
+@@ -178,13 +158,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2380,7 +2416,7 @@ pmdumplog diffs ...
  04:34:39.258408 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 135
-@@ -198,13 +180,10 @@
+@@ -198,13 +175,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2396,7 +2432,7 @@ pmdumplog diffs ...
  04:34:40.258477 5 metrics
      29.0.46 (sample.lights): value "red"
      29.0.7 (sample.drift): value 156
-@@ -218,8 +197,5 @@
+@@ -218,8 +192,5 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2407,7 +2443,7 @@ pmdumplog diffs ...
 +    29.0.5 (sample.colour): value 241
      29.0.2 (sample.seconds): value 897
 
-=== metric sample.colour { indom -> NULL output last } ===
+=== archives/ok-foo: metric sample.colour { indom -> NULL output last } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -2420,16 +2456,28 @@ pmdumplog diffs ...
      Semantics: instant  Units: none
  PMID: 2.3.0 (pmcd.pmlogger.port)
      Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -56,7 +56,7 @@
+@@ -32,11 +32,6 @@
+     Semantics: discrete  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 29.1
+-04:34:33.248687 3 instances
+-   0 or "red"
+-   1 or "green"
+-   2 or "blue"
+ InDom: 29.2
+ 04:34:33.248687 9 instances
+    100 or "bin-100"
+@@ -56,7 +51,7 @@
  		Log Vol    end(meta)     end(log)
  04:34:32.257504	      0          132          132
  04:34:33.248687	      0          350          284
 -04:34:40.258477	      0          851         1768
-+04:34:40.258477	      0          851         1656
++04:34:40.258477	      0          784         1656
  
  [152 bytes]
  04:34:32.257504 3 metrics
-@@ -64,7 +64,7 @@
+@@ -64,7 +59,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
@@ -2438,7 +2486,7 @@ pmdumplog diffs ...
  04:34:33.248687 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
-@@ -78,13 +78,10 @@
+@@ -78,13 +73,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2454,7 +2502,7 @@ pmdumplog diffs ...
  04:34:34.248493 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
-@@ -98,13 +95,10 @@
+@@ -98,13 +90,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2470,7 +2518,7 @@ pmdumplog diffs ...
  04:34:35.258377 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 108
-@@ -118,13 +112,10 @@
+@@ -118,13 +107,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2486,7 +2534,7 @@ pmdumplog diffs ...
  04:34:36.258416 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 90
-@@ -138,13 +129,10 @@
+@@ -138,13 +124,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2502,7 +2550,7 @@ pmdumplog diffs ...
  04:34:37.258585 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 101
-@@ -158,13 +146,10 @@
+@@ -158,13 +141,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2518,7 +2566,7 @@ pmdumplog diffs ...
  04:34:38.258389 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 127
-@@ -178,13 +163,10 @@
+@@ -178,13 +158,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2534,7 +2582,7 @@ pmdumplog diffs ...
  04:34:39.258408 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 135
-@@ -198,13 +180,10 @@
+@@ -198,13 +175,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2550,7 +2598,7 @@ pmdumplog diffs ...
  04:34:40.258477 5 metrics
      29.0.46 (sample.lights): value "red"
      29.0.7 (sample.drift): value 156
-@@ -218,8 +197,5 @@
+@@ -218,8 +192,5 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2561,7 +2609,7 @@ pmdumplog diffs ...
 +    29.0.5 (sample.colour): value 342
      29.0.2 (sample.seconds): value 897
 
-=== metric sample.colour { indom -> NULL output min } ===
+=== archives/ok-foo: metric sample.colour { indom -> NULL output min } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -2574,16 +2622,28 @@ pmdumplog diffs ...
      Semantics: instant  Units: none
  PMID: 2.3.0 (pmcd.pmlogger.port)
      Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -56,7 +56,7 @@
+@@ -32,11 +32,6 @@
+     Semantics: discrete  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 29.1
+-04:34:33.248687 3 instances
+-   0 or "red"
+-   1 or "green"
+-   2 or "blue"
+ InDom: 29.2
+ 04:34:33.248687 9 instances
+    100 or "bin-100"
+@@ -56,7 +51,7 @@
  		Log Vol    end(meta)     end(log)
  04:34:32.257504	      0          132          132
  04:34:33.248687	      0          350          284
 -04:34:40.258477	      0          851         1768
-+04:34:40.258477	      0          851         1656
++04:34:40.258477	      0          784         1656
  
  [152 bytes]
  04:34:32.257504 3 metrics
-@@ -64,7 +64,7 @@
+@@ -64,7 +59,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
@@ -2592,7 +2652,7 @@ pmdumplog diffs ...
  04:34:33.248687 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
-@@ -78,13 +78,10 @@
+@@ -78,13 +73,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2608,7 +2668,7 @@ pmdumplog diffs ...
  04:34:34.248493 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
-@@ -98,13 +95,10 @@
+@@ -98,13 +90,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2624,7 +2684,7 @@ pmdumplog diffs ...
  04:34:35.258377 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 108
-@@ -118,13 +112,10 @@
+@@ -118,13 +107,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2640,7 +2700,7 @@ pmdumplog diffs ...
  04:34:36.258416 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 90
-@@ -138,13 +129,10 @@
+@@ -138,13 +124,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2656,7 +2716,7 @@ pmdumplog diffs ...
  04:34:37.258585 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 101
-@@ -158,13 +146,10 @@
+@@ -158,13 +141,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2672,7 +2732,7 @@ pmdumplog diffs ...
  04:34:38.258389 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 127
-@@ -178,13 +163,10 @@
+@@ -178,13 +158,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2688,7 +2748,7 @@ pmdumplog diffs ...
  04:34:39.258408 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 135
-@@ -198,13 +180,10 @@
+@@ -198,13 +175,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2704,7 +2764,7 @@ pmdumplog diffs ...
  04:34:40.258477 5 metrics
      29.0.46 (sample.lights): value "red"
      29.0.7 (sample.drift): value 156
-@@ -218,8 +197,5 @@
+@@ -218,8 +192,5 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2715,7 +2775,7 @@ pmdumplog diffs ...
 +    29.0.5 (sample.colour): value 140
      29.0.2 (sample.seconds): value 897
 
-=== metric sample.colour { indom -> NULL output max } ===
+=== archives/ok-foo: metric sample.colour { indom -> NULL output max } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -2728,16 +2788,28 @@ pmdumplog diffs ...
      Semantics: instant  Units: none
  PMID: 2.3.0 (pmcd.pmlogger.port)
      Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -56,7 +56,7 @@
+@@ -32,11 +32,6 @@
+     Semantics: discrete  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 29.1
+-04:34:33.248687 3 instances
+-   0 or "red"
+-   1 or "green"
+-   2 or "blue"
+ InDom: 29.2
+ 04:34:33.248687 9 instances
+    100 or "bin-100"
+@@ -56,7 +51,7 @@
  		Log Vol    end(meta)     end(log)
  04:34:32.257504	      0          132          132
  04:34:33.248687	      0          350          284
 -04:34:40.258477	      0          851         1768
-+04:34:40.258477	      0          851         1656
++04:34:40.258477	      0          784         1656
  
  [152 bytes]
  04:34:32.257504 3 metrics
-@@ -64,7 +64,7 @@
+@@ -64,7 +59,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
@@ -2746,7 +2818,7 @@ pmdumplog diffs ...
  04:34:33.248687 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
-@@ -78,13 +78,10 @@
+@@ -78,13 +73,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2762,7 +2834,7 @@ pmdumplog diffs ...
  04:34:34.248493 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
-@@ -98,13 +95,10 @@
+@@ -98,13 +90,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2778,7 +2850,7 @@ pmdumplog diffs ...
  04:34:35.258377 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 108
-@@ -118,13 +112,10 @@
+@@ -118,13 +107,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2794,7 +2866,7 @@ pmdumplog diffs ...
  04:34:36.258416 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 90
-@@ -138,13 +129,10 @@
+@@ -138,13 +124,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2810,7 +2882,7 @@ pmdumplog diffs ...
  04:34:37.258585 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 101
-@@ -158,13 +146,10 @@
+@@ -158,13 +141,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2826,7 +2898,7 @@ pmdumplog diffs ...
  04:34:38.258389 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 127
-@@ -178,13 +163,10 @@
+@@ -178,13 +158,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2842,7 +2914,7 @@ pmdumplog diffs ...
  04:34:39.258408 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 135
-@@ -198,13 +180,10 @@
+@@ -198,13 +175,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2858,7 +2930,7 @@ pmdumplog diffs ...
  04:34:40.258477 5 metrics
      29.0.46 (sample.lights): value "red"
      29.0.7 (sample.drift): value 156
-@@ -218,8 +197,5 @@
+@@ -218,8 +192,5 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2869,7 +2941,7 @@ pmdumplog diffs ...
 +    29.0.5 (sample.colour): value 342
      29.0.2 (sample.seconds): value 897
 
-=== metric sample.colour { indom -> NULL output sum } ===
+=== archives/ok-foo: metric sample.colour { indom -> NULL output sum } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -2882,16 +2954,28 @@ pmdumplog diffs ...
      Semantics: instant  Units: none
  PMID: 2.3.0 (pmcd.pmlogger.port)
      Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -56,7 +56,7 @@
+@@ -32,11 +32,6 @@
+     Semantics: discrete  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 29.1
+-04:34:33.248687 3 instances
+-   0 or "red"
+-   1 or "green"
+-   2 or "blue"
+ InDom: 29.2
+ 04:34:33.248687 9 instances
+    100 or "bin-100"
+@@ -56,7 +51,7 @@
  		Log Vol    end(meta)     end(log)
  04:34:32.257504	      0          132          132
  04:34:33.248687	      0          350          284
 -04:34:40.258477	      0          851         1768
-+04:34:40.258477	      0          851         1656
++04:34:40.258477	      0          784         1656
  
  [152 bytes]
  04:34:32.257504 3 metrics
-@@ -64,7 +64,7 @@
+@@ -64,7 +59,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
@@ -2900,7 +2984,7 @@ pmdumplog diffs ...
  04:34:33.248687 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
-@@ -78,13 +78,10 @@
+@@ -78,13 +73,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2916,7 +3000,7 @@ pmdumplog diffs ...
  04:34:34.248493 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
-@@ -98,13 +95,10 @@
+@@ -98,13 +90,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2932,7 +3016,7 @@ pmdumplog diffs ...
  04:34:35.258377 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 108
-@@ -118,13 +112,10 @@
+@@ -118,13 +107,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2948,7 +3032,7 @@ pmdumplog diffs ...
  04:34:36.258416 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 90
-@@ -138,13 +129,10 @@
+@@ -138,13 +124,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2964,7 +3048,7 @@ pmdumplog diffs ...
  04:34:37.258585 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 101
-@@ -158,13 +146,10 @@
+@@ -158,13 +141,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2980,7 +3064,7 @@ pmdumplog diffs ...
  04:34:38.258389 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 127
-@@ -178,13 +163,10 @@
+@@ -178,13 +158,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -2996,7 +3080,7 @@ pmdumplog diffs ...
  04:34:39.258408 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 135
-@@ -198,13 +180,10 @@
+@@ -198,13 +175,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -3012,7 +3096,7 @@ pmdumplog diffs ...
  04:34:40.258477 5 metrics
      29.0.46 (sample.lights): value "red"
      29.0.7 (sample.drift): value 156
-@@ -218,8 +197,5 @@
+@@ -218,8 +192,5 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -3023,7 +3107,7 @@ pmdumplog diffs ...
 +    29.0.5 (sample.colour): value 723
      29.0.2 (sample.seconds): value 897
 
-=== metric sample.colour { indom -> NULL output avg } ===
+=== archives/ok-foo: metric sample.colour { indom -> NULL output avg } ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -3036,16 +3120,28 @@ pmdumplog diffs ...
      Semantics: instant  Units: none
  PMID: 2.3.0 (pmcd.pmlogger.port)
      Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -56,7 +56,7 @@
+@@ -32,11 +32,6 @@
+     Semantics: discrete  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 29.1
+-04:34:33.248687 3 instances
+-   0 or "red"
+-   1 or "green"
+-   2 or "blue"
+ InDom: 29.2
+ 04:34:33.248687 9 instances
+    100 or "bin-100"
+@@ -56,7 +51,7 @@
  		Log Vol    end(meta)     end(log)
  04:34:32.257504	      0          132          132
  04:34:33.248687	      0          350          284
 -04:34:40.258477	      0          851         1768
-+04:34:40.258477	      0          851         1656
++04:34:40.258477	      0          784         1656
  
  [152 bytes]
  04:34:32.257504 3 metrics
-@@ -64,7 +64,7 @@
+@@ -64,7 +59,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
@@ -3054,7 +3150,7 @@ pmdumplog diffs ...
  04:34:33.248687 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
-@@ -78,13 +78,10 @@
+@@ -78,13 +73,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -3070,7 +3166,7 @@ pmdumplog diffs ...
  04:34:34.248493 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
-@@ -98,13 +95,10 @@
+@@ -98,13 +90,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -3086,7 +3182,7 @@ pmdumplog diffs ...
  04:34:35.258377 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 108
-@@ -118,13 +112,10 @@
+@@ -118,13 +107,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -3102,7 +3198,7 @@ pmdumplog diffs ...
  04:34:36.258416 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 90
-@@ -138,13 +129,10 @@
+@@ -138,13 +124,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -3118,7 +3214,7 @@ pmdumplog diffs ...
  04:34:37.258585 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 101
-@@ -158,13 +146,10 @@
+@@ -158,13 +141,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -3134,7 +3230,7 @@ pmdumplog diffs ...
  04:34:38.258389 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 127
-@@ -178,13 +163,10 @@
+@@ -178,13 +158,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -3150,7 +3246,7 @@ pmdumplog diffs ...
  04:34:39.258408 5 metrics
      29.0.46 (sample.lights): value "green"
      29.0.7 (sample.drift): value 135
-@@ -198,13 +180,10 @@
+@@ -198,13 +175,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -3166,7 +3262,7 @@ pmdumplog diffs ...
  04:34:40.258477 5 metrics
      29.0.46 (sample.lights): value "red"
      29.0.7 (sample.drift): value 156
-@@ -218,8 +197,5 @@
+@@ -218,8 +192,5 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -3177,7 +3273,7 @@ pmdumplog diffs ...
 +    29.0.5 (sample.colour): value 241
      29.0.2 (sample.seconds): value 897
 
-=== metric sample.mirage_longlong {indom->NULL} ===
+=== archives/sample_expr: metric sample.mirage_longlong {indom->NULL} ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -3460,7 +3556,7 @@ pmdumplog diffs ...
          inst [0 or "m-00"] value 82
          inst [46 or "m-46"] value 4681
 
-=== metric sample.mirage_longlong {indom->NULL output last} ===
+=== archives/sample_expr: metric sample.mirage_longlong {indom->NULL output last} ===
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out

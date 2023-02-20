@@ -13,7 +13,29 @@ non-null -> non-null cases
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -76,11 +76,11 @@
+@@ -37,13 +37,6 @@
+    700 or "bin-700"
+    800 or "bin-800"
+    900 or "bin-900"
+-InDom: 29.3
+-13:33:47.240183 5 instances
+-   0 or "m-00"
+-   4 or "m-04"
+-   9 or "m-09"
+-   10 or "m-10"
+-   11 or "m-11"
+ InDom: 29.8
+ 13:33:47.240183 5 instances
+    0 or "i-0"
+@@ -59,7 +52,7 @@
+ 		Log Vol    end(meta)     end(log)
+ 13:33:44.278486	      0          132          132
+ 13:33:47.240183	      0          351          280
+-13:33:50.240133	      0          862          488
++13:33:50.240133	      0          769          488
+ 
+ 13:33:44.278486 3 metrics
+@@ -76,11 +69,11 @@
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
      29.0.37 (sample.mirage):
@@ -30,7 +52,7 @@ non-null -> non-null cases
      29.0.6 (sample.bin):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
-@@ -101,11 +101,11 @@
+@@ -101,11 +94,11 @@
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
      29.0.37 (sample.mirage):
@@ -60,22 +82,36 @@ non-null -> non-null cases
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -59,7 +59,7 @@
+@@ -37,13 +37,6 @@
+    700 or "bin-700"
+    800 or "bin-800"
+    900 or "bin-900"
+-InDom: 29.3
+-13:33:47.240183 5 instances
+-   0 or "m-00"
+-   4 or "m-04"
+-   9 or "m-09"
+-   10 or "m-10"
+-   11 or "m-11"
+ InDom: 29.8
+ 13:33:47.240183 5 instances
+    0 or "i-0"
+@@ -59,7 +52,7 @@
  		Log Vol    end(meta)     end(log)
  13:33:44.278486	      0          132          132
  13:33:47.240183	      0          351          280
 -13:33:50.240133	      0          862          488
-+13:33:50.240133	      0          862          456
++13:33:50.240133	      0          769          456
  
  13:33:44.278486 3 metrics
-@@ -67,7 +67,7 @@
+@@ -67,7 +60,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240183 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -75,12 +75,7 @@
+@@ -75,12 +68,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -89,14 +125,14 @@ non-null -> non-null cases
      29.0.6 (sample.bin):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
-@@ -92,7 +87,7 @@
+@@ -92,7 +80,7 @@
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
  13:33:50.240133 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -100,12 +95,7 @@
+@@ -100,12 +88,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -123,22 +159,36 @@ non-null -> non-null cases
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -59,7 +59,7 @@
+@@ -37,13 +37,6 @@
+    700 or "bin-700"
+    800 or "bin-800"
+    900 or "bin-900"
+-InDom: 29.3
+-13:33:47.240183 5 instances
+-   0 or "m-00"
+-   4 or "m-04"
+-   9 or "m-09"
+-   10 or "m-10"
+-   11 or "m-11"
+ InDom: 29.8
+ 13:33:47.240183 5 instances
+    0 or "i-0"
+@@ -59,7 +52,7 @@
  		Log Vol    end(meta)     end(log)
  13:33:44.278486	      0          132          132
  13:33:47.240183	      0          351          280
 -13:33:50.240133	      0          862          488
-+13:33:50.240133	      0          862          456
++13:33:50.240133	      0          769          456
  
  13:33:44.278486 3 metrics
-@@ -67,7 +67,7 @@
+@@ -67,7 +60,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240183 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -75,12 +75,7 @@
+@@ -75,12 +68,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -152,14 +202,14 @@ non-null -> non-null cases
      29.0.6 (sample.bin):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
-@@ -92,7 +87,7 @@
+@@ -92,7 +80,7 @@
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
  13:33:50.240133 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -100,12 +95,7 @@
+@@ -100,12 +88,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -186,22 +236,36 @@ non-null -> non-null cases
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -59,7 +59,7 @@
+@@ -37,13 +37,6 @@
+    700 or "bin-700"
+    800 or "bin-800"
+    900 or "bin-900"
+-InDom: 29.3
+-13:33:47.240183 5 instances
+-   0 or "m-00"
+-   4 or "m-04"
+-   9 or "m-09"
+-   10 or "m-10"
+-   11 or "m-11"
+ InDom: 29.8
+ 13:33:47.240183 5 instances
+    0 or "i-0"
+@@ -59,7 +52,7 @@
  		Log Vol    end(meta)     end(log)
  13:33:44.278486	      0          132          132
  13:33:47.240183	      0          351          280
 -13:33:50.240133	      0          862          488
-+13:33:50.240133	      0          862          456
++13:33:50.240133	      0          769          456
  
  13:33:44.278486 3 metrics
-@@ -67,7 +67,7 @@
+@@ -67,7 +60,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240183 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -75,12 +75,7 @@
+@@ -75,12 +68,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -215,14 +279,14 @@ non-null -> non-null cases
      29.0.6 (sample.bin):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
-@@ -92,7 +87,7 @@
+@@ -92,7 +80,7 @@
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
  13:33:50.240133 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -100,12 +95,7 @@
+@@ -100,12 +88,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -249,22 +313,36 @@ non-null -> non-null cases
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -59,7 +59,7 @@
+@@ -37,13 +37,6 @@
+    700 or "bin-700"
+    800 or "bin-800"
+    900 or "bin-900"
+-InDom: 29.3
+-13:33:47.240183 5 instances
+-   0 or "m-00"
+-   4 or "m-04"
+-   9 or "m-09"
+-   10 or "m-10"
+-   11 or "m-11"
+ InDom: 29.8
+ 13:33:47.240183 5 instances
+    0 or "i-0"
+@@ -59,7 +52,7 @@
  		Log Vol    end(meta)     end(log)
  13:33:44.278486	      0          132          132
  13:33:47.240183	      0          351          280
 -13:33:50.240133	      0          862          488
-+13:33:50.240133	      0          862          456
++13:33:50.240133	      0          769          456
  
  13:33:44.278486 3 metrics
-@@ -67,7 +67,7 @@
+@@ -67,7 +60,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240183 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -75,12 +75,7 @@
+@@ -75,12 +68,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -278,14 +356,14 @@ non-null -> non-null cases
      29.0.6 (sample.bin):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
-@@ -92,7 +87,7 @@
+@@ -92,7 +80,7 @@
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
  13:33:50.240133 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -100,12 +95,7 @@
+@@ -100,12 +88,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -312,22 +390,36 @@ non-null -> non-null cases
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -59,7 +59,7 @@
+@@ -37,13 +37,6 @@
+    700 or "bin-700"
+    800 or "bin-800"
+    900 or "bin-900"
+-InDom: 29.3
+-13:33:47.240183 5 instances
+-   0 or "m-00"
+-   4 or "m-04"
+-   9 or "m-09"
+-   10 or "m-10"
+-   11 or "m-11"
+ InDom: 29.8
+ 13:33:47.240183 5 instances
+    0 or "i-0"
+@@ -59,7 +52,7 @@
  		Log Vol    end(meta)     end(log)
  13:33:44.278486	      0          132          132
  13:33:47.240183	      0          351          280
 -13:33:50.240133	      0          862          488
-+13:33:50.240133	      0          862          456
++13:33:50.240133	      0          769          456
  
  13:33:44.278486 3 metrics
-@@ -67,7 +67,7 @@
+@@ -67,7 +60,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240183 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -75,12 +75,7 @@
+@@ -75,12 +68,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -341,14 +433,14 @@ non-null -> non-null cases
      29.0.6 (sample.bin):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
-@@ -92,7 +87,7 @@
+@@ -92,7 +80,7 @@
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
  13:33:50.240133 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -100,12 +95,7 @@
+@@ -100,12 +88,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -375,22 +467,36 @@ non-null -> non-null cases
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -59,7 +59,7 @@
+@@ -37,13 +37,6 @@
+    700 or "bin-700"
+    800 or "bin-800"
+    900 or "bin-900"
+-InDom: 29.3
+-13:33:47.240183 5 instances
+-   0 or "m-00"
+-   4 or "m-04"
+-   9 or "m-09"
+-   10 or "m-10"
+-   11 or "m-11"
+ InDom: 29.8
+ 13:33:47.240183 5 instances
+    0 or "i-0"
+@@ -59,7 +52,7 @@
  		Log Vol    end(meta)     end(log)
  13:33:44.278486	      0          132          132
  13:33:47.240183	      0          351          280
 -13:33:50.240133	      0          862          488
-+13:33:50.240133	      0          862          456
++13:33:50.240133	      0          769          456
  
  13:33:44.278486 3 metrics
-@@ -67,7 +67,7 @@
+@@ -67,7 +60,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240183 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -75,12 +75,7 @@
+@@ -75,12 +68,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -404,14 +510,14 @@ non-null -> non-null cases
      29.0.6 (sample.bin):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
-@@ -92,7 +87,7 @@
+@@ -92,7 +80,7 @@
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
  13:33:50.240133 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -100,12 +95,7 @@
+@@ -100,12 +88,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -438,22 +544,36 @@ non-null -> non-null cases
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -59,7 +59,7 @@
+@@ -37,13 +37,6 @@
+    700 or "bin-700"
+    800 or "bin-800"
+    900 or "bin-900"
+-InDom: 29.3
+-13:33:47.240183 5 instances
+-   0 or "m-00"
+-   4 or "m-04"
+-   9 or "m-09"
+-   10 or "m-10"
+-   11 or "m-11"
+ InDom: 29.8
+ 13:33:47.240183 5 instances
+    0 or "i-0"
+@@ -59,7 +52,7 @@
  		Log Vol    end(meta)     end(log)
  13:33:44.278486	      0          132          132
  13:33:47.240183	      0          351          280
 -13:33:50.240133	      0          862          488
-+13:33:50.240133	      0          862          456
++13:33:50.240133	      0          769          456
  
  13:33:44.278486 3 metrics
-@@ -67,7 +67,7 @@
+@@ -67,7 +60,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240183 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -75,12 +75,7 @@
+@@ -75,12 +68,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -467,14 +587,14 @@ non-null -> non-null cases
      29.0.6 (sample.bin):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
-@@ -92,7 +87,7 @@
+@@ -92,7 +80,7 @@
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
  13:33:50.240133 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -100,12 +95,7 @@
+@@ -100,12 +88,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -501,22 +621,36 @@ non-null -> non-null cases
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -59,7 +59,7 @@
+@@ -37,13 +37,6 @@
+    700 or "bin-700"
+    800 or "bin-800"
+    900 or "bin-900"
+-InDom: 29.3
+-13:33:47.240183 5 instances
+-   0 or "m-00"
+-   4 or "m-04"
+-   9 or "m-09"
+-   10 or "m-10"
+-   11 or "m-11"
+ InDom: 29.8
+ 13:33:47.240183 5 instances
+    0 or "i-0"
+@@ -59,7 +52,7 @@
  		Log Vol    end(meta)     end(log)
  13:33:44.278486	      0          132          132
  13:33:47.240183	      0          351          280
 -13:33:50.240133	      0          862          488
-+13:33:50.240133	      0          862          456
++13:33:50.240133	      0          769          456
  
  13:33:44.278486 3 metrics
-@@ -67,7 +67,7 @@
+@@ -67,7 +60,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240183 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -75,12 +75,7 @@
+@@ -75,12 +68,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -530,14 +664,14 @@ non-null -> non-null cases
      29.0.6 (sample.bin):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
-@@ -92,7 +87,7 @@
+@@ -92,7 +80,7 @@
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
  13:33:50.240133 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -100,12 +95,7 @@
+@@ -100,12 +88,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -568,22 +702,36 @@ Instance 12345 from OUTPUT clause not found in new indom 29.8
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -59,7 +59,7 @@
+@@ -37,13 +37,6 @@
+    700 or "bin-700"
+    800 or "bin-800"
+    900 or "bin-900"
+-InDom: 29.3
+-13:33:47.240183 5 instances
+-   0 or "m-00"
+-   4 or "m-04"
+-   9 or "m-09"
+-   10 or "m-10"
+-   11 or "m-11"
+ InDom: 29.8
+ 13:33:47.240183 5 instances
+    0 or "i-0"
+@@ -59,7 +52,7 @@
  		Log Vol    end(meta)     end(log)
  13:33:44.278486	      0          132          132
  13:33:47.240183	      0          351          280
 -13:33:50.240133	      0          862          488
-+13:33:50.240133	      0          862          444
++13:33:50.240133	      0          769          444
  
  13:33:44.278486 3 metrics
-@@ -67,7 +67,7 @@
+@@ -67,7 +60,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240183 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -75,12 +75,7 @@
+@@ -75,12 +68,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -597,14 +745,14 @@ Instance 12345 from OUTPUT clause not found in new indom 29.8
      29.0.6 (sample.bin):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
-@@ -92,7 +87,7 @@
+@@ -92,7 +80,7 @@
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
  13:33:50.240133 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -100,12 +95,7 @@
+@@ -100,12 +88,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -635,22 +783,36 @@ Instance "m-12345" from OUTPUT clause not found in new indom 29.8
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -59,7 +59,7 @@
+@@ -37,13 +37,6 @@
+    700 or "bin-700"
+    800 or "bin-800"
+    900 or "bin-900"
+-InDom: 29.3
+-13:33:47.240183 5 instances
+-   0 or "m-00"
+-   4 or "m-04"
+-   9 or "m-09"
+-   10 or "m-10"
+-   11 or "m-11"
+ InDom: 29.8
+ 13:33:47.240183 5 instances
+    0 or "i-0"
+@@ -59,7 +52,7 @@
  		Log Vol    end(meta)     end(log)
  13:33:44.278486	      0          132          132
  13:33:47.240183	      0          351          280
 -13:33:50.240133	      0          862          488
-+13:33:50.240133	      0          862          444
++13:33:50.240133	      0          769          444
  
  13:33:44.278486 3 metrics
-@@ -67,7 +67,7 @@
+@@ -67,7 +60,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240183 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -75,12 +75,7 @@
+@@ -75,12 +68,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -664,14 +826,14 @@ Instance "m-12345" from OUTPUT clause not found in new indom 29.8
      29.0.6 (sample.bin):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
-@@ -92,7 +87,7 @@
+@@ -92,7 +80,7 @@
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
  13:33:50.240133 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -100,12 +95,7 @@
+@@ -100,12 +88,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -700,22 +862,36 @@ Instance 11 from OUTPUT clause not found in new indom 29.8
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -59,7 +59,7 @@
+@@ -37,13 +37,6 @@
+    700 or "bin-700"
+    800 or "bin-800"
+    900 or "bin-900"
+-InDom: 29.3
+-13:33:47.240183 5 instances
+-   0 or "m-00"
+-   4 or "m-04"
+-   9 or "m-09"
+-   10 or "m-10"
+-   11 or "m-11"
+ InDom: 29.8
+ 13:33:47.240183 5 instances
+    0 or "i-0"
+@@ -59,7 +52,7 @@
  		Log Vol    end(meta)     end(log)
  13:33:44.278486	      0          132          132
  13:33:47.240183	      0          351          280
 -13:33:50.240133	      0          862          488
-+13:33:50.240133	      0          862          456
++13:33:50.240133	      0          769          456
  
  13:33:44.278486 3 metrics
-@@ -67,7 +67,7 @@
+@@ -67,7 +60,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240183 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -75,12 +75,7 @@
+@@ -75,12 +68,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -729,14 +905,14 @@ Instance 11 from OUTPUT clause not found in new indom 29.8
      29.0.6 (sample.bin):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
-@@ -92,7 +87,7 @@
+@@ -92,7 +80,7 @@
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
  13:33:50.240133 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -100,12 +95,7 @@
+@@ -100,12 +88,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -765,22 +941,36 @@ Instance 2 from OUTPUT clause not found in old indom 29.3
      Semantics: instant  Units: Kbyte / sec
  PMID: 29.0.80 (sample.many.int)
      Data Type: 32-bit int  InDom: 29.8 0x7400008
-@@ -59,7 +59,7 @@
+@@ -37,13 +37,6 @@
+    700 or "bin-700"
+    800 or "bin-800"
+    900 or "bin-900"
+-InDom: 29.3
+-13:33:47.240183 5 instances
+-   0 or "m-00"
+-   4 or "m-04"
+-   9 or "m-09"
+-   10 or "m-10"
+-   11 or "m-11"
+ InDom: 29.8
+ 13:33:47.240183 5 instances
+    0 or "i-0"
+@@ -59,7 +52,7 @@
  		Log Vol    end(meta)     end(log)
  13:33:44.278486	      0          132          132
  13:33:47.240183	      0          351          280
 -13:33:50.240133	      0          862          488
-+13:33:50.240133	      0          862          444
++13:33:50.240133	      0          769          444
  
  13:33:44.278486 3 metrics
-@@ -67,7 +67,7 @@
+@@ -67,7 +60,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [32221 or "32221"] value 4330
      2.3.2 (pmcd.pmlogger.archive): inst [32221 or "32221"] value "/home/kmcdonell/src/pcpqa/src/mirage-1"
  
  13:33:47.240183 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -75,12 +75,7 @@
+@@ -75,12 +68,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -794,14 +984,14 @@ Instance 2 from OUTPUT clause not found in old indom 29.3
      29.0.6 (sample.bin):
          inst [100 or "bin-100"] value 100
          inst [200 or "bin-200"] value 200
-@@ -92,7 +87,7 @@
+@@ -92,7 +80,7 @@
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
  
  13:33:50.240133 3 metrics
      29.0.80 (sample.many.int):
          inst [0 or "i-0"] value 0
-@@ -100,12 +95,7 @@
+@@ -100,12 +88,7 @@
          inst [2 or "i-2"] value 2
          inst [3 or "i-3"] value 3
          inst [4 or "i-4"] value 4
@@ -830,22 +1020,34 @@ non-null -> null cases
      Semantics: instant  Units: none
  PMID: 2.3.0 (pmcd.pmlogger.port)
      Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -56,7 +56,7 @@
+@@ -32,11 +32,6 @@
+     Semantics: discrete  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 29.1
+-04:34:33.248687 3 instances
+-   0 or "red"
+-   1 or "green"
+-   2 or "blue"
+ InDom: 29.2
+ 04:34:33.248687 9 instances
+    100 or "bin-100"
+@@ -56,7 +51,7 @@
  		Log Vol    end(meta)     end(log)
  04:34:32.257504	      0          132          132
  04:34:33.248687	      0          350          284
 -04:34:34.248493	      0          851          496
-+04:34:34.248493	      0          851          480
++04:34:34.248493	      0          784          480
  
  04:34:32.257504 3 metrics
-@@ -64,7 +64,7 @@
+@@ -64,7 +59,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
  04:34:33.248687 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
-@@ -78,13 +78,10 @@
+@@ -78,13 +73,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -859,7 +1061,7 @@ non-null -> null cases
  04:34:34.248493 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
-@@ -98,8 +95,5 @@
+@@ -98,8 +90,5 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -882,22 +1084,34 @@ non-null -> null cases
      Semantics: instant  Units: none
  PMID: 2.3.0 (pmcd.pmlogger.port)
      Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -56,7 +56,7 @@
+@@ -32,11 +32,6 @@
+     Semantics: discrete  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 29.1
+-04:34:33.248687 3 instances
+-   0 or "red"
+-   1 or "green"
+-   2 or "blue"
+ InDom: 29.2
+ 04:34:33.248687 9 instances
+    100 or "bin-100"
+@@ -56,7 +51,7 @@
  		Log Vol    end(meta)     end(log)
  04:34:32.257504	      0          132          132
  04:34:33.248687	      0          350          284
 -04:34:34.248493	      0          851          496
-+04:34:34.248493	      0          851          480
++04:34:34.248493	      0          784          480
  
  04:34:32.257504 3 metrics
-@@ -64,7 +64,7 @@
+@@ -64,7 +59,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
  04:34:33.248687 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
-@@ -78,13 +78,10 @@
+@@ -78,13 +73,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -911,7 +1125,7 @@ non-null -> null cases
  04:34:34.248493 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
-@@ -98,8 +95,5 @@
+@@ -98,8 +90,5 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -934,22 +1148,34 @@ non-null -> null cases
      Semantics: instant  Units: none
  PMID: 2.3.0 (pmcd.pmlogger.port)
      Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -56,7 +56,7 @@
+@@ -32,11 +32,6 @@
+     Semantics: discrete  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 29.1
+-04:34:33.248687 3 instances
+-   0 or "red"
+-   1 or "green"
+-   2 or "blue"
+ InDom: 29.2
+ 04:34:33.248687 9 instances
+    100 or "bin-100"
+@@ -56,7 +51,7 @@
  		Log Vol    end(meta)     end(log)
  04:34:32.257504	      0          132          132
  04:34:33.248687	      0          350          284
 -04:34:34.248493	      0          851          496
-+04:34:34.248493	      0          851          480
++04:34:34.248493	      0          784          480
  
  04:34:32.257504 3 metrics
-@@ -64,7 +64,7 @@
+@@ -64,7 +59,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
  04:34:33.248687 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
-@@ -78,13 +78,10 @@
+@@ -78,13 +73,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -963,7 +1189,7 @@ non-null -> null cases
  04:34:34.248493 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
-@@ -98,8 +95,5 @@
+@@ -98,8 +90,5 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -986,22 +1212,34 @@ non-null -> null cases
      Semantics: instant  Units: none
  PMID: 2.3.0 (pmcd.pmlogger.port)
      Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -56,7 +56,7 @@
+@@ -32,11 +32,6 @@
+     Semantics: discrete  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 29.1
+-04:34:33.248687 3 instances
+-   0 or "red"
+-   1 or "green"
+-   2 or "blue"
+ InDom: 29.2
+ 04:34:33.248687 9 instances
+    100 or "bin-100"
+@@ -56,7 +51,7 @@
  		Log Vol    end(meta)     end(log)
  04:34:32.257504	      0          132          132
  04:34:33.248687	      0          350          284
 -04:34:34.248493	      0          851          496
-+04:34:34.248493	      0          851          480
++04:34:34.248493	      0          784          480
  
  04:34:32.257504 3 metrics
-@@ -64,7 +64,7 @@
+@@ -64,7 +59,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
  04:34:33.248687 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
-@@ -78,13 +78,10 @@
+@@ -78,13 +73,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -1015,7 +1253,7 @@ non-null -> null cases
  04:34:34.248493 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
-@@ -98,8 +95,5 @@
+@@ -98,8 +90,5 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -1038,22 +1276,34 @@ non-null -> null cases
      Semantics: instant  Units: none
  PMID: 2.3.0 (pmcd.pmlogger.port)
      Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -56,7 +56,7 @@
+@@ -32,11 +32,6 @@
+     Semantics: discrete  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 29.1
+-04:34:33.248687 3 instances
+-   0 or "red"
+-   1 or "green"
+-   2 or "blue"
+ InDom: 29.2
+ 04:34:33.248687 9 instances
+    100 or "bin-100"
+@@ -56,7 +51,7 @@
  		Log Vol    end(meta)     end(log)
  04:34:32.257504	      0          132          132
  04:34:33.248687	      0          350          284
 -04:34:34.248493	      0          851          496
-+04:34:34.248493	      0          851          480
++04:34:34.248493	      0          784          480
  
  04:34:32.257504 3 metrics
-@@ -64,7 +64,7 @@
+@@ -64,7 +59,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
  04:34:33.248687 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
-@@ -78,13 +78,10 @@
+@@ -78,13 +73,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -1067,7 +1317,7 @@ non-null -> null cases
  04:34:34.248493 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
-@@ -98,8 +95,5 @@
+@@ -98,8 +90,5 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -1090,22 +1340,34 @@ non-null -> null cases
      Semantics: instant  Units: none
  PMID: 2.3.0 (pmcd.pmlogger.port)
      Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -56,7 +56,7 @@
+@@ -32,11 +32,6 @@
+     Semantics: discrete  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 29.1
+-04:34:33.248687 3 instances
+-   0 or "red"
+-   1 or "green"
+-   2 or "blue"
+ InDom: 29.2
+ 04:34:33.248687 9 instances
+    100 or "bin-100"
+@@ -56,7 +51,7 @@
  		Log Vol    end(meta)     end(log)
  04:34:32.257504	      0          132          132
  04:34:33.248687	      0          350          284
 -04:34:34.248493	      0          851          496
-+04:34:34.248493	      0          851          480
++04:34:34.248493	      0          784          480
  
  04:34:32.257504 3 metrics
-@@ -64,7 +64,7 @@
+@@ -64,7 +59,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
  04:34:33.248687 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
-@@ -78,13 +78,10 @@
+@@ -78,13 +73,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -1119,7 +1381,7 @@ non-null -> null cases
  04:34:34.248493 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
-@@ -98,8 +95,5 @@
+@@ -98,8 +90,5 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -1142,22 +1404,34 @@ non-null -> null cases
      Semantics: instant  Units: none
  PMID: 2.3.0 (pmcd.pmlogger.port)
      Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -56,7 +56,7 @@
+@@ -32,11 +32,6 @@
+     Semantics: discrete  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 29.1
+-04:34:33.248687 3 instances
+-   0 or "red"
+-   1 or "green"
+-   2 or "blue"
+ InDom: 29.2
+ 04:34:33.248687 9 instances
+    100 or "bin-100"
+@@ -56,7 +51,7 @@
  		Log Vol    end(meta)     end(log)
  04:34:32.257504	      0          132          132
  04:34:33.248687	      0          350          284
 -04:34:34.248493	      0          851          496
-+04:34:34.248493	      0          851          480
++04:34:34.248493	      0          784          480
  
  04:34:32.257504 3 metrics
-@@ -64,7 +64,7 @@
+@@ -64,7 +59,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
  04:34:33.248687 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
-@@ -78,13 +78,10 @@
+@@ -78,13 +73,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -1171,7 +1445,7 @@ non-null -> null cases
  04:34:34.248493 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
-@@ -98,8 +95,5 @@
+@@ -98,8 +90,5 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -1194,22 +1468,34 @@ non-null -> null cases
      Semantics: instant  Units: none
  PMID: 2.3.0 (pmcd.pmlogger.port)
      Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -56,7 +56,7 @@
+@@ -32,11 +32,6 @@
+     Semantics: discrete  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 29.1
+-04:34:33.248687 3 instances
+-   0 or "red"
+-   1 or "green"
+-   2 or "blue"
+ InDom: 29.2
+ 04:34:33.248687 9 instances
+    100 or "bin-100"
+@@ -56,7 +51,7 @@
  		Log Vol    end(meta)     end(log)
  04:34:32.257504	      0          132          132
  04:34:33.248687	      0          350          284
 -04:34:34.248493	      0          851          496
-+04:34:34.248493	      0          851          480
++04:34:34.248493	      0          784          480
  
  04:34:32.257504 3 metrics
-@@ -64,7 +64,7 @@
+@@ -64,7 +59,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
  04:34:33.248687 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
-@@ -78,13 +78,10 @@
+@@ -78,13 +73,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -1223,7 +1509,7 @@ non-null -> null cases
  04:34:34.248493 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
-@@ -98,8 +95,5 @@
+@@ -98,8 +90,5 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -1246,22 +1532,34 @@ non-null -> null cases
      Semantics: instant  Units: none
  PMID: 2.3.0 (pmcd.pmlogger.port)
      Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -56,7 +56,7 @@
+@@ -32,11 +32,6 @@
+     Semantics: discrete  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 29.1
+-04:34:33.248687 3 instances
+-   0 or "red"
+-   1 or "green"
+-   2 or "blue"
+ InDom: 29.2
+ 04:34:33.248687 9 instances
+    100 or "bin-100"
+@@ -56,7 +51,7 @@
  		Log Vol    end(meta)     end(log)
  04:34:32.257504	      0          132          132
  04:34:33.248687	      0          350          284
 -04:34:34.248493	      0          851          496
-+04:34:34.248493	      0          851          480
++04:34:34.248493	      0          784          480
  
  04:34:32.257504 3 metrics
-@@ -64,7 +64,7 @@
+@@ -64,7 +59,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
  04:34:33.248687 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
-@@ -78,13 +78,10 @@
+@@ -78,13 +73,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -1275,7 +1573,7 @@ non-null -> null cases
  04:34:34.248493 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
-@@ -98,8 +95,5 @@
+@@ -98,8 +90,5 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -1300,22 +1598,34 @@ Instance 12345 from OUTPUT clause not found in old indom 29.1
      Semantics: instant  Units: none
  PMID: 2.3.0 (pmcd.pmlogger.port)
      Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -56,7 +56,7 @@
+@@ -32,11 +32,6 @@
+     Semantics: discrete  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 29.1
+-04:34:33.248687 3 instances
+-   0 or "red"
+-   1 or "green"
+-   2 or "blue"
+ InDom: 29.2
+ 04:34:33.248687 9 instances
+    100 or "bin-100"
+@@ -56,7 +51,7 @@
  		Log Vol    end(meta)     end(log)
  04:34:32.257504	      0          132          132
  04:34:33.248687	      0          350          284
 -04:34:34.248493	      0          851          496
-+04:34:34.248493	      0          851          468
++04:34:34.248493	      0          784          468
  
  04:34:32.257504 3 metrics
-@@ -64,7 +64,7 @@
+@@ -64,7 +59,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
  04:34:33.248687 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
-@@ -78,13 +78,10 @@
+@@ -78,13 +73,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -1329,7 +1639,7 @@ Instance 12345 from OUTPUT clause not found in old indom 29.1
  04:34:34.248493 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
-@@ -98,8 +95,5 @@
+@@ -98,8 +90,5 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -1354,22 +1664,34 @@ Instance "purple" from OUTPUT clause not found in old indom 29.1
      Semantics: instant  Units: none
  PMID: 2.3.0 (pmcd.pmlogger.port)
      Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
-@@ -56,7 +56,7 @@
+@@ -32,11 +32,6 @@
+     Semantics: discrete  Units: none
+ 
+ Instance Domains in the Log ...
+-InDom: 29.1
+-04:34:33.248687 3 instances
+-   0 or "red"
+-   1 or "green"
+-   2 or "blue"
+ InDom: 29.2
+ 04:34:33.248687 9 instances
+    100 or "bin-100"
+@@ -56,7 +51,7 @@
  		Log Vol    end(meta)     end(log)
  04:34:32.257504	      0          132          132
  04:34:33.248687	      0          350          284
 -04:34:34.248493	      0          851          496
-+04:34:34.248493	      0          851          468
++04:34:34.248493	      0          784          468
  
  04:34:32.257504 3 metrics
-@@ -64,7 +64,7 @@
+@@ -64,7 +59,7 @@
      2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
      2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
  
  04:34:33.248687 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 150
-@@ -78,13 +78,10 @@
+@@ -78,13 +73,10 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -1383,7 +1705,7 @@ Instance "purple" from OUTPUT clause not found in old indom 29.1
  04:34:34.248493 5 metrics
      29.0.46 (sample.lights): value "yellow"
      29.0.7 (sample.drift): value 108
-@@ -98,8 +95,5 @@
+@@ -98,8 +90,5 @@
          inst [700 or "bin-700"] value 700
          inst [800 or "bin-800"] value 800
          inst [900 or "bin-900"] value 900
@@ -1715,15 +2037,27 @@ spaces in inames cases
      Semantics: instant  Units: none
  PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-@@ -84,7 +84,7 @@
+@@ -71,11 +71,6 @@
+     Semantics: instant  Units: Kbyte
+ 
+ Instance Domains in the Log ...
+-InDom: 1.5
+-08:20:47.964018 3 instances
+-   1 or "1 minute"
+-   5 or "5 minute"
+-   15 or "15 minute"
+ InDom: 2.1
+ 08:20:43.084980 1 instances
+    2006 or "2006"
+@@ -84,7 +79,7 @@
  		Log Vol    end(meta)     end(log)
  08:20:43.084980	      0          132          132
  08:20:47.964018	      0          350          304
 -08:20:54.341775	      0         1563          748
-+08:20:54.341775	      0         1563          716
++08:20:54.341775	      0         1483          716
  
  08:20:43.084980 3 metrics
-@@ -92,14 +92,11 @@
+@@ -92,14 +87,11 @@
      2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
  
@@ -1738,7 +2072,7 @@ spaces in inames cases
      1.18.1 (irix.mem.freemem): value 42176
      1.10.52 (irix.kernel.all.intr.non_vme): value 784109926
      1.10.19 (irix.kernel.all.syscall): value 741706296
-@@ -116,14 +113,11 @@
+@@ -116,14 +108,11 @@
      1.10.3 (irix.kernel.all.pswitch): value 154960095
      1.10.2 (irix.swap.pagesout): value 651
  
@@ -1766,15 +2100,27 @@ spaces in inames cases
      Semantics: instant  Units: none
  PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-@@ -84,7 +84,7 @@
+@@ -71,11 +71,6 @@
+     Semantics: instant  Units: Kbyte
+ 
+ Instance Domains in the Log ...
+-InDom: 1.5
+-08:20:47.964018 3 instances
+-   1 or "1 minute"
+-   5 or "5 minute"
+-   15 or "15 minute"
+ InDom: 2.1
+ 08:20:43.084980 1 instances
+    2006 or "2006"
+@@ -84,7 +79,7 @@
  		Log Vol    end(meta)     end(log)
  08:20:43.084980	      0          132          132
  08:20:47.964018	      0          350          304
 -08:20:54.341775	      0         1563          748
-+08:20:54.341775	      0         1563          716
++08:20:54.341775	      0         1483          716
  
  08:20:43.084980 3 metrics
-@@ -92,14 +92,11 @@
+@@ -92,14 +87,11 @@
      2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
  
@@ -1789,7 +2135,7 @@ spaces in inames cases
      1.18.1 (irix.mem.freemem): value 42176
      1.10.52 (irix.kernel.all.intr.non_vme): value 784109926
      1.10.19 (irix.kernel.all.syscall): value 741706296
-@@ -116,14 +113,11 @@
+@@ -116,14 +108,11 @@
      1.10.3 (irix.kernel.all.pswitch): value 154960095
      1.10.2 (irix.swap.pagesout): value 651
  
@@ -1817,15 +2163,27 @@ spaces in inames cases
      Semantics: instant  Units: none
  PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-@@ -84,7 +84,7 @@
+@@ -71,11 +71,6 @@
+     Semantics: instant  Units: Kbyte
+ 
+ Instance Domains in the Log ...
+-InDom: 1.5
+-08:20:47.964018 3 instances
+-   1 or "1 minute"
+-   5 or "5 minute"
+-   15 or "15 minute"
+ InDom: 2.1
+ 08:20:43.084980 1 instances
+    2006 or "2006"
+@@ -84,7 +79,7 @@
  		Log Vol    end(meta)     end(log)
  08:20:43.084980	      0          132          132
  08:20:47.964018	      0          350          304
 -08:20:54.341775	      0         1563          748
-+08:20:54.341775	      0         1563          716
++08:20:54.341775	      0         1483          716
  
  08:20:43.084980 3 metrics
-@@ -92,14 +92,11 @@
+@@ -92,14 +87,11 @@
      2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
  
@@ -1840,7 +2198,7 @@ spaces in inames cases
      1.18.1 (irix.mem.freemem): value 42176
      1.10.52 (irix.kernel.all.intr.non_vme): value 784109926
      1.10.19 (irix.kernel.all.syscall): value 741706296
-@@ -116,14 +113,11 @@
+@@ -116,14 +108,11 @@
      1.10.3 (irix.kernel.all.pswitch): value 154960095
      1.10.2 (irix.swap.pagesout): value 651
  
@@ -1868,15 +2226,27 @@ spaces in inames cases
      Semantics: instant  Units: none
  PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-@@ -84,7 +84,7 @@
+@@ -71,11 +71,6 @@
+     Semantics: instant  Units: Kbyte
+ 
+ Instance Domains in the Log ...
+-InDom: 1.5
+-08:20:47.964018 3 instances
+-   1 or "1 minute"
+-   5 or "5 minute"
+-   15 or "15 minute"
+ InDom: 2.1
+ 08:20:43.084980 1 instances
+    2006 or "2006"
+@@ -84,7 +79,7 @@
  		Log Vol    end(meta)     end(log)
  08:20:43.084980	      0          132          132
  08:20:47.964018	      0          350          304
 -08:20:54.341775	      0         1563          748
-+08:20:54.341775	      0         1563          716
++08:20:54.341775	      0         1483          716
  
  08:20:43.084980 3 metrics
-@@ -92,14 +92,11 @@
+@@ -92,14 +87,11 @@
      2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
  
@@ -1891,7 +2261,7 @@ spaces in inames cases
      1.18.1 (irix.mem.freemem): value 42176
      1.10.52 (irix.kernel.all.intr.non_vme): value 784109926
      1.10.19 (irix.kernel.all.syscall): value 741706296
-@@ -116,14 +113,11 @@
+@@ -116,14 +108,11 @@
      1.10.3 (irix.kernel.all.pswitch): value 154960095
      1.10.2 (irix.swap.pagesout): value 651
  
@@ -1919,15 +2289,27 @@ spaces in inames cases
      Semantics: instant  Units: none
  PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-@@ -84,7 +84,7 @@
+@@ -71,11 +71,6 @@
+     Semantics: instant  Units: Kbyte
+ 
+ Instance Domains in the Log ...
+-InDom: 1.5
+-08:20:47.964018 3 instances
+-   1 or "1 minute"
+-   5 or "5 minute"
+-   15 or "15 minute"
+ InDom: 2.1
+ 08:20:43.084980 1 instances
+    2006 or "2006"
+@@ -84,7 +79,7 @@
  		Log Vol    end(meta)     end(log)
  08:20:43.084980	      0          132          132
  08:20:47.964018	      0          350          304
 -08:20:54.341775	      0         1563          748
-+08:20:54.341775	      0         1563          716
++08:20:54.341775	      0         1483          716
  
  08:20:43.084980 3 metrics
-@@ -92,14 +92,11 @@
+@@ -92,14 +87,11 @@
      2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
  
@@ -1942,7 +2324,7 @@ spaces in inames cases
      1.18.1 (irix.mem.freemem): value 42176
      1.10.52 (irix.kernel.all.intr.non_vme): value 784109926
      1.10.19 (irix.kernel.all.syscall): value 741706296
-@@ -116,14 +113,11 @@
+@@ -116,14 +108,11 @@
      1.10.3 (irix.kernel.all.pswitch): value 154960095
      1.10.2 (irix.swap.pagesout): value 651
  
@@ -1970,15 +2352,27 @@ spaces in inames cases
      Semantics: instant  Units: none
  PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-@@ -84,7 +84,7 @@
+@@ -71,11 +71,6 @@
+     Semantics: instant  Units: Kbyte
+ 
+ Instance Domains in the Log ...
+-InDom: 1.5
+-08:20:47.964018 3 instances
+-   1 or "1 minute"
+-   5 or "5 minute"
+-   15 or "15 minute"
+ InDom: 2.1
+ 08:20:43.084980 1 instances
+    2006 or "2006"
+@@ -84,7 +79,7 @@
  		Log Vol    end(meta)     end(log)
  08:20:43.084980	      0          132          132
  08:20:47.964018	      0          350          304
 -08:20:54.341775	      0         1563          748
-+08:20:54.341775	      0         1563          716
++08:20:54.341775	      0         1483          716
  
  08:20:43.084980 3 metrics
-@@ -92,14 +92,11 @@
+@@ -92,14 +87,11 @@
      2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
  
@@ -1993,7 +2387,7 @@ spaces in inames cases
      1.18.1 (irix.mem.freemem): value 42176
      1.10.52 (irix.kernel.all.intr.non_vme): value 784109926
      1.10.19 (irix.kernel.all.syscall): value 741706296
-@@ -116,14 +113,11 @@
+@@ -116,14 +108,11 @@
      1.10.3 (irix.kernel.all.pswitch): value 154960095
      1.10.2 (irix.swap.pagesout): value 651
  
@@ -2021,15 +2415,27 @@ spaces in inames cases
      Semantics: instant  Units: none
  PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-@@ -84,7 +84,7 @@
+@@ -71,11 +71,6 @@
+     Semantics: instant  Units: Kbyte
+ 
+ Instance Domains in the Log ...
+-InDom: 1.5
+-08:20:47.964018 3 instances
+-   1 or "1 minute"
+-   5 or "5 minute"
+-   15 or "15 minute"
+ InDom: 2.1
+ 08:20:43.084980 1 instances
+    2006 or "2006"
+@@ -84,7 +79,7 @@
  		Log Vol    end(meta)     end(log)
  08:20:43.084980	      0          132          132
  08:20:47.964018	      0          350          304
 -08:20:54.341775	      0         1563          748
-+08:20:54.341775	      0         1563          716
++08:20:54.341775	      0         1483          716
  
  08:20:43.084980 3 metrics
-@@ -92,14 +92,11 @@
+@@ -92,14 +87,11 @@
      2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
  
@@ -2044,7 +2450,7 @@ spaces in inames cases
      1.18.1 (irix.mem.freemem): value 42176
      1.10.52 (irix.kernel.all.intr.non_vme): value 784109926
      1.10.19 (irix.kernel.all.syscall): value 741706296
-@@ -116,14 +113,11 @@
+@@ -116,14 +108,11 @@
      1.10.3 (irix.kernel.all.pswitch): value 154960095
      1.10.2 (irix.swap.pagesout): value 651
  
@@ -2072,15 +2478,27 @@ spaces in inames cases
      Semantics: instant  Units: none
  PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-@@ -84,7 +84,7 @@
+@@ -71,11 +71,6 @@
+     Semantics: instant  Units: Kbyte
+ 
+ Instance Domains in the Log ...
+-InDom: 1.5
+-08:20:47.964018 3 instances
+-   1 or "1 minute"
+-   5 or "5 minute"
+-   15 or "15 minute"
+ InDom: 2.1
+ 08:20:43.084980 1 instances
+    2006 or "2006"
+@@ -84,7 +79,7 @@
  		Log Vol    end(meta)     end(log)
  08:20:43.084980	      0          132          132
  08:20:47.964018	      0          350          304
 -08:20:54.341775	      0         1563          748
-+08:20:54.341775	      0         1563          716
++08:20:54.341775	      0         1483          716
  
  08:20:43.084980 3 metrics
-@@ -92,14 +92,11 @@
+@@ -92,14 +87,11 @@
      2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
  
@@ -2095,7 +2513,7 @@ spaces in inames cases
      1.18.1 (irix.mem.freemem): value 42176
      1.10.52 (irix.kernel.all.intr.non_vme): value 784109926
      1.10.19 (irix.kernel.all.syscall): value 741706296
-@@ -116,14 +113,11 @@
+@@ -116,14 +108,11 @@
      1.10.3 (irix.kernel.all.pswitch): value 154960095
      1.10.2 (irix.swap.pagesout): value 651
  
@@ -2125,15 +2543,27 @@ Instance "159" from OUTPUT clause not found in old indom 1.5
      Semantics: instant  Units: none
  PMID: 1.10.12 (irix.kernel.all.cpu.wait.total)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-@@ -84,7 +84,7 @@
+@@ -71,11 +71,6 @@
+     Semantics: instant  Units: Kbyte
+ 
+ Instance Domains in the Log ...
+-InDom: 1.5
+-08:20:47.964018 3 instances
+-   1 or "1 minute"
+-   5 or "5 minute"
+-   15 or "15 minute"
+ InDom: 2.1
+ 08:20:43.084980 1 instances
+    2006 or "2006"
+@@ -84,7 +79,7 @@
  		Log Vol    end(meta)     end(log)
  08:20:43.084980	      0          132          132
  08:20:47.964018	      0          350          304
 -08:20:54.341775	      0         1563          748
-+08:20:54.341775	      0         1563          696
++08:20:54.341775	      0         1483          696
  
  08:20:43.084980 3 metrics
-@@ -92,14 +92,11 @@
+@@ -92,14 +87,11 @@
      2.3.0 (pmcd.pmlogger.port): inst [2006 or "2006"] value 4331
      2.3.2 (pmcd.pmlogger.archive): inst [2006 or "2006"] value "/usr/people/kenmcd/isms/pcp/demo/Archives/moomba.pmkstat"
  
@@ -2148,7 +2578,7 @@ Instance "159" from OUTPUT clause not found in old indom 1.5
      1.18.1 (irix.mem.freemem): value 42176
      1.10.52 (irix.kernel.all.intr.non_vme): value 784109926
      1.10.19 (irix.kernel.all.syscall): value 741706296
-@@ -116,14 +113,11 @@
+@@ -116,14 +108,11 @@
      1.10.3 (irix.kernel.all.pswitch): value 154960095
      1.10.2 (irix.swap.pagesout): value 651
  

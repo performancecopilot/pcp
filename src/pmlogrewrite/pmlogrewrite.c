@@ -1179,6 +1179,8 @@ check_indoms()
 		for (ip = indom_root; ip != NULL; ip = ip->i_next) {
 		    if (ip->old_indom == mp->old_desc.indom)
 			break;
+		    if (ip->new_indom == mp->new_desc.indom)
+			break;
 		}
 		if (ip == NULL) {
 		    if ((pmInDom)(node->key) == mp->new_desc.indom)
@@ -1385,6 +1387,10 @@ check_output()
 		     */
 		    int		i;
 		    ip = start_indom(mp->new_desc.indom);
+		    if (ip == NULL) {
+			pmsprintf(mess, sizeof(mess), "Botch: InDom %s not found", pmInDomStr(mp->new_desc.indom));
+			yyerror(mess);
+		    }
 		    for (i = 0; i < ip->numinst; i++) {
 			if (mp->one_name != NULL) {
 			    if (inst_name_eq(ip->old_iname[i], mp->one_name) > 0) {
@@ -1781,33 +1787,89 @@ main(int argc, char **argv)
 		(*refp)++;
 	    }
 	    if (pmDebugOptions.appl1) {
-		fprintf(stderr, "seen InDom: %s refcnt: %d (for PMID: %s)\n",
+		fprintf(stderr, "ref++ InDom: %s refcnt: %d (for PMID: %s)\n",
 		    pmInDomStr(dp->indom), *refp, pmIDStr(dp->pmid));
 	    }
 	}
     }
     /*
      * ... next walk the metrics from the config, decrementing the
-     * reference count for any metrics to be deleted or metrics
-     * that are moving from one indom to another
+     * reference count for any metrics to be deleted and maybe
+     * for metrics that are moving from one indom to another
      */
     for (mp = metric_root; mp != NULL; mp = mp->m_next) {
-	if (mp->old_desc.indom == PM_INDOM_NULL)
-	    continue;
-	// if ((mp->flags & METRIC_DELETE) || (mp->flags & METRIC_CHANGE_INDOM)) {
-	if ((mp->flags & METRIC_DELETE)) {
-	    __pmHashNode	*ip;
+	if (mp->flags & METRIC_DELETE) {
+	    __pmHashNode	*hp;
 	    int			*refp;
-	    if ((ip = __pmHashSearch((unsigned int)mp->old_desc.indom, &indom_hash)) == NULL) {
+	    if (mp->old_desc.indom == PM_INDOM_NULL)
+		continue;
+	    if ((hp = __pmHashSearch((unsigned int)mp->old_desc.indom, &indom_hash)) == NULL) {
 		fprintf(stderr, "Botch: InDom: %s (PMID: %s): not in indom_hash table\n",
 		    pmInDomStr(mp->old_desc.indom), pmIDStr(mp->old_desc.pmid));
+		continue;
 	    }
-	    else {
-		refp = (int *)ip->data;
+	    refp = (int *)hp->data;
+	    (*refp)--;
+	    if (pmDebugOptions.appl1) {
+		fprintf(stderr, "delete metric ref-- InDom: %s refcnt: %d (for PMID: %s)\n",
+		    pmInDomStr(mp->old_desc.indom), *refp, pmIDStr(mp->old_desc.pmid));
+	    }
+	}
+	else if (mp->flags & METRIC_CHANGE_INDOM) {
+	    __pmHashNode	*hp;
+	    int			*refp;
+	    if (mp->old_desc.indom != PM_INDOM_NULL) {
+		/* decrement refcount for old indom */
+		if ((hp = __pmHashSearch((unsigned int)mp->old_desc.indom, &indom_hash)) == NULL) {
+		    fprintf(stderr, "Botch: old InDom: %s (PMID: %s): not in indom_hash table\n",
+			pmInDomStr(mp->old_desc.indom), pmIDStr(mp->old_desc.pmid));
+		    continue;
+		}
+		refp = (int *)hp->data;
 		(*refp)--;
 		if (pmDebugOptions.appl1) {
-		    fprintf(stderr, "cull InDom: %s refcnt: %d (for PMID: %s)\n",
+		    fprintf(stderr, "renumber indom ref-- InDom: %s refcnt: %d (for PMID: %s)\n",
 			pmInDomStr(mp->old_desc.indom), *refp, pmIDStr(mp->old_desc.pmid));
+		}
+	    }
+	    if (mp->new_desc.indom != PM_INDOM_NULL) {
+		pmInDom	indom;
+		/*
+		 * increment refcount for new indom ... wrinkle here is
+		 * that new indom id may have been rewritten and then
+		 * we need to increment the refcount for the corresponding
+		 * input archive indom
+		 */
+		if ((hp = __pmHashSearch((unsigned int)mp->new_desc.indom, &indom_hash)) == NULL) {
+		    indomspec_t		*ip;
+		    /* indom is not used in input archive ... */
+		    /*
+		     * if the indom is not being changed, ip will be NULL
+		     * after this loop
+		     */
+		    for (ip = indom_root; ip != NULL; ip = ip->i_next) {
+			if (ip->new_indom == mp->new_desc.indom)
+			    break;
+		    }
+		    if (ip == NULL) {
+			fprintf(stderr, "Botch: new InDom: %s (PMID: %s): not in indom_root table\n",
+			    pmInDomStr(mp->new_desc.indom), pmIDStr(mp->old_desc.pmid));
+			continue;
+		    }
+		    if ((hp = __pmHashSearch((unsigned int)ip->old_indom, &indom_hash)) == NULL) {
+			fprintf(stderr, "Botch: input InDom: %s (PMID: %s): not in indom_hash table\n",
+			    pmInDomStr(ip->old_indom), pmIDStr(mp->old_desc.pmid));
+			continue;
+		    }
+		    indom = ip->old_indom;
+		}
+		else
+		    indom = mp->new_desc.indom;
+		refp = (int *)hp->data;
+		(*refp)++;
+		if (pmDebugOptions.appl1) {
+		    fprintf(stderr, "renumber indom ref++ InDom: %s refcnt: %d (for PMID: %s)\n",
+			pmInDomStr(indom), *refp, pmIDStr(mp->old_desc.pmid));
 		}
 	    }
 	}

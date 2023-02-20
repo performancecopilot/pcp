@@ -61,8 +61,14 @@ _doit()
 	pmlogrewrite -Dappl1 -c $tmp.config $1 $tmp
     fi \
     | _filter
-    pmlogcheck -z $tmp
-    pmdumplog -z -i $tmp
+    pmlogcheck -w $tmp
+    pmdumplog -di $1 >$tmp.in
+    pmdumplog -di $tmp >$tmp.out
+    diff -u $tmp.in $tmp.out \
+    | sed  \
+	-e "s@$tmp@TMP@g" \
+	-e 's/\(TMP.[^ 	]*\).*/\1/' \
+    # end
 }
 
 # real QA test starts here
@@ -72,6 +78,7 @@ cat <<'End-of-File' >$tmp.config
 metric sample.bin { delete }
 End-of-File
 _doit archives/ok-bigbin
+pminfo -fd -a $tmp sample.bin sample.bucket 2>&1
 
 echo
 echo "=== case 2, indom 29.2 should be deleted ==="
@@ -80,6 +87,7 @@ metric sample.bin { delete }
 metric sample.bucket { delete }
 End-of-File
 _doit archives/ok-bigbin
+pminfo -fd -a $tmp sample.colour 2>&1
 
 echo
 echo "=== case 3, indom 29.1 should be deleted ==="
@@ -87,6 +95,7 @@ cat <<'End-of-File' >$tmp.config
 metric sample.colour { pmid -> 30.1.5 indom -> 30.1 }
 End-of-File
 _doit archives/ok-bigbin
+pminfo -fd -a $tmp sample.colour 2>&1
 
 echo
 echo "=== case 4, indom 29.1 should stay ==="
@@ -94,6 +103,95 @@ cat <<'End-of-File' >$tmp.config
 metric sample.colour { pmid -> 29.0.5 indom -> 29.1 }
 End-of-File
 _doit archives/ok-bigbin
+pminfo -fd -a $tmp sample.colour 2>&1
+
+# 1 metric for indom 60.11 (hinv.map.scsi) and 60.17
+#   (network.interface.inet_addr)
+# 2 metrics for indom 60.7 (nfs.client.reqs, nfs.server.reqs) and 60.8
+#   (nfs3.client.reqs, nfs3.server.reqs)
+# hinv.cpu.* rewrites are to fix problems in archive that pmlogcheck
+# complains about otherwise
+echo
+echo "=== case 5, indom 60.11 should be deleted ==="
+cat <<'End-of-File' >$tmp.config
+metric hinv.cpu.clock { units -> 0,-1,0,0,USEC,0 }
+metric hinv.cpu.cache { units -> 1,0,0,KBYTE,0,0 }
+metric hinv.map.scsi { indom -> NULL output first }
+End-of-File
+_doit archives/pmiostat_mark
+pminfo -fd -a $tmp hinv.map.scsi 2>&1
+
+echo
+echo "=== case 6, indom 60.7 should stay ==="
+cat <<'End-of-File' >$tmp.config
+metric hinv.cpu.clock { units -> 0,-1,0,0,USEC,0 }
+metric hinv.cpu.cache { units -> 1,0,0,KBYTE,0,0 }
+metric nfs.client.reqs { indom -> NULL output first }
+End-of-File
+_doit archives/pmiostat_mark
+pminfo -fd -a $tmp nfs.client.reqs nfs.server.reqs 2>&1
+
+# 1 metric for indom 1.17 (hinv.map.node) and 1.19 (hinv.map.xbow)
+# 2 metrics for in dom 1.2 (hinv.map.disk, hinv.disk_sn)
+# 4 metrics for indom 1.1 (hinv.cpuclock, hinv.secondarycache,
+#   hinv.cputype, hinv.map.cpu)
+echo
+echo "=== case 7, indom 1.19 should be deleted ==="
+cat <<'End-of-File' >$tmp.config
+metric hinv.map.xbow { indom -> 1.17 }
+End-of-File
+_doit archives/oview-short
+pminfo -fd -a $tmp hinv.map.node hinv.map.xbow 2>&1
+
+# expect instance errors ... some instances from 1.1 are not in 1.17
+echo
+echo "=== case 8, indom 1.1 should stay ==="
+cat <<'End-of-File' >$tmp.config
+metric hinv.map.cpu { indom -> 1.17 }
+End-of-File
+_doit archives/oview-short
+pminfo -fd -a $tmp hinv.map.node hinv.map.cpu hinv.cpuclock 2>&1
+
+echo
+echo "=== case 9, indom 1.19 should be deleted, indom 1.17 should become 1.42 ==="
+cat <<'End-of-File' >$tmp.config
+indom 1.17 { indom -> 1.42 }
+metric hinv.map.xbow { indom -> 1.42 }
+End-of-File
+_doit archives/oview-short
+pminfo -fd -a $tmp hinv.map.node hinv.map.xbow 2>&1
+
+# expect instance errors ... some instances from 1.1 are not in 1.17
+echo
+echo "=== case 10, indom 1.1 should stay ==="
+cat <<'End-of-File' >$tmp.config
+indom 1.19 { indom -> 1.42 }
+metric hinv.map.cpu { indom -> 1.42 }
+End-of-File
+_doit archives/oview-short
+pminfo -fd -a $tmp hinv.map.node hinv.map.cpu hinv.cpuclock 2>&1
+
+echo
+echo "=== case 11, indom 1.17 should stay ==="
+cat <<'End-of-File' >$tmp.config
+metric hinv.machine { indom -> 1.17 output iname "node:2.3" }
+End-of-File
+_doit archives/oview-short
+pminfo -fd -a $tmp hinv.map.node hinv.machine 2>&1
+
+# This last case cannot be tested because of a shortcoming
+# in pmlogrewrite, namely the renumbering of the indom is
+# not handled for the metric rewriting rule and so the
+# instance lookup fails (badly ... was segv, now is Botch)
+#
+#echo
+#echo "=== case 12, indom 1.17 should become 1.42 ==="
+#cat <<'End-of-File' >$tmp.config
+#indom 1.17 { indom -> 1.42 }
+#metric hinv.machine { indom -> 1.42 output iname "node:2.3" }
+#End-of-File
+#_doit archives/oview-short
+#pminfo -fd -a $tmp hinv.map.node hinv.machine 2>&1
 
 # success, all done
 exit
