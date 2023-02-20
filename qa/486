@@ -142,7 +142,7 @@ End-of-File
 do
     echo | tee -a $seq.full
     echo "$spec" >$tmp.config
-    echo "=== `cat $tmp.config` ===" | tee -a $seq.full
+    echo "=== $arch_args: $spec ===" | tee -a $seq.full
     rm -f $tmp.new.*
     arch=`echo "$arch_args" | sed -e 's/|.*//'`
     args=`echo "$arch_args" | sed -n -e '/|/s/.*|//p'`
