@@ -3362,8 +3362,8 @@ fi
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Mon Apr 17 2023 Nathan Scott <nathans@redhat.com> - 6.0.3-1
-- Currently work-in-progress.
+* Thu Feb 23 2023 Nathan Scott <nathans@redhat.com> - 6.0.3-1
+- Update to latest PCP sources.
 
 * Sun Feb 12 2023 Nathan Scott <nathans@redhat.com> - 6.0.2-1
 - Fix pcp-dstat swap device handling with -f (BZ 2168774)
