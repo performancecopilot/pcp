@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 # PCP QA Test No. 822
 # pmlogrewrite culling unused indom
 # see http://oss.sgi.com/bugzilla/show_bug.cgi?id=978
@@ -68,6 +68,7 @@ _doit()
     | sed  \
 	-e "s@$tmp@TMP@g" \
 	-e 's/\(TMP.[^ 	]*\).*/\1/' \
+	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]* /TIMESTAMP /g' \
     # end
 }
 

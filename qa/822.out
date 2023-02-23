@@ -73,7 +73,7 @@ Delete: pmDesc for 29.0.6
     1 or "green"
     2 or "blue"
 -InDom: 29.2
--21:52:32.666976 9 instances
+-TIMESTAMP 9 instances
 -   100 or "bin-100"
 -   200 or "bin-200"
 -   300 or "bin-300"
@@ -84,7 +84,7 @@ Delete: pmDesc for 29.0.6
 -   800 or "bin-800"
 -   900 or "bin-900"
  InDom: 30.1
- 21:52:32.666976 3 instances
+ TIMESTAMP 3 instances
     0 or "red"
 
 sample.colour
@@ -135,12 +135,12 @@ Delete: InDom: 29.1: no output metrics use this
  
  Instance Domains in the Log ...
 -InDom: 29.1
--21:52:32.666976 3 instances
+-TIMESTAMP 3 instances
 -   0 or "red"
 -   1 or "green"
 -   2 or "blue"
  InDom: 29.2
- 21:52:32.666976 9 instances
+ TIMESTAMP 9 instances
     100 or "bin-100"
 
 sample.colour
@@ -317,10 +317,10 @@ Delete: InDom: 60.11: no output metrics use this
     70 or "mmv"
     122 or "jbd2"
 -InDom: 60.11
--17:51:41.649037 1 instances
+-TIMESTAMP 1 instances
 -   0 or "scsi0:0:0:0 Direct-Access"
  InDom: 60.17
- 17:51:41.649037 4 instances
+ TIMESTAMP 4 instances
     0 or "lo"
 
 hinv.map.scsi
@@ -551,11 +551,11 @@ Delete: InDom: 1.19: no output metrics use this
     131328 or "node:2.1"
     131840 or "node:2.3"
 -InDom: 1.19
--16:57:06.630898 2 instances
+-TIMESTAMP 2 instances
 -   65792 or "xbow0"
 -   131328 or "xbow1"
  InDom: 1.2
- 16:57:06.630898 2 instances
+ TIMESTAMP 2 instances
     256 or "dks0d1"
 
 hinv.map.node
@@ -718,17 +718,17 @@ Rewrite: pmDesc for 1.39.49
     131590 or "rport:2.2.6"
 -InDom: 1.17
 +InDom: 1.42
- 16:57:06.630898 4 instances
+ TIMESTAMP 4 instances
     65792 or "node:1.1"
     66304 or "node:1.3"
     131328 or "node:2.1"
     131840 or "node:2.3"
 -InDom: 1.19
--16:57:06.630898 2 instances
+-TIMESTAMP 2 instances
 -   65792 or "xbow0"
 -   131328 or "xbow1"
  InDom: 1.2
- 16:57:06.630898 2 instances
+ TIMESTAMP 2 instances
     256 or "dks0d1"
 
 hinv.map.node
@@ -809,7 +809,7 @@ Rewrite: pmDesc for 1.26.9
     131840 or "node:2.3"
 -InDom: 1.19
 +InDom: 1.42
- 16:57:06.630898 2 instances
+ TIMESTAMP 2 instances
     65792 or "xbow0"
     131328 or "xbow1"
 
