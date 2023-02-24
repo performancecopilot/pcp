@@ -909,3 +909,83 @@ hinv.machine
     Data Type: string  InDom: 1.17 0x400011
     Semantics: discrete  Units: none
     inst [131840 or "node:2.3"] value "IP27"
+
+=== case 12, indom 1.17 should become 1.42 ===
+ref++ InDom: 1.15 refcnt: 1 (for PMID: 1.38.6)
+ref++ InDom: 1.16 refcnt: 1 (for PMID: 1.38.20)
+ref++ InDom: 1.15 refcnt: 2 (for PMID: 1.38.7)
+ref++ InDom: 1.16 refcnt: 2 (for PMID: 1.38.21)
+ref++ InDom: 1.1 refcnt: 1 (for PMID: 1.26.4)
+ref++ InDom: 1.15 refcnt: 3 (for PMID: 1.38.8)
+ref++ InDom: 1.15 refcnt: 4 (for PMID: 1.38.9)
+ref++ InDom: 1.17 refcnt: 1 (for PMID: 1.39.49)
+ref++ InDom: 1.19 refcnt: 1 (for PMID: 1.42.2)
+ref++ InDom: 1.15 refcnt: 5 (for PMID: 1.38.10)
+ref++ InDom: 1.16 refcnt: 3 (for PMID: 1.38.12)
+ref++ InDom: 1.1 refcnt: 2 (for PMID: 1.26.9)
+ref++ InDom: 1.2 refcnt: 1 (for PMID: 1.80.13)
+ref++ InDom: 1.16 refcnt: 4 (for PMID: 1.38.13)
+ref++ InDom: 1.2 refcnt: 2 (for PMID: 1.80.14)
+ref++ InDom: 1.16 refcnt: 5 (for PMID: 1.38.14)
+ref++ InDom: 1.15 refcnt: 6 (for PMID: 1.38.1)
+ref++ InDom: 1.16 refcnt: 6 (for PMID: 1.38.15)
+ref++ InDom: 1.15 refcnt: 7 (for PMID: 1.38.2)
+ref++ InDom: 2.1 refcnt: 1 (for PMID: 2.3.0)
+ref++ InDom: 1.16 refcnt: 7 (for PMID: 1.38.16)
+ref++ InDom: 1.1 refcnt: 3 (for PMID: 1.26.13)
+ref++ InDom: 1.15 refcnt: 8 (for PMID: 1.38.3)
+ref++ InDom: 1.16 refcnt: 8 (for PMID: 1.38.17)
+ref++ InDom: 1.16 refcnt: 9 (for PMID: 1.38.18)
+ref++ InDom: 2.1 refcnt: 2 (for PMID: 2.3.2)
+ref++ InDom: 1.15 refcnt: 9 (for PMID: 1.38.4)
+ref++ InDom: 1.1 refcnt: 4 (for PMID: 1.26.1)
+ref++ InDom: 1.16 refcnt: 10 (for PMID: 1.38.19)
+ref++ InDom: 2.1 refcnt: 3 (for PMID: 2.3.3)
+ref++ InDom: 1.15 refcnt: 10 (for PMID: 1.38.5)
+renumber indom ref-- InDom: 1.17 refcnt: 0 (for PMID: 1.39.49)
+renumber indom ref++ InDom: 1.17 refcnt: 1 (for PMID: 1.39.49)
+renumber indom ref++ InDom: 1.17 refcnt: 2 (for PMID: 1.26.12)
+Rewrite: pmDesc for 1.39.49
+Rewrite: pmDesc for 1.26.12
+--- TMP.in
++++ TMP.out
+@@ -34,7 +34,7 @@
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: discrete  Units: none
+ PMID: 1.39.49 (hinv.map.node)
+-    Data Type: string  InDom: 1.17 0x400011
++    Data Type: string  InDom: 1.42 0x40002a
+     Semantics: discrete  Units: none
+ PMID: 1.26.6 (hinv.pmeminterleave)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+@@ -88,7 +88,7 @@
+     Data Type: 32-bit unsigned int  InDom: 1.16 0x400010
+     Semantics: instant  Units: none
+ PMID: 1.26.12 (hinv.machine)
+-    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: string  InDom: 1.42 0x40002a
+     Semantics: discrete  Units: none
+ PMID: 1.38.2 (hw.router.portmask)
+     Data Type: 32-bit unsigned int  InDom: 1.15 0x40000f
+@@ -174,7 +174,7 @@
+    131586 or "rport:2.2.2"
+    131589 or "rport:2.2.5"
+    131590 or "rport:2.2.6"
+-InDom: 1.17
++InDom: 1.42
+ TIMESTAMP 4 instances
+    65792 or "node:1.1"
+    66304 or "node:1.3"
+
+hinv.map.node
+    Data Type: string  InDom: 1.42 0x40002a
+    Semantics: discrete  Units: none
+    inst [65792 or "node:1.1"] value "/hw/module/1/slot/n1/node"
+    inst [66304 or "node:1.3"] value "/hw/module/1/slot/n3/node"
+    inst [131328 or "node:2.1"] value "/hw/module/2/slot/n1/node"
+    inst [131840 or "node:2.3"] value "/hw/module/2/slot/n3/node"
+
+hinv.machine
+    Data Type: string  InDom: 1.42 0x40002a
+    Semantics: discrete  Units: none
+    inst [131840 or "node:2.3"] value "IP27"

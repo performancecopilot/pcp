@@ -1263,12 +1263,12 @@ indomspec	: TOK_INDOM indom_int
 				 node != NULL;
 				 node = __pmHashWalk(hcp, PM_HASH_WALK_NEXT)) {
 				if (pmInDom_domain((pmInDom)(node->key)) == star_domain)
-				    current_indomspec = start_indom((pmInDom)(node->key));
+				    current_indomspec = start_indom((pmInDom)(node->key), 0);
 			    }
 			    do_walk_indom = 1;
 			}
 			else {
-			    current_indomspec = start_indom($2);
+			    current_indomspec = start_indom($2, 0);
 			    do_walk_indom = 0;
 			}
 		    }

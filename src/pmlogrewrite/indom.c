@@ -24,9 +24,10 @@
 
 /*
  * Find or create a new indomspec_t
+ * ... suppress warning message on error if quiet != 0
  */
 indomspec_t *
-start_indom(pmInDom indom)
+start_indom(pmInDom indom, int quiet)
 {
     indomspec_t	*ip;
     int		i;
@@ -42,7 +43,7 @@ start_indom(pmInDom indom)
 
 	numinst = pmGetInDomArchive(indom, &instlist, &namelist);
 	if (numinst < 0) {
-	    if (wflag) {
+	    if (!quiet && wflag) {
 		pmsprintf(mess, sizeof(mess), "Instance domain %s: %s", pmInDomStr(indom), pmErrStr(numinst));
 		yywarn(mess);
 	    }

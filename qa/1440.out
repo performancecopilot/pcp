@@ -1,0 +1,290 @@
+QA output created by 1440
+
+=== non-singular metric indom=NULL pick=inst 500 ===
+
+sample.bin PMID: 30.42.6
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 500
+
+=== non-singular metric indom=NULL pick=iname "bin-500" ===
+
+sample.bin PMID: 30.42.6
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 500
+
+=== non-singular metric indom=NULL pick=inst 542 ===
+Warning [TMP.config, line 7]
+Instance 542 from OUTPUT clause not found in old indom 29.2
+
+sample.bin PMID: 30.42.6
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+No value(s) available!
+
+=== non-singular metric indom=NULL pick=iname "bin-542" ===
+Warning [TMP.config, line 7]
+Instance "bin-542" from OUTPUT clause not found in old indom 29.2
+
+sample.bin PMID: 30.42.6
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+No value(s) available!
+
+=== non-singular metric indom=30.2 pick=inst 500 ===
+
+sample.bin PMID: 30.42.6
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+    inst [500 or "bin-500"] value 500
+
+=== singular metric indom=30.2 pick=inst 500 ===
+
+sampledso.long.hundred PMID: 30.0.12
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+    inst [500 or "bin-500"] value 100
+
+=== non-singular metric indom=30.2 pick=iname "bin-500" ===
+
+sample.bin PMID: 30.42.6
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+    inst [500 or "bin-500"] value 500
+
+=== singular metric indom=30.2 pick=iname "bin-500" ===
+
+sampledso.long.hundred PMID: 30.0.12
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+    inst [500 or "bin-500"] value 100
+
+=== non-singular metric indom=30.2 pick=inst 542 ===
+Warning [TMP.config, line 7]
+Instance 542 from OUTPUT clause not found in old indom 29.2
+Warning [TMP.config, line 7]
+Instance 542 from OUTPUT clause not found in new indom 30.2
+
+sample.bin PMID: 30.42.6
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+No value(s) available!
+
+=== singular metric indom=30.2 pick=inst 542 ===
+Warning [TMP.config, line 5]
+Instance 542 from OUTPUT clause not found in new indom 30.2
+
+sampledso.long.hundred PMID: 30.0.12
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+pmNameIndom: indom=30.2 inst=542: Unknown or illegal instance identifier
+    inst [542] value 100
+
+=== non-singular metric indom=30.2 pick=iname "bin-542" ===
+Warning [TMP.config, line 7]
+Instance "bin-542" from OUTPUT clause not found in old indom 29.2
+Warning [TMP.config, line 7]
+Instance "bin-542" from OUTPUT clause not found in new indom 30.2
+
+sample.bin PMID: 30.42.6
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+No value(s) available!
+
+=== singular metric indom=30.2 pick=iname "bin-542" ===
+Warning [TMP.config, line 5]
+Instance "bin-542" from OUTPUT clause not found in new indom 30.2
+
+sampledso.long.hundred PMID: 30.0.12
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+pmNameIndom: indom=30.2 inst=0: Unknown or illegal instance identifier
+    inst [0] value 100
+
+=== non-singular metric indom=30.42 pick=inst 500 ===
+
+sample.bin PMID: 30.42.6
+    Data Type: 32-bit int  InDom: 30.42 0x780002a
+    Semantics: instant  Units: none
+    inst [500 or "bin-500"] value 500
+
+=== singular metric indom=30.42 pick=inst 500 ===
+
+sampledso.long.hundred PMID: 30.0.12
+    Data Type: 32-bit int  InDom: 30.42 0x780002a
+    Semantics: instant  Units: none
+    inst [500 or "bin-500"] value 100
+
+=== non-singular metric indom=30.42 pick=iname "bin-500" ===
+
+sample.bin PMID: 30.42.6
+    Data Type: 32-bit int  InDom: 30.42 0x780002a
+    Semantics: instant  Units: none
+    inst [500 or "bin-500"] value 500
+
+=== singular metric indom=30.42 pick=iname "bin-500" ===
+
+sampledso.long.hundred PMID: 30.0.12
+    Data Type: 32-bit int  InDom: 30.42 0x780002a
+    Semantics: instant  Units: none
+    inst [500 or "bin-500"] value 100
+
+=== non-singular metric indom=30.42 pick=inst 542 ===
+Warning [TMP.config, line 8]
+Instance 542 from OUTPUT clause not found in old indom 29.2
+Warning [TMP.config, line 8]
+Instance 542 from OUTPUT clause not found in new indom 30.42
+
+sample.bin PMID: 30.42.6
+    Data Type: 32-bit int  InDom: 30.42 0x780002a
+    Semantics: instant  Units: none
+No value(s) available!
+
+=== singular metric indom=30.42 pick=inst 542 ===
+Warning [TMP.config, line 6]
+Instance 542 from OUTPUT clause not found in new indom 30.42
+
+sampledso.long.hundred PMID: 30.0.12
+    Data Type: 32-bit int  InDom: 30.42 0x780002a
+    Semantics: instant  Units: none
+pmNameIndom: indom=30.42 inst=542: Unknown or illegal instance identifier
+    inst [542] value 100
+
+=== non-singular metric indom=30.42 pick=iname "bin-542" ===
+Warning [TMP.config, line 8]
+Instance "bin-542" from OUTPUT clause not found in old indom 29.2
+Warning [TMP.config, line 8]
+Instance "bin-542" from OUTPUT clause not found in new indom 30.42
+
+sample.bin PMID: 30.42.6
+    Data Type: 32-bit int  InDom: 30.42 0x780002a
+    Semantics: instant  Units: none
+No value(s) available!
+
+=== singular metric indom=30.42 pick=iname "bin-542" ===
+Warning [TMP.config, line 6]
+Instance "bin-542" from OUTPUT clause not found in new indom 30.42
+
+sampledso.long.hundred PMID: 30.0.12
+    Data Type: 32-bit int  InDom: 30.42 0x780002a
+    Semantics: instant  Units: none
+pmNameIndom: indom=30.42 inst=0: Unknown or illegal instance identifier
+    inst [0] value 100
+
+=== non-singular metric indom=30.43 pick=inst 500 ===
+Semantic error in configuration file (TMP.config)
+New indom (30.43) for metric sample.bin is not in the output archive
+pmlogcheck: no PCP archive files match "TMP"
+pminfo: Cannot open archive "TMP": No such file or directory
+
+=== singular metric indom=30.43 pick=inst 500 ===
+Semantic error in configuration file (TMP.config)
+New indom (30.43) for metric sampledso.long.hundred is not in the output archive
+pmlogcheck: no PCP archive files match "TMP"
+pminfo: Cannot open archive "TMP": No such file or directory
+
+=== non-singular metric indom=30.43 pick=iname "bin-500" ===
+Semantic error in configuration file (TMP.config)
+New indom (30.43) for metric sample.bin is not in the output archive
+pmlogcheck: no PCP archive files match "TMP"
+pminfo: Cannot open archive "TMP": No such file or directory
+
+=== singular metric indom=30.43 pick=iname "bin-500" ===
+Semantic error in configuration file (TMP.config)
+New indom (30.43) for metric sampledso.long.hundred is not in the output archive
+pmlogcheck: no PCP archive files match "TMP"
+pminfo: Cannot open archive "TMP": No such file or directory
+
+=== non-singular metric indom=30.43 pick=inst 542 ===
+Semantic error in configuration file (TMP.config)
+New indom (30.43) for metric sample.bin is not in the output archive
+pmlogcheck: no PCP archive files match "TMP"
+pminfo: Cannot open archive "TMP": No such file or directory
+
+=== singular metric indom=30.43 pick=inst 542 ===
+Semantic error in configuration file (TMP.config)
+New indom (30.43) for metric sampledso.long.hundred is not in the output archive
+pmlogcheck: no PCP archive files match "TMP"
+pminfo: Cannot open archive "TMP": No such file or directory
+
+=== non-singular metric indom=30.43 pick=iname "bin-542" ===
+Semantic error in configuration file (TMP.config)
+New indom (30.43) for metric sample.bin is not in the output archive
+pmlogcheck: no PCP archive files match "TMP"
+pminfo: Cannot open archive "TMP": No such file or directory
+
+=== singular metric indom=30.43 pick=iname "bin-542" ===
+Semantic error in configuration file (TMP.config)
+New indom (30.43) for metric sampledso.long.hundred is not in the output archive
+pmlogcheck: no PCP archive files match "TMP"
+pminfo: Cannot open archive "TMP": No such file or directory
+
+=== non-singular metric indom=30.44 pick=inst 500 ===
+
+sample.bin PMID: 30.42.6
+    Data Type: 32-bit int  InDom: 30.44 0x780002c
+    Semantics: instant  Units: none
+    inst [542 or "new bin 542"] value 500
+
+=== singular metric indom=30.44 pick=inst 500 ===
+
+sampledso.long.hundred PMID: 30.0.12
+    Data Type: 32-bit int  InDom: 30.44 0x780002c
+    Semantics: instant  Units: none
+    inst [542 or "new bin 542"] value 100
+
+=== non-singular metric indom=30.44 pick=iname "bin-500" ===
+
+sample.bin PMID: 30.42.6
+    Data Type: 32-bit int  InDom: 30.44 0x780002c
+    Semantics: instant  Units: none
+    inst [542 or "new bin 542"] value 500
+
+=== singular metric indom=30.44 pick=iname "bin-500" ===
+
+sampledso.long.hundred PMID: 30.0.12
+    Data Type: 32-bit int  InDom: 30.44 0x780002c
+    Semantics: instant  Units: none
+    inst [542 or "new bin 542"] value 100
+
+=== non-singular metric indom=30.44 pick=inst 542 ===
+Warning [TMP.config, line 12]
+Instance 542 from OUTPUT clause not found in old indom 29.2
+Warning [TMP.config, line 12]
+Instance 542 from OUTPUT clause not found in new indom 30.44
+
+sample.bin PMID: 30.42.6
+    Data Type: 32-bit int  InDom: 30.44 0x780002c
+    Semantics: instant  Units: none
+No value(s) available!
+
+=== singular metric indom=30.44 pick=inst 542 ===
+Warning [TMP.config, line 10]
+Instance 542 from OUTPUT clause not found in new indom 30.44
+
+sampledso.long.hundred PMID: 30.0.12
+    Data Type: 32-bit int  InDom: 30.44 0x780002c
+    Semantics: instant  Units: none
+    inst [542 or "new bin 542"] value 100
+
+=== non-singular metric indom=30.44 pick=iname "bin-542" ===
+Warning [TMP.config, line 12]
+Instance "bin-542" from OUTPUT clause not found in old indom 29.2
+Warning [TMP.config, line 12]
+Instance "bin-542" from OUTPUT clause not found in new indom 30.44
+
+sample.bin PMID: 30.42.6
+    Data Type: 32-bit int  InDom: 30.44 0x780002c
+    Semantics: instant  Units: none
+No value(s) available!
+
+=== singular metric indom=30.44 pick=iname "bin-542" ===
+Warning [TMP.config, line 10]
+Instance "bin-542" from OUTPUT clause not found in new indom 30.44
+
+sampledso.long.hundred PMID: 30.0.12
+    Data Type: 32-bit int  InDom: 30.44 0x780002c
+    Semantics: instant  Units: none
+pmNameIndom: indom=30.44 inst=0: Unknown or illegal instance identifier
+    inst [0] value 100

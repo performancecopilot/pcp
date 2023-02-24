@@ -180,19 +180,14 @@ End-of-File
 _doit archives/oview-short
 pminfo -fd -a $tmp hinv.map.node hinv.machine 2>&1
 
-# This last case cannot be tested because of a shortcoming
-# in pmlogrewrite, namely the renumbering of the indom is
-# not handled for the metric rewriting rule and so the
-# instance lookup fails (badly ... was segv, now is Botch)
-#
-#echo
-#echo "=== case 12, indom 1.17 should become 1.42 ==="
-#cat <<'End-of-File' >$tmp.config
-#indom 1.17 { indom -> 1.42 }
-#metric hinv.machine { indom -> 1.42 output iname "node:2.3" }
-#End-of-File
-#_doit archives/oview-short
-#pminfo -fd -a $tmp hinv.map.node hinv.machine 2>&1
+echo
+echo "=== case 12, indom 1.17 should become 1.42 ==="
+cat <<'End-of-File' >$tmp.config
+indom 1.17 { indom -> 1.42 }
+metric hinv.machine { indom -> 1.42 output iname "node:2.3" }
+End-of-File
+_doit archives/oview-short
+pminfo -fd -a $tmp hinv.map.node hinv.machine 2>&1
 
 # success, all done
 exit

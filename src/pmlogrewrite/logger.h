@@ -222,7 +222,7 @@ extern int	_pmLogRemove(const char *, int);
 #define ntoh_pmID(pmid)     ntohl(pmid)
 
 extern metricspec_t	*start_metric(pmID);
-extern indomspec_t	*start_indom(pmInDom);
+extern indomspec_t	*start_indom(pmInDom, int);
 extern textspec_t	*start_text(int, int, char *);
 
 extern labelspec_t	*start_label(int, int, int, const char *, char *, char *);

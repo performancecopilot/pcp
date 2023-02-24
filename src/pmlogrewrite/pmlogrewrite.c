@@ -920,7 +920,8 @@ link_entries(void)
 	     node != NULL;
 	     node = __pmHashWalk(hcp, PM_HASH_WALK_NEXT)) {
 	    mp = start_metric((pmID)(node->key));
-	    if (mp->old_desc.indom == ip->old_indom) {
+	    if (mp->old_desc.indom == ip->old_indom ||
+	        mp->new_desc.indom == ip->new_indom) {
 		if (change)
 		    mp->ip = ip;
 		if (ip->new_indom != ip->old_indom) {
@@ -1356,7 +1357,11 @@ check_output()
 		     * also map one_name -> one_inst 
 		     */
 		    int		i;
-		    ip = start_indom(mp->old_desc.indom);
+		    ip = start_indom(mp->old_desc.indom, 0);
+		    if (ip == NULL) {
+			pmsprintf(mess, sizeof(mess), "Botch: old indom %s for metric %s not found", pmInDomStr(mp->old_desc.indom), mp->old_name);
+			yyerror(mess);
+		    }
 		    for (i = 0; i < ip->numinst; i++) {
 			if (mp->one_name != NULL) {
 			    if (inst_name_eq(ip->old_iname[i], mp->one_name) > 0) {
@@ -1386,33 +1391,45 @@ check_output()
 		     * is not already known
 		     */
 		    int		i;
-		    ip = start_indom(mp->new_desc.indom);
+		    ip = start_indom(mp->new_desc.indom, 1);
 		    if (ip == NULL) {
-			pmsprintf(mess, sizeof(mess), "Botch: InDom %s not found", pmInDomStr(mp->new_desc.indom));
+			/*
+			 * can't find new indom, perhaps it is the result of
+			 * renumbering ...
+			 */
+			for (ip = indom_root; ip != NULL; ip = ip->i_next) {
+			    if (ip->new_indom == mp->new_desc.indom)
+				break;
+			}
+		    }
+		    if (ip == NULL) {
+			pmsprintf(mess, sizeof(mess), "Botch: new indom %s for metric %s not found", pmInDomStr(mp->new_desc.indom), mp->old_name);
 			yyerror(mess);
 		    }
-		    for (i = 0; i < ip->numinst; i++) {
-			if (mp->one_name != NULL) {
-			    if (inst_name_eq(ip->old_iname[i], mp->one_name) > 0) {
-				mp->one_name = NULL;
-				mp->one_inst = ip->old_inst[i];
-				break;
+		    else {
+			for (i = 0; i < ip->numinst; i++) {
+			    if (mp->one_name != NULL) {
+				if (inst_name_eq(ip->old_iname[i], mp->one_name) > 0) {
+				    mp->one_name = NULL;
+				    mp->one_inst = ip->old_inst[i];
+				    break;
+				}
 			    }
+			    else if (ip->old_inst[i] == mp->one_inst)
+				break;
 			}
-			else if (ip->old_inst[i] == mp->one_inst)
-			    break;
-		    }
-		    if (i == ip->numinst) {
-			if (wflag) {
-			    if (mp->one_name != NULL)
-				pmsprintf(mess, sizeof(mess), "Instance \"%s\" from OUTPUT clause not found in new indom %s", mp->one_name, pmInDomStr(mp->new_desc.indom));
-			    else
-				pmsprintf(mess, sizeof(mess), "Instance %d from OUTPUT clause not found in new indom %s", mp->one_inst, pmInDomStr(mp->new_desc.indom));
-			    yywarn(mess);
+			if (i == ip->numinst) {
+			    if (wflag) {
+				if (mp->one_name != NULL)
+				    pmsprintf(mess, sizeof(mess), "Instance \"%s\" from OUTPUT clause not found in new indom %s", mp->one_name, pmInDomStr(mp->new_desc.indom));
+				else
+				    pmsprintf(mess, sizeof(mess), "Instance %d from OUTPUT clause not found in new indom %s", mp->one_inst, pmInDomStr(mp->new_desc.indom));
+				yywarn(mess);
+			    }
 			}
 		    }
 		    /*
-		     * use default rule (id 0) if INAME not found and
+		     * use default rule (inst id 0) if INAME not found and
 		     * and instance id is needed for output value
 		     */
 		    if (mp->old_desc.indom == PM_INDOM_NULL && mp->one_inst == PM_IN_NULL)

@@ -1,0 +1,101 @@
+#!/bin/sh
+# PCP QA Test No. 1440
+# pmlogrewrite - indom renumbering tests
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+
+for indom in NULL 30.2 30.42 30.43 30.44
+do
+    for pick in 'inst 500' 'iname "bin-500"' 'inst 542' 'iname "bin-542"'
+    do
+	rm -f $tmp.config $tmp.head
+	touch $tmp.head
+	case "$indom"
+	in
+	    30.42)  # renumbered
+		    echo "indom 30.2 { indom -> $indom }" >$tmp.head
+		    ;;
+	    30.43)  # not found
+		    ;;
+	    30.44)  # renumbered & inst 500 -> inst 542
+		    cat <<End-of-File >$tmp.head
+indom 30.2 {
+    indom -> $indom
+    inst 500 -> 542
+    iname "bin-500" -> "new bin 542"
+}
+End-of-File
+		    ;;
+	esac
+	cat $tmp.head >$tmp.config
+	cat <<End-of-File >>$tmp.config
+# input metric has indom
+metric sample.bin {
+    # PMID needs to be in domain 30, but not used for anything else
+    pmid -> 30.42.6
+    indom -> $indom output $pick
+}
+End-of-File
+	echo
+	echo "=== non-singular metric indom=$indom pick=$pick ==="
+	rm -f $tmp.0 $tmp.meta $tmp.index
+	pmlogrewrite -w -c $tmp.config archives/rewrite $tmp 2>&1 | _filter
+	pmlogcheck $tmp 2>&1 | _filter
+	pminfo -mdf -a $tmp sample.bin 2>&1 | _filter
+
+	if [ "$indom" != NULL ]
+	then
+	    cat $tmp.head >$tmp.config
+	    cat <<End-of-File >>$tmp.config
+# input metric is singular
+metric sampledso.long.hundred {
+    indom -> $indom output $pick
+}
+End-of-File
+	    echo
+	    echo "=== singular metric indom=$indom pick=$pick ==="
+	    rm -f $tmp.0 $tmp.meta $tmp.index
+	    pmlogrewrite -w -c $tmp.config archives/rewrite $tmp 2>&1 | _filter
+	    pmlogcheck $tmp 2>&1 | _filter
+	    pminfo -mdf -a $tmp sampledso.long.hundred 2>&1 | _filter
+	fi
+    done
+done
+
+# success, all done
+exit
