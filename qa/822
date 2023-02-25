@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 # PCP QA Test No. 822
 # pmlogrewrite culling unused indom
 # see http://oss.sgi.com/bugzilla/show_bug.cgi?id=978
