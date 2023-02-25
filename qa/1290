@@ -33,6 +33,16 @@ echo "pmproxy_was_running=$pmproxy_was_running" >>$here/$seq.full
 
 _cleanup()
 {
+    if [ ! -f $tmp.started ]
+    then
+	# valgrind never got our pmproxy started ...
+	#
+	for suff in out err
+	do
+	    echo "=== valgrind $suff ===" >>$here/$seq.full
+	    cat $tmp._valgrind.$suff >>$here/$seq.full
+	done
+    fi
     echo "=== valgrind report ===" >>$here/$seq.full
     cat $tmp._valgrind >>$here/$seq.full
     if $pmproxy_was_running
@@ -237,6 +247,7 @@ __extra=''
 __version=`valgrind --version | sed -e 's/valgrind-//' -e 's/\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/'`
 valgrind --help >$tmp.valgrind.help 2>&1
 grep -q .--vgdb= <$tmp.valgrind.help && __extra="$__extra --vgdb=no"
+grep -q .--show-error-list= <$tmp.valgrind.help && __extra="$__extra --show-error-list=yes"
 if grep -q .--show-leak-kinds= <$tmp.valgrind.help
 then
     __extra="$__extra --show-leak-kinds=definite"
@@ -255,7 +266,7 @@ then
 else
     echo "Warning: no extra suppressions found for valgrind version $__version" >>$here/$seq.full
 fi
-valgrind -s \
+valgrind \
     --trace-children=yes \
     --leak-check=full --read-var-info=yes --gen-suppressions=all \
     --show-leak-kinds=all \
@@ -264,7 +275,11 @@ valgrind -s \
 	$PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log \
 	    2>$tmp._valgrind.err >$tmp._valgrind.out &
 
-_wait_for_pmproxy
+# assume default port ...
+#
+rm -f $tmp.started
+_wait_for_pmproxy 44322 $tmp.log
+touch $tmp.started
 
 export PMPROXY_HOST=localhost
 $PCP_BINADM_DIR/pmcd_wait -t 5sec -h localhost@localhost
