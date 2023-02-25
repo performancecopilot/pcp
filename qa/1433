@@ -52,6 +52,9 @@ $sudo cp $tmp.local $PCP_PMPROXYOPTIONS_PATH
 
 _service pmproxy stop >/dev/null 2>&1
 _wait_pmproxy_end
+# give any running pmproxy a chance to shutdown cleanly
+#
+sleep 2
 _service pmproxy start 2>&1 | _filter_pmproxy_start
 _wait_for_pmproxy
 
