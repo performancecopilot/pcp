@@ -78,7 +78,9 @@ pminfo -f bpftrace.info.scripts_json | _get_metric_value | pmjson | _filter_json
 _pmdabpftrace_remove
 
 # check if pmdabpftrace process manager was shutdown correctly
-cat $PCP_LOG_DIR/pmcd/bpftrace.log | grep -o "manager: shutdown pmdabpftrace process manager"
+cat $PCP_LOG_DIR/pmcd/bpftrace.log \
+| tee -a $here/$seq.full \
+| grep -o "manager: shutdown pmdabpftrace process manager"
 
 
 status=0
