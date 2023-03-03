@@ -987,7 +987,7 @@ _wait_pmlogger_end()
 	# and we're done
         if [ -f "$PCP_TMP_DIR/pmlogger/$__pid" ]
 	then
-	    echo "_wait_pmlogger_end: warning process $__pid gone buit $PCP_TMP_DIR/pmlogger/$__pid still present"
+	    echo "_wait_pmlogger_end: warning process $__pid gone but $PCP_TMP_DIR/pmlogger/$__pid still present"
 	fi
 	return
     fi
