@@ -160,9 +160,9 @@ sigterm_handler(int sig)
 STATIC_FUNC void
 sighup_handler(int sig)
 {
+    __pmSetSignalHandler(sig, sighup_handler);
     if (pmDebugOptions.appl3)
 	fprintf(stderr, "sighup_handler: Signalled (signal=%d)\n", sig);
-    __pmSetSignalHandler(sig, sighup_handler);
     vol_switch_flag = 1;
 }
 
@@ -170,10 +170,10 @@ sighup_handler(int sig)
 STATIC_FUNC void
 sigcore_handler(int sig)
 {
+    __pmSetSignalHandler(sig, SIG_DFL);	/* Don't come back here */
     if (pmDebugOptions.appl3)
 	fprintf(stderr, "sigcore_handler: Signalled (signal=%d), exiting (core dumped)\n", sig);
     __pmDumpStack();
-    __pmSetSignalHandler(sig, SIG_DFL);	/* Don't come back here */
     cleanup();
     _exit(sig);
 }
@@ -216,7 +216,11 @@ static sig_map_t	sig_handler[] = {
     { SIGQUIT,	sigcore_handler },	/* Core   Quit [see termio(7)] */
     { SIGILL,	sigcore_handler },	/* Core   Illegal Instruction */
     { SIGTRAP,	sigcore_handler },	/* Core   Trace/Breakpoint Trap */
+#ifdef IS_OPENBSD
+    { SIGABRT,	SIG_DFL },		/* Core   Abort */
+#else
     { SIGABRT,	sigcore_handler },	/* Core   Abort */
+#endif
 #ifdef SIGEMT
     { SIGEMT,	sigcore_handler },	/* Core   Emulation Trap */
 #endif
