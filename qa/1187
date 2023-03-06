@@ -106,6 +106,23 @@ echo "CSV instances contents" | tee -a $here/$seq.full
 cat $tmp.csv2 | tee -a $here/$seq.full | filter_info
 echo "CSV instances complete" | tee -a $here/$seq.full
 
+# verify no terminal size effects on CSV output
+dstat "CSV terminal default" -tfvnrl -o $tmp.csvterm0 | filter_info
+export SAVED_TPUT_COLUMNS=80 SAVED_COLUMNS=$COLUMNS SAVED_LINES=$LINES
+test -x /usr/bin/tput && export SAVED_TPUT_COLUMNS=`/usr/bin/tput cols`
+# reduce terminal size, output should be unchanged
+test -x /usr/bin/stty && /usr/bin/stty cols 40 >/dev/null 2>&1
+export COLUMNS=40 LINES=40
+dstat "CSV terminal reduced" -tfvnrl -o $tmp.csvterm1 | filter_info
+echo "CSV terminal contents" | tee -a $here/$seq.full
+cat $tmp.csvterm1 | tee -a $here/$seq.full | filter_info
+echo "CSV terminal compared" | tee -a $here/$seq.full
+diff $tmp.csvterm0 $tmp.csvterm1 | tee -a $here/$seq.full | filter_info
+echo "CSV terminal complete" | tee -a $here/$seq.full
+export COLUMNS=$SAVED_COLUMNS LINES=$SAVED_LINES
+test -x /usr/bin/stty && /usr/bin/stty cols $SAVED_TPUT_COLUMNS >/dev/null 2>&1
+unset SAVED_TPUT_COLUMNS SAVED_COLUMNS SAVED_LINES
+
 # verify no special characters in live CSV output
 echo "CSV timestamp"
 $DSTAT -T -o $tmp.csv3 1 2 > /dev/null
