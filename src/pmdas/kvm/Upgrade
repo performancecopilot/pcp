@@ -17,7 +17,7 @@
 
 . $PCP_DIR/etc/pcp.env
 
-if grep -q ^kvm "$PCP_PMCDCONF_PATH" 2>/dev/null
+if grep -q '^kvm.*perl.*' "$PCP_PMCDCONF_PATH" 2>/dev/null
 then
     sed -i -e "s,perl $PCP_PMDAS_DIR/kvm/pmdakvm.pl,$PCP_PMDAS_DIR/kvm/pmdakvm -d 95,g" $PCP_PMCDCONF_PATH 2>/dev/null
 fi
