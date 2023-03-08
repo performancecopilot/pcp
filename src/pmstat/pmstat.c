@@ -567,10 +567,15 @@ main(int argc, char *argv[])
 
 	    sts = pmFetchGroup(s->pmfg);
 	    if (sts < 0) {
+		int	valid;
 		if (opts.context == PM_CONTEXT_HOST &&
 		    (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT)) {
 		    puts(" Fetch failed. Reconnecting ...");
-		    pmReconnectContext(pmGetFetchGroupContext(s->pmfg));
+		    sts = pmReconnectContext(pmGetFetchGroupContext(s->pmfg));
+		    if (sts < 0) {
+			printf(" pmReconnectContext: %s\n", pmErrStr(sts));
+			goto check;
+		    }
 		} else if ((opts.context == PM_CONTEXT_ARCHIVE) &&
 			 (sts == PM_ERR_EOL) && opts.guiflag) {
 		    pmTimeStateBounds(&controls, pmtime);
@@ -582,10 +587,10 @@ main(int argc, char *argv[])
 		     */
 		    puts(" No data in the archive");
 		} else {
-		    int valid = 0;
-
 		    printf(" pmFetchGroup: %s\n", pmErrStr(sts));
 
+check:
+		    valid = 0;
 		    destroyContext(s);
 		    for (i = 0; i < ctxCount; i++)
 			valid += (ctxList[i]->pmfg != NULL);
