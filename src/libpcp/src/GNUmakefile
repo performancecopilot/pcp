@@ -174,10 +174,13 @@ exports:	exports.in mk.exports
 # The library is thread-safe ... check-statics will force a build failure
 # if there has been any change to the static variables and their disposition
 # ... refer to check-statics to add exceptions and annotations for new
-# cases
+# cases.
+# Similarly, check-errorcodes checks that the PM_ERR_* encodings are
+# consistent in all placess.
 #
 check.done:	$(OBJECTS)
 	./check-statics
+	./check-errorcodes
 	touch check.done
 
 ifneq ($(LIBTARGET),)

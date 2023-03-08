@@ -1,0 +1,175 @@
+#!/bin/sh
+#
+# Check error codes between pmapi.h, err.c,
+# ../../perl/PMDA/PMDA.pm (in 2 places) and ../../python/pmapi.c
+#
+
+tmp=/var/tmp/check-errorcodes-$$
+rm -f $tmp.err
+trap "sts=0; [ -f $tmp.err ] && sts=1; rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+for file in ../../include/pcp/pmapi.h \
+	    ../../perl/PMDA/PMDA.pm ../../python/pmapi.c
+do
+    if [ ! -f "$file" ]
+    then
+	echo "check-errorcodes: Error: file \"$file\" missing"
+	touch $tmp.err
+    fi
+done
+
+[ -f $tmp.err ] && exit
+
+sed -n <../../include/pcp/pmapi.h >$tmp.defs \
+    -e '/^#define PM_ERR_BASE/d' \
+    -e '/^#define PM_ERR/{
+s/#define //
+s/[ 	][ 	]*(/	/
+s/)[ 	][ 	]*/	/
+s/\/\* //
+s/ \*\///
+p
+}' \
+    # end
+
+# check our sed is not confused (expect 3 tab separated fields) and
+# no duplicates for symbolic or numeric error codes
+#
+awk -F '	' <$tmp.defs >$tmp.tmp '
+NF != 3		{ print "pmapi.h: " $0
+		  print "Error: unexpected format (" NF " not 3 fields)"
+		}
+		{ if (seen[$1]) {
+		    print "pmapi.h: " $0
+		    print "Error: symbolic error code " $1 " duplicated"
+		  }
+		  seen[$1] = 1
+		  if (seen[$2]) {
+		    print "pmapi.h: " $0
+		    print "Error: numeric error code " $2 " duplicated"
+		  }
+		  seen[$2] = 1
+		}'
+
+if [ -s $tmp.tmp ]
+then
+    # oops
+    cat $tmp.tmp
+    touch $tmp.err
+fi
+
+# in err.c expect lines like:
+#    { PM_ERR_BOTCH,		"PM_ERR_BOTCH",
+#	"Internal inconsistency detected or assertion failed" },
+# for each error code in $tmp.defs, and expect the "text" part to
+# match also
+#
+cat $tmp.defs \
+| while read code value text
+do
+    awk <err.c '
+BEGIN	{ match_code = match_string = want = 0 }
+$1 == "{" && $2 == "'$code',"	{
+	    match_code = 1
+	    if ($3 == "\"'$code'\",") match_string = 1
+	    want = 1
+	    next
+	}
+want == 1	{
+	    #debug# print "'$code': " $0
+	    pat = "\"'"$text"'\""
+	    gsub(/[(]/, "\\(", pat)
+	    gsub(/[[]/, "\\[", pat)
+	    #debug# print "pat: " pat
+	    if ($0 !~ pat) {
+		print "err.c: Error: '$code' text mismatch ..."
+		print "err.c: \"" $0 "\""
+		print "pmapi.h: \"'"$text"'\""
+		system("touch '$tmp'.err");
+	    }
+	    exit
+	}
+END	{ if (!match_code) {
+	    print "err.c: Error: '$code' not found"
+	    system("touch '$tmp'.err");
+	  }
+	  else {
+	    if (!match_string) {
+		print "err.c: Error: string \"'$code'\" not found"
+		system("touch '$tmp'.err");
+	    }
+	  }
+	}'
+done
+
+# in ../../perl/PMDA/PMDA.pm (in 2 places) expect lines like:
+#      ... PM_ERR_BOTCH ...
+# sub PM_ERR_BOTCH	{ -12442; }	# Internal inconsistency detected or assertion failed
+#
+cat $tmp.defs \
+| while read code value text
+do
+    if sed -e 's/	/ /g' -e 's/^/ /' -e 's/$/ /' <../../perl/PMDA/PMDA.pm | grep " $code " >/dev/null
+    then
+	:
+    else
+	echo "../../perl/PMDA/PMDA.pm: Error: $code not found in @EXPORT block"
+    fi
+    awk <../../perl/PMDA/PMDA.pm '
+BEGIN	{ found = 0 }
+$1 == "sub" && $2 == "'$code'" {
+	    found = 1
+	    value = "'"$value"'"
+	    gsub(/-PM_ERR_BASE-/, "", value)
+	    # 12345 is PM_ERR_BASE2 aka PM_ERR_BASE
+	    value = -12345 - value
+	    gsub(/;$/, "", $4)
+	    if (value != $4) {
+		print "../../perl/PMDA/PMDA.pm: Error: value (" $4 ") from sub '$code' mismatch with value (" value ") from pmapi.h"
+		system("touch '$tmp'.err");
+	    }
+	    text = $7
+	    for (i = 8; i <= NF; i++)
+		text = text " " $i
+	    #debug# print "'$code': " text
+	    pat = "^'"$text"'$"
+	    gsub(/[(]/, "\\(", pat)
+	    gsub(/[[]/, "\\[", pat)
+	    #debug# print "pat: \"" pat "\""
+	    if (text !~ pat) {
+		print "../../perl/PMDA/PMDA.pm: Error: sub '$code' text mismatch ..."
+		print "../../perl/PMDA/PMDA.pm: \"" text "\""
+		print "pmapi.h: \"'"$text"'\""
+		system("touch '$tmp'.err");
+	    }
+	}
+END	{ if (!found) {
+	    print "../../perl/PMDA/PMDA.pm: Error: no sub '$code' { ... } block"
+	    system("touch '$tmp'.err");
+	  }
+	}'
+done
+
+# in ../../python/pmapi.c expect lines like:
+#   edict_add(dict, edict, "PM_ERR_BOTCH", PM_ERR_BOTCH);
+#
+cat $tmp.defs \
+| while read code value text
+do
+    sed <../../python/pmapi.c \
+	-e 's/[(,);]/ /g' \
+    | awk '
+BEGIN	{ found = 0 }
+$1 == "edict_add" && $5 == "'$code'" {
+	    found = 1
+	    if ($4 != "\"'$code'\"") {
+		print "../../python/pmapi.c: Error: string \"'$code'\" not found"
+		system("touch '$tmp'.err");
+	    }
+	}
+END	{ if (!found) {
+	    print "../../python/pmapi.c: Error: no edict_add(..., '$code') call"
+	    system("touch '$tmp'.err");
+	  }
+	}'
+done

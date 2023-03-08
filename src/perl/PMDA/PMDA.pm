@@ -97,7 +97,7 @@ sub PM_ERR_GENERIC	{ -12345; }	# Generic error, already reported above
 sub PM_ERR_PMNS		{ -12346; }	# Problems parsing PMNS definitions
 sub PM_ERR_NOPMNS	{ -12347; }	# PMNS not accessible
 sub PM_ERR_DUPPMNS	{ -12348; }	# Attempt to reload the PMNS
-sub PM_ERR_TEXT		{ -12349; }	# Oneline or help text is not available
+sub PM_ERR_TEXT		{ -12349; }	# One-line or help text is not available
 sub PM_ERR_APPVERSION	{ -12350; }	# Metric not supported by this version of monitored application
 sub PM_ERR_VALUE	{ -12351; }	# Missing metric value(s)
 sub PM_ERR_TIMEOUT	{ -12353; }	# Timeout waiting for a response from PMCD

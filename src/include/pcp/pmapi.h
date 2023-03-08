@@ -165,13 +165,13 @@ typedef struct pmDesc {
 #define PM_ERR_PMNS		(-PM_ERR_BASE-1)    /* Problems parsing PMNS definitions */
 #define PM_ERR_NOPMNS		(-PM_ERR_BASE-2)    /* PMNS not accessible */
 #define PM_ERR_DUPPMNS		(-PM_ERR_BASE-3)    /* Attempt to reload the PMNS */
-#define PM_ERR_TEXT		(-PM_ERR_BASE-4)    /* Oneline or help text is not available */
+#define PM_ERR_TEXT		(-PM_ERR_BASE-4)    /* One-line or help text is not available */
 #define PM_ERR_APPVERSION	(-PM_ERR_BASE-5)    /* Metric not supported by this version of monitored application */
 #define PM_ERR_VALUE		(-PM_ERR_BASE-6)    /* Missing metric value(s) */
 /* retired PM_ERR_LICENSE (-PM_ERR_BASE-7) Current PCP license does not permit this operation */
 #define PM_ERR_TIMEOUT		(-PM_ERR_BASE-8)    /* Timeout waiting for a response from PMCD */
 #define PM_ERR_NODATA		(-PM_ERR_BASE-9)    /* Empty archive log file */
-#define PM_ERR_RESET		(-PM_ERR_BASE-10)   /* pmcd reset or configuration changed */
+#define PM_ERR_RESET		(-PM_ERR_BASE-10)   /* PMCD reset or configuration change */
 /* retired PM_ERR_FILE (-PM_ERR_BASE-11) Cannot locate a file */
 #define PM_ERR_NAME		(-PM_ERR_BASE-12)   /* Unknown metric name */
 #define PM_ERR_PMID		(-PM_ERR_BASE-13)   /* Unknown or illegal metric identifier */
@@ -191,7 +191,7 @@ typedef struct pmDesc {
 #define PM_ERR_LABEL		(-PM_ERR_BASE-27)   /* Illegal label record at start of a PCP archive log file */
 #define PM_ERR_LOGREC		(-PM_ERR_BASE-28)   /* Corrupted record in a PCP archive log */
 #define PM_ERR_NOTARCHIVE	(-PM_ERR_BASE-29)   /* Operation requires context with archive source of metrics */
-#define PM_ERR_LOGFILE          (-PM_ERR_BASE-30)   /* Missing archive file */
+#define PM_ERR_LOGFILE          (-PM_ERR_BASE-30)   /* Missing PCP archive log file */
 #define PM_ERR_NOCONTEXT	(-PM_ERR_BASE-31)   /* Attempt to use an illegal context */
 #define PM_ERR_PROFILESPEC	(-PM_ERR_BASE-32)   /* NULL pmInDom with non-NULL instlist */
 #define PM_ERR_PMID_LOG		(-PM_ERR_BASE-33)   /* Metric not defined in the PCP archive log */
@@ -201,12 +201,12 @@ typedef struct pmDesc {
 #define	PM_ERR_NOAGENT		(-PM_ERR_BASE-41)   /* No pmcd agent for domain of request */
 #define PM_ERR_PERMISSION	(-PM_ERR_BASE-42)   /* No permission to perform requested operation */
 #define PM_ERR_CONNLIMIT	(-PM_ERR_BASE-43)   /* PMCD connection limit for this host exceeded */
-#define PM_ERR_AGAIN		(-PM_ERR_BASE-44)   /* try again. Info not currently available */
-#define PM_ERR_ISCONN		(-PM_ERR_BASE-45)   /* already connected */
-#define PM_ERR_NOTCONN		(-PM_ERR_BASE-46)   /* not connected */
-#define PM_ERR_NEEDPORT		(-PM_ERR_BASE-47)   /* port name required */
+#define PM_ERR_AGAIN		(-PM_ERR_BASE-44)   /* Try again. Information not currently available */
+#define PM_ERR_ISCONN		(-PM_ERR_BASE-45)   /* Already Connected */
+#define PM_ERR_NOTCONN		(-PM_ERR_BASE-46)   /* Not Connected */
+#define PM_ERR_NEEDPORT		(-PM_ERR_BASE-47)   /* A non-null port name is required */
 /* retired PM_ERR_WANTACK (-PM_ERR_BASE-48) can not send due to pending acks */
-#define PM_ERR_NONLEAF		(-PM_ERR_BASE-49)   /* PMNS node is not a leaf node */
+#define PM_ERR_NONLEAF		(-PM_ERR_BASE-49)   /* Metric name is not a leaf in PMNS */
 /* retired PM_ERR_OBJSTYLE (-PM_ERR_BASE-50) user/kernel object style mismatch */
 /* retired PM_ERR_PMCDLICENSE (-PM_ERR_BASE-51) PMCD is not licensed to accept connections */
 #define PM_ERR_TYPE		(-PM_ERR_BASE-52)   /* Unknown or illegal metric type */
@@ -222,7 +222,7 @@ typedef struct pmDesc {
 #define PM_ERR_LOGCHANGEUNITS	(-PM_ERR_BASE-62)   /* The units of a metric have changed in an archive */
 #define PM_ERR_NEEDCLIENTCERT	(-PM_ERR_BASE-63)   /* PMCD requires a client certificate */
 #define PM_ERR_BADDERIVE	(-PM_ERR_BASE-64)   /* Derived metric definition failed */
-#define PM_ERR_NOLABELS		(-PM_ERR_BASE-65)   /* No support for label metadata */
+#define PM_ERR_NOLABELS		(-PM_ERR_BASE-65)   /* No support for metric label metadata */
 #define PM_ERR_PMDAFENCED	(-PM_ERR_BASE-66)   /* PMDA is currently fenced and unable to respond to requests */
 #define PM_ERR_RECTYPE		(-PM_ERR_BASE-67)   /* Incorrect record type in an archive */
 #define PM_ERR_FEATURE		(-PM_ERR_BASE-68)   /* Archive feature not supported */
@@ -234,9 +234,10 @@ typedef struct pmDesc {
 #define PM_ERR_TOOBIG		(-PM_ERR_BASE-99)   /* Result size exceeded */
 #define PM_ERR_FAULT		(-PM_ERR_BASE-100)  /* QA fault injected */
 
-#define PM_ERR_PMDAREADY	(-PM_ERR_BASE-1048) /* now ready to respond */
-#define PM_ERR_PMDANOTREADY	(-PM_ERR_BASE-1049) /* not yet ready to respond */
-#define PM_ERR_NYI		(-PM_ERR_BASE-8999) /* Functionality not yet implemented [end-of-range mark] */
+#define PM_ERR_PMDAREADY	(-PM_ERR_BASE-1048) /* PMDA is now responsive to requests */
+#define PM_ERR_PMDANOTREADY	(-PM_ERR_BASE-1049) /* PMDA is not yet ready to respond to requests */
+#define PM_ERR_NYI		(-PM_ERR_BASE-8999) /* Functionality not yet implemented */
+						    /* this is the [end-of-possible-codes] mark as well */
 
 /*
  * Report PMAPI errors messages
