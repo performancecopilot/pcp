@@ -11,7 +11,7 @@
 tmp=`mktemp -d "$PCP_TMPFILE_DIR/xtract-names.XXXXXXXXX"` || exit 1
 
 status=1	# failure is the default
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "rm -rf $tmp.* $tmp; exit \$status" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.usage
 # getopts: a:d?
