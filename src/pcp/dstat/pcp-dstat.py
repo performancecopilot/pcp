@@ -1858,7 +1858,7 @@ class DstatTool(object):
                 showcsvheader = False
                 if os.path.exists(self.output):
                     newoline += '\n\n'
-                newoline += self.show_csvheader(vislist)
+                newoline += self.show_csvheader(self.totlist)
 
         if self.novalues:
             line = newline

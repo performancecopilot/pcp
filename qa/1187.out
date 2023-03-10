@@ -294,6 +294,45 @@ CSV instances contents
 10-02 17:04:51,0,0,99.900,0,0,0,1,99.900,0,0,12.850,0.250,87.862,0,0,100,0.100,0.100,-0.800,-0.800,0.100,-0.800,-0.800
 10-02 17:04:52,0,0,100,0,0,0,0,100,0,0,12.500,0,87.250,0,0,100,0,0,0,1,0,1,0
 CSV instances complete
+CSV terminal default
+=== std out
+----system---- ---procs--- ------memory-usage----- ---paging-- --dsk/vda-- ---system-- -----cpu0-usage---- -----cpu1-usage---- -----cpu2-usage---- -----cpu3-usage---- -----cpu4-usage---- -----cpu5-usage---- -----cpu6-usage---- -----cpu7-usage---- ---net/lo-- -net/enp0s1 --io/total- ---load-avg---
+     time     |run blk new| used  free  buf   cach|  in   out | read  writ| int   csw |usr sys idl wai stl:usr sys idl wai stl:usr sys idl wai stl:usr sys idl wai stl:usr sys idl wai stl:usr sys idl wai stl:usr sys idl wai stl:usr sys idl wai stl| recv  send: recv  send| read  writ| 1m   5m  15m 
+10-02 17:04:49|2.0   0    |3589M 2834M 3188k 4933M|           |           |           |                   :                   :                   :                   :                   :                   :                   :                   |           :           |           |1.00 0.92 1.00
+10-02 17:04:50|2.0   0 4.0|3589M 2834M 3188k 4933M|   0     0 |   0   235k|3060  5547 | 98   0   0   0   0:  0   0  99   0   0:  1   1  98   0   0:  1   0  96   0   0:  2   1  95   0   0:  0   0  99   0   0:  0   0  98   0   0:  0   2  97   0   0| 231B  231B: 455B   98B|   0  8.00 |1.00 0.92 1.00
+10-02 17:04:51|2.0   0 4.5|3590M 2834M 3188k 4933M|   0     0 |   0     0 |1772  2948 |102   0   0   0   0:  0   0 100   0   0:  0   1 100   0   0:  0   1 101   0   0:  0   0 101   0   0:  1   0 100   0   0:  0   0 101   0   0:  0   0 101   0   0|   0     0 :  15k  909B|   0  4.00 |1.00 0.92 1.00
+10-02 17:04:52|2.0   0   0|3590M 2833M 3188k 4933M|   0     0 |   0     0 | 323   288 |100   0   0   0   0:  0   0 100   0   0:  0   0 100   0   0:  0   0 100   0   0:  0   0  99   0   0:  0   0 100   0   0:  0   0  99   0   0:  0   0 100   0   0|   0     0 :   0     0 |   0     0 |1.00 0.92 1.00
+=== std err
+=== done
+
+CSV terminal reduced
+=== std out
+----system---- ---procs--- ------memory-usage----- ---paging-- --dsk/vda-- ---system-- -----cpu0-usage---- -----cpu1-usage---- -----cpu2-usage---- -----cpu3-usage---- -----cpu4-usage---- -----cpu5-usage---- -----cpu6-usage---- -----cpu7-usage---- ---net/lo-- -net/enp0s1 --io/total- ---load-avg---
+     time     |run blk new| used  free  buf   cach|  in   out | read  writ| int   csw |usr sys idl wai stl:usr sys idl wai stl:usr sys idl wai stl:usr sys idl wai stl:usr sys idl wai stl:usr sys idl wai stl:usr sys idl wai stl:usr sys idl wai stl| recv  send: recv  send| read  writ| 1m   5m  15m 
+10-02 17:04:49|2.0   0    |3589M 2834M 3188k 4933M|           |           |           |                   :                   :                   :                   :                   :                   :                   :                   |           :           |           |1.00 0.92 1.00
+10-02 17:04:50|2.0   0 4.0|3589M 2834M 3188k 4933M|   0     0 |   0   235k|3060  5547 | 98   0   0   0   0:  0   0  99   0   0:  1   1  98   0   0:  1   0  96   0   0:  2   1  95   0   0:  0   0  99   0   0:  0   0  98   0   0:  0   2  97   0   0| 231B  231B: 455B   98B|   0  8.00 |1.00 0.92 1.00
+10-02 17:04:51|2.0   0 4.5|3590M 2834M 3188k 4933M|   0     0 |   0     0 |1772  2948 |102   0   0   0   0:  0   0 100   0   0:  0   1 100   0   0:  0   1 101   0   0:  0   0 101   0   0:  1   0 100   0   0:  0   0 101   0   0:  0   0 101   0   0|   0     0 :  15k  909B|   0  4.00 |1.00 0.92 1.00
+10-02 17:04:52|2.0   0   0|3590M 2833M 3188k 4933M|   0     0 |   0     0 | 323   288 |100   0   0   0   0:  0   0 100   0   0:  0   0 100   0   0:  0   0 100   0   0:  0   0  99   0   0:  0   0 100   0   0:  0   0  99   0   0:  0   0 100   0   0|   0     0 :   0     0 |   0     0 |1.00 0.92 1.00
+=== std err
+=== done
+
+CSV terminal contents
+"pcp-dstat VERSION CSV Output"
+"Author:","PCP team <pcp@groups.io> and Dag Wieers <dag@wieers.com>",,,,"URL:","https://pcp.io/ and http://dag.wieers.com/home-made/dstat/"
+"Host:","fedora",,,,"User:","USER"
+"Cmdline:","pcp-dstat --time -tfvnrl -o TMP.csvterm1 1 3",,,,"Date:","DATE"
+"system","procs",,,"memory usage",,,,"paging",,"dsk/vda",,"system",,"cpu0 usage",,,,,"cpu1 usage",,,,,"cpu2 usage",,,,,"cpu3 usage",,,,,"cpu4 usage",,,,,"cpu5 usage",,,,,"cpu6 usage",,,,,"cpu7 usage",,,,,"net/lo",,"net/enp0s1",,"io/total",,"load avg",,
+"time","run","blk","new","used","free","buf","cach","in","out","dsk/vda:read","dsk/vda:writ","int","csw","cpu0 usage:usr","cpu0 usage:sys","cpu0 usage:idl","cpu0 usage:wai","cpu0 usage:stl","cpu1 usage:usr","cpu1 usage:sys","cpu1 usage:idl","cpu1 usage:wai","cpu1 usage:stl","cpu2 usage:usr","cpu2 usage:sys","cpu2 usage:idl","cpu2 usage:wai","cpu2 usage:stl","cpu3 usage:usr","cpu3 usage:sys","cpu3 usage:idl","cpu3 usage:wai","cpu3 usage:stl","cpu4 usage:usr","cpu4 usage:sys","cpu4 usage:idl","cpu4 usage:wai","cpu4 usage:stl","cpu5 usage:usr","cpu5 usage:sys","cpu5 usage:idl","cpu5 usage:wai","cpu5 usage:stl","cpu6 usage:usr","cpu6 usage:sys","cpu6 usage:idl","cpu6 usage:wai","cpu6 usage:stl","cpu7 usage:usr","cpu7 usage:sys","cpu7 usage:idl","cpu7 usage:wai","cpu7 usage:stl","net/lo:recv","net/lo:send","net/enp0s1:recv","net/enp0s1:send","read","writ","1m","5m","15m"
+10-02 17:04:49,2,0,,3675376,2902384,3188,5051864,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1,0.920,1
+10-02 17:04:50,2,0,4,3675372,2902384,3188,5051868,0,0,0,235,3060,5547,98.100,0,0,0,0,0,0,99,0,0,1,1,98,0,0,1,0,96.200,0,0,2,1,95.200,0,0,0,0,99,0,0,0,0,98.100,0,0,0,1.900,97.100,0,0,231,231,455,98,0,8,1,0.920,1
+10-02 17:04:51,2,0,5,3676124,2901628,3188,5051872,0,0,0,0,484,348,101.800,0,0,0,0,0,0,99.900,0,0,0,1,99.900,0,0,0,1,100.800,0,0,0,0,100.800,0,0,1,0,99.900,0,0,0,0,100.800,0,0,0,0,100.800,0,0,0,0,15440,909,0,0,1,0.920,1
+10-02 17:04:52,2,0,0,3676368,2901376,3188,5051880,0,0,0,0,323,288,100,0,0,0,0,0,0,100,0,0,0,0,100,0,0,0,0,100,0,0,0,0,99,0,0,0,0,100,0,0,0,0,99,0,0,0,0,100,0,0,0,0,0,0,0,0,1,0.920,1
+CSV terminal compared
+4c4
+< "Cmdline:","pcp-dstat --time -tfvnrl -o TMP.csvterm0 1 3",,,,"Date:","DATE"
+---
+> "Cmdline:","pcp-dstat --time -tfvnrl -o TMP.csvterm1 1 3",,,,"Date:","DATE"
+CSV terminal complete
 CSV timestamp
 === done
 
