@@ -101,7 +101,7 @@ class Ipcs(object):
             self.report(values_summary)
 
     def get_pagesize(self):
-        metric_pagesize = ("hinv.pagesize")
+        metric_pagesize = "hinv.pagesize"
         pmid_pagesize = self.context.pmLookupName(metric_pagesize)
         desc_pagesize = self.context.pmLookupDescs(pmid_pagesize)
         result = self.context.pmFetch(pmid_pagesize)
