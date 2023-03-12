@@ -32,6 +32,11 @@ then
     # NOTREACHED
 fi
 
+# need systemd's autorestart to get pmlogger restarted quickly
+# ... cron-based restart takes too long for a QA test
+#
+which systemd >/dev/null 2>&1 || _notrun "no systemd"
+
 _cleanup()
 {
     cd $here
