@@ -1642,6 +1642,7 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PMCD_AGENT_CHANGE", PMCD_AGENT_CHANGE);
     dict_add(dict, "PMCD_LABEL_CHANGE", PMCD_LABEL_CHANGE);
     dict_add(dict, "PMCD_NAMES_CHANGE", PMCD_NAMES_CHANGE);
+    dict_add(dict, "PMCD_HOSTNAME_CHANGE", PMCD_HOSTNAME_CHANGE);
 
     dict_add(dict, "PM_MAXLABELS", PM_MAXLABELS);
     dict_add(dict, "PM_MAXLABELJSONLEN", PM_MAXLABELJSONLEN);

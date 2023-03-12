@@ -1893,6 +1893,7 @@ x11
 1438 libpcp local
 1439 libpcp local valgrind
 1440 pmlogrewrite pmlogcheck pminfo local
+1441 pmcd pmlogger logutil local
 1442 pmlogrewrite local
 1444 pmda.bpf local
 1452 pmda.bpf local

@@ -70,6 +70,7 @@ struct timeval	delta = { 60, 0 };	/* default logging interval */
 int		sig_code;		/* caught signal */
 int		qa_case;		/* QA error injection state */
 char		*note;			/* note for port map file */
+int		runfromcontrol;		/* if launched from control-driven scripts */
 
 static int 	    pmcdfd = -1;	/* comms to pmcd */
 static __pmFdSet    fds;		/* file descriptors mask for select */
@@ -1034,9 +1035,11 @@ main(int argc, char **argv)
 
 	case 'm':		/* note for port map file */
 	    note = opts.optarg;
-	    isdaemon = ((strncmp(note, "pmlogger_check", 14) == 0) ||
-			(strncmp(note, "pmlogger_daily", 14) == 0) ||
-			(strncmp(note, "reexec", 6) == 0));
+	    runfromcontrol = ((strncmp(note, "pmlogger_check", 14) == 0) ||
+			      (strncmp(note, "pmlogger_daily", 14) == 0) ||
+			      (strncmp(note, "reexec", 6) == 0));
+	    if (runfromcontrol)
+		isdaemon = 1;
 	    break;
 
 	case 'N':		/* notify service manager (even if not primary) */

@@ -1,0 +1,88 @@
+#!/bin/sh
+# PCP QA Test No. 1441
+# primary pmlogger successfully follows hostname changes
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+oldhostname=`hostname`
+newhostname="boofa-$seq"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+    $sudo hostname "$oldhostname"
+    # see note below on required delay
+    #
+    sleep 11
+    _wait_for_pmlogger
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@$PCP_ARCHIVE_DIR@PCP_ARCHIVE_DIR@" \
+	-e "s/$oldhostname/OLDHOSTNAME/g" \
+	-e "s/$newhostname/NEWHOSTNAME/g" \
+	-e "s@/[0-9][0-9.-]*@/DATESTAMP@" \
+    # end
+}
+
+# real QA test starts here
+if [ ! -f $PCP_TMP_DIR/pmlogger/primary ]
+then
+    echo "Arrgh: no tracking file in $PCP_TMP_DIR for primary pmlogger"
+    ls -l $PCP_TMP_DIR/pmlogger
+    status=1
+    exit
+fi
+_filter <$PCP_TMP_DIR/pmlogger/primary \
+| sed \
+    -e 's/^reexec$/pmlogger_check|reexec/' \
+    -e 's/^pmlogger_check$/pmlogger_check|reexec/' \
+    # end
+
+echo
+echo "Change hostname ..."
+sudo hostname "$newhostname"
+# In the default/zeroconf setup, PMLOGGER_INTERVAL=10 and there are
+# lots of metrics logged at the default ... pmlogger only sees
+# PMCD_HOSTNAME_CHANGE from the pmFetch(), so it could be up to 10
+# seconds before the old pmlogger notices it has to exit, then
+# systemd needs time to notice and restart pmlogger
+#
+sleep 11
+_wait_for_pmlogger
+
+if [ ! -f $PCP_TMP_DIR/pmlogger/primary ]
+then
+    echo "Arrgh: no tracking file in $PCP_TMP_DIR for primary pmlogger"
+    ls -l $PCP_TMP_DIR/pmlogger
+    status=1
+    exit
+fi
+_filter <$PCP_TMP_DIR/pmlogger/primary
+
+# success, all done
+exit

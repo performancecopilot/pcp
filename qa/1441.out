@@ -1,0 +1,11 @@
+QA output created by 1441
+4330
+OLDHOSTNAME
+PCP_ARCHIVE_DIR/OLDHOSTNAME/DATESTAMP
+pmlogger_check|reexec
+
+Change hostname ...
+4330
+NEWHOSTNAME
+PCP_ARCHIVE_DIR/NEWHOSTNAME/DATESTAMP
+pmlogger_check

@@ -286,6 +286,60 @@ ParseOptions(int argc, char *argv[], int *nports)
     }
 }
 
+static int
+hostname_changed(void)
+{
+    static char	host[MAXHOSTNAMELEN];
+    static char	*oldhost = NULL;
+    int		sts;
+    double	delta;
+    static struct timeval	lasttime = { 0, 0 };
+    struct timeval		thistime;
+
+    gettimeofday(&thistime, NULL);
+    delta = pmtimevalSub(&thistime, &lasttime);
+    if (delta < 10.0) {
+	/*
+	 * do the "has hostname changed" check at most once every
+	 * 10 seconds ... this number is arbitrary, but we don't want
+	 * to add undue load in cases where pmcd is being queried
+	 * very frequently
+	 */
+	return(0);
+    }
+    
+    if ((sts = gethostname(host, MAXHOSTNAMELEN)) < 0) {
+	pmNotifyErr(LOG_WARNING, "hostname_changed: gethostname() -> %d (%s)",
+	    sts, pmErrStr(-oserror()));
+	return 0;
+    }
+
+    if (oldhost == NULL) {
+	/* first time, or first success after strdup() error */
+	oldhost = strdup(host);
+	if (oldhost == NULL) {
+	    host[MAXHOSTNAMELEN-1] = '\0';
+	    pmNoMem("hostname_changed", strlen(host), PM_RECOV_ERR);
+	}
+	return 0;
+    }
+
+    if (oldhost != NULL && strcmp(oldhost, host) != 0) {
+	pmNotifyErr(LOG_INFO, "hostname changed from %s to %s", oldhost, host);
+	free(oldhost);
+	/*
+	 * don't need to check if strdup() works, will look just like
+	 * first-trip next time if oldhost is NULL
+	 */
+	oldhost = strdup(host);
+
+	/* Inform clients there's been a change in pmcd's hostname */
+	MarkStateChanges(PMCD_HOSTNAME_CHANGE);
+    }
+
+    return 0;
+}
+
 /*
  * Determine which clients (if any) have sent data to the server and handle it
  * as required.
@@ -330,11 +384,19 @@ HandleClientInput(__pmFdSet *fdsPtr)
 
 	switch (php->type) {
 	    case PDU_PROFILE:
+		if (hostname_changed()) {
+		    sts = 0;
+		    break;
+		}
 		sts = (cp->denyOps & PMCD_OP_FETCH) ?
 		      PM_ERR_PERMISSION : DoProfile(cp, pb);
 		break;
 
 	    case PDU_FETCH:
+		if (hostname_changed()) {
+		    sts = 0;
+		    break;
+		}
 		sts = (cp->denyOps & PMCD_OP_FETCH) ?
 		      PM_ERR_PERMISSION : DoFetch(cp, pb);
 		break;

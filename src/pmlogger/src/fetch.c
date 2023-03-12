@@ -158,6 +158,11 @@ myFetch(int numpmid, pmID pmidlist[], __pmResult **result)
 				fprintf(stderr, ", ");
 			    fprintf(stderr, "names change");
 			}
+			if (sts & PMCD_HOSTNAME_CHANGE) {
+			    if (flag++)
+				fprintf(stderr, ", ");
+			    fprintf(stderr, "hostname change");
+			}
 			fputc('\n', stderr);
 		    }
 		    else if (n == PDU_HIGHRES_RESULT && !highres)
@@ -222,6 +227,28 @@ myFetch(int numpmid, pmID pmidlist[], __pmResult **result)
 		}
 	    } while (n == 0);
 
+	    if (changed & PMCD_HOSTNAME_CHANGE) {
+		/*
+		 * Hostname changed for pmcd and we were launched from
+		 * the control-driven scripts (pmlogger_check, pmlogger_daily)
+		 * or re-exec'd, then we need to exit.
+		 *
+		 * We rely on the systemd autorestart, systemd timer,
+		 * cron or the user to restart this pmlogger at which
+		 * time one or more of the following will happen:
+		 * - the correct pmcd hostname will appear in the archive
+		 *   label record
+		 * - for a pmlogger launched from the standard
+		 *   /etc/pcp/pmlogger control files, LOCALHOSTNAME will get
+		 *   correctly re-translated into a different pathname
+		 *   (usually the directory for the archive)
+		 */
+		if (runfromcontrol) {
+		    run_done(0, "PMCD hostname changed");
+		    /* NOTREACHED */
+		}
+		pmNotifyErr(LOG_INFO, "PMCD hostname changed");
+	    }
 	    if (changed & PMCD_NAMES_CHANGE) {
 		/*
 		 * Fetch has returned with the PMCD_NAMES_CHANGE flag set.

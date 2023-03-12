@@ -111,6 +111,11 @@ dump_fetch_flags(int sts)
 	    fprintf(stderr, ", ");
 	fprintf(stderr, "names change");
     }
+    if (sts & PMCD_HOSTNAME_CHANGE) {
+	if (flag++)
+	    fprintf(stderr, ", ");
+	fprintf(stderr, "hostname change");
+    }
     fputc('\n', stderr);
 }
 

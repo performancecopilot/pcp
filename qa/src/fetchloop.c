@@ -41,7 +41,7 @@ dometric(const char *name)
 static void
 dumpstate(int flags)
 {
-    char	buffer[64];
+    char	buffer[128];
 
     sprintf(buffer, "PMCD state change(s): ");
     if (flags & PMCD_AGENT_CHANGE)
@@ -50,6 +50,8 @@ dumpstate(int flags)
 	strcat(buffer, "label ");
     if (flags & PMCD_NAMES_CHANGE)
 	strcat(buffer, "names ");
+    if (flags & PMCD_HOSTNAME_CHANGE)
+	strcat(buffer, "hostname ");
 
     if (flags)
 	buffer[strlen(buffer)-1] = '\0';

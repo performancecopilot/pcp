@@ -337,6 +337,11 @@ or new metrics have appeared which have associated labels.
 PMCD has been informed that the namespace has been modified,
 such that new metrics have appeared or existing metrics have
 been removed.
+.IP \fBPMCD_HOSTNAME_CHANGE\fR
+The hostname on the host where PMCD is running has changed.
+This may be the result of changes from temporary to permanent
+hostname after a system reboot or
+some subsequent explicit change to the system's hostname.
 .PP
 The default is to return zero to indicate no change in state,
 however the
