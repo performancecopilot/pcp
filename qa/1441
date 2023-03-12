@@ -4,6 +4,9 @@
 #
 # Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
 #
+# :not_in_ci:
+#	we're not sure that changing the VM/container hostname to
+#	"boofa-1441" is going to lead to happiness.
 
 if [ $# -eq 0 ]
 then
@@ -22,6 +25,12 @@ fi
 
 oldhostname=`hostname`
 newhostname="boofa-$seq"
+
+if grep "^$oldhostname\$" qa_hosts >/dev/null
+then
+    _notrun "$oldhostname is too precious to change hostname"
+    # NOTREACHED
+fi
 
 _cleanup()
 {
