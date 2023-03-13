@@ -159,7 +159,7 @@ class PCPBCCBase(object):
         """
 
         if not isinstance(table.Key(), ct.Structure):
-            raise Exception("Histogram does not contain multiple sections.")
+            raise TypeError("Histogram does not contain multiple sections.")
 
         hist_sections = {}
         hist_key_field1 = table.Key._fields_[0][0]
@@ -188,7 +188,7 @@ class PCPBCCBase(object):
     def read_log2_histogram(cls, table, cache):
         """ Read single log2 histogram """
         if isinstance(table.Key(), ct.Structure):
-            raise Exception("Histogram contains multiple sections.")
+            raise TypeError("Histogram contains multiple sections.")
 
         hist_data = [0] * log2_index_max
         for k, v in table.items(): # pylint: disable=invalid-name

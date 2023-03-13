@@ -44,6 +44,7 @@ DEFAULT_CONFIG = ["./pcp2influxdb.conf", "$HOME/.pcp2influxdb.conf", "$HOME/.pcp
 
 # Defaults
 CONFVER = 1
+TIMEOUT = 2.5 # seconds
 SERVER = "http://127.0.0.1:8086"
 DB = "pcp"
 
@@ -217,6 +218,7 @@ class PCP2InfluxDB(object):
         self.time_scale = None
         self.time_scale_force = None
 
+        self.influx_timeout = TIMEOUT
         self.influx_server = SERVER
         self.influx_db = DB
         self.influx_user = None
@@ -534,7 +536,8 @@ class PCP2InfluxDB(object):
                                                self.influx_pass)
 
         try:
-            res = requests.post(url, params=params, data=str(body), auth=auth)
+            res = requests.post(url, params=params, data=str(body), auth=auth,
+                                timeout=self.influx_timeout)
 
             if res.status_code != 204:
                 msg = "Could not send metrics: "
