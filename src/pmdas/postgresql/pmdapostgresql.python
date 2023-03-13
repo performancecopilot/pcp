@@ -1044,7 +1044,7 @@ class POSTGRESQLPMDA(PMDA):
             for param in conf:
                 self.conf[param[0]] = param[1]
         else:
-            raise Exception('Section {0} not found in the {1} file'.format(section, filename))
+            raise NameError('Section {0} not found in the {1} file'.format(section, filename))
 
         return self.conf # dict
 

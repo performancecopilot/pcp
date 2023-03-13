@@ -1288,7 +1288,7 @@ class MSSQLPMDA(PMDA):
                 for param in conf:
                     params[section + '.' + param[0]] = param[1]
             else:
-                raise Exception('Section %s not found in the %s file' %
+                raise NameError('Section %s not found in the %s file' %
                         (section, filename))
         return params # dict
 
