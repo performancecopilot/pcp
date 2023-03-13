@@ -44,7 +44,7 @@ _cleanup()
     $sudo hostname "$oldhostname"
     # see note below on required delay
     #
-    sleep 11
+    sleep 12
     _wait_for_pmlogger
 }
 
@@ -86,7 +86,7 @@ sudo hostname "$newhostname"
 # seconds before the old pmlogger notices it has to exit, then
 # systemd needs time to notice and restart pmlogger
 #
-sleep 11
+sleep 12
 _wait_for_pmlogger
 
 if [ ! -f $PCP_TMP_DIR/pmlogger/primary ]
