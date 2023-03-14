@@ -90,7 +90,7 @@ class Metric(object):
         self.name = name
         self.metricnum = metricnum # seen during fetch callbacks
         self.pmid = source.pmda.pmid(source.cluster, metricnum) # add domain/cluster#
-        self.indom_number = (MAX_CLUSTER+1 + (source.cluster * (MAX_METRIC+1)) + metricnum)
+        self.indom_number = MAX_CLUSTER+1 + (source.cluster * (MAX_METRIC+1)) + metricnum
         self.pcpline = pcpline
         self.typeline = typeline
         self.munits = pmUnits(0, 0, 0, 0, 0, 0)
@@ -1487,7 +1487,7 @@ class OpenMetricsPMDA(PMDA):
         if cluster == 0 and item == 4:
             if val < 0:
                 return c_api.PM_ERR_BADSTORE
-            self.dbg = (val != 0)
+            self.dbg = val != 0
             self.log('%s.control.debug: set to %d' % (self.pmda_name, self.dbg))
             return 0
 

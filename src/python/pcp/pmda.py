@@ -467,7 +467,7 @@ class PMDA(MetricDispatch):
         """
         pmns = self._metric_names
         prefixes = {pmns[key].split('.')[0] for key in pmns}
-        indent = (root == 'root')
+        indent = root == 'root'
         lead = ''
         if indent:
             lead = '\t'

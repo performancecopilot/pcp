@@ -36,8 +36,8 @@ except ImportError:
 
 DEFAULT_USERNAME = 'guest'
 DEFAULT_PASSWORD = 'guest'
+DEFAULT_TIMEOUT = 2.5 # seconds
 DEFAULT_PORT = 15672
-
 
 class RabbitmqPMDA(PMDA):
     """ PCP rabbitmq PMDA """
@@ -46,6 +46,7 @@ class RabbitmqPMDA(PMDA):
         PMDA.__init__(self, name, domain)
         self.username = DEFAULT_USERNAME
         self.password = DEFAULT_PASSWORD
+        self.timeout = DEFAULT_TIMEOUT
         self.port = DEFAULT_PORT
         self.url = None
         self.queue_names = []
@@ -160,7 +161,7 @@ class RabbitmqPMDA(PMDA):
         self.queue_names = []
 
         try:
-            temp = requests.get(self.url).json()
+            temp = requests.get(self.url, timeout=self.timeout).json()
             for _, val in enumerate(temp):
                 self.stats[val['name']] = val
                 self.queue_names.append(val['name'])
