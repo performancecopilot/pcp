@@ -19,6 +19,33 @@ statsd.pmda.metrics_tracked
     inst [1 or "gauge"] value 0
     inst [2 or "duration"] value 0
     inst [3 or "total"] value 0
+statsd.pmda.settings.duration_aggregation_type
+    value "HDR histogram"
+statsd.pmda.settings.parser_type
+    value "Basic"
+statsd.pmda.settings.port
+    value 8125
+statsd.pmda.settings.debug_output_filename
+    value "debug"
+statsd.pmda.settings.verbose
+    value 0
+statsd.pmda.settings.max_unprocessed_packets
+    value 1024
+statsd.pmda.settings.max_udp_packet_size
+    value 1472
+statsd.pmda.received
+    value 14
+statsd.pmda.parsed
+    value 14
+statsd.pmda.aggregated
+    value 0
+statsd.pmda.dropped
+    value 14
+statsd.pmda.metrics_tracked
+    inst [0 or "counter"] value 0
+    inst [1 or "gauge"] value 0
+    inst [2 or "duration"] value 0
+    inst [3 or "total"] value 0
 Restoring config file...
 
 [global]
