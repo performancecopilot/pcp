@@ -74,7 +74,7 @@ _cleanup()
     $sudo rm -rf $tmp $tmp.*
     if [ "`hostname`" != "$oldhostname" ]
     then
-	$sudo hostname "$oldhostname"
+	$sudo hostname "$oldhostname" 2>>$seq.full
 	_wait_for_new_pmlogger "$newpid"
     fi
 }
@@ -119,7 +119,7 @@ _filter <$PCP_TMP_DIR/pmlogger/primary \
 
 echo
 echo "Change hostname ..."
-sudo hostname "$newhostname"
+$sudo hostname "$newhostname" 2>>$seq.full
 _wait_for_new_pmlogger "$oldpid"
 
 if [ ! -f $PCP_TMP_DIR/pmlogger/primary ]
