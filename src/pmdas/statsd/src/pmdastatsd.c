@@ -114,16 +114,6 @@ create_statsd_hardcoded_metrics(struct pmda_data_extension* data) {
     static struct pmda_metric_helper helper;
     size_t agent_stat_count = 7;
     helper.data = data;
-    // statsd.pmda.received
-    data->pcp_metrics[0] = (pmdaMetric) {
-        .m_user = &helper,
-        .m_desc = {
-            .pmid = pmID_build(STATSD, 0, 1),
-            .sem = PM_SEM_COUNTER,
-            .type = PM_TYPE_U64,
-            .indom = PM_INDOM_NULL,
-        }
-    };
     for (i = 0; i < hardcoded_count; i++) {
         data->pcp_metrics[i].m_user = &helper;
         data->pcp_metrics[i].m_desc.pmid = pmID_build(STATSD, 0, i);
