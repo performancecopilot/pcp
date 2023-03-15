@@ -48,6 +48,8 @@ static char *intro  = "Performance Co-Pilot Inference Engine (pmie), "
 		      "Version %s\n\n%s%s";
 char	*clientid;
 
+int	runfromcontrol;
+
 static FILE *logfp;
 static char logfile[MAXPATHLEN];
 static char perffile[MAXPATHLEN];	/* /var/tmp/<pid> file name */
@@ -101,6 +103,7 @@ static pmLongOptions longopts[] = {
     { "", 0, 'H', NULL }, /* was: no DNS lookup on the default hostname */
     { "", 1, 'j', "FILE", "stomp protocol (JMS) file" },
     { "logfile", 1, 'l', "FILE", "send status and error messages to FILE" },
+    { "note", 1, 'm', "MSG", "descriptive note" },
     { "username", 1, 'U', "USER", "run as named USER in daemon mode [default pcp]" },
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "buffer", 0, 'b', 0, "one line buffered output stream, stdout on stderr" },
@@ -116,7 +119,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:A:bc:CdD:efFHh:j:l:n:O:PqS:t:T:U:vVWXxzZ:?",
+    .short_options = "a:A:bc:CdD:efFHh:j:l:m:n:O:PqS:t:T:U:vVWXxzZ:?",
     .long_options = longopts,
     .short_usage = "[options] [filename ...]",
     .override = override,
@@ -588,6 +591,10 @@ getargs(int argc, char *argv[])
 	    }
 	    commandlog = opts.optarg;
 	    isdaemon = 1;
+	    break;
+
+	case 'm':			/* note, probably from pmie_check */
+	    runfromcontrol = (strcmp(opts.optarg, "pmie_check") == 0);
 	    break;
 
 	case 'U': 			/* run as named user */

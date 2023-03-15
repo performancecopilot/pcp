@@ -46,5 +46,8 @@ void invalidate(void);
 #define STATE_LOSTCONN	3
 int host_state_changed(const char *, int);
 
+/* force exit flag */
+extern int	run_done;
+
 #endif /* EVAL_H */
 

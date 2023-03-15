@@ -1050,6 +1050,28 @@ taskFetch(Task *t)
 		    }
 		    f->result = NULL;
 		}
+		if (sts & PMCD_HOSTNAME_CHANGE) {
+		    /*
+		     * Hostname changed for pmcd and we were launched from
+		     * the control-driven scripts (pmie_check, pmie_daily),
+		     * then we need to exit.
+		     *
+		     * We rely on the systemd autorestart, systemd timer,
+		     * cron or the user to restart this pmie at which
+		     * time one or more of the following will happen:
+		     * - the correct pmcd hostname will be used internally,
+		     *   e.g. for %h in print actions
+		     * - for a pmie launched from the standard
+		     *   /etc/pcp/pmie control files, LOCALHOSTNAME will get
+		     *   correctly re-translated into a different pathname
+		     *   (usually the directory for the log file)
+		     */
+		    pmNotifyErr(LOG_INFO, "PMCD hostname changed");
+		    if (runfromcontrol) {
+			run_done = 1;
+			return;
+		    }
+		}
 	    }
 	    else
 		f->result = NULL;

@@ -26,6 +26,7 @@
 [\f3\-c\f1 \f2filename\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-l\f1 \f2logfile\f1]
+[\f3\-m\f1 \f2note\f1]
 [\f3\-j\f1 \f2stompfile\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-O\f1 \f2offset\f1]
@@ -44,7 +45,7 @@ consists of performance metrics values delivered in real-time
 from any host
 running the Performance Metrics Collection Daemon (PMCD), or using historical
 data from Performance Co-Pilot (PCP) archive logs.
-.P
+.PP
 As well as computing arithmetic and logical values,
 .B pmie
 can execute actions (popup alarms, write system log messages, and launch
@@ -52,7 +53,7 @@ programs) in response to specified conditions.
 Such actions are
 extremely useful in detecting, monitoring and correcting performance
 related problems.
-.P
+.PP
 The expressions to be evaluated are read from
 configuration files specified by one or more
 .I filename
@@ -159,7 +160,7 @@ If the
 .B \-l
 option is specified and there is no
 .B \-a
-option (ie. real-time monitoring) then
+option (i.e. real-time monitoring) then
 .B pmie
 is run as a daemon in the background
 (in all other cases foreground is the default).
@@ -208,10 +209,6 @@ mapped to the remote pmcd's self-reported host name for
 reporting purposes.
 See also the %h vs. %c substitutions in rule action strings below.
 .TP
-\fB\-l\fR \fIlogfile\fR, \fB\-\-logfile\fR=\fIlogfile\fR
-Standard error is sent to
-.IR logfile .
-.TP
 \fB\-j\fR \fIfile\fR
 An alternative STOMP protocol configuration is loaded from
 .IR stompfile .
@@ -220,6 +217,26 @@ If this option is not used, and the
 action is used in any rule, the default location
 .I $PCP_SYSCONF_DIR/pmie/config/stomp
 will be used.
+.TP
+\fB\-l\fR \fIlogfile\fR, \fB\-\-logfile\fR=\fIlogfile\fR
+Standard error is sent to
+.IR logfile .
+.TP
+\fB\-m\fR \fInote\fR, \fB\-\-note\fR=\fInote\fR
+Used to indicate where
+.B pmie
+has been launched from, e.g. \c
+.BR pmie_check (1)
+and
+.BR pmie_daily (1)
+use
+.B "\-m pmie_check"
+and this is used by
+.B pmie
+to determine if it needs to be restarted should the PMCD hostname change,
+as described in the
+HOSTNAME CHANGES
+section below.
 .TP
 \fB\-n\fR \fIpmnsfile\fR, \fB\-\-namespace\fR=\fIpmnsfile\fR
 An alternative Performance Metrics Name Space (PMNS) is loaded from the file
@@ -350,13 +367,13 @@ Display usage message and exit.
 .SH EXAMPLES
 The following example expressions demonstrate some of the capabilities
 of the inference engine.
-.P
+.PP
 The directory
 .I $PCP_DEMOS_DIR/pmie
 contains a number of other annotated examples of
 .B pmie
 expressions.
-.P
+.PP
 The variable
 .ft CW
 delta
@@ -364,7 +381,7 @@ delta
 controls expression evaluation frequency.
 Specify that subsequent expressions
 be evaluated once a second, until further notice:
-.P
+.PP
 .ft CW
 .nf
 .in +0.5i
@@ -372,10 +389,10 @@ delta = 1 sec;
 .in
 .fi
 .ft 1
-.P
+.PP
 If the total context switch rate exceeds 10000 per second per CPU,
 then display an alarm notifier:
-.P
+.PP
 .ft CW
 .nf
 .in +0.5i
@@ -384,14 +401,14 @@ kernel.all.pswitch / hinv.ncpu > 10000 count/sec
 .in
 .fi
 .ft 1
-.P
+.PP
 If the high context switch rate is sustained for 10 consecutive samples,
 then launch
 .BR top (1)
 in an
 .BR xterm (1)
 window to monitor processes, but do this at most once every 5 minutes:
-.P
+.PP
 .ft CW
 .nf
 .in +0.5i
@@ -401,9 +418,9 @@ all_sample (
 .in
 .fi
 .ft 1
-.P
+.PP
 The following rules are evaluated once every 20 seconds:
-.P
+.PP
 .ft CW
 .nf
 .in +0.5i
@@ -411,13 +428,13 @@ delta = 20 sec;
 .in
 .fi
 .ft 1
-.P
+.PP
 If any disk is performing
 more than 60 I/Os per second, then print a message identifying
 the busy disk to standard output and
 launch
 .BR dkvis (1):
-.P
+.PP
 .ft CW
 .nf
 .in +0.5i
@@ -428,11 +445,11 @@ some_inst (
 .in
 .fi
 .ft 1
-.P
+.PP
 Refine the preceding rule to apply only between the hours of 9am and 5pm,
 and to require 3 of 4 consecutive samples to exceed the threshold before
 executing the action:
-.P
+.PP
 .ft CW
 .nf
 .in +0.5i
@@ -445,9 +462,9 @@ some_inst (
 .in
 .fi
 .ft 1
-.P
+.PP
 The following two rules are evaluated once every 10 minutes:
-.P
+.PP
 .ft CW
 .nf
 .in +0.5i
@@ -455,11 +472,11 @@ delta = 10 min;
 .in
 .fi
 .ft 1
-.P
+.PP
 If either the / or the /usr filesystem is more than 95% full,
 display an alarm popup, but not if it has already been displayed
 during the last 4 hours:
-.P
+.PP
 .ft CW
 .nf
 .in +0.5i
@@ -473,11 +490,11 @@ filesys.free #'/dev/usr' /
 .in
 .fi
 .ft 1
-.P
+.PP
 The following rule requires a machine that supports the lmsensors metrics.
 If the machine environment temperature rises more than 2 degrees over a
 10 minute interval, write an entry in the system log:
-.P
+.PP
 .ft CW
 .nf
 .in +0.5i
@@ -487,10 +504,10 @@ lmsensors.coretemp_isa.temp1 @0 - lmsensors.coretemp_isa.temp1 @1 > 2
 .in
 .fi
 .ft 1
-.P
+.PP
 And something interesting if you have performance problems
 with your Oracle database:
-.P
+.PP
 .ft CW
 .nf
 .in +0.5i
@@ -510,11 +527,11 @@ $total > 100 && $gets / $total < 0.2
 .in
 .fi
 .ft 1
-.P
+.PP
 The following \f(CBruleset\fR will emit exactly one message
 depending on the availability and value of the 1-minute load
 average.
-.P
+.PP
 .ft CW
 .nf
 .in +0.5i
@@ -532,11 +549,11 @@ otherwise ->
 .in
 .fi
 .ft 1
-.P
+.PP
 The following rule will emit a message when some filesystem is more than
 75% full and is filling at a rate that if sustained would fill the
 filesystem to 100% in less than 30 minutes.
-.P
+.PP
 .ft CW
 .nf
 .in +0.5i
@@ -547,11 +564,11 @@ some_inst (
 .in
 .fi
 .ft 1
-.P
+.PP
 If the metric \f(CWmypmda.errors\fP counts errors then the following rule
 will emit a message if the rate of errors exceeds 1 per second provided
 the error count is less than 100.
-.P
+.PP
 .ft CW
 .nf
 .in +0.5i
@@ -564,7 +581,7 @@ mypmda.errors > 1 && instant mypmda.errors < 100
 The
 .B pmie
 specification language is powerful and large.
-.P
+.PP
 To expedite rapid development of
 .B pmie
 rules, the
@@ -576,7 +593,7 @@ configuration file from a set of generalized
 rules.
 The supplied set of rules covers
 a wide range of performance scenarios.
-.P
+.PP
 The
 .I "Performance Co-Pilot User's and Administrator's Guide"
 provides a detailed tutorial-style chapter covering
@@ -585,21 +602,21 @@ provides a detailed tutorial-style chapter covering
 This description is terse and informal.
 For a more comprehensive description see the
 .IR "Performance Co-Pilot User's and Administrator's Guide" .
-.P
+.PP
 A
 .B pmie
 specification is a sequence of semicolon terminated expressions.
-.P
+.PP
 Basic operators are modeled on the arithmetic, relational and Boolean
 operators of the C programming language.
 Precedence rules are as expected, although the use of parentheses
 is encouraged to enhance readability and remove ambiguity.
-.P
+.PP
 Operands are performance metric names
 (see
 .BR PMNS (5))
 and the normal literal constants.
-.P
+.PP
 Operands involving performance metrics may produce sets of values, as a
 result of enumeration in the dimensions of
 .BR hosts ,
@@ -609,13 +626,13 @@ and
 Special qualifiers may appear after a performance metric name to
 define the enumeration in each dimension.
 For example,
-.P
+.PP
 .in +4n
 .ft CW
 kernel.percpu.cpu.user :foo :bar #cpu0 @0..2
 .ft R
 .in
-.P
+.PP
 defines 6 values corresponding to the time spent executing in
 user mode on CPU 0 on the hosts ``foo'' and ``bar'' over the last
 3 consecutive samples.
@@ -627,11 +644,11 @@ The default interpretation in the absence of
 .B @
 (time) qualifiers is all instances at the most recent sample time
 for the default source of PCP performance metrics.
-.P
+.PP
 Host and instance names that do not follow the rules for variables
-in programming languages, ie. alphabetic optionally followed by
+in programming languages, i.e. alphabetic optionally followed by
 alphanumerics, should be enclosed in single quotes.
-.P
+.PP
 Expression evaluation follows the law of ``least surprises''.
 Where performance metrics have the semantics of a counter,
 .B pmie
@@ -640,18 +657,18 @@ and the time interval between these samples.
 All numeric expressions are evaluated in double precision, and where
 appropriate, automatically
 scaled into canonical units of ``bytes'', ``seconds'' and ``counts''.
-.P
+.PP
 A
 .B rule
 is a special form of expression that specifies a condition or logical
 expression, a special operator (\c
 .BR \-> )
 and actions to be performed when the condition is found to be true.
-.P
+.PP
 The following table summarizes the basic
 .B pmie
 operators:
-.P
+.PP
 .ne 12v
 .TS
 box,center;
@@ -668,7 +685,7 @@ _
 \f(CBrate\fR	Explicit rate conversion (rarely required)
 \f(CBinstant\fR	No automatic rate conversion (rarely required)
 .TE
-.P
+.PP
 All operators are supported for numeric-valued operands and expressions.
 For string-valued
 operands, namely literal string constants enclosed in double quotes or
@@ -680,7 +697,7 @@ the operators
 and
 .B !=
 are supported.
-.P
+.PP
 The \f(CBrate\fP and \f(CBinstant\fP operators are the logical inverse
 of one another, so
 an arithmetic expression \fIexpr\fP
@@ -689,12 +706,12 @@ The more useful cases involve using \f(CBrate\fP with a metric that
 is not a counter to determine the rate of change over time or \f(CBinstant\fP
 with a metric that is a counter to determine if the current value is
 above or below some threshold.
-.P
+.PP
 Aggregate operators may be used to aggregate or summarize along
 one dimension of a set-valued expression.
 The following aggregate operators map from a logical expression to
 a logical expression of lower dimension.
-.P
+.PP
 .ne 16v
 .TS
 box,center;
@@ -738,7 +755,7 @@ T}	Percentile	T{
 True if at least \fIN\fP percent of set members are true in the associated dimension
 T}
 .TE
-.P
+.PP
 The following instantial operators may be used to filter or limit a
 set-valued logical expression, based on regular expression matching
 of instance names.
@@ -748,7 +765,7 @@ form used by
 .BR egrep (1)
 or the Extended Regular Expressions of
 .BR regcomp (3).
-.P
+.PP
 .ne 12v
 .TS
 box,center;
@@ -772,7 +789,7 @@ result is ``true'' if the associated instance name does
 regular expression.  Otherwise the result is ``false''.
 T}
 .TE
-.P
+.PP
 For example, the expression below will be ``true'' for disks
 attached to controllers 2 or 3 performing more than 20 operations per second:
 .ft CW
@@ -782,10 +799,10 @@ match_inst "^dks[23]d" disk.dev.total > 20;
 .in
 .fi
 .ft 1
-.P
+.PP
 The following aggregate operators map from an arithmetic expression to
 an arithmetic expression of lower dimension.
-.P
+.PP
 .ne 20v
 .TS
 box,center;
@@ -841,12 +858,12 @@ T}	Aggregate	T{
 Average value across all set members in the associated dimension
 T}
 .TE
-.P
+.PP
 The aggregate operators \f(CWcount_inst\fR, \f(CWcount_host\fR and
 \f(CWcount_sample\fR map from a logical expression to an arithmetic
 expression of lower dimension by counting the number of set members
 for which the expression is true in the associated dimension.
-.P
+.PP
 For action rules, the following actions are defined:
 .TS
 box,center;
@@ -860,13 +877,13 @@ shell	Execute with \fBsh\fR(1)
 stomp	Send a STOMP message to a JMS server
 syslog	Append a message to system log file
 .TE
-.P
+.PP
 Multiple actions may be separated by the \f(CW&\fR and \f(CW|\fR
 operators to specify respectively sequential execution (both
 actions are executed) and alternate execution (the second action
 will only be executed if the execution of the first action returns
 a non-zero error status.
-.P
+.PP
 Arguments to actions are an optional suppression time, and then
 one or more expressions (a string is an expression in this context).
 Strings appearing as arguments to an action may include the following
@@ -890,7 +907,7 @@ condition true.
 One value from the left-most top-level expression in the
 condition for each host and instance pair that
 makes the condition true.
-.P
+.PP
 Note that expansion of the special selectors is done by repeating the
 whole argument once for each unique binding to any of the
 qualifying special selectors.
@@ -916,7 +933,7 @@ makes the rule true, then the action
 will execute
 .B myscript
 with the argument string "Warning: mumble:grunt busy Warning: mumble:snort busy Warning: fumble:puff busy".
-.P
+.PP
 By comparison, if the action
 .ft CW
 .nf
@@ -929,7 +946,7 @@ By comparison, if the action
 were executed under the same circumstances, then
 .B myscript
 would be executed with the argument string "Warning! busy: mumble:grunt mumble:snort fumble:puff".
-.P
+.PP
 The semantics of the expansion of the special selectors leads to a
 common usage pattern in an action, where one argument is a constant (contains no
 special selectors) the second argument contains the desired
@@ -937,11 +954,11 @@ special selectors with minimal separator characters, and
 an optional third argument provides a constant postscript (e.g. to terminate
 any argument quoting from the first argument).
 If necessary
-post-processing (eg. in
+post-processing (e.g. in
 .BR myscript )
 can provide the necessary enumeration over each unique expansion
 of the string containing just the special selectors.
-.P
+.PP
 For complex conditions, the bindings to these selectors
 is not obvious.
 It is strongly recommended that
@@ -1054,27 +1071,27 @@ Simple scale factors are constructed from the keywords:
 and the operator \f(CW/\fR, for example ``\f(CBKbytes / hour\f1''.
 .SH MACROS
 Macros are defined using expressions of the form:
-.P
+.PP
 .in +0.5i
 \fIname\fR = \fIconstexpr\f1;
 .in
-.P
+.PP
 Where
 .I name
 follows the normal rules
 for variables
-in programming languages, ie. alphabetic optionally followed by
+in programming languages, i.e. alphabetic optionally followed by
 alphanumerics.
 .I constexpr
 must be a constant expression, either a string
 (enclosed in double quotes) or an arithmetic expression optionally
 followed by a scale factor.
-.P
+.PP
 Macros are expanded when their name, prefixed by a dollar (\f(CW$\fR)
 appears in an expression, and macros may be nested within a
 .I constexpr
 string.
-.P
+.PP
 The following reserved macro names are understood.
 .TP 10n
 \f(CBminute\f1
@@ -1097,7 +1114,7 @@ Current day of the week, in the range 0 (Sunday) to 6 (Saturday).
 .TP
 \f(CBdelta\f1
 Sample interval in effect for this expression.
-.P
+.PP
 Dates and times are presented in the
 reporting time zone (see description of
 .B \-Z
@@ -1165,7 +1182,7 @@ and
 .BR syslogd (1).
 On Windows, communication with the system event log is handled by
 .BR pcp-eventlog (1).
-.P
+.PP
 .B pmie
 fits into this model when rules use the
 .I syslog
@@ -1175,7 +1192,7 @@ then these are extracted from the string and treated in the same way as in
 .BR logger (1)
 and
 .BR pcp-eventlog (1).
-.P
+.PP
 However, it is common to have other event monitoring frameworks also,
 into which you may wish to incorporate performance events from
 .BR pmie .
@@ -1184,7 +1201,7 @@ You can often use the
 action to send events to these frameworks, as they usually provide
 their a program for injecting events into the framework from external
 sources.
-.P
+.PP
 A final option is use of the
 .I stomp
 (Streaming Text Oriented Messaging Protocol) action, which allows
@@ -1197,9 +1214,9 @@ Use of the
 .I stomp
 action requires a stomp configuration file to be setup, which specifies
 the location of the JMS server host, port number, and username/password.
-.P
+.PP
 The format of this file is as follows:
-.P
+.PP
 .ft CW
 .nf
 .in +0.5i
@@ -1212,7 +1229,7 @@ topic=PMIE              # JMS topic for pmie messages (optional)
 .in
 .fi
 .ft 1
-.P
+.PP
 The timeout value specifies the time (in seconds) that
 .B pmie
 should wait for acknowledgements from the JMS server after
@@ -1236,6 +1253,54 @@ In this situation, where the STOMP connection to the JMS server
 has been severed, the
 .I stomp
 action will return a non-zero error value.
+.SH HOSTNAME CHANGES
+The hostname of the PMCD that is providing metrics to
+.B pmie
+is used in several ways.
+.PP
+PMCD's hostname
+is user internally to provide a value for the
+%h substitutions in rule action strings.
+.PP
+For
+.B pmie
+instances using a local PMCD that are launched and managed by
+.BR pmie_check (1)
+and
+.BR pmie_daily (1),
+(or the
+.BR systemd (1)
+or
+.BR cron (8)
+services that use these scripts), the local hostname may also
+be used to construct the name of a directory where the
+.B pmie
+logs for one host are stored, e.g. \c
+.BR $PCP_LOG_DIR/pmie/\fI<hostname>\fB .
+.PP
+The hostname of the PMCD host may change during boot time when the system
+transitions from a temporary hostname to a persistent hostname, or by
+explicit administrative action anytime after the system has been booted.
+When this happens,
+.B pmie
+may need to take special action, specifically if the
+.B pmie
+instance was launched from
+.BR pmie_check (1)
+or
+.BR pmie_daily (1),
+then
+.B pmie
+must exit.  Under normal circumstances
+.BR systemd (1)
+or
+.BR cron (8)
+will launch a new
+.B pmie
+shortly thereafter, and this new
+.B pmie
+instance will be operating in the context of the new
+hostname for the host where PMCD is running.
 .SH BUGS
 The lexical scanner and parser will attempt to recover after an
 error in the input expressions.

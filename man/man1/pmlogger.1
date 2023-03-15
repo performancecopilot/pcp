@@ -508,7 +508,7 @@ option and the
 .BR pmlc (1)
 .B flush
 command are retained for backwards compatibility.
-.P
+.PP
 When launched with the
 .B \-x
 option, pmlogger will accept asynchronous
@@ -516,7 +516,7 @@ control requests on the file descriptor \f2fd\f1.
 This option is only
 expected to be used internally by PCP applications that support ``live
 record mode''.
-.P
+.PP
 The
 .B \-m
 option allows the string
@@ -540,7 +540,7 @@ or was re-exec'd (see
 due to a
 .B SIGUSR2
 signal being recieved as described above (\fB\-m reexec\fP).
-.P
+.PP
 The
 .B \-H
 option allows the hostname written into the archive label to be overridden.
@@ -554,7 +554,7 @@ process.
 Without this option, the value returned from the logged
 .BR pmcd (1)
 is used.
-.P
+.PP
 The
 .B \-C
 option will cause the configuration file to be parsed and
@@ -1194,7 +1194,7 @@ variable (if not set, 60 seconds will be used).
 Both the command line and directives in the configuration file will
 override this value.
 It is an integer in units of seconds.
-.P
+.PP
 On platforms using
 .BR systemd (1),
 and when the

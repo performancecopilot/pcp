@@ -99,6 +99,9 @@ extern pmUnits	countUnits;
 /* flag processes spawned */
 extern int	need_wait;
 
+/* pmie launched from pmie_check and friends */
+extern int	runfromcontrol;
+
 #endif /* PRAG_H */
 
 

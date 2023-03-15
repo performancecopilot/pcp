@@ -802,9 +802,9 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 
 	    if [ "$primary" = y ]
 	    then
-		args="-F -P -l $logfile $args"
+		args="-m pmie_check -F -P -l $logfile $args"
 	    else
-		args="-h $host -l $logfile $args"
+		args="-m pmie_check -h $host -l $logfile $args"
 	    fi
 
 	    $VERBOSE && _restarting

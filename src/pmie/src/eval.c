@@ -27,6 +27,8 @@
 #include "pragmatics.h"
 #include "show.h"
 
+int	run_done;
+
 /***********************************************************************
  * scheduling
  ***********************************************************************/
@@ -213,6 +215,8 @@ eval(Task *task)
 
     /* fetch metrics */
     taskFetch(task);
+    if (run_done)
+	return;
 
     /* evaluate rule expressions */
     s = task->rules;
@@ -859,6 +863,8 @@ run(void)
 	    enable(t);
 	reflectTime(t->delta);
 	eval(t);
+	if (run_done)
+	    break;
 	if (waiting(t) && t->retry == 0) {
 	    /* just failed host or metric availability */
 	    t->retry = t->delta > RETRY ? RETRY : t->delta;

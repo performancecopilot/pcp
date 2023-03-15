@@ -35,22 +35,62 @@ fi
 # need systemd's autorestart to get pmlogger restarted quickly
 # ... cron-based restart takes too long for a QA test
 #
-which systemd >/dev/null 2>&1 || _notrun "no systemd"
+which systemctl >/dev/null 2>&1 || _notrun "no systemd"
+
+# wait until the primary pmlogger's pid is != $1
+#
+# In the default/zeroconf setup, PMLOGGER_INTERVAL=10 and there are
+# lots of metrics logged at the default ... pmlogger only sees
+# PMCD_HOSTNAME_CHANGE from the pmFetch(), so it could be up to 10
+# seconds before the old pmlogger notices it has to exit, then
+# systemd needs time to notice and restart pmlogger
+#
+_wait_for_new_pmlogger()
+{
+    max_delay=12
+    i=0
+    while [ $i -lt $max_delay ]
+    do
+	pid=`cat $PCP_RUN_DIR/pmlogger.pid 2>/dev/null`
+	[ -n "$pid" -a "$pid" != "$1" ] && break
+	sleep 1
+	i=`expr $i + 1`
+    done
+    if [ -n "$pid" -a "$pid" != "$1" ]
+    then
+	: OK
+    else
+	echo "Arrgh: failed to see new pmlogger after $max_delay seconds"
+	ls -l $PCP_RUN_DIR/pmlogger.pid
+	ls -l $PCP_TMP_DIR/pmlogger
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|pmlogger'
+	status=1
+    fi
+}
 
 _cleanup()
 {
     cd $here
     $sudo rm -rf $tmp $tmp.*
-    $sudo hostname "$oldhostname"
-    # see note below on required delay
-    #
-    sleep 12
-    _wait_for_pmlogger
+    if [ "`hostname`" != "$oldhostname" ]
+    then
+	$sudo hostname "$oldhostname"
+	_wait_for_new_pmlogger "$newpid"
+    fi
 }
 
 status=0	# success is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+if [ -f $PCP_RUN_DIR/pmlogger.pid ]
+then
+    oldpid=`cat $PCP_RUN_DIR/pmlogger.pid`
+    echo "old pid: $oldpid" >>$seq.full
+else
+    _notrun "$PCP_RUN_DIR/pmlogger.pid not found for old primary pmlogger"
+    # NOTREACHED
+fi
 
 _filter()
 {
@@ -80,14 +120,7 @@ _filter <$PCP_TMP_DIR/pmlogger/primary \
 echo
 echo "Change hostname ..."
 sudo hostname "$newhostname"
-# In the default/zeroconf setup, PMLOGGER_INTERVAL=10 and there are
-# lots of metrics logged at the default ... pmlogger only sees
-# PMCD_HOSTNAME_CHANGE from the pmFetch(), so it could be up to 10
-# seconds before the old pmlogger notices it has to exit, then
-# systemd needs time to notice and restart pmlogger
-#
-sleep 12
-_wait_for_pmlogger
+_wait_for_new_pmlogger "$oldpid"
 
 if [ ! -f $PCP_TMP_DIR/pmlogger/primary ]
 then
@@ -97,6 +130,16 @@ then
     exit
 fi
 _filter <$PCP_TMP_DIR/pmlogger/primary
+
+if [ -f $PCP_RUN_DIR/pmlogger.pid ]
+then
+    newpid=`cat $PCP_RUN_DIR/pmlogger.pid`
+    echo "new pid: $newpid" >>$seq.full
+else
+    echo "$PCP_RUN_DIR/pmlogger.pid not found for new primary pmlogger"
+    status=1
+    exit
+fi
 
 # success, all done
 exit
