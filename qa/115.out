@@ -18,21 +18,21 @@ No current pmie process exists for:
 host = REMOTEHOST
 log file = TMP.log1
 Restarting pmie for host "REMOTEHOST" ...
-+ $PCP_BIN_DIR/pmie -b -h REMOTEHOST -l TMP.log1 -c TMP.conf
++ $PCP_BIN_DIR/pmie -b -m pmie_check -h REMOTEHOST -l TMP.log1 -c TMP.conf
 Check pmie -h REMOTEHOST -l TMP.log2 ...
 + cd TMPDIR
 No current pmie process exists for:
 host = REMOTEHOST
 log file = TMP.log2
 Restarting pmie for host "REMOTEHOST" ...
-+ $PCP_BIN_DIR/pmie -b -h REMOTEHOST -l TMP.log2 -c TMP.conf
++ $PCP_BIN_DIR/pmie -b -m pmie_check -h REMOTEHOST -l TMP.log2 -c TMP.conf
 Check pmie -h LOCALHOST -l TMP.log0 ...
 + cd TMPDIR
 No current pmie process exists for:
 host = LOCALHOST
 log file = TMP.log0
 Restarting pmie for host "LOCALHOST" ...
-+ $PCP_BIN_DIR/pmie -b -h LOCALHOST -l TMP.log0 -c TMP.conf
++ $PCP_BIN_DIR/pmie -b -m pmie_check -h LOCALHOST -l TMP.log0 -c TMP.conf
 End: DATE
 
 --- v1.1 ---
@@ -45,21 +45,21 @@ No current pmie process exists for:
 host = REMOTEHOST
 log file = TMP.log1
 Restarting pmie for host "REMOTEHOST" ...
-+ $PCP_BIN_DIR/pmie -b -h REMOTEHOST -l TMP.log1 -c TMP.conf
++ $PCP_BIN_DIR/pmie -b -m pmie_check -h REMOTEHOST -l TMP.log1 -c TMP.conf
 Check pmie -h REMOTEHOST -l TMP.log2 ...
 + cd TMPDIR
 No current pmie process exists for:
 host = REMOTEHOST
 log file = TMP.log2
 Restarting pmie for host "REMOTEHOST" ...
-+ $PCP_BIN_DIR/pmie -b -h REMOTEHOST -l TMP.log2 -c TMP.conf
++ $PCP_BIN_DIR/pmie -b -m pmie_check -h REMOTEHOST -l TMP.log2 -c TMP.conf
 Check pmie -h LOCALHOST -l TMP.log0 ...
 + cd TMPDIR
 No current pmie process exists for:
 host = LOCALHOST
 log file = TMP.log0
 Restarting pmie for host "LOCALHOST" ...
-+ $PCP_BIN_DIR/pmie -b -F -P -l TMP.log0 -c TMP.conf
++ $PCP_BIN_DIR/pmie -b -m pmie_check -F -P -l TMP.log0 -c TMP.conf
 End: DATE
 
 === warnings ... ===
@@ -76,7 +76,7 @@ No current pmie process exists for:
 host = LOCALHOST
 log file = TMP.locker/ok.1
 Restarting pmie for host "LOCALHOST" ...
-+ $PCP_BIN_DIR/pmie -b -h LOCALHOST -l TMP.locker/ok.1 -c TMP.conf
++ $PCP_BIN_DIR/pmie -b -m pmie_check -h LOCALHOST -l TMP.locker/ok.1 -c TMP.conf
 End: DATE
 
 --- existing lock file ---
@@ -105,7 +105,7 @@ No current pmie process exists for:
 host = LOCALHOST
 log file = TMP.locker/ok.3
 Restarting pmie for host "LOCALHOST" ...
-+ $PCP_BIN_DIR/pmie -b -h LOCALHOST -l TMP.locker/ok.3 -c TMP.conf
++ $PCP_BIN_DIR/pmie -b -m pmie_check -h LOCALHOST -l TMP.locker/ok.3 -c TMP.conf
 End: DATE
 
 --- bad in-line shell commands ---
@@ -127,7 +127,7 @@ No current pmie process exists for:
 host = LOCALHOST
 log file = TMP.ok.4
 Restarting pmie for host "LOCALHOST" ...
-+ $PCP_BIN_DIR/pmie -b -h LOCALHOST -l TMP.ok.4 -c TMP.conf
++ $PCP_BIN_DIR/pmie -b -m pmie_check -h LOCALHOST -l TMP.ok.4 -c TMP.conf
 End: DATE
 
 --- missing $version but really v1.1 ... original control.local issue ---

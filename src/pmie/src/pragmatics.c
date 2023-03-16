@@ -1050,7 +1050,7 @@ taskFetch(Task *t)
 		    }
 		    f->result = NULL;
 		}
-		if (sts & PMCD_HOSTNAME_CHANGE) {
+		else if (sts & PMCD_HOSTNAME_CHANGE) {
 		    /*
 		     * Hostname changed for pmcd and we were launched from
 		     * the control-driven scripts (pmie_check, pmie_daily),
