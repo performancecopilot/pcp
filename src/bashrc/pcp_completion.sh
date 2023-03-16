@@ -65,7 +65,7 @@ _pcp_complete()
         arg_regex="-[mst]"
     ;;
     pmie)
-        all_args="AabCcdeFfhjlnOPqSTtUVvWXxZz"
+        all_args="AabCcdeFfhjlmnOPqSTtUVvWXxZz"
         arg_regex="-[AachljnOSTtUZ]"
     ;;
     pmie2col)
