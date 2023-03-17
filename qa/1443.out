@@ -1,9 +1,0 @@
-QA output created by 1443
-PCP_VAR_DIR/config/pmie/config.default
-PCP_LOG_DIR/pmie/OLDHOSTNAME/pmie.log
-OLDHOSTNAME
-
-Change hostname ...
-PCP_VAR_DIR/config/pmie/config.default
-PCP_LOG_DIR/pmie/NEWHOSTNAME/pmie.log
-NEWHOSTNAME
