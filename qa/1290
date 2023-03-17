@@ -330,7 +330,7 @@ cat $tmp.log >>$seq.full
 #
 $sudo $signal -s KILL -a pmproxy >>$here/$seq.full 2>&1
 sleep 2
-$sudo $signal -s KILL -a valgrind.bin >>$here/$seq.full 2>&1
+$sudo $signal -s KILL -a valgrind >>$here/$seq.full 2>&1
 wait
 
 # also copied from _run_valgrind (which we cannot use here) ...
