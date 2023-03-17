@@ -449,10 +449,7 @@ check_metric_name_available(struct pmda_metrics_container* container, char* key)
     };
     size_t i;
     for (i = 0; i < sizeof(g_blocklist) / sizeof(g_blocklist[0]); i++) {
-        const char* ampptr = strchr(key, '&');
-        if (ampptr) {
-            if (strncmp(key, g_blocklist[i], ampptr - key) == 0) return 0;
-        }
+        if (strcmp(key, g_blocklist[i]) == 0) return 0;
     }
     if (!find_metric_by_name(container, key, NULL)) {
         return 1;
