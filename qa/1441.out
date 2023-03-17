@@ -1,11 +1,24 @@
 QA output created by 1441
+old pmlogger ...
 4330
 OLDHOSTNAME
 PCP_ARCHIVE_DIR/OLDHOSTNAME/DATESTAMP
 pmlogger_check|reexec
 
+old pmie ...
+PCP_VAR_DIR/config/pmie/config.default
+PCP_LOG_DIR/pmie/OLDHOSTNAME/pmie.log
+OLDHOSTNAME
+
 Change hostname ...
+
+new pmlogger ...
 4330
 NEWHOSTNAME
 PCP_ARCHIVE_DIR/NEWHOSTNAME/DATESTAMP
 pmlogger_check
+
+new pmie ...
+PCP_VAR_DIR/config/pmie/config.default
+PCP_LOG_DIR/pmie/NEWHOSTNAME/pmie.log
+NEWHOSTNAME

@@ -1893,9 +1893,8 @@ x11
 1438 libpcp local
 1439 libpcp local valgrind
 1440 pmlogrewrite pmlogcheck pminfo local
-1441 pmcd pmlogger logutil local not_in_ci
+1441 pmcd pmlogger logutil pmie pmieutil local not_in_ci
 1442 pmlogrewrite local
-1443 pmcd pmie pmieutil not_in_ci local
 1444 pmda.bpf local
 1452 pmda.bpf local
 1455 pmlogrewrite labels pmdumplog local

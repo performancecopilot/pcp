@@ -1,6 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1441
 # primary pmlogger successfully follows hostname changes
+# and
+# primary pmie successfully follows hostname changes
 #
 # Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
 #
@@ -68,6 +70,71 @@ _wait_for_new_pmlogger()
     fi
 }
 
+# wait until the primary pmie's pid is != $1
+#
+# In pmie's config.default, the most frequent rule evaluation is once
+# every 2 mins (sigh) ... pmie only sees PMCD_HOSTNAME_CHANGE from the
+# pmFetch(), so it could be up to 120 seconds before the old pmie notices
+# it has to exit, then systemd needs time to notice and restart pmie
+#
+_wait_for_new_pmie()
+{
+    max_delay=122
+    i=0
+    while [ $i -lt $max_delay ]
+    do
+	pid=`cat $PCP_RUN_DIR/pmie.pid 2>/dev/null`
+	[ -n "$pid" -a "$pid" != "$1" ] && break
+	sleep 1
+	i=`expr $i + 1`
+    done
+    if [ -n "$pid" -a "$pid" != "$1" ]
+    then
+	: OK
+    else
+	echo "Arrgh: failed to see new pmie after $max_delay seconds"
+	ls -l $PCP_RUN_DIR/pmie.pid
+	ls -l $PCP_TMP_DIR/pmie
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|pmie'
+	status=1
+    fi
+}
+
+# need primary pmlogger running
+#
+if [ -f $PCP_RUN_DIR/pmlogger.pid ]
+then
+    oldlogger=`cat $PCP_RUN_DIR/pmlogger.pid`
+    echo "old pmlogger pid: $oldlogger" >>$seq.full
+else
+    _notrun "$PCP_RUN_DIR/pmlogger.pid not found for old primary pmlogger"
+    # NOTREACHED
+fi
+
+# need primary pmie running
+#
+pminfo -f pmcd.pmie.pmcd_host >$tmp.pminfo
+if grep "0 or \"primary\"" <$tmp.pminfo >/dev/null
+then
+    :
+else
+    cat $tmp.pminfo >>$seq.full
+    _notrun "primary pmie not running"
+    # NOTREACHED
+fi
+
+if [ -f $PCP_RUN_DIR/pmie.pid ]
+then
+    oldpmie=`cat $PCP_RUN_DIR/pmie.pid`
+    echo "old pmie pid: $oldpmie" >>$seq.full
+else
+    _notrun "$PCP_RUN_DIR/pmie.pid not found for old primary pmie"
+    # NOTREACHED
+fi
+
+newlogger=0
+newpmie=0
+
 _cleanup()
 {
     cd $here
@@ -75,7 +142,8 @@ _cleanup()
     if [ "`hostname`" != "$oldhostname" ]
     then
 	$sudo hostname "$oldhostname" 2>>$seq.full
-	_wait_for_new_pmlogger "$newpid"
+	_wait_for_new_pmlogger "$newlogger"
+	_wait_for_new_pmie "$newpmie"
     fi
 }
 
@@ -83,20 +151,13 @@ status=0	# success is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-if [ -f $PCP_RUN_DIR/pmlogger.pid ]
-then
-    oldpid=`cat $PCP_RUN_DIR/pmlogger.pid`
-    echo "old pid: $oldpid" >>$seq.full
-else
-    _notrun "$PCP_RUN_DIR/pmlogger.pid not found for old primary pmlogger"
-    # NOTREACHED
-fi
-
 _filter()
 {
     sed \
 	-e "s@$tmp@TMP@g" \
 	-e "s@$PCP_ARCHIVE_DIR@PCP_ARCHIVE_DIR@" \
+	-e "s@$PCP_LOG_DIR@PCP_LOG_DIR@" \
+	-e "s@$PCP_VAR_DIR@PCP_VAR_DIR@" \
 	-e "s/$oldhostname/OLDHOSTNAME/g" \
 	-e "s/$newhostname/NEWHOSTNAME/g" \
 	-e "s@/[0-9][0-9.-]*@/DATESTAMP@" \
@@ -104,6 +165,7 @@ _filter()
 }
 
 # real QA test starts here
+echo "old pmlogger ..."
 if [ ! -f $PCP_TMP_DIR/pmlogger/primary ]
 then
     echo "Arrgh: no tracking file in $PCP_TMP_DIR for primary pmlogger"
@@ -118,10 +180,24 @@ _filter <$PCP_TMP_DIR/pmlogger/primary \
     # end
 
 echo
+echo "old pmie ..."
+if [ ! -f $PCP_TMP_DIR/pmie/$oldpmie ]
+then
+    echo "Arrgh: no tracking file in $PCP_TMP_DIR for old primary pmie"
+    ls -l $PCP_TMP_DIR/pmie
+    status=1
+    exit
+fi
+$PCP_BINADM_DIR/pmiestatus $PCP_TMP_DIR/pmie/$oldpmie \
+| _filter
+
+echo
 echo "Change hostname ..."
 $sudo hostname "$newhostname" 2>>$seq.full
-_wait_for_new_pmlogger "$oldpid"
+_wait_for_new_pmlogger "$oldlogger"
 
+echo
+echo "new pmlogger ..."
 if [ ! -f $PCP_TMP_DIR/pmlogger/primary ]
 then
     echo "Arrgh: no tracking file in $PCP_TMP_DIR for primary pmlogger"
@@ -133,13 +209,37 @@ _filter <$PCP_TMP_DIR/pmlogger/primary
 
 if [ -f $PCP_RUN_DIR/pmlogger.pid ]
 then
-    newpid=`cat $PCP_RUN_DIR/pmlogger.pid`
-    echo "new pid: $newpid" >>$seq.full
+    newlogger=`cat $PCP_RUN_DIR/pmlogger.pid`
+    echo "new pmlogger pid: $newlogger" >>$seq.full
 else
     echo "$PCP_RUN_DIR/pmlogger.pid not found for new primary pmlogger"
     status=1
     exit
 fi
+
+echo
+echo "new pmie ..."
+_wait_for_new_pmie "$oldpmie"
+
+if [ -f $PCP_RUN_DIR/pmie.pid ]
+then
+    newpmie=`cat $PCP_RUN_DIR/pmie.pid`
+    echo "new pmie pid: $newpmie" >>$seq.full
+else
+    echo "$PCP_RUN_DIR/pmie.pid not found for new primary pmie"
+    status=1
+    exit
+fi
+
+if [ ! -f $PCP_TMP_DIR/pmie/$newpmie ]
+then
+    echo "Arrgh: no tracking file in $PCP_TMP_DIR for new primary pmie"
+    ls -l $PCP_TMP_DIR/pmie
+    status=1
+    exit
+fi
+$PCP_BINADM_DIR/pmiestatus $PCP_TMP_DIR/pmie/$newpmie \
+| _filter
 
 # success, all done
 exit
