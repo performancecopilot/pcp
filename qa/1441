@@ -49,6 +49,8 @@ which systemctl >/dev/null 2>&1 || _notrun "no systemd"
 #
 _wait_for_new_pmlogger()
 {
+    echo "_wait_for_new_pmlogger previous PID $1 ..." >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mlogger' >>$seq.full
     max_delay=12
     i=0
     while [ $i -lt $max_delay ]
@@ -60,12 +62,13 @@ _wait_for_new_pmlogger()
     done
     if [ -n "$pid" -a "$pid" != "$1" ]
     then
-	: OK
+	echo "found PID $pid ..." >>$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mlogger' >>$seq.full
     else
 	echo "Arrgh: failed to see new pmlogger after $max_delay seconds"
 	ls -l $PCP_RUN_DIR/pmlogger.pid
 	ls -l $PCP_TMP_DIR/pmlogger
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|pmlogger'
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mlogger'
 	status=1
     fi
 }
@@ -75,11 +78,15 @@ _wait_for_new_pmlogger()
 # In pmie's config.default, the most frequent rule evaluation is once
 # every 2 mins (sigh) ... pmie only sees PMCD_HOSTNAME_CHANGE from the
 # pmFetch(), so it could be up to 120 seconds before the old pmie notices
-# it has to exit, then systemd needs time to notice and restart pmie
+# it has to exit, then systemd needs time to notice and restart pmie, but
+# in addition, pmie's scheduler is sometimes a bit slow so add another
+# 5 secs for that
 #
 _wait_for_new_pmie()
 {
-    max_delay=122
+    echo "_wait_for_new_pmie previous PID $1" >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mie' >>$seq.full
+    max_delay=127
     i=0
     while [ $i -lt $max_delay ]
     do
@@ -90,12 +97,13 @@ _wait_for_new_pmie()
     done
     if [ -n "$pid" -a "$pid" != "$1" ]
     then
-	: OK
+	echo "found PID $pid ..." >>$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mie' >>$seq.full
     else
 	echo "Arrgh: failed to see new pmie after $max_delay seconds"
 	ls -l $PCP_RUN_DIR/pmie.pid
 	ls -l $PCP_TMP_DIR/pmie
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|pmie'
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mie'
 	status=1
     fi
 }
@@ -210,7 +218,7 @@ _filter <$PCP_TMP_DIR/pmlogger/primary
 if [ -f $PCP_RUN_DIR/pmlogger.pid ]
 then
     newlogger=`cat $PCP_RUN_DIR/pmlogger.pid`
-    echo "new pmlogger pid: $newlogger" >>$seq.full
+    echo "new pmlogger PID $newlogger" >>$seq.full
 else
     echo "$PCP_RUN_DIR/pmlogger.pid not found for new primary pmlogger"
     status=1
@@ -224,7 +232,7 @@ _wait_for_new_pmie "$oldpmie"
 if [ -f $PCP_RUN_DIR/pmie.pid ]
 then
     newpmie=`cat $PCP_RUN_DIR/pmie.pid`
-    echo "new pmie pid: $newpmie" >>$seq.full
+    echo "new pmie PID $newpmie" >>$seq.full
 else
     echo "$PCP_RUN_DIR/pmie.pid not found for new primary pmie"
     status=1
