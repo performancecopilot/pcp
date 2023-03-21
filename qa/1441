@@ -52,6 +52,7 @@ _wait_for_new_pmlogger()
     echo "_wait_for_new_pmlogger previous PID $1 ..." >>$seq.full
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mlogger' >>$seq.full
     max_delay=12
+    max_delay=24
     i=0
     while [ $i -lt $max_delay ]
     do
@@ -65,6 +66,7 @@ _wait_for_new_pmlogger()
 	echo "found PID $pid ..." >>$seq.full
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mlogger' >>$seq.full
     else
+	echo "Failed!" >>$seq.full
 	echo "Arrgh: failed to see new pmlogger after $max_delay seconds"
 	ls -l $PCP_RUN_DIR/pmlogger.pid
 	ls -l $PCP_TMP_DIR/pmlogger
@@ -80,13 +82,14 @@ _wait_for_new_pmlogger()
 # pmFetch(), so it could be up to 120 seconds before the old pmie notices
 # it has to exit, then systemd needs time to notice and restart pmie, but
 # in addition, pmie's scheduler is sometimes a bit slow so add another
-# 5 secs for that
+# 10 secs for all of that
 #
 _wait_for_new_pmie()
 {
     echo "_wait_for_new_pmie previous PID $1" >>$seq.full
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mie' >>$seq.full
-    max_delay=127
+    max_delay=130
+    max_delay=260
     i=0
     while [ $i -lt $max_delay ]
     do
@@ -100,6 +103,7 @@ _wait_for_new_pmie()
 	echo "found PID $pid ..." >>$seq.full
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mie' >>$seq.full
     else
+	echo "Failed!" >>$seq.full
 	echo "Arrgh: failed to see new pmie after $max_delay seconds"
 	ls -l $PCP_RUN_DIR/pmie.pid
 	ls -l $PCP_TMP_DIR/pmie
@@ -218,7 +222,7 @@ _filter <$PCP_TMP_DIR/pmlogger/primary
 if [ -f $PCP_RUN_DIR/pmlogger.pid ]
 then
     newlogger=`cat $PCP_RUN_DIR/pmlogger.pid`
-    echo "new pmlogger PID $newlogger" >>$seq.full
+    echo "current pmlogger PID $newlogger" >>$seq.full
 else
     echo "$PCP_RUN_DIR/pmlogger.pid not found for new primary pmlogger"
     status=1
@@ -232,7 +236,7 @@ _wait_for_new_pmie "$oldpmie"
 if [ -f $PCP_RUN_DIR/pmie.pid ]
 then
     newpmie=`cat $PCP_RUN_DIR/pmie.pid`
-    echo "new pmie PID $newpmie" >>$seq.full
+    echo "current pmie PID $newpmie" >>$seq.full
 else
     echo "$PCP_RUN_DIR/pmie.pid not found for new primary pmie"
     status=1
