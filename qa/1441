@@ -50,7 +50,7 @@ which systemctl >/dev/null 2>&1 || _notrun "no systemd"
 _wait_for_new_pmlogger()
 {
     echo "_wait_for_new_pmlogger previous PID $1 ..." >>$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mlogger' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger' >>$seq.full
     max_delay=12
     max_delay=24
     i=0
@@ -63,14 +63,14 @@ _wait_for_new_pmlogger()
     done
     if [ -n "$pid" -a "$pid" != "$1" ]
     then
-	echo "found PID $pid ..." >>$seq.full
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mlogger' >>$seq.full
+	echo "found PID $pid (after ${i}s) ..." >>$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger' >>$seq.full
     else
 	echo "Failed!" >>$seq.full
 	echo "Arrgh: failed to see new pmlogger after $max_delay seconds"
 	ls -l $PCP_RUN_DIR/pmlogger.pid
 	ls -l $PCP_TMP_DIR/pmlogger
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mlogger'
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger'
 	status=1
     fi
 }
@@ -87,7 +87,7 @@ _wait_for_new_pmlogger()
 _wait_for_new_pmie()
 {
     echo "_wait_for_new_pmie previous PID $1" >>$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mie' >>$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie' >>$seq.full
     max_delay=130
     max_delay=260
     i=0
@@ -100,14 +100,14 @@ _wait_for_new_pmie()
     done
     if [ -n "$pid" -a "$pid" != "$1" ]
     then
-	echo "found PID $pid ..." >>$seq.full
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mie' >>$seq.full
+	echo "found PID $pid (after ${i}s) ..." >>$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie' >>$seq.full
     else
 	echo "Failed!" >>$seq.full
 	echo "Arrgh: failed to see new pmie after $max_delay seconds"
 	ls -l $PCP_RUN_DIR/pmie.pid
 	ls -l $PCP_TMP_DIR/pmie
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|[p]mie'
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie'
 	status=1
     fi
 }
