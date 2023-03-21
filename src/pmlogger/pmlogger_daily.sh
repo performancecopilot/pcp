@@ -335,7 +335,7 @@ Options:
   -V,--verbose            verbose output (multiple times for very verbose)
   -x=TIME,--compress-after=TIME  compress archive data files after TIME (format DD[:HH[:MM]])
   -X=PROGRAM,--compressor=PROGRAM  use PROGRAM for archive data file compression
-  -Y=REGEX,--regex=REGEX  grep -E filter when compressing files ["$COMPRESSREGEX_DEFAULT"]
+  -Y=REGEX,--regex=REGEX  grep -E filter for files to NOT compress ["$COMPRESSREGEX_DEFAULT"]
   -Z                      QA mode, force pmlogger re-exec
   -z                      QA mode, do not re-exec pmlogger
   --help
