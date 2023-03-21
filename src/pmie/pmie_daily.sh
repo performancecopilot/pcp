@@ -239,6 +239,8 @@ then
     exit
 fi
 
+# use yesterday's datestamp
+#
 SUMMARY_LOGNAME=`pmdate -1d %Y%m%d`
 
 _error()
@@ -523,15 +525,20 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	    # now move current logfile name aside and SIGHUP to "roll the logs"
 	    # creating a new logfile with the old name in the process.
 	    #
-	    $SHOWME && echo "+ mv $logfile ${logfile}.{SUMMARY_LOGNAME}"
-	    if mv $logfile ${logfile}.${SUMMARY_LOGNAME}
+	    if $SHOWME
 	    then
-		$VERY_VERBOSE && echo "+ $KILL -s HUP $pid"
-		eval $KILL -s HUP $pid
-		echo ${logfile}.${SUMMARY_LOGNAME} >> $tmp/mail
+		echo "+ cat $logfile >>$logfile.$SUMMARY_LOGNAME"
 	    else
-		_error "problems moving logfile \"$logfile\" for host \"$host\""
-		touch $tmp/err
+		echo "---- from $prog @ `date` ----" >>$logfile.$SUMMARY_LOGNAME
+		if cat $logfile >>$logfile.$SUMMARY_LOGNAME
+		then
+		    $VERY_VERBOSE && echo "+ $KILL -s HUP $pid"
+		    eval $KILL -s HUP $pid
+		    echo $logfile.$SUMMARY_LOGNAME >> $tmp/mail
+		else
+		    _error "problems moving logfile \"$logfile\" for host \"$host\""
+		    touch $tmp/err
+		fi
 	    fi
 	fi
 

@@ -832,22 +832,34 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 		fi
 	    fi
 
-	    [ -f "$logfile" ] && eval $MV -f "$logfile" "$logfile.prior"
+	    if [ -f "$logfile" ]
+	    then
+		# use today's datestamp
+		#
+		SUMMARY_LOGNAME=`pmdate %Y%m%d`
+		if $SHOWME
+		then
+		    echo "+ cat $logfile >>$logfile.$SUMMARY_LOGNAME"
+		else
+		    echo "---- from $prog @ `date` ---" >>$logfile.$SUMMARY_LOGNAME
+		    cat $logfile >>$logfile.$SUMMARY_LOGNAME
+		fi
+	    fi
 
 	    if $SHOWME
 	    then
 		$VERBOSE && echo
-		echo "+ ${sock_me}$PMIE -b $args"
+		echo "+ $sock_me$PMIE -b $args"
 		_unlock
 		continue
 	    else
 		# since this is launched as a daemon, any output should
 		# go on pmie's stderr, i.e. $logfile ... use -b for this
 		#
-		$VERY_VERBOSE && ( echo; $PCP_ECHO_PROG $PCP_ECHO_N "+ ${sock_me}$PMIE -b $args""$PCP_ECHO_C"; echo "..." )
+		$VERY_VERBOSE && ( echo; $PCP_ECHO_PROG $PCP_ECHO_N "+ $sock_me$PMIE -b $args""$PCP_ECHO_C"; echo "..." )
 		$PCP_BINADM_DIR/pmpost "start pmie from $prog for host $host"
 		err=`mktemp "$tmp/pmie.errXXXXXXXXX"`
-		pid=`${sock_me} $PMIE -b $args >$err 2>&1 & echo $!`
+		pid=`$sock_me $PMIE -b $args >$err 2>&1 & echo $!`
 	    fi
 
 	    # wait for pmie to get started, and check on its health
