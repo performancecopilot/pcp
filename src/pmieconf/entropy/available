@@ -8,7 +8,7 @@ rule	entropy.available
 	predicate =
 "some_host (
 	( 100 * kernel.all.entropy.avail $hosts$ /
-          kernel.all.entropy.poolsize $hosts$ ) >= 0 &&
+          kernel.all.entropy.poolsize $hosts$ ) <= $minimum$ &&
 	( kernel.all.entropy.avail <= $threshold$ )
 )"
 	enabled	= yes
@@ -29,6 +29,13 @@ unsigned	threshold
 	help	=
 "The threshold of entropy remaining available from the pool, in
 the range zero (none) to kernel.all.entropy.poolsize (plenty).";
+
+percent	minimum
+	default	= 5
+	help	=
+"Minimum percentage of available space below which the entropy
+pool is considered depleted.  Range 0 (no available entropy) to
+100 (entire entropy pool is available).";
 
 string	delta
 	default = "2 min"
