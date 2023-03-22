@@ -451,6 +451,13 @@ sighupproc(int sig)
 }
 
 static void
+sigusr1(int sig)
+{
+    __pmSetSignalHandler(SIGUSR1, sigusr1);
+    dotaskdump = 1;
+}
+
+static void
 sigbadproc(int sig)
 {
     if (pmDebugOptions.desperate) {
@@ -709,6 +716,11 @@ getargs(int argc, char *argv[])
     } else {
 	__pmSetSignalHandler(SIGHUP, SIG_IGN);
     }
+
+    /*
+     * always catch SIGUSR1
+     */
+    __pmSetSignalHandler(SIGUSR1, sigusr1);
 
     /*
      * -b ... force line buffering and stdout onto stderr

@@ -414,6 +414,7 @@ extern int         applet;	/* applet mode? */
 extern int	   dowrap;	/* counter wrap? default no */
 extern int	   doexit;	/* signalled its time to exit */
 extern int	   dorotate;	/* log rotation was requested */
+extern int	   dotaskdump;	/* task dump requested */
 extern int	   inrun;	/* parsing done, in run() */
 extern pmiestats_t *perf;	/* pmie performance data ptr */
 extern pmiestats_t instrument;	/* pmie performance data struct */

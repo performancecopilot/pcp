@@ -70,6 +70,7 @@ int		applet;				/* applet mode? */
 int		dowrap;				/* counter wrap? default no */
 int		doexit;				/* time to exit stage left? */
 int		dorotate;			/* is a log rotation pending? */
+int		dotaskdump;			/* pending dump for current task from SIGUSR1 */
 int		inrun;				/* parsing done, in run() */
 pmiestats_t	*perf;				/* live performance data */
 pmiestats_t	instrument;			/* used if no mmap (archive) */
@@ -255,6 +256,7 @@ sleepTight(Task *t)
 	else {
 	    unrealizenano(delay, &ts);
 	    for (;;) {	/* loop to catch early wakeup from nanosleep */
+		int	lsts;
 		if (ts.tv_sec < 0 ||
 		    ts.tv_nsec < 0 || ts.tv_nsec > 999999999) {
 		    fprintf(stderr, "Botch: sleepTight: invalid args: delay=%f -> ts={%ld,%ld}\n",
@@ -262,7 +264,10 @@ sleepTight(Task *t)
 		    dumpTask(t);
 		    break;
 		}
-		sts = nanosleep(&ts, &tleft);
+		if ((sts = nanosleep(&ts, &tleft)) < 0) {
+		    /* grab error for later testing */
+		    lsts = oserror();
+		}
 		/* deferred signal handling done immediately */
 		if (doexit)
 		    exit(doexit == 15 ? 0 : doexit);
@@ -270,10 +275,16 @@ sleepTight(Task *t)
 		    logRotate();
 		    dorotate = 0;
 		}
+		if (dotaskdump) {
+		    fprintf(stderr, "Pending task: sleeping %ld.%06ld, remaining %ld.%06ld ...\n",
+			(long)ts.tv_sec, (long)ts.tv_nsec/1000,
+			(long)tleft.tv_sec, (long)tleft.tv_nsec/1000);
+		    dumpTask(t);
+		    dotaskdump = 0;
+		}
 		if (sts == 0)
 		    break;
 		else if (sts < 0) {
-		    int	lsts = oserror();
 		    /*
 		     * error from nanosleep() .. be a bit anal here
 		     * because getting it wrong may lead to an infinite

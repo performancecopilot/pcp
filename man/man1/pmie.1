@@ -1253,6 +1253,26 @@ In this situation, where the STOMP connection to the JMS server
 has been severed, the
 .I stomp
 action will return a non-zero error value.
+.SH SIGNALS
+If
+.B pmie
+is sent a SIGHUP signal, the
+.I logfile
+will be closed, unlinked and re-opened.  This is used by
+.BR pmie_daily (1)
+to achieve nightly log rotation.
+.PP
+Most of the time
+.B pmie
+is sleeping, waiting until the next set of
+rules needs to be evaluated.
+Sending
+.B pmie
+a SIGUSR1 signal will cause the details for the next set of rules
+to be dumped on
+.IR logfile ,
+including how long the current sleep is and how much time remains.
+The scheduling of rules is not changed by this action.
 .SH HOSTNAME CHANGES
 The hostname of the PMCD that is providing metrics to
 .B pmie
@@ -1375,6 +1395,7 @@ a cross-platform dialog box.
 .BR pmdumplog (1),
 .BR pmieconf (1),
 .BR pmie_check (1),
+.BR pmie_daily (1),
 .BR pminfo (1),
 .BR pmlogger (1),
 .BR pmval (1),
