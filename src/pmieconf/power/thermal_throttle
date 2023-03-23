@@ -22,7 +22,7 @@ string	rule
 	modify	= no
 	display	= no;
 
-unsigned	threshold
+percent	threshold
 	default	= 50
 	help	=
 "Threshold percentage for time a CPU spent under the effects of
