@@ -84,6 +84,7 @@ static int	need_labels;	/* set if need to lookup labels */
 static int	need_pmid;	/* set if need to lookup names */
 static char	**namelist;
 static pmID	*pmidlist;
+static pmDesc	*desclist;
 static int	contextid;
 static int	batchsize = 128;
 static int	pdusize;	/* guess at size of PDU_PMNS_NAMES PDU */
@@ -826,7 +827,6 @@ report(void)
 {
     int		i;
     int		sts;
-    pmDesc	desc;
     pmResult	*result = NULL;
     pmResult	*xresult = NULL;
     pmValueSet	*vsp = NULL;
@@ -874,14 +874,14 @@ report(void)
 	}
     }
 
-    for (i = 0; i < batchidx; i++) {
-
-	if (p_desc || p_value || p_label || p_series || verify) {
-	    if ((sts = pmLookupDesc(pmidlist[i], &desc)) < 0) {
-		printf("%s: pmLookupDesc: %s\n", namelist[i], pmErrStr(sts));
-		continue;
-	    }
+    if (p_desc || p_value || p_label || p_series || verify) {
+	if ((sts = pmLookupDescs(batchidx, pmidlist, desclist)) < 0) {
+	    printf("%s...%s: pmLookupDescs: %s\n", namelist[0], namelist[batchidx-1], pmErrStr(sts));
+	    goto done;
 	}
+    }
+
+    for (i = 0; i < batchidx; i++) {
 
 	if (p_desc || p_help || p_value || p_label)
 	    /* Not doing verify, output separator  */
@@ -893,9 +893,9 @@ report(void)
 	    if (p_force) {
 		if (result->vset[i]->numval == PM_ERR_PROFILE) {
 		    /* indom is non-enumerable; try harder */
-		    if ((all_count = pmGetInDom(desc.indom, &all_inst, &all_names)) > 0) {
-			pmDelProfile(desc.indom, 0, NULL);
-			pmAddProfile(desc.indom, all_count, all_inst);
+		    if ((all_count = pmGetInDom(desclist[i].indom, &all_inst, &all_names)) > 0) {
+			pmDelProfile(desclist[i].indom, 0, NULL);
+			pmAddProfile(desclist[i].indom, all_count, all_inst);
 			if (xresult != NULL) {
 			    pmFreeResult(xresult);
 			    xresult = NULL;
@@ -914,8 +914,8 @@ report(void)
 			}
 			vsp = xresult->vset[0];
 			/* leave the profile in the default state */
-			pmDelProfile(desc.indom, 0, NULL);
-			pmAddProfile(desc.indom, 0, NULL);
+			pmDelProfile(desclist[i].indom, 0, NULL);
+			pmAddProfile(desclist[i].indom, 0, NULL);
 		    }
 		    else if (all_count == 0) {
 			printf("%s: pmGetIndom: No instances?\n", namelist[i]);
@@ -930,7 +930,7 @@ report(void)
 	}
 
 	if (verify) {
-	    if (desc.type == PM_TYPE_NOSUPPORT)
+	    if (desclist[i].type == PM_TYPE_NOSUPPORT)
 		printf("%s: Not Supported\n", namelist[i]);
 	    else if (vsp->numval < 0)
 		printf("%s: %s\n", namelist[i], pmErrStr(vsp->numval));
@@ -949,19 +949,19 @@ report(void)
 	    myoneline(pmidlist[i], PM_TEXT_PMID);
 	putchar('\n');
 	if (p_desc)
-	    mydesc(&desc);
+	    mydesc(&desclist[i]);
 	if (p_series)
-	    mymetricseries(namelist[i], &desc);
+	    mymetricseries(namelist[i], &desclist[i]);
 	if (p_label)
-	    mymetriclabels(&desc);
+	    mymetriclabels(&desclist[i]);
 	if (p_help)
 	    myhelptext(pmidlist[i], PM_TEXT_PMID);
 	if (p_value)
-	    mydump(&desc, vsp, NULL);
+	    mydump(&desclist[i], vsp, NULL);
 	if (p_series)
-	    myinstanceseries(desc.indom);
+	    myinstanceseries(desclist[i].indom);
 	if (p_label)
-	    myinstancelabels(desc.indom, &desc);
+	    myinstancelabels(desclist[i].indom, &desclist[i]);
     }
 
     if (result != NULL) {
@@ -1210,6 +1210,11 @@ main(int argc, char **argv)
 
     if ((pmidlist = (pmID *)malloc(batchsize * sizeof(pmID))) == NULL) {
 	fprintf(stderr, "%s: pmidlist malloc: %s\n", pmGetProgname(), osstrerror());
+	exit(1);
+    }
+
+    if ((desclist = (pmDesc *)malloc(batchsize * sizeof(pmDesc))) == NULL) {
+	fprintf(stderr, "%s: desclist malloc: %s\n", pmGetProgname(), osstrerror());
 	exit(1);
     }
 
