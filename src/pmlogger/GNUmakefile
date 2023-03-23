@@ -18,7 +18,8 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = src
 OTHERS	= pmnewlog.sh control rc_pmlogger \
-	  pmlogger_daily.sh pmlogger_check.sh pmlogger_merge.sh \
+	  pmlogger_daily.sh pmlogger_check.sh \
+	  pmlogger_janitor.sh pmlogger_merge.sh \
 	  pmlogger_daily_report.sh pmlogger_rewrite.sh \
 	  pmlogger_farm.sh pmlogger_farm_check.service \
 	  pmlogger_farm_check.timer pmlogger_farm_check.service
@@ -58,6 +59,7 @@ endif
 	$(INSTALL) -m 755 pmnewlog.sh $(PCP_BINADM_DIR)/pmnewlog$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmlogger_daily.sh $(PCP_BINADM_DIR)/pmlogger_daily$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmlogger_check.sh $(PCP_BINADM_DIR)/pmlogger_check$(SHELLSUFFIX)
+	$(INSTALL) -m 755 pmlogger_janitor.sh $(PCP_BINADM_DIR)/pmlogger_janitor$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmlogger_farm.sh $(PCP_BINADM_DIR)/pmlogger_farm$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmlogger_merge.sh $(PCP_BINADM_DIR)/pmlogger_merge$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmlogger_rewrite.sh $(PCP_BINADM_DIR)/pmlogger_rewrite$(SHELLSUFFIX)

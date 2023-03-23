@@ -1176,6 +1176,16 @@ fi
 # See RHBZ#1721223.
 [ -f "$PCP_LOG_DIR/pmlogger/pmlogger_daily.stamp" ] && _compress_now
 
+# Run the janitor script to clean up any badness ... but only
+# do this if we're using the system-installed control files (not
+# something else via -c on the command line).
+#
+# QA uses -c and we don't want the janitor to be run in that case,
+# because the legitimate pmloggers, like the primary pmlogger, may
+# not be included in the "test" control file(s).
+#
+[ "$CONTROL" = "$PCP_PMLOGGERCONTROL_PATH" ] && $PCP_BINADM_DIR/pmlogger_janitor $daily_args
+
 [ -f $tmp/err ] && status=1
 
 # optional end logging to $PCP_LOG_DIR/NOTICES
