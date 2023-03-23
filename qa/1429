@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 1426
+# PCP QA Test No. 1429
 # pmlogger_daily for new callbacks and autosave features
 # (loosely based on 530 and 338 and especially 532)
 #
