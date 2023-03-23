@@ -956,6 +956,7 @@ int
 reconnect(Host *h)
 {
     Fetch	*f;
+    const char	*host_name;
 
     f = h->fetches;
     while (f) {
@@ -964,6 +965,19 @@ reconnect(Host *h)
 	if (clientid != NULL)
 	    /* re-register client id with pmcd */
 	    __pmSetClientId(clientid);
+	/*
+	 * If pmcd's hostname changed between the last time we were
+	 * talking to pmcd and now, then we may need to exit ... see
+	 * explanation in taskFetch() below.
+	 */
+        host_name = pmGetContextHostName(f->handle);
+	if (strcmp(symName(f->host->name), host_name) != 0) {
+	    pmNotifyErr(LOG_INFO, "PMCD hostname changed from %s to %s after pmReconnectContext", symName(f->host->name), host_name);
+	    if (runfromcontrol) {
+		run_done = 1;
+		return 0;
+	    }
+	}
 	f = f->next;
     }
     return 1;
@@ -1066,7 +1080,8 @@ taskFetch(Task *t)
 		     *   correctly re-translated into a different pathname
 		     *   (usually the directory for the log file)
 		     */
-		    pmNotifyErr(LOG_INFO, "PMCD hostname changed");
+		    const char	*host_name = pmGetContextHostName(f->handle);
+		    pmNotifyErr(LOG_INFO, "PMCD hostname changed from %s to %s during pmFetch", symName(f->host->name), host_name);
 		    if (runfromcontrol) {
 			run_done = 1;
 			return;

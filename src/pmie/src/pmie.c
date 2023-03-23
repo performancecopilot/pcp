@@ -454,7 +454,7 @@ static void
 sigusr1(int sig)
 {
     __pmSetSignalHandler(SIGUSR1, sigusr1);
-    fprintf(stderr, "\nCaught SIGUSR1\n");
+    pmNotifyErr(LOG_INFO, "%s caught SIGUSR1", pmGetProgname());
     dotaskdump = 1;
 }
 
