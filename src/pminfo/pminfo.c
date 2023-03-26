@@ -875,9 +875,17 @@ report(void)
     }
 
     if (p_desc || p_value || p_label || p_series || verify) {
-	if ((sts = pmLookupDescs(batchidx, pmidlist, desclist)) < 0) {
-	    printf("%s...%s: pmLookupDescs: %s\n", namelist[0], namelist[batchidx-1], pmErrStr(sts));
-	    goto done;
+	if (batchidx > 1) {
+	    if ((sts = pmLookupDescs(batchidx, pmidlist, desclist)) < 0) {
+		printf("%s...%s: pmLookupDescs: %s\n", namelist[0], namelist[batchidx-1], pmErrStr(sts));
+		goto done;
+	    }
+	}
+	else {
+	    if ((sts = pmLookupDesc(pmidlist[0], &desclist[0])) < 0) {
+		printf("%s: pmLookupDesc: %s\n", namelist[0], pmErrStr(sts));
+		goto done;
+	    }
 	}
     }
 
