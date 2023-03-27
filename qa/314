@@ -118,10 +118,11 @@ $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmie_check -c $tmp.control -s -
 $sudo cat $tmp.log >>$seq.full
 ps $PCP_PS_ALL_FLAGS | grep '[p]mie' >>$seq.full
 
+ls -l /tmp/$seq >>$seq.full
 grep rotated /tmp/$seq/1.good.log >/dev/null \
 	|| echo "First log not rotated?"
-grep rotated /tmp/$seq/1.good.log.$previous >/dev/null \
-	|| echo "New log not started?"
+grep started /tmp/$seq/1.good.log.$previous >/dev/null \
+	|| echo "Previous log not started?"
 
 # look for data in each log file, checking rotation actually did something
 oldlines=`wc -l < /tmp/$seq/1.good.log.$previous 2>/dev/null || echo 0`
