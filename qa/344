@@ -87,10 +87,10 @@ _filter()
 # -e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;g" \
 
 # real QA test starts here
-pminfo -fL -n $tmp.pmns -K clear -K add,400,$PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX,sample_init qa.colour
+pminfo -b 1 -fL -n $tmp.pmns -K clear -K add,400,$PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX,sample_init qa.colour
 
 echo
-pminfo -fL -n $tmp.pmns -K clear -K add,400,$PCP_VAR_DIR/pmdas/sample/pmda_sample,sample_init qa.pid >$tmp.out &
+pminfo -b 1 -fL -n $tmp.pmns -K clear -K add,400,$PCP_VAR_DIR/pmdas/sample/pmda_sample,sample_init qa.pid >$tmp.out &
 expect=$!
 wait
 got=`sed -n -e '/value/s/.*value //p' $tmp.out`
@@ -104,14 +104,14 @@ fi
 
 echo
 echo "=== expect no sample metrics ==="
-pminfo -fmL -n $tmp.pmns -K clear -K add,400,sample/pmda_sample.$DSO_SUFFIX,sample_init qa.colour sample.colour
+pminfo -b 1 -fmL -n $tmp.pmns -K clear -K add,400,sample/pmda_sample.$DSO_SUFFIX,sample_init qa.colour sample.colour
 
 echo
 echo "=== sample metrics this time ==="
 # need to copy DSO so running sample_init() only once per DSO
 cp $PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX $tmp.$DSO_SUFFIX
 export PMDA_LOCAL_SAMPLE=yes
-$sudo pminfo -fmL -n $tmp.pmns -K add,400,$tmp.$DSO_SUFFIX,sample_init qa.colour sample.colour
+$sudo pminfo -b 1 -fmL -n $tmp.pmns -K add,400,$tmp.$DSO_SUFFIX,sample_init qa.colour sample.colour
 
 echo
 echo "=== -K spec parsing in pminfo ==="
@@ -127,14 +127,14 @@ for spec in \
 	    del,, del,,, del,,,sample_init
 do
     echo "+++ -K $spec +++" | _filter
-    $sudo pminfo -Dcontext -fmL -n $tmp.pmns -K $spec \
+    $sudo pminfo -b 1 -Dcontext -fmL -n $tmp.pmns -K $spec \
 	sample.string.write_me qa.string.write_me 2>&1 \
     | _filter
 done
 
 echo
 echo "=== some __pmLocalPMDA() exercises ==="
-pminfo -Dcontext -fmL -n $tmp.pmns -K clear \
+pminfo -b 1 -Dcontext -fmL -n $tmp.pmns -K clear \
     -K add,30,$PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX,sample_init \
     -K add,400,$tmp.$DSO_SUFFIX,sample_init \
     -K del,30,0,0 \

@@ -295,7 +295,7 @@ end-of-file
     if _check_agent broken
     then
     	echo "$agent is alive and well...hang on there should be some warnings"
-	pminfo -f broken
+	pminfo -b 1 -f broken
 	exit
     elif [ "$num_warn" -ne 5 ]
     then

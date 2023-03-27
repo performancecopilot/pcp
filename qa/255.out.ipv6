@@ -28,11 +28,11 @@ simple is alive and well
 === Restarting PMCD with minimal PMDAs ===
 5 warnings, 5 metrics and 0 values
 Warnings when fetching simple metrics:
-simple.color: pmLookupDesc: Unknown or illegal metric identifier
-simple.now: pmLookupDesc: Unknown or illegal metric identifier
-simple.numfetch: pmLookupDesc: Unknown or illegal metric identifier
-simple.time.sys: pmLookupDesc: Unknown or illegal metric identifier
-simple.time.user: pmLookupDesc: Unknown or illegal metric identifier
+simple.color: No PMCD agent for domain of request
+simple.now: No PMCD agent for domain of request
+simple.numfetch: No PMCD agent for domain of request
+simple.time.sys: No PMCD agent for domain of request
+simple.time.user: No PMCD agent for domain of request
 simple was removed
 === Installing simple ===
 5 metrics and 9 values
@@ -41,18 +41,18 @@ simple is alive and well
 === Restarting PMCD with minimal PMDAs ===
 5 warnings, 5 metrics and 0 values
 Warnings when fetching simple metrics:
-simple.color: pmLookupDesc: Unknown or illegal metric identifier
-simple.now: pmLookupDesc: Unknown or illegal metric identifier
-simple.numfetch: pmLookupDesc: Unknown or illegal metric identifier
-simple.time.sys: pmLookupDesc: Unknown or illegal metric identifier
-simple.time.user: pmLookupDesc: Unknown or illegal metric identifier
+simple.color: No PMCD agent for domain of request
+simple.now: No PMCD agent for domain of request
+simple.numfetch: No PMCD agent for domain of request
+simple.time.sys: No PMCD agent for domain of request
+simple.time.user: No PMCD agent for domain of request
 simple was removed
 === Installing broken_pmda_2_0 ===
 5 warnings, 14 metrics and 14 values
 Warnings when fetching broken metrics:
-broken.bad.indom: pmLookupDesc: Unknown or illegal metric identifier
+broken.bad.indom: Unknown or illegal metric identifier
 broken.bad.type: Not Supported
-broken.bogus.one: pmLookupDesc: Unknown or illegal metric identifier
+broken.bogus.one: Unknown or illegal metric identifier
 broken.no.fetch: Unknown or illegal metric identifier
 broken.no.instances: No value(s) available
 broken_pmda_2_0 is alive and as well as can be expected
@@ -60,20 +60,20 @@ broken_pmda_2_0 is alive and as well as can be expected
 === Restarting PMCD with minimal PMDAs ===
 14 warnings, 14 metrics and 0 values
 Warnings when fetching broken metrics:
-broken.bad.indom: pmLookupDesc: Unknown or illegal metric identifier
-broken.bad.scale: pmLookupDesc: Unknown or illegal metric identifier
-broken.bad.semantics: pmLookupDesc: Unknown or illegal metric identifier
-broken.bad.type: pmLookupDesc: Unknown or illegal metric identifier
-broken.bogus.one: pmLookupDesc: Unknown or illegal metric identifier
-broken.no.fetch: pmLookupDesc: Unknown or illegal metric identifier
-broken.no.help: pmLookupDesc: Unknown or illegal metric identifier
-broken.no.instances: pmLookupDesc: Unknown or illegal metric identifier
-broken.no.instfetch: pmLookupDesc: Unknown or illegal metric identifier
-broken.no.longhelp: pmLookupDesc: Unknown or illegal metric identifier
-broken.no.shorthelp: pmLookupDesc: Unknown or illegal metric identifier
-broken.valid.one: pmLookupDesc: Unknown or illegal metric identifier
-broken.valid.three: pmLookupDesc: Unknown or illegal metric identifier
-broken.valid.two: pmLookupDesc: Unknown or illegal metric identifier
+broken.bad.indom: No PMCD agent for domain of request
+broken.bad.scale: No PMCD agent for domain of request
+broken.bad.semantics: No PMCD agent for domain of request
+broken.bad.type: No PMCD agent for domain of request
+broken.bogus.one: No PMCD agent for domain of request
+broken.no.fetch: No PMCD agent for domain of request
+broken.no.help: No PMCD agent for domain of request
+broken.no.instances: No PMCD agent for domain of request
+broken.no.instfetch: No PMCD agent for domain of request
+broken.no.longhelp: No PMCD agent for domain of request
+broken.no.shorthelp: No PMCD agent for domain of request
+broken.valid.one: No PMCD agent for domain of request
+broken.valid.three: No PMCD agent for domain of request
+broken.valid.two: No PMCD agent for domain of request
 broken was removed
 
 === Removing broken_pmda ===

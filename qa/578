@@ -337,7 +337,7 @@ _test_pmda()
 
     rm -f $tmp.pminfo
 
-    pminfo -f pmcd.openfds pmcd.client.whoami >$tmp.pminfo
+    pminfo -b 1 -f pmcd.openfds pmcd.client.whoami >$tmp.pminfo
 
     if [ "$pmda_type" != PIPE ]
     then
@@ -346,10 +346,10 @@ _test_pmda()
 	_agent_install simple $simple_domain true
     fi
     
-    pminfo -f pmcd.openfds pmcd.client.whoami >>$tmp.pminfo
+    pminfo -b 1 -f pmcd.openfds pmcd.client.whoami >>$tmp.pminfo
     
     _agent_remove simple
-    pminfo -f pmcd.openfds pmcd.client.whoami >>$tmp.pminfo
+    pminfo -b 1 -f pmcd.openfds pmcd.client.whoami >>$tmp.pminfo
 
     echo "=== pminfo output ===" >>$here/$seq.full
     cat $tmp.pminfo >>$here/$seq.full
@@ -368,13 +368,13 @@ _test_client()
 
     rm -f $tmp.pminfo
 
-    pminfo -f pmcd.openfds pmcd.client.whoami >$tmp.pminfo
+    pminfo -b 1 -f pmcd.openfds pmcd.client.whoami >$tmp.pminfo
 
     _start_client
-    pminfo -f pmcd.openfds pmcd.client.whoami >>$tmp.pminfo
+    pminfo -b 1 -f pmcd.openfds pmcd.client.whoami >>$tmp.pminfo
 
     wait
-    pminfo -f pmcd.openfds pmcd.client.whoami >>$tmp.pminfo
+    pminfo -b 1 -f pmcd.openfds pmcd.client.whoami >>$tmp.pminfo
 
     echo "=== pmval output ===" >>$here/$seq.full
     cat $tmp.tmp >>$here/$seq.full

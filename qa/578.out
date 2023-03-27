@@ -13,11 +13,11 @@ simple is alive and well
 === Removing simple ===
 === Restarting PMCD with minimal PMDAs ===
 Warnings when fetching simple metrics:
-simple.color: pmLookupDesc: Unknown or illegal metric identifier
-simple.now: pmLookupDesc: Unknown or illegal metric identifier
-simple.numfetch: pmLookupDesc: Unknown or illegal metric identifier
-simple.time.sys: pmLookupDesc: Unknown or illegal metric identifier
-simple.time.user: pmLookupDesc: Unknown or illegal metric identifier
+simple.color: No PMCD agent for domain of request
+simple.now: No PMCD agent for domain of request
+simple.numfetch: No PMCD agent for domain of request
+simple.time.sys: No PMCD agent for domain of request
+simple.time.user: No PMCD agent for domain of request
 simple was removed
 === Info: After Install, openfds has increased or stayed about the same as expected ===
 === Info: After Remove, openfds has stayed about the same as expected ===
@@ -28,11 +28,11 @@ simple is alive and well
 === Removing simple ===
 === Restarting PMCD with minimal PMDAs ===
 Warnings when fetching simple metrics:
-simple.color: pmLookupDesc: Unknown or illegal metric identifier
-simple.now: pmLookupDesc: Unknown or illegal metric identifier
-simple.numfetch: pmLookupDesc: Unknown or illegal metric identifier
-simple.time.sys: pmLookupDesc: Unknown or illegal metric identifier
-simple.time.user: pmLookupDesc: Unknown or illegal metric identifier
+simple.color: No PMCD agent for domain of request
+simple.now: No PMCD agent for domain of request
+simple.numfetch: No PMCD agent for domain of request
+simple.time.sys: No PMCD agent for domain of request
+simple.time.user: No PMCD agent for domain of request
 simple was removed
 === Info: After Install, openfds has increased or stayed about the same as expected ===
 === Info: After Remove, openfds has stayed about the same as expected ===

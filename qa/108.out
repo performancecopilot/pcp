@@ -13,7 +13,7 @@ sample.bin
     inst [900 or "bin-900"] value 900
 sample.noinst: No value(s) available
 sample.needprofile: Explicit instance identifier(s) required
-sample.bad.unknown: pmLookupDesc: Unknown or illegal metric identifier
+sample.bad.unknown: Unknown or illegal metric identifier
 sample.bad.nosupport: Not Supported
 sample.bad.novalues: No value(s) available
 sample.bad.fetch.again: Try again. Information not currently available
@@ -46,7 +46,7 @@ sampledso.bin
     inst [900 or "bin-900"] value 900
 sampledso.noinst: No value(s) available
 sampledso.needprofile: Explicit instance identifier(s) required
-sampledso.bad.unknown: pmLookupDesc: Unknown or illegal metric identifier
+sampledso.bad.unknown: Unknown or illegal metric identifier
 sampledso.bad.nosupport: Not Supported
 sampledso.bad.novalues: No value(s) available
 sampledso.bad.fetch.again: Try again. Information not currently available

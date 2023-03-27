@@ -38,7 +38,7 @@ Check sampledso metrics have appeared ... 4 warnings, 100+ metrics and 1300+ val
 sample.darkness: No value(s) available
 sample.noinst: No value(s) available
 sample.needprofile: Explicit instance identifier(s) required
-sample.bad.unknown: pmLookupDesc: Unknown or illegal metric identifier
+sample.bad.unknown: Unknown or illegal metric identifier
 sample.bad.nosupport: Not Supported
 sample.bad.novalues: No value(s) available
 sample.bad.fetch.again: Try again. Information not currently available
@@ -75,7 +75,7 @@ Check sampledso metrics have appeared ... 4 warnings, 100+ metrics and 1300+ val
 sample.darkness: No value(s) available
 sample.noinst: No value(s) available
 sample.needprofile: Explicit instance identifier(s) required
-sample.bad.unknown: pmLookupDesc: Unknown or illegal metric identifier
+sample.bad.unknown: Unknown or illegal metric identifier
 sample.bad.nosupport: Not Supported
 sample.bad.novalues: No value(s) available
 sample.bad.fetch.again: Try again. Information not currently available
@@ -116,7 +116,7 @@ Check sampledso metrics have appeared ... 4 warnings, 100+ metrics and 1300+ val
 sample.darkness: No value(s) available
 sample.noinst: No value(s) available
 sample.needprofile: Explicit instance identifier(s) required
-sample.bad.unknown: pmLookupDesc: Unknown or illegal metric identifier
+sample.bad.unknown: Unknown or illegal metric identifier
 sample.bad.nosupport: Not Supported
 sample.bad.novalues: No value(s) available
 sample.bad.fetch.again: Try again. Information not currently available
@@ -155,7 +155,7 @@ Check sampledso metrics have appeared ... 4 warnings, 100+ metrics and 1300+ val
 sample.darkness: No value(s) available
 sample.noinst: No value(s) available
 sample.needprofile: Explicit instance identifier(s) required
-sample.bad.unknown: pmLookupDesc: Unknown or illegal metric identifier
+sample.bad.unknown: Unknown or illegal metric identifier
 sample.bad.nosupport: Not Supported
 sample.bad.novalues: No value(s) available
 sample.bad.fetch.again: Try again. Information not currently available

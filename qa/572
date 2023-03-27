@@ -132,7 +132,7 @@ do
         '
     fi
     pmstore -n $tmp.pmns sample.string.write_me "$pmda"
-    pminfo -n $tmp.pmns -f \
+    pminfo -b 1 -n $tmp.pmns -f \
 	pmcd.numagents \
 	sample.string.write_me \
 	trivial.time \

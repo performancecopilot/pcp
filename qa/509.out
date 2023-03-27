@@ -56,6 +56,11 @@ IDlist dump: numids = 3
   PMID[2]: ADDR 29.0.1002
 pmLookupName: receive_names <- [0] 29.0.1001 [1] PM_ID_NULL [2] 29.0.1002
 pmLookupName(3, ...) -> 3
+__pmSendIDList
+IDlist dump: numids = 3
+  PMID[0]: ADDR 29.0.1001
+  PMID[1]: ADDR 511.0.3
+  PMID[2]: ADDR 29.0.1002
 dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29 -l TMP.log
 Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29 -l TMP.log
 dbpmda> fetch sample.secret.foo.one, my.derived, sample.secret.foo.two

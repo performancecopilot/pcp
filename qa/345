@@ -60,12 +60,12 @@ do
 	    then
 		echo | tee -a $seq.full
 		echo "=== $args $metric_args ===" | tee -a $seq.full
-		pminfo -c $tmp.derive $args $metric_args >$tmp.raw
+		pminfo -b 1 -c $tmp.derive $args $metric_args >$tmp.raw
 		cat $tmp.raw >>$seq.full
 		_filter <$tmp.raw \
 		| LC_COLLATE=POSIX sort >$tmp.base
 	    else
-		$sudo pminfo -c $tmp.derive $args $metric_args >$tmp.raw
+		$sudo pminfo -b 1 -c $tmp.derive $args $metric_args >$tmp.raw
 		echo "=== $args $metric_args" >>$seq.full
 		cat $tmp.raw >>$seq.full
 		_filter <$tmp.raw \
