@@ -297,7 +297,7 @@ _get_matching_hosts()
 		# an exact match on the first field (up to the first white
 		# space)
 		#
-		if [ "$ctl_host" = "$pat" -o "$ctl_host" = "#!#$pat" ]
+		if [ "$ctl_host" = "$_host" -o "$ctl_host" = "#!#$_host" ]
 		then
 		    :
 		elif [ "$_host" = "$LOCALHOST" ]
@@ -492,7 +492,8 @@ _get_matching_hosts()
 # get class for a specific ${IAM} instance
 # $1 = control
 # $2 = host (expanded) [need to match either expanded or unexpanded names]
-# $3 = directory (expanded) [need to match unexpanded name]
+# $3 = directory (expanded) [need to match either expanded or unexpanded name
+#      or name with just $PCP_* vars unexpanded]
 #
 _get_class()
 {
@@ -500,10 +501,12 @@ _get_class()
     # need space at end so hostname looks like it does in a control line
     host="`echo "$2 " | _unexpand_control | sed -e 's/ $//'`"
     dir="`echo "$3" | _unexpand_control`"
+    alt_dir="`echo "$3" | _unexpand_pcp_control`"
     class=`$PCP_AWK_PROG <"$control" '
 BEGIN			{ class = "" }
 /^[$]class=/		{ class = $1; sub(/[$]class=/,"",class) }
-$4 == "'"$dir"'" 	{ if ($1 == "'"$host"'" || $1 == "#!#'"$host"'" ||
+$4 == "'"$dir"'" || $4 == "'"$alt_dir"'" || $4 == "'"$3"'" 	{
+			  if ($1 == "'"$host"'" || $1 == "#!#'"$host"'" ||
 			      $1 == "'"$2"'" || $1 == "#!#'"$2"'") {
 				  print class
 				  exit
@@ -565,6 +568,17 @@ _unexpand_control()
 	-e "s;$PCP_LOG_DIR/;PCP_LOG_DIR/;g" \
 	-e "s/^$LOCALHOST /LOCALHOSTNAME /g" \
 	-e "s/\\([^a-zA-Z0-9]\\)$LOCALHOST/\\1LOCALHOSTNAME/g" \
+    # end
+}
+
+# reverse the changes for just the critical $PCP_* vars from
+# _expand_control()
+#
+_unexpand_pcp_control()
+{
+    sed \
+	-e "s;$PCP_LOG_DIR/pmlogger/;PCP_ARCHIVE_DIR/;g" \
+	-e "s;$PCP_LOG_DIR/;PCP_LOG_DIR/;g" \
     # end
 }
 
@@ -1455,16 +1469,17 @@ _do_destroy()
 	    _error "control file changes skipped because ${IAM} could not be stopped"
 	fi
 	dir=`echo "$args_dir" | _unexpand_control`
+	alt_dir="`echo "$args_dir" | _unexpand_pcp_control`"
 	host=`echo "$args_host " | _unexpand_control | sed -e 's/ $//'`
 	# need to match either expanded or unexpanded host name, with
 	# or without #!# prefix
 	#
 	$PCP_AWK_PROG <"$control" >$tmp/control '
-$1 == "'"$args_host"'" && $4 == "'"$dir"'"	{ next }
-$1 == "'"#!#$args_host"'" && $4 == "'"$dir"'"	{ next }
-$1 == "'"$host"'" && $4 == "'"$dir"'"		{ next }
-$1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ next }
-						{ print }'
+$1 == "'"$args_host"'" && ($4 == "'"$dir"'" || $4 == "'"$alt_dir"'")	{ next }
+$1 == "'"#!#$args_host"'" && ($4 == "'"$dir"'" || $4 == "'"$alt_dir"'")	{ next }
+$1 == "'"$host"'" && ($4 == "'"$dir"'" || $4 == "'"$alt_dir"'")		{ next }
+$1 == "'"#!#$host"'" && ($4 == "'"$dir"'" || $4 == "'"$alt_dir"'")	{ next }
+									{ print }'
 	if cmp -s "$control" $tmp/control
 	then
 	    $VERBOSE && echo "${IAM} for host $host and directory $dir already removed from control file $control"
@@ -1533,10 +1548,11 @@ _do_start()
 	    continue
 	fi
 	dir=`echo "$args_dir" | _unexpand_control`
+	alt_dir="`echo "$args_dir" | _unexpand_pcp_control`"
 	host=`echo "$args_host " | _unexpand_control | sed -e 's/ $//'`
 	$PCP_AWK_PROG <"$control" >$tmp/control '
-$1 == "'"#!#$host"'" && $4 == "'"$dir"'"	{ sub(/^#!#/,"",$1) }
-						{ print }'
+$1 == "'"#!#$host"'" && ($4 == "'"$dir"'" || $4 == "'"$alt_dir"'")	{ sub(/^#!#/,"",$1) }
+									{ print }'
 	if cmp -s "$control" $tmp/control
 	then
 	    if $restart
@@ -1614,9 +1630,10 @@ _do_stop()
 	    continue
 	fi
 	dir=`echo "$args_dir" | _unexpand_control`
+	alt_dir="`echo "$args_dir" | _unexpand_pcp_control`"
 	$PCP_AWK_PROG <"$control" >$tmp/control '
-$1 == "'"$host"'" && $4 == "'"$dir"'"	{ $1 = "#!#" $1 }
-				    	{ print }'
+$1 == "'"$host"'" && ($4 == "'"$dir"'" || $4 == "'"$alt_dir"'")	{ $1 = "#!#" $1 }
+								{ print }'
 	if cmp -s "$control" $tmp/control
 	then
 	    $VERBOSE && echo "${IAM} for host $host and directory $dir already disabled in control file $control"
