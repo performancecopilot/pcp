@@ -161,6 +161,10 @@ _cleanup()
 	_wait_for_new_pmlogger "$newlogger"
 	_wait_for_new_pmie "$newpmie"
     fi
+    for dir in boofa-$seq
+    do
+	$sudo rm -rf "$PCP_ARCHIVE_DIR/$dir"
+    done
 }
 
 status=0	# success is the default!
