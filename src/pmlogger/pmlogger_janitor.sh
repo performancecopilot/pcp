@@ -767,14 +767,19 @@ controlfile=''
 
 # Pass 4 - kill of orphaned pmloggers
 #
-$VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger '
+rm -f $tmp/one-trip
 cat $tmp/loggers \
 | while read pid dir
 do
     # Send pmlogger a SIGTERM, which is noted as a pending shutdown.
     # Add pid to list of loggers sent SIGTERM - may need SIGKILL later.
     #
-    $VERBOSE && echo "Killing (TERM) pmlogger with PID $pid"
+    if [ ! -f $tmp/one-trip ]
+    then
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger '
+	touch $tmp/one-trip
+    fi
+    echo "Killing (TERM) pmlogger with PID $pid"
     eval $KILL -s TERM $pid
 done
 
@@ -806,7 +811,7 @@ then
 		| grep -E -v "$COMPRESSREGEX" \
 		| while read file
 		do
-		    $VERBOSE && echo "Compressing $dir/$file"
+		    echo "Compressing $dir/$file"
 		    if $SHOWME
 		    then
 			echo "+ $COMPRESS $file"
@@ -842,7 +847,7 @@ else
     do
 	if $PCP_PS_PROG -p "$pid" >/dev/null 2>&1
 	then
-	    $VERBOSE && echo "Killing (KILL) pmlogger with PID $pid"
+	    echo "Killing (KILL) pmlogger with PID $pid"
 	    eval $KILL -s KILL $pid >/dev/null 2>&1
 	    delay=30        # tenths of a second
 	    while $PCP_PS_PROG -f -p "$pid" >$tmp/alive 2>&1

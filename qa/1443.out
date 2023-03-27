@@ -1,0 +1,7 @@
+QA output created by 1443
+Killing (TERM) pmlogger with PID PID_1
+Killing (TERM) pmlogger with PID PID_2
+Compressing PCP_ARCHIVE_DIR/orphan-HOSTNAME/TIMESTAMP.0
+Compressing PCP_ARCHIVE_DIR/orphan-HOSTNAME/TIMESTAMP.meta
+Compressing PCP_ARCHIVE_DIR/orphan-localhost/TIMESTAMP.0
+Compressing PCP_ARCHIVE_DIR/orphan-localhost/TIMESTAMP.meta
