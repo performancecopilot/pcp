@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013-2015,2018-2019,2021-2022 Red Hat.
+.\" Copyright (c) 2013-2015,2018-2019,2021-2023 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -41,17 +41,26 @@ and/or
 instances via
 .BR pmproxy .
 .PP
-In its default mode of operation, on platforms supporting this,
+In its default mode of operation
 .B pmproxy
-provides the REST API for all PCP services (see
+provides the REST API for PCP services (see
 .BR PMWEBAPI (3)
-for details)
-and interfaces to the fast, scalable time series query
-capabilities offered by PCP in conjunction with a
+for details).
+This includes provision of an Open Metrics -
+.I https://openmetrics.io
+- text interface for PCP metrics at
+.IR /metrics ,
+realtime access to PCP metrics through the
+.I /pmapi
+interfaces,
+and access to the fast, scalable PCP time series query
+capabilities offered in conjunction with a
 .BR redis-server (1)
 (see
 .BR pmseries (1)
-for details).
+for details) via the
+.I /query
+REST interfaces.
 .PP
 .B pmproxy
 can be deployed in a firewall domain, or on a cluster ``head'' node
