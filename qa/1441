@@ -154,7 +154,6 @@ newpmie=0
 _cleanup()
 {
     cd $here
-    $sudo rm -rf $tmp $tmp.*
     if [ "`hostname`" != "$oldhostname" ]
     then
 	$sudo hostname "$oldhostname" 2>>$seq.full
@@ -165,6 +164,7 @@ _cleanup()
     do
 	$sudo rm -rf "$PCP_ARCHIVE_DIR/$dir"
     done
+    $sudo rm -rf $tmp $tmp.*
 }
 
 status=0	# success is the default!
