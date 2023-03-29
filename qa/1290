@@ -330,7 +330,20 @@ cat $tmp.log >>$seq.full
 #
 $sudo $signal -s KILL -a pmproxy >>$here/$seq.full 2>&1
 sleep 2
-$sudo $signal -s KILL -a valgrind >>$here/$seq.full 2>&1
+# valgrind goes by different names ... valgrind, valgrind.bin, ...
+# kill 'em all!
+#
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+| sed -n -e '/\/[v]algrind.*\/pmproxy/{
+s/^[^ ][^ ]* *//
+s/ .*//
+p
+}' \
+| while read pid
+do
+    echo "Killing PID $pid ..." >>$here/$seq.full
+    $sudo $signal -s KILL $pid >>$here/$seq.full 2>&1
+done
 wait
 
 # also copied from _run_valgrind (which we cannot use here) ...

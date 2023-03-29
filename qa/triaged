@@ -43,6 +43,7 @@
 1221	vm27	extra labels associated with
 		openmetrics.vmware_exporter.vmware_vm_guest_disk_* metrics
 		for no known reason
+1290	Debian 1[01]	valgrind-reported issues in libpcp_web redis i/o functions
 1574	.*	valgrind-reported issue in libpcp_web pmseries functions
 1662	.*	valgrind-reported issue in libpcp_web archive discovery
 		handling of sources
