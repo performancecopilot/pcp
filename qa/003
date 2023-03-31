@@ -274,6 +274,7 @@ do
 	    -e "/network\.interface\.ipv6_addr: $unavailable/d" \
 	    -e "/network\.interface\.ipv6_scope: $unavailable/d" \
 	    -e "/network\.interface\.speed: $unavailable/d" \
+	    -e "/network\.icmp\..*: $unavailable/d" \
 	    -e "/network\.ip\..*: $unavailable/d" \
 	    -e "/network\.mptcp\..*: $unavailable/d" \
 	    -e "/network\.softnet\..*: $nosupport/d" \
