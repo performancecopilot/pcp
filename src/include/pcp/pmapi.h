@@ -227,6 +227,7 @@ typedef struct pmDesc {
 #define PM_ERR_RECTYPE		(-PM_ERR_BASE-67)   /* Incorrect record type in an archive */
 #define PM_ERR_FEATURE		(-PM_ERR_BASE-68)   /* Archive feature not supported */
 #define PM_ERR_TLS		(-PM_ERR_BASE-69)   /* TLS protocol failure */
+#define PM_ERR_ARG		(-PM_ERR_BASE-70)   /* Bad value for function argument */
 
 /* retired PM_ERR_CTXBUSY (-PM_ERR_BASE-97) Context is busy */
 #define PM_ERR_BOTCH		(-PM_ERR_BASE-97)   /* Internal inconsistency detected or assertion failed */

@@ -196,7 +196,9 @@ static const struct {
 	"Incorrect record type in an archive" },
     { PM_ERR_FEATURE,		"PM_ERR_FEATURE",
 	"Archive feature not supported" },
-    /* insert new libpcp error codes here */
+    { PM_ERR_ARG,		"PM_ERR_ARG",
+	"Bad value for function argument" },
+    /* insert new libpcp error codes above this line */
     { PM_ERR_NYI,		"PM_ERR_NYI",
 	"Functionality not yet implemented" },
     /* do not use values smaller than NYI */

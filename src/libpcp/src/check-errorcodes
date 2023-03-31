@@ -3,6 +3,8 @@
 # Check error codes between pmapi.h, err.c,
 # ../../perl/PMDA/PMDA.pm (in 2 places) and ../../python/pmapi.c
 #
+# Check error codes exposure in QA tests.
+#
 
 tmp=/var/tmp/check-errorcodes-$$
 rm -f $tmp.err
@@ -172,4 +174,24 @@ END	{ if (!found) {
 	    system("touch '$tmp'.err");
 	  }
 	}'
+done
+
+# in ../../../qa/006.out expect all text to appear
+#
+cat $tmp.defs \
+| while read code value text
+do
+    numvalue=`echo "$value" | awk '
+    {
+	gsub(/-PM_ERR_BASE-/, "", $1)
+	# 12345 is PM_ERR_BASE2 aka PM_ERR_BASE
+	print -12345 - $1
+    }'`
+    if grep "^$numvalue $text\$" ../../../qa/006.out >/dev/null
+    then
+	:
+    else
+	echo "^$numvalue $text\$"
+	echo "../../../qa/006.out: remake for $code"
+    fi
 done

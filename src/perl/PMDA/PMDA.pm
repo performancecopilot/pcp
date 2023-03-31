@@ -36,7 +36,7 @@ require DynaLoader;
 	PM_ERR_LOGCHANGETYPE PM_ERR_LOGCHANGESEM PM_ERR_LOGCHANGEINDOM
 	PM_ERR_LOGCHANGEUNITS PM_ERR_LOGOVERLAP PM_ERR_NEEDCLIENTCERT
 	PM_ERR_BADDERIVE PM_ERR_NOLABELS PM_ERR_PMDAFENCED PM_ERR_RECTYPE
-	PM_ERR_FEATURE PM_ERR_TLS
+	PM_ERR_FEATURE PM_ERR_TLS PM_ERR_ARG
 	PM_ERR_NYI
 	PMDA_FETCH_NOVALUES PMDA_FETCH_STATIC PMDA_FETCH_DYNAMIC
 );
@@ -158,6 +158,7 @@ sub PM_ERR_PMDAFENCED	{ -12411; }	# PMDA is currently fenced and unable to respo
 sub PM_ERR_RECTYPE	{ -12412; }	# Incorrect record type in an archive
 sub PM_ERR_FEATURE	{ -12413; }	# Archive feature not supported
 sub PM_ERR_TLS		{ -12414; }	# TLS protocol failure
+sub PM_ERR_ARG		{ -12415; }	# Bad value for function argument
 
 sub PM_ERR_NYI		{ -21344; }	# Functionality not yet implemented
 

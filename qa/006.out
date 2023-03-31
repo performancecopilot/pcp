@@ -3,7 +3,7 @@ QA output created by 006
 -12346 Problems parsing PMNS definitions
 -12347 PMNS not accessible
 -12348 Attempt to reload the PMNS
--12349 Oneline or help text is not available
+-12349 One-line or help text is not available
 -12350 Metric not supported by this version of monitored application
 -12351 Missing metric value(s)
 -12352 No such PMAPI error code (-12352)
@@ -69,7 +69,7 @@ QA output created by 006
 -12412 Incorrect record type in an archive
 -12413 Archive feature not supported
 -12414 TLS protocol failure
--12415 No such PMAPI error code (-12415)
+-12415 Bad value for function argument
 -12416 No such PMAPI error code (-12416)
 -12417 No such PMAPI error code (-12417)
 -12418 No such PMAPI error code (-12418)
@@ -109,3 +109,6 @@ QA output created by 006
 -12452 No such PMAPI error code (-12452)
 -12453 No such PMAPI error code (-12453)
 -12454 No such PMAPI error code (-12454)
+-13393 PMDA is now responsive to requests
+-13394 PMDA is not yet ready to respond to requests
+-21344 Functionality not yet implemented
