@@ -72,7 +72,7 @@ do
 	echo "$seq: no .out.bad file, so nothing to compare!"
 	continue
     fi
-    if grep 'badness detected by check.callback' $seq.out.bad >/dev/null
+    if grep '^+++ check.callback output +++' $seq.out.bad >/dev/null
     then
 	s1='C'
     else
@@ -100,7 +100,7 @@ do
 	    s2='X'
 	    echo "$seq: same failure, really bad not flakey"
 	else
-	    if grep 'badness detected by check.callback' $seq.out.bad >/dev/null
+	    if grep '^+++ check.callback output +++' $seq.out.bad >/dev/null
 	    then
 		s2='C'
 	    else
