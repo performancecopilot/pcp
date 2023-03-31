@@ -68,6 +68,12 @@ network.icmp.outmsgs
 network.icmp.outparmprobs
     value 0
 
+network.icmp.outratelimitglobal
+No value(s) available!
+
+network.icmp.outratelimithost
+No value(s) available!
+
 network.icmp.outredirects
     value 0
 
@@ -264,6 +270,12 @@ network.icmp.outmsgs
 network.icmp.outparmprobs
     value 0
 
+network.icmp.outratelimitglobal
+No value(s) available!
+
+network.icmp.outratelimithost
+No value(s) available!
+
 network.icmp.outredirects
     value 0
 
@@ -392,6 +404,208 @@ network.udplite.sndbuferrors
 
 == done
 
+== Checking inet network metrics from procnet-snmp-5.14.0
+
+network.icmp.inaddrmaskreps
+    value 14
+
+network.icmp.inaddrmasks
+    value 13
+
+network.icmp.incsumerrors
+    value 3
+
+network.icmp.indestunreachs
+    value 4
+
+network.icmp.inechoreps
+    value 10
+
+network.icmp.inechos
+    value 9
+
+network.icmp.inerrors
+    value 2
+
+network.icmp.inmsgs
+    value 1
+
+network.icmp.inparmprobs
+    value 6
+
+network.icmp.inredirects
+    value 8
+
+network.icmp.insrcquenchs
+    value 7
+
+network.icmp.intimeexcds
+    value 5
+
+network.icmp.intimestampreps
+    value 12
+
+network.icmp.intimestamps
+    value 11
+
+network.icmp.outaddrmaskreps
+    value 29
+
+network.icmp.outaddrmasks
+    value 28
+
+network.icmp.outdestunreachs
+    value 19
+
+network.icmp.outechoreps
+    value 25
+
+network.icmp.outechos
+    value 24
+
+network.icmp.outerrors
+    value 16
+
+network.icmp.outmsgs
+    value 15
+
+network.icmp.outparmprobs
+    value 21
+
+network.icmp.outratelimitglobal
+    value 17
+
+network.icmp.outratelimithost
+    value 18
+
+network.icmp.outredirects
+    value 23
+
+network.icmp.outsrcquenchs
+    value 22
+
+network.icmp.outtimeexcds
+    value 20
+
+network.icmp.outtimestampreps
+    value 27
+
+network.icmp.outtimestamps
+    value 26
+
+network.ip.defaultttl
+    value 2
+
+network.ip.forwarding
+    value 1
+
+network.ip.forwdatagrams
+    value 6
+
+network.ip.fragcreates
+    value 19
+
+network.ip.fragfails
+    value 18
+
+network.ip.fragoks
+    value 17
+
+network.ip.inaddrerrors
+    value 5
+
+network.ip.indelivers
+    value 9
+
+network.ip.indiscards
+    value 8
+
+network.ip.inhdrerrors
+    value 4
+
+network.ip.inreceives
+    value 3
+
+network.ip.inunknownprotos
+    value 7
+
+network.ip.outdiscards
+    value 11
+
+network.ip.outnoroutes
+    value 12
+
+network.ip.outrequests
+    value 10
+
+network.ip.reasmfails
+    value 16
+
+network.ip.reasmoks
+    value 15
+
+network.ip.reasmreqds
+    value 14
+
+network.ip.reasmtimeout
+    value 13
+
+network.udp.ignoredmulti
+    value 8
+
+network.udp.incsumerrors
+    value 7
+
+network.udp.indatagrams
+    value 1
+
+network.udp.inerrors
+    value 3
+
+network.udp.memerrors
+    value 9
+
+network.udp.noports
+    value 2
+
+network.udp.outdatagrams
+    value 4
+
+network.udp.recvbuferrors
+    value 5
+
+network.udp.sndbuferrors
+    value 6
+
+network.udplite.ignoredmulti
+    value 8
+
+network.udplite.incsumerrors
+    value 7
+
+network.udplite.indatagrams
+    value 1
+
+network.udplite.inerrors
+    value 3
+
+network.udplite.memerrors
+    value 9
+
+network.udplite.noports
+    value 2
+
+network.udplite.outdatagrams
+    value 4
+
+network.udplite.recvbuferrors
+    value 5
+
+network.udplite.sndbuferrors
+    value 6
+
+== done
+
 == Checking inet network metrics from procnet-snmp-5.14.7
 
 network.icmp.inaddrmaskreps
@@ -459,6 +673,12 @@ network.icmp.outmsgs
 
 network.icmp.outparmprobs
     value 19
+
+network.icmp.outratelimitglobal
+No value(s) available!
+
+network.icmp.outratelimithost
+No value(s) available!
 
 network.icmp.outredirects
     value 21

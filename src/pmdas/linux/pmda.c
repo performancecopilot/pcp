@@ -2892,6 +2892,16 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_SNMP,46), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
+/* network.icmp.outratelimitglobal */
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTRATELIMITGLOBAL], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,94), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp.outratelimithost */
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTRATELIMITHOST], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,95), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 
 /* network.tcp.rtoalgorithm */
   { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_RTOALGORITHM], 

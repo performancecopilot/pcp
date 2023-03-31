@@ -1824,6 +1824,8 @@ the number of fragments by combining them as they are received.
 @ network.icmp.outaddrmasks count of icmp outaddrmasks
 @ network.icmp.outaddrmaskreps count of icmp outaddrmaskreps
 @ network.icmp.incsumerrors count of icmp in checksum errors
+@ network.icmp.outratelimitglobal count of icmp packets not sent due to global throttling
+@ network.icmp.outratelimithost count of icmp packets not sent due to per-host throttling
 @ network.icmpmsg.intype count of icmp message types recvd
 @ network.icmpmsg.outtype count of icmp message types sent
 @ network.tcp.rtoalgorithm the retransmission timeout algorithm in use

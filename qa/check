@@ -24,7 +24,15 @@ __scriptname=$myname  #  a synonym
 if which timeout >/dev/null 2>&1
 then
     use_timeout=true
-    max_timeout=5m
+    # some VMs are _really_ slow ...
+    #
+    case `hostname`
+    in
+	bozo-vm)	max_timeout=6m
+			;;
+	*)		max_timeout=5m
+			;;
+    esac
 else
     use_timeout=false
 fi

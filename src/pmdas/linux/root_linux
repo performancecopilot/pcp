@@ -1080,6 +1080,8 @@ network.icmp {
     outaddrmasks	60:14:44
     outaddrmaskreps	60:14:45
     incsumerrors	60:14:46
+    outratelimitglobal	60:14:94
+    outratelimithost	60:14:95
 }
 
 network.tcp {

@@ -134,6 +134,10 @@ snmp_fields_t icmp_fields[] = {
      .offset = &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTADDRMASKS] },
     { .field = "OutAddrMaskReps",
      .offset = &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTADDRMASKREPS] },
+    { .field = "OutRateLimitGlobal",
+     .offset = &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTRATELIMITGLOBAL] },
+    { .field = "OutRateLimitHost",
+     .offset = &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTRATELIMITHOST] },
     { .field = NULL, .offset = NULL }
 };
 
