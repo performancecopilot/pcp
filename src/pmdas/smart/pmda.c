@@ -1,7 +1,7 @@
 /*
  * Disk S.M.A.R.T Data PMDA
  *
- * Copyright (c) 2018 Red Hat.
+ * Copyright (c) 2018-2023 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1351,7 +1351,7 @@ smart_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 void
 smart_instance_setup(void)
 {
-	static char lsblk_command[] = "lsblk -d -n -e 1,2,7,11 -o name";
+	static char lsblk_command[] = "lsblk -d -n -e 1,2,7,11,252 -o name";
 	char *env_command;
 
 	/* allow override at startup for QA testing */
