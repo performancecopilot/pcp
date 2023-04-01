@@ -1,0 +1,70 @@
+#!/bin/sh
+# PCP QA Test No. 1445
+# pmAddDerivedHelp() testing
+#
+# non-valgrind variant, see qa/1446 for the valgrind variant
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+export LC_COLLATE=POSIX
+export PCP_DERIVED_CONFIG=
+
+# real QA test starts here
+cat <<'End-of-File' >$tmp.config
+qa.load.none = sample.bin
+qa.load.oneline = sample.bin
+qa.load.oneline(oneline) = loaded sample.bin one-line
+qa.load.helptext = sample.bin
+qa.load.helptext(helptext) = 'loaded sample.bin helptext
+line 2 helptext
+line 3 helptext'
+qa.load.both = sample.bin
+qa.load.both(oneline) = loaded sample.bin one-line
+qa.load.both(helptext) = 'loaded sample.bin helptext
+line 2 both
+line 3 both'
+End-of-File
+
+if $do_valgrind
+then
+    _run_valgrind src/derived_help -c $tmp.config \
+    | sed -e "s@$tmp@TMP@g"
+else
+    src/derived_help -c $tmp.config 2>&1
+fi
+
+# success, all done
+exit

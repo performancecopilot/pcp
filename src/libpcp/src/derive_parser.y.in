@@ -2495,6 +2495,93 @@ pmAddDerivedMetric(const char *name, const char *expr, char **errmsg)
 }
 
 int
+pmAddDerivedText(const char *name, int type, const char *text)
+{
+    int		i;
+    int		sts = 0;
+    dm_t	*dmp = NULL;
+    int		ctx;
+    __pmContext	*ctxp = NULL;
+
+    if ((ctx = pmWhichContext()) >= 0) {
+	ctxp = __pmHandleToPtr(ctx);
+	/* ensures we have context lock if there is a valid context */
+    }
+
+    PM_LOCK(registered.mutex);
+    __dminit();
+
+    for (i = 0; i < registered.nmetric; i++) {
+	if (strcmp(name, registered.mlist[i].name) == 0) {
+	    /* found it! */
+	    break;
+	}
+    }
+
+    if (i < registered.nmetric) {
+	/* matched global derived metric name, all good */
+	dmp = &registered.mlist[i];
+    }
+    else {
+	/*
+	 * oops, global derived metric name not defined ...
+	 * try for per-context derived metrics ...
+	 */
+	if (ctxp != NULL) {
+	    ctl_t		*cp;
+	    cp = (ctl_t *)ctxp->c_dm;
+	    for (i = 0; i < cp->nmetric; i++) {
+		if (strcmp(name, cp->mlist[i].name) == 0) {
+		    /* found it! */
+		    break;
+		}
+	    }
+	    if (i < cp->nmetric) {
+		/* matched per-context derived metric name, all good */
+		dmp = &cp->mlist[i];
+	    }
+	}
+    }
+
+    if (dmp == NULL) {
+	sts = PM_ERR_NAME;
+	goto done;
+    }
+
+    if (type == PM_TEXT_ONELINE) {
+	if (dmp->oneline != NULL) {
+	    sts = PM_ERR_TEXT;
+	    goto done;
+	}
+	if ((dmp->oneline = strdup(text)) == NULL) {
+	    pmNoMem("pmAddDerivedText: oneline", strlen(text), PM_RECOV_ERR);
+	    sts = -oserror();
+	    goto done;
+	}
+    }
+    else if (type == PM_TEXT_HELP) {
+	if (dmp->helptext != NULL) {
+	    sts = PM_ERR_TEXT;
+	    goto done;
+	}
+	if ((dmp->helptext = strdup(text)) == NULL) {
+	    pmNoMem("pmAddDerivedText: helptext", strlen(text), PM_RECOV_ERR);
+	    sts = -oserror();
+	    goto done;
+	}
+    }
+    else
+	sts = PM_ERR_ARG;
+
+done:
+    PM_UNLOCK(registered.mutex);
+    if (ctx >= 0)
+	PM_UNLOCK(ctxp->c_lock);
+
+    return sts;
+}
+
+int
 pmGetDerivedControl(int what, int *valuep)
 {
     int		sts = 0;
@@ -2746,9 +2833,9 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
     }
     *namelist = list;
 
+    PM_UNLOCK(registered.mutex);
     if (ctxp != NULL)
 	PM_UNLOCK(ctxp->c_lock);
-    PM_UNLOCK(registered.mutex);
     return sts;
 }
 
@@ -3216,36 +3303,70 @@ int
 __dmhelptext(pmID pmid, int level, char **buffer)
 {
     int		i;
-    int		sts;
+    int		sts = 0;
     const char	*text;
+    dm_t	*dmp = NULL;
+    int		ctx;
+    __pmContext	*ctxp = NULL;
+
+    if ((ctx = pmWhichContext()) >= 0) {
+	ctxp = __pmHandleToPtr(ctx);
+	/* ensures we have context lock if there is a valid context */
+    }
 
     PM_LOCK(registered.mutex);
     __dminit();
 
     for (i = 0; i < registered.nmetric; i++) {
 	if (pmid == registered.mlist[i].pmid) {
-	    sts = 0;
-	    text = NULL;
-	    if (level & PM_TEXT_ONELINE) {
-		if ((text = registered.mlist[i].oneline) == NULL)
-		    sts = PM_ERR_TEXT;
-	    } else if (level & PM_TEXT_HELP) {
-		text = registered.mlist[i].helptext;
-		if (text == NULL && !(level & PM_TEXT_DIRECT))
-		    text = registered.mlist[i].oneline;
-		if (text == NULL)
-		    sts = PM_ERR_TEXT;
-	    }
-	    if (text && (*buffer = strdup(text)) == NULL) {
-		pmNoMem("__dmhelptext", strlen(text) + 1, PM_RECOV_ERR);
-		sts = -oserror();
-	    }
-	    PM_UNLOCK(registered.mutex);
-	    return sts;
+	    /* matched global derived metric ... */
+	    dmp = &registered.mlist[i];
+	    break;
 	}
     }
+    
+    if (i == registered.nmetric) {
+	if (ctxp != NULL) {
+	    /* try per-context derived metrics ... */
+	    ctl_t		*cp;
+	    cp = (ctl_t *)ctxp->c_dm;
+	    for (i = 0; i < cp->nmetric; i++) {
+		if (pmid == cp->mlist[i].pmid) {
+		    /* found it! */
+		    dmp = &cp->mlist[i];
+		    break;
+		}
+	    }
+	}
+    }
+
+    if (dmp == NULL) {
+	sts = PM_ERR_PMID;
+	goto done;
+    }
+
+    text = NULL;
+    if (level & PM_TEXT_ONELINE) {
+	if ((text = dmp->oneline) == NULL)
+	    sts = PM_ERR_TEXT;
+    } else if (level & PM_TEXT_HELP) {
+	text = dmp->helptext;
+	if (text == NULL && !(level & PM_TEXT_DIRECT))
+	    text = dmp->oneline;
+	if (text == NULL)
+	    sts = PM_ERR_TEXT;
+    }
+    if (text && (*buffer = strdup(text)) == NULL) {
+	pmNoMem("__dmhelptext", strlen(text) + 1, PM_RECOV_ERR);
+	sts = -oserror();
+    }
+
+done:
     PM_UNLOCK(registered.mutex);
-    return PM_ERR_PMID;
+    if (ctx >= 0)
+	PM_UNLOCK(ctxp->c_lock);
+
+    return sts;
 }
 
 #if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)

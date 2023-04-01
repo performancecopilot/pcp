@@ -1086,6 +1086,7 @@ PCP_CALL extern char *pmRegisterDerived(const char *, const char *);
 PCP_CALL extern char *pmDerivedErrStr(void);
 PCP_CALL extern int pmAddDerivedMetric(const char *, const char *, char **);
 PCP_CALL extern char *pmAddDerived(const char *, const char *);
+PCP_CALL extern int pmAddDerivedText(const char *, int, const char *);
 PCP_CALL extern int pmGetDerivedControl(int, int *);
 PCP_CALL extern int pmSetDerivedControl(int, int);
 

@@ -1,0 +1,104 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMADDDERIVEDTEXT 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3pmAddDerivedText\f1 \- add help text for a derived metric
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+int pmAddDerivedText(const char *\fIname\fP, int \fItype\fP, const char *\fItext\fP);
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+Derived metrics provide a way of extending the Performance Metrics
+Name Space (PMNS) with new metrics defined at the PCP client-side using
+expressions over the existing performance metrics.
+Global derived metrics are defined using
+.BR pmRegisterDerived (3)
+or
+.BR pmRegisterDerivedMetric (3)
+or
+.BR pmLoadDerivedConfig (3),
+and per-context derived metrics are defined using
+.BR pmAddDerived (3)
+or
+.BR pmAddDerivedMetric (3).
+.PP
+Once a derived metric has been defined,
+.B pmAddDerivedText
+may be used to associate the help
+.I text
+with the derived metric identified by
+.IR name .
+.PP
+Help text may be a ``one line'' summary or a more verbose ``multi-line''
+block of text, and
+.I type
+should be
+.BR PM_TEXT_ONELINE
+or
+.B PM_TEXT_HELP
+respectively.
+To associate both styles of help text with a derived metric,
+.B pmAddDerivedText
+would need to be called twice with different values for
+.IR type .
+.PP
+Once a particular
+.I type
+of help text has been associated with a derived metric it cannot
+be deleted or redefined.
+.PP
+Applications using the
+Performance Metrics Application Programming Interface (PMAPI)
+are able to retrieve help text for specific metrics using
+.BR pmLookupText (3).
+.SH DIAGNOSTICS
+.B pmAddDerivedText
+returns zero on success, else an error code.
+.PP
+The return value
+.BR PM_ERR_NAME
+indicates
+.I name
+does not correspond to a previously defined derived metric.
+.PP
+Repeated calls for the same
+.I name
+and
+.I type
+will result a return value of
+.BR PM_ERR_TEXT .
+.PP
+A return value of
+.B PM_ERR_ARG
+indicates that
+.I type
+is not one of the expected values.
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmAddDerived (3),
+.BR pmAddDerivedMetric (3),
+.BR PMAPI (3),
+.BR pmLoadDerivedConfig (3),
+.BR pmLookupText (3),
+.BR pmRegisterDerived (3),
+.BR pmRegisterDerivedMetric (3)
+and
+.BR PMNS (5).

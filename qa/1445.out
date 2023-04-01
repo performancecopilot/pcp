@@ -1,0 +1,105 @@
+QA output created by 1445
+
+Some error cases ...
+Error: pmAddDerivedText(qa.ram.both, ONELINE): One-line or help text is not available
+Error: pmAddDerivedText(qa.ram.both, HELP): One-line or help text is not available
+Error: pmAddDerivedText(qa.no.such.metric, ONELINE): Unknown metric name
+Error: pmAddDerivedText(qa.no.such.metric, HELP): Unknown metric name
+Error: pmAddDerivedText(qa.ram.both, 12345): Bad value for function argument
+
+20 QA names to work with ,,,
+
+qa.ad.both[oneline] i am qa.ad.both - foo bar
+qa.ad.both[helptext]
+i am qa.ad.both - mumble
+stumble
+fumble
+
+qa.ad.helptext[oneline]: One-line or help text is not available
+qa.ad.helptext[helptext]
+i am qa.ad.helptext - mumble
+stumble
+fumble
+
+qa.ad.none[oneline]: One-line or help text is not available
+qa.ad.none[helptext]: One-line or help text is not available
+
+qa.ad.oneline[oneline] i am qa.ad.oneline - foo bar
+qa.ad.oneline[helptext]
+i am qa.ad.oneline - foo bar
+
+qa.load.both[oneline] loaded sample.bin one-line
+qa.load.both[helptext]
+loaded sample.bin helptext
+line 2 both
+line 3 both
+
+qa.load.helptext[oneline]: One-line or help text is not available
+qa.load.helptext[helptext]
+loaded sample.bin helptext
+line 2 helptext
+line 3 helptext
+
+qa.load.none[oneline]: One-line or help text is not available
+qa.load.none[helptext]: One-line or help text is not available
+
+qa.load.oneline[oneline] loaded sample.bin one-line
+qa.load.oneline[helptext]
+loaded sample.bin one-line
+
+qa.ram.both[oneline] i am qa.ram.both - foo bar
+qa.ram.both[helptext]
+i am qa.ram.both - mumble
+stumble
+fumble
+
+qa.ram.helptext[oneline]: One-line or help text is not available
+qa.ram.helptext[helptext]
+i am qa.ram.helptext - mumble
+stumble
+fumble
+
+qa.ram.none[oneline]: One-line or help text is not available
+qa.ram.none[helptext]: One-line or help text is not available
+
+qa.ram.oneline[oneline] i am qa.ram.oneline - foo bar
+qa.ram.oneline[helptext]
+i am qa.ram.oneline - foo bar
+
+qa.rd.both[oneline] i am qa.rd.both - foo bar
+qa.rd.both[helptext]
+i am qa.rd.both - mumble
+stumble
+fumble
+
+qa.rd.helptext[oneline]: One-line or help text is not available
+qa.rd.helptext[helptext]
+i am qa.rd.helptext - mumble
+stumble
+fumble
+
+qa.rd.none[oneline]: One-line or help text is not available
+qa.rd.none[helptext]: One-line or help text is not available
+
+qa.rd.oneline[oneline] i am qa.rd.oneline - foo bar
+qa.rd.oneline[helptext]
+i am qa.rd.oneline - foo bar
+
+qa.rdm.both[oneline] i am qa.rdm.both - foo bar
+qa.rdm.both[helptext]
+i am qa.rdm.both - mumble
+stumble
+fumble
+
+qa.rdm.helptext[oneline]: One-line or help text is not available
+qa.rdm.helptext[helptext]
+i am qa.rdm.helptext - mumble
+stumble
+fumble
+
+qa.rdm.none[oneline]: One-line or help text is not available
+qa.rdm.none[helptext]: One-line or help text is not available
+
+qa.rdm.oneline[oneline] i am qa.rdm.oneline - foo bar
+qa.rdm.oneline[helptext]
+i am qa.rdm.oneline - foo bar
