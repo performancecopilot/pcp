@@ -137,8 +137,15 @@ again_archive:
 int
 pmLookupText(pmID pmid, int level, char **buffer)
 {
-    if (level != PM_TEXT_ONELINE && level != PM_TEXT_HELP)
-	return PM_ERR_ARG;
+    /* need exactly one of PM_TEXT_ONELINE and PM_TEXT_HELP */
+    if ((level & PM_TEXT_ONELINE) == PM_TEXT_ONELINE) {
+	if ((level & PM_TEXT_HELP) == PM_TEXT_HELP)
+	    return PM_ERR_ARG;
+    }
+    else {
+	if ((level & PM_TEXT_HELP) == 0)
+	    return PM_ERR_ARG;
+    }
 
     if (IS_DERIVED(pmid)) {
 	/*
