@@ -279,12 +279,16 @@ main(int argc, char **argv)
     if ((sts = pmAddDerivedText(name, 12345, buf)) < 0) {
 	printf("Error: pmAddDerivedText(%s, 12345): %s\n", name, pmErrStr(sts));
     }
+    pmid = pmID_build(29,0,6);	/* sample.bin */
+    if ((sts = pmLookupText(pmid, 12345, &p)) < 0) {
+	printf("Error: LookupText(..., 12345): %s\n", pmErrStr(sts));
+    }
 
+    /* enumerate all the qa.* metrics and sort 'em */
     if ((sts = pmTraversePMNS("qa", dometric)) < 0) {
 	printf("Error: pmTraversePMNS: %s\n", pmErrStr(sts));
 	exit(1);
     }
-
     qsort(namelist, numnames, sizeof(namelist[0]), compar);
 
     printf("\n%d QA names to work with ,,,\n", numnames);

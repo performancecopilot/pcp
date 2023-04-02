@@ -137,6 +137,9 @@ again_archive:
 int
 pmLookupText(pmID pmid, int level, char **buffer)
 {
+    if (level != PM_TEXT_ONELINE && level != PM_TEXT_HELP)
+	return PM_ERR_ARG;
+
     if (IS_DERIVED(pmid)) {
 	/*
 	 * for derived metrics there is no indom help text, only metric

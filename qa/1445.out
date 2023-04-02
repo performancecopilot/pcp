@@ -6,6 +6,7 @@ Error: pmAddDerivedText(qa.ram.both, HELP): One-line or help text is not availab
 Error: pmAddDerivedText(qa.no.such.metric, ONELINE): Unknown metric name
 Error: pmAddDerivedText(qa.no.such.metric, HELP): Unknown metric name
 Error: pmAddDerivedText(qa.ram.both, 12345): Bad value for function argument
+Error: LookupText(..., 12345): Bad value for function argument
 
 20 QA names to work with ,,,
 
