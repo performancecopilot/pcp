@@ -403,6 +403,10 @@ usergroup:	usergroup.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
+derived_help:	derived_help.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+
 # --- need libpcp but also PM_CONTEXT_LOCAL
 #
 

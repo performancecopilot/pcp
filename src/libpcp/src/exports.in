@@ -847,3 +847,8 @@ PCP_3.37 {
     __pmSecureServerInit;
     __pmSecureConfigInit;
 } PCP_3.36;
+
+PCP_3.38 {
+    pmAddDerivedText;
+} PCP_3.37;
+
