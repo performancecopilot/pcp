@@ -75,6 +75,7 @@ usr/share/man/man3/__pmUnparseHostSpec.3.gz
 usr/share/man/man3/pmAF.3.gz
 usr/share/man/man3/pmAddDerived.3.gz
 usr/share/man/man3/pmAddDerivedMetric.3.gz
+usr/share/man/man3/pmAddDerivedText.3.gz
 usr/share/man/man3/pmAddProfile.3.gz
 usr/share/man/man3/pmAtomStr.3.gz
 usr/share/man/man3/pmAtomStr_r.3.gz
