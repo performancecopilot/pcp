@@ -280,8 +280,13 @@ main(int argc, char **argv)
 	printf("Error: pmAddDerivedText(%s, 12345): %s\n", name, pmErrStr(sts));
     }
     pmid = pmID_build(29,0,6);	/* sample.bin */
-    if ((sts = pmLookupText(pmid, 12345, &p)) < 0) {
-	printf("Error: LookupText(..., 12345): %s\n", pmErrStr(sts));
+    if ((sts = pmLookupText(pmid, 3, &text)) < 0) {	/* 3 == PM_TEXT_ONELINE | PM_TEXT_HELP */
+	printf("Error: pmLookupText(..., 3): %s\n", pmErrStr(sts));
+    }
+    else {
+	printf("Expected error but pmLookupText(..., 3) retured %d and \"%s\"\n",
+	    sts, text);
+	free(text);
     }
 
     /* enumerate all the qa.* metrics and sort 'em */
