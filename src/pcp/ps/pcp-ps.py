@@ -195,12 +195,16 @@ class ProcessStatusUtil:
             return data
 
     def process_name(self):
-        data = self.__metric_repository.current_value('proc.psinfo.cmd', self.instance)[:20]
-        if len(data) < 20:
-            whitespace = 20 - len(data)
-            res = data.ljust(whitespace + len(data), ' ')
-            return res
-        else:
+        try:
+            data = self.__metric_repository.current_value('proc.psinfo.cmd', self.instance)[:20]
+            if len(data) < 20:
+                whitespace = 20 - len(data)
+                res = data.ljust(whitespace + len(data), ' ')
+                return res
+            else:
+                return data
+        except TypeError:
+            data = '-'
             return data
 
     def process_name_with_args(self):
