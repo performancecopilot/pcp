@@ -426,6 +426,7 @@ extern int __pmTimevalCmp(const pmTimeval *, const pmTimeval *) _PCP_HIDDEN;
 extern int __pmSecureServerSetup(void) _PCP_HIDDEN;
 
 extern pmInDomProfile *__pmFindProfile(pmInDom, const pmProfile *) _PCP_HIDDEN;
+extern int __pmEquivInDom(pmInDom, pmInDom) _PCP_HIDDEN;
 
 extern void __pmFreeInterpData(__pmContext *) _PCP_HIDDEN;
 

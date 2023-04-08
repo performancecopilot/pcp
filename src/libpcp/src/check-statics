@@ -326,6 +326,9 @@ e_indom.o
 e_labels.o
 e_loglabel.o
 endian.o
+equivindom.o
+    one_trip			# guarded by __pmLock_libpcp mutex
+    map				# guarded by __pmLock_libpcp mutex
 err.o
     err_lock			# local mutex
     ?errtab			# const

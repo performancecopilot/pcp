@@ -1105,7 +1105,7 @@ map_desc(dm_t *dmp, node_t *np, int async)
      * if one is singular but the other is not, result indom must
      * not be singular.
      */
-    if (left->indom != PM_INDOM_NULL && right->indom != PM_INDOM_NULL && left->indom != right->indom) {
+    if (left->indom != PM_INDOM_NULL && right->indom != PM_INDOM_NULL && left->indom != right->indom && !__pmEquivInDom(left->indom, right->indom)) {
 	PM_TPD(derive_errmsg) = "Operands should have the same instance domain";
 	goto bad;
     }

@@ -1,0 +1,94 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMEQUIVINDOM 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmEquivInDom\f1 \- check if two instance domains are equivalent
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/libpcp.h>
+.sp
+int __pmEquivInDom(pmInDom \fIa\fP, pmInDom \fIb\fP)
+.sp
+cc ... \-lpcp
+.ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and at some point in the future
+they may not work or may provide different semantics.
+.SH DESCRIPTION
+Within the Performance Co-Pilot (PCP) each instance domain is assigned a
+unique Instance Domain Identifier (pmInDom).
+Internally a pmInDom is constructed from 2 fields: the domain number
+(of the associated Performance Metrics Domain Agent, or PMDA) and
+the serial number (assigned by the PMDA).
+.PP
+In some unusual circumstances different PMDAs may support independent
+Instance Domains that are semantically equivalent, e.g. per CPU or per
+process identifier.
+.B __pmEquivInDom
+provides a mechanism to determine if Instance Domain
+.I a
+is equivalent to Instance Domain
+.IR b .
+.PP
+The ``equivalence'' of Instance Domains is defined by an external
+configuration file, identified by the environment variable
+.B $PCP_INDOM_CONFIG
+or
+.B $PCP_ETC_DIR/pcp/indom.config
+by default.
+The format for the configuration file is defined in the
+CONFIGURATION FILE section below.
+.PP
+If
+.B $PCP_INDOM_CONFIG
+is an empty string, no equivalence mapping is loaded.
+.SH CONFIGURATION FILE
+An Instance Domain equivalence mapping file conforms to the
+folowing syntax:
+.PD 0
+.IP 1. 4n
+Lines beginning with optional white space, followied by ``#''
+are considered comments.
+.IP 2.
+Blank lines are ignored.
+.IP 3.
+Each remaining line defines one `equivalence map'' with a list of
+white-space separated instance domains, each consisting of
+a number (the domain number), a period ``.'' and a number
+(the serial number).  As a special case to ``match all
+serial numbers'', the serial number part can be ``*''.
+.PD
+.PP
+The format of a
+.I pmInDom
+demands that a domain number is in the range 0 to 511, and a
+numeric serial number is in the range 0 to 4194303.
+.SH DIAGNOSTICS AND RETURN VALUES
+The return value is 1 if the Instance Domains are equivalent,
+else 0 if they are not.
+In rare cases a return value of -1 is used to indicate some problem
+(reported on standard error) in opening or parsing the
+configuration file.
+.SH SEE ALSO
+.BR pmLookupInDom (3)
+and
+.BR PMAPI (3).

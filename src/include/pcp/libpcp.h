@@ -1426,6 +1426,9 @@ PCP_CALL extern int __pmSetRequestTimeout(double);
 /* instance profile methods */
 PCP_CALL extern int __pmInProfile(pmInDom, const pmProfile *, int);
 
+/* instance equvalence method */
+PCP_CALL extern int __pmEquivInDom(pmInDom, pmInDom);
+
 /* __pmResult alloc/offsets */
 PCP_CALL extern __pmResult *__pmAllocResult(int);
 /*

@@ -850,4 +850,5 @@ PCP_3.37 {
 
 PCP_3.38 {
     pmAddDerivedText;
+    __pmEquivInDom;
 } PCP_3.37;

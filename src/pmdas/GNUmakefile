@@ -71,5 +71,6 @@ install_pcp :: $(SUBDIRS)
 install_pcp :: default_pcp
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMCDCONF_PATH)`
 	$(INSTALL) -m 644 pmcd.conf $(PCP_PMCDCONF_PATH)
+	$(INSTALL) -m 644 indom.conf $(PCP_ETC_DIR)/pcp/indom.conf
 
 include $(BUILDRULES)

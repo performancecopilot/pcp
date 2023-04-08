@@ -1,0 +1,118 @@
+#!/bin/sh
+# PCP QA Test No. 1447
+# derived metrics and indom mapping
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATESTAMP/' \
+	-e "s@$tmp@TMP@g" \
+	-e 's/pminfo([0-9][0-9]*)/pminfo(PID)/' \
+	-e 's/0x[0-9a-f[0-9a-f]*/ADDR/g' \
+    # end
+}
+
+# real QA test starts here
+
+export PCP_DERIVED_CONFIG=$tmp.derive
+
+cat <<'End-of-File' >$tmp.derive
+qa.c = sample.bin + sampledso.bin
+End-of-File
+
+echo "=== syntax errors in indom.config ==="
+cat <<'End-of-File' >$tmp.equiv
+# comment
+	# tab comment
+ # space comment
+# <domain> too long (<= 3 digits)
+2912.1 30.1
+29.1 3012.1
+# <domain> too big (<= 511)
+512.1 30.1
+29.1 512.1
+# <serial> too long (<= 9 gigits)
+29.11234567 30.1
+29.1 30.11234567
+# <serial> too big (<= 4194303)
+29.4194304 30.1
+29.1 30.4194304
+# <domain> and <serial> should be OK
+511.4194303 29.1
+30.1 511.4194303 29.1
+# : not .
+29:1 30.1
+29.1 30:1
+# x not <domain>
+x.1 30.1
+29.1 x.1
+# x not <serial>
+29.x 30.1
+29.1 30.x
+# non-numeric <domain>
+foo.1 30.1
+29.1 bar.1
+29foo.1 30.1
+29.1 30foo.1
+# non-numeric <serial>
+29.foo 30.1
+29.1 30.bar
+29.1x 30.1
+29.1 30.1x
+End-of-File
+nl -b a $tmp.equiv
+PCP_INDOM_CONFIG=$tmp.equiv pminfo -v qa 2>&1 \
+| _filter
+
+cat <<'End-of-File' >$tmp.derive
+# singular subset <op> full indom
+qa.a = sample.bin[bin-300] + sample.bin
+# full indom <op> subset
+qa.b = sample.bin + matchinst(/bin-[13579]00/, sample.bin)
+# needs __pmEquivInDom() assistance
+qa.c = sample.bin + sampledso.bin
+End-of-File
+
+cat <<'End-of-File' >$tmp.equiv
+29.2 30.2
+29.1 30.1 31.1 32.2 33.3
+End-of-File
+
+echo
+echo '=== without mapping ==='
+pminfo -f qa
+echo
+echo '=== with mapping ==='
+PCP_INDOM_CONFIG=$tmp.equiv pminfo -f -Dindom qa 2>&1 \
+| _filter
+
+# success, all done
+exit
