@@ -36,7 +36,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c result.c \
 	connectlocal.c derive_fetch.c events.c lock.c hash.c \
 	fault.c access.c getopt.c getopt2.c getopt3.c \
 	io.c io_stdio.c exec.c sha256.c strings.c \
-	shellprobe.c subnetprobe.c deprecated.c \
+	shellprobe.c subnetprobe.c deprecated.c equivindom.c \
 	e_loglabel.c e_index.c e_indom.c e_labels.c \
 	$(JSONSL_CFILES)
 HFILES = derive.h internal.h compiler.h pmdbg.h sha256.h sort_r.h \
