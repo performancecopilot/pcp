@@ -1,0 +1,167 @@
+QA output created by 1448
+QA output created by 1447 --valgrind
+=== syntax errors in indom.config ===
+     1	# comment
+     2		# tab comment
+     3	 # space comment
+     4	# <domain> too long (<= 3 digits)
+     5	2912.1 30.1
+     6	29.1 3012.1
+     7	# <domain> too big (<= 511)
+     8	512.1 30.1
+     9	29.1 512.1
+    10	# <serial> too long (<= 9 gigits)
+    11	29.11234567 30.1
+    12	29.1 30.11234567
+    13	# <serial> too big (<= 4194303)
+    14	29.4194304 30.1
+    15	29.1 30.4194304
+    16	# <domain> and <serial> should be OK
+    17	511.4194303 29.1
+    18	30.1 511.4194303 29.1
+    19	# : not .
+    20	29:1 30.1
+    21	29.1 30:1
+    22	# x not <domain>
+    23	x.1 30.1
+    24	29.1 x.1
+    25	# x not <serial>
+    26	29.x 30.1
+    27	29.1 30.x
+    28	# non-numeric <domain>
+    29	foo.1 30.1
+    30	29.1 bar.1
+    31	29foo.1 30.1
+    32	29.1 30foo.1
+    33	# non-numeric <serial>
+    34	29.foo 30.1
+    35	29.1 30.bar
+    36	29.1x 30.1
+    37	29.1 30.1x
+    38	# incomplete line
+    39	123
+    40	# incomplete and EOF
+    41	123
+=== std out ===
+=== std err ===
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:5] <domain> 2912... too long
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:6] <domain> 3012... too long
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:8] <domain> 512 too big
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:9] <domain> 512 too big
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:11] <serial> 11234567... too long
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:12] <serial> 11234567... too long
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:14] <serial> 4194304 too big
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:15] <serial> 4194304 too big
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:20] '.' expected after <domain> 29, found ':'
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:21] '.' expected after <domain> 30, found ':'
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:23] <domain> expected, found 'x'
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:24] <domain> expected, found 'x'
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:26] digit or '*' expected after <domain> 29, found 'x'
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:27] digit or '*' expected after <domain> 30, found 'x'
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:29] <domain> expected, found 'f'
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:30] <domain> expected, found 'b'
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:31] '.' expected after <domain> 29, found 'f'
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:32] '.' expected after <domain> 30, found 'f'
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:34] digit or '*' expected after <domain> 29, found 'f'
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:35] digit or '*' expected after <domain> 30, found 'b'
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:36] newline or whitespace expected after <serial> 1, found 'x'
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:37] newline or whitespace expected after <serial> 1, found 'x'
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:39] '.' expected after <domain> 123, found '
+'
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:40] expected newline, found End-of-File
+Semantic error: derived metric qa.c: sample.bin + sampledso.bin: Operands should have the same instance domain
+Error: qa: Unknown metric name
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -v qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== without mapping ===
+=== std out ===
+
+qa.a
+    inst [300 or "bin-300"] value 600
+
+qa.b
+    inst [100 or "bin-100"] value 200
+    inst [300 or "bin-300"] value 600
+    inst [500 or "bin-500"] value 1000
+    inst [700 or "bin-700"] value 1400
+    inst [900 or "bin-900"] value 1800
+=== std err ===
+Semantic error: derived metric qa.c: sample.bin + sampledso.bin: Operands should have the same instance domain
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -f qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== with mapping ===
+=== std out ===
+
+qa.a
+    inst [300 or "bin-300"] value 600
+
+qa.b
+    inst [100 or "bin-100"] value 200
+    inst [300 or "bin-300"] value 600
+    inst [500 or "bin-500"] value 1000
+    inst [700 or "bin-700"] value 1400
+    inst [900 or "bin-900"] value 1800
+
+qa.c
+    inst [100 or "bin-100"] value 200
+    inst [200 or "bin-200"] value 400
+    inst [300 or "bin-300"] value 600
+    inst [400 or "bin-400"] value 800
+    inst [500 or "bin-500"] value 1000
+    inst [600 or "bin-600"] value 1200
+    inst [700 or "bin-700"] value 1400
+    inst [800 or "bin-800"] value 1600
+    inst [900 or "bin-900"] value 1800
+=== std err ===
+__pmEquivInDom: loaded ...
+[map] 29.1 30.1 31.1 32.2 33.3
+[map] 29.2 30.2
+pmInResult dump from ADDR for InDom 29.2 (ADDR), numinst=1
+  [0] inst=300
+pmInResult dump from ADDR for InDom 29.2 (ADDR), numinst=1
+  [0] name="bin-100"
+pmInResult dump from ADDR for InDom 29.2 (ADDR), numinst=1
+  [0] name="bin-200"
+pmInResult dump from ADDR for InDom 29.2 (ADDR), numinst=1
+  [0] name="bin-300"
+pmInResult dump from ADDR for InDom 29.2 (ADDR), numinst=1
+  [0] name="bin-400"
+pmInResult dump from ADDR for InDom 29.2 (ADDR), numinst=1
+  [0] name="bin-500"
+pmInResult dump from ADDR for InDom 29.2 (ADDR), numinst=1
+  [0] name="bin-600"
+pmInResult dump from ADDR for InDom 29.2 (ADDR), numinst=1
+  [0] name="bin-700"
+pmInResult dump from ADDR for InDom 29.2 (ADDR), numinst=1
+  [0] name="bin-800"
+pmInResult dump from ADDR for InDom 29.2 (ADDR), numinst=1
+  [0] name="bin-900"
+pmInResult dump from ADDR for InDom 29.2 (ADDR), numinst=9
+  [0] inst=100 name="bin-100"
+  [1] inst=200 name="bin-200"
+  [2] inst=300 name="bin-300"
+  [3] inst=400 name="bin-400"
+  [4] inst=500 name="bin-500"
+  [5] inst=600 name="bin-600"
+  [6] inst=700 name="bin-700"
+  [7] inst=800 name="bin-800"
+  [8] inst=900 name="bin-900"
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -f -Dindom qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
