@@ -15,6 +15,7 @@
 # pylint: disable=bad-whitespace,line-too-long
 # pylint: disable=redefined-outer-name,unnecessary-lambda
 #
+import signal
 from pcp import pmapi
 from pcp import pmcc
 import sys
@@ -649,33 +650,36 @@ class MpstatReport(pmcc.MetricGroupPrinter):
             pass
 
     def report(self,manager):
-        group = manager['mpstat']
-        if group['kernel.all.cpu.user'].netPrevValues is None:
-            # need two fetches to report rate converted counter metrics
-            self.get_summary_metrics(group)
-            return
+        try:
+            group = manager['mpstat']
+            if group['kernel.all.cpu.user'].netPrevValues is None:
+                # need two fetches to report rate converted counter metrics
+                self.get_summary_metrics(group)
+                return
 
-        if self.Machine_info_count == 0:
-            self.print_machine_info(group, manager)
-            self.Machine_info_count = 1
+            if self.Machine_info_count == 0:
+                self.print_machine_info(group, manager)
+                self.Machine_info_count = 1
 
-        timestamp = group.contextCache.pmCtime(int(group.timestamp)).rstrip().split()
-        interval_in_seconds = self.timeStampDelta(group)
-        metric_repository = MetricRepository(group)
-        display_options = DisplayOptions(MpstatOptions)
+            timestamp = group.contextCache.pmCtime(int(group.timestamp)).rstrip().split()
+            interval_in_seconds = self.timeStampDelta(group)
+            metric_repository = MetricRepository(group)
+            display_options = DisplayOptions(MpstatOptions)
 
-        if display_options.display_cpu_usage_summary():
-            cpu_util = CpuUtil(interval_in_seconds, metric_repository)
-            self.cpu_util_reporter.print_report(cpu_util, timestamp[3])
-        if display_options.display_total_cpu_usage():
-            total_interrupt_usage = TotalInterruptUsage(interval_in_seconds, metric_repository)
-            self.total_interrupt_usage_reporter.print_report(total_interrupt_usage, timestamp[3])
-        if display_options.display_hard_interrupt_usage():
-            hard_interrupt_usage = HardInterruptUsage(interval_in_seconds, metric_repository, interrupts_list)
-            self.hard_interrupt_usage_reporter.print_report(hard_interrupt_usage,timestamp[3])
-        if display_options.display_soft_interrupt_usage():
-            soft_interrupt_usage = SoftInterruptUsage(interval_in_seconds, metric_repository, soft_interrupts_list)
-            self.soft_interrupt_usage_reporter.print_report(soft_interrupt_usage, timestamp[3])
+            if display_options.display_cpu_usage_summary():
+                cpu_util = CpuUtil(interval_in_seconds, metric_repository)
+                self.cpu_util_reporter.print_report(cpu_util, timestamp[3])
+            if display_options.display_total_cpu_usage():
+                total_interrupt_usage = TotalInterruptUsage(interval_in_seconds, metric_repository)
+                self.total_interrupt_usage_reporter.print_report(total_interrupt_usage, timestamp[3])
+            if display_options.display_hard_interrupt_usage():
+                hard_interrupt_usage = HardInterruptUsage(interval_in_seconds, metric_repository, interrupts_list)
+                self.hard_interrupt_usage_reporter.print_report(hard_interrupt_usage,timestamp[3])
+            if display_options.display_soft_interrupt_usage():
+                soft_interrupt_usage = SoftInterruptUsage(interval_in_seconds, metric_repository, soft_interrupts_list)
+                self.soft_interrupt_usage_reporter.print_report(soft_interrupt_usage, timestamp[3])
+        finally:
+            sys.stdout.flush()
 
 
 
@@ -710,5 +714,7 @@ if __name__ == '__main__':
     except pmapi.pmUsageErr as usage:
         usage.message()
         sys.exit(1)
+    except IOError:
+        signal.signal(signal.SIGPIPE, signal.SIG_DFL)
     except KeyboardInterrupt:
         pass
