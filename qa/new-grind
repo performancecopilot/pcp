@@ -61,7 +61,7 @@ if grep "^do_valgrind=false" $oldseq >/dev/null
 then
     :
 else
-    echo "Error: test \"$oldseq\" does look like it was created recently with ./new"
+    echo "Error: test \"$oldseq\" does NOT look like it was created recently with ./new"
     echo "... no \"do_valgrind=false\" line"
     exit 1
 fi

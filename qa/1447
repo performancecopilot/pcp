@@ -2,6 +2,8 @@
 # PCP QA Test No. 1447
 # derived metrics and indom mapping
 #
+# non-valgrind variant, see qa/1448 for the valgrind variant
+#
 # Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
 #
 
@@ -19,6 +21,13 @@ fi
 . ./common.product
 . ./common.filter
 . ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
 
 _cleanup()
 {
@@ -87,9 +96,25 @@ foo.1 30.1
 29.1 30.bar
 29.1x 30.1
 29.1 30.1x
+# incomplete line
+123
+# incomplete and EOF
+123
 End-of-File
+# chop off last \n - for Coverity CID 383817
+#
+nch=`wc -c <$tmp.equiv | sed -e 's/  *//'`
+nch=`expr $nch - 1`
+dd if=$tmp.equiv of=$tmp.tmp ibs=1 count=$nch 2>>$seq.full
+mv $tmp.tmp $tmp.equiv
 nl -b a $tmp.equiv
-PCP_INDOM_CONFIG=$tmp.equiv pminfo -v qa 2>&1 \
+export PCP_INDOM_CONFIG=$tmp.equiv
+if $do_valgrind
+then
+    _run_valgrind pminfo -v qa 2>&1
+else
+    pminfo -v qa 2>&1
+fi \
 | _filter
 
 cat <<'End-of-File' >$tmp.derive
@@ -108,10 +133,24 @@ End-of-File
 
 echo
 echo '=== without mapping ==='
-pminfo -f qa
+export PCP_INDOM_CONFIG=
+if $do_valgrind
+then
+    _run_valgrind pminfo -f qa 2>&1
+else
+    pminfo -f qa 2>&1
+fi \
+| _filter
+
 echo
 echo '=== with mapping ==='
-PCP_INDOM_CONFIG=$tmp.equiv pminfo -f -Dindom qa 2>&1 \
+export PCP_INDOM_CONFIG=$tmp.equiv
+if $do_valgrind
+then
+    _run_valgrind pminfo -f -Dindom qa 2>&1
+else
+    pminfo -f -Dindom qa 2>&1
+fi \
 | _filter
 
 # success, all done

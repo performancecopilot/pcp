@@ -32,9 +32,6 @@ typedef struct map_t {
 
 map_t	*map;
 
-// TODO
-//	- config files for packaging
-
 /*
  * <domain> can be no more than 2^9-1 = 511
  * <serial> can be no more than 2^22-1 = 4194303
@@ -200,7 +197,7 @@ parse(FILE *f, char *fname)
 		    *np = '\0';
 		    pmNotifyErr(LOG_ERR, "__pmEquivInDom: [%s:%d] newline or whitespace expected after <serial> %s, found '%c'",
 				fname, lineno, nbuf, c);
-    skip:
+skip:
 		    if (mp != NULL) {
 			if (mp->elt != NULL)
 			    free(mp->elt);
@@ -224,6 +221,11 @@ parse(FILE *f, char *fname)
 	    break;
 	}
     }
+    if (state != S_EOL) {
+	pmNotifyErr(LOG_ERR, "__pmEquivInDom: [%s:%d] expected newline, found End-of-File",
+			    fname, lineno);
+	sts = -1;
+    }
 
     if (sts < 0) {
 	if (mp != NULL) {
@@ -231,7 +233,6 @@ parse(FILE *f, char *fname)
 		free(mp->elt);
 	    free(mp);
 	}
-	map = NULL;
     }
 
     return sts;
@@ -275,12 +276,14 @@ __pmEquivInDom(pmInDom a, pmInDom b)
 	}
 	else if (p[0] == '\0') {
 	    /* don't load anything */
+	    PM_UNLOCK(__pmLock_libpcp);
 	    return 0;
 	}
 	    
 	if ((f = fopen(p, "r")) == NULL) {
 	    if (pmDebugOptions.indom)
 		fprintf(stderr, "__pmEquivInDom: failed to open \"%s\"\n", p);
+	    PM_UNLOCK(__pmLock_libpcp);
 	    return 0;
 	}
 	sts = parse(f, p);
@@ -294,6 +297,7 @@ __pmEquivInDom(pmInDom a, pmInDom b)
 		free(mp);
 		mp = next;
 	    }
+	    map = NULL;
 	}
 	fclose(f);
 	if (pmDebugOptions.indom) {

@@ -37,6 +37,10 @@ QA output created by 1447
     35	29.1 30.bar
     36	29.1x 30.1
     37	29.1 30.1x
+    38	# incomplete line
+    39	123
+    40	# incomplete and EOF
+    41	123
 [DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:5] <domain> 2912... too long
 [DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:6] <domain> 3012... too long
 [DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:8] <domain> 512 too big
@@ -59,6 +63,9 @@ QA output created by 1447
 [DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:35] digit or '*' expected after <domain> 30, found 'b'
 [DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:36] newline or whitespace expected after <serial> 1, found 'x'
 [DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:37] newline or whitespace expected after <serial> 1, found 'x'
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:39] '.' expected after <domain> 123, found '
+'
+[DATESTAMP] pminfo(PID) Error: __pmEquivInDom: [TMP.equiv:40] expected newline, found End-of-File
 Semantic error: derived metric qa.c: sample.bin + sampledso.bin: Operands should have the same instance domain
 Error: qa: Unknown metric name
 
