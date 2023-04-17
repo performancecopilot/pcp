@@ -1927,6 +1927,7 @@ x11
 1548 pmrep python local
 1549 pmrep python local
 1566 logutil libpcp local
+1567 pmie_util local
 1573 pmproxy libpcp_web pmlogger local
 1574 pmseries libpcp_web local valgrind
 1577 pmda.bpf local

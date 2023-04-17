@@ -1,0 +1,13 @@
+QA output created by 1567
+pmie webhook invocation
+
+curl request:
+
+Accept: */*
+Content-Length: SIZE
+Content-Type: application/json
+Host: localhost:PORT
+POST /webhook HTTP/1.1
+User-Agent: curl VERSION
+{"pcp-pmie":{"rule":"Busy CPU","values":"100%hosta 100%@hostb"}}
+

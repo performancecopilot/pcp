@@ -1,0 +1,69 @@
+#!/bin/sh
+# PCP QA Test No. 1567
+# Exercise pmie_webhook script functionality
+#
+# Copyright (c) 2023 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which nc >/dev/null 2>&1 || _notrun "nc binary not installed"
+which curl >/dev/null 2>&1 || _notrun "curl binary not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+signal=$PCP_BINADM_DIR/pmsignal
+
+_filter_pmie_webhook()
+{
+    tee -a $here/$seq.full \
+    | col -b \
+    | sed \
+	-e "s/^\(Host: localhost\):$port/\1:PORT/g" \
+	-e 's/^\(Content-Length:\) [1-9][0-9]*/\1 SIZE/g' \
+	-e 's/^\(User-Agent: curl\).*/\1 VERSION/g' \
+	-e 's/^\(Date:\).*/\1 DATE/g' \
+	-e 's/\(\"context\":\) [0-9][0-9]*/\1 CTXID/g' \
+	-e '/^Connection: Keep-Alive/d' \
+	-e '/ using stream socket$/d' \
+    | LC_COLLATE=POSIX sort
+}
+
+# real QA test starts here
+port=`_find_free_port`
+nc -l localhost $port >$tmp.nc.out 2>$tmp.nc.err &
+pid1=$!
+sleep 2 # let nc start up
+
+echo "pmie webhook invocation" | tee -a $here/$seq.full
+pmie_webhook "http://localhost:$port/webhook|Busy CPU|100%hosta|100%@hostb" 2> $tmp.webhook.err
+cat $tmp.webhook.err >> $here/$seq.full
+echo
+
+echo "curl request:"
+_filter_pmie_webhook <$tmp.nc.out
+
+echo "nc output" >> $here/$seq.full
+for i in $tmp.nc.out $tmp.nc.err
+do
+    echo "=== $i ===" >>$here/$seq.full
+    cat $i >>$here/$seq.full
+done
+
+echo "" | tee -a $here/$seq.full
+
+# success, all done
+exit

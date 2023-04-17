@@ -78,5 +78,19 @@ string	global.syslog_prefix
 	modify	= no
 	default	= "";
 
+
+shell	global.webhook_action
+	enabled	= no
+	default	= "pmie_webhook '$webhook_endpoint$|$rule$^|$action_expand$^'"
+	help	=
+"HTTP POST message will be sent to \"webhook_endpoint\" when a
+rule condition is true.  The message will be in JSON format.";
+
+string	global.webhook_endpoint
+	default = "https://localhost:443/endpoint"
+	help	=
+"The webhook HTTP endpoint URL that will be posted to when the
+\"webhook_action\" when it is enabled";
+
 #
 # --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
