@@ -50,7 +50,7 @@ NF < 2	{ print "echo '"'$prog"': needs \"endpoint|rule|values\" argument'"'"'"
 	  exit 1
 	}
 	{ printf "%s ", "'$CURL'"
-	  printf "-X POST -H \"Content-Type: application/json\" -d@- "
+	  printf "-s -X POST -H \"Content-Type: application/json\" -d@- "
 	  printf "%s <<End-of-File\n", $1
 	  printf "{\"pcp-pmie\":{\"rule\":\"%s\",\"values\":\"%s", $2, $3
 	  for (i = 4; i <= NF; i++)
