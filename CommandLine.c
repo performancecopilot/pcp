@@ -89,7 +89,7 @@ typedef struct CommandLineSettings_ {
    bool readonly;
 } CommandLineSettings;
 
-static CommandLineStatus parseArguments(const char* program, int argc, char** argv, CommandLineSettings* flags) {
+static CommandLineStatus parseArguments(int argc, char** argv, CommandLineSettings* flags) {
 
    *flags = (CommandLineSettings) {
       .pidMatchList = NULL,
@@ -298,7 +298,7 @@ static void setCommFilter(State* state, char** commFilter) {
    *commFilter = NULL;
 }
 
-int CommandLine_run(const char* name, int argc, char** argv) {
+int CommandLine_run(int argc, char** argv) {
 
    /* initialize locale */
    const char* lc_ctype;
@@ -310,7 +310,7 @@ int CommandLine_run(const char* name, int argc, char** argv) {
    CommandLineStatus status = STATUS_OK;
    CommandLineSettings flags = { 0 };
 
-   if ((status = parseArguments(name, argc, argv, &flags)) != STATUS_OK)
+   if ((status = parseArguments(argc, argv, &flags)) != STATUS_OK)
       return status != STATUS_OK_EXIT ? 1 : 0;
 
    if (flags.readonly)
@@ -322,14 +322,14 @@ int CommandLine_run(const char* name, int argc, char** argv) {
    Process_setupColumnWidths();
 
    UsersTable* ut = UsersTable_new();
-   Hashtable* dc = DynamicColumns_new();
    Hashtable* dm = DynamicMeters_new();
+   Hashtable* dc = DynamicColumns_new();
    if (!dc)
       dc = Hashtable_new(0, true);
 
-   ProcessList* pl = ProcessList_new(ut, dm, dc, flags.pidMatchList, flags.userId);
+   ProcessList* pl = ProcessList_new(ut, flags.pidMatchList, flags.userId);
 
-   Settings* settings = Settings_new(pl->activeCPUs, dc);
+   Settings* settings = Settings_new(pl->activeCPUs, dm, dc);
    pl->settings = settings;
 
    Header* header = Header_new(pl, settings, 2);

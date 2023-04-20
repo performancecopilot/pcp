@@ -38,6 +38,7 @@ in the source distribution for its full text.
 #include "ClockMeter.h"
 #include "DateMeter.h"
 #include "DateTimeMeter.h"
+#include "FileDescriptorMeter.h"
 #include "HostnameMeter.h"
 #include "LoadAverageMeter.h"
 #include "Macros.h"
@@ -52,6 +53,7 @@ in the source distribution for its full text.
 #include "TasksMeter.h"
 #include "UptimeMeter.h"
 #include "XUtils.h"
+#include "generic/fdstat_sysctl.h"
 #include "netbsd/NetBSDProcess.h"
 #include "netbsd/NetBSDProcessList.h"
 
@@ -179,6 +181,7 @@ const MeterClass* const Platform_meterTypes[] = {
    &BlankMeter_class,
    &DiskIOMeter_class,
    &NetworkIOMeter_class,
+   &FileDescriptorMeter_class,
    NULL
 };
 
@@ -251,14 +254,12 @@ double Platform_setCPUValues(Meter* this, int cpu) {
       v[CPU_METER_IOWAIT]  = 0.0;
       v[CPU_METER_FREQUENCY] = NAN;
       this->curItems = 8;
-      totalPercent = v[0] + v[1] + v[2] + v[3];
    } else {
-      v[2] = cpuData->sysAllPeriod / total * 100.0;
-      v[3] = 0.0; // No steal nor guest on NetBSD
-      totalPercent = v[0] + v[1] + v[2];
+      v[CPU_METER_KERNEL] = cpuData->sysAllPeriod / total * 100.0;
+      v[CPU_METER_IRQ] = 0.0; // No steal nor guest on NetBSD
       this->curItems = 4;
    }
-
+   totalPercent = v[CPU_METER_NICE] + v[CPU_METER_NORMAL] + v[CPU_METER_KERNEL] + v[CPU_METER_IRQ];
    totalPercent = CLAMP(totalPercent, 0.0, 100.0);
 
    v[CPU_METER_FREQUENCY] = cpuData->frequency;
@@ -343,6 +344,10 @@ FileLocks_ProcessData* Platform_getProcessLocks(pid_t pid) {
    return NULL;
 }
 
+void Platform_getFileDescriptors(double* used, double* max) {
+   Generic_getFileDescriptors_sysctl(used, max);
+}
+
 bool Platform_getDiskIO(DiskIOData* data) {
    const int mib[] = { CTL_HW, HW_IOSTATS, sizeof(struct io_sysctl) };
    struct io_sysctl* iostats = NULL;
@@ -408,7 +413,7 @@ bool Platform_getNetworkIO(NetworkIOData* data) {
       if (ifa->ifa_flags & IFF_LOOPBACK)
          continue;
 
-      const struct if_data* ifd = (const struct if_data *)ifa->ifa_data;
+      const struct if_data* ifd = (const struct if_data*)ifa->ifa_data;
 
       data->bytesReceived += ifd->ifi_ibytes;
       data->packetsReceived += ifd->ifi_ipackets;

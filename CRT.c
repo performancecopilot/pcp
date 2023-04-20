@@ -19,6 +19,7 @@ in the source distribution for its full text.
 #include <string.h>
 #include <unistd.h>
 
+#include "CommandLine.h"
 #include "ProvideCurses.h"
 #include "XUtils.h"
 
@@ -157,6 +158,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [PROCESS_THREAD_BASENAME] = A_BOLD | ColorPair(Green, Black),
       [PROCESS_COMM] = ColorPair(Magenta, Black),
       [PROCESS_THREAD_COMM] = A_BOLD | ColorPair(Blue, Black),
+      [PROCESS_PRIV] = ColorPair(Magenta, Black),
       [BAR_BORDER] = A_BOLD,
       [BAR_SHADOW] = A_BOLD | ColorPairGrayBlack,
       [SWAP] = ColorPair(Red, Black),
@@ -202,6 +204,8 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [PRESSURE_STALL_THREEHUNDRED] = ColorPair(Cyan, Black),
       [PRESSURE_STALL_SIXTY] = A_BOLD | ColorPair(Cyan, Black),
       [PRESSURE_STALL_TEN] = A_BOLD | ColorPair(White, Black),
+      [FILE_DESCRIPTOR_USED] = ColorPair(Green, Black),
+      [FILE_DESCRIPTOR_MAX] = A_BOLD | ColorPair(Blue, Black),
       [ZFS_MFU] = A_BOLD | ColorPair(Blue, Black),
       [ZFS_MRU] = ColorPair(Yellow, Black),
       [ZFS_ANON] = ColorPair(Magenta, Black),
@@ -209,7 +213,8 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [ZFS_OTHER] = ColorPair(Magenta, Black),
       [ZFS_COMPRESSED] = A_BOLD | ColorPair(Blue, Black),
       [ZFS_RATIO] = ColorPair(Magenta, Black),
-      [ZRAM] = ColorPair(Yellow, Black),
+      [ZRAM_COMPRESSED] = ColorPair(Blue, Black),
+      [ZRAM_UNCOMPRESSED] = ColorPair(Yellow, Black),
       [DYNAMIC_GRAY] = ColorPairGrayBlack,
       [DYNAMIC_DARKGRAY] = A_BOLD | ColorPairGrayBlack,
       [DYNAMIC_RED] = ColorPair(Red, Black),
@@ -264,6 +269,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [PROCESS_THREAD_BASENAME] = A_REVERSE,
       [PROCESS_COMM] = A_BOLD,
       [PROCESS_THREAD_COMM] = A_REVERSE,
+      [PROCESS_PRIV] = A_BOLD,
       [BAR_BORDER] = A_BOLD,
       [BAR_SHADOW] = A_DIM,
       [SWAP] = A_BOLD,
@@ -309,6 +315,8 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [PRESSURE_STALL_THREEHUNDRED] = A_DIM,
       [PRESSURE_STALL_SIXTY] = A_NORMAL,
       [PRESSURE_STALL_TEN] = A_BOLD,
+      [FILE_DESCRIPTOR_USED] = A_BOLD,
+      [FILE_DESCRIPTOR_MAX] = A_BOLD,
       [ZFS_MFU] = A_NORMAL,
       [ZFS_MRU] = A_NORMAL,
       [ZFS_ANON] = A_DIM,
@@ -316,7 +324,8 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [ZFS_OTHER] = A_DIM,
       [ZFS_COMPRESSED] = A_BOLD,
       [ZFS_RATIO] = A_BOLD,
-      [ZRAM] = A_NORMAL,
+      [ZRAM_COMPRESSED] = A_NORMAL,
+      [ZRAM_UNCOMPRESSED] = A_NORMAL,
       [DYNAMIC_GRAY] = A_DIM,
       [DYNAMIC_DARKGRAY] = A_DIM,
       [DYNAMIC_RED] = A_BOLD,
@@ -371,6 +380,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [PROCESS_THREAD_BASENAME] = A_BOLD | ColorPair(Blue, White),
       [PROCESS_COMM] = ColorPair(Magenta, White),
       [PROCESS_THREAD_COMM] = ColorPair(Green, White),
+      [PROCESS_PRIV] = ColorPair(Magenta, White),
       [BAR_BORDER] = ColorPair(Blue, White),
       [BAR_SHADOW] = ColorPair(Black, White),
       [SWAP] = ColorPair(Red, White),
@@ -416,6 +426,8 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [PRESSURE_STALL_THREEHUNDRED] = ColorPair(Black, White),
       [PRESSURE_STALL_SIXTY] = ColorPair(Black, White),
       [PRESSURE_STALL_TEN] = ColorPair(Black, White),
+      [FILE_DESCRIPTOR_USED] = ColorPair(Green, White),
+      [FILE_DESCRIPTOR_MAX] = ColorPair(Blue, White),
       [ZFS_MFU] = ColorPair(Cyan, White),
       [ZFS_MRU] = ColorPair(Yellow, White),
       [ZFS_ANON] = ColorPair(Magenta, White),
@@ -423,7 +435,8 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [ZFS_OTHER] = ColorPair(Magenta, White),
       [ZFS_COMPRESSED] = ColorPair(Cyan, White),
       [ZFS_RATIO] = ColorPair(Magenta, White),
-      [ZRAM] = ColorPair(Yellow, White),
+      [ZRAM_COMPRESSED] = ColorPair(Cyan, White),
+      [ZRAM_UNCOMPRESSED] = ColorPair(Yellow, White),
       [DYNAMIC_GRAY] = ColorPair(Black, White),
       [DYNAMIC_DARKGRAY] = A_BOLD | ColorPair(Black, White),
       [DYNAMIC_RED] = ColorPair(Red, White),
@@ -478,6 +491,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [PROCESS_THREAD_BASENAME] = A_BOLD | ColorPair(Blue, Black),
       [PROCESS_COMM] = ColorPair(Magenta, Black),
       [PROCESS_THREAD_COMM] = ColorPair(Yellow, Black),
+      [PROCESS_PRIV] = ColorPair(Magenta, Black),
       [BAR_BORDER] = ColorPair(Blue, Black),
       [BAR_SHADOW] = ColorPairGrayBlack,
       [SWAP] = ColorPair(Red, Black),
@@ -523,6 +537,8 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [PRESSURE_STALL_THREEHUNDRED] = ColorPair(Black, Black),
       [PRESSURE_STALL_SIXTY] = ColorPair(Black, Black),
       [PRESSURE_STALL_TEN] = ColorPair(Black, Black),
+      [FILE_DESCRIPTOR_USED] = ColorPair(Green, Black),
+      [FILE_DESCRIPTOR_MAX] = A_BOLD | ColorPair(Blue, Black),
       [ZFS_MFU] = ColorPair(Cyan, Black),
       [ZFS_MRU] = ColorPair(Yellow, Black),
       [ZFS_ANON] = A_BOLD | ColorPair(Magenta, Black),
@@ -530,7 +546,8 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [ZFS_OTHER] = A_BOLD | ColorPair(Magenta, Black),
       [ZFS_COMPRESSED] = ColorPair(Cyan, Black),
       [ZFS_RATIO] = A_BOLD | ColorPair(Magenta, Black),
-      [ZRAM] = ColorPair(Yellow, Black),
+      [ZRAM_COMPRESSED] = ColorPair(Cyan, Black),
+      [ZRAM_UNCOMPRESSED] = ColorPair(Yellow, Black),
       [DYNAMIC_GRAY] = ColorPairGrayBlack,
       [DYNAMIC_DARKGRAY] = A_BOLD | ColorPairGrayBlack,
       [DYNAMIC_RED] = ColorPair(Red, Black),
@@ -585,6 +602,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [PROCESS_THREAD_BASENAME] = A_BOLD | ColorPair(Green, Blue),
       [PROCESS_COMM] = ColorPair(Magenta, Blue),
       [PROCESS_THREAD_COMM] = ColorPair(Black, Blue),
+      [PROCESS_PRIV] = ColorPair(Magenta, Blue),
       [BAR_BORDER] = A_BOLD | ColorPair(Yellow, Blue),
       [BAR_SHADOW] = ColorPair(Cyan, Blue),
       [SWAP] = ColorPair(Red, Blue),
@@ -630,6 +648,8 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [PRESSURE_STALL_THREEHUNDRED] = A_BOLD | ColorPair(Black, Blue),
       [PRESSURE_STALL_SIXTY] = A_NORMAL | ColorPair(White, Blue),
       [PRESSURE_STALL_TEN] = A_BOLD | ColorPair(White, Blue),
+      [FILE_DESCRIPTOR_USED] = A_BOLD | ColorPair(Green, Blue),
+      [FILE_DESCRIPTOR_MAX] = A_BOLD | ColorPair(Red, Blue),
       [ZFS_MFU] = A_BOLD | ColorPair(White, Blue),
       [ZFS_MRU] = A_BOLD | ColorPair(Yellow, Blue),
       [ZFS_ANON] = A_BOLD | ColorPair(Magenta, Blue),
@@ -637,7 +657,8 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [ZFS_OTHER] = A_BOLD | ColorPair(Magenta, Blue),
       [ZFS_COMPRESSED] = A_BOLD | ColorPair(White, Blue),
       [ZFS_RATIO] = A_BOLD | ColorPair(Magenta, Blue),
-      [ZRAM] = A_BOLD | ColorPair(Yellow, Blue),
+      [ZRAM_COMPRESSED] = ColorPair(Cyan, Blue),
+      [ZRAM_UNCOMPRESSED] = ColorPair(Yellow, Blue),
       [DYNAMIC_GRAY] = ColorPairGrayBlack,
       [DYNAMIC_DARKGRAY] = A_BOLD | ColorPairGrayBlack,
       [DYNAMIC_RED] = ColorPair(Red, Blue),
@@ -692,6 +713,7 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [PROCESS_LOW_PRIORITY] = ColorPair(Green, Black),
       [PROCESS_NEW] = ColorPair(Black, Green),
       [PROCESS_TOMB] = ColorPair(Black, Red),
+      [PROCESS_PRIV] = ColorPair(Magenta, Black),
       [BAR_BORDER] = A_BOLD | ColorPair(Green, Black),
       [BAR_SHADOW] = ColorPair(Cyan, Black),
       [SWAP] = ColorPair(Red, Black),
@@ -735,6 +757,8 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [PRESSURE_STALL_THREEHUNDRED] = ColorPair(Green, Black),
       [PRESSURE_STALL_SIXTY] = ColorPair(Green, Black),
       [PRESSURE_STALL_TEN] = A_BOLD | ColorPair(Green, Black),
+      [FILE_DESCRIPTOR_USED] = ColorPair(Green, Black),
+      [FILE_DESCRIPTOR_MAX] = A_BOLD | ColorPair(Blue, Black),
       [ZFS_MFU] = ColorPair(Blue, Black),
       [ZFS_MRU] = ColorPair(Yellow, Black),
       [ZFS_ANON] = ColorPair(Magenta, Black),
@@ -742,7 +766,8 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [ZFS_OTHER] = ColorPair(Magenta, Black),
       [ZFS_COMPRESSED] = ColorPair(Blue, Black),
       [ZFS_RATIO] = ColorPair(Magenta, Black),
-      [ZRAM] = ColorPair(Yellow, Black),
+      [ZRAM_COMPRESSED] = ColorPair(Blue, Black),
+      [ZRAM_UNCOMPRESSED] = ColorPair(Yellow, Black),
       [DYNAMIC_GRAY] = ColorPairGrayBlack,
       [DYNAMIC_DARKGRAY] = A_BOLD | ColorPairGrayBlack,
       [DYNAMIC_RED] = ColorPair(Red, Black),
@@ -869,16 +894,16 @@ static struct sigaction old_sig_handler[32];
 
 static void CRT_installSignalHandlers(void) {
    struct sigaction act;
-   sigemptyset (&act.sa_mask);
+   sigemptyset(&act.sa_mask);
    act.sa_flags = (int)SA_RESETHAND | SA_NODEFER;
    act.sa_handler = CRT_handleSIGSEGV;
-   sigaction (SIGSEGV, &act, &old_sig_handler[SIGSEGV]);
-   sigaction (SIGFPE, &act, &old_sig_handler[SIGFPE]);
-   sigaction (SIGILL, &act, &old_sig_handler[SIGILL]);
-   sigaction (SIGBUS, &act, &old_sig_handler[SIGBUS]);
-   sigaction (SIGPIPE, &act, &old_sig_handler[SIGPIPE]);
-   sigaction (SIGSYS, &act, &old_sig_handler[SIGSYS]);
-   sigaction (SIGABRT, &act, &old_sig_handler[SIGABRT]);
+   sigaction(SIGSEGV, &act, &old_sig_handler[SIGSEGV]);
+   sigaction(SIGFPE, &act, &old_sig_handler[SIGFPE]);
+   sigaction(SIGILL, &act, &old_sig_handler[SIGILL]);
+   sigaction(SIGBUS, &act, &old_sig_handler[SIGBUS]);
+   sigaction(SIGPIPE, &act, &old_sig_handler[SIGPIPE]);
+   sigaction(SIGSYS, &act, &old_sig_handler[SIGSYS]);
+   sigaction(SIGABRT, &act, &old_sig_handler[SIGABRT]);
 
    signal(SIGCHLD, SIG_DFL);
    signal(SIGINT, CRT_handleSIGTERM);
@@ -887,13 +912,13 @@ static void CRT_installSignalHandlers(void) {
 }
 
 void CRT_resetSignalHandlers(void) {
-   sigaction (SIGSEGV, &old_sig_handler[SIGSEGV], NULL);
-   sigaction (SIGFPE, &old_sig_handler[SIGFPE], NULL);
-   sigaction (SIGILL, &old_sig_handler[SIGILL], NULL);
-   sigaction (SIGBUS, &old_sig_handler[SIGBUS], NULL);
-   sigaction (SIGPIPE, &old_sig_handler[SIGPIPE], NULL);
-   sigaction (SIGSYS, &old_sig_handler[SIGSYS], NULL);
-   sigaction (SIGABRT, &old_sig_handler[SIGABRT], NULL);
+   sigaction(SIGSEGV, &old_sig_handler[SIGSEGV], NULL);
+   sigaction(SIGFPE, &old_sig_handler[SIGFPE], NULL);
+   sigaction(SIGILL, &old_sig_handler[SIGILL], NULL);
+   sigaction(SIGBUS, &old_sig_handler[SIGBUS], NULL);
+   sigaction(SIGPIPE, &old_sig_handler[SIGPIPE], NULL);
+   sigaction(SIGSYS, &old_sig_handler[SIGSYS], NULL);
+   sigaction(SIGABRT, &old_sig_handler[SIGABRT], NULL);
 
    signal(SIGINT, SIG_DFL);
    signal(SIGTERM, SIG_DFL);
@@ -1135,10 +1160,11 @@ void CRT_handleSIGSEGV(int signal) {
       "============================\n"
       "Please check at https://htop.dev/issues whether this issue has already been reported.\n"
       "If no similar issue has been reported before, please create a new issue with the following information:\n"
-      "  - Your "PACKAGE" version: '"VERSION"'\n"
+      "  - Your %s version: '"VERSION"'\n"
       "  - Your OS and kernel version (uname -a)\n"
       "  - Your distribution and release (lsb_release -a)\n"
-      "  - Likely steps to reproduce (How did it happen?)\n"
+      "  - Likely steps to reproduce (How did it happen?)\n",
+      program
    );
 
 #ifdef PRINT_BACKTRACE
@@ -1178,15 +1204,16 @@ void CRT_handleSIGSEGV(int signal) {
    fprintf(stderr,
       "\n"
       "To make the above information more practical to work with, "
-      "please also provide a disassembly of your "PACKAGE" binary. "
+      "please also provide a disassembly of your %s binary. "
       "This can usually be done by running the following command:\n"
-      "\n"
+      "\n",
+      program
    );
 
 #ifdef HTOP_DARWIN
-   fprintf(stderr, "   otool -tvV `which "PACKAGE"` > ~/htop.otool\n");
+   fprintf(stderr, "   otool -tvV `which %s` > ~/%s.otool\n", program, program);
 #else
-   fprintf(stderr, "   objdump -d -S -w `which "PACKAGE"` > ~/htop.objdump\n");
+   fprintf(stderr, "   objdump -d -S -w `which %s` > ~/%s.objdump\n", program, program);
 #endif
 
    fprintf(stderr,
@@ -1198,12 +1225,13 @@ void CRT_handleSIGSEGV(int signal) {
    fprintf(stderr,
       "Running this program with debug symbols or inside a debugger may provide further insights.\n"
       "\n"
-      "Thank you for helping to improve "PACKAGE"!\n"
-      "\n"
+      "Thank you for helping to improve %s!\n"
+      "\n",
+      program
    );
 
    /* Call old sigsegv handler; may be default exit or third party one (e.g. ASAN) */
-   if (sigaction (signal, &old_sig_handler[signal], NULL) < 0) {
+   if (sigaction(signal, &old_sig_handler[signal], NULL) < 0) {
       /* This avoids an infinite loop in case the handler could not be reset. */
       fprintf(stderr,
          "!!! Chained handler could not be restored. Forcing exit.\n"

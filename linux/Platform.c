@@ -5,6 +5,7 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "ZramMeter.h"
 #include "config.h"
 
 #include "linux/Platform.h"
@@ -31,6 +32,7 @@ in the source distribution for its full text.
 #include "DateMeter.h"
 #include "DateTimeMeter.h"
 #include "DiskIOMeter.h"
+#include "FileDescriptorMeter.h"
 #include "HostnameMeter.h"
 #include "HugePageMeter.h"
 #include "LoadAverageMeter.h"
@@ -64,7 +66,6 @@ in the source distribution for its full text.
 #include "zfs/ZfsCompressedArcMeter.h"
 
 #ifdef HAVE_LIBCAP
-#include <errno.h>
 #include <sys/capability.h>
 #endif
 
@@ -240,6 +241,7 @@ const MeterClass* const Platform_meterTypes[] = {
    &PressureStallCPUSomeMeter_class,
    &PressureStallIOSomeMeter_class,
    &PressureStallIOFullMeter_class,
+   &PressureStallIRQFullMeter_class,
    &PressureStallMemorySomeMeter_class,
    &PressureStallMemoryFullMeter_class,
    &ZfsArcMeter_class,
@@ -249,6 +251,8 @@ const MeterClass* const Platform_meterTypes[] = {
    &NetworkIOMeter_class,
    &SELinuxMeter_class,
    &SystemdMeter_class,
+   &SystemdUserMeter_class,
+   &FileDescriptorMeter_class,
    NULL
 };
 
@@ -321,16 +325,15 @@ double Platform_setCPUValues(Meter* this, unsigned int cpu) {
       v[CPU_METER_GUEST]   = cpuData->guestPeriod / total * 100.0;
       v[CPU_METER_IOWAIT]  = cpuData->ioWaitPeriod / total * 100.0;
       this->curItems = 8;
+      percent = v[CPU_METER_NICE] + v[CPU_METER_NORMAL] + v[CPU_METER_KERNEL] + v[CPU_METER_IRQ] + v[CPU_METER_SOFTIRQ];
       if (this->pl->settings->accountGuestInCPUMeter) {
-         percent = v[0] + v[1] + v[2] + v[3] + v[4] + v[5] + v[6];
-      } else {
-         percent = v[0] + v[1] + v[2] + v[3] + v[4];
+         percent += v[CPU_METER_STEAL] + v[CPU_METER_GUEST];
       }
    } else {
-      v[2] = cpuData->systemAllPeriod / total * 100.0;
-      v[3] = (cpuData->stealPeriod + cpuData->guestPeriod) / total * 100.0;
+      v[CPU_METER_KERNEL] = cpuData->systemAllPeriod / total * 100.0;
+      v[CPU_METER_IRQ] = (cpuData->stealPeriod + cpuData->guestPeriod) / total * 100.0;
       this->curItems = 4;
-      percent = v[0] + v[1] + v[2] + v[3];
+      percent = v[CPU_METER_NICE] + v[CPU_METER_NORMAL] + v[CPU_METER_KERNEL] + v[CPU_METER_IRQ];
    }
    percent = CLAMP(percent, 0.0, 100.0);
    if (isnan(percent)) {
@@ -380,8 +383,8 @@ void Platform_setSwapValues(Meter* this) {
 void Platform_setZramValues(Meter* this) {
    const LinuxProcessList* lpl = (const LinuxProcessList*) this->pl;
    this->total = lpl->zram.totalZram;
-   this->values[0] = lpl->zram.usedZramComp;
-   this->values[1] = lpl->zram.usedZramOrig;
+   this->values[ZRAM_METER_COMPRESSED] = lpl->zram.usedZramComp;
+   this->values[ZRAM_METER_UNCOMPRESSED] = lpl->zram.usedZramOrig;
 }
 
 void Platform_setZfsArcValues(Meter* this) {
@@ -456,16 +459,16 @@ FileLocks_ProcessData* Platform_getProcessLocks(pid_t pid) {
          continue;
 
       errno = 0;
-      char *end = de->d_name;
+      char* end = de->d_name;
       int file = strtoull(de->d_name, &end, 10);
       if (errno || *end)
          continue;
 
       int fd = openat(dfd, de->d_name, O_RDONLY | O_CLOEXEC);
-      if(fd == -1)
+      if (fd == -1)
          continue;
-      FILE *f = fdopen(fd, "r");
-      if(!f) {
+      FILE* f = fdopen(fd, "r");
+      if (!f) {
          close(fd);
          continue;
       }
@@ -474,7 +477,7 @@ FileLocks_ProcessData* Platform_getProcessLocks(pid_t pid) {
          if (!strchr(buffer, '\n'))
             continue;
 
-         if (strncmp(buffer, "lock:\t", strlen("lock:\t")))
+         if (!String_startsWith(buffer, "lock:\t"))
             continue;
 
          FileLocks_Data data = {.fd = file};
@@ -534,6 +537,24 @@ void Platform_getPressureStall(const char* file, bool some, double* ten, double*
    }
    (void) total;
    assert(total == 3);
+   fclose(fd);
+}
+
+void Platform_getFileDescriptors(double* used, double* max) {
+   *used = NAN;
+   *max = 65536;
+
+   FILE* fd = fopen(PROCDIR "/sys/fs/file-nr", "r");
+   if (!fd)
+      return;
+
+   unsigned long long v1, v2, v3;
+   int total = fscanf(fd, "%llu %llu %llu", &v1, &v2, &v3);
+   if (total == 3) {
+      *used = v1;
+      *max = v3;
+   }
+
    fclose(fd);
 }
 
