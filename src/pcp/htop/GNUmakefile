@@ -48,6 +48,7 @@ TOPCFILES = \
 	DynamicColumn.c \
 	DynamicMeter.c \
 	EnvScreen.c \
+	FileDescriptorMeter.c \
 	FunctionBar.c \
 	Hashtable.c \
 	Header.c \
@@ -71,6 +72,7 @@ TOPCFILES = \
 	ProcessList.c \
 	ProcessLocksScreen.c \
 	RichString.c \
+	Scheduling.c \
 	ScreenManager.c \
 	ScreensPanel.c \
 	Settings.c \
@@ -117,6 +119,7 @@ TOPHFILES = \
 	DynamicColumn.h \
 	DynamicMeter.h \
 	EnvScreen.h \
+	FileDescriptorMeter.h \
 	FunctionBar.h \
 	Hashtable.h \
 	Header.h \
@@ -143,6 +146,7 @@ TOPHFILES = \
 	ProcessLocksScreen.h \
 	ProvideCurses.h \
 	RichString.h \
+	Scheduling.h \
 	ScreenManager.h \
 	ScreensPanel.h \
 	Settings.h \
