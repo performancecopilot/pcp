@@ -79,6 +79,20 @@ string	global.syslog_prefix
 	default	= "";
 
 
+shell	global.wall_action
+	enabled	= no
+	default	= "wall -t 1 -g $wall_group$ pmie: $rule$^ $action_expand$"
+	help	=
+"Notify administrators when rule condition is true using the wall(1)
+command.  Notifications are limited to users in the \"wall_group\".";
+
+string	global.wall_group
+	default = "adm"
+	help	=
+"The local group(5) name or number indicating users to notify when
+the rule condition is true.";
+
+
 shell	global.webhook_action
 	enabled	= no
 	default	= "pmie_webhook '$webhook_endpoint$|$rule$^|$action_expand$^'"
