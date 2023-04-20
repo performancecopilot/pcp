@@ -44,7 +44,7 @@ static void PCPProcessList_updateCPUcount(PCPProcessList* this) {
    free(this->percpu);
    free(this->values);
 
-   this->percpu = xCalloc(cpus, sizeof(pmAtomValue *));
+   this->percpu = xCalloc(cpus, sizeof(pmAtomValue*));
    for (unsigned int i = 0; i < cpus; i++)
       this->percpu[i] = xCalloc(CPU_METRIC_COUNT, sizeof(pmAtomValue));
    this->values = xCalloc(cpus, sizeof(pmAtomValue));
@@ -63,11 +63,11 @@ static char* setUser(UsersTable* this, unsigned int uid, int pid, int offset) {
    return name;
 }
 
-ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* dynamicMeters, Hashtable* dynamicColumns, Hashtable* pidMatchList, uid_t userId) {
+ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* pidMatchList, uid_t userId) {
    PCPProcessList* this = xCalloc(1, sizeof(PCPProcessList));
    ProcessList* super = &(this->super);
 
-   ProcessList_init(super, Class(PCPProcess), usersTable, dynamicMeters, dynamicColumns, pidMatchList, userId);
+   ProcessList_init(super, Class(PCPProcess), usersTable, pidMatchList, userId);
 
    struct timeval timestamp;
    gettimeofday(&timestamp, NULL);

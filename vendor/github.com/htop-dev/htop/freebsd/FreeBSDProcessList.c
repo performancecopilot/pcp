@@ -34,6 +34,7 @@ in the source distribution for its full text.
 #include "Object.h"
 #include "Process.h"
 #include "ProcessList.h"
+#include "Scheduling.h"
 #include "Settings.h"
 #include "XUtils.h"
 #include "generic/openzfs_sysctl.h"
@@ -58,12 +59,12 @@ static int MIB_kern_cp_time[2];
 static int MIB_kern_cp_times[2];
 static int kernelFScale;
 
-ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* dynamicMeters, Hashtable* DynamicColumns, Hashtable* pidMatchList, uid_t userId) {
+ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* pidMatchList, uid_t userId) {
    size_t len;
    char errbuf[_POSIX2_LINE_MAX];
    FreeBSDProcessList* fpl = xCalloc(1, sizeof(FreeBSDProcessList));
    ProcessList* pl = (ProcessList*) fpl;
-   ProcessList_init(pl, Class(FreeBSDProcess), usersTable, dynamicMeters, DynamicColumns, pidMatchList, userId);
+   ProcessList_init(pl, Class(FreeBSDProcess), usersTable, pidMatchList, userId);
 
    // physical memory in system: hw.physmem
    // physical page size: hw.pagesize
@@ -366,12 +367,7 @@ static inline void FreeBSDProcessList_scanMemoryInfo(ProcessList* pl) {
 
    len = sizeof(vmtotal);
    sysctl(MIB_vm_vmtotal, 2, &(vmtotal), &len, NULL, 0);
-   pl->sharedMem = vmtotal.t_vmshr * pageSizeKb;
-
-   if (fpl->zfs.enabled) {
-      fpl->memWire -= fpl->zfs.size;
-      pl->cachedMem += fpl->zfs.size;
-   }
+   pl->sharedMem = vmtotal.t_rmshr * pageSizeKb;
 
    pl->usedMem = fpl->memActive + fpl->memWire;
 
@@ -610,6 +606,11 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
 
       if (Process_isKernelThread(proc))
          super->kernelThreads++;
+
+#ifdef SCHEDULER_SUPPORT
+      if (settings->ss->flags & PROCESS_FLAG_SCHEDPOL)
+         Scheduling_readProcessPolicy(proc);
+#endif
 
       proc->show = ! ((hideKernelThreads && Process_isKernelThread(proc)) || (hideUserlandThreads && Process_isUserlandThread(proc)));
 

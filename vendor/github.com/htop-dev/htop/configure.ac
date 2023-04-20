@@ -6,7 +6,7 @@
 # ----------------------------------------------------------------------
 
 AC_PREREQ([2.69])
-AC_INIT([htop], [3.2.2], [htop@groups.io], [], [https://htop.dev/])
+AC_INIT([htop], [3.3.0-dev], [htop@groups.io], [], [https://htop.dev/])
 
 AC_CONFIG_SRCDIR([htop.c])
 AC_CONFIG_AUX_DIR([build-aux])
@@ -188,6 +188,20 @@ AC_COMPILE_IFELSE([
    AC_MSG_RESULT(no))
 CFLAGS="$old_CFLAGS"
 
+AC_MSG_CHECKING(for access)
+old_CFLAGS="$CFLAGS"
+CFLAGS="$CFLAGS -Wno-error -Werror=attributes"
+AC_COMPILE_IFELSE([
+   AC_LANG_SOURCE(
+      [
+         __attribute__((access(read_only, 1, 2))) extern int foo(const char* str, unsigned len);
+      ],[]
+   )],
+   AC_DEFINE([HAVE_ATTR_ACCESS], 1, [The access attribute is supported.])
+   AC_MSG_RESULT(yes),
+   AC_MSG_RESULT(no))
+CFLAGS="$old_CFLAGS"
+
 AC_MSG_CHECKING(for NaN support)
 AC_RUN_IFELSE([
    AC_LANG_PROGRAM(
@@ -260,6 +274,8 @@ AC_CHECK_FUNCS([ \
     memfd_create\
     openat \
     readlinkat \
+    sched_getscheduler \
+    sched_setscheduler \
    ])
 
 if test "$my_htop_platform" = darwin; then
@@ -463,7 +479,9 @@ case "$enable_hwloc" in
       m4_ifdef([PKG_PROG_PKG_CONFIG], [
          PKG_PROG_PKG_CONFIG()
          PKG_CHECK_MODULES(HWLOC, hwloc, [
-               CFLAGS="$CFLAGS $HWLOC_CFLAGS" LIBS="$LIBS $HWLOC_LIBS"
+               CFLAGS="$CFLAGS $HWLOC_CFLAGS"
+               LIBS="$LIBS $HWLOC_LIBS"
+               AC_DEFINE([HAVE_LIBHWLOC], [1], [Define to 1 if you have the `hwloc' library (-lhwloc).])
             ], [
                AC_CHECK_LIB([hwloc], [hwloc_get_proc_cpubind], [], [AC_MSG_ERROR([can not find required library libhwloc])])
                AC_CHECK_HEADERS([hwloc.h], [], [AC_MSG_ERROR([can not find require header file hwloc.h])])
