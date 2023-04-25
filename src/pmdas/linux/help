@@ -2592,6 +2592,7 @@ Multipath TCP MP_PRIO receives.
 @ network.mptcp.rcvpruned the RcvPruned field of the MPTcp line from /proc/net/netstat
 Incoming multipath packet dropped due to memory limit.
 @ network.tcp.tcploss the TCPLOSS field of the Tcp line from /proc/net/netstat
+@ network.tcp.tcpplbrehash the TCPPLBRehash field of the Tcp line from /proc/net/netstat
 @ network.mptcp.mpfailtx the MPFailTx field of the MPTcp line from /proc/net/netstat
 Multipath TCP MP_FAIL transmits.
 @ network.mptcp.mpfailrx the MPFailRx field of the MPTcp line from /proc/net/netstat

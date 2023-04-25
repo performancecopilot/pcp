@@ -344,6 +344,8 @@ netstat_fields_t netstat_tcp_fields[] = {
       .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPMIGRATEREQFAILURE] },
     { .field = "TCPLoss",
       .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPLOSS] },
+    { .field = "TCPPLBRehash",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPPLBREHASH] },
 
     { .field = NULL, .offset = NULL }
 };

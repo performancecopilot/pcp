@@ -1236,6 +1236,7 @@ network.tcp {
     tcpmigratereqsuccess	60:53:166
     tcpmigratereqfailure	60:53:167
     tcploss			60:53:189
+    tcpplbrehash		60:53:205
 }
 
 network.mptcp {
