@@ -1,0 +1,244 @@
+#!/bin/sh
+#
+# Helper to export a new field from /proc/net/netstat
+#
+# Usage: add_netstat_field [-n] tag field
+#
+# where "tag" is TcpExt or IpExt or MTcpExt and "field" is
+# the new field name as it appears in /proc/net/netstat
+#
+# Typical /proc/net/netstat looks something like this ...
+# TcpExt: SyncookiesSent SyncookiesRecv ...
+# TcpExt: 5 5 ...
+# IpExt: InNoRoutes InTruncatedPkts ...
+# IpExt: 0 0 ...
+# MPTcpExt: MPCapableSYNRX MPCapableSYNTX ...
+# MPTcpExt: 0 0 ...
+
+tmp=/var/tmp/add_netstat_field.$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+usage="Usage: add_netstat_field tag field"
+
+if [ "$1" = "-n" ]
+then
+    showme=true
+    shift
+else
+    showme=false
+fi
+
+if [ $# -ne 2 ]
+then
+    echo $usage
+    exit
+fi
+
+case "$1"
+in
+    TcpExt)
+	group=tcp
+    	;;
+    IpExt)
+	group=ip
+    	;;
+    MPTcpExt)
+	group=mptcp
+    	;;
+    *)
+    	echo "Error: tag must be TcpExt or IpExt or MPTcpExt (not $1)"
+	exit
+	;;
+esac
+
+Tag="$1"
+TAG=`echo "$Tag" | tr '[a-z]' '[A-Z]'`
+tag=`echo "$Tag" | tr '[A-Z]' '[a-z]'`
+Field="$2"
+FIELD=`echo "$Field" | tr '[a-z]' '[A-Z]'`
+field=`echo "$Field" | tr '[A-Z]' '[a-z]'`
+
+for file in proc_net_netstat.c proc_net_netstat.h pmda.c \
+	root_linux help ../../../qa/linux/proc_net_netstat
+do
+    [ -f "$file" ] && continue
+    echo "Error: file \"$file\" not found"
+    exit
+done
+
+if [ ! -f /proc/net/netstat ]
+then
+    echo "Warning: /proc/net/netstat not found ... I hope you know what you're doing"
+else
+    grep "^$Tag: [A-Z]" /proc/net/netstat >$tmp.tmp
+    if sed -e 's/$/ /' <$tmp.tmp | grep " $Field " >/dev/null 2>&1
+    then
+	:
+    else
+	echo "Warning: field \"$Field\" not in the active /proc/net/netstat where the \"$Tag\" fields are:"
+	sed -e "s/^$Tag: //" <$tmp.tmp | fmt
+    fi
+fi
+
+# need to add to the correct enum in proc_net_netstat.h
+#
+if grep " _PM_NETSTAT_${TAG}_${FIELD}," <proc_net_netstat.h >/dev/null
+then
+    echo "Warning: _PM_NETSTAT_${TAG}_${FIELD} already defined in proc_net_netstat.h"
+else
+    line=`sed -n <proc_net_netstat.h -e "/_PM_NETSTAT_${TAG}_NFIELDS .* must be last/="`
+    if [ -z "$line" ]
+    then
+	echo "Arrgh: failed to find _PM_NETSTAT_${TAG}_NFIELDS in proc_net_netstat.h"
+	exit
+    fi
+    line=`expr $line - 2`
+    awk <proc_net_netstat.h >$tmp.tmp '
+		{ print }
+NR == '$line'	{ print "    _PM_NETSTAT_'"${TAG}_${FIELD}"'," }'
+    if $showme
+    then
+	diff -c proc_net_netstat.h $tmp.tmp 
+    else
+	mv $tmp.tmp proc_net_netstat.h
+    fi
+fi
+
+# need to add field declaration into proc_net_netstat.c
+#
+if grep "\\[_PM_NETSTAT_${TAG}_${FIELD}]" proc_net_netstat.c >/dev/null
+then
+    echo "Warning: network.$group.$field already defined for netstat_${group}_fields[] in proc_net_netstat.c"
+else
+    awk <proc_net_netstat.c >$tmp.tmp '
+inblock == 1 && NF == 0	{ print "    { .field = \"'"$Field"'\","
+			  print "      .offset = &_pm_proc_net_netstat.'"$group"'[_PM_NETSTAT_'"${TAG}_${FIELD}"'] },"
+			  inblock = 0
+			}
+			{ print }
+$2 == "'"netstat_${group}_fields[]"'"	{ inblock = 1; next }'
+    if $showme
+    then
+	diff -c proc_net_netstat.c $tmp.tmp 
+    else
+	mv $tmp.tmp proc_net_netstat.c
+    fi
+fi
+
+# need to add metrictab[] initialization in pmda.c
+# Note: assume it is a 64-bit counter
+#
+if grep "\\[_PM_NETSTAT_${TAG}_${FIELD}]" pmda.c >/dev/null
+then
+    echo "Warning: network.$group.$field already defined for metrictab[] in pmda.c"
+else
+    # last use of &_pm_proc_net_netstat.$group[ is close to the
+    # point we need to insert the new code ...
+    #
+    line=`sed -n <pmda.c -e "/&_pm_proc_net_netstat\.$group\[/=" | tail -1`
+    if [ -z "$line" ]
+    then
+	echo "Error: failed to find last _pm_proc_net_netstat.$group entry in pmda.c"
+	exit
+    fi
+    line=`expr $line + 3`
+    awk <pmda.c >$tmp.tmp '
+NR == '"$line"'	{ print ""
+		  print "/* network.'"${group}.${field}"' */"
+		  print "  { &_pm_proc_net_netstat.'"$group"'[_PM_NETSTAT_'"${TAG}_${FIELD}"'],"
+		  print "    { PMDA_PMID(CLUSTER_NET_NETSTAT,'"$item"'), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,"
+		  print "    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },"
+		}
+		{ print }'
+    if $showme
+    then
+	diff -c pmda.c $tmp.tmp 
+    else
+	mv $tmp.tmp pmda.c
+    fi
+fi
+
+# add skeletal help text
+#
+if grep "^@ network.$group.$field " help >/dev/null
+then
+    echo "Warning: network.$group.$field already defined in help"
+else
+    # last use of network.$group. is where we need to insert
+    # the new text ...
+    #
+    line=`sed -n <help -e "/^@ network\.$group\./=" | tail -1`
+    if [ -z "$line" ]
+    then
+	echo "Error: failed to find last network.$group.* entry in help"
+	exit
+    fi
+    line=`expr $line + 1`
+    Tg=`echo "$Tag" | sed -e 's/Ext//'`
+    awk <help >$tmp.tmp '
+NR == '"$line"'	{ print "@ network.'"${group}.${field}"' the '"$Field"' field of the '"$Tg"' line from /proc/net/netstat" }
+		{ print }'
+    if $showme
+    then
+	diff -c help $tmp.tmp 
+    else
+	mv $tmp.tmp help
+    fi
+fi
+
+# need to add metric into PMNS via root_linux
+#
+if pminfo -n root_linux -m network.$group.$field >$tmp.tmp
+then
+    echo "Warning: network.$group.$field already defined in root_linux"
+    item=`sed -e 's/.*\.\([^.][^.]*\)$/\1/' <$tmp.tmp`
+else
+    # CLUSTER_NET_NETSTAT from linux.h
+    #
+    cluster=53
+    pminfo -n root_linux -m network \
+    | sed -n -e "/\\.$cluster\\./"'{
+s/.* PMID: //
+p
+}' \
+    | awk -F . '{print $3}' \
+    | sort -nr \
+    | head -1 >$tmp.tmp
+    item=`cat $tmp.tmp`
+    item=`expr $item + 1`
+    awk <root_linux >$tmp.tmp '
+inblock == 1 && $1 == "}"	{ print "    '"$field"'\t\t60:'"$cluster:$item"'"
+				  inblock = 0
+				}
+				{ print }
+$1 == "'"network.$group"'"	{ inblock = 1; next }'
+    if $showme
+    then
+	diff -c root_linux $tmp.tmp 
+    else
+	mv $tmp.tmp root_linux
+    fi
+fi
+
+# add field for qa/1805 data file
+#
+if sed -e 's/$/ /' <../../../qa/linux/proc_net_netstat | grep "^$Tag:.* $Field " >/dev/null
+then
+    echo "Warning: field \"$Field\" already defined in the \"$Tag\" line in ../../../qa/linux/proc_net_netstat"
+else
+    # get last value
+    #
+    val=`sed -n <../../../qa/linux/proc_net_netstat -e "/^$Tag: 1 /s/.* //p"`
+    val=`expr $val + 1`
+    awk <../../../qa/linux/proc_net_netstat >$tmp.tmp '
+$0 ~ /^'"$Tag"': [A-Z]/	{ print $0 " '"$Field"'"; next }
+$0 ~ /^'"$Tag"': 1 /	{ print $0 " '"$val"'"; next }
+			{ print }'
+    if $showme
+    then
+	diff -c ../../../qa/linux/proc_net_netstat $tmp.tmp 
+    else
+	mv $tmp.tmp ../../../qa/linux/proc_net_netstat
+	echo "Warning: need to remake 1805 in ../../../qa"
+    fi
+fi

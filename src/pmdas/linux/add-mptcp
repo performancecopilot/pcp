@@ -3,6 +3,10 @@
 # Helper to check network.mptcp metrics and emit code fragments for
 # any missing ones
 #
+# Note: do not use this one, add_netstat_field is newer and better and
+#       deals with all the lines in /proc/net/netstat, not just the
+#       MPTcpExt: one
+#
 
 if [ ! -f pmda_linux.so ]
 then
