@@ -858,7 +858,6 @@ _wait_for_pmlogger()
     done
     if $__dead
     then
-	date
 	echo "Arrgghhh ... pmlogger ($__ident) failed to start after $__maxdelay seconds"
 	echo "at `date`."
 	echo "pmlogger log ($__logfile) ..."
