@@ -24,6 +24,7 @@ _cleanup()
     then
 	[ -f ${PCP_PMLOGGERCONTROL_PATH}.d/$remote ] \
 	    && $sudo rm -f ${PCP_PMLOGGERCONTROL_PATH}.d/$remote
+	export PMLOGGER_CHECK_SKIP_JANITOR=no
 	_service pcp restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -111,14 +112,14 @@ End-of-File
 $sudo cp $tmp.control ${PCP_PMLOGGERCONTROL_PATH}.d/$remote
 
 # real QA test starts here
-echo "initially" >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[p](mcd|mlogger)' >>$seq.full
+echo "[`date`] initially" >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[pP](mcd|mlogger|PID)' >>$seq.full
 
 # stop pmcd, and all pmloggers
 #
+echo "[`date`] pcp stop" >>$seq.full
 _service pcp stop 2>&1 | _filter_pcp_stop
-echo "pcp stop" >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[p](mcd|mlogger)' >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[pP](mcd|mlogger|PID)' >>$seq.full
 
 # from here on, don't use any "_service" wrapper ... we need to dodge
 # any linking of the services and starting stuff under the covers
@@ -126,21 +127,29 @@ $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[p](mcd|mlogger)' >>$seq.full
 _dir_hostname=`hostname || echo localhost`
 _logfile="$PCP_ARCHIVE_DIR/$_dir_hostname/pmlogger.log" 
 $sudo rm -f $_logfile
-echo "pmcd not running, expect this to timeout"
+echo "[`date`]" >>$seq.full
+echo "pmcd not running, expect this to timeout" | tee -a $seq.full
 $sudo $PCP_RC_DIR/pmlogger start 2>&1 | _filter_pcp_start
 _my_wait_for_pmlogger | _filter
-echo "pmlogger start fail case" >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[p](mcd|mlogger)' >>$seq.full
+echo "[`date`]" >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[pP](mcd|mlogger|PID)' >>$seq.full
 
 $sudo $PCP_RC_DIR/pmcd start 2>&1 | _filter_pcp_start
 _wait_for_pmcd
 
+# the "rc" pmlogger script calls pmlogger_check and now pmlogger_check
+# uses pmlogger_janitor to kill off any "lost" pmlogger's, we don't want
+# pmlogger_janitor to kill the primary pmlogger we're about to start ...
+#
+export PMLOGGER_CHECK_SKIP_JANITOR=yes
+
 $sudo rm -f $_logfile
-echo "pmcd running, expect this to work"
+echo "[`date`]" >>$seq.full
+echo "pmcd running, expect this to work" | tee -a $seq.full
 $sudo $PCP_RC_DIR/pmlogger start 2>&1 | _filter_pcp_start
 _wait_for_pmlogger
-echo "pmlogger start success case" >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[p](mcd|mlogger)' >>$seq.full
+echo "[`date`]" >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[pP](mcd|mlogger|PID)' >>$seq.full
 pminfo -f pmcd.pmlogger.pmcd_host | tee -a $seq.full >$tmp.tmp
 if grep '"primary"' $tmp.tmp >/dev/null
 then

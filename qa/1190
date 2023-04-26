@@ -95,6 +95,12 @@ _check_file()
 		    ;;
 	    esac
 	    ;;
+	"$PCP_SYSCONFIG_DIR"/pmlogger)
+	    sed <$tmp.out >$tmp.tmp \
+		-e '/^# and maybe useful for QA or special testing/d' \
+	    # end
+	    mv $tmp.tmp $tmp.out
+	    ;;
     esac
     if [ -s $tmp.out ]
     then
@@ -250,6 +256,7 @@ for arg in \
     '$PCP_SYSCONF_DIR/pmseries' \
     '$PCP_SYSCONFIG_DIR/pmcd' \
     '$PCP_SYSCONFIG_DIR/pmlogger' \
+    '$PCP_SYSCONFIG_DIR/pmlogger_farm' \
     '$PCP_SYSCONFIG_DIR/pmproxy' \
     '$PCP_SYSTEMDUNIT_DIR/pm'*'.service' \
     '$PCP_SYSTEMDUNIT_DIR/pm'*'.timer' \

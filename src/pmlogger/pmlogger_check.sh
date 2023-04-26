@@ -1178,13 +1178,17 @@ fi
 
 # Run the janitor script to clean up any badness ... but only
 # do this if we're using the system-installed control files (not
-# something else via -c on the command line).
+# something else via -c on the command line) and
+# $PMLOGGER_CHECK_SKIP_JANITOR is not "yes".
 #
 # QA uses -c and we don't want the janitor to be run in that case,
 # because the legitimate pmloggers, like the primary pmlogger, may
 # not be included in the "test" control file(s).
 #
-[ "$CONTROL" = "$PCP_PMLOGGERCONTROL_PATH" ] && $PCP_BINADM_DIR/pmlogger_janitor $daily_args
+if [ "$CONTROL" = "$PCP_PMLOGGERCONTROL_PATH" -a "$PMLOGGER_CHECK_SKIP_JANITOR" != "yes" ]
+then
+    $PCP_BINADM_DIR/pmlogger_janitor $daily_args
+fi
 
 [ -f $tmp/err ] && status=1
 

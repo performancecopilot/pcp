@@ -32,6 +32,7 @@ $PCP_SYSCONF_DIR/pmproxy ... OK
 $PCP_SYSCONF_DIR/pmseries ... OK
 $PCP_SYSCONFIG_DIR/pmcd ... OK
 $PCP_SYSCONFIG_DIR/pmlogger ... OK
+$PCP_SYSCONFIG_DIR/pmlogger_farm ... OK
 $PCP_SYSCONFIG_DIR/pmproxy ... OK
 $PCP_SYSTEMDUNIT_DIR/pm*.service ... OK
 $PCP_SYSTEMDUNIT_DIR/pm*.timer ... OK
