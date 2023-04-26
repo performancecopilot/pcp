@@ -52,10 +52,10 @@ NF < 2	{ print "echo '"'$prog"': needs \"endpoint|rule|values\" argument'"'"'"
 	{ printf "%s ", "'$CURL'"
 	  printf "-s -X POST -H \"Content-Type: application/json\" -d@- "
 	  printf "%s <<End-of-File\n", $1
-	  printf "{\"pcp-pmie\":{\"rule\":\"%s\",\"values\":\"%s", $2, $3
+	  printf "{\"pcp\":{\"pmie\":{\"rule\":\"%s\",\"values\":\"%s", $2, $3
 	  for (i = 4; i <= NF; i++)
 		printf " %s", $i
-	  printf "\"}}\nEnd-of-File\n"
+	  printf "\"}}}\nEnd-of-File\n"
 	}' | /bin/sh
 $1
 End-of-File
