@@ -1874,6 +1874,8 @@ parse_proc_smaps(proc_pid_entry_t *ep, size_t buflen, char *buf)
 		ep->smaps.pss = strtoull(curline + 5, &curline, 0);
 	    else if (strncmp(curline, "Pss_Anon:", 9) == 0)
 		ep->smaps.pss_anon = strtoull(curline + 10, &curline, 0);
+	    else if (strncmp(curline, "Pss_Dirty:", 10) == 0)
+		ep->smaps.pss_dirty = strtoull(curline + 11, &curline, 0);
 	    else if (strncmp(curline, "Pss_File:", 9) == 0)
 		ep->smaps.pss_file = strtoull(curline + 10, &curline, 0);
 	    else if (strncmp(curline, "Pss_Shmem:", 10) == 0)
