@@ -214,22 +214,4 @@ Copyright (c) 2002   Uwe Rathmann&lt;br&gt;
  <resources>
   <include location="pmtime.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>seeAlsoOKButton</sender>
-   <signal>clicked()</signal>
-   <receiver>SeeAlsoDialog</receiver>
-   <slot>seeAlsoOKButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
 </ui>

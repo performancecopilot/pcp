@@ -153,20 +153,29 @@ void ShowBounds::accept()
 	input = lineEditStart->text().simplified();
 	if (input.length() == 0) {
 	    error = QString("Start time has not been set.\n");
-	    QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
+	    QMessageBox warn(QMessageBox::Warning,
+			QApplication::tr("Warning"), error,
+			QMessageBox::Close);
+	    warn.exec();
 	    return;
 	}
 	if (input[0] != '@')
 	    input.prepend("@");
 	if (__pmParseTime(input.toLatin1(), &start, &end, &current, &msg) < 0) {
 	    error = QString("Invalid start date/time:\n\n%1\n").arg(msg);
-	    QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
+	    QMessageBox warn(QMessageBox::Warning,
+			QApplication::tr("Warning"), error,
+			QMessageBox::Close);
+	    warn.exec();
 	    free(msg);
 	    return;
 	} else if (PmTime::timevalCompare(&current, &start) < 0 ||
 		   PmTime::timevalCompare(&current, &end) > 0) {
 	    error = QString("Start time is outside archive boundaries\n");
-	    QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
+	    QMessageBox warn(QMessageBox::Warning,
+			QApplication::tr("Warning"), error,
+			QMessageBox::Close);
+	    warn.exec();
 	    return;
 	}
 	my.localCurrentStart = PmTime::secondsFromTimeval(&current);
@@ -179,20 +188,29 @@ void ShowBounds::accept()
 	input = lineEditEnd->text().simplified();
 	if (input.length() == 0) {
 	    error = QString("End time has not been set.\n");
-	    QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
+	    QMessageBox warn(QMessageBox::Warning,
+			QApplication::tr("Warning"), error,
+			QMessageBox::Close);
+	    warn.exec();
 	    return;
 	}
 	if (input[0] != '@')
 	    input.prepend("@");
 	if (__pmParseTime(input.toLatin1(), &start, &end, &current, &msg) < 0) {
 	    error = QString("Invalid end date/time:\n%1\n\n").arg(msg);
-	    QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
+	    QMessageBox warn(QMessageBox::Warning,
+			QApplication::tr("Warning"), error,
+			QMessageBox::Close);
+	    warn.exec();
 	    free(msg);
 	    return;
 	} else if (PmTime::timevalCompare(&current, &start) < 0 ||
 		   PmTime::timevalCompare(&current, &end) > 0) {
 	    error = QString("End time is outside the archive boundaries\n");
-	    QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
+	    QMessageBox warn(QMessageBox::Warning,
+			QApplication::tr("Warning"), error,
+			QMessageBox::Close);
+	    warn.exec();
 	    return;
 	}
 	my.localCurrentEnd = PmTime::secondsFromTimeval(&current);
@@ -202,7 +220,10 @@ void ShowBounds::accept()
 
     if (my.localCurrentStart > my.localCurrentEnd) {
 	error = QString("Start time must be less than end time.\n");
-	QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
+	QMessageBox warn(QMessageBox::Warning,
+			QApplication::tr("Warning"), error,
+			QMessageBox::Close);
+	warn.exec();
 	return;
     }
 

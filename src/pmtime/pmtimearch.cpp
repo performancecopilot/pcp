@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2012-2017, Red Hat.
+ * Copyright (c) 2012-2017,2023, Red Hat.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2006-2007, Aconex.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -18,6 +18,7 @@
 #include <QTimer>
 #include <QValidator>
 #include <QMessageBox>
+#include <QActionGroup>
 #include <pcp/pmapi.h>
 #include <pcp/libpcp.h>
 #include "aboutdialog.h"
@@ -31,6 +32,58 @@ PmTimeArch::PmTimeArch() : PmTime()
     setMinimumSize(size);
     setMaximumSize(size);
 #endif
+    connect(fileHideAction, SIGNAL(triggered()),
+	    SLOT(hideWindow()));
+    connect(helpAboutAction, SIGNAL(triggered()),
+	    SLOT(helpAbout()));
+    connect(helpAboutQtAction, SIGNAL(triggered()),
+	    SLOT(helpAboutQt()));
+    connect(helpSeeAlsoAction, SIGNAL(triggered()),
+	    SLOT(helpSeeAlso()));
+    connect(buttonBack, SIGNAL(clicked()),
+	    SLOT(back_clicked()));
+    connect(buttonStop, SIGNAL(clicked()),
+	    SLOT(stop_clicked()));
+    connect(buttonPlay, SIGNAL(clicked()),
+	    SLOT(play_clicked()));
+    connect(optionsDetailShow_MillisecondsAction, SIGNAL(triggered()),
+	    SLOT(clickShowMsec()));
+    connect(optionsDetailShow_YearAction, SIGNAL(triggered()),
+	    SLOT(clickShowYear()));
+    connect(comboBoxSpeed, SIGNAL(activated(int)),
+	    SLOT(changeControl(int)));
+    connect(sliderPosition, SIGNAL(sliderPressed()),
+	    SLOT(pressedPosition()));
+    connect(sliderPosition, SIGNAL(sliderReleased()),
+	    SLOT(releasedPosition()));
+    connect(sliderPosition, SIGNAL(valueChanged(double)),
+	    SLOT(changedPosition(double)));
+    connect(optionsShowBoundsAction, SIGNAL(triggered()),
+	    SLOT(showBounds()));
+    connect(optionsShowConsoleAction, SIGNAL(triggered()),
+	    SLOT(showConsole()));
+    connect(lineEditCtime, SIGNAL(returnPressed()),
+	    SLOT(lineEditCtime_validate()));
+    connect(lineEditCtime, SIGNAL(textChanged(QString)),
+	    SLOT(lineEditCtime_changed(QString)));
+    connect(lineEditSpeed, SIGNAL(returnPressed()),
+	    SLOT(lineEditSpeed_validate()));
+    connect(lineEditSpeed, SIGNAL(editingFinished()),
+	    SLOT(lineEditSpeed_validate()));
+    connect(helpWhats_ThisAction, SIGNAL(triggered()),
+	    SLOT(whatsThis()));
+    connect(wheelSpeed, SIGNAL(valueChanged(double)),
+	    SLOT(changeSpeed(double)));
+    connect(buttonSpeed, SIGNAL(clicked()),
+	    SLOT(resetSpeed()));
+    connect(comboBoxDelta, SIGNAL(activated(int)),
+	    SLOT(changeDelta(int)));
+    connect(lineEditDelta, SIGNAL(returnPressed()),
+	    SLOT(lineEditDelta_validate()));
+    connect(lineEditDelta, SIGNAL(textChanged(QString)),
+	    SLOT(lineEditDelta_changed(QString)));
+    connect(helpManualAction, SIGNAL(triggered()),
+	    SLOT(helpManual()));
 }
 
 typedef struct {
@@ -532,7 +585,10 @@ void PmTimeArch::lineEditCtime_validate()
     input = lineEditCtime->text().simplified();
     if (input.length() == 0) {
 	error = QString("Position time has not been set.\n");
-	QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
+	QMessageBox warn(QMessageBox::Warning,
+		QApplication::tr("Warning"), error,
+		QMessageBox::Close);
+	warn.exec();
 	return;
     }
     if (input[0] != '@')
@@ -540,7 +596,10 @@ void PmTimeArch::lineEditCtime_validate()
     if (__pmParseTime(input.toLatin1(),
 			&my.pmtime.start, &my.pmtime.end, &current, &msg) < 0) {
 	error = QString("Invalid position date/time:\n\n%1\n").arg(msg);
-	QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
+	QMessageBox warn(QMessageBox::Warning,
+		QApplication::tr("Warning"), error,
+		QMessageBox::Close);
+	warn.exec();
 	displayPositionText();	// reset to previous, known-good position
 	free(msg);
     } else {
