@@ -2,16 +2,65 @@ QA output created by 1425
 
 +foo bar --end fumble+
 before dir="foo" args="bar --end fumble"
+_do_dir_and_args ... dir="foo"
+ args[0]="bar"
+ args[1]="--end"
+ args[2]="fumble"
+ strip_quote=false in_quote=false close_quote= quote_c=
+ end strip_quote=false in_quote=false close_quote= quote_c=
+ orig_dir="foo" dir="foo" args="bar --end fumble"
 after dir="foo" args="bar --end fumble"
 
 +"/foo/$(echo host name | sed -e 's/ //')/bar/$(date +%Y | sed -e 's/[0-9]/N/g')/" --end fumble+
 before dir=""/foo/$(echo" args="host name | sed -e 's/ //')/bar/$(date +%Y | sed -e 's/[0-9]/N/g')/" --end fumble"
+_do_dir_and_args ... dir=""/foo/$(echo"
+ args[0]="host"
+ args[1]="name"
+ args[2]="|"
+ args[3]="sed"
+ args[4]="-e"
+ args[5]="'s/"
+ args[6]="//')/bar/$(date"
+ args[7]="+%Y"
+ args[8]="|"
+ args[9]="sed"
+ args[10]="-e"
+ args[11]="'s/[0-9]/N/g')/""
+ args[12]="--end"
+ args[13]="fumble"
+ strip_quote=false in_quote=true close_quote=*" quote_c="
+ end strip_quote=false in_quote=false close_quote=*" quote_c="
+ orig_dir="/foo/$(echo host name | sed -e 's/ //')/bar/$(date +%Y | sed -e 's/[0-9]/N/g')/" dir="/foo/hostname/bar/NNNN/" args="--end fumble"
 after dir="/foo/hostname/bar/NNNN/" args="--end fumble"
 
 +"/foo/`echo host name | sed -e 's/ //'`/bar/`date +%Y | sed -e 's/[0-9]/N/g'`/" --end fumble+
 before dir=""/foo/`echo" args="host name | sed -e 's/ //'`/bar/`date +%Y | sed -e 's/[0-9]/N/g'`/" --end fumble"
+_do_dir_and_args ... dir=""/foo/`echo"
+ args[0]="host"
+ args[1]="name"
+ args[2]="|"
+ args[3]="sed"
+ args[4]="-e"
+ args[5]="'s/"
+ args[6]="//'`/bar/`date"
+ args[7]="+%Y"
+ args[8]="|"
+ args[9]="sed"
+ args[10]="-e"
+ args[11]="'s/[0-9]/N/g'`/""
+ args[12]="--end"
+ args[13]="fumble"
+ strip_quote=false in_quote=true close_quote=*" quote_c="
+ end strip_quote=false in_quote=false close_quote=*" quote_c="
+ orig_dir="/foo/`echo host name | sed -e 's/ //'`/bar/`date +%Y | sed -e 's/[0-9]/N/g'`/" dir="/foo/hostname/bar/NNNN/" args="--end fumble"
 after dir="/foo/hostname/bar/NNNN/" args="--end fumble"
 
 +"/some/path/" --end fumble+
 before dir=""/some/path/"" args="--end fumble"
+_do_dir_and_args ... dir=""/some/path/""
+ args[0]="--end"
+ args[1]="fumble"
+ strip_quote=true in_quote=false close_quote= quote_c=
+ end strip_quote=true in_quote=false close_quote= quote_c=
+ orig_dir="/some/path/" dir="/some/path/" args="--end fumble"
 after dir="/some/path/" args="--end fumble"

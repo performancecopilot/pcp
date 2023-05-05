@@ -17,14 +17,26 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
+[ -f $PCP_SHARE_DIR/lib/utilproc.sh ] || _notrun "utilproc.sh not installed"
 # _do_dir_and_args is hidden here ...
 #
 . $PCP_SHARE_DIR/lib/utilproc.sh
+
+# secret debugging flag
+#
+debug_do_dir_and_args=true
 
 _error()
 {
     echo "[<stdin>:$line]"
     echo "Error: $@"
+}
+
+_filter()
+{
+    sed \
+	-e "s/$(hostname)/HOSTNAME/g" \
+    # end
 }
 
 # real QA test starts here
@@ -42,23 +54,34 @@ preamble$(blah)`foo`$bar /xyz$mydir -c someconfig
 preamble$(blah)`foo`$bar $(echo /some/path) -c someconfig
 preamble$(blah)`foo`$bar $( echo /some/path ) -c someconfig
 preamble$(blah)`foo`$bar "/some/path/$(date +2015)" -c someconfig
+preamble$(blah)`foo`$bar '/some/path/$(date +2015)' -c someconfig
 preamble$(blah)`foo`$bar " /some/path/$(date +2015) " -c someconfig
+preamble$(blah)`foo`$bar ' /some/path/$(date +2015) ' -c someconfig
 preamble$(blah)`foo`$bar `echo /some/path` -c someconfig
 preamble$(blah)`foo`$bar ` echo /some/path ` -c someconfig
 preamble$(blah)`foo`$bar "/some/path/`date +2015`" -c someconfig
+preamble$(blah)`foo`$bar '/some/path/`date +2015`' -c someconfig
 preamble$(blah)`foo`$bar $(bad command -c someconfig
 preamble$(blah)`foo`$bar `bad command -c someconfig
 preamble$(blah)`foo`$bar "bad string -c someconfig
+preamble$(blah)`foo`$bar 'bad string -c someconfig
 preamble$(blah)`foo`$bar "embedded_backquote`date +2015`.postfix" -c someconfig
+preamble$(blah)`foo`$bar 'embedded_backquote`date +2015`.postfix' -c someconfig
 preamble$(blah)`foo`$bar bad_embedded_backquote`date +2015`.postfix -c someconfig
 preamble$(blah)`foo`$bar "embedded_cmd\$(date +2015).postfix" -c someconfig
+preamble$(blah)`foo`$bar 'embedded_cmd\$(date +2015).postfix' -c someconfig
 preamble$(blah)`foo`$bar bad_embedded_cmd\$(date +2015).postfix -c someconfig
+preamble$(blah)`foo`$bar $(hostname) -c someconfig
+preamble$(blah)`foo`$bar foo-$(hostname)-bar -c someconfig
+preamble$(blah)`foo`$bar `hostname` -c someconfig
+preamble$(blah)`foo`$bar foo-`hostname`-bar -c someconfig
 End-of-File
 do
     echo
     echo "input \$dir |$dir| \$args |$args|"
-    _do_dir_and_args
-    echo "processed \$dir |$dir| \$args |$args|"
+    _do_dir_and_args >$tmp.tmp
+    _filter <$tmp.tmp
+    echo "processed \$dir |$dir| \$args |$args|" | _filter
     line=`expr $line + 1`
 done
 

@@ -21,7 +21,13 @@ fi
 . ./common.check
 
 [ -f $PCP_SHARE_DIR/lib/utilproc.sh ] || _notrun "utilproc.sh not installed"
+# _do_dir_and_args is hidden here ...
+#
 . $PCP_SHARE_DIR/lib/utilproc.sh 
+
+# secret debugging flag
+#
+debug_do_dir_and_args=true
 
 _error()
 {

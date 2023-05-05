@@ -10,44 +10,79 @@
 #
 _do_dir_and_args()
 {
+    quote_c=''
     close_quote=''
     strip_quote=false
-    do_shell=false
+    in_quote=false
     case "$dir"
     in
 	\"*\")
 	    # "..."
 	    strip_quote=true
 	    ;;
+	\'*\')
+	    # '...'
+	    strip_quote=true
+	    ;;
 	\"*)
 	    # "... ..."
+	    in_quote=true
+	    quote_c='"'
 	    close_quote='*"'
+	    dir=`echo "$dir" | sed -e 's/^.//'`
+	    ;;
+	\'*)
+	    # '... ...'
+	    in_quote=true
+	    quote_c="'"
+	    close_quote="*'"
+	    dir=`echo "$dir" | sed -e 's/^.//'`
+	    ;;
+	*\`*\`*)	# [...]`...`[...] all one word, no whitespace
 	    ;;
 	\`*)
 	    # `....`
+	    in_quote=true
 	    close_quote='*`'
 	    ;;
 	*\`*)
-	    _error "embedded \` without initial \": $dir"
+	    _error "embedded \` and whitespace, without initial \" or ': $dir"
+	    return
+	    ;;
+	*\$\(*\)*)	# [...]$(...)[...] all one word, no whitespace
 	    ;;
 	\$\(*)
 	    # $(....)
+	    in_quote=true
 	    close_quote='*)'
 	    ;;
 	*\$\(*)
-	    _error "embedded \$( without initial \": $dir"
+	    _error "embedded \$( and whitespace, without initial \" or ': $dir"
+	    return
 	    ;;
 	*\$*)
 	    # ...$...
-	    do_shell=true
 	    ;;
     esac
+    if [ "$debug_do_dir_and_args" = true ]
+    then
+	# secret debugging ...
+	#
+	echo "_do_dir_and_args ... dir=\"$quote_c$dir\""
+	__i=0
+	for word in $args
+	do
+	    echo " args[$__i]=\"$word\""
+	    __i=`expr $__i + 1`
+	done
+	echo " strip_quote=$strip_quote in_quote=$in_quote close_quote=$close_quote quote_c=$quote_c"
+    fi
     if $strip_quote
     then
 	# just remove the leading and trailing "
 	#
-	dir=`echo "$dir" | sed -e 's/^"//' -e 's/"$//'`
-    elif [ -n "$close_quote" ]
+	dir=`echo "$dir" | sed -e 's/^.//' -e 's/.$//'`
+    elif $in_quote
     then
 	# we have a "dir" argument that begins with one of the recognized
 	# quoting mechanisms ... append additional words to $dir (from
@@ -60,12 +95,21 @@ _do_dir_and_args()
 	    case $word
 	    in
 		$close_quote)
+		    if [ "$quote_c" = "'" -o "$quote_c" = '"'  ]
+		    then
+			# ' or ", strip it from end
+			#
+			word=`echo "$word" | sed -e 's/.$//'`
+		    fi
 		    newdir="$newdir $word"
-		    do_shell=true
+		    in_quote=false
 		    ;;
 		*)
-		    if $do_shell
+		    if $in_quote
 		    then
+			# still within quote
+			newdir="$newdir $word"
+		    else
 			# quote closed, gather remaining arguments
 			if [ -z "$newargs" ]
 			then
@@ -73,22 +117,44 @@ _do_dir_and_args()
 			else
 			    newargs="$newargs $word"
 			fi
-		    else
-			# still within quote
-			newdir="$newdir $word"
 		    fi
 		    ;;
 	    esac
 	done
-	if $do_shell
+	if $in_quote
 	then
+	    _error "quoted string or shell command not terminated: $quote_c$dir $args"
+	    # put back an initial quote, if any
+	    #
+	    dir="$quote_c$dir"
+	    return
+	else
 	    dir="$newdir"
 	    args="$newargs"
-	else
-	    _error "quote not terminated: $dir $args"
 	fi
     fi
-    $do_shell && dir="`eval echo $dir`"
+
+    # save _all_ of the directory field after white space mangling
+    # and "arg" combining
+    #
+    orig_dir="$dir"
+
+    # do any shell expansion
+    #
+    case "$dir"
+    in
+	*\$*|*\`*)
+	    dir=`eval echo "$dir"`
+	;;
+    esac
+
+    if [ "$debug_do_dir_and_args" = true ]
+    then
+	# secret debugging ...
+	#
+	echo " end strip_quote=$strip_quote in_quote=$in_quote close_quote=$close_quote quote_c=$quote_c"
+	echo " orig_dir=\"$orig_dir\" dir=\"$dir\" args=\"$args\""
+    fi
 }
 
 # Usage: _save_prev_file pathname

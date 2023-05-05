@@ -1,65 +1,271 @@
 QA output created by 1094
 
 input $dir |/some/path| $args |-c someconfig|
+_do_dir_and_args ... dir="/some/path"
+ args[0]="-c"
+ args[1]="someconfig"
+ strip_quote=false in_quote=false close_quote= quote_c=
+ end strip_quote=false in_quote=false close_quote= quote_c=
+ orig_dir="/some/path" dir="/some/path" args="-c someconfig"
 processed $dir |/some/path| $args |-c someconfig|
 
 input $dir |${mydir}/xyz| $args |-c someconfig|
+_do_dir_and_args ... dir="${mydir}/xyz"
+ args[0]="-c"
+ args[1]="someconfig"
+ strip_quote=false in_quote=false close_quote= quote_c=
+ end strip_quote=false in_quote=false close_quote= quote_c=
+ orig_dir="${mydir}/xyz" dir="/some/path/xyz" args="-c someconfig"
 processed $dir |/some/path/xyz| $args |-c someconfig|
 
 input $dir |/xyz${mydir}| $args |-c someconfig|
+_do_dir_and_args ... dir="/xyz${mydir}"
+ args[0]="-c"
+ args[1]="someconfig"
+ strip_quote=false in_quote=false close_quote= quote_c=
+ end strip_quote=false in_quote=false close_quote= quote_c=
+ orig_dir="/xyz${mydir}" dir="/xyz/some/path" args="-c someconfig"
 processed $dir |/xyz/some/path| $args |-c someconfig|
 
 input $dir |/xyz$mydir| $args |-c someconfig|
+_do_dir_and_args ... dir="/xyz$mydir"
+ args[0]="-c"
+ args[1]="someconfig"
+ strip_quote=false in_quote=false close_quote= quote_c=
+ end strip_quote=false in_quote=false close_quote= quote_c=
+ orig_dir="/xyz$mydir" dir="/xyz/some/path" args="-c someconfig"
 processed $dir |/xyz/some/path| $args |-c someconfig|
 
 input $dir |$(echo| $args |/some/path) -c someconfig|
+_do_dir_and_args ... dir="$(echo"
+ args[0]="/some/path)"
+ args[1]="-c"
+ args[2]="someconfig"
+ strip_quote=false in_quote=true close_quote=*) quote_c=
+ end strip_quote=false in_quote=false close_quote=*) quote_c=
+ orig_dir="$(echo /some/path)" dir="/some/path" args="-c someconfig"
 processed $dir |/some/path| $args |-c someconfig|
 
 input $dir |$(| $args |echo /some/path ) -c someconfig|
+_do_dir_and_args ... dir="$("
+ args[0]="echo"
+ args[1]="/some/path"
+ args[2]=")"
+ args[3]="-c"
+ args[4]="someconfig"
+ strip_quote=false in_quote=true close_quote=*) quote_c=
+ end strip_quote=false in_quote=false close_quote=*) quote_c=
+ orig_dir="$( echo /some/path )" dir="/some/path" args="-c someconfig"
 processed $dir |/some/path| $args |-c someconfig|
 
 input $dir |"/some/path/$(date| $args |+2015)" -c someconfig|
+_do_dir_and_args ... dir=""/some/path/$(date"
+ args[0]="+2015)""
+ args[1]="-c"
+ args[2]="someconfig"
+ strip_quote=false in_quote=true close_quote=*" quote_c="
+ end strip_quote=false in_quote=false close_quote=*" quote_c="
+ orig_dir="/some/path/$(date +2015)" dir="/some/path/2015" args="-c someconfig"
+processed $dir |/some/path/2015| $args |-c someconfig|
+
+input $dir |'/some/path/$(date| $args |+2015)' -c someconfig|
+_do_dir_and_args ... dir="'/some/path/$(date"
+ args[0]="+2015)'"
+ args[1]="-c"
+ args[2]="someconfig"
+ strip_quote=false in_quote=true close_quote=*' quote_c='
+ end strip_quote=false in_quote=false close_quote=*' quote_c='
+ orig_dir="/some/path/$(date +2015)" dir="/some/path/2015" args="-c someconfig"
 processed $dir |/some/path/2015| $args |-c someconfig|
 
 input $dir |"| $args |/some/path/$(date +2015) " -c someconfig|
-processed $dir | /some/path/2015 | $args |-c someconfig|
+_do_dir_and_args ... dir="""
+ args[0]="/some/path/$(date"
+ args[1]="+2015)"
+ args[2]="""
+ args[3]="-c"
+ args[4]="someconfig"
+ strip_quote=false in_quote=true close_quote=*" quote_c="
+ end strip_quote=false in_quote=false close_quote=*" quote_c="
+ orig_dir=" /some/path/$(date +2015) " dir="/some/path/2015" args="-c someconfig"
+processed $dir |/some/path/2015| $args |-c someconfig|
+
+input $dir |'| $args |/some/path/$(date +2015) ' -c someconfig|
+_do_dir_and_args ... dir="'"
+ args[0]="/some/path/$(date"
+ args[1]="+2015)"
+ args[2]="'"
+ args[3]="-c"
+ args[4]="someconfig"
+ strip_quote=false in_quote=true close_quote=*' quote_c='
+ end strip_quote=false in_quote=false close_quote=*' quote_c='
+ orig_dir=" /some/path/$(date +2015) " dir="/some/path/2015" args="-c someconfig"
+processed $dir |/some/path/2015| $args |-c someconfig|
 
 input $dir |`echo| $args |/some/path` -c someconfig|
+_do_dir_and_args ... dir="`echo"
+ args[0]="/some/path`"
+ args[1]="-c"
+ args[2]="someconfig"
+ strip_quote=false in_quote=true close_quote=*` quote_c=
+ end strip_quote=false in_quote=false close_quote=*` quote_c=
+ orig_dir="`echo /some/path`" dir="/some/path" args="-c someconfig"
 processed $dir |/some/path| $args |-c someconfig|
 
 input $dir |`| $args |echo /some/path ` -c someconfig|
+_do_dir_and_args ... dir="`"
+ args[0]="echo"
+ args[1]="/some/path"
+ args[2]="`"
+ args[3]="-c"
+ args[4]="someconfig"
+ strip_quote=false in_quote=true close_quote=*` quote_c=
+ end strip_quote=false in_quote=false close_quote=*` quote_c=
+ orig_dir="` echo /some/path `" dir="/some/path" args="-c someconfig"
 processed $dir |/some/path| $args |-c someconfig|
 
 input $dir |"/some/path/`date| $args |+2015`" -c someconfig|
+_do_dir_and_args ... dir=""/some/path/`date"
+ args[0]="+2015`""
+ args[1]="-c"
+ args[2]="someconfig"
+ strip_quote=false in_quote=true close_quote=*" quote_c="
+ end strip_quote=false in_quote=false close_quote=*" quote_c="
+ orig_dir="/some/path/`date +2015`" dir="/some/path/2015" args="-c someconfig"
+processed $dir |/some/path/2015| $args |-c someconfig|
+
+input $dir |'/some/path/`date| $args |+2015`' -c someconfig|
+_do_dir_and_args ... dir="'/some/path/`date"
+ args[0]="+2015`'"
+ args[1]="-c"
+ args[2]="someconfig"
+ strip_quote=false in_quote=true close_quote=*' quote_c='
+ end strip_quote=false in_quote=false close_quote=*' quote_c='
+ orig_dir="/some/path/`date +2015`" dir="/some/path/2015" args="-c someconfig"
 processed $dir |/some/path/2015| $args |-c someconfig|
 
 input $dir |$(bad| $args |command -c someconfig|
-[<stdin>:12]
-Error: quote not terminated: $(bad command -c someconfig
+_do_dir_and_args ... dir="$(bad"
+ args[0]="command"
+ args[1]="-c"
+ args[2]="someconfig"
+ strip_quote=false in_quote=true close_quote=*) quote_c=
+[<stdin>:15]
+Error: quoted string or shell command not terminated: $(bad command -c someconfig
 processed $dir |$(bad| $args |command -c someconfig|
 
 input $dir |`bad| $args |command -c someconfig|
-[<stdin>:13]
-Error: quote not terminated: `bad command -c someconfig
+_do_dir_and_args ... dir="`bad"
+ args[0]="command"
+ args[1]="-c"
+ args[2]="someconfig"
+ strip_quote=false in_quote=true close_quote=*` quote_c=
+[<stdin>:16]
+Error: quoted string or shell command not terminated: `bad command -c someconfig
 processed $dir |`bad| $args |command -c someconfig|
 
 input $dir |"bad| $args |string -c someconfig|
-[<stdin>:14]
-Error: quote not terminated: "bad string -c someconfig
+_do_dir_and_args ... dir=""bad"
+ args[0]="string"
+ args[1]="-c"
+ args[2]="someconfig"
+ strip_quote=false in_quote=true close_quote=*" quote_c="
+[<stdin>:17]
+Error: quoted string or shell command not terminated: "bad string -c someconfig
 processed $dir |"bad| $args |string -c someconfig|
 
+input $dir |'bad| $args |string -c someconfig|
+_do_dir_and_args ... dir="'bad"
+ args[0]="string"
+ args[1]="-c"
+ args[2]="someconfig"
+ strip_quote=false in_quote=true close_quote=*' quote_c='
+[<stdin>:18]
+Error: quoted string or shell command not terminated: 'bad string -c someconfig
+processed $dir |'bad| $args |string -c someconfig|
+
 input $dir |"embedded_backquote`date| $args |+2015`.postfix" -c someconfig|
+_do_dir_and_args ... dir=""embedded_backquote`date"
+ args[0]="+2015`.postfix""
+ args[1]="-c"
+ args[2]="someconfig"
+ strip_quote=false in_quote=true close_quote=*" quote_c="
+ end strip_quote=false in_quote=false close_quote=*" quote_c="
+ orig_dir="embedded_backquote`date +2015`.postfix" dir="embedded_backquote2015.postfix" args="-c someconfig"
+processed $dir |embedded_backquote2015.postfix| $args |-c someconfig|
+
+input $dir |'embedded_backquote`date| $args |+2015`.postfix' -c someconfig|
+_do_dir_and_args ... dir="'embedded_backquote`date"
+ args[0]="+2015`.postfix'"
+ args[1]="-c"
+ args[2]="someconfig"
+ strip_quote=false in_quote=true close_quote=*' quote_c='
+ end strip_quote=false in_quote=false close_quote=*' quote_c='
+ orig_dir="embedded_backquote`date +2015`.postfix" dir="embedded_backquote2015.postfix" args="-c someconfig"
 processed $dir |embedded_backquote2015.postfix| $args |-c someconfig|
 
 input $dir |bad_embedded_backquote`date| $args |+2015`.postfix -c someconfig|
-[<stdin>:16]
-Error: embedded ` without initial ": bad_embedded_backquote`date
+[<stdin>:21]
+Error: embedded ` and whitespace, without initial " or ': bad_embedded_backquote`date
 processed $dir |bad_embedded_backquote`date| $args |+2015`.postfix -c someconfig|
 
 input $dir |"embedded_cmd$(date| $args |+2015).postfix" -c someconfig|
+_do_dir_and_args ... dir=""embedded_cmd$(date"
+ args[0]="+2015).postfix""
+ args[1]="-c"
+ args[2]="someconfig"
+ strip_quote=false in_quote=true close_quote=*" quote_c="
+ end strip_quote=false in_quote=false close_quote=*" quote_c="
+ orig_dir="embedded_cmd$(date +2015).postfix" dir="embedded_cmd2015.postfix" args="-c someconfig"
+processed $dir |embedded_cmd2015.postfix| $args |-c someconfig|
+
+input $dir |'embedded_cmd$(date| $args |+2015).postfix' -c someconfig|
+_do_dir_and_args ... dir="'embedded_cmd$(date"
+ args[0]="+2015).postfix'"
+ args[1]="-c"
+ args[2]="someconfig"
+ strip_quote=false in_quote=true close_quote=*' quote_c='
+ end strip_quote=false in_quote=false close_quote=*' quote_c='
+ orig_dir="embedded_cmd$(date +2015).postfix" dir="embedded_cmd2015.postfix" args="-c someconfig"
 processed $dir |embedded_cmd2015.postfix| $args |-c someconfig|
 
 input $dir |bad_embedded_cmd$(date| $args |+2015).postfix -c someconfig|
-[<stdin>:18]
-Error: embedded $( without initial ": bad_embedded_cmd$(date
+[<stdin>:24]
+Error: embedded $( and whitespace, without initial " or ': bad_embedded_cmd$(date
 processed $dir |bad_embedded_cmd$(date| $args |+2015).postfix -c someconfig|
+
+input $dir |$(hostname)| $args |-c someconfig|
+_do_dir_and_args ... dir="$(hostname)"
+ args[0]="-c"
+ args[1]="someconfig"
+ strip_quote=false in_quote=false close_quote= quote_c=
+ end strip_quote=false in_quote=false close_quote= quote_c=
+ orig_dir="$(hostname)" dir="HOSTNAME" args="-c someconfig"
+processed $dir |HOSTNAME| $args |-c someconfig|
+
+input $dir |foo-$(hostname)-bar| $args |-c someconfig|
+_do_dir_and_args ... dir="foo-$(hostname)-bar"
+ args[0]="-c"
+ args[1]="someconfig"
+ strip_quote=false in_quote=false close_quote= quote_c=
+ end strip_quote=false in_quote=false close_quote= quote_c=
+ orig_dir="foo-$(hostname)-bar" dir="foo-HOSTNAME-bar" args="-c someconfig"
+processed $dir |foo-HOSTNAME-bar| $args |-c someconfig|
+
+input $dir |`hostname`| $args |-c someconfig|
+_do_dir_and_args ... dir="`hostname`"
+ args[0]="-c"
+ args[1]="someconfig"
+ strip_quote=false in_quote=false close_quote= quote_c=
+ end strip_quote=false in_quote=false close_quote= quote_c=
+ orig_dir="`hostname`" dir="HOSTNAME" args="-c someconfig"
+processed $dir |HOSTNAME| $args |-c someconfig|
+
+input $dir |foo-`hostname`-bar| $args |-c someconfig|
+_do_dir_and_args ... dir="foo-`hostname`-bar"
+ args[0]="-c"
+ args[1]="someconfig"
+ strip_quote=false in_quote=false close_quote= quote_c=
+ end strip_quote=false in_quote=false close_quote= quote_c=
+ orig_dir="foo-`hostname`-bar" dir="foo-HOSTNAME-bar" args="-c someconfig"
+processed $dir |foo-HOSTNAME-bar| $args |-c someconfig|
