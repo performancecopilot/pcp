@@ -36,6 +36,7 @@ _filter()
 {
     sed \
 	-e "s/$(hostname)/HOSTNAME/g" \
+	-e "s@$tmp@TMP@g" \
     # end
 }
 
@@ -46,39 +47,41 @@ export year=`date +2015`
 export mydir=/some/path
 line=1
 
-cat <<'End-of-File' | while read stuff dir args
-preamble$(blah)`foo`$bar /some/path -c someconfig
-preamble$(blah)`foo`$bar ${mydir}/xyz -c someconfig
-preamble$(blah)`foo`$bar /xyz${mydir} -c someconfig
-preamble$(blah)`foo`$bar /xyz$mydir -c someconfig
-preamble$(blah)`foo`$bar $(echo /some/path) -c someconfig
-preamble$(blah)`foo`$bar $( echo /some/path ) -c someconfig
-preamble$(blah)`foo`$bar "/some/path/$(date +2015)" -c someconfig
-preamble$(blah)`foo`$bar '/some/path/$(date +2015)' -c someconfig
-preamble$(blah)`foo`$bar " /some/path/$(date +2015) " -c someconfig
-preamble$(blah)`foo`$bar ' /some/path/$(date +2015) ' -c someconfig
-preamble$(blah)`foo`$bar `echo /some/path` -c someconfig
-preamble$(blah)`foo`$bar ` echo /some/path ` -c someconfig
-preamble$(blah)`foo`$bar "/some/path/`date +2015`" -c someconfig
-preamble$(blah)`foo`$bar '/some/path/`date +2015`' -c someconfig
-preamble$(blah)`foo`$bar $(bad command -c someconfig
-preamble$(blah)`foo`$bar `bad command -c someconfig
-preamble$(blah)`foo`$bar "bad string -c someconfig
-preamble$(blah)`foo`$bar 'bad string -c someconfig
-preamble$(blah)`foo`$bar "embedded_backquote`date +2015`.postfix" -c someconfig
-preamble$(blah)`foo`$bar 'embedded_backquote`date +2015`.postfix' -c someconfig
-preamble$(blah)`foo`$bar bad_embedded_backquote`date +2015`.postfix -c someconfig
-preamble$(blah)`foo`$bar "embedded_cmd\$(date +2015).postfix" -c someconfig
-preamble$(blah)`foo`$bar 'embedded_cmd\$(date +2015).postfix' -c someconfig
-preamble$(blah)`foo`$bar bad_embedded_cmd\$(date +2015).postfix -c someconfig
-preamble$(blah)`foo`$bar $(hostname) -c someconfig
-preamble$(blah)`foo`$bar foo-$(hostname)-bar -c someconfig
-preamble$(blah)`foo`$bar `hostname` -c someconfig
-preamble$(blah)`foo`$bar foo-`hostname`-bar -c someconfig
+cat <<End-of-File | while read stuff dir args
+preamble\$(blah)\`foo\`\$bar /some/path -c someconfig
+preamble\$(blah)\`foo\`\$bar \${mydir}/xyz -c someconfig
+preamble\$(blah)\`foo\`\$bar /xyz\${mydir} -c someconfig
+preamble\$(blah)\`foo\`\$bar /xyz\$mydir -c someconfig
+preamble\$(blah)\`foo\`\$bar \$(echo /some/path) -c someconfig
+preamble\$(blah)\`foo\`\$bar \$( echo /some/path ) -c someconfig
+preamble\$(blah)\`foo\`\$bar "/some/path/\$(date +2015)" -c someconfig
+preamble\$(blah)\`foo\`\$bar '/some/path/\$(date +2015)' -c someconfig
+preamble\$(blah)\`foo\`\$bar " /some/path/\$(date +2015) " -c someconfig
+preamble\$(blah)\`foo\`\$bar ' /some/path/\$(date +2015) ' -c someconfig
+preamble\$(blah)\`foo\`\$bar \`echo /some/path\` -c someconfig
+preamble\$(blah)\`foo\`\$bar \` echo /some/path \` -c someconfig
+preamble\$(blah)\`foo\`\$bar "/some/path/\`date +2015\`" -c someconfig
+preamble\$(blah)\`foo\`\$bar '/some/path/\`date +2015\`' -c someconfig
+preamble\$(blah)\`foo\`\$bar \$(bad command -c someconfig
+preamble\$(blah)\`foo\`\$bar \`bad command -c someconfig
+preamble\$(blah)\`foo\`\$bar "bad string -c someconfig
+preamble\$(blah)\`foo\`\$bar 'bad string -c someconfig
+preamble\$(blah)\`foo\`\$bar "embedded_backquote\`date +2015\`.postfix" -c someconfig
+preamble\$(blah)\`foo\`\$bar 'embedded_backquote\`date +2015\`.postfix' -c someconfig
+preamble\$(blah)\`foo\`\$bar bad_embedded_backquote\`date +2015\`.postfix -c someconfig
+preamble\$(blah)\`foo\`\$bar "embedded_cmd\$(date +2015).postfix" -c someconfig
+preamble\$(blah)\`foo\`\$bar 'embedded_cmd\$(date +2015).postfix' -c someconfig
+preamble\$(blah)\`foo\`\$bar bad_embedded_cmd\$(date +2015).postfix -c someconfig
+preamble\$(blah)\`foo\`\$bar \$(hostname) -c someconfig
+preamble\$(blah)\`foo\`\$bar foo-\$(hostname)-bar -c someconfig
+preamble\$(blah)\`foo\`\$bar \`hostname\` -c someconfig
+preamble\$(blah)\`foo\`\$bar foo-\`hostname\`-bar -c someconfig
+# from 793
+LOCALHOSTNAME   '\$(echo $tmp/B)' --pmlc-ipc-version=2 -c $tmp.config -l $tmp.B.log -Dservices,appl3,appl4
 End-of-File
 do
     echo
-    echo "input \$dir |$dir| \$args |$args|"
+    echo "input \$dir |$dir| \$args |$args|" | _filter
     _do_dir_and_args >$tmp.tmp
     _filter <$tmp.tmp
     echo "processed \$dir |$dir| \$args |$args|" | _filter

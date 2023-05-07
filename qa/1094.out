@@ -269,3 +269,25 @@ _do_dir_and_args ... dir="foo-`hostname`-bar"
  end strip_quote=false in_quote=false close_quote= quote_c=
  orig_dir="foo-`hostname`-bar" dir="foo-HOSTNAME-bar" args="-c someconfig"
 processed $dir |foo-HOSTNAME-bar| $args |-c someconfig|
+
+input $dir |from| $args |793|
+_do_dir_and_args ... dir="from"
+ args[0]="793"
+ strip_quote=false in_quote=false close_quote= quote_c=
+ end strip_quote=false in_quote=false close_quote= quote_c=
+ orig_dir="from" dir="from" args="793"
+processed $dir |from| $args |793|
+
+input $dir |'$(echo| $args |TMP/B)' --pmlc-ipc-version=2 -c TMP.config -l TMP.B.log -Dservices,appl3,appl4|
+_do_dir_and_args ... dir="'$(echo"
+ args[0]="TMP/B)'"
+ args[1]="--pmlc-ipc-version=2"
+ args[2]="-c"
+ args[3]="TMP.config"
+ args[4]="-l"
+ args[5]="TMP.B.log"
+ args[6]="-Dservices,appl3,appl4"
+ strip_quote=false in_quote=true close_quote=*' quote_c='
+ end strip_quote=false in_quote=false close_quote=*' quote_c='
+ orig_dir="$(echo TMP/B)" dir="TMP/B" args="--pmlc-ipc-version=2 -c TMP.config -l TMP.B.log -Dservices,appl3,appl4"
+processed $dir |TMP/B| $args |--pmlc-ipc-version=2 -c TMP.config -l TMP.B.log -Dservices,appl3,appl4|
