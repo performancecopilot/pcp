@@ -1,0 +1,67 @@
+#!/bin/sh
+#
+# Script for developers ... try out ./pmlogger_check and in
+# particular the handling of the directory in the control file
+# (try.control).
+#
+# All archives are created below /var/tmp/try.dir.
+#
+# pmlogger_check logging goes to stdout, pmlogger logging ends
+# in pmlogger.log somewhere below /var/tmp/try.dir.
+#
+# THIS SCRIPT IS NOT PACKAGED OR SHIPPED
+#
+
+# make sure we have all the bits we need ...
+#
+for file in ./pmlogger_check.sh ./utilproc.sh ./try.control
+do
+    if [ ! -f $file ]
+    then
+	echo "Arrgh: $file is missing"
+	exit 1
+    fi
+done
+
+# first see what _do_dir_and_args does with the directory field
+#
+. ./utilproc.sh
+debug_do_dir_and_args=true
+
+cat try.control \
+| while read host primary socks dir args
+do
+    case "$host"
+    in
+	\#*|\$*|'')
+	    continue
+	    ;;
+    esac
+    echo
+    echo "=== $dir ==="
+    _do_dir_and_args
+done
+
+# cleanup, setup and set permissions
+#
+sudo rm -rf /var/tmp/try.dir
+mkdir /var/tmp/try.dir
+chmod 777 /var/tmp/try.dir
+sudo chown pcp:pcp /var/tmp/try.dir
+
+sudo -u pcp ./pmlogger_check.sh -c ./try.control -l /dev/tty -V -q
+
+# need the -t 1 -s 2 options to pmlogger to be effected so pmlogger
+# has exited
+#
+sleep 3
+
+ls -lR /var/tmp/try.dir
+
+find /var/tmp/try.dir -name pmlogger.log \
+| while read log
+do
+    echo
+    echo "--- $log ---"
+    cat "$log"
+done

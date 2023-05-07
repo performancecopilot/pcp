@@ -1,0 +1,16 @@
+# control file for try.check
+#
+# THIS FILE IS NOT PACKAGED OR SHIPPED
+#
+# - expanded directory field should begin /var/tmp/try.dir/
+# - add -c demo.config -s 2 -t 1sec args to get something small and short
+#   in the archive
+#
+$version=1.1
+$PMLOGGER_CHECK_SKIP_JANITOR=yes
+$PMCD_CONNECT_TIMEOUT=1
+$PMCD_REQUEST_TIMEOUT=1
+$ABC=ABC
+#
+# example with a space, no sh(1) metacharacters
+LOCALHOSTNAME	n   n	"/var/tmp/try.dir/foo bar" -c demo.config -s 2 -t 1sec
