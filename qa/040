@@ -39,6 +39,20 @@ NR == 1	{ for (i = 1; i <= NF; i++) {
 	  exit
 	}'`
 
+_fail()
+{
+    echo "Arrgh: $1"
+    echo "Error: pmlogger virtual or resident size grew ... memory leak?"
+    echo "       or maybe pmlogger died, or failed to start"
+    echo "       my pmlogger pid=$mylogger"
+    echo
+    echo "ps output ..."
+    cat $tmp.ps
+    echo
+    echo "pmlogger log ..."
+    cat $tmp.log
+}
+
 # real QA test starts here
 
 rm -f $tmp.*
@@ -62,32 +76,43 @@ ps $ps_arg -p $mylogger \
 NR == 1			{ print; next }
 $3 == '$mylogger'	{ print }'
 done \
-| tee $tmp.out \
 | sed -e '/RSS/d' \
-| $PCP_AWK_PROG '{ print $'$rss_field' }' \
-| LC_COLLATE=POSIX sort \
-| uniq -c  \
-| while read cnt sz
-do
-    echo "seen=$seen cnt=$cnt size=$sz" >>$seq.full
-    seen=`expr $seen + 1`
-    # expect one line, with a count of 15 sizes, all the same!
-    if [ $seen -gt 1 -o $cnt -ne 15 ]
-    then
-	echo "Error: pmlogger virtual or resident size grew ... memory leak?"
-	echo "       or maybe pmlogger died, or failed to start"
-	echo "       pmlogger pid=$mylogger seen=$seen cnt=$cnt"
-	echo
-	echo "ps output ..."
-	cat $tmp.out
-	echo
-	echo "pmlogger log ..."
-	cat $tmp.log
-	exit 1
-    fi
-done
+| tee $tmp.ps \
+| $PCP_AWK_PROG '{ print $'$rss_field' }' >$tmp.tmp
 
-echo "OK"
+# expect ...
+# - 15 ps observations
+# - max < 1.05* min
+# - no monotonic increase
+#
+obs="`wc -l <$tmp.tmp | sed -e 's/ //g'`"
+if [ "$obs" -ne 15 ]
+then
+    _fail "insufficient results ($obs not 15)"
+fi
+min="`LC_COLLATE=POSIX sort -n <$tmp.tmp | head -1`"
+max="`LC_COLLATE=POSIX sort -nr <$tmp.tmp | head -1`"
+echo "min rss $min, max rss $max" >>$seq.full
+if [ "`expr $max \* 100`" -ge "`expr $min \* 105`" ]
+then
+    _fail "rss max ($max) more than 1.05 times rss min ($min)"
+fi
+rm -f $tmp.bad
+( cat $tmp.tmp; echo 0 ) | $PCP_AWK_PROG '
+BEGIN	{ last = 0 }
+NR > 1	{ if ($1 > last) {
+	    inc++
+	  }
+	  else {
+	    if (inc > 1) print "[" NR-1 "] " inc " increasing values" >>"'$tmp.bad'"
+	  }
+	}
+	{ last = $1 }'
+if [ -s $tmp.bad ]
+then
+    _fail "rss increasing ...\
+`cat $tmp.bad`"
+fi
 
 # pmlogger should run for about 20 seconds, and we've spent about
 # 15 seconds in the loop above, so allow pmlogger to get close to
