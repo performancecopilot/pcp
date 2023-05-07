@@ -25,3 +25,11 @@
 # setting PMLOGGER_CHECK_SKIP_LOGCONF to yes disables the regeneration
 # and checking.
 # PMLOGGER_CHECK_SKIP_LOGCONF=yes
+
+# By default pmlogger_check(1) will run pmlogger_janitor to check for
+# pmlogger(1) badness caused by processes and/or files that were once
+# managed from the control files but have become detached from those
+# control files.
+# Setting PMLOGGER_CHECK_SKIP_JANITOR to yes disables pmlogger_janitor
+# and maybe useful for QA or special testing
+# PMLOGGER_CHECK_SKIP_JANITOR=yes
