@@ -1,0 +1,226 @@
+QA output created by 1486
+
+=== dir=TMP/foo ===
+pmlogger_check [TMP.control:5]
+Warning: creating directory (TMP/foo) for PCP archive files
+No reconfigure: magic=1 auto-generated=1 skip=0: "TMP.config" (pmlogconf)
+Restarting pmlogger for host "local:" ... [PID]  process exited!
+pmlogger_check: Error: failed to restart pmlogger
+Current pmlogger processes:
+...
+
+Contents of pmlogger output file "pmlogger.log" ...
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Info: Start
+Config parsed
+Starting logger for host "HOST"
+Archive basename: TMP/foo/ARCHIVEBASE
+[DATE] pmlogger(PID) Info: pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+--- TMP/foo contents ---
+ARCHIVEBASE.0
+ARCHIVEBASE.index
+ARCHIVEBASE.meta
+pmlogger.log
+
+=== dir="TMP/fool" ===
+pmlogger_check [TMP.control:5]
+Warning: creating directory (TMP/fool) for PCP archive files
+No reconfigure: magic=1 auto-generated=1 skip=0: "TMP.config" (pmlogconf)
+Restarting pmlogger for host "local:" ... [PID]  process exited!
+pmlogger_check: Error: failed to restart pmlogger
+Current pmlogger processes:
+...
+
+Contents of pmlogger output file "pmlogger.log" ...
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Info: Start
+Config parsed
+Starting logger for host "HOST"
+Archive basename: TMP/fool/ARCHIVEBASE
+[DATE] pmlogger(PID) Info: pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+--- TMP/fool contents ---
+ARCHIVEBASE.0
+ARCHIVEBASE.index
+ARCHIVEBASE.meta
+pmlogger.log
+
+=== dir='TMP/foolery' ===
+pmlogger_check [TMP.control:5]
+Warning: creating directory (TMP/foolery) for PCP archive files
+No reconfigure: magic=1 auto-generated=1 skip=0: "TMP.config" (pmlogconf)
+Restarting pmlogger for host "local:" ... [PID]  process exited!
+pmlogger_check: Error: failed to restart pmlogger
+Current pmlogger processes:
+...
+
+Contents of pmlogger output file "pmlogger.log" ...
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Info: Start
+Config parsed
+Starting logger for host "HOST"
+Archive basename: TMP/foolery/ARCHIVEBASE
+[DATE] pmlogger(PID) Info: pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+--- TMP/foolery contents ---
+ARCHIVEBASE.0
+ARCHIVEBASE.index
+ARCHIVEBASE.meta
+pmlogger.log
+
+=== dir=TMP/$(TMP.foo.sh)-bar ===
+pmlogger_check [TMP.control:5]
+Warning: creating directory (TMP/foo-bar) for PCP archive files
+No reconfigure: magic=1 auto-generated=1 skip=0: "TMP.config" (pmlogconf)
+Restarting pmlogger for host "local:" ... [PID]  process exited!
+pmlogger_check: Error: failed to restart pmlogger
+Current pmlogger processes:
+...
+
+Contents of pmlogger output file "pmlogger.log" ...
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Info: Start
+Config parsed
+Starting logger for host "HOST"
+Archive basename: TMP/foo-bar/ARCHIVEBASE
+[DATE] pmlogger(PID) Info: pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+--- TMP/foo-bar contents ---
+ARCHIVEBASE.0
+ARCHIVEBASE.index
+ARCHIVEBASE.meta
+pmlogger.log
+
+=== dir=TMP/`TMP.foo.sh`lish ===
+pmlogger_check [TMP.control:5]
+Warning: creating directory (TMP/foolish) for PCP archive files
+No reconfigure: magic=1 auto-generated=1 skip=0: "TMP.config" (pmlogconf)
+Restarting pmlogger for host "local:" ... [PID]  process exited!
+pmlogger_check: Error: failed to restart pmlogger
+Current pmlogger processes:
+...
+
+Contents of pmlogger output file "pmlogger.log" ...
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Info: Start
+Config parsed
+Starting logger for host "HOST"
+Archive basename: TMP/foolish/ARCHIVEBASE
+[DATE] pmlogger(PID) Info: pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+--- TMP/foolish contents ---
+ARCHIVEBASE.0
+ARCHIVEBASE.index
+ARCHIVEBASE.meta
+pmlogger.log
+
+=== dir="TMP/foo bar" ===
+pmlogger_check [TMP.control:5]
+Warning: creating directory (TMP/foo bar) for PCP archive files
+No reconfigure: magic=1 auto-generated=1 skip=0: "TMP.config" (pmlogconf)
+Restarting pmlogger for host "local:" ... [PID]  process exited!
+pmlogger_check: Error: failed to restart pmlogger
+Current pmlogger processes:
+...
+
+Contents of pmlogger output file "pmlogger.log" ...
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Info: Start
+Config parsed
+Starting logger for host "HOST"
+Archive basename: TMP/foo bar/ARCHIVEBASE
+[DATE] pmlogger(PID) Info: pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+--- TMP/foo bar contents ---
+ARCHIVEBASE.0
+ARCHIVEBASE.index
+ARCHIVEBASE.meta
+pmlogger.log
+
+=== dir='TMP/sn afu' ===
+pmlogger_check [TMP.control:5]
+Warning: creating directory (TMP/sn afu) for PCP archive files
+No reconfigure: magic=1 auto-generated=1 skip=0: "TMP.config" (pmlogconf)
+Restarting pmlogger for host "local:" ... [PID]  process exited!
+pmlogger_check: Error: failed to restart pmlogger
+Current pmlogger processes:
+...
+
+Contents of pmlogger output file "pmlogger.log" ...
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Info: Start
+Config parsed
+Starting logger for host "HOST"
+Archive basename: TMP/sn afu/ARCHIVEBASE
+[DATE] pmlogger(PID) Info: pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+--- TMP/sn afu contents ---
+ARCHIVEBASE.0
+ARCHIVEBASE.index
+ARCHIVEBASE.meta
+pmlogger.log
+
+=== dir="TMP/$(echo mumble)-fumble" ===
+pmlogger_check [TMP.control:5]
+Warning: creating directory (TMP/mumble-fumble) for PCP archive files
+No reconfigure: magic=1 auto-generated=1 skip=0: "TMP.config" (pmlogconf)
+Restarting pmlogger for host "local:" ... [PID]  process exited!
+pmlogger_check: Error: failed to restart pmlogger
+Current pmlogger processes:
+...
+
+Contents of pmlogger output file "pmlogger.log" ...
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Info: Start
+Config parsed
+Starting logger for host "HOST"
+Archive basename: TMP/mumble-fumble/ARCHIVEBASE
+[DATE] pmlogger(PID) Info: pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+--- TMP/mumble-fumble contents ---
+ARCHIVEBASE.0
+ARCHIVEBASE.index
+ARCHIVEBASE.meta
+pmlogger.log
+
+=== dir='TMP/`echo foo`l-on-the-hill' ===
+pmlogger_check [TMP.control:5]
+Warning: creating directory (TMP/fool-on-the-hill) for PCP archive files
+No reconfigure: magic=1 auto-generated=1 skip=0: "TMP.config" (pmlogconf)
+Restarting pmlogger for host "local:" ... [PID]  process exited!
+pmlogger_check: Error: failed to restart pmlogger
+Current pmlogger processes:
+...
+
+Contents of pmlogger output file "pmlogger.log" ...
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Info: Start
+Config parsed
+Starting logger for host "HOST"
+Archive basename: TMP/fool-on-the-hill/ARCHIVEBASE
+[DATE] pmlogger(PID) Info: pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+--- TMP/fool-on-the-hill contents ---
+ARCHIVEBASE.0
+ARCHIVEBASE.index
+ARCHIVEBASE.meta
+pmlogger.log

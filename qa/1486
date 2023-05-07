@@ -1,0 +1,175 @@
+#!/bin/sh
+# PCP QA Test No. 1486
+# pmlogger -d and pmlogger_check changes ... restore pre-pcp-5.1.0
+# semantics
+#
+# NOTE
+#	the pmlogger's this test starts are all expected to
+#	"fail" to start from pmlogger_check's perspective because
+#	they will exit immediately after logging a single pmResult.
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# borrowed (in part) from _filter_pmlogger_log
+#
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/DATE/' \
+        -e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
+        -e 's/pmlogger([1-9][0-9]*) Error:/pmlogger(PID) Error:/' \
+        -e 's/pmlogger([1-9][0-9]*) Info:/pmlogger(PID) Info:/' \
+        -e '/^preprocessor cmd: /d' \
+        -e '/^\(Log for pmlogger on\) [^ ][^ ]*/s//\1 HOST/' \
+        -e '/^Starting logger/s/host ".*/host "HOST"/' \
+	-e "s/$base/ARCHIVEBASE/g" \
+    # end
+}
+
+_filter_check()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e 's/\[process [0-9][0-9]*]/[PID]/' \
+    | $PCP_AWK_PROG '
+$1 == "UID"		{ print "..."; skip = 1 }
+skip == 1 && NF == 0	{ skip = 0 }
+skip == 1		{ next }
+			{ print }'
+}
+
+mkdir $tmp
+chmod 777 $tmp
+cd $tmp
+
+cat <<End-of-File >$tmp.config
+log mandatory on once {
+    pmcd.pmlogger sample.seconds sample.daemon_pid
+}
+End-of-File
+
+echo "#!/bin/sh" >$tmp.foo.sh
+echo "echo foo" >>$tmp.foo.sh
+chmod 755 $tmp.foo.sh
+echo "foo.sh -> \"$($tmp.foo.sh)\"" >>$here/$seq.full
+
+# real QA test starts here
+
+# first field (flags) below can be used to pass additional flags
+# like -V
+#
+cat <<End-of-File | while read flags dir
+# simple
+- $tmp/foo
+# simple in double quotes
+- "$tmp/fool"
+# simple in single quotes
+- '$tmp/foolery'
+# dollar(...) no spaces
+- $tmp/\$($tmp.foo.sh)-bar
+# backquote no spaces
+- $tmp/\`$tmp.foo.sh\`lish
+# with space in double quotes
+- "$tmp/foo bar"
+# with space in single quotes
+- '$tmp/sn afu'
+# dollar(...) with spaces in double quotes
+- "$tmp/\$(echo mumble)-fumble"
+# backquote with spaces and single quotes
+- '$tmp/\`echo foo\`l-on-the-hill'
+End-of-File
+do
+    case "$flags"
+    in
+	\#*)	# comment
+	    continue
+	    ;;
+    esac
+    echo
+    echo "=== dir=$dir ===" | tee -a $here/$seq.full | _filter
+    cat <<'End-of-File' >$tmp.control
+$version=1.1
+$PMLOGGER_CHECK_SKIP_JANITOR=yes
+$PMCD_CONNECT_TIMEOUT=1
+$PMCD_REQUREST_TIMEOUT=1
+End-of-File
+    echo "LOCALHOSTNAME	n n $dir -c $tmp.config -s 1" >>$tmp.control
+    if [ "$flags" != "-" ]
+    then
+	flag="$flags"
+    else
+	flag=''
+    fi
+    $sudo -u pcp $PCP_BINADM_DIR/pmlogger_check -q -l $tmp.log -V $flag -c $tmp.control
+
+    # optionally map enclosing single quotes to enclosing double quotes
+    # so eval gets done
+    #
+    edir=`echo "$dir" | sed -e "s/^'/\"/" -e "s/'$/\"/"`
+    edir=`eval echo "$edir"`
+
+    if [ -z "$edir" ]
+    then
+	echo "Botch: edir=\"$edir\" ... empty from dir=\"$dir\""
+	cat $tmp.log
+	ls -lR $tmp
+	exit
+    fi
+    if [ ! -d "$edir" ]
+    then
+	echo "Botch: edir=\"$edir\" not created from dir=\"$dir\""
+	cat $tmp.log
+	ls -lR $tmp
+	exit
+    fi
+    if [ ! -f "$edir"/pmlogger.log ]
+    then
+	echo "Arrgh: no $edir/pmlogger.log!"
+	cat $tmp.log
+	ls -lR $tmp
+	base=99999999.99.99	# impossible datestamp
+    else	
+	base=`sed -n <"$edir"/pmlogger.log -e '/^Archive basename: /{
+s@.*/@@
+p
+}'`
+	echo "base=$base" >>$here/$seq.full
+    fi
+    _filter <$tmp.log | _filter_check
+    echo "--- $edir contents ---" | _filter
+    ls "$edir" \
+    | sed \
+	-e "s/$base/ARCHIVEBASE/g" \
+    # end
+    $sudo rm -rf "$edir"
+done
+
+# success, all done
+exit
