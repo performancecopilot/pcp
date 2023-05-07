@@ -220,12 +220,13 @@ export qatmp=$tmp
 #
 cat >$tmp/control <<End-of-File
 \$version=1.1
+\$PMLOGGER_CHECK_SKIP_JANITOR=yes
 \$A=A
 #
 # $qatmp from the caller's environment
 # $A from the control line above
 LOCALHOSTNAME	n   n	\$qatmp/\$A --pmlc-ipc-version=2 -c $tmp.config -l $tmp.A.log -Dservices,appl3,appl4
-LOCALHOSTNAME	n   n	\$(echo $qatmp/B) --pmlc-ipc-version=2 -c $tmp.config -l $tmp.B.log -Dservices,appl3,appl4
+LOCALHOSTNAME	n   n	'\$(echo $qatmp/B)' --pmlc-ipc-version=2 -c $tmp.config -l $tmp.B.log -Dservices,appl3,appl4
 LOCALHOSTNAME	n   n	"$qatmp/\`echo c | tr '[a-z]' '[A-Z]'\`" --pmlc-ipc-version=2 -c $tmp.config -l $tmp.C.log -Dservices,appl3,appl4
 End-of-File
 
