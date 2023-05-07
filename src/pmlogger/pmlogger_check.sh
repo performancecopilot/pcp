@@ -155,7 +155,10 @@ do
 	-l)	PROGLOG="$2"
 		MYPROGLOG="$PROGLOG".$$
 		USE_SYSLOG=false
-		daily_args="${daily_args} -l $2.from.check"
+		if [ "$PROGLOG" != "/dev/tty" ]
+		then
+		    daily_args="${daily_args} -l $2.from.check"
+		fi
 		shift
 		;;
 	-N)	SHOWME=true
@@ -227,6 +230,11 @@ PROGLOGDIR=`dirname "$PROGLOG"`
 [ -d "$PROGLOGDIR" ] || mkdir_and_chown "$PROGLOGDIR" 755 $PCP_USER:$PCP_GROUP 2>/dev/null
 if $SHOWME
 then
+    :
+elif [ "$PROGLOG" = "/dev/tty" ]
+then
+    # special case for debugging ... no salt away previous, no chown, no exec
+    #
     :
 else
     # Salt away previous log, if any ...
@@ -567,9 +575,9 @@ _check_logger()
     # wait until pmlogger process starts, or exits
     #
     delay=5
-    [ ! -z "$PMCD_CONNECT_TIMEOUT" ] && delay=$PMCD_CONNECT_TIMEOUT
+    [ -n "$PMCD_CONNECT_TIMEOUT" ] && delay=$PMCD_CONNECT_TIMEOUT
     x=5
-    [ ! -z "$PMCD_REQUEST_TIMEOUT" ] && x=$PMCD_REQUEST_TIMEOUT
+    [ -n "$PMCD_REQUEST_TIMEOUT" ] && x=$PMCD_REQUEST_TIMEOUT
 
     # max delay (secs) before timing out our pmlc request ... if this
     # pmlogger is just started, we may need to be a little patient
@@ -579,6 +587,7 @@ _check_logger()
     # wait for maximum time of a connection and 20 requests
     #
     delay=`expr \( $delay + 20 \* $x \) \* 10`	# tenths of a second
+    #debug# $PCP_ECHO_PROG $PCP_ECHO_N " delay=$delay/10 sec ""$PCP_ECHO_C"
     while [ $delay -gt 0 ]
     do
 	if [ -f $logfile ]
@@ -769,6 +778,12 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    continue
 	fi
 
+	# set -d to unexpanded directory from _do_dir_and_args() ...
+	# map spaces to CTL-A and tabs to CTL-B to avoid breaking
+	# the argument in the eval used to launch pmlogger
+	#
+	args="-d \"`echo "$orig_dir" | sed -e 's/ //g' -e 's/	//'`\" $args"
+
 	# if -p/--skip-primary on the command line, do not process
 	# a control file line for the primary pmlogger
 	#
@@ -791,7 +806,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	# (differently for directory and pcp -h HOST arguments)
 	#
 	dirhostname=`hostname || echo localhost`
-	dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dirhostname;"`
+	dir=`echo "$dir" | sed -e "s;LOCALHOSTNAME;$dirhostname;"`
 	[ $primary = y -o "x$host" = xLOCALHOSTNAME ] && host=local:
 
 	if $VERY_VERBOSE
@@ -803,7 +818,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 
 	# check for directory duplicate entries
 	#
-	if [ "`grep $dir $tmp/dir`" = "$dir" ]
+	if [ "`grep "$dir" $tmp/dir`" = "$dir" ]
 	then
 	    _error "Cannot start more than one pmlogger instance for archive directory \"$dir\""
 	    continue
@@ -858,7 +873,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		    if $VERY_VERBOSE
 		    then
 			echo "Acquired lock:"
-			ls -l $dir/lock
+			ls -l "$dir"/lock
 		    fi
 		    break
 		else
@@ -869,7 +884,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 			if [ -f "$dir/lock" ]
 			then
 			    echo "$prog: Warning: removing lock file older than 30 minutes"
-			    LC_TIME=POSIX ls -l $dir/lock
+			    LC_TIME=POSIX ls -l "$dir"/lock
 			    rm -f "$dir/lock"
 			else
 			    # there is a small timing window here where pmlock
@@ -911,7 +926,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		if [ -f "$dir/lock" ]
 		then
 		    echo "$prog: Warning: is another PCP cron job running concurrently?"
-		    LC_TIME=POSIX ls -l $dir/lock
+		    LC_TIME=POSIX ls -l "$dir"/lock
 		else
 		    echo "$prog: `cat $tmp/out`"
 		fi
@@ -972,7 +987,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		match=`sed -e '3s@/[^/]*$@@' $log 2>/dev/null | \
 		$PCP_AWK_PROG '
 BEGIN				{ m = 0 }
-NR == 3 && $0 == "'$dir'"	{ m = 2; next }
+NR == 3 && $0 == "'"$dir"'"	{ m = 2; next }
 END				{ print m }'`
 		$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "match=$match ""$PCP_ECHO_C"
 		if [ "$match" = 2 ]
@@ -1086,7 +1101,7 @@ END				{ print m }'`
 	    if $SHOWME
 	    then
 		echo
-		echo "+ ${sock_me}$PMLOGGER $args $LOGNAME"
+		echo "+ ${sock_me}$PMLOGGER $args $LOGNAME" | sed -e 's// /g' -e 's//	/g'
 		_unlock "$dir"
 		continue
 	    else
@@ -1097,6 +1112,11 @@ END				{ print m }'`
 
 	    # wait for pmlogger to get started, and check on its health
 	    _check_logger $pid
+	    if [ -s $tmp/out ]
+	    then
+		_warning "early diagnostics from pmlogger ..."
+		cat $tmp/out
+	    fi
 
 	    # if SaveLogs exists in the same directory that the archive
 	    # is being created, save pmlogger log file there as well
