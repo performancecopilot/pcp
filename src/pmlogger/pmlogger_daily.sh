@@ -455,7 +455,7 @@ do
 	-s)	ROLLNOTICES="$2"
 		shift
 		check=`echo "$ROLLNOTICES" | sed -e 's/[0-9]//g'`
-		if [ ! -z "$check" ]
+		if [ -n "$check" ]
 		then
 		    echo "Error: -s value ($ROLLNOTICES) must be numeric"
 		    status=1
@@ -464,6 +464,13 @@ do
 		;;
 	-t)	TRACE="$2"
 		shift
+		check=`echo "$TRACE" | sed -e 's/[0-9]//g'`
+		if [ -n "$check" ]
+		then
+		    echo "Error: -t value ($TRACE) must be numeric"
+		    status=1
+		    exit
+		fi
 		# send all stdout and stderr output (after argument parsing) to
 		# $PCP_LOG_DIR/pmlogger/daily.<date>.trace
 		#
@@ -532,6 +539,11 @@ done
 
 if $SHOWME
 then
+    :
+elif [ "$PROGLOG" = "/dev/tty" ]
+then
+    # special case for debugging ... no salt away previous, no chown, no exec
+    #
     :
 else
     # Salt away previous log, if any ...
