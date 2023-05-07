@@ -95,7 +95,7 @@ _check_file()
 		    ;;
 	    esac
 	    ;;
-	"$PCP_SYSCONFIG_DIR"/pmlogger)
+	"$PCP_SYSCONFIG_DIR"/pmlogger|"$PCP_SYSCONFIG_DIR"/pmlogger_farm)
 	    sed <$tmp.out >$tmp.tmp \
 		-e '/^# and maybe useful for QA or special testing/d' \
 	    # end
