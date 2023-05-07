@@ -21,6 +21,7 @@
 \f3pmlogger\f1
 [\f3\-CLNoPruy?\f1]
 [\f3\-c\f1 \f2conffile\f1]
+[\f3\-d\f1 \f2directory\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-H\f1 \f2hostname\f1]
 [\f3\-I\f1 \f2version\f1]
@@ -567,6 +568,38 @@ is specified, the
 .I archive
 command line argument is not required.
 Any errors in the configuration file are reported.
+.PP
+The
+.B \-d
+or
+.B \-\-directory
+option may be used to specify the directory where the
+.I archive
+should be created.
+.I directory
+may include
+.BR sh (1)
+metacharacters, like
+.BI $( ... )
+or
+.BR ` ... `
+or
+.BI $ var
+and
+.B pmlogger
+will expand these to produce a final directory path.
+The resultant path must be absolute, not relative.
+The
+.B \-d
+option is intended primarily for use by
+.BR pmlogger_check (1)
+and normal users would not typically need to use the option, as the directory
+for
+.I archive
+is either implied by
+.I archive
+if it contains directory components
+else the current directory by default.
 .SH CONFIGURATION FILE SYNTAX
 The configuration file may be specified with the
 .B \-c

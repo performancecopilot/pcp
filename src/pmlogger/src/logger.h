@@ -213,6 +213,9 @@ extern void cleanup(void);
 /* if launched from control-driven scripts */
 extern int runfromcontrol;
 
+/* expand -d directory argument */
+extern int do_dir(char *, char *);
+
 /* QA testing and error injection support ... see do_request() */
 extern int	qa_case;
 #define QA_OFF		100

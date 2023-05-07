@@ -599,6 +599,7 @@ _pcp () {
       '(- *)'{-\?,--help}'[display help message]' \
       "(-c --config $exargs)"{-c+,--config=}'[specify config file]:file:_files' \
       "(-C --check $exargs)"{-C,--check}'[check config only]' \
+      "(-d --directory $exargs)"{-d,--directory}'[specify directory template]' \
       "(-h --host -o --local-PMDA -K --spec-local $exargs)"{-h+,--host=}'[specify metrics source host]:host:_hosts' \
       "(-H --labelhost $exargs)"{-H+,--labelhost=}'[specify hostname label]:label:' \
       "(-I --pmlc-ipc-version)"{-I+,--pmlc-ipc-version=}'[specify IPC version]:version:' \

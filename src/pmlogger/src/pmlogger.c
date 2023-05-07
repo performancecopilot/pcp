@@ -54,6 +54,7 @@ int		parse_done;
 int		primary;		/* Non-zero for primary pmlogger */
 char	    	*archBase;		/* template base name for archive */
 char		*archName;		/* real base name for archive */
+char		*dirName;		/* directory from -d */
 char		*pmcd_host;
 char		*pmcd_host_conn;
 char		*pmcd_host_label;
@@ -563,6 +564,7 @@ failed:
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
     { "config", 1, 'c', "FILE", "file to load configuration from" },
+    { "directory", 1, 'd', "DIR", "create archive in this directory" },
     { "check", 0, 'C', 0, "parse configuration and exit" },
     PMOPT_DEBUG,
     PMOPT_HOST,
@@ -592,7 +594,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "c:CD:fh:H:I:l:K:Lm:Nn:op:Prs:T:t:uU:v:V:x:y?",
+    .short_options = "c:Cd:D:fh:H:I:l:K:Lm:Nn:op:Prs:T:t:uU:v:V:x:y?",
     .long_options = longopts,
     .short_usage = "[options] archive",
 };
@@ -983,6 +985,34 @@ main(int argc, char **argv)
 	    }
 	    break;
 
+	case 'd':		/* directory */
+	    dirName = strdup(opts.optarg);
+	    if (dirName[0] == '\'' || dirName[0] == '"') {
+		/*
+		 * Due to strangeness that defies explanation, the
+		 * pmlogger_check script is only working at all when
+		 * it passes the -d argument with '...' or "..." quotes
+		 * still in place ... strip 'em
+		 */
+		int	dend = strlen(dirName);
+		if (dirName[dend-1] == dirName[0]) {
+		    dirName[dend-1] = '\0';
+		    dirName++;
+		}
+		else
+		    fprintf(stderr, "Warning: -d with leading %c but no trailing %c (%s)\n",
+			dirName[0], dirName[0], dirName);
+	    }
+	    /*
+	     * from pmlogger_check, space -> CTL-A and tab -> CTL-B
+	     * (don't ask!) ... reverse this mapping
+	     */
+	    for (p = dirName; *p; p++) {
+		if (*p == '\001') *p = ' ';
+		if (*p == '\002') *p = '\t';
+	    }
+	    break;
+
 	case 'C':		/* parse config and exit */
 	    Cflag = 1;
 	    break;
@@ -1184,6 +1214,9 @@ main(int argc, char **argv)
     if (!opts.errors && ((Cflag == 0 && opts.optind < argc - 1) ||
 			 (Cflag == 1 && opts.optind < argc))) {
 	pmprintf("%s: too many arguments\n", pmGetProgname());
+	for (i = 1; i < argc; i++) {
+	    pmprintf("argv[%d] \"%s\"\n", i, argv[i]);
+	}
 	opts.errors++;
     }
 
@@ -1434,10 +1467,20 @@ main(int argc, char **argv)
      * archName different, ... but only if make_uniq is set
      */
     for (suff = -1; suff < 99; suff++) { /* limit of 100 retries */
+	int	dirlen;
+	/*
+	 * set up archName with directory prefix (if given) with
+	 * sh(1) expansion done if necessary
+	 */
+	if ((sts = do_dir(dirName, archName)) < 0) {
+	    fprintf(stderr, "do_dir(%s, ...): failed: %s\n", dirName, pmErrStr(sts));
+	    exit(1);
+	}
+	dirlen = strlen(archName);
 	if (suff == -1)
-	    memcpy(archName, archBase, strlen(archBase)+1);
+	    memcpy(&archName[dirlen], archBase, strlen(archBase)+1);
 	else
-	    snprintf(archName, MAXPATHLEN, "%s-%02d", archBase, suff);
+	    snprintf(&archName[dirlen], MAXPATHLEN - dirlen, "%s-%02d", archBase, suff);
 
 	if ((sts = __pmLogCreate(pmcd_host, archName, archive_version, &archctl)) < 0) {
 	    if (make_uniq)
