@@ -1,0 +1,61 @@
+#!/bin/sh
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+
+# pmie_webhook is intended for use in pmie actions to send a HTTP/S
+# POST to a webhook.  JSON is used as the POST body encoding format
+# and curl(1) is used to connect and send the formatted message.
+#
+# the one argument consists of a multi-line message, separated by
+# '|' characters ...
+#
+# "line" 1	- HTTP/HTTPS endpoint, as passed to a http client
+# "line" 2	- pmie rule name
+# "line" 3,4,..	- values from predicate evaluation [optional]
+
+# source the PCP configuration environment variables
+. /etc/pcp.env
+
+prog=`basename $0`
+
+if [ $# -ne 1 ]
+then
+    echo "Usage: $prog url|rule|message"
+    exit 1
+fi
+
+if [ -z "$CURL" ] ; then
+	if which curl > /dev/null 2>&1
+	then
+	    CURL=`which curl`
+	    break
+	fi
+fi
+
+if [ -z "$CURL" ] ; then
+    echo "Cannot find a curl program"
+    exit 1
+fi
+
+cat <<End-of-File | ${PCP_AWK_PROG} -F\| '
+NF < 2	{ print "echo '"'$prog"': needs \"endpoint|rule|values\" argument'"'"'"
+	  exit 1
+	}
+	{ printf "%s ", "'$CURL'"
+	  printf "-s -X POST -H \"Content-Type: application/json\" -d@- "
+	  printf "%s <<End-of-File\n", $1
+	  printf "{\"pcp\":{\"pmie\":{\"rule\":\"%s\",\"values\":\"%s", $2, $3
+	  for (i = 4; i <= NF; i++)
+		printf " %s", $i
+	  printf "\"}}}\nEnd-of-File\n"
+	}' | /bin/sh
+$1
+End-of-File

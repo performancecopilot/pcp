@@ -81,6 +81,7 @@ install: default $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 	$(INSTALL) -m 755 pmie_email $(PCP_BINADM_DIR)/pmie_email
+	$(INSTALL) -m 755 pmie_webhook $(PCP_BINADM_DIR)/pmie_webhook
 	$(INSTALL) -m 644 -t $(PMLOGCONF_VAR_TOOLS)/pmieconf pmlogconf $(PMLOGCONF_ETC_TOOLS)/pmieconf
 
 include $(BUILDRULES)
