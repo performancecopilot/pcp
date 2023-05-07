@@ -223,6 +223,11 @@ PROGLOGDIR=`dirname "$PROGLOG"`
 if $SHOWME
 then
     :
+elif [ "$PROGLOG" = "/dev/tty" ]
+then
+    # special case for debugging ... no salt away previous, no chown, no exec
+    #
+    :
 else
     # Salt away previous log, if any ...
     #
