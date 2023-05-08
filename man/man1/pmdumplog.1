@@ -15,9 +15,10 @@
 .\"
 .TH PMDUMPLOG 1 "PCP" "Performance Co-Pilot"
 .SH NAME
+\f3pmlogdump\f1,
 \f3pmdumplog\f1 \- dump internal details of a performance metrics archive log
 .SH SYNOPSIS
-\f3pmdumplog\f1
+\f3pmlogdump\f1
 [\f3\-adehIilLmMrstxzV?\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-S\f1 \f2starttime\f1]
@@ -26,10 +27,10 @@
 \f2archive\f1
 [\f2metricname\f1 ...]
 .br
-\f3pmdumplog\f1
+\f3pmlogdump\f1
 [\f3\-v\f1 \f2file\f1]
 .SH DESCRIPTION
-.B pmdumplog
+.B pmlogdump
 dumps assorted control, metadata, index and state information from
 the files of a Performance Co-Pilot (PCP) archive log.
 The archive log has the base name
@@ -37,8 +38,19 @@ The archive log has the base name
 and must have been previously created using
 .BR pmlogger (1).
 .PP
-Normally
+Historically,
+.B pmlogdump
+was known as
 .B pmdumplog
+but the latter name is not consistent with the other PCP commands
+that operate on PCP archives, so
+.B pmlogdump
+is preferred, but
+.B pmdumplog
+is maintained for backwards compatibility.
+.PP
+Normally
+.B pmlogdump
 operates on the distributed Performance Metrics Name Space (PMNS), however
 if the
 .B \-n
@@ -55,7 +67,7 @@ If
 is a non-leaf node in the namespace (see \c
 .BR PMNS (5)),
 then
-.B pmdumplog
+.B pmlogdump
 will recursively descend the archive's namespace and report on all leaf nodes.
 .PP
 Command line options control the specific information to be reported.
@@ -267,10 +279,10 @@ the label record of the archive log.
 .TP
 \fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
 By default,
-.B pmdumplog
+.B pmlogdump
 reports the time of day according to the local timezone on the
 system where
-.B pmdumplog
+.B pmlogdump
 is run.
 The
 .B \-Z
