@@ -15,8 +15,8 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES = pmdumplog.c
-CMDTARGET = pmdumplog$(EXECSUFFIX)
+CFILES = pmlogdump.c
+CMDTARGET = pmlogdump$(EXECSUFFIX)
 LLDLIBS	= $(PCPLIB)
 
 default:	$(CMDTARGET)
@@ -25,10 +25,10 @@ include $(BUILDRULES)
 
 install:	$(CMDTARGET)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
-	$(INSTALL) -S $(PCP_BIN_DIR)/$(CMDTARGET) $(PCP_BIN_DIR)/pmlogdump
+	$(INSTALL) -S $(PCP_BIN_DIR)/$(CMDTARGET) $(PCP_BIN_DIR)/pmdumplog
 
 default_pcp:	default
 
 install_pcp:	install
 
-pmdumplog.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+pmlogdump.o:	$(TOPDIR)/src/include/pcp/libpcp.h

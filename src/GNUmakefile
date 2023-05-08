@@ -72,7 +72,7 @@ OTHER_SUBDIRS += \
 	pmdas \
 	pmdate \
 	pmdbg \
-	pmdumplog \
+	pmlogdump \
 	pmdumptext \
 	pmerr \
 	pmgenmap \
