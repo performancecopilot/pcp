@@ -128,10 +128,10 @@ _post $SRC/pmlogextract pmlogextract
 _filter <$tmp.trace
 
 echo | tee -a $seq.full
-echo "== pmdumplog ==" | tee -a $seq.full
-_pre $SRC/pmdumplog pmdumplog
-$SRC/pmdumplog/pmdumplog.debug -dilmst -Dlock $tmp-out >$tmp.err 2>$tmp.out
-_post $SRC/pmdumplog pmdumplog
+echo "== pmlogdump ==" | tee -a $seq.full
+_pre $SRC/pmlogdump pmlogdump
+$SRC/pmlogdump/pmlogdump.debug -dilmst -Dlock $tmp-out >$tmp.err 2>$tmp.out
+_post $SRC/pmlogdump pmlogdump
 cat $tmp.out $tmp.err | _filter
 
 echo | tee -a $seq.full

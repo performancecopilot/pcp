@@ -94,7 +94,7 @@ _try_pmlc
 # killing off pmlogger (as expected) may start another pmlogger instance
 # thanks to systemd, so remember the current archive and the current log
 #
-archive=$LOGGING_DIR/$LOCALHOST/`pmafm $LOGGING_DIR/$LOCALHOST/Latest list | sed -n -e '/ 1]/s/.* //p'`
+archive=`pmafm $LOGGING_DIR/$LOCALHOST/Latest list | sed -n -e '/ 1]/s/.* //p'`
 echo "archive=$archive" >>$seq.full
 $sudo rm -f $LOGGING_DIR/$LOCALHOST/$seq.log
 $sudo ln $LOGGING_DIR/$LOCALHOST/pmlogger.log $LOGGING_DIR/$LOCALHOST/$seq.log

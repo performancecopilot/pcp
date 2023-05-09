@@ -95,7 +95,7 @@ unlock(logutil)
 unlock(pdubuf)
 unlock(result)
 
-== pmdumplog ==
+== pmlogdump ==
 lock(contexts)
 lock(ctx 0)
 lock(derived_metric)
