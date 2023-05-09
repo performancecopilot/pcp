@@ -2,6 +2,7 @@
 Package: pcp-export-pcp2xlsx
 Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
 Breaks: pcp (<< 5.3.0)
+Replaces: pcp (<< 5.3.0)
 Architecture: any
 Description: Tool for exporting data from PCP to Excel spreadsheets
  Performance Co-Pilot (PCP) front-end tool for exporting data from PCP

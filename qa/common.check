@@ -788,6 +788,49 @@ _wait_for_pmcd_stop()
     fi
 }
 
+__triage_systemd()
+{
+    if [ "$PCPQA_SYSTEMD" = yes ]
+    then
+	if which systemctl >/dev/null
+	then
+	    echo
+	    echo "++ systemctl status for $1.service ..."
+	    systemctl status $1.service | cat
+	else
+	    echo "No systemctl for $1.service"
+	fi
+
+	if which journalctl >/dev/null
+	then
+	    last=4
+	    echo
+	    echo "++ last $last journal entries for $1.service"
+	    journalctl -l -n $last -xeu $1.service | cat
+	else
+	    echo "No journalctl for $1.service"
+	fi
+    else
+	echo
+	echo "++ no systemctl/journalctl status for $1.service (\$PCPQA_SYSTEMD=$PCPQA_SYSTEMD)"
+    fi
+}
+
+__filter_pmlogger_log()
+{
+    $PCP_AWK_PROG '
+BEGIN					{ ingroup = -1 }
+$1 == "Group" && $3 == "metrics]"	{ ingroup = 0 }
+ingroup >= 0 && $1 == "}"		{ ingroup = -1 }
+ingroup >= 0				{ ingroup++
+					  if (ingroup < 4) print
+					  else if (ingroup == 4) print "        ..."
+					  next
+					}
+					{ print }'
+
+}
+
 # wait_for_pmlogger [pid logfile [maxdelay]]
 #
 _wait_for_pmlogger()
@@ -856,18 +899,39 @@ _wait_for_pmlogger()
 	    __i=`expr $__i + 1`
 	fi
     done
+    __dead=true
     if $__dead
     then
 	echo "Arrgghhh ... pmlogger ($__ident) failed to start after $__maxdelay seconds"
 	echo "at `date`."
-	echo "pmlogger log ($__logfile) ..."
-	cat $__logfile
+	echo "++ pmlogger log ($__logfile) ..."
+	ls -l $__logfile
+	__filter_pmlogger_log <$__logfile
 	echo
+	if [ -f "$__logfile.prev" ]
+	then
+	    echo "++ previous pmlogger log ($__logfile.prev) ..."
+	    ls -l $__logfile.prev
+	    __filter_pmlogger_log <$__logfile.prev
+	fi
+	for file in pmlogger_check.log pmlogger_check.log.prev \
+	    pmlogger_janitor.log pmlogger_janitor.log.prev
+	do
+	    if [ -f "$PCP_ARCHIVE_DIR/$file" ]
+	    then
+		echo "++ $PCP_ARCHIVE_DIR/$file"
+		ls -l $PCP_ARCHIVE_DIR/$file
+		cat $PCP_ARCHIVE_DIR/$file
+	    fi
+	done
+	__triage_systemd pmcd
+	__triage_systemd pmlogger
+	__triage_systemd pmlogger_farm
 
 	#  If pmlc could not connect to pmlogger, report details
 	if [ -s $tmp._wait_for_pmlogger.pmlc ]
 	then
-	    echo "pmlc output ..."
+	    echo "++ pmlc output ..."
 	    cat $tmp._wait_for_pmlogger.pmlc
 	    echo
 	fi
@@ -880,7 +944,7 @@ _wait_for_pmlogger()
 	if [ -s $tmp._wait_for_pmlogger.host ]
 	then
 	    __pmcdhost=`cat $tmp._wait_for_pmlogger.host`
-	    echo "pmcd log ($__pmcdhost:$PCP_LOG_DIR/pmcd/pmcd.log) ..."
+	    echo "++ pmcd log ($__pmcdhost:$PCP_LOG_DIR/pmcd/pmcd.log) ..."
 	    if [ -r /hosts/$__pmcdhost$PCP_LOG_DIR/pmcd/pmcd.log ]
 	    then
 	    	cat /hosts/$__pmcdhost$PCP_LOG_DIR/pmcd/pmcd.log
@@ -907,29 +971,28 @@ _wait_for_pmlogger()
 	__base=`cat $__logfile | sed -n '/^Archive basename:[ 	]*/s///p'`
 	if [ -n "$__base" -a -f $__base.0 ]
 	then
-	    echo "archive created ..."
+	    echo "++ archive created ..."
 	    pmdumplog -l $__base.0
 	    __nres=`pmdumplog $__base.0 | grep '^[0-9]' | wc -l | sed -e 's/ //g'`
-	    echo "archive contains $__nres records"
+	    echo "++ archive contains $__nres records"
 	else
-	    echo "archive not created"
+	    echo "++ archive not created"
 	fi
 	echo
-	echo "local pmlogger map ..."
+	echo "++ local pmlogger map ..."
 	for __map in $PCP_TMP_DIR/pmlogger/*
 	do
 	    if [ "`echo $__map`" = "$PCP_TMP_DIR"'/pmlogger/*' ]
 	    then
-		echo "No files in $PCP_TMP_DIR/pmlogger !?"
+		echo "++ No files in $PCP_TMP_DIR/pmlogger !?"
 	    else
 		ls -l $__map
 		cat $__map
 	    fi
 	done
 	echo
-	echo "Likely looking processes ..."
+	echo "++ Likely looking processes ..."
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '([p]m)|([P]ID)'
-	_systemctl_status pmlogger
 	status=0
 	rm -f $tmp._wait_for_pmlogger.*
 	exit $status
