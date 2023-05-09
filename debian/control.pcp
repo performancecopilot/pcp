@@ -385,6 +385,7 @@ Description: Tool for importing data from collectl into PCP archive logs
 Package: pcp-export-pcp2elasticsearch
 Depends: ?{python-pcp}, ?{python-requests}, ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
 Breaks: pcp (<< 5.3.0)
+Replaces: pcp (<< 5.3.0)
 Architecture: any
 Description: Tool for exporting data from PCP to Elasticsearch
  Performance Co-Pilot (PCP) front-end tool for exporting data from PCP
@@ -409,6 +410,7 @@ Description: Tool for exporting data from PCP to InfluxDB
 Package: pcp-export-pcp2json
 Depends: ?{python-pcp}, ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
 Breaks: pcp (<< 5.3.0)
+Replaces: pcp (<< 5.3.0)
 Architecture: any
 Description: Tool for exporting data from PCP to JSON
  Performance Co-Pilot (PCP) front-end tool for exporting data from PCP
@@ -417,6 +419,7 @@ Description: Tool for exporting data from PCP to JSON
 Package: pcp-export-pcp2spark
 Depends: ?{python-pcp}, ?{python-requests}, ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
 Breaks: pcp (<< 5.3.0)
+Replaces: pcp (<< 5.3.0)
 Architecture: any
 Description: Tool for exporting data from PCP to Apache Spark
  Performance Co-Pilot (PCP) front-end tools for exporting metric values
@@ -425,6 +428,7 @@ Description: Tool for exporting data from PCP to Apache Spark
 Package: pcp-export-pcp2xml
 Depends: ?{python-pcp}, ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
 Breaks: pcp (<< 5.3.0)
+Replaces: pcp (<< 5.3.0)
 Architecture: any
 Description: Tool for exporting data from PCP to XML
  Performance Co-Pilot (PCP) front-end tool for exporting data from PCP
@@ -433,6 +437,7 @@ Description: Tool for exporting data from PCP to XML
 Package: pcp-export-pcp2zabbix
 Depends: ?{python-pcp}, ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
 Breaks: pcp (<< 5.3.0)
+Replaces: pcp (<< 5.3.0)
 Architecture: any
 Description: Tool for exporting data from PCP to Zabbix
  Performance Co-Pilot (PCP) front-end tool for exporting data from PCP
@@ -449,7 +454,7 @@ Package: pcp-doc
 Section: doc
 Depends: ${misc:Depends}
 Breaks: pcp (<< 5.3.0), pcp-gui (<< 1.5.13)
-Replaces: pcp-gui (<< 1.5.13)
+Replaces: pcp (<< 5.3.0), pcp-gui (<< 1.5.13)
 Suggests: pcp, pcp-gui
 Architecture: all
 Description: Documentation and tutorial for the Performance Co-Pilot
@@ -462,6 +467,7 @@ Description: Documentation and tutorial for the Performance Co-Pilot
 Package: pcp-zeroconf
 Depends: ${misc:Depends}, ${shlibs:Depends}, pcp (= ${binary:Version})
 Breaks: pcp (<< 5.3.0)
+Replaces: pcp (<< 5.3.0)
 Architecture: any
 Description: Performance Co-Pilot (PCP) Zeroconf Package
  Contains configuration tweaks and files that increase metrics gathering
