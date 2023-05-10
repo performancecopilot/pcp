@@ -806,7 +806,7 @@ __triage_systemd()
 	    last=4
 	    echo
 	    echo "++ last $last journal entries for $1.service"
-	    journalctl -l -n $last -xeu $1.service | cat
+	    $sudo journalctl -l -n $last -xeu $1.service | cat
 	else
 	    echo "No journalctl for $1.service"
 	fi
@@ -899,7 +899,6 @@ _wait_for_pmlogger()
 	    __i=`expr $__i + 1`
 	fi
     done
-    __dead=true
     if $__dead
     then
 	echo "Arrgghhh ... pmlogger ($__ident) failed to start after $__maxdelay seconds"
