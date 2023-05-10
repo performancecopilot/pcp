@@ -94,7 +94,7 @@ Source0: %{artifactory}/pcp-source-release/pcp-%{version}.src.tar.gz
 
 # support for pmdabpf, check bcc.spec for supported architectures of libbpf-tools
 %if 0%{?fedora} >= 37 || 0%{?rhel} > 8
-%ifarch x86_64 ppc64 ppc64le aarch64
+%ifarch x86_64 %{power64} aarch64 s390x
 %global disable_bpf 0
 %else
 %global disable_bpf 1
