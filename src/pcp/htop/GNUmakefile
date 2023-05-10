@@ -58,6 +58,7 @@ TOPCFILES = \
 	InfoScreen.c \
 	ListItem.c \
 	LoadAverageMeter.c \
+	Machine.c \
 	MainPanel.c \
 	MemoryMeter.c \
 	MemorySwapMeter.c \
@@ -93,6 +94,7 @@ SUBCFILES = \
 	zfs/ZfsCompressedArcMeter.c \
 	pcp/PCPDynamicColumn.c \
 	pcp/PCPDynamicMeter.c \
+	pcp/PCPMachine.c \
 	pcp/PCPMetric.c \
 	pcp/PCPProcess.c \
 	pcp/PCPProcessList.c \
@@ -130,6 +132,7 @@ TOPHFILES = \
 	InfoScreen.h \
 	ListItem.h \
 	LoadAverageMeter.h \
+	Machine.h \
 	Macros.h \
 	MainPanel.h \
 	MemoryMeter.h \
@@ -169,6 +172,7 @@ SUBHFILES = \
 	zfs/ZfsCompressedArcMeter.h \
 	pcp/PCPDynamicColumn.h \
 	pcp/PCPDynamicMeter.h \
+	pcp/PCPMachine.h \
 	pcp/PCPMetric.h \
 	pcp/PCPProcess.h \
 	pcp/PCPProcessList.h \
