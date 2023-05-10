@@ -49,6 +49,7 @@ in the source distribution for its full text.
 #include "Settings.h"
 #include "XUtils.h"
 #include "linux/CGroupUtils.h"
+#include "linux/LinuxMachine.h"
 #include "linux/LinuxProcess.h"
 #include "linux/Platform.h" // needed for GNU/hurd to get PATH_MAX  // IWYU pragma: keep
 
@@ -58,22 +59,10 @@ in the source distribution for its full text.
 #include <sys/sysmacros.h>
 #endif
 
-#ifdef HAVE_SENSORS_SENSORS_H
-#include "LibSensors.h"
-#endif
-
-#ifndef O_PATH
-#define O_PATH         010000000 // declare for ancient glibc versions
-#endif
-
 /* Not exposed yet. Defined at include/linux/sched.h */
 #ifndef PF_KTHREAD
 #define PF_KTHREAD 0x00200000
 #endif
-
-static long long btime = -1;
-
-static long jiffy;
 
 static FILE* fopenat(openat_arg_t openatArg, const char* pathname, const char* mode) {
    assert(String_eq(mode, "r")); /* only currently supported mode */
@@ -211,143 +200,22 @@ static void LinuxProcessList_initNetlinkSocket(LinuxProcessList* this) {
 
 #endif
 
-static void LinuxProcessList_updateCPUcount(ProcessList* super) {
-   /* Similar to get_nprocs_conf(3) / _SC_NPROCESSORS_CONF
-    * https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/unix/sysv/linux/getsysstats.c;hb=HEAD
-    */
-
-   LinuxProcessList* this = (LinuxProcessList*) super;
-   unsigned int existing = 0, active = 0;
-
-   // Initialize the cpuData array before anything else.
-   if (!this->cpuData) {
-      this->cpuData = xCalloc(2, sizeof(CPUData));
-      this->cpuData[0].online = true; /* average is always "online" */
-      this->cpuData[1].online = true;
-      super->activeCPUs = 1;
-      super->existingCPUs = 1;
-   }
-
-   DIR* dir = opendir("/sys/devices/system/cpu");
-   if (!dir)
-      return;
-
-   unsigned int currExisting = super->existingCPUs;
-
-   const struct dirent* entry;
-   while ((entry = readdir(dir)) != NULL) {
-      if (entry->d_type != DT_DIR && entry->d_type != DT_UNKNOWN)
-         continue;
-
-      if (!String_startsWith(entry->d_name, "cpu"))
-         continue;
-
-      char* endp;
-      unsigned long int id = strtoul(entry->d_name + 3, &endp, 10);
-      if (id == ULONG_MAX || endp == entry->d_name + 3 || *endp != '\0')
-         continue;
-
-#ifdef HAVE_OPENAT
-      int cpuDirFd = openat(dirfd(dir), entry->d_name, O_DIRECTORY | O_PATH | O_NOFOLLOW);
-      if (cpuDirFd < 0)
-         continue;
-#else
-      char cpuDirFd[4096];
-      xSnprintf(cpuDirFd, sizeof(cpuDirFd), "/sys/devices/system/cpu/%s", entry->d_name);
-#endif
-
-      existing++;
-
-      /* readdir() iterates with no specific order */
-      unsigned int max = MAXIMUM(existing, id + 1);
-      if (max > currExisting) {
-         this->cpuData = xReallocArrayZero(this->cpuData, currExisting ? (currExisting + 1) : 0, max + /* aggregate */ 1, sizeof(CPUData));
-         this->cpuData[0].online = true; /* average is always "online" */
-         currExisting = max;
-      }
-
-      char buffer[8];
-      ssize_t res = xReadfileat(cpuDirFd, "online", buffer, sizeof(buffer));
-      /* If the file "online" does not exist or on failure count as active */
-      if (res < 1 || buffer[0] != '0') {
-         active++;
-         this->cpuData[id + 1].online = true;
-      } else {
-         this->cpuData[id + 1].online = false;
-      }
-
-      Compat_openatArgClose(cpuDirFd);
-   }
-
-   closedir(dir);
-
-   // return if no CPU is found
-   if (existing < 1)
-      return;
-
-#ifdef HAVE_SENSORS_SENSORS_H
-   /* When started with offline CPUs, libsensors does not monitor those,
-    * even when they become online. */
-   if (super->existingCPUs != 0 && (active > super->activeCPUs || currExisting > super->existingCPUs))
-      LibSensors_reload();
-#endif
-
-   super->activeCPUs = active;
-   assert(existing == currExisting);
-   super->existingCPUs = currExisting;
-}
-
-ProcessList* ProcessList_new(UsersTable* usersTable, Hashtable* pidMatchList, uid_t userId) {
+ProcessList* ProcessList_new(Machine* host, Hashtable* pidMatchList) {
    LinuxProcessList* this = xCalloc(1, sizeof(LinuxProcessList));
-   ProcessList* pl = &(this->super);
+   ProcessList* super = &this->super;
 
-   ProcessList_init(pl, Class(LinuxProcess), usersTable, pidMatchList, userId);
+   ProcessList_init(super, Class(LinuxProcess), host, pidMatchList);
    LinuxProcessList_initTtyDrivers(this);
-
-   // Initialize page size
-   pageSize = sysconf(_SC_PAGESIZE);
-   if (pageSize == -1)
-      CRT_fatalError("Cannot get pagesize by sysconf(_SC_PAGESIZE)");
-   pageSizeKB = pageSize / ONE_K;
-
-   // Initialize clock ticks
-   jiffy = sysconf(_SC_CLK_TCK);
-   if (jiffy == -1)
-      CRT_fatalError("Cannot get clock ticks by sysconf(_SC_CLK_TCK)");
 
    // Test /proc/PID/smaps_rollup availability (faster to parse, Linux 4.14+)
    this->haveSmapsRollup = (access(PROCDIR "/self/smaps_rollup", R_OK) == 0);
 
-   // Read btime (the kernel boot time, as number of seconds since the epoch)
-   FILE* statfile = fopen(PROCSTATFILE, "r");
-   if (statfile == NULL)
-      CRT_fatalError("Cannot open " PROCSTATFILE);
-   while (true) {
-      char buffer[PROC_LINE_LENGTH + 1];
-      if (fgets(buffer, sizeof(buffer), statfile) == NULL)
-         break;
-      if (String_startsWith(buffer, "btime ") == false)
-         continue;
-      if (sscanf(buffer, "btime %lld\n", &btime) == 1)
-         break;
-      CRT_fatalError("Failed to parse btime from " PROCSTATFILE);
-   }
-
-   fclose(statfile);
-
-   if (btime == -1)
-      CRT_fatalError("No btime in " PROCSTATFILE);
-
-   // Initialize CPU count
-   LinuxProcessList_updateCPUcount(pl);
-
-   return pl;
+   return super;
 }
 
 void ProcessList_delete(ProcessList* pl) {
    LinuxProcessList* this = (LinuxProcessList*) pl;
    ProcessList_done(pl);
-   free(this->cpuData);
    if (this->ttyDrivers) {
       for (int i = 0; this->ttyDrivers[i].path; i++) {
          free(this->ttyDrivers[i].path);
@@ -363,8 +231,8 @@ void ProcessList_delete(ProcessList* pl) {
    free(this);
 }
 
-static inline unsigned long long LinuxProcessList_adjustTime(unsigned long long t) {
-   return t * 100 / jiffy;
+static inline unsigned long long LinuxProcessList_adjustTime(const LinuxMachine* lhost, unsigned long long t) {
+   return t * 100 / lhost->jiffies;
 }
 
 /* Taken from: https://github.com/torvalds/linux/blob/64570fbc14f8d7cb3fe3995f20e26bc25ce4b2cc/fs/proc/array.c#L120 */
@@ -383,7 +251,7 @@ static inline ProcessState LinuxProcessList_getProcessState(char state) {
    }
 }
 
-static bool LinuxProcessList_readStatFile(LinuxProcess* lp, openat_arg_t procFd, bool scanMainThread, char* command, size_t commLen) {
+static bool LinuxProcessList_readStatFile(LinuxProcess* lp, openat_arg_t procFd, const LinuxMachine* lhost, bool scanMainThread, char* command, size_t commLen) {
    Process* process = &lp->super;
 
    char buf[MAX_READ + 1];
@@ -456,19 +324,19 @@ static bool LinuxProcessList_readStatFile(LinuxProcess* lp, openat_arg_t procFd,
    location += 1;
 
    /* (14) utime  -  %lu */
-   lp->utime = LinuxProcessList_adjustTime(strtoull(location, &location, 10));
+   lp->utime = LinuxProcessList_adjustTime(lhost, strtoull(location, &location, 10));
    location += 1;
 
    /* (15) stime  -  %lu */
-   lp->stime = LinuxProcessList_adjustTime(strtoull(location, &location, 10));
+   lp->stime = LinuxProcessList_adjustTime(lhost, strtoull(location, &location, 10));
    location += 1;
 
    /* (16) cutime  -  %ld */
-   lp->cutime = LinuxProcessList_adjustTime(strtoull(location, &location, 10));
+   lp->cutime = LinuxProcessList_adjustTime(lhost, strtoull(location, &location, 10));
    location += 1;
 
    /* (17) cstime  -  %ld */
-   lp->cstime = LinuxProcessList_adjustTime(strtoull(location, &location, 10));
+   lp->cstime = LinuxProcessList_adjustTime(lhost, strtoull(location, &location, 10));
    location += 1;
 
    /* (18) priority  -  %ld */
@@ -488,7 +356,7 @@ static bool LinuxProcessList_readStatFile(LinuxProcess* lp, openat_arg_t procFd,
 
    /* (22) starttime  -  %llu */
    if (process->starttime_ctime == 0) {
-      process->starttime_ctime = btime + LinuxProcessList_adjustTime(strtoll(location, &location, 10)) / 100;
+      process->starttime_ctime = lhost->boottime + LinuxProcessList_adjustTime(lhost, strtoll(location, &location, 10)) / 100;
    } else {
       location = strchr(location, ' ');
    }
@@ -594,7 +462,7 @@ static bool LinuxProcessList_readStatusFile(Process* process, openat_arg_t procF
    return true;
 }
 
-static bool LinuxProcessList_updateUser(ProcessList* processList, Process* process, openat_arg_t procFd) {
+static bool LinuxProcessList_updateUser(const Machine* host, Process* process, openat_arg_t procFd) {
    struct stat sstat;
 #ifdef HAVE_OPENAT
    int statok = fstat(procFd, &sstat);
@@ -606,14 +474,15 @@ static bool LinuxProcessList_updateUser(ProcessList* processList, Process* proce
 
    if (process->st_uid != sstat.st_uid) {
       process->st_uid = sstat.st_uid;
-      process->user = UsersTable_getRef(processList->usersTable, sstat.st_uid);
+      process->user = UsersTable_getRef(host->usersTable, sstat.st_uid);
    }
 
    return true;
 }
 
-static void LinuxProcessList_readIoFile(LinuxProcess* lp, openat_arg_t procFd, bool scanMainThread, unsigned long long realtimeMs) {
+static void LinuxProcessList_readIoFile(LinuxProcess* lp, openat_arg_t procFd, bool scanMainThread) {
    Process* process = &lp->super;
+   const Machine* host = process->host;
    char path[20] = "io";
    char buffer[1024];
    if (scanMainThread) {
@@ -630,13 +499,13 @@ static void LinuxProcessList_readIoFile(LinuxProcess* lp, openat_arg_t procFd, b
       lp->io_read_bytes = ULLONG_MAX;
       lp->io_write_bytes = ULLONG_MAX;
       lp->io_cancelled_write_bytes = ULLONG_MAX;
-      lp->io_last_scan_time_ms = realtimeMs;
+      lp->io_last_scan_time_ms = host->realtimeMs;
       return;
    }
 
    unsigned long long last_read = lp->io_read_bytes;
    unsigned long long last_write = lp->io_write_bytes;
-   unsigned long long time_delta = realtimeMs > lp->io_last_scan_time_ms ? realtimeMs - lp->io_last_scan_time_ms : 0;
+   unsigned long long time_delta = host->realtimeMs > lp->io_last_scan_time_ms ? host->realtimeMs - lp->io_last_scan_time_ms : 0;
 
    char* buf = buffer;
    const char* line;
@@ -672,7 +541,7 @@ static void LinuxProcessList_readIoFile(LinuxProcess* lp, openat_arg_t procFd, b
       }
    }
 
-   lp->io_last_scan_time_ms = realtimeMs;
+   lp->io_last_scan_time_ms = host->realtimeMs;
 }
 
 typedef struct LibraryData_ {
@@ -695,7 +564,7 @@ static void LinuxProcessList_calcLibSize_helper(ATTR_UNUSED ht_key_t key, void* 
    *d += v->size;
 }
 
-static void LinuxProcessList_readMaps(LinuxProcess* process, openat_arg_t procFd, bool calcSize, bool checkDeletedLib) {
+static void LinuxProcessList_readMaps(LinuxProcess* process, openat_arg_t procFd, const LinuxMachine* host, bool calcSize, bool checkDeletedLib) {
    Process* proc = (Process*)process;
 
    proc->usesDeletedLib = false;
@@ -800,11 +669,11 @@ static void LinuxProcessList_readMaps(LinuxProcess* process, openat_arg_t procFd
 
       Hashtable_delete(ht);
 
-      process->m_lrs = total_size / pageSize;
+      process->m_lrs = total_size / host->pageSize;
    }
 }
 
-static bool LinuxProcessList_readStatmFile(LinuxProcess* process, openat_arg_t procFd) {
+static bool LinuxProcessList_readStatmFile(LinuxProcess* process, openat_arg_t procFd, const LinuxMachine* host) {
    FILE* statmfile = fopenat(procFd, "statm", "r");
    if (!statmfile)
       return false;
@@ -822,8 +691,8 @@ static bool LinuxProcessList_readStatmFile(LinuxProcess* process, openat_arg_t p
    fclose(statmfile);
 
    if (r == 7) {
-      process->super.m_virt *= pageSizeKB;
-      process->super.m_resident *= pageSizeKB;
+      process->super.m_virt *= host->pageSizeKB;
+      process->super.m_resident *= host->pageSizeKB;
    }
 
    return r == 7;
@@ -1421,14 +1290,14 @@ static char* LinuxProcessList_updateTtyDevice(TtyDriver* ttyDrivers, unsigned lo
    return out;
 }
 
-static bool isOlderThan(const ProcessList* pl, const Process* proc, unsigned int seconds) {
-   assert(pl->realtimeMs > 0);
+static bool isOlderThan(const Process* proc, unsigned int seconds) {
+   assert(proc->host->realtimeMs > 0);
 
    /* Starttime might not yet be parsed */
    if (proc->starttime_ctime <= 0)
       return false;
 
-   uint64_t realtime = pl->realtimeMs / 1000;
+   uint64_t realtime = proc->host->realtimeMs / 1000;
 
    if (realtime < (uint64_t)proc->starttime_ctime)
       return false;
@@ -1436,11 +1305,12 @@ static bool isOlderThan(const ProcessList* pl, const Process* proc, unsigned int
    return realtime - proc->starttime_ctime > seconds;
 }
 
-static bool LinuxProcessList_recurseProcTree(LinuxProcessList* this, openat_arg_t parentFd, const char* dirname, const Process* parent, double period) {
+static bool LinuxProcessList_recurseProcTree(LinuxProcessList* this, openat_arg_t parentFd, const LinuxMachine* lhost, const char* dirname, const Process* parent) {
    ProcessList* pl = (ProcessList*) this;
-   const struct dirent* entry;
-   const Settings* settings = pl->settings;
+   const Machine* host = &lhost->super;
+   const Settings* settings = host->settings;
    const ScreenSettings* ss = settings->ss;
+   const struct dirent* entry;
 
 #ifdef HAVE_OPENAT
    int dirFd = openat(parentFd, dirname, O_RDONLY | O_DIRECTORY | O_NOFOLLOW);
@@ -1457,7 +1327,6 @@ static bool LinuxProcessList_recurseProcTree(LinuxProcessList* this, openat_arg_
       return false;
    }
 
-   const unsigned int activeCPUs = pl->activeCPUs;
    const bool hideKernelThreads = settings->hideKernelThreads;
    const bool hideUserlandThreads = settings->hideUserlandThreads;
    const bool hideRunningInContainer = settings->hideRunningInContainer;
@@ -1510,7 +1379,7 @@ static bool LinuxProcessList_recurseProcTree(LinuxProcessList* this, openat_arg_
       proc->tgid = parent ? parent->pid : pid;
       proc->isUserlandThread = proc->pid != proc->tgid;
 
-      LinuxProcessList_recurseProcTree(this, procFd, "task", proc, period);
+      LinuxProcessList_recurseProcTree(this, procFd, lhost, "task", proc);
 
       /*
        * These conditions will not trigger on first occurrence, cause we need to
@@ -1543,25 +1412,25 @@ static bool LinuxProcessList_recurseProcTree(LinuxProcessList* this, openat_arg_
 
       bool scanMainThread = !hideUserlandThreads && !Process_isKernelThread(proc) && !parent;
       if (ss->flags & PROCESS_FLAG_IO)
-         LinuxProcessList_readIoFile(lp, procFd, scanMainThread, pl->realtimeMs);
+         LinuxProcessList_readIoFile(lp, procFd, scanMainThread);
 
-      if (!LinuxProcessList_readStatmFile(lp, procFd))
+      if (!LinuxProcessList_readStatmFile(lp, procFd, lhost))
          goto errorReadingProcess;
 
       {
          bool prev = proc->usesDeletedLib;
 
          if (!proc->isKernelThread && !proc->isUserlandThread &&
-            ((ss->flags & PROCESS_FLAG_LINUX_LRS_FIX) || (settings->highlightDeletedExe && !proc->procExeDeleted && isOlderThan(pl, proc, 10)))) {
+            ((ss->flags & PROCESS_FLAG_LINUX_LRS_FIX) || (settings->highlightDeletedExe && !proc->procExeDeleted && isOlderThan(proc, 10)))) {
 
             // Check if we really should recalculate the M_LRS value for this process
-            uint64_t passedTimeInMs = pl->realtimeMs - lp->last_mlrs_calctime;
+            uint64_t passedTimeInMs = host->realtimeMs - lp->last_mlrs_calctime;
 
             uint64_t recheck = ((uint64_t)rand()) % 2048;
 
             if (passedTimeInMs > recheck) {
-               lp->last_mlrs_calctime = pl->realtimeMs;
-               LinuxProcessList_readMaps(lp, procFd, ss->flags & PROCESS_FLAG_LINUX_LRS_FIX, settings->highlightDeletedExe);
+               lp->last_mlrs_calctime = host->realtimeMs;
+               LinuxProcessList_readMaps(lp, procFd, lhost, ss->flags & PROCESS_FLAG_LINUX_LRS_FIX, settings->highlightDeletedExe);
             }
          } else {
             /* Copy from process structure in threads and reset if setting got disabled */
@@ -1591,7 +1460,7 @@ static bool LinuxProcessList_recurseProcTree(LinuxProcessList* this, openat_arg_
       char statCommand[MAX_NAME + 1];
       unsigned long long int lasttimes = (lp->utime + lp->stime);
       unsigned long int tty_nr = proc->tty_nr;
-      if (!LinuxProcessList_readStatFile(lp, procFd, scanMainThread, statCommand, sizeof(statCommand)))
+      if (!LinuxProcessList_readStatFile(lp, procFd, lhost, scanMainThread, statCommand, sizeof(statCommand)))
          goto errorReadingProcess;
 
       if (lp->flags & PF_KTHREAD) {
@@ -1608,12 +1477,12 @@ static bool LinuxProcessList_recurseProcTree(LinuxProcessList* this, openat_arg_
       }
 
       /* period might be 0 after system sleep */
-      float percent_cpu = (period < 1E-6) ? 0.0F : ((lp->utime + lp->stime - lasttimes) / period * 100.0);
-      proc->percent_cpu = CLAMP(percent_cpu, 0.0F, activeCPUs * 100.0F);
-      proc->percent_mem = proc->m_resident / (double)(pl->totalMem) * 100.0;
+      float percent_cpu = (lhost->period < 1E-6) ? 0.0F : ((lp->utime + lp->stime - lasttimes) / lhost->period * 100.0);
+      proc->percent_cpu = CLAMP(percent_cpu, 0.0F, host->activeCPUs * 100.0F);
+      proc->percent_mem = proc->m_resident / (double)(host->totalMem) * 100.0;
       Process_updateCPUFieldWidths(proc->percent_cpu);
 
-      if (! LinuxProcessList_updateUser(pl, proc, procFd))
+      if (! LinuxProcessList_updateUser(host, proc, procFd))
          goto errorReadingProcess;
 
       if (!LinuxProcessList_readStatusFile(proc, procFd))
@@ -1704,7 +1573,7 @@ static bool LinuxProcessList_recurseProcTree(LinuxProcessList* this, openat_arg_
       proc->show = ! ((hideKernelThreads && Process_isKernelThread(proc)) || (hideUserlandThreads && Process_isUserlandThread(proc)));
 
       pl->totalTasks++;
-      /* runningTasks is set in LinuxProcessList_scanCPUTime() from /proc/stat */
+      /* runningTasks is set in Machine_scanCPUTime() from /proc/stat */
       continue;
 
       // Exception handler.
@@ -1732,512 +1601,11 @@ errorReadingProcess:
    return true;
 }
 
-static inline void LinuxProcessList_scanMemoryInfo(ProcessList* this) {
-   memory_t availableMem = 0;
-   memory_t freeMem = 0;
-   memory_t totalMem = 0;
-   memory_t buffersMem = 0;
-   memory_t cachedMem = 0;
-   memory_t sharedMem = 0;
-   memory_t swapTotalMem = 0;
-   memory_t swapCacheMem = 0;
-   memory_t swapFreeMem = 0;
-   memory_t sreclaimableMem = 0;
-
-   FILE* file = fopen(PROCMEMINFOFILE, "r");
-   if (!file)
-      CRT_fatalError("Cannot open " PROCMEMINFOFILE);
-
-   char buffer[128];
-   while (fgets(buffer, sizeof(buffer), file)) {
-
-      #define tryRead(label, variable)                                       \
-         if (String_startsWith(buffer, label)) {                             \
-            memory_t parsed_;                                                \
-            if (sscanf(buffer + strlen(label), "%llu kB", &parsed_) == 1) {  \
-               (variable) = parsed_;                                         \
-            }                                                                \
-            break;                                                           \
-         } else (void) 0 /* Require a ";" after the macro use. */
-
-      switch (buffer[0]) {
-      case 'M':
-         tryRead("MemAvailable:", availableMem);
-         tryRead("MemFree:", freeMem);
-         tryRead("MemTotal:", totalMem);
-         break;
-      case 'B':
-         tryRead("Buffers:", buffersMem);
-         break;
-      case 'C':
-         tryRead("Cached:", cachedMem);
-         break;
-      case 'S':
-         switch (buffer[1]) {
-         case 'h':
-            tryRead("Shmem:", sharedMem);
-            break;
-         case 'w':
-            tryRead("SwapTotal:", swapTotalMem);
-            tryRead("SwapCached:", swapCacheMem);
-            tryRead("SwapFree:", swapFreeMem);
-            break;
-         case 'R':
-            tryRead("SReclaimable:", sreclaimableMem);
-            break;
-         }
-         break;
-      }
-
-      #undef tryRead
-   }
-
-   fclose(file);
-
-   /*
-    * Compute memory partition like procps(free)
-    *  https://gitlab.com/procps-ng/procps/-/blob/master/proc/sysinfo.c
-    *
-    * Adjustments:
-    *  - Shmem in part of Cached (see https://lore.kernel.org/patchwork/patch/648763/),
-    *    do not show twice by subtracting from Cached and do not subtract twice from used.
-    */
-   this->totalMem = totalMem;
-   this->cachedMem = cachedMem + sreclaimableMem - sharedMem;
-   this->sharedMem = sharedMem;
-   const memory_t usedDiff = freeMem + cachedMem + sreclaimableMem + buffersMem;
-   this->usedMem = (totalMem >= usedDiff) ? totalMem - usedDiff : totalMem - freeMem;
-   this->buffersMem = buffersMem;
-   this->availableMem = availableMem != 0 ? MINIMUM(availableMem, totalMem) : freeMem;
-   this->totalSwap = swapTotalMem;
-   this->usedSwap = swapTotalMem - swapFreeMem - swapCacheMem;
-   this->cachedSwap = swapCacheMem;
-}
-
-static void LinuxProcessList_scanHugePages(LinuxProcessList* this) {
-   this->totalHugePageMem = 0;
-   for (unsigned i = 0; i < HTOP_HUGEPAGE_COUNT; i++) {
-      this->usedHugePageMem[i] = MEMORY_MAX;
-   }
-
-   DIR* dir = opendir("/sys/kernel/mm/hugepages");
-   if (!dir)
-      return;
-
-   const struct dirent* entry;
-   while ((entry = readdir(dir)) != NULL) {
-      const char* name = entry->d_name;
-
-      /* Ignore all non-directories */
-      if (entry->d_type != DT_DIR && entry->d_type != DT_UNKNOWN)
-         continue;
-
-      if (!String_startsWith(name, "hugepages-"))
-         continue;
-
-      char* endptr;
-      unsigned long int hugePageSize = strtoul(name + strlen("hugepages-"), &endptr, 10);
-      if (!endptr || *endptr != 'k')
-         continue;
-
-      char content[64];
-      char hugePagePath[128];
-      ssize_t r;
-
-      xSnprintf(hugePagePath, sizeof(hugePagePath), "/sys/kernel/mm/hugepages/%s/nr_hugepages", name);
-      r = xReadfile(hugePagePath, content, sizeof(content));
-      if (r <= 0)
-         continue;
-
-      memory_t total = strtoull(content, NULL, 10);
-      if (total == 0)
-         continue;
-
-      xSnprintf(hugePagePath, sizeof(hugePagePath), "/sys/kernel/mm/hugepages/%s/free_hugepages", name);
-      r = xReadfile(hugePagePath, content, sizeof(content));
-      if (r <= 0)
-         continue;
-
-      memory_t free = strtoull(content, NULL, 10);
-
-      int shift = ffsl(hugePageSize) - 1 - (HTOP_HUGEPAGE_BASE_SHIFT - 10);
-      assert(shift >= 0 && shift < HTOP_HUGEPAGE_COUNT);
-
-      this->totalHugePageMem += total * hugePageSize;
-      this->usedHugePageMem[shift] = (total - free) * hugePageSize;
-   }
-
-   closedir(dir);
-}
-
-static inline void LinuxProcessList_scanZramInfo(LinuxProcessList* this) {
-   memory_t totalZram = 0;
-   memory_t usedZramComp = 0;
-   memory_t usedZramOrig = 0;
-
-   char mm_stat[34];
-   char disksize[34];
-
-   unsigned int i = 0;
-   for (;;) {
-      xSnprintf(mm_stat, sizeof(mm_stat), "/sys/block/zram%u/mm_stat", i);
-      xSnprintf(disksize, sizeof(disksize), "/sys/block/zram%u/disksize", i);
-      i++;
-      FILE* disksize_file = fopen(disksize, "r");
-      FILE* mm_stat_file = fopen(mm_stat, "r");
-      if (disksize_file == NULL || mm_stat_file == NULL) {
-         if (disksize_file) {
-            fclose(disksize_file);
-         }
-         if (mm_stat_file) {
-            fclose(mm_stat_file);
-         }
-         break;
-      }
-      memory_t size = 0;
-      memory_t orig_data_size = 0;
-      memory_t compr_data_size = 0;
-
-      if (!fscanf(disksize_file, "%llu\n", &size) ||
-          !fscanf(mm_stat_file, "    %llu       %llu", &orig_data_size, &compr_data_size)) {
-         fclose(disksize_file);
-         fclose(mm_stat_file);
-         break;
-      }
-
-      totalZram += size;
-      usedZramComp += compr_data_size;
-      usedZramOrig += orig_data_size;
-
-      fclose(disksize_file);
-      fclose(mm_stat_file);
-   }
-
-   this->zram.totalZram = totalZram / 1024;
-   this->zram.usedZramComp = usedZramComp / 1024;
-   this->zram.usedZramOrig = usedZramOrig / 1024;
-}
-
-static inline void LinuxProcessList_scanZfsArcstats(LinuxProcessList* lpl) {
-   memory_t dbufSize = 0;
-   memory_t dnodeSize = 0;
-   memory_t bonusSize = 0;
-
-   FILE* file = fopen(PROCARCSTATSFILE, "r");
-   if (file == NULL) {
-      lpl->zfs.enabled = 0;
-      return;
-   }
-   char buffer[128];
-   while (fgets(buffer, 128, file)) {
-      #define tryRead(label, variable)                                         \
-         if (String_startsWith(buffer, label)) {                               \
-            sscanf(buffer + strlen(label), " %*2u %32llu", variable);          \
-            break;                                                             \
-         } else (void) 0 /* Require a ";" after the macro use. */
-      #define tryReadFlag(label, variable, flag)                               \
-         if (String_startsWith(buffer, label)) {                               \
-            (flag) = sscanf(buffer + strlen(label), " %*2u %32llu", variable); \
-            break;                                                             \
-         } else (void) 0 /* Require a ";" after the macro use. */
-
-      switch (buffer[0]) {
-      case 'c':
-         tryRead("c_min", &lpl->zfs.min);
-         tryRead("c_max", &lpl->zfs.max);
-         tryReadFlag("compressed_size", &lpl->zfs.compressed, lpl->zfs.isCompressed);
-         break;
-      case 'u':
-         tryRead("uncompressed_size", &lpl->zfs.uncompressed);
-         break;
-      case 's':
-         tryRead("size", &lpl->zfs.size);
-         break;
-      case 'h':
-         tryRead("hdr_size", &lpl->zfs.header);
-         break;
-      case 'd':
-         tryRead("dbuf_size", &dbufSize);
-         tryRead("dnode_size", &dnodeSize);
-         break;
-      case 'b':
-         tryRead("bonus_size", &bonusSize);
-         break;
-      case 'a':
-         tryRead("anon_size", &lpl->zfs.anon);
-         break;
-      case 'm':
-         tryRead("mfu_size", &lpl->zfs.MFU);
-         tryRead("mru_size", &lpl->zfs.MRU);
-         break;
-      }
-      #undef tryRead
-      #undef tryReadFlag
-   }
-   fclose(file);
-
-   lpl->zfs.enabled = (lpl->zfs.size > 0 ? 1 : 0);
-   lpl->zfs.size    /= 1024;
-   lpl->zfs.min    /= 1024;
-   lpl->zfs.max    /= 1024;
-   lpl->zfs.MFU    /= 1024;
-   lpl->zfs.MRU    /= 1024;
-   lpl->zfs.anon   /= 1024;
-   lpl->zfs.header /= 1024;
-   lpl->zfs.other   = (dbufSize + dnodeSize + bonusSize) / 1024;
-   if ( lpl->zfs.isCompressed ) {
-      lpl->zfs.compressed /= 1024;
-      lpl->zfs.uncompressed /= 1024;
-   }
-}
-
-static inline double LinuxProcessList_scanCPUTime(ProcessList* super) {
+void ProcessList_goThroughEntries(ProcessList* super) {
    LinuxProcessList* this = (LinuxProcessList*) super;
-
-   LinuxProcessList_updateCPUcount(super);
-
-   FILE* file = fopen(PROCSTATFILE, "r");
-   if (!file)
-      CRT_fatalError("Cannot open " PROCSTATFILE);
-
-   unsigned int existingCPUs = super->existingCPUs;
-   unsigned int lastAdjCpuId = 0;
-
-   for (unsigned int i = 0; i <= existingCPUs; i++) {
-      char buffer[PROC_LINE_LENGTH + 1];
-      unsigned long long int usertime, nicetime, systemtime, idletime;
-      unsigned long long int ioWait = 0, irq = 0, softIrq = 0, steal = 0, guest = 0, guestnice = 0;
-
-      const char* ok = fgets(buffer, sizeof(buffer), file);
-      if (!ok)
-         break;
-
-      // cpu fields are sorted first
-      if (!String_startsWith(buffer, "cpu"))
-         break;
-
-      // Depending on your kernel version,
-      // 5, 7, 8 or 9 of these fields will be set.
-      // The rest will remain at zero.
-      unsigned int adjCpuId;
-      if (i == 0) {
-         (void) sscanf(buffer,   "cpu  %16llu %16llu %16llu %16llu %16llu %16llu %16llu %16llu %16llu %16llu",         &usertime, &nicetime, &systemtime, &idletime, &ioWait, &irq, &softIrq, &steal, &guest, &guestnice);
-         adjCpuId = 0;
-      } else {
-         unsigned int cpuid;
-         (void) sscanf(buffer, "cpu%4u %16llu %16llu %16llu %16llu %16llu %16llu %16llu %16llu %16llu %16llu", &cpuid, &usertime, &nicetime, &systemtime, &idletime, &ioWait, &irq, &softIrq, &steal, &guest, &guestnice);
-         adjCpuId = cpuid + 1;
-      }
-
-      if (adjCpuId > super->existingCPUs)
-         break;
-
-      for (unsigned int j = lastAdjCpuId + 1; j < adjCpuId; j++) {
-         // Skipped an ID, but /proc/stat is ordered => got offline CPU
-         memset(&(this->cpuData[j]), '\0', sizeof(CPUData));
-      }
-      lastAdjCpuId = adjCpuId;
-
-      // Guest time is already accounted in usertime
-      usertime -= guest;
-      nicetime -= guestnice;
-      // Fields existing on kernels >= 2.6
-      // (and RHEL's patched kernel 2.4...)
-      unsigned long long int idlealltime = idletime + ioWait;
-      unsigned long long int systemalltime = systemtime + irq + softIrq;
-      unsigned long long int virtalltime = guest + guestnice;
-      unsigned long long int totaltime = usertime + nicetime + systemalltime + idlealltime + steal + virtalltime;
-      CPUData* cpuData = &(this->cpuData[adjCpuId]);
-      // Since we do a subtraction (usertime - guest) and cputime64_to_clock_t()
-      // used in /proc/stat rounds down numbers, it can lead to a case where the
-      // integer overflow.
-      cpuData->userPeriod = saturatingSub(usertime, cpuData->userTime);
-      cpuData->nicePeriod = saturatingSub(nicetime, cpuData->niceTime);
-      cpuData->systemPeriod = saturatingSub(systemtime, cpuData->systemTime);
-      cpuData->systemAllPeriod = saturatingSub(systemalltime, cpuData->systemAllTime);
-      cpuData->idleAllPeriod = saturatingSub(idlealltime, cpuData->idleAllTime);
-      cpuData->idlePeriod = saturatingSub(idletime, cpuData->idleTime);
-      cpuData->ioWaitPeriod = saturatingSub(ioWait, cpuData->ioWaitTime);
-      cpuData->irqPeriod = saturatingSub(irq, cpuData->irqTime);
-      cpuData->softIrqPeriod = saturatingSub(softIrq, cpuData->softIrqTime);
-      cpuData->stealPeriod = saturatingSub(steal, cpuData->stealTime);
-      cpuData->guestPeriod = saturatingSub(virtalltime, cpuData->guestTime);
-      cpuData->totalPeriod = saturatingSub(totaltime, cpuData->totalTime);
-      cpuData->userTime = usertime;
-      cpuData->niceTime = nicetime;
-      cpuData->systemTime = systemtime;
-      cpuData->systemAllTime = systemalltime;
-      cpuData->idleAllTime = idlealltime;
-      cpuData->idleTime = idletime;
-      cpuData->ioWaitTime = ioWait;
-      cpuData->irqTime = irq;
-      cpuData->softIrqTime = softIrq;
-      cpuData->stealTime = steal;
-      cpuData->guestTime = virtalltime;
-      cpuData->totalTime = totaltime;
-   }
-
-   double period = (double)this->cpuData[0].totalPeriod / super->activeCPUs;
-
-   char buffer[PROC_LINE_LENGTH + 1];
-   while (fgets(buffer, sizeof(buffer), file)) {
-      if (String_startsWith(buffer, "procs_running")) {
-         super->runningTasks = strtoul(buffer + strlen("procs_running"), NULL, 10);
-         break;
-      }
-   }
-
-   fclose(file);
-
-   return period;
-}
-
-static int scanCPUFrequencyFromSysCPUFreq(LinuxProcessList* this) {
-   unsigned int existingCPUs = this->super.existingCPUs;
-   int numCPUsWithFrequency = 0;
-   unsigned long totalFrequency = 0;
-
-   /*
-    * On some AMD and Intel CPUs read()ing scaling_cur_freq is quite slow (> 1ms). This delay
-    * accumulates for every core. For details see issue#471.
-    * If the read on CPU 0 takes longer than 500us bail out and fall back to reading the
-    * frequencies from /proc/cpuinfo.
-    * Once the condition has been met, bail out early for the next couple of scans.
-    */
-   static int timeout = 0;
-
-   if (timeout > 0) {
-      timeout--;
-      return -1;
-   }
-
-   for (unsigned int i = 0; i < existingCPUs; ++i) {
-      if (!ProcessList_isCPUonline(&this->super, i))
-         continue;
-
-      char pathBuffer[64];
-      xSnprintf(pathBuffer, sizeof(pathBuffer), "/sys/devices/system/cpu/cpu%u/cpufreq/scaling_cur_freq", i);
-
-      struct timespec start;
-      if (i == 0)
-         clock_gettime(CLOCK_MONOTONIC, &start);
-
-      FILE* file = fopen(pathBuffer, "r");
-      if (!file)
-         return -errno;
-
-      unsigned long frequency;
-      if (fscanf(file, "%lu", &frequency) == 1) {
-         /* convert kHz to MHz */
-         frequency = frequency / 1000;
-         this->cpuData[i + 1].frequency = frequency;
-         numCPUsWithFrequency++;
-         totalFrequency += frequency;
-      }
-
-      fclose(file);
-
-      if (i == 0) {
-         struct timespec end;
-         clock_gettime(CLOCK_MONOTONIC, &end);
-         const time_t timeTakenUs = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_nsec - start.tv_nsec) / 1000;
-         if (timeTakenUs > 500) {
-            timeout = 30;
-            return -1;
-         }
-      }
-
-   }
-
-   if (numCPUsWithFrequency > 0)
-      this->cpuData[0].frequency = (double)totalFrequency / numCPUsWithFrequency;
-
-   return 0;
-}
-
-static void scanCPUFrequencyFromCPUinfo(LinuxProcessList* this) {
-   FILE* file = fopen(PROCCPUINFOFILE, "r");
-   if (file == NULL)
-      return;
-
-   unsigned int existingCPUs = this->super.existingCPUs;
-   int numCPUsWithFrequency = 0;
-   double totalFrequency = 0;
-   int cpuid = -1;
-
-   while (!feof(file)) {
-      double frequency;
-      char buffer[PROC_LINE_LENGTH];
-
-      if (fgets(buffer, PROC_LINE_LENGTH, file) == NULL)
-         break;
-
-      if (sscanf(buffer, "processor : %d", &cpuid) == 1) {
-         continue;
-      } else if (
-         (sscanf(buffer, "cpu MHz : %lf", &frequency) == 1) ||
-         (sscanf(buffer, "clock : %lfMHz", &frequency) == 1)
-      ) {
-         if (cpuid < 0 || (unsigned int)cpuid > (existingCPUs - 1)) {
-            continue;
-         }
-
-         CPUData* cpuData = &(this->cpuData[cpuid + 1]);
-         /* do not override sysfs data */
-         if (isnan(cpuData->frequency)) {
-            cpuData->frequency = frequency;
-         }
-         numCPUsWithFrequency++;
-         totalFrequency += frequency;
-      } else if (buffer[0] == '\n') {
-         cpuid = -1;
-      }
-   }
-   fclose(file);
-
-   if (numCPUsWithFrequency > 0) {
-      this->cpuData[0].frequency = totalFrequency / numCPUsWithFrequency;
-   }
-}
-
-static void LinuxProcessList_scanCPUFrequency(LinuxProcessList* this) {
-   unsigned int existingCPUs = this->super.existingCPUs;
-
-   for (unsigned int i = 0; i <= existingCPUs; i++) {
-      this->cpuData[i].frequency = NAN;
-   }
-
-   if (scanCPUFrequencyFromSysCPUFreq(this) == 0) {
-      return;
-   }
-
-   scanCPUFrequencyFromCPUinfo(this);
-}
-
-void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
-   LinuxProcessList* this = (LinuxProcessList*) super;
-   const Settings* settings = super->settings;
-
-   LinuxProcessList_scanMemoryInfo(super);
-   LinuxProcessList_scanHugePages(this);
-   LinuxProcessList_scanZfsArcstats(this);
-   LinuxProcessList_scanZramInfo(this);
-
-   double period = LinuxProcessList_scanCPUTime(super);
-
-   if (settings->showCPUFrequency) {
-      LinuxProcessList_scanCPUFrequency(this);
-   }
-
-   #ifdef HAVE_SENSORS_SENSORS_H
-   if (settings->showCPUTemperature)
-      LibSensors_getCPUTemperatures(this->cpuData, this->super.existingCPUs, this->super.activeCPUs);
-   #endif
-
-   // in pause mode only gather global data for meters (CPU/memory/...)
-   if (pauseProcessUpdate) {
-      return;
-   }
+   const Machine* host = super->host;
+   const Settings* settings = host->settings;
+   const LinuxMachine* lhost = (const LinuxMachine*) host;
 
    if (settings->ss->flags & PROCESS_FLAG_LINUX_AUTOGROUP) {
       // Refer to sched(7) 'autogroup feature' section
@@ -2257,12 +1625,5 @@ void ProcessList_goThroughEntries(ProcessList* super, bool pauseProcessUpdate) {
    openat_arg_t rootFd = "";
 #endif
 
-   LinuxProcessList_recurseProcTree(this, rootFd, PROCDIR, NULL, period);
-}
-
-bool ProcessList_isCPUonline(const ProcessList* super, unsigned int id) {
-   assert(id < super->existingCPUs);
-
-   const LinuxProcessList* this = (const LinuxProcessList*) super;
-   return this->cpuData[id + 1].online;
+   LinuxProcessList_recurseProcTree(this, rootFd, lhost, PROCDIR, NULL);
 }
