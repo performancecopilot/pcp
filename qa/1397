@@ -51,7 +51,7 @@ export SMART_SETUP_LSBLK="$here/smart/lsblk.sh"
 export SMART_SETUP="$here/smart/smartctl.sh"
 pmda=$PCP_PMDAS_DIR/smart/pmda_smart.so,smart_init
 metrics=`pminfo -L -K clear -K add,150,$pmda smart | LC_COLLATE=POSIX sort`
-memcheck="smart.health smart.info.capacity_bytes smart.attributes.power_off_retract_count.worst smart.nvme_attributes.data_units_read"
+memcheck="smart.health smart.info.capacity_bytes smart.attributes.power_off_retract_count.worst smart.nvme_attributes.data_units_read smart.nvme_info.serial_number"
 
 for tgz in $here/smart/smart-*.tgz
 do

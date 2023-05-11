@@ -19,6 +19,7 @@ smart {
 	info
 	health			SMART:0:0
 	attributes
+	nvme_info
 	nvme_attributes
 }
 
@@ -456,6 +457,27 @@ smart.attributes.free_fall_sensor {
 	worst			SMART:254:2
 	thresh			SMART:254:3
 	raw			SMART:254:4
+}
+
+smart.nvme_info {
+	model_number						SMART:256:0
+	serial_number						SMART:256:1
+	firmware_version					SMART:256:2
+	pci_vendor_subsystem_id					SMART:256:3
+	ieee_oui_identifier					SMART:256:4
+	total_nvm_capacity					SMART:256:5
+	unallocated_nvm_capacity				SMART:256:6
+	controller_id						SMART:256:7
+	nvme_version						SMART:256:8
+	namespace_1_capacity					SMART:256:18
+	namespace_1_utilization					SMART:256:19
+	namespace_1_formatted_lba_size				SMART:256:20
+	namespace_1_ieee_eui_64					SMART:256:21
+	namespaces						SMART:256:9
+	firware_updates						SMART:256:10
+	maximum_data_transfer_size				SMART:256:11
+	warning_temp_threshold					SMART:256:12
+	critical_temp_thresold					SMART:256:13
 }
 
 smart.nvme_attributes {

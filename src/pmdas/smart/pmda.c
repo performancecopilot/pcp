@@ -1007,6 +1007,79 @@ pmdaMetric metrictable[] = {
 		PMDA_PMID(CLUSTER_FREE_FALL_SENSOR, SMART_RAW),
 		PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
 		PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+	/* NVME Info metrics */
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_MODEL_NUMBER),
+		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_SERIAL_NUMBER),
+		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_FIRMWARE_VERSION),
+		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_PCI_VENDOR_SUBSYSTEM_ID),
+		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_IEE_OUI_IDENTIFIER),
+		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_TOTAL_NVM_CAPACITY),
+		PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_UNALLOCATED_NVM_CAPACITY),
+		PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_CONTROLLER_ID),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_NVME_VERSION),
+		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_NAMESPACES),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_FIRMWARE_UPDATES),
+		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_MAXIMUM_DATA_TRANSFER_SIZE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_WARNING_TEMP_THRESHOLD),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_CRITICAL_TEMP_THRESHOLD),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_NAMESPACE_1_CAPACITY),
+		PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_NAMESPACE_1_UTILIZATION),
+		PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_NAMESPACE_1_FORMATTED_LBA_SIZE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_NAMESPACE_1_IEEE_EUI_64),
+		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
 	/* Smart Attribute metrics */
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, CRITICAL_WARNING),
@@ -1194,7 +1267,7 @@ smart_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 			continue;
 
 		if (need_refresh[CLUSTER_DEVICE_INFO])
-			smart_refresh_device_info(dev_name, &dev->device_info, dev->is_nvme);
+			        smart_refresh_device_info(dev_name, &dev->device_info, dev->is_nvme);
 
 		if (need_refresh[CLUSTER_RAW_READ_ERROR_RATE] ||
 			need_refresh[CLUSTER_THROUGHPUT_PERFORMANCE] ||
@@ -1244,9 +1317,12 @@ smart_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 			need_refresh[CLUSTER_READ_ERROR_RETRY_RATE] ||
 			need_refresh[CLUSTER_FREE_FALL_SENSOR])
 				smart_refresh_data(dev_name, &dev->smart_data, dev->is_nvme);
-				
+
+		if (need_refresh[CLUSTER_NVME_DEVICE_INFO])
+			        nvme_device_refresh_data(dev_name, &dev->nvme_device_info, dev->is_nvme);
+
 		if (need_refresh[CLUSTER_NVME_ATTRIBUTES])
-			nvme_smart_refresh_data(dev_name, &dev->nvme_smart_data, dev->is_nvme);
+			        nvme_smart_refresh_data(dev_name, &dev->nvme_smart_data, dev->is_nvme);
 	}
 	return sts;
 }
@@ -1334,7 +1410,13 @@ smart_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			if (sts < 0)
 				return sts;
 			return smart_data_fetch(item, cluster, &dev->smart_data, atom);
-			
+		
+		case CLUSTER_NVME_DEVICE_INFO:
+			sts = pmdaCacheLookup(INDOM(DISK_INDOM), inst, NULL, (void **)&dev);
+			if (sts < 0)
+				return sts;
+			return nvme_device_info_fetch(item, cluster, &dev->nvme_device_info, atom, dev->is_nvme);
+		
 		case CLUSTER_NVME_ATTRIBUTES:
 			sts = pmdaCacheLookup(INDOM(DISK_INDOM), inst, NULL, (void **)&dev);
 			if (sts < 0)

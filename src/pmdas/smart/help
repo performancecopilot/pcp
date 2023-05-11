@@ -334,6 +334,25 @@ Whether the given drive has PASSED or FAILED SMART the self-test
 @smart.attributes.free_fall_sensor.thresh Normalised threshold value for the given SMART metric
 @smart.attributes.free_fall_sensor.raw Raw metric value for the given SMART metric
 
+@smart.nvme_info.model_number The model name and number for the NVME drive
+@smart.nvme_info.serial_number The serial number for the NVME drive
+@smart.nvme_info.firmware_version The current firmware version for the NVME drive
+@smart.nvme_info.pci_vendor_subsystem_id PCI Vendor and Subsystem ID for the NVME drive
+@smart.nvme_info.ieee_oui_identifier IEEE OUI identification value for the NVME drive
+@smart.nvme_info.total_nvm_capacity The total NVM capacity for the NVME drive
+@smart.nvme_info.unallocated_nvm_capacity The unallocated NVM capacity for the NVME drive
+@smart.nvme_info.controller_id The ID for the controller of the NVME drive
+@smart.nvme_info.nvme_version The NVME specification version for the NVME drive
+@smart.nvme_info.namespace_1_capacity The total capacity for namespace 1 on the NVME drive
+@smart.nvme_info.namespace_1_utilization The current utilization for namespace 1 on the NVME drive
+@smart.nvme_info.namespace_1_formatted_lba_size The LBA size formatted for namespace 1 on the NVME drive
+@smart.nvme_info.namespace_1_ieee_eui_64 the IEEE EUI 64 value for namespace 1 on the NVME drive
+@smart.nvme_info.namespaces The total number of namespaces on the NVME drive
+@smart.nvme_info.firware_updates The number of Slots and reset requirement status for the NVME drive
+@smart.nvme_info.maximum_data_transfer_size The maximum data transfer size supported for the NVME drive
+@smart.nvme_info.warning_temp_threshold The temperature at which the warning temperature threshold is set
+@smart.nvme_info.critical_temp_thresold The temperature at which the critical temperature threshold is set
+
 @smart.nvme_attributes.critical_warning Indicates critical warnings for the sate of the Endurance Groups
 @smart.nvme_attributes.composite_temperature Contains current composite temperature of the controller
 @smart.nvme_attributes.available_spare Normalized percentage of remaining spare capacity

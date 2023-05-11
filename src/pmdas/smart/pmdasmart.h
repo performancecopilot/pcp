@@ -69,6 +69,7 @@ enum {
 	CLUSTER_READ_ERROR_RETRY_RATE = 250,
 	CLUSTER_FREE_FALL_SENSOR = 254,
 	CLUSTER_NVME_ATTRIBUTES = 255,
+	CLUSTER_NVME_DEVICE_INFO = 256,
 	NUM_CLUSTERS
 };
 
@@ -81,6 +82,7 @@ struct block_dev {
         int 			is_nvme;
 	struct device_info	device_info;
 	struct smart_data	smart_data;
+	struct nvme_device_info nvme_device_info;
 	struct nvme_smart_data	nvme_smart_data;
 };
 

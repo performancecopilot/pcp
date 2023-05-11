@@ -1880,6 +1880,132 @@ smart.nvme_attributes.warning_composite_temperature_time PMID: 150.255.15 [Conta
 Help:
 Contains amount of time in minutes over composite temp threshold
 No value(s) available!
+
+smart.nvme_info.controller_id PMID: 150.256.7 [The ID for the controller of the NVME drive]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The ID for the controller of the NVME drive
+No value(s) available!
+
+smart.nvme_info.critical_temp_thresold PMID: 150.256.13 [The temperature at which the critical temperature threshold is set]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The temperature at which the critical temperature threshold is set
+No value(s) available!
+
+smart.nvme_info.firmware_version PMID: 150.256.2 [The current firmware version for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The current firmware version for the NVME drive
+No value(s) available!
+
+smart.nvme_info.firware_updates PMID: 150.256.10 [The number of Slots and reset requirement status for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The number of Slots and reset requirement status for the NVME drive
+No value(s) available!
+
+smart.nvme_info.ieee_oui_identifier PMID: 150.256.4 [IEEE OUI identification value for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+IEEE OUI identification value for the NVME drive
+No value(s) available!
+
+smart.nvme_info.maximum_data_transfer_size PMID: 150.256.11 [The maximum data transfer size supported for the NVME drive]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The maximum data transfer size supported for the NVME drive
+No value(s) available!
+
+smart.nvme_info.model_number PMID: 150.256.0 [The model name and number for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The model name and number for the NVME drive
+No value(s) available!
+
+smart.nvme_info.namespace_1_capacity PMID: 150.256.18 [The total capacity for namespace 1 on the NVME drive]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The total capacity for namespace 1 on the NVME drive
+No value(s) available!
+
+smart.nvme_info.namespace_1_formatted_lba_size PMID: 150.256.20 [The LBA size formatted for namespace 1 on the NVME drive]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The LBA size formatted for namespace 1 on the NVME drive
+No value(s) available!
+
+smart.nvme_info.namespace_1_ieee_eui_64 PMID: 150.256.21 [the IEEE EUI 64 value for namespace 1 on the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+the IEEE EUI 64 value for namespace 1 on the NVME drive
+No value(s) available!
+
+smart.nvme_info.namespace_1_utilization PMID: 150.256.19 [The current utilization for namespace 1 on the NVME drive]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The current utilization for namespace 1 on the NVME drive
+No value(s) available!
+
+smart.nvme_info.namespaces PMID: 150.256.9 [The total number of namespaces on the NVME drive]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The total number of namespaces on the NVME drive
+No value(s) available!
+
+smart.nvme_info.nvme_version PMID: 150.256.8 [The NVME specification version for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The NVME specification version for the NVME drive
+No value(s) available!
+
+smart.nvme_info.pci_vendor_subsystem_id PMID: 150.256.3 [PCI Vendor and Subsystem ID for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+PCI Vendor and Subsystem ID for the NVME drive
+No value(s) available!
+
+smart.nvme_info.serial_number PMID: 150.256.1 [The serial number for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The serial number for the NVME drive
+No value(s) available!
+
+smart.nvme_info.total_nvm_capacity PMID: 150.256.5 [The total NVM capacity for the NVME drive]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The total NVM capacity for the NVME drive
+No value(s) available!
+
+smart.nvme_info.unallocated_nvm_capacity PMID: 150.256.6 [The unallocated NVM capacity for the NVME drive]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The unallocated NVM capacity for the NVME drive
+No value(s) available!
+
+smart.nvme_info.warning_temp_threshold PMID: 150.256.12 [The temperature at which the warning temperature threshold is set]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The temperature at which the warning temperature threshold is set
+No value(s) available!
 == Checking with valgrind - smart-root-001.tgz
 === std out ===
 
@@ -1894,10 +2020,13 @@ No value(s) available!
 
 smart.nvme_attributes.data_units_read
 No value(s) available!
+
+smart.nvme_info.serial_number
+No value(s) available!
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -K clear -K add,150,PCP_PMDAS_DIR/smart/pmda_smart.so,smart_init -f smart.health smart.info.capacity_bytes smart.attributes.power_off_retract_count.worst smart.nvme_attributes.data_units_read
+Command: pminfo -L -K clear -K add,150,PCP_PMDAS_DIR/smart/pmda_smart.so,smart_init -f smart.health smart.info.capacity_bytes smart.attributes.power_off_retract_count.worst smart.nvme_attributes.data_units_read smart.nvme_info.serial_number
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -4127,6 +4256,132 @@ smart.nvme_attributes.warning_composite_temperature_time PMID: 150.255.15 [Conta
 Help:
 Contains amount of time in minutes over composite temp threshold
 No value(s) available!
+
+smart.nvme_info.controller_id PMID: 150.256.7 [The ID for the controller of the NVME drive]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The ID for the controller of the NVME drive
+No value(s) available!
+
+smart.nvme_info.critical_temp_thresold PMID: 150.256.13 [The temperature at which the critical temperature threshold is set]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The temperature at which the critical temperature threshold is set
+No value(s) available!
+
+smart.nvme_info.firmware_version PMID: 150.256.2 [The current firmware version for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The current firmware version for the NVME drive
+No value(s) available!
+
+smart.nvme_info.firware_updates PMID: 150.256.10 [The number of Slots and reset requirement status for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The number of Slots and reset requirement status for the NVME drive
+No value(s) available!
+
+smart.nvme_info.ieee_oui_identifier PMID: 150.256.4 [IEEE OUI identification value for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+IEEE OUI identification value for the NVME drive
+No value(s) available!
+
+smart.nvme_info.maximum_data_transfer_size PMID: 150.256.11 [The maximum data transfer size supported for the NVME drive]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The maximum data transfer size supported for the NVME drive
+No value(s) available!
+
+smart.nvme_info.model_number PMID: 150.256.0 [The model name and number for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The model name and number for the NVME drive
+No value(s) available!
+
+smart.nvme_info.namespace_1_capacity PMID: 150.256.18 [The total capacity for namespace 1 on the NVME drive]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The total capacity for namespace 1 on the NVME drive
+No value(s) available!
+
+smart.nvme_info.namespace_1_formatted_lba_size PMID: 150.256.20 [The LBA size formatted for namespace 1 on the NVME drive]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The LBA size formatted for namespace 1 on the NVME drive
+No value(s) available!
+
+smart.nvme_info.namespace_1_ieee_eui_64 PMID: 150.256.21 [the IEEE EUI 64 value for namespace 1 on the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+the IEEE EUI 64 value for namespace 1 on the NVME drive
+No value(s) available!
+
+smart.nvme_info.namespace_1_utilization PMID: 150.256.19 [The current utilization for namespace 1 on the NVME drive]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The current utilization for namespace 1 on the NVME drive
+No value(s) available!
+
+smart.nvme_info.namespaces PMID: 150.256.9 [The total number of namespaces on the NVME drive]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The total number of namespaces on the NVME drive
+No value(s) available!
+
+smart.nvme_info.nvme_version PMID: 150.256.8 [The NVME specification version for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The NVME specification version for the NVME drive
+No value(s) available!
+
+smart.nvme_info.pci_vendor_subsystem_id PMID: 150.256.3 [PCI Vendor and Subsystem ID for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+PCI Vendor and Subsystem ID for the NVME drive
+No value(s) available!
+
+smart.nvme_info.serial_number PMID: 150.256.1 [The serial number for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The serial number for the NVME drive
+No value(s) available!
+
+smart.nvme_info.total_nvm_capacity PMID: 150.256.5 [The total NVM capacity for the NVME drive]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The total NVM capacity for the NVME drive
+No value(s) available!
+
+smart.nvme_info.unallocated_nvm_capacity PMID: 150.256.6 [The unallocated NVM capacity for the NVME drive]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The unallocated NVM capacity for the NVME drive
+No value(s) available!
+
+smart.nvme_info.warning_temp_threshold PMID: 150.256.12 [The temperature at which the warning temperature threshold is set]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The temperature at which the warning temperature threshold is set
+No value(s) available!
 == Checking with valgrind - smart-root-002.tgz
 === std out ===
 
@@ -4150,10 +4405,13 @@ smart.attributes.power_off_retract_count.worst
 
 smart.nvme_attributes.data_units_read
 No value(s) available!
+
+smart.nvme_info.serial_number
+No value(s) available!
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -K clear -K add,150,PCP_PMDAS_DIR/smart/pmda_smart.so,smart_init -f smart.health smart.info.capacity_bytes smart.attributes.power_off_retract_count.worst smart.nvme_attributes.data_units_read
+Command: pminfo -L -K clear -K add,150,PCP_PMDAS_DIR/smart/pmda_smart.so,smart_init -f smart.health smart.info.capacity_bytes smart.attributes.power_off_retract_count.worst smart.nvme_attributes.data_units_read smart.nvme_info.serial_number
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -6040,6 +6298,132 @@ smart.nvme_attributes.warning_composite_temperature_time PMID: 150.255.15 [Conta
 Help:
 Contains amount of time in minutes over composite temp threshold
     inst [0 or "nvme0n1"] value 0
+
+smart.nvme_info.controller_id PMID: 150.256.7 [The ID for the controller of the NVME drive]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The ID for the controller of the NVME drive
+    inst [0 or "nvme0n1"] value 4
+
+smart.nvme_info.critical_temp_thresold PMID: 150.256.13 [The temperature at which the critical temperature threshold is set]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The temperature at which the critical temperature threshold is set
+No value(s) available!
+
+smart.nvme_info.firmware_version PMID: 150.256.2 [The current firmware version for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The current firmware version for the NVME drive
+    inst [0 or "nvme0n1"] value "1L2QEXD7"
+
+smart.nvme_info.firware_updates PMID: 150.256.10 [The number of Slots and reset requirement status for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The number of Slots and reset requirement status for the NVME drive
+No value(s) available!
+
+smart.nvme_info.ieee_oui_identifier PMID: 150.256.4 [IEEE OUI identification value for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+IEEE OUI identification value for the NVME drive
+    inst [0 or "nvme0n1"] value "0x002538"
+
+smart.nvme_info.maximum_data_transfer_size PMID: 150.256.11 [The maximum data transfer size supported for the NVME drive]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The maximum data transfer size supported for the NVME drive
+No value(s) available!
+
+smart.nvme_info.model_number PMID: 150.256.0 [The model name and number for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The model name and number for the NVME drive
+    inst [0 or "nvme0n1"] value "SAMSUNG MZVLB256HAHQ-000L7"
+
+smart.nvme_info.namespace_1_capacity PMID: 150.256.18 [The total capacity for namespace 1 on the NVME drive]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The total capacity for namespace 1 on the NVME drive
+    inst [0 or "nvme0n1"] value 256060514304
+
+smart.nvme_info.namespace_1_formatted_lba_size PMID: 150.256.20 [The LBA size formatted for namespace 1 on the NVME drive]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The LBA size formatted for namespace 1 on the NVME drive
+    inst [0 or "nvme0n1"] value 512
+
+smart.nvme_info.namespace_1_ieee_eui_64 PMID: 150.256.21 [the IEEE EUI 64 value for namespace 1 on the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+the IEEE EUI 64 value for namespace 1 on the NVME drive
+    inst [0 or "nvme0n1"] value "002538 8681b5c103"
+
+smart.nvme_info.namespace_1_utilization PMID: 150.256.19 [The current utilization for namespace 1 on the NVME drive]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The current utilization for namespace 1 on the NVME drive
+    inst [0 or "nvme0n1"] value 177023578112
+
+smart.nvme_info.namespaces PMID: 150.256.9 [The total number of namespaces on the NVME drive]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The total number of namespaces on the NVME drive
+    inst [0 or "nvme0n1"] value 1
+
+smart.nvme_info.nvme_version PMID: 150.256.8 [The NVME specification version for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The NVME specification version for the NVME drive
+    inst [0 or "nvme0n1"] value ""
+
+smart.nvme_info.pci_vendor_subsystem_id PMID: 150.256.3 [PCI Vendor and Subsystem ID for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+PCI Vendor and Subsystem ID for the NVME drive
+    inst [0 or "nvme0n1"] value "0x144d"
+
+smart.nvme_info.serial_number PMID: 150.256.1 [The serial number for the NVME drive]
+    Data Type: string  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The serial number for the NVME drive
+    inst [0 or "nvme0n1"] value "S41GNF1K634417"
+
+smart.nvme_info.total_nvm_capacity PMID: 150.256.5 [The total NVM capacity for the NVME drive]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The total NVM capacity for the NVME drive
+    inst [0 or "nvme0n1"] value 256060514304
+
+smart.nvme_info.unallocated_nvm_capacity PMID: 150.256.6 [The unallocated NVM capacity for the NVME drive]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The unallocated NVM capacity for the NVME drive
+    inst [0 or "nvme0n1"] value 0
+
+smart.nvme_info.warning_temp_threshold PMID: 150.256.12 [The temperature at which the warning temperature threshold is set]
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: byte
+Help:
+The temperature at which the warning temperature threshold is set
+No value(s) available!
 == Checking with valgrind - smart-root-003.tgz
 === std out ===
 
@@ -6054,10 +6438,13 @@ No value(s) available!
 
 smart.nvme_attributes.data_units_read
     inst [0 or "nvme0n1"] value 9351610
+
+smart.nvme_info.serial_number
+    inst [0 or "nvme0n1"] value "S41GNF1K634417"
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -K clear -K add,150,PCP_PMDAS_DIR/smart/pmda_smart.so,smart_init -f smart.health smart.info.capacity_bytes smart.attributes.power_off_retract_count.worst smart.nvme_attributes.data_units_read
+Command: pminfo -L -K clear -K add,150,PCP_PMDAS_DIR/smart/pmda_smart.so,smart_init -f smart.health smart.info.capacity_bytes smart.attributes.power_off_retract_count.worst smart.nvme_attributes.data_units_read smart.nvme_info.serial_number
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

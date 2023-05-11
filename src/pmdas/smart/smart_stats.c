@@ -146,6 +146,110 @@ smart_data_fetch(int item, int cluster, struct smart_data *smart_data, pmAtomVal
 }
 
 int
+nvme_device_info_fetch(int item, int cluster, struct nvme_device_info *nvme_device_info, pmAtomValue *atom, int is_nvme)
+{
+	/* Test to see if we have an NVME disk, if not we can return */
+	if (!is_nvme)
+		return 0;
+
+	switch (item) {
+
+                case NVME_MODEL_NUMBER:
+                        atom->cp = nvme_device_info->model_number;
+                        return 1;
+
+                case NVME_SERIAL_NUMBER:
+                        atom->cp = nvme_device_info->serial_number;
+                        return 1;
+
+                case NVME_FIRMWARE_VERSION:
+                        atom->cp = nvme_device_info->firmware_version;
+                        return 1;
+
+                case NVME_PCI_VENDOR_SUBSYSTEM_ID:
+                        atom->cp = nvme_device_info->pci_vendor_subsystem_id;
+                        return 1;
+
+                case NVME_IEE_OUI_IDENTIFIER:
+                        atom->cp = nvme_device_info->ieee_oui_identifier;
+                        return 1;
+
+                case NVME_TOTAL_NVM_CAPACITY:
+                        atom->ull = nvme_device_info->total_nvm_capacity;
+                        return 1;
+
+                case NVME_UNALLOCATED_NVM_CAPACITY:
+                        atom->ull = nvme_device_info->unallocated_nvm_capacity;
+                        return 1;
+
+                case NVME_CONTROLLER_ID:
+                        atom->ul = nvme_device_info->controller_id;
+                        return 1;
+
+                case NVME_NVME_VERSION:
+                        atom->cp = nvme_device_info->nvme_version;
+                        return 1;
+
+                case NVME_NAMESPACES:
+                        atom->ul = nvme_device_info->namespaces;
+                        return 1;
+
+                case NVME_FIRMWARE_UPDATES:
+                        /* NVME Spec 1.4 metric, if no value return */
+			if (strlen(nvme_device_info->firmware_updates) == 0)
+				return PMDA_FETCH_NOVALUES;
+
+                        atom->cp = nvme_device_info->firmware_updates;
+                        return 1;
+
+                case NVME_MAXIMUM_DATA_TRANSFER_SIZE:
+                        /* NVME Spec 1.4 metric, if no value return */
+                        if (nvme_device_info->maximum_data_transfer_size == 0)
+				return PMDA_FETCH_NOVALUES;
+
+                        atom->ul = nvme_device_info->maximum_data_transfer_size;
+                        return 1;
+
+                case NVME_WARNING_TEMP_THRESHOLD:
+                        /* NVME Spec 1.4 metric, if no value return */
+                        if (nvme_device_info->warning_temp_threshold == 0)
+				return PMDA_FETCH_NOVALUES;
+
+                        atom->ul = nvme_device_info->warning_temp_threshold;
+                        return 1;
+
+                case NVME_CRITICAL_TEMP_THRESHOLD:
+                        /* NVME Spec 1.4 metric, if no value return */
+                        if (nvme_device_info->critical_temp_threshold == 0)
+				return PMDA_FETCH_NOVALUES;
+
+                        atom->ul = nvme_device_info->critical_temp_threshold;
+                        return 1;
+
+                case NVME_NAMESPACE_1_CAPACITY:
+                        atom->ull = nvme_device_info->namespace_1_capacity;
+                        return 1;
+
+                case NVME_NAMESPACE_1_UTILIZATION:
+                        atom->ull = nvme_device_info->namespace_1_utilization;
+                        return 1;
+
+                case NVME_NAMESPACE_1_FORMATTED_LBA_SIZE:
+                        atom->ul = nvme_device_info->namespace_1_formatted_lba_size;
+                        return 1;
+
+                case NVME_NAMESPACE_1_IEEE_EUI_64:
+                        atom->cp = nvme_device_info->namespace_1_ieee_eui_64;
+                        return 1;
+
+		default:
+			return PM_ERR_PMID;
+	}
+	/* NOTREACHED */
+	return PMDA_FETCH_NOVALUES;
+}
+
+int
 nvme_smart_data_fetch(int item, int cluster, struct nvme_smart_data *nvme_smart_data, pmAtomValue *atom, int is_nvme)
 {
 	/* Test to see if we have an NVME disk, if not we can return */
@@ -364,7 +468,7 @@ smart_refresh_data(const char *name, struct smart_data *smart_data, int is_nvme)
 
 			/*
 			 * Apply smart data values, id directly links with smart value id,
-			 * not efficent but allows easy expansion with new smart values
+			 * not efficient but allows easy expansion with new smart values
 			 */
 			smart_data->id[id] = id;
 			smart_data->value[id] = value;
@@ -375,6 +479,121 @@ smart_refresh_data(const char *name, struct smart_data *smart_data, int is_nvme)
 	}
 	pclose(pf);
 	return 0;
+}
+
+int
+nvme_device_refresh_data(const char *name, struct nvme_device_info *nvme_device_info, int is_nvme)
+{
+	char buffer[4096], capacity[64] = {'\0'};
+	FILE *pf;
+
+	pmsprintf(buffer, sizeof(buffer), "%s -Hi /dev/%s", smart_setup_stats, name);
+	buffer[sizeof(buffer)-1] = '\0';
+
+	/* Test to see if we have an NVME disk, if not we can return */
+	if (!is_nvme)
+		return 0;
+
+	if ((pf = popen(buffer, "r")) == NULL)
+		return -oserror();
+
+	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
+	        if (strncmp(buffer, "Model Number:", 13) == 0)
+	                sscanf(buffer, "%*s%*s %[^\n]", nvme_device_info->model_number);
+
+	        if (strncmp(buffer, "Serial Number:", 14) == 0)
+		        sscanf(buffer, "%*s%*s %[^\n]", nvme_device_info->serial_number);
+
+                if (strncmp(buffer, "Firmware Version:", 17) == 0)
+		        sscanf(buffer, "%*s%*s %[^\n]", nvme_device_info->firmware_version);
+
+                if (strncmp(buffer, "PCI Vendor/Subsystem ID:", 24) == 0)
+		        sscanf(buffer, "%*s%*s%*s %[^\n]", nvme_device_info->pci_vendor_subsystem_id);
+
+                if (strncmp(buffer, "IEEE OUI Identifier:", 20) == 0)
+		        sscanf(buffer, "%*s%*s%*s %[^\n]", nvme_device_info->ieee_oui_identifier);
+
+                if (strncmp(buffer, "Total NVM Capacity:", 19) == 0) {
+		        sscanf(buffer, "%*s%*s%*s %s", capacity); 
+
+		        smart_strip_input(capacity);
+		        nvme_device_info->total_nvm_capacity = strtoull(capacity, NULL, 10);
+		}
+
+                if (strncmp(buffer, "Unallocated NVM Capacity:", 25) == 0) {
+		        sscanf(buffer, "%*s%*s%*s %s", capacity); 
+
+		        smart_strip_input(capacity);
+		        nvme_device_info->unallocated_nvm_capacity = strtoull(capacity, NULL, 10);
+		}
+
+                if (strncmp(buffer, "Controller ID:", 14) == 0) {
+		        sscanf(buffer, "%*s%*s %s", capacity); 
+
+		        smart_strip_input(capacity);
+		        nvme_device_info->controller_id = strtoull(capacity, NULL, 10);
+		}
+
+                if (strncmp(buffer, "NVMe Version:", 13) == 0)
+		        sscanf(buffer, "%*s%*s %[^\n]", nvme_device_info->nvme_version);
+
+                if (strncmp(buffer, "Number of Namespaces:", 21) == 0) {
+		        sscanf(buffer, "%*s%*s%*s %s", capacity); 
+
+		        smart_strip_input(capacity);
+		        nvme_device_info->namespaces = strtoull(capacity, NULL, 10);
+		}
+
+                if (strncmp(buffer, "Namespace 1 Size/Capacity:", 26) == 0) {
+		        sscanf(buffer, "%*s%*s%*s %s", capacity); 
+
+		        smart_strip_input(capacity);
+		        nvme_device_info->namespace_1_capacity = strtoull(capacity, NULL, 10);
+		}
+
+                if (strncmp(buffer, "Namespace 1 Utilization:", 23) == 0) {
+		        sscanf(buffer, "%*s%*s%*s %s", capacity); 
+
+		        smart_strip_input(capacity);
+		        nvme_device_info->namespace_1_utilization = strtoull(capacity, NULL, 10);
+		}
+
+                if (strncmp(buffer, "Namespace 1 Formatted LBA Size:", 31) == 0) {
+		        sscanf(buffer, "%*s%*s%*s%*s%*s %s", capacity); 
+
+		        smart_strip_input(capacity);
+		        nvme_device_info->namespace_1_formatted_lba_size = strtoull(capacity, NULL, 10);
+		}
+
+                if (strncmp(buffer, "Namespace 1 IEEE EUI-64:", 24) == 0)
+		        sscanf(buffer, "%*s%*s%*s%*s %[^\n]", nvme_device_info->namespace_1_ieee_eui_64);
+
+                if (strncmp(buffer, "Firmware Updates", 16) == 0)
+		        sscanf(buffer, "%*s%*s%*s %[^\n]", nvme_device_info->firmware_updates);
+
+                if (strncmp(buffer, "Maximum Data Transfer Size:", 27) == 0) {
+		        sscanf(buffer, "%*s%*s%*s%*s %s", capacity); 
+
+		        smart_strip_input(capacity);
+		        nvme_device_info->maximum_data_transfer_size = strtoull(capacity, NULL, 10);
+		}
+
+                if (strncmp(buffer, "Warning Comp. Temp. Threshold:", 30) == 0) {
+		        sscanf(buffer, "%*s%*s%*s%*s %s", capacity); 
+
+		        smart_strip_input(capacity);
+		        nvme_device_info->warning_temp_threshold = strtoull(capacity, NULL, 10);
+		}
+
+                if (strncmp(buffer, "Critical Comp. Temp. Threshold:", 30) == 0) {
+		        sscanf(buffer, "%*s%*s%*s%*s %s", capacity); 
+
+		        smart_strip_input(capacity);
+		        nvme_device_info->critical_temp_threshold = strtoull(capacity, NULL, 10);
+		}
+        }
+        pclose(pf);
+        return 0;
 }
 
 int

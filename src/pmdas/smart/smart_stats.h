@@ -90,6 +90,27 @@ enum {
 };
 
 enum {
+	NVME_MODEL_NUMBER = 0,
+	NVME_SERIAL_NUMBER = 1,
+	NVME_FIRMWARE_VERSION = 2,
+	NVME_PCI_VENDOR_SUBSYSTEM_ID = 3,
+	NVME_IEE_OUI_IDENTIFIER = 4,
+	NVME_TOTAL_NVM_CAPACITY = 5,
+	NVME_UNALLOCATED_NVM_CAPACITY = 6,
+	NVME_CONTROLLER_ID = 7,
+	NVME_NVME_VERSION = 8,
+	NVME_NAMESPACES = 9,
+	NVME_FIRMWARE_UPDATES = 10,
+	NVME_MAXIMUM_DATA_TRANSFER_SIZE = 11,
+	NVME_WARNING_TEMP_THRESHOLD = 12,
+	NVME_CRITICAL_TEMP_THRESHOLD = 13,
+	NVME_NAMESPACE_1_CAPACITY = 18, 
+	NVME_NAMESPACE_1_UTILIZATION = 19,
+	NVME_NAMESPACE_1_FORMATTED_LBA_SIZE = 20,
+	NVME_NAMESPACE_1_IEEE_EUI_64 = 21
+};
+
+enum {
 	CRITICAL_WARNING = 0,
 	COMPOSITE_TEMPERATURE,
 	AVAILABLE_SPARE,
@@ -133,21 +154,42 @@ struct device_info {
 	char			firmware_version[9];
 };
 
+struct nvme_device_info {
+	char			model_number[41];
+	char			serial_number[21];
+	char			firmware_version[9];
+	char			pci_vendor_subsystem_id[7];
+	char			ieee_oui_identifier[9];
+	uint64_t		total_nvm_capacity;
+	uint64_t		unallocated_nvm_capacity;
+	uint8_t			controller_id;
+	char			nvme_version[4];
+	uint8_t			namespaces;
+	char			firmware_updates[64];
+	uint32_t		maximum_data_transfer_size;
+	uint8_t			warning_temp_threshold;
+	uint8_t			critical_temp_threshold;
+	uint64_t		namespace_1_capacity;
+	uint64_t		namespace_1_utilization;
+	uint32_t		namespace_1_formatted_lba_size;
+	char			namespace_1_ieee_eui_64[64];
+};
+
 struct smart_data {
-	uint8_t		id[NUM_SMART_STATS];
-	uint8_t		type[NUM_SMART_STATS];
-	uint8_t		value[NUM_SMART_STATS];
-	uint8_t		worst[NUM_SMART_STATS];
+	uint8_t			id[NUM_SMART_STATS];
+	uint8_t			type[NUM_SMART_STATS];
+	uint8_t			value[NUM_SMART_STATS];
+	uint8_t			worst[NUM_SMART_STATS];
 	uint8_t 		thresh[NUM_SMART_STATS];
 	uint32_t		raw[NUM_SMART_STATS];
 };
 
 struct nvme_smart_data{
 	char			critical_warning[9];
-	uint8_t		composite_temperature;
-	uint8_t		available_spare;
-	uint8_t		available_spare_threshold;
-	uint8_t		percentage_used;
+	uint8_t			composite_temperature;
+	uint8_t			available_spare;
+	uint8_t			available_spare_threshold;
+	uint8_t			percentage_used;
 	uint64_t		data_units_read;
 	uint64_t		data_units_written;
 	uint64_t		host_read_commands;
@@ -160,14 +202,14 @@ struct nvme_smart_data{
 	uint32_t		number_of_error_information_log_entries;
 	uint32_t		warning_composite_temperature_time;
 	uint32_t		critical_composite_temperature_time;
-	uint8_t		temperature_sensor_one;
-	uint8_t		temperature_sensor_two;
-	uint8_t		temperature_sensor_three;
-	uint8_t		temperature_sensor_four;
-	uint8_t		temperature_sensor_five;
-	uint8_t		temperature_sensor_six;
-	uint8_t		temperature_sensor_seven;
-	uint8_t		temperature_sensor_eight;
+	uint8_t			temperature_sensor_one;
+	uint8_t			temperature_sensor_two;
+	uint8_t			temperature_sensor_three;
+	uint8_t			temperature_sensor_four;
+	uint8_t			temperature_sensor_five;
+	uint8_t			temperature_sensor_six;
+	uint8_t			temperature_sensor_seven;
+	uint8_t			temperature_sensor_eight;
 };
 
 extern int smart_device_info_fetch(int, struct device_info *, pmAtomValue *);
@@ -175,6 +217,9 @@ extern int smart_refresh_device_info(const char *, struct device_info *, int);
 
 extern int smart_data_fetch(int, int, struct smart_data *, pmAtomValue *);
 extern int smart_refresh_data(const char *, struct smart_data *, int);
+
+extern int nvme_device_info_fetch(int, int, struct nvme_device_info *, pmAtomValue *, int);
+extern int nvme_device_refresh_data(const char *, struct nvme_device_info *, int);
 
 extern int nvme_smart_data_fetch(int, int, struct nvme_smart_data *, pmAtomValue *, int);
 extern int nvme_smart_refresh_data(const char *, struct nvme_smart_data *, int);
