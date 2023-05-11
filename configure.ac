@@ -350,7 +350,7 @@ then
     AC_DEFINE(IS_OPENBSD, [1], [Platform is OpenBSD])
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
     pcp_platform_paths='/usr/local/bin'
-    pcp_ps_all_flags="-axw -o user,pid,ppid,%cpu,start,tty,time,args"
+    pcp_ps_all_flags="-axww -o user,pid,ppid,%cpu,start,tty,time,args"
     if test "$target_cpu" = "i386" -a "$host_os" = "openbsd6.8"
     then
 	dnl build with -g are broken here due to a gcc bug
