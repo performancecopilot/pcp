@@ -21,6 +21,7 @@
  *	APPL0	- lexical scanning
  *	APPL1	- parse/expression tree construction
  *	APPL2	- expression execution
+ *	APPL3	- status file operations
  */
 
 #include <ctype.h>
@@ -345,6 +346,11 @@ startmonitor(void)
     atexit(stopmonitor);
 
     /* create and initialize memory mapped performance data file */
+    if (pmDebugOptions.appl3) {
+	pmiestats_t	ps;
+	fprintf(stderr, "pmiestats_t: %d bytes, version offset: %d\n",
+	    (int)sizeof(pmiestats_t), (int)((char *)&ps.version - (char *)&ps));
+    }
     pmsprintf(perffile, sizeof(perffile),
 		"%s%c%" FMT_PID, pmie_dir, pmPathSeparator(), (pid_t)getpid());
     unlink(perffile);
