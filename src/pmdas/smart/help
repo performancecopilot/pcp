@@ -352,6 +352,10 @@ Whether the given drive has PASSED or FAILED SMART the self-test
 @smart.nvme_info.maximum_data_transfer_size The maximum data transfer size supported for the NVME drive
 @smart.nvme_info.warning_temp_threshold The temperature at which the warning temperature threshold is set
 @smart.nvme_info.critical_temp_thresold The temperature at which the critical temperature threshold is set
+@smart.nvme_info.active_power_state The current active power state for the NVME drive
+@smart.nvme_info.apst_state The status of whether APST is enabled or not for the NVME drive
+@smart.nvme_info.completion_queue_length_completion The length of the completion queue for the NVME drive
+@smart.nvme_info.completion_queue_length_submission The length of the submission queue for the NVME drive
 
 @smart.nvme_attributes.critical_warning Indicates critical warnings for the sate of the Endurance Groups
 @smart.nvme_attributes.composite_temperature Contains current composite temperature of the controller
@@ -378,3 +382,75 @@ Whether the given drive has PASSED or FAILED SMART the self-test
 @smart.nvme_attributes.temperature_sensor_six Current temperaure as reported by temp sensor 6
 @smart.nvme_attributes.temperature_sensor_seven Current Temperature as reported by temp sensor 7
 @smart.nvme_attributes.temperature_sensor_eight Current Temperature as reported by temp sensor 8
+
+@smart.nvme_power_states.power_state_0.state The power state identifier for this power state
+@smart.nvme_power_states.power_state_0.max_power The maximum power usage for this power state
+@smart.nvme_power_states.power_state_0.non_operational_state The value "1" if this state is an operational state
+@smart.nvme_power_states.power_state_0.active_power The average active power usage for this power state if reported
+@smart.nvme_power_states.power_state_0.idle_power The average idle power usage for this power state if reported
+@smart.nvme_power_states.power_state_0.relative_read_latency Relative read latency for this power state
+@smart.nvme_power_states.power_state_0.relative_read_throughput	Relative read throughput for this power state
+@smart.nvme_power_states.power_state_0.relative_write_latency Relative write latency for this power state
+@smart.nvme_power_states.power_state_0.relative_write_throughput Relative write throughput for this power state
+@smart.nvme_power_states.power_state_0.entry_latency Entry latency going into this power state
+@smart.nvme_power_states.power_state_0.exit_latency	Exit latency leaving from this power state
+
+@smart.nvme_power_states.power_state_1.state The power state identifier for this power state
+@smart.nvme_power_states.power_state_1.max_power The maximum power usage for this power state
+@smart.nvme_power_states.power_state_1.non_operational_state The value "1" if this state is an operational state
+@smart.nvme_power_states.power_state_1.active_power The average active power usage for this power state if reported
+@smart.nvme_power_states.power_state_1.idle_power The average idle power usage for this power state if reported
+@smart.nvme_power_states.power_state_1.relative_read_latency Relative read latency for this power state
+@smart.nvme_power_states.power_state_1.relative_read_throughput	Relative read throughput for this power state
+@smart.nvme_power_states.power_state_1.relative_write_latency Relative write latency for this power state
+@smart.nvme_power_states.power_state_1.relative_write_throughput Relative write throughput for this power state
+@smart.nvme_power_states.power_state_1.entry_latency Entry latency going into this power state
+@smart.nvme_power_states.power_state_1.exit_latency	Exit latency leaving from this power state
+
+@smart.nvme_power_states.power_state_2.state The power state identifier for this power state
+@smart.nvme_power_states.power_state_2.max_power The maximum power usage for this power state
+@smart.nvme_power_states.power_state_2.non_operational_state The value "1" if this state is an operational state
+@smart.nvme_power_states.power_state_2.active_power The average active power usage for this power state if reported
+@smart.nvme_power_states.power_state_2.idle_power The average idle power usage for this power state if reported
+@smart.nvme_power_states.power_state_2.relative_read_latency Relative read latency for this power state
+@smart.nvme_power_states.power_state_2.relative_read_throughput	Relative read throughput for this power state
+@smart.nvme_power_states.power_state_2.relative_write_latency Relative write latency for this power state
+@smart.nvme_power_states.power_state_2.relative_write_throughput Relative write throughput for this power state
+@smart.nvme_power_states.power_state_2.entry_latency Entry latency going into this power state
+@smart.nvme_power_states.power_state_2.exit_latency	Exit latency leaving from this power state
+
+@smart.nvme_power_states.power_state_3.state The power state identifier for this power state
+@smart.nvme_power_states.power_state_3.max_power The maximum power usage for this power state
+@smart.nvme_power_states.power_state_3.non_operational_state The value "1" if this state is an operational state
+@smart.nvme_power_states.power_state_3.active_power The average active power usage for this power state if reported
+@smart.nvme_power_states.power_state_3.idle_power The average idle power usage for this power state if reported
+@smart.nvme_power_states.power_state_3.relative_read_latency Relative read latency for this power state
+@smart.nvme_power_states.power_state_3.relative_read_throughput	Relative read throughput for this power state
+@smart.nvme_power_states.power_state_3.relative_write_latency Relative write latency for this power state
+@smart.nvme_power_states.power_state_3.relative_write_throughput Relative write throughput for this power state
+@smart.nvme_power_states.power_state_3.entry_latency Entry latency going into this power state
+@smart.nvme_power_states.power_state_3.exit_latency	Exit latency leaving from this power state
+
+@smart.nvme_power_states.power_state_4.state The power state identifier for this power state
+@smart.nvme_power_states.power_state_4.max_power The maximum power usage for this power state
+@smart.nvme_power_states.power_state_4.non_operational_state The value "1" if this state is an operational state
+@smart.nvme_power_states.power_state_4.active_power The average active power usage for this power state if reported
+@smart.nvme_power_states.power_state_4.idle_power The average idle power usage for this power state if reported
+@smart.nvme_power_states.power_state_4.relative_read_latency Relative read latency for this power state
+@smart.nvme_power_states.power_state_4.relative_read_throughput	Relative read throughput for this power state
+@smart.nvme_power_states.power_state_4.relative_write_latency Relative write latency for this power state
+@smart.nvme_power_states.power_state_4.relative_write_throughput Relative write throughput for this power state
+@smart.nvme_power_states.power_state_4.entry_latency Entry latency going into this power state
+@smart.nvme_power_states.power_state_4.exit_latency	Exit latency leaving from this power state
+
+@smart.nvme_power_states.power_state_5.state The power state identifier for this power state
+@smart.nvme_power_states.power_state_5.max_power The maximum power usage for this power state
+@smart.nvme_power_states.power_state_5.non_operational_state The value "1" if this state is an operational state
+@smart.nvme_power_states.power_state_5.active_power The average active power usage for this power state if reported
+@smart.nvme_power_states.power_state_5.idle_power The average idle power usage for this power state if reported
+@smart.nvme_power_states.power_state_5.relative_read_latency Relative read latency for this power state
+@smart.nvme_power_states.power_state_5.relative_read_throughput	Relative read throughput for this power state
+@smart.nvme_power_states.power_state_5.relative_write_latency Relative write latency for this power state
+@smart.nvme_power_states.power_state_5.relative_write_throughput Relative write throughput for this power state
+@smart.nvme_power_states.power_state_5.entry_latency Entry latency going into this power state
+@smart.nvme_power_states.power_state_5.exit_latency	Exit latency leaving from this power state

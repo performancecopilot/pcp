@@ -21,6 +21,7 @@ smart {
 	attributes
 	nvme_info
 	nvme_attributes
+	nvme_power_states
 }
 
 smart.info {
@@ -478,6 +479,10 @@ smart.nvme_info {
 	maximum_data_transfer_size				SMART:256:11
 	warning_temp_threshold					SMART:256:12
 	critical_temp_thresold					SMART:256:13
+	active_power_state					SMART:256:14
+	apst_state						SMART:256:15
+	completion_queue_length_completion			SMART:256:16
+	completion_queue_length_submission			SMART:256:17
 }
 
 smart.nvme_attributes {
@@ -506,4 +511,97 @@ smart.nvme_attributes {
 	temperature_sensor_six					SMART:255:22
 	temperature_sensor_seven				SMART:255:23
 	temperature_sensor_eight				SMART:255:24
+}
+
+smart.nvme_power_states {
+	power_state_0
+	power_state_1
+	power_state_2
+	power_state_3
+	power_state_4
+	power_state_5
+}
+
+smart.nvme_power_states.power_state_0 {
+	state							SMART:257:0
+	max_power						SMART:257:1
+	non_operational_state					SMART:257:2
+	active_power						SMART:257:3
+	idle_power						SMART:257:4
+	relative_read_latency					SMART:257:5
+	relative_read_throughput				SMART:257:6
+	relative_write_latency					SMART:257:7
+	relative_write_throughput				SMART:257:8
+	entry_latency						SMART:257:9
+	exit_latency						SMART:257:10
+}
+
+smart.nvme_power_states.power_state_1 {
+	state							SMART:258:0
+	max_power						SMART:258:1
+	non_operational_state					SMART:258:2
+	active_power						SMART:258:3
+	idle_power						SMART:258:4
+	relative_read_latency					SMART:258:5
+	relative_read_throughput				SMART:258:6
+	relative_write_latency					SMART:258:7
+	relative_write_throughput				SMART:258:8
+	entry_latency						SMART:258:9
+	exit_latency						SMART:258:10
+}
+
+smart.nvme_power_states.power_state_2 {
+	state							SMART:259:0
+	max_power						SMART:259:1
+	non_operational_state					SMART:259:2
+	active_power						SMART:259:3
+	idle_power						SMART:259:4
+	relative_read_latency					SMART:259:5
+	relative_read_throughput				SMART:259:6
+	relative_write_latency					SMART:259:7
+	relative_write_throughput				SMART:259:8
+	entry_latency						SMART:259:9
+	exit_latency						SMART:259:10
+}
+
+smart.nvme_power_states.power_state_3 {
+	state							SMART:260:0
+	max_power						SMART:260:1
+	non_operational_state					SMART:260:2
+	active_power						SMART:260:3
+	idle_power						SMART:260:4
+	relative_read_latency					SMART:260:5
+	relative_read_throughput				SMART:260:6
+	relative_write_latency					SMART:260:7
+	relative_write_throughput				SMART:260:8
+	entry_latency						SMART:260:9
+	exit_latency						SMART:260:10
+}
+
+smart.nvme_power_states.power_state_4 {
+	state							SMART:261:0
+	max_power						SMART:261:1
+	non_operational_state					SMART:261:2
+	active_power						SMART:261:3
+	idle_power						SMART:261:4
+	relative_read_latency					SMART:261:5
+	relative_read_throughput				SMART:261:6
+	relative_write_latency					SMART:261:7
+	relative_write_throughput				SMART:261:8
+	entry_latency						SMART:261:9
+	exit_latency						SMART:261:10
+}
+
+smart.nvme_power_states.power_state_5 {
+	state							SMART:262:0
+	max_power						SMART:262:1
+	non_operational_state					SMART:262:2
+	active_power						SMART:262:3
+	idle_power						SMART:262:4
+	relative_read_latency					SMART:262:5
+	relative_read_throughput				SMART:262:6
+	relative_write_latency					SMART:262:7
+	relative_write_throughput				SMART:262:8
+	entry_latency						SMART:262:9
+	exit_latency						SMART:262:10
 }

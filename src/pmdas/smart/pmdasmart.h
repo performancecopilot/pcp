@@ -70,6 +70,12 @@ enum {
 	CLUSTER_FREE_FALL_SENSOR = 254,
 	CLUSTER_NVME_ATTRIBUTES = 255,
 	CLUSTER_NVME_DEVICE_INFO = 256,
+	CLUSTER_POWER_STATE_0 = 257,
+	CLUSTER_POWER_STATE_1 = 258,
+	CLUSTER_POWER_STATE_2 = 259,
+	CLUSTER_POWER_STATE_3 = 260,
+	CLUSTER_POWER_STATE_4 = 261,
+	CLUSTER_POWER_STATE_5 = 262,
 	NUM_CLUSTERS
 };
 
@@ -79,11 +85,12 @@ enum {
 };
 
 struct block_dev {
-        int 			is_nvme;
-	struct device_info	device_info;
-	struct smart_data	smart_data;
-	struct nvme_device_info nvme_device_info;
-	struct nvme_smart_data	nvme_smart_data;
+        int 				is_nvme;
+	struct device_info		device_info;
+	struct smart_data		smart_data;
+	struct nvme_device_info		nvme_device_info;
+	struct nvme_smart_data		nvme_smart_data;
+	struct nvme_power_states	nvme_power_states;
 };
 
 extern pmdaMetric metrictable[];

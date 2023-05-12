@@ -23,6 +23,11 @@
 #include "smart_stats.h"
 
 static char *smart_setup_stats;
+static char *smart_setup_nvmecli;
+
+static int _POWER_STATE_CLUSTER_OFFSET = 257;
+
+static int nvmecli_support = 1; // Assume we have support by default until checked
 
 /*
  * NVME Spec allows for S.M.A.R.T attribute field formats to be 
@@ -242,6 +247,34 @@ nvme_device_info_fetch(int item, int cluster, struct nvme_device_info *nvme_devi
                         atom->cp = nvme_device_info->namespace_1_ieee_eui_64;
                         return 1;
 
+                case NVME_ACTIVE_POWER_STATE:
+                        if (!nvmecli_support)
+                                return PMDA_FETCH_NOVALUES;
+
+                        atom->ul = nvme_device_info->active_power_state;
+                        return 1;  
+
+                case NVME_APST_STATE:
+                        if (!nvmecli_support)
+                                return PMDA_FETCH_NOVALUES;
+
+                        atom->cp = nvme_device_info->apst_state;
+                        return 1;  
+
+                case NVME_COMPLETION_QUEUE_LENGTH_COMPLETION:
+                        if (!nvmecli_support)
+                                return PMDA_FETCH_NOVALUES;
+
+                        atom->ul = nvme_device_info->completion_queue_length_completion;
+                        return 1;  
+
+                case NVME_COMPLETION_QUEUE_LENGTH_SUBMISSION:
+                        if (!nvmecli_support)
+                                return PMDA_FETCH_NOVALUES;
+
+                        atom->ul = nvme_device_info->completion_queue_length_submission;
+                        return 1;  
+
 		default:
 			return PM_ERR_PMID;
 	}
@@ -257,7 +290,7 @@ nvme_smart_data_fetch(int item, int cluster, struct nvme_smart_data *nvme_smart_
 		return 0;
 
 	switch (item) {
-	
+
 		case CRITICAL_WARNING:
 			atom->cp = nvme_smart_data->critical_warning;
 			return 1;
@@ -358,6 +391,77 @@ nvme_smart_data_fetch(int item, int cluster, struct nvme_smart_data *nvme_smart_
 			atom->ul = nvme_smart_data->temperature_sensor_eight;
 			return 1;
 	
+		default:
+			return PM_ERR_PMID;
+	}
+	/* NOTREACHED */
+	return PMDA_FETCH_NOVALUES;
+}
+
+int 
+nvme_power_data_fetch(int item, int cluster, struct nvme_power_states *nvme_power_states, pmAtomValue *atom, int is_nvme)
+{
+	/* Test to see if we have an NVME disk, if not we can return */
+	if (!is_nvme)
+	    return 0;
+	
+	/* Adjust cluster number to our power state position in nvme_power_states array */
+	cluster -= _POWER_STATE_CLUSTER_OFFSET;
+
+	switch (item) {
+
+		case STATE:
+			atom->ul = nvme_power_states->state[cluster];
+			return 1;
+		
+		case MAX_POWER:
+		        atom->d = nvme_power_states->max_power[cluster];
+		        return 1;
+
+                case NON_OPERATIONAL_STATE:
+                        atom->ul = nvme_power_states->non_operational_state[cluster];
+                        return 1;
+
+                case ACTIVE_POWER:
+                        if (nvme_power_states->active_power[cluster] == -1) {
+                                return PMDA_FETCH_NOVALUES;
+                        } else {
+                                atom->d = nvme_power_states->active_power[cluster];
+                                return 1;
+                        }
+
+                case IDLE_POWER:
+                        if (nvme_power_states->idle_power[cluster] == -1) {
+                                return PMDA_FETCH_NOVALUES;
+                        } else {
+                                atom->d = nvme_power_states->idle_power[cluster];
+                                return 1;
+                        }
+
+                case RELATIVE_READ_LATENCY:
+                        atom->ul = nvme_power_states->relative_read_latency[cluster];
+                        return 1;
+
+                case RELATIVE_READ_THROUGHPUT:
+                        atom->ul = nvme_power_states->relative_read_throughput[cluster];
+                        return 1;
+
+                case RELATIVE_WRITE_LATENCY:
+                        atom->ul = nvme_power_states->relative_write_latency[cluster];
+                        return 1;
+
+                case RELATIVE_WRITE_THROUGHPUT:
+                        atom->ul = nvme_power_states->relative_write_throughput[cluster];
+                        return 1;
+
+                case ENTRY_LATENCY:
+                        atom->ul = nvme_power_states->entry_latency[cluster];
+                        return 1;
+
+                case EXIT_LATENCY:
+                        atom->ul = nvme_power_states->exit_latency[cluster];
+                        return 1;
+
 		default:
 			return PM_ERR_PMID;
 	}
@@ -593,6 +697,78 @@ nvme_device_refresh_data(const char *name, struct nvme_device_info *nvme_device_
 		}
         }
         pclose(pf);
+
+        if (nvmecli_support) {
+
+                /*
+                  smart.nvme_info.active_power_state
+                */
+
+	        pmsprintf(buffer, sizeof(buffer), "%s get-feature -f 0x02 -H /dev/%s 2>&1", smart_setup_nvmecli, name);
+	        buffer[sizeof(buffer)-1] = '\0';
+
+	        if ((pf = popen(buffer, "r")) == NULL)
+		        return -oserror();
+
+	        while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
+
+                        if (strstr(buffer, "command not found")){
+                                // Make use of redirected stderr to stdout to check if nvme-cli is
+                                // installed and and disable if not
+                               nvmecli_support = 0;
+                               continue;
+                        }
+                               
+                        if (strstr(buffer, "Power State")) {
+	                        sscanf(buffer, "%*s%*s%*s %s", capacity);
+
+                                nvme_device_info->active_power_state = strtoull(capacity, NULL, 10);
+                        }
+	        }
+	        pclose(pf);
+
+                /*
+                  smart.nvme_info.apste_state
+                */
+
+        	pmsprintf(buffer, sizeof(buffer), "%s get-feature -f 0x0c -H /dev/%s", smart_setup_nvmecli, name);
+	        buffer[sizeof(buffer)-1] = '\0';
+
+	        if ((pf = popen(buffer, "r")) == NULL)
+	        	return -oserror();
+
+	        while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
+                        if (strstr(buffer, "(APSTE):"))
+                                sscanf(buffer, "%*s%*s%*s%*s%*s%*s %s", nvme_device_info->apst_state);
+	        }
+	        pclose(pf);
+
+                /* 
+                  smart.nvme_info.completion_queue_length_completion
+                  smart.nvme_info.completion_queue_length_submission
+                */
+
+        	pmsprintf(buffer, sizeof(buffer), "%s get-feature -f 0x07 -H /dev/%s", smart_setup_nvmecli, name);
+        	buffer[sizeof(buffer)-1] = '\0';
+
+        	if ((pf = popen(buffer, "r")) == NULL)
+        		return -oserror();
+
+        	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
+                        if (strstr(buffer, "(NCQA):")){
+                                sscanf(buffer, "%*s%*s%*s%*s%*s%*s%*s %s", capacity);
+
+                                nvme_device_info->completion_queue_length_completion = strtoull(capacity, NULL, 10);
+                        }
+            
+                        if (strstr(buffer, "(NSQA):")){
+                                sscanf(buffer, "%*s%*s%*s%*s%*s%*s%*s %s", capacity);
+
+                                nvme_device_info->completion_queue_length_submission = strtoull(capacity, NULL, 10);
+                        }
+                }
+                pclose(pf);
+        }
         return 0;
 }
 
@@ -740,10 +916,107 @@ nvme_smart_refresh_data(const char *name, struct nvme_smart_data *nvme_smart_dat
 	return 0;
 }
 
+int
+nvme_power_refesh_data(const char *name, struct nvme_power_states *nvme_power_states, int is_nvme)
+{
+	char buffer[4096] = {'\0'};
+	FILE *pf;
+	
+	int found_ps = 0, current_ps = 0;
+	char operational[2], active_power[8], idle_power[8] = {'\0'};
+        
+        char *opp = operational;
+        char *active = active_power;
+        char *idle = idle_power;
+	
+	/* Test to see if we have an NVME disk, if not we can return */
+	if (!is_nvme)
+		return 0;
+
+	pmsprintf(buffer, sizeof(buffer), "%s -c /dev/%s", smart_setup_stats, name);
+	buffer[sizeof(buffer)-1] = '\0';
+
+	if ((pf = popen(buffer, "r")) == NULL)
+		return -oserror();
+
+	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
+                /*
+                        Skip over the lines which do not include power state information,
+                        then work out which lines have the details for each individual
+                        power state. Lastly we need to keep track of which of the 3 power
+                        state information lines we are on for metric collection.
+
+                        found_ps   = Found the Power State Section, each new one has the
+                                     term operational in it.
+                        current_ps = Pointer to which current power state we are looking
+                                     at.
+                */
+                
+                if (strstr(buffer, "Supported Power States")){
+                        found_ps = 1; // Found the power state section
+                        continue;
+                }
+
+                if (strstr(buffer, "LBA")) {
+                        found_ps = 0; // End of power state section
+                        continue;
+                }
+
+                if ((found_ps) && strstr(buffer, "St Op"))
+                        continue; // Ignore header line
+	    
+                if (strncmp(buffer, "\n", 1) == 0)
+                        continue; // Avoid blank line in output
+	    
+                if (found_ps) {
+                        nvme_power_states->state[current_ps] = current_ps;
+
+                        sscanf(buffer, "%*s %s %lfW %s %s %"SCNu32" %"SCNu32" %"SCNu32" %"SCNu32" %"SCNu32" %"SCNu32"",
+	    		        opp,
+	         		&nvme_power_states->max_power[current_ps],
+	        		active,
+	        		idle,
+	        		&nvme_power_states->relative_read_latency[current_ps],
+	        		&nvme_power_states->relative_read_throughput[current_ps],
+	        		&nvme_power_states->relative_write_latency[current_ps],
+	        		&nvme_power_states->relative_write_throughput[current_ps],
+	        		&nvme_power_states->entry_latency[current_ps],
+                                &nvme_power_states->exit_latency[current_ps]
+	    	        );
+                
+                
+                if (strstr(operational, "-"))
+			nvme_power_states->non_operational_state[current_ps] = 1;
+
+	    	if (strstr(operational, "+"))
+	    		nvme_power_states->non_operational_state[current_ps] = 0;
+	    		
+	    	if (strstr(active_power, "-")) {
+	    		nvme_power_states->active_power[current_ps] = -1;
+	    	} else {
+			nvme_power_states->active_power[current_ps] = atof(active_power);
+	    	}
+
+	    	if (strstr(idle_power, "-")) {
+	    		nvme_power_states->idle_power[current_ps] = -1;
+	    	} else {
+	    		nvme_power_states->idle_power[current_ps] = atof(idle_power);
+	    	}
+	    	
+	    	current_ps++;
+	    }
+	}
+        pclose(pf);
+        
+        return 0;
+}
+
 void
 smart_stats_setup(void)
 {
 	static char smart_command[] = "LC_ALL=C smartctl";
+        static char nvmecli_command[] = "LC_ALL=C nvme";
+        
 	char *env_command;
 
 	/* allow override at startup for QA testing */
@@ -751,4 +1024,10 @@ smart_stats_setup(void)
 		smart_setup_stats = env_command;
 	else
 		smart_setup_stats = smart_command;
+
+	/* allow override at startup for QA testing */
+	if ((env_command = getenv("NVME_CLI_SETUP")) != NULL)
+		smart_setup_nvmecli = env_command;
+	else
+		smart_setup_nvmecli = nvmecli_command;
 }

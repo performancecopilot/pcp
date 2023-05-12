@@ -104,6 +104,10 @@ enum {
 	NVME_MAXIMUM_DATA_TRANSFER_SIZE = 11,
 	NVME_WARNING_TEMP_THRESHOLD = 12,
 	NVME_CRITICAL_TEMP_THRESHOLD = 13,
+	NVME_ACTIVE_POWER_STATE = 14,
+	NVME_APST_STATE = 15,
+	NVME_COMPLETION_QUEUE_LENGTH_COMPLETION = 16,
+	NVME_COMPLETION_QUEUE_LENGTH_SUBMISSION = 17,
 	NVME_NAMESPACE_1_CAPACITY = 18, 
 	NVME_NAMESPACE_1_UTILIZATION = 19,
 	NVME_NAMESPACE_1_FORMATTED_LBA_SIZE = 20,
@@ -143,6 +147,31 @@ enum {
 	NUM_NVME_STATS
 };
 
+enum {
+	POWER_STATE_0 = 0,
+	POWER_STATE_1,
+	POWER_STATE_2,
+	POWER_STATE_3,
+	POWER_STATE_4,
+	POWER_STATE_5,
+	NUM_POWER_STATES
+};
+
+enum {
+	STATE = 0,
+	MAX_POWER,
+	NON_OPERATIONAL_STATE,
+	ACTIVE_POWER,
+	IDLE_POWER,
+	RELATIVE_READ_LATENCY,
+	RELATIVE_READ_THROUGHPUT,
+	RELATIVE_WRITE_LATENCY,
+	RELATIVE_WRITE_THROUGHPUT,
+	ENTRY_LATENCY,
+	EXIT_LATENCY,
+	NUM_POWER_STATS
+};
+
 struct device_info {
 	char			health[9];
 	char			model_family[41];
@@ -167,8 +196,12 @@ struct nvme_device_info {
 	uint8_t			namespaces;
 	char			firmware_updates[64];
 	uint32_t		maximum_data_transfer_size;
-	uint8_t			warning_temp_threshold;
+	uint8_t 		warning_temp_threshold;
 	uint8_t			critical_temp_threshold;
+	uint8_t			active_power_state;
+	char			apst_state[9];
+	uint32_t		completion_queue_length_completion;
+	uint32_t		completion_queue_length_submission;
 	uint64_t		namespace_1_capacity;
 	uint64_t		namespace_1_utilization;
 	uint32_t		namespace_1_formatted_lba_size;
@@ -212,6 +245,20 @@ struct nvme_smart_data{
 	uint8_t			temperature_sensor_eight;
 };
 
+struct nvme_power_states {
+	uint8_t			state[NUM_POWER_STATES];
+	double			max_power[NUM_POWER_STATES];
+	uint8_t			non_operational_state[NUM_POWER_STATES];
+	double			active_power[NUM_POWER_STATES];
+	double			idle_power[NUM_POWER_STATES];
+	uint32_t		relative_read_latency[NUM_POWER_STATES];
+	uint32_t		relative_read_throughput[NUM_POWER_STATES];
+	uint32_t		relative_write_latency[NUM_POWER_STATES];
+	uint32_t		relative_write_throughput[NUM_POWER_STATES];
+	uint32_t		entry_latency[NUM_POWER_STATES];
+	uint32_t		exit_latency[NUM_POWER_STATES];
+};
+
 extern int smart_device_info_fetch(int, struct device_info *, pmAtomValue *);
 extern int smart_refresh_device_info(const char *, struct device_info *, int);
 
@@ -223,6 +270,9 @@ extern int nvme_device_refresh_data(const char *, struct nvme_device_info *, int
 
 extern int nvme_smart_data_fetch(int, int, struct nvme_smart_data *, pmAtomValue *, int);
 extern int nvme_smart_refresh_data(const char *, struct nvme_smart_data *, int);
+
+extern int nvme_power_data_fetch(int, int, struct nvme_power_states *, pmAtomValue *, int);
+extern int nvme_power_refesh_data(const char *, struct nvme_power_states *, int);
 
 extern void smart_stats_setup(void);
 
