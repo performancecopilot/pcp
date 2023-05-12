@@ -1,5 +1,38 @@
-pcp-6.0.4 (3 May 2023)
-    - Work-in-progress
+pcp-6.0.4 (15 May 2023)
+    - pmcd: propogate a new PMCD_HOSTNAME_CHANGE flag to clients
+    - pmdumplog: support preferred alternate name pmlogdump
+    - pmlogger: changes to accommodate PMCD_HOSTNAME_CHANGE
+    - pmlogger_janitor: new script called from pmlogger_check
+    - pmlogger: add -d directory argument for alternate naming schemes
+    - pmlogrewrite: fix remaining corner case for indom renumbering
+    - pmie: changes to accommodate PMCD_HOSTNAME_CHANGE
+    - pmie: catching SIGUSR1 triggers a pending task dump
+    - pmie_{check,daily}: change pmie.log handling regime
+    - pmieconf: add support for a webhook action to pmieconf
+    - pmieconf: add a wall rule action for adm group members
+    - pmieconf: add support for an action testing rule
+    - pmieconf: use correct pmieconf percent type for thermal throttle
+    - pmieconf: add minimum pct conjunction to entropy for small poolsizes
+    - pminfo: use -b to batch pmDesc retrievals as well as pmResult
+    - pmstat: fix corner case handling of automatic pmcd reconnect
+    - pcp2influxdb: add requests.post timeout to avoid hangs
+    - pcp-dstat: fixes CSV output to show all (not visible) plugins
+    - pcp-htop: support File Descriptor Meter
+    - pcp-htop: sync latest fixes from upstream htop
+    - pcp-mpstat: fixed broken pipe issue
+    - pcp-ps: fix exception handling for process name
+    - rc scripts: ensure pmcd.conf not rewritten unnecessarily
+    - pmdalinux: add a couple of new /proc/net/snmp ICMP metrics
+    - pmdalinux: add new network.tcp.tcpplbrehash metric
+    - pmdaproc: add new proc.smaps.pss_dirty metric
+    - pmdarabbitmq: add timeout handling to http requests
+    - pmdastatsd: stats and blocklisted metric names alignment
+    - libpcp: new pmAddDerivedText API for derived metric help text
+    - libpcp: check level parameter on entry to pmLookupText
+    - libpcp: new PMAPI error code addition for bad API arguments
+    - libpcp: allow derived metrics semantics of 'similar' indoms
+    - selinux: add missing context information on farm services
+    - build: fix a number of Debian sub-package dependency issues
 
 pcp-6.0.3 (23 February 2023)
     - build: fix Debian postinst script handling of missing systemctl
