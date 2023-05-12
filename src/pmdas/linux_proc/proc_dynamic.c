@@ -254,6 +254,7 @@ static dynproc_metric_t smaps_metrics[] = {
 	{ .name = "swap",            .cluster = CLUSTER_PID_SMAPS,  .item=17 },
 	{ .name = "swappss",         .cluster = CLUSTER_PID_SMAPS,  .item=18 },
 	{ .name = "locked",          .cluster = CLUSTER_PID_SMAPS,  .item=19 },
+	{ .name = "pss_dirty",       .cluster = CLUSTER_PID_SMAPS,  .item=20 },
 };
 
 static dynproc_group_t dynproc_groups[] = {

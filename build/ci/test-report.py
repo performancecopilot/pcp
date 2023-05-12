@@ -78,7 +78,7 @@ def read_testlog(
                 test.groups = groups.get(test_no, [])
                 test.platform = platform
                 test.path = testartifacts_dir
-                test.start, test.stop = test_durations[test_no]
+                test.start, test.stop = test_durations.get(test_no, (0, 0))
                 test.description = ""
                 with open(os.path.join(qa_dir, test_no), encoding="utf-8") as f:
                     next(f)  # skip shebang

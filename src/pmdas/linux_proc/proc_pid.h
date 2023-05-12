@@ -182,6 +182,7 @@ typedef struct {
     uint64_t	rss;
     uint64_t	pss;
     uint64_t	pss_anon;
+    uint64_t	pss_dirty;
     uint64_t	pss_file;
     uint64_t	pss_shmem;
     uint64_t	shared_clean;

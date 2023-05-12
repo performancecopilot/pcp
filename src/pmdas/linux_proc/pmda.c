@@ -520,6 +520,9 @@ static pmdaMetric metrictab[] = {
 /* proc.smaps.locked */
   { NULL, { PMDA_PMID(CLUSTER_PID_SMAPS,19), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+/* proc.smaps.pss_dirty */
+  { NULL, { PMDA_PMID(CLUSTER_PID_SMAPS,20), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 /* proc.fd.count */
   { NULL, { PMDA_PMID(CLUSTER_PID_FD,0), PM_TYPE_U32, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
@@ -2157,6 +2160,9 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 19: /* proc.smaps.locked */
 	    atom->ull = entry->smaps.locked;
+	    break;
+	case 20: /* proc.smaps.pss_dirty */
+	    atom->ull = entry->smaps.pss_dirty;
 	    break;
 
 	default:

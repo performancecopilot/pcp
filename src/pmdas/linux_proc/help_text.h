@@ -134,6 +134,7 @@ help_text_t  help_text[] = {
 { .name = "smaps.rss",	.shorthelp = "amount of mapping that is currently resident (/proc/<pid>/smaps_rollup)",        .longhelp = "" },
 { .name = "smaps.pss",	.shorthelp = "processes proportional share of mappings (/proc/<pid>/smaps_rollup)",        .longhelp = "The proportional set size (PSS) of a process is the count of pages it has\nin memory, where each page is divided by the number of processes sharing it.\nSo if a process has 1000 pages all to itself, and 1000 shared with one other\nprocess, its PSS will be 1500.\nNote that even a page which is part of a MAP_SHARED mapping, but has only\na single pte mapped, i.e.  is currently used by only one process, is accounted\nas private and not as shared.\n" },
 { .name = "smaps.pss_anon",   .shorthelp = "Pss_Anon mappings size from /proc/<pid>/smaps_rollup", .longhelp = "" },
+{ .name = "smaps.pss_dirty",   .shorthelp = "Pss_Dirty mappings size from /proc/<pid>/smaps_rollup", .longhelp = "" },
 { .name = "smaps.pss_file",   .shorthelp = "Pss_File mappings size from /proc/<pid>/smaps_rollup", .longhelp = "" },
 { .name = "smaps.pss_shmem",   .shorthelp = "Pss_Shmem mappings size from /proc/<pid>/smaps_rollup", .longhelp = "" },
 { .name = "smaps.shared_clean",   .shorthelp = "Shared_Clean mappings size from /proc/<pid>/smaps_rollup", .longhelp = "" },

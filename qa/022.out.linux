@@ -140,6 +140,7 @@ proc.smaps.private_dirty
 proc.smaps.private_hugetlb
 proc.smaps.pss
 proc.smaps.pss_anon
+proc.smaps.pss_dirty
 proc.smaps.pss_file
 proc.smaps.pss_shmem
 proc.smaps.referenced
