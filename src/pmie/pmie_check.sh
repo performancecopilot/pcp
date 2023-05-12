@@ -52,12 +52,15 @@ _unsymlink_path()
 
 _cleanup()
 {
-    if [ -s "$MYPROGLOG" ]
+    if [ "$PROGLOG" != "/dev/tty" ]
     then
-	rm -f "$PROGLOG"
-	mv "$MYPROGLOG" "$PROGLOG"
-    else
-	rm -f "$MYPROGLOG"
+	if [ -s "$MYPROGLOG" ]
+	then
+	    rm -f "$PROGLOG"
+	    mv "$MYPROGLOG" "$PROGLOG"
+	else
+	    rm -f "$MYPROGLOG"
+	fi
     fi
     $USE_SYSLOG && [ $status -ne 0 ] && \
     $PCP_SYSLOG_PROG -p daemon.error "$prog failed - see $PROGLOG"
@@ -198,15 +201,20 @@ fi
 # accidentally sent from cron.  Close stdout and stderr, then open stdout
 # as our logfile and redirect stderr there too.
 #
-PROGLOGDIR=`dirname "$PROGLOG"`
-[ -d "$PROGLOGDIR" ] || mkdir_and_chown "$PROGLOGDIR" 755 $PCP_USER:$PCP_GROUP 2>/dev/null
 
 if $SHOWME
 then
     :
+elif [ "$PROGLOG" = "/dev/tty" ]
+then
+    # special case for debugging ... no salt away previous, no chown, no exec
+    #
+    :
 else
     # Salt away previous log, if any ...
     #
+    PROGLOGDIR=`dirname "$PROGLOG"`
+    [ -d "$PROGLOGDIR" ] || mkdir_and_chown "$PROGLOGDIR" 755 $PCP_USER:$PCP_GROUP 2>/dev/null
     _save_prev_file "$PROGLOG"
     # After argument checking, everything must be logged to ensure no mail is
     # accidentally sent from cron.  Close stdout and stderr, then open stdout
@@ -223,19 +231,7 @@ fi
 if $VERY_VERBOSE
 then
     echo "Start: `date '+%F %T.%N'`"
-    if which pstree >/dev/null 2>&1
-    then
-	if pstree -spa $$ >$tmp/tmp 2>&1
-	then
-	    echo "Called from:"
-	    cat $tmp/tmp
-	    echo "--- end of pstree output ---"
-	else
-	    # pstree not functional for us ... -s not supported in older
-	    # versions
-	    :
-	fi
-    fi
+    _pstree_all $$
 fi
 _error()
 {
