@@ -64,7 +64,7 @@ then
 	have_proc=false
 	ln $seq.linux.1 $seq.out
     fi
-elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
+elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris -o $PCP_PLATFORM = openbsd ]
 then
     ln $seq.darwin $seq.out
 else
@@ -85,6 +85,7 @@ do
 	    [ $PCP_PLATFORM = linux ] && continue
 	    [ $PCP_PLATFORM = darwin ] && continue
 	    [ $PCP_PLATFORM = solaris ] && continue
+	    [ $PCP_PLATFORM = openbsd ] && continue
 	    ;;
     esac
     _doit $m
