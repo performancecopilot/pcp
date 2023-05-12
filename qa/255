@@ -62,6 +62,12 @@ _filter_ins()
 	-e 's/.* \(bytes of symbol table\)/  NNN \1/'
 }
 
+# Note
+#  on OpenBSD signaller pid is apparently not filled in, so we see
+#    [DATE] pmcd(PID) Info: pmcd caught SIGTERM from unknown process
+#  instead of
+#    [DATE] pmcd(PID) Info: pmcd caught SIGTERM from pid=N uid=N
+#
 _filter_pmcd()
 {
     _filter_pmcd_log \
@@ -78,6 +84,7 @@ _filter_pmcd()
 	-e "s/\.$DSO_SUFFIX/.\$DSO_SUFFIX/g" \
 	-e '/UNIX_DOMAIN_SOCKET/d' \
 	-e 's/ i:[0-9]/ i:?/' \
+	-e '/SIGTERM from unknown process/s//SIGTERM from pid=N uid=N/' \
     | $PCP_AWK_PROG '
 BEGIN				{ skip = 0 }
 /client connection from/	{ print; print "..."; skip=1; next }
@@ -340,6 +347,13 @@ then
     cat >>$tmp.newconf  <<End-of-File
 # from qa/$seq
 freebsd	85	dso	freebsd_init	$PCP_PMDAS_DIR/freebsd/pmda_freebsd.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+End-of-File
+elif [ $PCP_PLATFORM = openbsd ]
+then
+    cat >>$tmp.newconf  <<End-of-File
+# from qa/$seq
+openbsd	139	dso	openbsd_init	$PCP_PMDAS_DIR/openbsd/pmda_openbsd.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 End-of-File
 else
