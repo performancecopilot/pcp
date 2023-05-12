@@ -536,3 +536,68 @@ migrate_pid_service()
 
     return $sts
 }
+
+# run pstree(1) with the focus on PID $1
+# ... Linux and *BSD (at least) have _totally_ different implementations
+# and command line arguments
+#
+_pstree_all()
+{
+    if which pstree >/dev/null 2>&1
+    then
+	if pstree -\? 2>&1 | grep ' --show-parents ' >/dev/null
+	then
+	    # Linux version
+	    #
+	    echo "Called from:"
+	    pstree -asp "$1"
+	    echo "--- end of pstree output ---"
+	elif pstree -\? 2>&1 | grep ' -s string' >/dev/null
+	then
+	    # *BSD version
+	    #
+	    echo "Called from:"
+	    pstree -p "$1" \
+	    | $PCP_AWK_PROG '
+/pstree -p/	{ exit }
+		{ print }'
+	    echo "--- end of pstree output ---"
+	else
+	    # don't know what sort of pstree this is ...
+	    #
+	    :
+	fi
+    fi
+}
+
+# pstree(1) one-line for parents of PID $1
+# ... Linux and *BSD (at least) have _totally_ different implementations
+# and command line arguments
+#
+_pstree_oneline()
+{
+    if which pstree >/dev/null 2>&1
+    then
+	if pstree -\? 2>&1 | grep ' --show-parents ' >/dev/null
+	then
+	    # Linux version
+	    #
+	    pstree -lsp "$1"
+	elif pstree -\? 2>&1 | grep ' -s string' >/dev/null
+	then
+	    # *BSD version
+	    #
+	    pstree -p "$1" \
+	    | sed -e 's/^[ 	|\\=+-][ 	|\\=+-]*//' \
+	    | $PCP_AWK_PROG '
+$3 == "pstree"	{ exit }
+		{ print $3 "(" $1 ")--" }' \
+	    | ( tr '\012' '-' ; echo ) \
+	    | sed -e 's/---$//'
+	else
+	    # don't know what sort of pstree this is ...
+	    #
+	    :
+	fi
+    fi
+}
