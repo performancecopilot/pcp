@@ -13,6 +13,7 @@
  */
 #include <sys/stat.h>
 #include "pmapi.h"
+#include "libpcp.h"
 #include "stats.h"
 
 int
@@ -22,9 +23,15 @@ main(int argc, char **argv)
     pmSetProgname(argv[0]);
 
     for (i=1; i < argc; i++) {
-	pmiestats_t ps;
+	pmiestats_t *pp = NULL;
 	struct stat st;
 	int f = open(argv[i], O_RDONLY, 0);
+
+	if (i == 1 && strcmp(argv[i], "-v") == 0) {
+	    fprintf(stderr, "pmiestats_t: %d bytes, version offset: %d\n",
+		(int)sizeof(pmiestats_t), (int)((char *)&pp->version - (char *)pp));
+	    continue;
+	}
 
 	if (f < 0) {
 	    fprintf(stderr, "%s: cannot open %s - %s\n",
@@ -38,26 +45,30 @@ main(int argc, char **argv)
 	    goto closefile;
 	}
 
-	if (st.st_size != sizeof(ps)) {
+	if (st.st_size != sizeof(pmiestats_t)) {
 	    fprintf(stderr, "%s: %s is not a valid pmie stats file\n",
 		    pmGetProgname(), argv[i]);
 	    goto closefile;
 	}
-	if (read(f, &ps, sizeof(ps)) != sizeof(ps)) {
-	    fprintf(stderr, "%s: cannot read %ld bytes from %s\n",
-		    pmGetProgname(), (long)sizeof(ps), argv[i]);
+	if ((pp = __pmMemoryMap(f, st.st_size, 0)) == NULL) {
+	    fprintf(stderr, "%s: __pmMemoryMap failed for %s: %s\n",
+		    pmGetProgname(), argv[i], osstrerror());
 	    goto closefile;
 	}
 
-	if (ps.version != 1) {
+	if (pp->version != 1) {
 	    fprintf(stderr, "%s: unsupported version %d in %s\n",
-		    pmGetProgname(), ps.version, argv[i]);
+		    pmGetProgname(), pp->version, argv[i]);
 	    goto closefile;
 	}
 
-	printf ("%s\n%s\n%s\n", ps.config, ps.logfile, ps.defaultfqdn);
+	printf ("%s\n%s\n%s\n", pp->config, pp->logfile, pp->defaultfqdn);
 closefile:
 	close(f);
+	if (pp != NULL) {
+	    __pmMemoryUnmap(pp, st.st_size);
+	    pp = NULL;
+	}
     }
     return 0;
 }
