@@ -40,8 +40,7 @@ then
     logmsg="begin pid:$$ $prog args:$*"
     if which pstree >/dev/null 2>&1
     then
-	logmsg="$logmsg [`pstree -lps $$`]"
-	logmsg="`echo "$logmsg" | sed -e 's/---pstree([^)]*)//'`"
+	logmsg="$logmsg [`_pstree_oneline $$`]"
     fi
     $PCP_BINADM_DIR/pmpost "$logmsg"
 fi
@@ -58,7 +57,10 @@ _cleanup()
 {
     $USE_SYSLOG && [ $status -ne 0 ] && \
     $PCP_SYSLOG_PROG -p daemon.error "$prog failed - see $PROGLOG"
-    [ -s "$PROGLOG" ] || rm -f "$PROGLOG"
+    if [ "$PROGLOG" != "/dev/tty" ]
+    then
+	[ -s "$PROGLOG" ] || rm -f "$PROGLOG"
+    fi
     rm -rf $tmp
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -314,15 +316,22 @@ then
     fi
 fi
 
-# After argument checking, everything must be logged to ensure no mail is
-# accidentally sent from cron.  Close stdout and stderr, then open stdout
-# as our logfile and redirect stderr there too.  Create the log file with
-# correct ownership first.
-#
-[ -f "$PROGLOG" ] && mv "$PROGLOG" "$PROGLOG.prev"
-touch "$PROGLOG"
-chown $PCP_USER:$PCP_GROUP "$PROGLOG" >/dev/null 2>&1
-exec 1>"$PROGLOG" 2>&1
+if [ "$PROGLOG" = "/dev/tty" ]
+then
+    # special case for debugging ... no salt away previous, no chown, no exec
+    #
+    :
+else
+    # After argument checking, everything must be logged to ensure no mail is
+    # accidentally sent from cron.  Close stdout and stderr, then open stdout
+    # as our logfile and redirect stderr there too.  Create the log file with
+    # correct ownership first.
+    #
+    [ -f "$PROGLOG" ] && mv "$PROGLOG" "$PROGLOG.prev"
+    touch "$PROGLOG"
+    chown $PCP_USER:$PCP_GROUP "$PROGLOG" >/dev/null 2>&1
+    exec 1>"$PROGLOG" 2>&1
+fi
 
 # Default hostname is the name of the local host
 #

@@ -66,8 +66,7 @@ then
     logmsg="begin pid:$$ $prog args:$*"
     if which pstree >/dev/null 2>&1
     then
-	logmsg="$logmsg [`pstree -lps $$`]"
-	logmsg="`echo "$logmsg" | sed -e 's/---pstree([^)]*)//'`"
+	logmsg="$logmsg [`_pstree_oneline $$`]"
     fi
     $PCP_BINADM_DIR/pmpost "$logmsg"
 fi

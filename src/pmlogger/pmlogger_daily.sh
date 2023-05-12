@@ -41,20 +41,22 @@ then
     logmsg="begin pid:$$ $prog args:$*"
     if which pstree >/dev/null 2>&1
     then
-	logmsg="$logmsg [`pstree -lps $$`]"
-	logmsg="`echo "$logmsg" | sed -e 's/---pstree([^)]*)//'`"
+	logmsg="$logmsg [`_pstree_oneline $$`]"
     fi
     $PCP_BINADM_DIR/pmpost "$logmsg"
 fi
 
 _cleanup()
 {
-    if [ -s "$MYPROGLOG" ]
+    if [ "$PROGLOG" != "/dev/tty" ]
     then
-	rm -f "$PROGLOG"
-	mv "$MYPROGLOG" "$PROGLOG"
-    else
-	rm -f "$MYPROGLOG"
+	if [ -s "$MYPROGLOG" ]
+	then
+	    rm -f "$PROGLOG"
+	    mv "$MYPROGLOG" "$PROGLOG"
+	else
+	    rm -f "$MYPROGLOG"
+	fi
     fi
     $USE_SYSLOG && [ $status -ne 0 ] && \
     $PCP_SYSLOG_PROG -p daemon.error "$prog failed - see $PROGLOG"
@@ -548,6 +550,8 @@ then
 else
     # Salt away previous log, if any ...
     #
+    PROGLOGDIR=`dirname "$PROGLOG"`
+    [ -d "$PROGLOGDIR" ] || mkdir_and_chown "$PROGLOGDIR" 755 $PCP_USER:$PCP_GROUP 2>/dev/null
     _save_prev_file "$PROGLOG"
     # After argument checking, everything must be logged to ensure no mail is
     # accidentally sent from cron.  Close stdout and stderr, then open stdout
@@ -695,51 +699,32 @@ fi
 if $VERY_VERBOSE
 then
     echo >&2 "Start: `date '+%F %T.%N'`"
-    if which pstree >/dev/null 2>&1
-    then
-	if pstree -spa $$ >$tmp/tmp 2>&1
-	then
-	    echo >&2 "Called from:"
-	    cat >&2 $tmp/tmp
-	else
-	    # pstree not functional for us ... -s not supported in older
-	    # versions
-	    :
-	fi
-    fi
+    _pstree_all $$
 fi
 
 # if SaveLogs exists in the $PCP_LOG_DIR/pmlogger directory and is writeable
 # then save $MYPROGLOG there as well with a unique name that contains the date
 # and time when we're run ... skip if -N (showme)
 #
-if [ -d $PCP_LOG_DIR/pmlogger/SaveLogs -a -w $PCP_LOG_DIR/pmlogger/SaveLogs ]
+if [ "$PROGLOG" != "/dev/tty" ]
 then
-    now="`date '+%Y%m%d.%H:%M:%S.%N'`"
-    link=`echo $MYPROGLOG | sed -e "s@.*$prog@$PCP_LOG_DIR/pmlogger/SaveLogs/$now-$prog@"`
-    if [ ! -f "$link" ]
+    if [ -d $PCP_LOG_DIR/pmlogger/SaveLogs -a -w $PCP_LOG_DIR/pmlogger/SaveLogs ]
     then
-	if $SHOWME
+	now="`date '+%Y%m%d.%H:%M:%S.%N'`"
+	link=`echo $MYPROGLOG | sed -e "s@.*$prog@$PCP_LOG_DIR/pmlogger/SaveLogs/$now-$prog@"`
+	if [ ! -f "$link" ]
 	then
-	    echo "+ ln $MYPROGLOG $link"
-	else
-	    ln $MYPROGLOG $link
-	    if [ -w $link ]
+	    if $SHOWME
 	    then
-		echo "--- Added by $prog when SaveLogs dir found ---" >>$link
-		echo "Start: `date '+%F %T.%N'`" >>$link
-		echo "Args: $ARGS" >>$link
-		if which pstree >/dev/null 2>&1
+		echo "+ ln $MYPROGLOG $link"
+	    else
+		ln $MYPROGLOG $link
+		if [ -w $link ]
 		then
-		    if pstree -spa $$ >$tmp/tmp 2>&1
-		    then
-			echo "Called from:" >>$link
-			cat $tmp/tmp >>$link
-		    else
-			# pstree not functional for us ... -s not supported
-			# in older versions
-			:
-		    fi
+		    echo "--- Added by $prog when SaveLogs dir found ---" >>$link
+		    echo "Start: `date '+%F %T.%N'`" >>$link
+		    echo "Args: $ARGS" >>$link
+		    _pstree_all $$
 		fi
 	    fi
 	fi
