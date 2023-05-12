@@ -118,7 +118,7 @@ echo "=== socket Internet agent ===" | tee -a $here/$seq.full
 
 # pick two tcp ports that are not in use
 #
-port1=`_find_free_port 5670`
+port1=`_find_free_port 95670`
 if [ -z "$port1" ]
 then
     echo "Arrgh ... port1: no free TCP port in the range 5670 ... "
