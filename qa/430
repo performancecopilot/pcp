@@ -247,6 +247,7 @@ logdir2="$tmp.subname"
 # Make sure you put the number in the form "# 3. "
 #
 cat > $tmp.control <<EOF
+\$PMLOGGER_CHECK_SKIP_JANITOR=yes
 # 
 # 1. Test duplicate directory names;  non-primary and then primary
 #
