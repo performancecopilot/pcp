@@ -2,12 +2,12 @@
  * Disk S.M.A.R.T Data PMDA
  *
  * Copyright (c) 2018-2023 Red Hat.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -1015,19 +1015,19 @@ pmdaMetric metrictable[] = {
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_SERIAL_NUMBER),
 		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
-		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_FIRMWARE_VERSION),
 		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
-		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_PCI_VENDOR_SUBSYSTEM_ID),
 		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
-		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_IEE_OUI_IDENTIFIER),
 		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
-		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_TOTAL_NVM_CAPACITY),
 		PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
@@ -1039,48 +1039,48 @@ pmdaMetric metrictable[] = {
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_CONTROLLER_ID),
 		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
-		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_NVME_VERSION),
 		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
-		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_NAMESPACES),
 		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
-		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_FIRMWARE_UPDATES),
 		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
-		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_MAXIMUM_DATA_TRANSFER_SIZE),
 		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
-		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_WARNING_TEMP_THRESHOLD),
 		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
-		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_CRITICAL_TEMP_THRESHOLD),
 		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
-		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
-		
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_ACTIVE_POWER_STATE),
 		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
-		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_APST_STATE),
 		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
-		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_COMPLETION_QUEUE_LENGTH_COMPLETION),
 		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
-		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_COMPLETION_QUEUE_LENGTH_SUBMISSION),
 		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
-		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_NAMESPACE_1_CAPACITY),
 		PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
@@ -1092,7 +1092,7 @@ pmdaMetric metrictable[] = {
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_NAMESPACE_1_FORMATTED_LBA_SIZE),
 		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
-		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_NAMESPACE_1_IEEE_EUI_64),
 		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
@@ -1481,9 +1481,9 @@ smart_instance_refresh(void)
 
 	/*
 	 * update indom cache based off number of disks reported by "lsblk",
-	 * smartctl requires us to know the block device id/path for each of 
+	 * smartctl requires us to know the block device id/path for each of
 	 * our disks in order to be able to get our stats, we get this info
-	 * using "lsblk" and store the name of each device. 
+	 * using "lsblk" and store the name of each device.
 	 */
 
 	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
@@ -1508,7 +1508,7 @@ smart_instance_refresh(void)
 				return PM_ERR_AGAIN;
 			}
 			
-			/* check for nvme device so that we use the nvme S.M.A.R.T attribute 
+			/* check for nvme device so that we use the nvme S.M.A.R.T attribute
 		   	path */
 			if (strncmp(dev_name, "nvme", 4) == 0)
 				dev->is_nvme = 1;
@@ -1549,7 +1549,7 @@ smart_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 			continue;
 
 		if (need_refresh[CLUSTER_DEVICE_INFO])
-			        smart_refresh_device_info(dev_name, &dev->device_info, dev->is_nvme);
+		        smart_refresh_device_info(dev_name, &dev->device_info, dev->is_nvme);
 
 		if (need_refresh[CLUSTER_RAW_READ_ERROR_RATE] ||
 			need_refresh[CLUSTER_THROUGHPUT_PERFORMANCE] ||
@@ -1598,13 +1598,13 @@ smart_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 			need_refresh[CLUSTER_TOTAL_LBAS_READ] ||
 			need_refresh[CLUSTER_READ_ERROR_RETRY_RATE] ||
 			need_refresh[CLUSTER_FREE_FALL_SENSOR])
-				smart_refresh_data(dev_name, &dev->smart_data, dev->is_nvme);
+			smart_refresh_data(dev_name, &dev->smart_data, dev->is_nvme);
 
 		if (need_refresh[CLUSTER_NVME_DEVICE_INFO])
-			        nvme_device_refresh_data(dev_name, &dev->nvme_device_info, dev->is_nvme);
+		        nvme_device_refresh_data(dev_name, &dev->nvme_device_info, dev->is_nvme);
 
 		if (need_refresh[CLUSTER_NVME_ATTRIBUTES])
-			        nvme_smart_refresh_data(dev_name, &dev->nvme_smart_data, dev->is_nvme);
+		        nvme_smart_refresh_data(dev_name, &dev->nvme_smart_data, dev->is_nvme);
 
                 if (need_refresh[CLUSTER_POWER_STATE_0] ||
                         need_refresh[CLUSTER_POWER_STATE_1] ||
@@ -1612,7 +1612,7 @@ smart_fetch_refresh(pmdaExt *pmda, int *need_refresh)
                         need_refresh[CLUSTER_POWER_STATE_3] ||
                         need_refresh[CLUSTER_POWER_STATE_4] ||
                         need_refresh[CLUSTER_POWER_STATE_5])
-                                nvme_power_refesh_data(dev_name, &dev->nvme_power_states, dev->is_nvme);
+			nvme_power_refesh_data(dev_name, &dev->nvme_power_states, dev->is_nvme);
 	}
 	return sts;
 }
@@ -1625,7 +1625,7 @@ smart_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	for (i = 0; i < numpmid; i++) {
 		unsigned int	cluster = pmID_cluster(pmidlist[i]);
 		if (cluster < NUM_CLUSTERS)
-		    need_refresh[cluster]++;
+			need_refresh[cluster]++;
 	}
 
 	if ((sts = smart_fetch_refresh(pmda, need_refresh)) < 0)
@@ -1700,13 +1700,13 @@ smart_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			if (sts < 0)
 				return sts;
 			return smart_data_fetch(item, cluster, &dev->smart_data, atom);
-		
+
 		case CLUSTER_NVME_DEVICE_INFO:
 			sts = pmdaCacheLookup(INDOM(DISK_INDOM), inst, NULL, (void **)&dev);
 			if (sts < 0)
 				return sts;
 			return nvme_device_info_fetch(item, cluster, &dev->nvme_device_info, atom, dev->is_nvme);
-		
+
 		case CLUSTER_NVME_ATTRIBUTES:
 			sts = pmdaCacheLookup(INDOM(DISK_INDOM), inst, NULL, (void **)&dev);
 			if (sts < 0)
@@ -1722,7 +1722,7 @@ smart_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			sts = pmdaCacheLookup(INDOM(DISK_INDOM), inst, NULL, (void **)&dev);
 			if (sts < 0)
 				return sts;
-			return nvme_power_data_fetch(item, cluster, &dev->nvme_power_states, atom, dev->is_nvme);                
+			return nvme_power_data_fetch(item, cluster, &dev->nvme_power_states, atom, dev->is_nvme);
 
 		default:
 			return PM_ERR_PMID;
@@ -1824,7 +1824,7 @@ static pmdaOptions opts = {
 	.long_options = longopts,
 };
 
-int 
+int
 main(int argc, char **argv)
 {
 	int sep = pmPathSeparator();
