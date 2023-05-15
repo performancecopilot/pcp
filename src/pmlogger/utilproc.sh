@@ -247,7 +247,8 @@ NR == 1 && NF == 5 && $2 == "0000" && $3 == "0084" && $4 == "5005" && $5 == "260
 # V1 or V2 little endian when od -X => 16-bit words
 NR == 1 && NF == 5 && $2 == "0000" && $3 == "8400" && $4 == "0550" && $5 == "0026" { sts = 0; next }
 END						{ exit sts }'
+	__sts=$?
 	rm -f /tmp/is.archive.$$
+	return $__sts
     fi
-    return $?
 }
