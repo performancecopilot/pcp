@@ -111,15 +111,28 @@ then
 fi
 here=`pwd`
 
+# On OpenBSd in particular, /var/tmp is a symbolic link to /tmp
+# which leads to some confusion, especially in pmlogger_check and
+# friends when /tmp/foo and /var/tmp/foo are different paths to the
+# _same_ file or directory ... so go with the canonical name without
+# symbolic links
+#
+if which realpath >/dev/null 2>&1
+then
+    _tmp_dir=`realpath /var/tmp`
+else
+    _tmp_dir=/var/tmp
+fi
+
 if [ -z "$tmp" ]
 then
     # $tmp not already set, do it here ...
     #
     if [ -z "$seq" ]
     then
-	tmp=/var/tmp/$$
+	tmp=$_tmp_dir/$$
     else
-	tmp=/var/tmp/$seq-$$
+	tmp=$_tmp_dir/$seq-$$
     fi
 fi
 
