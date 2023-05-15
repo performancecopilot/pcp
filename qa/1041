@@ -77,6 +77,7 @@ EOF
         -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
 	-e "\\;Error: pmdaCacheOp: \$PCP_VAR_DIR/config/pmda/.*: empty file?;d" \
     | $PCP_AWK_PROG '
+/warnings,/                            { print; next }
 /Check libvirt metrics have appeared/  { if ($7 >= 120) $7 = "X"
                                          if ($10 >= 4) $10 = "Y"
                                        }
