@@ -1589,7 +1589,8 @@ main(int argc, char **argv)
 	/* detach yourself from the launching process */
         setpgid(getpid(), 0);
 #endif
-	__pmServerCreatePIDFile(pmGetProgname(), 0);
+	if (primary)
+	    __pmServerCreatePIDFile(pmGetProgname(), 0);
     }
 
     /* set up control port socket and external map files */

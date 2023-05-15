@@ -221,7 +221,16 @@ _is_archive()
 	    *)			cat "$1"
 	    			;;
 	esac 2>/dev/null \
-	| dd ibs=1 count=7 2>/dev/null \
+	| if [ "$PCP_PLATFORM" = openbsd ]
+	then
+	    # strange but true, xv | dd hangs xv here when
+	    # dd quits
+	    #
+	    cat >/tmp/is.archive.$$
+	    dd ibs=1 count=7 if=/tmp/is.archive.$$ 2>/dev/null
+	else
+	    dd ibs=1 count=7 2>/dev/null
+	fi \
 	| od -X \
 	| $PCP_AWK_PROG '
 BEGIN						{ sts = 1 }
@@ -238,6 +247,7 @@ NR == 1 && NF == 5 && $2 == "0000" && $3 == "0084" && $4 == "5005" && $5 == "260
 # V1 or V2 little endian when od -X => 16-bit words
 NR == 1 && NF == 5 && $2 == "0000" && $3 == "8400" && $4 == "0550" && $5 == "0026" { sts = 0; next }
 END						{ exit sts }'
+	rm -f /tmp/is.archive.$$
     fi
     return $?
 }

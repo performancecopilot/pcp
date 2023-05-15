@@ -204,6 +204,7 @@ _extract_control()
 # PCP archive logging configuration/control - for qa/$seq
 #
 \$version=1.1
+\$PMLOGGER_CHECK_SKIP_JANITOR=yes
 #
 EOF
 
@@ -247,7 +248,6 @@ logdir2="$tmp.subname"
 # Make sure you put the number in the form "# 3. "
 #
 cat > $tmp.control <<EOF
-\$PMLOGGER_CHECK_SKIP_JANITOR=yes
 # 
 # 1. Test duplicate directory names;  non-primary and then primary
 #
@@ -323,19 +323,21 @@ for log in $logdir.1 $logdir.2 $logdir.3 $logdir.4 $logdir.5 $logdir.6
 do
     echo | tee -a $here/$seq.full
     echo "Kill off one pmlogger ..." | tee -a $here/$seq.full
-    # in case /var/tmp is a symlink to /tmp, then the control file sometimes
-    # contains /tmp and sometimes contains /var/tmp ... handle both here
-    #
-    altlog=`echo $log | sed -e 's,^/var/,/,'`
-    pid=`grep -l -E "($log)|($altlog)" $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
-    cat $PCP_TMP_DIR/pmlogger/[0-9]* >>$here/$seq.full
+    pid=`grep -l "^$log/" $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
+    echo "`echo $PCP_TMP_DIR/pmlogger/[0-9]* | wc -w | sed -e 's/  *//g'` active pmloggers: `cd $PCP_TMP_DIR/pmlogger; echo *`" >>$here/$seq.full
+    for file in $PCP_TMP_DIR/pmlogger/[0-9]*
+    do
+	echo "--- $file ---" >>$here/$seq.full
+	cat $file >>$here/$seq.full
+    done
+    echo "initially pid=$pid" >>$here/$seq.full
     try=1
     num_pid=`echo "$pid" | wc -w | sed -e 's/ *//g'`
     while [ $try -lt 10 -a $num_pid -ne 1 ]
     do
 	echo "try $try num_pid=$num_pid: `echo $pid`" >>$here/$seq.full
 	sleep 1
-	pid=`grep -l -E "($log)|($altlog)" $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
+	pid=`grep -l "^$log/" $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
 	num_pid=`echo "$pid" | wc -w | sed -e 's/ *//g'`
 	try=`expr $try + 1`
     done
@@ -352,8 +354,8 @@ do
 	    echo "+++ $ctl +++" >>$here/$seq.full
 	    cat $ctl >>$here/$seq.full
 	done
-	echo "+ grep -l -E \"($log)|($altlog)\"" $PCP_TMP_DIR/pmlogger/[0-9]* >>$here/$seq.full
-	grep -E "($log)|($altlog)" $PCP_TMP_DIR/pmlogger/[0-9]* >>$here/$seq.full
+	echo "+ grep -l \"^$log/\"" $PCP_TMP_DIR/pmlogger/[0-9]* >>$here/$seq.full
+	grep "^$log/" $PCP_TMP_DIR/pmlogger/[0-9]* >>$here/$seq.full
 	exit
     fi
     echo "Victim pid=$pid" >>$here/$seq.full
@@ -389,7 +391,7 @@ $2 == '"$pid"' { print; exit(0) }'
     rm -f $tmp.found
     while [ "$x" -lt 30 ]
     do
-	pid=`grep -l -E "($log)|($altlog)" $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
+	pid=`grep -l "^$log/" $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
 	if [ -n "$pid" ]
 	then
 	    echo "Found pid $pid after $x iterations" >>$here/$seq.full

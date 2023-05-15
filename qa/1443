@@ -79,6 +79,7 @@ orphan-%h
 
 [control]
 \$version=1.1
+\$PMLOGGER_CHECK_SKIP_JANITOR=yes
 
 \$class=orphan
 %h n n PCP_ARCHIVE_DIR/%i -c $tmp.config
@@ -107,6 +108,8 @@ done
 #
 pid_1=`pmlogctl status -c orphan localhost 2>&1 | awk '
 NF == 5 && $5 = "running"	{ print $4 }'`
+pmlogctl status -c orphan localhost >>$seq.full
+echo "pid_1=$pid_1" >>$seq.full
 if [ -z "$pid_1" ]
 then
     echo "Arrgh, no PID from ..."
@@ -118,6 +121,8 @@ else
 fi
 pid_2=`pmlogctl status -c orphan $hostname 2>&1 | awk '
 NF == 5 && $5 = "running"	{ print $4 }'`
+pmlogctl status -c orphan $hostname >>$seq.full
+echo "pid_2=$pid_2" >>$seq.full
 if [ -z "$pid_2" ]
 then
     echo "Arrgh, no PID from ..."
@@ -136,6 +141,7 @@ $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger ' >>$seq.full
 # now run the janitor ...
 #
 $sudo -u pcp $PCP_BINADM_DIR/pmlogger_janitor -l /var/tmp/janitor-$seq.log
+cat /var/tmp/janitor-$seq.log >>$seq.full
 _filter </var/tmp/janitor-$seq.log >$tmp.tmp
 grep Killing <$tmp.tmp | LC_COLLATE=POSIX sort
 grep Compressing <$tmp.tmp | LC_COLLATE=POSIX sort

@@ -184,6 +184,7 @@ echo "--- destdir dir does not exist ---" | tee -a $here/$seq.full
 
 cat <<End-of-File >$tmp.control
 \$version=1.1
+\$PMLOGGER_CHECK_SKIP_JANITOR=yes
 LOCALHOSTNAME	n   n	$tmp	-c ./config
 End-of-File
 
@@ -203,6 +204,7 @@ echo "--- cannot write in dest dir ---" | tee -a $here/$seq.full
 
 cat <<End-of-File >$tmp.control
 \$version=1.1
+\$PMLOGGER_CHECK_SKIP_JANITOR=yes
 \$PCP_AUTOSAVE_DIR=$tmp.nowrite
 LOCALHOSTNAME	n   n	$tmp	-c ./config
 End-of-File
@@ -230,6 +232,7 @@ echo "--- dest dir ok ---" | tee -a $here/$seq.full
 
 cat <<End-of-File >$tmp.control
 \$version=1.1
+\$PMLOGGER_CHECK_SKIP_JANITOR=yes
 \$PCP_AUTOSAVE_DIR=$tmp.ok
 LOCALHOSTNAME	n   n	$tmp	-c ./config
 End-of-File
@@ -258,6 +261,7 @@ echo "--- dest dir with DATEXX components does not exist ---" | tee -a $here/$se
 
 cat <<End-of-File >$tmp.control
 \$version=1.1
+\$PMLOGGER_CHECK_SKIP_JANITOR=yes
 \$PCP_AUTOSAVE_DIR=$tmp.ok/DATEYYYY/DATEYYYY-DATEMM-DATEDD/
 LOCALHOSTNAME	n   n	$tmp	-c ./config
 End-of-File
@@ -302,6 +306,7 @@ echo "--- dest dir ok and with DATEXX components ---" | tee -a $here/$seq.full
 
 cat <<End-of-File >$tmp.control
 \$version=1.1
+\$PMLOGGER_CHECK_SKIP_JANITOR=yes
 \$PCP_AUTOSAVE_DIR=$tmp.ok/DATEYYYY/DATEYYYY-DATEMM-DATEDD/
 LOCALHOSTNAME	n   n	$tmp	-c ./config
 End-of-File
@@ -355,6 +360,7 @@ chmod 755 $tmp.merge
 
 cat <<End-of-File >$tmp.control
 \$version=1.1
+\$PMLOGGER_CHECK_SKIP_JANITOR=yes
 \$PCP_MERGE_CALLBACK='$tmp.merge -m'
 \$PCP_MERGE_CALLBACK="$tmp.merge merge fumble"
 \$PCP_MERGE_CALLBACK='$tmp.merge -q "blah fluff" merge fumble'
@@ -393,6 +399,7 @@ chmod 755 $tmp.compress
 
 cat <<End-of-File >$tmp.control
 \$version=1.1
+\$PMLOGGER_CHECK_SKIP_JANITOR=yes
 \$PCP_COMPRESS_CALLBACK='$tmp.compress -p "blah fluff" -q compress -r fumble'
 \$PCP_COMPRESS_CALLBACK="$tmp.compress compress fumble"
 \$PCP_COMPRESS_CALLBACK='$tmp.compress -c'
