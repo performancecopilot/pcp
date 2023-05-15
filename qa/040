@@ -31,13 +31,24 @@ fi
 
 rss_field=`ps $ps_arg -p 1 2>/dev/null | $PCP_AWK_PROG '
 NR == 1	{ for (i = 1; i <= NF; i++) {
-	    if ($i ~ /RSS/) {
+	    if ($i == "RSS") {
 		print i
 		break
 	    }
 	  }
 	  exit
 	}'`
+pid_field=`ps $ps_arg -p 1 2>/dev/null | $PCP_AWK_PROG '
+NR == 1	{ for (i = 1; i <= NF; i++) {
+	    if ($i == "PID") {
+		print i
+		break
+	    }
+	  }
+	  exit
+	}'`
+echo "rss_field=$rss_field pid_field=$pid_field" >>$seq.full
+ps $ps_arg -p 1 >>$seq.full
 
 _fail()
 {
@@ -74,7 +85,7 @@ sleep 1
 ps $ps_arg -p $mylogger \
     | $PCP_AWK_PROG '
 NR == 1			{ print; next }
-$3 == '$mylogger'	{ print }'
+$'$pid_field' == '$mylogger'	{ print }'
 done \
 | sed -e '/RSS/d' \
 | tee $tmp.ps \
