@@ -3,6 +3,7 @@
 # $ cd 001/smart
 # $ ../../smartctl.sh -Hi /dev/sda
 # $ ../../smartctl.sh -A /dev/sda
+# $ ../../smartctl.sh -c /dev/sda
 
 option="$1"
 device=`echo "$2" | sed -e 's,/dev/,,g'`
@@ -13,7 +14,10 @@ then
 elif [ "$option" = "-A" ]
 then
     cat $device.data
+elif [ "$option" = "-c" ]
+then
+    cat $device.power
 else
-    echo "Unknown option $option - try -[Hi|A] /dev/xxx"
+    echo "Unknown option $option - try -[Hi|A|c] /dev/xxx"
     exit 1
 fi

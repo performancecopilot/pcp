@@ -3362,6 +3362,9 @@ fi
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
+* Mon Jun 26 2023 Nathan Scott <nathans@redhat.com> - 6.0.5-1
+- Update to latest PCP sources.
+
 * Mon May 15 2023 Nathan Scott <nathans@redhat.com> - 6.0.4-1
 - Rework LOCALHOSTNAME handling in control files (BZ 2172892)
 - Update to latest PCP sources.

@@ -1,3 +1,6 @@
+pcp-6.0.5 (26 June 2023)
+    - Work-in-progress.
+
 pcp-6.0.4 (15 May 2023)
     - pmcd: propogate a new PMCD_HOSTNAME_CHANGE flag to clients
     - pmdumplog: support preferred alternate name pmlogdump

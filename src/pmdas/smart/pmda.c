@@ -1,13 +1,13 @@
 /*
  * Disk S.M.A.R.T Data PMDA
  *
- * Copyright (c) 2018 Red Hat.
- * 
+ * Copyright (c) 2018-2023 Red Hat.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -1007,6 +1007,96 @@ pmdaMetric metrictable[] = {
 		PMDA_PMID(CLUSTER_FREE_FALL_SENSOR, SMART_RAW),
 		PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
 		PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+	/* NVME Info metrics */
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_MODEL_NUMBER),
+		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_SERIAL_NUMBER),
+		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_FIRMWARE_VERSION),
+		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_PCI_VENDOR_SUBSYSTEM_ID),
+		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_IEE_OUI_IDENTIFIER),
+		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_TOTAL_NVM_CAPACITY),
+		PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_UNALLOCATED_NVM_CAPACITY),
+		PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_CONTROLLER_ID),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_NVME_VERSION),
+		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_NAMESPACES),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_FIRMWARE_UPDATES),
+		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_MAXIMUM_DATA_TRANSFER_SIZE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_WARNING_TEMP_THRESHOLD),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_CRITICAL_TEMP_THRESHOLD),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_ACTIVE_POWER_STATE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_APST_STATE),
+		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_COMPLETION_QUEUE_LENGTH_COMPLETION),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_COMPLETION_QUEUE_LENGTH_SUBMISSION),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_NAMESPACE_1_CAPACITY),
+		PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_NAMESPACE_1_UTILIZATION),
+		PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_NAMESPACE_1_FORMATTED_LBA_SIZE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_DEVICE_INFO, NVME_NAMESPACE_1_IEEE_EUI_64),
+		PM_TYPE_STRING, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
 	/* Smart Attribute metrics */
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, CRITICAL_WARNING),
@@ -1107,7 +1197,272 @@ pmdaMetric metrictable[] = {
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_ATTRIBUTES, TEMPERATURE_SENSOR_EIGHT),
 		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
-		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	/* NVME Power State Metrics */
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_0, STATE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_0, MAX_POWER),
+		PM_TYPE_DOUBLE, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_0, NON_OPERATIONAL_STATE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_0, ACTIVE_POWER),
+		PM_TYPE_DOUBLE, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_0, IDLE_POWER),
+		PM_TYPE_DOUBLE, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_0, RELATIVE_READ_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_0, RELATIVE_READ_THROUGHPUT),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_0, RELATIVE_WRITE_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_0, RELATIVE_WRITE_THROUGHPUT),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_0, ENTRY_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_0, EXIT_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_1, STATE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_1, MAX_POWER),
+		PM_TYPE_DOUBLE, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_1, NON_OPERATIONAL_STATE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_1, ACTIVE_POWER),
+		PM_TYPE_DOUBLE, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_1, IDLE_POWER),
+		PM_TYPE_DOUBLE, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_1, RELATIVE_READ_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_1, RELATIVE_READ_THROUGHPUT),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_1, RELATIVE_WRITE_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_1, RELATIVE_WRITE_THROUGHPUT),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_1, ENTRY_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_1, EXIT_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_2, STATE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_2, MAX_POWER),
+		PM_TYPE_DOUBLE, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_2, NON_OPERATIONAL_STATE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_2, ACTIVE_POWER),
+		PM_TYPE_DOUBLE, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_2, IDLE_POWER),
+		PM_TYPE_DOUBLE, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_2, RELATIVE_READ_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_2, RELATIVE_READ_THROUGHPUT),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_2, RELATIVE_WRITE_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_2, RELATIVE_WRITE_THROUGHPUT),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_2, ENTRY_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_2, EXIT_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_3, STATE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_3, MAX_POWER),
+		PM_TYPE_DOUBLE, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_3, NON_OPERATIONAL_STATE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_3, ACTIVE_POWER),
+		PM_TYPE_DOUBLE, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_3, IDLE_POWER),
+		PM_TYPE_DOUBLE, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_3, RELATIVE_READ_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_3, RELATIVE_READ_THROUGHPUT),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_3, RELATIVE_WRITE_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_3, RELATIVE_WRITE_THROUGHPUT),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_3, ENTRY_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_3, EXIT_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_4, STATE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_4, MAX_POWER),
+		PM_TYPE_DOUBLE, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_4, NON_OPERATIONAL_STATE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_4, ACTIVE_POWER),
+		PM_TYPE_DOUBLE, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_4, IDLE_POWER),
+		PM_TYPE_DOUBLE, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_4, RELATIVE_READ_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_4, RELATIVE_READ_THROUGHPUT),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_4, RELATIVE_WRITE_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_4, RELATIVE_WRITE_THROUGHPUT),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_4, ENTRY_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_4, EXIT_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_5, STATE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_5, MAX_POWER),
+		PM_TYPE_DOUBLE, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_5, NON_OPERATIONAL_STATE),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_5, ACTIVE_POWER),
+		PM_TYPE_DOUBLE, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_5, IDLE_POWER),
+		PM_TYPE_DOUBLE, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_5, RELATIVE_READ_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_5, RELATIVE_READ_THROUGHPUT),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_5, RELATIVE_WRITE_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_5, RELATIVE_WRITE_THROUGHPUT),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_5, ENTRY_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_POWER_STATE_5, EXIT_LATENCY),
+		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
 };
 
 int
@@ -1126,9 +1481,9 @@ smart_instance_refresh(void)
 
 	/*
 	 * update indom cache based off number of disks reported by "lsblk",
-	 * smartctl requires us to know the block device id/path for each of 
+	 * smartctl requires us to know the block device id/path for each of
 	 * our disks in order to be able to get our stats, we get this info
-	 * using "lsblk" and store the name of each device. 
+	 * using "lsblk" and store the name of each device.
 	 */
 
 	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
@@ -1153,7 +1508,7 @@ smart_instance_refresh(void)
 				return PM_ERR_AGAIN;
 			}
 			
-			/* check for nvme device so that we use the nvme S.M.A.R.T attribute 
+			/* check for nvme device so that we use the nvme S.M.A.R.T attribute
 		   	path */
 			if (strncmp(dev_name, "nvme", 4) == 0)
 				dev->is_nvme = 1;
@@ -1194,7 +1549,7 @@ smart_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 			continue;
 
 		if (need_refresh[CLUSTER_DEVICE_INFO])
-			smart_refresh_device_info(dev_name, &dev->device_info, dev->is_nvme);
+		        smart_refresh_device_info(dev_name, &dev->device_info, dev->is_nvme);
 
 		if (need_refresh[CLUSTER_RAW_READ_ERROR_RATE] ||
 			need_refresh[CLUSTER_THROUGHPUT_PERFORMANCE] ||
@@ -1243,10 +1598,21 @@ smart_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 			need_refresh[CLUSTER_TOTAL_LBAS_READ] ||
 			need_refresh[CLUSTER_READ_ERROR_RETRY_RATE] ||
 			need_refresh[CLUSTER_FREE_FALL_SENSOR])
-				smart_refresh_data(dev_name, &dev->smart_data, dev->is_nvme);
-				
+			smart_refresh_data(dev_name, &dev->smart_data, dev->is_nvme);
+
+		if (need_refresh[CLUSTER_NVME_DEVICE_INFO])
+		        nvme_device_refresh_data(dev_name, &dev->nvme_device_info, dev->is_nvme);
+
 		if (need_refresh[CLUSTER_NVME_ATTRIBUTES])
-			nvme_smart_refresh_data(dev_name, &dev->nvme_smart_data, dev->is_nvme);
+		        nvme_smart_refresh_data(dev_name, &dev->nvme_smart_data, dev->is_nvme);
+
+                if (need_refresh[CLUSTER_POWER_STATE_0] ||
+                        need_refresh[CLUSTER_POWER_STATE_1] ||
+                        need_refresh[CLUSTER_POWER_STATE_2] ||
+                        need_refresh[CLUSTER_POWER_STATE_3] ||
+                        need_refresh[CLUSTER_POWER_STATE_4] ||
+                        need_refresh[CLUSTER_POWER_STATE_5])
+			nvme_power_refesh_data(dev_name, &dev->nvme_power_states, dev->is_nvme);
 	}
 	return sts;
 }
@@ -1259,7 +1625,7 @@ smart_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	for (i = 0; i < numpmid; i++) {
 		unsigned int	cluster = pmID_cluster(pmidlist[i]);
 		if (cluster < NUM_CLUSTERS)
-		    need_refresh[cluster]++;
+			need_refresh[cluster]++;
 	}
 
 	if ((sts = smart_fetch_refresh(pmda, need_refresh)) < 0)
@@ -1334,12 +1700,29 @@ smart_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			if (sts < 0)
 				return sts;
 			return smart_data_fetch(item, cluster, &dev->smart_data, atom);
-			
+
+		case CLUSTER_NVME_DEVICE_INFO:
+			sts = pmdaCacheLookup(INDOM(DISK_INDOM), inst, NULL, (void **)&dev);
+			if (sts < 0)
+				return sts;
+			return nvme_device_info_fetch(item, cluster, &dev->nvme_device_info, atom, dev->is_nvme);
+
 		case CLUSTER_NVME_ATTRIBUTES:
 			sts = pmdaCacheLookup(INDOM(DISK_INDOM), inst, NULL, (void **)&dev);
 			if (sts < 0)
 				return sts;
 			return nvme_smart_data_fetch(item, cluster, &dev->nvme_smart_data, atom, dev->is_nvme);
+
+                case CLUSTER_POWER_STATE_0:
+                case CLUSTER_POWER_STATE_1:
+                case CLUSTER_POWER_STATE_2:
+                case CLUSTER_POWER_STATE_3:
+                case CLUSTER_POWER_STATE_4:
+                case CLUSTER_POWER_STATE_5:
+			sts = pmdaCacheLookup(INDOM(DISK_INDOM), inst, NULL, (void **)&dev);
+			if (sts < 0)
+				return sts;
+			return nvme_power_data_fetch(item, cluster, &dev->nvme_power_states, atom, dev->is_nvme);
 
 		default:
 			return PM_ERR_PMID;
@@ -1351,7 +1734,7 @@ smart_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 void
 smart_instance_setup(void)
 {
-	static char lsblk_command[] = "lsblk -d -n -e 1,2,7,11 -o name";
+	static char lsblk_command[] = "lsblk -d -n -e 1,2,7,11,252 -o name";
 	char *env_command;
 
 	/* allow override at startup for QA testing */
@@ -1441,7 +1824,7 @@ static pmdaOptions opts = {
 	.long_options = longopts,
 };
 
-int 
+int
 main(int argc, char **argv)
 {
 	int sep = pmPathSeparator();
