@@ -2,19 +2,19 @@ QA output created by 1429
 
 === autosave tests ===
 --- destdir dir does not exist ---
-PMLOGGER.DAILY: [TMP.control:2]
+PMLOGGER.DAILY: [TMP.control:3]
 Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
-PMLOGGER.DAILY: [TMP.control:2]
+PMLOGGER.DAILY: [TMP.control:3]
 Warning: skipping log rotation because we don't know which pmlogger to signal
 mkdir: /no: Permission denied
 mkdir_and_chown: /no: mkdir -m 755 failed
-PMLOGGER.DAILY: [TMP.control:2]
+PMLOGGER.DAILY: [TMP.control:3]
 Error: cannot create directory (/no/such/dir) for autosave
 ... logging for host "HOST" unchanged
-PMLOGGER.DAILY: [TMP.control:2]
+PMLOGGER.DAILY: [TMP.control:3]
 Warning: DAYBEFOREYESTERDAY: AUTOSAVE skipped: directory /no/such/dir does not exist
-PMLOGGER.DAILY: [TMP.control:2]
+PMLOGGER.DAILY: [TMP.control:3]
 Warning: YESTERDAY: AUTOSAVE skipped: directory /no/such/dir does not exist
 daily dir ...
 DAYBEFOREYESTERDAY.0
@@ -24,18 +24,18 @@ YESTERDAY.0
 YESTERDAY.index
 YESTERDAY.meta
 --- cannot write in dest dir ---
-PMLOGGER.DAILY: [TMP.control:2]
-Warning: $PCP_AUTOSAVE_DIR (TMP.nowrite) reset from control file, previous value (/no/such/file) ignored
 PMLOGGER.DAILY: [TMP.control:3]
+Warning: $PCP_AUTOSAVE_DIR (TMP.nowrite) reset from control file, previous value (/no/such/file) ignored
+PMLOGGER.DAILY: [TMP.control:4]
 Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
-PMLOGGER.DAILY: [TMP.control:3]
+PMLOGGER.DAILY: [TMP.control:4]
 Warning: skipping log rotation because we don't know which pmlogger to signal
 pmlogmv: link TMP/DAYBEFOREYESTERDAY.0 -> TMP.nowrite/DAYBEFOREYESTERDAY.0 failed: Permission denied
-PMLOGGER.DAILY: [TMP.control:3]
+PMLOGGER.DAILY: [TMP.control:4]
 Warning: DAYBEFOREYESTERDAY: AUTOSAVE failed
 pmlogmv: link TMP/YESTERDAY.0 -> TMP.nowrite/YESTERDAY.0 failed: Permission denied
-PMLOGGER.DAILY: [TMP.control:3]
+PMLOGGER.DAILY: [TMP.control:4]
 Warning: YESTERDAY: AUTOSAVE failed
 daily dir ...
 DAYBEFOREYESTERDAY.0
@@ -46,10 +46,10 @@ YESTERDAY.index
 YESTERDAY.meta
 autosave dir ...
 --- dest dir ok ---
-PMLOGGER.DAILY: [TMP.control:3]
+PMLOGGER.DAILY: [TMP.control:4]
 Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
-PMLOGGER.DAILY: [TMP.control:3]
+PMLOGGER.DAILY: [TMP.control:4]
 Warning: skipping log rotation because we don't know which pmlogger to signal
 daily dir ...
 autosave dir ...
@@ -60,24 +60,24 @@ YESTERDAY.0
 YESTERDAY.index
 YESTERDAY.meta
 --- dest dir with DATEXX components does not exist ---
-PMLOGGER.DAILY: [TMP.control:3]
+PMLOGGER.DAILY: [TMP.control:4]
 Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
-PMLOGGER.DAILY: [TMP.control:3]
+PMLOGGER.DAILY: [TMP.control:4]
 Warning: skipping log rotation because we don't know which pmlogger to signal
 mkdir: TMP.ok/YYYY/YYYY-MM-DAYBEFOREYESTERDAY: Permission denied
 mkdir_and_chown: TMP.ok/YYYY/YYYY-MM-DAYBEFOREYESTERDAY/: mkdir -m 755 failed
-PMLOGGER.DAILY: [TMP.control:3]
+PMLOGGER.DAILY: [TMP.control:4]
 Error: cannot create directory (TMP.ok/YYYY/YYYY-MM-DAYBEFOREYESTERDAY/) for autosave
 ... logging for host "HOST" unchanged
-PMLOGGER.DAILY: [TMP.control:3]
+PMLOGGER.DAILY: [TMP.control:4]
 Warning: DAYBEFOREYESTERDAY: AUTOSAVE skipped: directory TMP.ok/YYYY/YYYY-MM-DAYBEFOREYESTERDAY/ does not exist
 mkdir: TMP.ok/YYYY/YYYY-MM-YESTERDAY: Permission denied
 mkdir_and_chown: TMP.ok/YYYY/YYYY-MM-YESTERDAY/: mkdir -m 755 failed
-PMLOGGER.DAILY: [TMP.control:3]
+PMLOGGER.DAILY: [TMP.control:4]
 Error: cannot create directory (TMP.ok/YYYY/YYYY-MM-YESTERDAY/) for autosave
 ... logging for host "HOST" unchanged
-PMLOGGER.DAILY: [TMP.control:3]
+PMLOGGER.DAILY: [TMP.control:4]
 Warning: YESTERDAY: AUTOSAVE skipped: directory TMP.ok/YYYY/YYYY-MM-YESTERDAY/ does not exist
 daily dir ...
 DAYBEFOREYESTERDAY.0
@@ -88,14 +88,14 @@ YESTERDAY.index
 YESTERDAY.meta
 autosave dir ...
 --- dest dir ok and with DATEXX components ---
-PMLOGGER.DAILY: [TMP.control:3]
+PMLOGGER.DAILY: [TMP.control:4]
 Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
-PMLOGGER.DAILY: [TMP.control:3]
+PMLOGGER.DAILY: [TMP.control:4]
 Warning: skipping log rotation because we don't know which pmlogger to signal
-PMLOGGER.DAILY: [TMP.control:3]
+PMLOGGER.DAILY: [TMP.control:4]
 Warning: creating directory (TMP.ok/YYYY/YYYY-MM-DAYBEFOREYESTERDAY/) for autosave
-PMLOGGER.DAILY: [TMP.control:3]
+PMLOGGER.DAILY: [TMP.control:4]
 Warning: creating directory (TMP.ok/YYYY/YYYY-MM-YESTERDAY/) for autosave
 daily dir ...
 autosave dir ...
@@ -117,10 +117,10 @@ YESTERDAY.index
 YESTERDAY.meta
 
 === merge callback tests ===
-PMLOGGER.DAILY: [TMP.control:5]
+PMLOGGER.DAILY: [TMP.control:6]
 Error: no pmlogger instance running for host "HOST"
 ... logging for host "HOST" unchanged
-PMLOGGER.DAILY: [TMP.control:5]
+PMLOGGER.DAILY: [TMP.control:6]
 Warning: skipping log rotation because we don't know which pmlogger to signal
 
 merge arg[0] "TMP.merge"
