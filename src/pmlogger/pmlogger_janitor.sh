@@ -648,7 +648,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 BEGIN				{ m = 0 }
 NR == 3 && $0 == "'$dir'"	{ m = 2; next }
 END				{ print m }'`
-		$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "match=$match ""$PCP_ECHO_C"
+		$VERY_VERBOSE && echo "match=$match"
 		if [ "$match" = 2 ]
 		then
 		    pid=`echo $log | sed -e 's,.*/,,'`

@@ -962,7 +962,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		then
 		    _host=`sed -n 2p <$log`
 		    _arch=`sed -n 3p <$log`
-		    $PCP_ECHO_PROG $PCP_ECHO_N "... try $log host=$_host arch=$_arch: ""$PCP_ECHO_C"
+		    _archdir=`sed -n '3s@/[^/]*$@@p' <$log`
+		    $PCP_ECHO_PROG $PCP_ECHO_N "... try $log host=$_host arch=$_arch archdir=$_archdir ctldir=$dir: ""$PCP_ECHO_C"
 		fi
 		# throw away stderr in case $log has been removed by now
 		match=`sed -e '3s@/[^/]*$@@' $log 2>/dev/null | \
