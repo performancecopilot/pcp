@@ -1058,7 +1058,9 @@ _wait_pmlogger_end()
     do
         if [ -f "$PCP_TMP_DIR/pmlogger/$__pid" ]
 	then
-	    [ $__i -eq 0 ] && ls -l "$PCP_TMP_DIR/pmlogger/$__pid" >>$here/$seq.full
+	    # potential race between [ ... ] and ls ... syphon of stderr
+	    #
+	    [ $__i -eq 0 ] && ls -l "$PCP_TMP_DIR/pmlogger/$__pid" >>$here/$seq.full 2>&1
 	    __i=`expr $__i + 1`
 	    if [ $__i -ge 100 ]
 	    then
