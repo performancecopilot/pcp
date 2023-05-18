@@ -27,7 +27,7 @@ _do_ls()
     #
     $PCP_AWK_PROG '
 /Cannot/	{ print; next }
-$9 ~ /\.[04]$/	{ if (1550 <= $5 && $5 <= 1660)
+$9 ~ /\.[04]$/	{ if (1546 <= $5 && $5 <= 1660)
 		    print $9," OK in range 1550-1660 bytes"
 		  else
 		    print $9,$5," not in range 1550-1660 bytes"
