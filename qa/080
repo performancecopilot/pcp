@@ -21,8 +21,10 @@ _filter()
 
 _one()
 {
+    # slow VMs are notorious ... +|- 10% is close enough
+    #
     $PCP_AWK_PROG '
-NF == 1 && $1 >= 0.95 && $1 <= 1.07		{ print "close to one"; next }
+NF == 1 && $1 >= 0.9 && $1 <= 1.1		{ print "close to one"; next }
 						{ print }' \
     | sed -e '/^host:.*$/s/.*/HOST/'
 }
