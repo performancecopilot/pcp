@@ -238,6 +238,7 @@ ps $PCP_PS_ALL_FLAGS 2>&1 \
 | tee -a $here/$seq.full \
 | sed -n \
     -e 1p \
+    -e '/check .*-g pmlogger/d' \
     -e '/[p]mlogger.*-x/{
 s/ -x [0-9][0-9]*/ -x N/
 p
