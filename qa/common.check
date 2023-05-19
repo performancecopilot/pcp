@@ -1723,7 +1723,7 @@ _check_valgrind()
 #
 _check_helgrind()
 {
-    case `admin/whatami`
+    case `\$here/admin/whatami`
     in
 	*Fedora\ 33*)
 	    _notrun "helgrind broken on Fedora 33"
@@ -1746,10 +1746,17 @@ _check_helgrind()
 # +indirectly lost: 0 bytes in 0 blocks
 #
 # Note
-#	last 6 sed expressions are for broken valgrind(1) on
-#	Debian strech circa 2016
-#	one before that is for broken valgrind(1) on Arch Linux
-#	circa Nov 2019
+#	- last 6 sed expressions are for broken valgrind(1) on
+#	  Debian stretch circa 2016
+#	- one before that is for broken valgrind(1) on Arch Linux
+#	  circa Nov 2019
+#       - awk at the end is to handle this observed on Arch Linux
+#	  circa May 2023
+#	   WARNING: unhandled amd64-linux syscall: 441
+#	   You may be able to write your own handler.
+#	   Read the file README_MISSING_SYSCALL_OR_IOCTL.
+#	   Nevertheless we consider this a bug.  Please report
+#	   it at http://valgrind.org/support/bug_reports.html.
 # 
 _filter_valgrind()
 {
@@ -1780,7 +1787,11 @@ _filter_valgrind()
 	-e '/parse_CU_Header: is neither DWARF2 nor DWARF3 nor DWARF4/d' \
 	-e '/DW_FORM_GNU_strp_alt used, but no alternate .debug_str/d' \
 	-e '/^parse DIE/,/confused by the above DIE/d' \
-    # end
+    | $PCP_AWK_PROG '
+BEGIN					{ skip = 0 }
+/WARNING: unhandled .* syscall/		{ skip = 1 }
+skip == 0				{ print }
+/at http:\/\/valgrind.org\/support/	{ skip = 0 }'
 }
 
 _filter_helgrind()
@@ -1840,7 +1851,17 @@ _run_valgrind()
     then
 	echo "Warning: using extra $__extra" >>$here/$seq.full
     fi
-    unset DEBUGINFOD_URLS
+    case `\$here/admin/whatami`
+    in
+	*Arch\ Linux*)
+	    # need $DEBUGINFOD_URLS set or valgrind dies on Arch Linux
+	    # -- seen on vm34 circa May 2023
+	    #
+	    ;;
+	*)
+	    unset DEBUGINFOD_URLS
+	    ;;
+    esac
     $__valgrind_prefix valgrind \
 	--leak-check=full \
 	--gen-suppressions=all --suppressions=$here/valgrind-suppress \
@@ -1908,7 +1929,17 @@ if which valgrind >/dev/null 2>&1; then
 	__extra="$__extra --read-inline-info=no --read-var-info=no"
     fi
     $sudo rm -f $tmp.valgrind.help
-    unset DEBUGINFOD_URLS
+    case `\$here/admin/whatami`
+    in
+	*Arch\ Linux*)
+	    # need $DEBUGINFOD_URLS set or valgrind dies on Arch Linux
+	    # -- seen on vm34 circa May 2023
+	    #
+	    ;;
+	*)
+	    unset DEBUGINFOD_URLS
+	    ;;
+    esac
     __valgrind_clean_assert="valgrind -q \
 	     --leak-check=full \
 	     --gen-suppressions=all --suppressions=$here/valgrind-suppress \

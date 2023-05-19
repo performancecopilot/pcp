@@ -5,6 +5,10 @@
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
+# may be needed in common.* scripts
+#
+here=`pwd`
+
 # for _wait_for_pmlogger() and _change_config() and _service()
 . ./common.check 
 
@@ -306,7 +310,6 @@ End-of-File
 
 }
 
-here=`pwd`
 _setenvironment
 
 __check=${__check-true}
