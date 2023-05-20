@@ -43,7 +43,7 @@ End-of-File
     then
 	echo >&2 "Info: $CONF installed"
 	echo "#---" >>$tmp.conf.in
-	echo "# Installed: `date`" >>$tmp.conf.in
+	echo "# Installed by qa/daily-cleanup on `date`" >>$tmp.conf.in
 	sudo cp $tmp.conf.in $CONF
     else
 	awk <$CONF >$tmp.head '
@@ -58,7 +58,7 @@ End-of-File
 /^#---$/	{ state = 1 }
 state == 1	{ print }'
 	    cat $tmp.conf.in $tmp.tail >$tmp.conf
-	    echo "# Updated: `date`" >>$tmp.conf
+	    echo "# Updated by qa/daily-cleanup on `date`" >>$tmp.conf
 	    sudo cp $tmp.conf $CONF
 	fi
     fi
