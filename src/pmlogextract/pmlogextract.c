@@ -1561,8 +1561,50 @@ indom_closest(reclist_t *recs, __pmTimestamp *tsp)
     return NULL;
 }
 
+/* borrowed from libpcp ... */
+static void
+dump_valueset(FILE *f, pmValueSet *vsp)
+{
+    char	errmsg[PM_MAXERRMSGLEN];
+    char	strbuf[20];
+    char	*pmid;
+    int		j;
+
+    pmid = pmIDStr_r(vsp->pmid, strbuf, sizeof(strbuf));
+    fprintf(f, "  %s (%s):", pmid, "<noname>");
+    if (vsp->numval == 0) {
+	fprintf(f, " No values returned!\n");
+	return;
+    }
+    if (vsp->numval < 0) {
+	fprintf(f, " %s\n", pmErrStr_r(vsp->numval, errmsg, sizeof(errmsg)));
+	return;
+    }
+    fprintf(f, " numval: %d", vsp->numval);
+    fprintf(f, " valfmt: %d vlist[]:\n", vsp->valfmt);
+    for (j = 0; j < vsp->numval; j++) {
+	pmValue	*vp = &vsp->vlist[j];
+	if (vsp->numval > 1 || vp->inst != PM_INDOM_NULL) {
+	    fprintf(f, "    inst [%d", vp->inst);
+	    fprintf(f, " or ???]");
+	    fputc(' ', f);
+	}
+	else
+	    fprintf(f, "   ");
+	fprintf(f, "value ");
+
+	if (vsp->valfmt == PM_VAL_INSITU)
+	    pmPrintValue(f, vsp->valfmt, PM_TYPE_UNKNOWN, vp, 1);
+	else if (vsp->valfmt == PM_VAL_DPTR || vsp->valfmt == PM_VAL_SPTR)
+	    pmPrintValue(f, vsp->valfmt, (int)vp->value.pval->vtype, vp, 1);
+	else
+	    fprintf(f, "bad valfmt %d", vsp->valfmt);
+	fputc('\n', f);
+    }
+}
+
 void
-write_metareclist(__pmResult *result, int *needti)
+write_metareclist(inarch_t *iap, __pmResult *result, int *needti)
 {
     int			n, count;
     reclist_t		*curr_desc;	/* current desc record */
@@ -1584,10 +1626,28 @@ write_metareclist(__pmResult *result, int *needti)
 
 	if ((hp = __pmHashSearch(pmid, &rdesc)) == NULL) {
 	    /* descriptor has not been found - this is bad */
-	    fprintf(stderr, "%s: Error: meta data (TYPE_DESC) for pmid %s has not been found.\n", pmGetProgname(), pmIDStr(pmid));
-	    abandon_extract();
-	    /*NOTREACHED*/
-	} else {
+	    int		j;
+	    fprintf(stderr, "%s: Warning: [log %s] metadata for PMID %s has not been found, culling this metric ...\n",
+		    pmGetProgname(), iap->name, pmIDStr(pmid));
+	    /* borrowed from __pmPrintResult() ... */
+	    fprintf(stderr, "__pmResult dump from " PRINTF_P_PFX "%p timestamp: %" FMT_INT64 ".%09d ",
+		    result, result->timestamp.sec, result->timestamp.nsec);
+	    __pmPrintTimestamp(stderr, &result->timestamp);
+	    fprintf(stderr, " numpmid: %d\n", result->numpmid);
+	    fprintf(stderr, "[%d] ", n);
+	    dump_valueset(stderr, result->vset[n]);
+	    /*
+	     * repack pmResult ... small mem leak possible here but this
+	     * has very low probability of every happening, and even
+	     * then it is likely to be in our QA environment
+	     */
+	    for (j = n+1; j < result->numpmid; j++)
+		result->vset[j-1] = result->vset[j];
+	    result->numpmid--;
+	    n--;
+	    continue;
+	}
+	else {
 	    curr_desc = (reclist_t *)hp->data;
 	    /* descriptor has been found */
 	    if (curr_desc->written == WRITTEN) {
@@ -2527,7 +2587,7 @@ checkwinend(__pmTimestamp *tsp)
 
 
 void
-writerlist(rlist_t **rlready, __pmTimestamp *mintime)
+writerlist(inarch_t *iap, rlist_t **rlready, __pmTimestamp *mintime)
 {
     int			sts;
     int			needti = 0;	/* need to flush/update */
@@ -2544,7 +2604,7 @@ writerlist(rlist_t **rlready, __pmTimestamp *mintime)
 	restime = (*rlready)->res->timestamp;
         if (__pmTimestampCmp(&restime, mintime) > 0) {
 	    if (pmDebugOptions.appl1) {
-		fprintf(stderr, "writelist: restime %" FMT_INT64 ".%09d mintime %" FMT_INT64 ".%09d ", restime.sec, restime.nsec, mintime->sec, mintime->nsec);
+		fprintf(stderr, "writerlist: restime %" FMT_INT64 ".%09d mintime %" FMT_INT64 ".%09d ", restime.sec, restime.nsec, mintime->sec, mintime->nsec);
 		fprintf(stderr, " break!\n");
 	    }
 	    break;
@@ -2576,6 +2636,9 @@ writerlist(rlist_t **rlready, __pmTimestamp *mintime)
 
 	/* We need to write out the relevant context labels if any. */
 	write_priorlabelset(PM_LABEL_CONTEXT, PM_IN_NULL, mintime);
+
+	/* write out the descriptor and instance domain pdu's first */
+	write_metareclist(iap, elm->res, &needti);
 
 	/* convert log record to a pdu */
 	sts = __pmEncodeResult(&logctl, elm->res, (__pmPDU **)&pb);
@@ -2612,9 +2675,6 @@ writerlist(rlist_t **rlready, __pmTimestamp *mintime)
 		__pmLoadTimeval(&pb[3], &stamp);
 	    newvolume(outarchname, &stamp);
 	}
-
-	/* write out the descriptor and instance domain pdu's first */
-	write_metareclist(elm->res, &needti);
 
 	/* write out log record */
 	old_log_offset = __pmFtell(archctl.ac_mfp);
@@ -3240,7 +3300,7 @@ main(int argc, char **argv)
 		fprintf(stderr, " now=%" FMT_INT64 ".%09d\n", now.sec, now.nsec);
 	    }
 
-	    writerlist(&rlready, &curlog);
+	    writerlist(iap, &rlready, &curlog);
 
 	    /*
 	     * writerlist frees elm (elements of rlready) but does not

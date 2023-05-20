@@ -1,0 +1,56 @@
+#!/bin/sh
+# PCP QA Test No. 1449
+# Checkout archive tools with bad archive from QA (metric in
+# pmResult but no pmDesc nor PMNS)
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e 's/0x[0-9a-f][0-9a-f]*/ADDR/g' \
+    # end
+}
+
+# real QA test starts here
+badie=badarchives/20230506.20.02-01.1
+goodie=$tmp
+pmlogextract $badie $goodie 2>&1 | _filter
+
+for archive in $badie $goodie
+do
+    echo
+    echo "=== $archive ===" | _filter
+    echo "--- pmlogdump ---"
+    pmlogdump $archive | grep '70\.1\.'
+done
+
+# success, all done
+exit

@@ -1,0 +1,12 @@
+QA output created by 1449
+pmlogextract: Error: metadata for PMID 70.1.1 has not been found, culling this metric ...
+__pmResult dump from 0x17c3850 timestamp: 1683367453.085954000 20:04:13.085954000 numpmid: 323
+[0]   70.1.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 8
+
+=== badarchives/20230506.20.02-01.1 ===
+--- pmlogdump ---
+    70.1.1 (<nonames>): value 8 3.952525166729972e-323 [0800000000000000]
+
+=== TMP ===
+--- pmlogdump ---
