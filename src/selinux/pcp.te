@@ -313,6 +313,10 @@ optional_policy(`
     rpm_script_signal(pcp_pmlogger_t)
 ')
 
+optional_policy(`
+    userdom_setattr_user_home_content_files(pcp_pmlogger_t)
+')
+
 ########################################
 #
 # pcp_plugin local  policy
