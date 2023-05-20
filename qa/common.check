@@ -22,6 +22,21 @@ else
     export PCPQA_SYSTEMD=no
 fi
 
+# set $__whatami (if possible) for later use
+#
+if [ -x $here/admin/whatami ]
+then
+    __whatami=`$here/admin/whatami`
+elif [ -x $HOME/src/pcp/qa/admin/whatami ]
+then
+    __whatami=`$HOME/src/pcp/qa/admin/whatami`
+elif [ -x $HOME/admin/whatami ]
+then
+    __whatami=`$HOME/admin/whatami`
+else
+    __whatami="unknown"
+fi
+
 # common routine for preventing a test from running on some platforms
 # use: _notrun "Reason for not running this test is ..."
 # 
@@ -1723,7 +1738,7 @@ _check_valgrind()
 #
 _check_helgrind()
 {
-    case `\$here/admin/whatami`
+    case "$__whatami"
     in
 	*Fedora\ 33*)
 	    _notrun "helgrind broken on Fedora 33"
@@ -1851,7 +1866,7 @@ _run_valgrind()
     then
 	echo "Warning: using extra $__extra" >>$here/$seq.full
     fi
-    case `\$here/admin/whatami`
+    case "$__whatami"
     in
 	*Arch\ Linux*)
 	    # need $DEBUGINFOD_URLS set or valgrind dies on Arch Linux
@@ -1929,7 +1944,7 @@ if which valgrind >/dev/null 2>&1; then
 	__extra="$__extra --read-inline-info=no --read-var-info=no"
     fi
     $sudo rm -f $tmp.valgrind.help
-    case `\$here/admin/whatami`
+    case "$__whatami"
     in
 	*Arch\ Linux*)
 	    # need $DEBUGINFOD_URLS set or valgrind dies on Arch Linux
