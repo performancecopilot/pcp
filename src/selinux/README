@@ -98,8 +98,10 @@ In the src/selinux directory
 == Installing ==
 
     $ sudo semodule -X 200 -r pcp
-(expect this to fail if a revised pcp.pp module has not previously
-been installed)
+
+expect this to fail if a revised pcp.pp module has not previously
+been installed, in which case you'll need
+
     $ sudo semodule -X 200 -i pcp.pp
 
 or if semodule is too old to understand -X 200
