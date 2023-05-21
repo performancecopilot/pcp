@@ -84,6 +84,7 @@ Debian
 
 Fedora
     https://fedoraproject.org/wiki/Releases
+    22 May 2023: 37 & 38
     12 Dec 2022: 35, 36 & 37
     07 Sep 2021: 33 & 34
     23 Aug 2020: 31 & 32
@@ -104,16 +105,16 @@ Fedora
     # only upgrade from N to N+1 is supported
     # for Fedora 33, else "33" replaced by the desired version number
     $ ver=33
-    $ sudo dnf --refresh upgrade
-    $ sudo dnf system-upgrade download --allowerasing --releasever=$ver
+    $ sudo dnf -y --refresh upgrade
+    $ sudo dnf -y system-upgrade download --allowerasing --releasever=$ver
     $ sudo dnf system-upgrade reboot
     # and then watch the console window ...
 
     # recipe below works (at least) for Fedora 34
     # setting up a static IP addr using nmcli (assume interface enp1s0)
     $ if=enp1s0
-    $ sudo connection modify IPv4.address 192.168.178.226/24
-                                                      ^^^ 200 + vm ordinal, e.g vm26 here
+    $ sudo nmcli connection modify $if IPv4.address 192.168.178.226/24
+			       200 + vm ordinal, e.g vm26 here  ^^^
     $ sudo nmcli connection modify $if IPv4.gateway 192.168.178.1
     $ sudo nmcli connection modify $if IPv4.dns 192.168.178.100
     $ sudo nmcli connection modify $if IPv4.dns-search localdomain
