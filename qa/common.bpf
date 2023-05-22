@@ -114,7 +114,7 @@ _pmdabpf_wait_for_metric()
 		then
 		    # still bad on last iteration ... report
 		    #
-		    echo "_pmdabpf_wait_for_metric: Botch: bbpf PMDA ready but metric $__metric returns numval $__numval (`pmerr $__numval`)"
+		    echo "_pmdabpf_wait_for_metric: Botch: bpf PMDA ready but metric $__metric returns numval $__numval (`pmerr $__numval`)"
 		fi
 	    fi
 	done
@@ -122,7 +122,7 @@ _pmdabpf_wait_for_metric()
 	then
 	    # goodness
 	    #
-	    echo "=== _pmdabbpf_wait_for_metric: after another $__i secs, values are available ===" >>$here/$seq.full
+	    echo "=== _pmdabpf_wait_for_metric: after another $__i secs, values are available ===" >>$here/$seq.full
 	    pminfo -f bpf >>$here/$seq.full
 	    return 0
 	fi
