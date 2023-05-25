@@ -1314,6 +1314,10 @@ _install()
     #
     if $do_check
     then
+	# for some PMDAs in QA, we may need to wait a little longer,
+	# or differently
+	#
+	[ -n "$PCPQA_CHECK_DELAY" ] && check_delay=$PCPQA_CHECK_DELAY
 	__delay_int=`echo $check_delay | sed -e 's/\..*//g'`
 	[ "$__delay_int" -gt 5 ] && echo "Wait $check_delay seconds for the $iam agent to initialize ..."
 	$PCP_BINADM_DIR/pmsleep $check_delay
@@ -1593,7 +1597,7 @@ do
 	    shift
 	    ;;
 
-	-Q)	# skip check for metrics going away
+	-Q)	# skip check for metrics appearing or going away
 	    do_check=false
 	    ;;
 
