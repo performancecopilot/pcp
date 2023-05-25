@@ -279,6 +279,7 @@ allow pcp_pmlogger_t pcp_pmcd_t:unix_stream_socket connectto;
 allow pcp_pmlogger_t self:unix_dgram_socket create_socket_perms;
 
 allow pcp_pmlogger_t pcp_pmlogger_exec_t:file execute_no_trans;
+allow pcp_pmlogger_t ldconfig_exec_t:file { execute execute_no_trans };
 
 dontaudit pcp_pmlogger_t self:cap_userns { sys_ptrace };
 
