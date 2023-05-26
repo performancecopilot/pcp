@@ -17,6 +17,10 @@ echo "QA output created by $seq"
 _check_series
 _check_redis_server_version_offline
 
+# only restart pmproxy if it was running before the QA test starts
+restart_pmproxy=false
+[ -n "`_get_pids_by_name pmproxy`" ] && restart_pmproxy=true
+
 _cleanup()
 {
     cd $here
@@ -26,6 +30,8 @@ _cleanup()
     then
 	need_restore=false
         _restore_config $PCP_SYSCONF_DIR/pmproxy
+	_restore_auto_restart pmproxy
+	$restart_pmproxy && _service pmproxy restart >/dev/null 2>&1
     fi
     $sudo rm -rf $tmp $tmp.*
 }
@@ -56,6 +62,9 @@ _filter_redis_err()
     -e 's;ERR syntax error;expected error;' \
     -e 's;Parse command error.*;expected error;'
 }
+
+_stop_auto_restart pmproxy
+_service pmproxy stop >/dev/null 2>&1
 
 # real QA test starts here
 _save_config $PCP_SYSCONF_DIR/pmproxy
