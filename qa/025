@@ -72,6 +72,9 @@ _cleanup()
    # being set ...
    #
    rm -f ._wait_for_pmlogger.host ._wait_for_pmlogger.pmlc
+   # don't exit until pmlogger is running
+   #
+    _wait_for_pmlogger
 }
 
 # real QA test starts here
