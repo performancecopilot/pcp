@@ -76,7 +76,7 @@ EOF
 
 pmda_cleanup()
 {
-    $sudo $signal -s KILL $spid >/dev/null 2>&1
+    [ -n "$spid" ] && $sudo $signal -s KILL $spid >/dev/null 2>&1
     $sudo rm -f $socket >/dev/null 2>&1
     if [ -f $tmp.backup ]; then
         $sudo cp $tmp.backup $PCP_PMDAS_DIR/haproxy/haproxy.conf
@@ -97,9 +97,14 @@ _stop_auto_restart pmcd
 $sudo mkdir -p $(dirname $socket)
 $sudo chmod 0755 $(dirname $socket)
 $sudo $python $here/haproxy/haproxy_stats_server.python $socket &
-spid=$($sudo ps -fwaux 2>/dev/null | grep python | awk '/pcp\/testsuite/ {print $2}')
+spid=$($sudo $PCP_PS_PROG $PCP_PS_ALL_FLAGS 2>/dev/null \
+       | grep '[p]ython' \
+       | $PCP_AWK_PROG '/\/haproxy\// {print $2}'
+      )
 disown > /dev/null 2>&1 || :
 pmsleep 0.5	# give server a chance to start
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]ython.*/haproxy/' >>$here/$seq.full
+echo "haproxy_stats_server pid: $spid" >>$here/$seq.full
 $sudo chcon system_u:object_r:haproxy_var_lib_t:s0 $(dirname $socket) $socket >/dev/null 2>&1 || :
 pmda_install
 echo
