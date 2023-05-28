@@ -122,7 +122,7 @@ echo "=== restart cases"
 for host in localhost LOCALHOSTNAME local: 'local.*' '.*[hH][oO][sS][tT]'
 do
     echo "-- $host"
-    $sudo pmlogctl -V restart "$host" 2>&1 | _filter | LC_COLLATE=POSIX sort
+    $sudo pmlogctl -c $seq -V restart "$host" 2>&1 | _filter | LC_COLLATE=POSIX sort
 done
 
 # success, all done
