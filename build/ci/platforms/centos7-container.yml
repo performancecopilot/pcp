@@ -6,7 +6,7 @@ artifactory:
 
 container:
   containerfile: |
-    FROM registry.centos.org/centos:7
+    FROM quay.io/centos/centos:centos7
     RUN yum install -y sudo
     RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm # libuv-devel
     RUN useradd --create-home pcpbuild
