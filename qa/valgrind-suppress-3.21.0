@@ -48,3 +48,18 @@
    fun:pmNewContext
    ...
 }
+
+# qa/1080 and qa/1243 on fedora38
+# at 0x484C862: __memcpy_chk (vg_replace_strmem.c:1743)
+# by 0x13333D: UnknownInlinedFun (string_fortified.h:36)
+# by 0x13333D: showsysline (showsys.c:166)
+# by 0x1343B4: UnknownInlinedFun (showlinux.c:1224)
+# by 0x1343B4: generic_samp (showgeneric.c:321)
+# by 0x123C53: engine (atop.c:682)
+# by 0x117456: main (atop.c:497)
+{
+    Memcheck:Overlap
+    fun:__memcpy_chk
+    fun:UnknownInlinedFun
+    fun:...
+}
