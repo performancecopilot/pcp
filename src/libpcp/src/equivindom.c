@@ -61,7 +61,7 @@ parse(FILE *f, char *fname)
     map_t	*mp = NULL;
     int		lineno = 1;
     char	nbuf[7];	/* enough for <serial> */
-    char	*np;
+    char	*np = NULL;
 
     while ((c = fgetc(f)) != EOF) {
 	if (state == S_EOL) {
