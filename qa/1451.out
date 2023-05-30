@@ -1,0 +1,24 @@
+QA output created by 1451
+QA output created by 1450 --valgrind
+
+=== opt= ===
+=== std out ===
+Sun Feb  8 12:23:31	 0.26G
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmdumptext -a archives/kenj-pc-1 -S +1m -z -s 1 -F mem.util.used
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== opt=-i ===
+=== std out ===
+Sun Feb  8 12:23:31	 0.26G
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmdumptext -a archives/kenj-pc-1 -S +1m -z -s 1 -F -i mem.util.used
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

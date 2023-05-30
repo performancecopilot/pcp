@@ -121,8 +121,8 @@ checkUnits(QmcMetric *metric)
     pmUnits units;
     const pmDesc &desc = metric->desc().desc();
 
-    // Only scale units if interactive and not raw
-    if (rawFlag || !niceFlag)
+    // Scale units unless we're producing raw output
+    if (rawFlag)
 	return;
 
     // Change to canonical bytes

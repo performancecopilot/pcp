@@ -1902,6 +1902,8 @@ x11
 1447 derive local
 1448 derive local valgrind
 1449 pmdumplog pmlogrewrite pmlogcheck pmlogextract local
+1450 pmdumptext local
+1451 pmdumptext local valgrind
 1452 pmda.bpf local
 1455 pmlogrewrite labels pmdumplog local
 1457 pmproxy libpcp_web threads secure local
