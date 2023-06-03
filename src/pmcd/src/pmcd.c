@@ -11,6 +11,15 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+ *
+ * Debug Flags
+ * APPL0	- PDU level operations
+ * APPL1	- access control specifications from the config
+ * 		  file
+ * APPL2	- lexical scanner in config file parser
+ * APPL3	- client connection/disconnection ops
+ * APPL4	- timestamps for config file parsing
+ * APPL5	- attribute operations
  */
 
 #include "pmcd.h"
@@ -379,7 +388,7 @@ HandleClientInput(__pmFdSet *fdsPtr)
 	    continue;
 	}
 
-	if (pmDebugOptions.appl0)
+	if (pmDebugOptions.appl3)
 	    ShowClients(stderr);
 
 	switch (php->type) {
@@ -484,8 +493,8 @@ HandleClientInput(__pmFdSet *fdsPtr)
 	 * something changed for this client during this PDU exchange.
 	 */
 	if (client[i].status.attributes) {
-	    if (pmDebugOptions.appl1)
-		pmNotifyErr(LOG_INFO, "Client idx=%d,seq=%d attrs reset\n",
+	    if (pmDebugOptions.appl5)
+		fprintf(stderr, "Client idx=%d,seq=%d attrs reset\n",
 				i, client[i].seq);
 	    AgentsAttributes(i);
 	}
@@ -801,7 +810,7 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 	     * than being chatty in pmcd.log write this diagnostic only
 	     * under debugging conditions.
 	     */
-	    if (pmDebugOptions.appl0)
+	    if (pmDebugOptions.appl3)
 		pmNotifyErr(LOG_INFO, "ClientLoop: "
 			"error sending Conn ACK PDU to new client %s\n",
 			pmErrStr(s));
@@ -1225,7 +1234,7 @@ CleanupClient(ClientInfo *cp, int sts)
     int		i, msg;
     int		force;
 
-    force = pmDebugOptions.appl0;
+    force = pmDebugOptions.appl3;
 
     if (sts != 0 || force) {
 	/* for access violations, only print the message if this host hasn't
