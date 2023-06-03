@@ -45,6 +45,11 @@ typedef struct {
 extern __uint32_t hash(const signed char *, int, __uint32_t);
 
 /*
+ * Local message logging function
+ */
+extern void logmsg(char *, const char *, ...);
+
+/*
  * These ones escaped via the exports file, but are only used within
  * the libpcp_pmda library, so pull the definitions back from <pcp/pmda.h>
  */

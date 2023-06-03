@@ -527,7 +527,7 @@ pmdaRehash(pmdaExt *pmda, pmdaMetric *metrics, int nmetrics)
     if (m == pmda->e_nmetrics) {
 	pmda->e_flags |= PMDA_EXT_FLAG_HASHED;
 	if (pmDebugOptions.libpmda)
-	    pmNotifyErr(LOG_DEBUG, "pmdaRehash: PMDA %s: successful rebuild",
+	    logmsg(NULL,  "pmdaRehash: PMDA %s: successful rebuild\n",
 			pmda->e_name);
     }
     else {
@@ -574,7 +574,7 @@ pmdaExtSetData(pmdaExt *pmda, void *data)
     e_ext_t	*extp = (e_ext_t *)pmda->e_ext;
 
     if (pmDebugOptions.libpmda)
-	pmNotifyErr(LOG_DEBUG, "pmdaExtSetData: data=%p", data);
+	logmsg(NULL,  "pmdaExtSetData: data=%p\n", data);
     extp->privdata = data;
 }
 
@@ -595,7 +595,7 @@ void
 pmdaExtSetFlags(pmdaExt *pmda, int flags)
 {
     if (pmDebugOptions.libpmda)
-	pmNotifyErr(LOG_DEBUG, "pmdaExtSetFlags: flags=%x", flags);
+	logmsg(NULL,  "pmdaExtSetFlags: flags=%x\n", flags);
     pmda->e_flags |= flags;
 }
 
@@ -615,7 +615,7 @@ void
 pmdaSetCommFlags(pmdaInterface *dispatch, int flags)
 {
     if (pmDebugOptions.libpmda)
-	pmNotifyErr(LOG_DEBUG, "pmdaSetCommFlags: flags=%x", flags);
+	logmsg(NULL,  "pmdaSetCommFlags: flags=0x%x\n", flags);
     dispatch->comm.flags |= flags;
 }
 
@@ -716,9 +716,7 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
 			if (pmDebugOptions.libpmda) {
 			    char	strbuf[20];
 			    char	st2buf[20];
-			    pmNotifyErr(LOG_DEBUG, 
-				    "pmdaInit: PMDA %s: Metric %s(%d) matched to indom %s(%d)\n",
-				    pmda->e_name,
+			    logmsg(NULL, "pmid %s(%d) matched to indom %s(%d)\n",
 				    pmIDStr_r(pmda->e_metrics[m].m_desc.pmid, strbuf, sizeof(strbuf)), m,
 				    pmInDomStr_r(pmda->e_indoms[i].it_indom, st2buf, sizeof(st2buf)), i);
 			}
@@ -746,7 +744,7 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
 		    pmda->e_name, pmda->e_helptext, pmErrStr(pmda->e_help));
 	}
 	else if (pmDebugOptions.libpmda) {
-	    pmNotifyErr(LOG_DEBUG, "pmdaInit: PMDA %s: help file %s opened", pmda->e_name, pmda->e_helptext);
+	    logmsg(NULL,  "pmdaInit: PMDA %s: help file %s opened\n", pmda->e_name, pmda->e_helptext);
 	}
     }
     else {
@@ -754,7 +752,7 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
 	    pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: No help text file specified for pmdaText", pmda->e_name); 
 	else
 	    if (pmDebugOptions.libpmda)
-		pmNotifyErr(LOG_DEBUG, "pmdaInit: PMDA %s: No help text path specified", pmda->e_name);
+		logmsg(NULL,  "pmdaInit: PMDA %s: No help text path specified\n", pmda->e_name);
     }
 
     if (pmda->e_flags & PMDA_EXT_FLAG_HASHED)
@@ -763,14 +761,14 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
 	pmdaDirect(pmda, metrics, nmetrics);
 
     if (pmDebugOptions.libpmda) {
-    	pmNotifyErr(LOG_INFO, "name        = %s", pmda->e_name);
-        pmNotifyErr(LOG_INFO, "domain      = %d", dispatch->domain);
+    	logmsg(NULL, "pmdaInit: name %s\n", pmda->e_name);
+        logmsg(NULL, "pmdaInit: domain %d\n", dispatch->domain);
         if (dispatch->comm.flags)
-    	    pmNotifyErr(LOG_INFO, "comm flags  = %x", dispatch->comm.flags);
-	pmNotifyErr(LOG_INFO, "ext flags  = %x", pmda->e_flags);
-    	pmNotifyErr(LOG_INFO, "num metrics = %d", pmda->e_nmetrics);
-    	pmNotifyErr(LOG_INFO, "num indom   = %d", pmda->e_nindoms);
-    	pmNotifyErr(LOG_INFO, "metric map  = %s",
+    	    logmsg(NULL, "pmdaInit: comm flags 0x%x\n", dispatch->comm.flags);
+	logmsg(NULL, "pmdaInit: ext flags 0x%x\n", pmda->e_flags);
+    	logmsg(NULL, "pmdaInit: num metrics %d\n", pmda->e_nmetrics);
+    	logmsg(NULL, "pmdaInit: num indom %d\n", pmda->e_nindoms);
+    	logmsg(NULL, "pmdaInit: metric map %s\n",
 		(pmda->e_flags & PMDA_EXT_FLAG_HASHED) ? "hashed" :
 		(pmda->e_direct ? "direct" : "linear"));
     }
@@ -886,7 +884,7 @@ pmdaConnect(pmdaInterface *dispatch)
 #endif
 
 	    if (pmDebugOptions.libpmda) {
-	    	pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened pipe to pmcd, infd = %d, outfd = %d",
+	    	logmsg(NULL,  "pmdaConnect: PMDA %s: opened pipe to pmcd, infd = %d, outfd = %d\n",
 			     pmda->e_name, pmda->e_infd, pmda->e_outfd);
 	    }
 	    break;
@@ -897,7 +895,7 @@ pmdaConnect(pmdaInterface *dispatch)
 			   &(pmda->e_outfd));
 
 	    if (pmDebugOptions.libpmda) {
-	    	pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened inet connection, infd = %d, outfd = %d",
+	    	logmsg(NULL,  "pmdaConnect: PMDA %s: opened inet connection, infd = %d, outfd = %d\n",
 			     pmda->e_name, pmda->e_infd, pmda->e_outfd);
 	    }
 
@@ -909,7 +907,7 @@ pmdaConnect(pmdaInterface *dispatch)
 			   &(pmda->e_outfd));
 
 	    if (pmDebugOptions.libpmda) {
-	    	pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: opened ipv6 connection, infd = %d, outfd = %d",
+	    	logmsg(NULL,  "pmdaConnect: PMDA %s: opened ipv6 connection, infd = %d, outfd = %d\n",
 			     pmda->e_name, pmda->e_infd, pmda->e_outfd);
 	    }
 
@@ -920,7 +918,7 @@ pmdaConnect(pmdaInterface *dispatch)
 	    __pmdaOpenUnix(pmda->e_sockname, &(pmda->e_infd), &(pmda->e_outfd));
 
 	    if (pmDebugOptions.libpmda) {
-	    	pmNotifyErr(LOG_DEBUG, "pmdaConnect: PMDA %s: Opened unix connection, infd = %d, outfd = %d",
+	    	logmsg(NULL,  "pmdaConnect: PMDA %s: Opened unix connection, infd = %d, outfd = %d\n",
 			     pmda->e_name, pmda->e_infd, pmda->e_outfd);
 	    }
 
