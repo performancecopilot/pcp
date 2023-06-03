@@ -48,8 +48,16 @@ __pmSendAttr(int fd, int from, int attr, const char *value, int length)
 
     if (pmDebugOptions.attr) {
 	char buffer[LIMIT_ATTR_PDU];
-	for (i = 0; i < length; i++)
-	    buffer[i] = isprint((int)value[i]) ? value[i] : '.';
+	for (i = 0; i < length; i++) {
+	    /*
+	     * "length" should include the NULL byte terminator,
+	     * don't print a trailing '.'
+	     */
+	    if (i == length-1 && value[i] == '\0')
+		buffer[i] = '\0';
+	    else
+		buffer[i] = isprint((int)value[i]) ? value[i] : '.';
+	}
 	buffer[length] = buffer[LIMIT_ATTR_PDU-1] = '\0';
 	if (attr)
 	    fprintf(stderr, "__pmSendAttr [len=%d]: attr=0x%x value=\"%s\"\n",
