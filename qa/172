@@ -16,6 +16,12 @@ echo "QA output created by $seq"
 
 which netstat >/dev/null 2>&1 || _notrun "netstat not installed"
 
+rm -f $seq.full
+
+pmlogctl status 2>&1 | tee -a $seq.full >$tmp.tmp
+nloggers=`sed -e 1d <$tmp.tmp | wc -l | sed -e 's/  *//g'`
+[ "$nloggers" -gt 1 ] && _notrun "more than one pmlogger already running"
+
 rm -f $seq.out
 _get_libpcp_config
 if $ipv6 ; then
@@ -82,8 +88,6 @@ trap "_interrupt; _cleanup" 1 2 3 15
 
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
-
-rm -f $seq.full
 
 # real QA test starts here
 PMCD_PORT=42000
