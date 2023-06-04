@@ -7,7 +7,6 @@
 #
 # Usage: new-grind [-n|-v] seq-no
 #
-#
 
 # generic initialization
 . ./common.rc
@@ -161,16 +160,18 @@ NF == 1 && $1 == "#" && done == 0	{
     chmod 755 $oldseq
 fi
 
+groups=`echo "$oldgroup" | sed -e "s/^$oldseq[: ]//" -e 's/ local//'`
+
 $PCP_AWK_PROG <$oldseq >$newseq '
 BEGIN			{ done = 0 }
 NF == 0			{ exit }
-/non-valgrind variant/	{ next }
-/PCP QA Test No/	{ sub(/'$oldseq'$/, "'$newseq'") }
-NF == 1 && $1 == "#" && done == 0	{
+/non-valgrind variant/	{ print "# valgrind variant, see qa/'$oldseq' for the non-valgrind variant"
 			  print "#"
-			  print "# valgrind variant, see qa/'$oldseq' for the non-valgrind variant"
+			  print "# check-group-include: '"$groups"'"
 			  done = 1
+			  next
 			}
+/PCP QA Test No/	{ sub(/'$oldseq'$/, "'$newseq'") }
 			{ print }'
 			
 cat <<End-of-File >>$newseq
