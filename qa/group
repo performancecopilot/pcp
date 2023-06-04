@@ -749,7 +749,7 @@ x11
 294 pmproxy local pmval pmie pmstat pmdumptext
 295 pmproxy local pmval pmstat pmie
 296 pmcd local pmda.sample
-297 pmproxy local
+297 pmproxy pmdumptext local
 298 pmie local kernel
 299 libpcp local sanity kernel pmda.sample
 300 pmcd local pmpost
@@ -1268,7 +1268,7 @@ x11
 813 pmlogextract local pmdumplog
 814 pmprobe archive multi-archive local pmlogextract
 815 pmie local
-816 libpcp local
+816 pmdumptext libpcp local
 817 pmstat archive multi-archive local pmlogextract
 818 pmval archive multi-archive local pmlogextract
 819 pmda.elasticsearch local
@@ -1419,7 +1419,7 @@ x11
 964 pmcd local pmda.xfs pmda.dm
 965 derive local kernel
 966 secure local kernel
-967 zsh local pcp2xxx pcp2elasticsearch pcp2xlsx pcp2influxdb pcp2graphite pmrep python pcp2zabbix pcp2xml pcp2json
+967 zsh local pcp2xxx pcp2elasticsearch pcp2xlsx pcp2influxdb pcp2graphite pmrep python pcp2zabbix pcp2xml pcp2json pmdumptext
 968 python local derive kernel
 969 derive local kernel
 970 pmclient archive multi-archive local sanity pmlogextract python
@@ -1552,7 +1552,7 @@ x11
 1097 pmlogconf local
 1098 python local pmstore sanity
 1099 archive iostat local pmie pcp python
-1100 bash local pcp2xxx pcp2elasticsearch pcp2xlsx pcp2influxdb pcp2graphite pmrep python pcp2zabbix pcp2xml pcp2json
+1100 bash local pcp2xxx pcp2elasticsearch pcp2xlsx pcp2influxdb pcp2graphite pmrep python pcp2zabbix pcp2xml pcp2json pmdumptext
 1101 libpcp_web local valgrind
 1102 pmda.openmetrics local python
 1103 derive local
@@ -1818,7 +1818,7 @@ x11
 1363 libpcp local valgrind
 1364 pmlogger archive_v3 local pmdumplog
 1365 pmlogger archive_v3 local valgrind
-1366 archive_v3 pmdumplog local
+1366 archive_v3 pmdumplog local pmdumptext
 1367 labels pmda.simple local python dbpmda
 1368 labels help pmlogger pmdumplog local sanity
 1369 labels pmcd pmlogger pmdumplog local pmda.sample
