@@ -53,6 +53,7 @@ _filter_log()
     | sed \
 	-e 's/^$//' \
 	-e '/^00[08]:/d' \
+	-e '/^ClientsAttributes(/d' \
 	-e '/^linux/s/\/var\//\/usr\//' \
 	-e '/^sample/s/.*/sample agent.../' \
 	-e '/client connection from/,/^$/d' \
