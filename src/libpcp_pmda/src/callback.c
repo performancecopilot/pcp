@@ -639,9 +639,11 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			 sts == PM_ERR_PERMISSION ||
 			 sts == PM_ERR_AGAIN ||
 			 sts == PM_ERR_NYI) {
-		    pmNotifyErr(LOG_ERR,
-			 "pmdaFetch: Fetch callback error from metric PMID %s[%d]: %s\n",
-			strbuf, inst, pmErrStr(sts));
+		    if (pmDebugOptions.libpmda) {
+			logmsg(NULL,
+			     "Fetch callback error from metric PMID %s[%d]: %s\n",
+			    strbuf, inst, pmErrStr(sts));
+		    }
 		}
 		else {
 		    pmNotifyErr(LOG_ERR,
