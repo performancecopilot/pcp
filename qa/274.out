@@ -119,44 +119,45 @@ dbpmda> close
 dbpmda> quit
 Log started
 
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_0: Metric 249.0.1(1) matched to indom 249.0(0)
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_0: Metric 249.0.7(3) matched to indom 249.7(1)
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_0: Metric 249.0.13(8) matched to indom 249.7(1)
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_0: Metric 249.0.14(12) matched to indom 249.8(2)
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_0: help file pmdas/broken/broken_v2 opened
+[DATE] broken_pmda_2_0: pmid 249.0.1(1) matched to indom 249.0(0)
+[DATE] broken_pmda_2_0: pmid 249.0.7(3) matched to indom 249.7(1)
+[DATE] broken_pmda_2_0: pmid 249.0.13(8) matched to indom 249.7(1)
+[DATE] broken_pmda_2_0: pmid 249.0.14(12) matched to indom 249.8(2)
+[DATE] broken_pmda_2_0: pmdaInit: PMDA broken_pmda_2_0: help file pmdas/broken/broken_v2 opened
 broken pmda Warning: pmdaDirect: PMDA broken_pmda_2_0: Direct mapping for metrics disabled @ metrics[2] 249.0.5
-broken pmda Info: name        = broken_pmda_2_0
-broken pmda Info: domain      = 249
-broken pmda Info: ext flags  = 4
-broken pmda Info: num metrics = 13
-broken pmda Info: num indom   = 3
-broken pmda Debug: pmdaConnect: PMDA broken_pmda_2_0: opened pipe to pmcd, infd = 0, outfd = 1
-broken pmda Debug: Received PDU_PROFILE
-broken pmda Debug: Received PDU_FETCH
-broken pmda Debug: Received PDU_TEXT_REQ
-broken pmda Debug: Received PDU_TEXT_REQ
-broken pmda Debug: Received PDU_FETCH
+[DATE] broken_pmda_2_0: pmdaInit: name broken_pmda_2_0
+[DATE] broken_pmda_2_0: pmdaInit: domain 249
+[DATE] broken_pmda_2_0: pmdaInit: ext flags 0x4
+[DATE] broken_pmda_2_0: pmdaInit: num metrics 13
+[DATE] broken_pmda_2_0: pmdaInit: num indom 3
+[DATE] broken_pmda_2_0: pmdaInit: metric map linear
+[DATE] broken_pmda_2_0: pmdaConnect: PMDA broken_pmda_2_0: opened pipe to pmcd, infd = 0, outfd = 1
+[DATE] broken_pmda_2_0: Received PDU_PROFILE state INCLUDE, len 0
+[DATE] broken_pmda_2_0: Received PDU_FETCH npmids 3, [0] 249.0.0 ... [2] 249.0.7
+[DATE] broken_pmda_2_0: Received PDU_TEXT_REQ type 0x5, pmid 249.0.0
+[DATE] broken_pmda_2_0: Received PDU_TEXT_REQ type 0x6, pmid 249.0.0
+[DATE] broken_pmda_2_0: Received PDU_FETCH npmids 1, [0] 249.0.2
 broken pmda Error: pmdaDesc: Requested metric 249.0.2 is not defined
 broken pmda Error: pmdaFetch: Requested metric 249.0.2 is not defined
-broken pmda Debug: Received PDU_FETCH
+[DATE] broken_pmda_2_0: Received PDU_FETCH npmids 3, [0] 249.0.0 ... [2] 249.0.1
 broken pmda Error: pmdaDesc: Requested metric 249.0.2 is not defined
 broken pmda Error: pmdaFetch: Requested metric 249.0.2 is not defined
-broken pmda Debug: Received PDU_FETCH
+[DATE] broken_pmda_2_0: Received PDU_FETCH npmids 1, [0] 249.0.5
 broken pmda Error: pmdaFetch: Descriptor type (NO_SUPPORT) for metric 249.0.5 is bad
-broken pmda Debug: Received PDU_FETCH
+[DATE] broken_pmda_2_0: Received PDU_FETCH npmids 1, [0] 249.0.9
 broken pmda Error: pmdaFetch: PMID 249.0.9 not handled by fetch callback
-broken pmda Debug: Received PDU_FETCH
-broken pmda Debug: Received PDU_TEXT_REQ
-broken pmda Debug: Received PDU_TEXT_REQ
-broken pmda Debug: Received PDU_TEXT_REQ
-broken pmda Debug: Received PDU_TEXT_REQ
-broken pmda Debug: Received PDU_TEXT_REQ
-broken pmda Debug: Received PDU_TEXT_REQ
-broken pmda Debug: Received PDU_FETCH
-broken pmda Debug: Received PDU_FETCH
-broken pmda Debug: Received PDU_FETCH
-broken pmda Debug: Received PDU_FETCH
-broken pmda Error: pmdaFetch: Instance 10 of PMID 249.0.13 not handled by fetch callback
+[DATE] broken_pmda_2_0: Received PDU_FETCH npmids 3, [0] 249.0.10 ... [2] 249.0.12
+[DATE] broken_pmda_2_0: Received PDU_TEXT_REQ type 0x5, pmid 249.0.10
+[DATE] broken_pmda_2_0: Received PDU_TEXT_REQ type 0x6, pmid 249.0.10
+[DATE] broken_pmda_2_0: Received PDU_TEXT_REQ type 0x5, pmid 249.0.11
+[DATE] broken_pmda_2_0: Received PDU_TEXT_REQ type 0x6, pmid 249.0.11
+[DATE] broken_pmda_2_0: Received PDU_TEXT_REQ type 0x5, pmid 249.0.12
+[DATE] broken_pmda_2_0: Received PDU_TEXT_REQ type 0x6, pmid 249.0.12
+[DATE] broken_pmda_2_0: Received PDU_FETCH npmids 1, [0] 249.1.1
+[DATE] broken_pmda_2_0: Received PDU_FETCH npmids 1, [0] 249.1.2
+[DATE] broken_pmda_2_0: Received PDU_FETCH npmids 1, [0] 249.0.14
+[DATE] broken_pmda_2_0: Received PDU_FETCH npmids 1, [0] 249.0.13
+broken pmda Warning: pmdaFetch: Instance 10 of PMID 249.0.13 not handled by fetch callback
 
 Log finished
 dbpmda> open pipe pmdas/broken/broken_pmda_2_1 -Dlibpmda,appl2,appl0 -l TMP.log
@@ -182,11 +183,11 @@ dbpmda> close
 dbpmda> quit
 Log started
 
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_1: Metric 249.0.1(1) matched to indom 249.0(0)
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_1: Metric 249.0.7(3) matched to indom 249.7(1)
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_1: Metric 249.0.13(8) matched to indom 249.7(1)
+[DATE] broken_pmda_2_1: pmid 249.0.1(1) matched to indom 249.0(0)
+[DATE] broken_pmda_2_1: pmid 249.0.7(3) matched to indom 249.7(1)
+[DATE] broken_pmda_2_1: pmid 249.0.13(8) matched to indom 249.7(1)
 broken pmda Critical: pmdaInit: PMDA broken_pmda_2_1: Undefined instance domain serial (17) specified for metric 249.1.4 (e_metrics[12])
-broken pmda Debug: pmdaConnect: PMDA broken_pmda_2_1: opened pipe to pmcd, infd = 0, outfd = 1
+[DATE] broken_pmda_2_1: pmdaConnect: PMDA broken_pmda_2_1: opened pipe to pmcd, infd = 0, outfd = 1
 broken pmda Error: PMDA Initialisation Failed
 
 Log finished
@@ -210,7 +211,7 @@ dbpmda> quit
 Log started
 
 broken pmda Critical: pmdaInit: PMDA broken_pmda_2_2: Undefined instance domain serial (0) specified for metric 249.0.1 (e_metrics[1])
-broken pmda Debug: pmdaConnect: PMDA broken_pmda_2_2: opened pipe to pmcd, infd = 0, outfd = 1
+[DATE] broken_pmda_2_2: pmdaConnect: PMDA broken_pmda_2_2: opened pipe to pmcd, infd = 0, outfd = 1
 broken pmda Error: PMDA Initialisation Failed
 
 Log finished
@@ -234,7 +235,7 @@ dbpmda> quit
 Log started
 
 broken pmda Critical: pmdaInit: PMDA broken_pmda_2_3: nmetrics (-1) should be non-negative
-broken pmda Debug: pmdaConnect: PMDA broken_pmda_2_3: opened pipe to pmcd, infd = 0, outfd = 1
+[DATE] broken_pmda_2_3: pmdaConnect: PMDA broken_pmda_2_3: opened pipe to pmcd, infd = 0, outfd = 1
 broken pmda Error: PMDA Initialisation Failed
 
 Log finished
@@ -261,20 +262,21 @@ dbpmda> close
 dbpmda> quit
 Log started
 
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_4: Metric 249.0.1(1) matched to indom 249.0(0)
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_4: Metric 249.0.7(3) matched to indom 249.7(1)
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_4: Metric 249.0.13(8) matched to indom 249.7(1)
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_4: Metric 249.0.14(12) matched to indom 249.8(2)
-broken pmda Debug: pmdaInit: PMDA broken_pmda_2_4: help file pmdas/broken/broken_v2 opened
+[DATE] broken_pmda_2_4: pmid 249.0.1(1) matched to indom 249.0(0)
+[DATE] broken_pmda_2_4: pmid 249.0.7(3) matched to indom 249.7(1)
+[DATE] broken_pmda_2_4: pmid 249.0.13(8) matched to indom 249.7(1)
+[DATE] broken_pmda_2_4: pmid 249.0.14(12) matched to indom 249.8(2)
+[DATE] broken_pmda_2_4: pmdaInit: PMDA broken_pmda_2_4: help file pmdas/broken/broken_v2 opened
 broken pmda Warning: pmdaDirect: PMDA broken_pmda_2_4: Direct mapping for metrics disabled @ metrics[2] 249.0.5
-broken pmda Info: name        = broken_pmda_2_4
-broken pmda Info: domain      = 249
-broken pmda Info: ext flags  = 4
-broken pmda Info: num metrics = 13
-broken pmda Info: num indom   = 3
-broken pmda Debug: pmdaConnect: PMDA broken_pmda_2_4: opened pipe to pmcd, infd = 0, outfd = 1
-broken pmda Debug: Received PDU_TEXT_REQ
-broken pmda Debug: Received PDU_TEXT_REQ
+[DATE] broken_pmda_2_4: pmdaInit: name broken_pmda_2_4
+[DATE] broken_pmda_2_4: pmdaInit: domain 249
+[DATE] broken_pmda_2_4: pmdaInit: ext flags 0x4
+[DATE] broken_pmda_2_4: pmdaInit: num metrics 13
+[DATE] broken_pmda_2_4: pmdaInit: num indom 3
+[DATE] broken_pmda_2_4: pmdaInit: metric map linear
+[DATE] broken_pmda_2_4: pmdaConnect: PMDA broken_pmda_2_4: opened pipe to pmcd, infd = 0, outfd = 1
+[DATE] broken_pmda_2_4: Received PDU_TEXT_REQ type 0x5, pmid 249.0.0
+[DATE] broken_pmda_2_4: Received PDU_TEXT_REQ type 0x6, pmid 249.0.0
 
 Log finished
 dbpmda> open pipe pmdas/broken/broken_pmda_2_5 -Dlibpmda,appl2,appl0 -l TMP.log

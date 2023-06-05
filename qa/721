@@ -43,6 +43,7 @@ attr 5 "pcpqa"
 attr "username" "pcpqa"
 attr 0 "no-such-attr"
 attr "no-such-attr"
+attr 12345 "no-such-attr"
 End-of-File
 
 # need to pause here to make sure pmdasample has seen the pipe close,
@@ -65,6 +66,7 @@ attr
 attr 5 "pcpqa"
 attr "username" "pcpqa"
 attr 0 "no-such-attr"
+attr 12345 "no-such-attr"
 attr "no-such-attr"
 End-of-File
 

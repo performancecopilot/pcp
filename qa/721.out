@@ -20,6 +20,10 @@ dbpmda> attr "no-such-attr"
                           ^ at or near here
 Error: Attribute (no-such-attr) is not recognised
 Type 'help' for a list of commands.
+dbpmda> attr 12345 "no-such-attr"
+                  ^ at or near here
+Error: Attribute (12345) is not recognised
+Type 'help' for a list of commands.
 dbpmda> 
 Checking log file, pipe mode
 [DATETIME] pmdasample(PID) Info: Attribute: ctx=0 username=pcpqa
@@ -41,6 +45,10 @@ Success
 dbpmda> attr 0 "no-such-attr"
               ^ at or near here
 Error: Attribute (0) is not recognised
+Type 'help' for a list of commands.
+dbpmda> attr 12345 "no-such-attr"
+                  ^ at or near here
+Error: Attribute (12345) is not recognised
 Type 'help' for a list of commands.
 dbpmda> attr "no-such-attr"
                           ^ at or near here

@@ -77,22 +77,23 @@ refresh_proc_fs_nfsd(proc_fs_nfsd_t *proc_fs_nfsd)
 	}
     }
 
-	if (pmDebugOptions.libpmda) {
-	    if (proc_fs_nfsd->errcode == 0)
-		fprintf(stderr, "refresh_proc_fs_nfsd: found nfsd thread metrics\n");
-	    else
-		fprintf(stderr, "refresh_proc_fs_nfsd: botch! missing nfsd thread metrics\n");
-	}
+    if (pmDebugOptions.libpmda) {
+	if (proc_fs_nfsd->errcode == 0)
+	    fprintf(stderr, "refresh_proc_fs_nfsd: found nfsd thread metrics\n");
+	else
+	    fprintf(stderr, "refresh_proc_fs_nfsd: botch! missing nfsd thread metrics\n");
+    }
 
     if (threadsp)
 	fclose(threadsp);
     if (statsp)
 	fclose(statsp);
 
-    if (!err_reported)
-	err_reported = 1;
+    if (proc_fs_nfsd->errcode < 0) {
+	if (!err_reported)
+	    err_reported = 1;
+	return -1;
+    }
 
-    if (proc_fs_nfsd->errcode == 0)
-	return 0;
-    return -1;
+    return 0;
 }

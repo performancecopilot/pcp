@@ -630,11 +630,9 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				strbuf);
 		}
 		else if (sts == PM_ERR_INST) {
-		    if (pmDebugOptions.libpmda) {
-			pmNotifyErr(LOG_ERR,
-			    "pmdaFetch: Instance %d of PMID %s not handled by fetch callback\n",
-				    inst, strbuf);
-		    }
+		    pmNotifyErr(LOG_WARNING,
+			"pmdaFetch: Instance %d of PMID %s not handled by fetch callback\n",
+			inst, strbuf);
 		}
 		else if (sts == PM_ERR_VALUE ||
 			 sts == PM_ERR_APPVERSION ||
@@ -642,9 +640,9 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			 sts == PM_ERR_AGAIN ||
 			 sts == PM_ERR_NYI) {
 		    if (pmDebugOptions.libpmda) {
-			pmNotifyErr(LOG_ERR,
-			     "pmdaFetch: Fetch callback error from metric PMID %s[%d]: %s\n",
-				strbuf, inst, pmErrStr(sts));
+			logmsg(NULL,
+			     "Fetch callback error from metric PMID %s[%d]: %s\n",
+			    strbuf, inst, pmErrStr(sts));
 		    }
 		}
 		else {
@@ -899,7 +897,7 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 		if ((sts = (*(pmda->e_labelCallBack))(ident, inst, &lp)) < 0) {
 		    pmInDomStr_r(ident, idbuf, sizeof(idbuf));
 		    pmErrStr_r(sts, errbuf, sizeof(errbuf));
-		    pmNotifyErr(LOG_DEBUG, "pmdaLabel: "
+		    pmNotifyErr(LOG_WARNING, "pmdaLabel: "
 				    "InDom %s[%d]: %s\n", idbuf, inst, errbuf);
 		}
 	    }

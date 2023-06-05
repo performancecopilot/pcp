@@ -4,11 +4,12 @@
 #
 # valgrind variant, see qa/1450 for the non-valgrind variant
 #
-#
 # Marko's bug https://github.com/performancecopilot/pcp/issues/406 from
 # Dec 2017!
 #
 # Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+# check-group-include: pmdumptext
 #
 
 seq=`basename $0`

@@ -67,6 +67,10 @@ pmlogger_do_restore=true
 realname=`hostname`
 chopname=`echo $realname | sed -e 's/\..*//'`
 
+# Note
+# 	__pmDecodeError with error code > 0 is a notification
+# 	from pmcd that the PMDA config has changed and is not
+# 	relevant in the context of this test
 _filter()
 {
     sed \
@@ -81,6 +85,7 @@ _filter()
 	-e '/^IPC table/d' \
 	-e '/^__pmConnectPMCD.* failed/d' \
 	-e '/^__pmConnect(fd=[0-9][0-9]*(nsprFd=/d' \
+	-e '/^__pmDecodeError: got error PDU (code=[1-9]/d' \
 	-e '/^contexts\[/{
 s/fd=[0-9][0-9]*/fd=N/
 }' \

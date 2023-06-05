@@ -45,6 +45,19 @@ EOF
 pmdumptext -z -S@07:00 -a archives/small -c $tmp.dumptext -t 15sec -s 100 \
 	-DDESPERATE,PDUBUF,LOG,FETCH 2>$seq.full
 
+# additional tests to make sure the output has the same values for both
+# -c config spec and command line spec
+#
+cat $tmp.dumptext \
+| while read metricspec
+do
+    echo
+    echo "=== $metricspec ==="
+    pmdumptext -z -S@07:00 -a archives/small -t 15sec -u -s 3 "$metricspec"
+    echo "$metricspec" >$tmp.tmp
+    pmdumptext -z -S@07:00 -a archives/small -c $tmp.tmp -t 15sec -u -s 3
+done
+
 # success, all done
 status=0
 exit

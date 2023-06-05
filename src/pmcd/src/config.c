@@ -1393,10 +1393,10 @@ DoAttributes(AgentInfo *ap, int clientID)
 	for (node = __pmHashWalk(attrs, PM_HASH_WALK_START);
 	     node != NULL;
 	     node = __pmHashWalk(attrs, PM_HASH_WALK_NEXT)) {
-	    if (pmDebugOptions.attr) {
+	    if (pmDebugOptions.appl5) {
 		char buffer[64];
 		__pmAttrStr_r(node->key, node->data, buffer, sizeof(buffer));
-		fprintf(stderr, "pmcd: send client[%d] attr %s to dso agent[%d]",
+		fprintf(stderr, "pmcd: send client[%d] attr %s to dso agent[%d]\n",
 			clientID, buffer, (int)(ap - agent));
 	    }
 	    if ((sts = ap->ipc.dso.dispatch.version.six.attribute(
@@ -1412,10 +1412,10 @@ DoAttributes(AgentInfo *ap, int clientID)
 	for (node = __pmHashWalk(attrs, PM_HASH_WALK_START);
 	     node != NULL;
 	     node = __pmHashWalk(attrs, PM_HASH_WALK_NEXT)) {
-	    if (pmDebugOptions.attr) {
+	    if (pmDebugOptions.appl5) {
 		char buffer[64];
 		__pmAttrStr_r(node->key, node->data, buffer, sizeof(buffer));
-		fprintf(stderr, "pmcd: send client[%d] attr %s to daemon agent[%d]",
+		fprintf(stderr, "pmcd: send client[%d] attr %s to daemon agent[%d]\n",
 			clientID, buffer, (int)(ap - agent));
 	    }
 	    if ((sts = __pmSendAttr(ap->inFd,
@@ -1425,7 +1425,7 @@ DoAttributes(AgentInfo *ap, int clientID)
 	}
     }
     if (sts < 0) {
-	if (pmDebugOptions.appl0)
+	if (pmDebugOptions.appl5)
 	    fprintf(stderr, "ATTR error: \"%s\" agent : %s\n",
 		    ap->pmDomainLabel, pmErrStr(sts));
 	CleanupAgent(ap, AT_COMM, ap->inFd);
@@ -1442,6 +1442,9 @@ int
 AgentsAttributes(int clientID)
 {
     int agentID, sts = 0;
+
+    if (pmDebugOptions.appl5)
+	fprintf(stderr, "AgentsAttributes(client[%d])\n", clientID);
 
     for (agentID = 0; agentID < nAgents; agentID++) {
 	if (agent[agentID].status.connected &&
@@ -1462,6 +1465,9 @@ int
 ClientsAttributes(AgentInfo *ap)
 {
     int clientID, sts = 0;
+
+    if (pmDebugOptions.appl5)
+	fprintf(stderr, "ClientsAttributes(agent[%d] %s)\n", (int)(ap - agent), ap->pmDomainLabel);
 
     for (clientID = 0; clientID < nClients; clientID++) {
 	if (client[clientID].status.connected &&
@@ -1873,7 +1879,7 @@ CreateAgent(AgentInfo *aPtr)
     else if (aPtr->ipcType == AGENT_SOCKET)
 	aPtr->ipc.socket.agentPid = childPid;
 
-    if (pmDebugOptions.appl0)
+    if (pmDebugOptions.appl4)
 	fprintf(stderr, "pmcd: started PMDA %s (%d), pid=%" FMT_PID "\n",
 	        aPtr->pmDomainLabel, aPtr->pmDomainId, childPid);
     return 0;
@@ -2097,7 +2103,7 @@ GetAgentDso(AgentInfo *aPtr)
     if (dso->dispatch.comm.flags & PDU_FLAG_AUTH)
 	ClientsAttributes(aPtr);
 
-    if (pmDebugOptions.appl0)
+    if (pmDebugOptions.appl4)
 	fprintf(stderr, "pmcd: started DSO PMDA %s (%d) using pmPMDA version=%d, "
 		"PDU version=%d\n", aPtr->pmDomainLabel, aPtr->pmDomainId,
 		dso->dispatch.comm.pmda_interface, aPtr->pduVersion);
@@ -2218,19 +2224,19 @@ ParseInitAgents(char *fileName)
     else {
 #if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
 	configFileTime = statBuf.st_mtime;
-	if (pmDebugOptions.appl0)
+	if (pmDebugOptions.appl4)
 	    fprintf(stderr, "%s: configFileTime=%ld sec\n",
 	        "ParseInitAgents", (long)configFileTime);
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
 	configFileTime = statBuf.st_mtimespec; /* struct assignment */
-	if (pmDebugOptions.appl0)
+	if (pmDebugOptions.appl4)
 	    fprintf(stderr, "%s: configFileTime=%ld.%09ld sec\n",
 			    "ParseInitAgents",
 			    (long)configFileTime.tv_sec,
 			    (long)configFileTime.tv_nsec);
 #elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
 	configFileTime = statBuf.st_mtim; /* struct assignment */
-	if (pmDebugOptions.appl0)
+	if (pmDebugOptions.appl4)
 	    fprintf(stderr, "%s: configFileTime=%ld.%09ld sec\n",
 			    "ParseInitAgents",
 			    (long)configFileTime.tv_sec,
@@ -2253,19 +2259,19 @@ ParseInitAgents(char *fileName)
     else {
 #if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
 	accessFileTime = statBuf.st_mtime;
-	if (pmDebugOptions.appl0)
+	if (pmDebugOptions.appl4)
 	    fprintf(stderr, "%s: accessFileTime=%ld sec\n",
 			    "ParseInitAgents", (long)accessFileTime);
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
 	accessFileTime = statBuf.st_mtimespec; /* struct assignment */
-	if (pmDebugOptions.appl0)
+	if (pmDebugOptions.appl4)
 	    fprintf(stderr, "%s: accessFileTime=%ld.%09ld sec\n",
 			    "ParseInitAgents",
 			    (long)accessFileTime.tv_sec,
 			    (long)accessFileTime.tv_nsec);
 #elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
 	accessFileTime = statBuf.st_mtim; /* struct assignment */
-	if (pmDebugOptions.appl0)
+	if (pmDebugOptions.appl4)
 	    fprintf(stderr, "%s: accessFileTime=%ld.%09ld sec\n",
 			    "ParseInitAgents",
 			    (long)accessFileTime.tv_sec,
@@ -2486,7 +2492,7 @@ ParseRestartAgents(char *fileName)
      * restart any deceased agents
      */
 #if defined(HAVE_ST_MTIME_WITH_SPEC)
-    if (pmDebugOptions.appl0)
+    if (pmDebugOptions.appl4)
 	fprintf(stderr, "%s: "
 		"new configFileTime=%ld.%09ld accessFileTime=%ld.%09ld sec\n",
 		"ParseRestartAgents",
@@ -2499,7 +2505,7 @@ ParseRestartAgents(char *fileName)
 	astatBuf.st_mtimespec.tv_sec == accessFileTime.tv_sec &&
 	astatBuf.st_mtimespec.tv_nsec == accessFileTime.tv_nsec)
 #elif defined(HAVE_STAT_TIMESPEC_T) || defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC)
-    if (pmDebugOptions.appl0)
+    if (pmDebugOptions.appl4)
 	fprintf(stderr, "%s: "
 		"new configFileTime=%ld.%09ld accessFileTime=%ld.%09ld sec\n",
 		"ParseRestartAgents",
@@ -2512,7 +2518,7 @@ ParseRestartAgents(char *fileName)
 	astatBuf.st_mtim.tv_sec == accessFileTime.tv_sec &&
 	astatBuf.st_mtim.tv_nsec == accessFileTime.tv_nsec)
 #elif defined(HAVE_STAT_TIME_T)
-    if (pmDebugOptions.appl0)
+    if (pmDebugOptions.appl4)
 	fprintf(stderr, "%s: "
 		"new configFileTime=%ld accessFileTime=%ld sec\n",
 		"ParseRestartAgents",

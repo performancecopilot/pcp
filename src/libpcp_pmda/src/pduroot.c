@@ -299,7 +299,7 @@ __pmdaRecvRootPDUStart(int fd, void *buffer, int buflen)
     msgh.msg_namelen = 0;
  
     if ((sts = recvmsg(fd, &msgh, MSG_NOSIGNAL)) < 0) {
-	pmNotifyErr(LOG_DEBUG, "recvmsg: %d %s\n", errno, strerror(errno));
+	pmNotifyErr(LOG_WARNING, "recvmsg: %d %s\n", errno, strerror(errno));
 	return -oserror();
     }
 

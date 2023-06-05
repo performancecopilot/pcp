@@ -43,6 +43,7 @@ _filter()
 _filter2()
 {
     sed \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9]*/DATE/' \
     	-e 's/^\[.*\] broken_pmda_2_.([0-9]*)/broken pmda/g' \
         -e '/Info: direct map  =/d' \
         -e '/Info: metric map  =/d' \

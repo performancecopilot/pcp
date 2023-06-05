@@ -128,7 +128,7 @@ AcceptNewClient(int reqfd)
     pmtimevalNow(&now);
     client[i].start = now.tv_sec;
 
-    if (pmDebugOptions.appl0)
+    if (pmDebugOptions.appl3)
 	fprintf(stderr, "AcceptNewClient(%d): client[%d] (fd %d)\n", reqfd, i, fd);
     pmcd_trace(TR_ADD_CLIENT, i, 0, 0);
 
@@ -180,7 +180,7 @@ DeleteClient(ClientInfo *cp)
 	    break;
 
     if (i == nClients) {
-	if (pmDebugOptions.appl0) {
+	if (pmDebugOptions.appl3) {
 	    pmNotifyErr(LOG_ERR, "DeleteClient: tried to delete non-existent client\n");
 	    Shutdown();
 	    exit(1);

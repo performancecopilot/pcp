@@ -58,7 +58,7 @@ $(SYMTARGET):
 endif
 
 cache.o : lookup2.c
-callback.o mainloop.o open.o : libdefs.h
+callback.o mainloop.o open.o queues.o : libdefs.h
 
 include $(BUILDRULES)
 

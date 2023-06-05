@@ -75,6 +75,17 @@ and
 options for the shortest of scientific or fixed digits, and a fixed
 width format, respectively.
 .PP
+By default
+.B pmdumptext
+will scale metric values to ``canonical'' units of bytes, seconds
+and counts.
+The one exception is with the
+.B \-r
+option where the values are not scaled.
+The
+.B \-u
+option reports the units of each metric.
+.PP
 The
 .I metrics
 to be dumped can be listed on the command line, in a
@@ -346,7 +357,8 @@ as the precision is constant.
 The default precision is 3.
 .TP
 \fB\-r\fR, \fB\-\-raw\fR
-Output the raw metric values, do not convert counters to rates.
+Output the raw metric values, do not convert counters to rates and do not scale
+values to ``canonical'' units.
 This option also causes
 .B pmdumptext
 to ignore the normalization values for each metric.
