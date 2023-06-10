@@ -2,7 +2,7 @@ Name:    pcp
 Version: 6.0.4
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
-License: GPLv2+ and LGPLv2+ and CC-BY
+License: GPL-2.0-or-later AND LGPL-2.1-or-later AND CC-BY-3.0
 URL:     https://pcp.io
 
 %global  artifactory https://performancecopilot.jfrog.io/artifactory

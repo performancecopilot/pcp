@@ -3,7 +3,7 @@ name: QA
 on:
   pull_request:
   schedule:
-    - cron:  '0 17 * * *'
+    - cron:  '0 18 * * *'
   workflow_dispatch:
     inputs:
       pcp_qa_args:
@@ -32,9 +32,10 @@ jobs:
           - {platform: ubuntu2204,                os: ubuntu-22.04, experimental: false}
           - {platform: fedora35-container,        os: ubuntu-20.04, experimental: false}
           - {platform: fedora36-container,        os: ubuntu-20.04, experimental: false}
-          - {platform: fedora37-container,        os: ubuntu-20.04, experimental: true }
+          - {platform: fedora37-container,        os: ubuntu-20.04, experimental: false}
           - {platform: fedora38-container,        os: ubuntu-20.04, experimental: false}
           - {platform: fedora-rawhide-container,  os: ubuntu-20.04, experimental: true }
+          - {platform: centos6-container,         os: ubuntu-20.04, experimental: false}
           - {platform: centos7-container,         os: ubuntu-20.04, experimental: false}
           - {platform: centos-stream8-container,  os: ubuntu-20.04, experimental: false}
           - {platform: centos-stream9-container,  os: ubuntu-20.04, experimental: false}

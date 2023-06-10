@@ -29,6 +29,7 @@ jobs:
           - {platform: fedora36-container,        os: ubuntu-20.04}
           - {platform: fedora37-container,        os: ubuntu-20.04}
           - {platform: fedora38-container,        os: ubuntu-20.04}
+          - {platform: centos6-container,         os: ubuntu-20.04}
           - {platform: centos7-container,         os: ubuntu-20.04}
           - {platform: centos-stream8-container,  os: ubuntu-20.04}
           - {platform: centos-stream9-container,  os: ubuntu-20.04}
