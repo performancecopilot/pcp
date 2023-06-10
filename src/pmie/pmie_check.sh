@@ -839,6 +839,7 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 		else
 		    echo "---- from $prog @ `date` ---" >>$logfile.$SUMMARY_LOGNAME
 		    cat $logfile >>$logfile.$SUMMARY_LOGNAME
+		    chown $PCP_USER:$PCP_GROUP $logfile.$SUMMARY_LOGNAME >/dev/null 2>&1
 		fi
 	    fi
 

@@ -549,6 +549,7 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 		    _error "problems moving logfile \"$logfile\" for host \"$host\""
 		    touch $tmp/err
 		fi
+		chown $PCP_USER:$PCP_GROUP $logfile.$SUMMARY_LOGNAME >/dev/null 2>&1
 	    fi
 	fi
 

@@ -1,0 +1,124 @@
+#!/bin/sh
+# PCP QA Test No. 1453
+# pmie_check creates pmie.log.YYYYMMDD with wrong ownership
+# - if it is root this is a bug, should be pcp
+#
+# related to https://bugzilla.redhat.com/show_bug.cgi?id=1832262
+# (the Jun 2023 discussion at the end of the bug, not the
+# earlier discussion circo 2020)
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_LOG_DIR/pmie/`hostname` ] || _notrun "$PCP_LOG_DIR/pmie/`hostname` dir not found"
+
+# same datestamp as pmie_check
+#
+today=`pmdate %Y%m%d`
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+pmie_was_running=false
+[ -f $PCP_RUN_DIR/pmie.pid ] && pmie_was_running=true
+
+_cleanup()
+{
+    [ -f pmie.log.$seq ] && $sudo mv pmie.log.$seq pmie.log
+    [ -f pmie.log.$today.$seq ] && $sudo mv pmie.log.$today.$seq pmie.log.$today
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+
+    if $pmie_was_running
+    then
+	_service pmie start >>$here/$seq.full 2>&1
+    else
+	_service pmie stop >>$here/$seq.full 2>&1
+	$sudo $PCP_BINADM_DIR/pmsignal -a -s TERM pmie >>$here/$seq.full 2>&1
+	_wait_pmie_end
+    fi
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/<something>/<else>/' \
+    # end
+}
+
+if $pmie_was_running
+then
+    _service pmie stop >>$here/$seq.full 2>&1
+fi
+
+cd $PCP_LOG_DIR/pmie/`hostname`
+
+# setup for the test ...
+# - need a pmie.log in place (move any existing one aside)
+# - must not have a today's pmie.log.YYYYMMDD (move any existing one
+#   aside)
+#
+[ -f pmie.log ] && $sudo mv pmie.log pmie.log.$seq
+[ -f pmie.log.$today ] && $sudo mv pmie.log.$today pmie.log.$today.$seq
+cat <<End-of-File >$tmp.log
+Log for pmie on bozo.localdomain started Sat Jun 10 07:39:02 2023
+
+pmie: PID = 3140736, via local: [primary]
+
+babble from QA $seq
+End-of-File
+$sudo cp $tmp.log pmie.log
+$sudo chown $PCP_USER:$PCP_GROUP pmie.log
+
+# real QA test starts here
+echo "--- before ---" >>$here/$seq.full
+ls -li >>$here/$seq.full
+
+_service pmie start
+
+echo "--- after ---" >>$here/$seq.full
+ls -li >>$here/$seq.full
+
+if [ -f pmie.log.$today ]
+then
+    echo "pmie.log.TODAY created"
+    owner=`ls -l pmie.log.$today | $PCP_AWK_PROG 'NR == 1 {print $3}'`
+    if [ "$owner" = "$PCP_USER" ]
+    then
+	echo "pmie.log.TODAY owner is PCP_USER"
+    else
+	echo "Botch: pmie.log.TODAY owner is $owner not $PCP_USER"
+	ls -l pmie.log.$today
+    fi
+    group=`ls -l pmie.log.$today | $PCP_AWK_PROG 'NR == 1 {print $4}'`
+    if [ "$group" = "$PCP_GROUP" ]
+    then
+	echo "pmie.log.TODAY group is PCP_GROUP"
+    else
+	echo "Botch: pmie.log.TODAY group is $group not $PCP_GROUP"
+	ls -l pmie.log.$today
+    fi
+else
+    echo "Botch: pmie.log.TODAY not created"
+    ls -l
+fi
+
+# success, all done
+exit
