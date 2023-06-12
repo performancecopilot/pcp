@@ -21,11 +21,10 @@ jobs:
           # different packages than the stock Ubuntu releases
           - {platform: debian10-container,        os: ubuntu-20.04}
           - {platform: debian11-container,        os: ubuntu-20.04}
-          - {platform: ubuntu1604-container,      os: ubuntu-20.04}
+          - {platform: debian12-container,        os: ubuntu-20.04}
           - {platform: ubuntu1804-container,      os: ubuntu-20.04}
           - {platform: ubuntu2004-container,      os: ubuntu-20.04}
           - {platform: ubuntu2204-container,      os: ubuntu-20.04}
-          - {platform: fedora35-container,        os: ubuntu-20.04}
           - {platform: fedora36-container,        os: ubuntu-20.04}
           - {platform: fedora37-container,        os: ubuntu-20.04}
           - {platform: fedora38-container,        os: ubuntu-20.04}

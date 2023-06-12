@@ -42,7 +42,7 @@ tasks:
     sudo -i -u pcpqa ./check -TT -g sanity -x not_in_ci -x not_in_container |& tee ../artifacts/test/test.log
   qa: |
     set -o pipefail
-    DEFAULT_PCP_QA_ARGS="-x x11 -x remote -x not_in_ci  -x not_in_container"
+    DEFAULT_PCP_QA_ARGS="-x x11 -x remote -x not_in_ci -x not_in_container"
     sudo -i -u pcpqa ./check -TT ${PCP_QA_ARGS:-${DEFAULT_PCP_QA_ARGS}} |& tee ../artifacts/test/test.log
   copy_test_artifacts: |
     cp /var/lib/pcp/testsuite/check.timings ../artifacts/test
