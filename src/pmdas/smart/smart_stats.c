@@ -715,7 +715,7 @@ nvme_device_refresh_data(const char *name, struct nvme_device_info *nvme_device_
                                 // Make use of redirected stderr to stdout to check if nvme-cli is
                                 // installed and and disable if not
                                nvmecli_support = 0;
-                               continue;
+                               break;
                         }
 
                         if (strstr(buffer, "Power State")) {
@@ -725,6 +725,10 @@ nvme_device_refresh_data(const char *name, struct nvme_device_info *nvme_device_
                         }
 	        }
 	        pclose(pf);
+
+		/* Short-circuit here, only the first invocation checks for nvme-cli */
+		if (!nvmecli_support)
+			return 0;
 
                 /*
                   smart.nvme_info.apste_state
