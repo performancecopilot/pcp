@@ -7131,8 +7131,8 @@ Normalized percentage below spare capacity
     inst [0 or "nvme0n1"] value 10
 
 smart.nvme_attributes.composite_temperature PMID: 150.255.1 [Contains current composite temperature of the controller]
-    Data Type: 32-bit unsignesh: line 1: nvme: command not found
-sh: line 1: nvme: command not found
+    Data Type: 32-bit unsignecat: nvme0n1.nvme: No such file or directory
+cat: nvme0n1.nvme: No such file or directory
 cat: nvme0n1.power: No such file or directory
 d int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
@@ -7299,28 +7299,28 @@ smart.nvme_info.active_power_state PMID: 150.256.14 [The current active power st
     Semantics: instant  Units: byte
 Help:
 The current active power state for the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_info.apst_state PMID: 150.256.15 [The status of whether APST is enabled or not for the NVME drive]
     Data Type: string  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The status of whether APST is enabled or not for the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value ""
 
 smart.nvme_info.completion_queue_length_completion PMID: 150.256.16 [The length of the completion queue for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The length of the completion queue for the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_info.completion_queue_length_submission PMID: 150.256.17 [The length of the submission queue for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The length of the submission queue for the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_info.controller_id PMID: 150.256.7 [The ID for the controller of the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
@@ -7928,13 +7928,13 @@ smart.nvme_info.serial_number
     inst [0 or "nvme0n1"] value "S41GNF1K634417"
 
 smart.nvme_info.active_power_state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_power_states.power_state_1.state
     inst [0 or "nvme0n1"] value 0
 === std err ===
-sh: line 1: nvme: command not found
-sh: line 1: nvme: command not found
+cat: nvme0n1.nvme: No such file or directory
+cat: nvme0n1.nvme: No such file or directory
 cat: nvme0n1.power: No such file or directory
 === filtered valgrind report ===
 Memcheck, a memory error detector
@@ -7946,7 +7946,6 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 == done
 
-./1397: line 66: cd: 004/smart: No such file or directory
 == Checking metric descriptors and values - smart-root-004.tgz
 
 smart.attributes.airflow_temp_celsius.id PMID: 150.190.0 [The given ID for SMART metric]
@@ -9599,21 +9598,21 @@ smart.health PMID: 150.0.0 [SMART self-test result]
     Semantics: discrete  Units: none
 Help:
 Whether the given drive has PASSED or FAILED SMART the self-test
-No value(s) available!
+    inst [0 or "nvme0n1"] value "PASSED"
 
 smart.info.capacity_bytes PMID: 150.0.4 [Capacity in Bytes]
     Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: discrete  Units: byte
 Help:
 The given capacity in bytes of the disk drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value 512110190592
 
 smart.info.device_model PMID: 150.0.2 [Device Model]
     Data Type: string  InDom: 150.0 0x25800000
     Semantics: discrete  Units: none
 Help:
 The given device model of the disk drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value "KXG6AZNV512G TOSHIBA"
 
 smart.info.firmware_version PMID: 150.0.7 [Version of Firmware]
     Data Type: string  InDom: 150.0 0x25800000
@@ -9621,7 +9620,7 @@ smart.info.firmware_version PMID: 150.0.7 [Version of Firmware]
 Help:
 The given firmware number for the current version of firmware installed on
 the drive.
-No value(s) available!
+    inst [0 or "nvme0n1"] value "5108AGLA"
 
 smart.info.model_family PMID: 150.0.1 [Model Family]
     Data Type: string  InDom: 150.0 0x25800000
@@ -9650,217 +9649,217 @@ smart.info.serial_number PMID: 150.0.3 [Serial Number]
     Semantics: discrete  Units: none
 Help:
 The given serial number of the disk drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value "61SF70CAFDP3"
 
 smart.nvme_attributes.available_spare PMID: 150.255.2 [Normalized percentage of remaining spare capacity]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Normalized percentage of remaining spare capacity
-No value(s) available!
+    inst [0 or "nvme0n1"] value 100
 
 smart.nvme_attributes.available_spare_threshold PMID: 150.255.3 [Normalized percentage below spare capacity]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Normalized percentage below spare capacity
-No value(s) available!
+    inst [0 or "nvme0n1"] value 10
 
 smart.nvme_attributes.composite_temperature PMID: 150.255.1 [Contains current composite temperature of the controller]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Contains current composite temperature of the controller
-No value(s) available!
+    inst [0 or "nvme0n1"] value 27
 
 smart.nvme_attributes.controller_busy_time PMID: 150.255.9 [Contains the amount of time controller is busy with I/O in minutes]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Contains the amount of time controller is busy with I/O in minutes
-No value(s) available!
+    inst [0 or "nvme0n1"] value 217
 
 smart.nvme_attributes.critical_composite_temperature_time PMID: 150.255.16 [Contains amount of time in minutes over critical temp threshold]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Contains amount of time in minutes over critical temp threshold
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_attributes.critical_warning PMID: 150.255.0 [Indicates critical warnings for the sate of the Endurance Groups]
     Data Type: string  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Indicates critical warnings for the sate of the Endurance Groups
-No value(s) available!
+    inst [0 or "nvme0n1"] value "0x00"
 
 smart.nvme_attributes.data_units_read PMID: 150.255.5 [Contains the number of 512 byte data units the host has read]
     Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Contains the number of 512 byte data units the host has read
-No value(s) available!
+    inst [0 or "nvme0n1"] value 6840336
 
 smart.nvme_attributes.data_units_written PMID: 150.255.6 [Contains the number of 512 byte data units the host has written]
     Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Contains the number of 512 byte data units the host has written
-No value(s) available!
+    inst [0 or "nvme0n1"] value 11460261
 
 smart.nvme_attributes.host_read_commands PMID: 150.255.7 [Contains the number of read commands completed by the controller]
     Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Contains the number of read commands completed by the controller
-No value(s) available!
+    inst [0 or "nvme0n1"] value 16961700
 
 smart.nvme_attributes.host_write_commands PMID: 150.255.8 [Contains the number of write commands completed by the controller ]
     Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Contains the number of write commands completed by the controller 
-No value(s) available!
+    inst [0 or "nvme0n1"] value 170550277
 
 smart.nvme_attributes.media_and_data_integrity_errors PMID: 150.255.13 [Contains the number of error occurances by the controller]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Contains the number of error occurances by the controller
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_attributes.number_of_error_information_log_entries PMID: 150.255.14 [Contains the number of error log entries]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Contains the number of error log entries
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_attributes.percentage_used PMID: 150.255.4 [Normalized Percentage of life used based off actual usage]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Normalized Percentage of life used based off actual usage
-No value(s) available!
+    inst [0 or "nvme0n1"] value 2
 
 smart.nvme_attributes.power_cycles PMID: 150.255.10 [Contains the number of power cycles]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Contains the number of power cycles
-No value(s) available!
+    inst [0 or "nvme0n1"] value 655
 
 smart.nvme_attributes.power_on_hours PMID: 150.255.11 [Contains the number of power-on-hours]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Contains the number of power-on-hours
-No value(s) available!
+    inst [0 or "nvme0n1"] value 3013
 
 smart.nvme_attributes.temperature_sensor_eight PMID: 150.255.24 [Current Temperature as reported by temp sensor 8]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Current Temperature as reported by temp sensor 8
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_attributes.temperature_sensor_five PMID: 150.255.21 [Current temperature as reported by temp sensor 5]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Current temperature as reported by temp sensor 5
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_attributes.temperature_sensor_four PMID: 150.255.20 [Current temperature as reported by temp sensor 4]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Current temperature as reported by temp sensor 4
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_attributes.temperature_sensor_one PMID: 150.255.17 [Current temperature as reported by temp sensor 1]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Current temperature as reported by temp sensor 1
-No value(s) available!
+    inst [0 or "nvme0n1"] value 27
 
 smart.nvme_attributes.temperature_sensor_seven PMID: 150.255.23 [Current Temperature as reported by temp sensor 7]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Current Temperature as reported by temp sensor 7
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_attributes.temperature_sensor_six PMID: 150.255.22 [Current temperaure as reported by temp sensor 6]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Current temperaure as reported by temp sensor 6
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_attributes.temperature_sensor_three PMID: 150.255.19 [Current temperature as reported by temp sensor 3]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Current temperature as reported by temp sensor 3
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_attributes.temperature_sensor_two PMID: 150.255.18 [Currrent temperature as reported by temp sensor 2]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Currrent temperature as reported by temp sensor 2
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_attributes.unsafe_shutdowns PMID: 150.255.12 [Contains the number of unsafe shutdowns]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Contains the number of unsafe shutdowns
-No value(s) available!
+    inst [0 or "nvme0n1"] value 97
 
 smart.nvme_attributes.warning_composite_temperature_time PMID: 150.255.15 [Contains amount of time in minutes over composite temp threshold]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Contains amount of time in minutes over composite temp threshold
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_info.active_power_state PMID: 150.256.14 [The current active power state for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The current active power state for the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_info.apst_state PMID: 150.256.15 [The status of whether APST is enabled or not for the NVME drive]
     Data Type: string  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The status of whether APST is enabled or not for the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value "Enabled"
 
 smart.nvme_info.completion_queue_length_completion PMID: 150.256.16 [The length of the completion queue for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The length of the completion queue for the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value 32
 
 smart.nvme_info.completion_queue_length_submission PMID: 150.256.17 [The length of the submission queue for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The length of the submission queue for the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value 32
 
 smart.nvme_info.controller_id PMID: 150.256.7 [The ID for the controller of the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The ID for the controller of the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_info.critical_temp_thresold PMID: 150.256.13 [The temperature at which the critical temperature threshold is set]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
@@ -9874,7 +9873,7 @@ smart.nvme_info.firmware_version PMID: 150.256.2 [The current firmware version f
     Semantics: instant  Units: byte
 Help:
 The current firmware version for the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value "5108AGLA"
 
 smart.nvme_info.firware_updates PMID: 150.256.10 [The number of Slots and reset requirement status for the NVME drive]
     Data Type: string  InDom: 150.0 0x25800000
@@ -9888,7 +9887,7 @@ smart.nvme_info.ieee_oui_identifier PMID: 150.256.4 [IEEE OUI identification val
     Semantics: instant  Units: byte
 Help:
 IEEE OUI identification value for the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value "0x8ce38e"
 
 smart.nvme_info.maximum_data_transfer_size PMID: 150.256.11 [The maximum data transfer size supported for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
@@ -9902,77 +9901,77 @@ smart.nvme_info.model_number PMID: 150.256.0 [The model name and number for the 
     Semantics: instant  Units: byte
 Help:
 The model name and number for the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value "KXG6AZNV512G TOSHIBA"
 
 smart.nvme_info.namespace_1_capacity PMID: 150.256.18 [The total capacity for namespace 1 on the NVME drive]
     Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The total capacity for namespace 1 on the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value 512110190592
 
 smart.nvme_info.namespace_1_formatted_lba_size PMID: 150.256.20 [The LBA size formatted for namespace 1 on the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The LBA size formatted for namespace 1 on the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value 512
 
 smart.nvme_info.namespace_1_ieee_eui_64 PMID: 150.256.21 [the IEEE EUI 64 value for namespace 1 on the NVME drive]
     Data Type: string  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 the IEEE EUI 64 value for namespace 1 on the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value "8ce38e 0500882b63"
 
 smart.nvme_info.namespace_1_utilization PMID: 150.256.19 [The current utilization for namespace 1 on the NVME drive]
     Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The current utilization for namespace 1 on the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_info.namespaces PMID: 150.256.9 [The total number of namespaces on the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The total number of namespaces on the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value 1
 
 smart.nvme_info.nvme_version PMID: 150.256.8 [The NVME specification version for the NVME drive]
     Data Type: string  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The NVME specification version for the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value "1.3"
 
 smart.nvme_info.pci_vendor_subsystem_id PMID: 150.256.3 [PCI Vendor and Subsystem ID for the NVME drive]
     Data Type: string  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 PCI Vendor and Subsystem ID for the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value "0x1179"
 
 smart.nvme_info.serial_number PMID: 150.256.1 [The serial number for the NVME drive]
     Data Type: string  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The serial number for the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value "61SF70CAFDP3"
 
 smart.nvme_info.total_nvm_capacity PMID: 150.256.5 [The total NVM capacity for the NVME drive]
     Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The total NVM capacity for the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value 512110190592
 
 smart.nvme_info.unallocated_nvm_capacity PMID: 150.256.6 [The unallocated NVM capacity for the NVME drive]
     Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The unallocated NVM capacity for the NVME drive
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_info.warning_temp_threshold PMID: 150.256.12 [The temperature at which the warning temperature threshold is set]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
@@ -9993,14 +9992,14 @@ smart.nvme_power_states.power_state_0.entry_latency PMID: 150.257.9 [Entry laten
     Semantics: instant  Units: byte
 Help:
 Entry latency going into this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 1
 
 smart.nvme_power_states.power_state_0.exit_latency PMID: 150.257.10 [Exit latency leaving from this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Exit latency leaving from this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 1
 
 smart.nvme_power_states.power_state_0.idle_power PMID: 150.257.4 [The average idle power usage for this power state if reported]
     Data Type: double  InDom: 150.0 0x25800000
@@ -10014,49 +10013,49 @@ smart.nvme_power_states.power_state_0.max_power PMID: 150.257.1 [The maximum pow
     Semantics: instant  Units: byte
 Help:
 The maximum power usage for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 8
 
 smart.nvme_power_states.power_state_0.non_operational_state PMID: 150.257.2 [The value "1" if this state is an operational state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The value "1" if this state is an operational state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_power_states.power_state_0.relative_read_latency PMID: 150.257.5 [Relative read latency for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative read latency for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_power_states.power_state_0.relative_read_throughput PMID: 150.257.6 [Relative read throughput for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative read throughput for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_power_states.power_state_0.relative_write_latency PMID: 150.257.7 [Relative write latency for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative write latency for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_power_states.power_state_0.relative_write_throughput PMID: 150.257.8 [Relative write throughput for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative write throughput for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_power_states.power_state_0.state PMID: 150.257.0 [The power state identifier for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The power state identifier for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_power_states.power_state_1.active_power PMID: 150.258.3 [The average active power usage for this power state if reported]
     Data Type: double  InDom: 150.0 0x25800000
@@ -10070,14 +10069,14 @@ smart.nvme_power_states.power_state_1.entry_latency PMID: 150.258.9 [Entry laten
     Semantics: instant  Units: byte
 Help:
 Entry latency going into this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 1
 
 smart.nvme_power_states.power_state_1.exit_latency PMID: 150.258.10 [Exit latency leaving from this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Exit latency leaving from this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 1
 
 smart.nvme_power_states.power_state_1.idle_power PMID: 150.258.4 [The average idle power usage for this power state if reported]
     Data Type: double  InDom: 150.0 0x25800000
@@ -10091,49 +10090,49 @@ smart.nvme_power_states.power_state_1.max_power PMID: 150.258.1 [The maximum pow
     Semantics: instant  Units: byte
 Help:
 The maximum power usage for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 3.9
 
 smart.nvme_power_states.power_state_1.non_operational_state PMID: 150.258.2 [The value "1" if this state is an operational state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The value "1" if this state is an operational state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_power_states.power_state_1.relative_read_latency PMID: 150.258.5 [Relative read latency for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative read latency for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 1
 
 smart.nvme_power_states.power_state_1.relative_read_throughput PMID: 150.258.6 [Relative read throughput for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative read throughput for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 1
 
 smart.nvme_power_states.power_state_1.relative_write_latency PMID: 150.258.7 [Relative write latency for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative write latency for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 1
 
 smart.nvme_power_states.power_state_1.relative_write_throughput PMID: 150.258.8 [Relative write throughput for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative write throughput for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 1
 
 smart.nvme_power_states.power_state_1.state PMID: 150.258.0 [The power state identifier for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The power state identifier for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 1
 
 smart.nvme_power_states.power_state_2.active_power PMID: 150.259.3 [The average active power usage for this power state if reported]
     Data Type: double  InDom: 150.0 0x25800000
@@ -10147,14 +10146,14 @@ smart.nvme_power_states.power_state_2.entry_latency PMID: 150.259.9 [Entry laten
     Semantics: instant  Units: byte
 Help:
 Entry latency going into this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 1
 
 smart.nvme_power_states.power_state_2.exit_latency PMID: 150.259.10 [Exit latency leaving from this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Exit latency leaving from this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 1
 
 smart.nvme_power_states.power_state_2.idle_power PMID: 150.259.4 [The average idle power usage for this power state if reported]
     Data Type: double  InDom: 150.0 0x25800000
@@ -10168,49 +10167,49 @@ smart.nvme_power_states.power_state_2.max_power PMID: 150.259.1 [The maximum pow
     Semantics: instant  Units: byte
 Help:
 The maximum power usage for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 2
 
 smart.nvme_power_states.power_state_2.non_operational_state PMID: 150.259.2 [The value "1" if this state is an operational state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The value "1" if this state is an operational state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_power_states.power_state_2.relative_read_latency PMID: 150.259.5 [Relative read latency for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative read latency for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 2
 
 smart.nvme_power_states.power_state_2.relative_read_throughput PMID: 150.259.6 [Relative read throughput for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative read throughput for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 2
 
 smart.nvme_power_states.power_state_2.relative_write_latency PMID: 150.259.7 [Relative write latency for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative write latency for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 2
 
 smart.nvme_power_states.power_state_2.relative_write_throughput PMID: 150.259.8 [Relative write throughput for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative write throughput for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 2
 
 smart.nvme_power_states.power_state_2.state PMID: 150.259.0 [The power state identifier for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The power state identifier for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 2
 
 smart.nvme_power_states.power_state_3.active_power PMID: 150.260.3 [The average active power usage for this power state if reported]
     Data Type: double  InDom: 150.0 0x25800000
@@ -10224,14 +10223,14 @@ smart.nvme_power_states.power_state_3.entry_latency PMID: 150.260.9 [Entry laten
     Semantics: instant  Units: byte
 Help:
 Entry latency going into this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 1500
 
 smart.nvme_power_states.power_state_3.exit_latency PMID: 150.260.10 [Exit latency leaving from this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Exit latency leaving from this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 1500
 
 smart.nvme_power_states.power_state_3.idle_power PMID: 150.260.4 [The average idle power usage for this power state if reported]
     Data Type: double  InDom: 150.0 0x25800000
@@ -10245,49 +10244,49 @@ smart.nvme_power_states.power_state_3.max_power PMID: 150.260.1 [The maximum pow
     Semantics: instant  Units: byte
 Help:
 The maximum power usage for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0.05
 
 smart.nvme_power_states.power_state_3.non_operational_state PMID: 150.260.2 [The value "1" if this state is an operational state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The value "1" if this state is an operational state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 1
 
 smart.nvme_power_states.power_state_3.relative_read_latency PMID: 150.260.5 [Relative read latency for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative read latency for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 3
 
 smart.nvme_power_states.power_state_3.relative_read_throughput PMID: 150.260.6 [Relative read throughput for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative read throughput for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 3
 
 smart.nvme_power_states.power_state_3.relative_write_latency PMID: 150.260.7 [Relative write latency for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative write latency for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 3
 
 smart.nvme_power_states.power_state_3.relative_write_throughput PMID: 150.260.8 [Relative write throughput for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative write throughput for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 3
 
 smart.nvme_power_states.power_state_3.state PMID: 150.260.0 [The power state identifier for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The power state identifier for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 3
 
 smart.nvme_power_states.power_state_4.active_power PMID: 150.261.3 [The average active power usage for this power state if reported]
     Data Type: double  InDom: 150.0 0x25800000
@@ -10301,14 +10300,14 @@ smart.nvme_power_states.power_state_4.entry_latency PMID: 150.261.9 [Entry laten
     Semantics: instant  Units: byte
 Help:
 Entry latency going into this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 6000
 
 smart.nvme_power_states.power_state_4.exit_latency PMID: 150.261.10 [Exit latency leaving from this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Exit latency leaving from this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 14000
 
 smart.nvme_power_states.power_state_4.idle_power PMID: 150.261.4 [The average idle power usage for this power state if reported]
     Data Type: double  InDom: 150.0 0x25800000
@@ -10322,49 +10321,49 @@ smart.nvme_power_states.power_state_4.max_power PMID: 150.261.1 [The maximum pow
     Semantics: instant  Units: byte
 Help:
 The maximum power usage for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0.005
 
 smart.nvme_power_states.power_state_4.non_operational_state PMID: 150.261.2 [The value "1" if this state is an operational state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The value "1" if this state is an operational state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 1
 
 smart.nvme_power_states.power_state_4.relative_read_latency PMID: 150.261.5 [Relative read latency for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative read latency for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 4
 
 smart.nvme_power_states.power_state_4.relative_read_throughput PMID: 150.261.6 [Relative read throughput for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative read throughput for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 4
 
 smart.nvme_power_states.power_state_4.relative_write_latency PMID: 150.261.7 [Relative write latency for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative write latency for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 4
 
 smart.nvme_power_states.power_state_4.relative_write_throughput PMID: 150.261.8 [Relative write throughput for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative write throughput for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 4
 
 smart.nvme_power_states.power_state_4.state PMID: 150.261.0 [The power state identifier for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The power state identifier for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 4
 
 smart.nvme_power_states.power_state_5.active_power PMID: 150.262.3 [The average active power usage for this power state if reported]
     Data Type: double  InDom: 150.0 0x25800000
@@ -10378,14 +10377,14 @@ smart.nvme_power_states.power_state_5.entry_latency PMID: 150.262.9 [Entry laten
     Semantics: instant  Units: byte
 Help:
 Entry latency going into this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 50000
 
 smart.nvme_power_states.power_state_5.exit_latency PMID: 150.262.10 [Exit latency leaving from this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Exit latency leaving from this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 80000
 
 smart.nvme_power_states.power_state_5.idle_power PMID: 150.262.4 [The average idle power usage for this power state if reported]
     Data Type: double  InDom: 150.0 0x25800000
@@ -10399,72 +10398,72 @@ smart.nvme_power_states.power_state_5.max_power PMID: 150.262.1 [The maximum pow
     Semantics: instant  Units: byte
 Help:
 The maximum power usage for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0.003
 
 smart.nvme_power_states.power_state_5.non_operational_state PMID: 150.262.2 [The value "1" if this state is an operational state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The value "1" if this state is an operational state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 1
 
 smart.nvme_power_states.power_state_5.relative_read_latency PMID: 150.262.5 [Relative read latency for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative read latency for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 5
 
 smart.nvme_power_states.power_state_5.relative_read_throughput PMID: 150.262.6 [Relative read throughput for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative read throughput for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 5
 
 smart.nvme_power_states.power_state_5.relative_write_latency PMID: 150.262.7 [Relative write latency for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative write latency for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 5
 
 smart.nvme_power_states.power_state_5.relative_write_throughput PMID: 150.262.8 [Relative write throughput for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Relative write throughput for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 5
 
 smart.nvme_power_states.power_state_5.state PMID: 150.262.0 [The power state identifier for this power state]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 The power state identifier for this power state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 5
 == Checking with valgrind - smart-root-004.tgz
 === std out ===
 
 smart.health
-No value(s) available!
+    inst [0 or "nvme0n1"] value "PASSED"
 
 smart.info.capacity_bytes
-No value(s) available!
+    inst [0 or "nvme0n1"] value 512110190592
 
 smart.attributes.power_off_retract_count.worst
 No value(s) available!
 
 smart.nvme_attributes.data_units_read
-No value(s) available!
+    inst [0 or "nvme0n1"] value 6840336
 
 smart.nvme_info.serial_number
-No value(s) available!
+    inst [0 or "nvme0n1"] value "61SF70CAFDP3"
 
 smart.nvme_info.active_power_state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 0
 
 smart.nvme_power_states.power_state_1.state
-No value(s) available!
+    inst [0 or "nvme0n1"] value 1
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
