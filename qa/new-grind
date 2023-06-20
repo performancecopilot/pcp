@@ -198,12 +198,7 @@ trap "_cleanup; exit \\\$status" 0 1 2 3 15
 
 # real QA test starts here
 export seq
-./$oldseq --valgrind \
-| \$PCP_AWK_PROG '
-skip == 1 && \$1 == "==="       { skip = 0 }
-/^=== std err ===/             { skip = 1 }
-skip == 0              { print }
-skip == 1              { print >>"'\$here/\$seq.full'" }'
+./$oldseq --valgrind
 
 # success, all done
 exit
