@@ -1906,12 +1906,12 @@ x11
 1451 pmdumptext local valgrind
 1452 pmda.bpf local
 1453 pmiectl local
-1454:reserved pmlogrewrite local
+1454 pmlogrewrite local pmdumplog
 1455 pmlogrewrite labels pmdumplog local
 1456:reserved pmlogrewrite local
 1457 pmproxy libpcp_web threads secure local
 1458 pmproxy libpcp_web threads local
-1459:reserved pmlogrewrite local
+1459 pmlogrewrite local valgrind pmdumplog
 1460:reserved pmlogrewrite local
 1466 pmlogctl pmcd pmiectl logutil local
 1475 pmda.bpf local
@@ -1959,6 +1959,7 @@ x11
 1626 pmproxy libpcp_web local
 1627 libpcp_import local
 1628 libpcp_import valgrind local
+1630 pmlogrewrite local pmdumplog
 1633 python pmda.sockets local
 1634 pmda.sockets local
 1639 pmda.bpf local
