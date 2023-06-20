@@ -304,7 +304,7 @@ Inst Changes:	<- InDom 1.5
 
 === indom 1.5 { iname "15" -> } ===
 Specification error in configuration file (TMP.conf)
-[line 1] Expecting new external instance name string or DELETE in iname clause
+[line 1] Expecting new <external_instance_name> or DELETE in iname clause
 
 === indom 1.5 { iname "15" - } ===
 Specification error in configuration file (TMP.conf)
@@ -464,9 +464,9 @@ Name:		irix.kernel.all.load -> hostname
 
 === context sensitive lexical scanning ... expect fail ===
 Specification error in configuration file (TMP.conf)
-[line 2] Expecting metric name in iname clause
+[line 2] Expecting <metric_name> in iname clause
 Specification error in configuration file (TMP.conf)
-[line 2] Expecting metric name in iname clause
+[line 2] Expecting <metric_name> in iname clause
 
 === new conditional if in type clause (expect errors) ===
 Specification error in configuration file (TMP.conf)
