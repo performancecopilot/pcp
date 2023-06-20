@@ -854,12 +854,14 @@ new_indom_instance_label(int indom)
 	TOK_INST
 	TOK_INAME
 	TOK_DELETE
+	TOK_REDACT
 	TOK_PMID
 	TOK_NULL_INT
 	TOK_TYPE
 	TOK_IF
 	TOK_SEM
 	TOK_UNITS
+	TOK_METRIC_VALUE
 	TOK_OUTPUT
 	TOK_RESCALE
 	TOK_TEXT
@@ -879,6 +881,7 @@ new_indom_instance_label(int indom)
 	TOK_BITS
 
 %token<str>	TOK_GNAME TOK_NUMBER TOK_STRING TOK_TEXT_STRING TOK_HNAME TOK_FLOAT
+%token<str>	TOK_PATTERN
 %token<str>	TOK_JSON_STRING TOK_JSON_NUMBER
 %token<str>	TOK_JSON_TRUE TOK_JSON_FALSE TOK_JSON_NULL
 %token<str>	TOK_INDOM_STAR TOK_PMID_INT TOK_PMID_STAR
@@ -893,7 +896,7 @@ new_indom_instance_label(int indom)
 %type<ival>	rescaleopt duplicateopt texttype texttypes opttexttypes
 %type<ival>	pmid_domain pmid_cluster
 %type<dval>	float
-%type<str>	textstring opttextvalue jsonname jsonvalue jsonnumber
+%type<str>	textstring opttextvalue jsonname jsonvalue jsonnumber pattern replacement
 
 %%
 
@@ -1020,7 +1023,7 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 		    }
 		| TOK_HOSTNAME TOK_ASSIGN
 		    {
-			pmsprintf(mess, sizeof(mess), "Expecting hostname in hostname clause");
+			pmsprintf(mess, sizeof(mess), "Expecting <hostname> in hostname clause");
 			yyerror(mess);
 		    }
 		| TOK_HOSTNAME
@@ -1030,7 +1033,7 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 		    }
 		| TOK_TIMEZONE TOK_ASSIGN
 		    {
-			pmsprintf(mess, sizeof(mess), "Expecting timezone string in timezone clause");
+			pmsprintf(mess, sizeof(mess), "Expecting <timezone_string> in timezone clause");
 			yyerror(mess);
 		    }
 		| TOK_TIMEZONE
@@ -1040,7 +1043,7 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 		    }
 		| TOK_ZONEINFO TOK_ASSIGN
 		    {
-			pmsprintf(mess, sizeof(mess), "Expecting zoneinfo string in zoneinfo clause");
+			pmsprintf(mess, sizeof(mess), "Expecting <zoneinfo_string> in zoneinfo clause");
 			yyerror(mess);
 		    }
 		| TOK_ZONEINFO
@@ -1050,7 +1053,7 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 		    }
 		| TOK_FEATURES TOK_ASSIGN
 		    {
-			pmsprintf(mess, sizeof(mess), "Expecting features value in features clause");
+			pmsprintf(mess, sizeof(mess), "Expecting <features_value> in features clause");
 			yyerror(mess);
 		    }
 		| TOK_FEATURES
@@ -1060,7 +1063,7 @@ globalopt	: TOK_HOSTNAME TOK_ASSIGN hname
 		    }
 		| TOK_TIME TOK_ASSIGN
 		    {
-			pmsprintf(mess, sizeof(mess), "Expecting delta of the form [+-][HH:[MM:]]SS[.d...] in time clause");
+			pmsprintf(mess, sizeof(mess), "Expecting <delta> of the form [+-][HH:[MM:]]SS[.d...] in time clause");
 			yyerror(mess);
 		    }
 		| TOK_TIME
@@ -1087,7 +1090,7 @@ feature_bits	: TOK_NUMBER
 		    }
 		| TOK_BITS TOK_LPAREN
 		    {
-			pmsprintf(mess, sizeof(mess), "Expecting list of bit numbers after \"bits(\" in features clause");
+			pmsprintf(mess, sizeof(mess), "Expecting <list_of_bit_numbers> after \"bits(\" in features clause");
 			yyerror(mess);
 		    }
 		| TOK_BITS
@@ -1368,6 +1371,14 @@ indomopt	: TOK_INDOM TOK_ASSIGN duplicateopt indom_int
 			}
 			free($2);
 		    }
+		| TOK_INAME TOK_REDACT
+		    {
+			indomspec_t	*ip;
+			for (ip = walk_indom(W_START); ip != NULL; ip = walk_indom(W_NEXT)) {
+			    if (redact_indom(ip->old_indom) < 0)
+			    	yyerror(mess);
+			}
+		    }
 		| TOK_INST number TOK_ASSIGN number
 		    {
 			indomspec_t	*ip;
@@ -1396,7 +1407,7 @@ indomopt	: TOK_INDOM TOK_ASSIGN duplicateopt indom_int
 		    }
 		| TOK_INAME TOK_STRING TOK_ASSIGN
 		    {
-			pmsprintf(mess, sizeof(mess), "Expecting new external instance name string or DELETE in iname clause");
+			pmsprintf(mess, sizeof(mess), "Expecting new <external_instance_name> or DELETE in iname clause");
 			yyerror(mess);
 		    }
 		| TOK_INAME TOK_STRING
@@ -1406,12 +1417,12 @@ indomopt	: TOK_INDOM TOK_ASSIGN duplicateopt indom_int
 		    }
 		| TOK_INAME
 		    {
-			pmsprintf(mess, sizeof(mess), "Expecting old external instance name string in iname clause");
+			pmsprintf(mess, sizeof(mess), "Expecting old <external_instance_name> in iname clause");
 			yyerror(mess);
 		    }
 		| TOK_INST number TOK_ASSIGN
 		    {
-			pmsprintf(mess, sizeof(mess), "Expecting new internal instance identifier or DELETE in inst clause");
+			pmsprintf(mess, sizeof(mess), "Expecting new <internal_instance_identifier> or DELETE in inst clause");
 			yyerror(mess);
 		    }
 		| TOK_INST number
@@ -1421,7 +1432,7 @@ indomopt	: TOK_INDOM TOK_ASSIGN duplicateopt indom_int
 		    }
 		| TOK_INST
 		    {
-			pmsprintf(mess, sizeof(mess), "Expecting old internal instance identifier in inst clause");
+			pmsprintf(mess, sizeof(mess), "Expecting old <internal_instance_identifier> in inst clause");
 			yyerror(mess);
 		    }
 		;
@@ -1475,7 +1486,7 @@ metricspec	: TOK_METRIC pmid_or_name
 			TOK_LBRACE optmetricoptlist TOK_RBRACE
 		| TOK_METRIC
 		    {
-			pmsprintf(mess, sizeof(mess), "Expecting metric name or <domain>.<cluster>.<item> or <domain>.<cluster>.* or <domain>.*.* in metric rule");
+			pmsprintf(mess, sizeof(mess), "Expecting <metric_name> or <domain>.<cluster>.<item> or <domain>.<cluster>.* or <domain>.*.* in metric rule");
 			yyerror(mess);
 		    }
 		;
@@ -1809,6 +1820,42 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 			    }
 			}
 		    }
+		| TOK_METRIC_VALUE pattern TOK_ASSIGN replacement
+		    {
+			metricspec_t	*mp;
+			for (mp = walk_metric(W_START, METRIC_CHANGE_VALUE, "value", 1); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_VALUE, "value", 1)) {
+			    value_change_t	*vc_tmp;
+			    value_change_t	*vcp;
+			    int			sts;
+
+			    if (mp->old_desc.type != PM_TYPE_STRING) {
+				pmsprintf(mess, sizeof(mess), "Metric: %s (%s): Type %s not STRING, cannot change value", mp->old_name, pmIDStr(mp->old_desc.pmid), pmTypeStr(mp->old_desc.type));
+				free($2);
+				free($4);
+				yywarn(mess);
+				continue;
+			    }
+			    mp->flags |= METRIC_CHANGE_VALUE;
+			    mp->nvc++;
+			    vc_tmp = (value_change_t *)realloc(mp->vc, mp->nvc * sizeof(value_change_t));
+			    if (vc_tmp == NULL) {
+				pmsprintf(mess, sizeof(mess), "value_change realloc(%d) failed: %s\n", (int)(mp->nvc * sizeof(value_change_t)), strerror(errno));
+				yyerror(mess);
+			    }
+			    else
+				mp->vc = vc_tmp;
+			    vcp = &mp->vc[mp->nvc-1];
+			    vcp->pat = $2;
+			    vcp->replace = $4;
+			    if ((sts = regcomp(&vcp->regex, vcp->pat, REG_EXTENDED)) != 0) {
+				size_t	pfx;
+				strncat(mess, "regcomp error: ", sizeof(mess)-1);
+				pfx = strlen(mess);
+				regerror(sts, &vcp->regex, &mess[pfx], sizeof(mess)-pfx-1);
+				yyerror(mess);
+			    }
+			}
+		    }
 		| TOK_DELETE
 		    {
 			metricspec_t	*mp;
@@ -1823,7 +1870,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 		    }
 		| TOK_NAME TOK_ASSIGN
 		    {
-			pmsprintf(mess, sizeof(mess), "Expecting metric name in iname clause");
+			pmsprintf(mess, sizeof(mess), "Expecting <metric_name> in iname clause");
 			yyerror(mess);
 		    }
 		| TOK_TYPE TOK_ASSIGN
@@ -1869,6 +1916,21 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 		| TOK_UNITS TOK_ASSIGN signnumber TOK_COMMA signnumber TOK_COMMA signnumber TOK_COMMA TOK_SPACE_NAME TOK_COMMA TOK_TIME_NAME TOK_COMMA
 		    {
 			pmsprintf(mess, sizeof(mess), "Expecting 0 or ONE for scaleCount field of units");
+			yyerror(mess);
+		    }
+		| TOK_METRIC_VALUE pattern TOK_ASSIGN
+		    {
+			pmsprintf(mess, sizeof(mess), "Expecting <replacement> in metric value clause");
+			yyerror(mess);
+		    }
+		| TOK_METRIC_VALUE pattern
+		    {
+			pmsprintf(mess, sizeof(mess), "Expecting -> in metric value clause");
+			yyerror(mess);
+		    }
+		| TOK_METRIC_VALUE
+		    {
+			pmsprintf(mess, sizeof(mess), "Expecting <regular expression> in metric value clause");
 			yyerror(mess);
 		    }
 		;
@@ -2144,6 +2206,18 @@ textmetricopt	: TOK_DELETE
 textstring	: TOK_STRING
 		    { $$ = $1; }
 		| TOK_TEXT_STRING
+		    { $$ = $1; }
+		;
+
+pattern		: TOK_PATTERN
+		    { $$ = $1; }
+		| TOK_STRING
+		    { $$ = $1; }
+		;
+
+replacement	: TOK_STRING
+		    { $$ = $1; }
+		| TOK_PATTERN
 		    { $$ = $1; }
 		;
 
@@ -2487,7 +2561,7 @@ labelcontextopt	: TOK_DELETE
 			labelspec_t	*lp;
 			for (lp = walk_label(W_START, LABEL_CHANGE_VALUE, "value", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_VALUE, "value", 0)) {
 			    if (lp->new_value != NULL) {
-				pmsprintf(mess, sizeof(mess), "Duplicate value clause for cluster %d.%d", pmID_domain(lp->old_id), pmID_cluster(lp->old_id));
+				pmsprintf(mess, sizeof(mess), "Duplicate label value clause for cluster %d.%d", pmID_domain(lp->old_id), pmID_cluster(lp->old_id));
 				yyerror(mess);
 			    }
 			    if (lp->old_value != NULL &&
@@ -2679,7 +2753,7 @@ labeldomainopt	: TOK_DELETE
 			labelspec_t	*lp;
 			for (lp = walk_label(W_START, LABEL_CHANGE_VALUE, "value", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_VALUE, "value", 0)) {
 			    if (lp->new_value != NULL) {
-				pmsprintf(mess, sizeof(mess), "Duplicate value clause for cluster %d.%d", pmID_domain(lp->old_id), pmID_cluster(lp->old_id));
+				pmsprintf(mess, sizeof(mess), "Duplicate label value clause for cluster %d.%d", pmID_domain(lp->old_id), pmID_cluster(lp->old_id));
 				yyerror(mess);
 			    }
 			    if (lp->old_value != NULL &&
@@ -2893,13 +2967,12 @@ labelclusteropt	: TOK_DELETE
 			    }
 			}
 		    }
-		;
 		| TOK_VALUE TOK_ASSIGN jsonvalue
 		    {
 			labelspec_t	*lp;
 			for (lp = walk_label(W_START, LABEL_CHANGE_VALUE, "value", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_VALUE, "value", 0)) {
 			    if (lp->new_value != NULL) {
-				pmsprintf(mess, sizeof(mess), "Duplicate value clause for cluster %d.%d", pmID_domain(lp->old_id), pmID_cluster(lp->old_id));
+				pmsprintf(mess, sizeof(mess), "Duplicate label value clause for cluster %d.%d", pmID_domain(lp->old_id), pmID_cluster(lp->old_id));
 				yyerror(mess);
 			    }
 			    if (lp->old_value != NULL &&
@@ -2917,7 +2990,6 @@ labelclusteropt	: TOK_DELETE
 			    }
 			}
 		    }
-		;
 		| newlabelspec
 		    {
 			new_cluster_label(current_label_id);
@@ -3083,13 +3155,12 @@ labelitemopt	: TOK_DELETE
 			    }
 			}
 		    }
-		;
 		| TOK_VALUE TOK_ASSIGN jsonvalue
 		    {
 			labelspec_t	*lp;
 			for (lp = walk_label(W_START, LABEL_CHANGE_VALUE, "value", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_VALUE, "value", 0)) {
 			    if (lp->new_value != NULL) {
-				pmsprintf(mess, sizeof(mess), "Duplicate value clause for metric %s", pmIDStr(lp->old_id));
+				pmsprintf(mess, sizeof(mess), "Duplicate label value clause for metric %s", pmIDStr(lp->old_id));
 				yyerror(mess);
 			    }
 			    if (lp->old_value != NULL &&
@@ -3107,7 +3178,6 @@ labelitemopt	: TOK_DELETE
 			    }
 			}
 		    }
-		;
 		| newlabelspec
 		    {
 			new_item_label(current_label_id);
@@ -3264,13 +3334,12 @@ labelindomopt	: TOK_DELETE
 			    }
 			}
 		    }
-		;
 		| TOK_VALUE TOK_ASSIGN jsonvalue
 		    {
 			labelspec_t	*lp;
 			for (lp = walk_label(W_START, LABEL_CHANGE_VALUE, "value", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_VALUE, "value", 0)) {
 			    if (lp->new_value != NULL) {
-				pmsprintf(mess, sizeof(mess), "Duplicate value clause for indom %s", pmInDomStr(lp->old_id));
+				pmsprintf(mess, sizeof(mess), "Duplicate label value clause for indom %s", pmInDomStr(lp->old_id));
 				yyerror(mess);
 			    }
 			    if (lp->old_value != NULL &&
@@ -3288,7 +3357,6 @@ labelindomopt	: TOK_DELETE
 			    }
 			}
 		    }
-		;
 		| newlabelspec
 		    {
 			new_indom_label(current_label_id);
@@ -3497,13 +3565,12 @@ labelinstancesopt	: TOK_DELETE
 			    }
 			}
 		    }
-		;
 		| TOK_VALUE TOK_ASSIGN jsonvalue
 		    {
 			labelspec_t	*lp;
 			for (lp = walk_label(W_START, LABEL_CHANGE_VALUE, "value", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_VALUE, "value", 0)) {
 			    if (lp->new_value != NULL) {
-				pmsprintf(mess, sizeof(mess), "Duplicate value clause for instances of indom %s", pmInDomStr(lp->old_id));
+				pmsprintf(mess, sizeof(mess), "Duplicate label value clause for instances of indom %s", pmInDomStr(lp->old_id));
 				yyerror(mess);
 			    }
 			    if (lp->old_value != NULL &&
@@ -3521,7 +3588,6 @@ labelinstancesopt	: TOK_DELETE
 			    }
 			}
 		    }
-		;
 		| newlabelspec
 		    {
 			new_indom_instance_label(current_label_id);

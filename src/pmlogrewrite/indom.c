@@ -473,3 +473,35 @@ do_indom(int type)
 done:
     __pmFreeLogInDom(&lid);
 }
+
+int
+redact_indom(pmInDom indom)
+{
+    char	iname[22];	/* XXXXXXXXXX [redacted] */
+    int		i;
+    indomspec_t	*ip;
+
+    for (ip = indom_root; ip != NULL; ip = ip->i_next) {
+	if (indom == ip->old_indom)
+	    break;
+    }
+    assert(ip != NULL);
+
+    for (i = 0; i < ip->numinst; i++) {
+	if (ip->inst_flags[i] & (INST_CHANGE_INAME|INST_DELETE)) {
+		pmsprintf(mess, sizeof(mess), "Duplicate or conflicting clauses for instance [%d] \"%s\" of indom %s",
+		    ip->old_inst[i], ip->old_iname[i], pmInDomStr(indom));
+		return -1;
+	    }
+	pmsprintf(iname, sizeof(iname), "%d [redacted]", ip->old_inst[i]);
+	ip->new_iname[i] = strdup(iname);
+	if (ip->new_iname[i] == NULL) {
+	    fprintf(stderr, "redact_indom malloc(%d) failed: %s\n", (int)strlen(iname), strerror(errno));
+	    abandon();
+	    /*NOTREACHED*/
+	}
+	ip->inst_flags[i] |= INST_CHANGE_INAME;
+    }
+
+    return 0;
+}

@@ -122,6 +122,7 @@ duptextstr(char *s, int strip_quotes)
 <indom>"indom"		{ return TOK_INDOM; }
 <indom>"duplicate"	{ return TOK_DUPLICATE; }
 <indom>"iname"		{ return TOK_INAME; }
+<indom>"redact"		{ return TOK_REDACT; }
 <indom>"inst"		{ return TOK_INST; }
 
 <metric>"name"		{ return TOK_NAME; }
@@ -132,6 +133,7 @@ duptextstr(char *s, int strip_quotes)
 <metric>"output"	{ BEGIN(output); return TOK_OUTPUT; }
 <metric>"sem"		{ BEGIN(sem); return TOK_SEM; }
 <metric>"units"		{ BEGIN(units); comma_count = 0; return TOK_UNITS; }
+<metric>"value"		{ return TOK_METRIC_VALUE; }
 
 <text>"metric"		{ return TOK_METRIC; }
 <text>"indom"		{ return TOK_INDOM; }
@@ -225,6 +227,7 @@ duptextstr(char *s, int strip_quotes)
 
 \"[^\"\n][^\"\n]*\"	{ yylval.str = dupstr(yytext, 1); return TOK_STRING; }
 \"(\\\"|[^\"])+\"	{ yylval.str = duptextstr(yytext, 1); return TOK_TEXT_STRING; }
+\/[^/\n][^/\n]*\/	{ yylval.str = dupstr(yytext, 1); return TOK_PATTERN; }
 
 [0-9]+			{ yylval.str = dupstr(yytext, 0); return TOK_NUMBER; }
 
@@ -277,6 +280,10 @@ duptextstr(char *s, int strip_quotes)
 ")"			{ return TOK_RPAREN; }
 
 \n			{ lineno++; }
+\"			{ 
+			    pmsprintf(mess, sizeof(mess), "Missing closing \" for string expression");
+			    yyerror(mess);
+			}
 .			{ 
 			    pmsprintf(mess, sizeof(mess), "Unexpected character '%c'",
 				yytext[0]);

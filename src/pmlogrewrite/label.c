@@ -430,17 +430,21 @@ static const char *
 label_id_str(const labelspec_t *lp, int old)
 {
     static char buf[1024];
+    size_t	buflen;
 
-    pmsprintf(buf, sizeof(buf), "label {");
+    pmsprintf(buf, sizeof(buf), "{");
+    buflen = strlen(buf);
     if (lp->old_label)
-	pmsprintf(buf, sizeof(buf), "%s,", old ? lp->old_label : lp->new_label);
+	pmsprintf(&buf[buflen], sizeof(buf)-buflen, "%s,", old ? lp->old_label : lp->new_label);
     else
-	pmsprintf(buf, sizeof(buf), "ALL,");
+	pmsprintf(&buf[buflen], sizeof(buf)-buflen, "ALL,");
+    buflen = strlen(buf);
     if (lp->old_value)
-	pmsprintf(buf, sizeof(buf), "%s ", old ? lp->old_value : lp->new_value);
+	pmsprintf(&buf[buflen], sizeof(buf)-buflen, "%s", old ? lp->old_value : lp->new_value);
     else
-	pmsprintf(buf, sizeof(buf), "ALL ");
-    pmsprintf(buf, sizeof(buf), "}");
+	pmsprintf(&buf[buflen], sizeof(buf)-buflen, "ALL");
+    buflen = strlen(buf);
+    pmsprintf(&buf[buflen], sizeof(buf)-buflen, "}");
 
     return buf;
 }
@@ -896,10 +900,9 @@ do_labelset(void)
 		    int		new_value_len;
 
 		    if (pmDebugOptions.appl1) {
-			fprintf(stderr, "Rewrite: label %s for %s to %s\n",
-				label_id_str(lp, 1/*old*/),
-				label_association_str(lp, 1/*old*/),
-				label_id_str(lp, 0/*new*/));
+			fprintf(stderr, "Rewrite: label %s", label_id_str(lp, 1/*old*/));
+			fprintf(stderr, " for %s", label_association_str(lp, 1/*old*/));
+			fprintf(stderr, " to %s\n", label_id_str(lp, 0/*new*/));
 		    }
 
 		    /*

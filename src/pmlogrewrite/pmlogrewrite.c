@@ -21,6 +21,7 @@
  * appl2	pmResult changes
  * appl3	-q and reason for not taking quick exit
  * appl4	config parser
+ * appl5	regexp matching for metric value changes
  */
 
 #include <math.h>
@@ -570,9 +571,36 @@ reportconfig(void)
 	}
     }
     for (mp = metric_root; mp != NULL; mp = mp->m_next) {
-	if (mp->flags != 0 || mp->ip != NULL) {
+	if (mp->flags != 0 || mp->ip != NULL || mp->nvc > 0) {
+	    char	**names;
+	    int		sts;
+
+	    sts = pmNameAll(mp->old_desc.pmid, &names);
+	    if (sts < 0) {
+		printf("Warning: cannot get all names for PMID %s\n", pmIDStr(mp->old_desc.pmid));
+		printf("\nMetric: %s (%s)\n", mp->old_name, pmIDStr(mp->old_desc.pmid));
+	    }
+	    else {
+		printf("\nMetric");
+		if (sts > 1)
+		    putchar('s');
+		putchar(':');
+		/*
+		 * Names are likely to be dups first, primary name last
+		 */
+		for (i = sts-1; i >= 0; i--) {
+		    if (i == sts-2)
+			printf(" [");
+		    else
+			putchar(' ');
+		    printf("%s", names[i]);
+		}
+		if (sts > 1)
+		    putchar(']');
+		printf(" (%s)\n", pmIDStr(mp->old_desc.pmid));
+		free(names);
+	    }
 	    change |= 1;
-	    printf("\nMetric: %s (%s)\n", mp->old_name, pmIDStr(mp->old_desc.pmid));
 	}
 	if (mp->flags & METRIC_CHANGE_PMID) {
 	    printf("pmID:\t\t%s ->", pmIDStr(mp->old_desc.pmid));
@@ -657,6 +685,11 @@ reportconfig(void)
 	    if (mp->flags & METRIC_RESCALE)
 		printf(" (rescale)");
 	    putchar('\n');
+	}
+	if (mp->flags & METRIC_CHANGE_VALUE) {
+	    for (i = 0; i < mp->nvc; i++) {
+		printf("Value:\t\t/%s/ -> \"%s\"\n", mp->vc[i].pat, mp->vc[i].replace);
+	    }
 	}
 	if (mp->flags & METRIC_DELETE)
 	    printf("DELETE\n");
