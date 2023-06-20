@@ -30,6 +30,7 @@ import time
 import sys
 
 # Our imports
+import requests
 import json
 import os
 
@@ -47,6 +48,7 @@ DEFAULT_CONFIG = ["./pcp2json.conf", "$HOME/.pcp2json.conf", "$HOME/.pcp/pcp2jso
 CONFVER = 1
 INDENT = 2
 TIMEFMT = "%Y-%m-%d %H:%M:%S"
+TIMEOUT = 2.5 # seconds
 
 class PCP2JSON(object):
     """ PCP to JSON """
@@ -66,7 +68,8 @@ class PCP2JSON(object):
                      'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
                      'live_filter', 'rank', 'invert_filter', 'predicate', 'names_change',
                      'speclocal', 'instances', 'ignore_incompat', 'ignore_unknown',
-                     'omit_flat', 'include_labels')
+                     'omit_flat', 'include_labels', 'url', 'http_user', 'http_pass',
+                     'http_timeout')
 
         # Ignored for pmrep(1) compatibility
         self.keys_ignore = (
@@ -123,6 +126,10 @@ class PCP2JSON(object):
         self.extended = 0
         self.everything = 0
         self.exact_types = 0
+        self.url = None
+        self.http_user = None
+        self.http_pass = None
+        self.http_timeout = TIMEOUT
 
         # Internal
         self.runtime = -1
@@ -151,7 +158,7 @@ class PCP2JSON(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:4:58:9:nN:vmP:0:q:b:y:Q:B:Y:F:f:Z:zxXE")
+        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?HGA:S:T:O:s:t:rRIi:jJ:4:58:9:nN:vmP:0:q:b:y:Q:B:Y:F:f:Z:zxXEo:p:U:u:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -208,6 +215,11 @@ class PCP2JSON(object):
         opts.pmSetLongOption("with-extended", 0, "x", "", "write extended information about metrics")
         opts.pmSetLongOption("with-everything", 0, "X", "", "write everything, incl. internal IDs")
         opts.pmSetLongOption("exact-types", 0, "E", "", "output numbers as number data types not strings")
+
+        opts.pmSetLongOption("url", 1, "u", "URL", "URL of endpoint to receive HTTP POST")
+        opts.pmSetLongOption("http-timeout", 1, "o", "SECONDS", "timeout when sending HTTP POST")
+        opts.pmSetLongOption("http-pass", 1, "p", "PASSWORD", "password for endpoint")
+        opts.pmSetLongOption("http-user", 1, "U", "USERNAME", "username for endpoint")
 
         return opts
 
@@ -304,6 +316,14 @@ class PCP2JSON(object):
             self.everything = 1
         elif opt == 'E':
             self.exact_types = 1
+        elif opt == 'u':
+            self.url = optarg
+        elif opt == 'o':
+            self.http_timeout = float(optarg)
+        elif opt == 'U':
+            self.http_user = optarg
+        elif opt == 'P':
+            self.http_pass = optarg
         else:
             raise pmapi.pmUsageErr()
 
@@ -423,7 +443,7 @@ class PCP2JSON(object):
         if self.prev_ts is None:
             self.prev_ts = ts
 
-        if not self.writer:
+        if not self.writer and not self.url:
             if self.outfile is None:
                 self.writer = sys.stdout
             else:
@@ -524,13 +544,10 @@ class PCP2JSON(object):
 
     def finalize(self):
         """ Finalize and clean up """
+        data = json.dumps(self.data, indent=INDENT, sort_keys=True, ensure_ascii=False, separators=(',', ': '))
         if self.writer:
             try:
-                self.writer.write(json.dumps(self.data,
-                                             indent=INDENT,
-                                             sort_keys=True,
-                                             ensure_ascii=False,
-                                             separators=(',', ': ')))
+                self.writer.write(data)
                 self.writer.write("\n")
                 self.writer.flush()
             except IOError as write_error:
@@ -541,6 +558,21 @@ class PCP2JSON(object):
             except Exception:
                 pass
             self.writer = None
+        elif self.url:
+            auth = None
+            if self.http_user and self.http_pass:
+                auth = requests.auth.HTTPBasicAuth(self.http_user, self.http_pass)
+            try:
+                timeout = self.http_timeout
+                headers = {'Content-Type': 'application/json'}
+                res = requests.post(self.url, data=data, auth=auth, headers=headers, timeout=timeout)
+                if res.status_code > 299:
+                    msg = "Cannot send metrics: HTTP code %s\n" % str(res.status_code)
+                    sys.stderr.write(msg)
+            except requests.exceptions.ConnectionError as post_error:
+                msg = "Cannot connect to server at %s: %s\n" % (self.url, str(post_error))
+                sys.stderr.write(msg)
+            self.url = None
 
 if __name__ == '__main__':
     try:
