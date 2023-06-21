@@ -12,8 +12,9 @@ include $(TOPDIR)/src/include/builddefs
 TESTDIR = $(PCP_VAR_DIR)/testsuite/badarchives
 SUBDIRS =
 
-# volumes other than .0
-SRCPART = 
+# volumes other than .0 or with compressed archive volumes
+SRCPART = 20230506.20.02-01.0.xz 20230506.20.02-01.1.xz \
+	  20230506.20.02-01.index 20230506.20.02-01.meta
 # archives with no .index
 SRCNOTI	= 
 # other .meta files
