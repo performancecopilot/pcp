@@ -16,7 +16,7 @@ then
     cat $device.data
 elif [ "$option" = "-c" ]
 then
-    cat $device.power
+    test -f $device.power && cat $device.power
 else
     echo "Unknown option $option - try -[Hi|A|c] /dev/xxx"
     exit 1

@@ -6,4 +6,4 @@
 # With the nvme cli output we want the arg5 "get-feature -f 0x02 -H /dev/XXX"
 device=`echo "$5" | sed -e 's,/dev/,,g'`
 
-cat $device.nvme
+test -f $device.nvme && cat $device.nvme

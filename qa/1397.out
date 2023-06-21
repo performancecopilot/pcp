@@ -7131,10 +7131,7 @@ Normalized percentage below spare capacity
     inst [0 or "nvme0n1"] value 10
 
 smart.nvme_attributes.composite_temperature PMID: 150.255.1 [Contains current composite temperature of the controller]
-    Data Type: 32-bit unsignecat: nvme0n1.nvme: No such file or directory
-cat: nvme0n1.nvme: No such file or directory
-cat: nvme0n1.power: No such file or directory
-d int  InDom: 150.0 0x25800000
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
 Contains current composite temperature of the controller
@@ -7933,9 +7930,6 @@ smart.nvme_info.active_power_state
 smart.nvme_power_states.power_state_1.state
     inst [0 or "nvme0n1"] value 0
 === std err ===
-cat: nvme0n1.nvme: No such file or directory
-cat: nvme0n1.nvme: No such file or directory
-cat: nvme0n1.power: No such file or directory
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pminfo -L -K clear -K add,150,PCP_PMDAS_DIR/smart/pmda_smart.so,smart_init -f smart.health smart.info.capacity_bytes smart.attributes.power_off_retract_count.worst smart.nvme_attributes.data_units_read smart.nvme_info.serial_number smart.nvme_info.active_power_state smart.nvme_power_states.power_state_1.state
