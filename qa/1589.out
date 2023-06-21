@@ -1,0 +1,33 @@
+QA output created by 1589
+pcp2json invocation
+pcp2json HTTP POST (sorted):
+
+		"value":NCPU
+	      "ncpu": {
+	      }
+	    "@interval": "0",
+	    "@timestamp":SECS,
+	    "hinv": {
+	    }
+	  {
+	  }
+	"@host":HOST,
+	"@metrics": [
+	"@source": "local:",
+	"@timezone": "UTC+0"
+	],
+      {
+      }
+    "@hosts": [
+    ]
+  "@pcp": {
+  }
+Accept: */*
+Content-Length: SIZE
+Content-Type: application/json
+Host: localhost:PORT
+POST /receive HTTP/1.1
+User-Agent: python-requests VERSION
+{
+}
+

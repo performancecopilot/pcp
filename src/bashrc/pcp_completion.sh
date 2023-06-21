@@ -25,8 +25,8 @@ _pcp_complete()
         arg_regex="-[ahKceASTOstZiJ489NP0qQbByYgxUEX]"
     ;;
     pcp2json)
-        all_args="ahLKcCeVHGASTmOstRrZzrIijJ4589nNvP0qQbByYFfxXE"
-        arg_regex="-[ahKceASTOstZiJ489NP0qQbByYFf]"
+        all_args="ahLKcCeVHGASTmOstRrZzrIijJ4589nNvP0qQbByYFfxXEopuU"
+        arg_regex="-[ahKceASTOstZiJ489NP0qQbByYFfopuU]"
     ;;
     pcp2spark)
         all_args="ahLKcCeVHGASTOstRrZzrIijJ4589nNvP0qQbByYgp"
