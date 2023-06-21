@@ -30,6 +30,7 @@ SRCIDX = $(patsubst %.0,%.index,$(SRCARCH))
 SCRIPTS = mk.badlen mk.badti mk.badlabel mk.badlog
 
 LDIRT = pmlogger.log
+MANDIRT =  # clear this - *.1.xz is an archive volume
 LDIRDIRT = tmp
 
 default default_pcp setup: $(SUBDIRS)
