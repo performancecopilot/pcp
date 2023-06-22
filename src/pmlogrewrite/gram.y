@@ -224,11 +224,8 @@ walk_label(int mode, int flag, char *which, int dupok)
 	    lp = lp->l_next;
     }
     else {
-	if (mode == W_START) {
+	if (mode == W_START)
 	    lp = current_labelspec;
-	    if (lp)
-		assert ((lp->flags & LABEL_ACTIVE));
-	}
 	else
 	    lp = NULL;
     }
@@ -855,6 +852,7 @@ new_indom_instance_label(int indom)
 	TOK_INAME
 	TOK_DELETE
 	TOK_REDACT
+	TOK_REPLACE
 	TOK_PMID
 	TOK_NULL_INT
 	TOK_TYPE
@@ -1135,6 +1133,7 @@ hname		: TOK_HNAME
 		| TOK_GNAME
 		| TOK_NUMBER
 		| TOK_FLOAT
+		| TOK_STRING
 		;
 
 signnumber	: TOK_PLUS TOK_NUMBER
@@ -1379,6 +1378,16 @@ indomopt	: TOK_INDOM TOK_ASSIGN duplicateopt indom_int
 			    	yyerror(mess);
 			}
 		    }
+		| TOK_INAME TOK_REPLACE pattern TOK_ASSIGN replacement
+		    {
+			indomspec_t	*ip;
+			for (ip = walk_indom(W_START); ip != NULL; ip = walk_indom(W_NEXT)) {
+			    if (replace_indom(ip->old_indom, $3, $5) < 0)
+			    	yyerror(mess);
+			    free($3);
+			    free($5);
+			}
+		    }
 		| TOK_INST number TOK_ASSIGN number
 		    {
 			indomspec_t	*ip;
@@ -1417,7 +1426,7 @@ indomopt	: TOK_INDOM TOK_ASSIGN duplicateopt indom_int
 		    }
 		| TOK_INAME
 		    {
-			pmsprintf(mess, sizeof(mess), "Expecting old <external_instance_name> in iname clause");
+			pmsprintf(mess, sizeof(mess), "Expecting old <external_instance_name> or REDACT or REPLACE in iname clause");
 			yyerror(mess);
 		    }
 		| TOK_INST number TOK_ASSIGN
@@ -1435,6 +1444,22 @@ indomopt	: TOK_INDOM TOK_ASSIGN duplicateopt indom_int
 			pmsprintf(mess, sizeof(mess), "Expecting old <internal_instance_identifier> in inst clause");
 			yyerror(mess);
 		    }
+		| TOK_INAME TOK_REPLACE pattern TOK_ASSIGN
+		    {
+			pmsprintf(mess, sizeof(mess), "Expecting <replacement> in iname clause");
+			yyerror(mess);
+		    }
+		| TOK_INAME TOK_REPLACE pattern
+		    {
+			pmsprintf(mess, sizeof(mess), "Expecting -> in iname clause");
+			yyerror(mess);
+		    }
+		| TOK_INAME TOK_REPLACE
+		    {
+			pmsprintf(mess, sizeof(mess), "Expecting <regular expression> in iname clause");
+			yyerror(mess);
+		    }
+		;
 		;
 
 duplicateopt	: TOK_DUPLICATE 	{ $$ = INDOM_DUPLICATE; }
@@ -2574,6 +2599,7 @@ labelcontextopt	: TOK_DELETE
 				free($3);
 			    }
 			    else {
+				lp->new_label = lp->old_label;
 				lp->new_value = $3;
 				lp->flags |= LABEL_CHANGE_VALUE;
 			    }

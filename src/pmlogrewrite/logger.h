@@ -243,6 +243,7 @@ extern void		deactivate_labels(void);
 extern int		change_inst_by_inst(pmInDom, int, int);
 extern int		change_inst_by_name(pmInDom, char *, char *);
 extern int		redact_indom(pmInDom);
+extern int		replace_indom(pmInDom, char *, char *);
 extern int		inst_name_eq(const char *, const char *);
 
 extern char	*SemStr(int);

@@ -123,6 +123,7 @@ duptextstr(char *s, int strip_quotes)
 <indom>"duplicate"	{ return TOK_DUPLICATE; }
 <indom>"iname"		{ return TOK_INAME; }
 <indom>"redact"		{ return TOK_REDACT; }
+<indom>"replace"	{ return TOK_REPLACE; }
 <indom>"inst"		{ return TOK_INST; }
 
 <metric>"name"		{ return TOK_NAME; }

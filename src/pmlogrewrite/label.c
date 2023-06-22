@@ -31,8 +31,8 @@ start_label(int type, int id, int instance, const char *instance_name, char *lab
     char	buf[64];
 
     if (pmDebugOptions.appl4) {
-	fprintf(stderr, "start_label(%s)",
-		__pmLabelIdentString(id, type, buf, sizeof(buf)));
+	fprintf(stderr, "start_label(type=%s, id=0x%x, ...)",
+		__pmLabelIdentString(id, type, buf, sizeof(buf)), id);
     }
     
     /*
@@ -434,15 +434,28 @@ label_id_str(const labelspec_t *lp, int old)
 
     pmsprintf(buf, sizeof(buf), "{");
     buflen = strlen(buf);
-    if (lp->old_label)
-	pmsprintf(&buf[buflen], sizeof(buf)-buflen, "%s,", old ? lp->old_label : lp->new_label);
-    else
-	pmsprintf(&buf[buflen], sizeof(buf)-buflen, "ALL,");
-    buflen = strlen(buf);
-    if (lp->old_value)
-	pmsprintf(&buf[buflen], sizeof(buf)-buflen, "%s", old ? lp->old_value : lp->new_value);
-    else
-	pmsprintf(&buf[buflen], sizeof(buf)-buflen, "ALL");
+    if (old) {
+	if (lp->old_label)
+	    pmsprintf(&buf[buflen], sizeof(buf)-buflen, "%s,", lp->old_label);
+	else
+	    pmsprintf(&buf[buflen], sizeof(buf)-buflen, "ALL,");
+	buflen = strlen(buf);
+	if (lp->old_value)
+	    pmsprintf(&buf[buflen], sizeof(buf)-buflen, "%s", lp->old_value);
+	else
+	    pmsprintf(&buf[buflen], sizeof(buf)-buflen, "ALL");
+    }
+    else {
+	if (lp->new_label)
+	    pmsprintf(&buf[buflen], sizeof(buf)-buflen, "%s,", lp->new_label);
+	else
+	    pmsprintf(&buf[buflen], sizeof(buf)-buflen, "ALL,");
+	buflen = strlen(buf);
+	if (lp->new_value)
+	    pmsprintf(&buf[buflen], sizeof(buf)-buflen, "%s", lp->new_value);
+	else
+	    pmsprintf(&buf[buflen], sizeof(buf)-buflen, "ALL");
+    }
     buflen = strlen(buf);
     pmsprintf(&buf[buflen], sizeof(buf)-buflen, "}");
 
@@ -458,7 +471,7 @@ label_association_str(const labelspec_t *lp, int old)
 	pmsprintf(buf, sizeof(buf), "context");
     else if ((lp->old_type & PM_LABEL_DOMAIN)) {
 	pmsprintf(buf, sizeof(buf), "domain %d",
-		  old ? pmID_domain(lp->old_id) : pmID_domain(lp->new_id));
+		  old ? lp->old_id : lp->new_id);
     }
     else if ((lp->old_type & PM_LABEL_CLUSTER)) {
 	pmsprintf(buf, sizeof(buf), "cluster %d.%d",
@@ -493,8 +506,11 @@ label_association_str(const labelspec_t *lp, int old)
     return buf;
 }
 
+/*
+ * change name for kth label ... k == -1 => all labels
+ */
 static void
-change_labels(pmLabelSet *lsp, const labelspec_t *lp)
+change_labels(pmLabelSet *lsp, const labelspec_t *lp, int k)
 {
     char	*current_name;
     pmLabel	*current_label;
@@ -512,6 +528,8 @@ change_labels(pmLabelSet *lsp, const labelspec_t *lp)
 	target_label_len = strlen(lp->old_label);
 
     for (i = 0; i < lsp->nlabels; ++i) {
+	if (k != -1 && i != k)
+	    continue;
 	current_label = & lsp->labels[i];
 	current_name = lsp->json + current_label->name;
 
@@ -520,8 +538,8 @@ change_labels(pmLabelSet *lsp, const labelspec_t *lp)
 	     * A specific label has been specified on the change record.
 	     * Make sure we have the matching one.
 	     */
-	    if (current_label->namelen != target_label_len ||
-		memcmp (lp->old_label, current_name, target_label_len) != 0)
+	    if (current_label->namelen != target_label_len - 2 ||
+		memcmp (&lp->old_label[1], current_name, target_label_len - 2) != 0)
 		continue; /* next label */
 	}
 
@@ -544,7 +562,7 @@ change_labels(pmLabelSet *lsp, const labelspec_t *lp)
 	     */
 	    new_json = malloc(lsp->jsonlen + 1 + delta);
 	    if (new_json == NULL) {
-		fprintf(stderr, "labelset JSON realloc malloc(%d) failed: %s\n", lsp->jsonlen + delta, strerror(errno));
+		fprintf(stderr, "labelset JSON realloc malloc(%d) failed: %s\n", lsp->jsonlen + 1 + delta, strerror(errno));
 		abandon();
 		/*NOTREACHED*/
 	    }
@@ -591,8 +609,11 @@ change_labels(pmLabelSet *lsp, const labelspec_t *lp)
     }
 }
 
+/*
+ * change value for kth label ... k == -1 => all labels
+ */
 static void
-change_values(pmLabelSet *lsp, const labelspec_t *lp)
+change_values(pmLabelSet *lsp, const labelspec_t *lp, int k)
 {
     char	*current_value;
     pmLabel	*current_label;
@@ -610,6 +631,8 @@ change_values(pmLabelSet *lsp, const labelspec_t *lp)
 	target_value_len = strlen(lp->old_value);
 
     for (i = 0; i < lsp->nlabels; ++i) {
+	if (k != -1 && i != k)
+	    continue;
 	current_label = & lsp->labels[i];
 	current_value = lsp->json + current_label->value;
 
@@ -833,7 +856,7 @@ do_labelset(void)
 			fprintf(stderr, "Rewrite: name for label %s to %s\n",
 				label_id_str(lp, 1/*old*/), lp->new_label);
 		    }
-		    change_labels(lsp, lp);
+		    change_labels(lsp, lp, -1);
 		}
 
 		if ((flags & LABEL_CHANGE_VALUE)) {
@@ -841,7 +864,7 @@ do_labelset(void)
 			fprintf(stderr, "Rewrite: value for label %s to %s\n",
 				label_id_str(lp, 1/*old*/), lp->new_value);
 		    }
-		    change_values(lsp, lp);
+		    change_values(lsp, lp, -1);
 		}
 
 		/*
@@ -884,12 +907,36 @@ do_labelset(void)
 	    label_ix = 0;
 	    while ((label_ix = find_label(lsp, label_ix, lp->old_label, lp->old_value)) != -1) {
 		if (flags & LABEL_DELETE) {
-		    /* Do nothing. The label will be extracted below.  */
 		    if (pmDebugOptions.appl1) {
 			fprintf(stderr, "Delete: label %s for %s\n",
 				label_id_str(lp, 1/*old*/),
 				label_association_str(lp, 1/*old*/));
 		    }
+		    extract_label(lsp, label_ix);
+		    continue;
+		}
+		if (flags & LABEL_CHANGE_VALUE) {
+		    if (flags & LABEL_CHANGE_VALUE) {
+			/* change label value ...  */
+			if (pmDebugOptions.appl1) {
+			    fprintf(stderr, "Rewrite: label %s value", label_id_str(lp, 1/*old*/));
+			    fprintf(stderr, " for %s", label_association_str(lp, 1/*old*/));
+			    fprintf(stderr, " to %s\n", label_id_str(lp, 0/*new*/));
+			}
+			change_values(lsp, lp, label_ix);
+		    }
+		    if (flags & LABEL_CHANGE_LABEL) {
+			/* change label name as well ...  */
+			if (pmDebugOptions.appl1) {
+			    fprintf(stderr, "Rewrite: label %s name", label_id_str(lp, 1/*old*/));
+			    fprintf(stderr, " for %s", label_association_str(lp, 1/*old*/));
+			    fprintf(stderr, " to %s\n", label_id_str(lp, 0/*new*/));
+			}
+			change_labels(lsp, lp, label_ix);
+		    }
+		    /* don't match this label name again in find_label() */
+		    label_ix++;
+		    continue;
 		}
 		else {
 		    pmLabelSet	*new_labelset = NULL;
@@ -955,10 +1002,10 @@ do_labelset(void)
 			abandon();
 			/*NOTREACHED*/
 		    }
-		}
 
-		/* Remove the old label from the original labeset */
-		extract_label(lsp, label_ix);
+		    /* Remove the old label from the original labelset */
+		    extract_label(lsp, label_ix);
+		}
 	    }
 
 	    /* Extract and free the original labelset if it is now empty. */
