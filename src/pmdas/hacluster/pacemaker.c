@@ -534,18 +534,33 @@ hacluster_refresh_pacemaker_nodes(const char *node_name, struct nodes *nodes)
 
 		/* Collect our node names */
 		if (found_nodes && strstr(buffer, node_name)) {
-			sscanf(buffer, "%*s %*s %*s online=\"%9[^\"]\" standby=\"%9[^\"]\" standby_onfail=\"%9[^\"]\" maintenance=\"%9[^\"]\" pending=\"%9[^\"]\" unclean=\"%9[^\"]\" shutdown=\"%9[^\"]\" expected_up=\"%9[^\"]\" is_dc =\"%9[^\"]\" %*s type=\"%9[^\"]\"",
-				online,
-				standby,
-				standby_on_fail,
-				maintenance,
-				pending,
-				unclean,
-				shutdown,
-				expected_up,
-				dc,
-				nodes->type
-			);					
+		        if(strstr(buffer, "feature_set")) {
+		                sscanf(buffer, "%*s %*s %*s online=\"%9[^\"]\" standby=\"%9[^\"]\" standby_onfail=\"%9[^\"]\" maintenance=\"%9[^\"]\" pending=\"%9[^\"]\" unclean=\"%9[^\"]\" %*s %*s shutdown=\"%9[^\"]\" expected_up=\"%9[^\"]\" is_dc =\"%9[^\"]\" %*s type=\"%9[^\"]\"",
+				        online,
+				        standby,
+				        standby_on_fail,
+				        maintenance,
+				        pending,
+				        unclean,
+				        shutdown,
+				        expected_up,
+				        dc,
+				        nodes->type
+			        );
+		        } else {
+			        sscanf(buffer, "%*s %*s %*s online=\"%9[^\"]\" standby=\"%9[^\"]\" standby_onfail=\"%9[^\"]\" maintenance=\"%9[^\"]\" pending=\"%9[^\"]\" unclean=\"%9[^\"]\" shutdown=\"%9[^\"]\" expected_up=\"%9[^\"]\" is_dc =\"%9[^\"]\" %*s type=\"%9[^\"]\"",
+				        online,
+				        standby,
+				        standby_on_fail,
+				        maintenance,
+				        pending,
+				        unclean,
+				        shutdown,
+				        expected_up,
+				        dc,
+				        nodes->type
+			        );
+			}
 									
 			nodes->online = bool_convert(online);
 			nodes->standby = bool_convert(standby);
