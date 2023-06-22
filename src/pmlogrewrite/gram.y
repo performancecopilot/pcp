@@ -1845,7 +1845,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 			    }
 			}
 		    }
-		| TOK_METRIC_VALUE pattern TOK_ASSIGN replacement
+		| TOK_METRIC_VALUE optreplace pattern TOK_ASSIGN replacement
 		    {
 			metricspec_t	*mp;
 			for (mp = walk_metric(W_START, METRIC_CHANGE_VALUE, "value", 1); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_VALUE, "value", 1)) {
@@ -1855,8 +1855,8 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 
 			    if (mp->old_desc.type != PM_TYPE_STRING) {
 				pmsprintf(mess, sizeof(mess), "Metric: %s (%s): Type %s not STRING, cannot change value", mp->old_name, pmIDStr(mp->old_desc.pmid), pmTypeStr(mp->old_desc.type));
-				free($2);
-				free($4);
+				free($3);
+				free($5);
 				yywarn(mess);
 				continue;
 			    }
@@ -1870,8 +1870,8 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 			    else
 				mp->vc = vc_tmp;
 			    vcp = &mp->vc[mp->nvc-1];
-			    vcp->pat = $2;
-			    vcp->replace = $4;
+			    vcp->pat = $3;
+			    vcp->replace = $5;
 			    if ((sts = regcomp(&vcp->regex, vcp->pat, REG_EXTENDED)) != 0) {
 				size_t	pfx;
 				strncat(mess, "regcomp error: ", sizeof(mess)-1);
@@ -1943,21 +1943,25 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 			pmsprintf(mess, sizeof(mess), "Expecting 0 or ONE for scaleCount field of units");
 			yyerror(mess);
 		    }
-		| TOK_METRIC_VALUE pattern TOK_ASSIGN
+		| TOK_METRIC_VALUE optreplace pattern TOK_ASSIGN
 		    {
 			pmsprintf(mess, sizeof(mess), "Expecting <replacement> in metric value clause");
 			yyerror(mess);
 		    }
-		| TOK_METRIC_VALUE pattern
+		| TOK_METRIC_VALUE optreplace pattern
 		    {
 			pmsprintf(mess, sizeof(mess), "Expecting -> in metric value clause");
 			yyerror(mess);
 		    }
-		| TOK_METRIC_VALUE
+		| TOK_METRIC_VALUE optreplace
 		    {
 			pmsprintf(mess, sizeof(mess), "Expecting <regular expression> in metric value clause");
 			yyerror(mess);
 		    }
+		;
+
+optreplace	: TOK_REPLACE
+		| /* nothing */
 		;
 
 null_or_indom	: indom_int
