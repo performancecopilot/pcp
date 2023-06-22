@@ -2440,7 +2440,7 @@ basic_manifest | grep -E -e 'pmiostat|pmrep|dstat|htop|pcp2csv' \
    -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free|pcp-htop' \
    -e 'pcp-ipcs|pcp-iostat|pcp-lvmcache|pcp-mpstat' \
    -e 'pcp-numastat|pcp-pidstat|pcp-shping|pcp-tapestat' \
-   -e 'pcp-uptime|pcp-verify|pcp-ss|pcp-ps' | \
+   -e 'pcp-uptime|pcp-verify|pcp-ss|pcp-ps|pcp-meminfo' | \
    cull 'selinux|pmlogconf|pmieconf|pmrepconf' >pcp-system-tools-files
 
 basic_manifest | keep 'sar2pcp' >pcp-import-sar2pcp-files
