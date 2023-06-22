@@ -1,0 +1,80 @@
+QA output created by 1456
+=== before ===
+Performance metrics from host fedora
+    Context labels (123 bytes): {"domainname":"pcp.net.au","groupid":1000,"hostname":"fedora","machineid":"915b8dd2559f48ddb2dcd6a45221288c","userid":1000}
+
+PCP Archive Log Rewrite Specifications Summary
+Hostname:	fedora -> [redacted]
+
+Label: Context, Label: "hostname"
+Value:		ALL -> "[redacted]"
+
+=== after -> [redacted] ===
+Performance metrics from host [redacted]
+    Context labels (127 bytes): {"domainname":"pcp.net.au","groupid":1000,"hostname":"[redacted]","machineid":"915b8dd2559f48ddb2dcd6a45221288c","userid":1000}
+
+=== diffs for all labels ==
+2c2
+< Performance metrics from host fedora
+---
+> Performance metrics from host [redacted]
+8c8
+<     Context labels (123 bytes): {"domainname":"pcp.net.au","groupid":1000,"hostname":"fedora","machineid":"915b8dd2559f48ddb2dcd6a45221288c","userid":1000}
+---
+>     Context labels (127 bytes): {"domainname":"pcp.net.au","groupid":1000,"hostname":"[redacted]","machineid":"915b8dd2559f48ddb2dcd6a45221288c","userid":1000}
+11,13c11,13
+<         [2] name(43,8) : value(53,8) [context]
+<         [3] name(63,9) : value(74,34) [context]
+<         [4] name(110,6) : value(118,4) [context,optional]
+---
+>         [2] name(43,8) : value(53,12) [context]
+>         [3] name(67,9) : value(78,34) [context]
+>         [4] name(114,6) : value(122,4) [context,optional]
+
+PCP Archive Log Rewrite Specifications Summary
+Hostname:	fedora -> [redacted]
+
+Label: Context, Label: "hostname"
+Value:		ALL -> "foo"
+
+=== after -> foo ===
+Performance metrics from host [redacted]
+    Context labels (120 bytes): {"domainname":"pcp.net.au","groupid":1000,"hostname":"foo","machineid":"915b8dd2559f48ddb2dcd6a45221288c","userid":1000}
+
+=== diffs for all labels ==
+2c2
+< Performance metrics from host fedora
+---
+> Performance metrics from host [redacted]
+8c8
+<     Context labels (123 bytes): {"domainname":"pcp.net.au","groupid":1000,"hostname":"fedora","machineid":"915b8dd2559f48ddb2dcd6a45221288c","userid":1000}
+---
+>     Context labels (120 bytes): {"domainname":"pcp.net.au","groupid":1000,"hostname":"foo","machineid":"915b8dd2559f48ddb2dcd6a45221288c","userid":1000}
+11,13c11,13
+<         [2] name(43,8) : value(53,8) [context]
+<         [3] name(63,9) : value(74,34) [context]
+<         [4] name(110,6) : value(118,4) [context,optional]
+---
+>         [2] name(43,8) : value(53,5) [context]
+>         [3] name(60,9) : value(71,34) [context]
+>         [4] name(107,6) : value(115,4) [context,optional]
+
+PCP Archive Log Rewrite Specifications Summary
+Hostname:	fedora -> [redacted]
+
+Label: Context, Label: "hostname"
+Value:		ALL -> "foobar"
+
+=== after -> foobar ===
+Performance metrics from host [redacted]
+    Context labels (123 bytes): {"domainname":"pcp.net.au","groupid":1000,"hostname":"foobar","machineid":"915b8dd2559f48ddb2dcd6a45221288c","userid":1000}
+
+=== diffs for all labels ==
+2c2
+< Performance metrics from host fedora
+---
+> Performance metrics from host [redacted]
+8c8
+<     Context labels (123 bytes): {"domainname":"pcp.net.au","groupid":1000,"hostname":"fedora","machineid":"915b8dd2559f48ddb2dcd6a45221288c","userid":1000}
+---
+>     Context labels (123 bytes): {"domainname":"pcp.net.au","groupid":1000,"hostname":"foobar","machineid":"915b8dd2559f48ddb2dcd6a45221288c","userid":1000}

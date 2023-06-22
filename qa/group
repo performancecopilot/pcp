@@ -1908,11 +1908,12 @@ x11
 1453 pmiectl local
 1454 pmlogrewrite local pmdumplog
 1455 pmlogrewrite labels pmdumplog local
-1456:reserved pmlogrewrite local
+1456 pmlogrewrite local pmdumplog
 1457 pmproxy libpcp_web threads secure local
 1458 pmproxy libpcp_web threads local
 1459 pmlogrewrite local valgrind pmdumplog
 1460:reserved pmlogrewrite local
+1461 pmlogrewrite pmlogdump local
 1466 pmlogctl pmcd pmiectl logutil local
 1475 pmda.bpf local
 1480 pmda.lmsensors local

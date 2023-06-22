@@ -1,0 +1,88 @@
+#!/bin/sh
+# PCP QA Test No. 1456
+# pmlogrewrite
+# - redact hostname from context labels
+# - redact hostname from archive label records
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+
+echo "=== before ==="
+pmdumplog -le archives/pcp-dstat >$tmp.before
+grep -E 'hostname| from host ' <$tmp.before
+
+# label values are (a) longer than original "fedora", (b) shorter than
+# the original and (c) same length as the original
+#
+for new in '[redacted]' 'foo' 'foobar'
+do
+    cat <<End-of-File >$tmp.rewrite
+global { hostname -> "[redacted]" }
+label context "hostname" { value -> "$new" }
+End-of-File
+
+    rm -f $tmp.0 $tmp.index $tmp.meta
+    echo
+    if $do_valgrind
+    then
+	_run_valgrind pmlogrewrite -v -c $tmp.rewrite archives/pcp-dstat $tmp
+    else
+	pmlogrewrite -v -c $tmp.rewrite archives/pcp-dstat $tmp 2>&1
+    fi \
+    | _filter
+
+    echo
+    echo "=== after -> $new ==="
+    pmdumplog -le $tmp >$tmp.after
+    grep -E 'hostname| from host ' <$tmp.after
+
+    echo
+    echo "=== diffs for all labels =="
+    diff $tmp.before $tmp.after
+
+done
+
+# success, all done
+exit
