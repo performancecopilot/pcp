@@ -376,12 +376,12 @@ is given as label metadata values for this metric.
     inst [2 or "node-2:test_clone_state"] value 1
     inst [3 or "node-2:test_site"] value 1
 
-ha_cluster.pacemaker.nodes.status.dc PMID: 155.3.8 [Whether the node status is given as disconnected]
+ha_cluster.pacemaker.nodes.status.dc PMID: 155.3.8 [Whether the node status is given as the DC]
     Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
     Semantics: instant  Units: count
 Help:
-Whether the disconnected status is reported by the node in the cluster, a
-value of 1 confirms the node status as disconnected.
+Whether the DC status is reported by the node in the cluster, a
+value of 1 confirms the node status as the designated coordinator.
     inst [0 or "node-1"] value 0
     inst [1 or "node-2"] value 1
 
