@@ -55,6 +55,16 @@ Refer to the
 section for some additional use cases.
 .PP
 .B pmlogrewrite
+may also be used to redact sensitive information from PCP archives
+in situations where the archives need to be shipped to another organization
+or to meet privacy policies or legislative requrements.
+See
+.BR pmlogredact (1)
+for an example use of
+.B pmlogrewrite
+in this context.
+.PP
+.B pmlogrewrite
 is most useful where PMDA changes, or errors in the production environment,
 result in archives that cannot be combined with
 .BR pmlogextract (1).
@@ -115,7 +125,9 @@ options are allowed.
 \fB\-C\fR, \fB\-\-check\fR
 Parse the rewriting rules and quit.
 .I outlog
-is not created.
+is not created, so this command line argument is optional
+with
+.BR \-C .
 When
 .B \-C
 is specified, this also sets
@@ -322,7 +334,7 @@ PCP archive, so that the metrics will appear to have been
 collected from a host with a local timezone of
 .IR timezone .
 .I timezone
-must be enclosed in quotes, and should conform to the valid
+must be enclosed in double quotes, and should conform to the valid
 timezone syntax rules for the local platform, usually a Posix
 TZ format, e.g.\&
 .BR AEST-10 .
@@ -346,7 +358,7 @@ PCP archive, so that the metrics will appear to have been
 collected from a host with a local timezone of
 .IR zoneinfo .
 .I zoneinfo
-must be enclosed in quotes, and should conform to the valid
+must be enclosed in double quotes, and should conform to the valid
 zoneinfo timezone syntax rules for the local platform, usually a colon
 followed by a pathname below
 .IR /usr/share/zoneinfo ,
@@ -449,11 +461,11 @@ Both
 .I oldname
 and
 .I newname
-must be enclosed in quotes.
+must be enclosed in double quotes.
 .PP
 As a special case, the new name may be the keyword
 .KW DELETE
-(with no quotes), and then the instance
+(with no double quotes), and then the instance
 .I oldname
 will be expunged from
 .I outlog
@@ -500,6 +512,104 @@ Error,
 .I newname
 "red of another hue" matches the existing "red"
 instance.
+.RE
+.PP
+.KW INAME
+.KW REPLACE
+/\fIpattern\fP/
+.KW ->
+"\fIreplacement\fP"
+.RS +4n
+.PP
+Every external instance name in the instance domain is
+matched against the regular expression
+.I pattern
+and when a match is found, the name is changed based on
+the parts of the name matched by
+.I pattern
+and the
+.I replacement
+recipe.
+.I pattern
+follows the syntax of a Posix Extended Regular Expression
+(see
+.BR regex (7))
+and
+.I replacement
+follows the syntax of the
+.B s
+command of
+.BR sed (1),
+so
+.B &
+and
+.B \e1
+through
+.B \e9
+may be used to select all or substrings of the instance name
+that matches
+.I pattern.
+.PP
+Note that the match-and-replace is done at most once per
+external instance name, so if there are repeated sequences of the name
+that match
+.I pattern
+only the
+.B first
+one will be matched and
+.I replacement
+applied.
+.PP
+.I pattern
+is normally enclosed in slashes (/) or double quotes (").
+An escape (\e) may be used before any of the metacharacters
+described in
+.BR regex (3)
+to specify a literal character, e.g. \e( or \e[ or \e+ ...
+The enclosing delimiters cannot be escaped, so to embed a
+literal slash, use double quotes as the delimiter, or vice versa.
+.PP
+.I replacement
+is normally enclosed by double quotes (") or slashes (/).
+An escape (\e) may be used before
+.B &
+or
+.B \e
+to specify these characters literally.
+The enclosing delimiters cannot be escaped, so to embed a
+double quote, use slashes as the delimiter, or vice versa.
+.PP
+If the instance names after replacement contain any embedded
+spaces then special care needs to be taken in respect of the
+PCP instance naming rule that treats the leading non-space
+part of the instance name as the unique portion of the name for
+the purposes of matching and ensuring uniqueness within an
+instance domain, refer to
+.BR pmdaInstance (3)
+for a discussion of this issue.
+.PP
+Here are some examples:
+.TP +10n
+\f(CW{ iname replace /[a-z]*foo[a-z]*/ -> "FOO" }\fP
+replace any word containing "foo" with "FOO"
+.TP +10n
+\f(CW{ iname replace "([0-9]+) /.*/(.*)" -> "\e1 \e2" }\fP
+removes a directory path, so the instance name (for one of the
+proc PMDA's metrics)
+\f(CW"2981799 /home/kenj/bin/foobar"\fP
+would become
+\f(CW"2981799 foobar"\fP, hiding the user's home directory and
+implicitly the user's login name
+.RE
+.PP
+.KW INAME
+.KW REDACT
+.RS +4n
+.PP
+Replace every external instance name in the instance domain
+by the string "\fIinst\fP \fB[redacted]\fP" where
+.I inst
+is the internal instance identifier in ASCII format.
 .RE
 .PP
 .KW INDOM
@@ -1004,6 +1114,93 @@ command line option, but applied to just this metric.
 .RE
 
 .PP
+.KW VALUE
+.KW REPLACE
+/\fIpattern\fP/
+.KW ->
+"\fIreplacement\fP"
+.RS +4n
+.PP
+The value for every instance of the metric is
+matched against the regular expression
+.I pattern
+and when a match is found, the value is changed based on
+the parts of the value matched by
+.I pattern
+and the
+.I replacement
+recipe.
+.I pattern
+follows the syntax of a Posix Extended Regular Expression
+(see
+.BR regex (7))
+and
+.I replacement
+follows the syntax of the
+.B s
+command of
+.BR sed (1),
+so
+.B &
+and
+.B \e1
+through
+.B \e9
+may be used to select all or substrings of the value
+that matches
+.I pattern.
+.PP
+Note that the match-and-replace is done at most once per
+metric value, so if there are repeated sequences of the metric value
+that match
+.I pattern
+only the
+.B first
+one will be matched and
+.I replacement
+applied.
+.PP
+.I pattern
+is normally enclosed in slashes (/) or double quotes (").
+An escape (\e) may be used before any of the metacharacters
+described in
+.BR regex (3)
+to specify a literal character, e.g. \e( or \e[ or \e+ ...
+The enclosing delimiters cannot be escaped, so to embed a
+literal slash, use double quotes as the delimiter, or vice versa.
+.PP
+.I replacement
+is normally enclosed by double quotes (") or slashes (/).
+An escape (\e) may be used before
+.B &
+or
+.B \e
+to specify these characters literally.
+The enclosing delimiters cannot be escaped, so to embed a
+double quote, use slashes as the delimiter, or vice versa.
+.PP
+The
+.KW REPLACE
+keyword is optional.
+.PP
+This clause can only be applied to metrics with values
+of type
+.BR PM_TYPE_STRING .
+.PP
+Here are some examples:
+.TP +10n
+\f(CW{ value /.*/ -> "" }\fP
+remove the value eveywhere
+.TP +10n
+\f(CWvalue "/.*/(.*)" -> "\1" }\fP
+removes a directory path, so the metric value
+\f(CW"mumble /home/kenj/bin/foobar fumble"\fP
+would become
+\f(CW"mumble foobar fumble"\fP, hiding the user's home directory and
+implicitly the user's login name
+.RE
+
+.PP
 When changing the domain number for a metric or instance domain,
 the new domain number will usually match an existing PMDA's domain
 number.
@@ -1491,6 +1688,7 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR pmlogextract (1),
 .BR pmlogger (1),
 .BR pmloglabel (1),
+.BR pmlogredact (1),
 .BR pmlogreduce (1),
 .BR PMAPI (3),
 .BR pmdaInstance (3),
@@ -1498,6 +1696,7 @@ For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
 .BR tzset (3),
 .BR LOGARCHIVE (5),
 .BR pcp.conf (5),
-.BR pcp.env (5)
+.BR pcp.env (5),
+.BR PMNS (5)
 and
-.BR PMNS (5).
+.BR regex (7).
