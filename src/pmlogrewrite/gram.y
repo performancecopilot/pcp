@@ -1380,13 +1380,29 @@ indomopt	: TOK_INDOM TOK_ASSIGN duplicateopt indom_int
 		    }
 		| TOK_INAME TOK_REPLACE pattern TOK_ASSIGN replacement
 		    {
+			int		sts;
 			indomspec_t	*ip;
-			for (ip = walk_indom(W_START); ip != NULL; ip = walk_indom(W_NEXT)) {
-			    if (replace_indom(ip->old_indom, $3, $5) < 0)
-			    	yyerror(mess);
-			    free($3);
-			    free($5);
+			value_change_t	vc;
+			vc.pat = $3;
+			if (pmDebugOptions.appl5)
+			    fprintf(stderr, "compiling iname regex /%s/\n", vc.pat);
+			if ((sts = regcomp(&vc.regex, vc.pat, REG_EXTENDED)) != 0) {
+			    size_t	pfx;
+			    strncat(mess, "regcomp error: ", sizeof(mess)-1);
+			    pfx = strlen(mess);
+			    regerror(sts, &vc.regex, &mess[pfx], sizeof(mess)-pfx-1);
+			    yyerror(mess);
 			}
+			vc.replace = $5;
+			for (ip = walk_indom(W_START); ip != NULL; ip = walk_indom(W_NEXT)) {
+			    if (replace_indom(ip->old_indom, &vc) < 0) {
+				/* mess[] set in replace_indom() for errors */
+			    	yyerror(mess);
+			    }
+			}
+			regfree(&vc.regex);
+			free($3);
+			free($5);
 		    }
 		| TOK_INST number TOK_ASSIGN number
 		    {
@@ -1872,6 +1888,8 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 			    vcp = &mp->vc[mp->nvc-1];
 			    vcp->pat = $3;
 			    vcp->replace = $5;
+			    if (pmDebugOptions.appl5)
+				fprintf(stderr, "compiling value regex /%s/\n", vcp->pat);
 			    if ((sts = regcomp(&vcp->regex, vcp->pat, REG_EXTENDED)) != 0) {
 				size_t	pfx;
 				strncat(mess, "regcomp error: ", sizeof(mess)-1);

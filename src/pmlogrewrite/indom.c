@@ -503,11 +503,11 @@ redact_indom(pmInDom indom)
 }
 
 int
-replace_indom(pmInDom indom, char *pat, char *replace)
+replace_indom(pmInDom indom, value_change_t *vcp)
 {
-    int		i;
-    indomspec_t	*ip;
-    char	*iname = "blah";
+    int			i;
+    indomspec_t		*ip;
+    char		*iname;
 
     for (ip = indom_root; ip != NULL; ip = ip->i_next) {
 	if (indom == ip->old_indom)
@@ -515,20 +515,31 @@ replace_indom(pmInDom indom, char *pat, char *replace)
     }
     assert(ip != NULL);
 
+    if (pmDebugOptions.appl1) {
+	fprintf(stderr, "Replace: InDom %s /%s/ -> \"%s\"\n",
+		pmInDomStr(indom), vcp->pat, vcp->replace);
+    }
+
     for (i = 0; i < ip->numinst; i++) {
 	if (ip->inst_flags[i] & (INST_CHANGE_INAME|INST_DELETE)) {
-		pmsprintf(mess, sizeof(mess), "Duplicate or conflicting clauses for instance [%d] \"%s\" of indom %s",
+	    pmsprintf(mess, sizeof(mess), "Duplicate or conflicting clauses for instance [%d] \"%s\" of indom %s",
 		    ip->old_inst[i], ip->old_iname[i], pmInDomStr(indom));
-		return -1;
-	    }
-	// TODO
-	ip->new_iname[i] = strdup(iname);
-	if (ip->new_iname[i] == NULL) {
-	    fprintf(stderr, "replace_indom malloc(%d) failed: %s\n", (int)strlen(iname), strerror(errno));
-	    abandon();
-	    /*NOTREACHED*/
+	    return -1;
 	}
-	ip->inst_flags[i] |= INST_CHANGE_INAME;
+	iname = re_replace(ip->old_iname[i],  vcp, 1);
+	if (iname != NULL) {
+	    /* something actually changed ... */
+	    if (pmDebugOptions.appl5) {
+		fprintf(stderr, "replace_indom: indom %s inst %d \"%s\" -> \"%s\"\n", pmInDomStr(indom), ip->old_inst[i], ip->old_iname[i], iname);
+	    }
+	    ip->new_iname[i] = iname;
+	    if (ip->new_iname[i] == NULL) {
+		fprintf(stderr, "replace_indom malloc(%d) failed: %s\n", (int)strlen(iname), strerror(errno));
+		abandon();
+		/*NOTREACHED*/
+	    }
+	    ip->inst_flags[i] |= INST_CHANGE_INAME;
+	}
     }
 
     return 0;

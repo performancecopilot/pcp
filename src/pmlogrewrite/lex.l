@@ -135,6 +135,7 @@ duptextstr(char *s, int strip_quotes)
 <metric>"sem"		{ BEGIN(sem); return TOK_SEM; }
 <metric>"units"		{ BEGIN(units); comma_count = 0; return TOK_UNITS; }
 <metric>"value"		{ return TOK_METRIC_VALUE; }
+<metric>"replace"	{ return TOK_REPLACE; }
 
 <text>"metric"		{ return TOK_METRIC; }
 <text>"indom"		{ return TOK_INDOM; }

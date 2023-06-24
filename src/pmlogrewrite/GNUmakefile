@@ -18,7 +18,8 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-CFILES	= pmlogrewrite.c util.c metric.c indom.c result.c label.c text.c
+CFILES	= pmlogrewrite.c util.c metric.c indom.c result.c label.c text.c \
+	  replace.c
 HFILES	= logger.h
 LFILES  = lex.l
 YFILES	= gram.y

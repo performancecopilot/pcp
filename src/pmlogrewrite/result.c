@@ -484,121 +484,6 @@ retype(int i, metricspec_t *mp)
     inarch.rp->vset[i]->valfmt = sts;
 }
 
-#define push(c) {\
-if (r >= reslen) {\
-char *tmp_result;\
-reslen = reslen == 0 ? 1024 : 2*reslen;\
-tmp_result = (char *)realloc(result, reslen);\
-if (tmp_result == NULL) {\
-    fprintf(stderr, "replace: result realloc(%d) failed!\n", reslen);\
-    abandon();\
-    /*NOTREACHED*/\
-}\
-result = tmp_result;\
-}\
-result[r++] = c;\
-}
-
-#define MAXSUB	9	/* \1 thru \9 */
-/*
- * sed-like replacement function.
- *
- * initial string is buf[]
- */
-char *
-replace(char *buf, value_change_t *vcp, int nvc)
-{
-    char	*target;	/* string to be matched */
-    int		k;		/* vcp[] index for multiple replacements */
-    int		i;		/* misc index */
-    int		sts;
-    /*
-     * MAXSUB+1 is enough for the whole match [0] and then substrings
-     * \1 [1] thru \9 [9]
-     */
-    regmatch_t	pmatch[MAXSUB+1];
-
-    target = buf;
-    for (k = 0; k < nvc; k++) {
-	sts = regexec(&vcp[k].regex, target, MAXSUB+1, pmatch, 0);
-	if (sts == REG_NOMATCH) {
-	    continue;
-	}
-	if (pmDebugOptions.appl5) {
-	    fprintf(stderr, "regex[%d] target \"%s\" ->%d", k, target, sts);
-	}
-	if (sts == 0) {
-	    char	*result = NULL;
-	    int		reslen = 0;	/* allocated size of result */
-	    int		r = 0;		/* next posn to append to result[] */
-	    int		seenslash;
-	    char	*p;
-	    if (pmDebugOptions.appl5) {
-		for (i = 0; i <= MAXSUB; i++) {
-		    if (pmatch[i].rm_so == -1)
-			break;
-		    fprintf(stderr, " [%d,%d]", pmatch[i].rm_so, pmatch[i].rm_eo);
-		}
-		fputc('\n', stderr);
-	    }
-	    /* prefix before matched re */
-	    for (i = 0; i < pmatch[0].rm_so; )
-		push(target[i++]);
-	    /* re replacement */
-	    seenslash = 0;
-	    for (p = vcp[k].replace; *p; p++) {
-		if (seenslash) {
-		    seenslash = 0;
-		    if (*p >= '1' && *p <= '9') {
-			int	sub = *p - '0';
-			if (pmatch[sub].rm_so >= 0) {
-			    for (i = pmatch[sub].rm_so; i < pmatch[sub].rm_eo; )
-				push(target[i++]);
-			}
-			else {
-			    fprintf(stderr, "Botch: no \\%d substring from regexp match\n", sub);
-			    fprintf(stderr, "    metric value: %s\n", target);
-			    fprintf(stderr, "    regex: %s\n", vcp[k].pat);
-			    fprintf(stderr, "    replacement: %s\n", vcp[k].replace);
-			    abandon();
-			    /*NOTREACHED*/
-			}
-		    }
-		    else
-			push(*p);
-		}
-		else if (*p == '\\') {
-		    seenslash = 1;
-		}
-		else if (*p == '&') {
-		    for (i = pmatch[0].rm_so; i < pmatch[0].rm_eo; )
-			push(target[i++]);
-		}
-		else {
-		    push(*p);
-		}
-	    }
-	    /* suffix after matched re */
-	    for (i = pmatch[0].rm_eo; target[i] != '\0'; )
-		push(target[i++]);
-	    push('\0');
-	    if (target != buf)
-		free(target);
-	    target = result;
-	}
-	else {
-	    if (pmDebugOptions.appl5) {
-		fputc('\n', stderr);
-	    }
-	}
-    }
-
-    if (target == buf)
-	return NULL;
-    else
-	return target;
-}
-
 char	**changed;
 int	changedlen;
 int	nchanged;
@@ -614,34 +499,42 @@ change_value(int i, metricspec_t *mp)
     pmValueSet	*vsp;
     char	*new;
     pmAtomValue	atom;
+    int		already_saved;
 
     assert(inarch.rp->vset[i]->valfmt == PM_VAL_DPTR);
 
-    /*
-     * use current input pmValue ... change in general will not happen,
-     * so defer save_vset() handling until we see a change has to be
-     * made
-     */
-    vsp = inarch.rp->vset[i];
-    for (j = 0; j < inarch.rp->vset[i]->numval; j++) {
-	new = replace(vsp->vlist[j].value.pval->vbuf, mp->vc, mp->nvc);
+    already_saved = save_vset(inarch.rp, i);
+    if (already_saved)
+	vsp = inarch.rp->vset[i];
+    else
+	vsp = save[i];
+
+    for (j = 0; j < vsp->numval; j++) {
+	new = re_replace(vsp->vlist[j].value.pval->vbuf, mp->vc, mp->nvc);
 	if (new != NULL) {
 	    /* something actually changed ... */
 	    if (pmDebugOptions.appl5) {
-		fprintf(stderr, "change_value: vset[%d] PMID %s: \"%s\" -> \"%s\"\n", i, pmIDStr(mp->old_desc.pmid), vsp->vlist[j].value.pval->vbuf, new);
+		fprintf(stderr, "change_value: vset[%d] PMID %s [%d of %d] inst %d: \"%s\" -> \"%s\"\n",
+		    i, pmIDStr(mp->old_desc.pmid), j, vsp->numval,
+		    vsp->vlist[j].inst, vsp->vlist[j].value.pval->vbuf, new);
 	    }
-	    save_vset(inarch.rp, i);
 	    atom.cp = new;
-	    sts = __pmStuffValue(&atom, &inarch.rp->vset[i]->vlist[j], mp->old_desc.type);
-	    if (sts < 0) {
-		fprintf(stderr, "%s: Botch: %s (%s): stuffing changed value %s (type=%s) into rewritten pmResult: %s\n",
-			    pmGetProgname(), mp->old_name, pmIDStr(mp->old_desc.pmid), new, pmTypeStr(mp->old_desc.type), pmErrStr(sts));
-		inarch.rp->vset[i]->numval = j;
-		__pmPrintResult(stderr, inarch.rp);
-		abandon();
-		/*NOTREACHED*/
-	    }
-	    vsp->valfmt = sts;
+	}
+	else
+	    atom.cp = vsp->vlist[j].value.pval->vbuf;
+
+	/* this unless error here, sts == vsp->valfmt */
+	sts = __pmStuffValue(&atom, &inarch.rp->vset[i]->vlist[j], mp->old_desc.type);
+	if (sts < 0) {
+	    fprintf(stderr, "%s: Botch: %s (%s): stuffing changed value %s (type=%s) into rewritten pmResult: %s\n",
+			pmGetProgname(), mp->old_name, pmIDStr(mp->old_desc.pmid), new, pmTypeStr(mp->old_desc.type), pmErrStr(sts));
+	    inarch.rp->vset[i]->numval = j;
+	    __pmPrintResult(stderr, inarch.rp);
+	    abandon();
+	    /*NOTREACHED*/
+	}
+
+	if (new != NULL) {
 	    nchanged++;
 	    if (nchanged >= changedlen) {
 		char	**tmp_changed;

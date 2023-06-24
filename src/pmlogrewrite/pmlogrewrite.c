@@ -21,7 +21,7 @@
  * appl2	pmResult changes
  * appl3	-q and reason for not taking quick exit
  * appl4	config parser
- * appl5	regexp matching for metric value changes
+ * appl5	regexp matching for metric value changes and iname changes
  */
 
 #include <math.h>
@@ -58,7 +58,7 @@ static pmLongOptions longopts[] = {
     { "warnings", 0, 'w', 0, "emit warnings [default is silence]" },
     PMOPT_HELP,
     PMAPI_OPTIONS_TEXT(""),
-    PMAPI_OPTIONS_TEXT("output-archive is required unless -i is specified"),
+    PMAPI_OPTIONS_TEXT("output-archive is required unless -C or -i is specified"),
     PMAPI_OPTIONS_END
 };
 
@@ -407,8 +407,24 @@ parseargs(int argc, char *argv[])
     }
 
     if (opts.errors == 0) {
-	if ((iflag == 0 && opts.optind != argc-2) ||
-	    (iflag == 1 && opts.optind != argc-1))
+	if (iflag) {
+	    if (opts.optind == argc-1)
+		inarch.name = argv[argc-1];
+	    else
+		opts.errors++;
+	}
+	else if (Cflag) {
+	    /* output-archive is sort of optional for -C */
+	    if (opts.optind == argc-2)
+		inarch.name = argv[argc-2];
+	    else if (opts.optind == argc-1)
+		inarch.name = argv[argc-1];
+	    else
+		opts.errors++;
+	}
+	else if (opts.optind == argc-2)
+	    inarch.name = argv[argc-2];
+	else
 	    opts.errors++;
     }
 
@@ -1580,11 +1596,7 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    /* input archive */
-    if (iflag == 0)
-	inarch.name = argv[argc-2];
-    else
-	inarch.name = argv[argc-1];
+    /* input archive ... inarch.name set in parseargs() */
     inarch.logrec = inarch.metarec = NULL;
     inarch.mark = 0;
     inarch.rp = NULL;

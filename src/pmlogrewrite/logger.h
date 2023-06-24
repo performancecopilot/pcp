@@ -243,7 +243,7 @@ extern void		deactivate_labels(void);
 extern int		change_inst_by_inst(pmInDom, int, int);
 extern int		change_inst_by_name(pmInDom, char *, char *);
 extern int		redact_indom(pmInDom);
-extern int		replace_indom(pmInDom, char *, char *);
+extern int		replace_indom(pmInDom, value_change_t *);
 extern int		inst_name_eq(const char *, const char *);
 
 extern char	*SemStr(int);
@@ -258,5 +258,8 @@ extern void	do_text(void);
 extern void	do_result(void);
 
 extern void	abandon(void);
+
+/* regexp match-and-replacement */
+extern char	*re_replace(char *, value_change_t *, int nvc);
 
 #endif /* _LOGGER_H */
