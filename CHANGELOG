@@ -1,5 +1,22 @@
 pcp-6.0.5 (26 June 2023)
-    - Work-in-progress.
+    - pcp2json: extend pcp2json with an option to send HTTP POSTs
+    - pmlogger: fix pidfile update; pmlogger.pid is for primary only
+    - pmie: ensure pmie.log.YYYYMMDD is owned by pcp:pcp
+    - pmdumptext: fix scaling when -i command line option is used
+    - pmlogextract: improve resilience in corner-case conditions
+    - pmcd: improve debugging flags and diagnostics in general
+    - pmdasmart: additional NVME power state metrics
+    - pmdasmart: additional NVME disk information metrics
+    - pmdasmart: update help with proper description of DC status
+    - pmdasmart: filter out zram devices when probing for devices
+    - pmdahacluster: handle pacemaker 2.1.5 crm_mon output changes
+    - libpcp_pmda: refactor and improve library diagnostics
+    - selinux: updates to policy for pmlogger and pmlogger_daily
+    - build: switch rpm spec files to SPDX license identifiers
+    - build, qa: numerous updates to improve PCP on OpenBSD
+    - build: switch from registry.centos.org to quay.io for el6/el7
+    - ci: add centos6 back into the fold as its on quay.io now
+    - ci: add Debian 12, drop Ubuntu 16 and Fedora 35
 
 pcp-6.0.4 (15 May 2023)
     - pmcd: propogate a new PMCD_HOSTNAME_CHANGE flag to clients
