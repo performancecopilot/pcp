@@ -124,7 +124,7 @@ class MeminfoReport(pmcc.MetricGroupPrinter):
     def getMetricName(self, idx):
         metric_name = ""
         units = ""
-        if METRICS_DESC[idx].__contains__("_NO_kb"):
+        if METRICS_DESC[idx][-6:] == "_NO_kb":
             metric_name = METRICS_DESC[idx][:-6]
         else:
             metric_name = METRICS_DESC[idx]
