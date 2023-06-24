@@ -1912,8 +1912,11 @@ x11
 1457 pmproxy libpcp_web threads secure local
 1458 pmproxy libpcp_web threads local
 1459 pmlogrewrite local valgrind pmdumplog
-1460:reserved pmlogrewrite local
+1460 pmlogrewrite local pmdumplog valgrind
 1461 pmlogrewrite pmlogdump local
+1462 pmlogrewrite pmdumplog local
+1463 pmlogrewrite pmlogdump local valgrind
+1464 pmlogrewrite pmdumplog local valgrind
 1466 pmlogctl pmcd pmiectl logutil local
 1475 pmda.bpf local
 1480 pmda.lmsensors local

@@ -2,6 +2,8 @@
 # PCP QA Test No. 1461
 # pmlogrewrite - domain label rewriting
 #
+# non-valgrind variant, see qa/1463 for the valgrind variant
+#
 # Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
 #
 
@@ -81,7 +83,7 @@ do
     rm -f $tmp.0 $tmp.index $tmp.meta
     if $do_valgrind
     then
-	_run_valgrind ...your test goes here...
+	_run_valgrind pmlogrewrite -v -c $tmp.config tmparch/gap $tmp
     else
 	pmlogrewrite -v -c $tmp.config tmparch/gap $tmp 2>&1
     fi \

@@ -4,6 +4,8 @@
 # - redact hostname from context labels
 # - redact hostname from archive label records
 #
+# non-valgrind variant, see qa/1460 for the valgrind variant
+#
 # Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
 #
 
