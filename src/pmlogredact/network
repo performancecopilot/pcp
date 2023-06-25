@@ -1,0 +1,46 @@
+# redact networking details from PCP archives
+#
+# these metrics have IPv4 or IPv6 addresses as their only
+# value, or embedded in the value, so delete them
+#
+metric network.interface.inet_addr { delete }
+metric pmcd.client.whoami { delete }
+
+# ditto for the MAC address of any network interfaces
+#
+metric network.interface.hw_addr { delete }
+
+# these metrics have the hostname (short form or fully qualified
+# domain name) as their value, or embedded in the value, so
+# replace the hostname with [redacted] in the metric's value
+#
+metric kernel.uname.nodename { value /.*/ -> "[redacted]" }
+metric pmcd.hostname { value /.*/ -> "[redacted]" }
+metric pmcd.pmlogger.host { value /.*/ -> "[redacted]" }
+metric pmcd.pmlogger.pmcd_host { value /.*/ -> "[redacted]" }
+metric pmcd.pmie.pmcd_host { value /.*/ -> "[redacted]" }
+metric pmcd.pmie.logfile { value /.*/ -> "[redacted]" }
+# pmda.uname value "Linux bozo.localdomain ..."
+#   replace this part     ^^^^^^^^^^^^^^^^
+metric pmda.uname { value /^([^ ]+) [^ ]+/ -> "\1 [redacted]" }
+# hostname or fqdn as pathname, but could be anywhere in the value
+# and may even be a remote host's name, so replace the whole value
+metric pmcd.pmlogger.archive { value /.*/ -> "[redacted]" }
+metric pmcd.pmie.logfile { value /.*/ -> "[redacted]" }
+# metric pmcd.client.whoami - deleted above
+
+# redact hostname from archive label records
+#
+global { hostname -> "[redacted]" }
+
+# redact hostname from context labels
+#
+label context "hostname" { value -> "[redacted]" }
+
+# metrics who's values may include networking details and
+# other sensitive information
+#
+metric proc.psinfo.environ { delete }
+metric hotproc.psinfo.environ { delete }
+metric proc.psinfo.psargs { delete }
+metric hotproc.psinfo.environ { delete }

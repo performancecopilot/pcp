@@ -1,0 +1,56 @@
+# redact usernames from PCP archives
+#
+# for each proc metric, must do the same for the (equivalent) hotproc
+# metric
+#
+# these metrics have usernames or groupnames as their only values
+# so simply remove them
+#
+metric proc.id.uid_nm { delete }
+metric hotproc.id.uid_nm { delete }
+metric proc.id.euid_nm { delete }
+metric hotproc.id.euid_nm { delete }
+metric proc.id.suid_nm { delete }
+metric hotproc.id.suid_nm { delete }
+metric proc.id.fsuid_nm { delete }
+metric hotproc.id.fsuid_nm { delete }
+metric proc.id.gid_nm { delete }
+metric hotproc.id.gid_nm { delete }
+metric proc.id.egid_nm { delete }
+metric hotproc.id.egid_nm { delete }
+metric proc.id.sgid_nm { delete }
+metric hotproc.id.sgid_nm { delete }
+metric proc.id.fsgid_nm { delete }
+metric hotproc.id.fsgid_nm { delete }
+
+# redact shm ownership details
+#
+metric ipc.shm.owner { value /.*/ -> "[redacted]" }
+
+# metrics who's values may include usernames or groupnames
+#
+metric proc.psinfo.environ { delete }
+metric hotproc.psinfo.environ { delete }
+metric proc.psinfo.psargs { delete }
+metric hotproc.psinfo.psargs { delete }
+metric proc.psinfo.cwd { delete }
+metric hotproc.psinfo.cwd { delete }
+# remove pathname prefix (may expose $HOME => usernames) from value
+metric proc.psinfo.exe { value "/.*/(.*)" -> "\1" }
+metric hotproc.psinfo.exe { value replace "/.*/(.*)" -> "\1" }
+
+# metrics who's values may include the path to user's home
+# directories (and hence => usernames)
+#
+metric proc.memory.maps { delete }
+metric hotproc.memory.maps { delete }
+
+# proc.psinfo metrics may contain sensitive information (like
+# pathanme to executables below a user's home directory) in the
+# external instance name
+#
+# remove pathname prefix (may expose $HOME => usernames) from indom
+# proc
+indom 3.9 { iname replace "([0-9]+) /.*/(.*)" -> "\1 \2" }
+# hotproc
+indom 3.39 { iname replace "([0-9]+) /.*/(.*)" -> "\1 \2" }
