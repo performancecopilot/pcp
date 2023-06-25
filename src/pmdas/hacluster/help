@@ -103,9 +103,9 @@ of 1 confirms the node status as shutdown.
 Whether the expected_up status is reported by the node in the cluster, a
 value of 1 confirms the node status as expected_up.
 
-@ ha_cluster.pacemaker.nodes.status.dc Whether the node status is given as disconnected
-Whether the disconnected status is reported by the node in the cluster, a
-value of 1 confirms the node status as disconnected.
+@ ha_cluster.pacemaker.nodes.status.dc Whether the node status is given as the DC
+Whether the DC status is reported by the node in the cluster, a
+value of 1 confirms the node status as the designated coordinator.
 
 @ ha_cluster.pacemaker.resources.agent The name of the resource agent for this resource
 The name given for the resource agent for the given resource instance in the 

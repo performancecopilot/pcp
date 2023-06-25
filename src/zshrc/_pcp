@@ -186,6 +186,10 @@ _pcp () {
       "(-x --extended -X --everything $exargs)"{-x,--extended}'[write extended information]' \
       "(-X --everything -x --extended $exargs)"{-X,--everything}'[write everything, incl. internals]' \
       "(-E --exact-types $exargs)"{-E,--exact-types}'[write numbers as number data types]' \
+      "(-u --url $exargs)"{-u+,--url=}'[URL of endpoint to receive HTTP POST]' \
+      "(-o --http-timeout $exargs)"{-o+,--http-timeout=}'[timeout sending HTTP POST]' \
+      "(-p --http-pass $exargs)"{-p+,--http-pass=}'[password for HTTP basic authentication]' \
+      "(-U --http-user $exargs)"{-U+,--http-user=}'[username for HTTP basic authentication]' \
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone=}'[set reporting timezone]:timezone:_time_zone' \
       '*:metric:->metrics' \

@@ -11,3 +11,7 @@ Recipe for adding case #007
   # smartctl -Hi /dev/xxx > 007/smart/xxx.info
   # smartctl -A /dev/xxx > 007/smart/xxx.data
   # smartctl -c /dev/xxx > 007/smart/xxx.power
+  
+- capture output from into xxx.nvme for any nvme drives
+  $ nvme get-feature -f 0x0c -H /dev/nvmexxx
+  $ nvme get-feature -f 0x07 -H /dev/nvmexxx
