@@ -1920,6 +1920,7 @@ x11
 1465 pmlogredact pmlogrewrite pmlogdump
 1466 pmlogctl pmcd pmiectl logutil local
 1467 dbpmda local valgrind
+1468 pmval fault interp local valgrind
 1475 pmda.bpf local
 1480 pmda.lmsensors local
 1486 logutil local

@@ -2,6 +2,8 @@
 # PCP QA Test No. 1345
 # Use libpcp_fault to exercise __pmAllocResult
 #
+# non-valgrind variant, see qa/1468 for the valgrind variant
+#
 # Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
 #
 
@@ -43,7 +45,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _filter()
 {
     sed \
-	-e 's/<something>/<else>/' \
+	-e "s@$tmp@TMP@g" \
     # end
 }
 
@@ -56,79 +58,13 @@ cat >$tmp.control <<End-of-File
 libpcp/interp.c:1	== 3
 End-of-File
 
-pmval -z -a archives/ok-foo sample.seconds
-
-if false
-then
 if $do_valgrind
 then
-    _run_valgrind ...your test goes here...
+    _run_valgrind pmval -z -a archives/ok-foo sample.seconds
 else
-    ...your test goes here... 2>&1
+    pmval -z -a archives/ok-foo sample.seconds 2>&1
 fi \
 | _filter
-fi
 
 # success, all done
-exit
-
-# real QA test starts here
-src/exectest echo not supposed to get here 2>&1 \
-| _filter
-
-echo
-echo "1st call to __pmProcessAddArg fails at realloc"
-cat >$tmp.control <<End-of-File
-libpcp/exec.c:2	== 1
-End-of-File
-src/exectest echo not supposed to get here 2>&1 \
-| _filter
-
-echo
-echo "2nd (and later) calls to __pmProcessAddArg fails at realloc"
-cat >$tmp.control <<End-of-File
-libpcp/exec.c:2	> 1
-End-of-File
-src/exectest echo not supposed to get here 2>&1 \
-| _filter
-
-echo
-echo "4th call to __pmProcessAddArg fails at strdup"
-cat >$tmp.control <<End-of-File
-libpcp/exec.c:3	== 4
-End-of-File
-src/exectest echo not supposed to get here 2>&1 \
-| _filter
-
-echo
-echo "fork() fails"
-cat >$tmp.control <<End-of-File
-libpcp/exec.c:4	> 0
-End-of-File
-src/exectest -- sh -c "sleep 1; echo not supposed to get here" 2>&1 \
-| _filter
-
-echo
-echo "pipe() fails"
-cat >$tmp.control <<End-of-File
-libpcp/exec.c:5	> 0
-End-of-File
-src/exectest -Dexec -p -- echo hullo world 2>&1 | _filter
-
-echo
-echo "fork() fails after pipe()"
-cat >$tmp.control <<End-of-File
-libpcp/exec.c:6	> 0
-End-of-File
-src/exectest -Dexec -p -- echo hullo world 2>&1 | _filter
-
-echo
-echo "realloc() fails for pipe map"
-cat >$tmp.control <<End-of-File
-libpcp/exec.c:7	> 0
-End-of-File
-src/exectest -Dexec -p -- echo hullo world 2>&1 | _filter
-
-# success, all done
-status=0
 exit
