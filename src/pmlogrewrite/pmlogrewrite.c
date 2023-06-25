@@ -1763,6 +1763,9 @@ main(int argc, char **argv)
      * process config file(s)
      */
     for (i = 0; i < nconf; i++) {
+	if (pmDebugOptions.appl4) {
+	    fprintf(stderr, "Start config: %s\n", conf[i]);
+	}
 	parseconfig(conf[i]);
     }
 
