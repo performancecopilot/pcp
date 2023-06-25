@@ -1057,12 +1057,12 @@ Value is 1 if a node metadata exists. The details of the node metadata
 is given as label metadata values for this metric.
 No value(s) available!
 
-ha_cluster.pacemaker.nodes.status.dc PMID: 155.3.8 [Whether the node status is given as disconnected]
+ha_cluster.pacemaker.nodes.status.dc PMID: 155.3.8 [Whether the node status is given as the DC]
     Data Type: 32-bit unsigned int  InDom: 155.2 0x26c00002
     Semantics: instant  Units: count
 Help:
-Whether the disconnected status is reported by the node in the cluster, a
-value of 1 confirms the node status as disconnected.
+Whether the DC status is reported by the node in the cluster, a
+value of 1 confirms the node status as the designated coordinator.
     inst [0 or "rhel9-node1"] value 0
     inst [1 or "rhel9-node2"] value 1
 
