@@ -3,6 +3,8 @@
 # derived metric delta() not correct for unsigned metrics when the
 # value decreases
 #
+# non-valgrind variant, see qa/1470 for the valgrind variant
+#
 # Copyright (c) 2021 Ken McDonell.  All Rights Reserved.
 #
 
@@ -52,7 +54,7 @@ pminfo -d -a archives/20201109 qa.rss
 
 if $do_valgrind
 then
-    _run_valgrind ...your test goes here...
+    _run_valgrind pmval -z -a archives/20201109 -i 110365 -t 60 -w 21 -f 0 qa.rss
 else
     pmval -z -a archives/20201109 -i 110365 -t 60 -w 21 -f 0 qa.rss
 fi \
