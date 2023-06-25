@@ -1951,6 +1951,7 @@ x11
 1577 pmda.bpf local
 1584 pmda.mongodb local
 1588 python iostat local
+1589 pcp2json pcp2xxx python local
 1591 archive archive_v3 local
 1592 archive archive_v3 local valgrind
 1598 pmda.statsd local
