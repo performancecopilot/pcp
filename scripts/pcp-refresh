@@ -85,6 +85,6 @@ fi
 if [ -z "$ans" -o "$ans" = y ]
 then
     official_url=https://github.com/performancecopilot/pcp
-    # git fetch --tags --prune $official_url
     git pull $official_url $branch
+    git fetch --tags --prune $official_url
 fi
