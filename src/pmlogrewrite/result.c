@@ -484,6 +484,74 @@ retype(int i, metricspec_t *mp)
     inarch.rp->vset[i]->valfmt = sts;
 }
 
+char	**changed;
+int	changedlen;
+int	nchanged;
+
+/*
+ * 
+ */
+static void
+change_value(int i, metricspec_t *mp)
+{
+    int		j;
+    int		sts;
+    pmValueSet	*vsp;
+    char	*new;
+    pmAtomValue	atom;
+    int		already_saved;
+
+    assert(inarch.rp->vset[i]->valfmt == PM_VAL_DPTR);
+
+    already_saved = save_vset(inarch.rp, i);
+    if (already_saved)
+	vsp = inarch.rp->vset[i];
+    else
+	vsp = save[i];
+
+    for (j = 0; j < vsp->numval; j++) {
+	new = re_replace(vsp->vlist[j].value.pval->vbuf, mp->vc, mp->nvc);
+	if (new != NULL) {
+	    /* something actually changed ... */
+	    if (pmDebugOptions.appl5) {
+		fprintf(stderr, "change_value: vset[%d] PMID %s [%d of %d] inst %d: \"%s\" -> \"%s\"\n",
+		    i, pmIDStr(mp->old_desc.pmid), j, vsp->numval,
+		    vsp->vlist[j].inst, vsp->vlist[j].value.pval->vbuf, new);
+	    }
+	    atom.cp = new;
+	}
+	else
+	    atom.cp = vsp->vlist[j].value.pval->vbuf;
+
+	/* this unless error here, sts == vsp->valfmt */
+	sts = __pmStuffValue(&atom, &inarch.rp->vset[i]->vlist[j], mp->old_desc.type);
+	if (sts < 0) {
+	    fprintf(stderr, "%s: Botch: %s (%s): stuffing changed value %s (type=%s) into rewritten pmResult: %s\n",
+			pmGetProgname(), mp->old_name, pmIDStr(mp->old_desc.pmid), new, pmTypeStr(mp->old_desc.type), pmErrStr(sts));
+	    inarch.rp->vset[i]->numval = j;
+	    __pmPrintResult(stderr, inarch.rp);
+	    abandon();
+	    /*NOTREACHED*/
+	}
+
+	if (new != NULL) {
+	    nchanged++;
+	    if (nchanged >= changedlen) {
+		char	**tmp_changed;
+		changedlen = changedlen == 0 ? 1024 : 2*changedlen;
+		tmp_changed = (char **)realloc(changed, changedlen*sizeof(changed[0]));
+		if (tmp_changed == NULL) {
+		    fprintf(stderr, "change_value:) realloc(%d) failed!\n", (int)(changedlen*sizeof(changed[0])));
+		    abandon();
+		    /*NOTREACHED*/
+		}
+		changed = tmp_changed;
+	    }
+	    changed[nchanged-1] = new;
+	}
+    }
+}
+
 void
 do_result(void)
 {
@@ -495,6 +563,8 @@ do_result(void)
     int			*orig_numval = NULL;
 
     orig_numpmid = inarch.rp->numpmid;
+
+    nchanged = 0;
 
     if (inarch.rp->numpmid > len_save) {
 	/* expand save[] */
@@ -602,6 +672,9 @@ do_result(void)
 		    else
 			inarch.rp->vset[i]->numval = 0;
 		}
+	    }
+	    if ((mp->flags & METRIC_CHANGE_VALUE) && inarch.rp->vset[i]->numval > 0) {
+		change_value(i, mp);
 	    }
 	    /*
 	     * order below is deliberate ...
@@ -723,4 +796,13 @@ do_result(void)
     free(orig_numval);
 
     __pmFreeResult(inarch.rp);
+
+    /*
+     * free replacement text strings, if any ...
+     */
+    if (nchanged > 0) {
+	for (i = 0; i < nchanged; i++)
+	    free(changed[i]);
+	nchanged = 0;
+    }
 }

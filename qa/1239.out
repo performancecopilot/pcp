@@ -481,12 +481,12 @@ Running diff TMP.original.txt TMP.rewritten.txt
 3602,3603d3133
 <     InDom 60.1[1] labels (21 bytes): {"device_name":"sdb"}
 <         [0] name(2,11) : value(15,5) [instances]
-3608a3139,3140
->     InDom 60.3[1] labels (22 bytes): {"interface":"new_lo"}
->         [0] name(2,9) : value(13,8) [instances]
-3611,3612d3142
+3611,3612c3141,3142
 <     InDom 60.3[1] labels (18 bytes): {"interface":"lo"}
 <         [0] name(2,9) : value(13,4) [instances]
+---
+>     InDom 60.3[1] labels (22 bytes): {"interface":"new_lo"}
+>         [0] name(2,9) : value(13,8) [instances]
 3625,3626d3154
 <     InDom 60.10[1] labels (22 bytes): {"device_name":"sda2"}
 <         [0] name(2,11) : value(15,6) [instances]

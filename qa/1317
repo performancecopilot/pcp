@@ -1,7 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1317
 # Muti-threading and __pmProcess*() family
-# non-valgrind variant, see qa/1317 for the valgrind variant
 # valgrind variant, see qa/1316 for the non-valgrind variant
 #
 # Copyright (c) 2021 Ken McDonell.  All Rights Reserved.

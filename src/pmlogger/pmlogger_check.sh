@@ -516,7 +516,7 @@ _wait_for_pmcd()
 	    _dead=false
 	    break
 	fi
-	pmsleep 0.1
+	pmsleep -w 'waiting for pmcd start' 0.1
 	_i=`expr $_i + 1`
     done
     if $_dead
@@ -626,7 +626,7 @@ _check_logger()
 		return 1
 	    fi
 	fi
-	pmsleep 0.1
+	pmsleep -w 'waiting for pmlogger start' 0.1
 	delay=`expr $delay - 1`
 	$VERBOSE && [ `expr $delay % 10` -eq 0 ] && \
 			$PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
@@ -876,7 +876,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 			fi
 		    fi
 		fi
-		pmsleep 0.1
+		pmsleep -w 'waiting for lock' 0.1
 		delay=`expr $delay - 1`
 	    done
 
@@ -1161,7 +1161,7 @@ then
         do
             if [ $delay -gt 0 ]
             then
-                pmsleep 0.1
+                pmsleep -w 'waiting for pmlogger exit' 0.1
                 delay=`expr $delay - 1`
                 continue
             fi

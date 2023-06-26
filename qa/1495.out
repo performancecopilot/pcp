@@ -29,7 +29,7 @@ Running diff TMP.original.txt TMP.rewritten.txt
 <     Domain 60 labels (17 bytes): {"agent":"linux"}
 <         [0] name(2,5) : value(9,7) [domain]
 ---
->     Domain 3 labels (21 bytes): {"agent":"new_value"}
->         [0] name(2,5) : value(9,11) [domain]
->     Domain 60 labels (21 bytes): {"new_agent":"linux"}
->         [0] name(2,9) : value(9,7) [domain]
+>     Domain 3 labels (27 bytes): {"new_agent1":"new_value1"}
+>         [0] name(2,10) : value(14,12) [domain]
+>     Domain 60 labels (22 bytes): {"new_agent2":"linux"}
+>         [0] name(2,10) : value(9,7) [domain]

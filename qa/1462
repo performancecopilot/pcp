@@ -1,0 +1,105 @@
+#!/bin/sh
+# PCP QA Test No. 1462
+# pmlogrewrite - indom <spec> { iname replace /re/ -> "replacement" }
+#
+# non-valgrind variant, see qa/1464 for the valgrind variant
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null
+then
+    _notrun "valgrind variant qa/1464 will be run"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+
+# tmparch/sample-proc_v3 contains
+# sample.proc.time
+#    Data Type: 64-bit unsigned int  InDom: 29.12 0x740000c
+#    Semantics: counter  Units: millisec
+# and instances like ...
+#
+#   1 or "0001 init"
+#   2 or "0002 /etc/bozo"
+#   3 or "0003 /usr/bin/bobo"
+#   4 or "0004 /usr/local/jester"
+#   5 or "0005 /usr/opt/bin/loko"
+#   8 or "0008 /usr/local/yobo"
+#   9 or "0009 /usr/opt/bin/jojo"
+#   10 or "0010 /etc/koko"
+#   14 or "0014 /etc/jester"
+#   15 or "0015 /usr/bin/loko"
+#   16 or "0016 /usr/local/pierrot"
+#   18 or "0018 /etc/yobo"
+#   19 or "0019 /usr/bin/jojo"
+#   20 or "0020 /usr/local/koko"
+#
+pmdumplog -i tmparch/sample-proc_v3 >$tmp.old
+
+#    'indom 29.12 { iname "0018 /etc/yobo" -> "0018 /etc/YOBO" }' \
+
+for spec in \
+    'indom 29.12 { iname replace /yobo/ -> "YOBO" }' \
+    'indom 29.12 { iname replace "([0-9]+) .*/(.*)" -> "\\1 \\2" }' \
+
+do
+    echo
+    echo "=== $spec ==="
+    echo "$spec" >$tmp.config
+
+    rm -f $tmp.0 $tmp.index $tmp.meta
+    if $do_valgrind
+    then
+	_run_valgrind pmlogrewrite -v -c $tmp.config tmparch/sample-proc_v3 $tmp
+    else
+	pmlogrewrite -v -c $tmp.config tmparch/sample-proc_v3 $tmp 2>&1
+    fi \
+    | _filter
+
+    pmdumplog -i $tmp >$tmp.new
+    diff $tmp.old $tmp.new
+    pminfo -a $tmp -f sample.proc.time \
+    | sed -e 's/value [0-9][0-9]*/value NN/'
+done
+
+# success, all done
+exit

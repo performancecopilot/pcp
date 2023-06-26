@@ -16,7 +16,7 @@ Options:
   -w, --warnings        emit warnings [default is silence]
   -?, --help            show this usage message and exit
 
-output-archive is required unless -i is specified
+output-archive is required unless -C or -i is specified
 
 Usage: pmlogrewrite [options] input-archive [output-archive]
 
@@ -33,7 +33,7 @@ Options:
   -w, --warnings        emit warnings [default is silence]
   -?, --help            show this usage message and exit
 
-output-archive is required unless -i is specified
+output-archive is required unless -C or -i is specified
 
 pmlogrewrite: stat(no.such.file) failed: No such file or directory
 Usage: pmlogrewrite [options] input-archive [output-archive]
@@ -51,7 +51,7 @@ Options:
   -w, --warnings        emit warnings [default is silence]
   -?, --help            show this usage message and exit
 
-output-archive is required unless -i is specified
+output-archive is required unless -C or -i is specified
 
 pmlogrewrite: Error: -c config /dev/tty is not a file or directory
 Usage: pmlogrewrite [options] input-archive [output-archive]
@@ -69,7 +69,7 @@ Options:
   -w, --warnings        emit warnings [default is silence]
   -?, --help            show this usage message and exit
 
-output-archive is required unless -i is specified
+output-archive is required unless -C or -i is specified
 
 pmlogrewrite: Cannot open config file "TMP.forbidden": Permission denied
 
@@ -89,7 +89,7 @@ Options:
   -w, --warnings        emit warnings [default is silence]
   -?, --help            show this usage message and exit
 
-output-archive is required unless -i is specified
+output-archive is required unless -C or -i is specified
 
 pmlogrewrite: stat(TMP.forbiddendir/blah) failed: Permission denied
 Usage: pmlogrewrite [options] input-archive [output-archive]
@@ -107,7 +107,7 @@ Options:
   -w, --warnings        emit warnings [default is silence]
   -?, --help            show this usage message and exit
 
-output-archive is required unless -i is specified
+output-archive is required unless -C or -i is specified
 
 pmlogrewrite: Cannot open config file "TMP.configdir/forbidden": Permission denied
 

@@ -1,0 +1,220 @@
+QA output created by 1630
+PCP Archive Log Rewrite Specifications Summary
+
+Instance Domain: 29.2
+Instance:	[100] "bin-100" -> [100] "100 [redacted]"
+Instance:	[200] "bin-200" -> [200] "200 [redacted]"
+Instance:	[300] "bin-300" -> [300] "300 [redacted]"
+Instance:	[400] "bin-400" -> [400] "400 [redacted]"
+Instance:	[500] "bin-500" -> [500] "500 [redacted]"
+Instance:	[600] "bin-600" -> [600] "600 [redacted]"
+Instance:	[700] "bin-700" -> [700] "700 [redacted]"
+Instance:	[800] "bin-800" -> [800] "800 [redacted]"
+Instance:	[900] "bin-900" -> [900] "900 [redacted]"
+
+Metrics: sample.bin [sample.dupnames.two.bin sample.dupnames.three.bin sample.dupnames.four.bin sample.dupnames.five.bin] (29.0.6)
+Inst Changes:	<- InDom 29.2
+
+Instance Domains in the Log ...
+InDom: 29.2
+TIMESTAMP 9 instances
+   100 or "100 [redacted]"
+   200 or "200 [redacted]"
+   300 or "300 [redacted]"
+   400 or "400 [redacted]"
+   500 or "500 [redacted]"
+   600 or "600 [redacted]"
+   700 or "700 [redacted]"
+   800 or "800 [redacted]"
+   900 or "900 [redacted]"
+TIMESTAMP 9 instances
+   100 or "100 [redacted]"
+   200 or "200 [redacted]"
+   300 or "300 [redacted]"
+   400 or "400 [redacted]"
+   500 or "500 [redacted]"
+   600 or "600 [redacted]"
+   700 or "700 [redacted]"
+   800 or "800 [redacted]"
+   900 or "900 [redacted]"
+TIMESTAMP 9 instances
+   100 or "100 [redacted]"
+   200 or "200 [redacted]"
+   300 or "300 [redacted]"
+   400 or "400 [redacted]"
+   500 or "500 [redacted]"
+   600 or "600 [redacted]"
+   700 or "700 [redacted]"
+   800 or "800 [redacted]"
+   900 or "900 [redacted]"
+...
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [200 or "200 [redacted]"] value 200
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [200 or "200 [redacted]"] value 200
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [200 or "200 [redacted]"] value 200
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [200 or "200 [redacted]"] value 200
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [200 or "200 [redacted]"] value 200
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [200 or "200 [redacted]"] value 200
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [200 or "200 [redacted]"] value 200
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [200 or "200 [redacted]"] value 200
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [200 or "200 [redacted]"] value 200
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [200 or "200 [redacted]"] value 200
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [300 or "300 [redacted]"] value 300
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [300 or "300 [redacted]"] value 300
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [300 or "300 [redacted]"] value 300
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [300 or "300 [redacted]"] value 300
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [300 or "300 [redacted]"] value 300
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [300 or "300 [redacted]"] value 300
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [300 or "300 [redacted]"] value 300
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [300 or "300 [redacted]"] value 300
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [300 or "300 [redacted]"] value 300
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [300 or "300 [redacted]"] value 300
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [400 or "400 [redacted]"] value 400
+
+TIMESTAMP 1 metric
+    29.0.6 (sample.dupnames.five.bin or sample.dupnames.four.bin or sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+        inst [100 or "100 [redacted]"] value 100
+        inst [400 or "400 [redacted]"] value 400

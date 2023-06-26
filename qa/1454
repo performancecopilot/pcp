@@ -1,0 +1,141 @@
+#!/bin/sh
+# PCP QA Test No. 1454
+# pmlogrewrite - metric value change rules
+#
+# non-valgrind variant, see qa/1459 for the valgrind variant
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null
+then
+    _notrun "valgrind variant qa/1459 will be run"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+
+echo "== syntax, semantic and re errors =="
+
+for spec in \
+    'metric sample.string.bin { value /bin/ -> "foobar' \
+    'metric sample.string.bin { value /bin/ -> /foobar }' \
+    'metric sample.string.bin { value "bin" -> " }' \
+    'metric sample.string.bin { value "bin" -> /' \
+    'metric sample.string.bin { value /bin/ -> something else }' \
+    'metric sample.string.bin { value "bin" something else }' \
+    'metric sample.string.bin { value something else }' \
+    'metric sample.string.bin { value "bin[foo" -> /bad re/ }' \
+    'metric sample.long.million { value "1000000" -> "1000001" }' \
+
+do
+    echo "--- $spec ---"
+    cat <<End-of-File >$tmp.config
+$spec
+End-of-File
+
+    rm -f $tmp.0 $tmp.index $tmp.meta
+    if $do_valgrind
+    then
+	_run_valgrind pmlogrewrite -v -c $tmp.config archives/omnibus-nomark_v3 $tmp
+    else
+	pmlogrewrite -v -c $tmp.config archives/omnibus-nomark_v3 $tmp 2>&1
+    fi \
+    | _filter
+done
+
+echo
+echo "== run-time errors =="
+cat <<'End-of-File' >$tmp.config
+metric sample.string.bin {
+    value "[0-9]+" -> "\2"
+}
+End-of-File
+
+rm -f $tmp.0 $tmp.index $tmp.meta
+if $do_valgrind
+then
+    _run_valgrind pmlogrewrite -v -c $tmp.config archives/omnibus-nomark_v3 $tmp
+else
+    pmlogrewrite -v -c $tmp.config archives/omnibus-nomark_v3 $tmp 2>&1
+fi \
+| _filter
+
+echo
+echo "== do it =="
+
+echo "metric sample.string.bin {" >$tmp.pre
+echo >>$tmp.spec
+echo "}" >$tmp.post
+for spec in \
+    'value "[0-9]+" -> "bin-&"' \
+    'value /bin/ -> "foobar"' \
+    'value /(.*)-([0-9]00)/ -> "\\2-\\1"' \
+    'value "^(.)00-(.*)" -> /"\\101-\\2"/' \
+    'value /"/ -> "+"' \
+    'value /\+/ -> /"/' \
+
+do
+    echo "--- + $spec ---"
+    echo "$spec" >>$tmp.spec
+    cat $tmp.pre $tmp.spec $tmp.post >$tmp.config
+
+    rm -f $tmp.0 $tmp.index $tmp.meta
+    if $do_valgrind
+    then
+	_run_valgrind pmlogrewrite -v -c $tmp.config archives/omnibus-nomark_v3 $tmp
+    else
+	pmlogrewrite -v -c $tmp.config archives/omnibus-nomark_v3 $tmp 2>&1
+    fi \
+    | _filter
+
+    pmdumplog -z $tmp sample.string.bin \
+    | $PCP_AWK_PROG '
+NF == 0	{ block++
+	  if (block == 3) {
+	    print "..."
+	    exit
+	  }
+	}
+	{ print }'
+done
+
+# success, all done
+exit

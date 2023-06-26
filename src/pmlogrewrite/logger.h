@@ -18,6 +18,8 @@
 #ifndef _LOGGER_H
 #define _LOGGER_H
 
+#include <regex.h>
+
 extern int	sflag;		/* -s from command line */
 extern int	vflag;		/* -v from command line */
 extern int	wflag;		/* -w from command line */
@@ -71,6 +73,12 @@ typedef struct indomspec {
 extern indomspec_t	*indom_root;
 extern __pmHashCtl	indom_hash;
 
+typedef struct {
+    char		*pat;
+    regex_t		regex;
+    char		*replace;
+} value_change_t;
+
 /*
  * Rewrite specifications for a metric
  */
@@ -85,6 +93,8 @@ typedef struct metricspec {
     pmDesc		old_desc;
     pmDesc		new_desc;
     indomspec_t		*ip;		/* for instance id changes */
+    int			nvc;		/* number of value change specs */
+    value_change_t	*vc;		/* value change specs */
 } metricspec_t;
 
 /* values for metricspec_t flags[] */
@@ -96,6 +106,7 @@ typedef struct metricspec {
 #define METRIC_CHANGE_UNITS	 32
 #define METRIC_DELETE		 64
 #define METRIC_RESCALE		128
+#define METRIC_CHANGE_VALUE	256
 
 /* values for output when indom (numval >= 1) => PM_INDOM_NULL (numval = 1) */
 #define OUTPUT_ALL	0
@@ -231,6 +242,8 @@ extern void		deactivate_labels(void);
 
 extern int		change_inst_by_inst(pmInDom, int, int);
 extern int		change_inst_by_name(pmInDom, char *, char *);
+extern int		redact_indom(pmInDom);
+extern int		replace_indom(pmInDom, value_change_t *);
 extern int		inst_name_eq(const char *, const char *);
 
 extern char	*SemStr(int);
@@ -245,5 +258,8 @@ extern void	do_text(void);
 extern void	do_result(void);
 
 extern void	abandon(void);
+
+/* regexp match-and-replacement */
+extern char	*re_replace(char *, value_change_t *, int nvc);
 
 #endif /* _LOGGER_H */

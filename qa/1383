@@ -97,15 +97,17 @@ pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq.full
 DUMP1=$tmp.original.txt
 echo "Running pmdumplog -zhide $IN" | _filter | tee -a $seq.full
 pmdumplog -zhide $IN 2>&1 > $DUMP1
+pmdumplog -e $IN 2>&1 >>$seq.full
 
 DUMP2=$tmp.rewritten.txt
 IN=$OUT
 echo "Running pmdumplog -iteh $IN" | _filter | tee -a $seq.full
 pmdumplog -zhide $IN 2>&1 > $DUMP2
+pmdumplog -e $IN 2>&1 >>$seq.full
 
 # Make sure the item labels have been deleted or reassociated
 echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq.full
-diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq.full
+diff $DUMP1 $DUMP2 2>&1 | tee -a $seq.full | _filter 
 
 # success, all done
 status=0

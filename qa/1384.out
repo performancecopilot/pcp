@@ -67,13 +67,13 @@ Specification error in configuration file (TMP.2)
 [line 2] Global features clause requires output archive version of 3 or greater
 
 Specification error in configuration file (TMP.2)
-[line 3] Expecting list of bit numbers after "bits(" in features clause
+[line 3] Expecting <list_of_bit_numbers> after "bits(" in features clause
 
 Specification error in configuration file (TMP.2)
 [line 3] Expecting ) after "bits(" in features clause
 
 Specification error in configuration file (TMP.2)
-[line 4] Expecting list of bit numbers after "bits(" in features clause
+[line 4] Expecting <list_of_bit_numbers> after "bits(" in features clause
 
 Specification error in configuration file (TMP.2)
 [line 4] Expecting ( after "bits" in features clause

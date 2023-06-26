@@ -77,6 +77,8 @@ start_metric(pmID pmid)
 	mp->new_desc = mp->old_desc;
 	mp->flags = 0;
 	mp->ip = NULL;
+	mp->nvc = 0;
+	mp->vc = NULL;
 	if (pmDebugOptions.appl4)
 	    fprintf(stderr, " -> %s [new entry]\n", mp->old_name);
     }

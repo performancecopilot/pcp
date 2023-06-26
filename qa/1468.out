@@ -1,0 +1,27 @@
+QA output created by 1468
+QA output created by 1345 --valgrind
+3rd call to __pmAllocResult from __pmLogFetchInterp() fails
+=== std out ===
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    sample.seconds
+archive:   archives/ok-foo
+host:      gonzo
+start:     Fri Aug  7 04:34:32 1998
+end:       Fri Aug  7 04:34:40 1998
+semantics: cumulative counter (converting to rate)
+units:     sec (converting to time utilization)
+samples:   9
+interval:  1.00 sec
+04:34:32.257  No values available
+04:34:33.257  No values available
+=== std err ===
+
+pmval: pmFetch: Cannot allocate memory
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmval -z -a archives/ok-foo sample.seconds
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
