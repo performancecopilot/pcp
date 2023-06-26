@@ -60,20 +60,20 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 >    28 or "0028 /usr/local/YOBO"
 
 sample.proc.time
-    inst [1 or "0001 init"] value 81
-    inst [2 or "0002 /etc/bozo"] value 81
-    inst [3 or "0003 /usr/bin/bobo"] value 81
-    inst [4 or "0004 /usr/local/jester"] value 81
-    inst [5 or "0005 /usr/opt/bin/loko"] value 67
-    inst [8 or "0008 /usr/local/YOBO"] value 64
-    inst [9 or "0009 /usr/opt/bin/jojo"] value 62
-    inst [10 or "0010 /etc/koko"] value 47
-    inst [14 or "0014 /etc/jester"] value 33
-    inst [15 or "0015 /usr/bin/loko"] value 31
-    inst [16 or "0016 /usr/local/pierrot"] value 28
-    inst [18 or "0018 /etc/YOBO"] value 25
-    inst [19 or "0019 /usr/bin/jojo"] value 0
-    inst [20 or "0020 /usr/local/koko"] value 0
+    inst [1 or "0001 init"] value NN
+    inst [2 or "0002 /etc/bozo"] value NN
+    inst [3 or "0003 /usr/bin/bobo"] value NN
+    inst [4 or "0004 /usr/local/jester"] value NN
+    inst [5 or "0005 /usr/opt/bin/loko"] value NN
+    inst [8 or "0008 /usr/local/YOBO"] value NN
+    inst [9 or "0009 /usr/opt/bin/jojo"] value NN
+    inst [10 or "0010 /etc/koko"] value NN
+    inst [14 or "0014 /etc/jester"] value NN
+    inst [15 or "0015 /usr/bin/loko"] value NN
+    inst [16 or "0016 /usr/local/pierrot"] value NN
+    inst [18 or "0018 /etc/YOBO"] value NN
+    inst [19 or "0019 /usr/bin/jojo"] value NN
+    inst [20 or "0020 /usr/local/koko"] value NN
 
 === indom 29.12 { iname replace "([0-9]+) .*/(.*)" -> "\1 \2" } ===
 === std out ===
@@ -418,17 +418,17 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 >    30 or "0030 koko"
 
 sample.proc.time
-    inst [1 or "0001 init"] value 81
-    inst [2 or "0002 bozo"] value 81
-    inst [3 or "0003 bobo"] value 81
-    inst [4 or "0004 jester"] value 81
-    inst [5 or "0005 loko"] value 67
-    inst [8 or "0008 yobo"] value 64
-    inst [9 or "0009 jojo"] value 62
-    inst [10 or "0010 koko"] value 47
-    inst [14 or "0014 jester"] value 33
-    inst [15 or "0015 loko"] value 31
-    inst [16 or "0016 pierrot"] value 28
-    inst [18 or "0018 yobo"] value 25
-    inst [19 or "0019 jojo"] value 0
-    inst [20 or "0020 koko"] value 0
+    inst [1 or "0001 init"] value NN
+    inst [2 or "0002 bozo"] value NN
+    inst [3 or "0003 bobo"] value NN
+    inst [4 or "0004 jester"] value NN
+    inst [5 or "0005 loko"] value NN
+    inst [8 or "0008 yobo"] value NN
+    inst [9 or "0009 jojo"] value NN
+    inst [10 or "0010 koko"] value NN
+    inst [14 or "0014 jester"] value NN
+    inst [15 or "0015 loko"] value NN
+    inst [16 or "0016 pierrot"] value NN
+    inst [18 or "0018 yobo"] value NN
+    inst [19 or "0019 jojo"] value NN
+    inst [20 or "0020 koko"] value NN

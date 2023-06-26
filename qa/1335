@@ -29,6 +29,9 @@ if [ "$1" = "--valgrind" ]
 then
     _check_valgrind
     do_valgrind=true
+elif which valgrind >/dev/null
+then
+    _notrun "valgrind variant qa/1336 will be run"
 fi
 
 _cleanup()

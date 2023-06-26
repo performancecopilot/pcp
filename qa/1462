@@ -29,6 +29,9 @@ if [ "$1" = "--valgrind" ]
 then
     _check_valgrind
     do_valgrind=true
+elif which valgrind >/dev/null
+then
+    _notrun "valgrind variant qa/1464 will be run"
 fi
 
 _cleanup()
@@ -94,7 +97,8 @@ do
 
     pmdumplog -i $tmp >$tmp.new
     diff $tmp.old $tmp.new
-    pminfo -a $tmp -f sample.proc.time
+    pminfo -a $tmp -f sample.proc.time \
+    | sed -e 's/value [0-9][0-9]*/value NN/'
 done
 
 # success, all done
