@@ -24,7 +24,7 @@ prog=`basename $0`
 
 cat > $tmp/usage << EOF
 # getopts: c:D:vx?
-# Usage: [options] oldname newname
+# Usage: [options] inarch outarch
 
 Options:
   -c, --config=FILE_or_DIR additional configuration file or directory
