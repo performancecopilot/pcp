@@ -112,12 +112,22 @@ End-of-File
 
 	# hostname and fqdn
 	#
-	hostname_s=`hostname -s`
+	if false
+	then
+	    # this is how to do it for real!
+	    #
+	    hostname_s=`hostname -s`
+	    hostname_f=`hostname`
+	else
+	    # customized for the archives/all-ubuntu.22.04 archive
+	    #
+	    hostname_s=bozo
+	    hostname_f=bozo.localdomain
+	fi
 	echo "$hostname_s" | sed >>$tmp.awk \
 	    -e 's/\./\\./g' \
 	    -e 's@.*@/[" /]&[" /]/ { seen++ }@' \
 	# end
-	hostname_f=`hostname`
 	if [ "$hostname_s" != "$hostname_f" ]
 	then
 	    echo "$hostname_f" | sed >>$tmp.awk \

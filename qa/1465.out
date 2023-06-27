@@ -1,17 +1,35 @@
 QA output created by 1465
 === before ===
+	Note: timezone set to local timezone of host "bozo.localdomain" from archive
 ipc.shm.owner	inst [0 or "0"] value "nobody"
 ipc.shm.owner	inst [1 or "32769"] value "kenj"
+kernel.uname.nodename	value "bozo.localdomain"
 network.interface.hw_addr	inst [0 or "vnet4"] value "fe:54:00:b2:11:0a"
 network.interface.hw_addr	inst [1 or "vnet2"] value "fe:54:00:8f:c9:5e"
 network.interface.inet_addr	inst [3 or "virbr0"] value "192.168.122.1"
 network.interface.inet_addr	inst [5 or "br0"] value "192.168.178.100"
 openmetrics.control.status	inst [1 or "grafana"] value "failed to fetch URL or execute script /var/lib/pcp/pmdas/openmetrics/config.d/grafana.url: HTTPConnectionPool(host='localhost', port=3000): Max retries exceeded with url: /metrics (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f1145b278b0>: Failed to establish a new connection: [Errno 111] Connection refused'))"
 pmcd.agent.name	inst [1 or "root"] value "root"
+pmcd.client.whoami	inst [1036 or "1036"] value "bozo.localdomain (192.168.178.100) /usr/bin/pmie -b -m pmie_check -F -P -l /var/log/pcp/pmie/bozo.localdomain/pmie.log -c config.default"
+pmcd.client.whoami	inst [1037 or "1037"] value "bozo.localdomain (192.168.178.100) /usr/bin/pmie -b -m pmie_check -F -P -l /var/log/pcp/pmie/bozo.localdomain/pmie.log -c config.default"
+pmcd.hostname	value "bozo.localdomain"
 pmcd.pmie.configfile	inst [0 or "primary"] value "/var/lib/pcp/config/pmie/config.default"
 pmcd.pmie.configfile	inst [2500517 or "2500517"] value "/var/lib/pcp/config/pmie/config.default"
+pmcd.pmie.logfile	inst [0 or "primary"] value "/var/log/pcp/pmie/bozo.localdomain/pmie.log"
+pmcd.pmie.logfile	inst [2500517 or "2500517"] value "/var/log/pcp/pmie/bozo.localdomain/pmie.log"
+pmcd.pmie.pmcd_host	inst [0 or "primary"] value "bozo.localdomain"
+pmcd.pmie.pmcd_host	inst [2500517 or "2500517"] value "bozo.localdomain"
+pmcd.pmlogger.archive	inst [3229969 or "3229969"] value "/var/log/pcp/pmlogger/bozo.localdomain/20230616.07.01"
+pmcd.pmlogger.archive	inst [3230198 or "3230198"] value "/gpfs/data/root/pcp/2023/06/bozo.localdomain/2023-06-16/20230616.07.01"
 pmcd.pmlogger.archive	inst [3235380 or "3235380"] value "/home/kenj/src/pcp/qa/archives/all-ubuntu.22.04"
 pmcd.pmlogger.archive	inst [3235380 or ???] value "/home/kenj/src/pcp/qa/archives/all-ubuntu.22.04"
+pmcd.pmlogger.host	inst [3229969 or "3229969"] value "bozo.localdomain"
+pmcd.pmlogger.host	inst [3230198 or "3230198"] value "bozo.localdomain"
+pmcd.pmlogger.host	inst [3235380 or "3235380"] value "bozo.localdomain"
+pmcd.pmlogger.host	inst [3235380 or ???] value "bozo.localdomain"
+pmcd.pmlogger.pmcd_host	inst [3229969 or "3229969"] value "bozo.localdomain"
+pmcd.pmlogger.pmcd_host	inst [3230198 or "3230198"] value "bozo.localdomain"
+pmda.uname	value "Linux bozo.localdomain 5.15.0-72-generic #79-Ubuntu SMP Wed Apr 19 08:22:18 UTC 2023 x86_64"
 proc.id.egid_nm	inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
 proc.id.egid_nm	inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
 proc.id.euid_nm	inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
@@ -37,6 +55,14 @@ proc.psinfo.environ	inst [3363 or "003363 /usr/libexec/ibus-engine-simple"] valu
 proc.psinfo.exe	inst [2981799 or "2981799 /home/kenj/.dropbox-dist/dropbox-lnx.x86_64-176.4.5108/dropbox"] value "/home/kenj/.dropbox-dist/dropbox-lnx.x86_64-176.4.5108/dropbox"
 proc.psinfo.psargs	inst [2165 or "002165 /bin/sh"] value "/bin/sh /snap/cups/872/scripts/run-cups-browsed"
 proc.psinfo.psargs	inst [2166 or "002166 /bin/sh"] value "/bin/sh /snap/cups/872/scripts/run-cupsd"
+sample.proc.exec	inst [2 or "0002 /etc/bozo"] value "bozo"
+sample.proc.ordinal	inst [2 or "0002 /etc/bozo"] value 2
+sample.proc.time	inst [2 or "0002 /etc/bozo"] value 1462125
+sample.proc.time	inst [2 or "0002 /etc/bozo"] value 1464919
+sampledso.proc.exec	inst [2 or "0002 /etc/bozo"] value "bozo"
+sampledso.proc.ordinal	inst [2 or "0002 /etc/bozo"] value 2
+sampledso.proc.time	inst [2 or "0002 /etc/bozo"] value 1462125
+sampledso.proc.time	inst [2 or "0002 /etc/bozo"] value 1464919
 
 === after ===
 openmetrics.control.status	inst [1 or "grafana"] value "failed to fetch URL or execute script /var/lib/pcp/pmdas/openmetrics/config.d/grafana.url: HTTPConnectionPool(host='localhost', port=3000): Max retries exceeded with url: /metrics (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f1145b278b0>: Failed to establish a new connection: [Errno 111] Connection refused'))"
@@ -44,3 +70,11 @@ pmcd.agent.name	inst [1 or "root"] value "root"
 pmcd.pmie.configfile	inst [0 or "primary"] value "/var/lib/pcp/config/pmie/config.default"
 pmcd.pmie.configfile	inst [2500517 or "2500517"] value "/var/lib/pcp/config/pmie/config.default"
 proc.psinfo.cmd	inst [2366 or "002366 colord"] value "colord"
+sample.proc.exec	inst [2 or "0002 /etc/bozo"] value "bozo"
+sample.proc.ordinal	inst [2 or "0002 /etc/bozo"] value 2
+sample.proc.time	inst [2 or "0002 /etc/bozo"] value 1462125
+sample.proc.time	inst [2 or "0002 /etc/bozo"] value 1464919
+sampledso.proc.exec	inst [2 or "0002 /etc/bozo"] value "bozo"
+sampledso.proc.ordinal	inst [2 or "0002 /etc/bozo"] value 2
+sampledso.proc.time	inst [2 or "0002 /etc/bozo"] value 1462125
+sampledso.proc.time	inst [2 or "0002 /etc/bozo"] value 1464919
