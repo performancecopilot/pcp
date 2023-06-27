@@ -56,6 +56,8 @@ These rules remove some metrics, rewrite the instance domains
 of some metrics and rewrite the values of some metrics.
 The
 .B \-x
+(or
+.BR \-\-exclude-std )
 option may be used to
 .B not
 use the default set of rules.
@@ -63,6 +65,8 @@ use the default set of rules.
 Additional (or alternative) configuration files may be specified with
 one or more
 .B \-c
+(or
+.BR \-\-config )
 options, where each
 .I config
 is either a file or a directory (implying all the files within that
@@ -70,8 +74,16 @@ directory).
 .PP
 The
 .B \-v
+(or
+.BR \-\-verbose )
 option adds verbosity (and is passed directly to
 .BR pmlogrewrite (1)).
+.PP
+The
+.B \-?
+(or
+.BR \-\-help)
+option displays a usage message and exits.
 .SH FILES
 .TP 5
 .I $PCP_VAR_DIR/config/pmlogredact/*
