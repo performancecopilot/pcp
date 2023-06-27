@@ -139,9 +139,7 @@ End-of-File
 	#
 	cat <<'End-of-File' >>$tmp.awk
 seen > 0 && seen > last_seen {
-    if (printed == 0) { print ""; print m }
-    if (printed < 2) print
-    if (printed == 2) print "    ..."
+    if (printed < 2) print m,$0
     printed++
     last_seen = seen
 }
@@ -158,7 +156,10 @@ s/^  *[0-9][0-9.]* (/\
 s/): */\
     /
 }' \
-    | awk -f $tmp.awk
+    | awk -f $tmp.awk \
+    | LC_COLLATE=POSIX sort \
+    | uniq \
+    | sed -e 's/  */	/'
 }
 
 # real QA test starts here

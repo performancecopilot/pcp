@@ -1,212 +1,46 @@
 QA output created by 1465
 === before ===
-
-pmcd.pmlogger.archive
-    inst [3235380 or "3235380"] value "/home/kenj/src/pcp/qa/archives/all-ubuntu.22.04"
-
-pmcd.pmie.configfile
-        inst [0 or "primary"] value "/var/lib/pcp/config/pmie/config.default"
-        inst [2500517 or "2500517"] value "/var/lib/pcp/config/pmie/config.default"
-
-pmcd.agent.name
-        inst [1 or "root"] value "root"
-
-openmetrics.control.status
-        inst [1 or "grafana"] value "failed to fetch URL or execute script /var/lib/pcp/pmdas/openmetrics/config.d/grafana.url: HTTPConnectionPool(host='localhost', port=3000): Max retries exceeded with url: /metrics (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f1145b278b0>: Failed to establish a new connection: [Errno 111] Connection refused'))"
-
-network.interface.hw_addr
-        inst [0 or "vnet4"] value "fe:54:00:b2:11:0a"
-        inst [1 or "vnet2"] value "fe:54:00:8f:c9:5e"
-    ...
-
-network.interface.inet_addr
-        inst [3 or "virbr0"] value "192.168.122.1"
-        inst [5 or "br0"] value "192.168.178.100"
-
-ipc.shm.owner
-        inst [0 or "0"] value "nobody"
-        inst [1 or "32769"] value "kenj"
-    ...
-
-proc.psinfo.cwd
-        inst [332881 or "332881 bash"] value "/home/kenj"
-        inst [3363 or "003363 /usr/libexec/ibus-engine-simple"] value "/home/kenj"
-    ...
-
-proc.psinfo.exe
-        inst [2981799 or "2981799 /home/kenj/.dropbox-dist/dropbox-lnx.x86_64-176.4.5108/dropbox"] value "/home/kenj/.dropbox-dist/dropbox-lnx.x86_64-176.4.5108/dropbox"
-
-proc.id.fsgid_nm
-        inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
-        inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
-    ...
-
-proc.id.sgid_nm
-        inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
-        inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
-    ...
-
-proc.id.egid_nm
-        inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
-        inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
-    ...
-
-proc.id.gid_nm
-        inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
-        inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
-    ...
-
-proc.id.fsuid_nm
-        inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
-        inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
-    ...
-
-proc.id.suid_nm
-        inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
-        inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
-    ...
-
-proc.id.euid_nm
-        inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
-        inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
-    ...
-
-proc.id.uid_nm
-        inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
-        inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
-    ...
-
-proc.memory.maps
-        inst [2981799 or "2981799 /home/kenj/.dropbox-dist/dropbox-lnx.x86_64-176.4.5108/dropbox"] value "555f56600000-555f56601000 r-xp 00000000 08:36 10255667                   /home/kenj/.dropbox-dist/dropbox-lnx.x86_64-176.4.5108/dropbox
-
-proc.psinfo.environ
-        inst [332881 or "332881 bash"] value "SSH_AUTH_SOCK=/tmp/ssh-XXXXXXbJHxRr/agent.3297 LANGUAGE=en_AU:en LANG=en_AU.UTF-8 SSH_AGENT_PID=3307 XDG_CURRENT_DESKTOP=XFCE COLORTERM=truecolor SESSION_MANAGER=local/bozo.localdomain:@/tmp/.ICE-unix/2944,unix/bozo.localdomain:/tmp/.ICE-unix/2944 XDG_GREETER_DATA_DIR=/var/lib/lightdm-data/kenj LIBVIRT_DEFAULT_URI=qemu:///system QT_IM_MODULE=ibus USER=kenj HOME=/home/kenj XDG_MENU_PREFIX=xfce- XDG_SESSION_PATH=/org/freedesktop/DisplayManager/Session0 DESKTOP_SESSION=xubuntu DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus XDG_VTNR=7 XDG_SEAT=seat0 XDG_DATA_DIRS=/usr/share/xubuntu:/usr/share/xfce4:/usr/local/share:/usr/share:/var/lib/snapd/desktop:/usr/share XDG_CONFIG_DIRS=/etc/xdg/xdg-xubuntu:/etc/xdg:/etc/xdg GTK_IM_MODULE=ibus XDG_SESSION_DESKTOP=xubuntu QT_ACCESSIBILITY=1 GTK_OVERLAY_SCROLLING=0 CLUTTER_IM_MODULE=ibus XDG_SEAT_PATH=/org/freedesktop/DisplayManager/Seat0 LOGNAME=kenj VTE_VERSION=6800 PATH=/home/kenj/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin XDG_RUNTIME_DIR=/run/user/1000 XMODIFIERS=@im=ibus SHELL=/bin/bash XDG_SESSION_ID=c1 CLUTTER_BACKEND=x11 XDG_SESSION_TYPE=x11 WINDOWID=90346858 QT_QPA_PLATFORMTHEME=gtk2 SHLVL=0 XAUTHORITY=/home/kenj/.Xauthority GDM_LANG=en_AU PWD=/home/kenj XDG_SESSION_CLASS=user GDMSESSION=xubuntu TERM=xterm-256color DISPLAY=:0.0"
-        inst [3363 or "003363 /usr/libexec/ibus-engine-simple"] value "LANGUAGE=en_AU:en USER=kenj XDG_SEAT=seat0 XDG_SESSION_TYPE=x11 SHLVL=0 HOME=/home/kenj DESKTOP_SESSION=xubuntu XDG_SEAT_PATH=/org/freedesktop/DisplayManager/Seat0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus LIBVIRT_DEFAULT_URI=qemu:///system QT_QPA_PLATFORMTHEME=gtk2 IM_CONFIG_PHASE=2 GTK_IM_MODULE=ibus LOGNAME=kenj XDG_SESSION_CLASS=user CLUTTER_BACKEND=x11 GTK_OVERLAY_SCROLLING=0 XDG_SESSION_ID=c1 PATH=/home/kenj/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin GDM_LANG=en_AU XDG_SESSION_PATH=/org/freedesktop/DisplayManager/Session0 XDG_RUNTIME_DIR=/run/user/1000 DISPLAY=:0 LANG=en_AU.UTF-8 XDG_CURRENT_DESKTOP=XFCE IBUS_ENABLE_SYNC_MODE=0 XMODIFIERS=@im=ibus XDG_SESSION_DESKTOP=xubuntu XAUTHORITY=/home/kenj/.Xauthority XDG_GREETER_DATA_DIR=/var/lib/lightdm-data/kenj SHELL=/bin/bash QT_ACCESSIBILITY=1 GDMSESSION=xubuntu GPG_AGENT_INFO=/run/user/1000/gnupg/S.gpg-agent:0:1 QT_IM_MODULE=ibus XDG_VTNR=7 PWD=/home/kenj XDG_CONFIG_DIRS=/etc/xdg/xdg-xubuntu:/etc/xdg CLUTTER_IM_MODULE=ibus XDG_DATA_DIRS=/usr/share/xubuntu:/usr/share/xfce4:/usr/local/share:/usr/share:/var/lib/snapd/desktop"
-    ...
-
-proc.psinfo.psargs
-        inst [2165 or "002165 /bin/sh"] value "/bin/sh /snap/cups/872/scripts/run-cups-browsed"
-        inst [2166 or "002166 /bin/sh"] value "/bin/sh /snap/cups/872/scripts/run-cupsd"
-    ...
-
-proc.psinfo.cmd
-        inst [2366 or "002366 /usr/libexec/colord"] value "colord"
-
-pmcd.pmie.configfile
-        inst [0 or "primary"] value "/var/lib/pcp/config/pmie/config.default"
-        inst [2500517 or "2500517"] value "/var/lib/pcp/config/pmie/config.default"
-
-pmcd.agent.name
-        inst [1 or "root"] value "root"
-
-openmetrics.control.status
-        inst [1 or "grafana"] value "failed to fetch URL or execute script /var/lib/pcp/pmdas/openmetrics/config.d/grafana.url: HTTPConnectionPool(host='localhost', port=3000): Max retries exceeded with url: /metrics (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f1145b278b0>: Failed to establish a new connection: [Errno 111] Connection refused'))"
-
-network.interface.hw_addr
-        inst [0 or "vnet4"] value "fe:54:00:b2:11:0a"
-        inst [1 or "vnet2"] value "fe:54:00:8f:c9:5e"
-    ...
-
-network.interface.inet_addr
-        inst [3 or "virbr0"] value "192.168.122.1"
-        inst [5 or "br0"] value "192.168.178.100"
-
-ipc.shm.owner
-        inst [0 or "0"] value "nobody"
-        inst [1 or "32769"] value "kenj"
-    ...
-
-proc.psinfo.cwd
-        inst [332881 or "332881 bash"] value "/home/kenj"
-        inst [3363 or "003363 /usr/libexec/ibus-engine-simple"] value "/home/kenj"
-    ...
-
-proc.psinfo.exe
-        inst [2981799 or "2981799 /home/kenj/.dropbox-dist/dropbox-lnx.x86_64-176.4.5108/dropbox"] value "/home/kenj/.dropbox-dist/dropbox-lnx.x86_64-176.4.5108/dropbox"
-
-proc.id.fsgid_nm
-        inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
-        inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
-    ...
-
-proc.id.sgid_nm
-        inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
-        inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
-    ...
-
-proc.id.egid_nm
-        inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
-        inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
-    ...
-
-proc.id.gid_nm
-        inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
-        inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
-    ...
-
-proc.id.fsuid_nm
-        inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
-        inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
-    ...
-
-proc.id.suid_nm
-        inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
-        inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
-    ...
-
-proc.id.euid_nm
-        inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
-        inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
-    ...
-
-proc.id.uid_nm
-        inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
-        inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
-    ...
-
-proc.memory.maps
-        inst [2981799 or "2981799 /home/kenj/.dropbox-dist/dropbox-lnx.x86_64-176.4.5108/dropbox"] value "555f56600000-555f56601000 r-xp 00000000 08:36 10255667                   /home/kenj/.dropbox-dist/dropbox-lnx.x86_64-176.4.5108/dropbox
-
-proc.psinfo.environ
-        inst [332881 or "332881 bash"] value "SSH_AUTH_SOCK=/tmp/ssh-XXXXXXbJHxRr/agent.3297 LANGUAGE=en_AU:en LANG=en_AU.UTF-8 SSH_AGENT_PID=3307 XDG_CURRENT_DESKTOP=XFCE COLORTERM=truecolor SESSION_MANAGER=local/bozo.localdomain:@/tmp/.ICE-unix/2944,unix/bozo.localdomain:/tmp/.ICE-unix/2944 XDG_GREETER_DATA_DIR=/var/lib/lightdm-data/kenj LIBVIRT_DEFAULT_URI=qemu:///system QT_IM_MODULE=ibus USER=kenj HOME=/home/kenj XDG_MENU_PREFIX=xfce- XDG_SESSION_PATH=/org/freedesktop/DisplayManager/Session0 DESKTOP_SESSION=xubuntu DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus XDG_VTNR=7 XDG_SEAT=seat0 XDG_DATA_DIRS=/usr/share/xubuntu:/usr/share/xfce4:/usr/local/share:/usr/share:/var/lib/snapd/desktop:/usr/share XDG_CONFIG_DIRS=/etc/xdg/xdg-xubuntu:/etc/xdg:/etc/xdg GTK_IM_MODULE=ibus XDG_SESSION_DESKTOP=xubuntu QT_ACCESSIBILITY=1 GTK_OVERLAY_SCROLLING=0 CLUTTER_IM_MODULE=ibus XDG_SEAT_PATH=/org/freedesktop/DisplayManager/Seat0 LOGNAME=kenj VTE_VERSION=6800 PATH=/home/kenj/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin XDG_RUNTIME_DIR=/run/user/1000 XMODIFIERS=@im=ibus SHELL=/bin/bash XDG_SESSION_ID=c1 CLUTTER_BACKEND=x11 XDG_SESSION_TYPE=x11 WINDOWID=90346858 QT_QPA_PLATFORMTHEME=gtk2 SHLVL=0 XAUTHORITY=/home/kenj/.Xauthority GDM_LANG=en_AU PWD=/home/kenj XDG_SESSION_CLASS=user GDMSESSION=xubuntu TERM=xterm-256color DISPLAY=:0.0"
-        inst [3363 or "003363 /usr/libexec/ibus-engine-simple"] value "LANGUAGE=en_AU:en USER=kenj XDG_SEAT=seat0 XDG_SESSION_TYPE=x11 SHLVL=0 HOME=/home/kenj DESKTOP_SESSION=xubuntu XDG_SEAT_PATH=/org/freedesktop/DisplayManager/Seat0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus LIBVIRT_DEFAULT_URI=qemu:///system QT_QPA_PLATFORMTHEME=gtk2 IM_CONFIG_PHASE=2 GTK_IM_MODULE=ibus LOGNAME=kenj XDG_SESSION_CLASS=user CLUTTER_BACKEND=x11 GTK_OVERLAY_SCROLLING=0 XDG_SESSION_ID=c1 PATH=/home/kenj/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin GDM_LANG=en_AU XDG_SESSION_PATH=/org/freedesktop/DisplayManager/Session0 XDG_RUNTIME_DIR=/run/user/1000 DISPLAY=:0 LANG=en_AU.UTF-8 XDG_CURRENT_DESKTOP=XFCE IBUS_ENABLE_SYNC_MODE=0 XMODIFIERS=@im=ibus XDG_SESSION_DESKTOP=xubuntu XAUTHORITY=/home/kenj/.Xauthority XDG_GREETER_DATA_DIR=/var/lib/lightdm-data/kenj SHELL=/bin/bash QT_ACCESSIBILITY=1 GDMSESSION=xubuntu GPG_AGENT_INFO=/run/user/1000/gnupg/S.gpg-agent:0:1 QT_IM_MODULE=ibus XDG_VTNR=7 PWD=/home/kenj XDG_CONFIG_DIRS=/etc/xdg/xdg-xubuntu:/etc/xdg CLUTTER_IM_MODULE=ibus XDG_DATA_DIRS=/usr/share/xubuntu:/usr/share/xfce4:/usr/local/share:/usr/share:/var/lib/snapd/desktop"
-    ...
-
-proc.psinfo.psargs
-        inst [2165 or "002165 /bin/sh"] value "/bin/sh /snap/cups/872/scripts/run-cups-browsed"
-        inst [2166 or "002166 /bin/sh"] value "/bin/sh /snap/cups/872/scripts/run-cupsd"
-    ...
-
-proc.psinfo.cmd
-        inst [2366 or "002366 /usr/libexec/colord"] value "colord"
-
-pmcd.pmlogger.archive
-    inst [3235380 or ???] value "/home/kenj/src/pcp/qa/archives/all-ubuntu.22.04"
+ipc.shm.owner	inst [0 or "0"] value "nobody"
+ipc.shm.owner	inst [1 or "32769"] value "kenj"
+network.interface.hw_addr	inst [0 or "vnet4"] value "fe:54:00:b2:11:0a"
+network.interface.hw_addr	inst [1 or "vnet2"] value "fe:54:00:8f:c9:5e"
+network.interface.inet_addr	inst [3 or "virbr0"] value "192.168.122.1"
+network.interface.inet_addr	inst [5 or "br0"] value "192.168.178.100"
+openmetrics.control.status	inst [1 or "grafana"] value "failed to fetch URL or execute script /var/lib/pcp/pmdas/openmetrics/config.d/grafana.url: HTTPConnectionPool(host='localhost', port=3000): Max retries exceeded with url: /metrics (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f1145b278b0>: Failed to establish a new connection: [Errno 111] Connection refused'))"
+pmcd.agent.name	inst [1 or "root"] value "root"
+pmcd.pmie.configfile	inst [0 or "primary"] value "/var/lib/pcp/config/pmie/config.default"
+pmcd.pmie.configfile	inst [2500517 or "2500517"] value "/var/lib/pcp/config/pmie/config.default"
+pmcd.pmlogger.archive	inst [3235380 or "3235380"] value "/home/kenj/src/pcp/qa/archives/all-ubuntu.22.04"
+pmcd.pmlogger.archive	inst [3235380 or ???] value "/home/kenj/src/pcp/qa/archives/all-ubuntu.22.04"
+proc.id.egid_nm	inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
+proc.id.egid_nm	inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
+proc.id.euid_nm	inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
+proc.id.euid_nm	inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
+proc.id.fsgid_nm	inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
+proc.id.fsgid_nm	inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
+proc.id.fsuid_nm	inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
+proc.id.fsuid_nm	inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
+proc.id.gid_nm	inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
+proc.id.gid_nm	inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
+proc.id.sgid_nm	inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
+proc.id.sgid_nm	inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
+proc.id.suid_nm	inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
+proc.id.suid_nm	inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
+proc.id.uid_nm	inst [1920 or "001920 /usr/lib/bluetooth/bluetoothd"] value "root"
+proc.id.uid_nm	inst [3233520 or "3233520 (worker/3:2-events)"] value "root"
+proc.memory.maps	inst [2981799 or "2981799 /home/kenj/.dropbox-dist/dropbox-lnx.x86_64-176.4.5108/dropbox"] value "555f56600000-555f56601000 r-xp 00000000 08:36 10255667                   /home/kenj/.dropbox-dist/dropbox-lnx.x86_64-176.4.5108/dropbox
+proc.psinfo.cmd	inst [2366 or "002366 /usr/libexec/colord"] value "colord"
+proc.psinfo.cwd	inst [332881 or "332881 bash"] value "/home/kenj"
+proc.psinfo.cwd	inst [3363 or "003363 /usr/libexec/ibus-engine-simple"] value "/home/kenj"
+proc.psinfo.environ	inst [332881 or "332881 bash"] value "SSH_AUTH_SOCK=/tmp/ssh-XXXXXXbJHxRr/agent.3297 LANGUAGE=en_AU:en LANG=en_AU.UTF-8 SSH_AGENT_PID=3307 XDG_CURRENT_DESKTOP=XFCE COLORTERM=truecolor SESSION_MANAGER=local/bozo.localdomain:@/tmp/.ICE-unix/2944,unix/bozo.localdomain:/tmp/.ICE-unix/2944 XDG_GREETER_DATA_DIR=/var/lib/lightdm-data/kenj LIBVIRT_DEFAULT_URI=qemu:///system QT_IM_MODULE=ibus USER=kenj HOME=/home/kenj XDG_MENU_PREFIX=xfce- XDG_SESSION_PATH=/org/freedesktop/DisplayManager/Session0 DESKTOP_SESSION=xubuntu DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus XDG_VTNR=7 XDG_SEAT=seat0 XDG_DATA_DIRS=/usr/share/xubuntu:/usr/share/xfce4:/usr/local/share:/usr/share:/var/lib/snapd/desktop:/usr/share XDG_CONFIG_DIRS=/etc/xdg/xdg-xubuntu:/etc/xdg:/etc/xdg GTK_IM_MODULE=ibus XDG_SESSION_DESKTOP=xubuntu QT_ACCESSIBILITY=1 GTK_OVERLAY_SCROLLING=0 CLUTTER_IM_MODULE=ibus XDG_SEAT_PATH=/org/freedesktop/DisplayManager/Seat0 LOGNAME=kenj VTE_VERSION=6800 PATH=/home/kenj/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin XDG_RUNTIME_DIR=/run/user/1000 XMODIFIERS=@im=ibus SHELL=/bin/bash XDG_SESSION_ID=c1 CLUTTER_BACKEND=x11 XDG_SESSION_TYPE=x11 WINDOWID=90346858 QT_QPA_PLATFORMTHEME=gtk2 SHLVL=0 XAUTHORITY=/home/kenj/.Xauthority GDM_LANG=en_AU PWD=/home/kenj XDG_SESSION_CLASS=user GDMSESSION=xubuntu TERM=xterm-256color DISPLAY=:0.0"
+proc.psinfo.environ	inst [3363 or "003363 /usr/libexec/ibus-engine-simple"] value "LANGUAGE=en_AU:en USER=kenj XDG_SEAT=seat0 XDG_SESSION_TYPE=x11 SHLVL=0 HOME=/home/kenj DESKTOP_SESSION=xubuntu XDG_SEAT_PATH=/org/freedesktop/DisplayManager/Seat0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus LIBVIRT_DEFAULT_URI=qemu:///system QT_QPA_PLATFORMTHEME=gtk2 IM_CONFIG_PHASE=2 GTK_IM_MODULE=ibus LOGNAME=kenj XDG_SESSION_CLASS=user CLUTTER_BACKEND=x11 GTK_OVERLAY_SCROLLING=0 XDG_SESSION_ID=c1 PATH=/home/kenj/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin GDM_LANG=en_AU XDG_SESSION_PATH=/org/freedesktop/DisplayManager/Session0 XDG_RUNTIME_DIR=/run/user/1000 DISPLAY=:0 LANG=en_AU.UTF-8 XDG_CURRENT_DESKTOP=XFCE IBUS_ENABLE_SYNC_MODE=0 XMODIFIERS=@im=ibus XDG_SESSION_DESKTOP=xubuntu XAUTHORITY=/home/kenj/.Xauthority XDG_GREETER_DATA_DIR=/var/lib/lightdm-data/kenj SHELL=/bin/bash QT_ACCESSIBILITY=1 GDMSESSION=xubuntu GPG_AGENT_INFO=/run/user/1000/gnupg/S.gpg-agent:0:1 QT_IM_MODULE=ibus XDG_VTNR=7 PWD=/home/kenj XDG_CONFIG_DIRS=/etc/xdg/xdg-xubuntu:/etc/xdg CLUTTER_IM_MODULE=ibus XDG_DATA_DIRS=/usr/share/xubuntu:/usr/share/xfce4:/usr/local/share:/usr/share:/var/lib/snapd/desktop"
+proc.psinfo.exe	inst [2981799 or "2981799 /home/kenj/.dropbox-dist/dropbox-lnx.x86_64-176.4.5108/dropbox"] value "/home/kenj/.dropbox-dist/dropbox-lnx.x86_64-176.4.5108/dropbox"
+proc.psinfo.psargs	inst [2165 or "002165 /bin/sh"] value "/bin/sh /snap/cups/872/scripts/run-cups-browsed"
+proc.psinfo.psargs	inst [2166 or "002166 /bin/sh"] value "/bin/sh /snap/cups/872/scripts/run-cupsd"
 
 === after ===
-
-pmcd.pmie.configfile
-        inst [0 or "primary"] value "/var/lib/pcp/config/pmie/config.default"
-        inst [2500517 or "2500517"] value "/var/lib/pcp/config/pmie/config.default"
-
-pmcd.agent.name
-        inst [1 or "root"] value "root"
-
-openmetrics.control.status
-        inst [1 or "grafana"] value "failed to fetch URL or execute script /var/lib/pcp/pmdas/openmetrics/config.d/grafana.url: HTTPConnectionPool(host='localhost', port=3000): Max retries exceeded with url: /metrics (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f1145b278b0>: Failed to establish a new connection: [Errno 111] Connection refused'))"
-
-proc.psinfo.cmd
-        inst [2366 or "002366 colord"] value "colord"
-
-pmcd.pmie.configfile
-        inst [0 or "primary"] value "/var/lib/pcp/config/pmie/config.default"
-        inst [2500517 or "2500517"] value "/var/lib/pcp/config/pmie/config.default"
-
-pmcd.agent.name
-        inst [1 or "root"] value "root"
-
-openmetrics.control.status
-        inst [1 or "grafana"] value "failed to fetch URL or execute script /var/lib/pcp/pmdas/openmetrics/config.d/grafana.url: HTTPConnectionPool(host='localhost', port=3000): Max retries exceeded with url: /metrics (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f1145b278b0>: Failed to establish a new connection: [Errno 111] Connection refused'))"
-
-proc.psinfo.cmd
-        inst [2366 or "002366 colord"] value "colord"
+openmetrics.control.status	inst [1 or "grafana"] value "failed to fetch URL or execute script /var/lib/pcp/pmdas/openmetrics/config.d/grafana.url: HTTPConnectionPool(host='localhost', port=3000): Max retries exceeded with url: /metrics (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f1145b278b0>: Failed to establish a new connection: [Errno 111] Connection refused'))"
+pmcd.agent.name	inst [1 or "root"] value "root"
+pmcd.pmie.configfile	inst [0 or "primary"] value "/var/lib/pcp/config/pmie/config.default"
+pmcd.pmie.configfile	inst [2500517 or "2500517"] value "/var/lib/pcp/config/pmie/config.default"
+proc.psinfo.cmd	inst [2366 or "002366 colord"] value "colord"
