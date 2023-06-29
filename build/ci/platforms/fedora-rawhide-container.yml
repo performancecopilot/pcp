@@ -13,7 +13,7 @@ container:
 tasks:
   setup: |
     sudo dnf install -y which hostname
-    sudo dnf -y -b install $(qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
+    sudo dnf -y install $(qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
   build: |
     ./Makepkgs --verbose
     rpm -qp --requires $(echo pcp-*/build/rpm/pcp-*.src.rpm | sed 's/src/x86_64/') | grep -q libuv.so
