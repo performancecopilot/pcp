@@ -156,7 +156,7 @@ NF == 1 && $1 == "#" && done == 0	{
 			  done = 1
 			}
 			{ print }
-/^  *do_valgrind=true/	{ print "elif which valgrind >/dev/null"
+/^  *do_valgrind=true/	{ print "elif which valgrind >/dev/null 2>&1"
 			  print "then"
 			  print "    _notrun \"valgrind variant qa/'$newseq' will be run\""
 			  next

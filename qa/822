@@ -31,7 +31,7 @@ if [ "$1" = "--valgrind" ]
 then
     _check_valgrind
     do_valgrind=true
-elif which valgrind >/dev/null
+elif which valgrind >/dev/null 2>&1
 then
     _notrun "valgrind variant qa/1404 will be run"
 fi
