@@ -43,7 +43,8 @@ The following keywords can be specified:
 A list of default flags for
 .B pcp-atop
 can be defined here. The flags which are allowed
-are 'g', 'm', 'd', 'n', 'u', 'p', 's', 'c', 'v', 'C', 'M', 'D', 'N', 'A',
+are 'B', 'H', 'g', 'm', 'd', 'n', 'u', 'p', 's', 'c', 'v',
+\&'C', 'M', 'D', 'N', 'A',
 \&'a', 'y', 'f', 'F', 'G', 'R', '1', 'e', 'E' and 'x'.
 .TP 4
 .B interval
@@ -89,7 +90,8 @@ The busy percentage considered critical for a processor
 .I pcp-atop
 command).
 This percentage is used to determine
-a weighted percentage for line coloring and sorting of active processes.
+a weighted percentage for line coloring and sorting of active processes
+in text mode.
 When this value is zero, no line coloring or automatic sorting is performed
 for this resource.
 .TP 4
@@ -99,7 +101,8 @@ The busy percentage considered critical for a disk
 .I pcp-atop
 command).
 This percentage is used to determine
-a weighted percentage for line coloring and sorting of active processes.
+a weighted percentage for line coloring and sorting of active processes
+in text mode.
 When this value is zero, no line coloring or automatic sorting is performed
 for this resource.
 .TP 4
@@ -109,7 +112,8 @@ The busy percentage considered critical for a network interface
 .I pcp-atop
 command).
 This percentage is used to determine
-a weighted percentage for line coloring and sorting of active processes.
+a weighted percentage for line coloring and sorting of active processes
+in text mode.
 When this value is zero, no line coloring or automatic sorting is performed
 for this resource.
 .TP 4
@@ -119,7 +123,8 @@ The percentage considered critical for memory utilization
 .I pcp-atop
 command).
 This percentage is used to determine
-a weighted percentage for line coloring and sorting of active processes.
+a weighted percentage for line coloring and sorting of active processes
+in text mode.
 When this value is zero, no line coloring or automatic sorting is performed
 for this resource.
 .TP 4
@@ -153,8 +158,18 @@ command).
 When this value is zero, no line coloring for `almost critical' is
 performed.
 .TP 4
+.B cpubarwidth
+Number of columns used per bar in the processor bar graph.
+The default value is 0 which means that the bar width will
+be scaled automatically (the wider the terminal, the more
+columns per bar upto a maximum of three).
+With the value 1, 2 or 3 the number of bars can be statically
+pinned to that number of columns, with one column of white
+space in between the bars.
+.TP 4
 .B colorinfo
-Definition of color name for information messages (default: green).
+Definition of color name for information messages (default: green)
+in text mode.
 .br
 Allowed colors are: red green yellow blue magenta cyan black white.
 .TP 4
@@ -165,12 +180,14 @@ the 'y' option (default: yellow).
 Allowed colors are: red green yellow blue magenta cyan black white.
 .TP 4
 .B coloralmost
-Definition of color name for almost critical resources (default: cyan).
+Definition of color name for almost critical resources (default: cyan)
+in text mode.
 .br
 Allowed colors are: red green yellow blue magenta cyan black white.
 .TP 4
 .B colorcritical
-Definition of color name for critical resources (default: red).
+Definition of color name for critical resources (default: red)
+in text mode.
 .br
 Allowed colors are: red green yellow blue magenta cyan black white.
 .TP 4

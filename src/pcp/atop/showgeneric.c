@@ -44,7 +44,6 @@ static struct pselection procsel = {"", {USERSTUB, }, {0,},
 static struct sselection syssel;
 
 static void	showhelp(int);
-static int	paused;     	/* boolean: currently in pause-mode     */
 static int	fixedhead;	/* boolean: fixate header-lines         */
 static int	sysnosort;	/* boolean: suppress sort of resources  */
 static int	threadsort;	/* boolean: sort threads per process    */
@@ -71,6 +70,8 @@ static short	coloralmost = COLOR_CYAN;
 static short	colorcrit   = COLOR_RED;
 static short	colorthread = COLOR_YELLOW;
 
+int		paused;    	/* boolean: currently in pause-mode     */
+
 static int	cumusers(struct tstat **, struct tstat *, int);
 static int	cumprogs(struct tstat **, struct tstat *, int);
 static int	cumconts(struct tstat **, struct tstat *, int);
@@ -80,7 +81,11 @@ static int	procsuppress(struct tstat *, struct pselection *);
 static void	limitedlines(void);
 static long	getnumval(char *, long, int);
 static void	generic_init(void);
+static char	text_samp(double, double, struct devtstat *,
+			struct sstat *, int, unsigned int, int);
 
+static char	text_samp(double, double, struct devtstat *,
+			struct sstat *, int, unsigned int, int);
 
 static int	(*procsort[])(const void *, const void *) = {
 			[MSORTCPU&0x1f]=compcpu, 
@@ -98,14 +103,159 @@ extern proc_printpair ownprocs[];
 int	startoffset;
 
 /*
-** print the deviation-counters on process- and system-level
+** main function to handle sample generically
+** to show flat text, full screen text or bar graphs
 */
 char
 generic_samp(double sampletime, double nsecs,
            struct devtstat *devtstat, struct sstat *sstat,
            int nexit, unsigned int noverflow, int flag)
 {
-	static int	callnr = 0;
+	static char	firstcall = 1;
+	char		retval, sorted = 0;
+
+	if (firstcall)
+	{
+		generic_init();
+		firstcall = 0;
+	}
+
+	while (1)
+	{
+		if (displaymode == 'T')		// text mode?
+		{
+			// show sample and wait for input or timer expiration
+			//
+			switch (retval = text_samp(sampletime, nsecs,
+				devtstat, sstat, nexit, noverflow, flag))
+			{
+			   case MBARGRAPH:
+				displaymode = 'D';
+				break;
+
+  			   default:
+				return retval;
+			}
+
+			sorted = 1;	// resources have been sorted by text mode
+		}
+
+		if (displaymode == 'D')		// draw mode?
+		{
+			// show sample and wait for input or timer expiration
+			//
+			switch (retval = draw_samp(sampletime, nsecs, sstat, flag, sorted))
+			{
+			   case MBARGRAPH:	// just switch to text mode
+				displaymode = 'T';
+				break;
+
+			   case MPROCGEN:	// switch to text mode: generic
+				showtype  = MPROCGEN;
+
+				if (showorder != MSORTAUTO)
+					showorder = MSORTCPU;
+
+				displaymode = 'T';
+				break;
+
+ 			   case MPROCMEM:	// switch to text mode: memory
+				showtype  = MPROCMEM;
+
+				if (showorder != MSORTAUTO)
+					showorder = MSORTMEM;
+
+				displaymode = 'T';
+				break;
+
+			   case MPROCDSK:	// switch to text mode: disk
+				if (supportflags & IOSTAT)
+				{
+					showtype  = MPROCDSK;
+
+					if (showorder != MSORTAUTO)
+						showorder = MSORTDSK;
+				}
+				else
+				{
+					showtype  = MPROCGEN;
+					showorder = MSORTCPU;
+				}
+
+				displaymode = 'T';
+				break;
+
+			   case MPROCNET:	// switch to text mode: network
+				if (supportflags & NETATOP)
+				{
+					showtype  = MPROCNET;
+
+					if (showorder != MSORTAUTO)
+						showorder = MSORTNET;
+				}
+				else
+				{
+					showtype  = MPROCGEN;
+					showorder = MSORTCPU;
+				}
+
+				displaymode = 'T';
+				break;
+
+			   case MPROCGPU:	// switch to text mode: GPU
+				if (supportflags & GPUSTAT)
+				{
+					showtype  = MPROCGPU;
+
+					if (showorder != MSORTAUTO)
+						showorder = MSORTGPU;
+				}
+				else
+				{
+					showtype  = MPROCGEN;
+					showorder = MSORTCPU;
+				}
+
+				displaymode = 'T';
+				break;
+
+			   case MPROCSCH:	// switch to text mode: scheduling
+				showtype  = MPROCSCH;
+
+				if (showorder != MSORTAUTO)
+					showorder = MSORTCPU;
+
+				displaymode = 'T';
+				break;
+
+			   case MPROCVAR:	// switch to text mode: various
+				showtype  = MPROCVAR;
+
+				displaymode = 'T';
+				break;
+
+			   case MPROCARG:	// switch to text mode: arguments
+				showtype  = MPROCARG;
+
+				displaymode = 'T';
+				break;
+
+  			   default:
+				return retval;
+			}
+		}
+	}
+}
+
+/*
+** print the deviation-counters on process- and system-level
+** in text mode
+*/
+static char
+text_samp(double sampletime, double nsecs,
+           struct devtstat *devtstat, struct sstat *sstat, 
+           int nexit, unsigned int noverflow, int flag)
+{
 	char		*p;
 
 	register int	i, curline, statline, nproc;
@@ -177,12 +327,6 @@ generic_samp(double sampletime, double nsecs,
 	char		slastorder = 0;
 
 	char		threadallowed = 0;
-
-
-	if (callnr == 0)	/* first call? */
-		generic_init();
-
-	callnr++;
 
 	startoffset = 0;
 
@@ -403,7 +547,7 @@ generic_samp(double sampletime, double nsecs,
 			{
 				clrtoeol();
 				if (usecolors)
-					attron(COLOR_PAIR(COLORINFO));
+					attron(COLOR_PAIR(FGCOLORINFO));
 			}
 
 			printg(statmsg);
@@ -411,7 +555,7 @@ generic_samp(double sampletime, double nsecs,
 			if (screen)
 			{
 				if (usecolors)
-					attroff(COLOR_PAIR(COLORINFO));
+					attroff(COLOR_PAIR(FGCOLORINFO));
 			}
 
 			statmsg = NULL;
@@ -446,7 +590,7 @@ generic_samp(double sampletime, double nsecs,
 				if (screen)
 				{
 					if (usecolors)
-						attron(COLOR_PAIR(COLORINFO));
+						attron(COLOR_PAIR(FGCOLORINFO));
 
 					attron(A_BLINK);
 				}
@@ -456,7 +600,7 @@ generic_samp(double sampletime, double nsecs,
 				if (screen)
 				{
 					if (usecolors)
-						attroff(COLOR_PAIR(COLORINFO));
+						attroff(COLOR_PAIR(FGCOLORINFO));
 					attroff(A_BLINK);
 
 					printg("%*s", (int)(
@@ -473,7 +617,7 @@ generic_samp(double sampletime, double nsecs,
 				if (screen)
 				{
 					if (usecolors)
-						attron(COLOR_PAIR(COLORALMOST));
+						attron(COLOR_PAIR(FGCOLORALMOST));
 
 					attron(A_BLINK);
 				}
@@ -483,7 +627,7 @@ generic_samp(double sampletime, double nsecs,
 				if (screen)
 				{
 					if (usecolors)
-						attroff(COLOR_PAIR(COLORALMOST));
+						attroff(COLOR_PAIR(FGCOLORALMOST));
 					attroff(A_BLINK);
 				}
 
@@ -896,6 +1040,14 @@ generic_samp(double sampletime, double nsecs,
 				cleanstop(0);
 
 			   /*
+			   ** switch to bar graph mode
+			   */
+			   case MBARGRAPH:
+				erase();
+				refresh();
+				return lastchar;
+
+			   /*
 			   ** manual trigger for next sample
 			   */
 			   case MSAMPNEXT:
@@ -990,7 +1142,7 @@ generic_samp(double sampletime, double nsecs,
 				curtime = timeval;
 				pmtimevalDec(&curtime, &interval);
 				if (time_less_than(&curtime, &start))
-				    curtime = start;
+					curtime = start;
 
 				if (tpcumlist) free(tpcumlist);
 				if (pcumlist)  free(pcumlist);
@@ -2377,6 +2529,8 @@ accumulate(struct tstat *curproc, struct tstat *curstat)
 	curstat->gen.nthr   += curproc->gen.nthr;
 	curstat->cpu.utime  += curproc->cpu.utime;
 	curstat->cpu.stime  += curproc->cpu.stime;
+	curstat->cpu.nvcsw  += curproc->cpu.nvcsw;
+	curstat->cpu.nivcsw += curproc->cpu.nivcsw;
 
 	if (curproc->dsk.wsz > curproc->dsk.cwsz)
                	nett_wsz = curproc->dsk.wsz -curproc->dsk.cwsz;
@@ -2865,7 +3019,7 @@ generic_init(void)
 
        	/*
        	** install catch-routine to finish in a controlled way
-	** and activate cbreak-mode
+	** and activate cbreak mode
        	*/
        	if (screen)
 	{
@@ -2890,13 +3044,17 @@ generic_init(void)
 		noecho();
 		keypad(stdscr, TRUE);
 
-		if (COLS  < 30)
+		/*
+		** verify minimal dimensions
+		*/
+		if (COLS  < MINCOLUMNS || LINES  < MINLINES)
 		{
-			endwin();	// finish curses interface
+			endwin();	// finish ncurses interface
 
-			fprintf(stderr, "Not enough columns available\n"
-			                "(need at least %d columns)\n", 30);
-			fprintf(stderr, "Please resize window....\n");
+			fprintf(stderr,
+				"Terminal size should be at least "
+				"%d columns by %d lines\n",
+				MINCOLUMNS, MINLINES);
 
 			cleanstop(1);
 		}
@@ -2906,10 +3064,51 @@ generic_init(void)
 			use_default_colors();
 			start_color();
 
-			init_pair(COLORINFO,   colorinfo,   -1);
-			init_pair(COLORALMOST, coloralmost, -1);
-			init_pair(COLORCRIT,   colorcrit,   -1);
-			init_pair(COLORTHR,    colorthread, -1);
+			// color definitions
+			//
+			init_color(COLOR_MYORANGE, 675, 500,  50);
+			init_color(COLOR_MYGREEN,    0, 600, 100);
+			init_color(COLOR_MYGREY,   240, 240, 240);
+
+			init_color(COLOR_MYBROWN1, 420, 160, 160);
+			init_color(COLOR_MYBROWN2, 735, 280, 280);
+
+			init_color(COLOR_MYBLUE0,   50,  50, 300);
+			init_color(COLOR_MYBLUE1,   50, 300, 500);
+			init_color(COLOR_MYBLUE2,   50, 500, 800);
+			init_color(COLOR_MYBLUE3,  100, 350, 600);
+			init_color(COLOR_MYBLUE4,  150, 500, 700);
+			init_color(COLOR_MYBLUE5,  200, 650, 800);
+
+			init_color(COLOR_MYGREEN0,  90, 300,   0);
+			init_color(COLOR_MYGREEN1,  90, 400, 100);
+			init_color(COLOR_MYGREEN2,  90, 600, 100);
+
+			// color pair definitions (foreground/background)
+			//
+			init_pair(FGCOLORINFO,     colorinfo,   -1);
+			init_pair(FGCOLORALMOST,   coloralmost, -1);
+			init_pair(FGCOLORCRIT,     colorcrit,   -1);
+			init_pair(FGCOLORTHR,      colorthread, -1);
+                	init_pair(FGCOLORBORDER,   COLOR_CYAN,  -1);
+
+	                init_pair(WHITE_GREEN,     COLOR_WHITE, COLOR_MYGREEN);
+			init_pair(WHITE_ORANGE,    COLOR_WHITE, COLOR_MYORANGE);
+			init_pair(WHITE_RED,       COLOR_WHITE, COLOR_RED);
+			init_pair(WHITE_GREY,      COLOR_WHITE, COLOR_MYGREY);
+			init_pair(WHITE_BLUE,      COLOR_WHITE, COLOR_BLUE);
+			init_pair(WHITE_MAGENTA,   COLOR_WHITE, COLOR_MAGENTA);
+
+			init_pair(WHITE_BROWN1,    COLOR_WHITE, COLOR_MYBROWN1);
+			init_pair(WHITE_BROWN2,    COLOR_WHITE, COLOR_MYBROWN2);
+
+			init_pair(WHITE_BLUE0,     COLOR_WHITE, COLOR_MYBLUE0);
+			init_pair(WHITE_BLUE1,     COLOR_WHITE, COLOR_MYBLUE1);
+			init_pair(WHITE_BLUE2,     COLOR_WHITE, COLOR_MYBLUE2);
+			init_pair(WHITE_BLUE3,     COLOR_WHITE, COLOR_MYBLUE3);
+			init_pair(WHITE_BLUE4,     COLOR_WHITE, COLOR_MYBLUE4);
+			init_pair(WHITE_BLUE5,     COLOR_WHITE, COLOR_MYBLUE5);
+
 		}
 		else
 		{
@@ -2921,6 +3120,9 @@ generic_init(void)
 	signal(SIGTERM,  cleanstop);
 }
 
+
+
+
 /*
 ** show help information in interactive mode
 */
@@ -2928,7 +3130,11 @@ static struct helptext {
 	char *helpline;
 	char helparg;
 } helptext[] = {
-	{"Figures shown for active processes:\n", 		' '},
+	{"Display mode:\n", ' '},
+	{"\t'%c'  - show bar graphs for system utilization (toggle)\n",
+								MBARGRAPH},
+	{"\n",							' '},
+	{"Information in text mode for active processes:\n", 	' '},
 	{"\t'%c'  - generic info (default)\n",			MPROCGEN},
 	{"\t'%c'  - memory details\n",				MPROCMEM},
 	{"\t'%c'  - disk details\n",				MPROCDSK},
@@ -2974,12 +3180,12 @@ static struct helptext {
 	{"Screen-handling:\n",					      ' '},
 	{"\t^L   - redraw the screen                       \n",	      ' '},
 	{"\tPgDn - show next page in the process list (or ^F)\n",     ' '},
-	{"\tArDn - arrow-down for next line in process list\n",       ' '},
 	{"\tPgUp - show previous page in the process list (or ^B)\n", ' '},
+	{"\tArDn - arrow-down for next line in process list\n",       ' '},
 	{"\tArUp   arrow-up for previous line in process list\n",     ' '},
 	{"\n",							' '},
 	{"\tArRt - arrow-right for next character in full command line\n", ' '},
-	{"\tArLt - arrow-left  for previous character in full command line\n",
+	{"\tArLt - arrow-left for previous character in full command line\n",
 									' '},
 	{"\n",							' '},
 	{"Presentation (keys shown in header line):\n",  	' '},
@@ -3055,35 +3261,55 @@ showhelp(int helpline)
 		*/
 		if (i >= winlines-2 && shown >= tobeshown)
 		{
-			wmove    (helpwin, winlines-1, 0);
-			wclrtoeol(helpwin);
-			wprintw  (helpwin, "Press 'q' to leave help, " 
-					"space for next page or "
-					"other key for next line... ");
+			int inputkey;
 
-			switch (wgetch(helpwin))
+			wmove(helpwin, winlines-1, 0);
+			wclrtoeol(helpwin);
+		      	wprintw(helpwin, "Press q (leave help), " 
+					"space (next page), "
+					"Enter (next line) or select key...");
+
+			keypad(helpwin, 1);	// recognize keypad keys
+
+			switch (inputkey = wgetch(helpwin))
 			{
+			   case KEY_NPAGE:
+			   case KEY_PPAGE:
+			   case KEY_UP:
+			   case KEY_DOWN:
+			   case KEY_LEFT:
+			   case KEY_RIGHT:
+				break;		// ignore keypad keys
+
 			   case 'q':
 				delwin(helpwin);
 				return;
+
 			   case ' ':
 				shown = 0;
 				tobeshown = winlines-1;
 				break;
-			   default:
+
+			   case '\n':
 				shown = 0;
 				tobeshown = 1;
+				break;
+
+			   default:
+                		ungetch(inputkey);
+				delwin(helpwin);
+				return;
 			}
 
-			wmove  (helpwin, winlines-1, 0);
+			wmove(helpwin, winlines-1, 0);
 		}
 	}
 
-	wmove    (helpwin, winlines-1, 0);
+	wmove(helpwin, winlines-1, 0);
 	wclrtoeol(helpwin);
-	wprintw  (helpwin, "End of help - press 'q' to leave help... ");
-        while ( wgetch(helpwin) != 'q' );
-	delwin   (helpwin);
+	wprintw(helpwin, "End of help - press 'q' to leave help... ");
+        while (wgetch(helpwin) != 'q');
+	delwin(helpwin);
 }
 
 /*
@@ -3262,9 +3488,6 @@ do_procname(char *name, char *val)
 	}
 }
 
-extern int get_posval(char *name, char *val);
-
-
 void
 do_maxcpu(char *name, char *val)
 {
@@ -3400,6 +3623,14 @@ do_flags(char *name, char *val)
 		switch (val[i])
 		{
 		   case '-':
+			break;
+
+		   case MBARGRAPH:
+			displaymode = 'D';
+			break;
+
+		   case MBARMONO:
+			barmono = 1;
 			break;
 
 		   case MSORTCPU:

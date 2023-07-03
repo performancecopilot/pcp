@@ -21,6 +21,9 @@
 ** See the GNU General Public License for more details.
 */
 
+#ifndef __PHOTOPROC__
+#define __PHOTOPROC__
+
 #define	PNAMLEN		15
 #define	CMDLEN		255
 #define	CGRLEN		64
@@ -81,6 +84,8 @@ struct tstat {
 		char	wchan[16];	/* wait channel string    	*/
 		count_t	rundelay;	/* schedstat rundelay (nanosec)	*/
 		count_t	blkdelay;	/* blkio delay (ticks)		*/
+		count_t nvcsw;		/* voluntary cxt switch counts  */
+		count_t nivcsw;		/* involuntary csw counts       */
 	} cpu;
 
 	/* DISK STATISTICS						*/
@@ -189,3 +194,5 @@ void		deviattask(struct tstat *, unsigned long,
 int		getmaxpid(void);
 void		setup_photoproc(void);
 unsigned long	photoproc(struct tstat **, unsigned long *);
+
+#endif

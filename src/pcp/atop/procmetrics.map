@@ -23,6 +23,8 @@ procmetrics {
 	hotproc.psinfo.policy			TASK_CPU_POLICY
 	hotproc.psinfo.delayacct_blkio_time	TASK_CPU_BLKDELAY
 	hotproc.psinfo.wchan_s			TASK_GEN_WCHAN
+	hotproc.psinfo.vctxsw			TASK_CPU_NVCTXSW
+	hotproc.psinfo.nvctxsw			TASK_CPU_NIVCTXSW
 
 	# /proc/pid/status
 	hotproc.psinfo.threads			TASK_GEN_NTHR
