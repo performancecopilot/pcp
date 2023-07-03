@@ -13,7 +13,6 @@ _usage()
     echo >&2 "  -c           check packing list"
     echo >&2 "  -i tag       include only lines with a tag"
     echo >&2 "  -m           list only missing packages"
-    echo >&2 "  -n           show me, change nothing"
     echo >&2 "  -v           verbose (debugging)"
     echo >&2 "  -V version   override platform version"
     echo >&2 "  -x tag       exclude lines with a tag"
@@ -211,14 +210,13 @@ END		{ exit sts }'
 
 export LC_COLLATE=POSIX
 
-showme=false
 verbose=false
 very_verbose=false
 include=''
 exclude=''
 missing=false
 check=false
-while getopts 'A:cD:i:mnvV:x:?' p
+while getopts 'A:cD:i:mvV:x:?' p
 do
     case "$p"
     in
@@ -237,9 +235,6 @@ do
 		    exit
 		fi
 		include="$include $OPTARG"
-		;;
-
-	n)	showme=true
 		;;
 
 	m)	missing=true
@@ -262,9 +257,6 @@ do
 		    exit
 		fi
 		exclude="$exclude $OPTARG"
-		;;
-
-	n)	showme=true
 		;;
 
 	?)	_usage
@@ -413,7 +405,9 @@ then
 		# end
 	    elif which dnf >/dev/null 2>&1
 	    then
-		( dnf list available; dnf list installed ) 2>&1 \
+		# note using dnf's system cache, so no metadata refresh
+		#
+		( dnf -C list available; dnf -C list installed ) 2>&1 \
 		| sed >$tmp.allpkgs \
 		    -e '1,/^[^ ]* Packages/d' \
 		    -e 's/ .*//' \
@@ -421,7 +415,9 @@ then
 		# end
 	    elif which yum >/dev/null 2>&1
 	    then
-		( yum list available; yum list installed ) 2>&1 \
+		# note using yum's system cache, so no metadata refresh
+		#
+		( yum -C list available; yum list installed ) 2>&1 \
 		| sed >$tmp.allpkgs \
 		    -e '1,/^[^ ]* Packages/d' \
 		    -e 's/ .*//' \
