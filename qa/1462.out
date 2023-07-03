@@ -1,6 +1,6 @@
 QA output created by 1462
 
-=== indom 29.12 { iname replace /yobo/ -> "YOBO" } ===
+--- indom 29.12 { iname replace /yobo/ -> "YOBO" } ---
 PCP Archive Log Rewrite Specifications Summary
 
 Instance Domain: 29.12
@@ -65,7 +65,7 @@ sample.proc.time
     inst [19 or "0019 /usr/bin/jojo"] value NN
     inst [20 or "0020 /usr/local/koko"] value NN
 
-=== indom 29.12 { iname replace "([0-9]+) .*/(.*)" -> "\1 \2" } ===
+--- indom 29.12 { iname replace "([0-9]+) .*/(.*)" -> "\1 \2" } ---
 PCP Archive Log Rewrite Specifications Summary
 
 Instance Domain: 29.12

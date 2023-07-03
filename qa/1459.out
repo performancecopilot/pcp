@@ -133,7 +133,7 @@ indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 
 == do it ==
---- + value "[0-9]+" -> "bin-&" ---
+--- value "[0-9]+" -> "bin-&" ---
 === std out ===
 PCP Archive Log Rewrite Specifications Summary
 
@@ -162,7 +162,7 @@ Note: timezone set to local timezone of host "bozo-vm.localdomain" from archive
         inst [800 or "bin-800"] value "bin-800"
         inst [900 or "bin-900"] value "bin-900"
 ...
---- + value /bin/ -> "foobar" ---
+--- value /bin/ -> "foobar" ---
 === std out ===
 PCP Archive Log Rewrite Specifications Summary
 
@@ -192,7 +192,7 @@ Note: timezone set to local timezone of host "bozo-vm.localdomain" from archive
         inst [800 or "bin-800"] value "foobar-800"
         inst [900 or "bin-900"] value "foobar-900"
 ...
---- + value /(.*)-([0-9]00)/ -> "\2-\1" ---
+--- value /(.*)-([0-9]00)/ -> "\2-\1" ---
 === std out ===
 PCP Archive Log Rewrite Specifications Summary
 
@@ -223,7 +223,7 @@ Note: timezone set to local timezone of host "bozo-vm.localdomain" from archive
         inst [800 or "bin-800"] value "800-foobar"
         inst [900 or "bin-900"] value "900-foobar"
 ...
---- + value "^(.)00-(.*)" -> /"\101-\2"/ ---
+--- value "^(.)00-(.*)" -> /"\101-\2"/ ---
 === std out ===
 PCP Archive Log Rewrite Specifications Summary
 
@@ -255,7 +255,7 @@ Note: timezone set to local timezone of host "bozo-vm.localdomain" from archive
         inst [800 or "bin-800"] value ""801-foobar""
         inst [900 or "bin-900"] value ""901-foobar""
 ...
---- + value /"/ -> "+" ---
+--- value /"/ -> "+" ---
 === std out ===
 PCP Archive Log Rewrite Specifications Summary
 
@@ -288,7 +288,7 @@ Note: timezone set to local timezone of host "bozo-vm.localdomain" from archive
         inst [800 or "bin-800"] value "+801-foobar""
         inst [900 or "bin-900"] value "+901-foobar""
 ...
---- + value /\+/ -> /"/ ---
+--- value /\+/ -> /"/ ---
 === std out ===
 PCP Archive Log Rewrite Specifications Summary
 

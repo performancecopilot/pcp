@@ -29,6 +29,9 @@ if [ "$1" = "--valgrind" ]
 then
     _check_valgrind
     do_valgrind=true
+elif [ "$PCPQA_VALGRIND" = "no" ]
+then
+    :
 elif which valgrind >/dev/null 2>&1
 then
     _notrun "valgrind variant qa/1464 will be run"
@@ -77,14 +80,16 @@ pmdumplog -i tmparch/sample-proc_v3 >$tmp.old
 
 #    'indom 29.12 { iname "0018 /etc/yobo" -> "0018 /etc/YOBO" }' \
 
-for spec in \
-    'indom 29.12 { iname replace /yobo/ -> "YOBO" }' \
-    'indom 29.12 { iname replace "([0-9]+) .*/(.*)" -> "\\1 \\2" }' \
-
+cat <<'End-of-File' | while read spec
+indom 29.12 { iname replace /yobo/ -> "YOBO" }
+indom 29.12 { iname replace "([0-9]+) .*/(.*)" -> "\\1 \\2" }
+End-of-File
 do
     echo
-    echo "=== $spec ==="
-    echo "$spec" >$tmp.config
+    printf "%s\n" "--- $spec ---"
+    cat <<End-of-File >$tmp.config
+$spec
+End-of-File
 
     rm -f $tmp.0 $tmp.index $tmp.meta
     if $do_valgrind

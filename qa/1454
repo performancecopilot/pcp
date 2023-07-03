@@ -74,7 +74,7 @@ metric sample.string.bin { value "bin[foo" -> /bad re/ }
 metric sample.long.million { value "1000000" -> "1000001" }
 End-of-File
 do
-    echo "--- $spec ---"
+    printf "%s\n" "--- $spec ---"
     cat <<End-of-File >$tmp.config
 $spec
 End-of-File
@@ -110,19 +110,21 @@ echo
 echo "== do it =="
 
 echo "metric sample.string.bin {" >$tmp.pre
-echo >>$tmp.spec
+echo >$tmp.spec
 echo "}" >$tmp.post
 cat <<'End-of-File' | while read spec
 value "[0-9]+" -> "bin-&"
 value /bin/ -> "foobar"
-value /(.*)-([0-9]00)/ -> "\\\\2-\\\\1"
-value "^(.)00-(.*)" -> /"\\\\101-\\\\2"/
+value /(.*)-([0-9]00)/ -> "\\2-\\1"
+value "^(.)00-(.*)" -> /"\\101-\\2"/
 value /"/ -> "+"
-value /\\\\+/ -> /"/
+value /\\+/ -> /"/
 End-of-File
 do
-    echo "--- + $spec ---"
-    echo "$spec" >>$tmp.spec
+    printf "%s\n" "--- $spec ---"
+    cat <<End-of-File >>$tmp.spec
+$spec
+End-of-File
     cat $tmp.pre $tmp.spec $tmp.post >$tmp.config
 
     rm -f $tmp.0 $tmp.index $tmp.meta
