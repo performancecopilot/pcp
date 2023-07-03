@@ -29,6 +29,9 @@ if [ "$1" = "--valgrind" ]
 then
     _check_valgrind
     do_valgrind=true
+elif [ "$PCPQA_VALGRIND" = "no" ]
+then
+    :
 elif which valgrind >/dev/null 2>&1
 then
     _notrun "valgrind variant qa/1459 will be run"
@@ -43,10 +46,15 @@ _cleanup()
 status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# handle regcomp differences ...
+# [line 1] regcomp error: Unmatched [ or [^
+# [line 1] regcomp error: Unmatched [, [^, [:, [., or [=
+#
 _filter()
 {
     sed \
 	-e "s@$tmp@TMP@g" \
+	-e '/regcomp error: Unmatched/s/Unmatched .*/Unmatched .../' \
     # end
 }
 
@@ -54,17 +62,17 @@ _filter()
 
 echo "== syntax, semantic and re errors =="
 
-for spec in \
-    'metric sample.string.bin { value /bin/ -> "foobar' \
-    'metric sample.string.bin { value /bin/ -> /foobar }' \
-    'metric sample.string.bin { value "bin" -> " }' \
-    'metric sample.string.bin { value "bin" -> /' \
-    'metric sample.string.bin { value /bin/ -> something else }' \
-    'metric sample.string.bin { value "bin" something else }' \
-    'metric sample.string.bin { value something else }' \
-    'metric sample.string.bin { value "bin[foo" -> /bad re/ }' \
-    'metric sample.long.million { value "1000000" -> "1000001" }' \
-
+cat <<'End-of-File' | while read spec
+metric sample.string.bin { value /bin/ -> "foobar
+metric sample.string.bin { value /bin/ -> /foobar }
+metric sample.string.bin { value "bin" -> " }
+metric sample.string.bin { value "bin" -> /
+metric sample.string.bin { value /bin/ -> something else }
+metric sample.string.bin { value "bin" something else }
+metric sample.string.bin { value something else }
+metric sample.string.bin { value "bin[foo" -> /bad re/ }
+metric sample.long.million { value "1000000" -> "1000001" }
+End-of-File
 do
     echo "--- $spec ---"
     cat <<End-of-File >$tmp.config
@@ -104,14 +112,14 @@ echo "== do it =="
 echo "metric sample.string.bin {" >$tmp.pre
 echo >>$tmp.spec
 echo "}" >$tmp.post
-for spec in \
-    'value "[0-9]+" -> "bin-&"' \
-    'value /bin/ -> "foobar"' \
-    'value /(.*)-([0-9]00)/ -> "\\2-\\1"' \
-    'value "^(.)00-(.*)" -> /"\\101-\\2"/' \
-    'value /"/ -> "+"' \
-    'value /\+/ -> /"/' \
-
+cat <<'End-of-File' | while read spec
+value "[0-9]+" -> "bin-&"
+value /bin/ -> "foobar"
+value /(.*)-([0-9]00)/ -> "\\\\2-\\\\1"
+value "^(.)00-(.*)" -> /"\\\\101-\\\\2"/
+value /"/ -> "+"
+value /\\\\+/ -> /"/
+End-of-File
 do
     echo "--- + $spec ---"
     echo "$spec" >>$tmp.spec

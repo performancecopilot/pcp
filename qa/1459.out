@@ -89,7 +89,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 === std err ===
 Specification error in configuration file (TMP.config)
-[line 1] regcomp error: Unmatched [, [^, [:, [., or [=
+[line 1] regcomp error: Unmatched ...
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pmlogrewrite -v -c TMP.config archives/omnibus-nomark_v3 TMP

@@ -23,7 +23,7 @@ Specification error in configuration file (TMP.config)
 [line 1] Expecting <regular expression> in metric value clause
 --- metric sample.string.bin { value "bin[foo" -> /bad re/ } ---
 Specification error in configuration file (TMP.config)
-[line 1] regcomp error: Unmatched [, [^, [:, [., or [=
+[line 1] regcomp error: Unmatched ...
 --- metric sample.long.million { value "1000000" -> "1000001" } ---
 Warning [TMP.config, line 1]
 Metric: sample.long.million (29.0.13): Type 32 not STRING, cannot change value
