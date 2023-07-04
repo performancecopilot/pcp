@@ -34,14 +34,14 @@ Writing and reading PCP archive folios:
 The program
 .B pcp-atop
 is an interactive monitor to view various aspects of load on a system.
-+Every
-+.I interval
-+seconds (default: 10 seconds) information is gathered about the
-+resource occupation on system level of the most critical hardware
-+resources (from a performance point of view),
-+i.e. CPUs, memory, disks and network interfaces. Besides,
-+information is gathered about the processes (or threads) that
-+are responsible for the utilization of the CPUs, memory and disks.
+Every
+.I interval
+seconds (default: 10 seconds) information is gathered about the
+resource occupation on system level of the most critical hardware
+resources (from a performance point of view),
+i.e. CPUs, memory, disks and network interfaces. Besides,
+information is gathered about the processes (or threads) that
+are responsible for the utilization of the CPUs, memory and disks.
 Network load per process is shown only when the PCP
 .BR pmdabcc (1)
 metrics have been installed and configured.
@@ -56,10 +56,10 @@ want to view the resource consumption on process or thread level, you can switch
 to text mode by pressing the 'B' key. Alternatively, you can use the 'B' key
 (again) to switch from text mode to bar graph mode.
 .br
-By default, 
+By default,
 .B pcp-atop
 starts in text mode unless the
-.I \-B 
+.I \-B
 flag is used or unless 'B' has been configured as a default flag in the
 .I .atoprc
 file (for further information about default flags, refer to the
@@ -68,153 +68,156 @@ man page).
 .PP
 In bar graph mode the terminal will be subdivided into four character-based
 windows, i.e. one window for each hardware resource:
-.PP
-+.TP 5
-+.B Processors
-+The first bar shows the average busy percentage of all CPUs with
-+the bar label 'Avg' (might be abbreviated to 'Av' or even just 'A').
-+The subsequent bars show the busy percentages of single CPUs.
-+.br
-+When there is not enough horizontal space to show all CPUs, only the
-+most busy CPUs per sample will be shown after the width of each bar
-+has been reduced to a minimum.
-+
-+By default, the categories of CPU consumption are shown by different
-+colors in the bars, marked with a character 'S' (system mode), 'U'
-+(user mode), 'I' (interrupt handling), 's' (steal) and 'G'
-+(guest, i.e. consumed by virtual machines).
-+.br
-+The top of the bar might consist of an unmarked color representing
-+a 'neutral' category. Suppose that the scale unit is 5% per line
-+and the total busy percentage is 54% consisting of two categories of 27%.
-+The two categories will be rounded to 25% (5 lines of 5% each) but the
-+total busy percentage will be rounded to 55% (11 lines of 5%).
-+Then the top line will represent a 'neutral' category.
-+.br
-+By pressing the 'H' key or by starting
-+.I atop
-+with the '-H' flag, no categories are shown.
-+
-+A red line is drawn in the bar graph as critical threshold.
-+By default this value is 90% and can be modified by the 'cpucritperc'
-+option in the configuration file (see separate 
-+.B atoprc
-+man page). When this value is set to zero, no threshold line will be drawn.
-+.TP 5
-+.B Memory and swap space
-+Memory is presented as a column in which the
-+specific categories of memory consumption are shown. These categories
-+are (code, data and  stack of) processes/kernel, slab caches
-+(i.e. dynamically allocated kernel memory), shared memory, tmpfs,
-+page cache and free memory.
-+.br
-+Swap space (if present) is also presented as a column in which the
-+categories processes/tmpfs, shared memory and free space are shown.
-+ 
-+At the right side memory-related event counters are shown.
-+.br
-+The bottom three counters are colored green when there is no memory pressure.
-+When considerable activity is noticed such counter might be colored orange and
-+with high activity red.
-+.br
-+When memory pressure starts, usually memory page scanning will be activated
-+first. When pressure increases, memory pages of processes might be swapped
-+out to swap space (if present).
-+.br
-+The 'oomkills' counter (Out Of Memory killing) is most serious:
-+it reflects the number of processes that are killed due to lack of memory
-+(and swap). Therefore this counter shows the absolute number (not per second)
-+of processes being killed during the last interval and will immediately
-+be colored red when it is 1 or more.  Besides, after
-+.I atop
-+has noticed OOM killing the 'oomkills' counter remains orange for the next 
-+15 minutes, just in case that you have missed the OOM killing event itself.
-+.br
-+When there is enough vertical space in the memory window, event counters
-+are shown about the number of memory pages being swapped in,
-+the number of memory pages paged out to block devices and
-+the number of memory pages paged in from block devices.
-+
-+Memory and swap space consumption will preferably be shown in a
-+character-based window that vertically uses the entire screen for
-+optimal granularity. However, when there are a lot of disks and/or
-+network interfaces the memory and swap space consumption will be shown
-+in a character-based window that only uses the upper half of the screen.
-+.TP 5
-+.B Disks
-+For each disk the busy percentage is shown as a bar.
-+.br
-+When there is not enough horizontal space to show all disks, only the
-+most busy disks per sample will be shown.
-+
-+By default, categories of disk consumption are shown by different colors
-+in the bars, marked with a character 'R' (read) and 'W'
-+(write).
-+.br
-+The top of the bar might consist of an unmarked color representing
-+a 'neutral' category. Suppose that the scale unit is 5% per line
-+and the total busy percentage is 54% consisting of two categories of 27%.
-+The two categories will be rounded to 25% (5 lines of 5% each) but the
-+total busy percentage will be rounded to 55% (11 lines of 5%).
-+Then the top line will represent a 'neutral' category.
-+.br
-+By pressing the 'H' key or by starting
-+.I atop
-+with the '-H' flag, no categories are shown.
-+
-+A red line is drawn in the bar graph as critical threshold.
-+By default this value is 90% and can be modified by the 'dskcritperc'
-+option in the configuration file (see separate 
-+.B atoprc
-+man page). When this value is set to zero, no threshold line will be drawn.
-+.TP 5
-+.B Interfaces
-+For each non-virtual network interface a double bar graph is shown with
-+a dedicated scale that reflects the traffic rate. One of the bars shows
-+the transmit rate ('TX') and the other bar the receive rate ('RX').
-+The traffic scale of each network interface remains at its highest level.
-+All interface scales can be reset during the measurement by pressing
-+the 'L' key.
-+ 
-+Most often the real speed (maximum bandwidth) of network interfaces is
-+not known, e.g. in case of the network interfaces of virtual machines.
-+Therefore it is not possible to show the interface utilization as a
-+percentage. However, when the real speed of an interface is known it will
-+be shown underneath the concerning bar graph.
-+ 
-+When there is not enough horizontal space to show all network interfaces,
-+only the most busy interfaces per sample will be shown.
-+.PP
-+Usually the bar graphs will not be sorted on busy percentage when there
-+is enough horizontal space. However, after switching from text mode to
-+bar graph mode the bar graphs might have been sorted because this was
-+needed for the presentation in text mode. The next interval in bar graph
-+mode shows the bars unsorted again unless the window width is unsufficient
-+for all bars.
-+.PP
-+The remaining part of this manual page mainly describes the information
-+shown in text mode.
-+When certain descriptions also apply to bar graph mode it will be
-+mentioned explicitly.
-+
-+.SH TEXT MODE IN GENERAL
-+The initial screen in text mode shows if
-.B pcp-atop
-+runs with restricted view (unprivileged user) or unrestricted view
-+(privileged user).  In case of restricted view
-.B pcp-atop
--does not have the privileges (root identity or necessary capabilities) to
--retrieve all counter values on system level and on process level.
-+does not have the privileges (no root identity nor the necessary capabilities)
-+to retrieve all counter values on system level and on process level.
+.TP 5
+.B Processors
+The first bar shows the average busy percentage of all CPUs with
+the bar label 'Avg' (might be abbreviated to 'Av' or even just 'A').
+The subsequent bars show the busy percentages of single CPUs.
+.br
+When there is not enough horizontal space to show all CPUs, only the
+most busy CPUs per sample will be shown after the width of each bar
+has been reduced to a minimum.
 
+By default, the categories of CPU consumption are shown by different
+colors in the bars, marked with a character 'S' (system mode), 'U'
+(user mode), 'I' (interrupt handling), 's' (steal) and 'G'
+(guest, i.e. consumed by virtual machines).
+.br
+The top of the bar might consist of an unmarked color representing
+a 'neutral' category. Suppose that the scale unit is 5% per line
+and the total busy percentage is 54% consisting of two categories of 27%.
+The two categories will be rounded to 25% (5 lines of 5% each) but the
+total busy percentage will be rounded to 55% (11 lines of 5%).
+Then the top line will represent a 'neutral' category.
+.br
+By pressing the 'H' key or by starting
+.B pcp-atop
+with the
+.I \-H
+flag, no categories are shown.
+
+A red line is drawn in the bar graph as critical threshold.
+By default this value is 90% and can be modified by the 'cpucritperc'
+option in the configuration file (see separate
+.BR pcp-atoprc (5)
+man page).
+When this value is set to zero, no threshold line will be drawn.
+.TP 5
+.B Memory and swap space
+Memory is presented as a column in which the
+specific categories of memory consumption are shown. These categories
+are (code, data and  stack of) processes/kernel, slab caches
+(i.e. dynamically allocated kernel memory), shared memory, tmpfs,
+page cache and free memory.
+.br
+Swap space (if present) is also presented as a column in which the
+categories processes/tmpfs, shared memory and free space are shown.
+
+At the right side memory-related event counters are shown.
+.br
+The bottom three counters are colored green when there is no memory pressure.
+When considerable activity is noticed such counter might be colored orange and
+with high activity red.
+.br
+When memory pressure starts, usually memory page scanning will be activated
+first. When pressure increases, memory pages of processes might be swapped
+out to swap space (if present).
+.br
+The 'oomkills' counter (Out Of Memory killing) is most serious:
+it reflects the number of processes that are killed due to lack of memory
+(and swap). Therefore this counter shows the absolute number (not per second)
+of processes being killed during the last interval and will immediately
+be colored red when it is 1 or more.  Besides, after
+.B pcp-atop
+has noticed OOM killing the 'oomkills' counter remains orange for the next
+15 minutes, just in case that you have missed the OOM killing event itself.
+.br
+When there is enough vertical space in the memory window, event counters
+are shown about the number of memory pages being swapped in,
+the number of memory pages paged out to block devices and
+the number of memory pages paged in from block devices.
+
+Memory and swap space consumption will preferably be shown in a
+character-based window that vertically uses the entire screen for
+optimal granularity. However, when there are a lot of disks and/or
+network interfaces the memory and swap space consumption will be shown
+in a character-based window that only uses the upper half of the screen.
+.TP 5
+.B Disks
+For each disk the busy percentage is shown as a bar.
+.br
+When there is not enough horizontal space to show all disks, only the
+most busy disks per sample will be shown.
+
+By default, categories of disk consumption are shown by different colors
+in the bars, marked with a character 'R' (read) and 'W'
+(write).
+.br
+The top of the bar might consist of an unmarked color representing
+a 'neutral' category. Suppose that the scale unit is 5% per line
+and the total busy percentage is 54% consisting of two categories of 27%.
+The two categories will be rounded to 25% (5 lines of 5% each) but the
+total busy percentage will be rounded to 55% (11 lines of 5%).
+Then the top line will represent a 'neutral' category.
+.br
+By pressing the 'H' key or by starting
+.B pcp-atop
+with the
+.I \-H
+flag, no categories are shown.
+
+A red line is drawn in the bar graph as critical threshold.
+By default this value is 90% and can be modified by the 'dskcritperc'
+option in the configuration file (see separate
+.B atoprc
+man page). When this value is set to zero, no threshold line will be drawn.
+.TP 5
+.B Interfaces
+For each non-virtual network interface a double bar graph is shown with
+a dedicated scale that reflects the traffic rate. One of the bars shows
+the transmit rate ('TX') and the other bar the receive rate ('RX').
+The traffic scale of each network interface remains at its highest level.
+All interface scales can be reset during the measurement by pressing
+the 'L' key.
+
+Most often the real speed (maximum bandwidth) of network interfaces is
+not known, e.g. in case of the network interfaces of virtual machines.
+Therefore it is not possible to show the interface utilization as a
+percentage. However, when the real speed of an interface is known it will
+be shown underneath the concerning bar graph.
+
+When there is not enough horizontal space to show all network interfaces,
+only the most busy interfaces per sample will be shown.
 .PP
-+With every interval information is shown about the resource occupation
-+on system level (CPU, memory, disks and network layers), followed
-+by a list of processes which have been active during the last interval.
-+Notice that all processes that were unchanged during the last interval
-are not shown, unless the key 'a' has been pressed or unless sorting on
-+memory occupation is done (then inactive processes are relevant as well).
+Usually the bar graphs will not be sorted on busy percentage when there
+is enough horizontal space. However, after switching from text mode to
+bar graph mode the bar graphs might have been sorted because this was
+needed for the presentation in text mode. The next interval in bar graph
+mode shows the bars unsorted again unless the window width is unsufficient
+for all bars.
+.PP
+The remaining part of this manual page mainly describes the information
+shown in text mode.
+When certain descriptions also apply to bar graph mode it will be
+mentioned explicitly.
+
+.SH TEXT MODE IN GENERAL
+The initial screen in text mode shows if
+.B pcp-atop
+runs with restricted view (unprivileged user) or unrestricted view
+(privileged user).  In case of restricted view
+.B pcp-atop
+does not have the privileges (root identity or necessary capabilities) to
+retrieve all counter values on system level and on process level.
+does not have the privileges (no root identity nor the necessary capabilities)
+to retrieve all counter values on system level and on process level.
+.PP
+With every interval information is shown about the resource occupation
+on system level (CPU, memory, disks and network layers), followed
+by a list of processes which have been active during the last interval.
+Notice that all processes that were unchanged during the last interval
+re not shown, unless the key 'a' has been pressed or unless sorting on
+memory occupation is done (then inactive processes are relevant as well).
 If the list of active processes does not entirely fit on
 the screen, only the top of the list is shown (sorted in order of activity).
 .br
@@ -2296,7 +2299,7 @@ TGID (group number of related tasks/threads), is_process (y/n),
 proportional set size (Kbytes) if in 'R' option is specified and
 virtually locked memory space (Kbytes).
 .\"cgroup v2 'memory.max' in KiB (-3 means no cgroup v2 support,
-.\"-2 means undefined and -1 means maximum), 
+.\"-2 means undefined and -1 means maximum),
 .\"cgroup v2 most restrictive 'memory.max' in upper directories in KiB
 .\"(-3 means no cgroup v2 support, -2 means undefined and -1 means maximum),
 .\"cgroup v2 'memory.swap.max' in KiB (-3 means no cgroup v2 support,
@@ -2389,7 +2392,6 @@ View the contents of the standard logfile of 2023, June 7 from
 To monitor the system load and write it to a file (in plain ASCII)
 with an interval of one minute during half an hour with active
 processes sorted on memory consumption:
-.PP
 .TP 12
 .B \  pcp\ atop -M 60 30 > /log/pcp-atop.mem
 .SH NOTES
