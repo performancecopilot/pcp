@@ -22,6 +22,8 @@ probe   hotproc.control.config != "" ? include : exclude
 	hotproc.psinfo.tgid
 	hotproc.psinfo.pid
 	hotproc.psinfo.wchan_s
+	hotproc.psinfo.vctxsw
+	hotproc.psinfo.nvctxsw
 	hotproc.namespaces.envid
 	hotproc.id.uid
 	hotproc.id.euid
