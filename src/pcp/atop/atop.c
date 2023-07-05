@@ -117,6 +117,7 @@
 #include "photoproc.h"
 #include "photosyst.h"
 #include "showgeneric.h"
+#include "showlinux.h"
 #include "parseable.h"
 #include "gpucom.h"
 
@@ -151,7 +152,10 @@ char		threadview = 0;	 /* boolean: show individual threads     */
 char      	calcpss    = 0;  /* boolean: read/calculate process PSS  */
 char      	getwchan   = 0;  /* boolean: obtain wchan string         */
 char      	rmspaces   = 0;  /* boolean: remove spaces from command  */
-		                 /* name in case of parseable output     */
+		                 /* name in case of parsable output     */
+
+char            displaymode = 'T';      /* 'T' = text, 'D' = draw        */
+char            barmono     = 0; /* boolean: bar without categories?     */
 
 unsigned short	hertz;
 unsigned int	pidmax;
@@ -189,52 +193,8 @@ static char		midnightflag;
 */
 static void		readrc(char *, int);
 
-void do_flags(char *, char *);
-void do_interval(char *, char *);
-void do_linelength(char *, char *);
-void do_username(char *, char *);
-void do_procname(char *, char *);
-void do_maxcpu(char *, char *);
-void do_maxgpu(char *, char *);
-void do_maxdisk(char *, char *);
-void do_maxmdd(char *, char *);
-void do_maxlvm(char *, char *);
-void do_maxintf(char *, char *);
-void do_maxifb(char *, char *);
-void do_maxnfsm(char *, char *);
-void do_maxcont(char *, char *);
-void do_maxnuma(char *, char *);
-void do_maxllc(char *, char *);
-void do_colinfo(char *, char *);
-void do_colalmost(char *, char *);
-void do_colcrit(char *, char *);
-void do_colthread(char *, char *);
-void do_ownsysprcline(char *, char *);
-void do_ownallcpuline(char *, char *);
-void do_ownindivcpuline(char *, char *);
-void do_owncplline(char *, char *);
-void do_ownmemline(char *, char *);
-void do_ownswpline(char *, char *);
-void do_ownpagline(char *, char *);
-void do_ownmemnumaline(char *, char *);
-void do_owncpunumaline(char *, char *);
-void do_ownllcline(char *, char *);
-void do_owndskline(char *, char *);
-void do_ownnettransportline(char *, char *);
-void do_ownnetnetline(char *, char *);
-void do_ownnetinterfaceline(char *, char *);
-void do_owninfinibandline(char *, char *);
-void do_ownprocline(char *, char *);
-void do_cpucritperc(char *, char *);
-void do_gpucritperc(char *, char *);
-void do_memcritperc(char *, char *);
-void do_swpcritperc(char *, char *);
-void do_dskcritperc(char *, char *);
-void do_netcritperc(char *, char *);
-void do_swoutcritsec(char *, char *);
-void do_almostcrit(char *, char *);
-void do_atopsarflags(char *, char *);
-void do_pacctdir(char *, char *);
+static void do_interval(char *, char *);
+static void do_linelength(char *, char *);
 
 static struct {
 	char	*tag;
@@ -366,6 +326,14 @@ main(int argc, char *argv[])
 				rawwriteflag++;
 				break;
 
+			   case 'B':		/* bar graphs ?               */
+				displaymode = 'D';
+				break;
+
+			   case 'H':		/* bar graphs ?               */
+				barmono = 1;
+				break;
+
 			   case 'r':		/* reading of raw data ?      */
 				rawarchive(&opts, opts.optarg);
 				rawreadflag++;
@@ -383,7 +351,7 @@ main(int argc, char *argv[])
 				opts.finish_optarg = abstime(opts.optarg);
 				break;
 
-                           case 'P':		/* parseable output?          */
+                           case 'P':		/* parsable output?          */
 				if ( !parsedef(opts.optarg) )
 					prusage(pmGetProgname(), &opts);
 
@@ -509,7 +477,6 @@ engine(void)
 {
 	struct sigaction 	sigact;
 	double 			timed, delta;
-	void			getusr1(int), getusr2(int);
 
 	/*
 	** reserve space for system-level statistics
@@ -735,14 +702,16 @@ prusage(char *myname, pmOptions *opts)
 					myname);
 	printf("\n");
 	printf("\tgeneric flags:\n");
+	printf("\t  -%c  show bar graphs for system statistics\n", MBARGRAPH);
+	printf("\t  -%c  show bar graphs without categories\n", MBARMONO);
 	printf("\t  -%c  show version information\n", MVERSION);
 	printf("\t  -%c  show or log all processes (i.s.o. active processes "
 	                "only)\n", MALLPROC);
 	printf("\t  -%c  calculate proportional set size (PSS) per process\n", 
 	                MCALCPSS);
 	printf("\t  -%c  determine WCHAN (string) per thread\n", MGETWCHAN);
-	printf("\t  -P  generate parseable output for specified label(s)\n");
-	printf("\t  -%c  no spaces in parseable output for command (line)\n",
+	printf("\t  -P  generate parsable output for specified label(s)\n");
+	printf("\t  -%c  no spaces in parsable output for command (line)\n",
 			MRMSPACES);
 	printf("\t  -L  alternate line length (default 80) in case of "
 			"non-screen output\n");
@@ -813,16 +782,14 @@ getusr2(int sig)
 /*
 ** functions to handle a particular tag in the .atoprc file
 */
-extern int get_posval(char *name, char *val);
-
-void
+static void
 do_interval(char *name, char *val)
 {
 	interval.tv_sec = get_posval(name, val);
 	interval.tv_usec = 0;
 }
 
-void
+static void
 do_linelength(char *name, char *val)
 {
 	linelen = get_posval(name, val);
@@ -916,7 +883,7 @@ readrc(char *path, int syslevel)
 			{
 				fprintf(stderr,
 					"%s: warning at line %2d "
-					"- tag name %s not valid\n",
+					"- tag name %s not recognized\n",
 					path, line, tagname);
 
 				errorcnt++;

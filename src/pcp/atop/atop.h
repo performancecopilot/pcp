@@ -19,6 +19,9 @@
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ** See the GNU General Public License for more details.
 */
+#ifndef __ATOP__
+#define __ATOP__
+
 #define	EQ		0
 #define SECONDSINDAY	86400
 
@@ -104,6 +107,9 @@ extern char		rmspaces;
 extern unsigned int	begintime, endtime;
 extern char		flaglist[];
 extern struct visualize vis;
+
+extern char		displaymode;
+extern char		barmono;
 
 extern int      	os_rel;
 extern int		os_vers;
@@ -268,3 +274,8 @@ int 		acctswon(void);
 void		acctswoff(void);
 int		acctphotoproc(struct tstat **, unsigned int *, struct timeval *, struct timeval *);
 void		do_pacctdir(char *, char *);
+
+void		getusr1(int), getusr2(int);
+void		do_atopsarflags(char *, char *);
+
+#endif

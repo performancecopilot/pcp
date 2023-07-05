@@ -26,7 +26,12 @@
 ** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ** --------------------------------------------------------------------------
 */
+#ifndef __PARSEABLE__
+#define __PARSEABLE__
+
 int 	parsedef(char *);
 char	parseout(double, double,
 		 struct devtstat *, struct sstat *,
 	         int, unsigned int, int);
+
+#endif

@@ -92,6 +92,9 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, i
 	task->cpu.rundelay = extract_integer_inst(rp, dp, TASK_CPU_RUNDELAY, pid, offset);
 	task->cpu.blkdelay = extract_integer_inst(rp, dp, TASK_CPU_BLKDELAY, pid, offset);
 
+	task->cpu.nvcsw = extract_count_t_inst(rp, dp, TASK_CPU_NVCTXSW, pid, offset);
+	task->cpu.nivcsw = extract_count_t_inst(rp, dp, TASK_CPU_NIVCTXSW, pid, offset);
+
 	task->cpu.cgcpuweight = -2;			/* not available */
 	task->cpu.cgcpumax = task->cpu.cgcpumaxr = -2;	/* not available */
 

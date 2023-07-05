@@ -23,39 +23,40 @@
 #include "photoproc.h"
 #include "parseable.h"
 
-void 	print_CPU();
-void 	print_cpu();
-void 	print_CPL();
-void 	print_GPU();
-void 	print_MEM();
-void 	print_SWP();
-void 	print_PAG();
-void 	print_PSI();
-void 	print_LVM();
-void 	print_MDD();
-void 	print_DSK();
-void 	print_NFM();
-void 	print_NFC();
-void 	print_NFS();
-void 	print_NET();
-void 	print_IFB();
-void 	print_NUM();
-void 	print_NUC();
-void 	print_LLC();
+void   print_CPU(char *, struct sstat *, struct tstat *, int);
+void   print_cpu(char *, struct sstat *, struct tstat *, int);
+void   print_CPL(char *, struct sstat *, struct tstat *, int);
+void   print_GPU(char *, struct sstat *, struct tstat *, int);
+void   print_MEM(char *, struct sstat *, struct tstat *, int);
+void   print_SWP(char *, struct sstat *, struct tstat *, int);
+void   print_PAG(char *, struct sstat *, struct tstat *, int);
+void   print_PSI(char *, struct sstat *, struct tstat *, int);
+void   print_LVM(char *, struct sstat *, struct tstat *, int);
+void   print_MDD(char *, struct sstat *, struct tstat *, int);
+void   print_DSK(char *, struct sstat *, struct tstat *, int);
+void   print_NFM(char *, struct sstat *, struct tstat *, int);
+void   print_NFC(char *, struct sstat *, struct tstat *, int);
+void   print_NFS(char *, struct sstat *, struct tstat *, int);
+void   print_NET(char *, struct sstat *, struct tstat *, int);
+void   print_IFB(char *, struct sstat *, struct tstat *, int);
+void   print_NUM(char *, struct sstat *, struct tstat *, int);
+void   print_NUC(char *, struct sstat *, struct tstat *, int);
+void   print_LLC(char *, struct sstat *, struct tstat *, int);
 
-void 	print_PRG();
-void 	print_PRC();
-void 	print_PRM();
-void 	print_PRD();
-void 	print_PRN();
-void 	print_PRE();
+void   print_PRG(char *, struct sstat *, struct tstat *, int);
+void   print_PRC(char *, struct sstat *, struct tstat *, int);
+void   print_PRM(char *, struct sstat *, struct tstat *, int);
+void   print_PRD(char *, struct sstat *, struct tstat *, int);
+void   print_PRN(char *, struct sstat *, struct tstat *, int);
+void   print_PRE(char *, struct sstat *, struct tstat *, int);
 
+static void calc_freqscale(count_t, count_t, count_t, count_t *, int *);
 static char *spaceformat(char *, char *);
 static int  cgroupv2max(int, int);
 
 /*
 ** table with possible labels and the corresponding
-** print-function for parseable output
+** print-function for parsable output
 */
 struct labeldef {
 	char	*label;
@@ -168,7 +169,7 @@ parsedef(char *pd)
 }
 
 /*
-** produce parseable output for an interval
+** produce parsable output for an interval
 */
 char
 parseout(double timed, double delta,
@@ -223,7 +224,7 @@ parseout(double timed, double delta,
 /*
 ** print functions for system-level statistics
 */
-void
+static void
 calc_freqscale(count_t maxfreq, count_t cnt, count_t ticks, 
                count_t *freq, int *freqperc)
 {
@@ -726,7 +727,7 @@ print_PRG(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			exitcode = (ps->gen.excode >>   8) & 0xff;
 
 		printf("%s %d %s %c %d %d %d %d %d %ld %s %d %d %d %d "
- 		       "%d %d %d %d %d %d %ld %c %d %d %s %c %s\n",
+ 		       "%d %d %d %d %d %d %ld %c %d %d %s %c %s %ld\n",
 			hp,
 			ps->gen.pid,
 			spaceformat(ps->gen.name, namout),
@@ -754,7 +755,9 @@ print_PRG(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			ps->gen.ctid,
 			ps->gen.container[0] ? ps->gen.container:"-",
         		ps->gen.excode & ~(INT_MAX) ? 'N' : '-',
-			spaceformat(ps->gen.cgpath, pathout));
+			spaceformat(ps->gen.cgpath, pathout),
+			ps->gen.state == 'E' ?
+			    ps->gen.btime + ps->gen.elaps/hertz : 0);
 	}
 }
 
@@ -767,7 +770,7 @@ print_PRC(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 	for (i=0; i < nact; i++, ps++)
 	{
 		printf("%s %d %s %c %u %lld %lld %d %d %d %d %d %d %d %c "
-		       "%llu %s %llu %d %d\n",
+		       "%llu %s %llu %d %d %llu %llu\n",
 			hp,
 			ps->gen.pid,
 			spaceformat(ps->gen.name, namout),
@@ -787,7 +790,9 @@ print_PRC(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			spaceformat(ps->cpu.wchan, wchanout),
 			ps->cpu.blkdelay,
 			cgroupv2max(ps->gen.isproc, ps->cpu.cgcpumax),
-			cgroupv2max(ps->gen.isproc, ps->cpu.cgcpumaxr));
+			cgroupv2max(ps->gen.isproc, ps->cpu.cgcpumaxr),
+			ps->cpu.nvcsw,
+			ps->cpu.nivcsw);
 	}
 }
 
