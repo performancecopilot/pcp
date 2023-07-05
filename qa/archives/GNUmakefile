@@ -57,8 +57,8 @@ DEFLATE = small.0.xz small.meta small.index \
 	  20190628.04.03.index 20201109.0.xz 20201109.index 20201109.meta.xz \
 	  20190628.06.31.0.xz 20190628.06.31.meta.xz 20190628.06.31.index \
 	  pcp-ss.0.xz pcp-ss.meta.xz pcp-ss.index \
-	  pcp-ps.0.xz pcp-ps.meta.xz pcp-ps.index all-ubuntu.22.04.0.index \
-	  all-ubuntu.22.04.0.xz all-ubuntu.22.04.0.meta.xz
+	  pcp-ps.0.xz pcp-ps.meta.xz pcp-ps.index all-ubuntu.22.04.index \
+	  all-ubuntu.22.04.0.xz all-ubuntu.22.04.meta.xz
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant mk.dyninsts \
