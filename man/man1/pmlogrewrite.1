@@ -57,7 +57,7 @@ section for some additional use cases.
 .B pmlogrewrite
 may also be used to redact sensitive information from PCP archives
 in situations where the archives need to be shipped to another organization
-or to meet privacy policies or legislative requrements.
+or to meet privacy policies or legislative requirements.
 See
 .BR pmlogredact (1)
 for an example use of
@@ -584,7 +584,8 @@ spaces then special care needs to be taken in respect of the
 PCP instance naming rule that treats the leading non-space
 part of the instance name as the unique portion of the name for
 the purposes of matching and ensuring uniqueness within an
-instance domain, refer to
+instance domain.
+Refer to
 .BR pmdaInstance (3)
 for a discussion of this issue.
 .PP
@@ -1190,7 +1191,7 @@ of type
 Here are some examples:
 .TP +10n
 \f(CW{ value /.*/ -> "" }\fP
-remove the value eveywhere
+remove the value everywhere
 .TP +10n
 \f(CWvalue "/.*/(.*)" -> "\e1" }\fP
 removes a directory path, so the metric value
