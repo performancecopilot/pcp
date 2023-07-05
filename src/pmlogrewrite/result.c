@@ -489,7 +489,9 @@ int	changedlen;
 int	nchanged;
 
 /*
- * 
+ * Do the real work of rewriting the value(s) in the ith pmValueSet
+ * in a pmResult, i.e. all the values for one metric (also identified
+ * by mp)
  */
 static void
 change_value(int i, metricspec_t *mp)
