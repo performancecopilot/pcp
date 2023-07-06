@@ -24,8 +24,8 @@ SUBDIRS = \
 	htop \
 	iostat \
         ipcs \
-	mpstat \
 	meminfo \
+	mpstat \
 	numastat \
 	pidstat \
 	ps \

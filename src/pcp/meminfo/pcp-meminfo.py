@@ -19,15 +19,13 @@
 
 import sys
 import time
-from pcp import pmapi
-from pcp import pmcc
-from cpmapi import PM_CONTEXT_ARCHIVE
+from pcp import pmapi, pmcc
 
 METRICS = ["mem.physmem",
             "mem.util.free",
             "mem.util.available",
             "mem.util.bufmem",
-            "mem.util.cached"
+            "mem.util.cached",
             "mem.util.swapCached",
             "mem.util.active",
             "mem.util.inactive",
@@ -120,6 +118,10 @@ METRICS_DESC = ["MemTotal",
                 "DirectMap1G"]
 
 class MeminfoReport(pmcc.MetricGroupPrinter):
+    samples = 0
+
+    def __init__(self, samples):
+        self.samples = samples
 
     def getMetricName(self, idx):
         metric_name = ""
@@ -133,12 +135,12 @@ class MeminfoReport(pmcc.MetricGroupPrinter):
 
     def report(self, manager):
         group = manager["meminfo"]
+
+        opts.pmGetOptionSamples()
+
         t_s = group.contextCache.pmLocaltime(int(group.timestamp))
         time_string = time.strftime(MeminfoOptions.timefmt, t_s.struct_time())
         print(time_string)
-
-        if MeminfoOptions.samples == 0 and MeminfoOptions.context is PM_CONTEXT_ARCHIVE:
-            MeminfoOptions.samples = sys.maxsize
 
         idx = 0
         for metric in METRICS:
@@ -157,11 +159,6 @@ class MeminfoReport(pmcc.MetricGroupPrinter):
             idx += 1
         print()
 
-        MeminfoOptions.samples -= 1
-
-        if MeminfoOptions.samples <= 0:
-            sys.exit(0)
-
 class MeminfoOptions(pmapi.pmOptions):
     context = None
     timefmt = "%H:%M:%S"
@@ -169,22 +166,9 @@ class MeminfoOptions(pmapi.pmOptions):
 
     def __init__(self):
         pmapi.pmOptions.__init__(self, "a:s:S:T:z:P:A:R:t:T:x:")
-        self.pmSetLongOption("archive", 1, "a", "FILENAME","Fetch /proc/meminfo for a specified archive file")
-        self.pmSetLongOption("samples", 1, "s", "count","Get the meminfo for specified number of samples count")
-        self.pmSetLongOption("start_time", 1, "S", "TIME","Filter the samples from the archive from the given time")
-        self.pmSetLongOption("end_time", 1, "T", "TIME","Filter the samples from the archive till the given time")
-        self.pmSetOptionCallback(self.options)
-        self.pmSetOverrideCallback(self.override)
+        self.pmSetLongOptionStart()
+        self.pmSetLongOptionFinish()
         self.pmSetLongOptionHelp()
-
-    def override(self, opt):
-        if opt == 's':
-            return 1
-        return 0
-
-    def options(self,opt,optarg,index):
-        if opt == 's':
-            MeminfoOptions.samples = int(optarg)
 
 if __name__ == '__main__':
     try:
@@ -198,7 +182,7 @@ if __name__ == '__main__':
             sys.exit(1)
 
         mngr["meminfo"] = METRICS
-        mngr.printer = MeminfoReport()
+        mngr.printer = MeminfoReport(opts.samples)
         sts = mngr.run()
         sys.exit(sts)
 
