@@ -25,8 +25,9 @@
 #include <sys/sysmacros.h>
 #include <ctype.h>
 
-static char *gfs2_sysfsdir = "/sys/kernel/debug/gfs2";
-static char *gfs2_sysdir = "/sys/fs/gfs2";
+static int _isDSO = 1; /* for local contexts */
+static char *gfs2_sysdir;
+static char *gfs2_debugfsdir;
 
 pmdaIndom indomtable[] = { 
     { .it_indom = GFS_FS_INDOM }, 
@@ -907,11 +908,11 @@ gfs2_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 	if (!pmdaCacheLookup(indom, i, &name, (void **)&fs) || !fs)
 	    continue;
 	if (need_refresh[CLUSTER_GLOCKS])
-	    gfs2_refresh_glocks(gfs2_sysfsdir, name, &fs->glocks);
+	    gfs2_refresh_glocks(gfs2_debugfsdir, name, &fs->glocks);
 	if (need_refresh[CLUSTER_SBSTATS])
-	    gfs2_refresh_sbstats(gfs2_sysfsdir, name, &fs->sbstats);
+	    gfs2_refresh_sbstats(gfs2_debugfsdir, name, &fs->sbstats);
         if (need_refresh[CLUSTER_GLSTATS])
-            gfs2_refresh_glstats(gfs2_sysfsdir, name, &fs->glstats);
+            gfs2_refresh_glstats(gfs2_debugfsdir, name, &fs->glstats);
     }
 
     if (need_refresh[CLUSTER_TRACEPOINTS] || need_refresh[CLUSTER_WORSTGLOCK] || need_refresh[CLUSTER_LATENCY])
@@ -1002,9 +1003,8 @@ gfs2_buffer_default_size_set()
     FILE *fp;
 
     fp = fopen("/sys/kernel/debug/tracing/buffer_size_kb", "w");
-    if (!fp) {
-        fprintf(stderr, "Unable to set default buffer size");
-    } else {
+    if (fp) {
+        /* We only need to set value if buffer_size_kb exists */
         fprintf(fp, "%d\n", 32768); /* Default 32MB per cpu */
         fclose(fp);
     }
@@ -1026,6 +1026,32 @@ gfs2_ftrace_irq_info_set()
         fprintf(fp, "0"); /* Switch off irq-info in trace_pipe */
         fclose(fp);
     }
+}
+
+void
+gfs2_fsid_setup(void)
+{
+    static char gfs2_sysfs_path[] = "/sys/fs/gfs2";
+    char *env_command;
+    
+    /* allow override at startup for QA testing */
+    if ((env_command = getenv("GFS2_SETUP_SYSFS")) !=NULL)
+        gfs2_sysdir = env_command;
+    else
+        gfs2_sysdir = gfs2_sysfs_path;
+}
+
+void
+gfs2_debugfs_setup(void)
+{
+    static char gfs2_debugfs_path[] = "/sys/kernel/debug/gfs2";
+    char *env_command;
+    
+    /* allow override at startup for QA testing */
+    if ((env_command = getenv("GFS2_SETUP_DEBUGFS")) !=NULL)
+        gfs2_debugfsdir = env_command;
+    else
+        gfs2_debugfsdir = gfs2_debugfs_path;
 }
 
 static int
@@ -1097,14 +1123,28 @@ gfs2_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda
 /*
  * Initialise the agent (both daemon and DSO).
  */
-void 
+void
+__PMDA_INIT_CALL
 gfs2_init(pmdaInterface *dp)
 {
     int		nindoms = sizeof(indomtable)/sizeof(indomtable[0]);
     int		nmetrics = sizeof(metrictable)/sizeof(metrictable[0]);
 
+    if (_isDSO) {
+        char helppath[MAXPATHLEN];
+        int sep = pmPathSeparator();
+            pmsprintf(helppath, sizeof(helppath), "%s%c" "gfs2" "%c" "help",
+                pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+            pmdaDSO(dp, PMDA_INTERFACE_4, "GFS2 DSO", helppath);
+    }
+
     if (dp->status != 0)
 	return;
+
+    /* Check for environmental variables allowing test injection */
+    gfs2_fsid_setup();
+    gfs2_debugfs_setup();
+    gfs2_tracepipe_setup();
 
     dp->version.four.instance = gfs2_instance;
     dp->version.four.store = gfs2_store;
@@ -1150,6 +1190,7 @@ main(int argc, char **argv)
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
 
+    _isDSO = 0;
     pmSetProgname(argv[0]);
     pmsprintf(helppath, sizeof(helppath), "%s%c" "gfs2" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

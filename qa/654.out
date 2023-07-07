@@ -1,231 +1,2875 @@
 QA output created by 654
-Updating the Performance Metrics Name Space (PMNS) ...
-Terminate PMDA if already installed ...
-[...install files, make output...]
-Updating the PMCD control file, and notifying PMCD ...
-Check gfs2 metrics have appeared ... 346 metrics and N values
-creating pseudo device 1
-creating a mount point 1
-creating device file 1
-creating a mount point 1
-mounting pseudo device 1
-creating pseudo device 0
-creating a mount point 0
-creating device file 0
-creating a mount point 0
-mounting pseudo device 0
-=== Check for successful install of pmda ===
 
-=== Check that the number of metrics are correct ===
+=== Installing GFS2 PMDA ===
+== Checking metric descriptors and values - gfs2-root-001.tgz
 
-=== Basic glock stats from all kernels ===
+gfs2.control.buffer_size_kb PMID: 115.6.14 [Sets the buffer size for trace_pipe (per cpu).]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+The size of the trace_pipe buffer can be controlled with this metrics, it
+allows the increase of the trace_pipe buffer to 128MB (131072KB) per cpu
+on the system. It is useful to increase the size of the buffer when there
+is expected to be heavy load on the file system in order to reduce the
+risk of overwritten entries in the trace_pipe before they are read (default
+value is 32MB (32768KB).
+    value 0
 
-gfs2.glocks.total PMID: 115.0.0
+gfs2.control.global_tracing PMID: 115.6.15 [Indication whether global tracing is enabled.]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+The global tracing can be controlled using pmstore gfs2.control.global_tracing
+0 [off] or 1 [on]. This is required to be on for most of the gfs2 metrics to
+function.
+    value 0
+
+gfs2.control.glock_threshold PMID: 115.6.18 [Threshold for maximum number of glocks accepted]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+per fetch. The number of glocks that will be processed and accepted over all
+ftrace read trace statistics. This number can be manually altered using pmstore
+in order to tailor the number of glocks processed. This value must be positive.
+    value 750000
+
+gfs2.control.latency PMID: 115.6.17 [Indication whether gfs2.latency statistics are enabled.]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+The gfs2.latency statistics can be manually controlled using pmstore
+gfs2.control.latency 0 [off] or 1 [on]. Setting the value of the metric
+controls the behaviour of the PMDA to whether it tries to collect the latency
+metrics or not. The machice must have the gfs2 trace-points available for the
+latency metrics to function.
+    value 1
+
+gfs2.control.tracepoints.ail_flush PMID: 115.6.10 [Indication whether ail_flush glock stats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+are enabled. The gfs2 tracepoint statistics can be manually controlled using
+pmstore gfs2.control.tracepoints.ail_flush 0 [off] or 1 [on]. Setting the value
+of the metric controls the behavior of the PMDA to whether it tries to collect
+from tracepoint metrics or not.
+    value 0
+
+gfs2.control.tracepoints.all PMID: 115.6.0 [Indication whether glock statistics are enabled]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+The gfs2 tracepoint statistics can be manually controlled using pmstore
+gfs2.control.tracepoints.all 0 [off] or 1 [on]. Setting the value of the metric
+controls the behavior of the PMDA to whether it tries to collect from tracepoint
+metrics or not.
+    value 0
+
+gfs2.control.tracepoints.block_alloc PMID: 115.6.11 [Indication whether block_alloc glock]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+stats are enabled. The gfs2 tracepoint statistics can be manually controlled 
+using pmstore gfs2.control.tracepoints.block_alloc 0 [off] or 1 [on]. Setting
+the value of the metric controls the behavior of the PMDA to whether it tries
+to collect from tracepoint metrics or not.
+    value 0
+
+gfs2.control.tracepoints.bmap PMID: 115.6.12 [Indication whether bmap glock stats are enabled.]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+The gfs2 tracepoint statistics can be manually controlled using pmstore 
+gfs2.control.tracepoints.bmap 0 [off] or 1 [on]. Setting the value of the 
+metric controls the behavior of the PMDA to whether it tries to collect from
+tracepoint metrics or not.
+    value 0
+
+gfs2.control.tracepoints.demote_rq PMID: 115.6.3 [Indication whether glock_demote_rq glock]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+stats are enabled. The gfs2 tracepoint statistics can be manually controlled
+using pmstore gfs2.control.tracepoints.glock_demote_rq 0 [off] or 1 [on].
+Setting the value of the metric controls the behavior of the PMDA to whether
+it tries to collect from tracepoint metrics or not.
+    value 0
+
+gfs2.control.tracepoints.glock_lock_time PMID: 115.6.6 [Indication whether glock_lock_time]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+glock stats are enabled. The gfs2 tracepoint statistics can be manually
+controlled using pmstore gfs2.control.tracepoints.glock_lock_time 0 [off] or 1
+[on]. Setting the value of the metric controls the behavior of the PMDA to
+whether it tries to collect from tracepoint metrics or not.
+    value 0
+
+gfs2.control.tracepoints.glock_put PMID: 115.6.2 [Indication whether glock_put glock stats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+are enabled. The gfs2 tracepoint statistics can be manually controlled using
+pmstore gfs2.control.tracepoints.glock_put 0 [off] or 1 [on]. Setting the value
+of the metric controls the behavior of the PMDA to whether it tries to collect 
+from tracepoint metrics or not.
+    value 0
+
+gfs2.control.tracepoints.glock_queue PMID: 115.6.5 [Indication whether glock_queue glock]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+stats are enabled. The gfs2 tracepoint statistics can be manually controlled
+using pmstore gfs2.control.tracepoints.glock_queue 0 [off] or 1 [on]. Setting
+the value of the metric controls the behavior of the PMDA to whether it tries
+to collect from tracepoint metrics or not.
+    value 0
+
+gfs2.control.tracepoints.glock_state_change PMID: 115.6.1 [Indication whether ]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+glock_state_change glock stats are enabled. The gfs2 tracepoint statistics
+can be manually controlled using pmstore
+gfs2.control.tracepoints.glock_state_change 0 [off] or 1 [on]. Setting the
+value of the metric controls the behavior of the PMDA to whether it tries to
+collect from tracepoint metrics or not.
+    value 0
+
+gfs2.control.tracepoints.log_blocks PMID: 115.6.9 [Indication whether log_blocks glock stats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+are enabled. The gfs2 tracepoint statistics can be manually controlled using
+pmstore gfs2.control.tracepoints.log_blocks 0 [off] or 1 [on]. Setting the
+value of the metric controls the behavior of the PMDA to whether it tries to
+collect from tracepoint metrics or not.
+    value 0
+
+gfs2.control.tracepoints.log_flush PMID: 115.6.8 [Indication whether log_flush glock stats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+are enabled. The gfs2 tracepoint statistics can be manually controlled using
+pmstore gfs2.control.tracepoints.log_flush 0 [off] or 1 [on]. Setting the
+value of the metric controls the behavior of the PMDA to whether it tries to
+collect from tracepoint metrics or not.
+    value 0
+
+gfs2.control.tracepoints.pin PMID: 115.6.7 [Indication whether pin glock stats are enabled. ]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+The gfs2 tracepoint statistics can be manually controlled using pmstore 
+gfs2.control.tracepoints.pin 0 [off] or 1 [on]. Setting the value of the
+metric controls the behavior of the PMDA to whether it tries to collect from
+tracepoint metrics or not.
+    value 0
+
+gfs2.control.tracepoints.promote PMID: 115.6.4 [Indication whether glock_promote glock stats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+are enabled. The gfs2 tracepoint statistics can be manually controlled using
+pmstore gfs2.control.tracepoints.glock_promte 0 [off] or 1 [on]. Setting the 
+value of the metric controls the behavior of the PMDA to whether it tries to
+collect from tracepoint metrics or not.
+    value 0
+
+gfs2.control.tracepoints.rs PMID: 115.6.13 [Indication whether rs glock stats are enabled.]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+The gfs2 tracepoint statistics can be manually controlled using pmstore 
+gfs2.control.tracepoints.rs 0 [off] or 1 [on]. Setting the value of the metric
+controls the behavior of the PMDA to whether it tries to collect from
+tracepoint metrics or not.
+    value 0
+
+gfs2.control.worst_glock PMID: 115.6.16 [Indication whether gfs2.glock_lock_time statistics ]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+are enabled. The gfs2.glock_lock_time statistics can be manually controlled
+using pmstore gfs2.control.glock_lock_time 0 [off] or 1 [on]. Setting the value
+of the metric controls the behavior of the PMDA to whether it tries to collect
+the lock_time metrics or not. The machine must have the gfs2 trace-points
+available for the glock_lock_time based metrics to function.
+    value 1
+
+gfs2.glocks.deferred PMID: 115.0.3 [GFS2 global locks in deferred state]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock data structures in deferred state, based on parsing
+/sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:) value "DF".
+    inst [0 or "loop0"] value 0
 
-gfs2.glocks.shared PMID: 115.0.1
+gfs2.glocks.exclusive PMID: 115.0.4 [GFS2 global locks in exclusive state]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock data structures in exclusive state, based on parsing
+/sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:) value "EX".
+    inst [0 or "loop0"] value 3
 
-gfs2.glocks.unlocked PMID: 115.0.2
+gfs2.glocks.flags.blocking_request PMID: 115.0.17 [GFS2 global locks with the blocking request flag]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock data structures with the blocking request flag set, 
+based onparsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag 
+field (f:) value "b".
+    inst [0 or "loop0"] value 21
 
-gfs2.glocks.deferred PMID: 115.0.3
+gfs2.glocks.flags.demote PMID: 115.0.6 [GFS2 global locks with the demote flag]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock data structures with the demote flag set, based on
+parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag field (f:)
+value "D".
+    inst [0 or "loop0"] value 0
 
-gfs2.glocks.exclusive PMID: 115.0.4
+gfs2.glocks.flags.demote_pending PMID: 115.0.7 [GFS2 global locks with the demote pending flag]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock data structures with the demote pending flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "d".
+ 
+    inst [0 or "loop0"] value 0
 
-gfs2.glocks.flags.locked PMID: 115.0.5
+gfs2.glocks.flags.demote_progress PMID: 115.0.8 [GFS2 global locks with the demote in progress flag]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock data structures with the demote in progress flag
+set, based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with
+flag field (f:) value "p".
+    inst [0 or "loop0"] value 0
 
-gfs2.glocks.flags.demote PMID: 115.0.6
+gfs2.glocks.flags.dirty PMID: 115.0.9 [GFS2 global locks with the dirty flag]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock data structures with the dirty flag set, based on
+parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag field (f:) 
+value "y".
+    inst [0 or "loop0"] value 0
 
-gfs2.glocks.flags.demote_pending PMID: 115.0.7
+gfs2.glocks.flags.frozen PMID: 115.0.14 [GFS2 global locks with the frozen flag]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock data structures with the frozen flag set, based on
+parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag field (f:) 
+value "f".
+    inst [0 or "loop0"] value 0
 
-gfs2.glocks.flags.demote_progress PMID: 115.0.8
+gfs2.glocks.flags.initial PMID: 115.0.13 [GFS2 global locks with the initial flag]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock data structures with the initial flag set, based
+on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag field 
+(f:) value "I".
+    inst [0 or "loop0"] value 0
 
-gfs2.glocks.flags.dirty PMID: 115.0.9
+gfs2.glocks.flags.invalidate PMID: 115.0.11 [GFS2 global locks with the invalidate flag]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock data structures with the invalidate flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "i".
+    inst [0 or "loop0"] value 0
 
-gfs2.glocks.flags.log_flush PMID: 115.0.10
+gfs2.glocks.flags.locked PMID: 115.0.5 [GFS2 global locks with the locked flag]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock data structures with the locked flag set, based on
+parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag field (f:)
+value "l".
+    inst [0 or "loop0"] value 0
 
-gfs2.glocks.flags.invalidate PMID: 115.0.11
+gfs2.glocks.flags.log_flush PMID: 115.0.10 [GFS2 global locks with the log flush flag]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock data structures with the log flush flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "f".
+    inst [0 or "loop0"] value 0
 
-gfs2.glocks.flags.reply_pending PMID: 115.0.12
+gfs2.glocks.flags.lru PMID: 115.0.18 [GFS2 global locks with the lru flag]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock data structures with the LRU list flag set, based on
+parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag field (f:) 
+value "L".
+    inst [0 or "loop0"] value 4
 
-gfs2.glocks.flags.initial PMID: 115.0.13
+gfs2.glocks.flags.object_attached PMID: 115.0.16 [GFS2 global locks with the object attached flag]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock data structures with the object is attached
+flag set, based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries
+with flag field (f:) value "o".
+    inst [0 or "loop0"] value 23
 
-gfs2.glocks.flags.frozen PMID: 115.0.14
+gfs2.glocks.flags.queued PMID: 115.0.15 [GFS2 global locks with the queued flag]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock data structures with the queued flag set, based on
+parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag field (f:) 
+value "q".
+    inst [0 or "loop0"] value 22
 
-gfs2.glocks.flags.queued PMID: 115.0.15
+gfs2.glocks.flags.reply_pending PMID: 115.0.12 [GFS2 global locks with the reply pending flag]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock data structures with the reply pending flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag 
+field (f:) value "r".
+    inst [0 or "loop0"] value 0
 
-gfs2.glocks.flags.object_attached PMID: 115.0.16
+gfs2.glocks.shared PMID: 115.0.1 [GFS2 global locks in shared state]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock data structures in shared state, based on parsing
+/sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:) value "SH".
+    inst [0 or "loop0"] value 18
 
-gfs2.glocks.flags.blocking_request PMID: 115.0.17
+gfs2.glocks.total PMID: 115.0.0 [Count of total observed incore GFS2 global locks]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of total incore GFS2 glock data structures based on parsing the contents
+of the /sys/kernel/debug/gfs2/<bdev>/glocks files.
+    inst [0 or "loop0"] value 29
 
-gfs2.glocks.flags.lru PMID: 115.0.18
+gfs2.glocks.unlocked PMID: 115.0.2 [GFS2 global locks in unlocked state]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock data structures in unlocked state, based on parsing
+/sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:) value "UN".
+    inst [0 or "loop0"] value 8
 
-gfs2.holders.total PMID: 115.0.19
+gfs2.glstats.flock PMID: 115.2.6 [The number of flock(2) syscall glocks]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+The count of the current number of flock(2) syscall type glocks that currently
+exist for the given filesystem. The data is recorded and counted from /sys/
+kernel/debug/gfs2/<bdev>glstats file entries for this type of glock.
+    inst [0 or "loop0"] value 0
 
-gfs2.holders.shared PMID: 115.0.20
+gfs2.glstats.inode PMID: 115.2.2 [The number of inode (metadata and data) glocks]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+The count of the current number of inode metadata and data type glocks that
+currently exist for the given filesystem. The data is recorded and counted from
+/sys/kernel/debug/gfs2/<bdev>glstats file entries for this type of glock.
+    inst [0 or "loop0"] value 10
 
-gfs2.holders.unlocked PMID: 115.0.21
+gfs2.glstats.iopen PMID: 115.2.5 [The number of inode last closer detection glocks]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+The count of the current number of inode last closer detection type glocks that
+currently exist for the given filesystem. The data is recorded and counted from
+/sys/kernel/debug/gfs2/<bdev>glstats file entries for this type of glock.
+    inst [0 or "loop0"] value 9
 
-gfs2.holders.defered PMID: 115.0.22
+gfs2.glstats.journal PMID: 115.2.9 [The number of journal mutex glocks]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+The count of the current number of journal mutex type glocks that currently
+exist for the given filesystem. The data is recorded and counted from /sys/
+kernel/debug/gfs2/<bdev>glstats file entries for this type of glock.
+    inst [0 or "loop0"] value 1
 
-gfs2.holders.exclusive PMID: 115.0.23
+gfs2.glstats.meta PMID: 115.2.4 [The number of superblock glocks]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+The count of the current number of superblock type glocks that currently exist
+for the given filesystem. The data is recorded and counted from /sys/kernel/
+debug/gfs2/<bdev>glstats file entries for this type of glock.
+    inst [0 or "loop0"] value 1
 
-gfs2.holders.flags.async PMID: 115.0.24
+gfs2.glstats.quota PMID: 115.2.8 [The number of quota operations glocks]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+The count of the current number of quota operations type glocks that currently
+exist for the given filesystem. The data is recorded and counted from /sys/
+kernel/debug/gfs2/<bdev>glstats file entries for this type of glock.
+    inst [0 or "loop0"] value 0
 
-gfs2.holders.flags.any PMID: 115.0.25
+gfs2.glstats.rgrp PMID: 115.2.3 [The number of resource group metadata glocks]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+The count of the current number of resource group metadata type glocks that
+currently exist for the given filesystem. The data is recorded and counted from
+/sys/kernel/debug/gfs2/<bdev>glstats file entries for this type of glock.
+    inst [0 or "loop0"] value 5
 
-gfs2.holders.flags.no_cache PMID: 115.0.26
+gfs2.glstats.total PMID: 115.2.0 [The total number of current glocks]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Total count of the number of glocks which currently reside for filesystem on 
+the given node. Data is based from /sys/kernel/debug/gfs2/<bdev>/glstats
+counting the total number of glock entries.
+    inst [0 or "loop0"] value 29
 
-gfs2.holders.flags.no_expire PMID: 115.0.27
+gfs2.glstats.trans PMID: 115.2.1 [The number of transaction glocks]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+The count of the current number of transaction type glocks that currently exist
+for the given filesystem. The data is recorded and counted from /sys/kernel/
+debug/gfs2/<bdev>glstats file entries for this type of glock.
+    inst [0 or "loop0"] value 3
 
-gfs2.holders.flags.exact PMID: 115.0.28
+gfs2.holders.defered PMID: 115.0.22 [GFS2 global lock holder in deferred state]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock holder structure in shared state, based on parsing
+/sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:) value "DF".
+    inst [0 or "loop0"] value 0
 
-gfs2.holders.flags.first PMID: 115.0.29
+gfs2.holders.exclusive PMID: 115.0.23 [GFS2 global lock holder in exclusive state]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock holder structure in shared state, based on parsing
+/sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:) value "EX".
+    inst [0 or "loop0"] value 3
 
-gfs2.holders.flags.holder PMID: 115.0.30
+gfs2.holders.flags.any PMID: 115.0.25 [GFS2 global holder with the any flag]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock holder structures with the any flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "A".
+    inst [0 or "loop0"] value 0
 
-gfs2.holders.flags.priority PMID: 115.0.31
+gfs2.holders.flags.async PMID: 115.0.24 [GFS2 global holder with the async flag]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock holder structures with the async flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "a".
+    inst [0 or "loop0"] value 0
 
-gfs2.holders.flags.try PMID: 115.0.32
+gfs2.holders.flags.exact PMID: 115.0.28 [GFS2 global holder with the exact flag]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock holder structures with the exact flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "E".
+    inst [0 or "loop0"] value 11
 
-gfs2.holders.flags.try_1cb PMID: 115.0.33
+gfs2.holders.flags.first PMID: 115.0.29 [GFS2 global holder with the first flag]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock holder structures with the first flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "F".
+    inst [0 or "loop0"] value 0
 
-gfs2.holders.flags.wait PMID: 115.0.34
+gfs2.holders.flags.holder PMID: 115.0.30 [GFS2 global holder with the holder flag]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
-    inst [0 or "loopN"] value NUMBER
-    inst [1 or "loopN"] value NUMBER
+Help:
+Count of incore GFS2 glock holder structures with the holder flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "H".
+    inst [0 or "loop0"] value 14
+
+gfs2.holders.flags.no_cache PMID: 115.0.26 [GFS2 global holder with the no cache flag]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of incore GFS2 glock holder structures with the no cache flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "c".
+    inst [0 or "loop0"] value 2
+
+gfs2.holders.flags.no_expire PMID: 115.0.27 [GFS2 global holder with the no expire flag]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of incore GFS2 glock holder structures with the no expire flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "e".
+    inst [0 or "loop0"] value 3
+
+gfs2.holders.flags.priority PMID: 115.0.31 [GFS2 global holder with the priority flag]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of incore GFS2 glock holder structures with the priority flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "p".
+    inst [0 or "loop0"] value 0
+
+gfs2.holders.flags.try PMID: 115.0.32 [GFS2 global holder with the try flag]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of incore GFS2 glock holder structures with the try flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "t".
+    inst [0 or "loop0"] value 0
+
+gfs2.holders.flags.try_1cb PMID: 115.0.33 [GFS2 global holder with the try 1CB flag]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of incore GFS2 glock holder structures with the try 1CB flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "T".
+    inst [0 or "loop0"] value 0
+
+gfs2.holders.flags.wait PMID: 115.0.34 [GFS2 global holder with the wait flag]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of incore GFS2 glock holder structures with the wait flag set,
+based on parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with flag
+field (f:) value "W".
+    inst [0 or "loop0"] value 0
+
+gfs2.holders.shared PMID: 115.0.20 [GFS2 global lock holder in shared state]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of incore GFS2 glock holder structure in shared state, based on parsing
+/sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:) value "SH".
+    inst [0 or "loop0"] value 11
+
+gfs2.holders.total PMID: 115.0.19 [Count of total observed incore GFS2 global locks holders]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of total incore GFS2 glock holder structures based on parsing the contents
+of the /sys/kernel/debug/gfs2/<bdev>/glocks files.
+    inst [0 or "loop0"] value 14
+
+gfs2.holders.unlocked PMID: 115.0.21 [GFS2 global lock holder in unlocked state]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of incore GFS2 glock holder structure in shared state, based on parsing
+/sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:) value "UN".
+    inst [0 or "loop0"] value 0
+
+gfs2.latency.demote.all PMID: 115.5.7 [Average time in ms for all states. The total average]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+latency time in ms for all lock states for demotes.
+No value(s) available!
+
+gfs2.latency.demote.concurrent_read PMID: 115.5.9 [Average time in ms to concurrent read]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+lock state. The total average latency time in ms to change to concurrent read
+lock state for demotes.
+No value(s) available!
+
+gfs2.latency.demote.concurrent_write PMID: 115.5.10 [Average time in ms to concurrent write]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+lock state. The total average latency time in ms to change to concurrent write
+lock state for demotes.
+No value(s) available!
+
+gfs2.latency.demote.exclusive PMID: 115.5.13 [Average time in ms to exclusive lock state. ]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The total average latency time in ms to change to exclusive lock state for
+demotes.
+No value(s) available!
+
+gfs2.latency.demote.null_lock PMID: 115.5.8 [Average time in ms to null lock state. The]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+total average latency time in ms to change to null lock state for demotes.
+No value(s) available!
+
+gfs2.latency.demote.protected_read PMID: 115.5.11 [Average time in ms to protected read]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+lock state. The total average latency time in ms to change to protected read
+lock state for demotes.
+No value(s) available!
+
+gfs2.latency.demote.protected_write PMID: 115.5.12 [Average time in ms to protected write]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+lock state. The total average latency time in ms to change to protected write
+lock state for demotes.
+No value(s) available!
+
+gfs2.latency.grant.all PMID: 115.5.0 [Average time in ms for all states. The total average]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+latency time in ms for all lock states for grants.
+No value(s) available!
+
+gfs2.latency.grant.concurrent_read PMID: 115.5.2 [Average time in ms to concurrent read]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+lock state. The total average latency time in ms to change to concurrent read
+lock state for grants.
+No value(s) available!
+
+gfs2.latency.grant.concurrent_write PMID: 115.5.3 [Average time in ms to concurrent write]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+lock state. The total average latency time in ms to change to concurrent write
+lock state for grants.
+No value(s) available!
+
+gfs2.latency.grant.exclusive PMID: 115.5.6 [Average time in ms to exclusive lock state. The]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+total average latency time in ms to change to exclusive lock state for grants.
+No value(s) available!
+
+gfs2.latency.grant.null_lock PMID: 115.5.1 [Average time in ms to null lock state. The]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+total average latency time in ms to change to null lock state for grants.
+No value(s) available!
+
+gfs2.latency.grant.protected_read PMID: 115.5.4 [Average time in ms to protected read]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+lock state. The total average latency time in ms to change to protected read
+lock state for grants.
+No value(s) available!
+
+gfs2.latency.grant.protected_write PMID: 115.5.5 [Average time in ms to protected write]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+lock state. The total average latency time in ms to change to protected write
+lock state for grants.
+No value(s) available!
+
+gfs2.latency.queue.all PMID: 115.5.14 [Average time in ms for all states. The total average]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+latency time in ms for all lock states for queues.
+No value(s) available!
+
+gfs2.latency.queue.concurrent_read PMID: 115.5.16 [Average time in ms to concurrent read]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+lock state. The total average latency time in ms to change to concurrent read
+lock state for queues.
+No value(s) available!
+
+gfs2.latency.queue.concurrent_write PMID: 115.5.17 [Average time in ms to concurrent write]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+lock state. The total average latency time in ms to change to concurrent write
+lock state for queues.
+No value(s) available!
+
+gfs2.latency.queue.exclusive PMID: 115.5.20 [Average time in ms to exclusive lock state.]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The total average latency time in ms to change to exclusive lock state for 
+queues.
+No value(s) available!
+
+gfs2.latency.queue.null_lock PMID: 115.5.15 [Average time in ms to null lock state. The]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+total average latency time in ms to change to null lock state for queues.
+No value(s) available!
+
+gfs2.latency.queue.protected_read PMID: 115.5.18 [Average time in ms to protected read]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+lock state. The total average latency time in ms to change to protected read
+lock state for queues.
+No value(s) available!
+
+gfs2.latency.queue.protected_write PMID: 115.5.19 [Average time in ms to protected write]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+lock state. The total average latency time in ms to change to protected write
+lock state for queues.
+No value(s) available!
+
+gfs2.sbstats.flock.dlm PMID: 115.1.54 [Count of Distributed Lock Manager requests for flock glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: counter  Units: count
+Help:
+Count of Distributed Lock Manager requests for flock glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.flock.queue PMID: 115.1.55 [Count of gfs2_holder queues for flock glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: counter  Units: count
+Help:
+Count of gfs2_holder queues for flock glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.flock.sirt PMID: 115.1.52 [Smoothed inter-request time for flock glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Smoothed inter-request time for flock glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.flock.sirtvar PMID: 115.1.53 [Smoothed inter-request variance for flock glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Smoothed inter-request variance for flock glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.flock.srtt PMID: 115.1.48 [Non-blocking smoothed round trip time for flock glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Non-blocking smoothed round trip time for flock glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.flock.srttb PMID: 115.1.50 [Blocking smoothed round trip time for flock glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Blocking smoothed round trip time for flock glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.flock.srttvar PMID: 115.1.49 [Non-blocking smoothed variance for flock glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Non-blocking smoothed variance for flock glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.flock.srttvarb PMID: 115.1.51 [Blocking smoothed variance for flock glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Blocking smoothed variance for flock glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.inode.dlm PMID: 115.1.22 [Count of Distributed Lock Manager requests for inode glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: counter  Units: count
+Help:
+Count of Distributed Lock Manager requests for inode glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.inode.queue PMID: 115.1.23 [Count of gfs2_holder queues for inode glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: counter  Units: count
+Help:
+Count of gfs2_holder queues for inode glocks
+    inst [0 or "loop0"] value 38
+
+gfs2.sbstats.inode.sirt PMID: 115.1.20 [Smoothed inter-request time for inode glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Smoothed inter-request time for inode glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.inode.sirtvar PMID: 115.1.21 [Smoothed inter-request variance for inode glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Smoothed inter-request variance for inode glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.inode.srtt PMID: 115.1.16 [Non-blocking smoothed round trip time for inode glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Non-blocking smoothed round trip time for inode glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.inode.srttb PMID: 115.1.18 [Blocking smoothed round trip time for inode glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Blocking smoothed round trip time for inode glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.inode.srttvar PMID: 115.1.17 [Non-blocking smoothed variance for inode glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Non-blocking smoothed variance for inode glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.inode.srttvarb PMID: 115.1.19 [Blocking smoothed variance for inode glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Blocking smoothed variance for inode glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.iopen.dlm PMID: 115.1.46 [Count of Distributed Lock Manager requests for iopen glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: counter  Units: count
+Help:
+Count of Distributed Lock Manager requests for iopen glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.iopen.queue PMID: 115.1.47 [Count of gfs2_holder queues for iopen glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: counter  Units: count
+Help:
+Count of gfs2_holder queues for iopen glocks
+    inst [0 or "loop0"] value 11
+
+gfs2.sbstats.iopen.sirt PMID: 115.1.44 [Smoothed inter-request time for iopen glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Smoothed inter-request time for iopen glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.iopen.sirtvar PMID: 115.1.45 [Smoothed inter-request variance for iopen glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Smoothed inter-request variance for iopen glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.iopen.srtt PMID: 115.1.40 [Non-blocking smoothed round trip time for iopen glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Non-blocking smoothed round trip time for iopen glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.iopen.srttb PMID: 115.1.42 [Blocking smoothed round trip time for iopen glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Blocking smoothed round trip time for iopen glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.iopen.srttvar PMID: 115.1.41 [Non-blocking smoothed variance for iopen glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Non-blocking smoothed variance for iopen glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.iopen.srttvarb PMID: 115.1.43 [Blocking smoothed variance for iopen glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Blocking smoothed variance for iopen glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.journal.dlm PMID: 115.1.78 [Count of Distributed Lock Manager requests for journal glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: counter  Units: count
+Help:
+Count of Distributed Lock Manager requests for journal glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.journal.queue PMID: 115.1.79 [Count of gfs2_holder queues for journal glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: counter  Units: count
+Help:
+Count of gfs2_holder queues for journal glocks
+    inst [0 or "loop0"] value 1
+
+gfs2.sbstats.journal.sirt PMID: 115.1.76 [Smoothed inter-request time for journal glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Smoothed inter-request time for journal glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.journal.sirtvar PMID: 115.1.77 [Smoothed inter-request variance for journal glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Smoothed inter-request variance for journal glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.journal.srtt PMID: 115.1.72 [Non-blocking smoothed round trip time for journal glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Non-blocking smoothed round trip time for journal glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.journal.srttb PMID: 115.1.74 [Blocking smoothed round trip time for journal glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Blocking smoothed round trip time for journal glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.journal.srttvar PMID: 115.1.73 [Non-blocking smoothed variance for journal glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Non-blocking smoothed variance for journal glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.journal.srttvarb PMID: 115.1.75 [Blocking smoothed variance for journal glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Blocking smoothed variance for journal glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.meta.dlm PMID: 115.1.38 [Count of Distributed Lock Manager requests for meta glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: counter  Units: count
+Help:
+Count of Distributed Lock Manager requests for meta glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.meta.queue PMID: 115.1.39 [Count of gfs2_holder queues for meta glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: counter  Units: count
+Help:
+Count of gfs2_holder queues for meta glocks
+    inst [0 or "loop0"] value 1
+
+gfs2.sbstats.meta.sirt PMID: 115.1.36 [Smoothed inter-request time for meta glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Smoothed inter-request time for meta glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.meta.sirtvar PMID: 115.1.37 [Smoothed inter-request variance for meta glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Smoothed inter-request variance for meta glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.meta.srtt PMID: 115.1.32 [Non-blocking smoothed round trip time for meta glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Non-blocking smoothed round trip time for meta glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.meta.srttb PMID: 115.1.34 [Blocking smoothed round trip time for meta glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Blocking smoothed round trip time for meta glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.meta.srttvar PMID: 115.1.33 [Non-blocking smoothed variance for meta glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Non-blocking smoothed variance for meta glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.meta.srttvarb PMID: 115.1.35 [Blocking smoothed variance for meta glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Blocking smoothed variance for meta glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.nondisk.dlm PMID: 115.1.14 [Count of Distributed Lock Manager requests for nondisk glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: counter  Units: count
+Help:
+Count of Distributed Lock Manager requests for nondisk glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.nondisk.queue PMID: 115.1.15 [Count of gfs2_holder queues for nondisk glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: counter  Units: count
+Help:
+Count of gfs2_holder queues for nondisk glocks
+    inst [0 or "loop0"] value 3
+
+gfs2.sbstats.nondisk.sirt PMID: 115.1.12 [Smoothed inter-request time for nondisk glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Smoothed inter-request time for nondisk glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.nondisk.sirtvar PMID: 115.1.13 [Smoothed inter-request variance for nondisk glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Smoothed inter-request variance for nondisk glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.nondisk.srtt PMID: 115.1.8 [Non-blocking smoothed round trip time for nondisk glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Non-blocking smoothed round trip time for nondisk glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.nondisk.srttb PMID: 115.1.10 [Blocking smoothed round trip time for nondisk glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Blocking smoothed round trip time for nondisk glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.nondisk.srttvar PMID: 115.1.9 [Non-blocking smoothed variance for nondisk glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Non-blocking smoothed variance for nondisk glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.nondisk.srttvarb PMID: 115.1.11 [Blocking smoothed variance for nondisk glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Blocking smoothed variance for nondisk glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.plock.dlm PMID: 115.1.62 [Count of Distributed Lock Manager requests for plock glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: counter  Units: count
+Help:
+Count of Distributed Lock Manager requests for plock glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.plock.queue PMID: 115.1.63 [Count of gfs2_holder queues for plock glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: counter  Units: count
+Help:
+Count of gfs2_holder queues for plock glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.plock.sirt PMID: 115.1.60 [Smoothed inter-request time for plock glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Smoothed inter-request time for plock glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.plock.sirtvar PMID: 115.1.61 [Smoothed inter-request variance for plock glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Smoothed inter-request variance for plock glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.plock.srtt PMID: 115.1.56 [Non-blocking smoothed round trip time for plock glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Non-blocking smoothed round trip time for plock glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.plock.srttb PMID: 115.1.58 [Blocking smoothed round trip time for plock glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Blocking smoothed round trip time for plock glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.plock.srttvar PMID: 115.1.57 [Non-blocking smoothed variance for plock glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Non-blocking smoothed variance for plock glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.plock.srttvarb PMID: 115.1.59 [Blocking smoothed variance for plock glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Blocking smoothed variance for plock glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.quota.dlm PMID: 115.1.70 [Count of Distributed Lock Manager requests for quota glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: counter  Units: count
+Help:
+Count of Distributed Lock Manager requests for quota glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.quota.queue PMID: 115.1.71 [Count of gfs2_holder queues for quota glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: counter  Units: count
+Help:
+Count of gfs2_holder queues for quota glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.quota.sirt PMID: 115.1.68 [Smoothed inter-request time for quota glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Smoothed inter-request time for quota glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.quota.sirtvar PMID: 115.1.69 [Smoothed inter-request variance for quota glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Smoothed inter-request variance for quota glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.quota.srtt PMID: 115.1.64 [Non-blocking smoothed round trip time for quota glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Non-blocking smoothed round trip time for quota glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.quota.srttb PMID: 115.1.66 [Blocking smoothed round trip time for quota glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Blocking smoothed round trip time for quota glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.quota.srttvar PMID: 115.1.65 [Non-blocking smoothed variance for quota glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Non-blocking smoothed variance for quota glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.quota.srttvarb PMID: 115.1.67 [Blocking smoothed variance for quota glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Blocking smoothed variance for quota glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.reserved.dlm PMID: 115.1.6 [Count of Distributed Lock Manager requests for reserved glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: counter  Units: count
+Help:
+Count of Distributed Lock Manager requests for reserved glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.reserved.queue PMID: 115.1.7 [Count of gfs2_holder queues for reserved glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: counter  Units: count
+Help:
+Count of gfs2_holder queues for reserved glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.reserved.sirt PMID: 115.1.4 [Smoothed inter-request time for reserved glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Smoothed inter-request time for reserved glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.reserved.sirtvar PMID: 115.1.5 [Smoothed inter-request variance for reserved glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Smoothed inter-request variance for reserved glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.reserved.srtt PMID: 115.1.0 [Non-blocking smoothed round trip time for reserved glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Non-blocking smoothed round trip time for reserved glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.reserved.srttb PMID: 115.1.2 [Blocking smoothed round trip time for reserved glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Blocking smoothed round trip time for reserved glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.reserved.srttvar PMID: 115.1.1 [Non-blocking smoothed variance for reserved glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Non-blocking smoothed variance for reserved glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.reserved.srttvarb PMID: 115.1.3 [Blocking smoothed variance for reserved glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Blocking smoothed variance for reserved glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.rgrp.dlm PMID: 115.1.30 [Count of Distributed Lock Manager requests for rgrp glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: counter  Units: count
+Help:
+Count of Distributed Lock Manager requests for rgrp glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.rgrp.queue PMID: 115.1.31 [Count of gfs2_holder queues for rgrp glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: counter  Units: count
+Help:
+Count of gfs2_holder queues for rgrp glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.rgrp.sirt PMID: 115.1.28 [Smoothed inter-request time for rgrp glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Smoothed inter-request time for rgrp glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.rgrp.sirtvar PMID: 115.1.29 [Smoothed inter-request variance for rgrp glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Smoothed inter-request variance for rgrp glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.rgrp.srtt PMID: 115.1.24 [Non-blocking smoothed round trip time for rgrp glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Non-blocking smoothed round trip time for rgrp glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.rgrp.srttb PMID: 115.1.26 [Blocking smoothed round trip time for rgrp glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Blocking smoothed round trip time for rgrp glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.rgrp.srttvar PMID: 115.1.25 [Non-blocking smoothed variance for rgrp glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Non-blocking smoothed variance for rgrp glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.rgrp.srttvarb PMID: 115.1.27 [Blocking smoothed variance for rgrp glocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Blocking smoothed variance for rgrp glocks
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.ail_flush.total PMID: 115.3.68 [Total AIL flushes. The total number of]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+flushes back to the AIL.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.block_alloc.dinode PMID: 115.3.72 [Dinode blocks. The number of blocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+used for dinode.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.block_alloc.free PMID: 115.3.70 [Freed blocks. The number of blocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+freed. 
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.block_alloc.total PMID: 115.3.69 [Total blocks allocated/deallocated. ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The total number of allocated/freed blocks this call.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.block_alloc.unlinked PMID: 115.3.73 [Unlinked blocks. The number of]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+unlinked blocks.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.block_alloc.used PMID: 115.3.71 [Used blocks. The number of blocks]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+used.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.bmap.create PMID: 115.3.75 [Number of create bmap allocations. The number]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+of create bmap allocations.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.bmap.nocreate PMID: 115.3.76 [Number of nocreate bmap allocations. The]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+number of nocreate bmap allocations.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.bmap.total PMID: 115.3.74 [Total number of bmap allocations. The total]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+number of bmap allocations.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.demote_rq.concurrent_read PMID: 115.3.18 [Number of lock demote requests to]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+concurrent_read. The total number of lock demotion requests to the 
+concurrent_read state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.demote_rq.concurrent_write PMID: 115.3.19 [Number of lock demote requests to]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+concurrent_write. The total number of lock demotion requests to the 
+concurrent_write state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.demote_rq.exclusive PMID: 115.3.22 [Number of lock demote requests to]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+exclusive. The total number of lock demotion requests to the 
+exclusive state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.demote_rq.null_lock PMID: 115.3.17 [Number of lock demote requests to]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+null_lock. The total number of lock demotion requests to the null_lock state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.demote_rq.protected_read PMID: 115.3.20 [Number of lock demote requests to]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+protected_read. The total number of lock demotion requests to the 
+protected_read state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.demote_rq.protected_write PMID: 115.3.21 [Number of lock demote requests to]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+protected_write. The total number of lock demotion requests to the 
+protected_write state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.demote_rq.requested.local PMID: 115.3.24 [Number of demote requests (local).]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The total number of demote requests which were requested by a local node of
+the cluster
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.demote_rq.requested.remote PMID: 115.3.23 [Number of demote requests (remote).]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The total number of demote requests which were requested by a remote node of
+the cluster.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.demote_rq.total PMID: 115.3.16 [Total number of lock demote requests.]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The total number of lock demotion requests.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_lock_time.flock PMID: 115.3.59 [Number of flock lock updates.]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The number of updates for flock based glocks.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_lock_time.inode PMID: 115.3.55 [Number of inode lock updates.]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The number of updates for inode based glocks.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_lock_time.iopen PMID: 115.3.58 [Number of iopen lock updates.]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The number of updates for iopen based glocks.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_lock_time.journal PMID: 115.3.61 [Number of journal lock updates.]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The number of updates for journal based glocks.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_lock_time.meta PMID: 115.3.57 [Number of metadata lock updates.]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The number of updates for metadata based glocks.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_lock_time.quota PMID: 115.3.60 [Number of quota lock updates.]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The number of updates for quota based glocks.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_lock_time.rgrp PMID: 115.3.56 [Number of resource group lock updates.]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The number of updates for resource group based glocks.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_lock_time.total PMID: 115.3.53 [Total number of lock updates.]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The total number of lock updates.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_lock_time.trans PMID: 115.3.54 [Number of transaction lock updates.]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The number of updates for transaction based glocks.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_put.concurrent_read PMID: 115.3.11 [Number of glocks put]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+in concurrent_read. The number of glocks put into the concurrent_read
+state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_put.concurrent_write PMID: 115.3.12 [Number of glocks put]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+in concurrent_write. The number of glocks put into the concurrent_write
+state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_put.exclusive PMID: 115.3.15 [Number of glocks put]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+in exclusive. The number of glocks put into the exclusive
+state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_put.null_lock PMID: 115.3.10 [Number of released locks.]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The number of glocks put into the null_lock state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_put.protected_read PMID: 115.3.13 [Number of glocks put]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+in protected_read. The number of glocks put into the protected_read
+state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_put.protected_write PMID: 115.3.14 [Number of glocks put]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+in protected_wirte. The number of glocks put into the protected_write
+state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_put.total PMID: 115.3.9 [Total number of glocks changed.]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The total number of glocks that have been changed.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_queue.dequeue.concurrent_read PMID: 115.3.48 [Number of concurrent_read ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+requests. The number of lock requests to the concurrent_read state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_queue.dequeue.concurrent_write PMID: 115.3.49 [Number of concurrent_write ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+requests. The number of lock requests to the concurrent_write state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_queue.dequeue.exclusive PMID: 115.3.52 [Number of exclusive ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+requests. The number of lock requests to the exclusive state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_queue.dequeue.null_lock PMID: 115.3.47 [Number of null_lock requests. The]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+number of lock requests to the null_lock state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_queue.dequeue.protected_read PMID: 115.3.50 [Number of protected_read ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+requests. The number of lock requests to the protected_read state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_queue.dequeue.protected_write PMID: 115.3.51 [Number of protected_write ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+requests. The number of lock requests to the protected_write state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_queue.dequeue.total PMID: 115.3.46 [Total number of dequeued lock requests.]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The total number of dequeued lock requests.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_queue.queue.concurrent_read PMID: 115.3.41 [Number of concurrent_read ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+requests. The number of lock requests to the concurrent_read state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_queue.queue.concurrent_write PMID: 115.3.42 [Number of concurrent_write ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+requests. The number of lock requests to the concurrent_write state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_queue.queue.exclusive PMID: 115.3.45 [Number of exclusive ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+requests. The number of lock requests to the exclusive state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_queue.queue.null_lock PMID: 115.3.40 [Number of null_lock requests. The]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+number of lock requests to the null_lock state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_queue.queue.protected_read PMID: 115.3.43 [Number of protected_read ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+requests. The number of lock requests to the protected_read state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_queue.queue.protected_write PMID: 115.3.44 [Number of protected_write ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+requests. The number of lock requests to the protected_write state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_queue.queue.total PMID: 115.3.39 [Total number of queued lock requests.]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The total number of queued lock requests.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_queue.total PMID: 115.3.38 [Total numbe rof queued and dequeued]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+requests. The total number of both queued and dequeued requests.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_state_change.concurrent_read PMID: 115.3.2 [Number of]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+concurrent_read state changes. The total number of glock state changes
+to current_read state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_state_change.concurrent_write PMID: 115.3.3 [Number of ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+concurrent_write state changes. The total number of glock state changes
+to current_write state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_state_change.exclusive PMID: 115.3.6 [Number of exclusive state]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+changes. The total number of glock state changes to exclusive state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_state_change.glocks.changed_target PMID: 115.3.7 [Number of]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+changed locks. The number of state changes that achieved their expected
+state change.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_state_change.glocks.missed_target PMID: 115.3.8 [Number of ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+missed locks. The number of state changes that did not achieve their
+expected state change.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_state_change.null_lock PMID: 115.3.1 [Number of null_lock state]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+changes. The total number of glock state changes to the null_lock state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_state_change.protected_read PMID: 115.3.4 [Number of ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+protected_read state changes. The total number of glock state changes to
+protected_read state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_state_change.protected_write PMID: 115.3.5 [Number of]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+protected_write state changes. The total number of glock state changes to
+protected_write state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.glock_state_change.total PMID: 115.3.0 [Total number of glock state]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+changes. The total number of counted glock state changes.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.log_block.total PMID: 115.3.67 [Total log blocks. The total number of]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+blocks placed upon the log.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.log_flush.total PMID: 115.3.66 [Total log flushes. The total number of]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+log flushes observed
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.pin.longest_pinned PMID: 115.3.65 [Longest pinned. The longest pinned]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+inode or resource group log block
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.pin.pin_total PMID: 115.3.63 [Number of pin requests. The total number of]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+requests to pin blocks on the log.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.pin.total PMID: 115.3.62 [Total number of Pin/Unpin requests. The total]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+number of requests to pin/unpin blocks on the log.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.pin.unpin_total PMID: 115.3.64 [Number of unpin requests. The total number]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+requests to unpin blocks on the log.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.promote.first.concurrent_read PMID: 115.3.27 [Number of lock state to ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+concurrent_read. The total number of successful first time lock state to the 
+concurrent_read state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.promote.first.concurrent_write PMID: 115.3.28 [Number of lock state to ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+concurrent_write. The total number of successful first time lock state to the 
+concurrent_write state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.promote.first.exclusive PMID: 115.3.31 [Number of lock state to ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+exclusive. The total number of successful first time lock state to the 
+exclusive state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.promote.first.null_lock PMID: 115.3.26 [Number of lock state to null_lock.]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The total number of successful first time lock state to the null_lock state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.promote.first.protected_read PMID: 115.3.29 [Number of lock state to ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+protected_read. The total number of successful first time lock state to the 
+protected_read state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.promote.first.protected_write PMID: 115.3.30 [Number of lock state to ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+protected_write. The total number of successful first time lock state to the 
+protected_write state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.promote.other.concurrent_read PMID: 115.3.33 [Number of lock state to ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+concurrent_read. The total number of successful other time lock state to the 
+concurrent_read state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.promote.other.concurrent_write PMID: 115.3.34 [Number of lock state to ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+concurrent_write. The total number of successful other time lock state to the 
+concurrent_write state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.promote.other.exclusive PMID: 115.3.37 [Number of lock state to ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+exclusive. The total number of successful other time lock state to the 
+exclusive state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.promote.other.null_lock PMID: 115.3.32 [Number of lock state to null_lock.]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+The total number of successful other time lock state to the null_lock state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.promote.other.protected_read PMID: 115.3.35 [Number of lock state to ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+protected_read. The total number of successful other time lock state to the 
+protected_read state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.promote.other.protected_write PMID: 115.3.36 [Number of lock state to ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+protected_write. The total number of successful other time lock state to the 
+protected_write state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.promote.total PMID: 115.3.25 [Total number of lock state. The total number]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+of lock state.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.rs.clm PMID: 115.3.81 [Number of resource group claims. The total number of ]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+resource group claim calls.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.rs.del PMID: 115.3.78 [Number of resource group delete. The total number of]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+resource group delete calls.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.rs.ins PMID: 115.3.80 [Number of resource group insert. The total number of]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+resource group insert calls.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.rs.tdel PMID: 115.3.79 [Number of resource group tree delete. The total number]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+of resource group tree delete calls.
+    inst [0 or "loop0"] value 0
+
+gfs2.tracepoints.rs.total PMID: 115.3.77 [Total multi-block allocations. The total number]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+of multi-block allocations. 
+    inst [0 or "loop0"] value 0
+
+gfs2.worst_glock.eighth.dlm PMID: 115.4.78 [Count of Distributed Lock Manager requests for eighth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of Distributed Lock Manager requests for eighth worst glock
+No value(s) available!
+
+gfs2.worst_glock.eighth.lock_type PMID: 115.4.70 [Glock type number for eighth worst glock]
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Glock type number for eighth worst glock
+No value(s) available!
+
+gfs2.worst_glock.eighth.number PMID: 115.4.71 [Inode or resource group number for eighth worst glock]
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Inode or resource group number for eighth worst glock
+No value(s) available!
+
+gfs2.worst_glock.eighth.queue PMID: 115.4.79 [Count of gfs2_holder queues for eighth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of gfs2_holder queues for eighth worst glock
+No value(s) available!
+
+gfs2.worst_glock.eighth.sirt PMID: 115.4.76 [Smoothed Inter-request time for eighth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Smoothed Inter-request time for eighth worst glock
+No value(s) available!
+
+gfs2.worst_glock.eighth.sirtvar PMID: 115.4.77 [Smoothed Inter-request variance for eighth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Smoothed Inter-request variance for eighth worst glock
+No value(s) available!
+
+gfs2.worst_glock.eighth.srtt PMID: 115.4.72 [Non-blocking smoothed round trip time for eighth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Non-blocking smoothed round trip time for eighth worst glock
+No value(s) available!
+
+gfs2.worst_glock.eighth.srttb PMID: 115.4.74 [Blocking smoothed round trip time for eighth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Blocking smoothed round trip time for eighth worst glock
+No value(s) available!
+
+gfs2.worst_glock.eighth.srttvar PMID: 115.4.73 [Non-blocking smoothed variance for eighth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Non-blocking smoothed variance for eighth worst glock
+No value(s) available!
+
+gfs2.worst_glock.eighth.srttvarb PMID: 115.4.75 [Blocking smoothed variance for eighth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Blocking smoothed variance for eighth worst glock
+No value(s) available!
+
+gfs2.worst_glock.fifth.dlm PMID: 115.4.48 [Count of Distributed Lock Manager requests for fifth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of Distributed Lock Manager requests for fifth worst glock
+No value(s) available!
+
+gfs2.worst_glock.fifth.lock_type PMID: 115.4.40 [Glock type number for fifth worst glock]
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Glock type number for fifth worst glock
+No value(s) available!
+
+gfs2.worst_glock.fifth.number PMID: 115.4.41 [Inode or resource group number for fifth worst glock]
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Inode or resource group number for fifth worst glock
+No value(s) available!
+
+gfs2.worst_glock.fifth.queue PMID: 115.4.49 [Count of gfs2_holder queues for fifth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of gfs2_holder queues for fifth worst glock
+No value(s) available!
+
+gfs2.worst_glock.fifth.sirt PMID: 115.4.46 [Smoothed Inter-request time for fifth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Smoothed Inter-request time for fifth worst glock
+No value(s) available!
+
+gfs2.worst_glock.fifth.sirtvar PMID: 115.4.47 [Smoothed Inter-request variance for fifth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Smoothed Inter-request variance for fifth worst glock
+No value(s) available!
+
+gfs2.worst_glock.fifth.srtt PMID: 115.4.42 [Non-blocking smoothed round trip time for fifth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Non-blocking smoothed round trip time for fifth worst glock
+No value(s) available!
+
+gfs2.worst_glock.fifth.srttb PMID: 115.4.44 [Blocking smoothed round trip time for fifth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Blocking smoothed round trip time for fifth worst glock
+No value(s) available!
+
+gfs2.worst_glock.fifth.srttvar PMID: 115.4.43 [Non-blocking smoothed variance for fifth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Non-blocking smoothed variance for fifth worst glock
+No value(s) available!
+
+gfs2.worst_glock.fifth.srttvarb PMID: 115.4.45 [Blocking smoothed variance for fifth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Blocking smoothed variance for fifth worst glock
+No value(s) available!
+
+gfs2.worst_glock.first.dlm PMID: 115.4.8 [Count of Distributed Lock Manager requests for first worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of Distributed Lock Manager requests for first worst glock
+No value(s) available!
+
+gfs2.worst_glock.first.lock_type PMID: 115.4.0 [Glock type number for first worst glock]
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Glock type number for first worst glock
+No value(s) available!
+
+gfs2.worst_glock.first.number PMID: 115.4.1 [Inode or resource group number for first worst glock]
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Inode or resource group number for first worst glock
+No value(s) available!
+
+gfs2.worst_glock.first.queue PMID: 115.4.9 [Count of gfs2_holder queues for first worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of gfs2_holder queues for first worst glock
+No value(s) available!
+
+gfs2.worst_glock.first.sirt PMID: 115.4.6 [Smoothed Inter-request time for first worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Smoothed Inter-request time for first worst glock
+No value(s) available!
+
+gfs2.worst_glock.first.sirtvar PMID: 115.4.7 [Smoothed Inter-request variance for first worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Smoothed Inter-request variance for first worst glock
+No value(s) available!
+
+gfs2.worst_glock.first.srtt PMID: 115.4.2 [Non-blocking smoothed round trip time for first worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Non-blocking smoothed round trip time for first worst glock
+No value(s) available!
+
+gfs2.worst_glock.first.srttb PMID: 115.4.4 [Blocking smoothed round trip time for first worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Blocking smoothed round trip time for first worst glock
+No value(s) available!
+
+gfs2.worst_glock.first.srttvar PMID: 115.4.3 [Non-blocking smoothed variance for first worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Non-blocking smoothed variance for first worst glock
+No value(s) available!
+
+gfs2.worst_glock.first.srttvarb PMID: 115.4.5 [Blocking smoothed variance for first worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Blocking smoothed variance for first worst glock
+No value(s) available!
+
+gfs2.worst_glock.fourth.dlm PMID: 115.4.38 [Count of Distributed Lock Manager requests for fourth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of Distributed Lock Manager requests for fourth worst glock
+No value(s) available!
+
+gfs2.worst_glock.fourth.lock_type PMID: 115.4.30 [Glock type number for fourth worst glock]
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Glock type number for fourth worst glock
+No value(s) available!
+
+gfs2.worst_glock.fourth.number PMID: 115.4.31 [Inode or resource group number for fourth worst glock]
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Inode or resource group number for fourth worst glock
+No value(s) available!
+
+gfs2.worst_glock.fourth.queue PMID: 115.4.39 [Count of gfs2_holder queues for fourth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of gfs2_holder queues for fourth worst glock
+No value(s) available!
+
+gfs2.worst_glock.fourth.sirt PMID: 115.4.36 [Smoothed Inter-request time for fourth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Smoothed Inter-request time for fourth worst glock
+No value(s) available!
+
+gfs2.worst_glock.fourth.sirtvar PMID: 115.4.37 [Smoothed Inter-request variance for fourth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Smoothed Inter-request variance for fourth worst glock
+No value(s) available!
+
+gfs2.worst_glock.fourth.srtt PMID: 115.4.32 [Non-blocking smoothed round trip time for fourth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Non-blocking smoothed round trip time for fourth worst glock
+No value(s) available!
+
+gfs2.worst_glock.fourth.srttb PMID: 115.4.34 [Blocking smoothed round trip time for fourth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Blocking smoothed round trip time for fourth worst glock
+No value(s) available!
+
+gfs2.worst_glock.fourth.srttvar PMID: 115.4.33 [Non-blocking smoothed variance for fourth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Non-blocking smoothed variance for fourth worst glock
+No value(s) available!
+
+gfs2.worst_glock.fourth.srttvarb PMID: 115.4.35 [Blocking smoothed variance for fourth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Blocking smoothed variance for fourth worst glock
+No value(s) available!
+
+gfs2.worst_glock.ninth.dlm PMID: 115.4.88 [Count of Distributed Lock Manager requests for ninth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of Distributed Lock Manager requests for ninth worst glock
+No value(s) available!
+
+gfs2.worst_glock.ninth.lock_type PMID: 115.4.80 [Glock type number for ninth worst glock]
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Glock type number for ninth worst glock
+No value(s) available!
+
+gfs2.worst_glock.ninth.number PMID: 115.4.81 [Inode or resource group number for ninth worst glock]
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Inode or resource group number for ninth worst glock
+No value(s) available!
+
+gfs2.worst_glock.ninth.queue PMID: 115.4.89 [Count of gfs2_holder queues for ninth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of gfs2_holder queues for ninth worst glock
+No value(s) available!
+
+gfs2.worst_glock.ninth.sirt PMID: 115.4.86 [Smoothed Inter-request time for ninth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Smoothed Inter-request time for ninth worst glock
+No value(s) available!
+
+gfs2.worst_glock.ninth.sirtvar PMID: 115.4.87 [Smoothed Inter-request variance for ninth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Smoothed Inter-request variance for ninth worst glock
+No value(s) available!
+
+gfs2.worst_glock.ninth.srtt PMID: 115.4.82 [Non-blocking smoothed round trip time for ninth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Non-blocking smoothed round trip time for ninth worst glock
+No value(s) available!
+
+gfs2.worst_glock.ninth.srttb PMID: 115.4.84 [Blocking smoothed round trip time for ninth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Blocking smoothed round trip time for ninth worst glock
+No value(s) available!
+
+gfs2.worst_glock.ninth.srttvar PMID: 115.4.83 [Non-blocking smoothed variance for ninth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Non-blocking smoothed variance for ninth worst glock
+No value(s) available!
+
+gfs2.worst_glock.ninth.srttvarb PMID: 115.4.85 [Blocking smoothed variance for ninth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Blocking smoothed variance for ninth worst glock
+No value(s) available!
+
+gfs2.worst_glock.second.dlm PMID: 115.4.18 [Count of Distributed Lock Manager requests for second worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of Distributed Lock Manager requests for second worst glock
+No value(s) available!
+
+gfs2.worst_glock.second.lock_type PMID: 115.4.10 [Glock type number for second worst glock]
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Glock type number for second worst glock
+No value(s) available!
+
+gfs2.worst_glock.second.number PMID: 115.4.11 [Inode or resource group number for second worst glock]
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Inode or resource group number for second worst glock
+No value(s) available!
+
+gfs2.worst_glock.second.queue PMID: 115.4.19 [Count of gfs2_holder queues for second worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of gfs2_holder queues for second worst glock
+No value(s) available!
+
+gfs2.worst_glock.second.sirt PMID: 115.4.16 [Smoothed Inter-request time for second worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Smoothed Inter-request time for second worst glock
+No value(s) available!
+
+gfs2.worst_glock.second.sirtvar PMID: 115.4.17 [Smoothed Inter-request variance for second worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Smoothed Inter-request variance for second worst glock
+No value(s) available!
+
+gfs2.worst_glock.second.srtt PMID: 115.4.12 [Non-blocking smoothed round trip time for second worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Non-blocking smoothed round trip time for second worst glock
+No value(s) available!
+
+gfs2.worst_glock.second.srttb PMID: 115.4.14 [Blocking smoothed round trip time for second worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Blocking smoothed round trip time for second worst glock
+No value(s) available!
+
+gfs2.worst_glock.second.srttvar PMID: 115.4.13 [Non-blocking smoothed variance for second worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Non-blocking smoothed variance for second worst glock
+No value(s) available!
+
+gfs2.worst_glock.second.srttvarb PMID: 115.4.15 [Blocking smoothed variance for second worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Blocking smoothed variance for second worst glock
+No value(s) available!
+
+gfs2.worst_glock.seventh.dlm PMID: 115.4.68 [Count of Distributed Lock Manager requests for seventh worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of Distributed Lock Manager requests for seventh worst glock
+No value(s) available!
+
+gfs2.worst_glock.seventh.lock_type PMID: 115.4.60 [Glock type number for seventh worst glock]
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Glock type number for seventh worst glock
+No value(s) available!
+
+gfs2.worst_glock.seventh.number PMID: 115.4.61 [Inode or resource group number for seventh worst glock]
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Inode or resource group number for seventh worst glock
+No value(s) available!
+
+gfs2.worst_glock.seventh.queue PMID: 115.4.69 [Count of gfs2_holder queues for seventh worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of gfs2_holder queues for seventh worst glock
+No value(s) available!
+
+gfs2.worst_glock.seventh.sirt PMID: 115.4.66 [Smoothed Inter-request time for seventh worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Smoothed Inter-request time for seventh worst glock
+No value(s) available!
+
+gfs2.worst_glock.seventh.sirtvar PMID: 115.4.67 [Smoothed Inter-request variance for seventh worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Smoothed Inter-request variance for seventh worst glock
+No value(s) available!
+
+gfs2.worst_glock.seventh.srtt PMID: 115.4.62 [Non-blocking smoothed round trip time for seventh worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Non-blocking smoothed round trip time for seventh worst glock
+No value(s) available!
+
+gfs2.worst_glock.seventh.srttb PMID: 115.4.64 [Blocking smoothed round trip time for seventh worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Blocking smoothed round trip time for seventh worst glock
+No value(s) available!
+
+gfs2.worst_glock.seventh.srttvar PMID: 115.4.63 [Non-blocking smoothed variance for seventh worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Non-blocking smoothed variance for seventh worst glock
+No value(s) available!
+
+gfs2.worst_glock.seventh.srttvarb PMID: 115.4.65 [Blocking smoothed variance for seventh worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Blocking smoothed variance for seventh worst glock
+No value(s) available!
+
+gfs2.worst_glock.sixth.dlm PMID: 115.4.58 [Count of Distributed Lock Manager requests for sixth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of Distributed Lock Manager requests for sixth worst glock
+No value(s) available!
+
+gfs2.worst_glock.sixth.lock_type PMID: 115.4.50 [Glock type number for sixth worst glock]
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Glock type number for sixth worst glock
+No value(s) available!
+
+gfs2.worst_glock.sixth.number PMID: 115.4.51 [Inode or resource group number for sixth worst glock]
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Inode or resource group number for sixth worst glock
+No value(s) available!
+
+gfs2.worst_glock.sixth.queue PMID: 115.4.59 [Count of gfs2_holder queues for sixth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of gfs2_holder queues for sixth worst glock
+No value(s) available!
+
+gfs2.worst_glock.sixth.sirt PMID: 115.4.56 [Smoothed Inter-request time for sixth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Smoothed Inter-request time for sixth worst glock
+No value(s) available!
+
+gfs2.worst_glock.sixth.sirtvar PMID: 115.4.57 [Smoothed Inter-request variance for sixth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Smoothed Inter-request variance for sixth worst glock
+No value(s) available!
+
+gfs2.worst_glock.sixth.srtt PMID: 115.4.52 [Non-blocking smoothed round trip time for sixth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Non-blocking smoothed round trip time for sixth worst glock
+No value(s) available!
+
+gfs2.worst_glock.sixth.srttb PMID: 115.4.54 [Blocking smoothed round trip time for sixth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Blocking smoothed round trip time for sixth worst glock
+No value(s) available!
+
+gfs2.worst_glock.sixth.srttvar PMID: 115.4.53 [Non-blocking smoothed variance for sixth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Non-blocking smoothed variance for sixth worst glock
+No value(s) available!
+
+gfs2.worst_glock.sixth.srttvarb PMID: 115.4.55 [Blocking smoothed variance for sixth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Blocking smoothed variance for sixth worst glock
+No value(s) available!
+
+gfs2.worst_glock.tenth.dlm PMID: 115.4.98 [Count of Distributed Lock Manager requests for tenth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of Distributed Lock Manager requests for tenth worst glock
+No value(s) available!
+
+gfs2.worst_glock.tenth.lock_type PMID: 115.4.90 [Glock type number for tenth worst glock]
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Glock type number for tenth worst glock
+No value(s) available!
+
+gfs2.worst_glock.tenth.number PMID: 115.4.91 [Inode or resource group number for tenth worst glock]
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Inode or resource group number for tenth worst glock
+No value(s) available!
+
+gfs2.worst_glock.tenth.queue PMID: 115.4.99 [Count of gfs2_holder queues for tenth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of gfs2_holder queues for tenth worst glock
+No value(s) available!
+
+gfs2.worst_glock.tenth.sirt PMID: 115.4.96 [Smoothed Inter-request time for tenth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Smoothed Inter-request time for tenth worst glock
+No value(s) available!
+
+gfs2.worst_glock.tenth.sirtvar PMID: 115.4.97 [Smoothed Inter-request variance for tenth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Smoothed Inter-request variance for tenth worst glock
+No value(s) available!
+
+gfs2.worst_glock.tenth.srtt PMID: 115.4.92 [Non-blocking smoothed round trip time for tenth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Non-blocking smoothed round trip time for tenth worst glock
+No value(s) available!
+
+gfs2.worst_glock.tenth.srttb PMID: 115.4.94 [Blocking smoothed round trip time for tenth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Blocking smoothed round trip time for tenth worst glock
+No value(s) available!
+
+gfs2.worst_glock.tenth.srttvar PMID: 115.4.93 [Non-blocking smoothed variance for tenth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Non-blocking smoothed variance for tenth worst glock
+No value(s) available!
+
+gfs2.worst_glock.tenth.srttvarb PMID: 115.4.95 [Blocking smoothed variance for tenth worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Blocking smoothed variance for tenth worst glock
+No value(s) available!
+
+gfs2.worst_glock.third.dlm PMID: 115.4.28 [Count of Distributed Lock Manager requests for third worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of Distributed Lock Manager requests for third worst glock
+No value(s) available!
+
+gfs2.worst_glock.third.lock_type PMID: 115.4.20 [Glock type number for third worst glock]
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Glock type number for third worst glock
+No value(s) available!
+
+gfs2.worst_glock.third.number PMID: 115.4.21 [Inode or resource group number for third worst glock]
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Inode or resource group number for third worst glock
+No value(s) available!
+
+gfs2.worst_glock.third.queue PMID: 115.4.29 [Count of gfs2_holder queues for third worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Count of gfs2_holder queues for third worst glock
+No value(s) available!
+
+gfs2.worst_glock.third.sirt PMID: 115.4.26 [Smoothed Inter-request time for third worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Smoothed Inter-request time for third worst glock
+No value(s) available!
+
+gfs2.worst_glock.third.sirtvar PMID: 115.4.27 [Smoothed Inter-request variance for third worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Smoothed Inter-request variance for third worst glock
+No value(s) available!
+
+gfs2.worst_glock.third.srtt PMID: 115.4.22 [Non-blocking smoothed round trip time for third worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Non-blocking smoothed round trip time for third worst glock
+No value(s) available!
+
+gfs2.worst_glock.third.srttb PMID: 115.4.24 [Blocking smoothed round trip time for third worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Blocking smoothed round trip time for third worst glock
+No value(s) available!
+
+gfs2.worst_glock.third.srttvar PMID: 115.4.23 [Non-blocking smoothed variance for third worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Non-blocking smoothed variance for third worst glock
+No value(s) available!
+
+gfs2.worst_glock.third.srttvarb PMID: 115.4.25 [Blocking smoothed variance for third worst glock]
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+Help:
+Blocking smoothed variance for third worst glock
+No value(s) available!
+== Checking with valgrind - gfs2-root-001.tgz
+=== std out ===
+
+gfs2.glocks.total
+    inst [0 or "loop0"] value 29
+
+gfs2.sbstats.journal.queue
+    inst [0 or "loop0"] value 1
+
+gfs2.sbstats.journal.dlm
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.journal.sirtvar
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.journal.sirt
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.journal.srttvarb
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.journal.srttb
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.journal.srttvar
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.journal.srtt
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.quota.queue
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.quota.dlm
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.quota.sirtvar
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.quota.sirt
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.quota.srttvarb
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.quota.srttb
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.quota.srttvar
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.quota.srtt
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.plock.queue
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.plock.dlm
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.plock.sirtvar
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.plock.sirt
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.plock.srttvarb
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.plock.srttb
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.plock.srttvar
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.plock.srtt
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.flock.queue
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.flock.dlm
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.flock.sirtvar
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.flock.sirt
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.flock.srttvarb
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.flock.srttb
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.flock.srttvar
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.flock.srtt
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.iopen.queue
+    inst [0 or "loop0"] value 11
+
+gfs2.sbstats.iopen.dlm
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.iopen.sirtvar
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.iopen.sirt
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.iopen.srttvarb
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.iopen.srttb
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.iopen.srttvar
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.iopen.srtt
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.meta.queue
+    inst [0 or "loop0"] value 1
+
+gfs2.sbstats.meta.dlm
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.meta.sirtvar
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.meta.sirt
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.meta.srttvarb
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.meta.srttb
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.meta.srttvar
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.meta.srtt
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.rgrp.queue
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.rgrp.dlm
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.rgrp.sirtvar
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.rgrp.sirt
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.rgrp.srttvarb
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.rgrp.srttb
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.rgrp.srttvar
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.rgrp.srtt
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.inode.queue
+    inst [0 or "loop0"] value 38
+
+gfs2.sbstats.inode.dlm
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.inode.sirtvar
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.inode.sirt
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.inode.srttvarb
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.inode.srttb
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.inode.srttvar
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.inode.srtt
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.nondisk.queue
+    inst [0 or "loop0"] value 3
+
+gfs2.sbstats.nondisk.dlm
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.nondisk.sirtvar
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.nondisk.sirt
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.nondisk.srttvarb
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.nondisk.srttb
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.nondisk.srttvar
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.nondisk.srtt
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.reserved.queue
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.reserved.dlm
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.reserved.sirtvar
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.reserved.sirt
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.reserved.srttvarb
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.reserved.srttb
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.reserved.srttvar
+    inst [0 or "loop0"] value 0
+
+gfs2.sbstats.reserved.srtt
+    inst [0 or "loop0"] value 0
+
+gfs2.holders.total
+    inst [0 or "loop0"] value 14
+
+gfs2.glstats.total
+    inst [0 or "loop0"] value 29
+
+gfs2.tracepoints.glock_state_change.total
+    inst [0 or "loop0"] value 0
+
+gfs2.latency.grant.all
+No value(s) available!
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,115,PCP_PMDAS_DIR/gfs2/pmda_gfs2.so,gfs2_init -f gfs2.glocks.total gfs2.sbstats gfs2.holders.total gfs2.glstats.total gfs2.tracepoints.glock_state_change.total gfs2.latency.grant.all
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+
