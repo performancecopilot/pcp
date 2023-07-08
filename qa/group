@@ -1924,6 +1924,7 @@ x11
 1469 pmlogsummary local valgrind
 1470 pmval local valgrind
 1471 pmda.linux local
+1472 pmcd pmda.sample local
 1475 pmda.bpf local
 1480 pmda.lmsensors local
 1486 logutil local
