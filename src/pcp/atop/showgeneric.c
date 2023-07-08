@@ -1045,6 +1045,16 @@ text_samp(double sampletime, double nsecs,
 			   case MBARGRAPH:
 				erase();
 				refresh();
+
+				if (tpcumlist) free(tpcumlist);
+				if (pcumlist)  free(pcumlist);
+				if (tucumlist) free(tucumlist);
+				if (ucumlist)  free(ucumlist);
+				if (tccumlist) free(tccumlist);
+				if (ccumlist)  free(ccumlist);
+				if (tsklist)   free(tsklist);
+				if (sellist)   free(sellist);
+
 				return lastchar;
 
 			   /*
