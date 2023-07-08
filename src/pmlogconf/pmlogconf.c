@@ -10,6 +10,10 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+ *
+ * Debug flags:
+ * appl0	group file operations
+ * appl1	probe operations
  */
 #include "pmlogconf.h"
 
@@ -501,14 +505,23 @@ fetch_groups(void)
     if ((sts = pmLookupName(count, names, pmids)) < 0) {
 	if (count == 1)
 	    groups[0].pmid = PM_ID_NULL;
-	else
+	else {
+	    int		j;
 	    fprintf(stderr, "%s: cannot lookup metric names: %s\n",
 			    pmGetProgname(), pmErrStr(sts));
+	    for (j = 0; j < count; j++) {
+		fprintf(stderr, "name[%d] %s\n", j, names[j]);
+	    }
+	}
 	free(descs);
     }
     else if ((sts = pmFetch(count, pmids, &result)) < 0) {
+	int	j;
 	fprintf(stderr, "%s: cannot fetch metric values: %s\n",
 			pmGetProgname(), pmErrStr(sts));
+	for (j = 0; j < count; j++) {
+	    fprintf(stderr, "name[%d] %s (PMID %s)\n", j, names[j], pmIDStr(pmids[j]));
+	}
 	free(descs);
     }
     else {
@@ -734,8 +747,11 @@ evaluate_number_values(group_t *group, int type, numeric_cmp_t compare)
     char		*endnum;
     int			sts;
 
-    if ((vsp = metric_values(group->pmid)) == NULL)
+    if ((vsp = metric_values(group->pmid)) == NULL) {
+	if (pmDebugOptions.appl1)
+	    fprintf(stderr, "evaluate_number_values: PMID %s: not in values hash\n", pmIDStr(group->pmid));
 	return 0;
+    }
 
     given = strtod(group->value, &endnum);
     if (*endnum != '\0') {
@@ -744,13 +760,29 @@ evaluate_number_values(group_t *group, int type, numeric_cmp_t compare)
 	return -EINVAL;
     }
 
+    if (pmDebugOptions.appl1) {
+	if (vsp->numval == 0)
+	    fprintf(stderr, "evaluate_number_values: PMID %s: no values\n", pmIDStr(group->pmid));
+	else if (vsp->numval < 0)
+	    fprintf(stderr, "evaluate_number_values: PMID %s: numval error: %s\n", pmIDStr(group->pmid), pmErrStr(vsp->numval));
+    }
+
     /* iterate over all available values looking for any possible match */
     for (i = found = 0; i < vsp->numval; i++) {
+	int	lsts;
 	vp = &vsp->vlist[i];
-	if (pmExtractValue(vsp->valfmt, vp, type, &atom, PM_TYPE_DOUBLE) < 0)
+	if ((lsts = pmExtractValue(vsp->valfmt, vp, type, &atom, PM_TYPE_DOUBLE)) < 0) {
+	    if (pmDebugOptions.appl1)
+		fprintf(stderr, "evaluate_number_values: PMID %s: extract error: %s\n", pmIDStr(group->pmid), pmErrStr(lsts));
 	    continue;
-	if ((sts = compare(atom.d, given)) == 0)
+	}
+	if ((sts = compare(atom.d, given)) == 0) {
+	    if (pmDebugOptions.appl1)
+		fprintf(stderr, "evaluate_number_values: PMID %s: %f no match %f\n", pmIDStr(group->pmid), atom.d, given);
 	    continue;
+	}
+	if (pmDebugOptions.appl1)
+	    fprintf(stderr, "evaluate_number_values: PMID %s: match %f\n", pmIDStr(group->pmid), given);
 	found = sts;
 	break;
     }
@@ -767,18 +799,35 @@ evaluate_string_values(group_t *group, string_cmp_t compare)
     const int		type = PM_TYPE_STRING;
     int			sts;
 
-    if ((vsp = metric_values(group->pmid)) == NULL)
+    if ((vsp = metric_values(group->pmid)) == NULL) {
+	if (pmDebugOptions.appl1)
+	    fprintf(stderr, "evaluate_string_values: PMID %s: not in values hash\n", pmIDStr(group->pmid));
 	return 0;
+    }
 
+    if (pmDebugOptions.appl1) {
+	if (vsp->numval == 0)
+	    fprintf(stderr, "evaluate_string_values: PMID %s: no values\n", pmIDStr(group->pmid));
+	else if (vsp->numval < 0)
+	    fprintf(stderr, "evaluate_string_values: PMID %s: numval error: %s\n", pmIDStr(group->pmid), pmErrStr(vsp->numval));
+    }
     /* iterate over all available values looking for any possible match */
     for (i = found = 0; i < vsp->numval; i++) {
+	int	lsts;
 	vp = &vsp->vlist[i];
-	if (pmExtractValue(vsp->valfmt, vp, type, &atom, type) < 0)
+	if ((lsts = pmExtractValue(vsp->valfmt, vp, type, &atom, type)) < 0) {
+	    if (pmDebugOptions.appl1)
+		fprintf(stderr, "evaluate_string_values: PMID %s: extract error: %s\n", pmIDStr(group->pmid), pmErrStr(lsts));
 	    continue;
+	}
 	if ((sts = compare(atom.cp, group->value)) == 0) {
+	    if (pmDebugOptions.appl1)
+		fprintf(stderr, "evaluate_string_values: PMID %s: \"%s\" no match \"%s\"\n", pmIDStr(group->pmid), atom.cp, group->value);
 	    free(atom.cp);
 	    continue;
 	}
+	if (pmDebugOptions.appl1)
+	    fprintf(stderr, "evaluate_string_values: PMID %s: match \"%s\"\n", pmIDStr(group->pmid), group->value);
 	free(atom.cp);
 	found = sts;
 	break;
@@ -827,9 +876,16 @@ evaluate_string_regexp(group_t *group, regex_cmp_t compare)
     regex_t		regex;
     int			sts, type;
 
-    if ((vsp = metric_values(group->pmid)) == NULL ||
-        (dp = metric_desc(group->pmid)) == NULL)
+    if ((vsp = metric_values(group->pmid)) == NULL) {
+	if (pmDebugOptions.appl1)
+	    fprintf(stderr, "evaluate_string_regexp: PMID %s: not in values hash\n", pmIDStr(group->pmid));
 	return 0;
+    }
+    if ((dp = metric_desc(group->pmid)) == NULL) {
+	if (pmDebugOptions.appl1)
+	    fprintf(stderr, "evaluate_string_regexp: PMID %s: not in desc hash\n", pmIDStr(group->pmid));
+	return 0;
+    }
 
     type = dp->type;
     if (type < 0 || type > PM_TYPE_STRING) {
@@ -844,18 +900,35 @@ evaluate_string_regexp(group_t *group, regex_cmp_t compare)
 	return -EINVAL;
     }
 
+    if (pmDebugOptions.appl1) {
+	if (vsp->numval == 0)
+	    fprintf(stderr, "evaluate_string_regexp: PMID %s: no values\n", pmIDStr(group->pmid));
+	else if (vsp->numval < 0)
+	    fprintf(stderr, "evaluate_string_regexp: PMID %s: numval error: %s\n", pmIDStr(group->pmid), pmErrStr(vsp->numval));
+    }
     /* iterate over all available values looking for any possible match */
     for (i = found = 0; i < vsp->numval; i++) {
+	int	lsts;
 	vp = &vsp->vlist[i];
-	if (pmExtractValue(vsp->valfmt, vp, type, &atom, type) < 0)
+	if ((lsts = pmExtractValue(vsp->valfmt, vp, type, &atom, type)) < 0) {
+	    if (pmDebugOptions.appl1)
+		fprintf(stderr, "evaluate_string_regexp: PMID %s: extract error: %s\n", pmIDStr(group->pmid), pmErrStr(lsts));
 	    continue;
+	}
 	if (type != PM_TYPE_STRING &&
-	    (atom.cp = number_to_string(&atom, type)) == NULL)
+	    (atom.cp = number_to_string(&atom, type)) == NULL) {
+	    if (pmDebugOptions.appl1)
+		fprintf(stderr, "evaluate_string_regexp: PMID %s: number_to_string error\n", pmIDStr(group->pmid));
 	    continue;
+	}
 	if ((sts = compare(&regex, atom.cp)) == 0) {
+	    if (pmDebugOptions.appl1)
+		fprintf(stderr, "evaluate_string_regexp: PMID %s: \"%s\" no match \"%s\"\n", pmIDStr(group->pmid), atom.cp, group->value);
 	    free(atom.cp);
 	    continue;
 	}
+	if (pmDebugOptions.appl1)
+	    fprintf(stderr, "evaluate_string_regexp: PMID %s: \"%s\" match \"%s\"\n", pmIDStr(group->pmid), atom.cp, group->value);
 	free(atom.cp);
 	found = sts;
 	break;
