@@ -1171,7 +1171,7 @@ traverse_dynamic(ClientInfo *cp, char *start, int *num_names, char ***names)
 			__pmUnpinPDUBuf(pb);
 		}
 		else {
-		    /* __pmSendChildReq failed */
+		    /* __pmSendTraversePMNSReq failed */
 		    sts = __pmMapErrno(sts);
 		    fdfail = ap->inFd;
 		}
