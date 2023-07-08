@@ -92,7 +92,7 @@ pmLookupName -> 3
 swap valid dynamic metric for invalid dynamic metrics ...
 pmLookupName -> 2
 [0] sampledso.drift 30.0.7
-[1] sampledso.secret PM_ID_NULL (Unknown metric name)
+[1] sampledso.secret PM_ID_NULL (Metric name is not a leaf in PMNS)
 [2] sampledso.secret.foo.zero PM_ID_NULL (Unknown metric name)
 [3] sampledso.bin 30.0.6
 
@@ -106,7 +106,7 @@ pmLookupName -> 3
 Using host context: HOST
 pmLookupName -> 2
 [0] sampledso.drift 30.0.7
-[1] sampledso.secret PM_ID_NULL (Unknown metric name)
+[1] sampledso.secret PM_ID_NULL (Metric name is not a leaf in PMNS)
 [2] sampledso.secret.foo.zero PM_ID_NULL (Unknown metric name)
 [3] sampledso.bin 30.0.6
 

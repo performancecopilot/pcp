@@ -1,6 +1,7 @@
 QA output created by 468
 PMNS traversal tests ...
 sample.secret.bar
+sample.secret.family
 sample.secret.foo.bar.four
 sample.secret.foo.bar.grunt.five
 sample.secret.foo.bar.grunt.snort.huff.puff.seven
@@ -11,12 +12,12 @@ sample.secret.foo.one
 sample.secret.foo.two
 
 == sample.secret ==
-Time HOST:sample.secret.bar HOST:sample.secret.foo.one HOST:sample.secret.foo.two HOST:sample.secret.foo.bar.three HOST:sample.secret.foo.bar.four HOST:sample.secret.foo.bar.grunt.five HOST:sample.secret.foo.bar.grunt.snort.six HOST:sample.secret.foo.bar.grunt.snort.huff.puff.seven 
-? 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 
-none none count count count count count count count 
-DATE "foo" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
-DATE "foo" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
-DATE "foo" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
+Time HOST:sample.secret.bar HOST:sample.secret.family["colleen"] HOST:sample.secret.family["terry"] HOST:sample.secret.family["emma"] HOST:sample.secret.family["cathy"] HOST:sample.secret.family["fat HOST:sample.secret.foo.one HOST:sample.secret.foo.two HOST:sample.secret.foo.bar.three HOST:sample.secret.foo.bar.four HOST:sample.secret.foo.bar.grunt.five HOST:sample.secret.foo.bar.grunt.snort.six HOST:sample.secret.foo.bar.grunt.snort.huff.puff.seven 
+? 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 
+none none none none none none none count count count count count count count 
+DATE "foo" "05" "05" "09" "09" "26" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
+DATE "foo" "05" "05" "09" "09" "26" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
+DATE "foo" "05" "05" "09" "09" "26" 1.000 2.000 3.000 4.000 5.000 6.000 7.000 
 
 == sample.secret.bar sample.secret.foo ==
 Time HOST:sample.secret.bar HOST:sample.secret.foo.one HOST:sample.secret.foo.two HOST:sample.secret.foo.bar.three HOST:sample.secret.foo.bar.four HOST:sample.secret.foo.bar.grunt.five HOST:sample.secret.foo.bar.grunt.snort.six HOST:sample.secret.foo.bar.grunt.snort.huff.puff.seven 

@@ -39,11 +39,13 @@ sample.xmit_pdu 1
 sample.noinst 0
 sample.needprofile -12365 Explicit instance identifier(s) required
 sample.not_ready 1
+sample.not_ready_msec 1
 sample.rapid 1
 sample.error_code 1
 sample.error_check 1
 sample.secret.foo.bar.max.redirect NUMBER ...
 sample.secret.bar 1
+sample.secret.family 5
 sample.secret.foo.one 1
 sample.secret.foo.two 1
 sample.secret.foo.bar.three 1
@@ -219,11 +221,13 @@ sample.xmit_pdu 1 PM_IN_NULL
 sample.noinst 0
 sample.needprofile -12365 Explicit instance identifier(s) required
 sample.not_ready 1 PM_IN_NULL
+sample.not_ready_msec 1 PM_IN_NULL
 sample.rapid 1 PM_IN_NULL
 sample.error_code 1 PM_IN_NULL
 sample.error_check 1 PM_IN_NULL
 sample.secret.foo.bar.max.redirect NUMBER ...
 sample.secret.bar 1 PM_IN_NULL
+sample.secret.family 5 ?0 ?1 ?2 ?3 ?4
 sample.secret.foo.one 1 PM_IN_NULL
 sample.secret.foo.two 1 PM_IN_NULL
 sample.secret.foo.bar.three 1 PM_IN_NULL
@@ -429,11 +433,13 @@ sample.xmit_pdu 1 PM_IN_NULL
 sample.noinst 0
 sample.needprofile -12365 Explicit instance identifier(s) required
 sample.not_ready 1 PM_IN_NULL
+sample.not_ready_msec 1 PM_IN_NULL
 sample.rapid 1 PM_IN_NULL
 sample.error_code 1 PM_IN_NULL
 sample.error_check 1 PM_IN_NULL
 sample.secret.foo.bar.max.redirect NUMBER ...
 sample.secret.bar 1 PM_IN_NULL
+sample.secret.family 5 "colleen" "terry" "emma" "cathy" "fat bald bastard"
 sample.secret.foo.one 1 PM_IN_NULL
 sample.secret.foo.two 1 PM_IN_NULL
 sample.secret.foo.bar.three 1 PM_IN_NULL
@@ -645,11 +651,13 @@ sample.xmit_pdu 1 NUMBER
 sample.noinst 0
 sample.needprofile -12365 Explicit instance identifier(s) required
 sample.not_ready 1 0
+sample.not_ready_msec 1 0
 sample.rapid 1 NUMBER
 sample.error_code 1 0
 sample.error_check 1 0
 sample.secret.foo.bar.max.redirect NUMBER ...
 sample.secret.bar 1 "foo"
+sample.secret.family 5 "05" "05" "09" "09" "26"
 sample.secret.foo.one 1 1
 sample.secret.foo.two 1 2
 sample.secret.foo.bar.three 1 3
@@ -847,11 +855,13 @@ sample.xmit_pdu 1 PM_IN_NULL PM_IN_NULL
 sample.noinst 0
 sample.needprofile -12365 Explicit instance identifier(s) required
 sample.not_ready 1 PM_IN_NULL PM_IN_NULL
+sample.not_ready_msec 1 PM_IN_NULL PM_IN_NULL
 sample.rapid 1 PM_IN_NULL PM_IN_NULL
 sample.error_code 1 PM_IN_NULL PM_IN_NULL
 sample.error_check 1 PM_IN_NULL PM_IN_NULL
 sample.secret.foo.bar.max.redirect NUMBER ...
 sample.secret.bar 1 PM_IN_NULL PM_IN_NULL
+sample.secret.family 5 ?0 "colleen" ?1 "terry" ?2 "emma" ?3 "cathy" ?4 "fat bald bastard"
 sample.secret.foo.one 1 PM_IN_NULL PM_IN_NULL
 sample.secret.foo.two 1 PM_IN_NULL PM_IN_NULL
 sample.secret.foo.bar.three 1 PM_IN_NULL PM_IN_NULL

@@ -1,6 +1,7 @@
 QA output created by 211
 PMNS traversal tests ...
 sample.secret.bar
+sample.secret.family
 sample.secret.foo.bar.four
 sample.secret.foo.bar.grunt.five
 sample.secret.foo.bar.grunt.snort.huff.puff.seven
@@ -12,6 +13,7 @@ sample.secret.foo.two
 
 == sample.secret ==
 sample.secret.bar
+sample.secret.family
 sample.secret.foo.bar.four
 sample.secret.foo.bar.grunt.five
 sample.secret.foo.bar.grunt.snort.huff.puff.seven
@@ -21,6 +23,7 @@ sample.secret.foo.bar.three
 sample.secret.foo.one
 sample.secret.foo.two
 sample.secret.bar 1 "foo"
+sample.secret.family 5 "05" "05" "09" "09" "26"
 sample.secret.foo.bar.four 1 4
 sample.secret.foo.bar.grunt.five 1 5
 sample.secret.foo.bar.grunt.snort.huff.puff.seven 1 7

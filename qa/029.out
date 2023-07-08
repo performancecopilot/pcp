@@ -126,6 +126,7 @@ PMID: 30.0.3 (sampledso.milliseconds)
 2 sampledso.negative.instant.m_float
 2 sampledso.noinst
 2 sampledso.not_ready
+2 sampledso.not_ready_msec
 2 sampledso.part_bin
 2 sampledso.pdu
 2 sampledso.percontext.control.active
@@ -312,6 +313,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 2 sampledso.negative.instant.m_float
 2 sampledso.noinst
 2 sampledso.not_ready
+2 sampledso.not_ready_msec
 2 sampledso.part_bin
 2 sampledso.pdu
 2 sampledso.percontext.control.active
@@ -484,6 +486,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 0 sampledso.negative.instant.m_float
 0 sampledso.noinst
 0 sampledso.not_ready
+0 sampledso.not_ready_msec
 0 sampledso.part_bin
 0 sampledso.pdu
 0 sampledso.percontext.control.active
@@ -655,6 +658,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 1 sampledso.negative.instant.m_float
 1 sampledso.noinst
 1 sampledso.not_ready
+1 sampledso.not_ready_msec
 1 sampledso.part_bin
 1 sampledso.pdu
 1 sampledso.percontext.control.active
@@ -826,6 +830,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 2 sampledso.negative.instant.m_float
 2 sampledso.noinst
 2 sampledso.not_ready
+2 sampledso.not_ready_msec
 2 sampledso.part_bin
 2 sampledso.pdu
 2 sampledso.percontext.control.active
@@ -998,6 +1003,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 0 sampledso.negative.instant.m_float
 0 sampledso.noinst
 0 sampledso.not_ready
+0 sampledso.not_ready_msec
 0 sampledso.part_bin
 0 sampledso.pdu
 0 sampledso.percontext.control.active
@@ -1169,6 +1175,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 1 sampledso.negative.instant.m_float
 1 sampledso.noinst
 1 sampledso.not_ready
+1 sampledso.not_ready_msec
 1 sampledso.part_bin
 1 sampledso.pdu
 1 sampledso.percontext.control.active
@@ -1340,6 +1347,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 2 sampledso.negative.instant.m_float
 2 sampledso.noinst
 2 sampledso.not_ready
+2 sampledso.not_ready_msec
 2 sampledso.part_bin
 2 sampledso.pdu
 2 sampledso.percontext.control.active
@@ -1563,6 +1571,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 0 sampledso.negative.instant.m_float
 0 sampledso.noinst
 0 sampledso.not_ready
+0 sampledso.not_ready_msec
 0 sampledso.part_bin
 0 sampledso.pdu
 0 sampledso.percontext.control.active
@@ -1734,6 +1743,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 1 sampledso.negative.instant.m_float
 1 sampledso.noinst
 1 sampledso.not_ready
+1 sampledso.not_ready_msec
 1 sampledso.part_bin
 1 sampledso.pdu
 1 sampledso.percontext.control.active
@@ -1905,6 +1915,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 2 sampledso.negative.instant.m_float
 2 sampledso.noinst
 2 sampledso.not_ready
+2 sampledso.not_ready_msec
 2 sampledso.part_bin
 2 sampledso.pdu
 2 sampledso.percontext.control.active
@@ -2077,6 +2088,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 0 sampledso.negative.instant.m_float
 0 sampledso.noinst
 0 sampledso.not_ready
+0 sampledso.not_ready_msec
 0 sampledso.part_bin
 0 sampledso.pdu
 0 sampledso.percontext.control.active
@@ -2248,6 +2260,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 1 sampledso.negative.instant.m_float
 1 sampledso.noinst
 1 sampledso.not_ready
+1 sampledso.not_ready_msec
 1 sampledso.part_bin
 1 sampledso.pdu
 1 sampledso.percontext.control.active
@@ -2419,6 +2432,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 2 sampledso.negative.instant.m_float
 2 sampledso.noinst
 2 sampledso.not_ready
+2 sampledso.not_ready_msec
 2 sampledso.part_bin
 2 sampledso.pdu
 2 sampledso.percontext.control.active
