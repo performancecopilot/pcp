@@ -139,4 +139,6 @@ extern int gfs2_refresh_ftrace_stats(pmInDom);
 extern int ftrace_get_threshold();
 extern int ftrace_set_threshold(pmValueSet *vsp);
 
+extern void gfs2_tracepipe_setup(void);
+
 #endif	/*FTRACE_H*/
