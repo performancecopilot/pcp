@@ -31,3 +31,6 @@ test2{instance="{"} 10
 # TYPE test3 gauge
 test3 0
 
+# HELP systemd_unit_active_enter_time_seconds Last time the unit transitioned into the active state
+# TYPE systemd_unit_active_enter_time_seconds gauge
+systemd_unit_active_enter_time_seconds{name="dev-disk-by\\x2did-dm\\x2dname\\x2drhel_dogfood\\x2d\\x2dsat\\x2dswap.swap",type="swap"} 1.673504922151343e+09

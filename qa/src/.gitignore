@@ -173,10 +173,11 @@ nameall
 nullinst
 numberstr
 obs
+parsehighresinterval
 parsehostattrs
 parsehostspec
 parseinterval
-parsehighresinterval
+parselabels
 parsemetricspec
 permslist.old
 pcp_lite_crash
