@@ -9,6 +9,7 @@ perdisk/GNUmakefile
 pernetif/GNUmakefile
 power/GNUmakefile
 primary/GNUmakefile
+testing/GNUmakefile
 zeroconf/GNUmakefile
 pmieconf
 pmieconf.static

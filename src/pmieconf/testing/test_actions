@@ -2,7 +2,7 @@
 # --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
 #
 
-rule	primary.test_actions
+rule	testing.test_actions
 	default	= "$rule$"
 	predicate = "hinv.ncpu > 0"
 	enabled	= no
