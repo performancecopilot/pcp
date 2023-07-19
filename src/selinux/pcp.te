@@ -216,6 +216,14 @@ tunable_policy(`pcp_read_generic_logs',`
 
 allow pcp_pmproxy_t self:process setsched;
 allow pcp_pmproxy_t self:unix_dgram_socket create_socket_perms;
+allow pcp_pmproxy_t self:capability { ipc_lock ipc_owner sys_resource };
+optional_policy(`
+    require {
+	class io_uring { sqpoll };
+    }
+    #RHBZ2223568
+    allow pcp_pmproxy_t self:io_uring { sqpoll };
+')
 
 kernel_search_network_sysctl(pcp_pmproxy_t)
 
