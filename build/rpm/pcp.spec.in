@@ -358,6 +358,9 @@ Requires: pcp-pmda-openmetrics
 %if "@pmda_snmp@" == "true"
 Requires: pcp-pmda-snmp
 %endif
+%if "@pmda_mssql@" == "true"
+Requires: pcp-pmda-mssql
+%endif
 %if "@pmda_mysql@" == "true"
 Requires: pcp-pmda-mysql
 %endif
@@ -1205,6 +1208,32 @@ collecting metrics about Memcached.
 #end pcp-pmda-memcache
 %endif
 
+%if "@pmda_mssql@" == "true"
+#
+# pcp-pmda-mssql
+#
+%package pmda-mssql
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics for Microsoft SQL Server
+URL: https://pcp.io
+Requires: pcp = @package_version@ pcp-libs = @package_version@
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+%if 0%{?rhel} == 0
+Requires: python3-pyodbc
+%endif
+%else
+Requires: %{__python2}-pcp
+%if 0%{?rhel} == 0
+Requires: %{__python2}-pyodbc
+%endif
+%endif
+%description pmda-mssql
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from Microsoft SQL Server.
+# end pcp-pmda-mssql
+%endif
+
 %if "@pmda_mysql@" == "true"
 #
 # pcp-pmda-mysql
@@ -1671,30 +1700,6 @@ Obsoletes: pcp-pmda-lmsensors-debuginfo < 4.2.0
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Linux hardware monitoring sensors.
 # end pcp-pmda-lmsensors
-
-#
-# pcp-pmda-mssql
-#
-%package pmda-mssql
-License: GPL-2.0-or-later
-Summary: Performance Co-Pilot (PCP) metrics for Microsoft SQL Server
-URL: https://pcp.io
-Requires: pcp = @package_version@ pcp-libs = @package_version@
-%if "@enable_python3@" == "true"
-Requires: python3-pcp
-%if 0%{?rhel} == 0
-Requires: python3-pyodbc
-%endif
-%else
-Requires: %{__python2}-pcp
-%if 0%{?rhel} == 0
-Requires: %{__python2}-pyodbc
-%endif
-%endif
-%description pmda-mssql
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics from Microsoft SQL Server.
-# end pcp-pmda-mssql
 
 #
 # pcp-pmda-netcheck
@@ -2671,6 +2676,11 @@ done
 %{pmda_remove "$1" "snmp"}
 %endif
 
+%if "@pmda_mssql@" == "true"
+%preun pmda-mssql
+%{pmda_remove "$1" "mssql"}
+%endif
+
 %if "@pmda_mysql@" == "true"
 %preun pmda-mysql
 %{pmda_remove "$1" "mysql"}
@@ -2783,9 +2793,6 @@ done
 
 %preun pmda-lmsensors
 %{pmda_remove "$1" "lmsensors"}
-
-%preun pmda-mssql
-%{pmda_remove "$1" "mssql"}
 
 %preun pmda-netcheck
 %{pmda_remove "$1" "netcheck"}
@@ -3034,6 +3041,10 @@ fi
 
 %files pmda-lustrecomm -f pcp-pmda-lustrecomm-files.rpm
 
+%if "@pmda_mssql@" == "true"
+%files pmda-mssql -f pcp-pmda-mssql-files.rpm
+%endif
+
 %if "@pmda_mysql@" == "true"
 %files pmda-mysql -f pcp-pmda-mysql-files.rpm
 %endif
@@ -3088,8 +3099,6 @@ fi
 %files pmda-haproxy -f pcp-pmda-haproxy-files.rpm
 
 %files pmda-lmsensors -f pcp-pmda-lmsensors-files.rpm
-
-%files pmda-mssql -f pcp-pmda-mssql-files.rpm
 
 %files pmda-netcheck -f pcp-pmda-netcheck-files.rpm
 
