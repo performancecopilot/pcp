@@ -66,7 +66,7 @@ SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.sample_expr mk.tzchange mk.arch-all \
 	  mk.atop mk.hotatop mk.atop-boot mk.atop-nvidia mk.atop-threads \
 	  mk.log-derived mk.vmstat mk.rep mk.procsched \
-	  mk.ipcs mk.value-test mk.rank-pred mk.cputime \
+	  mk.ipcs mk.value-test mk.rank-pred mk.cputime mk.meminfo \
 	  mk.sample-labels mk.pmproxy mk.mmv.help
 
 CONFIGS = config.verify config.shping YWhcCi.toium.config \
