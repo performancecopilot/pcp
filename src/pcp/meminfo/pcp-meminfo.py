@@ -165,7 +165,7 @@ class MeminfoOptions(pmapi.pmOptions):
     samples = 0
 
     def __init__(self):
-        pmapi.pmOptions.__init__(self, "a:s:S:T:z:P:A:R:t:T:x:")
+        pmapi.pmOptions.__init__(self, "a:s:S:T:z:A:t:")
         self.pmSetLongOptionStart()
         self.pmSetLongOptionFinish()
         self.pmSetLongOptionHelp()
