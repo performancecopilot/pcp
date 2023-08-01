@@ -84,6 +84,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@pmda_postfix@|$(PMDA_POSTFIX)|g' \
 	    -e's|@pmda_elasticsearch@|$(PMDA_ELASTICSEARCH)|g' \
 	    -e's|@pmda_snmp@|$(PMDA_SNMP)|g' \
+	    -e's|@pmda_mssql@|$(PMDA_MSSQL)|g' \
 	    -e's|@pmda_mysql@|$(PMDA_MYSQL)|g' \
 	    -e's|@pmda_activemq@|$(PMDA_ACTIVEMQ)|g' \
 	    -e's|@pmda_bind2@|$(PMDA_BIND2)|g' \

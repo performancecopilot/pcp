@@ -1,0 +1,68 @@
+#!/bin/sh
+#
+# remake the free archive ...
+# this archive is intended to be checked in and not remade, this script is
+# simply a record of how it was created
+#
+
+. /etc/pcp.env
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat <<End-of-File >>$tmp.config
+log mandatory on 1 sec {
+    mem.physmem
+    mem.util.free
+    mem.util.available
+    mem.util.bufmem
+    mem.util.cached
+    mem.util.swapCached
+    mem.util.active
+    mem.util.inactive
+    mem.util.active_anon
+    mem.util.inactive_anon
+    mem.util.active_file
+    mem.util.inactive_file
+    mem.util.unevictable
+    mem.util.mlocked
+    mem.util.swapTotal
+    mem.util.swapFree
+    mem.util.dirty
+    mem.util.writeback
+    mem.util.anonpages
+    mem.util.mapped
+    mem.util.shared
+    mem.util.slab
+    mem.util.slabReclaimable
+    mem.util.slabUnreclaimable
+    mem.util.kernelStack
+    mem.util.pageTables
+    mem.util.NFS_Unstable
+    mem.util.bounce
+    mem.vmstat.nr_writeback_temp
+    mem.util.commitLimit
+    mem.util.committed_AS
+    mem.util.vmallocTotal
+    mem.util.vmallocUsed
+    mem.util.vmallocChunk
+    mem.util.corrupthardware
+    mem.util.anonhugepages
+    mem.vmstat.nr_shmem_hugepages
+    mem.vmstat.nr_shmem_pmdmapped
+    mem.zoneinfo.nr_free_cma
+    mem.util.hugepagesTotal
+    mem.util.hugepagesFree
+    mem.util.hugepagesRsvd
+    mem.util.hugepagesSurp
+    hinv.hugepagesize
+    mem.util.directMap4k
+    mem.util.directMap2M
+    mem.util.directMap1G
+}
+End-of-File
+
+rm -f pcp-meminfo.0 pcp-meminfo.meta pcp-meminfo.index
+
+pmlogger -s 10 -c $tmp.config pcp-meminfo

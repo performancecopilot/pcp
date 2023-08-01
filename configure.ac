@@ -893,11 +893,11 @@ AC_CHECK_PROGS(PYLINT, pylint, /bin/true)
 AC_SUBST(PYLINT)
 
 dnl check if python available for the build and runtime
-AC_CHECK_PROGS(PYTHON, [python2 python2.7 python])
+AC_CHECK_PROGS(PYTHON, [/usr/bin/python2 python2 python2.7 python])
 AC_SUBST(PYTHON)
 
 dnl check if python3 available for the build and runtime
-AC_CHECK_PROGS(PYTHON3, [python3 python3.7 python3.6 python3.4])
+AC_CHECK_PROGS(PYTHON3, [/usr/bin/python3 python3])
 AC_SUBST(PYTHON3)
 
 dnl check availability of Python header files
@@ -1123,6 +1123,8 @@ PCP_CHECK_PYTHON_MODULE(jsonpointer)
 AC_SUBST(have_python_jsonpointer)
 PCP_CHECK_PYTHON_MODULE(openpyxl)
 AC_SUBST(have_python_openpyxl)
+PCP_CHECK_PYTHON_MODULE(pyodbc)
+AC_SUBST(have_python_pyodbc)
 PCP_CHECK_PYTHON_MODULE(setuptools)
 AC_SUBST(have_python_setuptools)
 PCP_CHECK_PYTHON_MODULE(requests)
@@ -1479,6 +1481,15 @@ then
 fi
 AC_SUBST(PMDA_OPENMETRICS, $pmda_openmetrics)
 if $pmda_openmetrics; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+AC_MSG_CHECKING([if the SQL Server PMDA should be included])
+pmda_mssql=false
+if test "$have_python" = true
+then
+    $have_python_pyodbc && pmda_mssql=true
+fi
+AC_SUBST(PMDA_MSSQL, $pmda_mssql)
+if $pmda_mssql; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the libvirt PMDA should be included])
 pmda_libvirt=false
