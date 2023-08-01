@@ -1,0 +1,39 @@
+#!/bin/sh
+# PCP QA Test No. 1987
+# Exercise various pcp-meminfo(1) command options.
+#
+# Copyright (c) 2023 Oracle and/or its affiliates.
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+__version=`$python --version 2>&1 | sed -e 's/Python //'`
+case "$__version"
+in
+    2.7.5)	_notrun "Python $__version reports start seconds off-by one for some processes"
+    		;;
+esac
+
+status=1        # failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+pcp_meminfo="$PCP_BINADM_DIR/pcp-meminfo"
+test -x $pcp_meminfo || _notrun "No pcp-meminfo(1) installed"
+pcp_meminfo="$python $pcp_meminfo"
+
+# real QA test starts here
+echo && echo pcp-meminfo output : Display default output
+PCP_ARCHIVE="archives/pcp-meminfo" PCP_HOSTZONE=1 PCP_ORIGIN=1 $pcp_meminfo 
+
+archive_first="-a archives/pcp-meminfo -z -O +1"
+
+echo && echo pcp-meminfo output : Display output when given specified number of samples
+pcp $archive_first meminfo -s 3
+
+status=0
+exit
