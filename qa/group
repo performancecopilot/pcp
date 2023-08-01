@@ -370,6 +370,7 @@ pidstat
 iostat
 tapestat
 ipcs
+meminfo
 mpstat
 ps
 
@@ -2088,4 +2089,5 @@ x11
 1985 pmfind local valgrind
 1986 pmfind local
 1987 pcp ps python local
+1988 pcp meminfo python local
 4751 libpcp threads valgrind local pcp helgrind

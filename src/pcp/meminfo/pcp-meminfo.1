@@ -1,0 +1,77 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2023 Oracle and/or its affiliates.
+.\" DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PCP-MEMINFO 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-meminfo\f1 \- Report statistics for System Memory.
+.SH SYNOPSIS
+\f3pcp\f1
+[\f2pcp\ options\f1]
+\f3meminfo\f1
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-S\f1 \f2start_time\f1]
+[\f3\-T\f1 \f2end_time\f1]
+.SH DESCRIPTION
+The
+.B pcp-meminfo
+command is used for viewing the different kinds of stats related to memory.
+Using various options it helps a user to analyze useful information related to
+the memory availability.
+This information includes total memory, memory available, shared memory, etc.
+By default
+.B pcp-meminfo
+reports live data for the local host.
+.SH OPTIONS
+.TP
+\fB\-a\fP, \fB\-\-archive\fP
+Fetch /proc/meminfo for a specified archive file
+.TP
+\fB\-s\fP, \fB\-\-samples\fP
+Get the meminfo for specified number of samples count
+.TP
+\fB\-S\fP, \fB\-\-START TIME\fP
+Filter the samples from the archive from the given time
+.TP
+\fB\-T\fP, \fB\-\-END TIME\fP
+Filter the samples from the archive till the given time
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH NOTES
+.B pcp-meminfo
+collects information from
+.BR /proc/meminfo
+and aims to be command line and output compatible with it.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pcp (1),
+.BR pmParseInterval (3)
+and
+.BR environ (7).
+
