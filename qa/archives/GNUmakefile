@@ -47,8 +47,8 @@ DEFLATE = small.0.xz small.meta small.index \
 	  pcp-pidstat-process-states.index pcp-pidstat-process-args.0.xz \
 	  pcp-pidstat-process-args.index pcp-pidstat-process-args.meta.xz \
 	  pcp-pidstat-timezone.0.xz pcp-pidstat-timezone.meta.xz \
-	  pcp-pidstat-timezone.index pcp-slabinfo.0 pcp-slabinfo.index \
-	  pcp-slabinfo.meta zero_disk_activity.index  \
+	  pcp-pidstat-timezone.index pcp-slabinfo.0.xz pcp-slabinfo.index.xz \
+	  pcp-slabinfo.meta.xz zero_disk_activity.index  \
 	  zero_disk_activity.0.xz zero_disk_activity.meta.xz \
 	  dstat-disks.0.xz dstat-disks.meta.xz dstat-disks.index \
 	  dstat-diskfarm.0.xz dstat-diskfarm.meta.xz dstat-diskfarm.index \

@@ -16,7 +16,7 @@
 # pylint: disable=bad-whitespace,too-many-arguments,too-many-lines, bad-continuation
 # pylint: disable=redefined-outer-name,unnecessary-lambda
 #
-
+import signal
 import sys
 import time
 from pcp import pmapi, pmcc
@@ -189,7 +189,7 @@ if __name__ == '__main__':
         opts.context=mngr.type
         missing = mngr.checkMissingMetrics(ALL_METRICS)
         if missing is not None:
-            sys.stderr.write(F"Error:Metric is {missing} missing\n")
+            sys.stderr.write("Error:some metrics are unavailable",missing)
             sys.exit(1)
         mngr["slabinfo"] = SLABSTAT_METRICS
         mngr["sysinfo"] = SYS_MECTRICS
@@ -198,9 +198,11 @@ if __name__ == '__main__':
         sts = mngr.run()
         sys.exit(sts)
     except pmapi.pmErr as error:
-        sys.stderr.write(F"{error.progname()} {error.message()}")
+        sys.stderr.write('%s\n' % (error.message()))
     except pmapi.pmUsageErr as usage:
         usage.message()
         sys.exit(1)
+    except IOError:
+        signal.signal(signal.SIGPIPE, signal.SIG_DFL)
     except KeyboardInterrupt:
         pass

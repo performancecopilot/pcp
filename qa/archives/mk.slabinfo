@@ -31,6 +31,15 @@ log advisory on 10 seconds {
 }
 End-of-File
 
-rm -f pcp-slabinfo.0  pcp-slabinfo.index  pcp-slabinfo.meta
+rm -f pcp-slabinfo.0  pcp-slabinfo.index  pcp-slabinfo.meta pcp-slabinfo.*
 
-pmlogger -T 60sec -t 10sec -c $tmp.config pcp-slabinfo
+if pmlogger -T 60sec -t 10sec -c $tmp.config pcp-slabinfo; then
+        xz pcp-slabinfo.0
+        xz pcp-slabinfo.index
+        xz pcp-slabinfo.meta
+else
+    echo "Argh: pmlogger failed ..."
+    cat pmlogger.log
+fi
+
+

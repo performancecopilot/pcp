@@ -1,4 +1,3 @@
-@@ -0,0 +1,39 @@
 #!/bin/sh
 # PCP QA Test No. 1989
 # Exercise various pcp-slabinfo(1) command options.
@@ -23,6 +22,7 @@ status=1        # failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
+pcp_slabinfo="$PCP_BINADM_DIR/pcp-slabinfo"
 test -x $pcp_slabinfo || _notrun "No pcp-slabinfo(1) installed"
 pcp_slabinfo="$python $pcp_slabinfo"
 
