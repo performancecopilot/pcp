@@ -43,6 +43,7 @@ DEFLATE = small.0.xz small.meta small.index \
 	  value-test.0.xz value-test.meta value-test.index \
 	  coverage.0.xz coverage.meta coverage.index \
 	  bozo-20170904.0.xz bozo-20170904.meta bozo-20170904.index \
+	  pcp-buddyinfo.0.xz pcp-buddyinfo.index.xz pcp-buddyinfo.meta.xz \
 	  pcp-pidstat-process-states.0.xz pcp-pidstat-process-states.meta \
 	  pcp-pidstat-process-states.index pcp-pidstat-process-args.0.xz \
 	  pcp-pidstat-process-args.index pcp-pidstat-process-args.meta.xz \
