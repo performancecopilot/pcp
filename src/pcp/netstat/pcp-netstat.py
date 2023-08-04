@@ -222,7 +222,6 @@ ICMP_METRICS = [
             "network.icmp.outdestunreachs"]
             # "echo replies"]
 
-
 ICMP_METRICS_DESC = [
             "__ ICMP messages received",
             "__ Input ICMP message failed",
@@ -244,7 +243,6 @@ ICMP_MSG_METRICS_DESC = [
             # "\tInType8: __",
             "\tOutType0: __"]
             # "\tOutType3: __"]
-
 
 UDP_METRICS = [
             "network.udp.indatagrams",
@@ -299,7 +297,6 @@ IFACE_METRICS = [
 METRICS = IP_METRICS + ICMP_METRICS + ICMP_MSG_METRICS + TCP_METRICS + UDP_METRICS + UDP_LITE_METRICS + TCP_EXT_METRICS + IP_EXT_METRICS
 METRICS_DESC = IP_METRICS_DESC + ICMP_METRICS_DESC + ICMP_MSG_METRICS_DESC + TCP_METRICS_DESC + UDP_METRICS_DESC + UDP_LITE_METRICS_DESC + TCP_EXT_METRICS_DESC + IP_EXT_METRICS_DESC
 
-
 METRICS_DICT = OrderedDict()
 
 METRICS_DICT["Ip_METRICS"] = [IP_METRICS, IP_METRICS_DESC]
@@ -310,6 +307,7 @@ METRICS_DICT["Udp_METRICS"] = [UDP_METRICS, UDP_METRICS_DESC]
 METRICS_DICT["UdpLite_METRICS"] = [UDP_LITE_METRICS, UDP_LITE_METRICS_DESC]
 METRICS_DICT["TcpExt_METRICS"] = [TCP_EXT_METRICS, TCP_EXT_METRICS_DESC]
 METRICS_DICT["IpExt_METRICS"] = [IP_EXT_METRICS, IP_EXT_METRICS_DESC]
+
 MISSING_METRICS = []
 
 class NestatReport(pmcc.MetricGroupPrinter):
@@ -372,7 +370,7 @@ class NestatReport(pmcc.MetricGroupPrinter):
                     continue
 
                 for elem in val:
-                    if elem[1] not in ifstats.keys():
+                    if elem[1] not in ifstats:
                         ifstats[elem[1]] = []
                     ifstats[elem[1]].append(str(elem[2]))
 

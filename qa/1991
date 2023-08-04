@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 1990
+# PCP QA Test No. 1991
 # Exercise various pcp-netstat(1) command options.
 #
 # Copyright (c) 2023 Oracle and/or its affiliates.
