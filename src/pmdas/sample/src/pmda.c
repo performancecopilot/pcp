@@ -58,7 +58,7 @@ limbo(void)
 
     delay.tv_sec = not_ready / 1000;
     delay.tv_usec = (not_ready % 1000) * 1000;
-    pmNotifyErr(LOG_INFO, "Going NOTREADY for %ld.%06ldsec", delay.tv_sec, delay.tv_usec);
+    pmNotifyErr(LOG_INFO, "Going NOTREADY for %ld.%06ldsec", (long)delay.tv_sec, (long)delay.tv_usec);
     __pmSendError(dispatch.version.two.ext->e_outfd, FROM_ANON, PM_ERR_PMDANOTREADY);
     __pmtimevalSleep(delay);
     pmNotifyErr(LOG_INFO, "READY again");
