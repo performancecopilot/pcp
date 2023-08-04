@@ -31,6 +31,7 @@ SUBDIRS = \
 	ps \
 	python \
 	shping \
+	slabinfo \
 	ss \
 	summary \
 	tapestat \

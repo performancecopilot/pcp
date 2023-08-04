@@ -373,6 +373,7 @@ ipcs
 meminfo
 mpstat
 ps
+slabinfo
 
 # full test search
 pmsearch
@@ -2090,4 +2091,5 @@ x11
 1986 pmfind local
 1987 pcp ps python local
 1988 pcp meminfo python local
+1989 pcp slabinfo python local
 4751 libpcp threads valgrind local pcp helgrind
