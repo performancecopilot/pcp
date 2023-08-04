@@ -1,2 +1,2 @@
-ALL_RULES = pmda_status test_actions
+ALL_RULES = pmda_status
 LOCAL_RULES = $(ALL_RULES)

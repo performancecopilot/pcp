@@ -43,11 +43,13 @@ DEFLATE = small.0.xz small.meta small.index \
 	  value-test.0.xz value-test.meta value-test.index \
 	  coverage.0.xz coverage.meta coverage.index \
 	  bozo-20170904.0.xz bozo-20170904.meta bozo-20170904.index \
+	  pcp-buddyinfo.0.xz pcp-buddyinfo.index.xz pcp-buddyinfo.meta.xz \
 	  pcp-pidstat-process-states.0.xz pcp-pidstat-process-states.meta \
 	  pcp-pidstat-process-states.index pcp-pidstat-process-args.0.xz \
 	  pcp-pidstat-process-args.index pcp-pidstat-process-args.meta.xz \
 	  pcp-pidstat-timezone.0.xz pcp-pidstat-timezone.meta.xz \
-	  pcp-pidstat-timezone.index zero_disk_activity.index  \
+	  pcp-pidstat-timezone.index pcp-slabinfo.0.xz pcp-slabinfo.index.xz \
+	  pcp-slabinfo.meta.xz zero_disk_activity.index  \
 	  zero_disk_activity.0.xz zero_disk_activity.meta.xz \
 	  dstat-disks.0.xz dstat-disks.meta.xz dstat-disks.index \
 	  dstat-diskfarm.0.xz dstat-diskfarm.meta.xz dstat-diskfarm.index \
@@ -58,6 +60,7 @@ DEFLATE = small.0.xz small.meta small.index \
 	  20190628.06.31.0.xz 20190628.06.31.meta.xz 20190628.06.31.index \
 	  pcp-ss.0.xz pcp-ss.meta.xz pcp-ss.index \
 	  pcp-ps.0.xz pcp-ps.meta.xz pcp-ps.index all-ubuntu.22.04.index \
+	  pcp-meminfo.0.xz pcp-meminfo.meta.xz pcp-meminfo.index \
 	  all-ubuntu.22.04.0.xz all-ubuntu.22.04.meta.xz
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
@@ -67,8 +70,8 @@ SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.sample_expr mk.tzchange mk.arch-all \
 	  mk.atop mk.hotatop mk.atop-boot mk.atop-nvidia mk.atop-threads \
 	  mk.log-derived mk.vmstat mk.rep mk.procsched \
-	  mk.ipcs mk.value-test mk.rank-pred mk.cputime \
-	  mk.sample-labels mk.pmproxy mk.mmv.help
+	  mk.ipcs mk.value-test mk.rank-pred mk.cputime mk.meminfo \
+	  mk.sample-labels mk.pmproxy mk.mmv.help mk.slabinfo
 
 CONFIGS = config.verify config.shping YWhcCi.toium.config \
 	  kenj-pc-2.config reduce.config uwrap.config wrap.config \

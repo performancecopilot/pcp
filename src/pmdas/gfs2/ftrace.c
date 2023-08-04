@@ -29,7 +29,7 @@
 #include <sys/types.h>
 
 
-static char *TRACE_PIPE = "/sys/kernel/debug/tracing/trace_pipe";
+static char *TRACE_PIPE;
 static int max_glock_throughput = INITIAL_GLOBAL_MAX_GLOCK_THROUGHPUT;
 
 static struct ftrace_data ftrace_data;
@@ -582,4 +582,17 @@ gfs2_refresh_ftrace_stats(pmInDom gfs_fs_indom)
     ftrace_clear_buffer();
 
     return 0;
+}
+
+void
+gfs2_tracepipe_setup(void)
+{
+    static char gfs2_tracepipe_path[] = "/sys/kernel/debug/tracing/trace_pipe";
+    char *env_command;
+    
+    /* allow override at startup for QA testing */
+    if ((env_command = getenv("GFS2_SETUP_TRACE")) !=NULL)
+        TRACE_PIPE = env_command;
+    else
+        TRACE_PIPE = gfs2_tracepipe_path;
 }

@@ -5045,6 +5045,13 @@ Help:
 Current physical memory accounted to each cgroup
     inst [0 or "/"] value 629055488
 
+openmetrics.problematic_strings.systemd_unit_active_enter_time_seconds [Last time the unit transitioned into the active state]
+    Data Type: double  InDom: 144.20483 0x24005003
+    Semantics: instant  Units: sec
+Help:
+Last time the unit transitioned into the active state
+    inst [0 or "0 name:dev-disk-by\\x2did-dm\\x2dname\\x2drhel_dogfood\\x2d\\x2dsat\\x2dswap.swap type:swap"] value 1673504922.151343
+
 openmetrics.problematic_strings.test [The Thing]
     Data Type: double  InDom: 144.20480 0x24005000
     Semantics: instant  Units: none
@@ -5055,7 +5062,7 @@ The Thing
     inst [2 or "2 instance:'"] value 2
     inst [3 or "3 instance:""] value 3
     inst [4 or "4 instance:"'"] value 4
-    inst [5 or "5 instance:\"] value 5
+    inst [5 or "5 instance:\\"] value 5
     inst [6 or "6 instance:,"] value 6
     inst [7 or "7 instance:="] value 7
     inst [8 or "8 instance::"] value 8
@@ -5072,7 +5079,7 @@ The Other Thing
     inst [2 or "'"] value 2
     inst [3 or """] value 3
     inst [4 or ""'"] value 4
-    inst [5 or "\"] value 5
+    inst [5 or "\\"] value 5
     inst [6 or ","] value 6
     inst [7 or "="] value 7
     inst [8 or ":"] value 8
@@ -5133,7 +5140,7 @@ openmetrics.prom_exposition_formats_example1.msdos_file_access_time_seconds []
     Semantics: instant  Units: sec
 Help: <empty entry>
     inst [0 or "0 error:Cannot find file:
-"FILE.TXT" path:C:\DIR\FILE.TXT"] value 1458255915
+"FILE.TXT" path:C:\\DIR\\FILE.TXT"] value 1458255915
 
 openmetrics.prom_exposition_formats_example1.rpc_duration_seconds [A summary of the RPC duration in seconds.]
     Data Type: double  InDom: 144.21511 0x24005407
@@ -11659,7 +11666,7 @@ Disk capacity metric per partition
     inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME partition:/mnt/data vm_name:name013"] value 21003583488
     inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME partition:/boot vm_name:name013"] value 520794112
     inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME partition:/mnt/kernel vm_name:name013"] value 17165189120
-    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME partition:C:\ vm_name:name053"] value 85792387072
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME partition:C:\\ vm_name:name053"] value 85792387072
 
 openmetrics.vmware_exporter.vmware_vm_guest_disk_free [Disk metric per partition]
     Data Type: double  InDom: 144.35846 0x24008c06
@@ -11670,7 +11677,7 @@ Disk metric per partition
     inst [1 or "1 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME partition:/mnt/data vm_name:name013"] value 19866902528
     inst [2 or "2 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME partition:/boot vm_name:name013"] value 111628288
     inst [3 or "3 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME partition:/mnt/kernel vm_name:name013"] value 5631688704
-    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME partition:C:\ vm_name:name053"] value 58768875520
+    inst [4 or "4 cluster_name: dc_name:ha-datacenter ds_name:name007 (1) host_name:SOMEHOSTNAME partition:C:\\ vm_name:name053"] value 58768875520
 
 openmetrics.vmware_exporter.vmware_vm_guest_tools_running_status [VM tools running status]
     Data Type: double  InDom: 144.35848 0x24008c08

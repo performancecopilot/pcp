@@ -308,7 +308,6 @@ class Metric(object):
 
     def fetch_inst(self, inst): # fetch instance
         self.source.pmda.debug('fetch_inst mname=%s inst=%d values=%s' % (self.mname, inst, self.values))
-        ret = [c_api.PM_ERR_INST, 0]
         if not self.values:
             # Metric may have disappeared
             if self.source.pmda.dbg:
@@ -318,6 +317,10 @@ class Metric(object):
             if self.source.pmda.dbg:
                 self.source.pmda.debug('fetch_inst returning type=%s value=%s' % (type(self.values[inst]), self.values[inst]))
             ret = [self.str2value(self.values[inst]), 1]
+        else:
+            # Instance has disappeared so indicate a missing value.
+            # This is the ideal libpcp_pmda code (not PM_ERR_INST).
+            ret = [c_api.PM_ERR_VALUE, 0]
 
         self.source.pmda.debug('fetch_inst returning %s' % ret)
         return ret
@@ -494,12 +497,7 @@ class SampleLineParser(object):
             self.lvalue += char
 
     def parse_label_value_escapechar(self, char):
-        # TODO: maybe pass through \-escaped identifiers literally through to pcp
-        # otherwise we'd have to filter them out at indom-instance-name creation
-        if char == '\\':
-            self.state = self.parse_label_value
-            self.lvalue += '\\'
-        elif char == 'n':
+        if char == 'n':
             self.state = self.parse_label_value
             self.lvalue += '\n'
         elif char == '"':
@@ -648,7 +646,7 @@ class Source(object):
         Return labels to be used to form the instance name
         i.e. included labels that are not optional
         '''
-        self.pmda.log("instname_labels(included=%s, optional=%s)" % (included_labels, optional_labels)) if self.pmda.dbg else None
+        self.pmda.debug("instname_labels(included=%s, optional=%s)" % (included_labels, optional_labels)) if self.pmda.dbg else None
         if optional_labels is None:
             naming_labels = included_labels
         else:
@@ -796,12 +794,8 @@ class Source(object):
             self.parse_error = False
 
         # NB: this logic only ever -adds- Metrics to a Source.  If a source
-        # stops supplying some metrics, then a PCP app will see a PM_ERR_INST
-        # coming back when it tries to fetch them.  We could perhaps keep the
-        # set of -current- metrics fresh, i.e., track any metrics that were
-        # in the Source but were not processed by any parse_metric_line() call.
-        # Then we could remove the Metric, and thereby trigger a PM_ERR_PMID
-        # for them.  In both cases though, we have no values.
+        # stops supplying some metrics a PMAPI client will see PM_ERR_VALUE
+        # returned when trying to fetch them.
 
         return num_metrics
 
@@ -976,7 +970,7 @@ class Source(object):
 
         try:
             m = self.metrics_by_num[item]
-            self.pmda.log("fetch: item=%d inst=%d m.mname=%s" % (item, inst, m.mname)) if self.pmda.dbg else None
+            self.pmda.debug("fetch: item=%d inst=%d m.mname=%s" % (item, inst, m.mname)) if self.pmda.dbg else None
             return m.fetch_inst(inst)
         except Exception as e:
             self.pmda.debug("cannot fetch item %d inst %d: %s" % (item, inst, e))
@@ -1093,7 +1087,6 @@ class OpenMetricsPMDA(PMDA):
 
         # notes callbacks (for optional/extrinsic labels)
         self.set_notes(self.openmetrics_notes) # ITEM level optional labels
-        self.set_notes_callback(self.openmetrics_notes_callback) # instances level optional labels
 
     def lookup_regex(self, pat):
         ''' cache of compiled regex '''
@@ -1225,17 +1218,17 @@ class OpenMetricsPMDA(PMDA):
         ''' Main fetch callback which returns the value of the metric '''
         if cluster == 0: # The reserved 'control' cluster: statistics
             if item == 1: # per-source calls counter
-                return [self.stats_fetch_calls[inst], 1] if inst in self.stats_fetch_calls else [c_api.PM_ERR_INST, 0]
+                return [self.stats_fetch_calls[inst], 1] if inst in self.stats_fetch_calls else [c_api.PM_ERR_VALUE, 0]
             elif item == 2: # per-source fetch time counter
-                return [self.stats_fetch_time[inst], 1] if inst in self.stats_fetch_time else [c_api.PM_ERR_INST, 0]
+                return [self.stats_fetch_time[inst], 1] if inst in self.stats_fetch_time else [c_api.PM_ERR_VALUE, 0]
             elif item == 3: # per-source parse time counter
-                return [self.stats_parse_time[inst], 1] if inst in self.stats_parse_time else [c_api.PM_ERR_INST, 0]
+                return [self.stats_parse_time[inst], 1] if inst in self.stats_parse_time else [c_api.PM_ERR_VALUE, 0]
             elif item == 4: # $(pmda_name).control.debug
                 return [self.dbg, 1]
             elif item == 5: # per-source status string
-                return [self.stats_status[inst], 1] if inst in self.stats_status else [c_api.PM_ERR_INST, 0]
+                return [self.stats_status[inst], 1] if inst in self.stats_status else [c_api.PM_ERR_VALUE, 0]
             elif item == 6: # per-source status code
-                return [self.stats_status_code[inst], 1] if inst in self.stats_status_code else [c_api.PM_ERR_INST, 0]
+                return [self.stats_status_code[inst], 1] if inst in self.stats_status_code else [c_api.PM_ERR_VALUE, 0]
             return [c_api.PM_ERR_PMID, 0]
 
         self.assert_source_invariants(cluster=cluster)
@@ -1450,34 +1443,6 @@ class OpenMetricsPMDA(PMDA):
 
         self.debug('openmetrics_notes callback type=%d ("%s") returning "%s"' % (typeid, labeltype[typeid], ret))
         return ret
-
-    def openmetrics_notes_callback(self, indom, inst):
-        '''
-        return label for given instance ID in given indom for optional labels at instances level
-        '''
-        instlabels = None
-        try:
-            self.debug('openmetrics_notes_callback(indom=%#x, inst=%d)' % (indom, inst)) if self.dbg else None
-            for _, v in self.source_by_cluster.items():
-                for _, mv in v.metrics_by_name.items():
-                    if indom == mv.mindom:
-                        for i, nm in enumerate(mv.indom_table.instances):
-                            if inst == i:
-                                self.debug('openmetrics_notes_callback: found inst label "%s"' % nm) if self.dbg else None
-                                instlabels = '"instname":"%s %s"' % (i, nm)
-                                break # "instname" is the only optional label
-                    if instlabels is not None:
-                        break
-                if instlabels is not None:
-                    break
-        except Exception as e:
-            self.debug("openmetrics_notes_callback: exception %s" % e)
-            self.debug(traceback.format_exc())
-
-        self.debug('openmetrics_notes_callback returning "{%s}"' % instlabels) if self.dbg else None
-        if instlabels is None:
-            return '{}'
-        return '{%s}' % instlabels
 
 
     def openmetrics_store_callback(self, cluster, item, inst, val):

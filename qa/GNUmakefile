@@ -17,7 +17,7 @@ TESTS	= $(shell sed -n -e '/^[0-9][0-9]*:retired/d' -e '/^[0-9][0-9]*:reserved/d
 SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient named \
 	  archives badarchives views qt linux unbound cifs gpfs lustre ganglia \
 	  java mmv postfix perl json slurm tmparch sheet smart admin hacluster \
-	  sockets denki
+	  sockets denki gfs2
 
 ifeq "$(PMDA_PERFEVENT)" "true"
 SUBDIRS += perfevent
@@ -76,7 +76,7 @@ SCRIPTS = mk.localconfig mk.pcpversion mk.qa_hosts mk.variant getpmcdhosts \
 COMMON_SCRIPTS = common.install.cisco common.pcpweb
 COMMON = common.check common.config common.filter \
 	 common.product common.rc common.setup \
-	 common.secure common.gfs2 \
+	 common.secure \
 	 common.qt common.containers \
 	 common.discovery common.compress \
 	 common.python common.openmetrics \

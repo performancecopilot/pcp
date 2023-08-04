@@ -370,8 +370,10 @@ pidstat
 iostat
 tapestat
 ipcs
+meminfo
 mpstat
 ps
+slabinfo
 
 # full test search
 pmsearch
@@ -1106,8 +1108,7 @@ x11
 651 pmproxy local
 652 pmda.systemd event flakey
 653 libpcp local
-654 pmda.gfs2 local
-655 pmda.gfs2 local pmstore
+654 pmda.gfs2 local valgrind
 656 pmda.cifs local valgrind
 657 pmda.dm local
 658 logutil local pmlogrewrite pmlogmv pmlogdump
@@ -2090,4 +2091,7 @@ x11
 1985 pmfind local valgrind
 1986 pmfind local
 1987 pcp ps python local
+1988 pcp meminfo python local
+1989 pcp slabinfo python local
+1990 pcp buddyinfo python local
 4751 libpcp threads valgrind local pcp helgrind

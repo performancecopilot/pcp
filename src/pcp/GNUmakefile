@@ -18,18 +18,21 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = \
 	atop \
+	buddyinfo \
 	dmcache \
 	dstat \
 	free \
 	htop \
 	iostat \
         ipcs \
+	meminfo \
 	mpstat \
 	numastat \
 	pidstat \
 	ps \
 	python \
 	shping \
+	slabinfo \
 	ss \
 	summary \
 	tapestat \

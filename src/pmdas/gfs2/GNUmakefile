@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015,2020 Red Hat.
+# Copyright (c) 2013-2023 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -15,18 +15,24 @@
 TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
 
-CFILES		= latency.c control.c glstats.c worst_glock.c glocks.c sbstats.c ftrace.c pmda.c
-HFILES		= latency.c control.h glstats.h worst_glock.h glocks.h sbstats.h ftrace.h pmdagfs2.h
-CMDTARGET	= pmdagfs2
-LLDLIBS		= $(PCP_PMDALIB)
-
 IAM		= gfs2
 DOMAIN		= GFS2
+CFILES		= latency.c control.c glstats.c worst_glock.c glocks.c sbstats.c ftrace.c pmda.c
+HFILES		= latency.c control.h glstats.h worst_glock.h glocks.h sbstats.h ftrace.h pmdagfs2.h
+CMDTARGET	= pmda$(IAM)
+LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
+PMDAINIT	= $(IAM)_init
+
+LLDLIBS		= $(PCP_PMDALIB)
+LCFLAGS		= $(INVISIBILITY)
+
+LDIRT		= domain.h $(IAM).log $(VERSION_SCRIPT)
+
+SCRIPTS		= Install Remove
+VERSION_SCRIPT	= exports
 
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
-
-LDIRT		= domain.h $(IAM).log
 
 MAN_SECTION	= 1
 MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
@@ -37,13 +43,13 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: $(CMDTARGET)
+build-me: $(CMDTARGET) $(LIBTARGET)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
-	$(INSTALL) -m 755 -d $(PMDATMPDIR)
-	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(CMDTARGET) $(PMDAADMDIR)
+	$(INSTALL) -m 775 -d $(PMDATMPDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) root pmns domain.h help $(PMDAADMDIR)
+	$(INSTALL) -m 775 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -55,6 +61,9 @@ default_pcp : default
 install_pcp : install
 
 $(OBJECTS): domain.h
+
+$(VERSION_SCRIPT):
+	$(VERSION_SCRIPT_MAKERULE)
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

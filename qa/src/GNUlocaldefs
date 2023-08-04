@@ -30,7 +30,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	read-bf.c write-bf.c slow_af.c indom.c tztest.c \
 	multifetch.c pmconvscale.c torture-eol.c \
 	crashpmcd.c dumb_pmda.c torture_cache.c wrap_int.c \
-	labels.c mergelabels.c mergelabelsets.c addlabels.c \
+	labels.c mergelabels.c mergelabelsets.c addlabels.c parselabels.c \
 	matchInstanceName.c torture_pmns.c \
 	mmv_genstats.c mmv_instances.c mmv_poke.c mmv_noinit.c mmv_nostats.c \
 	mmv2_genstats.c mmv2_instances.c mmv2_nostats.c mmv2_simple.c \
@@ -382,6 +382,10 @@ mergelabels:	mergelabels.c
 mergelabelsets:	mergelabelsets.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ mergelabelsets.c $(LDLIBS)
+
+parselabels:	parselabels.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ parselabels.c $(LDLIBS)
 
 traverse_return_codes:	traverse_return_codes.c
 	rm -f $@
