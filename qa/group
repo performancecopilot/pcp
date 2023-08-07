@@ -2081,6 +2081,7 @@ x11
 1931 pmda.bpf local
 1936 other local pmclient
 1937 pmlogrewrite pmda.xfs local pmlogdump
+1940 pmlogconf valgrind local
 1955 libpcp pmda pmda.pmcd local
 1956 pmda.linux pmcd local
 1957 libpcp local valgrind

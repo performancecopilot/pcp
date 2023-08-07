@@ -104,6 +104,8 @@ group_free(group_t *group)
 	free(group->value);
     for (i = 0; i < group->nmetrics; i++)
 	free(group->metrics[i]);
+    if (group->metrics)
+	free(group->metrics);
     if (group->saved_delta)
 	free(group->saved_delta);
     memset(group, 0, sizeof(group_t));
