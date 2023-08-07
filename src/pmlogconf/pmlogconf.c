@@ -1771,7 +1771,6 @@ pmlogconf(int argc, char **argv)
 	pmlogger_create(file);
     else
 	pmlogger_update(file, &sbuf);
-    fsync(fileno(file));
     fclose(file);
     return 0;
 }
