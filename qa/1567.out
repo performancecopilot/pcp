@@ -9,5 +9,5 @@ Content-Type: application/json
 Host: localhost:PORT
 POST /webhook HTTP/1.1
 User-Agent: curl VERSION
-{"pcp":{"pmie":{"rule":"Busy CPU","values":"100%hosta 100%@hostb"}}}
+{"pcp":{"pmie":{"rule":"Busy CPU","hostname":"www.abc.com","message":"100%@www.abc.com"}}}
 
