@@ -53,7 +53,7 @@ sleep 2 # let nc start up
 ( sleep 2; $signal $pid1 ) >>$seq.full 2>&1 &
 
 echo "pmie webhook invocation" | tee -a $here/$seq.full
-pmie_webhook "http://localhost:$port/webhook|Busy CPU|100%hosta|100%@hostb" 2> $tmp.webhook.err
+pmie_webhook "http://localhost:$port/webhook|Busy CPU|www.abc.com|100%@www.abc.com" 2> $tmp.webhook.err
 cat $tmp.webhook.err >> $here/$seq.full
 echo
 

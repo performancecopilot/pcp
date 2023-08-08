@@ -1,0 +1,12 @@
+QA output created by 1940
+=== std out ===
+Creating config file "TMP.probed" using default settings ...
+
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: PCP_BINADM_DIR/pmlogconf -r -c -q -h local: TMP.probed
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
