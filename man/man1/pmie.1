@@ -1253,6 +1253,80 @@ In this situation, where the STOMP connection to the JMS server
 has been severed, the
 .I stomp
 action will return a non-zero error value.
+.SH DIFFERENCES IN HOST AND ARCHIVE MODES
+.PP
+When running in host mode, the
+\f(CBdelta\f1
+interval for each rule determines a real-time delay between rule
+evaluation, so
+.B pmie
+spends most if its time sleeping and waiting for the next scheduled
+rule evaluation.
+.PP
+When running in archive mode,
+.B pmie
+uses the
+\f(CBdelta\f1
+interval for each rule to determine how frequently the rules are evaluated
+against the archive data,
+but unlike host mode there are no real-time delays as the archive
+is ``replayed'' as fast as possible.
+.PP
+In archive mode when a rule predicate evaluates \f(CBtrue\fR then
+the action is modified, so that rather than posting to
+.I syslog
+or raising a visible
+.I alarm
+or running a 
+.I shell
+command
+or sending a
+.I stomp
+message,
+.B pmie
+prints the name of the action, the timestamp from the archive when
+the rule predicate triggering the action was \f(CBtrue\fR
+and all of the arguments that would have been passed to the
+real action in host mode.
+.PP
+For example, given the rule:
+.br
+.in +0.5i
+.ft CW
+delta = 10 sec;
+.br
+kernel.all.nprocs > 10 * hinv.ncpu -> print "lotsaprocs:" " %v";
+.ft 1
+.in
+when run against an archive, the output appears as:
+.br
+.ft CW
+.in +0.5i
+.nf
+print Mon Sep  4 00:10:21 2017: lotsaprocs: 1292
+print Mon Sep  4 00:10:31 2017: lotsaprocs: 1294
+print Mon Sep  4 00:10:41 2017: lotsaprocs: 1291
+...
+.fi
+.in
+.ft 1
+.PP
+The rationale is that the context in which the action
+would have been executed (in host mode) was at a time in the past
+and the possibly on
+a different host (if the archive was collected from one host, but
+.B pmie
+is being run on a different host).
+So flooding
+.I syslog
+with misleading messages
+or an avalanche visual alarms
+or a lot of STOMP messages
+or a shell command that might not even work on the host where
+.B pmie
+is being run, are all examples of ``badness'' to be avoided.
+Rather the output is text in a regular format suitable for post-processing
+with a range of filters and performance analysis tools.
 .SH SIGNALS
 If
 .B pmie
