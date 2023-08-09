@@ -751,8 +751,7 @@ command line option to discover which subexpressions contributes to the %-token 
    from one host, but **pmie** is being run on a different host).
    So flooding **syslog** with misleading messages or
    an avalanche of visual alarms or
-   running a
-   a shell command that might not even work on the host where **pmie**
+   running a shell command that might not even work on the host where **pmie**
    is being run, are all be avoided.
    Rather the output is text in a regular format suitable for post-processing
    with a range of filters and performance analysis tools.
