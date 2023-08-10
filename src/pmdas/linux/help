@@ -1087,6 +1087,8 @@ from /proc/vmstat
 @ mem.vmstat.pgrefill_movable movable mem pages inspected in refill_inactive_zone
 Count of movable mem pages inspected in refill_inactive_zone since boot,
 from /proc/vmstat
+@ mem.vmstat.pgsteal_anon anonymous mem pages reclaimed
+Count of anonymous mem pages reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgsteal_direct mem pages directly reclaimed
 Count of mem pages directly reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgsteal_kswapd mem pages reclaimed by kswapd
@@ -1128,6 +1130,8 @@ since Linux 3.4
 Count of movable mem pages reclaimed since boot, from /proc/vmstat
 since Linux 2.6.23
 @ mem.vmstat.pgsteal_total cumulative total mem pages reclaimed
+@ mem.vmstat.pgscan_anon anonymous mem pages scanned
+Count of anonymous mem pages scanned since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_direct directly scanned mem pages
 Count of mem pages scanned directly since boot, from /proc/vmstat
 since Linux 3.4
@@ -1135,6 +1139,8 @@ since Linux 3.4
 Count of throttled mem pages scanned directly since boot, from /proc/vmstat
 since Linux 3.4
 @ mem.vmstat.pgscan_direct_total cumulative total of directly scanned mem pages
+@ mem.vmstat.pgscan_file file backed pages scanned
+Count of file backed mem pages scanned since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_kswapd mem pages scanned by kswapd
 Count of mem pages scanned by kswapd since boot, from /proc/vmstat
 since Linux 3.4
