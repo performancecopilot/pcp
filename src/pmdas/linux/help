@@ -1107,43 +1107,32 @@ Count of dma32 mem pages reclaimed since boot, from /proc/vmstat
 Count of movable mem pages reclaimed since boot, from /proc/vmstat
 @ mem.vmstat.pgsteal_kswapd_dma dma mem pages reclaimed by kswapd
 Count of dma mem pages reclaimed by kswapd since boot, from /proc/vmstat
-since Linux 3.4
 @ mem.vmstat.pgsteal_kswapd_dma32 dma32 mem pages reclaimed by kswapd
 Count of dma32 mem pages reclaimed by kswapd since boot, from /proc/vmstat
-since Linux 3.4
 @ mem.vmstat.pgsteal_kswapd_normal normal mem pages reclaimed by kswapd
 Count of normal mem pages reclaimed by kswapd since boot, from /proc/vmstat
-since Linux 3.4
 @ mem.vmstat.pgsteal_kswapd_movable movable mem pages reclaimed by kswapd
 Count of movable mem pages reclaimed by kswapd since boot, from /proc/vmstat
-since Linux 3.4
 @ mem.vmstat.pgsteal_direct_dma dma mem pages reclaimed
 Count of dma mem pages reclaimed since boot, from /proc/vmstat
-since Linux 3.4
 @ mem.vmstat.pgsteal_direct_dma32 dma32 mem pages reclaimed
 Count of dma32 mem pages reclaimed since boot, from /proc/vmstat
-since Linux 3.4
 @ mem.vmstat.pgsteal_direct_normal normal mem pages reclaimed
 Count of normal mem pages reclaimed since boot, from /proc/vmstat
-since Linux 3.4
 @ mem.vmstat.pgsteal_direct_movable movable mem pages reclaimed
 Count of movable mem pages reclaimed since boot, from /proc/vmstat
-since Linux 2.6.23
 @ mem.vmstat.pgsteal_total cumulative total mem pages reclaimed
 @ mem.vmstat.pgscan_anon anonymous mem pages scanned
 Count of anonymous mem pages scanned since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_direct directly scanned mem pages
 Count of mem pages scanned directly since boot, from /proc/vmstat
-since Linux 3.4
 @ mem.vmstat.pgscan_direct_throttle throttled direct scanned mem pages
 Count of throttled mem pages scanned directly since boot, from /proc/vmstat
-since Linux 3.4
 @ mem.vmstat.pgscan_direct_total cumulative total of directly scanned mem pages
 @ mem.vmstat.pgscan_file file backed pages scanned
 Count of file backed mem pages scanned since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_kswapd mem pages scanned by kswapd
 Count of mem pages scanned by kswapd since boot, from /proc/vmstat
-since Linux 3.4
 @ mem.vmstat.pgscan_kswapd_high high mem pages scanned by kswapd
 Count of high mem pages scanned by kswapd since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_kswapd_normal normal mem pages scanned by kswapd
