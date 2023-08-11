@@ -31,12 +31,12 @@ into a combined PCP archive.
 .B pmlogger_merge
 is a wrapper script for
 .BR pmlogextract (1)
-that merges all of the archive logs matching the
+that merges all of the archives matching the
 .I input-basename
 arguments, and creates a new archive using
 .I output-name
 as the base name for the physical files that constitute
-an archive log.
+an archive.
 The
 .I input-basename
 arguments may contain meta characters in the style of
@@ -70,7 +70,7 @@ The
 .B \-E
 flag instead issues a warning and excludes the affected metrics from the merged
 output archive.
-This is intended for automated daily log rotation where it is highly desirable
+This is intended for automated daily archive rotation where it is highly desirable
 for unattended daily archive merging, rewriting and compression to succeed.
 See also
 .BR pmlogger_daily (1)

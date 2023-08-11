@@ -16,7 +16,7 @@
 .\"
 .TH PMLOGGER 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmlogger\f1 \- create archive log for performance metrics
+\f3pmlogger\f1 \- create an archive for performance metrics
 .SH SYNOPSIS
 \f3pmlogger\f1
 [\f3\-CLNoPruy?\f1]
@@ -40,7 +40,7 @@
 \f2archive\f1
 .SH DESCRIPTION
 .B pmlogger
-creates the archive logs of performance metric values
+creates the archives of performance metric values
 that may be ``played back'' by other Performance Co-Pilot (see
 .BR PCPIntro (1))
 tools.
@@ -50,13 +50,13 @@ performance analysis services common to the PCP toolkit.
 The mandatory argument
 .I archive
 is the base name for the physical files that constitute
-an archive log.
+an archive.
 The
 .I archive
 argument may contain
 .BR strftime (3)
 meta-characters, which will be substituted prior to creating the
-archive log files.
+archive files.
 When
 .B pmlogger
 is run as a service (see
@@ -257,7 +257,7 @@ option directs
 .B pmlogger
 to notify a service manager, typically
 .BR systemd (1),
-when it has started and is about to begin writing PCP archive logs.
+when it has started and is about to begin writing PCP archives.
 This option would only normally be used when
 .B pmlogger
 is run as a daemon service under the control of a service manager.
@@ -280,7 +280,7 @@ If
 .IR endsize
 is an integer then
 .IR endsize
-records will be written to the log.
+records will be written to the archive.
 If
 .IR endsize
 is an integer suffixed by
@@ -290,7 +290,7 @@ or
 then
 .IR endsize
 bytes of the archive data will be written out
-(note, however, that archive log record boundaries will not be broken and
+(note, however, that archive record boundaries will not be broken and
 so this limit may be slightly surpassed).
 Other viable file size units include:
 .BR K ,
@@ -358,7 +358,7 @@ When run as a daemon, the unprivileged "pcp" account is used
 in current versions of PCP, but in older versions the superuser
 account ("root") was used by default.
 .PP
-The log file is potentially a multi-volume data set, and the
+The archive is potentially a multi-volume data set, and the
 .B \-v
 option causes
 .B pmlogger
@@ -370,7 +370,7 @@ of the
 option (see above).
 The default is for
 .B pmlogger
-to create a single volume log.
+to create a single volume archive.
 Additional volume switches can also be forced asynchronously by
 either using
 .BR pmlc (1)
@@ -442,12 +442,12 @@ When
 .B pmlogger
 receives a
 .B SIGHUP
-signal, the current volume of the log is closed, and
+signal, the current volume of the archive is closed, and
 a new volume is opened.
 This mechanism (or the alternative mechanism
 via
 .BR pmlc (1))
-may be used to manage the growth of the log files \- once a log volume
+may be used to manage the growth of the archive files \- once a log volume
 is closed, that file may be archived without ill-effect on the
 continued operation of
 .BR pmlogger .
@@ -459,7 +459,7 @@ When
 .B pmlogger
 receives a
 .B SIGUSR2
-signal, the current archive log is closed, and
+signal, the current archive is closed, and
 a new archive is opened.
 For this to succeed, the original
 .I archive
@@ -487,7 +487,7 @@ is affected, but
 .B \-T 5pm
 is not.
 .PP
-Historically the buffers for the current log may be flushed to disk using the
+Historically the buffers for the current archive may be flushed to disk using the
 \f3flush\f1 command of
 .BR pmlc (1),
 or by using the
@@ -941,7 +941,7 @@ See above for more detailed description of this.
 Report record sizes and archive growth rate.
 .TP
 \fB\-s\fR \fIendsize\fR, \fB\-\-size\fR=\fIendsize\fR
-Terminate after log size exceeds
+Terminate after archive size exceeds
 .IR endsize .
 .TP
 \fB\-t\fR \fIinterval\fR, \fB\-\-interval\fR=\fIinterval\fR
@@ -970,11 +970,11 @@ When in daemon mode, run as user
 .IR username .
 .TP
 \fB\-v\fR \fIvolsize\fR, \fB\-\-volsize\fR=\fIvolsize\fR
-Switch log volumes after reaching log volume size
+Switch volumes after reaching archive volume size
 .IR volsize .
 .TP
 \fB\-V\fR \fIversion\fR, \fB\-\-version\fR=\fIversion\fR
-Specify log archive
+Specify archive
 .IR version .
 The default and the only accepted value is 2.
 .TP
@@ -992,7 +992,7 @@ Display usage message and exit.
 .SH EXAMPLES
 For each PCP utility, there is a sample
 .B pmlogger
-configuration file that could be used to create an archive log suitable
+configuration file that could be used to create an archive suitable
 for replaying with that tool (i.e. includes all of the performance
 metrics used by the tool).
 For a tool named
@@ -1096,7 +1096,7 @@ shortly thereafter, and this new
 instance will be operating in the context of the new
 hostname for the host where PMCD is running.
 .SH DIAGNOSTICS
-The archive logs are sufficiently precious that
+The archives are sufficiently precious that
 .B pmlogger
 will not truncate an existing physical file.
 A message of the form
@@ -1128,7 +1128,7 @@ files have appeared therein.
 .SH FILES
 .TP 5
 \f2archive\f3.meta
-metadata (metric descriptions, instance domains, etc.) for the archive log
+metadata (metric descriptions, instance domains, etc.) for the archive
 .TP
 \f2archive\f3.0
 initial volume of metrics values (subsequent volumes have suffixes
@@ -1138,7 +1138,7 @@ initial volume of metrics values (subsequent volumes have suffixes
 .TP
 \f2archive\f3.index
 temporal index to support rapid random access to the other files in the
-archive log
+archive
 .TP
 .B $PCP_TMP_DIR/pmlogger
 .B pmlogger

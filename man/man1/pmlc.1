@@ -159,16 +159,16 @@ will be the only one controlling the pmlogger instance it is connected to.
 This command works only while a connection to a pmlogger
 instance is established.
 It tells the pmlogger to close the current
-volume of the log and open a new volume.
+volume of the archive and open a new volume.
 Closed volumes may be archived,
-e.g. as part of a regular log management procedure to control the size of
-the physical log files.
+e.g. as part of a regular archive management procedure to control the size of
+the physical archive files.
 .TP 4
 \f3status\f1
 This command works only while a connection to a pmlogger instance is
 established.
 It prints information about the state of the pmlogger
-instance and its associated log.
+instance and its associated archive.
 .TP 4
 \f3timezone\f1 \f3local\f1 | \f3logger\f1 | \f3"\f2timezone\f3"\f1
 This command sets the time zone used when times are printed.
@@ -281,9 +281,9 @@ advisory;
 .BR mand ,
 mandatory;
 .BR nl ,
-not in the log;
+not logged (not in the archive);
 .BR na ,
-in the log but not currently available from its Performance Metrics Domain
+in the archive but not currently available from its Performance Metrics Domain
 Agent (PMDA).
 Where appropriate, an instance name will appear last on a line
 preceded by its numeric internal instance identifier.
@@ -296,7 +296,7 @@ command turns on logging for the metrics (and any instances) in
 .I interval
 specifies how often the specified metrics/instances should be logged.
 .B once
-indicates that the metrics/instances should appear at most once in the log.
+indicates that the metrics/instances should appear at most once in the archive.
 More often one would use the optional keyword
 .B every
 followed by a positive number and one of
@@ -330,7 +330,7 @@ value of zero is a synonym for
 .BR once .
 .TP 4
 [ \f3log\f1 ] \f3mandatory off\f1 \f2metriclist\f1
-This tells the pmlogger instance not to log any of the metrics/instances in
+This tells the pmlogger instance not to archive any of the metrics/instances in
 .IR metriclist .
 .TP 4
 [ \f3log\f1 ] \f3mandatory maybe\f1 \f2metriclist\f1
@@ -368,10 +368,10 @@ The word
 may be used interchangeably with
 .BR @ .
 .PP
-A request to log all instances of a metric will supersede any prior request to
+A request to archive all instances of a metric will supersede any prior request to
 log either all or specific instances of a metric (if the request specifies a
 permissible transition in the logging state).
-A request to log specific
+A request to archive specific
 instances of a metric when all instances of a metric are already being logged
 is refused by
 .BR pmlogger .
@@ -498,21 +498,21 @@ may appear to succeed, even though
 .B pmlogger
 has refused the request.
 This is not normally a problem, as the required
-information will still be placed into the log by
+information will still be placed into the archive by
 .BR pmlogger .
 .PP
 However in the case where the metric is to be logged once, the outcome is not
 what might be expected.
 When
 .B pmlogger
-receives a request to log a metric once, it places the current value(s) of the
-metric into the log as soon as it can, regardless of whether the metric is
-already in the log.
-This may be used to force values into the log.
-When a request to log specific instances of a metric arrives and is refused
+receives a request to archive a metric once, it places the current value(s) of the
+metric into the archive as soon as it can, regardless of whether the metric is
+already in the archive.
+This may be used to force values into the archive.
+When a request to archive specific instances of a metric arrives and is refused
 because all instances of the metric are already being logged,
 .B pmlogger
-does not place values for the instances requested into the log.
+does not place values for the instances requested into the archive.
 It returns the current logging state for each instance requested to
 .BR pmlc .
 The requested and returned states are identical, so

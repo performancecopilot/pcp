@@ -130,8 +130,7 @@ is
 or
 .BR PM_MODE_BACK ,
 and no qualifying metrics can be found in the requested direction of searching
-before the end or start of the set of archive
-logs is found, then
+before the end or start of the set of archives is found, then
 .BR pmFetch (3)
 returns the special error indicator,
 .BR PM_ERR_EOL .
@@ -162,7 +161,7 @@ is
 and the adjustment is applied, even if the
 .BR pmFetch (3)
 fails because the time origin is outside the range defined by
-the records in a set of archive logs, i.e. returns
+the records in a set of archives, i.e. returns
 .BR PM_ERR_EOL .
 .PP
 By default the
@@ -183,7 +182,7 @@ so can directly represent any interval.
 Using these
 .I mode
 options, an application can implement replay, playback, fast forward, reverse,
-etc. for performance metric values held in the set of archive logs by alternating calls
+etc. for performance metric values held in the set of archives by alternating calls
 to
 .B pmSetMode
 and
@@ -219,7 +218,7 @@ while (pmFetch(npmid, pmidlist, &result) != PM_ERR_EOL) {
 .fi
 .ft 1
 .PP
-Alternatively, to replay interpolated metrics from the log in reverse
+Alternatively, to replay interpolated metrics from the archive in reverse
 chronological order, at 10 second intervals (of recorded time), the following
 code fragment could be used.
 .PP

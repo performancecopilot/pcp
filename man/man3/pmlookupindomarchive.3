@@ -32,7 +32,7 @@ cc ... \-lpcp
 ..
 Provided the current
 Performance Metrics Application Programming Interface (PMAPI)
-context is associated with a set of archive logs,
+context is associated with a set of archives,
 .B pmLookupInDomArchive
 will scan the union of all the instance domain metadata
 for the instance domain
@@ -62,16 +62,16 @@ for a particular performance metric.
 will return a positive instance identifier on success.
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_NOTARCHIVE\f1
-the current PMAPI context is not associated with a set of archive logs
+the current PMAPI context is not associated with a set of archives
 .IP \f3PM_ERR_INDOM_LOG\f1
 .I indom
-is not a defined instance domain identifier for the set of archive logs
+is not a defined instance domain identifier for the set of archives
 .IP \f3PM_ERR_INST_LOG\f1
 the external instance
 .I name
 is not known for the instance domain
 .I indom
-in the set of archive logs
+in the set of archives
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmGetConfig (3),
