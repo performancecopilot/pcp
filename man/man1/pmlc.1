@@ -160,9 +160,12 @@ This command works only while a connection to a pmlogger
 instance is established.
 It tells the pmlogger to close the current
 volume of the archive and open a new volume.
-Closed volumes may be archived,
+Closed volumes may be compressed and/or moved to a remote system,
+remote storage or off-line storage,
 e.g. as part of a regular archive management procedure to control the size of
-the physical archive files.
+the physical archive files on the system where
+.B pmlogger
+is running.
 .TP 4
 \f3status\f1
 This command works only while a connection to a pmlogger instance is
