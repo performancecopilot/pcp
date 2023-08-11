@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# remake the free archive ...
+# remake the pcp-netstat archive ...
 # this archive is intended to be checked in and not remade, this script is
 # simply a record of how it was created
 #
@@ -114,4 +114,11 @@ End-of-File
 
 rm -f pcp-netstat.0 pcp-netstat.meta pcp-netstat.index
 
-pmlogger -s 10 -c $tmp.config pcp-netstat
+if pmlogger -s 10 -c $tmp.config pcp-netstat
+then
+	xz pcp-netstat.0
+	xz pcp-netstat.meta
+else
+    echo "Argh: pmlogger failed ..."
+    cat pmlogger.log
+fi

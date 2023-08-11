@@ -1,0 +1,289 @@
+QA output created by 1991
+
+pcp-netstat output : Display default output
+05:24:46
+
+05:24:47
+
+
+pcp-netstat output : Display output when given specified number of samples
+05:24:46
+
+05:24:47
+
+05:24:48
+
+
+pcp-netstat output : Display output when filtered IP protocol
+05:24:46
+
+Ip:
+	Forwarding: 2
+	229837 total packets received
+	4 with invalid addresses
+	0 forwarded
+	0 incoming packets discarded
+	189849 incoming packets delivered
+	188447 requests sent out
+	162 dropped because of missing route
+
+
+IpExt:
+	InMcastPkts: 265
+	InBcastPkts: 2058
+	InOctets: 135176433
+	OutOctets: 74412981
+	InMcastOctets: 8480
+	InBcastOctets: 564487
+	InNoECTpkts: 261356
+
+
+05:24:47
+
+Ip:
+	Forwarding: 2
+	229843 total packets received
+	4 with invalid addresses
+	0 forwarded
+	0 incoming packets discarded
+	189853 incoming packets delivered
+	188450 requests sent out
+	162 dropped because of missing route
+
+
+IpExt:
+	InMcastPkts: 265
+	InBcastPkts: 2058
+	InOctets: 135176864
+	OutOctets: 74413211
+	InMcastOctets: 8480
+	InBcastOctets: 564490
+	InNoECTpkts: 261362
+
+
+
+pcp-netstat output : Display output when filtered TCP protocol
+05:24:46
+
+Tcp:
+	79 active connections openings
+	48 passive connection openings
+	6 failed connection attempts
+	23 connection resets received
+	5 connections established
+	190177 segments received
+	222036 segments send out
+	14 segments retransmited
+	0 bad segments received.
+	18 resets sent
+
+
+TcpExt:
+	5436 delayed acks sent
+	0 delayed acks further delayed because of locked socket
+	89378 packet headers predicted
+	86318 predicted acknowledgments
+	TCPSackRecovery: 0
+	Detected reordering 0 times using SACK
+	TCPDSACKUndo: 0
+	TCPLostRetransmitt: 3
+	TCPSackFailures: 0
+	0 fast retransmits
+	TCPTimeouts: 8
+	TCPLossProbes: 6
+	TCPLossProbeRecovery: 1
+	TCPBacklogCoalesce: 25
+	TCPDSACKOldSent: 32
+	TCPDSACKOfoSent: 0
+	TCPDSACKRecv: 5
+	TCPDSACKOfoRecv: 0
+	2 connections aborted due to data
+	11 connections reset due to early user close
+	0 connections aborted due to timeout
+	TCPDSACKIgnoredNoUndo: 4
+	TCPSackShifted: 0
+	TCPSackMerged: 0
+	TCPSackShiftFallback: 0
+	IPReversePathFilter: 1
+	TCPRcvCoalesce: 4673
+	TCPOFOQueue: 0
+	TCPOFOMerge: 0
+	TCPChallengeAck: 0
+	TCPSynChallenge: 0
+	TCPSpuriousRtxHostQueues: 0
+	TCPAutoCorking: 63
+	TCPSynRetrans: 8
+	TCPOrigDataSent: 149541
+	TCPHystartTrainDetect: 5
+	TCPHystartTrainCwnd: 80
+	TCPHystartDelayDetect: 1
+	TCPHystartDelayCwnd: 18
+	TCPACKSkippedSeq: 0
+	TCPKeepAlive: 0
+	TCPDelivered: 149609
+	TCPAckCompressed: 0
+
+
+05:24:47
+
+Tcp:
+	79 active connections openings
+	48 passive connection openings
+	6 failed connection attempts
+	23 connection resets received
+	5 connections established
+	190181 segments received
+	222039 segments send out
+	14 segments retransmited
+	0 bad segments received.
+	18 resets sent
+
+
+TcpExt:
+	5436 delayed acks sent
+	0 delayed acks further delayed because of locked socket
+	89378 packet headers predicted
+	86320 predicted acknowledgments
+	TCPSackRecovery: 0
+	Detected reordering 0 times using SACK
+	TCPDSACKUndo: 0
+	TCPLostRetransmitt: 3
+	TCPSackFailures: 0
+	0 fast retransmits
+	TCPTimeouts: 8
+	TCPLossProbes: 6
+	TCPLossProbeRecovery: 1
+	TCPBacklogCoalesce: 25
+	TCPDSACKOldSent: 32
+	TCPDSACKOfoSent: 0
+	TCPDSACKRecv: 5
+	TCPDSACKOfoRecv: 0
+	2 connections aborted due to data
+	11 connections reset due to early user close
+	0 connections aborted due to timeout
+	TCPDSACKIgnoredNoUndo: 4
+	TCPSackShifted: 0
+	TCPSackMerged: 0
+	TCPSackShiftFallback: 0
+	IPReversePathFilter: 1
+	TCPRcvCoalesce: 4673
+	TCPOFOQueue: 0
+	TCPOFOMerge: 0
+	TCPChallengeAck: 0
+	TCPSynChallenge: 0
+	TCPSpuriousRtxHostQueues: 0
+	TCPAutoCorking: 63
+	TCPSynRetrans: 8
+	TCPOrigDataSent: 149543
+	TCPHystartTrainDetect: 5
+	TCPHystartTrainCwnd: 80
+	TCPHystartDelayDetect: 1
+	TCPHystartDelayCwnd: 18
+	TCPACKSkippedSeq: 0
+	TCPKeepAlive: 0
+	TCPDelivered: 149612
+	TCPAckCompressed: 0
+
+
+
+pcp-netstat output : Display output when filtered UDP protocol
+05:24:46
+
+Udp:
+	517 packets received
+	0 packets to unknown port received
+	0 packet receive errors
+	593 packets sent
+	0 receive buffer errors
+	0 send buffer errors
+
+
+UdpLite:
+	0 packets received
+	0 packets to unknown port received
+	0 packet receive errors
+	0 packets sent
+	0 receive buffer errors
+	0 send buffer errors
+	0 checksum errors
+
+
+05:24:47
+
+Udp:
+	517 packets received
+	0 packets to unknown port received
+	0 packet receive errors
+	593 packets sent
+	0 receive buffer errors
+	0 send buffer errors
+
+
+UdpLite:
+	0 packets received
+	0 packets to unknown port received
+	0 packet receive errors
+	0 packets sent
+	0 receive buffer errors
+	0 send buffer errors
+	0 checksum errors
+
+
+
+pcp-netstat output : Display output when filtered ICMP protocol
+05:24:46
+
+Icmp:
+	51 ICMP messages received
+	0 Input ICMP message failed
+	ICMP input histogram:
+		destination unreachable: 50
+	31 ICMP messages sent
+	0 ICMP messages failed
+	ICMP input histogram:
+		Output destination unreachable: 30
+
+
+IcmpMsg:
+		InType3: 50
+		OutType0: 1
+
+
+05:24:47
+
+Icmp:
+	51 ICMP messages received
+	0 Input ICMP message failed
+	ICMP input histogram:
+		destination unreachable: 50
+	31 ICMP messages sent
+	0 ICMP messages failed
+	ICMP input histogram:
+		Output destination unreachable: 30
+
+
+IcmpMsg:
+		InType3: 50
+		OutType0: 1
+
+
+
+pcp-netstat output : Display output when asked for interface statistics
+05:24:46
+
+Kernel Interface table
+     Iface        MTU      RX-OK     RX-ERR     RX-DRP      TX-OK     TX-ERR     TX-DRP
+      ens2       1500     213158          0          0      59302          0          0 
+      ens3       1500        778          0          0          0          0          0 
+      ens4       1500        778          0          0          0          0          0 
+        lo      65536     131517          0          0     131517          0          0 
+
+05:24:47
+
+Kernel Interface table
+     Iface        MTU      RX-OK     RX-ERR     RX-DRP      TX-OK     TX-ERR     TX-DRP
+      ens2       1500     213166          0          0      59303          0          0 
+      ens3       1500        778          0          0          0          0          0 
+      ens4       1500        778          0          0          0          0          0 
+        lo      65536     131519          0          0     131519          0          0 
+
