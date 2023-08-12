@@ -1,5 +1,5 @@
-# PCP required package list for Fedora 34 x86_64
-# cloned by kenj from Fedora 32 version on Tue Oct 13 11:33:31 2020 +1100
+# PCP required package list for Fedora 40 x86_64
+# created by nathans on localhost.localdomain Fri, 11 Aug 2023 08:29:06 +1000
 #
 389-ds-base
 Coin4-devel
@@ -13,6 +13,7 @@ avahi-devel
 avahi-tools
 bash
 bc
+bcc-tools
 bind-utils
 bison
 bpftool
@@ -94,11 +95,10 @@ postfix-perl-scripts
 postgresql
 psmisc
 pylint
-python2.7
-python2-setuptools
 python3-bcc
 python3-devel
-python3-elasticsearch
+# broken dependencies, see https://bugzilla.redhat.com/show_bug.cgi?id=2066462
+# python3-elasticsearch
 python3-jsonpointer
 python3-libs
 python3-libvirt
@@ -109,12 +109,12 @@ python3-prometheus_client
 python3-psycopg2
 python3-pylint
 python3-pymongo
-python3-pyodbc
+# broken dependencies, see https://bugzilla.redhat.com/show_bug.cgi?id=2155256
+# python3-pyodbc
 python3-requests
 python3-rtslib
 python3-setuptools
 python3-six
-qt-devel
 qt5-qtbase-devel
 qt5-qtsvg-devel
 qtchooser
