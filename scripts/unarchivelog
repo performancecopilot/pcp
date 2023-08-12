@@ -1,0 +1,48 @@
+#!/bin/sh
+
+tmp=/var/tmp/unarchivelog-$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+for file
+do
+    sed <$file \
+	-e 's/^/ /' \
+	-e 's/\([^a-zA-Z]\)\([Aa]\)rchive \([Ll]\)ogging/\1\2rchive!\3ogging/g' \
+	-e 's/\([^a-zA-Z]\)\([Aa]\)rchive \([Ll]\)ogger/\1\2rchive!\3ogger/g' \
+    | sed \
+	-e 's/\([^a-zA-Z]\)\([Aa]\)rchive [Ll]og/\1\2rchive/g' \
+	-e '/[^a-zA-Z][Aa]rchive *$/{
+N
+s/\n *[Ll]og//
+}' \
+    | sed >$tmp.new \
+	-e 's/\([^a-zA-Z]\)\([Aa]\)rchive!\([Ll]\)ogging/\1\2rchive \3ogging/g' \
+	-e 's/\([^a-zA-Z]\)\([Aa]\)rchive!\([Ll]\)ogger/\1\2rchive \3ogger/g' \
+	-e 's/^ //' \
+    # end
+
+    if diff $file $tmp.new >$tmp.diffs
+    then
+	echo "$file: no change"
+    else
+	awk <$tmp.new >$tmp.bad '
+    { for (i = 1; i <= NF; i++) {
+	if ($i ~ /^archive[a-zA-Z]/ &&
+	    $i !~ /^archives/ &&
+	    $i !~ /^archived/)
+	    print NR ":" i ":" $0
+      }
+    }'
+	if [ -s $tmp.bad ]
+	then
+	    cat $tmp.bad
+	    echo "$file: bad edit"
+	else
+	    cat $tmp.diffs
+	    echo "$file: changed"
+	    cp $tmp.new $file
+	fi
+    fi
+done
+
+
