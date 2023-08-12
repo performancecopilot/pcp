@@ -88,7 +88,7 @@ main(int argc, char **argv)
 "Usage: %s [options] metric ...\n\
 \n\
 Options:\n\
-  -a archive     metrics source is a PCP log archive\n\
+  -a archive     metrics source is a PCP archive\n\
   -s samples     terminate after this many samples\n\
   -z             set reporting timezone to local time of metrics source\n\
   -Z timezone    set reporting timezone\n",

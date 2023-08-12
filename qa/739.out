@@ -59,7 +59,7 @@ Usage: test_pcp_options.py [options] parameters ...
 General Options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -h HOST, --host=HOST  metrics source is PMCD on host
   -H FILE, --hostsfile=FILE
                         read metric source hosts from a file
@@ -93,7 +93,7 @@ Usage: test_pcp_options.py [options] parameters ...
 General Options:
   -A TIME, --align=TIME align sample times on natural boundaries
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -h HOST, --host=HOST  metrics source is PMCD on host
   -H FILE, --hostsfile=FILE
                         read metric source hosts from a file
