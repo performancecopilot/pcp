@@ -33,7 +33,7 @@ This guide contains the following topics:
 
 10. :ref:`Using Charts`, introduces the basic functionality available in the PCP Strip Chart tool - *pmchart*.
 
-11. :ref:`Managing Archive Log`, covers PCP tools for creating and managing PCP archive logs.
+11. :ref:`Managing Archive`, covers PCP tools for creating and managing PCP archives.
 
 12. :ref:`Automated Reasoning with pmie` covers the *pmie* tool within PCP that is designed for automated filtering and reasoning about performance.
 

@@ -10,11 +10,12 @@ do
 	-e 's/\([^a-zA-Z]\)\([Aa]\)rchive \([Ll]\)ogging/\1\2rchive!\3ogging/g' \
 	-e 's/\([^a-zA-Z]\)\([Aa]\)rchive \([Ll]\)ogger/\1\2rchive!\3ogger/g' \
     | sed \
-	-e 's/\([^a-zA-Z]\)\([Aa]\)rchive [Ll]og/\1\2rchive/g' \
 	-e '/[^a-zA-Z][Aa]rchive *$/{
 N
 s/\n *[Ll]og//
 }' \
+    | sed \
+	-e 's/\([^a-zA-Z]\)\([Aa]\)rchive [Ll]og/\1\2rchive/g' \
     | sed >$tmp.new \
 	-e 's/\([^a-zA-Z]\)\([Aa]\)rchive!\([Ll]\)ogging/\1\2rchive \3ogging/g' \
 	-e 's/\([^a-zA-Z]\)\([Aa]\)rchive!\([Ll]\)ogger/\1\2rchive \3ogger/g' \

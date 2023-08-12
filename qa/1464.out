@@ -3,7 +3,7 @@ QA output created by 1462 --valgrind
 
 --- indom 29.12 { iname replace /yobo/ -> "YOBO" } ---
 === std out ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Instance Domain: 29.12
 Instance:	[28] "0028 /usr/local/yobo" -> [28] "0028 /usr/local/YOBO"
@@ -77,7 +77,7 @@ sample.proc.time
 
 --- indom 29.12 { iname replace "([0-9]+) .*/(.*)" -> "\1 \2" } ---
 === std out ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Instance Domain: 29.12
 Instance:	[2] "0002 /etc/bozo" -> [2] "0002 bozo"

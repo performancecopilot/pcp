@@ -78,6 +78,6 @@ pmval: Cannot open archive "mv-bigbin.10.xz": No such file or directory
 pmie: cannot open archive mv-bigbin.10.xz
 pmNewContext failed: No such file or directory
 --- compressed empty data volume ---
-pminfo: Cannot open archive "null": Empty archive log file
+pminfo: Cannot open archive "null": Empty archive file
 --- empty data volume pretending to be compressed ---
-pminfo: Cannot open archive "null": Corrupted record in a PCP archive log
+pminfo: Cannot open archive "null": Corrupted record in a PCP archive

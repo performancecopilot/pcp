@@ -10,7 +10,7 @@ __pmResult dump from ADDR timestamp: 1683367453.085954000 20:04:13.085954000 num
 --- pmlogcheck ---
 badarchives/20230506.20.02-01.index[entry 6]: offset to metadata (106110) past end of file (105817)
 badarchives/20230506.20.02-01.index[entry 7]: offset to metadata (106453) past end of file (105817)
-badarchives/20230506.20.02-01.0:[20:04:13.085] 70.1.1: pmLookupDesc failed: Metric not defined in the PCP archive log
+badarchives/20230506.20.02-01.0:[20:04:13.085] 70.1.1: pmLookupDesc failed: Metric not defined in the PCP archive
 
 === TMP ===
 --- pmlogdump ---

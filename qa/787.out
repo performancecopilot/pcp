@@ -334,7 +334,7 @@ value[0]: 4
 sample 63, delta time=-3600.000 secs
 hinv.ncpu: 
 value[0]: 4
-sample[64] pmFetch: End of PCP archive log
+sample[64] pmFetch: End of PCP archive
 
 64 samples required 7565 log reads
 
@@ -671,7 +671,7 @@ value[0]: 436
 sample 63, delta time=-3600.000 secs
 kernel.all.nprocs: 
 value[0]: 444
-sample[64] pmFetch: End of PCP archive log
+sample[64] pmFetch: End of PCP archive
 
 64 samples required 7565 log reads
 
@@ -945,7 +945,7 @@ pmcd.numagents: no current values no prior values
 
 sample 63, delta time=-3600.000 secs
 pmcd.numagents: no current values no prior values 
-sample[64] pmFetch: End of PCP archive log
+sample[64] pmFetch: End of PCP archive
 
 64 samples required 12911 log reads
 

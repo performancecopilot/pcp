@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 046
-# archive logs for metrics with numval <= 0 ??
+# archives for metrics with numval <= 0 ??
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #

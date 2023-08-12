@@ -3,7 +3,7 @@ QA output created by 1456
 Performance metrics from host fedora
     Context labels (123 bytes): {"domainname":"pcp.net.au","groupid":1000,"hostname":"fedora","machineid":"915b8dd2559f48ddb2dcd6a45221288c","userid":1000}
 
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 Hostname:	fedora -> [redacted]
 
 Label: Context, Label: "hostname"
@@ -31,7 +31,7 @@ Performance metrics from host [redacted]
 >         [3] name(67,9) : value(78,34) [context]
 >         [4] name(114,6) : value(122,4) [context,optional]
 
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 Hostname:	fedora -> [redacted]
 
 Label: Context, Label: "hostname"
@@ -59,7 +59,7 @@ Performance metrics from host [redacted]
 >         [3] name(60,9) : value(71,34) [context]
 >         [4] name(107,6) : value(115,4) [context,optional]
 
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 Hostname:	fedora -> [redacted]
 
 Label: Context, Label: "hostname"

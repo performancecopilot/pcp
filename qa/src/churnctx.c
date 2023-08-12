@@ -250,7 +250,7 @@ main(int argc, char **argv)
 	    finish = optarg;
 	    break;
 
-	case 'U':	/* uninterpolated archive log */
+	case 'U':	/* uninterpolated archive */
 	    if (type != 0) {
 		fprintf(stderr, "%s: at most one of -a, -h, -L and -U allowed\n", pmGetProgname());
 		errflag++;

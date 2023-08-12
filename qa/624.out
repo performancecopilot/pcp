@@ -2,7 +2,7 @@ QA output created by 624
 === metric not in archive ===
 Metric: kernel.all.load: Unknown metric name
 No changes
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 Warning [TMP.conf, line 1]
 rewrite.0
 rewrite.index
@@ -20,7 +20,7 @@ mirage.index.xz
 mirage.meta.xz
 
 === truncated archive ... expect no change ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Instance Domain: 29.1
 Instance:	[0] "red" -> [0] "really red"
@@ -28,10 +28,10 @@ Instance:	[0] "red" -> [0] "really red"
 Metric: sample.colour (29.0.5)
 Inst Changes:	<- InDom 29.1
 Error: data fread got 340 expected 484
-pmlogrewrite: Error: __pmLogRead[log TMP.arch/ok-truncbin]: Corrupted record in a PCP archive log
+pmlogrewrite: Error: __pmLogRead[log TMP.arch/ok-truncbin]: Corrupted record in a PCP archive
 pmlogrewrite: Error occurred at byte offset 204XXX into a file of 204800 bytes.
 ok-truncbin.0
 ok-truncbin.index
 ok-truncbin.meta
-pmdumplog: pmFetch: Corrupted record in a PCP archive log
-pmdumplog: pmFetch: Corrupted record in a PCP archive log
+pmdumplog: pmFetch: Corrupted record in a PCP archive
+pmdumplog: pmFetch: Corrupted record in a PCP archive

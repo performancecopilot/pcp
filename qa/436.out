@@ -78,7 +78,7 @@ pmval: Cannot open archive "mv-bigbin.10.bz2": No such file or directory
 pmie: cannot open archive mv-bigbin.10.bz2
 pmNewContext failed: No such file or directory
 --- compressed empty data volume ---
-pminfo: Cannot open archive "null": Empty archive log file
+pminfo: Cannot open archive "null": Empty archive file
 --- empty data volume pretending to be compressed ---
 bzip2: Compressed file ends unexpectedly;
 	perhaps it is corrupted?  *Possible* reason follows.
@@ -88,4 +88,4 @@ It is possible that the compressed file(s) have become corrupted.
 You can use the -tvv option to test integrity of such files.
 You can use the `bzip2recover' program to attempt to recover
 data from undamaged sections of corrupted files.
-pminfo: Cannot open archive "null": Corrupted record in a PCP archive log
+pminfo: Cannot open archive "null": Corrupted record in a PCP archive
