@@ -13,7 +13,7 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# Daily administrative script for PCP archive logs
+# Daily administrative script for PCP archives
 #
 
 . $PCP_DIR/etc/pcp.env
@@ -237,7 +237,7 @@ fi
 CONTROL=$PCP_PMLOGGERCONTROL_PATH
 CONTROLDIR=$PCP_PMLOGGERCONTROL_PATH.d
 
-# default number of days to keep archive logs
+# default number of days to keep archives
 #
 CULLAFTER=14
 
@@ -1413,7 +1413,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    if [ -f $tmp/reexec ]
 	    then
 		#
-		# send pmlogger a SIGUSR2 to "roll the archive logs"
+		# send pmlogger a SIGUSR2 to "roll the archives"
 		#
 		if $SHOWME
 		then
@@ -1519,7 +1519,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		fi
 	    fi
 
-	    # Merge archive logs.
+	    # Merge archives.
 	    #
 	    # Will work for new style YYYYMMDD.HH.MM[-NN] archives and old style
 	    # YYMMDD.HH.MM[-NN] archives.

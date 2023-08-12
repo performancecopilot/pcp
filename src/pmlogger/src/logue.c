@@ -18,7 +18,7 @@
 
 /*
  * this routine creates the "fake" pmResult records to be added to the
- * start (prologue) and end (epilogue) of the archive log to identify
+ * start (prologue) and end (epilogue) of the archive to identify
  * information about the archive beyond what is in the archive label.
  */
 

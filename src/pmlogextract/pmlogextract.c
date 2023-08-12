@@ -1,5 +1,5 @@
 /*
- * pmlogextract - extract desired metrics from PCP archive logs
+ * pmlogextract - extract desired metrics from PCP archives
  *
  * Copyright (c) 2014-2018,2021-2022 Red Hat.
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.

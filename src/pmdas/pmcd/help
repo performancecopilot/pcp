@@ -347,7 +347,7 @@ instance).
 
 @ pmcd.pmlogger.archive full pathname to archive basename for active pmlogger
 The full pathname through the filesystem on the corresponding host
-(pmcd.pmlogger.host) that is the base name for the archive log files.
+(pmcd.pmlogger.host) that is the base name for the archive files.
 
 The instance names are process IDs of the active pmloggers.  The
 primary pmlogger has an extra instance with the instance name "primary"

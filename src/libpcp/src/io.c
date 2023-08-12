@@ -74,7 +74,7 @@ __pmLogCompressedSuffix(const char *suffix)
 
 /*
  * Variant of __pmLogBaseName() - see below that also returns log
- * the volume number if the file name is an archive log volume.
+ * the volume number if the file name is an archive volume.
  * If the vol argument is NULL it will be ignored.
  */
 char *

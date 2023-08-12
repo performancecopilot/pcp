@@ -23,7 +23,7 @@ s/\n *[Ll]og//
 
     if diff $file $tmp.new >$tmp.diffs
     then
-	echo "$file: no change"
+	: echo "$file: no change"
     else
 	awk <$tmp.new >$tmp.bad '
     { for (i = 1; i <= NF; i++) {
