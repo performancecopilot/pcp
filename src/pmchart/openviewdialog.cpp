@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2013,2021 Red Hat.
+ * Copyright (c) 2013,2021,2023 Red Hat.
  * Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -22,7 +22,29 @@
 OpenViewDialog::OpenViewDialog(QWidget *parent) : QDialog(parent)
 {
     setupUi(this);
-    my.dirModel = new QDirModel;
+
+    connect(fileNameLineEdit, SIGNAL(returnPressed()),
+		openPushButton, SLOT(click()));
+    connect(dirListView, SIGNAL(activated(QModelIndex)),
+		this, SLOT(dirListView_activated(QModelIndex)));
+    connect(userToolButton, SIGNAL(clicked(bool)),
+		this, SLOT(userToolButton_clicked(bool)));
+    connect(systemToolButton, SIGNAL(clicked(bool)),
+		this, SLOT(systemToolButton_clicked(bool)));
+    connect(openPushButton, SIGNAL(clicked()),
+		this, SLOT(openPushButton_clicked()));
+    connect(pathComboBox, SIGNAL(currentIndexChanged(int)),
+		this, SLOT(pathComboBox_currentIndexChanged(int)));
+    connect(sourcePushButton, SIGNAL(clicked()),
+		this, SLOT(sourcePushButton_clicked()));
+    connect(cancelPushButton, SIGNAL(clicked()),
+		this, SLOT(reject()));
+    connect(parentToolButton, SIGNAL(clicked()),
+		this, SLOT(parentToolButton_clicked()));
+    connect(sourceComboBox, SIGNAL(currentIndexChanged(int)),
+		this, SLOT(sourceComboBox_currentIndexChanged(int)));
+
+    my.dirModel = new QFileSystemModel;
     my.dirModel->setIconProvider(fileIconProvider);
     dirListView->setModel(my.dirModel);
 
@@ -99,7 +121,6 @@ void OpenViewDialog::setPath(const QModelIndex &index)
     console->post("OpenViewDialog::setPath QModelIndex path=%s",
 			(const char *)my.dirModel->filePath(index).toLatin1());
     my.dirIndex = index;
-    my.dirModel->refresh(index);
     dirListView->setRootIndex(index);
     setPathUi(my.dirModel->filePath(index));
 }
@@ -108,16 +129,16 @@ void OpenViewDialog::setPath(const QString &path)
 {
     console->post("OpenViewDialog::setPath QString path=%s",
 			(const char *)path.toLatin1());
+    my.dirModel->setRootPath(path);
     my.dirIndex = my.dirModel->index(path);
-    my.dirModel->refresh(my.dirIndex);
     dirListView->setRootIndex(my.dirIndex);
     setPathUi(path);
 }
 
-void OpenViewDialog::pathComboBox_currentIndexChanged(QString path)
+void OpenViewDialog::pathComboBox_currentIndexChanged(int index)
 {
-    console->post("OpenViewDialog::pathComboBox_currentIndexChanged");
-    setPath(path);
+    console->post("OpenViewDialog::pathComboBox_currentTextChanged");
+    setPath(pathComboBox->itemText(index));
 }
 
 void OpenViewDialog::parentToolButton_clicked()
@@ -260,9 +281,7 @@ void OpenViewDialog::hostAdd()
 
 	if (hostspec.isNull() || hostspec.length() == 0) {
 	    hostspec.append(tr("Hostname not specified\n"));
-	    QMessageBox::warning(this, pmGetProgname(), hostspec,
-		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-		    Qt::NoButton, Qt::NoButton);
+	    QMessageBox::warning(this, pmGetProgname(), hostspec);
 	} else if (liveGroup->use(PM_CONTEXT_HOST, hostspec, flags) < 0) {
 	    pmflush();
 	} else {
@@ -296,9 +315,7 @@ bool OpenViewDialog::useLiveContext(int index)
 {
     if (liveGroup->numContexts() == 0) {
 	QString msg("No host connections have been established yet\n");
-	QMessageBox::warning(NULL, pmGetProgname(), msg,
-		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
-		QMessageBox::NoButton, QMessageBox::NoButton);
+	QMessageBox::warning(this, pmGetProgname(), msg);
 	return false;
     }
 
@@ -320,9 +337,7 @@ bool OpenViewDialog::useArchiveContext(int index)
 {
     if (archiveGroup->numContexts() == 0) {
 	QString msg("No PCP archives have been opened yet\n");
-	QMessageBox::warning(NULL, pmGetProgname(), msg,
-		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
-		QMessageBox::NoButton, QMessageBox::NoButton);
+	QMessageBox::warning(this, pmGetProgname(), msg);
 	return false;
     }
 
@@ -357,9 +372,7 @@ bool OpenViewDialog::openViewFiles(const QStringList &fl)
 	    msg = tr("Cannot open Host View(s) in an Archive Tab\n");
 	else
 	    msg = tr("Cannot open Archive View(s) in a Host Tab\n");
-	QMessageBox::warning(this, pmGetProgname(), msg,
-	    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-	    QMessageBox::NoButton, QMessageBox::NoButton);
+	QMessageBox::warning(this, pmGetProgname(), msg);
 	return false;
     }
     if (useComboBoxContext(my.archiveSource) == false)
@@ -418,8 +431,6 @@ void OpenViewDialog::openPushButton_clicked()
     }
 
     if (msg.isEmpty() == false) {
-	QMessageBox::warning(this, pmGetProgname(), msg,
-	    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-	    QMessageBox::NoButton, QMessageBox::NoButton);
+	QMessageBox::warning(this, pmGetProgname(), msg);
     }
 }

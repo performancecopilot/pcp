@@ -164,18 +164,4 @@
   <resources>
    <include location="pmchart.qrc" />
   </resources>
-  <connections>
-    <connection>
-      <sender>buttonOk</sender>
-      <signal>clicked()</signal>
-      <receiver>InfoDialog</receiver>
-      <slot>accept()</slot>
-    </connection>
-    <connection>
-      <sender>infoTab</sender>
-      <signal>currentChanged(int)</signal>
-      <receiver>InfoDialog</receiver>
-      <slot>infoTabCurrentChanged(int)</slot>
-    </connection>
-  </connections>
 </ui>

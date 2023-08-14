@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2015, Red Hat.
+ * Copyright (c) 2015,2023 Red Hat.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -263,9 +263,7 @@ void NameSpace::expandMetricNames(QString parent, bool show)
 	else
 	    msg = QString("Cannot get children of node\n\"%1\".\n%2.\n\n")
 		.arg(name).arg(pmErrStr(sts));
-	QMessageBox::warning(NULL, pmGetProgname(), msg,
-		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
-		QMessageBox::NoButton, QMessageBox::NoButton);
+	QMessageBox::warning(NULL, pmGetProgname(), msg);
 	goto done;
     }
     else {
@@ -380,9 +378,7 @@ void NameSpace::expandMetricNames(QString parent, bool show)
 
 done:
     if (fail_count)
-	QMessageBox::warning(NULL, pmGetProgname(), failmsg,
-		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
-		QMessageBox::NoButton, QMessageBox::NoButton);
+	QMessageBox::warning(NULL, pmGetProgname(), failmsg);
     if (pmidlist)
 	free(pmidlist);
     if (leaflist)
@@ -412,10 +408,7 @@ void NameSpace::expandInstanceNames(bool show)
 	    goto done;
 	QString msg = QString("Error fetching instance domain at node \"%1\".\n%2.\n\n")
 		.arg(metricName()).arg(pmErrStr(sts));
-	QMessageBox::warning(NULL, pmGetProgname(), msg,
-		QMessageBox::Ok | QMessageBox::Default |
-			QMessageBox::Escape,
-		QMessageBox::NoButton, QMessageBox::NoButton);
+	QMessageBox::warning(NULL, pmGetProgname(), msg);
     }
     else {
 	ninst = sts;

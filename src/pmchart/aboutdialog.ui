@@ -208,22 +208,4 @@ p, li { white-space: pre-wrap; }
  <resources>
   <include location="pmchart.qrc" />
  </resources>
- <connections>
-  <connection>
-   <sender>aboutOKButton</sender>
-   <signal>clicked()</signal>
-   <receiver>AboutDialog</receiver>
-   <slot>aboutOKButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
 </ui>

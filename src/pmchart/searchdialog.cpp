@@ -1,11 +1,12 @@
 /*
+ * Copyright (c) 2023, Red Hat.  All Rights Reserved.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -13,11 +14,32 @@
  */
 #include "searchdialog.h"
 #include <QMessageBox>
+#include <QRegularExpression>
 #include "main.h"
 
 SearchDialog::SearchDialog(QWidget* parent) : QDialog(parent)
 {
     setupUi(this);
+
+    connect(buttonSearch, SIGNAL(clicked()),
+		this, SLOT(search()));
+    connect(buttonClear, SIGNAL(clicked()),
+		this, SLOT(clear()));
+    connect(buttonOk, SIGNAL(clicked()),
+		this, SLOT(ok()));
+    connect(buttonCancel, SIGNAL(clicked()),
+		this, SLOT(reject()));
+    connect(hostPattern, SIGNAL(textEdited(QString)),
+		this, SLOT(changed()));
+    connect(metricPattern, SIGNAL(textEdited(QString)),
+		this, SLOT(changed()));
+    connect(instancePattern, SIGNAL(textEdited(QString)),
+		this, SLOT(changed()));
+    connect(buttonAll, SIGNAL(clicked()),
+		this, SLOT(selectall()));
+    connect(matchList, SIGNAL(itemSelectionChanged()),
+		this, SLOT(listchanged()));
+
     my.count = 0;
 }
 
@@ -77,15 +99,18 @@ void SearchDialog::listchanged()
 
 void SearchDialog::search()
 {
-    QString	res;
     QTreeWidgetItemIterator iterator(my.pmns, QTreeWidgetItemIterator::All);
-    int		h_match = 0;
-    int		m_match = 0;
-    int		i_match;
-    int		count;
-    QRegExp	h_rx;
-    QRegExp	m_rx;
-    QRegExp	i_rx;
+    QRegularExpressionMatch h_rxmatch;
+    QRegularExpressionMatch m_rxmatch;
+    QRegularExpressionMatch i_rxmatch;
+    QRegularExpression h_rx;
+    QRegularExpression m_rx;
+    QRegularExpression i_rx;
+    QString res;
+    int h_match = 0;
+    int m_match = 0;
+    int i_match;
+    int count;
 
     console->post(PmChart::DebugUi,
 	 "SearchDialog::search host=\"%s\" metric=\"%s\" instance=\"%s\"",
@@ -117,10 +142,12 @@ void SearchDialog::search()
 	NameSpace *item = (NameSpace *)(*iterator);
 	if (item->isRoot()) {
 	    // host name
-	    if (!hostPattern->text().isEmpty())
-		h_match = h_rx.indexIn(item->sourceName());
-	    else
-		h_match = 0;
+	    h_match = 0;
+	    if (!hostPattern->text().isEmpty()) {
+		h_rxmatch = h_rx.match(item->sourceName());
+		if (h_rxmatch.hasMatch())
+		    h_match = h_rxmatch.capturedStart(0);
+	    }
 	    if (h_match >= 0) {
 		console->post(PmChart::DebugUi, "SearchDialog::search "
 		    "host=\"%s\" h_match=%d",
@@ -132,10 +159,12 @@ void SearchDialog::search()
 	else if (h_match >= 0 && item->isMetric()) {
 	    // metric name
 	    count++;
-	    if (!metricPattern->text().isEmpty())
-		m_match = m_rx.indexIn(item->metricName());
-	    else
-		m_match = 0;
+	    m_match = 0;
+	    if (!metricPattern->text().isEmpty()) {
+		m_rxmatch = m_rx.match(item->metricName());
+		if (m_rxmatch.hasMatch())
+		    m_match = m_rxmatch.capturedStart(0);
+	    }
 	    if (m_match >= 0) {
 		if (item->isLeaf() &&
 		    instancePattern->text().isEmpty()) {
@@ -160,10 +189,12 @@ void SearchDialog::search()
 	else if (h_match >= 0 && m_match >= 0 && item->isInst()) {
 	    // matched last metric, now related instance name ... 
 	    count++;
-	    if (!instancePattern->text().isEmpty())
-		i_match = i_rx.indexIn(item->metricInstance());
-	    else
-		i_match = 0;
+	    i_match = 0;
+	    if (!instancePattern->text().isEmpty()) {
+		i_rxmatch = i_rx.match(item->metricInstance());
+		if (i_rxmatch.hasMatch())
+		    i_match = i_rxmatch.capturedStart(0);
+	    }
 	    if (i_match >= 0) {
 		QString fqn = item->sourceName().append(":");
 		fqn.append(item->metricName());

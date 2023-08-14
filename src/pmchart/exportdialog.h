@@ -41,7 +41,7 @@ public slots:
     virtual void allChartsRadioButton_clicked();
     virtual void quality_valueChanged(int);
     virtual void filePushButton_clicked();
-    virtual void formatComboBox_currentIndexChanged(QString);
+    virtual void formatComboBox_currentIndexChanged(int);
 
 protected slots:
     virtual void languageChange();
