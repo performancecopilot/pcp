@@ -686,8 +686,6 @@ void PmTimeArch::addTimezone(const char *string)
 	my.tzActions = new QActionGroup(this);
 	connect(my.tzActions, SIGNAL(triggered(QAction *)),
 			this, SLOT(setTimezone(QAction *)));
-	connect(my.tzActions, SIGNAL(selected(QAction *)),
-			this, SLOT(setTimezone(QAction *)));
     }
     my.tzActions->addAction(tzAction);
     optionsTimezoneAction->addActions(my.tzActions->actions());
