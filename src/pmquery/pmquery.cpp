@@ -148,9 +148,10 @@ void PmQuery::timerEvent(QTimerEvent *)
 // Note: the +4 pixels for height ensure the auto-scroll does not
 // kick in, seems to be required.
 
-PmQuery::PmQuery(bool inputflag, bool printflag, bool noframeflag,
+PmQuery::PmQuery(QApplication &application,
+		bool inputflag, bool printflag, bool noframeflag,
 		 bool nosliderflag, bool usesliderflag, bool exclusiveflag)
-    : QDialog()
+    : QDialog(application.activeWindow())
 {
     QHBoxLayout *hboxLayout;
     QVBoxLayout *vboxLayout;

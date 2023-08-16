@@ -16,7 +16,7 @@
 #include <QCursor>
 #include <QScreen>
 #include <QTextStream>
-#include <QGuiApplication>
+#include <QApplication>
 #include "pmquery.h"
 
 static char usage[] =
@@ -108,7 +108,7 @@ int main(int argc, char ** argv)
     int usesliderflag = 0;
     int exclusiveflag = 0;
 
-    QGuiApplication a(argc, argv);
+    QApplication a(argc, argv);
 
     while ((option = getoption(argc, argv)) != NULL) {
 	if (strcmp(option, "-c") == 0 || strcmp(option, "-center") == 0) {
@@ -276,7 +276,7 @@ int main(int argc, char ** argv)
     if (!PmQuery::buttonCount())
 	PmQuery::addButton("Continue", true, 0);
 
-    PmQuery q(inputflag, printflag, noframeflag,
+    PmQuery q(a, inputflag, printflag, noframeflag,
 	      nosliderflag, usesliderflag, exclusiveflag);
 
     if (nearmouseflag)
