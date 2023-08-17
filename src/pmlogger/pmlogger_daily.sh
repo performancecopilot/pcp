@@ -173,18 +173,30 @@ _fmt()
 BEGIN		{ len = 0 }
 		{ for (i = 1; i <= NF; i++) {
 		    wlen = length($i)
-		    if (len + 1 + wlen > 75) {
-			printf "\n"
-			len = 0
-		    }
-		    if (len + 1 + wlen <= 75) {
-			if (len == 0) {
-			    printf "%s",$i
-			    len = wlen;
+		    if (wlen >= 75) {
+			# filename longer than notional max line length
+			# print partial line (if any), then this one
+			# on a line by itself
+			if (len > 0) {
+			    printf "\n"
+			    len = 0
 			}
-			else {
-			    printf " %s",$i
-			    len += 1 + wlen
+			print $i
+		    }
+		    else {
+			if (len + 1 + wlen > 75) {
+			    printf "\n"
+			    len = 0
+			}
+			if (len + 1 + wlen <= 75) {
+			    if (len == 0) {
+				printf "%s",$i
+				len = wlen;
+			    }
+			    else {
+				printf " %s",$i
+				len += 1 + wlen
+			    }
 			}
 		    }
 		  }
@@ -828,14 +840,14 @@ _unlock()
 # with a datestamp
 #
 # need to handle both the year 2000 and the old name formats, and
-# possible ./ prefix (from find .)
+# possible ./ prefix (from find(1))
 # 
 _filter_filename()
 {
     sed -n \
-	-e 's/^\.\///' \
-	-e '/^[12][0-9][0-9][0-9][0-1][0-9][0-3][0-9][-.]/p' \
-	-e '/^[0-9][0-9][0-1][0-9][0-3][0-9][-.]/p'
+	-e '/\/[12][0-9][0-9][0-9][0-1][0-9][0-3][0-9][-.]/p' \
+	-e '/\/[0-9][0-9][0-1][0-9][0-3][0-9][-.]/p' \
+    | sed -e 's@^\./@@'
 }
 
 _get_primary_logger_pid()
@@ -1025,6 +1037,102 @@ END				{ print m }'`
 	fi
     done
     echo "$pid"
+}
+
+# replace $(....) in $orig_dir by * ($orig_dir is on stdin)
+#
+_unshell()
+{
+    $PCP_AWK_PROG '
+BEGIN	{ seenslash = 0; lastc = ""; inshell = 0; nesting = 0; out = "" }
+	{ for (i = 1; i <= length($0); i++) {
+	    c = substr($0,i,1)
+	    if (!seenslash) {
+		if (c == "\\") {
+		    seenslash = 1
+		}
+		else {
+		    if (!inshell) {
+			if (c == "(" && lastc == "$") {
+			    # $( seen
+			    nesting = 1;
+			    inshell = 1
+			    # chop off previous $
+			    out = substr(out, 1, length(out)-1)
+			}
+		    }
+		    else {
+			if (!seenslash && c == "(") {
+			    # nested (
+			    nesting++
+			}
+			else if (!seenslash && c == ")") {
+			    nesting--
+			    if (nesting == 0) {
+				# closing ) after $(
+				c = "*"
+				inshell = 0
+			    }
+			}
+		    }
+		}
+		lastc = c
+	    }
+	    else {
+		seenslash = 0
+		lastc = ""
+	    }
+	    if (!inshell) {
+		if (out == "")
+		    out = c
+		else
+		    out = out c
+	    }
+	  }
+	}
+END	{ print out }'
+}
+
+# replace `....` in $orig_dir by * ($orig_dir is on stdin)
+#
+_unbackquote()
+{
+    $PCP_AWK_PROG '
+BEGIN	{ seenslash = 0; inshell = 0; out = "" }
+	{ for (i = 1; i <= length($0); i++) {
+	    c = substr($0,i,1)
+	    if (!seenslash) {
+		if (c == "\\") {
+		    seenslash = 1
+		}
+		else {
+		    if (!inshell) {
+			if (c == "`") {
+			    # leading ` seen
+			    inshell = 1
+			}
+		    }
+		    else {
+			if (!seenslash && c == "`") {
+			    # matching ` seen
+			    c = "*"
+			    inshell = 0
+			}
+		    }
+		}
+	    }
+	    else {
+		seenslash = 0
+	    }
+	    if (!inshell) {
+		if (out == "")
+		    out = c
+		else
+		    out = out c
+	    }
+	  }
+	}
+END	{ print out }'
 }
 
 _parse_control()
@@ -1223,6 +1331,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	# do shell expansion of $dir if needed
 	#
 	_do_dir_and_args
+	$VERY_VERBOSE && echo "After _do_dir_and_args: orig_dir=$orig_dir dir=$dir"
 
 	if [ -z "$primary" -o -z "$socks" -o -z "$dir" -o -z "$args" ]
 	then
@@ -1235,6 +1344,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	#
 	dirhostname=`hostname || echo localhost`
 	dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dirhostname;"`
+	orig_dir=`echo $orig_dir | sed -e "s;LOCALHOSTNAME;$dirhostname;"`
 	[ $primary = y -o "x$host" = xLOCALHOSTNAME ] && host=local:
 
 	if $VERBOSE
@@ -1275,6 +1385,28 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	cd $dir
 	dir=`$PWDCMND`
 	$SHOWME && echo "+ cd $dir"
+	$VERY_VERBOSE && echo "Current dir: $dir"
+
+	# if $orig_dir contains embedded shell commands, like $(cmd ...)
+	# or `cmd ...` then previous archives may not be in $dir, e.g
+	# when cmd is "date +%Y-%m-%d"
+	# all we can do is replace the embedded shell commands with "*"
+	# and hope sh(1) does all the work
+	#
+        find_dirs="."
+	if echo "$orig_dir" | grep '\$(' >/dev/null
+	then
+	    if echo "$orig_dir" | grep '`' >/dev/null
+	    then
+		_warning "orig_dir ($orig_dir) contains both \$( and \`"
+	    fi
+	    find_dirs=`echo $orig_dir | _unshell`
+	    $VERBOSE && echo "Embedded \$(...): find_dirs=$find_dirs"
+	elif echo "$orig_dir" | grep '`' >/dev/null
+	then
+	    find_dirs=`echo $orig_dir | _unbackquote`
+	    $VERBOSE && echo "Embedded \`...\`: find_dirs=$find_dirs"
+	fi
 
 	if $SHOWME
 	then
@@ -1310,26 +1442,28 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	if $REWRITEALL
 	then
 	    # Do the pmlogrewrite -qi thing (using pmlogger_rewrite) for
-	    # all archives in this directory
+	    # all archives in directories that match $find_dirs
 	    #
 	    rewrite_args="$rewrite"
-	    if $VERBOSE
-	    then
-		echo "Info: pmlogrewrite all archives in $dir"
-		rewrite_args="$rewrite_args -V"
-	    fi
+	    $VERBOSE && rewrite_args="$rewrite_args -V"
 	    $VERY_VERBOSE && rewrite_args="$rewrite_args -V"
-	    if $SHOWME
-	    then
-		echo "+ $PCP_BINADM_DIR/pmlogger_rewrite $rewrite_args $dir"
-	    else
-		if eval $PCP_BINADM_DIR/pmlogger_rewrite $rewrite_args $dir
+	    for archdir in $find_dirs
+	    do
+		[ "$archdir" = "." ] && archdir="$dir"
+		[ -d "$archdir" ] || continue
+		$VERBOSE && echo "Info: pmlogrewrite all archives in $archdir"
+		if $SHOWME
 		then
-		    :
+		    echo "+ $PCP_BINADM_DIR/pmlogger_rewrite $rewrite_args $archdir"
 		else
-		    _error "pmlogger_rewrite failed in $dir"
+		    if eval $PCP_BINADM_DIR/pmlogger_rewrite $rewrite_args $archdir
+		    then
+			:
+		    else
+			_error "pmlogger_rewrite failed in $archdir"
+		    fi
 		fi
-	    fi
+	    done
 	fi
 
 	pid=''
@@ -1478,13 +1612,13 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		fi
 		if [ "$CULLDAYS" -gt 0 ]
 		then
-		    find . -type f -mtime +$CULLDAYS
+		    find $find_dirs -maxdepth 1 -type f -mtime +$CULLDAYS
 		else
-		    find . -type f
+		    find $find_dirs -maxdepth 1 -type f
 		fi \
 		| $PCP_BINADM_DIR/find-filter mtime +$CULLAFTER \
 		| _filter_filename \
-		| sort >$tmp/list
+		| LC_COLLATE=POSIX sort >$tmp/list
 		if [ -n "$pid" ]
 		then
 		    # pmlogger is running, make sure we don't cull the current
@@ -1537,28 +1671,38 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    #
 	    TODAY=`date +%Y%m%d`
 
-	    find *.meta* \
-		 \( -name "*.[0-2][0-9].[0-5][0-9].meta*" \
-		    -o -name "*.[0-2][0-9].[0-5][0-9]-[0-9][0-9].meta*" \
-		 \) \
-		 -print 2>/dev/null \
-	    | sed \
-		-e "/^$TODAY\./d" \
-		-e 's/\.meta\..*//' \
-		-e 's/\.meta//' \
-	    | sort -n \
-	    | $PCP_AWK_PROG '
-	{ if (lastdate != "" && match($1, "^" lastdate "\\.") == 1) {
-	    # same date as previous one
-	    inlist = inlist " " $1
+	    # split archive pathname for .meta files into
+	    # <directory>|<date>|<time[-seq]>|<.meta...>
+	    # (use | as the field separator as it is less likely than a
+	    # space to be in the <directory> part)
+	    #
+	    # need to handle both the year 2000 and the old name format,
+	    # so YYYYMMDD.HH.MM.meta.* and YYMMDD.HH.MM.meta.*
+	    #
+	    find $find_dirs -maxdepth 1 -type f \
+	    | sed -n \
+		-e '/\(.*\)\/\([12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.[0-2][0-9].[0-5][0-9]\)\(\.meta.*\)/s//\1|\2|\3|\4/p' \
+		-e '/\(.*\)\/\([12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.[0-2][0-9].[0-5][0-9]-[0-9][0-9]\)\(\.meta.*\)/s//\1|\2|\3|\4/p' \
+		-e '/\(.*\)\/\([0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.[0-2][0-9].[0-5][0-9]\)\(\.meta.*\)/s//\1|\2|\3|\4/p' \
+		-e '/\(.*\)\/\([0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.[0-2][0-9].[0-5][0-9]-[0-9][0-9]\)\(\.meta.*\)/s//\1|\2|\3|\4/p' \
+	    | sed -e 's@^./@@' \
+	    | sort -t'|' -k 1,1 -n -k2,3 \
+	    | $PCP_AWK_PROG -F'|' '
+$2 == "'$TODAY'"	{ next }
+	{ if ($1 == ".")
+	    thisdate = $2
+	  else
+	    thisdate = $1 "/" $2
+	  if (lastdate != "" && lastdate == thisdate) {
+	    # same dir and date as previous one
+	    inlist = inlist " " thisdate $3
 	    next
 	  }
 	  else {
-	    # different date as previous one
+	    # different dir or date as previous one
 	    if (inlist != "") print lastdate,inlist
-	    inlist = $1
-	    lastdate = $1
-	    sub(/\..*/, "", lastdate)
+	    inlist = thisdate $3
+	    lastdate = thisdate
 	  }
 	}
 END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
@@ -1571,7 +1715,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 		#
 		now_hr=`pmdate %H`
 		hr=`expr 12 + $now_hr`
-		grep "^[0-9]*`pmdate -${hr}H %y%m%d` " $tmp/list >$tmp/tmp
+		egrep "(^|.*/)[0-9]*`pmdate -${hr}H %y%m%d` " $tmp/list >$tmp/tmp
 		mv $tmp/tmp $tmp/list
 	    fi
 
@@ -1683,7 +1827,15 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 				# Do merge callbacks
 				#
 				$VERBOSE && echo "Merge callbacks ..."
-				mergefile="$dir/`cat $tmp/mergefile`"
+				mergefile="`cat $tmp/mergefile`"
+				case "$mergefile"
+				in
+				    /*)	# full pathname
+				        ;;
+				    *)	# relative pathname
+					mergefile="$dir/$mergefile"
+					;;
+				esac
 				cat $tmp/merge_callback \
 				| while read exec
 				do
@@ -1799,7 +1951,7 @@ p
 		    then
 			# compress all possible files immediately
 			#
-			find . -type f
+			find $find_dirs -maxdepth 1 -type f
 		    else
 			# compress files last modified more than $COMPRESSSAFTER
 			# days ago
@@ -1812,11 +1964,11 @@ p
 			else
 			    mtime=$COMPRESSAFTER
 			fi
-			find . -type f -mtime +$mtime
+			find $find_dirs -maxdepth 1 -type f -mtime +$mtime
 		    fi \
 		    | _filter_filename \
 		    | grep -E -v "$COMPRESSREGEX" \
-		    | sort >$tmp/list
+		    | LC_COLLATE=POSIX sort >$tmp/list
 		    if [ -s $tmp/list -a -n "$current_base" -a -n "$current_vol" ]
 		    then
 			# don't compress current volume (or later ones, if
@@ -1895,7 +2047,14 @@ p
 			    | uniq \
 			    | while read compressfile
 			    do
-				compressfile="$dir/$compressfile"
+				case "$compressfile"
+				in
+				    /*)	# full pathname
+				        ;;
+				    *)	# relative pathname
+					compressfile="$dir/$compressfile"
+					;;
+				esac
 				cat $tmp/compress_callback \
 				| while read exec
 				do
@@ -1971,7 +2130,19 @@ p
 		    fi
 		    last_mkdir="$auto_dir"
 		fi
-		_autosave "$dir" "$savefile" "$auto_dir"
+		# $savefile may be a full pathname
+		#
+		case "$savefile"
+		in
+		    /*)
+			src_dir=`dirname "$savefile"`
+			savefile=`basename "$savefile"`
+			;;
+		    *)
+			src_dir="$dir"
+			;;
+		esac
+		_autosave "$src_dir" "$savefile" "$auto_dir"
 	    done
 	fi
 

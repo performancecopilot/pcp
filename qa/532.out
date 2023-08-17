@@ -75,9 +75,9 @@ NOW-3.1H.MM.0
 NOW-3.1H.MM.index
 NOW-3.1H.MM.meta
 Input archives to be merged:
-	YESTERDAY.1H.MM
 	YESTERDAY.1H.MM-00
 	YESTERDAY.1H.MM-01
+	YESTERDAY.1H.MM
 Output archive files:
 -rw-r--r-- ... 455 ... YESTERDAY.meta
 -rw-r--r-- ... 192 ... YESTERDAY.index

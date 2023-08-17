@@ -1,14 +1,13 @@
-#! /bin/sh
-# PCP QA Test No. 338
+#!/bin/sh
+# PCP QA Test No. 1473
 # pmlogger_daily ... do you work at all?
 #
-# NEW VERSION for YYYYDDMM style naming convention (see also 530
-# for the old YYMMDD style naming convention)
-#
-# See also 1473 for a variant of this test that uses $(date ...)
-# in the directory field of the control file.
+# this is a variant of test 338 (single dir for archives)
+# that uses $(date ...) to place the archives in multiple
+# directories, and does not use -o
 #
 # Copyright (c) 2008 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
 #
 # check-group-include: pmlogrewrite pmlogextract
 #
@@ -145,9 +144,11 @@ unset verbose
 verbose_text=''
 for loop in 1 2
 do
-    echo >$tmp.sed
+    echo "s;$tmp;TMP;g" >$tmp.sed
     for day in 0 1 2 3 4 5
     do
+	dir=`pmdate -${day}d %Y-%m-%d`
+	mkdir $tmp/$dir
 	fmt=%Y%m%d
 	# aiming for the time to be 00:02 and 00:04 on each day,
 	# even if that is ahead of NOW for today
@@ -162,70 +163,73 @@ do
 	namea=`pmdate -${day}d ${hour}H ${min2}M $fmt.%H.%M`
 	nameb=`pmdate -${day}d ${hour}H ${min4}M $fmt.%H.%M`
 	yesterday=`pmdate -1d ${hour}H ${min2}M $fmt`
+	yesterday_dir=`pmdate -1d ${hour}H ${min2}M %Y-%m-%d`
 	stampa=`echo $namea | sed -e 's/\.//g'`
 	stampb=`echo $nameb | sed -e 's/\.//g'`
-	echo "s/$namea/NOW-$day.00.02/g" >>$tmp.sed
-	echo "s/$nameb/NOW-$day.00.04/g" >>$tmp.sed
+	echo "s/$dir/TODAY-$day/g" >>$tmp.sed
+	echo "s/$namea/TODAY-$day.00.02/g" >>$tmp.sed
+	echo "s/$nameb/TODAY-$day.00.04/g" >>$tmp.sed
+	echo "s/`pmdate -${day}d $fmt`/TODAY-$day/g" >>$tmp.sed
 
 	for ext in 0 index meta
 	do
-	    $sudo cp archives/arch_a.$ext $tmp/$namea.$ext
-	    $sudo touch -t $stampa $tmp/$namea.$ext
-	    $sudo cp archives/arch_b.$ext $tmp/$nameb.$ext
-	    $sudo touch -t $stampb $tmp/$nameb.$ext
+	    $sudo cp archives/arch_a.$ext $tmp/$dir/$namea.$ext
+	    $sudo touch -t $stampa $tmp/$dir/$namea.$ext
+	    $sudo cp archives/arch_b.$ext $tmp/$dir/$nameb.$ext
+	    $sudo touch -t $stampb $tmp/$dir/$nameb.$ext
 	done
     done
-    echo "s/NOW-0/TODAY/g" >>$tmp.sed
-    echo "s/NOW-1/YESTERDAY/g" >>$tmp.sed
+    echo "s/TODAY-0/TODAY/g" >>$tmp.sed
+    echo "s/TODAY-1/YESTERDAY/g" >>$tmp.sed
     echo "s/`pmdate %Y%m%d`/TODAY/g" >>$tmp.sed
     echo "s/$yesterday/YESTERDAY/g" >>$tmp.sed
 
     echo >$tmp.control '$version=1.1
-LOCALHOSTNAME	n   n	'"$tmp"'	-c ./config'
+LOCALHOSTNAME	n   n	"'"$tmp"'/$(date +%Y-%m-%d)"	-c ./config'
 
     cat $tmp.sed >>$seq.full
     echo >>$seq.full
 
     echo
-    echo "=== [$verbose_text] regular show ==="
-    echo "=== [$verbose_text] regular show ===" >>$seq.full
+    echo "=== [$verbose_text] regular old -o show ==="
+    echo "=== [$verbose_text] regular old -o show ===" >>$seq.full
     _fixperms
-    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -o -x forever -c $tmp.control -k 4 $verbose -l $tmp.log"
+    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -o -D -x forever -c $tmp.control -k 4 $verbose -l $tmp.log"
 
     $sudo cat $tmp.log | _filter
-    ls -lt $tmp >>$seq.full
-    ls $tmp | sed -f $tmp.sed | tee -a $seq.full | LC_COLLATE=POSIX sort
+    echo "--- remaining archives ---"
+    ls -ltR $tmp >>$seq.full
+    find $tmp -type f | tee -a $seq.full | sed -f $tmp.sed | LC_COLLATE=POSIX sort
 
     echo
-    echo "=== [$verbose_text] nothing to do but cull some more ==="
-    echo "=== [$verbose_text] nothing to do but cull some more ===" >>$seq.full
-    for ext in 0 index meta
-    do
-	$sudo mv $tmp/$yesterday.$ext $tmp/save.$ext
-    done
-    _fixperms
-    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -o -x forever -c $tmp.control -k 3 $verbose -l $tmp.log"
+    echo "=== [$verbose_text] no -o merge archives from before yesterday + rewrite all ==="
+    echo "=== [$verbose_text] no -o merge archives from before yesterday + rewrite all ===" >>$seq.full
+    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -R -D -x forever -c $tmp.control -k 3 $verbose -l $tmp.log"
     $sudo cat $tmp.log | _filter
-    ls -lt $tmp >>$seq.full
-    ls $tmp | sed -f $tmp.sed | tee -a $seq.full | LC_COLLATE=POSIX sort
+    echo "--- remaining archives ---"
+    ls -ltR $tmp >>$seq.full
+    find $tmp -type f | tee -a $seq.full | sed -f $tmp.sed | LC_COLLATE=POSIX sort
 
     echo
     echo "=== [$verbose_text] error, output already exists ==="
     echo "=== [$verbose_text] error, output already exists ===" >>$seq.full
     for ext in 0 index meta
     do
-	$sudo cp archives/arch_a.$ext $tmp/$yesterday.17.18.$ext
-	$sudo mv $tmp/save.$ext $tmp/$yesterday.$ext
+	$sudo cp archives/arch_a.$ext $tmp/$yesterday_dir/$yesterday.17.18.$ext
+	$sudo cp archives/arch_b.$ext $tmp/$yesterday_dir/$yesterday.19.20.$ext
     done
     _fixperms
-    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -o -x forever -c $tmp.control -k 3 $verbose -l $tmp.log"
+    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -x forever -c $tmp.control -k 3 $verbose -l $tmp.log"
     $sudo cat $tmp.log | _filter
-    ls -lt $tmp >>$seq.full
-    ls $tmp | sed -f $tmp.sed | tee -a $seq.full | LC_COLLATE=POSIX sort
+    echo "--- remaining archives ---"
+    ls -ltR $tmp >>$seq.full
+    find $tmp -type f | tee -a $seq.full | sed -f $tmp.sed | LC_COLLATE=POSIX sort
 
     verbose=-V
     verbose_text='verbose'
-    $sudo rm -f $tmp/*
+    $sudo rm -rf $tmp/*
+    # reset permissions for $tmp
+    $sudo chown `id -u -n`:`id -g -n` $tmp 
 done
 
 # all done
