@@ -1,6 +1,7 @@
 pcp (6.1.0-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
+  * Fix several makefile clean targets (closes: #1045430)
 
  -- Nathan Scott <nathans@debian.org>  Thu, 31 Aug 2023 11:13:24 +1000
 

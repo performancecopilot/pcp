@@ -154,7 +154,6 @@ PYTHONFILES = \
 	bcc_netproc.python redis_proxy.python
 # not installed:
 PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
-LDIRT += $(PYFILES)
 else
 PYTHONFILES =
 PYFILES =
@@ -174,6 +173,7 @@ MYFILES += \
 	qa_shmctl.c qa_sem_msg_ctl.c \
 	qa_shmctl_stat.c qa_msgctl_stat.c qa_semctl_stat.c \
 	qa_libpcp_compat.c addctxdm.c
+LDIRT += addctxdm.o
 
 MYSCRIPTS = grind-tools show-args fixhosts mkpermslist \
 	memcachestats.pl indomdelta pmjson_array_sort
@@ -221,6 +221,7 @@ LDIRT	+= *.log domain.h help.pag help.dir \
 	big[0-2].[0-2] big[0-2].index big[0-2].meta \
 	chkctx2_lite.c fetchrate_lite.c \
 	localconfig.h gmon.out \
+	$(PLFILES) $(PYFILES) \
 	$(TARGETS)
 
 .ORDER:	torture_api \
