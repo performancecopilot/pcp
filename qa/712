@@ -1,7 +1,22 @@
 #!/bin/sh
 # PCP QA Test No. 712
 # Exercise encrypted communications between pmcd/clients
+#
+# Debugging notes:
+#   When this fails in TLS negotiation it is very hard to debug.
+#   There is special debugging magic between libpcp and libssl
+#   that needs to be activated.
+#   1. add -D auth,tls,desperate to /etc/pcp/pmcd/pmcd.options
+#   2. run this test
+#   3. start dredging through /var/log/pmcd/pmcd.log.prev (.prev will
+#      be the one that was active when this test was run) ... in
+#      particular look for blocks of diagnostics that begin
+#      Received Record or Sent Record these are the dumps of the TLS
+#      handshake messages (including the cipher negotiations and the
+#      certificates)
+#
 # Copyright (c) 2012-2013,2022 Red Hat.
+# Copyright (c) 2023 Ken McDonell.
 #
 
 seq=`basename $0`
