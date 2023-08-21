@@ -1715,7 +1715,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 		#
 		now_hr=`pmdate %H`
 		hr=`expr 12 + $now_hr`
-		egrep "(^|.*/)[0-9]*`pmdate -${hr}H %y%m%d` " $tmp/list >$tmp/tmp
+		grep -E "(^|.*/)[0-9]*`pmdate -${hr}H %y%m%d` " $tmp/list >$tmp/tmp
 		mv $tmp/tmp $tmp/list
 	    fi
 
