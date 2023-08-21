@@ -42,16 +42,16 @@ _filter()
 # real QA test starts here
 badie=badarchives/20230506.20.02-01
 goodie=$tmp
-pmlogextract $badie $goodie 2>&1 | _filter
+pmlogextract -z $badie $goodie 2>&1 | _filter
 
 for archive in $badie $goodie
 do
     echo
     echo "=== $archive ===" | _filter
     echo "--- pmlogdump ---"
-    pmlogdump $archive | grep '70\.1\.'
+    pmlogdump -z $archive | grep '70\.1\.'
     echo "--- pmlogcheck ---"
-    pmlogcheck $archive
+    pmlogcheck -z $archive
 done
 
 # success, all done
