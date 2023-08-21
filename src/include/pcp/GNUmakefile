@@ -30,7 +30,7 @@ CONFFILES = config.h configsz.h platform_defs.h platformsz.h
 GENERATED_HFILES = $(CONFFILES)
 NOSHIP_HFILES = libpcp.h sdsalloc.h
 
-LDIRT = $(GENERATED_HFILES)
+LDIRT = $(GENERATED_HFILES) $(INIH_HFILES) $(SDSH_HFILES) $(EXTERNAL_HFILES)
 
 default :: default_pcp
 
