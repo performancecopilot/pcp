@@ -42,11 +42,11 @@ in
     2.[0-2].*)
     		ln $seq.out.0 $seq.out
 		;;
-    2.4.*|3.*|4.*|5.*)
+    2.4.*|3.*|4.*|5.*|6.*)
     		ln $seq.out.1 $seq.out
     		;;
     *)		echo "Botch: need to know what output to expect for zabbix_agent version $version"
-    		exit
+    		exit 1
 		;;
 esac
 
