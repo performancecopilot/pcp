@@ -26,6 +26,7 @@ sampledso.xmit_pdu [Count of PDUs transmitted]
 sampledso.noinst [No instance available]
 sampledso.needprofile [Metrics that need an explicit profile]
 sampledso.not_ready [interval (in seconds) during which PMDA does not respond to PDUs]
+sampledso.not_ready_msec [interval (in milliseconds) during which PMDA does not respond to PDUs]
 sampledso.rapid [count very quickly]
 sampledso.error_code [Arbitrary PMAPI error code for sample.error_check]
 sampledso.error_check [Return PMAPI error code from sample.error_code]
@@ -45,6 +46,7 @@ sampledso.secret.foo.bar.grunt.snort.huff.puff.seven [dynamic *.secret.foo.bar.g
 sampledso.secret.foo.one [dynamic *.secret.foo.one metric]
 sampledso.secret.foo.two [dynamic *.secret.foo.two metric]
 sampledso.secret.bar [dynamic *.secret.bar metric]
+sampledso.secret.family [Family day of month for birthday]
 sampledso.ghosts.visible [Number of visible ghosts]
 sampledso.long.one [1 as a 32-bit integer]
 sampledso.long.ten [10 as a 32-bit integer]
@@ -420,7 +422,17 @@ following PDU received will result in the following sequence of events:
   2. sleep for the given number of seconds
   3. sends an error PDU with PM_ERR_PMDAREADY to pmcd
 If everything went as planned, sampledso.not_ready returns to 0, otherwise it
-has a negative error code as value.
+has a negative error code as the value.
+
+sampledso.not_ready_msec
+Help:
+Store a positive number of milliseconds as the value of this metric. The
+following PDU received will result in the following sequence of events:
+  1. return an error PDU with PM_ERR_PMDANOTREADY to pmcd
+  2. sleep for the given number of milliseconds
+  3. sends an error PDU with PM_ERR_PMDAREADY to pmcd
+If everything went as planned, sampledso.not_ready returns to 0, otherwise it
+has a negative error code as the value.
 
 sampledso.rapid
 Help:
@@ -512,6 +524,11 @@ Value 2.
 sampledso.secret.bar
 Help:
 Value "foo".
+
+sampledso.secret.family
+Help:
+Same metric as sampledso.needprofile but without the explicit profile
+requirement, so all of the "family" instance domain.
 
 sampledso.ghosts.visible
 Help:

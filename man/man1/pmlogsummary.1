@@ -32,14 +32,14 @@
 .SH DESCRIPTION
 .B pmlogsummary
 prints statistical information about metrics of numeric type contained within
-the files of a set of Performance Co-Pilot (PCP) archive logs.
+the files of a set of Performance Co-Pilot (PCP) archives.
 The default output prints time averages for both counter and non-counter metrics.
-The set of archive logs is identified by
+The set of archives is identified by
 .IR archive ,
 which is a comma-separated list of names, each
 of which may be the base name of an archive or the name of a directory containing
 one or more archives.
-The archive logs are typically created using
+The archives are typically created using
 .BR pmlogger (1).
 .PP
 The metrics of interest are named in the
@@ -108,7 +108,7 @@ The format of this
 timestamp is described in the ``OUTPUT FORMAT'' section below.
 .TP
 \fB\-l\fR, \fB\-\-label\fR
-Also print the archive label, showing the log format version,
+Also print the archive label, showing the archive format version,
 the time and date for the start and end of the archive time window,
 and the host from which the performance metrics values were collected.
 .TP
@@ -168,7 +168,7 @@ Also print the number of samples encountered in the set of archives for each met
 \fB\-z\fR, \fB\-\-hostzone\fR
 Change the timezone to the local timezone at the
 host that is the source of the performance metrics, as specified in
-the label record of the archive log.
+the label record of the archive.
 .TP
 \fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
 By default,

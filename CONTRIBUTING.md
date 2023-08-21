@@ -4,23 +4,33 @@ We welcome your contributions to the Performance Co-Pilot project!
 
 Our preferred method of exchanging code, documentation, tests and new
 ideas is via git.  To participate, create a cloned git tree using a
-public git hosting service (e.g. github) and send mail to the list -
-<pcp@groups.io> - with a description of the code and its location.
+public git hosting service (e.g. github) and either send mail to the
+list - <pcp@groups.io> - with location and description of the code or
+open a pull request: https://github.com/performancecopilot/pcp/pulls
 
-Patches are fine too - send 'em through to the list at any time - even
+Patches are fine too - send 'em through to the list at any time.  Even
 just ideas, pseudo-code, etc - we've found it is often a good idea to
 seek early feedback, particularly when modelling the metrics you'll be
 exporting from any new PMDAs you might be writing.
 
+## Diversity
+
+We welcome and encourage participation by everyone.  Our community is
+based on mutual respect, tolerance and encouragement, and we wish to
+help each other live up to these principles.  We want our community
+to be more diverse: whoever you are, and whatever your background, we
+welcome you.
+
 ## Vulnerabilities
 
-If you have discovered a vulnerability in the PCP code, please do not
-hesitate to contact the PCP maintainers immediately.
+If you have discovered a security vulnerability in the PCP code, please
+do not hesitate to contact the PCP maintainers immediately.
 
 You can choose to do this either privately or publicly - however, if
 you report to the maintainers privately at first we will endeavour to
-respond within 24 hours with an initial assessment of the problem and
-a timeframe for resolution and next release with the fix(es).
+respond within 3 business days with an initial assessment of the issue,
+a timeframe for resolution, and target our next scheduled release with
+the fix(es).  We release regularly, typically once every 7-8 weeks.
 
 The maintainers can be contacted privately via <pcp-maintainers@groups.io>
 
@@ -88,7 +98,7 @@ those tests *alot*.  An ideal test is one that:
 
 ...uses filtering intelligently ... because tests pass or fail based
    on textual comparison of observed and expected output, it is critical
-   to filter out the fluff (remove it or make it determinisitic) and
+   to filter out the fluff (remove it or make it deterministic) and
    retain the essence of what the test is exercising.  See common.filter
    for some useful filtering functions, and watch out for things like:
    o dates and times (unless using archives)

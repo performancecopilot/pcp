@@ -53,7 +53,7 @@ static void usage(void)
     pmprintf("Usage: %s [options] [sources]\n\n"
 "Options:\n"
 "  -A align      align sample times on natural boundaries\n"
-"  -a archive    add PCP log archive to metrics source list\n"
+"  -a archive    add PCP archive to metrics source list\n"
 "  -c configfile initial view to load\n"
 "  -C            with -c, parse config, report any errors and exit\n"
 "  -CC           like -C, but also connect to pmcd to check semantics\n"

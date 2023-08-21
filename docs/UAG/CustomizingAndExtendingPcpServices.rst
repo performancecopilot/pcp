@@ -212,23 +212,23 @@ for example, ``${PCP_VAR_DIR}/config/pmlogconf/pmstat`` for **pmstat**.
 
 ``${PCP_PMLOGGERCONTROL_PATH}`` or ``${PCP_PMLOGGERCONTROL_PATH}.d`` files
 
-Defines which PCP collector hosts require **pmlogger** to be launched on the local host, where the configuration file comes from, where the archive log files should 
+Defines which PCP collector hosts require **pmlogger** to be launched on the local host, where the configuration file comes from, where the archive files should 
 be created, and **pmlogger** startup options.
 
 These **control** files support the starting and stopping of multiple **pmlogger** instances that monitor local or remote hosts.
 
 ``/etc/cron.d/pcp-pmlogger`` or ``${PCP_VAR_DIR}/config/pmlogger/crontab``
 
-Default **crontab** entries that may be merged with the **crontab** entries for the **pcp** user to schedule the periodic execution of the archive log management scripts, 
+Default **crontab** entries that may be merged with the **crontab** entries for the **pcp** user to schedule the periodic execution of the archive management scripts, 
 for example, **pmlogger_daily**.
 
 ``${PCP_LOG_DIR}/pmlogger/somehost``
 
-The default behavior of the archive log management scripts create archive log files for the host *somehost* in this directory.
+The default behavior of the archive management scripts create archive files for the host *somehost* in this directory.
 
 ``${PCP_LOG_DIR}/pmlogger/somehost/Latest``
 
-A PCP archive folio for the most recent archive for the host *somehost*. This folio is created and maintained by the **cron**-driven periodic archive log management 
+A PCP archive folio for the most recent archive for the host *somehost*. This folio is created and maintained by the **cron**-driven periodic archive management 
 scripts, for example, **pmlogger_check**. Archive folios may be processed with the **pmafm** tool.
 
 ⁠Inference Engine Customization

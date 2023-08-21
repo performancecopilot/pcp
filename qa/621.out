@@ -12,6 +12,6 @@ Options:
   -?, --help            show this usage message and exit
 Error: no PCP archive files match "."
 Error: no PCP archive files match "dangling"
-empty.0: cannot load label record: Empty archive log file
-empty.index: cannot load label record: Empty archive log file
-empty.meta: cannot load label record: Empty archive log file
+empty.0: cannot load label record: Empty archive file
+empty.index: cannot load label record: Empty archive file
+empty.meta: cannot load label record: Empty archive file

@@ -21,7 +21,7 @@ DISTLINKS = pcp-atopsar
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_gui/src
 LLDLIBS = $(PCP_GUILIB) $(LIB_FOR_NCURSESW) $(LIB_FOR_MATH)
 GENMAPS = $(shell echo *.map | sed -e 's/\.map/\.h/g')
-LDIRT = pmgenmap.sh $(GENMAPS)
+LDIRT = pmgenmap.sh $(DISTLINKS) $(GENMAPS)
 
 CFILES = \
 	atop.c \

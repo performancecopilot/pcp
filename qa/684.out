@@ -222,7 +222,7 @@ Note: timezone set to local timezone of host "brolley-t530" from archive
 @ Fri May  8 11:59:50 2015
  loadavg                      memory      swap        io    system         cpu
    1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id
- pmFetchGroup: End of PCP archive log
+ pmFetchGroup: End of PCP archive
 Running pmstat -z -a archives/multi-xz/20150508.11.44,archives/multi-xz/20150508.11.46,archives/multi-xz/20150508.11.50,archives/multi-xz/20150508.11.57
 Note: timezone set to local timezone of host "brolley-t530" from archive
 
@@ -445,7 +445,7 @@ Note: timezone set to local timezone of host "brolley-t530" from archive
 @ Fri May  8 11:59:50 2015
  loadavg                      memory      swap        io    system         cpu
    1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id
- pmFetchGroup: End of PCP archive log
+ pmFetchGroup: End of PCP archive
 Running diff TMP.44+46+50+57.pmlogextract.pmstat.txt TMP.44+46+50+57.pmstat.txt
 Running pmstat -z -a archives/multi-xz
 Note: timezone set to local timezone of host "brolley-t530" from archive
@@ -669,7 +669,7 @@ Note: timezone set to local timezone of host "brolley-t530" from archive
 @ Fri May  8 11:59:50 2015
  loadavg                      memory      swap        io    system         cpu
    1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id
- pmFetchGroup: End of PCP archive log
+ pmFetchGroup: End of PCP archive
 Running diff TMP.44+46+50+57.pmlogextract.pmstat.txt TMP.archives/multi-xz.pmstat.txt
 Running pmlogextract archives/multi-xz-1k/20150508.11.44 archives/multi-xz-1k/20150508.11.46 archives/multi-xz-1k/20150508.11.50 archives/multi-xz-1k/20150508.11.57 TMP.44+46+50+57.pmlogextract
 Running pmstat -z -a TMP.44+46+50+57.pmlogextract
@@ -894,7 +894,7 @@ Note: timezone set to local timezone of host "brolley-t530" from archive
 @ Fri May  8 11:59:50 2015
  loadavg                      memory      swap        io    system         cpu
    1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id
- pmFetchGroup: End of PCP archive log
+ pmFetchGroup: End of PCP archive
 Running pmstat -z -a archives/multi-xz-1k/20150508.11.44,archives/multi-xz-1k/20150508.11.46,archives/multi-xz-1k/20150508.11.50,archives/multi-xz-1k/20150508.11.57
 Note: timezone set to local timezone of host "brolley-t530" from archive
 
@@ -1117,7 +1117,7 @@ Note: timezone set to local timezone of host "brolley-t530" from archive
 @ Fri May  8 11:59:50 2015
  loadavg                      memory      swap        io    system         cpu
    1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id
- pmFetchGroup: End of PCP archive log
+ pmFetchGroup: End of PCP archive
 Running diff TMP.44+46+50+57.pmlogextract.pmstat.txt TMP.44+46+50+57.pmstat.txt
 Running pmstat -z -a archives/multi-xz-1k
 Note: timezone set to local timezone of host "brolley-t530" from archive
@@ -1341,5 +1341,5 @@ Note: timezone set to local timezone of host "brolley-t530" from archive
 @ Fri May  8 11:59:50 2015
  loadavg                      memory      swap        io    system         cpu
    1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id
- pmFetchGroup: End of PCP archive log
+ pmFetchGroup: End of PCP archive
 Running diff TMP.44+46+50+57.pmlogextract.pmstat.txt TMP.archives/multi-xz-1k.pmstat.txt

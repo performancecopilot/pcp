@@ -82,7 +82,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 Helgrind, a thread error detector
 ERROR SUMMARY: 0 errors from 0 contexts ...
 Warning: pmLookupName returned 2, expected 4
-    sample.secret -> PM_ID_NULL: Unknown metric name
+    sample.secret -> PM_ID_NULL: Metric name is not a leaf in PMNS
     sampledso.bin -> 30.0.6
     sample.longlong.one -> 29.0.20
     pmcd.pmlogger -> PM_ID_NULL: Metric name is not a leaf in PMNS
@@ -117,7 +117,7 @@ Warning: pmLookupName returned 2, expected 4
 Helgrind, a thread error detector
 ERROR SUMMARY: 0 errors from 0 contexts ...
 Warning: pmLookupName returned 2, expected 4
-    sample.secret -> PM_ID_NULL: Unknown metric name
+    sample.secret -> PM_ID_NULL: Metric name is not a leaf in PMNS
     sampledso.bin -> 30.0.6
     sample.longlong.one -> 29.0.20
     pmcd.pmlogger -> PM_ID_NULL: Metric name is not a leaf in PMNS

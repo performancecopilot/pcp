@@ -132,6 +132,7 @@ typedef struct {
 	__uint64_t pgrefill_movable;
 	__uint64_t pgrefill_normal;
 	__uint64_t pgrotated;
+	__uint64_t pgscan_anon;
 	__uint64_t pgscan_direct;
 	__uint64_t pgscan_direct_dma;
 	__uint64_t pgscan_direct_dma32;
@@ -140,6 +141,7 @@ typedef struct {
 	__uint64_t pgscan_direct_normal;
 	__uint64_t pgscan_direct_throttle;
 	__uint64_t pgscan_direct_total;
+	__uint64_t pgscan_file;
 	__uint64_t pgscan_kswapd;
 	__uint64_t pgscan_kswapd_dma;
 	__uint64_t pgscan_kswapd_dma32;
@@ -147,6 +149,7 @@ typedef struct {
 	__uint64_t pgscan_kswapd_movable;
 	__uint64_t pgscan_kswapd_normal;
 	__uint64_t pgscan_kswapd_total;
+	__uint64_t pgsteal_anon;
 	__uint64_t pgsteal_direct;
 	__uint64_t pgsteal_direct_dma;
 	__uint64_t pgsteal_direct_dma32;

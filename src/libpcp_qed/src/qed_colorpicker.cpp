@@ -53,11 +53,20 @@ QedColorLuminancePicker::~QedColorLuminancePicker()
 
 void QedColorLuminancePicker::mouseMoveEvent(QMouseEvent *m)
 {
+#if QT_VERSION >= 0x060000
+    setVal(y2val(m->position().y()));
+#else
     setVal(y2val(m->y()));
+#endif
 }
-void QedColorLuminancePicker::mousePressEvent( QMouseEvent *m )
+
+void QedColorLuminancePicker::mousePressEvent(QMouseEvent *m)
 {
+#if QT_VERSION >= 0x060000
+    setVal(y2val(m->position().y()));
+#else
     setVal(y2val(m->y()));
+#endif
 }
 
 void QedColorLuminancePicker::setVal(int v)
@@ -102,8 +111,8 @@ void QedColorLuminancePicker::paintEvent(QPaintEvent *)
     p.drawPixmap(1, coff, *pix);
     const QPalette &g = palette();
     qDrawShadePanel(&p, r, g, true);
-    p.setPen(g.foreground().color());
-    p.setBrush(g.foreground());
+    p.setPen(g.color(QPalette::WindowText));
+    p.setBrush(g.dark());
     QPolygon a;
     int y = val2y(val);
     a.setPoints(3, w, y, w+5, y+5, w+5, y-5);
@@ -236,7 +245,7 @@ void QedColorShowLabel::mouseMoveEvent(QMouseEvent *e)
 	drg->setMimeData(mime);
 	drg->setPixmap(pix);
 	mousePressed = false;
-	drg->start();
+	drg->exec();
     }
 #endif
 }

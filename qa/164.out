@@ -93,7 +93,7 @@ interval:  10.00 sec
 10:39:44.382              72.70                  0.0    
 10:39:54.382              84.30                  0.9000 
 
-pmval: pmFetch: End of PCP archive log
+pmval: pmFetch: End of PCP archive
 
 === diskstat ===
 Note: timezone set to local timezone of host "kenj-pc" from archive

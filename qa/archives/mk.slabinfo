@@ -1,0 +1,45 @@
+#!/bin/sh
+#
+# remake the pcp-slabinfo archive ...
+# this archive is intended to be checked in and not remade, this script is
+# simply a record of how it was created
+#
+
+. /etc/pcp.env
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat <<End-of-File >>$tmp.config
+log advisory on once{
+        kernel.uname.sysname
+        kernel.uname.release
+        kernel.uname.nodename
+        kernel.uname.machine
+        hinv.ncpu
+}
+log advisory on 10 seconds {
+        mem.slabinfo.slabs.active
+        mem.slabinfo.slabs.pages_per_slab
+        mem.slabinfo.slabs.total_size
+        mem.slabinfo.slabs.objects_per_slab
+        mem.slabinfo.objects.active
+        mem.slabinfo.objects.total
+        mem.slabinfo.objects.size
+        mem.slabinfo.slabs.total
+}
+End-of-File
+
+rm -f pcp-slabinfo.0  pcp-slabinfo.index  pcp-slabinfo.meta pcp-slabinfo.*
+
+if pmlogger -T 60sec -t 10sec -c $tmp.config pcp-slabinfo; then
+        xz pcp-slabinfo.0
+        xz pcp-slabinfo.index
+        xz pcp-slabinfo.meta
+else
+    echo "Argh: pmlogger failed ..."
+    cat pmlogger.log
+fi
+
+

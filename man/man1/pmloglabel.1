@@ -27,8 +27,8 @@
 .SH DESCRIPTION
 .B pmloglabel
 verifies, reports on, and can modify all details of the labels in
-each of the files of a Performance Co-Pilot (PCP) archive log.
-The archive log has the base name
+each of the files of a Performance Co-Pilot (PCP) archive.
+The archive has the base name
 .I archive
 and must have been previously created using
 .BR pmlogger (1).
@@ -61,7 +61,7 @@ Modify the logged
 in the archive label, for all files in the archive.
 .TP
 \fB\-l\fR, \fB\-\-label\fR
-Dump out the archive label, showing the log format version,
+Dump out the archive label, showing the archive format version,
 the time and date for the start and (current) end of the archive, and
 the host from which the performance metrics values were collected.
 .TP
@@ -111,7 +111,7 @@ an archive named "20080125".
 .ft CW
 .nf
 $ pmdumplog \-l 20080125
-pmdumplog: Cannot open archive "20080125": Illegal label record at start of a PCP archive log file
+pmdumplog: Cannot open archive "20080125": Illegal label record at start of a PCP archive file
 $ pmloglabel 20080125
 Mismatched PID (5264/5011) between temporal index and data volume 0
 $ pmloglabel \-p 5264 20080125

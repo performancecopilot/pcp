@@ -42,6 +42,6 @@ event 1, offset time=-9.000 secs, param ids: 511.0.1 29.0.127 29.0.130
 
 sample 8, delta time=0.500 secs
 sample.event.records: no current values 
-sample[9] pmFetch: End of PCP archive log
+sample[9] pmFetch: End of PCP archive
 
 9 samples required 9 log reads

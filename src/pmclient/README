@@ -4,7 +4,7 @@ pmclient - sample clients using the PMAPI
 pmclient is a sample client that uses the Performance Metrics
 Application Programming Interface (PMAPI) to report some performance
 data, collected from either a local host, a remote host, or a
-Performance Co-Pilot (PCP) performance metrics archive log.
+Performance Co-Pilot (PCP) performance metrics archive.
 
 The pmclient_fg program differs to pmclient in that it uses the
 fetchgroup API extension to the PMAPI, see pmFetchGroup(3).

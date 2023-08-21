@@ -527,7 +527,7 @@ reportconfig(void)
     int			change = 0;
     char		buf[64];
 
-    printf("PCP Archive Log Rewrite Specifications Summary\n");
+    printf("PCP Archive Rewrite Specifications Summary\n");
     change |= (global.flags != 0);
     // TODO WARN about no-ops for changes to V3 label fields in V2 output?
     if (global.flags & GLOBAL_CHANGE_HOSTNAME)

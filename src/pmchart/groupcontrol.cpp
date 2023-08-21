@@ -171,7 +171,7 @@ void
 GroupControl::timeSelectionActive(Gadget *source, int timestamp)
 {
     QPoint point(timestamp, -1);
-    QMouseEvent pressed(QEvent::MouseButtonPress, point,
+    QMouseEvent pressed(QEvent::MouseButtonPress, point, QCursor::pos(),
 			Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
     for (int i = 0; i < gadgetCount(); i++) {
 	Gadget *gadget = my.gadgetsList.at(i);
@@ -184,7 +184,7 @@ void
 GroupControl::timeSelectionReactive(Gadget *source, int timestamp)
 {
     QPoint point(timestamp, -1);
-    QMouseEvent moved(QEvent::MouseMove, point,
+    QMouseEvent moved(QEvent::MouseMove, point, QCursor::pos(),
 			Qt::NoButton, Qt::LeftButton, Qt::NoModifier);
     for (int i = 0; i < gadgetCount(); i++) {
 	Gadget *gadget = my.gadgetsList.at(i);
@@ -197,7 +197,7 @@ void
 GroupControl::timeSelectionInactive(Gadget *source)
 {
     QPoint point(-1, -1);
-    QMouseEvent release(QEvent::MouseButtonRelease, point,
+    QMouseEvent release(QEvent::MouseButtonRelease, point, QCursor::pos(),
 			Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
     for (int i = 0; i < gadgetCount(); i++) {
 	Gadget *gadget = my.gadgetsList.at(i);

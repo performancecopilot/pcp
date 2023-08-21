@@ -250,7 +250,7 @@ main(int argc, char **argv)
 	    finish = optarg;
 	    break;
 
-	case 'U':	/* uninterpolated archive log */
+	case 'U':	/* uninterpolated archive */
 	    if (type != 0) {
 		fprintf(stderr, "%s: at most one of -a, -h, -L and -U allowed\n", pmGetProgname());
 		errflag++;
@@ -297,7 +297,7 @@ main(int argc, char **argv)
 "Usage: %s [options] [metrics ...]\n\
 \n\
 Options:\n\
-  -a archive     metrics source is a PCP log archive\n\
+  -a archive     metrics source is a PCP archive\n\
   -A align       align sample times on natural boundaries\n\
   -c configfile  file to load configuration from\n\
   -d             use pmDupContext [default: pmNewContext]\n\

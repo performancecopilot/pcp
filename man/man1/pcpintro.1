@@ -289,7 +289,7 @@ decimal integers, see
 for a description of the supported option names and values.
 .PP
 In the absence of a live or archive source of metrics, a heuristic search
-for archive logs for the local host can be invoked via the
+for archives for the local host can be invoked via the
 .B \-O
 (or
 .BR \-\-origin )
@@ -416,7 +416,7 @@ option is specified).
 .SH TIME WINDOW SPECIFICATION
 Many PCP tools are designed to operate in some time window of interest,
 for example to define a termination time for real-time monitoring or to
-define a start and end time within a set of PCP archive logs.
+define a start and end time within a set of PCP archives.
 .PP
 In the absence of the
 .B \-O
@@ -435,7 +435,7 @@ The following options may be used to specify a time window of interest.
 \fB\-S\fR \fIstarttime\fR, \fB\-\-start\fR=\fIstarttime\fR
 .RS
 By default the time window commences immediately in real-time mode,
-or coincides with time at the start of the set of PCP archive logs
+or coincides with time at the start of the set of PCP archives
 in archive mode.
 The
 .B \-S
@@ -468,14 +468,14 @@ now in real-time mode, or exactly 30 minutes from the start of a set
 of PCP archives.
 .TP
 \-\fIinterval\fR
-To specify an offset from the end of a set of PCP archive logs, prefix
+To specify an offset from the end of a set of PCP archives, prefix
 the \fIinterval\fR argument with a minus sign.
 In this case, the start of the time window precedes
 the time at the end of the set of archives by the given interval.
 For example
 .B "\-S \-1hour"
 will set the start of the time window to be exactly one hour before the
-time of the last sample in a set of PCP archive logs.
+time of the last sample in a set of PCP archives.
 .TP
 @\f2datetime\f1
 To specify the calendar date and time (local time in the reporting
@@ -487,8 +487,7 @@ Refer to the datetime description below for detailed information.
 \fB\-T\fR \fIendtime\fR, \fB\-\-finish\fR=\fIendtime\fR
 .RS
 By default the end of the time window is unbounded
-(in real-time mode) or aligned with the time at the end of a set of PCP archive
-logs (in archive mode).
+(in real-time mode) or aligned with the time at the end of a set of PCP archives (in archive mode).
 The
 .B \-T
 or
@@ -518,12 +517,12 @@ will set the end of the time window to be 2 hours and 30 minutes after
 the start of the time window.
 .TP
 \-\f2interval\f1
-To specify an offset back from the time at the end of a set of PCP archive logs,
+To specify an offset back from the time at the end of a set of PCP archives,
 prefix the \f2interval\f1 argument with a minus sign.
 For example
 .B "\-T \-90m"
 will set the end of the time window to be 90 minutes before the time of
-the last sample in a set of PCP archive logs.
+the last sample in a set of PCP archives.
 .TP
 @\f2datetime\f1
 To specify the calendar date and time (local time in the reporting timezone)
@@ -627,7 +626,7 @@ and
 If any high order fields are missing, they are filled in by
 starting with the
 year, month and day from the current time (real-time mode) or
-the time at the beginning of the set of PCP archive logs (archive mode)
+the time at the beginning of the set of PCP archives (archive mode)
 and advancing the
 time until it matches the fields that are specified.
 So, for example if the time window starts by default at
@@ -800,7 +799,7 @@ syntax is
 .ti +1i
 \fIhost\fB:\fImetric\fB[\fIinstance1\fB,\fIinstance2\fB,\fR...\fB]\fR
 .PP
-If the source of performance metrics is a set of PCP archive logs then the
+If the source of performance metrics is a set of PCP archives then the
 accepted syntax
 is
 .br
@@ -1207,10 +1206,10 @@ be silently ignored.
 When PCP archives logs are created there may be temporal gaps associated
 with discontinuities in the time series of logged data, for example when
 .BR pmcd (1)
-is restarted or when multiple archive logs are concatenated with
+is restarted or when multiple archives are concatenated with
 .BR pmlogextract (1).
 These discontinuities are internally noted with a <mark> record in
-the PCP archive logs, and
+the PCP archives, and
 value interpolation as described in
 .BR pmSetMode (3)
 is not supported across <mark> records (because
@@ -1439,7 +1438,7 @@ set in their environment before attempting a connection.
 The following environment variables are relevant to installations
 in which
 .BR pmlogger (1),
-the PCP archive logger, is used.
+the PCP archiver, is used.
 .TP
 .B PMLOGGER_PORT
 The environment variable

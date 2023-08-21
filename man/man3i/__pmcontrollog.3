@@ -47,7 +47,7 @@ different semantics at some point in the future.
 .el \fI\\$1\fR\\$2
 ..
 .B __pmControlLog
-may be used to enable or disable the archive logging for particular performance
+may be used to enable or disable the archiving for particular performance
 metrics, as identified by the
 .I request
 parameter;
@@ -109,7 +109,7 @@ structures in
 .I request
 has a value of zero, it indicates that all available instances of the metric
 should be used.  Enumeration of the instance domain is deferred until the
-logger fetches the metric prior to writing it to the log, rather than being
+logger fetches the metric prior to writing it to the archive, rather than being
 performed when the
 .B __pmControlLog
 request is received.  This is useful for metrics with instance domains that
@@ -124,7 +124,7 @@ advisory, as defined by the
 argument, and on, off or maybe as defined by the
 .I state
 argument. These different types of control may be used to ensure that some
-performance metrics can be guaranteed to always be in the log, while others may
+performance metrics can be guaranteed to always be in the archive, while others may
 be dynamically enabled or disabled as determined by the level and type of
 system activity.
 .PP
@@ -252,7 +252,7 @@ in a request to change state to
 or encoded in the value returned from
 .BR PM_LOG_ENQUIRE ,
 then this corresponds to the special ``once only'' logging of metrics
-that appear once in the archive log, and are never logged again.
+that appear once in the archive, and are never logged again.
 .PP
 .B __pmControlLog
 returns zero on success.

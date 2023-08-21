@@ -66,7 +66,7 @@ len(metrics[]):3
   metric:no.such.metric2 metadata:3
   metric:pmcd.client.whoami metadata:10
 context #### metadata prefix=sample response code 200
-len(metrics[]):196
+len(metrics[]):198
   metric:sample.aggregate.hullo metadata:9
   metric:sample.aggregate.null metadata:9
   metric:sample.aggregate.write_me metadata:9
@@ -188,6 +188,7 @@ len(metrics[]):196
   metric:sample.negative.instant.m_float metadata:9
   metric:sample.noinst metadata:9
   metric:sample.not_ready metadata:9
+  metric:sample.not_ready_msec metadata:9
   metric:sample.part_bin metadata:10
   metric:sample.pdu metadata:9
   metric:sample.percontext.control.active metadata:9
@@ -214,6 +215,7 @@ len(metrics[]):196
   metric:sample.scramble.version metadata:9
   metric:sample.seconds metadata:9
   metric:sample.secret.bar metadata:9
+  metric:sample.secret.family metadata:10
   metric:sample.secret.foo.bar.four metadata:9
   metric:sample.secret.foo.bar.grunt.five metadata:9
   metric:sample.secret.foo.bar.grunt.snort.huff.puff.seven metadata:9

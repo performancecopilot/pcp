@@ -417,6 +417,8 @@ _configure_pmlogger()
 			$VERBOSE && echo "Reconfigured: \"$configfile\" (pmlogconf)"
 			chown $PCP_USER:$PCP_GROUP "$tmpconfig" >/dev/null 2>&1
 			eval $MV "$tmpconfig" "$configfile"
+			echo "=== pmlogconf changes @ `date` ==="
+			cat $tmp/diag
 		    else
 			_warning "no write access to pmlogconf file \"$configfile\", skip reconfiguration"
 			ls -l "$configfile"

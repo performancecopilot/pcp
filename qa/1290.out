@@ -1113,7 +1113,7 @@ Note: timezone set to local timezone of host "MY_HOSTNAME" from archive
  loadavg                      memory      swap        io    system         cpu
    1 min   swpd   free   buff  cache   si   so   bi   bo   in   cs  us  sy  id
  N N N N N N N N N N N N N N
- pmFetchGroup: End of PCP archive log
+ pmFetchGroup: End of PCP archive
 N connects
 N-0 disconnects
 

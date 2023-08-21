@@ -247,8 +247,8 @@ _mount_filesystem()
     __image=$tmp.loop.$__fs.img
     __mountpoint=$tmp.mount.$__fs
 
-    truncate -s 30M $__image
-    echo y | mkfs.$__fs $__image > /dev/null 2>&1
+    truncate -s 350M $__image
+    echo y | mkfs.$__fs $__image >>$here/$seq.full 2>&1
     mkdir -p $__mountpoint
     $sudo mount -t $__fs $__image $__mountpoint
     $sudo chown $(id -u):$(id -g) $__mountpoint

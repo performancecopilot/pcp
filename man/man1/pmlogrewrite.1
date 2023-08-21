@@ -28,10 +28,10 @@
 \\f(BI\\$1\\fP\\$2
 ..
 .B pmlogrewrite
-reads a set of Performance Co-Pilot (PCP) archive logs
+reads a set of Performance Co-Pilot (PCP) archives
 identified by
 .I inlog
-and creates a PCP archive log in
+and creates a PCP archive in
 .IR outlog .
 Under normal usage, the
 .B \-c
@@ -75,7 +75,7 @@ the resulting archives may be able to be merged with
 .PP
 The input
 .I inlog
-must be a set of PCP archive logs
+must be a set of PCP archives
 created by
 .BR pmlogger (1),
 or possibly one of the tools that read and create PCP archives, e.g.
@@ -148,7 +148,7 @@ With the
 .B \-d
 option, the partially created
 .I outlog
-archive log is not removed.
+archive is not removed.
 .TP
 \fB\-i\fR
 Rather than creating
@@ -1641,13 +1641,13 @@ are reported on
 .I stderr
 with textual (if sometimes terse) explanation.
 .PP
-Should the input archive log be corrupted (this can happen
+Should the input archive be corrupted (this can happen
 if the
 .B pmlogger
-instance writing the log suddenly dies), then
+instance writing the archive suddenly dies), then
 .B pmlogrewrite
 will detect and report the position of the corruption in the file,
-and any subsequent information from that archive log will not be processed.
+and any subsequent information from that archive will not be processed.
 .PP
 If the input archive contains no archive records then an ``empty archive''
 warning is issued and no processing is performed.
@@ -1660,10 +1660,10 @@ For each of the
 .I inlog
 and
 .I outlog
-archive logs, several physical files are used.
+archives, several physical files are used.
 .TP 5
 \f2archive\f3.meta
-metadata (metric descriptions, instance domains, etc.) for the archive log
+metadata (metric descriptions, instance domains, etc.) for the archive
 .TP
 \f2archive\f3.0
 initial volume of metrics values (subsequent volumes have suffixes
@@ -1673,7 +1673,7 @@ initial volume of metrics values (subsequent volumes have suffixes
 .TP
 \f2archive\f3.index
 temporal index to support rapid random access to the other files in the
-archive log.
+archive.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.

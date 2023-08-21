@@ -3,7 +3,7 @@ QA output created by 1461 --valgrind
 
 === label domain 2 { label -> "foo" } ===
 === std out ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 2
 Label:		ALL -> "foo"
@@ -21,7 +21,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 === label domain 2 "agent" { label -> "foo" } ===
 === std out ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 2, Label: "agent"
 Label:		"agent" -> "foo"
@@ -39,7 +39,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 === label domain 2 "agent" * { label -> "foo" } ===
 === std out ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 2, Label: "agent"
 Label:		"agent" -> "foo"
@@ -57,7 +57,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 === label domain 2 * "pmcd" { label -> "foo" } ===
 === std out ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 2, Value: "pmcd"
 Label:		ALL -> "foo"
@@ -75,7 +75,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 === label domain 2 { value -> "bar" } ===
 === std out ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 2
 Value:		ALL -> "bar"
@@ -93,7 +93,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 === label domain 2 "agent" { value -> "bar" } ===
 === std out ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 2, Label: "agent"
 Value:		ALL -> "bar"
@@ -111,7 +111,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 === label domain 2 "agent" * { value -> "bar" } ===
 === std out ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 2, Label: "agent"
 Value:		ALL -> "bar"
@@ -129,7 +129,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 === label domain 2 * "pmcd" { value -> "bar" } ===
 === std out ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 2, Value: "pmcd"
 Value:		"pmcd" -> "bar"
@@ -147,7 +147,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 === label domain 29 { label -> "foo" } ===
 === std out ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 29
 Label:		ALL -> "foo"
@@ -165,7 +165,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 === label domain 29 "role" { value -> "foo" } ===
 === std out ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 29, Label: "role"
 Value:		ALL -> "foo"
@@ -183,7 +183,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 === label domain 29 "role" * { value -> "foo" } ===
 === std out ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 29, Label: "role"
 Value:		ALL -> "foo"
@@ -201,7 +201,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 === label domain 29 * "testing" { value -> "foo" } ===
 === std out ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 29, Value: "testing"
 Value:		"testing" -> "foo"
@@ -219,7 +219,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 === label domain 29 { value -> "bar" } ===
 === std out ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 29
 Value:		ALL -> "bar"
@@ -237,7 +237,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 === label domain 29 "role" { value -> "bar" } ===
 === std out ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 29, Label: "role"
 Value:		ALL -> "bar"
@@ -255,7 +255,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 === label domain 29 "role" * { value -> "bar" } ===
 === std out ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 29, Label: "role"
 Value:		ALL -> "bar"
@@ -273,7 +273,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 === label domain 29 * "testing" { value -> "bar" } ===
 === std out ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 29, Value: "testing"
 Value:		"testing" -> "bar"
@@ -291,7 +291,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 === label domain 29 "agent" { value -> "fumble" label -> "mumble" } ===
 === std out ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 29, Label: "agent"
 Label:		"agent" -> "mumble"
@@ -310,7 +310,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 === label domain 29 "agent" { value -> "fumble" } label domain 29 "agent" { label -> "foo" } ===
 === std out ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 29, Label: "agent"
 Label:		"agent" -> "foo"

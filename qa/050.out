@@ -9,17 +9,17 @@ Pass 2: before start of log scan
   2.1: FORWARD, expect success
     found 1 with 1 log reads
   2.2: BACKWARD, expect EOL
-    End of PCP archive log with 0 log_reads
+    End of PCP archive with 0 log_reads
   2.3: INTERP, expect EOL
-    End of PCP archive log with 0 log_reads
+    End of PCP archive with 0 log_reads
 
 Pass 3: after end of log scan
   3.1: FORWARD, expect EOL
-    End of PCP archive log with 1 log_reads
+    End of PCP archive with 1 log_reads
   3.2: BACKWARD, expect success
     found 1 with 2 log reads
   3.3: INTERP, expect EOL
-    End of PCP archive log with 1 log_reads
+    End of PCP archive with 1 log_reads
 
 Archive tmparch/bigbin ...
 
@@ -30,17 +30,17 @@ Pass 2: before start of log scan
   2.1: FORWARD, expect success
     found 1 with 1 log reads
   2.2: BACKWARD, expect EOL
-    End of PCP archive log with 0 log_reads
+    End of PCP archive with 0 log_reads
   2.3: INTERP, expect EOL
-    End of PCP archive log with 0 log_reads
+    End of PCP archive with 0 log_reads
 
 Pass 3: after end of log scan
   3.1: FORWARD, expect EOL
-    End of PCP archive log with 1 log_reads
+    End of PCP archive with 1 log_reads
   3.2: BACKWARD, expect success
     found 1 with 2 log reads
   3.3: INTERP, expect EOL
-    End of PCP archive log with 1 log_reads
+    End of PCP archive with 1 log_reads
 
 Archive tmparch/mv-foo ...
 
@@ -51,17 +51,17 @@ Pass 2: before start of log scan
   2.1: FORWARD, expect success
     found 1 with 1 log reads
   2.2: BACKWARD, expect EOL
-    End of PCP archive log with 0 log_reads
+    End of PCP archive with 0 log_reads
   2.3: INTERP, expect EOL
-    End of PCP archive log with 0 log_reads
+    End of PCP archive with 0 log_reads
 
 Pass 3: after end of log scan
   3.1: FORWARD, expect EOL
-    End of PCP archive log with 1 log_reads
+    End of PCP archive with 1 log_reads
   3.2: BACKWARD, expect success
     found 1 with 2 log reads
   3.3: INTERP, expect EOL
-    End of PCP archive log with 1 log_reads
+    End of PCP archive with 1 log_reads
 
 Archive tmparch/mv-bigbin ...
 
@@ -72,17 +72,17 @@ Pass 2: before start of log scan
   2.1: FORWARD, expect success
     found 1 with 1 log reads
   2.2: BACKWARD, expect EOL
-    End of PCP archive log with 0 log_reads
+    End of PCP archive with 0 log_reads
   2.3: INTERP, expect EOL
-    End of PCP archive log with 0 log_reads
+    End of PCP archive with 0 log_reads
 
 Pass 3: after end of log scan
   3.1: FORWARD, expect EOL
-    End of PCP archive log with 1 log_reads
+    End of PCP archive with 1 log_reads
   3.2: BACKWARD, expect success
     found 1 with 2 log reads
   3.3: INTERP, expect EOL
-    End of PCP archive log with 1 log_reads
+    End of PCP archive with 1 log_reads
 
 Archive tmparch/noti-foo ...
 
@@ -93,17 +93,17 @@ Pass 2: before start of log scan
   2.1: FORWARD, expect success
     found 1 with 1 log reads
   2.2: BACKWARD, expect EOL
-    End of PCP archive log with 10 log_reads
+    End of PCP archive with 10 log_reads
   2.3: INTERP, expect EOL
-    End of PCP archive log with 0 log_reads
+    End of PCP archive with 0 log_reads
 
 Pass 3: after end of log scan
   3.1: FORWARD, expect EOL
-    End of PCP archive log with 10 log_reads
+    End of PCP archive with 10 log_reads
   3.2: BACKWARD, expect success
     found 1 with 1 log reads
   3.3: INTERP, expect EOL
-    End of PCP archive log with 1 log_reads
+    End of PCP archive with 1 log_reads
 
 Archive tmparch/noti-bigbin ...
 
@@ -114,14 +114,14 @@ Pass 2: before start of log scan
   2.1: FORWARD, expect success
     found 1 with 1 log reads
   2.2: BACKWARD, expect EOL
-    End of PCP archive log with 1002 log_reads
+    End of PCP archive with 1002 log_reads
   2.3: INTERP, expect EOL
-    End of PCP archive log with 0 log_reads
+    End of PCP archive with 0 log_reads
 
 Pass 3: after end of log scan
   3.1: FORWARD, expect EOL
-    End of PCP archive log with 1002 log_reads
+    End of PCP archive with 1002 log_reads
   3.2: BACKWARD, expect success
     found 1 with 1 log reads
   3.3: INTERP, expect EOL
-    End of PCP archive log with 1 log_reads
+    End of PCP archive with 1 log_reads

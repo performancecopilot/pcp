@@ -18,6 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = \
 	atop \
+	buddyinfo \
 	dmcache \
 	dstat \
 	free \
@@ -32,6 +33,7 @@ SUBDIRS = \
 	ps \
 	python \
 	shping \
+	slabinfo \
 	ss \
 	summary \
 	tapestat \

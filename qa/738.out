@@ -20,9 +20,9 @@ Options:
 exit status 1
 pmlogmv: Cannot open archive "foo": No such file or directory
 exit status 1
-pmlogmv: Cannot open archive "foo": Missing PCP archive log file
+pmlogmv: Cannot open archive "foo": Missing PCP archive file
 exit status 1
-pmlogmv: Cannot open archive "foo": Missing PCP archive log file
+pmlogmv: Cannot open archive "foo": Missing PCP archive file
 exit status 1
 
 === non-pcp archives and output files already exist ===

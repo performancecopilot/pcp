@@ -1,7 +1,7 @@
 QA output created by 417
 
 === pminfo ===
-pminfo: Cannot locate end of archive bad: Corrupted record in a PCP archive log
+pminfo: Cannot locate end of archive bad: Corrupted record in a PCP archive
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
@@ -30,7 +30,7 @@ event.flags
 event.missed
 
 === pminfo -f irix ===
-pminfo: Cannot locate end of archive bad: Corrupted record in a PCP archive log
+pminfo: Cannot locate end of archive bad: Corrupted record in a PCP archive
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
@@ -127,7 +127,7 @@ irix.network.interface.out.bytes
 === pmdumplog -t ===
 Note: timezone set to local timezone of host "moomba" from archive
 
-pmdumplog: Cannot locate end of archive bad: Corrupted record in a PCP archive log
+pmdumplog: Cannot locate end of archive bad: Corrupted record in a PCP archive
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
@@ -252,7 +252,7 @@ Temporal Index
 === pmdumplog -t, no index ===
 Note: timezone set to local timezone of host "moomba" from archive
 
-pmdumplog: Cannot locate end of archive bad: Corrupted record in a PCP archive log
+pmdumplog: Cannot locate end of archive bad: Corrupted record in a PCP archive
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
@@ -264,7 +264,7 @@ Temporal Index
 === pmdumplog -l ===
 Note: timezone set to local timezone of host "moomba" from archive
 
-pmdumplog: Cannot locate end of archive bad: Corrupted record in a PCP archive log
+pmdumplog: Cannot locate end of archive bad: Corrupted record in a PCP archive
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
@@ -277,7 +277,7 @@ Performance metrics from host moomba
 === pmdumplog -L ===
 Note: timezone set to local timezone of host "moomba" from archive
 
-pmdumplog: Cannot locate end of archive bad: Corrupted record in a PCP archive log
+pmdumplog: Cannot locate end of archive bad: Corrupted record in a PCP archive
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
@@ -290,12 +290,12 @@ Archive timezone: EST-11EST-10,86/2:00,303/2:00
 PID for pmlogger: 29015
 
 === pmdumplog -m ===
-pmdumplog: Cannot locate end of archive bad: Corrupted record in a PCP archive log
+pmdumplog: Cannot locate end of archive bad: Corrupted record in a PCP archive
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
 
-pmdumplog: pmFetch: Corrupted record in a PCP archive log
+pmdumplog: pmFetch: Corrupted record in a PCP archive
 Note: timezone set to local timezone of host "moomba" from archive
 
 
@@ -356,12 +356,12 @@ Note: timezone set to local timezone of host "moomba" from archive
     1.10.3 (irix.kernel.all.pswitch): value 4195911
 
 === pmlogsummary ===
-pmlogsummary: Cannot locate end of archive bad: Corrupted record in a PCP archive log
+pmlogsummary: Cannot locate end of archive bad: Corrupted record in a PCP archive
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
 
-pmlogsummary: fetch failed: Corrupted record in a PCP archive log
+pmlogsummary: fetch failed: Corrupted record in a PCP archive
 irix.kernel.all.load ["1 minute"] 0.000 none
 irix.kernel.all.load ["5 minute"] 0.000 none
 irix.kernel.all.load ["15 minute"] 0.000 none

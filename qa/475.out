@@ -1,7 +1,7 @@
 QA output created by 475
 Only one context ...
 Warning: pmLookupName returned 2, expected 4
-    sample.secret -> PM_ID_NULL: Unknown metric name
+    sample.secret -> PM_ID_NULL: Metric name is not a leaf in PMNS
     sampledso.bin -> 30.0.6
     sample.longlong.one -> 29.0.20
     pmcd.pmlogger -> PM_ID_NULL: Metric name is not a leaf in PMNS
@@ -32,7 +32,7 @@ Warning: pmLookupName returned 2, expected 4
 
 Two contexts, same host, different fd's ...
 Warning: pmLookupName returned 2, expected 4
-    sample.secret -> PM_ID_NULL: Unknown metric name
+    sample.secret -> PM_ID_NULL: Metric name is not a leaf in PMNS
     sampledso.bin -> 30.0.6
     sample.longlong.one -> 29.0.20
     pmcd.pmlogger -> PM_ID_NULL: Metric name is not a leaf in PMNS
@@ -63,7 +63,7 @@ Warning: pmLookupName returned 2, expected 4
 
 Two contexts, same host, same fd's ...
 Warning: pmLookupName returned 2, expected 4
-    sample.secret -> PM_ID_NULL: Unknown metric name
+    sample.secret -> PM_ID_NULL: Metric name is not a leaf in PMNS
     sampledso.bin -> 30.0.6
     sample.longlong.one -> 29.0.20
     pmcd.pmlogger -> PM_ID_NULL: Metric name is not a leaf in PMNS
@@ -94,7 +94,7 @@ Warning: pmLookupName returned 2, expected 4
 
 Three contexts, same host, different fd's ...
 Warning: pmLookupName returned 2, expected 4
-    sample.secret -> PM_ID_NULL: Unknown metric name
+    sample.secret -> PM_ID_NULL: Metric name is not a leaf in PMNS
     sampledso.bin -> 30.0.6
     sample.longlong.one -> 29.0.20
     pmcd.pmlogger -> PM_ID_NULL: Metric name is not a leaf in PMNS
@@ -125,7 +125,7 @@ Warning: pmLookupName returned 2, expected 4
 
 Three contexts, same host, same fd's ...
 Warning: pmLookupName returned 2, expected 4
-    sample.secret -> PM_ID_NULL: Unknown metric name
+    sample.secret -> PM_ID_NULL: Metric name is not a leaf in PMNS
     sampledso.bin -> 30.0.6
     sample.longlong.one -> 29.0.20
     pmcd.pmlogger -> PM_ID_NULL: Metric name is not a leaf in PMNS
