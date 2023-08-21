@@ -32,8 +32,8 @@ PCP_ARCHIVE="archives/pcp-netstat" PCP_HOSTZONE=1 PCP_ORIGIN=1 $pcp_netstat -s 2
 
 archive_first="-a archives/pcp-netstat -z -O +1"
 
-echo && echo pcp-netstat output : Display output when given specified number of samples
-pcp $archive_first netstat -s 3
+echo && echo pcp-netstat output : Display output of all the network protocol statistics
+pcp $archive_first netstat --statistics -s 2
 
 echo && echo pcp-netstat output : Display output when filtered IP protocol
 pcp $archive_first netstat -s 2 -p IP

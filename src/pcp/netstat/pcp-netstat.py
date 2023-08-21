@@ -345,6 +345,10 @@ class NestatReport(pmcc.MetricGroupPrinter):
         time_string = time.strftime(NetstatOptions.timefmt, t_s.struct_time())
         print("%s\n" % time_string)
 
+        if NetstatOptions.all_stats_flag is False and NetstatOptions.filter_protocol_flag is False and NetstatOptions.filter_iface_flag is False:
+            NetstatOptions.all_stats_flag = True
+            NetstatOptions.filter_iface_flag = True
+
         if NetstatOptions.all_stats_flag:
             for metric_dict in METRICS_DICT.items():
                 print("%s:" % metric_dict[0][:-8])
@@ -398,7 +402,7 @@ class NetstatOptions(pmapi.pmOptions):
     all_stats_flag = False
     filter_protocol_flag = False
     filter_protocol = None
-    filter_iface_flag = None
+    filter_iface_flag = False
 
     def override(self, opt):
         if opt == 'p':
@@ -406,6 +410,7 @@ class NetstatOptions(pmapi.pmOptions):
         return 0
 
     def extraOptions(self, opt, optarg, index):
+
         if opt == "statistics":
             NetstatOptions.all_stats_flag = True
 
