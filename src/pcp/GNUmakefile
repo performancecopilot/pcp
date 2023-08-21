@@ -27,6 +27,7 @@ SUBDIRS = \
         ipcs \
 	meminfo \
 	mpstat \
+	netstat \
 	numastat \
 	pidstat \
 	ps \

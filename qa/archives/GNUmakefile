@@ -61,6 +61,7 @@ DEFLATE = small.0.xz small.meta small.index \
 	  pcp-ss.0.xz pcp-ss.meta.xz pcp-ss.index \
 	  pcp-ps.0.xz pcp-ps.meta.xz pcp-ps.index all-ubuntu.22.04.index \
 	  pcp-meminfo.0.xz pcp-meminfo.meta.xz pcp-meminfo.index \
+	  pcp-netstat.0.xz pcp-netstat.meta.xz pcp-netstat.index \
 	  all-ubuntu.22.04.0.xz all-ubuntu.22.04.meta.xz
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
@@ -69,7 +70,7 @@ SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.numa mk.rewrite mk.eventrec mk.interpmark mk.multihost \
 	  mk.sample_expr mk.tzchange mk.arch-all \
 	  mk.atop mk.hotatop mk.atop-boot mk.atop-nvidia mk.atop-threads \
-	  mk.log-derived mk.vmstat mk.rep mk.procsched \
+	  mk.log-derived mk.vmstat mk.rep mk.procsched mk.netstat \
 	  mk.ipcs mk.value-test mk.rank-pred mk.cputime mk.meminfo \
 	  mk.sample-labels mk.pmproxy mk.mmv.help mk.slabinfo
 
