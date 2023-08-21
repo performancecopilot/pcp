@@ -372,6 +372,7 @@ tapestat
 ipcs
 meminfo
 mpstat
+netstat
 ps
 slabinfo
 
@@ -2096,4 +2097,5 @@ x11
 1988 pcp meminfo python local
 1989 pcp slabinfo python local
 1990 pcp buddyinfo python local
+1991 pcp netstat python local
 4751 libpcp threads valgrind local pcp helgrind
