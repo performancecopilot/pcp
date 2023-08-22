@@ -29,9 +29,7 @@
 static pid_t
 waitpid_pmcd(int *status)
 {
-#if defined(HAVE_WAIT3)
-    return wait3(status, WNOHANG, NULL);
-#elif defined(HAVE_WAITPID)
+#if defined(HAVE_WAITPID)
     return waitpid((pid_t)-1, status, WNOHANG);
 #else
     return (pid_t)-1;
