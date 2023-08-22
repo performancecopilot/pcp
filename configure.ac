@@ -1938,14 +1938,21 @@ then
 fi
 AC_SUBST(lib_for_regex)
 
+have_ssl_trace=false
 PKG_CHECK_MODULES([openssl], [openssl >= 1.1.1], [have_openssl=true], [have_openssl=false])
 if test $have_openssl = true
 then
     dnl for OpenBSD, libcrypto does not include a BIO_write_ex(),
     dnl so we can't use libssl with pmproxy in particular
     AC_CHECK_LIB(crypto, BIO_write_ex, , have_openssl=false)
+    dnl SSL_trace() is not present in all versions of libssl
+    AC_CHECK_LIB(ssl, SSL_trace, have_ssl_trace=true, )
 fi
 AC_SUBST(HAVE_OPENSSL, [$have_openssl])
+if test $have_ssl_trace
+then
+    AC_DEFINE(HAVE_SSL_TRACE, [1], [SSL_Trace() in libssl])
+fi
 
 PKG_CHECK_MODULES([libsasl2], [libsasl2 >= 2], [have_sasl=true], [have_sasl=false])
 AC_SUBST(HAVE_SASL, [$have_sasl])
