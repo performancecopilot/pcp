@@ -1949,7 +1949,7 @@ then
     AC_CHECK_LIB(ssl, SSL_trace, have_ssl_trace=true, )
 fi
 AC_SUBST(HAVE_OPENSSL, [$have_openssl])
-if test $have_ssl_trace
+if test $have_ssl_trace = true
 then
     AC_DEFINE(HAVE_SSL_TRACE, [1], [SSL_Trace() in libssl])
 fi
