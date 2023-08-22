@@ -5290,11 +5290,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++11 features" >&5
 printf %s "checking for $CXX option to enable C++11 features... " >&6; }
-if test ${ac_cv_prog_cxx_cxx11+y}
+if test ${ac_cv_prog_cxx_11+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_cxx11=no
+  ac_cv_prog_cxx_11=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -5336,11 +5336,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++98 features" >&5
 printf %s "checking for $CXX option to enable C++98 features... " >&6; }
-if test ${ac_cv_prog_cxx_cxx98+y}
+if test ${ac_cv_prog_cxx_98+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_cxx98=no
+  ac_cv_prog_cxx_98=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -12075,6 +12075,7 @@ then
 fi
 
 
+have_ssl_trace=false
 
 pkg_failed=no
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for openssl" >&5
@@ -12193,9 +12194,55 @@ else $as_nop
   have_openssl=false
 fi
 
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for SSL_trace in -lssl" >&5
+printf %s "checking for SSL_trace in -lssl... " >&6; }
+if test ${ac_cv_lib_ssl_SSL_trace+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lssl  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+char SSL_trace ();
+int
+main (void)
+{
+return SSL_trace ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ac_cv_lib_ssl_SSL_trace=yes
+else $as_nop
+  ac_cv_lib_ssl_SSL_trace=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ssl_SSL_trace" >&5
+printf "%s\n" "$ac_cv_lib_ssl_SSL_trace" >&6; }
+if test "x$ac_cv_lib_ssl_SSL_trace" = xyes
+then :
+  have_ssl_trace=true
+fi
+
 fi
 HAVE_OPENSSL=$have_openssl
 
+if test $have_ssl_trace = true
+then
+
+printf "%s\n" "#define HAVE_SSL_TRACE 1" >>confdefs.h
+
+fi
 
 
 pkg_failed=no

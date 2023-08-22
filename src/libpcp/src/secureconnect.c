@@ -864,6 +864,7 @@ __pmSecureServerNegotiation(int fd, int *strength)
      * from ssl library when -Dtls,desperate in play
      */
     if (pmDebugOptions.tls && pmDebugOptions.desperate) {
+#ifdef HAVE_SSL_TRACE
 	static BIO	*mybio = NULL;
 	PM_INIT_LOCKS();
 	PM_LOCK(secureclient_lock);
@@ -875,6 +876,9 @@ __pmSecureServerNegotiation(int fd, int *strength)
 	    SSL_set_msg_callback_arg(ss.ssl, mybio);
 	}
 	PM_UNLOCK(secureclient_lock);
+#else
+	fprintf(stderr, "__pmSecureServerNegotiation: Warning: no SSL_trace() support in libssl\n");
+#endif
     }
 
     if ((sts = SSL_accept(ss.ssl)) <= 0) {
