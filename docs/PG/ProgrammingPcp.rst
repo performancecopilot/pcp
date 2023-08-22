@@ -108,7 +108,7 @@ Retrospective Sources of Performance Metrics
 
 The distributed collection architecture described in the previous section is used when PMAPI clients are requesting performance metrics from a real-time or live source.
 
-The PMAPI also supports delivery of performance metrics from a historical source in the form of a PCP archive log. Archive logs are created using the **pmlogger** 
+The PMAPI also supports delivery of performance metrics from a historical source in the form of a PCP archive. Archives are created using the **pmlogger** 
 utility, and are replayed in an architecture as shown in :ref:`Figure 1.3. Architecture for Retrospective Analysis`.
 
 .. _Figure 1.3. Architecture for Retrospective Analysis:

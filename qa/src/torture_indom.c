@@ -407,7 +407,7 @@ main(int argc, char **argv)
 "Usage: %s [options] metricname\n\
 \n\
 Options\n\
-  -a archive	metrics source is an archive log\n\
+  -a archive	metrics source is an archive\n\
   -D debug	standard PCP debug options\n\
   -h host	metrics source is PMCD on host (default is local context)\n\
   -L            metrics source is local connection to PMDA, no PMCD\n\

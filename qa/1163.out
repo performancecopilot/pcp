@@ -1,6 +1,6 @@
 QA output created by 1163
 Start configfile: CONFIG
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Help Text: full pmID (2.4.1)
 ID:		2.4.1 -> 2.0.16
@@ -6983,7 +6983,7 @@ InDom: 62.0 [rewritten
 multiple
 lines]
 Start configfile: CONFIG
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Help Text: One Line pmID (2.0.20)
 DELETE

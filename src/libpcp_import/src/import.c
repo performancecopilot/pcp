@@ -288,7 +288,7 @@ pmiErrStr_r(int code, char *buf, int buflen)
 	    msg = "Error adding label";
 	    break;
 	case PMI_ERR_BADVERSION:
-	    msg = "Illegal log version";
+	    msg = "Illegal archive version";
 	    break;
 	default:
 	    return pmErrStr_r(code, buf, buflen);

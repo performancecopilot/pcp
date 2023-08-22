@@ -691,6 +691,9 @@
 /* __thread private data */
 #undef HAVE___THREAD
 
+/* SSL_trace() in libssl */
+#undef HAVE_SSL_TRACE
+
 /* Platform is AIX */
 #undef IS_AIX
 

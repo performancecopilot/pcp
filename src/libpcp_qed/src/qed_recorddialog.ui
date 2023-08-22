@@ -1,6 +1,6 @@
 <ui version="4.0" >
  <class>QedRecordDialog</class>
- <widget class="QDialog" name="QedRecordDialog" >
+ <widget class="QDialog" name="QedRecordDialog">
   <property name="windowModality" >
    <enum>Qt::WindowModal</enum>
   </property>
@@ -412,7 +412,7 @@
    <sender>buttonOk</sender>
    <signal>clicked()</signal>
    <receiver>QedRecordDialog</receiver>
-   <slot>buttonOk_clicked()</slot>
+   <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -429,102 +429,6 @@
    <signal>clicked()</signal>
    <receiver>QedRecordDialog</receiver>
    <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>selectedRadioButton</sender>
-   <signal>clicked()</signal>
-   <receiver>QedRecordDialog</receiver>
-   <slot>selectedRadioButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>allGadgetsRadioButton</sender>
-   <signal>clicked()</signal>
-   <receiver>QedRecordDialog</receiver>
-   <slot>allGadgetsRadioButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>deltaUnitsComboBox</sender>
-   <signal>activated(int)</signal>
-   <receiver>QedRecordDialog</receiver>
-   <slot>deltaUnitsComboBox_activated(int)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>viewPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>QedRecordDialog</receiver>
-   <slot>viewPushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>folioPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>QedRecordDialog</receiver>
-   <slot>folioPushButton_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>archivePushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>QedRecordDialog</receiver>
-   <slot>archivePushButton_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>

@@ -2,7 +2,7 @@
 # Performance Co-Pilot crontab entries for a monitored site
 # with one or more pmlogger instances running
 #
-# daily processing of archive logs (with compression enabled)
+# daily processing of archives (with compression enabled)
 10     0  *  *  *  @user@  @path@/pmlogger_daily
 # hourly polling to check and do daily processing if not done already in
 # the last 24 hours

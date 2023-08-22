@@ -152,7 +152,7 @@ main(int argc, char **argv)
 "Usage: %s [options] metric [...]\n\
 \n\
 Options:\n\
-  -a archive     metrics source is a PCP log archive\n\
+  -a archive     metrics source is a log archive\n\
   -h host        metrics source is PMCD on host\n\
   -L             use local context instead of PMCD\n\
   -s samples     terminate after this many samples [default 10]\n",

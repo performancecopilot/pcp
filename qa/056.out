@@ -8,14 +8,14 @@ Archive basename: ARCHIVE
 [DATE] pmlogger(PID) Info: pmlogger: Sample limit reached, exiting
 
 Log finished DATE
-pmclient_fg.python: End of PCP archive log
+pmclient_fg.python: End of PCP archive
 ... title ...
   CPU  Free Mem   Disk     Load Average
  Util  (Mbytes)   IOPS    1 Min  15 Min
 ... 5 numbers ...
 ... 5 numbers ...
 ...
-pmclient_fg.python: End of PCP archive log
+pmclient_fg.python: End of PCP archive
 ... title ...
   CPU  Busy    Busy  Free Mem   Disk     Load Average
  Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min

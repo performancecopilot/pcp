@@ -188,13 +188,13 @@ badarchives/badlabel-1.0: start pass0 ... found 10 records
 badarchives/badlabel-1.index: start pass0 ... found 4 records
 badarchives/badlabel-1.meta: start pass0 ... badarchives/badlabel-1.meta: bad label magic number: 0xdeadbe00 not 0x50052600 as expected
 found 12 records
-pmlogcheck: cannot open archive "badarchives/badlabel-1.meta": Illegal label record at start of a PCP archive log file
+pmlogcheck: cannot open archive "badarchives/badlabel-1.meta": Illegal label record at start of a PCP archive file
 
 badarchives/badlabel-2.meta:
 Due to earlier errors, cannot continue ... bye
 Scanning for components of archive "badarchives/badlabel-2.meta"
 badarchives/badlabel-2.0: start pass0 ... found 10 records
-badarchives/badlabel-2.index: cannot load label record: Illegal label record at start of a PCP archive log file
+badarchives/badlabel-2.index: cannot load label record: Illegal label record at start of a PCP archive file
 badarchives/badlabel-2.index: start pass0 ... badarchives/badlabel-2.index: bad label version: 0 not 2 or 3 as expected
 badarchives/badlabel-2.meta: start pass0 ... found 12 records
 

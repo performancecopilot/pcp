@@ -1,7 +1,7 @@
 QA output created by 1461
 
 === label domain 2 { label -> "foo" } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 2
 Label:		ALL -> "foo"
@@ -10,7 +10,7 @@ Label:		ALL -> "foo"
     Domain 60 labels (17 bytes): {"agent":"linux"}
 
 === label domain 2 "agent" { label -> "foo" } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 2, Label: "agent"
 Label:		"agent" -> "foo"
@@ -19,7 +19,7 @@ Label:		"agent" -> "foo"
     Domain 60 labels (17 bytes): {"agent":"linux"}
 
 === label domain 2 "agent" * { label -> "foo" } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 2, Label: "agent"
 Label:		"agent" -> "foo"
@@ -28,7 +28,7 @@ Label:		"agent" -> "foo"
     Domain 60 labels (17 bytes): {"agent":"linux"}
 
 === label domain 2 * "pmcd" { label -> "foo" } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 2, Value: "pmcd"
 Label:		ALL -> "foo"
@@ -37,7 +37,7 @@ Label:		ALL -> "foo"
     Domain 60 labels (17 bytes): {"agent":"linux"}
 
 === label domain 2 { value -> "bar" } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 2
 Value:		ALL -> "bar"
@@ -46,7 +46,7 @@ Value:		ALL -> "bar"
     Domain 60 labels (17 bytes): {"agent":"linux"}
 
 === label domain 2 "agent" { value -> "bar" } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 2, Label: "agent"
 Value:		ALL -> "bar"
@@ -55,7 +55,7 @@ Value:		ALL -> "bar"
     Domain 60 labels (17 bytes): {"agent":"linux"}
 
 === label domain 2 "agent" * { value -> "bar" } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 2, Label: "agent"
 Value:		ALL -> "bar"
@@ -64,7 +64,7 @@ Value:		ALL -> "bar"
     Domain 60 labels (17 bytes): {"agent":"linux"}
 
 === label domain 2 * "pmcd" { value -> "bar" } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 2, Value: "pmcd"
 Value:		"pmcd" -> "bar"
@@ -73,7 +73,7 @@ Value:		"pmcd" -> "bar"
     Domain 60 labels (17 bytes): {"agent":"linux"}
 
 === label domain 29 { label -> "foo" } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 29
 Label:		ALL -> "foo"
@@ -82,7 +82,7 @@ Label:		ALL -> "foo"
     Domain 60 labels (17 bytes): {"agent":"linux"}
 
 === label domain 29 "role" { value -> "foo" } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 29, Label: "role"
 Value:		ALL -> "foo"
@@ -91,7 +91,7 @@ Value:		ALL -> "foo"
     Domain 60 labels (17 bytes): {"agent":"linux"}
 
 === label domain 29 "role" * { value -> "foo" } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 29, Label: "role"
 Value:		ALL -> "foo"
@@ -100,7 +100,7 @@ Value:		ALL -> "foo"
     Domain 60 labels (17 bytes): {"agent":"linux"}
 
 === label domain 29 * "testing" { value -> "foo" } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 29, Value: "testing"
 Value:		"testing" -> "foo"
@@ -109,7 +109,7 @@ Value:		"testing" -> "foo"
     Domain 60 labels (17 bytes): {"agent":"linux"}
 
 === label domain 29 { value -> "bar" } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 29
 Value:		ALL -> "bar"
@@ -118,7 +118,7 @@ Value:		ALL -> "bar"
     Domain 60 labels (17 bytes): {"agent":"linux"}
 
 === label domain 29 "role" { value -> "bar" } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 29, Label: "role"
 Value:		ALL -> "bar"
@@ -127,7 +127,7 @@ Value:		ALL -> "bar"
     Domain 60 labels (17 bytes): {"agent":"linux"}
 
 === label domain 29 "role" * { value -> "bar" } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 29, Label: "role"
 Value:		ALL -> "bar"
@@ -136,7 +136,7 @@ Value:		ALL -> "bar"
     Domain 60 labels (17 bytes): {"agent":"linux"}
 
 === label domain 29 * "testing" { value -> "bar" } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 29, Value: "testing"
 Value:		"testing" -> "bar"
@@ -145,7 +145,7 @@ Value:		"testing" -> "bar"
     Domain 60 labels (17 bytes): {"agent":"linux"}
 
 === label domain 29 "agent" { value -> "fumble" label -> "mumble" } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 29, Label: "agent"
 Label:		"agent" -> "mumble"
@@ -155,7 +155,7 @@ Value:		ALL -> "fumble"
     Domain 60 labels (17 bytes): {"agent":"linux"}
 
 === label domain 29 "agent" { value -> "fumble" } label domain 29 "agent" { label -> "foo" } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Label: Domain 29, Label: "agent"
 Label:		"agent" -> "foo"

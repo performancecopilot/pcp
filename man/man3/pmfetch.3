@@ -248,7 +248,7 @@ and none was provided (there are a small number of metrics in this category,
 typically ones with very large, and/or very
 dynamic instance domains, and/or expensive metric instantiation methods).
 .IP "+"
-If the current context involves fetching metrics from an archive log,
+If the current context involves fetching metrics from an archive,
 values may be unavailable in the region around a
 .I <mark>
 record (see
@@ -402,20 +402,14 @@ in the argument
 .IR result .
 If no result is returned,
 e.g. due to IPC failure using the current PMAPI context, or
-end of file on an archive log, then these routines
+end of file on an archive, then these routines
 will return a negative error code which may be examined using
 .BR pmErrStr (3).
-.IP \f3PM_ERR_NYI\f1
-Currently PCP archives do not support high resolution timestamps,
-until this is addressed when fetching records from an archive log
-the
-.B pmFetchHighRes
-will fail with the not-yet-implemented error code.
 .IP \f3PM_ERR_EOL\f1
-When fetching records from an archive log,
+When fetching records from an archive,
 .B pmFetch
-returns this error code to indicate the end of the log has been
-passed (or the start of the log has been passed, if the direction
+returns this error code to indicate the end of the archive has been
+passed (or the start of the archive has been passed, if the direction
 of traversal is backwards in time).
 If the ``mode'' for the current PMAPI context (see
 .BR pmSetMode (3))

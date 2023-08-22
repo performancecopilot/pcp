@@ -1,5 +1,5 @@
 /*
- * pmlogreduce - statistical reduction of a PCP archive log
+ * pmlogreduce - statistical reduction of a PCP archive
  *
  * Copyright (c) 2014,2017,2021-2022 Red Hat.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.

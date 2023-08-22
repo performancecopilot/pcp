@@ -130,7 +130,7 @@ End-of-File
 		then
 		    pmdumplog $tmp | _filter_dumplog
 		else
-		    echo "Archive log is empty"
+		    echo "Archive is empty"
 		fi
 	    done
 	done

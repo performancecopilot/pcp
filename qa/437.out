@@ -15,7 +15,7 @@ __pmLogOpen: uncompress using: bzip2 -dc ./null.0.bz2
 bzip2: Compressed file ends unexpectedly;
 bzip2: Success
 data from undamaged sections of corrupted files.
-pminfo: Cannot open archive "null": Corrupted record in a PCP archive log
+pminfo: Cannot open archive "null": Corrupted record in a PCP archive
 	Input file = ./null.0.bz2, output file = (stdout)
 	perhaps it is corrupted?  *Possible* reason follows.
 It is possible that the compressed file(s) have become corrupted.
@@ -32,4 +32,4 @@ __pmLogOpen: uncompress using: bzip2 -dc ./null.0.bz2
 bzip2: Compressed file ends unexpectedly;
 bzip2: Success
 data from undamaged sections of corrupted files.
-pminfo: Cannot open archive "null": Corrupted record in a PCP archive log
+pminfo: Cannot open archive "null": Corrupted record in a PCP archive

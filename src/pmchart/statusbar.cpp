@@ -58,7 +58,7 @@ StatusBar::StatusBar()
     my.valueLabel->setAlignment(Qt::AlignLeft | Qt::AlignBottom);
 
     my.grid = new QGridLayout;	// Grid of [5 x 3] cells
-    my.grid->setMargin(0);
+    my.grid->setContentsMargins(0, 0, 0, 0);
     my.grid->setSpacing(0);
     my.grid->addWidget(my.gadgetLabel, 0, 0, 1, 3);
     my.grid->addWidget(my.timeAxis, 0, 0, 1, 3);   // top two rows, all columns
@@ -119,7 +119,7 @@ void StatusBar::clearSpacing(QLayout *lp)
 {
     // Traverse the structure of the given layout ensuring that each object takes
     // no extra space. Start with the layout itself.
-    lp->setMargin(0);
+    lp->setContentsMargins(0, 0, 0, 0);
     lp->setSpacing(0);
 
     // Now examine its children, if any.

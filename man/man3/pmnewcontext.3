@@ -31,7 +31,7 @@ Performance Metrics Application Programming Interface (PMAPI)
 may manipulate several concurrent contexts,
 each associated with a source of performance metrics, e.g. \c
 .BR pmcd (1)
-on some host, or a set of archive logs of performance metrics as created by
+on some host, or a set of archives of performance metrics as created by
 .BR pmlogger (1),
 or a standalone connection on the local host that does not involve
 .BR pmcd (1).
@@ -44,13 +44,13 @@ and may be either a host name (\c
 .I type
 is
 .BR PM_CONTEXT_HOST ),
-or a comma-separated list of names referring to a set of archive logs (\c
+or a comma-separated list of names referring to a set of archives (\c
 .I type
 is
 .BR PM_CONTEXT_ARCHIVE ).
 Each element of the list may either be the base name common to all of the
-physical files of an archive log or the name of a directory containing
-archive logs.
+physical files of an archive or the name of a directory containing
+archives.
 .PP
 For a
 .I type

@@ -990,7 +990,7 @@ QmcEventParameter::summary(QString &os, int instID) const
                 os.append("\n").append("        ");
             QString name = my.indom->name(instID);
             if (name == QString())
-                os.append("[").append(instID).append("]");
+                os.append("[").append(QString::number(instID)).append("]");
             else
                 os.append("[\"").append(name).append("\"]");
         }

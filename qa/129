@@ -25,7 +25,7 @@ _filter()
 	-e '/^ *$/d' \
 	-e 's/  */ /g' \
 	-e 's/ $//' \
-	-e '/End of PCP archive log/d' \
+	-e '/End of PCP archive/d' \
     | $PCP_AWK_PROG '
 BEGIN			{ skip = 1 }
 $1 == "interval:"	{ skip = 0; next }

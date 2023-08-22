@@ -392,7 +392,16 @@ following PDU received will result in the following sequence of events:
   2. sleep for the given number of seconds
   3. sends an error PDU with PM_ERR_PMDAREADY to pmcd
 If everything went as planned, sample.not_ready returns to 0, otherwise it
-has a negative error code as value.
+has a negative error code as the value.
+
+@ sample.not_ready_msec interval (in milliseconds) during which PMDA does not respond to PDUs
+Store a positive number of milliseconds as the value of this metric. The
+following PDU received will result in the following sequence of events:
+  1. return an error PDU with PM_ERR_PMDANOTREADY to pmcd
+  2. sleep for the given number of milliseconds
+  3. sends an error PDU with PM_ERR_PMDAREADY to pmcd
+If everything went as planned, sample.not_ready returns to 0, otherwise it
+has a negative error code as the value.
 
 @ sample.wrap.long long counter that wraps
 The metric value increments by INT_MAX / 2 - 1 (from <limits.h>) every
@@ -653,6 +662,10 @@ repeats for consecutive fetches (columns).
     Krahang    1 1 1 0 0 0 1 1 1 0 0 0 1 1 1 0 0 0 1 1 1 0 0 0
     Zmeu       1 1 1 1 0 0 0 0 1 1 1 1 0 0 0 0 1 1 1 1 0 0 0 0
     Duppy      0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+@ SAMPLE.0.1012 Family day of month for birthday
+Same metric as sample.needprofile but without the explicit profile
+requirement, so all of the "family" instance domain.
 
 @ sample.scramble.bin Several constant instances, instances scrambled
 Like sample.bin, except

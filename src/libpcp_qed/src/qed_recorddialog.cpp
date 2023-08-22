@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2014-2015, Red Hat.
+ * Copyright (c) 2014-2015,2023 Red Hat.
  * Copyright (c) 2007-2009, Aconex.  All Rights Reserved.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -18,6 +18,7 @@
 #include <QTextStream>
 #include <QMessageBox>
 #include <QDoubleValidator>
+#include <QRegularExpression>
 
 #include "qed_app.h"
 #include "qed_console.h"
@@ -29,6 +30,19 @@ QedRecordDialog::QedRecordDialog() : QDialog()
     setupUi(this);
     deltaLineEdit->setValidator(
 		new QDoubleValidator(0.001, INT_MAX, 3, deltaLineEdit));
+
+    connect(selectedRadioButton, SIGNAL(clicked()),
+			SLOT(selectedRadioButton_clicked()));
+    connect(allGadgetsRadioButton, SIGNAL(clicked()),
+			SLOT(allGadgetsRadioButton_clicked()));
+    connect(deltaUnitsComboBox, SIGNAL(activated(int)),
+			SLOT(deltaUnitsComboBox_activated(int)));
+    connect(viewPushButton, SIGNAL(clicked()),
+			SLOT(viewPushButton_clicked()));
+    connect(folioPushButton, SIGNAL(clicked()),
+			SLOT(folioPushButton_clicked()));
+    connect(archivePushButton, SIGNAL(clicked()),
+			SLOT(archivePushButton_clicked()));
 }
 
 void QedRecordDialog::languageChange()
@@ -196,7 +210,7 @@ void PmLogger::finished(int, QProcess::ExitStatus)
     }
 }
 
-void QedRecordDialog::buttonOk_clicked()
+void QedRecordDialog::accept()
 {
     if (deltaLineEdit->isModified()) {
 	// convert to seconds, make sure its still in range 0.001-INT_MAX
@@ -213,9 +227,9 @@ void QedRecordDialog::buttonOk_clicked()
     QString today = QDateTime::currentDateTime().toString("yyyyMMdd.hh.mm.ss");
 
     QString viewName = viewLineEdit->text().trimmed();
-    viewName.replace(QRegExp("^~"), QDir::homePath());
-    viewName.replace(QRegExp("\\[date\\]"), today);
-    viewName.replace(QRegExp("\\[host\\]"), QmcSource::localHost);
+    viewName.replace(QRegularExpression("^~"), QDir::homePath());
+    viewName.replace(QRegularExpression("\\[date\\]"), today);
+    viewName.replace(QRegularExpression("\\[host\\]"), QmcSource::localHost);
     QFileInfo viewFile(viewName);
     QDir viewDir = viewFile.dir();
     if (viewDir.mkpath(viewDir.absolutePath()) == false) {
@@ -227,9 +241,9 @@ void QedRecordDialog::buttonOk_clicked()
     }
 
     QString folioName = folioLineEdit->text().trimmed();
-    folioName.replace(QRegExp("^~"), QDir::homePath());
-    folioName.replace(QRegExp("\\[date\\]"), today);
-    folioName.replace(QRegExp("\\[host\\]"), QmcSource::localHost);
+    folioName.replace(QRegularExpression("^~"), QDir::homePath());
+    folioName.replace(QRegularExpression("\\[date\\]"), today);
+    folioName.replace(QRegularExpression("\\[host\\]"), QmcSource::localHost);
     QFileInfo folioFile(folioName);
     QDir folioDir = folioFile.dir();
     if (folioDir.mkpath(folioDir.absolutePath()) == false) {
@@ -250,9 +264,9 @@ void QedRecordDialog::buttonOk_clicked()
     my.hosts = my.view->hostList(selectedRadioButton->isChecked());
     for (int h = 0; h < my.hosts.count(); h++) {
 	QString archive = archiveLineEdit->text().trimmed();
-	archive.replace(QRegExp("^~"), QDir::homePath());
-	archive.replace(QRegExp("\\[host\\]"), my.hosts.at(h));
-	archive.replace(QRegExp("\\[date\\]"), today);
+	archive.replace(QRegularExpression("^~"), QDir::homePath());
+	archive.replace(QRegularExpression("\\[host\\]"), my.hosts.at(h));
+	archive.replace(QRegularExpression("\\[date\\]"), today);
 	my.archives.append(archive);
     }
 
@@ -273,7 +287,7 @@ void QedRecordDialog::startLoggers()
 
     QString regex = "^";
     regex.append(QDir::homePath());
-    my.folioName.replace(QRegExp(regex), "~"); 
+    my.folioName.replace(QRegularExpression(regex), "~"); 
 
     my.view->addFolio(my.folioName, my.viewName);
 

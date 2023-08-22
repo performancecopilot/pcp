@@ -652,7 +652,7 @@ PCP_CALL extern int __pmGetDomainLabels(int, const char *, pmLabelSet **);
 
 /* internal archive data structures */
 /*
- * record header in the metadata log file ... len (by itself) also is
+ * record header in the metadata file ... len (by itself) also is
  * used as a trailer
  */
 typedef struct __pmLogHdr {
@@ -766,8 +766,8 @@ typedef struct __pmLogLabelSet {
 typedef struct {
     int			magic;		/* PM_LOG_MAGIC|PM_LOG_VERS?? */
     int			pid;		/* PID of logger */
-    __pmTimestamp	start;		/* start of this log */
-    int			vol;		/* current log volume no. */
+    __pmTimestamp	start;		/* start of this archive */
+    int			vol;		/* current archive volume no. */
     __uint32_t		features;	/* current enabled features */
     char		*hostname;	/* hostname at collection host */
     char		*timezone;	/* squashed $TZ at collection host */
@@ -779,7 +779,7 @@ typedef struct {
  */
 typedef struct {
     __pmTimestamp	stamp;	/* now */
-    int			vol;		/* current log volume no. */
+    int			vol;		/* current archive volume no. */
     off_t		off_meta;	/* end of metadata file */
     off_t		off_data;	/* end of data file */
 } __pmLogTI;
@@ -789,13 +789,13 @@ typedef struct {
  */
 typedef struct {
     __pmMutex	lc_lock;	/* mutex for multi-thread access */
-    int		refcnt;		/* number of contexts using this log */
-    char	*name;		/* external log base name */
+    int		refcnt;		/* number of contexts using this archive */
+    char	*name;		/* external archive base name */
     __pmFILE	*tifp;		/* temporal index */
     __pmFILE	*mdfp;		/* meta data */
-    int		state;		/* (when writing) log state */
+    int		state;		/* (when writing) archive state */
     __pmHashCtl	hashpmid;	/* PMID hashed access */
-    __pmHashCtl	hashrange;	/* ptr to first and last value in log for */
+    __pmHashCtl	hashrange;	/* ptr to first and last value in archive for */
 				/* each metric */
     __pmHashCtl	hashindom;	/* instance domain hashed access */
     __pmHashCtl	trimindom;	/* timestamps for first and last value per */
@@ -807,7 +807,7 @@ typedef struct {
     int		maxvol;		/* (when reading) highest known volume no. */
     int		numseen;	/* (when reading) size of seen */
     int		*seen;		/* (when reading) volumes opened OK */
-    __pmLogLabel label;		/* (when reading) log label */
+    __pmLogLabel label;		/* (when reading) archive label */
     off_t	physend;	/* (when reading) offset to physical EOF */
 				/*                for last volume */
     __pmTimestamp endtime;	/* (when reading) timestamp at logical EOF */
@@ -827,7 +827,7 @@ PCP_CALL extern int __pmEncodeResult(const __pmLogCtl *, const __pmResult *, __p
  * Minimal information to retain for each archive in a multi-archive context
  */
 typedef struct {
-    char		*name;	/* external log base name */
+    char		*name;	/* external archive base name */
     __pmTimestamp	starttime;	/* start time of the archive */
     char		*hostname;	/* name of collection host */
     char		*timezone;	/* squashed $TZ at collection host */
@@ -840,8 +840,8 @@ typedef struct {
 typedef struct {
     __pmLogCtl		*ac_log;	/* Current global logging and archive
 					   control */
-    __pmFILE		*ac_mfp;	/* current metrics log */
-    int			ac_curvol;	/* current metrics log volume no. */
+    __pmFILE		*ac_mfp;	/* current metrics volume */
+    int			ac_curvol;	/* current metrics volume no. */
     long		ac_offset;	/* fseek ptr for archives */
     int			ac_vol;		/* volume for ac_offset */
     int			ac_serial;	/* serial access pattern for archives */
@@ -903,7 +903,7 @@ typedef struct {
     int			c_type;		/* HOST, ARCHIVE, LOCAL or INIT or FREE */
     int			c_mode;		/* current mode PM_MODE_* */
     __pmPMCDCtl		*c_pmcd;	/* pmcd control for HOST contexts */
-    __pmArchCtl		*c_archctl;	/* log control for ARCHIVE contexts */
+    __pmArchCtl		*c_archctl;	/* archive control for ARCHIVE contexts */
     __pmTimestamp	c_origin;	/* pmFetch time origin / current time */
     __pmTimestamp	c_delta;	/* for updating origin */
     int			c_direction;	/* signedness of delta (-1/0/1) */
@@ -1037,11 +1037,11 @@ PCP_CALL extern int __pmAFisempty(void);
 #define LOG_REQUEST_STATUS	2
 #define LOG_REQUEST_SYNC	3
 typedef struct {
-    __pmTimestamp	start;		/* start time for log */
-    __pmTimestamp	last;		/* last time log written */
+    __pmTimestamp	start;		/* start time for archive */
+    __pmTimestamp	last;		/* last time archive written */
     __pmTimestamp	now;		/* current time */
-    int			state;		/* state of log (from __pmLogCtl) */
-    int			vol;		/* current volume number of log */
+    int			state;		/* state of archive (from __pmLogCtl) */
+    int			vol;		/* current volume number of archive */
     __int64_t		size;		/* size of current volume */
     struct {
 	char		*hostname;	/* name of pmcd host */

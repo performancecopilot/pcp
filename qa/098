@@ -160,7 +160,7 @@ then
     echo "=== pmdumplog ===" >>$here/$seq.full
     pmdumplog $tmp >>$here/$seq.full 2>&1
 else
-    echo "Archive log is empty"
+    echo "Archive is empty"
 fi
 
 # see note above about vm24 and <mark> record

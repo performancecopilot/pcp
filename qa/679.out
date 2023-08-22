@@ -54,11 +54,11 @@ Error: no pmlogger instance running for host "localhost"
 Warning: skipping log rotation because we don't know which pmlogger to signal
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.00.10
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.06.00
-+ pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.12.00
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.12.00-00
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.12.00-01
++ pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.12.00
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite 20011005.18.00
-+ pmlogger_merge -N -V  -f 20011005.00.10 20011005.06.00 20011005.12.00 20011005.12.00-00 20011005.12.00-01 20011005.18.00 20011005
++ pmlogger_merge -N -V  -f 20011005.00.10 20011005.06.00 20011005.12.00-00 20011005.12.00-01 20011005.12.00 20011005.18.00 20011005
 
 === daily maintenance of PCP archives for host localhost ===
 
@@ -226,9 +226,9 @@ Warning: skipping log rotation because we don't know which pmlogger to signal
 Input archives to be merged:
 	20011005.00.10
 	20011005.06.00
-	20011005.12.00
 	20011005.12.00-00
 	20011005.12.00-01
+	20011005.12.00
 	20011005.18.00
 Output archive files:
 <ls output> 20011005.meta

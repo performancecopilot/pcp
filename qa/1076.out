@@ -2,7 +2,7 @@ QA output created by 1076
 
 === badarchives/badmeta-1 ===
 badarchives/badmeta-1.index[entry 3]: offset to metadata (851) past end of file (797)
-badarchives/badmeta-1.0:[04:34:33.248] 29.0.2: pmLookupDesc failed: Metric not defined in the PCP archive log
+badarchives/badmeta-1.0:[04:34:33.248] 29.0.2: pmLookupDesc failed: Metric not defined in the PCP archive
 Note: timezone set to local timezone of host "gonzo" from archive
 
 
@@ -23,17 +23,17 @@ Note: timezone set to local timezone of host "gonzo" from archive
 
 === badarchives/badmeta-3 ===
 __pmLogLoadInDom: InDom: 29.2 instance[0]: bad string index (-1)
-pmlogcheck: cannot open archive "badarchives/badmeta-3": Corrupted record in a PCP archive log
+pmlogcheck: cannot open archive "badarchives/badmeta-3": Corrupted record in a PCP archive
 Checking abandoned.
 
 === badarchives/badmeta-4 ===
 __pmLogLoadInDom: InDom: 29.2: instance[8]: bad instance identifier (-1)
-pmlogcheck: cannot open archive "badarchives/badmeta-4": Corrupted record in a PCP archive log
+pmlogcheck: cannot open archive "badarchives/badmeta-4": Corrupted record in a PCP archive
 Checking abandoned.
 
 === badarchives/badmeta-5 ===
 __pmLogLoadInDom: InDom: 29.2 instance[1]: bad string index (76) > max index based on record length (72)
-pmlogcheck: cannot open archive "badarchives/badmeta-5": Corrupted record in a PCP archive log
+pmlogcheck: cannot open archive "badarchives/badmeta-5": Corrupted record in a PCP archive
 Checking abandoned.
 
 === badarchives/badmeta-6 ===

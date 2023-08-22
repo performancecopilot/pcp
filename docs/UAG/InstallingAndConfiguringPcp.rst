@@ -481,12 +481,12 @@ PMDAs. Changes in the selection of modules that are installed or operational, al
 
 In simple terms, the PMNS contains a metric name, but when that metric is requested, no PMDA at the collector host supports the metric.
 
-For archive logs, the collection of metrics to be logged is a subset of the metrics available, so utilities replaying from a PCP archive log may not have access to all of the metrics 
+For archives, the collection of metrics to be logged is a subset of the metrics available, so utilities replaying from a PCP archive may not have access to all of the metrics 
 available from a live (PMCD) source.
 
 **Resolution:**
 
-Make sure the underlying instrumentation is available and the module is active. Ensure that the PMDA is running on the host to be monitored. If necessary, create a new archive log with 
+Make sure the underlying instrumentation is available and the module is active. Ensure that the PMDA is running on the host to be monitored. If necessary, create a new archive with 
 a wider range of metrics to be logged.
 
 ⁠Kernel Metrics and the PMCD

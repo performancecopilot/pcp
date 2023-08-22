@@ -113,8 +113,8 @@ foo/0: duplicate, already in archives list
 + check foo/0 not active and OK
 
 --- bad archive ---
-pmdumplog: Cannot open archive "badvol/badlen-10": Illegal label record at start of a PCP archive log file
-pmdumplog: Cannot open archive "badvol/badlen-10": Illegal label record at start of a PCP archive log file
+pmdumplog: Cannot open archive "badvol/badlen-10": Illegal label record at start of a PCP archive file
+pmdumplog: Cannot open archive "badvol/badlen-10": Illegal label record at start of a PCP archive file
 Botch: cannot get pmlogger PID from label record for badvol/badlen-10
 
 --- disk.dev.bytes type rewrite in snort-disks and not in moomba.client ---

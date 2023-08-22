@@ -97,7 +97,7 @@ main(int argc, char **argv)
 "Usage: %s options ...\n\
 \n\
 Options\n\
-  -a   archive	  metrics source is an archive log\n\
+  -a   archive	  metrics source is an archive\n\
   -t   size       truncate archive to size bytes\n\
   -q              quick (read last 3 records, not the whole archive)\n\
   -v              verbose\n",

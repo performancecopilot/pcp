@@ -75,7 +75,7 @@ main(int argc, char **argv)
 "Usage: %s options ...\n\
 \n\
 Options\n\
-  -a   archive	  metrics source is an archive log\n\
+  -a   archive	  metrics source is an archive\n\
   -n   namespace  use an alternative PMNS\n",
 		pmGetProgname());
 	exit(1);

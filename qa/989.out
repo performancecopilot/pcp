@@ -29,7 +29,7 @@ numpmid= 2 Fri Sep  1 07:15:03.00386488
 numpmid= 2 Fri Sep  1 07:15:04.00386405
 numpmid= 2 Fri Sep  1 07:15:05.00386347
 numpmid= 2 Fri Sep  1 07:15:06.00386468
--> End of PCP archive log
+-> End of PCP archive
 
 pmFetchArchive ...
 numpmid= 3 Fri Sep  1 07:14:32.00296435
@@ -67,4 +67,4 @@ numpmid=21 Fri Sep  1 07:15:03.00386488
 numpmid=21 Fri Sep  1 07:15:04.00386405
 numpmid=21 Fri Sep  1 07:15:05.00386347
 numpmid=21 Fri Sep  1 07:15:06.00386468
--> End of PCP archive log
+-> End of PCP archive

@@ -17,7 +17,7 @@
 .TH PMGETARCHIVELABEL 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmGetArchiveLabel\f1,
-\f3pmGetHighResArchiveLabel\f1 \- fetch the label record from a set of performance metrics archive logs
+\f3pmGetHighResArchiveLabel\f1 \- fetch the label record from a set of performance metrics archives
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -36,7 +36,7 @@ cc ... \-lpcp
 .el \fI\\$1\f1\\$2
 ..
 Within the framework of the
-Performance Co-Pilot (PCP), archive logs of performance metrics
+Performance Co-Pilot (PCP), archives of performance metrics
 values may be accumulated and saved using the program
 .BR pmlogger (1)
 and the
@@ -47,7 +47,7 @@ The routines
 .B pmGetArchiveLabel
 and
 .B pmGetHighResArchiveLabel
-may be used to fetch the label record from a set of archive logs
+may be used to fetch the label record from a set of archives
 that has already been opened using
 .BR pmNewContext (3),
 or
@@ -69,18 +69,18 @@ and has one of the following two formats (defined in
 .ft CW
 .nf
 typedef struct {
-  int        magic;       /* PM_LOG_MAGIC | log format version no. */
+  int        magic;       /* PM_LOG_MAGIC | archive format version no. */
   pid_t      pid;         /* PID of logger */
-  struct timespec start;  /* start of this log */
+  struct timespec start;  /* start of this archive */
   char       hostname[PM_MAX_HOSTNAMELEN];   /* collection host full name */
   char       timezone[PM_MAX_TIMEZONELEN];   /* generic, squashed $TZ */
   char       zoneinfo[PM_MAX_ZONEINFOLEN];   /* local platform $TZ */
 } pmHighResLogLabel;
 
 typedef struct {
-  int        ll_magic;    /* PM_LOG_MAGIC | log format version no. */
+  int        ll_magic;    /* PM_LOG_MAGIC | archive format version no. */
   pid_t      ll_pid;      /* PID of logger */
-  struct timeval ll_start;/* start of this log */
+  struct timeval ll_start;/* start of this archive */
   char       ll_hostname[PM_LOG_MAXHOSTLEN]; /* name of collection host */
   char       ll_tz[40];   /* $TZ at collection host */
 } pmLogLabel;
@@ -88,11 +88,11 @@ typedef struct {
 .ft 1
 .in
 .PP
-Both forms can be used with either version 2 or version 3 archive logs.
+Both forms can be used with either version 2 or version 3 archives.
 However, the pmHighResLogLabel structure provides the higher resolution
 start time stored in the newer format, as well as the full timezone and
 extended length host name fields.
-For detailed information about the log archive on-disk format, refer to
+For detailed information about the archive on-disk format, refer to
 .BR LOGARCHIVE (5).
 .PP
 For an application using
@@ -145,7 +145,7 @@ return zero for success.
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_NOCONTEXT\f1
 the current PMAPI context
-is either invalid, or not associated with a set of archive logs
+is either invalid, or not associated with a set of archives
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_

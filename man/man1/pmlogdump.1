@@ -16,7 +16,7 @@
 .TH PMLOGDUMP 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmlogdump\f1,
-\f3pmdumplog\f1 \- dump internal details of a performance metrics archive log
+\f3pmdumplog\f1 \- dump internal details of a performance metrics archive
 .SH SYNOPSIS
 \f3pmlogdump\f1
 [\f3\-adehIilLmMrstxzV?\f1]
@@ -32,8 +32,8 @@
 .SH DESCRIPTION
 .B pmlogdump
 dumps assorted control, metadata, index and state information from
-the files of a Performance Co-Pilot (PCP) archive log.
-The archive log has the base name
+the files of a Performance Co-Pilot (PCP) archive.
+The archive has the base name
 .I archive
 and must have been previously created using
 .BR pmlogger (1).
@@ -122,7 +122,7 @@ The on-disk format is only of interest when investigating the internal
 structure of PCP archives.
 .TP
 \fB\-l\fR, \fB\-\-label\fR
-Dump the archive label, showing the log format version,
+Dump the archive label, showing the archive format version,
 the time and date for the start and (current) end of the archive, and
 the host from which the performance metrics values were collected.
 .TP
@@ -176,7 +176,7 @@ arguments are specified.
 .RS +5n
 .P
 .I <mark>
-records are inserted into a PCP archive log by
+records are inserted into a PCP archive by
 .BR pmlogger (1),
 .BR pmlogextract (1),
 and similar tools to indicate a temporal discontinuity in the
@@ -275,7 +275,7 @@ since 1970-01-01 00:00:00 UTC).
 \fB\-z\fR, \fB\-\-hostzone\fR
 Change the timezone to the local timezone at the
 host that is the source of the performance metrics, as specified in
-the label record of the archive log.
+the label record of the archive.
 .TP
 \fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
 By default,

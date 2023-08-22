@@ -15,9 +15,9 @@
 .\"
 .TH PMLOGGER.CONTROL 5 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmlogger.control\f1 \- control files for Performance Co-Pilot archive logging
+\f3pmlogger.control\f1 \- control files for Performance Co-Pilot archiving
 .SH DESCRIPTION
-Historical archive logging of performance data for
+Historical archiving of performance data for
 Performance Co-Pilot (see
 .BR PCPIntro (1))
 uses
@@ -210,6 +210,13 @@ and
 (back quotes)
 will be interpreted as a shell command.
 .IP \(bu 2n
+Within a single line only one style of embedded shell command is
+allowed, so either
+.BR $( ... )
+or
+.BR \[ga] ... \[ga] ,
+but not both.
+.IP \(bu 2n
 An initial double quote (\[dq]) followed by arbitrary text
 (including white space, but excluding an embedded double quote)
 and a final double quote.
@@ -279,7 +286,7 @@ and shown below.
 .PP
 .nf
 .ft CW
-# daily processing of archive logs
+# daily processing of archives
 14      0       *       *       *       $PCP_BINADM_DIR/pmlogger_daily
 # every 30 minutes, check pmlogger instances are running
 25,55   *       *       *       *       $PCP_BINADM_DIR/pmlogger_check

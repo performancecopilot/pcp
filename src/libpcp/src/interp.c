@@ -1127,7 +1127,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmResult *
 	    }
 	    sts = __pmLogLookupDesc(ctxp->c_archctl, pmidlist[j], &pcp->desc);
 	    if (sts < 0)
-		/* not in the archive log */
+		/* not in the archive */
 		pcp->desc.type = -1;
 	    else {
 		/* enumerate all the instances from the domain underneath */

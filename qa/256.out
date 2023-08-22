@@ -317,6 +317,7 @@ sampledso.xmit_pdu
 sampledso.noinst
 sampledso.needprofile
 sampledso.not_ready
+sampledso.not_ready_msec
 sampledso.rapid
 sampledso.error_code
 sampledso.error_check
@@ -336,6 +337,7 @@ sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
 sampledso.secret.foo.one
 sampledso.secret.foo.two
 sampledso.secret.bar
+sampledso.secret.family
 sampledso.ghosts.visible
 sampledso.long.one
 sampledso.long.ten
@@ -539,6 +541,7 @@ sampledso.xmit_pdu
 sampledso.noinst
 sampledso.needprofile
 sampledso.not_ready
+sampledso.not_ready_msec
 sampledso.rapid
 sampledso.error_code
 sampledso.error_check
@@ -558,6 +561,7 @@ sampledso.secret.foo.bar.grunt.snort.huff.puff.seven
 sampledso.secret.foo.one
 sampledso.secret.foo.two
 sampledso.secret.bar
+sampledso.secret.family
 sampledso.ghosts.visible
 sampledso.long.one
 sampledso.long.ten

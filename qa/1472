@@ -1,0 +1,59 @@
+#!/bin/sh
+# PCP QA Test No. 1472
+# pmcd-PMDA ready-notready protocol exerciser
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+# sed is to trick _filter_dumpresult() so most values
+# are preserved
+#
+src/ready-or-not 2>&1 \
+| sed \
+    -e 's/ value / foo-value-bar /' \
+    -e '/"red"/s/ foo-value-bar / value /' \
+    -e '/"green"/s/ foo-value-bar / value /' \
+    -e '/"blue"/s/ foo-value-bar / value /' \
+| $PCP_AWK_PROG '
+/\(pmcd\.agent\.status\)/	{ if ($4 > 8) $4 = "NN"
+				  print
+				  print "    inst ..."
+				  skip = 1
+				  next
+				}
+skip == 1 && $1 != "inst"	{ skip = 0 }
+skip == 1			{ next }
+				{ print }' \
+| _filter_dumpresult \
+| sed -e 's/ foo-value-bar / value /'
+
+# success, all done
+exit

@@ -13,10 +13,10 @@ Performance metrics from host HOST
     ending     DATE
 
 === tmparch/null ===
-pmdumplog: Cannot open archive "tmparch/null": Empty archive log file
+pmdumplog: Cannot open archive "tmparch/null": Empty archive file
 
 === tmparch/bad-1 ===
-pmdumplog: Cannot locate end of archive tmparch/bad-1: Corrupted record in a PCP archive log
+pmdumplog: Cannot locate end of archive tmparch/bad-1: Corrupted record in a PCP archive
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
@@ -117,16 +117,16 @@ Performance metrics from host HOST
     ending     DATE
 
 === tmparch/null.0 ===
-pmdumplog: Cannot open archive "tmparch/null.0": Empty archive log file
+pmdumplog: Cannot open archive "tmparch/null.0": Empty archive file
 
 === tmparch/null.index ===
-pmdumplog: Cannot open archive "tmparch/null.index": Empty archive log file
+pmdumplog: Cannot open archive "tmparch/null.index": Empty archive file
 
 === tmparch/null.meta ===
-pmdumplog: Cannot open archive "tmparch/null.meta": Empty archive log file
+pmdumplog: Cannot open archive "tmparch/null.meta": Empty archive file
 
 === tmparch/bad-1.0 ===
-pmdumplog: Cannot locate end of archive tmparch/bad-1.0: Corrupted record in a PCP archive log
+pmdumplog: Cannot locate end of archive tmparch/bad-1.0: Corrupted record in a PCP archive
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
@@ -137,7 +137,7 @@ Performance metrics from host HOST
     ending     UNKNOWN
 
 === tmparch/bad-1.index ===
-pmdumplog: Cannot locate end of archive tmparch/bad-1.index: Corrupted record in a PCP archive log
+pmdumplog: Cannot locate end of archive tmparch/bad-1.index: Corrupted record in a PCP archive
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
@@ -148,7 +148,7 @@ Performance metrics from host HOST
     ending     UNKNOWN
 
 === tmparch/bad-1.meta ===
-pmdumplog: Cannot locate end of archive tmparch/bad-1.meta: Corrupted record in a PCP archive log
+pmdumplog: Cannot locate end of archive tmparch/bad-1.meta: Corrupted record in a PCP archive
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.

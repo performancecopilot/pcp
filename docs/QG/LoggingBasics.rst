@@ -1,6 +1,6 @@
 .. _LoggingBasics:
 
-Managing Archive Log
+Managing Archive
 ################################################
 
 .. contents::
@@ -8,9 +8,9 @@ Managing Archive Log
 Overview
 *********
 
-The Performance Co-Pilot includes many facilities for creating and replaying archive logs that capture performance information.  
+The Performance Co-Pilot includes many facilities for creating and replaying archives that capture performance information.  
 
-For all PCP monitoring tools, metrics values may come from a real-time feed (i.e. from *pmcd* on some host), or from an archive log.  
+For all PCP monitoring tools, metrics values may come from a real-time feed (i.e. from *pmcd* on some host), or from an archive.  
 
 Users have complete control of what metrics are collected, how often and in which logs.  These decisions can be changed dynamically.  
 
@@ -34,16 +34,16 @@ Other Logger Instances
 
 1. Additional instances of *pmlogger* may be started at any time, running on either a collector system or a monitor system.
 
-2. In all cases, each *pmlogger* instance will create an archive log for metrics from a single collector system.
+2. In all cases, each *pmlogger* instance will create an archive for metrics from a single collector system.
 
 3. The initial specification of what to log is given in a configuration file; the syntax is fully described in the *pmlogger* (1) man page.
 
-Creating and Replaying PCP Archive Logs
+Creating and Replaying PCP Archives
 *****************************************
 
 1. Some configuration files are supplied, which may be found in the directory ``$PCP_VAR_DIR/config/pmlogger``.
 
-2. To create an archive log and subsequent playback. Open a command shell and enter:: 
+2. To create an archive and subsequent playback. Open a command shell and enter:: 
     
     $ source /etc/pcp.conf
     $ cd /tmp
@@ -54,7 +54,7 @@ Creating and Replaying PCP Archive Logs
     
     $ $PCP_BINADM_DIR/pmlogger -T 30sec -t 1sec \ -c $PCP_VAR_DIR/config/pmlogger/config.mpvis myarchive
 
-4. Once the archive has been created, the directory listing of *myarchive.\** shows that the archive log created by *pmlogger* is composed of 3 files::  
+4. Once the archive has been created, the directory listing of *myarchive.\** shows that the archive created by *pmlogger* is composed of 3 files::  
     
     $ ls myarchive.*
 
@@ -88,7 +88,7 @@ Archive Folios
 *mkaf* creates a folio called **myfolio** which includes the archives *babylon.percpu* and *babylon.perdisk*. 
 Note that the archives are not changed in any way, and a new archive is not created.
 
-2. *pmafm* tool may now be used to perform different operations on the folio **myfolio**, such as listing the folio contents, or using other tools to open the archive logs contained in the folio. If *pmafm* is given a folio name but no arguments, it will run in interactive mode.
+2. *pmafm* tool may now be used to perform different operations on the folio **myfolio**, such as listing the folio contents, or using other tools to open the archives contained in the folio. If *pmafm* is given a folio name but no arguments, it will run in interactive mode.
     
     .. sourcecode:: none
 
@@ -115,7 +115,7 @@ PCP includes a suite of scripts and tools to automate the collection and managem
 Briefly, these facilities include:
 
 - daily log rotation (pmlogger_daily(1))
-- archive log merging (pmlogextract(1))
+- archive merging (pmlogextract(1))
 - automatic restarting of failed pmlogger instances (pmlogger_check(1))
 - creation of snapshots from archives (pmsnap(1))
 - maintenance of archive folios for active archives (mkaf(1) and pmafm(1))

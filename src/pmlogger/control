@@ -9,7 +9,7 @@
 #    Host	name of host to be logged
 #    P(rimary)	is this the primary logger? y or n
 #    S(ocks)	should this logger be launched with pmsocks? y or n
-#    Directory	full pathname to directory where archive logs are
+#    Directory	full pathname to directory where archives are
 #		to be maintained ... note all scripts "cd" to here as
 #		a first step
 #    Args	optional additional arguments to pmlogger
