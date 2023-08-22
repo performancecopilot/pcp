@@ -1,0 +1,153 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2023 Oracle and/or its affiliates.
+.\" DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PCP-ZONEINFO 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-zoneinfo\f1 \- Report statistics for System Zoneinfo.
+.SH SYNOPSIS
+\f3pcp\f1
+[\f2pcp\ options\f1]
+\f3zoneinfo\f1
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-S\f1 \f2start_time\f1]
+[\f3\-T\f1 \f2end_time\f1]
+.SH DESCRIPTION
+The
+.B pcp-zoneinfo
+command is used for viewing the different kinds of stats related to numa nodes.
+Using various options it helps a user to analyze useful information related to
+the zone availability for different numa nodes.This file display information about memory zones.
+This is useful for analyzing virtual memory behavior.By default
+.B pcp-zoneinfo
+reports live data for the local host.
+
+The statistics shown are as follows:
+
+.TS
+lfB  lfB 
+l    lx.
+HEADER                          DESCRIPTION
+_                               _
+
+.B Per node stats
+
+nr_inactive_anon                zone inactive anonymous pages for each zone for each NUMA node
+nr_active_anon                  number of active anonymous memory pages in each zone for each NUMA node
+nr_inactive_file                number of inactive file memory pages in each zone for each NUMA node
+nr_active_file                  number of active file memory memory pages in each zone for each NUMA node
+nr_unevictable                  number of unevictable pages in each zone for each NUMA node
+nr_slab_reclaimable             number of reclaimable slab pages in each zone for each NUMA node
+nr_slab_unreclaimable           number of unreclaimable slab pages in each zone for each NUMA node
+nr_isolated_anon                number of isolated anonymous memory pages in each zone for each NUMA node
+nr_isolated_file                number of isolated file memory pages in each zone for each NUMA node
+nr_anon_pages                   number of anonymous mapped pagecache pages in each zone for each NUMA node
+nr_mapped                       number of mapped pagecache pages in each zone for each NUMA node
+nr_file_pages                   number of file pagecache pages in each zone for each NUMA node
+nr_dirty                        number of pages dirty state in each zone for each NUMA node
+nr_writeback                    number of pages writeback state in each zone for each NUMA node
+nr_writeback_temp               number of temporary writeback pages in each zone for each NUMA node
+nr_shmem                        number of shared memory pages in each zone for each NUMA node
+nr_shmem_hugepages              shared memory huge pages in each zone for each NUMA node
+nr_shmem_pmdmapped              shared memory PMD mappings in each zone for each NUMA node
+nr_file_hugepages               file-backed huge pages in each zone for each NUMA node
+nr_file_pmdmapped               file-backed PMD mappings in each zone for each NUMA node
+nr_anon_transparent_hugepages   number of anonymous transparent huge pages in each zone for each NUMA node
+nr_unstable                     number of pages unstable state in each zone for each NUMA node
+nr_vmscan_write                 Count of pages written from the LRU by the VM scanner in each zone
+                                for each NUMA node.The VM is supposed to minimise the number of
+                                pages which get written from the LRU (for IO scheduling efficiency,
+                                and for high reclaim-success rates).
+nr_vmscan_immediate_reclaim     prioritise for reclaim when writeback ends in each zone for each NUMA node
+nr_dirtied                      count of pages entering dirty state in each zone for each NUMA node
+nr_written                      count of pages written out in each zone for each NUMA node
+nr_kernel_misc_reclaimable      miscellaneous reclaimable kernel pages in each zone for each NUMA node
+
+.B Per zone stats
+
+pages free                      free space in each zone for each NUMA node
+      min                       min space in each zone for each NUMA node
+      low                       low space in each zone for each NUMA node
+      high                      high space in each zone for each NUMA node
+      spanned                   spanned space in each zone for each NUMA node
+      present                   present space in each zone for each NUMA node
+      managed                   managed space in each zone for each NUMA node
+      protection                protection space in each zone for each NUMA node
+nr_free_pages                   number of free pages in each zone for each NUMA node.
+nr_zone_inactive_anon           zone inactive anonymous pages for each zone for each NUMA node
+nr_zone_active_anon             zone active anonymous pages for each zone for each NUMA node
+nr_zone_inactive_file           zone inactive file-backed pages for each zone for each NUMA node
+nr_zone_active_file             zone active file-backed pages for each zone for each NUMA node
+nr_zone_unevictable             zone unevictable pages for each zone for each NUMA node
+nr_zone_write_pending           zone write-pending pages for each zone for each NUMA node
+nr_mlock                        number of pages under mlock in each zone for each NUMA node
+nr_page_table_pages             number of page table pages in each zone for each NUMA node
+nr_kernel_stack                 number of pages of kernel stack in each zone for each NUMA node
+nr_bounce                       number of bounce buffer pages in each zone for each NUMA node
+nr_zspages                      count of zsmalloc memory allocator pages for each zone for each NUMA node
+nr_free_cma                     count of free Contiguous Memory Allocator pages in each zone for each NUMA node
+numa_hit                        Count of successful allocations from preferred NUMA zone in each zone
+                                for each NUMA node.
+numa_miss                       Count of unsuccessful allocations from preferred NUMA zone in each zone
+                                for each NUMA node.
+numa_foreign                    Count of foreign NUMA zone allocations in each zone for each NUMA node.
+numa_interleave                 count of interleaved NUMA allocations in each zone for each NUMA node
+numa_local                      Count of successful allocations from local NUMA zone in each zone for
+                                each NUMA node.
+numa_other                      Count of unsuccessful allocations from local NUMA zone in each zone for
+                                each NUMA node.
+.TE
+
+.SH OPTIONS
+.TP
+\fB\-a\fP, \fB\-\-archive\fP
+Fetch /proc/zoneinfo for a specified archive file
+.TP
+\fB\-s\fP, \fB\-\-samples\fP
+Get the zoneinfo for specified number of samples count
+.TP
+\fB\-S\fP, \fB\-\-START TIME\fP
+Filter the samples from the archive from the given time
+.TP
+\fB\-T\fP, \fB\-\-END TIME\fP
+Filter the samples from the archive till the given time
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH NOTES
+.B pcp-zoneinfo
+collects information from
+.BR /proc/zoneinfo
+and aims to be command line and output compatible with it.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pcp (1),
+.BR pmParseInterval (3)
+and
+.BR environ (7).
+
