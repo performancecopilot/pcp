@@ -19,7 +19,7 @@ AC_INIT
 AC_CONFIG_SRCDIR([src/include/pcp/pmapi.h])
 
 dnl need 2.63 for AS_VAR_IF and AS_VAR_COPY
-AC_PREREQ([2.71])dnl
+AC_PREREQ([2.63])dnl
 
 AC_ARG_WITH([64bit],
     [AS_HELP_STRING([--with-64bit],
@@ -1835,10 +1835,6 @@ AC_SUBST(grep)
 
 dnl Checks for C header files.
 AC_HEADER_DIRENT
-# Autoupdate added the next two lines to ensure that your configure
-# script's behavior did not change.  They are probably safe to remove.
-AC_CHECK_INCLUDES_DEFAULT
-AC_PROG_EGREP
 
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(fcntl.h limits.h malloc.h strings.h syslog.h)
