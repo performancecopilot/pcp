@@ -36,7 +36,7 @@ BarMod::BarMod(MetricList *metrics,
 	       SoNode *obj, 
 	       BarMod::Direction dir,
 	       BarMod::Grouping group,
-	       float xScale, float yScale, float zScale,
+	       float xScale, float __yScale, float zScale,
 	       float xSpace, float zSpace)
 : Modulate(metrics),
   _blocks(),
@@ -49,7 +49,7 @@ BarMod::BarMod(MetricList *metrics,
   _infoMetric(0),
   _infoInst(0),
   _xScale(xScale),
-  _yScale(yScale),
+  _yScale(__yScale),
   _zScale(zScale)
 {
     generate(obj, xSpace, zSpace);
@@ -61,7 +61,7 @@ BarMod::BarMod(MetricList *metrics,
 	       BarMod::Direction dir,
 	       BarMod::Modulation mod,
 	       BarMod::Grouping group,
-	       float xScale, float yScale, float zScale,
+	       float xScale, float __yScale, float zScale,
 	       float xSpace, float zSpace)
 : Modulate(metrics),
   _blocks(),
@@ -74,7 +74,7 @@ BarMod::BarMod(MetricList *metrics,
   _infoMetric(0),
   _infoInst(0),
   _xScale(xScale),
-  _yScale(yScale),
+  _yScale(__yScale),
   _zScale(zScale)
 {
     generate(obj, xSpace, zSpace);
@@ -136,7 +136,7 @@ BarMod::generate(SoNode *obj, float xSpace, float zSpace)
 	add();
         if (pmDebugOptions.appl2)
             cerr << "BarMod::generate: Added " << numValues << " in " << _cols
-		 << " cols and " << _rows << " rows." << endl;
+		 << " cols and " << _rows << " rows." << Qt::endl;
 
     }
 
@@ -224,7 +224,7 @@ BarMod::selectAll()
     theModList->selectAllId(_root, _blocks.size());
 
     if (pmDebugOptions.appl2)
-	cerr << "BarMod::selectAll" << endl;
+	cerr << "BarMod::selectAll" << Qt::endl;
 
     for (i = 0; i < _blocks.size(); i++) {
 	if (_blocks[i]._selected == false) {
@@ -247,7 +247,7 @@ BarMod::select(SoPath *path)
 
 	if (pmDebugOptions.appl2)
 	    cerr << "BarMod::select: value = " << value
-		 << ", count = " << _selectCount << endl;
+		 << ", count = " << _selectCount << Qt::endl;
     }
     return _selectCount;
 }
@@ -264,12 +264,12 @@ BarMod::remove(SoPath *path)
 
 	if (pmDebugOptions.appl2)
 	    cerr << "BarMod::remove: value = " << value
-		 << ", count = " << _selectCount << endl;
+		 << ", count = " << _selectCount << Qt::endl;
     }
 
     else if (pmDebugOptions.appl2)
 	cerr << "BarMod::remove: did not remove " << value 
-	     << ", count = " << _selectCount << endl;
+	     << ", count = " << _selectCount << Qt::endl;
 
     return _selectCount;
 }
@@ -297,7 +297,7 @@ void BarMod::infoText(QString &str, bool selected) const
     if (v >= _blocks.size()) {
 	if (pmDebugOptions.appl2)
 	    cerr << "BarMod::infoText: infoText requested but nothing selected"
-		 << endl;
+		 << Qt::endl;
 	str = "";
     }
     else {
@@ -436,9 +436,9 @@ BarMod::dump(QTextStream &os) const
 	os << ", Color & Y-Scale: ";
 
     if (status() < 0)
-        os << "Invalid metrics: " << pmErrStr(status()) << endl;
+        os << "Invalid metrics: " << pmErrStr(status()) << Qt::endl;
     else {
-	os << endl;
+	os << Qt::endl;
 	for (m = 0, v = 0; m < _metrics->numMetrics(); m++) {
 	    QmcMetric &metric = _metrics->metric(m);
 	    for (i = 0; i < metric.numValues(); i++, v++) {
@@ -474,7 +474,7 @@ BarMod::findBlock(SoPath *path, int &metric, int &inst,
     if (i >= 0) {
 
 	if (pmDebugOptions.appl2)
-	    cerr << "BarMod::findBlock: Bar id = " << str << endl;
+	    cerr << "BarMod::findBlock: Bar id = " << str << Qt::endl;
 
 	sscanf(str, "%c%d", &c, &value);
 	
@@ -506,7 +506,7 @@ BarMod::findBlock(SoPath *path, int &metric, int &inst,
 
     if (pmDebugOptions.appl2)
 	cerr << "BarMod::findBlock: metric = " << metric
-	     << ", inst = " << inst << ", value = " << value << endl;
+	     << ", inst = " << inst << ", value = " << value << Qt::endl;
 
     return;
 }

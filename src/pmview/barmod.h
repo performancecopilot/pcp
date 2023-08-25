@@ -73,7 +73,7 @@ public:
 	   SoNode *obj,
 	   BarMod::Direction dir,
 	   BarMod::Grouping group,
-	   float xScale, float yScale, float zScale,
+	   float xScale, float __yScale, float zScale,
 	   float xSpace, float zSpace);
 
     BarMod(MetricList *list,
@@ -82,7 +82,7 @@ public:
 	   BarMod::Direction dir,
 	   BarMod::Modulation mod,
 	   BarMod::Grouping group,
-	   float xScale, float yScale, float zScale,
+	   float xScale, float __yScale, float zScale,
 	   float xSpace, float zSpace);
 
     Direction	dir() const

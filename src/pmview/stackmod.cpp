@@ -67,7 +67,7 @@ StackMod::StackMod(MetricList *metrics, SoNode *obj, StackMod::Height height)
 
 	if (pmDebugOptions.appl2)
 	    cerr << "StackMod::StackMod: numValues = "
-		 << numValues << ", num of blocks = " << m << endl 
+		 << numValues << ", num of blocks = " << m << Qt::endl 
 		 << *_metrics;
 
 	for (m = 0, v = 0; m < numMetrics; m++) {
@@ -158,7 +158,7 @@ StackMod::refresh(bool fetchFlag)
     static QVector<double> values;
 
     if (pmDebugOptions.libpmda)
-	cerr << endl << "StackMod::refresh" << endl;
+	cerr << Qt::endl << "StackMod::refresh" << Qt::endl;
 
     if (status() < 0)
 	return;
@@ -187,7 +187,7 @@ StackMod::refresh(bool fetchFlag)
 		sum += value;
 
 		if (pmDebugOptions.libpmda)
-		    cerr << "Error, value set to " << value << endl;
+		    cerr << "Error, value set to " << value << Qt::endl;
 	    }
 	    else if (block._state == Modulate::error ||
 		     block._state == Modulate::start) {
@@ -201,7 +201,7 @@ StackMod::refresh(bool fetchFlag)
 		    value = theMinScale;
 		sum += value;
 		if (pmDebugOptions.libpmda)
-		    cerr << "Error->Normal, value = " << value << endl;
+		    cerr << "Error->Normal, value = " << value << Qt::endl;
 	    }
 	    else {
 		value = metric.value(i) * theScale;
@@ -209,13 +209,13 @@ StackMod::refresh(bool fetchFlag)
 		    value = theMinScale;
 		sum += value;
 		if (pmDebugOptions.libpmda)
-		    cerr << "Normal, value = " << value << endl;
+		    cerr << "Normal, value = " << value << Qt::endl;
 	    }
 	}
     }
     
     if (pmDebugOptions.libpmda)
-	cerr << "sum = " << sum << endl;
+	cerr << "sum = " << sum << Qt::endl;
     
     if (sum > theNormError && _height != util) {
 	if (_blocks[0]._state != Modulate::saturated) {
@@ -272,7 +272,7 @@ StackMod::refresh(bool fetchFlag)
 	double &value = values[v];
  
 	if (pmDebugOptions.libpmda)
-	    cerr << '[' << v << "] scale = " << value << endl;
+	    cerr << '[' << v << "] scale = " << value << Qt::endl;
 
 	block._scale->scaleFactor.setValue(1.0, value, 1.0);
 	
@@ -301,9 +301,9 @@ StackMod::dump(QTextStream &os) const
     os << "StackMod: ";
 
     if (status() < 0)
-        os << "Invalid metrics: " << pmErrStr(status()) << endl;
+        os << "Invalid metrics: " << pmErrStr(status()) << Qt::endl;
     else {
-	os << endl;
+	os << Qt::endl;
 	for (m = 0, v = 0; m < _metrics->numMetrics(); m++) {
 	    QmcMetric &metric = _metrics->metric(m);
 	    for (i = 0; i < metric.numValues(); i++, v++) {
@@ -344,7 +344,7 @@ StackMod::infoText(QString &str, bool selected) const
     if (v >= _blocks.size()) {
 	if (pmDebugOptions.appl2)
 	    cerr << "StackMod::infoText: infoText requested but nothing selected"
-		 << endl;
+		 << Qt::endl;
 	str = "";
     }
     else if (_height == fixed && v == _blocks.size() - 1) {
@@ -419,7 +419,7 @@ StackMod::selectAll()
     theModList->selectAllId(_root, _blocks.size());
 
     if (pmDebugOptions.appl2)
-	cerr << "StackMod::selectAll" << endl;
+	cerr << "StackMod::selectAll" << Qt::endl;
 
     for (i = 0; i < _blocks.size(); i++) {
 	if (_blocks[i]._selected == false) {
@@ -442,7 +442,7 @@ StackMod::select(SoPath *path)
 
 	if (pmDebugOptions.appl2)
 	    cerr << "StackMod::select: value = " << value
-		 << ", count = " << _selectCount << endl;
+		 << ", count = " << _selectCount << Qt::endl;
     }
     return _selectCount;
 }
@@ -459,11 +459,11 @@ StackMod::remove(SoPath *path)
 
 	if (pmDebugOptions.appl2)
 	    cerr << "StackMod::remove: value = " << value
-		 << ", count = " << _selectCount << endl;
+		 << ", count = " << _selectCount << Qt::endl;
     }
     else if (pmDebugOptions.appl2)
 	cerr << "StackMod::remove: did not remove " << value 
-	     << ", count = " << _selectCount << endl;
+	     << ", count = " << _selectCount << Qt::endl;
 
     return _selectCount;
 }
@@ -500,7 +500,7 @@ StackMod::findBlock(SoPath *path, int &metric, int &inst,
     if (i >= 0) {
 
 	if (pmDebugOptions.appl2)
-	    cerr << "StackMod::findBlock: stack id = " << str << endl;
+	    cerr << "StackMod::findBlock: stack id = " << str << Qt::endl;
 
 	sscanf(str, "%c%d", &c, &value);
 	
@@ -532,7 +532,7 @@ StackMod::findBlock(SoPath *path, int &metric, int &inst,
 
     if (pmDebugOptions.appl2)
 	cerr << "StackMod::findBlock: metric = " << metric
-	     << ", inst = " << inst << ", value = " << value << endl;
+	     << ", inst = " << inst << ", value = " << value << Qt::endl;
 }
 
 void

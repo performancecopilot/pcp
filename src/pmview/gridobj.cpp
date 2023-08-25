@@ -59,7 +59,7 @@ GridObj::setTran(float xTran, float zTran, int setWidth, int setDepth)
 	     << col() << "," << row() 
 	     << "::setTran (" 
 	     << xTran << ", " << zTran << ", "
-	     << setWidth << ", " << setDepth << ")" << endl;
+	     << setWidth << ", " << setDepth << ")" << Qt::endl;
 
     BaseObj::setBaseSize(width(), depth());
     BaseObj::setTran(xTran + xShift, zTran + zShift, setWidth, setDepth);
@@ -126,7 +126,7 @@ GridObj::addObj(ViewObj *obj, int col, int row)
     if (pmDebugOptions.appl0)
 	cerr << "GridObj::addObj: Adding item " << _list.length() << ": "
 	     << obj->name() << ", size = " << obj->width() << 'x'
-	     << obj->depth() << endl;
+	     << obj->depth() << Qt::endl;
 
     newItem._item = obj;
     newItem._row = row;
@@ -142,7 +142,7 @@ GridObj::addObj(ViewObj *obj, int col, int row)
     if (obj->cols() == 1 && _colWidth[col] < obj->width()) {
 	if (pmDebugOptions.appl0)
 	    cerr << "GridObj::addObj: increasing col[" << col << "] from " 
-		 << _colWidth[col] << " to " << obj->width() << endl;
+		 << _colWidth[col] << " to " << obj->width() << Qt::endl;
 	_width += obj->width() - _colWidth[col];
 	_colWidth[col] = obj->width();
     }
@@ -150,7 +150,7 @@ GridObj::addObj(ViewObj *obj, int col, int row)
     if (obj->rows() == 1 && _rowDepth[row] < obj->depth()) {
 	if (pmDebugOptions.appl0)
 	    cerr << "GridObj::addObj: increasing row[" << row << "] from " 
-		 << _rowDepth[row] << " to " << obj->depth() << endl;
+		 << _rowDepth[row] << " to " << obj->depth() << Qt::endl;
 	_depth += obj->depth() - _rowDepth[row];
 	_rowDepth[row] = obj->depth();
     }
@@ -190,7 +190,7 @@ GridObj::finishedAdd()
 			if (pmDebugOptions.appl0)
 			    cerr << "GridObj::finishedAdd: increasing col["
 				 << j << "] from " << _colWidth[j] << " to "
-				 << _colWidth[j] + size << endl;
+				 << _colWidth[j] + size << Qt::endl;
 			_colWidth[j] += size;
 			_width+= size;
 			adjust = 0;
@@ -199,7 +199,7 @@ GridObj::finishedAdd()
 			if (pmDebugOptions.appl0)
 			    cerr << "GridObj::finishedAdd: increasing col["
 				 << j << "] from " << _colWidth[j] << " to "
-				 << _colWidth[j] + adjust << endl;
+				 << _colWidth[j] + adjust << Qt::endl;
 			_colWidth[j] += adjust;
 			_width += adjust;
 			size -= adjust;
@@ -225,7 +225,7 @@ GridObj::finishedAdd()
 			if (pmDebugOptions.appl0)
 			    cerr << "GridObj::finishedAdd: increasing row["
 				 << j << "] from " << _rowDepth[j] << " to "
-				 << _rowDepth[j] + size << endl;
+				 << _rowDepth[j] + size << Qt::endl;
 			_rowDepth[j] += size;
 			_depth+= size;
 			adjust = 0;
@@ -234,7 +234,7 @@ GridObj::finishedAdd()
 			if (pmDebugOptions.appl0)
 			    cerr << "GridObj::finishedAdd: increasing row["
 				 << j << "] from " << _rowDepth[j] << " to "
-				 << _rowDepth[j] + adjust << endl;
+				 << _rowDepth[j] + adjust << Qt::endl;
 			_rowDepth[j] += adjust;
 			_depth += adjust;
 			size -= adjust;
@@ -247,7 +247,7 @@ GridObj::finishedAdd()
     _finished = true;
 
     if (pmDebugOptions.appl0)
-	cerr << "GridObj::finishedAdd: " << *this << endl;
+	cerr << "GridObj::finishedAdd: " << *this << Qt::endl;
 }
 
 QTextStream&
@@ -267,14 +267,14 @@ GridObj::display(QTextStream& os) const
     os << ", minRowDepth = " << _minDepth << ", minColWidth = "
        << _minWidth << ", rows = " << rows() << ", cols = " << cols()
        << ", finishedAdd = " << (_finished == true ? "true" : "false")
-       << endl;
+       << Qt::endl;
 
     os << "Column widths: ";
     for (i = 0, sum = 0; i < _colWidth.size(); i++) {
 	os << _colWidth[i] << ' ';
 	sum += _colWidth[i];
     }
-    os << endl;
+    os << Qt::endl;
     assert(_width == sum + baseWidth());
 
     os << "Row depths: ";
@@ -282,10 +282,10 @@ GridObj::display(QTextStream& os) const
 	os << _rowDepth[i] << ' ';
 	sum += _rowDepth[i];
     }
-    os << endl;
+    os << Qt::endl;
     assert(_depth == sum + baseDepth());
 
     for (i = 0; i < _list.size(); i++)
 	os << '[' << i << "] at " << _list[i]._col << ',' << _list[i]._row
-	   << ": " << *(_list[i]._item) << endl;
+	   << ": " << *(_list[i]._item) << Qt::endl;
 }

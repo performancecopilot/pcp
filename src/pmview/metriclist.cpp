@@ -165,7 +165,7 @@ operator<<(QTextStream &os, MetricList const &list)
 	    list._colors[i]->getValue(r, g, b);
 	    os << r << ',' << g << ',' << b << ": ";
 	}	    
-	os << *(list._metrics[i]) << endl;
+	os << *(list._metrics[i]) << Qt::endl;
     }
     return os;
 }

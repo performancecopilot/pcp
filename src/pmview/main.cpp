@@ -84,8 +84,7 @@ int warningMsg(const char *file, int line, const char *msg, ...)
     pmsprintf(theBuffer + pos, theBufferLen - pos, "\n");
 
     if (somedebug) {
-	QTextStream cerr(stderr);
-	cerr << file << ":" << line << ": " << theBuffer << endl;
+	cerr << file << ":" << line << ": " << theBuffer << Qt::endl;
     }
 
     sts = QMessageBox::warning(pmview, "Warning", theBuffer, sts, sts);
@@ -202,7 +201,6 @@ genInventor(void)
 {
     int sts = 0;
     char *configfile;
-    QTextStream cerr(stderr);
 
     if (theConfigName.length()) {
 	configfile = strdup((const char *)theConfigName.toLatin1());
@@ -236,12 +234,12 @@ genInventor(void)
 	if (fd < 0) goto fail;
 	if (!(theAltConfig = fdopen(fd, "a")))
 fail:
-            pmprintf("%s: Warning: Unable to save configuration for "
-		     "recording to \"%s\": %s\n",
+            pmprintf("%s: Warning: Unable to save configuration for"
+	             "recording to \"%s\": %s\n",
 		    pmGetProgname(), configfile, strerror(errno));
 	else if (pmDebugOptions.appl0)
 	    cerr << "genInventor: Copy of configuration saved to "
-		 << configfile << endl;
+		 << configfile << Qt::endl;
 
 	theAltConfigName = configfile;
     }
@@ -253,7 +251,7 @@ fail:
 
     if (pmDebugOptions.appl0) {
 	cerr << pmGetProgname() << ": " << errorCount << " errors detected in "
-	     << theConfigName << endl;
+	     << theConfigName << Qt::endl;
     }
 
     sts = -errorCount;
