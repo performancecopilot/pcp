@@ -33,6 +33,24 @@ _pmdabpf_require_libbpf_version()
     _notrun "this test requires libbpf $1.$2+"
 }
 
+# try and load the modules as per the config file name passed in as $1
+#
+_pmdabpf_tryload()
+{
+    echo "--- start pmdabpf config ---" >>$here/$seq.full
+    cat $1 >>$here/$seq.full
+    echo "--- end pmdabpf config ---" >>$here/$seq.full
+
+    echo "=== start module load test ===" >>$here/$seq.full
+    if $sudo $PCP_PMDAS_DIR/bpf/pmdabpf --tryload $1 >>$here/$seq.full 2>&1
+    then
+	echo "=== end module load test (passed) ===" >>$here/$seq.full
+    else
+	echo "=== end module load test (failed) ===" >>$here/$seq.full
+	_notrun "cannot load BPF module(s) for this test, see $seq.full for details"
+    fi
+}
+
 _pmdabpf_install_filter()
 {
     # ignore warnings because PMDA might not be ready yet
@@ -44,16 +62,13 @@ _pmdabpf_install_filter()
     #end
 }
 
+# install the bpf PMDA using the config file name passed in as $1
+#
 _pmdabpf_install()
 {
-    cat > $tmp.config
-
     # start from known starting points
     cd $PCP_PMDAS_DIR/bpf
     $sudo ./Remove >/dev/null 2>&1
-
-    echo "pmdabpf config:" >> $here/$seq.full
-    cat $tmp.config >> $here/$seq.full
 
     # set aside any pre-existing cluster and indom caches
     __indomcache="$PCP_VAR_DIR/config/pmda"
@@ -64,7 +79,7 @@ _pmdabpf_install()
 
     [ -f $PCP_PMDAS_DIR/bpf/bpf.conf ] && \
     $sudo cp $PCP_PMDAS_DIR/bpf/bpf.conf $PCP_PMDAS_DIR/bpf/bpf.conf.$seq
-    $sudo cp $tmp.config $PCP_PMDAS_DIR/bpf/bpf.conf
+    $sudo cp $1 $PCP_PMDAS_DIR/bpf/bpf.conf
 
     echo
     echo "=== bpf agent installation ==="
