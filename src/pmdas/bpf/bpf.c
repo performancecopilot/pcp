@@ -56,12 +56,16 @@ static pmLongOptions longopts[] = {
     PMDAOPT_PIPE,
     PMDAOPT_UNIX,
     PMDAOPT_IPV6,
+    { "tryload",	1, 'q', "FILE", "try to load modules from FILE and exit" },
     PMDA_OPTIONS_END
 };
 static pmdaOptions opts = {
-    .short_options = "D:d:i:l:pu:6:?",
+    .short_options = "D:d:i:l:pqu:6:?",
     .long_options = longopts,
 };
+
+static int	tryload;
+static char	*config_filename;
 
 dict *pmda_config;
 
@@ -199,6 +203,7 @@ bpf_load_modules(dict *cfg)
     int ret, split_count;
     char errorstring[1024];
     int module_count = 0;
+    int failure_count = 0;
     char *module_name;
     module *bpf_module;
     dictIterator *iterator;
@@ -247,6 +252,7 @@ bpf_load_modules(dict *cfg)
         if (bpf_module == NULL) {
             pmNotifyErr(LOG_ERR, "could not load module (%s)", module_name);
             free(module_name);
+	    failure_count++;
             continue;
         }
 
@@ -271,6 +277,7 @@ bpf_load_modules(dict *cfg)
             if (ret < 0) {
                 pmNotifyErr(LOG_ERR, "failed to set state of pmda cache entry to hidden: %s\n", pmErrStr(ret));
             }
+	    failure_count++;
             continue;
         }
 
@@ -280,9 +287,19 @@ bpf_load_modules(dict *cfg)
 
     dictReleaseIterator(iterator);
     pmdaCacheOp(clusters, PMDA_CACHE_SAVE);
-    pmNotifyErr(LOG_INFO, "loaded modules (%d)", module_count);
+    if (failure_count > 0)
+	pmNotifyErr(LOG_INFO, "loaded modules (%d), failed modules (%d)", module_count, failure_count);
+    else
+	pmNotifyErr(LOG_INFO, "loaded modules (%d)", module_count);
     sdsfree(sds_enabled);
     sdsfree(sds_true);
+
+    if (tryload) {
+	if (failure_count > 0)
+	    exit(1);
+	else
+	    exit(0);
+    }
 }
 
 void
@@ -481,15 +498,16 @@ dict_handler(void *arg, const char *section, const char *key, const char *value)
 static dict*
 bpf_config_load()
 {
-    char* config_filename;
     int ret;
     dict *config;
 
-    ret = asprintf(&config_filename, "%s/bpf/bpf.conf", pmGetConfig("PCP_PMDAS_DIR"));
-    if (ret <= 0) {
-        pmNotifyErr(LOG_ERR, "could not construct config filename");
-    } else {
-        pmNotifyErr(LOG_INFO, "loading configuration: %s", config_filename);
+    if (!tryload) {
+	ret = asprintf(&config_filename, "%s/bpf/bpf.conf", pmGetConfig("PCP_PMDAS_DIR"));
+	if (ret <= 0) {
+	    pmNotifyErr(LOG_ERR, "could not construct config filename");
+	} else {
+	    pmNotifyErr(LOG_INFO, "loading configuration: %s", config_filename);
+	}
     }
 
     config = dictCreate(&sdsDictCallBacks, NULL);
@@ -508,7 +526,8 @@ bpf_config_load()
     }
 
     pmNotifyErr(LOG_INFO, "loaded configuration: %s", config_filename);
-    free(config_filename);
+    if (!tryload)
+	free(config_filename);
 
     return config;
 }
@@ -581,6 +600,8 @@ bpf_init(pmdaInterface *dp)
 int
 main(int argc, char **argv)
 {
+    int		c;
+
     pmdaInterface dispatch;
 
     isDSO = 0;
@@ -589,15 +610,25 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_7, pmGetProgname(), BPF,
         "bpf.log", NULL);
 
-    pmdaGetOptions(argc, argv, &opts, &dispatch);
+    while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
+        switch (c) {
+	    case 'q':
+		config_filename = opts.optarg;
+		tryload = 1;
+		break;
+        }
+    }
     if (opts.errors) {
         pmdaUsageMessage(&opts);
         exit(1);
     }
 
-    pmdaOpenLog(&dispatch);
-    pmdaConnect(&dispatch);
+    if (!tryload) {
+	pmdaOpenLog(&dispatch);
+	pmdaConnect(&dispatch);
+    }
     bpf_init(&dispatch);
+    /* don't return from bpf_init() if tryload == 1 */
     pmdaMain(&dispatch);
 
     bpf_shutdown();
