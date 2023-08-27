@@ -1421,6 +1421,11 @@ slackpkg?	swrast_dri.so		[? (QA optional)]
 pacman?		/usr/lib/dri/swrast_dri.so	[extra/mesa (QA optional)]
 brew?		swrast_dri.so		[? (QA optional)]
 
+# -- expect (for bpf PMDA QA)
+#
+dpkg?		expect			[expect (QA optional)]
+rpm?		expect			[expect (QA optional)]
+
 # misc
 #
 redhat?		/usr/sbin/qshape	[postfix-perl-scripts]

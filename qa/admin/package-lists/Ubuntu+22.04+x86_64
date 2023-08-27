@@ -30,6 +30,7 @@ dh-python
 docker.io not4ci
 dpkg-dev
 ed
+expect
 flex
 g++
 gawk
