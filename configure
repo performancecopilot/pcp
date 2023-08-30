@@ -5289,11 +5289,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++11 features" >&5
 printf %s "checking for $CXX option to enable C++11 features... " >&6; }
-if test ${ac_cv_prog_cxx_11+y}
+if test ${ac_cv_prog_cxx_cxx11+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_11=no
+  ac_cv_prog_cxx_cxx11=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -5335,11 +5335,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++98 features" >&5
 printf %s "checking for $CXX option to enable C++98 features... " >&6; }
-if test ${ac_cv_prog_cxx_98+y}
+if test ${ac_cv_prog_cxx_cxx98+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_98=no
+  ac_cv_prog_cxx_cxx98=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -11559,6 +11559,25 @@ ac_fn_c_check_header_compile "$LINENO" "ncursesw/curses.h" "ac_cv_header_ncurses
 if test "x$ac_cv_header_ncursesw_curses_h" = xyes
 then :
   printf "%s\n" "#define HAVE_NCURSESW_CURSES_H 1" >>confdefs.h
+
+fi
+ac_fn_c_check_header_compile "$LINENO" "ncursesw/term.h" "ac_cv_header_ncursesw_term_h" "$ac_includes_default"
+if test "x$ac_cv_header_ncursesw_term_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_NCURSESW_TERM_H 1" >>confdefs.h
+
+fi
+
+ac_fn_c_check_header_compile "$LINENO" "ncurses/term.h" "ac_cv_header_ncurses_term_h" "$ac_includes_default"
+if test "x$ac_cv_header_ncurses_term_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_NCURSES_TERM_H 1" >>confdefs.h
+
+fi
+ac_fn_c_check_header_compile "$LINENO" "term.h" "ac_cv_header_term_h" "$ac_includes_default"
+if test "x$ac_cv_header_term_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_TERM_H 1" >>confdefs.h
 
 fi
 
