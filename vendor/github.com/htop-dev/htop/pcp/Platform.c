@@ -25,6 +25,7 @@ in the source distribution for its full text.
 #include "DiskIOMeter.h"
 #include "DynamicColumn.h"
 #include "DynamicMeter.h"
+#include "DynamicScreen.h"
 #include "FileDescriptorMeter.h"
 #include "HostnameMeter.h"
 #include "LoadAverageMeter.h"
@@ -44,10 +45,11 @@ in the source distribution for its full text.
 #include "linux/PressureStallMeter.h"
 #include "linux/ZramMeter.h"
 #include "linux/ZramStats.h"
+#include "pcp/Metric.h"
 #include "pcp/PCPDynamicColumn.h"
 #include "pcp/PCPDynamicMeter.h"
+#include "pcp/PCPDynamicScreen.h"
 #include "pcp/PCPMachine.h"
-#include "pcp/PCPMetric.h"
 #include "pcp/PCPProcessList.h"
 #include "zfs/ZfsArcMeter.h"
 #include "zfs/ZfsArcStats.h"
@@ -286,7 +288,7 @@ int pmLookupDescs(int numpmid, pmID* pmids, pmDesc* descs) {
 }
 #endif
 
-size_t Platform_addMetric(PCPMetric id, const char* name) {
+size_t Platform_addMetric(Metric id, const char* name) {
    unsigned int i = (unsigned int)id;
 
    if (i >= PCP_METRIC_COUNT && i >= pcp->totalMetrics) {
@@ -355,6 +357,7 @@ bool Platform_init(void) {
 
    pcp->columns.offset = PCP_METRIC_COUNT + pcp->meters.cursor;
    PCPDynamicColumns_init(&pcp->columns);
+   PCPDynamicScreens_init(&pcp->screens, &pcp->columns);
 
    sts = pmLookupName(pcp->totalMetrics, pcp->names, pcp->pmids);
    if (sts < 0) {
@@ -374,31 +377,32 @@ bool Platform_init(void) {
    }
 
    /* set proc.control.perclient.threads to 1 for live contexts */
-   PCPMetric_enableThreads();
+   Metric_enableThreads();
 
    /* extract values needed for setup - e.g. cpu count, pid_max */
-   PCPMetric_enable(PCP_PID_MAX, true);
-   PCPMetric_enable(PCP_BOOTTIME, true);
-   PCPMetric_enable(PCP_HINV_NCPU, true);
-   PCPMetric_enable(PCP_PERCPU_SYSTEM, true);
-   PCPMetric_enable(PCP_UNAME_SYSNAME, true);
-   PCPMetric_enable(PCP_UNAME_RELEASE, true);
-   PCPMetric_enable(PCP_UNAME_MACHINE, true);
-   PCPMetric_enable(PCP_UNAME_DISTRO, true);
+   Metric_enable(PCP_PID_MAX, true);
+   Metric_enable(PCP_BOOTTIME, true);
+   Metric_enable(PCP_HINV_NCPU, true);
+   Metric_enable(PCP_PERCPU_SYSTEM, true);
+   Metric_enable(PCP_UNAME_SYSNAME, true);
+   Metric_enable(PCP_UNAME_RELEASE, true);
+   Metric_enable(PCP_UNAME_MACHINE, true);
+   Metric_enable(PCP_UNAME_DISTRO, true);
 
+   /* enable metrics for all dynamic columns (including those from dynamic screens) */
    for (size_t i = pcp->columns.offset; i < pcp->columns.offset + pcp->columns.count; i++)
-      PCPMetric_enable(i, true);
+      Metric_enable(i, true);
 
-   PCPMetric_fetch(NULL);
+   Metric_fetch(NULL);
 
-   for (PCPMetric metric = 0; metric < PCP_PROC_PID; metric++)
-      PCPMetric_enable(metric, true);
-   PCPMetric_enable(PCP_PID_MAX, false); /* needed one time only */
-   PCPMetric_enable(PCP_BOOTTIME, false);
-   PCPMetric_enable(PCP_UNAME_SYSNAME, false);
-   PCPMetric_enable(PCP_UNAME_RELEASE, false);
-   PCPMetric_enable(PCP_UNAME_MACHINE, false);
-   PCPMetric_enable(PCP_UNAME_DISTRO, false);
+   for (Metric metric = 0; metric < PCP_PROC_PID; metric++)
+      Metric_enable(metric, true);
+   Metric_enable(PCP_PID_MAX, false); /* needed one time only */
+   Metric_enable(PCP_BOOTTIME, false);
+   Metric_enable(PCP_UNAME_SYSNAME, false);
+   Metric_enable(PCP_UNAME_RELEASE, false);
+   Metric_enable(PCP_UNAME_MACHINE, false);
+   Metric_enable(PCP_UNAME_DISTRO, false);
 
    /* first sample (fetch) performed above, save constants */
    Platform_getBootTime();
@@ -415,6 +419,10 @@ void Platform_dynamicColumnsDone(Hashtable* columns) {
 
 void Platform_dynamicMetersDone(Hashtable* meters) {
    PCPDynamicMeters_done(meters);
+}
+
+void Platform_dynamicScreensDone(Hashtable* screens) {
+   PCPDynamicScreens_done(screens);
 }
 
 void Platform_done(void) {
@@ -436,7 +444,7 @@ void Platform_setBindings(Htop_Action* keys) {
 
 int Platform_getUptime(void) {
    pmAtomValue value;
-   if (PCPMetric_values(PCP_UPTIME, &value, 1, PM_TYPE_32) == NULL)
+   if (Metric_values(PCP_UPTIME, &value, 1, PM_TYPE_32) == NULL)
       return 0;
    return value.l;
 }
@@ -445,7 +453,7 @@ void Platform_getLoadAverage(double* one, double* five, double* fifteen) {
    *one = *five = *fifteen = 0.0;
 
    pmAtomValue values[3] = {0};
-   if (PCPMetric_values(PCP_LOAD_AVERAGE, values, 3, PM_TYPE_DOUBLE) != NULL) {
+   if (Metric_values(PCP_LOAD_AVERAGE, values, 3, PM_TYPE_DOUBLE) != NULL) {
       *one = values[0].d;
       *five = values[1].d;
       *fifteen = values[2].d;
@@ -457,7 +465,7 @@ unsigned int Platform_getMaxCPU(void) {
       return pcp->ncpu;
 
    pmAtomValue value;
-   if (PCPMetric_values(PCP_HINV_NCPU, &value, 1, PM_TYPE_U32) != NULL)
+   if (Metric_values(PCP_HINV_NCPU, &value, 1, PM_TYPE_U32) != NULL)
       pcp->ncpu = value.ul;
    else
       pcp->ncpu = 1;
@@ -469,7 +477,7 @@ int Platform_getMaxPid(void) {
       return pcp->pidmax;
 
    pmAtomValue value;
-   if (PCPMetric_values(PCP_PID_MAX, &value, 1, PM_TYPE_32) == NULL)
+   if (Metric_values(PCP_PID_MAX, &value, 1, PM_TYPE_32) == NULL)
       return -1;
    pcp->pidmax = value.l;
    return pcp->pidmax;
@@ -480,7 +488,7 @@ long long Platform_getBootTime(void) {
       return pcp->btime;
 
    pmAtomValue value;
-   if (PCPMetric_values(PCP_BOOTTIME, &value, 1, PM_TYPE_64) != NULL)
+   if (Metric_values(PCP_BOOTTIME, &value, 1, PM_TYPE_64) != NULL)
       pcp->btime = value.ll;
    return pcp->btime;
 }
@@ -497,24 +505,28 @@ static double Platform_setOneCPUValues(Meter* this, const Settings* settings, pm
       v[CPU_METER_KERNEL]  = values[CPU_SYSTEM_PERIOD].ull / total * 100.0;
       v[CPU_METER_IRQ]     = values[CPU_IRQ_PERIOD].ull / total * 100.0;
       v[CPU_METER_SOFTIRQ] = values[CPU_SOFTIRQ_PERIOD].ull / total * 100.0;
+      this->curItems = 5;
+
       v[CPU_METER_STEAL]   = values[CPU_STEAL_PERIOD].ull / total * 100.0;
       v[CPU_METER_GUEST]   = values[CPU_GUEST_PERIOD].ull / total * 100.0;
-      v[CPU_METER_IOWAIT]  = values[CPU_IOWAIT_PERIOD].ull / total * 100.0;
-      this->curItems = 8;
-      percent = v[CPU_METER_NICE] + v[CPU_METER_NORMAL] + v[CPU_METER_KERNEL] + v[CPU_METER_IRQ] + v[CPU_METER_SOFTIRQ];
       if (settings->accountGuestInCPUMeter) {
-         percent += v[CPU_METER_STEAL] + v[CPU_METER_GUEST];
+         this->curItems = 7;
       }
+
+      v[CPU_METER_IOWAIT]  = values[CPU_IOWAIT_PERIOD].ull / total * 100.0;
    } else {
       v[CPU_METER_KERNEL] = values[CPU_SYSTEM_ALL_PERIOD].ull / total * 100.0;
       value = values[CPU_STEAL_PERIOD].ull + values[CPU_GUEST_PERIOD].ull;
       v[CPU_METER_IRQ] = value / total * 100.0;
       this->curItems = 4;
-      percent = v[CPU_METER_NICE] + v[CPU_METER_NORMAL] + v[CPU_METER_KERNEL] + v[CPU_METER_IRQ];
    }
-   percent = CLAMP(percent, 0.0, 100.0);
-   if (isnan(percent))
-      percent = 0.0;
+
+   percent = sumPositiveValues(v, this->curItems);
+   percent = MINIMUM(percent, 100.0);
+
+   if (settings->detailedCPUTime) {
+      this->curItems = 8;
+   }
 
    v[CPU_METER_FREQUENCY] = values[CPU_FREQUENCY].d;
    v[CPU_METER_TEMPERATURE] = NAN;
@@ -563,7 +575,7 @@ void Platform_setSwapValues(Meter* this) {
 }
 
 void Platform_setZramValues(Meter* this) {
-   int i, count = PCPMetric_instanceCount(PCP_ZRAM_CAPACITY);
+   int i, count = Metric_instanceCount(PCP_ZRAM_CAPACITY);
    if (!count) {
       this->total = 0;
       this->values[0] = 0;
@@ -574,24 +586,28 @@ void Platform_setZramValues(Meter* this) {
    pmAtomValue* values = xCalloc(count, sizeof(pmAtomValue));
    ZramStats stats = {0};
 
-   if (PCPMetric_values(PCP_ZRAM_CAPACITY, values, count, PM_TYPE_U64)) {
+   if (Metric_values(PCP_ZRAM_CAPACITY, values, count, PM_TYPE_U64)) {
       for (i = 0; i < count; i++)
          stats.totalZram += values[i].ull;
    }
-   if (PCPMetric_values(PCP_ZRAM_ORIGINAL, values, count, PM_TYPE_U64)) {
+   if (Metric_values(PCP_ZRAM_ORIGINAL, values, count, PM_TYPE_U64)) {
       for (i = 0; i < count; i++)
          stats.usedZramOrig += values[i].ull;
    }
-   if (PCPMetric_values(PCP_ZRAM_COMPRESSED, values, count, PM_TYPE_U64)) {
+   if (Metric_values(PCP_ZRAM_COMPRESSED, values, count, PM_TYPE_U64)) {
       for (i = 0; i < count; i++)
          stats.usedZramComp += values[i].ull;
    }
 
    free(values);
 
+   if (stats.usedZramComp > stats.usedZramOrig) {
+      stats.usedZramComp = stats.usedZramOrig;
+   }
+
    this->total = stats.totalZram;
    this->values[0] = stats.usedZramComp;
-   this->values[1] = stats.usedZramOrig;
+   this->values[1] = stats.usedZramOrig - stats.usedZramComp;
 }
 
 void Platform_setZfsArcValues(Meter* this) {
@@ -620,13 +636,13 @@ void Platform_getRelease(char** string) {
 
    /* first call, extract just-sampled values */
    pmAtomValue sysname, release, machine, distro;
-   if (!PCPMetric_values(PCP_UNAME_SYSNAME, &sysname, 1, PM_TYPE_STRING))
+   if (!Metric_values(PCP_UNAME_SYSNAME, &sysname, 1, PM_TYPE_STRING))
       sysname.cp = NULL;
-   if (!PCPMetric_values(PCP_UNAME_RELEASE, &release, 1, PM_TYPE_STRING))
+   if (!Metric_values(PCP_UNAME_RELEASE, &release, 1, PM_TYPE_STRING))
       release.cp = NULL;
-   if (!PCPMetric_values(PCP_UNAME_MACHINE, &machine, 1, PM_TYPE_STRING))
+   if (!Metric_values(PCP_UNAME_MACHINE, &machine, 1, PM_TYPE_STRING))
       machine.cp = NULL;
-   if (!PCPMetric_values(PCP_UNAME_DISTRO, &distro, 1, PM_TYPE_STRING))
+   if (!Metric_values(PCP_UNAME_DISTRO, &distro, 1, PM_TYPE_STRING))
       distro.cp = NULL;
 
    size_t length = 16; /* padded for formatting characters */
@@ -674,7 +690,7 @@ void Platform_getRelease(char** string) {
 
 char* Platform_getProcessEnv(pid_t pid) {
    pmAtomValue value;
-   if (!PCPMetric_instance(PCP_PROC_ENVIRON, pid, 0, &value, PM_TYPE_STRING))
+   if (!Metric_instance(PCP_PROC_ENVIRON, pid, 0, &value, PM_TYPE_STRING))
       return NULL;
    return value.cp;
 }
@@ -687,7 +703,7 @@ FileLocks_ProcessData* Platform_getProcessLocks(pid_t pid) {
 void Platform_getPressureStall(const char* file, bool some, double* ten, double* sixty, double* threehundred) {
    *ten = *sixty = *threehundred = 0;
 
-   PCPMetric metric;
+   Metric metric;
    if (String_eq(file, "cpu"))
       metric = PCP_PSI_CPUSOME;
    else if (String_eq(file, "io"))
@@ -700,7 +716,7 @@ void Platform_getPressureStall(const char* file, bool some, double* ten, double*
       return;
 
    pmAtomValue values[3] = {0};
-   if (PCPMetric_values(metric, values, 3, PM_TYPE_DOUBLE) != NULL) {
+   if (Metric_values(metric, values, 3, PM_TYPE_DOUBLE) != NULL) {
       *ten = values[0].d;
       *sixty = values[1].d;
       *threehundred = values[2].d;
@@ -711,11 +727,11 @@ bool Platform_getDiskIO(DiskIOData* data) {
    memset(data, 0, sizeof(*data));
 
    pmAtomValue value;
-   if (PCPMetric_values(PCP_DISK_READB, &value, 1, PM_TYPE_U64) != NULL)
+   if (Metric_values(PCP_DISK_READB, &value, 1, PM_TYPE_U64) != NULL)
       data->totalBytesRead = value.ull;
-   if (PCPMetric_values(PCP_DISK_WRITEB, &value, 1, PM_TYPE_U64) != NULL)
+   if (Metric_values(PCP_DISK_WRITEB, &value, 1, PM_TYPE_U64) != NULL)
       data->totalBytesWritten = value.ull;
-   if (PCPMetric_values(PCP_DISK_ACTIVE, &value, 1, PM_TYPE_U64) != NULL)
+   if (Metric_values(PCP_DISK_ACTIVE, &value, 1, PM_TYPE_U64) != NULL)
       data->totalMsTimeSpend = value.ull;
    return true;
 }
@@ -724,13 +740,13 @@ bool Platform_getNetworkIO(NetworkIOData* data) {
    memset(data, 0, sizeof(*data));
 
    pmAtomValue value;
-   if (PCPMetric_values(PCP_NET_RECVB, &value, 1, PM_TYPE_U64) != NULL)
+   if (Metric_values(PCP_NET_RECVB, &value, 1, PM_TYPE_U64) != NULL)
       data->bytesReceived = value.ull;
-   if (PCPMetric_values(PCP_NET_SENDB, &value, 1, PM_TYPE_U64) != NULL)
+   if (Metric_values(PCP_NET_SENDB, &value, 1, PM_TYPE_U64) != NULL)
       data->bytesTransmitted = value.ull;
-   if (PCPMetric_values(PCP_NET_RECVP, &value, 1, PM_TYPE_U64) != NULL)
+   if (Metric_values(PCP_NET_RECVP, &value, 1, PM_TYPE_U64) != NULL)
       data->packetsReceived = value.ull;
-   if (PCPMetric_values(PCP_NET_SENDP, &value, 1, PM_TYPE_U64) != NULL)
+   if (Metric_values(PCP_NET_SENDP, &value, 1, PM_TYPE_U64) != NULL)
       data->packetsTransmitted = value.ull;
    return true;
 }
@@ -740,9 +756,9 @@ void Platform_getFileDescriptors(double* used, double* max) {
    *max = 65536;
 
    pmAtomValue value;
-   if (PCPMetric_values(PCP_VFS_FILES_COUNT, &value, 1, PM_TYPE_32) != NULL)
+   if (Metric_values(PCP_VFS_FILES_COUNT, &value, 1, PM_TYPE_32) != NULL)
       *used = value.l;
-   if (PCPMetric_values(PCP_VFS_FILES_MAX, &value, 1, PM_TYPE_32) != NULL)
+   if (Metric_values(PCP_VFS_FILES_MAX, &value, 1, PM_TYPE_32) != NULL)
       *max = value.l;
 }
 
@@ -842,10 +858,10 @@ Hashtable* Platform_dynamicColumns(void) {
    return pcp->columns.table;
 }
 
-const char* Platform_dynamicColumnInit(unsigned int key) {
+const char* Platform_dynamicColumnName(unsigned int key) {
    PCPDynamicColumn* this = Hashtable_get(pcp->columns.table, key);
    if (this) {
-      PCPMetric_enable(this->id, true);
+      Metric_enable(this->id, true);
       if (this->super.caption)
          return this->super.caption;
       if (this->super.heading)
@@ -862,4 +878,26 @@ bool Platform_dynamicColumnWriteField(const Process* proc, RichString* str, unsi
       return true;
    }
    return false;
+}
+
+Hashtable* Platform_dynamicScreens(void) {
+   return pcp->screens.table;
+}
+
+void Platform_defaultDynamicScreens(Settings* settings) {
+   PCPDynamicScreen_appendScreens(&pcp->screens, settings);
+}
+
+void Platform_addDynamicScreen(ScreenSettings* ss) {
+   PCPDynamicScreen_addDynamicScreen(&pcp->screens, ss);
+}
+
+void Platform_addDynamicScreenAvailableColumns(Panel* availableColumns, const char* screen) {
+   Hashtable* screens = pcp->screens.table;
+   PCPDynamicScreens_addAvailableColumns(availableColumns, screens, screen);
+}
+
+void Platform_updateTables(Machine* host) {
+    PCPDynamicScreen_appendTables(&pcp->screens, host);
+    PCPDynamicColumns_setupWidths(&pcp->columns);
 }

@@ -55,20 +55,22 @@ static struct kinfo_proc* ProcessList_getKInfoProcs(size_t* count) {
 
 ProcessList* ProcessList_new(Machine* host, Hashtable* pidMatchList) {
    DarwinProcessList* this = xCalloc(1, sizeof(DarwinProcessList));
-   ProcessList* super = &this->super;
+   Object_setClass(this, Class(ProcessList));
 
+   ProcessList* super = &this->super;
    ProcessList_init(super, Class(DarwinProcess), host, pidMatchList);
 
    return super;
 }
 
-void ProcessList_delete(ProcessList* this) {
-   ProcessList_done(this);
+void ProcessList_delete(Object* cast) {
+   DarwinProcessList* this = (DarwinProcessList*) cast;
+   ProcessList_done(&this->super);
    free(this);
 }
 
 void ProcessList_goThroughEntries(ProcessList* super) {
-   const Machine* host = super->host;
+   const Machine* host = super->super.host;
    const DarwinMachine* dhost = (const DarwinMachine*) host;
    DarwinProcessList* dpl = (DarwinProcessList*) super;
    bool preExisting = true;
@@ -85,12 +87,6 @@ void ProcessList_goThroughEntries(ProcessList* super) {
    }
 
    const double time_interval_ns = Platform_schedulerTicksToNanoseconds(dpl->global_diff) / (double) host->activeCPUs;
-
-   /* Clear the thread counts */
-   super->kernelThreads = 0;
-   super->userlandThreads = 0;
-   super->totalTasks = 0;
-   super->runningTasks = 0;
 
    /* We use kinfo_procs for initial data since :
     *
