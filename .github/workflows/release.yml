@@ -8,6 +8,9 @@ on:
       - '!*beta'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   qa:
     name: ${{ matrix.platform }}
@@ -96,6 +99,17 @@ jobs:
 
       - name: Create source tarball
         run: ./Makepkgs --source --nonrpm
+
+      - name: Create release tarballs
+        run: |
+          mkdir archives; for build in artifacts/build-*; do tar -czvf archives/$(basename $build | sed -E 's/^build-//' | sed -E 's/-container$//').tar.gz -C $build $(find $build -type f ! -name "pcp-testsuite*" ! -name "pcp-*.src.rpm" -printf '%f '); done
+
+      - name: Release tarballs on github
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            archives/*
+            build/tar/*.src.tar.gz
 
       - name: Release on Artifactory
         run: |
