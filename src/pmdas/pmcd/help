@@ -481,7 +481,7 @@ Other values encode various degrees of PMDA difficulty in three bit fields
 
 bits 7..0
     1   the PMDA is connected, but not yet "ready" to accept requests
-        from the PMDA
+        from PMCD
     2   the PMDA has exited of its own accord
     4   some error prevented the PMDA being started
     8   PMCD stopped communication with the PMDA due to a protocol or
