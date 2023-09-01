@@ -40,26 +40,26 @@ By default
 reports live data for the local host. It has the capabilities to analyze the data on the archives as well.
 .SH OPTIONS
 .TP
-\fB\-\-statistics\fP
+\fB\-\-statistics\fR
 shows output similar to netstat -s, which displays summary statistics for each protocol
 .TP
-\fB\-i\fP
+\fB\-i\fR
 shows output similar to netstat -i -a -n, which displays a table of all network interfaces
 .TP
-\fB\-p\fP, \fB\-\-TCP|IP|UDP|ICMP\fP
+\fB\-p\fR, \fB\-\-TCP|IP|UDP|ICMP\fR
 filter network statistics specific to a protocol
 .TP
-\fB\-a\fP, \fB\-\-archive\fP
-Fetch /proc/netstat for a specified archive file
+\fB\-a\fR \fIfile\fR, \fB\-\-archive\fR=\fIfile\fR
+Fetch /proc/netstat for a specified archive \fIfile\fR
 .TP
-\fB\-s\fP, \fB\-\-samples\fP
-Get the network statistics for specified number of samples count
+\fB\-s\fR \fIcount\fR, \fB\-\-samples\fR=\fIcount\fR
+Get the network statistics for specified number of samples \fIcount\fR
 .TP
-\fB\-S\fP, \fB\-\-START TIME\fP
-Filter the samples from the archive from the given time
+\fB\-S\fR, \fB\-\-start\fR=\fItime\fR
+Filter the samples from the archive from the given \fItime\fR
 .TP
-\fB\-T\fP, \fB\-\-END TIME\fP
-Filter the samples from the archive till the given time
+\fB\-T\fR, \fB\-\-finish=time\fR
+Filter the samples from the archive until the given \fItime\fR
 .TP
 \fB\-V\fR, \fB\-\-version\fR
 Display version number and exit.
