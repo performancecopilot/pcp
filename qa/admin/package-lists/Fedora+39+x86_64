@@ -31,6 +31,7 @@ cyrus-sasl-md5
 cyrus-sasl-plain
 device-mapper-devel
 ed
+expect
 flex
 gawk
 gcc

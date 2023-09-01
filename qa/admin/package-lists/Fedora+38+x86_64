@@ -31,6 +31,7 @@ cyrus-sasl-md5
 cyrus-sasl-plain
 device-mapper-devel
 ed
+expect
 flex
 gawk
 gcc
@@ -45,6 +46,7 @@ httpd
 initscripts
 java-latest-openjdk-headless
 kubernetes-client
+kubernetes-node
 libbpf
 libbpf-devel
 libcmocka-devel

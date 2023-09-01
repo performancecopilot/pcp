@@ -21,6 +21,13 @@ status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full
 
+cat <<EOF >$tmp.conf
+# Installed by PCP QA test $seq on `date`
+[tcpconnect.so]
+enabled=true
+EOF
+_pmdabpf_tryload $tmp.conf
+
 _cleanup()
 {
     _pmdabpf_cleanup
@@ -31,11 +38,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 # real QA test starts here
-cat <<EOF | _pmdabpf_install
-# Installed by PCP QA test $seq on `date`
-[tcpconnect.so]
-enabled=true
-EOF
+_pmdabpf_install $tmp.conf
 _pmdabpf_wait_for_metric
 
 # Generate system activity for the CO-RE tcpconnect module
