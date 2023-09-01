@@ -145,7 +145,7 @@ class ZoneStatUtil:
 
     def names(self):
         data = self.report.current_value('mem.zoneinfo.present')
-        return data.keys()
+        return sorted(data.keys())
 
     def metric_value(self,metric,node):
         data = self.report.current_value(metric)
@@ -162,7 +162,7 @@ class ZoneStatUtil:
 
     def protection_names(self,node_name):
         data = self.report.current_value("mem.zoneinfo.protection")
-        filtered_nodes = {key.split("::" + node_name)[0] + "::" + node_name for key in data.keys() if node_name in key}
+        filtered_nodes = {key.split("::" + node_name)[0] + "::" + node_name for key in sorted(data.keys()) if node_name in key}
         if len(filtered_nodes) == 0:
             filtered_nodes = None
         return filtered_nodes

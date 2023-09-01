@@ -31,33 +31,33 @@ NODE  0, per-node status
 	 nr_dirtied 594934
 	 nr_written 572571
 	 nr_kernel_misc_reclaimable 0
-Node 0, zone    Normal
-	 pages free 2149304
-	       min 14245
-	       low 18566
-	       high 22887
-	       spanned 4417792
-	       present 4417792
-	       managed 4321635
-               protection [0, 0, 0, 0, 0]
+Node 0, zone    DMA32
+	 pages free 814439
+	       min 2637
+	       low 3437
+	       high 4237
+	       spanned 1044480
+	       present 913392
+	       managed 815354
+               protection [0, 0, 16881, 16881, 16881]
 	 nr_free_pages 0
-	 nr_zone_inactive_anon 35933
-	 nr_zone_active_anon 533154
-	 nr_zone_inactive_file 760769
-	 nr_zone_active_file 513583
-	 nr_zone_unevictable 3105
-	 nr_zone_write_pending 35
-	 nr_mlock 3105
-	 nr_page_table_pages 15186
-	 nr_kernel_stack 12616
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
 	 nr_bounce 0
 	 nr_zspages 0
 	 nr_free_cma 0
-	 numa_hit 87458144
+	 numa_hit 13
 	 numa_miss 0
 	 numa_foreign 0
-	 numa_interleave 28603
-	 numa_local 87458144
+	 numa_interleave 0
+	 numa_local 13
 	 numa_other 0
 Node 0, zone    DMA
 	 pages free 3840
@@ -87,33 +87,33 @@ Node 0, zone    DMA
 	 numa_interleave 0
 	 numa_local 0
 	 numa_other 0
-Node 0, zone    DMA32
-	 pages free 814439
-	       min 2637
-	       low 3437
-	       high 4237
-	       spanned 1044480
-	       present 913392
-	       managed 815354
-               protection [0, 0, 16881, 16881, 16881]
+Node 0, zone    Normal
+	 pages free 2149304
+	       min 14245
+	       low 18566
+	       high 22887
+	       spanned 4417792
+	       present 4417792
+	       managed 4321635
+               protection [0, 0, 0, 0, 0]
 	 nr_free_pages 0
-	 nr_zone_inactive_anon 0
-	 nr_zone_active_anon 0
-	 nr_zone_inactive_file 0
-	 nr_zone_active_file 0
-	 nr_zone_unevictable 0
-	 nr_zone_write_pending 0
-	 nr_mlock 0
-	 nr_page_table_pages 0
-	 nr_kernel_stack 0
+	 nr_zone_inactive_anon 35933
+	 nr_zone_active_anon 533154
+	 nr_zone_inactive_file 760769
+	 nr_zone_active_file 513583
+	 nr_zone_unevictable 3105
+	 nr_zone_write_pending 35
+	 nr_mlock 3105
+	 nr_page_table_pages 15186
+	 nr_kernel_stack 12616
 	 nr_bounce 0
 	 nr_zspages 0
 	 nr_free_cma 0
-	 numa_hit 13
+	 numa_hit 87458144
 	 numa_miss 0
 	 numa_foreign 0
-	 numa_interleave 0
-	 numa_local 13
+	 numa_interleave 28603
+	 numa_local 87458144
 	 numa_other 0
 Node 0, zone    Device
 	 pages free 0
@@ -163,33 +163,33 @@ NODE  0, per-node status
 	 nr_dirtied 594934
 	 nr_written 572571
 	 nr_kernel_misc_reclaimable 0
-Node 0, zone    Normal
-	 pages free 2149304
-	       min 14245
-	       low 18566
-	       high 22887
-	       spanned 4417792
-	       present 4417792
-	       managed 4321635
-               protection [0, 0, 0, 0, 0]
+Node 0, zone    DMA32
+	 pages free 814439
+	       min 2637
+	       low 3437
+	       high 4237
+	       spanned 1044480
+	       present 913392
+	       managed 815354
+               protection [0, 0, 16881, 16881, 16881]
 	 nr_free_pages 0
-	 nr_zone_inactive_anon 35933
-	 nr_zone_active_anon 533154
-	 nr_zone_inactive_file 760769
-	 nr_zone_active_file 513583
-	 nr_zone_unevictable 3105
-	 nr_zone_write_pending 35
-	 nr_mlock 3105
-	 nr_page_table_pages 15186
-	 nr_kernel_stack 12616
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
 	 nr_bounce 0
 	 nr_zspages 0
 	 nr_free_cma 0
-	 numa_hit 87458144
+	 numa_hit 13
 	 numa_miss 0
 	 numa_foreign 0
-	 numa_interleave 28603
-	 numa_local 87458144
+	 numa_interleave 0
+	 numa_local 13
 	 numa_other 0
 Node 0, zone    DMA
 	 pages free 3840
@@ -219,33 +219,33 @@ Node 0, zone    DMA
 	 numa_interleave 0
 	 numa_local 0
 	 numa_other 0
-Node 0, zone    DMA32
-	 pages free 814439
-	       min 2637
-	       low 3437
-	       high 4237
-	       spanned 1044480
-	       present 913392
-	       managed 815354
-               protection [0, 0, 16881, 16881, 16881]
+Node 0, zone    Normal
+	 pages free 2149304
+	       min 14245
+	       low 18566
+	       high 22887
+	       spanned 4417792
+	       present 4417792
+	       managed 4321635
+               protection [0, 0, 0, 0, 0]
 	 nr_free_pages 0
-	 nr_zone_inactive_anon 0
-	 nr_zone_active_anon 0
-	 nr_zone_inactive_file 0
-	 nr_zone_active_file 0
-	 nr_zone_unevictable 0
-	 nr_zone_write_pending 0
-	 nr_mlock 0
-	 nr_page_table_pages 0
-	 nr_kernel_stack 0
+	 nr_zone_inactive_anon 35933
+	 nr_zone_active_anon 533154
+	 nr_zone_inactive_file 760769
+	 nr_zone_active_file 513583
+	 nr_zone_unevictable 3105
+	 nr_zone_write_pending 35
+	 nr_mlock 3105
+	 nr_page_table_pages 15186
+	 nr_kernel_stack 12616
 	 nr_bounce 0
 	 nr_zspages 0
 	 nr_free_cma 0
-	 numa_hit 13
+	 numa_hit 87458144
 	 numa_miss 0
 	 numa_foreign 0
-	 numa_interleave 0
-	 numa_local 13
+	 numa_interleave 28603
+	 numa_local 87458144
 	 numa_other 0
 Node 0, zone    Device
 	 pages free 0
@@ -297,34 +297,6 @@ NODE  0, per-node status
 	 nr_dirtied 594934
 	 nr_written 572571
 	 nr_kernel_misc_reclaimable 0
-Node 0, zone    DMA32
-	 pages free 814439
-	       min 2637
-	       low 3437
-	       high 4237
-	       spanned 1044480
-	       present 913392
-	       managed 815354
-               protection [0, 0, 16881, 16881, 16881]
-	 nr_free_pages 0
-	 nr_zone_inactive_anon 0
-	 nr_zone_active_anon 0
-	 nr_zone_inactive_file 0
-	 nr_zone_active_file 0
-	 nr_zone_unevictable 0
-	 nr_zone_write_pending 0
-	 nr_mlock 0
-	 nr_page_table_pages 0
-	 nr_kernel_stack 0
-	 nr_bounce 0
-	 nr_zspages 0
-	 nr_free_cma 0
-	 numa_hit 13
-	 numa_miss 0
-	 numa_foreign 0
-	 numa_interleave 0
-	 numa_local 13
-	 numa_other 0
 Node 0, zone    DMA
 	 pages free 3840
 	       min 12
@@ -380,6 +352,34 @@ Node 0, zone    Normal
 	 numa_foreign 0
 	 numa_interleave 28603
 	 numa_local 87458144
+	 numa_other 0
+Node 0, zone    DMA32
+	 pages free 814439
+	       min 2637
+	       low 3437
+	       high 4237
+	       spanned 1044480
+	       present 913392
+	       managed 815354
+               protection [0, 0, 16881, 16881, 16881]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 13
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 0
+	 numa_local 13
 	 numa_other 0
 Node 0, zone    Movable
 	 pages free 0
@@ -429,34 +429,6 @@ NODE  0, per-node status
 	 nr_dirtied 594934
 	 nr_written 572571
 	 nr_kernel_misc_reclaimable 0
-Node 0, zone    DMA32
-	 pages free 814439
-	       min 2637
-	       low 3437
-	       high 4237
-	       spanned 1044480
-	       present 913392
-	       managed 815354
-               protection [0, 0, 16881, 16881, 16881]
-	 nr_free_pages 0
-	 nr_zone_inactive_anon 0
-	 nr_zone_active_anon 0
-	 nr_zone_inactive_file 0
-	 nr_zone_active_file 0
-	 nr_zone_unevictable 0
-	 nr_zone_write_pending 0
-	 nr_mlock 0
-	 nr_page_table_pages 0
-	 nr_kernel_stack 0
-	 nr_bounce 0
-	 nr_zspages 0
-	 nr_free_cma 0
-	 numa_hit 13
-	 numa_miss 0
-	 numa_foreign 0
-	 numa_interleave 0
-	 numa_local 13
-	 numa_other 0
 Node 0, zone    DMA
 	 pages free 3840
 	       min 12
@@ -512,6 +484,34 @@ Node 0, zone    Normal
 	 numa_foreign 0
 	 numa_interleave 28603
 	 numa_local 87458144
+	 numa_other 0
+Node 0, zone    DMA32
+	 pages free 814439
+	       min 2637
+	       low 3437
+	       high 4237
+	       spanned 1044480
+	       present 913392
+	       managed 815354
+               protection [0, 0, 16881, 16881, 16881]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 13
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 0
+	 numa_local 13
 	 numa_other 0
 Node 0, zone    Movable
 	 pages free 0
@@ -561,34 +561,6 @@ NODE  0, per-node status
 	 nr_dirtied 594934
 	 nr_written 572571
 	 nr_kernel_misc_reclaimable 0
-Node 0, zone    DMA32
-	 pages free 814439
-	       min 2637
-	       low 3437
-	       high 4237
-	       spanned 1044480
-	       present 913392
-	       managed 815354
-               protection [0, 0, 16881, 16881, 16881]
-	 nr_free_pages 0
-	 nr_zone_inactive_anon 0
-	 nr_zone_active_anon 0
-	 nr_zone_inactive_file 0
-	 nr_zone_active_file 0
-	 nr_zone_unevictable 0
-	 nr_zone_write_pending 0
-	 nr_mlock 0
-	 nr_page_table_pages 0
-	 nr_kernel_stack 0
-	 nr_bounce 0
-	 nr_zspages 0
-	 nr_free_cma 0
-	 numa_hit 13
-	 numa_miss 0
-	 numa_foreign 0
-	 numa_interleave 0
-	 numa_local 13
-	 numa_other 0
 Node 0, zone    DMA
 	 pages free 3840
 	       min 12
@@ -644,6 +616,34 @@ Node 0, zone    Normal
 	 numa_foreign 0
 	 numa_interleave 28603
 	 numa_local 87458144
+	 numa_other 0
+Node 0, zone    DMA32
+	 pages free 814439
+	       min 2637
+	       low 3437
+	       high 4237
+	       spanned 1044480
+	       present 913392
+	       managed 815354
+               protection [0, 0, 16881, 16881, 16881]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 13
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 0
+	 numa_local 13
 	 numa_other 0
 Node 0, zone    Movable
 	 pages free 0
@@ -695,33 +695,33 @@ NODE  0, per-node status
 	 nr_dirtied 594934
 	 nr_written 572571
 	 nr_kernel_misc_reclaimable 0
-Node 0, zone    Normal
-	 pages free 2149304
-	       min 14245
-	       low 18566
-	       high 22887
-	       spanned 4417792
-	       present 4417792
-	       managed 4321635
-               protection [0, 0, 0, 0, 0]
+Node 0, zone    DMA
+	 pages free 3840
+	       min 12
+	       low 15
+	       high 18
+	       spanned 4095
+	       present 3998
+	       managed 3840
+               protection [0, 3125, 20006, 20006, 20006]
 	 nr_free_pages 0
-	 nr_zone_inactive_anon 35933
-	 nr_zone_active_anon 533154
-	 nr_zone_inactive_file 760769
-	 nr_zone_active_file 513583
-	 nr_zone_unevictable 3105
-	 nr_zone_write_pending 35
-	 nr_mlock 3105
-	 nr_page_table_pages 15186
-	 nr_kernel_stack 12616
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
 	 nr_bounce 0
 	 nr_zspages 0
 	 nr_free_cma 0
-	 numa_hit 87458144
+	 numa_hit 0
 	 numa_miss 0
 	 numa_foreign 0
-	 numa_interleave 28603
-	 numa_local 87458144
+	 numa_interleave 0
+	 numa_local 0
 	 numa_other 0
 Node 0, zone    DMA32
 	 pages free 814439
@@ -751,35 +751,35 @@ Node 0, zone    DMA32
 	 numa_interleave 0
 	 numa_local 13
 	 numa_other 0
-Node 0, zone    DMA
-	 pages free 3840
-	       min 12
-	       low 15
-	       high 18
-	       spanned 4095
-	       present 3998
-	       managed 3840
-               protection [0, 3125, 20006, 20006, 20006]
+Node 0, zone    Normal
+	 pages free 2149304
+	       min 14245
+	       low 18566
+	       high 22887
+	       spanned 4417792
+	       present 4417792
+	       managed 4321635
+               protection [0, 0, 0, 0, 0]
 	 nr_free_pages 0
-	 nr_zone_inactive_anon 0
-	 nr_zone_active_anon 0
-	 nr_zone_inactive_file 0
-	 nr_zone_active_file 0
-	 nr_zone_unevictable 0
-	 nr_zone_write_pending 0
-	 nr_mlock 0
-	 nr_page_table_pages 0
-	 nr_kernel_stack 0
+	 nr_zone_inactive_anon 35933
+	 nr_zone_active_anon 533154
+	 nr_zone_inactive_file 760769
+	 nr_zone_active_file 513583
+	 nr_zone_unevictable 3105
+	 nr_zone_write_pending 35
+	 nr_mlock 3105
+	 nr_page_table_pages 15186
+	 nr_kernel_stack 12616
 	 nr_bounce 0
 	 nr_zspages 0
 	 nr_free_cma 0
-	 numa_hit 0
+	 numa_hit 87458144
 	 numa_miss 0
 	 numa_foreign 0
-	 numa_interleave 0
-	 numa_local 0
+	 numa_interleave 28603
+	 numa_local 87458144
 	 numa_other 0
-Node 0, zone    Device
+Node 0, zone    Movable
 	 pages free 0
 	       min 0
 	       low 0
@@ -788,7 +788,7 @@ Node 0, zone    Device
 	       present 0
 	       managed 0
                protection [0, 0, 0, 0, 0]
-Node 0, zone    Movable
+Node 0, zone    Device
 	 pages free 0
 	       min 0
 	       low 0
@@ -827,33 +827,33 @@ NODE  0, per-node status
 	 nr_dirtied 594934
 	 nr_written 572571
 	 nr_kernel_misc_reclaimable 0
-Node 0, zone    Normal
-	 pages free 2149304
-	       min 14245
-	       low 18566
-	       high 22887
-	       spanned 4417792
-	       present 4417792
-	       managed 4321635
-               protection [0, 0, 0, 0, 0]
+Node 0, zone    DMA
+	 pages free 3840
+	       min 12
+	       low 15
+	       high 18
+	       spanned 4095
+	       present 3998
+	       managed 3840
+               protection [0, 3125, 20006, 20006, 20006]
 	 nr_free_pages 0
-	 nr_zone_inactive_anon 35933
-	 nr_zone_active_anon 533154
-	 nr_zone_inactive_file 760769
-	 nr_zone_active_file 513583
-	 nr_zone_unevictable 3105
-	 nr_zone_write_pending 35
-	 nr_mlock 3105
-	 nr_page_table_pages 15186
-	 nr_kernel_stack 12616
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
 	 nr_bounce 0
 	 nr_zspages 0
 	 nr_free_cma 0
-	 numa_hit 87458144
+	 numa_hit 0
 	 numa_miss 0
 	 numa_foreign 0
-	 numa_interleave 28603
-	 numa_local 87458144
+	 numa_interleave 0
+	 numa_local 0
 	 numa_other 0
 Node 0, zone    DMA32
 	 pages free 814439
@@ -883,35 +883,35 @@ Node 0, zone    DMA32
 	 numa_interleave 0
 	 numa_local 13
 	 numa_other 0
-Node 0, zone    DMA
-	 pages free 3840
-	       min 12
-	       low 15
-	       high 18
-	       spanned 4095
-	       present 3998
-	       managed 3840
-               protection [0, 3125, 20006, 20006, 20006]
+Node 0, zone    Normal
+	 pages free 2149304
+	       min 14245
+	       low 18566
+	       high 22887
+	       spanned 4417792
+	       present 4417792
+	       managed 4321635
+               protection [0, 0, 0, 0, 0]
 	 nr_free_pages 0
-	 nr_zone_inactive_anon 0
-	 nr_zone_active_anon 0
-	 nr_zone_inactive_file 0
-	 nr_zone_active_file 0
-	 nr_zone_unevictable 0
-	 nr_zone_write_pending 0
-	 nr_mlock 0
-	 nr_page_table_pages 0
-	 nr_kernel_stack 0
+	 nr_zone_inactive_anon 35933
+	 nr_zone_active_anon 533154
+	 nr_zone_inactive_file 760769
+	 nr_zone_active_file 513583
+	 nr_zone_unevictable 3105
+	 nr_zone_write_pending 35
+	 nr_mlock 3105
+	 nr_page_table_pages 15186
+	 nr_kernel_stack 12616
 	 nr_bounce 0
 	 nr_zspages 0
 	 nr_free_cma 0
-	 numa_hit 0
+	 numa_hit 87458144
 	 numa_miss 0
 	 numa_foreign 0
-	 numa_interleave 0
-	 numa_local 0
+	 numa_interleave 28603
+	 numa_local 87458144
 	 numa_other 0
-Node 0, zone    Device
+Node 0, zone    Movable
 	 pages free 0
 	       min 0
 	       low 0
@@ -920,7 +920,7 @@ Node 0, zone    Device
 	       present 0
 	       managed 0
                protection [0, 0, 0, 0, 0]
-Node 0, zone    Movable
+Node 0, zone    Device
 	 pages free 0
 	       min 0
 	       low 0
