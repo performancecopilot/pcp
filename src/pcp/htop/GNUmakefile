@@ -71,8 +71,8 @@ TOPCFILES = \
 	OptionItem.c \
 	Panel.c \
 	Process.c \
-	ProcessList.c \
 	ProcessLocksScreen.c \
+	ProcessTable.c \
 	RichString.c \
 	Row.c \
 	Scheduling.c \
@@ -105,7 +105,7 @@ SUBCFILES = \
 	pcp/PCPDynamicScreen.c \
 	pcp/PCPMachine.c \
 	pcp/PCPProcess.c \
-	pcp/PCPProcessList.c \
+	pcp/PCPProcessTable.c \
 	pcp/Platform.c \
 
 TOPHFILES = \
@@ -154,8 +154,8 @@ TOPHFILES = \
 	OptionItem.h \
 	Panel.h \
 	Process.h \
-	ProcessList.h \
 	ProcessLocksScreen.h \
+	ProcessTable.h \
 	ProvideCurses.h \
 	ProvideTerm.h \
 	RichString.h \
@@ -193,7 +193,7 @@ SUBHFILES = \
 	pcp/PCPDynamicScreen.h \
 	pcp/PCPMachine.h \
 	pcp/PCPProcess.h \
-	pcp/PCPProcessList.h \
+	pcp/PCPProcessTable.h \
 	pcp/Platform.h \
 	pcp/ProcessField.h \
 
