@@ -34,7 +34,7 @@ in the source distribution for its full text.
 #include "MemorySwapMeter.h"
 #include "Meter.h"
 #include "NetworkIOMeter.h"
-#include "ProcessList.h"
+#include "ProcessTable.h"
 #include "Settings.h"
 #include "SwapMeter.h"
 #include "SysArchMeter.h"
@@ -50,7 +50,7 @@ in the source distribution for its full text.
 #include "pcp/PCPDynamicMeter.h"
 #include "pcp/PCPDynamicScreen.h"
 #include "pcp/PCPMachine.h"
-#include "pcp/PCPProcessList.h"
+#include "pcp/PCPProcessTable.h"
 #include "zfs/ZfsArcMeter.h"
 #include "zfs/ZfsArcStats.h"
 #include "zfs/ZfsCompressedArcMeter.h"
@@ -472,13 +472,13 @@ unsigned int Platform_getMaxCPU(void) {
    return pcp->ncpu;
 }
 
-int Platform_getMaxPid(void) {
+pid_t Platform_getMaxPid(void) {
    if (pcp->pidmax)
       return pcp->pidmax;
 
    pmAtomValue value;
    if (Metric_values(PCP_PID_MAX, &value, 1, PM_TYPE_32) == NULL)
-      return -1;
+      return UINT_MAX;
    pcp->pidmax = value.l;
    return pcp->pidmax;
 }

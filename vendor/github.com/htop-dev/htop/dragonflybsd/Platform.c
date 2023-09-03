@@ -26,14 +26,14 @@ in the source distribution for its full text.
 #include "Macros.h"
 #include "MemoryMeter.h"
 #include "MemorySwapMeter.h"
-#include "ProcessList.h"
+#include "ProcessTable.h"
 #include "SwapMeter.h"
 #include "SysArchMeter.h"
 #include "TasksMeter.h"
 #include "UptimeMeter.h"
 #include "XUtils.h"
 #include "dragonflybsd/DragonFlyBSDProcess.h"
-#include "dragonflybsd/DragonFlyBSDProcessList.h"
+#include "dragonflybsd/DragonFlyBSDProcessTable.h"
 #include "generic/fdstat_sysctl.h"
 
 
@@ -163,7 +163,7 @@ void Platform_getLoadAverage(double* one, double* five, double* fifteen) {
    *fifteen = (double) loadAverage.ldavg[2] / loadAverage.fscale;
 }
 
-int Platform_getMaxPid(void) {
+pid_t Platform_getMaxPid(void) {
    int maxPid;
    size_t size = sizeof(maxPid);
    int err = sysctlbyname("kern.pid_max", &maxPid, &size, NULL, 0);
