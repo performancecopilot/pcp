@@ -3362,7 +3362,10 @@ fi
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Thu Aug 31 2023 Nathan Scott <nathans@redhat.com> - 6.1.0-1
+* Tue Sep 05 2023 Nathan Scott <nathans@redhat.com> - 6.1.0-1
+- Remove unintended pmie logging to syslog (BZ 2223348)
+- Update pcp selinux policy to match core (BZ 2223568)
+- Resolve pmlogconf SIGABRT during fsync (BZ 2229441)
 - Update to latest PCP sources.
 
 * Mon Jun 26 2023 Nathan Scott <nathans@redhat.com> - 6.0.5-1
