@@ -44,7 +44,8 @@ _pmdabpf_install $tmp.conf
 _pmdabpf_wait_for_metric
 
 # Generate system activity for the CO-RE biosnoop module
-/bin/cat $seq.full > /dev/null
+dd if=/dev/zero of=$tmp.dd count=5000 >/dev/null 2>&1
+sync $tmp.dd
 
 echo "=== report metric values for comm ==="
 pminfo -dfmtT bpf.biosnoop.comm 2>&1 | tee -a $here/$seq.full \
