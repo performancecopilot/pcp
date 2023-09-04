@@ -134,7 +134,7 @@ Source0: %{artifactory}/pcp-source-release/pcp-%{version}.src.tar.gz
 
 # No mssql ODBC driver on non-x86 platforms
 %ifarch x86_64
-%if !%{disable_python2} || !%{disable_python3} || 0%{?fedora} < 39
+%if !%{disable_python2} || !%{disable_python3}
 %global disable_mssql 0
 %else
 %global disable_mssql 1
