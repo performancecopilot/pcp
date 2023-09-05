@@ -60,6 +60,7 @@ echo && echo "== Running pmdabpf with valgrind"
 _run_valgrind --sudo pminfo -L -K clear -K add,157,$pmda -dmtT bpf.disk bpf.runq 2>&1 \
 | _filter_logs
 
+cd $here
 for metric in bpf.disk.all.latency bpf.runq.latency
 do
     echo && echo "== Checking if metric $metric has any values"
