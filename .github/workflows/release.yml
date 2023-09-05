@@ -1,4 +1,4 @@
-# Deploys PCP to JFrog Artifactory
+# Deploys PCP to Packagecloud
 name: Release
 on:
   push:
@@ -84,7 +84,7 @@ jobs:
           path: artifacts/test
 
   release:
-    name: Release on Artifactory
+    name: Release packages
     if: github.repository == 'performancecopilot/pcp' || github.event_name == 'workflow_dispatch'
     needs: qa
     runs-on: ubuntu-latest
@@ -96,6 +96,9 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           path: artifacts
+
+      - name: Discover artifacts
+        run: find artifacts | xargs ls -l
 
       - name: Create source tarball
         run: ./Makepkgs --source --nonrpm
@@ -111,20 +114,25 @@ jobs:
             archives/*
             build/tar/*.src.tar.gz
 
-      - name: Release on Artifactory
-        run: |
-          export PYTHONUNBUFFERED=1
-          . VERSION.pcp
-          build/ci/artifactory.py deploy \
-            --maturity release \
-            --version "$PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION" \
-            --build_name "${GITHUB_WORKFLOW}" \
-            --build_number "${GITHUB_RUN_ID}" \
-            --source build/tar/*.src.tar.gz \
-            --exclude 'pcp-testsuite.*' \
-            --exclude 'pcp-.+\.src\.rpm' \
-            artifacts/build-*
+      - name: Release on Packagecloud
+        run: build/ci/packagecloud.sh
         env:
-          ARTIFACTORY_USER: github-actions
-          ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
-          ARTIFACTORY_GPG_PASSPHRASE: ${{ secrets.ARTIFACTORY_GPG_PASSPHRASE }}
+          PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+
+#      - name: Release on Artifactory
+#        run: |
+#          export PYTHONUNBUFFERED=1
+#          . VERSION.pcp
+#          build/ci/artifactory.py deploy \
+#            --maturity release \
+#            --version "$PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION" \
+#            --build_name "${GITHUB_WORKFLOW}" \
+#            --build_number "${GITHUB_RUN_ID}" \
+#            --source build/tar/*.src.tar.gz \
+#            --exclude 'pcp-testsuite.*' \
+#            --exclude 'pcp-.+\.src\.rpm' \
+#            artifacts/build-*
+#        env:
+#          ARTIFACTORY_USER: github-actions
+#          ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
+#          ARTIFACTORY_GPG_PASSPHRASE: ${{ secrets.ARTIFACTORY_GPG_PASSPHRASE }}
