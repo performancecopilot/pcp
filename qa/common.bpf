@@ -42,7 +42,10 @@ _pmdabpf_tryload()
     echo "--- end pmdabpf config ---" >>$here/$seq.full
 
     echo "=== start module load test ===" >>$here/$seq.full
-    if $sudo $PCP_PMDAS_DIR/bpf/pmdabpf --tryload $1 >>$here/$seq.full 2>&1
+    $sudo $PCP_PMDAS_DIR/bpf/pmdabpf --tryload $1 >$tmp.out 2>&1
+    __tryload=$?
+    cat $tmp.out >>$here/$seq.full
+    if [ $__tryload -eq 0 ]
     then
 	echo "=== end module load test (passed) ===" >>$here/$seq.full
     else
