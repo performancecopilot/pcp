@@ -37,7 +37,8 @@ trap "_pmdabpf_cleanup; exit \$status" 0 1 2 3 15
 
 _filter_logs()
 {
-    tee -a $seq.full \
+    # need sudo here because of _run_valgrind --sudo
+    $sudo tee -a $seq.full \
     | sed \
 	-e '/ Debug: /d' \
 	-e '/ Info: /d' \
