@@ -9,6 +9,7 @@ sudo gem install package_cloud
 
 user=performancecopilot
 repo=pcp
+here=`pwd`
 
 # Iterate each of the builds
 for build in artifacts/build-*
@@ -34,11 +35,10 @@ $1 ~ /^centos/ { match($1, /c.*([1-9][0-9]*)/, m); printf "el/%s\n", m[1] }
     [ -z "$dist" ] && continue
 
     echo "Upload $dist packages"
-    pushd $build
+    cd $here/$build
     for file in `find . -name \*.rpm -o -name \*.deb | grep -Ev 'tests|\.src\.'`
     do
 	echo package_cloud push $user/$repo/$dist/pcp $file
 	package_cloud push $user/$repo/$dist/pcp $file
     done
-    popd
 done
