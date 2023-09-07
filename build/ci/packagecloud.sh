@@ -7,7 +7,8 @@ set -e
 echo "Install dependencies"
 sudo gem install package_cloud
 
-user=performancecopilot
+#user=performancecopilot
+user=natoscott
 repo=pcp
 here=`pwd`
 
