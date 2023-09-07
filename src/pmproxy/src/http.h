@@ -36,8 +36,8 @@ typedef enum http_flags {
     HTTP_FLAG_HTML	= (1<<2),
     HTTP_FLAG_UTF8	= (1<<10),
     HTTP_FLAG_UTF16	= (1<<11),
-    HTTP_FLAG_NO_BODY	= (1<<13),
-    HTTP_FLAG_COMPRESS	= (1<<14),
+    HTTP_FLAG_NO_BODY	= (1<<12),
+    HTTP_FLAG_COMPRESS_GZIP	= (1<<14),
     HTTP_FLAG_STREAMING	= (1<<15),
     /* maximum 16 for server.h */
 } http_flags_t;
@@ -71,6 +71,7 @@ extern const char *http_content_type(http_flags_t);
 
 extern sds http_get_buffer(struct client *);
 extern void http_set_buffer(struct client *, sds, http_flags_t);
+extern int compress_GZIP(struct client *);
 
 typedef void (*httpSetupCallBack)(struct proxy *);
 typedef void (*httpCloseCallBack)(struct proxy *);

@@ -1014,6 +1014,19 @@ sample_dupnames_four_colour{model="RGB",hostname="HOSTNAME",instid="2",instname=
 sample_colour{model="RGB",hostname="HOSTNAME",instid="0",instname="red",domainname="DOMAINNAME",machineid="MACHINEID"} 143
 sample_colour{model="RGB",hostname="HOSTNAME",instid="1",instname="green",domainname="DOMAINNAME",machineid="MACHINEID"} 244
 sample_colour{model="RGB",hostname="HOSTNAME",instid="2",instname="blue",domainname="DOMAINNAME",machineid="MACHINEID"} 345
+== small curl compression command ==
+# PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
+# HELP sample_long_one 1 as a 32-bit integer
+# TYPE sample_long_one gauge
+sample_long_one{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 1
+== large curl compression command ==
+# PCP5 sample.control 29.0.0 32 PM_INDOM_NULL instant none
+# HELP sample_control A control variable for the "sample" PMDA
+# TYPE sample_control gauge
+sample_control{hostname="HOSTNAME",machineid="MACHINEID",domainname="DOMAINNAME"} 0
+# PCP5 sample.dupnames.pid_daemon 29.0.1 u32 PM_INDOM_NULL instant none
+# HELP sample_dupnames_pid_daemon Process id of PMDA daemon
+# TYPE sample_dupnames_pid_daemon gauge
 == scrape all metrics ==
 done full scrape
 == check pmproxy is running ==
