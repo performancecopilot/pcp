@@ -1,3 +1,6 @@
+pcp-6.1.1 (31 October 2023)
+    - Work-in-progress.
+
 pcp-6.1.0 (5 September 2023)
     - pmlogredact: new command for archive anonymisation
     - pcp-atop: new bar graph visualisation mode
