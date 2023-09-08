@@ -5,7 +5,7 @@ Workflow descriptions are located in `.github/workflows`, platform specific PCP 
 
 * CI: Triggered on push, runs the sanity QA group on assorted platforms
 * QA: Runs the entire testsuite on pull requests and daily at 17:00 UTC, and publishes the results at https://performancecopilot.github.io/qa-reports/
-* Release: Triggered when a new tag is pushed, creates a new release and pushes it to https://performancecopilot.jfrog.io/
+* Release: Triggered when a new tag is pushed, creates a new release and pushes it to https://packagecloud.io/performancecopilot/pcp
 
 ## Reproducing test failures
 ```
@@ -20,19 +20,9 @@ Include the following action in a workflow, and connect via SSH:
   uses: mxschmitt/action-tmate@v2
 ```
 
-# Artifactory
-## Recalculate and sign package metadata
-The repository metadata needs to be signed again after each change to the repository.
-Artifactory cannot sign it automatically, because it does not have access to the GPG passphrase.
-
-Run the following command to schedule recalculation and signing of package metadata:
-`ARTIFACTORY_USER="$ARTIFACTORY_USER" ARTIFACTORY_TOKEN="$ARTIFACTORY_TOKEN" ARTIFACTORY_GPG_PASSPHRASE="$ARTIFACTORY_GPG_PASSPHRASE" ./build/ci/artifactory.py recalculate_metadata pcp-rpm-release pcp-deb-release`
+# Packagecloud
 
 ## Deleting old versions to save storage space
-The "Delete Versions" feature of the Artifatory UI doesn't work reliable, therefore we need to delete the versions by using the `jf` CLI [1]:
-```
-jf rt delete "pcp-rpm-release/*-5.3.0-1.*"
-jf rt delete "pcp-deb-release/*_5.3.0-1_*"
-```
+We have limited space using the free packagecloud account option [1], so may need to respond to requests to free up used space from old builds.  This is done through the web interace.
 
-[1] https://jfrog.com/getcli/
+[1] https://packagecloud.io/performancecopilot/pcp
