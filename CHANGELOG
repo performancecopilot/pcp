@@ -34,6 +34,7 @@ pcp-6.1.0 (5 September 2023)
     - build: add tarball upload to release workflow
     - docs: pmie updates to explain action behaviour with archives
     - docs: retire "archive log" phrase from man pages and books
+    - docs: transition Artifactory (no free service) to Packagecloud
 
 pcp-6.0.5 (26 June 2023)
     - pmie: ensure pmie.log.YYYYMMDD is owned by pcp:pcp

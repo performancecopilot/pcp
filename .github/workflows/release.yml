@@ -107,21 +107,3 @@ jobs:
         run: build/ci/packagecloud.sh
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
-
-#      - name: Release on Artifactory
-#        run: |
-#          export PYTHONUNBUFFERED=1
-#          . VERSION.pcp
-#          build/ci/artifactory.py deploy \
-#            --maturity release \
-#            --version "$PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION" \
-#            --build_name "${GITHUB_WORKFLOW}" \
-#            --build_number "${GITHUB_RUN_ID}" \
-#            --source build/tar/*.src.tar.gz \
-#            --exclude 'pcp-testsuite.*' \
-#            --exclude 'pcp-.+\.src\.rpm' \
-#            artifacts/build-*
-#        env:
-#          ARTIFACTORY_USER: github-actions
-#          ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
-#          ARTIFACTORY_GPG_PASSPHRASE: ${{ secrets.ARTIFACTORY_GPG_PASSPHRASE }}
