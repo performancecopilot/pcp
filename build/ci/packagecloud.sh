@@ -2,13 +2,10 @@
 # Based on an (one file at a time) upload script here:
 #https://github.com/danielmundi/upload-packagecloud/blob/main/push.sh
 
-set -e
-
 echo "Install dependencies"
 sudo gem install package_cloud
 
-#user=performancecopilot
-user=natoscott
+user=performancecopilot
 repo=pcp
 here=`pwd`
 
@@ -17,8 +14,14 @@ for build in artifacts/build-*
 do
     [ $build = "artifacts/build-*" ] && continue
 
-    # ex. artifacts/build-fedora31-container
-    dist=`echo $build | sed -e 's/^.*build-//' -e 's/-container$//' | awk '
+    # some examples...
+    #	artifacts/build-fedora31-container
+    #	artifacts/build-centos-stream9-container
+    #	artifacts/build-centos6-container
+    #	artifacts/build-debian11-container
+    #	artifacts/build-ubuntu2204-container
+
+    dist=`echo $build | sed -e 's/^.*build-//' -e 's/-container.*$//' | awk '
 BEGIN {
     # map to any code names packagecloud expects
     dist["debian10"] = "debian/buster";
@@ -30,8 +33,8 @@ BEGIN {
     dist["ubuntu2204"] = "ubuntu/jammy";
 }
 $1 ~ /^debian/ || /^ubuntu/ { print dist[$1] }
-$1 ~ /^fedora/ { match($1, /f.*([1-9][0-9]*)/, m); printf "fedora/%s\n", m[1] }
-$1 ~ /^centos/ { match($1, /c.*([1-9][0-9]*)/, m); printf "el/%s\n", m[1] }
+$1 ~ /^fedora/ { match($1, /fedora([1-9][0-9]*$)/, m); printf "fedora/%s\n", m[1] }
+$1 ~ /^centos/ { match($1, /cent.*([1-9][0-9]*$)/, m); printf "el/%s\n", m[1] }
 '`
     [ -z "$dist" ] && continue
 
