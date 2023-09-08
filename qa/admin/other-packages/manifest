@@ -530,8 +530,9 @@ S_pkg?	/usr/lib/python3.*/*-packages/psycopg2		[N/A]
 slackpkg?	/usr/lib*/python3.*/*-packages/psycopg2	[python-psycopg2]
 pacman?	/usr/lib/python3.*/*-packages/psycopg2/sql.py	[community/python-psycopg2 (build optional)]
 brew?	/usr/local/lib/python3.*/*-packages/psycopg2	[pip3(psycopg2)]
-# -- python pyodbc (mssql)
+# -- python pyodbc (mssql PMDA)
 rpm?    /usr/lib*/python3.*/*-packages/pyodbc*          [python3-pyodbc]
+dpkg?	/usr/lib/python3/dist-packages/pyodbc.pyi	[python3-pyodbc]
 # perl modules
 # -- Time::HiRes
 dpkg?	Time::HiRes		[libperl[0-9][0-9.]*]
@@ -1419,6 +1420,11 @@ S_pkg?		swrast_dri.so		[? (QA optional)]
 slackpkg?	swrast_dri.so		[? (QA optional)]
 pacman?		/usr/lib/dri/swrast_dri.so	[extra/mesa (QA optional)]
 brew?		swrast_dri.so		[? (QA optional)]
+
+# -- expect (for bpf PMDA QA)
+#
+dpkg?		expect			[expect (QA optional)]
+rpm?		expect			[expect (QA optional)]
 
 # misc
 #

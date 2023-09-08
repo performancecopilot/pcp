@@ -1,0 +1,106 @@
+#!/bin/sh
+#
+# remake the pcp-buddyinfo archive ...
+# this archive is intended to be checked in and not remade, this script is
+# simply a record of how it was created
+#
+
+. /etc/pcp.env
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat <<End-of-File >>$tmp.config
+log advisory on once{
+        kernel.uname.sysname
+        kernel.uname.release
+        kernel.uname.nodename
+        kernel.uname.machine
+        hinv.ncpu
+}
+log advisory on 10 seconds {
+	mem.zoneinfo.free
+        mem.zoneinfo.min
+        mem.zoneinfo.low
+        mem.zoneinfo.high
+        mem.zoneinfo.scanned
+        mem.zoneinfo.spanned
+        mem.zoneinfo.present
+        mem.zoneinfo.managed
+        mem.zoneinfo.nr_free_pages
+        mem.zoneinfo.nr_alloc_batch
+        mem.zoneinfo.nr_inactive_anon
+        mem.zoneinfo.nr_active_anon
+        mem.zoneinfo.nr_inactive_file
+        mem.zoneinfo.nr_active_file
+        mem.zoneinfo.nr_unevictable
+        mem.zoneinfo.nr_mlock
+        mem.zoneinfo.nr_anon_pages
+        mem.zoneinfo.nr_mapped
+        mem.zoneinfo.nr_file_pages
+        mem.zoneinfo.nr_dirty
+        mem.zoneinfo.nr_writeback
+        mem.zoneinfo.nr_slab_reclaimable
+        mem.zoneinfo.nr_slab_unreclaimable
+        mem.zoneinfo.nr_page_table_pages
+        mem.zoneinfo.nr_kernel_stack
+        mem.zoneinfo.nr_unstable
+        mem.zoneinfo.nr_bounce
+        mem.zoneinfo.nr_vmscan_write
+        mem.zoneinfo.nr_vmscan_immediate_reclaim
+        mem.zoneinfo.nr_writeback_temp
+        mem.zoneinfo.nr_isolated_anon
+        mem.zoneinfo.nr_isolated_file
+        mem.zoneinfo.nr_shmem
+        mem.zoneinfo.nr_dirtied
+        mem.zoneinfo.nr_written
+        mem.zoneinfo.numa_hit
+        mem.zoneinfo.numa_miss
+        mem.zoneinfo.numa_foreign
+        mem.zoneinfo.numa_interleave
+        mem.zoneinfo.numa_local
+        mem.zoneinfo.numa_other
+        mem.zoneinfo.workingset_refault
+        mem.zoneinfo.workingset_activate
+        mem.zoneinfo.workingset_nodereclaim
+        mem.zoneinfo.nr_anon_transparent_hugepages
+        mem.zoneinfo.nr_free_cma
+        mem.zoneinfo.cma
+        mem.zoneinfo.nr_swapcached
+        mem.zoneinfo.nr_shmem_hugepages
+        mem.zoneinfo.nr_shmem_pmdmapped
+        mem.zoneinfo.nr_file_hugepages
+        mem.zoneinfo.nr_file_pmdmapped
+        mem.zoneinfo.nr_kernel_misc_reclaimable
+        mem.zoneinfo.nr_foll_pin_acquired
+        mem.zoneinfo.nr_foll_pin_released
+        mem.zoneinfo.workingset_refault_anon
+        mem.zoneinfo.workingset_refault_file
+        mem.zoneinfo.workingset_active_anon
+        mem.zoneinfo.workingset_active_file
+        mem.zoneinfo.workingset_restore_anon
+        mem.zoneinfo.workingset_restore_file
+        mem.zoneinfo.nr_zspages
+        mem.zoneinfo.nr_zone_inactive_file
+        mem.zoneinfo.nr_zone_active_file
+        mem.zoneinfo.nr_zone_inactive_anon
+        mem.zoneinfo.nr_zone_active_anon
+        mem.zoneinfo.nr_zone_unevictable
+        mem.zoneinfo.nr_zone_write_pending
+        mem.zoneinfo.protection
+}
+End-of-File
+
+rm -f pcp-zoneinfo.0  pcp-zoneinfo.index  pcp-zoneinfo.meta pcp-zoneinfo.*
+
+if pmlogger -s3 -c $tmp.config pcp-zoneinfo; then
+        xz pcp-zoneinfo.0
+        xz pcp-zoneinfo.index
+        xz pcp-zoneinfo.meta
+else
+    echo "Argh: pmlogger failed ..."
+    cat pmlogger.log
+fi
+
+

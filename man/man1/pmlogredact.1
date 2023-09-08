@@ -1,0 +1,102 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMLOGREDACT 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmlogredact\f1 \- remove sensitive information from PCP archives
+.SH SYNOPSIS
+\f3$PCP_BINADM_DIR/pmlogredact\f1
+[\f3\-vx?\f1]
+[\f3\-c\f1 \f2config\f1]
+\f2inarch\f1 [\f2outarch\f1]
+.SH DESCRIPTION
+Performance Co-Pilot (PCP) archives may contain a wealth of information
+collected from across all components of a system.
+.PP
+Some of this information may be deemed sensitive outside the context
+of the original collection for analysis of system performance.
+Examples of sensitive information might include user names, paths to
+user home directories (that may imply user names), hostnames, IP
+addresses, MAC addresses, command line arguments, process environment
+variables, etc.
+.PP
+.B pmlogredact
+may be used to remove sensitive information before archives are
+shipped to another organization, or stored in another geography, or
+to meet regulatory or privacy compliance.
+The output archive
+.I outarch
+is the redacted version of the input archive
+.IR inarch .
+.PP
+.B pmlogredact
+is a thin wrapper around
+.BR pmlogrewrite (1),
+and so the configuration files for
+.B pmlogredact
+follow the same syntax as the configuration files for
+.BR pmlogrewrite (1).
+.PP
+There are a default set of redaction rules in the
+.I $PCP_VAR_DIR/config/pmlogredact/*
+files.
+These rules remove some metrics, rewrite the instance domains
+of some metrics and rewrite the values of some metrics.
+The
+.B \-x
+(or
+.BR \-\-exclude-std )
+option may be used to
+.B not
+use the default set of rules.
+.PP
+Additional (or alternative) configuration files may be specified with
+one or more
+.B \-c
+(or
+.BR \-\-config )
+options, where each
+.I config
+is either a file or a directory (implying all the files within that
+directory).
+.PP
+The
+.B \-v
+(or
+.BR \-\-verbose )
+option adds verbosity (and is passed directly to
+.BR pmlogrewrite (1)).
+.PP
+The
+.B \-?
+(or
+.BR \-\-help)
+option displays a usage message and exits.
+.SH FILES
+.TP 5
+.I $PCP_VAR_DIR/config/pmlogredact/*
+default redaction rules
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.SH SEE ALSO
+.BR pmlogrewrite (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

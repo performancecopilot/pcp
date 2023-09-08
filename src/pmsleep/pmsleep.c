@@ -110,17 +110,34 @@ pmsleep(const char *interval)
     return 0;
 }
 
+static void
+usage(void)
+{
+    if (strcmp(pmGetProgname(), "pmpause") == 0)
+	fprintf(stderr, "Usage: pmpause [-w where]\n");
+    else
+	fprintf(stderr, "Usage: pmsleep [-w where] interval\n");
+}
+
 int
 main(int argc, char **argv)
 {
     int sts = 1;
 
     pmSetProgname(argv[0]);
-    if (strcmp(pmGetProgname(), "pmpause") == 0)
-	sts = pmpause();
-    else if (argc == 2)
-	sts = pmsleep(argv[1]);
-    else
-	fprintf(stderr, "Usage: %s interval\n", pmGetProgname());
+
+    if (argc >= 2 && (strcmp(argv[1], "-?") == 0 || strcmp(argv[1], "--help") == 0)) {
+	usage();
+    }
+    else {
+	if (strcmp(pmGetProgname(), "pmpause") == 0)
+	    sts = pmpause();
+	else if (argc >= 2)
+	    sts = pmsleep(argv[argc-1]);
+	else {
+	    usage();
+	}
+    }
+
     exit(sts);
 }

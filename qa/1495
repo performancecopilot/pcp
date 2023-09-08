@@ -69,9 +69,9 @@ diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq.full
 
 # Now try creating and rewriting individual labels
 cat > $CONFIG << EOF
-LABEL DOMAIN 3 "agent" { LABEL -> "new_agent" }
-LABEL DOMAIN 3 * "proc" { VALUE -> "new_value" }
-LABEL DOMAIN 60 { LABEL -> "new_agent" }
+LABEL DOMAIN 3 "agent" { LABEL -> "new_agent1" }
+LABEL DOMAIN 3 * "proc" { VALUE -> "new_value1" }
+LABEL DOMAIN 60 { LABEL -> "new_agent2" }
 
 LABEL DOMAIN 3 { NEW "new_domain_label" "new_domain_value" }
 LABEL DOMAIN 3 { NEW "new_domain_number" -123.456e+789 }

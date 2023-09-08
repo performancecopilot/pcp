@@ -54,6 +54,8 @@ cat <<End-of-File >$tmp.control
 \$PMCD_CONNECT_TIMEOUT=150
 \$PMCD_REQUEST_TIMEOUT=120
 
+\$PCP_COMPRESSAFTER=never
+
 LOCALHOSTNAME            n   n        "PCP_ARCHIVE_DIR/$seq/\$(date +%Y)/\$(date +%m)/LOCALHOSTNAME/\$(date +%Y)-\$(date +%m)-\$(date +%d)"	-r -c config.default
 End-of-File
 

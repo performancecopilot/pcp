@@ -19,6 +19,7 @@ CMDTARGET = pmproxy$(EXECSUFFIX)
 HFILES = pmproxy.h
 CFILES = pmproxy.c
 XFILES = uv_callback.h uv_callback.c
+LDIRT = $(XFILES)
 
 LCFLAGS = $(PIECFLAGS) \
 	-I$(TOPDIR)/src/libpcp_web/src \

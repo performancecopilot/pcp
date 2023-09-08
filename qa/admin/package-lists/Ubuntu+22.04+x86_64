@@ -30,6 +30,7 @@ dh-python
 docker.io not4ci
 dpkg-dev
 ed
+expect
 flex
 g++
 gawk
@@ -113,6 +114,7 @@ python3-pil
 python3-prometheus-client
 python3-psycopg2
 python3-pymongo
+python3-pyodbc
 python3-requests
 python3-setuptools
 python3-six

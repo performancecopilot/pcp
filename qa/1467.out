@@ -1,0 +1,78 @@
+QA output created by 1467
+QA output created by 1283 --valgrind
+=== std out ===
+dbpmda> open dso PCP_PMDA_DIR/simple/pmda_simple.so simple_init 253
+dbpmda> fetch simple.color
+PMID(s): 253.0.1
+pmResult dump from ADDR TIMESTAMP TIME numpmid: 1
+  253.0.1 (simple.color): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or ???] value NUMBER <type not known>
+    inst [1 or ???] value NUMBER <type not known>
+    inst [2 or ???] value NUMBER <type not known>
+dbpmda> getdesc on
+dbpmda> fetch simple.color
+PMID(s): 253.0.1
+pmResult dump from ADDR TIMESTAMP TIME numpmid: 1
+  253.0.1 (simple.color): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or ???] value NUMBER
+    inst [1 or ???] value NUMBER
+    inst [2 or ???] value NUMBER
+dbpmda> getiname on
+dbpmda> fetch simple.color
+PMID(s): 253.0.1
+pmResult dump from ADDR TIMESTAMP TIME numpmid: 1
+  253.0.1 (simple.color): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+dbpmda> getdesc off
+dbpmda> fetch simple.color
+PMID(s): 253.0.1
+pmResult dump from ADDR TIMESTAMP TIME numpmid: 1
+  253.0.1 (simple.color): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+dbpmda> open pipe PCP_PMDA_DIR/simple/pmdasimple -d 253 -U ME
+Start pmdasimple PMDA: PCP_PMDA_DIR/simple/pmdasimple -d 253 -U ME
+dbpmda> getiname off
+dbpmda> fetch simple.color
+PMID(s): 253.0.1
+__pmResult dump from ADDR TIMESTAMP TIME numpmid: 1
+  253.0.1 (simple.color): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or ???] value NUMBER <type not known>
+    inst [1 or ???] value NUMBER <type not known>
+    inst [2 or ???] value NUMBER <type not known>
+dbpmda> getdesc on
+dbpmda> fetch simple.color
+PMID(s): 253.0.1
+__pmResult dump from ADDR TIMESTAMP TIME numpmid: 1
+  253.0.1 (simple.color): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or ???] value NUMBER
+    inst [1 or ???] value NUMBER
+    inst [2 or ???] value NUMBER
+dbpmda> getiname on
+dbpmda> fetch simple.color
+PMID(s): 253.0.1
+__pmResult dump from ADDR TIMESTAMP TIME numpmid: 1
+  253.0.1 (simple.color): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+dbpmda> getdesc off
+dbpmda> fetch simple.color
+PMID(s): 253.0.1
+__pmResult dump from ADDR TIMESTAMP TIME numpmid: 1
+  253.0.1 (simple.color): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+dbpmda> 
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: dbpmda -ie
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

@@ -77,13 +77,13 @@ get_distro_info(void)
 	    } else {
 		char *nl;
 
+		distro_name[sts + len] = '\0';
 		if (r == LSB_RELEASE) {	/* may be Ubuntu */
 		    if (!strncmp(distro_name, "DISTRIB_ID = ", 13))
 			distro_name += 13;	/* ick */
 		    if (!strncmp(distro_name, "DISTRIB_ID=", 11))
 			distro_name += 11;	/* more ick */
 		}
-		distro_name[sts + len] = '\0';
 		if ((nl = strchr(distro_name, '\n')) != NULL)
 		    *nl = '\0';
 	    }

@@ -86,11 +86,11 @@ Any or all of these parameters may be NULL
 to indicate that the corresponding command line option was not
 present.
 .P
-If the application is using a set of PCP archive logs as the source
+If the application is using a set of PCP archives as the source
 of performance metrics, you also
-need to supply the time of the first archive log entry as
+need to supply the time of the first archive entry as
 .BR logStart ,
-and the time of the last archive log entry as
+and the time of the last archive entry as
 .BR logEnd .
 See
 .BR pmGetArchiveLabel (3)
@@ -98,10 +98,10 @@ and
 .BR pmGetArchiveEnd (3)
 for how to obtain values for these times.
 .P
-If the application is manipulating multiple concurrent archive
-logs, then the caller must resolve how the default time window
-is to be defined (the union of the time intervals in all archive
-logs is a likely interpretation).
+If the application is manipulating multiple concurrent archives,
+then the caller must resolve how the default time window
+is to be defined (the union of the time intervals in all archives
+is a likely interpretation).
 .P
 If the application is using a live feed of performance data,
 .B logStart
@@ -153,7 +153,7 @@ or
 returns 1.
 .P
 If the conversion is successful, but the requested alignment could not be
-performed (e.g. the set of PCP archive logs is too short) the alignment is
+performed (e.g. the set of PCP archives is too short) the alignment is
 ignored,
 .BR rsltStart ,
 .B rsltEnd

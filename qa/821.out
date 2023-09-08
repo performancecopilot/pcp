@@ -755,6 +755,9 @@ mem.vmstat.pgrefill_normal
 mem.vmstat.pgrotated
     value 577
 
+mem.vmstat.pgscan_anon
+No value(s) available!
+
 mem.vmstat.pgscan_direct
 No value(s) available!
 
@@ -779,6 +782,9 @@ mem.vmstat.pgscan_direct_throttle
 mem.vmstat.pgscan_direct_total
     value 0
 
+mem.vmstat.pgscan_file
+No value(s) available!
+
 mem.vmstat.pgscan_kswapd
 No value(s) available!
 
@@ -799,6 +805,9 @@ mem.vmstat.pgscan_kswapd_normal
 
 mem.vmstat.pgscan_kswapd_total
     value 0
+
+mem.vmstat.pgsteal_anon
+No value(s) available!
 
 mem.vmstat.pgsteal_direct
 No value(s) available!
@@ -3492,6 +3501,9 @@ mem.vmstat.pgrefill_normal
 mem.vmstat.pgrotated
     value 131
 
+mem.vmstat.pgscan_anon
+No value(s) available!
+
 mem.vmstat.pgscan_direct
 No value(s) available!
 
@@ -3516,6 +3528,9 @@ mem.vmstat.pgscan_direct_throttle
 mem.vmstat.pgscan_direct_total
     value 0
 
+mem.vmstat.pgscan_file
+No value(s) available!
+
 mem.vmstat.pgscan_kswapd
 No value(s) available!
 
@@ -3536,6 +3551,9 @@ mem.vmstat.pgscan_kswapd_normal
 
 mem.vmstat.pgscan_kswapd_total
     value 0
+
+mem.vmstat.pgsteal_anon
+No value(s) available!
 
 mem.vmstat.pgsteal_direct
 No value(s) available!
@@ -6207,6 +6225,9 @@ mem.vmstat.pgrefill_normal
 mem.vmstat.pgrotated
     value 131
 
+mem.vmstat.pgscan_anon
+No value(s) available!
+
 mem.vmstat.pgscan_direct
 No value(s) available!
 
@@ -6231,6 +6252,9 @@ mem.vmstat.pgscan_direct_throttle
 mem.vmstat.pgscan_direct_total
     value 0
 
+mem.vmstat.pgscan_file
+No value(s) available!
+
 mem.vmstat.pgscan_kswapd
 No value(s) available!
 
@@ -6251,6 +6275,9 @@ mem.vmstat.pgscan_kswapd_normal
 
 mem.vmstat.pgscan_kswapd_total
     value 0
+
+mem.vmstat.pgsteal_anon
+No value(s) available!
 
 mem.vmstat.pgsteal_direct
 No value(s) available!
@@ -8885,6 +8912,9 @@ No value(s) available!
 mem.vmstat.pgrotated
     value 0
 
+mem.vmstat.pgscan_anon
+No value(s) available!
+
 mem.vmstat.pgscan_direct
     value 0
 
@@ -8909,6 +8939,9 @@ mem.vmstat.pgscan_direct_throttle
 mem.vmstat.pgscan_direct_total
     value 0
 
+mem.vmstat.pgscan_file
+No value(s) available!
+
 mem.vmstat.pgscan_kswapd
     value 0
 
@@ -8929,6 +8962,9 @@ No value(s) available!
 
 mem.vmstat.pgscan_kswapd_total
     value 0
+
+mem.vmstat.pgsteal_anon
+No value(s) available!
 
 mem.vmstat.pgsteal_direct
     value 0
@@ -11331,6 +11367,9 @@ No value(s) available!
 mem.vmstat.pgrotated
     value 857
 
+mem.vmstat.pgscan_anon
+No value(s) available!
+
 mem.vmstat.pgscan_direct
     value 39699
 
@@ -11355,6 +11394,9 @@ mem.vmstat.pgscan_direct_throttle
 mem.vmstat.pgscan_direct_total
     value 39699
 
+mem.vmstat.pgscan_file
+No value(s) available!
+
 mem.vmstat.pgscan_kswapd
     value 6328636
 
@@ -11375,6 +11417,9 @@ No value(s) available!
 
 mem.vmstat.pgscan_kswapd_total
     value 6328636
+
+mem.vmstat.pgsteal_anon
+No value(s) available!
 
 mem.vmstat.pgsteal_direct
     value 26263
@@ -13841,6 +13886,9 @@ No value(s) available!
 mem.vmstat.pgrotated
     value 2
 
+mem.vmstat.pgscan_anon
+No value(s) available!
+
 mem.vmstat.pgscan_direct
     value 0
 
@@ -13865,6 +13913,9 @@ mem.vmstat.pgscan_direct_throttle
 mem.vmstat.pgscan_direct_total
     value 0
 
+mem.vmstat.pgscan_file
+No value(s) available!
+
 mem.vmstat.pgscan_kswapd
     value 0
 
@@ -13885,6 +13936,9 @@ No value(s) available!
 
 mem.vmstat.pgscan_kswapd_total
     value 0
+
+mem.vmstat.pgsteal_anon
+No value(s) available!
 
 mem.vmstat.pgsteal_direct
     value 0
@@ -15660,6 +15714,9 @@ No value(s) available!
 mem.vmstat.pgrotated
     value 1
 
+mem.vmstat.pgscan_anon
+    value 0
+
 mem.vmstat.pgscan_direct
     value 0
 
@@ -15684,6 +15741,9 @@ mem.vmstat.pgscan_direct_throttle
 mem.vmstat.pgscan_direct_total
     value 0
 
+mem.vmstat.pgscan_file
+    value 0
+
 mem.vmstat.pgscan_kswapd
     value 0
 
@@ -15703,6 +15763,9 @@ mem.vmstat.pgscan_kswapd_normal
 No value(s) available!
 
 mem.vmstat.pgscan_kswapd_total
+    value 0
+
+mem.vmstat.pgsteal_anon
     value 0
 
 mem.vmstat.pgsteal_direct

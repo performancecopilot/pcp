@@ -27,6 +27,9 @@
 ** --------------------------------------------------------------------------
 */
 
+#ifndef __IFPROP__
+#define __IFPROP__
+
 #define MAXINTNM	32
 struct ifprop	{
 	char		name[MAXINTNM];	/* name of interface  		*/
@@ -39,3 +42,5 @@ struct ifprop	{
 
 int 	getifprop(struct ifprop *);
 void 	initifprop(void);
+
+#endif

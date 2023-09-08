@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015,2019-2021 Red Hat.
+# Copyright (c) 2015,2019-2021,2023 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -19,16 +19,16 @@ CMDTARGET = pcp-atop
 DISTARGET = $(PCP_BINADM_DIR)/$(CMDTARGET)
 DISTLINKS = pcp-atopsar
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_gui/src
-LLDLIBS = $(PCP_GUILIB) $(LIB_FOR_NCURSES) $(LIB_FOR_MATH)
-LCFLAGS = $(NCURSES_CFLAGS)
+LLDLIBS = $(PCP_GUILIB) $(LIB_FOR_NCURSESW) $(LIB_FOR_MATH)
 GENMAPS = $(shell echo *.map | sed -e 's/\.map/\.h/g')
-LDIRT = pmgenmap.sh $(GENMAPS)
+LDIRT = pmgenmap.sh $(DISTLINKS) $(GENMAPS)
 
 CFILES = \
 	atop.c \
 	atopsar.c \
 	acctproc.c \
 	deviate.c \
+	drawbar.c \
 	gpucom.c \
 	ifprop.c \
 	parseable.c \
@@ -60,7 +60,7 @@ default:	build-me
 
 include $(BUILDRULES)
 
-ifeq "$(HAVE_NCURSES)" "true"
+ifeq "$(HAVE_NCURSESW)" "true"
 build-me: $(CMDTARGET) $(DISTLINKS)
 
 install: default

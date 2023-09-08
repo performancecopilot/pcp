@@ -1,7 +1,7 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2000-2022 Gerlof Langeveld.
-.\" Copyright (c) 2017-2022 Red Hat.
+.\" Copyright (c) 2000-2023 Gerlof Langeveld.
+.\" Copyright (c) 2017-2023 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -20,7 +20,7 @@
 .SH SYNOPSIS
 Interactive Usage:
 .P
-\f3pcp\f1 [\f2pcp\ options\f1] \f3atop\f1 [\f3\-aAcCdDfFgGmMnNopRsuvxyY1\f1] [\f3\-L\f1 \f2linelen\f1] [\f3\-P\f1\f2label\f1[,\f2label\f1]... [\f3\-Z\f1]] [\f2interval\f1 [\f2samples\f1]]
+\f3pcp\f1 [\f2pcp\ options\f1] \f3atop\f1 [\f3\-aABcCdDfFgGHmMnNopRsuvxyY1\f1] [\f3\-L\f1 \f2linelen\f1] [\f3\-P\f1\f2label\f1[,\f2label\f1]... [\f3\-Z\f1]] [\f2interval\f1 [\f2samples\f1]]
 .P
 Writing and reading PCP archive folios:
 .P
@@ -34,23 +34,190 @@ Writing and reading PCP archive folios:
 The program
 .B pcp-atop
 is an interactive monitor to view various aspects of load on a system.
-It shows the occupation of the most critical hardware resources
-(from a performance point of view) on system level, i.e. cpu, memory, disk
-and network.
-.br
-It also shows which processes are responsible for the indicated
-load with respect to cpu and memory load on process level.
-Disk load is shown per process if "storage accounting" is active
-in the kernel.
-.PP
 Every
 .I interval
-(default: 10 seconds) information is shown about the resource occupation
-on system level (cpu, memory, disks and network layers), followed
-by a list of processes which have been active during the last interval
-(note that all processes that were unchanged during the last interval
-are not shown, unless the key 'a' has been pressed or unless sorting on
-memory occupation is done).
+seconds (default: 10 seconds) information is gathered about the
+resource occupation on system level of the most critical hardware
+resources (from a performance point of view),
+i.e. CPUs, memory, disks and network interfaces. Besides,
+information is gathered about the processes (or threads) that
+are responsible for the utilization of the CPUs, memory and disks.
+Network load per process is shown only when the PCP
+.BR pmdabcc (1)
+metrics have been installed and configured.
+.SH BAR GRAPH MODE
+When running
+.B pcp-atop
+you can choose to view the system load in bar graph mode or in text mode.
+In bar graph mode the resource utilization of CPUs, memory, disks and network
+interfaces is shown via (character-based) bar graphs, but only on system level.
+When you want to view more detailed information on system level or when you
+want to view the resource consumption on process or thread level, you can switch
+to text mode by pressing the 'B' key. Alternatively, you can use the 'B' key
+(again) to switch from text mode to bar graph mode.
+.br
+By default,
+.B pcp-atop
+starts in text mode unless the
+.I \-B
+flag is used or unless 'B' has been configured as a default flag in the
+.I .atoprc
+file (for further information about default flags, refer to the
+.BR pcp-atoprc (5)
+man page).
+.PP
+In bar graph mode the terminal will be subdivided into four character-based
+windows, i.e. one window for each hardware resource:
+.TP 5
+.B Processors
+The first bar shows the average busy percentage of all CPUs with
+the bar label 'Avg' (might be abbreviated to 'Av' or even just 'A').
+The subsequent bars show the busy percentages of single CPUs.
+.br
+When there is not enough horizontal space to show all CPUs, only the
+most busy CPUs per sample will be shown after the width of each bar
+has been reduced to a minimum.
+
+By default, the categories of CPU consumption are shown by different
+colors in the bars, marked with a character 'S' (system mode), 'U'
+(user mode), 'I' (interrupt handling), 's' (steal) and 'G'
+(guest, i.e. consumed by virtual machines).
+.br
+The top of the bar might consist of an unmarked color representing
+a 'neutral' category. Suppose that the scale unit is 5% per line
+and the total busy percentage is 54% consisting of two categories of 27%.
+The two categories will be rounded to 25% (5 lines of 5% each) but the
+total busy percentage will be rounded to 55% (11 lines of 5%).
+Then the top line will represent a 'neutral' category.
+.br
+By pressing the 'H' key or by starting
+.B pcp-atop
+with the
+.I \-H
+flag, no categories are shown.
+
+A red line is drawn in the bar graph as critical threshold.
+By default this value is 90% and can be modified by the 'cpucritperc'
+option in the configuration file (see separate
+.BR pcp-atoprc (5)
+man page).
+When this value is set to zero, no threshold line will be drawn.
+.TP 5
+.B Memory and swap space
+Memory is presented as a column in which the
+specific categories of memory consumption are shown. These categories
+are (code, data and  stack of) processes/kernel, slab caches
+(i.e. dynamically allocated kernel memory), shared memory, tmpfs,
+page cache and free memory.
+.br
+Swap space (if present) is also presented as a column in which the
+categories processes/tmpfs, shared memory and free space are shown.
+
+At the right side memory-related event counters are shown.
+.br
+The bottom three counters are colored green when there is no memory pressure.
+When considerable activity is noticed such counter might be colored orange and
+with high activity red.
+.br
+When memory pressure starts, usually memory page scanning will be activated
+first. When pressure increases, memory pages of processes might be swapped
+out to swap space (if present).
+.br
+The 'oomkills' counter (Out Of Memory killing) is most serious:
+it reflects the number of processes that are killed due to lack of memory
+(and swap). Therefore this counter shows the absolute number (not per second)
+of processes being killed during the last interval and will immediately
+be colored red when it is 1 or more.  Besides, after
+.B pcp-atop
+has noticed OOM killing the 'oomkills' counter remains orange for the next
+15 minutes, just in case that you have missed the OOM killing event itself.
+.br
+When there is enough vertical space in the memory window, event counters
+are shown about the number of memory pages being swapped in,
+the number of memory pages paged out to block devices and
+the number of memory pages paged in from block devices.
+
+Memory and swap space consumption will preferably be shown in a
+character-based window that vertically uses the entire screen for
+optimal granularity. However, when there are a lot of disks and/or
+network interfaces the memory and swap space consumption will be shown
+in a character-based window that only uses the upper half of the screen.
+.TP 5
+.B Disks
+For each disk the busy percentage is shown as a bar.
+.br
+When there is not enough horizontal space to show all disks, only the
+most busy disks per sample will be shown.
+
+By default, categories of disk consumption are shown by different colors
+in the bars, marked with a character 'R' (read) and 'W'
+(write).
+.br
+The top of the bar might consist of an unmarked color representing
+a 'neutral' category. Suppose that the scale unit is 5% per line
+and the total busy percentage is 54% consisting of two categories of 27%.
+The two categories will be rounded to 25% (5 lines of 5% each) but the
+total busy percentage will be rounded to 55% (11 lines of 5%).
+Then the top line will represent a 'neutral' category.
+.br
+By pressing the 'H' key or by starting
+.B pcp-atop
+with the
+.I \-H
+flag, no categories are shown.
+
+A red line is drawn in the bar graph as critical threshold.
+By default this value is 90% and can be modified by the 'dskcritperc'
+option in the configuration file (see separate
+.B atoprc
+man page). When this value is set to zero, no threshold line will be drawn.
+.TP 5
+.B Interfaces
+For each non-virtual network interface a double bar graph is shown with
+a dedicated scale that reflects the traffic rate. One of the bars shows
+the transmit rate ('TX') and the other bar the receive rate ('RX').
+The traffic scale of each network interface remains at its highest level.
+All interface scales can be reset during the measurement by pressing
+the 'L' key.
+
+Most often the real speed (maximum bandwidth) of network interfaces is
+not known, e.g. in case of the network interfaces of virtual machines.
+Therefore it is not possible to show the interface utilization as a
+percentage. However, when the real speed of an interface is known it will
+be shown underneath the concerning bar graph.
+
+When there is not enough horizontal space to show all network interfaces,
+only the most busy interfaces per sample will be shown.
+.PP
+Usually the bar graphs will not be sorted on busy percentage when there
+is enough horizontal space. However, after switching from text mode to
+bar graph mode the bar graphs might have been sorted because this was
+needed for the presentation in text mode. The next interval in bar graph
+mode shows the bars unsorted again unless the window width is unsufficient
+for all bars.
+.PP
+The remaining part of this manual page mainly describes the information
+shown in text mode.
+When certain descriptions also apply to bar graph mode it will be
+mentioned explicitly.
+
+.SH TEXT MODE IN GENERAL
+The initial screen in text mode shows if
+.B pcp-atop
+runs with restricted view (unprivileged user) or unrestricted view
+(privileged user).  In case of restricted view
+.B pcp-atop
+does not have the privileges (root identity or necessary capabilities) to
+retrieve all counter values on system level and on process level.
+does not have the privileges (no root identity nor the necessary capabilities)
+to retrieve all counter values on system level and on process level.
+.PP
+With every interval information is shown about the resource occupation
+on system level (CPU, memory, disks and network layers), followed
+by a list of processes which have been active during the last interval.
+Notice that all processes that were unchanged during the last interval
+re not shown, unless the key 'a' has been pressed or unless sorting on
+memory occupation is done (then inactive processes are relevant as well).
 If the list of active processes does not entirely fit on
 the screen, only the top of the list is shown (sorted in order of activity).
 .br
@@ -103,7 +270,7 @@ is started, it checks whether the standard output channel is connected to a
 screen, or to a file/pipe.
 In the first case it produces screen control
 codes (via the ncurses library) and behaves interactively;
-in the second case it produces flat ASCII-output.
+in the second case it produces flat text output.
 .PP
 In interactive mode, the output of
 .B pcp-atop
@@ -117,7 +284,7 @@ be shown.
 If the window is resized vertically, lines of the process/thread list
 will be added or removed automatically.
 .PP
-Furthermore in interactive mode the output of
+In interactive mode the output of
 .B pcp-atop
 can be controlled by pressing particular keys.
 However it is also possible to specify such key as
@@ -125,8 +292,8 @@ However it is also possible to specify such key as
 on the command line.
 In that case
 .B pcp-atop
-switches to the indicated mode on beforehand; this mode can
-be modified again interactively.
+switches to the indicated mode on beforehand.
+This mode can be modified again interactively.
 Specifying such key as flag is especially useful when running
 .B pcp-atop
 with output to a pipe or file (non-interactively).
@@ -139,14 +306,14 @@ data in PCP archive format (see section PCP DATA STORAGE).
 .SH COLORS
 For the resource consumption on system level,
 .B pcp-atop
-uses colors to indicate that a critical occupation percentage has
-been (almost) reached.
+uses colors in text mode to indicate that a critical occupation
+percentage has been (almost) reached.
 A critical occupation percentage means that is likely that this load
 causes a noticeable negative performance influence for applications using
 this resource.
 The critical percentage depends on the type of resource:
 e.g. the performance influence of a disk with a busy percentage of 80%
-might be more noticeable for applications/user than a CPU with a busy
+might be more noticeable for applications/users than a CPU with a busy
 percentage of 90%.
 .br
 Currently
@@ -155,54 +322,57 @@ uses the following default values to calculate a weighted percentage
 per resource:
 .TP 5
 .B \ Processor
-A busy percentage of 90% or higher is considered `critical'.
+A busy percentage of 90% or higher is considered 'critical'
+(also in bar graph mode).
 .TP 5
 .B \ Disk
-A busy percentage of 70% or higher is considered `critical'.
+A busy percentage of 90% or higher is considered 'critical'.
 .TP 5
 .B \ Network
 A busy percentage of 90% or higher for the load of an interface is
-considered `critical'.
+considered 'critical'.
 .TP 5
 .B \ Memory
-An occupation percentage of 90% is considered `critical'.
+An occupation percentage of 90% is considered 'critical'.
 Notice that this occupation percentage is the accumulated memory
-consumption of the kernel (including slab) and all processes; the
-memory for the page cache (`cache' and `buff' in the MEM-line) and the
-reclaimable part of the slab (`slrec`) is not implied!
+consumption of the kernel (including slab) and all processes. The
+memory for the page cache ('cache' and 'buff' in the MEM-line) and the
+reclaimable part of the slab ('slrec') is not implied!
 .br
-If the number of pages swapped out (`swout' in the PAG-line) is larger
-than 10 per second, the memory resource is considered `critical'.
-A value of at least 1 per second is considered `almost critical'.
+If the number of pages swapped out ('swout' in the PAG-line) is larger
+than 10 per second, the memory resource is considered 'critical'.
+A value of at least 1 per second is considered 'almost critical'.
 .br
-If the committed virtual memory exceeds the limit (`vmcom' and `vmlim'
+If the committed virtual memory exceeds the limit ('vmcom' and 'vmlim'
 in the SWP-line), the SWP-line is colored due to overcommitting the system.
 .TP 5
 .B \ Swap
-An occupation percentage of 80% is considered `critical'
-because swap space might be completely exhausted in the near future;
-it is not critical from a performance point-of-view.
+An occupation percentage of 80% is considered 'critical'
+because swap space might be completely exhausted in the near future.
+It is not critical from a performance point-of-view.
 .PP
 These default values can be modified in the configuration file
-(see separate man-page of
-.BR pcp-atoprc (5)).
+(see separate
+.BR pcp-atoprc (5)
+man page).
 .PP
 When a resource exceeds its critical occupation percentage, the concerning
 values in the screen line are colored red by default.
 .br
-When a resource exceeded (default) 80% of its critical percentage
+When a resource exceeds (by default) 80% of its critical percentage
 (so it is almost critical), the concerning values in the screen line
 are colored cyan by default.
-This `almost critical percentage' (one value
+This 'almost critical percentage' (one value
 for all resources) can be modified in the configuration file
-(see separate man-page of
-.BR pcp-atoprc (5)).
+(see separate
+.BR pcp-atoprc (5)
+man page).
 .br
 The default colors red and cyan can be modified in the configuration file
 as well (see separate man-page of
 .BR pcp-atoprc (5)).
 .PP
-With the key 'x' (or flag \fB\-x\fR), the use of colors can be suppressed.
+With the key 'x' (or flag \fB\-x\fR), the use of colors can be suppressed in text mode.  The use of colors is however mandatory in case of bar graph mode.
 .SH GPU STATISTICS GATHERING
 GPU statistics can be gathered by
 .BR pmdanvidia (1)
@@ -223,36 +393,34 @@ When running
 interactively (no output redirection), keys can be pressed to control the
 output.
 In general, lower case keys can be used to show other information for
-the active processes and upper case keys can be used to influence the
-sort order of the active process/thread list.
+the active processes while certain upper case keys can be used to influence the
+sort order of the active process/thread list. Some of these keys can also
+be used to switch from bar graph mode to particular detailed process information
+in text mode.
 .TP 5
 .B g
 Show generic output (default).
 
 Per process the following fields are shown in case of a window-width
 of 80 positions:
-process-id, cpu consumption during
+process-id, CPU consumption during
 the last interval in system and user mode, the virtual and resident
 memory growth of the process.
-
-The subsequent columns depend on the used kernel:
 .br
-When the kernel supports "storage accounting" (>= 2.6.20), the data
-transfer for read/write on disk, the status and exit code are
-shown for each process.
-When the kernel does not support
-"storage accounting", the username, number of threads in the
-thread group, the status and exit code are shown.
+The data transfer per process for read/write on disk can only be shown
+when
+.B pcp-atop
+accesses metrics with root privileges.
 .br
 The last columns contain the state, the occupation percentage for the
-chosen resource (default: cpu) and the process name.
+chosen resource (default: CPU) and the process name.
 
 When more than 80 positions are available, other information is added.
 .TP 5
 .B m
 Show memory related output.
 
-Per process the following fields are shown in case of a window-width
+Per process the following fields are shown in case of a window width
 of 80 positions:
 process-id, minor and major
 memory faults, size of virtual shared text, total virtual
@@ -267,8 +435,9 @@ that were not active during the interval).
 .B d
 Show disk-related output.
 
-When "storage accounting" is active in the kernel, the following
-fields are shown:
+When
+.B pcp-atop
+runs with root privileges, the following fields are shown:
 process-id, amount of data read from disk, amount of data written to disk,
 amount of data that was written but has been withdrawn again (WCANCL),
 disk occupation percentage and process name.
@@ -276,7 +445,7 @@ disk occupation percentage and process name.
 .B s
 Show scheduling characteristics.
 
-Per process the following fields are shown in case of a window-width
+Per process the following fields are shown in case of a window width
 of 80 positions:
 process-id,
 number of threads in state 'running' (R),
@@ -292,7 +461,7 @@ When more than 80 positions are available, other information is added.
 .B v
 Show various process characteristics.
 
-Per process the following fields are shown in case of a window-width
+Per process the following fields are shown in case of a window width
 of 80 positions:
 process-id, user name and group,
 start date and time, status (e.g. exit code if the process has finished),
@@ -312,13 +481,14 @@ Show cgroup v2 information.
 
 Per process the following fields are shown:
 process-id,
-'\"`cpu.weight' of the cgroup the process belongs to,
-'\"`cpu.max' value (recalculated as percentage) of the cgroup the process belongs to,
-'\"most restrictive `cpu.max' value found in the upper directories,
-'\"`memory.max' value of the cgroup the process belongs to,
-'\"most restrictive `memory.max' value found in the upper directories,
-'\"`memory.swap.max' value of the cgroup the process belongs to,
-'\"most restrictive `memory.swap.max' value found in the upper directories,
+'\"process-id, 'cpu.weight' of the cgroup the process
+'\"belongs to, 'cpu.max' value (recalculated as percentage) of the cgroup
+'\"the process belongs to, most restrictive 'cpu.max' value found in the
+'\"upper directories, 'memory.max' value of the cgroup the process belongs to,
+'\"most restrictive 'memory.max' value found in the upper
+'\"directories, 'memory.swap.max' value of the cgroup the process belongs to,
+'\"most restrictive 'memory.swap.max' value found in the
+'\"upper directories,
 the command name, and
 the cgroup path name (horizontally scrollable).
 .TP 5
@@ -375,62 +545,68 @@ Sort the threads per process when combined with option 'y' (toggle).
 Show the process activity accumulated per user.
 
 Per user the following fields are shown: number of processes active
-or terminated during last interval (or in total if combined with command `a'),
-accumulated cpu consumption during last interval in system and user mode,
+or terminated during last interval (or in total if combined with command 'a'),
+accumulated CPU consumption during last interval in system and user mode,
 the current virtual and resident memory space consumed by active processes
-(or all processes of the user if combined with command `a').
+(or all processes of the user if combined with command 'a').
 .br
-When "storage accounting" is active in the kernel,
+When
+.B pcp-atop
+access metrics with root privileges,
 the accumulated read and write throughput on disk is shown.
 When the
 .BR pmdabcc (1)
-module `netproc' has been installed,
+module 'netproc' has been installed,
 the number of receive and send network calls are shown.
 .br
 The last columns contain the accumulated occupation percentage for the
-chosen resource (default: cpu) and the user name.
+chosen resource (default: CPU) and the user name.
 .TP 5
 .B p
 Show the process activity accumulated per program (i.e. process name).
 
 Per program the following fields are shown: number of processes active
-or terminated during last interval (or in total if combined with command `a'),
-accumulated cpu consumption during last interval in system and user mode,
+or terminated during last interval (or in total if combined with command 'a'),
+accumulated CPU consumption during last interval in system and user mode,
 the current virtual and resident memory space consumed by active processes
-(or all processes of the user if combined with command `a').
+(or all processes of the user if combined with command 'a').
 .br
-When "storage accounting" is active in the kernel,
+When
+.B pcp-atop
+access metrics with root privileges,
 the accumulated read and write throughput on disk is shown.
 When the
 .BR pmdabcc (1)
-module `netproc' has been installed,
+module 'netproc' has been installed,
 the number of receive and send network calls are shown.
 .br
 The last columns contain the accumulated occupation percentage for the
-chosen resource (default: cpu) and the program name.
+chosen resource (default: CPU) and the program name.
 .TP 5
 .B j
 Show the process activity accumulated per Docker container.
 
 Per container the following fields are shown: number of processes active
-or terminated during last interval (or in total if combined with command `a'),
-accumulated cpu consumption during last interval in system and user mode,
+or terminated during last interval (or in total if combined with command 'a'),
+accumulated CPU consumption during last interval in system and user mode,
 the current virtual and resident memory space consumed by active processes
-(or all processes of the user if combined with command `a').
+(or all processes of the user if combined with command 'a').
 .br
-When "storage accounting" is active in the kernel,
+When
+.B pcp-atop
+access metrics with root privileges,
 the accumulated read and write throughput on disk is shown.
 When the
 .BR pmdabcc (1)
-module `netproc' has been installed,
+module 'netproc' has been installed,
 the number of receive and send network calls are shown.
 .br
 The last columns contain the accumulated occupation percentage for the
-chosen resource (default: cpu) and the Docker container id (CID).
+chosen resource (default: CPU) and the Docker container id (CID).
 .TP 5
 .B C
-Sort the current list in the order of cpu consumption (default).
-The one-but-last column changes to ``CPU''.
+Sort the current list in the order of CPU consumption (default).
+The one-but-last column changes to 'CPU'.
 .TP 5
 .B E
 Sort the current list in the order of GPU utilization
@@ -439,27 +615,27 @@ when the
 .B pmdanvidia
 daemon runs under root privileges) or the order of
 GPU memory occupation).
-The one-but-last column changes to ``GPU''.
+The one-but-last column changes to 'GPU'.
 .TP 5
 .B M
 Sort the current list in the order of resident memory consumption.
-The one-but-last column changes to ``MEM''.
+The one-but-last column changes to 'MEM'.
 In case of sorting on memory,
 the full process list will be shown (not only the active processes).
 .TP 5
 .B D
 Sort the current list in the order of disk accesses issued.
-The one-but-last column changes to ``DSK''.
+The one-but-last column changes to 'DSK'.
 .TP 5
 .B N
 Sort the current list in the order of network bandwidth (received
 and transmitted).
-The one-but-last column changes to ``NET''.
+The one-but-last column changes to 'NET'.
 .TP 5
 .B A
 Sort the current list automatically in the order of the most busy
 system resource during this interval.
-The one-but-last column shows either ``ACPU'', ``AMEM'', ``ADSK'' or ``ANET''
+The one-but-last column shows either 'ACPU', 'AMEM', 'ADSK' or 'ANET'
 (the preceding 'A' indicates automatic sorting-order).
 The most busy resource is determined by comparing the weighted
 busy-percentages of the system resources, as described earlier in
@@ -468,10 +644,12 @@ the section COLORS.
 This option remains valid until
 another sorting-order is explicitly selected again.
 .br
-A sorting-order for disk is only possible when "storage accounting" is active.
+A sorting order for disk is only possible when
+.B pcp-atop
+runs with root privileges.
 A sorting-order for network is only possible when the
 .BR pmdabcc (1)
-module `netproc' has been installed.
+module 'netproc' has been installed.
 .PP
 Miscellaneous interactive commands:
 .TP 5
@@ -508,6 +686,8 @@ information about the current list of processes.
 Whenever the pause key is pressed again,
 .B pcp-atop
 will continue with the next sample.
+.br
+The pause key can be used in text mode and bar graph mode.
 .TP 5
 .B i
 Modify the interval timer (default: 10 seconds).
@@ -515,6 +695,8 @@ If an interval timer of 0 is
 entered, the interval timer is switched off.
 In that case a new sample can
 only be triggered manually by pressing the key 't'.
+.br
+The interval can be modified in text mode and bar graph mode.
 .TP 5
 .B t
 Trigger a new sample manually.
@@ -526,6 +708,8 @@ In the latter case
 can be used as a stopwatch to measure the load being caused by a
 particular application transaction, without knowing on beforehand how many
 seconds this transaction will last.
+.br
+This key can be used in text mode and bar graph mode.
 
 When viewing the contents of an archive folio, this key can be used to
 show the next sample from the folio.
@@ -533,14 +717,20 @@ show the next sample from the folio.
 .B T
 When viewing the contents of an archive folio, this key can be used to
 show the previous sample from the folio.
+.br
+This key can be used in text mode and bar graph mode.
 .TP 5
 .B b
 When viewing the contents of an archive folio, this key can be used to
 move to a certain timestamp within the file (either forward or backward).
+.br
+This key can be used in text mode and bar graph mode.
 .TP 5
 .B r
 Reset all counters to zero to see the system and process activity since
 boot again.
+.br
+This key can be used in text mode and bar graph mode.
 
 When viewing the contents of an archive, this key can be used to rewind
 to the beginning of the file again.
@@ -619,7 +809,7 @@ system resources of that type will be shown again.
 Whether this key is active or not can be seen in the header line.
 .TP 5
 .B a
-The `all/active' key can be used to toggle between only showing/accumulating
+The 'all/active' key can be used to toggle between only showing/accumulating
 the processes that were active during the last interval (default) or
 showing/accumulating all processes.
 .br
@@ -654,7 +844,7 @@ network interfaces) are sorted on utilization.
 Whether this key is active or not can be seen in the header line.
 .TP 5
 .B 1
-Show relevant counters as an average per second (in the format `..../s')
+Show relevant counters as an average per second (in the format '..../s')
 instead of as a total during the interval (toggle).
 .br
 Whether this key is active or not can be seen in the header line.
@@ -682,6 +872,8 @@ Send a signal to an active process (a.k.a. kill a process).
 .TP 5
 .B q
 Quit the program.
+.br
+This key can be used in text mode and bar graph mode.
 .TP 5
 .B PgDn
 Show the next page of the process/thread list.
@@ -748,13 +940,15 @@ is specified, yesterday's daily logfile is opened
 The samples from the file can be viewed interactively by using the key 't'
 to show the next sample, the key 'T' to show the previous sample, the
 key 'b' to branch to a particular time or the key 'r' to rewind to
-the begin of the file.
+the beginning of the file.
+These keys can be used in text mode as well as
+in bar graph mode.
 .br
 When output is redirected to a file or pipe,
 .B pcp-atop
 prints all samples in plain ASCII.
 The default line length is 80 characters
-in that case; with the flag
+in that case. With the flag
 .B \-L
 followed by an alternate line length, more (or less) columns will be shown.
 .br
@@ -767,52 +961,50 @@ a certain time period within the archive can be selected.
 .SH OUTPUT DESCRIPTION
 The first sample shows the system level activity since boot
 (the elapsed time in the header shows the time since boot).
-Note that particular counters could have reached their maximum
-value (several times) and started by zero again,
-so do not rely on these figures.
 .PP
-For every sample
+In text mode,
 .B pcp-atop
-first shows the lines related to system level activity. If a particular
-system resource has not been used during the interval, the entire line
-related to this resource is suppressed.
-So the number of system level lines may vary for each sample.
+first shows the lines related to system level activity for every sample.
+If a particular system resource has not been used during the interval,
+the entire line related to this resource is suppressed. So the number of
+system level lines may vary for each sample.
 .br
 After that a list is shown of processes which have been active
 during the last
 interval.
-This list is by default sorted on cpu consumption, but this order
+This list is by default sorted on CPU consumption, but this order
 can be changed by the keys which are previously described.
 .PP
 If values have to be shown by
 .B pcp-atop
 which do not fit in the column width,
-another format is used. If e.g. a cpu-consumption of 233216 milliseconds
-should be shown in a column width of 4 positions, it is shown as `233s'
+another format is used. If e.g. a CPU consumption of 233216 milliseconds
+should be shown in a column width of 4 positions, it is shown as '233s'
 (in seconds).
 For large memory figures, another unit is chosen if the value does not fit
-(Mb instead of Kb, Gb instead of Mb, Tb instead of Gb, ...).
+(Mb instead of Kb, Gb instead of Mb, Tb instead of Gb, etcetera).
 For other values, a kind of exponent notation is used (value 123456789
 shown in a column of 5 positions gives 123e6).
 .SH OUTPUT DESCRIPTION \- SYSTEM LEVEL
-The system level information consists of the following output lines:
+The system level information in text mode consists
+of the following output lines:
 .TP 5
 .B PRC
 Process and thread level totals.
 .br
-This line contains the total cpu time consumed
-in system mode (`sys') and in user mode (`user'),
-the total number of processes present at this moment (`#proc'),
-the total number of threads present at this moment in state `running' (`#trun'),
-`sleeping interruptible' (`#tslpi') and `sleeping uninterruptible' (`#tslpu'),
-the number of zombie processes (`#zombie'),
-the number of clone system calls (`clones'), and
+This line contains the total CPU time consumed
+in system mode ('sys') and in user mode ('user'),
+the total number of processes present at this moment ('#proc'),
+the total number of threads present at this moment in state 'running' ('#trun'),
+\'sleeping interruptible' ('#tslpi') and 'sleeping uninterruptible' ('#tslpu'),
+the number of zombie processes ('#zombie'),
+the number of clone system calls ('clones'), and
 the number of processes that ended during the interval
-(`#exit') when process accounting is used. Instead of `#exit` the last
+('#exit') when process accounting is used. Instead of '#exit' the last
 column may indicate that process accounting could not be activated
-(`no procacct`).
+('no procacct').
 .br
-If the screen-width does not allow all of these counters,
+If the screen width does not allow all of these counters,
 only a relevant subset is shown.
 .TP 5
 .B CPU
@@ -821,40 +1013,40 @@ CPU utilization.
 At least one line is shown for the total occupation of all CPUs together.
 .br
 In case of a multi-processor system, an additional line is shown
-for every individual processor (with `cpu' in lower case),
+for every individual processor (with 'cpu' in lower case),
 sorted on activity.
 Inactive CPUs will not be shown by default.
-The lines showing the per-cpu occupation contain the cpu number in
+The lines showing the per-cpu occupation contain the CPU number in
 the field combined with the wait percentage.
 
-Every line contains the percentage of cpu time spent in
-kernel mode by all active processes (`sys'),
-the percentage of cpu time consumed in user mode (`user') for all
+Every line contains the percentage of CPU time spent in
+kernel mode by all active processes ('sys'),
+the percentage of cpu time consumed in user mode ('user') for all
 active processes (including processes running with a nice value larger than
-zero), the percentage of cpu time spent for interrupt handling (`irq')
-including softirq, the percentage of unused cpu time while no processes
-were waiting for disk I/O (`idle'), and
-the percentage of unused cpu time while at least one process was waiting
-for disk I/O (`wait').
+zero), the percentage of CPU time spent for interrupt handling ('irq')
+including softirq, the percentage of unused CPU time while no processes
+were waiting for disk I/O ('idle'), and
+the percentage of unused CPU time while at least one process was waiting
+for disk I/O ('wait').
 .br
-In case of per-cpu occupation, the cpu number and
-the wait percentage (`w') for that cpu.
+In case of per-cpu occupation, the CPU number and
+the wait percentage ('w') for that CPU.
 The number of lines showing the per-cpu occupation can be limited.
 
-For virtual machines, the steal-percentage (`steal') shows
-the percentage of cpu time stolen by other virtual machines
+For virtual machines, the steal-percentage ('steal') shows
+the percentage of CPU time stolen by other virtual machines
 running on the same hardware.
 .br
 For physical machines hosting one or more virtual machines,
-the guest-percentage (`guest') shows
-the percentage of cpu time used by the virtual machines.
+the guest-percentage ('guest') shows
+the percentage of CPU time used by the virtual machines.
 Notice that this percentage overlaps the user-percentage!
 
 When PMC performance monitoring counters are supported by the CPU
 and the kernel (and
 .BR pmdaperfevent (1)
 runs with root privileges), the number of instructions per
-CPU cycle (`ipc') is shown.
+CPU cycle ('ipc') is shown.
 The first sample always shows the value 'initial',
 because the counters are just activated at the moment that
 .B pcp-atop
@@ -872,7 +1064,7 @@ and the IPC is greater than 1.0,
 it is likely that the CPU is instruction-bound (more/faster cores
 might be helpful to improve performance).
 .br
-Furthermore, per CPU the effective number of cycles (`cycl') is shown.
+Furthermore, per CPU the effective number of cycles ('cycl') is shown.
 This value can reach the current CPU frequency if such CPU is 100% busy.
 When an idle CPU is halted, the number of effective cycles can
 be (considerably) lower than the current frequency.
@@ -891,16 +1083,16 @@ If a CPU has been active for e.g. 50% in user mode during the interval
 while the frequency scaling of that CPU was 40%, only 20% of the full
 capacity of the CPU has been used in user mode.
 .br
-In case that the kernel module `cpufreq_stats' is active
-(after issuing `modprobe cpufreq_stats'), the
+In case that the kernel module 'cpufreq_stats' is active
+(after issuing 'modprobe cpufreq_stats'), the
 .I average
-frequency (`avgf') and the
+frequency ('avgf') and the
 .I average
-scaling percentage (`avgscal') is shown. Otherwise the
+scaling percentage ('avgscal') is shown. Otherwise the
 .I current
-frequency (`curf') and the
+frequency ('curf') and the
 .I current
-scaling percentage (`curscal') is shown at the moment that the sample
+scaling percentage ('curscal') is shown at the moment that the sample
 is taken.
 Notice that
 .I average
@@ -919,10 +1111,10 @@ CPU load information.
 This line contains the load average figures reflecting the number
 of threads that are available to run on a CPU (i.e. part of the runqueue)
 or that are waiting for disk I/O. These figures are averaged over
-1 (`avg1'), 5 (`avg5') and 15 (`avg15') minutes.
+1 ('avg1'), 5 ('avg5') and 15 ('avg15') minutes.
 .br
-Furthermore the number of context switches (`csw'), the number
-of serviced interrupts (`intr') and the number of available CPUs are shown.
+Furthermore the number of context switches ('csw'), the number
+of serviced interrupts ('intr') and the number of available CPUs are shown.
 
 If the screen-width does not allow all of these counters,
 only a relevant subset is shown.
@@ -938,12 +1130,12 @@ daemon.
 In the first column of every line, the bus-id (last nine characters) and
 the GPU number are shown.
 The subsequent columns show the percentage of time that one or more kernels
-were executing on the GPU (`gpubusy'), the percentage of time that global
-(device) memory was being read or written (`membusy'), the occupation
-percentage of memory (`memocc'), the total memory (`total'), the memory
-being in use at the moment of the sample (`used'), the average memory
-being in use during the sample time (`usavg'), the number of processes
-being active on the GPU at the moment of the sample (`#proc'), and
+were executing on the GPU ('gpubusy'), the percentage of time that global
+(device) memory was being read or written ('membusy'), the occupation
+percentage of memory ('memocc'), the total memory ('total'), the memory
+being in use at the moment of the sample ('used'), the average memory
+being in use during the sample time ('usavg'), the number of processes
+being active on the GPU at the moment of the sample ('#proc'), and
 the type of GPU.
 
 If the screen-width does not allow all of these counters,
@@ -955,25 +1147,25 @@ The number of lines showing the GPUs can be limited.
 Memory occupation (two lines).
 .br
 These lines contain the total amount of physical memory
-(`tot'), the amount of memory which is currently free (`free'),
+('tot'), the amount of memory which is currently free ('free'),
 the amount of memory in use as page cache including
-the total resident shared memory (`cache'), the amount of memory within the
-page cache that has to be flushed to disk (`dirty'), the amount
-of memory used for filesystem meta data (`buff'), the amount of
-memory being used for kernel mallocs (`slab'), the amount of
-slab memory that is reclaimable (`slrec'), the resident size of shared
-memory including tmpfs (`shmem'), the resident size of shared memory (`shrss')
-the amount of shared memory that is currently swapped (`shswp'),
-the amount of memory that is currently used for page tables (`pgtab'),
-the number of NUMA nodes in this system (`numnode'),
+the total resident shared memory ('cache'), the amount of memory within the
+page cache that has to be flushed to disk ('dirty'), the amount
+of memory used for filesystem meta data ('buff'), the amount of
+memory being used for kernel mallocs ('slab'), the amount of
+slab memory that is reclaimable ('slrec'), the resident size of shared
+memory including tmpfs ('shmem'), the resident size of shared memory ('shrss')
+the amount of shared memory that is currently swapped ('shswp'),
+the amount of memory that is currently used for page tables ('pgtab'),
+the number of NUMA nodes in this system ('numnode'),
 the amount of memory that is currently claimed by vmware's
-balloon driver (`vmbal'),
+balloon driver ('vmbal'),
 the amount of memory that is currently claimed by the ARC (cache)
-of ZFSonlinux (`zfarc'),
-the amount of memory that is claimed for huge pages (`hptot'),
-the amount of huge page memory that is really in use (`hpuse'),
-the amount of memory that is used for TCP sockets (`tcps'), and
-the amount of memory that is used for UDP sockets (`udps').
+of ZFSonlinux ('zfarc'),
+the amount of memory that is claimed for huge pages ('hptot'),
+the amount of huge page memory that is really in use ('hpuse'),
+the amount of memory that is used for TCP sockets ('tcps'), and
+the amount of memory that is used for UDP sockets ('udps').
 
 If the screen-width does not allow all of these counters,
 only a relevant subset is shown.
@@ -981,16 +1173,16 @@ only a relevant subset is shown.
 .B SWP
 Swap occupation and overcommit info.
 .br
-This line contains the total amount of swap space on disk (`tot') and
-the amount of free swap space (`free'),
-the size of the swap cache (`swcac'),
-the total size of compressed storage in zswap (`zpool'),
-the total size of the compressed pages stored in zswap (`zstor'),
-the total size of the memory used for KSM (`ksuse', i.e. shared), and
-the total size of the memory saved (deduped) by KSM (`kssav', i.e. sharing).
+This line contains the total amount of swap space on disk ('tot') and
+the amount of free swap space ('free'),
+the size of the swap cache ('swcac'),
+the total size of compressed storage in zswap ('zpool'),
+the total size of the compressed pages stored in zswap ('zstor'),
+the total size of the memory used for KSM ('ksuse', i.e. shared), and
+the total size of the memory saved (deduped) by KSM ('kssav', i.e. sharing).
 .br
-Furthermore the committed virtual memory space (`vmcom') and the maximum
-limit of the committed space (`vmlim', which is by default swap size
+Furthermore the committed virtual memory space ('vmcom') and the maximum
+limit of the committed space ('vmlim', which is by default swap size
 plus 50% of memory size) is shown.
 The committed space is the reserved virtual space for all allocations of
 private memory space for processes.
@@ -1001,11 +1193,11 @@ configured (vm.overcommit_memory is 2).
 .\".B LLC
 .\"Last-Level Cache of CPU info.
 .\".br
-.\"This line contains the total memory bandwidth of LLC (`tot'),
-.\"the bandwidth of the local NUMA node (`loc'), and
-.\"the percentage of LLC in use (`LLCXX YY%').
+.\"This line contains the total memory bandwidth of LLC ('tot'),
+.\"the bandwidth of the local NUMA node ('loc'), and
+.\"the percentage of LLC in use ('LLCXX YY%').
 .\"
-.\"Note that this feature depends on the `resctrl` pseudo filesystem.
+.\"Note that this feature depends on the 'resctrl' pseudo filesystem.
 .\"Be sure that the kernel is built with the relevant config and
 .\"take care that the pseudo-filesystem is mounted:
 .\"
@@ -1018,40 +1210,40 @@ configured (vm.overcommit_memory is 2).
 .B NUM
 Memory utilization per NUMA node (not shown for single NUMA node).
 .br
-This line shows the total amount of physical memory of this node (`tot'),
-the amount of free memory (`free'), the amount of memory for cached file data
-(`file'), modified cached file data (`dirty'), recently used memory (`activ'),
-less recently used memory (`inact'), memory being used for kernel mallocs
-(`slab'), the amount of slab memory that is reclaimable (`slrec'),
-shared memory including tmpfs (`shmem'), total huge pages (`hptot') and
-the fragmentation percentage (`frag').
+This line shows the total amount of physical memory of this node ('tot'),
+the amount of free memory ('free'), the amount of memory for cached file data
+('file'), modified cached file data ('dirty'), recently used memory ('activ'),
+less recently used memory ('inact'), memory being used for kernel mallocs
+('slab'), the amount of slab memory that is reclaimable ('slrec'),
+shared memory including tmpfs ('shmem'), total huge pages ('hptot') and
+the fragmentation percentage ('frag').
 .TP 5
 .B NUC
 CPU utilization per NUMA node (not shown for single NUMA node).
 .br
 This line shows the utilization percentages of all CPUs related to this
-NUMA node, categorized for  system mode (`sys'), user mode (`user'),
-user mode for niced processes (`niced'), idle mode (`idle'),
-wait mode (`w' preceded by the node number), irq mode (`irq'),
-softirq mode (`sirq'), steal mode (`steal'), and guest mode (`guest')
+NUMA node, categorized for  system mode ('sys'), user mode ('user'),
+user mode for niced processes ('niced'), idle mode ('idle'),
+wait mode ('w' preceded by the node number), irq mode ('irq'),
+softirq mode ('sirq'), steal mode ('steal'), and guest mode ('guest')
 overlapping user mode.
 .TP 5
 .B PAG
 Paging frequency.
 .br
-This line contains the number of scanned pages (`scan') due to the fact
+This line contains the number of scanned pages ('scan') due to the fact
 that free memory drops below a particular threshold, the number of
-times that the kernel tries to reclaim pages due to an urgent need (`stall'),
+times that the kernel tries to reclaim pages due to an urgent need ('stall'),
 the number of process stalls to run memory compaction to allocate
-huge pages (`compact'), the number of NUMA pages migrated (`numamig'), and
+huge pages ('compact'), the number of NUMA pages migrated ('numamig'), and
 the total number of memory pages migrated successfully e.g. between
-NUMA nodes or for compaction (`migrate') are shown.
+NUMA nodes or for compaction ('migrate') are shown.
 .br
-Also the number of memory pages the system read from block devices (`pgin'),
-the number of memory pages the system wrote to block devices (`pgout'),
-the number of memory pages the system read from swap space (`swin'),
-the number of memory pages the system wrote to swap space (`swout'), and
-the number of out-of-memory kills (`oomkill').
+Also the number of memory pages the system read from block devices ('pgin'),
+the number of memory pages the system wrote to block devices ('pgout'),
+the number of memory pages the system read from swap space ('swin'),
+the number of memory pages the system wrote to swap space ('swout'), and
+the number of out-of-memory kills ('oomkill').
 .TP 5
 .B PSI
 Pressure Stall Information.
@@ -1062,11 +1254,11 @@ processes/threads were delayed due to resource overload. Other
 percentages refer to 'full' meaning a loss of overall throughput
 due to resource overload.
 .br
-The values `cpusome', `memsome', `memfull', `iosome' and `iofull'
+The values 'cpusome', 'memsome', 'memfull', 'iosome' and 'iofull'
 show the pressure percentage during the entire interval.
 .br
-The values `cs' (cpu some), `ms' (memory some), `mf' (memory full),
-`is' (I/O some) and `if' (I/O full) each show
+The values 'cs' (cpu some), 'ms' (memory some), 'mf' (memory full),
+\'is' (I/O some) and 'if' (I/O full) each show
 three percentages separated by slashes:
 pressure percentage over the last 10, 60 and 300 seconds.
 .TP 5
@@ -1076,19 +1268,19 @@ Logical volume/multiple device/disk utilization.
 Per active unit one line is produced, sorted on unit activity.
 Such line shows the name (e.g. VolGroup00-lvtmp for a logical volume or
 sda for a hard disk), the percentage of elapsed time during which I/O requests
-were issued to the device (`busy') (note that for devices serving requests in
+were issued to the device ('busy') (note that for devices serving requests in
 parallel, such as RAID arrays, SSD and NVMe, this number does not reflect their
 performance limits), the number of read requests issued
-(`read'), the number of write requests issued (`write'),
-the number of discard requests issued (`discrd') if supported by kernel version,
-the number of KiBytes per read (`KiB/r'),
-the number of KiBytes per write (`KiB/w'),
-the number of KiBytes per discard (`KiB/d') if supported by kernel version,
-the number of MiBytes per second throughput for reads (`MBr/s'),
-the number of MiBytes per second throughput for writes (`MBw/s'),
-requests issued to the device driver but not completed (`inflt'),
-the average queue depth (`avq')
-and the average number of milliseconds needed by a request (`avio')
+('read'), the number of write requests issued ('write'),
+the number of discard requests issued ('discrd') if supported by kernel version,
+the number of KiBytes per read ('KiB/r'),
+the number of KiBytes per write ('KiB/w'),
+the number of KiBytes per discard ('KiB/d') if supported by kernel version,
+the number of MiBytes per second throughput for reads ('MBr/s'),
+the number of MiBytes per second throughput for writes ('MBw/s'),
+requests issued to the device driver but not completed ('inflt'),
+the average queue depth ('avq')
+and the average number of milliseconds needed by a request ('avio')
 for seek, latency and data transfer.
 .br
 If the screen-width does not allow all of these counters,
@@ -1104,43 +1296,43 @@ shown any more for that class.
 Network Filesystem (NFS) mount at the client side.
 .br
 For each NFS-mounted filesystem, a line is shown that contains
-the mounted server directory, the name of the server (`srv'),
-the total number of bytes physically read from the server (`read') and
-the total number of bytes physically written to the server (`write').
+the mounted server directory, the name of the server ('srv'),
+the total number of bytes physically read from the server ('read') and
+the total number of bytes physically written to the server ('write').
 Data transfer is subdivided in
-the number of bytes read via normal read() system calls (`nread'),
-the number of bytes written via normal read() system calls (`nwrit'),
-the number of bytes read via direct I/O (`dread'),
-the number of bytes written via direct I/O (`dwrit'),
-the number of bytes read via memory mapped I/O pages (`mread'), and
-the number of bytes written via memory mapped I/O pages (`mwrit').
+the number of bytes read via normal read() system calls ('nread'),
+the number of bytes written via normal read() system calls ('nwrit'),
+the number of bytes read via direct I/O ('dread'),
+the number of bytes written via direct I/O ('dwrit'),
+the number of bytes read via memory mapped I/O pages ('mread'), and
+the number of bytes written via memory mapped I/O pages ('mwrit').
 .TP 5
 .B NFC
 Network Filesystem (NFS) client side counters.
 .br
 This line contains the number of RPC calls issues by local processes
-(`rpc'), the number of read RPC calls (`read`) and
-write RPC calls (`rpwrite') issued to the NFS server,
-the number of RPC calls being retransmitted (`retxmit')
-and the number of authorization refreshes (`autref').
+('rpc'), the number of read RPC calls ('read') and
+write RPC calls ('rpwrite') issued to the NFS server,
+the number of RPC calls being retransmitted ('retxmit')
+and the number of authorization refreshes ('autref').
 .TP 5
 .B NFS
 Network Filesystem (NFS) server side counters.
 .br
 This line contains the number of RPC calls received from
-NFS clients (`rpc'),
-the number of read RPC calls received (`cread`),
-the number of write RPC calls received (`cwrit'),
-the number of Megabytes/second returned to read requests by clients (`MBcr/s`),
-the number of Megabytes/second passed in write requests by clients (`MBcw/s`),
-the number of network requests handled via TCP (`nettcp'),
-the number of network requests handled via UDP (`netudp'),
-the number of reply cache hits (`rchits'),
-the number of reply cache misses (`rcmiss') and
-the number of uncached requests (`rcnoca').
+NFS clients ('rpc'),
+the number of read RPC calls received ('cread'),
+the number of write RPC calls received ('cwrit'),
+the number of Megabytes/second returned to read requests by clients ('MBcr/s'),
+the number of Megabytes/second passed in write requests by clients ('MBcw/s'),
+the number of network requests handled via TCP ('nettcp'),
+the number of network requests handled via UDP ('netudp'),
+the number of reply cache hits ('rchits'),
+the number of reply cache misses ('rcmiss') and
+the number of uncached requests ('rcnoca').
 Furthermore some error counters indicating the number of requests
-with a bad format (`badfmt') or a bad authorization (`badaut'), and a
-counter indicating the number of bad clients (`badcln').
+with a bad format ('badfmt') or a bad authorization ('badaut'), and a
+counter indicating the number of bad clients ('badcln').
 .TP 5
 .B NET
 Network utilization (TCP/IP).
@@ -1150,18 +1342,18 @@ for the IP layer and one line per active interface.
 .br
 For the transport layer,
 counters are shown concerning the number of received TCP segments
-including those received in error (`tcpi'),
+including those received in error ('tcpi'),
 the number of transmitted TCP segments excluding
-those containing only retransmitted octets (`tcpo'),
-the number of UDP datagrams received (`udpi'),
-the number of UDP datagrams transmitted (`udpo'),
-the number of active TCP opens (`tcpao'),
-the number of passive TCP opens (`tcppo'),
-the number of TCP output retransmissions (`tcprs'),
-the number of TCP input errors (`tcpie'),
-the number of TCP output resets (`tcpor'),
-the number of UDP no ports (`udpnp'), and
-the number of UDP input errors (`udpie').
+those containing only retransmitted octets ('tcpo'),
+the number of UDP datagrams received ('udpi'),
+the number of UDP datagrams transmitted ('udpo'),
+the number of active TCP opens ('tcpao'),
+the number of passive TCP opens ('tcppo'),
+the number of TCP output retransmissions ('tcprs'),
+the number of TCP input errors ('tcpie'),
+the number of TCP output resets ('tcpor'),
+the number of UDP no ports ('udpnp'), and
+the number of UDP input errors ('udpie').
 .br
 If the screen-width does not allow all of these counters,
 only a relevant subset is shown.
@@ -1169,13 +1361,13 @@ only a relevant subset is shown.
 These counters are related to IPv4 and IPv6 combined.
 
 For the IP layer, counters are shown concerning the number of IP datagrams
-received from interfaces, including those received in error (`ipi'),
+received from interfaces, including those received in error ('ipi'),
 the number of IP datagrams that local higher-layer protocols offered for
-transmission (`ipo'), the number of received IP datagrams which were
-forwarded to other interfaces (`ipfrw'), the number of IP datagrams which
-were delivered to local higher-layer protocols (`deliv'),
-the number of received ICMP datagrams (`icmpi'), and
-the number of transmitted ICMP datagrams (`icmpo').
+transmission ('ipo'), the number of received IP datagrams which were
+forwarded to other interfaces ('ipfrw'), the number of IP datagrams which
+were delivered to local higher-layer protocols ('deliv'),
+the number of received ICMP datagrams ('icmpi'), and
+the number of transmitted ICMP datagrams ('icmpo').
 .br
 If the screen-width does not allow all of these counters,
 only a relevant subset is shown.
@@ -1191,19 +1383,19 @@ interface speed with the number of bits transmitted and received
 per second; for full duplex the interface speed is compared with the
 highest of either the transmitted or the received bits.
 When the interface speed can not be determined (e.g. for the loopback
-interface), `---' is shown instead of the percentage.
+interface), '---' is shown instead of the percentage.
 .br
-Furthermore the number of received packets (`pcki'),
-the number of transmitted packets (`pcko'),
-the line speed of the interface (`sp'),
-the effective amount of bits received per second (`si'),
-the effective amount of bits transmitted per second (`so'),
-the number of collisions (`coll'),
-the number of received multicast packets (`mlti'),
-the number of errors while receiving a packet (`erri'),
-the number of errors while transmitting a packet (`erro'),
-the number of received packets dropped (`drpi'), and
-the number of transmitted packets dropped (`drpo').
+Furthermore the number of received packets ('pcki'),
+the number of transmitted packets ('pcko'),
+the line speed of the interface ('sp'),
+the effective amount of bits received per second ('si'),
+the effective amount of bits transmitted per second ('so'),
+the number of collisions ('coll'),
+the number of received multicast packets ('mlti'),
+the number of errors while receiving a packet ('erri'),
+the number of errors while transmitting a packet ('erro'),
+the number of received packets dropped ('drpi'), and
+the number of transmitted packets dropped ('drpo').
 .br
 If the screen-width does not allow all of these counters,
 only a relevant subset is shown.
@@ -1223,21 +1415,22 @@ multiplying that value by the number of lanes and comparing it against the
 maximum port speed.
 .br
 Furthermore the number of received packets divided by the
-number of lanes (`pcki'),
-the number of transmitted packets divided by the number of lanes (`pcko'),
-the maximum line speed (`sp'),
-the effective amount of bits received per second (`si'),
-the effective amount of bits transmitted per second (`so'), and
-the number of lanes (`lanes').
+number of lanes ('pcki'),
+the number of transmitted packets divided by the number of lanes ('pcko'),
+the maximum line speed ('sp'),
+the effective amount of bits received per second ('si'),
+the effective amount of bits transmitted per second ('so'), and
+the number of lanes ('lanes').
 .br
 If the screen-width does not allow all of these counters,
 only a relevant subset is shown.
 .br
 The number of lines showing the Infiniband ports can be limited.
 .SH OUTPUT DESCRIPTION \- PROCESS LEVEL
-Following the system level information, the processes are shown from which the
+Following the system level information, a list of processes is shown
+in text mode from which the
 resource utilization has changed during the last interval.
-These processes might have used cpu time or issued disk or network requests.
+These processes might have used CPU time or issued disk or network requests.
 However a process is also shown if part of it has been
 paged out due to lack of memory (while
 the process itself was in sleep state).
@@ -1255,22 +1448,22 @@ The average size of one write-action on disk.
 .B BANDWI
 Total bandwidth for received TCP and UDP packets consumed by this process
 (bits-per-second).
-This value can be compared with the value `si'
+This value can be compared with the value 'si'
 on interface level (used bandwidth per interface).
 .br
 This information will only be shown when the
 .BR pmdabcc (1)
-module `netproc' has been installed.
+module 'netproc' has been installed.
 .TP 9
 .B BANDWO
 Total bandwidth for sent TCP and UDP packets consumed by this process
 (bits-per-second).
-This value can be compared with the value `so'
+This value can be compared with the value 'so'
 on interface level (used bandwidth per interface).
 .br
 This information will only be shown when the
 .BR pmdabcc (1)
-module `netproc' has been installed.
+module 'netproc' has been installed.
 .TP 9
 .B BDELAY
 Aggregated block I/O delay, i.e. time waiting for disk I/O.
@@ -1278,22 +1471,22 @@ Aggregated block I/O delay, i.e. time waiting for disk I/O.
 .B CGROUP
 Path name of the cgroup (version 2) to which this process belongs.
 This path name is relative to the cgroup root directory, which
-is usually `/sys/fs/cgroup'.
+is usually '/sys/fs/cgroup'.
 .TP 9
 .B CID
 Container ID of 12 hexadecimal digits, referring to the container
 in which the process/thread is running.
 If a process has been started and finished during the last
-interval, a `?' is shown because the container ID is not part of
+interval, a '?' is shown because the container ID is not part of
 the standard process accounting record.
 .TP 9
 .B CMD
 The name of the process.
 This name can be surrounded by "less/greater than"
-signs (`<name>') which means that the process has finished during the last
+signs ('<name>') which means that the process has finished during the last
 interval.
 .br
-Behind the abbreviation `CMD' in the header line, the current page number and
+Behind the abbreviation 'CMD' in the header line, the current page number and
 the total number of pages of the process/thread list are shown.
 .TP 9
 .B COMMAND-LINE
@@ -1301,7 +1494,7 @@ The full command line of the process (including arguments). If the length of
 the command line exceeds the length of the screen line, the arrow
 keys \-> and <\- can be used for horizontal scroll.
 .br
-Behind the verb `COMMAND-LINE' in the header line, the current page number
+Behind the verb 'COMMAND-LINE' in the header line, the current page number
 and the total number of pages of the process/thread list are shown.
 .TP 9
 .B CPU
@@ -1309,11 +1502,11 @@ The occupation percentage of this process related to the available capacity
 for this resource on system level.
 .\".TP 9
 .\".B CPUMAX
-.\"The `cpu.max' value of the cgroup (version 2) to which this process belongs,
+.\"The 'cpu.max' value of the cgroup (version 2) to which this process belongs,
 .\"calculated as percentage of one CPU.
 .\".TP 9
 .\".B CPUMAXR
-.\"The most restrictive (i.e. effective) `cpu.max' value defined by the
+.\"The most restrictive (i.e. effective) 'cpu.max' value defined by the
 .\"upper directories of the cgroup (version 2) to which this process belongs,
 .\"calculated as percentage of one CPU.
 .TP 9
@@ -1322,12 +1515,12 @@ The identification of the CPU the (main) thread is running on
 or has recently been running on.
 .\".TP 9
 .\".B CPUWGT
-.\"The `cpu.weight' value of the cgroup (version 2) to which this process belongs.
+.\"The 'cpu.weight' value of the cgroup (version 2) to which this process belongs.
 .TP 9
 .B CTID
 Container ID (OpenVZ).
 If a process has been started and finished during the last
-interval, a `?' is shown because the container ID is not part of
+interval, a '?' is shown because the container ID is not part of
 the standard process accounting record.
 .TP 9
 .B DSK
@@ -1343,11 +1536,11 @@ Effective group-id under which this process executes.
 .TP 9
 .B ENDATE
 Date that the process has been finished.
-If the process is still running, this field shows `active'.
+If the process is still running, this field shows 'active'.
 .TP 9
 .B ENTIME
 Time that the process has been finished.
-If the process is still running, this field shows `active'.
+If the process is still running, this field shows 'active'.
 .TP 9
 .B ENVID
 Virtual environment identified (OpenVZ only).
@@ -1356,8 +1549,8 @@ Virtual environment identified (OpenVZ only).
 Effective user-id under which this process executes.
 .TP 9
 .B EXC
-The exit code of a terminated process (second position of column `ST' is E)
-or the fatal signal number (second position of column `ST' is S or C).
+The exit code of a terminated process (second position of column 'ST' is E)
+or the fatal signal number (second position of column 'ST' is S or C).
 .TP 9
 .B FSGID
 Filesystem group-id under which this process executes.
@@ -1413,13 +1606,13 @@ When the
 daemon does not run with root privileges, this value is not available.
 .\".TP 9
 .\".B MEMMAX
-.\"The `memory.max' value of the cgroup (version 2) to which this process belongs.
+.\"The 'memory.max' value of the cgroup (version 2) to which this process belongs.
 .TP 9
 .B MEMNOW
 Memory occupation at the moment of the sample on all used GPUs.
 .\".TP 9
 .\".B MMMAXR
-.\"The most restrictive (i.e. effective) `memory.max' value defined by the
+.\"The most restrictive (i.e. effective) 'memory.max' value defined by the
 .\"upper directories of the cgroup (version 2) to which this process belongs.
 .TP 9
 .B MINFLT
@@ -1433,15 +1626,23 @@ of all processes during the last interval).
 .br
 This information will only be shown when the
 .BR pmdabcc (1)
-module `netproc' has been installed.
+module 'netproc' has been installed.
 .TP 9
 .B NICE
 The more or less static priority that can be given to a process on a
 scale from \-20 (high priority) to +19 (low priority).
 .TP 9
+.B NIVCSW
+Number of times the process/thread was context-switched involuntarily,
+in case that the time slice expired.
+.TP 9
 .B NPROCS
 The number of active and terminated processes accumulated for this user
 or program.
+.TP 9
+.B NVCSW
+Number of times that the process/thread was context-switched voluntarily in
+case of a blocking system call, e.g. to wait for an I/O operation to complete.
 .TP 9
 .B PID
 Process-id.
@@ -1488,8 +1689,6 @@ Gathering these values also requires superuser privileges
 (otherwise '?K' is shown in the output).
 .TP 9
 .B RDDSK
-When the kernel maintains standard io statistics (>= 2.6.20):
-.br
 The read data transfer issued physically on disk (so reading from the
 disk cache is not accounted for).
 .br
@@ -1531,13 +1730,12 @@ or ranges from 1 (lowest) till 99 (highest) for a realtime process
 The real user-id under which the process executes.
 .TP 9
 .B S
-The current state of the (main) thread: `R' for running
-(currently processing or in the runqueue), `S' for sleeping interruptible
-(wait for an event to occur),
-`D' for sleeping non-interruptible, `Z' for zombie (waiting to be synchronized
-with its parent process), `T' for stopped (suspended or traced), `W' for
-swapping, and `E' (exit) for processes which have finished during the last
-interval.
+The current state of the (main) thread: 'R' for running
+(currently processing or in the runqueue), 'S' for sleeping interruptible
+(wait for an event to occur), 'D' for sleeping non-interruptible, 'Z' for
+zombie (waiting to be synchronized with its parent process), 'T' for
+stopped (suspended or traced), 'W' for swapping, and 'E' (exit) for
+processes which have finished during the last interval.
 .TP 9
 .B SGID
 The saved group-id of the process.
@@ -1556,18 +1754,18 @@ finished during the last interval.
 The value
 .I E
 means 'exit' on the process' own initiative; the exit code is displayed
-in the column `EXC'.
+in the column 'EXC'.
 .br
 The value
 .I S
 means that the process has been terminated unvoluntarily
-by a signal; the signal number is displayed in the in the column `EXC'.
+by a signal; the signal number is displayed in the in the column 'EXC'.
 .br
 The value
 .I C
 means that the process has been terminated unvoluntarily
 by a signal, producing a core dump in its current directory;
-the signal number is displayed in the column `EXC'.
+the signal number is displayed in the column 'EXC'.
 .TP 9
 .B STDATE
 The start date of the process.
@@ -1579,14 +1777,14 @@ The start time of the process.
 The saved user-id of the process.
 .\".TP 9
 .\".B SWPMAX
-.\"The `memory.swap.max' value of the cgroup (version 2) to which this
+.\"The 'memory.swap.max' value of the cgroup (version 2) to which this
 .\"process belongs.
 .TP 9
 .B SWAPSZ
 The swap space consumed by this process (or user).
 .\".TP 9
 .\".B SWMAXR
-.\"The most restrictive (i.e. effective) `memory.swap.max' value defined by the
+.\"The most restrictive (i.e. effective) 'memory.swap.max' value defined by the
 .\"upper directories of the cgroup (version 2) to which this process belongs.
 .TP 9
 .B SYSCPU
@@ -1596,22 +1794,22 @@ due to system call handling.
 .B TCPRASZ
 The average size of a received TCP buffer in bytes.
 This information will only be shown when the BCC PMDA is active
-and the `netproc' module is enabled.
+and the 'netproc' module is enabled.
 .TP 9
 .B TCPRCV
 The number of tcp_recvmsg()/tcp_cleanup_rbuf() calls from this process.
 This information will only be shown when the BCC PMDA is active
-and the `netproc' module is enabled.
+and the 'netproc' module is enabled.
 .TP 9
 .B TCPSASZ
 The average size of a TCP buffer requested to be transmitted in bytes.
 This information will only be shown when the BCC PMDA is active
-and the `netproc' module is enabled.
+and the 'netproc' module is enabled.
 .TP 9
 .B TCPSND
 The number of tcp_sendmsg() calls from this process.
 This information will only be shown when the BCC PMDA is active
-and the `netproc' module is enabled.
+and the 'netproc' module is enabled.
 .TP 9
 .B THR
 Total number of threads within this process.
@@ -1640,22 +1838,22 @@ state 'uninterruptible sleeping' (D).
 .B UDPRASZ
 The average size of a received UDP buffer in bytes.
 This information will only be shown when the BCC PMDA is active
-and the `netproc' module is enabled.
+and the 'netproc' module is enabled.
 .TP 9
 .B UDPRCV
 The number of udp_recvmsg()/skb_consume_udp() calls from this process.
 This information will only be shown when the BCC PMDA is active
-and the `netproc' module is enabled.
+and the 'netproc' module is enabled.
 .TP 9
 .B UDPSASZ
 The average size of a UDP buffer requested to be transmitted in bytes.
 This information will only be shown when the BCC PMDA is active
-and the `netproc' module is enabled.
+and the 'netproc' module is enabled.
 .TP 9
 .B UDPSND
 The number of udp_sendmsg() calls from this process.
 This information will only be shown when the BCC PMDA is active
-and the `netproc' module is enabled.
+and the 'netproc' module is enabled.
 .TP 9
 .B USRCPU
 CPU time consumption of this process in user mode, due to processing the
@@ -1676,7 +1874,7 @@ reflects the total virtual size of the process at that moment.
 .B VPID
 Virtual process-id (within an OpenVZ container).
 If a process has been started and finished during the last
-interval, a `?' is shown because the virtual process-id is not part of
+interval, a '?' is shown because the virtual process-id is not part of
 the standard process accounting record.
 .TP 9
 .B VSIZE
@@ -1701,8 +1899,6 @@ relatively time-consuming task, the 'W' key (or '-W' flag) should
 be active.
 .TP 9
 .B WRDSK
-When the kernel maintains standard io statistics (>= 2.6.20):
-.br
 The write data transfer issued physically on disk (so writing to the
 disk cache is not accounted for).
 This counter is maintained for the application process that writes its
@@ -1716,8 +1912,6 @@ terminating, so you might see transfers for (parent) processes like
 cron, bash or init, that are not really issued by them.
 .TP 9
 .B WCANCL
-When the kernel maintains standard io statistics (>= 2.6.20):
-.br
 The write data transfer previously accounted for this process
 or another process that has been cancelled.
 Suppose that a process writes new data to a file and that data is removed
@@ -1725,11 +1919,11 @@ again before the cache buffers have been flushed to disk.
 Then the original process shows the written data as WRDSK, while
 the process that removes/truncates the file shows
 the unflushed removed data as WCANCL.
-.SH PARSEABLE OUTPUT
+.SH PARSABLE OUTPUT
 With the flag
 .B \-P
 followed by a list of one or more labels (comma-separated),
-parseable output is produced for each sample.
+parsable output is produced for each sample.
 The labels that can be specified for system-level statistics
 correspond to the labels (first verb of each line)
 that can be found in the interactive output:
@@ -1737,12 +1931,12 @@ that can be found in the interactive output:
 "DSK", "NFM", "NFC", "NFS", "NET", "IFB", "LLC", "NUM" and "NUC".
 .br
 For process-level statistics special labels are introduced:
-"PRG" (general), "PRC" (cpu), "PRE" (GPU), "PRM" (memory), "PRD"
+"PRG" (general), "PRC" (CPU), "PRE" (GPU), "PRM" (memory), "PRD"
 (disk, only if "storage accounting" is active).
 .br
 With the label "ALL", all system and process level statistics are shown.
 .PP
-The command and command line in the parseable output might contain spaces
+The command and command line in the parsable output might contain spaces
 and are therefore by default surrounded by parenthesis. However, since
 a space is often used as separator between the fields by parsing tools,
 with the additional flag
@@ -2045,8 +2239,9 @@ saved uid, saved gid,
 filesystem uid, filesystem gid, elapsed time of terminated process (hertz),
 is_process (y/n), OpenVZ  virtual pid (VPID), OpenVZ container id (CTID),
 Container id (CID),
-indication if the task is newly started during this interval ('N'), and
-cgroup v2 path name (between parenthesis or underscores for spaces).
+indication if the task is newly started during this interval ('N'),
+cgroup v2 path name (between parenthesis or underscores for spaces), and
+end time (epoch. or 0 if still active).
 .TP 9
 .B PRC
 For every process one line is shown.
@@ -2061,9 +2256,13 @@ scheduling policy, current CPU, sleep average,
 TGID (group number of related tasks/threads), is_process (y/n),
 runqueue delay in nanoseconds for this thread or for all threads (in case of process),
 wait channel of this thread (between parenthesis or underscores for spaces),
-block I/O delay (clockticks).
-.\"cgroup v2 `cpu.max' calculated as percentage (-3 means no cgroup v2 support, -2 means undefined and -1 means maximum), and
-.\"cgroup v2 most restrictive `cpu.max' in upper directories calculated as percentage (-3 means no cgroup v2 support, -2 means undefined and -1 means maximum).
+block I/O delay (clockticks),
+.\"cgroup v2 'cpu.max' calculated as percentage (-3 means no cgroup v2 support,
+.\"-2 means undefined and -1 means maximum),
+.\"cgroup v2 most restrictive 'cpu.max' in upper directories calculated as percentage
+.\"(-3 means no cgroup v2 support, -2 means undefined and -1 means maximum),
+number of voluntary context switches, and
+number of involunatary context switches.
 .TP 9
 .B PRE
 For every process one line is shown.
@@ -2099,6 +2298,14 @@ swap space used (Kbytes),
 TGID (group number of related tasks/threads), is_process (y/n),
 proportional set size (Kbytes) if in 'R' option is specified and
 virtually locked memory space (Kbytes).
+.\"cgroup v2 'memory.max' in KiB (-3 means no cgroup v2 support,
+.\"-2 means undefined and -1 means maximum),
+.\"cgroup v2 most restrictive 'memory.max' in upper directories in KiB
+.\"(-3 means no cgroup v2 support, -2 means undefined and -1 means maximum),
+.\"cgroup v2 'memory.swap.max' in KiB (-3 means no cgroup v2 support,
+.\"-2 means undefined and -1 means maximum), and
+.\"cgroup v2 most restrictive 'memory.swap.max' in upper directories in KiB
+.\"(-3 means no cgroup v2 support, -2 means undefined and -1 means maximum).
 .TP 9
 .B PRD
 For every process one line is shown.
@@ -2114,11 +2321,6 @@ cumulative number of sectors written,
 cancelled number of written sectors,
 TGID (group number of related tasks/threads),
 obsoleted value ('n'), and is_process (y/n).
-.br
-If the standard I/O statistics (>= 2.6.20) are not used,
-the disk I/O counters per process are not relevant.
-The counters 'number of reads on disk' and 'number of writes on disk' are
-obsoleted anyhow.
 .TP 9
 .B PRN
 For every process one line is shown.
@@ -2126,7 +2328,7 @@ For every process one line is shown.
 Subsequent fields:
 PID, name (between parenthesis or underscores for spaces), state,
 .BR pmdabcc (1)
-module `netproc' loaded ('y' or 'n'),
+module 'netproc' loaded ('y' or 'n'),
 number of tcp_sendmsg() calls,
 cumulative size of TCP buffers requested to be transmitted,
 number of tcp_recvmsg()/tcp_cleanup_rbuf() calls,
@@ -2143,7 +2345,7 @@ By sending the SIGUSR1 signal to
 .B pcp-atop
 a new sample will be forced, even if the current timer interval
 has not exceeded yet.
-The behavior is similar to pressing the `t` key
+The behavior is similar to pressing the 't' key
 in an interactive session.
 .PP
 By sending the SIGUSR2 signal to
@@ -2152,15 +2354,13 @@ a final sample will be forced after which
 .B pcp-atop
 will terminate.
 .SH EXAMPLES
-To monitor the current system load interactively with an interval of 5 seconds:
+To monitor the current system load interactively with an interval of (default) 10 seconds:
 .TP 12
-.B \  pcp\ atop 5
+.B \  pcp\ atop
 .PP
-To monitor the system load and write it to a file (in plain ASCII)
-with an interval of one minute during half an hour with active
-processes sorted on memory consumption:
+To monitor the system load as bar graphs with an interval of 5 seconds:
 .TP 12
-.B \  pcp\ atop \-M 60 30 > /log/pcp-atop.mem
+.B \  pcp\ atop \-B 5
 .PP
 Store information about the system and process activity in a PCP archive
 folio with an interval of ten minutes during an hour:
@@ -2171,7 +2371,7 @@ View the contents of this file interactively:
 .PP
 .B \  pcp\ atop \-r /tmp/pcp-atop
 .PP
-View the processor and disk utilization of this file in parseable format:
+View the processor and disk utilization of this file in parsable format:
 .PP
 .B \  pcp\ atop \-PCPU,DSK \-r /tmp/pcp-atop.folio
 .PP
@@ -2184,10 +2384,16 @@ interactively:
 .PP
 .B \  pcp\ atop -r yy
 .PP
-View the contents of the standard logfile of 2014, June 7 from
+View the contents of the standard logfile of 2023, June 7 from
 02:00 PM onwards interactively:
 .PP
-.B \  pcp\ atop -r 20140607 -b 14:00
+.B \  pcp\ atop -r 20230607 -b 14:00
+.PP
+To monitor the system load and write it to a file (in plain ASCII)
+with an interval of one minute during half an hour with active
+processes sorted on memory consumption:
+.TP 12
+.B \  pcp\ atop -M 60 30 > /log/pcp-atop.mem
 .SH NOTES
 .B pcp-atop
 is based on the source code of the
@@ -2197,10 +2403,6 @@ command from
 maintained by Gerlof Langeveld (gerlof.langeveld@atoptool.nl),
 and aims to be command line and output compatible with it
 as much as possible.
-Some features of that
-.B atop
-command are not available in
-.BR pcp-atop .
 .PP
 Some features of
 .BR pcp-atop
@@ -2227,11 +2429,15 @@ shows the number of tcp_sendmsg()/udp_sendmsg()/etc. kernel calls per process.
 .TP 5
 .B /etc/atoprc
 Configuration file containing system-wide default values.
-See related man-page.
+For further information about the default values, refer to the
+.BR pcp-atoprc (5)
+man page).
 .TP 5
 .B ~/.atoprc
 Configuration file containing personal default values.
-See related man-page.
+For further information about the default values, refer to the
+.BR pcp-atoprc (5)
+man page).
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.

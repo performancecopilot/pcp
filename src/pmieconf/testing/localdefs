@@ -1,0 +1,2 @@
+ALL_RULES = test_actions
+LOCAL_RULES = $(ALL_RULES)

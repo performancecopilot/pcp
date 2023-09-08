@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2012-2016, Red Hat.  All Rights Reserved.
+ * Copyright (c) 2012-2016,2023, Red Hat.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2006-2009, Aconex.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -17,7 +17,6 @@
 #include <QTimer>
 #include <QLibraryInfo>
 #include <QDesktopServices>
-#include <QDesktopWidget>
 #include <QApplication>
 #include <QPrintDialog>
 #include <QMessageBox>
@@ -48,6 +47,67 @@ PmChart::PmChart() : QMainWindow(NULL)
     setIconSize(QSize(22, 22));
 
     setupUi(this);
+
+    connect(fileNewChartAction, SIGNAL(triggered()),
+		this, SLOT(fileNewChart()));
+    connect(fileOpenViewAction, SIGNAL(triggered()),
+		this, SLOT(fileOpenView()));
+    connect(fileSaveViewAction, SIGNAL(triggered()),
+		this, SLOT(fileSaveView()));
+    connect(fileExportAction, SIGNAL(triggered()),
+		this, SLOT(fileExport()));
+    connect(filePrintAction, SIGNAL(triggered()),
+		this, SLOT(filePrint()));
+    connect(fileQuitAction, SIGNAL(triggered()),
+		this, SLOT(fileQuit()));
+    connect(helpAboutAction, SIGNAL(triggered()),
+		this, SLOT(helpAbout()));
+    connect(helpAboutQtAction, SIGNAL(triggered()),
+		this, SLOT(helpAboutQt()));
+    connect(helpSeeAlsoAction, SIGNAL(triggered()),
+		this, SLOT(helpSeeAlso()));
+    connect(helpWhatsThisAction, SIGNAL(triggered()),
+		this, SLOT(whatsThis()));
+    connect(showTimeControlAction, SIGNAL(triggered()),
+		this, SLOT(optionsShowTimeControl()));
+    connect(hideTimeControlAction, SIGNAL(triggered()),
+		this, SLOT(optionsHideTimeControl()));
+    connect(toolbarAction, SIGNAL(triggered()),
+		this, SLOT(optionsToolbar()));
+    connect(consoleAction, SIGNAL(triggered()),
+		this, SLOT(optionsConsole()));
+    connect(newPmchartAction, SIGNAL(triggered()),
+		this, SLOT(optionsNewPmchart()));
+    connect(editSettingsAction, SIGNAL(triggered()),
+		this, SLOT(editSettings()));
+    connect(chartTabWidget, SIGNAL(currentChanged(int)),
+		this, SLOT(activeTabChanged(int)));
+    connect(editChartAction, SIGNAL(triggered()),
+		this, SLOT(editChart()));
+    connect(closeChartAction, SIGNAL(triggered()),
+		this, SLOT(closeChart()));
+    connect(editTabAction, SIGNAL(triggered()),
+		this, SLOT(editTab()));
+    connect(editSamplesAction, SIGNAL(triggered()),
+		this, SLOT(editSamples()));
+    connect(closeTabAction, SIGNAL(triggered()),
+		this, SLOT(closeTab()));
+    connect(addTabAction, SIGNAL(triggered()),
+		this, SLOT(addTab()));
+    connect(helpManualAction, SIGNAL(triggered()),
+		this, SLOT(helpManual()));
+    connect(recordStartAction, SIGNAL(triggered()),
+		this, SLOT(recordStart()));
+    connect(recordQueryAction, SIGNAL(triggered()),
+		this, SLOT(recordQuery()));
+    connect(recordStopAction, SIGNAL(triggered()),
+		this, SLOT(recordStop()));
+    connect(recordDetachAction, SIGNAL(triggered()),
+		this, SLOT(recordDetach()));
+    connect(zoomInAction, SIGNAL(triggered()),
+		this, SLOT(zoomIn()));
+    connect(zoomOutAction, SIGNAL(triggered()),
+		this, SLOT(zoomOut()));
 
     my.statusBar = new StatusBar;
     setStatusBar(my.statusBar);
@@ -309,7 +369,7 @@ void PmChart::filePrint()
 
     creator.append(pmGetConfig("PCP_VERSION"));
     printer.setCreator(creator);
-    printer.setOrientation(QPrinter::Portrait);
+    printer.setPageOrientation(QPageLayout::Portrait);
     printer.setDocName("pmchart.pdf");
 
     QPrintDialog print(&printer, (QWidget *)this);
@@ -420,7 +480,7 @@ void PmChart::helpManual()
 {
     bool ok;
     QString documents("file://");
-    QString separator = QString(pmPathSeparator());
+    QString separator = QString(QChar(pmPathSeparator()));
     documents.append(pmGetConfig("PCP_HTML_DIR"));
     documents.append(separator).append("index.html");
     ok = QDesktopServices::openUrl(QUrl(documents, QUrl::TolerantMode));

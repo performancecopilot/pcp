@@ -55,7 +55,7 @@ parse(FILE *f, char *fname)
 {
     int		sts = 0;
     int		state = S_EOL;
-    int		domain;
+    int		domain = 0;	/* pander to gcc */
     int		serial;
     int		c;
     map_t	*mp = NULL;

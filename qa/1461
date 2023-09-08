@@ -1,0 +1,99 @@
+#!/bin/sh
+# PCP QA Test No. 1461
+# pmlogrewrite - domain label rewriting
+#
+# non-valgrind variant, see qa/1463 for the valgrind variant
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    _notrun "valgrind variant qa/1463 will be run"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+
+# tmparch/gap has these domain labels ...
+#  Domain 2 labels (16 bytes): {"agent":"pmcd"}
+#  Domain 29 labels (35 bytes): {"agent":"sample","role":"testing"}
+#  Domain 60 labels (17 bytes): {"agent":"linux"}
+#
+
+for spec in \
+    'label domain 2 { label -> "foo" }' \
+    'label domain 2 "agent" { label -> "foo" }' \
+    'label domain 2 "agent" * { label -> "foo" }' \
+    'label domain 2 * "pmcd" { label -> "foo" }' \
+    'label domain 2 { value -> "bar" }' \
+    'label domain 2 "agent" { value -> "bar" }' \
+    'label domain 2 "agent" * { value -> "bar" }' \
+    'label domain 2 * "pmcd" { value -> "bar" }' \
+    'label domain 29 { label -> "foo" }' \
+    'label domain 29 "role" { value -> "foo" }' \
+    'label domain 29 "role" * { value -> "foo" }' \
+    'label domain 29 * "testing" { value -> "foo" }' \
+    'label domain 29 { value -> "bar" }' \
+    'label domain 29 "role" { value -> "bar" }' \
+    'label domain 29 "role" * { value -> "bar" }' \
+    'label domain 29 * "testing" { value -> "bar" }' \
+    'label domain 29 "agent" { value -> "fumble" label -> "mumble" }' \
+    'label domain 29 "agent" { value -> "fumble" } label domain 29 "agent" { label -> "foo" }' \
+
+do
+    echo
+    echo "=== $spec ==="
+    echo "$spec" >$tmp.config
+
+    rm -f $tmp.0 $tmp.index $tmp.meta
+    if $do_valgrind
+    then
+	_run_valgrind pmlogrewrite -v -c $tmp.config tmparch/gap $tmp
+    else
+	pmlogrewrite -v -c $tmp.config tmparch/gap $tmp 2>&1
+    fi \
+    | _filter
+
+    pmdumplog -e $tmp | grep Domain
+done
+
+# success, all done
+exit

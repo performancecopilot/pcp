@@ -155,7 +155,12 @@ NF == 1 && $1 == "#" && done == 0	{
 			  print "# non-valgrind variant, see qa/'$newseq' for the valgrind variant"
 			  done = 1
 			}
-			{ print }'
+			{ print }
+/^  *do_valgrind=true/	{ print "elif which valgrind >/dev/null 2>&1"
+			  print "then"
+			  print "    _notrun \"valgrind variant qa/'$newseq' will be run\""
+			  next
+			}
     mv $oldseq.new-grind $oldseq
     chmod 755 $oldseq
 fi
@@ -198,12 +203,7 @@ trap "_cleanup; exit \\\$status" 0 1 2 3 15
 
 # real QA test starts here
 export seq
-./$oldseq --valgrind \
-| \$PCP_AWK_PROG '
-skip == 1 && \$1 == "==="       { skip = 0 }
-/^=== std err ===/             { skip = 1 }
-skip == 0              { print }
-skip == 1              { print >>"'\$here/\$seq.full'" }'
+./$oldseq --valgrind
 
 # success, all done
 exit

@@ -22,6 +22,8 @@ force	available
 	proc.psinfo.tgid
 	proc.psinfo.pid
 	proc.psinfo.wchan_s
+	proc.psinfo.vctxsw
+	proc.psinfo.nvctxsw
 	proc.namespaces.envid
 	proc.id.uid
 	proc.id.euid

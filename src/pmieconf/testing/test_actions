@@ -1,0 +1,39 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
+#
+
+rule	testing.test_actions
+	default	= "$rule$"
+	predicate = "hinv.ncpu > 0"
+	enabled	= no
+	version	= 1
+	help	=
+"A rule with predicate that is always true, to aid testing
+and documenting the various pmie actions that can be used.
+Temporarily enable this rule to verify event generation.";
+
+string	rule
+	default	= "Test actions"
+	modify	= no
+	display	= no;
+
+string	delta
+	default = "10 sec"
+	help	=
+"Sample interval between evaluations of this rule, overriding
+the default value with a relatively high rate to ease testing.";
+
+string	holdoff
+	default	= "0"
+	help	=
+"Allows suppression of further actions execution until a specified
+interval has elapsed; a default value of zero allows for execution
+of actions continuously for ease of testing.";
+
+string	action_expand
+	default	= "%v CPUs"
+	display	= no
+	modify	= no;
+
+#
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

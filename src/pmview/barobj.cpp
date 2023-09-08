@@ -90,7 +90,7 @@ BarObj::finishedAdd()
     int			numInstLabels = 0;
 
     if (pmDebugOptions.appl0)
-	cerr << "BarObj::finishedAdd:" << endl;
+	cerr << "BarObj::finishedAdd:" << Qt::endl;
 
     if (_metrics.numMetrics() == 0) {
 	BaseObj::addBase(_root);
@@ -266,8 +266,8 @@ BarObj::finishedAdd()
 				  0.0);
 
     if (pmDebugOptions.appl0)
-	cerr << "BarObj::finishedAdd: metric list = " << endl
-	     << _metrics << endl;
+	cerr << "BarObj::finishedAdd: metric list = " << Qt::endl
+	     << _metrics << Qt::endl;
 
     if (_metrics.numMetrics())
 	ViewObj::theNumModObjects++;
@@ -303,7 +303,7 @@ BarObj::display(QTextStream& os) const
     BaseObj::display(os);
 
     if (_bars == NULL) {
-	os << "No valid metrics" << endl; 
+	os << "No valid metrics" << Qt::endl; 
 	return;
     }
 
@@ -366,7 +366,7 @@ BarObj::calcLabels(const QStringList &labels, LabelSide side, int numLabels)
 	default:
 	    break;
 	}
-	cerr << " side" << endl;
+	cerr << " side" << Qt::endl;
     }
 
     // Create the text objects so that we know how big they are
@@ -385,7 +385,7 @@ BarObj::calcLabels(const QStringList &labels, LabelSide side, int numLabels)
 
     if (pmDebugOptions.appl0)
 	cerr << "BarObj::calcLabels: maxWidth = " << maxWidth
-	     << ", maxDepth = " << maxDepth << endl;
+	     << ", maxDepth = " << maxDepth << Qt::endl;
 
     // Determine if the size of the bars will need to be increased
 
@@ -396,7 +396,7 @@ BarObj::calcLabels(const QStringList &labels, LabelSide side, int numLabels)
 
 	    if (pmDebugOptions.appl0)
 		cerr << "BarObj::calcLabels: length (width) increased to "
-		     << _length << endl;
+		     << _length << Qt::endl;
 
 	}
     }
@@ -407,7 +407,7 @@ BarObj::calcLabels(const QStringList &labels, LabelSide side, int numLabels)
 
 	    if (pmDebugOptions.appl0)
 		cerr << "BarObj::calcLabels: length (depth) increased to " 
-		     << _length << endl;
+		     << _length << Qt::endl;
 	}
     }
     return text;
@@ -440,7 +440,7 @@ BarObj::doLabels(Text **text, LabelSide side, int numLabels)
 	default:
 	    break;
 	}
-	cerr << " side" << endl;
+	cerr << " side" << Qt::endl;
     }
 
     sep->addChild(tran);
@@ -477,7 +477,7 @@ BarObj::doLabels(Text **text, LabelSide side, int numLabels)
 	float x, y, z;
 	tran->translation.getValue().getValue(x, y, z);
 	cerr << "BarObj::doLabels: translation set to " << x << ',' << y
-	     << ',' << z << endl;
+	     << ',' << z << Qt::endl;
     }
 
     // Add each label to the scene graph

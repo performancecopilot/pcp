@@ -1,11 +1,12 @@
 /*
+ * Copyright (c) 2023, Red Hat.  All Rights Reserved.
  * Copyright (c) 2007-2008, Aconex.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -17,6 +18,19 @@
 SamplesDialog::SamplesDialog(QWidget* parent) : QDialog(parent)
 {
     setupUi(this);
+
+    connect(buttonOk, SIGNAL(clicked()),
+		this, SLOT(accept()));
+    connect(buttonCancel, SIGNAL(clicked()),
+		this, SLOT(reject()));
+    connect(sampleCounter, SIGNAL(valueChanged(int)),
+		this, SLOT(sampleValueChanged(int)));
+    connect(sampleSlider, SIGNAL(valueChanged(int)),
+		this, SLOT(sampleValueChanged(int)));
+    connect(visibleCounter, SIGNAL(valueChanged(int)),
+		this, SLOT(visibleValueChanged(int)));
+    connect(visibleSlider, SIGNAL(valueChanged(int)),
+		this, SLOT(visibleValueChanged(int)));
 }
 
 void SamplesDialog::languageChange()

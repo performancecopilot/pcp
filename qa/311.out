@@ -18,9 +18,9 @@ No value(s) available!
 
 == pminfo skip prologue and errors instead of values ==
 Note: timezone set to local timezone of host "splat"
-pmcd.pmlogger.archive: pmFetch: End of PCP archive log
-pmcd.pmlogger.host: pmFetch: End of PCP archive log
-pmcd.pmlogger.port: pmFetch: End of PCP archive log
+pmcd.pmlogger.archive: pmFetch: End of PCP archive
+pmcd.pmlogger.host: pmFetch: End of PCP archive
+pmcd.pmlogger.port: pmFetch: End of PCP archive
 proc.psusage.utime
 Error: Explicit instance identifier(s) required
 sample.bad.nosupport

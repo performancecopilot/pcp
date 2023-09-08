@@ -1,0 +1,176 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2023 Oracle and/or its affiliates.
+.\" DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PCP-ZONEINFO 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-zoneinfo\f1 \- Report statistics for System Zoneinfo.
+.SH SYNOPSIS
+\f3pcp\f1
+[\f2pcp\ options\f1]
+\f3zoneinfo\f1
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-S\f1 \f2start_time\f1]
+[\f3\-T\f1 \f2end_time\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+.SH DESCRIPTION
+The
+.B pcp-zoneinfo
+command is used for viewing the different kinds of stats related to numa nodes.
+Using various options it helps a user to analyze useful information related to
+the zone availability for different numa nodes.This file display information about memory zones.
+This is useful for analyzing virtual memory behavior.By default
+.B pcp-zoneinfo
+reports live data for the local host.
+
+The statistics shown are as follows:
+
+.TS
+lfB  lfB 
+l    lx.
+HEADER                  DESCRIPTION
+_                       _
+
+.B Per node stats (for each zone for each NUMA node)
+
+nr_inactive_anon        zone inactive anonymous pages
+nr_active_anon          active anonymous memory pages
+nr_inactive_file        inactive file memory pages
+nr_active_file          active file memory memory pages
+nr_unevictable          unevictable pages
+nr_slab_reclaimable     reclaimable slab pages
+nr_slab_unreclaimable   unreclaimable slab pages
+nr_isolated_anon        isolated anonymous memory pages
+nr_isolated_file        isolated file memory pages
+nr_anon_pages           anonymous mapped pagecache pages
+nr_mapped               mapped pagecache pages
+nr_file_pages           file pagecache pages
+nr_dirty                pages dirty state
+nr_writeback            pages writeback state
+nr_writeback_temp       temporary writeback pages
+nr_shmem                shared memory pages
+nr_shmem_hugepages      shared memory huge pages
+nr_shmem_pmdmapped      shared memory PMD mappings
+nr_file_hugepages       file-backed huge pages
+nr_file_pmdmapped       file-backed PMD mappings
+nr_anon_transparent_hugepages
+                        anonymous transparent huge pages
+nr_unstable             pages in unstable state in each zone
+nr_vmscan_write         pages written from the LRU by the VM scanner
+                        The VM is supposed to minimise the number of
+                        pages which get written from the LRU (for IO
+                        scheduling efficiency and reclaim success).
+nr_vmscan_immediate_reclaim
+                        prioritise for reclaim when writeback ends
+nr_dirtied              pages entering dirty state
+nr_written              pages written out in each zone
+nr_kernel_misc_reclaimable
+                        miscellaneous reclaimable kernel pages
+
+.B Per zone stats (in each zone for each NUMA node)
+
+pages free              free space
+      min               min space
+      low               low space
+      high              high space
+      spanned           spanned space
+      present           present space
+      managed           managed space
+      protection        protection space
+nr_free_pages           number of free pages
+nr_zone_inactive_anon   zone inactive anonymous pages
+nr_zone_active_anon     zone active anonymous pages
+nr_zone_inactive_file   zone inactive file-backed pages
+nr_zone_active_file     zone active file-backed pages
+nr_zone_unevictable     zone unevictable pages
+nr_zone_write_pending   zone write-pending pages
+nr_mlock                pages under mlock
+nr_page_table_pages     page table pages
+nr_kernel_stack         pages of kernel stack
+nr_bounce               bounce buffer pages
+nr_zspages              zsmalloc memory allocator pages
+nr_free_cma             free Contiguous Memory Allocator pages
+numa_hit                successful allocations from preferred
+                        NUMA zone
+numa_miss               unsuccessful allocations from preferred
+                        NUMA zone
+numa_foreign            foreign NUMA zone allocations
+numa_interleave         interleaved NUMA allocations
+numa_local              successful allocations from local
+                        NUMA zone
+numa_other              unsuccessful allocations from local
+                        NUMA zone
+.TE
+
+.SH OPTIONS
+.TP
+\fB\-a\fR \fIfile\fR, \fB\-\-archive\fR=\fIfile\fR
+Fetch /proc/zoneinfo for a specified archive \fIfile\fR
+.TP
+\fB\-s\fR \fIcount\fR, \fB\-\-samples\fR=\fIcount\fR
+Get the zoneinfo statistics for specified number of samples \fIcount\fR
+.TP
+\fB\-S\fR, \fB\-\-start\fR=\fItime\fR
+Filter the samples from the archive from the given \fItime\fR
+.TP
+\fB\-T\fR, \fB\-\-finish=time\fR
+Filter the samples from the archive until the given \fItime\fR
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version number and exit.
+.TP
+\fB\-z\fR, \fB\-\-hostzone\fR
+Use the local timezone of the host that is the source of the
+performance metrics, as identified by either the
+.B \-h
+or the
+.B \-a
+options.
+The default is to use the timezone of the local host.
+.TP
+\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
+Use
+.I timezone
+for the date and time.
+.I Timezone
+is in the format of the environment variable
+.B TZ
+as described in
+.BR environ (7).
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH NOTES
+.B pcp-zoneinfo
+collects information from
+.BR /proc/zoneinfo
+and aims to be command line and output compatible with it.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.PP
+For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pcp (1),
+.BR pmParseInterval (3)
+and
+.BR environ (7).
+

@@ -17,7 +17,7 @@
 .TH PMGETARCHIVEEND 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmGetArchiveEnd\f1,
-\f3pmGetHighResArchiveEnd\f1 \- locate logical end of file for a set of archive logs
+\f3pmGetHighResArchiveEnd\f1 \- locate logical end of file for a set of archives
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -32,7 +32,7 @@ cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
 Assuming the current PMAPI context
-is associated with a set of archive logs,
+is associated with a set of archives,
 .B pmGetArchiveEnd
 and
 .B pmGetHighResArchiveEnd
@@ -45,12 +45,12 @@ This timestamp may be passed to
 or
 .BR pmSetHighResMode (3)
 to reliably position the context at the last valid
-log record, e.g. in preparation for subsequent reading in
+archive record, e.g. in preparation for subsequent reading in
 reverse chronological order.
 .PP
-For archive logs that are not concurrently being written, the
+For archives that are not concurrently being written, the
 physical end of file and the logical end of file are co-incident.
-However if an archive log is being written by
+However if an archive is being written by
 .BR pmlogger (1)
 at the same time an application is trying to read the archive,
 the logical end of file may be before the physical end of file
@@ -75,12 +75,12 @@ Both
 .BR pmGetArchiveEnd
 and
 .BR pmGetHighResArchiveEnd
-preserve the positioning state of the log file prior to
+preserve the positioning state of the archive file prior to
 this function call.
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_NOCONTEXT\f1
 the current PMAPI context
-is either invalid, or not associated with an set of archive logs
+is either invalid, or not associated with a set of archives
 .IP \f3PM_ERR_LOGREC\f1
 the set of archives is sufficiently damaged, that not a single valid
 record can be found

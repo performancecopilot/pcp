@@ -44,9 +44,9 @@ probe process("$PCP_BINADM_DIR/pmcd").mark("*") {
 }
 probe timer.ms(1000) {
        if (@count(probe_hits) > 0) 
-          println("PASS")
+          println("PASS: probe_hits=" .  sprint(@count(probe_hits)))
        else
-          println("FAIL")
+          println("FAIL: probe_hits=" .  sprint(@count(probe_hits)))
        exit()
 }
 End-of-File
@@ -76,12 +76,13 @@ $sudo stap $tmp.stap >$tmp.out 2>&1
 echo "Output from stap:" >> $seq.full
 cat $tmp.out \
 | tee -a $seq.full \
-| if grep '^PASS$' $tmp.out >/dev/null
+| if grep '^PASS:' $tmp.out >/dev/null
 then
     sed \
 	-e '/the compiler differs from the one used/d' \
 	-e '/The kernel was built by:/d' \
 	-e '/You are using:/d' \
+	-e '/^PASS:/s/=[1-9][0-9]*/=NNNN/' \
     # end
 else
     cat

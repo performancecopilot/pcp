@@ -132,21 +132,21 @@ TIMESTAMP 5 metrics
 
 TIMESTAMP 1 metric
     30.0.49 (sampledso.needprofile):
-        inst [1 or "terry"] value 12.05
-        inst [2 or "emma"] value 11.09
-        inst [3 or "cathy"] value 11.09
+        inst [1 or "terry"] value 5
+        inst [2 or "emma"] value 9
+        inst [3 or "cathy"] value 9
 
 TIMESTAMP 1 metric
     30.0.49 (sampledso.needprofile):
-        inst [1 or "terry"] value 12.05
-        inst [2 or "emma"] value 11.09
-        inst [3 or "cathy"] value 11.09
+        inst [1 or "terry"] value 5
+        inst [2 or "emma"] value 9
+        inst [3 or "cathy"] value 9
 
 TIMESTAMP 1 metric
     30.0.49 (sampledso.needprofile):
-        inst [1 or "terry"] value 12.05
-        inst [2 or "emma"] value 11.09
-        inst [3 or "cathy"] value 11.09
+        inst [1 or "terry"] value 5
+        inst [2 or "emma"] value 9
+        inst [3 or "cathy"] value 9
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"

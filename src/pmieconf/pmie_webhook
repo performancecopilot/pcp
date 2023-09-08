@@ -19,7 +19,8 @@
 #
 # "line" 1	- HTTP/HTTPS endpoint, as passed to a http client
 # "line" 2	- pmie rule name
-# "line" 3,4,..	- values from predicate evaluation [optional]
+# "line" 3	- rule evaluated for hostname
+# "line" 4,5,..	- values from predicate evaluation [optional]
 
 # source the PCP configuration environment variables
 . /etc/pcp.env
@@ -28,7 +29,7 @@ prog=`basename $0`
 
 if [ $# -ne 1 ]
 then
-    echo "Usage: $prog url|rule|message"
+    echo "Usage: $prog url|rule|hostname|message"
     exit 1
 fi
 
@@ -46,14 +47,14 @@ if [ -z "$CURL" ] ; then
 fi
 
 cat <<End-of-File | ${PCP_AWK_PROG} -F\| '
-NF < 2	{ print "echo '"'$prog"': needs \"endpoint|rule|values\" argument'"'"'"
+NF < 3	{ print "echo '"'$prog"': needs \"endpoint|rule|hostname|message\" argument'"'"'"
 	  exit 1
 	}
 	{ printf "%s ", "'$CURL'"
 	  printf "-s -X POST -H \"Content-Type: application/json\" -d@- "
 	  printf "%s <<End-of-File\n", $1
-	  printf "{\"pcp\":{\"pmie\":{\"rule\":\"%s\",\"values\":\"%s", $2, $3
-	  for (i = 4; i <= NF; i++)
+	  printf "{\"pcp\":{\"pmie\":{\"rule\":\"%s\",\"hostname\":\"%s\",\"message\":\"%s", $2, $3, $4
+	  for (i = 5; i <= NF; i++)
 		printf " %s", $i
 	  printf "\"}}}\nEnd-of-File\n"
 	}' | /bin/sh

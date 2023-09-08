@@ -1,0 +1,34 @@
+Recipe for adding test cases
+=============================
+
+You will need a GFS2 filesystem mounted in order to collect the data in all
+events except for trace_pipe a loop device mounted GFS2 lock_nolock filesystem
+will be okay.
+
+Follow these steps for each filesystem:
+
+- create test case directory:
+  $ mkdir -p qa/smart/002/gfs2
+
+- capture output from sys/fs/dir and place int sysfsdir/<fsname>:
+  $ cd /sys/fs/gfs2/<fsname>/
+  $ cat id > id
+    
+- capture output from fs gfs2 debugfsdir and place in debugfsdir/<fsname>:
+  $ cd /sys/kernel/debug/<fsname>/
+  $ cat glocks > glocks
+  $ cat glstats > glstats
+  $ cat sbstats > sbstats
+
+This will capture all filesystems:
+
+For tracing data from trace_pipe, a basic 2 node cluster setup with at least 
+1 GFS2 filesystem using lock_dlm will be needed to populate the tracing events
+and gain output from trace_pipe.
+  
+- Turn on gfs2 tracing and collect data from trace events if lock_dlm is being used in
+  a basic 2 node cluster setup (lvm, pacemaker, dlm, gfs2):
+  $ cd /sys/kernel/debug/tracing/
+  $ echo 1 > events/gfs2/enable
+  $ cat trace_pipe > trace_pipe
+  $ echo 0 > events/gfs2/enable

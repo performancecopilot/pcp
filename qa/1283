@@ -2,6 +2,8 @@
 # PCP QA Test No. 1283
 # getiname tests for dbpmda
 #
+# non-valgrind variant, see qa/1467 for the valgrind variant
+#
 # Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
 #
 
@@ -25,6 +27,9 @@ if [ "$1" = "--valgrind" ]
 then
     _check_valgrind
     do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    _notrun "valgrind variant qa/1467 will be run"
 fi
 
 _cleanup()
@@ -81,7 +86,7 @@ End-of-File
 
 if $do_valgrind
 then
-    _run_valgrind ...your test goes here...
+    _run_valgrind dbpmda -ie <$tmp.cmds
 else
     dbpmda -ie <$tmp.cmds 2>&1
 fi \

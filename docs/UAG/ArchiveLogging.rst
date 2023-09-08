@@ -5,15 +5,15 @@ Archive Logging
 
 .. contents::
 
-Performance monitoring and management in complex systems demands the ability to accurately capture performance characteristics for subsequent review, analysis, and comparison. Performance Co-Pilot (PCP) provides extensive support for the creation and management of archive logs that capture a user-specified profile of performance information to support retrospective performance analysis.
+Performance monitoring and management in complex systems demands the ability to accurately capture performance characteristics for subsequent review, analysis, and comparison. Performance Co-Pilot (PCP) provides extensive support for the creation and management of archives that capture a user-specified profile of performance information to support retrospective performance analysis.
 
 The following major sections are included in this chapter:
 
-Section 6.1, “`Introduction to Archive Logging`_”, presents the concepts and issues involved with creating and using archive logs.
+Section 6.1, “`Introduction to Archive Logging`_”, presents the concepts and issues involved with creating and using archives.
 
-Section 6.2, “`Using Archive Logs with Performance Tools`_”, describes the interaction of the PCP tools with archive logs.
+Section 6.2, “`Using Archives with Performance Tools`_”, describes the interaction of the PCP tools with archives.
 
-Section 6.3, “`Cookbook for Archive Logging`_”, shows some shortcuts for setting up useful PCP archive logs.
+Section 6.3, “`Cookbook for Archive Logging`_”, shows some shortcuts for setting up useful PCP archives.
 
 Section 6.4, “`Other Archive Logging Features and Services`_”, provides information about other archive logging features and services.
 
@@ -24,50 +24,50 @@ Introduction to Archive Logging
 
 Within the PCP, the **pmlogger** utility may be configured to collect archives of performance metrics. The archive creation process is simple and very flexible, incorporating the following features:
 
-* Archive log creation at either a PCP collector (typically a server) or a PCP monitor system (typically a workstation), or at some designated PCP archive logger host.
+* Archive creation at either a PCP collector (typically a server) or a PCP monitor system (typically a workstation), or at some designated PCP archive logger host.
 
 
-* Concurrent independent logging, both local and remote. The performance analyst can activate a private **pmlogger** instance to collect only the metrics of interest for the problem at hand, 
-  independent of other logging on the workstation or remote host.
+* Concurrent independent archiving, both local and remote. The performance analyst can activate a private **pmlogger** instance to collect only the metrics of interest for the problem at hand, 
+  independent of other archiving on the workstation or remote host.
   
 * Independent determination of logging frequency for individual metrics or metric instances. For example, you could log the “5 minute” load average every half hour, the 
-  write I/O rate on the DBMS log spindle every 10 seconds, and aggregate I/O rates on the other disks every minute.
+  write I/O rate on the DBMS transaction log spindle every 10 seconds, and aggregate I/O rates on the other disks every minute.
 
 * Dynamic adjustment of what is to be logged, and how frequently, via **pmlc**. This feature may be used to disable logging or to increase the sample interval during 
   periods of low activity or chronic high activity. A local **pmlc** may interrogate and control a remote **pmlogger**, subject to the access control restrictions 
   implemented by **pmlogger**.
 
-* Self-contained logs that include all system configuration and metadata required to interpret the values in the log. These logs can be kept for analysis at a much 
-  later time, potentially after the hardware or software has been reconfigured and the logs have been stored as discrete, autonomous files for remote analysis. The logs 
+* Self-contained archives that include all system configuration and metadata required to interpret the values in the archives. These archives can be kept for analysis at a much 
+  later time, potentially after the hardware or software has been reconfigured and the archives have been stored as discrete, autonomous files for remote analysis. The archives 
   are endian-neutral and platform independent - there is no requirement that the monitor host machine used for analysis be similar to the collector machine in any way, 
   nor do they have to have the same versions of PCP. PCP archives created over 15 years ago can still be replayed with the current versions of PCP!
 
-* **cron**-based scripts to expedite the operational management, for example, log rotation, consolidation, and culling. Another helper tool, **pmlogconf** can be used to 
+* **cron**-based scripts to expedite the operational management, for example, archives rotation, consolidation, and culling. Another helper tool, **pmlogconf** can be used to 
   generate suitable logging configurations for a variety of situations.
 
-* Archive folios as a convenient aggregation of multiple archive logs. Archive folios may be created with the **mkaf** utility and processed with the **pmafm** tool.
+* Archive folios as a convenient aggregation of multiple archives. Archive folios may be created with the **mkaf** utility and processed with the **pmafm** tool.
 
-⁠Archive Logs and the PMAPI
-===========================
+⁠Archives and the PMAPI
+=======================
 
 Critical to the success of the PCP archive logging scheme is the fact that the library routines providing access to real-time feeds of performance metrics also provide 
-access to the archive logs.
+access to the archives.
 
 Live feeds (or real-time) sources of performance metrics and archives are literally interchangeable, with a single Performance Metrics Application Programming Interface 
 (PMAPI) that preserves the same semantics for both styles of metric source. In this way, applications and tools developed against the PMAPI can automatically process 
 either live or historical performance data.
 
-⁠Retrospective Analysis Using Archive Logs
-==========================================
+⁠Retrospective Analysis Using Archives
+======================================
 
 One of the most important applications of archive logging services provided by PCP is in the area of retrospective analysis. In many cases, understanding today's 
-performance problems can be assisted by side-by-side comparisons with yesterday's performance. With routine creation of performance archive logs, you can concurrently 
+performance problems can be assisted by side-by-side comparisons with yesterday's performance. With routine creation of performance archives, you can concurrently 
 replay pictures of system performance for two or more periods in the past.
 
-Archive logs are also an invaluable source of intelligence when trying to diagnose what went wrong, as in a performance post-mortem. Because the PCP archive logs are 
+Archives are also an invaluable source of intelligence when trying to diagnose what went wrong, as in a performance post-mortem. Because the PCP archives are 
 entirely self-contained, this analysis can be performed off-site if necessary.
 
-Each archive log contains metric values from only one host. However, many PCP tools can simultaneously visualize values from multiple archives collected from different hosts.
+Each archive contains metric values from only one host. However, many PCP tools can simultaneously visualize values from multiple archives collected from different hosts.
 
 The archives can be replayed using the inference engine (**pmie** is an application that uses the PMAPI). This allows you to automate the regular, first-level analysis of system performance.
 
@@ -76,45 +76,45 @@ and playing it against the expressions. For example, you may wish to create a da
 
 For more about pmie, see Chapter 5, :ref:`Performance Metrics Inference Engine`.
 
-⁠Using Archive Logs for Capacity Planning
-==========================================
+⁠Using Archives for Capacity Planning
+=====================================
 
 By collecting performance archives with relatively long sampling periods, or by reducing the daily archives to produce summary logs, the capacity planner can collect 
 the base data required for forward projections, and can estimate resource demands and explore “what if” scenarios by replaying data using visualization tools and the 
 inference engine.
 
-Using Archive Logs with Performance Tools
-*******************************************
+Using Archives with Performance Tools
+**************************************
 
 Most PCP tools default to real-time display of current values for performance metrics from PCP collector host(s). However, most PCP tools also have the capability to 
-display values for performance metrics retrieved from PCP archive log(s). The following sections describe plans, steps, and general issues involving archive logs and 
+display values for performance metrics retrieved from PCP archive(s). The following sections describe plans, steps, and general issues involving archives and 
 the PCP tools.
 
 ⁠Coordination between pmlogger and PCP tools
 ============================================
 
-Most commonly, a PCP tool would be invoked with the **-a** option to process sets of archive logs some time after pmlogger had finished creating the archive. 
+Most commonly, a PCP tool would be invoked with the **-a** option to process sets of archives some time after pmlogger had finished creating the archive. 
 However, a tool such as **pmchart** that uses a Time Control dialog (see Section 3.3, “:ref:`Time Duration and Control`”) stops when the end of a set of archives is 
-reached, but could resume if more data is written to the PCP archive log.
+reached, but could resume if more data is written to the PCP archive.
 
 .. note::
-   **pmlogger** uses buffered I/O to write the archive log so that the end of the archive may be aligned with an I/O buffer boundary, rather than with a logical 
-   archive log record. If such an archive was read by a PCP tool, it would appear truncated and might confuse the tool. These problems may be avoided by sending 
+   **pmlogger** uses buffered I/O to write the archive so that the end of the archive may be aligned with an I/O buffer boundary, rather than with a logical 
+   archive record. If such an archive was read by a PCP tool, it would appear truncated and might confuse the tool. These problems may be avoided by sending 
    **pmlogger** a **SIGUSR1** signal, or by using the **flush** command of **pmlc** to force **pmlogger** to flush its output buffers.
 
-⁠Administering PCP Archive Logs Using cron Scripts
-==================================================
+⁠Administering PCP Archives Using cron Scripts
+==============================================
 
 Many operating systems support the **cron** process scheduling system.
 
-PCP supplies shell scripts to use the **cron** functionality to help manage your archive logs. The following scripts are supplied:
+PCP supplies shell scripts to use the **cron** functionality to help manage your archives. The following scripts are supplied:
 
 +---------------------+------------------------------------------------------------------------------------------------------------------------------------------+
 | Script              | Description                                                                                                                              |
 +=====================+==========================================================================================================================================+
-| pmlogger_daily(1)   | Performs a daily housecleaning of archive logs and notices.                                                                              |
+| pmlogger_daily(1)   | Performs a daily housecleaning of archives and notices.                                                                                  |
 +---------------------+------------------------------------------------------------------------------------------------------------------------------------------+
-| pmlogger_merge(1)   | Merges archive logs and is called by **pmlogger_daily**.                                                                                 |
+| pmlogger_merge(1)   | Merges archives and is called by **pmlogger_daily**.                                                                                     |
 +---------------------+------------------------------------------------------------------------------------------------------------------------------------------+
 | pmlogger_check(1)   | Checks to see that all desired **pmlogger** processes are running on your system, and invokes any that are missing for any reason.       |
 +---------------------+------------------------------------------------------------------------------------------------------------------------------------------+
@@ -129,20 +129,20 @@ The configuration files used by these scripts can be edited to suit your particu
 and ``${PCP_PMLOGGERCONTROL_PATH}.d`` files (**pmsnap** has an additional control file, ``${PCP_PMSNAPCONTROL_PATH}``). Complete information on these scripts is 
 available in the **pmlogger_daily(1)** and **pmsnap(1)** man pages.
 
-Archive Log File Management
-=============================
+Archive File Management
+========================
 
-PCP archive log files can occupy a great deal of disk space, and management of archive logs can be a large task in itself. The following sections provide information 
-to assist you in PCP archive log file management.
+PCP archive files can occupy a great deal of disk space, and management of archives can be a large task in itself. The following sections provide information 
+to assist you in PCP archive file management.
 
 Basename Conventions
 ---------------------
 
-When a PCP archive is created by **pmlogger**, an archive basename must be specified and several physical files are created, as shown in `Table 6.1. Filenames for PCP Archive Log Components (archive.*)`_.
+When a PCP archive is created by **pmlogger**, an archive basename must be specified and several physical files are created, as shown in `Table 6.1. Filenames for PCP Archive Components (archive.*)`_.
 
-.. _Table 6.1. Filenames for PCP Archive Log Components (archive.*):
+.. _Table 6.1. Filenames for PCP Archive Components (archive.*):
 
-**Table 6.1. Filenames for PCP Archive Log Components (archive.*)**
+**Table 6.1. Filenames for PCP Archive Components (archive.*)**
 
 +----------------------+-------------------------------------------------------------------------------------------------+
 | Filename             | Contents                                                                                        |
@@ -160,32 +160,32 @@ Log Volumes
 A single PCP archive may be partitioned into a number of volumes. These volumes may expedite management of the archive; however, the metadata file and at least one 
 volume must be present before a PCP tool can process the archive.
 
-You can control the size of an archive log volume by using the **-v** command line option to **pmlogger**. This option specifies how large a volume should become 
-before pmlogger starts a new volume. Archive log volumes retain the same base filename as other files in the archive log, and are differentiated by a numeric suffix 
-that is incremented with each volume change. For example, you might have a log volume sequence that looks like this::
+You can control the size of an archive volume by using the **-v** command line option to **pmlogger**. This option specifies how large a volume should become 
+before pmlogger starts a new volume. Archive volumes retain the same base filename as other files in the archive, and are differentiated by a numeric suffix 
+that is incremented with each volume change. For example, you might have an archive volume sequence that looks like this::
 
- netserver-log.0
- netserver-log.1
- netserver-log.2
+ netserver.0
+ netserver.1
+ netserver.2
 
-You can also cause an existing log to be closed and a new one to be opened by sending a **SIGHUP** signal to **pmlogger**, or by using the **pmlc** command to change 
-the **pmlogger** instructions dynamically, without interrupting **pmlogger** operation. Complete information on log volumes is found in the **pmlogger(1)** man page.
+You can also cause an existing archive volume to be closed and a new one to be opened by sending a **SIGHUP** signal to **pmlogger**, or by using the **pmlc** command to change 
+the **pmlogger** instructions dynamically, without interrupting **pmlogger** operation. Complete information on archive volumes is found in the **pmlogger(1)** man page.
 
-Basenames for Managed Archive Log Files
-----------------------------------------
+Basenames for Managed Archive Files
+------------------------------------
 
 The PCP archive management tools support a consistent scheme for selecting the basenames for the files in a collection of archives and for mapping these files to a suitable directory hierarchy.
 
-Once configured, the PCP tools that manage archive logs employ a consistent scheme for selecting the basename for an archive each time **pmlogger** is launched, 
+Once configured, the PCP tools that manage archives employ a consistent scheme for selecting the basename for an archive each time **pmlogger** is launched, 
 namely the current date and time in the format YYYYMMDD.HH.MM. Typically, at the end of each day, all archives for a particular host on that day would be merged to 
 produce a single archive with a basename constructed from the date, namely YYYYMMDD. The **pmlogger_daily** script performs this action and a number of other routine 
 housekeeping chores.
 
-Directory Organization for Archive Log Files
-----------------------------------------------
+Directory Organization for Archive Files
+-----------------------------------------
 
 If you are using a deployment of PCP tools and daemons to collect metrics from a variety of hosts and storing them all at a central location, you should develop an organized strategy for storing and 
-naming your log files.
+naming your archive files.
 
 .. note::
    There are many possible configurations of **pmlogger**, as described in Section 7.3, “:ref:`PCP Archive Logger Deployment`”. The directory organization described in this 
@@ -193,18 +193,18 @@ naming your log files.
    **pmchart** to record some performance data of current interest).
 
 Typically, the filesystem structure can be used to reflect the number of hosts for which a **pmlogger** instance is expected to be running locally, obviating the need 
-for lengthy and cumbersome filenames. It makes considerable sense to place all logs for a particular host in a separate directory named after that host. Because each 
-instance of **pmlogger** can only log metrics fetched from a single host, this also simplifies some of the archive log management and administration tasks.
+for lengthy and cumbersome filenames. It makes considerable sense to place all archives for a particular host in a separate directory named after that host. Because each 
+instance of **pmlogger** can only log metrics fetched from a single host, this also simplifies some of the archive management and administration tasks.
 
-For example, consider the filesystem and naming structure shown in `Figure 6.1. Archive Log Directory Structure`_.
+For example, consider the filesystem and naming structure shown in `Figure 6.1. Archive Directory Structure`_.
 
-.. _Figure 6.1. Archive Log Directory Structure:
+.. _Figure 6.1. Archive Directory Structure:
 
 .. figure:: ../../images/log-directory.svg
 
-    Figure 6.1. Archive Log Directory Structure
+    Figure 6.1. Archive Directory Structure
 
-The specification of where to place the archive log files for particular **pmlogger** instances is encoded in the ``${PCP_PMLOGGERCONTROL_PATH}`` and 
+The specification of where to place the archive files for particular **pmlogger** instances is encoded in the ``${PCP_PMLOGGERCONTROL_PATH}`` and 
 ``${PCP_PMLOGGERCONTROL_PATH}.d`` configuration files, and these files should be customized on each host running an instance of **pmlogger**.
 
 If many archives are being created, and the associated PCP collector systems form peer classes based upon service type (Web servers, DBMS servers, NFS servers, and so 
@@ -229,7 +229,7 @@ A complete description of the **pmlogger** configuration format can be found on 
 ⁠PCP Archive Contents
 ----------------------
 
-Once a PCP archive log has been created, the **pmdumplog** utility may be used to display various information about the contents of the archive. For example, start with 
+Once a PCP archive has been created, the **pmdumplog** utility may be used to display various information about the contents of the archive. For example, start with 
 the following command:
 
 ``pmdumplog -l ${PCP_LOG_DIR}/pmlogger/www.sgi.com/19960731``
@@ -335,14 +335,14 @@ Assume you wish to activate primary archive logging on the PCP collector host **
       ...
 
 ⁠Other Logger Configurations
-=============================
+============================
 
-Assume you wish to create archive logs on the local host for performance metrics collected from the remote host venus. Execute all of the following tasks while logged 
+Assume you wish to create archives on the local host for performance metrics collected from the remote host venus. Execute all of the following tasks while logged 
 into the local host as the superuser (**root**).
 
-.. _Procedure 6.1. Creating Archive Logs:
+.. _Procedure 6.1. Creating Archives:
 
-**Procedure 6.1. Creating Archive Logs**
+**Procedure 6.1. Creating Archives**
 
 1. Create a suitable **pmlogger** configuration file. There are several options:
 
@@ -409,19 +409,19 @@ into the local host as the superuser (**root**).
      log volume       0
      log size         146160
 
-To create archive logs on the local host for performance metrics collected from multiple remote hosts, repeat the steps in `Procedure 6.1. Creating Archive Logs`_ 
+To create archives on the local host for performance metrics collected from multiple remote hosts, repeat the steps in `Procedure 6.1. Creating Archives`_ 
 for each remote host (each with a new **control** file entry).
 
-⁠Archive Log Administration
-===========================
+⁠Archive Administration
+=======================
 
-Assume the local host has been set up to create archive logs of performance metrics collected from one or more hosts (which may be either the local host or a remote host).
+Assume the local host has been set up to create archives of performance metrics collected from one or more hosts (which may be either the local host or a remote host).
 
 .. note::
    Depending on your platform, the **crontab** entry discussed here may already have been installed for you, as part of the package installation process. In this case, 
    the file **/etc/cron.d/pcp-pmlogger** will exist, and the rest of this section can be skipped.
 
-To activate the maintenance and housekeeping scripts for a collection of archive logs, execute the following tasks while logged into the local host as the superuser (**root**):
+To activate the maintenance and housekeeping scripts for a collection of archives, execute the following tasks while logged into the local host as the superuser (**root**):
 
 1. Augment the **crontab** file for the **pcp** user. For example::
 
@@ -430,7 +430,7 @@ To activate the maintenance and housekeeping scripts for a collection of archive
 2. Edit ``${HOME}/crontab.txt``, adding lines similar to those from the sample ``${PCP_VAR_DIR}/config/pmlogger/crontab`` file for **pmlogger_daily** and **pmlogger_check**; 
    for example::
 
-     # daily processing of archive logs
+     # daily processing of archives
      10     0     *     *     *    ${PCP_BINADM_DIR}/pmlogger_daily
      # every 30 minutes, check pmlogger instances are running
      25,55  *     *     *     *    ${PCP_BINADM_DIR}/pmlogger_check
@@ -442,16 +442,16 @@ To activate the maintenance and housekeeping scripts for a collection of archive
 Other Archive Logging Features and Services
 ********************************************
 
-Other archive logging features and services include PCP archive folios, manipulating archive logs, primary logger, and using **pmlc**.
+Other archiving features and services include PCP archive folios, manipulating archives, primary logger, and using **pmlc**.
 
 ⁠PCP Archive Folios
 ====================
 
-A collection of one or more sets of PCP archive logs may be combined with a control file to produce a PCP archive folio. Archive folios are created using either **mkaf** 
+A collection of one or more sets of PCP archives may be combined with a control file to produce a PCP archive folio. Archive folios are created using either **mkaf** 
 or the interactive record mode services of various PCP monitor tools (e.g. **pmchart** and **pmrep**).
 
-The automated archive log management services also create an archive folio named **Latest** for each managed **pmlogger** instance, to provide a symbolic name to the 
-most recent archive log. With reference to `Figure 6.1. Archive Log Directory Structure`_, this would mean the creation of the folios ``${PCP_LOG_DIR}/pmlogger/one/Latest`` 
+The automated archive management services also create an archive folio named **Latest** for each managed **pmlogger** instance, to provide a symbolic name to the 
+most recent archive. With reference to `Figure 6.1. Archive Directory Structure`_, this would mean the creation of the folios ``${PCP_LOG_DIR}/pmlogger/one/Latest`` 
 and ``${PCP_LOG_DIR}/pmlogger/two/Latest``.
 
 The **pmafm** utility is completely described in the **pmafm(1)** man page, and provides the interactive commands (single commands may also be executed from the command line) 
@@ -464,19 +464,19 @@ for the following services:
 * If the folio was created by a single PCP monitoring tool, replaying all of the archives in the folio with that monitoring tool.
 * Restricting the processing to particular archives, or the archives associated with particular hosts.
 
-⁠Manipulating Archive Logs with pmlogextract
-============================================
+⁠Manipulating Archives with pmlogextract
+========================================
 
-The **pmlogextract** tool takes a number of PCP archive logs from a single host and performs the following tasks:
+The **pmlogextract** tool takes a number of PCP archives from a single host and performs the following tasks:
 
-* Merges the archives into a single log, while maintaining the correct time stamps for all values.
-* Extracts all metric values within a temporal window that could encompass several archive logs.
-* Extracts only a configurable subset of metrics from the archive logs.
+* Merges the archives into a single archive, while maintaining the correct time stamps for all values.
+* Extracts all metric values within a temporal window that could encompass several archives.
+* Extracts only a configurable subset of metrics from the archives.
 
 See the **pmlogextract(1)** man page for full information on this command.
 
-⁠Summarizing Archive Logs with pmlogsummary
-===========================================
+⁠Summarizing Archives with pmlogsummary
+=======================================
 
 The **pmlogsummary** tool provides statistical summaries of archives, or specific metrics within archives, or specific time windows of interest in a set of archives. 
 These summaries include various averages, minima, maxima, sample counts, histogram bins, and so on.
@@ -506,7 +506,7 @@ See the **pmlogsummary(1)** man page for detailed information about this command
 ===============
 
 On each system for which PMCD is active (each PCP collector system), there is an option to have a distinguished instance of the archive logger **pmlogger** 
-(the “primary” logger) launched each time PMCD is started. This may be used to ensure the creation of minimalist archive logs required for ongoing system management 
+(the “primary” logger) launched each time PMCD is started. This may be used to ensure the creation of minimalist archives required for ongoing system management 
 and capacity planning in the event of failure of a system where a remote **pmlogger** may be running, or because the preferred archive logger deployment is to activate 
 **pmlogger** on each PCP collector system.
 
@@ -601,14 +601,14 @@ The **pmlogger** utility does not start, and you see this message::
 
 **Cause:**
 
-Archive logs are considered sufficiently precious that **pmlogger** does not empty or overwrite an existing set of archive log files. The log named **foo** actually 
+Archives are considered sufficiently precious that **pmlogger** does not empty or overwrite an existing set of archive files. The archive named **foo** actually 
 consists of the physical file **foo.index**, **foo.meta**, and at least one file **foo.N**, where **N** is in the range 0, 1, 2, 3, and so on.
 
 A message similar to the one above is produced when a new **pmlogger** instance encounters one of these files already in existence.
 
 **Resolution:**
 
-Move the existing archive aside, or if you are sure, remove all of the parts of the archive log. For example, use the following command::
+Move the existing archive aside, or if you are sure, remove all of the parts of the archive. For example, use the following command::
 
  rm -f foo.*
 
@@ -619,7 +619,7 @@ Then rerun **pmlogger**.
 
 **Symptom:**
 
-The **pmdumplog** utility, or any tool that can read an archive log, displays this message:
+The **pmdumplog** utility, or any tool that can read an archive, displays this message:
 
 .. sourcecode:: none
 
@@ -642,7 +642,7 @@ Turn on the internal debug flag **DBG_TRACE_LOG** (**-D** 128) to see which file
 
  pmdumplog -D 128 -l mylog
 
-Locate the missing files and move them all to the same directory, or remove all of the files that are part of the archive, and recreate the archive log.
+Locate the missing files and move them all to the same directory, or remove all of the files that are part of the archive, and recreate the archive.
 
 Primary pmlogger Cannot Start
 ===============================
@@ -681,11 +681,11 @@ Identifying an Active pmlogger Process
 
 **Symptom:**
 
-You have a PCP archive log that is demonstrably growing, but do not know the identify of the associated **pmlogger** process.
+You have a PCP archive that is demonstrably growing, but do not know the identify of the associated **pmlogger** process.
 
 **Cause:**
 
-The PID is not obvious from the log, or the archive name may not be obvious from the output of the **ps** command.
+The PID is not obvious from the archive name, or the archive name may not be obvious from the output of the **ps** command.
 
 **Resolution:**
 
@@ -717,25 +717,25 @@ Illegal Label Record
 
 PCP tools report::
 
- Illegal label record at start of PCP archive log file.
+ Illegal label record at start of PCP archive file.
 
 **Cause:**
 
-The label record at the start of each of the physical archive log files has become either corrupted or one is out of sync with the others.
+The label record at the start of each of a physical archive file has become either corrupted or one is out of sync with the others.
 
 **Resolution:**
 
-If you believe the log may have been corrupted, this can be verified using **pmlogcheck**. If corruption is limited to just the label record at the start, the **pmloglabel** 
+If you believe the archive may have been corrupted, this can be verified using **pmlogcheck**. If corruption is limited to just the label record at the start, the **pmloglabel** 
 can be used to force the labels back in sync with each other, with known-good values that you supply.
 
 Refer to the **pmlogcheck(1)** and **pmloglabel(1)** man pages.
 
-⁠Empty Archive Log Files or pmlogger Exits Immediately
-=======================================================
+⁠Empty Archive Files or pmlogger Exits Immediately
+==================================================
 ⁠
 **Symptom:**
 
-Archive log files are zero size, requested metrics are not being logged, or **pmlogger** exits immediately with no error messages.
+Archive files are zero size, requested metrics are not being logged, or **pmlogger** exits immediately with no error messages.
 
 **Cause:**
 

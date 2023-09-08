@@ -1,7 +1,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (C) 2015-2021 Marko Myllynen <myllynen@redhat.com>
-.\" Copyright (C) 2016-2018 Red Hat.
+.\" Copyright (C) 2016-2018,2023 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -37,13 +37,17 @@
 [\fB\-J\fP \fIrank\fP]
 [\fB\-K\fP \fIspec\fP]
 [\fB\-N\fP \fIpredicate\fP]
+[\fB\-o\fP \fItimeout\fP]
 [\fB\-O\fP \fIorigin\fP]
+[\fB\-p\fP \fIpassword\fP]
 [\fB\-P\fP|\fB\-0\fP \fIprecision\fP]
 [\fB\-q\fP|\fB\-Q\fP \fIcount-scale\fP]
 [\fB\-s\fP \fIsamples\fP]
 [\fB\-S\fP \fIstarttime\fP]
 [\fB\-t\fP \fIinterval\fP]
 [\fB\-T\fP \fIendtime\fP]
+[\fB\-u\fP \fIurl\fP]
+[\fB\-U\fP \fIusername\fP]
 [\fB\-y\fP|\fB\-Y\fP \fItime-scale\fP]
 [\fB\-Z\fP \fItimezone\fP]
 \fImetricspec\fP
@@ -154,6 +158,34 @@ losing some precision.
 Corresponding command line option is \fB\-E\fP.
 Defaults to \fBno\fP.
 .RE
+.PP
+url (string)
+.RS 4
+Send JSON output as a HTTP POST to the given \fBurl\fP.
+Corresponding command line option is \fB\-u\fP.
+Defaults to \fBNone\fP.
+.RE
+.PP
+http_pass (string)
+.RS 4
+Use given password for Basic Authentication when sending a HTTP POST.
+Corresponding command line option is \fB\-p\fP.
+Defaults to \fBNone\fP.
+.RE
+.PP
+http_user (string)
+.RS 4
+Use given username for Basic Authentication when sending a HTTP POST.
+Corresponding command line option is \fB\-U\fP.
+Defaults to \fBNone\fP.
+.RE
+.PP
+http_timeout (number)
+.RS 4
+Maximum time (in seconds) when sending a HTTP POST.
+Corresponding command line option is \fB\-o\fP.
+Defaults to \fB2.5\fP seconds.
+.RE
 .SH OPTIONS
 The available command line options are:
 .TP 5
@@ -199,7 +231,7 @@ but this option \fIwill\fP override per-metric specifications.
 .TP
 \fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
 Performance metric values are retrieved from the set of Performance
-Co-Pilot (PCP) archive log files identified by the
+Co-Pilot (PCP) archive files identified by the
 .I archive
 argument, which is a comma-separated list of names, each
 of which may be the base name of an archive or the name of
@@ -427,6 +459,12 @@ same instance domain as the process related metrics),
 it will be reported as usual.
 .RE
 .TP
+\fB\-o\fR, \fB\-\-http-timeout\fR
+Timeout (in seconds) when sending a HTTP POST with the
+.BR \-u
+option.
+Default value is \fB2.5\fP seconds.
+.TP
 \fB\-O\fR \fIorigin\fR, \fB\-\-origin\fR=\fIorigin\fR
 When reporting archived metrics, start reporting at
 .I origin
@@ -438,6 +476,11 @@ Refer to
 .BR PCPIntro (1)
 for a complete description of the syntax for
 .IR origin .
+.TP
+\fB\-p\fR, \fB\-\-http-pass\fR
+Password when using HTTP basic authentication with the
+.BR \-u
+option.
 .TP
 \fB\-P\fR \fIprecision\fR, \fB\-\-precision\fR=\fIprecision\fR
 Use
@@ -546,6 +589,14 @@ determines the actual time
 .B pcp2json
 will run.
 .RE
+.TP
+\fB\-u\fR, \fB\-\-url\fR
+URL for sending an HTTP POST (instead of default standard output).
+.TP
+\fB\-U\fR, \fB\-\-http-user\fR
+Username when using HTTP basic authentication with the
+.BR \-u
+option.
 .TP
 \fB\-v\fR, \fB\-\-omit\-flat\fR
 Report only set-valued metrics with instances (e.g. disk.dev.read) and

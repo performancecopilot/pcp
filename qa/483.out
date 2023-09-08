@@ -1,5 +1,5 @@
 QA output created by 483
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 Hostname:	rattle -> whizz-bang.engr.sgi.com
 Timezone:	EST-11 -> GMT+10
 Delta:		-> 00:00:10.000000000
@@ -17,7 +17,7 @@ Metric: hinv.ndisk (1.26.7)
 pmID:		1.26.7 -> 1.2.3
 
 === metric 1.18.3 { type->U32 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: irix.kernel.all.load (1.18.3)
 Type:		FLOAT -> U32
@@ -25,7 +25,7 @@ Type:		FLOAT -> U32
 === metric 1.18.* { type->U32 } ===
 Warning [TMP.conf, line 1]
 Metric: hinv.ncpu (1.18.2): type: PM_TYPE_U32: No change
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: irix.kernel.all.load (1.18.3)
 Type:		FLOAT -> U32
@@ -35,7 +35,7 @@ Warning [TMP.conf, line 1]
 Metric: hinv.ndisk (1.26.7): type: PM_TYPE_U32: No change
 Warning [TMP.conf, line 1]
 Metric: hinv.ncpu (1.18.2): type: PM_TYPE_U32: No change
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: irix.kernel.all.load (1.18.3)
 Type:		FLOAT -> U32
@@ -43,25 +43,25 @@ Type:		FLOAT -> U32
 === metric hinv.ndisk { type->U32 } ===
 Warning [TMP.conf, line 1]
 Metric: hinv.ndisk (1.26.7): type: PM_TYPE_U32: No change
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 No changes
 
 === metric 42.42.42 { type->U32 } ===
 Warning [TMP.conf, line 1]
 Metric 42.42.42 pmNameID: Unknown or illegal metric identifier
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 No changes
 
 === metric foo.bar { type->U32 } ===
 Warning [TMP.conf, line 1]
 Metric: foo.bar: Unknown metric name
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 No changes
 
 === metric hinv.ndisk { type->64 } metric no.such.metric { type->U32 } ===
 Warning [TMP.conf, line 1]
 Metric: no.such.metric: Unknown metric name
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ndisk (1.26.7)
 Type:		U32 -> 64
@@ -71,7 +71,7 @@ Warning [TMP.conf, line 1]
 Metric: no.such.metric: Unknown metric name
 Warning [TMP.conf, line 1]
 Metric: no.such.other.metric: Unknown metric name
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: irix.kernel.all.load (1.18.3)
 Type:		FLOAT -> U32
@@ -89,7 +89,7 @@ Warning [TMP.conf, line 1]
 Metric: kernel.all.cpu.user (60.0.20): type: PM_TYPE_U32: No change
 Warning [TMP.conf, line 1]
 Metric: kernel.all.intr (60.0.12): type: PM_TYPE_U32: No change
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: swap.used (60.1.7)
 Type:		U64 -> U32
@@ -119,7 +119,7 @@ Metric: mem.util.free (60.1.2)
 Type:		U64 -> U32
 
 === metric hinv.ncpu { pmid -> 42.42.42 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 pmID:		1.18.2 -> 42.42.42
@@ -127,11 +127,11 @@ pmID:		1.18.2 -> 42.42.42
 === metric hinv.ncpu { pmid -> 1.18.2 } ===
 Warning [TMP.conf, line 1]
 Metric: hinv.ncpu (1.18.2): pmid: No change
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 No changes
 
 === metric hinv.ncpu { pmid -> 2.3.2 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 pmID:		1.18.2 -> 2.3.2
@@ -143,17 +143,17 @@ Specification error in configuration file (TMP.conf)
 === metric hinv.ncpu { pmid -> 1.*.* } ===
 Warning [TMP.conf, line 1]
 Metric: hinv.ncpu (1.18.2): pmid: No change
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 No changes
 
 === metric hinv.ncpu { pmid -> 2.*.* } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 pmID:		1.18.2 -> 2.18.2
 
 === metric hinv.ndisk { name -> foo.bar.mumble.fratz } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ndisk (1.26.7)
 Name:		hinv.ndisk -> foo.bar.mumble.fratz
@@ -169,7 +169,7 @@ Specification error in configuration file (TMP.conf)
 === metric hinv.ndisk { name -> hinv.ndisk } ===
 Warning [TMP.conf, line 1]
 Metric: hinv.ndisk (1.26.7): name: No change
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 No changes
 
 === metric hinv.ndisk { name -> hinv.ncpu } ===
@@ -177,7 +177,7 @@ Specification error in configuration file (TMP.conf)
 [line 1] Metric name hinv.ncpu already assigned for PMID 1.18.2
 
 === metric hinv.ncpu { type -> 32 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 Type:		U32 -> 32
@@ -185,29 +185,29 @@ Type:		U32 -> 32
 === metric hinv.ncpu { type -> U32 } ===
 Warning [TMP.conf, line 1]
 Metric: hinv.ncpu (1.18.2): type: PM_TYPE_U32: No change
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 No changes
 
 === metric hinv.ncpu { type -> 64 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 Type:		U32 -> 64
 
 === metric hinv.ncpu { type -> u64 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 Type:		U32 -> U64
 
 === metric hinv.ncpu { type -> Float } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 Type:		U32 -> FLOAT
 
 === metric hinv.ncpu { type -> double } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 Type:		U32 -> DOUBLE
@@ -227,7 +227,7 @@ Specification error in configuration file (TMP.conf)
 === metric hinv.ncpu { type -> U32 type -> float } ===
 Warning [TMP.conf, line 1]
 Metric: hinv.ncpu (1.18.2): type: PM_TYPE_U32: No change
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 Type:		U32 -> FLOAT
@@ -237,7 +237,7 @@ Specification error in configuration file (TMP.conf)
 [line 1] Duplicate type clause for metric hinv.ncpu
 
 === metric irix.kernel.all.load { indom -> 2.1 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: irix.kernel.all.load (1.18.3)
 InDom:		1.5 -> 2.1
@@ -257,13 +257,13 @@ Specification error in configuration file (TMP.conf)
 === metric irix.kernel.all.load { indom -> 1.5 } ===
 Warning [TMP.conf, line 1]
 Metric: irix.kernel.all.load (1.18.3): indom: 1.5: No change
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 No changes
 
 === metric irix.kernel.all.load { indom -> 1.* } ===
 Warning [TMP.conf, line 1]
 Metric: irix.kernel.all.load (1.18.3): indom: 1.5: No change
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 No changes
 
 === metric irix.kernel.all.load { indom -> 5.6 indom -> 7.8 } ===
@@ -271,49 +271,49 @@ Specification error in configuration file (TMP.conf)
 [line 1] Duplicate indom clause for metric irix.kernel.all.load
 
 === metric irix.kernel.all.load { indom -> NULL } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: irix.kernel.all.load (1.18.3)
 InDom:		1.5 -> PM_INDOM_NULL
 Output:		first value
 
 === metric irix.kernel.all.load { indom -> NULL output first } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: irix.kernel.all.load (1.18.3)
 InDom:		1.5 -> PM_INDOM_NULL
 Output:		first value
 
 === metric irix.kernel.all.load { indom -> NULL output last } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: irix.kernel.all.load (1.18.3)
 InDom:		1.5 -> PM_INDOM_NULL
 Output:		last value
 
 === metric irix.kernel.all.load { indom -> NULL output inst 5 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: irix.kernel.all.load (1.18.3)
 InDom:		1.5 -> PM_INDOM_NULL
 Output:		value for instance 5
 
 === metric irix.kernel.all.load { indom -> NULL output min } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: irix.kernel.all.load (1.18.3)
 InDom:		1.5 -> PM_INDOM_NULL
 Output:		smallest value
 
 === metric irix.kernel.all.load { indom -> NULL output max } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: irix.kernel.all.load (1.18.3)
 InDom:		1.5 -> PM_INDOM_NULL
 Output:		largest value
 
 === metric irix.kernel.all.load { indom -> NULL output avg } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: irix.kernel.all.load (1.18.3)
 InDom:		1.5 -> PM_INDOM_NULL
@@ -324,7 +324,7 @@ Warning [TMP.conf, line 2]
 Instance 123 from OUTPUT clause not found in old indom 1.5
 Warning [TMP.conf, line 2]
 Instance 123 from OUTPUT clause not found in new indom 2.1
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: irix.kernel.all.load (1.18.3)
 InDom:		1.5 -> 2.1
@@ -335,7 +335,7 @@ Semantic error in configuration file (TMP.conf)
 Conflicting indom change for metric irix.kernel.all.load (42.42 from metric clause, 33.33 from indom clause)
 
 === metric pmcd.pmlogger.port { indom -> 60.* } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: pmcd.pmlogger.port (2.3.0)
 InDom:		2.1 -> 60.1
@@ -343,27 +343,27 @@ InDom:		2.1 -> 60.1
 === metric hinv.ndisk { indom -> 1.5 } ===
 Warning [TMP.conf, line 2]
 Instance 0 from OUTPUT clause not found in new indom 1.5
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ndisk (1.26.7)
 InDom:		PM_INDOM_NULL -> 1.5
 Output:		first and only value (output instance 0)
 
 === metric hinv.ndisk { indom -> 1.5 output inst 15 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ndisk (1.26.7)
 InDom:		PM_INDOM_NULL -> 1.5
 Output:		first and only value (output instance 15)
 
 === metric 2.3.2 { sem -> Discrete } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: pmcd.pmlogger.archive (2.3.2)
 Semantics:	instant -> discrete
 
 === metric 2.3.2 { sem -> COUNTER } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: pmcd.pmlogger.archive (2.3.2)
 Semantics:	instant -> counter
@@ -371,7 +371,7 @@ Semantics:	instant -> counter
 === metric 2.3.2 { sem -> INSTANT } ===
 Warning [TMP.conf, line 1]
 Metric: pmcd.pmlogger.archive (2.3.2): sem: instant: No change
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 No changes
 
 === metric 2.3.2 { sem -> instanty } ===
@@ -387,67 +387,67 @@ Specification error in configuration file (TMP.conf)
 [line 1] Duplicate sem clause for metric pmcd.pmlogger.archive
 
 === metric hinv.ncpu { units -> 1,0,0,BYTE,0,0 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> byte
 
 === metric hinv.ncpu { units -> 0,1,0,0,SEC,0 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> sec
 
 === metric hinv.ncpu { units -> 0,0,1,0,0,ONE } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> count
 
 === metric hinv.ncpu { units -> 1,-1,0,EBYTE,HOUR,0 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> Ebyte / hour
 
 === metric hinv.ncpu { units -> 1,-1,0,PBYTE,MIN,0 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> Pbyte / min
 
 === metric hinv.ncpu { units -> 1,-1,0,TBYTE,SEC,0 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> Tbyte / sec
 
 === metric hinv.ncpu { units -> 1,-1,0,GBYTE,MSEC,0 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> Gbyte / millisec
 
 === metric hinv.ncpu { units -> 1,-1,0,MBYTE,USEC,0 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> Mbyte / microsec
 
 === metric hinv.ncpu { units -> 1,-1,0,KBYTE,NSEC,0 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> Kbyte / nanosec
 
 === metric hinv.ncpu { units -> 1,0,-1,KBYTE,0,ONE } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> Kbyte / count
 
 === metric hinv.ncpu { units -> 0,-1,1,0,MSEC,2 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 Units:		 -> count x 10^2 / millisec
@@ -459,35 +459,35 @@ Specification error in configuration file (TMP.conf)
 === metric hinv.ncpu { units -> 0,0,0,0,0,0 } ===
 Warning [TMP.conf, line 1]
 Metric: hinv.ncpu (1.18.2): units: : No change
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 No changes
 
 === metric sampledso.long.bin_ctr { units -> 1,0,0,BYTE,0,0 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: sampledso.long.bin_ctr (30.0.104)
 Units:		Kbyte -> byte
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: sampledso.long.bin_ctr (30.0.104)
 Units:		Kbyte -> byte (rescale)
 
 === metric sampledso.long.bin_ctr { units -> 1,0,0,BYTE,0,0 RESCALE } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: sampledso.long.bin_ctr (30.0.104)
 Units:		Kbyte -> byte (rescale)
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: sampledso.long.bin_ctr (30.0.104)
 Units:		Kbyte -> byte (rescale)
 
 === metric sampledso.long.bin_ctr { units -> 1,-1,0,KBYTE,SEC,0 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: sampledso.long.bin_ctr (30.0.104)
 Units:		Kbyte -> Kbyte / sec
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: sampledso.long.bin_ctr (30.0.104)
 Units:		Kbyte -> Kbyte / sec
@@ -495,31 +495,31 @@ Units:		Kbyte -> Kbyte / sec
 === metric sampledso.long.bin_ctr { units -> 1,-1,0,KBYTE,SEC,0 rescale } ===
 Warning [TMP.conf, line 1]
 Metric: sampledso.long.bin_ctr (30.0.104): Dimension changed, cannot rescale
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: sampledso.long.bin_ctr (30.0.104)
 Units:		Kbyte -> Kbyte / sec
 Warning [TMP.conf, line 1]
 Metric: sampledso.long.bin_ctr (30.0.104): Dimension changed, cannot rescale
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: sampledso.long.bin_ctr (30.0.104)
 Units:		Kbyte -> Kbyte / sec
 
 === metric hinv.ncpu { delete } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 DELETE
 
 === metric 2.3.2 { delete } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: pmcd.pmlogger.archive (2.3.2)
 DELETE
 
 === metric 2.3.* { delete } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: pmcd.pmlogger.host (2.3.3)
 DELETE
@@ -531,7 +531,7 @@ Metric: pmcd.pmlogger.archive (2.3.2)
 DELETE
 
 === metric 1.*.* { delete } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ndisk (1.26.7)
 DELETE
@@ -581,7 +581,7 @@ Specification error in configuration file (TMP.conf)
 === metric 1.18.3 { sem -> INSTANT delete } ===
 Warning [TMP.conf, line 1]
 Metric: irix.kernel.all.load (1.18.3): sem: instant: No change
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: irix.kernel.all.load (1.18.3)
 DELETE
@@ -595,7 +595,7 @@ Specification error in configuration file (TMP.conf)
 [line 1] Conflicting delete and other clauses for metric irix.kernel.all.load
 Warning [TMP.conf, line 13]
 Metric: irix.kernel.all.load (1.18.3): units: : No change
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Instance Domain: 1.5
 pmInDom:	-> 42.5
@@ -614,7 +614,7 @@ InDom:		1.5 -> 42.5
 Semantics:	instant -> discrete
 
 === metric 1.*.* { pmid -> 7.*.* } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ndisk (1.26.7)
 pmID:		1.26.7 -> 7.26.7
@@ -626,7 +626,7 @@ Metric: irix.kernel.all.load (1.18.3)
 pmID:		1.18.3 -> 7.18.3
 
 === metric 1.*.* { pmid -> 8.9.* } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ndisk (1.26.7)
 pmID:		1.26.7 -> 8.9.7
@@ -638,7 +638,7 @@ Metric: irix.kernel.all.load (1.18.3)
 pmID:		1.18.3 -> 8.9.3
 
 === metric 1.*.* { pmid -> 10.11.12 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ndisk (1.26.7)
 pmID:		1.26.7 -> 10.11.12
@@ -650,7 +650,7 @@ Metric: irix.kernel.all.load (1.18.3)
 pmID:		1.18.3 -> 10.11.12
 
 === metric 1.18.* { pmid -> 7.*.* } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 pmID:		1.18.2 -> 7.18.2
@@ -659,7 +659,7 @@ Metric: irix.kernel.all.load (1.18.3)
 pmID:		1.18.3 -> 7.18.3
 
 === metric 1.18.* { pmid -> 8.9.* } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 pmID:		1.18.2 -> 8.9.2
@@ -668,7 +668,7 @@ Metric: irix.kernel.all.load (1.18.3)
 pmID:		1.18.3 -> 8.9.3
 
 === metric 1.18.* { pmid -> 10.11.12 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
 pmID:		1.18.2 -> 10.11.12
@@ -677,19 +677,19 @@ Metric: irix.kernel.all.load (1.18.3)
 pmID:		1.18.3 -> 10.11.12
 
 === metric 2.3.2 { pmid -> 7.*.* } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: pmcd.pmlogger.archive (2.3.2)
 pmID:		2.3.2 -> 7.3.2
 
 === metric 2.3.2 { pmid -> 8.9.* } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: pmcd.pmlogger.archive (2.3.2)
 pmID:		2.3.2 -> 8.9.2
 
 === metric 2.3.2 { pmid -> 10.11.12 } ===
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: pmcd.pmlogger.archive (2.3.2)
 pmID:		2.3.2 -> 10.11.12

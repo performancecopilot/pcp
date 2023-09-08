@@ -2,17 +2,17 @@ QA output created by 499
 === metric not in archive ===
 Metric: kernel.all.load: Unknown metric name
 No changes
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 Warning [TMP.conf.dir/conf.0, line 1]
 Warning: TMP.new.0 missing
 Warning: TMP.new.index missing
 Warning: TMP.new.meta missing
 
 === + indom not in archive ===
-Instance domain 1.2: Instance domain identifier not defined in the PCP archive log
+Instance domain 1.2: Instance domain identifier not defined in the PCP archive
 Metric: kernel.all.load: Unknown metric name
 No changes
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 Warning [TMP.conf.dir/conf.0, line 1]
 Warning [TMP.conf.dir/conf.1, line 1]
 Warning: TMP.new.0 missing
@@ -20,10 +20,10 @@ Warning: TMP.new.index missing
 Warning: TMP.new.meta missing
 
 === + empty global clause ===
-Instance domain 1.2: Instance domain identifier not defined in the PCP archive log
+Instance domain 1.2: Instance domain identifier not defined in the PCP archive
 Metric: kernel.all.load: Unknown metric name
 No changes
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 Warning [TMP.conf.dir/conf.0, line 1]
 Warning [TMP.conf.dir/conf.1, line 1]
 Warning: TMP.new.0 missing
@@ -32,10 +32,10 @@ Warning: TMP.new.meta missing
 
 === + no-change global hostname clause ===
 Global hostname (bozo-laptop): No change
-Instance domain 1.2: Instance domain identifier not defined in the PCP archive log
+Instance domain 1.2: Instance domain identifier not defined in the PCP archive
 Metric: kernel.all.load: Unknown metric name
 No changes
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 Warning [TMP.conf.dir/conf.0, line 1]
 Warning [TMP.conf.dir/conf.1, line 1]
 Warning [TMP.conf.dir/conf.3, line 1]
@@ -46,10 +46,10 @@ Warning: TMP.new.meta missing
 === + no-change global time clause ===
 Global hostname (bozo-laptop): No change
 Global time: No change
-Instance domain 1.2: Instance domain identifier not defined in the PCP archive log
+Instance domain 1.2: Instance domain identifier not defined in the PCP archive
 Metric: kernel.all.load: Unknown metric name
 No changes
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 Warning [TMP.conf.dir/conf.0, line 1]
 Warning [TMP.conf.dir/conf.1, line 1]
 Warning [TMP.conf.dir/conf.3, line 1]
@@ -62,10 +62,10 @@ Warning: TMP.new.meta missing
 Global hostname (bozo-laptop): No change
 Global time: No change
 Global timezone (EST-10): No change
-Instance domain 1.2: Instance domain identifier not defined in the PCP archive log
+Instance domain 1.2: Instance domain identifier not defined in the PCP archive
 Metric: kernel.all.load: Unknown metric name
 No changes
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 Warning [TMP.conf.dir/conf.0, line 1]
 Warning [TMP.conf.dir/conf.1, line 1]
 Warning [TMP.conf.dir/conf.3, line 1]
@@ -79,13 +79,13 @@ Warning: TMP.new.meta missing
 Global hostname (bozo-laptop): No change
 Global time: No change
 Global timezone (EST-10): No change
-Instance domain 1.2: Instance domain identifier not defined in the PCP archive log
+Instance domain 1.2: Instance domain identifier not defined in the PCP archive
 Instance domain 29.2: Instance: "bin-300": No change
 Instance domain 29.2: Instance: 800: No change
 Instance domain 29.2: indom: No change
 Metric: kernel.all.load: Unknown metric name
 No changes
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 Unknown instance "bin-999" in iname clause for indom 29.2
 Unknown instance 123 in inst clause for indom 29.2
 Warning [TMP.conf.dir/conf.0, line 1]
@@ -106,7 +106,7 @@ Warning: TMP.new.meta missing
 Global hostname (bozo-laptop): No change
 Global time: No change
 Global timezone (EST-10): No change
-Instance domain 1.2: Instance domain identifier not defined in the PCP archive log
+Instance domain 1.2: Instance domain identifier not defined in the PCP archive
 Instance domain 29.2: Instance: "bin-300": No change
 Instance domain 29.2: Instance: 800: No change
 Instance domain 29.2: indom: No change
@@ -118,7 +118,7 @@ Metric: sample.ulonglong.hundred (29.0.100): sem: instant: No change
 Metric: sample.ulonglong.hundred (29.0.100): type: PM_TYPE_U64: No change
 Metric: sample.ulonglong.hundred (29.0.100): units: : No change
 No changes
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 Unknown instance "bin-999" in iname clause for indom 29.2
 Unknown instance 123 in inst clause for indom 29.2
 Warning [TMP.conf.dir/conf.0, line 1]
@@ -146,7 +146,7 @@ Warning: TMP.new.meta missing
 Global hostname (bozo-laptop): No change
 Global time: No change
 Global timezone (EST-10): No change
-Instance domain 1.2: Instance domain identifier not defined in the PCP archive log
+Instance domain 1.2: Instance domain identifier not defined in the PCP archive
 Instance domain 29.2: Instance: "bin-300": No change
 Instance domain 29.2: Instance: 800: No change
 Instance domain 29.2: indom: No change
@@ -158,7 +158,7 @@ Metric: sample.ulonglong.hundred (29.0.100): pmid: No change
 Metric: sample.ulonglong.hundred (29.0.100): sem: instant: No change
 Metric: sample.ulonglong.hundred (29.0.100): type: PM_TYPE_U64: No change
 Metric: sample.ulonglong.hundred (29.0.100): units: : No change
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 Unknown instance "bin-999" in iname clause for indom 29.2
 Unknown instance 123 in inst clause for indom 29.2
 Warning [TMP.conf.dir/conf.0, line 1]

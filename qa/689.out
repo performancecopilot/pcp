@@ -230,7 +230,7 @@ ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:59:09 2015
  0.76     2    0.89   264.969      5     3.16    3.17
  0.76     2    0.89   264.969      5     3.16    3.17
  0.76     2    0.89   264.969      5     3.16    3.17
-pmclient_fg: pmFetchGroup: End of PCP archive log
+pmclient_fg: pmFetchGroup: End of PCP archive
 Running pmclient_fg -z -a archives/multi-xz/20150508.11.44,archives/multi-xz/20150508.11.46,archives/multi-xz/20150508.11.50,archives/multi-xz/20150508.11.57
 Note: timezone set to local timezone of host "brolley-t530" from archive
 
@@ -461,7 +461,7 @@ ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:59:09 2015
  0.76     2    0.89   264.969      5     3.16    3.17
  0.76     2    0.89   264.969      5     3.16    3.17
  0.76     2    0.89   264.969      5     3.16    3.17
-pmclient_fg: pmFetchGroup: End of PCP archive log
+pmclient_fg: pmFetchGroup: End of PCP archive
 Running diff TMP.44+46+50+57.pmlogextract.pmclient_fg.txt TMP.44+46+50+57.pmclient_fg.txt
 Running pmclient_fg -z -a archives/multi-xz
 Note: timezone set to local timezone of host "brolley-t530" from archive
@@ -693,7 +693,7 @@ ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:59:09 2015
  0.76     2    0.89   264.969      5     3.16    3.17
  0.76     2    0.89   264.969      5     3.16    3.17
  0.76     2    0.89   264.969      5     3.16    3.17
-pmclient_fg: pmFetchGroup: End of PCP archive log
+pmclient_fg: pmFetchGroup: End of PCP archive
 Running diff TMP.44+46+50+57.pmlogextract.pmclient_fg.txt TMP.archives/multi-xz.pmclient_fg.txt
 Running pmlogextract archives/multi-xz-1k/20150508.11.44 archives/multi-xz-1k/20150508.11.46 archives/multi-xz-1k/20150508.11.50 archives/multi-xz-1k/20150508.11.57 TMP.44+46+50+57.pmlogextract
 Running pmclient_fg -z -a TMP.44+46+50+57.pmlogextract
@@ -926,7 +926,7 @@ ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:59:09 2015
  0.76     2    0.89   264.969      5     3.16    3.17
  0.76     2    0.89   264.969      5     3.16    3.17
  0.76     2    0.89   264.969      5     3.16    3.17
-pmclient_fg: pmFetchGroup: End of PCP archive log
+pmclient_fg: pmFetchGroup: End of PCP archive
 Running pmclient_fg -z -a archives/multi-xz-1k/20150508.11.44,archives/multi-xz-1k/20150508.11.46,archives/multi-xz-1k/20150508.11.50,archives/multi-xz-1k/20150508.11.57
 Note: timezone set to local timezone of host "brolley-t530" from archive
 
@@ -1157,7 +1157,7 @@ ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:59:09 2015
  0.76     2    0.89   264.969      5     3.16    3.17
  0.76     2    0.89   264.969      5     3.16    3.17
  0.76     2    0.89   264.969      5     3.16    3.17
-pmclient_fg: pmFetchGroup: End of PCP archive log
+pmclient_fg: pmFetchGroup: End of PCP archive
 Running diff TMP.44+46+50+57.pmlogextract.pmclient_fg.txt TMP.44+46+50+57.pmclient_fg.txt
 Running pmclient_fg -z -a archives/multi-xz-1k
 Note: timezone set to local timezone of host "brolley-t530" from archive
@@ -1389,5 +1389,5 @@ ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:59:09 2015
  0.76     2    0.89   264.969      5     3.16    3.17
  0.76     2    0.89   264.969      5     3.16    3.17
  0.76     2    0.89   264.969      5     3.16    3.17
-pmclient_fg: pmFetchGroup: End of PCP archive log
+pmclient_fg: pmFetchGroup: End of PCP archive
 Running diff TMP.44+46+50+57.pmlogextract.pmclient_fg.txt TMP.archives/multi-xz-1k.pmclient_fg.txt

@@ -40,6 +40,9 @@
 #include "showlinux.h"
 
 static void	make_proc_dynamicgen(void);
+static int	get_perc(char *, char *);
+static void	make_proc_prints(proc_printpair *, int, const char *, 
+					const char *);
 
 /*
 ** critical percentages for occupation-percentage;
@@ -49,7 +52,7 @@ int   cpubadness = 90;        /* percentage           */
 int   gpubadness = 100;       /* percentage           */
 int   membadness = 90;        /* percentage           */
 int   swpbadness = 80;        /* percentage           */
-int   dskbadness = 70;        /* percentage           */
+int   dskbadness = 90;        /* percentage           */
 int   netbadness = 90;        /* percentage           */
 int   pagbadness = 10;        /* number per second    */
 
@@ -371,6 +374,8 @@ proc_printdef *allprocpdefs[]=
 	&procprt_RUNDELAY,
 	&procprt_BLKDELAY,
 	&procprt_WCHAN,
+	&procprt_NVCSW,
+	&procprt_NIVCSW,
 	&procprt_VGROW,
 	&procprt_RGROW,
 	&procprt_MINFLT,
@@ -677,12 +682,12 @@ init_proc_prints(count_t numcpu)
 }
 
 /*
- * make_proc_prints: make array of proc_printpairs
- * input: string, proc_printpair array, maxentries
- */
+** make_proc_prints: make array of proc_printpairs
+** input: string, proc_printpair array, maxentries
+*/
 void 
 make_proc_prints(proc_printpair *ar, int maxn, const char *pairs, 
-const char *linename)
+					const char *linename)
 {
         name_prio items[MAXITEMS];
         int n=strlen(pairs);
@@ -1252,7 +1257,8 @@ priphead(int curlist, int totlist, char *showtype, char *showorder,
                 make_proc_prints(schedprocs, MAXITEMS, 
                         "PID:10 TID:6 CID:4 VPID:3 CTID:3 TRUN:7 TSLPI:7 "
 			"TSLPU:7 POLI:8 NICE:9 PRI:5 RTPR:9 CPUNR:8 ST:8 "
-			"EXC:8 S:8 RDELAY:8 BDELAY:7 WCHAN:5 SORTITEM:10 CMD:10",
+			"ST:8 EXC:8 S:8 RDELAY:8 BDELAY:7 WCHAN:5 "
+			"NVCSW:7 NIVCSW:7 SORTITEM:10 CMD:10",
                         "built-in schedprocs");
 
                 make_proc_prints(dskprocs, MAXITEMS, 
@@ -2882,7 +2888,7 @@ get_posval(char *name, char *val)
         return value;
 }
 
-int
+static int
 get_perc(char *name, char *val)
 {
         int     value = get_posval(name, val);

@@ -1,0 +1,415 @@
+QA output created by 1462
+
+--- indom 29.12 { iname replace /yobo/ -> "YOBO" } ---
+PCP Archive Rewrite Specifications Summary
+
+Instance Domain: 29.12
+Instance:	[28] "0028 /usr/local/yobo" -> [28] "0028 /usr/local/YOBO"
+Instance:	[8] "0008 /usr/local/yobo" -> [8] "0008 /usr/local/YOBO"
+Instance:	[18] "0018 /etc/yobo" -> [18] "0018 /etc/YOBO"
+
+Metric: sample.proc.time (29.0.158)
+Inst Changes:	<- InDom 29.12
+
+Metric: sample.proc.exec (29.0.157)
+Inst Changes:	<- InDom 29.12
+
+Metric: sample.proc.ordinal (29.0.156)
+Inst Changes:	<- InDom 29.12
+10c10
+<    8 or "0008 /usr/local/yobo"
+---
+>    8 or "0008 /usr/local/YOBO"
+16c16
+<    18 or "0018 /etc/yobo"
+---
+>    18 or "0018 /etc/YOBO"
+25c25
+<    8 or "0008 /usr/local/yobo"
+---
+>    8 or "0008 /usr/local/YOBO"
+30c30
+<    18 or "0018 /etc/yobo"
+---
+>    18 or "0018 /etc/YOBO"
+39c39
+<    8 or "0008 /usr/local/yobo"
+---
+>    8 or "0008 /usr/local/YOBO"
+51c51
+<    8 or "0008 /usr/local/yobo"
+---
+>    8 or "0008 /usr/local/YOBO"
+149c149
+<    28 or "0028 /usr/local/yobo"
+---
+>    28 or "0028 /usr/local/YOBO"
+162c162
+<    28 or "0028 /usr/local/yobo"
+---
+>    28 or "0028 /usr/local/YOBO"
+
+sample.proc.time
+    inst [1 or "0001 init"] value NN
+    inst [2 or "0002 /etc/bozo"] value NN
+    inst [3 or "0003 /usr/bin/bobo"] value NN
+    inst [4 or "0004 /usr/local/jester"] value NN
+    inst [5 or "0005 /usr/opt/bin/loko"] value NN
+    inst [8 or "0008 /usr/local/YOBO"] value NN
+    inst [9 or "0009 /usr/opt/bin/jojo"] value NN
+    inst [10 or "0010 /etc/koko"] value NN
+    inst [14 or "0014 /etc/jester"] value NN
+    inst [15 or "0015 /usr/bin/loko"] value NN
+    inst [16 or "0016 /usr/local/pierrot"] value NN
+    inst [18 or "0018 /etc/YOBO"] value NN
+    inst [19 or "0019 /usr/bin/jojo"] value NN
+    inst [20 or "0020 /usr/local/koko"] value NN
+
+--- indom 29.12 { iname replace "([0-9]+) .*/(.*)" -> "\1 \2" } ---
+PCP Archive Rewrite Specifications Summary
+
+Instance Domain: 29.12
+Instance:	[2] "0002 /etc/bozo" -> [2] "0002 bozo"
+Instance:	[3] "0003 /usr/bin/bobo" -> [3] "0003 bobo"
+Instance:	[4] "0004 /usr/local/jester" -> [4] "0004 jester"
+Instance:	[9] "0009 /usr/opt/bin/jojo" -> [9] "0009 jojo"
+Instance:	[20] "0020 /usr/local/koko" -> [20] "0020 koko"
+Instance:	[21] "0021 /usr/opt/bin/lala" -> [21] "0021 lala"
+Instance:	[22] "0022 /etc/bozo" -> [22] "0022 bozo"
+Instance:	[23] "0023 /usr/bin/bobo" -> [23] "0023 bobo"
+Instance:	[24] "0024 /usr/local/jester" -> [24] "0024 jester"
+Instance:	[27] "0027 /usr/bin/waldo" -> [27] "0027 waldo"
+Instance:	[28] "0028 /usr/local/yobo" -> [28] "0028 yobo"
+Instance:	[29] "0029 /usr/opt/bin/jojo" -> [29] "0029 jojo"
+Instance:	[30] "0030 /etc/koko" -> [30] "0030 koko"
+Instance:	[25] "0025 /usr/opt/bin/loko" -> [25] "0025 loko"
+Instance:	[26] "0026 /etc/pierrot" -> [26] "0026 pierrot"
+Instance:	[15] "0015 /usr/bin/loko" -> [15] "0015 loko"
+Instance:	[5] "0005 /usr/opt/bin/loko" -> [5] "0005 loko"
+Instance:	[14] "0014 /etc/jester" -> [14] "0014 jester"
+Instance:	[8] "0008 /usr/local/yobo" -> [8] "0008 yobo"
+Instance:	[19] "0019 /usr/bin/jojo" -> [19] "0019 jojo"
+Instance:	[16] "0016 /usr/local/pierrot" -> [16] "0016 pierrot"
+Instance:	[18] "0018 /etc/yobo" -> [18] "0018 yobo"
+Instance:	[10] "0010 /etc/koko" -> [10] "0010 koko"
+
+Metric: sample.proc.time (29.0.158)
+Inst Changes:	<- InDom 29.12
+
+Metric: sample.proc.exec (29.0.157)
+Inst Changes:	<- InDom 29.12
+
+Metric: sample.proc.ordinal (29.0.156)
+Inst Changes:	<- InDom 29.12
+6,18c6,18
+<    2 or "0002 /etc/bozo"
+<    3 or "0003 /usr/bin/bobo"
+<    4 or "0004 /usr/local/jester"
+<    5 or "0005 /usr/opt/bin/loko"
+<    8 or "0008 /usr/local/yobo"
+<    9 or "0009 /usr/opt/bin/jojo"
+<    10 or "0010 /etc/koko"
+<    14 or "0014 /etc/jester"
+<    15 or "0015 /usr/bin/loko"
+<    16 or "0016 /usr/local/pierrot"
+<    18 or "0018 /etc/yobo"
+<    19 or "0019 /usr/bin/jojo"
+<    20 or "0020 /usr/local/koko"
+---
+>    2 or "0002 bozo"
+>    3 or "0003 bobo"
+>    4 or "0004 jester"
+>    5 or "0005 loko"
+>    8 or "0008 yobo"
+>    9 or "0009 jojo"
+>    10 or "0010 koko"
+>    14 or "0014 jester"
+>    15 or "0015 loko"
+>    16 or "0016 pierrot"
+>    18 or "0018 yobo"
+>    19 or "0019 jojo"
+>    20 or "0020 koko"
+21,32c21,32
+<    2 or "0002 /etc/bozo"
+<    3 or "0003 /usr/bin/bobo"
+<    4 or "0004 /usr/local/jester"
+<    5 or "0005 /usr/opt/bin/loko"
+<    8 or "0008 /usr/local/yobo"
+<    9 or "0009 /usr/opt/bin/jojo"
+<    14 or "0014 /etc/jester"
+<    15 or "0015 /usr/bin/loko"
+<    16 or "0016 /usr/local/pierrot"
+<    18 or "0018 /etc/yobo"
+<    19 or "0019 /usr/bin/jojo"
+<    20 or "0020 /usr/local/koko"
+---
+>    2 or "0002 bozo"
+>    3 or "0003 bobo"
+>    4 or "0004 jester"
+>    5 or "0005 loko"
+>    8 or "0008 yobo"
+>    9 or "0009 jojo"
+>    14 or "0014 jester"
+>    15 or "0015 loko"
+>    16 or "0016 pierrot"
+>    18 or "0018 yobo"
+>    19 or "0019 jojo"
+>    20 or "0020 koko"
+35,44c35,44
+<    2 or "0002 /etc/bozo"
+<    3 or "0003 /usr/bin/bobo"
+<    4 or "0004 /usr/local/jester"
+<    5 or "0005 /usr/opt/bin/loko"
+<    8 or "0008 /usr/local/yobo"
+<    9 or "0009 /usr/opt/bin/jojo"
+<    14 or "0014 /etc/jester"
+<    15 or "0015 /usr/bin/loko"
+<    19 or "0019 /usr/bin/jojo"
+<    20 or "0020 /usr/local/koko"
+---
+>    2 or "0002 bozo"
+>    3 or "0003 bobo"
+>    4 or "0004 jester"
+>    5 or "0005 loko"
+>    8 or "0008 yobo"
+>    9 or "0009 jojo"
+>    14 or "0014 jester"
+>    15 or "0015 loko"
+>    19 or "0019 jojo"
+>    20 or "0020 koko"
+47,56c47,56
+<    2 or "0002 /etc/bozo"
+<    3 or "0003 /usr/bin/bobo"
+<    4 or "0004 /usr/local/jester"
+<    5 or "0005 /usr/opt/bin/loko"
+<    8 or "0008 /usr/local/yobo"
+<    9 or "0009 /usr/opt/bin/jojo"
+<    14 or "0014 /etc/jester"
+<    15 or "0015 /usr/bin/loko"
+<    20 or "0020 /usr/local/koko"
+<    21 or "0021 /usr/opt/bin/lala"
+---
+>    2 or "0002 bozo"
+>    3 or "0003 bobo"
+>    4 or "0004 jester"
+>    5 or "0005 loko"
+>    8 or "0008 yobo"
+>    9 or "0009 jojo"
+>    14 or "0014 jester"
+>    15 or "0015 loko"
+>    20 or "0020 koko"
+>    21 or "0021 lala"
+59,67c59,67
+<    2 or "0002 /etc/bozo"
+<    3 or "0003 /usr/bin/bobo"
+<    4 or "0004 /usr/local/jester"
+<    5 or "0005 /usr/opt/bin/loko"
+<    9 or "0009 /usr/opt/bin/jojo"
+<    14 or "0014 /etc/jester"
+<    15 or "0015 /usr/bin/loko"
+<    20 or "0020 /usr/local/koko"
+<    21 or "0021 /usr/opt/bin/lala"
+---
+>    2 or "0002 bozo"
+>    3 or "0003 bobo"
+>    4 or "0004 jester"
+>    5 or "0005 loko"
+>    9 or "0009 jojo"
+>    14 or "0014 jester"
+>    15 or "0015 loko"
+>    20 or "0020 koko"
+>    21 or "0021 lala"
+70,79c70,79
+<    2 or "0002 /etc/bozo"
+<    3 or "0003 /usr/bin/bobo"
+<    4 or "0004 /usr/local/jester"
+<    5 or "0005 /usr/opt/bin/loko"
+<    9 or "0009 /usr/opt/bin/jojo"
+<    14 or "0014 /etc/jester"
+<    15 or "0015 /usr/bin/loko"
+<    20 or "0020 /usr/local/koko"
+<    21 or "0021 /usr/opt/bin/lala"
+<    22 or "0022 /etc/bozo"
+---
+>    2 or "0002 bozo"
+>    3 or "0003 bobo"
+>    4 or "0004 jester"
+>    5 or "0005 loko"
+>    9 or "0009 jojo"
+>    14 or "0014 jester"
+>    15 or "0015 loko"
+>    20 or "0020 koko"
+>    21 or "0021 lala"
+>    22 or "0022 bozo"
+82,90c82,90
+<    2 or "0002 /etc/bozo"
+<    3 or "0003 /usr/bin/bobo"
+<    4 or "0004 /usr/local/jester"
+<    5 or "0005 /usr/opt/bin/loko"
+<    9 or "0009 /usr/opt/bin/jojo"
+<    15 or "0015 /usr/bin/loko"
+<    20 or "0020 /usr/local/koko"
+<    21 or "0021 /usr/opt/bin/lala"
+<    22 or "0022 /etc/bozo"
+---
+>    2 or "0002 bozo"
+>    3 or "0003 bobo"
+>    4 or "0004 jester"
+>    5 or "0005 loko"
+>    9 or "0009 jojo"
+>    15 or "0015 loko"
+>    20 or "0020 koko"
+>    21 or "0021 lala"
+>    22 or "0022 bozo"
+93,100c93,100
+<    2 or "0002 /etc/bozo"
+<    3 or "0003 /usr/bin/bobo"
+<    4 or "0004 /usr/local/jester"
+<    9 or "0009 /usr/opt/bin/jojo"
+<    15 or "0015 /usr/bin/loko"
+<    20 or "0020 /usr/local/koko"
+<    21 or "0021 /usr/opt/bin/lala"
+<    22 or "0022 /etc/bozo"
+---
+>    2 or "0002 bozo"
+>    3 or "0003 bobo"
+>    4 or "0004 jester"
+>    9 or "0009 jojo"
+>    15 or "0015 loko"
+>    20 or "0020 koko"
+>    21 or "0021 lala"
+>    22 or "0022 bozo"
+103,110c103,110
+<    2 or "0002 /etc/bozo"
+<    3 or "0003 /usr/bin/bobo"
+<    4 or "0004 /usr/local/jester"
+<    9 or "0009 /usr/opt/bin/jojo"
+<    20 or "0020 /usr/local/koko"
+<    21 or "0021 /usr/opt/bin/lala"
+<    22 or "0022 /etc/bozo"
+<    23 or "0023 /usr/bin/bobo"
+---
+>    2 or "0002 bozo"
+>    3 or "0003 bobo"
+>    4 or "0004 jester"
+>    9 or "0009 jojo"
+>    20 or "0020 koko"
+>    21 or "0021 lala"
+>    22 or "0022 bozo"
+>    23 or "0023 bobo"
+113,122c113,122
+<    2 or "0002 /etc/bozo"
+<    3 or "0003 /usr/bin/bobo"
+<    4 or "0004 /usr/local/jester"
+<    9 or "0009 /usr/opt/bin/jojo"
+<    20 or "0020 /usr/local/koko"
+<    21 or "0021 /usr/opt/bin/lala"
+<    22 or "0022 /etc/bozo"
+<    23 or "0023 /usr/bin/bobo"
+<    24 or "0024 /usr/local/jester"
+<    25 or "0025 /usr/opt/bin/loko"
+---
+>    2 or "0002 bozo"
+>    3 or "0003 bobo"
+>    4 or "0004 jester"
+>    9 or "0009 jojo"
+>    20 or "0020 koko"
+>    21 or "0021 lala"
+>    22 or "0022 bozo"
+>    23 or "0023 bobo"
+>    24 or "0024 jester"
+>    25 or "0025 loko"
+125,135c125,135
+<    2 or "0002 /etc/bozo"
+<    3 or "0003 /usr/bin/bobo"
+<    4 or "0004 /usr/local/jester"
+<    9 or "0009 /usr/opt/bin/jojo"
+<    20 or "0020 /usr/local/koko"
+<    21 or "0021 /usr/opt/bin/lala"
+<    22 or "0022 /etc/bozo"
+<    23 or "0023 /usr/bin/bobo"
+<    24 or "0024 /usr/local/jester"
+<    25 or "0025 /usr/opt/bin/loko"
+<    26 or "0026 /etc/pierrot"
+---
+>    2 or "0002 bozo"
+>    3 or "0003 bobo"
+>    4 or "0004 jester"
+>    9 or "0009 jojo"
+>    20 or "0020 koko"
+>    21 or "0021 lala"
+>    22 or "0022 bozo"
+>    23 or "0023 bobo"
+>    24 or "0024 jester"
+>    25 or "0025 loko"
+>    26 or "0026 pierrot"
+138,149c138,149
+<    2 or "0002 /etc/bozo"
+<    3 or "0003 /usr/bin/bobo"
+<    4 or "0004 /usr/local/jester"
+<    9 or "0009 /usr/opt/bin/jojo"
+<    20 or "0020 /usr/local/koko"
+<    21 or "0021 /usr/opt/bin/lala"
+<    22 or "0022 /etc/bozo"
+<    23 or "0023 /usr/bin/bobo"
+<    24 or "0024 /usr/local/jester"
+<    25 or "0025 /usr/opt/bin/loko"
+<    27 or "0027 /usr/bin/waldo"
+<    28 or "0028 /usr/local/yobo"
+---
+>    2 or "0002 bozo"
+>    3 or "0003 bobo"
+>    4 or "0004 jester"
+>    9 or "0009 jojo"
+>    20 or "0020 koko"
+>    21 or "0021 lala"
+>    22 or "0022 bozo"
+>    23 or "0023 bobo"
+>    24 or "0024 jester"
+>    25 or "0025 loko"
+>    27 or "0027 waldo"
+>    28 or "0028 yobo"
+152,164c152,164
+<    2 or "0002 /etc/bozo"
+<    3 or "0003 /usr/bin/bobo"
+<    4 or "0004 /usr/local/jester"
+<    9 or "0009 /usr/opt/bin/jojo"
+<    20 or "0020 /usr/local/koko"
+<    21 or "0021 /usr/opt/bin/lala"
+<    22 or "0022 /etc/bozo"
+<    23 or "0023 /usr/bin/bobo"
+<    24 or "0024 /usr/local/jester"
+<    27 or "0027 /usr/bin/waldo"
+<    28 or "0028 /usr/local/yobo"
+<    29 or "0029 /usr/opt/bin/jojo"
+<    30 or "0030 /etc/koko"
+---
+>    2 or "0002 bozo"
+>    3 or "0003 bobo"
+>    4 or "0004 jester"
+>    9 or "0009 jojo"
+>    20 or "0020 koko"
+>    21 or "0021 lala"
+>    22 or "0022 bozo"
+>    23 or "0023 bobo"
+>    24 or "0024 jester"
+>    27 or "0027 waldo"
+>    28 or "0028 yobo"
+>    29 or "0029 jojo"
+>    30 or "0030 koko"
+
+sample.proc.time
+    inst [1 or "0001 init"] value NN
+    inst [2 or "0002 bozo"] value NN
+    inst [3 or "0003 bobo"] value NN
+    inst [4 or "0004 jester"] value NN
+    inst [5 or "0005 loko"] value NN
+    inst [8 or "0008 yobo"] value NN
+    inst [9 or "0009 jojo"] value NN
+    inst [10 or "0010 koko"] value NN
+    inst [14 or "0014 jester"] value NN
+    inst [15 or "0015 loko"] value NN
+    inst [16 or "0016 pierrot"] value NN
+    inst [18 or "0018 yobo"] value NN
+    inst [19 or "0019 jojo"] value NN
+    inst [20 or "0020 koko"] value NN

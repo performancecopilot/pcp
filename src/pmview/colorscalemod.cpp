@@ -53,7 +53,7 @@ ColorScaleMod::ColorScaleMod(const char *metric, double scale,
 
 	if (pmDebugOptions.appl2)
 	    cerr << "ColorScaleMod: Added " << metric << " (Id = " 
-		 << _root->getName().getString() << ")" << endl;
+		 << _root->getName().getString() << ")" << Qt::endl;
     }
     else if (_metrics->numValues() > 1) {
 	warningMsg(_POS_, 
@@ -120,7 +120,7 @@ ColorScaleMod::dump(QTextStream &os) const
 {
     os << "ColorScaleMod: ";
     if (status() < 0)
-    	os << "Invalid Metric: " << pmErrStr(status()) << endl;
+    	os << "Invalid Metric: " << pmErrStr(status()) << Qt::endl;
     else {
 	os << "state = ";
 	dumpState(os, _state);
@@ -168,7 +168,7 @@ int
 ColorScaleMod::select(SoPath *)
 {
     if (pmDebugOptions.appl2)
-	cerr << "ColorScaleMod::select: " << _metrics->metric(0) << endl;
+	cerr << "ColorScaleMod::select: " << _metrics->metric(0) << Qt::endl;
     return 1;
 }
 
@@ -176,6 +176,6 @@ int
 ColorScaleMod::remove(SoPath *)
 {
     if (pmDebugOptions.appl2)
-	cerr << "ColorScaleMod::remove: " << _metrics->metric(0) << endl;
+	cerr << "ColorScaleMod::remove: " << _metrics->metric(0) << Qt::endl;
     return 0;
 }

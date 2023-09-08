@@ -20,8 +20,10 @@
 \f3pmsleep\f1 \- portable subsecond-capable sleep
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmpause
+[\f3\-w\f1 \f2where\f1]
 .br
 .B $PCP_BINADM_DIR/pmsleep
+[\f3\-w\f1 \f2where\f1]
 .I interval
 .SH DESCRIPTION
 .B pmpause
@@ -39,6 +41,17 @@ for
 and in the simplest form may be an unsigned integer
 or floating point constant
 (the implied units in this case are seconds).
+.PP
+The
+.B \-w
+option is provided to allow annotation of scripts with multiple
+uses of
+.B pmpause
+and/or
+.B pmsleep
+to identify a particular use in the process's arguments, e.g. as
+visible to
+.BR ps (1).
 .SH DIAGNOSTICS
 The exit status is 0 for success, or 1 for a malformed command line.
 If the underlying

@@ -10,8 +10,8 @@ Warning: skipping log rotation because we don't know which pmlogger to signal
 Input archives to be merged:
 	20011004.01.02
 	20011004.03.04
-	20011004.05.06
 	20011004.05.06-00
+	20011004.05.06
 	20011004.07.08
 Output archive files:
 -rw-r--r-- ... 20011004.meta
@@ -35,8 +35,8 @@ Error: no pmlogger instance running for host "otherhost"
 pmlogger_daily: [TMP.control:4]
 Warning: skipping log rotation because we don't know which pmlogger to signal
 Input archives to be merged:
-	20011002.00.10
 	20011002.00.10-00
+	20011002.00.10
 	20011002.02.03
 	20011002.03.04
 Output archive files:

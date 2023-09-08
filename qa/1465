@@ -1,0 +1,184 @@
+#!/bin/sh
+# PCP QA Test No. 1465
+# pmlogredact workout
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+_hunt()
+{
+    # hunt for info that should be redacted
+    # - usernames or home directory paths
+    # - host's hostname or fqdn
+    # - host's ipaddr or mac for network devices
+    #
+
+    if [ ! -f $tmp.usernames ]
+    then
+	# customized for the archives/all-ubuntu.22.04 archive
+	# wrt users and home directories
+	#
+	cat <<'End-of-File' >$tmp.passwd
+avahi:x:117:124:Avahi mDNS daemon,,,:/var/run/avahi-daemon:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+bind:x:121:127::/var/cache/bind:/usr/sbin/nologin
+colord:x:118:125:colord colour management daemon,,,:/var/lib/colord:/usr/sbin/nologin
+ftp:x:131:142:ftp daemon,,,:/srv/ftp:/usr/sbin/nologin
+kenj:x:1000:1000:Ken McDonell,,,:/home/kenj:/bin/bash
+libvirt-dnsmasq:x:126:136:Libvirt Dnsmasq,,,:/var/lib/libvirt/dnsmasq:/usr/sbin/nologin
+libvirt-qemu:x:64055:128:Libvirt Qemu,,,:/var/lib/libvirt:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+messagebus:x:103:107::/nonexistent:/usr/sbin/nologin
+minidlna:x:129:140:MiniDLNA server,,,:/var/lib/minidlna:/usr/sbin/nologin
+mysql:x:136:150:MySQL Server,,,:/nonexistent:/bin/false
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+pcp:x:998:998:Performance Co-Pilot:/var/lib/pcp:/usr/sbin/nologin
+pcpqa:x:997:997:PCP Quality Assurance:/var/lib/pcp/testsuite:/bin/bash
+plex:x:996:996::/var/lib/plexmediaserver:/usr/sbin/nologin
+postfix:x:124:131::/var/spool/postfix:/usr/sbin/nologin
+proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+pulse:x:116:122:PulseAudio daemon,,,:/var/run/pulse:/usr/sbin/nologin
+redis:x:125:134::/var/lib/redis:/usr/sbin/nologin
+root:x:0:0:root:/root:/bin/bash
+saned:x:115:121::/var/lib/saned:/usr/sbin/nologin
+sftp_client:x:1001:1000:,,,:/data/Pictures/PhotoSync:/bin/bash
+snap_daemon:x:584788:584788::/nonexistent:/bin/false
+snapd-range-524288-root:x:524288:524288::/nonexistent:/bin/false
+sync:x:4:65534:sync:/bin:/bin/sync
+syslog:x:102:106::/home/syslog:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+End-of-File
+
+	# usernames
+	#
+	awk -F':' <$tmp.passwd >$tmp.usernames '{print $1}'
+
+	# home directories (=> usernames)
+	#
+	awk -F':' <$tmp.passwd '{print $6}' \
+	| sed >$tmp.homedirs  \
+	    -e 's@/@\\/@g' >$tmp.homedirs 
+	# end
+
+	# awk prologue ...
+	#
+	cat <<'End-of-File' >$tmp.awk
+/^[a-z][a-z0-9_.]*$/	{ m=$1; seen=0; last_seen=0; printed=0 }
+End-of-File
+
+	# users or home dirs in metric values
+	#
+	sed <$tmp.usernames >>$tmp.awk \
+	    -e 's@.*@/value .*[" =]&[ "]/ { seen++ }@' \
+	# end
+	sed <$tmp.homedirs >>$tmp.awk \
+	    -e 's@.*@/value .*[" =]&[ /"]/ { seen++ }@' \
+	# end
+
+	# hostname and fqdn
+	#
+	if false
+	then
+	    # this is how to do it for real!
+	    #
+	    hostname_s=`hostname -s`
+	    hostname_f=`hostname`
+	else
+	    # customized for the archives/all-ubuntu.22.04 archive
+	    #
+	    hostname_s=bozo
+	    hostname_f=bozo.localdomain
+	fi
+	echo "$hostname_s" | sed >>$tmp.awk \
+	    -e 's/\./\\./g' \
+	    -e 's@.*@/[" /]&[" /]/ { seen++ }@' \
+	# end
+	if [ "$hostname_s" != "$hostname_f" ]
+	then
+	    echo "$hostname_f" | sed >>$tmp.awk \
+		-e 's/\./\\./g' \
+		-e 's@.*@/[" /]&[" /]/ { seen++ }@'
+	fi
+
+	# ipv4 and ipv6 addresses
+	#
+	echo '/[ "][1-9][0-9]*\.[1-9][0-9]*\.[1-9][0-9]*\.[1-9][0-9]*[ "]/ { seen++ }' >>$tmp.awk
+	# 2 of 5 components should be enough
+	echo '/[ "][0-9a-f][0-9a-f][0-9a-f][0-9a-f]::[0-9a-f][0-9a-f][0-9a-f][0-9a-f]::/ { seen++ }' >>$tmp.awk
+
+	# mac addresses (4 of 6 components should be enough)
+	#
+	echo '/[ "][0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:/ { seen++ }' >>$tmp.awk
+
+	# awk epilogue ...
+	#
+	cat <<'End-of-File' >>$tmp.awk
+seen > 0 && seen > last_seen {
+    if (printed < 2) print m,$0
+    printed++
+    last_seen = seen
+}
+End-of-File
+
+    fi
+
+    pmdumplog -z $1 \
+    | sed \
+	-e '/^[0-2].* metrics$/d' \
+	-e '/^  *[0-9][0-9.]* (/{
+s/^  *[0-9][0-9.]* (/\
+/
+s/): */\
+    /
+}' \
+    | awk -f $tmp.awk \
+    | LC_COLLATE=POSIX sort \
+    | uniq \
+    | sed -e 's/  */	/'
+}
+
+# real QA test starts here
+echo "=== before ==="
+_hunt archives/all-ubuntu.22.04
+$PCP_BINADM_DIR/pmlogredact archives/all-ubuntu.22.04 $tmp
+echo
+echo "=== after ==="
+_hunt $tmp
+
+# success, all done
+exit

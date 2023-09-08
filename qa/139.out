@@ -58,11 +58,13 @@ sample.xmit_pdu
 sample.noinst
 sample.needprofile
 sample.not_ready
+sample.not_ready_msec
 sample.rapid
 sample.error_code
 sample.error_check
 sample.secret.foo.bar.max.redirect
 sample.secret.bar
+sample.secret.family
 sample.secret.foo.one
 sample.secret.foo.two
 sample.secret.foo.bar.three

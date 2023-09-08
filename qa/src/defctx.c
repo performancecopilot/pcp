@@ -75,7 +75,7 @@ main(int argc, char **argv)
 "Usage: %s options ...\n\
 \n\
 Options:\n\
-  -a archive	use archive log, not host source\n\
+  -a archive	use archive, not host source\n\
   -D debugspec	set PCP debugging options\n\
   -h hostname	connect to PMCD on this host\n\
   -n namespace	alternative PMNS specification file\n",

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015,2022 Red Hat.
+ * Copyright (c) 2013-2015,2022-2023 Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,6 +20,20 @@
 HostDialog::HostDialog(QWidget *parent) : QDialog(parent)
 {
     setupUi(this);
+
+    connect(buttonBox, SIGNAL(accepted()),
+		this, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()),
+		this, SLOT(reject()));
+    connect(proxyCheckBox, SIGNAL(toggled(bool)),
+		this, SLOT(proxyCheckBox_toggled(bool)));
+    connect(containerCheckBox, SIGNAL(toggled(bool)),
+		this, SLOT(containerCheckBox_toggled(bool)));
+    connect(advancedPushButton, SIGNAL(clicked()),
+		this, SLOT(advancedPushButton_clicked()));
+    connect(authenticateCheckBox, SIGNAL(toggled(bool)),
+		this, SLOT(authenticateCheckBox_toggled(bool)));
+
     my.advancedState = false;
     my.advancedString = advancedPushButton->text();
     my.originalHeight = geometry().height();

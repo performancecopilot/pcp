@@ -70,7 +70,7 @@ Launch::setDefaultOptions(int interval,
 			      const char *starttime,
 			      const char *endtime,
 			      const char *offset,
-			      const char *timezone,
+			      const char *_timezone,
 			      const char *defsourcetype,
 			      const char *defsourcename,
 			      bool selected)
@@ -86,7 +86,7 @@ Launch::setDefaultOptions(int interval,
 	addOption("endtime", endtime);
     if (offset != NULL)
 	addOption("offset", offset);
-    if (timezone != NULL)
+    if (_timezone != NULL)
 	addOption("timezone", timezone);
     if (defsourcetype != NULL)
 	addOption("defsourcetype", defsourcetype);
@@ -141,7 +141,7 @@ Launch::addMetric(const QmcMetric &metric,
     if (pmDebugOptions.appl1) {
 	cerr << "Launch::addMetric(1): Adding ";
 	metric.dump(cerr, true, instance);
-	cerr << " (" << _metricCount << ')' << endl;
+	cerr << " (" << _metricCount << ')' << Qt::endl;
     }
 
     QmcSource source = metric.context()->source();
@@ -162,7 +162,7 @@ Launch::addMetric(const QmcMetric &metric,
     if (pmDebugOptions.appl1) {
 	cerr << "Launch::addMetric(2): Adding ";
 	metric.dump(cerr, true, instance);
-	cerr << " (" << _metricCount << ')' << endl;
+	cerr << " (" << _metricCount << ')' << Qt::endl;
     }
 
     QmcSource source = metric.context()->source();
@@ -191,7 +191,7 @@ Launch::addMetric(int context,
     if (_groupMetric == -1) {
 	if (pmDebugOptions.appl1)
 	    cerr << "Launch::addMetric: Called before startGroup."
-		 << " Adding a group." << endl;
+		 << " Adding a group." << Qt::endl;
 	startGroup();
     }
 
@@ -222,7 +222,7 @@ Launch::addMetric(int context,
     if (_groupMetric == -1) {
 	if (pmDebugOptions.appl1)
 	    cerr << "Launch::addMetric: Called before startGroup."
-		 << " Adding a group." << endl;
+		 << " Adding a group." << Qt::endl;
 	startGroup();
     }
 
@@ -306,11 +306,11 @@ Launch::startGroup(const char *hint)
 {
 
     if (_groupMetric != -1)
-    	cerr << "Launch::startGroup: Two groups started at once!" << endl;
+    	cerr << "Launch::startGroup: Two groups started at once!" << Qt::endl;
     else {
 	if (pmDebugOptions.appl1)
 	    cerr << "Launch::startGroup: Starting group " << _groupCount 
-	         << endl;
+	         << Qt::endl;
 
 	_groupMetric = _metricCount;
 	_groupHint = hint;
@@ -321,15 +321,15 @@ void
 Launch::endGroup()
 {
     if (_groupMetric == -1)
-    	cerr << "Launch::endGroup: No group to end!" << endl;
+    	cerr << "Launch::endGroup: No group to end!" << Qt::endl;
     else if (_groupMetric == _metricCount) {
     	cerr << "Launch::endGroup: No metrics added to group "
-	     << _groupCount << endl;
+	     << _groupCount << Qt::endl;
 	_groupMetric = -1;
     } else {
 	if (pmDebugOptions.appl1)
 	    cerr << "Launch::endGroup: ending group " << _groupCount 
-	         << endl;
+	         << Qt::endl;
 
 	_groupMetric = -1;
 	_groupCount++;
@@ -342,7 +342,7 @@ Launch::append(Launch const &rhs)
     if (rhs._groupMetric != -1) {
 	if (pmDebugOptions.appl1)
 	    cerr << "Launch::append: Group not finished in appended object."
-	         << " Completing group" << endl;
+	         << " Completing group" << Qt::endl;
 
 	// Cast away const, yuk.
 	((Launch *)(&rhs))->endGroup();
@@ -387,7 +387,7 @@ Launch::output(int fd) const
     str = ba.data();
     if ((sts = write(fd, str, strlen(str))) != (int)strlen(str)) {
 	cerr << "Launch::output: version write->" << sts
-	     << " not " << strlen(str) << endl;
+	     << " not " << strlen(str) << Qt::endl;
     }
 
     for (int i = 0; i < _strings.length(); i++) {
@@ -396,7 +396,7 @@ Launch::output(int fd) const
 	if ((sts = write(fd, str, strlen(str))) != (int)strlen(str)) {
 	    cerr << "Launch::output: string write->" << sts
 		 << " not " << strlen(str)
-		 << " for " << str << endl;
+		 << " for " << str << Qt::endl;
 	}
     }
 }

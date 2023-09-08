@@ -533,7 +533,7 @@ label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
 	    }
 
 	    if (!empty_labelset(s) && (sts = __pmAddLabels(lp, s, type)) < 0)
-		pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
+	        pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s - %s", s, pmErrStr(sts));
 
 	    Py_DECREF(label_result);
 	}
@@ -552,7 +552,7 @@ label(int ident, int type, pmLabelSet **lp, pmdaExt *ep)
 
 	    type |= PM_LABEL_OPTIONAL;
 	    if (!empty_labelset(s) && (sts = __pmAddLabels(lp, s, type)) < 0)
-		pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
+	        pmNotifyErr(LOG_ERR, "__pmAddLabels (optional) failed: %s - %s", s, pmErrStr(sts));
 
 	    Py_DECREF(notes_result);
 	}
@@ -722,7 +722,7 @@ label_callback(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 	}
 
 	if (!empty_labelset(s) && (sts = __pmAddLabels(lp, s, type)) < 0)
-	    pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
+	    pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s - %s", s, pmErrStr(sts));
 
 	Py_DECREF(label_result);
     }
@@ -740,7 +740,7 @@ label_callback(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 
 	type |= PM_LABEL_OPTIONAL;
 	if (!empty_labelset(s) && (sts = __pmAddLabels(lp, s, type)) < 0)
-	    pmNotifyErr(LOG_ERR, "__pmAddLabels failed: %s", pmErrStr(sts));
+	    pmNotifyErr(LOG_ERR, "__pmAddLabels (optional) failed: %s - %s", s, pmErrStr(sts));
 
 	Py_DECREF(notes_result);
     }

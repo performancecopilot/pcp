@@ -3,7 +3,7 @@ include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/smart
 ROOTFILES = $(shell echo *-root-*.tgz)
-SCRIPTS = lsblk.sh smartctl.sh
+SCRIPTS = lsblk.sh smartctl.sh nvme_cli.sh
 
 default setup default_pcp:
 

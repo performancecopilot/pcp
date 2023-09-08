@@ -1,50 +1,86 @@
 #! /bin/sh
 # PCP QA Test No. 654
-# checks basic pmdagfs2 functionality
-# Requires GFS2 support in the kernel and gfs2-utils installed,
-# else the test will not run.
+# checks GFS2 PMDA functionality
 #
-# Copyright (c) 2013 - 2014 Red Hat, Inc.  All Rights Reserved.
+# Copyright (c) 2013 - 2023 Red Hat. All Rights Reserved.
 #
 seq=`basename $0`
 echo "QA output created by $seq"
 
-. ./common.gfs2
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
 
-# Attempt to set up the gfs2 pmda test enviroment
-_gfs2_filesystem_support_tests
-_debugfs_mount_tests
+_check_valgrind
+[ $PCP_PLATFORM = linux ] || _notrun "GFS2 PMDA is Linux-specific (gfs2)"
+[ -d $PCP_PMDAS_DIR/gfs2 ] || _notrun "gfs2 PMDA directory is not installed"
 
-# check for any loopback devices, cowardly abort this test if any exist
-loopcount=`$sudo losetup -a | wc -l`
-[ $loopcount -eq 0 ] || _notrun "System has loop devices already, bailing"
+_cleanup()
+{
+    cd $here
+    _restore_pmda_install gfs2
+    $sudo rm -fr $tmp.root
+    $sudo rm -f $tmp.*
+}
 
-iam=gfs2
 status=1	# failure is the default!
-trap "_cleanup" 0 1 2 3 15
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
-$sudo rm -fr $tmp.*.dir
-$sudo rm -f $tmp.* $seq.full
-touch $here/$seq.full
+_filter()
+{
+    $here/src/sortinst | \
+    sed \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+    #end
+}
 
 # real QA test starts here
-_prepare_pmda_install $iam
-_install_pmda | _filter_gfs2
-_setup_gfs2_mounts
-
-echo "=== Check for successful install of pmda ===" | tee -a $here/$seq.full
-pminfo -v gfs2 > /dev/null || _fail "install failed?"
-
 echo
-echo "=== Check that the number of metrics are correct ===" | tee -a $here/$seq.full
-[ `_pmcount gfs2` -ge 346 ] || _fail "Too few metrics?"
+echo "=== Installing GFS2 PMDA ===" | tee -a $here/$seq.full
+_prepare_pmda_install gfs2
+cd $PCP_PMDAS_DIR/gfs2
+$sudo ./Install </dev/null >$tmp.out 2>&1
+cat $tmp.out >> $here/$seq.full
 
-echo
-echo "=== Basic glock stats from all kernels ===" | tee -a $here/$seq.full
-pminfo -fdm gfs2.glocks | _gfs2_filter_pminfo
-pminfo -fdm gfs2.holders | _gfs2_filter_pminfo
+root=$tmp.root
+export GFS2_SETUP_SYSFS="./sysfsdir/"
+export GFS2_SETUP_DEBUGFS="./debugfsdir/"
+export GFS2_SETUP_TRACE="./trace_pipe"
+pmda=$PCP_PMDAS_DIR/gfs2/pmda_gfs2.so,gfs2_init
+metrics=`pminfo -L -K clear -K add,115,$pmda gfs2 | LC_COLLATE=POSIX sort`
+memcheck="gfs2.glocks.total gfs2.sbstats gfs2.holders.total gfs2.glstats.total gfs2.tracepoints.glock_state_change.total gfs2.latency.grant.all"
 
-_remove_pmda
+for tgz in $here/gfs2/gfs2-*.tgz
+do
+    [ $tgz = "gfs2/gfs2-*" ] && continue
 
+    $sudo rm -fr $root
+    mkdir $root || _fail "root in use when processing $tgz"
+    cd $root
+    $sudo tar xzf $tgz
+    base=`basename $tgz`
+    count=`echo $base | sed -e 's,.*-root-,,g' -e 's,.tgz$,,g'`
+    cd $count/gfs2
+
+    echo "== Checking metric descriptors and values - $base"
+    pminfo -L -K clear -K add,115,$pmda -dfmtT $metrics 2>&1 \
+    | _filter
+
+    echo "== Checking with valgrind - $base"
+    _run_valgrind pminfo -L -K clear -K add,115,$pmda -f $memcheck 2>&1 \
+    | _filter
+
+    echo && echo "== done" && echo
+    cd $here
+done
+ 
+# cleanup ..
+#
+cd $PCP_PMDAS_DIR/gfs2
+$sudo ./Remove </dev/null >/dev/null 2>&1
+
+# success, all done
 status=0
 exit

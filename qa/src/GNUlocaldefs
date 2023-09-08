@@ -30,7 +30,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	read-bf.c write-bf.c slow_af.c indom.c tztest.c \
 	multifetch.c pmconvscale.c torture-eol.c \
 	crashpmcd.c dumb_pmda.c torture_cache.c wrap_int.c \
-	labels.c mergelabels.c mergelabelsets.c addlabels.c \
+	labels.c mergelabels.c mergelabelsets.c addlabels.c parselabels.c \
 	matchInstanceName.c torture_pmns.c \
 	mmv_genstats.c mmv_instances.c mmv_poke.c mmv_noinit.c mmv_nostats.c \
 	mmv2_genstats.c mmv2_instances.c mmv2_nostats.c mmv2_simple.c \
@@ -52,7 +52,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	getdomainname.c profilecrash.c store_and_fetch.c test_service_notify.c \
 	ctx_derive.c pmstrn.c pmfstring.c pmfg-derived.c mmv_help.c sizeof.c \
 	stampconv.c time_stamp.c archend.c scandata.c wait_for_values.c \
-	dumpstack.c usergroup.c derived_help.c
+	dumpstack.c usergroup.c derived_help.c ready-or-not.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -154,7 +154,6 @@ PYTHONFILES = \
 	bcc_netproc.python redis_proxy.python
 # not installed:
 PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
-LDIRT += $(PYFILES)
 else
 PYTHONFILES =
 PYFILES =
@@ -174,6 +173,7 @@ MYFILES += \
 	qa_shmctl.c qa_sem_msg_ctl.c \
 	qa_shmctl_stat.c qa_msgctl_stat.c qa_semctl_stat.c \
 	qa_libpcp_compat.c addctxdm.c
+LDIRT += addctxdm.o
 
 MYSCRIPTS = grind-tools show-args fixhosts mkpermslist \
 	memcachestats.pl indomdelta pmjson_array_sort
@@ -221,6 +221,7 @@ LDIRT	+= *.log domain.h help.pag help.dir \
 	big[0-2].[0-2] big[0-2].index big[0-2].meta \
 	chkctx2_lite.c fetchrate_lite.c \
 	localconfig.h gmon.out \
+	$(PLFILES) $(PYFILES) \
 	$(TARGETS)
 
 .ORDER:	torture_api \
@@ -383,6 +384,10 @@ mergelabelsets:	mergelabelsets.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ mergelabelsets.c $(LDLIBS)
 
+parselabels:	parselabels.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ parselabels.c $(LDLIBS)
+
 traverse_return_codes:	traverse_return_codes.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ traverse_return_codes.c $(LDLIBS)
@@ -404,6 +409,10 @@ usergroup:	usergroup.c
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 derived_help:	derived_help.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+
+ready-or-not:	ready-or-not.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 

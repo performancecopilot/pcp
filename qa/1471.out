@@ -1,0 +1,13 @@
+QA output created by 1471
+Start valgrind PMDA: VALGRIND PCP_VAR_DIR/pmdas/linux/pmdalinux -l TMP.log
+Memcheck, a memory error detector
+Command: PCP_VAR_DIR/pmdas/linux/pmdalinux -l TMP.log
+PMID(s): 60.12.7
+__pmResult ... numpmid: 1
+  60.12.7 (kernel.uname.distro): numval: 1 valfmt: 1 vlist[]:
+   value "FooBarMumbleFratz"
+LEAK SUMMARY:
+definitely lost: 10 bytes in 1 blocks
+indirectly lost: 0 bytes in 0 blocks
+Rerun with --leak-check=full to see details of leaked memory
+ERROR SUMMARY: 0 errors from 0 contexts ...

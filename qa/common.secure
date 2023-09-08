@@ -307,6 +307,15 @@ _setup_cert()
 #
 _setup_tls()
 {
+    find $here/tls.conf/*.crt -mtime +360 2>/dev/null >$tmp.certs
+    if [ -s $tmp.certs ]
+    then
+	# remove old certificates before they expire after one
+	# year and cause havoc to debug
+	#
+	$sudo rm -rf $here/tls.conf
+    fi
+
     [ -d $here/tls.conf ] || mkdir $here/tls.conf
 
     [ -f $here/tls.conf/ca.key ] || \

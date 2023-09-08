@@ -15,6 +15,7 @@ _pmdabpftrace_check_probes $tmp.tmp
 case `hostname -s`
 in
     bozo-vm)
+	    rm -f $tmp.*
 	    _notrun "cannot set bpftrace hz=999 on this VM"
 	    ;;
 esac

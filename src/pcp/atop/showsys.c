@@ -38,6 +38,11 @@
 #include "showgeneric.h"
 #include "showlinux.h"
 
+static void	addblanks(double *, double *);
+static void	sumscaling(struct sstat *, count_t *, count_t *, count_t *);
+static void	psiformatavg(struct psi *, char *, char *, int);
+static void	psiformattot(struct psi *, char *, extraparam *, int *, char *, int);
+
 /*******************************************************************/
 /*
 ** print the label of a system-statistics line and switch on
@@ -54,9 +59,9 @@ syscolorlabel(char *labeltext, unsigned int badness)
 
 		        if (usecolors)
 			{
-                        	attron(COLOR_PAIR(COLORCRIT));
+                        	attron(COLOR_PAIR(FGCOLORCRIT));
                         	printg(labeltext);
-                        	attroff(COLOR_PAIR(COLORCRIT));
+                        	attroff(COLOR_PAIR(FGCOLORCRIT));
 			}
 			else
 			{
@@ -67,16 +72,16 @@ syscolorlabel(char *labeltext, unsigned int badness)
 
                         attroff(A_BLINK);
 
-                        return COLORCRIT;
+                        return FGCOLORCRIT;
                 }
 
                 if (almostcrit && badness >= almostcrit)
                 {
 		        if (usecolors)
 			{
-                        	attron(COLOR_PAIR(COLORALMOST));
+                        	attron(COLOR_PAIR(FGCOLORALMOST));
                         	printg(labeltext);
-                        	attroff(COLOR_PAIR(COLORALMOST));
+                        	attroff(COLOR_PAIR(FGCOLORALMOST));
 			}
 			else
 			{
@@ -85,7 +90,7 @@ syscolorlabel(char *labeltext, unsigned int badness)
                         	attroff(A_BOLD);
 			}
 
-                        return COLORALMOST;
+                        return FGCOLORALMOST;
                 }
         }
 
@@ -98,7 +103,7 @@ syscolorlabel(char *labeltext, unsigned int badness)
 
 static char *sysprt_BLANKBOX(struct sstat *sstat, extraparam *notused, int, int *);
 
-void
+static void
 addblanks(double *charslackused, double *charslackover)
 {
         *charslackused+=*charslackover;
@@ -229,9 +234,9 @@ showsysline(sys_printpair* elemptr,
 				color = 0;
 
 				if (badness >= 100)
-                               		color = COLORCRIT;
+                               		color = FGCOLORCRIT;
 				else if (almostcrit && badness >= almostcrit)
-					color = COLORALMOST;
+					color = FGCOLORALMOST;
 			}
 
 			if (color)	// after all: has a color been set?
@@ -346,10 +351,10 @@ sysprt_PRCNZOMBIE(struct sstat *notused, extraparam *as, int badness, int *color
         static char buf[15]="#zombie   ";
 
 	if (as->nzomb > 30)
-		*color = COLORALMOST;
+		*color = FGCOLORALMOST;
 
 	if (as->nzomb > 50)
-		*color = COLORCRIT;
+		*color = FGCOLORCRIT;
 
         val2valstr(as->nzomb, buf+8, sizeof buf-8, 4, 0, 0);
         return buf;
@@ -367,7 +372,7 @@ sysprt_PRCNNEXIT(struct sstat *notused, extraparam *as, int badness, int *color)
         {
 		if (as->noverflow)
 		{
-			*color = COLORCRIT;
+			*color = FGCOLORCRIT;
 			buf[6] = '>';
 			val2valstr(as->nexit, buf+7, sizeof buf-7, 5, as->avgval, as->nsecs);
 		}
@@ -382,12 +387,12 @@ sysprt_PRCNNEXIT(struct sstat *notused, extraparam *as, int badness, int *color)
         {
 		if (firstcall)
 		{
-			*color = COLORCRIT;
+			*color = FGCOLORCRIT;
 			firstcall = 0;
 		}
 		else
 		{
-			*color = COLORINFO;
+			*color = FGCOLORINFO;
 		}
 
 		switch (acctreason)
@@ -601,10 +606,10 @@ dofmt_cpufreq(char *buf, size_t buflen, count_t maxfreq, count_t cnt, count_t ti
 
 
 /*
- * sumscaling: sum scaling info for all processors
- *
- */
-void sumscaling(struct sstat *sstat, count_t *maxfreq,
+** sumscaling: sum scaling info for all processors
+*/
+static void
+sumscaling(struct sstat *sstat, count_t *maxfreq,
 				count_t *cnt, count_t *ticks)
 {
         count_t mymaxfreq = 0;
@@ -831,12 +836,12 @@ sysprt_CPUIPC(struct sstat *sstat, extraparam *as, int badness, int *color)
 	switch (sstat->cpu.all.cycle)
 	{
 	   case 0:
-		*color = COLORINFO;
+		*color = FGCOLORINFO;
         	pmsprintf(buf, sizeof buf, "ipc notavail");
 		break;
 
 	   case 1:
-		*color = COLORINFO;
+		*color = FGCOLORINFO;
         	pmsprintf(buf, sizeof buf, "ipc  initial");
 		break;
 
@@ -867,12 +872,12 @@ sysprt_CPUIIPC(struct sstat *sstat, extraparam *as, int badness, int *color)
 	switch (sstat->cpu.all.cycle)
 	{
 	   case 0:
-		*color = COLORINFO;
+		*color = FGCOLORINFO;
         	pmsprintf(buf, sizeof buf, "ipc notavail");
 		break;
 
 	   case 1:
-		*color = COLORINFO;
+		*color = FGCOLORINFO;
         	pmsprintf(buf, sizeof buf, "ipc  initial");
 		break;
 
@@ -898,12 +903,12 @@ sysprt_CPUCYCLE(struct sstat *sstat, extraparam *as, int badness, int *color)
 	switch (sstat->cpu.all.cycle)
 	{
 	   case 0:
-		*color = COLORINFO;
+		*color = FGCOLORINFO;
         	pmsprintf(buf+5, sizeof buf-5, "missing");
 		break;
 
 	   case 1:
-		*color = COLORINFO;
+		*color = FGCOLORINFO;
         	pmsprintf(buf+5, sizeof buf-5, "initial");
 		break;
 
@@ -925,12 +930,12 @@ sysprt_CPUICYCLE(struct sstat *sstat, extraparam *as, int badness, int *color)
 	switch (sstat->cpu.all.cycle)
 	{
 	   case 0:
-		*color = COLORINFO;
+		*color = FGCOLORINFO;
         	pmsprintf(buf+5, sizeof buf-5, "missing");
 		break;
 
 	   case 1:
-		*color = COLORINFO;
+		*color = FGCOLORINFO;
         	pmsprintf(buf+5, sizeof buf-5, "initial");
 		break;
 
@@ -994,7 +999,7 @@ sysprt_CPLAVG15(struct sstat *sstat, extraparam *notused, int badness, int *colo
         static char buf[15]="avg15 ";
 
 	if (sstat->cpu.lavg15 > (2 * sstat->cpu.nrcpu) )
-		*color = COLORALMOST;
+		*color = FGCOLORALMOST;
 
         if (sstat->cpu.lavg15 > 99999.0)
 	{
@@ -1122,7 +1127,7 @@ sysprt_GPUMEMPERC(struct sstat *sstat, extraparam *as, int badness, int *color)
 			       sstat->gpu.gpu[as->index].samples;
 
 		if (perc >= 40)
-			*color = COLORALMOST;
+			*color = FGCOLORALMOST;
 
         	pmsprintf(buf+8, sizeof buf-8, "%3d%%", perc);
 	}
@@ -1150,7 +1155,7 @@ sysprt_GPUGPUPERC(struct sstat *sstat, extraparam *as, int badness, int *color)
 			       sstat->gpu.gpu[as->index].samples;
 
 		if (perc >= 90)
-			*color = COLORALMOST;
+			*color = FGCOLORALMOST;
 
         	pmsprintf(buf+8, sizeof buf-8, "%3d%%", perc);
 	}
@@ -1308,7 +1313,7 @@ sysprt_PAGETABS(struct sstat *sstat, extraparam *notused, int badness, int *colo
         static char buf[16]="pgtab    ";
         count_t value = sstat->mem.pagetables * 1024;
 	*color = -1;
-        val2memstr(value, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
+	val2memstr(value, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1591,7 +1596,7 @@ sysprt_SWPCOMMITTED(struct sstat *sstat, extraparam *notused, int badness, int *
         val2memstr(value, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
 
 	if (sstat->mem.commitlim && sstat->mem.committed > sstat->mem.commitlim)
-		*color = COLORALMOST;
+		*color = FGCOLORALMOST;
 
         return buf;
 }
@@ -1607,7 +1612,7 @@ sysprt_SWPCOMMITLIM(struct sstat *sstat, extraparam *notused, int badness, int *
         val2memstr(value, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
 
 	if (sstat->mem.commitlim && sstat->mem.committed > sstat->mem.commitlim)
-		*color = COLORINFO;
+		*color = FGCOLORINFO;
 
         return buf;
 }
@@ -1725,7 +1730,7 @@ sysprt_OOMKILLS(struct sstat *sstat, extraparam *as, int badness, int *color)
         static char buf[16]="oomkill  ";
 
 	if (sstat->mem.oomkills)
-		*color = COLORCRIT;
+		*color = FGCOLORCRIT;
 
         val2valstr(sstat->mem.oomkills, buf+8, sizeof buf-8, 4, as->avgval, as->nsecs);
         return buf;
@@ -2093,7 +2098,7 @@ sysprt_NUMLLC(struct sstat *sstat, extraparam *as, int badness, int *color)
 sys_printdef syspdef_NUMLLC = {"NUMLLC", sysprt_NUMLLC, NULL};
 /*******************************************************************/
 // general formatting of PSI field in avg10/avg60/avg300
-void
+static void
 psiformatavg(struct psi *p, char *head, char *buf, int bufsize)
 {
 	static char	formats[] = "%.0f/%.0f/%.0f";
@@ -2117,7 +2122,7 @@ psiformatavg(struct psi *p, char *head, char *buf, int bufsize)
 		pmsprintf(tmpbuf, sizeof tmpbuf, formats, avg10, avg60, avg300);
 	}
 
-	pmsprintf(buf, bufsize, "%s %9s", head, tmpbuf);
+	pmsprintf(buf, bufsize, "%s %9.9s", head, tmpbuf);
 }
 
 static char *
@@ -2167,7 +2172,7 @@ sys_printdef syspdef_PSIIOF = {"PSIIOF", sysprt_PSIIOF, NULL};
 
 /*******************************************************************/
 // general formatting of PSI field in total percentage
-void
+static void
 psiformattot(struct psi *p, char *head, extraparam *as, int *color,
 						char *buf, int bufsize)
 {
@@ -2178,7 +2183,7 @@ psiformattot(struct psi *p, char *head, extraparam *as, int *color,
 		perc = 100;
 
 	if (perc >= 1)
-		*color = COLORALMOST;
+		*color = FGCOLORALMOST;
 
 	pmsprintf(buf, bufsize, formats, head, perc);
 }

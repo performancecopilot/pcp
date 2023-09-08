@@ -261,7 +261,7 @@ trap "_cleanup; exit \\\$status" 0 1 2 3 15
 _filter()
 {
     sed \\
-	-e 's/<something>/<else>/' \\
+	-e "s@\$tmp@TMP@g" \\
     # end
 }
 
@@ -273,7 +273,6 @@ then
 else
     ...your test goes here... 2>&1
 fi \\
-| sed -e "s@\$tmp@TMP@g" \\
 | _filter
 
 # if really bad error

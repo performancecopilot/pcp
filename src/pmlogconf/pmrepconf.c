@@ -608,7 +608,6 @@ pmrepconf(int argc, char **argv)
 	pmrep_create(file);
     else
 	pmrep_update(file, &sbuf);
-    fsync(fileno(file));
     fclose(file);
     return 0;
 }

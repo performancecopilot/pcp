@@ -93,6 +93,7 @@ OTHER_SUBDIRS += \
 	pmlogmv \
 	pmlogpaste \
 	pmlogrewrite \
+	pmlogredact \
 	pmlogsize \
 	pmlogsummary \
 	pmpost \

@@ -1,0 +1,931 @@
+QA output created by 1973
+
+pcp-zoneinfo output : Display default output
+Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/23/23  x86_64    (4 CPU)
+TimeStamp =  00:25:18
+NODE  0, per-node status
+	 nr_inactive_anon 35933
+	 nr_active_anon 533154
+	 nr_inactive_file 760769
+	 nr_active_file 513583
+	 nr_unevictable 3105
+	 nr_slab_reclaimable 140646
+	 nr_slab_unreclaimable 54046
+	 nr_isolated_anon 0
+	 nr_isolated_file 0
+	 nr_anon_pages 523670
+	 nr_mapped 173358
+	 nr_file_pages 1313502
+	 nr_dirty 35
+	 nr_writeback 0
+	 nr_writeback_temp 0
+	 nr_shmem 36501
+	 nr_shmem_hugepages 0
+	 nr_shmem_pmdmapped 0
+	 nr_file_hugepages 0
+	 nr_file_pmdmapped 0
+	 nr_anon_transparent_hugepages 582
+	 nr_unstable 0
+	 nr_vmscan_write 0
+	 nr_vmscan_immediate_reclaim 0
+	 nr_dirtied 594934
+	 nr_written 572571
+	 nr_kernel_misc_reclaimable 0
+Node 0, zone    DMA32
+	 pages free 814439
+	       min 2637
+	       low 3437
+	       high 4237
+	       spanned 1044480
+	       present 913392
+	       managed 815354
+               protection [0, 0, 16881, 16881, 16881]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 13
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 0
+	 numa_local 13
+	 numa_other 0
+Node 0, zone    DMA
+	 pages free 3840
+	       min 12
+	       low 15
+	       high 18
+	       spanned 4095
+	       present 3998
+	       managed 3840
+               protection [0, 3125, 20006, 20006, 20006]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 0
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 0
+	 numa_local 0
+	 numa_other 0
+Node 0, zone    Normal
+	 pages free 2149304
+	       min 14245
+	       low 18566
+	       high 22887
+	       spanned 4417792
+	       present 4417792
+	       managed 4321635
+               protection [0, 0, 0, 0, 0]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 35933
+	 nr_zone_active_anon 533154
+	 nr_zone_inactive_file 760769
+	 nr_zone_active_file 513583
+	 nr_zone_unevictable 3105
+	 nr_zone_write_pending 35
+	 nr_mlock 3105
+	 nr_page_table_pages 15186
+	 nr_kernel_stack 12616
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 87458144
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 28603
+	 numa_local 87458144
+	 numa_other 0
+Node 0, zone    Device
+	 pages free 0
+	       min 0
+	       low 0
+	       high 0
+	       spanned 0
+	       present 0
+	       managed 0
+               protection [0, 0, 0, 0, 0]
+Node 0, zone    Movable
+	 pages free 0
+	       min 0
+	       low 0
+	       high 0
+	       spanned 0
+	       present 0
+	       managed 0
+               protection [0, 0, 0, 0, 0]
+Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/23/23  x86_64    (4 CPU)
+TimeStamp =  00:25:21
+NODE  0, per-node status
+	 nr_inactive_anon 35933
+	 nr_active_anon 533154
+	 nr_inactive_file 760769
+	 nr_active_file 513583
+	 nr_unevictable 3105
+	 nr_slab_reclaimable 140646
+	 nr_slab_unreclaimable 54046
+	 nr_isolated_anon 0
+	 nr_isolated_file 0
+	 nr_anon_pages 523670
+	 nr_mapped 173358
+	 nr_file_pages 1313502
+	 nr_dirty 35
+	 nr_writeback 0
+	 nr_writeback_temp 0
+	 nr_shmem 36501
+	 nr_shmem_hugepages 0
+	 nr_shmem_pmdmapped 0
+	 nr_file_hugepages 0
+	 nr_file_pmdmapped 0
+	 nr_anon_transparent_hugepages 582
+	 nr_unstable 0
+	 nr_vmscan_write 0
+	 nr_vmscan_immediate_reclaim 0
+	 nr_dirtied 594934
+	 nr_written 572571
+	 nr_kernel_misc_reclaimable 0
+Node 0, zone    DMA32
+	 pages free 814439
+	       min 2637
+	       low 3437
+	       high 4237
+	       spanned 1044480
+	       present 913392
+	       managed 815354
+               protection [0, 0, 16881, 16881, 16881]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 13
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 0
+	 numa_local 13
+	 numa_other 0
+Node 0, zone    DMA
+	 pages free 3840
+	       min 12
+	       low 15
+	       high 18
+	       spanned 4095
+	       present 3998
+	       managed 3840
+               protection [0, 3125, 20006, 20006, 20006]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 0
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 0
+	 numa_local 0
+	 numa_other 0
+Node 0, zone    Normal
+	 pages free 2149304
+	       min 14245
+	       low 18566
+	       high 22887
+	       spanned 4417792
+	       present 4417792
+	       managed 4321635
+               protection [0, 0, 0, 0, 0]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 35933
+	 nr_zone_active_anon 533154
+	 nr_zone_inactive_file 760769
+	 nr_zone_active_file 513583
+	 nr_zone_unevictable 3105
+	 nr_zone_write_pending 35
+	 nr_mlock 3105
+	 nr_page_table_pages 15186
+	 nr_kernel_stack 12616
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 87458144
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 28603
+	 numa_local 87458144
+	 numa_other 0
+Node 0, zone    Device
+	 pages free 0
+	       min 0
+	       low 0
+	       high 0
+	       spanned 0
+	       present 0
+	       managed 0
+               protection [0, 0, 0, 0, 0]
+Node 0, zone    Movable
+	 pages free 0
+	       min 0
+	       low 0
+	       high 0
+	       spanned 0
+	       present 0
+	       managed 0
+               protection [0, 0, 0, 0, 0]
+
+pcp-zoneinfo output : Display output
+Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/23/23  x86_64    (4 CPU)
+TimeStamp =  00:25:16
+NODE  0, per-node status
+	 nr_inactive_anon 35933
+	 nr_active_anon 533154
+	 nr_inactive_file 760769
+	 nr_active_file 513583
+	 nr_unevictable 3105
+	 nr_slab_reclaimable 140646
+	 nr_slab_unreclaimable 54046
+	 nr_isolated_anon 0
+	 nr_isolated_file 0
+	 nr_anon_pages 523670
+	 nr_mapped 173358
+	 nr_file_pages 1313502
+	 nr_dirty 35
+	 nr_writeback 0
+	 nr_writeback_temp 0
+	 nr_shmem 36501
+	 nr_shmem_hugepages 0
+	 nr_shmem_pmdmapped 0
+	 nr_file_hugepages 0
+	 nr_file_pmdmapped 0
+	 nr_anon_transparent_hugepages 582
+	 nr_unstable 0
+	 nr_vmscan_write 0
+	 nr_vmscan_immediate_reclaim 0
+	 nr_dirtied 594934
+	 nr_written 572571
+	 nr_kernel_misc_reclaimable 0
+Node 0, zone    DMA
+	 pages free 3840
+	       min 12
+	       low 15
+	       high 18
+	       spanned 4095
+	       present 3998
+	       managed 3840
+               protection [0, 3125, 20006, 20006, 20006]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 0
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 0
+	 numa_local 0
+	 numa_other 0
+Node 0, zone    Normal
+	 pages free 2149304
+	       min 14245
+	       low 18566
+	       high 22887
+	       spanned 4417792
+	       present 4417792
+	       managed 4321635
+               protection [0, 0, 0, 0, 0]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 35933
+	 nr_zone_active_anon 533154
+	 nr_zone_inactive_file 760769
+	 nr_zone_active_file 513583
+	 nr_zone_unevictable 3105
+	 nr_zone_write_pending 35
+	 nr_mlock 3105
+	 nr_page_table_pages 15186
+	 nr_kernel_stack 12616
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 87458144
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 28603
+	 numa_local 87458144
+	 numa_other 0
+Node 0, zone    DMA32
+	 pages free 814439
+	       min 2637
+	       low 3437
+	       high 4237
+	       spanned 1044480
+	       present 913392
+	       managed 815354
+               protection [0, 0, 16881, 16881, 16881]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 13
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 0
+	 numa_local 13
+	 numa_other 0
+Node 0, zone    Movable
+	 pages free 0
+	       min 0
+	       low 0
+	       high 0
+	       spanned 0
+	       present 0
+	       managed 0
+               protection [0, 0, 0, 0, 0]
+Node 0, zone    Device
+	 pages free 0
+	       min 0
+	       low 0
+	       high 0
+	       spanned 0
+	       present 0
+	       managed 0
+               protection [0, 0, 0, 0, 0]
+Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/23/23  x86_64    (4 CPU)
+TimeStamp =  00:25:19
+NODE  0, per-node status
+	 nr_inactive_anon 35933
+	 nr_active_anon 533154
+	 nr_inactive_file 760769
+	 nr_active_file 513583
+	 nr_unevictable 3105
+	 nr_slab_reclaimable 140646
+	 nr_slab_unreclaimable 54046
+	 nr_isolated_anon 0
+	 nr_isolated_file 0
+	 nr_anon_pages 523670
+	 nr_mapped 173358
+	 nr_file_pages 1313502
+	 nr_dirty 35
+	 nr_writeback 0
+	 nr_writeback_temp 0
+	 nr_shmem 36501
+	 nr_shmem_hugepages 0
+	 nr_shmem_pmdmapped 0
+	 nr_file_hugepages 0
+	 nr_file_pmdmapped 0
+	 nr_anon_transparent_hugepages 582
+	 nr_unstable 0
+	 nr_vmscan_write 0
+	 nr_vmscan_immediate_reclaim 0
+	 nr_dirtied 594934
+	 nr_written 572571
+	 nr_kernel_misc_reclaimable 0
+Node 0, zone    DMA
+	 pages free 3840
+	       min 12
+	       low 15
+	       high 18
+	       spanned 4095
+	       present 3998
+	       managed 3840
+               protection [0, 3125, 20006, 20006, 20006]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 0
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 0
+	 numa_local 0
+	 numa_other 0
+Node 0, zone    Normal
+	 pages free 2149304
+	       min 14245
+	       low 18566
+	       high 22887
+	       spanned 4417792
+	       present 4417792
+	       managed 4321635
+               protection [0, 0, 0, 0, 0]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 35933
+	 nr_zone_active_anon 533154
+	 nr_zone_inactive_file 760769
+	 nr_zone_active_file 513583
+	 nr_zone_unevictable 3105
+	 nr_zone_write_pending 35
+	 nr_mlock 3105
+	 nr_page_table_pages 15186
+	 nr_kernel_stack 12616
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 87458144
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 28603
+	 numa_local 87458144
+	 numa_other 0
+Node 0, zone    DMA32
+	 pages free 814439
+	       min 2637
+	       low 3437
+	       high 4237
+	       spanned 1044480
+	       present 913392
+	       managed 815354
+               protection [0, 0, 16881, 16881, 16881]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 13
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 0
+	 numa_local 13
+	 numa_other 0
+Node 0, zone    Movable
+	 pages free 0
+	       min 0
+	       low 0
+	       high 0
+	       spanned 0
+	       present 0
+	       managed 0
+               protection [0, 0, 0, 0, 0]
+Node 0, zone    Device
+	 pages free 0
+	       min 0
+	       low 0
+	       high 0
+	       spanned 0
+	       present 0
+	       managed 0
+               protection [0, 0, 0, 0, 0]
+Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/23/23  x86_64    (4 CPU)
+TimeStamp =  00:25:22
+NODE  0, per-node status
+	 nr_inactive_anon 35933
+	 nr_active_anon 533154
+	 nr_inactive_file 760769
+	 nr_active_file 513583
+	 nr_unevictable 3105
+	 nr_slab_reclaimable 140646
+	 nr_slab_unreclaimable 54046
+	 nr_isolated_anon 0
+	 nr_isolated_file 0
+	 nr_anon_pages 523670
+	 nr_mapped 173358
+	 nr_file_pages 1313502
+	 nr_dirty 35
+	 nr_writeback 0
+	 nr_writeback_temp 0
+	 nr_shmem 36501
+	 nr_shmem_hugepages 0
+	 nr_shmem_pmdmapped 0
+	 nr_file_hugepages 0
+	 nr_file_pmdmapped 0
+	 nr_anon_transparent_hugepages 582
+	 nr_unstable 0
+	 nr_vmscan_write 0
+	 nr_vmscan_immediate_reclaim 0
+	 nr_dirtied 594934
+	 nr_written 572571
+	 nr_kernel_misc_reclaimable 0
+Node 0, zone    DMA
+	 pages free 3840
+	       min 12
+	       low 15
+	       high 18
+	       spanned 4095
+	       present 3998
+	       managed 3840
+               protection [0, 3125, 20006, 20006, 20006]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 0
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 0
+	 numa_local 0
+	 numa_other 0
+Node 0, zone    Normal
+	 pages free 2149304
+	       min 14245
+	       low 18566
+	       high 22887
+	       spanned 4417792
+	       present 4417792
+	       managed 4321635
+               protection [0, 0, 0, 0, 0]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 35933
+	 nr_zone_active_anon 533154
+	 nr_zone_inactive_file 760769
+	 nr_zone_active_file 513583
+	 nr_zone_unevictable 3105
+	 nr_zone_write_pending 35
+	 nr_mlock 3105
+	 nr_page_table_pages 15186
+	 nr_kernel_stack 12616
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 87458144
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 28603
+	 numa_local 87458144
+	 numa_other 0
+Node 0, zone    DMA32
+	 pages free 814439
+	       min 2637
+	       low 3437
+	       high 4237
+	       spanned 1044480
+	       present 913392
+	       managed 815354
+               protection [0, 0, 16881, 16881, 16881]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 13
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 0
+	 numa_local 13
+	 numa_other 0
+Node 0, zone    Movable
+	 pages free 0
+	       min 0
+	       low 0
+	       high 0
+	       spanned 0
+	       present 0
+	       managed 0
+               protection [0, 0, 0, 0, 0]
+Node 0, zone    Device
+	 pages free 0
+	       min 0
+	       low 0
+	       high 0
+	       spanned 0
+	       present 0
+	       managed 0
+               protection [0, 0, 0, 0, 0]
+
+pcp-zoneinfo output : Display output when given specified number of samples
+Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/23/23  x86_64    (4 CPU)
+TimeStamp =  00:25:16
+NODE  0, per-node status
+	 nr_inactive_anon 35933
+	 nr_active_anon 533154
+	 nr_inactive_file 760769
+	 nr_active_file 513583
+	 nr_unevictable 3105
+	 nr_slab_reclaimable 140646
+	 nr_slab_unreclaimable 54046
+	 nr_isolated_anon 0
+	 nr_isolated_file 0
+	 nr_anon_pages 523670
+	 nr_mapped 173358
+	 nr_file_pages 1313502
+	 nr_dirty 35
+	 nr_writeback 0
+	 nr_writeback_temp 0
+	 nr_shmem 36501
+	 nr_shmem_hugepages 0
+	 nr_shmem_pmdmapped 0
+	 nr_file_hugepages 0
+	 nr_file_pmdmapped 0
+	 nr_anon_transparent_hugepages 582
+	 nr_unstable 0
+	 nr_vmscan_write 0
+	 nr_vmscan_immediate_reclaim 0
+	 nr_dirtied 594934
+	 nr_written 572571
+	 nr_kernel_misc_reclaimable 0
+Node 0, zone    DMA
+	 pages free 3840
+	       min 12
+	       low 15
+	       high 18
+	       spanned 4095
+	       present 3998
+	       managed 3840
+               protection [0, 3125, 20006, 20006, 20006]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 0
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 0
+	 numa_local 0
+	 numa_other 0
+Node 0, zone    DMA32
+	 pages free 814439
+	       min 2637
+	       low 3437
+	       high 4237
+	       spanned 1044480
+	       present 913392
+	       managed 815354
+               protection [0, 0, 16881, 16881, 16881]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 13
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 0
+	 numa_local 13
+	 numa_other 0
+Node 0, zone    Normal
+	 pages free 2149304
+	       min 14245
+	       low 18566
+	       high 22887
+	       spanned 4417792
+	       present 4417792
+	       managed 4321635
+               protection [0, 0, 0, 0, 0]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 35933
+	 nr_zone_active_anon 533154
+	 nr_zone_inactive_file 760769
+	 nr_zone_active_file 513583
+	 nr_zone_unevictable 3105
+	 nr_zone_write_pending 35
+	 nr_mlock 3105
+	 nr_page_table_pages 15186
+	 nr_kernel_stack 12616
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 87458144
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 28603
+	 numa_local 87458144
+	 numa_other 0
+Node 0, zone    Movable
+	 pages free 0
+	       min 0
+	       low 0
+	       high 0
+	       spanned 0
+	       present 0
+	       managed 0
+               protection [0, 0, 0, 0, 0]
+Node 0, zone    Device
+	 pages free 0
+	       min 0
+	       low 0
+	       high 0
+	       spanned 0
+	       present 0
+	       managed 0
+               protection [0, 0, 0, 0, 0]
+Linux  5.4.17-2136.317.5.3.el8uek.x86_64  (localhost.localdomain)  08/23/23  x86_64    (4 CPU)
+TimeStamp =  00:25:19
+NODE  0, per-node status
+	 nr_inactive_anon 35933
+	 nr_active_anon 533154
+	 nr_inactive_file 760769
+	 nr_active_file 513583
+	 nr_unevictable 3105
+	 nr_slab_reclaimable 140646
+	 nr_slab_unreclaimable 54046
+	 nr_isolated_anon 0
+	 nr_isolated_file 0
+	 nr_anon_pages 523670
+	 nr_mapped 173358
+	 nr_file_pages 1313502
+	 nr_dirty 35
+	 nr_writeback 0
+	 nr_writeback_temp 0
+	 nr_shmem 36501
+	 nr_shmem_hugepages 0
+	 nr_shmem_pmdmapped 0
+	 nr_file_hugepages 0
+	 nr_file_pmdmapped 0
+	 nr_anon_transparent_hugepages 582
+	 nr_unstable 0
+	 nr_vmscan_write 0
+	 nr_vmscan_immediate_reclaim 0
+	 nr_dirtied 594934
+	 nr_written 572571
+	 nr_kernel_misc_reclaimable 0
+Node 0, zone    DMA
+	 pages free 3840
+	       min 12
+	       low 15
+	       high 18
+	       spanned 4095
+	       present 3998
+	       managed 3840
+               protection [0, 3125, 20006, 20006, 20006]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 0
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 0
+	 numa_local 0
+	 numa_other 0
+Node 0, zone    DMA32
+	 pages free 814439
+	       min 2637
+	       low 3437
+	       high 4237
+	       spanned 1044480
+	       present 913392
+	       managed 815354
+               protection [0, 0, 16881, 16881, 16881]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 0
+	 nr_zone_active_anon 0
+	 nr_zone_inactive_file 0
+	 nr_zone_active_file 0
+	 nr_zone_unevictable 0
+	 nr_zone_write_pending 0
+	 nr_mlock 0
+	 nr_page_table_pages 0
+	 nr_kernel_stack 0
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 13
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 0
+	 numa_local 13
+	 numa_other 0
+Node 0, zone    Normal
+	 pages free 2149304
+	       min 14245
+	       low 18566
+	       high 22887
+	       spanned 4417792
+	       present 4417792
+	       managed 4321635
+               protection [0, 0, 0, 0, 0]
+	 nr_free_pages 0
+	 nr_zone_inactive_anon 35933
+	 nr_zone_active_anon 533154
+	 nr_zone_inactive_file 760769
+	 nr_zone_active_file 513583
+	 nr_zone_unevictable 3105
+	 nr_zone_write_pending 35
+	 nr_mlock 3105
+	 nr_page_table_pages 15186
+	 nr_kernel_stack 12616
+	 nr_bounce 0
+	 nr_zspages 0
+	 nr_free_cma 0
+	 numa_hit 87458144
+	 numa_miss 0
+	 numa_foreign 0
+	 numa_interleave 28603
+	 numa_local 87458144
+	 numa_other 0
+Node 0, zone    Movable
+	 pages free 0
+	       min 0
+	       low 0
+	       high 0
+	       spanned 0
+	       present 0
+	       managed 0
+               protection [0, 0, 0, 0, 0]
+Node 0, zone    Device
+	 pages free 0
+	       min 0
+	       low 0
+	       high 0
+	       spanned 0
+	       present 0
+	       managed 0
+               protection [0, 0, 0, 0, 0]

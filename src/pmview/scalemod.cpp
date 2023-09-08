@@ -56,7 +56,7 @@ ScaleMod::ScaleMod(const char *str,
 
 	if (pmDebugOptions.appl2)
 	    cerr << "ScaleMod: Added " << str << " (Id = " 
-		 << _root->getName().getString() << ")" << endl;
+		 << _root->getName().getString() << ")" << Qt::endl;
     }
 
     // Invalid metric
@@ -161,7 +161,7 @@ int
 ScaleMod::select(SoPath *)
 {
     if (pmDebugOptions.appl2)
-	cerr << "ScaleMod::select: " << _metrics->metric(0) << endl;
+	cerr << "ScaleMod::select: " << _metrics->metric(0) << Qt::endl;
     return 1;
 }
 
@@ -169,6 +169,6 @@ int
 ScaleMod::remove(SoPath *)
 {
     if (pmDebugOptions.appl2)
-	cerr << "ScaleMod::remove: " << _metrics->metric(0) << endl;
+	cerr << "ScaleMod::remove: " << _metrics->metric(0) << Qt::endl;
     return 0;
 }

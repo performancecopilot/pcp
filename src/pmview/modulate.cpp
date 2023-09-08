@@ -123,7 +123,7 @@ void
 Modulate::selectAll()
 {
     if (pmDebugOptions.appl2)
-	cerr << "Modulate::selectAll: selectAll for " << *this << endl;
+	cerr << "Modulate::selectAll: selectAll for " << *this << Qt::endl;
 
     theModList->selectAllId(_root, 1);
     theModList->selectSingle(_root);

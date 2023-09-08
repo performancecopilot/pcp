@@ -85,7 +85,7 @@ PMI_CALL extern void pmiDump(void);
 #define PMI_ERR_EMPTYLABELNAME  (-PMI_ERR_BASE-22) /* Empty label name */
 #define PMI_ERR_EMPTYLABELVALUE (-PMI_ERR_BASE-23) /* Empty label value */
 #define PMI_ERR_ADDLABELERROR   (-PMI_ERR_BASE-24) /* Error adding label */
-#define PMI_ERR_BADVERSION      (-PMI_ERR_BASE-25) /* Illegal log version */
+#define PMI_ERR_BADVERSION      (-PMI_ERR_BASE-25) /* Illegal archive version */
 
 #ifdef __cplusplus
 }

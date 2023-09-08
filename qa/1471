@@ -1,0 +1,75 @@
+#!/bin/sh
+# PCP QA Test No. 1471
+# pmdalinux bug in get_distro_info() as reported by
+# Tim Guo(BJ-RD) <TimGuo@zhaoxin.com>
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_check_valgrind
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@`which valgrind`@VALGRIND@" \
+	-e "s@$PCP_VAR_DIR@PCP_VAR_DIR@" \
+	-e '/value/s/"/!/' \
+    | _filter_valgrind \
+    | _filter_dumpresult \
+    | sed \
+	-e '/value/s/!/"/' \
+    # end
+}
+
+mkdir -p $tmp/etc
+cat <<End-of-File >$tmp/etc/lsb-release
+DISTRIB_ID=FooBarMumbleFratz
+DISTRIB_RELEASE=22.04
+DISTRIB_CODENAME=secret
+DISTRIB_DESCRIPTION="FooBarMumbleFratz 22.04.13"
+End-of-File
+
+cat <<End-of-File >$tmp.sh
+export LINUX_STATSPATH=$tmp
+dbpmda <<EOF
+open pipe `which valgrind` $PCP_VAR_DIR/pmdas/linux/pmdalinux -l $tmp.log
+fetch kernel.uname.distro
+q
+EOF
+End-of-File
+
+# real QA test starts here
+$sudo sh $tmp.sh 2>&1 \
+| _filter
+
+cat $tmp.log >>$seq.full
+
+# success, all done
+exit

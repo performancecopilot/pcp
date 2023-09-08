@@ -54,9 +54,16 @@ static pmdaOptions opts = {
 int
 limbo(void)
 {
+    struct timeval	delay;
+
+    delay.tv_sec = not_ready / 1000;
+    delay.tv_usec = (not_ready % 1000) * 1000;
+    pmNotifyErr(LOG_INFO, "Going NOTREADY for %ld.%06ldsec", (long)delay.tv_sec, (long)delay.tv_usec);
     __pmSendError(dispatch.version.two.ext->e_outfd, FROM_ANON, PM_ERR_PMDANOTREADY);
-    while (not_ready > 0)
-	not_ready = sleep(not_ready);
+    __pmtimevalSleep(delay);
+    pmNotifyErr(LOG_INFO, "READY again");
+    not_ready = 0;
+
     return PM_ERR_PMDAREADY;
 }
 

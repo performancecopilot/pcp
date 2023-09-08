@@ -509,6 +509,18 @@ calcdiff(struct tstat *devstat, const struct tstat *curstat,
 	devstat->cpu.blkdelay  =
 		subcount(curstat->cpu.blkdelay, prestat->cpu.blkdelay);
 
+	if (curstat->cpu.nvcsw >= prestat->cpu.nvcsw)
+		devstat->cpu.nvcsw  =
+			subcount(curstat->cpu.nvcsw, prestat->cpu.nvcsw);
+	else
+		devstat->cpu.nvcsw = curstat->cpu.nvcsw;
+
+	if (curstat->cpu.nivcsw >= prestat->cpu.nivcsw)
+		devstat->cpu.nivcsw =
+			subcount(curstat->cpu.nivcsw, prestat->cpu.nivcsw);
+	else
+		devstat->cpu.nivcsw = curstat->cpu.nivcsw;
+
 	devstat->dsk.rio    =
 		subcount(curstat->dsk.rio, prestat->dsk.rio);
 	devstat->dsk.rsz    =

@@ -18,6 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = \
 	atop \
+	buddyinfo \
 	dmcache \
 	dstat \
 	free \
@@ -26,17 +27,20 @@ SUBDIRS = \
         ipcs \
 	meminfo \
 	mpstat \
+	netstat \
 	numastat \
 	pidstat \
 	ps \
 	python \
 	shping \
+	slabinfo \
 	ss \
 	summary \
 	tapestat \
 	uptime \
 	verify \
-	vmstat
+	vmstat \
+	zoneinfo
 
 default :: default_pcp
 

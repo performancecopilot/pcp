@@ -96,10 +96,10 @@ Machine* Machine_new(UsersTable* usersTable, uid_t userId) {
 
    Machine_init(super, usersTable, userId);
 
-   OpenBSDProcessList_updateCPUcount(this);
+   OpenBSDProcessTable_updateCPUcount(this);
 
    size = sizeof(this->fscale);
-   if (sysctl(fmib, 2, &this->fscale, &size, NULL, 0) < 0) {
+   if (sysctl(fmib, 2, &this->fscale, &size, NULL, 0) < 0 || this->fscale <= 0) {
       CRT_fatalError("fscale sysctl call failed");
    }
 
@@ -129,7 +129,7 @@ void Machine_delete(Machine* super) {
 }
 
 static void OpenBSDMachine_scanMemoryInfo(OpenBSDMachine* this) {
-   Machine* host = &this->super;
+   Machine* super = &this->super;
    const int uvmexp_mib[] = { CTL_VM, VM_UVMEXP };
    struct uvmexp uvmexp;
    size_t size_uvmexp = sizeof(uvmexp);
@@ -163,7 +163,7 @@ static void OpenBSDMachine_scanMemoryInfo(OpenBSDMachine* this) {
     */
    int nswap = swapctl(SWAP_NSWAP, 0, 0);
    if (nswap > 0) {
-      struct swapent swdev[nswap];
+      struct swapent* swdev = xMallocArray(nswap, sizeof(struct swapent));
       int rnswap = swapctl(SWAP_STATS, swdev, nswap);
 
       /* Total things up */
@@ -177,6 +177,8 @@ static void OpenBSDMachine_scanMemoryInfo(OpenBSDMachine* this) {
 
       super->totalSwap = total;
       super->usedSwap = used;
+
+      free(swdev);
    } else {
       super->totalSwap = super->usedSwap = 0;
    }
@@ -228,7 +230,7 @@ static void kernelCPUTimesToHtop(const u_int64_t* times, CPUData* cpu) {
 }
 
 static void OpenBSDMachine_scanCPUTime(OpenBSDMachine* this) {
-   Machine* host = &this->super;
+   Machine* super = &this->super;
    u_int64_t kernelTimes[CPUSTATES] = {0};
    u_int64_t avg[CPUSTATES] = {0};
 

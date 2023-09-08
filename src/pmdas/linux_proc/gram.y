@@ -20,7 +20,7 @@ extern void yyerror(const char *s);
 extern int yylex(void);
 extern int yyparse(void);
 
-extern int yy_scan_string(const char *);
+extern char * yy_scan_string(const char *);
 #define YYDEBUG 0
 #define YYERROR_VERBOSE 0
 

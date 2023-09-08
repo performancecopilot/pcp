@@ -37,7 +37,7 @@ values from one or more sources. When an expression is found to be true, **pmie*
 administrator of the occurrence of an adverse performance scenario. These facilities are very general, and are designed to accommodate the automated 
 execution of a mixture of generic and site-specific performance monitoring and control functions.
 
-The stream of performance metrics to be evaluated may be from one or more hosts, or from one or more PCP archive logs. In the latter case, **pmie** may be 
+The stream of performance metrics to be evaluated may be from one or more hosts, or from one or more PCP archives. In the latter case, **pmie** may be 
 used to retrospectively identify adverse performance conditions.
 
 Using **pmie**, you can filter, interpret, and reason about the large volume of performance data made available from PCP collector systems or PCP archives.
@@ -46,7 +46,7 @@ Typical **pmie** uses include the following:
 
 * Automated real-time monitoring of a host, a set of hosts, or client-server pairs of hosts to raise operational alarms when poor performance is detected in a production environment
 
-* Nightly processing of archive logs to detect and report performance regressions, or quantify quality of service for service level agreements or management reports, or produce advance warning of pending performance problems
+* Nightly processing of archives to detect and report performance regressions, or quantify quality of service for service level agreements or management reports, or produce advance warning of pending performance problems
 
 * Strategic performance management, for example, detection of slightly abnormal to chronic system behavior, trend analysis, and capacity planning
 
@@ -58,7 +58,7 @@ The **pmie** expressions are described in a language with expressive power and o
   *  Post an entry to the system log file; see the **syslog(3)** man page.
   *  Post an entry to the PCP noticeboard file ``${PCP_LOG_DIR}/NOTICES``; see the **pmpost(1)** man page.
   *  Execute a shell command or script, for example, to send e-mail, initiate a pager call, warn the help desk, and so on.
-  *  Echo a message on standard output; useful for scripts that generate reports from retrospective processing of PCP archive logs.
+  *  Echo a message on standard output; useful for scripts that generate reports from retrospective processing of PCP archives.
 
 * Arithmetic and logical expressions in a C-like syntax.
 
@@ -74,7 +74,7 @@ The **pmie** expressions are described in a language with expressive power and o
 
 * Macro processing to expedite repeated use of common subexpressions or specification components.
 
-* Transparent operation against either live-feeds of performance metric values from PMCD on one or more hosts, or against PCP archive logs of previously accumulated performance metric values.
+* Transparent operation against either live-feeds of performance metric values from PMCD on one or more hosts, or against PCP archives of previously accumulated performance metric values.
 
 The power of **pmie** may be harnessed to automate the most common of the deterministic system management functions that are responses to changes in system performance. For example, disable a batch stream if 
 the DBMS transaction commit response time at the ninetieth percentile goes over two seconds, or stop accepting uploads and send e-mail to the *sysadmin* alias if free space in a storage system falls below five 
@@ -306,7 +306,7 @@ The reader with a preference for learning by example may choose to skip this sec
 
 Complex expressions are built up recursively from simple elements:
 
-1. Performance metric values are obtained from PMCD for real-time sources, otherwise from PCP archive logs.
+1. Performance metric values are obtained from PMCD for real-time sources, otherwise from PCP archives.
 2. Metrics values may be combined using arithmetic operators to produce arithmetic expressions.
 3. Arithmetic expressions may be compared using relational operators to produce logical expressions.
 4. Logical expressions may be combined using Boolean operators, including powerful quantifiers.
@@ -435,7 +435,7 @@ The default value for **delta** may be specified using the **-t** command line o
 pmie Metric Expressions
 =========================
 
-The performance metrics namespace (PMNS) provides a means of naming performance metrics, for example, **disk.dev.read**. PCP allows an application to retrieve one or more values for a performance metric from a designated source (a collector host running PMCD, or a set of PCP archive logs). To specify a single value for some performance metric requires the metric name to be associated with all three of the following:
+The performance metrics namespace (PMNS) provides a means of naming performance metrics, for example, **disk.dev.read**. PCP allows an application to retrieve one or more values for a performance metric from a designated source (a collector host running PMCD, or a set of PCP archives). To specify a single value for some performance metric requires the metric name to be associated with all three of the following:
 
 1. A particular host (or source of metrics values) 
 2. A particular instance (for metrics with multiple values)
@@ -738,6 +738,24 @@ Some ambiguity may occur in respect to which host, instance, or performance metr
 subexpression is used. You may need to use **pmie** in the interactive debugging mode (specify the **-d** command line option) in conjunction with the **-W** 
 command line option to discover which subexpressions contributes to the %-token bindings.
 
+.. note::
+   When **pmie** is processing performance metrics from one or more PCP
+   archives the *rules* will be processed in the expected manner; however,
+   the *actions* are modified to report a textual facsimile of the *action*
+   on the standard output that includes the action, the time in the archive
+   when the *rule* predicate was true and all of the arguments for the
+   *action*.
+   The rationale for this is that the context in which the *action*
+   would have been executed (in live mode) was at a time in the past
+   and possibly on a different host (if the archive was collected
+   from one host, but **pmie** is being run on a different host).
+   So flooding **syslog** with misleading messages or
+   an avalanche of visual alarms or
+   running a shell command that might not even work on the host where **pmie**
+   is being run, are all be avoided.
+   Rather the output is text in a regular format suitable for post-processing
+   with a range of filters and performance analysis tools.
+
 `Example 5.7. Rule Expression Options`_ illustrates some of the options when constructing rule expressions:
 
 .. _Example 5.7. Rule Expression Options:
@@ -764,10 +782,6 @@ system log file might be as shown in `Example 5.8. System Log Text`_ :
 
  Aug 6 08:12:44 5B:gonzo pcp-pmie[3371]:
                           [disk1] busy, 3.7 IOPS [disk2] busy, 0.3 IOPS
-
-.. note::
-   When **pmie** is processing performance metrics from a set of PCP archive logs, the *actions* will be processed in the expected manner; however, the action 
-   methods are modified to report a textual facsimile of the *action* on the standard output.
 
 Consider the rule in `Example 5.9. Standard Output`_ :
 

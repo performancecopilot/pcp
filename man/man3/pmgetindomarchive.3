@@ -32,7 +32,7 @@ cc ... \-lpcp
 ..
 Provided the current
 Performance Metrics Application Programming Interface (PMAPI)
-context is associated with a set of archive logs,
+context is associated with a set of archives,
 .B pmGetInDomArchive
 will scan the union of all the instance domain metadata
 for the instance domain
@@ -87,10 +87,10 @@ and so calling
 is a singularly bad idea).
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_NOTARCHIVE\f1
-the current PMAPI context is not associated with a set of archive logs
+the current PMAPI context is not associated with a set of archives
 .IP \f3PM_ERR_INDOM_LOG\f1
 .I indom
-is not a defined instance domain identifier for the set of archive logs
+is not a defined instance domain identifier for the set of archives
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
