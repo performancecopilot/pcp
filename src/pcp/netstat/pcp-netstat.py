@@ -22,6 +22,7 @@ import time
 from pcp import pmapi
 from pcp import pmcc
 from collections import OrderedDict
+from cpmapi import PM_CONTEXT_ARCHIVE
 
 IFF_UP           = 1<<0
 IFF_BROADCAST    = 1<<1
@@ -294,6 +295,12 @@ IFACE_METRICS = [
             # "network.interface.running",
             # "network.interface.up"]
 
+SYS_METRICS = ["kernel.uname.sysname",
+                "kernel.uname.release",
+                "kernel.uname.nodename",
+                "kernel.uname.machine",
+                "hinv.ncpu"]
+
 METRICS = IP_METRICS + ICMP_METRICS + ICMP_MSG_METRICS + TCP_METRICS + UDP_METRICS + UDP_LITE_METRICS + TCP_EXT_METRICS + IP_EXT_METRICS
 METRICS_DESC = IP_METRICS_DESC + ICMP_METRICS_DESC + ICMP_MSG_METRICS_DESC + TCP_METRICS_DESC + UDP_METRICS_DESC + UDP_LITE_METRICS_DESC + TCP_EXT_METRICS_DESC + IP_EXT_METRICS_DESC
 
@@ -311,6 +318,27 @@ METRICS_DICT["IpExt_METRICS"] = [IP_EXT_METRICS, IP_EXT_METRICS_DESC]
 MISSING_METRICS = []
 
 class NestatReport(pmcc.MetricGroupPrinter):
+    Machine_info_count = 0
+
+    def __get_ncpu(self, group):
+        return group['hinv.ncpu'].netValues[0][2]
+
+    def __print_machine_info(self, group, context):
+        timestamp = context.pmLocaltime(group.timestamp.tv_sec)
+        # Please check strftime(3) for different formatting options.
+        # Also check TZ and LC_TIME environment variables for more
+        # information on how to override the default formatting of
+        # the date display in the header
+        time_string = time.strftime("%x", timestamp.struct_time())
+        header_string = ''
+        header_string += group['kernel.uname.sysname'].netValues[0][2] + '  '
+        header_string += group['kernel.uname.release'].netValues[0][2] + '  '
+        header_string += '(' + group['kernel.uname.nodename'].netValues[0][2] + ')  '
+        header_string += time_string + '  '
+        header_string += group['kernel.uname.machine'].netValues[0][2] + '  '
+
+        print("%s  (%s CPU)" % (header_string, self.__get_ncpu(group)))
+
     def print_metric(self, group, metrics,metrics_desc):
         idx = 0
 
@@ -337,8 +365,16 @@ class NestatReport(pmcc.MetricGroupPrinter):
         print("\n")
 
     def report(self, manager):
-        group = manager["netstat"]
+        group = manager["sysinfo"]
+        try:
+            if not self.Machine_info_count:
+                self.__print_machine_info(group, manager)
+                self.Machine_info_count = 1
+        except IndexError:
+            # missing some metrics
+            return
 
+        group = manager["netstat"]
         opts.pmGetOptionSamples()
 
         t_s = group.contextCache.pmLocaltime(int(group.timestamp))
@@ -395,6 +431,9 @@ class NestatReport(pmcc.MetricGroupPrinter):
 
             print(ifstats_str)
 
+        if NetstatOptions.context is not PM_CONTEXT_ARCHIVE and opts.pmGetOptionSamples() is None:
+            sys.exit(0)
+
 class NetstatOptions(pmapi.pmOptions):
     context = None
     timefmt = "%H:%M:%S"
@@ -443,13 +482,16 @@ if __name__ == '__main__':
         opts = NetstatOptions()
         mngr = pmcc.MetricGroupManager.builder(opts,sys.argv)
         NetstatOptions.context = mngr.type
+
         missing = mngr.checkMissingMetrics(METRICS)
+
         if missing is not None:
             for missing_metric in missing:
                 METRICS.remove(missing_metric)
                 MISSING_METRICS.append(missing_metric)
-
+        
         mngr["netstat"] = METRICS + IFACE_METRICS
+        mngr["sysinfo"] = SYS_METRICS
         mngr.printer = NestatReport()
         sts = mngr.run()
         sys.exit(sts)

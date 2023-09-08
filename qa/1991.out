@@ -1,53 +1,54 @@
 QA output created by 1991
 
 pcp-netstat output : Display default output
-02:37:13
+Linux  5.4.17-2136.300.7.el8uek.x86_64  (Mohit-OL8u5-vm1)  09/08/23  x86_64    (2 CPU)
+06:35:52
 
 Ip:
 	Forwarding: 2
-	765150 total packets received
-	5 with invalid addresses
+	8765317 total packets received
+	8 with invalid addresses
 	0 forwarded
 	0 incoming packets discarded
-	106573 incoming packets delivered
-	108126 requests sent out
-	162 dropped because of missing route
+	5386073 incoming packets delivered
+	5368635 requests sent out
+	12 dropped because of missing route
 
 
 Icmp:
-	615 ICMP messages received
-	8 Input ICMP message failed
+	3817 ICMP messages received
+	37 Input ICMP message failed
 	ICMP input histogram:
-		destination unreachable: 615
-	2 ICMP messages sent
+		destination unreachable: 3817
+	17 ICMP messages sent
 	0 ICMP messages failed
 	ICMP input histogram:
-		Output destination unreachable: 2
+		Output destination unreachable: 17
 
 
 IcmpMsg:
-		InType3: 615
-		OutType0: 2
+		InType3: 3817
+		OutType0: 17
 
 
 Tcp:
-	316 active connections openings
-	118 passive connection openings
-	15 failed connection attempts
-	6 connection resets received
-	5 connections established
-	106265 segments received
-	109496 segments send out
-	256 segments retransmited
+	2316 active connections openings
+	1017 passive connection openings
+	153 failed connection attempts
+	737 connection resets received
+	14 connections established
+	5729429 segments received
+	6386911 segments send out
+	2273 segments retransmited
 	0 bad segments received.
-	54 resets sent
+	711 resets sent
 
 
 Udp:
-	1381 packets received
-	2 packets to unknown port received
+	24036 packets received
+	14 packets to unknown port received
 	0 packet receive errors
-	2274 packets sent
+	29362 packets sent
 	0 receive buffer errors
 	0 send buffer errors
 
@@ -63,115 +64,115 @@ UdpLite:
 
 
 TcpExt:
-	1334 delayed acks sent
-	0 delayed acks further delayed because of locked socket
-	27349 packet headers predicted
-	49683 predicted acknowledgments
-	TCPSackRecovery: 27
-	Detected reordering 4 times using SACK
-	TCPDSACKUndo: 7
-	TCPLostRetransmitt: 58
-	TCPSackFailures: 0
-	134 fast retransmits
-	TCPTimeouts: 58
-	TCPLossProbes: 67
-	TCPLossProbeRecovery: 29
-	TCPBacklogCoalesce: 16
-	TCPDSACKOldSent: 105
+	20700 delayed acks sent
+	14 delayed acks further delayed because of locked socket
+	619419 packet headers predicted
+	509236 predicted acknowledgments
+	TCPSackRecovery: 278
+	Detected reordering 99 times using SACK
+	TCPDSACKUndo: 139
+	TCPLostRetransmitt: 508
+	TCPSackFailures: 38
+	452 fast retransmits
+	TCPTimeouts: 880
+	TCPLossProbes: 1144
+	TCPLossProbeRecovery: 360
+	TCPBacklogCoalesce: 317
+	TCPDSACKOldSent: 2036
 	TCPDSACKOfoSent: 0
-	TCPDSACKRecv: 28
-	TCPDSACKOfoRecv: 3
-	21 connections aborted due to data
-	0 connections reset due to early user close
-	1 connections aborted due to timeout
-	TCPDSACKIgnoredNoUndo: 15
-	TCPSackShifted: 136
-	TCPSackMerged: 256
-	TCPSackShiftFallback: 94
+	TCPDSACKRecv: 409
+	TCPDSACKOfoRecv: 68
+	595 connections aborted due to data
+	5 connections reset due to early user close
+	13 connections aborted due to timeout
+	TCPDSACKIgnoredNoUndo: 101
+	TCPSackShifted: 249
+	TCPSackMerged: 880
+	TCPSackShiftFallback: 835
 	IPReversePathFilter: 1
-	TCPRcvCoalesce: 624
-	TCPOFOQueue: 18
+	TCPRcvCoalesce: 122173
+	TCPOFOQueue: 510
 	TCPOFOMerge: 0
 	TCPChallengeAck: 0
 	TCPSynChallenge: 0
 	TCPSpuriousRtxHostQueues: 0
-	TCPAutoCorking: 26
-	TCPSynRetrans: 16
-	TCPOrigDataSent: 62147
-	TCPHystartTrainDetect: 0
-	TCPHystartTrainCwnd: 0
-	TCPHystartDelayDetect: 1
-	TCPHystartDelayCwnd: 56
-	TCPACKSkippedSeq: 0
-	TCPKeepAlive: 0
-	TCPDelivered: 62436
-	TCPAckCompressed: 0
+	TCPAutoCorking: 218
+	TCPSynRetrans: 374
+	TCPOrigDataSent: 1489155
+	TCPHystartTrainDetect: 57
+	TCPHystartTrainCwnd: 1513
+	TCPHystartDelayDetect: 9
+	TCPHystartDelayCwnd: 1487
+	TCPACKSkippedSeq: 9
+	TCPKeepAlive: 2133227
+	TCPDelivered: 1491398
+	TCPAckCompressed: 264
 
 
 IpExt:
-	InMcastPkts: 4489
-	InBcastPkts: 8988
-	InOctets: 79657243
-	OutOctets: 18010239
-	InMcastOctets: 143648
-	InBcastOctets: 1267835
-	InNoECTpkts: 765276
+	InMcastPkts: 22910
+	InBcastPkts: 48868
+	InOctets: 1849003544
+	OutOctets: 343593060
+	InMcastOctets: 733120
+	InBcastOctets: 7461647
+	InNoECTpkts: 8766761
 
 
 Kernel Interface table
      Iface        MTU      RX-OK     RX-ERR     RX-DRP      TX-OK     TX-ERR     TX-DRP
-      ens2       1500    2686851          0          0      64550          0          0 
-      ens3       1500       9615          0          0          0          0          0 
-      ens4       1500       9615          0          0          0          0          0 
-        lo      65536      69740          0          0      69740          0          0 
+      ens2       1500   14340165          0        165     565381          0          0 
+      ens3       1500    4415935          0          0    5941621          0          0 
+      ens4       1500    1669791          0          0          1          0          0 
+        lo      65536    1034958          0          0    1034958          0          0 
 
-02:37:14
+06:35:54
 
 Ip:
 	Forwarding: 2
-	765155 total packets received
-	5 with invalid addresses
+	8765328 total packets received
+	8 with invalid addresses
 	0 forwarded
 	0 incoming packets discarded
-	106576 incoming packets delivered
-	108129 requests sent out
-	162 dropped because of missing route
+	5386080 incoming packets delivered
+	5368641 requests sent out
+	12 dropped because of missing route
 
 
 Icmp:
-	615 ICMP messages received
-	8 Input ICMP message failed
+	3817 ICMP messages received
+	37 Input ICMP message failed
 	ICMP input histogram:
-		destination unreachable: 615
-	2 ICMP messages sent
+		destination unreachable: 3817
+	17 ICMP messages sent
 	0 ICMP messages failed
 	ICMP input histogram:
-		Output destination unreachable: 2
+		Output destination unreachable: 17
 
 
 IcmpMsg:
-		InType3: 615
-		OutType0: 2
+		InType3: 3817
+		OutType0: 17
 
 
 Tcp:
-	316 active connections openings
-	118 passive connection openings
-	15 failed connection attempts
-	6 connection resets received
-	5 connections established
-	106268 segments received
-	109499 segments send out
-	256 segments retransmited
+	2316 active connections openings
+	1017 passive connection openings
+	153 failed connection attempts
+	737 connection resets received
+	14 connections established
+	5729436 segments received
+	6386917 segments send out
+	2273 segments retransmited
 	0 bad segments received.
-	54 resets sent
+	711 resets sent
 
 
 Udp:
-	1381 packets received
-	2 packets to unknown port received
+	24036 packets received
+	14 packets to unknown port received
 	0 packet receive errors
-	2274 packets sent
+	29362 packets sent
 	0 receive buffer errors
 	0 send buffer errors
 
@@ -187,117 +188,118 @@ UdpLite:
 
 
 TcpExt:
-	1334 delayed acks sent
-	0 delayed acks further delayed because of locked socket
-	27349 packet headers predicted
-	49685 predicted acknowledgments
-	TCPSackRecovery: 27
-	Detected reordering 4 times using SACK
-	TCPDSACKUndo: 7
-	TCPLostRetransmitt: 58
-	TCPSackFailures: 0
-	134 fast retransmits
-	TCPTimeouts: 58
-	TCPLossProbes: 67
-	TCPLossProbeRecovery: 29
-	TCPBacklogCoalesce: 16
-	TCPDSACKOldSent: 105
+	20702 delayed acks sent
+	14 delayed acks further delayed because of locked socket
+	619419 packet headers predicted
+	509239 predicted acknowledgments
+	TCPSackRecovery: 278
+	Detected reordering 99 times using SACK
+	TCPDSACKUndo: 139
+	TCPLostRetransmitt: 508
+	TCPSackFailures: 38
+	452 fast retransmits
+	TCPTimeouts: 880
+	TCPLossProbes: 1144
+	TCPLossProbeRecovery: 360
+	TCPBacklogCoalesce: 317
+	TCPDSACKOldSent: 2036
 	TCPDSACKOfoSent: 0
-	TCPDSACKRecv: 28
-	TCPDSACKOfoRecv: 3
-	21 connections aborted due to data
-	0 connections reset due to early user close
-	1 connections aborted due to timeout
-	TCPDSACKIgnoredNoUndo: 15
-	TCPSackShifted: 136
-	TCPSackMerged: 256
-	TCPSackShiftFallback: 94
+	TCPDSACKRecv: 409
+	TCPDSACKOfoRecv: 68
+	595 connections aborted due to data
+	5 connections reset due to early user close
+	13 connections aborted due to timeout
+	TCPDSACKIgnoredNoUndo: 101
+	TCPSackShifted: 249
+	TCPSackMerged: 880
+	TCPSackShiftFallback: 835
 	IPReversePathFilter: 1
-	TCPRcvCoalesce: 624
-	TCPOFOQueue: 18
+	TCPRcvCoalesce: 122173
+	TCPOFOQueue: 510
 	TCPOFOMerge: 0
 	TCPChallengeAck: 0
 	TCPSynChallenge: 0
 	TCPSpuriousRtxHostQueues: 0
-	TCPAutoCorking: 26
-	TCPSynRetrans: 16
-	TCPOrigDataSent: 62149
-	TCPHystartTrainDetect: 0
-	TCPHystartTrainCwnd: 0
-	TCPHystartDelayDetect: 1
-	TCPHystartDelayCwnd: 56
-	TCPACKSkippedSeq: 0
-	TCPKeepAlive: 0
-	TCPDelivered: 62438
-	TCPAckCompressed: 0
+	TCPAutoCorking: 218
+	TCPSynRetrans: 374
+	TCPOrigDataSent: 1489158
+	TCPHystartTrainDetect: 57
+	TCPHystartTrainCwnd: 1513
+	TCPHystartDelayDetect: 9
+	TCPHystartDelayCwnd: 1487
+	TCPACKSkippedSeq: 9
+	TCPKeepAlive: 2133227
+	TCPDelivered: 1491401
+	TCPAckCompressed: 264
 
 
 IpExt:
-	InMcastPkts: 4489
-	InBcastPkts: 8988
-	InOctets: 79657618
-	OutOctets: 18010450
-	InMcastOctets: 143648
-	InBcastOctets: 1267835
-	InNoECTpkts: 765281
+	InMcastPkts: 22910
+	InBcastPkts: 48868
+	InOctets: 1849004343
+	OutOctets: 343593451
+	InMcastOctets: 733120
+	InBcastOctets: 7461650
+	InNoECTpkts: 8766772
 
 
 Kernel Interface table
      Iface        MTU      RX-OK     RX-ERR     RX-DRP      TX-OK     TX-ERR     TX-DRP
-      ens2       1500    2686856          0          0      64551          0          0 
-      ens3       1500       9615          0          0          0          0          0 
-      ens4       1500       9615          0          0          0          0          0 
-        lo      65536      69742          0          0      69742          0          0 
+      ens2       1500   14340181          0        165     565383          0          0 
+      ens3       1500    4415935          0          0    5941625          0          0 
+      ens4       1500    1669795          0          0          1          0          0 
+        lo      65536    1034962          0          0    1034962          0          0 
 
 
 pcp-netstat output : Display output of all the network protocol statistics
-02:37:13
+Linux  5.4.17-2136.300.7.el8uek.x86_64  (Mohit-OL8u5-vm1)  09/08/23  x86_64    (2 CPU)
+06:35:52
 
 Ip:
 	Forwarding: 2
-	765150 total packets received
-	5 with invalid addresses
+	8765317 total packets received
+	8 with invalid addresses
 	0 forwarded
 	0 incoming packets discarded
-	106573 incoming packets delivered
-	108126 requests sent out
-	162 dropped because of missing route
+	5386073 incoming packets delivered
+	5368635 requests sent out
+	12 dropped because of missing route
 
 
 Icmp:
-	615 ICMP messages received
-	8 Input ICMP message failed
+	3817 ICMP messages received
+	37 Input ICMP message failed
 	ICMP input histogram:
-		destination unreachable: 615
-	2 ICMP messages sent
+		destination unreachable: 3817
+	17 ICMP messages sent
 	0 ICMP messages failed
 	ICMP input histogram:
-		Output destination unreachable: 2
+		Output destination unreachable: 17
 
 
 IcmpMsg:
-		InType3: 615
-		OutType0: 2
+		InType3: 3817
+		OutType0: 17
 
 
 Tcp:
-	316 active connections openings
-	118 passive connection openings
-	15 failed connection attempts
-	6 connection resets received
-	5 connections established
-	106265 segments received
-	109496 segments send out
-	256 segments retransmited
+	2316 active connections openings
+	1017 passive connection openings
+	153 failed connection attempts
+	737 connection resets received
+	14 connections established
+	5729429 segments received
+	6386911 segments send out
+	2273 segments retransmited
 	0 bad segments received.
-	54 resets sent
+	711 resets sent
 
 
 Udp:
-	1381 packets received
-	2 packets to unknown port received
+	24036 packets received
+	14 packets to unknown port received
 	0 packet receive errors
-	2274 packets sent
+	29362 packets sent
 	0 receive buffer errors
 	0 send buffer errors
 
@@ -313,108 +315,108 @@ UdpLite:
 
 
 TcpExt:
-	1334 delayed acks sent
-	0 delayed acks further delayed because of locked socket
-	27349 packet headers predicted
-	49683 predicted acknowledgments
-	TCPSackRecovery: 27
-	Detected reordering 4 times using SACK
-	TCPDSACKUndo: 7
-	TCPLostRetransmitt: 58
-	TCPSackFailures: 0
-	134 fast retransmits
-	TCPTimeouts: 58
-	TCPLossProbes: 67
-	TCPLossProbeRecovery: 29
-	TCPBacklogCoalesce: 16
-	TCPDSACKOldSent: 105
+	20700 delayed acks sent
+	14 delayed acks further delayed because of locked socket
+	619419 packet headers predicted
+	509236 predicted acknowledgments
+	TCPSackRecovery: 278
+	Detected reordering 99 times using SACK
+	TCPDSACKUndo: 139
+	TCPLostRetransmitt: 508
+	TCPSackFailures: 38
+	452 fast retransmits
+	TCPTimeouts: 880
+	TCPLossProbes: 1144
+	TCPLossProbeRecovery: 360
+	TCPBacklogCoalesce: 317
+	TCPDSACKOldSent: 2036
 	TCPDSACKOfoSent: 0
-	TCPDSACKRecv: 28
-	TCPDSACKOfoRecv: 3
-	21 connections aborted due to data
-	0 connections reset due to early user close
-	1 connections aborted due to timeout
-	TCPDSACKIgnoredNoUndo: 15
-	TCPSackShifted: 136
-	TCPSackMerged: 256
-	TCPSackShiftFallback: 94
+	TCPDSACKRecv: 409
+	TCPDSACKOfoRecv: 68
+	595 connections aborted due to data
+	5 connections reset due to early user close
+	13 connections aborted due to timeout
+	TCPDSACKIgnoredNoUndo: 101
+	TCPSackShifted: 249
+	TCPSackMerged: 880
+	TCPSackShiftFallback: 835
 	IPReversePathFilter: 1
-	TCPRcvCoalesce: 624
-	TCPOFOQueue: 18
+	TCPRcvCoalesce: 122173
+	TCPOFOQueue: 510
 	TCPOFOMerge: 0
 	TCPChallengeAck: 0
 	TCPSynChallenge: 0
 	TCPSpuriousRtxHostQueues: 0
-	TCPAutoCorking: 26
-	TCPSynRetrans: 16
-	TCPOrigDataSent: 62147
-	TCPHystartTrainDetect: 0
-	TCPHystartTrainCwnd: 0
-	TCPHystartDelayDetect: 1
-	TCPHystartDelayCwnd: 56
-	TCPACKSkippedSeq: 0
-	TCPKeepAlive: 0
-	TCPDelivered: 62436
-	TCPAckCompressed: 0
+	TCPAutoCorking: 218
+	TCPSynRetrans: 374
+	TCPOrigDataSent: 1489155
+	TCPHystartTrainDetect: 57
+	TCPHystartTrainCwnd: 1513
+	TCPHystartDelayDetect: 9
+	TCPHystartDelayCwnd: 1487
+	TCPACKSkippedSeq: 9
+	TCPKeepAlive: 2133227
+	TCPDelivered: 1491398
+	TCPAckCompressed: 264
 
 
 IpExt:
-	InMcastPkts: 4489
-	InBcastPkts: 8988
-	InOctets: 79657243
-	OutOctets: 18010239
-	InMcastOctets: 143648
-	InBcastOctets: 1267835
-	InNoECTpkts: 765276
+	InMcastPkts: 22910
+	InBcastPkts: 48868
+	InOctets: 1849003544
+	OutOctets: 343593060
+	InMcastOctets: 733120
+	InBcastOctets: 7461647
+	InNoECTpkts: 8766761
 
 
-02:37:14
+06:35:54
 
 Ip:
 	Forwarding: 2
-	765155 total packets received
-	5 with invalid addresses
+	8765328 total packets received
+	8 with invalid addresses
 	0 forwarded
 	0 incoming packets discarded
-	106576 incoming packets delivered
-	108129 requests sent out
-	162 dropped because of missing route
+	5386080 incoming packets delivered
+	5368641 requests sent out
+	12 dropped because of missing route
 
 
 Icmp:
-	615 ICMP messages received
-	8 Input ICMP message failed
+	3817 ICMP messages received
+	37 Input ICMP message failed
 	ICMP input histogram:
-		destination unreachable: 615
-	2 ICMP messages sent
+		destination unreachable: 3817
+	17 ICMP messages sent
 	0 ICMP messages failed
 	ICMP input histogram:
-		Output destination unreachable: 2
+		Output destination unreachable: 17
 
 
 IcmpMsg:
-		InType3: 615
-		OutType0: 2
+		InType3: 3817
+		OutType0: 17
 
 
 Tcp:
-	316 active connections openings
-	118 passive connection openings
-	15 failed connection attempts
-	6 connection resets received
-	5 connections established
-	106268 segments received
-	109499 segments send out
-	256 segments retransmited
+	2316 active connections openings
+	1017 passive connection openings
+	153 failed connection attempts
+	737 connection resets received
+	14 connections established
+	5729436 segments received
+	6386917 segments send out
+	2273 segments retransmited
 	0 bad segments received.
-	54 resets sent
+	711 resets sent
 
 
 Udp:
-	1381 packets received
-	2 packets to unknown port received
+	24036 packets received
+	14 packets to unknown port received
 	0 packet receive errors
-	2274 packets sent
+	29362 packets sent
 	0 receive buffer errors
 	0 send buffer errors
 
@@ -430,242 +432,245 @@ UdpLite:
 
 
 TcpExt:
-	1334 delayed acks sent
-	0 delayed acks further delayed because of locked socket
-	27349 packet headers predicted
-	49685 predicted acknowledgments
-	TCPSackRecovery: 27
-	Detected reordering 4 times using SACK
-	TCPDSACKUndo: 7
-	TCPLostRetransmitt: 58
-	TCPSackFailures: 0
-	134 fast retransmits
-	TCPTimeouts: 58
-	TCPLossProbes: 67
-	TCPLossProbeRecovery: 29
-	TCPBacklogCoalesce: 16
-	TCPDSACKOldSent: 105
+	20702 delayed acks sent
+	14 delayed acks further delayed because of locked socket
+	619419 packet headers predicted
+	509239 predicted acknowledgments
+	TCPSackRecovery: 278
+	Detected reordering 99 times using SACK
+	TCPDSACKUndo: 139
+	TCPLostRetransmitt: 508
+	TCPSackFailures: 38
+	452 fast retransmits
+	TCPTimeouts: 880
+	TCPLossProbes: 1144
+	TCPLossProbeRecovery: 360
+	TCPBacklogCoalesce: 317
+	TCPDSACKOldSent: 2036
 	TCPDSACKOfoSent: 0
-	TCPDSACKRecv: 28
-	TCPDSACKOfoRecv: 3
-	21 connections aborted due to data
-	0 connections reset due to early user close
-	1 connections aborted due to timeout
-	TCPDSACKIgnoredNoUndo: 15
-	TCPSackShifted: 136
-	TCPSackMerged: 256
-	TCPSackShiftFallback: 94
+	TCPDSACKRecv: 409
+	TCPDSACKOfoRecv: 68
+	595 connections aborted due to data
+	5 connections reset due to early user close
+	13 connections aborted due to timeout
+	TCPDSACKIgnoredNoUndo: 101
+	TCPSackShifted: 249
+	TCPSackMerged: 880
+	TCPSackShiftFallback: 835
 	IPReversePathFilter: 1
-	TCPRcvCoalesce: 624
-	TCPOFOQueue: 18
+	TCPRcvCoalesce: 122173
+	TCPOFOQueue: 510
 	TCPOFOMerge: 0
 	TCPChallengeAck: 0
 	TCPSynChallenge: 0
 	TCPSpuriousRtxHostQueues: 0
-	TCPAutoCorking: 26
-	TCPSynRetrans: 16
-	TCPOrigDataSent: 62149
-	TCPHystartTrainDetect: 0
-	TCPHystartTrainCwnd: 0
-	TCPHystartDelayDetect: 1
-	TCPHystartDelayCwnd: 56
-	TCPACKSkippedSeq: 0
-	TCPKeepAlive: 0
-	TCPDelivered: 62438
-	TCPAckCompressed: 0
+	TCPAutoCorking: 218
+	TCPSynRetrans: 374
+	TCPOrigDataSent: 1489158
+	TCPHystartTrainDetect: 57
+	TCPHystartTrainCwnd: 1513
+	TCPHystartDelayDetect: 9
+	TCPHystartDelayCwnd: 1487
+	TCPACKSkippedSeq: 9
+	TCPKeepAlive: 2133227
+	TCPDelivered: 1491401
+	TCPAckCompressed: 264
 
 
 IpExt:
-	InMcastPkts: 4489
-	InBcastPkts: 8988
-	InOctets: 79657618
-	OutOctets: 18010450
-	InMcastOctets: 143648
-	InBcastOctets: 1267835
-	InNoECTpkts: 765281
+	InMcastPkts: 22910
+	InBcastPkts: 48868
+	InOctets: 1849004343
+	OutOctets: 343593451
+	InMcastOctets: 733120
+	InBcastOctets: 7461650
+	InNoECTpkts: 8766772
 
 
 
 pcp-netstat output : Display output when filtered IP protocol
-02:37:13
+Linux  5.4.17-2136.300.7.el8uek.x86_64  (Mohit-OL8u5-vm1)  09/08/23  x86_64    (2 CPU)
+06:35:52
 
 Ip:
 	Forwarding: 2
-	765150 total packets received
-	5 with invalid addresses
+	8765317 total packets received
+	8 with invalid addresses
 	0 forwarded
 	0 incoming packets discarded
-	106573 incoming packets delivered
-	108126 requests sent out
-	162 dropped because of missing route
+	5386073 incoming packets delivered
+	5368635 requests sent out
+	12 dropped because of missing route
 
 
 IpExt:
-	InMcastPkts: 4489
-	InBcastPkts: 8988
-	InOctets: 79657243
-	OutOctets: 18010239
-	InMcastOctets: 143648
-	InBcastOctets: 1267835
-	InNoECTpkts: 765276
+	InMcastPkts: 22910
+	InBcastPkts: 48868
+	InOctets: 1849003544
+	OutOctets: 343593060
+	InMcastOctets: 733120
+	InBcastOctets: 7461647
+	InNoECTpkts: 8766761
 
 
-02:37:14
+06:35:54
 
 Ip:
 	Forwarding: 2
-	765155 total packets received
-	5 with invalid addresses
+	8765328 total packets received
+	8 with invalid addresses
 	0 forwarded
 	0 incoming packets discarded
-	106576 incoming packets delivered
-	108129 requests sent out
-	162 dropped because of missing route
+	5386080 incoming packets delivered
+	5368641 requests sent out
+	12 dropped because of missing route
 
 
 IpExt:
-	InMcastPkts: 4489
-	InBcastPkts: 8988
-	InOctets: 79657618
-	OutOctets: 18010450
-	InMcastOctets: 143648
-	InBcastOctets: 1267835
-	InNoECTpkts: 765281
+	InMcastPkts: 22910
+	InBcastPkts: 48868
+	InOctets: 1849004343
+	OutOctets: 343593451
+	InMcastOctets: 733120
+	InBcastOctets: 7461650
+	InNoECTpkts: 8766772
 
 
 
 pcp-netstat output : Display output when filtered TCP protocol
-02:37:13
+Linux  5.4.17-2136.300.7.el8uek.x86_64  (Mohit-OL8u5-vm1)  09/08/23  x86_64    (2 CPU)
+06:35:52
 
 Tcp:
-	316 active connections openings
-	118 passive connection openings
-	15 failed connection attempts
-	6 connection resets received
-	5 connections established
-	106265 segments received
-	109496 segments send out
-	256 segments retransmited
+	2316 active connections openings
+	1017 passive connection openings
+	153 failed connection attempts
+	737 connection resets received
+	14 connections established
+	5729429 segments received
+	6386911 segments send out
+	2273 segments retransmited
 	0 bad segments received.
-	54 resets sent
+	711 resets sent
 
 
 TcpExt:
-	1334 delayed acks sent
-	0 delayed acks further delayed because of locked socket
-	27349 packet headers predicted
-	49683 predicted acknowledgments
-	TCPSackRecovery: 27
-	Detected reordering 4 times using SACK
-	TCPDSACKUndo: 7
-	TCPLostRetransmitt: 58
-	TCPSackFailures: 0
-	134 fast retransmits
-	TCPTimeouts: 58
-	TCPLossProbes: 67
-	TCPLossProbeRecovery: 29
-	TCPBacklogCoalesce: 16
-	TCPDSACKOldSent: 105
+	20700 delayed acks sent
+	14 delayed acks further delayed because of locked socket
+	619419 packet headers predicted
+	509236 predicted acknowledgments
+	TCPSackRecovery: 278
+	Detected reordering 99 times using SACK
+	TCPDSACKUndo: 139
+	TCPLostRetransmitt: 508
+	TCPSackFailures: 38
+	452 fast retransmits
+	TCPTimeouts: 880
+	TCPLossProbes: 1144
+	TCPLossProbeRecovery: 360
+	TCPBacklogCoalesce: 317
+	TCPDSACKOldSent: 2036
 	TCPDSACKOfoSent: 0
-	TCPDSACKRecv: 28
-	TCPDSACKOfoRecv: 3
-	21 connections aborted due to data
-	0 connections reset due to early user close
-	1 connections aborted due to timeout
-	TCPDSACKIgnoredNoUndo: 15
-	TCPSackShifted: 136
-	TCPSackMerged: 256
-	TCPSackShiftFallback: 94
+	TCPDSACKRecv: 409
+	TCPDSACKOfoRecv: 68
+	595 connections aborted due to data
+	5 connections reset due to early user close
+	13 connections aborted due to timeout
+	TCPDSACKIgnoredNoUndo: 101
+	TCPSackShifted: 249
+	TCPSackMerged: 880
+	TCPSackShiftFallback: 835
 	IPReversePathFilter: 1
-	TCPRcvCoalesce: 624
-	TCPOFOQueue: 18
+	TCPRcvCoalesce: 122173
+	TCPOFOQueue: 510
 	TCPOFOMerge: 0
 	TCPChallengeAck: 0
 	TCPSynChallenge: 0
 	TCPSpuriousRtxHostQueues: 0
-	TCPAutoCorking: 26
-	TCPSynRetrans: 16
-	TCPOrigDataSent: 62147
-	TCPHystartTrainDetect: 0
-	TCPHystartTrainCwnd: 0
-	TCPHystartDelayDetect: 1
-	TCPHystartDelayCwnd: 56
-	TCPACKSkippedSeq: 0
-	TCPKeepAlive: 0
-	TCPDelivered: 62436
-	TCPAckCompressed: 0
+	TCPAutoCorking: 218
+	TCPSynRetrans: 374
+	TCPOrigDataSent: 1489155
+	TCPHystartTrainDetect: 57
+	TCPHystartTrainCwnd: 1513
+	TCPHystartDelayDetect: 9
+	TCPHystartDelayCwnd: 1487
+	TCPACKSkippedSeq: 9
+	TCPKeepAlive: 2133227
+	TCPDelivered: 1491398
+	TCPAckCompressed: 264
 
 
-02:37:14
+06:35:54
 
 Tcp:
-	316 active connections openings
-	118 passive connection openings
-	15 failed connection attempts
-	6 connection resets received
-	5 connections established
-	106268 segments received
-	109499 segments send out
-	256 segments retransmited
+	2316 active connections openings
+	1017 passive connection openings
+	153 failed connection attempts
+	737 connection resets received
+	14 connections established
+	5729436 segments received
+	6386917 segments send out
+	2273 segments retransmited
 	0 bad segments received.
-	54 resets sent
+	711 resets sent
 
 
 TcpExt:
-	1334 delayed acks sent
-	0 delayed acks further delayed because of locked socket
-	27349 packet headers predicted
-	49685 predicted acknowledgments
-	TCPSackRecovery: 27
-	Detected reordering 4 times using SACK
-	TCPDSACKUndo: 7
-	TCPLostRetransmitt: 58
-	TCPSackFailures: 0
-	134 fast retransmits
-	TCPTimeouts: 58
-	TCPLossProbes: 67
-	TCPLossProbeRecovery: 29
-	TCPBacklogCoalesce: 16
-	TCPDSACKOldSent: 105
+	20702 delayed acks sent
+	14 delayed acks further delayed because of locked socket
+	619419 packet headers predicted
+	509239 predicted acknowledgments
+	TCPSackRecovery: 278
+	Detected reordering 99 times using SACK
+	TCPDSACKUndo: 139
+	TCPLostRetransmitt: 508
+	TCPSackFailures: 38
+	452 fast retransmits
+	TCPTimeouts: 880
+	TCPLossProbes: 1144
+	TCPLossProbeRecovery: 360
+	TCPBacklogCoalesce: 317
+	TCPDSACKOldSent: 2036
 	TCPDSACKOfoSent: 0
-	TCPDSACKRecv: 28
-	TCPDSACKOfoRecv: 3
-	21 connections aborted due to data
-	0 connections reset due to early user close
-	1 connections aborted due to timeout
-	TCPDSACKIgnoredNoUndo: 15
-	TCPSackShifted: 136
-	TCPSackMerged: 256
-	TCPSackShiftFallback: 94
+	TCPDSACKRecv: 409
+	TCPDSACKOfoRecv: 68
+	595 connections aborted due to data
+	5 connections reset due to early user close
+	13 connections aborted due to timeout
+	TCPDSACKIgnoredNoUndo: 101
+	TCPSackShifted: 249
+	TCPSackMerged: 880
+	TCPSackShiftFallback: 835
 	IPReversePathFilter: 1
-	TCPRcvCoalesce: 624
-	TCPOFOQueue: 18
+	TCPRcvCoalesce: 122173
+	TCPOFOQueue: 510
 	TCPOFOMerge: 0
 	TCPChallengeAck: 0
 	TCPSynChallenge: 0
 	TCPSpuriousRtxHostQueues: 0
-	TCPAutoCorking: 26
-	TCPSynRetrans: 16
-	TCPOrigDataSent: 62149
-	TCPHystartTrainDetect: 0
-	TCPHystartTrainCwnd: 0
-	TCPHystartDelayDetect: 1
-	TCPHystartDelayCwnd: 56
-	TCPACKSkippedSeq: 0
-	TCPKeepAlive: 0
-	TCPDelivered: 62438
-	TCPAckCompressed: 0
+	TCPAutoCorking: 218
+	TCPSynRetrans: 374
+	TCPOrigDataSent: 1489158
+	TCPHystartTrainDetect: 57
+	TCPHystartTrainCwnd: 1513
+	TCPHystartDelayDetect: 9
+	TCPHystartDelayCwnd: 1487
+	TCPACKSkippedSeq: 9
+	TCPKeepAlive: 2133227
+	TCPDelivered: 1491401
+	TCPAckCompressed: 264
 
 
 
 pcp-netstat output : Display output when filtered UDP protocol
-02:37:13
+Linux  5.4.17-2136.300.7.el8uek.x86_64  (Mohit-OL8u5-vm1)  09/08/23  x86_64    (2 CPU)
+06:35:52
 
 Udp:
-	1381 packets received
-	2 packets to unknown port received
+	24036 packets received
+	14 packets to unknown port received
 	0 packet receive errors
-	2274 packets sent
+	29362 packets sent
 	0 receive buffer errors
 	0 send buffer errors
 
@@ -680,13 +685,13 @@ UdpLite:
 	0 checksum errors
 
 
-02:37:14
+06:35:54
 
 Udp:
-	1381 packets received
-	2 packets to unknown port received
+	24036 packets received
+	14 packets to unknown port received
 	0 packet receive errors
-	2274 packets sent
+	29362 packets sent
 	0 receive buffer errors
 	0 send buffer errors
 
@@ -703,59 +708,61 @@ UdpLite:
 
 
 pcp-netstat output : Display output when filtered ICMP protocol
-02:37:13
+Linux  5.4.17-2136.300.7.el8uek.x86_64  (Mohit-OL8u5-vm1)  09/08/23  x86_64    (2 CPU)
+06:35:52
 
 Icmp:
-	615 ICMP messages received
-	8 Input ICMP message failed
+	3817 ICMP messages received
+	37 Input ICMP message failed
 	ICMP input histogram:
-		destination unreachable: 615
-	2 ICMP messages sent
+		destination unreachable: 3817
+	17 ICMP messages sent
 	0 ICMP messages failed
 	ICMP input histogram:
-		Output destination unreachable: 2
+		Output destination unreachable: 17
 
 
 IcmpMsg:
-		InType3: 615
-		OutType0: 2
+		InType3: 3817
+		OutType0: 17
 
 
-02:37:14
+06:35:54
 
 Icmp:
-	615 ICMP messages received
-	8 Input ICMP message failed
+	3817 ICMP messages received
+	37 Input ICMP message failed
 	ICMP input histogram:
-		destination unreachable: 615
-	2 ICMP messages sent
+		destination unreachable: 3817
+	17 ICMP messages sent
 	0 ICMP messages failed
 	ICMP input histogram:
-		Output destination unreachable: 2
+		Output destination unreachable: 17
 
 
 IcmpMsg:
-		InType3: 615
-		OutType0: 2
+		InType3: 3817
+		OutType0: 17
 
 
 
 pcp-netstat output : Display output when asked for interface statistics
-02:37:13
+Linux  5.4.17-2136.300.7.el8uek.x86_64  (Mohit-OL8u5-vm1)  09/08/23  x86_64    (2 CPU)
+06:35:52
 
 Kernel Interface table
      Iface        MTU      RX-OK     RX-ERR     RX-DRP      TX-OK     TX-ERR     TX-DRP
-      ens2       1500    2686851          0          0      64550          0          0 
-      ens3       1500       9615          0          0          0          0          0 
-      ens4       1500       9615          0          0          0          0          0 
-        lo      65536      69740          0          0      69740          0          0 
+      ens2       1500   14340165          0        165     565381          0          0 
+      ens3       1500    4415935          0          0    5941621          0          0 
+      ens4       1500    1669791          0          0          1          0          0 
+        lo      65536    1034958          0          0    1034958          0          0 
 
-02:37:14
+06:35:54
 
 Kernel Interface table
      Iface        MTU      RX-OK     RX-ERR     RX-DRP      TX-OK     TX-ERR     TX-DRP
-      ens2       1500    2686856          0          0      64551          0          0 
-      ens3       1500       9615          0          0          0          0          0 
-      ens4       1500       9615          0          0          0          0          0 
-        lo      65536      69742          0          0      69742          0          0 
+      ens2       1500   14340181          0        165     565383          0          0 
+      ens3       1500    4415935          0          0    5941625          0          0 
+      ens4       1500    1669795          0          0          1          0          0 
+        lo      65536    1034962          0          0    1034962          0          0 
 
