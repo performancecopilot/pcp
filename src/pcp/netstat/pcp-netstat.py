@@ -489,7 +489,7 @@ if __name__ == '__main__':
             for missing_metric in missing:
                 METRICS.remove(missing_metric)
                 MISSING_METRICS.append(missing_metric)
-        
+
         mngr["netstat"] = METRICS + IFACE_METRICS
         mngr["sysinfo"] = SYS_METRICS
         mngr.printer = NestatReport()
