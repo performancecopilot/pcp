@@ -28,8 +28,8 @@
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\f1\\$2
+.de CR
+.ie t \f(CR\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
 .\" add in the -me strings for super and subscripts
@@ -199,9 +199,9 @@ ASCII strings (C-style, NULL byte terminated), and arbitrary aggregates of
 binary data.
 .PP
 The
-.CW type
+.CR type
 field in the
-.CW pmDesc
+.CR pmDesc
 structure returned by
 .BR pmLookupDesc (3)
 identifies the format and type of the values for a particular
@@ -238,9 +238,9 @@ of common scale values that may be used to better encode ranges that might
 otherwise exhaust the precision of a 32-bit value.
 This information is encoded
 in the
-.CW pmUnits
+.CR pmUnits
 structure which is embedded in the
-.CW pmDesc
+.CR pmDesc
 structure returned from
 .BR pmLookupDesc (3).
 .PP
@@ -248,7 +248,7 @@ The routine
 .BR pmConvScale (3)
 is provided to convert values in
 conjunction with the
-.CW pmUnits
+.CR pmUnits
 structures that defines the dimensionality and scale of the values for a
 particular performance metric as returned from
 .BR pmFetch (3),

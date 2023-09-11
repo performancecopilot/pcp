@@ -64,8 +64,8 @@ from pcp import pmapi
 .sp
 .ft 1
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\fR\\$2
+.de CR
+.ie t \f(CR\\$1\fR\\$2
 .el \fI\\$1\fR\\$2
 ..
 Labels are
@@ -239,7 +239,7 @@ argument
 .I labelset
 as an array, using the following component data structures;
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 struct {
@@ -263,42 +263,42 @@ struct {
 .ft 1
 .PP
 The
-.CW pmLabel
+.CR pmLabel
 provides information about an individual label.
 This includes the offsets to
 the start of its
-.CW name
+.CR name
 and
-.CW value
+.CR value
 in the
-.CW json
+.CR json
 string of a
-.CW pmLabelSet ,
+.CR pmLabelSet ,
 their respective lengths, and also any informative flags associated
 with the label (describing where it lies in the hierarchy of labels,
 and whether it is an intrinsic or extrinsic label).
 .PP
 Building on this, the
-.CW pmLabelSet
+.CR pmLabelSet
 provides information about the set of labels associated with an
 entity (context, domain, indom, metric cluster, item or instance).
 The entity will be from any one level of the label hierarchy.
 If at the lowest hierarchy level (which happens to be highest
 precedence \- PM_LABEL_INSTANCES) then the
-.CW inst
+.CR inst
 field will contain an actual instance identifier instead of PM_IN_NULL.
 .PP
 The
-.CW nlabels
+.CR nlabels
 field describes the number of labels (name:value pairs) that can be
 found in both the accompanying
-.CW json
+.CR json
 string (which is JSONB format \- no unnecessary whitespace and with
 no duplicate label names)
 and the accompanying
-.CW labels
+.CR labels
 array (which has
-.CW nlabels
+.CR nlabels
 elements).
 .SH EXAMPLES
 Consider a deployment with global labels (assume $PCP_SYSCONF_DIR
@@ -306,7 +306,7 @@ is set to its usual location of
 .IR /etc/pcp )
 as follows:
 .P
-.ft CW
+.ft CR
 .nf
 .B "$ cat /etc/pcp/labels/*"
 {
@@ -325,7 +325,7 @@ for several
 .BR pmdasample (1)
 metrics as follows:
 .P
-.ft CW
+.ft CR
 .nf
 .B "$ pminfo -m -f --labels sample.rapid sample.colour sample.mirage"
 .P
@@ -337,7 +337,7 @@ labels {"agent":"sample","datacenter":"sydney","hostname":"acme.com","measure":"
 .in
 .fi
 .P
-.ft CW
+.ft CR
 .nf
 sample.colour PMID: 30.0.5
 .in +0.5i
@@ -355,7 +355,7 @@ inst [2 or "blue"] labels {"agent":"sample","datacenter":"syd","hostname":"acme.
 .in
 .fi
 .P
-.ft CW
+.ft CR
 .nf
 sample.mirage PMID: 29.0.37
 .in +0.5i

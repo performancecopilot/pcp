@@ -206,7 +206,7 @@ An example configuration file that provides 3 commonly used headers
 and an authentication token might be :
 .PP
 .in 1i
-.ft CW
+.ft CR
 .nf
 http://somehost/path/endpoint.html
 # this is a comment
@@ -333,7 +333,7 @@ or whatever tool is desired.
 .PP
 A simple example of a scripted config entry follows:
 .in 1i
-.ft CW
+.ft CR
 .nf
 
 #! /bin/sh
@@ -351,7 +351,7 @@ awk '{
 This script produces the following OpenMetrics-formatted metric
 data when run:
 .in 1i
-.ft CW
+.ft CR
 .nf
 
 # HELP loadavg local load average
@@ -407,7 +407,7 @@ and then load the new module using
 .BR semodule ,
 e.g. as follows :
 .in 1i
-.ft CW
+.ft CR
 .nf
 
     $ sudo grep '^type=AVC.*pcp' /var/log/audit/audit.log \\
@@ -480,7 +480,7 @@ An example of such a
 .B pmlogger
 configuration file is :
 .in 1i
-.ft CW
+.ft CR
 .nf
 
 log mandatory on 2 second {

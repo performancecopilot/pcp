@@ -31,8 +31,8 @@ int pmGetHighResArchiveLabel(pmHighResLogLabel *\fIlp\fP);
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\f1\\$2
+.de CR
+.ie t \f(CR\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
 Within the framework of the
@@ -66,7 +66,7 @@ and has one of the following two formats (defined in
 .BR pmapi.h ).
 .PP
 .in +0.2i
-.ft CW
+.ft CR
 .nf
 typedef struct {
   int        magic;       /* PM_LOG_MAGIC | archive format version no. */
@@ -99,20 +99,20 @@ For an application using
 .BR pmGetHighResArchiveLabel ,
 the most useful information from the archive label
 is likely to be in the fields
-.CW start ,
-.CW hostname ,
-.CW timezone ,
+.CR start ,
+.CR hostname ,
+.CR timezone ,
 and
-.CW zoneinfo .
+.CR zoneinfo .
 .PP
 The
-.CW zoneinfo
+.CR zoneinfo
 field contains the most detailed timezone information available,
 and should be used if present (non-zero length string).
 It will only not be present in the case of version 2 archives \-
 this is a new field added as part of the version 3 format.
 The
-.CW timezone
+.CR timezone
 field will always be present, however it is the 'squashed' timezone
 value and in certain situations is not the most accurate timezone.
 .PP
@@ -120,14 +120,14 @@ For older applications using
 .BR pmGetArchiveLabel ,
 the most useful information from the archive label
 is likely to be in the fields
-.CW ll_start ,
-.CW ll_hostname
+.CR ll_start ,
+.CR ll_hostname
 or
-.CW ll_tz .
+.CR ll_tz .
 Note that the size of the
-.CW ll_hostname
+.CR ll_hostname
 field is
-.CW PM_LOG_MAXHOSTLEN
+.CR PM_LOG_MAXHOSTLEN
 (64 bytes)
 which is less than
 .BR MAXHOSTNAMELEN

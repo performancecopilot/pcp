@@ -33,8 +33,8 @@ int pmFetchHighRes(int \fInumpmid\fP, pmID *\fIpmidlist\fP, pmHighResResult **\f
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\fR\\$2
+.de CR
+.ie t \f(CR\\$1\fR\\$2
 .el \fI\\$1\fR\\$2
 ..
 .\" some useful acronyms ... always cite the full text at the first use
@@ -74,7 +74,7 @@ is returned in the argument
 .I result
 as a tree, using the following component data structures;
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 typedef struct {
@@ -113,10 +113,10 @@ The principal result from
 is exactly the same in terms of value sets, however a higher resolution
 timestamp (nanosecond instead of microsecond precision) is available in
 the
-.CW pmHighResResult
+.CR pmHighResResult
 structure.
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 /* Result returned by pmFetchHighRes() */
@@ -130,37 +130,37 @@ typedef struct {
 .ft 1
 .PP
 To accommodate metrics with multiple value instances, the
-.CW numval
+.CR numval
 field indicates how many values are returned for each requested PMID.
 The field
-.CW valfmt
+.CR valfmt
 in the
-.CW pmValueSet
+.CR pmValueSet
 structure indicates if the values for this metric are stored
 .I insitu
 in the
-.CW lval
+.CR lval
 field, i.e. a 32-bit integer quantity (either int, unsigned int,
 long or unsigned long) or if the values are held in associated
-.CW pmValueBlock
+.CR pmValueBlock
 structures.
 The
-.CW pmValueBlock
+.CR pmValueBlock
 structure is always used for floating point values (float or double)
 and also accommodates arbitrary sized binary data such as
 `string-valued' metrics and metrics with aggregated or complex data types.
 The maximum length of a
-.CW pmValueBlock
+.CR pmValueBlock
 buffer is
 .B PM_VAL_VLEN_MAX
 bytes.
 If the
-.CW pmValueBlock
+.CR pmValueBlock
 format is used, the
-.CW vtype
+.CR vtype
 field indicates the data type of the value.
 This field has the same interpretation as the
-.CW type
+.CR type
 field in the
 .B pmDesc
 structure,
@@ -179,7 +179,7 @@ and interpret the
 field, as described in detail in
 .BR pmLookupDesc (3).
 When the
-.CW pmResult
+.CR pmResult
 is received from a PCP1.x
 .BR pmcd ,
 insitu values may also be 32 bit floating point values
@@ -204,19 +204,19 @@ and 32 bit integers).
 If one value (i.e. associated with a particular instance)
 for a requested metric is `unavailable' (at the requested time),
 then there is no associated
-.CW pmValue
+.CR pmValue
 structure in the
 .IR result .
 If there are no available values for a metric,
 then
-.CW numval
+.CR numval
 will be zero and the associated
-.CW pmValue[]
+.CR pmValue[]
 instance will be empty (\c
-.CW valfmt
+.CR valfmt
 is undefined in these circumstances,
 however
-.CW pmid
+.CR pmid
 will be correctly set to the PMID of the metric with no values).
 .PP
 As an extension of this protocol,
@@ -224,10 +224,10 @@ if the Performance Metrics Collection System (PMCS)
 is able to provide a reason why no values are available
 for a particular metric,
 this is encoded as a standard error code in the corresponding
-.CW numval .
+.CR numval .
 Since the error codes are all negative,
 values for a requested metric are `unavailable' if
-.CW numval
+.CR numval
 is less than, or equal to, zero.
 A performance metric's value may be `unavailable'
 for a number of reasons; the following list is illustrative but
@@ -258,14 +258,14 @@ metric values.
 .PP
 In general, we may not be able to differentiate between the various cases,
 and if differentiation is not possible,
-.CW numval
+.CR numval
 will simply be zero.
 .PP
 The argument definition and the result specifications have been constructed
 to ensure that for each PMID in the requested
 .I pmidlist
 there is exactly one
-.CW pmValueSet
+.CR pmValueSet
 in the
 .IR result ,
 and further the PMIDs appear in exactly the same sequence in both
@@ -345,11 +345,11 @@ some subsequent explicit change to the system's hostname.
 .PP
 The default is to return zero to indicate no change in state,
 however the
-.CW pmResult
+.CR pmResult
 returned by
 .B pmFetch
 (or
-.CW pmHighResResult
+.CR pmHighResResult
 returned by
 .BR pmFetchHighRes )
 has the same interpretation independent of the return value being
@@ -389,7 +389,7 @@ See the
 API for a higher level method that insulates
 the user from the intricacies of looking up metric names and metadata,
 setting up instance profiles,
-.CW pmResult
+.CR pmResult
 traversal, conversions, and scaling.
 .SH DIAGNOSTICS
 As mentioned above,

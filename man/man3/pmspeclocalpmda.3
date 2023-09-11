@@ -73,12 +73,12 @@ Some examples of valid
 .I spec
 strings:
 .TP
-.ft CW
+.ft CR
 clear
 .ft
 Delete all entries from the DSO table.
 .TP
-.ft CW
+.ft CR
 add,123,foo/foo_pmda,foo_init
 .ft
 Add the ``foo'' PMDA using domain 123.
@@ -96,16 +96,16 @@ or
 The initialization routine for the ``foo'' PMDA is
 .IR foo_init ().
 .TP
-.ft CW
+.ft CR
 del,123
 Delete the entry for the DSO with domain 123.
 .TP
-.ft CW
+.ft CR
 del,,foo/foo_pmda
 Delete the entry with a pathname to the DSO that matches
 .IR foo/foo_pmda .
 .TP
-.ft CW
+.ft CR
 del,123,foo/foo_pmda
 Delete the entry for the DSO with either domain 123
 and/or a pathname to the DSO that matches

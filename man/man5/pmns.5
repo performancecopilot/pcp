@@ -74,8 +74,8 @@ a PMNS loaded locally from a file. Since PCP version 2, however,
 PMNS functions may get the PMNS information remotely from a PMCD
 or directly from the meta data of an archive.
 .SH PROCESSING FRAMEWORK
-.de CW
-.ie t \f(CW\\$1\f1\\$2
+.de CR
+.ie t \f(CR\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
 The PMNS specification is initially passed through
@@ -84,16 +84,16 @@ This means the following facilities may be used in the specification
 .IP + 3n
 C-style comments
 .IP + 3n
-.CW #include
+.CR #include
 directives
 .IP + 3n
-.CW #define
+.CR #define
 directives and macro substitution
 .IP + 3n
 conditional processing via
-.CW #ifdef
+.CR #ifdef
 \&...
-.CW #endif ,
+.CR #endif ,
 etc.
 .PP
 When
@@ -115,7 +115,7 @@ for details.
 .SH SYNTAX
 The general syntax for a non-leaf node in the PMNS is as follows
 .PP
-.ft CW
+.ft CR
 .nf
 pathname {
         name      [pmid]
@@ -125,7 +125,7 @@ pathname {
 .ft R
 .PP
 Where
-.CW pathname
+.CR pathname
 is the full pathname from the root of the PMNS to this non-leaf node,
 with each
 component in the pathname separated by a ``.''.
@@ -141,19 +141,19 @@ For alphabetic characters in a pathname component, upper and lower case are dist
 Non-leaf nodes in the PMNS may be defined in any order.
 .PP
 The descendent nodes are defined by the set of
-.CW names ,
+.CR names ,
 relative to the
-.CW pathname
+.CR pathname
 of their parent non-leaf node.  For the descendent nodes, leaf
 nodes have a
-.CW pmid
+.CR pmid
 specification, non-leaf nodes do not.  The syntax for
 the
-.CW pmid
+.CR pmid
 specification has been chosen to help manage the allocation of
 PMIDs across disjoint and autonomous domains
 of administration and implementation.  Each
-.CW pmid
+.CR pmid
 consists of 3 integer
 parts, separated by colons, e.g. 14:27:11.  This hierarchic numbering
 scheme is intended to mirror the implementation hierarchy of
@@ -164,7 +164,7 @@ source, and
 .BR pmcpp (1)
 will convert the macros to integers.  These macros for
 the initial components of the
-.CW pmid
+.CR pmid
 are likely to be defined either in
 a standard include file, e.g. \c
 .IR $PCP_VAR_DIR/pmns/stdpmid ,
@@ -172,10 +172,10 @@ or in the current source file.
 .PP
 To support dynamic metrics, where the existence of a metric is known to
 a PMDA, but not visible in the PMNS, a variant syntax for the
-.CW pmid
+.CR pmid
 is supported, namely a domain number followed by asterisks for the other
 components of the
-.CW pmid ,
+.CR pmid ,
 e.g. 14:*:*.
 The corresponding metric name forms the root of a subtree of dynamic
 metric names defined in the corresponding PMDA as identified by the domain
@@ -198,7 +198,7 @@ _
 511	reserved for dynamic PMNS entries
 .TE
 .SH EXAMPLE
-.ft CW
+.ft CR
 .nf
 #define KERNEL 1
 #define FOO 387

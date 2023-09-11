@@ -396,7 +396,7 @@ can be specified using the ``macro''
 that takes a comma separated argument list of integers (in the inclusive
 range 0 to 31) and sets the corresponding bits.  For example
 .RS +4n
-.ft CW
+.ft CR
 features -> bits(31,7,1)
 .ft P
 .RE
@@ -484,7 +484,7 @@ for a discussion of this issue.
 As an illustration, consider the hypothetical instance domain for a metric
 which contains 2 instances with the following names:
 .RS +4
-.ft CW
+.ft CR
 .nf
 red
 eek urk
@@ -496,18 +496,18 @@ Then some possible
 .KW INAME
 clauses might be:
 .TP +10n
-\f(CW"eek" -> "yellow like a flower"\fP
+\f(CR"eek" -> "yellow like a flower"\fP
 Acceptable,
 .I oldname
 "eek" matches the "eek urk" instance.
 .TP +10n
-\f(CW"red" -> "eek"\fP
+\f(CR"red" -> "eek"\fP
 Error,
 .I newname
 "eek" matches the existing "eek urk"
 instance.
 .TP +10n
-\f(CW"eek urk" -> "red of another hue"\fP
+\f(CR"eek urk" -> "red of another hue"\fP
 Error,
 .I newname
 "red of another hue" matches the existing "red"
@@ -591,15 +591,15 @@ for a discussion of this issue.
 .PP
 Here are some examples:
 .TP +10n
-\f(CW{ iname replace /[a-z]*foo[a-z]*/ -> "FOO" }\fP
+\f(CR{ iname replace /[a-z]*foo[a-z]*/ -> "FOO" }\fP
 replace any word containing "foo" with "FOO"
 .TP +10n
-\f(CW{ iname replace "([0-9]+) /.*/(.*)" -> "\e1 \e2" }\fP
+\f(CR{ iname replace "([0-9]+) /.*/(.*)" -> "\e1 \e2" }\fP
 removes a directory path, so the instance name (for one of the
 proc PMDA's metrics)
-\f(CW"2981799 /home/kenj/bin/foobar"\fP
+\f(CR"2981799 /home/kenj/bin/foobar"\fP
 would become
-\f(CW"2981799 foobar"\fP, hiding the user's home directory and
+\f(CR"2981799 foobar"\fP, hiding the user's home directory and
 implicitly the user's login name
 .RE
 .PP
@@ -631,7 +631,7 @@ rewriting rule, although this is most useful when
 is also an asterisk.
 So for example:
 .RS +4n
-.ft CW
+.ft CR
 indom 29.* { indom -> 109.* }
 .ft P
 .RE
@@ -664,7 +664,7 @@ are both defined over instance domain 12.34, and
 is moved to another PMDA using domain 27, then the
 following rewriting rules could be used:
 .RS +4n
-.ft CW
+.ft CR
 indom 12.34 { indom -> duplicate 27.34 }
 .br
 metric foo.two { indom -> 27.34 pmid -> 27.*.*  }
@@ -885,7 +885,7 @@ is defined over the instance domain 29.2 in
 .I inlog
 and the following is acceptable (albeit redundant):
 .RS +4n
-.ft CW
+.ft CR
 .nf
 indom 29.* { indom -> 109.* }
 metric sample.bin { indom -> 109.2 }
@@ -896,7 +896,7 @@ However the following is an error, because the instance domain for
 .I sample.bin
 has two conflicting definitions:
 .RS +4n
-.ft CW
+.ft CR
 .nf
 indom 29.* { indom -> 109.* }
 metric sample.bin { indom -> 123.2 }
@@ -974,7 +974,7 @@ and/or
 is also an asterisk.
 So for example:
 .RS +4n
-.ft CW
+.ft CR
 metric 30.*.* { pmid -> 123.*.* }
 .ft P
 .RE
@@ -1190,14 +1190,14 @@ of type
 .PP
 Here are some examples:
 .TP +10n
-\f(CW{ value /.*/ -> "" }\fP
+\f(CR{ value /.*/ -> "" }\fP
 remove the value everywhere
 .TP +10n
-\f(CWvalue "/.*/(.*)" -> "\e1" }\fP
+\f(CRvalue "/.*/(.*)" -> "\e1" }\fP
 removes a directory path, so the metric value
-\f(CW"mumble /home/kenj/bin/foobar fumble"\fP
+\f(CR"mumble /home/kenj/bin/foobar fumble"\fP
 would become
-\f(CW"mumble foobar fumble"\fP, hiding the user's home directory and
+\f(CR"mumble foobar fumble"\fP, hiding the user's home directory and
 implicitly the user's login name
 .RE
 
@@ -1286,7 +1286,7 @@ rewriting rule, although this is most useful when
 is also an asterisk.
 So for example:
 .RS +4n
-.ft CW
+.ft CR
 text indom 29.* all { indom -> 109.* }
 .ft P
 .RE
@@ -1319,7 +1319,7 @@ and/or
 is also an asterisk.
 So for example:
 .RS +4n
-.ft CW
+.ft CR
 text metric 30.*.* all { metric -> 123.*.* }
 .ft P
 .RE
@@ -1464,7 +1464,7 @@ The value of the selected label(s) is changed to
 Reassociates the selected label(s) with the specified metric domain.
 For example:
 .RS +4n
-.ft CW
+.ft CR
 label domain 30 { domain -> 123 }
 .ft P
 .RE
@@ -1489,7 +1489,7 @@ This is most useful when
 is also an asterisk.
 So for example:
 .RS +4n
-.ft CW
+.ft CR
 label cluster 30.* { cluster -> 123.* }
 .ft P
 .RE
@@ -1522,7 +1522,7 @@ and/or
 is also an asterisk.
 So for example:
 .RS +4n
-.ft CW
+.ft CR
 label item 30.*.* { item -> 123.*.* }
 .ft P
 .RE
@@ -1546,7 +1546,7 @@ rewriting rule, although this is most useful when
 is also an asterisk.
 So for example:
 .RS +4n
-.ft CW
+.ft CR
 label indom 29.* { indom -> 109.* }
 .ft P
 .RE
@@ -1570,7 +1570,7 @@ planning, or because the PMDA has changed to export 64-bit counters
 and we want to convert old archives so they can be processed
 alongside new archives.
 .RS +4
-.ft CW
+.ft CR
 .nf
 metric disk.dev.read { type -> U64 }
 metric disk.dev.write { type -> U64 }
@@ -1584,7 +1584,7 @@ The instances associated with the load average metric
 could be renamed and renumbered by the
 rules below.
 .RS +4
-.ft CW
+.ft CR
 .nf
 # for the Linux PMDA, the kernel.all.load metric is defined
 # over instance domain 60.2
@@ -1603,7 +1603,7 @@ and the associated instance domains.
 The rules below would rewrite an
 old archive to match the changes after the PMDA split.
 .RS +4
-.ft CW
+.ft CR
 .nf
 # all Linux proc metrics are in 7 clusters
 metric 60.8.* { pmid -> 123.*.* }
@@ -1625,7 +1625,7 @@ other platforms.
 Subsequent investigations show the value is in
 fact unsigned, so the following rules could be used.
 .RS +4
-.ft CW
+.ft CR
 .nf
 metric foo.count_em {
 	type if 32 -> U32

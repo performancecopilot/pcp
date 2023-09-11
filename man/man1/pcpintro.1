@@ -19,8 +19,8 @@
 .SH NAME
 \f3PCPIntro\f1 \- introduction to the Performance Co-Pilot (PCP)
 .SH INTRODUCTION
-.de CW
-.ie t \f(CW\\$1\f1\\$2
+.de CR
+.ie t \f(CR\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
 The Performance Co-Pilot (PCP) is a toolkit designed for monitoring
@@ -694,19 +694,19 @@ The root node in
 the PMNS is unlabeled, so all names begin with the label associated
 with one of the descendent nodes below the root node of the PMNS,
 for example \c
-.CW "kernel.percpu.syscall".
+.CR "kernel.percpu.syscall".
 Typically (although this is not a requirement)
 there would be at most one name for each PMID in a PMNS.
 For example
-.CW kernel.all.cpu.idle
+.CR kernel.all.cpu.idle
 and
-.CW disk.dev.read
+.CR disk.dev.read
 are the unique names for two distinct performance
 metrics, each with a unique PMID.
 .PP
 Groups of related PMIDs may be named
 by naming a non-leaf node in the PMNS tree, for example \c
-.CW disk .
+.CR disk .
 .PP
 The default local PMNS used by
 .B pmcd
@@ -764,7 +764,7 @@ interface to the PCP utilities.
 Multiple performance metrics may be associated with a single instance
 domain.
 For example, per-process metrics under
-.CW proc
+.CR proc
 all share the same instance domain.
 .PP
 PCP arranges for information describing instance domains to be exported
@@ -926,7 +926,7 @@ connection through a firewall, and with IPv6 and IPv4 addresses as shown.
 .PP
 .in +0.5i
 .nf
-.ft CW
+.ft CR
 $ pcp \-\-host nas1.acme.com:44321,4321@firewall.acme.com:44322
 $ pcp \-\-host nas1.acme.com:44321@firewall.acme.com:44322
 $ pcp \-\-host nas1.acme.com:44321@firewall.acme.com
@@ -949,7 +949,7 @@ This can be altered, as in the following examples.
 .PP
 .in +0.5i
 .nf
-.ft CW
+.ft CR
 $ pcp \-\-host pcps://app2.acme.com?container=cae8e6edc0d5
 $ pcp \-\-host pcps://nas1.acme.com:44321?username=tanya&method=gssapi
 $ pcp \-\-host pcps://nas2.acme.com@firewalls.r.us?method=plain

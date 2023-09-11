@@ -134,7 +134,7 @@ been structured using the ``::'' delimiter to separate the two
 dimensions.
 The instance domain itself has been labeled accordingly, as follows.
 .P
-.ft CW
+.ft CR
 .nf
 .B "$ pminfo \-\-desc \-\-fetch \-\-labels cgroup.cpuacct.usage_percpu"
 cgroup.cpuacct.usage_percpu
@@ -153,7 +153,7 @@ inst [3 or "/app::cpu1"] labels {"device_type":"cpu","cgroup":"/app","cpu":1}
 .fi
 .ft 1
 .P
-.ft CW
+.ft CR
 .nf
 .B "$ pminfo \-\-labels 3.22"
 InDom: 3.22 0xc00016
@@ -175,7 +175,7 @@ label, perhaps, or to just the "/app" cgroup metrics using the
 Furthermore, using this labeling scheme client tools can also
 correlate related instances across different instance domains.
 .P
-.ft CW
+.ft CR
 .nf
 .B "$ pminfo \-\-desc \-\-fetch \-\-labels kernel.percpu.cpu.irq.soft"
 kernel.percpu.cpu.irq.soft
@@ -190,7 +190,7 @@ inst [1 or "cpu1"] labels {"device_type":"cpu"}
 .fi
 .ft 1
 .P
-.ft CW
+.ft CR
 .nf
 .B "$ pminfo \-\-labels 60.0"
 InDom: 60.0 0xf000000

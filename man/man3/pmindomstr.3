@@ -28,8 +28,8 @@ char *pmInDomStr_r(pmInDom \fIindom\fP, char *\fIbuf\fP, int \fIbuflen\fP);
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\f1\\$2
+.de CR
+.ie t \f(CR\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
 For use in error and diagnostic messages,
@@ -47,7 +47,7 @@ which should have room for at least 20 bytes.
 The value for the instance domain
 .I indom
 is typically extracted from a
-.CW pmDesc
+.CR pmDesc
 structure, following a call to
 .BR pmLookupDesc (3)
 for a particular performance metric.

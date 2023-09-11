@@ -42,8 +42,8 @@ These interfaces are not part of the PCP APIs that are guaranteed to
 remain fixed across releases, and they may not work, or may provide
 different semantics at some point in the future.
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\fR\\$2
+.de CR
+.ie t \f(CR\\$1\fR\\$2
 .el \fI\\$1\fR\\$2
 ..
 .B __pmControlLog
@@ -54,7 +54,7 @@ parameter;
 see
 .BR pmFetch (3)
 for an explanation of the
-.CW pmResult
+.CR pmResult
 structure.
 .PP
 The application must have previously issued a call to
@@ -79,32 +79,32 @@ would typically be constructed as the result of an earlier call to
 For metrics with a singular value (having an instance domain of
 .BR PM_INDOM_NULL )
 the corresponding
-.CW pmValueSet
+.CR pmValueSet
 should have the value one in the
-.CW numval
+.CR numval
 field and
 .B PM_IN_NULL
 as the
-.CW inst
+.CR inst
 field of the single
-.CW pmValue
+.CR pmValue
 supplied.
 If multiple explicit instances are to be logged, the
-.CW numval
+.CR numval
 field of the
-.CW pmValueSet
+.CR pmValueSet
 should contain the number of instances supplied and the
-.CW inst
+.CR inst
 fields of the
-.CW pmValue
+.CR pmValue
 structures should contain specific instance identifiers (which may not have the
 reserved value
 .BR PM_IN_NULL ).
 .PP
 If the
-.CW numval
+.CR numval
 field within any of the
-.CW pmValueSet
+.CR pmValueSet
 structures in
 .I request
 has a value of zero, it indicates that all available instances of the metric
@@ -114,7 +114,7 @@ performed when the
 .B __pmControlLog
 request is received.  This is useful for metrics with instance domains that
 change over time.  It is an error to specify
-.CW numval
+.CR numval
 equal to zero if the corresponding metric has a singular value (no instance
 domain).
 .PP
@@ -195,11 +195,11 @@ and
 For metrics in
 .I request
 that have
-.CW pmValueSet s
+.CR pmValueSet s
 with
-.CW numval
+.CR numval
 equal to zero, the corresponding
-.CW pmValueSet
+.CR pmValueSet
 in
 .IR result
 will contain a value for each available instance at the time of the call.  Each
@@ -270,11 +270,11 @@ The number of metrics in
 is less than one.
 .IP \f3PM_ERR_VALUE\f1
 One or more of the
-.CW pmValueSet s
+.CR pmValueSet s
 in
 .I request
 had
-.CW numval
+.CR numval
 (the number of instances) less than one.
 .IP \f3EINVAL\f1
 An invalid combination of

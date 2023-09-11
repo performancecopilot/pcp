@@ -31,8 +31,8 @@ int pmSetModeHighRes(int \fImode\fP, const struct timespec *\fIwhen\fP, const st
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\f1\\$2
+.de CR
+.ie t \f(CR\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
 .B pmSetMode
@@ -142,7 +142,7 @@ other than
 after each successful
 .BR pmFetch (3),
 the time origin is reset to the timestamp returned via the
-.CW pmResult
+.CR pmResult
 structure from
 .BR pmFetch (3).
 .PP
@@ -152,7 +152,7 @@ parameter
 .I delta
 defines an additional number of time units that should be used to adjust the
 time origin (forwards or backwards), after the new time origin from the
-.CW pmResult
+.CR pmResult
 has been determined.
 This automatic adjustment of the time origin only occurs when the
 .I mode
@@ -203,7 +203,7 @@ The following code fragment may be used to dump just those values
 recorded in an archive in correct temporal sequence, for a selected set of
 performance metrics; this uses the default collection time mechanisms.
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 pmNewContext(PM_CONTEXT_ARCHIVE, "myarchive");
@@ -222,7 +222,7 @@ Alternatively, to replay interpolated metrics from the archive in reverse
 chronological order, at 10 second intervals (of recorded time), the following
 code fragment could be used.
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 struct timeval mytime;
@@ -248,7 +248,7 @@ while (pmFetch(numpmid, pmidlist, &result) != PM_ERR_EOL) {
 .PP
 To perform the same operations, using high resolution time:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 struct timespec mytime, mydelta = { -10, 0 };
@@ -320,7 +320,7 @@ is initially encoded in
 .I interval
 (a struct timeval).
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 struct timeval interval;

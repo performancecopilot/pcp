@@ -155,7 +155,7 @@ file is used to set the debugging option, open the PMDA and display the
 current status of the debugger:
 .PP
 .nf
-.ft CW
+.ft CR
 .in +0.5i
 $ cat .dbpmdarc
 debug libpmda
@@ -171,7 +171,7 @@ is run, the commands in the
 file are executed first:
 .PP
 .nf
-.ft CW
+.ft CR
 .in +0.5i
 $ dbpmda
 \&.dbpmdarc> debug libpmda
@@ -214,7 +214,7 @@ The syntax for most commands will be
 displayed if the command is given without any arguments:
 .PP
 .nf
-.ft CW
+.ft CR
 .in +0.5i
 dbpmda> desc 253.0.0
 PMID: 253.0.0
@@ -239,7 +239,7 @@ may be turned on before giving a
 .BR fetch :
 .PP
 .nf
-.ft CW
+.ft CR
 .in +0.5i
 dbpmda> timer on
 dbpmda> fetch simple.numfetch 253.0.1
@@ -286,7 +286,7 @@ the instance ``names'' ??? are translated into their external instance names
 by the PMDA and reported as below:
 .PP
 .nf
-.ft CW
+.ft CR
 .in +0.5i
 dbpmda> getiname on
 dbpmda> fetch simple.color
@@ -329,7 +329,7 @@ which can be tested with subsequent
 commands:
 .PP
 .nf
-.ft CW
+.ft CR
 .in +0.5i
 dbpmda> store simple.numfetch "42"
 PMID: 253.0.0
@@ -355,7 +355,7 @@ can be specified for each instance domain which includes all, some or no
 instances:
 .PP
 .nf
-.ft CW
+.ft CR
 .in +0.5i
 dbpmda> help profile
 
@@ -428,7 +428,7 @@ The examples below are based on the
 PMDA.
 .PP
 .nf
-.ft CW
+.ft CR
 .in +0.5i
 $ dbpmda
 dbpmda> open pipe /var/lib/pcp/pmdas/sample/pmdasample \-d 29
@@ -506,7 +506,7 @@ The following example is based on the
 PMDA.
 .PP
 .nf
-.ft CW
+.ft CR
 .in +0.5i
 $ dbpmda
 dbpmda> open pipe pmdasample \-D AUTH \-l logfile

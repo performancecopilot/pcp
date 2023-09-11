@@ -27,8 +27,8 @@ int pmNameAll(pmID \fIpmid\fP, char ***\fInameset\fP);
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\f1\\$2
+.de CR
+.ie t \f(CR\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
 Given a
@@ -53,7 +53,7 @@ and it is the
 responsibility of the
 .B pmNameAll
 caller to use
-.CW free(nameset)
+.CR free(nameset)
 to release the space when it is no longer required.
 .PP
 In the absence of errors,

@@ -27,8 +27,8 @@ int pmLookupInDomText(pmInDom \fIindom\fP, int \fIlevel\fP, char **\fIbuffer\fP)
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\f1\\$2
+.de CR
+.ie t \f(CR\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
 Retrieve descriptive text about the performance
@@ -38,7 +38,7 @@ metrics instance domain identified by
 The value for the instance domain
 .I indom
 is typically extracted from a
-.CW pmDesc
+.CR pmDesc
 structure, following a call to
 .BR pmLookupDesc (3)
 for a particular performance metric.

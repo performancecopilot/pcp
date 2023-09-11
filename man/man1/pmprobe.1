@@ -267,9 +267,9 @@ in the format of the environment variable TZ as described in
 Display usage message and exit.
 .SH EXAMPLES
 .nf
-.ft CW
+.ft CR
 $ pmprobe disk.dev
-.ft CW
+.ft CR
 disk.dev.read 2
 disk.dev.write 2
 disk.dev.total 2
@@ -279,23 +279,23 @@ disk.dev.blktotal 2
 disk.dev.active 2
 disk.dev.response 2
 .sp
-.ft CW
+.ft CR
 $ pmprobe \-I disk.dev.read disk.dev.write disk.all.total
-.ft CW
+.ft CR
 disk.dev.read 2 "sda" "sdb"
 disk.dev.write 2 "sda" "sdb"
 disk.all.total 1 PM_IN_NULL
 .sp
-.ft CW
+.ft CR
 $ pmprobe \-v pmcd.numagents pmcd.version pmcd.control.timeout
-.ft CW
+.ft CR
 pmcd.numagents 1 9
 pmcd.version 1 "5.0.0"
 pmcd.control.timeout 1 5
 .sp
-.ft CW
+.ft CR
 $ pmprobe \-v disk.dev.total disk.all.total
-.ft CW
+.ft CR
 disk.dev.total \-1012 Unknown metric name
 disk.all.total 1 4992466
 .fi

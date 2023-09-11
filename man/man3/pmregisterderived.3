@@ -29,8 +29,8 @@ int pmRegisterDerivedMetric(char *\fIname\fP, char *\fIexpr\fP, char **\fIerrmsg
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\fR\\$2
+.de CR
+.ie t \f(CR\\$1\fR\\$2
 .el \fI\\$1\fR\\$2
 ..
 Derived metrics provide a way of extending the Performance Metrics
@@ -44,11 +44,11 @@ An example of the latter class would be the average I/O size, defined
 as
 .br
 .ce
-.ft CW
+.ft CR
 delta(disk.dev.total_bytes) / delta(disk.dev.total)
 .ft R
 where both of the
-.ft CW
+.ft CR
 disk.dev
 .ft R
 metrics are counters, and what is required
@@ -125,18 +125,18 @@ name of any regular metric in the PMNS.  It is acceptable for
 .I name
 to share some part of its prefix with an existing subtree of the PMNS,
 e.g. the average I/O size metric above could be named
-.ft CW
+.ft CR
 disk.dev.avgsz
 .ft R
 which would place it amongst the other
-.ft CW
+.ft CR
 disk.dev
 .ft R
 metrics in the PMNS.
 Alternatively, derived metrics could populate their own subtree
 of the PMNS,
 e.g. the average I/O size metric above could be named
-.ft CW
+.ft CR
 my.summary.disk.avgsz\c
 .ft R
 \&.
@@ -155,17 +155,17 @@ The usual binary arithmetic operators are supported, namely addition (``+''),
 subtraction (``-''), multiplication (``*'') and division (``/'') with
 the normal precedence rules where multiplication and division have
 higher precedence than addition and subtraction, so
-.ft CW
+.ft CR
 a+b*c
 .ft R
 is evaluated as
-.ft CW
+.ft CR
 a+(b*c)\c
 .ft R
 \&.
 .IP * 2n
 Unary negation may be used, e.g.
-.ft CW
+.ft CR
 -3*some.metric\c
 .ft R
 \&.
@@ -177,21 +177,21 @@ Relational expresssions return a value as a 32-bit unsigned number being
 The expected operator precedence rules
 apply, so arithmetic operators have higher precedence than relational operators,
 and
-.ft CW
+.ft CR
 a-b>c+d
 .ft R
 is evaluated as
-.ft CW
+.ft CR
 (a-b)>(c+d)\c
 .ft R
 \&.
 All the relational operators have equal precedence, so the (slightly odd)
 expression involving consecutive relational operators
-.ft CW
+.ft CR
 a>b!=c
 .ft R
 is evaluated as
-.ft CW
+.ft CR
 (a>b)!=c\c
 .ft R
 \&.
@@ -202,21 +202,21 @@ Boolean expresssions return a value as a 32-bit unsigned number being
 The expected operator precedence rules
 apply, so relational operators have higher precedence than boolean operators,
 and
-.ft CW
+.ft CR
 a>b*c&&d<=e+f
 .ft R
 is evaluated as
-.ft CW
+.ft CR
 (a>(b*c))&&(d<=(e+f))\c
 .ft R
 \&.
 Both the boolean operators have equal precedence, so the
 expression involving consecutive boolean operators
-.ft CW
+.ft CR
 a>=b||b>c&&d!=e||f>g
 .ft R
 is evaluated as
-.ft CW
+.ft CR
 (((a>=b)||(b>c))&&(d!=e))||(f>g)\c
 .ft R
 \&.
@@ -228,32 +228,32 @@ The expected operator precedence rules
 apply, so boolean (and relational) operators have higher precedence
 than boolean negation,
 and
-.ft CW
+.ft CR
 !a>b||c<d
 .ft R
 is evaluated as
-.ft CW
+.ft CR
 !((a>b)||(c<d))\c
 .ft R
 \&,
 while
-.ft CW
+.ft CR
 !a<b+c
 .ft R
 is evaluated as
-.ft CW
+.ft CR
 !(a<(b+c))\c
 .ft R
 \&.
 .IP * 2n
 C-style ternary conditional expressions are supported. In general terms
 the expression
-.ft CW
+.ft CR
 check ? foo : bar\c
 .ft R
-\& is evaluated as \f(CWfoo\fP (the ``true'' operand) if \f(CWcheck\fP
+\& is evaluated as \f(CRfoo\fP (the ``true'' operand) if \f(CRcheck\fP
 (the ``guard'') is true, else the
-expression evaluates to \f(CWbar\fP (the ``false'' operand).
+expression evaluates to \f(CRbar\fP (the ``false'' operand).
 Some special semantic rules apply to the ``guard'' expression and
 the other two operand expressions:
 .RS 2n
@@ -288,12 +288,12 @@ a set of values, and the singular value is selected based on the
 evaluation of the ``guard'', then the result is a set of values
 (all the same) with instance enumeration being taken from the other
 operand expression. For example in the expression:
-.ft CW
+.ft CR
 foo ? scalar : set\c
 .ft R
-\&, if \f(CWfoo\fP is true, then the result is a set of values
-(all having the same value, \f(CWscalar\fP) over
-the instance domain of \f(CWset\fP.
+\&, if \f(CRfoo\fP is true, then the result is a set of values
+(all having the same value, \f(CRscalar\fP) over
+the instance domain of \f(CRset\fP.
 .PD
 .RE
 .IP * 2n
@@ -302,7 +302,7 @@ construct ``[\fIinstance_name\fR]'' which may be appended to
 a metric name or a parenthesized expression.
 For example:
 .br
-.ft CW
+.ft CR
 fw.bytes = network.interface.in.bytes[eth1] + \e
 .br
 \           network.interface.out.bytes[eth1]
@@ -310,7 +310,7 @@ fw.bytes = network.interface.in.bytes[eth1] + \e
 .br
 or (equivalently):
 .br
-.ft CW
+.ft CR
 fw.bytes = (network.interface.in.bytes + \e
 .br
 \            network.interface.out.bytes)[eth1]
@@ -325,7 +325,7 @@ in the (unlikely) event that the external instance name contains a ``]''.
 .RE
 .IP * 2n
 Numeric constants can also be specified using the
-.ft CW
+.ft CR
 mkconst()
 .ft R
 constructor which takes a number of arguments: the first is a numeric
@@ -342,22 +342,22 @@ are as follows:
 .TS
 box,center;
 cf(I) | cf(I)w(4.5i)
-lf(CW) | lf(R).
+lf(CR) | lf(R).
 tag	value
 _
 type	T{
 one of the numeric metric types from <pcp/pmapi.h>, stripped of the
 PM_TYPE_
 prefix, so
-\f(CW32\fP, \f(CWU32\fP, \f(CW64\fP, \f(CWU64\fP, \f(CWFLOAT\fP or
-\f(CWDOUBLE\fP.
+\f(CR32\fP, \f(CRU32\fP, \f(CR64\fP, \f(CRU64\fP, \f(CRFLOAT\fP or
+\f(CRDOUBLE\fP.
 T}
 _
 semantics	T{
 one of the semantic types from <pcp/pmapi.h>, stripped of the
 PM_SEM_
 prefix, so
-\f(CWCOUNTER\fP, \f(CWINSTANT\fP or \f(CWDISCRETE\fP.
+\f(CRCOUNTER\fP, \f(CRINSTANT\fP or \f(CRDISCRETE\fP.
 T}
 _
 units	T{
@@ -379,7 +379,7 @@ must be in lower case as shown in the table above.
 This is most useful when the expression semantics require matching
 type and/or semantics and/or units for operands, e.g.
 .br
-.ft CW
+.ft CR
 idle = mem.util.free > mkconst(10485760, units=Kbyte)
 .br
 avg_io_size = delta(disk.dev.total) == 0 ? \e
@@ -389,7 +389,7 @@ avg_io_size = delta(disk.dev.total) == 0 ? \e
 .RE
 .IP * 2n
 Expressions may be rescaled using the
-.ft CW
+.ft CR
 rescale
 .ft R
 function that takes two arguments.  The first is an
@@ -398,7 +398,7 @@ rescaled, and the second is the desired units after rescaling that
 is a string value in the syntax accepted by
 .BR pmParseUnitsStr (3).
 For example:
-.ft CW
+.ft CR
 .br
 rescale(network.interface.total.bytes, "Mbytes/hour")
 .RS 2n
@@ -410,15 +410,15 @@ e.g Space=1, Time=\-1 and Count=0 in the example above.
 The following unary functions operate on a single performance metric
 and return one or more values.
 For all functions (except
-.ft CW
+.ft CR
 count()\c
 .ft R
 ,
-.ft CW
+.ft CR
 defined()
 .ft R
 and
-.ft CW
+.ft CR
 instant()\c
 .ft R
 ), the type of the operand metric must be arithmetic
@@ -427,7 +427,7 @@ double).
 .TS
 box,center;
 cf(R) | cf(R)w(4.5i)
-lf(CW) | lf(R).
+lf(CR) | lf(R).
 Function	Value
 _
 avg(x)	T{
@@ -437,7 +437,7 @@ _
 count(x)	T{
 A singular instance being the count of the number of instances for the metric x.
 As a special case, if fetching the metric x returns an error, then
-.ft CW
+.ft CR
 count(x)
 .ft R
 will be 0.
@@ -445,7 +445,7 @@ T}
 _
 defined(x)	T{
 A boolean value that is true (``1'') if the metric
-.ft CW
+.ft CR
 x
 .ft R
 is defined in the PMNS, else false (``0'').
@@ -518,7 +518,7 @@ A singular instance being the sum of the values across all instances for the met
 T}
 .TE
 .IP * 2n
-The \f(CWmatchinst\fR function may be used to select a subset of the instances from
+The \f(CRmatchinst\fR function may be used to select a subset of the instances from
 an instance domain for a metric or expression.
 The function takes two arguments:
 .RS 2n
@@ -532,7 +532,7 @@ POSIX Extended Regular Expression syntax as described in
 Backslashes may be used as escape prefixes, but double backslash is required to
 escape any regular expression special characters, e.g. for the (extremely unlikely)
 case of wanting to match instance names like ``some*text/other[text]'' a
-regular expression of the form \f(CW/some\e\e*text\e/other\e\e[text]/\fR
+regular expression of the form \f(CR/some\e\e*text\e/other\e\e[text]/\fR
 would be required.
 If present, the negation operator reverses the sense of the filtering,
 so all instances
@@ -543,23 +543,23 @@ A metric or expression that must be defined over an instance domain.
 .PD
 .PP
 For example, the following expression will have values for the
-metric \f(CWnetwork.interface.in.bytes\fP for all network
+metric \f(CRnetwork.interface.in.bytes\fP for all network
 interfaces
 .B except
 the loopback and virtual bridge devices:
 .br
-.ft CW
+.ft CR
 matchinst(!/^(lo)|(vbir)/, network.interface.in.bytes)
 .ft R
 .br
 .RE
 .IP * 2n
-The \f(CWscalar\fR function may be used convert a metric or expression
+The \f(CRscalar\fR function may be used convert a metric or expression
 defined over an instance domain into a scalar value that can be used
 in other expressions.
 For example:
 .br
-.ft CW
+.ft CR
 net.in.bytes = scalar(network.interface.in.bytes[eth0]) + \e
 .br
 \           scalar(network.interface.in.bytes[eth1])
@@ -572,9 +572,9 @@ the value during fetching.
 .PP
 If the metric or expression involves more than one instance then the
 result is formed by picking the first instance \- this is arbitrary
-and implies the \f(CWscalar\fR function should only be used for metrics
+and implies the \f(CRscalar\fR function should only be used for metrics
 or expressions that are expected to contain zero or one instances, e.g.
-the construct ``[\fIinstance_name\fR]'' or the \f(CWmatchinst\fR function
+the construct ``[\fIinstance_name\fR]'' or the \f(CRmatchinst\fR function
 with a pattern that matches at most one instance.
 .RE
 .IP * 2n
@@ -596,7 +596,7 @@ PM_SEM_DISCRETE in which case the result is also PM_SEM_DISCRETE.
 For an arithmetic expression, the dimension of each operand must be the same.
 For a relational expression, the dimension of each operand must be the same,
 except that numeric constants (with no dimension) are allowed, e.g. in the expression
-.ft CW
+.ft CR
 network.interface.in.drops > 0
 .ft R
 \&.
@@ -647,7 +647,7 @@ Putting all of this together in an example, consider the derived
 metric defined as follows:
 .br
 .ad c
-.ft CW
+.ft CR
 x = network.interface.speed - delta(network.interface.in.bytes) / delta(sample.milliseconds)
 .ft R
 .br
@@ -657,7 +657,7 @@ tree as follows.
 .TS
 box,center;
 cf(R) | cf(R) | cf(R) | cf(R)
-lf(CW) | lf(CW) | lf(R) | lf(R).
+lf(CR) | lf(CR) | lf(R) | lf(R).
 Expression	Type	T{
 Dimension & Scale
 T}	T{
@@ -676,7 +676,7 @@ x	DOUBLE	Mbyte/sec
 .TE
 .PP
 Expressions involving single instance selection or the
-\f(CWmatchinst\fR function must be associated with underlying
+\f(CRmatchinst\fR function must be associated with underlying
 metrics that have an instance domain.  These constructors
 make no sense for singular metrics.
 .PP
@@ -731,7 +731,7 @@ a counter.
 .TP
 Semantic error: derived metric <metric> <expr> RESCALE <units>: Incompatible dimensions
 The parameters <expr> and <units> to the
-.ft CW
+.ft CR
 rescale
 .ft R
 function must have the same dimension along the axes of Time,
@@ -751,7 +751,7 @@ the derived metrics has a value of time utilization (Time dimension of 0).
 Semantic error: derived metric <name>: <function>(<operand>): Non-arithmetic operand for function
 The unary functions are only defined if the operand has arithmetic type.
 Similarly the first argument to the
-.ft CW
+.ft CR
 rescale
 .ft R
 function must be of arithmetic type.
@@ -864,9 +864,9 @@ e.g.
 .in +1i
 Error: pmRegisterDerivedMetric("my.disk.rates", ...) syntax error
 .br
-.CW "\&4rat(disk.dev.read)"
+.CR "\&4rat(disk.dev.read)"
 .br
-.CW "\&    ^"
+.CR "\&    ^"
 .in -1i
 .PP
 The position indicator line may be followed by an additional

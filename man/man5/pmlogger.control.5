@@ -84,7 +84,7 @@ useful to set and export variables into the environment of
 the administrative scripts, e.g.
 .br
 .in +4n
-.ft CW
+.ft CR
 .nf
 $ PMCD_CONNECT_TIMEOUT=20
 .fi
@@ -98,7 +98,7 @@ There
 be a version line in the control file of the form:
 .br
 .in +4n
-.ft CW
+.ft CR
 .nf
 $version=1.1
 .fi
@@ -117,7 +117,7 @@ for each
 instance with at least 4 fields of the form:
 .br
 .in +4n
-.ft CW
+.ft CR
 .nf
 \f2host\f1 \f2primary\f1 \f2socks\f1 \f2directory\f1 \f2args\f1 ...
 .fi
@@ -257,7 +257,7 @@ and the local host (i.e. \c
 .IR bozo ).
 .PP
 .nf
-.ft CW
+.ft CR
 $version=1.1
 bozo          y  n  $PCP_ARCHIVE_DIR/bozo   \-c config.default
 wobbly        n  n  "/store/wobbly/$(date +%Y)"  \-c ./wobbly.config
@@ -285,7 +285,7 @@ already)
 and shown below.
 .PP
 .nf
-.ft CW
+.ft CR
 # daily processing of archives
 14      0       *       *       *       $PCP_BINADM_DIR/pmlogger_daily
 # every 30 minutes, check pmlogger instances are running

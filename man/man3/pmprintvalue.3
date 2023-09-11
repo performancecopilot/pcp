@@ -34,8 +34,8 @@ void pmPrintValue(FILE *\fIf\fP, int \fIvalfmt\fP, int \fItype\fP, const\ pmValu
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\f1\\$2
+.de CR
+.ie t \f(CR\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
 The value of a single performance metric (as identified by
@@ -49,9 +49,9 @@ as
 defined by
 .I valfmt
 (from a
-.CW pmValueSet
+.CR pmValueSet
 within a
-.CW pmResult
+.CR pmResult
 structure; see
 .BR pmFetch (3))
 and the generic description of the metrics type
@@ -61,7 +61,7 @@ passed in via
 The value for
 .I type
 is typically extracted from a
-.CW pmDesc
+.CR pmDesc
 structure, following a call to
 .BR pmLookupDesc (3)
 for a particular performance metric.

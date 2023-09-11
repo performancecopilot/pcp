@@ -92,7 +92,7 @@ parameter is provided.
 .TS
 box;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 names	string	Comma-separated list of metric names
@@ -183,7 +183,7 @@ In this case the POST method must be used instead of the GET method.
 .TS
 box;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 expr	string	Query string in \f(CBpmseries\fR(1) format
@@ -240,7 +240,7 @@ $ curl -s 'http://localhost:44322/series/query?expr=disk.dev.read*[samples:1]' |
 .TS
 box;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 series	string	Comma-separated list of series identifiers
@@ -277,7 +277,7 @@ $ curl -s http://localhost:44322/series/values?series=605fc77742cd03175972913295
 .TS
 box;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 series	string	Comma-separated list of series identifiers
@@ -305,7 +305,7 @@ $ curl -s http://localhost:44322/series/descs?series=605fc77742cd031759729132956
 .TS
 box;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 series	string	Comma-separated list of series identifiers
@@ -396,7 +396,7 @@ $ curl -s http://localhost:44322/series/labels?names=hostname,domainname | pmjso
 .TS
 box;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 series	string	Comma-separated list of series identifiers
@@ -437,7 +437,7 @@ $ curl -s http://localhost:44322/series/metrics | pmjson
 .TS
 box;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 series	string	Comma-separated list of source identifiers
@@ -466,7 +466,7 @@ $ curl -s http://localhost:44322/series/sources?source=2cd6a38f9339f2dd1f0b4775b
 .TS
 box;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 series	string	Comma-separated list of series identifiers
@@ -522,7 +522,7 @@ $ curl -s http://localhost:44322/series/instances | pmjson
 .TS
 box;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 expr	string	Source load string in \f(CBpmseries\fR(1) format
@@ -564,7 +564,7 @@ discovers can be automatically indexed.
 .TS
 box;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 query	string	Query string in \f(CBpmsearch\fR(1) format
@@ -643,7 +643,7 @@ while instances have a name only (which can be searched).
 .TS
 box;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 query	string	Search query for search engine
@@ -670,7 +670,7 @@ $ curl -s http://localhost:44322/search/suggest?query=disk&limit=4 | pmjson
 .TS
 box;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 query	string	Target indom for search engine
@@ -741,7 +741,7 @@ parameter or embedded in the endpoint URL itself, such as
 .TS
 box;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 hostspec	string	Host specification as described in \f(CBPCPIntro\fR(1)
@@ -797,7 +797,7 @@ these from the user.
 .TS
 box;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 name	string	An individual metric name
@@ -893,7 +893,7 @@ and
 .TS
 box;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 delta	string	Sampling interval in \f(CBpmParseInterval\fR(3) form
@@ -955,7 +955,7 @@ the more compact floating point representation shown above.
 .TS
 box;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 prefix	string	Metric namespace component as in \f(CBPMNS\fR(5)
@@ -1004,7 +1004,7 @@ $ curl -s http://localhost:44322/pmapi/children?prefix=mem | pmjson
 .TS
 box;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 iname	string	Comma-separated list of instance names
@@ -1074,7 +1074,7 @@ $ curl -s http://localhost:44322/pmapi/indom?name=kernel.all.load | pmjson
 .TS
 box,center;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 iname	string	Comma-separated list of instance names
@@ -1101,7 +1101,7 @@ $ curl -s http://localhost:44322/pmapi/profile?expr=add,indom=60.2,iname=1%20min
 .TS
 box;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 iname	string	Comma-separated list of instance names
@@ -1141,7 +1141,7 @@ $ curl -s http://localhost:44322/pmapi/store?name=pmcd.control.timeout&value=10
 .TS
 box;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 expr	string	Derived metric expression
@@ -1193,7 +1193,7 @@ $ curl -s http://localhost:44322/pmapi/fetch?name=blkio.avgsz&samples=2 | pmjson
 .TS
 box;
 c | c | cw(2.4i)
-lf(CW) | l | l.
+lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 names	string	Comma-separated list of metric names

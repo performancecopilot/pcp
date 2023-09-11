@@ -26,8 +26,8 @@ int pmGetInDomArchive(pmInDom \fIindom\fP, int **\fIinstlist\fP, char ***\fIname
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\f1\\$2
+.de CR
+.ie t \f(CR\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
 Provided the current
@@ -54,7 +54,7 @@ The number of instances found is returned as the function value
 The value for the instance domain
 .I indom
 is typically extracted from a
-.CW pmDesc
+.CR pmDesc
 structure, following a call to
 .BR pmLookupDesc (3)
 for a particular performance metric.
@@ -70,9 +70,9 @@ point to, will have been allocated by
 with two calls to
 .BR malloc (3),
 and it is the responsibility of the caller to
-.CW free(instlist)
+.CR free(instlist)
 and
-.CW free(namelist)
+.CR free(namelist)
 to release the space when it is no longer required.
 .PP
 When the result of
