@@ -807,6 +807,9 @@ on_header_value(http_parser *request, const char *offset, size_t length)
     }
 
 	printf("Hello World");
+	/*if (strncmp(field, "Accept-Encoding", sizeof("Accept-Encoding") ) == 0 && 
+	strncmp(value, "gzip", ) == 0)*/
+	
     return 0;
 }
 
