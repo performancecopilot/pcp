@@ -1,0 +1,96 @@
+#!/bin/sh
+# PCP QA Test No. 1912
+# pmie -o testing
+#
+# non-valgrind variant, see qa/1913 for the valgrind variant
+#
+# Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ $PCPQA_VALGRIND = both ] || \
+	_notrun "valgrind variant qa/1913 will be run"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e '/evaluator exiting/d' \
+# end
+}
+
+# real QA test starts here
+
+cat <<End-of-File >$tmp.config
+// suff at the beginning
+sample.wrap.long > 0
+// stuff in the middle
+    -> print "yippee %v";
+// stuff at the end
+End-of-File
+
+# base tests ...
+#
+for fmt in "%a %d: %m" "%% %m %" "%%a=%a= %%d=%d= %%f=%f= %%l=%l= %%m=%m= %%u=%u=" \
+	   "%m" "prologue %M epilogue" "%"
+do
+    echo
+    echo "-- $fmt --"
+
+    if $do_valgrind
+    then
+	_run_valgrind pmie -t 2 -z -c $tmp.config -a archives/wrap -o "$fmt"
+    else
+	pmie -t 2 -z -c $tmp.config -a archives/wrap -o "$fmt" 2>&1
+    fi \
+    | _filter
+done
+
+# config on stdin, ...
+#
+echo
+echo "-- misc tests --"
+( cat $tmp.config $tmp.config ) \
+| if $do_valgrind
+then
+    _run_valgrind pmie -t 2 -z -a archives/wrap -o "[%f:%l] %m"
+else
+    pmie -t 2 -z -a archives/wrap -o "[%f:%l] %m" 2>&1
+fi \
+| _filter
+
+# success, all done
+exit

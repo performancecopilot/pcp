@@ -23,6 +23,7 @@
 
 #include "dstruct.h"
 #include "andor.h"
+#include "act.h"
 
 #define ROTATE(x)  if ((x)->nsmpls > 1) rotate(x);
 #define EVALARG(x) if ((x)->op < NOP) ((x)->eval)(x);

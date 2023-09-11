@@ -2079,6 +2079,8 @@ x11
 1901 pmlogger local
 1902 help local
 1906 pmseries libpcp_web local
+1912 pmie local
+1913 pmie local valgrind
 1914 atop local
 1927 pmda.sockets local
 1931 pmda.bpf local

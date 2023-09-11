@@ -29,6 +29,7 @@
 [\f3\-m\f1 \f2note\f1]
 [\f3\-j\f1 \f2stompfile\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-o\f1 \f2format\f1]
 [\f3\-O\f1 \f2offset\f1]
 [\f3\-S\f1 \f2starttime\f1]
 [\f3\-t\f1 \f2interval\f1]
@@ -241,6 +242,18 @@ section below.
 \fB\-n\fR \fIpmnsfile\fR, \fB\-\-namespace\fR=\fIpmnsfile\fR
 An alternative Performance Metrics Name Space (PMNS) is loaded from the file
 .IR pmnsfile .
+.TP
+\fB\-o\fR \fIformat\fR, \fB\-\-format\fR=\fIformat\fR
+When precessing performance data from an archive, the
+.B \-o
+option may be used to specify an alternate output
+.I format
+when a rule action is executed.
+See the
+.B "DIFFERENCES IN HOST AND ARCHIVE MODES"
+section for a description of how the output
+.I format
+may be constructed.
 .TP
 \fB\-O\fR \fIorigin\fR, \fB\-\-origin\fR=\fIorigin\fR
 Specify the \fIorigin\fP of the time window.
@@ -1326,6 +1339,49 @@ or a shell command that might not even work on the host where
 is being run, are all examples of ``badness'' to be avoided.
 Rather the output is text in a regular format suitable for post-processing
 with a range of filters and performance analysis tools.
+.PP
+The output format can be changed using the
+.B \-o
+option which consists of literal characters with the following
+embedded ``meta-field'' tokens:
+.TP 4n
+\f(CB%a\fR
+The name of the action, e.g.
+.BR print ,
+.BR syslog ,
+etc.
+.TP 4n
+\f(CB%d\fR
+The date and time in
+.BR ctime (3)
+format when the action would have been executed.
+.TP 4n
+\f(CB%f\fR
+The name of the configuration file containing the action being
+executed, else
+.B <stdin>
+if the rules were read from standard input.
+.TP 4n
+\f(CB%l\fR
+The (approximate) line number in the configuration file for the action being
+executed.
+.TP 4n
+\f(CB%m\fR
+The message component of the action.
+.TP 4n
+\f(CB%u\fR
+The date and time when the action would have been executed in
+extended
+.BR ctime (3)
+format with microsecond precision for the time.
+.TP 4n
+\f(CB%%\fR
+A literal percent character.
+.PP
+The default output format is equivalent to a
+.I format
+of
+.BR "%a %d: %m" .
 .SH SIGNALS
 If
 .B pmie
@@ -1466,13 +1522,14 @@ a cross-platform dialog box.
 .BR pmcd (1),
 .BR pmconfirm (1),
 .BR pmdumplog (1),
-.BR pmieconf (1),
 .BR pmie_check (1),
+.BR pmieconf (1),
 .BR pmie_daily (1),
 .BR pminfo (1),
 .BR pmlogger (1),
 .BR pmval (1),
 .BR systemd (1),
+.BR ctime (3),
 .BR PMAPI (3),
 .BR pcp.conf (5),
 .BR pcp.env (5)
