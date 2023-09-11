@@ -448,6 +448,7 @@ _pcp () {
       "(-j $exargs)"-j+'[specify stomp protocol file]:file:_files' \
       "(-l --logfile $exargs)"{-l+,--logfile=}'[specify log file]:file:_files' \
       "(-m --note $exargs)"{-m+,--note=}'[descriptive note]:note:' \
+      "(-o --format $exargs)"{-o+,--format=}'[output format]:format:' \
       "(-U --username $exargs)"{-U+,--username=}'[specify username to run as]:user:_users' \
       "(-b --buffer $exargs)"{-b,--buffer}'[use line buffered output]' \
       "(-e --timestamp $exargs)"{-e,--timestamp}'[print timestamps in verbose mode]' \
