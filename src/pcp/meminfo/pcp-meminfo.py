@@ -219,7 +219,7 @@ if __name__ == '__main__':
 
         missing = mngr.checkMissingMetrics(ALL_METRICS)
         if missing is not None:
-            sys.stderr.write("Error:Metric is %s missing\n"%(missing))
+            sys.stderr.write('Error: not all required metrics are available\nMissing: %s\n' % (missing))
             sys.exit(1)
 
         mngr["meminfo"] = METRICS

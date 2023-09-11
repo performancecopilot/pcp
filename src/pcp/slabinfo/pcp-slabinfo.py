@@ -189,7 +189,7 @@ if __name__ == '__main__':
         opts.context=mngr.type
         missing = mngr.checkMissingMetrics(ALL_METRICS)
         if missing is not None:
-            sys.stderr.write("Error:some metrics are unavailable",missing)
+            sys.stderr.write('Error: not all required metrics are available\nMissing %s\n' % missing)
             sys.exit(1)
         mngr["slabinfo"] = SLABSTAT_METRICS
         mngr["sysinfo"] = SYS_MECTRICS
