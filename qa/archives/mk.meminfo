@@ -12,6 +12,14 @@ rm -f $tmp.*
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 cat <<End-of-File >>$tmp.config
+log advisory on once{
+        kernel.uname.sysname
+        kernel.uname.release
+        kernel.uname.nodename
+        kernel.uname.machine
+        hinv.ncpu
+}
+
 log mandatory on 1 sec {
     mem.physmem
     mem.util.free
@@ -65,4 +73,11 @@ End-of-File
 
 rm -f pcp-meminfo.0 pcp-meminfo.meta pcp-meminfo.index
 
-pmlogger -s 10 -c $tmp.config pcp-meminfo
+if pmlogger -s 10 -c $tmp.config pcp-meminfo
+then
+	xz pcp-meminfo.0
+	xz pcp-meminfo.meta
+else
+    echo "Argh: pmlogger failed ..."
+    cat pmlogger.log
+fi
