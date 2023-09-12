@@ -117,7 +117,7 @@ class BuddyinfoReport(pmcc.MetricGroupPrinter):
                 value=""
                 for order in sorted(order_set,key=__extract_numeric_part):
                     nodename = adjust_length(Normal,9) if len(Normal) < 9 else Normal
-                    key = f"{Normal}::{order}::{node}"
+                    key = "%s::%s::%s" % (Normal, order, node)
                     data = str(pages.get(key,0))
                     value +=  adjust_length(data,8) if len(data) < 8 else data
                     value += value_indentation
