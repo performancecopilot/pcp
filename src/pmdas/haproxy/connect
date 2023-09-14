@@ -57,7 +57,7 @@ if config.has_section('pmda'):
             sys.exit(1)
 
 if len(sys.argv) > 1 and (sys.argv[1] == '-c' or sys.argv[1] == '--config'):
-    sys.stdout.write("user=%s\nsocket=%s\nurl=%s\n" % (user, skt, url.replace(";", "\;").replace("&", "\&")))
+    sys.stdout.write("user=%s\nsocket=%s\nurl=%s\n" % (user, skt, url.replace(";", "\\;").replace("&", "\\&")))
     sys.exit(0)
 
 try:
