@@ -22,37 +22,42 @@ import time
 from pcp import pmapi, pmcc
 from cpmapi import PM_CONTEXT_ARCHIVE
 
+# By default we are assuming we are runnig on the latest pcp version
+# Later will figure out the version and will change the newVersionFlag
+
+newVersionFlag = True
+
 SYS_MECTRICS = ["kernel.uname.sysname","kernel.uname.release",
                "kernel.uname.nodename","kernel.uname.machine","hinv.ncpu"]
 
-ZONESTAT_METRICS = [ "mem.zoneinfo.free","mem.zoneinfo.min","mem.zoneinfo.low","mem.zoneinfo.high",
-                    "mem.zoneinfo.scanned","mem.zoneinfo.spanned","mem.zoneinfo.present","mem.zoneinfo.managed",
-                    "mem.zoneinfo.nr_free_pages","mem.zoneinfo.nr_alloc_batch","mem.zoneinfo.nr_inactive_anon",
-                    "mem.zoneinfo.nr_active_anon","mem.zoneinfo.nr_inactive_file","mem.zoneinfo.nr_active_file",
-                    "mem.zoneinfo.nr_unevictable","mem.zoneinfo.nr_mlock","mem.zoneinfo.nr_anon_pages",
-                    "mem.zoneinfo.nr_mapped","mem.zoneinfo.nr_file_pages","mem.zoneinfo.nr_dirty",
-                    "mem.zoneinfo.nr_writeback","mem.zoneinfo.nr_slab_reclaimable","mem.zoneinfo.nr_slab_unreclaimable",
-                    "mem.zoneinfo.nr_page_table_pages","mem.zoneinfo.nr_kernel_stack","mem.zoneinfo.nr_unstable",
-                    "mem.zoneinfo.nr_bounce","mem.zoneinfo.nr_vmscan_write","mem.zoneinfo.nr_vmscan_immediate_reclaim",
-                    "mem.zoneinfo.nr_writeback_temp","mem.zoneinfo.nr_isolated_anon","mem.zoneinfo.nr_isolated_file",
-                    "mem.zoneinfo.nr_shmem","mem.zoneinfo.nr_dirtied","mem.zoneinfo.nr_written","mem.zoneinfo.numa_hit",
-                    "mem.zoneinfo.numa_miss","mem.zoneinfo.numa_foreign","mem.zoneinfo.numa_interleave",
-                    "mem.zoneinfo.numa_local","mem.zoneinfo.numa_other","mem.zoneinfo.workingset_refault",
-                    "mem.zoneinfo.workingset_activate","mem.zoneinfo.workingset_nodereclaim",
-                    "mem.zoneinfo.nr_anon_transparent_hugepages","mem.zoneinfo.nr_free_cma","mem.zoneinfo.cma",
-                    "mem.zoneinfo.nr_swapcached","mem.zoneinfo.nr_shmem_hugepages","mem.zoneinfo.nr_shmem_pmdmapped",
-                    "mem.zoneinfo.nr_file_hugepages","mem.zoneinfo.nr_file_pmdmapped",
-                    "mem.zoneinfo.nr_kernel_misc_reclaimable","mem.zoneinfo.nr_foll_pin_acquired",
-                    "mem.zoneinfo.nr_foll_pin_released","mem.zoneinfo.workingset_refault_anon",
-                    "mem.zoneinfo.workingset_refault_file","mem.zoneinfo.workingset_active_anon",
-                    "mem.zoneinfo.workingset_active_file","mem.zoneinfo.workingset_restore_anon",
-                    "mem.zoneinfo.workingset_restore_file","mem.zoneinfo.nr_zspages",
-                    "mem.zoneinfo.nr_zone_inactive_file","mem.zoneinfo.nr_zone_active_file",
-                    "mem.zoneinfo.nr_zone_inactive_anon","mem.zoneinfo.nr_zone_active_anon",
-                    "mem.zoneinfo.nr_zone_unevictable","mem.zoneinfo.nr_zone_write_pending",
-                    "mem.zoneinfo.protection" ]
+ZONESTAT_METRICS = ["mem.zoneinfo.managed", "mem.zoneinfo.nr_mlock", "mem.zoneinfo.present",
+                    "mem.zoneinfo.scanned", "mem.zoneinfo.nr_unstable", "mem.zoneinfo.nr_page_table_pages",
+                    "mem.zoneinfo.nr_shmem", "mem.zoneinfo.nr_free_pages", "mem.zoneinfo.nr_active_file",
+                    "mem.zoneinfo.nr_dirty", "mem.zoneinfo.nr_writeback", "mem.zoneinfo.free",
+                    "mem.zoneinfo.nr_unevictable", "mem.zoneinfo.nr_alloc_batch", "mem.zoneinfo.low",
+                    "mem.zoneinfo.nr_slab_reclaimable", "mem.zoneinfo.nr_kernel_stack", "mem.zoneinfo.numa_interleave",
+                    "mem.zoneinfo.workingset_nodereclaim", "mem.zoneinfo.nr_isolated_anon", "mem.zoneinfo.nr_bounce",
+                    "mem.zoneinfo.numa_other", "mem.zoneinfo.nr_file_pages", "mem.zoneinfo.numa_hit",
+                    "mem.zoneinfo.nr_isolated_file", "mem.zoneinfo.nr_anon_transparent_hugepages",
+                    "mem.zoneinfo.nr_inactive_file", "mem.zoneinfo.spanned", "mem.zoneinfo.nr_written",
+                    "mem.zoneinfo.numa_foreign", "mem.zoneinfo.nr_vmscan_write", "mem.zoneinfo.nr_free_cma",
+                    "mem.zoneinfo.nr_writeback_temp", "mem.zoneinfo.nr_slab_unreclaimable",
+                    "mem.zoneinfo.nr_vmscan_immediate_reclaim", "mem.zoneinfo.nr_mapped", "mem.zoneinfo.nr_anon_pages",
+                    "mem.zoneinfo.high", "mem.zoneinfo.protection", "mem.zoneinfo.numa_local", "mem.zoneinfo.numa_miss",
+                    "mem.zoneinfo.nr_active_anon", "mem.zoneinfo.workingset_refault", "mem.zoneinfo.nr_dirtied",
+                    "mem.zoneinfo.workingset_activate", "mem.zoneinfo.nr_inactive_anon", "mem.zoneinfo.min"]
 
-ALL_METRICS = ZONESTAT_METRICS + SYS_MECTRICS
+ZONESTAT_NEW_METRICS= ["mem.zoneinfo.nr_foll_pin_acquired", "mem.zoneinfo.nr_foll_pin_released",
+                        "mem.zoneinfo.nr_zspages", "mem.zoneinfo.workingset_restore_anon",
+                        "mem.zoneinfo.workingset_refault_anon", "mem.zoneinfo.nr_zone_active_anon",
+                        "mem.zoneinfo.nr_zone_inactive_file", "mem.zoneinfo.nr_swapcached",
+                        "mem.zoneinfo.nr_file_pmdmapped", "mem.zoneinfo.workingset_active_file",
+                        "mem.zoneinfo.workingset_refault_file", "mem.zoneinfo.cma",
+                        "mem.zoneinfo.workingset_active_anon","mem.zoneinfo.nr_zone_write_pending",
+                        "mem.zoneinfo.nr_shmem_pmdmapped", "mem.zoneinfo.nr_shmem_hugepages",
+                        "mem.zoneinfo.nr_kernel_misc_reclaimable", "mem.zoneinfo.nr_zone_active_file",
+                        "mem.zoneinfo.nr_file_hugepages","mem.zoneinfo.nr_zone_unevictable",
+                        "mem.zoneinfo.nr_zone_inactive_anon", "mem.zoneinfo.workingset_restore_file"]
 
 ZONEINFO_PER_NODE = {
     "nr_inactive_anon"              :   "mem.zoneinfo.nr_inactive_anon",
@@ -71,50 +76,37 @@ ZONEINFO_PER_NODE = {
     "nr_writeback"                  :   "mem.zoneinfo.nr_writeback",
     "nr_writeback_temp"             :   "mem.zoneinfo.nr_writeback_temp",
     "nr_shmem"                      :   "mem.zoneinfo.nr_shmem",
-    "nr_shmem_hugepages"            :   "mem.zoneinfo.nr_shmem_hugepages",
-    "nr_shmem_pmdmapped"            :   "mem.zoneinfo.nr_shmem_pmdmapped",
-    "nr_file_hugepages"             :   "mem.zoneinfo.nr_file_hugepages",
-    "nr_file_pmdmapped"             :   "mem.zoneinfo.nr_file_pmdmapped",
     "nr_anon_transparent_hugepages" :   "mem.zoneinfo.nr_anon_transparent_hugepages",
     "nr_unstable"                   :   "mem.zoneinfo.nr_unstable",
     "nr_vmscan_write"               :   "mem.zoneinfo.nr_vmscan_write",
     "nr_vmscan_immediate_reclaim"   :   "mem.zoneinfo.nr_vmscan_immediate_reclaim",
     "nr_dirtied"                    :   "mem.zoneinfo.nr_dirtied",
     "nr_written"                    :   "mem.zoneinfo.nr_written",
-    "nr_kernel_misc_reclaimable"    :   "mem.zoneinfo.nr_kernel_misc_reclaimable"
 }
 
-ZONEINFO_PAGE_INFO  = {
-    "pages free"    :   "mem.zoneinfo.free",
-    "      min"     :   "mem.zoneinfo.min",
-    "      low"     :   "mem.zoneinfo.low",
-    "      high"    :   "mem.zoneinfo.high",
-    "      spanned" :   "mem.zoneinfo.spanned",
-    "      present" :   "mem.zoneinfo.present",
-    "      managed" :   "mem.zoneinfo.managed"
-}
+ZONEINFO_PAGE_INFO = [
+        ("pages free"   ,   "mem.zoneinfo.free"),
+        ("      min"    ,   "mem.zoneinfo.min"),
+        ("      low"    ,   "mem.zoneinfo.low"),
+        ("      high"   ,   "mem.zoneinfo.high"),
+        ("      spanned",   "mem.zoneinfo.spanned"),
+        ("      present",   "mem.zoneinfo.present"),
+        ("      managed",   "mem.zoneinfo.managed")
+]
 
 ZONEINFO_NUMBER_ZONE    =   {
     "nr_free_pages"         :   "mem.zoneinfo.nr_free_pages",
-    "nr_zone_inactive_anon" :   "mem.zoneinfo.nr_zone_inactive_anon",
-    "nr_zone_active_anon"   :   "mem.zoneinfo.nr_zone_active_anon",
-    "nr_zone_inactive_file" :   "mem.zoneinfo.nr_zone_inactive_file",
-    "nr_zone_active_file"   :   "mem.zoneinfo.nr_zone_active_file",
-    "nr_zone_unevictable"   :   "mem.zoneinfo.nr_zone_unevictable",
-    "nr_zone_write_pending" :   "mem.zoneinfo.nr_zone_write_pending",
     "nr_mlock"              :   "mem.zoneinfo.nr_mlock",
     "nr_page_table_pages"   :   "mem.zoneinfo.nr_page_table_pages",
     "nr_kernel_stack"       :   "mem.zoneinfo.nr_kernel_stack",
     "nr_bounce"             :   "mem.zoneinfo.nr_bounce",
-    "nr_zspages"            :   "mem.zoneinfo.nr_zspages",
     "nr_free_cma"           :   "mem.zoneinfo.nr_free_cma",
     "numa_hit"              :   "mem.zoneinfo.numa_hit",
     "numa_miss"             :   "mem.zoneinfo.numa_miss",
     "numa_foreign"          :   "mem.zoneinfo.numa_foreign",
     "numa_interleave"       :   "mem.zoneinfo.numa_interleave",
-    "numa_local"            :   "mem.zoneinfo.numa_local",
-    "numa_other"            :   "mem.zoneinfo.numa_other"
-}
+    "numa_other"            :   "mem.zoneinfo.numa_other",
+    }
 
 class ReportingMetricRepository:
 
@@ -162,10 +154,7 @@ class ZoneStatUtil:
 
     def protection_names(self,node_name):
         data = self.report.current_value("mem.zoneinfo.protection")
-        filtered_nodes = {
-            key.split("::" + node_name)[0] + "::" +
-            node_name for key in sorted(data.keys()) if node_name in key
-        }
+        filtered_nodes = {key.split("::" + node_name)[0] + "::" + node_name for key in data.keys() if node_name in key}
         if len(filtered_nodes) == 0:
             filtered_nodes = None
         return filtered_nodes
@@ -203,8 +192,25 @@ class ZoneinfoReport(pmcc.MetricGroupPrinter):
             return "Node {}, zone    {}".format(node_num, zone_name)
         else:
             return "Invalid input format"
-
-    def __print_values(self,timestamp,header_indentation,value_indentation,manager):
+    def __print_old_version_values(self,manager):
+        try:
+            total_nodes = manager.names()
+            total_nodes = sorted(total_nodes, key=lambda
+                                 x: ((x.split('::')[0] != 'DMA')*2,  # Move 'DMA' entries to the front
+                                 x.split('::')[0]))
+            for node in total_nodes:
+                print(self.__format_node_name(str(node)))
+                print("\tper-node status")
+                for key,value in ZONEINFO_PER_NODE.items():
+                    print ("\t{} {}".format(key,manager.metric_value(value, node)))
+                for key, value in ZONEINFO_PAGE_INFO:
+                    print("\t{} {}".format(key, manager.metric_value(value, node)))
+                print(" " * 14 + "protection " + str([int(i) for i in sorted(manager.protection(node))]))
+                for key,value in ZONEINFO_NUMBER_ZONE.items():
+                    print ("\t{} {}".format(key, manager.metric_value(value, node)))
+        except IndexError:
+            print("Got some error while printing values for old version zoneinfo")
+    def __print_values(self,manager):
         total_nodes = manager.names()
         node_names = set(key.split('::')[1] for key in total_nodes)
         #sort the node names in decreasing order
@@ -217,32 +223,31 @@ class ZoneinfoReport(pmcc.MetricGroupPrinter):
                 if node_types is None:
                     return
                 nodes = set(node_types).intersection(total_nodes)
-                print("NODE {:>2},".format(node_name[4:]),"per-node status")
+                nodes = sorted(nodes, key=lambda x: ((x.split('::')[0] != 'DMA')*2,  # Move 'DMA' entries to the front
+                                                      x.split('::')[0]))
+                print("NODE {:>2}, per-node status".format(node_name[4:]))
                 for key,value in ZONEINFO_PER_NODE.items():
-                    print ("\t",key,manager.metric_value(value,node_name))
-                for node in sorted(nodes):
+                    print ("\t{} {}".format(key, manager.metric_value(value, node_name)))
+                for node in nodes:
                     print(self.__format_node_name(node))
-                    for key,value in ZONEINFO_PAGE_INFO.items():
-                        print("\t",key,manager.metric_value(value,node))
-                    print(" "*14,"protection",manager.protection(node))
+                    for key,value in ZONEINFO_PAGE_INFO:
+                        print ("\t{} {}".format(key,manager.metric_value(value,node)))
+                    print(" " * 14 + "protection " + str([int(i) for i in manager.protection(node)]))
                     for key,value in ZONEINFO_NUMBER_ZONE.items():
-                        print ("\t",key,manager.metric_value(value,node))
+                        print ("\t{} {}".format(key, manager.metric_value(value, node)))
                 #finding the remaining type of nodes data which i haven't printed so far
                 #these nodes will have only pages information for them so just printing them out
-                remaining_nodes = set(node_types) - nodes
+                remaining_nodes = set(node_types) - set(nodes)
                 if remaining_nodes:
-                    for node in sorted(remaining_nodes):
+                    for node in remaining_nodes:
                         print(self.__format_node_name(node))
-                        for key,value in ZONEINFO_PAGE_INFO.items():
+                        for key,value in ZONEINFO_PAGE_INFO:
                             print("\t",key,manager.metric_value(value,node))
-                        print(" "*14,"protection",manager.protection(node))
+                        print(" " * 14 + "protection " + str([int(i) for i in manager.protection(node)]))
                 else:
                     continue
         except IndexError:
             print("Got some error while printing values for zoneinfo")
-
-
-
 
     def print_report(self,group,timestamp,header_indentation,value_indentation,manager_zoneinfo):
         def __print_zone_status():
@@ -250,8 +255,11 @@ class ZoneinfoReport(pmcc.MetricGroupPrinter):
             if zonestatus.names():
                 try:
                     self.__print_machine_info(group)
-                    print("TimeStamp = ",timestamp)
-                    self.__print_values(timestamp, header_indentation, value_indentation, zonestatus)
+                    print("TimeStamp = {}".format(timestamp))
+                    if newVersionFlag:
+                        self.__print_values(zonestatus)
+                    else:
+                        self.__print_old_version_values(zonestatus)
                 except IndexError:
                     print("Incorrect machine info due to some missing metrics")
                 return
@@ -290,16 +298,54 @@ class ZoneinfoOptions(pmapi.pmOptions):
         self.pmSetLongOptionVersion()
         self.samples = None
         self.context = None
+def updateZoneinfoDataToBeFetched():
+    ZONEINFO_NUMBER_ZONE.update({
+        "nr_zone_active_anon"           :   "mem.zoneinfo.nr_zone_active_anon",
+        "nr_zone_inactive_file"         :    "mem.zoneinfo.nr_zone_inactive_file",
+        "nr_zone_active_file"           :   "mem.zoneinfo.nr_zone_active_file",
+        "nr_zone_unevictable"           :   "mem.zoneinfo.nr_zone_unevictable",
+        "nr_zone_write_pending"         :   "mem.zoneinfo.nr_zone_write_pending",
+        "nr_zspages"                    :   "mem.zoneinfo.nr_zspages",
+        "numa_local"                    :   "mem.zoneinfo.numa_local",
+        "nr_zone_inactive_anon"         :   "mem.zoneinfo.nr_zone_inactive_anon"
+        })
+    ZONEINFO_PER_NODE.update({
+        "nr_shmem_hugepages"            :   "mem.zoneinfo.nr_shmem_hugepages",
+        "nr_shmem_pmdmapped"            :   "mem.zoneinfo.nr_shmem_pmdmapped",
+        "nr_file_hugepages"             :   "mem.zoneinfo.nr_file_hugepages",
+        "nr_file_pmdmapped"             :   "mem.zoneinfo.nr_file_pmdmapped",
+        "nr_kernel_misc_reclaimable"    :   "mem.zoneinfo.nr_kernel_misc_reclaimable"
+    })
+
 
 if __name__ == '__main__':
     try:
         opts = ZoneinfoOptions()
         mngr = pmcc.MetricGroupManager.builder(opts,sys.argv)
         opts.context = mngr.type
+
+        # After this VERSION new zoneifo metric has been introduced so checking the current version,
+        # if it is the latest version of pcp then get all the data otherwise drop the metrics
+        # which will not be there in older version.
+        # this change make pcp-zoneinfo comptabile with rhel7 and ol7 where VERSION 4.x.x being used.
+        VERSION="5.0.0"
+        current_version=pmapi.pmContext.pmGetConfig("PCP_VERSION")
+
+        if VERSION >= current_version:
+            newVersionFlag=False
+
+        if newVersionFlag:
+            ALL_METRICS= ZONESTAT_METRICS + ZONESTAT_NEW_METRICS + SYS_MECTRICS
+            ZONESTAT_METRICS = ZONESTAT_NEW_METRICS + ZONESTAT_METRICS
+            updateZoneinfoDataToBeFetched()
+        else:
+            ALL_METRICS= ZONESTAT_METRICS + SYS_MECTRICS
+
         missing = mngr.checkMissingMetrics(ALL_METRICS)
         if missing is not None:
             sys.stderr.write("\nError:some metrics are unavailable ".join(missing) + '\n')
             sys.exit(1)
+
         mngr["zoneinfo"] = ZONESTAT_METRICS
         mngr["sysinfo"] = SYS_MECTRICS
         mngr["allinfo"] = ALL_METRICS
