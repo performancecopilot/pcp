@@ -36,6 +36,7 @@ iproute2
 libavahi-common-dev
 libclass-dbi-perl
 libcmocka-dev
+libncurses5-dev
 libdbd-mysql-perl
 libdbd-pg-perl
 libdevmapper-dev
