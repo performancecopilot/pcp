@@ -869,11 +869,11 @@ AC_CHECK_PROGS(PYLINT, pylint, /bin/true)
 AC_SUBST(PYLINT)
 
 dnl check if python available for the build and runtime
-AC_CHECK_PROGS(PYTHON, [/usr/bin/python2 python2 python2.7 python])
+AC_PATH_PROGS(PYTHON, [/usr/bin/python2 python2 python2.7 python])
 AC_SUBST(PYTHON)
 
 dnl check if python3 available for the build and runtime
-AC_CHECK_PROGS(PYTHON3, [/usr/bin/python3 python3])
+AC_PATH_PROGS(PYTHON3, [/usr/bin/python3 python3])
 AC_SUBST(PYTHON3)
 
 dnl check availability of Python header files
