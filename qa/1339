@@ -142,6 +142,10 @@ then
     netstat -a | grep $port2 >>$here/$seq.full
 fi
 
+# Give the PMDA + internet socket a chance to be setup before pminfo check
+#
+export PCPQA_CHECK_DELAY=2
+
 echo 'socket
 Internet
 '$port1 | $sudo ./Install -e >$tmp.out 2>&1
