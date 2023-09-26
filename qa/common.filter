@@ -651,6 +651,7 @@ s/Performance Co-Pilot starting archive loggers .../Starting pmlogger ... /
 	-e '/is not a native service, redirecting to .*chkconfig/d' \
 	-e '/^Executing .*chkconfig pm.* --level=5/d' \
 	-e '/Failed to create avahi client:/d' \
+	-e '/pmsignal.* kill: [0-9][0-9]*: No such process/d' \
     | _filter_pcp_start_distro \
     | _filter_init_distro
 }
