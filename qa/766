@@ -85,9 +85,18 @@ echo "-m probe=INET_ADDR/32"
 pmfind -m probe=$addr/32 | _unresolved_filter
 echo "Exit status: $?" | tee -a $seq.full
 
+# for this one, we should not be surprised to find peer VMs
+# in the QA Farm ... there is no DNS to support the reverse
+# lookup, so they will be IP addr on the same Class C subnet
+#
+subnet=`echo $addr | sed -e 's/\.[^.]*$/./' -e 's/\./\\\\./g'`
+echo "subnet=$subnet" >>$seq.full
 echo "-s pmcd -m probe=$addr/31" -r >> $seq.full
 echo "-s pmcd -m probe=INET_ADDR/31 -r"
-pmfind -s pmcd -m probe=$addr/31 -r | _resolved_filter
+pmfind -s pmcd -m probe=$addr/31 -r \
+| tee -a $seq.full \
+| _resolved_filter \
+| grep -v "pcp://$subnet"
 echo "Exit status: $?" | tee -a $seq.full
 
 echo "-q -m probe=$addr/30" >> $seq.full
