@@ -12,9 +12,6 @@ echo "QA output created by $seq"
 # get standard environment, filters and checks
 . ./common.discovery
 
-_get_libpcp_config
-$service_discovery || _notrun "No support for service discovery"
-
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
@@ -70,36 +67,14 @@ _error_tolerance_filter()
 # real QA test starts here
 _control_service_discovery
 
-# Obtain the inet address of an active network interface
-# We're extracting a metric of the form:
-#
-#    inst [0 or "eth0"] value "172.31.0.12"
-#
-# and then extracting the address
-#
-echo >$tmp.tmp
-pminfo -f network.interface.inet_addr | \
-  tail -n +3 | \
-  grep -v 127.0.0.1 | \
-  awk '{ print $6 }' | \
-  sed s/\"//g \
-| while read addr
-do
-    if `host $addr 2>&1 | grep NXDOMAIN >/dev/null`
-    then
-	# continue, no DNS for this interface, may be partially configured
-	# DHCP
-	#
-	:
-    else
-	echo $addr >$tmp.tmp
-	break
-    fi
-done
-
-addr=`cat $tmp.tmp`
-[ -z "$addr" ] && _notrun "no active inet interfaces with DNS resolution"
-
+# Obtain the inet address of the primary network interface
+addr=`host $(hostname) | sed -n -e '/has address/s/.* address //p'`
+if [ -z "$addr" ]
+then
+    host $(hostname) >>$seq.full 2>&1
+    _notrun "no primary network interface?"
+    #NOTREACHED
+fi
 echo "addr=$addr" >>$seq.full
 
 # Probe the obtained network.
@@ -112,17 +87,17 @@ echo "Exit status: $?" | tee -a $seq.full
 
 echo "-s pmcd -m probe=$addr/31" -r >> $seq.full
 echo "-s pmcd -m probe=INET_ADDR/31 -r"
-pmfind -s pmcd -m probe=$addr/30 -r | _resolved_filter
+pmfind -s pmcd -m probe=$addr/31 -r | _resolved_filter
 echo "Exit status: $?" | tee -a $seq.full
 
 echo "-q -m probe=$addr/30" >> $seq.full
 echo "-q -m probe=INET_ADDR/30"
-pmfind -q -m probe=$addr/29 | _unresolved_filter
+pmfind -q -m probe=$addr/30 | _unresolved_filter
 echo "Exit status: $?" | tee -a $seq.full
 
 echo "-q -s pmcd -m probe=$addr/29 --resolve" >> $seq.full
 echo "-q -s pmcd -m probe=INET_ADDR/29 --resolve"
-pmfind -q -s pmcd -m probe=$addr/28 --resolve | _resolved_filter
+pmfind -q -s pmcd -m probe=$addr/29 --resolve | _resolved_filter
 echo "Exit status: $?" | tee -a $seq.full
 
 echo "-q -s pmcd -m probe=$addr/28,maxThreads=8" >> $seq.full
