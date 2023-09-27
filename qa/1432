@@ -20,6 +20,8 @@ fi
 . ./common.filter
 . ./common.check
 
+[ -d $PCP_PMDAS_DIR/overhead ] || _notrun "overhead PMDA not installed"
+
 _cleanup()
 {
     cd $here
