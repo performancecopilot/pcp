@@ -364,7 +364,7 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 	goto func_return;
     }
 
-    if (acp->ac_chkfeatures) {
+    if (acp->ac_flags & PM_CTXFLAG_NO_FEATURE_CHECK) {
 	/*
 	 * Check feature bits
 	 */

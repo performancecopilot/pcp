@@ -165,6 +165,25 @@ shared across contexts (\f3PM_CTXFLAG_EXCLUSIVE\fP).
 Both the \f3PM_CTXFLAG_SHALLOW\fP and \f3PM_CTXFLAG_EXCLUSIVE\fP flags are
 now deprecated and ignored.
 .PP
+When
+.I type
+is
+.BR PM_CONTEXT_ARCHIVE ,
+additional flags can
+be added to the
+.I type
+for restricted handling of the archive suited to applications that are aware
+of the structure of PCP archives, namely
+.B PM_CTXFLAG_NO_FEATURE_CHECK
+(do not check feature compatibility for archive label records)
+and
+.B PM_CTXFLAG_METADATA_ONLY
+(open only the metadata, not the data volume(s) nor the index).
+Currently these additional flags are only used by
+.BR pmlogrewrite (1)
+and
+.BR pmlogdump (1).
+.PP
 The initial instance
 profile is set up to select all instances in all instance domains.
 In the case of a set of archives,

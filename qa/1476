@@ -1,8 +1,8 @@
 #!/bin/sh
-# PCP QA Test No. 799
+# PCP QA Test No. 1476
 # checkout pmlogrewrite -q
 #
-# non-valgrind dual of qa/1476
+# valgrind dual of qa/799
 #
 # Copyright (c) 2019 Ken McDonell.  All Rights Reserved.
 #
@@ -17,6 +17,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+_check_valgrind
+
 _cleanup()
 {
     cd $here
@@ -26,6 +28,14 @@ _cleanup()
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@$PCP_VAR_DIR@PCP_VAR_DIR@g" \
+    # done
+}
 
 export PCP_DERIVED_CONFIG=
 
@@ -49,7 +59,8 @@ pmdumplog $tmp \
 | wc -l >>$seq.full
 
 echo "=== no change ==="
-pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite -Dappl0,appl3 -q -i $tmp 2>&1
+_run_valgrind pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite -Dappl0,appl3 -q -i $tmp 2>&1 \
+| _filter
 pmlogcheck -w $tmp
 
 echo
@@ -60,10 +71,12 @@ metric sample.load {
 }
 End-of-File
 pminfo -d -a $tmp sample.load
-pmlogrewrite -c $tmp.config -v -q -i $tmp 2>&1
+_run_valgrind pmlogrewrite -c $tmp.config -v -q -i $tmp 2>&1 \
+| _filter
 pmlogcheck -w $tmp
 pminfo -d -a $tmp sample.load
 
 # success, all done
 status=0
 exit
+

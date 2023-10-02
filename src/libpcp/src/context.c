@@ -770,9 +770,6 @@ expandArchiveList(const char *names)
  * 'name' may be a single archive name or a list of archive names separated by
  * commas.
  *
- * 'chkfeature' is 0 to skip feature bits checks for V3 archives, else 1
- * for the default behaviour to check feature bits.
- *
  * Coming soon:
  * - name can be one or more glob expressions specifying the archives of
  *   interest.
@@ -780,7 +777,7 @@ expandArchiveList(const char *names)
  * NB: no locks are being held at entry.
  */
 static int
-initarchive(__pmContext	*ctxp, const char *name, int chkfeatures)
+initarchive(__pmContext	*ctxp, const char *name)
 {
     int			i;
     int			sts;
@@ -814,7 +811,7 @@ initarchive(__pmContext	*ctxp, const char *name, int chkfeatures)
     acp->ac_log_list = NULL;
     acp->ac_log = NULL;
     acp->ac_mark_done = 0;
-    acp->ac_chkfeatures = chkfeatures;
+    acp->ac_flags = ctxp->c_flags;
 
     /*
      * The list of names may contain one or more directories. Examine the
@@ -1207,12 +1204,12 @@ INIT_CONTEXT:
     }
     else if (new->c_type == PM_CONTEXT_ARCHIVE) {
         /*
-         * Unlock during the archive inital file opens, which can take
+         * Unlock during the archive initial file opens, which can take
          * a noticeable amount of time, esp. for multi-archives.  This
          * is OK because no other thread can validly touch our
          * partly-initialized context.
          */
-        sts = initarchive(new, name, !(type & PM_CTXFLAG_NO_FEATURE_CHECK));
+        sts = initarchive(new, name);
         if (sts < 0)
 	    goto FAILED;
     }

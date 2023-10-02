@@ -363,7 +363,8 @@ PCP_CALL extern int pmNewContext(int, const char *);
 #define PM_CTXFLAG_AUTH		(1U<<13)/* make authenticated connection */
 #define PM_CTXFLAG_CONTAINER	(1U<<14)/* container connection attribute */
 					/* don't check V3 archive features */
-#define PM_CTXFLAG_NO_FEATURE_CHECK	(1U<<15)
+#define PM_CTXFLAG_NO_FEATURE_CHECK	(1U<<15) /* don't check features in label record */
+#define PM_CTXFLAG_METADATA_ONLY	(1U<<16) /* only open .meta file of archive */
 
 /*
  * Duplicate current context -- returns handle to new one for pmUseContext()

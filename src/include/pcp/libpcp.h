@@ -845,7 +845,7 @@ typedef struct {
     long		ac_offset;	/* fseek ptr for archives */
     int			ac_vol;		/* volume for ac_offset */
     int			ac_serial;	/* serial access pattern for archives */
-    int			ac_chkfeatures;	/* 1 => check featutre bits */
+    int			ac_flags;	/* copy of context's c_flags */
     __pmHashCtl		ac_pmid_hc;	/* per PMID controls for INTERP */
     double		ac_end;		/* time at end of archive */
     void		*ac_want;	/* used in interp.c */
