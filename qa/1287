@@ -50,7 +50,10 @@ then
 fi
 
 echo; echo === check \"notready\" appeared in pmcd.conf
-sed -e "s/[ 	]$PCP_PYTHON_PROG[ 	]/ PYTHON_PROG /" <$PCP_PMCDCONF_PATH >$tmp.tmp
+sed <$PCP_PMCDCONF_PATH >$tmp.tmp \
+    -e "s@[ 	]$PCP_PYTHON_PROG[ 	]@ PYTHON_PROG @" \
+    -e "s@[ 	]`basename $PCP_PYTHON_PROG`[ 	]@ PYTHON @" \
+    # done
 if grep 'openmetrics.*notready' $tmp.tmp
 then
     :

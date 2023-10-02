@@ -51,7 +51,7 @@ _filter()
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
 	-e "s;$script;pmdanfsclient.python;" \
 	-e "s; $python_path; \$PYTHON;" \
-	-e "s; $python; \$PYTHON;" \
+	-e "s; $python_basename; \$PYTHON;" \
 	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
 	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
 	-e 's/ 32-bit int / 32-BIT /' \

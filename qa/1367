@@ -23,7 +23,7 @@ _filter()
     sed \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
 	-e "s;$python_path;\$PCP_PYTHON_PROG;" \
-	-e "s;$python;python;" \
+	-e "s;$python_basename;python;" \
 	-e "/^Start/d" \
     | _filter_dumpresult
 }

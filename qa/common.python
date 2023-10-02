@@ -9,6 +9,7 @@
 . ./common.check
 
 python=${PCP_PYTHON_PROG}
+python_basename=`basename ${PCP_PYTHON_PROG}`
 [ -n "$python" ] || _notrun "No python interpreter configured in \$PCP_PYTHON_PROG"
 eval $python -c exit 2>/dev/null || _notrun "Python interpreter \"$python\" failed"
 
