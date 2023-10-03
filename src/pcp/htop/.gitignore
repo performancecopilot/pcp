@@ -7,6 +7,7 @@ pcp-htop.5
 pcp-htop.5.*
 pcp/columns
 pcp/meters
+pcp/screens
 AUTHORS
 *.h
 *.c

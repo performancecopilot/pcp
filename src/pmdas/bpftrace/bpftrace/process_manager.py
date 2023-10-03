@@ -81,14 +81,18 @@ class ProcessManager():
         process.send_signal(signal.SIGINT)
 
         # wait max. 5s for graceful termination of the bpftrace process
-        _done, pending = await asyncio.wait({process.wait()}, timeout=5)
-        if pending:
+        try:
+            terminate = asyncio.create_task(process.wait())
+            await asyncio.wait_for(terminate, timeout=5)
+        except asyncio.TimeoutError:
             self.logger.info(f"stop: {script} is still running, sending SIGKILL...")
             process.kill()
 
             # wait again max. 5s until bpftrace process is terminated
-            _done, pending = await asyncio.wait({process.wait()}, timeout=5)
-            if pending:
+            try:
+                terminate = asyncio.create_task(process.wait())
+                await asyncio.wait_for(terminate, timeout=5)
+            except asyncio.TimeoutError:
                 self.logger.info(f"stop: {script} is still running after sending SIGKILL...")
 
         # stopping state change in run_bpftrace task (script can also stop itself, without getting SIGINT)

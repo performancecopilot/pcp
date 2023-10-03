@@ -96,10 +96,9 @@ do
     cat <<End-of-File >$tmp.config
 log advisory on $delta sample.bin [100]
 End-of-File
-    # pmlogger -c $tmp.config -T 4 $tmp
     $sudo rm -f $tmp.*
-    _start_up_pmlogger -L -c /dev/null -l $tmp.log -T 4 $tmp
-    pmsleep 0.5
+    _start_up_pmlogger -L -c /dev/null -l $tmp.log -T 6 $tmp
+    pmsleep 1
     cat <<End-of-File >$tmp.pmlc
 connect $pid
 log advisory on $delta sample.bin [100]

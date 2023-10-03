@@ -1,5 +1,5 @@
 [Unit]
-Description=Process archive logs
+Description=Process archives
 Documentation=man:pmlogger_daily(1)
 ConditionPathExists=!@CRONTAB_PATH@
 

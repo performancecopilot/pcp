@@ -95,7 +95,7 @@ main(int argc, char **argv)
 "Usage: %s options ...\n\
 \n\
 Options\n\
-  -a   archive	  metrics source is an archive log\n\
+  -a   archive	  metrics source is an archive\n\
   -d              use metric descriptors to decide on value or delta\n\
   -D   debugspec  standard PCP debugging options\n\
   -n   namespace  use an alternative PMNS\n\

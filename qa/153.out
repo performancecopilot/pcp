@@ -57,7 +57,7 @@ sampledso.bin
     Semantics: instant  Units: none
 pmafm> 
 
-pminfo: Cannot open archive "./bar": Missing PCP archive log file
+pminfo: Cannot open archive "./bar": Missing PCP archive file
 pmafm> Note: running pminfo serially, once per archive
 Host: somehost Archive: ./bar
 Host: somehost Archive: ./foo/bar
@@ -67,7 +67,7 @@ sampledso.bin
     Semantics: instant  Units: none
 pmafm> 
 
-pminfo: Cannot open archive "./foo/bar": Illegal label record at start of a PCP archive log file
+pminfo: Cannot open archive "./foo/bar": Illegal label record at start of a PCP archive file
 pmafm> Note: running pminfo serially, once per archive
 Host: somehost Archive: ./bar
 

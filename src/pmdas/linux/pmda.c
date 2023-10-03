@@ -6504,6 +6504,21 @@ static pmdaMetric metrictab[] = {
     {PMDA_PMID(CLUSTER_VMSTAT,178), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+    /* mem.vmstat.pgsteal_anon */
+    { &_pm_proc_vmstat.pgsteal_anon,
+    {PMDA_PMID(CLUSTER_VMSTAT,179), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgscan_anon */
+    { &_pm_proc_vmstat.pgscan_anon,
+    {PMDA_PMID(CLUSTER_VMSTAT,180), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgscan_file */
+    { &_pm_proc_vmstat.pgscan_file,
+    {PMDA_PMID(CLUSTER_VMSTAT,181), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
 /*
  * sysfs_kernel cluster
  */

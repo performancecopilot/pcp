@@ -173,12 +173,12 @@ bool PmView::view(bool showAxis,
     if (pmDebugOptions.appl1)
 	cerr << "PmView::view: antialiasing set to smooth = "
 	     << (smooth == TRUE ? "true" : "false")
-	     << ", passes = " << passes << endl;
+	     << ", passes = " << passes << Qt::endl;
 
     if (passes > 1)
         viewer()->setAntialiasing(smooth, atoi(sval));
     if (pmDebugOptions.appl1)
-	cerr << "PmView::view: displaying window" << endl;
+	cerr << "PmView::view: displaying window" << Qt::endl;
 
     viewer()->viewAll();
 
@@ -218,13 +218,13 @@ void PmView::render(RenderOptions options, time_t theTime)
 		// TODO: set label string to my.text
 		if (pmDebugOptions.appl1)
 		    cerr << "PmView::render: metricLabel text \"" <<
-			my.text << "\"" << endl;
+			my.text << "\"" << Qt::endl;
 	    }
 	}
     }
 
     if (options & PmView::timeLabel)
-	setDateLabel(theTime, QString::null);	// TODO
+	setDateLabel(theTime, QString());	// TODO
 
     viewer()->setAutoRedraw(true);
 }

@@ -191,7 +191,7 @@ but this option \fIwill\fP override per-metric specifications.
 .TP
 \fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
 Performance metric values are retrieved from the set of Performance
-Co-Pilot (PCP) archive log files identified by the
+Co-Pilot (PCP) archive files identified by the
 .I archive
 argument, which is a comma-separated list of names, each
 of which may be the base name of an archive or the name of
@@ -240,10 +240,10 @@ In case \fIconfig\fP is a directory all files in it ending
 \fB.conf\fR will be included.
 The default is the first found of:
 .IR ./pcp2xml.conf ,
-.IR \f(CW$HOME\fP/.pcp2xml.conf ,
-.IR \f(CW$HOME\fP/pcp/pcp2xml.conf ,
+.IR \f(CR$HOME\fP/.pcp2xml.conf ,
+.IR \f(CR$HOME\fP/pcp/pcp2xml.conf ,
 and
-.IR \f(CW$PCP_SYSCONF_DIR\fP/pcp2xml.conf .
+.IR \f(CR$PCP_SYSCONF_DIR\fP/pcp2xml.conf .
 For details, see the above section and
 .BR pmrep.conf (5).
 .TP
@@ -604,7 +604,7 @@ Display usage message and exit.
 .I pcp2xml.conf
 \fBpcp2xml\fP configuration file (see \fB\-c\fP)
 .TP
-.I \f(CW$PCP_SYSCONF_DIR\fP/pmrep/*.conf
+.I \f(CR$PCP_SYSCONF_DIR\fP/pmrep/*.conf
 system provided default \fBpmrep\fP configuration files
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize

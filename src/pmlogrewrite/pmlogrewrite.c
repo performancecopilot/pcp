@@ -527,7 +527,7 @@ reportconfig(void)
     int			change = 0;
     char		buf[64];
 
-    printf("PCP Archive Log Rewrite Specifications Summary\n");
+    printf("PCP Archive Rewrite Specifications Summary\n");
     change |= (global.flags != 0);
     // TODO WARN about no-ops for changes to V3 label fields in V2 output?
     if (global.flags & GLOBAL_CHANGE_HOSTNAME)
@@ -1574,43 +1574,26 @@ do_newlabelsets(void)
     }
 }
 
-int
-main(int argc, char **argv)
+void
+open_input(int flags)
 {
     int		sts;
-    int		stslog;			/* sts from nextlog() */
-    int		stsmeta = 0;		/* sts from nextmeta() */
-    int		i;
-    int		ti_idx;			/* next slot for input temporal index */
-    int		dir_fd = -1;		/* poinless initialization to humour gcc */
-    int		doneti = 0;
-    __pmTimestamp	tstamp = { 0, 0 };	/* for last log record */
-    off_t	old_log_offset = 0;	/* log offset before last log record */
-    off_t	old_meta_offset;
-    int		seen_event = 0;
-    metricspec_t	*mp;
 
-    /* process cmd line args */
-    if (parseargs(argc, argv) < 0) {
-	pmUsageMessage(&opts);
-	exit(1);
-    }
-
-    /* input archive ... inarch.name set in parseargs() */
     inarch.logrec = inarch.metarec = NULL;
     inarch.mark = 0;
     inarch.rp = NULL;
 
-    if ((inarch.ctx = pmNewContext(PM_CONTEXT_ARCHIVE, inarch.name)) < 0) {
+    if ((inarch.ctx = pmNewContext(PM_CONTEXT_ARCHIVE | flags, inarch.name)) < 0) {
 	if (inarch.ctx == PM_ERR_NODATA) {
 	    fprintf(stderr, "%s: Warning: empty archive \"%s\" will be skipped\n",
 		    pmGetProgname(), inarch.name);
 	    exit(0);
 	}
 	if (inarch.ctx == PM_ERR_FEATURE) {
+	    /* try w/out feature bits checking */
 	    fprintf(stderr, "%s: Warning: archive \"%s\": unsupported feature bits, other errors may follow ...\n",
 		    pmGetProgname(), inarch.name);
-	    inarch.ctx = pmNewContext(PM_CONTEXT_ARCHIVE | PM_CTXFLAG_NO_FEATURE_CHECK, inarch.name);
+	    inarch.ctx = pmNewContext(PM_CONTEXT_ARCHIVE | flags | PM_CTXFLAG_NO_FEATURE_CHECK, inarch.name);
 	}
 	if (inarch.ctx < 0) {
 	    fprintf(stderr, "%s: Error: cannot open archive \"%s\": %s\n",
@@ -1641,6 +1624,37 @@ main(int argc, char **argv)
 		pmGetProgname(), inarch.version, inarch.name);
 	exit(1);
     }
+}
+
+int
+main(int argc, char **argv)
+{
+    int		sts;
+    int		stslog;			/* sts from nextlog() */
+    int		stsmeta = 0;		/* sts from nextmeta() */
+    int		i;
+    int		ti_idx;			/* next slot for input temporal index */
+    int		dir_fd = -1;		/* poinless initialization to humour gcc */
+    int		doneti = 0;
+    __pmTimestamp	tstamp = { 0, 0 };	/* for last log record */
+    off_t	old_log_offset = 0;	/* log offset before last log record */
+    off_t	old_meta_offset;
+    int		seen_event = 0;
+    metricspec_t	*mp;
+
+    /* process cmd line args */
+    if (parseargs(argc, argv) < 0) {
+	pmUsageMessage(&opts);
+	exit(1);
+    }
+
+    /* input archive ... inarch.name set in parseargs() */
+    if (qflag)
+	/* -q => "peek" only at metadata initially */
+	open_input(PM_CTXFLAG_METADATA_ONLY);
+    else
+	/* no -q => fully functional context needed */
+	open_input(0);
 
     if (outarch.version == 0)
 	outarch.version = inarch.version;
@@ -1788,6 +1802,15 @@ main(int argc, char **argv)
 	    fprintf(stderr, "Done, no rewriting required\n");
 	}
 	exit(0);
+    }
+
+    if (qflag) {
+	/*
+	 * rewriting is in the wind, so need a fully functional
+	 * context now
+	 */
+	pmDestroyContext(inarch.ctx);
+	open_input(0);
     }
 
     /* create output log - must be done before writing label */

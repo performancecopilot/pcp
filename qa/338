@@ -2,7 +2,11 @@
 # PCP QA Test No. 338
 # pmlogger_daily ... do you work at all?
 #
-# NEW VERSION for YYYYDDMM style naming convention (see also 530)
+# NEW VERSION for YYYYDDMM style naming convention (see also 530
+# for the old YYMMDD style naming convention)
+#
+# See also 1473 for a variant of this test that uses $(date ...)
+# in the directory field of the control file.
 #
 # Copyright (c) 2008 Silicon Graphics, Inc.  All Rights Reserved.
 #

@@ -17,7 +17,9 @@ in the source distribution for its full text.
 #include <sys/types.h>
 
 #include "Hashtable.h"
+#include "Panel.h"
 #include "Settings.h"
+#include "Table.h"
 #include "UsersTable.h"
 #include "Vector.h"
 
@@ -37,14 +39,14 @@ in the source distribution for its full text.
 typedef unsigned long long int memory_t;
 #define MEMORY_MAX ULLONG_MAX
 
-struct ProcessList_;
-
 typedef struct Machine_ {
-   Settings* settings;
+   struct Settings_* settings;
 
    struct timeval realtime;   /* time of the current sample */
    uint64_t realtimeMs;       /* current time in milliseconds */
    uint64_t monotonicMs;      /* same, but from monotonic clock */
+
+   int64_t iterationsRemaining;
 
    #ifdef HAVE_LIBHWLOC
    hwloc_topology_t topology;
@@ -66,11 +68,14 @@ typedef struct Machine_ {
    unsigned int existingCPUs;
 
    UsersTable* usersTable;
-   uid_t userId;
+   uid_t htopUserId;
+   uid_t maxUserId;  /* recently observed */
+   uid_t userId;  /* selected row user ID */
 
-   /* To become an array of lists - processes, cgroups, filesystems,... etc */
-   /* for now though, just point back to the one list we have at the moment */
-   struct ProcessList_ *pl;
+   size_t tableCount;
+   Table **tables;
+   Table *activeTable;
+   Table *processTable;
 } Machine;
 
 
@@ -84,8 +89,12 @@ void Machine_done(Machine* this);
 
 bool Machine_isCPUonline(const Machine* this, unsigned int id);
 
-void Machine_addList(Machine* this, struct ProcessList_ *pl);
+void Machine_populateTablesFromSettings(Machine* this, Settings* settings, Table* processTable);
+
+void Machine_setTablesPanel(Machine* host, Panel* panel);
 
 void Machine_scan(Machine* this);
+
+void Machine_scanTables(Machine* this);
 
 #endif

@@ -1,0 +1,211 @@
+QA output created by 1473
+
+=== [] regular old -o show ===
+PMLOGGER.DAILY: [TMP.control:2]
+Error: no pmlogger instance running for host "HOST"
+... logging for host "HOST" unchanged
+PMLOGGER.DAILY: [TMP.control:2]
+Warning: skipping log rotation because we don't know which pmlogger to signal
+--- remaining archives ---
+TMP/TODAY-2/TODAY-2.00.02.0
+TMP/TODAY-2/TODAY-2.00.02.index
+TMP/TODAY-2/TODAY-2.00.02.meta
+TMP/TODAY-2/TODAY-2.00.04.0
+TMP/TODAY-2/TODAY-2.00.04.index
+TMP/TODAY-2/TODAY-2.00.04.meta
+TMP/TODAY-3/TODAY-3.00.02.0
+TMP/TODAY-3/TODAY-3.00.02.index
+TMP/TODAY-3/TODAY-3.00.02.meta
+TMP/TODAY-3/TODAY-3.00.04.0
+TMP/TODAY-3/TODAY-3.00.04.index
+TMP/TODAY-3/TODAY-3.00.04.meta
+TMP/TODAY/TODAY.00.02.0
+TMP/TODAY/TODAY.00.02.index
+TMP/TODAY/TODAY.00.02.meta
+TMP/TODAY/TODAY.00.04.0
+TMP/TODAY/TODAY.00.04.index
+TMP/TODAY/TODAY.00.04.meta
+TMP/YESTERDAY/YESTERDAY.0
+TMP/YESTERDAY/YESTERDAY.index
+TMP/YESTERDAY/YESTERDAY.meta
+
+=== [] no -o merge archives from before yesterday + rewrite all ===
+PMLOGGER.DAILY: [TMP.control:2]
+Error: no pmlogger instance running for host "HOST"
+... logging for host "HOST" unchanged
+PMLOGGER.DAILY: [TMP.control:2]
+Warning: skipping log rotation because we don't know which pmlogger to signal
+--- remaining archives ---
+TMP/TODAY-2/TODAY-2.0
+TMP/TODAY-2/TODAY-2.index
+TMP/TODAY-2/TODAY-2.meta
+TMP/TODAY/TODAY.00.02.0
+TMP/TODAY/TODAY.00.02.index
+TMP/TODAY/TODAY.00.02.meta
+TMP/TODAY/TODAY.00.04.0
+TMP/TODAY/TODAY.00.04.index
+TMP/TODAY/TODAY.00.04.meta
+TMP/YESTERDAY/YESTERDAY.0
+TMP/YESTERDAY/YESTERDAY.index
+TMP/YESTERDAY/YESTERDAY.meta
+
+=== [] error, output already exists ===
+PMLOGGER.DAILY: [TMP.control:2]
+Error: no pmlogger instance running for host "HOST"
+... logging for host "HOST" unchanged
+PMLOGGER.DAILY: [TMP.control:2]
+Warning: skipping log rotation because we don't know which pmlogger to signal
+PMLOGGER.DAILY: Warning: output archive (TMP/YESTERDAY/YESTERDAY) already exists
+[TMP.control:2] ... skip log merging and compressing for host "HOST"
+--- remaining archives ---
+TMP/TODAY-2/TODAY-2.0
+TMP/TODAY-2/TODAY-2.index
+TMP/TODAY-2/TODAY-2.meta
+TMP/TODAY/TODAY.00.02.0
+TMP/TODAY/TODAY.00.02.index
+TMP/TODAY/TODAY.00.02.meta
+TMP/TODAY/TODAY.00.04.0
+TMP/TODAY/TODAY.00.04.index
+TMP/TODAY/TODAY.00.04.meta
+TMP/YESTERDAY/YESTERDAY.0
+TMP/YESTERDAY/YESTERDAY.17.18.0
+TMP/YESTERDAY/YESTERDAY.17.18.index
+TMP/YESTERDAY/YESTERDAY.17.18.meta
+TMP/YESTERDAY/YESTERDAY.19.20.0
+TMP/YESTERDAY/YESTERDAY.19.20.index
+TMP/YESTERDAY/YESTERDAY.19.20.meta
+TMP/YESTERDAY/YESTERDAY.index
+TMP/YESTERDAY/YESTERDAY.meta
+
+=== [verbose] regular old -o show ===
+
+=== daily maintenance of PCP archives for host HOST ===
+
+Embedded $(...): find_dirs=TMP/*
+PMLOGGER.DAILY: [TMP.control:2]
+Error: no pmlogger instance running for host "HOST"
+... logging for host "HOST" unchanged
+PMLOGGER.DAILY: [TMP.control:2]
+Warning: skipping log rotation because we don't know which pmlogger to signal
+Archive files older than 4 days being removed ...
+    TMP/TODAY-5/TODAY-5.00.02.0
+    TMP/TODAY-5/TODAY-5.00.02.index
+    TMP/TODAY-5/TODAY-5.00.02.meta
+    TMP/TODAY-5/TODAY-5.00.04.0
+    TMP/TODAY-5/TODAY-5.00.04.index
+    TMP/TODAY-5/TODAY-5.00.04.meta
+    TMP/TODAY-4/TODAY-4.00.02.0
+    TMP/TODAY-4/TODAY-4.00.02.index
+    TMP/TODAY-4/TODAY-4.00.02.meta
+    TMP/TODAY-4/TODAY-4.00.04.0
+    TMP/TODAY-4/TODAY-4.00.04.index
+    TMP/TODAY-4/TODAY-4.00.04.meta
+Input archives to be merged:
+	TMP/YESTERDAY/YESTERDAY.00.02
+	TMP/YESTERDAY/YESTERDAY.00.04
+Output archive files:
+-rw-r--r-- ... 455 ... TMP/YESTERDAY/YESTERDAY.meta
+-rw-r--r-- ... 192 ... TMP/YESTERDAY/YESTERDAY.index
+-rw-r--r-- ... 864 ... TMP/YESTERDAY/YESTERDAY.0
+Removing input archive files ...... done
+--- remaining archives ---
+TMP/TODAY-2/TODAY-2.00.02.0
+TMP/TODAY-2/TODAY-2.00.02.index
+TMP/TODAY-2/TODAY-2.00.02.meta
+TMP/TODAY-2/TODAY-2.00.04.0
+TMP/TODAY-2/TODAY-2.00.04.index
+TMP/TODAY-2/TODAY-2.00.04.meta
+TMP/TODAY-3/TODAY-3.00.02.0
+TMP/TODAY-3/TODAY-3.00.02.index
+TMP/TODAY-3/TODAY-3.00.02.meta
+TMP/TODAY-3/TODAY-3.00.04.0
+TMP/TODAY-3/TODAY-3.00.04.index
+TMP/TODAY-3/TODAY-3.00.04.meta
+TMP/TODAY/TODAY.00.02.0
+TMP/TODAY/TODAY.00.02.index
+TMP/TODAY/TODAY.00.02.meta
+TMP/TODAY/TODAY.00.04.0
+TMP/TODAY/TODAY.00.04.index
+TMP/TODAY/TODAY.00.04.meta
+TMP/YESTERDAY/YESTERDAY.0
+TMP/YESTERDAY/YESTERDAY.index
+TMP/YESTERDAY/YESTERDAY.meta
+
+=== [verbose] no -o merge archives from before yesterday + rewrite all ===
+
+=== daily maintenance of PCP archives for host HOST ===
+
+Embedded $(...): find_dirs=TMP/*
+Info: pmlogrewrite all archives in TMP/TODAY-5
+Warning: no PCP archives found
+Info: pmlogrewrite all archives in TMP/TODAY-4
+Warning: no PCP archives found
+Info: pmlogrewrite all archives in TMP/TODAY-3
+Info: pmlogrewrite all archives in TMP/TODAY-2
+Info: pmlogrewrite all archives in TMP/YESTERDAY
+Info: pmlogrewrite all archives in TMP/TODAY
+PMLOGGER.DAILY: [TMP.control:2]
+Error: no pmlogger instance running for host "HOST"
+... logging for host "HOST" unchanged
+PMLOGGER.DAILY: [TMP.control:2]
+Warning: skipping log rotation because we don't know which pmlogger to signal
+Archive files older than 3 days being removed ...
+    TMP/TODAY-3/TODAY-3.00.02.0
+    TMP/TODAY-3/TODAY-3.00.02.index
+    TMP/TODAY-3/TODAY-3.00.02.meta
+    TMP/TODAY-3/TODAY-3.00.04.0
+    TMP/TODAY-3/TODAY-3.00.04.index
+    TMP/TODAY-3/TODAY-3.00.04.meta
+Input archives to be merged:
+	TMP/TODAY-2/TODAY-2.00.02
+	TMP/TODAY-2/TODAY-2.00.04
+Output archive files:
+-rw-r--r-- ... 455 ... TMP/TODAY-2/TODAY-2.meta
+-rw-r--r-- ... 192 ... TMP/TODAY-2/TODAY-2.index
+-rw-r--r-- ... 864 ... TMP/TODAY-2/TODAY-2.0
+Removing input archive files ...... done
+--- remaining archives ---
+TMP/TODAY-2/TODAY-2.0
+TMP/TODAY-2/TODAY-2.index
+TMP/TODAY-2/TODAY-2.meta
+TMP/TODAY/TODAY.00.02.0
+TMP/TODAY/TODAY.00.02.index
+TMP/TODAY/TODAY.00.02.meta
+TMP/TODAY/TODAY.00.04.0
+TMP/TODAY/TODAY.00.04.index
+TMP/TODAY/TODAY.00.04.meta
+TMP/YESTERDAY/YESTERDAY.0
+TMP/YESTERDAY/YESTERDAY.index
+TMP/YESTERDAY/YESTERDAY.meta
+
+=== [verbose] error, output already exists ===
+
+=== daily maintenance of PCP archives for host HOST ===
+
+Embedded $(...): find_dirs=TMP/*
+PMLOGGER.DAILY: [TMP.control:2]
+Error: no pmlogger instance running for host "HOST"
+... logging for host "HOST" unchanged
+PMLOGGER.DAILY: [TMP.control:2]
+Warning: skipping log rotation because we don't know which pmlogger to signal
+PMLOGGER.DAILY: Warning: output archive (TMP/YESTERDAY/YESTERDAY) already exists
+[TMP.control:2] ... skip log merging and compressing for host "HOST"
+--- remaining archives ---
+TMP/TODAY-2/TODAY-2.0
+TMP/TODAY-2/TODAY-2.index
+TMP/TODAY-2/TODAY-2.meta
+TMP/TODAY/TODAY.00.02.0
+TMP/TODAY/TODAY.00.02.index
+TMP/TODAY/TODAY.00.02.meta
+TMP/TODAY/TODAY.00.04.0
+TMP/TODAY/TODAY.00.04.index
+TMP/TODAY/TODAY.00.04.meta
+TMP/YESTERDAY/YESTERDAY.0
+TMP/YESTERDAY/YESTERDAY.17.18.0
+TMP/YESTERDAY/YESTERDAY.17.18.index
+TMP/YESTERDAY/YESTERDAY.17.18.meta
+TMP/YESTERDAY/YESTERDAY.19.20.0
+TMP/YESTERDAY/YESTERDAY.19.20.index
+TMP/YESTERDAY/YESTERDAY.19.20.meta
+TMP/YESTERDAY/YESTERDAY.index
+TMP/YESTERDAY/YESTERDAY.meta

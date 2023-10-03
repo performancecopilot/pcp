@@ -113,7 +113,7 @@ The
 .B \-a
 option causes
 .B pmrep
-to use the specified set of archive logs rather than connecting to a PMCD.
+to use the specified set of archives rather than connecting to a PMCD.
 The
 .B \-a
 and
@@ -167,7 +167,7 @@ This so-called
 of a metricspec is defined as follows:
 .PP
 .in 0.5i
-.ft CW
+.ft CR
 .nf
 metric[,label[,instances[,unit/scale[,type[,width[,precision[,limit]]]]]]]
 .fi
@@ -242,7 +242,7 @@ are optional, they must always be provided in the order specified above,
 thus the commas.
 .PP
 .in 1.5i
-.ft CW
+.ft CR
 .nf
 kernel.all.sysfork,forks,,,,8
 .fi
@@ -357,7 +357,7 @@ but this option \fIwill\fP override per-metric specifications.
 .TP
 \fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
 Performance metric values are retrieved from the set of Performance
-Co-Pilot (PCP) archive log files identified by the
+Co-Pilot (PCP) archive files identified by the
 .I archive
 argument, which is a comma-separated list of names,
 each of which may be the base name of an archive or the name of
@@ -1161,7 +1161,7 @@ $ pmrep \-o archive \-F ./a \-J 3 \-N proc.memory.rss proc.memory proc.io
 .I pmrep.conf
 \fBpmrep\fP configuration file (see \fB\-c\fP)
 .TP
-.I \f(CW$PCP_SYSCONF_DIR\fP/pmrep/*.conf
+.I \f(CR$PCP_SYSCONF_DIR\fP/pmrep/*.conf
 system provided default \fBpmrep\fP configuration files
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize

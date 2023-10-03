@@ -117,7 +117,7 @@ class BuddyinfoReport(pmcc.MetricGroupPrinter):
                 value=""
                 for order in sorted(order_set,key=__extract_numeric_part):
                     nodename = adjust_length(Normal,9) if len(Normal) < 9 else Normal
-                    key = f"{Normal}::{order}::{node}"
+                    key = "%s::%s::%s" % (Normal, order, node)
                     data = str(pages.get(key,0))
                     value +=  adjust_length(data,8) if len(data) < 8 else data
                     value += value_indentation
@@ -178,7 +178,7 @@ if __name__ == '__main__':
         opts.context=mngr.type
         missing = mngr.checkMissingMetrics(ALL_METRICS)
         if missing is not None:
-            sys.stderr.write("Error:some metrics are unavailable",missing)
+            sys.stderr.write('Error: not all required metrics are available\nMissing: %s\n' % (missing))
             sys.exit(1)
         mngr["buddyinfo"] = BUDDYSTAT_METRICS
         mngr["sysinfo"] = SYS_MECTRICS

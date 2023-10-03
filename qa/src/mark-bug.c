@@ -140,7 +140,7 @@ main(int argc, char **argv)
 	    finish = optarg;
 	    break;
 
-	case 'U':	/* uninterpolated archive log */
+	case 'U':	/* uninterpolated archive */
 	    if (type != 0) {
 		fprintf(stderr, "%s: at most one of -a, -h, -L and -U allowed\n", pmGetProgname());
 		errflag++;
@@ -187,7 +187,7 @@ main(int argc, char **argv)
 "Usage: %s options ...\n\
 \n\
 Options\n\
-  -a archive	metrics source is an archive log\n\
+  -a archive	metrics source is an archive\n\
   -A align	time alignment\n\
   -c configfile file to load configuration from\n\
   -D debug	standard PCP debug options\n\
@@ -200,7 +200,7 @@ Options\n\
   -S start	start at this time\n\
   -t delta	sample interval in seconds(float) [default 1.0]\n\
   -T finish	finish at this time\n\
-  -U archive	metrics source is an uninterpolated archive log\n\
+  -U archive	metrics source is an uninterpolated archive\n\
   -V            verbose/diagnostic output\n\
   -z            set reporting timezone to local time for host from -a, -h or -U\n\
   -Z timezone   set reporting timezone\n",

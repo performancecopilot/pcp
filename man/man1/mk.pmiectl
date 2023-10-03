@@ -51,7 +51,6 @@ sed <pmlogctl.1 >pmiectl.1 \
     -e 's/pmlogger/pmie/g' \
     -e 's/pmlogconf/pmieconf/g' \
     -e 's/PCP_ARCHIVE_DIR/PCP_LOG_DIR/g' \
-    -e 's/archive logger/inference engine/g' \
     -e 's/archiver/inference engine/g' \
     -e 's/be creating archives of/be evaluating rules against the/' \
     -e 's/creates archives in a unique directory,/creates a unique log file,/' \

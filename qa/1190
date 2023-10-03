@@ -166,6 +166,18 @@ fi
 
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|[p]mlogger .*-P ' >$tmp.out
 n=`grep -v PID <$tmp.out | wc -l | sed -e 's/ //g'`
+if [ "$n" -eq 0 ]
+then
+    # if systemctl is in the frame, check for Activating ... we may
+    # be checking a bit too soon and consider Activating the same as
+    # Active for the current purposes
+    #
+    _systemctl_status pmlogger >$tmp.activating
+    if grep "Active: activating" $tmp.activating >/dev/null
+    then
+	n=1
+    fi
+fi
 if [ "$n" -eq 1 ]
 then
     $check || echo "Count of primary pmlogger's ... OK"

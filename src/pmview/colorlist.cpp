@@ -177,7 +177,7 @@ operator<<(QTextStream& os, ColorList const& rhs)
 		os << ' ';
 	    }
 	}
-	os << endl;
+	os << Qt::endl;
     }
     return os;
 }

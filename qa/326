@@ -115,13 +115,13 @@ cat <<End-of-File >$tmp.config
 log mandatory on default { pmcd.numagents sample.milliseconds }
 End-of-File
 
-# run pmlogger and pmval for 20 seconds
-pmlogger -h localhost -s 80 -t 0.25 -l $tmp.log -c $tmp.config $tmp &
+# run pmlogger and pmval for about 30 seconds
+pmlogger -h localhost -s 90 -t 0.33 -l $tmp.log -c $tmp.config $tmp &
 pmlogger_pid=$!
-pmval -h localhost -s 80 -t 0.25 -Z "$timezone" -D fetch pmcd.numagents >$tmp.pmval 2>&1 &
+pmval -h localhost -s 90 -t 0.33 -Z "$timezone" -D fetch pmcd.numagents >$tmp.pmval 2>&1 &
 pmval_pid=$!
 
-sleep 2
+sleep 3
 # need PPID in the 3rd field of the ps(1) output
 #
 pmda_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
@@ -141,7 +141,7 @@ fi
 
 echo "=== kill sample PMDA process ==="
 $signal -s TERM $pmda_pid
-sleep 2 # enough time for pmcd to restart it - once only
+sleep 3 # enough time for pmcd to restart it - once only
 
 pmda_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
 	  | grep '[p]mdasample' \
@@ -158,11 +158,11 @@ then
     exit
 fi
 $signal -s TERM $pmda_pid
-sleep 2 # and again
+sleep 3 # and again
 
 echo "=== SIGHUP PMCD ==="
 $signal -s HUP $pmcd_pid
-sleep 2
+sleep 3
 
 echo "=== drop sample PMDA, like Remove ==="
 cat <<End-of-File >$tmp.pmcd.config
@@ -170,7 +170,7 @@ cat <<End-of-File >$tmp.pmcd.config
 pmcd	2	dso	pmcd_init	$PMDA_PMCD_PATH
 End-of-File
 $signal -s HUP $pmcd_pid
-sleep 2
+sleep 3
 
 echo "=== add sample PMDA, like Install ==="
 cat <<End-of-File >$tmp.pmcd.config
@@ -179,9 +179,9 @@ pmcd	2	dso	pmcd_init	$PMDA_PMCD_PATH
 sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29 -U $iam -l $tmp.pmda.log
 End-of-File
 $signal -s HUP $pmcd_pid
-sleep 2
+sleep 3
 
-sleep 2
+sleep 3
 $signal -s TERM $pmcd_pid
 pmcd_pid=''
 
@@ -208,12 +208,19 @@ grep -E '(<mark>)|(pmcd.numagents)' $tmp.out \
 | _filter_pmdumplog \
 | uniq
 
+echo >>$seq.full
+pmdumplog -m $tmp sample.milliseconds >>$tmp.dump 2>&1
+nr=`grep '^[012]' <$tmp.dump | wc -l | sed -e 's/  */ /g'`
+echo "archive dump ($nr records)" >>$seq.full
+cat $tmp.dump >>$seq.full
+
 # note clip after 6 filtered lines to avoid extra values that sometimes
 # appear due to non-determinism in pmlogger fetch samples
 #
 echo
 echo "sanity check with pmval | filter ..."
 pmval -t 1 -a $tmp sample.milliseconds 2>&1 \
+| tee -a $seq.full \
 | _filter_pmval_arch \
 | sed -e 6q
 
@@ -224,10 +231,6 @@ cat $tmp.pmval >>$seq.full
 echo >>$seq.full
 echo "unfiltered pmval archive output" >>$seq.full
 pmval -t 1 -a $tmp sample.milliseconds >>$seq.full 2>&1
-
-echo >>$seq.full
-echo "archive dump" >>$seq.full
-pmdumplog -m $tmp sample.milliseconds >>$seq.full 2>&1
 
 status=0
 exit

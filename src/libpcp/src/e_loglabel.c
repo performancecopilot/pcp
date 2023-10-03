@@ -176,7 +176,7 @@ __pmLogWriteLabel(__pmFILE *f, const __pmLogLabel *lp)
 }
 
 /*
- * Load an archive log label ... no checking other than record
+ * Load an archive label ... no checking other than record
  * length and header-trailer consistency
  */
 int
@@ -364,7 +364,7 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
 	goto func_return;
     }
 
-    if (acp->ac_chkfeatures) {
+    if (acp->ac_flags & PM_CTXFLAG_NO_FEATURE_CHECK) {
 	/*
 	 * Check feature bits
 	 */

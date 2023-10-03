@@ -1,11 +1,12 @@
 /*
+ * Copyright (c) 2023, Red Hat.  All Rights Reserved.
  * Copyright (c) 2007-2009, Aconex.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -33,6 +34,23 @@ void RecordDialog::languageChange()
 
 void RecordDialog::init(Tab *tab)
 {
+    connect(buttonOk, SIGNAL(clicked()),
+		this, SLOT(buttonOk_clicked()));
+    connect(buttonCancel, SIGNAL(clicked()),
+		this, SLOT(reject()));
+    connect(selectedRadioButton, SIGNAL(clicked()),
+		this, SLOT(selectedRadioButton_clicked()));
+    connect(allGadgetsRadioButton, SIGNAL(clicked()),
+		this, SLOT(allGadgetsRadioButton_clicked()));
+    connect(deltaUnitsComboBox, SIGNAL(activated(int)),
+		this, SLOT(deltaUnitsComboBox_activated(int)));
+    connect(viewPushButton, SIGNAL(clicked()),
+		this, SLOT(viewPushButton_clicked()));
+    connect(folioPushButton, SIGNAL(clicked()),
+		this, SLOT(folioPushButton_clicked()));
+    connect(archivePushButton, SIGNAL(clicked()),
+		this, SLOT(archivePushButton_clicked()));
+
     initText();
     my.tab = tab;
     my.units = QmcTime::Seconds;
@@ -235,9 +253,9 @@ void RecordDialog::buttonOk_clicked()
     QString today = QDateTime::currentDateTime().toString("yyyyMMdd.hh.mm.ss");
 
     QString view = viewLineEdit->text().trimmed();
-    view.replace(QRegExp("^~"), QDir::toNativeSeparators(QDir::homePath()));
-    view.replace(QRegExp("\\[date\\]"), today);
-    view.replace(QRegExp("\\[host\\]"), resolveLocalHostname("local:"));
+    view.replace(QRegularExpression("^~"), QDir::toNativeSeparators(QDir::homePath()));
+    view.replace(QRegularExpression("\\[date\\]"), today);
+    view.replace(QRegularExpression("\\[host\\]"), resolveLocalHostname("local:"));
     QFileInfo viewFile(view);
     QDir viewDir = viewFile.dir();
     if (viewDir.mkpath(viewDir.absolutePath()) == false) {
@@ -249,9 +267,9 @@ void RecordDialog::buttonOk_clicked()
     }
 
     QString folio = folioLineEdit->text().trimmed();
-    folio.replace(QRegExp("^~"), QDir::toNativeSeparators(QDir::homePath()));
-    folio.replace(QRegExp("\\[date\\]"), today);
-    folio.replace(QRegExp("\\[host\\]"), resolveLocalHostname("local:"));
+    folio.replace(QRegularExpression("^~"), QDir::toNativeSeparators(QDir::homePath()));
+    folio.replace(QRegularExpression("\\[date\\]"), today);
+    folio.replace(QRegularExpression("\\[host\\]"), resolveLocalHostname("local:"));
     QFileInfo folioFile(folio);
     QDir folioDir = folioFile.dir();
     if (folioDir.mkpath(folioDir.absolutePath()) == false) {
@@ -285,9 +303,9 @@ void RecordDialog::buttonOk_clicked()
 	QString host = resolveLocalHostname(my.hosts.at(h));
 	QString archive = archiveLineEdit->text().trimmed();
 	QString rehomer = QDir::toNativeSeparators(QDir::homePath());
-	archive.replace(QRegExp("^~"), rehomer);
-	archive.replace(QRegExp("\\[host\\]"), host);
-	archive.replace(QRegExp("\\[date\\]"), today);
+	archive.replace(QRegularExpression("^~"), rehomer);
+	archive.replace(QRegularExpression("\\[host\\]"), host);
+	archive.replace(QRegularExpression("\\[date\\]"), today);
 	my.archives.append(archive);
     }
 
@@ -310,7 +328,7 @@ void RecordDialog::startLoggers()
 
     QString regex = "^";
     regex.append(QDir::toNativeSeparators(QDir::homePath()));
-    my.folio.replace(QRegExp(regex), "~"); 
+    my.folio.replace(QRegularExpression(regex), "~"); 
 
     Tab *tab = pmchart->activeTab();
     tab->addFolio(my.folio, my.view);

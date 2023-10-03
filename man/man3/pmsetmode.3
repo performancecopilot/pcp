@@ -31,8 +31,8 @@ int pmSetModeHighRes(int \fImode\fP, const struct timespec *\fIwhen\fP, const st
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\f1\\$2
+.de CR
+.ie t \f(CR\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
 .B pmSetMode
@@ -130,8 +130,7 @@ is
 or
 .BR PM_MODE_BACK ,
 and no qualifying metrics can be found in the requested direction of searching
-before the end or start of the set of archive
-logs is found, then
+before the end or start of the set of archives is found, then
 .BR pmFetch (3)
 returns the special error indicator,
 .BR PM_ERR_EOL .
@@ -143,7 +142,7 @@ other than
 after each successful
 .BR pmFetch (3),
 the time origin is reset to the timestamp returned via the
-.CW pmResult
+.CR pmResult
 structure from
 .BR pmFetch (3).
 .PP
@@ -153,7 +152,7 @@ parameter
 .I delta
 defines an additional number of time units that should be used to adjust the
 time origin (forwards or backwards), after the new time origin from the
-.CW pmResult
+.CR pmResult
 has been determined.
 This automatic adjustment of the time origin only occurs when the
 .I mode
@@ -162,7 +161,7 @@ is
 and the adjustment is applied, even if the
 .BR pmFetch (3)
 fails because the time origin is outside the range defined by
-the records in a set of archive logs, i.e. returns
+the records in a set of archives, i.e. returns
 .BR PM_ERR_EOL .
 .PP
 By default the
@@ -183,7 +182,7 @@ so can directly represent any interval.
 Using these
 .I mode
 options, an application can implement replay, playback, fast forward, reverse,
-etc. for performance metric values held in the set of archive logs by alternating calls
+etc. for performance metric values held in the set of archives by alternating calls
 to
 .B pmSetMode
 and
@@ -204,7 +203,7 @@ The following code fragment may be used to dump just those values
 recorded in an archive in correct temporal sequence, for a selected set of
 performance metrics; this uses the default collection time mechanisms.
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 pmNewContext(PM_CONTEXT_ARCHIVE, "myarchive");
@@ -219,11 +218,11 @@ while (pmFetch(npmid, pmidlist, &result) != PM_ERR_EOL) {
 .fi
 .ft 1
 .PP
-Alternatively, to replay interpolated metrics from the log in reverse
+Alternatively, to replay interpolated metrics from the archive in reverse
 chronological order, at 10 second intervals (of recorded time), the following
 code fragment could be used.
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 struct timeval mytime;
@@ -249,7 +248,7 @@ while (pmFetch(numpmid, pmidlist, &result) != PM_ERR_EOL) {
 .PP
 To perform the same operations, using high resolution time:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 struct timespec mytime, mydelta = { -10, 0 };
@@ -321,7 +320,7 @@ is initially encoded in
 .I interval
 (a struct timeval).
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 struct timeval interval;

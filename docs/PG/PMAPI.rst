@@ -8,7 +8,7 @@ PMAPI--The Performance Metrics API
 This chapter describes the Performance Metrics Application Programming Interface (PMAPI) provided with Performance Co-Pilot (PCP).
 
 The PMAPI is a set of functions and data structure definitions that allow client applications to access performance data from one or more Performance Metrics 
-Collection Daemons (PMCDs) or from PCP archive logs. The PCP utilities are all written using the PMAPI.
+Collection Daemons (PMCDs) or from PCP archives. The PCP utilities are all written using the PMAPI.
 
 The most common use of PCP includes running performance monitoring utilities on a workstation (the monitoring system) while performance data is retrieved from one 
 or more remote collector systems by a number of PCP processes. These processes execute on both the monitoring system and the collector systems. The collector 
@@ -112,12 +112,12 @@ When performance metrics are retrieved across the PMAPI, they are delivered in t
 desired instances. This means that the application making the request has already negotiated across the PMAPI to establish the context in which the request should 
 be executed.
 
-A metric's source may be the current performance data from a particular host (a live or real-time source), or a set of archive logs of performance data collected 
+A metric's source may be the current performance data from a particular host (a live or real-time source), or a set of archives of performance data collected 
 by **pmlogger** at some remote host or earlier time (a retrospective or archive source). The metric's source is specified when the PMAPI context is created by 
 calling the **pmNewContext** function. This function returns an opaque handle which can be used to identify the context.
 
 The collection time for a performance metric is always the current time of day for a real-time source, or current position for an archive source. For archives, 
-the collection time may be set to an arbitrary time within the bounds of the set of archive logs by calling the **pmSetMode** function.
+the collection time may be set to an arbitrary time within the bounds of the set of archives by calling the **pmSetMode** function.
 
 The last component of a PMAPI context is an instance profile that may be used to control which particular instances from an instance domain should be retrieved. 
 When a new PMAPI context is created, the initial state expresses an interest in all possible instances, to be collected at the current time. The instance profile 
@@ -1256,8 +1256,8 @@ pmNewContext Function
  int pmNewContext(int type, const char *name)
 
 The **pmNewContext** function may be used to establish a new PMAPI context. The source of metrics is identified by *name*, and may be a host specification (*type* 
-is **PM_CONTEXT_HOST**) or a comma-separated list of names referring to a set of archive logs (*type* is **PM_CONTEXT_ARCHIVE**). Each element of the list may 
-either be the base name common to all of the physical files of an archive log or the name of a directory containing archive logs.
+is **PM_CONTEXT_HOST**) or a comma-separated list of names referring to a set of archives (*type* is **PM_CONTEXT_ARCHIVE**). Each element of the list may 
+either be the base name common to all of the physical files of an archive or the name of a directory containing archives.
 
 A host specification usually contains a simple hostname, an internet address (IPv4 or IPv6), or the path to the PMCD Unix domain socket. It can also specify 
 properties of the connection to PMCD, such as the protocol to use (secure and encrypted, or native) and whether PMCD should be reached via a **pmproxy** host. 
@@ -1435,7 +1435,7 @@ one of the values **PM_TIME_NSEC, PM_TIME_MSEC, PM_TIME_SEC**, or so on as follo
 
 If no units are specified, the default is to interpret *delta* as milliseconds.
 
-Using these mode options, an application can implement replay, playback, fast forward, or reverse for performance metric values held in a set of PCP archive logs 
+Using these mode options, an application can implement replay, playback, fast forward, or reverse for performance metric values held in a set of PCP archives 
 by alternating calls to **pmSetMode** and **pmFetch**.
 
 In `Example 3.13. Dumping Values in Temporal Sequence`_, the code fragment may be used to dump only those values stored in correct temporal sequence, for the 
@@ -1720,7 +1720,7 @@ earlier **pmFetch** call) and then call **pmStore**. It is an error to pass a *r
 structure has a value less than one.
 
 The current PMAPI context must be one with a host as the source of metrics, and the current value of the nominated metrics is changed. For example, **pmStore** 
-cannot be used to make retrospective changes to information in a PCP archive log.
+cannot be used to make retrospective changes to information in a PCP archive.
 
 PMAPI Fetchgroup Services
 ==========================
@@ -1898,7 +1898,7 @@ The argument is passed via *options* and one call to **pmRecordControl** is requ
 instance identified by *rhp*. If the *rhp* argument is NULL, the argument is added for all **pmlogger** instances that are launched in the current recording session.
 
 Independent of any calls to **pmRecordControl** with a request of **PM_REC_SETARG**, each **pmlogger** instance is automatically launched with the following arguments: 
-**-c, -h, -l, -x**, and the basename for the PCP archive log.
+**-c, -h, -l, -x**, and the basename for the PCP archive.
 
 To commence the recording session, call **pmRecordControl** with a request of **PM_REC_ON**, and *rhp* must be NULL. This launches one **pmlogger** process for each 
 host in the recording session and initializes the **fd_ipc, logfile, pid**, and **status** fields in the associated **pmRecordHost** structure(s).
@@ -1932,8 +1932,8 @@ pmRecordSetup Function
 The **pmRecordSetup** function along with the **pmRecordAddHost** and **pmRecordControl** functions may be used to create a PCP archive on the fly to support 
 record-mode services for PMAPI client applications.
 
-Each record mode session involves one or more PCP archive logs; each is created using a dedicated **pmlogger** process, with an overall Archive Folio format as 
-understood by the **pmafm** command, to name and collect all of the archive logs associated with a single recording session.
+Each record mode session involves one or more PCP archives; each is created using a dedicated **pmlogger** process, with an overall Archive Folio format as 
+understood by the **pmafm** command, to name and collect all of the archives associated with a single recording session.
 
 The **pmRecordHost** structure is used to maintain state information between the creator of the recording session and the associated **pmlogger** process(es). 
 The structure, shown in `Example 3.16. pmRecordHost Structure`_, is defined as:
@@ -2031,7 +2031,7 @@ pmGetArchiveLabel Function
  Python:
  pmLogLabel loglabel = pmGetArchiveLabel()
 
-Provided the current PMAPI context is associated with a set of PCP archive logs, the **pmGetArchiveLabel** function may be used to fetch the label record from the 
+Provided the current PMAPI context is associated with a set of PCP archives, the **pmGetArchiveLabel** function may be used to fetch the label record from the 
 first archive in the set of archives. The structure returned through *lp* is as shown in `Example 3.17. pmLogLabel Structure`_:
 
 .. _Example 3.17. pmLogLabel Structure:
@@ -2069,11 +2069,11 @@ pmGetArchiveEnd Function
  Python:
  timeval tv = status = pmGetArchiveEnd()
 
-Provided the current PMAPI context is associated with a set of PCP archive logs, **pmGetArchiveEnd** finds the logical end of the last archive file in the set 
+Provided the current PMAPI context is associated with a set of PCP archives, **pmGetArchiveEnd** finds the logical end of the last archive file in the set 
 (after the last complete record in the archive), and returns the last recorded time stamp with *tvp*. This timestamp may be passed to **pmSetMode** to reliably 
 position the context at the last valid log record, for example, in preparation for subsequent reading in reverse chronological order.
 
-For archive logs that are not concurrently being written, the physical end of file and the logical end of file are co-incident. However, if an archive log is 
+For archives that are not concurrently being written, the physical end of file and the logical end of file are co-incident. However, if an archive is 
 being written by **pmlogger** at the same time that an application is trying to read the archive, the logical end of file may be before the physical end of file 
 due to write buffering that is not aligned with the logical record boundaries.
 
@@ -2088,8 +2088,8 @@ pmGetInDomArchive Function
  Python:
  ((instance1, instance2...) (name1, name2...)) pmGetInDom(pmDesc pmdesc)
 
-Provided the current PMAPI context is associated with a set of PCP archive logs, **pmGetInDomArchive** scans the metadata to generate the union of all instances 
-for the instance domain *indom* that can be found in the set of archive logs, and returns through *instlist* the internal instance identifiers, and through *namelist* 
+Provided the current PMAPI context is associated with a set of PCP archives, **pmGetInDomArchive** scans the metadata to generate the union of all instances 
+for the instance domain *indom* that can be found in the set of archives, and returns through *instlist* the internal instance identifiers, and through *namelist* 
 the full external identifiers.
 
 This function is a specialized version of the more general PMAPI function **pmGetInDom**.
@@ -2102,7 +2102,7 @@ longer required; see the **malloc(3)** and **free(3)** man pages.
 
 When the result of **pmGetInDomArchive** is less than one, both *instlist* and *namelist* are undefined (no space is allocated; so calling **free** is a singularly bad idea).
 
-The python bindings return a tuple of the instance IDs and names for the union of all instances for the instance domain *pmdesc* that can be found in the archive log.
+The python bindings return a tuple of the instance IDs and names for the union of all instances for the instance domain *pmdesc* that can be found in the archive.
 
 pmLookupInDomArchive Function
 -------------------------------
@@ -2113,7 +2113,7 @@ pmLookupInDomArchive Function
  Python:
  c_uint instid = pmLookupInDomArchive(pmDesc pmdesc, "Instance")
 
-Provided the current PMAPI context is associated with a set of PCP archive logs, **pmLookupInDomArchive** scans the metadata for the instance domain *indom*, 
+Provided the current PMAPI context is associated with a set of PCP archives, **pmLookupInDomArchive** scans the metadata for the instance domain *indom*, 
 locates the first instance with the external identification given by *name*, and returns the internal instance identifier.
 
 This function is a specialized version of the more general PMAPI function **pmLookupInDom**.
@@ -2131,7 +2131,7 @@ pmNameInDomArchive Function
  Python:
  "instance id" = pmNameInDomArchive(pmDesc pmdesc, c_uint instid)
 
-Provided the current PMAPI context is associated with a set of PCP archive logs, **pmNameInDomArchive** scans the metadata for the instance domain *indom*, 
+Provided the current PMAPI context is associated with a set of PCP archives, **pmNameInDomArchive** scans the metadata for the instance domain *indom*, 
 locates the first instance with the internal instance identifier given by **inst**, and returns the full external instance identification through *name*. This 
 function is a specialized version of the more general PMAPI function **pmNameInDom**.
 
@@ -2149,11 +2149,11 @@ pmFetchArchive Function
  Python:
  pmResult* pmresult = pmFetchArchive()
 
-This is a variant of **pmFetch** that may be used only when the current PMAPI context is associated with a set of PCP archive logs. The *result* is instantiated 
+This is a variant of **pmFetch** that may be used only when the current PMAPI context is associated with a set of PCP archives. The *result* is instantiated 
 with all of the metrics (and instances) from the next archive record; consequently, there is no notion of a list of desired metrics, and the instance profile is 
 ignored.
 
-It is expected that **pmFetchArchive** would be used to create utilities that scan archive logs (for example, **pmdumplog** and **pmlogsummary**), and the more 
+It is expected that **pmFetchArchive** would be used to create utilities that scan archives (for example, **pmdumplog** and **pmlogsummary**), and the more 
 common access to the archives would be through the **pmFetch** interface.
 
 PMAPI Time Control Services
@@ -2162,7 +2162,7 @@ PMAPI Time Control Services
 The PMAPI provides a common framework for client applications to control time and to synchronize time with other applications. The user interface component of 
 this service is fully described in the companion *Performance Co-Pilot User's and Administrator's Guide*. See also the **pmtime(1)** man page.
 
-This service is most useful when processing sets of PCP archive logs, to control parameters such as the current archive position, update interval, replay rate, 
+This service is most useful when processing sets of PCP archives, to control parameters such as the current archive position, update interval, replay rate, 
 and timezone, but it can also be used in live mode to control a subset of these parameters. Applications such as **pmchart, pmgadgets, pmstat**, and **pmval** 
 use the time control services to connect to an instance of the time control server process, **pmtime**, which provides a uniform graphical user interface to the 
 time control services.
@@ -2632,7 +2632,7 @@ pmParseMetricSpec Function
                        pmParseMetricSpec("metric specification", isarch, source)
 
 The **pmParseMetricSpec** function accepts a *string* specifying the name of a PCP performance metric, and optionally the source (either a hostname, a set of PCP 
-archive logs, or a local context) and instances for that metric. The syntax is described in the **PCPIntro(1)** man page.
+archives, or a local context) and instances for that metric. The syntax is described in the **PCPIntro(1)** man page.
 
 If neither host nor archive component of the metric specification is provided, the **isarch** and **source** arguments are used to fill in the returned **pmMetricSpec** 
 structure. In `Example 3.20. pmMetricSpec Structure`_, the **pmMetricSpec** structure, which is returned via *rsltp*, represents the parsed string.

@@ -51,6 +51,10 @@ char	*clientid;
 
 int	runfromcontrol;
 
+char	*format;			/* for -o|--format */
+char	*configfile;
+int	rule_lineno;
+
 static FILE *logfp;
 static char logfile[MAXPATHLEN];
 static char perffile[MAXPATHLEN];	/* /var/tmp/<pid> file name */
@@ -109,6 +113,7 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "buffer", 0, 'b', 0, "one line buffered output stream, stdout on stderr" },
     { "timestamp", 0, 'e', 0, "force timestamps to be reported with -V, -v or -W" },
+    { "format", 1, 'o', "FORMAT", "output format for rule actions in archive mode" },
     { "quiet", 0, 'q', 0, "quiet mode, default diagnostics suppressed" },
     { "", 0, 'v', 0, "verbose mode, expression values printed" },
     { "verbose", 0, 'V', 0, "verbose mode, annotated expression values printed" },
@@ -120,7 +125,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:A:bc:CdD:efFHh:j:l:m:n:O:PqS:t:T:U:vVWXxzZ:?",
+    .short_options = "a:A:bc:CdD:efFHh:j:l:m:n:o:O:PqS:t:T:U:vVWXxzZ:?",
     .long_options = longopts,
     .short_usage = "[options] [filename ...]",
     .override = override,
@@ -485,7 +490,6 @@ sigbadproc(int sig)
 static void
 getargs(int argc, char *argv[])
 {
-    char		*configfile = NULL;
     char		*commandlog = NULL;
     char		*subopts;
     char		*subopt;
@@ -609,6 +613,10 @@ getargs(int argc, char *argv[])
 
 	case 'm':			/* note, probably from pmie_check */
 	    runfromcontrol = (strcmp(opts.optarg, "pmie_check") == 0);
+	    break;
+
+        case 'o':			/* output format for actions in archive mode */
+	    format = opts.optarg;
 	    break;
 
 	case 'U': 			/* run as named user */
@@ -811,7 +819,8 @@ getargs(int argc, char *argv[])
     }
     else {					/* list of 1/more filenames */
 	while (opts.optind < argc) {
-	    load(argv[opts.optind]);
+	    configfile = argv[opts.optind];
+	    load(configfile);
 	    opts.optind++;
 	}
     }

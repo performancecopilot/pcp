@@ -71,7 +71,7 @@ Some examples follow:
 .PP
 .in +0.5i
 .nf
-.ft CW
+.ft CR
 pcp://nas1.servers.com:44321@firewalls.r.us?compress
 pcps://nas1.servers.com?user=otto&pass=blotto&compress
 .ft R
@@ -85,7 +85,7 @@ For example:
 .PP
 .in +0.5i
 .nf
-.ft CW
+.ft CR
 unix://$PCP_RUN_DIR/pmcd.socket:?compress
 local://my/local/pmcd.socket:?user=otto&pass=blotto&compress
 .ft R
@@ -108,7 +108,7 @@ interpreted identically as
 .PP
 .in +0.5i
 .nf
-.ft CW
+.ft CR
 unix://$PCP_RUN_DIR/pmcd.socket
 unix:/$PCP_RUN_DIR/pmcd.socket
 unix:$PCP_RUN_DIR/pmcd.socket
@@ -166,7 +166,7 @@ entries, which provide access to decoded attributes and their
 (optional) values.
 .PP
 .nf
-.ft CW
+.ft CR
     typedef struct __pmHashNode {
         __pmHashNode    *next;    /* next node in hash bucket (internal) */
         unsigned int    key;      /* key identifying particular attribute */

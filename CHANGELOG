@@ -1,5 +1,40 @@
-pcp-6.1.0 (31 August 2023)
+pcp-6.1.1 (31 October 2023)
     - Work-in-progress.
+
+pcp-6.1.0 (5 September 2023)
+    - pmlogredact: new command for archive anonymisation
+    - pcp-atop: new bar graph visualisation mode
+    - pcp-atop: update to atoptool.nl 2.9.1 sources
+    - pcp-htop: support dynamic screens (user-configurable tabs)
+    - pcp-htop: update to latest upstream source
+    - pcp-htop: default screens for filesystems, disks and cgroups
+    - pcp-htop: non-default screens for several libbpf modules
+    - pcp-htop: fix mishandling of some process argument shading
+    - pcp-buddyinfo: new tool reporting Linux buddyinfo stats
+    - pcp-meminfo: new tool reporting Linux kernel memory stats
+    - pcp-netstat: new tool reporting networking statistics
+    - pcp-slabinfo: new tool reporting Linux slabinfo kernel stats
+    - pcp-zoneinfo: new tool reporting Linux zoneinfo kernel stats
+    - pmsleep,pmpause: add -w where option for systemd annotation
+    - pmieconf: move test_action from primary into a separate group
+    - pmieconf: update webhook action for better EDA integration
+    - pmlogconf: remove latency-inducing fsync on config write
+    - pmlogconf: updates for new metrics used in pcp-atop
+    - pmdalinux: add three new /proc/vmstat pscan/pgsteal metrics
+    - pmdalinux: fix bug when lsb-release is only /etc/*-release file
+    - pmdabpf: add -q/--tryload command line option
+    - pmdaopenmetrics: reduce transient instance logs, improve labels
+    - libpcp: improved SSL error reporting
+    - selinux: add policy updates for pmproxy (io_uring,ipc_lock)
+    - build: support for Qt6, drop remaining Qt4 configure-support
+    - build: updated licence strings in spec files to follow SPDX
+    - build: default to using a path-prefixed PCP_PYTHON_PROG
+    - build: fix several makefile clean targets for deb packagers
+    - build: configure.ac update to autoconf 2.71
+    - build: add tarball upload to release workflow
+    - docs: pmie updates to explain action behaviour with archives
+    - docs: retire "archive log" phrase from man pages and books
+    - docs: transition Artifactory (no free service) to Packagecloud
 
 pcp-6.0.5 (26 June 2023)
     - pmie: ensure pmie.log.YYYYMMDD is owned by pcp:pcp

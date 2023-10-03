@@ -41,7 +41,7 @@ _filter()
 	-e '/^samples:/d' \
 	-e '/^interval:/d' \
 	-e '/No values available/d' \
-	-e '/End of PCP archive log/d' \
+	-e '/End of PCP archive/d' \
     | $PCP_AWK_PROG '
 NF == 2 { print $2; next }
 NF == 3 { print $3; next }

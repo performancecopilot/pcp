@@ -51,7 +51,7 @@ public:
 			   const char *starttime = NULL,
 			   const char *endtime = NULL,
 			   const char *offset = NULL,
-			   const char *timezone = NULL,
+			   const char *_timezone = NULL,
 			   const char *defsourcetype = NULL,
 			   const char *defsourcename = NULL,
 			   bool selected = false);

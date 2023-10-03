@@ -20,11 +20,25 @@ valgrind --version | sed -e 's/valgrind-//' | awk -F. '$1 < 3 || ($1 == 3 && $2 
 
 status=1
 $sudo rm -rf $tmp.* $seq.full
+
+cat <<EOF >$tmp.conf
+# Installed by PCP QA test $seq on `date`
+[biolatency.so]
+enabled=true
+
+[runqlat.so]
+enabled=true
+
+# no execsnoop.so for this test, thank you
+EOF
+_pmdabpf_tryload $tmp.conf
+
 trap "_pmdabpf_cleanup; exit \$status" 0 1 2 3 15
 
 _filter_logs()
 {
-    tee -a $seq.full \
+    # need sudo here because of _run_valgrind --sudo
+    $sudo tee -a $seq.full \
     | sed \
 	-e '/ Debug: /d' \
 	-e '/ Info: /d' \
@@ -38,16 +52,7 @@ _filter_logs()
 # - setup up a minimalist "works everywhere" bpf.conf
 #
 _prepare_pmda bpf
-cat <<EOF | _pmdabpf_install
-# Installed by PCP QA test $seq on `date`
-[biolatency.so]
-enabled=true
-
-[runqlat.so]
-enabled=true
-
-# no execsnoop.so for this test, thank you
-EOF
+_pmdabpf_install $tmp.conf
 _pmdabpf_wait_for_metric
 
 pmda=$PCP_PMDAS_DIR/bpf/pmda_bpf,bpf_init
@@ -56,6 +61,7 @@ echo && echo "== Running pmdabpf with valgrind"
 _run_valgrind --sudo pminfo -L -K clear -K add,157,$pmda -dmtT bpf.disk bpf.runq 2>&1 \
 | _filter_logs
 
+cd $here
 for metric in bpf.disk.all.latency bpf.runq.latency
 do
     echo && echo "== Checking if metric $metric has any values"

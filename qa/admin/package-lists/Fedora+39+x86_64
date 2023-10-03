@@ -31,6 +31,7 @@ cyrus-sasl-md5
 cyrus-sasl-plain
 device-mapper-devel
 ed
+expect
 flex
 gawk
 gcc
@@ -109,8 +110,7 @@ python3-prometheus_client
 python3-psycopg2
 python3-pylint
 python3-pymongo
-# broken dependencies, see https://bugzilla.redhat.com/show_bug.cgi?id=2155256
-# python3-pyodbc
+python3-pyodbc
 python3-requests
 python3-rtslib
 python3-setuptools

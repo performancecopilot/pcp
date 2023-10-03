@@ -1,12 +1,12 @@
 /*
+ * Copyright (c) 2013,2021,2023 Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
- * Copyright (c) 2013,2021 Red Hat, Inc.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -49,6 +49,23 @@ void ExportDialog::init()
 {
     QChar	sep(pmPathSeparator());
     QString	imgfile = globalSettings.lastExportPath;
+
+    connect(buttonOk, SIGNAL(clicked()),
+		this, SLOT(accept()));
+    connect(buttonCancel, SIGNAL(clicked()),
+		this, SLOT(reject()));
+    connect(selectedRadioButton, SIGNAL(clicked()),
+		this, SLOT(selectedRadioButton_clicked()));
+    connect(allChartsRadioButton, SIGNAL(clicked()),
+		this, SLOT(allChartsRadioButton_clicked()));
+    connect(filePushButton, SIGNAL(clicked()),
+		this, SLOT(filePushButton_clicked()));
+    connect(qualitySlider, SIGNAL(valueChanged(int)),
+		this, SLOT(quality_valueChanged(int)));
+    connect(qualitySpinBox, SIGNAL(valueChanged(int)),
+		this, SLOT(quality_valueChanged(int)));
+    connect(formatComboBox, SIGNAL(currentIndexChanged(int)),
+		this, SLOT(formatComboBox_currentIndexChanged(int)));
 
     my.quality = 0;
     my.format = strdup("png");
@@ -135,14 +152,15 @@ void ExportDialog::filePushButton_clicked()
     }
 }
 
-void ExportDialog::formatComboBox_currentIndexChanged(QString suffix)
+void ExportDialog::formatComboBox_currentIndexChanged(int index)
 {
+    QString suffix = formatComboBox->itemText(index);
     char *format = strdup((const char *)suffix.toLatin1());
     QString file = fileLineEdit->text().trimmed();
     QString regex = my.format;
 
     regex.append("$");
-    file.replace(QRegExp(regex), suffix);
+    file.replace(QRegularExpression(regex), suffix);
     fileLineEdit->setText(file);
     free(my.format);
     my.format = format;
@@ -178,9 +196,7 @@ void ExportDialog::flush()
 				 transparent, everything) == false) {
 	QString message = tr("Failed to save image file\n");
 	message.append(file);
-	QMessageBox::warning(this, pmGetProgname(), message,
-		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-		    QMessageBox::NoButton, QMessageBox::NoButton);
+	QMessageBox::warning(this, pmGetProgname(), message);
     }
 }
 
@@ -215,20 +231,20 @@ bool ExportDialog::exportFile(QString &file, const char *format, int quality,
 
 int ExportDialog::exportFile(char *path, char *geometry, bool transparent)
 {
-    QRegExp regex;
+    QRegularExpression regex("\\.([a-z]+)$", QRegularExpression::CaseInsensitiveOption);
+    QRegularExpressionMatch match;
     QString file(path), format;
     bool noFormat = false;
     char suffix[32];
     int i;
 
     // Ensure the requested image format is supported, else use GIF
-    regex.setPattern("\\.([a-z]+)$");
-    regex.setCaseSensitivity(Qt::CaseInsensitive);
-    if (regex.indexIn(file) == 0) {
+    match = regex.match(file);
+    if (match.hasMatch() == false) {
 	noFormat = true;
     }
     else {
-	format = regex.cap(1);
+	format = match.captured(1);
 	QList<QByteArray> array = QImageWriter::supportedImageFormats();
 	for (i = 0; i < array.size(); i++) {
 	    if (strcmp(array.at(i), (const char *)format.toLatin1()) == 0)
@@ -245,8 +261,9 @@ int ExportDialog::exportFile(char *path, char *geometry, bool transparent)
     suffix[sizeof(suffix)-1] = '\0';	/* buffer overrun guard */
 
     regex.setPattern("(\\d+)x(\\d+)");
-    if (regex.indexIn(QString(geometry)) != -1) {
-	QSize fixed = QSize(regex.cap(1).toInt(), regex.cap(2).toInt());
+    match = regex.match(geometry);
+    if (match.hasMatch()) {
+	QSize fixed = QSize(match.captured(1).toInt(), match.captured(2).toInt());
 	pmchart->setFixedSize(fixed);
     }
 

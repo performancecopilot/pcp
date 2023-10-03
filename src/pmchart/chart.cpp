@@ -1,14 +1,14 @@
 /*
- * Copyright (c) 2012-2016, Red Hat.
+ * Copyright (c) 2012-2016,2023, Red Hat.
  * Copyright (c) 2012, Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2006-2010, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -21,7 +21,7 @@
 #include "metricdetails.h"
 
 #include <QPoint>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QApplication>
 #include <QWhatsThis>
 #include <QCursor>
@@ -163,17 +163,17 @@ ChartItem::expandLegendLabel(const QString &legend)
 
     my.label = legend;
     if (expandMetricShort)
-	my.label.replace(QRegExp("%m"), shortMetricName());
+	my.label.replace(QRegularExpression("%m"), shortMetricName());
     if (expandMetricLong)
-	my.label.replace(QRegExp("%M"), my.metric->name());
+	my.label.replace(QRegularExpression("%M"), my.metric->name());
     if (expandInstShort)
-	my.label.replace(QRegExp("%i"), shortInstName());
+	my.label.replace(QRegularExpression("%i"), shortInstName());
     if (expandInstLong)
-	my.label.replace(QRegExp("%I"), my.inst);
+	my.label.replace(QRegularExpression("%I"), my.inst);
     if (expandHostShort)
-	my.label.replace(QRegExp("%h"), shortHostName());
+	my.label.replace(QRegularExpression("%h"), shortHostName());
     if (expandHostLong)
-	my.label.replace(QRegExp("%H"), hostname());
+	my.label.replace(QRegularExpression("%H"), hostname());
 }
 
 QString
@@ -190,7 +190,7 @@ ChartItem::shortHostName(void) const
 
     if ((index = hostName.indexOf(QChar('.'))) != -1) {
 	// no change if it looks even vaguely like an IP address or container
-	if (!hostName.contains(QRegExp("^\\d+\\.")) &&	// IPv4
+	if (!hostName.contains(QRegularExpression("^\\d+\\.")) &&  // IPv4
 	    !hostName.contains(QChar(':')))		// IPv6 or container
 	    hostName.truncate(index);
     }
@@ -498,7 +498,7 @@ Chart::hostNameString(bool shortened)
 	    dot = hostName.indexOf(QChar('.'));
 	if (dot != -1) {
 	    // no change if it looks even vaguely like an IP address or container
-	    if (!hostName.contains(QRegExp("^\\d+\\.")) &&	// IPv4
+	    if (!hostName.contains(QRegularExpression("^\\d+\\.")) &&	// IPv4
 		!hostName.contains(QChar(':')))		// IPv6 or container
 		hostName.truncate(dot);
 	}
@@ -534,9 +534,9 @@ Chart::changeTitle(QString title, bool expand)
 	resetTitleFont();
 	if (expand && (expandHostShort || expandHostLong)) {
 	    if (expandHostShort)
-		title.replace(QRegExp("%h"), hostNameString(true));
+		title.replace(QRegularExpression("%h"), hostNameString(true));
 	    if (expandHostLong)
-		title.replace(QRegExp("%H"), hostNameString(false));
+		title.replace(QRegularExpression("%H"), hostNameString(false));
 	    setTitle(title);
 	    // NB: my.title retains the %h and/or %H
 	}
@@ -985,8 +985,8 @@ Chart::addToTree(QTreeWidget *treeview, const QString &metric,
 	const QmcContext *context, bool isInst, QColor color,
 	const QString &label)
 {
-    QRegExp regexInstance("\\[(.*)\\]$");
-    QRegExp regexNameNode("\\.");
+    QRegularExpression regexInstance("\\[(.*)\\]$");
+    QRegularExpression regexNameNode("\\.");
     QString source = context->source().source();
     QString inst, name = metric;
     QStringList	namelist;

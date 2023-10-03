@@ -126,13 +126,13 @@ ViewObj::setTran(float xTran, float zTran, int setWidth, int setDepth)
     float z = zTran + ((setDepth - (float)depth()) * _zAlign);
 
     if (pmDebugOptions.appl0) {
-	cerr << "ViewObj::setTran: " << name() << ":" << endl;
+	cerr << "ViewObj::setTran: " << name() << ":" << Qt::endl;
 	cerr << "x=" << x << ", xTran =" << xTran << ", setWidth=" 
 	     << setWidth << ", width=" << width() << ", xAlign=" << _xAlign 
-	     << endl;
+	     << Qt::endl;
 	cerr << "z=" << z << ", zTran =" << zTran << ", setDepth=" 
 	     << setDepth << ", depth=" << depth() << ", zAlign=" << _zAlign 
-	     << endl << endl;
+	     << Qt::endl << Qt::endl;
     }
 
     _tran->translation.setValue(x, 0.0, z);

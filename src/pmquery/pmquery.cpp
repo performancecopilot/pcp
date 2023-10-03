@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2023 Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -148,9 +148,10 @@ void PmQuery::timerEvent(QTimerEvent *)
 // Note: the +4 pixels for height ensure the auto-scroll does not
 // kick in, seems to be required.
 
-PmQuery::PmQuery(bool inputflag, bool printflag, bool noframeflag,
+PmQuery::PmQuery(QApplication &application,
+		bool inputflag, bool printflag, bool noframeflag,
 		 bool nosliderflag, bool usesliderflag, bool exclusiveflag)
-    : QDialog()
+    : QDialog(application.activeWindow())
 {
     QHBoxLayout *hboxLayout;
     QVBoxLayout *vboxLayout;
@@ -183,13 +184,13 @@ PmQuery::PmQuery(bool inputflag, bool printflag, bool noframeflag,
 
     QGridLayout *gridLayout = new QGridLayout(this);
     gridLayout->setSpacing(6);
-    gridLayout->setMargin(9);
+    gridLayout->setContentsMargins(9, 9, 9, 9);
     hboxLayout = new QHBoxLayout();
     hboxLayout->setSpacing(6);
-    hboxLayout->setMargin(0);
+    hboxLayout->setContentsMargins(0, 0, 0, 0);
     vboxLayout = new QVBoxLayout();
     vboxLayout->setSpacing(6);
-    vboxLayout->setMargin(0);
+    vboxLayout->setContentsMargins(0, 0, 0, 0);
     spacerItem = new QSpacerItem(20, 2, QSizePolicy::Minimum,
 					QSizePolicy::Expanding);
 
@@ -207,7 +208,7 @@ PmQuery::PmQuery(bool inputflag, bool printflag, bool noframeflag,
     hboxLayout->addLayout(vboxLayout);
     vboxLayout1 = new QVBoxLayout();
     vboxLayout1->setSpacing(6);
-    vboxLayout1->setMargin(0);
+    vboxLayout1->setContentsMargins(0, 0, 0, 0);
 
     int height;
     int width = DEFAULT_EDIT_WIDTH; 
@@ -272,7 +273,7 @@ PmQuery::PmQuery(bool inputflag, bool printflag, bool noframeflag,
 
     hboxLayout1 = new QHBoxLayout();
     hboxLayout1->setSpacing(6);
-    hboxLayout1->setMargin(0);
+    hboxLayout1->setContentsMargins(0, 0, 0, 0);
     spacerItem2 = new QSpacerItem(40, 20, QSizePolicy::Expanding,
 					  QSizePolicy::Minimum);
     hboxLayout1->addItem(spacerItem2);

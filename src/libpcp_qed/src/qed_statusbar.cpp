@@ -43,7 +43,7 @@ QedStatusBar::QedStatusBar()
 
     delete layout();
     QHBoxLayout *box = new QHBoxLayout;
-    box->setMargin(0);
+    box->setContentsMargins(0, 0, 0, 0);
     box->setSpacing(1);
     box->addWidget(my.timeButton);
     box->addWidget(my.timeFrame);
@@ -69,7 +69,7 @@ QedStatusBar::QedStatusBar()
     my.valueLabel->setAlignment(Qt::AlignLeft | Qt::AlignBottom);
 
     my.grid = new QGridLayout;	// Grid of [5 x 3] cells
-    my.grid->setMargin(0);
+    my.grid->setContentsMargins(0, 0, 0, 0);
     my.grid->setSpacing(0);
     my.grid->addWidget(my.gadgetLabel, 0, 0, 1, 3);
     my.grid->addWidget(my.dateLabel, 2, 2, 1, 1);  // bottom row, last two cols

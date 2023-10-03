@@ -63,7 +63,7 @@ then
     echo "..."
     # fake MP output
     cat <<End-of-File
-pmclient_fg.python: End of PCP archive log
+pmclient_fg.python: End of PCP archive
 ... title ...
   CPU  Busy    Busy  Free Mem   Disk     Load Average
  Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
@@ -73,7 +73,7 @@ End-of-File
 else
     # fake SP output
     cat <<End-of-File
-pmclient_fg.python: End of PCP archive log
+pmclient_fg.python: End of PCP archive
 ... title ...
   CPU  Free Mem   Disk     Load Average
  Util  (Mbytes)   IOPS    1 Min  15 Min

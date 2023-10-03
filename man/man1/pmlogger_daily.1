@@ -15,7 +15,7 @@
 .\"
 .TH PMLOGGER_DAILY 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmlogger_daily\f1 \- administration of Performance Co-Pilot archive log files
+\f3pmlogger_daily\f1 \- administration of Performance Co-Pilot archive files
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_daily
 [\f3\-DEfKMNoprRVzZ?\f1]
@@ -129,7 +129,7 @@ flag to
 .BR pmlogger_merge (1)
 in order to expunge metrics with metadata inconsistencies and continue
 rather than fail.
-This is intended for automated daily log rotation where it is highly desirable
+This is intended for automated daily archive rotation where it is highly desirable
 for unattended daily archive merging, rewriting and compression to succeed.
 For further details, see
 .BR pmlogger_merge (1)
@@ -721,7 +721,7 @@ may appear literally in
 .BR $PCP_AUTOSAVE_DIR ,
 and will be substituted at execution time to generate the destination
 directory name.  For example:
-.ft CW
+.ft CR
 .in +6n
 $PCP_AUTOSAVE_DIR=/gpfs/LOCALHOSTNAME/DATEYYYY/DATEMM-DATEDD
 .br

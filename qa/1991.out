@@ -1,0 +1,768 @@
+QA output created by 1991
+
+pcp-netstat output : Display default output
+Linux  5.4.17-2136.300.7.el8uek.x86_64  (Mohit-OL8u5-vm1)  09/08/23  x86_64    (2 CPU)
+06:35:52
+
+Ip:
+	Forwarding: 2
+	8765317 total packets received
+	8 with invalid addresses
+	0 forwarded
+	0 incoming packets discarded
+	5386073 incoming packets delivered
+	5368635 requests sent out
+	12 dropped because of missing route
+
+
+Icmp:
+	3817 ICMP messages received
+	37 Input ICMP message failed
+	ICMP input histogram:
+		destination unreachable: 3817
+	17 ICMP messages sent
+	0 ICMP messages failed
+	ICMP input histogram:
+		Output destination unreachable: 17
+
+
+IcmpMsg:
+		InType3: 3817
+		OutType0: 17
+
+
+Tcp:
+	2316 active connections openings
+	1017 passive connection openings
+	153 failed connection attempts
+	737 connection resets received
+	14 connections established
+	5729429 segments received
+	6386911 segments send out
+	2273 segments retransmited
+	0 bad segments received.
+	711 resets sent
+
+
+Udp:
+	24036 packets received
+	14 packets to unknown port received
+	0 packet receive errors
+	29362 packets sent
+	0 receive buffer errors
+	0 send buffer errors
+
+
+UdpLite:
+	0 packets received
+	0 packets to unknown port received
+	0 packet receive errors
+	0 packets sent
+	0 receive buffer errors
+	0 send buffer errors
+	0 checksum errors
+
+
+TcpExt:
+	20700 delayed acks sent
+	14 delayed acks further delayed because of locked socket
+	619419 packet headers predicted
+	509236 predicted acknowledgments
+	TCPSackRecovery: 278
+	Detected reordering 99 times using SACK
+	TCPDSACKUndo: 139
+	TCPLostRetransmitt: 508
+	TCPSackFailures: 38
+	452 fast retransmits
+	TCPTimeouts: 880
+	TCPLossProbes: 1144
+	TCPLossProbeRecovery: 360
+	TCPBacklogCoalesce: 317
+	TCPDSACKOldSent: 2036
+	TCPDSACKOfoSent: 0
+	TCPDSACKRecv: 409
+	TCPDSACKOfoRecv: 68
+	595 connections aborted due to data
+	5 connections reset due to early user close
+	13 connections aborted due to timeout
+	TCPDSACKIgnoredNoUndo: 101
+	TCPSackShifted: 249
+	TCPSackMerged: 880
+	TCPSackShiftFallback: 835
+	IPReversePathFilter: 1
+	TCPRcvCoalesce: 122173
+	TCPOFOQueue: 510
+	TCPOFOMerge: 0
+	TCPChallengeAck: 0
+	TCPSynChallenge: 0
+	TCPSpuriousRtxHostQueues: 0
+	TCPAutoCorking: 218
+	TCPSynRetrans: 374
+	TCPOrigDataSent: 1489155
+	TCPHystartTrainDetect: 57
+	TCPHystartTrainCwnd: 1513
+	TCPHystartDelayDetect: 9
+	TCPHystartDelayCwnd: 1487
+	TCPACKSkippedSeq: 9
+	TCPKeepAlive: 2133227
+	TCPDelivered: 1491398
+	TCPAckCompressed: 264
+
+
+IpExt:
+	InMcastPkts: 22910
+	InBcastPkts: 48868
+	InOctets: 1849003544
+	OutOctets: 343593060
+	InMcastOctets: 733120
+	InBcastOctets: 7461647
+	InNoECTpkts: 8766761
+
+
+Kernel Interface table
+     Iface        MTU      RX-OK     RX-ERR     RX-DRP      TX-OK     TX-ERR     TX-DRP
+      ens2       1500   14340165          0        165     565381          0          0 
+      ens3       1500    4415935          0          0    5941621          0          0 
+      ens4       1500    1669791          0          0          1          0          0 
+        lo      65536    1034958          0          0    1034958          0          0 
+
+06:35:54
+
+Ip:
+	Forwarding: 2
+	8765328 total packets received
+	8 with invalid addresses
+	0 forwarded
+	0 incoming packets discarded
+	5386080 incoming packets delivered
+	5368641 requests sent out
+	12 dropped because of missing route
+
+
+Icmp:
+	3817 ICMP messages received
+	37 Input ICMP message failed
+	ICMP input histogram:
+		destination unreachable: 3817
+	17 ICMP messages sent
+	0 ICMP messages failed
+	ICMP input histogram:
+		Output destination unreachable: 17
+
+
+IcmpMsg:
+		InType3: 3817
+		OutType0: 17
+
+
+Tcp:
+	2316 active connections openings
+	1017 passive connection openings
+	153 failed connection attempts
+	737 connection resets received
+	14 connections established
+	5729436 segments received
+	6386917 segments send out
+	2273 segments retransmited
+	0 bad segments received.
+	711 resets sent
+
+
+Udp:
+	24036 packets received
+	14 packets to unknown port received
+	0 packet receive errors
+	29362 packets sent
+	0 receive buffer errors
+	0 send buffer errors
+
+
+UdpLite:
+	0 packets received
+	0 packets to unknown port received
+	0 packet receive errors
+	0 packets sent
+	0 receive buffer errors
+	0 send buffer errors
+	0 checksum errors
+
+
+TcpExt:
+	20702 delayed acks sent
+	14 delayed acks further delayed because of locked socket
+	619419 packet headers predicted
+	509239 predicted acknowledgments
+	TCPSackRecovery: 278
+	Detected reordering 99 times using SACK
+	TCPDSACKUndo: 139
+	TCPLostRetransmitt: 508
+	TCPSackFailures: 38
+	452 fast retransmits
+	TCPTimeouts: 880
+	TCPLossProbes: 1144
+	TCPLossProbeRecovery: 360
+	TCPBacklogCoalesce: 317
+	TCPDSACKOldSent: 2036
+	TCPDSACKOfoSent: 0
+	TCPDSACKRecv: 409
+	TCPDSACKOfoRecv: 68
+	595 connections aborted due to data
+	5 connections reset due to early user close
+	13 connections aborted due to timeout
+	TCPDSACKIgnoredNoUndo: 101
+	TCPSackShifted: 249
+	TCPSackMerged: 880
+	TCPSackShiftFallback: 835
+	IPReversePathFilter: 1
+	TCPRcvCoalesce: 122173
+	TCPOFOQueue: 510
+	TCPOFOMerge: 0
+	TCPChallengeAck: 0
+	TCPSynChallenge: 0
+	TCPSpuriousRtxHostQueues: 0
+	TCPAutoCorking: 218
+	TCPSynRetrans: 374
+	TCPOrigDataSent: 1489158
+	TCPHystartTrainDetect: 57
+	TCPHystartTrainCwnd: 1513
+	TCPHystartDelayDetect: 9
+	TCPHystartDelayCwnd: 1487
+	TCPACKSkippedSeq: 9
+	TCPKeepAlive: 2133227
+	TCPDelivered: 1491401
+	TCPAckCompressed: 264
+
+
+IpExt:
+	InMcastPkts: 22910
+	InBcastPkts: 48868
+	InOctets: 1849004343
+	OutOctets: 343593451
+	InMcastOctets: 733120
+	InBcastOctets: 7461650
+	InNoECTpkts: 8766772
+
+
+Kernel Interface table
+     Iface        MTU      RX-OK     RX-ERR     RX-DRP      TX-OK     TX-ERR     TX-DRP
+      ens2       1500   14340181          0        165     565383          0          0 
+      ens3       1500    4415935          0          0    5941625          0          0 
+      ens4       1500    1669795          0          0          1          0          0 
+        lo      65536    1034962          0          0    1034962          0          0 
+
+
+pcp-netstat output : Display output of all the network protocol statistics
+Linux  5.4.17-2136.300.7.el8uek.x86_64  (Mohit-OL8u5-vm1)  09/08/23  x86_64    (2 CPU)
+06:35:52
+
+Ip:
+	Forwarding: 2
+	8765317 total packets received
+	8 with invalid addresses
+	0 forwarded
+	0 incoming packets discarded
+	5386073 incoming packets delivered
+	5368635 requests sent out
+	12 dropped because of missing route
+
+
+Icmp:
+	3817 ICMP messages received
+	37 Input ICMP message failed
+	ICMP input histogram:
+		destination unreachable: 3817
+	17 ICMP messages sent
+	0 ICMP messages failed
+	ICMP input histogram:
+		Output destination unreachable: 17
+
+
+IcmpMsg:
+		InType3: 3817
+		OutType0: 17
+
+
+Tcp:
+	2316 active connections openings
+	1017 passive connection openings
+	153 failed connection attempts
+	737 connection resets received
+	14 connections established
+	5729429 segments received
+	6386911 segments send out
+	2273 segments retransmited
+	0 bad segments received.
+	711 resets sent
+
+
+Udp:
+	24036 packets received
+	14 packets to unknown port received
+	0 packet receive errors
+	29362 packets sent
+	0 receive buffer errors
+	0 send buffer errors
+
+
+UdpLite:
+	0 packets received
+	0 packets to unknown port received
+	0 packet receive errors
+	0 packets sent
+	0 receive buffer errors
+	0 send buffer errors
+	0 checksum errors
+
+
+TcpExt:
+	20700 delayed acks sent
+	14 delayed acks further delayed because of locked socket
+	619419 packet headers predicted
+	509236 predicted acknowledgments
+	TCPSackRecovery: 278
+	Detected reordering 99 times using SACK
+	TCPDSACKUndo: 139
+	TCPLostRetransmitt: 508
+	TCPSackFailures: 38
+	452 fast retransmits
+	TCPTimeouts: 880
+	TCPLossProbes: 1144
+	TCPLossProbeRecovery: 360
+	TCPBacklogCoalesce: 317
+	TCPDSACKOldSent: 2036
+	TCPDSACKOfoSent: 0
+	TCPDSACKRecv: 409
+	TCPDSACKOfoRecv: 68
+	595 connections aborted due to data
+	5 connections reset due to early user close
+	13 connections aborted due to timeout
+	TCPDSACKIgnoredNoUndo: 101
+	TCPSackShifted: 249
+	TCPSackMerged: 880
+	TCPSackShiftFallback: 835
+	IPReversePathFilter: 1
+	TCPRcvCoalesce: 122173
+	TCPOFOQueue: 510
+	TCPOFOMerge: 0
+	TCPChallengeAck: 0
+	TCPSynChallenge: 0
+	TCPSpuriousRtxHostQueues: 0
+	TCPAutoCorking: 218
+	TCPSynRetrans: 374
+	TCPOrigDataSent: 1489155
+	TCPHystartTrainDetect: 57
+	TCPHystartTrainCwnd: 1513
+	TCPHystartDelayDetect: 9
+	TCPHystartDelayCwnd: 1487
+	TCPACKSkippedSeq: 9
+	TCPKeepAlive: 2133227
+	TCPDelivered: 1491398
+	TCPAckCompressed: 264
+
+
+IpExt:
+	InMcastPkts: 22910
+	InBcastPkts: 48868
+	InOctets: 1849003544
+	OutOctets: 343593060
+	InMcastOctets: 733120
+	InBcastOctets: 7461647
+	InNoECTpkts: 8766761
+
+
+06:35:54
+
+Ip:
+	Forwarding: 2
+	8765328 total packets received
+	8 with invalid addresses
+	0 forwarded
+	0 incoming packets discarded
+	5386080 incoming packets delivered
+	5368641 requests sent out
+	12 dropped because of missing route
+
+
+Icmp:
+	3817 ICMP messages received
+	37 Input ICMP message failed
+	ICMP input histogram:
+		destination unreachable: 3817
+	17 ICMP messages sent
+	0 ICMP messages failed
+	ICMP input histogram:
+		Output destination unreachable: 17
+
+
+IcmpMsg:
+		InType3: 3817
+		OutType0: 17
+
+
+Tcp:
+	2316 active connections openings
+	1017 passive connection openings
+	153 failed connection attempts
+	737 connection resets received
+	14 connections established
+	5729436 segments received
+	6386917 segments send out
+	2273 segments retransmited
+	0 bad segments received.
+	711 resets sent
+
+
+Udp:
+	24036 packets received
+	14 packets to unknown port received
+	0 packet receive errors
+	29362 packets sent
+	0 receive buffer errors
+	0 send buffer errors
+
+
+UdpLite:
+	0 packets received
+	0 packets to unknown port received
+	0 packet receive errors
+	0 packets sent
+	0 receive buffer errors
+	0 send buffer errors
+	0 checksum errors
+
+
+TcpExt:
+	20702 delayed acks sent
+	14 delayed acks further delayed because of locked socket
+	619419 packet headers predicted
+	509239 predicted acknowledgments
+	TCPSackRecovery: 278
+	Detected reordering 99 times using SACK
+	TCPDSACKUndo: 139
+	TCPLostRetransmitt: 508
+	TCPSackFailures: 38
+	452 fast retransmits
+	TCPTimeouts: 880
+	TCPLossProbes: 1144
+	TCPLossProbeRecovery: 360
+	TCPBacklogCoalesce: 317
+	TCPDSACKOldSent: 2036
+	TCPDSACKOfoSent: 0
+	TCPDSACKRecv: 409
+	TCPDSACKOfoRecv: 68
+	595 connections aborted due to data
+	5 connections reset due to early user close
+	13 connections aborted due to timeout
+	TCPDSACKIgnoredNoUndo: 101
+	TCPSackShifted: 249
+	TCPSackMerged: 880
+	TCPSackShiftFallback: 835
+	IPReversePathFilter: 1
+	TCPRcvCoalesce: 122173
+	TCPOFOQueue: 510
+	TCPOFOMerge: 0
+	TCPChallengeAck: 0
+	TCPSynChallenge: 0
+	TCPSpuriousRtxHostQueues: 0
+	TCPAutoCorking: 218
+	TCPSynRetrans: 374
+	TCPOrigDataSent: 1489158
+	TCPHystartTrainDetect: 57
+	TCPHystartTrainCwnd: 1513
+	TCPHystartDelayDetect: 9
+	TCPHystartDelayCwnd: 1487
+	TCPACKSkippedSeq: 9
+	TCPKeepAlive: 2133227
+	TCPDelivered: 1491401
+	TCPAckCompressed: 264
+
+
+IpExt:
+	InMcastPkts: 22910
+	InBcastPkts: 48868
+	InOctets: 1849004343
+	OutOctets: 343593451
+	InMcastOctets: 733120
+	InBcastOctets: 7461650
+	InNoECTpkts: 8766772
+
+
+
+pcp-netstat output : Display output when filtered IP protocol
+Linux  5.4.17-2136.300.7.el8uek.x86_64  (Mohit-OL8u5-vm1)  09/08/23  x86_64    (2 CPU)
+06:35:52
+
+Ip:
+	Forwarding: 2
+	8765317 total packets received
+	8 with invalid addresses
+	0 forwarded
+	0 incoming packets discarded
+	5386073 incoming packets delivered
+	5368635 requests sent out
+	12 dropped because of missing route
+
+
+IpExt:
+	InMcastPkts: 22910
+	InBcastPkts: 48868
+	InOctets: 1849003544
+	OutOctets: 343593060
+	InMcastOctets: 733120
+	InBcastOctets: 7461647
+	InNoECTpkts: 8766761
+
+
+06:35:54
+
+Ip:
+	Forwarding: 2
+	8765328 total packets received
+	8 with invalid addresses
+	0 forwarded
+	0 incoming packets discarded
+	5386080 incoming packets delivered
+	5368641 requests sent out
+	12 dropped because of missing route
+
+
+IpExt:
+	InMcastPkts: 22910
+	InBcastPkts: 48868
+	InOctets: 1849004343
+	OutOctets: 343593451
+	InMcastOctets: 733120
+	InBcastOctets: 7461650
+	InNoECTpkts: 8766772
+
+
+
+pcp-netstat output : Display output when filtered TCP protocol
+Linux  5.4.17-2136.300.7.el8uek.x86_64  (Mohit-OL8u5-vm1)  09/08/23  x86_64    (2 CPU)
+06:35:52
+
+Tcp:
+	2316 active connections openings
+	1017 passive connection openings
+	153 failed connection attempts
+	737 connection resets received
+	14 connections established
+	5729429 segments received
+	6386911 segments send out
+	2273 segments retransmited
+	0 bad segments received.
+	711 resets sent
+
+
+TcpExt:
+	20700 delayed acks sent
+	14 delayed acks further delayed because of locked socket
+	619419 packet headers predicted
+	509236 predicted acknowledgments
+	TCPSackRecovery: 278
+	Detected reordering 99 times using SACK
+	TCPDSACKUndo: 139
+	TCPLostRetransmitt: 508
+	TCPSackFailures: 38
+	452 fast retransmits
+	TCPTimeouts: 880
+	TCPLossProbes: 1144
+	TCPLossProbeRecovery: 360
+	TCPBacklogCoalesce: 317
+	TCPDSACKOldSent: 2036
+	TCPDSACKOfoSent: 0
+	TCPDSACKRecv: 409
+	TCPDSACKOfoRecv: 68
+	595 connections aborted due to data
+	5 connections reset due to early user close
+	13 connections aborted due to timeout
+	TCPDSACKIgnoredNoUndo: 101
+	TCPSackShifted: 249
+	TCPSackMerged: 880
+	TCPSackShiftFallback: 835
+	IPReversePathFilter: 1
+	TCPRcvCoalesce: 122173
+	TCPOFOQueue: 510
+	TCPOFOMerge: 0
+	TCPChallengeAck: 0
+	TCPSynChallenge: 0
+	TCPSpuriousRtxHostQueues: 0
+	TCPAutoCorking: 218
+	TCPSynRetrans: 374
+	TCPOrigDataSent: 1489155
+	TCPHystartTrainDetect: 57
+	TCPHystartTrainCwnd: 1513
+	TCPHystartDelayDetect: 9
+	TCPHystartDelayCwnd: 1487
+	TCPACKSkippedSeq: 9
+	TCPKeepAlive: 2133227
+	TCPDelivered: 1491398
+	TCPAckCompressed: 264
+
+
+06:35:54
+
+Tcp:
+	2316 active connections openings
+	1017 passive connection openings
+	153 failed connection attempts
+	737 connection resets received
+	14 connections established
+	5729436 segments received
+	6386917 segments send out
+	2273 segments retransmited
+	0 bad segments received.
+	711 resets sent
+
+
+TcpExt:
+	20702 delayed acks sent
+	14 delayed acks further delayed because of locked socket
+	619419 packet headers predicted
+	509239 predicted acknowledgments
+	TCPSackRecovery: 278
+	Detected reordering 99 times using SACK
+	TCPDSACKUndo: 139
+	TCPLostRetransmitt: 508
+	TCPSackFailures: 38
+	452 fast retransmits
+	TCPTimeouts: 880
+	TCPLossProbes: 1144
+	TCPLossProbeRecovery: 360
+	TCPBacklogCoalesce: 317
+	TCPDSACKOldSent: 2036
+	TCPDSACKOfoSent: 0
+	TCPDSACKRecv: 409
+	TCPDSACKOfoRecv: 68
+	595 connections aborted due to data
+	5 connections reset due to early user close
+	13 connections aborted due to timeout
+	TCPDSACKIgnoredNoUndo: 101
+	TCPSackShifted: 249
+	TCPSackMerged: 880
+	TCPSackShiftFallback: 835
+	IPReversePathFilter: 1
+	TCPRcvCoalesce: 122173
+	TCPOFOQueue: 510
+	TCPOFOMerge: 0
+	TCPChallengeAck: 0
+	TCPSynChallenge: 0
+	TCPSpuriousRtxHostQueues: 0
+	TCPAutoCorking: 218
+	TCPSynRetrans: 374
+	TCPOrigDataSent: 1489158
+	TCPHystartTrainDetect: 57
+	TCPHystartTrainCwnd: 1513
+	TCPHystartDelayDetect: 9
+	TCPHystartDelayCwnd: 1487
+	TCPACKSkippedSeq: 9
+	TCPKeepAlive: 2133227
+	TCPDelivered: 1491401
+	TCPAckCompressed: 264
+
+
+
+pcp-netstat output : Display output when filtered UDP protocol
+Linux  5.4.17-2136.300.7.el8uek.x86_64  (Mohit-OL8u5-vm1)  09/08/23  x86_64    (2 CPU)
+06:35:52
+
+Udp:
+	24036 packets received
+	14 packets to unknown port received
+	0 packet receive errors
+	29362 packets sent
+	0 receive buffer errors
+	0 send buffer errors
+
+
+UdpLite:
+	0 packets received
+	0 packets to unknown port received
+	0 packet receive errors
+	0 packets sent
+	0 receive buffer errors
+	0 send buffer errors
+	0 checksum errors
+
+
+06:35:54
+
+Udp:
+	24036 packets received
+	14 packets to unknown port received
+	0 packet receive errors
+	29362 packets sent
+	0 receive buffer errors
+	0 send buffer errors
+
+
+UdpLite:
+	0 packets received
+	0 packets to unknown port received
+	0 packet receive errors
+	0 packets sent
+	0 receive buffer errors
+	0 send buffer errors
+	0 checksum errors
+
+
+
+pcp-netstat output : Display output when filtered ICMP protocol
+Linux  5.4.17-2136.300.7.el8uek.x86_64  (Mohit-OL8u5-vm1)  09/08/23  x86_64    (2 CPU)
+06:35:52
+
+Icmp:
+	3817 ICMP messages received
+	37 Input ICMP message failed
+	ICMP input histogram:
+		destination unreachable: 3817
+	17 ICMP messages sent
+	0 ICMP messages failed
+	ICMP input histogram:
+		Output destination unreachable: 17
+
+
+IcmpMsg:
+		InType3: 3817
+		OutType0: 17
+
+
+06:35:54
+
+Icmp:
+	3817 ICMP messages received
+	37 Input ICMP message failed
+	ICMP input histogram:
+		destination unreachable: 3817
+	17 ICMP messages sent
+	0 ICMP messages failed
+	ICMP input histogram:
+		Output destination unreachable: 17
+
+
+IcmpMsg:
+		InType3: 3817
+		OutType0: 17
+
+
+
+pcp-netstat output : Display output when asked for interface statistics
+Linux  5.4.17-2136.300.7.el8uek.x86_64  (Mohit-OL8u5-vm1)  09/08/23  x86_64    (2 CPU)
+06:35:52
+
+Kernel Interface table
+     Iface        MTU      RX-OK     RX-ERR     RX-DRP      TX-OK     TX-ERR     TX-DRP
+      ens2       1500   14340165          0        165     565381          0          0 
+      ens3       1500    4415935          0          0    5941621          0          0 
+      ens4       1500    1669791          0          0          1          0          0 
+        lo      65536    1034958          0          0    1034958          0          0 
+
+06:35:54
+
+Kernel Interface table
+     Iface        MTU      RX-OK     RX-ERR     RX-DRP      TX-OK     TX-ERR     TX-DRP
+      ens2       1500   14340181          0        165     565383          0          0 
+      ens3       1500    4415935          0          0    5941625          0          0 
+      ens4       1500    1669795          0          0          1          0          0 
+        lo      65536    1034962          0          0    1034962          0          0 
+

@@ -15,7 +15,8 @@ dnl for more details.
 dnl
 
 dnl unpacking check - this file must exist
-AC_INIT(src/include/pcp/pmapi.h)
+AC_INIT
+AC_CONFIG_SRCDIR([src/include/pcp/pmapi.h])
 
 dnl need 2.63 for AS_VAR_IF and AS_VAR_COPY
 AC_PREREQ([2.63])dnl
@@ -44,26 +45,22 @@ AC_ARG_WITH([sanitizer],
     [use_sanitizer=no])
 
 AC_ARG_WITH([threads],
-    [AC_HELP_STRING([--with-threads],
-		    [enable support for multiple threads (default is on)])],
+    [AS_HELP_STRING([--with-threads],[enable support for multiple threads (default is on)])],
     [do_threads=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-threads=$withval"],
     [do_threads=check])
 
 AC_ARG_WITH([secure-sockets],
-    [AC_HELP_STRING([--with-secure-sockets],
-		    [enable support for secure sockets (default is on)])],
+    [AS_HELP_STRING([--with-secure-sockets],[enable support for secure sockets (default is on)])],
     [do_secure=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-secure-sockets=$withval"],
     [do_secure=check])
 
 AC_ARG_WITH([static-probes],
-    [AC_HELP_STRING([--with-static-probes],
-		    [enable support for static probes (default is on)])],
+    [AS_HELP_STRING([--with-static-probes],[enable support for static probes (default is on)])],
     [do_probes=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-static-probes=$withval"],
     [do_probes=check])
 
 AC_ARG_WITH([infiniband],
-    [AC_HELP_STRING([--with-infiniband],
-		    [enable support for Infiniband metrics (default is on)])],
+    [AS_HELP_STRING([--with-infiniband],[enable support for Infiniband metrics (default is on)])],
     [do_infiniband=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-infiniband=$withval"],
     [do_infiniband=check])
 
@@ -82,110 +79,92 @@ AC_ARG_WITH([group],
 AC_SUBST(pcp_group)
 
 AC_ARG_WITH([discovery],
-    [AC_HELP_STRING([--with-discovery],
-                    [enable support for service discovery (default is on)])],
+    [AS_HELP_STRING([--with-discovery],[enable support for service discovery (default is on)])],
     [do_discovery=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-discovery=$withval"],
     [do_discovery=check])
 
 AC_ARG_WITH([systemd],
-    [AC_HELP_STRING([--with-systemd],
-                    [enable support for systemd services (default is on)])],
+    [AS_HELP_STRING([--with-systemd],[enable support for systemd services (default is on)])],
     [do_systemd=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-systemd=$withval"],
     [do_systemd=check])
 
 AC_ARG_WITH([selinux],
-    [AC_HELP_STRING([--with-selinux],
-                    [enable support for selinux (default is check)])],
+    [AS_HELP_STRING([--with-selinux],[enable support for selinux (default is check)])],
     [do_selinux=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-selinux=$withval"],
     [do_selinux=check])
 
 AC_ARG_WITH([qt],
-    [AC_HELP_STRING([--with-qt],
-                    [enable support for tools requiring Qt (default is on)])],
+    [AS_HELP_STRING([--with-qt],[enable support for tools requiring Qt (default is on)])],
     [do_qt=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-qt=$withval"],
     [do_qt=check])
 
 AC_ARG_WITH([qt3d],
-    [AC_HELP_STRING([--with-qt3d],
-                    [enable support for 3D scene graph API (default is on)])],
+    [AS_HELP_STRING([--with-qt3d],[enable support for 3D scene graph API (default is on)])],
     [do_qt3d=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-qt3d=$withval"],
     [do_qt3d=check])
 
 AC_ARG_WITH([perl],
-    [AC_HELP_STRING([--with-perl],
-                    [enable support for tools requiring Perl (default is on)])],
+    [AS_HELP_STRING([--with-perl],[enable support for tools requiring Perl (default is on)])],
     [do_perl=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perl=$withval"],
     [do_perl=check])
 
 AC_ARG_WITH([python],
-    [AC_HELP_STRING([--with-python],
-                    [enable support for tools requiring Python (default is on)])],
+    [AS_HELP_STRING([--with-python],[enable support for tools requiring Python (default is on)])],
     [do_python=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python=$withval"],
     [do_python=check])
 
 AC_ARG_WITH([python3],
-    [AC_HELP_STRING([--with-python3],
-                    [enable support for tools requiring Python3 (default is on)])],
+    [AS_HELP_STRING([--with-python3],[enable support for tools requiring Python3 (default is on)])],
     [do_python3=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python3=$withval"],
     [do_python3=check])
 
 AC_ARG_WITH([dstat-symlink],
-    [AC_HELP_STRING([--with-dstat-symlink],
-		    [enable support for /usr/bin/dstat symlink (default is on)])],
+    [AS_HELP_STRING([--with-dstat-symlink],[enable support for /usr/bin/dstat symlink (default is on)])],
     [do_dstat_symlink=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-dstat-symlink=$withval"],
     [do_dstat_symlink=check])
 
 AC_ARG_WITH([perfevent],
-    [AC_HELP_STRING([--with-perfevent],
-		   [enable perfevent pmda (default is on)])],
+    [AS_HELP_STRING([--with-perfevent],[enable perfevent pmda (default is on)])],
     [do_perfevent=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perfevent=$withval"],
     [do_perfevent=check])
 
 AC_ARG_WITH([pmdastatsd],
-    [AC_HELP_STRING([--with-pmdastatsd],
-		   [enable statds pmda (default is on)])],
+    [AS_HELP_STRING([--with-pmdastatsd],[enable statds pmda (default is on)])],
     [do_pmdastatsd=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdastatsd=$withval"],
     [do_pmdastatsd=check])
 
 AC_ARG_WITH([pmdabcc],
-    [AC_HELP_STRING([--with-pmdabcc],
-		   [enable BCC pmda (default is on)])],
+    [AS_HELP_STRING([--with-pmdabcc],[enable BCC pmda (default is on)])],
     [do_pmdabcc=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabcc=$withval"],
     [do_pmdabcc=check])
 
 AC_ARG_WITH([pmdabpf],
-    [AC_HELP_STRING([--with-pmdabpf],
-		   [enable BPF pmda (default is on)])],
+    [AS_HELP_STRING([--with-pmdabpf],[enable BPF pmda (default is on)])],
     [do_pmdabpf=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpf=$withval"],
     [do_pmdabpf=check])
 
 AC_ARG_WITH([pmdabpftrace],
-    [AC_HELP_STRING([--with-pmdabpftrace],
-		   [enable bpftrace pmda (default is on)])],
+    [AS_HELP_STRING([--with-pmdabpftrace],[enable bpftrace pmda (default is on)])],
     [do_pmdabpftrace=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpftrace=$withval"],
     [do_pmdabpftrace=check])
 
 AC_ARG_WITH([pmdajson],
-    [AC_HELP_STRING([--with-pmdajson],
-		   [enable JSON pmda (default is on)])],
+    [AS_HELP_STRING([--with-pmdajson],[enable JSON pmda (default is on)])],
     [do_pmdajson=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdajson=$withval"],
     [do_pmdajson=check])
 
 AC_ARG_WITH([pmdamongodb],
-    [AC_HELP_STRING([--with-pmdamongodb],
-		   [enable MongoDB pmda (default is on)])],
+    [AS_HELP_STRING([--with-pmdamongodb],[enable MongoDB pmda (default is on)])],
     [do_pmdamongodb=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdamongodb=$withval"],
     [do_pmdamongodb=check])
 
 AC_ARG_WITH([pmdanutcracker],
-    [AC_HELP_STRING([--with-pmdanutcracker],
-		   [enable nutcracker pmda (default is on)])],
+    [AS_HELP_STRING([--with-pmdanutcracker],[enable nutcracker pmda (default is on)])],
     [do_pmdanutcracker=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdanutcracker=$withval"],
     [do_pmdanutcracker=check])
 
 AC_ARG_WITH([pmdasnmp],
-    [AC_HELP_STRING([--with-pmdasnmp],
-		   [enable SNMP pmda (default is on)])],
+    [AS_HELP_STRING([--with-pmdasnmp],[enable SNMP pmda (default is on)])],
     [do_pmdasnmp=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdasnmp=$withval"],
     [do_pmdasnmp=check])
 
@@ -194,27 +173,23 @@ dnl build where the environment is stripped ... use a --with-foo=path
 dnl construct to workaround this
 
 AC_ARG_WITH([make],
-    [AC_HELP_STRING([--with-make],
-                    [path to GNU compatible make(1) (default is empty for auto discovery)])],
+    [AS_HELP_STRING([--with-make],[path to GNU compatible make(1) (default is empty for auto discovery)])],
     [MAKE=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-make=$withval"],
     [MAKE=''])
 
 AC_ARG_WITH([tar],
-    [AC_HELP_STRING([--with-tar],
-                    [path to GNU compatible tar(1) (default is empty for auto discovery)])],
+    [AS_HELP_STRING([--with-tar],[path to GNU compatible tar(1) (default is empty for auto discovery)])],
     [TAR=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-tar=$withval"],
     [TAR=''])
 
 AC_ARG_WITH([zip],
-    [AC_HELP_STRING([--with-zip],
-                    [path to GNU compatible zip(1) (default is empty for auto discovery)])],
+    [AS_HELP_STRING([--with-zip],[path to GNU compatible zip(1) (default is empty for auto discovery)])],
     [ZIP=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-zip=$withval"],
     [ZIP=''])
 
 AC_ARG_WITH(
     [transparent-decompression],
-    [AC_HELP_STRING([--with-transparent-decompression],
-		    [enable support for transparent decompression of archives (default is on)])],
+    [AS_HELP_STRING([--with-transparent-decompression],[enable support for transparent decompression of archives (default is on)])],
     [do_decompression=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-transparent-decompression=$withval"],
     [do_decompression=check])
 
@@ -225,7 +200,7 @@ dnl MAKE CC CPP LD LEX YACC INSTALL AWK SED ECHO
 dnl
 
 dnl Guess target platfrom
-AC_CANONICAL_SYSTEM
+AC_CANONICAL_TARGET
 if test -z "$target"
 then
     echo '
@@ -616,7 +591,7 @@ fi
 ar=$AR
 AC_SUBST(ar)
 
-AC_PROG_LEX
+AC_PROG_LEX([noyywrap])
 lex=`$echo $LEX | awk '{print $1}'`
 lex=`$which "$lex"`
 if test ! -x "$lex"; then
@@ -884,7 +859,8 @@ AC_SUBST(pm_version_current)
 
 dnl output header files with cpp defs HAVE_*, etc
 AC_CONFIG_HEADERS(src/include/pcp/config.h src/include/pcp/configsz.h)
-AC_OUTPUT(src/include/pcp/platform_defs.h src/include/pcp/platformsz.h)
+AC_CONFIG_FILES([src/include/pcp/platform_defs.h src/include/pcp/platformsz.h])
+AC_OUTPUT
 
 AC_CHECK_PROGS(GIT, git)
 AC_SUBST(GIT)
@@ -893,11 +869,11 @@ AC_CHECK_PROGS(PYLINT, pylint, /bin/true)
 AC_SUBST(PYLINT)
 
 dnl check if python available for the build and runtime
-AC_CHECK_PROGS(PYTHON, [/usr/bin/python2 python2 python2.7 python])
+AC_PATH_PROGS(PYTHON, [/usr/bin/python2 python2 python2.7 python])
 AC_SUBST(PYTHON)
 
 dnl check if python3 available for the build and runtime
-AC_CHECK_PROGS(PYTHON3, [/usr/bin/python3 python3])
+AC_PATH_PROGS(PYTHON3, [/usr/bin/python3 python3])
 AC_SUBST(PYTHON3)
 
 dnl check availability of Python header files
@@ -1521,17 +1497,16 @@ AS_IF([test "x$do_qt" != "xno"], [
 
     if test -z "$QMAKE"
     then
-	dnl default to qmake from qtchooser whenever it is available
-	dnl ... unfortunately this is not always correct, as when more
-	dnl than one Qt version is installed, the default may not be our
-	dnl preferred version, which is Qt5
+	dnl NB: no longer use qtchooser, its deprecated and doesn't work for
+	dnl the second of two options we wish to support - Qt5 and Qt6.
+	export QTPATHS="/usr/lib64/qt6/bin:/usr/lib/qt6/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin"
 	if test -n "$QTDIR"
 	then
-	    AC_PATH_PROGS(QTCHOOSER, [qtchooser],,             [$QTDIR/bin:/usr/lib/qtchooser:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin])
-	    AC_PATH_PROGS(QMAKE, [qmake qmake-qt5 qmake-qt4],, [$QTDIR/bin:/usr/lib/qtchooser:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin])
+	    AC_PATH_PROGS(QMAKE, [qmake qmake-qt6.sh qmake6 qmake-qt5.sh qmake-qt5],,
+			  [$QTDIR/bin:/usr/bin:$QTPATHS:/usr/local/bin])
 	else
-	    AC_PATH_PROGS(QTCHOOSER, [qtchooser],, [/usr/lib/qtchooser:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin])
-	    AC_PATH_PROGS(QMAKE, [qmake qmake-qt5 qmake-qt4],, [/usr/lib/qtchooser:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin])
+	    AC_PATH_PROGS(QMAKE, [qmake qmake-qt6.sh qmake6 qmake-qt5.sh qmake-qt5],,
+			  [/usr/bin:$QTPATHS:/usr/local/bin])
 	fi
 	test "x$cc_is_gcc" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
@@ -1540,35 +1515,7 @@ AS_IF([test "x$do_qt" != "xno"], [
     then
 	enable_qt=false
     else
-	if test -n "$QT_SELECT"
-	then
-	    AC_MSG_CHECKING([Qt version, QT_SELECT=$QT_SELECT])
-	    dnl QT_SELECT set, check and fallback to Qt4 if given
-	    dnl preference is not successful
-	    export QT_SELECT
-	    $qmake --version 2>&1 >/dev/null
-	    if test $? -eq 1; then
-		export QT_SELECT=4
-	    fi
-	else
-	    dnl QT_SELECT not set, if we have qtchooser use that to see
-	    dnl if Qt5 is available, otherwise we fallthrough to the
-	    dnl qmake default version
-	    if test -n "$QTCHOOSER"
-	    then
-		AC_MSG_CHECKING([Qt version, using qtchooser])
-		dnl if Qt5 appears to be present, pick that one, else Qt4
-		if $QTCHOOSER -l | grep '^5$' >/dev/null
-		then
-		    export QT_SELECT=5
-		else
-		    export QT_SELECT=4
-		fi
-	    else
-		AC_MSG_CHECKING([Qt version])
-		unset QT_SELECT
-	    fi
-	fi
+	AC_MSG_CHECKING([Qt version])
 	eval `$qmake --version 2>&1 | awk '/Using Qt version/ { ver=4; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$major,$minor,$point }'`
 	AC_MSG_RESULT([$QT_MAJOR.$QT_MINOR.$QT_POINT])
 	if test -z "$QT_MAJOR" -o -z "$QT_MINOR"; then
@@ -1888,7 +1835,7 @@ AC_SUBST(grep)
 
 dnl Checks for C header files.
 AC_HEADER_DIRENT
-AC_HEADER_STDC
+
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(fcntl.h limits.h malloc.h strings.h syslog.h)
 AC_CHECK_HEADERS(stddef.h sched.h dlfcn.h dl.h)
@@ -1918,43 +1865,37 @@ AC_CHECK_HEADERS(fts.h libzfs.h)
 AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/mount.h)
 AC_CHECK_HEADERS(curses.h ncurses.h)
 AC_CHECK_HEADERS(ncurses/curses.h ncurses/ncurses.h)
-AC_CHECK_HEADERS(ncursesw/curses.h)
+AC_CHECK_HEADERS(ncursesw/curses.h ncursesw/term.h)
+AC_CHECK_HEADERS(ncurses/term.h term.h)
 AC_CHECK_HEADERS(linux/perf_event.h)
 
 dnl Check if we have <sys/endian.h> ... standard way
 AC_MSG_CHECKING([for sys/endian.h ])
-AC_TRY_COMPILE(
-[
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #include <sys/endian.h>
-],
-[
-], AC_DEFINE(HAVE_SYS_ENDIAN_H, [1], [sys/endian.h]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+]], [[
+]])],[AC_DEFINE(HAVE_SYS_ENDIAN_H, 1, sys/endian.h) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 
 dnl Check if we have <machine/endian.h> ... MacOSX way
 AC_MSG_CHECKING([for machine/endian.h ])
-AC_TRY_COMPILE(
-[
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #include <machine/endian.h>
-],
-[
-], AC_DEFINE(HAVE_MACHINE_ENDIAN_H, [1], [machine/endian.h]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+]], [[
+]])],[AC_DEFINE(HAVE_MACHINE_ENDIAN_H, 1, machine/endian.h) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 
 dnl Check if we have <sys/endian.h> ... IRIX strangeness
 AC_MSG_CHECKING([for sys/endian.h (IRIX variant) ])
-AC_TRY_COMPILE(
-[
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #include <standards.h>
     #include <sys/endian.h>
-],
-[
-], AC_DEFINE(HAVE_SYS_ENDIAN_H, [1], [IRIX sys/endian.h]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+]], [[
+]])],[AC_DEFINE(HAVE_SYS_ENDIAN_H, 1, IRIX sys/endian.h) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_TYPE_OFF_T
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
-AC_HEADER_TIME
 AC_STRUCT_TM
 AC_C_INLINE
 
@@ -1967,14 +1908,21 @@ then
 fi
 AC_SUBST(lib_for_regex)
 
+have_ssl_trace=false
 PKG_CHECK_MODULES([openssl], [openssl >= 1.1.1], [have_openssl=true], [have_openssl=false])
 if test $have_openssl = true
 then
     dnl for OpenBSD, libcrypto does not include a BIO_write_ex(),
     dnl so we can't use libssl with pmproxy in particular
     AC_CHECK_LIB(crypto, BIO_write_ex, , have_openssl=false)
+    dnl SSL_trace() is not present in all versions of libssl
+    AC_CHECK_LIB(ssl, SSL_trace, have_ssl_trace=true, )
 fi
 AC_SUBST(HAVE_OPENSSL, [$have_openssl])
+if test $have_ssl_trace = true
+then
+    AC_DEFINE(HAVE_SSL_TRACE, [1], [SSL_Trace() in libssl])
+fi
 
 PKG_CHECK_MODULES([libsasl2], [libsasl2 >= 2], [have_sasl=true], [have_sasl=false])
 AC_SUBST(HAVE_SASL, [$have_sasl])
@@ -2020,14 +1968,11 @@ PKG_CHECK_MODULES([DEVMAPPER], [devmapper], [have_devmapper=true], [have_devmapp
 if $have_devmapper
 then
     AC_MSG_CHECKING([for dm_stats_counter_t ])
-    AC_TRY_COMPILE([
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
             #include <libdevmapper.h>
-	],
-	[ dm_stats_counter_t ctr; ],
-	have_devmapper=true
-	AC_MSG_RESULT(yes),
-	have_devmapper=false
-	AC_MSG_RESULT(no))
+	]], [[ dm_stats_counter_t ctr; ]])],[have_devmapper=true
+	AC_MSG_RESULT(yes)],[have_devmapper=false
+	AC_MSG_RESULT(no)])
 fi
 AC_SUBST(HAVE_DEVMAPPER, [$have_devmapper])
 
@@ -2165,8 +2110,6 @@ test "$enable_selinux" = "false" && AC_MSG_RESULT(no)
 AC_SUBST(enable_selinux)
 
 dnl Checks for library functions.
-AC_TYPE_SIGNAL
-AC_FUNC_WAIT3
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(mktime nanosleep usleep unsetenv getrusage)
 AC_CHECK_FUNCS(select socket syslog sendmsg recvmsg setns)
@@ -2287,88 +2230,77 @@ fi
 
 dnl check if we have a type for the pointer's size integer (__psint_t)
 AC_MSG_CHECKING([for __psint_t ])
-AC_TRY_COMPILE(
-[
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #include <sys/types.h>
     #include <stdlib.h>
     #include <stddef.h>
-], [ __psint_t psint; ],
-AC_DEFINE(HAVE___PSINT_T, [1], [__psint_t type]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+]], [[ __psint_t psint; ]])],[AC_DEFINE(HAVE___PSINT_T, 1, __psint_t type) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 
 dnl check if we have a type for pointer difference (ptrdiff_t)
 AC_MSG_CHECKING([for ptrdiff_t ])
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #include <stddef.h>
     #ifdef HAVE_MALLOC_H
     #include <malloc.h>
     #endif
-], [ ptrdiff_t ptrdiff; ],
-AC_DEFINE(HAVE_PTRDIFF_T, [1], [ptrdiff_t type]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+]], [[ ptrdiff_t ptrdiff; ]])],[AC_DEFINE(HAVE_PTRDIFF_T, 1, ptrdiff_t type) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 
 dnl check if we have types for uid_t, gid_t (POSIX) or SID (Win32)
 AC_MSG_CHECKING([for uid_t ])
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #include <sys/types.h>
     #ifdef HAVE_PWD_H
     #include <pwd.h>
     #endif
-], [ uid_t uid; ],
-AC_DEFINE(HAVE_UID_T, [1], [uid_t type]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+]], [[ uid_t uid; ]])],[AC_DEFINE(HAVE_UID_T, 1, uid_t type) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 AC_MSG_CHECKING([for gid_t ])
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #include <sys/types.h>
     #ifdef HAVE_GRP_H
     #include <grp.h>
     #endif
-], [ gid_t gid; ],
-AC_DEFINE(HAVE_GID_T, [1], [gid_t type]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+]], [[ gid_t gid; ]])],[AC_DEFINE(HAVE_GID_T, 1, gid_t type) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 AC_MSG_CHECKING([for SID ])
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #ifdef HAVE_WINDOWS_H
     #include <windows.h>
     #endif
-], [ SID sid; ],
-AC_DEFINE(HAVE_SID, [1], [sid type]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+]], [[ SID sid; ]])],[AC_DEFINE(HAVE_SID, 1, sid type) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 
 dnl check if we have a type for socklen_t
 AC_MSG_CHECKING([for socklen_t ])
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #include <sys/types.h>
     #ifdef HAVE_SYS_SOCKET_H
     #include <sys/socket.h>
     #endif
-], [ socklen_t len; ],
-AC_DEFINE(HAVE_SOCKLEN_T, [1], [socklen_t type]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+]], [[ socklen_t len; ]])],[AC_DEFINE(HAVE_SOCKLEN_T, 1, socklen_t type) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 
 dnl check if LL suffix on constants is supported
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #include <stdio.h>
-], [ long long x = 0LL; ],
-AC_DEFINE(HAVE_CONST_LONGLONG, [1], [LL suffix on constants]))
+]], [[ long long x = 0LL; ]])],[AC_DEFINE(HAVE_CONST_LONGLONG, 1, LL suffix on constants)],[])
 
 dnl check if _environ is declared globally
-AC_TRY_LINK([
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
     #include <stdlib.h>
     #include <unistd.h>
-], [ char **x = _environ; ],
-AC_DEFINE(HAVE_UNDERBAR_ENVIRON, [1], [_environ declared globally]))
+]], [[ char **x = _environ; ]])],[AC_DEFINE(HAVE_UNDERBAR_ENVIRON, 1, _environ declared globally)],[])
 
 dnl check for PR_TERMCHILD and PR_SET_PDEATHSIG in <sys/prctl.h>
 AC_MSG_CHECKING([for PR_TERMCHILD constant in sys/prctl.h])
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #ifdef HAVE_SYS_PRCTL_H
     #include <sys/prctl.h>
     #endif
-], [ int i = PR_TERMCHILD; ],
-AC_DEFINE(HAVE_PR_TERMCHILD, [1], [PR_TERMCHILD constant]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+]], [[ int i = PR_TERMCHILD; ]])],[AC_DEFINE(HAVE_PR_TERMCHILD, 1, PR_TERMCHILD constant) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 
 AC_MSG_CHECKING([for PR_SET_PDEATHSIG constant in sys/prctl.h])
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #ifdef HAVE_SYS_PRCTL_H
     #include <sys/prctl.h>
     #endif
-], [ int i = PR_SET_PDEATHSIG; ],
-AC_DEFINE(HAVE_PR_SET_PDEATHSIG, [1], [PR_SET_PDEATHSIG constant]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+]], [[ int i = PR_SET_PDEATHSIG; ]])],[AC_DEFINE(HAVE_PR_SET_PDEATHSIG, 1, PR_SET_PDEATHSIG constant) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 
 AC_HEADER_TIOCGWINSZ
 
@@ -2777,10 +2709,7 @@ then
     dnl really care if this test fails because of missing pthread_mutex_t
     dnl or because of missing headers.
     AC_MSG_CHECKING([for pthread_mutex_t in pthread.h])
-    AC_TRY_COMPILE(
-	[#include <pthread.h>], [pthread_mutex_t mymutex;],
-	AC_DEFINE(HAVE_PTHREAD_MUTEX_T, [1], [pthread_mutex_t type]) AC_MSG_RESULT(yes),
-	[
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <pthread.h>]], [[pthread_mutex_t mymutex;]])],[AC_DEFINE(HAVE_PTHREAD_MUTEX_T, 1, pthread_mutex_t type) AC_MSG_RESULT(yes)],[
 	    if test "$do_threads" = "yes"
 	    then
 		AC_MSG_ERROR([cannot enable multi-threaded mode - no mutexes])
@@ -2797,13 +2726,11 @@ then
 	then
 	    LIBS=`echo $LIBS -l$cand`
 	fi
-	AC_TRY_LINK(
-	[
+	AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	    #include <pthread.h>
-	],
-	[
+	]], [[
 	    pthread_create(NULL, NULL, NULL, NULL);
-	],  AC_MSG_RESULT(lib${cand:-c})
+	]])],[AC_MSG_RESULT(lib${cand:-c})
 	    if test -z "$cand"
 	    then
 		lib_for_pthreads="$cand"
@@ -2811,7 +2738,7 @@ then
 		lib_for_pthreads="-l$cand"
 	    fi
 	    LIBS=$savedLIBS
-	    break )
+	    break ],[])
 	LIBS=$savedLIBS
     done
     AC_SUBST(lib_for_pthreads)
@@ -2835,24 +2762,20 @@ End-of-File
 	dnl __thread support is broken in some places
 	if test $target_os = netbsd
 	then
-	    AC_TRY_COMPILE([#include <pthread.h>
+	    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <pthread.h>
 #if __GNUC__ < 4 || ( __GNUC__ == 4 && __GNUC_MINOR__ < 5 )
 broken!
 #else
 __thread int x;
-#endif], [],
-		AC_DEFINE(HAVE___THREAD, [1], [__thread private data]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+#endif]], [[]])],[AC_DEFINE(HAVE___THREAD, 1, __thread private data) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 	else
-	    AC_TRY_COMPILE([#include <pthread.h>
-__thread int x;], [],
-		AC_DEFINE(HAVE___THREAD, [1], [__thread private data]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+	    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <pthread.h>
+__thread int x;]], [[]])],[AC_DEFINE(HAVE___THREAD, 1, __thread private data) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 	fi
 
 	dnl Check if pthread_barrier_t is defined in pthread.h
 	AC_MSG_CHECKING([for pthread_barrier_t in pthread.h])
-	AC_TRY_COMPILE([#include <pthread.h>], [pthread_barrier_t mybarrier;],
-	    AC_DEFINE(HAVE_PTHREAD_BARRIER_T, [1], [pthread_barrier_t type]) AC_MSG_RESULT(yes),
-	    AC_MSG_RESULT(no))
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <pthread.h>]], [[pthread_barrier_t mybarrier;]])],[AC_DEFINE(HAVE_PTHREAD_BARRIER_T, 1, pthread_barrier_t type) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
     fi
 fi
 
@@ -3024,15 +2947,13 @@ esac
 rm -rf conftest conftest.*
 
 dnl check if compiler can cast __uint64_t to double
-AC_TRY_LINK(
-[
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
     #include <stdlib.h>
     #include <unistd.h>
-],
-[
+]], [[
     __uint64_t x = 0;
     double y = (double)x;
-], AC_DEFINE(HAVE_CAST_U64_DOUBLE, [1], [compiler casts u64 to double]))
+]])],[AC_DEFINE(HAVE_CAST_U64_DOUBLE, 1, compiler casts u64 to double)],[])
 
 dnl check if basename and dirname need -lgen, -lpcp or nothing to work
 dnl (assume both go together)
@@ -3112,14 +3033,12 @@ else
 fi
 AC_MSG_CHECKING([for fpclassify()])
 ac_cv_func_fpclassify=no
-AC_TRY_LINK(
-[
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
     #include <math.h>
-],
-[
+]], [[
     double x = 123.456;
     if (fpclassify(x) == FP_NAN) return 1;
-], ac_cv_func_fpclassify=yes)
+]])],[ac_cv_func_fpclassify=yes],[])
 AC_MSG_RESULT($ac_cv_func_fpclassify)
 if test $ac_cv_func_fpclassify = no
 then
@@ -3127,14 +3046,12 @@ then
     AC_MSG_CHECKING([for fpclassify() with -lm])
     savedLIBS=$LIBS
     LIBS=-lm
-    AC_TRY_LINK(
-[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
     #include <math.h>
-],
-[
+]], [[
     double x = 123.456;
     if (fpclassify(x) == FP_NAN) return 1;
-], ac_cv_func_fpclassify=yes)
+]])],[ac_cv_func_fpclassify=yes],[])
     AC_MSG_RESULT($ac_cv_func_fpclassify)
     if test $ac_cv_func_fpclassify = yes
     then
@@ -3172,30 +3089,24 @@ fi
 AC_SUBST(lib_for_math)
 
 dnl check if we have the SIG_PF typedef
-AC_TRY_LINK([#include <signal.h>], [SIG_PF x;],
-    AC_DEFINE(HAVE_SIGPF, [1], [SIG_PF typedef]))
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <signal.h>]], [[SIG_PF x;]])],[AC_DEFINE(HAVE_SIGPF, 1, SIG_PF typedef)],[])
 
 dnl check if we have the SA_SIGINFO #define
-AC_TRY_LINK([#include <signal.h>], [int x = SA_SIGINFO;],
-    AC_DEFINE(HAVE_SA_SIGINFO, [1], [SA_SIGINFO macro]))
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <signal.h>]], [[int x = SA_SIGINFO;]])],[AC_DEFINE(HAVE_SA_SIGINFO, 1, SA_SIGINFO macro)],[])
 
 dnl check if we support the SIGPIPE signal
-AC_TRY_LINK([#include <signal.h>], [int x = SIGPIPE;],
-    AC_DEFINE(HAVE_SIGPIPE, [1], [SIGPIPE signal]))
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <signal.h>]], [[int x = SIGPIPE;]])],[AC_DEFINE(HAVE_SIGPIPE, 1, SIGPIPE signal)],[])
 
 dnl check if we support the SIGHUP signal
-AC_TRY_LINK([#include <signal.h>], [int x = SIGHUP;],
-    AC_DEFINE(HAVE_SIGHUP, [1], [SIGHUP signal]))
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <signal.h>]], [[int x = SIGHUP;]])],[AC_DEFINE(HAVE_SIGHUP, 1, SIGHUP signal)],[])
 
 dnl check if we support the SIGBUS signal
-AC_TRY_LINK([#include <signal.h>], [int x = SIGBUS;],
-    AC_DEFINE(HAVE_SIGBUS, [1], [SIGBUS signal]))
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <signal.h>]], [[int x = SIGBUS;]])],[AC_DEFINE(HAVE_SIGBUS, 1, SIGBUS signal)],[])
 
 dnl check if we need to explicitly include signal.h
-AC_TRY_LINK([#include <sys/wait.h>],
-[   typedef void (*SIGRET)(int);
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <sys/wait.h>]], [[   typedef void (*SIGRET)(int);
     SIGRET x = SIG_IGN;
-], AC_DEFINE(HAVE_WAIT_INCLUDES_SIGNAL, [1], [indirect signal.h]))
+]])],[AC_DEFINE(HAVE_WAIT_INCLUDES_SIGNAL, 1, indirect signal.h)],[])
 
 dnl check for name and type of time fields in struct stat
 dnl IRIX example	timespec_t st_mtim;
@@ -3349,20 +3260,20 @@ AC_SUBST(pcp_lib_dir)
 AC_SUBST(pcp_lib32_dir)
 
 dnl perl modules
-AC_ARG_WITH(perl_installdirs,[AC_HELP_STRING([--with-perl_installdirs],[perl installdirs [vendor]])],
+AC_ARG_WITH(perl_installdirs,[AS_HELP_STRING([--with-perl_installdirs],[perl installdirs [vendor]])],
                       [perl_installdirs=$withval],
                       [perl_installdirs=vendor])
 perl_installdirs=`eval echo $perl_installdirs`
 perl_installdirs=`eval echo $perl_installdirs`
 AC_SUBST(perl_installdirs)
-AC_ARG_WITH(perl_install_base,[AC_HELP_STRING([--with-perl_install_base],[perl install_base [PREFIX]])],
+AC_ARG_WITH(perl_install_base,[AS_HELP_STRING([--with-perl_install_base],[perl install_base [PREFIX]])],
                       [perl_install_base=$withval],
                       [perl_install_base=$prefix])
 perl_install_base=`eval echo $perl_install_base`
 perl_install_base=`eval echo $perl_install_base`
 AC_SUBST(perl_install_base)
 
-AC_ARG_WITH(python_prefix,[AC_HELP_STRING([--with-python_prefix],[python setup.py prefix [PREFIX]])],
+AC_ARG_WITH(python_prefix,[AS_HELP_STRING([--with-python_prefix],[python setup.py prefix [PREFIX]])],
                       [python_prefix=$withval],
                       [python_prefix=$prefix])
 python_prefix=`eval echo $python_prefix`
@@ -3524,7 +3435,7 @@ pcp_desktop_dir=`eval echo $pcp_desktop_dir`
 AC_SUBST(pcp_desktop_dir)
 
 dnl rc/startup files
-AC_ARG_WITH(rcdir,[AC_HELP_STRING([--with-rcdir],[rc directory [SYSCONFDIR/rc.d]])],
+AC_ARG_WITH(rcdir,[AS_HELP_STRING([--with-rcdir],[rc directory [SYSCONFDIR/rc.d]])],
                   [pcp_rc_dir=$withval], [
 if $enable_systemd
 then
@@ -3541,13 +3452,13 @@ fi])
 AC_SUBST(pcp_rc_dir)
 
 dnl rc sysconfig dir
-AC_ARG_WITH(sysconfigdir,[AC_HELP_STRING([--with-sysconfigdir],[sysconfig directory [SYSCONFDIR/sysconfig]])],
+AC_ARG_WITH(sysconfigdir,[AS_HELP_STRING([--with-sysconfigdir],[sysconfig directory [SYSCONFDIR/sysconfig]])],
                   [pcp_sysconfig_dir=$withval],
                   [pcp_sysconfig_dir=$pcp_etc_dir/sysconfig])
 AC_SUBST(pcp_sysconfig_dir)
 
 dnl logs
-AC_ARG_WITH(logdir,[AC_HELP_STRING([--with-logdir],[log directory [LOCALSTATEDIR/log/pcp]])],
+AC_ARG_WITH(logdir,[AS_HELP_STRING([--with-logdir],[log directory [LOCALSTATEDIR/log/pcp]])],
                   [pcp_log_dir=$withval],
                   [pcp_log_dir=$localstatedir/log/pcp])
 pcp_log_dir=`eval echo $pcp_log_dir`
@@ -3568,7 +3479,7 @@ else
 fi
 AC_SUBST(pcp_pacct_system_path)
 
-AC_ARG_WITH(rundir,[AC_HELP_STRING([--with-rundir],[run directory [LOCALSTATEDIR/run/pcp]])],
+AC_ARG_WITH(rundir,[AS_HELP_STRING([--with-rundir],[run directory [LOCALSTATEDIR/run/pcp]])],
                   [pcp_run_dir=$withval], [
 if test -d /run
 then
@@ -3581,7 +3492,7 @@ pcp_run_dir=`eval echo $pcp_run_dir`
 AC_SUBST(pcp_run_dir)
 
 dnl world-writeable temporary files directory
-AC_ARG_WITH(tmpdir,[AC_HELP_STRING([--with-tmpdir],[tmp directory [LOCALSTATEDIR/tmp]])],
+AC_ARG_WITH(tmpdir,[AS_HELP_STRING([--with-tmpdir],[tmp directory [LOCALSTATEDIR/tmp]])],
                    [pcp_tmpfile_dir=$withval],
                    [pcp_tmpfile_dir=$localstatedir/tmp])
 pcp_tmpfile_dir=`eval echo $pcp_tmpfile_dir`
@@ -3593,7 +3504,7 @@ pcp_tmp_dir=`eval echo $pcp_var_dir/tmp`
 AC_SUBST(pcp_tmp_dir)
 
 dnl doc directory
-AC_ARG_WITH(docdir,[AC_HELP_STRING([--with-docdir],[docs directory [DOCDIR/pcp-VERSION]])],
+AC_ARG_WITH(docdir,[AS_HELP_STRING([--with-docdir],[docs directory [DOCDIR/pcp-VERSION]])],
                    [pcp_doc_dir=$withval],
                    [PACKAGE=pcp-${PACKAGE_VERSION}; pcp_doc_dir=$docdir])
 pcp_doc_dir=`eval echo $pcp_doc_dir`
@@ -3601,7 +3512,7 @@ pcp_doc_dir=`eval echo $pcp_doc_dir`
 AC_SUBST(pcp_doc_dir)
 
 dnl demos directory
-AC_ARG_WITH(demosdir,[AC_HELP_STRING([--with-demosdir],[run directory [DATADIR/pcp/demos]])],
+AC_ARG_WITH(demosdir,[AS_HELP_STRING([--with-demosdir],[run directory [DATADIR/pcp/demos]])],
                    [pcp_demos_dir=$withval],
                    [pcp_demos_dir=$pcp_share_dir/demos])
 AC_SUBST(pcp_demos_dir)
@@ -3618,56 +3529,46 @@ dnl Check for FNDELAY defined in <fcntl.h>
 if test "$ac_cv_header_fcntl_h" = "yes"
 then
     AC_MSG_CHECKING([for FNDELAY in fcntl.h])
-    AC_TRY_COMPILE([#include <fcntl.h>],
-	[ int i = FNDELAY; ],
-	AC_DEFINE(HAVE_FNDELAY, [1], [FNDELAY macro])
-	AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <fcntl.h>]], [[ int i = FNDELAY; ]])],[AC_DEFINE(HAVE_FNDELAY, 1, FNDELAY macro)
+	AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 fi
 
 dnl check for zpool_vdev_name API style from <libzfs.h>
 if test "$ac_cv_header_libzfs_h" = "yes"
 then
     AC_MSG_CHECKING([for 5-argument style zpool_vdev_name])
-    AC_TRY_COMPILE([#include <libzfs.h>],
-	[ libzfs_handle_t *zh;
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <libzfs.h>]], [[ libzfs_handle_t *zh;
 	  zpool_handle_t *zp;
 	  nvlist_t *np;
 	  (void) zpool_vdev_name(zh, zp, np, B_FALSE, B_FALSE);
-	],
-	AC_DEFINE(HAVE_ZPOOL_VDEV_NAME_5ARG, [1], [5-arg zpool_vdev_name])
-	AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+	]])],[AC_DEFINE(HAVE_ZPOOL_VDEV_NAME_5ARG, 1, 5-arg zpool_vdev_name)
+	AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 
     AC_MSG_CHECKING([for 4-argument style zpool_vdev_name])
-    AC_TRY_COMPILE([#include <libzfs.h>],
-	[ libzfs_handle_t *zh;
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <libzfs.h>]], [[ libzfs_handle_t *zh;
 	  zpool_handle_t *zp;
 	  nvlist_t *np;
 	  (void) zpool_vdev_name(zh, zp, np, B_FALSE);
-	],
-	AC_DEFINE(HAVE_ZPOOL_VDEV_NAME_4ARG, [1], [4-arg zpool_vdev_name])
-	AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+	]])],[AC_DEFINE(HAVE_ZPOOL_VDEV_NAME_4ARG, 1, 4-arg zpool_vdev_name)
+	AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 fi
 
 dnl check for zfs_iter_snapshots API style from <libzfs.h>
 if test "$ac_cv_header_libzfs_h" = "yes"
 then
     AC_MSG_CHECKING([for 4-argument style zfs_iter_snapshots])
-    AC_TRY_COMPILE([#include <libzfs.h>],
-	[ zfs_handle_t *zh;
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <libzfs.h>]], [[ zfs_handle_t *zh;
 	  zfs_iter_f callback;
 	  (void)zfs_iter_snapshots(zh, B_FALSE, callback, NULL);
-	],
-	AC_DEFINE(HAVE_ZFS_ITER_SNAPSHOTS_4ARG, [1], [4-arg zfs_iter_snapshots])
-	AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+	]])],[AC_DEFINE(HAVE_ZFS_ITER_SNAPSHOTS_4ARG, 1, 4-arg zfs_iter_snapshots)
+	AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 
     AC_MSG_CHECKING([for 3-argument style zfs_iter_snapshots])
-    AC_TRY_COMPILE([#include <libzfs.h>],
-	[ zfs_handle_t *zh;
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <libzfs.h>]], [[ zfs_handle_t *zh;
 	  zfs_iter_f callback;
 	  (void)zfs_iter_snapshots(zh, callback, NULL);
-	],
-	AC_DEFINE(HAVE_ZFS_ITER_SNAPSHOTS_3ARG, [1], [3-arg zfs_iter_snapshots])
-	AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+	]])],[AC_DEFINE(HAVE_ZFS_ITER_SNAPSHOTS_3ARG, 1, 3-arg zfs_iter_snapshots)
+	AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 fi
 
 dnl check for -latomic, needed for some -march=i386 builds with i686 c++ distro headers
@@ -3720,7 +3621,7 @@ AC_SUBST(pcp_mpi_dirs)
 
 dnl check for Unix Domain socket family structure
 AC_MSG_CHECKING([for struct sockaddr_un in sys/un.h])
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #include <sys/types.h>
     #ifdef HAVE_SYS_SOCKET_H
     #include <sys/socket.h>
@@ -3728,12 +3629,11 @@ AC_TRY_COMPILE([
     #ifdef HAVE_SYS_UN_H
     #include <sys/un.h>
     #endif
-], [ struct sockaddr_un sa; sa.sun_family = AF_UNIX; ],
-AC_DEFINE(HAVE_STRUCT_SOCKADDR_UN, [1], [sockaddr_un type]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+]], [[ struct sockaddr_un sa; sa.sun_family = AF_UNIX; ]])],[AC_DEFINE(HAVE_STRUCT_SOCKADDR_UN, 1, sockaddr_un type) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 
 dnl check for Linux Unix Domain socket credential structure
 AC_MSG_CHECKING([for struct ucred in sys/socket.h])
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #include <sys/types.h>
     #ifdef HAVE_SYS_SOCKET_H
     #include <sys/socket.h>
@@ -3741,27 +3641,23 @@ AC_TRY_COMPILE([
     #ifdef HAVE_SYS_UN_H
     #include <sys/un.h>
     #endif
-], [ struct ucred ucred; ucred.uid = 0; ],
-AC_DEFINE(HAVE_STRUCT_UCRED, [1], [ucred type]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+]], [[ struct ucred ucred; ucred.uid = 0; ]])],[AC_DEFINE(HAVE_STRUCT_UCRED, 1, ucred type) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 
 dnl check for struct timespec in <time.h>
 AC_MSG_CHECKING([for struct timespec in time.h])
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #include <time.h>
-], [ struct timespec foo; ],
-AC_DEFINE(HAVE_STRUCT_TIMESPEC, [1], [timespec type]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+]], [[ struct timespec foo; ]])],[AC_DEFINE(HAVE_STRUCT_TIMESPEC, 1, timespec type) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 
 dnl check if we have IRIX style altzone
 AC_MSG_CHECKING([for altzone in time.h])
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #include <time.h>
-], [ time_t az = altzone; ],
-AC_DEFINE(HAVE_ALTZONE, [1], [altzone global]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+]], [[ time_t az = altzone; ]])],[AC_DEFINE(HAVE_ALTZONE, 1, altzone global) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 
 dnl If there is no altzone, check if strftime can handle %z
 AC_MSG_CHECKING([if strftime knows about %z])
-AC_TRY_RUN(
-[
+AC_RUN_IFELSE([AC_LANG_SOURCE([[
 #include <time.h>
 #include <string.h>
 int main () {
@@ -3774,14 +3670,12 @@ int main () {
        return(1);
     return (0);
 }
-], AC_DEFINE(HAVE_STRFTIME_z, [1], [strftime with %z]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no), AC_MSG_RESULT(no))
+]])],[AC_DEFINE(HAVE_STRFTIME_z, 1, strftime with %z) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)],[AC_MSG_RESULT(no)])
 
 dnl does strerror_r return char * a la GNU
 dnl (as opposed to the int return for XSI-compliant variants)
 AC_MSG_CHECKING([if strerror_r returns char *])
-AC_TRY_COMPILE(
-    [#include <string.h>], [strerror_r(0, NULL, 0)[0];],
-    AC_DEFINE(HAVE_STRERROR_R_PTR, [1], [strerror_r return]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <string.h>]], [[strerror_r(0, NULL, 0)[0];]])],[AC_DEFINE(HAVE_STRERROR_R_PTR, 1, strerror_r return) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 
 dnl first check for readline on its own then with curses
 savedLIBS=$LIBS
@@ -3824,13 +3718,11 @@ AC_SUBST(HAVE_CMOCKA, [$have_cmocka])
 
 dnl Check if we have AI_ADDRCONFIG
 AC_MSG_CHECKING([for AI_ADDRCONFIG])
-AC_TRY_COMPILE(
-[
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #include <netdb.h>
     int test = AI_ADDRCONFIG;
-],
-[
-], AC_DEFINE(HAVE_AI_ADDRCONFIG, [1], [AI_ADDRCONFIG macro]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+]], [[
+]])],[AC_DEFINE(HAVE_AI_ADDRCONFIG, 1, AI_ADDRCONFIG macro) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 
 dnl Capture special options passed to configure
 pcp_prefix=`eval echo $prefix`
@@ -3841,7 +3733,7 @@ dnl
 dnl output files
 dnl
 
-AC_OUTPUT(
+AC_CONFIG_FILES(
 dnl   Build definitions for use in Makefiles
     src/include/builddefs
 dnl   PCP paths and other defs
@@ -3858,6 +3750,7 @@ dnl   Build definitions for use in packaging
     build/GNUlocaldefs
     build/mac/uninstall-pcp
 )
+AC_OUTPUT
 
 dnl verbose diagnostics
 dnl

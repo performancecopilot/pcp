@@ -2,7 +2,8 @@
 # PCP QA Test No. 530
 # pmlogger_daily ... do you work at all?
 #
-# OLD VERSION for YYDDMM style naming convention (see also 338)
+# OLD VERSION for YYDDMM style naming convention (see also 338
+# for the YYYYDDMM style naming convention)
 #
 # NOTE - THIS TEST WILL FAIL IF RUN IN THE FIRST 5 MINUTES AFTER
 # MIDNIGHT - c'est la vie, I'm afraid.

@@ -1,2 +1,17 @@
 QA output created by 799
+=== no change ===
 Done, no rewriting required
+
+=== one type change ===
+
+sample.load
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PCP Archive Rewrite Specifications Summary
+
+Metric: sample.load (29.0.4)
+Semantics:	instant -> discrete
+
+sample.load
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none

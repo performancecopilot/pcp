@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2023 Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -16,7 +16,7 @@
 #define SAVEVIEWDIALOG_H
 
 #include "ui_saveviewdialog.h"
-#include <QDirModel>
+#include <QFileSystemModel>
 
 class Chart;
 
@@ -36,7 +36,7 @@ public:
 public slots:
     virtual void parentToolButton_clicked();
     virtual void userToolButton_clicked(bool);
-    virtual void pathComboBox_currentIndexChanged(QString);
+    virtual void pathComboBox_currentIndexChanged(int);
 
     virtual void dirListView_selectionChanged();
     virtual void dirListView_activated(const QModelIndex &);
@@ -50,7 +50,7 @@ private:
 	QString userDir;
 	bool hostDynamic;	// on-the-fly or explicit-hostnames-in-view
 	bool sizeDynamic;	// on-the-fly or explicit-geometry-in-view
-	QDirModel *dirModel;
+	QFileSystemModel *dirModel;
 	QModelIndex dirIndex;
 	QCompleter *completer;
     } my;

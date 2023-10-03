@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2023 Red Hat.
  * Copyright (c) 2007, 2009, Aconex.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -24,6 +24,115 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	: QDialog(parent), disabled(Qt::Dense4Pattern)
 {
     setupUi(this);
+
+    connect(closeSettingsButton, SIGNAL(clicked()),
+		this, SLOT(reject()));
+    connect(defaultBackgroundButton, SIGNAL(clicked()),
+		this, SLOT(defaultBackgroundButton_clicked()));
+    connect(colorButton1, SIGNAL(clicked()),
+		this, SLOT(colorButton1_clicked()));
+    connect(colorButton2, SIGNAL(clicked()),
+		this, SLOT(colorButton2_clicked()));
+    connect(colorButton3, SIGNAL(clicked()),
+		this, SLOT(colorButton3_clicked()));
+    connect(colorButton4, SIGNAL(clicked()),
+		this, SLOT(colorButton4_clicked()));
+    connect(colorButton5, SIGNAL(clicked()),
+		this, SLOT(colorButton5_clicked()));
+    connect(colorButton6, SIGNAL(clicked()),
+		this, SLOT(colorButton6_clicked()));
+    connect(colorButton7, SIGNAL(clicked()),
+		this, SLOT(colorButton7_clicked()));
+    connect(colorButton8, SIGNAL(clicked()),
+		this, SLOT(colorButton8_clicked()));
+    connect(colorButton9, SIGNAL(clicked()),
+		this, SLOT(colorButton9_clicked()));
+    connect(colorButton10, SIGNAL(clicked()),
+		this, SLOT(colorButton10_clicked()));
+    connect(colorButton11, SIGNAL(clicked()),
+		this, SLOT(colorButton11_clicked()));
+    connect(colorButton12, SIGNAL(clicked()),
+		this, SLOT(colorButton12_clicked()));
+    connect(colorButton12, SIGNAL(clicked()),
+		this, SLOT(colorButton12_clicked()));
+    connect(colorButton13, SIGNAL(clicked()),
+		this, SLOT(colorButton13_clicked()));
+    connect(colorButton14, SIGNAL(clicked()),
+		this, SLOT(colorButton14_clicked()));
+    connect(colorButton15, SIGNAL(clicked()),
+		this, SLOT(colorButton15_clicked()));
+    connect(colorButton16, SIGNAL(clicked()),
+		this, SLOT(colorButton16_clicked()));
+    connect(colorButton17, SIGNAL(clicked()),
+		this, SLOT(colorButton17_clicked()));
+    connect(colorButton18, SIGNAL(clicked()),
+		this, SLOT(colorButton18_clicked()));
+    connect(colorButton19, SIGNAL(clicked()),
+		this, SLOT(colorButton19_clicked()));
+    connect(colorButton20, SIGNAL(clicked()),
+		this, SLOT(colorButton20_clicked()));
+    connect(colorButton21, SIGNAL(clicked()),
+		this, SLOT(colorButton21_clicked()));
+    connect(colorButton22, SIGNAL(clicked()),
+		this, SLOT(colorButton22_clicked()));
+    connect(chartDeltaLineEdit, SIGNAL(editingFinished()),
+		this, SLOT(chartDeltaLineEdit_editingFinished()));
+    connect(loggerDeltaLineEdit, SIGNAL(editingFinished()),
+		this, SLOT(loggerDeltaLineEdit_editingFinished()));
+    connect(chartDeltaUnitsComboBox, SIGNAL(activated(int)),
+		this, SLOT(chartDeltaUnitsComboBox_activated(int)));
+    connect(loggerDeltaUnitsComboBox, SIGNAL(activated(int)),
+		this, SLOT(loggerDeltaUnitsComboBox_activated(int)));
+    connect(sampleCounter, SIGNAL(valueChanged(int)),
+		this, SLOT(sample_valueChanged(int)));
+    connect(sampleSlider, SIGNAL(valueChanged(int)),
+		this, SLOT(sample_valueChanged(int)));
+    connect(visibleCounter, SIGNAL(valueChanged(int)),
+		this, SLOT(visible_valueChanged(int)));
+    connect(visibleSlider, SIGNAL(valueChanged(int)),
+		this, SLOT(visible_valueChanged(int)));
+    connect(startupToolbarCheckBox, SIGNAL(clicked()),
+		this, SLOT(startupToolbarCheckBox_clicked()));
+    connect(nativeToolbarCheckBox, SIGNAL(clicked()),
+		this, SLOT(nativeToolbarCheckBox_clicked()));
+    connect(toolbarAreasComboBox, SIGNAL(currentIndexChanged(int)),
+		this, SLOT(toolbarAreasComboBox_currentIndexChanged(int)));
+    connect(actionListWidget, SIGNAL(itemClicked(QListWidgetItem*)),
+		this, SLOT(actionListWidget_itemClicked(QListWidgetItem*)));
+    connect(schemeComboBox, SIGNAL(currentIndexChanged(int)),
+		this, SLOT(schemeComboBox_currentIndexChanged(int)));
+    connect(selectedHighlightButton, SIGNAL(clicked()),
+		this, SLOT(selectedHighlightButton_clicked()));
+    connect(removeSchemeButton, SIGNAL(clicked()),
+		this, SLOT(removeSchemeButton_clicked()));
+    connect(updateSchemeButton, SIGNAL(clicked()),
+		this, SLOT(updateSchemeButton_clicked()));
+    connect(settingsTab, SIGNAL(currentChanged(int)),
+		this, SLOT(settingsTab_currentChanged(int)));
+    connect(familyLineEdit, SIGNAL(editingFinished()),
+		this, SLOT(familyLineEdit_editingFinished()));
+    connect(styleLineEdit, SIGNAL(editingFinished()),
+		this, SLOT(styleLineEdit_editingFinished()));
+    connect(sizeLineEdit, SIGNAL(editingFinished()),
+		this, SLOT(sizeLineEdit_editingFinished()));
+    connect(familyListWidget, SIGNAL(itemClicked(QListWidgetItem*)),
+		this, SLOT(familyListWidget_itemClicked(QListWidgetItem*)));
+    connect(styleListWidget, SIGNAL(itemClicked(QListWidgetItem*)),
+		this, SLOT(styleListWidget_itemClicked(QListWidgetItem*)));
+    connect(sizeListWidget, SIGNAL(itemClicked(QListWidgetItem*)),
+		this, SLOT(sizeListWidget_itemClicked(QListWidgetItem*)));
+    connect(resetFontButton, SIGNAL(clicked()),
+		this, SLOT(resetFontButton_clicked()));
+    connect(applyFontButton, SIGNAL(clicked()),
+		this, SLOT(applyFontButton_clicked()));
+    connect(hostButton, SIGNAL(clicked()),
+		this, SLOT(hostButton_clicked()));
+    connect(savedHostsListWidget, SIGNAL(itemSelectionChanged()),
+		this, SLOT(savedHostsListWidget_itemSelectionChanged()));
+    connect(removeHostButton, SIGNAL(clicked()),
+		this, SLOT(removeHostButton_clicked()));
+    connect(addHostButton, SIGNAL(clicked()),
+		this, SLOT(addHostButton_clicked()));
 
 #ifndef IS_DARWIN	// only relevent as an option on Mac OS X
     nativeToolbarCheckBox->setEnabled(false);
@@ -709,16 +818,12 @@ void SettingsDialog::hostButton_clicked()
 
 	if (hostspec.isNull() || hostspec.length() == 0) {
 	    hostspec.append(tr("Hostname not specified\n"));
-	    QMessageBox::warning(this, pmGetProgname(), hostspec,
-		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-		    Qt::NoButton, Qt::NoButton);
+	    QMessageBox::warning(this, pmGetProgname(), hostspec);
 	} else if ((sts = liveGroup->use(PM_CONTEXT_HOST, hostspec, flags)) < 0) {
 	    hostspec.prepend(tr("Cannot connect to host: "));
 	    hostspec.append(tr("\n"));
 	    hostspec.append(tr(pmErrStr(sts)));
-	    QMessageBox::warning(this, pmGetProgname(), hostspec,
-		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-		    Qt::NoButton, Qt::NoButton);
+	    QMessageBox::warning(this, pmGetProgname(), hostspec);
 	} else {
 	    console->post(PmChart::DebugUi,
 			"OpenViewDialog::newHost: %s (flags=0x%x)",

@@ -85,7 +85,7 @@ The available command line options are:
 .TP 5
 \fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
 Performance metric values are retrieved from the set of Performance Co-Pilot
-(PCP) archive logs identified by this option, by default.
+(PCP) archives identified by this option, by default.
 The argument is a comma-separated list of names, each of which may be the
 base name of an archive or the name of a directory containing one or more
 archives.
@@ -477,7 +477,7 @@ and
 for an extensive description of the capabilities of these tools.
 .SH CONFIGURATION FILE SYNTAX
 .de ES
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 ..
@@ -492,8 +492,8 @@ loads predefined chart configurations (or "views") from external
 files that conform to the following rules.
 In the descriptions below
 keywords (shown in \f(CBbold\fP) may appear in upper, lower or
-mixed case, elements shown in \f(CW[stuff]\fP are optional, and
-user-supplied elements are shown as \f(CW<other stuff>\fP.
+mixed case, elements shown in \f(CR[stuff]\fP are optional, and
+user-supplied elements are shown as \f(CR<other stuff>\fP.
 A vertical bar (|) is used where syntactic elements are alternatives.
 Quotes (")
 may be used to enclose lexical elements that may contain white space,
@@ -520,11 +520,11 @@ The next line should be
 .ES
 \f(CBversion\fP <n> <host-clause>
 .EE
-where \f(CW<n>\fP depends on the configuration file type, and
+where \f(CR<n>\fP depends on the configuration file type, and
 is \f(CB1\fP for \f(CBpmchart\fP else \f(CB1.1\fP, \f(CB1.2\fP or
 \f(CB2.0\fP for \f(CBpmchart\fP.
 .RS
-The \f(CW<host-clause>\fP part is optional (and ignored)
+The \f(CR<host-clause>\fP part is optional (and ignored)
 for \fBpmchart\fP configuration
 files, but required for the \fBpmchart\fP configuration files, and
 is of the form
@@ -543,7 +543,7 @@ A configuration contains one or more charts defined as follows:
 .EE
 If specified, the title will appear centred and above the graph area
 of the chart.
-The \f(CW<title>\fP is usually enclosed in quotes (") and if it
+The \f(CR<title>\fP is usually enclosed in quotes (") and if it
 contains the sequence "%h" this will be replaced by the short form
 of the hostname for the default source of metrics at the time
 this chart was loaded.
@@ -559,7 +559,7 @@ text box in the
 dialog.
 .RS
 .PP
-The \f(CW<style>\fP controls the initial plotting style of the chart, and
+The \f(CR<style>\fP controls the initial plotting style of the chart, and
 should be one of the keywords \f(CBplot\fP (line graph), \f(CBbar\fP,
 \f(CBstacking\fP (stacked bar),
 \f(CBarea\fP or \f(CButilization\fP.
@@ -567,17 +567,17 @@ After the view is loaded, the plotting style can be changed using the
 .I "Edit\(->Chart"
 Style dropdown list.
 .PP
-The \f(CW<options>\fP are zero or more of the optional elements:
+The \f(CR<options>\fP are zero or more of the optional elements:
 .ES
 [\f(CBscale\fP [from] <ymin> [to] <ymax>] [\f(CBlegend\fP <onoff>]
 .EE
 If \f(CBscale\fP is specified, the vertical scaling is set for all plots
-in the chart to a y-range defined by \f(CW<ymin>\fP and \f(CW<ymax>\fP.
+in the chart to a y-range defined by \f(CR<ymin>\fP and \f(CR<ymax>\fP.
 Otherwise the
 vertical axis will be autoscaled based on the values currently being
 plotted.
 .PP
-\f(CW<onoff>\fP is one of the keywords \f(CBon\fP or \f(CBoff\fP and the
+\f(CR<onoff>\fP is one of the keywords \f(CBon\fP or \f(CBoff\fP and the
 \f(CBlegend\fP clause controls the presence or absence of the plot
 legend below the graph area.
 The default is for the legend to be shown.
@@ -614,7 +614,7 @@ does not include the specified performance metric and/or instance,
 then this plot is silently dropped from the chart.
 .PP
 If specified, the title will appear in the chart legend.
-The \f(CW<title>\fP is usually enclosed in quotes (") and it may
+The \f(CR<title>\fP is usually enclosed in quotes (") and it may
 contain one or more wildcard characters which will be expanded
 using metric name, instance name, and host name for the plot.
 The wildcards are "%i" (short unique instance name, up to the first
@@ -635,7 +635,7 @@ The \f(CBcolor\fP clause is optional for newer
 configuration files, but it was mandatory in the original
 .B pmchart
 configuration file format.
-\f(CW<colorspec>\fP may be one of the following:
+\f(CR<colorspec>\fP may be one of the following:
 .ES
 \f(CB#\-cycle\fP
 \f(CBrgbi:\fPrr\f(CB:\fPgg\f(CB:\fPbb
@@ -645,10 +645,10 @@ configuration file format.
 \f(CB#\fPrrrrggggbbbb
 <Xcolor>
 .EE
-where each of \f(CWr\fP, \f(CWg\fP and \f(CWb\fP are hexadecimal
+where each of \f(CRr\fP, \f(CRg\fP and \f(CRb\fP are hexadecimal
 digits (0-9 and A-F) representing respectively the red, green and
 blue color components.
-\f(CW<Xcolor>\fP is one of the color names from the X color database,
+\f(CR<Xcolor>\fP is one of the color names from the X color database,
 e.g. \f(CBred\fP or \f(CBsteelblue\fP, see also the output from
 .BR showrgb (1).
 .PP
@@ -658,7 +658,7 @@ should use the next in a pallet of colors that it uses cyclically
 for each chart.
 This is the default if the \f(CBcolor\fP clause is omitted.
 .PP
-The \f(CW<hostspec>\fP in the \f(CBhost\fP clause may be a hostname,
+The \f(CR<hostspec>\fP in the \f(CBhost\fP clause may be a hostname,
 an IP address or an asterisk (*); the latter is used to mean the
 default source of performance metrics.
 For older
@@ -671,13 +671,13 @@ of performance metrics will be used.
 The optional instance specification,
 .IP (a) 0.3i
 is omitted in which case one plot will be created for every instance of
-the \f(CW<metricname>\fP metric
+the \f(CR<metricname>\fP metric
 .IP (b) 0.3i
 starts with \f(CBinstance\fP, in which case only the instance
-named \f(CW<inst>\fP will be plotted
+named \f(CR<inst>\fP will be plotted
 .IP (c) 0.3i
 starts with \f(CBmatching\fP, in which case all instances whose
-names match the pattern \f(CW<pat>\fP will be plotted; the pattern
+names match the pattern \f(CR<pat>\fP will be plotted; the pattern
 uses extended regular expression notation in the style of
 .BR egrep (1)
 (refer to the PMCD view for an example)
@@ -685,14 +685,14 @@ uses extended regular expression notation in the style of
 starts with \f(CBnot-matching\fP, in which case all instances whose
 names
 .B do " " not
-match the pattern \f(CW<pat>\fP will be plotted; the pattern
+match the pattern \f(CR<pat>\fP will be plotted; the pattern
 uses extended regular expression notation in the style of
 .BR egrep (1)
 (refer to the Netbytes view for an example)
 .PP
 .B pmchart
-uses a bizarre syntactic notation where \f(CW<inst>\fP and
-\f(CW<pat>\fP extend from the first non-white space character to the
+uses a bizarre syntactic notation where \f(CR<inst>\fP and
+\f(CR<pat>\fP extend from the first non-white space character to the
 end of the input line.
 For
 .B pmchart

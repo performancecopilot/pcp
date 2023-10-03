@@ -67,7 +67,7 @@ extern FILE *theAltConfig;
 #define RETURN(c) if (theAltConfig) fprintf(theAltConfig, "%s", yytext); return c
 #endif
 
-static void lexerror (const char * msg, const char * yytext);
+static void lexerror (const char * msg, const char * _yytext);
 %}
 
 
@@ -427,11 +427,11 @@ locateError(void)
  * in lexer, i.e those, where we've got no reasonable chance to do any
  * recovery. */
 static void
-lexerror(const char * msg, const char * yytext)
+lexerror(const char * msg, const char * _yytext)
 {
     char *pos;
 
-    if ((pos = strstr(line, yytext)) != NULL) {
+    if ((pos = strstr(line, _yytext)) != NULL) {
 	int i;
 
 	for (i = 0; (line[i] != '\n') && (line[i] != '\0'); i++)

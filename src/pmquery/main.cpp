@@ -1,20 +1,22 @@
 /*
+ * Copyright (c) 2023, Red Hat.  All Rights Reserved.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
 #include <QFile>
-#include <QTextStream>
-#include <QDesktopWidget>
 #include <QCursor>
+#include <QScreen>
+#include <QTextStream>
+#include <QApplication>
 #include "pmquery.h"
 
 static char usage[] =
@@ -274,14 +276,14 @@ int main(int argc, char ** argv)
     if (!PmQuery::buttonCount())
 	PmQuery::addButton("Continue", true, 0);
 
-    PmQuery q(inputflag, printflag, noframeflag,
+    PmQuery q(a, inputflag, printflag, noframeflag,
 	      nosliderflag, usesliderflag, exclusiveflag);
 
     if (nearmouseflag)
 	q.move(QCursor::pos());
     else if (centerflag) {
-	int x = (a.desktop()->screenGeometry().width() / 2) - (q.width() / 2);
-	int y = (a.desktop()->screenGeometry().height() / 2) - (q.height() / 2);
+	int x = (a.primaryScreen()->geometry().width() / 2) - (q.width() / 2);
+	int y = (a.primaryScreen()->geometry().height() / 2) - (q.height() / 2);
 	q.move(x > 0 ? x : 0, y > 0 ? y : 0);
     }
 

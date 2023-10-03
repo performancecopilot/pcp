@@ -46,11 +46,11 @@ archive ``on the fly'' to
 support ``record mode'' services for PMAPI client applications.
 .PP
 Each record mode ``session'' involves one or more
-PCP archive logs each created using a dedicated
+PCP archives each created using a dedicated
 .BR pmlogger (1)
 process, with an overall Archive Folio format as understood by
 .BR pmafm (1),
-to name and collect all of the archive logs associated with
+to name and collect all of the archives associated with
 a single recording session.
 .PP
 The
@@ -60,7 +60,7 @@ creator of the recording session and the associated
 .BR pmlogger
 process(es).  The structure is defined as:
 .sp 0.5v
-.ft CW
+.ft CR
 .nf
 .in +0.25i
 typedef struct {
@@ -188,7 +188,7 @@ instance will automatically be launched with the following arguments:
 .BR \-h ,
 .BR \-l ,
 .B \-x
-and the basename for the PCP archive log.
+and the basename for the PCP archive.
 .RE
 .IP 4.
 To commence the recording session, call

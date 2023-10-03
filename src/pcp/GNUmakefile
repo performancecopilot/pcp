@@ -27,6 +27,7 @@ SUBDIRS = \
         ipcs \
 	meminfo \
 	mpstat \
+	netstat \
 	numastat \
 	pidstat \
 	ps \
@@ -38,7 +39,8 @@ SUBDIRS = \
 	tapestat \
 	uptime \
 	verify \
-	vmstat
+	vmstat \
+	zoneinfo
 
 default :: default_pcp
 

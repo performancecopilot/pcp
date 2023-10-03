@@ -34,6 +34,7 @@
 #include "pragmatics.h"
 #include "eval.h"
 #include "show.h"
+#include "act.h"
 
 
 
@@ -323,6 +324,9 @@ Expr *
 actExpr(int op, Expr *arg1, Expr *arg2)
 {
     Expr    *x;
+    extern char *format;
+    extern char *configfile;
+    extern int	rule_lineno;
 
     /* error guard */
     if (arg1 == NULL) return NULL;
@@ -331,6 +335,25 @@ actExpr(int op, Expr *arg1, Expr *arg2)
     x = newExpr(op, arg1, arg2, -1, -1, -1, 1, SEM_BOOLEAN);
     newRingBfr(x);
     findEval(x);
+
+    /*
+     * add auxdata in fake actions for archive mode with -o|--format
+     * in case format contains %f or %l
+     */
+    if (archives && format &&
+	(op == ACT_SHELL || op == ACT_ALARM || op == ACT_SYSLOG ||
+	 op == ACT_PRINT || op == ACT_STOMP)) {
+	aux_action	*aap;
+	aap = (aux_action *)alloc(sizeof(aux_action));
+	if (configfile == NULL)
+	    aap->fname = "<stdin>";
+	else {
+	    /* need strdup here because configfile may change */
+	    aap->fname = strdup(configfile);
+	}
+	aap->lineno = rule_lineno;
+	x->auxdata = (void *)aap;
+    }
 
     return x;
 }

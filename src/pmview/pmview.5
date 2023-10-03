@@ -29,7 +29,7 @@ configuration file starts with an identification header in the first
 non-comment line:
 .PP
 .in 1.0i
-.ft CW
+.ft CR
 .nf
 pmview Version 2.1 \f2[command_line]\f1
 .fi
@@ -65,7 +65,7 @@ values representing the saturation of red, green and blue.  For example,
 the following colors are identical:
 .PP
 .in 1.5i
-.ft CW
+.ft CR
 .nf
 red
 rgbi:1.0/0.0/0.0
@@ -88,7 +88,7 @@ instance may be enclosed in quotes.
 For example, some legal metrics are:
 
 .in 1.5i
-.ft CW
+.ft CR
 .nf
 kernel.all.cpu.idle 4000
 myhost:kernel.all.cpu.idle[cpu0,"cpu3"] 1000.0
@@ -112,7 +112,7 @@ example, to visualize the user and system time of
 use the metric specification
 
 .in 1.5i
-.ft CW
+.ft CR
 .nf
 proc.psusage.utime[1]	1000
 proc.psusage.stime[1]	1000
@@ -172,18 +172,18 @@ is appropriately adjusted.
 .IP
 The following are legal positions:
 .TP 21
-.ft CW
+.ft CR
               0 5
 .ft R
 The object is centered at grid position 0,5 occupying 1 grid square.
 .TP
-.ft CW
+.ft CR
               1 2 north
 .ft R
 The object is aligned with the north edge of position 1,2 occupying 1 grid
 square.
 .TP
-.ft CW
+.ft CR
               2 2 2 1 east
 .ft R
 The object is aligned to the eastern edge of position 3,2 and occupies 2 grid
@@ -318,7 +318,7 @@ object.  For example, the color list called
 has the same color three times:
 
 .RS 4
-.ft CW
+.ft CR
 .nf
 _colorList foo ( red rgbi:1.0/0.0/0.0 1.0 0.0 0.0 )
 .fi
@@ -347,7 +347,7 @@ and should be in the range 0.0 to 1.0.  This scale gradually changes from blue
 to red:
 .PP
 .RS 4
-.ft CW
+.ft CR
 .nf
 _colorScale coldToHot blue ( rgbi:0.5/0.0/1.0 0.3
                              purple 0.6
@@ -403,7 +403,7 @@ object if it is
 with:
 
 .in 1.5i
-.ft CW
+.ft CR
 .nf
 \f3_baseLabel\f1 \f2name\f1|\f2string\f1
 .fi
@@ -501,7 +501,7 @@ The options must be specified in this order, although preceding options are
 not required.  Therefore, this is legal:
 
 .in 1.5i
-.ft CW
+.ft CR
 .nf
 _bar _hide _cylinder ( ... )
 .fi
@@ -520,7 +520,7 @@ metric list contains a list of metric names, normalization values and an
 optional label for the metric:
 
 .RS 4n
-.ft CW
+.ft CR
 .nf
 \f3_metrics\f1 \f3(\f1 \f2metric\f1 \f2real\f1 [\f2string\f1] [\f2metric\f1 \f2real\f1 [\f2string\f1]...] \f3)\f1
 .fi
@@ -545,7 +545,7 @@ Therefore, the syntax for color lists within a
 object are any of:
 
 .RS 4n
-.ft CW
+.ft CR
 .nf
 \f3_colorList\f1 \f2name\f1
 \f3_colorList\f1 \f3(\f1 \f2color\f1 [\f2color\f1...] \f3)\f1
@@ -578,7 +578,7 @@ The default is
 .BR _towards .
 
 .RS 4
-.ft CW
+.ft CR
 .nf
 \f3_metriclabels\f1 [\f3_away\f1|\f3_towards\f1] \f3(\f1 \f2name\f1|\f2string\f1 [\f2name\f1|\f2string\f1...] \f3)\f1
 \f3_instlabels\f1 [\f3_away\f1|\f3_towards\f1] \f3(\f1 \f2name\f1|\f2string\f1
@@ -770,7 +770,7 @@ A
 metric list contains a list of metric names and normalization values:
 
 .RS 4n
-.ft CW
+.ft CR
 .nf
 \f3_metrics\f1 \f3(\f1 \f2metric\f1 \f2real\f1 [\f2metric\f1 \f2real\f1...] \f3)\f1
 .fi
@@ -785,7 +785,7 @@ color list may be named color list that was defined earlier, or an unnamed
 color list:
 
 .RS 4n
-.ft CW
+.ft CR
 .nf
 \f3_colorList\f1 \f2name\f1
 \f3_colorList\f1 \f3(\f1 \f2color\f1 [\f2color\f1...] \f3)\f1
@@ -802,7 +802,7 @@ may have a ``tag'' for the filler block (unanimated block on the
 when the pointer is over that end of the pipe.
 
 .RS 4n
-.ft CW
+.ft CR
 .nf
 \f3_pipeTag\f1 \f2name\f1|\f2string\f1
 .fi
@@ -857,7 +857,7 @@ The options must be specified in this order, although preceding options are
 not required.  Therefore, this is legal:
 
 .in 1.5i
-.ft CW
+.ft CR
 .nf
 _stack 1 1 _north _utilmod ( ... )
 .fi
@@ -875,7 +875,7 @@ A
 metric list contains a list of metric names and normalization values:
 
 .RS 4n
-.ft CW
+.ft CR
 .nf
 \f3_metrics\f1 \f3(\f1 \f2metric\f1 \f2real\f1 [\f2metric\f1 \f2real\f1...] \f3)\f1
 .fi
@@ -890,7 +890,7 @@ color list may be named color list that was defined earlier, or an unnamed
 color list:
 
 .RS 4n
-.ft CW
+.ft CR
 .nf
 \f3_colorList\f1 \f2name\f1
 \f3_colorList\f1 \f3(\f1 \f2color\f1 [\f2color\f1...] \f3)\f1
@@ -907,7 +907,7 @@ type
 may have a label for the filler block:
 
 .RS 4n
-.ft CW
+.ft CR
 .nf
 \f3_stackLabel\f1 \f2name\f1|\f2string\f1
 .fi
@@ -945,7 +945,7 @@ This simple example illustrates the use of parameters and different object
 types:
 
 .in 1i
-.ft CW
+.ft CR
 .nf
 pmview Version 2.1
 # Use a lighter grey for the base planes

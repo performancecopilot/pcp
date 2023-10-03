@@ -29,6 +29,7 @@
 [\f3\-m\f1 \f2note\f1]
 [\f3\-j\f1 \f2stompfile\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-o\f1 \f2format\f1]
 [\f3\-O\f1 \f2offset\f1]
 [\f3\-S\f1 \f2starttime\f1]
 [\f3\-t\f1 \f2interval\f1]
@@ -44,7 +45,7 @@ The base data for the expressions
 consists of performance metrics values delivered in real-time
 from any host
 running the Performance Metrics Collection Daemon (PMCD), or using historical
-data from Performance Co-Pilot (PCP) archive logs.
+data from Performance Co-Pilot (PCP) archives.
 .PP
 As well as computing arithmetic and logical values,
 .B pmie
@@ -242,6 +243,18 @@ section below.
 An alternative Performance Metrics Name Space (PMNS) is loaded from the file
 .IR pmnsfile .
 .TP
+\fB\-o\fR \fIformat\fR, \fB\-\-format\fR=\fIformat\fR
+When precessing performance data from an archive, the
+.B \-o
+option may be used to specify an alternate output
+.I format
+when a rule action is executed.
+See the
+.B "DIFFERENCES IN HOST AND ARCHIVE MODES"
+section for a description of how the output
+.I format
+may be constructed.
+.TP
 \fB\-O\fR \fIorigin\fR, \fB\-\-origin\fR=\fIorigin\fR
 Specify the \fIorigin\fP of the time window.
 See
@@ -276,7 +289,7 @@ The value is used to determine the sample interval for
 expressions that do not explicitly set their sample interval using
 the
 .B pmie
-variable \f(CWdelta\f1 described below.
+variable \f(CRdelta\f1 described below.
 The default is 10.0 seconds.
 .TP
 \fB\-T\fR \fIendtime\fR, \fB\-\-finish\fR=\fIendtime\fR
@@ -375,14 +388,14 @@ contains a number of other annotated examples of
 expressions.
 .PP
 The variable
-.ft CW
+.ft CR
 delta
 .ft 1
 controls expression evaluation frequency.
 Specify that subsequent expressions
 be evaluated once a second, until further notice:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 delta = 1 sec;
@@ -393,7 +406,7 @@ delta = 1 sec;
 If the total context switch rate exceeds 10000 per second per CPU,
 then display an alarm notifier:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 kernel.all.pswitch / hinv.ncpu > 10000 count/sec
@@ -409,7 +422,7 @@ in an
 .BR xterm (1)
 window to monitor processes, but do this at most once every 5 minutes:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 all_sample (
@@ -421,7 +434,7 @@ all_sample (
 .PP
 The following rules are evaluated once every 20 seconds:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 delta = 20 sec;
@@ -435,7 +448,7 @@ the busy disk to standard output and
 launch
 .BR dkvis (1):
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 some_inst (
@@ -450,7 +463,7 @@ Refine the preceding rule to apply only between the hours of 9am and 5pm,
 and to require 3 of 4 consecutive samples to exceed the threshold before
 executing the action:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 $hour >= 9 && $hour <= 17 &&
@@ -465,7 +478,7 @@ some_inst (
 .PP
 The following two rules are evaluated once every 10 minutes:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 delta = 10 min;
@@ -477,7 +490,7 @@ If either the / or the /usr filesystem is more than 95% full,
 display an alarm popup, but not if it has already been displayed
 during the last 4 hours:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 filesys.free #'/dev/root' /
@@ -495,7 +508,7 @@ The following rule requires a machine that supports the lmsensors metrics.
 If the machine environment temperature rises more than 2 degrees over a
 10 minute interval, write an entry in the system log:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 lmsensors.coretemp_isa.temp1 @0 - lmsensors.coretemp_isa.temp1 @1 > 2
@@ -508,7 +521,7 @@ lmsensors.coretemp_isa.temp1 @0 - lmsensors.coretemp_isa.temp1 @1 > 2
 And something interesting if you have performance problems
 with your Oracle database:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 // back to 30sec evaluations
@@ -532,7 +545,7 @@ The following \f(CBruleset\fR will emit exactly one message
 depending on the availability and value of the 1-minute load
 average.
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 delta = 1 minute;
@@ -554,7 +567,7 @@ The following rule will emit a message when some filesystem is more than
 75% full and is filling at a rate that if sustained would fill the
 filesystem to 100% in less than 30 minutes.
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 some_inst (
@@ -565,11 +578,11 @@ some_inst (
 .fi
 .ft 1
 .PP
-If the metric \f(CWmypmda.errors\fP counts errors then the following rule
+If the metric \f(CRmypmda.errors\fP counts errors then the following rule
 will emit a message if the rate of errors exceeds 1 per second provided
 the error count is less than 100.
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 mypmda.errors > 1 && instant mypmda.errors < 100
@@ -628,7 +641,7 @@ define the enumeration in each dimension.
 For example,
 .PP
 .in +4n
-.ft CW
+.ft CR
 kernel.percpu.cpu.user :foo :bar #cpu0 @0..2
 .ft R
 .in
@@ -673,7 +686,7 @@ operators:
 .TS
 box,center;
 c | c
-lf(CW) | l.
+lf(CR) | l.
 Operators	Explanation
 _
 + \- * /	Arithmetic
@@ -792,7 +805,7 @@ T}
 .PP
 For example, the expression below will be ``true'' for disks
 attached to controllers 2 or 3 performing more than 20 operations per second:
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 match_inst "^dks[23]d" disk.dev.total > 20;
@@ -859,8 +872,8 @@ Average value across all set members in the associated dimension
 T}
 .TE
 .PP
-The aggregate operators \f(CWcount_inst\fR, \f(CWcount_host\fR and
-\f(CWcount_sample\fR map from a logical expression to an arithmetic
+The aggregate operators \f(CRcount_inst\fR, \f(CRcount_host\fR and
+\f(CRcount_sample\fR map from a logical expression to an arithmetic
 expression of lower dimension by counting the number of set members
 for which the expression is true in the associated dimension.
 .PP
@@ -878,7 +891,7 @@ stomp	Send a STOMP message to a JMS server
 syslog	Append a message to system log file
 .TE
 .PP
-Multiple actions may be separated by the \f(CW&\fR and \f(CW|\fR
+Multiple actions may be separated by the \f(CR&\fR and \f(CR|\fR
 operators to specify respectively sequential execution (both
 actions are executed) and alternate execution (the second action
 will only be executed if the execution of the first action returns
@@ -922,7 +935,7 @@ and for host
 the instance
 .B puff
 makes the rule true, then the action
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 \&...
@@ -935,7 +948,7 @@ will execute
 with the argument string "Warning: mumble:grunt busy Warning: mumble:snort busy Warning: fumble:puff busy".
 .PP
 By comparison, if the action
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 \&...
@@ -970,9 +983,9 @@ command line option in particular) during rule development.
 .SH BOOLEAN EXPRESSIONS
 .B pmie
 expressions that have the semantics of a Boolean, e.g.
-\f(CWfoo.bar > 10\fR
+\f(CRfoo.bar > 10\fR
 or
-\f(CBsome_inst\f(CW ( my.table < 0 )
+\f(CBsome_inst\f(CR ( my.table < 0 )
 .ft R
 are assigned the values \f(CBtrue\fR or \f(CBfalse\fR or \f(CBunknown\fR.
 A value is \f(CBunknown\fR if one or more of the underlying metric values
@@ -1068,7 +1081,7 @@ Simple scale factors are constructed from the keywords:
 \f(CBsecond\fR, \f(CBsec\fR, \f(CBminute\fR, \f(CBmin\fR, \f(CBhour\f1,
 \f(CBbyte\fR, \f(CBKbyte\fR, \f(CBMbyte\fR, \f(CBGbyte\fR, \f(CBTbyte\f1,
 \f(CBcount\fR, \f(CBKcount\fR and \f(CBMcount\fR,
-and the operator \f(CW/\fR, for example ``\f(CBKbytes / hour\f1''.
+and the operator \f(CR/\fR, for example ``\f(CBKbytes / hour\f1''.
 .SH MACROS
 Macros are defined using expressions of the form:
 .PP
@@ -1087,7 +1100,7 @@ must be a constant expression, either a string
 (enclosed in double quotes) or an arithmetic expression optionally
 followed by a scale factor.
 .PP
-Macros are expanded when their name, prefixed by a dollar (\f(CW$\fR)
+Macros are expanded when their name, prefixed by a dollar (\f(CR$\fR)
 appears in an expression, and macros may be nested within a
 .I constexpr
 string.
@@ -1217,7 +1230,7 @@ the location of the JMS server host, port number, and username/password.
 .PP
 The format of this file is as follows:
 .PP
-.ft CW
+.ft CR
 .nf
 .in +0.5i
 host=messages.sgi.com   # this is the JMS server (required)
@@ -1253,6 +1266,122 @@ In this situation, where the STOMP connection to the JMS server
 has been severed, the
 .I stomp
 action will return a non-zero error value.
+.SH DIFFERENCES IN HOST AND ARCHIVE MODES
+When running in host mode, the
+\f(CBdelta\f1
+interval for each rule determines a real-time delay between rule
+evaluation, so
+.B pmie
+spends most if its time sleeping and waiting for the next scheduled
+rule evaluation.
+.PP
+When running in archive mode,
+.B pmie
+uses the
+\f(CBdelta\f1
+interval for each rule to determine how frequently the rules are evaluated
+against the archive data,
+but unlike host mode there are no real-time delays as the archive
+is ``replayed'' as fast as possible.
+.PP
+In archive mode when a rule predicate evaluates \f(CBtrue\fR then
+the action is modified, so that rather than posting to
+.I syslog
+or raising a visible
+.I alarm
+or running a
+.I shell
+command
+or sending a
+.I stomp
+message,
+.B pmie
+prints the name of the action, the timestamp from the archive when
+the rule predicate triggering the action was \f(CBtrue\fR
+and all of the arguments that would have been passed to the
+real action in host mode.
+.PP
+For example, given the rule:
+.br
+.in +0.5i
+.ft CR
+delta = 10 sec;
+.br
+kernel.all.nprocs > 10 * hinv.ncpu -> print "lotsaprocs:" " %v";
+.ft 1
+.in
+when run against an archive, the output appears as:
+.br
+.ft CR
+.in +0.5i
+.nf
+print Mon Sep  4 00:10:21 2017: lotsaprocs: 1292
+print Mon Sep  4 00:10:31 2017: lotsaprocs: 1294
+print Mon Sep  4 00:10:41 2017: lotsaprocs: 1291
+\&...
+.fi
+.in
+.ft 1
+.PP
+The rationale is that the context in which the action
+would have been executed (in host mode) was at a time in the past
+and the possibly on
+a different host (if the archive was collected from one host, but
+.B pmie
+is being run on a different host).
+So flooding
+.I syslog
+with misleading messages
+or an avalanche visual alarms
+or a lot of STOMP messages
+or a shell command that might not even work on the host where
+.B pmie
+is being run, are all examples of ``badness'' to be avoided.
+Rather the output is text in a regular format suitable for post-processing
+with a range of filters and performance analysis tools.
+.PP
+The output format can be changed using the
+.B \-o
+option which consists of literal characters with the following
+embedded ``meta-field'' tokens:
+.TP 4n
+\f(CB%a\fR
+The name of the action, e.g.
+.BR print ,
+.BR syslog ,
+etc.
+.TP 4n
+\f(CB%d\fR
+The date and time in
+.BR ctime (3)
+format when the action would have been executed.
+.TP 4n
+\f(CB%f\fR
+The name of the configuration file containing the action being
+executed, else
+.B <stdin>
+if the rules were read from standard input.
+.TP 4n
+\f(CB%l\fR
+The (approximate) line number in the configuration file for the action being
+executed.
+.TP 4n
+\f(CB%m\fR
+The message component of the action.
+.TP 4n
+\f(CB%u\fR
+The date and time when the action would have been executed in
+extended
+.BR ctime (3)
+format with microsecond precision for the time.
+.TP 4n
+\f(CB%%\fR
+A literal percent character.
+.PP
+The default output format is equivalent to a
+.I format
+of
+.BR "%a %d: %m" .
 .SH SIGNALS
 If
 .B pmie
@@ -1393,13 +1522,14 @@ a cross-platform dialog box.
 .BR pmcd (1),
 .BR pmconfirm (1),
 .BR pmdumplog (1),
-.BR pmieconf (1),
 .BR pmie_check (1),
+.BR pmieconf (1),
 .BR pmie_daily (1),
 .BR pminfo (1),
 .BR pmlogger (1),
 .BR pmval (1),
 .BR systemd (1),
+.BR ctime (3),
 .BR PMAPI (3),
 .BR pcp.conf (5),
 .BR pcp.env (5)

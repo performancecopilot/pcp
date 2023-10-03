@@ -18,6 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM	= zimbra
 LDIRT	= domain.h root pmns *.log
+LDIRT	+= runaszimbra
 
 PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
 PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)

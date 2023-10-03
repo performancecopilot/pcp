@@ -32,8 +32,6 @@ include $(BUILDRULES)
 
 default: build-me check_domain
 
-include $(BUILDRULES)
-
 ifeq "$(HAVE_PERL)" "true"
 build-me: $(MAN_PAGES)
 install: default

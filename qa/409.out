@@ -1,13 +1,13 @@
 QA output created by 409
-sample.event.param_64: pmFetch: End of PCP archive log
-sample.event.param_aggregate: pmFetch: End of PCP archive log
-sample.event.param_float: pmFetch: End of PCP archive log
-sample.event.param_u32: pmFetch: End of PCP archive log
-sample.event.param_32: pmFetch: End of PCP archive log
-sample.event.param_double: pmFetch: End of PCP archive log
-sample.event.param_string: pmFetch: End of PCP archive log
-sample.event.param_u64: pmFetch: End of PCP archive log
-sample.event.type: pmFetch: End of PCP archive log
+sample.event.param_64: pmFetch: End of PCP archive
+sample.event.param_aggregate: pmFetch: End of PCP archive
+sample.event.param_float: pmFetch: End of PCP archive
+sample.event.param_u32: pmFetch: End of PCP archive
+sample.event.param_32: pmFetch: End of PCP archive
+sample.event.param_double: pmFetch: End of PCP archive
+sample.event.param_string: pmFetch: End of PCP archive
+sample.event.param_u64: pmFetch: End of PCP archive
+sample.event.type: pmFetch: End of PCP archive
 
 sample.event.records
     value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]

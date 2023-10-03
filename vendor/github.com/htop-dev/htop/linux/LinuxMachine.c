@@ -27,6 +27,7 @@ in the source distribution for its full text.
 #include <time.h>
 
 #include "Compat.h"
+#include "Macros.h"
 #include "XUtils.h"
 #include "linux/LinuxMachine.h"
 #include "linux/Platform.h" // needed for GNU/hurd to get PATH_MAX  // IWYU pragma: keep
@@ -336,6 +337,9 @@ static void LinuxMachine_scanZramInfo(LinuxMachine* this) {
    this->zram.totalZram = totalZram / 1024;
    this->zram.usedZramComp = usedZramComp / 1024;
    this->zram.usedZramOrig = usedZramOrig / 1024;
+   if (this->zram.usedZramComp > this->zram.usedZramOrig) {
+      this->zram.usedZramComp = this->zram.usedZramOrig;
+   }
 }
 
 static void LinuxMachine_scanZfsArcstats(LinuxMachine* this) {
@@ -501,7 +505,8 @@ static void LinuxMachine_scanCPUTime(LinuxMachine* this) {
    char buffer[PROC_LINE_LENGTH + 1];
    while (fgets(buffer, sizeof(buffer), file)) {
       if (String_startsWith(buffer, "procs_running")) {
-         super->pl->runningTasks = strtoul(buffer + strlen("procs_running"), NULL, 10);
+         ProcessTable* pt = (ProcessTable*) super->processTable;
+         pt->runningTasks = strtoul(buffer + strlen("procs_running"), NULL, 10);
          break;
       }
    }
@@ -601,7 +606,7 @@ static void scanCPUFrequencyFromCPUinfo(LinuxMachine* this) {
 
          CPUData* cpuData = &(this->cpuData[cpuid + 1]);
          /* do not override sysfs data */
-         if (isnan(cpuData->frequency)) {
+         if (!isNonnegative(cpuData->frequency)) {
             cpuData->frequency = frequency;
          }
          numCPUsWithFrequency++;

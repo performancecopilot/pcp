@@ -74,7 +74,7 @@ _filter()
         -e '/pmResult/s/ .* numpmid/ ... numpmid/' \
         -e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
 	-e "s;$python_path;\$PCP_PYTHON_PROG;" \
-	-e "s;$python;python;" \
+	-e "s;$python_basename;python;" \
 	-e 's;137.3.[0-9][0-9]*;137.3.ID;' \
     #end
 }

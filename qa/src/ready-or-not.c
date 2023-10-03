@@ -83,7 +83,7 @@ smack(void)
 	    exit(1);
 	}
 	/* store NOTREADY-to-READY delay in msec */
-	smack_rp->vset[0]->vlist[0].value.lval = 5;
+	smack_rp->vset[0]->vlist[0].value.lval = 20;
     }
 
     if ((sts = pmStore(smack_rp)) < 0 && sts != PM_ERR_AGAIN) {
@@ -105,7 +105,7 @@ main(int argc, char **argv)
     pmDesc	desc;
     pmResult	*rp;
     pmHighResResult	*hrp;
-    struct timeval	delay = { 0, 5000 };
+    struct timeval	delay = { 0, 20000 };	/* 20msec pause */
 
     pmSetProgname(argv[0]);
 

@@ -3,7 +3,7 @@
  *
  * There is enough lookahead to enable use of '/' as both an arithmetic
  * and units operator.  Nested macro expansion is supported using a stack
- * of input contexts (see definition of LexIn in file syntax.y).
+ * of input contexts (see definition of LexIn in file lexicon.h).
  ***********************************************************************
  *
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -134,7 +134,6 @@ static LexEntry2 unitab[] = {
 static char	*token;			/* current token buffer */
 
 
-
 /***********************************************************************
  * local functions
  ***********************************************************************/
@@ -160,7 +159,9 @@ unwind(void)
 static int
 nextc(void)
 {
-    int      c = '\0';
+    int		c = '\0';
+    extern char	*configfile;
+    extern int	rule_lineno;
 
     if (lin) {
 	if (lin->lookin != lin->lookout) {
@@ -423,6 +424,7 @@ yylex(void)
     char	*p, *q;
     int		i;
     char	nbuf[LEX_MAX+1];	/* for getting macro name */
+    extern int	rule_lineno;
 
     /* token from previous invocation */
     if (ahead) {
@@ -784,6 +786,7 @@ yylex(void)
 	    if ((d = nextc()) == '>') {
 		if (pmDebugOptions.appl0)
 		    fprintf(stderr, "yylex() -> OPERATOR \"->\"\n");
+		rule_lineno = lin->lno;
 		return ARROW;
 	    }
 	    prevc(d);

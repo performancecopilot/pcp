@@ -1644,6 +1644,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 		| TOK_NAME TOK_ASSIGN TOK_GNAME
 		    {
 			metricspec_t	*mp;
+			int		picked = 0;
 			for (mp = walk_metric(W_START, METRIC_CHANGE_NAME, "name", 0); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_NAME, "name", 0)) {
 			    if (strcmp($3, mp->old_name) == 0) {
 				/* no change ... */
@@ -1662,8 +1663,11 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 				}
 				mp->new_name = $3;
 				mp->flags |= METRIC_CHANGE_NAME;
+				picked = 1;
 			    }
 			}
+			if (!picked)
+			    free($3);
 		    }
 		| TOK_TYPE TOK_ASSIGN TOK_TYPE_NAME
 		    {

@@ -1,12 +1,12 @@
 /*
+ * Copyright (c) 2013,2021,2023 Red Hat.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
- * Copyright (c) 2013,2021 Red Hat.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -263,7 +263,8 @@ bool OpenViewDialog::openView(const char *path)
 //  int			h_mode;
     int			version;
     QString		errmsg;
-    QRegExp		regex;
+    QRegularExpression	regex;
+    QRegularExpressionMatch match;
     int			sep = pmPathSeparator();
     int			sts = 0;
 
@@ -1024,7 +1025,11 @@ try_plot:
 			sts = 0;
 			if (inst_match_type == IM_MATCH ||
 			    inst_match_type == IM_NOT_MATCH) {
-			    sts = regex.indexIn(QString(namelist[nextinst]));
+			    match = regex.match(QString(namelist[nextinst]));
+			    if (match.hasMatch())
+			        sts = match.capturedStart(0);
+			    else
+			        sts = -1;
 			}
 			switch (inst_match_type) {
 			    case IM_MATCH:

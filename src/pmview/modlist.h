@@ -64,7 +64,7 @@ public:
 
     ~ModList();
 
-    ModList(SoQtViewer *viewer, SelCallBack selCB, 
+    ModList(SoQtViewer *viewer, SelCallBack __selCB, 
 	    SelInvCallBack selInvCB = NULL, SelInvCallBack deselInvCB = NULL);
 
     int size() const

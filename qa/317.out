@@ -25,7 +25,7 @@ units:     millisec (converting to time utilization)
 samples:   15
 interval:  1.00 sec
 
-pmval: pmFetch: Corrupted record in a PCP archive log
+pmval: pmFetch: Corrupted record in a PCP archive
 
 Verify no pmval+derived metrics coredump...
 Note: timezone set to local timezone of host "nas1" from archive
@@ -40,16 +40,16 @@ units:     millisec (converting to time utilization)
 samples:   15
 interval:  1.00 sec
 
-pmval: pmFetch: Corrupted record in a PCP archive log
+pmval: pmFetch: Corrupted record in a PCP archive
 
 Verify no pmie coredump...
 pmie: timezone set to local timezone from badarchives/logsummary-bug
-pmie: pmFetch failed: Corrupted record in a PCP archive log
+pmie: pmFetch failed: Corrupted record in a PCP archive
 
 Verify no pmie+derived metrics coredump...
 pmie: timezone set to local timezone from badarchives/logsummary-bug
-pmie: pmFetch failed: Corrupted record in a PCP archive log
+pmie: pmFetch failed: Corrupted record in a PCP archive
 
 Verify no pmrep coredump...
 Time,"kernel.all.cpu.wait.total","event.flags","event.missed"
-pmrep: Corrupted record in a PCP archive log
+pmrep: Corrupted record in a PCP archive

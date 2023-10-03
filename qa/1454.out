@@ -27,7 +27,7 @@ Specification error in configuration file (TMP.config)
 --- metric sample.long.million { value "1000000" -> "1000001" } ---
 Warning [TMP.config, line 1]
 Metric: sample.long.million (29.0.13): Type 32 not STRING, cannot change value
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 No changes
 
 == run-time errors ==
@@ -36,14 +36,14 @@ Botch: no \2 substring from regexp match
     regex: [0-9]+
     replacement: \2
 Archive "TMP" not created.
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: sample.string.bin (29.0.153)
 Value:		/[0-9]+/ -> "\2"
 
 == do it ==
 --- value "[0-9]+" -> "bin-&" ---
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: sample.string.bin (29.0.153)
 Value:		/[0-9]+/ -> "bin-&"
@@ -63,7 +63,7 @@ Note: timezone set to local timezone of host "bozo-vm.localdomain" from archive
         inst [900 or "bin-900"] value "bin-900"
 ...
 --- value /bin/ -> "foobar" ---
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: sample.string.bin (29.0.153)
 Value:		/[0-9]+/ -> "bin-&"
@@ -84,7 +84,7 @@ Note: timezone set to local timezone of host "bozo-vm.localdomain" from archive
         inst [900 or "bin-900"] value "foobar-900"
 ...
 --- value /(.*)-([0-9]00)/ -> "\2-\1" ---
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: sample.string.bin (29.0.153)
 Value:		/[0-9]+/ -> "bin-&"
@@ -106,7 +106,7 @@ Note: timezone set to local timezone of host "bozo-vm.localdomain" from archive
         inst [900 or "bin-900"] value "900-foobar"
 ...
 --- value "^(.)00-(.*)" -> /"\101-\2"/ ---
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: sample.string.bin (29.0.153)
 Value:		/[0-9]+/ -> "bin-&"
@@ -129,7 +129,7 @@ Note: timezone set to local timezone of host "bozo-vm.localdomain" from archive
         inst [900 or "bin-900"] value ""901-foobar""
 ...
 --- value /"/ -> "+" ---
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: sample.string.bin (29.0.153)
 Value:		/[0-9]+/ -> "bin-&"
@@ -153,7 +153,7 @@ Note: timezone set to local timezone of host "bozo-vm.localdomain" from archive
         inst [900 or "bin-900"] value "+901-foobar""
 ...
 --- value /\+/ -> /"/ ---
-PCP Archive Log Rewrite Specifications Summary
+PCP Archive Rewrite Specifications Summary
 
 Metric: sample.string.bin (29.0.153)
 Value:		/[0-9]+/ -> "bin-&"

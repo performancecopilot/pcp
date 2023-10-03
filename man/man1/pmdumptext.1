@@ -103,7 +103,7 @@ instance if more than one is stated.
 For example, some legal metrics are:
 .PP
 .in 1.5i
-.ft CW
+.ft CR
 .nf
 kernel.all.cpu.idle
 myhost:kernel.all.cpu.idle[cpu0,cpu3]
@@ -115,7 +115,7 @@ myhost:kernel.all.cpu.idle[cpu0,cpu3]
 When a
 .I metric
 does not contain a host: or archive/ prefix, e.g.
-\f(CWkernel.all.cpu.idle\fP above, then the source of the metric
+\f(CRkernel.all.cpu.idle\fP above, then the source of the metric
 is determined by the following rules:
 .PD 0
 .TP 4n
@@ -163,7 +163,7 @@ the file system that is used could be dumped with this
 .IR config :
 .PP
 .in 1.5i
-.ft CW
+.ft CR
 .nf
 filesys.used[/dev/root] 19654.37
 .fi
@@ -470,7 +470,7 @@ abbreviated to ``util'' and the values are normalized to the range zero to one.
 o To examine the load on two hosts foo and bar, simultaneously:
 .PP
 .in 0.5i
-.ft CW
+.ft CR
 .nf
 $ pmdumptext \-il 'foo:kernel.all.load[1]' 'bar:kernel.all.load[1]'
              Source        foo     bar
@@ -484,7 +484,7 @@ Wed Jul 30 11:37:55      0.309   0.409
 o To output the memory utilization on a remote host called bong with a simpler timestamp:
 .PP
 .in 0.5i
-.ft CW
+.ft CR
 .nf
 $ pmdumptext \-imu \-h bong \-f '%H:%M:%S' mem.util
   Metric        kernel  fs_ctl  _dirty  _clean    free    user
@@ -502,7 +502,7 @@ o To dump all metrics collected in an archive at a 30 second interval to a file
 for processing by another tool:
 .PP
 .in 0.5i
-.ft CW
+.ft CR
 .nf
 $ pminfo \-a archive | pmdumptext \-t 30s \-m \-a archive > outfile
 .fi

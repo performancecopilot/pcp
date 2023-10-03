@@ -20,8 +20,7 @@
 \f3pmafm\f1 \f2folioname\f1
 [\f2command\f1 [\f2arg\f1 ...]]
 .SH DESCRIPTION
-A collection of one or more Performance Co-Pilot (PCP) archive
-logs may be combined with a control file to produce a PCP archive folio.
+A collection of one or more Performance Co-Pilot (PCP) archives may be combined with a control file to produce a PCP archive folio.
 Archive folios are created using either
 .BR mkaf (1)
 or the interactive ``record mode'' services of PCP clients like
@@ -30,7 +29,7 @@ or the interactive ``record mode'' services of PCP clients like
 .B pmafm
 provides a number of services that may be used to process folios.
 In particular, it provides support for execution of PCP tools using one
-or more of the component archive logs within an archive folio.
+or more of the component archives within an archive folio.
 .PP
 The target folio is identified by the folio control file
 .IR folioname .
@@ -111,7 +110,7 @@ Execute the known PCP
 once per selected archive.  For example, the command
 .br
 .ti +5n
-.ft CW
+.ft CR
 repeat pmval \-t60 kernel.all.load
 .br
 would run

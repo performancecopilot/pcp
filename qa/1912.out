@@ -1,0 +1,31 @@
+QA output created by 1912
+
+-- %a %d: %m --
+pmie: timezone set to local timezone from archives/wrap
+print Mon Dec  1 16:08:22 1997: yippee 1144454022
+
+-- %% %m % --
+pmie: timezone set to local timezone from archives/wrap
+% yippee 1144454022 %
+
+-- %%a=%a= %%d=%d= %%f=%f= %%l=%l= %%m=%m= %%u=%u= --
+pmie: timezone set to local timezone from archives/wrap
+%a=print= %d=Mon Dec  1 16:08:22 1997= %f=TMP.config= %l=4= %m=yippee 1144454022= %u=Mon Dec  1 16:08:22.423728 1997=
+
+-- %m --
+pmie: timezone set to local timezone from archives/wrap
+yippee 1144454022
+
+-- prologue %M epilogue --
+pmie: timezone set to local timezone from archives/wrap
+Warning: unrecognized field specifier '%M' in format
+prologue %M epilogue
+
+-- % --
+pmie: timezone set to local timezone from archives/wrap
+%
+
+-- misc tests --
+pmie: timezone set to local timezone from archives/wrap
+[<stdin>:4] yippee 1144454022
+[<stdin>:9] yippee 1144454022

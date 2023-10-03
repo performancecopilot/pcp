@@ -852,16 +852,41 @@ __pmSecureServerNegotiation(int fd, int *strength)
     int sts, err;
 
     if (pmDebugOptions.tls)
-	fprintf(stderr, "%s: entered\n", "__pmSecureServerNegotiation");
+	fprintf(stderr, "__pmSecureServerNegotiation: entered\n");
 
     if (__pmDataIPC(fd, &ss) < 0)
 	return -EOPNOTSUPP;
 
     ERR_clear_error();	/* clear/reset for a new handshake */
 
+    /*
+     * one-trip initialization to trace TLS messages send/received
+     * from ssl library when -Dtls,desperate in play
+     */
+    if (pmDebugOptions.tls && pmDebugOptions.desperate) {
+#ifdef HAVE_SSL_TRACE
+	static BIO	*mybio = NULL;
+	PM_INIT_LOCKS();
+	PM_LOCK(secureclient_lock);
+	if (mybio == NULL) {
+	    /* hook into library's default callback */
+	    SSL_set_msg_callback(ss.ssl, SSL_trace);
+	    /* make diags from SSL_trace() go to our stderr */
+	    mybio = BIO_new_fp(stderr, 0);
+	    SSL_set_msg_callback_arg(ss.ssl, mybio);
+	}
+	PM_UNLOCK(secureclient_lock);
+#else
+	fprintf(stderr, "__pmSecureServerNegotiation: Warning: no SSL_trace() support in libssl\n");
+#endif
+    }
+
     if ((sts = SSL_accept(ss.ssl)) <= 0) {
 	/* handshake failed, return an appropriate error */
-	switch ((err = SSL_get_error(ss.ssl, sts))) {
+	err = SSL_get_error(ss.ssl, sts);
+	if (pmDebugOptions.tls)
+	    fprintf(stderr, "__pmSecureServerNegotiation: SSL_accept -> %d (SSL_get_error -> %d)\n", sts, err);
+	switch (err) {
 	case SSL_ERROR_ZERO_RETURN:
 	    return -ENOTCONN;
 	case SSL_ERROR_NONE:
@@ -1206,8 +1231,8 @@ __pmSecureServerIPCFlags(int fd, int flags, void *ctx)
     int verify;
     int sts;
 
-    if (pmDebugOptions.tls)
-	fprintf(stderr, "%s: entered\n", "__pmSecureServerIPCFlags");
+    if (pmDebugOptions.auth)
+	fprintf(stderr, "__pmSecureServerIPCFlags: entered\n");
 
     if ((flags & PDU_FLAG_COMPRESS) != 0)
 	return -EOPNOTSUPP;
@@ -1224,6 +1249,8 @@ __pmSecureServerIPCFlags(int fd, int flags, void *ctx)
 	if ((ss.ssl = SSL_new(context)) == NULL) {
 	    sts = PM_ERR_NOTCONN;
 	    sendSecureAck(fd, flags, sts);
+	    if (sts < 0 && pmDebugOptions.auth)
+		fprintf(stderr, "__pmSecureServerIPCFlags: sendSecureAck -> %d\n", sts);
 	    return sts;
 	}
 	SSL_set_mode(ss.ssl, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
@@ -1246,8 +1273,7 @@ __pmSecureServerIPCFlags(int fd, int flags, void *ctx)
 	sendSecureAck(fd, flags, 0);
 
 	if (pmDebugOptions.tls)
-	    fprintf(stderr, "%s: switching server fd=%d to TLS mode\n",
-			    "__pmSecureServerIPCFlags", fd);
+	    fprintf(stderr, "__pmSecureServerIPCFlags: switching server fd=%d to TLS mode\n", fd);
 
 	/* save ssl changes back into the IPC table */
 	__pmSetDataIPC(fd, (void *)&ss);
@@ -1255,8 +1281,11 @@ __pmSecureServerIPCFlags(int fd, int flags, void *ctx)
 
     if ((flags & PDU_FLAG_AUTH) != 0) {
 	sts = __pmInitAuthServer();
-	if (sts < 0)
+	if (sts < 0) {
+	    if (pmDebugOptions.auth)
+		fprintf(stderr, "__pmSecureServerIPCFlags: __pmInitAuthServer -> %d\n", sts);
 	    return sts;
+	}
 
 	/**
 	 * SASL stores username@hostname in a SASL DB (see sasldblistusers2(8))
@@ -1273,13 +1302,19 @@ __pmSecureServerIPCFlags(int fd, int flags, void *ctx)
 				NULL, NULL, NULL, /*iplocal,ipremote,callbacks*/
 				0, &ss.saslConn);
 	if (pmDebugOptions.auth)
-	    fprintf(stderr, "%s:%s SASL server: %d\n",
-			    __FILE__, "__pmSecureServerIPCFlags", saslsts);
-	if (saslsts != SASL_OK && saslsts != SASL_CONTINUE)
-	    return __pmSecureSocketsError(saslsts);
+	    fprintf(stderr, "__pmSecureServerIPCFlags: SASL server: %d\n", saslsts);
+	if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {
+	    sts = __pmSecureSocketsError(saslsts);
+	    if (sts < 0 && pmDebugOptions.auth)
+		fprintf(stderr, "__pmSecureServerIPCFlags: __pmSecureSocketsError -> %d\n", sts);
+	    return sts;
+	}
 
 	/* save saslConn changes back into the IPC table */
-	return __pmSetDataIPC(fd, (void *)&ss);
+	sts = __pmSetDataIPC(fd, (void *)&ss);
+	if (sts < 0 && pmDebugOptions.auth)
+	    fprintf(stderr, "__pmSecureServerIPCFlags: __pmSetDataIPC -> %d\n", sts);
+	return sts;
     }
 
     return 0;

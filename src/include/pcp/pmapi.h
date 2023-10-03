@@ -170,7 +170,7 @@ typedef struct pmDesc {
 #define PM_ERR_VALUE		(-PM_ERR_BASE-6)    /* Missing metric value(s) */
 /* retired PM_ERR_LICENSE (-PM_ERR_BASE-7) Current PCP license does not permit this operation */
 #define PM_ERR_TIMEOUT		(-PM_ERR_BASE-8)    /* Timeout waiting for a response from PMCD */
-#define PM_ERR_NODATA		(-PM_ERR_BASE-9)    /* Empty archive log file */
+#define PM_ERR_NODATA		(-PM_ERR_BASE-9)    /* Empty archive file */
 #define PM_ERR_RESET		(-PM_ERR_BASE-10)   /* PMCD reset or configuration change */
 /* retired PM_ERR_FILE (-PM_ERR_BASE-11) Cannot locate a file */
 #define PM_ERR_NAME		(-PM_ERR_BASE-12)   /* Unknown metric name */
@@ -186,17 +186,17 @@ typedef struct pmDesc {
 /* retired PM_ERR_NOASCII (-PM_ERR_BASE-22) ASCII format not supported for this PDU */
 #define PM_ERR_EOF		(-PM_ERR_BASE-23)   /* IPC channel closed */
 #define PM_ERR_NOTHOST		(-PM_ERR_BASE-24)   /* Operation requires context with host source of metrics */
-#define PM_ERR_EOL		(-PM_ERR_BASE-25)   /* End of PCP archive log */
+#define PM_ERR_EOL		(-PM_ERR_BASE-25)   /* End of PCP archive */
 #define PM_ERR_MODE		(-PM_ERR_BASE-26)   /* Illegal mode specification */
-#define PM_ERR_LABEL		(-PM_ERR_BASE-27)   /* Illegal label record at start of a PCP archive log file */
-#define PM_ERR_LOGREC		(-PM_ERR_BASE-28)   /* Corrupted record in a PCP archive log */
+#define PM_ERR_LABEL		(-PM_ERR_BASE-27)   /* Illegal label record at start of a PCP archive file */
+#define PM_ERR_LOGREC		(-PM_ERR_BASE-28)   /* Corrupted record in a PCP archive */
 #define PM_ERR_NOTARCHIVE	(-PM_ERR_BASE-29)   /* Operation requires context with archive source of metrics */
-#define PM_ERR_LOGFILE          (-PM_ERR_BASE-30)   /* Missing PCP archive log file */
+#define PM_ERR_LOGFILE          (-PM_ERR_BASE-30)   /* Missing PCP archive file */
 #define PM_ERR_NOCONTEXT	(-PM_ERR_BASE-31)   /* Attempt to use an illegal context */
 #define PM_ERR_PROFILESPEC	(-PM_ERR_BASE-32)   /* NULL pmInDom with non-NULL instlist */
-#define PM_ERR_PMID_LOG		(-PM_ERR_BASE-33)   /* Metric not defined in the PCP archive log */
-#define PM_ERR_INDOM_LOG	(-PM_ERR_BASE-34)   /* Instance domain identifier not defined in the PCP archive log */
-#define PM_ERR_INST_LOG		(-PM_ERR_BASE-35)   /* Instance identifier not defined in the PCP archive log */
+#define PM_ERR_PMID_LOG		(-PM_ERR_BASE-33)   /* Metric not defined in the PCP archive */
+#define PM_ERR_INDOM_LOG	(-PM_ERR_BASE-34)   /* Instance domain identifier not defined in the PCP archive */
+#define PM_ERR_INST_LOG		(-PM_ERR_BASE-35)   /* Instance identifier not defined in the PCP archive */
 #define PM_ERR_NOPROFILE	(-PM_ERR_BASE-36)   /* Missing profile - protocol botch */
 #define	PM_ERR_NOAGENT		(-PM_ERR_BASE-41)   /* No pmcd agent for domain of request */
 #define PM_ERR_PERMISSION	(-PM_ERR_BASE-42)   /* No permission to perform requested operation */
@@ -305,8 +305,7 @@ PCP_CALL extern int pmLookupDescs(int, pmID *, pmDesc *);
 /*
  * Return the internal instance identifier, from the current context,
  * given an instance domain and the external instance name.
- * Archive variant scans the union of the indom entries in the archive
- * log.
+ * Archive variant scans the union of the indom entries in the archive.
  */
 PCP_CALL extern int pmLookupInDom(pmInDom, const char *);
 PCP_CALL extern int pmLookupInDomArchive(pmInDom, const char *);
@@ -314,8 +313,7 @@ PCP_CALL extern int pmLookupInDomArchive(pmInDom, const char *);
 /*
  * Return the external instance name, from the current context,
  * given an instance domain and the internal instance identifier.
- * Archive variant scans the union of the indom entries in the archive
- * log.
+ * Archive variant scans the union of the indom entries in the archive.
  */
 PCP_CALL extern int pmNameInDom(pmInDom, int, char **);
 PCP_CALL extern int pmNameInDomArchive(pmInDom, int, char **);
@@ -324,8 +322,7 @@ PCP_CALL extern int pmNameInDomArchive(pmInDom, int, char **);
  * Return all of the internal instance identifiers (instlist) and external
  * instance names (namelist) for the given instance domain in the current
  * context.
- * Archive variant returns the union of the indom entries in the archive
- * log.
+ * Archive variant returns the union of the indom entries in the archive.
  */
 PCP_CALL extern int pmGetInDom(pmInDom, int **, char ***);
 PCP_CALL extern int pmGetInDomArchive(pmInDom, int **, char ***);
@@ -366,7 +363,8 @@ PCP_CALL extern int pmNewContext(int, const char *);
 #define PM_CTXFLAG_AUTH		(1U<<13)/* make authenticated connection */
 #define PM_CTXFLAG_CONTAINER	(1U<<14)/* container connection attribute */
 					/* don't check V3 archive features */
-#define PM_CTXFLAG_NO_FEATURE_CHECK	(1U<<15)
+#define PM_CTXFLAG_NO_FEATURE_CHECK	(1U<<15) /* don't check features in label record */
+#define PM_CTXFLAG_METADATA_ONLY	(1U<<16) /* only open .meta file of archive */
 
 /*
  * Duplicate current context -- returns handle to new one for pmUseContext()
@@ -633,7 +631,7 @@ PCP_CALL extern void pmFreeLabelSets(pmLabelSet *, int);
 /*
  * struct timeval is sometimes 2 x 64-bit ... for backwards compatibility
  * we use a 2 x 32-bit format for down-rev PDUs, and on-disk in version 2
- * archive logs.  Current PDUs and on-disk format version 3 do not use 32
+ * archives.  Current PDUs and on-disk format version 3 do not use 32
  * bit seconds in timestamps.
  */
 typedef struct pmTimeval {
@@ -647,7 +645,7 @@ typedef struct pmTimespec {
 } pmTimespec;
 
 /*
- * Label Record at the start of every log file - as exported above
+ * Label Record at the start of every archive file - as exported above
  * the PMAPI ...
  * NOTE	that the struct timeval means we have another struct (__pmLogLabel)
  *	for internal use that has a __pmTimestamp in place of the struct
@@ -673,17 +671,17 @@ typedef struct pmTimespec {
 #define PM_LOG_FEATURES		(PM_LOG_FEATURE_NONE | PM_LOG_FEATURE_QA)
 
 typedef struct pmLogLabel {
-    int		ll_magic;	/* PM_LOG_MAGIC | log format version no. */
+    int		ll_magic;	/* PM_LOG_MAGIC | archive format version no. */
     pid_t	ll_pid;				/* PID of logger */
-    struct timeval	ll_start;		/* start of this log */
+    struct timeval	ll_start;		/* start of this archive */
     char	ll_hostname[PM_LOG_MAXHOSTLEN];	/* name of collection host */
     char	ll_tz[PM_TZ_MAXLEN];		/* $TZ at collection host */
 } pmLogLabel;
 
 typedef struct pmHighResLogLabel {
-    int		magic;	/* PM_LOG_MAGIC | log format version no. */
+    int		magic;	/* PM_LOG_MAGIC | archive format version no. */
     pid_t	pid;		/* PID of logger */
-    struct timespec start;	/* start of this log */
+    struct timespec start;	/* start of this archive */
     char	hostname[PM_MAX_HOSTNAMELEN];	/* collection host full name */
     char	timezone[PM_MAX_TIMEZONELEN];	/* generic, squashed $TZ */
     char	zoneinfo[PM_MAX_ZONEINFOLEN];	/* local platform $TZ */
@@ -886,7 +884,7 @@ PCP_CALL extern int pmGetVersion(void);
 			"align sample times on natural boundaries" }
 #define PMLONGOPT_ARCHIVE	"archive"
 #define PMOPT_ARCHIVE	{ PMLONGOPT_ARCHIVE,	1, 'a',	"FILE", \
-			"metrics source is a PCP log archive" }
+			"metrics source is a PCP archive" }
 #define PMLONGOPT_DEBUG		"debug"
 #define PMOPT_DEBUG	{ PMLONGOPT_DEBUG,	1, 'D',	"DBG", \
 			NULL }
@@ -1220,7 +1218,7 @@ typedef struct {
     int	context;	/* Changes to PMAPI contexts */
     int	indom;		/* Instance domain operations */
     int	pdubuf;		/* PDU buffer operations */
-    int	log;		/* Archive log manipulations */
+    int	log;		/* Archive manipulations */
     int	logmeta;	/* Archive metadata operations */
     int	optfetch;	/* optFetch magic */
     int	af;		/* Asynchronous event scheduling */

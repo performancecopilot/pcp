@@ -1,15 +1,15 @@
 /*
  * Linux /proc/vmstat metrics cluster
  *
- * Copyright (c) 2013-2014,2016-2017,2020-2021 Red Hat.
+ * Copyright (c) 2013-2014,2016-2017,2020-2021,2023 Red Hat.
  * Copyright (c) 2007,2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -246,6 +246,8 @@ static struct {
      .offset = &_pm_proc_vmstat.pgrefill_normal },
     { .field = "pgrotated",
      .offset = &_pm_proc_vmstat.pgrotated },
+    { .field = "pgscan_anon",
+     .offset = &_pm_proc_vmstat.pgscan_anon },
     { .field = "pgscan_direct",
      .offset = &_pm_proc_vmstat.pgscan_direct },
     { .field = "pgscan_direct_dma",
@@ -260,6 +262,8 @@ static struct {
      .offset = &_pm_proc_vmstat.pgscan_direct_normal },
     { .field = "pgscan_direct_throttle",
      .offset = &_pm_proc_vmstat.pgscan_direct_throttle },
+    { .field = "pgscan_file",
+     .offset = &_pm_proc_vmstat.pgscan_file },
     { .field = "pgscan_kswapd",
      .offset = &_pm_proc_vmstat.pgscan_kswapd },
     { .field = "pgscan_kswapd_dma",
@@ -272,6 +276,8 @@ static struct {
      .offset = &_pm_proc_vmstat.pgscan_kswapd_movable },
     { .field = "pgscan_kswapd_normal",
      .offset = &_pm_proc_vmstat.pgscan_kswapd_normal },
+    { .field = "pgsteal_anon",
+     .offset = &_pm_proc_vmstat.pgsteal_anon },
     { .field = "pgsteal_direct",
      .offset = &_pm_proc_vmstat.pgsteal_direct },
     { .field = "pgsteal_direct_dma",

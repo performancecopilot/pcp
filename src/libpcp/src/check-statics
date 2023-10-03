@@ -443,6 +443,7 @@ secureconnect.o
     common_callbacks		# const
     setup			# single-threaded
     tls				# guarded by secureclient_lock mutex
+    ?mybio			# guarded by secureclient_lock mutex
 optfetch.o
     optfetch_lock		# local mutex
     optcost			# guarded by optfetch_lock mutex

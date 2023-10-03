@@ -164,7 +164,7 @@ static Htop_Reaction Platform_actionSetIOPriority(State* st) {
    const void* set = Action_pickFromVector(st, ioprioPanel, 20, true);
    if (set) {
       IOPriority ioprio2 = IOPriorityPanel_getIOPriority(ioprioPanel);
-      bool ok = MainPanel_foreachProcess(st->mainPanel, LinuxProcess_setIOPriority, (Arg) { .i = ioprio2 }, NULL);
+      bool ok = MainPanel_foreachRow(st->mainPanel, LinuxProcess_rowSetIOPriority, (Arg) { .i = ioprio2 }, NULL);
       if (!ok) {
          beep();
       }
@@ -179,7 +179,7 @@ static bool Platform_changeAutogroupPriority(MainPanel* panel, int delta) {
       return false;
    }
    bool anyTagged;
-   bool ok = MainPanel_foreachProcess(panel, LinuxProcess_changeAutogroupPriorityBy, (Arg) { .i = delta }, &anyTagged);
+   bool ok = MainPanel_foreachRow(panel, LinuxProcess_rowChangeAutogroupPriorityBy, (Arg) { .i = delta }, &anyTagged);
    if (!ok)
       beep();
    return anyTagged;
@@ -291,12 +291,12 @@ err:
    *fifteen = NAN;
 }
 
-int Platform_getMaxPid(void) {
+pid_t Platform_getMaxPid(void) {
+   pid_t maxPid = 4194303;
    FILE* file = fopen(PROCDIR "/sys/kernel/pid_max", "r");
    if (!file)
-      return -1;
+      return maxPid;
 
-   int maxPid = 4194303;
    int match = fscanf(file, "%32d", &maxPid);
    (void) match;
    fclose(file);
@@ -322,23 +322,26 @@ double Platform_setCPUValues(Meter* this, unsigned int cpu) {
       v[CPU_METER_KERNEL]  = cpuData->systemPeriod / total * 100.0;
       v[CPU_METER_IRQ]     = cpuData->irqPeriod / total * 100.0;
       v[CPU_METER_SOFTIRQ] = cpuData->softIrqPeriod / total * 100.0;
+      this->curItems = 5;
+
       v[CPU_METER_STEAL]   = cpuData->stealPeriod / total * 100.0;
       v[CPU_METER_GUEST]   = cpuData->guestPeriod / total * 100.0;
-      v[CPU_METER_IOWAIT]  = cpuData->ioWaitPeriod / total * 100.0;
-      this->curItems = 8;
-      percent = v[CPU_METER_NICE] + v[CPU_METER_NORMAL] + v[CPU_METER_KERNEL] + v[CPU_METER_IRQ] + v[CPU_METER_SOFTIRQ];
       if (settings->accountGuestInCPUMeter) {
-         percent += v[CPU_METER_STEAL] + v[CPU_METER_GUEST];
+         this->curItems = 7;
       }
+
+      v[CPU_METER_IOWAIT]  = cpuData->ioWaitPeriod / total * 100.0;
    } else {
       v[CPU_METER_KERNEL] = cpuData->systemAllPeriod / total * 100.0;
       v[CPU_METER_IRQ] = (cpuData->stealPeriod + cpuData->guestPeriod) / total * 100.0;
       this->curItems = 4;
-      percent = v[CPU_METER_NICE] + v[CPU_METER_NORMAL] + v[CPU_METER_KERNEL] + v[CPU_METER_IRQ];
    }
-   percent = CLAMP(percent, 0.0, 100.0);
-   if (isnan(percent)) {
-      percent = 0.0;
+
+   percent = sumPositiveValues(v, this->curItems);
+   percent = MINIMUM(percent, 100.0);
+
+   if (settings->detailedCPUTime) {
+      this->curItems = 8;
    }
 
    v[CPU_METER_FREQUENCY] = cpuData->frequency;
@@ -415,7 +418,7 @@ void Platform_setZramValues(Meter* this) {
 
    this->total = lhost->zram.totalZram;
    this->values[ZRAM_METER_COMPRESSED] = lhost->zram.usedZramComp;
-   this->values[ZRAM_METER_UNCOMPRESSED] = lhost->zram.usedZramOrig;
+   this->values[ZRAM_METER_UNCOMPRESSED] = lhost->zram.usedZramOrig - lhost->zram.usedZramComp;
 }
 
 void Platform_setZfsArcValues(Meter* this) {
@@ -842,7 +845,7 @@ static void Platform_Battery_getSysData(double* percent, ACPresence* isOnAC) {
             }
          }
 
-         if (!now && full && !isnan(capacityLevel))
+         if (!now && full && isNonnegative(capacityLevel))
             totalRemain += capacityLevel * fullCharge;
 
       } else if (type == AC) {
@@ -882,12 +885,12 @@ void Platform_getBattery(double* percent, ACPresence* isOnAC) {
 
    if (Platform_Battery_method == BAT_PROC) {
       Platform_Battery_getProcData(percent, isOnAC);
-      if (isnan(*percent))
+      if (!isNonnegative(*percent))
          Platform_Battery_method = BAT_SYS;
    }
    if (Platform_Battery_method == BAT_SYS) {
       Platform_Battery_getSysData(percent, isOnAC);
-      if (isnan(*percent))
+      if (!isNonnegative(*percent))
          Platform_Battery_method = BAT_ERR;
    }
    if (Platform_Battery_method == BAT_ERR) {
@@ -1067,7 +1070,7 @@ bool Platform_init(void) {
       char lineBuffer[256];
       while (fgets(lineBuffer, sizeof(lineBuffer), fd)) {
          // detect lxc or overlayfs and guess that this means we are running containerized
-         if (String_startsWith(lineBuffer, "lxcfs /proc") || String_startsWith(lineBuffer, "overlay ")) {
+         if (String_startsWith(lineBuffer, "lxcfs /proc") || String_startsWith(lineBuffer, "overlay / overlay")) {
             Running_containerized = true;
             break;
          }

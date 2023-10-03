@@ -84,3 +84,4 @@ then
 fi
 
 eval pmlogrewrite $debug $vflag $std_config $config "$1" "$2"
+status=$?

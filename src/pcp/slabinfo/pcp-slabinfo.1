@@ -15,69 +15,64 @@
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
 .\"
-
 .TH PCP-SLABINFO 1 "PCP" "Performance Co-Pilot"
-
 .SH NAME
 \fBpcp-slabinfo\fP \- Report statistics for kernel slab allocator statistics
-
 .SH SYNOPSIS
 \fBpcp\fP [\fBpcp options\fP] \fBslabinfo\fP [\fB-s\fP \fBsamples\fP] [\fB-a\fP \fBarchive\fP] [\fB-Z\fP \fB--timezone\fP] [\fB-z\fP \fB--hostzone\fP] [\fB-V\fP \fBVersion\fP]
-
 .SH DESCRIPTION
-The \fBpcp-slabinfo\fP command is used for viewing different stats related to slab. It helps users analyze useful information related to the slab allocator. The information includes the total number of objects that are currently active, allocated objects, pages per slab, etc. By default, \fBpcp-slabinfo\fP reports live data for the local host.
-
+The \fBpcp-slabinfo\fP command is used for viewing different stats related to slab.
+It helps users analyze useful information related to the slab allocator.
+The information includes the total number of objects that are currently active, allocated objects, pages per slab, etc.
+By default, \fBpcp-slabinfo\fP reports live data for the local host.
+.PP
 The statistics shown are as follows:
-
 .TS
 lfB  lfB 
 l    lx.
-HEADER          DESCRIPTION
-_               _
-active_objs     The number of objects that are currently active (i.e., in use)
-num_objs        The total number of allocated objects (i.e., objects that are both in use and not in use).
-objsize         The size of objects in this slab, in bytes.
-objperslab      The number of objects stored in each slab.
-pagesperslab    The number of pages allocated for each slab
-active_slabs    The number of active slabs.
-num_slabs       The total number of slabs.
+HEADER	DESCRIPTION
+_	_
+active_objs	T{
+.ad l
+The number of objects that are currently active (i.e., in use)
+T}
+num_objs	T{
+.ad l
+The total number of allocated objects (i.e. objects that are both in use and not in use).
+T}
+objsize	The size of objects in this slab, in bytes.
+objperslab	The number of objects stored in each slab.
+pagesperslab	The number of pages allocated for each slab
+active_slabs	The number of active slabs.
+num_slabs	The total number of slabs.
 .TE
-
 .SH OPTIONS
 .TP
 \fB-a\fP, \fB\-\-archive\fP
 Fetch /proc/slabinfo for a specified archive file
-
 .TP
 \fB-s\fP, \fB\-\-samples\fP
 Get the slabinfo for the specified number of samples count
-
 .TP
 \fB-z\fP, \fB\-\-hostzone\fP
 Set the reporting timezone to the local time of metrics source
-
 .TP
 \fB-Z\fP, \fB\-\-timezone\fP
 Set the reporting timezone
-
 .TP
 \fB-V\fP, \fB\-\-version\fP
 Display the version number and exit.
-
 .TP
 \fB-?\fP, \fB\-\-help\fP
 Display the usage message and exit.
-
 .SH NOTES
 \fBpcp-slabinfo\fP collects information from \fI/proc/slabinfo\fP and aims to be command-line and output compatible with it.
-
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize the file and directory names used by PCP. On each installation, the file \fI/etc/pcp.conf\fP contains the local values for these variables. The \fB$PCP_CONF\fP variable may be used to specify an alternative configuration file, as described in \fBpcp.conf\fP(5).
-
+.PP
 For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
-
 .SH SEE ALSO
-.BR PCPIntro(1),
-.BR pcp(1),
-.BR pmParseInterval(3),
-.BR environ(7).
+.BR PCPIntro (1),
+.BR pcp (1),
+.BR pmParseInterval (3),
+.BR environ (7).

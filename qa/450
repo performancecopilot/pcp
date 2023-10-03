@@ -41,7 +41,7 @@ pmval -U $tmp.out sample.drift 2>&1 \
 	-e '/^samples:/d' \
 	-e '/^interval:/d' \
 	-e '/No values available/d' \
-	-e '/End of PCP archive log/d' \
+	-e '/End of PCP archive/d' \
 	-e 's/  *[0-9][0-9]*$/  NUMBER/' \
 	-e 's/^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]*[0-9]/TIMESTAMP/'
 

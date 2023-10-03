@@ -7,7 +7,7 @@ Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
 Check bpftrace metrics have appeared ... 7 metrics and X values
 
-=== bpftrace script without variabes ===
+=== bpftrace script without variables ===
 "error": "no bpftrace variables or printf statements found, please include at least one variable or printf statement in your script"
 
 === invalid probe ===

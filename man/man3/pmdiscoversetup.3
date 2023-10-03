@@ -74,7 +74,7 @@ The
 .B pmDiscover
 API services dynamically discover, monitor and manage directories of PCP archives as they
 are created, written to, compressed and eventually deleted.
-The underlying archive life-cycle is normally managed by the PCP log management infrustructure (see
+The underlying archive life-cycle is normally managed by the PCP archive management infrustructure (see
 .BR pmlogger_daily (1)).
 Discovered archives that are active (currently being written) are "log-tailed" to extract near live/real-time
 performance data which is then passed off via registered callbacks for further processing, e.g. to add the data to a
@@ -152,7 +152,7 @@ Prototypes for these callbacks can be found in the
 .B pmwebapi.h
 header.
 The callbacks will be made asynchronously, as archives are discovered or deleted
-and as new data is written to active archive log volume and metadata files.
+and as new data is written to active archive volume and metadata files.
 .P
 In the case of
 .BR pmproxy (1),

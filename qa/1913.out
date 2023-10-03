@@ -1,0 +1,95 @@
+QA output created by 1913
+QA output created by 1912 --valgrind
+
+-- %a %d: %m --
+=== std out ===
+pmie: timezone set to local timezone from archives/wrap
+print Mon Dec  1 16:08:22 1997: yippee 1144454022
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 2 -z -c TMP.config -a archives/wrap -o %a\ %d:\ %m
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+-- %% %m % --
+=== std out ===
+pmie: timezone set to local timezone from archives/wrap
+% yippee 1144454022 %
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 2 -z -c TMP.config -a archives/wrap -o %%\ %m\ %
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+-- %%a=%a= %%d=%d= %%f=%f= %%l=%l= %%m=%m= %%u=%u= --
+=== std out ===
+pmie: timezone set to local timezone from archives/wrap
+%a=print= %d=Mon Dec  1 16:08:22 1997= %f=TMP.config= %l=4= %m=yippee 1144454022= %u=Mon Dec  1 16:08:22.423728 1997=
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 2 -z -c TMP.config -a archives/wrap -o %%a=%a=\ %%d=%d=\ %%f=%f=\ %%l=%l=\ %%m=%m=\ %%u=%u=
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+-- %m --
+=== std out ===
+pmie: timezone set to local timezone from archives/wrap
+yippee 1144454022
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 2 -z -c TMP.config -a archives/wrap -o %m
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+-- prologue %M epilogue --
+=== std out ===
+pmie: timezone set to local timezone from archives/wrap
+prologue %M epilogue
+=== std err ===
+Warning: unrecognized field specifier '%M' in format
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 2 -z -c TMP.config -a archives/wrap -o prologue\ %M\ epilogue
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+-- % --
+=== std out ===
+pmie: timezone set to local timezone from archives/wrap
+%
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 2 -z -c TMP.config -a archives/wrap -o %
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+-- misc tests --
+=== std out ===
+pmie: timezone set to local timezone from archives/wrap
+[<stdin>:4] yippee 1144454022
+[<stdin>:9] yippee 1144454022
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmie -t 2 -z -a archives/wrap -o [%f:%l]\ %m
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

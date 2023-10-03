@@ -25,8 +25,8 @@ int pmDelProfile(pmInDom \fIindom\fP, int \fInuminst\fP, int *\fIinstlist\fP);
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\f1\\$2
+.de CR
+.ie t \f(CR\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
 The set of instances for performance metrics returned from a
@@ -74,12 +74,12 @@ is zero,
 then all instance domains are selected for deletion.  If
 .I instlist
 is
-.CW "NULL" ,
+.CR "NULL" ,
 then all instances in the selected domain(s) are removed
 from the profile.
 .PP
 To disable all available instances in all domains, use
-.CW "pmDelProfile(PM_INDOM_NULL, 0, NULL)" .
+.CR "pmDelProfile(PM_INDOM_NULL, 0, NULL)" .
 This is the only situation in which
 .I indom
 may be

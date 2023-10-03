@@ -42,8 +42,8 @@
 cc ... \-lpcp_pmda \-lpcp
 .ft 1
 .SH DESCRIPTION
-.de CW
-.ie t \f(CW\\$1\f1\\$2
+.de CR
+.ie t \f(CR\\$1\f1\\$2
 .el \fI\\$1\f1\\$2
 ..
 To assist in the development of Performance Metric Domain Agents
@@ -178,7 +178,7 @@ the structure
 .BR pmdaInstid :
 .PP
 .nf
-.ft CW
+.ft CR
 .in +0.5i
 /*
  * Instance description: index and name
@@ -198,7 +198,7 @@ instance descriptions.  This is defined in the structure
 .BR pmdaIndom :
 .PP
 .nf
-.ft CW
+.ft CR
 .in +0.5i
 /*
  * Instance domain description: unique instance id,
@@ -230,7 +230,7 @@ with instances which can be specified at run-time.
 These instance domains are defined as:
 .PP
 .nf
-.ft CW
+.ft CR
 .in +0.5i
 static pmdaInstid _color[] = {
     { 0, "red" }, { 1, "green" }, { 2, "blue" }
@@ -289,7 +289,7 @@ The namespace for these metrics is defined in
 and is installed as:
 .PP
 .nf
-.ft CW
+.ft CR
 .in +0.5in
 simple {
     numfetch    253:0:0
@@ -338,7 +338,7 @@ A simple ASCII namespace can be constructed by creating a file similar to
 .IR $PCP_PMDAS_DIR /simple/root:
 .PP
 .nf
-.ft CW
+.ft CR
 .in +0.5i
 /*
  * fake "root" for validating the local PMNS subtree
@@ -369,7 +369,7 @@ A handle is also provided for application specific information in the
 structure:
 .PP
 .nf
-.ft CW
+.ft CR
 .in +0.5i
 /*
  * Metric description: handle for extending description,
@@ -388,7 +388,7 @@ The
 defines the metrics as:
 .PP
 .nf
-.ft CW
+.ft CR
 .in +0.5i
 static pmdaMetric metrictab[] = {
 /* numfetch */

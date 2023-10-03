@@ -372,6 +372,7 @@ tapestat
 ipcs
 meminfo
 mpstat
+netstat
 ps
 slabinfo
 
@@ -1926,7 +1927,10 @@ x11
 1470 pmval local valgrind
 1471 pmda.linux local
 1472 pmcd pmda.sample local
+1473 logutil local
+1474 archive pmlogrewrite local
 1475 pmda.bpf local
+1476 pmlogrewrite local pmlogger valgrind
 1480 pmda.lmsensors local
 1486 logutil local
 1489 python pmrep pmimport local
@@ -2077,6 +2081,8 @@ x11
 1901 pmlogger local
 1902 help local
 1906 pmseries libpcp_web local
+1912 pmie local
+1913 pmie local valgrind
 1914 atop local
 1927 pmda.sockets local
 1931 pmda.bpf local
@@ -2087,6 +2093,7 @@ x11
 1956 pmda.linux pmcd local
 1957 libpcp local valgrind
 1970 pmda.bpf local
+1973 pcp zoneinfo python local
 1978 atop local pmlogrewrite
 1984 pmlogconf pmda.redis local
 1985 pmfind local valgrind
@@ -2095,4 +2102,5 @@ x11
 1988 pcp meminfo python local
 1989 pcp slabinfo python local
 1990 pcp buddyinfo python local
+1991 pcp netstat python local
 4751 libpcp threads valgrind local pcp helgrind

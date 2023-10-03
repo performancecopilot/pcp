@@ -36,6 +36,7 @@ iproute2
 libavahi-common-dev
 libclass-dbi-perl
 libcmocka-dev
+libncurses5-dev
 libdbd-mysql-perl
 libdbd-pg-perl
 libdevmapper-dev
@@ -109,6 +110,7 @@ python3-pil
 python3-prometheus-client
 python3-psycopg2
 python3-pymongo
+python3-pyodbc
 python3-requests
 python3-setuptools
 python3-six

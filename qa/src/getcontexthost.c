@@ -74,7 +74,7 @@ main(int argc, char **argv)
 "Usage: %s [options]\n\
 \n\
 Options:\n\
-  -a archive     metrics source is a PCP log archive\n\
+  -a archive     metrics source is a PCP archive\n\
   -h host        metrics source is PMCD on host\n\
   -L             use local context instead of PMCD\n",
                 pmGetProgname());

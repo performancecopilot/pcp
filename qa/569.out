@@ -1093,7 +1093,7 @@ Usage: pmprobe [options] [metricname ...]
 
 General options:
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   --derived=FILE        load derived metric definitions from FILE(s)
@@ -1126,7 +1126,7 @@ Usage: pmprobe [options] [metricname ...]
 
 General options:
   -a FILE, --archive=FILE
-                        metrics source is a PCP log archive
+                        metrics source is a PCP archive
   -h HOST, --host=HOST  metrics source is PMCD on host
   --container=NAME      specify an individual container to be queried
   --derived=FILE        load derived metric definitions from FILE(s)
