@@ -22,6 +22,9 @@ fi
 
 which xz >/dev/null 2>&1 || _notrun "No xz binary installed"
 
+time=`which time`
+[ -z "$time" ] && _notrun "can't find /bin/time nor /usr/bin/time"
+
 $sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
@@ -53,14 +56,14 @@ base=pcp-pidstat-process-args
 mkdir $tmp
 cd $tmp
 cp $here/archives/$base.* .
-/bin/time -f 'cputime: %U %S' xzcat $base.0.xz >/dev/null 2>$tmp.time
+$time  -f 'cputime: %U %S' xzcat $base.0.xz >/dev/null 2>$tmp.time
 _summary <$tmp.time "data uncompress" | tee -a $here/$seq.full >$tmp.tmp
 data=`sed -n <$tmp.tmp -e '/[0-9]cpu (/{
 s/cpu (.*//
 s/.* //p
 }'`
 echo "data=$data" >>$here/$seq.full
-/bin/time -f 'cputime: %U %S' xzcat $base.meta.xz >/dev/null 2>$tmp.time
+$time -f 'cputime: %U %S' xzcat $base.meta.xz >/dev/null 2>$tmp.time
 _summary <$tmp.time "metadata uncompress" | tee -a $here/$seq.full >$tmp.tmp
 metadata=`sed -n <$tmp.tmp -e '/[0-9]cpu (/{
 s/cpu (.*//
@@ -69,7 +72,7 @@ s/.* //p
 echo "metadata=$metadata" >>$here/$seq.full
 
 # real QA test starts here
-/bin/time -f 'cputime: %U %S' pmlogrewrite -Dappl3 -qi $base 2>$tmp.time
+$time -f 'cputime: %U %S' pmlogrewrite -Dappl3 -qi $base 2>$tmp.time
 _summary logrewrite <$tmp.time | tee -a $here/$seq.full >$tmp.tmp
 rewrite=`sed -n <$tmp.tmp -e '/[0-9]cpu (/{
 s/cpu (.*//
@@ -93,7 +96,7 @@ function abs(a,b)
   if (d2 < d1)
     print "pmlogrewrite time closer to metadata decompress than data decompress"
   else
-    print "Failed close test: data-to-pmlogrewrite",d1,"pmlogrewrite-to-metadata",d2
+    print "Failed closer test: data-to-pmlogrewrite",d1,"pmlogrewrite-to-metadata",d2
 }'
 
 # expect the data time to be _at least_ 40 times the rewrite time
