@@ -374,6 +374,12 @@ systmetrics {
 	nvidia.memutilaccum			GPU_MEMBUSY_ACCUM
 	nvidia.memusedaccum			GPU_MEMUSED_ACCUM
 
+	# LLC  Last-Level Cache of CPU info.
+	llc.id					LLC_ID
+	llc.occupancy				LLC_OCCUPANCY
+	llc.mbm_local				LLC_MBM_LOCAL
+	llc.mbm_total				LLC_MBM_TOTAL
+
 	# end marker - provides count
 	.					SYST_NMETRICS
 }

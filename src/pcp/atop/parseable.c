@@ -700,7 +700,7 @@ print_LLC(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 
 	for (i=0; i < ss->llc.nrllcs; i++)
 	{
-		printf(	"%s LLC%03d %3.1f%% %lld %lld\n",
+	        printf( "%s LLC%02d %3.1f%% %lld %lld\n",
 			hp,
 			ss->llc.perllc[i].id,
 			ss->llc.perllc[i].occupancy * 100,

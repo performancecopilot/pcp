@@ -1,0 +1,108 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2017, 2023 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.ds ia llc
+.ds IA LLC
+.ds Ia Llc
+.TH PMDALLC 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdallc\f1 \- \*(ia performance metrics domain agent (PMDA)
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/pmda\*(ia\f1
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+.SH DESCRIPTION
+.B pmda\*(ia
+is a \*(ia Performance Metrics Domain Agent (PMDA) which exposes
+performance metrics values from the /sys/fs/resctrl interface to
+provide information on the last level cache.
+
+.SH INSTALLATION
+If you want access to the names, help text and values for the \*(ia
+performance metrics, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/\*(ia
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+If you want to undo the installation (and remove both PMDAs),
+do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/\*(ia
+# ./Remove
+.in
+.fi
+.ft 1
+.PP
+.B pmda\*(ia
+is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.BR pmcd (1)
+when the agent is installed or removed.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMCDCONF_PATH
+command line options used to launch
+.B pmda\*(ia
+.TP 10
+.B $PCP_PMDAS_DIR/\*(ia/help
+default help text file for the \*(ia metrics
+.TP 10
+.B $PCP_PMDAS_DIR/\*(ia/Install
+installation script for the
+.B pmda\*(ia
+agent
+.TP 10
+.B $PCP_PMDAS_DIR/\*(ia/Remove
+undo installation script for the
+.B pmda\*(ia
+agent
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.B /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+In particular, the
+.B $PCP_LLC_DIR
+may be set to change the default directory from
+.BR /var/lib/llc .
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR llc (1).

@@ -1,0 +1,114 @@
+#! /bin/sh
+# PCP QA Test No. 655
+# test llc PMDA
+#
+# Copyright (c) 2023 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+case "$PCP_PLATFORM"
+in
+    linux)
+    	;;
+    *)
+	_notrun "No llc support for PCP_PLATFORM $PCP_PLATFORM"
+	# NOTREACHED
+	;;
+esac
+
+
+_cleanup()
+{
+    [ -f $tmp.conf.backup ] && $sudo cp $tmp.conf.backup $PCP_DIR/etc/pcp.conf
+    _restore_pmda_install $iam >$here/$seq.full 2>&1
+    rm -f $tmp.*
+    exit $status
+}
+
+_check()
+{
+    pminfo -f llc > $tmp.pminfo
+
+    PCP_TMPFILE_DIR=/tmp pcp atop -P LLC 1 3 > $tmp.pcpatop
+
+    $PCP_AWK_PROG '
+    /llc.occupancy/ {getline;gsub("[0-9.]+",0.99);print "llc.occupancy",$6} 
+    /llc.mbm_local/ {type=$0;getline;gsub("[0-9.]+",999);print "llc.mbm_local",$6} 
+    /llc.mbm_total/ {getline;gsub("[0-9.]+",999);print "llc.mbm_total",$6}' $tmp.pminfo
+
+    $PCP_AWK_PROG '
+    /LLC / {gsub("[0-9]+","999",$3);gsub("[0-9]+","999",$6);gsub("[0-9.]+","99",$8);print $3,$6,$8}' $tmp.pcpatop
+}
+
+if [ ! -d /sys/fs/resctrl/mon_data ] ; then
+for d in /tmp/sys/fs/resctrl/mon_data/mon_L3_00/ ; do
+    # Synthesize a l3 cache structure if needed
+    mkdir -p $d
+    LLC_OCCUPANCY=$($PCP_AWK_PROG -FK '{print int($1*1024*.99)}' /sys/devices/system/cpu/cpu0/cache/index3/size)
+    echo $LLC_OCCUPANCY >| $d/llc_occupancy
+    echo 515154526208 >| $d/mbm_local_bytes
+    echo 515154526208 >| $d/mbm_total_bytes
+done    
+fi
+
+status=1
+trap "_cleanup" 0 1 2 3 15
+
+# backup main PCP config
+cp $PCP_DIR/etc/pcp.conf $tmp.conf
+cp $PCP_DIR/etc/pcp.conf $tmp.conf.backup
+
+# real QA test starts here
+iam=llc
+_service pmcd status |& sed -e '/^Warning/d' >>$here/$seq.full
+sleep 2
+_service pmcd status |& sed -e '/^Warning/d' >>$here/$seq.full
+_service pmcd stop |& _filter_pcp_stop |& sed -e '/^Warning/d'
+_service pmcd status |& sed -e '/^Warning/d' >>$here/$seq.full
+_wait_pmcd_end
+
+if [ ! -d /sys/fs/resctrl/mon_data ] ; then
+    echo >> $tmp.conf
+    echo "# from QA $seq ..." >> $tmp.conf
+    PCP_LLC_DIR=PCP_LLC_DIR=/tmp/sys/fs/resctrl/
+    echo $PCP_LLC_DIR >> $tmp.conf
+    $sudo cp $tmp.conf $PCP_DIR/etc/pcp.conf
+fi
+_service pcp restart 2>&1 | _filter_pcp_start |& sed -e '/^Warning/d'
+_service pmcd status |& sed -e '/^Warning/d' >>$here/$seq.full
+_wait_for_pmcd
+
+echo
+echo "=== $iam agent installation ==="
+(cd $PCP_DIR/var/lib/pcp/pmdas/$iam;
+ $sudo env $PCP_LLC_DIR ./Install </dev/null | sed -e '/^Mounted/d' -e '/^Warning/d' \
+						  -e 's/Install llc.*? .daemon. //' \
+						  -e '/^Using/d' >$tmp.out 2>&1 ;
+)
+
+_filter_pmda_install <$tmp.out
+
+if pminfo -f pmcd.agent.status | grep -q llc ; then
+    LLC_PMDA_ACTIVE=1
+fi
+
+_check
+
+echo "=== remove $iam agent ==="
+
+(cd $PCP_DIR/var/lib/pcp/pmdas/$iam;
+ $sudo ./Remove >$tmp.out 2>&1
+)
+
+_filter_pmda_remove <$tmp.out 
+
+status=0
+exit
+

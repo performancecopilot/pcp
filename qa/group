@@ -1110,6 +1110,7 @@ x11
 652 pmda.systemd event flakey
 653 libpcp local
 654 pmda.gfs2 local valgrind
+655 pmda.llc local
 656 pmda.cifs local valgrind
 657 pmda.dm local
 658 logutil local pmlogrewrite pmlogmv pmlogdump

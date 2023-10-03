@@ -1525,10 +1525,18 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double delta
 	/*
 	** calculate deviations for Last Level Cache
 	*/
+	if (cur->llc.nrllcs != dev->llc.nrllcs)
+	{
+		size = (cur->llc.nrllcs + 1) * sizeof(struct perllc);
+		dev->llc.perllc = (struct perllc *)realloc(dev->llc.perllc, size);
+		// ptrverify(dev->llc.perllc, "deviatsyst llc [%ld]\n", (long)size);
+	}
 	for (i = 0; i < cur->llc.nrllcs; i++)
 	{
-		dev->llc.perllc[i].id        = cur->llc.perllc[i].id;
+	        dev->llc.perllc[i].id        = cur->llc.perllc[i].id;
 		dev->llc.perllc[i].occupancy = cur->llc.perllc[i].occupancy;
+		if (pre->llc.nrllcs == 0) // TODO check this
+		    continue;
 		dev->llc.perllc[i].mbm_local = cur->llc.perllc[i].mbm_local -
 					       pre->llc.perllc[i].mbm_local;
 		dev->llc.perllc[i].mbm_total = cur->llc.perllc[i].mbm_total -

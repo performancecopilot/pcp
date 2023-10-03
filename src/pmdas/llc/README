@@ -1,0 +1,48 @@
+LLC PMDA
+============
+
+This PMDA exports information about the last level cache.
+The metrics are accessed by the PMDA mounting the filesystem
+/sys/fs/resctrl, which mounts directories of the form:
+/sys/fs/resctrl/mon_data/mon_L3_XX
+
+Metrics
+=======
+
+The file ./help contains descriptions for all of the metrics exported
+by this PMDA.
+
+Once the PMDA has been installed, the following command will list all
+the available metrics and their explanatory "help" text:
+
+	$ pminfo -fT llc
+
+Installation
+============
+
+ +  # cd $PCP_PMDAS_DIR/llc
+
+ +  Check that there is no clash in the Performance Metrics Domain
+    defined in ./domain.h and the other PMDAs currently in use
+    ($PCP_PMCDCONF_PATH).  If there is, edit ./domain.h to choose another
+    domain number.
+
+ +  Then simply use
+
+	# ./Install
+
+De-installation
+===============
+
+ +  Simply use
+
+        # cd $PCP_PMDAS_DIR/llc
+	# ./Remove
+
+Troubleshooting
+===============
+
+ +  After installing or restarting the agent, the PMCD log file
+    ($PCP_LOG_DIR/pmcd/pmcd.log) should be checked for any warnings or
+    errors.
+
