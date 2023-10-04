@@ -101,6 +101,7 @@ install: default
 	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/linux_disk_all_fixups.conf disk_all_fixups.conf $(REWRITEDIR)/linux_disk_all_fixups.conf
 	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/linux_kernel_fixups.conf kernel_fixups.conf $(REWRITEDIR)/linux_kernel_fixups.conf
 	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/linux_kernel_ulong.conf kernel_ulong.conf $(REWRITEDIR)/linux_kernel_ulong.conf
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/linux_mem_fixups.conf mem_fixups.conf $(REWRITEDIR)/linux_mem_fixups.conf
 else
 build-me:
 install:

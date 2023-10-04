@@ -6166,7 +6166,7 @@ static pmdaMetric metrictab[] = {
 
     /* mem.vmstat.nr_free_cma */
     { &_pm_proc_vmstat.nr_free_cma,
-    {PMDA_PMID(CLUSTER_VMSTAT,111), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    {PMDA_PMID(CLUSTER_VMSTAT,111), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_pages_scanned */
