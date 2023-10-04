@@ -151,6 +151,8 @@ unwrap(double current, __pmTimestamp *curtime, checkData *checkdata, int index)
 	print_stamp(stderr, &checkdata->instlist[index]->lasttime);
 	fprintf(stderr, "\n\tvalue %.0f at ", current);
 	print_stamp(stderr, curtime);
+	if (vflag)
+	    fprintf(stderr, "\n\tdifference %.0f", current - checkdata->instlist[index]->lastval);
 	fputc('\n', stderr);
     }
 
