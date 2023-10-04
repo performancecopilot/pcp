@@ -21,6 +21,8 @@ DOMAIN     = KVM
 PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
 PMDACONFIG = $(PCP_SYSCONF_DIR)/$(IAM)
 PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
+REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
+REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 CMDTARGET  = pmda$(IAM)
 LIBTARGET  = pmda_$(IAM).$(DSOSUFFIX)
 PMDAINIT   = $(IAM)_init
@@ -60,6 +62,7 @@ install: default
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/kvm.conf kvm.conf $(PMDACONFIG)/kvm.conf
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_kvm root_kvm $(PCP_PMNSADM_DIR)/root_kvm
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/kvm_fixups.conf kvm_fixups.conf $(REWRITEDIR)/kvm_fixups.conf
 	@$(INSTALL_MAN)
 else
 build-me:
