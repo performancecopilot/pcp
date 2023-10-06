@@ -68,6 +68,7 @@ src/exectest -Dexec -P $tmp.data -- od -c 2>&1 | _filter | _od_filter
 echo "---  exec and executable not on \$PATH ---"
 cat <<'End-of-File' >$tmp.sh
 #!/bin/sh
+sleep 1		# give parent a chance to emit messages
 echo "my arg echoer ..."
 echo "[0] $0"
 i=0
