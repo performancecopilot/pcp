@@ -11,7 +11,7 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# RPM PMDA help file in the ASCII format
+# RESCTRL PMDA help file in the ASCII format
 #
 # lines beginning with a # are ignored
 # lines beginning @ introduce a new entry of the form
@@ -27,10 +27,7 @@
 # blank lines before the @ line are ignored
 #
 
-@ RPM.0 set of all installed RPM packages
-
-# llc.id cache id
-@ llc.occupancy % of LLC in use
-@ llc.mbm_local local memory bandwidth of this LLC
-@ llc.mbm_total total memory bandwidth of this LLC
+@ resctrl.llc.occupancy % of LLC in use
+@ resctrl.llc.mbm_local local memory bandwidth of this LLC
+@ resctrl.llc.mbm_total total memory bandwidth of this LLC
 

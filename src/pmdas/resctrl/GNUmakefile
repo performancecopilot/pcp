@@ -15,8 +15,8 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-IAM	= llc
-DOMAIN	= LLC
+IAM	= resctrl
+DOMAIN	= RESCTRL
 CMDTARGET = pmda$(IAM)$(EXECSUFFIX)
 LIBTARGET = pmda_$(IAM).$(DSOSUFFIX)
 PMDAINIT = $(IAM)_init
@@ -27,7 +27,7 @@ PMDACONFIG = $(PCP_SYSCONF_DIR)/$(IAM)
 
 LLDLIBS = $(PCP_PMDALIB)
 
-CFILES	= llc.c
+CFILES	= resctrl.c
 DFILES	= help
 
 LDIRT	= domain.h *.o $(IAM).log $(CMDTARGET) $(LIBTARGET)
@@ -37,7 +37,6 @@ MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
 LCFLAGS = -I.
-CFLAGS_OPT = -g
 
 default_pcp default:	build-me
 
@@ -60,9 +59,12 @@ domain.h: ../../pmns/stdpmid
 
 $(OBJECTS): domain.h
 
-llc.o: $(VERSION_SCRIPT)
+resctrl.o: $(VERSION_SCRIPT)
 
-llc.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+resctrl.o: $(TOPDIR)/src/include/pcp/libpcp.h
+
+check:: $(CFILES) $(HFILES)
+	$(CLINT) $^
 
 check:: $(MAN_PAGES)
 	$(MANLINT) $^

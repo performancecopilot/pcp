@@ -1529,7 +1529,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double delta
 	{
 		size = (cur->llc.nrllcs + 1) * sizeof(struct perllc);
 		dev->llc.perllc = (struct perllc *)realloc(dev->llc.perllc, size);
-		// ptrverify(dev->llc.perllc, "deviatsyst llc [%ld]\n", (long)size);
+		ptrverify(dev->llc.perllc, "deviatsyst llc [%ld]\n", (long)size);
 	}
 	for (i = 0; i < cur->llc.nrllcs; i++)
 	{

@@ -24,7 +24,7 @@
 #include <stdio.h>
 
 /*
- * LLC  Last-Level Cache of CPU info.
+ * RESCTRL LLC  Last-Level Cache of CPU info.
  *
  *  Linux supports resctrl which can be used to
  *  control QoS of CPU cache and monitor LLC(last level cache).
@@ -38,12 +38,12 @@
  *   /sys/fs/resctrl/mon_data/mon_L3_XX
  *   
  *  These counters can be found in doc:
- *   https://github.com/torvalds/linux/blob/master/Documentation/x86/resctrl.rst
+ *   https://github.com/torvalds/linux/tree/master/Documentation/arch/x86/resctrl.rst
  *
  * Metrics
- *   llc.occupancy % of LLC in use
- *   llc.mbm_local local memory bandwidth of this LLC
- *   llc.mbm_total total memory bandwidth of this LLC
+ *   resctrl.llc.occupancy % of LLC in use
+ *   resctrl.llc.mbm_local local memory bandwidth of this LLC
+ *   resctrl.llc.mbm_total total memory bandwidth of this LLC
  *
  */
 
@@ -51,9 +51,8 @@
  * instance domains
  */
 
-const int LLC_INDOM = 0;
-
 static pmdaIndom indomtab[] = {
+#define LLC_INDOM 0
     { LLC_INDOM, 0, NULL }
 };
 
@@ -83,8 +82,7 @@ static char	*username;
 static char	mypath[MAXPATHLEN];
 static char	llcdir[MAXPATHLEN];
 
-typedef struct
-{
+typedef struct {
     float llc_occupancy;
     unsigned long llc_mbm_local;
     unsigned long llc_mbm_total;
@@ -106,7 +104,7 @@ static pmdaOptions     opts = {
 };
 
 /*
- * callback provided to pmdaFetch which handles one metric and one instance
+ * callback provided to pmdaFetch
  */
 static int
 llc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
@@ -127,6 +125,7 @@ llc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
     case 2:		/* mbm total */
 	atom->ull = lspm->llc_mbm_total;
+	break;
     }
 	
     return PMDA_FETCH_STATIC;
@@ -182,7 +181,7 @@ llc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    if (strncmp(dentry->d_name, "mon_L3_", 7))
 		continue;
 
-	    snprintf(fn, sizeof fn, "%s/%s/llc_occupancy", llcdir, dentry->d_name);
+	    pmsprintf(fn, sizeof fn, "%s/%s/llc_occupancy", llcdir, dentry->d_name);
 	    if ( (fp = fopen(fn, "r")) != NULL)
 		{
 		    if ( fgets(linebuf, sizeof(linebuf), fp) != NULL)
@@ -193,7 +192,7 @@ llc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    fclose(fp);
 		}
 
-	    snprintf(fn, sizeof fn, "%s/%s/mbm_local_bytes", llcdir, dentry->d_name);
+	    pmsprintf(fn, sizeof fn, "%s/%s/mbm_local_bytes", llcdir, dentry->d_name);
 	    if ( (fp = fopen(fn, "r")) != NULL)
 		{
 		    if ( fgets(linebuf, sizeof(linebuf), fp) != NULL)
@@ -203,7 +202,7 @@ llc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    fclose(fp);
 		}
 
-	    snprintf(fn, sizeof fn, "%s/%s/mbm_total_bytes", llcdir, dentry->d_name);
+	    pmsprintf(fn, sizeof fn, "%s/%s/mbm_total_bytes", llcdir, dentry->d_name);
 	    if ( (fp = fopen(fn, "r")) != NULL)
 		{
 		    if ( fgets(linebuf, sizeof(linebuf), fp) != NULL)
@@ -226,7 +225,6 @@ llc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    pmdaCacheStore(*llc_indom, PMDA_CACHE_ADD, dentry->d_name, (void *)lspm);
 	}
     closedir(dirp);
-    // __pmdaCacheDump(stderr, *llc_indom, 0);
     
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
@@ -235,12 +233,12 @@ llc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
  * Initialise the agent (both daemon and DSO).
  */
 void 
-llc_init(pmdaInterface *dp)
+resctrl_init(pmdaInterface *dp)
 {
     static const char *llcdir_default = "/sys/fs/resctrl/";
-    const char        *pcp_llc_dir = getenv("PCP_LLC_DIR");
+    const char        *pcp_llc_dir = getenv("PCP_RESCTRL_DIR");
 
-    pcp_llc_dir = pmGetOptionalConfig("PCP_LLC_DIR");
+    pcp_llc_dir = pmGetOptionalConfig("PCP_RESCTRL_DIR");
     if (!pcp_llc_dir)
 	pcp_llc_dir = llcdir_default;
     pmsprintf(llcdir, sizeof(llcdir), "%s/mon_data", pcp_llc_dir);
@@ -281,7 +279,7 @@ main(int argc, char **argv)
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "llc" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmGetProgname(), LLC,
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmGetProgname(), RESCTRL,
 		"llc.log", mypath);
 
     pmdaGetOptions(argc, argv, &opts, &dispatch);
@@ -292,7 +290,7 @@ main(int argc, char **argv)
 
     pmdaOpenLog(&dispatch);
     pmdaConnect(&dispatch);
-    llc_init(&dispatch);
+    resctrl_init(&dispatch);
     pmdaMain(&dispatch);
 
     exit(0);

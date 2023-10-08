@@ -13,12 +13,12 @@
 .\" for more details.
 .\"
 .\"
-.ds ia llc
-.ds IA LLC
-.ds Ia Llc
-.TH PMDALLC 1 "PCP" "Performance Co-Pilot"
+.ds ia resctrl
+.ds IA RESCTRL
+.ds Ia Resctrl
+.TH PMDARESCTRL 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmdallc\f1 \- \*(ia performance metrics domain agent (PMDA)
+\f3pmdaresctrl\f1 \- \*(ia performance metrics domain agent (PMDA)
 .SH SYNOPSIS
 \f3$PCP_PMDAS_DIR/pmda\*(ia\f1
 [\f3\-d\f1 \f2domain\f1]
@@ -29,6 +29,11 @@ is a \*(ia Performance Metrics Domain Agent (PMDA) which exposes
 performance metrics values from the /sys/fs/resctrl interface to
 provide information on the last level cache.
 
+.in
+.fi
+.PP
+Further details on linux support for last level cache metrics can be found at
+.BR https://github.com/torvalds/linux/tree/master/Documentation/arch/x86/resctrl.rst .
 .SH INSTALLATION
 If you want access to the names, help text and values for the \*(ia
 performance metrics, do the following as root:
@@ -96,13 +101,13 @@ configuration file,
 as described in
 .BR pcp.conf (5).
 In particular, the
-.B $PCP_LLC_DIR
+.B $PCP_RESCTRL_DIR
 may be set to change the default directory from
-.BR /var/lib/llc .
+.BR /sys/fs/resctrl .
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),
 .BR pcp.conf (5),
 .BR pcp.env (5)
 and
-.BR llc (1).
+.BR resctrl (1).

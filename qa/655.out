@@ -1,21 +1,21 @@
 QA output created by 655
 
-=== llc agent installation ===
+=== resctrl agent installation ===
 newhelp: [<stdin>:33] RPM.0: Unknown metric name, entry abandoned
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check llc metrics have appeared ... 3 metrics and 3 values
+Check resctrl metrics have appeared ... 3 metrics and 3 values
 llc.occupancy 0.99
 llc.mbm_local 999
 llc.mbm_total 999
 999 999 99%
 999 999 99%
 999 999 99%
-=== remove llc agent ===
+=== remove resctrl agent ===
 Culling the Performance Metrics Name Space ...
-llc ... done
+resctrl ... done
 Updating the PMCD control file, and notifying PMCD ...
 [...removing files...]
-Check llc metrics have gone away ... OK
+Check resctrl metrics have gone away ... OK

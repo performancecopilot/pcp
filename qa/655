@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 655
-# test llc PMDA
+# test resctrl PMDA
 #
 # Copyright (c) 2023 Red Hat.  All Rights Reserved.
 #
@@ -18,7 +18,7 @@ in
     linux)
     	;;
     *)
-	_notrun "No llc support for PCP_PLATFORM $PCP_PLATFORM"
+	_notrun "No resctrl support for PCP_PLATFORM $PCP_PLATFORM"
 	# NOTREACHED
 	;;
 esac
@@ -34,14 +34,14 @@ _cleanup()
 
 _check()
 {
-    pminfo -f llc > $tmp.pminfo
+    pminfo -f resctrl > $tmp.pminfo
 
     PCP_TMPFILE_DIR=/tmp pcp atop -P LLC 1 3 > $tmp.pcpatop
 
     $PCP_AWK_PROG '
-    /llc.occupancy/ {getline;gsub("[0-9.]+",0.99);print "llc.occupancy",$6} 
-    /llc.mbm_local/ {type=$0;getline;gsub("[0-9.]+",999);print "llc.mbm_local",$6} 
-    /llc.mbm_total/ {getline;gsub("[0-9.]+",999);print "llc.mbm_total",$6}' $tmp.pminfo
+    /resctrl.llc.occupancy/ {getline;gsub("[0-9.]+",0.99);print "llc.occupancy",$6} 
+    /resctrl.llc.mbm_local/ {type=$0;getline;gsub("[0-9.]+",999);print "llc.mbm_local",$6} 
+    /resctrl.llc.mbm_total/ {getline;gsub("[0-9.]+",999);print "llc.mbm_total",$6}' $tmp.pminfo
 
     $PCP_AWK_PROG '
     /LLC / {gsub("[0-9]+","999",$3);gsub("[0-9]+","999",$6);gsub("[0-9.]+","99",$8);print $3,$6,$8}' $tmp.pcpatop
@@ -66,7 +66,7 @@ cp $PCP_DIR/etc/pcp.conf $tmp.conf
 cp $PCP_DIR/etc/pcp.conf $tmp.conf.backup
 
 # real QA test starts here
-iam=llc
+iam=resctrl
 _service pmcd status |& sed -e '/^Warning/d' >>$here/$seq.full
 sleep 2
 _service pmcd status |& sed -e '/^Warning/d' >>$here/$seq.full
@@ -77,8 +77,8 @@ _wait_pmcd_end
 if [ ! -d /sys/fs/resctrl/mon_data ] ; then
     echo >> $tmp.conf
     echo "# from QA $seq ..." >> $tmp.conf
-    PCP_LLC_DIR=PCP_LLC_DIR=/tmp/sys/fs/resctrl/
-    echo $PCP_LLC_DIR >> $tmp.conf
+    PCP_RESCTRL_DIR=PCP_RESCTRL_DIR=/tmp/sys/fs/resctrl/
+    echo $PCP_RESCTRL_DIR >> $tmp.conf
     $sudo cp $tmp.conf $PCP_DIR/etc/pcp.conf
 fi
 _service pcp restart 2>&1 | _filter_pcp_start |& sed -e '/^Warning/d'
@@ -88,15 +88,15 @@ _wait_for_pmcd
 echo
 echo "=== $iam agent installation ==="
 (cd $PCP_DIR/var/lib/pcp/pmdas/$iam;
- $sudo env $PCP_LLC_DIR ./Install </dev/null | sed -e '/^Mounted/d' -e '/^Warning/d' \
-						  -e 's/Install llc.*? .daemon. //' \
+ $sudo env $PCP_RESCTRL_DIR ./Install </dev/null | sed -e '/^Mounted/d' -e '/^Warning/d' \
+						  -e 's/Install resctrl.*? .daemon. //' \
 						  -e '/^Using/d' >$tmp.out 2>&1 ;
 )
 
 _filter_pmda_install <$tmp.out
 
-if pminfo -f pmcd.agent.status | grep -q llc ; then
-    LLC_PMDA_ACTIVE=1
+if pminfo -f pmcd.agent.status | grep -q resctrl ; then
+    RESCTRL_PMDA_ACTIVE=1
 fi
 
 _check

@@ -14,8 +14,12 @@
  * for more details.
  */
 
-llc {
-    occupancy	LLC:0:0
-    mbm_local   LLC:0:1
-    mbm_total	LLC:0:2
+resctrl {
+    llc
+}
+
+resctrl.llc {
+    occupancy	RESCTRL:0:0
+    mbm_local   RESCTRL:0:1
+    mbm_total	RESCTRL:0:2
 }

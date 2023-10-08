@@ -4,7 +4,7 @@
 
 #include <stdpmid>
 
-root { llc }
+root { resctrl }
 
 #include "pmns"
 
