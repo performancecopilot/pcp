@@ -203,8 +203,11 @@ newpmie=0
 
 _cleanup()
 {
-    [ -n "$config" ] && _restore_config $config
+    # bit tricky ... if hostname here is boofa-1441, sudo(1)
+    # may babble about "unable to resolve host ...."
+    #
     cd $here
+    [ -n "$config" ] && _restore_config $config 2>>$seq.full
     if [ "`hostname`" != "$oldhostname" ]
     then
 	$sudo hostname "$oldhostname" 2>>$seq.full
