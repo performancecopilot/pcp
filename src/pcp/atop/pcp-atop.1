@@ -1189,23 +1189,23 @@ private memory space for processes.
 The kernel only verifies whether the
 committed space exceeds the limit if strict overcommit handling is
 configured (vm.overcommit_memory is 2).
-..TP 5
-..B LLC
-.Last-Level Cache of CPU info.
-..br
-.This line contains the total memory bandwidth of LLC ('tot'),
-.the bandwidth of the local NUMA node ('loc'), and
-.the percentage of LLC in use ('LLCXX YY%').
-.
-.Note that this feature depends on the 'resctrl' pseudo filesystem.
-.Be sure that the kernel is built with the relevant config and
-.take care that the pseudo-filesystem is mounted:
-.
-..B \  mount -t resctrl resctrl -o mba_MBps /sys/fs/resctrl
-.(on Intel)
-..br
-..B \  mount -t resctrl resctrl -o cdp \ \ \ \ \ /sys/fs/resctrl
-.(on AMD)
+.TP 5
+.B LLC
+Last-Level Cache of CPU info.
+.br
+This line contains the total memory bandwidth of LLC ('tot'),
+the bandwidth of the local NUMA node ('loc'), and
+the percentage of LLC in use ('LLCXX YY%').
+
+Note that this feature depends on the 'resctrl' pseudo filesystem.
+Be sure that the kernel is built with the relevant config and
+take care that the pseudo-filesystem is mounted:
+
+.B \  mount -t resctrl resctrl -o mba_MBps /sys/fs/resctrl
+(on Intel)
+.br
+.B \  mount -t resctrl resctrl -o cdp \ \ \ \ \ /sys/fs/resctrl
+(on AMD)
 .TP 5
 .B NUM
 Memory utilization per NUMA node (not shown for single NUMA node).
@@ -2061,12 +2061,12 @@ limit for committed space (pages),
 size of the swap cache (pages),
 size of compressed pages stored in zswap (pages), and
 total size of compressed pool in zswap (pages).
-..TP 9
-..B LLC
-.Subsequent fields:
-.LLC id, percentage of LLC in use,
-.total memory bandwidth of this LLC (in bytes), and
-.memory bandwidth on local NUMA node of this LLC (in bytes).
+.TP 9
+.B LLC
+Subsequent fields:
+LLC id, percentage of LLC in use,
+total memory bandwidth of this LLC (in bytes), and
+memory bandwidth on local NUMA node of this LLC (in bytes).
 .TP 9
 .B PAG
 Subsequent fields:
