@@ -573,9 +573,13 @@ text_samp(double sampletime, double nsecs,
 				}
 				else
 				{
+#ifdef HAVE_GETRESUID
  					uid_t ruid, euid, suid;
 
 					getresuid(&ruid, &euid, &suid);
+#else
+					uid_t suid = getuid();
+#endif
 
 					if (suid == 0)
 					{

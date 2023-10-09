@@ -166,6 +166,9 @@
 /* Define to 1 if you have the `getpwuid_r' function. */
 #undef HAVE_GETPWUID_R
 
+/* Define to 1 if you have the `getresuid' function. */
+#undef HAVE_GETRESUID
+
 /* Define to 1 if you have the `getrusage' function. */
 #undef HAVE_GETRUSAGE
 

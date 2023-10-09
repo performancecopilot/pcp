@@ -13351,6 +13351,12 @@ then :
   printf "%s\n" "#define HAVE_GETPEEREID 1" >>confdefs.h
 
 fi
+ac_fn_c_check_func "$LINENO" "getresuid" "ac_cv_func_getresuid"
+if test "x$ac_cv_func_getresuid" = xyes
+then :
+  printf "%s\n" "#define HAVE_GETRESUID 1" >>confdefs.h
+
+fi
 
 ac_fn_c_check_func "$LINENO" "uname" "ac_cv_func_uname"
 if test "x$ac_cv_func_uname" = xyes
