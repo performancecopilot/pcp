@@ -550,119 +550,119 @@ static pmdaMetric metrictab[] = {
 
 /* nfs3.client.calls */
   { NULL,
-    { PMDA_PMID(CLUSTER_NFS,94), PM_TYPE_32, PM_INDOM_NULL,
+    { PMDA_PMID(CLUSTER_NFS,94), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* nfs3.client.reqs */
   { NULL,
-    { PMDA_PMID(CLUSTER_NFS,95), PM_TYPE_32, NFS3_INDOM,
+    { PMDA_PMID(CLUSTER_NFS,95), PM_TYPE_U64, NFS3_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* nfs3.server.calls */
   { NULL,
-    { PMDA_PMID(CLUSTER_NFS,96), PM_TYPE_32, PM_INDOM_NULL,
+    { PMDA_PMID(CLUSTER_NFS,96), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* nfs3.server.reqs */
   { NULL,
-    { PMDA_PMID(CLUSTER_NFS,97), PM_TYPE_32, NFS3_INDOM,
+    { PMDA_PMID(CLUSTER_NFS,97), PM_TYPE_U64, NFS3_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.client.rpccnt */
-  { &mach_nfs.rpcrequests,
-    { PMDA_PMID(CLUSTER_NFS,98), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.client.rpcrequests,
+    { PMDA_PMID(CLUSTER_NFS,98), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.client.rpcretrans */
-  { &mach_nfs.rpcretries,
-    { PMDA_PMID(CLUSTER_NFS,99), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.client.rpcretries,
+    { PMDA_PMID(CLUSTER_NFS,99), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.client.rpctimeouts */
-  { &mach_nfs.rpctimeouts,
-    { PMDA_PMID(CLUSTER_NFS,100), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.client.rpctimeouts,
+    { PMDA_PMID(CLUSTER_NFS,100), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.client.rpcinvalid */
-  { &mach_nfs.rpcinvalid,
-    { PMDA_PMID(CLUSTER_NFS,101), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.client.rpcinvalid,
+    { PMDA_PMID(CLUSTER_NFS,101), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.client.rpcunexpected */
-  { &mach_nfs.rpcunexpected,
-    { PMDA_PMID(CLUSTER_NFS,102), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.client.rpcunexpected,
+    { PMDA_PMID(CLUSTER_NFS,102), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.client.attrcache.hits */
-  { &mach_nfs.attrcache_hits,
-    { PMDA_PMID(CLUSTER_NFS,103), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.client.attrcache_hits,
+    { PMDA_PMID(CLUSTER_NFS,103), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.client.attrcache.misses */
-  { &mach_nfs.attrcache_misses,
-    { PMDA_PMID(CLUSTER_NFS,104), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.client.attrcache_misses,
+    { PMDA_PMID(CLUSTER_NFS,104), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.client.lookupcache.hits */
-  { &mach_nfs.lookupcache_hits,
-    { PMDA_PMID(CLUSTER_NFS,105), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.client.lookupcache_hits,
+    { PMDA_PMID(CLUSTER_NFS,105), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.client.lookupcache.misses */
-  { &mach_nfs.lookupcache_misses,
-    { PMDA_PMID(CLUSTER_NFS,106), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.client.lookupcache_misses,
+    { PMDA_PMID(CLUSTER_NFS,106), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.client.biocache.read.hits */
-  { &mach_nfs.read_bios,
-    { PMDA_PMID(CLUSTER_NFS,107), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.client.read_bios,
+    { PMDA_PMID(CLUSTER_NFS,107), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.client.biocache.read.misses */
-  { &mach_nfs.biocache_reads,
-    { PMDA_PMID(CLUSTER_NFS,108), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.client.biocache_reads,
+    { PMDA_PMID(CLUSTER_NFS,108), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.client.biocache.write.hits */
-  { &mach_nfs.write_bios,
-    { PMDA_PMID(CLUSTER_NFS,109), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.client.write_bios,
+    { PMDA_PMID(CLUSTER_NFS,109), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.client.biocache.write.misses */
-  { &mach_nfs.biocache_writes,
-    { PMDA_PMID(CLUSTER_NFS,110), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.client.biocache_writes,
+    { PMDA_PMID(CLUSTER_NFS,110), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.client.biocache.readlink.hits */
-  { &mach_nfs.readlink_bios,
-    { PMDA_PMID(CLUSTER_NFS,111), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.client.readlink_bios,
+    { PMDA_PMID(CLUSTER_NFS,111), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.client.biocache.readlink.misses */
-  { &mach_nfs.biocache_readlinks,
-    { PMDA_PMID(CLUSTER_NFS,112), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.client.biocache_readlinks,
+    { PMDA_PMID(CLUSTER_NFS,112), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.client.biocache.readdir.hits */
-  { &mach_nfs.readdir_bios,
-    { PMDA_PMID(CLUSTER_NFS,113), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.client.readdir_bios,
+    { PMDA_PMID(CLUSTER_NFS,113), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.client.biocache.readdir.misses */
-  { &mach_nfs.biocache_readdirs,
-    { PMDA_PMID(CLUSTER_NFS,114), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.client.biocache_readdirs,
+    { PMDA_PMID(CLUSTER_NFS,114), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.client.direofcache.hits */
-  { &mach_nfs.direofcache_hits,
-    { PMDA_PMID(CLUSTER_NFS,115), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.client.direofcache_hits,
+    { PMDA_PMID(CLUSTER_NFS,115), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.client.direofcache.misses */
-  { &mach_nfs.direofcache_misses,
-    { PMDA_PMID(CLUSTER_NFS,116), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.client.direofcache_misses,
+    { PMDA_PMID(CLUSTER_NFS,116), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.server.retfailed */
-  { &mach_nfs.srvrpc_errs,
-    { PMDA_PMID(CLUSTER_NFS,117), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.server.srvrpc_errs,
+    { PMDA_PMID(CLUSTER_NFS,117), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.server.faults */
-  { &mach_nfs.srvrpc_errs,
-    { PMDA_PMID(CLUSTER_NFS,118), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.server.srvrpc_errs,
+    { PMDA_PMID(CLUSTER_NFS,118), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.server.cache.inprog */
-  { &mach_nfs.srvcache_inproghits,
-    { PMDA_PMID(CLUSTER_NFS,119), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.server.srvcache_inproghits,
+    { PMDA_PMID(CLUSTER_NFS,119), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.server.cache.nonidem */
-  { &mach_nfs.srvcache_nonidemdonehits,
-    { PMDA_PMID(CLUSTER_NFS,120), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.server.srvcache_nonidemdonehits,
+    { PMDA_PMID(CLUSTER_NFS,120), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.server.cache.idem */
-  { &mach_nfs.srvcache_idemdonehits,
-    { PMDA_PMID(CLUSTER_NFS,121), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.server.srvcache_idemdonehits,
+    { PMDA_PMID(CLUSTER_NFS,121), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.server.cache.misses */
-  { &mach_nfs.srvcache_misses,
-    { PMDA_PMID(CLUSTER_NFS,122), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.server.srvcache_misses,
+    { PMDA_PMID(CLUSTER_NFS,122), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.server.nqnfs.leases -- deprecated */
   { NULL,
@@ -677,16 +677,16 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NFS,125), PM_TYPE_NOSUPPORT, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* rpc.server.vopwrites */
-  { &mach_nfs.srvvop_writes,
-    { PMDA_PMID(CLUSTER_NFS,126), PM_TYPE_32, PM_INDOM_NULL,
+  { &mach_nfs.server.srvvop_writes,
+    { PMDA_PMID(CLUSTER_NFS,126), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-/* rpc.server.pageins */
-  { &mach_nfs.pageins,
-    { PMDA_PMID(CLUSTER_NFS,127), PM_TYPE_32, PM_INDOM_NULL,
+/* rpc.client.pageins */
+  { &mach_nfs.client.pageins,
+    { PMDA_PMID(CLUSTER_NFS,127), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-/* rpc.server.pageouts */
-  { &mach_nfs.pageouts,
-    { PMDA_PMID(CLUSTER_NFS,128), PM_TYPE_32, PM_INDOM_NULL,
+/* rpc.client.pageouts */
+  { &mach_nfs.client.pageouts,
+    { PMDA_PMID(CLUSTER_NFS,128), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* filesys.maxfiles */
@@ -1094,26 +1094,26 @@ fetch_network(unsigned int item, unsigned int inst, pmAtomValue *atom)
 static inline int
 fetch_nfs(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {
-    if (mach_net_error)
-	return mach_net_error;
+    if (mach_nfs_error)
+	return mach_nfs_error;
     switch (item) {
     case 94: /* nfs3.client.calls */
-	for (atom->l = 0, inst = 0; inst < NFS3_RPC_COUNT; inst++)
-	    atom->l += mach_nfs.rpccnt[inst];
+	for (atom->ull = 0, inst = 0; inst < NFS3_RPC_COUNT; inst++)
+	    atom->ull += mach_nfs.client.rpccntv3[inst];
 	return 1;
     case 95: /* nfs3.client.reqs */
 	if (inst < 0 || inst >= NFS3_RPC_COUNT)
 	    return PM_ERR_INST;
-	atom->l = mach_nfs.rpccnt[inst];
+	atom->ull = mach_nfs.client.rpccntv3[inst];
 	return 1;
     case 96: /* nfs3.server.calls */
-	for (atom->l = 0, inst = 0; inst < NFS3_RPC_COUNT; inst++)
-	    atom->l += mach_nfs.srvrpccnt[inst];
+	for (atom->ull = 0, inst = 0; inst < NFS3_RPC_COUNT; inst++)
+	    atom->ull += mach_nfs.server.srvrpccntv3[inst];
 	return 1;
     case 97: /* nfs3.server.reqs */
 	if (inst < 0 || inst >= NFS3_RPC_COUNT)
 	    return PM_ERR_INST;
-	atom->l = mach_nfs.srvrpccnt[inst];
+	atom->ull = mach_nfs.server.srvrpccntv3[inst];
 	return 1;
     case 123:	/* rpc.server.nqnfs.leases    -- deprecated */
     case 124:	/* rpc.server.nqnfs.maxleases -- deprecated */
