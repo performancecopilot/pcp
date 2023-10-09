@@ -99,12 +99,3 @@ jobs:
           name: test-${{ matrix.platform }}
           path: artifacts/test
 
-  build-macos-latest-clang:
-    runs-on: macos-latest
-    env:
-      CC: clang
-    steps:
-    - uses: actions/checkout@v4
-    - name: Build packages
-      # python disabled for now until brew build without distutils
-      run: ./Makepkgs --verbose --with-python=no --with-python3=no
