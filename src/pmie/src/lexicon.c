@@ -160,8 +160,6 @@ static int
 nextc(void)
 {
     int		c = '\0';
-    extern char	*configfile;
-    extern int	rule_lineno;
 
     if (lin) {
 	if (lin->lookin != lin->lookout) {
