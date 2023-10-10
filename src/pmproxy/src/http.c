@@ -423,7 +423,13 @@ http_reply(struct client *client, sds message,
 	if (client->buffer == NULL) {
 	    suffix = message;
 	} else if (message != NULL) {
+	    fprintf(stderr, "Before compression length of buffer: %lu\n", sdslen(client->buffer));
+	    if (flags & HTTP_FLAG_COMPRESS_GZIP) {
+		compress_GZIP(client);
+	    }
+	    fprintf(stderr, "After compression length of buffer: %lu\n", sdslen(client->buffer));
 	    suffix = sdscatsds(client->buffer, message);
+	    fprintf(stderr, "After compression suffix len is: %lu\n", sdslen(suffix));
 	    sdsfree(message);
 	    client->buffer = NULL;
 	} else {
@@ -487,7 +493,7 @@ http_transfer(struct client *client)
      * return control to caller.
      */
 
-    if (sdslen(client->buffer) >= 10/*chunked_transfer_size*/) {
+    if (sdslen(client->buffer) >= chunked_transfer_size /*10*/) {
 	fprintf(stderr, "Before compression buffer len: %lu\n", (unsigned long)sdslen(client->buffer));
 	if (parser->http_major == 1 && parser->http_minor > 0) {
 	    if (!(flags & HTTP_FLAG_STREAMING)) {
@@ -1085,6 +1091,7 @@ int compress_GZIP(struct client *client) {
 
 	fprintf(stderr, "Avail in is: %d\n", stream->avail_in);
 	fprintf(stderr, "Avail out is: %d\n", stream->avail_out);
+	fprintf(stderr, "15 | 16 is: %d\n", (15 | 16));
 
 	fprintf(stderr, "deflate output is: %d\n", deflate(stream, Z_FINISH));
 
