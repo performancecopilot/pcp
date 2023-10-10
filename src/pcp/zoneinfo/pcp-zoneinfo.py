@@ -259,7 +259,7 @@ class ZoneinfoReport(pmcc.MetricGroupPrinter):
                 # these nodes will have only pages information for them so just printing them out
                 remaining_nodes = set(node_types) - set(nodes)
                 if remaining_nodes:
-                    for node in remaining_nodes:
+                    for node in sorted(remaining_nodes):
                         print(self.__format_node_name(node))
                         for key, value in ZONEINFO_PAGE_INFO:
                             print("\t", key, manager.metric_value(value, node))
