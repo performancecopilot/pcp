@@ -182,7 +182,7 @@ exports:	exports.in mk.exports
 # consistent in all placess.
 #
 check.done:	$(OBJECTS)
-	./check-statics
+	./check-statics -d
 	./check-errorcodes
 	touch check.done
 
