@@ -720,7 +720,7 @@ _wait_for_pmcd()
     if $__dead
     then
 	date
-	echo "Arrgghhh ... pmcd at $__host failed to start after $__can_wait seconds"
+	echo "Arrgh ... pmcd at $__host failed to start after $__can_wait seconds"
 	echo "=== failing pmprobes stdout ==="
 	cat $tmp._wait_for_pmcd.out
 	echo "=== failing pmprobes stderr ==="
@@ -785,7 +785,7 @@ _wait_for_pmcd_stop()
 	:
     else
 	date
-	echo "Arrgghhh ... pmcd failed to stop after $__can_wait seconds"
+	echo "Arrgh ... pmcd failed to stop after $__can_wait seconds"
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[p]mcd|[P]ID'
 	echo "=== successful pmprobes stdout ==="
 	cat $tmp._wait_for_pmcd_stop.out.all
@@ -916,7 +916,8 @@ _wait_for_pmlogger()
     done
     if $__dead
     then
-	echo "Arrgghhh ... pmlogger ($__ident) failed to start after $__maxdelay seconds"
+	date
+	echo "Arrgh ... pmlogger ($__ident) failed to start after $__maxdelay seconds"
 	echo "at `date`."
 	echo "++ pmlogger log ($__logfile) ..."
 	ls -l $__logfile
