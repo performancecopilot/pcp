@@ -69,15 +69,7 @@ static char *n_type_c(int);
 static char *l_type_str(int);
 %}
 
-/*
- * seems like the %define variant is more bisonesque, while the
- * %pure-parser maybe a yaccism that bison silently accepts ...
- * using the %define makes "deprecated directive" warnings go
- * away on some platforms - kenj Oct 2019
- * old yacc declaration was
- * %pure-parser
- */
-%define api.pure
+PUT-PURE-DECL-HERE ... see GNUmakefile and fix_query_parser_y
 
 %parse-param { PARSER *lp }
 %lex-param { PARSER *lp }

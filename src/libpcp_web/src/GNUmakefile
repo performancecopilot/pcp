@@ -59,7 +59,7 @@ XFILES += fnmatch.c fnmatch.h
 LCFLAGS += -I.
 endif
 
-LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?)
+LDIRT = $(XFILES) $(YFILES:%.y=%.tab.?) query_parser.y
 LCFLAGS += $(C99_CFLAGS) -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0 -Ideps
 
 ifeq "$(HAVE_LIBUV)" "true"
@@ -137,6 +137,9 @@ $(HIREDIS_CLUSTER_XFILES):
 .NOTPARALLEL:
 query_parser.tab.h query_parser.tab.c: query_parser.y query.h
 	$(YACC) -d -b `basename $< .y` $<
+
+query_parser.y: query_parser.y.in fix_query_parser_y
+	./fix_query_parser_y
 
 default_pcp:	default
 

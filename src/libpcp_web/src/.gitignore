@@ -19,6 +19,7 @@ crc16.h
 siphash.c
 http_parser.c
 http_parser.h
+query_parser.y
 query_parser.tab.c
 query_parser.tab.h
 libpcp_web.dll

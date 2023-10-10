@@ -1723,8 +1723,10 @@ changed_callback(pmDiscover *p)
     if ((throttle = monitored / 40) < 1)
 	throttle = 1;
     mmv_set(data->map, data->metrics[DISCOVER_THROTTLE], &throttle);
+
+    time(&now);
     if ((p->flags & PM_DISCOVER_FLAGS_NEW) == 0) {
-	if (time(&now) - p->lastcb < throttle || 
+	if (now - p->lastcb < throttle ||
 	    redisSlotsInflightRequests(data->slots) > 1000000) {
 	    mmv_inc(data->map, data->metrics[DISCOVER_THROTTLE_CALLBACKS]);
 	    return; /* throttled */

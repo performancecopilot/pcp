@@ -52,7 +52,7 @@ done
 #
 # Mac OS X
 # pmcd.o: Mach-O universal binary with 2 architectures
-# pmcd.o (for architecture i386):	Mach-O object i386
+# pmcd.o (for architecture arm64):	Mach-O 64-bit object arm64
 # pmcd.o (for architecture x86_64):	Mach-O 64-bit object x86_64
 #
 # dummy.o: Mach-O 64-bit object x86_64
