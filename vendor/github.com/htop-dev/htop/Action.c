@@ -232,6 +232,8 @@ static Htop_Reaction actionToggleKernelThreads(State* st) {
    settings->hideKernelThreads = !settings->hideKernelThreads;
    settings->lastUpdate++;
 
+   Machine_scanTables(st->host); // needed to not have a visible delay showing wrong data
+
    return HTOP_RECALCULATE | HTOP_SAVE_SETTINGS | HTOP_KEEP_FOLLOWING;
 }
 
@@ -239,6 +241,8 @@ static Htop_Reaction actionToggleUserlandThreads(State* st) {
    Settings* settings = st->host->settings;
    settings->hideUserlandThreads = !settings->hideUserlandThreads;
    settings->lastUpdate++;
+
+   Machine_scanTables(st->host); // needed to not have a visible delay showing wrong data
 
    return HTOP_RECALCULATE | HTOP_SAVE_SETTINGS | HTOP_KEEP_FOLLOWING;
 }
@@ -615,7 +619,8 @@ static Htop_Reaction actionTag(State* st) {
 
 static Htop_Reaction actionRedraw(ATTR_UNUSED State* st) {
    clear();
-   return HTOP_REFRESH | HTOP_REDRAW_BAR;
+   // HTOP_RECALCULATE here to make Ctrl-L also refresh the data and not only redraw
+   return HTOP_RECALCULATE | HTOP_REFRESH | HTOP_REDRAW_BAR;
 }
 
 static Htop_Reaction actionTogglePauseUpdate(State* st) {
