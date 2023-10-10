@@ -544,7 +544,6 @@ tz.o
     savetz			# guarded by __pmLock_libpcp mutex
     tzbuffer			# guarded by __pmLock_libpcp mutex
     ?wildabbr			# const (MinGW)
-    ?names			# const (clang)
 units.o
     abuf			# pmAtomStr deprecated by pmAtomStr_r
     ubuf			# pmUnitsStr deprecated by pmUnitsStr_r
@@ -676,6 +675,9 @@ do
 		#   0000000000000000 D .XB$BAAB6IVtXk4i.pmfstate.errtype
 		#   becomes
 		#   0000000000000000 D errtype
+		# for Clang
+		# + strip  s str.NNN lines
+		#
 		# + strip .bss, .data, .picdata and .rodata lines
 		#
 		skip_file=false
@@ -711,6 +713,7 @@ do
 		    -e 's/\([bds] \).*\.\([_a-zA-Z]\)/\1\2/' \
 		    -e 's/s _glib_relative_date\./s /' \
 		    -e '/ s EH_/d' \
+		    -e '/ s str\.[0-9][0-9]*$/d' \
 		    -e '/ b \.bss/d' \
 		    -e '/ d \.data/d' \
 		    -e '/ r \.rdata/d' \
