@@ -480,7 +480,6 @@ http_transfer(struct client *client)
     enum http_flags	flags = client->u.http.flags;
     const char		*method;
     sds			buffer, suffix;
-    //int 		buffer_length;
 
     /* If the client buffer length is now beyond a set maximum size,
      * send it using chunked transfer encoding.  Once buffer pointer
@@ -500,12 +499,11 @@ http_transfer(struct client *client)
 		/* headers already sent, send the next chunk of content */
 		buffer = sdsempty();
 	    }
-
-	    //fprintf(stderr, "client buffer length: %lu\n", (unsigned long)sdslen(client->buffer));    
+ 
 	    if ((flags & HTTP_FLAG_COMPRESS_GZIP)){
 		compress_GZIP(client); //To do: handle errors
 	    }
-	    //buffer_length = sdslen(client->buffer);
+	    fprintf(stderr, "After compression buffer len: %lu\n", (unsigned long)sdslen(client->buffer));
 
 	    /* prepend a chunked transfer encoding message length (hex) */
 	    buffer = sdscatprintf(buffer, "%lX\r\n",
@@ -1064,62 +1062,42 @@ close_http_module(struct proxy *proxy)
 
 
 int compress_GZIP(struct client *client) {
-	int flush = Z_NO_FLUSH;
-	int buffer_len = sdslen(client->buffer);
-	sds tmp;
-	char *out; 
-	uLong upper_bound;
+	z_stream *stream = &client->u.http.strm; 
+	size_t input_len = sdslen(client->buffer);
+	uLong upper_bound = deflateBound(stream, input_len);
+	sds final_buffer = sdsnewlen(NULL, upper_bound);
 	
 	
 	fprintf(stderr, "Entered compress GZIP function\n");
 
-	fprintf(stderr, "Entering deflateReset function\n");
-	if (deflateReset(&client->u.http.strm) != Z_OK) {
+	if (deflateReset(stream) != Z_OK) {
 		http_error(client, HTTP_STATUS_INTERNAL_SERVER_ERROR, "Deflate reset failed");
 		return -1;
 	}
-	fprintf(stderr, "deflate reset output is: %d\n", deflateReset(&client->u.http.strm));
 
-
-	fprintf(stderr, "Entering deflate initalization function\n");
-	if (deflateInit2(&client->u.http.strm, Z_DEFAULT_COMPRESSION, Z_DEFLATED, 15 | 16, 8, Z_DEFAULT_STRATEGY) != Z_OK) {
-		http_error(client, HTTP_STATUS_INTERNAL_SERVER_ERROR, "Deflate initalization failed");
-		return -1;
-	}
-	fprintf(stderr, "Deflate init output is: %d\n", deflateInit2(&client->u.http.strm, Z_DEFAULT_COMPRESSION, Z_DEFLATED, 15 | 16, 8, Z_DEFAULT_STRATEGY));
+	fprintf(stderr, "deflate reset output is: %d\n", deflateReset(stream));
 	
-	upper_bound = deflateBound(&client->u.http.strm, buffer_len);
-	//tmp = sdsMakeRoomFor(tmp, upper_bound);
-	out = (char *)malloc(upper_bound);
 
+	stream->next_in = (Bytef *)client->buffer;
+	stream->avail_in = (uInt)input_len;
+	stream->next_out = (Bytef *)final_buffer; 
+	stream->avail_out = (uInt)(upper_bound);
 
-	(client->u.http.strm).next_in = (Bytef *)client->buffer;
-	(client->u.http.strm).avail_in = (uInt)buffer_len;
-	(client->u.http.strm).avail_out = (uInt)(upper_bound);
-	(client->u.http.strm).next_out = (Bytef *)out; 
+	fprintf(stderr, "Avail in is: %d\n", stream->avail_in);
+	fprintf(stderr, "Avail out is: %d\n", stream->avail_out);
 
-	fprintf(stderr, "next in is: %s\n", (client->u.http.strm).next_in);
-	fprintf(stderr, "Avail in is: %d\n", (client->u.http.strm).avail_in);
-	fprintf(stderr, "next out is: %s\n", (client->u.http.strm).next_out);
-	fprintf(stderr, "Avail out is: %d\n", (client->u.http.strm).avail_out);
+	fprintf(stderr, "deflate output is: %d\n", deflate(stream, Z_FINISH));
 
-	fprintf(stderr, "Entering deflate function\n");
-	if (deflate(&client->u.http.strm, flush) != Z_OK) {
+	if (deflate(stream, Z_FINISH) != Z_STREAM_END) {
 		http_error(client, HTTP_STATUS_INTERNAL_SERVER_ERROR, "Deflate failed");
 		return -1;
 	}
-	
-	fprintf(stderr, "deflate output is: %d\n", deflate(&client->u.http.strm, flush));
-	fprintf(stderr, "after compresison Avail in is: %d\n", (client->u.http.strm).avail_in);
-	fprintf(stderr, "after compression Avail out is: %d\n", (client->u.http.strm).avail_out);
-	tmp = (char *)(client->u.http.strm).total_out;
 
-	//tmp = sdsMakeRoomFor(client->buffer, (client->u.http.strm).total_out); // if len(zs.totalout) > len(client->buffer) overflow error
-	//memcpy(tmp, (client->u.http.strm).next_out, (client->u.http.strm).total_out);
-	//sdssetlen(tmp, (client->u.http.strm).total_out);
-	client->buffer = tmp;
-	fprintf(stderr, "tmp client buffer is: %s\n", client->buffer);
+	assert(stream->total_out <= upper_bound);
+	sdssetlen(final_buffer, stream->total_out); 
 
+	sdsfree(client->buffer);
+	client->buffer = final_buffer;
 
 	return 0;
 
