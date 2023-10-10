@@ -17,6 +17,11 @@
 #include "encoding.h"
 #include "dict.h"
 #include "util.h"
+#include "sds.h"
+
+#ifdef HAVE_ZLIB
+#include "zlib.h"
+#endif
 
 static int chunked_transfer_size; /* pmproxy.chunksize, pagesize by default */
 static int smallest_buffer_size = 128;
@@ -221,9 +226,13 @@ http_response_header(struct client *client, unsigned int length, http_code_t sts
 
     header = sdscatfmt(header, "Content-Type: %s%s\r\n",
 		http_content_type(flags), http_content_encoding(flags));
+	/*Added Content-Encoding Header Here if compress gzip variable is flagged*/
+	if (flags & HTTP_FLAG_COMPRESS_GZIP) {
+		header = sdscatfmt(header, "Content-Encoding: gzip\r\n"); 
+	}
     header = sdscatfmt(header, "Date: %s\r\n\r\n",
 		http_date_string(time(NULL), date, sizeof(date)));
-
+	
     if (pmDebugOptions.http && pmDebugOptions.desperate) {
 	fprintf(stderr, "reply headers for response to client %p\n", client);
 	fputs(header, stderr);
@@ -386,12 +395,12 @@ http_reply(struct client *client, sds message,
     if (flags & HTTP_FLAG_STREAMING) {
 	buffer = sdsempty();
 	if (client->buffer == NULL) {	/* no data currently accumulated */
-	    pmsprintf(length, sizeof(length), "%lX", (unsigned long)sdslen(message));
-	    buffer = sdscatfmt(buffer, "%s\r\n%S\r\n", length, message);
+		pmsprintf(length, sizeof(length), "%lX", (unsigned long)sdslen(message));
+	    	buffer = sdscatfmt(buffer, "%s\r\n%S\r\n", length, message);
 	} else if (message != NULL) {
-	    pmsprintf(length, sizeof(length), "%lX",
+		pmsprintf(length, sizeof(length), "%lX",
 				(unsigned long)sdslen(client->buffer) + sdslen(message));
-	    buffer = sdscatfmt(buffer, "%s\r\n%S%S\r\n",
+	   	buffer = sdscatfmt(buffer, "%s\r\n%S%S\r\n",
 				length, client->buffer, message);
 	}
 
@@ -410,7 +419,7 @@ http_reply(struct client *client, sds message,
 	else	/* HTTP_HEAD */
 	    buffer = http_response_header(client, 0, sts, type);
 	suffix = NULL;
-    } else {	/* regular non-chunked response - headers + response body */
+	} else {	/* regular non-chunked response - headers + response body */
 	if (client->buffer == NULL) {
 	    suffix = message;
 	} else if (message != NULL) {
@@ -471,13 +480,16 @@ http_transfer(struct client *client)
     enum http_flags	flags = client->u.http.flags;
     const char		*method;
     sds			buffer, suffix;
+    //int 		buffer_length;
 
     /* If the client buffer length is now beyond a set maximum size,
      * send it using chunked transfer encoding.  Once buffer pointer
      * is copied into the uv_buf_t, clear it in the client, and then
      * return control to caller.
      */
-    if (sdslen(client->buffer) >= chunked_transfer_size) {
+
+    if (sdslen(client->buffer) >= 10/*chunked_transfer_size*/) {
+	fprintf(stderr, "Before compression buffer len: %lu\n", (unsigned long)sdslen(client->buffer));
 	if (parser->http_major == 1 && parser->http_minor > 0) {
 	    if (!(flags & HTTP_FLAG_STREAMING)) {
 		/* send headers (no content length) and initial content */
@@ -488,6 +500,13 @@ http_transfer(struct client *client)
 		/* headers already sent, send the next chunk of content */
 		buffer = sdsempty();
 	    }
+
+	    //fprintf(stderr, "client buffer length: %lu\n", (unsigned long)sdslen(client->buffer));    
+	    if ((flags & HTTP_FLAG_COMPRESS_GZIP)){
+		compress_GZIP(client); //To do: handle errors
+	    }
+	    //buffer_length = sdslen(client->buffer);
+
 	    /* prepend a chunked transfer encoding message length (hex) */
 	    buffer = sdscatprintf(buffer, "%lX\r\n",
 				 (unsigned long)sdslen(client->buffer));
@@ -522,6 +541,8 @@ http_client_release(struct client *client)
 	servlet->on_release(client);
     client->u.http.privdata = NULL;
     client->u.http.servlet = NULL;
+    if (client->u.http.flags & HTTP_FLAG_COMPRESS_GZIP)
+    	deflateEnd(&client->u.http.strm);
     client->u.http.flags = 0;
 
     if (client->u.http.headers) {
@@ -544,6 +565,7 @@ http_client_release(struct client *client)
 	sdsfree(client->u.http.realm);
 	client->u.http.realm = NULL;
     }
+
 }
 
 static int
@@ -771,10 +793,12 @@ on_header_field(http_parser *request, const char *offset, size_t length)
 static int
 on_header_value(http_parser *request, const char *offset, size_t length)
 {
+	// added variable values and nvalues
     struct client	*client = (struct client *)request->data;
     dictEntry		*entry;
     char		*colon;
-    sds			field, value, decoded;
+    sds			field, value, decoded, *values; 
+    int 		i, nvalues = 0;
 
     if (client->u.http.parser.status_code || !client->u.http.headers)
 	return 0;	/* already in process of failing connection */
@@ -805,11 +829,21 @@ on_header_value(http_parser *request, const char *offset, size_t length)
 	    client->u.http.parser.status_code = HTTP_STATUS_UNAUTHORIZED;
 	}
     }
+	// added 
+	if (strncmp(field, "Accept-Encoding", 15) == 0) {
+		values = sdssplitlen(value, sdslen(value), ", ", 2, &nvalues); 
+		for (i = 0; values && i < nvalues; i++) {
+			if (strcmp(values[i], "gzip") == 0) {
+				client->u.http.flags |= HTTP_FLAG_COMPRESS_GZIP; 
+				if (deflateInit2(&client->u.http.strm, Z_DEFAULT_COMPRESSION, Z_DEFLATED, 15 | 16, 8, Z_DEFAULT_STRATEGY) != Z_OK) 
+					client->u.http.parser.status_code = HTTP_STATUS_INTERNAL_SERVER_ERROR;
+			} else if (strcmp(values[i], "br") == 0)
+				client->u.http.flags |= HTTP_FLAG_COMPRESS_BR;
+		}
+		sdsfreesplitres(values, nvalues);
 
-	printf("Hello World");
-	/*if (strncmp(field, "Accept-Encoding", sizeof("Accept-Encoding") ) == 0 && 
-	strncmp(value, "gzip", ) == 0)*/
-	
+	} 
+
     return 0;
 }
 
@@ -1026,4 +1060,68 @@ close_http_module(struct proxy *proxy)
     sdsfree(HEADER_CONTENT_LENGTH);
     sdsfree(HEADER_ORIGIN);
     sdsfree(HEADER_WWW_AUTHENTICATE);
+}
+
+
+int compress_GZIP(struct client *client) {
+	int flush = Z_NO_FLUSH;
+	int buffer_len = sdslen(client->buffer);
+	sds tmp;
+	char *out; 
+	uLong upper_bound;
+	
+	
+	fprintf(stderr, "Entered compress GZIP function\n");
+
+	fprintf(stderr, "Entering deflateReset function\n");
+	if (deflateReset(&client->u.http.strm) != Z_OK) {
+		http_error(client, HTTP_STATUS_INTERNAL_SERVER_ERROR, "Deflate reset failed");
+		return -1;
+	}
+	fprintf(stderr, "deflate reset output is: %d\n", deflateReset(&client->u.http.strm));
+
+
+	fprintf(stderr, "Entering deflate initalization function\n");
+	if (deflateInit2(&client->u.http.strm, Z_DEFAULT_COMPRESSION, Z_DEFLATED, 15 | 16, 8, Z_DEFAULT_STRATEGY) != Z_OK) {
+		http_error(client, HTTP_STATUS_INTERNAL_SERVER_ERROR, "Deflate initalization failed");
+		return -1;
+	}
+	fprintf(stderr, "Deflate init output is: %d\n", deflateInit2(&client->u.http.strm, Z_DEFAULT_COMPRESSION, Z_DEFLATED, 15 | 16, 8, Z_DEFAULT_STRATEGY));
+	
+	upper_bound = deflateBound(&client->u.http.strm, buffer_len);
+	//tmp = sdsMakeRoomFor(tmp, upper_bound);
+	out = (char *)malloc(upper_bound);
+
+
+	(client->u.http.strm).next_in = (Bytef *)client->buffer;
+	(client->u.http.strm).avail_in = (uInt)buffer_len;
+	(client->u.http.strm).avail_out = (uInt)(upper_bound);
+	(client->u.http.strm).next_out = (Bytef *)out; 
+
+	fprintf(stderr, "next in is: %s\n", (client->u.http.strm).next_in);
+	fprintf(stderr, "Avail in is: %d\n", (client->u.http.strm).avail_in);
+	fprintf(stderr, "next out is: %s\n", (client->u.http.strm).next_out);
+	fprintf(stderr, "Avail out is: %d\n", (client->u.http.strm).avail_out);
+
+	fprintf(stderr, "Entering deflate function\n");
+	if (deflate(&client->u.http.strm, flush) != Z_OK) {
+		http_error(client, HTTP_STATUS_INTERNAL_SERVER_ERROR, "Deflate failed");
+		return -1;
+	}
+	
+	fprintf(stderr, "deflate output is: %d\n", deflate(&client->u.http.strm, flush));
+	fprintf(stderr, "after compresison Avail in is: %d\n", (client->u.http.strm).avail_in);
+	fprintf(stderr, "after compression Avail out is: %d\n", (client->u.http.strm).avail_out);
+	tmp = (char *)(client->u.http.strm).total_out;
+
+	//tmp = sdsMakeRoomFor(client->buffer, (client->u.http.strm).total_out); // if len(zs.totalout) > len(client->buffer) overflow error
+	//memcpy(tmp, (client->u.http.strm).next_out, (client->u.http.strm).total_out);
+	//sdssetlen(tmp, (client->u.http.strm).total_out);
+	client->buffer = tmp;
+	fprintf(stderr, "tmp client buffer is: %s\n", client->buffer);
+
+
+	return 0;
+
+
 }

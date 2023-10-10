@@ -21,6 +21,8 @@
 #include <openssl/ssl.h>
 #endif
 
+#include <zlib.h>
+
 #include "pmapi.h"
 #include "mmv_stats.h"
 #include "pmwebapi.h"
@@ -29,6 +31,7 @@
 #include "slots.h"
 #include "http.h"
 #include "pcp.h"
+
 
 typedef enum proxy_registry {
     METRICS_NOTUSED	= 0,	/* special "next available" MMV cluster */
@@ -93,6 +96,7 @@ typedef struct http_client {
     void		*data;		/* opaque servlet information */
     unsigned int	type : 16;	/* HTTP response content type */
     unsigned int	flags : 16;	/* request status flags field */
+    z_stream        strm;
 } http_client_t;
 
 typedef struct pcp_client {
