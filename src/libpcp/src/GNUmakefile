@@ -95,7 +95,7 @@ SYMTARGET =
 endif
 
 LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) $(XFILES) $(LIBCONFIG) \
-	getdate.h derive_parser.y check.done $(GENERATED_HFILES) exports \
+	getdate.h getdate.y derive_parser.y check.done $(GENERATED_HFILES) exports \
 	$(JSONSL_XFILES)
 
 base default : $(XFILES) $(JSONSL_XFILES) \
@@ -123,6 +123,9 @@ $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 .NOTPARALLEL:
 getdate.h getdate.tab.c: getdate.y
 	$(YACC) -d -b `basename $< .y` $< && cp `basename $@ .h`.tab.h $@
+
+getdate.y: getdate.y.in fix_getdate_y
+	./fix_getdate_y
 
 .NOTPARALLEL:
 derive_parser.tab.h derive_parser.tab.c: derive_parser.y derive.h
