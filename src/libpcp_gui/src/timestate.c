@@ -76,15 +76,15 @@ static void timeControlStepped(struct timeval delta)
 {
 }
 
-static void timeControlNewZone(char *timezone, char *label)
+static void timeControlNewZone(char *zone, char *label)
 {
-    int sts = pmNewZone(timezone);
+    int sts = pmNewZone(zone);
 
     if (sts < 0)
 	fprintf(stderr, "%s: Warning: cannot set timezone to \"%s\": %s\n",
-		pmGetProgname(), timezone, pmErrStr(sts));
+		pmGetProgname(), zone, pmErrStr(sts));
     else
-	printf("new timezone: %s (%s)\n", timezone, label);
+	printf("new timezone: %s (%s)\n", zone, label);
 }
 
 /*
