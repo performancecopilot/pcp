@@ -544,6 +544,7 @@ tz.o
     savetz			# guarded by __pmLock_libpcp mutex
     tzbuffer			# guarded by __pmLock_libpcp mutex
     ?wildabbr			# const (MinGW)
+    ?names			# const (clang, MacOSx)
 units.o
     abuf			# pmAtomStr deprecated by pmAtomStr_r
     ubuf			# pmUnitsStr deprecated by pmUnitsStr_r
