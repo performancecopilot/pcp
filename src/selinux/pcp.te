@@ -225,6 +225,9 @@ optional_policy(`
     allow pcp_pmproxy_t self:io_uring { sqpoll };
 ')
 
+ifdef(`kernel_io_uring_use',`
+	kernel_io_uring_use(pcp_pmproxy_t)
+')
 kernel_search_network_sysctl(pcp_pmproxy_t)
 
 logging_send_syslog_msg(pcp_pmproxy_t)
