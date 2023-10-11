@@ -1205,12 +1205,18 @@ eval_expr(__pmContext *ctxp, node_t *np, struct timespec *stamp, int numpmid,
 	    }
 	    else if (np->type == N_SCALAR) {
 		np->data.info->numval = np->left->data.info->numval;
-		if (np->data.info->numval > 1)
-		    /* pick first instance only */
-		    np->data.info->numval = 1;
-		np->data.info->ivlist[0].inst = PM_IN_NULL;
-		np->data.info->ivlist[0].value = np->left->data.info->ivlist[0].value;
-		np->data.info->ivlist[0].vlen = np->left->data.info->ivlist[0].vlen;
+		if (np->data.info->numval <= 0) {
+		    /* nothing to be done ... */
+		    ;
+		}
+		else {
+		    if (np->data.info->numval > 1)
+			/* pick first instance only */
+			np->data.info->numval = 1;
+		    np->data.info->ivlist[0].inst = PM_IN_NULL;
+		    np->data.info->ivlist[0].value = np->left->data.info->ivlist[0].value;
+		    np->data.info->ivlist[0].vlen = np->left->data.info->ivlist[0].vlen;
+		}
 	    }
 	    else {
 		np->data.info->numval = 1;

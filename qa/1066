@@ -102,6 +102,10 @@ qa$seq.m50 = matchinst(/^m-/, sample.mirage)
 # qa/1103
 qa$seq.m51 = (scalar(sample.bin[bin-100]) + scalar(matchinst(/^bin-200$/,sample.bin)) + scalar(sample.bin[bin-300])) / 3
 
+# bugs
+qa$seq.m52 = scalar(sample.bad.novalues)
+qa$seq.m53 = (sample.bin)[bin-500]
+
 # others
 qa$seq.m99 = anon(PM_TYPE_U64)
 End-of-File
