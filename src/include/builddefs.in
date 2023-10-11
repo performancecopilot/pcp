@@ -744,8 +744,9 @@ PYTHON_INSTALL = \
 		dn=`dirname $$f`; \
 		pydir="$(TOPDIR)/src/python"; \
 		$(INSTALL) -d $$dn || exit 1; \
-		src=`find $$pydir/build $$pydir/pcp.egg-info -name $$bn`; \
-		$(INSTALL) $$src $$f || exit 1; \
+		for src in `find $$pydir/build $$pydir/pcp.egg-info -name $$bn`; do \
+		    $(INSTALL) $$src $$f || exit 1; \
+		done; \
 	    done; \
 	fi
 PYTHON3_INSTALL = \
@@ -756,8 +757,9 @@ PYTHON3_INSTALL = \
 		dn=`dirname $$f`; \
 		pydir="$(TOPDIR)/src/python"; \
 		$(INSTALL) -d $$dn || exit 1; \
-		src=`find $$pydir/build $$pydir/pcp.egg-info -name $$bn`; \
-		$(INSTALL) $$src $$f || exit 1; \
+		for src in `find $$pydir/build $$pydir/pcp.egg-info -name $$bn`; do \
+		    $(INSTALL) $$src $$f || exit 1; \
+		done; \
 	    done; \
 	fi
 else
