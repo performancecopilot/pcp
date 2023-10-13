@@ -27,6 +27,7 @@ dh-python
 docker.io
 dpkg-dev
 ed
+expect
 flex
 g++
 gawk
