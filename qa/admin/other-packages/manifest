@@ -192,7 +192,7 @@ brew?		mktemp		[base Darwin install]
 # -- man (QA optional)
 #
 dpkg?		man		[man-db (QA optional)]
-rpm?		man		[? (QA optional)]
+rpm?		man		[man-db or mandoc (QA optional)]
 emerge?		man		[? (QA optional)]
 pkgin?		man		[? (QA optional)]
 pkg_add?	man		[? (QA optional)]
