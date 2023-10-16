@@ -189,6 +189,18 @@ S_pkg?		mktemp		[file/gnu-coreutils]
 slackpkg?	mktemp		[bin]
 pacman?		mktemp		[core/coreutils]
 brew?		mktemp		[base Darwin install]
+# -- man (QA optional)
+#
+dpkg?		man		[man-db (QA optional)]
+rpm?		man		[? (QA optional)]
+emerge?		man		[? (QA optional)]
+pkgin?		man		[? (QA optional)]
+pkg_add?	man		[? (QA optional)]
+F_pkg?		man		[? (QA optional)]
+S_pkg?		man		[? (QA optional)]
+slackpkg?	man		[? (QA optional)]
+pacman?		man		[? (QA optional)]
+brew?		man		[? (QA optional)]
 
 # NetBSD/OpenBSD/FreeBSD specials
 #
@@ -533,6 +545,9 @@ brew?	/usr/local/lib/python3.*/*-packages/psycopg2	[pip3(psycopg2)]
 # -- python pyodbc (mssql PMDA)
 rpm?    /usr/lib*/python3.*/*-packages/pyodbc*          [python3-pyodbc]
 dpkg?	/usr/lib/python3/dist-packages/pyodbc.pyi	[python3-pyodbc]
+# -- python pymongo (mongodb PMDA)
+rpm?    /usr/lib*/python3.*/*-packages/pymongo*		[python3-pymongo]
+dpkg?	/usr/lib/python3/dist-packages/pymongo.pyi	[python3-pymongo]
 # perl modules
 # -- Time::HiRes
 dpkg?	Time::HiRes		[libperl[0-9][0-9.]*]
@@ -703,6 +718,17 @@ S_pkg?	Spreadsheet::XLSX	[cpan(Spreadsheet::XLSX) (QA optional)]
 slackpkg?	Spreadsheet::XLSX	[cpan(Spreadsheet::XLSX) (QA optional)]
 pacman?	Spreadsheet::XLSX	[cpan(Spreadsheet::XLSX) (QA optional)]
 brew?	Spreadsheet::XLSX	[cpan(Spreadsheet::XLSX) (QA optional)]
+# -- Spreadsheet::ReadSXC
+dpkg?	Spreadsheet::ReadSXC	[libspreadsheet-readsxc-perl (QA optional)]
+rpm?	Spreadsheet::ReadSXC	[perl-Spreadsheet-ReadSXC or cpan(Spreadsheet::ReadSXC) (QA optional)]
+emerge?	Spreadsheet::ReadSXC	[cpan(Spreadsheet::ReadSXC) (QA optional)]
+pkgin?	Spreadsheet::ReadSXC	[p5-Spreadsheet-ReadSXC (QA optional)]
+pkg_add?	Spreadsheet::ReadSXC	[cpan(Spreadsheet::ReadSXC) (QA optional)]
+F_pkg?	Spreadsheet::ReadSXC	[p5-Spreadsheet-ReadSXC or cpan(Spreadsheet::ReadSXC) (QA optional)]
+S_pkg?	Spreadsheet::ReadSXC	[cpan(Spreadsheet::ReadSXC) (QA optional)]
+slackpkg?	Spreadsheet::ReadSXC	[cpan(Spreadsheet::ReadSXC) (QA optional)]
+pacman?	Spreadsheet::ReadSXC	[cpan(Spreadsheet::ReadSXC) (QA optional)]
+brew?	Spreadsheet::ReadSXC	[cpan(Spreadsheet::ReadSXC) (QA optional)]
 # -- Text::CSV_XS
 dpkg?	Text::CSV_XS		[libtext-csv-xs-perl or cpan(Text::CSV_XS) (QA optional)]
 rpm?	Text::CSV_XS		[perl-Text-CSV_XS or cpan(Text::CSV_XS) (QA optional)]
@@ -1175,7 +1201,7 @@ S_pkg?	SoQt.h				[N/A (build optional)]
 slackpkg?	SoQt.h			[N/A (build optional)]
 pacman?	/usr/include/Inventor/Qt/SoQt.h	[N/A (build optional)]
 brew?	SoQt.h				[N/A (build optional)]
-dpkg?	/usr/include/Inventor/SoPath.h	[libcoin-dev (build optional)]
+dpkg?	/usr/lib/*/libCoin.so		[libcoin-dev (build optional)]
 rpm?	/usr/include/Inventor/SoPath.h|/usr/include/Coin*/Inventor/SoPath.h	[Coin-devel or Coin[0-9]-devel (build optional)]
 emerge?	/usr/include/coin/Inventor/SoPath.h	[media-libs/coin (build optional)]
 pkgin?		SoPath.h	[N/A (build optional)]
@@ -1421,10 +1447,58 @@ slackpkg?	swrast_dri.so		[? (QA optional)]
 pacman?		/usr/lib/dri/swrast_dri.so	[extra/mesa (QA optional)]
 brew?		swrast_dri.so		[? (QA optional)]
 
+# -- libbpf and libbpf-dev for bpf PMDA
+dpkg?		/usr/lib/*/libbpf.so.*	[libbpf[0-9] (build optional)]
+dpkg?		/usr/include/bpf/bpf.h	[libbpf-dev (build optional)]
+rpm?		/usr/lib*/libbpf.so.*	[libbpf (build optional)]
+dpkg?		/usr/include/bpf/bpf.h	[libbpf-devel (build optional)]
+emerge?		?			[? (build optional)]
+pkgin?		?			[? (build optional)]
+pkg_add?	?			[? (build optional)]
+F_pkg?		?			[? (build optional)]
+S_pkg?		?			[? (build optional)]
+slackpkg?	?			[? (build optional)]
+pacman?		?			[? (build optional)]
+brew?		?			[? (QA optional)]
+
 # -- expect (for bpf PMDA QA)
 #
 dpkg?		expect			[expect (QA optional)]
 rpm?		expect			[expect (QA optional)]
+emerge?		expect			[? (QA optional)]
+pkgin?		expect			[? (QA optional)]
+pkg_add?	expect			[? (QA optional)]
+F_pkg?		expect			[? (QA optional)]
+S_pkg?		expect			[? (QA optional)]
+slackpkg?	expect			[? (QA optional)]
+pacman?		expect			[? (QA optional)]
+brew?		expect			[? (QA optional)]
+
+# -- llvm-strip (for bpf PMDA)
+#
+dpkg?		llvm-strip			[llvm (build optional)]
+rpm?		llvm-strip			[llvm (build optional)]
+emerge?		llvm-strip			[? (build optional)]
+pkgin?		llvm-strip			[? (build optional)]
+pkg_add?	llvm-strip			[? (build optional)]
+F_pkg?		llvm-strip			[? (build optional)]
+S_pkg?		llvm-strip			[? (build optional)]
+slackpkg?	llvm-strip			[? (build optional)]
+pacman?		llvm-strip			[? (build optional)]
+brew?		llvm-strip			[? (build optional)]
+
+# -- clang (for bpf PMDA)
+#
+dpkg?		clang			[clang (build optional)]
+rpm?		clang			[clang (build optional)]
+emerge?		clang			[? (build optional)]
+pkgin?		clang			[? (build optional)]
+pkg_add?	clang			[? (build optional)]
+F_pkg?		clang			[? (build optional)]
+S_pkg?		clang			[? (build optional)]
+slackpkg?	clang			[? (build optional)]
+pacman?		clang			[? (build optional)]
+brew?		clang			[? (build optional)]
 
 # misc
 #
