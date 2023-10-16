@@ -58,9 +58,10 @@ Ubuntu
 
 Debian
     https://wiki.debian.org/DebianReleases
-    17 Nov 2015: 6.0 (squeeze), 7.0 (wheezy) and 8.0 (jessie)
-    04 May 2016: 7.0 (Wheezy), 8.0 (Jessie) and 9.0 (Stretch)
+    16 Oct 2023: 10 (Buster), 11 (Bullseye) and 12 (Bookworm)
     15 Sep 2021: 10 (Buster) and 11 (Bullseye)
+    04 May 2016: 7.0 (Wheezy), 8.0 (Jessie) and 9.0 (Stretch)
+    17 Nov 2015: 6.0 (squeeze), 7.0 (wheezy) and 8.0 (jessie)
     # see Ubuntu for most notes
     #
     # release upgrade reciple
@@ -75,15 +76,22 @@ Debian
     $ sudo vi /etc/apt/sources.list /etc/apt/sources.list.d/*
     # Clean and update package lists
     $ sudo apt clean; sudo apt update
-    # Perform the major release upgrade, removing packages if required
+    # Perform a minor release upgrade, removing packages if required
+    $ sudo apt dist-upgrade
+    # Perform a major release upgrade
+    $ sudo vi /etc/apt/sources.list
+      :g/<oldrelease>/s//<newrelease>/g
+    $ sudo apt update
+    $ sudo apt upgrade --without-new-pkgs
     $ sudo apt full-upgrade
+    # Reboot to make changes effective (optional, but recommended)
+    $ sudo reboot -r now
     # Remove packages that are not required anymore
     $ sudo apt autoremove
-    # Reboot to make changes effective (optional, but recommended)
-    $ sudo shutdown -r now
 
 Fedora
     https://fedoraproject.org/wiki/Releases
+    27 Aug 2023: 38 & 39
     22 May 2023: 37 & 38
     12 Dec 2022: 35, 36 & 37
     07 Sep 2021: 33 & 34
