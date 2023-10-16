@@ -41,6 +41,27 @@ fi
 #
 which systemctl >/dev/null 2>&1 || _notrun "no systemd"
 
+_cleanup()
+{
+    # bit tricky ... if hostname here is boofa-1441, sudo(1)
+    # may babble about "unable to resolve host ...."
+    #
+    cd $here
+    [ -n "$config" ] && _restore_config $config 2>>$seq.full
+    if [ "`hostname`" != "$oldhostname" ]
+    then
+	$sudo hostname "$oldhostname" 2>>$seq.full
+	_wait_for_new_pmlogger "$newlogger"
+	_wait_for_new_pmie "$newpmie"
+    fi
+    for dir in boofa-$seq
+    do
+	$sudo rm -rf "$PCP_LOG_DIR/pmlogger/$dir"
+	$sudo rm -rf "$PCP_LOG_DIR/pmie/$dir"
+    done
+    $sudo rm -rf $tmp $tmp.*
+}
+
 # wait until the primary pmlogger's pid is != $1
 #
 # In the default/zeroconf setup, PMLOGGER_INTERVAL=10 and there are
@@ -156,7 +177,9 @@ then
 fi
 echo "config=$config" >>$seq.full
 _save_config $config
-cat <<'End-of-File' >$tmp.config
+echo "// Installed by PCP QA test $seq on `date`" >$tmp.config
+cat <<'End-of-File' >>$tmp.config
+//
 // 1 cpu.load_average
 delta = 10 sec;
 cpu.load_average = 
@@ -178,6 +201,8 @@ then
     echo "old pmie pid: $oldpmie" >>$seq.full
 else
     echo "Botch: $PCP_RUN_DIR/pmie.pid not found for (restarted) old primary pmie"
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie'
+    cat $PCP_VAR_LOG/pmie/`hostname`/pmie.log
     _cleanup
     exit 1
 fi
@@ -200,27 +225,6 @@ fi
 
 newlogger=0
 newpmie=0
-
-_cleanup()
-{
-    # bit tricky ... if hostname here is boofa-1441, sudo(1)
-    # may babble about "unable to resolve host ...."
-    #
-    cd $here
-    [ -n "$config" ] && _restore_config $config 2>>$seq.full
-    if [ "`hostname`" != "$oldhostname" ]
-    then
-	$sudo hostname "$oldhostname" 2>>$seq.full
-	_wait_for_new_pmlogger "$newlogger"
-	_wait_for_new_pmie "$newpmie"
-    fi
-    for dir in boofa-$seq
-    do
-	$sudo rm -rf "$PCP_LOG_DIR/pmlogger/$dir"
-	$sudo rm -rf "$PCP_LOG_DIR/pmie/$dir"
-    done
-    $sudo rm -rf $tmp $tmp.*
-}
 
 status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
