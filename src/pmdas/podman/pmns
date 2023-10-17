@@ -1,4 +1,6 @@
 /*
+ * Metrics for the podman PMDA
+ *
  * Copyright (c) 2018,2021 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -11,14 +13,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
-#ifndef PODMAN
-#define PODMAN 33
-#endif
-
-root {
-    podman
-}
 
 podman {
     container

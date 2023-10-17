@@ -21,7 +21,6 @@
 iam=podman
 daemon_opt=true
 pipe_opt=true
-pmns_source=root_podman
 
 if [ ! -S /run/podman/podman.sock ]
 then

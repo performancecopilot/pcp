@@ -54,9 +54,8 @@ build-me: $(JSONSL_XFILES) $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help help.dir help.pag root root_podman $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help help.dir help.pag root pmns $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_podman root_podman $(PCP_PMNSADM_DIR)/root_podman
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -72,7 +71,7 @@ default_pcp : default
 install_pcp : install
 
 $(HELPTARGETS) : help
-	$(NEWHELP) -n root_podman -v 2 -o help < help
+	$(NEWHELP) -n root -v 2 -o help < help
 
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
