@@ -100,12 +100,12 @@ static int detect_rapl_domains(void) {
 		fff=fopen(tempfile,"r");
 		if (fff==NULL) {
 			if (pmDebugOptions.appl0)
-    				pmNotifyErr(LOG_ERR, "read_rapl() could not open %s", tempfile);
+    				pmNotifyErr(LOG_ERR, "detect_rapl_domains() could not open %s", tempfile);
 			return -1;
 		}
 		if ( fscanf(fff,"%255s",event_names[pkg][i]) != 1)
 			if (pmDebugOptions.appl0)
-    				pmNotifyErr(LOG_ERR, "read_rapl() could not read %s",event_names[pkg][i]);
+    				pmNotifyErr(LOG_ERR, "detect_rapl_domains() could not read %s",event_names[pkg][i]);
 		valid[pkg][i]=1;
 		fclose(fff);
 		pmsprintf(filenames[pkg][i],sizeof(filenames[pkg][i]),"%s/energy_uj",basename[pkg]);
@@ -377,8 +377,7 @@ static int compute_energy_rate(void) {
 /*
  * Denki PMDA metrics
  *
- * denki.rapl.rate		- usage rates from RAPL
- * denki.rapl.raw		- plain raw values from RAPL
+ * denki.rapl			- cummulative energy from RAPL
  * denki.bat.energy_now_raw	- <battery>/energy_now raw reading, 
  *				  current battery charge in Wh
  * denki.bat.energy_now_rate	- <battery>, current rate of discharging if postive value,
@@ -395,10 +394,8 @@ static int compute_energy_rate(void) {
  */
 
 static pmdaIndom indomtab[] = {
-#define RAPLRATE_INDOM		0	/* serial number for "rapl.rate" instance domain */
-    { RAPLRATE_INDOM, 0, NULL },
-#define RAPLRAW_INDOM		1	/* serial number for "rapl.raw" instance domain */
-    { RAPLRAW_INDOM, 0, NULL },
+#define RAPL_INDOM		0	/* serial number for RAPL instance domain */
+    { RAPL_INDOM, 0, NULL },
 #define ENERGYNOWRAW_INDOM	2	/* serial number for "energy_now_raw" instance domain */
     { ENERGYNOWRAW_INDOM, 0, NULL },
 #define ENERGYNOWRATE_INDOM	3	/* serial number for "energy_now_rate" instance domain */
@@ -410,8 +407,7 @@ static pmdaIndom indomtab[] = {
 };
 
 /* this is merely a convenience */
-static pmInDom	*raplrate_indom = &indomtab[RAPLRATE_INDOM].it_indom;
-static pmInDom	*raplraw_indom = &indomtab[RAPLRAW_INDOM].it_indom;
+static pmInDom	*rapl_indom = &indomtab[RAPL_INDOM].it_indom;
 static pmInDom	*energynowraw_indom = &indomtab[ENERGYNOWRAW_INDOM].it_indom;
 static pmInDom	*energynowrate_indom = &indomtab[ENERGYNOWRATE_INDOM].it_indom;
 static pmInDom	*powernow_indom = &indomtab[POWERNOW_INDOM].it_indom;
@@ -422,17 +418,13 @@ static pmInDom	*capacity_indom = &indomtab[CAPACITY_INDOM].it_indom;
  */
 
 static pmdaMetric metrictab[] = {
-/* rapl.rate */
+/* rapl */
 	{ NULL,
-	{ PMDA_PMID(0,0), PM_TYPE_U32, RAPLRATE_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0,0,0,0,0,0) }, },
-/* rapl.raw */
-	{ NULL,
-	{ PMDA_PMID(0,1), PM_TYPE_U32, RAPLRAW_INDOM, PM_SEM_INSTANT,
+	{ PMDA_PMID(0,0), PM_TYPE_U64, RAPL_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* bat.energy_now_raw */
 	{ NULL,
-	{ PMDA_PMID(1,0), PM_TYPE_DOUBLE, ENERGYNOWRAW_INDOM, PM_SEM_INSTANT,
+	{ PMDA_PMID(1,0), PM_TYPE_DOUBLE, ENERGYNOWRAW_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* bat.energy_now_rate */
 	{ NULL,
@@ -514,22 +506,16 @@ denki_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	if (cluster == 0) {
 		switch (item) {
-			case 0:				/* rapl.rate */
-				if ((sts = pmdaCacheLookup(*raplrate_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
+			case 0:				/* rapl */
+				if ((sts = pmdaCacheLookup(*rapl_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
 					if (sts < 0)
 						pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
 					return PM_ERR_INST;
 				}
-				atom->ul = lookup_rapl_dom(inst)/1000000;
+				atom->ull = lookup_rapl_dom(inst)/1000000;
 				break;
-			case 1:				/* rapl.raw */
-				if ((sts = pmdaCacheLookup(*raplraw_indom, inst, NULL, NULL)) != PMDA_CACHE_ACTIVE) {
-					if (sts < 0)
-						pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(sts));
-					return PM_ERR_INST;
-				}
-				atom->ul = lookup_rapl_dom(inst)/1000000;
-				break;
+			default:
+				return PM_ERR_PMID;
 		}
 	}
 	else if (cluster == 1) {
@@ -595,7 +581,7 @@ denki_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 
 /*
  * wrapper for pmdaInstance which we need to ensure is called with the
- * _current_ contents of the rapl.rate/rapl.raw instance domain.
+ * _current_ contents of the rapl instance domain.
  */
 static int
 denki_instance(pmInDom indom, int foo, char *bar, pmInResult **iresp, pmdaExt *pmda)
@@ -624,15 +610,10 @@ denki_rapl_clear(void)
 {
 	int		sts;
 
-	sts = pmdaCacheOp(*raplrate_indom, PMDA_CACHE_INACTIVE);
+	sts = pmdaCacheOp(*rapl_indom, PMDA_CACHE_INACTIVE);
 	if (sts < 0)
 		pmNotifyErr(LOG_ERR, "pmdaCacheOp(INACTIVE) failed: indom=%s: %s",
-	pmInDomStr(*raplrate_indom), pmErrStr(sts));
-
-	sts = pmdaCacheOp(*raplraw_indom, PMDA_CACHE_INACTIVE);
-	if (sts < 0)
-		pmNotifyErr(LOG_ERR, "pmdaCacheOp(INACTIVE) failed: indom=%s: %s",
-	pmInDomStr(*raplraw_indom), pmErrStr(sts));
+	pmInDomStr(*rapl_indom), pmErrStr(sts));
 }
 
 /* 
@@ -656,13 +637,7 @@ denki_rapl_init(void)
 					pmsprintf(tmp,sizeof(tmp),"%s",event_names[pkg][dom]);
 
 				/* rapl.rate */
-				sts = pmdaCacheStore(*raplrate_indom, PMDA_CACHE_ADD, tmp, NULL);
-				if (sts < 0) {
-					pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s", pmErrStr(sts));
-					return;
-				}
-				/* rapl.raw */
-				sts = pmdaCacheStore(*raplraw_indom, PMDA_CACHE_ADD, tmp, NULL);
+				sts = pmdaCacheStore(*rapl_indom, PMDA_CACHE_ADD, tmp, NULL);
 				if (sts < 0) {
 					pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: %s", pmErrStr(sts));
 					return;
@@ -671,10 +646,8 @@ denki_rapl_init(void)
 		}
 	}
 
-	if (pmdaCacheOp(*raplrate_indom, PMDA_CACHE_SIZE_ACTIVE) < 1)
-		pmNotifyErr(LOG_WARNING, "\"rapl.rate\" instance domain is empty");
-	if (pmdaCacheOp(*raplraw_indom, PMDA_CACHE_SIZE_ACTIVE) < 1)
-		pmNotifyErr(LOG_WARNING, "\"rapl.raw\" instance domain is empty");
+	if (pmdaCacheOp(*rapl_indom, PMDA_CACHE_SIZE_ACTIVE) < 1)
+		pmNotifyErr(LOG_WARNING, "\"rapl\" instance domain is empty");
 }
 
 /* 
@@ -733,11 +706,8 @@ denki_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 		case PM_LABEL_INDOM:
 			serial = pmInDom_serial((pmInDom)ident);
 			switch (serial) {
-				case RAPLRATE_INDOM:
-					pmdaAddLabels(lpp, "{\"indom_name\":\"raplrate\"}");
-					break;
-				case RAPLRAW_INDOM:
-					pmdaAddLabels(lpp, "{\"indom_name\":\"raplraw\"}");
+				case RAPL_INDOM:
+					pmdaAddLabels(lpp, "{\"indom_name\":\"rapl\"}");
 					break;
 				case ENERGYNOWRAW_INDOM:
 					pmdaAddLabels(lpp, "{\"units\":\"watt hours\"}");
