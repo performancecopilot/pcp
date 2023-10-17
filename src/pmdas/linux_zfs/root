@@ -3,4 +3,11 @@
  */
 
 #include <stdpmid>
-#include "root_zfs"
+
+#ifndef ZFS
+#define ZFS 153
+#endif
+
+root { zfs }
+
+#include "pmns"
