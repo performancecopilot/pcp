@@ -36,13 +36,13 @@ static int has_rapl = 0, has_bat = 0;			/* Has the system any rapl or battery? *
 static int total_cores, total_packages;			/* detected cpu cores and rapl packages */
 static int package_map[MAX_PACKAGES];
 char event_names[MAX_PACKAGES][MAX_RAPL_DOMAINS][256];	/* rapl domain names */
-long long raplvars[MAX_PACKAGES][MAX_RAPL_DOMAINS];	/* rapl domain readings */
+uint64_t raplvars[MAX_PACKAGES][MAX_RAPL_DOMAINS];	/* rapl domain readings */
 static int valid[MAX_PACKAGES][MAX_RAPL_DOMAINS];	/* Is this rapl domain valid? */
 static char filenames[MAX_PACKAGES][MAX_RAPL_DOMAINS][256]; /* pathes to the rapl domains */
 
 static int detect_rapl_packages(void);			/* detect RAPL packages, cpu cores */
 static int detect_rapl_domains(void);			/* detect RAPL domains */
-long long lookup_rapl_dom(int);				/* map instance to 2-dimensional domain matrix */
+uint64_t lookup_rapl_dom(int);				/* map instance to 2-dimensional domain matrix */
 static int read_rapl(void);				/* read RAPL values */
 
 static char rootpath[512] = "/";			/* path to rootpath, gets changed for regression tests */
@@ -147,7 +147,7 @@ static int read_rapl(void) {
     						pmNotifyErr(LOG_ERR, "read_rapl() could not open %s",filenames[pkg][dom]);
 				}
 				else {
-					if ( fscanf(fff,"%lld",&raplvars[pkg][dom]) != 1)
+					if ( fscanf(fff,"%" FMT_UINT64,&raplvars[pkg][dom]) != 1)
 						if (pmDebugOptions.appl0)
     							pmNotifyErr(LOG_ERR, "read_rapl() could not read %s",filenames[pkg][dom]);
 					fclose(fff);
@@ -167,9 +167,9 @@ static int battery_comp_rate = 60;			/* timespan in sec, after which we recomput
 							   If we have one battery (batteries==1), that battery data
 							   is in energy_now[0], power_now[0] and so on.				*/
 
-long long energy_now[MAX_BATTERIES];			/* <battery>/energy_now or <battery>/charge_now readings		*/
-long long energy_now_old[MAX_BATTERIES];
-long long power_now[MAX_BATTERIES];			/* <battery>/power_now readings, driver computed power consumption	*/
+uint64_t energy_now[MAX_BATTERIES];			/* <battery>/energy_now or <battery>/charge_now readings		*/
+uint64_t energy_now_old[MAX_BATTERIES];
+uint64_t power_now[MAX_BATTERIES];			/* <battery>/power_now readings, driver computed power consumption	*/
 int capacity[MAX_BATTERIES];				/* <battery>/capacity readings, percentage of original capacity		*/
 
 time_t secondsnow, secondsold;						/* time stamps, to understand if we need to recompute	*/
@@ -302,7 +302,7 @@ static int read_batteries(void) {
 				pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
 			continue;
 		}
-		if ( fscanf(fff,"%lld",&energy_now[bat]) != 1)
+		if ( fscanf(fff,"%" FMT_UINT64,&energy_now[bat]) != 1)
 			if (pmDebugOptions.appl0)
 				pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
 		fclose(fff);
@@ -315,7 +315,7 @@ static int read_batteries(void) {
 				pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
 			continue;
 		}
-		if ( fscanf(fff,"%lld",&power_now[bat]) != 1)
+		if ( fscanf(fff,"%" FMT_UINT64,&power_now[bat]) != 1)
 			if (pmDebugOptions.appl0)
 				pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
 		fclose(fff);
@@ -424,7 +424,7 @@ static pmdaMetric metrictab[] = {
 	PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* bat.energy_now_raw */
 	{ NULL,
-	{ PMDA_PMID(1,0), PM_TYPE_DOUBLE, ENERGYNOWRAW_INDOM, PM_SEM_COUNTER,
+	{ PMDA_PMID(1,0), PM_TYPE_DOUBLE, ENERGYNOWRAW_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* bat.energy_now_rate */
 	{ NULL,
@@ -436,7 +436,7 @@ static pmdaMetric metrictab[] = {
 	PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* bat.capacity */
 	{ NULL,
-	{ PMDA_PMID(1,3), PM_TYPE_32, CAPACITY_INDOM, PM_SEM_INSTANT,
+	{ PMDA_PMID(1,3), PM_TYPE_U64, CAPACITY_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, }
 };
 
@@ -475,7 +475,7 @@ static pmdaOptions opts = {
  * Our rapl readings are in a 2-dimensional array, map them here
  * to the 1-dimentional indom numbers
  */
-long long lookup_rapl_dom(int instance) {
+uint64_t lookup_rapl_dom(int instance) {
 
 	int		pkg,dom,domcnt=0;
 

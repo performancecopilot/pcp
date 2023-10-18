@@ -8,29 +8,16 @@ QA output created by 1653
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
-Check denki metrics have appeared ... 6 metrics and 8 values
+Check denki metrics have appeared ... 5 metrics and 4 values
 
-denki.rapl.rate
-    Data Type: 32-bit unsigned int  InDom: 156.0 0x27000000
+denki.rapl
+    Data Type: 64-bit unsigned int  InDom: 156.0 0x27000000
     Semantics: counter  Units: none
-    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
-    inst [0 or "0-package-1"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
-    inst [1 or "0-core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
-    inst [2 or "1-package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
-    inst [3 or "1-core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
-    inst [2 or "1-package-0"] value 13719
-    inst [1 or "0-core"] value 3483
-    inst [3 or "1-core"] value 8334
-    inst [0 or "0-package-1"] value 8826
-
-denki.rapl.raw
-    Data Type: 32-bit unsigned int  InDom: 156.1 0x27000001
-    Semantics: instant  Units: none
-    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
-    inst [0 or "0-package-1"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
-    inst [1 or "0-core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
-    inst [2 or "1-package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
-    inst [3 or "1-core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
+    inst [0 or "0-package-1"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
+    inst [1 or "0-core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
+    inst [2 or "1-package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
+    inst [3 or "1-core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
     inst [2 or "1-package-0"] value 13719
     inst [1 or "0-core"] value 3483
     inst [3 or "1-core"] value 8334
@@ -55,7 +42,7 @@ denki.bat.power_now
 No value(s) available!
 
 denki.bat.capacity
-    Data Type: 32-bit int  InDom: 156.5 0x27000005
+    Data Type: 64-bit unsigned int  InDom: 156.5 0x27000005
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"percent","userid":USERID}
 No value(s) available!
@@ -65,18 +52,12 @@ No value(s) available!
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
-Check denki metrics have appeared ... 6 metrics and 4 values
+Check denki metrics have appeared ... 5 metrics and 3 values
 
-denki.rapl.rate
-    Data Type: 32-bit unsigned int  InDom: 156.0 0x27000000
+denki.rapl
+    Data Type: 64-bit unsigned int  InDom: 156.0 0x27000000
     Semantics: counter  Units: none
-    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
-No value(s) available!
-
-denki.rapl.raw
-    Data Type: 32-bit unsigned int  InDom: 156.1 0x27000001
-    Semantics: instant  Units: none
-    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
 No value(s) available!
 
 denki.bat.energy_now_raw
@@ -101,7 +82,7 @@ denki.bat.power_now
     inst [N or BATTERY-N"] value 4.077
 
 denki.bat.capacity
-    Data Type: 32-bit int  InDom: 156.5 0x27000005
+    Data Type: 64-bit unsigned int  InDom: 156.5 0x27000005
     Semantics: instant  Units: none
     labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"percent","userid":USERID}
     inst [N or BATTERY-N"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","machineid":"MACHINEID","units":"percent","userid":USERID}
@@ -112,29 +93,16 @@ denki.bat.capacity
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
-Check denki metrics have appeared ... 6 metrics and 16 values
+Check denki metrics have appeared ... 5 metrics and 10 values
 
-denki.rapl.rate
-    Data Type: 32-bit unsigned int  InDom: 156.0 0x27000000
+denki.rapl
+    Data Type: 64-bit unsigned int  InDom: 156.0 0x27000000
     Semantics: counter  Units: none
-    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
-    inst [0 or "package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
-    inst [1 or "core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
-    inst [2 or "uncore"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
-    inst [3 or "dram"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
-    inst [2 or "uncore"] value 1
-    inst [1 or "core"] value 1568
-    inst [3 or "dram"] value 2120
-    inst [0 or "package-0"] value 2977
-
-denki.rapl.raw
-    Data Type: 32-bit unsigned int  InDom: 156.1 0x27000001
-    Semantics: instant  Units: none
-    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
-    inst [0 or "package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
-    inst [1 or "core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
-    inst [2 or "uncore"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
-    inst [3 or "dram"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
+    inst [0 or "package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
+    inst [1 or "core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
+    inst [2 or "uncore"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
+    inst [3 or "dram"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
     inst [2 or "uncore"] value 1
     inst [1 or "core"] value 1568
     inst [3 or "dram"] value 2120
@@ -181,29 +149,16 @@ denki.bat.capacity
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
-Check denki metrics have appeared ... 6 metrics and 12 values
+Check denki metrics have appeared ... 5 metrics and 7 values
 
-denki.rapl.rate
-    Data Type: 32-bit unsigned int  InDom: 156.0 0x27000000
+denki.rapl
+    Data Type: 64-bit unsigned int  InDom: 156.0 0x27000000
     Semantics: counter  Units: none
-    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
-    inst [0 or "package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
-    inst [1 or "core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
-    inst [2 or "uncore"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
-    inst [3 or "dram"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplrate","machineid":"MACHINEID","userid":USERID}
-    inst [1 or "core"] value 12628
-    inst [0 or "package-0"] value 26716
-    inst [2 or "uncore"] value 2711
-    inst [3 or "dram"] value 7743
-
-denki.rapl.raw
-    Data Type: 32-bit unsigned int  InDom: 156.1 0x27000001
-    Semantics: instant  Units: none
-    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
-    inst [0 or "package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
-    inst [1 or "core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
-    inst [2 or "uncore"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
-    inst [3 or "dram"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"raplraw","machineid":"MACHINEID","userid":USERID}
+    labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
+    inst [0 or "package-0"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
+    inst [1 or "core"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
+    inst [2 or "uncore"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
+    inst [3 or "dram"] labels {"agent":"denki","domainname":"DOMAINNAME","groupid":GROUPID,"hostname":"HOSTNAME","indom_name":"rapl","machineid":"MACHINEID","userid":USERID}
     inst [1 or "core"] value 12628
     inst [0 or "package-0"] value 26716
     inst [2 or "uncore"] value 2711
