@@ -29,8 +29,7 @@ HFILES		= zfs_utils.h zfs_pools.h zfs_zilstats.h zfs_zfetchstats.h zfs_xuiostats
 
 SCRIPTS		= Install Remove
 VERSION_SCRIPT	= exports
-HELPTARGETS	= help.dir help.pag
-LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT)
+LDIRT		= domain.h $(VERSION_SCRIPT)
 
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
@@ -44,12 +43,12 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
+build-me: $(LIBTARGET) $(CMDTARGET)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help help.dir help.pag root pmns $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help root pmns $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
 	@$(INSTALL_MAN)
 else
@@ -60,9 +59,6 @@ endif
 default_pcp : default
 
 install_pcp : install
-
-$(HELPTARGETS) : help
-	$(NEWHELP) -n root -v 2 -o help < help
 
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
