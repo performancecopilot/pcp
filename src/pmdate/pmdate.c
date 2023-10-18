@@ -73,10 +73,10 @@ main(int argc, char *argv[])
 		now += sgn * val;
 		break;
 	    case 'M':
-		now += sgn * val * 60;
+		now += sgn * val * 60L;
 		break;
 	    case 'H':
-		now += sgn * (long)val * 60 * 60;
+		now += sgn * val * 60 * 60L;
 		break;
 	    case 'd':
 		now += sgn * val * 24 * 60 * 60;
