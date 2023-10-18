@@ -76,7 +76,7 @@ main(int argc, char *argv[])
 		now += sgn * val * 60;
 		break;
 	    case 'H':
-		now += sgn * val * 60 * 60;
+		now += sgn * (long)val * 60 * 60;
 		break;
 	    case 'd':
 		now += sgn * val * 24 * 60 * 60;
