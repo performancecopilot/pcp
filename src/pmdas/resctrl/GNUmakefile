@@ -49,6 +49,7 @@ install_pcp install:	default
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(CMDTARGET) $(LIBTARGET) $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) root pmns domain.h $(DFILES) $(PMDAADMDIR)
+	$(INSTALL) -m 644 sys-fs-resctrl.mount $(PCP_ETC_DIR)/systemd/system/sys-fs-resctrl.mount
 	@$(INSTALL_MAN)
 
 $(VERSION_SCRIPT):

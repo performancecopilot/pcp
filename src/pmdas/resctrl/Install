@@ -20,18 +20,8 @@
 
 if [ ! -d /sys/fs/resctrl/mon_data ] ; then
     VENDOR=$(lscpu | awk '/^Vendor ID/ {print $3}')
-    case "$VENDOR" in
-	*Intel*)
-	    mount -t resctrl resctrl -o mba_MBps /sys/fs/resctrl
-	    STATUS=$?
-	    ;;
-	*AMD*)
-	    mount -t resctrl resctrl -o cdp /sys/fs/resctrl
-	    STATUS=$?
-	    ;;
-	*)
-	    STATUS=1
-    esac
+    systemctl enable --now sys-fs-resctrl.mount
+    STATUS=$?
     if [ $STATUS -eq 0 ] ; then
 	echo "Mounted /sys/fs/resctrl/mon_data"
     elif [ -z "$PCP_RESCTRL_DIR" -o ! -d $PCP_RESCTRL_DIR/mon_data ] ; then
