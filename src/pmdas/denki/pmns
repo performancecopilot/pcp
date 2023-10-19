@@ -20,8 +20,7 @@ denki {
 }
 
 denki.bat {
-    energy_now_raw	DENKI:1:0
-    energy_now_rate	DENKI:1:1
-    power_now		DENKI:1:2
-    capacity		DENKI:1:3
+    energy_now	DENKI:1:0
+    power_now	DENKI:1:1
+    capacity	DENKI:1:2
 }
