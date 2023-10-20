@@ -3,8 +3,8 @@ exec_prefix=@PREFIX@
 libdir=@LIBDIR@
 includedir=@INCDIR@
 
-Name: libpcp_arch
+Name: libpcp_archive
 Description: The Performance Co-Pilot archive writer library
 Version: @VERSION@
-Libs: -L${libdir} -lpcp_arch -lpcp
+Libs: -L${libdir} -lpcp_archive -lpcp
 Cflags: -I${includedir}
