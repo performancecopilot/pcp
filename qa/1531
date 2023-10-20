@@ -25,7 +25,7 @@ then
     # for this test
     #
     cd $PCP_PMDAS_DIR/zfs
-    $sudo $PCP_BINADM_DIR/newhelp help
+    $sudo $PCP_BINADM_DIR/newhelp -n root -o help <help
     cd $here
 fi
 
