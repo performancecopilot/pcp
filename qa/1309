@@ -13,6 +13,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ $PCP_PLATFORM = linux ] || _notrun "Linux ZFS PMDA is Linux-specific (uses procfs)"
+[ -d $PCP_PMDAS_DIR/zfs ] || _notrun "Linux ZFS PMDA not installed"
 grep -q zfs /proc/filesystems || _notrun "ZFS filesystem unsupported by the running kernel"
 which zpool > /dev/null || _notrun "zpool not found, please check your OpenZFS installation"
 zpool -? 2>&1 | grep -q "make sure that the zfs-fuse daemon is running."
@@ -34,7 +35,7 @@ _filter()
 }
 
 pmda=$PCP_PMDAS_DIR/zfs/pmda_zfs.so,zfs_init
-pmns=$PCP_VAR_DIR/pmns/root_zfs
+pmns=$PCP_PMDAS_DIR/zfs/root
 opts="-L -K clear -K add,153,$pmda -n $pmns"
 export ZFS_PATH=
 poolname=pmdazfs_test
