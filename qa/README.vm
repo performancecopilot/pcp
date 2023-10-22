@@ -30,6 +30,16 @@ version specific I'm afraid ... good luck with that!
 
 === Distro Releases and Packaging Hints ===
 
+dpkg
+    # purge removed packages
+    $ dpkg --list |grep "^rc" | cut -d " " -f 3 | xargs sudo dpkg --purge
+    # largest installed packages on disk
+    $ dpkg-query -Wf '${db:Status-Status} ${Installed-Size}\t${Package}\n' | sed -ne 's/^installed //p' | sort -n
+
+rpm
+    # largest installed packages on disk
+    $ rpm -qa --queryformat '%{SIZE} %{NAME} \n' | sort -n
+
 Ubuntu
     https://wiki.ubuntu.com/Releases
     20 Nov 2022: 22.10 (Kinetic) 22.04.1 LTS (Jammy), 20.04.5 LTS (Focal),
