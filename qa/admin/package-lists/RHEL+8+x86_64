@@ -35,6 +35,8 @@ iproute
 httpd
 initscripts
 java-latest-openjdk-headless
+jq
+libbpf
 libicu-devel
 libpfm-devel
 libuv-devel
@@ -76,7 +78,6 @@ postfix-perl-scripts
 postgresql
 psmisc
 pylint
-python2-devel
 python3-bcc
 python3-elasticsearch
 python3-jsonpointer
