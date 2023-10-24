@@ -1058,7 +1058,7 @@ pacman?	memcached		[extra/memcached (QA optional)]
 brew?	memcached		[memcached (QA optional)]
 # -- zabbix
 dpkg?	zabbix_agentd		[zabbix-agent (QA optional)]
-rpm?	zabbix_agentd		[zabbix-agent or zabbix22-agent (QA optional)]
+rpm?	zabbix_agentd		[zabbix-agent or zabbix[0-9][.0-9]*-agent (QA optional)]
 emerge?	zabbix_agentd		[net-analyzer/zabbix (QA optional)]
 pkgin?	zabbix_agentd		[zabbix-agent (QA optional)]
 pkg_add?	zabbix_agentd	[zabbix-agent (QA optional)]
@@ -1345,7 +1345,7 @@ pacman?		mkfs.xfs	[core/xfsprogs (QA optional)]
 brew?		mkfs.xfs	[N/A (QA optional)]
 # -- java (bcc PMDA QA)
 dpkg?		/usr/lib/jvm/java-*/lib/server/libjvm.so [openjdk-11-jre-headless (QA optional)]
-rpm?		/usr/lib/jvm/java-*/lib/server/libjvm.so [java-latest-openjdk-headless or java-17-openjdk-headless (QA optional)]
+rpm?		/usr/lib/jvm/java-*/lib/server/libjvm.so [java-latest-openjdk-headless or java-[0-9][0-9]*-openjdk-headless (QA optional)]
 # -- redis (pmproxy, pmseries QA)
 dpkg?		redis-server	[redis-server (QA optional)]
 dpkg?		redis-cli	[redis-cli or redis-tools (QA optional)]

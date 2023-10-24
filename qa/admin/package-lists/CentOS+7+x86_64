@@ -14,6 +14,7 @@ bc
 bcc-tools
 bind-utils
 bison
+clang
 coreutils
 cppcheck
 cronie
@@ -27,6 +28,7 @@ device-mapper-devel
 docker
 docker-common
 ed
+expect
 flex
 gawk
 gcc
@@ -40,6 +42,7 @@ httpd
 infiniband-diags-devel
 initscripts
 java-11-openjdk-headless
+jq
 kubernetes-client
 kubernetes-node
 libcmocka-devel
@@ -48,7 +51,6 @@ libpfm-devel
 libuv-devel
 libvirt-daemon
 libvirt-daemon-driver-qemu
-libvirt-python
 llvm
 llvm-devel
 lm_sensors
@@ -62,8 +64,8 @@ mesa-dri-drivers
 ncurses-devel
 net-tools
 nmap
-openssl11
-openssl11-devel
+openssl
+openssl-devel
 perl
 perl-CPAN
 perl-DBD-MySQL
@@ -89,7 +91,6 @@ postfix-perl-scripts
 postgresql
 psmisc
 pylint
-python-devel
 python3-devel
 python3-libs
 python3-psycopg2
@@ -118,6 +119,7 @@ socat
 sqlite
 sysstat
 systemd-devel
+systemtap-devel
 systemtap-sdt-devel
 time
 valgrind
