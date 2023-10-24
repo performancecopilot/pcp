@@ -69,6 +69,7 @@ End-of-File
 	exit
     fi
 
+    touch $tmp.matched
     awk <$home/other-packages/manifest '{ print NR ":" $0 }' \
     | grep ":$tag?" \
     | sed \
@@ -111,6 +112,7 @@ End-of-File
 BEGIN		{ sts=1 }
 		{ for (i = 1; i <= NF; i++) {
 		    if ($i == "'"$pkg"'" || $i ~ /^'"$pkg_re"'$/) {
+			print $0 >>"'$tmp.matched'"
 			sts=0
 			exit
 		    }
@@ -206,6 +208,17 @@ END		{ exit sts }'
 	fi
     done
 
+    # and does the packing list contain lines that do not match the
+    # manifest?
+    sed <$tmp.list -e '/cpan(/d' -e '/pip3(/d' \
+    | sort -o $tmp.list
+    sort -o $tmp.matched $tmp.matched
+    comm -23 $tmp.list $tmp.matched >$tmp.no-manifest
+    if [ -s $tmp.no-manifest ]
+    then
+	echo "In packing list, but not in manifest ..."
+	fmt -72 <$tmp.no-manifest | sed -e 's/^/    /'
+    fi
 }
 
 export LC_COLLATE=POSIX
@@ -417,7 +430,7 @@ then
 	    then
 		# note using yum's system cache, so no metadata refresh
 		#
-		( yum -C list available; yum list installed ) 2>&1 \
+		( yum -C list available; yum -C list installed ) 2>&1 \
 		| sed >$tmp.allpkgs \
 		    -e '1,/^[^ ]* Packages/d' \
 		    -e 's/ .*//' \
