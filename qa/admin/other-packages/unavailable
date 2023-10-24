@@ -31,11 +31,11 @@ CentOS       6\.10    -       389-ds apache2 avahi-utils bpftrace ccache chan-de
 #     8   jessie
 #     9   stretch
 #    10   buster
-#    11   bullseye (testing)
+#    11   bullseye
 #     ?   sid (unstable)
-Debian       bullseye -       apache2-mpm-worker avahi-tools libicu libreadline6-dev libsoqt-dev libsoqt-dev-common libuv-dev mariadb-client-core mysql-client-core mysql-client-core-[0-9][0-9.]* perl-modules qt4-qmake redis-cli zfsutils-linux
+Debian       11\..*   -       apache2-mpm-worker avahi-tools libicu libreadline6-dev libsoqt-dev libsoqt-dev-common libuv-dev mariadb-client-core mysql-client-core mysql-client-core-[0-9][0-9.]* perl-modules qt4-qmake redis-cli zfsutils-linux
 Debian       10\..*   -       apache2-mpm-worker avahi-tools kubernetes-client libreadline6-dev libsoqt5-dev libsoqt-dev libsoqt-dev-common libuv-dev mariadb-client-core mysql-client-core mysql-client-core-[0-9][0-9.]* perl-modules realpath redis-cli zfsutils-linux
-Debian       10\..*   i.86    bpftrace
+Debian       10\..*   i.86    bpftrace bpfcc-tools
 Debian       9\..*    -       bpftrace docker.io kubernetes-client libsoqt5-dev libuv-dev python3-bpfcc redis-cli
 Debian       8\.[11]  -       avahi-tools cpan(Text::CSV_XS) docker.io kubernetes-client libcoin-dev libsoqt5-dev libspreadsheet-readsxc-perl libuv1-dev mariadb-client-core mysql-client-core python3-bpfcc python3-openpyxl python3-prometheus-client python-prometheus-client zfsutils-linux
 #-- Fedora

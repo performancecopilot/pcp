@@ -215,9 +215,6 @@ pkg_add?	pkg_locate	[pkglocatedb]
 # Gentoo specials
 emerge?		equery		[app-portage/gentoolkit]
 
-# Darwin specials
-brew?		python3		[python]
-
 # optional executables
 #
 dpkg?	chrpath			[chrpath]
@@ -266,6 +263,17 @@ S_pkg?		pkg-config	[developer/build/pkg-config]
 slackpkg?	pkg-config	[pkg-config]
 pacman?		pkg-config	[core/pkgconf]
 brew?		pkg-config	[pkg-config]
+# -- python
+dpkg?		python3		[python3-minimal]
+rpm?		python3		[python3]
+emerge?		python3		[?]
+pkgin?		python3		[?]
+pkg_add?	python3		[?]
+F_pkg?		python3		[?]
+S_pkg?		python3		[?]
+slackpkg?	python3		[?]
+pacman?		python3		[?]
+brew?		python3		[python]
 # -- pylint
 dpkg?		pylint		[pylint (build optional)]
 rpm?		pylint		[pylint or python3-pylint (build optional)]

@@ -15,6 +15,7 @@ bison
 bsd-mailx
 build-essential
 chrpath
+clang
 coreutils
 Text::CSV_XS cpan
 cppcheck
@@ -25,6 +26,7 @@ dh-python
 docker.io not4ci
 dpkg-dev
 ed
+expect 
 flex
 g++
 gawk
@@ -34,7 +36,9 @@ gfs2-utils
 git
 grep
 iproute2
+jq
 libavahi-common-dev
+libbpf-dev 
 libclass-dbi-perl
 libcmocka-dev
 libdbd-mysql-perl
@@ -54,8 +58,6 @@ libncurses5-dev
 libnet-snmp-perl
 libperl5.28
 libpfm4-dev
-libpython-dev
-libpython-stdlib
 libpython3-dev
 libpython3-stdlib
 libqt5svg5-dev
@@ -78,6 +80,7 @@ libvirt-daemon-system
 libxml-libxml-perl
 libxml-tokeparser-perl
 libyaml-libyaml-perl
+llvm 
 lm-sensors
 make
 man-db
@@ -94,10 +97,7 @@ pkg-config
 postgresql-client-common
 psmisc
 pylint
-python
-python-all
-python-all-dev
-python-dev
+python3-minimal
 python3-all
 python3-all-dev
 python3-dev
@@ -126,6 +126,7 @@ sed
 smartmontools
 socat
 sysstat
+systemtap
 systemtap-sdt-dev
 time
 unbound
