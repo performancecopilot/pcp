@@ -1477,7 +1477,7 @@ brew?		expect			[? (QA optional)]
 # -- llvm-strip (for bpf PMDA)
 #
 dpkg?		llvm-strip			[llvm (build optional)]
-rpm?		llvm-strip			[llvm (build optional)]
+rpm?		llvm-strip			[llvm or llvm-devel (build optional)]
 emerge?		llvm-strip			[? (build optional)]
 pkgin?		llvm-strip			[? (build optional)]
 pkg_add?	llvm-strip			[? (build optional)]
@@ -1529,7 +1529,7 @@ brew?		jq			[? (QA optional)]
 # -- stap (for pmcd QA)
 #
 dpkg?		stap			[systemtap (QA optional)]
-rpm?		stap			[systemtap (QA optional)]
+rpm?		stap			[systemtap-devel (QA optional)]
 emerge?		stap			[? (QA optional)]
 pkgin?		stap			[? (QA optional)]
 pkg_add?	stap			[? (QA optional)]
@@ -1558,8 +1558,7 @@ dpkg?		/usr/share/doc/bpftrace-dbgsym	[bpftrace-dbgsym]
 
 # misc
 #
-redhat?		/usr/sbin/qshape	[postfix-perl-scripts]
-centos?		/usr/sbin/qshape	[postfix-perl-scripts]
+rpm?		/usr/sbin/qshape	[postfix-perl-scripts]
 mandriva?	/usr/sbin/qshape	[postfix]
 suse?		/usr/share/doc/packages/postfix-doc/auxiliary/qshape/qshape.pl		[postfix-doc]
 arch?		/usr/bin/qshape		[N/A (build optional)]

@@ -69,10 +69,11 @@ End-of-File
 	exit
     fi
 
-    touch $tmp.matched
+    rm -f $tmp.matched
     awk <$home/other-packages/manifest '{ print NR ":" $0 }' \
     | grep ":$tag?" \
     | sed \
+	-e 's/[ 	]*#.*//' \
 	-e 's/:[^[]*\[/ /' \
 	-e 's/  *$//' \
 	-e 's/ *]$//' \
@@ -128,7 +129,8 @@ END		{ exit sts }'
 		    echo "manifest:$lineno $pkg: in packing list, but not available?"
 		else
 		    touch $tmp.ok
-		    break
+		    # keep going so we check all the pkg in $pkgs from the
+		    # manifest
 		fi
 	    fi
 	done
@@ -210,14 +212,17 @@ END		{ exit sts }'
 
     # and does the packing list contain lines that do not match the
     # manifest?
-    sed <$tmp.list -e '/cpan(/d' -e '/pip3(/d' \
-    | sort -o $tmp.list
-    sort -o $tmp.matched $tmp.matched
-    comm -23 $tmp.list $tmp.matched >$tmp.no-manifest
-    if [ -s $tmp.no-manifest ]
+    if [ -s $tmp.matched ]
     then
-	echo "In packing list, but not in manifest ..."
-	fmt -72 <$tmp.no-manifest | sed -e 's/^/    /'
+	sed <$tmp.list -e '/cpan(/d' -e '/pip3(/d' \
+	| sort -o $tmp.list
+	sort -o $tmp.matched $tmp.matched
+	comm -23 $tmp.list $tmp.matched >$tmp.no-manifest
+	if [ -s $tmp.no-manifest ]
+	then
+	    echo "In packing list, but not in manifest ..."
+	    fmt -72 <$tmp.no-manifest | sed -e 's/^/    /'
+	fi
     fi
 }
 

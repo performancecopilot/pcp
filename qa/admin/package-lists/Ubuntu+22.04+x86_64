@@ -141,5 +141,3 @@ libbpf0
 libbpf-dev
 clang
 llvm
-fakeroot
-

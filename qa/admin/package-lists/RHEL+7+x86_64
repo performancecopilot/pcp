@@ -15,6 +15,7 @@ bc
 bcc-tools
 bind-utils
 bison
+clang
 coreutils
 cppcheck
 cronie
@@ -27,6 +28,7 @@ cyrus-sasl-plain
 docker
 docker-common
 ed
+expect
 flex
 gawk
 gcc
@@ -39,14 +41,17 @@ iproute
 httpd
 initscripts
 java-latest-openjdk-headless
+jq
 kubernetes-client
 kubernetes-node
+libcmocka-devel
 libicu-devel
 libpfm-devel
 libuv-devel
 libvirt-daemon
 libvirt-daemon-driver-qemu
 libvirt-python
+llvm
 lm_sensors
 mailx
 make
@@ -58,8 +63,8 @@ mesa-dri-drivers
 ncurses-devel
 net-tools
 nmap
-openssl11
-openssl11-devel
+openssl
+openssl-devel
 perl
 perl-CPAN
 perl-DBD-MySQL
@@ -112,6 +117,7 @@ socat
 sqlite
 sysstat
 systemd-devel
+systemtap-devel
 systemtap-sdt-devel
 time
 valgrind
