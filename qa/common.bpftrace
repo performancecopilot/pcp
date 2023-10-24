@@ -146,3 +146,10 @@ _pmdabpftrace_check_probes()
 	# NOTREACHED
     fi
 }
+
+# on vm03 the PMDA takes a long time to get into gear
+#
+export PMCD_CREDS_TIMEOUT=10
+# which means we need to restart pmcd as well
+#
+_service pmcd restart >>$here/$seq.full 2>&1

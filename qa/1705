@@ -37,10 +37,6 @@ _filter_exit_code()
 #
 export BPFTRACE_MAX_PROBES=600
 
-# on vm03 the PMDA takes a long time to get into gear
-#
-export PMCD_CREDS_TIMEOUT=10
-
 # real QA test starts here
 cat <<EOF | _pmdabpftrace_install
 # Installed by PCP QA test $seq on `date`
