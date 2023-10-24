@@ -561,7 +561,7 @@ slackpkg?	Time::HiRes	[perl]
 pacman?	Time::HiRes		[core/perl]
 brew?	Time::HiRes		[base Darwin install]
 # -- Date::Format
-dpkg?	Date::Format		[perl or libtimedate-perl]
+dpkg?	Date::Format		[libtimedate-perl]
 rpm?	Date::Format		[perl-TimeDate]
 emerge?	Date::Format		[dev-perl/TimeDate]
 pkgin?	Date::Format		[p5-TimeDate]
@@ -1499,6 +1499,62 @@ S_pkg?		clang			[? (build optional)]
 slackpkg?	clang			[? (build optional)]
 pacman?		clang			[? (build optional)]
 brew?		clang			[? (build optional)]
+
+# -- libcmocka (for url encode/decode QA)
+#
+dpkg?		/usr/lib/*/libcmocka.so		[libcmocka-dev (QA optional)]
+rpm?		/usr/lib*/libcmocka.so.*	[libcmocka-devel (QA optional)]
+emerge?		?				[? (QA optional)]
+pkgin?		?				[? (QA optional)]
+pkg_add?	?				[? (QA optional)]
+F_pkg?		?				[? (QA optional)]
+S_pkg?		?				[? (QA optional)]
+slackpkg?	?				[? (QA optional)]
+pacman?		?				[? (QA optional)]
+brew?		?				[? (QA optional)]
+
+# -- jq (for pmproxy/pmseries QA)
+#
+dpkg?		jq			[jq (QA optional)]
+rpm?		jq			[jq (QA optional)]
+emerge?		jq			[? (QA optional)]
+pkgin?		jq			[? (QA optional)]
+pkg_add?	jq			[? (QA optional)]
+F_pkg?		jq			[? (QA optional)]
+S_pkg?		jq			[? (QA optional)]
+slackpkg?	jq			[? (QA optional)]
+pacman?		jq			[? (QA optional)]
+brew?		jq			[? (QA optional)]
+
+# -- stap (for pmcd QA)
+#
+dpkg?		stap			[systemtap (QA optional)]
+rpm?		stap			[systemtap (QA optional)]
+emerge?		stap			[? (QA optional)]
+pkgin?		stap			[? (QA optional)]
+pkg_add?	stap			[? (QA optional)]
+F_pkg?		stap			[? (QA optional)]
+S_pkg?		stap			[? (QA optional)]
+slackpkg?	stap			[? (QA optional)]
+pacman?		stap			[? (QA optional)]
+brew?		stap			[? (QA optional)]
+
+# -- tplist or tplist-bpfcc (for bcc PMDA QA)
+#
+dpkg?		tplist|tplist-bpfcc		[bpfcc-tools (QA optional)]
+rpm?		/usr/share/bcc/tools/tplist	[bcc-tools (QA optional)]
+emerge?		tplist|tplist-bpfcc		[? (QA optional)]
+pkgin?		tplist|tplist-bpfcc		[? (QA optional)]
+pkg_add?	tplist|tplist-bpfcc		[? (QA optional)]
+F_pkg?		tplist|tplist-bpfcc		[? (QA optional)]
+S_pkg?		tplist|tplist-bpfcc		[? (QA optional)]
+slackpkg?	tplist|tplist-bpfcc		[? (QA optional)]
+pacman?		tplist|tplist-bpfcc		[? (QA optional)]
+brew?		tplist|tplist-bpfcc		[? (QA optional)]
+
+# -- bpftrace-dbgsym (for bpftrace PMDA QA?)
+#
+dpkg?		/usr/share/doc/bpftrace-dbgsym	[bpftrace-dbgsym]
 
 # misc
 #
