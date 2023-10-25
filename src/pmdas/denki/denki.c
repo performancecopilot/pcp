@@ -45,7 +45,7 @@ static int detect_rapl_domains(void);			/* detect RAPL domains */
 uint64_t lookup_rapl_dom(int);				/* map instance to 2-dimensional domain matrix */
 static int read_rapl(void);				/* read RAPL values */
 
-static char rootpath[512] = "/";			/* path to rootpath, gets changed for regression tests */
+static char rootpath[MAXPATHLEN] = "/";			/* path to rootpath, gets changed for regression tests */
 
 /* detect RAPL packages and cpu cores */
 static int detect_rapl_packages(void) {
@@ -167,10 +167,10 @@ static int battery_comp_rate = 60;			/* timespan in sec, after which we recomput
 							   If we have one battery (batteries==1), that battery data
 							   is in energy_now[0], power_now[0] and so on.				*/
 
-uint64_t energy_now[MAX_BATTERIES];			/* <battery>/energy_now or <battery>/charge_now readings		*/
-uint64_t energy_now_old[MAX_BATTERIES];
-uint64_t power_now[MAX_BATTERIES];			/* <battery>/power_now readings, driver computed power consumption	*/
-int capacity[MAX_BATTERIES];				/* <battery>/capacity readings, percentage of original capacity		*/
+int64_t energy_now[MAX_BATTERIES];			/* <battery>/energy_now or <battery>/charge_now readings		*/
+int64_t energy_now_old[MAX_BATTERIES];
+int64_t power_now[MAX_BATTERIES];			/* <battery>/power_now readings, driver computed power consumption	*/
+uint32_t capacity[MAX_BATTERIES];				/* <battery>/capacity readings, percentage of original capacity		*/
 
 time_t secondsnow, secondsold;						/* time stamps, to understand if we need to recompute	*/
 double energy_diff_d[MAX_BATTERIES], energy_rate_d[MAX_BATTERIES];	/* amount of used energy / computed energy consumption	*/
@@ -436,7 +436,7 @@ static pmdaMetric metrictab[] = {
 	PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* bat.capacity */
 	{ NULL,
-	{ PMDA_PMID(1,3), PM_TYPE_U64, CAPACITY_INDOM, PM_SEM_INSTANT,
+	{ PMDA_PMID(1,3), PM_TYPE_U32, CAPACITY_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, }
 };
 
@@ -744,6 +744,16 @@ denki_init(pmdaInterface *dp)
 
     if (isDSO) {
 	int sep = pmPathSeparator();
+
+	if (strcmp(rootpath, "/") == 0) {
+	    /*
+	     * no -r ROOTPATH on the command line ... check for
+	     * DENKI_SYSPATH in the environment
+	     */
+	    char	*envpath = getenv("DENKI_SYSPATH");
+	    if (envpath != NULL)
+		strcpy(rootpath, envpath);
+	}
 	pmsprintf(mypath, sizeof(mypath), "%s%c" "denki" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_7, "denki DSO", mypath);
