@@ -58,9 +58,9 @@ Troubleshooting
 Usage scenarios/examples
 ========================
 
- -  denki.rapl.rate:
+ -  denki.rapl:
 
-    If RAPL is available, denki.rapl.rate can give an estimation of
+    If RAPL is available, denki.rapl can give an estimation of
     the current power consumption.  On laptops, typically 4 RAPL
     domains are available:
 
@@ -69,9 +69,8 @@ Usage scenarios/examples
       inst [2 or "uncore"]    - typically GPU, if on motherboard
       inst [3 or "dram"]      - memory
 
-    When accessed with 'pmrep denki.rapl.rate', these values can
-    be used to compare for example power consumption of various
-    webbrowsers while playing a video or webgl sites.  One can
+    These values can be used to compare for example power consumption of 
+    various web browsers while playing a video or webgl sites.  One can
     also verify if offloading to the GPU is working.
 
     On systems with multiple numa zones, also multiple RAPL 
@@ -79,21 +78,7 @@ Usage scenarios/examples
     with these.  For these, i.e. domains 0-package-0 and
     1-package-0 will become available as instances.
 
- -  denki.rapl.raw:
-
-    If RAPL is available, this provides the raw values from the
-    kernel.  These can be utilized for more accurate power con-
-    sumption comparisons.  Example workflow:
-
-    1) query the values, i.e. using 'pminfo denki.rapl.raw'
-    2) run your workload
-    3) query the current values again, use the values from 1)
-       and the time between 1) and 3) to compute the overall
-       consumption.
-    4) Perform 1) to 3) again, with a different software or
-       a different software version.
-
- -  denki.bat.energy_now_raw:
+ -  denki.bat.energy_now:
 
     If battery readings are available, this metric has the
     current reading, so the charge level of the battery.
@@ -118,3 +103,7 @@ Usage scenarios/examples
     system consumption.  This is computed by firmware/driver,
     and much more frequently updated than 
     denki.bat.energy_now_rate.
+
+ -  denki.bat.capacity:
+
+	This metric reports the fillstate of the battery in percent.
