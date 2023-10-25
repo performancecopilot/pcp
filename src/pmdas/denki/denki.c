@@ -167,10 +167,10 @@ static int battery_comp_rate = 60;			/* timespan in sec, after which we recomput
 							   If we have one battery (batteries==1), that battery data
 							   is in energy_now[0], power_now[0] and so on.				*/
 
-int64_t energy_now[MAX_BATTERIES];			/* <battery>/energy_now or <battery>/charge_now readings		*/
-int64_t energy_now_old[MAX_BATTERIES];
-int64_t power_now[MAX_BATTERIES];			/* <battery>/power_now readings, driver computed power consumption	*/
-uint32_t capacity[MAX_BATTERIES];				/* <battery>/capacity readings, percentage of original capacity		*/
+long long energy_now[MAX_BATTERIES];			/* <battery>/energy_now or <battery>/charge_now readings		*/
+long long energy_now_old[MAX_BATTERIES];
+long long power_now[MAX_BATTERIES];			/* <battery>/power_now readings, driver computed power consumption	*/
+int capacity[MAX_BATTERIES];				/* <battery>/capacity readings, percentage of original capacity		*/
 
 time_t secondsnow, secondsold;						/* time stamps, to understand if we need to recompute	*/
 double energy_diff_d[MAX_BATTERIES], energy_rate_d[MAX_BATTERIES];	/* amount of used energy / computed energy consumption	*/
@@ -302,7 +302,7 @@ static int read_batteries(void) {
 				pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
 			continue;
 		}
-		if ( fscanf(fff,"%" FMT_UINT64,&energy_now[bat]) != 1)
+		if ( fscanf(fff,"%lld",&energy_now[bat]) != 1)
 			if (pmDebugOptions.appl0)
 				pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
 		fclose(fff);
@@ -315,7 +315,7 @@ static int read_batteries(void) {
 				pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
 			continue;
 		}
-		if ( fscanf(fff,"%" FMT_UINT64,&power_now[bat]) != 1)
+		if ( fscanf(fff,"%lld",&power_now[bat]) != 1)
 			if (pmDebugOptions.appl0)
 				pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
 		fclose(fff);
@@ -396,13 +396,13 @@ static int compute_energy_rate(void) {
 static pmdaIndom indomtab[] = {
 #define RAPL_INDOM		0	/* serial number for RAPL instance domain */
     { RAPL_INDOM, 0, NULL },
-#define ENERGYNOWRAW_INDOM	2	/* serial number for "energy_now_raw" instance domain */
+#define ENERGYNOWRAW_INDOM	1	/* serial number for "energy_now_raw" instance domain */
     { ENERGYNOWRAW_INDOM, 0, NULL },
-#define ENERGYNOWRATE_INDOM	3	/* serial number for "energy_now_rate" instance domain */
+#define ENERGYNOWRATE_INDOM	2	/* serial number for "energy_now_rate" instance domain */
     { ENERGYNOWRATE_INDOM, 0, NULL },
-#define POWERNOW_INDOM		4	/* serial number for "power_now" instance domain */
+#define POWERNOW_INDOM		3	/* serial number for "power_now" instance domain */
     { POWERNOW_INDOM, 0, NULL },
-#define CAPACITY_INDOM		5	/* serial number for "capacity" instance domain */
+#define CAPACITY_INDOM		4	/* serial number for "capacity" instance domain */
     { CAPACITY_INDOM, 0, NULL }
 };
 
@@ -436,7 +436,7 @@ static pmdaMetric metrictab[] = {
 	PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* bat.capacity */
 	{ NULL,
-	{ PMDA_PMID(1,3), PM_TYPE_U32, CAPACITY_INDOM, PM_SEM_INSTANT,
+	{ PMDA_PMID(1,3), PM_TYPE_32, CAPACITY_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, }
 };
 
