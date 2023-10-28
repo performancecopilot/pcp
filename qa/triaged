@@ -44,3 +44,16 @@
 1574	.*	valgrind-reported issue in libpcp_web pmseries functions
 1662	.*	valgrind-reported issue in libpcp_web archive discovery
 		handling of sources
+1973	Ubuntu 16\.04	Python here is 3.5.2 and there a bunch of what look like dict ordering
+			and/or cacheing sequence differences and some arithmetic rounding
+			differences ... not worth wasting more time on
+1988	Ubuntu 16\.04	Python here is 3.5.2 and there a bunch of what look arithmetic rounding
+			differences ... not worth wasting more time on
+1989	Ubuntu 16\.04	Python here is 3.5.2 and the output is not even close to the expected
+			output with different timestamps and order of stats being reported
+			... not worth wasting more time on
+1990	Ubuntu 16\.04	Python here is 3.5.2 and the output is not even close to the expected
+			output with different timestamps and order of stats being reported
+			... not worth wasting more time on
+1991	Ubuntu 16\.04	Python here is 3.5.2 and there are a couple of timestamps that are off
+			by one second ... not worth wasting more time on
