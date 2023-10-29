@@ -15,6 +15,7 @@
 #define PMPROXY_HTTP_H
 
 #include "http_parser.h"
+#include <pcp/mmv_stats.h>
 
 struct dict;
 struct proxy;
@@ -52,6 +53,36 @@ typedef enum http_options {
     HTTP_OPT_OPTIONS	= (1 << HTTP_OPTIONS),
     /* maximum 16 in command opts fields */
 } http_options_t;
+
+static mmv_metric_t http_metrics[] = {
+    {   .name = "operations.compressed",
+        .item = , 
+        .type = MMV_TYPE_U64, 
+        .semantics = MMV_SEM_COUNTER, 
+        .dimension = , 
+        .indom = , 
+        .shorttext = "How many times compression function was used",
+        .helptext = "", 
+    },
+    {   .name = "operations.uncompressed",
+        .item = , 
+        .type = MMV_TYPE_U64, 
+        .semantics = MMV_SEM_COUNTER, 
+        .dimension = , 
+        .indom = , 
+        .shorttext = "How many times compression funciton was skipped",
+        .helptext = "", 
+    },
+    {   .name = "total_bytes.compressed",
+        .item = , 
+        .type = MMV_TYPE_U64, 
+        .semantics = MMV_SEM_COUNTER, 
+        .dimension = , 
+        .indom = , 
+        .shorttext = "count of bytes compressed during data transfer",
+        .helptext = "", 
+    }, 
+};
 
 #define HTTP_COMMON_OPTIONS (HTTP_OPT_HEAD | HTTP_OPT_TRACE | HTTP_OPT_OPTIONS)
 #define HTTP_OPTIONS_GET    (HTTP_COMMON_OPTIONS | HTTP_OPT_GET)

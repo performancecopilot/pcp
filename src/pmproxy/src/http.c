@@ -18,6 +18,7 @@
 #include "dict.h"
 #include "util.h"
 #include "sds.h"
+#include <pcp/mmv_stats.h>
 
 #ifdef HAVE_ZLIB
 #include "zlib.h"
@@ -25,6 +26,8 @@
 
 static int chunked_transfer_size; /* pmproxy.chunksize, pagesize by default */
 static int smallest_buffer_size = 128;
+
+void *base = mmv_stats_init(); 
 
 /* https://tools.ietf.org/html/rfc7230#section-3.1.1 */
 #define MAX_URL_SIZE	8192
@@ -508,6 +511,7 @@ http_transfer(struct client *client)
  
 	    if ((flags & HTTP_FLAG_COMPRESS_GZIP)){
 		compress_GZIP(client); //To do: handle errors
+		//metric_value = mmv_value_lookup_desc();
 	    }
 	    fprintf(stderr, "After compression buffer len: %lu\n", (unsigned long)sdslen(client->buffer));
 
