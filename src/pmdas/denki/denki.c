@@ -317,6 +317,10 @@ static int read_batteries(void) {
 				pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
 		fclose(fff);
 	
+		// correct power_now, if we got a negative value
+		if ( power_now[bat]<0 )
+			power_now[bat]*=-1.0;
+
 		// capacity
 		pmsprintf(filename,sizeof(filename),"%s/capacity",battery_basepath[bat]);
 		fff=fopen(filename,"r");
