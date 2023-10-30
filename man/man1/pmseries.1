@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2018-2020,2022 Red Hat.
+.\" Copyright (c) 2018-2020,2022-2023 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -726,8 +726,9 @@ NOTE: Timeseries loading is
 .B append-only
 (timestamp-wise) and if more than
 .B stream.maxlen
-entries (defined in /etc/pcp/pmproxy/pmproxy.conf) are loaded for
-a given metric, the oldest entries are dropped.
+entries (defined in
+.IR $PCP_SYSCONF_DIR/pmseries/pmseries.conf )
+are loaded for a given metric, the oldest entries are dropped.
 .SH OPTIONS
 The available command line options, in addition to timeseries
 metadata and sources options described above, are:
