@@ -98,11 +98,12 @@ Usage scenarios/examples
 
  -  denki.bat.power_now:
 
-    If battery readings are available, then this value
-    shows the current battery discharge rate, so also overall
-    system consumption.  This is computed by firmware/driver,
-    and much more frequently updated than 
-    denki.bat.energy_now_rate.
+    If the system runs on battery, this metric shows the 
+    current battery discharge rate.  If the system is charging
+    the battery, this value reports how much power is currently
+    consumed - so consumption for battery charging plus running
+    system itself.  This is computed by firmware/driver, and 
+    much more frequently updated than denki.bat.energy_now_rate.
 
  -  denki.bat.capacity:
 

@@ -167,7 +167,7 @@ int batteries = 0;						/* 	How many batteries has this system?
 
 uint64_t energy_now[MAX_BATTERIES];		/* <battery>/energy_now or <battery>/charge_now readings		*/
 uint64_t energy_now_old[MAX_BATTERIES];
-uint64_t power_now[MAX_BATTERIES];		/* <battery>/power_now readings, driver computed power consumption	*/
+int64_t power_now[MAX_BATTERIES];		/* <battery>/power_now readings, driver computed power consumption	*/
 int capacity[MAX_BATTERIES];			/* <battery>/capacity readings, percentage of original capacity		*/
 
 time_t secondsnow, secondsold;			/* time stamps, to understand if we need to recompute	*/
@@ -312,7 +312,7 @@ static int read_batteries(void) {
 				pmNotifyErr(LOG_DEBUG, "battery path has no %s file.",filename);
 			continue;
 		}
-		if ( fscanf(fff,"%" FMT_UINT64,&power_now[bat]) != 1)
+		if ( fscanf(fff,"%" FMT_INT64,&power_now[bat]) != 1)
 			if (pmDebugOptions.appl0)
 				pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
 		fclose(fff);
