@@ -317,10 +317,6 @@ static int read_batteries(void) {
 				pmNotifyErr(LOG_DEBUG, "Could not read %s.",filename);
 		fclose(fff);
 	
-		// correct power_now, if we got a negative value
-		if ( power_now[bat]<0 )
-			power_now[bat]*=-1.0;
-
 		// capacity
 		pmsprintf(filename,sizeof(filename),"%s/capacity",battery_basepath[bat]);
 		fff=fopen(filename,"r");
@@ -687,8 +683,8 @@ denki_init(pmdaInterface *dp)
 	     * DENKI_SYSPATH in the environment
 	     */
 	    char	*envpath = getenv("DENKI_SYSPATH");
-	    if (envpath != NULL)
-		strcpy(rootpath, envpath);
+	    if (envpath)
+		pmsprintf(rootpath, sizeof(rootpath), "%s", envpath);
 	}
 	pmsprintf(mypath, sizeof(mypath), "%s%c" "denki" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
@@ -751,8 +747,7 @@ main(int argc, char **argv)
     while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
         switch (c) {
 	        case 'r':
-        		strncpy(rootpath, opts.optarg, sizeof(rootpath));
-			rootpath[sizeof(rootpath)-1] = '\0';
+			pmsprintf(rootpath, sizeof(rootpath), "%s", opts.optarg);
             		break;
         }
     }
