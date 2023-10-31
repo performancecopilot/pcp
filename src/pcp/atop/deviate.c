@@ -781,7 +781,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double delta
 			dev->cpunuma.numa[i].nrcpu  = cur->cpunuma.numa[i].nrcpu;
 			dev->cpunuma.numa[i].numanr = cur->cpunuma.numa[i].numanr;
 
-			if (pre->cpunuma.numa[i].nrcpu == 0)
+			if (pre->cpunuma.nrnuma == 0 || pre->cpunuma.numa[i].nrcpu == 0)
 				continue;
 
 			dev->cpunuma.numa[i].utime  = subcount(cur->cpunuma.numa[i].utime,
