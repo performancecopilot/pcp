@@ -9876,38 +9876,6 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
-static int
-linux_text(int ident, int type, char **buf, pmdaExt *pmda)
-{
-    if ((type & PM_TEXT_PMID) == PM_TEXT_PMID) {
-	int sts = pmdaDynamicLookupText(ident, type, buf, pmda);
-	if (sts != -ENOENT)
-	    return sts;
-    }
-    return pmdaText(ident, type, buf, pmda);
-}
-
-static int
-linux_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
-{
-    pmdaNameSpace *tree = pmdaDynamicLookupName(pmda, name);
-    return pmdaTreePMID(tree, name, pmid);
-}
-
-static int
-linux_name(pmID pmid, char ***nameset, pmdaExt *pmda)
-{
-    pmdaNameSpace *tree = pmdaDynamicLookupPMID(pmda, pmid);
-    return pmdaTreeName(tree, pmid, nameset);
-}
-
-static int
-linux_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda)
-{
-    pmdaNameSpace *tree = pmdaDynamicLookupName(pmda, name);
-    return pmdaTreeChildren(tree, name, flag, kids, sts);
-}
-
 static void
 linux_grow_ctxtab(int ctx)
 {
@@ -10308,10 +10276,6 @@ linux_init(pmdaInterface *dp)
 
     dp->version.seven.instance = linux_instance;
     dp->version.seven.fetch = linux_fetch;
-    dp->version.seven.text = linux_text;
-    dp->version.seven.pmid = linux_pmid;
-    dp->version.seven.name = linux_name;
-    dp->version.seven.children = linux_children;
     dp->version.seven.attribute = linux_attribute;
     dp->version.seven.label = linux_label;
     pmdaSetLabelCallBack(dp, linux_labelCallBack);
