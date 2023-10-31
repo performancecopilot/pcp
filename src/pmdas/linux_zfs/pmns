@@ -12,12 +12,6 @@
  * for more details.
  */
 
-root { zfs }
-
-#ifndef ZFS
-#define ZFS 153
-#endif
-
 zfs {
     arc
     abd

@@ -91,7 +91,9 @@ $sudo chown $PCP_USER:$PCP_GROUP pmie.log
 echo "--- before ---" >>$here/$seq.full
 ls -li >>$here/$seq.full
 
-_service pmie start
+_service pmie start 2>&1 \
+| tee -a $here/$seq.full \
+| _filter_pmie_start
 
 echo "--- after ---" >>$here/$seq.full
 ls -li >>$here/$seq.full

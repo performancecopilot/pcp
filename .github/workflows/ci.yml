@@ -98,3 +98,14 @@ jobs:
         with:
           name: test-${{ matrix.platform }}
           path: artifacts/test
+
+  build-macos-latest-clang:
+    runs-on: macos-latest
+    env:
+      CC: clang
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install dependencies
+      run: brew install gnu-tar pkg-config
+    - name: Build packages
+      run: ./Makepkgs --verbose

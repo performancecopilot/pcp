@@ -68,11 +68,12 @@ echo
 echo "=== syntax error ==="
 pmstore bpftrace.control.register "// name: test3
 tracepoint:raw_syscalls:sys_enter { @c = count(; }"
-_pmdabpftrace_wait_for_value bpftrace.scripts.test3.status '"error"'
+# 10sec (default) is not long enough on vm03
+#
+_pmdabpftrace_wait_for_value bpftrace.scripts.test3.status '"error"' 15
 pminfo -f bpftrace.scripts.test3.error
 pminfo -f bpftrace.scripts.test3.exit_code
 echo
-
 echo "=== too many attached tracepoints ==="
 pmstore bpftrace.control.register "// name: test4
 kprobe:* { @c = count(); }"
@@ -81,8 +82,13 @@ pminfo -f bpftrace.scripts.test4.error \
 | sed \
     -e 's/ [1-9][0-9]* / PROBES /g' \
     -e 's/"ERROR: /"/' \
-# end
-pminfo -f bpftrace.scripts.test4.exit_code
+    -e '/value "Error attaching probe: '"'"'kprobe:\*'"'"'"/{
+s/value ".*/value "Can'"'"'t attach to PROBES probes because it exceeds the current limit of PROBES probes.\
+You can increase the limit through the BPFTRACE_MAX_PROBES environment variable, but BE CAREFUL since a high number of probes attached can cause your system to crash."/
+}' \
+    # end
+pminfo -f bpftrace.scripts.test4.exit_code \
+| sed -e '/value/s/ 255$/ 1/'
 echo
 
 echo "=== too much output ==="

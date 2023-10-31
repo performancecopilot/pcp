@@ -1088,7 +1088,7 @@ pmSearchSetup(pmSearchModule *module, void *arg)
 
 	/* establish an initial connection to Redis instance(s) */
 	data->slots = redisSlotsConnect(
-			data->config, SLOTS_SEARCH, module->on_info,
+			data->config, flags, module->on_info,
 			module->on_setup, arg, data->events, arg);
 	data->shareslots = 0;
     }

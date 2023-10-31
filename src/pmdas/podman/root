@@ -3,4 +3,13 @@
  */
 
 #include <stdpmid>
-#include "root_podman"
+
+#ifndef PODMAN
+#define PODMAN 33
+#endif
+
+root {
+    podman
+}
+
+#include "pmns"

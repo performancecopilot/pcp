@@ -50,7 +50,7 @@ static int	maxReqPortFd;		/* Largest request port fd */
 static char	configFileName[MAXPATHLEN]; /* path to pmcd.conf */
 static char	*logfile = "pmcd.log";	/* log file name */
 static int	run_daemon = 1;		/* run as a daemon, see -f */
-int		_creds_timeout = 3;	/* Timeout for agents credential PDU */
+int		_creds_timeout;		/* Timeout for agents credential PDU */
 static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
 static char	*pmnsfile = PM_NS_DEFAULT;
 static char	*username;
@@ -1051,6 +1051,27 @@ main(int argc, char *argv[])
 	__pmServerAddInterface("INADDR_LOOPBACK");
     if (nport == 0)
 	__pmServerAddPorts(TO_STRING(SERVER_PORT));
+
+    /*
+     * timeout for credentials exchange comes from -q, else
+     * $PMCD_CREDS_TIMEOUT, else the default of 3 (seconds)
+     */
+    if (_creds_timeout == 0) {
+	/* no -q */
+	char	*timeout_str = getenv("PMCD_CREDS_TIMEOUT");
+	if (timeout_str != NULL) {
+	    char	*end_ptr;
+	    _creds_timeout = (int)strtol(timeout_str, &end_ptr, 10);
+	    if (*end_ptr != '\0' || _creds_timeout < 1) {
+		fprintf(stderr, "Warning: ignored bad PMCD_CREDS_TIMEOUT = '%s'\n", timeout_str);
+		_creds_timeout = 0;
+	    }
+	}
+    }
+    if (_creds_timeout == 0) {
+	/* default */
+	_creds_timeout = 3;
+    }
 
     /* Set the local socket path. A message will be generated into the log
      * if this fails, but it is not fatal, since other connection options

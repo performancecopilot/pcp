@@ -21,7 +21,6 @@
 iam=zfs
 daemon_opt=true
 pipe_opt=true
-pmns_source=root_zfs
 
 pmdaSetup
 pmdaInstall

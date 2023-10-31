@@ -40,15 +40,20 @@
 		triage the problem is not understood
 1210	vm[0-9][0-9]	may collide with pmlogger_check and (correctly)
 			detects presence of /etc/pcp/pmlogger/lock
-1221	vm27	extra labels associated with
-		openmetrics.vmware_exporter.vmware_vm_guest_disk_* metrics
-		for no known reason
 1290	Debian 1[01]	valgrind-reported issues in libpcp_web redis i/o functions
 1574	.*	valgrind-reported issue in libpcp_web pmseries functions
 1662	.*	valgrind-reported issue in libpcp_web archive discovery
 		handling of sources
-1701	Ubuntu 22\.04	nm: /usr/bin/bpftrace: no symbols issue
-1722	Ubuntu 22\.04	nm: /usr/bin/bpftrace: no symbols issue
-1723	Ubuntu 22\.04	nm: /usr/bin/bpftrace: no symbols issue
-		fixed: https://github.com/iovisor/bpftrace/pull/2264
-		but yet to arrive upstream
+1973	Ubuntu 16\.04	Python here is 3.5.2 and there a bunch of what look like dict ordering
+			and/or cacheing sequence differences and some arithmetic rounding
+			differences ... not worth wasting more time on
+1988	Ubuntu 16\.04	Python here is 3.5.2 and there a bunch of what look arithmetic rounding
+			differences ... not worth wasting more time on
+1989	Ubuntu 16\.04	Python here is 3.5.2 and the output is not even close to the expected
+			output with different timestamps and order of stats being reported
+			... not worth wasting more time on
+1990	Ubuntu 16\.04	Python here is 3.5.2 and the output is not even close to the expected
+			output with different timestamps and order of stats being reported
+			... not worth wasting more time on
+1991	Ubuntu 16\.04	Python here is 3.5.2 and there are a couple of timestamps that are off
+			by one second ... not worth wasting more time on

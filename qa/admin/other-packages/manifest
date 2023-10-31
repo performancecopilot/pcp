@@ -189,6 +189,18 @@ S_pkg?		mktemp		[file/gnu-coreutils]
 slackpkg?	mktemp		[bin]
 pacman?		mktemp		[core/coreutils]
 brew?		mktemp		[base Darwin install]
+# -- man (QA optional)
+#
+dpkg?		man		[man-db (QA optional)]
+rpm?		man		[man-db or mandoc (QA optional)]
+emerge?		man		[? (QA optional)]
+pkgin?		man		[? (QA optional)]
+pkg_add?	man		[? (QA optional)]
+F_pkg?		man		[? (QA optional)]
+S_pkg?		man		[? (QA optional)]
+slackpkg?	man		[? (QA optional)]
+pacman?		man		[? (QA optional)]
+brew?		man		[? (QA optional)]
 
 # NetBSD/OpenBSD/FreeBSD specials
 #
@@ -202,9 +214,6 @@ pkg_add?	pkg_locate	[pkglocatedb]
 
 # Gentoo specials
 emerge?		equery		[app-portage/gentoolkit]
-
-# Darwin specials
-brew?		python3		[python]
 
 # optional executables
 #
@@ -254,6 +263,17 @@ S_pkg?		pkg-config	[developer/build/pkg-config]
 slackpkg?	pkg-config	[pkg-config]
 pacman?		pkg-config	[core/pkgconf]
 brew?		pkg-config	[pkg-config]
+# -- python
+dpkg?		python3		[python3-minimal]
+rpm?		python3		[python3]
+emerge?		python3		[?]
+pkgin?		python3		[?]
+pkg_add?	python3		[?]
+F_pkg?		python3		[?]
+S_pkg?		python3		[?]
+slackpkg?	python3		[?]
+pacman?		python3		[?]
+brew?		python3		[python]
 # -- pylint
 dpkg?		pylint		[pylint (build optional)]
 rpm?		pylint		[pylint or python3-pylint (build optional)]
@@ -533,6 +553,9 @@ brew?	/usr/local/lib/python3.*/*-packages/psycopg2	[pip3(psycopg2)]
 # -- python pyodbc (mssql PMDA)
 rpm?    /usr/lib*/python3.*/*-packages/pyodbc*          [python3-pyodbc]
 dpkg?	/usr/lib/python3/dist-packages/pyodbc.pyi	[python3-pyodbc]
+# -- python pymongo (mongodb PMDA)
+rpm?    /usr/lib*/python3.*/*-packages/pymongo*		[python3-pymongo]
+dpkg?	/usr/lib/python3/dist-packages/pymongo		[python3-pymongo]
 # perl modules
 # -- Time::HiRes
 dpkg?	Time::HiRes		[libperl[0-9][0-9.]*]
@@ -546,7 +569,7 @@ slackpkg?	Time::HiRes	[perl]
 pacman?	Time::HiRes		[core/perl]
 brew?	Time::HiRes		[base Darwin install]
 # -- Date::Format
-dpkg?	Date::Format		[perl or libtimedate-perl]
+dpkg?	Date::Format		[libtimedate-perl]
 rpm?	Date::Format		[perl-TimeDate]
 emerge?	Date::Format		[dev-perl/TimeDate]
 pkgin?	Date::Format		[p5-TimeDate]
@@ -703,6 +726,17 @@ S_pkg?	Spreadsheet::XLSX	[cpan(Spreadsheet::XLSX) (QA optional)]
 slackpkg?	Spreadsheet::XLSX	[cpan(Spreadsheet::XLSX) (QA optional)]
 pacman?	Spreadsheet::XLSX	[cpan(Spreadsheet::XLSX) (QA optional)]
 brew?	Spreadsheet::XLSX	[cpan(Spreadsheet::XLSX) (QA optional)]
+# -- Spreadsheet::ReadSXC
+dpkg?	Spreadsheet::ReadSXC	[libspreadsheet-readsxc-perl (QA optional)]
+rpm?	Spreadsheet::ReadSXC	[perl-Spreadsheet-ReadSXC or cpan(Spreadsheet::ReadSXC) (QA optional)]
+emerge?	Spreadsheet::ReadSXC	[cpan(Spreadsheet::ReadSXC) (QA optional)]
+pkgin?	Spreadsheet::ReadSXC	[p5-Spreadsheet-ReadSXC (QA optional)]
+pkg_add?	Spreadsheet::ReadSXC	[cpan(Spreadsheet::ReadSXC) (QA optional)]
+F_pkg?	Spreadsheet::ReadSXC	[p5-Spreadsheet-ReadSXC or cpan(Spreadsheet::ReadSXC) (QA optional)]
+S_pkg?	Spreadsheet::ReadSXC	[cpan(Spreadsheet::ReadSXC) (QA optional)]
+slackpkg?	Spreadsheet::ReadSXC	[cpan(Spreadsheet::ReadSXC) (QA optional)]
+pacman?	Spreadsheet::ReadSXC	[cpan(Spreadsheet::ReadSXC) (QA optional)]
+brew?	Spreadsheet::ReadSXC	[cpan(Spreadsheet::ReadSXC) (QA optional)]
 # -- Text::CSV_XS
 dpkg?	Text::CSV_XS		[libtext-csv-xs-perl or cpan(Text::CSV_XS) (QA optional)]
 rpm?	Text::CSV_XS		[perl-Text-CSV_XS or cpan(Text::CSV_XS) (QA optional)]
@@ -1032,7 +1066,7 @@ pacman?	memcached		[extra/memcached (QA optional)]
 brew?	memcached		[memcached (QA optional)]
 # -- zabbix
 dpkg?	zabbix_agentd		[zabbix-agent (QA optional)]
-rpm?	zabbix_agentd		[zabbix-agent or zabbix22-agent (QA optional)]
+rpm?	zabbix_agentd		[zabbix-agent or zabbix[0-9][.0-9]*-agent (QA optional)]
 emerge?	zabbix_agentd		[net-analyzer/zabbix (QA optional)]
 pkgin?	zabbix_agentd		[zabbix-agent (QA optional)]
 pkg_add?	zabbix_agentd	[zabbix-agent (QA optional)]
@@ -1175,7 +1209,7 @@ S_pkg?	SoQt.h				[N/A (build optional)]
 slackpkg?	SoQt.h			[N/A (build optional)]
 pacman?	/usr/include/Inventor/Qt/SoQt.h	[N/A (build optional)]
 brew?	SoQt.h				[N/A (build optional)]
-dpkg?	/usr/include/Inventor/SoPath.h	[libcoin-dev (build optional)]
+dpkg?	/usr/lib/*/libCoin.so		[libcoin-dev (build optional)]
 rpm?	/usr/include/Inventor/SoPath.h|/usr/include/Coin*/Inventor/SoPath.h	[Coin-devel or Coin[0-9]-devel (build optional)]
 emerge?	/usr/include/coin/Inventor/SoPath.h	[media-libs/coin (build optional)]
 pkgin?		SoPath.h	[N/A (build optional)]
@@ -1319,7 +1353,7 @@ pacman?		mkfs.xfs	[core/xfsprogs (QA optional)]
 brew?		mkfs.xfs	[N/A (QA optional)]
 # -- java (bcc PMDA QA)
 dpkg?		/usr/lib/jvm/java-*/lib/server/libjvm.so [openjdk-11-jre-headless (QA optional)]
-rpm?		/usr/lib/jvm/java-*/lib/server/libjvm.so [java-latest-openjdk-headless or java-17-openjdk-headless (QA optional)]
+rpm?		/usr/lib/jvm/java-*/lib/server/libjvm.so [java-latest-openjdk-headless or java-[0-9][0-9]*-openjdk-headless (QA optional)]
 # -- redis (pmproxy, pmseries QA)
 dpkg?		redis-server	[redis-server (QA optional)]
 dpkg?		redis-cli	[redis-cli or redis-tools (QA optional)]
@@ -1421,15 +1455,118 @@ slackpkg?	swrast_dri.so		[? (QA optional)]
 pacman?		/usr/lib/dri/swrast_dri.so	[extra/mesa (QA optional)]
 brew?		swrast_dri.so		[? (QA optional)]
 
+# -- libbpf and libbpf-dev for bpf PMDA
+dpkg?		/usr/lib/*/libbpf.so.*	[libbpf[0-9] (build optional)]
+dpkg?		/usr/include/bpf/bpf.h	[libbpf-dev (build optional)]
+rpm?		/usr/lib*/libbpf.so.*	[libbpf (build optional)]
+dpkg?		/usr/include/bpf/bpf.h	[libbpf-devel (build optional)]
+emerge?		?			[? (build optional)]
+pkgin?		?			[? (build optional)]
+pkg_add?	?			[? (build optional)]
+F_pkg?		?			[? (build optional)]
+S_pkg?		?			[? (build optional)]
+slackpkg?	?			[? (build optional)]
+pacman?		?			[? (build optional)]
+brew?		?			[? (QA optional)]
+
 # -- expect (for bpf PMDA QA)
 #
 dpkg?		expect			[expect (QA optional)]
 rpm?		expect			[expect (QA optional)]
+emerge?		expect			[? (QA optional)]
+pkgin?		expect			[? (QA optional)]
+pkg_add?	expect			[? (QA optional)]
+F_pkg?		expect			[? (QA optional)]
+S_pkg?		expect			[? (QA optional)]
+slackpkg?	expect			[? (QA optional)]
+pacman?		expect			[? (QA optional)]
+brew?		expect			[? (QA optional)]
+
+# -- llvm-strip (for bpf PMDA)
+#
+dpkg?		llvm-strip			[llvm (build optional)]
+rpm?		llvm-strip			[llvm or llvm-devel (build optional)]
+emerge?		llvm-strip			[? (build optional)]
+pkgin?		llvm-strip			[? (build optional)]
+pkg_add?	llvm-strip			[? (build optional)]
+F_pkg?		llvm-strip			[? (build optional)]
+S_pkg?		llvm-strip			[? (build optional)]
+slackpkg?	llvm-strip			[? (build optional)]
+pacman?		llvm-strip			[? (build optional)]
+brew?		llvm-strip			[? (build optional)]
+
+# -- clang (for bpf PMDA)
+#
+dpkg?		clang			[clang (build optional)]
+rpm?		clang			[clang (build optional)]
+emerge?		clang			[? (build optional)]
+pkgin?		clang			[? (build optional)]
+pkg_add?	clang			[? (build optional)]
+F_pkg?		clang			[? (build optional)]
+S_pkg?		clang			[? (build optional)]
+slackpkg?	clang			[? (build optional)]
+pacman?		clang			[? (build optional)]
+brew?		clang			[? (build optional)]
+
+# -- libcmocka (for url encode/decode QA)
+#
+dpkg?		/usr/lib/*/libcmocka.so		[libcmocka-dev (QA optional)]
+rpm?		/usr/lib*/libcmocka.so.*	[libcmocka-devel (QA optional)]
+emerge?		?				[? (QA optional)]
+pkgin?		?				[? (QA optional)]
+pkg_add?	?				[? (QA optional)]
+F_pkg?		?				[? (QA optional)]
+S_pkg?		?				[? (QA optional)]
+slackpkg?	?				[? (QA optional)]
+pacman?		?				[? (QA optional)]
+brew?		?				[? (QA optional)]
+
+# -- jq (for pmproxy/pmseries QA)
+#
+dpkg?		jq			[jq (QA optional)]
+rpm?		jq			[jq (QA optional)]
+emerge?		jq			[? (QA optional)]
+pkgin?		jq			[? (QA optional)]
+pkg_add?	jq			[? (QA optional)]
+F_pkg?		jq			[? (QA optional)]
+S_pkg?		jq			[? (QA optional)]
+slackpkg?	jq			[? (QA optional)]
+pacman?		jq			[? (QA optional)]
+brew?		jq			[? (QA optional)]
+
+# -- stap (for pmcd QA)
+#
+dpkg?		stap			[systemtap (QA optional)]
+rpm?		stap			[systemtap-devel (QA optional)]
+emerge?		stap			[? (QA optional)]
+pkgin?		stap			[? (QA optional)]
+pkg_add?	stap			[? (QA optional)]
+F_pkg?		stap			[? (QA optional)]
+S_pkg?		stap			[? (QA optional)]
+slackpkg?	stap			[? (QA optional)]
+pacman?		stap			[? (QA optional)]
+brew?		stap			[? (QA optional)]
+
+# -- tplist or tplist-bpfcc (for bcc PMDA QA)
+#
+dpkg?		tplist|tplist-bpfcc		[bpfcc-tools (QA optional)]
+rpm?		/usr/share/bcc/tools/tplist	[bcc-tools (QA optional)]
+emerge?		tplist|tplist-bpfcc		[? (QA optional)]
+pkgin?		tplist|tplist-bpfcc		[? (QA optional)]
+pkg_add?	tplist|tplist-bpfcc		[? (QA optional)]
+F_pkg?		tplist|tplist-bpfcc		[? (QA optional)]
+S_pkg?		tplist|tplist-bpfcc		[? (QA optional)]
+slackpkg?	tplist|tplist-bpfcc		[? (QA optional)]
+pacman?		tplist|tplist-bpfcc		[? (QA optional)]
+brew?		tplist|tplist-bpfcc		[? (QA optional)]
+
+# -- bpftrace-dbgsym (for bpftrace PMDA QA?)
+#
+dpkg?		/usr/share/doc/bpftrace-dbgsym	[bpftrace-dbgsym]
 
 # misc
 #
-redhat?		/usr/sbin/qshape	[postfix-perl-scripts]
-centos?		/usr/sbin/qshape	[postfix-perl-scripts]
+rpm?		/usr/sbin/qshape	[postfix-perl-scripts]
 mandriva?	/usr/sbin/qshape	[postfix]
 suse?		/usr/share/doc/packages/postfix-doc/auxiliary/qshape/qshape.pl		[postfix-doc]
 arch?		/usr/bin/qshape		[N/A (build optional)]

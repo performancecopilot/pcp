@@ -263,6 +263,7 @@ badarchives/badlog-1.meta: start pass0 ... found 12 records
 badarchives/badlog-2.0:
 
 Note: timezone set to local timezone of host "HOST" from archive
+	difference -890
 	value 1 at 04:34:35.258
 	value 891 at 04:34:34.248
 Processed 9 pmResult records

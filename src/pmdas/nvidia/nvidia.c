@@ -360,9 +360,9 @@ update_process(pid_t pid, int mode, unsigned int cardid,
     } else {
 	process = (process_t *)node->data;
     }
-    if ((mode == PROCESS_COMPUTE))
+    if (mode == PROCESS_COMPUTE)
 	process->flags |= COMPUTE;
-    if ((mode == PROCESS_GRAPHICS))
+    if (mode == PROCESS_GRAPHICS)
 	process->flags |= GRAPHICS;
     process->acct[mode].memused = info->usedGpuMemory;
     process->acct[mode].memaccum += info->usedGpuMemory;

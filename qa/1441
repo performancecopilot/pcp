@@ -25,6 +25,8 @@ fi
 . ./common.filter
 . ./common.check
 
+$sudo rm -rf $tmp $tmp.* $seq.full
+
 oldhostname=`hostname`
 newhostname="boofa-$seq"
 
@@ -39,6 +41,27 @@ fi
 #
 which systemctl >/dev/null 2>&1 || _notrun "no systemd"
 
+_cleanup()
+{
+    # bit tricky ... if hostname here is boofa-1441, sudo(1)
+    # may babble about "unable to resolve host ...."
+    #
+    cd $here
+    [ -n "$config" ] && _restore_config $config 2>>$seq.full
+    if [ "`hostname`" != "$oldhostname" ]
+    then
+	$sudo hostname "$oldhostname" 2>>$seq.full
+	_wait_for_new_pmlogger "$newlogger"
+	_wait_for_new_pmie "$newpmie"
+    fi
+    for dir in boofa-$seq
+    do
+	$sudo rm -rf "$PCP_LOG_DIR/pmlogger/$dir"
+	$sudo rm -rf "$PCP_LOG_DIR/pmie/$dir"
+    done
+    $sudo rm -rf $tmp $tmp.*
+}
+
 # wait until the primary pmlogger's pid is != $1
 #
 # In the default/zeroconf setup, PMLOGGER_INTERVAL=10 and there are
@@ -51,7 +74,7 @@ _wait_for_new_pmlogger()
 {
     echo "_wait_for_new_pmlogger previous PID $1 ..." >>$seq.full
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger' >>$seq.full
-    max_delay=12
+    max_delay=15
     i=0
     while [ $i -lt $max_delay ]
     do
@@ -67,6 +90,7 @@ _wait_for_new_pmlogger()
     else
 	echo "Failed!" >>$seq.full
 	echo "Arrgh: failed to see new pmlogger after $max_delay seconds"
+	date
 	ls -l $PCP_RUN_DIR/pmlogger.pid
 	ls -l $PCP_TMP_DIR/pmlogger
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger'
@@ -103,6 +127,7 @@ _wait_for_new_pmie()
     else
 	echo "Failed!" >>$seq.full
 	echo "Arrgh: failed to see new pmie after $max_delay seconds"
+	date
 	ls -l $PCP_RUN_DIR/pmie.pid
 	ls -l $PCP_TMP_DIR/pmie
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie'
@@ -127,9 +152,11 @@ else
     # NOTREACHED
 fi
 
-# need primary pmie running
+# need a new primary pmie running with our special config.default
+# that has a small delta so we pmFetch() often enough to see the
+# hostname change from pmcd
 #
-pminfo -f pmcd.pmie.pmcd_host >$tmp.pminfo
+pminfo -f pmcd.pmie.configfile >$tmp.pminfo
 if grep "0 or \"primary\"" <$tmp.pminfo >/dev/null
 then
     :
@@ -138,37 +165,68 @@ else
     _notrun "primary pmie not running"
     # NOTREACHED
 fi
+config=`sed -n <$tmp.pminfo -e '/0 or "primary"/{
+s/"$//
+s/.*"//
+p
+}'`
+if [ -z "$config" ]
+then
+    cat $tmp.pminfo >>$seq.full
+    _notrun "cannot find pmie's config"
+fi
+echo "config=$config" >>$seq.full
+_save_config $config
+echo "// Installed by PCP QA test $seq on `date`" >$tmp.config
+cat <<'End-of-File' >>$tmp.config
+//
+// 1 cpu.load_average
+delta = 10 sec;
+cpu.load_average = 
+some_host (
+    // threshold scales with the number of CPUs (works better for
+    // large systems) and there is an absolute lower bound,
+    // especially for small systems
+    kernel.all.load  #'1 minute' > hinv.ncpu  * 3
+    && kernel.all.load  #'1 minute' > 4
+) -> print 10 min "High 1-minute load average" " %vload@%h";
+End-of-File
+$sudo cp $tmp.config $config
+_service pmie restart >>$seq.full 2>&1
+_wait_for_pmie
 
 if [ -f $PCP_RUN_DIR/pmie.pid ]
 then
     oldpmie=`cat $PCP_RUN_DIR/pmie.pid`
     echo "old pmie pid: $oldpmie" >>$seq.full
 else
-    _notrun "$PCP_RUN_DIR/pmie.pid not found for old primary pmie"
-    # NOTREACHED
+    echo "Botch: $PCP_RUN_DIR/pmie.pid not found for (restarted) old primary pmie"
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie'
+    cat $PCP_VAR_LOG/pmie/`hostname`/pmie.log
+    _cleanup
+    exit 1
+fi
+
+# need mmap control file for new pmie as well ... wait up to 2 secs
+#
+try=0
+while [ $try -lt 20 ]
+do
+    [ -f $PCP_TMP_DIR/pmie/$oldpmie ] && break
+    pmsleep 0.1
+    try=`expr $try + 1`
+done
+if [ ! -f $PCP_TMP_DIR/pmie/$oldpmie ]
+then
+    echo "Botch: $PCP_TMP_DIR/pmies/$oldpmie not found for (restarted) old primary pmie"
+    _cleanup
+    exit 1
 fi
 
 newlogger=0
 newpmie=0
 
-_cleanup()
-{
-    cd $here
-    if [ "`hostname`" != "$oldhostname" ]
-    then
-	$sudo hostname "$oldhostname" 2>>$seq.full
-	_wait_for_new_pmlogger "$newlogger"
-	_wait_for_new_pmie "$newpmie"
-    fi
-    for dir in boofa-$seq
-    do
-	$sudo rm -rf "$PCP_ARCHIVE_DIR/$dir"
-    done
-    $sudo rm -rf $tmp $tmp.*
-}
-
 status=0	# success is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -189,6 +247,7 @@ echo "old pmlogger ..."
 if [ ! -f $PCP_TMP_DIR/pmlogger/primary ]
 then
     echo "Arrgh: no tracking file in $PCP_TMP_DIR for primary pmlogger"
+    date
     ls -l $PCP_TMP_DIR/pmlogger
     status=1
     exit
@@ -204,6 +263,7 @@ echo "old pmie ..."
 if [ ! -f $PCP_TMP_DIR/pmie/$oldpmie ]
 then
     echo "Arrgh: no tracking file in $PCP_TMP_DIR for old primary pmie"
+    date
     ls -l $PCP_TMP_DIR/pmie
     status=1
     exit
@@ -221,6 +281,7 @@ echo "new pmlogger ..."
 if [ ! -f $PCP_TMP_DIR/pmlogger/primary ]
 then
     echo "Arrgh: no tracking file in $PCP_TMP_DIR for primary pmlogger"
+    date
     ls -l $PCP_TMP_DIR/pmlogger
     status=1
     exit
@@ -254,6 +315,7 @@ fi
 if [ ! -f $PCP_TMP_DIR/pmie/$newpmie ]
 then
     echo "Arrgh: no tracking file in $PCP_TMP_DIR for new primary pmie"
+    date
     ls -l $PCP_TMP_DIR/pmie
     status=1
     exit

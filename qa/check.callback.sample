@@ -169,8 +169,10 @@ else
 fi
 
 # Some PMDAs have trouble starting on some VMs ... if one of these
-# has failed, try restarting it
-pminfo -f pmcd.agent.status | grep 'value [^0]' >$tmp.out
+# has failed, try restarting it ... skip ones that are OK or NOTREADY
+# [pmcd.agetnt.status is 0 or 1]
+#
+pminfo -f pmcd.agent.status | grep 'value [^01]' >$tmp.out
 if grep '"nfsclient"' $tmp.out >/dev/null
 then
     pmstore pmcd.control.sighup 1 >/dev/null
@@ -196,7 +198,7 @@ p
 }' \
     | while read domain name status
     do
-	if [ "$status" != 0 ]
+	if [ "$status" != 0 -a "$status" != 1 ]
 	then
 	    echo "check.callback: fail: PMDA $name not well, status=$status!"
 	    $abort && status=1

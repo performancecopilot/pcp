@@ -20,6 +20,17 @@ test -f /etc/zabbix/zabbix_agentd.conf || \
 test -f /etc/zabbix/zabbix_agentd.d/zbxpcp.conf || \
 	_notrun "Zabbix agent PCP module is not installed"
 
+# zabbix_agentd goes off with the pixies on vm21 after upgrading to
+# Debian 12 (uses all cpu cycles, mostly in system mode) ... not our
+# problem and not worth the triage bandwidth to investigate
+#
+case `admin/whatami`
+in
+    *Debian\ 12.*)
+	_notrun "avoid zabbix_agentd locking up the system Debian 12.?"
+	;;
+esac
+
 rm -f $seq.out
 # Known versions ...
 # Zabbix Agent (daemon) v2.2.7 (revision 50148) (24 October 2014)

@@ -268,14 +268,13 @@ then
     AC_DEFINE(IS_DARWIN, [1], [Platform is Darwin (Mac OS X)])
     target_distro=macosx
     target_machine=`uname -m`
-    CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing -arch $target_machine"
-    export CFLAGS
+    export CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing -arch $target_machine"
     pcp_platform_paths='/usr/local/bin:/opt/homebrew/bin'
     pcp_ps_all_flags="-axw -o user,pid,ppid,cpu,stime,tty,time,command"
 elif test $target_os = mingw
 then
     AC_DEFINE(IS_MINGW, [1], [Platform is MinGW (Windows)])
-    CFLAGS="-fno-strict-aliasing"
+    export CFLAGS="-fno-strict-aliasing"
     pcp_platform_paths=''
     pcp_ps_all_flags=-efW
 elif test $target_os = solaris
@@ -2113,7 +2112,7 @@ dnl Checks for library functions.
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(mktime nanosleep usleep unsetenv getrusage)
 AC_CHECK_FUNCS(select socket syslog sendmsg recvmsg setns)
-AC_CHECK_FUNCS(getuid getgid getpeerucred getpeereid)
+AC_CHECK_FUNCS(getuid getgid getpeerucred getpeereid getresuid)
 AC_CHECK_FUNCS(uname gethostname getdomainname getmachineid)
 AC_CHECK_FUNCS(__clone pipe2 fcntl ioctl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)

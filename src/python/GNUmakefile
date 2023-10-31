@@ -25,10 +25,6 @@ ENV = CFLAGS=$(CFLAGS_ABI)
 else
 ENV = nothing=''
 endif
-ifeq ($(PCP_PLATFORM),darwin)
-# Universal binaries for Mac OS X
-ENV += ARCHFLAGS='-arch i386 -arch x86_64'
-endif
 ifeq ($(PCP_PLATFORM),mingw)
 ENV += CC="$(CC)"
 ENV += LD="$(LD)"

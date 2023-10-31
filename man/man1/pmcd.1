@@ -222,12 +222,19 @@ provide backward compatibility) uses this timeout to specify how long pmcd
 should wait before assuming that no version response is coming from an agent.
 If this timeout is reached, the agent is assumed to be an agent which does
 not understand the PCP 2.0 protocol.
-The default timeout interval is five seconds,
+The default timeout interval is three seconds,
 but the
 .B \-q
 option allows an alternative timeout interval (which must be greater than
 zero) to be specified.
-The unit of time is seconds.
+The unit of
+.I timeout
+is seconds.
+Alternatively, if
+.B \-q
+is not used, the
+.B PMCD_CREDS_TIMEOUT
+environment valriable may be used to define the timeout interval.
 .TP
 \f3\-Q\f1, \f3\-\-remotecert\f1
 Require that all remote client connections provide a certficate.

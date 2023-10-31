@@ -2,7 +2,6 @@
 # created by kenj on bozo-vm.localdomain Fri 03 Jun 2022 13:41:04 AEST
 #
 Text::CSV_XS cpan
-apache2
 apache2-bin
 auditd not4ci
 autoconf
@@ -58,7 +57,6 @@ libjson-perl
 liblist-moreutils-perl
 liblzma-dev
 libncurses-dev
-libncurses5-dev
 libnet-snmp-perl
 libperl5.34
 libpfm4-dev
@@ -141,9 +139,5 @@ zfsutils-linux
 zlib1g-dev
 libbpf0
 libbpf-dev
-clang-14
 clang
-llvm-14
 llvm
-fakeroot
-

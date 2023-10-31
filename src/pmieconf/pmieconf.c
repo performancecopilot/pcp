@@ -324,7 +324,7 @@ write_pmie(void)
     dep_t	*list;
 
     if ((msg = write_pmiefile(pmGetProgname(), autocreate)) != NULL) {
-	error(msg);
+	error("%s", msg);
 	return 1;
     }
     if ((count = fetch_deprecated(&list)) > 0) {
@@ -424,7 +424,7 @@ command_list(int argcount)
     if (strcmp("all", inbuf[1]) == 0)
 	all = 1;
     if ((msg = lookup_rules(inbuf[1], &rptr, &rcount, all)) != NULL) {
-	error(msg);
+	error("%s", msg);
 	return -1;
     }
     if (argcount == 1) {	/* print out one rule or one group */
@@ -469,7 +469,7 @@ command_undo(int argcount)
     if (strcmp("all", inbuf[1]) == 0)
 	all = 1;
     if ((msg = lookup_rules(inbuf[1], &rptr, &rcount, all)) != NULL) {
-	error(msg);
+	error("%s", msg);
 	return -1;
     }
     if (argcount == 2)
@@ -480,7 +480,7 @@ command_undo(int argcount)
 	    break;
     free(rptr);
     if (msg != NULL) {
-	error(msg);
+	error("%s", msg);
 	return -1;
     }
     pmstrncpy(previous, sizeof(previous), inbuf[1]);
@@ -536,7 +536,7 @@ command_modify(int command, int argcount)
 	return -1;
     }
     if ((msg = lookup_rules(inbuf[1], &rptr, &rcount, all)) != NULL) {
-	error(msg);
+	error("%s", msg);
 	return -1;
     }
 
@@ -577,7 +577,7 @@ command_help(int argcount)
     if (strcmp("all", inbuf[1]) == 0)
 	all = 1;
     if ((msg = lookup_rules(inbuf[1], &rptr, &rcount, all)) != NULL) {
-	error(msg);
+	error("%s", msg);
 	return -1;
     }
 
@@ -618,7 +618,7 @@ command_quit(void)
     /* show any running pmie processes which use this pmie config */
     if (interactive && pmiefile_modified) {
 	if ((msg = lookup_processes(&pcount, &processes)) != NULL)
-	    error(msg);
+	    error("%s", msg);
 	else if (pcount > 0) {
 	    pprintf("  %s is in use by %d running pmie process%s:\n\t",
 		    get_pmiefile(), pcount, pcount == 1? "":"es");
@@ -814,7 +814,7 @@ main(int argc, char **argv)
     }
 
     if ((p = initialise(in_rules, in_pmie, autocreate, warn, sizeof(warn))) != NULL) {
-	error(p);
+	error("%s", p);
 	exit(1);
     }
     sort_rules();

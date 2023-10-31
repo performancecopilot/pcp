@@ -27,37 +27,28 @@
 # blank lines before the @ line are ignored
 #
 
-@ 156.0 set of all rapl components
+@ 156.0 all RAPL components
 
-@ 156.1 set of all raw rapl counters
+@ 156.1 set of all batteries reporting charge level
 
-@ 156.2 set of all batteries reporting charge level
+@ 156.2 set of all batteries reporting power
 
-@ 156.3 set of all batteries reporting energy consumption 
+@ 156.3 set of all batteries reporting capacity
 
-@ 156.4 set of all batteries reporting power
+@ denki.rapl cummulative energy consumption of RAPL components
+Cummulative electrical power consumption of x86 hardware components
+in units of Joules.
 
-@ 156.5 set of all batteries reporting capacity
+When consecutive samples are rate converted, the units become
+Joules / second, or Watts.
 
-@ denki.rapl.rate computed consumption of rapl components
-Current electrical power consumption of x86 cpu components.
-The rapl cores offered by the system are available as metric
+The RAPL modules offered by the system are available as metric
 instances.
 
-@ denki.rapl.raw rapl reported counters
-Raw rapl values as reported by x86 cpus.  These allow users to
-compute power consumption of longer running compute loads, with
-higher accuracy.
-
-@ denki.bat.energy_now_raw battery reported charge level
+@ denki.bat.energy_now battery reported charge level
 The current charge level as reported by the battery.  This can
 be used to calculate overall power consumption of longer running
 compute loads, with high accuracy.
-
-@ denki.bat.energy_now_rate calculated energy consumption 
-Systems current energy consumption, calculated by pmda-denki
-from battery charge level.  Only available while discharging.  
-Computed every 60 seconds.
 
 @ denki.bat.power_now system calculated energy consumption
 Systems current energy consumption, calculated by the system.

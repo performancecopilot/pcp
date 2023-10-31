@@ -264,7 +264,7 @@ sleepTight(Task *t)
 		    dumpTask(t);
 		    break;
 		}
-		if ((sts = nanosleep(&ts, &tleft)) < 0) {
+		if ((sts = lsts = nanosleep(&ts, &tleft)) < 0) {
 		    /* grab error for later testing */
 		    lsts = oserror();
 		}

@@ -3404,7 +3404,7 @@ static node_t *np;
  * yacc token and operator declarations
  ***********************************************************************/
 
-PUT-PREFIX-DECL-HERE ... see GNumakefile
+PUT-PREFIX-DECL-HERE ... see GNUmakefile and fix_derive_parser_y
 
 %expect     0
 %start      defn
@@ -3576,7 +3576,7 @@ expr	: L_LPAREN expr L_RPAREN
 		      pmNoMem("pmRegisterDerived: alloc pattern", (int)sizeof(pattern_t), PM_FATAL_ERR);
 		      /*NOTREACHED*/
 		  }
-		  np->left->data.pattern->ftype = F_REGEX;
+		  np->left->data.pattern->ftype = F_EXACT;
 		  np->left->data.pattern->inst = PM_IN_NULL;
 		  $$ = np;
 		}

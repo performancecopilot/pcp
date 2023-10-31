@@ -38,7 +38,7 @@ _do_check()
     # end
     [ -s $tmp.require ] && $very_verbose && echo >&2 "require: `cat $tmp.require`"
 
-    # And then any skipped packages
+    # Then any skipped packages
     #
     _parse_file $home/other-packages/skip \
     | sed >$tmp.skip \
@@ -46,6 +46,15 @@ _do_check()
 	-e 's/}//g' \
     # end
     [ -s $tmp.skip ] && $very_verbose && echo >&2 "skip: `cat $tmp.skip`"
+
+    # And any unavailable packages
+    #
+    _parse_file $home/other-packages/unavailable \
+    | sed >$tmp.na \
+	-e 's/{//g' \
+	-e 's/}//g' \
+    # end
+    [ -s $tmp.na ] && $very_verbose && echo >&2 "unavailable: `cat $tmp.na`"
 
     # And then process the manifest.
     # The packaging types (tags @ start of manifest lines) we know about.
@@ -69,9 +78,11 @@ End-of-File
 	exit
     fi
 
+    rm -f $tmp.matched
     awk <$home/other-packages/manifest '{ print NR ":" $0 }' \
     | grep ":$tag?" \
     | sed \
+	-e 's/[ 	]*#.*//' \
 	-e 's/:[^[]*\[/ /' \
 	-e 's/  *$//' \
 	-e 's/ *]$//' \
@@ -111,6 +122,7 @@ End-of-File
 BEGIN		{ sts=1 }
 		{ for (i = 1; i <= NF; i++) {
 		    if ($i == "'"$pkg"'" || $i ~ /^'"$pkg_re"'$/) {
+			print $0 >>"'$tmp.matched'"
 			sts=0
 			exit
 		    }
@@ -126,7 +138,8 @@ END		{ exit sts }'
 		    echo "manifest:$lineno $pkg: in packing list, but not available?"
 		else
 		    touch $tmp.ok
-		    break
+		    # keep going so we check all the pkg in $pkgs from the
+		    # manifest
 		fi
 	    fi
 	done
@@ -138,10 +151,11 @@ END		{ exit sts }'
 	    #
 	    for pkg in $pkgs
 	    do
-		# not in list, unless it is to be skipped, or we have
-		# a required package for this manifest line, is it available?
+		# not in list, unless it is to be skipped, or not available
+		# or we have a required package for this manifest line,
+		# is it available?
 		#
-		rm -f $tmp.skipme
+		rm -f $tmp.skip_me
 		for skip_pkg in `cat $tmp.skip`
 		do
 		    skip_pkg_re=`echo "$skip_pkg" | sed -e 's;/;\\\\/;g'`
@@ -157,11 +171,31 @@ BEGIN		{ sts=1 }
 END		{ exit sts }'
 		    then
 			$very_verbose && echo >&2 "$pkg ($skip_pkg): skipped"
-			touch $tmp.skipme
+			touch $tmp.skip_me
 			break
 		    fi
 		done
-		if [ ! -f $tmp.skipme ]
+		rm -f $tmp.na_me
+		for na_pkg in `cat $tmp.na`
+		do
+		    na_pkg_re=`echo "$na_pkg" | sed -e 's;/;\\\\/;g'`
+		    if echo "$pkg" | awk '
+BEGIN		{ sts=1 }
+		{ for (i = 1; i <= NF; i++) {
+		    if ($i == "'"$na_pkg"'" || $i ~ /^'"$na_pkg_re"'$/) {
+			sts=0
+			exit
+		    }
+		  }
+		}
+END		{ exit sts }'
+		    then
+			$very_verbose && echo >&2 "$pkg ($na_pkg): not available"
+			touch $tmp.na_me
+			break
+		    fi
+		done
+		if [ ! -f $tmp.skip_me -a ! -f $tmp.na_me ]
 		then
 		    if [ ! -f $tmp.havereq ]
 		    then
@@ -206,6 +240,20 @@ END		{ exit sts }'
 	fi
     done
 
+    # and does the packing list contain lines that do not match the
+    # manifest?
+    if [ -s $tmp.matched ]
+    then
+	sed <$tmp.list -e '/cpan(/d' -e '/pip3(/d' \
+	| sort -o $tmp.list
+	sort -o $tmp.matched $tmp.matched
+	comm -23 $tmp.list $tmp.matched >$tmp.no-manifest
+	if [ -s $tmp.no-manifest ]
+	then
+	    echo "In packing list, but not in manifest ..."
+	    fmt -72 <$tmp.no-manifest | sed -e 's/^/    /'
+	fi
+    fi
 }
 
 export LC_COLLATE=POSIX
@@ -417,7 +465,7 @@ then
 	    then
 		# note using yum's system cache, so no metadata refresh
 		#
-		( yum -C list available; yum list installed ) 2>&1 \
+		( yum -C list available; yum -C list installed ) 2>&1 \
 		| sed >$tmp.allpkgs \
 		    -e '1,/^[^ ]* Packages/d' \
 		    -e 's/ .*//' \

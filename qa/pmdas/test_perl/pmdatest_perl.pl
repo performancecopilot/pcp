@@ -22,7 +22,7 @@ my ($some_indom, $other_indom, $loaded_indom) = (0, 1, 2);
 my @some_indom_instances;
 my $other_indom_instances;	# hashref
 my $loaded_indom_instances;	# hashref
-my $pmda = PCP::PMDA->new('test_perl', 242);
+my $pmda = PCP::PMDA->new('test_perl', 252);
 
 sub test_perl_update_status
 {

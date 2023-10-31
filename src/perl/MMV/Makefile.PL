@@ -18,8 +18,7 @@ else {
     $libs = ["-L$ENV{PCP_TOPDIR}/src/libpcp_mmv/src -L$ENV{PCP_TOPDIR}/src/libpcp/src -lpcp_mmv -lpcp"];
 }
 if ($ENV{TARGET_OS} eq "darwin") {
-    # standard ones, minus -arch ppc
-    $lddlflags = "-arch x86_64 -arch i386 -bundle -undefined dynamic_lookup";
+    $lddlflags = "-bundle -undefined dynamic_lookup";
 }
 else {
     $lddlflags = "-shared \$(OPTIMIZE) \$(LDFLAGS)";
