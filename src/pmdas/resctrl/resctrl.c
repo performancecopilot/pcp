@@ -246,7 +246,7 @@ resctrl_init(pmdaInterface *dp)
 
     if (isDSO) {
 	int sep = pmPathSeparator();
-	pmsprintf(mypath, sizeof(mypath), "%s%c" "llc" "%c" "help",
+	pmsprintf(mypath, sizeof(mypath), "%s%c" "resctrl" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_6, "llc DSO", mypath);
     } else {
@@ -277,7 +277,7 @@ main(int argc, char **argv)
     pmSetProgname(argv[0]);
     pmGetUsername(&username);
 
-    pmsprintf(mypath, sizeof(mypath), "%s%c" "llc" "%c" "help",
+    pmsprintf(mypath, sizeof(mypath), "%s%c" "resctrl" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmGetProgname(), RESCTRL,
 		"llc.log", mypath);

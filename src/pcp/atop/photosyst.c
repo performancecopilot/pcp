@@ -366,6 +366,7 @@ static void
 update_llc(struct perllc *llc, char id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
         sscanf(name + 7, "%hhd\n", (char*)&id);
+	llc->id = id;
 	llc->mbm_local = extract_count_t_inst(rp, dp, LLC_MBM_LOCAL, id, offset);
 	llc->mbm_total = extract_count_t_inst(rp, dp, LLC_MBM_TOTAL, id, offset);
 	llc->occupancy = extract_float_inst(rp, dp, LLC_OCCUPANCY, id, offset);

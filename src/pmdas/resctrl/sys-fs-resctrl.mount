@@ -1,5 +1,3 @@
-# /etc/systemd/system/sys-fs-resctrl.mount
-
 [Unit]
 Description=Mount resctrl sysfs at /sys/fs/resctrl
 Before=crio.service

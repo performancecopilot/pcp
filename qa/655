@@ -44,7 +44,7 @@ _check()
     /resctrl.llc.mbm_total/ {getline;gsub("[0-9.]+",999);print "llc.mbm_total",$6}' $tmp.pminfo
 
     $PCP_AWK_PROG '
-    /LLC / {gsub("[0-9]+","999",$3);gsub("[0-9]+","999",$6);gsub("[0-9.]+","99",$8);print $3,$6,$8}' $tmp.pcpatop
+    /^LLC.* LLC00 / {gsub("[0-9]+","999",$3);gsub("[0-9]+","999",$6);gsub("[0-9.]+","99",$8);print $3,$6,$8}' $tmp.pcpatop
 }
 
 if [ ! -d /sys/fs/resctrl/mon_data ] ; then
