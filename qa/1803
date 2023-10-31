@@ -1,0 +1,37 @@
+#!/bin/sh
+# PCP QA Test No. 1803
+# Exercise pcp-geolocate(1) metric labels.
+#
+# Copyright (c) 2023 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/"latitude": .*,$/LATITUDE/g' \
+	-e 's/"longitude": .*$/LONGITUDE/g' \
+    # end
+}
+
+# real QA test starts here
+$PCP_BINADM_DIR/pcp-geolocate $tmp.geo
+pmjson < $tmp.geo | _filter
+
+# success, all done
+exit

@@ -2042,6 +2042,7 @@ x11
 1793 pmrep pcp2xxx python local pmlogdump
 1795 pmda.bpf local
 1801 dstat python pcp local
+1803 python geolocate labels local
 1805 pmda.linux kernel local
 1810 pmda.bpf local
 1813 python labels local

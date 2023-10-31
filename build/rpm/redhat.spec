@@ -739,6 +739,25 @@ Zabbix via the Zabbix agent - see zbxpcp(3) for further details.
 
 %if !%{disable_python2} || !%{disable_python3}
 #
+# pcp-geolocate
+#
+%package geolocate
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot geographical location metric labels
+URL: https://pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if "@enable_python3@" == "true"
+Requires: python3-pcp = @package_version@
+%else
+Requires: %{__python2}-pcp = @package_version@
+%endif
+
+%description geolocate
+Performance Co-Pilot (PCP) tools that automatically apply metric labels
+containing latitude and longitude, based on IP-address-based lookups.
+Used with live maps to show metric values from different locations.
+
+#
 # pcp-export-pcp2elasticsearch
 #
 %package export-pcp2elasticsearch
@@ -2438,13 +2457,12 @@ basic_manifest | keep "$PCP_GUI|pcp-gui|applications|pixmaps|hicolor" | cull 'pm
 basic_manifest | keep 'selinux' | cull 'tmp|testsuite' >pcp-selinux-files
 basic_manifest | keep 'zeroconf|daily[-_]report|/sa$' >pcp-zeroconf-files
 basic_manifest | grep -E -e 'pmiostat|pmrep|dstat|htop|pcp2csv' \
-   -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free|pcp-htop' \
-   -e 'pcp-ipcs|pcp-iostat|pcp-lvmcache|pcp-mpstat|pcp-netstat' \
-   -e 'pcp-buddyinfo|pcp-meminfo|pcp-slabinfo|pcp-zoneinfo' \
-   -e 'pcp-numastat|pcp-pidstat|pcp-shping|pcp-tapestat' \
-   -e 'pcp-uptime|pcp-verify|pcp-ss|pcp-ps' | \
+   -e 'pcp-atop|pcp-dmcache|pcp-dstat|pcp-free' \
+   -e 'pcp-htop|pcp-ipcs|pcp-iostat|pcp-lvmcache|pcp-mpstat' \
+   -e 'pcp-numastat|pcp-pidstat|pcp-shping|pcp-ss' \
+   -e 'pcp-tapestat|pcp-uptime|pcp-verify' | \
    cull 'selinux|pmlogconf|pmieconf|pmrepconf' >pcp-system-tools-files
-
+basic_manifest | keep 'geolocate' >pcp-geolocate-files
 basic_manifest | keep 'sar2pcp' >pcp-import-sar2pcp-files
 basic_manifest | keep 'iostat2pcp' >pcp-import-iostat2pcp-files
 basic_manifest | keep 'sheet2pcp' >pcp-import-sheet2pcp-files
@@ -2578,7 +2596,7 @@ done
 
 for subpackage in \
     pcp-conf pcp-gui pcp-doc pcp-libs pcp-devel pcp-libs-devel \
-    pcp-selinux pcp-system-tools pcp-testsuite pcp-zeroconf \
+    pcp-geolocate pcp-selinux pcp-system-tools pcp-testsuite pcp-zeroconf \
     $pmda_packages $import_packages $export_packages ; \
 do \
     echo $subpackage >> packages.list; \
@@ -3221,6 +3239,8 @@ fi
 %endif
 
 %if !%{disable_python2} || !%{disable_python3}
+%files geolocate -f pcp-geolocate-files.rpm
+
 %files pmda-gluster -f pcp-pmda-gluster-files.rpm
 
 %files pmda-zswap -f pcp-pmda-zswap-files.rpm
