@@ -60,8 +60,8 @@ construct_canonic_envvar_name(const char *group, const char *key)
     int i;
     size_t section_length = strlen(group);
     size_t option_length = strlen(key);
-    char section[section_length];
-    char option[option_length];
+    char section[section_length+1];
+    char option[option_length+1];
     char *tmp;
 
     /* Canonical form: "PCP_<SECTION>_<OPTION>\0" */
@@ -72,12 +72,14 @@ construct_canonic_envvar_name(const char *group, const char *key)
 
     for (i = 0; i < section_length; i++)
 	section[i] = toupper(group[i]);
+    section[section_length] = '\0';
 
     for (i = 0; i < option_length; i++)
 	if (key[i] == '.')
 		option[i] = '_';
 	else
 		option[i] = toupper(key[i]);
+    option[option_length] = '\0';
 
     tmp = memcpy(envvar_name, "PCP_", 4) + 4;
     tmp = memcpy(tmp, section, section_length) + section_length;
@@ -109,8 +111,11 @@ dict_handler(void *arg, const char *group, const char *key, const char *value)
     dict	*config = (dict *)arg;
     sds		name = sdsempty();
 
+    if (!group)
+	group = pmGetProgname();
+
     value = check_envvar_override(group, key, value);
-    name = sdscatfmt(name, "%s.%s", group ? group : pmGetProgname(), key);
+    name = sdscatfmt(name, "%s.%s", group, key);
     if (pmDebugOptions.libweb)
 	fprintf(stderr, "pmIniFileParse set %s = %s\n", name, value);
     return dictReplace(config, name, sdsnew(value)) != DICT_OK;
