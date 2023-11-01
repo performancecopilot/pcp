@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 
-domain=242
+domain=252
 loaded=2
 
 _cleanup()
