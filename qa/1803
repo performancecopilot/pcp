@@ -24,7 +24,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _filter()
 {
     sed \
-	-e 's/"latitude": .*,$/LATITUDE/g' \
+	-e 's/"latitude": .*,$/LATITUDE,/g' \
 	-e 's/"longitude": .*$/LONGITUDE/g' \
     # end
 }
