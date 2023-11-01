@@ -27,8 +27,6 @@
 static int chunked_transfer_size; /* pmproxy.chunksize, pagesize by default */
 static int smallest_buffer_size = 128;
 
-void *base = mmv_stats_init(); 
-
 /* https://tools.ietf.org/html/rfc7230#section-3.1.1 */
 #define MAX_URL_SIZE	8192
 #define MAX_PARAMS_SIZE 8000
@@ -429,6 +427,11 @@ http_reply(struct client *client, sds message,
 	    fprintf(stderr, "Before compression length of buffer: %lu\n", sdslen(client->buffer));
 	    if (flags & HTTP_FLAG_COMPRESS_GZIP) {
 		compress_GZIP(client);
+		mmv_inc(proxy->, client->proxy->metrics[HTTP_NUM_DATA_TRANSFERS_COMPRESSED]);
+		mmv_inc_value(proxy->, client->proxy->metrics[HTTP_TOTAL_BYTES_COMPRESSED], (double)sdslen(client->buffer));
+	    } else {
+		mmv_inc(proxy->, client->proxy->metrics[HTTP_NUM_DATA_TRANSFERS_UNCOMPRESSED]);
+		mmv_inc_value(proxy->, client->proxy->metrics[HTTP_TOTAL_BYTES_UNCOMPRESSED], (double)sdslen(client->buffer));
 	    }
 	    fprintf(stderr, "After compression length of buffer: %lu\n", sdslen(client->buffer));
 	    suffix = sdscatsds(client->buffer, message);
@@ -511,7 +514,13 @@ http_transfer(struct client *client)
  
 	    if ((flags & HTTP_FLAG_COMPRESS_GZIP)){
 		compress_GZIP(client); //To do: handle errors
+		mmv_inc(proxy->, client->proxy->metrics[HTTP_NUM_DATA_TRANSFERS_COMPRESSED]);
+		mmv_inc_value(proxy->, client->proxy->metrics[HTTP_TOTAL_BYTES_COMPRESSED], (double)sdslen(client->buffer));
 		//metric_value = mmv_value_lookup_desc();
+	    } else {
+		mmv_inc(proxy->, client->proxy->metrics[HTTP_NUM_DATA_TRANSFERS_UNCOMPRESSED]);
+		mmv_inc_value(proxy->, client->proxy->metrics[HTTP_TOTAL_BYTES_UNCOMPRESSED], (double)sdslen(client->buffer));
+
 	    }
 	    fprintf(stderr, "After compression buffer len: %lu\n", (unsigned long)sdslen(client->buffer));
 
@@ -1020,8 +1029,30 @@ void
 setup_http_module(struct proxy *proxy)
 {
     sds			option;
+    pmAtomValue 	**metrics; 
+    pmUnits		units_count = MMV_UNITS(0, 0, 1, 0, 0, PM_COUNT_ONE);
+    pmUnits		units_bytes = MMV_UNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0);
 
-    proxymetrics(proxy, METRICS_HTTP);
+    proxy->registry = proxymetrics(proxy, METRICS_HTTP); 
+    mmv_stats_add_metric(proxy->registry, "operations.compressed", 1, 
+    MMV_TYPE_U64, MMV_SEM_COUNTER, units_count, MMV_INDOM_NULL, 
+    "", "");
+    mmv_stats_add_metric(proxy->registry, "operations.uncompressed", 2,
+    MMV_TYPE_U64, MMV_SEM_COUNTER, units_count, MMV_INDOM_NULL, 
+    "", "");
+    mmv_stats_add_metric(proxy->registry, "total_bytes.compressed", 3,
+    MMV_TYPE_U64, MMV_SEM_COUNTER, units_bytes, MMV_INDOM_NULL, 
+    "", "");
+    mmv_stats_add_metric(proxy->registry, "total_bytes.uncompressed", 4,
+    MMV_TYPE_U64, MMV_SEM_COUNTER, units_bytes, MMV_INDOM_NULL, 
+    "", "");
+    mmv_stats_start(proxy->registry);
+    metrics = proxy->metrics; 
+
+    metrics[HTTP_NUM_DATA_TRANSFERS_COMPRESSED] = mmv_lookup_value_desc(,"operations.compressed", NULL);
+    metrics[HTTP_NUM_DATA_TRANSFERS_UNCOMPRESSED] = mmv_lookup_value_desc(,"operations.uncompressed", NULL);
+    metrics[HTTP_TRANSFER_NUM_BYTES_COMPRESSED] = mmv_lookup_value_desc(,"total_bytes.compressed", NULL);
+    metrics[HTTP_TRANSFER_NUM_BYTES_UNCOMPRESSED] = mmv_lookup_value_desc(,"total_bytes.uncompressed", NULL);
 
     if ((option = pmIniFileLookup(config, "pmproxy", "chunksize")) != NULL)
 	chunked_transfer_size = atoi(option);
