@@ -1,7 +1,6 @@
 QA output created by 655
 
 === resctrl agent installation ===
-newhelp: [<stdin>:33] RPM.0: Unknown metric name, entry abandoned
 Updating the Performance Metrics Name Space (PMNS) ...
 Terminate PMDA if already installed ...
 [...install files, make output...]
