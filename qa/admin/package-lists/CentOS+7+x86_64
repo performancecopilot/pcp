@@ -91,6 +91,12 @@ postfix-perl-scripts
 postgresql
 psmisc
 pylint
+# python-devel is NOT really needed as we're building with
+# Python 3.6.8 or later, but we have a configure/specfile issue
+# that demands python-devel for the build if BOTH Python 2 and
+# Python 3 are installed on the build platform
+python-devel
+python3
 python3-devel
 python3-libs
 python3-psycopg2
