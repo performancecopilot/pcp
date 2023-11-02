@@ -46,6 +46,14 @@ typedef enum proxy_registry {
     NUM_REGISTRY
 } proxy_registry_t;
 
+typedef enum proxy_values {
+    VALUE_HTTP_COMPRESSED_COUNT, 
+    VALUE_HTTP_UNCOMPRESSED_COUNT,
+    VALUE_HTTP_COMPRESSED_BYTES,
+    VALUE_HTTP_UNCOMPRESSED_BYTES,
+    NUM_VALUES
+} proxy_values_t;
+
 typedef struct stream_write_baton {
     uv_write_t		writer;
     uv_buf_t		buffer[2];
@@ -161,6 +169,7 @@ typedef struct proxy {
     redisSlots		*slots;		/* mapping of Redis keys to servers */
     struct servlet	*servlets;	/* linked list of http URL handlers */
     mmv_registry_t	*metrics[NUM_REGISTRY];	/* performance metrics */
+    pmAtomValue     *values[NUM_VALUES]; /* local metric values*/
     struct dict		*config;	/* configuration dictionary */
     uv_loop_t		*events;	/* global, async event loop */
     uv_callback_t	write_callbacks;
