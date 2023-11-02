@@ -16,7 +16,8 @@ echo "QA output created by $seq"
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 
-domain=252
+domain=`sed -n <$PCP_VAR_DIR/pmns/stdpmid -e '/^#define[ 	]QA_TEST_PERL[ 	]/s///p'`
+[ -n "$domain" ] || _notrun "Domain for QA_TEST_PERL not defined in stdpmid"
 loaded=2
 
 _cleanup()
@@ -34,6 +35,8 @@ _cleanup()
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
+
+echo "domain=$domain" >>$seq.full
 
 # real QA test starts here
 cd pmdas/test_perl
