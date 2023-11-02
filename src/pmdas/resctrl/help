@@ -27,6 +27,8 @@
 # blank lines before the @ line are ignored
 #
 
+@ 159.0 set of last level caches (LLC)
+
 @ resctrl.llc.occupancy % of LLC in use
 @ resctrl.llc.mbm_local local memory bandwidth of this LLC
 @ resctrl.llc.mbm_total total memory bandwidth of this LLC

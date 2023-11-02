@@ -248,7 +248,7 @@ resctrl_init(pmdaInterface *dp)
 	int sep = pmPathSeparator();
 	pmsprintf(mypath, sizeof(mypath), "%s%c" "resctrl" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_6, "llc DSO", mypath);
+	pmdaDSO(dp, PMDA_INTERFACE_LATEST, "resctrl DSO", mypath);
     } else {
 	pmSetProcessIdentity(username);
     }
@@ -279,8 +279,8 @@ main(int argc, char **argv)
 
     pmsprintf(mypath, sizeof(mypath), "%s%c" "resctrl" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmGetProgname(), RESCTRL,
-		"llc.log", mypath);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_LATEST, pmGetProgname(), RESCTRL,
+		"resctrl.log", mypath);
 
     pmdaGetOptions(argc, argv, &opts, &dispatch);
     if (opts.errors) {
