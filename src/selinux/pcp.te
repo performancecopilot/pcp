@@ -126,6 +126,7 @@ kernel_read_net_sysctls(pcp_pmcd_t)
 corecmd_exec_bin(pcp_pmcd_t)
 corecmd_exec_shell(pcp_pmcd_t)
 
+corenet_tcp_connect_ntop_port(pcp_pmcd_t)
 corenet_all_recvfrom_netlabel(pcp_pmcd_t)
 corenet_tcp_sendrecv_generic_if(pcp_pmcd_t)
 corenet_tcp_sendrecv_generic_node(pcp_pmcd_t)
@@ -277,6 +278,9 @@ systemd_search_unit_dirs(pcp_pmie_t)
 
 userdom_read_user_tmp_files(pcp_pmie_t)
 
+files_manage_generic_tmp_dirs(pcp_pmie_t)
+files_manage_generic_tmp_files(pcp_pmie_t)
+
 ########################################
 #
 # pcp_pmlogger local  policy
@@ -316,6 +320,8 @@ logging_send_syslog_msg(pcp_pmlogger_t)
 
 systemd_exec_systemctl(pcp_pmlogger_t)
 systemd_getattr_unit_files(pcp_pmlogger_t)
+
+userdom_manage_tmp_dirs(pcp_pmlogger_t)
 
 optional_policy(`
     hostname_exec(pcp_pmlogger_t)
@@ -1006,3 +1012,11 @@ optional_policy(`
     logging_watch_journal_dir(pcp_domain);
 ')
 allow syslogd_t pcp_log_t:fifo_file { open read write };
+
+#============= pcp_pmcd_t ==============
+#
+##============= pcp_pmie_t ==============
+#files_manage_generic_tmp_dirs(pcp_pmie_t)
+#files_manage_generic_tmp_files(pcp_pmie_t)
+#
+##============= pcp_pmlogger_t ==============
