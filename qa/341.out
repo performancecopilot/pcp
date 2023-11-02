@@ -1,13 +1,13 @@
 QA output created by 341
 load without save, store a couple and save ...
-load() -> -2 No such file or directory
+load(0.123) -> -2 No such file or directory
 store(eek) -> 0
 store(urk) -> 1
 After cache_save hstate={DIRTY_INSTANCE}
 pmdaCacheDump: indom 0.123: nentry=2 ins_mode=0 hstate=0 hsize=16
           0    active (nil) eek
           1    active (nil) urk
-save() -> 2
+save(0.123) -> 2
 
 store one, load, store another couple and save ...
 store(eek) -> 0
@@ -15,7 +15,7 @@ After PMDA_CACHE_LOAD
 pmdaCacheDump: indom 0.123: nentry=2 ins_mode=0 hstate=3 hsize=16
           0    active (nil) eek
           1  inactive (nil) urk
-load() -> 2
+load(0.123) -> 2
 store(urk) -> 1
 store(foo) -> 2
 After cache_save hstate={DIRTY_INSTANCE}
@@ -23,7 +23,7 @@ pmdaCacheDump: indom 0.123: nentry=3 ins_mode=0 hstate=0 hsize=16
           0    active (nil) eek
           1    active (nil) urk
           2    active (nil) foo
-save() -> 3
+save(0.123) -> 3
 pmdaCacheDump: indom 0.123: nentry=3 ins_mode=0 hstate=0 hsize=16
           0    active (nil) eek
           1    active (nil) urk
@@ -78,7 +78,7 @@ pmdaCacheDump: indom 0.123: nentry=5 ins_mode=0 hstate=3 hsize=16
           2  inactive (nil) foo
           3    active (nil) fumble mumble [match len=6]
           4    active (nil) bar
-load() -> 3
+load(0.123) -> 3
 pmdaCacheDump: indom 0.123: nentry=5 ins_mode=0 hstate=3 hsize=16
           0  inactive (nil) eek
           1    active (nil) urk
@@ -133,7 +133,7 @@ After PMDA_CACHE_LOAD
 pmdaCacheDump: indom 0.123: nentry=2 ins_mode=0 hstate=3 hsize=16
           0    active (nil) urk a bit tricky [match len=3]
           1    active (nil) foo
-load() -> 3
+load(0.123) -> 3
 pmdaCacheDump: indom 0.123: nentry=2 ins_mode=0 hstate=3 hsize=16
           0    active (nil) urk a bit tricky [match len=3]
           1    active (nil) foo
