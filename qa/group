@@ -213,6 +213,7 @@ pmda.docker
 pmda.ds389
 pmda.elasticsearch
 pmda.environ
+pmda.farm
 pmda.gfs2
 pmda.gluster
 pmda.gpfs
@@ -1945,6 +1946,7 @@ x11
 1532 pmda.zfs local
 1533 pmda.zfs local valgrind
 1534 pmda.zfs local valgrind
+1540 pmda.farm local valgrind
 1543 pmproxy local help
 1544 pmproxy python local
 1545 pcp2xml python pcp2xxx local

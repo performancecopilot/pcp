@@ -1,0 +1,11 @@
+Recipe for adding case #007
+===========================
+
+- create test case directory
+  $ mkdir -p qa/smart/007/farm
+
+- capture output from
+  $ lsblk -d -n -e 1,2,7,11,252 -o name
+
+- for each lsblk device reported, run
+  # smartctl -l farm /dev/xxx > 007/farm/xxx.farm

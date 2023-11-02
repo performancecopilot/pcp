@@ -1,0 +1,87 @@
+#! /bin/sh
+# PCP QA Test No. 1540
+# checks FARM PMDA functionality
+#
+# Copyright (c) 2013 - 2023 Red Hat. All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+[ $PCP_PLATFORM = linux ] || _notrun "Seagate FARM Log PMDA is Linux-specific (farm)"
+[ -d $PCP_PMDAS_DIR/farm ] || _notrun "farm PMDA directory is not installed"
+which smartctl >/dev/null 2>&1 || _notrun "farm PMDA Install needs smartctl(1)"
+
+_cleanup()
+{
+    cd $here
+    _restore_pmda_install farm
+    $sudo rm -fr $tmp.root
+    $sudo rm -f $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    $here/src/sortinst | \
+    sed \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+    #end
+}
+
+# real QA test starts here
+echo
+echo "=== Installing Seagate FARM Log PMDA ===" | tee -a $here/$seq.full
+_prepare_pmda_install farm
+cd $PCP_PMDAS_DIR/farm
+$sudo ./Install </dev/null >$tmp.out 2>&1
+cat $tmp.out >> $here/$seq.full
+
+root=$tmp.root
+export FARM_SETUP_LSBLK="$here/farm/lsblk.sh"
+export FARM_SETUP_SMARTCTL="$here/farm/smartctl.sh"
+export FARM_SETUP="$here/farm/smartctl.sh"
+pmda=$PCP_PMDAS_DIR/farm/pmda_farm.so,farm_init
+metrics=`pminfo -L -K clear -K add,160,$pmda farm | LC_COLLATE=POSIX sort`
+memcheck="farm.ata.drive_information.device_capacity_in_sectors"
+
+for tgz in $here/farm/farm-*.tgz
+do
+    [ $tgz = "farm/farm-*" ] && continue
+
+    $sudo rm -fr $root
+    mkdir $root || _fail "root in use when processing $tgz"
+    cd $root
+    $sudo tar xzf $tgz
+    base=`basename $tgz`
+    count=`echo $base | sed -e 's,.*-root-,,g' -e 's,.tgz$,,g'`
+    cd $count/farm
+
+    echo "== Checking metric descriptors and values - $base"
+    pminfo -L -K clear -K add,160,$pmda -dfmtT $metrics 2>&1 \
+    | _filter
+
+    echo "== Checking with valgrind - $base"
+    _run_valgrind pminfo -L -K clear -K add,160,$pmda -f $memcheck 2>&1 \
+    | _filter
+
+    echo && echo "== done" && echo
+    cd $here
+done
+ 
+# cleanup ..
+#
+cd $PCP_PMDAS_DIR/farm
+$sudo ./Remove </dev/null >/dev/null 2>&1
+
+# success, all done
+status=0
+exit

@@ -139,7 +139,8 @@ DENKI		156
 BPF		157
 OVERHEAD	158
 RESCTRL		159
-### FREE SLOTS 160...240 ###
+FARM	160 	/* Seagate vendor specific Field Accessible Reliability Metrics log */
+### FREE SLOTS 161...240 ###
 SCHIZO		241
 SLOW_PYTHON	242
 SLOW		243

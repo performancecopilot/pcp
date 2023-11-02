@@ -529,7 +529,7 @@ Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-p
 Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts
-Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart
+Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart pcp-pmda-farm
 Requires: pcp-pmda-hacluster pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-denki pcp-pmda-docker pcp-pmda-bind2
 Requires: pcp-pmda-sockets pcp-pmda-podman
 %if !%{disable_statsd}
@@ -2071,6 +2071,22 @@ smartmontools package.
 #end pcp-pmda-smart
 
 #
+# pcp-pmda-farm
+#
+%package pmda-farm
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics for Seagate FARM Log metrics
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: smartmontools
+%description pmda-farm
+This package contains the PCP Performance Metric Domain Agent (PMDA) for
+collecting metrics from Seagate Hard Drive vendor specific Field Accessible
+Reliability Metrics (FARM) Log making use of data from the smartmontools 
+package.
+#end pcp-pmda-farm
+
+#
 # pcp-pmda-sockets
 #
 %package pmda-sockets
@@ -2542,6 +2558,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/sendmail(/|$)' >pcp-pmda-sendmail-files
 basic_manifest | keep '(etc/pcp|pmdas)/shping(/|$)' >pcp-pmda-shping-files
 basic_manifest | keep '(etc/pcp|pmdas)/slurm(/|$)' >pcp-pmda-slurm-files
 basic_manifest | keep '(etc/pcp|pmdas)/smart(/|$)' >pcp-pmda-smart-files
+basic_manifest | keep '(etc/pcp|pmdas)/farm(/|$)' >pcp-pmda-farm-files
 basic_manifest | keep '(etc/pcp|pmdas)/snmp(/|$)' >pcp-pmda-snmp-files
 basic_manifest | keep '(etc/pcp|pmdas)/sockets(/|$)' >pcp-pmda-sockets-files
 basic_manifest | keep '(etc/pcp|pmdas)/statsd(/|$)' >pcp-pmda-statsd-files
@@ -2572,7 +2589,7 @@ for pmda_package in \
     pdns perfevent podman postfix postgresql \
     rabbitmq redis roomtemp rpm rsyslog \
     samba sendmail shping slurm smart snmp \
-    sockets statsd summary systemd \
+    sockets statsd summary systemd farm \
     unbound \
     trace \
     weblog \
@@ -2981,6 +2998,9 @@ exit 0
 %preun pmda-smart
 %{pmda_remove "$1" "smart"}
 
+%preun pmda-farm
+%{pmda_remove "$1" "farm"}
+
 %preun pmda-sockets
 %{pmda_remove "$1" "sockets"}
 
@@ -3331,6 +3351,8 @@ fi
 %files pmda-shping -f pcp-pmda-shping-files.rpm
 
 %files pmda-smart -f pcp-pmda-smart-files.rpm
+
+%files pmda-farm -f pcp-pmda-farm-files.rpm
 
 %files pmda-sockets -f pcp-pmda-sockets-files.rpm
 

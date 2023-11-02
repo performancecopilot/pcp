@@ -1,0 +1,342 @@
+#
+# Copyright (c) 2023 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# FARM PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+@farm.ata.log_header.log_version Listed version of the FARM log
+The current version for the FARM log provided by the drive
+
+@farm.ata.log_header.pages_supported Number of FARM log pages supported
+Number of FARM log pages supported by the drive
+
+@farm.ata.log_header.log_size FARM log size (bytes)
+The size in bytes for the FARM log on the drive
+
+@farm.ata.log_header.page_size FARM log size per page (bytes)
+The size in bytes for each page of the FARM log on the drive
+
+@farm.ata.log_header.heads_supported Number of drive heads supported by log
+The maximum number of drive heads supported by this version of the FARM log
+
+@farm.ata.log_header.number_of_copies Number of FARM log entry copies
+The number of FARM log entry copies on the drive
+
+@farm.ata.log_header.reason_for_frame_capture Reason for the capture of the FARM log
+
+@farm.ata.drive_information.serial_number Serial number of the drive
+The serial number of the drive
+
+@farm.ata.drive_information.world_wide_name World wide name identifier for the drive
+The world wide name identifier for the drive
+
+@farm.ata.drive_information.device_interface Connected interface for the drive
+The interface type of which the drive is connected to the system
+
+@farm.ata.drive_information.device_capacity_in_sectors Number of drive sectors
+The given total number of sectors given for the drive
+
+@farm.ata.drive_information.physical_sector_size Physical size of the sectors on the drive
+The given physical size of the drive given in number of sectors
+
+@farm.ata.drive_information.logical_sector_size Logical size of the sectors on the drive
+The given logical size of the drive given in number of sectors
+
+@farm.ata.drive_information.device_buffer_size Size of the buffer on the drive
+The given device buffer size of the drive
+
+@farm.ata.drive_information.number_of_heads Number of drive heads
+The given number of drive heads for the drive
+
+@farm.ata.drive_information.device_form_factor The form factor of the drive
+The physical form factor reported by the drive
+
+@farm.ata.drive_information.rotation_rate Rotational rate of the drive
+The given rotational rate of the drive
+
+@farm.ata.drive_information.firmware_rev Revision of the drive firmware
+The given revision of the firmware on the drive
+
+@farm.ata.drive_information.ata_security_state Value of the ATA security state (ID Word 128)
+The value in hex for the current ATA security state of the drive
+
+@farm.ata.drive_information.ata_features_supported Value for ATA features supported (ID Word 78)
+The value in hex for the supported ATA feature set of the drive
+
+@farm.ata.drive_information.ata_features_enabled Value for ATA features enabled (ID Word 79)
+The value in hex for the enabled ATA feature set of the drive
+
+@farm.ata.drive_information.power_on_hours Number of hours drive powered on
+The number of hours that the drive has been powered on for
+
+@farm.ata.drive_information.spindle_power_on_hours Number of hours drive spindle powered on
+The number of hours that the drive spindle has been powered on for
+
+@farm.ata.drive_information.head_flight_hours Number of hours of drive head flight
+The number of hours that the drive head has been in flight for
+
+@farm.ata.drive_information.head_load_events Number of drive head load events
+The number of reported drive head load events for the drive
+
+@farm.ata.drive_information.power_cycle_count Power cycle count of the drive
+The power cycle count reported by the drive
+
+@farm.ata.drive_information.hardware_reset_count Hardware reset count of the drive
+The hardware reset count reported by the drive
+
+@farm.ata.drive_information.spin_up_time Drive spin up time (ms)
+Reported spin-up time for the drive in ms
+
+@farm.ata.drive_information.time_to_ready_last_power_cycle Time to ready of the last power cycle (ms)
+Reported time for the drive to ready for the last power cycle in ms
+
+@farm.ata.drive_information.time_drive_held_in_staggered_spin Time drive is held in staggered spin (ms)
+Reported time that the drive is held in staggered spin in ms
+
+@farm.ata.drive_information.model_number Drive model number
+Drive model number
+
+@farm.ata.drive_information.drive_recording_type Drive recording type
+Drive recording type technology used
+
+@farm.ata.drive_information.max_number_available_sectors_reassignment Number of available sectors for reassignment
+The maximum number of available sectors available for reassignment on the drive
+
+@farm.ata.drive_information.assembly_date Drive assembly date (YYWW)
+The drive assembly date
+
+@farm.ata.drive_information.depopulation_head_mask Depopulation head mask
+The drive depopulation head mask
+
+@farm.ata.workload_statistics.total_read_commands Total number of read commands on drive
+The total number of recorded read commands done on the drive
+
+@farm.ata.workload_statistics.total_write_commands Total number of write commands on drive
+The total number of recorded write commands done on the drive
+
+@farm.ata.workload_statistics.total_random_read_commands Total number of random read commands on drive
+The total number of recorded random read commands on the drive
+
+@farm.ata.workload_statistics.total_random_write_commands Total number of random write commands on drive
+The total number of recorded random write commands on the drive
+
+@farm.ata.workload_statistics.total_other_commands Total number of other commands on drive
+The total number of other commands on the drive
+
+@farm.ata.workload_statistics.logical_sectors_written Number of logical sectors written on drive
+The total number of recorded logical sectors written on the drive
+
+@farm.ata.workload_statistics.logical_sectors_read Number of logical sectors read on drive
+The total number of recorded logical sectors read on the drive
+
+@farm.ata.workload_statistics.dither_events_current_power_cycle Dither events this power cycle 
+Number of dither events during the current power cycle of drive
+
+@farm.ata.workload_statistics.dither_held_off_random_workloads Dither held off random workloads
+Number of times dither was held off during random workloads
+
+@farm.ata.workload_statistics.dither_held_off_sequential_workloads Dither held off sequential workloads
+Number of times dither was held off during sequential workloads
+
+@farm.ata.workload_statistics.read_commands_0_3_lba_space_last_3_smart_summary_frames Read commands 0-3.125% LBA space
+Number of read commands from 0-3.125% of LBA space for the last 3 SMART summary frames
+
+@farm.ata.workload_statistics.read_commands_3_25_lba_space_last_3_smart_summary_frames Read commands 3.125-25% LBA space
+Number of read commands from 3.125-25% of LBA space for the last 3 SMART summary frames
+
+@farm.ata.workload_statistics.read_commands_25_75_lba_space_last_3_smart_summary_frames Read commands 25-75% LBA space
+Number of read commands from 25-75% of LBA space for the last 3 SMART summary frames
+
+@farm.ata.workload_statistics.read_commands_75_100_lba_space_last_3_smart_summary_frames Read commands 75-100% LBA space
+Number of read commands from 75-100% of LBA space for the last 3 SMART summary frames
+
+@farm.ata.workload_statistics.write_commands_0_3_lba_space_last_3_smart_summary_frames Write commands 0-3.125% LBA space
+Number of write commands from 0-3.125% of LBA space for the last 3 SMART summary frames
+
+@farm.ata.workload_statistics.write_commands_3_25_lba_space_last_3_smart_summary_frames Write commands 3.125-25% LBA space
+Number of write commands from 3.125-25 % of LBA space for the last 3 SMART summary frames
+
+@farm.ata.workload_statistics.write_commands_25_75_lba_space_last_3_smart_summary_frames Write commands 25-75% LBA space
+Number of write commands from 25-75% of LBA space for the last 3 SMART summary frames
+
+@farm.ata.workload_statistics.write_commands_75_100_lba_space_last_3_smart_summary_frames Write commands 75-100% LBA space
+Number of write commands for 75-100% of LBA space for the last 3 SMART summary frames
+
+@farm.ata.error_statistics.unrecoverable_read_errors Unrecoverable read errors
+Number of unrecoverable read errors on the drive
+
+@farm.ata.error_statistics.unrecoverable_write_errors Unrecoverable write errors
+Number of unrecoverable write errors on the drive
+
+@farm.ata.error_statistics.reallocated_sectors Reallocated sectors
+Number of reallocated sectors on the drive
+
+@farm.ata.error_statistics.read_recovery_attempts Read recovery attempts
+Number of read recovery attempts recorded on the drive
+
+@farm.ata.error_statistics.mechanical_start_failures Mechanical start failures
+Number of mechanical start failures for the drive
+
+@farm.ata.error_statistics.reallocated_candidate_sectors Reallocated candidate sectors
+Number of reallocated candidate sectors for the drive
+
+@farm.ata.error_statistics.asr_events ASR events count
+Number of ASR events for the drive
+
+@farm.ata.error_statistics.interface_crc_errors CRC error count
+Number of interface CRC errors for the drive
+
+@farm.ata.error_statistics.spin_retry_count Spin retry count
+Spin retry count for the drive
+
+@farm.ata.error_statistics.spin_retry_count_normalized Spin retry count normalized
+Spin retry count for the drive normalized
+
+@farm.ata.error_statistics.spin_retry_count_worst Spin retry count worst
+Spin retry count worst for the drive
+
+@farm.ata.error_statistics.ioedc_errors IOEDC error count 
+Number of IOEDC errors (Raw)
+
+@farm.ata.error_statistics.cto_count_total CTO count
+CTO count total for the drive
+
+@farm.ata.error_statistics.cto_count_over_5s CTO count over 5s
+CTO count over 5s for the drive
+
+@farm.ata.error_statistics.cto_count_over_7s CTO count over 7.5s
+CTO count over 7.5s for the drive
+
+@farm.ata.error_statistics.total_flash_led_assert_events Total Flash LED (Assert) events for the drive
+@farm.ata.error_statistics.index_of_last_flash_led Index of the last Flash LED for the drive
+
+@farm.ata.error_statistics.flash_led_event_information Flash LED Event information
+@farm.ata.error_statistics.flash_led_event_timestamp Flash LED Timestamp of Event
+@farm.ata.error_statistics.flash_led_event_power_cycle Flash LED Power Cycle Event
+
+@farm.ata.error_statistics.uncorrectable_errors Uncorrectable errors count 
+Number of uncorrectable errors for the drive
+
+@farm.ata.error_statistics.cumulative_lifetime_unrecoverable_errors_due_to_erc Cumulative unrecoverable read errors ERC
+Number of cumulative lifetime unrecoverable read errors due to ERC
+
+@farm.ata.error_statistics.cumulative_lifetime_unrecoverable_read_repeating
+Drive head cumulative lifetime unrecoverable read repeating for the drive
+
+@farm.ata.error_statistics.cumulative_lifetime_unrecoverable_read_unique
+Drive head cumulative lifetime unrecoverable read unique for the drive
+
+@farm.ata.environment_statistics.current_temperature Current temperature
+Current temperature for the drive
+
+@farm.ata.environment_statistics.highest_temperature Highest temperature
+Highest temperature recorded for the drive
+
+@farm.ata.environment_statistics.lowest_temperature Lowest temperature
+Lowest temperature recorded for the drive
+
+@farm.ata.environment_statistics.average_short_term_temperature Average short-term temperature
+Average short term temperature for the drive
+
+@farm.ata.environment_statistics.average_long_term_temperature Average long-term temperature
+Average long term temperature for the drive
+
+@farm.ata.environment_statistics.highest_average_short_term_temperature Highest average short-term temp
+Highest average recorded short term temperature for the drive
+
+@farm.ata.environment_statistics.lowest_average_short_term_temperature Lowest average short-term temp
+Lowest average recorded short term temperature for the drive
+
+@farm.ata.environment_statistics.highest_average_long_term_temperature Highest average long-term temp
+Highest average recorded long term temperature for the drive
+
+@farm.ata.environment_statistics.lowest_average_long_term_temperature Lowest average long-term temp
+Lowest average recorded long term temperature for the drive
+
+@farm.ata.environment_statistics.time_in_over_temperature Over temperature time
+Time in over temperature (minutes) for the drive
+
+@farm.ata.environment_statistics.time_in_under_temperature Under temperature time
+Time in under temperature (minutes) for the drive
+
+@farm.ata.environment_statistics.specified_max_operating_temperature Max operating temperature
+Specified maximum operating temperature for the drive
+
+@farm.ata.environment_statistics.specified_min_operating_temperature Min operating temperature
+Specified minimum operating temperature for the drive
+
+@farm.ata.environment_statistics.current_relative_humidity Relative humidity
+Current relative humidity recorded by the drive
+
+@farm.ata.environment_statistics.current_motor_power Current motor power for the drive
+@farm.ata.environment_statistics.current_12_volts Current 12 volts reading
+@farm.ata.environment_statistics.minimum_12_volts Minimum 12 volts reading
+@farm.ata.environment_statistics.maximum_12_volts Maximum 12 volts reading
+@farm.ata.environment_statistics.current_5_volts Current 5 volts reading
+@farm.ata.environment_statistics.minimum_5_volts Minimum 5 volts reading
+@farm.ata.environment_statistics.maximum_5_volts Maximum 5 volts reading
+@farm.ata.environment_statistics.power_average_12v 12 volts power average reading
+@farm.ata.environment_statistics.power_minimum_12v 12 volts power minimum reading
+@farm.ata.environment_statistics.power_maximum_12v 12 volts power maximum reading
+@farm.ata.environment_statistics.power_average_5v 5 volts power average reading
+@farm.ata.environment_statistics.power_minimum_5v 5 volts power minimum reading
+@farm.ata.environment_statistics.power_maximum_5v 5 volts power maximum reading
+
+@farm.ata.reliability_statistics.error_rate_smart_1_raw SMART 1 (Raw)
+Error rate (SMART attribute 1 Raw) for the drive
+
+@farm.ata.reliability_statistics.error_rate_smart_1_normalized SMART 1 (Normalized)
+Error rate (SMART attribute 1 Normalized) for the drive
+
+@farm.ata.reliability_statistics.error_rate_smart_1_worst SMART 1 (Worst)
+Error rate (SMART attribute 1 Worst) for the drive
+
+@farm.ata.reliability_statistics.seek_error_rate_smart_7_raw SMART 7 (Raw)
+Seek error rate (SMART attribute 7 Raw) for the drive
+
+@farm.ata.reliability_statistics.seek_error_rate_smart_7_normalized SMART 7 (Normalized)
+Seek error rate (SMART attribute 7 Normalized) for the drive
+
+@farm.ata.reliability_statistics.seek_error_rate_smart_7_worst SMART 7 (Worst)
+Seek error rate (SMART attribute 7 Worst) for the drive
+
+@farm.ata.reliability_statistics.high_priority_unload_events High priority unload events count
+Number of high priority unload events for the drive
+
+@farm.ata.reliability_statistics.helium_pressure_threshold_tripped Helium pressure threshold trip
+Helium pressure threshold tripped for the drive
+
+@farm.ata.reliability_statistics.lbas_corrected_by_parity_sector LBA corrected by parity sector 
+LBAs corrected by parity sector for the drive
+
+@farm.ata.reliability_statistics.dvga_skip_write_detected DVGA skip write detect by head for the drive
+@farm.ata.reliability_statistics.rvga_skip_write_detected RVGA skip write detect by head for the drive
+@farm.ata.reliability_statistics.fvga_skip_write_detected FVGA skip write detect by head for the drive
+@farm.ata.reliability_statistics.skip_write_detect_threshold_detect Skip write detect threshold exceeded by head
+@farm.ata.reliability_statistics.write_power_hrs Write power-on (hrs) by head
+@farm.ata.reliability_statistics.mr_head_resistance MR head resistance from head 
+@farm.ata.reliability_statistics.second_mr_head_resistance Second MR head resistance from head 
+@farm.ata.reliability_statistics.number_of_reallocated_sectors Number of reallocated sectors by head 
+@farm.ata.reliability_statistics.number_of_reallocation_candidate_sectors Reallocation candidate sectors head
