@@ -552,7 +552,7 @@ _expand_control()
 {
     sed \
 	-e 's/[ 	][ 	]*/ /g' \
-	-e "s;PCP_ARCHIVE_DIR/;$PCP_LOG_DIR/pmlogger/;g" \
+	-e "s;PCP_ARCHIVE_DIR/;$PCP_ARCHIVE_DIR/;g" \
 	-e "s;PCP_LOG_DIR/;$PCP_LOG_DIR/;g" \
 	-e "s/^LOCALHOSTNAME /$LOCALHOST /g" \
 	-e "s/\\([^a-zA-Z0-9]\\)LOCALHOSTNAME/\\1$LOCALHOST/g" \
@@ -564,7 +564,7 @@ _expand_control()
 _unexpand_control()
 {
     sed \
-	-e "s;$PCP_LOG_DIR/pmlogger/;PCP_ARCHIVE_DIR/;g" \
+	-e "s;$PCP_ARCHIVE_DIR/;PCP_ARCHIVE_DIR/;g" \
 	-e "s;$PCP_LOG_DIR/;PCP_LOG_DIR/;g" \
 	-e "s/^$LOCALHOST /LOCALHOSTNAME /g" \
 	-e "s/\\([^a-zA-Z0-9]\\)$LOCALHOST/\\1LOCALHOSTNAME/g" \
@@ -577,7 +577,7 @@ _unexpand_control()
 _unexpand_pcp_control()
 {
     sed \
-	-e "s;$PCP_LOG_DIR/pmlogger/;PCP_ARCHIVE_DIR/;g" \
+	-e "s;$PCP_ARCHIVE_DIR/;PCP_ARCHIVE_DIR/;g" \
 	-e "s;$PCP_LOG_DIR/;PCP_LOG_DIR/;g" \
     # end
 }
