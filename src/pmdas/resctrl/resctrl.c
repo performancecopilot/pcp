@@ -1,13 +1,13 @@
 /*
- * Llc, configurable PMDA
+ * Linux kernel Resource Control PMDA
  *
  * Copyright (c) 2023 Red Hat.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -24,7 +24,7 @@
 #include <stdio.h>
 
 /*
- * RESCTRL LLC  Last-Level Cache of CPU info.
+ * RESCTRL LLC (Last-Level Cache) of CPU info.
  *
  *  Linux supports resctrl which can be used to
  *  control QoS of CPU cache and monitor LLC(last level cache).
@@ -55,10 +55,6 @@ static pmdaIndom indomtab[] = {
 #define LLC_INDOM 0
     { LLC_INDOM, 0, NULL }
 };
-
-/*  occupancy   LLC:0:0
-    mbm_local   LLC:0:1
-    mbm_total   LLC:0:2   */
 
 static pmInDom	*llc_indom = &indomtab[LLC_INDOM].it_indom;
 
@@ -141,8 +137,8 @@ llc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     DIR *dirp;
     FILE *fp;
     static char	fn[MAXPATHLEN + 1024];
-    char            linebuf[1024];
-    struct dirent   *dentry;
+    char linebuf[1024];
+    struct dirent *dentry;
     unsigned long llc_occupancy_total;
     float llc_occupancy = 0;
     unsigned long llc_mbm_local = 0;
@@ -154,76 +150,65 @@ llc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
      * /sys/fs/llc/mon_data/mon_L3_XX
      */
     dirp = opendir(llcdir);
-    if (! dirp)
+    if (!dirp)
 	return PM_ERR_INST;
 
     static int l3_cache_size;
 
-    if (!l3_cache_size)
-	{
-	    if ( (fp = fopen(l3_sys_cache_size, "r")) != NULL)
-		{
-		    if ( fgets(linebuf, sizeof(linebuf), fp) != NULL)
-			{
-			    sscanf(linebuf, "%uK\n", &l3_cache_size);
-			    l3_cache_size *= 1024;
-			}
-		    fclose(fp);
-		}
+    if (!l3_cache_size) {
+	if ((fp = fopen(l3_sys_cache_size, "r")) != NULL) {
+	    if (fgets(linebuf, sizeof(linebuf), fp) != NULL) {
+		sscanf(linebuf, "%uK\n", &l3_cache_size);
+		l3_cache_size *= 1024;
+	    }
+	    fclose(fp);
 	}
-
+    }
 
     /*
      * walk the LLC directory, gather each LLC
      */
-    while ( (dentry = readdir(dirp)) )
-	{
-	    if (strncmp(dentry->d_name, "mon_L3_", 7))
-		continue;
+    while ((dentry = readdir(dirp))) {
+	if (strncmp(dentry->d_name, "mon_L3_", 7))
+	    continue;
 
-	    pmsprintf(fn, sizeof fn, "%s/%s/llc_occupancy", llcdir, dentry->d_name);
-	    if ( (fp = fopen(fn, "r")) != NULL)
-		{
-		    if ( fgets(linebuf, sizeof(linebuf), fp) != NULL)
-			{
-			    sscanf(linebuf, "%lu\n", &llc_occupancy_total);
-			    llc_occupancy = (float)llc_occupancy_total / l3_cache_size;
-			}
-		    fclose(fp);
-		}
-
-	    pmsprintf(fn, sizeof fn, "%s/%s/mbm_local_bytes", llcdir, dentry->d_name);
-	    if ( (fp = fopen(fn, "r")) != NULL)
-		{
-		    if ( fgets(linebuf, sizeof(linebuf), fp) != NULL)
-			{
-			    sscanf(linebuf, "%lu\n", &llc_mbm_local);
-			}
-		    fclose(fp);
-		}
-
-	    pmsprintf(fn, sizeof fn, "%s/%s/mbm_total_bytes", llcdir, dentry->d_name);
-	    if ( (fp = fopen(fn, "r")) != NULL)
-		{
-		    if ( fgets(linebuf, sizeof(linebuf), fp) != NULL)
-			{
-			    sscanf(linebuf, "%lu\n", &llc_mbm_total);
-			}
-		    fclose(fp);
-		}
-
-	    llc_metrics *lspm;
-	    int sts = pmdaCacheLookupName(*llc_indom, dentry->d_name, NULL, (void **)&lspm);
-	    if (sts < 0 || lspm == NULL) {
-		if ((lspm = calloc(1, sizeof(*lspm))) == NULL)
-		    return PM_ERR_INST;
+	pmsprintf(fn, sizeof fn, "%s/%s/llc_occupancy", llcdir, dentry->d_name);
+	if ((fp = fopen(fn, "r")) != NULL) {
+	    if (fgets(linebuf, sizeof(linebuf), fp) != NULL && l3_cache_size) {
+		sscanf(linebuf, "%lu\n", &llc_occupancy_total);
+		llc_occupancy = (float)llc_occupancy_total / l3_cache_size;
 	    }
-	    /* store the completed info values into the cached structure */
-	    lspm->llc_occupancy = llc_occupancy;
-	    lspm->llc_mbm_local = llc_mbm_local;
-	    lspm->llc_mbm_total = llc_mbm_total;
-	    pmdaCacheStore(*llc_indom, PMDA_CACHE_ADD, dentry->d_name, (void *)lspm);
+	    fclose(fp);
 	}
+
+	pmsprintf(fn, sizeof fn, "%s/%s/mbm_local_bytes", llcdir, dentry->d_name);
+	if ((fp = fopen(fn, "r")) != NULL) {
+	    if (fgets(linebuf, sizeof(linebuf), fp) != NULL)
+		sscanf(linebuf, "%lu\n", &llc_mbm_local);
+	    fclose(fp);
+	}
+
+	pmsprintf(fn, sizeof fn, "%s/%s/mbm_total_bytes", llcdir, dentry->d_name);
+	if ((fp = fopen(fn, "r")) != NULL) {
+	    if (fgets(linebuf, sizeof(linebuf), fp) != NULL)
+		sscanf(linebuf, "%lu\n", &llc_mbm_total);
+	    fclose(fp);
+	}
+
+	llc_metrics *lspm;
+	int sts = pmdaCacheLookupName(*llc_indom, dentry->d_name, NULL, (void **)&lspm);
+	if (sts < 0 || lspm == NULL) {
+	    if ((lspm = calloc(1, sizeof(*lspm))) == NULL) {
+		closedir(dirp);
+		return PM_ERR_INST;
+	    }
+	}
+	/* store the completed info values into the cached structure */
+	lspm->llc_occupancy = llc_occupancy;
+	lspm->llc_mbm_local = llc_mbm_local;
+	lspm->llc_mbm_total = llc_mbm_total;
+	pmdaCacheStore(*llc_indom, PMDA_CACHE_ADD, dentry->d_name, (void *)lspm);
+    }
     closedir(dirp);
     
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
