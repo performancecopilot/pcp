@@ -65,11 +65,11 @@ static pmdaMetric metrictab[] = {
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     // mbm_local
     { NULL, 
-      { PMDA_PMID(0,1), PM_TYPE_U32, LLC_INDOM, PM_SEM_INSTANT, 
+      { PMDA_PMID(0,1), PM_TYPE_U64, LLC_INDOM, PM_SEM_INSTANT, 
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     // mbm_total
     { NULL, 
-      { PMDA_PMID(0,2), PM_TYPE_U32, LLC_INDOM, PM_SEM_INSTANT, 
+      { PMDA_PMID(0,2), PM_TYPE_U64, LLC_INDOM, PM_SEM_INSTANT, 
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
 
@@ -80,8 +80,8 @@ static char	llcdir[MAXPATHLEN];
 
 typedef struct {
     float llc_occupancy;
-    unsigned long llc_mbm_local;
-    unsigned long llc_mbm_total;
+    unsigned long long llc_mbm_local;
+    unsigned long long llc_mbm_total;
 } llc_metrics;
     
 /* command line option handling - both short and long options */
@@ -139,10 +139,10 @@ llc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     static char	fn[MAXPATHLEN + 1024];
     char linebuf[1024];
     struct dirent *dentry;
-    unsigned long llc_occupancy_total;
     float llc_occupancy = 0;
-    unsigned long llc_mbm_local = 0;
-    unsigned long llc_mbm_total = 0;
+    unsigned long long llc_mbm_local = 0;
+    unsigned long long llc_mbm_total = 0;
+    unsigned long long llc_occupancy_total;
     static const char *l3_sys_cache_size  = "/sys/devices/system/cpu/cpu0/cache/index3/size";
 
     /*
@@ -175,7 +175,7 @@ llc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	pmsprintf(fn, sizeof fn, "%s/%s/llc_occupancy", llcdir, dentry->d_name);
 	if ((fp = fopen(fn, "r")) != NULL) {
 	    if (fgets(linebuf, sizeof(linebuf), fp) != NULL && l3_cache_size) {
-		sscanf(linebuf, "%lu\n", &llc_occupancy_total);
+		sscanf(linebuf, "%llu\n", &llc_occupancy_total);
 		llc_occupancy = (float)llc_occupancy_total / l3_cache_size;
 	    }
 	    fclose(fp);
@@ -184,18 +184,18 @@ llc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	pmsprintf(fn, sizeof fn, "%s/%s/mbm_local_bytes", llcdir, dentry->d_name);
 	if ((fp = fopen(fn, "r")) != NULL) {
 	    if (fgets(linebuf, sizeof(linebuf), fp) != NULL)
-		sscanf(linebuf, "%lu\n", &llc_mbm_local);
+		sscanf(linebuf, "%llu\n", &llc_mbm_local);
 	    fclose(fp);
 	}
 
 	pmsprintf(fn, sizeof fn, "%s/%s/mbm_total_bytes", llcdir, dentry->d_name);
 	if ((fp = fopen(fn, "r")) != NULL) {
 	    if (fgets(linebuf, sizeof(linebuf), fp) != NULL)
-		sscanf(linebuf, "%lu\n", &llc_mbm_total);
+		sscanf(linebuf, "%llu\n", &llc_mbm_total);
 	    fclose(fp);
 	}
 
-	llc_metrics *lspm;
+	llc_metrics *lspm = NULL;
 	int sts = pmdaCacheLookupName(*llc_indom, dentry->d_name, NULL, (void **)&lspm);
 	if (sts < 0 || lspm == NULL) {
 	    if ((lspm = calloc(1, sizeof(*lspm))) == NULL) {
