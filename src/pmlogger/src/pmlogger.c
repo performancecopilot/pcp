@@ -720,22 +720,14 @@ updateLatestFolio(const char *host, const char *base)
     FILE *fp;
     time_t now;
     char date[26];
-    char dir[MAXPATHLEN];
-    char *logdir = pmGetConfig("PCP_ARCHIVE_DIR");
     char thishost[MAXHOSTNAMELEN];
 
     /*
-     * Only write the "Latest" folio if we're a pmlogger service daemon,
-     * i.e. pmlogger current dir is below $PCP_ARCHIVE_DIR
+     * Only write the "Latest" folio if we're a pmlogger service daemon
      */
-    if (getcwd(dir, sizeof(dir)) == NULL) {
+    if (!runfromcontrol) {
 	if (pmDebugOptions.services)
-	    fprintf(stderr, "Info: updateLatestFolio: getcwd() failed for host %s: %s\n", host, strerror(errno));
-	return;
-    }
-    if (strncmp(dir, logdir, strlen(logdir)) != 0) {
-	if (pmDebugOptions.services)
-	    fprintf(stderr, "Info: not creating \"Latest\" archive folio for host %s: cwd %s not below %s\n", host, dir, logdir);
+	    fprintf(stderr, "Info: not creating \"Latest\" archive folio for host %s\n", host);
     	return;
     }
 

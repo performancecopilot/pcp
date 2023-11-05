@@ -35,9 +35,10 @@ gfs2-utils
 git
 grep
 iproute2
+jq
 kubernetes-client
 libavahi-common-dev
-libbpf0
+libbpf1
 libbpf-dev
 libclass-dbi-perl
 libcmocka-dev
@@ -107,6 +108,7 @@ python3-elasticsearch
 python3-json-pointer
 python3-libvirt
 python3-lxml
+python3-minimal
 python3-openpyxl
 python3-pil
 python3-prometheus-client
@@ -127,6 +129,7 @@ sed
 smartmontools
 socat
 sysstat
+systemtap
 systemtap-sdt-dev
 time
 unbound
@@ -134,4 +137,5 @@ valgrind
 xfsprogs
 xkb-data
 zabbix-agent
+zfsutils-linux
 zlib1g-dev

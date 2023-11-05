@@ -1352,7 +1352,7 @@ slackpkg?	mkfs.xfs	[xfsprogs (QA optional)]
 pacman?		mkfs.xfs	[core/xfsprogs (QA optional)]
 brew?		mkfs.xfs	[N/A (QA optional)]
 # -- java (bcc PMDA QA)
-dpkg?		/usr/lib/jvm/java-*/lib/server/libjvm.so [openjdk-11-jre-headless or openjdk-11-jre (QA optional)]
+dpkg?		/usr/lib/jvm/java-*/lib/server/libjvm.so [openjdk-[0-9][0-9]*-jre-headless or openjdk-[0-9][0-9]*-jre (QA optional)]
 rpm?		/usr/lib/jvm/java-*/lib/server/libjvm.so [java-latest-openjdk-headless or java-[0-9][0-9]*-openjdk-headless (QA optional)]
 # -- redis (pmproxy, pmseries QA)
 dpkg?		redis-server	[redis-server (QA optional)]
@@ -1574,3 +1574,4 @@ freebsd?	gdiff			[diffutils]
 netbsd?		gdiff			[diffutils]
 openbsd?	gdiff			[gdiff]
 rpm?		/usr/sbin/service|/sbin/service	[initscripts or aaa_base]
+dpkg?		/usr/src/linux-headers-*	[linux-headers-.*]

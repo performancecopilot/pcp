@@ -13,6 +13,11 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+if which realpath >/dev/null 2>&1
+then
+    [ `realpath $PCP_ARCHIVE_DIR/$(hostname)` = "$PCP_ARCHIVE_DIR/$(hostname)" ] || _notrun "symlinks in PCP_ARCHIVE_DIR: `realpath $PCP_ARCHIVE_DIR/$(hostname)` != $PCP_ARCHIVE_DIR/$(hostname)"
+fi
+
 _filter()
 {
     [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \

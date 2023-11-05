@@ -915,6 +915,11 @@ $1 == "inst" && $2 ~ /^\[/ {
    '
 }
 
+# for src/torture_api, filter out lines like:
+#     hostname             <s = 1>
+# for the top-level PMNS nodes that come from optionaly PMDAs
+# or are not present on every platform
+#
 _filter_torture_api()
 {
     sed \
@@ -966,6 +971,7 @@ _filter_torture_api()
 	-e '/^    p76 /d' \
 	-e '/^    process /d' \
 	-e '/^    quota /d' \
+	-e '/^    resctrl /d' \
 	-e '/^    roomtemp /d' \
 	-e '/^    rpm /d' \
 	-e '/^    rsyslog /d' \

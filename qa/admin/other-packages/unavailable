@@ -33,6 +33,7 @@ CentOS       6\.10    -       389-ds apache2 avahi-utils bpftrace ccache chan-de
 #    10   buster
 #    11   bullseye
 #     ?   sid (unstable)
+Debian       12\..*   i.86    bpfcc-tools python3-bpfcc
 Debian       11\..*   -       apache2-mpm-worker avahi-tools libicu libreadline6-dev libsoqt-dev libsoqt-dev-common libuv-dev mariadb-client-core mysql-client-core mysql-client-core-[0-9][0-9.]* perl-modules qt4-qmake redis-cli zfsutils-linux
 Debian       10\..*   -       apache2-mpm-worker avahi-tools kubernetes-client libreadline6-dev libsoqt5-dev libsoqt-dev libsoqt-dev-common libuv-dev mariadb-client-core mysql-client-core mysql-client-core-[0-9][0-9.]* perl-modules realpath redis-cli zfsutils-linux
 Debian       10\..*   i.86    bpftrace bpfcc-tools
