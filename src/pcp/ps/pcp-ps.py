@@ -779,8 +779,8 @@ class ProcessStatOptions(pmapi.pmOptions):
                         else:
                             raise ValueError
             except ValueError:
-                print("Invalid ppid Id List: Either colum name is not correct "
-                      "or use comma separated colum names without whitespaces")
+                print("Invalid ppid Id List: Either column name is not correct "
+                      "or use comma separated column names without whitespaces")
                 sys.exit(1)
         elif opts == 'U':
             ProcessStatOptions.username_filter_flag = True
