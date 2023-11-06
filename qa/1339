@@ -43,14 +43,17 @@ _check_pmda_gone()
     rm -f $tmp.tmp
 }
 
-_snag_log()
+_snag_logs()
 {
-    if [ -f "$PCP_LOG_DIR/pmcd/sample.log" ]
-    then
-	cat "$PCP_LOG_DIR/pmcd/sample.log" >>$here/$seq.full
-    else
-	echo "$PCP_LOG_DIR/pmcd/sample.log: missing?"
-    fi
+    for x in sample pmcd
+    do
+	if [ -f "$PCP_LOG_DIR/pmcd/$x.log" ]
+	then
+	    cat "$PCP_LOG_DIR/pmcd/$x.log" >>$here/$seq.full
+	else
+	    echo "$PCP_LOG_DIR/pmcd/$x.log: missing?"
+	fi
+    done
 }
 
 status=1
@@ -105,17 +108,6 @@ $sudo cp $tmp.indom dynamic.indom
 #
 trap "echo; echo 'Reinstall PMDA ...'; $sudo ./Install </dev/null >$tmp.out; _filter <$tmp.out; $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH; $sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-# real QA test starts here
-
-echo
-echo "=== remove agent ==="
-$sudo ./Remove >$tmp.out 2>&1
-cat $tmp.out
-_check_pmda_gone $iam
-
-echo | tee -a $here/$seq.full
-echo "=== socket Internet agent ===" | tee -a $here/$seq.full
-
 # pick two tcp ports that are not in use
 #
 port1=`_find_free_port 5670`
@@ -142,23 +134,46 @@ then
     netstat -a | grep $port2 >>$here/$seq.full
 fi
 
+# real QA test starts here
+
+echo
+echo "=== remove agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+cat $tmp.out
+_check_pmda_gone $iam
+
+echo | tee -a $here/$seq.full
+echo "=== socket Internet agent ===" | tee -a $here/$seq.full
+
 # Give the PMDA + internet socket a chance to be setup before pminfo check
 #
-export PCPQA_CHECK_DELAY=2
+export PCPQA_CHECK_DELAY=3
 
 echo 'socket
 Internet
 '$port1 | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
-pminfo -v sample || echo "... failed!"
-_snag_log
+if pminfo -v sample
+then
+    :
+else
+    echo "... failed!" | tee -a $here/$seq.full
+    pminfo -fd sample.long.ten >>$here/$seq.full
+fi
+_snag_logs
 
 echo 'socket
 Internet
 '$port2 | $sudo ./Install -e >$tmp.out 2>&1
 _filter <$tmp.out
-pminfo -v sample || echo "... failed!"
-_snag_log
+if pminfo -v sample
+then
+    :
+else
+    echo "... failed!" | tee -a $here/$seq.full
+    pminfo -fd sample.long.ten >>$here/$seq.full
+fi
+_snag_logs
 
 $sudo ./Remove >$tmp.out 2>&1
 cat $tmp.out

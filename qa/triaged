@@ -41,6 +41,10 @@
 1210	vm[0-9][0-9]	may collide with pmlogger_check and (correctly)
 			detects presence of /etc/pcp/pmlogger/lock
 1290	Debian 1[01]	valgrind-reported issues in libpcp_web redis i/o functions
+1339	OpenBSD 7\.	there is some race condition between pmcd and the sample PMDA when
+			using inet sockects to communicate ... the test passes sometimes and
+			fails other times and hand testing with dbpmda cannot reproduce a
+			failure
 1574	.*	valgrind-reported issue in libpcp_web pmseries functions
 1662	.*	valgrind-reported issue in libpcp_web archive discovery
 		handling of sources
