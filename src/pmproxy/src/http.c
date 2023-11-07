@@ -427,13 +427,13 @@ http_reply(struct client *client, sds message,
 	} else if (message != NULL) {
 	    fprintf(stderr, "Before compression length of buffer: %lu\n", sdslen(client->buffer));
 	    if (flags & HTTP_FLAG_COMPRESS_GZIP) {
-		fprintf(stderr, "before: number compressed operations: %d\n", VALUE_HTTP_COMPRESSED_COUNT);
-		fprintf(stderr, "before: number compressed bytes: %d\n",VALUE_HTTP_COMPRESSED_BYTES);
+		//fprintf(stderr, "before compression compressed count: %d\n", (int)proxy->values[VALUE_HTTP_COMPRESSED_COUNT]);
+		//fprintf(stderr, "before: number compressed bytes: %d\n",(int)proxy->values[VALUE_HTTP_COMPRESSED_BYTES]);
 		compress_GZIP(client);
 		mmv_inc(proxy->metrics[METRICS_HTTP], proxy->values[VALUE_HTTP_COMPRESSED_COUNT]);
 		mmv_inc_value(proxy->metrics[METRICS_HTTP], proxy->values[VALUE_HTTP_COMPRESSED_BYTES], (double)sdslen(client->buffer));
-		fprintf(stderr, "number compressed operations: %d\n", VALUE_HTTP_COMPRESSED_COUNT);
-		fprintf(stderr, "number compressed bytes: %d\n",VALUE_HTTP_COMPRESSED_BYTES);
+		//fprintf(stderr, "after: number compressed operations: %d\n", (int)proxy->values[VALUE_HTTP_COMPRESSED_COUNT]);
+		//fprintf(stderr, "after: number compressed bytes: %d\n", (int)proxy->values[VALUE_HTTP_COMPRESSED_BYTES]);
 	    } else {
 		mmv_inc(proxy->metrics[METRICS_HTTP], proxy->values[VALUE_HTTP_UNCOMPRESSED_COUNT]);
 		mmv_inc_value(proxy->metrics[METRICS_HTTP], proxy->values[VALUE_HTTP_UNCOMPRESSED_BYTES], (double)sdslen(client->buffer));
@@ -505,7 +505,7 @@ http_transfer(struct client *client)
      * return control to caller.
      */
 
-    if (sdslen(client->buffer) >= chunked_transfer_size /*10*/) {
+    if (sdslen(client->buffer) >= chunked_transfer_size) {
 	fprintf(stderr, "Before compression buffer len: %lu\n", (unsigned long)sdslen(client->buffer));
 	if (parser->http_major == 1 && parser->http_minor > 0) {
 	    if (!(flags & HTTP_FLAG_STREAMING)) {
@@ -1041,16 +1041,16 @@ setup_http_module(struct proxy *proxy)
     const pmUnits	units_bytes = MMV_UNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0);
 
     mmv_stats_add_metric(registry, "compressed.count", 1, 
-    MMV_TYPE_U64, MMV_SEM_COUNTER, units_count, MMV_INDOM_NULL, 
+    MMV_TYPE_U64, MMV_SEM_INSTANT, units_count, MMV_INDOM_NULL, 
     "Number of compressed HTTP transfers", "fill-in");
     mmv_stats_add_metric(registry, "uncompressed.count", 2,
-    MMV_TYPE_U64, MMV_SEM_COUNTER, units_count, MMV_INDOM_NULL, 
+    MMV_TYPE_U64, MMV_SEM_INSTANT, units_count, MMV_INDOM_NULL, 
     "Number of uncompresed HTTP transfers", "fill-in");
-    mmv_stats_add_metric(registry, "compressed.bytes", 3,
-    MMV_TYPE_U64, MMV_SEM_COUNTER, units_bytes, MMV_INDOM_NULL, 
+    mmv_stats_add_metric(registry, "compressed.bytes", 4,
+    MMV_TYPE_U64, MMV_SEM_INSTANT, units_bytes, MMV_INDOM_NULL, 
     "Number of compressed bytes sent", "fill-in");
-    mmv_stats_add_metric(registry, "uncompressed.bytes", 4,
-    MMV_TYPE_U64, MMV_SEM_COUNTER, units_bytes, MMV_INDOM_NULL, 
+    mmv_stats_add_metric(registry, "uncompressed.bytes", 3,
+    MMV_TYPE_U64, MMV_SEM_INSTANT, units_bytes, MMV_INDOM_NULL, 
     "Number of uncompressed bytes sent", "fill-in");
     handle = mmv_stats_start(registry);
 
