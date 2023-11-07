@@ -307,8 +307,8 @@ class SS(object):
             out += self.strfield("%-9s", "state", inst, "-")
             out += self.strfield("%6u", "recvq", inst, 0)
             out += self.strfield("%6u", "sendq", inst, 0)
-            out += self.strfield("%26s ", "src", inst)
-            out += self.strfield("%-26s", "dst", inst)
+            out += self.strfield(" %25s", "src", inst)
+            out += self.strfield(" %-25s", "dst", inst)
 
             if self.args.options: # -o --options flag
                 m = self.valuesD["timer.str"][inst]
