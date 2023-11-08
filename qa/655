@@ -92,6 +92,9 @@ echo "=== $iam agent installation ==="
 						  -e 's/Install resctrl.*? .daemon. //' \
 						  -e '/^Using/d' >$tmp.out 2>&1 ;
 )
+echo "journalctl -xe" >> $here/$seq.full
+$sudo journalctl -xe >> $here/$seq.full
+echo "== journalctl end" >> $here/$seq.full
 
 _filter_pmda_install <$tmp.out
 
@@ -111,4 +114,3 @@ _filter_pmda_remove <$tmp.out
 
 status=0
 exit
-
