@@ -1040,19 +1040,22 @@ setup_http_module(struct proxy *proxy)
     const pmUnits	units_count = MMV_UNITS(0, 0, 1, 0, 0, PM_COUNT_ONE);
     const pmUnits	units_bytes = MMV_UNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0);
 
+    //if (proxy == NULL || proxy->metrics == NULL)
+    //return; /* no metric registry has been set up*/
+
     mmv_stats_add_metric(registry, "compressed.count", 1, 
-    MMV_TYPE_U64, MMV_SEM_INSTANT, units_count, MMV_INDOM_NULL, 
+    MMV_TYPE_U64, MMV_SEM_COUNTER, units_count, MMV_INDOM_NULL, 
     "Number of compressed HTTP transfers", "fill-in");
     mmv_stats_add_metric(registry, "uncompressed.count", 2,
-    MMV_TYPE_U64, MMV_SEM_INSTANT, units_count, MMV_INDOM_NULL, 
+    MMV_TYPE_U64, MMV_SEM_COUNTER, units_count, MMV_INDOM_NULL, 
     "Number of uncompresed HTTP transfers", "fill-in");
     mmv_stats_add_metric(registry, "compressed.bytes", 4,
-    MMV_TYPE_U64, MMV_SEM_INSTANT, units_bytes, MMV_INDOM_NULL, 
+    MMV_TYPE_U64, MMV_SEM_COUNTER, units_bytes, MMV_INDOM_NULL, 
     "Number of compressed bytes sent", "fill-in");
     mmv_stats_add_metric(registry, "uncompressed.bytes", 3,
-    MMV_TYPE_U64, MMV_SEM_INSTANT, units_bytes, MMV_INDOM_NULL, 
+    MMV_TYPE_U64, MMV_SEM_COUNTER, units_bytes, MMV_INDOM_NULL, 
     "Number of uncompressed bytes sent", "fill-in");
-    handle = mmv_stats_start(registry);
+    proxy->handle = handle = mmv_stats_start(registry);
 
     values[VALUE_HTTP_COMPRESSED_COUNT] = mmv_lookup_value_desc(handle,"compressed.count", NULL);
     values[VALUE_HTTP_UNCOMPRESSED_COUNT] = mmv_lookup_value_desc(handle,"uncompressed.count", NULL);
