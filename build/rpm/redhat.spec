@@ -528,7 +528,7 @@ Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql pcp-pmda-oracle
 Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-apache
-Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts
+Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts pcp-pmda-resctrl
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart pcp-pmda-farm
 Requires: pcp-pmda-hacluster pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-denki pcp-pmda-docker pcp-pmda-bind2
 Requires: pcp-pmda-sockets pcp-pmda-podman
@@ -1950,6 +1950,22 @@ collecting metrics about Cisco routers.
 # end pcp-pmda-cisco
 
 #
+# pcp-pmda-farm
+#
+%package pmda-farm
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics for Seagate FARM Log metrics
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: smartmontools
+%description pmda-farm
+This package contains the PCP Performance Metric Domain Agent (PMDA) for
+collecting metrics from Seagate Hard Drive vendor specific Field Accessible
+Reliability Metrics (FARM) Log making use of data from the smartmontools 
+package.
+#end pcp-pmda-farm
+
+#
 # pcp-pmda-gfs2
 #
 %package pmda-gfs2
@@ -1961,6 +1977,19 @@ Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Global Filesystem v2.
 # end pcp-pmda-gfs2
+
+#
+# pcp-pmda-hacluster
+#
+%package pmda-hacluster
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics for High Availability Clusters
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+%description pmda-hacluster
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about linux High Availability (HA) Clusters.
+# end pcp-pmda-hacluster
 
 #
 # pcp-pmda-logger
@@ -2014,6 +2043,19 @@ Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about Nvidia GPUs.
 # end pcp-pmda-nvidia-gpu
+
+#
+# pcp-pmda-resctrl
+#
+%package pmda-resctrl
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics from Linux resource control
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+%description pmda-resctrl
+This package contains the PCP Performance Metric Domain Agent (PMDA) for
+collecting metrics from the Linux kernel resource control functionality.
+#end pcp-pmda-resctrl
 
 #
 # pcp-pmda-roomtemp
@@ -2071,22 +2113,6 @@ smartmontools package.
 #end pcp-pmda-smart
 
 #
-# pcp-pmda-farm
-#
-%package pmda-farm
-License: GPL-2.0-or-later
-Summary: Performance Co-Pilot (PCP) metrics for Seagate FARM Log metrics
-URL: https://pcp.io
-Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-Requires: smartmontools
-%description pmda-farm
-This package contains the PCP Performance Metric Domain Agent (PMDA) for
-collecting metrics from Seagate Hard Drive vendor specific Field Accessible
-Reliability Metrics (FARM) Log making use of data from the smartmontools 
-package.
-#end pcp-pmda-farm
-
-#
 # pcp-pmda-sockets
 #
 %package pmda-sockets
@@ -2099,19 +2125,6 @@ Requires: iproute
 This package contains the PCP Performance Metric Domain Agent (PMDA) for
 collecting per-socket statistics, making use of utilities such as 'ss'.
 #end pcp-pmda-sockets
-
-#
-# pcp-pmda-hacluster
-#
-%package pmda-hacluster
-License: GPL-2.0-or-later
-Summary: Performance Co-Pilot (PCP) metrics for High Availability Clusters
-URL: https://pcp.io
-Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%description pmda-hacluster
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about linux High Availability (HA) Clusters.
-# end pcp-pmda-hacluster
 
 #
 # pcp-pmda-summary
@@ -2511,6 +2524,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/docker(/|$)' >pcp-pmda-docker-files
 basic_manifest | keep '(etc/pcp|pmdas)/ds389log(/|$)' >pcp-pmda-ds389log-files
 basic_manifest | keep '(etc/pcp|pmdas)/ds389(/|$)' >pcp-pmda-ds389-files
 basic_manifest | keep '(etc/pcp|pmdas)/elasticsearch(/|$)' >pcp-pmda-elasticsearch-files
+basic_manifest | keep '(etc/pcp|pmdas)/farm(/|$)' >pcp-pmda-farm-files
 basic_manifest | keep '(etc/pcp|pmdas)/gfs2(/|$)' >pcp-pmda-gfs2-files
 basic_manifest | keep '(etc/pcp|pmdas)/gluster(/|$)' >pcp-pmda-gluster-files
 basic_manifest | keep '(etc/pcp|pmdas)/gpfs(/|$)' >pcp-pmda-gpfs-files
@@ -2550,6 +2564,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/postfix(/|$)' >pcp-pmda-postfix-files
 basic_manifest | keep '(etc/pcp|pmdas)/postgresql(/|$)' >pcp-pmda-postgresql-files
 basic_manifest | keep '(etc/pcp|pmdas)/rabbitmq(/|$)' >pcp-pmda-rabbitmq-files
 basic_manifest | keep '(etc/pcp|pmdas)/redis(/|$)' >pcp-pmda-redis-files
+basic_manifest | keep '(etc/pcp|pmdas)/resctrl(/|$)|sys-fs-resctrl' >pcp-pmda-resctrl-files
 basic_manifest | keep '(etc/pcp|pmdas)/roomtemp(/|$)' >pcp-pmda-roomtemp-files
 basic_manifest | keep '(etc/pcp|pmdas)/rpm(/|$)' >pcp-pmda-rpm-files
 basic_manifest | keep '(etc/pcp|pmdas)/rsyslog(/|$)' >pcp-pmda-rsyslog-files
@@ -2558,7 +2573,6 @@ basic_manifest | keep '(etc/pcp|pmdas)/sendmail(/|$)' >pcp-pmda-sendmail-files
 basic_manifest | keep '(etc/pcp|pmdas)/shping(/|$)' >pcp-pmda-shping-files
 basic_manifest | keep '(etc/pcp|pmdas)/slurm(/|$)' >pcp-pmda-slurm-files
 basic_manifest | keep '(etc/pcp|pmdas)/smart(/|$)' >pcp-pmda-smart-files
-basic_manifest | keep '(etc/pcp|pmdas)/farm(/|$)' >pcp-pmda-farm-files
 basic_manifest | keep '(etc/pcp|pmdas)/snmp(/|$)' >pcp-pmda-snmp-files
 basic_manifest | keep '(etc/pcp|pmdas)/sockets(/|$)' >pcp-pmda-sockets-files
 basic_manifest | keep '(etc/pcp|pmdas)/statsd(/|$)' >pcp-pmda-statsd-files
@@ -2577,6 +2591,7 @@ for pmda_package in \
     cifs cisco \
     dbping denki docker dm ds389 ds389log \
     elasticsearch \
+    farm \
     gfs2 gluster gpfs gpsd \
     hacluster haproxy \
     infiniband \
@@ -2587,9 +2602,9 @@ for pmda_package in \
     nutcracker nvidia \
     openmetrics openvswitch oracle \
     pdns perfevent podman postfix postgresql \
-    rabbitmq redis roomtemp rpm rsyslog \
+    rabbitmq redis resctrl roomtemp rpm rsyslog \
     samba sendmail shping slurm smart snmp \
-    sockets statsd summary systemd farm \
+    sockets statsd summary systemd \
     unbound \
     trace \
     weblog \
@@ -2971,8 +2986,14 @@ exit 0
 %preun pmda-cisco
 %{pmda_remove "$1" "cisco"}
 
+%preun pmda-farm
+%{pmda_remove "$1" "farm"}
+
 %preun pmda-gfs2
 %{pmda_remove "$1" "gfs2"}
+
+%preun pmda-hacluster
+%{pmda_remove "$1" "hacluster"}
 
 %preun pmda-logger
 %{pmda_remove "$1" "logger"}
@@ -2986,6 +3007,9 @@ exit 0
 %preun pmda-nvidia-gpu
 %{pmda_remove "$1" "nvidia"}
 
+%preun pmda-resctrl
+%{pmda_remove "$1" "resctrl"}
+
 %preun pmda-roomtemp
 %{pmda_remove "$1" "roomtemp"}
 
@@ -2998,14 +3022,8 @@ exit 0
 %preun pmda-smart
 %{pmda_remove "$1" "smart"}
 
-%preun pmda-farm
-%{pmda_remove "$1" "farm"}
-
 %preun pmda-sockets
 %{pmda_remove "$1" "sockets"}
-
-%preun pmda-hacluster
-%{pmda_remove "$1" "hacluster"}
 
 %preun pmda-summary
 %{pmda_remove "$1" "summary"}
@@ -3334,7 +3352,11 @@ fi
 
 %files pmda-cisco -f pcp-pmda-cisco-files.rpm
 
+%files pmda-farm -f pcp-pmda-farm-files.rpm
+
 %files pmda-gfs2 -f pcp-pmda-gfs2-files.rpm
+
+%files pmda-hacluster -f pcp-pmda-hacluster-files.rpm
 
 %files pmda-logger -f pcp-pmda-logger-files.rpm
 
@@ -3344,6 +3366,8 @@ fi
 
 %files pmda-nvidia-gpu -f pcp-pmda-nvidia-files.rpm
 
+%files pmda-resctrl -f pcp-pmda-resctrl-files.rpm
+
 %files pmda-roomtemp -f pcp-pmda-roomtemp-files.rpm
 
 %files pmda-sendmail -f pcp-pmda-sendmail-files.rpm
@@ -3352,11 +3376,7 @@ fi
 
 %files pmda-smart -f pcp-pmda-smart-files.rpm
 
-%files pmda-farm -f pcp-pmda-farm-files.rpm
-
 %files pmda-sockets -f pcp-pmda-sockets-files.rpm
-
-%files pmda-hacluster -f pcp-pmda-hacluster-files.rpm
 
 %files pmda-summary -f pcp-pmda-summary-files.rpm
 
