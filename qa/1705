@@ -59,8 +59,9 @@ pmstore bpftrace.control.register "// name: test2
 does_not_exist { @c = count(); }"
 _pmdabpftrace_wait_for_value bpftrace.scripts.test2.status '"error"'
 # error message changed between bpftrace versions
+pminfo -f bpftrace.scripts.test2.error >>$seq.full
 pminfo -f bpftrace.scripts.test2.error \
-    | grep -E -q "(Invalid provider: 'does_not_exist')|(Unrecognized probe type: does_not_exist)|(Invalid probe type made it to attachpoint parser)" \
+    | grep -E -q "(Invalid provider: 'does_not_exist')|(Unrecognized probe type: does_not_exist)|(Invalid probe type made it to attachpoint parser)|(Invalid probe type: does_not_exist)" \
     && echo "error message (invalid probe) found"
 pminfo -f bpftrace.scripts.test2.exit_code | _filter_exit_code
 echo
