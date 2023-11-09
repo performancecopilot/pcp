@@ -33,25 +33,3 @@
    fun:engine
    fun:main
 }
-
-# inside libsasl ... seen on bozo-vm
-# Memcheck, a memory error detector
-# at 0x4C28C20: malloc (vg_replace_malloc.c:296)
-# by 0x5C6C890: sasl_client_new (in /usr/lib/x86_64-linux-gnu/libsasl2.so.2.0.25)
-# by 0x4EA35C2: __pmSecureClientIPCFlags (secureconnect.c:949)
-# by 0x4EA409F: __pmSecureClientHandshake (secureconnect.c:1230)
-# by 0x4E481B2: attributes_handshake (connect.c:182)
-# by 0x4E483EB: __pmConnectHandshake (connect.c:283)
-# by 0x4E488A7: __pmConnectPMCD (connect.c:444)
-# by 0x4E4AF8A: pmNewContext (context.c:1085)
-# ...
-{
-   sasl_client_new
-   Memcheck:Leak
-   match-leak-kinds: definite
-   fun:malloc
-   fun:sasl_client_new
-   ...
-   fun:pmNewContext
-   ...
-}

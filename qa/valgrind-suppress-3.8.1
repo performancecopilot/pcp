@@ -127,22 +127,3 @@
    fun:gaih_inet
    fun:getaddrinfo
 }
-
-# seen on vm14 CentOS6.10 ... similar sasl problem as observered for other
-# versions of valgrind
-# at 0x4C28A2E: malloc (vg_replace_malloc.c:270)
-# by 0x5C5226E: sasl_client_new (in /usr/lib64/libsasl2.so.2.0.23)
-# by 0x4E9C0AD: __pmSecureClientHandshake (secureconnect.c:955)
-# by 0x4E462CE: __pmConnectHandshake (connect.c:207)
-# by 0x4E46963: __pmConnectPMCD (connect.c:467)
-# by 0x4E49444: pmNewContext (context.c:1152)
-# by 0x40474C: main (pminfo.c:1196)
-{
-   Seen on vm14
-   Memcheck:Leak
-   fun:malloc
-   fun:sasl_client_new
-   ...
-   fun:pmNewContext
-   ...
-}

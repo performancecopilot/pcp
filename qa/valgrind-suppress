@@ -1,10 +1,6 @@
-# to add to these, run the failing case with
+# To add to these, run the failing case with
 # valgrind --leak-check=full --suppressions=valgrind-suppress --gen-suppressions=yes ...
-#
-# I see different results on Ubuntu 10.10 depending if the binaries
-# are build by Makepkgs or build and installed from a source repository
-# which probably a compiler flags issue
-# - Ken
+# Use a specific versioned suppression file.
 #
 {
    pthreads initialization from pmLoadNameSpace
@@ -127,5 +123,35 @@
    fun:sasl_client_step
    fun:sasl_client_start
    fun:__pmAuthClientNegotiation
+   ...
+}
+
+{
+   sasl_client_new
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:sasl_client_new
+   ...
+   fun:pmNewContext
+   ...
+}
+
+{
+   tsearch
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:tsearch
+   fun:__pmFindPDUBuf
+   ...
+}
+
+{
+   findpdubuf
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:__pmFindPDUBuf
    ...
 }
