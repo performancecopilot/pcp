@@ -8,6 +8,7 @@ URL:     https://pcp.io
 BuildRoot: @build_root@
 Distribution: @package_distribution@
 Source0: pcp-%{version}.src.tar.gz
+ExcludeArch: %{ix86}
 
 # The additional linker flags break out-of-tree PMDAs.
 # https://bugzilla.redhat.com/show_bug.cgi?id=2043092
