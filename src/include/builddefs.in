@@ -133,7 +133,6 @@ LZMACFLAGS = @lzma_CFLAGS@
 LIBUVCFLAGS = @libuv_CFLAGS@
 OPENSSLCFLAGS = @openssl_CFLAGS@
 SASLCFLAGS = @libsasl2_CFLAGS@
-CMOCKACFLAGS = @cmocka_CFLAGS@
 
 LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 
@@ -747,7 +746,7 @@ PYTHON_INSTALL = \
 		$(INSTALL) -d $$dn || exit 1; \
 		for src in `find $$pydir/build $$pydir/pcp.egg-info -name $$bn`; do \
 		    $(INSTALL) $$src $$f || exit 1; \
-		done; \
+	        done; \
 	    done; \
 	fi
 PYTHON3_INSTALL = \
@@ -760,7 +759,7 @@ PYTHON3_INSTALL = \
 		$(INSTALL) -d $$dn || exit 1; \
 		for src in `find $$pydir/build $$pydir/pcp.egg-info -name $$bn`; do \
 		    $(INSTALL) $$src $$f || exit 1; \
-		done; \
+	        done; \
 	    done; \
 	fi
 else

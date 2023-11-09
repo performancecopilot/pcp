@@ -106,6 +106,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install dependencies
-      run: brew install gnu-tar pkg-config
+      run: brew install gnu-tar pkg-config python-setuptools
     - name: Build packages
       run: ./Makepkgs --verbose
