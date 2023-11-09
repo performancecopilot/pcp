@@ -887,21 +887,10 @@ do
 	    [ X"$what" = Xall ] && check_what='-g remote'
 	    qa_user=pcpqa
 	    qa_dir=/var/lib/pcp/testsuite
-	    if $pflag
-	    then
-		echo "Info: skip -p for vm16"
-		pflag=false
-	    fi
-	    if $mflag
-	    then
-		echo "Info: skip -m for vm16"
-		mflag=false
-	    fi
-	    if $iflag
-	    then
-		echo "Info: skip -i for vm16"
-		iflag=false
-	    fi
+	    echo "Info: this PCP 4.0.0 inter-op testing ... no new PCP builds or installs"
+	    pflag=false
+	    mflag=false
+	    iflag=false
 	    if [ -n "$efile" ]
 	    then
 		echo "Info: no -e $efile for vm16"
