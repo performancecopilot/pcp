@@ -82,18 +82,18 @@ proxymetrics(struct proxy *proxy, enum proxy_registry prid)
 	return proxy->metrics[prid];
 
     pmsprintf(path, sizeof(path), "%s%cpmproxy%c%s",
-	    pmGetConfig("PCP_TMP_DIR"), sep, sep, server_metrics[prid].group);
+	    pmGetConfig("PCP_TMP_DIR"), sep, sep, server_metrics[prid].group); //creates a new file
     if ((file = strdup(path)) == NULL)
 	return NULL;
 
     if (prid == METRICS_SERVER)
 	flags |= MMV_FLAG_NOPREFIX;
-    if ((registry = mmv_stats_registry(file, prid, flags)) != NULL)
+    if ((registry = mmv_stats_registry(file, prid, flags)) != NULL) 
 	server_metrics[prid].path = file;
     else
 	free(file);
     proxy->metrics[prid] = registry;
-    return registry;
+    return registry; //once you have a registry you can start adding metrics to it 
 }
 
 void

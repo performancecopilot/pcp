@@ -21,6 +21,8 @@
 #include <openssl/ssl.h>
 #endif
 
+#include <zlib.h>
+
 #include "pmapi.h"
 #include "mmv_stats.h"
 #include "pmwebapi.h"
@@ -29,6 +31,7 @@
 #include "slots.h"
 #include "http.h"
 #include "pcp.h"
+
 
 typedef enum proxy_registry {
     METRICS_NOTUSED	= 0,	/* special "next available" MMV cluster */
@@ -42,6 +45,14 @@ typedef enum proxy_registry {
     METRICS_SEARCH,
     NUM_REGISTRY
 } proxy_registry_t;
+
+typedef enum proxy_values {
+    VALUE_HTTP_COMPRESSED_COUNT, 
+    VALUE_HTTP_UNCOMPRESSED_COUNT,
+    VALUE_HTTP_COMPRESSED_BYTES,
+    VALUE_HTTP_UNCOMPRESSED_BYTES,
+    NUM_VALUES
+} proxy_values_t;
 
 typedef struct stream_write_baton {
     uv_write_t		writer;
@@ -93,6 +104,7 @@ typedef struct http_client {
     void		*data;		/* opaque servlet information */
     unsigned int	type : 16;	/* HTTP response content type */
     unsigned int	flags : 16;	/* request status flags field */
+    z_stream        strm;
 } http_client_t;
 
 typedef struct pcp_client {
@@ -157,6 +169,8 @@ typedef struct proxy {
     redisSlots		*slots;		/* mapping of Redis keys to servers */
     struct servlet	*servlets;	/* linked list of http URL handlers */
     mmv_registry_t	*metrics[NUM_REGISTRY];	/* performance metrics */
+    pmAtomValue     *values[NUM_VALUES]; /* local metric values*/
+    void            *map; /* MMV mapped metric values handle */
     struct dict		*config;	/* configuration dictionary */
     uv_loop_t		*events;	/* global, async event loop */
     uv_callback_t	write_callbacks;
