@@ -109,7 +109,7 @@ tunable_policy(`pcp_bind_all_unreserved_ports',`
 
 allow pcp_pmcd_t self:capability { dac_read_search dac_override ipc_owner net_admin sys_admin sys_ptrace };
 allow pcp_pmcd_t self:process { setsched };
-allow pcp_pmcd_t self:unix_dgram_socket create_socket_perms;
+allow pcp_pmcd_t self:unix_dgram_socket { create_socket_perms getattr };
 allow pcp_pmcd_t self:cap_userns sys_ptrace;
 
 kernel_get_sysvipc_info(pcp_pmcd_t)
@@ -431,7 +431,7 @@ require {
 	class system { module_request };
 	class tcp_socket { name_bind name_connect };
 	class udp_socket { name_bind };
-	class unix_dgram_socket { sendto };
+	class unix_dgram_socket { create_socket_perms getattr sendto };
 	class unix_stream_socket connectto;
 }
 
@@ -534,7 +534,7 @@ optional_policy(`
 
 optional_policy(`
     require {
-	class netlink_kobject_uevent_socket { getattr };
+	class netlink_kobject_uevent_socket { getattr read };
     }
     # type=AVC msg=audit(N): avc: denied { getattr } for pid=PID comm="python3" path="socket:[36479]" dev="sockfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=netlink_kobject_uevent_socket permissive=0
     allow pcp_pmcd_t self:netlink_kobject_uevent_socket { getattr read };
