@@ -170,7 +170,7 @@ typedef struct proxy {
     struct servlet	*servlets;	/* linked list of http URL handlers */
     mmv_registry_t	*metrics[NUM_REGISTRY];	/* performance metrics */
     pmAtomValue     *values[NUM_VALUES]; /* local metric values*/
-    void            *handle; /* MMV mapped metric values handle */
+    void            *map; /* MMV mapped metric values handle */
     struct dict		*config;	/* configuration dictionary */
     uv_loop_t		*events;	/* global, async event loop */
     uv_callback_t	write_callbacks;

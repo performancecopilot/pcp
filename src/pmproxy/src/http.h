@@ -37,7 +37,6 @@ typedef enum http_flags {
     HTTP_FLAG_UTF8	= (1<<10),
     HTTP_FLAG_UTF16	= (1<<11),
     HTTP_FLAG_NO_BODY	= (1<<12),
-    HTTP_FLAG_COMPRESS_BR	= (1<<13),
     HTTP_FLAG_COMPRESS_GZIP	= (1<<14),
     HTTP_FLAG_STREAMING	= (1<<15),
     /* maximum 16 for server.h */
