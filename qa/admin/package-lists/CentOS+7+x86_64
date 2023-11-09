@@ -101,6 +101,7 @@ python3-devel
 python3-libs
 python3-psycopg2
 python3-setuptools
+python36-libvirt
 python36-lxml
 python36-pillow
 python36-requests

@@ -462,7 +462,7 @@ pacman?	/usr/lib/python3.*/*-packages/setuptools/dist.py	[extra/python-setuptool
 brew?	/usr/local/lib/python3.*/*-packages/setuptools/dist.py	[pip3(setuptools)]
 # -- python libvirt and lxml for libvirt PMDA
 dpkg?	/usr/lib/python3/*-packages/libvirt.py	[python3-libvirt (build optional)]
-rpm?	/usr/lib*/python3.*/*-packages/libvirt.py	[libvirt-python3 or python3-libvirt or python3-libvirt-python (build optional)]
+rpm?	/usr/lib*/python3.*/*-packages/libvirt.py	[libvirt-python3 or python3-libvirt or python3[0-9]-libvirt python3-libvirt-python (build optional)]
 emerge?	/usr/lib/python3.*/*-packages/libvirt.py	[dev-python/libvirt-python (build optional)]
 pkgin?	libvirt.py		[py36-libvirt (build optional)]
 pkg_add?	/usr/local/lib/python3.*/*-packages/libvirt.py	[py3-libvirt (build optional)]

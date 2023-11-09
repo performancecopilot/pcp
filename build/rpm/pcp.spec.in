@@ -786,14 +786,9 @@ Metric Domain Agents (PMDA) collector tools written in Python.
 License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) Python3 bindings and documentation
 URL: https://pcp.io
-%if 0%{?centos_ver} == 7
-BuildRequires: python36-devel
-Requires: python36
-%else
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
 Requires: python3
-%endif
 Requires: pcp-libs = @package_version@
 
 %description -n python3-pcp
@@ -1790,7 +1785,11 @@ Requires: python3-pcp python3-lxml
 %if "%{_vendor}" == "suse"
 Requires: python3-libvirt-python
 %else
+%if 0%{?centos_ver} == 7
+Requires: python36-libvirt
+%else
 Requires: libvirt-python3
+%endif
 %endif
 %else
 Requires: %{__python2}-pcp
