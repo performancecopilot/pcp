@@ -225,6 +225,7 @@ pmda.json
 pmda.kvm
 pmda.libvirt
 pmda.lio
+#pmda.llc		# note this group has been retired
 pmda.lmsensors
 pmda.logger
 pmda.lustre
@@ -255,8 +256,9 @@ pmda.postfix
 pmda.postgresql
 pmda.proc
 pmda.redis
+pmda.resctrl
 pmda.root
-pmda.rpm		# note this group has been retired
+#pmda.rpm		# note this group has been retired
 pmda.rsyslog
 pmda.sample
 pmda.sendmail
@@ -1111,7 +1113,7 @@ x11
 652 pmda.systemd event flakey
 653 libpcp local
 654 pmda.gfs2 local valgrind
-655 pmda.llc local
+655 pmda.resctrl local
 656 pmda.cifs local valgrind
 657 pmda.dm local
 658 logutil local pmlogrewrite pmlogmv pmlogdump

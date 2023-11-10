@@ -41,7 +41,7 @@ _is_activating()
     then
 	eval `systemctl show --property=ActiveState pmlogger.service`
 	echo "ActiveState=$ActiveState" >>$here/$seq.full
-	[ "$ActiveState" != activating ] && return 0
+	[ "$ActiveState" = activating ] && return 0
     fi
     return 1
 }
