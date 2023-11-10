@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019,2021-2022 Red Hat.
+ * Copyright (c) 2018-2019,2021-2023 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,8 +20,9 @@
 #ifdef HAVE_OPENSSL
 #include <openssl/ssl.h>
 #endif
-
+#ifdef HAVE_ZLIB
 #include <zlib.h>
+#endif
 
 #include "pmapi.h"
 #include "mmv_stats.h"
@@ -47,7 +48,7 @@ typedef enum proxy_registry {
 } proxy_registry_t;
 
 typedef enum proxy_values {
-    VALUE_HTTP_COMPRESSED_COUNT, 
+    VALUE_HTTP_COMPRESSED_COUNT,
     VALUE_HTTP_UNCOMPRESSED_COUNT,
     VALUE_HTTP_COMPRESSED_BYTES,
     VALUE_HTTP_UNCOMPRESSED_BYTES,
@@ -104,7 +105,9 @@ typedef struct http_client {
     void		*data;		/* opaque servlet information */
     unsigned int	type : 16;	/* HTTP response content type */
     unsigned int	flags : 16;	/* request status flags field */
-    z_stream        strm;
+#ifdef HAVE_ZLIB
+    z_stream		strm;
+#endif
 } http_client_t;
 
 typedef struct pcp_client {

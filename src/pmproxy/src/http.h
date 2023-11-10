@@ -71,7 +71,6 @@ extern const char *http_content_type(http_flags_t);
 
 extern sds http_get_buffer(struct client *);
 extern void http_set_buffer(struct client *, sds, http_flags_t);
-extern int compress_GZIP(struct client *);
 
 typedef void (*httpSetupCallBack)(struct proxy *);
 typedef void (*httpCloseCallBack)(struct proxy *);
