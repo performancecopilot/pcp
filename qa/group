@@ -1693,9 +1693,9 @@ x11
 1232 logutil pmlogctl local
 1233 derive local
 1234 libpcp_web local
-1235 derive local
+1235 derive local valgrind
 1236 derive local
-1237 derive local
+1237 derive local valgrind
 1238 iostat archive multi-archive decompress-xz local pmlogextract pcp python
 1239 pmlogrewrite labels pmlogdump local
 1240 libpcp pmrep local python
@@ -1736,8 +1736,8 @@ x11
 1275 man pmlogger local
 1276:retired pmmgr containers local
 1277 dbpmda local pmdbg
-1278 dbpmda local pmdbg
-1279 dbpmda local
+1278 dbpmda local pmdbg valgrind
+1279 dbpmda local valgrind
 1280 archive pmlogdump local
 1281 archive pmlogdump valgrind local
 1282:retired other local
@@ -1942,7 +1942,7 @@ x11
 1495 pmlogrewrite labels pmlogdump local
 1503 pcp pidstat ps python local
 1511 pmcd local pmda.sample
-1515 pmda.denki local
+1515 pmda.denki local valgrind
 1530 pmda.zfs local valgrind
 1531 pmda.zfs local valgrind
 1532 pmda.zfs local
@@ -1983,7 +1983,7 @@ x11
 1628 libpcp_import valgrind local
 1630 pmlogrewrite local pmlogdump
 1633 python pmda.sockets local
-1634 pmda.sockets local
+1634 pmda.sockets local valgrind
 1639 pmda.bpf local
 1644 pmda.perfevent local
 1653 pmda.denki local
