@@ -16,6 +16,7 @@ echo "QA output created by $seq"
 test "$PCP_PLATFORM" = "linux" || _notrun "No resctrl support on PCP_PLATFORM $PCP_PLATFORM"
 test -x "$PCP_BINADM_DIR/pcp-atop" || _notrun "No pcp-atop binary available on this platform"
 test -f /sys/devices/system/cpu/cpu0/cache/index3/size || _notrun "No L3 cache size available"
+test -d /sys/fs/resctrl || _notrun "No /sys/fs/resctrl"
 
 _cleanup()
 {
