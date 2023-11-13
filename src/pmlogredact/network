@@ -33,9 +33,11 @@ metric pmcd.pmie.logfile { value /.*/ -> "[redacted]" }
 #
 global { hostname -> "[redacted]" }
 
-# redact hostname from context labels
+# redact hostname and geolocation from context labels
 #
 label context "hostname" { value -> "[redacted]" }
+label context "latitude" { value -> "[redacted]" }
+label context "longitude" { value -> "[redacted]" }
 
 # metrics who's values may include networking details and
 # other sensitive information
