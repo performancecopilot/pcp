@@ -108,4 +108,5 @@ jobs:
     - name: Install dependencies
       run: brew install gnu-tar pkg-config python-setuptools
     - name: Build packages
-      run: ./Makepkgs --verbose --with-python=no --with-python3=yes
+      # python disabled for now until brew build without distutils
+      run: ./Makepkgs --verbose --with-python=no --with-python3=no
