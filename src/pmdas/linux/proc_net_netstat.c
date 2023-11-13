@@ -453,6 +453,18 @@ netstat_fields_t netstat_mptcp_fields[] = {
       .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_RCVWNDCONFLICTUPDATE] },
     { .field = "RcvWndConflict",
       .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_RCVWNDCONFLICT] },
+    { .field = "AddAddrTx",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_ADDADDRTX] },
+    { .field = "AddAddrTxDrop",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_ADDADDRTXDROP] },
+    { .field = "EchoAddTx",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_ECHOADDTX] },
+    { .field = "EchoAddTxDrop",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_ECHOADDTXDROP] },
+    { .field = "RmAddrTx",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_RMADDRTX] },
+    { .field = "RmAddrTxDrop",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_RMADDRTXDROP] },
 
     { .field = NULL, .offset = NULL }
 };

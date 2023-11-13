@@ -1291,6 +1291,12 @@ network.mptcp {
     rcvwndshared	60:53:202
     rcvwndconflictupdate 60:53:203
     rcvwndconflict	60:53:204
+    addaddrtx		60:53:206
+    addaddrtxdrop		60:53:207
+    echoaddtx		60:53:208
+    echoaddtxdrop		60:53:209
+    rmaddrtx		60:53:210
+    rmaddrtxdrop		60:53:211
 }
 
 network.udp {
