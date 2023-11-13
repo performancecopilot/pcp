@@ -712,6 +712,17 @@ mem.util {
     hugepagesFreeBytes	60:1:61
     hugepagesRsvdBytes	60:1:62
     hugepagesSurpBytes	60:1:63
+    shmemhugepages	60:1:64
+    shmempmdmapped	60:1:65
+    filehugepages	60:1:66
+    filepmdmapped	60:1:67
+    cmatotal		60:1:68
+    cmafree		60:1:69
+    unaccepted		60:1:70
+    zswap		60:1:71
+    zswapped		60:1:72
+    shadowcallstack	60:1:73
+    percpu		60:1:74
 }
 
 mem.numa {

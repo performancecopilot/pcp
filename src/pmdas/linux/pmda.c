@@ -1093,7 +1093,7 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_MEMINFO,55), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-/* mem.util.mmap_copy */
+/* mem.util.anonhugepages */
     { NULL,
       { PMDA_PMID(CLUSTER_MEMINFO,56), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
@@ -1132,6 +1132,61 @@ static pmdaMetric metrictab[] = {
     { NULL,
       { PMDA_PMID(CLUSTER_MEMINFO,63), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+/* mem.util.shmemhugepages */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,64), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.shmempmdmapped */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,65), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.filehugepages */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,66), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.filepmdmapped */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,67), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.cmatotal */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,68), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.cmafree */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,69), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.unaccepted */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,70), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.zswap */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,71), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.zswapped */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,72), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.shadowcallstack */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,73), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.percpu */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,74), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
 /* mem.numa.util.total */
     { NULL,
@@ -8291,7 +8346,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return 0; /* no values available */
 	   atom->ull = proc_meminfo.HardwareCorrupted;
 	   break;
-	case 56: /* mem.util.anonhugepages (in pages) */
+	case 56: /* mem.util.anonhugepages (in kbytes) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.AnonHugePages))
 		return 0; /* no values available */
 	   atom->ull = proc_meminfo.AnonHugePages;
@@ -8334,6 +8389,61 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return 0; /* no values available */
 	   atom->ull = proc_meminfo.HugepagesSurp *
 			(proc_meminfo.Hugepagesize << 10);
+	   break;
+	case 64: /* mem.util.shmemhugepages (in kbytes) */
+	   if (!MEMINFO_VALID_VALUE(proc_meminfo.ShmemHugePages))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.ShmemHugePages;
+	   break;
+	case 65: /* mem.util.shmempmdmapped (in kbytes) */
+	   if (!MEMINFO_VALID_VALUE(proc_meminfo.ShmemPmdMapped))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.ShmemPmdMapped;
+	   break;
+	case 66: /* mem.util.filehugepages (in kbytes) */
+	   if (!MEMINFO_VALID_VALUE(proc_meminfo.FileHugePages))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.FileHugePages;
+	   break;
+	case 67: /* mem.util.filepmdmapped (in kbytes) */
+	   if (!MEMINFO_VALID_VALUE(proc_meminfo.FilePmdMapped))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.FilePmdMapped;
+	   break;
+	case 68: /* mem.util.cmatotal (in kbytes) */
+	   if (!MEMINFO_VALID_VALUE(proc_meminfo.CmaTotal))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.CmaTotal;
+	   break;
+	case 69: /* mem.util.cmafree (in kbytes) */
+	   if (!MEMINFO_VALID_VALUE(proc_meminfo.CmaFree))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.CmaFree;
+	   break;
+	case 70: /* mem.util.unaccepted (in kbytes) */
+	   if (!MEMINFO_VALID_VALUE(proc_meminfo.Unaccepted))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.Unaccepted;
+	   break;
+	case 71: /* mem.util.zswap (in kbytes) */
+	   if (!MEMINFO_VALID_VALUE(proc_meminfo.Zswap))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.Zswap;
+	   break;
+	case 72: /* mem.util.zswapped (in kbytes) */
+	   if (!MEMINFO_VALID_VALUE(proc_meminfo.Zswapped))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.Zswapped;
+	   break;
+	case 73: /* mem.util.shadowcallstack (in kbytes) */
+	   if (!MEMINFO_VALID_VALUE(proc_meminfo.ShadowCallStack))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.ShadowCallStack;
+	   break;
+	case 74: /* mem.util.percpu (in kbytes) */
+	   if (!MEMINFO_VALID_VALUE(proc_meminfo.Percpu))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.Percpu;
 	   break;
 	default:
 	    return PM_ERR_PMID;

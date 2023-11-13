@@ -287,6 +287,12 @@ mem.util.cache_clean
 mem.util.cached
     value 7628228
 
+mem.util.cmafree
+    value 0
+
+mem.util.cmatotal
+    value 0
+
 mem.util.commitLimit
     value 16071992
 
@@ -307,6 +313,12 @@ mem.util.directMap4k
 
 mem.util.dirty
     value 172
+
+mem.util.filehugepages
+No value(s) available!
+
+mem.util.filepmdmapped
+No value(s) available!
 
 mem.util.free
     value 4650860
@@ -374,10 +386,16 @@ mem.util.other
 mem.util.pageTables
     value 55928
 
+mem.util.percpu
+No value(s) available!
+
 mem.util.quicklists
 No value(s) available!
 
 mem.util.reverseMaps
+No value(s) available!
+
+mem.util.shadowcallstack
 No value(s) available!
 
 mem.util.shared
@@ -385,6 +403,12 @@ No value(s) available!
 
 mem.util.shmem
     value 406288
+
+mem.util.shmemhugepages
+No value(s) available!
+
+mem.util.shmempmdmapped
+No value(s) available!
 
 mem.util.slab
     value 1339256
@@ -404,6 +428,9 @@ mem.util.swapFree
 mem.util.swapTotal
     value 8060924
 
+mem.util.unaccepted
+No value(s) available!
+
 mem.util.unevictable
     value 16
 
@@ -421,6 +448,12 @@ mem.util.vmallocUsed
 
 mem.util.writeback
     value 0
+
+mem.util.zswap
+No value(s) available!
+
+mem.util.zswapped
+No value(s) available!
 
 mem.vmstat.allocstall
     value 0
@@ -3033,6 +3066,12 @@ mem.util.cache_clean
 mem.util.cached
     value 31228980
 
+mem.util.cmafree
+No value(s) available!
+
+mem.util.cmatotal
+No value(s) available!
+
 mem.util.commitLimit
     value 70109824
 
@@ -3053,6 +3092,12 @@ mem.util.directMap4k
 
 mem.util.dirty
     value 8
+
+mem.util.filehugepages
+No value(s) available!
+
+mem.util.filepmdmapped
+No value(s) available!
 
 mem.util.free
     value 87287012
@@ -3120,10 +3165,16 @@ mem.util.other
 mem.util.pageTables
     value 40644
 
+mem.util.percpu
+No value(s) available!
+
 mem.util.quicklists
 No value(s) available!
 
 mem.util.reverseMaps
+No value(s) available!
+
+mem.util.shadowcallstack
 No value(s) available!
 
 mem.util.shared
@@ -3131,6 +3182,12 @@ No value(s) available!
 
 mem.util.shmem
     value 1001280
+
+mem.util.shmemhugepages
+No value(s) available!
+
+mem.util.shmempmdmapped
+No value(s) available!
 
 mem.util.slab
     value 1452008
@@ -3150,6 +3207,9 @@ mem.util.swapFree
 mem.util.swapTotal
     value 4194300
 
+mem.util.unaccepted
+No value(s) available!
+
 mem.util.unevictable
     value 149708
 
@@ -3167,6 +3227,12 @@ mem.util.vmallocUsed
 
 mem.util.writeback
     value 0
+
+mem.util.zswap
+No value(s) available!
+
+mem.util.zswapped
+No value(s) available!
 
 mem.vmstat.allocstall
     value 0
@@ -5757,6 +5823,12 @@ mem.util.cache_clean
 mem.util.cached
     value 31228980
 
+mem.util.cmafree
+No value(s) available!
+
+mem.util.cmatotal
+No value(s) available!
+
 mem.util.commitLimit
     value 70109824
 
@@ -5777,6 +5849,12 @@ mem.util.directMap4k
 
 mem.util.dirty
     value 8
+
+mem.util.filehugepages
+No value(s) available!
+
+mem.util.filepmdmapped
+No value(s) available!
 
 mem.util.free
     value 87287012
@@ -5844,10 +5922,16 @@ mem.util.other
 mem.util.pageTables
     value 40644
 
+mem.util.percpu
+No value(s) available!
+
 mem.util.quicklists
 No value(s) available!
 
 mem.util.reverseMaps
+No value(s) available!
+
+mem.util.shadowcallstack
 No value(s) available!
 
 mem.util.shared
@@ -5855,6 +5939,12 @@ No value(s) available!
 
 mem.util.shmem
     value 1001280
+
+mem.util.shmemhugepages
+No value(s) available!
+
+mem.util.shmempmdmapped
+No value(s) available!
 
 mem.util.slab
     value 1452008
@@ -5874,6 +5964,9 @@ mem.util.swapFree
 mem.util.swapTotal
     value 4194300
 
+mem.util.unaccepted
+No value(s) available!
+
 mem.util.unevictable
     value 149708
 
@@ -5891,6 +5984,12 @@ mem.util.vmallocUsed
 
 mem.util.writeback
     value 4
+
+mem.util.zswap
+No value(s) available!
+
+mem.util.zswapped
+No value(s) available!
 
 mem.vmstat.allocstall
     value 0
@@ -8444,6 +8543,12 @@ mem.util.cache_clean
 mem.util.cached
     value 281572
 
+mem.util.cmafree
+    value 0
+
+mem.util.cmatotal
+    value 0
+
 mem.util.commitLimit
     value 4631924
 
@@ -8464,6 +8569,12 @@ mem.util.directMap4k
 
 mem.util.dirty
     value 0
+
+mem.util.filehugepages
+No value(s) available!
+
+mem.util.filepmdmapped
+No value(s) available!
 
 mem.util.free
     value 3264460
@@ -8531,10 +8642,16 @@ mem.util.other
 mem.util.pageTables
     value 20784
 
+mem.util.percpu
+No value(s) available!
+
 mem.util.quicklists
 No value(s) available!
 
 mem.util.reverseMaps
+No value(s) available!
+
+mem.util.shadowcallstack
 No value(s) available!
 
 mem.util.shared
@@ -8542,6 +8659,12 @@ No value(s) available!
 
 mem.util.shmem
     value 1340
+
+mem.util.shmemhugepages
+    value 0
+
+mem.util.shmempmdmapped
+    value 0
 
 mem.util.slab
     value 109736
@@ -8561,6 +8684,9 @@ mem.util.swapFree
 mem.util.swapTotal
     value 2621436
 
+mem.util.unaccepted
+No value(s) available!
+
 mem.util.unevictable
     value 0
 
@@ -8578,6 +8704,12 @@ mem.util.vmallocUsed
 
 mem.util.writeback
     value 0
+
+mem.util.zswap
+No value(s) available!
+
+mem.util.zswapped
+No value(s) available!
 
 mem.vmstat.allocstall
 No value(s) available!
@@ -10899,6 +11031,12 @@ mem.util.cache_clean
 mem.util.cached
     value 7246776
 
+mem.util.cmafree
+    value 0
+
+mem.util.cmatotal
+    value 0
+
 mem.util.commitLimit
     value 16119160
 
@@ -10919,6 +11057,12 @@ mem.util.directMap4k
 
 mem.util.dirty
     value 1724
+
+mem.util.filehugepages
+No value(s) available!
+
+mem.util.filepmdmapped
+No value(s) available!
 
 mem.util.free
     value 2496772
@@ -10986,10 +11130,16 @@ mem.util.other
 mem.util.pageTables
     value 94572
 
+mem.util.percpu
+No value(s) available!
+
 mem.util.quicklists
 No value(s) available!
 
 mem.util.reverseMaps
+No value(s) available!
+
+mem.util.shadowcallstack
 No value(s) available!
 
 mem.util.shared
@@ -10997,6 +11147,12 @@ No value(s) available!
 
 mem.util.shmem
     value 978508
+
+mem.util.shmemhugepages
+    value 0
+
+mem.util.shmempmdmapped
+    value 0
 
 mem.util.slab
     value 694056
@@ -11016,6 +11172,9 @@ mem.util.swapFree
 mem.util.swapTotal
     value 8093692
 
+mem.util.unaccepted
+No value(s) available!
+
 mem.util.unevictable
     value 80
 
@@ -11033,6 +11192,12 @@ mem.util.vmallocUsed
 
 mem.util.writeback
     value 0
+
+mem.util.zswap
+No value(s) available!
+
+mem.util.zswapped
+No value(s) available!
 
 mem.vmstat.allocstall
 No value(s) available!
@@ -13418,6 +13583,12 @@ mem.util.cache_clean
 mem.util.cached
     value 708152
 
+mem.util.cmafree
+No value(s) available!
+
+mem.util.cmatotal
+No value(s) available!
+
 mem.util.commitLimit
     value 5081520
 
@@ -13438,6 +13609,12 @@ mem.util.directMap4k
 
 mem.util.dirty
     value 16
+
+mem.util.filehugepages
+No value(s) available!
+
+mem.util.filepmdmapped
+No value(s) available!
 
 mem.util.free
     value 2524972
@@ -13505,10 +13682,16 @@ mem.util.other
 mem.util.pageTables
     value 8848
 
+mem.util.percpu
+No value(s) available!
+
 mem.util.quicklists
 No value(s) available!
 
 mem.util.reverseMaps
+No value(s) available!
+
+mem.util.shadowcallstack
 No value(s) available!
 
 mem.util.shared
@@ -13516,6 +13699,12 @@ No value(s) available!
 
 mem.util.shmem
     value 202696
+
+mem.util.shmemhugepages
+    value 0
+
+mem.util.shmempmdmapped
+    value 0
 
 mem.util.slab
     value 425060
@@ -13535,6 +13724,9 @@ mem.util.swapFree
 mem.util.swapTotal
     value 3145724
 
+mem.util.unaccepted
+No value(s) available!
+
 mem.util.unevictable
     value 0
 
@@ -13552,6 +13744,12 @@ mem.util.vmallocUsed
 
 mem.util.writeback
     value 0
+
+mem.util.zswap
+No value(s) available!
+
+mem.util.zswapped
+No value(s) available!
 
 mem.vmstat.allocstall
 No value(s) available!
@@ -15246,6 +15444,12 @@ mem.util.cache_clean
 mem.util.cached
     value 3194544
 
+mem.util.cmafree
+    value 0
+
+mem.util.cmatotal
+    value 0
+
 mem.util.commitLimit
     value 12211660
 
@@ -15265,6 +15469,12 @@ mem.util.directMap4k
     value 192364
 
 mem.util.dirty
+    value 0
+
+mem.util.filehugepages
+    value 0
+
+mem.util.filepmdmapped
     value 0
 
 mem.util.free
@@ -15333,10 +15543,16 @@ mem.util.other
 mem.util.pageTables
     value 4072
 
+mem.util.percpu
+    value 5280
+
 mem.util.quicklists
 No value(s) available!
 
 mem.util.reverseMaps
+No value(s) available!
+
+mem.util.shadowcallstack
 No value(s) available!
 
 mem.util.shared
@@ -15344,6 +15560,12 @@ No value(s) available!
 
 mem.util.shmem
     value 1148
+
+mem.util.shmemhugepages
+    value 0
+
+mem.util.shmempmdmapped
+    value 0
 
 mem.util.slab
     value 298464
@@ -15363,6 +15585,9 @@ mem.util.swapFree
 mem.util.swapTotal
     value 8140796
 
+mem.util.unaccepted
+No value(s) available!
+
 mem.util.unevictable
     value 0
 
@@ -15380,6 +15605,12 @@ mem.util.vmallocUsed
 
 mem.util.writeback
     value 0
+
+mem.util.zswap
+No value(s) available!
+
+mem.util.zswapped
+No value(s) available!
 
 mem.vmstat.allocstall
 No value(s) available!

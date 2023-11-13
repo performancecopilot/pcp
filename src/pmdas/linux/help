@@ -962,8 +962,29 @@ you will get real memory on demand, and just as much as you use.
 @ mem.util.hugepagesFreeBytes amount of memory in free hugepages
 @ mem.util.hugepagesRsvdBytes amount of memory in reserved hugepages
 @ mem.util.hugepagesSurpBytes amount of memory in surplus hugepages
-
 User memory (Kbytes) in pages not backed by files, e.g. from malloc()
+@ mem.util.shmemhugepages amount of shared memory allocated with hugepages
+@ mem.util.shmempmdmapped shared memory mapped into userspace with hugepages
+@ mem.util.filehugepages page cache (file) pages allocated with hugepages
+@ mem.util.filepmdmapped page cache mapped into userspace with hugepages
+@ mem.util.cmatotal total contiguous memory allocator memory
+@ mem.util.cmafree free contiguous memory allocator memory
+@ mem.util.unaccepted amount of unaccepted memory
+When this mechanism is in use, a virtual machine can be launched with
+its memory in an unaccepted state.  Such a system will not be able to
+make use of the memory provided until that memory has been explicitly
+accepted.  On these systems, the bootloader will typically pre-accept
+enough memory to allow the guest kernel to boot then that kernel must
+take responsibility for accepting the rest before using it.
+@ mem.util.zswap total size of the zswap memory pool
+@ mem.util.zswapped current memory used from the zswap memory pool
+@ mem.util.shadowcallstack memory used for shadown call stacks
+Shadow stacks are a modern security feature allowing for detection of
+corruption of the call stack, allowing the kernel to react to such an
+attach in an appropriate fashion.  Shadow stacks are often maintained
+by the processor hardware and require additional stack memory.
+@ mem.util.percpu amount of per CPU allocator memory
+
 @ mem.numa.util.total per-node total memory
 @ mem.numa.util.free per-node free memory
 @ mem.numa.util.used per-node used memory
