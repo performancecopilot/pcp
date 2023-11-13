@@ -830,6 +830,7 @@ enable_qt
 qt_version
 qt_release
 QMAKE
+PMDA_RESCTRL
 PMDA_LIBVIRT
 PMDA_MSSQL
 PMDA_OPENMETRICS
@@ -3832,8 +3833,7 @@ then
 printf "%s\n" "#define IS_DARWIN 1" >>confdefs.h
 
     target_distro=macosx
-    target_machine=`uname -m`
-    export CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing -arch $target_machine"
+    export CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing -arch $target_cpu"
     pcp_platform_paths='/usr/local/bin:/opt/homebrew/bin'
     pcp_ps_all_flags="-axw -o user,pid,ppid,cpu,stime,tty,time,command"
 elif test $target_os = mingw
@@ -5288,11 +5288,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++11 features" >&5
 printf %s "checking for $CXX option to enable C++11 features... " >&6; }
-if test ${ac_cv_prog_cxx_11+y}
+if test ${ac_cv_prog_cxx_cxx11+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_11=no
+  ac_cv_prog_cxx_cxx11=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -5334,11 +5334,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++98 features" >&5
 printf %s "checking for $CXX option to enable C++98 features... " >&6; }
-if test ${ac_cv_prog_cxx_98+y}
+if test ${ac_cv_prog_cxx_cxx98+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_98=no
+  ac_cv_prog_cxx_cxx98=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -9552,6 +9552,19 @@ fi
 PMDA_LIBVIRT=$pmda_libvirt
 
 if $pmda_libvirt; then { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }; fi
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the resctrl PMDA should be included" >&5
+printf %s "checking if the resctrl PMDA should be included... " >&6; }
+pmda_resctrl=false
+if test "$target_cpu" = "x86_64" -o "$target_cpu" = "amd64"
+then
+    pmda_resctrl=true
+fi
+PMDA_RESCTRL=$pmda_resctrl
+
+if $pmda_resctrl; then { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }; fi
 

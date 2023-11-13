@@ -48,6 +48,13 @@ ExcludeArch: %{ix86}
 %endif
 %endif
 
+# Resource Control kernel feature is on recent Intel/AMD processors only
+%ifarch x86_64
+%global disable_resctrl 0
+%else
+%global disable_resctrl 1
+%endif
+
 # libchan, libhdr_histogram and pmdastatsd
 %if 0%{?fedora} >= 29 || 0%{?rhel} > 7
 %global disable_statsd 0
@@ -531,7 +538,7 @@ Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql pcp-pmda-oracle
 Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-apache
-Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts pcp-pmda-resctrl
+Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-smart pcp-pmda-farm
 Requires: pcp-pmda-hacluster pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-denki pcp-pmda-docker pcp-pmda-bind2
 Requires: pcp-pmda-sockets pcp-pmda-podman
@@ -567,6 +574,9 @@ Requires: pcp-pmda-snmp
 %endif
 %if !%{disable_json}
 Requires: pcp-pmda-json
+%endif
+%if !%{disable_resctrl}
+Requires: pcp-pmda-resctrl
 %endif
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
 Requires: pcp-system-tools
@@ -2047,6 +2057,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about Nvidia GPUs.
 # end pcp-pmda-nvidia-gpu
 
+%if !%{disable_resctrl}
 #
 # pcp-pmda-resctrl
 #
@@ -2059,6 +2070,7 @@ Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 This package contains the PCP Performance Metric Domain Agent (PMDA) for
 collecting metrics from the Linux kernel resource control functionality.
 #end pcp-pmda-resctrl
+%endif
 
 #
 # pcp-pmda-roomtemp
@@ -3010,8 +3022,10 @@ exit 0
 %preun pmda-nvidia-gpu
 %{pmda_remove "$1" "nvidia"}
 
+%if !%{disable_resctrl}
 %preun pmda-resctrl
 %{pmda_remove "$1" "resctrl"}
+%endif
 
 %preun pmda-roomtemp
 %{pmda_remove "$1" "roomtemp"}
@@ -3369,7 +3383,9 @@ fi
 
 %files pmda-nvidia-gpu -f pcp-pmda-nvidia-files.rpm
 
+%if !%{disable_resctrl}
 %files pmda-resctrl -f pcp-pmda-resctrl-files.rpm
+%endif
 
 %files pmda-roomtemp -f pcp-pmda-roomtemp-files.rpm
 

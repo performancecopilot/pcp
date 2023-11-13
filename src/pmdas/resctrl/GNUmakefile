@@ -42,6 +42,7 @@ default_pcp default:	build-me
 
 include $(BUILDRULES)
 
+ifeq "$(PMDA_RESCTRL)" "true"
 build-me:	$(CMDTARGET) $(LIBTARGET)
 
 install_pcp install:	default 
@@ -51,6 +52,11 @@ install_pcp install:	default
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) root pmns domain.h $(DFILES) $(PMDAADMDIR)
 	$(INSTALL) -m 644 sys-fs-resctrl.mount $(PCP_SYSTEMDUNIT_DIR)/sys-fs-resctrl.mount
 	@$(INSTALL_MAN)
+else
+build-me:
+install_pcp install:
+	@$(INSTALL_MAN)
+endif
 
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
