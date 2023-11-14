@@ -21,7 +21,7 @@ _cleanup()
 {
     if [ $reinstall -eq 1 ]; then
 	cd $PCP_PMDAS_DIR/redis
-	sudo ./Install >/dev/null 2>&1
+	$sudo ./Install >/dev/null 2>&1
 	reinstall=0
     fi
     cd $here
@@ -56,22 +56,22 @@ EOF
 cd $PCP_PMDAS_DIR/redis
 pmprobe -v redis | grep -q 'Unknown metric name' 2>&1
 if [ $? -ne 0 ]; then
-    sudo ./Remove >/dev/null 2>&1
-    need_install=1
+    $sudo ./Remove >/dev/null 2>&1
+    reinstall=1
 fi
 
 echo; echo == create initial config
 pmlogconf -c -q -d $tmp.path $tmp.conf </dev/null | _filter 2>&1
 
 echo; echo == update config with redis metrics
-sudo ./Install >/dev/null 2>&1
+$sudo ./Install >/dev/null 2>&1
 pmlogconf -r -c -q -d $tmp.path $tmp.conf </dev/null | _filter 2>&1
 
 echo; echo == verify no subsequent change
 pmlogconf -r -c -q -d $tmp.path $tmp.conf </dev/null | _filter 2>&1
 
 echo; echo == update config without redis metrics
-sudo ./Remove >/dev/null 2>&1
+$sudo ./Remove >/dev/null 2>&1
 pmlogconf -r -c -q -d $tmp.path $tmp.conf </dev/null | _filter 2>&1
 
 echo; echo == verify no subsequent change

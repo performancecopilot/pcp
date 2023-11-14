@@ -19,15 +19,23 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 if [ ! -d /sys/fs/resctrl/mon_data ] ; then
-    VENDOR=$(lscpu | awk '/^Vendor ID/ {print $3}')
-    systemctl enable --now sys-fs-resctrl.mount
-    STATUS=$?
-    if [ $STATUS -eq 0 ] ; then
-	echo "Mounted /sys/fs/resctrl/mon_data"
-    elif [ -z "$PCP_RESCTRL_DIR" -o ! -d $PCP_RESCTRL_DIR/mon_data ] ; then
-	echo "last level cache metrics are not supported"
+    if [ -n "$PCP_RESCTRL_DIR" ]; then
+	echo "Using $PCP_RESCTRL_DIR for testing"
+    else
+	#debug# VENDOR=$(lscpu | awk '/^Vendor ID/ {print $3}')
+	systemctl enable --now sys-fs-resctrl.mount
+	STATUS=$?
+	if [ $STATUS -eq 0 ] ; then
+	    echo "Mounted /sys/fs/resctrl/mon_data"
+	fi
+	PCP_RESCTRL_DIR=/sys/fs/resctrl
+    fi
+    if [ ! -d $PCP_RESCTRL_DIR/mon_data ] ; then
+	echo "No $PCP_RESCTRL_DIR/mon_data directory, last level cache metrics are not supported"
 	exit 1
     fi
+else
+    echo "Using previously mounted /sys/fs/resctrl/mon_data"
 fi
 
 iam=resctrl

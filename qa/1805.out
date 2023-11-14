@@ -153,3 +153,21 @@ network.mptcp.rcvwndconflictupdate
 
 network.mptcp.rcvwndconflict
     value 47
+
+network.mptcp.addaddrtx
+    value 48
+
+network.mptcp.addaddrtxdrop
+    value 49
+
+network.mptcp.echoaddtx
+    value 50
+
+network.mptcp.echoaddtxdrop
+    value 51
+
+network.mptcp.rmaddrtx
+    value 52
+
+network.mptcp.rmaddrtxdrop
+    value 53

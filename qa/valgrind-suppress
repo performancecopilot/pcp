@@ -129,7 +129,6 @@
 {
    sasl_client_new
    Memcheck:Leak
-   match-leak-kinds: definite
    fun:malloc
    fun:sasl_client_new
    ...
@@ -140,7 +139,6 @@
 {
    tsearch
    Memcheck:Leak
-   match-leak-kinds: possible
    fun:malloc
    fun:tsearch
    fun:__pmFindPDUBuf
@@ -150,7 +148,6 @@
 {
    findpdubuf
    Memcheck:Leak
-   match-leak-kinds: possible
    fun:malloc
    fun:__pmFindPDUBuf
    ...

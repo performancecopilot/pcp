@@ -2630,6 +2630,12 @@ Multipath TCP incoming RM_ADDR drops.
 @ network.mptcp.rcvwndshared the RcvWndShared field of the MPTcp line from /proc/net/netstat
 @ network.mptcp.rcvwndconflictupdate the RcvWndConflictUpdate field of the MPTcp line from /proc/net/netstat
 @ network.mptcp.rcvwndconflict the RcvWndConflict field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.addaddrtx the AddAddrTx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.addaddrtxdrop the AddAddrTxDrop field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.echoaddtx the EchoAddTx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.echoaddtxdrop the EchoAddTxDrop field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.rmaddrtx the RmAddrTx field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.rmaddrtxdrop the RmAddrTxDrop field of the MPTcp line from /proc/net/netstat
 
 @ disk.wwid.scsi_paths per-device/wwid scsi paths to same physical device
 The value of this string typed metric is the sd paths to the same physical
