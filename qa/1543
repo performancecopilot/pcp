@@ -390,6 +390,10 @@ curl -s "http://localhost:$port/pmapi/metrics?target=sample.long" \
 	| _filter_text "scrape one metric tree"
 curl -s "http://localhost:$port/pmapi/metrics?target=sample.colour" \
 	| _filter_text "scrape metric instances"
+curl -s  --compressed "http://localhost:$port/metrics?name=sample.long.one" \
+	| _filter_text "small curl compression command"
+curl -s  --compressed "http://localhost:$port/metrics?name=sample,sampledso" \
+	| _filter_text "large curl compression command" | head -8
 echo "== scrape all metrics =="
 curl -s "http://localhost:$port/metrics" \
 	> /dev/null	# checking pmproxy remains up here (too much to filter)

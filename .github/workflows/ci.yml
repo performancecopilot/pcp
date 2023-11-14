@@ -25,8 +25,8 @@ jobs:
           - {platform: ubuntu1804-i386-container, os: ubuntu-20.04, experimental: false}
           - {platform: ubuntu2004-container,      os: ubuntu-20.04, experimental: false}
           - {platform: ubuntu2204-container,      os: ubuntu-20.04, experimental: false}
-          - {platform: fedora37-container,        os: ubuntu-20.04, experimental: false}
           - {platform: fedora38-container,        os: ubuntu-20.04, experimental: false}
+          - {platform: fedora39-container,        os: ubuntu-20.04, experimental: false}
           - {platform: centos-stream8-container,  os: ubuntu-20.04, experimental: false}
           - {platform: centos-stream9-container,  os: ubuntu-20.04, experimental: false}
 # other platforms that may be used for testing in developer repos
@@ -108,4 +108,5 @@ jobs:
     - name: Install dependencies
       run: brew install gnu-tar pkg-config python-setuptools
     - name: Build packages
-      run: ./Makepkgs --verbose
+      # python disabled for now until brew build without distutils
+      run: ./Makepkgs --verbose --with-python=no --with-python3=no

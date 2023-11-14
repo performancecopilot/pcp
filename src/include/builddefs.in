@@ -327,6 +327,8 @@ HAVE_SASL = @HAVE_SASL@
 LIB_FOR_LIBSASL2 = @libsasl2_LIBS@
 HAVE_OPENSSL = @HAVE_OPENSSL@
 LIB_FOR_OPENSSL = @openssl_LIBS@
+HAVE_ZLIB = @HAVE_ZLIB@
+LIB_FOR_ZLIB = @zlib_LIBS@
 
 # configuration state for optional performance domains
 SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@

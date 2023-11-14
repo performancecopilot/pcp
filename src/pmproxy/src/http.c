@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2019-2020 Red Hat.
- * 
+ * Copyright (c) 2019-2020,2023 Red Hat.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
@@ -17,6 +17,11 @@
 #include "encoding.h"
 #include "dict.h"
 #include "util.h"
+#include "sds.h"
+#include <pcp/mmv_stats.h>
+#ifdef HAVE_ZLIB
+#include "zlib.h"
+#endif
 
 static int chunked_transfer_size; /* pmproxy.chunksize, pagesize by default */
 static int smallest_buffer_size = 128;
@@ -37,6 +42,45 @@ static sds HEADER_ACCESS_CONTROL_REQUEST_HEADERS,
 	   HEADER_ACCESS_CONTROL_MAX_AGE,
 	   HEADER_CONNECTION, HEADER_CONTENT_LENGTH,
 	   HEADER_ORIGIN, HEADER_WWW_AUTHENTICATE;
+
+/*
+ * Helper function to manage client buffer compression.
+ * The client buffer is compressed in-place (replaced).
+ */
+static void
+compress_GZIP(struct client *client)
+{
+#ifdef HAVE_ZLIB
+    z_stream		*stream = &client->u.http.strm;
+    size_t		input_len = sdslen(client->buffer);
+    uLong		upper_bound = deflateBound(stream, input_len);
+    sds			final_buffer = sdsnewlen(NULL, upper_bound);
+
+    if (deflateReset(stream) != Z_OK) {
+	pmNotifyErr(LOG_ERR, "Deflate reset failed");
+	sdsfree(final_buffer);
+	return;
+    }
+
+    stream->next_in = (Bytef *)client->buffer;
+    stream->avail_in = (uInt)input_len;
+    stream->next_out = (Bytef *)final_buffer;
+    stream->avail_out = (uInt)(upper_bound);
+
+    if (deflate(stream, Z_FINISH) != Z_STREAM_END) {
+	pmNotifyErr(LOG_ERR, "Deflate failed");
+	sdsfree(final_buffer);
+	return;
+    }
+
+    assert(stream->total_out <= upper_bound);
+    sdssetlen(final_buffer, stream->total_out);
+    sdsfree(client->buffer);
+    client->buffer = final_buffer;
+#else
+    (void) client;
+#endif
+}
 
 /*
  * Simple helpers to manage the cumulative addition of JSON
@@ -72,10 +116,10 @@ json_pop_suffix(sds suffix)
     /* chop first character - no resize, pad with null terminators */
     if (suffix) {
 	length = sdslen(suffix);
-	// also copy the NUL byte at the end of the c string, therefore use
-	// length instead of length-1
+	/* also copy the NUL byte at the end of the c string, therefore use
+	 * length instead of length-1 */
 	memmove(suffix, suffix+1, length);
-	sdssetlen(suffix, length-1); // update length of the sds string accordingly
+	sdssetlen(suffix, length-1); /* update sds string length accordingly */
     }
     return suffix;
 }
@@ -221,6 +265,10 @@ http_response_header(struct client *client, unsigned int length, http_code_t sts
 
     header = sdscatfmt(header, "Content-Type: %s%s\r\n",
 		http_content_type(flags), http_content_encoding(flags));
+
+    if (flags & HTTP_FLAG_COMPRESS_GZIP)
+	header = sdscatfmt(header, "Content-Encoding: gzip\r\n");
+
     header = sdscatfmt(header, "Date: %s\r\n\r\n",
 		http_date_string(time(NULL), date, sizeof(date)));
 
@@ -380,8 +428,10 @@ http_reply(struct client *client, sds message,
 		http_code_t sts, http_flags_t type, http_options_t options)
 {
     enum http_flags	flags = client->u.http.flags;
+    struct proxy 	*proxy = client->proxy;
     char		length[32]; /* hex length */
     sds			buffer, suffix;
+    void 		*map = proxy->map;
 
     if (flags & HTTP_FLAG_STREAMING) {
 	buffer = sdsempty();
@@ -390,11 +440,10 @@ http_reply(struct client *client, sds message,
 	    buffer = sdscatfmt(buffer, "%s\r\n%S\r\n", length, message);
 	} else if (message != NULL) {
 	    pmsprintf(length, sizeof(length), "%lX",
-				(unsigned long)sdslen(client->buffer) + sdslen(message));
+			(unsigned long)sdslen(client->buffer) + sdslen(message));
 	    buffer = sdscatfmt(buffer, "%s\r\n%S%S\r\n",
 				length, client->buffer, message);
 	}
-
 	sdsfree(message);
 	sdsfree(client->buffer);
 	client->buffer = NULL;
@@ -414,6 +463,27 @@ http_reply(struct client *client, sds message,
 	if (client->buffer == NULL) {
 	    suffix = message;
 	} else if (message != NULL) {
+	    pmAtomValue av;
+	    if (flags & HTTP_FLAG_COMPRESS_GZIP) {
+		if (pmDebugOptions.http)
+		    fprintf(stderr, "Length before compression: %llu\n",
+				    (unsigned long long)sdslen(client->buffer));
+		compress_GZIP(client);
+		av.ull = sdslen(client->buffer);
+		if (pmDebugOptions.http)
+		    fprintf(stderr, "Length after compression: %llu\n",
+				    (unsigned long long)av.ull);
+		if (map) {
+		    mmv_inc(map, proxy->values[VALUE_HTTP_COMPRESSED_COUNT]);
+		    mmv_inc_atomvalue(map, proxy->values[VALUE_HTTP_COMPRESSED_BYTES], &av);
+		}
+	    } else {
+		av.ull = sdslen(client->buffer);
+		if (map) {
+		    mmv_inc(map, proxy->values[VALUE_HTTP_UNCOMPRESSED_COUNT]);
+		    mmv_inc_atomvalue(map, proxy->values[VALUE_HTTP_UNCOMPRESSED_BYTES], &av);
+		}
+	    }
 	    suffix = sdscatsds(client->buffer, message);
 	    sdsfree(message);
 	    client->buffer = NULL;
@@ -468,15 +538,18 @@ void
 http_transfer(struct client *client)
 {
     struct http_parser	*parser = &client->u.http.parser;
+    struct proxy 	*proxy = client->proxy;
     enum http_flags	flags = client->u.http.flags;
     const char		*method;
     sds			buffer, suffix;
+    void		*map = proxy->map;
 
     /* If the client buffer length is now beyond a set maximum size,
      * send it using chunked transfer encoding.  Once buffer pointer
      * is copied into the uv_buf_t, clear it in the client, and then
      * return control to caller.
      */
+
     if (sdslen(client->buffer) >= chunked_transfer_size) {
 	if (parser->http_major == 1 && parser->http_minor > 0) {
 	    if (!(flags & HTTP_FLAG_STREAMING)) {
@@ -488,6 +561,29 @@ http_transfer(struct client *client)
 		/* headers already sent, send the next chunk of content */
 		buffer = sdsempty();
 	    }
+
+	    pmAtomValue av;
+	    if (flags & HTTP_FLAG_COMPRESS_GZIP) {
+		if (pmDebugOptions.http)
+		    fprintf(stderr, "Length before compression: %llu\n",
+				(unsigned long long)sdslen(client->buffer));
+		compress_GZIP(client);
+		av.ull = sdslen(client->buffer);
+		if (pmDebugOptions.http)
+		    fprintf(stderr, "Length after compression: %llu\n",
+				    (unsigned long long)av.ull);
+		if (map) {
+		    mmv_inc(map, proxy->values[VALUE_HTTP_COMPRESSED_COUNT]);
+		    mmv_inc_atomvalue(map, proxy->values[VALUE_HTTP_COMPRESSED_BYTES], &av);
+		}
+	    } else {
+		av.ull = sdslen(client->buffer);
+		if (map) {
+		    mmv_inc(map, proxy->values[VALUE_HTTP_UNCOMPRESSED_COUNT]);
+		    mmv_inc_atomvalue(map, proxy->values[VALUE_HTTP_UNCOMPRESSED_BYTES], &av);
+		}
+	    }
+
 	    /* prepend a chunked transfer encoding message length (hex) */
 	    buffer = sdscatprintf(buffer, "%lX\r\n",
 				 (unsigned long)sdslen(client->buffer));
@@ -522,6 +618,10 @@ http_client_release(struct client *client)
 	servlet->on_release(client);
     client->u.http.privdata = NULL;
     client->u.http.servlet = NULL;
+#ifdef HAVE_ZLIB
+    if (client->u.http.flags & HTTP_FLAG_COMPRESS_GZIP)
+	deflateEnd(&client->u.http.strm);
+#endif
     client->u.http.flags = 0;
 
     if (client->u.http.headers) {
@@ -544,6 +644,7 @@ http_client_release(struct client *client)
 	sdsfree(client->u.http.realm);
 	client->u.http.realm = NULL;
     }
+
 }
 
 static int
@@ -774,7 +875,8 @@ on_header_value(http_parser *request, const char *offset, size_t length)
     struct client	*client = (struct client *)request->data;
     dictEntry		*entry;
     char		*colon;
-    sds			field, value, decoded;
+    sds			field, value, decoded, *values;
+    int 		i, nvalues = 0;
 
     if (client->u.http.parser.status_code || !client->u.http.headers)
 	return 0;	/* already in process of failing connection */
@@ -806,6 +908,22 @@ on_header_value(http_parser *request, const char *offset, size_t length)
 	}
     }
 
+    if (strncmp(field, "Accept-Encoding", 15) == 0) {
+	values = sdssplitlen(value, sdslen(value), ", ", 2, &nvalues);
+	for (i = 0; values && i < nvalues; i++) {
+	    if (strcmp(values[i], "gzip") == 0) {
+#ifdef HAVE_ZLIB
+		if (deflateInit2(&client->u.http.strm,
+				Z_DEFAULT_COMPRESSION, Z_DEFLATED,
+				15 | 16, 8, Z_DEFAULT_STRATEGY) != Z_OK)
+		    client->u.http.parser.status_code = HTTP_STATUS_INTERNAL_SERVER_ERROR;
+		else
+		    client->u.http.flags |= HTTP_FLAG_COMPRESS_GZIP;
+#endif
+	    }
+	}
+	sdsfreesplitres(values, nvalues);
+    }
     return 0;
 }
 
@@ -974,8 +1092,33 @@ void
 setup_http_module(struct proxy *proxy)
 {
     sds			option;
+    void		*map;
+    pmAtomValue 	**values = proxy->values;
+    mmv_registry_t 	*registry = proxymetrics(proxy, METRICS_HTTP);
+    const pmUnits	units_count = MMV_UNITS(0, 0, 1, 0, 0, PM_COUNT_ONE);
+    const pmUnits	units_bytes = MMV_UNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0);
 
-    proxymetrics(proxy, METRICS_HTTP);
+    if (proxy == NULL || registry == NULL)
+	return; /* no metric registry has been set up*/
+
+    mmv_stats_add_metric(registry, "compressed.count", 1,
+    MMV_TYPE_U64, MMV_SEM_COUNTER, units_count, MMV_INDOM_NULL,
+    "Count of compressed transfers", "Number of compressed HTTP transfers");
+    mmv_stats_add_metric(registry, "uncompressed.count", 2,
+    MMV_TYPE_U64, MMV_SEM_COUNTER, units_count, MMV_INDOM_NULL,
+    "Count of uncompresed transfers", "Number of uncompressed HTTP transfers");
+    mmv_stats_add_metric(registry, "uncompressed.bytes", 3,
+    MMV_TYPE_U64, MMV_SEM_COUNTER, units_bytes, MMV_INDOM_NULL,
+    "Count of uncompressed bytes sent", "Total number of uncompressed bytes sent ");
+    mmv_stats_add_metric(registry, "compressed.bytes", 4,
+    MMV_TYPE_U64, MMV_SEM_COUNTER, units_bytes, MMV_INDOM_NULL,
+    "Count of compressed bytes sent", "Total number of compressed bytes sent");
+    proxy->map = map = mmv_stats_start(registry);
+
+    values[VALUE_HTTP_COMPRESSED_COUNT] = mmv_lookup_value_desc(map,"compressed.count", NULL);
+    values[VALUE_HTTP_UNCOMPRESSED_COUNT] = mmv_lookup_value_desc(map,"uncompressed.count", NULL);
+    values[VALUE_HTTP_COMPRESSED_BYTES] = mmv_lookup_value_desc(map,"compressed.bytes", NULL);
+    values[VALUE_HTTP_UNCOMPRESSED_BYTES] = mmv_lookup_value_desc(map,"uncompressed.bytes", NULL);
 
     if ((option = pmIniFileLookup(config, "pmproxy", "chunksize")) != NULL)
 	chunked_transfer_size = atoi(option);

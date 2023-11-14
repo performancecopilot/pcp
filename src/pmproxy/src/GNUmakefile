@@ -40,6 +40,10 @@ ifeq "$(HAVE_OPENSSL)" "true"
 LCFLAGS += $(OPENSSLCFLAGS) -DHAVE_OPENSSL=1
 CFILES += secure.c
 endif
+ifeq "$(HAVE_ZLIB)" "true"
+LCFLAGS += $(ZLIBCFLAGS) -DHAVE_ZLIB=1
+LLDLIBS += $(LIB_FOR_ZLIB)
+endif
 endif
 CFILES += deprecated.c
 
