@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2022 Red Hat.
+dnl Copyright (c) 2012-2023 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl
@@ -267,8 +267,7 @@ elif test $target_os = darwin
 then
     AC_DEFINE(IS_DARWIN, [1], [Platform is Darwin (Mac OS X)])
     target_distro=macosx
-    target_machine=`uname -m`
-    export CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing -arch $target_machine"
+    export CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing -arch $target_cpu"
     pcp_platform_paths='/usr/local/bin:/opt/homebrew/bin'
     pcp_ps_all_flags="-axw -o user,pid,ppid,cpu,stime,tty,time,command"
 elif test $target_os = mingw
@@ -1481,6 +1480,15 @@ then
 fi
 AC_SUBST(PMDA_LIBVIRT, $pmda_libvirt)
 if $pmda_libvirt; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+AC_MSG_CHECKING([if the resctrl PMDA should be included])
+pmda_resctrl=false
+if test "$target_cpu" = "x86_64" -o "$target_cpu" = "amd64"
+then
+    pmda_resctrl=true
+fi
+AC_SUBST(PMDA_RESCTRL, $pmda_resctrl)
+if $pmda_resctrl; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 qmake=$QMAKE
 enable_qt=false

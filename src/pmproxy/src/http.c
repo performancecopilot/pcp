@@ -47,22 +47,22 @@ static sds HEADER_ACCESS_CONTROL_REQUEST_HEADERS,
  * Helper function to manage client buffer compression.
  * The client buffer is compressed in-place (replaced).
  */
-static void
-compress_GZIP(struct client *client)
+static sds
+compress_GZIP(struct client *client, sds input_buffer)
 {
 #ifdef HAVE_ZLIB
     z_stream		*stream = &client->u.http.strm;
-    size_t		input_len = sdslen(client->buffer);
+    size_t		input_len = sdslen(input_buffer);
     uLong		upper_bound = deflateBound(stream, input_len);
     sds			final_buffer = sdsnewlen(NULL, upper_bound);
 
     if (deflateReset(stream) != Z_OK) {
 	pmNotifyErr(LOG_ERR, "Deflate reset failed");
 	sdsfree(final_buffer);
-	return;
+	return input_buffer;
     }
 
-    stream->next_in = (Bytef *)client->buffer;
+    stream->next_in = (Bytef *)input_buffer;
     stream->avail_in = (uInt)input_len;
     stream->next_out = (Bytef *)final_buffer;
     stream->avail_out = (uInt)(upper_bound);
@@ -70,15 +70,16 @@ compress_GZIP(struct client *client)
     if (deflate(stream, Z_FINISH) != Z_STREAM_END) {
 	pmNotifyErr(LOG_ERR, "Deflate failed");
 	sdsfree(final_buffer);
-	return;
+	return input_buffer;
     }
 
     assert(stream->total_out <= upper_bound);
     sdssetlen(final_buffer, stream->total_out);
-    sdsfree(client->buffer);
-    client->buffer = final_buffer;
+    sdsfree(input_buffer);
+    return final_buffer;
 #else
     (void) client;
+    return input_buffer;
 #endif
 }
 
@@ -429,6 +430,7 @@ http_reply(struct client *client, sds message,
 {
     enum http_flags	flags = client->u.http.flags;
     struct proxy 	*proxy = client->proxy;
+    pmAtomValue		av;
     char		length[32]; /* hex length */
     sds			buffer, suffix;
     void 		*map = proxy->map;
@@ -463,13 +465,19 @@ http_reply(struct client *client, sds message,
 	if (client->buffer == NULL) {
 	    suffix = message;
 	} else if (message != NULL) {
-	    pmAtomValue av;
+	    suffix = sdscatsds(client->buffer, message);
+	    sdsfree(message);
+	    client->buffer = NULL;
+	} else {
+	    suffix = sdsempty();
+	}
+
 	    if (flags & HTTP_FLAG_COMPRESS_GZIP) {
 		if (pmDebugOptions.http)
 		    fprintf(stderr, "Length before compression: %llu\n",
-				    (unsigned long long)sdslen(client->buffer));
-		compress_GZIP(client);
-		av.ull = sdslen(client->buffer);
+				    (unsigned long long)sdslen(suffix));
+		suffix = compress_GZIP(client, suffix);
+		av.ull = sdslen(suffix);
 		if (pmDebugOptions.http)
 		    fprintf(stderr, "Length after compression: %llu\n",
 				    (unsigned long long)av.ull);
@@ -478,18 +486,13 @@ http_reply(struct client *client, sds message,
 		    mmv_inc_atomvalue(map, proxy->values[VALUE_HTTP_COMPRESSED_BYTES], &av);
 		}
 	    } else {
-		av.ull = sdslen(client->buffer);
+		av.ull = sdslen(suffix);
 		if (map) {
 		    mmv_inc(map, proxy->values[VALUE_HTTP_UNCOMPRESSED_COUNT]);
 		    mmv_inc_atomvalue(map, proxy->values[VALUE_HTTP_UNCOMPRESSED_BYTES], &av);
 		}
 	    }
-	    suffix = sdscatsds(client->buffer, message);
-	    sdsfree(message);
-	    client->buffer = NULL;
-	} else {
-	    suffix = sdsempty();
-	}
+
 	buffer = http_response_header(client, sdslen(suffix), sts, type);
     }
 
@@ -567,7 +570,7 @@ http_transfer(struct client *client)
 		if (pmDebugOptions.http)
 		    fprintf(stderr, "Length before compression: %llu\n",
 				(unsigned long long)sdslen(client->buffer));
-		compress_GZIP(client);
+		client->buffer = compress_GZIP(client, client->buffer);
 		av.ull = sdslen(client->buffer);
 		if (pmDebugOptions.http)
 		    fprintf(stderr, "Length after compression: %llu\n",
@@ -1109,7 +1112,7 @@ setup_http_module(struct proxy *proxy)
     "Count of uncompresed transfers", "Number of uncompressed HTTP transfers");
     mmv_stats_add_metric(registry, "uncompressed.bytes", 3,
     MMV_TYPE_U64, MMV_SEM_COUNTER, units_bytes, MMV_INDOM_NULL,
-    "Count of uncompressed bytes sent", "Total number of uncompressed bytes sent ");
+    "Count of uncompressed bytes sent", "Total number of uncompressed bytes sent");
     mmv_stats_add_metric(registry, "compressed.bytes", 4,
     MMV_TYPE_U64, MMV_SEM_COUNTER, units_bytes, MMV_INDOM_NULL,
     "Count of compressed bytes sent", "Total number of compressed bytes sent");

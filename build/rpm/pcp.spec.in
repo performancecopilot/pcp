@@ -325,7 +325,7 @@ Requires: pcp-pmda-memcache pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-redis pcp-pmda-samba pcp-pmda-slurm pcp-pmda-zimbra
 %endif
 Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
-Requires: pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts pcp-pmda-resctrl
+Requires: pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
 Requires: pcp-pmda-lustrecomm pcp-pmda-docker pcp-pmda-smart pcp-pmda-farm
 Requires: pcp-pmda-hacluster pcp-pmda-sockets pcp-pmda-podman
@@ -393,6 +393,9 @@ Requires: pcp-pmda-elasticsearch
 %endif
 %if "@pmda_postfix@" == "true"
 Requires: pcp-pmda-postfix
+%endif
+%if "@pmda_resctrl@" == "true"
+Requires: pcp-pmda-resctrl
 %endif
 Requires: pcp-system-tools
 %if "@enable_qt@" == "true"
@@ -2043,6 +2046,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about Nvidia GPUs.
 # end pcp-pmda-nvidia-gpu
 
+%if "@pmda_resctrl@" == "true"
 #
 # pcp-pmda-resctrl
 #
@@ -2055,6 +2059,7 @@ Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 This package contains the PCP Performance Metric Domain Agent (PMDA) for
 collecting metrics from the Linux kernel resource control functionality.
 #end pcp-pmda-resctrl
+%endif
 
 #
 # pcp-pmda-roomtemp
@@ -2894,8 +2899,10 @@ done
 %preun pmda-nvidia-gpu
 %{pmda_remove "$1" "nvidia"}
 
+%if "@pmda_resctrl@" == "true"
 %preun pmda-resctrl
 %{pmda_remove "$1" "resctrl"}
+%endif
 
 %preun pmda-roomtemp
 %{pmda_remove "$1" "roomtemp"}
@@ -3232,7 +3239,9 @@ fi
 
 %files pmda-nvidia-gpu -f pcp-pmda-nvidia-files.rpm
 
+%if "@pmda_resctrl@" == "true"
 %files pmda-resctrl -f pcp-pmda-resctrl-files.rpm
+%endif
 
 %files pmda-roomtemp -f pcp-pmda-roomtemp-files.rpm
 
