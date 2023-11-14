@@ -93,6 +93,9 @@ derived_filter()
 	-e "/disk\.dev\.avg_qlen: $unavailable/d" \
 	-e "/disk\.dev\.avg_rqsz: $unavailable/d" \
 	-e "/disk\.dev\.await: $unavailable/d" \
+	-e "/disk\.dev\.d_avg_rqsz: $unavailable/d" \
+	-e "/disk\.dev\.d_await: $unavailable/d" \
+	-e "/disk\.dev\.f_await: $unavailable/d" \
 	-e "/disk\.dev\.r_avg_rqsz: $unavailable/d" \
 	-e "/disk\.dev\.r_await: $unavailable/d" \
 	-e "/disk\.dev\.util: $unavailable/d" \
@@ -233,20 +236,24 @@ do
 	    -e "/mem\.util\.active_file: $unavailable/d" \
 	    -e "/mem\.util\.anonhugepages: $unavailable/d" \
 	    -e "/mem\.util\.available: $unavailable/d" \
+	    -e "/mem\.util\.cmafree: $unavailable/d" \
+	    -e "/mem\.util\.cmatotal: $unavailable/d" \
 	    -e "/mem\.util\.corrupthardware: $unavailable/d" \
 	    -e "/mem\.util\.directMap1G: $unavailable/d" \
 	    -e "/mem\.util\.directMap2M: $unavailable/d" \
 	    -e "/mem\.util\.directMap4k: $unavailable/d" \
+	    -e "/mem\.util\.filehugepages: $unavailable/d" \
+	    -e "/mem\.util\.filepmdmapped: $unavailable/d" \
 	    -e "/mem\.util\.highFree: $unavailable/d" \
 	    -e "/mem\.util\.highTotal: $unavailable/d" \
-	    -e "/mem\.util\.hugepagesFreeBytes: $unavailable/d" \
 	    -e "/mem\.util\.hugepagesFree: $unavailable/d" \
-	    -e "/mem\.util\.hugepagesRsvdBytes: $unavailable/d" \
+	    -e "/mem\.util\.hugepagesFreeBytes: $unavailable/d" \
 	    -e "/mem\.util\.hugepagesRsvd: $unavailable/d" \
-	    -e "/mem\.util\.hugepagesSurpBytes: $unavailable/d" \
+	    -e "/mem\.util\.hugepagesRsvdBytes: $unavailable/d" \
 	    -e "/mem\.util\.hugepagesSurp: $unavailable/d" \
-	    -e "/mem\.util\.hugepagesTotalBytes: $unavailable/d" \
+	    -e "/mem\.util\.hugepagesSurpBytes: $unavailable/d" \
 	    -e "/mem\.util\.hugepagesTotal: $unavailable/d" \
+	    -e "/mem\.util\.hugepagesTotalBytes: $unavailable/d" \
 	    -e "/mem\.util\.inactive_anon: $unavailable/d" \
 	    -e "/mem\.util\.inactive_file: $unavailable/d" \
 	    -e "/mem\.util\.kernelStack: $unavailable/d" \
@@ -255,15 +262,22 @@ do
 	    -e "/mem\.util\.mlocked: $unavailable/d" \
 	    -e "/mem\.util\.mmap_copy: $unavailable/d" \
 	    -e "/mem\.util\.other: $unavailable/d" \
+	    -e "/mem\.util\.percpu: $unavailable/d" \
 	    -e "/mem\.util\.quicklists: $unavailable/d" \
 	    -e "/mem\.util\.reverseMaps: $unavailable/d" \
+	    -e "/mem\.util\.shadowcallstack: $unavailable/d" \
 	    -e "/mem\.util\.shared: $unavailable/d" \
 	    -e "/mem\.util\.shmem: $unavailable/d" \
+	    -e "/mem\.util\.shmemhugepages: $unavailable/d" \
+	    -e "/mem\.util\.shmempmdmapped: $unavailable/d" \
 	    -e "/mem\.util\.slabReclaimable: $unavailable/d" \
 	    -e "/mem\.util\.slabUnreclaimable: $unavailable/d" \
+	    -e "/mem\.util\.unaccepted: $unavailable/d" \
 	    -e "/mem\.util\.unevictable: $unavailable/d" \
-	    -e "/mem\.zoneinfo\..*: $unavailable/d" \
+	    -e "/mem\.util\.zswap: $unavailable/d" \
+	    -e "/mem\.util\.zswapped: $unavailable/d" \
 	    -e "/mem\.vmstat\..*: $unavailable/d" \
+	    -e "/mem\.zoneinfo\..*: $unavailable/d" \
 	    -e "/network\.ib\..*/d" \
 	    -e "/network\.icmpmsg\..*: $unavailable/d" \
 	    -e "/network\..*\.incsumerrors: $unavailable/d" \
