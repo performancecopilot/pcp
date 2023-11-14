@@ -95,18 +95,20 @@ BuildRequires: gcc-c++
 %endif
 %if "@enable_qt@" == "true"
 %if "%{_vendor}" == "suse"
-%if @qt_version@ >= 5
+%if @qt_version@ >= 6
+BuildRequires: libqt6-qtbase-common-devel
+BuildRequires: libqt6-qtsvg-devel
+%else
 BuildRequires: libqt5-qtbase-common-devel
 BuildRequires: libqt5-qtsvg-devel
-%else
-BuildRequires: qt-devel >= 4.4
 %endif
 %else
-%if @qt_version@ >= 5
+%if @qt_version@ >= 6
+BuildRequires: qt6-qtbase-devel
+BuildRequires: qt6-qtsvg-devel
+%else
 BuildRequires: qt5-qtbase-devel
 BuildRequires: qt5-qtsvg-devel
-%else
-BuildRequires: qt4-devel >= 4.4
 %endif
 %endif
 %endif

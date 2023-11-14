@@ -162,8 +162,8 @@ ExcludeArch: %{ix86}
 # Qt development and runtime environment missing components before el6
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %global disable_qt 0
-%if 0%{?fedora} != 0 || 0%{?rhel} > 7
-%global default_qt 5
+%if 0%{?fedora} != 0 || 0%{?rhel} > 9
+%global default_qt 6
 %endif
 %else
 %global disable_qt 1
@@ -292,8 +292,9 @@ BuildRequires: systemd-devel
 %endif
 %if !%{disable_qt}
 BuildRequires: desktop-file-utils
-%if 0%{?default_qt} != 5
-BuildRequires: qt4-devel >= 4.4
+%if 0%{?default_qt} == 6
+BuildRequires: qt6-qtbase-devel
+BuildRequires: qt6-qtsvg-devel
 %else
 BuildRequires: qt5-qtbase-devel
 BuildRequires: qt5-qtsvg-devel
