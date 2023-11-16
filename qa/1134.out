@@ -102,7 +102,7 @@ Time,"kernel.uname.release"
 1970-01-01 00:00:28,"some:åäöšŠžŽ€🙃§½¼¾:unicode"
 1970-01-01 00:00:29,"3.2.1"
 --- 08
- 13 32 1050069
+ 13 1050069
 --- 09
               f.full      f.full      f.full      f.full
            /dev/root   /dev/sdb2   /dev/sda4    /dev/hda
