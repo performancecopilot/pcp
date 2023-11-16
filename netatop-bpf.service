@@ -1,0 +1,14 @@
+
+[Unit]
+Description=Netatop-bpf
+After=syslog.target
+Before=atop.service atopacct.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/netatop
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+

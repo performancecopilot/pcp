@@ -1,0 +1,13 @@
+Source: netatop-bpf
+Section: unknown
+Priority: optional
+Maintainer: Ting Liu <liuting.0xffff@bytedance.com> 
+Build-Depends: debhelper (>=11~), libelf1, libelf-dev, zlib1g-dev, clang-11
+Standards-Version: 4.1.4
+
+Package: netatop-bpf
+Architecture: any
+Multi-Arch: foreign
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: The optional bpf netatop can be loaded to gather statistics about the TCP
+ and UDP packets that have been transmitted/received per process.
