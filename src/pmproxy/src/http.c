@@ -63,34 +63,45 @@ compress_buffer(struct client *client, sds input_buffer, int done)
 {
 #ifdef HAVE_ZLIB
     z_stream		*stream = &client->u.http.strm;
-    size_t		input_len = sdslen(input_buffer);
-    size_t		output_len;
-    uLong		upper_bound = input_len + 128;
-    sds			final_buffer = sdsnewlen(NULL, upper_bound);
-    int			sts, flush = done ? Z_FINISH : Z_NO_FLUSH;
+    size_t		output_length;
+    sds			final_buffer = sdsnewlen(NULL, chunked_transfer_size);
+    int			sts, flush = done ? Z_FINISH : Z_PARTIAL_FLUSH;
 
-    stream->next_in = (Bytef *)input_buffer;
-    stream->avail_in = (uInt)input_len;
+    if (input_buffer) {
+	stream->next_in = (Bytef *)input_buffer;
+	stream->avail_in = (uInt)sdslen(input_buffer);
+    }
     stream->next_out = (Bytef *)final_buffer;
-    stream->avail_out = (uInt)(upper_bound);
+    stream->avail_out = (uInt)chunked_transfer_size;
 
     sts = deflate(stream, flush);
     assert(sts != Z_STREAM_ERROR);
-    if (done && sts != Z_STREAM_END) {
-	pmNotifyErr(LOG_ERR, "Deflate failed to finish");
-	sdsfree(final_buffer);
-	return input_buffer;
-    }
-    else if (!done && sts != Z_OK) {
-	pmNotifyErr(LOG_ERR, "Deflate failed to stream");
-	sdsfree(final_buffer);
-	return input_buffer;
-    }
-    output_len = upper_bound - stream->avail_out;
-    sdssetlen(final_buffer, output_len);
-    sdsfree(input_buffer);
 
+    if (stream->avail_out == 0) {
+	if (done) {
+	    if (sts == Z_STREAM_END)
+		client->u.http.flags &= ~HTTP_FLAG_FLUSHING;
+	    else /* subsequent calls continue compression */
+		client->u.http.flags |= HTTP_FLAG_FLUSHING;
+	} else {
+	    /* input completely consumed and no output */
+	    sdsfree(input_buffer);
+	    sdsfree(final_buffer);
+	    return NULL;
+	}
+    }
+
+    sdsfree(input_buffer);
+    output_length = chunked_transfer_size - stream->avail_out;
+    if (output_length > 0) {
+	sdssetlen(final_buffer, output_length);
+    } else {
+	client->u.http.flags &= ~HTTP_FLAG_FLUSHING;
+	sdsfree(final_buffer);
+	final_buffer = NULL;
+    }
     return final_buffer;
+
 #else
     (void) client;
     return input_buffer;
@@ -105,27 +116,26 @@ prepare_buffer(struct client *client, sds buffer, int flags, int flush)
     void 		*map = proxy->map;
 
     if (flags & (HTTP_FLAG_GZIP | HTTP_FLAG_DEFLATE)) {
+	/* input buffer may be null here if we're doing final flushes */
 	if (pmDebugOptions.http)
 	    fprintf(stderr, "Length before %s compression: %llu\n",
 		    compress_format(flags),
-		    (unsigned long long)sdslen(buffer));
-	buffer = compress_buffer(client, buffer, flush);
+		    buffer ? (unsigned long long)sdslen(buffer) : 0);
+	if ((buffer = compress_buffer(client, buffer, flush)) == NULL)
+	    return buffer;
 	av.ull = sdslen(buffer);
 	if (pmDebugOptions.http)
 	    fprintf(stderr, "Length after %s compression: %llu flush=%d\n",
 		    compress_format(flags), (unsigned long long)av.ull, flush);
-	if (!flush && av.ull == 0)
-	    return buffer;  /* streaming, with no output at this time */
-	if (map) {
+	if (map && av.ull > 0) {
 	    mmv_inc_atomvalue(map, values[VALUE_HTTP_COMPRESSED_BYTES], &av);
-	    if (flush)
-		mmv_inc(map, values[VALUE_HTTP_COMPRESSED_COUNT]);
+	    mmv_inc(map, values[VALUE_HTTP_COMPRESSED_COUNT]);
 	}
     } else if (map) {
+	assert(buffer != NULL);
 	av.ull = sdslen(buffer);
 	mmv_inc_atomvalue(map, values[VALUE_HTTP_UNCOMPRESSED_BYTES], &av);
-	if (flush)
-	    mmv_inc(map, values[VALUE_HTTP_UNCOMPRESSED_COUNT]);
+	mmv_inc(map, values[VALUE_HTTP_UNCOMPRESSED_COUNT]);
     }
     return buffer;
 }
@@ -482,28 +492,36 @@ http_reply(struct client *client, sds message,
     sds			buffer, suffix;
 
     if (flags & HTTP_FLAG_STREAMING) {
+
 	if (pmDebugOptions.http)
-	    fprintf(stderr, "Final streaming HTTP %s response (client=%p)\n",
-			http_method_str(client->u.http.parser.method), client);
+	    fprintf(stderr,
+		    "Final streaming HTTP %s response len=%lu (client=%p)\n",
+		    http_method_str(client->u.http.parser.method),
+		    client->buffer ? sdslen(client->buffer) : 0, client);
+
 	buffer = sdsempty();
 	suffix = client->buffer;
 	if (suffix == NULL) {	/* error or no data currently accumulated */
-	    pmsprintf(length, sizeof(length), "%lX",
-			(unsigned long)sdslen(message));
-	    buffer = sdscatfmt(buffer, "%s\r\n%S\r\n", length, message);
+	    suffix = prepare_buffer(client, message, flags, 1);
 	} else if (message != NULL) {
 	    suffix = sdscatsds(suffix, message);
 	    suffix = prepare_buffer(client, suffix, flags, 1);
-	    pmsprintf(length, sizeof(length), "%lX",
-			(unsigned long)sdslen(suffix));
-	    buffer = sdscatfmt(buffer, "%s\r\n%S\r\n", length, suffix);
+	    sdsfree(message);
 	}
-	sdsfree(message);
+	message = NULL;
+
+	pmsprintf(length, sizeof(length), "%lX",
+			(unsigned long)sdslen(suffix));
+	buffer = sdscatfmt(buffer, "%s\r\n%S\r\n", length, suffix);
 	sdsfree(suffix);
+	suffix = NULL;
+
 	client->buffer = NULL;
 
-	suffix = sdsnewlen("0\r\n\r\n", 5);		/* chunked suffix */
-	client->u.http.flags &= ~HTTP_FLAG_STREAMING;	/* end of stream! */
+	if (!(client->u.http.flags & HTTP_FLAG_FLUSHING)) {
+	    client->u.http.flags &= ~HTTP_FLAG_STREAMING; /* end of stream! */
+	    suffix = sdsnewlen("0\r\n\r\n", 5);		/* chunked suffix */
+	}
 
     } else if (flags & HTTP_FLAG_NO_BODY) {
 	if (client->u.http.parser.method == HTTP_OPTIONS)
@@ -523,7 +541,6 @@ http_reply(struct client *client, sds message,
 	} else {
 	    suffix = sdsempty();
 	}
-
 	suffix = prepare_buffer(client, suffix, flags, 1);
 	buffer = http_response_header(client, sdslen(suffix), sts, type);
     }
@@ -532,15 +549,67 @@ http_reply(struct client *client, sds message,
 	if (flags & (HTTP_FLAG_GZIP | HTTP_FLAG_DEFLATE))
 	    fprintf(stderr, "HTTP %s compressed response (client=%p) "
 			    "len(buffer)=%lu len(suffix)=%lu\n",
-			http_method_str(client->u.http.parser.method),
-			client, sdslen(buffer), suffix ? sdslen(suffix) : 0);
+			http_method_str(client->u.http.parser.method), client,
+			sdslen(buffer), suffix ? sdslen(suffix) : 0);
 	else
 	    fprintf(stderr, "HTTP %s response (client=%p)\nbuffer=%ssuffix=%s",
-			http_method_str(client->u.http.parser.method),
-			client, buffer, suffix ? suffix : "");
+			http_method_str(client->u.http.parser.method), client,
+			buffer, suffix ? suffix : "");
     }
 
     client_write(client, buffer, suffix);
+}
+
+static int
+http_flush(struct client *client)
+{
+    enum http_flags	flags = client->u.http.flags;
+    char		length[32]; /* hex in sdscatfmt (not sdscatprintf) */
+    sds			buffer, suffix = NULL;
+
+    /* compression flushing, send any remaining buffer(s) */
+    assert(flags & HTTP_FLAG_FLUSHING);
+    assert(flags & (HTTP_FLAG_GZIP | HTTP_FLAG_DEFLATE));
+
+    buffer = prepare_buffer(client, NULL, flags, 1);
+
+    if (pmDebugOptions.http)
+	fprintf(stderr, "HTTP %s compressed flush len=%lu (client=%p)\n",
+		http_method_str(client->u.http.parser.method),
+		buffer ? sdslen(buffer) : 0, client);
+
+    /* flags will now reflect if this is the final buffer to transfer */
+    flags = client->u.http.flags;
+
+    /* if streaming append a chunked transfer encoding length sequence */
+    if (flags & HTTP_FLAG_STREAMING) {
+	if (buffer) {
+	    pmsprintf(length, sizeof(length), "%lX\r\n",
+			(unsigned long)sdslen(buffer));
+	    suffix = buffer;
+	    buffer = sdscatfmt(sdsempty(), "%s\r\n%S\r\n", length, suffix);
+	    sdsfree(suffix);
+
+	    /* if finished, add chunked transfer termination sequence also */
+	    if (!(flags & HTTP_FLAG_FLUSHING)) {
+	        suffix = sdsnewlen("0\r\n\r\n", 5);
+		client->u.http.flags &= ~HTTP_FLAG_STREAMING; /* stream end */
+	    } else {
+		suffix = NULL;
+	    }
+	} else {
+	    if (!(flags & HTTP_FLAG_FLUSHING)) {
+	        buffer = sdsnewlen("0\r\n\r\n", 5);
+		client->u.http.flags &= ~HTTP_FLAG_STREAMING; /* stream end */
+	    }
+	}
+    }
+
+    if (buffer == NULL)
+	return 0;
+
+    client_write(client, buffer, suffix);
+    return 1;
 }
 
 void
@@ -583,7 +652,7 @@ http_transfer(struct client *client)
     enum http_flags	flags = client->u.http.flags;
     char		length[32]; /* hex in sdscatfmt (not sdscatprintf) */
     const char		*method;
-    sds			buffer = NULL;
+    sds			buffer, suffix = NULL;
 
     /*
      * If the client buffer length is now beyond a set maximum size,
@@ -594,11 +663,18 @@ http_transfer(struct client *client)
 
     if (sdslen(client->buffer) >= chunked_transfer_size) {
 	if (parser->http_major == 1 && parser->http_minor > 0) {
+	    if (pmDebugOptions.http)
+		fprintf(stderr, "Chunked HTTP %s transfer [%lu] (client=%p)\n",
+			http_method_str(client->u.http.parser.method),
+			(unsigned long)sdslen(client->buffer), client);
+
 	    if (!(flags & HTTP_FLAG_STREAMING)) {
 		/* send headers (no content length) and initial content */
 		flags |= HTTP_FLAG_STREAMING;
 		buffer = http_response_header(client, 0, HTTP_STATUS_OK, flags);
 		client->u.http.flags = flags;
+	    } else {
+		buffer = NULL;
 	    }
 
 	    client->buffer = prepare_buffer(client, client->buffer, flags, 0);
@@ -630,7 +706,7 @@ http_transfer(struct client *client)
 			"HTTP %s chunk buffer (client %p, len=%lu)\n%s",
 			method, client, (unsigned long)sdslen(buffer), buffer);
 	    }
-	    client_write(client, buffer, NULL);
+	    client_write(client, buffer, suffix);
 
 	} else if (parser->http_major <= 1) {
 	    http_error(client, HTTP_STATUS_PAYLOAD_TOO_LARGE,
@@ -1076,7 +1152,17 @@ on_http_client_write(struct client *client)
     if (pmDebugOptions.http)
 	fprintf(stderr, "%s: client %p\n", "on_http_client_write", client);
 
-    /* write has been submitted now, close connection if required */
+    /*
+     * If further compressed writes to process, continue doing so
+     * until none remain (each write ends up back here until then).
+     */
+    if (client->u.http.flags & HTTP_FLAG_FLUSHING)
+	if (http_flush(client))
+	    return;
+
+    /*
+     * Once all or none flushed, close the connection if required.
+     */
     if (http_should_keep_alive(&client->u.http.parser) == 0)
 	client_close(client);
 }

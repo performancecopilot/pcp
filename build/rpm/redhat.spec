@@ -1869,7 +1869,7 @@ URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp
-%if 0%{?rhel} == 0
+%if 0%{?rhel} == 0 || 0%{?rhel} >= 9
 Requires: python3-pyodbc
 BuildRequires: python3-pyodbc
 %endif
@@ -3446,5 +3446,5 @@ fi
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Tue Oct 31 2023 Nathan Scott <nathans@redhat.com> - 6.1.1-1
-- Work-in-progress.
+* Fri Nov 17 2023 Nathan Scott <nathans@redhat.com> - 6.1.1-1
+- Latest release.
