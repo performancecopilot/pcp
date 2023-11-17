@@ -1,5 +1,60 @@
-pcp-6.1.1 (31 October 2023)
-    - Work-in-progress.
+pcp-6.1.1 (17 November 2023)
+    - Client tools and utilities:
+	pmie: add -o/--format to control output format with archives
+	pcp-geolocate: automatic latitude and longitude metric labels
+	pcp-atop: fix segv encountered on a multi-node NUMA system
+	pcp-atop: add last level cache support using pmdaresctrl
+	pcp-htop: updated with latest fixes from htop.dev
+	pcp-netstat: without time options report one sample only
+	pcp-netstat: add machine header info
+	pcp-meminfo: without time options report one sample only
+	pcp-meminfo: add machine header info
+	pcp-buddyinfo: resolve a key issue when using python v2
+	pcp-zoneinfo: ensure determinism in pcp-zoneinfo output
+	pcp-zoneinfo: fix failure with older PCP metric instances
+    - PMDA additions, enhancements and bug fixes:
+	pmdaresctrl: new PMDA for x86_64 last level cache metrics
+	pmdafarm: new Seagate Field Access Reliability Metrics PMDA
+	pmdadarwin: updated for changes in NFS stats management
+	pmdalinux: new mem.util metrics from recent kernel versions
+	pmdalinux: new networking metrics relating to MPTcpExt
+	pmdasockets: allow sockets with duplicate sources to exist
+	pmdabpftrace: rework exit/wait handling to avoid errors
+	pmdahaproxy: fixed connect script handling of string quoting
+	pmdastatsd: fixed metadata for a couple of metrics
+	pmdalinux: fixed semantics for mem.vmstat.nr_free_cma metric
+	pmdadenki: simplification and refactoring of metrics
+	pmdagfs2: correct permissions of several installed files
+	pmdakvm: fixed semantics for kvm.largepages metric
+    - Server-side utilities and log management scripts:
+	pmproxy: add support for HTTP compression
+	pmlogger: rework heuristic for Latest folio creation
+	pmlogctl: fix incorrect rewriting of PCP_ARCHIVE_DIR
+	pmlogredact: add latitude and longitude labels to redacted set
+	pmlogrewrite: resolve a small memory leak
+	pmlogrewrite: use PM_CTXFLAG_METADATA_ONLY for speed
+	pmcd: add $PMCD_CREDS_TIMEOUT as an alternative to -q
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	libpcp: new PM_CTXFLAG_METADATA_ONLY flag for pmNewContext
+	libpcp: fix a couple of derived metric bugs
+	libpcp_web: implement config override by canonical env vars
+    - Misc build, infrastructure and packaging updates:
+	build: new CI build to keep PCP for MacOS up-to-date
+	build: several fixes to tools when compiling with clang
+	build: install pmlog[redact,reduce,rewrite] on default PATH
+	build: default to using a path-prefixed PCP_PYTHON_PROG
+	build: update the Fedora container to f38
+	build: drop of i386/i686 architectures from Fedora builds
+	build: enable build of pmdalibvirt on CentOS 7 platform
+	build: enable Qt6 in Fedora and post-RHEL-9 rpm spec files
+	build: add pyodbc rpm dep for pcp-pmda-mssql in RHEL 9
+    - Security Enhanced Linux:
+	selinux: allow pmproxy use the io_uring API
+	selinux: policy fixes for recent AVCs on RHEL 7.9
+	selinux: add netlink_kobject_uevent_socket getattr (bpftrace)
+    - Documentation:
+	man pages: change all to map font CW -> CR for latest groff
+	man: note pmseries Redis timeseries load order limitation
 
 pcp-6.1.0 (5 September 2023)
     - pmlogredact: new command for archive anonymisation

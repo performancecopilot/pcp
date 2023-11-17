@@ -3446,5 +3446,5 @@ fi
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Tue Oct 31 2023 Nathan Scott <nathans@redhat.com> - 6.1.1-1
-- Work-in-progress.
+* Fri Nov 17 2023 Nathan Scott <nathans@redhat.com> - 6.1.1-1
+- Latest release.
