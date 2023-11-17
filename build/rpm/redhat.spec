@@ -1869,7 +1869,7 @@ URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 %if !%{disable_python3}
 Requires: python3-pcp
-%if 0%{?rhel} == 0
+%if 0%{?rhel} == 0 || 0%{?rhel} >= 9
 Requires: python3-pyodbc
 BuildRequires: python3-pyodbc
 %endif
