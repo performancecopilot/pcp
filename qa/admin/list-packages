@@ -503,7 +503,7 @@ p
 
 	FreeBSD)
 	    pkg info -a | sed -e 's/-[0-9].*//' >$tmp.installed
-	    # TODO $tmp.allpkgs
+	    pkg search -L name . | sed -e 's/ .*//' >$tmp.allpkgs
 	    ;;
 
 	OpenIndiana)
@@ -711,7 +711,16 @@ then
     fi
 fi
 
-# list selected packages (if any) on a single line
+# report manifest missing package name (?:<lineno>) on stderr
+#
+if grep '^?:[0-9][0-9]*$' $tmp.list >$tmp.tmp
+then
+    ( tr '\012' ' ' <$tmp.tmp ; echo ) >&2
+    grep -v '^?:[0-9][0-9]*$' $tmp.list >$tmp.tmp
+    mv $tmp.tmp $tmp.list
+fi
+
+# list missing packages (if any) on a single line on stdout
 #
 if [ -s $tmp.list ]
 then

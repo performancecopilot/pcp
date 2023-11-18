@@ -849,10 +849,10 @@ do
 	    ;;
 
 	vm06)
-	    # Only selected groups at this stage for FreeBSD 10.4
+	    # Only selected groups at this stage for FreeBSD 13
 	    #	sanity trace libpcp kernel pmrep threads
 	    #
-	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -x valgrind'
+	    [ X"$what" = Xall ] && check_what='-g sanity -g trace -g libpcp -g kernel -g pmrep -g threads -g perl -x valgrind'
 	    ;;
 
 	vm09)
@@ -1123,7 +1123,7 @@ End-of-File
 	# actually do the remote work here
 	#
 	start=`date +%s`
-	ssh -t $build_user@$host sh -l -c ./daily.script
+	ssh -t $build_user@$host sh -c ./daily.script
 	scp -q $build_user@$host:daily.log $tmp.out
 	echo "=== build and install: `date` ===" >>$log
 	cat $tmp.out >>$log
@@ -1131,7 +1131,7 @@ End-of-File
 
 	if $qflag || $rflag || $hflag
 	then
-	    ssh -t $qa_user@$host sh -l -c ./daily.qa.script
+	    ssh -t $qa_user@$host sh -c ./daily.qa.script
 	    scp -q $qa_user@$host:daily.qa.log $tmp.out
 	    echo "=== qa: `date` ===" >>$log
 	    cat $tmp.out >>$log
